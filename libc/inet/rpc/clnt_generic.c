@@ -30,6 +30,12 @@
  * Copyright (C) 1987, Sun Microsystems, Inc.
  */
 
+#define clnttcp_create __clnttcp_create
+#define clntudp_create __clntudp_create
+#define clntunix_create __clntunix_create
+#define getprotobyname_r __getprotobyname_r
+#define gethostbyname_r __gethostbyname_r
+
 #define __FORCE_GLIBC
 #include <features.h>
 

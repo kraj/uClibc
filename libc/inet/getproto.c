@@ -91,7 +91,7 @@ static void __initbuf(void)
     }
 }
 
-void setprotoent(int f)
+void attribute_hidden __setprotoent(int f)
 {
     LOCK;
     if (protof == NULL)
@@ -101,8 +101,9 @@ void setprotoent(int f)
     proto_stayopen |= f;
     UNLOCK;
 }
+strong_alias(__setprotoent,setprotoent)
 
-void endprotoent(void)
+void attribute_hidden __endprotoent(void)
 {
     LOCK;
     if (protof) {
@@ -112,8 +113,9 @@ void endprotoent(void)
     proto_stayopen = 0;
     UNLOCK;
 }
+strong_alias(__endprotoent,endprotoent)
 
-int getprotoent_r(struct protoent *result_buf,
+int attribute_hidden __getprotoent_r(struct protoent *result_buf,
 		  char *buf, size_t buflen,
 		  struct protoent **result)
 {
@@ -189,18 +191,19 @@ again:
     UNLOCK;
     return 0;
 }
+strong_alias(__getprotoent_r,getprotoent_r)
 
 struct protoent * getprotoent(void)
 {
     struct protoent *result;
 
     __initbuf();
-    getprotoent_r(&proto, static_aliases, SBUFSIZE, &result);
+    __getprotoent_r(&proto, static_aliases, SBUFSIZE, &result);
     return result;
 }
 
 
-int getprotobyname_r(const char *name,
+int attribute_hidden __getprotobyname_r(const char *name,
 		    struct protoent *result_buf,
 		    char *buf, size_t buflen,
 		    struct protoent **result)
@@ -209,8 +212,8 @@ int getprotobyname_r(const char *name,
     int ret;
 
     LOCK;
-    setprotoent(proto_stayopen);
-    while (!(ret=getprotoent_r(result_buf, buf, buflen, result))) {
+    __setprotoent(proto_stayopen);
+    while (!(ret=__getprotoent_r(result_buf, buf, buflen, result))) {
 	if (__strcmp(result_buf->p_name, name) == 0)
 	    break;
 	for (cp = result_buf->p_aliases; *cp != 0; cp++)
@@ -219,10 +222,11 @@ int getprotobyname_r(const char *name,
     }
 found:
     if (!proto_stayopen)
-	endprotoent();
+	__endprotoent();
     UNLOCK;
     return *result?0:ret;
 }
+strong_alias(__getprotobyname_r,getprotobyname_r)
 
 
 struct protoent * getprotobyname(const char *name)
@@ -230,12 +234,12 @@ struct protoent * getprotobyname(const char *name)
     struct protoent *result;
 
     __initbuf();
-    getprotobyname_r(name, &proto, static_aliases, SBUFSIZE, &result);
+    __getprotobyname_r(name, &proto, static_aliases, SBUFSIZE, &result);
     return result;
 }
 
 
-int getprotobynumber_r (int proto_num,
+int attribute_hidden __getprotobynumber_r (int proto_num,
 			struct protoent *result_buf,
 			char *buf, size_t buflen,
 			struct protoent **result)
@@ -243,22 +247,23 @@ int getprotobynumber_r (int proto_num,
     int ret;
 
     LOCK;
-    setprotoent(proto_stayopen);
-    while (!(ret=getprotoent_r(result_buf, buf, buflen, result)))
+    __setprotoent(proto_stayopen);
+    while (!(ret=__getprotoent_r(result_buf, buf, buflen, result)))
 	if (result_buf->p_proto == proto_num)
 	    break;
     if (!proto_stayopen)
-	endprotoent();
+	__endprotoent();
     UNLOCK;
     return *result?0:ret;
 }
+strong_alias(__getprotobynumber_r,getprotobynumber_r)
 
 struct protoent * getprotobynumber(int proto_num)
 {
     struct protoent *result;
 
     __initbuf();
-    getprotobynumber_r(proto_num, &proto, static_aliases,
+    __getprotobynumber_r(proto_num, &proto, static_aliases,
                        SBUFSIZE, &result);
     return result;
 }

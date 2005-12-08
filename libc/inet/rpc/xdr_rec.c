@@ -476,8 +476,8 @@ xdrrec_putint32 (XDR *xdrs, const int32_t *ip)
  * Before reading (deserializing from the stream, one should always call
  * this procedure to guarantee proper record alignment.
  */
-bool_t
-xdrrec_skiprecord (XDR *xdrs)
+bool_t attribute_hidden
+__xdrrec_skiprecord (XDR *xdrs)
 {
   RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
 
@@ -492,14 +492,15 @@ xdrrec_skiprecord (XDR *xdrs)
   rstrm->last_frag = FALSE;
   return TRUE;
 }
+strong_alias(__xdrrec_skiprecord,xdrrec_skiprecord)
 
 /*
  * Lookahead function.
  * Returns TRUE iff there is no more input in the buffer
  * after consuming the rest of the current record.
  */
-bool_t
-xdrrec_eof (XDR *xdrs)
+bool_t attribute_hidden
+__xdrrec_eof (XDR *xdrs)
 {
   RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
 
@@ -515,6 +516,7 @@ xdrrec_eof (XDR *xdrs)
     return TRUE;
   return FALSE;
 }
+strong_alias(__xdrrec_eof,xdrrec_eof)
 
 /*
  * The client must tell the package when an end-of-record has occurred.
@@ -522,8 +524,8 @@ xdrrec_eof (XDR *xdrs)
  * (output) tcp stream.  (This lets the package support batched or
  * pipelined procedure calls.)  TRUE => immediate flush to tcp connection.
  */
-bool_t
-xdrrec_endofrecord (XDR *xdrs, bool_t sendnow)
+bool_t attribute_hidden
+__xdrrec_endofrecord (XDR *xdrs, bool_t sendnow)
 {
   RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
   u_long len;		/* fragment length */
@@ -541,7 +543,7 @@ xdrrec_endofrecord (XDR *xdrs, bool_t sendnow)
   rstrm->out_finger += BYTES_PER_XDR_UNIT;
   return TRUE;
 }
-
+strong_alias(__xdrrec_endofrecord,xdrrec_endofrecord)
 
 /*
  * Internal useful routines

@@ -36,6 +36,7 @@
  */
 
 #define xdrmem_create __xdrmem_create
+#define xdr_opaque_auth __xdr_opaque_auth
 
 #define __FORCE_GLIBC
 #include <features.h>

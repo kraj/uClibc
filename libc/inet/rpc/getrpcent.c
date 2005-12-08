@@ -73,57 +73,7 @@ static struct rpcdata *_rpcdata(void)
 	return d;
 }
 
-struct rpcent *getrpcbynumber(register int number)
-{
-	register struct rpcdata *d = _rpcdata();
-	register struct rpcent *rpc;
-
-	if (d == NULL)
-		return NULL;
-	setrpcent(0);
-	while ((rpc = getrpcent())) {
-		if (rpc->r_number == number)
-			break;
-	}
-	endrpcent();
-	return rpc;
-}
-
-struct rpcent *getrpcbyname(const char *name)
-{
-	struct rpcent *rpc;
-	char **rp;
-
-	setrpcent(0);
-	while ((rpc = getrpcent())) {
-		if (__strcmp(rpc->r_name, name) == 0)
-			return rpc;
-		for (rp = rpc->r_aliases; *rp != NULL; rp++) {
-			if (__strcmp(*rp, name) == 0)
-				return rpc;
-		}
-	}
-	endrpcent();
-	return NULL;
-}
-
-void setrpcent(int f)
-{
-	register struct rpcdata *d = _rpcdata();
-
-	if (d == NULL)
-		return;
-	if (d->rpcf == NULL)
-		d->rpcf = fopen(RPCDB, "r");
-	else
-		rewind(d->rpcf);
-	if (d->current)
-		free(d->current);
-	d->current = NULL;
-	d->stayopen |= f;
-}
-
-void endrpcent()
+void attribute_hidden __endrpcent(void)
 {
 	register struct rpcdata *d = _rpcdata();
 
@@ -140,6 +90,24 @@ void endrpcent()
 		d->rpcf = NULL;
 	}
 }
+strong_alias(__endrpcent,endrpcent)
+
+void attribute_hidden __setrpcent(int f)
+{
+	register struct rpcdata *d = _rpcdata();
+
+	if (d == NULL)
+		return;
+	if (d->rpcf == NULL)
+		d->rpcf = fopen(RPCDB, "r");
+	else
+		rewind(d->rpcf);
+	if (d->current)
+		free(d->current);
+	d->current = NULL;
+	d->stayopen |= f;
+}
+strong_alias(__setrpcent,setrpcent)
 
 static struct rpcent *interpret(struct rpcdata *);
 
@@ -150,7 +118,7 @@ static struct rpcent *__get_next_rpcent(struct rpcdata *d)
 	return interpret(d);
 }
 
-struct rpcent *getrpcent()
+struct rpcent attribute_hidden *__getrpcent(void)
 {
 	register struct rpcdata *d = _rpcdata();
 
@@ -160,6 +128,43 @@ struct rpcent *getrpcent()
 		return NULL;
 	return __get_next_rpcent(d);
 }
+strong_alias(__getrpcent,getrpcent)
+
+struct rpcent attribute_hidden *__getrpcbynumber(register int number)
+{
+	register struct rpcdata *d = _rpcdata();
+	register struct rpcent *rpc;
+
+	if (d == NULL)
+		return NULL;
+	__setrpcent(0);
+	while ((rpc = __getrpcent())) {
+		if (rpc->r_number == number)
+			break;
+	}
+	__endrpcent();
+	return rpc;
+}
+strong_alias(__getrpcbynumber,getrpcbynumber)
+
+struct rpcent attribute_hidden *__getrpcbyname(const char *name)
+{
+	struct rpcent *rpc;
+	char **rp;
+
+	__setrpcent(0);
+	while ((rpc = __getrpcent())) {
+		if (__strcmp(rpc->r_name, name) == 0)
+			return rpc;
+		for (rp = rpc->r_aliases; *rp != NULL; rp++) {
+			if (__strcmp(*rp, name) == 0)
+				return rpc;
+		}
+	}
+	__endrpcent();
+	return NULL;
+}
+strong_alias(__getrpcbyname,getrpcbyname)
 
 #ifdef __linux__
 static char *firstwhite(char *s)
@@ -319,7 +324,7 @@ int getrpcbynumber_r(int number, struct rpcent *result_buf, char *buffer,
 {
 	int ret;
 	LOCK;
-	ret = __copy_rpcent(getrpcbynumber(number), result_buf, buffer, buflen, result);
+	ret = __copy_rpcent(__getrpcbynumber(number), result_buf, buffer, buflen, result);
 	UNLOCK;
 	return ret;
 }
@@ -329,7 +334,7 @@ int getrpcbyname_r(const char *name, struct rpcent *result_buf, char *buffer,
 {
 	int ret;
 	LOCK;
-	ret = __copy_rpcent(getrpcbyname(name), result_buf, buffer, buflen, result);
+	ret = __copy_rpcent(__getrpcbyname(name), result_buf, buffer, buflen, result);
 	UNLOCK;
 	return ret;
 }
@@ -339,7 +344,7 @@ int getrpcent_r(struct rpcent *result_buf, char *buffer,
 {
 	int ret;
 	LOCK;
-	ret = __copy_rpcent(getrpcent(), result_buf, buffer, buflen, result);
+	ret = __copy_rpcent(__getrpcent(), result_buf, buffer, buflen, result);
 	UNLOCK;
 	return ret;
 }

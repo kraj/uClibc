@@ -1,5 +1,7 @@
 #define geteuid __geteuid
 #define getuid __getuid
+#define gethostbyname __gethostbyname
+#define gethostname __gethostname
 
 #define __FORCE_GLIBC
 #include <features.h>

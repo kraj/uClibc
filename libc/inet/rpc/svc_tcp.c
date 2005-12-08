@@ -42,7 +42,13 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
  */
 
 #define xdrrec_create __xdrrec_create
+#define xdrrec_endofrecord __xdrrec_endofrecord
+#define xdrrec_skiprecord __xdrrec_skiprecord
+#define xdrrec_eof __xdrrec_eof
+#define xdr_callmsg __xdr_callmsg
+#define xdr_replymsg __xdr_replymsg
 #define xprt_register __xprt_register
+#define getsockname __getsockname
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
@@ -159,7 +165,7 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
     {
       if ((sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 	{
-	  perror (_("svc_tcp.c - tcp socket creation problem"));
+	  __perror (_("svc_tcp.c - tcp socket creation problem"));
 	  return (SVCXPRT *) NULL;
 	}
       madesock = TRUE;
@@ -174,7 +180,7 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
   if ((getsockname (sock, (struct sockaddr *) &addr, &len) != 0) ||
       (listen (sock, 2) != 0))
     {
-      perror (_("svc_tcp.c - cannot getsockname or listen"));
+      __perror (_("svc_tcp.c - cannot getsockname or listen"));
       if (madesock)
 	(void) __close (sock);
       return (SVCXPRT *) NULL;

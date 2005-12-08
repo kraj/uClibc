@@ -1,3 +1,6 @@
+#define setresgid __setresgid
+#define setregid __setregid
+
 #define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>

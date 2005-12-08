@@ -1,3 +1,6 @@
+#define setresuid __setresuid
+#define setreuid __setreuid
+
 #define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
@@ -6,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-int seteuid(uid_t uid)
+int attribute_hidden __seteuid(uid_t uid)
 {
     int result;
 
@@ -26,3 +29,4 @@ int seteuid(uid_t uid)
 
     return result;
 }
+strong_alias(__seteuid,seteuid)

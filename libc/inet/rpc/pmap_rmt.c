@@ -41,7 +41,12 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 
 #define authunix_create_default __authunix_create_default
 #define xdrmem_create __xdrmem_create
+#define xdr_callmsg __xdr_callmsg
+#define xdr_replymsg __xdr_replymsg
+#define xdr_reference __xdr_reference
+#define xdr_u_long __xdr_u_long
 #define inet_makeaddr __inet_makeaddr
+#define clntudp_create __clntudp_create
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -66,6 +71,37 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 extern u_long _create_xid (void) attribute_hidden;
 
 static const struct timeval timeout = {3, 0};
+
+/*
+ * XDR remote call arguments
+ * written for XDR_ENCODE direction only
+ */
+bool_t attribute_hidden
+__xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
+{
+  u_int lenposition, argposition, position;
+
+  if (xdr_u_long (xdrs, &(cap->prog)) &&
+      xdr_u_long (xdrs, &(cap->vers)) &&
+      xdr_u_long (xdrs, &(cap->proc)))
+    {
+      lenposition = XDR_GETPOS (xdrs);
+      if (!xdr_u_long (xdrs, &(cap->arglen)))
+	return FALSE;
+      argposition = XDR_GETPOS (xdrs);
+      if (!(*(cap->xdr_args)) (xdrs, cap->args_ptr))
+	return FALSE;
+      position = XDR_GETPOS (xdrs);
+      cap->arglen = (u_long) position - (u_long) argposition;
+      XDR_SETPOS (xdrs, lenposition);
+      if (!xdr_u_long (xdrs, &(cap->arglen)))
+	return FALSE;
+      XDR_SETPOS (xdrs, position);
+      return TRUE;
+    }
+  return FALSE;
+}
+strong_alias(__xdr_rmtcall_args,xdr_rmtcall_args)
 
 /*
  * pmapper remote-call-service interface.
@@ -101,7 +137,7 @@ pmap_rmtcall (addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_p
       r.port_ptr = port_ptr;
       r.results_ptr = resp;
       r.xdr_results = xdrres;
-      stat = CLNT_CALL (client, PMAPPROC_CALLIT, (xdrproc_t)xdr_rmtcall_args,
+      stat = CLNT_CALL (client, PMAPPROC_CALLIT, (xdrproc_t)__xdr_rmtcall_args,
 			(caddr_t)&a, (xdrproc_t)xdr_rmtcallres,
 			(caddr_t)&r, tout);
       CLNT_DESTROY (client);
@@ -115,36 +151,6 @@ pmap_rmtcall (addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_p
   return stat;
 }
 
-
-/*
- * XDR remote call arguments
- * written for XDR_ENCODE direction only
- */
-bool_t
-xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
-{
-  u_int lenposition, argposition, position;
-
-  if (xdr_u_long (xdrs, &(cap->prog)) &&
-      xdr_u_long (xdrs, &(cap->vers)) &&
-      xdr_u_long (xdrs, &(cap->proc)))
-    {
-      lenposition = XDR_GETPOS (xdrs);
-      if (!xdr_u_long (xdrs, &(cap->arglen)))
-	return FALSE;
-      argposition = XDR_GETPOS (xdrs);
-      if (!(*(cap->xdr_args)) (xdrs, cap->args_ptr))
-	return FALSE;
-      position = XDR_GETPOS (xdrs);
-      cap->arglen = (u_long) position - (u_long) argposition;
-      XDR_SETPOS (xdrs, lenposition);
-      if (!xdr_u_long (xdrs, &(cap->arglen)))
-	return FALSE;
-      XDR_SETPOS (xdrs, position);
-      return TRUE;
-    }
-  return FALSE;
-}
 
 /*
  * XDR remote call results
@@ -189,7 +195,7 @@ getbroadcastnets (struct in_addr *addrs, int sock, char *buf)
   ifc.ifc_buf = buf;
   if (ioctl (sock, SIOCGIFCONF, (char *) &ifc) < 0)
     {
-      perror (_("broadcast: ioctl (get interface configuration)"));
+      __perror (_("broadcast: ioctl (get interface configuration)"));
       return (0);
     }
   ifr = ifc.ifc_req;
@@ -198,7 +204,7 @@ getbroadcastnets (struct in_addr *addrs, int sock, char *buf)
       ifreq = *ifr;
       if (ioctl (sock, SIOCGIFFLAGS, (char *) &ifreq) < 0)
 	{
-	  perror (_("broadcast: ioctl (get interface flags)"));
+	  __perror (_("broadcast: ioctl (get interface flags)"));
 	  continue;
 	}
       if ((ifreq.ifr_flags & IFF_BROADCAST) &&
@@ -268,14 +274,14 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
    */
   if ((sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
     {
-      perror (_("Cannot create socket for broadcast rpc"));
+      __perror (_("Cannot create socket for broadcast rpc"));
       stat = RPC_CANTSEND;
       goto done_broad;
     }
 #ifdef SO_BROADCAST
   if (setsockopt (sock, SOL_SOCKET, SO_BROADCAST, &on, sizeof (on)) < 0)
     {
-      perror (_("Cannot set socket option SO_BROADCAST"));
+      __perror (_("Cannot set socket option SO_BROADCAST"));
       stat = RPC_CANTSEND;
       goto done_broad;
     }
@@ -306,7 +312,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
   r.xdr_results = xresults;
   r.results_ptr = resultsp;
   xdrmem_create (xdrs, outbuf, MAX_BROADCAST_SIZE, XDR_ENCODE);
-  if ((!xdr_callmsg (xdrs, &msg)) || (!xdr_rmtcall_args (xdrs, &a)))
+  if ((!xdr_callmsg (xdrs, &msg)) || (!__xdr_rmtcall_args (xdrs, &a)))
     {
       stat = RPC_CANTENCODEARGS;
       goto done_broad;
@@ -326,7 +332,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 		      (struct sockaddr *) &baddr,
 		      sizeof (struct sockaddr)) != outlen)
 	    {
-	      perror (_("Cannot send broadcast packet"));
+	      __perror (_("Cannot send broadcast packet"));
 	      stat = RPC_CANTSEND;
 	      goto done_broad;
 	    }
@@ -351,7 +357,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	case -1:		/* some kind of error */
 	  if (errno == EINTR)
 	    goto recv_again;
-	  perror (_("Broadcast poll problem"));
+	  __perror (_("Broadcast poll problem"));
 	  stat = RPC_CANTRECV;
 	  goto done_broad;
 
@@ -364,7 +370,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	{
 	  if (errno == EINTR)
 	    goto try_again;
-	  perror (_("Cannot receive reply to broadcast"));
+	  __perror (_("Cannot receive reply to broadcast"));
 	  stat = RPC_CANTRECV;
 	  goto done_broad;
 	}

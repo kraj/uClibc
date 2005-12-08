@@ -37,6 +37,7 @@
  */
 
 #define pmap_set __pmap_set
+#define pmap_unset __pmap_unset
 
 #define _authenticate _authenticate_internal
 #define _rpc_dtablesize _rpc_dtablesize_internal
@@ -174,8 +175,8 @@ done:
 /* Add a service program to the callout list.
    The dispatch routine will be called when a rpc request for this
    program number comes in. */
-bool_t
-svc_register (SVCXPRT * xprt, rpcprog_t prog, rpcvers_t vers,
+bool_t attribute_hidden
+__svc_register (SVCXPRT * xprt, rpcprog_t prog, rpcvers_t vers,
 	      void (*dispatch) (struct svc_req *, SVCXPRT *),
 	      rpcproc_t protocol)
 {
@@ -205,10 +206,11 @@ pmap_it:
 
   return TRUE;
 }
+strong_alias(__svc_register,svc_register)
 
 /* Remove a service program from the callout list. */
-void
-svc_unregister (rpcprog_t prog, rpcvers_t vers)
+void attribute_hidden
+__svc_unregister (rpcprog_t prog, rpcvers_t vers)
 {
   struct svc_callout *prev;
   register struct svc_callout *s;
@@ -226,6 +228,7 @@ svc_unregister (rpcprog_t prog, rpcvers_t vers)
   /* now unregister the information with the local binder service */
   pmap_unset (prog, vers);
 }
+strong_alias(__svc_unregister,svc_unregister)
 
 /* ******************* REPLY GENERATION ROUTINES  ************ */
 
@@ -260,8 +263,8 @@ svcerr_noproc (register SVCXPRT *xprt)
 }
 
 /* Can't decode args error reply */
-void
-svcerr_decode (register SVCXPRT *xprt)
+void attribute_hidden
+__svcerr_decode (register SVCXPRT *xprt)
 {
   struct rpc_msg rply;
 
@@ -271,6 +274,7 @@ svcerr_decode (register SVCXPRT *xprt)
   rply.acpted_rply.ar_stat = GARBAGE_ARGS;
   SVC_REPLY (xprt, &rply);
 }
+strong_alias(__svcerr_decode,svcerr_decode)
 
 /* Some system error */
 void
@@ -307,8 +311,8 @@ svcerr_weakauth (SVCXPRT *xprt)
 }
 
 /* Program unavailable error reply */
-void
-svcerr_noprog (register SVCXPRT *xprt)
+void attribute_hidden
+__svcerr_noprog (register SVCXPRT *xprt)
 {
   struct rpc_msg rply;
 
@@ -318,10 +322,11 @@ svcerr_noprog (register SVCXPRT *xprt)
   rply.acpted_rply.ar_stat = PROG_UNAVAIL;
   SVC_REPLY (xprt, &rply);
 }
+strong_alias(__svcerr_noprog,svcerr_noprog)
 
 /* Program version mismatch error reply */
-void
-svcerr_progvers (register SVCXPRT *xprt, rpcvers_t low_vers,
+void attribute_hidden
+__svcerr_progvers (register SVCXPRT *xprt, rpcvers_t low_vers,
 		 rpcvers_t high_vers)
 {
   struct rpc_msg rply;
@@ -334,6 +339,7 @@ svcerr_progvers (register SVCXPRT *xprt, rpcvers_t low_vers,
   rply.acpted_rply.ar_vers.high = high_vers;
   SVC_REPLY (xprt, &rply);
 }
+strong_alias(__svcerr_progvers,svcerr_progvers)
 
 /* ******************* SERVER INPUT STUFF ******************* */
 
@@ -353,58 +359,8 @@ svcerr_progvers (register SVCXPRT *xprt, rpcvers_t low_vers,
  * is mallocated in kernel land.
  */
 
-void
-svc_getreq (int rdfds)
-{
-  fd_set readfds;
-
-  FD_ZERO (&readfds);
-  readfds.fds_bits[0] = rdfds;
-  svc_getreqset (&readfds);
-}
-
-void
-svc_getreqset (fd_set *readfds)
-{
-  register u_int32_t mask;
-  register u_int32_t *maskp;
-  register int setsize;
-  register int sock;
-  register int bit;
-
-  setsize = _rpc_dtablesize ();
-  maskp = (u_int32_t *) readfds->fds_bits;
-  for (sock = 0; sock < setsize; sock += 32)
-    for (mask = *maskp++; (bit = ffs (mask)); mask ^= (1 << (bit - 1)))
-      svc_getreq_common (sock + bit - 1);
-}
-
-void
-svc_getreq_poll (struct pollfd *pfdp, int pollretval)
-{
-  register int i;
-  register int fds_found;
-
-  for (i = fds_found = 0; i < svc_max_pollfd && fds_found < pollretval; ++i)
-    {
-      register struct pollfd *p = &pfdp[i];
-
-      if (p->fd != -1 && p->revents)
-	{
-	  /* fd has input waiting */
-	  ++fds_found;
-
-	  if (p->revents & POLLNVAL)
-	    xprt_unregister (xports[p->fd]);
-	  else
-	    svc_getreq_common (p->fd);
-	}
-    }
-}
-
-
-void
-svc_getreq_common (const int fd)
+void attribute_hidden
+__svc_getreq_common (const int fd)
 {
   enum xprt_stat stat;
   struct rpc_msg msg;
@@ -478,9 +434,9 @@ svc_getreq_common (const int fd)
 	  /* if we got here, the program or version
 	     is not served ... */
 	  if (prog_found)
-	    svcerr_progvers (xprt, low_vers, high_vers);
+	    __svcerr_progvers (xprt, low_vers, high_vers);
 	  else
-	    svcerr_noprog (xprt);
+	    __svcerr_noprog (xprt);
 	  /* Fall through to ... */
 	}
     call_done:
@@ -492,6 +448,59 @@ svc_getreq_common (const int fd)
     }
   while (stat == XPRT_MOREREQS);
 }
+strong_alias(__svc_getreq_common,svc_getreq_common)
+
+void attribute_hidden
+__svc_getreqset (fd_set *readfds)
+{
+  register u_int32_t mask;
+  register u_int32_t *maskp;
+  register int setsize;
+  register int sock;
+  register int bit;
+
+  setsize = _rpc_dtablesize ();
+  maskp = (u_int32_t *) readfds->fds_bits;
+  for (sock = 0; sock < setsize; sock += 32)
+    for (mask = *maskp++; (bit = ffs (mask)); mask ^= (1 << (bit - 1)))
+      __svc_getreq_common (sock + bit - 1);
+}
+strong_alias(__svc_getreqset,svc_getreqset)
+
+void attribute_hidden
+__svc_getreq (int rdfds)
+{
+  fd_set readfds;
+
+  FD_ZERO (&readfds);
+  readfds.fds_bits[0] = rdfds;
+  __svc_getreqset (&readfds);
+}
+strong_alias(__svc_getreq,svc_getreq)
+
+void attribute_hidden
+__svc_getreq_poll (struct pollfd *pfdp, int pollretval)
+{
+  register int i;
+  register int fds_found;
+
+  for (i = fds_found = 0; i < svc_max_pollfd && fds_found < pollretval; ++i)
+    {
+      register struct pollfd *p = &pfdp[i];
+
+      if (p->fd != -1 && p->revents)
+	{
+	  /* fd has input waiting */
+	  ++fds_found;
+
+	  if (p->revents & POLLNVAL)
+	    xprt_unregister (xports[p->fd]);
+	  else
+	    __svc_getreq_common (p->fd);
+	}
+    }
+}
+strong_alias(__svc_getreq_poll,svc_getreq_poll)
 
 #ifdef __UCLIBC_HAS_THREADS__
 
@@ -500,7 +509,7 @@ void attribute_hidden __rpc_thread_svc_cleanup (void)
   struct svc_callout *svcp;
 
   while ((svcp = svc_head) != NULL)
-    svc_unregister (svcp->sc_prog, svcp->sc_vers);
+    __svc_unregister (svcp->sc_prog, svcp->sc_vers);
 }
 
 #endif /* __UCLIBC_HAS_THREADS__ */

@@ -38,6 +38,12 @@ static char sccsid[] = "@(#)rpc_callmsg.c 1.4 87/08/11 Copyr 1984 Sun Micro";
  *
  */
 
+#define xdr_enum __xdr_enum
+#define xdr_opaque __xdr_opaque
+#define xdr_u_int __xdr_u_int
+#define xdr_u_long __xdr_u_long
+#define xdr_opaque_auth __xdr_opaque_auth
+
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -48,8 +54,8 @@ static char sccsid[] = "@(#)rpc_callmsg.c 1.4 87/08/11 Copyr 1984 Sun Micro";
 /*
  * XDR a call message
  */
-bool_t
-xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
+bool_t attribute_hidden
+__xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 {
   int32_t *buf;
   struct opaque_auth *oa;
@@ -204,3 +210,4 @@ xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
     return xdr_opaque_auth (xdrs, &(cmsg->rm_call.cb_verf));
   return FALSE;
 }
+strong_alias(__xdr_callmsg,xdr_callmsg)

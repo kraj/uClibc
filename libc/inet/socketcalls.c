@@ -98,9 +98,11 @@ int getpeername(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 
 #ifdef L_getsockname
 #ifdef __NR_getsockname
-_syscall3(int, getsockname, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen);
+#define __NR___getsockname __NR_getsockname
+attribute_hidden _syscall3(int, __getsockname, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen);
+strong_alias(__getsockname,getsockname)
 #elif defined(__NR_socketcall)
-int getsockname(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
+int attribute_hidden __getsockname(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 {
 	unsigned long args[3];
 
@@ -109,6 +111,7 @@ int getsockname(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 	args[2] = (unsigned long) paddrlen;
 	return __socketcall(SYS_GETSOCKNAME, args);
 }
+strong_alias(__getsockname,getsockname)
 #endif
 #endif
 

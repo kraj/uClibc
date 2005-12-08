@@ -1,10 +1,12 @@
+#define uname __uname
+
 #include <string.h>
 #include <unistd.h>
 #include <sys/utsname.h>
 #include <errno.h>
 
-int
-gethostname(char *name, size_t len)
+int attribute_hidden
+__gethostname(char *name, size_t len)
 {
   struct utsname uts;
 
@@ -22,3 +24,4 @@ gethostname(char *name, size_t len)
   __strcpy(name, uts.nodename);
   return 0;
 }
+strong_alias(__gethostname,gethostname)

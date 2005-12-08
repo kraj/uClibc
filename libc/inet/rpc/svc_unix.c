@@ -38,9 +38,15 @@
  */
 
 #define xdrrec_create __xdrrec_create
+#define xdrrec_endofrecord __xdrrec_endofrecord
+#define xdrrec_skiprecord __xdrrec_skiprecord
+#define xdrrec_eof __xdrrec_eof
+#define xdr_callmsg __xdr_callmsg
+#define xdr_replymsg __xdr_replymsg
 #define xprt_register __xprt_register
 #define getegid __getegid
 #define geteuid __geteuid
+#define getsockname __getsockname
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -154,7 +160,7 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
     {
       if ((sock = socket (AF_UNIX, SOCK_STREAM, 0)) < 0)
 	{
-	  perror (_("svc_unix.c - AF_UNIX socket creation problem"));
+	  __perror (_("svc_unix.c - AF_UNIX socket creation problem"));
 	  return (SVCXPRT *) NULL;
 	}
       madesock = TRUE;
@@ -170,7 +176,7 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
   if (getsockname (sock, (struct sockaddr *) &addr, &len) != 0
       || listen (sock, 2) != 0)
     {
-      perror (_("svc_unix.c - cannot getsockname or listen"));
+      __perror (_("svc_unix.c - cannot getsockname or listen"));
       if (madesock)
 	__close (sock);
       return (SVCXPRT *) NULL;

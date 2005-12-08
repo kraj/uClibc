@@ -48,9 +48,15 @@
 
 #define authnone_create __authnone_create
 #define xdrrec_create __xdrrec_create
+#define xdrrec_endofrecord __xdrrec_endofrecord
+#define xdrrec_skiprecord __xdrrec_skiprecord
+#define xdr_callhdr __xdr_callhdr
+#define xdr_replymsg __xdr_replymsg
+#define xdr_opaque_auth __xdr_opaque_auth
 #define xdrmem_create __xdrmem_create
 #define getegid __getegid
 #define geteuid __geteuid
+#define _seterr_reply __seterr_reply
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -120,8 +126,8 @@ static struct clnt_ops unix_ops =
  * NB: The rpch->cl_auth is set null authentication.  Caller may wish to set this
  * something more useful.
  */
-CLIENT *
-clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
+CLIENT attribute_hidden *
+__clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
 		 int *sockp, u_int sendsz, u_int recvsz)
 {
   CLIENT *h;
@@ -218,6 +224,7 @@ fooy:
   mem_free ((caddr_t) h, sizeof (CLIENT));
   return (CLIENT *) NULL;
 }
+strong_alias(__clntunix_create,clntunix_create)
 
 static enum clnt_stat
 clntunix_call (h, proc, xdr_args, args_ptr, xdr_results, results_ptr, timeout)

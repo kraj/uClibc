@@ -52,6 +52,7 @@
 #define wcslen __wcslen
 #define wcsrtombs __wcsrtombs
 #define mbrtowc __mbrtowc
+#define wcrtomb __wcrtomb
 
 #define _GNU_SOURCE
 #include <stdio.h>

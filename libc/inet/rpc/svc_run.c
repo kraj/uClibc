@@ -31,6 +31,8 @@
  * Wait for input, call server program.
  */
 
+#define svc_getreq_poll __svc_getreq_poll
+
 /* used by svc_[max_]pollfd */
 #define __rpc_thread_svc_pollfd __rpc_thread_svc_pollfd_internal
 #define __rpc_thread_svc_max_pollfd __rpc_thread_svc_max_pollfd_internal
@@ -80,7 +82,7 @@ svc_run (void)
 	  free (my_pollfd);
 	  if (errno == EINTR)
 	    continue;
-	  perror (_("svc_run: - poll failed"));
+	  __perror (_("svc_run: - poll failed"));
 	  return;
 	case 0:
 	  free (my_pollfd);
