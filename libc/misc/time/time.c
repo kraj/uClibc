@@ -130,6 +130,7 @@
  */
 
 #define strnlen __strnlen
+#define gettimeofday __gettimeofday
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -147,8 +148,15 @@
 
 extern void __tzset (void) __THROW attribute_hidden;
 
+extern long int __strtol (__const char *__restrict __nptr,
+			char **__restrict __endptr, int __base)
+     __THROW __nonnull ((1)) __wur attribute_hidden;
+
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
+extern long int __strtol_l (__const char *__restrict __nptr,
+			  char **__restrict __endptr, int __base,
+			  __locale_t __loc) __THROW __nonnull ((1, 4)) __wur attribute_hidden;
 extern int __strncasecmp_l (__const char *__s1, __const char *__s2,
 			  size_t __n, __locale_t __loc)
      __THROW __attribute_pure__ __nonnull ((1, 2, 4)) attribute_hidden;
@@ -1544,9 +1552,9 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 				__set_errno(0);
 				if (!ISSPACE(*buf)) { /* Signal an error if whitespace. */
 #ifdef TIME_T_IS_UNSIGNED
-					t = __XL(strtoul)(buf, &o, 10   __LOCALE_ARG);
+					t = __UCXL(strtoul)(buf, &o, 10   __LOCALE_ARG);
 #else
-					t = __XL(strtol)(buf, &o, 10   __LOCALE_ARG);
+					t = __UCXL(strtol)(buf, &o, 10   __LOCALE_ARG);
 #endif
 				}
 				if ((o == buf) || errno) { /* Not a number or overflow. */

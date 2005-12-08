@@ -35,11 +35,12 @@
 #ifdef L_isatty
 /* Return 1 if FD is a terminal, 0 if not.  */
 
-int isatty(int fd)
+int attribute_hidden __isatty(int fd)
 {
     struct termios term;
     return (tcgetattr (fd, &term) == 0);
 }
+strong_alias(__isatty,isatty)
 #endif
 
 #ifdef L_tcdrain
@@ -47,7 +48,7 @@ int isatty(int fd)
 int __libc_tcdrain (int fd)
 {
       /* With an argument of 1, TCSBRK waits for the output to drain.  */
-      return ioctl(fd, TCSBRK, 1);
+      return __ioctl(fd, TCSBRK, 1);
 }
 weak_alias(__libc_tcdrain, tcdrain)
 #endif
@@ -56,7 +57,7 @@ weak_alias(__libc_tcdrain, tcdrain)
 /* Suspend or restart transmission on FD.  */
 int tcflow ( int fd, int action)
 {
-      return ioctl(fd, TCXONC, action);
+      return __ioctl(fd, TCXONC, action);
 }
 #endif
 
@@ -64,7 +65,7 @@ int tcflow ( int fd, int action)
 /* Flush pending data on FD.  */
 int tcflush ( int fd, int queue_selector)
 {
-      return ioctl(fd, TCFLSH, queue_selector);
+      return __ioctl(fd, TCFLSH, queue_selector);
 }
 #endif
 
@@ -76,12 +77,12 @@ int tcsendbreak( int fd, int duration)
 	   and an implementation-defined period if DURATION is nonzero.
 	   We define a positive DURATION to be number of milliseconds to break.  */
 	if (duration <= 0)
-		return ioctl(fd, TCSBRK, 0);
+		return __ioctl(fd, TCSBRK, 0);
 
 #ifdef TCSBRKP
 	/* Probably Linux-specific: a positive third TCSBRKP ioctl argument is
 	   defined to be the number of 100ms units to break.  */
-	return ioctl(fd, TCSBRKP, (duration + 99) / 100);
+	return __ioctl(fd, TCSBRKP, (duration + 99) / 100);
 #else
 	/* ioctl can't send a break of any other duration for us.
 	   This could be changed to use trickery (e.g. lower speed and
@@ -96,7 +97,7 @@ int tcsendbreak( int fd, int duration)
 /* Set the foreground process group ID of FD set PGRP_ID.  */
 int tcsetpgrp ( int fd, pid_t pgrp_id)
 {
-      return ioctl (fd, TIOCSPGRP, &pgrp_id);
+      return __ioctl (fd, TIOCSPGRP, &pgrp_id);
 }
 #endif
 
@@ -106,7 +107,7 @@ pid_t attribute_hidden __tcgetpgrp ( int fd)
 {
     int pgrp;
 
-    if (ioctl (fd, TIOCGPGRP, &pgrp) < 0)
+    if (__ioctl (fd, TIOCGPGRP, &pgrp) < 0)
 	return (pid_t) -1;
     return (pid_t) pgrp;
 }

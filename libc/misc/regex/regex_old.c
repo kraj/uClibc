@@ -31,6 +31,7 @@
 #define mbrtowc __mbrtowc
 #define wcrtomb __wcrtomb
 #define wcscoll __wcscoll
+#define wctype __wctype
 #define iswctype __iswctype
 #define iswalnum __iswalnum
 
@@ -5166,7 +5167,7 @@ PREFIX(re_search_2) (bufp, string1, size1, string2, size2, startpos, range,
   wchar_t *wcs_string1 = NULL, *wcs_string2 = NULL;
   /* We need the size of wchar_t buffers correspond to csize1, csize2.  */
   int wcs_size1 = 0, wcs_size2 = 0;
-  /* offset buffer for optimizatoin. See convert_mbs_to_wc.  */
+  /* offset buffer for optimization. See convert_mbs_to_wc.  */
   int *mbs_offset1 = NULL, *mbs_offset2 = NULL;
   /* They hold whether each wchar_t is binary data or not.  */
   char *is_binary = NULL;
@@ -5696,7 +5697,7 @@ wcs_re_match_2_internal (bufp, cstring1, csize1, cstring2, csize2, pos,
      wchar_t *string1, *string2;
      /* We need the size of wchar_t buffers correspond to csize1, csize2.  */
      int size1, size2;
-     /* offset buffer for optimizatoin. See convert_mbs_to_wc.  */
+     /* offset buffer for optimization. See convert_mbs_to_wc.  */
      int *mbs_offset1, *mbs_offset2;
 #else /* BYTE */
 static int

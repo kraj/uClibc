@@ -32,6 +32,8 @@
  */
 
 #define open64 __open64
+#define mkdir __mkdir
+#define gettimeofday __gettimeofday
 
 #include <stddef.h>
 #include <stdint.h>

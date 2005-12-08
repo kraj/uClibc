@@ -11,6 +11,8 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
+#define atoi __atoi
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>

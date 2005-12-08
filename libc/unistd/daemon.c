@@ -25,6 +25,7 @@
 
 #define dup2 __dup2
 #define setsid __setsid
+#define chdir __chdir
 
 #include <stdio.h>
 #include <features.h>

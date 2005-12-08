@@ -21,6 +21,8 @@
    */
 
 #define qsort __qsort
+#define opendir __opendir
+#define closedir __closedir
 
 #include <dirent.h>
 #include <stdio.h>

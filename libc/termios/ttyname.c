@@ -1,3 +1,7 @@
+#define opendir __opendir
+#define closedir __closedir
+#define isatty __isatty
+
 #include <string.h>
 #include <errno.h>
 #include <assert.h>

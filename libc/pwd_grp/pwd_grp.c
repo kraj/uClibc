@@ -19,6 +19,7 @@
  */
 
 #define setgroups __setgroups
+#define strtoul __strtoul
 
 #define _GNU_SOURCE
 #include <features.h>

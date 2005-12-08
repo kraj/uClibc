@@ -31,6 +31,12 @@
 #define getpwuid_r __getpwuid_r
 #define execve __execve
 #define dup2 __dup2
+#define atoi __atoi
+#define fnmatch __fnmatch
+#if 0
+#define glob __glob
+#define globfree __globfree
+#endif
 
 #define _GNU_SOURCE
 #include <sys/cdefs.h>

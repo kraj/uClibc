@@ -40,7 +40,7 @@ pid_t tcgetsid (int fd)
 	int serrno = errno;
 	int sid;
 
-	if (ioctl (fd, TIOCGSID, &sid) < 0)
+	if (__ioctl (fd, TIOCGSID, &sid) < 0)
 	{
 	    if (errno == EINVAL)
 	    {

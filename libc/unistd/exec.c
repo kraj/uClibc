@@ -205,7 +205,7 @@ int execlp(const char *file, const char *arg, ...)
 	} while (--n);
 	va_end(args);
 
-	n = execvp(file, (char *const *) argv);
+	n = __execvp(file, (char *const *) argv);
 
 	EXEC_FREE(argv, size);
 

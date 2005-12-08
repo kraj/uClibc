@@ -17,6 +17,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define isatty __isatty
+
 #define _ISOC99_SOURCE
 #include <stdio.h>
 #include <errno.h>
@@ -86,7 +88,7 @@ int attribute_hidden __ptsname_r (int fd, char *buf, size_t buflen)
 # error "__UNIX98PTY_ONLY__ enabled but TIOCGPTN ioctl not supported by your kernel."
 #endif
 #ifdef TIOCGPTN
-  if (ioctl (fd, TIOCGPTN, &ptyno) == 0)
+  if (__ioctl (fd, TIOCGPTN, &ptyno) == 0)
     {
       /* Buffer we use to print the number in. */
       char numbuf[__BUFLEN_INT10TOSTR];

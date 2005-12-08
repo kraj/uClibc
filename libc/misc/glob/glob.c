@@ -18,6 +18,7 @@ Cambridge, MA 02139, USA.  */
 #define strrchr __strrchr
 #define strcoll __strcoll
 #define qsort __qsort
+#define fnmatch __fnmatch
 
 #include <features.h>
 #include <stdlib.h>
@@ -31,6 +32,9 @@ Cambridge, MA 02139, USA.  */
 #include <fnmatch.h>
 #define _GNU_SOURCE
 #include <glob.h>
+
+extern DIR *__opendir (__const char *__name) __nonnull ((1)) attribute_hidden;
+extern int __closedir (DIR *__dirp) __nonnull ((1)) attribute_hidden;
 
 extern __ptr_t (*__glob_opendir_hook) __P ((const char *directory));
 extern void (*__glob_closedir_hook) __P ((__ptr_t stream));
@@ -397,7 +401,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
   int meta;
 
   stream = (__glob_opendir_hook ? (*__glob_opendir_hook) (directory)
-	   : (__ptr_t) opendir (directory));
+	   : (__ptr_t) __opendir (directory));
   if (stream == NULL)
     {
       if ((errfunc != NULL && (*errfunc) (directory, errno)) ||
@@ -497,7 +501,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
     if (__glob_closedir_hook)
       (*__glob_closedir_hook) (stream);
     else
-      (void) closedir ((DIR *) stream);
+      (void) __closedir ((DIR *) stream);
     errno = save;
   }
   return nfound == 0 ? GLOB_NOMATCH : 0;
@@ -508,7 +512,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
     if (__glob_closedir_hook)
       (*__glob_closedir_hook) (stream);
     else
-      (void) closedir ((DIR *) stream);
+      (void) __closedir ((DIR *) stream);
     errno = save;
   }
   while (names != NULL)
