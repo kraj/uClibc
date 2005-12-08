@@ -29,7 +29,7 @@
 /* This is a quick and dirty, but not 100% compliant with
  * the stupid SysV SIGCHLD vs. SIG_IGN behaviour.  It is
  * fine unless you are messing with SIGCHLD...  */
-unsigned int sleep (unsigned int sec)
+unsigned int attribute_hidden __sleep (unsigned int sec)
 {
 	unsigned int res;
 	struct timespec ts = { .tv_sec = (long int) seconds, .tv_nsec = 0 };
@@ -43,7 +43,7 @@ unsigned int sleep (unsigned int sec)
 /* We are going to use the `nanosleep' syscall of the kernel.  But the
    kernel does not implement the sstupid SysV SIGCHLD vs. SIG_IGN
    behaviour for this syscall.  Therefore we have to emulate it here.  */
-unsigned int sleep (unsigned int seconds)
+unsigned int attribute_hidden __sleep (unsigned int seconds)
 {
     struct timespec ts = { .tv_sec = (long int) seconds, .tv_nsec = 0 };
     sigset_t set, oset;
@@ -107,3 +107,4 @@ unsigned int sleep (unsigned int seconds)
     return result;
 }
 #endif
+strong_alias(__sleep,sleep)
