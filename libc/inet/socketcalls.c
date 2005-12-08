@@ -227,7 +227,6 @@ weak_alias(__libc_recvmsg,recvmsg)
 #ifdef __NR_send
 #define __NR___libc_send    __NR_send
 _syscall4(ssize_t, __libc_send, int, sockfd, const void *, buffer, size_t, len, int, flags);
-weak_alias(__libc_send, send);
 #elif defined(__NR_socketcall)
 /* send, sendto added by bir7@leland.stanford.edu */
 ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
@@ -241,9 +240,13 @@ ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 	return (__socketcall(SYS_SEND, args));
 }
 #elif defined(__NR_sendto)
+extern ssize_t __sendto (int __fd, __const void *__buf, size_t __n,
+		       int __flags, __CONST_SOCKADDR_ARG __addr,
+		       socklen_t __addr_len) attribute_hidden;
+
 ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 {
-	return (sendto(sockfd, buffer, len, flags, NULL, 0));
+	return (__sendto(sockfd, buffer, len, flags, NULL, 0));
 }
 #endif
 hidden_weak_alias(__libc_send,__send)
