@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <unistd.h>
-_syscall1(int, unlink, const char *, pathname);
+#define __NR___unlink __NR_unlink
+attribute_hidden _syscall1(int, __unlink, const char *, pathname);
+strong_alias(__unlink,unlink)
