@@ -13,4 +13,5 @@
 #define __NR___libc_nanosleep __NR_nanosleep
 _syscall2(int, __libc_nanosleep, const struct timespec *, req,
 		  struct timespec *, rem);
-weak_alias(__libc_nanosleep, nanosleep);
+hidden_weak_alias(__libc_nanosleep,__nanosleep)
+weak_alias(__libc_nanosleep,nanosleep)
