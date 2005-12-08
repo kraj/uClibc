@@ -728,6 +728,7 @@ __xdr_string (XDR *xdrs, char **cpp, u_int maxsize)
     }
   return FALSE;
 }
+strong_alias(__xdr_string,xdr_string)
 
 /*
  * Wrapper for xdr_string that can be called directly from
