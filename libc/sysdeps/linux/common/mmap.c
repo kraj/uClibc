@@ -14,7 +14,7 @@
 #ifdef __NR_mmap
 #define __NR__mmap __NR_mmap
 static inline _syscall1(__ptr_t, _mmap, unsigned long *, buffer);
-__ptr_t attribute_hidden __mmap(__ptr_t addr, size_t len, int prot,
+attribute_hidden __ptr_t __mmap(__ptr_t addr, size_t len, int prot,
 			 int flags, int fd, __off_t offset)
 {
 	unsigned long buffer[6];
