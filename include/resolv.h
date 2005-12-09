@@ -288,27 +288,6 @@ int		res_send (const u_char *, int, u_char *, int) __THROW;
 __END_DECLS
 #endif
 
---- include/resolv.h	2005-12-09 20:09:20 +0100
-+++ /mnt/ftp/cvsroot/libc/resolv/resolv.h	2004-09-14 06:24:47 +0200
-@@ -288,21 +270,6 @@
- __END_DECLS
- #endif
- 
-#if 1 /* not in glibc header, was !defined(SHARED_LIBBIND) || defined(LIB) */
-/*
- * If libbind is a shared object (well, DLL anyway)
- * these externs break the linker when resolv.h is
- * included by a lib client (like named)
- * Make them go away if a client is including this
- *
- */
-extern const struct res_sym __p_key_syms[];
-extern const struct res_sym __p_cert_syms[];
-extern const struct res_sym __p_class_syms[];
-extern const struct res_sym __p_type_syms[];
-extern const struct res_sym __p_rcode_syms[];
-#endif /* SHARED_LIBBIND */
-
 #define b64_ntop		__b64_ntop
 #define b64_pton		__b64_pton
 #define dn_comp			__dn_comp
