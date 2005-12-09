@@ -258,11 +258,7 @@ strong_alias(__srandom_r,srandom_r)
    Note: The first thing we do is save the current state, if any, just like
    setstate so that it doesn't matter when initstate is called.
    Returns a pointer to the old state.  */
-int initstate_r (seed, arg_state, n, buf)
-     unsigned int seed;
-     char *arg_state;
-     size_t n;
-     struct random_data *buf;
+int attribute_hidden __initstate_r (unsigned int seed, char *arg_state, size_t n, struct random_data *buf)
 {
     int type;
     int degree;
@@ -310,6 +306,7 @@ fail:
     __set_errno (EINVAL);
     return -1;
 }
+strong_alias(__initstate_r,initstate_r)
 
 /* Restore the state from the given state array.
    Note: It is important that we also remember the locations of the pointers
