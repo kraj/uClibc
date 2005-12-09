@@ -22,7 +22,7 @@
 #include "sigset-cvt-mask.h"
 
 /* Block signals in MASK, returning the old mask.  */
-int __sigblock (int mask)
+int attribute_hidden __sigblock (int mask)
 {
   sigset_t set, oset;
 

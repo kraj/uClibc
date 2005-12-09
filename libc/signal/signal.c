@@ -52,4 +52,5 @@ __bsd_signal (int sig, __sighandler_t handler)
   return oact.sa_handler;
 }
 weak_alias (__bsd_signal, bsd_signal)
+hidden_weak_alias (__bsd_signal, __signal)
 weak_alias (__bsd_signal, signal)
