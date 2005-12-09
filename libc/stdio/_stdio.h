@@ -30,6 +30,21 @@ extern int __vfwprintf (__FILE *__restrict __s,
 		      __const wchar_t *__restrict __format,
 		      __gnuc_va_list __arg) attribute_hidden;
 
+extern int __vfscanf (FILE *__restrict __s, __const char *__restrict __format,
+		    __gnuc_va_list __arg)
+     __attribute__ ((__format__ (__scanf__, 2, 0))) attribute_hidden;
+
+extern int __vsscanf (__const char *__restrict __s,
+		    __const char *__restrict __format, __gnuc_va_list __arg)
+     __THROW __attribute__ ((__format__ (__scanf__, 2, 0))) attribute_hidden;
+
+extern int __vfwscanf (__FILE *__restrict __s,
+		     __const wchar_t *__restrict __format,
+		     __gnuc_va_list __arg) attribute_hidden;
+extern int __vswscanf (__const wchar_t *__restrict __s,
+		     __const wchar_t *__restrict __format,
+		     __gnuc_va_list __arg) __THROW attribute_hidden;
+
 #ifdef __UCLIBC_HAS_WCHAR__
 #include <wchar.h>
 #endif

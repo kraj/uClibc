@@ -8,6 +8,7 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
+#undef fprintf
 int attribute_hidden __fprintf(FILE * __restrict stream, const char * __restrict format, ...)
 {
 	va_list arg;

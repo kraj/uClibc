@@ -694,12 +694,12 @@ ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info 
 
 			cnt += num_groups * tslen; /* Adjust count now for sep chars. */
 
-/* 			printf("\n"); */
+/* 			__printf("\n"); */
 			do {
 				if (!blk) {		/* Initial group could be 0 digits long! */
 					blk = nblk2;
 				} else if (len >= blk) { /* Enough digits for a group. */
-/* 					printf("norm:  len=%d blk=%d  \"%.*s\"\n", len, blk, blk, gp); */
+/* 					__printf("norm:  len=%d blk=%d  \"%.*s\"\n", len, blk, blk, gp); */
 					if (fp_outfunc(fp, *ppc, blk, (intptr_t) gp) != blk) {
 						return -1;
 					}
@@ -709,9 +709,9 @@ ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info 
 					}
 					len -= blk;
 				} else {		/* Transition to 0s. */
-/* 					printf("trans: len=%d blk=%d  \"%.*s\"\n", len, blk, len, gp); */
+/* 					__printf("trans: len=%d blk=%d  \"%.*s\"\n", len, blk, len, gp); */
 					if (len) {
-/* 						printf("len\n"); */
+/* 						__printf("len\n"); */
 						if (fp_outfunc(fp, *ppc, len, (intptr_t) gp) != len) {
 							return -1;
 						}
@@ -719,7 +719,7 @@ ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info 
 					}
 
 					if (ppc[3] == FPO_ZERO_PAD) { /* Need to group 0s */
-/* 						printf("zeropad\n"); */
+/* 						__printf("zeropad\n"); */
 						cnt += ppc[1];
 						ppc += 3;
 						gp = (const char *) ppc[2];
@@ -742,7 +742,7 @@ ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info 
 				}
 				blk = nblk2;
 
-/* 				printf("num_groups=%d   blk=%d\n", num_groups, blk); */
+/* 				__printf("num_groups=%d   blk=%d\n", num_groups, blk); */
 
 			} while (1);
 		} else
