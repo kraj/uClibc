@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define vfprintf __vfprintf
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>

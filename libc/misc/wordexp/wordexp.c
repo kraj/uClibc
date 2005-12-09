@@ -509,7 +509,7 @@ static int eval_expr(char *expr, long int *result);
 
 static char *_itoa(unsigned long long int value, char *buflim)
 {
-	sprintf(buflim, "%llu", value);
+	__sprintf(buflim, "%llu", value);
 	return buflim;
 }
 

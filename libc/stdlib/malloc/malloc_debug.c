@@ -12,6 +12,7 @@
  */
 
 #define atoi __atoi
+#define vfprintf __vfprintf
 
 #include <stdlib.h>
 #include <stdio.h>

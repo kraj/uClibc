@@ -5,7 +5,7 @@
 #define MAX_NDIGIT 17
 char *gcvt (double number, int ndigit, char *buf)
 {
-    sprintf(buf, "%.*g", (ndigit > MAX_NDIGIT)? MAX_NDIGIT : ndigit, number);
+    __sprintf(buf, "%.*g", (ndigit > MAX_NDIGIT)? MAX_NDIGIT : ndigit, number);
     return buf;
 }
 #endif

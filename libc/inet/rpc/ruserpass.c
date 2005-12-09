@@ -122,7 +122,7 @@ int attribute_hidden __ruserpass(const char *host, const char **aname, const cha
 	cfile = fopen(buf, "r");
 	if (cfile == NULL) {
 		if (errno != ENOENT)
-			printf("%s", buf);
+			__printf("%s", buf);
 		return (0);
 	}
 	/* No threads use this stream.  */
@@ -170,7 +170,7 @@ next:
 				  newp = malloc((unsigned) __strlen(tokval) + 1);
 				  if (newp == NULL)
 				    {
-				      printf(_("out of memory"));
+				      __printf(_("out of memory"));
 				      goto bad;
 				    }
 				  *aname = __strcpy(newp, tokval);
@@ -184,8 +184,8 @@ next:
 			if (__strcmp(*aname, "anonymous") &&
 			    fstat(fileno(cfile), &stb) >= 0 &&
 			    (stb.st_mode & 077) != 0) {
-	printf(_("Error: .netrc file is readable by others."));
-	printf(_("Remove password or make file unreadable by others."));
+	__printf(_("Error: .netrc file is readable by others."));
+	__printf(_("Remove password or make file unreadable by others."));
 				goto bad;
 			}
 			if (token() && *apass == 0) {
@@ -193,7 +193,7 @@ next:
 				newp = malloc((unsigned) __strlen(tokval) + 1);
 				if (newp == NULL)
 				  {
-				    printf(_("out of memory"));
+				    __printf(_("out of memory"));
 				    goto bad;
 				  }
 				*apass = __strcpy(newp, tokval);
@@ -203,8 +203,8 @@ next:
 #if 0
 			if (fstat(fileno(cfile), &stb) >= 0
 			    && (stb.st_mode & 077) != 0) {
-	printf("Error: .netrc file is readable by others.");
-	printf("Remove account or make file unreadable by others.");
+	__printf("Error: .netrc file is readable by others.");
+	__printf("Remove account or make file unreadable by others.");
 				goto bad;
 			}
 			if (token() && *aacct == 0) {
@@ -222,11 +222,11 @@ next:
 			while ((c=getc_unlocked(cfile)) != EOF && c == ' '
 			       || c == '\t');
 			if (c == EOF || c == '\n') {
-				printf("Missing macdef name argument.\n");
+				__printf("Missing macdef name argument.\n");
 				goto bad;
 			}
 			if (macnum == 16) {
-				printf("Limit of 16 macros have already been defined\n");
+				__printf("Limit of 16 macros have already been defined\n");
 				goto bad;
 			}
 			tmp = macros[macnum].mac_name;
@@ -236,7 +236,7 @@ next:
 				*tmp++ = c;
 			}
 			if (c == EOF) {
-				printf("Macro definition missing null line terminator.\n");
+				__printf("Macro definition missing null line terminator.\n");
 				goto bad;
 			}
 			*tmp = '\0';
@@ -245,7 +245,7 @@ next:
 				       && c != '\n');
 			}
 			if (c == EOF) {
-				printf("Macro definition missing null line terminator.\n");
+				__printf("Macro definition missing null line terminator.\n");
 				goto bad;
 			}
 			if (macnum == 0) {
@@ -257,7 +257,7 @@ next:
 			tmp = macros[macnum].mac_start;
 			while (tmp != macbuf + 4096) {
 				if ((c=getc_unlocked(cfile)) == EOF) {
-				printf("Macro definition missing null line terminator.\n");
+				__printf("Macro definition missing null line terminator.\n");
 					goto bad;
 				}
 				*tmp = c;
@@ -271,13 +271,13 @@ next:
 				tmp++;
 			}
 			if (tmp == macbuf + 4096) {
-				printf("4K macro buffer exceeded\n");
+				__printf("4K macro buffer exceeded\n");
 				goto bad;
 			}
 #endif
 			break;
 		default:
-			printf(_("Unknown .netrc keyword %s"), tokval);
+			__printf(_("Unknown .netrc keyword %s"), tokval);
 			break;
 		}
 		goto done;

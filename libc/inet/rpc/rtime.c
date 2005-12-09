@@ -46,6 +46,7 @@ static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 S
 #define connect __connect
 #define recvfrom __recvfrom
 #define sendto __sendto
+#define poll __poll
 
 #define __FORCE_GLIBC
 #include <features.h>

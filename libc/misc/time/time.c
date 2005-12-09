@@ -274,7 +274,7 @@ strong_alias(__asctime,asctime)
  *       };
  *       static char result[26];
  *   
- *       sprintf(result, "%.3s %.3s%3d %.2d:%.2d:%.2d %d\n",
+ *       __sprintf(result, "%.3s %.3s%3d %.2d:%.2d:%.2d %d\n",
  *           wday_name[timeptr->tm_wday],                   
  *           mon_name[timeptr->tm_mon],
  *           timeptr->tm_mday, timeptr->tm_hour,

@@ -34,6 +34,7 @@
 #define wctype __wctype
 #define iswctype __iswctype
 #define iswalnum __iswalnum
+#define printf __printf
 
 /* To exclude some unwanted junk.... */
 #undef _LIBC

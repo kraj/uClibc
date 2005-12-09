@@ -435,7 +435,7 @@ int getpw(uid_t uid, char *buf)
 	if (!buf) {
 		__set_errno(EINVAL);
 	} else if (!__getpwuid_r(uid, &resultbuf, buffer, sizeof(buffer), &result)) {
-		if (sprintf(buf, "%s:%s:%lu:%lu:%s:%s:%s\n",
+		if (__sprintf(buf, "%s:%s:%lu:%lu:%s:%s:%s\n",
 					resultbuf.pw_name, resultbuf.pw_passwd,
 					(unsigned long)(resultbuf.pw_uid),
 					(unsigned long)(resultbuf.pw_gid),

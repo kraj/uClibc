@@ -98,6 +98,8 @@
  * Manuel
  */
 
+#define vfprintf __vfprintf
+
 #define _GNU_SOURCE
 #define _ISOC99_SOURCE
 #include <errno.h>

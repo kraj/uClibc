@@ -34,6 +34,7 @@
 #define sleep __sleep
 #define atoi __atoi
 #define connect __connect
+#define snprintf __snprintf
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -136,7 +137,7 @@ retry:
 				 NULL, 0, servbuff, sizeof(servbuff),
 				 NI_NUMERICSERV))
 			port = atoi(servbuff);
-		(void) sprintf(num, "%u", port);
+		(void) __sprintf(num, "%u", port);
 		(void) __write(s, num, __strlen(num)+1);
 		{ socklen_t len = sizeof (from);
 		  s3 = accept(s2, (struct sockaddr *)&from, &len);

@@ -148,6 +148,7 @@
 #define select __select
 #define recv __recv
 #define send __send
+#define snprintf __snprintf
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -1397,7 +1398,7 @@ int res_querydomain(name, domain, class, type, answer, anslen)
 
 #ifdef DEBUG
 	if (_res.options & RES_DEBUG)
-		printf(";; res_querydomain(%s, %s, %d, %d)\n",
+		__printf(";; res_querydomain(%s, %s, %d, %d)\n",
 			name, domain?domain:"<Nil>", class, type);
 #endif
 	if (domain == NULL) {
@@ -2335,7 +2336,7 @@ int attribute_hidden __gethostbyaddr_r (const void *addr, socklen_t len, int typ
 
 		addr_list[0] = in;
 
-		sprintf(buf, "%u.%u.%u.%u.in-addr.arpa",
+		__sprintf(buf, "%u.%u.%u.%u.in-addr.arpa",
 			tmp_addr[3], tmp_addr[2], tmp_addr[1], tmp_addr[0]);
 #ifdef __UCLIBC_HAS_IPV6__
 	} else {
@@ -2345,7 +2346,7 @@ int attribute_hidden __gethostbyaddr_r (const void *addr, socklen_t len, int typ
 		qp = buf;
 
 		for (i = len - 1; i >= 0; i--) {
-			qp += sprintf(qp, "%x.%x.", in6->s6_addr[i] & 0xf,
+			qp += __sprintf(qp, "%x.%x.", in6->s6_addr[i] & 0xf,
 				(in6->s6_addr[i] >> 4) & 0xf);
     	}
     	__strcpy(qp, "ip6.int");

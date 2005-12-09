@@ -61,6 +61,7 @@
 #define connect __connect
 #define recvmsg __recvmsg
 #define sendmsg __sendmsg
+#define poll __poll
 
 #define __FORCE_GLIBC
 #include <features.h>

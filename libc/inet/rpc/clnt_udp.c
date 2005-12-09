@@ -52,6 +52,7 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #define recvfrom __recvfrom
 #define sendto __sendto
 #define recvmsg __recvmsg
+#define poll __poll
 
 #define __FORCE_GLIBC
 #include <features.h>

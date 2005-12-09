@@ -163,7 +163,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 			tp += __strlen(tp);
 			break;
 		}
-		tp += sprintf(tp, "%x", words[i]);
+		tp += __sprintf(tp, "%x", words[i]);
 	}
 	/* Was it a trailing run of 0x00's? */
 	if (best.base != -1 && (best.base + best.len) == 8)

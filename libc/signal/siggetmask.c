@@ -19,7 +19,7 @@
 
 #include <signal.h>
 
-extern int __sigblock (int __mask) __THROW __attribute_deprecated__ attribute_hidden;
+extern int __sigblock (int __mask) __THROW /*__attribute_deprecated__*/ attribute_hidden;
 int
 siggetmask (void)
 {

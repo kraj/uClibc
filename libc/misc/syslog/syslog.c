@@ -34,6 +34,7 @@
 #define ctime __ctime
 #define sigaction __sigaction
 #define connect __connect
+#define vsnprintf __vsnprintf
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
@@ -220,15 +221,15 @@ __vsyslog( int pri, const char *fmt, va_list ap )
 	 * safe to test only LogTag and use normal sprintf everywhere else.
 	 */
 	(void)__time(&now);
-	stdp = p = tbuf + sprintf(tbuf, "<%d>%.15s ", pri, ctime(&now) + 4);
+	stdp = p = tbuf + __sprintf(tbuf, "<%d>%.15s ", pri, ctime(&now) + 4);
 	if (LogTag) {
 		if (__strlen(LogTag) < sizeof(tbuf) - 64)
-			p += sprintf(p, "%s", LogTag);
+			p += __sprintf(p, "%s", LogTag);
 		else
-			p += sprintf(p, "<BUFFER OVERRUN ATTEMPT>");
+			p += __sprintf(p, "<BUFFER OVERRUN ATTEMPT>");
 	}
 	if (LogStat & LOG_PID)
-		p += sprintf(p, "[%d]", __getpid());
+		p += __sprintf(p, "[%d]", __getpid());
 	if (LogTag) {
 		*p++ = ':';
 		*p++ = ' ';

@@ -51,6 +51,7 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 #define setsockopt __setsockopt
 #define recvfrom __recvfrom
 #define sendto __sendto
+#define poll __poll
 
 #define __FORCE_GLIBC
 #include <features.h>

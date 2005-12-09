@@ -32,6 +32,7 @@
  */
 
 #define svc_getreq_poll __svc_getreq_poll
+#define poll __poll
 
 /* used by svc_[max_]pollfd */
 #define __rpc_thread_svc_pollfd __rpc_thread_svc_pollfd_internal

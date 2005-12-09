@@ -187,6 +187,11 @@ extern __pid_t __getpid (void) attribute_hidden;
 
 /* #include <stdio.h> */
 extern void __perror (__const char *__s) attribute_hidden;
+extern int __printf (__const char *__restrict __format, ...) attribute_hidden;
+extern int __sprintf (char *__restrict __s,
+		    __const char *__restrict __format, ...) attribute_hidden;
+/* hack */
+#define fprintf __fprintf
 
 /* #include <stdlib.h> */
 extern char *__getenv (__const char *__name) attribute_hidden;
@@ -206,6 +211,12 @@ extern int __socket (int __domain, int __type, int __protocol) attribute_hidden;
 typedef struct __dirstream DIR;
 extern DIR *__opendir (__const char *__name) attribute_hidden;
 extern int __closedir (DIR *__dirp) attribute_hidden;
+
+/* #include <stdio.h> */
+extern int __vfprintf (FILE *__restrict __s, __const char *__restrict __format,
+		     __gnuc_va_list __arg) attribute_hidden;
+extern int __fprintf (FILE *__restrict __stream,
+		    __const char *__restrict __format, ...) attribute_hidden;
 
 /* #include <sys/time.h> */
 #   define __need_timeval

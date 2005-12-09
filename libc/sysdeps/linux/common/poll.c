@@ -24,8 +24,8 @@
 #include <sys/poll.h>
 
 #ifdef __NR_poll
-
-_syscall3(int, poll, struct pollfd *, fds,
+#define __NR___poll __NR_poll
+attribute_hidden _syscall3(int, __poll, struct pollfd *, fds,
 	unsigned long int, nfds, int, timeout);
 #else
 
@@ -45,7 +45,7 @@ _syscall3(int, poll, struct pollfd *, fds,
    Returns the number of file descriptors with events, zero if timed out,
    or -1 for errors.  */
 
-int poll(struct pollfd *fds, nfds_t nfds, int timeout)
+int attribute_hidden __poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
     static int max_fd_size;
     struct timeval tv;
@@ -204,4 +204,4 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 }
 
 #endif
-
+strong_alias(__poll,poll)

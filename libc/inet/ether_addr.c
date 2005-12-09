@@ -79,7 +79,7 @@ struct ether_addr *ether_aton(const char *asc)
 
 char attribute_hidden *__ether_ntoa_r(const struct ether_addr *addr, char *buf)
 {
-	sprintf(buf, "%x:%x:%x:%x:%x:%x",
+	__sprintf(buf, "%x:%x:%x:%x:%x:%x",
 			addr->ether_addr_octet[0], addr->ether_addr_octet[1],
 			addr->ether_addr_octet[2], addr->ether_addr_octet[3],
 			addr->ether_addr_octet[4], addr->ether_addr_octet[5]);
