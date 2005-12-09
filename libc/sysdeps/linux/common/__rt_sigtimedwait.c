@@ -46,5 +46,6 @@ int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
 	return -1;
 }
 #endif
-strong_alias(__sigtimedwait,sigtimedwait)
-strong_alias(__sigwaitinfo,sigwaitinfo)
+/* keep these weak so that libpthread can overwrite them */
+weak_alias(__sigtimedwait,sigtimedwait)
+weak_alias(__sigwaitinfo,sigwaitinfo)
