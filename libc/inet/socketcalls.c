@@ -139,9 +139,10 @@ int getsockopt(int fd, int level, int optname, __ptr_t optval,
 
 #ifdef L_listen
 #ifdef __NR_listen
-_syscall2(int, listen, int, sockfd, int, backlog);
+#define __NR___listen __NR_listen
+attribute_hidden _syscall2(int, __listen, int, sockfd, int, backlog);
 #elif defined(__NR_socketcall)
-int listen(int sockfd, int backlog)
+int attribute_hidden __listen(int sockfd, int backlog)
 {
 	unsigned long args[2];
 
@@ -150,6 +151,7 @@ int listen(int sockfd, int backlog)
 	return __socketcall(SYS_LISTEN, args);
 }
 #endif
+strong_alias(__listen,listen)
 #endif
 
 #ifdef L_recv

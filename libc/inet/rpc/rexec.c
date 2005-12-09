@@ -35,6 +35,8 @@
 #define atoi __atoi
 #define connect __connect
 #define snprintf __snprintf
+#define accept __accept
+#define listen __listen
 
 #define __FORCE_GLIBC
 #include <features.h>

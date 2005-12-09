@@ -53,6 +53,8 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #define sigblock __sigblock
 #define snprintf __snprintf
 #define poll __poll
+#define accept __accept
+#define listen __listen
 
 #define __FORCE_GLIBC
 #include <features.h>

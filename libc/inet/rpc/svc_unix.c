@@ -53,6 +53,8 @@
 #define recvmsg __recvmsg
 #define sendmsg __sendmsg
 #define poll __poll
+#define accept __accept
+#define listen __listen
 
 #define __FORCE_GLIBC
 #include <features.h>

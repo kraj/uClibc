@@ -53,6 +53,8 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
 #define bind __bind
 #define bindresvport __bindresvport
 #define poll __poll
+#define accept __accept
+#define listen __listen
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
