@@ -13,7 +13,7 @@
 
 #ifdef __NR_rt_sigpending
 #define __NR___rt_sigpending __NR_rt_sigpending
-_syscall2(int, __rt_sigpending, sigset_t *, set, size_t, size);
+static inline _syscall2(int, __rt_sigpending, sigset_t *, set, size_t, size);
 
 int sigpending(sigset_t * set)
 {

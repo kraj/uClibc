@@ -26,10 +26,8 @@ int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
 {
 	return __rt_sigtimedwait(set, info, timeout, _NSIG / 8);
 }
-weak_alias (__sigtimedwait, sigtimedwait)
-weak_alias (__sigwaitinfo, sigwaitinfo)
 #else
-int sigwaitinfo(const sigset_t * set, siginfo_t * info)
+int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {
 	if (set == NULL)
 		__set_errno(EINVAL);
@@ -38,7 +36,7 @@ int sigwaitinfo(const sigset_t * set, siginfo_t * info)
 	return -1;
 }
 
-int sigtimedwait(const sigset_t * set, siginfo_t * info,
+int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
 				 const struct timespec *timeout)
 {
 	if (set == NULL)
@@ -48,3 +46,5 @@ int sigtimedwait(const sigset_t * set, siginfo_t * info,
 	return -1;
 }
 #endif
+strong_alias(__sigtimedwait,sigtimedwait)
+strong_alias(__sigwaitinfo,sigwaitinfo)
