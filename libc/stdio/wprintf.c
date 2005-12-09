@@ -15,7 +15,7 @@ int wprintf(const wchar_t * __restrict format, ...)
 	int rv;
 
 	va_start(arg, format);
-	rv = vfwprintf(stdout, format, arg);
+	rv = __vfwprintf(stdout, format, arg);
 	va_end(arg);
 
 	return rv;

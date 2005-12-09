@@ -52,7 +52,7 @@ int attribute_hidden __vswprintf(wchar_t *__restrict buf, size_t size,
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
 
-	rv = vfwprintf(&f, format, arg);
+	rv = __vfwprintf(&f, format, arg);
 
 	/* NOTE: Return behaviour differs from snprintf... */
 	if (f.__bufpos == f.__bufend) {

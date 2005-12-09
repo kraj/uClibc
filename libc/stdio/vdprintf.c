@@ -47,7 +47,7 @@ int attribute_hidden __vdprintf(int filedes, const char * __restrict format, va_
 #endif
 	f.__nextopen = NULL;
 
-	rv = vfprintf(&f, format, arg);
+	rv = __vfprintf(&f, format, arg);
 
 #ifdef __STDIO_BUFFERS
 	/* If not buffering, then fflush is unnecessary. */

@@ -12,16 +12,17 @@
 #warning Skipping sprintf since no vsnprintf!
 #else
 
-int sprintf(char *__restrict buf, const char * __restrict format, ...)
+int attribute_hidden __sprintf(char *__restrict buf, const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = vsnprintf(buf, SIZE_MAX, format, arg);
+	rv = __vsnprintf(buf, SIZE_MAX, format, arg);
 	va_end(arg);
 
 	return rv;
 }
+strong_alias(__sprintf,sprintf)
 
 #endif
