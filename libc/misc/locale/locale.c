@@ -1002,7 +1002,7 @@ static const unsigned char nl_data[C_LC_ALL + 1 + 90 + 320] = {
 	   ']', '\x00',    '^',    '[',    'n',    'N',    ']', '\x00', 
 };
 
-char *nl_langinfo(nl_item item)
+char attribute_hidden *__nl_langinfo(nl_item item)
 {
 	unsigned int c;
 	unsigned int i;
@@ -1015,21 +1015,25 @@ char *nl_langinfo(nl_item item)
 	}
 	return (char *) cat_start;	/* Conveniently, this is the empty string. */
 }
+strong_alias(__nl_langinfo,nl_langinfo)
 
 #else  /* __LOCALE_C_ONLY */
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-char *nl_langinfo(nl_item item)
+extern char *__nl_langinfo_l (nl_item __item, __locale_t l) attribute_hidden;
+
+char attribute_hidden *__nl_langinfo(nl_item item)
 {
 	return __nl_langinfo_l(item, __UCLIBC_CURLOCALE);
 }
+strong_alias(__nl_langinfo,nl_langinfo)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
 static const char empty[] = "";
 
-char *__XL(nl_langinfo)(nl_item item   __LOCALE_PARAM )
+char attribute_hidden *__UCXL(nl_langinfo)(nl_item item   __LOCALE_PARAM )
 {
 	unsigned int c = _NL_ITEM_CATEGORY(item);
 	unsigned int i = _NL_ITEM_INDEX(item);
@@ -1041,6 +1045,7 @@ char *__XL(nl_langinfo)(nl_item item   __LOCALE_PARAM )
 
 	return (char *) empty;
 }
+__UCXL_ALIAS(nl_langinfo)
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
