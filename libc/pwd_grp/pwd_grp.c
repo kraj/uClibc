@@ -844,7 +844,7 @@ int putspent(const struct spwd *p, FILE *stream)
 	static const char ld_format[] = "%ld:";
 	const char *f;
 	long int x;
-	int i;
+	size_t i;
 	int rv = -1;
 	__STDIO_AUTO_THREADLOCK_VAR;
 
@@ -1126,7 +1126,7 @@ int attribute_hidden __parsespent(void *data, char * line)
 int attribute_hidden __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
 				char *__restrict line_buff, size_t buflen, FILE *f)
 {
-	int line_len;
+	size_t line_len;
 	int skip;
 	int rv = ERANGE;
 	__STDIO_AUTO_THREADLOCK_VAR;
