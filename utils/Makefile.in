@@ -20,7 +20,8 @@ endif
 
 CFLAGS-ldd := $(CFLAGS-utils-common) $(CFLAGS-utils-shared) -D_GNU_SOURCE
 
-CFLAGS-iconv := $(CFLAGS-utils-shared) -DL_iconv_main
+# needs CFLAGS-utils explicitely, because the source file is not located in utils
+CFLAGS-iconv := $(CFLAGS-utils) $(CFLAGS-utils-shared) -DL_iconv_main
 
 CFLAGS-readelf := $(CFLAGS-utils-shared)
 
