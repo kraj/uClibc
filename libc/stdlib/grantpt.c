@@ -45,15 +45,15 @@ static int pts_name (int fd, char **pts, size_t buf_len);
    terminal associated with the master pseudo terminal specified
    by FD.  */
 int
+#if !defined __ASSUME_DEVPTS__
 grantpt (int fd)
+#else
+grantpt (attribute_unused int fd)
+#endif
 {
 #if !defined __ASSUME_DEVPTS__
   struct statfs fsbuf;
-# ifdef PATH_MAX
   char _buf[PATH_MAX];
-# else
-  char _buf[512];
-# endif
   char *buf = _buf;
 
   if (pts_name (fd, &buf, sizeof (_buf)))
