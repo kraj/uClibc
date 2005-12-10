@@ -3,8 +3,12 @@
 
 #define	__need_size_t
 #include <stddef.h>
-extern int __path_search (char *tmpl, size_t tmpl_len, const char *dir, 
-	        const char *pfx, int try_tmpdir) attribute_hidden;
+
+/* Disable support for $TMPDIR */
+extern int ___path_search (char *tmpl, size_t tmpl_len, const char *dir, 
+	        const char *pfx /*, int try_tmpdir */) attribute_hidden;
+#define __path_search(tmpl, tmpl_len, dir, pfx, try_tmpdir) ___path_search(tmpl, tmpl_len, dir, pfx)
+
 extern int __gen_tempname (char *__tmpl, int __kind) attribute_hidden;
 
 /* The __kind argument to __gen_tempname may be one of: */
