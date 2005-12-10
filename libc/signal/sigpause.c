@@ -18,6 +18,7 @@
    02111-1307 USA.  */
 
 #define sigdelset __sigdelset_internal
+#define sigsuspend __sigsuspend
 
 #include <errno.h>
 #include <signal.h>
@@ -27,7 +28,7 @@
 
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
-int __sigpause (int sig_or_mask, int is_sig)
+int attribute_hidden __sigpause_internal (int sig_or_mask, int is_sig)
 {
   sigset_t set;
 
@@ -44,7 +45,7 @@ int __sigpause (int sig_or_mask, int is_sig)
 
   return sigsuspend (&set);
 }
-
+strong_alias(__sigpause_internal,__sigpause)
 
 #undef sigpause
 
@@ -53,5 +54,5 @@ int __sigpause (int sig_or_mask, int is_sig)
    the BSD version.  So make this the default.  */
 int sigpause (int mask)
 {
-  return __sigpause (mask, 0);
+  return __sigpause_internal (mask, 0);
 }
