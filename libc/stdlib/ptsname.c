@@ -152,7 +152,7 @@ int attribute_hidden __ptsname_r (int fd, char *buf, size_t buflen)
       if (major (st.st_rdev) == 4)
 	ptyno -= 128;
 
-      if (ptyno / 16 >= __strlen (_ptyname1))
+      if (ptyno / 16 >= __strlen (__libc_ptyname1))
 	{
 	  errno = ENOTTY;
 	  return ENOTTY;
@@ -160,8 +160,8 @@ int attribute_hidden __ptsname_r (int fd, char *buf, size_t buflen)
 
       __strcpy (buf, _PATH_TTY);
       p = buf + __strlen (buf);
-      p[0] = _ptyname1[ptyno / 16];
-      p[1] = _ptyname2[ptyno % 16];
+      p[0] = __libc_ptyname1[ptyno / 16];
+      p[1] = __libc_ptyname2[ptyno % 16];
       p[2] = '\0';
     }
 
