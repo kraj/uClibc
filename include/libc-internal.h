@@ -19,6 +19,8 @@
 #ifndef _LIBC_INTERNAL_H
 #define _LIBC_INTERNAL_H 1
 
+#include <features.h>
+
 /* Some nice features only work properly with ELF */
 #if defined __HAVE_ELF__
 /* Define ALIASNAME as a weak alias for NAME. */
@@ -93,6 +95,8 @@
 #ifndef __cast__
 # define __cast__(_to)
 #endif
+
+#define attribute_unused __attribute__ ((unused))
 
 /* Arrange to hide uClibc internals */
 #if __GNUC_PREREQ (3, 3)
