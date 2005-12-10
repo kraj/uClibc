@@ -123,7 +123,7 @@ closelog_intern(int to_default)
 }
 
 static void
-sigpipe_handler (int sig)
+sigpipe_handler (attribute_unused int sig)
 {
   closelog_intern (0);
 }
