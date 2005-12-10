@@ -43,14 +43,16 @@ int __libc_accept(int s, struct sockaddr *addr, socklen_t * addrlen)
 	return __socketcall(SYS_ACCEPT, args);
 }
 #endif
-weak_alias(__libc_accept, accept);
+hidden_weak_alias(__libc_accept,__accept)
+weak_alias(__libc_accept,accept)
 #endif
 
 #ifdef L_bind
 #ifdef __NR_bind
-_syscall3(int, bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen);
+#define __NR___bind __NR_bind
+attribute_hidden _syscall3(int, __bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen);
 #elif defined(__NR_socketcall)
-int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
+int attribute_hidden __bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 {
 	unsigned long args[3];
 
@@ -60,6 +62,7 @@ int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 	return __socketcall(SYS_BIND, args);
 }
 #endif
+strong_alias(__bind,bind)
 #endif
 
 #ifdef L_connect
@@ -77,7 +80,8 @@ int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 	return __socketcall(SYS_CONNECT, args);
 }
 #endif
-weak_alias(__libc_connect, connect);
+hidden_weak_alias(__libc_connect,__connect)
+weak_alias(__libc_connect,connect)
 #endif
 
 #ifdef L_getpeername
@@ -100,7 +104,6 @@ int getpeername(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 #ifdef __NR_getsockname
 #define __NR___getsockname __NR_getsockname
 attribute_hidden _syscall3(int, __getsockname, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen);
-strong_alias(__getsockname,getsockname)
 #elif defined(__NR_socketcall)
 int attribute_hidden __getsockname(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 {
@@ -111,8 +114,8 @@ int attribute_hidden __getsockname(int sockfd, struct sockaddr *addr, socklen_t 
 	args[2] = (unsigned long) paddrlen;
 	return __socketcall(SYS_GETSOCKNAME, args);
 }
-strong_alias(__getsockname,getsockname)
 #endif
+strong_alias(__getsockname,getsockname)
 #endif
 
 #ifdef L_getsockopt
@@ -136,9 +139,10 @@ int getsockopt(int fd, int level, int optname, __ptr_t optval,
 
 #ifdef L_listen
 #ifdef __NR_listen
-_syscall2(int, listen, int, sockfd, int, backlog);
+#define __NR___listen __NR_listen
+attribute_hidden _syscall2(int, __listen, int, sockfd, int, backlog);
 #elif defined(__NR_socketcall)
-int listen(int sockfd, int backlog)
+int attribute_hidden __listen(int sockfd, int backlog)
 {
 	unsigned long args[2];
 
@@ -147,6 +151,7 @@ int listen(int sockfd, int backlog)
 	return __socketcall(SYS_LISTEN, args);
 }
 #endif
+strong_alias(__listen,listen)
 #endif
 
 #ifdef L_recv
@@ -166,14 +171,14 @@ ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 	args[3] = flags;
 	return (__socketcall(SYS_RECV, args));
 }
-weak_alias(__libc_recv, recv);
 #elif defined(__NR_recvfrom)
 ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 {
-	return (recvfrom(sockfd, buffer, len, flags, NULL, NULL));
+	return (__recvfrom(sockfd, buffer, len, flags, NULL, NULL));
 }
-weak_alias(__libc_recv, recv);
 #endif
+hidden_weak_alias(__libc_recv,__recv)
+weak_alias(__libc_recv,recv)
 #endif
 
 #ifdef L_recvfrom
@@ -197,7 +202,8 @@ ssize_t __libc_recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
 	return (__socketcall(SYS_RECVFROM, args));
 }
 #endif
-weak_alias(__libc_recvfrom, recvfrom);
+hidden_weak_alias(__libc_recvfrom,__recvfrom)
+weak_alias(__libc_recvfrom,recvfrom)
 #endif
 
 #ifdef L_recvmsg
@@ -215,14 +221,14 @@ ssize_t __libc_recvmsg(int sockfd, struct msghdr *msg, int flags)
 	return (__socketcall(SYS_RECVMSG, args));
 }
 #endif
-weak_alias(__libc_recvmsg, recvmsg);
+hidden_weak_alias(__libc_recvmsg,__recvmsg)
+weak_alias(__libc_recvmsg,recvmsg)
 #endif
 
 #ifdef L_send
 #ifdef __NR_send
 #define __NR___libc_send    __NR_send
 _syscall4(ssize_t, __libc_send, int, sockfd, const void *, buffer, size_t, len, int, flags);
-weak_alias(__libc_send, send);
 #elif defined(__NR_socketcall)
 /* send, sendto added by bir7@leland.stanford.edu */
 ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
@@ -235,14 +241,18 @@ ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 	args[3] = flags;
 	return (__socketcall(SYS_SEND, args));
 }
-weak_alias(__libc_send, send);
 #elif defined(__NR_sendto)
+extern ssize_t __sendto (int __fd, __const void *__buf, size_t __n,
+		       int __flags, __CONST_SOCKADDR_ARG __addr,
+		       socklen_t __addr_len) attribute_hidden;
+
 ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 {
-	return (sendto(sockfd, buffer, len, flags, NULL, 0));
+	return (__sendto(sockfd, buffer, len, flags, NULL, 0));
 }
-weak_alias(__libc_send, send);
 #endif
+hidden_weak_alias(__libc_send,__send)
+weak_alias(__libc_send,send)
 #endif
 
 #ifdef L_sendmsg
@@ -260,7 +270,8 @@ ssize_t __libc_sendmsg(int sockfd, const struct msghdr *msg, int flags)
 	return (__socketcall(SYS_SENDMSG, args));
 }
 #endif
-weak_alias(__libc_sendmsg, sendmsg);
+hidden_weak_alias(__libc_sendmsg,__sendmsg)
+weak_alias(__libc_sendmsg,sendmsg)
 #endif
 
 #ifdef L_sendto
@@ -284,15 +295,17 @@ ssize_t __libc_sendto(int sockfd, const void *buffer, size_t len, int flags,
 	return (__socketcall(SYS_SENDTO, args));
 }
 #endif
-weak_alias(__libc_sendto, sendto);
+hidden_weak_alias(__libc_sendto,__sendto)
+weak_alias(__libc_sendto,sendto)
 #endif
 
 #ifdef L_setsockopt
 #ifdef __NR_setsockopt
-_syscall5(int, setsockopt, int, fd, int, level, int, optname, const void *, optval, socklen_t, optlen);
+#define __NR___setsockopt __NR_setsockopt
+attribute_hidden _syscall5(int, __setsockopt, int, fd, int, level, int, optname, const void *, optval, socklen_t, optlen);
 #elif defined(__NR_socketcall)
 /* [sg]etsockoptions by bir7@leland.stanford.edu */
-int setsockopt(int fd, int level, int optname, const void *optval,
+int attribute_hidden __setsockopt(int fd, int level, int optname, const void *optval,
 		   socklen_t optlen)
 {
 	unsigned long args[5];
@@ -305,6 +318,7 @@ int setsockopt(int fd, int level, int optname, const void *optval,
 	return (__socketcall(SYS_SETSOCKOPT, args));
 }
 #endif
+strong_alias(__setsockopt,setsockopt)
 #endif
 
 #ifdef L_shutdown
@@ -325,9 +339,10 @@ int shutdown(int sockfd, int how)
 
 #ifdef L_socket
 #ifdef __NR_socket
-_syscall3(int, socket, int, family, int, type, int, protocol);
+#define __NR___socket __NR_socket
+attribute_hidden _syscall3(int, __socket, int, family, int, type, int, protocol);
 #elif defined(__NR_socketcall)
-int socket(int family, int type, int protocol)
+int attribute_hidden __socket(int family, int type, int protocol)
 {
 	unsigned long args[3];
 
@@ -337,6 +352,7 @@ int socket(int family, int type, int protocol)
 	return __socketcall(SYS_SOCKET, args);
 }
 #endif
+strong_alias(__socket,socket)
 #endif
 
 #ifdef L_socketpair
@@ -355,4 +371,3 @@ int socketpair(int family, int type, int protocol, int sockvec[2])
 }
 #endif
 #endif
-

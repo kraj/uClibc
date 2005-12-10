@@ -46,7 +46,7 @@ extern void __default_rt_sa_restorer(void);
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int attribute_hidden __sigaction_internal (int sig, const struct sigaction *act, struct sigaction *oact)
+int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
     int result;
     struct kernel_sigaction kact, koact;
@@ -94,7 +94,7 @@ int attribute_hidden __sigaction_internal (int sig, const struct sigaction *act,
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __sigaction_internal (int sig, const struct sigaction *act, struct sigaction *oact)
+int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
     int result;
     struct old_kernel_sigaction kact, koact;
@@ -127,6 +127,6 @@ int __sigaction_internal (int sig, const struct sigaction *act, struct sigaction
 }
 
 #endif
-strong_alias(__sigaction_internal,__libc_sigaction)
-weak_alias(__sigaction_internal, sigaction)
+hidden_weak_alias(__libc_sigaction,__sigaction)
+weak_alias(__libc_sigaction,sigaction)
 

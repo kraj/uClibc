@@ -1,3 +1,7 @@
+#define opendir __opendir
+#define closedir __closedir
+#define isatty __isatty
+
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
@@ -43,7 +47,7 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 	char *s;
 	DIR *fp;
 	int rv;
-	int len;
+	size_t len;
 	char buf[TTYNAME_BUFLEN];
 
 	if (fstat(fd, &st) < 0) {

@@ -13,7 +13,7 @@
 #warning Skipping vswprintf since no buffering!
 #else  /* __STDIO_BUFFERS */
 
-int vswprintf(wchar_t *__restrict buf, size_t size,
+int attribute_hidden __vswprintf(wchar_t *__restrict buf, size_t size,
 			  const wchar_t * __restrict format, va_list arg)
 {
 	FILE f;
@@ -38,11 +38,7 @@ int vswprintf(wchar_t *__restrict buf, size_t size,
 
 #ifdef __UCLIBC_HAS_THREADS__
 	f.__user_locking = 1;		/* Set user locking. */
-#ifdef __USE_STDIO_FUTEXES__
-	_IO_lock_init (f._lock);
-#else
 	__stdio_init_mutex(&f.__lock);
-#endif
 #endif
 	f.__nextopen = NULL;
 
@@ -56,7 +52,7 @@ int vswprintf(wchar_t *__restrict buf, size_t size,
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
 
-	rv = vfwprintf(&f, format, arg);
+	rv = __vfwprintf(&f, format, arg);
 
 	/* NOTE: Return behaviour differs from snprintf... */
 	if (f.__bufpos == f.__bufend) {
@@ -70,5 +66,6 @@ int vswprintf(wchar_t *__restrict buf, size_t size,
 	}
 	return rv;
 }
+strong_alias(__vswprintf,vswprintf)
 
 #endif /* __STDIO_BUFFERS */

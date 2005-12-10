@@ -34,6 +34,9 @@
    enable all the ports all of the time.  */
 
 #define readlink __readlink
+#define mmap __mmap
+#define sscanf __sscanf
+#define fscanf __fscanf
 
 #include <errno.h>
 #include <fcntl.h>

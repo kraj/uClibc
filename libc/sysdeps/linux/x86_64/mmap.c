@@ -13,5 +13,7 @@
 #include <sys/mman.h>
 #include <sys/syscall.h>
 
-_syscall6(void *, mmap, void *, start, size_t, length, int, prot,
+#define __NR___mmap __NR_mmap
+attribute_hidden _syscall6(void *, __mmap, void *, start, size_t, length, int, prot,
           int, flags, int, fd, off_t, offset);
+strong_alias(__mmap,mmap)

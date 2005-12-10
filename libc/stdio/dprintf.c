@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define vdprintf __vdprintf
+
 #include "_stdio.h"
 #include <stdarg.h>
 

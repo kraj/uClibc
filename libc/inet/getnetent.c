@@ -15,6 +15,9 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+#define inet_network __inet_network
+#define rewind __rewind
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <stdio.h>

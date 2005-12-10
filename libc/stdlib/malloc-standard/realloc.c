@@ -14,6 +14,8 @@
   Hacked up for uClibc by Erik Andersen <andersen@codepoet.org>
 */
 
+#define mremap __mremap
+
 #include "malloc.h"
 
 

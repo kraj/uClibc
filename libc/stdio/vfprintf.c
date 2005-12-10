@@ -1195,6 +1195,7 @@ static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad);
 
 #ifdef L_vfprintf
 
+#define HIDDEN_VFPRINTF __vfprintf
 #define VFPRINTF vfprintf
 #define FMT_TYPE char
 #define OUTNSTR _outnstr
@@ -1227,6 +1228,7 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 
 #else  /* L_vfprintf */
 
+#define HIDDEN_VFPRINTF __vfwprintf
 #define VFPRINTF vfwprintf
 #define FMT_TYPE wchar_t
 #define OUTNSTR _outnwcs
@@ -1736,7 +1738,7 @@ static int _do_one_spec(FILE * __restrict stream,
 
 #ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
 		} else if (ppfs->conv_num == CONV_m) {
-			s = __glibc_strerror_r(errno, buf, sizeof(buf));
+			s = __glibc_strerror_r_internal(errno, buf, sizeof(buf));
 			goto SET_STRING_LEN;
 #endif
 		} else {
@@ -1844,7 +1846,7 @@ static int _do_one_spec(FILE * __restrict stream,
 	return 0;
 }
 
-int VFPRINTF (FILE * __restrict stream,
+int attribute_hidden HIDDEN_VFPRINTF (FILE * __restrict stream,
 			  register const FMT_TYPE * __restrict format,
 			  va_list arg)
 {
@@ -1921,5 +1923,6 @@ int VFPRINTF (FILE * __restrict stream,
 
 	return count;
 }
+strong_alias(HIDDEN_VFPRINTF,VFPRINTF)
 #endif
 /**********************************************************************/

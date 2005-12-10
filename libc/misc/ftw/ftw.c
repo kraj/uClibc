@@ -25,8 +25,13 @@
 #define stpcpy __stpcpy
 #define tsearch __tsearch
 #define tdestroy __tdestroy
+#define tfind __tfind
 #define fchdir __fchdir
+#define chdir __chdir
+#define dirfd __dirfd
 #define getcwd __getcwd
+#define opendir __opendir
+#define closedir __closedir
 
 #define _GNU_SOURCE
 #include <features.h>

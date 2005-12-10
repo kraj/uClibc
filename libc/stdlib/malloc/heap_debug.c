@@ -11,6 +11,8 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
+#define vfprintf __vfprintf
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>

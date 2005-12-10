@@ -29,10 +29,11 @@
    using the new-style struct termios, and translate them to old-style.  */
 
 #define __NR___syscall_ioctl __NR_ioctl
+static inline
 _syscall3(int, __syscall_ioctl, int, fd, unsigned long int, request, void *, arg);
 
 
-int ioctl (int fd, unsigned long int request, ...)
+int attribute_hidden __ioctl (int fd, unsigned long int request, ...)
 {
     void *arg;
     va_list ap;
@@ -68,3 +69,4 @@ int ioctl (int fd, unsigned long int request, ...)
 
     return result;
 }
+strong_alias(__ioctl,ioctl)

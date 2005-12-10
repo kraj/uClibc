@@ -81,7 +81,7 @@ strong_alias(__tsearch,tsearch)
 #endif
 
 #ifdef L_tfind
-void *tfind(__const void *key, void * __const *vrootp, __compar_fn_t compar)
+void attribute_hidden *__tfind(__const void *key, void * __const *vrootp, __compar_fn_t compar)
 {
     register node **rootp = (node **) vrootp;
 
@@ -99,6 +99,7 @@ void *tfind(__const void *key, void * __const *vrootp, __compar_fn_t compar)
     }
     return NULL;
 }
+strong_alias(__tfind,tfind)
 #endif
 
 #ifdef L_tdelete

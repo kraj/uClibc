@@ -15,7 +15,7 @@ int fwprintf(FILE * __restrict stream, const wchar_t * __restrict format, ...)
 	int rv;
 
 	va_start(arg, format);
-	rv = vfwprintf(stream, format, arg);
+	rv = __vfwprintf(stream, format, arg);
 	va_end(arg);
 
 	return rv;

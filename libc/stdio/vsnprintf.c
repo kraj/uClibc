@@ -14,7 +14,7 @@
 
 #ifdef __STDIO_BUFFERS
 
-int vsnprintf(char *__restrict buf, size_t size,
+int attribute_hidden __vsnprintf(char *__restrict buf, size_t size,
 			  const char * __restrict format, va_list arg)
 {
 	FILE f;
@@ -61,7 +61,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_ENABLE_PUTC(&f);
 
-	rv = vfprintf(&f, format, arg);
+	rv = __vfprintf(&f, format, arg);
 	if (size) {
 		if (f.__bufpos == f.__bufend) {
 			--f.__bufpos;
@@ -70,6 +70,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 	}
 	return rv;
 }
+strong_alias(__vsnprintf,vsnprintf)
 
 #elif defined(__USE_OLD_VFPRINTF__)
 
@@ -79,7 +80,7 @@ typedef struct {
 	unsigned char *bufpos;
 } __FILE_vsnprintf;
 
-int vsnprintf(char *__restrict buf, size_t size,
+int attribute_hidden __vsnprintf(char *__restrict buf, size_t size,
 			  const char * __restrict format, va_list arg)
 {
 	__FILE_vsnprintf f;
@@ -121,7 +122,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 #endif
 	f.f.__nextopen = NULL;
 
-	rv = vfprintf((FILE *) &f, format, arg);
+	rv = __vfprintf((FILE *) &f, format, arg);
 	if (size) {
 		if (f.bufpos == f.bufend) {
 			--f.bufpos;
@@ -130,6 +131,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 	}
 	return rv;
 }
+strong_alias(__vsnprintf,vsnprintf)
 
 #elif defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
 
@@ -171,7 +173,7 @@ static ssize_t snpf_write(register void *cookie, const char *buf,
 
 #undef COOKIE
 
-int vsnprintf(char *__restrict buf, size_t size,
+int attribute_hidden __vsnprintf(char *__restrict buf, size_t size,
 			  const char * __restrict format, va_list arg)
 {
 	FILE f;
@@ -209,10 +211,11 @@ int vsnprintf(char *__restrict buf, size_t size,
 #endif
 	f.__nextopen = NULL;
 
-	rv = vfprintf(&f, format, arg);
+	rv = __vfprintf(&f, format, arg);
 
 	return rv;
 }
+strong_alias(__vsnprintf,vsnprintf)
 
 #else
 #warning Skipping vsnprintf since no buffering, no custom streams, and not old vfprintf!

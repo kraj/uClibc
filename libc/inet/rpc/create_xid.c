@@ -19,6 +19,7 @@
 
 #define lrand48_r __lrand48_r
 #define srand48_r __srand48_r
+#define gettimeofday __gettimeofday
 
 #define __FORCE_GLIBC
 #include <features.h>

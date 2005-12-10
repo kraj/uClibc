@@ -26,6 +26,7 @@
  *
  */
 
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -147,6 +148,10 @@
 #define ELFDATAM	ELFDATA2LSB
 #elif __BYTE_ORDER == __BIG_ENDIAN
 #define ELFDATAM	ELFDATA2MSB
+#endif
+
+#ifndef UCLIBC_RUNTIME_PREFIX
+# define UCLIBC_RUNTIME_PREFIX "/"
 #endif
 
 struct library {
@@ -710,9 +715,10 @@ foo:
 	interp = find_elf_interpreter(ehdr);
 
 #ifdef __LDSO_LDD_SUPPORT__
-	if (interp && (ehdr->e_type == ET_EXEC || ehdr->e_type == ET_DYN) && ehdr->e_ident[EI_CLASS] == ELFCLASSM &&
-			ehdr->e_ident[EI_DATA] == ELFDATAM
-			&& ehdr->e_ident[EI_VERSION] == EV_CURRENT && MATCH_MACHINE(ehdr->e_machine))
+	if (interp && \
+	    (ehdr->e_type == ET_EXEC || ehdr->e_type == ET_DYN) && \
+	    ehdr->e_ident[EI_CLASS] == ELFCLASSM && ehdr->e_ident[EI_DATA] == ELFDATAM && \
+	    ehdr->e_ident[EI_VERSION] == EV_CURRENT && MATCH_MACHINE(ehdr->e_machine))
 	{
 		struct stat statbuf;
 		if (stat(interp->path, &statbuf) == 0 && S_ISREG(statbuf.st_mode)) {
@@ -756,8 +762,8 @@ foo:
 
 int main( int argc, char** argv)
 {
-	int multi=0;
-	int got_em_all=1;
+	int multi = 0;
+	int got_em_all = 1;
 	char *filename = NULL;
 	struct library *cur;
 
@@ -766,9 +772,8 @@ int main( int argc, char** argv)
 		fprintf(stderr, "Try `ldd --help' for more information.\n");
 		exit(EXIT_FAILURE);
 	}
-	if (argc > 2) {
+	if (argc > 2)
 		multi++;
-	}
 
 	while (--argc > 0) {
 		++argv;
@@ -781,10 +786,10 @@ int main( int argc, char** argv)
 		if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
 			fprintf(stderr, "Usage: ldd [OPTION]... FILE...\n");
 			fprintf(stderr, "\t--help\t\tprint this help and exit\n");
-			exit(EXIT_FAILURE);
+			exit(EXIT_SUCCESS);
 		}
 
-		filename=*argv;
+		filename = *argv;
 		if (!filename) {
 			fprintf(stderr, "No filename specified.\n");
 			exit(EXIT_FAILURE);
@@ -799,13 +804,13 @@ int main( int argc, char** argv)
 		if (find_dependancies(filename)!=0)
 			continue;
 
-		while(got_em_all) {
-			got_em_all=0;
+		while (got_em_all) {
+			got_em_all = 0;
 			/* Keep walking the list till everybody is resolved */
 			for (cur = lib_list; cur; cur=cur->next) {
 				if (cur->resolved == 0 && cur->path) {
-					got_em_all=1;
-					//printf("checking sub-depends for '%s\n", cur->path);
+					got_em_all = 1;
+					printf("checking sub-depends for '%s'\n", cur->path);
 					find_dependancies(cur->path);
 					cur->resolved = 1;
 				}
@@ -815,9 +820,9 @@ int main( int argc, char** argv)
 		unmap_cache();
 
 		/* Print the list */
-		got_em_all=0;
+		got_em_all = 0;
 		for (cur = lib_list; cur; cur=cur->next) {
-			got_em_all=1;
+			got_em_all = 1;
 			printf("\t%s => %s (0x00000000)\n", cur->name, cur->path);
 		}
 		if (interp_name && interpreter_already_found==1)
@@ -827,13 +832,13 @@ int main( int argc, char** argv)
 
 		for (cur = lib_list; cur; cur=cur->next) {
 			free(cur->name);
-			cur->name=NULL;
+			cur->name = NULL;
 			if (cur->path && cur->path != not_found) {
 				free(cur->path);
-				cur->path=NULL;
+				cur->path = NULL;
 			}
 		}
-		lib_list=NULL;
+		lib_list = NULL;
 	}
 
 	return 0;

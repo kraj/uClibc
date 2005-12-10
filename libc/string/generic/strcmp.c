@@ -47,6 +47,6 @@ int attribute_hidden __strcmp (const char *p1, const char *p2)
 strong_alias(__strcmp, strcmp)
 
 #ifdef __LOCALE_C_ONLY
-weak_alias(__strcmp, __strcoll)
-strong_alias(__strcoll, strcoll)
+hidden_strong_alias(__strcmp, __strcoll)
+strong_alias(__strcmp, strcoll)
 #endif /* __LOCALE_C_ONLY */

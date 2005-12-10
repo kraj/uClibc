@@ -36,7 +36,7 @@ static const int h_nerr = { sizeof(h_errlist)/sizeof(h_errlist[0]) };
 /*
  * herror -- print the error indicated by the h_errno value.
  */
-void herror(const char *s)
+void attribute_hidden __herror(const char *s)
 {
 	static const char colon_space[] = ": ";
 	const char *p;
@@ -52,6 +52,7 @@ void herror(const char *s)
 	}
 	fprintf(stderr, "%s%s%s\n", s, c, p);
 }
+strong_alias(__herror,herror)
 
 
 const char *hstrerror(int err)

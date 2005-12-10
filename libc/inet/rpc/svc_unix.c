@@ -44,9 +44,17 @@
 #define xdr_callmsg __xdr_callmsg
 #define xdr_replymsg __xdr_replymsg
 #define xprt_register __xprt_register
+#define xprt_unregister __xprt_unregister
 #define getegid __getegid
 #define geteuid __geteuid
 #define getsockname __getsockname
+#define setsockopt __setsockopt
+#define bind __bind
+#define recvmsg __recvmsg
+#define sendmsg __sendmsg
+#define poll __poll
+#define accept __accept
+#define listen __listen
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -158,7 +166,7 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
 
   if (sock == RPC_ANYSOCK)
     {
-      if ((sock = socket (AF_UNIX, SOCK_STREAM, 0)) < 0)
+      if ((sock = __socket (AF_UNIX, SOCK_STREAM, 0)) < 0)
 	{
 	  __perror (_("svc_unix.c - AF_UNIX socket creation problem"));
 	  return (SVCXPRT *) NULL;

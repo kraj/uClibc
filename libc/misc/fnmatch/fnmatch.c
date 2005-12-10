@@ -49,16 +49,9 @@ Cambridge, MA 02139, USA.  */
 # define ISUPPER(c) (ISASCII (c) && isupper (c))
 
 
-# ifndef errno
-extern int errno;
-# endif
-
 /* Match STRING against the filename pattern PATTERN, returning zero if
    it matches, nonzero if not.  */
-int fnmatch(pattern, string, flags)
-const char *pattern;
-const char *string;
-int flags;
+int attribute_hidden __fnmatch(const char *pattern, const char *string, int flags)
 {
 	register const char *p = pattern, *n = string;
 	register char c;
@@ -124,7 +117,7 @@ int flags;
 				c1 = FOLD(c1);
 				for (--p; *n != '\0'; ++n)
 					if ((c == '[' || FOLD(*n) == c1) &&
-						fnmatch(p, n, flags & ~FNM_PERIOD) == 0)
+						__fnmatch(p, n, flags & ~FNM_PERIOD) == 0)
 						return 0;
 				return FNM_NOMATCH;
 			}
@@ -228,5 +221,5 @@ int flags;
 
 # undef FOLD
 }
-
+strong_alias(__fnmatch,fnmatch)
 #endif							/* _LIBC or not __GNU_LIBRARY__.  */

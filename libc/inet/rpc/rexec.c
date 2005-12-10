@@ -27,9 +27,16 @@
  * SUCH DAMAGE.
  */
 
+#define getsockname __getsockname
 #define getnameinfo __getnameinfo
 #define getaddrinfo __getaddrinfo
-#define getsockname __getsockname
+#define freeaddrinfo __freeaddrinfo
+#define sleep __sleep
+#define atoi __atoi
+#define connect __connect
+#define snprintf __snprintf
+#define accept __accept
+#define listen __listen
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -89,7 +96,7 @@ __rexec_af(char **ahost, int rport, const char *name, const char *pass, const ch
 	}
 	__ruserpass(res0->ai_canonname, &name, &pass);
 retry:
-	s = socket(res0->ai_family, res0->ai_socktype, 0);
+	s = __socket(res0->ai_family, res0->ai_socktype, 0);
 	if (s < 0) {
 		__perror("rexec: socket");
 		return (-1);
@@ -111,7 +118,7 @@ retry:
 		char num[32];
 		int s2, sa2len;
 
-		s2 = socket(res0->ai_family, res0->ai_socktype, 0);
+		s2 = __socket(res0->ai_family, res0->ai_socktype, 0);
 		if (s2 < 0) {
 			(void) __close(s);
 			return (-1);
@@ -132,7 +139,7 @@ retry:
 				 NULL, 0, servbuff, sizeof(servbuff),
 				 NI_NUMERICSERV))
 			port = atoi(servbuff);
-		(void) sprintf(num, "%u", port);
+		(void) __sprintf(num, "%u", port);
 		(void) __write(s, num, __strlen(num)+1);
 		{ socklen_t len = sizeof (from);
 		  s3 = accept(s2, (struct sockaddr *)&from, &len);

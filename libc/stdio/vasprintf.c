@@ -20,7 +20,7 @@
 #warning Skipping vasprintf since no vsnprintf!
 #else
 
-int vasprintf(char **__restrict buf, const char * __restrict format,
+int attribute_hidden __vasprintf(char **__restrict buf, const char * __restrict format,
 			 va_list arg)
 {
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
@@ -32,7 +32,7 @@ int vasprintf(char **__restrict buf, const char * __restrict format,
 	*buf = NULL;
 
 	if ((f = open_memstream(buf, &size)) != NULL) {
-		rv = vfprintf(f, format, arg);
+		rv = __vfprintf(f, format, arg);
 		fclose(f);
 		if (rv < 0) {
 			free(*buf);
@@ -54,14 +54,14 @@ int vasprintf(char **__restrict buf, const char * __restrict format,
 	int rv;
 
 	va_copy(arg2, arg);
- 	rv = vsnprintf(NULL, 0, format, arg2);
+ 	rv = __vsnprintf(NULL, 0, format, arg2);
 	va_end(arg2);
 
 	*buf = NULL;
 
 	if (rv >= 0) {
 		if ((*buf = malloc(++rv)) != NULL) {
-			if ((rv = vsnprintf(*buf, rv, format, arg)) < 0) {
+			if ((rv = __vsnprintf(*buf, rv, format, arg)) < 0) {
 				free(*buf);
 				*buf = NULL;
 			}
@@ -74,5 +74,6 @@ int vasprintf(char **__restrict buf, const char * __restrict format,
 
 #endif /* __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
 }
+strong_alias(__vasprintf,vasprintf)
 
 #endif

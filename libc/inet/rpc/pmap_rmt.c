@@ -46,7 +46,12 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 #define xdr_reference __xdr_reference
 #define xdr_u_long __xdr_u_long
 #define inet_makeaddr __inet_makeaddr
+#define inet_netof __inet_netof
 #define clntudp_create __clntudp_create
+#define setsockopt __setsockopt
+#define recvfrom __recvfrom
+#define sendto __sendto
+#define poll __poll
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -193,7 +198,7 @@ getbroadcastnets (struct in_addr *addrs, int sock, char *buf)
 
   ifc.ifc_len = UDPMSGSIZE;
   ifc.ifc_buf = buf;
-  if (ioctl (sock, SIOCGIFCONF, (char *) &ifc) < 0)
+  if (__ioctl (sock, SIOCGIFCONF, (char *) &ifc) < 0)
     {
       __perror (_("broadcast: ioctl (get interface configuration)"));
       return (0);
@@ -202,7 +207,7 @@ getbroadcastnets (struct in_addr *addrs, int sock, char *buf)
   for (i = 0, n = ifc.ifc_len / sizeof (struct ifreq); n > 0; n--, ifr++)
     {
       ifreq = *ifr;
-      if (ioctl (sock, SIOCGIFFLAGS, (char *) &ifreq) < 0)
+      if (__ioctl (sock, SIOCGIFFLAGS, (char *) &ifreq) < 0)
 	{
 	  __perror (_("broadcast: ioctl (get interface flags)"));
 	  continue;
@@ -213,7 +218,7 @@ getbroadcastnets (struct in_addr *addrs, int sock, char *buf)
 	{
 	  sin = (struct sockaddr_in *) &ifr->ifr_addr;
 #ifdef SIOCGIFBRDADDR		/* 4.3BSD */
-	  if (ioctl (sock, SIOCGIFBRDADDR, (char *) &ifreq) < 0)
+	  if (__ioctl (sock, SIOCGIFBRDADDR, (char *) &ifreq) < 0)
 	    {
 	      addrs[i++] = inet_makeaddr (inet_netof
 	      /* Changed to pass struct instead of s_addr member
@@ -272,7 +277,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
    * initialization: create a socket, a broadcast address, and
    * preserialize the arguments into a send buffer.
    */
-  if ((sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+  if ((sock = __socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
     {
       __perror (_("Cannot create socket for broadcast rpc"));
       stat = RPC_CANTSEND;

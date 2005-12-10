@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define vfprintf __vfprintf
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +36,7 @@ static void vwarn_work(const char *format, va_list args, int showerr)
 	f = fmt + 11;				/* At 11. */
 	if (showerr) {
 		f -= 4;					/* At 7. */
-		__xpg_strerror_r(errno, buf, sizeof(buf));
+		__xpg_strerror_r_internal(errno, buf, sizeof(buf));
 	}
 
 	__STDIO_AUTO_THREADLOCK(stderr);
@@ -49,62 +51,70 @@ static void vwarn_work(const char *format, va_list args, int showerr)
 	__STDIO_AUTO_THREADUNLOCK(stderr);
 }
 
-extern void warn(const char *format, ...)
-{
-	va_list args;
-
-	va_start(args, format);
-	vwarn(format, args);
-	va_end(args);
-}
-
-extern void vwarn(const char *format, va_list args)
+void attribute_hidden __vwarn(const char *format, va_list args)
 {
 	vwarn_work(format, args, 1);
 }
+strong_alias(__vwarn,vwarn)
 
-extern void warnx(const char *format, ...)
+void warn(const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	vwarnx(format, args);
+	__vwarn(format, args);
 	va_end(args);
 }
 
-extern void vwarnx(const char *format, va_list args)
+void attribute_hidden __vwarnx(const char *format, va_list args)
 {
 	vwarn_work(format, args, 0);
 }
+strong_alias(__vwarnx,vwarnx)
 
-extern void err(int status, const char *format, ...)
+void warnx(const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	verr(status, format, args);
-	/* This should get optimized away.  We'll leave it now for safety. */
+	__vwarnx(format, args);
 	va_end(args);
 }
 
-extern void verr(int status, const char *format, va_list args)
+void attribute_hidden __verr(int status, const char *format, va_list args)
 {
-	vwarn(format, args);
+	__vwarn(format, args);
 	exit(status);
 }
+strong_alias(__verr,verr)
 
-extern void errx(int status, const char *format, ...)
+void attribute_noreturn err(int status, const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	verrx(status, format, args);
+	__verr(status, format, args);
 	/* This should get optimized away.  We'll leave it now for safety. */
-	va_end(args);
+	/* The loop is added only to keep gcc happy. */
+	while(1)
+		va_end(args);
 }
 
-extern void verrx(int status, const char *format, va_list args)
+void attribute_hidden __verrx(int status, const char *format, va_list args)
 {
-	vwarnx(format, args);
+	__vwarnx(format, args);
 	exit(status);
+}
+strong_alias(__verrx,verrx)
+
+void attribute_noreturn errx(int status, const char *format, ...)
+{
+	va_list args;
+
+	va_start(args, format);
+	__verrx(status, format, args);
+	/* This should get optimized away.  We'll leave it now for safety. */
+	/* The loop is added only to keep gcc happy. */
+	while(1)
+		va_end(args);
 }

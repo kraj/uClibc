@@ -4,8 +4,7 @@
 #include <unistd.h>
 #include "dirstream.h"
 
-
-int closedir(DIR * dir)
+int attribute_hidden __closedir(DIR * dir)
 {
 	int fd;
 
@@ -27,3 +26,4 @@ int closedir(DIR * dir)
 	free(dir);
 	return __close(fd);
 }
+strong_alias(__closedir,closedir)

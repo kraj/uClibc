@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-void rewind(register FILE *stream)
+void attribute_hidden __rewind(register FILE *stream)
 {
 	__STDIO_AUTO_THREADLOCK_VAR;
 
@@ -18,3 +18,4 @@ void rewind(register FILE *stream)
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 }
+strong_alias(__rewind,rewind)

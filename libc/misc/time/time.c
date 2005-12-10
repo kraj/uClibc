@@ -130,6 +130,7 @@
  */
 
 #define strnlen __strnlen
+#define gettimeofday __gettimeofday
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -147,8 +148,17 @@
 
 extern void __tzset (void) __THROW attribute_hidden;
 
+extern long int __strtol (__const char *__restrict __nptr,
+			char **__restrict __endptr, int __base)
+     __THROW __nonnull ((1)) __wur attribute_hidden;
+
+extern char *__nl_langinfo (nl_item __item) __THROW attribute_hidden;
+
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
+extern long int __strtol_l (__const char *__restrict __nptr,
+			  char **__restrict __endptr, int __base,
+			  __locale_t __loc) __THROW __nonnull ((1, 4)) __wur attribute_hidden;
 extern int __strncasecmp_l (__const char *__s1, __const char *__s2,
 			  size_t __n, __locale_t __loc)
      __THROW __attribute_pure__ __nonnull ((1, 2, 4)) attribute_hidden;
@@ -160,6 +170,8 @@ extern size_t __strftime_l (char *__restrict __s, size_t __maxsize,
 extern char *__strptime_l (__const char *__restrict __s,
 			 __const char *__restrict __fmt, struct tm *__tp,
 			 __locale_t __loc) __THROW attribute_hidden;
+
+extern char *__nl_langinfo_l (nl_item __item, __locale_t l) attribute_hidden;
 #endif
 
 #ifndef __isleap
@@ -266,7 +278,7 @@ strong_alias(__asctime,asctime)
  *       };
  *       static char result[26];
  *   
- *       sprintf(result, "%.3s %.3s%3d %.2d:%.2d:%.2d %d\n",
+ *       __sprintf(result, "%.3s %.3s%3d %.2d:%.2d:%.2d %d\n",
  *           wday_name[timeptr->tm_wday],                   
  *           mon_name[timeptr->tm_mon],
  *           timeptr->tm_mday, timeptr->tm_hour,
@@ -1044,7 +1056,7 @@ size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
 				+ (code & 7);
 #ifdef ENABLE_ERA_CODE
 			if ((mod & NO_E_MOD) /* Actually, this means E modifier present. */
-				&& (*(o = __XL(nl_langinfo)(_NL_ITEM(LC_TIME,
+				&& (*(o = __UCXL(nl_langinfo)(_NL_ITEM(LC_TIME,
 											 (int)(((unsigned char *)p)[4]))
 											__LOCALE_ARG
 									  )))
@@ -1053,7 +1065,7 @@ size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
 				goto LOOP;
 			}
 #endif
-			p = __XL(nl_langinfo)(_NL_ITEM(LC_TIME,
+			p = __UCXL(nl_langinfo)(_NL_ITEM(LC_TIME,
 									 (int)(*((unsigned char *)p)))
 								  __LOCALE_ARG
 								  );
@@ -1230,7 +1242,7 @@ size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
 		if ((code & MASK_SPEC) == STRING_SPEC) {
 			o_count = SIZE_MAX;
 			field_val += spec[STRINGS_NL_ITEM_START + (code & 0xf)];
-			o = __XL(nl_langinfo)(_NL_ITEM(LC_TIME, field_val)  __LOCALE_ARG );
+			o = __UCXL(nl_langinfo)(_NL_ITEM(LC_TIME, field_val)  __LOCALE_ARG );
 		} else {
 			o_count = ((i >> 1) & 3) + 1;
 			o = buf + o_count;
@@ -1491,7 +1503,7 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 				+ (code & 7);
 #ifdef ENABLE_ERA_CODE
 			if ((mod & NO_E_MOD) /* Actually, this means E modifier present. */
-				&& (*(o = __XL(nl_langinfo)(_NL_ITEM(LC_TIME,
+				&& (*(o = __UCXL(nl_langinfo)(_NL_ITEM(LC_TIME,
 											  (int)(((unsigned char *)p)[4]))
 											__LOCALE_ARG
 											)))
@@ -1500,7 +1512,7 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 				goto LOOP;
 			}
 #endif
-			p = __XL(nl_langinfo)(_NL_ITEM(LC_TIME,
+			p = __UCXL(nl_langinfo)(_NL_ITEM(LC_TIME,
 										   (int)(*((unsigned char *)p)))
 								  __LOCALE_ARG );
 			goto LOOP;
@@ -1515,7 +1527,7 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 			/* Go backwards to check full names before abreviations. */
 			do {
 				--j;
-				o = __XL(nl_langinfo)(i+j   __LOCALE_ARG);
+				o = __UCXL(nl_langinfo)(i+j   __LOCALE_ARG);
 				if (!__UCXL(strncasecmp)(buf,o,__strlen(o)   __LOCALE_ARG) && *o) {
 					do {		/* Found a match. */
 						++buf;
@@ -1544,9 +1556,9 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 				__set_errno(0);
 				if (!ISSPACE(*buf)) { /* Signal an error if whitespace. */
 #ifdef TIME_T_IS_UNSIGNED
-					t = __XL(strtoul)(buf, &o, 10   __LOCALE_ARG);
+					t = __UCXL(strtoul)(buf, &o, 10   __LOCALE_ARG);
 #else
-					t = __XL(strtol)(buf, &o, 10   __LOCALE_ARG);
+					t = __UCXL(strtol)(buf, &o, 10   __LOCALE_ARG);
 #endif
 				}
 				if ((o == buf) || errno) { /* Not a number or overflow. */

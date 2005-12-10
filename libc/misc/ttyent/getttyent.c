@@ -28,6 +28,7 @@
  */
 
 #define __fsetlocking __fsetlocking_internal
+#define rewind __rewind
 
 #define _GNU_SOURCE
 #include <features.h>

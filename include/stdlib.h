@@ -286,41 +286,6 @@ extern long double strtold_l (__const char *__restrict __nptr,
      __THROW __nonnull ((1, 3)) __wur;
 #endif /* __UCLIBC_HAS_FLOATS__ */
 
-/* Internal names to support libstd++. */
-extern long int __strtol_l (__const char *__restrict __nptr,
-			  char **__restrict __endptr, int __base,
-			  __locale_t __loc) __THROW __nonnull ((1, 4));
-
-extern unsigned long int __strtoul_l (__const char *__restrict __nptr,
-				    char **__restrict __endptr,
-				    int __base, __locale_t __loc)
-     __THROW __nonnull ((1, 4));
-
-__extension__
-extern long long int __strtoll_l (__const char *__restrict __nptr,
-				char **__restrict __endptr, int __base,
-				__locale_t __loc)
-     __THROW __nonnull ((1, 4));
-
-__extension__
-extern unsigned long long int __strtoull_l (__const char *__restrict __nptr,
-					  char **__restrict __endptr,
-					  int __base, __locale_t __loc)
-     __THROW __nonnull ((1, 4));
-
-#ifdef __UCLIBC_HAS_FLOATS__
-extern double __strtod_l (__const char *__restrict __nptr,
-			char **__restrict __endptr, __locale_t __loc)
-     __THROW __nonnull ((1, 3));
-
-extern float __strtof_l (__const char *__restrict __nptr,
-		       char **__restrict __endptr, __locale_t __loc)
-     __THROW __nonnull ((1, 3));
-
-extern long double __strtold_l (__const char *__restrict __nptr,
-			      char **__restrict __endptr,
-			      __locale_t __loc) __THROW __nonnull ((1, 3));
-#endif /* __UCLIBC_HAS_FLOATS__ */
 #endif /* GNU */
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 

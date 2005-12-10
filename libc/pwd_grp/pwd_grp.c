@@ -19,6 +19,8 @@
  */
 
 #define setgroups __setgroups
+#define strtoul __strtoul
+#define rewind __rewind
 
 #define _GNU_SOURCE
 #include <features.h>
@@ -433,7 +435,7 @@ int getpw(uid_t uid, char *buf)
 	if (!buf) {
 		__set_errno(EINVAL);
 	} else if (!__getpwuid_r(uid, &resultbuf, buffer, sizeof(buffer), &result)) {
-		if (sprintf(buf, "%s:%s:%lu:%lu:%s:%s:%s\n",
+		if (__sprintf(buf, "%s:%s:%lu:%lu:%s:%s:%s\n",
 					resultbuf.pw_name, resultbuf.pw_passwd,
 					(unsigned long)(resultbuf.pw_uid),
 					(unsigned long)(resultbuf.pw_gid),
@@ -842,7 +844,7 @@ int putspent(const struct spwd *p, FILE *stream)
 	static const char ld_format[] = "%ld:";
 	const char *f;
 	long int x;
-	int i;
+	size_t i;
 	int rv = -1;
 	__STDIO_AUTO_THREADLOCK_VAR;
 
@@ -1124,7 +1126,7 @@ int attribute_hidden __parsespent(void *data, char * line)
 int attribute_hidden __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
 				char *__restrict line_buff, size_t buflen, FILE *f)
 {
-	int line_len;
+	size_t line_len;
 	int skip;
 	int rv = ERANGE;
 	__STDIO_AUTO_THREADLOCK_VAR;

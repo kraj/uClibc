@@ -11,5 +11,5 @@
 
 int vwprintf(const wchar_t * __restrict format, va_list arg)
 {
-	return vfwprintf(stdout, format, arg);
+	return __vfwprintf(stdout, format, arg);
 }

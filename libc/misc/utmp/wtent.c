@@ -17,6 +17,8 @@
  * write to the Free Software Foundation, Inc., 675 Mass Ave, 
  * Cambridge, MA 02139, USA.  */
 
+#define gettimeofday __gettimeofday
+
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>

@@ -8,14 +8,15 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-int printf(const char * __restrict format, ...)
+int attribute_hidden __printf(const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = vfprintf(stdout, format, arg);
+	rv = __vfprintf(stdout, format, arg);
 	va_end(arg);
 
 	return rv;
 }
+strong_alias(__printf,printf)

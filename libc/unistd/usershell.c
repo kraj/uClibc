@@ -31,6 +31,7 @@
  */
 
 #define __fsetlocking __fsetlocking_internal
+#define fileno __fileno
 
 #define _GNU_SOURCE
 #include <sys/param.h>

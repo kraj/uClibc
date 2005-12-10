@@ -236,19 +236,6 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 	aux_dat += 2;
     }
 
-#if !defined(SHARED) && defined(__UCLIBC_HAS_THREADS_NATIVE__)
-    {
-	extern void _dl_aux_init (ElfW(auxv_t) *av);
-
-	/*
-	 * Before we can make any pthread calls, we have to do some
-	 * some TLS setup. This call may do more in the future.
-	 */
-	if (likely(_dl_aux_init != NULL))
-		_dl_aux_init(auxvt);
-    }
-#endif
-
     /* We need to initialize uClibc.  If we are dynamically linked this
      * may have already been completed by the shared lib loader.  We call
      * __uClibc_init() regardless, to be sure the right thing happens. */

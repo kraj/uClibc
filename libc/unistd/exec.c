@@ -30,6 +30,7 @@
  * to free the storage allocated for the copy.  Better ideas anyone?
  */
 
+#define mmap __mmap
 #define munmap __munmap
 #define execve __execve
 
@@ -205,7 +206,7 @@ int execlp(const char *file, const char *arg, ...)
 	} while (--n);
 	va_end(args);
 
-	n = execvp(file, (char *const *) argv);
+	n = __execvp(file, (char *const *) argv);
 
 	EXEC_FREE(argv, size);
 

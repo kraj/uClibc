@@ -1483,7 +1483,7 @@ char attribute_hidden *__strerror(int errnum)
 {
     static char buf[_STRERROR_BUFSIZE];
 
-	__xpg_strerror_r(errnum, buf, sizeof(buf));
+	__xpg_strerror_r_internal(errnum, buf, sizeof(buf));
 
 	return buf;
 }
@@ -1636,7 +1636,8 @@ static const unsigned char estridx[] = {
 
 #endif
 
-int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
+/* __xpg_strerror_r is used in header */
+int attribute_hidden __xpg_strerror_r_internal(int errnum, char *strerrbuf, size_t buflen)
 {
     register char *s;
     int i, retval;
@@ -1714,7 +1715,7 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 
 #else  /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
 
-int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
+int attribute_hidden __xpg_strerror_r_internal(int errnum, char *strerrbuf, size_t buflen)
 {
     register char *s;
     int i, retval;
@@ -1750,6 +1751,7 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 }
 
 #endif /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
+strong_alias(__xpg_strerror_r_internal,__xpg_strerror_r)
 
 #endif
 /**********************************************************************/
@@ -1757,14 +1759,15 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 /**********************************************************************/
 #ifdef L___glibc_strerror_r
 
-char *__glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
+char attribute_hidden *__glibc_strerror_r_internal(int errnum, char *strerrbuf, size_t buflen)
 {
-    __xpg_strerror_r(errnum, strerrbuf, buflen);
+    __xpg_strerror_r_internal(errnum, strerrbuf, buflen);
 
     return strerrbuf;
 }
 
-weak_alias(__glibc_strerror_r, __strerror_r)
+strong_alias(__glibc_strerror_r_internal,__glibc_strerror_r)
+weak_alias(__glibc_strerror_r_internal, __strerror_r)
 #endif
 /**********************************************************************/
 #ifdef L_memmem

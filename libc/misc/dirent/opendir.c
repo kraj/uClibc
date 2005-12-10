@@ -11,7 +11,7 @@
 /* opendir just makes an open() call - it return NULL if it fails
  * (open sets errno), otherwise it returns a DIR * pointer.
  */
-DIR *opendir(const char *name)
+DIR attribute_hidden *__opendir(const char *name)
 {
 	int fd;
 	struct stat statbuf;
@@ -54,3 +54,4 @@ DIR *opendir(const char *name)
 	__pthread_mutex_init(&(ptr->dd_lock), NULL);
 	return ptr;
 }
+strong_alias(__opendir,opendir)

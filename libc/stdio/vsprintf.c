@@ -15,7 +15,7 @@
 int vsprintf(char *__restrict buf, const char * __restrict format,
 			 va_list arg)
 {
-	return vsnprintf(buf, SIZE_MAX, format, arg);
+	return __vsnprintf(buf, SIZE_MAX, format, arg);
 }
 
 #endif

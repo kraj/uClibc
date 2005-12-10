@@ -83,14 +83,15 @@ size_t attribute_hidden __fread_unlocked(void * __restrict ptr, size_t size, siz
 	return 0;
 }
 
-weak_alias(__fread_unlocked,fread_unlocked);
+weak_alias(__fread_unlocked,fread_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fread_unlocked,fread);
+hidden_strong_alias(__fread_unlocked,__fread)
+weak_alias(__fread_unlocked,fread)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-size_t fread(void * __restrict ptr, size_t size, size_t nmemb,
+size_t attribute_hidden __fread(void * __restrict ptr, size_t size, size_t nmemb,
 			 register FILE * __restrict stream)
 {
 	size_t retval;
@@ -104,5 +105,6 @@ size_t fread(void * __restrict ptr, size_t size, size_t nmemb,
 
 	return retval;
 }
+strong_alias(__fread,fread)
 
 #endif

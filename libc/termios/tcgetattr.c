@@ -37,7 +37,7 @@ int attribute_hidden __tcgetattr (int fd, struct termios *termios_p)
     struct __kernel_termios k_termios;
     int retval;
 
-    retval = ioctl (fd, TCGETS, &k_termios);
+    retval = __ioctl (fd, TCGETS, &k_termios);
 
     termios_p->c_iflag = k_termios.c_iflag;
     termios_p->c_oflag = k_termios.c_oflag;

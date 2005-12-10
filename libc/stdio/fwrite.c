@@ -34,14 +34,15 @@ size_t attribute_hidden __fwrite_unlocked(const void * __restrict ptr, size_t si
 	return 0;
 }
 
-weak_alias(__fwrite_unlocked,fwrite_unlocked);
+weak_alias(__fwrite_unlocked,fwrite_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fwrite_unlocked,fwrite);
+hidden_strong_alias(__fwrite_unlocked,__fwrite)
+weak_alias(__fwrite_unlocked,fwrite)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-size_t fwrite(const void * __restrict ptr, size_t size,
+size_t attribute_hidden __fwrite(const void * __restrict ptr, size_t size,
 			  size_t nmemb, register FILE * __restrict stream)
 {
 	size_t retval;
@@ -55,5 +56,6 @@ size_t fwrite(const void * __restrict ptr, size_t size,
 
 	return retval;
 }
+strong_alias(__fwrite,fwrite)
 
 #endif

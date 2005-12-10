@@ -31,6 +31,13 @@
 #define getpwuid_r __getpwuid_r
 #define execve __execve
 #define dup2 __dup2
+#define atoi __atoi
+#define fnmatch __fnmatch
+#define pipe __pipe
+#if 0
+#define glob __glob
+#define globfree __globfree
+#endif
 
 #define _GNU_SOURCE
 #include <sys/cdefs.h>
@@ -503,7 +510,7 @@ static int eval_expr(char *expr, long int *result);
 
 static char *_itoa(unsigned long long int value, char *buflim)
 {
-	sprintf(buflim, "%llu", value);
+	__sprintf(buflim, "%llu", value);
 	return buflim;
 }
 

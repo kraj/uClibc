@@ -341,7 +341,7 @@ static const char u_spec[] = "%nbopxXudics";
 /* u_radix[i] <-> u_spec[i+2] for unsigned entries only */
 static const char u_radix[] = "\x02\x08\x10\x10\x10\x0a";
 
-int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
+int attribute_hidden __vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 			 va_list ap)
 {
 	union {
@@ -450,7 +450,7 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 			if (*fmt == 'm') {
 				flag[FLAG_PLUS] = '\0';
 				flag[FLAG_0_PAD] = ' ';
-				p = __glibc_strerror_r(errno, tmp, sizeof(tmp));
+				p = __glibc_strerror_r_internal(errno, tmp, sizeof(tmp));
 				goto print;
 			}
 #endif
@@ -711,3 +711,4 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 
 	return i;
 }
+strong_alias(__vfprintf,vfprintf)

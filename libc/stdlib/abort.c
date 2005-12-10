@@ -18,6 +18,8 @@ Cambridge, MA 02139, USA.  */
 
 /* Hacked up for uClibc by Erik Andersen */
 
+#define sigaction __sigaction
+
 #define _GNU_SOURCE
 #include <features.h>
 #include <signal.h>
@@ -32,6 +34,8 @@ Cambridge, MA 02139, USA.  */
 /* Our last ditch effort to commit suicide */
 #if defined(__alpha__)
 #define ABORT_INSTRUCTION asm ("call_pal 0")
+#elif defined(__arm__)
+#define ABORT_INSTRUCTION asm ("bl abort")
 #elif defined(__hppa__)
 #define ABORT_INSTRUCTION asm ("iitlbp %r0,(%r0)")
 #elif defined(__i386__)

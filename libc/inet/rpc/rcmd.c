@@ -43,6 +43,19 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #define getpwnam_r __getpwnam_r
 #define gethostbyname __gethostbyname
 #define gethostbyname_r __gethostbyname_r
+#define fileno __fileno
+#define sleep __sleep
+#define inet_addr __inet_addr
+#define inet_ntoa __inet_ntoa
+#define herror __herror
+#define bind __bind
+#define connect __connect
+#define sigblock __sigblock
+#define snprintf __snprintf
+#define poll __poll
+#define accept __accept
+#define listen __listen
+#define sigsetmask __sigsetmask
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -66,6 +79,8 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+
+extern int __rresvport(int *alport) attribute_hidden;
 
 /* some forward declarations */
 static int __ivaliduser2(FILE *hostf, u_int32_t raddr,
@@ -144,7 +159,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
         *ahost = hp->h_name;
         oldmask = sigblock(sigmask(SIGURG)); /* __sigblock */
 	for (timo = 1, lport = IPPORT_RESERVED - 1;;) {
-		s = rresvport(&lport);
+		s = __rresvport(&lport);
 		if (s < 0) {
 			if (errno == EAGAIN)
 			    (void)fprintf(stderr,
@@ -195,7 +210,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 		lport = 0;
 	} else {
 		char num[8];
-		int s2 = rresvport(&lport), s3;
+		int s2 = __rresvport(&lport), s3;
 		socklen_t len = sizeof(from);
 
 		if (s2 < 0)
@@ -264,14 +279,14 @@ bad:
 	return -1;
 }
 
-int rresvport(int *alport)
+int attribute_hidden __rresvport(int *alport)
 {
     struct sockaddr_in sin;
     int s;
 
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = INADDR_ANY;
-    s = socket(AF_INET, SOCK_STREAM, 0);
+    s = __socket(AF_INET, SOCK_STREAM, 0);
     if (s < 0)
 	return -1;
     for (;;) {
@@ -292,6 +307,7 @@ int rresvport(int *alport)
     
     return -1;
 }
+strong_alias(__rresvport,rresvport)
 
 int	__check_rhosts_file = 1;
 char    *__rcmd_errstr;

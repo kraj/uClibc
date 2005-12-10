@@ -48,7 +48,13 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
 #define xdr_callmsg __xdr_callmsg
 #define xdr_replymsg __xdr_replymsg
 #define xprt_register __xprt_register
+#define xprt_unregister __xprt_unregister
 #define getsockname __getsockname
+#define bind __bind
+#define bindresvport __bindresvport
+#define poll __poll
+#define accept __accept
+#define listen __listen
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
@@ -163,7 +169,7 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
 
   if (sock == RPC_ANYSOCK)
     {
-      if ((sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+      if ((sock = __socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 	{
 	  __perror (_("svc_tcp.c - tcp socket creation problem"));
 	  return (SVCXPRT *) NULL;

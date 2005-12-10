@@ -36,16 +36,14 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+#define ffs __ffs
 #define pmap_set __pmap_set
 #define pmap_unset __pmap_unset
-
 #define _authenticate _authenticate_internal
 #define _rpc_dtablesize _rpc_dtablesize_internal
-
 /* used by svc_[max_]pollfd */
 #define __rpc_thread_svc_pollfd __rpc_thread_svc_pollfd_internal
 #define __rpc_thread_svc_max_pollfd __rpc_thread_svc_max_pollfd_internal
-
 /* used by svc_fdset */
 #define __rpc_thread_svc_fdset __rpc_thread_svc_fdset_internal
 
@@ -131,8 +129,8 @@ __xprt_register (SVCXPRT *xprt)
 strong_alias(__xprt_register,xprt_register)
 
 /* De-activate a transport handle. */
-void
-xprt_unregister (SVCXPRT *xprt)
+void attribute_hidden
+__xprt_unregister (SVCXPRT *xprt)
 {
   register int sock = xprt->xp_sock;
   register int i;
@@ -149,6 +147,7 @@ xprt_unregister (SVCXPRT *xprt)
 	  svc_pollfd[i].fd = -1;
     }
 }
+strong_alias(__xprt_unregister,xprt_unregister)
 
 
 /* ********************** CALLOUT list related stuff ************* */
@@ -494,7 +493,7 @@ __svc_getreq_poll (struct pollfd *pfdp, int pollretval)
 	  ++fds_found;
 
 	  if (p->revents & POLLNVAL)
-	    xprt_unregister (xports[p->fd]);
+	    __xprt_unregister (xports[p->fd]);
 	  else
 	    __svc_getreq_common (p->fd);
 	}

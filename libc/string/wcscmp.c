@@ -13,8 +13,8 @@
 strong_alias(__wcscmp, wcscmp)
 
 #ifdef __LOCALE_C_ONLY
-weak_alias(__wcscmp, __wcscoll)
-weak_alias(__wcscmp, wcscoll)
+hidden_strong_alias(__wcscmp, __wcscoll)
+strong_alias(__wcscmp, wcscoll)
 #endif
 
 #undef L_strcmp

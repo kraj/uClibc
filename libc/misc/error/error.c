@@ -23,6 +23,7 @@
 /* Adjusted slightly by Erik Andersen <andersen@uclibc.org> */
 
 #define strerror __strerror
+#define vfprintf __vfprintf
 
 #include <stdio.h>
 #include <stdarg.h>

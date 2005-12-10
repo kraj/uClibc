@@ -7,7 +7,8 @@
 
 #include "_stdio.h"
 
-int fclose(register FILE *stream)
+#undef fclose
+int attribute_hidden __fclose(register FILE *stream)
 {
 	int rv = 0;
 	__STDIO_AUTO_THREADLOCK_VAR;
@@ -84,3 +85,4 @@ int fclose(register FILE *stream)
 
 	return rv;
 }
+strong_alias(__fclose,fclose)

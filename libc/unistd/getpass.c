@@ -19,6 +19,7 @@
 #define setvbuf __setvbuf
 #define tcsetattr __tcsetattr
 #define tcgetattr __tcgetattr
+#define fileno __fileno
 
 #include <stdio.h>
 #include <string.h>

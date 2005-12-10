@@ -57,6 +57,11 @@
 #define getegid __getegid
 #define geteuid __geteuid
 #define _seterr_reply __seterr_reply
+#define setsockopt __setsockopt
+#define connect __connect
+#define recvmsg __recvmsg
+#define sendmsg __sendmsg
+#define poll __poll
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -156,7 +161,7 @@ __clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
    */
   if (*sockp < 0)
     {
-      *sockp = socket (AF_UNIX, SOCK_STREAM, 0);
+      *sockp = __socket (AF_UNIX, SOCK_STREAM, 0);
       len = __strlen (raddr->sun_path) + sizeof (raddr->sun_family) + 1;
       if (*sockp < 0
 	  || connect (*sockp, (struct sockaddr *) raddr, len) < 0)

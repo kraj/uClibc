@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define isatty __isatty
+
 #include "_stdio.h"
 
 /* This is pretty much straight from uClibc, but with one important
@@ -173,7 +175,7 @@ int _stdio_openlist_delflag = 0;
 int _stdio_user_locking = 2;
 
 #ifndef __USE_STDIO_FUTEXES__
-void __stdio_init_mutex(pthread_mutex_t *m)
+void attribute_hidden __stdio_init_mutex(pthread_mutex_t *m)
 {
 	static const pthread_mutex_t __stdio_mutex_initializer
 		= PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;

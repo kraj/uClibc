@@ -32,7 +32,7 @@ unlockpt (int fd)
   int save_errno = errno;
   int unlock = 0;
 
-  if (ioctl (fd, TIOCSPTLCK, &unlock))
+  if (__ioctl (fd, TIOCSPTLCK, &unlock))
     {
       if (errno == EINVAL)
 	{

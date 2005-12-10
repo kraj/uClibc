@@ -48,6 +48,7 @@
 #define mbrtowc __mbrtowc
 #define ungetc __ungetc
 #define ungetwc __ungetwc
+#define iswspace __iswspace
 #define wcrtomb __wcrtomb
 
 #define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
@@ -146,17 +147,18 @@ _stdlib_strto_l(register const char * __restrict str,
 /**********************************************************************/
 #ifdef L_fscanf
 
-int fscanf(FILE * __restrict stream, const char * __restrict format, ...)
+int attribute_hidden __fscanf(FILE * __restrict stream, const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = vfscanf(stream, format, arg);
+	rv = __vfscanf(stream, format, arg);
 	va_end(arg);
 
 	return rv;
 }
+strong_alias(__fscanf,fscanf)
 
 #endif
 /**********************************************************************/
@@ -168,7 +170,7 @@ int scanf(const char * __restrict format, ...)
 	int rv;
 
 	va_start(arg, format);
-	rv = vfscanf(stdin, format, arg);
+	rv = __vfscanf(stdin, format, arg);
 	va_end(arg);
 
 	return rv;
@@ -180,17 +182,18 @@ int scanf(const char * __restrict format, ...)
 
 #ifdef __STDIO_HAS_VSSCANF
 
-int sscanf(const char * __restrict str, const char * __restrict format, ...)
+int attribute_hidden __sscanf(const char * __restrict str, const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = vsscanf(str, format, arg);
+	rv = __vsscanf(str, format, arg);
 	va_end(arg);
 
 	return rv;
 }
+strong_alias(__sscanf,sscanf)
 
 #else  /* __STDIO_HAS_VSSCANF */
 #warning Skipping sscanf since no vsscanf!
@@ -200,10 +203,11 @@ int sscanf(const char * __restrict str, const char * __restrict format, ...)
 /**********************************************************************/
 #ifdef L_vscanf
 
-int vscanf(const char * __restrict format, va_list arg)
+int attribute_hidden __vscanf(const char * __restrict format, va_list arg)
 {
-	return vfscanf(stdin, format, arg);
+	return __vfscanf(stdin, format, arg);
 }
+strong_alias(__vscanf,vscanf)
 
 #endif
 /**********************************************************************/
@@ -215,7 +219,7 @@ int vscanf(const char * __restrict format, va_list arg)
 
 #ifdef __STDIO_BUFFERS
 
-int vsscanf(__const char *sp, __const char *fmt, va_list ap)
+int attribute_hidden __vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	FILE f;
 
@@ -257,12 +261,13 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 	__STDIO_STREAM_ENABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
 
-	return vfscanf(&f, fmt, ap);
+	return __vfscanf(&f, fmt, ap);
 }
+strong_alias(__vsscanf,vsscanf)
 
 #elif !defined(__UCLIBC_HAS_WCHAR__)
 
-int vsscanf(__const char *sp, __const char *fmt, va_list ap)
+int attribute_hidden __vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	__FILE_vsscanf f;
 
@@ -299,23 +304,25 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 #endif
 	f.f.__nextopen = NULL;
 
-	return vfscanf(&f.f, fmt, ap);
+	return __vfscanf(&f.f, fmt, ap);
 }
+strong_alias(__vsscanf,vsscanf)
 
 #elif defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
 
-int vsscanf(__const char *sp, __const char *fmt, va_list ap)
+int attribute_hidden __vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	FILE *f;
 	int rv = EOF;
 
 	if ((f = fmemopen((char *)sp, __strlen(sp), "r")) != NULL) {
-		rv = vfscanf(f, fmt, ap);
+		rv = __vfscanf(f, fmt, ap);
 		fclose(f);
 	}
 
 	return rv;
 }
+strong_alias(__vsscanf,vsscanf)
 
 #else
 #warning Skipping vsscanf since no buffering, no custom streams, and wchar enabled!
@@ -334,7 +341,7 @@ int fwscanf(FILE * __restrict stream, const wchar_t * __restrict format, ...)
 	int rv;
 
 	va_start(arg, format);
-	rv = vfwscanf(stream, format, arg);
+	rv = __vfwscanf(stream, format, arg);
 	va_end(arg);
 
 	return rv;
@@ -350,7 +357,7 @@ int wscanf(const wchar_t * __restrict format, ...)
 	int rv;
 
 	va_start(arg, format);
-	rv = vfwscanf(stdin, format, arg);
+	rv = __vfwscanf(stdin, format, arg);
 	va_end(arg);
 
 	return rv;
@@ -369,7 +376,7 @@ int swscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 	int rv;
 
 	va_start(arg, format);
-	rv = vswscanf(str, format, arg);
+	rv = __vswscanf(str, format, arg);
 	va_end(arg);
 
 	return rv;
@@ -384,7 +391,7 @@ int swscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 
 int vwscanf(const wchar_t * __restrict format, va_list arg)
 {
-	return vfwscanf(stdin, format, arg);
+	return __vfwscanf(stdin, format, arg);
 }
 
 #endif
@@ -393,7 +400,7 @@ int vwscanf(const wchar_t * __restrict format, va_list arg)
 
 #ifdef __STDIO_BUFFERS
 
-int vswscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
+int attribute_hidden __vswscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 			va_list arg)
 {
 	FILE f;
@@ -434,8 +441,9 @@ int vswscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 #endif
 	f.__nextopen = NULL;
 
-	return vfwscanf(&f, format, arg);
+	return __vfwscanf(&f, format, arg);
 }
+strong_alias(__vswscanf,vswscanf)
 #else  /* __STDIO_BUFFERS */
 #warning Skipping vswscanf since no buffering!
 #endif /* __STDIO_BUFFERS */
@@ -584,6 +592,7 @@ enum {
 #define Wchar wchar_t
 #define Wuchar __uwchar_t
 #define ISSPACE(C) iswspace((C))
+#define HIDDEN_VFSCANF __vfwscanf
 #define VFSCANF vfwscanf
 #define GETC(SC) (SC)->sc_getc((SC))
 #else
@@ -593,6 +602,7 @@ typedef unsigned char __uchar_t;
 #define Wchar char
 #define Wuchar __uchar_t
 #define ISSPACE(C) isspace((C))
+#define HIDDEN_VFSCANF __vfscanf
 #define VFSCANF vfscanf
 #ifdef __UCLIBC_HAS_WCHAR__
 #define GETC(SC) (SC)->sc_getc((SC))
@@ -1150,7 +1160,7 @@ static const char fake_thousands_sep_str[] = ",";
 #endif /* L_vfwscanf */
 
 
-int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
+int attribute_hidden HIDDEN_VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 {
 	const Wuchar *fmt;
 	unsigned char *b;
@@ -1754,6 +1764,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 	return psfs.cnt;
 }
+strong_alias(HIDDEN_VFSCANF,VFSCANF)
 #endif
 /**********************************************************************/
 #ifdef L___psfs_do_numeric

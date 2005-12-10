@@ -220,7 +220,7 @@ __clnt_sperror (CLIENT * rpch, const char *msg)
     return NULL;
   CLNT_GETERR (rpch, &e);
 
-  len = sprintf (str, "%s: ", msg);
+  len = __sprintf (str, "%s: ", msg);
   str += len;
 
   (void) __strcpy(str, __clnt_sperrno(e.re_status));
@@ -246,12 +246,12 @@ __clnt_sperror (CLIENT * rpch, const char *msg)
     case RPC_CANTSEND:
     case RPC_CANTRECV:
       strerror_r (e.re_errno, chrbuf, sizeof chrbuf);
-      len = sprintf (str, "; errno = %s", chrbuf); 
+      len = __sprintf (str, "; errno = %s", chrbuf); 
       str += len;
       break;
 
     case RPC_VERSMISMATCH:
-      len= sprintf (str, _("; low version = %lu, high version = %lu"),
+      len= __sprintf (str, _("; low version = %lu, high version = %lu"),
 		    e.re_vers.low, e.re_vers.high);
       str += len;
       break;
@@ -268,20 +268,20 @@ __clnt_sperror (CLIENT * rpch, const char *msg)
 	}
       else
 	{
-	  len = sprintf (str, _("(unknown authentication error - %d)"),
+	  len = __sprintf (str, _("(unknown authentication error - %d)"),
 			 (int) e.re_why);
 	  str += len;
 	}
       break;
 
     case RPC_PROGVERSMISMATCH:
-      len = sprintf (str, _("; low version = %lu, high version = %lu"),
+      len = __sprintf (str, _("; low version = %lu, high version = %lu"),
 		     e.re_vers.low, e.re_vers.high);
       str += len;
       break;
 
     default:			/* unknown */
-      len = sprintf (str, "; s1 = %lu, s2 = %lu", e.re_lb.s1, e.re_lb.s2);
+      len = __sprintf (str, "; s1 = %lu, s2 = %lu", e.re_lb.s1, e.re_lb.s2);
       str += len;
       break;
     }
@@ -315,7 +315,7 @@ __clnt_spcreateerror (const char *msg)
   if (str == NULL)
     return NULL;
   ce = &get_rpc_createerr ();
-  len = sprintf (str, "%s: ", msg);
+  len = __sprintf (str, "%s: ", msg);
   cp = str + len;
   (void) __strcpy(cp, __clnt_sperrno (ce->cf_stat));
   cp += __strlen(cp);

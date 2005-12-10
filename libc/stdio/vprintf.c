@@ -10,5 +10,5 @@
 
 int vprintf(const char * __restrict format, va_list arg)
 {
-	return vfprintf(stdout, format, arg);
+	return __vfprintf(stdout, format, arg);
 }
