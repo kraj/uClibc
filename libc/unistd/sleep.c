@@ -108,4 +108,3 @@ unsigned int attribute_hidden __sleep (unsigned int seconds)
     return result;
 }
 #endif
-weak_alias(__sleep,sleep)
