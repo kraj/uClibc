@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 #include "xstatconv.h"
 
-void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
+void attribute_hidden __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 {
 	/* Convert to current kernel version of `struct stat'. */
 	buf->st_dev = kbuf->st_dev;
@@ -57,7 +57,7 @@ void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 
 #if defined(__UCLIBC_HAS_LFS__)
 
-void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
+void attribute_hidden __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 {
 	/* Convert to current kernel version of `struct stat64'. */
 	buf->st_dev = kbuf->st_dev;

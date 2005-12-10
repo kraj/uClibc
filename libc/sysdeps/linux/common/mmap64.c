@@ -19,6 +19,8 @@
 
 /* Massivly hacked up for uClibc by Erik Andersen */
 
+#define mmap __mmap
+
 #include <features.h>
 #include <errno.h>
 #include <unistd.h>
@@ -84,4 +86,3 @@ __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t 
 
 #endif
 #endif /* __UCLIBC_HAS_LFS__ */
-

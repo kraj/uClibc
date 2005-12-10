@@ -7,6 +7,8 @@
 #ifndef _DL_OSINFO_H
 #define _DL_OSINFO_H 1
 
+#define gettimeofday __gettimeofday
+
 #include <features.h>
 
 #ifdef __UCLIBC_HAS_SSP__

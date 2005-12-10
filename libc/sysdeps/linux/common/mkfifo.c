@@ -20,6 +20,8 @@
                     by Erik Andersen <andersee@debian.org>
  */
 
+#define mknod __mknod
+
 #include <errno.h>
 #include <stddef.h>
 #include <sys/stat.h>

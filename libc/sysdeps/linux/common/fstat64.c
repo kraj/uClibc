@@ -19,7 +19,7 @@
 static inline _syscall2(int, __syscall_fstat64,
 		int, filedes, struct kernel_stat64 *, buf);
 
-int fstat64(int fd, struct stat64 *buf)
+int attribute_hidden __fstat64(int fd, struct stat64 *buf)
 {
 	int result;
 	struct kernel_stat64 kbuf;
@@ -30,4 +30,6 @@ int fstat64(int fd, struct stat64 *buf)
 	}
 	return result;
 }
+strong_alias(__fstat64,fstat64)
+
 #endif							/* __UCLIBC_HAS_LFS__ */

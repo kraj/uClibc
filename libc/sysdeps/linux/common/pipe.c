@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <unistd.h>
-_syscall1(int, pipe, int *, filedes);
+#define __NR___pipe __NR_pipe
+attribute_hidden _syscall1(int, __pipe, int *, filedes);
+strong_alias(__pipe,pipe)

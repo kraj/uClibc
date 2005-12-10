@@ -20,6 +20,8 @@
  *
  */
 
+#define gettimeofday __gettimeofday
+
 #define _GNU_SOURCE
 #include "syscalls.h"
 #include <time.h>

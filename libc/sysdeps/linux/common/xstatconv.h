@@ -25,8 +25,8 @@
  * opinion on the subject, and different kernel revs use different names... */
 #include <bits/kernel_stat.h>
 
-extern void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf);
+extern void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf) attribute_hidden;
 #if defined __UCLIBC_HAS_LFS__
-extern void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf);
+extern void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf) attribute_hidden;
 #endif
 

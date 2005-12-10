@@ -11,19 +11,10 @@
 #include <unistd.h>
 
 #ifdef __NR__newselect
-
-extern int _newselect(int n, fd_set * readfds, fd_set * writefds,
-					  fd_set * exceptfds, struct timeval *timeout);
-_syscall5(int, _newselect, int, n, fd_set *, readfds, fd_set *, writefds,
-		  fd_set *, exceptfds, struct timeval *, timeout);
-weak_alias(_newselect, select);
-
+#define __NR___select __NR__newselect
 #else
-
-//Used as a fallback if _newselect isn't available...
-extern int select(int n, fd_set * readfds, fd_set * writefds,
-				  fd_set * exceptfds, struct timeval *timeout);
-_syscall5(int, select, int, n, fd_set *, readfds, fd_set *, writefds,
-		  fd_set *, exceptfds, struct timeval *, timeout);
-
+#define __NR___select __NR_select
 #endif
+attribute_hidden _syscall5(int, __select, int, n, fd_set *, readfds, fd_set *, writefds,
+		  fd_set *, exceptfds, struct timeval *, timeout);
+strong_alias(__select,select)

@@ -13,22 +13,20 @@
 
 #ifdef __NR_rt_sigsuspend
 #define __NR___rt_sigsuspend __NR_rt_sigsuspend
-_syscall2(int, __rt_sigsuspend, const sigset_t *, mask, size_t, size);
+static inline _syscall2(int, __rt_sigsuspend, const sigset_t *, mask, size_t, size);
 
-int sigsuspend(const sigset_t * mask)
+int attribute_hidden __sigsuspend(const sigset_t * mask)
 {
 	return __rt_sigsuspend(mask, _NSIG / 8);
 }
-
 #else
-
-#define __NR___sigsuspend __NR_sigsuspend
-_syscall3(int, __sigsuspend, int, a, unsigned long int, b,
+#define __NR___syscall_sigsuspend __NR_sigsuspend
+static inline _syscall3(int, __syscall_sigsuspend, int, a, unsigned long int, b,
 		  unsigned long int, c);
 
-int sigsuspend(const sigset_t * set)
+int attribute_hidden __sigsuspend(const sigset_t * set)
 {
-	return __sigsuspend(0, 0, set->__val[0]);
+	return __syscall_sigsuspend(0, 0, set->__val[0]);
 }
-
 #endif
+strong_alias(__sigsuspend,sigsuspend)

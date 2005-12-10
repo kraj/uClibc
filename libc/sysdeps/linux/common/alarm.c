@@ -12,10 +12,11 @@
 #include "syscalls.h"
 #include <unistd.h>
 #ifdef __NR_alarm
-_syscall1(unsigned int, alarm, unsigned int, seconds);
+#define __NR___alarm __NR_alarm
+attribute_hidden _syscall1(unsigned int, __alarm, unsigned int, seconds);
 #else
 #include <sys/time.h>
-unsigned int alarm(unsigned int seconds)
+unsigned int attribute_hidden __alarm(unsigned int seconds)
 {
 	struct itimerval old, new;
 	unsigned int retval;
@@ -34,3 +35,4 @@ unsigned int alarm(unsigned int seconds)
 	return retval;
 }
 #endif
+strong_alias(__alarm,alarm)

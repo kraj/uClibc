@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <sys/vfs.h>
-_syscall2(int, fstatfs, int, fd, struct statfs *, buf);
+#define __NR___fstatfs __NR_fstatfs
+attribute_hidden _syscall2(int, __fstatfs, int, fd, struct statfs *, buf);
+strong_alias(__fstatfs,fstatfs)

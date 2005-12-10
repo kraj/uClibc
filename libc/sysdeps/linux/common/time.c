@@ -7,6 +7,8 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
+#define gettimeofday __gettimeofday
+
 #include "syscalls.h"
 #include <time.h>
 #include <sys/time.h>
