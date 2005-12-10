@@ -22,7 +22,7 @@
 #include "sigset-cvt-mask.h"
 
 /* Set the mask of blocked signals to MASK, returning the old mask.  */
-int
+int attribute_hidden
 __sigsetmask (int mask)
 {
   sigset_t set, oset;
@@ -36,5 +36,4 @@ __sigsetmask (int mask)
 
   return sigset_get_old_mask (&oset);
 }
-
-weak_alias (__sigsetmask, sigsetmask)
+weak_alias(__sigsetmask,sigsetmask)
