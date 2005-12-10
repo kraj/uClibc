@@ -32,7 +32,11 @@
 static int current_rtmin = -1;
 static int current_rtmax = -1;
 #else
+# ifdef __UCLIBC_HAS_THREADS_NATIVE__
+static int current_rtmin = __SIGRTMIN + 2;
+# else
 static int current_rtmin = __SIGRTMIN;
+# endif
 static int current_rtmax = __SIGRTMAX;
 #endif
 
