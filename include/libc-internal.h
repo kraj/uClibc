@@ -192,6 +192,7 @@ extern int __sprintf (char *__restrict __s,
 		    __const char *__restrict __format, ...) attribute_hidden;
 /* hack */
 #define fprintf __fprintf
+#define fclose __fclose
 
 /* #include <stdlib.h> */
 extern char *__getenv (__const char *__name) attribute_hidden;
@@ -217,6 +218,7 @@ extern int __vfprintf (FILE *__restrict __s, __const char *__restrict __format,
 		     __gnuc_va_list __arg) attribute_hidden;
 extern int __fprintf (FILE *__restrict __stream,
 		    __const char *__restrict __format, ...) attribute_hidden;
+extern int __fclose (FILE *__stream) attribute_hidden;
 
 /* #include <sys/time.h> */
 #   define __need_timeval

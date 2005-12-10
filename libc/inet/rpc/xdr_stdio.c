@@ -37,6 +37,9 @@
  * from the stream.
  */
 
+#define fread __fread
+#define fwrite __fwrite
+
 #include <rpc/types.h>
 #include <stdio.h>
 #include <rpc/xdr.h>

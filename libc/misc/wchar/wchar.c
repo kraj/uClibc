@@ -99,6 +99,8 @@
  */
 
 #define vfprintf __vfprintf
+#define fread __fread
+#define fwrite __fwrite
 
 #define _GNU_SOURCE
 #define _ISOC99_SOURCE

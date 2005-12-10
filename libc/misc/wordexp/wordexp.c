@@ -33,6 +33,7 @@
 #define dup2 __dup2
 #define atoi __atoi
 #define fnmatch __fnmatch
+#define pipe __pipe
 #if 0
 #define glob __glob
 #define globfree __globfree
