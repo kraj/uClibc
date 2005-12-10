@@ -17,7 +17,7 @@
 #define __NR___syscall_fstat __NR_fstat
 static inline _syscall2(int, __syscall_fstat, int, fd, struct kernel_stat *, buf);
 
-int fstat(int fd, struct stat *buf)
+int attribute_hidden __fstat(int fd, struct stat *buf)
 {
 	int result;
 	struct kernel_stat kbuf;
@@ -28,7 +28,8 @@ int fstat(int fd, struct stat *buf)
 	}
 	return result;
 }
+strong_alias(__fstat,fstat)
 
 #if ! defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
-weak_alias(fstat, fstat64);
+weak_alias(fstat,fstat64)
 #endif

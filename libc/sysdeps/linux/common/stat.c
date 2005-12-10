@@ -17,7 +17,7 @@
 static inline _syscall2(int, __syscall_stat,
 		const char *, file_name, struct kernel_stat *, buf);
 
-int stat(const char *file_name, struct stat *buf)
+int attribute_hidden __stat(const char *file_name, struct stat *buf)
 {
 	int result;
 	struct kernel_stat kbuf;
@@ -28,7 +28,8 @@ int stat(const char *file_name, struct stat *buf)
 	}
 	return result;
 }
+strong_alias(__stat,stat)
 
 #if ! defined __NR_stat64 && defined __UCLIBC_HAS_LFS__
-weak_alias(stat, stat64);
+weak_alias(stat,stat64)
 #endif
