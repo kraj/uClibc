@@ -815,6 +815,6 @@ __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void
 	}
 	return ret;
 }
-strong_alias(__dl_iterate_phdr, dl_iterate_phdr);
+strong_alias(__dl_iterate_phdr, dl_iterate_phdr)
 #endif
 #endif

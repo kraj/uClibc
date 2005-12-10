@@ -263,8 +263,8 @@ UNLOCKED(wint_t,fgetwc,(register FILE *stream),(stream))
 	return wi;
 }
 
-strong_alias(fgetwc_unlocked,getwc_unlocked);
-strong_alias(fgetwc,getwc);
+strong_alias(fgetwc_unlocked,getwc_unlocked)
+strong_alias(fgetwc,getwc)
 
 #endif
 /**********************************************************************/
@@ -329,8 +329,8 @@ UNLOCKED(wint_t,fputwc,(wchar_t wc, FILE *stream),(wc, stream))
 #endif
 }
 
-strong_alias(fputwc_unlocked,putwc_unlocked);
-strong_alias(fputwc,putwc);
+strong_alias(fputwc_unlocked,putwc_unlocked)
+strong_alias(fputwc,putwc)
 
 #endif
 /**********************************************************************/
