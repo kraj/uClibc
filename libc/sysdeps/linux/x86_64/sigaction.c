@@ -119,8 +119,11 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 	return result;
 }
 #endif
+
+#ifndef LIBC_SIGACTION
 hidden_weak_alias(__libc_sigaction,__sigaction)
 weak_alias(__libc_sigaction,sigaction)
+#endif
 
 /* NOTE: Please think twice before making any changes to the bits of
    code below.  GDB needs some intimate knowledge about it to

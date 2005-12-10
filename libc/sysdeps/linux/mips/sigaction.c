@@ -37,22 +37,17 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
     int result;
     struct kernel_sigaction kact, koact;
 
-#ifdef SIGCANCEL
-    if (sig == SIGCANCEL) {
-	__set_errno (EINVAL);
-	return -1;
-    }
-#endif
-
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
-	__memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
+	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
 	kact.sa_flags = act->sa_flags;
-
-	kact.sa_flags = act->sa_flags | SA_RESTORER;
-#ifdef HAVE_SA_RESTORER
+# ifdef HAVE_SA_RESTORER
+#  if _MIPS_SIM == _ABIO32
 	kact.sa_restorer = act->sa_restorer;
-#endif
+#  else
+	kact.sa_restorer = &restore_rt;
+#  endif
+# endif
     }
 
     /* XXX The size argument hopefully will have to be changed to the
@@ -62,11 +57,11 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (oact && result >= 0) {
 	oact->sa_handler = koact.k_sa_handler;
-	__memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
+	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
 	oact->sa_flags = koact.sa_flags;
-#ifdef HAVE_SA_RESTORER
+# ifdef HAVE_SA_RESTORER
 	oact->sa_restorer = koact.sa_restorer;
-#endif
+# endif
     }
     return result;
 }
@@ -82,20 +77,17 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
     int result;
     struct old_kernel_sigaction kact, koact;
 
-#ifdef SIGCANCEL
-    if (sig == SIGCANCEL) {
-	__set_errno (EINVAL);
-	return -1;
-    }
-#endif
-
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
 	kact.sa_mask = act->sa_mask.__val[0];
-	kact.sa_flags = act->sa_flags | SA_RESTORER;
-#ifdef HAVE_SA_RESTORER
+	kact.sa_flags = act->sa_flags;
+# ifdef HAVE_SA_RESTORER
+#  if _MIPS_SIM == _ABIO32
 	kact.sa_restorer = act->sa_restorer;
-#endif
+#  else
+	kact.sa_restorer = &restore_rt;
+#  endif
+# endif
     }
 
     result = __syscall_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
@@ -110,13 +102,16 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	oact->sa_handler = koact.k_sa_handler;
 	oact->sa_mask.__val[0] = koact.sa_mask;
 	oact->sa_flags = koact.sa_flags;
-#ifdef HAVE_SA_RESTORER
+# ifdef HAVE_SA_RESTORER
 	oact->sa_restorer = koact.sa_restorer;
-#endif
+# endif
     }
     return result;
 }
 
 #endif
+
+#ifndef LIBC_SIGACTION
 hidden_weak_alias(__libc_sigaction,__sigaction)
 weak_alias(__libc_sigaction,sigaction)
+#endif
