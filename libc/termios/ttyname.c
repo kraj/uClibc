@@ -47,7 +47,7 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 	char *s;
 	DIR *fp;
 	int rv;
-	int len;
+	size_t len;
 	char buf[TTYNAME_BUFLEN];
 
 	if (fstat(fd, &st) < 0) {
