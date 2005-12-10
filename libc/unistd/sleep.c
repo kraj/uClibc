@@ -108,3 +108,4 @@ unsigned int attribute_hidden __sleep (unsigned int seconds)
     return result;
 }
 #endif
+strong_alias(__sleep,sleep)
