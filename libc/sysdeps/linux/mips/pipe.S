@@ -7,9 +7,12 @@
 #include <asm/unistd.h>
 #include <asm/regdef.h>
 
-        .globl  pipe
-        .ent    pipe, 0
-pipe:
+	.globl	pipe
+	.set	pipe,__pipe
+        .globl  __pipe
+	.hidden	__pipe
+        .ent    __pipe, 0
+__pipe:
         addiu   sp,sp,-24
         sw      a0,16(sp)
         li      v0,__NR_pipe
@@ -27,5 +30,5 @@ pipe:
 2:
         addiu   sp,sp,24
         j       ra
-        .end    pipe
-        .size   pipe,.-pipe
+        .end    __pipe
+        .size   __pipe,.-__pipe

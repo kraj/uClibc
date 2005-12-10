@@ -140,6 +140,15 @@
 #define getservbyport __getservbyport
 #define getdomainname __getdomainname
 #define uname __uname
+#define inet_addr __inet_addr
+#define inet_aton __inet_aton
+#define inet_pton __inet_pton
+#define inet_ntop __inet_ntop
+#define connect __connect
+#define select __select
+#define recv __recv
+#define send __send
+#define snprintf __snprintf
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -764,9 +773,9 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 #ifdef __UCLIBC_HAS_IPV6__
 		v6 = inet_pton(AF_INET6, dns, &sa6.sin6_addr) > 0;
-		fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		fd = __socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #else
-		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		fd = __socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #endif
 		if (fd < 0) {
                     retries++;
@@ -1400,7 +1409,7 @@ int res_querydomain(name, domain, class, type, answer, anslen)
 
 #ifdef DEBUG
 	if (_res.options & RES_DEBUG)
-		printf(";; res_querydomain(%s, %s, %d, %d)\n",
+		__printf(";; res_querydomain(%s, %s, %d, %d)\n",
 			name, domain?domain:"<Nil>", class, type);
 #endif
 	if (domain == NULL) {
@@ -2338,7 +2347,7 @@ int attribute_hidden __gethostbyaddr_r (const void *addr, socklen_t len, int typ
 
 		addr_list[0] = in;
 
-		sprintf(buf, "%u.%u.%u.%u.in-addr.arpa",
+		__sprintf(buf, "%u.%u.%u.%u.in-addr.arpa",
 			tmp_addr[3], tmp_addr[2], tmp_addr[1], tmp_addr[0]);
 #ifdef __UCLIBC_HAS_IPV6__
 	} else {
@@ -2348,7 +2357,7 @@ int attribute_hidden __gethostbyaddr_r (const void *addr, socklen_t len, int typ
 		qp = buf;
 
 		for (i = len - 1; i >= 0; i--) {
-			qp += sprintf(qp, "%x.%x.", in6->s6_addr[i] & 0xf,
+			qp += __sprintf(qp, "%x.%x.", in6->s6_addr[i] & 0xf,
 				(in6->s6_addr[i] >> 4) & 0xf);
     	}
     	__strcpy(qp, "ip6.int");

@@ -20,6 +20,8 @@
    Boston, MA 02111-1307, USA.  */
 
 #define sigfillset __sigfillset_internal
+#define sigaction __sigaction
+#define alarm __alarm
 
 #include <features.h>
 #include <fcntl.h>
@@ -174,7 +176,7 @@ int ulckpwdf (void)
 }
 
 
-static void noop_handler (int sig)
+static void noop_handler (attribute_unused int sig)
 {
 	/* We simply return which makes the `fcntl' call return with an error.  */
 }

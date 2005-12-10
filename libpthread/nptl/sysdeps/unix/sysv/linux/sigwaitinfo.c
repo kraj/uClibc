@@ -68,8 +68,10 @@ do_sigwaitinfo (const sigset_t *set, siginfo_t *info)
 
 
 /* Return any pending signal or wait for one for the given time.  */
-int attribute_hidden
-__sigwaitinfo (const sigset_t *set, siginfo_t *info)
+int
+__sigwaitinfo (set, info)
+     const sigset_t *set;
+     siginfo_t *info;
 {
   if (SINGLE_THREAD_P)
     return do_sigwaitinfo (set, info);

@@ -32,6 +32,9 @@
  */
 
 #define ctime __ctime
+#define sigaction __sigaction
+#define connect __connect
+#define vsnprintf __vsnprintf
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
@@ -100,13 +103,6 @@ static int	LogFacility = LOG_USER;	/* default facility code */
 static int	LogMask = 0xff;		/* mask of priorities to be logged */
 static struct sockaddr SyslogAddr;	/* AF_UNIX address of local logger */
 
-static void closelog_intern( int );
-void syslog( int, const char *, ...);
-void vsyslog( int, const char *, va_list );
-void openlog( const char *, int, int );
-void closelog( void );
-int setlogmask(int pmask);
-
 static void 
 closelog_intern(int to_default)
 {
@@ -127,10 +123,63 @@ closelog_intern(int to_default)
 }
 
 static void
-sigpipe_handler (int sig)
+sigpipe_handler (attribute_unused int sig)
 {
   closelog_intern (0);
 }
+
+/*
+ * OPENLOG -- open system log
+ */
+void attribute_hidden
+__openlog( const char *ident, int logstat, int logfac )
+{
+    int logType = SOCK_DGRAM;
+
+    LOCK;
+
+    if (ident != NULL)
+	LogTag = ident;
+    LogStat = logstat;
+    if (logfac != 0 && (logfac &~ LOG_FACMASK) == 0)
+	LogFacility = logfac;
+    if (LogFile == -1) {
+	SyslogAddr.sa_family = AF_UNIX;
+	(void)__strncpy(SyslogAddr.sa_data, _PATH_LOG,
+		      sizeof(SyslogAddr.sa_data));
+retry:
+	if (LogStat & LOG_NDELAY) {
+	    if ((LogFile = __socket(AF_UNIX, logType, 0)) == -1){
+		UNLOCK;
+		return;
+	    }
+	    /*			fcntl(LogFile, F_SETFD, 1); */
+	}
+    }
+
+    if (LogFile != -1 && !connected) {
+	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) - 
+		    sizeof(SyslogAddr.sa_data) + __strlen(SyslogAddr.sa_data)) != -1)
+	{
+	    connected = 1;
+	} else if (logType == SOCK_DGRAM) {
+	    logType = SOCK_STREAM;
+	    if (LogFile != -1) {
+		__close(LogFile);
+		LogFile = -1;
+	    }
+	    goto retry;
+	} else {
+	    if (LogFile != -1) {
+		__close(LogFile);
+		LogFile = -1;
+	    }
+	}
+    }
+
+    UNLOCK;
+}
+strong_alias(__openlog,openlog)
 
 /*
  * syslog, vsyslog --
@@ -161,7 +210,7 @@ __vsyslog( int pri, const char *fmt, va_list ap )
 	if (!(LogMask & LOG_MASK(LOG_PRI(pri))) || (pri &~ (LOG_PRIMASK|LOG_FACMASK)))
 		goto getout;
 	if (LogFile < 0 || !connected)
-		openlog(LogTag, LogStat | LOG_NDELAY, 0);
+		__openlog(LogTag, LogStat | LOG_NDELAY, 0);
 
 	/* Set default facility if none specified. */
 	if ((pri & LOG_FACMASK) == 0)
@@ -172,15 +221,15 @@ __vsyslog( int pri, const char *fmt, va_list ap )
 	 * safe to test only LogTag and use normal sprintf everywhere else.
 	 */
 	(void)__time(&now);
-	stdp = p = tbuf + sprintf(tbuf, "<%d>%.15s ", pri, ctime(&now) + 4);
+	stdp = p = tbuf + __sprintf(tbuf, "<%d>%.15s ", pri, ctime(&now) + 4);
 	if (LogTag) {
 		if (__strlen(LogTag) < sizeof(tbuf) - 64)
-			p += sprintf(p, "%s", LogTag);
+			p += __sprintf(p, "%s", LogTag);
 		else
-			p += sprintf(p, "<BUFFER OVERRUN ATTEMPT>");
+			p += __sprintf(p, "<BUFFER OVERRUN ATTEMPT>");
 	}
 	if (LogStat & LOG_PID)
-		p += sprintf(p, "[%d]", __getpid());
+		p += __sprintf(p, "[%d]", __getpid());
 	if (LogTag) {
 		*p++ = ':';
 		*p++ = ' ';
@@ -269,59 +318,6 @@ __syslog(int pri, const char *fmt, ...)
 	va_end(ap);
 }
 strong_alias(__syslog,syslog)
-
-/*
- * OPENLOG -- open system log
- */
-void attribute_hidden
-__openlog( const char *ident, int logstat, int logfac )
-{
-    int logType = SOCK_DGRAM;
-
-    LOCK;
-
-    if (ident != NULL)
-	LogTag = ident;
-    LogStat = logstat;
-    if (logfac != 0 && (logfac &~ LOG_FACMASK) == 0)
-	LogFacility = logfac;
-    if (LogFile == -1) {
-	SyslogAddr.sa_family = AF_UNIX;
-	(void)__strncpy(SyslogAddr.sa_data, _PATH_LOG,
-		      sizeof(SyslogAddr.sa_data));
-retry:
-	if (LogStat & LOG_NDELAY) {
-	    if ((LogFile = socket(AF_UNIX, logType, 0)) == -1){
-		UNLOCK;
-		return;
-	    }
-	    /*			fcntl(LogFile, F_SETFD, 1); */
-	}
-    }
-
-    if (LogFile != -1 && !connected) {
-	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) - 
-		    sizeof(SyslogAddr.sa_data) + __strlen(SyslogAddr.sa_data)) != -1)
-	{
-	    connected = 1;
-	} else if (logType == SOCK_DGRAM) {
-	    logType = SOCK_STREAM;
-	    if (LogFile != -1) {
-		__close(LogFile);
-		LogFile = -1;
-	    }
-	    goto retry;
-	} else {
-	    if (LogFile != -1) {
-		__close(LogFile);
-		LogFile = -1;
-	    }
-	}
-    }
-
-    UNLOCK;
-}
-strong_alias(__openlog,openlog)
 
 /*
  * CLOSELOG -- close the system log
