@@ -68,7 +68,7 @@
 
 /**********************************************************************/
 /* Make sure defines related to large files are consistent. */
-#ifdef _LIBC
+#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 
 #ifdef __UCLIBC_HAS_LFS__
 #undef __USE_LARGEFILE
@@ -361,7 +361,7 @@ struct __STDIO_FILE_STRUCT {
 /**********************************************************************
  * PROTOTYPES OF INTERNAL FUNCTIONS
  **********************************************************************/
-#ifdef _LIBC
+#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 
 extern void _stdio_init(void);
 extern void _stdio_term(void);
@@ -374,9 +374,9 @@ extern struct __STDIO_FILE_STRUCT *_stdio_openlist;
 extern pthread_mutex_t _stdio_openlist_lock;
 extern int _stdio_openlist_delflag;
 extern int _stdio_user_locking;
-#ifdef _LIBC
+/* #ifdef _LIBC */
 extern void __stdio_init_mutex(pthread_mutex_t *m) attribute_hidden;
-#endif
+/* #endif */
 #endif
 
 #endif
