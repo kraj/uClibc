@@ -145,6 +145,9 @@
 #   define __UCXL_ALIAS(N) __UC_ALIAS(N)
 #  endif
 
+#  define __need_size_t
+#  include <stddef.h>
+
 #  include <bits/types.h>
 
 #  ifndef __ssize_t_defined
@@ -152,25 +155,26 @@ typedef __ssize_t ssize_t;
 #   define __ssize_t_defined
 #  endif
 
-#  define __need_size_t
-#  include <stddef.h>
-
 #  include <bits/sigset.h>
 
 /* prototypes for internal use, please keep these in sync w/ updated headers */
 /* #include <fcntl.h> */
 #ifndef __USE_FILE_OFFSET64
 extern int __open (__const char *__file, int __oflag, ...) __nonnull ((1)) attribute_hidden;
+extern int __fcntl (int __fd, int __cmd, ...) attribute_hidden;
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (__open, (__const char *__file, int __oflag, ...), __open64)
-     __nonnull ((1));
+     __nonnull ((1)) attribute_hidden;
+extern int __REDIRECT (__fcntl, (int __fd, int __cmd, ...), __fcntl64) attribute_hidden;
 # else
 #  define __open __open64
+#  define __fcntl __fcntl64
 # endif
 #endif
 #ifdef __USE_LARGEFILE64
 extern int __open64 (__const char *__file, int __oflag, ...) __nonnull ((1)) attribute_hidden;
+extern int __fcntl64 (int __fd, int __cmd, ...) attribute_hidden;
 #endif
 
 /* #include <string.h> */
@@ -200,15 +204,46 @@ extern ssize_t __read(int __fd, void *__buf, size_t __nbytes) attribute_hidden;
 extern ssize_t __write(int __fd, __const void *__buf, size_t __n) attribute_hidden;
 extern int __close(int __fd) attribute_hidden;
 extern __pid_t __getpid (void) attribute_hidden;
+#ifndef __USE_FILE_OFFSET64
+extern int __lockf (int __fd, int __cmd, __off_t __len) attribute_hidden;
+extern __off_t __lseek (int __fd, __off_t __offset, int __whence) __THROW attribute_hidden;
+#else
+# ifdef __REDIRECT
+extern int __REDIRECT (__lockf, (int __fd, int __cmd, __off64_t __len),
+		       __lockf64) attribute_hidden;
+extern __off64_t __REDIRECT (__lseek,
+				 (int __fd, __off64_t __offset, int __whence),
+				 __lseek64) attribute_hidden;
+# else
+#  define __lockf __lockf64
+#  define __lseek __lseek64
+# endif
+#endif
+#ifdef __USE_LARGEFILE64
+extern int __lockf64 (int __fd, int __cmd, __off64_t __len) attribute_hidden;
+extern __off64_t __lseek64 (int __fd, __off64_t __offset, int __whence) __THROW attribute_hidden;
+#endif
 
 /* #include <stdio.h> */
 extern void __perror (__const char *__s) attribute_hidden;
 extern int __printf (__const char *__restrict __format, ...) attribute_hidden;
 extern int __sprintf (char *__restrict __s,
 		    __const char *__restrict __format, ...) attribute_hidden;
+
 /* hack */
 #define fprintf __fprintf
 #define fclose __fclose
+#ifndef __USE_FILE_OFFSET64
+#define fopen __fopen
+#define readdir __readdir
+#else
+#define fopen __fopen64
+#define readdir __readdir64
+#endif
+#ifdef __USE_LARGEFILE64
+#define fopen64 __fopen64
+#define readdir64 __readdir64
+#endif
 
 /* #include <stdlib.h> */
 extern char *__getenv (__const char *__name) attribute_hidden;
@@ -235,9 +270,9 @@ extern int __lstat (__const char *__restrict __file,
 # ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (__stat, (__const char *__restrict __file,
 				  struct stat *__restrict __buf), __stat64)
-     __nonnull ((1, 2));
+     __nonnull ((1, 2)) attribute_hidden;
 extern int __REDIRECT_NTH (__fstat, (int __fd, struct stat *__buf), __fstat64)
-     __nonnull ((2));
+     __nonnull ((2)) attribute_hidden;
 extern int __REDIRECT_NTH (__lstat,
 			   (__const char *__restrict __file,
 			    struct stat *__restrict __buf), __lstat64)
@@ -269,9 +304,9 @@ extern int __fstatfs (int __fildes, struct statfs *__buf)
 # ifdef __REDIRECT
 extern int __REDIRECT (__statfs,
 			   (__const char *__file, struct statfs *__buf),
-			   __statfs64) __nonnull ((1, 2));
+			   __statfs64) __nonnull ((1, 2)) attribute_hidden;
 extern int __REDIRECT (__fstatfs, (int __fildes, struct statfs *__buf),
-			   __fstatfs64) __nonnull ((2));
+			   __fstatfs64) __nonnull ((2)) attribute_hidden;
 # else
 #  define __statfs __statfs64
 # endif
@@ -290,12 +325,43 @@ typedef struct __dirstream DIR;
 extern DIR *__opendir (__const char *__name) attribute_hidden;
 extern int __closedir (DIR *__dirp) attribute_hidden;
 
+#ifndef __USE_FILE_OFFSET64
+extern struct dirent *__readdir (DIR *__dirp) __nonnull ((1)) attribute_hidden;
+#else
+# ifdef __REDIRECT
+extern struct dirent *__REDIRECT (__readdir, (DIR *__dirp), __readdir64)
+     __nonnull ((1)) attribute_hidden;
+# else
+#  define __readdir __readdir64
+# endif
+#endif
+
+#ifdef __USE_LARGEFILE64
+extern struct dirent64 *__readdir64 (DIR *__dirp) __nonnull ((1)) attribute_hidden;
+#endif
+
 /* #include <stdio.h> */
 extern int __vfprintf (FILE *__restrict __s, __const char *__restrict __format,
 		     __gnuc_va_list __arg) attribute_hidden;
 extern int __fprintf (FILE *__restrict __stream,
 		    __const char *__restrict __format, ...) attribute_hidden;
 extern int __fclose (FILE *__stream) attribute_hidden;
+
+#ifndef __USE_FILE_OFFSET64
+extern FILE *__fopen (__const char *__restrict __filename,
+		    __const char *__restrict __modes) attribute_hidden;
+#else
+# ifdef __REDIRECT
+extern FILE *__REDIRECT (__fopen, (__const char *__restrict __filename,
+				 __const char *__restrict __modes), __fopen64) attribute_hidden;
+# else
+#  define __fopen __fopen64
+# endif
+#endif
+#ifdef __USE_LARGEFILE64
+extern FILE *__fopen64 (__const char *__restrict __filename,
+		      __const char *__restrict __modes) attribute_hidden;
+#endif
 
 /* #include <sys/time.h> */
 #   define __need_timeval
