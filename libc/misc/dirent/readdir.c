@@ -5,8 +5,8 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-
-struct dirent *readdir(DIR * dir)
+#undef readdir
+struct dirent attribute_hidden *__readdir(DIR * dir)
 {
 	ssize_t bytes;
 	struct dirent *de;
@@ -45,3 +45,4 @@ all_done:
 	__pthread_mutex_unlock(&(dir->dd_lock));
 	return de;
 }
+strong_alias(__readdir,readdir)
