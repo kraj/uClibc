@@ -153,7 +153,7 @@ retry:
 		UNLOCK;
 		return;
 	    }
-	    /*			fcntl(LogFile, F_SETFD, 1); */
+	    /*			__fcntl(LogFile, F_SETFD, 1); */
 	}
     }
 

@@ -121,7 +121,7 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 		/* NOTE: fopencookie needs changing if the basic check changes! */
 		if (((i & (((int) fname_or_mode) + 1)) != i) /* Basic agreement? */
 			|| (((open_mode & ~((__mode_t) fname_or_mode)) & O_APPEND)
-				&& fcntl(filedes, F_SETFL, O_APPEND))	/* Need O_APPEND. */
+				&& __fcntl(filedes, F_SETFL, O_APPEND))	/* Need O_APPEND. */
 			) {
 			goto DO_EINVAL;
 		}

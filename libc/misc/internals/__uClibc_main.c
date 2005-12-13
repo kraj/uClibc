@@ -81,14 +81,12 @@ const char *__progname = 0;
 # define O_NOFOLLOW	0
 #endif
 
-extern int __libc_fcntl(int fd, int cmd, ...);
-
 #ifdef __ARCH_HAS_MMU__
 
 static void __check_one_fd(int fd, int mode)
 {
     /* Check if the specified fd is already open */
-    if (unlikely(__libc_fcntl(fd, F_GETFD)==-1 && *(__errno_location())==EBADF))
+    if (unlikely(__fcntl(fd, F_GETFD)==-1 && *(__errno_location())==EBADF))
     {
 	/* The descriptor is probably not open, so try to use /dev/null */
 	struct stat st;

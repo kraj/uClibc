@@ -1,6 +1,7 @@
 #define strtok_r __strtok_r
 #define strstr __strstr
 #define atoi __atoi
+#define fseek __fseek
 
 #include <stdio.h>
 #include <stdlib.h>

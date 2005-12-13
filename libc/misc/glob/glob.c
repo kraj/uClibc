@@ -428,7 +428,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 	}
       else
 	{
-	  struct dirent *d = readdir ((DIR *) stream);
+	  struct dirent *d = __readdir ((DIR *) stream);
 	  if (d == NULL)
 	    break;
 	  if (! (d->d_ino != 0))

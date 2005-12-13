@@ -219,7 +219,7 @@ open_dir_stream (struct ftw_data *data, struct dir_data *dirp)
 	    struct dirent *d;
 	    size_t actsize = 0;
 
-	    while ((d = readdir (st)) != NULL)
+	    while ((d = __readdir (st)) != NULL)
 	    {
 		size_t this_len = _D_EXACT_NAMLEN (d);
 		if (actsize + this_len + 2 >= bufsize)
@@ -443,7 +443,7 @@ ftw_dir (struct ftw_data *data, struct STAT *st)
 	*startp++ = '/';
     data->ftw.base = startp - data->dirbuf;
 
-    while (dir.stream != NULL && (d = readdir (dir.stream)) != NULL)
+    while (dir.stream != NULL && (d = __readdir (dir.stream)) != NULL)
     {
 	result = process_entry (data, &dir, d->d_name, _D_EXACT_NAMLEN (d));
 	if (result != 0)

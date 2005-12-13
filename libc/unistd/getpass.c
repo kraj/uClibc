@@ -20,6 +20,7 @@
 #define tcsetattr __tcsetattr
 #define tcgetattr __tcgetattr
 #define fileno __fileno
+#define fflush __fflush
 
 #include <stdio.h>
 #include <string.h>

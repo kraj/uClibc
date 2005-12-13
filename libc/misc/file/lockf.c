@@ -41,7 +41,7 @@ int attribute_hidden __lockf (int fd, int cmd, off_t len)
 	    /* Test the lock: return 0 if FD is unlocked or locked by this process;
 	       return -1, set errno to EACCES, if another process holds the lock.  */
 	    fl.l_type = F_RDLCK;
-	    if (fcntl (fd, F_GETLK, &fl) < 0)
+	    if (__fcntl (fd, F_GETLK, &fl) < 0)
 		return -1;
 	    if (fl.l_type == F_UNLCK || fl.l_pid == __getpid ())
 		return 0;
@@ -66,6 +66,6 @@ int attribute_hidden __lockf (int fd, int cmd, off_t len)
 	    return -1;
     }
 
-    return fcntl(fd, cmd, &fl);
+    return __fcntl(fd, cmd, &fl);
 }
 strong_alias(__lockf,lockf)

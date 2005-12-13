@@ -73,7 +73,7 @@ int lckpwdf (void)
 	}
 
 	/* Make sure file gets correctly closed when process finished.  */
-	flags = fcntl (lock_fd, F_GETFD, 0);
+	flags = __fcntl (lock_fd, F_GETFD, 0);
 	if (flags == -1) {
 		/* Cannot get file flags.  */
 		__close(lock_fd);
@@ -82,7 +82,7 @@ int lckpwdf (void)
 		return -1;
 	}
 	flags |= FD_CLOEXEC;		/* Close on exit.  */
-	if (fcntl (lock_fd, F_SETFD, flags) < 0) {
+	if (__fcntl (lock_fd, F_SETFD, flags) < 0) {
 		/* Cannot set new flags.  */
 		__close(lock_fd);
 		lock_fd = -1;
@@ -131,7 +131,7 @@ int lckpwdf (void)
 	__memset (&fl, '\0', sizeof (struct flock));
 	fl.l_type = F_WRLCK;
 	fl.l_whence = SEEK_SET;
-	result = fcntl (lock_fd, F_SETLKW, &fl);
+	result = __fcntl (lock_fd, F_SETLKW, &fl);
 
 	/* Clear alarm.  */
 	alarm (0);

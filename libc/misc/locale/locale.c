@@ -48,6 +48,7 @@
 
 #define stpcpy __stpcpy
 #define strtok_r __strtok_r
+/* #define fflush __fflush */
 
 #define _GNU_SOURCE
 

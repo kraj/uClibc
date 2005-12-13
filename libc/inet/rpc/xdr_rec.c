@@ -317,7 +317,7 @@ xdrrec_getpos (const XDR *xdrs)
   RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
   long pos;
 
-  pos = lseek ((int) (long) rstrm->tcp_handle, (long) 0, 1);
+  pos = __lseek ((int) (long) rstrm->tcp_handle, (long) 0, 1);
   if (pos != -1)
     switch (xdrs->x_op)
       {

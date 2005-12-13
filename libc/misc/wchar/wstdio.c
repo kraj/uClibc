@@ -53,6 +53,7 @@
 #define wcsrtombs __wcsrtombs
 #define mbrtowc __mbrtowc
 #define wcrtomb __wcrtomb
+#define fflush_unlocked __fflush_unlocked
 
 #define _GNU_SOURCE
 #include <stdio.h>

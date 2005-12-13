@@ -10,7 +10,7 @@ void seekdir(DIR * dir, long int offset)
 		return;
 	}
 	__pthread_mutex_lock(&(dir->dd_lock));
-	dir->dd_nextoff = lseek(dir->dd_fd, offset, SEEK_SET);
+	dir->dd_nextoff = __lseek(dir->dd_fd, offset, SEEK_SET);
 	dir->dd_size = dir->dd_nextloc = 0;
 	__pthread_mutex_unlock(&(dir->dd_lock));
 }

@@ -64,7 +64,7 @@ int attribute_hidden __stdio_trans2w(FILE * __restrict stream)
 			 *   the end even if not reading.*/
 			if (((__STDIO_STREAM_BUFFER_RAVAIL(stream))
 				 || (stream->__modeflags & __FLAG_UNGOT))
-				&& fseek(stream, 0L,
+				&& __fseek(stream, 0L,
 						 ((stream->__modeflags & __FLAG_APPEND)
 						  ? SEEK_END : SEEK_CUR))
 				) {

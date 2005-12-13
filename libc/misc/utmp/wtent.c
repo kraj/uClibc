@@ -52,9 +52,9 @@ extern void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 
     fd = __open(wtmp_file, O_APPEND | O_WRONLY, 0);
     if (fd >= 0) {
-	if (lockf(fd, F_LOCK, 0)==0) {
+	if (__lockf(fd, F_LOCK, 0)==0) {
 	    __write(fd, (const char *) lutmp, sizeof(struct utmp));
-	    lockf(fd, F_ULOCK, 0);
+	    __lockf(fd, F_ULOCK, 0);
 	    __close(fd);
 	}
     }

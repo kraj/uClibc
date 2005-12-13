@@ -24,6 +24,7 @@
 
 #define strerror __strerror
 #define vfprintf __vfprintf
+#define fflush __fflush
 
 #include <stdio.h>
 #include <stdarg.h>

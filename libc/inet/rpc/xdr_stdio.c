@@ -39,6 +39,8 @@
 
 #define fread __fread
 #define fwrite __fwrite
+#define fseek __fseek
+#define fflush __fflush
 
 #include <rpc/types.h>
 #include <stdio.h>

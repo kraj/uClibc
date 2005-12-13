@@ -29,7 +29,7 @@ DIR attribute_hidden *__opendir(const char *name)
 	/* According to POSIX, directory streams should be closed when
 	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
 	 */
-	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0)
+	if (__fcntl(fd, F_SETFD, FD_CLOEXEC) < 0)
 		return NULL;
 	if (!(ptr = malloc(sizeof(*ptr)))) {
 		__close(fd);

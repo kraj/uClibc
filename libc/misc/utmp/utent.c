@@ -49,9 +49,9 @@ void attribute_hidden __setutent(void)
 	    }
 	}
 	/* Make sure the file will be closed on exec()  */
-	ret = fcntl(static_fd, F_GETFD, 0);
+	ret = __fcntl(static_fd, F_GETFD, 0);
 	if (ret >= 0) {
-	    ret = fcntl(static_fd, F_GETFD, 0);
+	    ret = __fcntl(static_fd, F_GETFD, 0);
 	}
 	if (ret < 0) {
 bummer:
@@ -61,7 +61,7 @@ bummer:
 	    return;
 	}
     }
-    lseek(static_fd, 0, SEEK_SET);
+    __lseek(static_fd, 0, SEEK_SET);
     UNLOCK;
     return;
 }
@@ -151,14 +151,14 @@ struct utmp *pututline (const struct utmp *utmp_entry)
     LOCK;
     /* Ignore the return value.  That way, if they've already positioned
        the file pointer where they want it, everything will work out. */
-    lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
+    __lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
 
     if (__getutid(utmp_entry) != NULL) {
-	lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
+	__lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
 	if (__write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
 	    return NULL;
     } else {
-	lseek(static_fd, (off_t) 0, SEEK_END);
+	__lseek(static_fd, (off_t) 0, SEEK_END);
 	if (__write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
 	    return NULL;
     }

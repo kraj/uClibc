@@ -169,7 +169,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			sigsetmask(oldmask); /* sigsetmask */
 			return -1;
 		}
-		fcntl(s, F_SETOWN, pid); /* __fcntl */
+		__fcntl(s, F_SETOWN, pid); /* __fcntl */
 		sin.sin_family = hp->h_addrtype;
 		bcopy(hp->h_addr_list[0], &sin.sin_addr,
 		      MIN (sizeof (sin.sin_addr), hp->h_length));

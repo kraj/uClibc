@@ -73,7 +73,7 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 			continue;
 		}
 
-		while ((d = readdir(fp)) != NULL) {
+		while ((d = __readdir(fp)) != NULL) {
 			/* This should never trigger for standard names, but we
 			 * check it to be safe.  */
 			if (__strlen(d->d_name) > len) { /* Too big? */

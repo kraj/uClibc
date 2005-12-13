@@ -64,7 +64,7 @@ int scandir64(const char *dir, struct dirent64 ***namelist,
     __set_errno (0);
 
     pos = 0;
-    while ((current = readdir64 (dp)) != NULL)
+    while ((current = __readdir64 (dp)) != NULL)
 	if (selector == NULL || (*selector) (current))
 	{
 	    struct dirent64 *vnew;
