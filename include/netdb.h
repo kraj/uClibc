@@ -54,15 +54,8 @@
 __BEGIN_DECLS
 
 /* Error status for non-reentrant lookup functions.
-   We use a macro to access always the thread-specific `h_errno' variable.
-   We always need the extern int here in case internal libc code undefines 
-   the macro because it needs access to the underlying storage. */
-#if !defined(__UCLIBC_HAS_THREADS_NATIVE__)
-extern int h_errno;
-#endif
-#if defined(__UCLIBC_HAS_THREADS__)
-# define h_errno (*__h_errno_location ())
-#endif
+   We use a macro to access always the thread-specific `h_errno' variable.  */
+#define h_errno (*__h_errno_location ())
 
 /* Function to get address of global `h_errno' variable.  */
 extern int *__h_errno_location (void) __THROW __attribute__ ((__const__));
@@ -656,14 +649,5 @@ extern int getnameinfo (__const struct sockaddr *__restrict __sa,
 #endif	/* POSIX */
 
 __END_DECLS
-
-#ifdef _LIBC
-# ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#  include <tls.h>
-#  undef h_errno
-#  define h_errno h_errno     /* For #ifndef h_errno tests.  */
-extern __thread int h_errno attribute_tls_model_ie;
-# endif
-#endif
 
 #endif	/* netdb.h */
