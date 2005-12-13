@@ -42,7 +42,7 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 	int slow_search = (sizeof(ino_t) != sizeof(d->d_ino));
 #endif
 
-	if (stat(path_buf, &st) < 0) {
+	if (__stat(path_buf, &st) < 0) {
 		goto oops;
 	}
 #ifdef FAST_DIR_SEARCH_POSSIBLE
@@ -74,7 +74,7 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 			    goto oops;
 			}
 			__strcpy(ptr + 1, d->d_name);
-			if (stat(path_buf, &st) < 0)
+			if (__stat(path_buf, &st) < 0)
 				continue;
 			if (st.st_ino == this_ino && st.st_dev == this_dev) {
 				closedir(dp);
@@ -100,7 +100,7 @@ static char *recurser(char *path_buf, int path_size, dev_t root_dev, ino_t root_
 	dev_t this_dev;
 	ino_t this_ino;
 
-	if (stat(path_buf, &st) < 0) {
+	if (__stat(path_buf, &st) < 0) {
 	    if (errno != EFAULT)
 		goto oops;
 	    return 0;
@@ -139,7 +139,7 @@ int __syscall_getcwd(char * buf, unsigned long size)
     len = -1;
 
     /* get stat for root to have a valid parameters for the terminating condition */
-    if (stat("/", &st) < 0) {
+    if (__stat("/", &st) < 0) {
 	/* root dir not found! */
 	return -1;
     }

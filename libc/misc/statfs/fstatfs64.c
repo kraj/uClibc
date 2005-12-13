@@ -41,11 +41,11 @@
 #include <stddef.h>
 
 /* Return information about the filesystem on which FD resides.  */
-int fstatfs64 (int fd, struct statfs64 *buf)
+int attribute_hidden __fstatfs64 (int fd, struct statfs64 *buf)
 {
     struct statfs buf32;
 
-    if (fstatfs (fd, &buf32) < 0)
+    if (__fstatfs (fd, &buf32) < 0)
 	return -1;
 
     buf->f_type = buf32.f_type;
@@ -61,6 +61,6 @@ int fstatfs64 (int fd, struct statfs64 *buf)
 
     return 0;
 }
+strong_alias(__fstatfs64,fstatfs64)
 
 #endif /* __UCLIBC_HAS_LFS__ */
-

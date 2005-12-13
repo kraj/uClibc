@@ -23,6 +23,7 @@
 #define setrlimit __setrlimit
 #define waitpid __waitpid
 #define dup2 __dup2
+#define chmod __chmod
 
 #include <assert.h>
 #include <errno.h>
@@ -119,7 +120,7 @@ grantpt (int fd)
   if (pts_name (fd, &buf, sizeof (_buf)))
     return -1;
 
-  if (stat(buf, &st) < 0)
+  if (__stat(buf, &st) < 0)
     goto cleanup;
 
   /* Make sure that we own the device.  */

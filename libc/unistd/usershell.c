@@ -103,7 +103,7 @@ static char ** initshells(void)
 
     if ((fp = fopen(_PATH_SHELLS, "r")) == NULL)
 	return (char **) validsh;
-    if (fstat(fileno(fp), &statb) == -1) {
+    if (__fstat(fileno(fp), &statb) == -1) {
 	goto cleanup;
     }
     if ((strings = malloc((unsigned)statb.st_size + 1)) == NULL) {

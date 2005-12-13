@@ -96,7 +96,7 @@ static void __check_one_fd(int fd, int mode)
 	/* /dev/null is major=1 minor=3.  Make absolutely certain
 	 * that is in fact the device that we have opened and not
 	 * some other wierd file... */
-	if ( (nullfd!=fd) || fstat(fd, &st) || !S_ISCHR(st.st_mode) ||
+	if ( (nullfd!=fd) || __fstat(fd, &st) || !S_ISCHR(st.st_mode) ||
 		(st.st_rdev != makedev(1, 3)))
 	{
 	    /* Somebody is trying some trickery here... */

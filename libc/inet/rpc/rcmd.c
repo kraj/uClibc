@@ -385,7 +385,7 @@ iruserfopen (char *file, uid_t okuser)
      root, if writeable by anyone but the owner, or if hardlinked
      anywhere, quit.  */
   cp = NULL;
-  if (lstat (file, &st))
+  if (__lstat (file, &st))
     cp = "lstat failed";
   else if (!S_ISREG (st.st_mode))
     cp = "not regular file";
@@ -394,7 +394,7 @@ iruserfopen (char *file, uid_t okuser)
       res = fopen (file, "r");
       if (!res)
 	cp = "cannot open";
-      else if (fstat (fileno (res), &st) < 0)
+      else if (__fstat (fileno (res), &st) < 0)
 	cp = "fstat failed";
       else if (st.st_uid && st.st_uid != okuser)
 	cp = "bad owner";

@@ -18,11 +18,17 @@
    02111-1307 USA.  */
 
 extern FILE *__setmntent (__const char *__file, __const char *__mode) __THROW attribute_hidden;
+
 extern struct mntent *__getmntent_r (FILE *__restrict __stream,
 				   struct mntent *__restrict __result,
 				   char *__restrict __buffer,
 				   int __bufsize) __THROW attribute_hidden;
+
 extern int __endmntent (FILE *__stream) __THROW attribute_hidden;
+
+extern char *__strsep (char **__restrict __stringp,
+		     __const char *__restrict __delim)
+     __THROW __nonnull ((1, 2)) attribute_hidden;
 
   /* Now fill in the fields we have information for.  */
   buf->f_bsize = fsbuf.f_bsize;
@@ -77,7 +83,7 @@ extern int __endmntent (FILE *__stream) __THROW attribute_hidden;
 	      struct stat fsst;
 
 	      /* Find out about the device the current entry is for.  */
-	      if (stat (mntbuf.mnt_dir, &fsst) >= 0
+	      if (__stat (mntbuf.mnt_dir, &fsst) >= 0
 		  && st.st_dev == fsst.st_dev)
 		{
 		  /* Bingo, we found the entry for the device FD is on.
@@ -85,7 +91,7 @@ extern int __endmntent (FILE *__stream) __THROW attribute_hidden;
 		  char *cp = mntbuf.mnt_opts;
 		  char *opt;
 
-		  while ((opt = strsep (&cp, ",")) != NULL)
+		  while ((opt = __strsep (&cp, ",")) != NULL)
 		    if (__strcmp (opt, "ro") == 0)
 		      buf->f_flag |= ST_RDONLY;
 		    else if (__strcmp (opt, "nosuid") == 0)

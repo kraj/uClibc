@@ -54,7 +54,7 @@
 static int direxists (const char *dir)
 {
     struct stat buf;
-    return stat(dir, &buf) == 0 && S_ISDIR (buf.st_mode);
+    return __stat(dir, &buf) == 0 && S_ISDIR (buf.st_mode);
 }
 
 /* Path search algorithm, for tmpnam, tmpfile, etc.  If DIR is
@@ -212,7 +212,7 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind)
 	    case __GT_NOCREATE:
 		{
 		    struct stat st;
-		    if (stat (tmpl, &st) < 0)
+		    if (__stat (tmpl, &st) < 0)
 		    {
 			if (errno == ENOENT)
 			{

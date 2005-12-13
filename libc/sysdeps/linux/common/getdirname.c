@@ -42,11 +42,11 @@ get_current_dir_name (void)
 	pwd = __getenv ("PWD");
 	if (pwd != NULL
 #if defined __UCLIBC_HAS_LFS__
-		&& stat64 (".", &dotstat) == 0
-		&& stat64 (pwd, &pwdstat) == 0
+		&& __stat64 (".", &dotstat) == 0
+		&& __stat64 (pwd, &pwdstat) == 0
 #else
-		&& stat (".", &dotstat) == 0
-		&& stat (pwd, &pwdstat) == 0
+		&& __stat (".", &dotstat) == 0
+		&& __stat (pwd, &pwdstat) == 0
 #endif
 		&& pwdstat.st_dev == dotstat.st_dev
 		&& pwdstat.st_ino == dotstat.st_ino)

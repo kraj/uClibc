@@ -50,7 +50,7 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 	size_t len;
 	char buf[TTYNAME_BUFLEN];
 
-	if (fstat(fd, &st) < 0) {
+	if (__fstat(fd, &st) < 0) {
 		return errno;
 	}
 
@@ -82,7 +82,7 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 
 			__strcpy(s, d->d_name);
 
-			if ((lstat(buf, &dst) == 0)
+			if ((__lstat(buf, &dst) == 0)
 #if 0
 				/* Stupid filesystems like cramfs fail to guarantee that
 				 * st_ino and st_dev uniquely identify a file, contrary to

@@ -31,5 +31,6 @@ int attribute_hidden __fstat(int fd, struct stat *buf)
 strong_alias(__fstat,fstat)
 
 #if ! defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
-weak_alias(fstat,fstat64)
+hidden_strong_alias(__fstat,__fstat64)
+weak_alias(__fstat,fstat64)
 #endif

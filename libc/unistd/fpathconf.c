@@ -53,7 +53,7 @@ long int fpathconf(int fd, int name)
 	struct statfs fsbuf;
 
 	/* Determine the filesystem type.  */
-	if (fstatfs (fd, &fsbuf) < 0)
+	if (__fstatfs (fd, &fsbuf) < 0)
 	{
 	    if (errno == ENOSYS)
 		/* not possible, return the default value.  */
@@ -127,7 +127,7 @@ long int fpathconf(int fd, int name)
 		struct statfs buf;
 		int save_errno = errno;
 
-		if (fstatfs (fd, &buf) < 0)
+		if (__fstatfs (fd, &buf) < 0)
 		{
 		    if (errno == ENOSYS)
 		    {
@@ -201,7 +201,7 @@ long int fpathconf(int fd, int name)
 		/* AIO is only allowed on regular files and block devices.  */
 		struct stat st;
 
-		if (fstat (fd, &st) < 0 || (! S_ISREG (st.st_mode) && ! S_ISBLK (st.st_mode)))
+		if (__fstat (fd, &st) < 0 || (! S_ISREG (st.st_mode) && ! S_ISBLK (st.st_mode)))
 		    return -1;
 		else
 		    return 1;

@@ -18,7 +18,7 @@ DIR attribute_hidden *__opendir(const char *name)
 	char *buf;
 	DIR *ptr;
 
-	if (stat(name, &statbuf))
+	if (__stat(name, &statbuf))
 		return NULL;
 	if (!S_ISDIR(statbuf.st_mode)) {
 		__set_errno(ENOTDIR);

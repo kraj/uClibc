@@ -284,7 +284,7 @@ glob (pattern, flags, errfunc, pglob)
       int i;
       struct stat st;
       for (i = oldcount; i < pglob->gl_pathc; ++i)
-	if (lstat (pglob->gl_pathv[i], &st) == 0 &&
+	if (__lstat (pglob->gl_pathv[i], &st) == 0 &&
 	    S_ISDIR (st.st_mode))
 	  __strcat (pglob->gl_pathv[i], "/");
     }

@@ -17,8 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define strsep __strsep
-
 #include <features.h>
 
 #ifdef __UCLIBC_HAS_LFS__
@@ -50,10 +48,10 @@ int fstatvfs (int fd, struct statvfs *buf)
     struct stat st;
 
     /* Get as much information as possible from the system.  */
-    if (fstatfs (fd, &fsbuf) < 0)
+    if (__fstatfs (fd, &fsbuf) < 0)
 	return -1;
 
-#define STAT(st) fstat (fd, st)
+#define STAT(st) __fstat (fd, st)
 #include "internal_statvfs.c"
 
     /* We signal success if the statfs call succeeded.  */

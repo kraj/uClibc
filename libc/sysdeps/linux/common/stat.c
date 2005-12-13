@@ -31,5 +31,6 @@ int attribute_hidden __stat(const char *file_name, struct stat *buf)
 strong_alias(__stat,stat)
 
 #if ! defined __NR_stat64 && defined __UCLIBC_HAS_LFS__
-weak_alias(stat,stat64)
+hidden_strong_alias(__stat,__stat64)
+weak_alias(__stat,stat64)
 #endif
