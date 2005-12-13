@@ -27,7 +27,7 @@ extern int brk (void *addr);
 /* Extend the process's data space by INCREMENT.
    If INCREMENT is negative, shrink data space by - INCREMENT.
    Return start of new space allocated, or -1 for errors.  */
-void * sbrk (intptr_t increment)
+void attribute_hidden * __sbrk (intptr_t increment)
 {
     void *oldbrk;
 
@@ -44,4 +44,4 @@ void * sbrk (intptr_t increment)
 
     return oldbrk;
 }
-
+strong_alias(__sbrk,sbrk)
