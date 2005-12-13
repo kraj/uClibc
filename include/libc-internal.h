@@ -164,7 +164,7 @@ extern int __open (__const char *__file, int __oflag, ...) __nonnull ((1)) attri
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (__open, (__const char *__file, int __oflag, ...), __open64)
-     __nonnull ((1)) attribute_hidden;
+     __nonnull ((1));
 # else
 #  define __open __open64
 # endif
@@ -226,23 +226,26 @@ extern int __socket (int __domain, int __type, int __protocol) attribute_hidden;
 /* #include <sys/stat.h> */
 #ifndef __USE_FILE_OFFSET64
 struct stat;
-/* Get file attributes for FILE and put them in BUF.  */
 extern int __stat (__const char *__restrict __file,
 		 struct stat *__restrict __buf) __THROW __nonnull ((1, 2)) attribute_hidden;
-
-/* Get file attributes for the file, device, pipe, or socket
-   that file descriptor FD is open on and put them in BUF.  */
 extern int __fstat (int __fd, struct stat *__buf) __THROW __nonnull ((2)) attribute_hidden;
+extern int __lstat (__const char *__restrict __file,
+		  struct stat *__restrict __buf) __THROW __nonnull ((1, 2)) attribute_hidden;
 #else
 # ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (__stat, (__const char *__restrict __file,
 				  struct stat *__restrict __buf), __stat64)
-     __nonnull ((1, 2)) attribute_hidden;
+     __nonnull ((1, 2));
 extern int __REDIRECT_NTH (__fstat, (int __fd, struct stat *__buf), __fstat64)
-     __nonnull ((2)) attribute_hidden;
+     __nonnull ((2));
+extern int __REDIRECT_NTH (__lstat,
+			   (__const char *__restrict __file,
+			    struct stat *__restrict __buf), __lstat64)
+     __nonnull ((1, 2)) attribute_hidden;
 # else
 #  define __stat __stat64
 #  define __fstat __fstat64
+#   define __lstat __lstat64
 # endif
 #endif
 #ifdef __USE_LARGEFILE64
@@ -250,6 +253,9 @@ struct stat64;
 extern int __stat64 (__const char *__restrict __file,
 		   struct stat64 *__restrict __buf) __THROW __nonnull ((1, 2)) attribute_hidden;
 extern int __fstat64 (int __fd, struct stat64 *__buf) __THROW __nonnull ((2)) attribute_hidden;
+extern int __lstat64 (__const char *__restrict __file,
+		    struct stat64 *__restrict __buf)
+     __THROW __nonnull ((1, 2)) attribute_hidden;
 #endif
 
 /* #include <sys/statfs.h> */
@@ -257,11 +263,15 @@ extern int __fstat64 (int __fd, struct stat64 *__buf) __THROW __nonnull ((2)) at
 struct statfs;
 extern int __statfs (__const char *__file, struct statfs *__buf)
      __THROW __nonnull ((1, 2)) attribute_hidden;
+extern int __fstatfs (int __fildes, struct statfs *__buf)
+     __THROW __nonnull ((2)) attribute_hidden;
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (__statfs,
 			   (__const char *__file, struct statfs *__buf),
-			   __statfs64) __nonnull ((1, 2)) attribute_hidden;
+			   __statfs64) __nonnull ((1, 2));
+extern int __REDIRECT (__fstatfs, (int __fildes, struct statfs *__buf),
+			   __fstatfs64) __nonnull ((2));
 # else
 #  define __statfs __statfs64
 # endif
@@ -270,22 +280,6 @@ extern int __REDIRECT (__statfs,
 struct statfs64;
 extern int __statfs64 (__const char *__file, struct statfs64 *__buf)
      __THROW __nonnull ((1, 2)) attribute_hidden;
-#endif
-
-/* Return information about the filesystem containing the file FILDES
-   refers to.  */
-#ifndef __USE_FILE_OFFSET64
-extern int __fstatfs (int __fildes, struct statfs *__buf)
-     __THROW __nonnull ((2)) attribute_hidden;
-#else
-# ifdef __REDIRECT
-extern int __REDIRECT (__fstatfs, (int __fildes, struct statfs *__buf),
-			   __fstatfs64) __nonnull ((2)) attribute_hidden;
-# else
-#  define __fstatfs __fstatfs64
-# endif
-#endif
-#ifdef __USE_LARGEFILE64
 extern int __fstatfs64 (int __fildes, struct statfs64 *__buf)
      __THROW __nonnull ((2)) attribute_hidden;
 #endif
