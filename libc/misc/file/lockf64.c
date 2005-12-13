@@ -50,7 +50,7 @@ extern int fcntl64 (int fd, int cmd, ...);
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */
 
-int lockf64 (int fd, int cmd, off64_t len64)
+int attribute_hidden __lockf64 (int fd, int cmd, off64_t len64)
 {
     struct flock fl;
     off_t len = (off_t) len64;
@@ -103,3 +103,4 @@ int lockf64 (int fd, int cmd, off64_t len64)
     return fcntl(fd, cmd, &fl);
 }
 
+strong_alias(__lockf64,lockf64)

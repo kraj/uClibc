@@ -24,7 +24,7 @@
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */
 
-int lockf (int fd, int cmd, off_t len)
+int attribute_hidden __lockf (int fd, int cmd, off_t len)
 {
     struct flock fl;
 
@@ -68,3 +68,4 @@ int lockf (int fd, int cmd, off_t len)
 
     return fcntl(fd, cmd, &fl);
 }
+strong_alias(__lockf,lockf)
