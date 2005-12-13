@@ -25,7 +25,7 @@
 #include <features.h>
 #undef __OPTIMIZE__
 /* We absolutely do _NOT_ want interfaces silently
- *  *  * renamed under us or very bad things will happen... */
+ * renamed under us or very bad things will happen... */
 #ifdef __USE_FILE_OFFSET64
 # undef __USE_FILE_OFFSET64
 #endif
@@ -43,20 +43,20 @@ static inline _syscall5(int, __syscall_llseek, int, fd, off_t, offset_hi,
 		off_t, offset_lo, loff_t *, result, int, whence);
 #endif
 
-loff_t __libc_lseek64(int fd, loff_t offset, int whence)
+loff_t attribute_hidden __lseek64(int fd, loff_t offset, int whence)
 {
 	loff_t result;
 	return(loff_t)(INLINE_SYSCALL (_llseek, 5, fd, (off_t) (offset >> 32), 
 				(off_t) (offset & 0xffffffff), &result, whence) ?: result);
 }
 #else
-extern __off_t __libc_lseek(int fildes, off_t offset, int whence);
-loff_t __libc_lseek64(int fd, loff_t offset, int whence)
+extern __off_t __lseek(int fildes, off_t offset, int whence) attribute_hidden;
+loff_t __lseek64(int fd, loff_t offset, int whence)
 {
-	return(loff_t)(__libc_lseek(fd, (off_t) (offset & 0xffffffff), whence));
+	return(loff_t)(__lseek(fd, (off_t) (offset & 0xffffffff), whence));
 }
 #endif
-weak_alias(__libc_lseek64, _llseek);
-weak_alias(__libc_lseek64, llseek);
-weak_alias(__libc_lseek64, lseek64);
-
+strong_alias(__lseek64,lseek64)
+//strong_alias(__lseek64,_llseek)
+//strong_alias(__lseek64,llseek)
+weak_alias(__lseek64,__libc_lseek64)
