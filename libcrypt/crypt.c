@@ -26,8 +26,8 @@
 #include <crypt.h>
 #include <unistd.h>
 
-extern char * __md5_crypt( const char *pw, const char *salt);
-extern char * __des_crypt( const char *pw, const char *salt);
+extern char * __md5_crypt( const char *pw, const char *salt) attribute_hidden;
+extern char * __des_crypt( const char *pw, const char *salt) attribute_hidden;
 
 extern char * crypt(const char *key, const char *salt)
 {
