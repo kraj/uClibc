@@ -17,6 +17,7 @@
    Boston, MA 02111-1307, USA.  */
 
 #define fdopen __fdopen
+#define remove __remove
 
 #include <features.h>
 #include <stdio.h>
@@ -49,5 +50,5 @@ FILE * tmpfile (void)
     return f;
 }
 #ifdef __UCLIBC_HAS_LFS__
-weak_alias(tmpfile, tmpfile64);
+weak_alias(tmpfile,tmpfile64)
 #endif
