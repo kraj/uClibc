@@ -84,7 +84,7 @@ static inline Elf_Symndx _dl_elf_hash(const char *name)
  */
 struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
-	unsigned long dynamic_size)
+	attribute_unused unsigned long dynamic_size)
 {
 	Elf_Symndx *hash_addr;
 	struct elf_resolve *tpnt;

@@ -144,7 +144,7 @@ void *dlopen(const char *libname, int flag)
 	void (*dl_brk) (void);
 	int now_flag;
 	struct init_fini_list *tmp, *runp, *runp2, *dep_list;
-	int nlist, i;
+	unsigned int nlist, i;
 	struct elf_resolve **init_fini_list;
 
 	/* A bit of sanity checking... */
@@ -297,7 +297,7 @@ void *dlopen(const char *libname, int flag)
 	}
 	/* Sort the INIT/FINI list in dependency order. */
 	for (runp2 = dep_list; runp2; runp2 = runp2->next) {
-		int j, k;
+		unsigned int j, k;
 		for (j = 0; init_fini_list[j] != runp2->tpnt; ++j)
 			/* Empty */;
 		for (k = j + 1; k < nlist; ++k) {
@@ -468,7 +468,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 	void (*dl_brk) (void);
 	struct dyn_elf *handle;
 	unsigned int end;
-	int i = 0, j;
+	unsigned int i, j;
 
 	handle = (struct dyn_elf *) vhandle;
 	if (handle == _dl_symbol_tables)
@@ -669,16 +669,14 @@ int dladdr(const void *__address, Dl_info * __info)
 	{
 		char *strtab;
 		ElfW(Sym) *symtab;
-		int hn, si;
-		int sf;
-		int sn = 0;
+		unsigned int hn, si, sn, sf;
 		ElfW(Addr) sa;
 
 		sa = 0;
 		symtab = (ElfW(Sym) *) (pelf->dynamic_info[DT_SYMTAB]);
 		strtab = (char *) (pelf->dynamic_info[DT_STRTAB]);
 
-		sf = 0;
+		sf = sn = 0;
 		for (hn = 0; hn < pelf->nbucket; hn++) {
 			for (si = pelf->elf_buckets[hn]; si; si = pelf->chains[si]) {
 				ElfW(Addr) symbol_addr;

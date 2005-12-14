@@ -122,7 +122,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
 	char *lpntstr;
-	int i, unlazy = 0, trace_loaded_objects = 0;
+	unsigned int i;
+	int unlazy = 0, trace_loaded_objects = 0;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
 	struct elf_resolve *tpnt1;
@@ -178,8 +179,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * Note that for SUID programs we ignore the settings in
 	 * LD_LIBRARY_PATH.
 	 */
-	if ((auxvt[AT_UID].a_un.a_val == -1 && _dl_suid_ok()) ||
-	    (auxvt[AT_UID].a_un.a_val != -1 &&
+	if ((auxvt[AT_UID].a_un.a_val == (size_t)-1 && _dl_suid_ok()) ||
+	    (auxvt[AT_UID].a_un.a_val != (size_t)-1 &&
 	     auxvt[AT_UID].a_un.a_val == auxvt[AT_EUID].a_un.a_val &&
 	     auxvt[AT_GID].a_un.a_val == auxvt[AT_EGID].a_un.a_val)) {
 		_dl_secure = 0;
@@ -227,7 +228,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * different from what the ELF header says for ET_DYN/PIE executables.
 	 */
 	{
-		int i;
+		unsigned int i;
 		ElfW(Phdr) *ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
 
 		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
