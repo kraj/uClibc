@@ -40,7 +40,7 @@
 #endif
 
 #define _GNU_SOURCE
-#include <sys/cdefs.h>
+#include <features.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
