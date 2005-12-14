@@ -6,7 +6,9 @@
 !
 ! SH5 code Copyright 2002 SuperH Ltd.
 
-#ifdef __LITTLE_ENDIAN__
+#include <endian.h>
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 #define SHHI shlld
 #define SHLO shlrd
 #else
@@ -67,7 +69,7 @@ no_lddst:
 	add r5, r63, r4
 	addi r0, 8, r0
 shortstring:
-#ifndef __LITTLE_ENDIAN__
+#if __BYTE_ORDER != __LITTLE_ENDIAN
 	pta/l shortstring2,tr1
 	byterev r4,r4
 #endif
