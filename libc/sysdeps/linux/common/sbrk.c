@@ -21,7 +21,7 @@
 
 /* Defined in brk.c.  */
 extern void *__curbrk;
-extern int brk (void *addr);
+extern int __brk (void *addr) attribute_hidden;
 
 
 /* Extend the process's data space by INCREMENT.
@@ -32,14 +32,14 @@ void attribute_hidden * __sbrk (intptr_t increment)
     void *oldbrk;
 
     if (__curbrk == NULL)
-	if (brk (0) < 0)		/* Initialize the break.  */
+	if (__brk (0) < 0)		/* Initialize the break.  */
 	    return (void *) -1;
 
     if (increment == 0)
 	return __curbrk;
 
     oldbrk = __curbrk;
-    if (brk (oldbrk + increment) < 0)
+    if (__brk (oldbrk + increment) < 0)
 	return (void *) -1;
 
     return oldbrk;

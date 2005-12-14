@@ -7,7 +7,7 @@
 extern void * __curbrk;
 
 extern int __init_brk (void);
-extern void *_brk(void *ptr);
+extern void *_brk(void *ptr) attribute_hidden;
 
 void attribute_hidden *
 __sbrk(intptr_t increment)

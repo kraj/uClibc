@@ -363,8 +363,8 @@ struct __STDIO_FILE_STRUCT {
  **********************************************************************/
 #if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 
-extern void _stdio_init(void);
-extern void _stdio_term(void);
+extern void _stdio_init(void) attribute_hidden;
+extern void _stdio_term(void) attribute_hidden;
 
 #ifdef __STDIO_HAS_OPENLIST
 

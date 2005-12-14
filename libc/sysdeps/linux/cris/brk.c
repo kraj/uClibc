@@ -7,7 +7,7 @@ extern void * __curbrk;
 
 extern int __init_brk (void);
 
-int brk(void * end_data_seg)
+int attribute_hidden __brk(void * end_data_seg)
 {
 	if (__init_brk () == 0) {
 		/*
@@ -29,3 +29,4 @@ int brk(void * end_data_seg)
 	return -1;
 
 }
+strong_alias(__brk,brk)

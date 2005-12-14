@@ -26,7 +26,7 @@
 void *__curbrk = 0;
 
 
-int brk (void *addr)
+int attribute_hidden __brk (void *addr)
 {
     void *newbrk;
     register int r2 asm("r2") = TRAP_ID_SYSCALL;
@@ -44,3 +44,4 @@ int brk (void *addr)
 
     return 0;
 }
+strong_alias(__brk,brk)
