@@ -66,4 +66,4 @@ $(ld-uClibc_OUT)/ld-uClibc_so.a: $(ld-uClibc-so-y)
 	$(do_ar)
 
 ld-uClibc_clean:
-	$(RM) $(ld-uClibc_OUT)/*.{o,os,a} $(ld-uClibc_OUT)/*/*.{o,os}
+	$(RM) $(ld-uClibc_OUT)/*.{o,os,oS,a} $(ld-uClibc_OUT)/*/*.{o,os}
