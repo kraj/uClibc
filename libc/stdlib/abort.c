@@ -68,9 +68,9 @@ Cambridge, MA 02139, USA.  */
 #endif
 
 #ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__
-extern void weak_function _stdio_term(void);
+extern void weak_function _stdio_term(void) attribute_hidden;
 #endif
-extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
+extern void _exit (int __status) __attribute__ ((__noreturn__));
 static int been_there_done_that = 0;
 
 /* Be prepared in case multiple threads try to abort() */

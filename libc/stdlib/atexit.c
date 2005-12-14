@@ -305,7 +305,7 @@ void __exit_handler(int status)
 #endif
 
 #ifdef L_exit
-extern void weak_function _stdio_term(void);
+extern void weak_function _stdio_term(void) attribute_hidden;
 void (*__exit_cleanup) (int) = 0;
 #ifdef __UCLIBC_HAS_THREADS__
 pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;

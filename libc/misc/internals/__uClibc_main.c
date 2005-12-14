@@ -56,7 +56,7 @@ strong_alias(__stack_chk_guard,__guard)
 /*
  * Prototypes.
  */
-extern void weak_function _stdio_init(void);
+extern void weak_function _stdio_init(void) attribute_hidden;
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
 #ifdef __UCLIBC_HAS_LOCALE__
