@@ -1,3 +1,4 @@
+#include <features.h>
 
 #include <asm/unistd.h>
 
@@ -10,11 +11,13 @@
 	.text
 	.align 2
 	.globl errno
-	.globl vfork
-#if defined __HAVE_ELF__
-	.type	 vfork,@function
+	.globl	__vfork
+#ifdef __HAVE_ELF__
+	.hidden	__vfork
+	.type	__vfork,@function
 #endif
-vfork:
+
+__vfork:
 	movl	%sp@+, %a1               /* save the return address for later */
 	movl	IMM __NR_vfork,%d0
 	trap	#0
@@ -24,7 +27,7 @@ vfork:
 	jmp		%a1@                     /* don't return,  just jmp directly */
 fix_errno:
 	negl	%d0
-#ifndef __PIC__
+#ifndef __PIC__					/* needs handling as the other archs */
 	movl	errno, %a0
 #else
 	movl	errno@GOT(%a5), %a0
@@ -33,3 +36,5 @@ fix_errno:
 	movl	IMM -1, %d0
 	jmp		%a1@                     /* don't return,  just jmp directly */
 
+.size __vfork,.-__vfork
+strong_alias(__vfork,vfork)

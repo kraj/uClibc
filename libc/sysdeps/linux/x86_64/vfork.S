@@ -16,6 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <sys/syscall.h>
 
 /* Clone the calling process, but without copying the whole address space.
@@ -25,15 +26,17 @@
 
 #ifndef __NR_vfork
 /* No vfork so use fork instead */
-.weak vfork
-	vfork = __libc_fork
+hidden_strong_alias(__fork,__vfork)
+weak_alias(vfork,__libc_fork)
 
 #else
 
 .text
 .global __vfork
+.hidden __vfork
 .type	__vfork,%function
 .align 16
+
 __vfork:
 
 	/* Pop the return PC value into RDI.  We need a register that
@@ -58,7 +61,5 @@ __error:
 
 .size __vfork,.-__vfork
 
-.weak vfork
-	vfork = __vfork
-
 #endif /* __NR_vfork */
+strong_alias(__vfork,vfork)
