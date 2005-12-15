@@ -21,40 +21,72 @@
 
 #include <features.h>
 
-/* Some nice features only work properly with ELF */
-#if defined __HAVE_ELF__
-/* Define ALIASNAME as a weak alias for NAME. */
-# define weak_alias(name, aliasname) _weak_alias (name, aliasname)
-# define _weak_alias(name, aliasname) \
-  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
+#ifndef __ASSEMBLER__
+/* GCC understands weak symbols and aliases; use its interface where
+   possible, instead of embedded assembly language.  */
+
 /* Define ALIASNAME as a strong alias for NAME.  */
 # define strong_alias(name, aliasname) _strong_alias(name, aliasname)
 # define _strong_alias(name, aliasname) \
   extern __typeof (name) aliasname __attribute__ ((alias (#name)));
+
 /* This comes between the return type and function name in
- *    a function definition to make that definition weak.  */
+   a function definition to make that definition weak.  */
 # define weak_function __attribute__ ((weak))
 # define weak_const_function __attribute__ ((weak, __const__))
+
+/* Define ALIASNAME as a weak alias for NAME.
+   If weak aliases are not available, this defines a strong alias.  */
+# define weak_alias(name, aliasname) _weak_alias (name, aliasname)
+# define _weak_alias(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
+
+/* Declare SYMBOL as weak undefined symbol (resolved to 0 if not defined).  */
+# define weak_extern(symbol) _weak_extern (weak symbol)
+# define _weak_extern(expr) _Pragma (#expr)
+
+#else /* __ASSEMBLER__ */
+
+# define C_SYMBOL_NAME(name) __C_SYMBOL_PREFIX__ ##name
+
+# define strong_alias(name, aliasname)					\
+  .global C_SYMBOL_NAME (aliasname) ;					\
+  .set C_SYMBOL_NAME(aliasname),C_SYMBOL_NAME(name)
+
+# define weak_alias(name, aliasname)					\
+  .weak C_SYMBOL_NAME(aliasname) ;					\
+  C_SYMBOL_NAME(aliasname) = C_SYMBOL_NAME(name)
+
+# define weak_extern(symbol)						\
+  .weak C_SYMBOL_NAME(symbol)
+
+#endif /* __ASSEMBLER__ */
+
+/* When a reference to SYMBOL is encountered, the linker will emit a
+   warning message MSG.  */
+#ifdef __HAVE_ELF__
+
+/* We want the .gnu.warning.SYMBOL section to be unallocated.  */
+# define __make_section_unallocated(section_string)	\
+  asm (".section " section_string "\n\t.previous");
+
 /* Tacking on "\n\t#" to the section name makes gcc put it's bogus
- * section attributes on what looks like a comment to the assembler. */
-# if defined(__cris__) 
-#   define link_warning(symbol, msg)
+   section attributes on what looks like a comment to the assembler.  */
+# define __sec_comment "\n\t#"
+# ifdef __cris__
+#  define link_warning(symbol, msg)
 # else
-#   define link_warning(symbol, msg)					      \
-	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
-	    static const char __evoke_link_warning_##symbol[]		      \
-	    __attribute__ ((unused, section (".gnu.warning." #symbol "\n\t#"))) = msg;
+#  define link_warning(symbol, msg) \
+  __make_section_unallocated (".gnu.warning." #symbol) \
+  static const char __evoke_link_warning_##symbol[]	\
+    __attribute__ ((used, section (".gnu.warning." #symbol __sec_comment))) \
+    = msg;
 # endif
-#else /* !defined __HAVE_ELF__ */
-# define strong_alias(name, aliasname) _strong_alias (name, aliasname)
-# define weak_alias(name, aliasname) _strong_alias (name, aliasname)
-# define _strong_alias(name, aliasname) \
-	__asm__(".global " __C_SYMBOL_PREFIX__ #aliasname "\n" \
-                ".set " __C_SYMBOL_PREFIX__ #aliasname "," __C_SYMBOL_PREFIX__ #name);
-# define link_warning(symbol, msg) \
-	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
-	      ".stabs \"" #symbol "\",1,0,0,0\n");
-#endif
+#else /* __HAVE_ELF__ */
+# define link_warning(symbol, msg)		\
+     asm (".stabs \"" msg "\",30,0,0,0\n\t"	\
+          ".stabs \"" __C_SYMBOL_PREFIX__ #symbol "\",1,0,0,0\n");
+#endif /* __HAVE_ELF__ */
 
 #ifndef weak_function
 /* If we do not have the __attribute__ ((weak)) syntax, there is no way we
@@ -105,14 +137,26 @@
 # define attribute_hidden
 #endif
 #define hidden_def(name) extern __typeof (name) name attribute_hidden;
-/* Define ALIASNAME as a hidden weak alias for NAME. */
-# define hidden_weak_alias(name, aliasname) _hidden_weak_alias (name, aliasname)
-# define _hidden_weak_alias(name, aliasname) \
-  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name))) __attribute__ ((visibility ("hidden")));
-/* Define ALIASNAME as a hidden strong alias for NAME.  */
+
+#ifndef __ASSEMBLER__
 # define hidden_strong_alias(name, aliasname) _hidden_strong_alias(name, aliasname)
 # define _hidden_strong_alias(name, aliasname) \
-  extern __typeof (name) aliasname __attribute__ ((alias (#name))) __attribute__ ((visibility ("hidden")));
+  extern __typeof (name) aliasname __attribute__ ((alias (#name))) attribute_hidden;
+
+# define hidden_weak_alias(name, aliasname) _hidden_weak_alias (name, aliasname)
+# define _hidden_weak_alias(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name))) attribute_hidden;
+#else /* __ASSEMBLER__ */
+# define hidden_strong_alias(name, aliasname)				\
+  .global C_SYMBOL_NAME (aliasname) ;					\
+  .hidden C_SYMBOL_NAME (aliasname) ;					\
+  .set C_SYMBOL_NAME(aliasname),C_SYMBOL_NAME(name)
+
+# define hidden_weak_alias(name, aliasname)				\
+  .weak C_SYMBOL_NAME(aliasname) ;					\
+  .hidden C_SYMBOL_NAME(aliasname) ;					\
+  C_SYMBOL_NAME(aliasname) = C_SYMBOL_NAME(name)
+#endif /* __ASSEMBLER__ */
 
 #ifdef __UCLIBC_BUILD_RELRO__
 # define attribute_relro __attribute__ ((section (".data.rel.ro")))
@@ -204,6 +248,7 @@ extern ssize_t __read(int __fd, void *__buf, size_t __nbytes) attribute_hidden;
 extern ssize_t __write(int __fd, __const void *__buf, size_t __n) attribute_hidden;
 extern int __close(int __fd) attribute_hidden;
 extern __pid_t __getpid (void) attribute_hidden;
+extern void _exit_internal (int __status) __attribute__ ((__noreturn__)) attribute_hidden;
 #ifndef __USE_FILE_OFFSET64
 extern int __lockf (int __fd, int __cmd, __off_t __len) attribute_hidden;
 extern __off_t __lseek (int __fd, __off_t __offset, int __whence) __THROW attribute_hidden;
@@ -231,22 +276,21 @@ extern int __sprintf (char *__restrict __s,
 		    __const char *__restrict __format, ...) attribute_hidden;
 
 /* hack */
+#define abort __abort
 #define fprintf __fprintf
 #define fclose __fclose
 #ifndef __USE_FILE_OFFSET64
 #define fopen __fopen
-#define readdir __readdir
 #else
 #define fopen __fopen64
-#define readdir __readdir64
 #endif
 #ifdef __USE_LARGEFILE64
 #define fopen64 __fopen64
-#define readdir64 __readdir64
 #endif
 
 /* #include <stdlib.h> */
 extern char *__getenv (__const char *__name) attribute_hidden;
+extern void __exit (int __status) __THROW __attribute__ ((__noreturn__)) attribute_hidden;
 
 /* #include <signal.h> */
 extern int __sigprocmask (int __how, __const __sigset_t *__restrict __set,
@@ -324,21 +368,6 @@ extern int __fstatfs64 (int __fildes, struct statfs64 *__buf)
 typedef struct __dirstream DIR;
 extern DIR *__opendir (__const char *__name) attribute_hidden;
 extern int __closedir (DIR *__dirp) attribute_hidden;
-
-#ifndef __USE_FILE_OFFSET64
-extern struct dirent *__readdir (DIR *__dirp) __nonnull ((1)) attribute_hidden;
-#else
-# ifdef __REDIRECT
-extern struct dirent *__REDIRECT (__readdir, (DIR *__dirp), __readdir64)
-     __nonnull ((1)) attribute_hidden;
-# else
-#  define __readdir __readdir64
-# endif
-#endif
-
-#ifdef __USE_LARGEFILE64
-extern struct dirent64 *__readdir64 (DIR *__dirp) __nonnull ((1)) attribute_hidden;
-#endif
 
 /* #include <stdio.h> */
 extern int __vfprintf (FILE *__restrict __s, __const char *__restrict __format,
