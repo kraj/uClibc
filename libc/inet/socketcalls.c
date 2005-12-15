@@ -158,7 +158,6 @@ strong_alias(__listen,listen)
 #ifdef __NR_recv
 #define __NR___libc_recv __NR_recv
 _syscall4(ssize_t, __libc_recv, int, sockfd, __ptr_t, buffer, size_t, len, int, flags);
-weak_alias(__libc_recv, recv);
 #elif defined(__NR_socketcall)
 /* recv, recvfrom added by bir7@leland.stanford.edu */
 ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
