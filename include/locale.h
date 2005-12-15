@@ -218,12 +218,6 @@ extern __locale_t uselocale (__locale_t __dataset) __THROW;
    Passing this value to any other function has undefined behavior.  */
 # define LC_GLOBAL_LOCALE	((__locale_t) -1L)
 
-extern __locale_t __newlocale (int __category_mask, __const char *__locale,
-			     __locale_t __base) __THROW;
-extern __locale_t __duplocale (__locale_t __dataset) __THROW;
-extern void __freelocale (__locale_t __dataset) __THROW;
-extern __locale_t __uselocale (__locale_t __dataset) __THROW;
-
 #endif
 
 __END_DECLS
