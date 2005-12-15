@@ -1061,6 +1061,7 @@ config UCLIBC_HAS_REGEX_OLD
 
 config UCLIBC_HAS_WORDEXP
 	bool "Support the wordexp() interface"
+	depends on UCLIBC_HAS_GLOB
 	default n
 	help
 	  The SuSv3 wordexp() interface performs word expansions per the  Shell
