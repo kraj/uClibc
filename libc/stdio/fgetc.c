@@ -69,17 +69,19 @@ int attribute_hidden __fgetc_unlocked_internal(FILE *stream)
 	return EOF;
 }
 
-strong_alias(__fgetc_unlocked_internal,__fgetc_unlocked)
+hidden_strong_alias(__fgetc_unlocked_internal,__fgetc_unlocked)
 weak_alias(__fgetc_unlocked_internal,fgetc_unlocked)
+hidden_strong_alias(__fgetc_unlocked_internal,__getc_unlocked)
 weak_alias(__fgetc_unlocked_internal,getc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
+hidden_strong_alias(__fgetc_unlocked_internal,__fgetc)
 weak_alias(__fgetc_unlocked_internal,fgetc)
 weak_alias(__fgetc_unlocked_internal,getc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int fgetc(register FILE *stream)
+int attribute_hidden __fgetc(register FILE *stream)
 {
 	if (stream->__user_locking != 0) {
 		return __GETC_UNLOCKED_MACRO(stream);
@@ -91,7 +93,7 @@ int fgetc(register FILE *stream)
 		return retval;
 	}
 }
-
-weak_alias(fgetc,getc);
+strong_alias(__fgetc,fgetc)
+weak_alias(__fgetc,getc)
 
 #endif

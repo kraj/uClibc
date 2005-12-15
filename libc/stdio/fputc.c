@@ -69,17 +69,19 @@ int attribute_hidden __fputc_unlocked_internal(int c, register FILE *stream)
 	return EOF;
 }
 
-strong_alias(__fputc_unlocked_internal,__fputc_unlocked)
+hidden_strong_alias(__fputc_unlocked_internal,__fputc_unlocked)
 weak_alias(__fputc_unlocked_internal,fputc_unlocked)
 weak_alias(__fputc_unlocked_internal,putc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
+hidden_strong_alias(__fputc_unlocked_internal,__fputc)
 weak_alias(__fputc_unlocked_internal,fputc)
+hidden_strong_alias(__fputc_unlocked_internal,__putc)
 weak_alias(__fputc_unlocked_internal,putc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int fputc(int c, register FILE *stream)
+int attribute_hidden __fputc(int c, register FILE *stream)
 {
 	if (stream->__user_locking != 0) {
 		return __PUTC_UNLOCKED_MACRO(c, stream);
@@ -91,7 +93,8 @@ int fputc(int c, register FILE *stream)
 		return retval;
 	}
 }
-
-weak_alias(fputc,putc)
+strong_alias(__fputc,fputc)
+hidden_strong_alias(__fputc,__putc)
+weak_alias(__fputc,putc)
 
 #endif
