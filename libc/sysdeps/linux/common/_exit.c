@@ -32,10 +32,12 @@
 static inline _syscall1(void, __syscall_exit, int, status);
 #endif
 
-void attribute_noreturn _exit(int status)
+#undef _exit
+#undef _exit_internal
+void attribute_noreturn _exit_internal(int status)
 {
 	/* The loop is added only to keep gcc happy. */
 	while(1)
 		INLINE_SYSCALL(exit, 1, status);
 }
-
+strong_alias(_exit_internal,_exit)

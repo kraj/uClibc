@@ -320,7 +320,9 @@ extern void (*__rtld_fini)(void);
 /*
  * Normal program termination
  */
-void exit(int rv)
+#undef exit
+#undef __exit
+void attribute_hidden __exit(int rv)
 {
 	/* Perform exit-specific cleanup (atexit and on_exit) */
 	LOCK;
@@ -343,6 +345,7 @@ void exit(int rv)
 	if (_stdio_term) 
 	    _stdio_term();
 
-	_exit(rv);
+	_exit_internal(rv);
 }
+strong_alias(__exit,exit)
 #endif
