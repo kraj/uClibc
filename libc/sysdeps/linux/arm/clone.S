@@ -59,11 +59,7 @@ __clone:
 	ldr 	pc, [sp]
 
 	@ and we are done, passing the return value through r0
-#ifdef __PIC__
-	b	_exit(PLT)
-#else
-	b	_exit
-#endif
+	b	_exit_internal
 
 __error:
 	b	__syscall_error

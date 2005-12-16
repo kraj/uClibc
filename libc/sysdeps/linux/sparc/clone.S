@@ -59,7 +59,7 @@ __error:
 __thread_start:
 	call	%i0
 	mov	%i3,%o0
-	call	_exit,0
+	call	_exit_internal,0
 	nop
 
 .size __thread_start,.-__thread_start

@@ -106,12 +106,7 @@ __thread_start:
 
 	/* Call _exit rather than doing it inline for breakpoint purposes.  */
 	move		a0,v0
-#ifdef __PIC__
-	la		t9,_exit
-	jalr		t9
-#else
-	jal		_exit
-#endif
+	jal		_exit_internal
 	.end  __thread_start
 
 .weak clone;

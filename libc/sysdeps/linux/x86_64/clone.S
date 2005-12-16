@@ -109,7 +109,7 @@ __clone:
 	call	*%rax
 	/* Call exit with return value from function call. */
 	movq	%rax, %rdi
-	call	_exit@PLT //HIDDEN_JUMPTARGET (_exit)
+	call	_exit_internal
 
 __error:
 	jmp __syscall_error

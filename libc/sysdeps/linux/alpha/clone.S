@@ -87,7 +87,7 @@ thread_start:
 
 	/* Call _exit rather than doing it inline for breakpoint purposes */
 	mov	v0,a0
-	jsr	ra,_exit
+	jsr	ra,_exit_internal
 
 	/* Die horribly.  */
 	halt

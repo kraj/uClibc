@@ -78,11 +78,7 @@ __clone:
 	mr	r3,r31
 	bctrl
 	/* Call _exit with result from procedure.  */
-#ifdef __PIC__
-	b	_exit@plt
-#else
-	b	_exit
-#endif
+	b	_exit_internal
 
 .Lparent:
 	/* Parent.  Restore registers & return.  */

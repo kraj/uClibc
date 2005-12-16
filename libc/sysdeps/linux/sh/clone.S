@@ -118,7 +118,7 @@ __clone:
 #endif
 	.align	2
 .L1:
-	.long	PLTJMP(_exit)
+	.long	PLTJMP(_exit_internal)
 .size __clone,.-__clone;
 
 .globl  clone;

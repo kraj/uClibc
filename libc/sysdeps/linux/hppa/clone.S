@@ -90,7 +90,7 @@ thread_start:
 	bl	$$dyncall,%r31
 	copy	%r31,%rp
 
-	bl	_exit,%rp
+	bl	_exit_internal,%rp
 	copy	%ret0,%arg0
 
 	/* Die horribly.  */
