@@ -16,6 +16,9 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#include <features.h>
+#undef __lockf
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -24,6 +27,7 @@
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */
 
+#undef lockf
 int attribute_hidden __lockf (int fd, int cmd, off_t len)
 {
     struct flock fl;

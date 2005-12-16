@@ -18,6 +18,8 @@
    02111-1307 USA.  */
 
 #include <features.h>
+#undef __fstatfs64
+#undef __fstatfs
 
 #ifdef __UCLIBC_HAS_LFS__
 
@@ -40,6 +42,7 @@
 #include <sys/statvfs.h>
 #include <stddef.h>
 
+#undef fstatfs64
 /* Return information about the filesystem on which FD resides.  */
 int attribute_hidden __fstatfs64 (int fd, struct statfs64 *buf)
 {

@@ -17,6 +17,7 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <features.h>
+#undef __lockf64
 
 #ifdef __UCLIBC_HAS_LFS__
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
@@ -51,6 +52,7 @@
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */
 
+#undef lockf64
 int attribute_hidden __lockf64 (int fd, int cmd, off64_t len64)
 {
     struct flock fl;
