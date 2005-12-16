@@ -1587,7 +1587,7 @@ static void error_msg(const char *fmt, ...)
 		va_end(arg);
 	}
 
-	__exit(EXIT_FAILURE);
+	exit(EXIT_FAILURE);
 }
 
 int main(int argc, char **argv)
@@ -1696,7 +1696,7 @@ int main(int argc, char **argv)
 				}
 			}
 			if (ni) {			/* still bytes in buffer! */
-				__memmove(ibuf, pi, ni);
+				memmove(ibuf, pi, ni);
 			}
 		}
 
