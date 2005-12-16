@@ -78,8 +78,8 @@
 #include <bits/uClibc_locale_data.h>
 #endif
 
-extern void _locale_set(const unsigned char *p);
-extern void _locale_init(void);
+/* extern void _locale_set(const unsigned char *p); */
+/* extern void _locale_init(void); */
 
 enum {
 	__ctype_encoding_7_bit,		/* C/POSIX */
@@ -323,10 +323,10 @@ extern struct __uclibc_locale_struct * __global_locale;
 
 typedef struct __uclibc_locale_struct *__locale_t;
 
-#ifdef _LIBC
+#if defined _LIBC && defined IS_IN_libc
 extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
 							  const char *__restrict src,
-							  __locale_t loc );
+							  __locale_t loc ) attribute_hidden;
 #endif
 
 #ifdef L_setlocale
