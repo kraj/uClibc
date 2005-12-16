@@ -108,16 +108,17 @@ wint_t attribute_hidden __fgetwc_unlocked(register FILE *stream)
 	return wi;
 }
 
-weak_alias(__fgetwc_unlocked,fgetwc_unlocked);
-weak_alias(__fgetwc_unlocked,getwc_unlocked);
+weak_alias(__fgetwc_unlocked,fgetwc_unlocked)
+weak_alias(__fgetwc_unlocked,getwc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fgetwc_unlocked,fgetwc);
-weak_alias(__fgetwc_unlocked,getwc);
+hidden_strong_alias(__fgetwc_unlocked,__fgetwc)
+weak_alias(__fgetwc_unlocked,fgetwc)
+weak_alias(__fgetwc_unlocked,getwc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-wint_t fgetwc(register FILE *stream)
+wint_t attribute_hidden __fgetwc(register FILE *stream)
 {
 	wint_t retval;
 	__STDIO_AUTO_THREADLOCK_VAR;
@@ -130,7 +131,7 @@ wint_t fgetwc(register FILE *stream)
 
 	return retval;
 }
-
-weak_alias(fgetwc,getwc);
+strong_alias(__fgetwc,fgetwc)
+weak_alias(__fgetwc,getwc)
 
 #endif

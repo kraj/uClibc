@@ -95,6 +95,7 @@
 #define mbsrtowcs __mbsrtowcs
 #define btowc __btowc
 #define wcrtomb __wcrtomb
+#define fputws __fputws
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE

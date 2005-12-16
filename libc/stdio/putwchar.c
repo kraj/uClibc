@@ -21,9 +21,11 @@ weak_alias(__putwchar_unlocked,putwchar);
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+extern int __fputc (int __c, FILE *__stream) attribute_hidden;
+
 wint_t putwchar(wchar_t wc)
 {
-	return fputc(wc, stdout);
+	return __fputc(wc, stdout);
 }
 
 #endif

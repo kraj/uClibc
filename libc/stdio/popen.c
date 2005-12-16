@@ -19,6 +19,8 @@
 #define dup2 __dup2
 #define fdopen __fdopen
 #define pipe __pipe
+#define vfork __vfork
+#define fork __fork
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -109,7 +111,7 @@ FILE *popen(const char *command, const char *modes)
 
 		/* SUSv3 mandates an exit code of 127 for the child if the
 		 * command interpreter can not be invoked. */
-		_exit(127);
+		_exit_internal(127);
 	}
 	VFORK_UNLOCK;
 

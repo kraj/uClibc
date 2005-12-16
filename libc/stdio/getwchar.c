@@ -14,16 +14,18 @@ wint_t __getwchar_unlocked(void)
 	return __fgetwc_unlocked(stdin);
 }
 
-weak_alias(__getwchar_unlocked,getwchar_unlocked);
+weak_alias(__getwchar_unlocked,getwchar_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__getwchar_unlocked,getwchar);
+weak_alias(__getwchar_unlocked,getwchar)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+extern wint_t __fgetwc (__FILE *__stream) attribute_hidden;
+
 wint_t getwchar(void)
 {
-	return fgetwc(stdin);
+	return __fgetwc(stdin);
 }
 
 #endif

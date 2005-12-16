@@ -9,8 +9,10 @@
 
 #ifndef __DO_LARGEFILE
 # define FILEDES_ARG    (-1)
+#undef __fopen
 #undef fopen
 #else
+#undef __fopen64
 #undef fopen64
 #endif
 

@@ -9,6 +9,7 @@
 
 #define __DO_LARGEFILE
 #define __fopen       __fopen64
+#undef fopen
 #define fopen         fopen64
 #define FILEDES_ARG   (-2)
 #include "fopen.c"

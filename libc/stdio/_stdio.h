@@ -398,6 +398,7 @@ extern int __feof_unlocked(FILE *stream);
 extern int __ferror_unlocked(FILE *stream);
 
 extern int __fgetc_unlocked_internal(FILE *stream) attribute_hidden;
+extern int __getc_unlocked(FILE *stream) attribute_hidden;
 extern char *__fgets_unlocked(char *__restrict s, int n,
 					FILE * __restrict stream) attribute_hidden;
 

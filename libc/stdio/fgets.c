@@ -58,15 +58,16 @@ char attribute_hidden *__fgets_unlocked(char *__restrict s, int n,
 	return NULL;
 }
 
-weak_alias(__fgets_unlocked,fgets_unlocked);
+weak_alias(__fgets_unlocked,fgets_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fgets_unlocked,fgets);
+hidden_strong_alias(__fgets_unlocked,__fgets)
+weak_alias(__fgets_unlocked,fgets)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-char *fgets(char *__restrict s, int n,
+char attribute_hidden *__fgets(char *__restrict s, int n,
 			register FILE * __restrict stream)
 {
 	char *retval;
@@ -80,5 +81,6 @@ char *fgets(char *__restrict s, int n,
 
 	return retval;
 }
+strong_alias(__fgets,fgets)
 
 #endif
