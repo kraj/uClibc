@@ -32,6 +32,7 @@
 #include <string.h>
 #include "error.h"
 
+extern int __putc(int c, FILE *stream) attribute_hidden;
 
 /* This variable is incremented each time `error' is called.  */
 unsigned int error_message_count;
@@ -57,9 +58,9 @@ void __error (int status, int errnum, const char *message, ...)
     if (errnum) {
 	fprintf (stderr, ": %s", strerror (errnum));
     }
-    putc ('\n', stderr);
+    __putc ('\n', stderr);
     if (status)
-	exit (status);
+	__exit (status);
 }
 
 void __error_at_line (int status, int errnum, const char *file_name,
@@ -93,9 +94,9 @@ void __error_at_line (int status, int errnum, const char *file_name,
     if (errnum) {
 	fprintf (stderr, ": %s", strerror (errnum));
     }
-    putc ('\n', stderr);
+    __putc ('\n', stderr);
     if (status)
-	exit (status);
+	__exit (status);
 }
 
 /* Use the weaks here in an effort at controlling namespace pollution */

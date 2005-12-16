@@ -84,7 +84,7 @@ void warnx(const char *format, ...)
 void attribute_hidden __verr(int status, const char *format, va_list args)
 {
 	__vwarn(format, args);
-	exit(status);
+	__exit(status);
 }
 strong_alias(__verr,verr)
 
@@ -103,7 +103,7 @@ void attribute_noreturn err(int status, const char *format, ...)
 void attribute_hidden __verrx(int status, const char *format, va_list args)
 {
 	__vwarnx(format, args);
-	exit(status);
+	__exit(status);
 }
 strong_alias(__verrx,verrx)
 

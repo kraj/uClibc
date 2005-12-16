@@ -107,7 +107,7 @@ weak_alias (__pthread_return_1, pthread_equal)
 
 void weak_function pthread_exit (void *retval)
 {
-  exit (EXIT_SUCCESS);
+  __exit (EXIT_SUCCESS);
 }
 */
 
