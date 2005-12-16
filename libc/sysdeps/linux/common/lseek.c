@@ -11,6 +11,8 @@
 #include <unistd.h>
 
 #define __NR___lseek __NR_lseek
+#undef __lseek
+#undef lseek
 attribute_hidden _syscall3(__off_t, __lseek, int, fildes, __off_t, offset, int, whence);
 strong_alias(__lseek,lseek)
 weak_alias(__lseek,__libc_lseek)

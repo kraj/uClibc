@@ -12,6 +12,7 @@
 #include <fcntl.h>
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
+#undef fcntl64
 #define __NR___syscall_fcntl64 __NR_fcntl64
 static inline _syscall3(int, __syscall_fcntl64, int, fd, int, cmd, long, arg);
 int attribute_hidden __fcntl64(int fd, int cmd, ...)

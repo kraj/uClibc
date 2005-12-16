@@ -28,6 +28,7 @@
 #ifdef __UCLIBC_HAS_LFS__
 /* Open FILE with access OFLAG.  If OFLAG includes O_CREAT,
    a third argument is the file protection.  */
+#undef open64
 int attribute_hidden __open64 (const char *file, int oflag, ...)
 {
   int mode = 0;

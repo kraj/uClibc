@@ -11,10 +11,13 @@
 #include <stdarg.h>
 #include <fcntl.h>
 
+#undef __fcntl
+
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
 extern int __fcntl64(int fd, int cmd, ...) attribute_hidden;
 #endif
 
+#undef fcntl
 #define __NR___syscall_fcntl __NR_fcntl
 static inline
 _syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg);

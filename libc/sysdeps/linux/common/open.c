@@ -14,6 +14,8 @@
 #include <string.h>
 #include <sys/param.h>
 
+#undef __open
+#undef open
 #define __NR___syscall_open __NR_open
 static inline _syscall3(int, __syscall_open, const char *, file,
 		int, flags, __kernel_mode_t, mode);

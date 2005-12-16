@@ -33,7 +33,7 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-
+#undef lseek64
 #if defined __NR__llseek && defined __UCLIBC_HAS_LFS__
 
 #ifndef INLINE_SYSCALL
