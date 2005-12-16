@@ -47,7 +47,11 @@
 
 #else /* __ASSEMBLER__ */
 
-# define C_SYMBOL_NAME(name) __C_SYMBOL_PREFIX__ ##name
+#ifdef __SYMBOL_PREFIX
+# define C_SYMBOL_NAME(name) _##name
+#else
+# define C_SYMBOL_NAME(name) name
+#endif
 
 # define strong_alias(name, aliasname)					\
   .global C_SYMBOL_NAME (aliasname) ;					\

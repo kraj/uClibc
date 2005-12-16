@@ -400,6 +400,10 @@ ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
 endif
 
+ifneq ($(strip $(C_SYMBOL_PREFIX)),"")
+CFLAGS+=-D__SYMBOL_PREFIX=1
+endif
+
 # moved from ldso/{ldso,libdl}
 # BEWARE!!! At least mips* will die if -O0 is used!!!
 ifeq ($(TARGET_ARCH),mips)
