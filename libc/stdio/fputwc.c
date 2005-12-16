@@ -14,11 +14,11 @@ wint_t attribute_hidden __fputwc_unlocked(wchar_t wc, FILE *stream)
 	return _wstdio_fwrite(&wc, 1, stream) ? wc : WEOF;
 }
 
-weak_alias(__fputwc_unlocked,fputwc_unlocked);
-weak_alias(__fputwc_unlocked,putwc_unlocked);
+weak_alias(__fputwc_unlocked,fputwc_unlocked)
+weak_alias(__fputwc_unlocked,putwc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fputwc_unlocked,fputwc);
-weak_alias(__fputwc_unlocked,putwc);
+weak_alias(__fputwc_unlocked,fputwc)
+weak_alias(__fputwc_unlocked,putwc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
@@ -37,6 +37,6 @@ wint_t fputwc(wchar_t wc, register FILE *stream)
 	return retval;
 }
 
-weak_alias(fputwc,putwc);
+weak_alias(fputwc,putwc)
 
 #endif
