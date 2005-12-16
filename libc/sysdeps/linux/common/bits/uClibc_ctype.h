@@ -184,14 +184,6 @@ extern int toascii(int c) __THROW;
 #define _toupper(c) ((c) ^ 0x20)
 #define _tolower(c) ((c) | 0x20)
 
-
-/* Apparently, glibc implements things as macros if __NO_CTYPE isn't defined.
- * If we don't have locale support, we'll do the same.  Otherwise, we'll
- * only use macros for the supported-locale-invariant cases. */
-#ifndef __UCLIBC_HAS_LOCALE__
-
-#endif /*  __UCLIBC_HAS_LOCALE__ */
-
 __END_DECLS
 
 /**********************************************************************/
