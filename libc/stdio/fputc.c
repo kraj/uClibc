@@ -69,7 +69,7 @@ int attribute_hidden __fputc_unlocked_internal(int c, register FILE *stream)
 	return EOF;
 }
 
-hidden_strong_alias(__fputc_unlocked_internal,__fputc_unlocked)
+strong_alias(__fputc_unlocked_internal,__fputc_unlocked)
 weak_alias(__fputc_unlocked_internal,fputc_unlocked)
 weak_alias(__fputc_unlocked_internal,putc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__

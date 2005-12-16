@@ -69,7 +69,7 @@ int attribute_hidden __fgetc_unlocked_internal(FILE *stream)
 	return EOF;
 }
 
-hidden_strong_alias(__fgetc_unlocked_internal,__fgetc_unlocked)
+strong_alias(__fgetc_unlocked_internal,__fgetc_unlocked)
 weak_alias(__fgetc_unlocked_internal,fgetc_unlocked)
 hidden_strong_alias(__fgetc_unlocked_internal,__getc_unlocked)
 weak_alias(__fgetc_unlocked_internal,getc_unlocked)
