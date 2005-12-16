@@ -390,64 +390,6 @@ int toascii(int c)
 
 #endif
 /**********************************************************************/
-/* old uClibc extensions */
-/**********************************************************************/
-#ifdef L_isxlower
-
-#ifdef __UCLIBC_HAS_CTYPE_TABLES__
-
-int isxlower(int C)
-{
-#if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
-	assert(CTYPE_DOMAIN_CHECK(C));
- 	return (__isctype(C, (_ISxdigit|_ISupper)) == _ISxdigit);
-#elif defined(__UCLIBC_HAS_CTYPE_CHECKED__)
-	return CTYPE_DOMAIN_CHECK(C)
-		? (__isctype(C, (_ISxdigit|_ISupper)) == _ISxdigit)
-		: 0;
-#elif defined(__UCLIBC_HAS_CTYPE_UNSAFE__)
-	return (__isctype(C, (_ISxdigit|_ISupper)) == _ISxdigit);
-#else  /* No checking done. */
-#error Unknown type of ctype checking!
-#endif
-}
-
-#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
-
-IS_FUNC_BODY(xlower);
-
-#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
-
-#endif
-/**********************************************************************/
-#ifdef L_isxupper
-
-#ifdef __UCLIBC_HAS_CTYPE_TABLES__
-
-int isxupper(int C)
-{
-#if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
-	assert(CTYPE_DOMAIN_CHECK(C));
- 	return (__isctype(C, (_ISxdigit|_ISlower)) == _ISxdigit);
-#elif defined(__UCLIBC_HAS_CTYPE_CHECKED__)
-	return CTYPE_DOMAIN_CHECK(C)
-		? (__isctype(C, (_ISxdigit|_ISlower)) == _ISxdigit)
-		: 0;
-#elif defined(__UCLIBC_HAS_CTYPE_UNSAFE__)
-	return (__isctype(C, (_ISxdigit|_ISlower)) == _ISxdigit);
-#else  /* No checking done. */
-#error Unknown type of ctype checking!
-#endif
-}
-
-#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
-
-IS_FUNC_BODY(xupper);
-
-#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
-
-#endif
-/**********************************************************************/
 /* glibc extensions */
 /**********************************************************************/
 #ifdef L_isctype

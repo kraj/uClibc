@@ -289,7 +289,7 @@ UNLOCKED(wchar_t *,fgetws,(wchar_t *__restrict ws, int n,
 	wint_t wi;
 
 	while ((n > 1)
-		   && ((wi = fgetwc_unlocked(stream)) != WEOF)
+		   && ((wi = __fgetwc_unlocked(stream)) != WEOF)
 		   && ((*p++ = wi) != '\n')
 		   ) {
 		--n;

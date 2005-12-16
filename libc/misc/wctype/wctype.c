@@ -39,6 +39,8 @@
 #include <bits/uClibc_uwchar.h>
 
 extern wctype_t __wctype (__const char *__property) attribute_hidden;
+extern wint_t __towlower (wint_t __wc) __THROW attribute_hidden;
+extern wint_t __towupper (wint_t __wc) __THROW attribute_hidden;
 
 #if defined(__LOCALE_C_ONLY) && defined(__UCLIBC_DO_XLOCALE)
 #error xlocale functionality is not supported in stub locale mode.
@@ -46,10 +48,10 @@ extern wctype_t __wctype (__const char *__property) attribute_hidden;
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
-extern wint_t __towlower_l(wint_t __wc, __locale_t __locale) __THROW;
-extern wint_t __towupper_l(wint_t __wc, __locale_t __locale) __THROW;
+extern wint_t __towlower_l(wint_t __wc, __locale_t __locale) __THROW attribute_hidden;
+extern wint_t __towupper_l(wint_t __wc, __locale_t __locale) __THROW attribute_hidden;
 extern int __iswctype_l(wint_t __wc, wctype_t __desc, __locale_t __locale) __THROW attribute_hidden;
-extern wint_t __towctrans_l(wint_t __wc, wctrans_t __desc, __locale_t __locale) __THROW;
+extern wint_t __towctrans_l(wint_t __wc, wctrans_t __desc, __locale_t __locale) __THROW attribute_hidden;
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
 /* We know wide char support is enabled.  We wouldn't be here otherwise. */
@@ -278,7 +280,7 @@ ISW_FUNC_BODY(xdigit);
 #if defined(L_towlower) || defined(L_towlower_l)
 
 #ifdef L_towlower
-#define TOWLOWER(w) towlower(w)
+#define TOWLOWER(w) __towlower(w)
 #else  /* L_towlower */
 #define TOWLOWER(w) __towlower_l(w, __locale_t locale)
 #undef __UCLIBC_CURLOCALE_DATA
@@ -290,7 +292,7 @@ ISW_FUNC_BODY(xdigit);
 #ifdef __UCLIBC_HAS_XLOCALE__
 #define TOWCTRANS(w,d) __towctrans_l(w,d, __UCLIBC_CURLOCALE)
 #else  /* __UCLIBC_HAS_XLOCALE__ */
-#define TOWCTRANS(w,d) towctrans(w,d)
+#define TOWCTRANS(w,d) __towctrans(w,d)
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
 #define __C_towlower(wc) \
@@ -298,7 +300,7 @@ ISW_FUNC_BODY(xdigit);
 
 #ifdef __LOCALE_C_ONLY
 
-wint_t towlower(wint_t wc)
+wint_t attribute_hidden __towlower(wint_t wc)
 {
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 	return __C_towlower(wc);
@@ -315,14 +317,14 @@ wint_t towlower(wint_t wc)
 
 #if defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__)
 
-wint_t towlower(wint_t wc)
+wint_t attribute_hidden __towlower(wint_t wc)
 {
 	return __towctrans_l(wc, _CTYPE_tolower, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__) */
 
-wint_t TOWLOWER(wint_t wc)
+wint_t attribute_hidden TOWLOWER(wint_t wc)
 {
 	return TOWCTRANS(wc, _CTYPE_tolower);
 }
@@ -333,14 +335,14 @@ wint_t TOWLOWER(wint_t wc)
 
 #if defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__)
 
-wint_t towlower(wint_t wc)
+wint_t attribute_hidden __towlower(wint_t wc)
 {
 	return __towlower_l(wc, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__) */
 
-wint_t TOWLOWER(wint_t wc)
+wint_t attribute_hidden TOWLOWER(wint_t wc)
 {
 	unsigned int sc, n, i;
 	__uwchar_t u = wc;
@@ -371,17 +373,19 @@ wint_t TOWLOWER(wint_t wc)
 #endif /* SMALL_UPLOW */
 
 #ifdef L_towlower_l
-weak_alias(__towlower_l, towlower_l)
+strong_alias(__towlower_l,towlower_l)
 #endif /* L_towlower_l */
 
 #endif /* __LOCALE_C_ONLY */
+
+strong_alias(__towlower,towlower)
 
 #endif
 /**********************************************************************/
 #if defined(L_towupper) || defined(L_towupper_l)
 
 #ifdef L_towupper
-#define TOWUPPER(w) towupper(w)
+#define TOWUPPER(w) __towupper(w)
 #else  /* L_towupper */
 #define TOWUPPER(w) __towupper_l(w, __locale_t locale)
 #undef __UCLIBC_CURLOCALE_DATA
@@ -393,7 +397,7 @@ weak_alias(__towlower_l, towlower_l)
 #ifdef __UCLIBC_HAS_XLOCALE__
 #define TOWCTRANS(w,d) __towctrans_l(w,d, __UCLIBC_CURLOCALE)
 #else  /* __UCLIBC_HAS_XLOCALE__ */
-#define TOWCTRANS(w,d) towctrans(w,d)
+#define TOWCTRANS(w,d) __towctrans(w,d)
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
 #define __C_towupper(wc) \
@@ -401,7 +405,7 @@ weak_alias(__towlower_l, towlower_l)
 
 #ifdef __LOCALE_C_ONLY
 
-wint_t towupper(wint_t wc)
+wint_t attribute_hidden __towupper(wint_t wc)
 {
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 	return __C_towupper(wc);
@@ -419,14 +423,14 @@ wint_t towupper(wint_t wc)
 
 #if defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__)
 
-wint_t towupper(wint_t wc)
+wint_t attribute_hidden __towupper(wint_t wc)
 {
 	return __towctrans_l(wc, _CTYPE_toupper, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__) */
 
-wint_t TOWUPPER(wint_t wc)
+wint_t attribute_hidden TOWUPPER(wint_t wc)
 {
 	return TOWCTRANS(wc, _CTYPE_toupper);
 }
@@ -437,14 +441,14 @@ wint_t TOWUPPER(wint_t wc)
 
 #if defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__)
 
-wint_t towupper(wint_t wc)
+wint_t attribute_hidden __towupper(wint_t wc)
 {
 	return __towupper_l(wc, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__) */
 
-wint_t TOWUPPER(wint_t wc)
+wint_t attribute_hidden TOWUPPER(wint_t wc)
 {
 	unsigned int sc, n, i;
 	__uwchar_t u = wc;
@@ -475,10 +479,12 @@ wint_t TOWUPPER(wint_t wc)
 #endif /* SMALL_UPLOW */
 
 #ifdef L_towupper_l
-weak_alias(__towupper_l, towupper_l)
+strong_alias(__towupper_l,towupper_l)
 #endif /* L_towupper_l */
 
 #endif /* __LOCALE_C_ONLY */
+
+strong_alias(__towupper,towupper)
 
 #endif
 /**********************************************************************/
@@ -756,8 +762,8 @@ wint_t towctrans(wint_t wc, wctrans_t desc)
 #define TOWLOWER(w,l) __towlower_l(w,l)
 #define TOWUPPER(w,l) __towupper_l(w,l)
 #else  /* __UCLIBC_HAS_XLOCALE__ */
-#define TOWLOWER(w,l) towlower(w)
-#define TOWUPPER(w,l) towupper(w)
+#define TOWLOWER(w,l) __towlower(w)
+#define TOWUPPER(w,l) __towupper(w)
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
 #if defined(L_towctrans) && defined(__UCLIBC_HAS_XLOCALE__)
@@ -883,7 +889,7 @@ weak_alias(__towctrans_l, towctrans_l)
 
 static const char transstring[] = __CTYPE_TRANSTRING;
 
-wctrans_t wctrans(const char *property)
+wctrans_t attribute_hidden __wctrans(const char *property)
 {
 	const unsigned char *p;
 	int i;
@@ -901,6 +907,7 @@ wctrans_t wctrans(const char *property)
 	/* TODO - Add locale-specific translations. */
 	return 0;
 }
+strong_alias(__wctrans,wctrans)
 
 #endif
 /**********************************************************************/
@@ -910,9 +917,11 @@ wctrans_t wctrans(const char *property)
 #warning REMINDER: Currently wctrans_l simply calls wctrans.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
+extern wctrans_t __wctrans (__const char *__property) __THROW attribute_hidden;
+
 wctrans_t __wctrans_l(const char *property, __locale_t locale)
 {
-	return wctrans(property);
+	return __wctrans(property);
 }
 
 weak_alias(__wctrans_l, wctrans_l)
