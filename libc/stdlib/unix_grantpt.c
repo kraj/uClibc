@@ -24,6 +24,8 @@
 #define waitpid __waitpid
 #define dup2 __dup2
 #define chmod __chmod
+#define vfork __vfork
+#define fork __fork
 
 #include <assert.h>
 #include <errno.h>
@@ -42,7 +44,7 @@
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
 #include <sys/syscall.h>
 #if ! defined __NR_vfork
-#define vfork fork	
+#define vfork fork
 #endif
 
 extern int __ptsname_r (int fd, char *buf, size_t buflen) attribute_hidden;
@@ -166,10 +168,10 @@ grantpt (int fd)
       /* We pase the master pseudo terminal as file descriptor PTY_FILENO.  */
       if (fd != PTY_FILENO)
 	if (dup2 (fd, PTY_FILENO) < 0)
-	  _exit (FAIL_EBADF);
+	  _exit_internal (FAIL_EBADF);
 
       execle (_PATH_PT_CHOWN, _PATH_PT_CHOWN, NULL, NULL);
-      _exit (FAIL_EXEC);
+      _exit_internal (FAIL_EXEC);
     }
   else
     {

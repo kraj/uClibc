@@ -23,6 +23,8 @@
 #define stpcpy __stpcpy
 #define strndup __strndup
 #define strspn __strspn
+#define strcspn __strcspn
+#define setenv __setenv
 #define unsetenv __unsetenv
 #define waitpid __waitpid
 #define kill __kill
@@ -34,10 +36,7 @@
 #define atoi __atoi
 #define fnmatch __fnmatch
 #define pipe __pipe
-#if 0
-#define glob __glob
-#define globfree __globfree
-#endif
+#define fork __fork
 
 #define _GNU_SOURCE
 #include <features.h>
@@ -55,6 +54,12 @@
 #include <fnmatch.h>
 #include <glob.h>
 #include <wordexp.h>
+
+extern void __wordfree (wordexp_t *__wordexp) __THROW attribute_hidden;
+extern int __glob (__const char *__restrict __pattern, int __flags,
+		 int (*__errfunc) (__const char *, int),
+		 glob_t *__restrict __pglob) __THROW attribute_hidden;
+extern void __globfree (glob_t *__pglob) __THROW attribute_hidden;
 
 #define __WORDEXP_FULL
 //#undef __WORDEXP_FULL
@@ -362,7 +367,7 @@ do_parse_glob(const char *glob_word, char **word, size_t * word_length,
 	int match;
 	glob_t globbuf;
 
-	error = glob(glob_word, GLOB_NOCHECK, NULL, &globbuf);
+	error = __glob(glob_word, GLOB_NOCHECK, NULL, &globbuf);
 
 	if (error != 0) {
 		/* We can only run into memory problems.  */
@@ -381,7 +386,7 @@ do_parse_glob(const char *glob_word, char **word, size_t * word_length,
 								 globbuf.gl_pathv[match]);
 		}
 
-		globfree(&globbuf);
+		__globfree(&globbuf);
 		return *word ? 0 : WRDE_NOSPACE;
 	}
 
@@ -395,12 +400,12 @@ do_parse_glob(const char *glob_word, char **word, size_t * word_length,
 		char *matching_word = __strdup(globbuf.gl_pathv[match]);
 
 		if (matching_word == NULL || w_addword(pwordexp, matching_word)) {
-			globfree(&globbuf);
+			__globfree(&globbuf);
 			return WRDE_NOSPACE;
 		}
 	}
 
-	globfree(&globbuf);
+	__globfree(&globbuf);
 	return 0;
 }
 
@@ -483,7 +488,7 @@ parse_glob(char **word, size_t * word_length, size_t * max_length,
 
 	/* Now tidy up */
   tidy_up:
-	wordfree(&glob_list);
+	__wordfree(&glob_list);
 	return error;
 }
 
@@ -2023,7 +2028,7 @@ parse_dquote(char **word, size_t * word_length, size_t * max_length,
  * wordfree() is to be called after pwordexp is finished with.
  */
 
-void wordfree(wordexp_t * pwordexp)
+void attribute_hidden __wordfree(wordexp_t * pwordexp)
 {
 
 	/* wordexp can set pwordexp to NULL */
@@ -2037,6 +2042,7 @@ void wordfree(wordexp_t * pwordexp)
 		pwordexp->we_wordv = NULL;
 	}
 }
+strong_alias(__wordfree,wordfree)
 
 /*
  * wordexp()
@@ -2055,7 +2061,7 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 
 	if (flags & WRDE_REUSE) {
 		/* Minimal implementation of WRDE_REUSE for now */
-		wordfree(we);
+		__wordfree(we);
 		old_word.we_wordv = NULL;
 	}
 
@@ -2257,7 +2263,7 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 		return WRDE_NOSPACE;
 
 	if ((flags & WRDE_APPEND) == 0)
-		wordfree(we);
+		__wordfree(we);
 
 	*we = old_word;
 	return error;

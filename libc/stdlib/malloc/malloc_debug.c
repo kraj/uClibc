@@ -42,7 +42,7 @@ __malloc_debug_printf (int indent, const char *fmt, ...)
 
   while (spaces > 0)
     {
-      putc (' ', stderr);
+      __putc (' ', stderr);
       spaces--;
     }
 
@@ -50,7 +50,7 @@ __malloc_debug_printf (int indent, const char *fmt, ...)
   vfprintf (stderr, fmt, val);
   va_end (val);
 
-  putc ('\n', stderr);
+  __putc ('\n', stderr);
 
   __malloc_debug_indent (indent);
 }

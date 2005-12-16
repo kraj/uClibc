@@ -21,6 +21,7 @@
 #define setgroups __setgroups
 #define strtoul __strtoul
 #define rewind __rewind
+#define fgets_unlocked __fgets_unlocked
 
 #define _GNU_SOURCE
 #include <features.h>
@@ -50,6 +51,8 @@ extern int __getpwuid_r (__uid_t __uid,
 		       struct passwd *__restrict __resultbuf,
 		       char *__restrict __buffer, size_t __buflen,
 		       struct passwd **__restrict __result) attribute_hidden;
+
+extern int __fputc_unlocked_internal(int c, FILE *stream) attribute_hidden;
 
 /**********************************************************************/
 /* Sizes for staticly allocated buffers. */
@@ -806,7 +809,7 @@ int putgrent(const struct group *__restrict p, FILE *__restrict f)
 
 			do {
 				if (!*m) {
-					if (fputc_unlocked('\n', f) >= 0) {
+					if (__fputc_unlocked_internal('\n', f) >= 0) {
 						rv = 0;
 					}
 					break;
@@ -872,7 +875,7 @@ int putspent(const struct spwd *p, FILE *stream)
 		goto DO_UNLOCK;
 	}
 
-	if (fputc_unlocked('\n', stream) > 0) {
+	if (__fputc_unlocked_internal('\n', stream) > 0) {
 		rv = 0;
 	}
 

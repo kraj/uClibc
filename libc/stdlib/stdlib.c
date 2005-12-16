@@ -724,7 +724,7 @@ unsigned long long attribute_hidden __XL_NPP(_stdlib_strto_ll)(register const Wc
 
 /*  void _Exit(int status) */
 /*  { */
-/*  	_exit(status); */
+/*  	_exit_internal(status); */
 /*  } */
 
 /*  #endif */

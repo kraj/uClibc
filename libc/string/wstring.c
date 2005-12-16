@@ -81,6 +81,7 @@ extern wchar_t *__wcspbrk (__const wchar_t *__wcs, __const wchar_t *__accept) at
 extern int __wcscmp (__const wchar_t *__s1, __const wchar_t *__s2) attribute_hidden;
 extern size_t __wcsxfrm (wchar_t *__restrict __s1,
 		       __const wchar_t *__restrict __s2, size_t __n) attribute_hidden;
+extern wint_t __towlower (wint_t __wc) __THROW attribute_hidden;
 #endif
 #ifdef __UCLIBC_HAS_XLOCALE__
 extern int __strcoll_l (__const char *__s1, __const char *__s2, __locale_t __l) attribute_hidden;
@@ -1263,7 +1264,7 @@ strong_alias(__ffs, ffs)
 #ifdef __UCLIBC_DO_XLOCALE
 #define TOLOWER(C) __towlower_l((C), locale_arg)
 #else
-#define TOLOWER(C) towlower((C))
+#define TOLOWER(C) __towlower((C))
 #endif
 
 #else  /* defined(L_wcscasecmp) || defined(L_wcscasecmp_l) */
@@ -1328,7 +1329,7 @@ __UCXL_ALIAS(strcasecmp)
 #ifdef __UCLIBC_DO_XLOCALE
 #define TOLOWER(C) __towlower_l((C), locale_arg)
 #else
-#define TOLOWER(C) towlower((C))
+#define TOLOWER(C) __towlower((C))
 #endif
 
 #else  /* defined(L_wcsncasecmp) || defined(L_wcsncasecmp_l) */
@@ -2113,7 +2114,7 @@ char attribute_hidden *__strsep(char ** __restrict s1, const char * __restrict s
 		*p++ = 0;
 	}
 #else
-	if (s && *s && *(p = s + strcspn(s, s2))) {
+	if (s && *s && *(p = s + __strcspn(s, s2))) {
 		*p++ = 0;
 	} else {
 		p = NULL;

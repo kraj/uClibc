@@ -34,7 +34,7 @@ static inline _syscall1(void, __syscall_exit, int, status);
 
 #undef _exit
 #undef _exit_internal
-void attribute_noreturn _exit_internal(int status)
+void attribute_noreturn attribute_hidden _exit_internal(int status)
 {
 	/* The loop is added only to keep gcc happy. */
 	while(1)

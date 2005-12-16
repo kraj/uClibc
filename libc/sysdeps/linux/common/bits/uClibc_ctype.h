@@ -134,17 +134,6 @@ enum {
 #define __C_tolower(c) (__C_isupper(c) ? ((c) | 0x20) : (c))
 #define __C_toupper(c) (__C_islower(c) ? ((c) ^ 0x20) : (c))
 
-#define __C_isxlower(c) \
-	(__C_isdigit(c) \
-	 || ((sizeof(c) == sizeof(char)) \
-		 ? (((unsigned char)(((c)) - 'a')) < 6) \
-		 : (((unsigned int)(((c)) - 'a')) < 6)))
-#define __C_isxupper(c) \
-	(__C_isdigit(c) \
-	 || ((sizeof(c) == sizeof(char)) \
-		 ? (((unsigned char)(((c)) - 'A')) < 6) \
-		 : (((unsigned int)(((c)) - 'A')) < 6)))
-
 /**********************************************************************/
 __BEGIN_DECLS
 
@@ -171,14 +160,7 @@ extern int isascii(int c) __THROW;
 extern int toascii(int c) __THROW;
 #endif
 
-/* The following are included for compatibility with older versions of
- * uClibc; but now they're only visible if MISC funcctionality is requested.
- * However, as they are locale-independent, the hidden macro versions are
- * always present. */
-#ifdef __USE_MISC
-extern int isxlower(int c) __THROW;	/* uClibc-specific. */
-extern int isxupper(int c) __THROW;	/* uClibc-specific. */
-
+#if defined _LIBC && (defined NOT_IN_libc || defined IS_IN_libc)
 /* isdigit() is really locale-invariant, so provide some small fast macros.
  * These are uClibc-specific. */
 #define __isdigit_char(C)    (((unsigned char)((C) - '0')) <= 9)
@@ -202,12 +184,6 @@ extern int isxupper(int c) __THROW;	/* uClibc-specific. */
 #define _toupper(c) ((c) ^ 0x20)
 #define _tolower(c) ((c) | 0x20)
 
-
-/* For compatibility with older versions of uClibc.  Are these ever used? */
-#if 0
-#define __isxlower(c)	__C_isxlower(c)	/* uClibc-specific. */
-#define __isxupper(c)	__C_isxupper(c)	/* uClibc-specific. */
-#endif
 
 /* Apparently, glibc implements things as macros if __NO_CTYPE isn't defined.
  * If we don't have locale support, we'll do the same.  Otherwise, we'll
@@ -264,9 +240,6 @@ __END_DECLS
 #define __ispunct(c)		__body(ispunct,c)
 #define __isgraph(c)		__body(isgraph,c)
 
-#define __isxlower(c)		__body(isxlower,c)
-#define __isxupper(c)		__body(isxupper,c)
-
 #define __tolower(c)		__body(tolower,c)
 #define __toupper(c)		__body(toupper,c)
 
@@ -284,9 +257,6 @@ __END_DECLS
 #define isupper(c)			__isupper(c)
 #define ispunct(c)			__ispunct(c)
 #define isgraph(c)			__isgraph(c)
-
-#define isxlower(c)			__isxlower(c)
-#define isxupper(c)			__isxupper(c)
 
 #define tolower(c)			__tolower(c)
 #define toupper(c)			__toupper(c)

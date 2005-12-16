@@ -1,5 +1,6 @@
 #define opendir __opendir
 #define closedir __closedir
+#define readdir __readdir
 #define isatty __isatty
 
 #include <string.h>
@@ -73,7 +74,7 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 			continue;
 		}
 
-		while ((d = __readdir(fp)) != NULL) {
+		while ((d = readdir(fp)) != NULL) {
 			/* This should never trigger for standard names, but we
 			 * check it to be safe.  */
 			if (__strlen(d->d_name) > len) { /* Too big? */

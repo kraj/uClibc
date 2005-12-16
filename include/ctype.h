@@ -136,18 +136,11 @@ extern const __ctype_touplow_t *__ctype_tolower;
 #define	__isascii(c)	(((c) & ~0x7f) == 0)	/* If C is a 7 bit value.  */
 #define	__toascii(c)	((c) & 0x7f)		/* Mask off high bits.  */
 
-#ifdef __USE_MISC
-
-/* The following are included for compatibility with older versions of
- * uClibc; but now they're only visible if MISC funcctionality is requested. */
-extern int isxlower(int c) __THROW;
-extern int isxupper(int c) __THROW;
-
+#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 /* isdigit() is really locale-invariant, so provide some small fast macros.
  * These are uClibc-specific. */
 #define __isdigit_char(C)    (((unsigned char)((C) - '0')) <= 9)
 #define __isdigit_int(C)     (((unsigned int)((C) - '0')) <= 9)
-
 #endif
 
 #define	__exctype(name)	extern int name (int) __THROW

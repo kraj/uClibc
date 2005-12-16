@@ -32,6 +32,7 @@
 
 #define __fsetlocking __fsetlocking_internal
 #define fileno __fileno
+#define fgets_unlocked __fgets_unlocked
 
 #define _GNU_SOURCE
 #include <sys/param.h>

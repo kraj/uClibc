@@ -21,12 +21,16 @@
 #define tcgetattr __tcgetattr
 #define fileno __fileno
 #define fflush __fflush
+#define fgets __fgets
+#define fputs __fputs
 
 #include <stdio.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
 #include <string.h>
+
+extern int __putc(int c, FILE *stream) attribute_hidden;
 
 /* It is desirable to use this bit on systems that have it.
    The only bit of terminal state we want to twiddle is echoing, which is
@@ -95,7 +99,7 @@ getpass (prompt)
 	  buf[nread - 1] = '\0';
 	  if (tty_changed)
 	    /* Write the newline that was not echoed.  */
-	    putc('\n', out);
+	    __putc('\n', out);
 	}
     }
 
