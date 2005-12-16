@@ -41,6 +41,7 @@ static char sccsid[] = "@(#)xdr_array.c 1.10 87/08/11 Copyr 1984 Sun Micro";
  */
 
 #define xdr_u_int __xdr_u_int
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

@@ -44,6 +44,8 @@
  * The other 31 bits encode the byte length of the fragment.
  */
 
+#define fputs __fputs
+
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>

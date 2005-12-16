@@ -41,6 +41,7 @@
 #define fwrite __fwrite
 #define fseek __fseek
 #define fflush __fflush
+#define ftell __ftell
 
 #include <rpc/types.h>
 #include <stdio.h>

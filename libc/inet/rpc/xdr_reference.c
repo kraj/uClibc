@@ -41,6 +41,7 @@ static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
  */
 
 #define xdr_bool __xdr_bool
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

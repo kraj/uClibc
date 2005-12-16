@@ -63,6 +63,7 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
 #define connect __connect
 #define bindresvport __bindresvport
 #define poll __poll
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -80,6 +81,11 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
 #endif
 
 extern u_long _create_xid (void) attribute_hidden;
+
+#undef get_rpc_createerr
+extern struct rpc_createerr *__rpc_thread_createerr_internal (void)
+     __attribute__ ((__const__)) attribute_hidden;
+#define get_rpc_createerr() (*__rpc_thread_createerr_internal ())
 
 #define MCALL_MSG_SIZE 24
 

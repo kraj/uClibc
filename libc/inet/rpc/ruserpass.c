@@ -50,6 +50,8 @@
 #include <string.h>
 #include <unistd.h>
 
+extern int __getc_unlocked (FILE *__stream) attribute_hidden;
+
 #define _(X)  (X)
 /* #include "ftp_var.h" */
 
@@ -219,7 +221,7 @@ next:
 				(void) fclose(cfile);
 				return (0);
 			}
-			while ((c=getc_unlocked(cfile)) != EOF && c == ' '
+			while ((c=__getc_unlocked(cfile)) != EOF && c == ' '
 			       || c == '\t');
 			if (c == EOF || c == '\n') {
 				__printf("Missing macdef name argument.\n");
@@ -231,7 +233,7 @@ next:
 			}
 			tmp = macros[macnum].mac_name;
 			*tmp++ = c;
-			for (i=0; i < 8 && (c=getc_unlocked(cfile)) != EOF &&
+			for (i=0; i < 8 && (c=__getc_unlocked(cfile)) != EOF &&
 			    !isspace(c); ++i) {
 				*tmp++ = c;
 			}
@@ -241,7 +243,7 @@ next:
 			}
 			*tmp = '\0';
 			if (c != '\n') {
-				while ((c=getc_unlocked(cfile)) != EOF
+				while ((c=__getc_unlocked(cfile)) != EOF
 				       && c != '\n');
 			}
 			if (c == EOF) {
@@ -256,7 +258,7 @@ next:
 			}
 			tmp = macros[macnum].mac_start;
 			while (tmp != macbuf + 4096) {
-				if ((c=getc_unlocked(cfile)) == EOF) {
+				if ((c=__getc_unlocked(cfile)) == EOF) {
 				__printf("Macro definition missing null line terminator.\n");
 					goto bad;
 				}
@@ -300,24 +302,24 @@ token()
 
 	if (feof_unlocked(cfile) || ferror_unlocked(cfile))
 		return (0);
-	while ((c = getc_unlocked(cfile)) != EOF &&
+	while ((c = __getc_unlocked(cfile)) != EOF &&
 	    (c == '\n' || c == '\t' || c == ' ' || c == ','))
 		continue;
 	if (c == EOF)
 		return (0);
 	cp = tokval;
 	if (c == '"') {
-		while ((c = getc_unlocked(cfile)) != EOF && c != '"') {
+		while ((c = __getc_unlocked(cfile)) != EOF && c != '"') {
 			if (c == '\\')
-				c = getc_unlocked(cfile);
+				c = __getc_unlocked(cfile);
 			*cp++ = c;
 		}
 	} else {
 		*cp++ = c;
-		while ((c = getc_unlocked(cfile)) != EOF
+		while ((c = __getc_unlocked(cfile)) != EOF
 		    && c != '\n' && c != '\t' && c != ' ' && c != ',') {
 			if (c == '\\')
-				c = getc_unlocked(cfile);
+				c = __getc_unlocked(cfile);
 			*cp++ = c;
 		}
 	}

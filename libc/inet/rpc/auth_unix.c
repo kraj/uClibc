@@ -47,6 +47,7 @@
 #define xdr_authunix_parms __xdr_authunix_parms
 #define xdr_opaque_auth __xdr_opaque_auth
 #define gettimeofday __gettimeofday
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #include <features.h>

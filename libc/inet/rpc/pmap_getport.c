@@ -45,6 +45,11 @@ static char sccsid[] = "@(#)pmap_getport.c 1.9 87/08/11 Copyr 1984 Sun Micro";
 #include <rpc/pmap_clnt.h>
 #include <sys/socket.h>
 
+#undef get_rpc_createerr
+extern struct rpc_createerr *__rpc_thread_createerr_internal (void)
+     __attribute__ ((__const__)) attribute_hidden;
+#define get_rpc_createerr() (*__rpc_thread_createerr_internal ())
+
 static const struct timeval timeout =
 {5, 0};
 static const struct timeval tottimeout =

@@ -246,7 +246,7 @@ inet_pton4(const char *src, u_char *dst)
 
 /* We cannot use the macro version of tolower() or very bad
  * things happen when '*src++' gets evaluated multiple times.  
- * So * undef it here so we get the function version of tolower
+ * So undef it here so we get the function version of tolower
  * instead.
  */
 #undef tolower

@@ -37,6 +37,9 @@ static char sccsid[] = "@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  *
  */
+
+#define fputs __fputs
+
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -245,7 +248,7 @@ __clnt_sperror (CLIENT * rpch, const char *msg)
 
     case RPC_CANTSEND:
     case RPC_CANTRECV:
-      strerror_r (e.re_errno, chrbuf, sizeof chrbuf);
+      __glibc_strerror_r_internal (e.re_errno, chrbuf, sizeof chrbuf);
       len = __sprintf (str, "; errno = %s", chrbuf); 
       str += len;
       break;
@@ -335,7 +338,7 @@ __clnt_spcreateerror (const char *msg)
       (void) __strcpy(cp, " - ");
       cp += __strlen(cp);
 
-      strerror_r (ce->cf_error.re_errno, chrbuf, sizeof chrbuf);
+      __glibc_strerror_r_internal (ce->cf_error.re_errno, chrbuf, sizeof chrbuf);
       (void) __strcpy(cp, chrbuf);
       cp += __strlen(cp);
       break;

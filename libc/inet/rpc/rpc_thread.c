@@ -107,8 +107,8 @@ __rpc_thread_svc_fdset_internal (void)
 }
 strong_alias(__rpc_thread_svc_fdset_internal,__rpc_thread_svc_fdset)
 
-struct rpc_createerr *
-__rpc_thread_createerr (void)
+struct rpc_createerr attribute_hidden *
+__rpc_thread_createerr_internal (void)
 {
 	struct rpc_thread_variables *tvp;
 
@@ -117,6 +117,8 @@ __rpc_thread_createerr (void)
 		return &rpc_createerr;
 	return &tvp->rpc_createerr_s;
 }
+#undef __rpc_thread_createerr
+strong_alias(__rpc_thread_createerr_internal,__rpc_thread_createerr)
 
 struct pollfd attribute_hidden **
 __rpc_thread_svc_pollfd_internal (void)
@@ -155,11 +157,13 @@ fd_set attribute_hidden * __rpc_thread_svc_fdset_internal (void)
 }
 strong_alias(__rpc_thread_svc_fdset_internal,__rpc_thread_svc_fdset)
 
-struct rpc_createerr * __rpc_thread_createerr (void)
+struct rpc_createerr attribute_hidden * __rpc_thread_createerr_internal (void)
 {
     extern struct rpc_createerr rpc_createerr;
     return &(rpc_createerr);
 }
+#undef __rpc_thread_createerr
+strong_alias(__rpc_thread_createerr_internal,__rpc_thread_createerr)
 
 struct pollfd attribute_hidden ** __rpc_thread_svc_pollfd_internal (void)
 {

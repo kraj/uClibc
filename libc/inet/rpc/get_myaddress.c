@@ -68,14 +68,14 @@ get_myaddress (struct sockaddr_in *addr)
   if ((s = __socket (AF_INET, SOCK_DGRAM, 0)) < 0)
     {
       __perror ("get_myaddress: socket");
-      exit (1);
+      __exit (1);
     }
   ifc.ifc_len = sizeof (buf);
   ifc.ifc_buf = buf;
   if (__ioctl (s, SIOCGIFCONF, (char *) &ifc) < 0)
     {
       __perror (_("get_myaddress: ioctl (get interface configuration)"));
-      exit (1);
+      __exit (1);
     }
 
  again:
@@ -86,7 +86,7 @@ get_myaddress (struct sockaddr_in *addr)
       if (__ioctl (s, SIOCGIFFLAGS, (char *) &ifreq) < 0)
 	{
           __perror ("get_myaddress: ioctl");
-          exit (1);
+          __exit (1);
 	}
       if ((ifreq.ifr_flags & IFF_UP) && (ifr->ifr_addr.sa_family == AF_INET)
 	  && (!(ifreq.ifr_flags & IFF_LOOPBACK) ||

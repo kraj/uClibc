@@ -44,6 +44,7 @@ static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
 #define svcudp_create __svcudp_create
 #define pmap_unset __pmap_unset
 #define asprintf __asprintf
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
@@ -159,7 +160,7 @@ universal (struct svc_req *rqstp, SVCXPRT *transp_l)
       if (svc_sendreply (transp_l, (xdrproc_t)xdr_void, (char *) NULL) == FALSE)
 	{
 	  __write (STDERR_FILENO, "xxx\n", 4);
-	  exit (1);
+	  __exit (1);
 	}
       return;
     }
@@ -184,7 +185,7 @@ universal (struct svc_req *rqstp, SVCXPRT *transp_l)
 	    (void) asprintf (&buf,
 			       _("trouble replying to prog %d\n"),
 			       pl->p_prognum);
-	    exit (1);
+	    __exit (1);
 	  }
 	/* free the decoded arguments */
 	(void) svc_freeargs (transp_l, pl->p_inproc, xdrbuf);
@@ -198,5 +199,5 @@ universal (struct svc_req *rqstp, SVCXPRT *transp_l)
 #endif
     fputs (buf, stderr);
   free (buf);
-  exit (1);
+  __exit (1);
 }

@@ -55,6 +55,7 @@
 #define poll __poll
 #define accept __accept
 #define listen __listen
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #include <features.h>

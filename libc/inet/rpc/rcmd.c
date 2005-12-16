@@ -81,6 +81,7 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 
 
 extern int __rresvport(int *alport) attribute_hidden;
+extern int __getc_unlocked (FILE *__stream) attribute_hidden;
 
 /* some forward declarations */
 static int __ivaliduser2(FILE *hostf, u_int32_t raddr,
@@ -664,10 +665,10 @@ __ivaliduser2(hostf, raddr, luser, ruser, rhost)
 
 	/* Skip lines that are too long. */
 	if (__strchr (p, '\n') == NULL) {
-	    int ch = getc_unlocked (hostf);
+	    int ch = __getc_unlocked (hostf);
 
 	    while (ch != '\n' && ch != EOF)
-	      ch = getc_unlocked (hostf);
+	      ch = __getc_unlocked (hostf);
 	    continue;
 	}
 

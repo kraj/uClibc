@@ -54,6 +54,7 @@
 #define strpbrk __strpbrk
 #define atoi __atoi
 #define rewind __rewind
+#define fgets __fgets
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

@@ -47,6 +47,11 @@
 #include <sys/errno.h>
 #include <netdb.h>
 
+#undef get_rpc_createerr
+extern struct rpc_createerr *__rpc_thread_createerr_internal (void)
+     __attribute__ ((__const__)) attribute_hidden;
+#define get_rpc_createerr() (*__rpc_thread_createerr_internal ())
+
 /*
  * Generic client creation: takes (hostname, program-number, protocol) and
  * returns client handle. Default options are set, which the user can
