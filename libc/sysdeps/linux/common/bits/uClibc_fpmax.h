@@ -98,7 +98,7 @@ typedef float __fpmax_t;
 
 #endif /* DECIMAL_DIG */
 
-if defined _LIBC && defined IS_IN_libc
+#if defined _LIBC && defined IS_IN_libc
 extern __fpmax_t __strtofpmax(const char *str, char **endptr, int exp_adjust) attribute_hidden;
 
 #ifdef __UCLIBC_HAS_XLOCALE__
