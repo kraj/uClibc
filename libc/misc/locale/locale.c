@@ -123,8 +123,8 @@
 #define MAX_LOCALE_CATEGORY_STR    32 /* TODO: Only sufficient for current case. */
 /* Note: Best if MAX_LOCALE_CATEGORY_STR is a power of 2. */
 
-extern int _locale_set_l(const unsigned char *p, __locale_t base);
-extern void _locale_init_l(__locale_t base);
+extern int _locale_set_l(const unsigned char *p, __locale_t base) attribute_hidden;
+extern void _locale_init_l(__locale_t base) attribute_hidden;
 
 #endif /* __LOCALE_C_ONLY */
 
@@ -262,6 +262,9 @@ static void update_hr_locale(const unsigned char *spec)
 		++category;
 	} while (!done);
 }
+
+extern __locale_t __newlocale (int __category_mask, __const char *__locale,
+			     __locale_t __base) __THROW attribute_hidden;
 
 char *setlocale(int category, const char *locale)
 {
@@ -565,7 +568,7 @@ static int init_cur_collate(int der_num, __collate_t *cur_collate)
 	return 1;
 }
 
-int _locale_set_l(const unsigned char *p, __locale_t base)
+int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 {
 	const char **x;
 	unsigned char *s = base->cur_locale + 1;
@@ -847,7 +850,7 @@ static const uint16_t __code2flag[16] = {
 	_IScntrl					/* cntrl_nonspace */
 };
 
-void _locale_init_l(__locale_t base)
+void attribute_hidden _locale_init_l(__locale_t base)
 {
 	__memset(base->cur_locale, 0, LOCALE_SELECTOR_SIZE);
 	base->cur_locale[0] = '#';
@@ -910,7 +913,7 @@ void _locale_init_l(__locale_t base)
 	_locale_set_l(C_LOCALE_SELECTOR, base);
 }
 
-void _locale_init(void)
+void attribute_hidden _locale_init(void)
 {
 	/* TODO: mmap the locale file  */
 
@@ -1209,7 +1212,7 @@ static unsigned char *composite_locale(int category_mask, const char *locale,
 	return new_locale;
 }
 
-__locale_t __newlocale(int category_mask, const char *locale, __locale_t base)
+__locale_t attribute_hidden __newlocale(int category_mask, const char *locale, __locale_t base)
 {
 	const unsigned char *p;
 	int i, j, k;
@@ -1304,7 +1307,7 @@ weak_alias(__newlocale, newlocale)
 #warning REMINDER: When we allocate ctype tables, remember to dup them.
 #endif
 
-__locale_t __duplocale(__locale_t dataset)
+__locale_t attribute_hidden __duplocale(__locale_t dataset)
 {
 	__locale_t r;
 	uint16_t * i2w;
@@ -1353,7 +1356,7 @@ weak_alias(__freelocale, freelocale)
 /**********************************************************************/
 #ifdef L_uselocale
 
-__locale_t __uselocale(__locale_t dataset)
+__locale_t attribute_hidden __uselocale(__locale_t dataset)
 {
 	__locale_t old;
 
@@ -1425,7 +1428,7 @@ extern size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 						 const char **__restrict src, size_t n,
 						 mbstate_t *ps, int allow_continuation) attribute_hidden;
 
-int __locale_mbrtowc_l(wchar_t *__restrict dst,
+int attribute_hidden __locale_mbrtowc_l(wchar_t *__restrict dst,
 					   const char *__restrict src,
 					   __locale_t loc )
 {
