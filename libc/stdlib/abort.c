@@ -70,7 +70,6 @@ Cambridge, MA 02139, USA.  */
 #ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__
 extern void weak_function _stdio_term(void) attribute_hidden;
 #endif
-extern void _exit (int __status) __attribute__ ((__noreturn__));
 static int been_there_done_that = 0;
 
 /* Be prepared in case multiple threads try to abort() */
@@ -81,10 +80,12 @@ static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #define LOCK	__pthread_mutex_lock(&mylock)
 #define UNLOCK	__pthread_mutex_unlock(&mylock)
 
-
 extern int __raise (int __sig) __THROW attribute_hidden;
+
 /* Cause an abnormal program termination with core-dump */
-void abort(void)
+#undef __abort
+#undef abort
+void attribute_hidden __abort(void)
 {
 	sigset_t sigset;
 
@@ -140,7 +141,7 @@ abort_it:
 		/* Still here?  Try to at least exit */
 		if (been_there_done_that == 3) {
 			been_there_done_that++;
-			_exit(127);
+			_exit_internal(127);
 		}
 
 		/* Still here?  We're screwed.  Sleepy time.  Good night. */
@@ -149,3 +150,4 @@ abort_it:
 			ABORT_INSTRUCTION;
 	}
 }
+strong_alias(__abort,abort)

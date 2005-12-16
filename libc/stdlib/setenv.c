@@ -132,10 +132,11 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
     return 0;
 }
 
-int setenv (const char *name, const char *value, int replace)
+int attribute_hidden __setenv (const char *name, const char *value, int replace)
 {
     return __add_to_environ (name, value, NULL, replace);
 }
+strong_alias(__setenv,setenv)
 
 int attribute_hidden __unsetenv (const char *name)
 {
