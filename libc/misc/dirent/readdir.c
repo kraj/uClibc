@@ -1,3 +1,5 @@
+#include <features.h>
+
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +7,6 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-#undef readdir
 struct dirent attribute_hidden *__readdir(DIR * dir)
 {
 	ssize_t bytes;

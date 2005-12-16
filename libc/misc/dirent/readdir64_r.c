@@ -1,5 +1,5 @@
 #include <features.h>
-#ifdef __UCLIBC_HAS_LFS__
+
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
 #define	_FILE_OFFSET_BITS   64
@@ -18,7 +18,6 @@
 #include <unistd.h>
 #include <dirent.h>
 #include "dirstream.h"
-
 
 int readdir64_r(DIR *dir, struct dirent64 *entry, struct dirent64 **result)
 {
@@ -69,5 +68,3 @@ all_done:
 	__pthread_mutex_unlock(&(dir->dd_lock));
         return((de != NULL)? 0 : ret);
 }
-#endif /* __UCLIBC_HAS_LFS__ */
-

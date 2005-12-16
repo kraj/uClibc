@@ -1,5 +1,5 @@
 #include <features.h>
-#ifdef __UCLIBC_HAS_LFS__
+
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
 #define	_FILE_OFFSET_BITS   64
@@ -20,7 +20,6 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-#undef readdir64
 struct dirent64 attribute_hidden *__readdir64(DIR * dir)
 {
 	ssize_t bytes;
@@ -62,5 +61,3 @@ all_done:
 	return de;
 }
 strong_alias(__readdir64,readdir64)
-
-#endif /* __UCLIBC_HAS_LFS__ */

@@ -25,7 +25,7 @@
 #define closedir __closedir
 
 #include <features.h>
-#ifdef __UCLIBC_HAS_LFS__
+
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
 #define	_FILE_OFFSET_BITS   64
@@ -114,5 +114,3 @@ int scandir64(const char *dir, struct dirent64 ***namelist,
     *namelist = names;
     return pos;
 }
-#endif /* __UCLIBC_HAS_LFS__ */
-
