@@ -20,6 +20,11 @@
 #define _SYSCALL_H	1
 
 /* This file provides us with the nicely useful _syscall[0-5] macros. */
-#include <bits/syscalls.h>
+#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
+# include <bits/syscalls.h>
+#else
+# include <asm/unistd.h>
+# include <bits/sysnum.h>
+#endif
 
 #endif
