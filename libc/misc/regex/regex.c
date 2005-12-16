@@ -38,6 +38,8 @@
 #define iswctype __iswctype
 #define iswlower __iswlower
 #define iswalnum __iswalnum
+#define towlower __towlower
+#define mbsinit __mbsinit
 #include <wchar.h>
 #include <wctype.h>
 

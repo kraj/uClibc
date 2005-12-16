@@ -260,10 +260,11 @@ int wctob(wint_t c)
 /**********************************************************************/
 #ifdef L_mbsinit
 
-int mbsinit(const mbstate_t *ps)
+int attribute_hidden __mbsinit(const mbstate_t *ps)
 {
 	return !ps || !ps->__mask;
 }
+strong_alias(__mbsinit,mbsinit)
 
 #endif
 /**********************************************************************/
