@@ -71,7 +71,7 @@ static __always_inline void ssp_write(int fd, const char *msg1, const char *msg2
 static __always_inline attribute_noreturn void terminate(void)
 {
 	(void) kill(__getpid(), SSP_SIGTYPE);
-	_exit(127);
+	_exit_internal(127);
 }
 
 void attribute_noreturn __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));

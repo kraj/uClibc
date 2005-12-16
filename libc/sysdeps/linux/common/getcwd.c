@@ -2,6 +2,7 @@
 
 #define opendir __opendir
 #define closedir __closedir
+#define readdir __readdir
 
 #include <stdlib.h>
 #include <errno.h>
@@ -66,7 +67,7 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 	    goto oops;
 	}
 
-	while ((d = __readdir(dp)) != 0) {
+	while ((d = readdir(dp)) != 0) {
 #ifdef FAST_DIR_SEARCH_POSSIBLE
 		if (slow_search || this_ino == d->d_ino) {
 #endif
