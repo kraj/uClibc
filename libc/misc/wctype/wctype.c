@@ -731,7 +731,7 @@ weak_alias(__iswctype, iswctype)
 #define _toupper(c)    toupper(c)
 #endif
 
-wint_t towctrans(wint_t wc, wctrans_t desc)
+wint_t attribute_hidden __towctrans(wint_t wc, wctrans_t desc)
 {
 	if (((unsigned int)(desc - _CTYPE_tolower))
 		<= (_CTYPE_toupper - _CTYPE_tolower)
@@ -749,7 +749,7 @@ wint_t towctrans(wint_t wc, wctrans_t desc)
 #else  /* __LOCALE_C_ONLY */
 
 #ifdef L_towctrans
-#define TOWCTRANS(w,d) towctrans(w,d)
+#define TOWCTRANS(w,d) __towctrans(w,d)
 #else  /* L_towctrans */
 #define TOWCTRANS(w,d) __towctrans_l(w,d, __locale_t locale)
 #undef __UCLIBC_CURLOCALE_DATA
@@ -768,7 +768,7 @@ wint_t towctrans(wint_t wc, wctrans_t desc)
 
 #if defined(L_towctrans) && defined(__UCLIBC_HAS_XLOCALE__)
 
-wint_t towctrans(wint_t wc, wctrans_t desc)
+wint_t attribute_hidden __towctrans(wint_t wc, wctrans_t desc)
 {
 	return __towctrans_l(wc, desc, __UCLIBC_CURLOCALE);
 }
@@ -777,7 +777,7 @@ wint_t towctrans(wint_t wc, wctrans_t desc)
 
 #ifdef SMALL_UPLOW
 
-wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
+wint_t attribute_hidden TOWCTRANS(wint_t wc, wctrans_t desc)
 {
 	unsigned int sc, n, i;
 	__uwchar_t u = wc;
@@ -835,7 +835,7 @@ wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
 
 #else  /* SMALL_UPLOW */
 
-wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
+wint_t attribute_hidden TOWCTRANS(wint_t wc, wctrans_t desc)
 {
 	if (ENCODING == __ctype_encoding_7_bit) {
 		if ((((__uwchar_t) wc) > 0x7f)
@@ -878,8 +878,9 @@ wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
 #endif /* defined(L_towctrans) && defined(__UCLIBC_HAS_XLOCALE__) */
 
 #ifdef L_towctrans_l
-weak_alias(__towctrans_l, towctrans_l)
+strong_alias(__towctrans_l, towctrans_l)
 #endif /* L_towctrans_l */
+strong_alias(__towctrans,towctrans)
 
 #endif /* __LOCALE_C_ONLY */
 
