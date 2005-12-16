@@ -50,11 +50,16 @@ static int prefix_array __P ((const char *prefix, char **array, size_t n,
 static int collated_compare __P ((const __ptr_t, const __ptr_t));
 
 #ifdef __GLOB64
-extern int glob_pattern_p(const char *pattern, int quote);
+extern int __glob_pattern_p(const char *pattern, int quote) attribute_hidden;
 #else
+extern struct dirent *__readdir (DIR *__dirp) __nonnull ((1)) attribute_hidden;
+extern int __glob (__const char *__restrict __pattern, int __flags,
+		 int (*__errfunc) (__const char *, int),
+		 glob_t *__restrict __pglob) __THROW attribute_hidden;
+extern void __globfree (glob_t *__pglob) __THROW attribute_hidden;
 /* Return nonzero if PATTERN contains any metacharacters.
    Metacharacters can be quoted with backslashes if QUOTE is nonzero.  */
-int glob_pattern_p(const char *pattern, int quote)
+int attribute_hidden __glob_pattern_p(const char *pattern, int quote)
 {
     const char *p;
     int open = 0;
@@ -83,6 +88,7 @@ int glob_pattern_p(const char *pattern, int quote)
 
     return 0;
 }
+strong_alias(__glob_pattern_p,glob_pattern_p)
 #endif
 
 
@@ -94,8 +100,8 @@ int glob_pattern_p(const char *pattern, int quote)
    `glob' returns GLOB_ABEND; if it returns zero, the error is ignored.
    If memory cannot be allocated for PGLOB, GLOB_NOSPACE is returned.
    Otherwise, `glob' returns zero.  */
-int
-glob (pattern, flags, errfunc, pglob)
+int attribute_hidden
+__glob (pattern, flags, errfunc, pglob)
      const char *pattern;
      int flags;
      int (*errfunc) __P ((const char *, int));
@@ -140,7 +146,7 @@ glob (pattern, flags, errfunc, pglob)
   if (filename[0] == '\0' && dirlen > 1)
     /* "pattern/".  Expand "pattern", appending slashes.  */
     {
-      int val = glob (dirname, flags | GLOB_MARK, errfunc, pglob);
+      int val = __glob (dirname, flags | GLOB_MARK, errfunc, pglob);
       if (val == 0)
 	pglob->gl_flags = (pglob->gl_flags & ~GLOB_MARK) | (flags & GLOB_MARK);
       return val;
@@ -154,7 +160,7 @@ glob (pattern, flags, errfunc, pglob)
 
   oldcount = pglob->gl_pathc;
 
-  if (glob_pattern_p (dirname, !(flags & GLOB_NOESCAPE)))
+  if (__glob_pattern_p (dirname, !(flags & GLOB_NOESCAPE)))
     {
       /* The directory name contains metacharacters, so we
 	 have to glob for the directory, and then glob for
@@ -162,7 +168,7 @@ glob (pattern, flags, errfunc, pglob)
       glob_t dirs;
       register int i;
 
-      status = glob (dirname,
+      status = __glob (dirname,
 		     ((flags & (GLOB_ERR | GLOB_NOCHECK | GLOB_NOESCAPE)) |
 		      GLOB_NOSORT),
 		     errfunc, &dirs);
@@ -183,8 +189,8 @@ glob (pattern, flags, errfunc, pglob)
 
 	    if (interrupt_state)
 	      {
-		globfree (&dirs);
-		globfree (&files);
+		__globfree (&dirs);
+		__globfree (&files);
 		return GLOB_ABEND;
 	      }
 	  }
@@ -200,8 +206,8 @@ glob (pattern, flags, errfunc, pglob)
 
 	  if (status != 0)
 	    {
-	      globfree (&dirs);
-	      globfree (pglob);
+	      __globfree (&dirs);
+	      __globfree (pglob);
 	      return status;
 	    }
 
@@ -211,8 +217,8 @@ glob (pattern, flags, errfunc, pglob)
 			    pglob->gl_pathc - oldcount,
 			    flags & GLOB_MARK))
 	    {
-	      globfree (&dirs);
-	      globfree (pglob);
+	      __globfree (&dirs);
+	      __globfree (pglob);
 	      return GLOB_NOSPACE;
 	    }
 	}
@@ -271,7 +277,7 @@ glob (pattern, flags, errfunc, pglob)
 			    pglob->gl_pathc - oldcount,
 			    flags & GLOB_MARK))
 	    {
-	      globfree (pglob);
+	      __globfree (pglob);
 	      return GLOB_NOSPACE;
 	    }
 	}
@@ -297,11 +303,16 @@ glob (pattern, flags, errfunc, pglob)
 
   return 0;
 }
+#ifdef __GLOB64
+strong_alias(__glob64,glob64)
+#else
+strong_alias(__glob,glob)
+#endif
 
 
 /* Free storage allocated in PGLOB by a previous `glob' call.  */
-void
-globfree (pglob)
+void attribute_hidden
+__globfree (pglob)
      register glob_t *pglob;
 {
   if (pglob->gl_pathv != NULL)
@@ -313,6 +324,7 @@ globfree (pglob)
       free ((__ptr_t) pglob->gl_pathv);
     }
 }
+strong_alias(__globfree,globfree)
 
 
 /* Do a collated comparison of A and B.  */
@@ -409,7 +421,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 	return GLOB_ABORTED;
     }
 
-  meta = glob_pattern_p (pattern, !(flags & GLOB_NOESCAPE));
+  meta = __glob_pattern_p (pattern, !(flags & GLOB_NOESCAPE));
 
   if (meta)
     flags |= GLOB_MAGCHAR;

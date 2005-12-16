@@ -36,7 +36,6 @@
 #define _GNU_SOURCE
 #include <features.h>
 
-
 #if defined (__UCLIBC_HAS_LFS__) && defined L_ftw64
 #ifndef L_ftw
 #define L_ftw
@@ -59,17 +58,20 @@
 #define NFTW_NAME nftw64
 #define INO_T ino64_t
 #define STAT stat64
-#define LSTAT lstat64
-#define XSTAT stat64
+#define LSTAT __lstat64
+#define XSTAT __stat64
 #define FTW_FUNC_T __ftw64_func_t
 #define NFTW_FUNC_T __nftw64_func_t
+#define __readdir __readdir64
 #else
+#undef __stat
+#undef __lstat
 #define FTW_NAME ftw
 #define NFTW_NAME nftw
 #define INO_T ino_t
 #define STAT stat
-#define LSTAT lstat
-#define XSTAT stat
+#define LSTAT __lstat
+#define XSTAT __stat
 #define FTW_FUNC_T __ftw_func_t
 #define NFTW_FUNC_T __nftw_func_t
 #endif
@@ -88,6 +90,12 @@
 #include <sys/stat.h>
 #include <assert.h>
 #include <dirent.h>
+
+#if 1 /*ndef L_ftw64*/
+extern struct dirent *__readdir (DIR *__dirp) __nonnull ((1)) attribute_hidden;
+#else
+extern struct dirent64 *__readdir64 (DIR *__dirp) __nonnull ((1)) attribute_hidden;
+#endif
 
 /* We define PATH_MAX if the system does not provide a definition.
    This does not artificially limit any operation.  PATH_MAX is simply

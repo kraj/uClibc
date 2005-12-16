@@ -35,12 +35,15 @@
 #define iswctype __iswctype
 #define iswalnum __iswalnum
 #define printf __printf
+#define btowc __btowc
 
 /* To exclude some unwanted junk.... */
-#undef _LIBC
 #undef emacs
 #define _REGEX_RE_COMP
 #include <features.h>
+#ifdef __UCLIBC__
+# undef _LIBC
+#endif
 #include <stdlib.h>
 #include <string.h>
 #define STDC_HEADERS
@@ -88,7 +91,7 @@ extern void *__mempcpy (void *__restrict __dest,
 #  include <wctype.h>
 # endif
 
-# ifdef _LIBC
+# if defined _LIBC || defined __UCLIBC__
 /* We have to keep the namespace clean.  */
 #  define regfree(preg) __regfree (preg)
 #  define regexec(pr, st, nm, pm, ef) __regexec (pr, st, nm, pm, ef)
@@ -113,10 +116,12 @@ extern void *__mempcpy (void *__restrict __dest,
 #  define btowc __btowc
 
 /* We are also using some library internals.  */
+# ifndef __UCLIBC__
 #  include <locale/localeinfo.h>
 #  include <locale/elem-hash.h>
 #  include <langinfo.h>
 #  include <locale/coll-lookup.h>
+# endif
 # endif
 
 /* This is for other GNU distributions with internationalized messages.  */
@@ -217,6 +222,9 @@ char *realloc ();
 # endif
 
 /* Get the interface, including the syntax bits.  */
+# ifdef __UCLIBC__
+#  include "_regex.h"
+# endif
 # include <regex.h>
 
 /* isalpha etc. are used for the character classes.  */
@@ -1380,7 +1388,7 @@ re_set_syntax (syntax)
 # endif /* DEBUG */
   return ret;
 }
-# ifdef _LIBC
+# if defined _LIBC || defined __UCLIBC__
 weak_alias (__re_set_syntax, re_set_syntax)
 # endif
 
@@ -5000,7 +5008,7 @@ re_compile_fastmap (bufp)
 # endif
     return byte_re_compile_fastmap(bufp);
 } /* re_compile_fastmap */
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_alias (__re_compile_fastmap, re_compile_fastmap)
 #endif
 
@@ -5039,7 +5047,7 @@ re_set_registers (bufp, regs, num_regs, starts, ends)
       regs->start = regs->end = (regoff_t *) 0;
     }
 }
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_alias (__re_set_registers, re_set_registers)
 #endif
 
@@ -5058,7 +5066,7 @@ re_search (bufp, string, size, startpos, range, regs)
   return re_search_2 (bufp, NULL, 0, string, size, startpos, range,
 		      regs, size);
 }
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_alias (__re_search, re_search)
 #endif
 
@@ -5103,7 +5111,7 @@ re_search_2 (bufp, string1, size1, string2, size2, startpos, range, regs, stop)
     return byte_re_search_2 (bufp, string1, size1, string2, size2, startpos,
 			     range, regs, stop);
 } /* re_search_2 */
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_alias (__re_search_2, re_search_2)
 #endif
 
@@ -5562,7 +5570,7 @@ re_match (bufp, string, size, pos, regs)
 # endif
   return result;
 }
-# ifdef _LIBC
+# if defined _LIBC || defined __UCLIBC__
 weak_alias (__re_match, re_match)
 # endif
 #endif /* not emacs */
@@ -5623,7 +5631,7 @@ re_match_2 (bufp, string1, size1, string2, size2, pos, regs, stop)
 #endif
   return result;
 }
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_alias (__re_match_2, re_match_2)
 #endif
 
@@ -7962,7 +7970,7 @@ re_compile_pattern (pattern, length, bufp)
     return NULL;
   return gettext (re_error_msgid + re_error_msgid_idx[(int) ret]);
 }
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_alias (__re_compile_pattern, re_compile_pattern)
 #endif
 
@@ -8029,7 +8037,7 @@ re_comp (s)
 
 
 int
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_function
 #endif
 re_exec (s)
@@ -8158,7 +8166,7 @@ regcomp (preg, pattern, cflags)
 
   return (int) ret;
 }
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_alias (__regcomp, regcomp)
 #endif
 
@@ -8236,7 +8244,7 @@ regexec (preg, string, nmatch, pmatch, eflags)
   /* We want zero return to mean success, unlike `re_search'.  */
   return ret >= 0 ? (int) REG_NOERROR : (int) REG_NOMATCH;
 }
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_alias (__regexec, regexec)
 #endif
 
@@ -8284,7 +8292,7 @@ regerror (errcode, preg, errbuf, errbuf_size)
 
   return msg_size;
 }
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_alias (__regerror, regerror)
 #endif
 
@@ -8311,7 +8319,7 @@ regfree (preg)
     free (preg->translate);
   preg->translate = NULL;
 }
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
 weak_alias (__regfree, regfree)
 #endif
 
