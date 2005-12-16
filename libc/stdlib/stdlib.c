@@ -868,7 +868,7 @@ void ssort (void  *base,
 /**********************************************************************/
 #ifdef L__stdlib_mb_cur_max
 
-size_t _stdlib_mb_cur_max(void)
+size_t attribute_hidden _stdlib_mb_cur_max_internal(void)
 {
 #ifdef __CTYPE_HAS_UTF_8_LOCALES
 	return __UCLIBC_CURLOCALE_DATA.mb_cur_max;
@@ -881,6 +881,7 @@ size_t _stdlib_mb_cur_max(void)
 	return 1;
 #endif
 }
+strong_alias(_stdlib_mb_cur_max_internal,_stdlib_mb_cur_max)
 
 #endif
 /**********************************************************************/
