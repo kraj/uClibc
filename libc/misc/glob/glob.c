@@ -324,7 +324,11 @@ __globfree (pglob)
       free ((__ptr_t) pglob->gl_pathv);
     }
 }
+#ifdef __GLOB64
+strong_alias(__globfree64,globfree64)
+#else
 strong_alias(__globfree,globfree)
+#endif
 
 
 /* Do a collated comparison of A and B.  */
