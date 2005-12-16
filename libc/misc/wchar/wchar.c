@@ -788,10 +788,7 @@ size_t attribute_hidden __mbsnrtowcs(wchar_t *__restrict dst, const char **__res
 	}
 	return len - count;
 }
-
-size_t mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
-				  size_t NMC, size_t len, mbstate_t *__restrict ps)
-	 __attribute__ ((__weak__, __alias__("__mbsnrtowcs")));
+weak_alias(__mbsnrtowcs,mbsnrtowcs)
 
 #endif
 /**********************************************************************/
@@ -910,10 +907,7 @@ size_t attribute_hidden __wcsnrtombs(char *__restrict dst, const wchar_t **__res
 	}
 	return len - count;
 }
-
-size_t wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
-				  size_t NWC, size_t len, mbstate_t *__restrict ps)
-	 __attribute__ ((__weak__, __alias__("__wcsnrtombs")));
+weak_alias(__wcsnrtombs,wcsnrtombs)
 
 #endif
 /**********************************************************************/

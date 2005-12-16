@@ -72,7 +72,7 @@ extern void weak_function __pthread_initialize_minimal(void);
  * environ symbol is also included.
  */
 char **__environ = 0;
-weak_alias(__environ, environ);
+weak_alias(__environ, environ)
 
 size_t __pagesize = 0;
 const char *__progname = 0;

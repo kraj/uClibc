@@ -248,7 +248,7 @@ int __isinfl ( long double x )
     }
     return 0;
 }
-weak_alias (__isinfl, isinfl);
+weak_alias (__isinfl, isinfl)
 #endif
 
 /***********************************************************************
@@ -271,14 +271,14 @@ int __isnanf ( float x )
    z.fval = x;
    return (((z.lval&FEXP_MASK) == FEXP_MASK) && ((z.lval&FFRAC_MASK) != 0));
 }
-weak_alias (__isnanf, isnanf);
+weak_alias (__isnanf, isnanf)
 
 int __isnan ( double x )
 {
 	int class = __fpclassify(x);
 	return ( class == FP_NAN );
 }
-weak_alias (__isnan, isnan);
+weak_alias (__isnan, isnan)
 
 #if 0
 int __isnanl ( long double x )
@@ -286,6 +286,6 @@ int __isnanl ( long double x )
 	int class = __fpclassify(x);
 	return ( class == FP_NAN );
 }
-weak_alias (__isnanl, isnanl);
+weak_alias (__isnanl, isnanl)
 #endif
 

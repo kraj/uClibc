@@ -754,7 +754,7 @@ time_t mktime(struct tm *timeptr)
 
 /* Another name for `mktime'.  */
 /* time_t timelocal(struct tm *tp) */
-weak_alias(mktime,timelocal);
+weak_alias(mktime,timelocal)
 
 #endif
 /**********************************************************************/

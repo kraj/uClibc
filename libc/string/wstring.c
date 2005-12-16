@@ -2362,9 +2362,9 @@ size_t attribute_hidden Wstrlcpy(register Wchar *__restrict dst,
 
 #if 0 /* def __LOCALE_C_ONLY */
 #ifdef L___wcslcpy
-weak_alias(__wcslcpy,wcsxfrm);
+weak_alias(__wcslcpy,wcsxfrm)
 #else
-weak_alias(strlcpy,strxfrm);
+weak_alias(strlcpy,strxfrm)
 #endif
 #endif
 
