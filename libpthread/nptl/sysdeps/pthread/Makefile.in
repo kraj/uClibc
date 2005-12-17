@@ -17,40 +17,40 @@ libpthread_CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c	\
 		  pthread_rwlock_timedwrlock.c pthread_rwlock_unlock.c	\
 		  pthread_rwlock_wrlock.c pthread_sigmask.c		\
 		  pthread_spin_destroy.c pthread_spin_init.c		\
-		  pthread_spin_unlock.c sigaction.c sigfillset.c	\
-		  sigprocmask.c unwind-forcedunwind.c
+		  pthread_spin_unlock.c pt-sigaction.c pt-sigfillset.c	\
+		  pt-sigprocmask.c unwind-forcedunwind.c
 
-CFLAGS-common = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS)
+CFLAGS-pt-common = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS)
 
-CFLAGS-pthread_barrier_wait.c = -D_GNU_SOURCE $(CFLAGS-common)		\
+CFLAGS-pthread_barrier_wait.c = -D_GNU_SOURCE $(CFLAGS-pt-common)	\
 				-DIS_IN_libpthread=1
-CFLAGS-pthread_cond_broadcast.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-pthread_cond_signal.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-pthread_cond_timedwait.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-pthread_cond_wait.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-pthread_rwlock_rdlock.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-pthread_rwlock_timedrdlock.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-pthread_rwlock_timedwrlock.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-pthread_rwlock_unlock.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-pthread_rwlock_wrlock.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-pthread_sigmask.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-pthread_spin_destroy.c = -D_GNU_SOURCE $(CFLAGS-common)		\
+CFLAGS-pthread_cond_broadcast.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_cond_signal.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_cond_timedwait.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_cond_wait.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_rwlock_rdlock.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_rwlock_timedrdlock.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_rwlock_timedwrlock.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_rwlock_unlock.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_rwlock_wrlock.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_sigmask.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_spin_destroy.c = -D_GNU_SOURCE $(CFLAGS-pt-common)	\
 				-DIS_IN_libpthread=1
-CFLAGS-pthread_spin_init.c = -D_GNU_SOURCE $(CFLAGS-common)		\
+CFLAGS-pthread_spin_init.c = -D_GNU_SOURCE $(CFLAGS-pt-common)		\
 			     -DIS_IN_libpthread=1
-CFLAGS-pthread_spin_unlock.c = -D_GNU_SOURCE $(CFLAGS-common)		\
+CFLAGS-pthread_spin_unlock.c = -D_GNU_SOURCE $(CFLAGS-pt-common)	\
 			       -DIS_IN_libpthread=1
-CFLAGS-sigaction.c = $(CFLAGS-common) -DIS_IN_libpthread=1		\
+CFLAGS-pt-sigaction.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1	\
 		     -I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)	\
 		     -I$(top_srcdir)libc/signal
-CFLAGS-sigfillset.c = $(CFLAGS-common) -DIS_IN_libpthread=1		\
+CFLAGS-pt-sigfillset.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1	\
 		      -I$(top_srcdir)libc/signal
-CFLAGS-sigprocmask.c = $(CFLAGS-common) -DIS_IN_libpthread=1		\
+CFLAGS-pt-sigprocmask.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1	\
 		       -I$(top_srcdir)libc/sysdeps/linux/common
-CFLAGS-unwind-forcedunwind.c = $(CFLAGS-common) -DIS_IN_libpthread=1
-CFLAGS-librt-cancellation.c = -DIS_IN_librt=1 $(CFLAGS-common)		\
+CFLAGS-unwind-forcedunwind.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-librt-cancellation.c = -DIS_IN_librt=1 $(CFLAGS-pt-common)	\
 			      -fexceptions -fasynchronous-unwind-tables
-CFLAGS-rt-unwind-resume.c = -DIS_IN_librt=1 $(CFLAGS-common)		\
+CFLAGS-rt-unwind-resume.c = -DIS_IN_librt=1 $(CFLAGS-pt-common)		\
 			    -fexceptions -fasynchronous-unwind-tables
 
 #CFLAGS:=$(CFLAGS:-O1=-O2)

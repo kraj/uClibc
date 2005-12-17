@@ -43,6 +43,7 @@ CFLAGS-pthread_getcpuclockid.c = -I$(top_srcdir)/librt
 CFLAGS-linux = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 $(SSP_ALL_CFLAGS)
 #CFLAGS:=$(CFLAGS:-O1=-O2)
 
+CFLAGS-OMIT-libc-lowlevellock.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-OMIT-libc_pthread_init.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-OMIT-libc_multiple_threads.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-OMIT-register-atfork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
