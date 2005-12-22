@@ -498,6 +498,14 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
                                  &new_thread, &new_thread_bottom,
                                  &guardaddr, &guardsize) == 0)
         break;
+#ifndef __ARCH_HAS_MMU__
+      else
+        /* When there is MMU, mmap () is used to allocate the stack. If one
+         * segment is already mapped, we should continue to see if we can
+         * use the next one. However, when there is no MMU, malloc () is used.
+         * It's waste of CPU cycles to continue to try if it fails.  */
+        return EAGAIN;
+#endif
     }
   __pthread_handles_num++;
   /* Allocate new thread identifier */
