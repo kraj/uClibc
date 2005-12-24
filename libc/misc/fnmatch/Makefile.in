@@ -6,11 +6,13 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+CSRC:=fnmatch_old.c
+
 MISC_FNMATCH_DIR:=$(top_srcdir)libc/misc/fnmatch
 MISC_FNMATCH_OUT:=$(top_builddir)libc/misc/fnmatch
 
-MISC_FNMATCH_SRC:=$(MISC_FNMATCH_DIR)/fnmatch.c
-MISC_FNMATCH_OBJ:=$(MISC_FNMATCH_OUT)/fnmatch.o
+MISC_FNMATCH_SRC:=$(patsubst %.c,$(MISC_FNMATCH_DIR)/%.c,$(CSRC))
+MISC_FNMATCH_OBJ:=$(patsubst %.c,$(MISC_FNMATCH_OUT)/%.c,$(CSRC))
 
 libc-a-y+=$(MISC_FNMATCH_OBJ)
 libc-so-y+=$(MISC_FNMATCH_OBJ:.o=.os)
