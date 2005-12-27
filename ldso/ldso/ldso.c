@@ -82,7 +82,7 @@ static unsigned char *_dl_malloc_addr = 0;	/* Lets _dl_malloc use the already al
 static unsigned char *_dl_mmap_zero   = 0;	/* Also used by _dl_malloc */
 
 static struct elf_resolve **init_fini_list;
-static int nlist; /* # items in init_fini_list */
+static unsigned int nlist; /* # items in init_fini_list */
 extern void _start(void);
 
 #ifdef __UCLIBC_HAS_SSP__
