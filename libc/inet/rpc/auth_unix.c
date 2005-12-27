@@ -205,7 +205,7 @@ strong_alias(__authunix_create_default,authunix_create_default)
  */
 
 static void
-authunix_nextverf (AUTH *auth)
+authunix_nextverf (AUTH *auth attribute_unused)
 {
   /* no action necessary */
 }
