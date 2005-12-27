@@ -22,7 +22,7 @@ struct mallinfo attribute_hidden __mallinfo(void)
 {
     mstate av;
     struct mallinfo mi;
-    int i;
+    unsigned int i;
     mbinptr b;
     mchunkptr p;
     size_t avail;
