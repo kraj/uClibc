@@ -93,7 +93,7 @@ void pthread_exit(void * retval)
 /* Function called by pthread_cancel to remove the thread from
    waiting on a condition variable queue. */
 
-static int join_extricate_func(void *obj, pthread_descr th)
+static int join_extricate_func(void *obj, pthread_descr th attribute_unused)
 {
   volatile pthread_descr self = thread_self();
   pthread_handle handle = obj;
