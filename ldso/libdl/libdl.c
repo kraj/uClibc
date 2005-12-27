@@ -69,6 +69,9 @@ extern char *_dl_debug;
 /* When libdl is linked as a static library, we need to replace all
  * the symbols that otherwise would have been loaded in from ldso... */
 
+#ifdef __SUPPORT_LD_DEBUG__
+char *_dl_debug  = 0;
+#endif
 const char *_dl_progname       = "";        /* Program name */
 char *_dl_library_path         = 0;         /* Where we look for libraries */
 char *_dl_ldsopath             = 0;         /* Location of the shared lib loader */
@@ -85,9 +88,6 @@ struct r_debug *_dl_debug_addr = NULL;
 #endif /* SHARED */
 
 #ifdef __SUPPORT_LD_DEBUG__
-char *_dl_debug = 0;
-int _dl_debug_file = 2;
-
 # define _dl_if_debug_print(fmt, args...) \
 	do { \
 	if (_dl_debug) \
