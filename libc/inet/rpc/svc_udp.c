@@ -228,7 +228,7 @@ strong_alias(__svcudp_create,svcudp_create)
 
 static enum xprt_stat
 svcudp_stat (xprt)
-     SVCXPRT *xprt;
+     SVCXPRT *xprt attribute_unused;
 {
 
   return XPRT_IDLE;

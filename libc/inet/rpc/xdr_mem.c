@@ -93,7 +93,7 @@ strong_alias(__xdrmem_create,xdrmem_create)
  */
 
 static void
-xdrmem_destroy (XDR *xdrs)
+xdrmem_destroy (XDR *xdrs attribute_unused)
 {
 }
 
