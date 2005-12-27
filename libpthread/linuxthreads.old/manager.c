@@ -381,7 +381,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
          attributes (stack_size = STACK_SIZE - pagesize) do not need
 	 a guard page, since the RLIMIT_STACK soft limit prevents stacks
 	 from running into one another. */
-      if (stacksize == STACK_SIZE - pagesize)
+      if (stacksize == (size_t) (STACK_SIZE - pagesize))
         {
           /* We don't need a guard page. */
           guardaddr = NULL;
