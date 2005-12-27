@@ -19,9 +19,9 @@
 static inline _syscall2(int, __syscall_getgroups,
 		int, size, __kernel_gid_t *, list);
 
-int attribute_hidden __getgroups(int n, gid_t * groups)
+int attribute_hidden __getgroups(int size, gid_t groups[])
 {
-	if (unlikely(n < 0)) {
+	if (unlikely(size < 0)) {
 ret_error:
 		__set_errno(EINVAL);
 		return -1;
@@ -29,13 +29,13 @@ ret_error:
 		int i, ngids;
 		__kernel_gid_t *kernel_groups;
 
-		n = MIN(n, sysconf(_SC_NGROUPS_MAX));
-		kernel_groups = (__kernel_gid_t *)malloc(sizeof(*kernel_groups) * n);
+		size = MIN(size, sysconf(_SC_NGROUPS_MAX));
+		kernel_groups = (__kernel_gid_t *)malloc(sizeof(*kernel_groups) * size);
 		if (kernel_groups == NULL)
 			goto ret_error;
 
-		ngids = __syscall_getgroups(n, kernel_groups);
-		if (n != 0 && ngids > 0) {
+		ngids = __syscall_getgroups(size, kernel_groups);
+		if (size != 0 && ngids > 0) {
 			for (i = 0; i < ngids; i++) {
 				groups[i] = kernel_groups[i];
 			}
