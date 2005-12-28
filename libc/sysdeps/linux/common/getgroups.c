@@ -32,7 +32,7 @@ ret_error:
 
 		size = MIN(size, sysconf(_SC_NGROUPS_MAX));
 		kernel_groups = (__kernel_gid_t *)malloc(sizeof(*kernel_groups) * size);
-		if (kernel_groups == NULL)
+		if (size && kernel_groups == NULL)
 			goto ret_error;
 
 		ngids = __syscall_getgroups(size, kernel_groups);
@@ -41,7 +41,9 @@ ret_error:
 				groups[i] = kernel_groups[i];
 			}
 		}
-		free(kernel_groups);
+
+		if (kernel_groups)
+			free(kernel_groups);
 		return ngids;
 	}
 }

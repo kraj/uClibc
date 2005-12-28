@@ -26,11 +26,13 @@ ret_error:
 		return -1;
 	} else {
 		size_t i;
-		__kernel_gid_t *kernel_groups;
+		__kernel_gid_t *kernel_groups = NULL;
 
-		kernel_groups = (__kernel_gid_t *)malloc(sizeof(*kernel_groups) * size);
-		if (kernel_groups == NULL)
-			goto ret_error;
+		if (size) {
+			kernel_groups = (__kernel_gid_t *)malloc(sizeof(*kernel_groups) * size);
+			if (kernel_groups == NULL)
+				goto ret_error;
+		}
 
 		for (i = 0; i < size; i++) {
 			kernel_groups[i] = (groups)[i];
@@ -40,7 +42,8 @@ ret_error:
 		}
 
 		i = __syscall_setgroups(size, kernel_groups);
-		free(kernel_groups);
+		if (kernel_groups)
+			free(kernel_groups);
 		return i;
 	}
 }
