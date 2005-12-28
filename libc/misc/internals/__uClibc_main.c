@@ -244,8 +244,8 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 
     /* Prevent starting SUID binaries where the stdin. stdout, and
      * stderr file descriptors are not already opened. */
-    if ((auxvt[AT_UID].a_un.a_val==-1 && __check_suid()) ||
-	    (auxvt[AT_UID].a_un.a_val != -1 &&
+    if ((auxvt[AT_UID].a_un.a_val == (size_t)-1 && __check_suid()) ||
+	    (auxvt[AT_UID].a_un.a_val != (size_t)-1 &&
 	    (auxvt[AT_UID].a_un.a_val != auxvt[AT_EUID].a_un.a_val ||
 	     auxvt[AT_GID].a_un.a_val != auxvt[AT_EGID].a_un.a_val)))
     {
