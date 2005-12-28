@@ -183,12 +183,14 @@ __authunix_create_default (void)
   uid_t uid;
   gid_t gid;
   int max_nr_groups = sysconf (_SC_NGROUPS_MAX);
-  gid_t *gids;
+  gid_t *gids = NULL;
   AUTH *ret_auth;
 
-  gids = (gid_t*)malloc(sizeof(*gids) * max_nr_groups);
-  if (gids == NULL)
-    abort ();
+  if (max_nr_groups) {
+    gids = (gid_t*)malloc(sizeof(*gids) * max_nr_groups);
+    if (gids == NULL)
+      abort ();
+  }
 
   if (gethostname (machname, MAX_MACHINE_NAME) == -1)
     abort ();
@@ -202,7 +204,8 @@ __authunix_create_default (void)
      list of groups to NGRPS members since the code in
      authuxprot.c transforms a fixed array.  Grrr.  */
   ret_auth = __authunix_create (machname, uid, gid, MIN (NGRPS, len), gids);
-  free (gids);
+  if (gids)
+    free (gids);
   return ret_auth;
 }
 strong_alias(__authunix_create_default,authunix_create_default)
