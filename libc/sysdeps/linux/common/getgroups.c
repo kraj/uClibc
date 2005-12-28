@@ -12,6 +12,7 @@
 #include "syscalls.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include <grp.h>
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
