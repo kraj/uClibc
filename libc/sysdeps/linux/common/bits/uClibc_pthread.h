@@ -16,7 +16,7 @@
  *  02111-1307 USA.
  */
 
-/* Supply prototypes for the (weak) thread functions used by the
+/* Supply prototypes for the internal thread functions used by the
  * uClibc library code.
  */
 
@@ -24,17 +24,14 @@
 #define _UCLIBC_PTHREAD_H
 
 #ifndef _PTHREAD_H
-#error Always include <pthread.h> rather than <bits/uClibc_pthread.h>
+# error "Always include <pthread.h> rather than <bits/uClibc_pthread.h>"
 #endif
 
 extern int __pthread_mutex_init (pthread_mutex_t *__restrict __mutex,
 								 __const pthread_mutexattr_t *__restrict
-								 __mutex_attr) __THROW;
-
-extern int __pthread_mutex_trylock (pthread_mutex_t *__mutex) __THROW;
-
-extern int __pthread_mutex_lock (pthread_mutex_t *__mutex) __THROW;
-
-extern int __pthread_mutex_unlock (pthread_mutex_t *__mutex) __THROW;
+								 __mutex_attr) attribute_hidden;
+extern int __pthread_mutex_trylock (pthread_mutex_t *__mutex) attribute_hidden;
+extern int __pthread_mutex_lock (pthread_mutex_t *__mutex) attribute_hidden;
+extern int __pthread_mutex_unlock (pthread_mutex_t *__mutex) attribute_hidden;
 
 #endif
