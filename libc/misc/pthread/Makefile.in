@@ -5,21 +5,18 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC:=no-tsd.c weaks.c
+CSRC := no-tsd.c weaks.c
 
-MISC_PTHREAD_DIR:=$(top_srcdir)libc/misc/pthread
-MISC_PTHREAD_OUT:=$(top_builddir)libc/misc/pthread
+MISC_PTHREAD_DIR := $(top_srcdir)libc/misc/pthread
+MISC_PTHREAD_OUT := $(top_builddir)libc/misc/pthread
 
-MISC_PTHREAD_SRC:=$(patsubst %.c,$(MISC_PTHREAD_DIR)/%.c,$(CSRC))
-MISC_PTHREAD_OBJ:=$(patsubst %.c,$(MISC_PTHREAD_OUT)/%.o,$(CSRC))
+MISC_PTHREAD_SRC := $(patsubst %.c,$(MISC_PTHREAD_DIR)/%.c,$(CSRC))
+MISC_PTHREAD_OBJ := $(patsubst %.c,$(MISC_PTHREAD_OUT)/%.o,$(CSRC))
 
 libc-a-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ)
 libc-so-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ:.o=.os)
 
-libc-multi-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_DIR)/no-tsd.c
-libc-nomulti-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OUT)/weaks.o
-
-objclean-y+=misc_pthread_objclean
+objclean-y += misc_pthread_objclean
 
 misc_pthread_objclean:
-	$(RM) $(MISC_PTHREAD_OUT)/*.{o,os}
+	$(RM) $(MISC_PTHREAD_OUT)/*.{o,os,oS}
