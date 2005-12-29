@@ -186,11 +186,11 @@ extern double __ieee754_scalb __P((double,double));
 #endif
 
 /* fdlibm kernel function */
-extern double __kernel_standard __P((double,double,int));
-extern double __kernel_sin __P((double,double,int));
-extern double __kernel_cos __P((double,double));
-extern double __kernel_tan __P((double,double,int));
-extern int    __kernel_rem_pio2 __P((double*,double*,int,int,int,const int*));
+extern double __kernel_standard __P((double,double,int)) attribute_hidden;
+extern double __kernel_sin __P((double,double,int)) attribute_hidden;
+extern double __kernel_cos __P((double,double)) attribute_hidden;
+extern double __kernel_tan __P((double,double,int)) attribute_hidden;
+extern int    __kernel_rem_pio2 __P((double*,double*,int,int,int,const int*)) attribute_hidden;
 
 
 /* ieee style elementary float functions */
