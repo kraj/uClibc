@@ -19,7 +19,7 @@
 
 #ifdef _ERRNO_H
 
-# include <bits/errno_values.h>
+#include <bits/errno_values.h>
 
 #ifndef ENOTSUP
 # define ENOTSUP EOPNOTSUPP
@@ -29,7 +29,7 @@
 # define ECANCELED	125
 #endif
 
-# ifndef __ASSEMBLER__
+#ifndef __ASSEMBLER__
 
 /* We now need a declaration of the `errno' variable.  */
 extern int errno;
@@ -37,16 +37,16 @@ extern int errno;
 /* Function to get address of global `errno' variable.  */
 extern int *__errno_location (void) __THROW __attribute__ ((__const__));
 
-#  if defined _LIBC
+# if defined _LIBC
 /* We wouldn't need a special macro anymore but it is history.  */
-#   define __set_errno(val) ((errno) = (val))
-#  endif /* _LIBC */
+#  define __set_errno(val) ((errno) = (val))
+# endif /* _LIBC */
 
-#  if defined __UCLIBC_HAS_THREADS__
+# if defined __UCLIBC_HAS_THREADS__
 /* When using threads, errno is a per-thread value.  */
-#   define errno (*__errno_location ())
-#  endif
+#  define errno (*__errno_location ())
+# endif
 
-# endif /* !__ASSEMBLER__ */
+#endif /* !__ASSEMBLER__ */
+
 #endif /* _ERRNO_H */
-
