@@ -64,7 +64,7 @@ inline uint64_t byteswap64_to_host(uint64_t value)
 # define byteswap_to_host(x) byteswap32_to_host(x)
 #endif
 
-ElfW(Shdr) * elf_find_section_type( int key, ElfW(Ehdr) *ehdr)
+ElfW(Shdr) * elf_find_section_type( uint32_t key, ElfW(Ehdr) *ehdr)
 {
 	int j;
 	ElfW(Shdr) *shdr = (ElfW(Shdr) *)(ehdr->e_shoff + (char *)ehdr);
@@ -76,7 +76,7 @@ ElfW(Shdr) * elf_find_section_type( int key, ElfW(Ehdr) *ehdr)
 	return NULL;
 }
 
-ElfW(Phdr) * elf_find_phdr_type( int type, ElfW(Ehdr) *ehdr)
+ElfW(Phdr) * elf_find_phdr_type( uint32_t type, ElfW(Ehdr) *ehdr)
 {
 	int j;
 	ElfW(Phdr) *phdr = (ElfW(Phdr) *)(ehdr->e_phoff + (char *)ehdr);
