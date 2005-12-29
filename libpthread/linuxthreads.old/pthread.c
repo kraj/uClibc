@@ -303,7 +303,7 @@ static void pthread_initialize(void)
   struct sigaction sa;
   sigset_t mask;
   struct rlimit limit;
-  int max_stack;
+  rlim_t max_stack;
 
   /* If already done (e.g. by a constructor called earlier!), bail out */
   if (__pthread_initial_thread_bos != NULL) return;
@@ -654,7 +654,7 @@ int pthread_getschedparam(pthread_t thread, int *policy,
 
 /* Process-wide exit() request */
 
-static void pthread_onexit_process(int retcode, void *arg)
+static void pthread_onexit_process(int retcode, void *arg attribute_unused)
 {
     struct pthread_request request;
     pthread_descr self = thread_self();
@@ -757,7 +757,7 @@ static void pthread_handle_sigcancel(int sig)
    know what it is specifically done for. In the current implementation,
    the thread manager simply discards it. */
 
-static void pthread_handle_sigdebug(int sig)
+static void pthread_handle_sigdebug(int sig attribute_unused)
 {
   /* Nothing */
 }
