@@ -19,7 +19,8 @@ static inline _syscall5(int, __syscall_mq_timedsend, int, mqdes,
  * Add a message to queue. If O_NONBLOCK is set and queue is full, wait
  * for sufficient room in the queue until abs_timeout expires.
  */
-int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
+attribute_hidden
+int __mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
 		unsigned int msg_prio,
 		const struct timespec *abs_timeout)
 {
@@ -30,10 +31,11 @@ int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
 	return -1;
 #endif
 }
+strong_alias(__mq_timedsend,mq_timedsend)
 
 /* Add a message to queue */
 int mq_send(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
 		unsigned int msg_prio)
 {
-	return mq_timedsend(mqdes, msg_ptr, msg_len, msg_prio, NULL);
+	return __mq_timedsend(mqdes, msg_ptr, msg_len, msg_prio, NULL);
 }

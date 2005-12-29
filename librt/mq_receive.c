@@ -19,7 +19,8 @@ static inline _syscall5(int, __syscall_mq_timedreceive, int, mqdes,
  * Receive the oldest from highest priority messages.
  * Stop waiting if abs_timeout expires.
  */
-ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
+attribute_hidden
+ssize_t __mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
 			unsigned int *msg_prio,
 			const struct timespec *abs_timeout)
 {
@@ -30,10 +31,11 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
 	return -1;
 #endif
 }
+strong_alias(__mq_timedreceive,mq_timedreceive)
 
 /* Receive the oldest from highest priority messages */
 ssize_t mq_receive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
 			unsigned int *msg_prio)
 {
-	return mq_timedreceive(mqdes, msg_ptr, msg_len, msg_prio, NULL);
+	return __mq_timedreceive(mqdes, msg_ptr, msg_len, msg_prio, NULL);
 }
