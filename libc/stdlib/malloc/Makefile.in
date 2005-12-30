@@ -37,4 +37,4 @@ stdlib_malloc_objclean:
 
 malloc.o free.o realloc.o memalign.o: malloc.h
 # Depend on uClinux_config.h to cache changes in __UCLIBC_MALLOC_DEBUGGING__
-$(STDLIB_MALLOC_OBJ): heap.h $(top_builddir)include/bits/uClibc_config.h
+$(STDLIB_MALLOC_OBJ): $(STDLIB_MALLOC_DIR)/heap.h $(top_builddir)include/bits/uClibc_config.h
