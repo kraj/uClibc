@@ -8,6 +8,7 @@
  * directory of this archive for more details.
  * 
  * Written by Wentao Xu <wentao@microtronix.com>
+ * Updated by Thomas Chou <thomas@wytron.com.tw> for crt1.S
  * 
  */
 
@@ -18,7 +19,8 @@
     .type   __start,@function
     .weak   _init
     .weak   _fini
-    .type   __uClibc_start_main,@function
+    .type   main,@function
+    .type   __uClibc_main,@function
     .type   __h_errno_location, @function
     .type   _stdio_init, @function
     .type   _stdio_term, @function
@@ -35,26 +37,30 @@ _start:
     movhi gp, %hiadj(_gp)
     addi gp, gp, %lo(_gp)
 
-    /* load argc, argv, envp from stack */
-    ldw r4, 0(sp)
-    ldw r5, 4(sp)
-    ldw r6, 8(sp)
-    
+    /* load main, argc, argv from stack */
+    movhi r4, %hi(main)
+    ori  r4, r4, %lo(main)	/* main */
+    ldw r5, 0(sp)		/* argc */
+    ldw r6, 4(sp)		/* argv */
+
     /* load the 4th arg */
     movhi r7, %hi(_init)
     ori  r7, r7, %lo(_init)
-  
+
     /* reuse the argc stack slot for the 5th arg */
     movhi r8, %hi(_fini)
     ori  r8, r8, %lo(_fini)
     stw  r8, 0(sp)
-   
+
+    stw  r2, 4(sp)		/* rtld_fini */
+    stw  sp, 8(sp)		/* stack_end */
+
     /* call uClibc_main, shouldn't return */
 #ifdef __PIC__
     /* just pray 16 bit offset is enough */
-    br __uClibc_start_main
+    br __uClibc_main
 #else
-    call __uClibc_start_main
+    call __uClibc_main
 #endif
 
     /* crash in the event of return */
