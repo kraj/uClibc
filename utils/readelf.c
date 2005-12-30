@@ -89,7 +89,7 @@ ElfW(Phdr) * elf_find_phdr_type( uint32_t type, ElfW(Ehdr) *ehdr)
 }
 
 /* Returns value if return_val==1, ptr otherwise */ 
-void * elf_find_dynamic(int const key, ElfW(Dyn) *dynp, 
+void * elf_find_dynamic( int64_t const key, ElfW(Dyn) *dynp, 
 	ElfW(Ehdr) *ehdr, int return_val)
 {
 	ElfW(Phdr) *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
