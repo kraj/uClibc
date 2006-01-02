@@ -279,7 +279,7 @@ ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 # If -msoft-float isn't supported, we want an error anyway.
 # Hmm... might need to revisit this for arm since it has 2 different
 # soft float encodings.
-ifneq ($(strip $(TARGET_ARCH)),nios2)
+ifneq ($(TARGET_ARCH),nios2)
     CPU_CFLAGS += -msoft-float
 endif
 ifeq ($(TARGET_ARCH),arm)
