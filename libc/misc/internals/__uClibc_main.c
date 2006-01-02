@@ -36,8 +36,6 @@
 #ifndef SHARED
 void *__libc_stack_end=NULL;
 
-/* probably all the weak_*function stuff below should be in here */
-
 #ifdef __UCLIBC_HAS_SSP__
 #include <dl-osinfo.h>
 #ifndef THREAD_SET_STACK_GUARD
