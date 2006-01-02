@@ -103,7 +103,7 @@ SHELL_SET_X=set +x
 endif
 
 # Make certain these contain a final "/", but no "//"s.
-TARGET_ARCH:=$(shell grep -s ^TARGET_ARCH $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
+TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
 TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
