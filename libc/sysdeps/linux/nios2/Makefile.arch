@@ -11,6 +11,4 @@ SSRC := \
 	__longjmp.S bsd-_setjmp.S bsd-setjmp.S setjmp.S \
 	vfork.S clone.S
 
-ARCH_HEADERS := fpu_control.h
-
 include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch
