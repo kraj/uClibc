@@ -26,7 +26,7 @@ Wchar attribute_hidden *__Wstrchr(register const Wchar *s, Wint c)
 	return NULL;
 }
 
-strong_alias(__strchr,strchr)
+strong_alias(__Wstrchr,Wstrchr)
 
 #ifndef WANT_WIDE
 strong_alias(__strchr,index)
