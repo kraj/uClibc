@@ -96,9 +96,7 @@ static void __check_one_fd(int fd, int mode)
 		(st.st_rdev != makedev(1, 3)))
 	{
 	    /* Somebody is trying some trickery here... */
-	    while (1) {
 		abort();
-	    }
 	}
     }
 }
