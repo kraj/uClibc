@@ -261,10 +261,10 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 #endif
 
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-    if (argv && argv[0]) {
+    if (likely(argv && argv[0])) {
 	__progname_full = *argv;
 	__progname = __strrchr(*argv, '/');
-	if (likely(__progname != NULL))
+	if (__progname != NULL)
 		++__progname;
 	else
 		__progname = __progname_full;
