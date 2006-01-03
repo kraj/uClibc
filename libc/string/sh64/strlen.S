@@ -30,9 +30,9 @@
  * SUCH DAMAGE.
  */
 
+#include <features.h>
+
 	.section .text..SHmedia32,"ax"
-	.globl	strlen
-	.set	strlen,__strlen
 	.globl	__strlen
 	.hidden	__strlen
 	.type	__strlen,@function
@@ -60,3 +60,5 @@ loop:
 	blink	tr4, r63
 
 	.size	__strlen,.-__strlen
+
+strong_alias(__strlen,strlen)

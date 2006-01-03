@@ -30,8 +30,6 @@
 
 #define LONG_MAX_32_BITS 2147483647
 
-#undef memrchr
-
 /* Search no more than N bytes of S for C.  */
 void attribute_hidden *__memrchr (const void * s, int c_in, size_t n)
 {
@@ -173,4 +171,4 @@ void attribute_hidden *__memrchr (const void * s, int c_in, size_t n)
   return 0;
 }
 
-strong_alias(__memrchr, memrchr)
+strong_alias(__memrchr,memrchr)

@@ -27,6 +27,7 @@
 
 #define ENTRY(name) \
   .globl name;                                                                \
+  .hidden name;                                                               \
   .align 2;                                                                   \
   .ent name,0;                                                                \
   name##:
@@ -40,12 +41,6 @@
 # define L(label) $L ## label
 #else
 # define L(label) .L ## label
-#endif
-
-#ifdef libc_hidden_builtin_def
-#error "WHOA!!! libc_hidden_builtin_def is defined"
-#else
-#define libc_hidden_builtin_def(name) .global __ ## name ; __ ## name = name
 #endif
 
 #endif

@@ -269,4 +269,4 @@ ENTRY(__stpcpy)
 	 mov		%g6, %o0			/* IEU0				*/
 END(__stpcpy)
 
-weak_alias (__stpcpy, stpcpy)
+strong_alias(__stpcpy,stpcpy)

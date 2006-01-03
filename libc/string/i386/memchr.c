@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#undef memchr
 void attribute_hidden *__memchr(const void *cs, int c, size_t count)
 {
     int d0;
@@ -49,4 +48,4 @@ void attribute_hidden *__memchr(const void *cs, int c, size_t count)
     return __res;
 }
 
-strong_alias(__memchr, memchr)
+strong_alias(__memchr,memchr)

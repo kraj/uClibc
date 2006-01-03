@@ -26,9 +26,6 @@
 #include "_glibc_inc.h"
 
 	.text
-.global strspn
-.set strspn,__strspn
-.hidden __strspn
 ENTRY (__strspn)
 
 	movq %rdi, %rdx		/* Save SRC.  */
@@ -115,3 +112,5 @@ L(4):	addq $256, %rsp		/* remove stopset */
 				   non-valid character */
 	ret
 END (__strspn)
+
+strong_alias(__strspn,strspn)

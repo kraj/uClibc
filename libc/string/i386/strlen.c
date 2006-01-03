@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#undef strlen
 size_t attribute_hidden __strlen(const char *s)
 {
     int d0;
@@ -46,4 +45,4 @@ size_t attribute_hidden __strlen(const char *s)
     return __res;
 }
 
-strong_alias(__strlen, strlen)
+strong_alias(__strlen,strlen)

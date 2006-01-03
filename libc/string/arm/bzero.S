@@ -37,16 +37,19 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
+#include <features.h>
+
 .text
 .global __bzero
+.hidden __bzero
 .type __bzero,%function
 .align 4
 
 __bzero:
 	mov	r2, r1
 	mov	r1, #0
-	b	memset (PLT)
+	b	__memset
 
 .size __bzero,.-__bzero
 
-.weak bzero ; bzero = __bzero
+strong_alias(__bzero,bzero)

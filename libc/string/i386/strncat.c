@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#undef strncat
 char attribute_hidden *__strncat(char * dest, 
 	const char * src, size_t count)
 {
@@ -59,4 +58,4 @@ char attribute_hidden *__strncat(char * dest,
     return dest;
 }
 
-strong_alias(__strncat, strncat)
+strong_alias(__strncat,strncat)

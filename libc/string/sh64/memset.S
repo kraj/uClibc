@@ -9,6 +9,7 @@
 ! Copyright 2002 SuperH Ltd.
 !
 
+#include <features.h>
 #include <endian.h>
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -20,8 +21,6 @@
 #endif
 
 	.section .text..SHmedia32,"ax"
-	.globl	memset
-	.set	memset,__memset
 	.globl	__memset
 	.hidden	__memset
 	.type	__memset, @function
@@ -94,3 +93,5 @@ loop:
 	blink tr2,r63
 
 	.size	__memset,.-__memset
+
+strong_alias(__memset,memset)

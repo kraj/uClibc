@@ -161,18 +161,13 @@
 	b		3f
 	 sub		%o0, 2, %o0
 
-.globl bcopy
-.set bcopy,__bcopy
-.hidden __bcopy
 ENTRY(__bcopy)
 	mov		%o0, %o3
 	mov		%o1, %o0
 	mov		%o3, %o1
 END(__bcopy)
+strong_alias(__bcopy,bcopy)
 
-.globl memmove
-.set memmove,__memmove
-.hidden __memmove
 ENTRY(__memmove)
 	cmp		%o0, %o1
 	st		%o0, [%sp + 64]
@@ -454,10 +449,8 @@ ENTRY(__memmove)
 	b		3f
 	 add		%o0, 2, %o0
 END(__memmove)
+strong_alias(__memmove,memmove)
 
-.globl memcpy
-.set memcpy,__memcpy
-.hidden __memcpy
 ENTRY(__memcpy)		/* %o0=dst %o1=src %o2=len */
 	sub		%o0, %o1, %o4
 	st		%o0, [%sp + 64]
@@ -974,3 +967,4 @@ ENTRY(__memcpy)		/* %o0=dst %o1=src %o2=len */
 110:	retl
 	 sub		%o7, %g6, %o5
 END(__memcpy)
+strong_alias(__memcpy,memcpy)

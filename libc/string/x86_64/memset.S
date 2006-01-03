@@ -22,7 +22,7 @@
 #include "_glibc_inc.h"
 
 /* BEWARE: `#ifdef memset' means that memset is redefined as `bzero' */
-#define BZERO_P (defined memset)
+#define BZERO_P (defined __memset)
 
 /* This is somehow experimental and could made dependend on the cache
    size.  */
@@ -35,9 +35,6 @@ ENTRY (__memset_chk)
 	jb	HIDDEN_JUMPTARGET (__chk_fail)
 END (__memset_chk)
 #endif
-.global memset
-.set memset,__memset
-.hidden __memset
 ENTRY (__memset)
 #if BZERO_P
 	mov	%rsi,%rdx	/* Adjust parameter.  */
@@ -135,6 +132,9 @@ ENTRY (__memset)
 	jmp	4b
 
 END (__memset)
+#if !BZERO_P
+strong_alias(__memset,memset)
+#endif
 
 #if !BZERO_P && defined PIC && !defined NOT_IN_libc
 strong_alias (__memset_chk, __memset_zero_constant_len_parameter)

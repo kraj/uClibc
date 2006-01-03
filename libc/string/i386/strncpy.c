@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#undef strncpy
 char attribute_hidden *__strncpy(char * dest, const char * src, size_t count)
 {
     int d0, d1, d2, d3;
@@ -54,4 +53,4 @@ char attribute_hidden *__strncpy(char * dest, const char * src, size_t count)
     return dest;
 }
 
-strong_alias(__strncpy, strncpy)
+strong_alias(__strncpy,strncpy)

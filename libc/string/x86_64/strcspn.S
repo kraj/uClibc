@@ -29,12 +29,6 @@
 #define STRPBRK_P (defined __strcspn)
 
 	.text
-#if STRPBRK_P
-#else
-.global strcspn
-.set strcspn,__strcspn
-.hidden __strcspn
-#endif
 ENTRY (__strcspn)
 
 	movq %rdi, %rdx		/* Save SRC.  */
@@ -127,3 +121,7 @@ L(4):	addq $256, %rsp		/* remove skipset */
 #endif
 	ret
 END (__strcspn)
+
+#if !STRPBRK_P
+strong_alias(__strcspn,strcspn)
+#endif

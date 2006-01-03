@@ -17,11 +17,8 @@
    02111-1307 USA.  */
 
 #include <string.h>
-#include <locale.h>
 
 #include "memcopy.h"
-
-#undef strcmp
 
 /* Compare S1 and S2, returning less than, equal to or
    greater than zero if S1 is lexicographically less than,
@@ -44,9 +41,9 @@ int attribute_hidden __strcmp (const char *p1, const char *p2)
   return c1 - c2;
 }
 
-strong_alias(__strcmp, strcmp)
+strong_alias(__strcmp,strcmp)
 
-#ifdef __LOCALE_C_ONLY
-hidden_strong_alias(__strcmp, __strcoll)
-strong_alias(__strcmp, strcoll)
-#endif /* __LOCALE_C_ONLY */
+#ifndef __UCLIBC_HAS_LOCALE__
+hidden_strong_alias(__strcmp,__strcoll)
+strong_alias(__strcmp,strcoll)
+#endif

@@ -17,6 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <endian.h>
 #include <sys/syscall.h>
 
@@ -25,8 +26,6 @@
  * exit: r0 = len
  */
 
-.global strlen
-.set strlen,__strlen
 .text
 .global __strlen
 .hidden __strlen
@@ -80,3 +79,5 @@ Llastword:				@ drop through to here once we find a
 	mov	pc,lr
 
 .size __strlen,.-__strlen
+
+strong_alias(__strlen,strlen)

@@ -31,9 +31,7 @@
  */
 
 #include <string.h>
-#include <locale.h> /* for __LOCALE_C_ONLY */
 
-#undef strcmp
 int attribute_hidden __strcmp(const char *cs, const char *ct)
 {
     int d0, d1;
@@ -54,9 +52,9 @@ int attribute_hidden __strcmp(const char *cs, const char *ct)
     return __res;
 }
 
-strong_alias(__strcmp, strcmp)
+strong_alias(__strcmp,strcmp)
 
-#ifdef __LOCALE_C_ONLY
-hidden_strong_alias(__strcmp, __strcoll)
-strong_alias(__strcmp, strcoll)
-#endif /* __LOCALE_C_ONLY */
+#ifndef __UCLIBC_HAS_LOCALE__
+hidden_strong_alias(__strcmp,__strcoll)
+strong_alias(__strcmp,strcoll)
+#endif

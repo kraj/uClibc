@@ -32,7 +32,6 @@ static inline int expand_byte_word(int c){
 	return c;
 }
 
-#undef memset
 void attribute_hidden *__memset(void *to, int c, size_t n)
 {
 	unsigned long rem, chunks;
@@ -80,4 +79,4 @@ void attribute_hidden *__memset(void *to, int c, size_t n)
 	goto lessthan8;
 }
 
-strong_alias(__memset, memset)
+strong_alias(__memset,memset)

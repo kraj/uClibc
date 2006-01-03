@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#undef strncmp
 int attribute_hidden __strncmp(const char *cs, const char *ct, size_t count)
 {
     register int __res;
@@ -56,4 +55,4 @@ int attribute_hidden __strncmp(const char *cs, const char *ct, size_t count)
     return __res;
 }
 
-strong_alias(__strncmp, strncmp)
+strong_alias(__strncmp,strncmp)

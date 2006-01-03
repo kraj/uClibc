@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#undef memcpy
 void attribute_hidden *__memcpy(void * to, const void * from, size_t n)
 {
     int d0, d1, d2;
@@ -51,4 +50,4 @@ void attribute_hidden *__memcpy(void * to, const void * from, size_t n)
     return (to);
 }
 
-strong_alias(__memcpy, memcpy)
+strong_alias(__memcpy,memcpy)

@@ -22,9 +22,6 @@
 
 
 	.text
-.global strlen
-.set strlen,__strlen
-.hidden __strlen
 ENTRY (__strlen)
 	movq %rdi, %rcx		/* Duplicate source pointer. */
 	andl $7, %ecx		/* mask alignment bits */
@@ -136,3 +133,5 @@ ENTRY (__strlen)
 	subq %rdi, %rax		/* compute difference to string start */
 	ret
 END (__strlen)
+
+strong_alias(__strlen,strlen)

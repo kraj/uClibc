@@ -63,9 +63,6 @@
 1:	retl
 	 sub		%o0, 1, %o0
 
-.globl memchr
-.set memchr,__memchr
-.hidden __memchr
 ENTRY(__memchr)
 	andcc		%o1, 0xff, %o1
 	sll		%o1, 8, %g6
@@ -140,7 +137,8 @@ ENTRY(__memchr)
 4:	retl
 	 sub		%o0, 4, %o0
 END(__memchr)
+strong_alias(__memchr,memchr)
 
 #if !__BOUNDED_POINTERS__
-weak_alias (__memchr, __ubp_memchr)
+weak_alias(__memchr,__ubp_memchr)
 #endif

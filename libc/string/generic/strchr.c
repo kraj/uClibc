@@ -26,8 +26,6 @@
 
 #include "memcopy.h"
 
-#undef strchr
-
 /* Find the first occurrence of C in S.  */
 char attribute_hidden *__strchr (const char *s, int c_in)
 {
@@ -181,6 +179,6 @@ char attribute_hidden *__strchr (const char *s, int c_in)
   return NULL;
 }
 
-strong_alias(__strchr, strchr)
+strong_alias(__strchr,strchr)
 
-weak_alias(strchr, index)
+strong_alias(__strchr,index)

@@ -6,6 +6,7 @@
 !
 ! SH5 code Copyright 2002 SuperH Ltd.
 
+#include <features.h>
 #include <endian.h>
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -17,13 +18,11 @@
 #endif
 
 	.section .text..SHmedia32,"ax"
-	.globl	strcpy
-	.set	strcpy,__strcpy
 	.globl	__strcpy
 	.hidden	__strcpy
 	.type	__strcpy, @function
-
 	.align 5
+
 __strcpy:
 
 	pta/l shortstring,tr1
@@ -100,3 +99,5 @@ loop:
 	blink tr1, r63 // shortstring
 
 	.size	__strcpy,.-__strcpy
+
+strong_alias(__strcpy,strcpy)

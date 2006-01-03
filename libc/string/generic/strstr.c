@@ -30,8 +30,6 @@
 
 typedef unsigned chartype;
 
-#undef strstr
-
 char attribute_hidden *__strstr (const char *phaystack, const char *pneedle)
 {
   const unsigned char *haystack, *needle;
@@ -112,4 +110,4 @@ ret0:
   return 0;
 }
 
-strong_alias(__strstr, strstr)
+strong_alias(__strstr,strstr)

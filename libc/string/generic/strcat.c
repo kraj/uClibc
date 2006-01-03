@@ -19,8 +19,6 @@
 #include <string.h>
 #include "memcopy.h"
 
-#undef strcat
-
 /* Append SRC on the end of DEST.  */
 char attribute_hidden *__strcat (char *dest, const char *src)
 {
@@ -47,4 +45,4 @@ char attribute_hidden *__strcat (char *dest, const char *src)
   return dest;
 }
 
-strong_alias(__strcat, strcat)
+strong_alias(__strcat,strcat)

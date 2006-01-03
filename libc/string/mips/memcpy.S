@@ -17,6 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 /*#include <sysdep.h>*/
 #include <endian.h>
 #include "sysdep.h"
@@ -39,7 +40,7 @@
 #  define SWLO	swl		/* low part is left in little-endian	*/
 #endif
 
-ENTRY (memcpy)
+ENTRY (__memcpy)
 	.set	noreorder
 
 	slti	t0, a2, 8		# Less than 8?
@@ -136,5 +137,6 @@ L(shfth):
 	move	a2, t0
 
 	.set	reorder
-END (memcpy)
-libc_hidden_builtin_def (memcpy)
+END (__memcpy)
+
+strong_alias(__memcpy,memcpy)

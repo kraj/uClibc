@@ -22,8 +22,6 @@
 #include "memcopy.h"
 #include "bp-checks.h"
 
-#undef strcpy
-
 /* Copy SRC to DEST.  */
 char attribute_hidden *__strcpy (char *dest, const char *src)
 {
@@ -46,4 +44,4 @@ char attribute_hidden *__strcpy (char *dest, const char *src)
   return dest;
 }
 
-strong_alias(__strcpy, strcpy)
+strong_alias(__strcpy,strcpy)

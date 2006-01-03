@@ -39,8 +39,8 @@
 
 /* bcopy = memcpy/memmove with arguments reversed. */
 
-.global bcopy
-.set bcopy,__bcopy
+#include <features.h>
+
 .text
 .global __bcopy
 .hidden __bcopy
@@ -55,3 +55,5 @@ __bcopy:
 	b	_memcpy (PLT)
 	
 .size __bcopy,.-__bcopy
+
+strong_alias(__bcopy,bcopy)

@@ -29,9 +29,8 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
+#include <features.h>
 
-.global memcmp
-.set memcmp,__memcmp
 .text
 .global __memcmp
 .hidden __memcmp
@@ -56,4 +55,6 @@ __memcmp:
 	mov	pc, lr
 
 .size __memcmp,.-__memcmp
-.weak bcmp ; bcmp = memcmp
+
+strong_alias(__memcmp,memcmp)
+strong_alias(__memcmp,bcmp)

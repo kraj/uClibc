@@ -37,8 +37,8 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-.global memcpy
-.set memcpy,__memcpy
+#include <features.h>
+
 .text
 .global __memcpy
 .hidden __memcpy
@@ -47,7 +47,9 @@
 
 __memcpy:
 	stmfd	sp!, {r0, lr}
-	bl	_memcpy (PLT)
+	bl	_memcpy
 	ldmfd	sp!, {r0, pc}
 
 .size __memcpy,.-__memcpy
+
+strong_alias(__memcpy,memcpy)

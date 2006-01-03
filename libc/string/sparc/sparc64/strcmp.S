@@ -45,9 +45,6 @@
 
 	.text
 	.align		32
-.globl strcmp
-.set strcmp,__strcmp
-.hidden __strcmp
 ENTRY(__strcmp)
 	sethi		%hi(0x01010101), %g1			/* IEU0		Group		*/
 	andcc		%o0, 7, %g0				/* IEU1				*/
@@ -279,3 +276,5 @@ ENTRY(__strcmp)
 	ba,pt		%xcc, 11b				/* CTI		Group		*/
 	 ldxa		[%o1 + %o0] ASI_PNF, %g6		/* Load				*/
 END(__strcmp)
+
+strong_alias(__strcmp,strcmp)

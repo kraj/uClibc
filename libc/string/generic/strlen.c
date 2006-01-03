@@ -22,8 +22,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#undef strlen
-
 /* Return the length of the null-terminated string STR.  Scan for
    the null terminator quickly by testing four bytes at a time.  */
 size_t attribute_hidden __strlen (const char *str)
@@ -149,4 +147,4 @@ size_t attribute_hidden __strlen (const char *str)
     }
 }
 
-strong_alias(__strlen, strlen)
+strong_alias(__strlen,strlen)

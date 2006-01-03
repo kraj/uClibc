@@ -67,9 +67,6 @@
 1:	retl
 	 sub		%o0, 1, %o0
 
-.globl strchr
-.set strchr,__strchr
-.hidden __strchr
 ENTRY(__strchr)
 	andcc		%o1, 0xff, %o1
 	be		12f
@@ -219,10 +216,9 @@ ENTRY(__strchr)
 	b		7f
 	 ld		[%o0], %g4
 END(__strchr)
+strong_alias(__strchr,strchr)
+strong_alias(__strchr,index)
 
-.globl strrchr
-.set strrchr,__strrchr
-.hidden __strrchr
 ENTRY(__strrchr)
 	andcc		%o1, 0xff, %o1
 	clr		%o5
@@ -281,6 +277,5 @@ ENTRY(__strrchr)
 9:	retl
 	 mov		%o5, %o0
 END(__strrchr)
-
-weak_alias (strchr, index)
-weak_alias (strrchr, rindex)
+strong_alias(__strrchr,strrchr)
+strong_alias(__strrchr,rindex)
