@@ -49,7 +49,7 @@ extern int errno;
 # endif
 #endif
 
-#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+#if defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
 
 /* The full and simple forms of the name with which the program was
    invoked.  These variables are set up automatically at startup based on
