@@ -263,6 +263,7 @@ extern char *__glibc_strerror_r_internal (int __errnum, char *__buf, size_t __bu
 
 /* ctype.h */
 extern int __tolower (int __c) __THROW attribute_hidden;
+extern int __toupper (int __c) __THROW attribute_hidden;
 
 #ifdef __UCLIBC_HAS_WCHAR__
 /* wchar.h */
