@@ -1,19 +1,34 @@
 /*
+ * Copyright (C) 2002     Manuel Novoa III
  * Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define L_strdup
-#define Wstrdup __strdup
+#include "_string.h"
+#include <stdlib.h>
 
-#undef Wstrlen
-#undef Wstrcpy
-#define Wstrlen __strlen
-#define Wstrcpy __strcpy
+#ifdef WANT_WIDE
+# define __Wstrdup __wcsdup
+# define Wstrdup wcsdup
+# define Wstrlen __wcslen
+# define Wstrcpy __wcscpy
+#else
+# define __Wstrdup __strdup
+# define Wstrdup strdup
+# define Wstrlen __strlen
+# define Wstrcpy __strcpy
+#endif
 
-#include "wstring.c"
+Wchar attribute_hidden *__Wstrdup(register const Wchar *s1)
+{
+	register Wchar *s;
 
-strong_alias(__strdup, strdup)
+    if ((s = malloc((Wstrlen(s1) + 1) * sizeof(Wchar))) != NULL) {
+		Wstrcpy(s, s1);
+	}
 
-#undef L_strdup
+	return s;
+}
+
+strong_alias(__Wstrdup,Wstrdup)

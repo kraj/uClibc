@@ -1,14 +1,37 @@
 /*
+ * Copyright (C) 2002     Manuel Novoa III
  * Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define L_memcpy
-#define Wmemcpy __memcpy
+#include "_string.h"
 
-#include "wstring.c"
+#ifdef WANT_WIDE
+# define __Wmemcpy __wmemcpy
+# define Wmemcpy wmemcpy
+#else
+# define __Wmemcpy __memcpy
+# define Wmemcpy memcpy
+#endif
 
-strong_alias(__memcpy, memcpy)
+Wvoid attribute_hidden *__Wmemcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
+{
+	register Wchar *r1 = s1;
+	register const Wchar *r2 = s2;
 
-#undef L_memcpy
+#ifdef __BCC__
+	while (n--) {
+		*r1++ = *r2++;
+	}
+#else
+	while (n) {
+		*r1++ = *r2++;
+		--n;
+	}
+#endif
+
+	return s1;
+}
+
+strong_alias(__Wmemcpy,Wmemcpy)

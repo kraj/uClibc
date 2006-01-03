@@ -1,14 +1,29 @@
 /*
+ * Copyright (C) 2002     Manuel Novoa III
  * Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define L_strcat
-#define Wstrcat __strcat
+#include "_string.h"
 
-#include "wstring.c"
+#ifdef WANT_WIDE
+# define __Wstrcat __wcscat
+# define Wstrcat wcscat
+#else
+# define __Wstrcat __strcat
+# define Wstrcat strcat
+#endif
 
-strong_alias(__strcat, strcat)
+Wchar attribute_hidden *__Wstrcat(Wchar * __restrict s1, register const Wchar * __restrict s2)
+{
+	register Wchar *s = s1;
 
-#undef L_strcat
+	while (*s++);
+	--s;
+	while ((*s++ = *s2++) != 0);
+
+	return s1;
+}
+
+strong_alias(__Wstrcat,Wstrcat)
