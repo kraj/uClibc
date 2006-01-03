@@ -252,7 +252,8 @@ typedef struct
 #define EM_OPENRISC	92		/* OpenRISC 32-bit embedded processor */
 #define EM_ARC_A5	93		/* ARC Cores Tangent-A5 */
 #define EM_XTENSA	94		/* Tensilica Xtensa Architecture */
-#define EM_NUM		95
+#define EM_BLACKFIN	106		/* Analog Devices Blackfin */
+#define EM_NUM		107
 
 /* If it is necessary to assign new unofficial EM_* values, please
    pick large random numbers (0x8523, 0xa7f2, etc.) to minimize the
@@ -2692,6 +2693,7 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_V850_NUM		25
 
 
+/* Renesas H8/300 Relocations */
 #define R_H8_NONE       0
 #define R_H8_DIR32      1
 #define R_H8_DIR32_28   2
@@ -2735,8 +2737,7 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_H8_DIR32A16  63
 #define R_H8_ABS32     65
 #define R_H8_ABS32A16 127
-
-/* Altera NIOS specific definitions.  */
+#define R_H8_NUM      128
 
 /* NIOS relocations. */
 #define R_NIOS_NONE				0
