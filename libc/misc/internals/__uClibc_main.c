@@ -217,8 +217,8 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 	__environ = &argv[argc];
     }
 
-    /* Pull stuff from the ELF header when possible */
 #ifdef __ARCH_HAS_MMU__
+    /* Pull stuff from the ELF header when possible */
     aux_dat = (unsigned long*)__environ;
     while (*aux_dat) {
 	aux_dat++;
@@ -231,12 +231,14 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 	}
 	aux_dat += 2;
     }
+#endif
 
     /* We need to initialize uClibc.  If we are dynamically linked this
      * may have already been completed by the shared lib loader.  We call
      * __uClibc_init() regardless, to be sure the right thing happens. */
     __uClibc_init();
 
+#ifdef __ARCH_HAS_MMU__
     /* Make certain getpagesize() gives the correct answer */
     __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 
