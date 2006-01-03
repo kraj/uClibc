@@ -32,7 +32,7 @@ extern wint_t __towlower_l (wint_t __wc, __locale_t __locale) __THROW attribute_
 # ifdef __UCLIBC_DO_XLOCALE
 #  define TOLOWER(C) __tolower_l((C), locale_arg)
 # else
-#  define TOLOWER(C) __tolower((C))
+#  define TOLOWER(C) tolower((C))
 # endif
 #endif
 
