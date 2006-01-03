@@ -194,6 +194,10 @@
 #  endif
 
 #  define __need_size_t
+#  ifdef __UCLIBC_HAS_WCHAR__
+#   define __need_wchar_t
+#   define __need_wint_t
+#  endif
 #  include <stddef.h>
 
 #  include <bits/types.h>
@@ -243,10 +247,34 @@ extern int __strncmp (__const char *__s1, __const char *__s2, size_t __n) attrib
 extern char *__strdup (__const char *__s) attribute_hidden;
 extern int __strcasecmp (__const char *__s1, __const char *__s2) attribute_hidden;
 extern int __strncasecmp (__const char *__s1, __const char *__s2, size_t __n) attribute_hidden;
+extern void *__rawmemchr (__const void *__s, int __c) __THROW __attribute_pure__ __nonnull ((1)) attribute_hidden;
+extern size_t __strspn (__const char *__s, __const char *__accept)
+     __THROW __attribute_pure__ __nonnull ((1, 2)) attribute_hidden;
+extern char *__strpbrk (__const char *__s, __const char *__accept)
+     __THROW __attribute_pure__ __nonnull ((1, 2)) attribute_hidden;
+extern size_t __strnlen (__const char *__string, size_t __maxlen)
+     __THROW __attribute_pure__ __nonnull ((1)) attribute_hidden;
+extern char *__strtok_r (char *__restrict __s, __const char *__restrict __delim,
+		       char **__restrict __save_ptr) __THROW __nonnull ((2, 3)) attribute_hidden;
 
 /* sources are built w/ _GNU_SOURCE, this gets undefined */
 extern int __xpg_strerror_r_internal (int __errnum, char *__buf, size_t __buflen) attribute_hidden;
 extern char *__glibc_strerror_r_internal (int __errnum, char *__buf, size_t __buflen) attribute_hidden;
+
+/* ctype.h */
+extern int __tolower (int __c) __THROW attribute_hidden;
+
+#ifdef __UCLIBC_HAS_WCHAR__
+/* wchar.h */
+extern size_t __wcslen (__const wchar_t *__s) __THROW __attribute_pure__ attribute_hidden;
+extern wchar_t *__wcscpy (wchar_t *__restrict __dest, __const wchar_t *__restrict __src) __THROW attribute_hidden;
+extern size_t __wcsspn (__const wchar_t *__wcs, __const wchar_t *__accept)
+     __THROW __attribute_pure__ attribute_hidden;
+extern wchar_t *__wcspbrk (__const wchar_t *__wcs, __const wchar_t *__accept)
+     __THROW __attribute_pure__ attribute_hidden;
+/* wctype.h */
+extern wint_t __towlower (wint_t __wc) __THROW attribute_hidden;
+#endif
 
 /* #include <unistd.h> */
 extern ssize_t __read(int __fd, void *__buf, size_t __nbytes) attribute_hidden;
