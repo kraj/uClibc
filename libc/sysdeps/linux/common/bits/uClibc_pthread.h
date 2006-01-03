@@ -29,9 +29,9 @@
 
 extern int __pthread_mutex_init (pthread_mutex_t *__restrict __mutex,
 								 __const pthread_mutexattr_t *__restrict
-								 __mutex_attr) attribute_hidden;
-extern int __pthread_mutex_trylock (pthread_mutex_t *__mutex) attribute_hidden;
-extern int __pthread_mutex_lock (pthread_mutex_t *__mutex) attribute_hidden;
-extern int __pthread_mutex_unlock (pthread_mutex_t *__mutex) attribute_hidden;
+								 __mutex_attr);
+extern int __pthread_mutex_trylock (pthread_mutex_t *__mutex);
+extern int __pthread_mutex_lock (pthread_mutex_t *__mutex);
+extern int __pthread_mutex_unlock (pthread_mutex_t *__mutex);
 
 #endif
