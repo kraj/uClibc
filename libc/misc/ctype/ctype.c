@@ -268,9 +268,11 @@ IS_FUNC_BODY(xdigit);
 /**********************************************************************/
 #ifdef L_tolower
 
+#undef tolower
+#undef __tolower
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
-int tolower(int c)
+int attribute_hidden __tolower(int c)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
 	assert(CTYPE_DOMAIN_CHECK(c));
@@ -280,12 +282,13 @@ int tolower(int c)
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
-int tolower(int c)
+int attribute_hidden __tolower(int c)
 {
 	return __C_tolower(c);
 }
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
+strong_alias(__tolower,tolower)
 
 #endif
 /**********************************************************************/
