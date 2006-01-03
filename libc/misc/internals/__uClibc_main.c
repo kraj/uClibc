@@ -63,6 +63,14 @@ extern void weak_function _locale_init(void) attribute_hidden;
 #ifdef __UCLIBC_HAS_THREADS__
 extern void weak_function __pthread_initialize_minimal(void);
 #endif
+#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+char *program_invocation_name = (char *) "";
+char *program_invocation_short_name = (char *) "";
+hidden_strong_alias (program_invocation_name, __progname_full)
+hidden_strong_alias (program_invocation_short_name, __progname)
+#else
+attribute_hidden const char *__progname = NULL;
+#endif
 
 /*
  * Declare the __environ global variable and create a weak alias environ.
@@ -73,7 +81,6 @@ char **__environ = 0;
 weak_alias(__environ, environ)
 
 size_t __pagesize = 0;
-const char *__progname = 0;
 
 #ifndef O_NOFOLLOW
 # define O_NOFOLLOW	0
@@ -253,7 +260,18 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     }
 #endif
 
+#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+    if (argv && argv[0]) {
+	__progname_full = *argv;
+	__progname = __strrchr(*argv, '/');
+	if (likely(__progname != NULL))
+		++__progname;
+	else
+		__progname = __progname_full;
+    }
+#else
     __progname = *argv;
+#endif
 
 #ifdef __UCLIBC_CTOR_DTOR__
     /* Arrange for the application's dtors to run before we exit.  */

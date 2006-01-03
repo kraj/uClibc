@@ -238,6 +238,7 @@ extern char *__strcat (char *__restrict __dest, __const char *__restrict __src) 
 extern char *__strncpy (char *__restrict __dest,
 		      __const char *__restrict __src, size_t __n) attribute_hidden;
 extern char *__strchr (__const char *__s, int __c) attribute_hidden;
+extern char *__strrchr (__const char *__s, int __c) attribute_hidden;
 extern int __strncmp (__const char *__s1, __const char *__s2, size_t __n) attribute_hidden;
 extern char *__strdup (__const char *__s) attribute_hidden;
 extern int __strcasecmp (__const char *__s1, __const char *__s2) attribute_hidden;

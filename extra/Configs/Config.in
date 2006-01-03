@@ -446,6 +446,20 @@ config HAS_SHADOW
 	  Answer N if you do not need shadow password support.
 	  Most people will answer Y.
 
+config UCLIBC_HAS_PROGRAM_INVOCATION_NAME
+	bool "Support for program_invocation_name"
+	default n
+	help
+	  Support for the GNU-specific program_invocation_name and
+	  program_invocation_short_name strings.  Some GNU packages
+	  (like tar and coreutils) utilize these for extra useful
+	  output, but in general are not required.
+
+	  At startup, these external strings are automatically set
+	  up based on the value of ARGV[0].
+
+	  If unsure, just answer N.
+
 config UNIX98PTY_ONLY
 	bool "Support only Unix 98 PTYs"
 	default y
