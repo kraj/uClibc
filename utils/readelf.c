@@ -164,21 +164,22 @@ static void describe_elf_hdr(ElfW(Ehdr)* ehdr)
 		case EM_386:		tmp="Intel 80386"; break;
 		case EM_68K:		tmp="Motorola m68k family"; break;
 		case EM_88K:		tmp="Motorola m88k family"; break;
+		case EM_486:		tmp="Intel 80486"; break;
 		case EM_860:		tmp="Intel 80860"; break;
 		case EM_MIPS:		tmp="MIPS R3000 big-endian"; break;
 		case EM_S370:		tmp="IBM System/370"; break;
 		case EM_MIPS_RS3_LE:	tmp="MIPS R3000 little-endian"; break;
+		case EM_OLD_SPARCV9:	tmp="Sparc v9 (old)"; break;
 		case EM_PARISC:		tmp="HPPA"; break;
-		case EM_VPP500:		tmp="Fujitsu VPP500"; break;
+		/*case EM_PPC_OLD:	tmp="Power PC (old)"; break;  conflicts with EM_VPP500 */
 		case EM_SPARC32PLUS:	tmp="Sun's v8plus"; break;
 		case EM_960:		tmp="Intel 80960"; break;
 		case EM_PPC:		tmp="PowerPC"; break;
 		case EM_PPC64:		tmp="PowerPC 64-bit"; break;
-		case EM_S390:		tmp="IBM S390"; break;
 		case EM_V800:		tmp="NEC V800 series"; break;
 		case EM_FR20:		tmp="Fujitsu FR20"; break;
 		case EM_RH32:		tmp="TRW RH-32"; break;
-		case EM_RCE:		tmp="Motorola RCE"; break;
+		case EM_MCORE:		tmp="MCORE"; break;
 		case EM_ARM:		tmp="ARM"; break;
 		case EM_FAKE_ALPHA:	tmp="Digital Alpha"; break;
 		case EM_SH:			tmp="Renesas SH"; break;
@@ -193,6 +194,24 @@ static void describe_elf_hdr(ElfW(Ehdr)* ehdr)
 		case EM_MIPS_X:		tmp="Stanford MIPS-X"; break;
 		case EM_COLDFIRE:	tmp="Motorola Coldfire"; break;
 		case EM_68HC12:		tmp="Motorola M68HC12"; break;
+		case EM_ALPHA:		tmp="Alpha"; break;
+		case EM_CYGNUS_D10V:
+		case EM_D10V:		tmp="Mitsubishi D10V"; break;
+		case EM_CYGNUS_D30V:
+		case EM_D30V:		tmp="Mitsubishi D30V"; break;
+		case EM_CYGNUS_M32R:
+		case EM_M32R:		tmp="Renesas M32R (formerly Mitsubishi M32r)"; break;
+		case EM_CYGNUS_V850:
+		case EM_V850:		tmp="NEC v850"; break;
+		case EM_CYGNUS_MN10300:
+		case EM_MN10300:	tmp="Matsushita MN10300"; break;
+		case EM_CYGNUS_MN10200:
+		case EM_MN10200:	tmp="Matsushita MN10200"; break;
+		case EM_CYGNUS_FR30:
+		case EM_FR30:		tmp="Fujitsu FR30"; break;
+		case EM_CYGNUS_FRV:
+		case EM_PJ_OLD:		
+		case EM_PJ:			tmp="picoJava"; break;
 		case EM_MMA:		tmp="Fujitsu MMA Multimedia Accelerator"; break;
 		case EM_PCP:		tmp="Siemens PCP"; break;
 		case EM_NCPU:		tmp="Sony nCPU embeeded RISC"; break;
@@ -201,8 +220,6 @@ static void describe_elf_hdr(ElfW(Ehdr)* ehdr)
 		case EM_ME16:		tmp="Toyota ME16 processor"; break;
 		case EM_ST100:		tmp="STMicroelectronic ST100 processor"; break;
 		case EM_TINYJ:		tmp="Advanced Logic Corp. Tinyj emb.fam"; break;
-		case EM_X86_64:		tmp="AMD x86-64 architecture"; break;
-		case EM_PDSP:		tmp="Sony DSP Processor"; break;
 		case EM_FX66:		tmp="Siemens FX66 microcontroller"; break;
 		case EM_ST9PLUS:	tmp="STMicroelectronics ST9+ 8/16 mc"; break;
 		case EM_ST7:		tmp="STmicroelectronics ST7 8 bit mc"; break;
@@ -213,6 +230,8 @@ static void describe_elf_hdr(ElfW(Ehdr)* ehdr)
 		case EM_SVX:		tmp="Silicon Graphics SVx"; break;
 		case EM_ST19:		tmp="STMicroelectronics ST19 8 bit mc"; break;
 		case EM_VAX:		tmp="Digital VAX"; break;
+		case EM_AVR_OLD:
+		case EM_AVR:		tmp="Atmel AVR 8-bit microcontroller"; break;
 		case EM_CRIS:		tmp="Axis Communications 32-bit embedded processor"; break;
 		case EM_JAVELIN:	tmp="Infineon Technologies 32-bit embedded processor"; break;
 		case EM_FIREPATH:	tmp="Element 14 64-bit DSP Processor"; break;
@@ -220,15 +239,26 @@ static void describe_elf_hdr(ElfW(Ehdr)* ehdr)
 		case EM_MMIX:		tmp="Donald Knuth's educational 64-bit processor"; break;
 		case EM_HUANY:		tmp="Harvard University machine-independent object files"; break;
 		case EM_PRISM:		tmp="SiTera Prism"; break;
-		case EM_AVR:		tmp="Atmel AVR 8-bit microcontroller"; break;
-		case EM_FR30:		tmp="Fujitsu FR30"; break;
-		case EM_D10V:		tmp="Mitsubishi D10V"; break;
-		case EM_D30V:		tmp="Mitsubishi D30V"; break;
-		case EM_V850:		tmp="NEC v850"; break;
-		case EM_M32R:		tmp="Renesas M32R"; break;
-		case EM_MN10300:	tmp="Matsushita MN10300"; break;
-		case EM_MN10200:	tmp="Matsushita MN10200"; break;
-		case EM_PJ:			tmp="picoJava"; break;
+		case EM_X86_64:		tmp="AMD x86-64 architecture"; break;
+		case EM_S390_OLD:
+		case EM_S390:		tmp="IBM S390"; break;
+		case EM_XSTORMY16:	tmp="Sanyo Xstormy16 CPU core"; break;
+		case EM_OPENRISC:
+		case EM_OR32:		tmp="OpenRISC"; break;
+		case EM_CRX:		tmp="National Semiconductor CRX microprocessor"; break;
+		case EM_DLX:		tmp="OpenDLX"; break;
+		case EM_IP2K_OLD:
+		case EM_IP2K:		tmp="Ubicom IP2xxx 8-bit microcontrollers"; break;
+		case EM_IQ2000:		tmp="Vitesse IQ2000"; break;
+		case EM_XTENSA_OLD:
+		case EM_XTENSA:		tmp="Tensilica Xtensa Processor"; break;
+		case EM_M32C:		tmp="Renesas M32c"; break;
+		case EM_MT:			tmp="Morpho Techologies MT processor"; break;
+		case EM_BLACKFIN:	tmp="Analog Devices Blackfin"; break;
+		case EM_NIOS32:		tmp="Altera Nios 32"; break;
+		case EM_ALTERA_NIOS2:	tmp="Altera Nios II"; break;
+		case EM_VPP500:		tmp="Fujitsu VPP500"; break;
+		case EM_PDSP:		tmp="Sony DSP Processor"; break;
 		default:			tmp="unknown";
 	}
 	printf( "Machine:\t%s\n", tmp);	
