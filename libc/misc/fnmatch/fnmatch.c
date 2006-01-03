@@ -245,7 +245,7 @@ __wcschrnul (s, c)
 
 /* Note that this evaluates C many times.  */
 # if defined _LIBC || defined __UCLIBC__
-#  define FOLD(c) ((flags & FNM_CASEFOLD) ? tolower (c) : (c))
+#  define FOLD(c) ((flags & FNM_CASEFOLD) ? __tolower (c) : (c))
 # else
 #  define FOLD(c) ((flags & FNM_CASEFOLD) && ISUPPER (c) ? tolower (c) : (c))
 # endif

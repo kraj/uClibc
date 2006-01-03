@@ -19,7 +19,7 @@ char attribute_hidden *__strcasestr(const char *s1, const char *s2)
 			return (char *) s1;;
 		}
 		if ((*p == *s)
-			|| (tolower(*((unsigned char *)p)) == tolower(*((unsigned char *)s)))
+			|| (__tolower(*((unsigned char *)p)) == __tolower(*((unsigned char *)s)))
 			) {
 			++p;
 			++s;
@@ -34,7 +34,7 @@ char attribute_hidden *__strcasestr(const char *s1, const char *s2)
 #else
 	while (*p && *s) {
 		if ((*p == *s)
-			|| (tolower(*((unsigned char *)p)) == tolower(*((unsigned char *)s)))
+			|| (__tolower(*((unsigned char *)p)) == __tolower(*((unsigned char *)s)))
 			) {
 			++p;
 			++s;

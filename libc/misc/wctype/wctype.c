@@ -378,7 +378,9 @@ strong_alias(__towlower_l,towlower_l)
 
 #endif /* __LOCALE_C_ONLY */
 
+#ifndef L_towlower_l
 strong_alias(__towlower,towlower)
+#endif
 
 #endif
 /**********************************************************************/
@@ -484,7 +486,9 @@ strong_alias(__towupper_l,towupper_l)
 
 #endif /* __LOCALE_C_ONLY */
 
+#ifndef L_towupper_l
 strong_alias(__towupper,towupper)
+#endif
 
 #endif
 /**********************************************************************/
@@ -724,11 +728,11 @@ weak_alias(__iswctype, iswctype)
 
 #ifndef _tolower
 #warning _tolower is undefined!
-#define _tolower(c)    tolower(c)
+#define _tolower(c)    __tolower(c)
 #endif
 #ifndef _toupper
 #warning _toupper is undefined!
-#define _toupper(c)    toupper(c)
+#define _toupper(c)    __toupper(c)
 #endif
 
 wint_t attribute_hidden __towctrans(wint_t wc, wctrans_t desc)
@@ -880,9 +884,12 @@ wint_t attribute_hidden TOWCTRANS(wint_t wc, wctrans_t desc)
 #ifdef L_towctrans_l
 strong_alias(__towctrans_l, towctrans_l)
 #endif /* L_towctrans_l */
-strong_alias(__towctrans,towctrans)
 
 #endif /* __LOCALE_C_ONLY */
+
+#ifndef L_towctrans_l
+strong_alias(__towctrans,towctrans)
+#endif
 
 #endif
 /**********************************************************************/

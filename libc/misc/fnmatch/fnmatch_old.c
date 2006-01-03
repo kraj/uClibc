@@ -56,7 +56,7 @@ int attribute_hidden __fnmatch(const char *pattern, const char *string, int flag
 	register char c;
 
 /* Note that this evaluates C many times.  */
-# define FOLD(c) ((flags & FNM_CASEFOLD) && ISUPPER (c) ? tolower (c) : (c))
+# define FOLD(c) ((flags & FNM_CASEFOLD) && ISUPPER (c) ? __tolower (c) : (c))
 
 	while ((c = *p++) != '\0') {
 		c = FOLD(c);

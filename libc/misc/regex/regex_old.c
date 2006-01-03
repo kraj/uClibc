@@ -275,7 +275,7 @@ char *realloc ();
 # ifdef _tolower
 #  define TOLOWER(c) _tolower(c)
 # else
-#  define TOLOWER(c) tolower(c)
+#  define TOLOWER(c) __tolower(c)
 # endif
 
 # ifndef NULL
