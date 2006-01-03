@@ -166,6 +166,8 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 
 ifeq ($(TARGET_ARCH),mips)
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-EB
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_1)+=-mips1
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_2)+=-mips2 -mtune=mips2
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_3)+=-mips3 -mtune=mips3
