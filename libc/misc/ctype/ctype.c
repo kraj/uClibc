@@ -156,11 +156,9 @@ int CTYPE_NAME(NAME) (int c) \
 #ifdef L___ctype_assert
 #ifdef __UCLIBC_HAS_CTYPE_ENFORCED__
 
-extern const char *__progname;
-
 void __isctype_assert(int c, int mask)
 {
-	fprintf(stderr,	"%s: __is*{_l}(%d,%#x {locale})\n", __progname, c, mask);
+	fprintf(stderr,	"%s: __is*{_l}(%d,%#x {locale})\n", __uclibc_progname, c, mask);
 	abort();
 }
 

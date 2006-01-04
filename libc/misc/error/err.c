@@ -19,10 +19,8 @@
 #endif
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: Need a centralized __progname prototype.
 #warning REMINDER: Deal with wide oriented stderr case.
 #endif
-extern const char *__progname;
 
 static void vwarn_work(const char *format, va_list args, int showerr)
 {
@@ -41,7 +39,7 @@ static void vwarn_work(const char *format, va_list args, int showerr)
 
 	__STDIO_AUTO_THREADLOCK(stderr);
 
-	fprintf(stderr, fmt, __progname);
+	fprintf(stderr, fmt, __uclibc_progname);
 	if (format) {
 		vfprintf(stderr, format, args);
 		f -= 2;					/* At 5 (showerr) or 9. */

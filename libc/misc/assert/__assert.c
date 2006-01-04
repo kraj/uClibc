@@ -41,10 +41,6 @@
 
 #define ASSERT_SHOW_PROGNAME 1
 
-#ifdef ASSERT_SHOW_PROGNAME
-extern const char *__progname;
-#endif
-
 static int in_assert;			/* bss inits to 0. */
 
 void __assert(const char *assertion, const char * filename,
@@ -55,7 +51,7 @@ void __assert(const char *assertion, const char * filename,
 
 		fprintf(stderr,
 #ifdef ASSERT_SHOW_PROGNAME
-				"%s: %s: %d: %s: Assertion `%s' failed.\n", __progname,
+				"%s: %s: %d: %s: Assertion `%s' failed.\n", __uclibc_progname,
 #else
 				"%s: %d: %s: Assertion `%s' failed.\n",
 #endif

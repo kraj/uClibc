@@ -460,6 +460,18 @@ config UCLIBC_HAS_PROGRAM_INVOCATION_NAME
 
 	  If unsure, just answer N.
 
+config UCLIBC_HAS___PROGNAME
+	bool "Support for __progname"
+	default y
+	help
+	  Some packages (like openssh) like to peek into internal libc
+	  symbols to make their output a bit more user friendly.
+
+	  At startup, __progname is automatically set up based on the
+	  value of ARGV[0].
+
+	  If unsure, just answer N.
+
 config UNIX98PTY_ONLY
 	bool "Support only Unix 98 PTYs"
 	default y

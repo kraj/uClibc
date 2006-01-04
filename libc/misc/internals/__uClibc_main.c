@@ -63,13 +63,15 @@ extern void weak_function _locale_init(void) attribute_hidden;
 #ifdef __UCLIBC_HAS_THREADS__
 extern void weak_function __pthread_initialize_minimal(void);
 #endif
+
+attribute_hidden const char *__uclibc_progname = NULL;
+#ifdef __UCLIBC_HAS___PROGNAME__
+strong_alias (__uclibc_progname, __progname)
+#endif
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-char *program_invocation_name = (char *) "";
-char *program_invocation_short_name = (char *) "";
-hidden_strong_alias (program_invocation_name, __progname_full)
-hidden_strong_alias (program_invocation_short_name, __progname)
-#else
-attribute_hidden const char *__progname = NULL;
+attribute_hidden const char *__progname_full = NULL;
+strong_alias (__uclibc_progname, program_invocation_short_name)
+strong_alias (__progname_full, program_invocation_name)
 #endif
 
 /*
@@ -261,16 +263,14 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 #endif
 
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-    if (likely(argv && argv[0])) {
-	__progname_full = *argv;
-	__progname = __strrchr(*argv, '/');
-	if (__progname != NULL)
-		++__progname;
-	else
-		__progname = __progname_full;
-    }
+    __progname_full = *argv;
+    __progname = __strrchr(*argv, '/');
+    if (__progname != NULL)
+	++__progname;
+    else
+	__progname = __progname_full;
 #else
-    __progname = *argv;
+    __uclibc_progname = *argv;
 #endif
 
 #ifdef __UCLIBC_CTOR_DTOR__

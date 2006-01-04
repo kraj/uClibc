@@ -440,6 +440,9 @@ extern int __gettimeofday(struct timeval *__restrict __tv, *__restrict __timezon
 #   define __pthread_mutex_unlock(mutex)                  ((void)0)
 #  endif
 
+/* internal access to program name */
+extern const char *__uclibc_progname attribute_hidden;
+
 # endif /* IS_IN_libc */
 #endif /* __ASSEMBLER__ */
 

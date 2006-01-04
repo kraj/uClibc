@@ -77,12 +77,11 @@ static __always_inline attribute_noreturn void terminate(void)
 void attribute_noreturn __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));
 void attribute_noreturn __stack_smash_handler(char func[], int damaged)
 {
-	extern char *__progname;
 	static const char message[] = ": stack smashing attack in function ";
 
 	block_signals();
 
-	ssp_write(STDERR_FILENO, __progname, message, func);
+	ssp_write(STDERR_FILENO, __uclibc_progname, message, func);
 
 	/* The loop is added only to keep gcc happy. */
 	while(1)
@@ -91,13 +90,12 @@ void attribute_noreturn __stack_smash_handler(char func[], int damaged)
 
 void attribute_noreturn __stack_chk_fail(void)
 {
-	extern char *__progname;
 	static const char msg1[] = "stack smashing detected: ";
 	static const char msg3[] = " terminated";
 
 	block_signals();
 
-	ssp_write(STDERR_FILENO, msg1, __progname, msg3);
+	ssp_write(STDERR_FILENO, msg1, __uclibc_progname, msg3);
 
 	/* The loop is added only to keep gcc happy. */
 	while(1)
@@ -107,13 +105,12 @@ void attribute_noreturn __stack_chk_fail(void)
 #if 0
 void attribute_noreturn __chk_fail(void)
 {
-	extern char *__progname;
 	static const char msg1[] = "buffer overflow detected: ";
 	static const char msg3[] = " terminated";
 
 	block_signals();
 
-	ssp_write(STDERR_FILENO, msg1, __progname, msg3);
+	ssp_write(STDERR_FILENO, msg1, __uclibc_progname, msg3);
 
 	/* The loop is added only to keep gcc happy. */
 	while(1)
