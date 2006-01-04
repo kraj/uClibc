@@ -20,7 +20,7 @@
 _syscall4(int, posix_fadvise, int, fd, off_t, offset,
           off_t, len, int, advice);
 
-#if defined __UCLIBC_HAS_LFS__ && !defined __NR_fadvise64_64
+#if defined __UCLIBC_HAS_LFS__ && (!defined __NR_fadvise64_64 || !defined _syscall6)
 weak_alias(posix_fadvise, posix_fadvise64)
 #endif
 
