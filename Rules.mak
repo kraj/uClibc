@@ -176,6 +176,11 @@ ifeq ($(TARGET_ARCH),mips)
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS64)+=-mips64 -mtune=mips32
 endif
 
+ifeq ($(TARGET_ARCH),nios)
+	CPU_LDFLAGS-y+=-m32
+	CPU_CFLAGS-y+=-m32
+endif
+
 ifeq ($(TARGET_ARCH),sh)
 	OPTIMIZATION+=-fstrict-aliasing
 	OPTIMIZATION+= $(call check_gcc,-mprefergot,)
@@ -281,8 +286,10 @@ ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 # If -msoft-float isn't supported, we want an error anyway.
 # Hmm... might need to revisit this for arm since it has 2 different
 # soft float encodings.
+ifneq ($(TARGET_ARCH),nios)
 ifneq ($(TARGET_ARCH),nios2)
     CPU_CFLAGS += -msoft-float
+endif
 endif
 ifeq ($(TARGET_ARCH),arm)
 # No longer needed with current toolchains, but leave it here for now.
