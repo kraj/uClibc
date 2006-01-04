@@ -27,7 +27,8 @@ Cambridge, MA 02139, USA.  */
     .type   __start,@function
     .weak   _init
     .weak   _fini
-    .type   __uClibc_start_main,@function
+    .type   main,@function
+    .type   __uClibc_main,@function
     .type   __h_errno_location, @function
     .type   _stdio_init, @function
     .type   _stdio_term, @function
@@ -38,15 +39,17 @@ _start:
 	nop
 	nop
 
-	lds	%o0,[%sp, (REGWIN_SZ / 4) + 0]	// main's argc
-	lds	%o1,[%sp, (REGWIN_SZ / 4) + 1]	// main's argv
-	lds	%o2,[%sp, (REGWIN_SZ / 4) + 2]	// main's envp
+	MOVIA	%o0, main@h
+	lds	%o1,[%sp, (REGWIN_SZ / 4) + 0]	// main's argc
+	lds	%o2,[%sp, (REGWIN_SZ / 4) + 1]	// main's argv
 
 	MOVIA	%o3, _init@h
 	MOVIA	%o4, _fini@h
-	MOVIA	%o5, __uClibc_start_main@h
-	
-	call	%o5
+	mov	%o5, %i0	/* rtld_fini */
+	mov	%o6, %sp	/* stack_end */
+	MOVIA	%o7, __uClibc_main@h
+
+	call	%o7
 	nop
 
 
@@ -54,4 +57,3 @@ _start:
 __exit:
 	MOVIP	%g1, __NR_exit
 	trap	63
-	
