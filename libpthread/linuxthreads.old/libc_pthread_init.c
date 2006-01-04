@@ -34,7 +34,7 @@ __libc_pthread_init (functions)
   /* We copy the content of the variable pointed to by the FUNCTIONS
      parameter to one in libc.so since this means access to the array
      can be done with one memory access instead of two.  */
-  memcpy (&__libc_pthread_functions, functions,
+  __memcpy (&__libc_pthread_functions, functions,
 	  sizeof (__libc_pthread_functions));
 #endif
 
