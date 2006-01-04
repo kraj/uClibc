@@ -39,7 +39,7 @@
 #include <signal.h>
 #include <sys/syslog.h>
 
-static __always_inline void block_signals(void)
+static void block_signals(void)
 {
 	struct sigaction sa;
 	sigset_t mask;
@@ -57,7 +57,7 @@ static __always_inline void block_signals(void)
 	sigaction(SSP_SIGTYPE, &sa, NULL);
 }
 
-static __always_inline void ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3)
+static void ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3)
 {
 	__write(fd, msg1, __strlen(msg1));
 	__write(fd, msg2, __strlen(msg2));
@@ -68,7 +68,7 @@ static __always_inline void ssp_write(int fd, const char *msg1, const char *msg2
 	closelog();
 }
 
-static __always_inline attribute_noreturn void terminate(void)
+static attribute_noreturn void terminate(void)
 {
 	(void) kill(__getpid(), SSP_SIGTYPE);
 	_exit_internal(127);
@@ -88,7 +88,7 @@ void attribute_noreturn __stack_smash_handler(char func[], int damaged)
 		terminate();
 }
 
-void attribute_noreturn __stack_chk_fail(void)
+void attribute_noreturn attribute_hidden __stack_chk_fail_internal(void)
 {
 	static const char msg1[] = "stack smashing detected: ";
 	static const char msg3[] = " terminated";
@@ -101,6 +101,7 @@ void attribute_noreturn __stack_chk_fail(void)
 	while(1)
 		terminate();
 }
+strong_alias(__stack_chk_fail_internal,__stack_chk_fail)
 
 #if 0
 void attribute_noreturn __chk_fail(void)
