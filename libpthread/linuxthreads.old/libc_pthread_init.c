@@ -26,7 +26,7 @@
 #include "sysdeps/pthread/pthread-functions.h"
 
 #if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
-extern __locale_t __uselocale (__locale_t __dataset) __THROW;
+extern __locale_t __uselocale (__locale_t __dataset) __THROW attribute_hidden;
 #endif
 
 int __libc_multiple_threads attribute_hidden __attribute__((nocommon));
