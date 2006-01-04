@@ -35,6 +35,8 @@ enum __libc_tsd_key_t { _LIBC_TSD_KEY_MALLOC = 0,
 #include <sys/cdefs.h>
 #include <tls.h>
 
+#include <linuxthreads.old/internals.h>
+
 #if USE_TLS && HAVE___THREAD
 
 /* When __thread works, the generic definition is what we want.  */
@@ -42,25 +44,31 @@ enum __libc_tsd_key_t { _LIBC_TSD_KEY_MALLOC = 0,
 
 #else
 
-extern void *(*__libc_internal_tsd_get) (enum __libc_tsd_key_t);
-extern int (*__libc_internal_tsd_set) (enum __libc_tsd_key_t, __const void *);
-extern void **(*const __libc_internal_tsd_address) (enum __libc_tsd_key_t)
-     __attribute__ ((__const__));
+# ifndef SHARED
+extern void ** __pthread_internal_tsd_address (int);
+extern void *__pthread_internal_tsd_get (int);
+extern int __pthread_internal_tsd_set (int, const void *);
 
-#define __libc_tsd_address(KEY) \
-  (__libc_internal_tsd_address != NULL \
-   ? __libc_internal_tsd_address (_LIBC_TSD_KEY_##KEY) \
-   : &__libc_tsd_##KEY##_data)
+weak_extern (__pthread_internal_tsd_address)
+weak_extern (__pthread_internal_tsd_get)
+weak_extern (__pthread_internal_tsd_set)
+# endif
+
+#define __libc_maybe_call2(FUNC, ARGS, ELSE) \
+  ({__builtin_expect (__libc_pthread_functions.ptr_##FUNC != NULL, 0) \
+    ? __libc_pthread_functions.ptr_##FUNC ARGS : ELSE; })
 
 #define __libc_tsd_define(CLASS, KEY)	CLASS void *__libc_tsd_##KEY##_data;
+#define __libc_tsd_address(KEY) \
+  __libc_maybe_call2 (pthread_internal_tsd_address,			\
+		      (_LIBC_TSD_KEY_##KEY), &__libc_tsd_##KEY##_data)
 #define __libc_tsd_get(KEY) \
-  (__libc_internal_tsd_get != NULL \
-   ? __libc_internal_tsd_get (_LIBC_TSD_KEY_##KEY) \
-   : __libc_tsd_##KEY##_data)
+  __libc_maybe_call2 (pthread_internal_tsd_get,				\
+		      (_LIBC_TSD_KEY_##KEY), __libc_tsd_##KEY##_data)
 #define __libc_tsd_set(KEY, VALUE) \
-  (__libc_internal_tsd_set != NULL \
-   ? __libc_internal_tsd_set (_LIBC_TSD_KEY_##KEY, (VALUE)) \
-   : ((__libc_tsd_##KEY##_data = (VALUE)), 0))
+  __libc_maybe_call2 (pthread_internal_tsd_set,				\
+		      (_LIBC_TSD_KEY_##KEY, (VALUE)),			\
+		       (__libc_tsd_##KEY##_data = (VALUE), 0))
 
 #endif
 

@@ -286,6 +286,67 @@ int __libc_allocate_rtsig (int high)
 
 static void pthread_initialize(void) __attribute__((constructor));
 
+struct pthread_functions __pthread_functions =
+  {
+#if !(USE_TLS && HAVE___THREAD)
+    .ptr_pthread_internal_tsd_set = __pthread_internal_tsd_set,
+    .ptr_pthread_internal_tsd_get = __pthread_internal_tsd_get,
+    .ptr_pthread_internal_tsd_address = __pthread_internal_tsd_address,
+#endif
+/*
+    .ptr_pthread_fork = __pthread_fork,
+*/
+    .ptr_pthread_attr_destroy = pthread_attr_destroy,
+    .ptr_pthread_attr_init = pthread_attr_init,
+    .ptr_pthread_attr_getdetachstate = pthread_attr_getdetachstate,
+    .ptr_pthread_attr_setdetachstate = pthread_attr_setdetachstate,
+    .ptr_pthread_attr_getinheritsched = pthread_attr_getinheritsched,
+    .ptr_pthread_attr_setinheritsched = pthread_attr_setinheritsched,
+    .ptr_pthread_attr_getschedparam = pthread_attr_getschedparam,
+    .ptr_pthread_attr_setschedparam = pthread_attr_setschedparam,
+    .ptr_pthread_attr_getschedpolicy = pthread_attr_getschedpolicy,
+    .ptr_pthread_attr_setschedpolicy = pthread_attr_setschedpolicy,
+    .ptr_pthread_attr_getscope = pthread_attr_getscope,
+    .ptr_pthread_attr_setscope = pthread_attr_setscope,
+    .ptr_pthread_condattr_destroy = pthread_condattr_destroy,
+    .ptr_pthread_condattr_init = pthread_condattr_init,
+    .ptr_pthread_cond_broadcast = pthread_cond_broadcast,
+    .ptr_pthread_cond_destroy = pthread_cond_destroy,
+    .ptr_pthread_cond_init = pthread_cond_init,
+    .ptr_pthread_cond_signal = pthread_cond_signal,
+    .ptr_pthread_cond_wait = pthread_cond_wait,
+    .ptr_pthread_cond_timedwait = pthread_cond_timedwait,
+    .ptr_pthread_equal = pthread_equal,
+    .ptr___pthread_exit = pthread_exit,
+    .ptr_pthread_getschedparam = pthread_getschedparam,
+    .ptr_pthread_setschedparam = pthread_setschedparam,
+    .ptr_pthread_mutex_destroy = pthread_mutex_destroy,
+    .ptr_pthread_mutex_init = pthread_mutex_init,
+    .ptr_pthread_mutex_lock = pthread_mutex_lock,
+    .ptr_pthread_mutex_trylock = pthread_mutex_trylock,
+    .ptr_pthread_mutex_unlock = pthread_mutex_unlock,
+    .ptr_pthread_self = pthread_self,
+    .ptr_pthread_setcancelstate = pthread_setcancelstate,
+    .ptr_pthread_setcanceltype = pthread_setcanceltype,
+/*
+    .ptr_pthread_do_exit = pthread_do_exit,
+    .ptr_pthread_thread_self = pthread_thread_self,
+    .ptr_pthread_cleanup_upto = pthread_cleanup_upto,
+    .ptr_pthread_sigaction = pthread_sigaction,
+    .ptr_pthread_sigwait = pthread_sigwait,
+    .ptr_pthread_raise = pthread_raise,
+    .ptr__pthread_cleanup_push = _pthread_cleanup_push,
+    .ptr__pthread_cleanup_pop = _pthread_cleanup_pop
+*/
+  };
+#ifdef SHARED
+# define ptr_pthread_functions &__pthread_functions
+#else
+# define ptr_pthread_functions NULL
+#endif
+
+static int *__libc_multiple_threads_ptr;
+
  /* Do some minimal initialization which has to be done during the
     startup of the C library.  */
 void __pthread_initialize_minimal(void)
@@ -295,6 +356,8 @@ void __pthread_initialize_minimal(void)
 #ifdef INIT_THREAD_SELF
     INIT_THREAD_SELF(&__pthread_initial_thread, 0);
 #endif
+
+    __libc_multiple_threads_ptr = __libc_pthread_init (ptr_pthread_functions);
 }
 
 
@@ -410,6 +473,8 @@ int __pthread_initialize_manager(void)
   int pid;
   int report_events;
   struct pthread_request request;
+
+  *__libc_multiple_threads_ptr = 1;
 
   /* If basic initialization not done yet (e.g. we're called from a
      constructor run before our constructor), do it now */

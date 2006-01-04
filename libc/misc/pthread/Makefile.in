@@ -5,16 +5,14 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := no-tsd.c weaks.c
-
 MISC_PTHREAD_DIR := $(top_srcdir)libc/misc/pthread
 MISC_PTHREAD_OUT := $(top_builddir)libc/misc/pthread
 
-MISC_PTHREAD_SRC := $(patsubst %.c,$(MISC_PTHREAD_DIR)/%.c,$(CSRC))
-MISC_PTHREAD_OBJ := $(patsubst %.c,$(MISC_PTHREAD_OUT)/%.o,$(CSRC))
+MISC_PTHREAD_CSRC := no-tsd.c
+MISC_PTHREAD_STATIC_CSRC := weaks.c
 
-libc-a-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ)
-libc-so-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ:.o=.os)
+libc-static-$(UCLIBC_HAS_THREADS) += $(patsubst %.c,$(MISC_PTHREAD_OUT)/%.o,$(MISC_PTHREAD_STATIC_CSRC))
+libc-shared-$(UCLIBC_HAS_THREADS) += $(patsubst %.c,$(MISC_PTHREAD_OUT)/%.oS,$(MISC_PTHREAD_CSRC))
 
 objclean-y += misc_pthread_objclean
 

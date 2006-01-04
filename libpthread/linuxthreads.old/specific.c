@@ -168,36 +168,32 @@ void __pthread_destroy_specifics()
     __pthread_unlock(THREAD_GETMEM(self, p_lock));
 }
 
+#if !(USE_TLS && HAVE___THREAD)
 
 /* Thread-specific data for libc. */
-#if !(USE_TLS && HAVE___THREAD)
-static int
-libc_internal_tsd_set(enum __libc_tsd_key_t key, const void * pointer)
+
+int
+__pthread_internal_tsd_set (int key, const void * pointer)
 {
-    pthread_descr self = thread_self();
+  pthread_descr self = thread_self();
 
-    THREAD_SETMEM_NC(self, p_libc_specific[key], (void *) pointer);
-    return 0;
+  THREAD_SETMEM_NC(self, p_libc_specific[key], (void *) pointer);
+  return 0;
 }
-int (*__libc_internal_tsd_set)(enum __libc_tsd_key_t key, const void * pointer)
-     = libc_internal_tsd_set;
 
-static void *
-libc_internal_tsd_get(enum __libc_tsd_key_t key)
+void *
+__pthread_internal_tsd_get (int key)
 {
-    pthread_descr self = thread_self();
+  pthread_descr self = thread_self();
 
-    return THREAD_GETMEM_NC(self, p_libc_specific[key]);
+  return THREAD_GETMEM_NC(self, p_libc_specific[key]);
 }
-void * (*__libc_internal_tsd_get)(enum __libc_tsd_key_t key)
-     = libc_internal_tsd_get;
 
-static void ** __attribute__ ((__const__))
-libc_internal_tsd_address (enum __libc_tsd_key_t key)
+void ** __attribute__ ((__const__))
+__pthread_internal_tsd_address (int key)
 {
-    pthread_descr self = thread_self();
-    return &self->p_libc_specific[key];
+  pthread_descr self = thread_self();
+  return &self->p_libc_specific[key];
 }
-void **(*const __libc_internal_tsd_address) (enum __libc_tsd_key_t key)
-     __attribute__ ((__const__)) = libc_internal_tsd_address;
+
 #endif

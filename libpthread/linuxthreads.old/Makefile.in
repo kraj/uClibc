@@ -35,16 +35,17 @@ libpthread_OUT := $(top_builddir)libpthread/linuxthreads.old
 
 libpthread_SRC := \
 	attr.c cancel.c condvar.c errno.c events.c join.c lockfile.c manager.c \
-	mutex.c oldsemaphore.c pt-machine.c ptfork.c pthread.c ptlongjmp.c \
+	mutex.c oldsemaphore.c pt-machine.c ptfork.c ptlongjmp.c \
 	rwlock.c semaphore.c signals.c specific.c spinlock.c wrapsyscall.c
 ifeq ($(UCLIBC_HAS_XLOCALE),y)
 libpthread_SRC += locale.c
 endif
-
 ifneq ($(DOMULTI),n)
 libpthread_NO_MULTI := manager.c pt-machine.c
 libpthread_SRC := $(filter-out $(libpthread_NO_MULTI),$(libpthread_SRC))
 endif
+
+libpthread_SPEC_SRC := pthread.c
 
 # remove generic sources, if arch specific version is present
 ifneq ($(strip $(libpthread_ARCH_SRC)),)
@@ -55,12 +56,24 @@ libpthread_SRC := $(patsubst %,$(libpthread_DIR)/%,$(libpthread_SRC))
 
 libpthread_OBJ := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpthread_SRC))
 
+#
+# Stuff that goes into libc.so, not libpthread.so
+#
+CFLAGS-forward.c := -DIS_IN_libc
+CFLAGS-libc_pthread_init.c := -DIS_IN_libc
+libpthread_libc_CSRC := forward.c libc_pthread_init.c
+libpthread_libc_OBJ  := $(patsubst %.c, $(libpthread_OUT)/%.o,$(libpthread_libc_CSRC))
+libc-shared-y += $(libpthread_libc_OBJ:.o=.oS)
+
+libpthread-static-y += $(patsubst %.c,$(libpthread_OUT)/%.o,$(libpthread_SPEC_SRC))
+libpthread-shared-y += $(patsubst %.c,$(libpthread_OUT)/%.oS,$(libpthread_SPEC_SRC))
+
 ifeq ($(DOPIC),y)
-libpthread-a-y  += $(libpthread_OBJ:.o=.os)
+libpthread-a-y  += $(libpthread_OBJ:.o=.os) $(libpthread-static-y:.o=.os)
 else
-libpthread-a-y  += $(libpthread_OBJ)
+libpthread-a-y  += $(libpthread_OBJ) $(libpthread-static-y)
 endif
-libpthread-so-y += $(libpthread_OBJ:.o=.os)
+libpthread-so-y += $(libpthread_OBJ:.o=.os) $(libpthread-shared-y)
 
 libpthread-multi-y += $(libpthread_SRC)
 libpthread-nomulti-y += $(patsubst %.c,$(libpthread_OUT)/%.o,$(libpthread_NO_MULTI))
@@ -104,4 +117,4 @@ linuxthreads_headers_clean:
 		$(top_builddir)include/bits/pthreadtypes.h
 
 libpthread_clean:
-	$(RM) $(libpthread_OUT)/*.{o,os,a}
+	$(RM) $(libpthread_OUT)/*.{o,os,oS,a}
