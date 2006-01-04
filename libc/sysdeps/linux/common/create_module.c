@@ -65,7 +65,7 @@ _syscall2(unsigned long, create_module, const char *, name, size_t, size);
 #endif
 
 #else /* !__NR_create_module */
-caddr_t create_module(const char *name, size_t size)
+caddr_t create_module(const char *name attribute_unused, size_t size attribute_unused)
 {
 	__set_errno(ENOSYS);
 	return (caddr_t)-1;
