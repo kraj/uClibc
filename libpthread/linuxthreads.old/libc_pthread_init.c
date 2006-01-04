@@ -17,12 +17,17 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define _GNU_SOURCE
 #include <features.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
 #include "internals.h"
 #include "sysdeps/pthread/pthread-functions.h"
+
+#if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
+extern __locale_t __uselocale (__locale_t __dataset) __THROW;
+#endif
 
 int __libc_multiple_threads attribute_hidden __attribute__((nocommon));
 
