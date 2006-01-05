@@ -1,5 +1,5 @@
 /* `NAN' constant for IEEE 754 machines.
-   Copyright (C) 1992, 1996, 1997, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1992,1996,1997,1999,2004,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -24,11 +24,15 @@
 
 /* IEEE Not A Number.  */
 
-#ifdef	__GNUC__
+#if __GNUC_PREREQ(3,3)
+
+# define NAN	(__builtin_nanf (""))
+
+#elif defined __GNUC__
 
 # define NAN \
-  (__extension__                                                            \
-   ((union { unsigned __l __attribute__((__mode__(__SI__))); float __d; })  \
+  (__extension__							      \
+   ((union { unsigned __l __attribute__ ((__mode__ (__SI__))); float __d; })  \
     { __l: 0x7fc00000UL }).__d)
 
 #else
@@ -42,7 +46,8 @@
 #  define __nan_bytes		{ 0, 0, 0xc0, 0x7f }
 # endif
 
-static union { unsigned char __c[4]; float __d; } __nan_union = { __nan_bytes };
+static union { unsigned char __c[4]; float __d; } __nan_union
+    __attribute_used__ = { __nan_bytes };
 # define NAN	(__nan_union.__d)
 
 #endif	/* GCC.  */
