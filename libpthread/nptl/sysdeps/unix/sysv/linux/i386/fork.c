@@ -19,6 +19,7 @@
 
 #include <sched.h>
 #include <signal.h>
+#include <stdio.h>
 #include <sysdep.h>
 #include <tls.h>
 

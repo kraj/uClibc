@@ -98,12 +98,6 @@
 # define libc_hidden_data_ver(local, name)
 #endif
 
-#ifdef HAVE_TLS_MODEL_ATTRIBUTE
-# define attribute_tls_model_ie __attribute__ ((tls_model ("initial-exec")))
-#else
-# define attribute_tls_model_ie
-#endif
-
 /* Define SET as a symbol set.  This may be required (it is in a.out) to
    be able to use the set's contents.  */
 #  define symbol_set_define(set)	symbol_set_declare(set)

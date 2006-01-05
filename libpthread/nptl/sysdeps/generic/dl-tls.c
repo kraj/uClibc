@@ -29,6 +29,7 @@
 #include <link.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #define	_dl_malloc	malloc
 #define _dl_memset	memset

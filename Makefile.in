@@ -183,6 +183,10 @@ ifneq ($(UCLIBC_HAS_THREADS),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/semaphore.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/*thread*.h
 endif
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+	# Remove this as it is only used internally.
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tls.h
+endif
 	-@for i in `find $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
 	done
