@@ -64,7 +64,7 @@ Cambridge, MA 02139, USA.  */
 #define ABORT_INSTRUCTION asm ("hlt")
 #else
 #define ABORT_INSTRUCTION
-#warning no abort instruction define for your arch
+#warning no abort instruction defined for your arch
 #endif
 
 #ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__
