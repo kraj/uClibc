@@ -1,5 +1,5 @@
 /* brk system call for Linux/MIPS.
-   Copyright (C) 2000 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2005, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -31,10 +31,11 @@ int attribute_hidden __brk (void *addr)
     register long int res __asm__ ("$2");
 
     asm ("move\t$4,%2\n\t"
+	 "li\t%0,%1\n\t"
 	 "syscall"		/* Perform the system call.  */
 	 : "=r" (res)
-	 : "0" (__NR_brk), "r" (addr)
-	 : "$4", "$7");
+	 : "I" (__NR_brk), "r" (addr)
+	 : "$4", "$7", __SYSCALL_CLOBBERS);
     newbrk = (void *) res;
   }
   __curbrk = newbrk;
