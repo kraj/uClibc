@@ -230,6 +230,12 @@ ifeq ($(TARGET_ARCH),powerpc)
 	PIEFLAG_NAME:=-fpie
 endif
 
+ifeq ($(TARGET_ARCH),bfin)
+	# This should also work, but why bother ? ;)
+	#PICFLAG:=-fPIC -mid-shared-library
+	PICFLAG:=-fpic
+endif
+
 ifeq ($(TARGET_ARCH),frv)
 	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
 	CPU_CFLAGS-$(CONFIG_FRV)+=-mfdpic
