@@ -1581,7 +1581,7 @@ static void error_msg(const char *fmt, ...)
 		va_end(arg);
 	}
 
-	__exit(EXIT_FAILURE);
+	exit(EXIT_FAILURE);
 }
 
 int main(int argc, char **argv)
