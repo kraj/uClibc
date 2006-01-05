@@ -31,20 +31,10 @@
 
 # ifndef __ASSEMBLER__
 
-/* We now need a declaration of the `errno' variable.  */
-extern int errno;
-
 /* Function to get address of global `errno' variable.  */
 extern int *__errno_location (void) __THROW __attribute__ ((__const__));
 
-#  if defined _LIBC
-/* We wouldn't need a special macro anymore but it is history.  */
-#   ifndef __set_errno
-#    define __set_errno(val) ((errno) = (val))
-#   endif
-#  endif /* _LIBC */
-
-#  if defined __UCLIBC_HAS_THREADS__
+#  if !defined _LIBC || defined __UCLIBC_HAS_THREADS__
 /* When using threads, errno is a per-thread value.  */
 #   define errno (*__errno_location ())
 #  endif

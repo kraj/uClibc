@@ -1,7 +1,15 @@
 #include <errno.h>
-#undef errno
 
-int * weak_const_function __errno_location (void)
+#ifndef __UCLIBC_HAS_THREADS_NATIVE__
+#undef errno
+extern int errno;
+#endif
+
+int *
+#ifndef __UCLIBC_HAS_THREADS_NATIVE__
+weak_const_function
+#endif
+__errno_location (void)
 {
     return &errno;
 }
