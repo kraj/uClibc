@@ -17,7 +17,7 @@ MISC_INTERNALS_SRC:=$(patsubst %.c,$(MISC_INTERNALS_DIR)/%.c,$(CSRC))
 MISC_INTERNALS_OBJ:=$(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(CSRC))
 
 libc-a-y+=$(MISC_INTERNALS_OBJ)
-libc-so-y+=$(MISC_INTERNALS_OBJ:.o=.os)
+libc-so-y+=$(MISC_INTERNALS_OBJ:.o=.oS)
 libc-shared-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.oS
 libc-static-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.o
 

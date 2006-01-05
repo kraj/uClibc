@@ -1,11 +1,9 @@
 #define __FORCE_GLIBC
 #include <features.h>
 #include <netdb.h>
-#undef h_errno
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-extern __thread int h_errno;
-#else
+#ifndef __UCLIBC_HAS_THREADS_NATIVE__
+#undef h_errno
 extern int h_errno;
 #endif
 
