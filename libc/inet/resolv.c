@@ -1136,44 +1136,31 @@ struct hostent *gethostbyname2(const char *name, int family)
 
 
 #ifdef L_res_init
-#undef _res
-struct __res_state _res;
-
-struct __res_state * weak_const_function __res_state (void)
-{
-	return &_res;
-}
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-__thread struct __res_state *__resp = &_res;
-#endif
-
 int res_init(void)
 {
-	struct __res_state *rp = __res_state();
-
 	__close_nameservers();
 	__open_nameservers();
-	rp->retrans = RES_TIMEOUT;
-	rp->retry = 4;
-	rp->options = RES_INIT;
-	rp->id = (u_int) random();
-	rp->nsaddr.sin_addr.s_addr = INADDR_ANY;
-	rp->nsaddr.sin_family = AF_INET;
-	rp->nsaddr.sin_port = htons(NAMESERVER_PORT);
-	rp->ndots = 1;
-	/** rp->pfcode = 0; **/
-	rp->_vcsock = -1;
-	/** rp->_flags = 0; **/
-	/** rp->qhook = NULL; **/
-	/** rp->rhook = NULL; **/
-	/** rp->_u._ext.nsinit = 0; **/
 
 	BIGLOCK;
+	_res.retrans = RES_TIMEOUT;
+	_res.retry = 4;
+	_res.options = RES_INIT;
+	_res.id = (u_int) random();
+	_res.nsaddr.sin_addr.s_addr = INADDR_ANY;
+	_res.nsaddr.sin_family = AF_INET;
+	_res.nsaddr.sin_port = htons(NAMESERVER_PORT);
+	_res.ndots = 1;
+	/** _res.pfcode = 0; **/
+	_res._vcsock = -1;
+	/** _res._flags = 0; **/
+	/** _res.qhook = NULL; **/
+	/** _res.rhook = NULL; **/
+	/** _res._u._ext.nsinit = 0; **/
+
 	if(__searchdomains) {
 		int i;
 		for(i=0; i<__searchdomains; i++) {
-			rp->dnsrch[i] = __searchdomain[i];
+			_res.dnsrch[i] = __searchdomain[i];
 		}
 	}
 
@@ -1182,13 +1169,13 @@ int res_init(void)
 		struct in_addr a;
 		for(i=0; i<__nameservers; i++) {
 			if (inet_aton(__nameserver[i], &a)) {
-				rp->nsaddr_list[i].sin_addr = a;
-				rp->nsaddr_list[i].sin_family = AF_INET;
-				rp->nsaddr_list[i].sin_port = htons(NAMESERVER_PORT);
+				_res.nsaddr_list[i].sin_addr = a;
+				_res.nsaddr_list[i].sin_family = AF_INET;
+				_res.nsaddr_list[i].sin_port = htons(NAMESERVER_PORT);
 			}
 		}
 	}
-	rp->nscount = __nameservers;
+	_res.nscount = __nameservers;
 	BIGUNLOCK;
 
 	return(0);
@@ -1199,8 +1186,54 @@ void res_close( void )
 	return;
 }
 
+/* This needs to be after the use of _res in res_init, above.  */
+#undef _res
+
+/* The resolver state for use by single-threaded programs.
+   This differs from plain `struct __res_state _res;' in that it doesn't
+   create a common definition, but a plain symbol that resides in .bss,
+   which can have an alias.  */
+struct __res_state _res __attribute__((section (".bss")));
+
+#if defined __UCLIBC_HAS_THREADS_NATIVE__ \
+	    && (!defined NOT_IN_libc || defined IS_IN_libpthread)
+# undef __resp
+__thread struct __res_state *__resp = &_res; 
+/*
+ * FIXME: Add usage of hidden attribute for this when used in the shared
+ *        library. It currently crashes the linker when doing section
+ *        relocations.
+ */
+extern __thread struct __res_state *__libc_resp
+	__attribute__ ((alias ("__resp")));
 #endif
 
+#endif
+
+#ifdef L_res_state
+# if defined __UCLIBC_HAS_THREADS_NATIVE__ \
+	    && (!defined NOT_IN_libc || defined IS_IN_libpthread)
+#  undef _res
+extern struct __res_state _res;
+
+/* When threaded, _res may be a per-thread variable.  */
+struct __res_state *
+weak_const_function
+__res_state (void)
+{
+	return &_res;
+}
+
+# else
+struct __res_state *
+__res_state (void)
+{
+	return __resp;
+}
+# endif
+hidden_def (__res_state)
+
+#endif
 
 #ifdef L_res_query
 
