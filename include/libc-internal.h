@@ -322,6 +322,36 @@ extern int __sprintf (char *__restrict __s,
 #define fopen64 __fopen64
 #endif
 
+/* #include <alloca.h> */
+#include <bits/stackinfo.h>
+#if _STACK_GROWS_DOWN
+# define extend_alloca(buf, len, newlen) \
+  (__typeof (buf)) ({ size_t __newlen = (newlen);			      \
+		      char *__newbuf = alloca (__newlen);		      \
+		      if (__newbuf + __newlen == (char *) buf)		      \
+			len += __newlen;				      \
+		      else						      \
+			len = __newlen;					      \
+		      __newbuf; })
+#elif _STACK_GROWS_UP
+# define extend_alloca(buf, len, newlen) \
+  (__typeof (buf)) ({ size_t __newlen = (newlen);			      \
+		      char *__newbuf = alloca (__newlen);		      \
+		      char *__buf = (buf);				      \
+		      if (__buf + __newlen == __newbuf)			      \
+			{						      \
+			  len += __newlen;				      \
+			  __newbuf = __buf;				      \
+			}						      \
+		      else						      \
+			len = __newlen;					      \
+		      __newbuf; })
+#else
+# warning unknown stack
+# define extend_alloca(buf, len, newlen) \
+  alloca (((len) = (newlen)))
+#endif
+
 /* #include <stdlib.h> */
 extern char *__getenv (__const char *__name) attribute_hidden;
 extern void __exit (int __status) __THROW __attribute__ ((__noreturn__)) attribute_hidden;
