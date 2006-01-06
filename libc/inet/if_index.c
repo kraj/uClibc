@@ -101,21 +101,19 @@ if_nameindex (void)
   rq_len = RQ_IFS * sizeof (struct ifreq);
 
   /* Read all the interfaces out of the kernel.  */
-  ifc.ifc_buf = alloca (rq_len);
-  ifc.ifc_len = rq_len;
-  while (1)
+  /* Note: alloca's in this loop are diff from glibc because it's smaller */
+  do
     {
+      ifc.ifc_buf = extend_alloca (ifc.ifc_buf, rq_len, 2 * rq_len);
+      ifc.ifc_len = rq_len;
+
       if (__ioctl (fd, SIOCGIFCONF, &ifc) < 0)
 	{
 	  __close (fd);
 	  return NULL;
 	}
-      if (ifc.ifc_len < rq_len)
-	break;
-
-      ifc.ifc_buf = extend_alloca (ifc.ifc_buf, rq_len, 2 * rq_len);
-      ifc.ifc_len = rq_len;
     }
+  while (ifc.ifc_len == rq_len);
 
   nifs = ifc.ifc_len / sizeof(struct ifreq);
 
