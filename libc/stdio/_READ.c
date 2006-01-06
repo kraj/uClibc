@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define read __read
+
 #include "_stdio.h"
 
 /* Given a reading stream without its end-of-file indicator set and

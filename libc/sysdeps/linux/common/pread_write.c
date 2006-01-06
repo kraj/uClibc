@@ -109,10 +109,10 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 
 	if (do_pwrite==1) {
 		/* Write the data.  */
-		result = write(fd, buf, count);
+		result = __write(fd, buf, count);
 	} else {
 		/* Read the data.  */
-		result = read(fd, buf, count);
+		result = __read(fd, buf, count);
 	}
 
 	/* Now we have to restore the position.  If this fails we 
@@ -147,10 +147,10 @@ static ssize_t __fake_pread_write64(int fd, void *buf,
 
 	if (do_pwrite==1) {
 		/* Write the data.  */
-		result = write(fd, buf, count);
+		result = __write(fd, buf, count);
 	} else {
 		/* Read the data.  */
-		result = read(fd, buf, count);
+		result = __read(fd, buf, count);
 	}
 
 	/* Now we have to restore the position. */
