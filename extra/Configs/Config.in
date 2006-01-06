@@ -350,7 +350,7 @@ config PTHREADS_DEBUG_SUPPORT
 config LINUXTHREADS_OLD
 	bool "Use the older (stable) version of linuxthreads"
 	default y
-	depends on UCLIBC_HAS_THREADS && !UCLIBC_HAS_THREADS_NATIVE
+	depends on UCLIBC_HAS_THREADS
 	help
 	  There are two versions of linuxthreads.  The older (stable) version
 	  has been in uClibc for quite a long time but hasn't seen too many
@@ -466,6 +466,32 @@ config HAS_SHADOW
 	help
 	  Answer N if you do not need shadow password support.
 	  Most people will answer Y.
+
+config UCLIBC_HAS_PROGRAM_INVOCATION_NAME
+	bool "Support for program_invocation_name"
+	default n
+	help
+	  Support for the GNU-specific program_invocation_name and
+	  program_invocation_short_name strings.  Some GNU packages
+	  (like tar and coreutils) utilize these for extra useful
+	  output, but in general are not required.
+
+	  At startup, these external strings are automatically set
+	  up based on the value of ARGV[0].
+
+	  If unsure, just answer N.
+
+config UCLIBC_HAS___PROGNAME
+	bool "Support for __progname"
+	default y
+	help
+	  Some packages (like openssh) like to peek into internal libc
+	  symbols to make their output a bit more user friendly.
+
+	  At startup, __progname is automatically set up based on the
+	  value of ARGV[0].
+
+	  If unsure, just answer N.
 
 config UNIX98PTY_ONLY
 	bool "Support only Unix 98 PTYs"
@@ -1053,7 +1079,7 @@ config UCLIBC_HAS_GNU_GETOPT
 
 config UCLIBC_HAS_STDIO_FUTEXES
 	bool "Use futexes for multithreaded I/O locking"
-	default y
+	default n
 	depends on UCLIBC_HAS_THREADS_NATIVE
 	help
 	  If you want to compile uClibc to use futexes for low-level
@@ -1088,8 +1114,30 @@ config UCLIBC_HAS_REGEX_OLD
 	  support, then stick with the old version (and say Y here).
 	  Otherwise, you should use the new version (and say N here).
 
+config UCLIBC_HAS_FNMATCH
+	bool "fnmatch Support"
+	default y
+	help
+	  POSIX fnmatch.
+
+config UCLIBC_HAS_FNMATCH_OLD
+	bool "Use the older (stable) fnmatch code"
+	depends on UCLIBC_HAS_FNMATCH
+	default y
+	help
+	  There are two versions of fnmatch.  The older (stable) version has
+	  been in uClibc for quite a long time but hasn't seen too many
+	  updates.  It also has some known issues when dealing with uncommon
+	  corner cases and multibyte/unicode strings.  However, it is quite
+	  a bit smaller than the newer version.
+
+	  If the older version has worked for you and you don't need unicode
+	  support, then stick with the old version (and say Y here).
+	  Otherwise, you should use the new version (and say N here).
+
 config UCLIBC_HAS_WORDEXP
 	bool "Support the wordexp() interface"
+	depends on UCLIBC_HAS_GLOB
 	default n
 	help
 	  The SuSv3 wordexp() interface performs word expansions per the  Shell

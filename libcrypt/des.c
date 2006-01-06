@@ -349,7 +349,7 @@ des_init(void)
 
 
 static void
-setup_salt(long salt)
+setup_salt(u_int32_t salt)
 {
 	u_int32_t	obit, saltbit;
 	int	i;

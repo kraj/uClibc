@@ -103,7 +103,7 @@ SHELL_SET_X=set +x
 endif
 
 # Make certain these contain a final "/", but no "//"s.
-TARGET_ARCH:=$(shell grep -s ^TARGET_ARCH $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
+TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
 TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
@@ -166,12 +166,19 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 
 ifeq ($(TARGET_ARCH),mips)
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-EB
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_1)+=-mips1
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_2)+=-mips2 -mtune=mips2
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_3)+=-mips3 -mtune=mips3
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_4)+=-mips4 -mtune=mips4
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS32)+=-mips32 -mtune=mips32
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS64)+=-mips64 -mtune=mips32
+endif
+
+ifeq ($(TARGET_ARCH),nios)
+	CPU_LDFLAGS-y+=-m32
+	CPU_CFLAGS-y+=-m32
 endif
 
 ifeq ($(TARGET_ARCH),sh)
@@ -221,6 +228,12 @@ ifeq ($(TARGET_ARCH),powerpc)
 # faster code.
 	PICFLAG:=-fpic
 	PIEFLAG_NAME:=-fpie
+endif
+
+ifeq ($(TARGET_ARCH),bfin)
+	# This should also work, but why bother ? ;)
+	#PICFLAG:=-fPIC -mid-shared-library
+	PICFLAG:=-fpic
 endif
 
 ifeq ($(TARGET_ARCH),frv)
@@ -279,7 +292,11 @@ ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 # If -msoft-float isn't supported, we want an error anyway.
 # Hmm... might need to revisit this for arm since it has 2 different
 # soft float encodings.
+ifneq ($(TARGET_ARCH),nios)
+ifneq ($(TARGET_ARCH),nios2)
     CPU_CFLAGS += -msoft-float
+endif
+endif
 ifeq ($(TARGET_ARCH),arm)
 # No longer needed with current toolchains, but leave it here for now.
 # If anyone is actually still using gcc 2.95 (say), they can uncomment it.
@@ -398,6 +415,10 @@ CFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
+endif
+
+ifneq ($(strip $(C_SYMBOL_PREFIX)),"")
+CFLAGS+=-D__SYMBOL_PREFIX=1
 endif
 
 # moved from ldso/{ldso,libdl}

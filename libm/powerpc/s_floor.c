@@ -21,13 +21,15 @@
 *                                                                              *
 *******************************************************************************/
 
+#include <endian.h>
+
 static const double        twoTo52  = 4503599627370496.0;
 static const unsigned long signMask = 0x80000000ul;
 
 typedef union
       {
       struct {
-#if defined(__BIG_ENDIAN__)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
 	unsigned long int hi;
 	unsigned long int lo;
 #else

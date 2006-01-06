@@ -191,7 +191,7 @@ inline uint64_t byteswap64_to_host(uint64_t value)
 # define byteswap_to_host(x) byteswap64_to_host(x)
 #endif
 
-ElfW(Shdr) * elf_find_section_type( int key, ElfW(Ehdr) *ehdr)
+ElfW(Shdr) * elf_find_section_type( uint32_t key, ElfW(Ehdr) *ehdr)
 {
 	int j;
 	ElfW(Shdr) *shdr;
@@ -204,7 +204,7 @@ ElfW(Shdr) * elf_find_section_type( int key, ElfW(Ehdr) *ehdr)
 	return NULL;
 }
 
-ElfW(Phdr) * elf_find_phdr_type( int type, ElfW(Ehdr) *ehdr)
+ElfW(Phdr) * elf_find_phdr_type( uint32_t type, ElfW(Ehdr) *ehdr)
 {
 	int j;
 	ElfW(Phdr) *phdr = (ElfW(Phdr) *)(ehdr->e_phoff + (char *)ehdr);
@@ -217,7 +217,7 @@ ElfW(Phdr) * elf_find_phdr_type( int type, ElfW(Ehdr) *ehdr)
 }
 
 /* Returns value if return_val==1, ptr otherwise */
-void * elf_find_dynamic(int const key, ElfW(Dyn) *dynp,
+void * elf_find_dynamic( int64_t const key, ElfW(Dyn) *dynp,
 	ElfW(Ehdr) *ehdr, int return_val)
 {
 	ElfW(Phdr) *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
@@ -648,6 +648,7 @@ static struct library * find_elf_interpreter(ElfW(Ehdr)* ehdr)
 }
 
 /* map the .so, and locate interesting pieces */
+#warning "There may be two warnings here about vfork() clobbering, ignore them"
 int find_dependancies(char* filename)
 {
 	int is_suid = 0;

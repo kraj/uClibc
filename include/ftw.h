@@ -74,7 +74,7 @@ enum
 # define FTW_CHDIR	FTW_CHDIR
   FTW_DEPTH = 8		/* Report files in directory before directory itself.*/
 # define FTW_DEPTH	FTW_DEPTH
-# if 0 /* def __USE_GNU */
+# ifdef __USE_GNU
   ,
   FTW_ACTIONRETVAL = 16	/* Assume callback to return FTW_* values instead of
 			   zero to continue and non-zero to terminate.  */
@@ -82,7 +82,7 @@ enum
 # endif
 };
 
-#if 0 /* def __USE_GNU */
+#ifdef __USE_GNU
 /* Return values from callback functions.  */
 enum
 {

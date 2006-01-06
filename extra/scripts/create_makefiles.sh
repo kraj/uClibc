@@ -27,45 +27,45 @@ ${USE_CMD} extra/scripts/Makefile.libs.lvl0 Makefile
 #done
 
 for x in */Makefile.in ; do
-	${RM} $(dirname ${x})/Makefile
-	${USE_CMD} extra/scripts/Makefile.libs.lvl1 $(dirname ${x})/Makefile
+	${RM} `dirname ${x}`/Makefile
+	${USE_CMD} extra/scripts/Makefile.libs.lvl1 `dirname ${x}`/Makefile
 done
 
 for x in utils/Makefile.in ; do
-	${RM} $(dirname ${x})/Makefile
-	${USE_CMD} extra/scripts/Makefile.utils.lvl1 $(dirname ${x})/Makefile
+	${RM} `dirname ${x}`/Makefile
+	${USE_CMD} extra/scripts/Makefile.utils.lvl1 `dirname ${x}`/Makefile
 done
 
 for x in */*/Makefile.in ; do
-	${RM} $(dirname ${x})/Makefile
-	${USE_CMD} extra/scripts/Makefile.objs.lvl2 $(dirname ${x})/Makefile
+	${RM} `dirname ${x}`/Makefile
+	${USE_CMD} extra/scripts/Makefile.objs.lvl2 `dirname ${x}`/Makefile
 done
 
 # overwrites the earlier ones, we do not add arch specific to libm/arch
 for x in ldso/*/Makefile.in libpthread/*/Makefile.in ; do
-	${RM} $(dirname ${x})/Makefile
-	${USE_CMD} extra/scripts/Makefile.libs.lvl2 $(dirname ${x})/Makefile
+	${RM} `dirname ${x}`/Makefile
+	${USE_CMD} extra/scripts/Makefile.libs.lvl2 `dirname ${x}`/Makefile
 done
 
 for x in */*/*/Makefile.in ; do
-	${RM} $(dirname ${x})/Makefile
-	${USE_CMD} extra/scripts/Makefile.objs.lvl3 $(dirname ${x})/Makefile
+	${RM} `dirname ${x}`/Makefile
+	${USE_CMD} extra/scripts/Makefile.objs.lvl3 `dirname ${x}`/Makefile
 done
 
 for x in libc/*/*/Makefile.arch ; do
-	${RM} $(dirname ${x})/Makefile
-	${USE_CMD} extra/scripts/Makefile.arch.lvl3 $(dirname ${x})/Makefile
+	${RM} `dirname ${x}`/Makefile
+	${USE_CMD} extra/scripts/Makefile.arch.lvl3 `dirname ${x}`/Makefile
 done
 
 for x in */*/*/*/Makefile.in ; do
-	${RM} $(dirname ${x})/Makefile
-	${USE_CMD} extra/scripts/Makefile.objs.lvl4 $(dirname ${x})/Makefile
+	${RM} `dirname ${x}`/Makefile
+	${USE_CMD} extra/scripts/Makefile.objs.lvl4 `dirname ${x}`/Makefile
 done
 
 # we do not add these to libpthread/PTNAME/sysdeps/arch
 for x in libc/*/*/*/Makefile.arch ; do
-	${RM} $(dirname ${x})/Makefile
-	${USE_CMD} extra/scripts/Makefile.arch.lvl4 $(dirname ${x})/Makefile
+	${RM} `dirname ${x}`/Makefile
+	${USE_CMD} extra/scripts/Makefile.arch.lvl4 `dirname ${x}`/Makefile
 done
 
 exit 0

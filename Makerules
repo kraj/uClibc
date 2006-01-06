@@ -85,13 +85,6 @@ cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
 
-define compile.u
-	$(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@))
-	$(STRIPTOOL) $(STRIP_FLAGS) $@
-endef
-hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
-hcompile.o = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
-
 compile.c = @$(disp_compile.c) ; $(cmd_compile.c)
 compile.E = $(cmd_compile.c:-c=-E)
 compile.s = $(cmd_compile.c:-c=-S)
@@ -100,6 +93,15 @@ compile.m = @$(disp_compile.m) ; $(cmd_compile.m)
 compile-m = @$(disp_compile-m) ; $(cmd_compile-m)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
 do_ar     = @$(disp_ar)        ; $(cmd_ar)
+
+define compile.u
+	@$(disp_compile.c)
+	$(Q)$(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@))
+	@$(disp_strip)
+	$(Q)$(STRIPTOOL) $(STRIP_FLAGS) $@
+endef
+hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
+hcompile.o = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
 
 define link.so
 	$(Q)$(INSTALL) -d $(dir $@)

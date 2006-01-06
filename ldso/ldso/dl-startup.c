@@ -98,7 +98,7 @@
 int (*_dl_elf_main) (int, char **, char **);
 
 static void* __rtld_stack_end; /* Points to argc on stack, e.g *((long *)__rtld_stackend) == argc */
-strong_alias(__rtld_stack_end, __libc_stack_end); /* Exported version of __rtld_stack_end */
+strong_alias(__rtld_stack_end, __libc_stack_end) /* Exported version of __rtld_stack_end */
 
 /* When we enter this piece of code, the program stack looks like this:
 	argc            argument counter (integer)

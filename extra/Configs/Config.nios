@@ -15,7 +15,7 @@ config HAVE_ELF
 
 config ARCH_CFLAGS
 	string
-	default "-m32 -funaligned-struct-hack"
+	default "-funaligned-struct-hack"
 
 config LIBGCC_CFLAGS
 	string

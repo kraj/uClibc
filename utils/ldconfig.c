@@ -779,10 +779,10 @@ void cache_write(void)
 
     for (cur_lib = lib_head; cur_lib != NULL; cur_lib = cur_lib->next)
     {
-	if (write(cachefd, cur_lib->soname, strlen(cur_lib->soname) + 1)
+	if ((size_t)write(cachefd, cur_lib->soname, strlen(cur_lib->soname) + 1)
 		!= strlen(cur_lib->soname) + 1)
 	    err(EXIT_FATAL,"can't write %s~ (%s)", cachefile, strerror(errno));
-	if (write(cachefd, cur_lib->libname, strlen(cur_lib->libname) + 1)
+	if ((size_t)write(cachefd, cur_lib->libname, strlen(cur_lib->libname) + 1)
 		!= strlen(cur_lib->libname) + 1)
 	    err(EXIT_FATAL,"can't write %s~ (%s)", cachefile, strerror(errno));
     }

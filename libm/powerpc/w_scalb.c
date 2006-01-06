@@ -19,10 +19,12 @@
 **
 ***********************************************************************/
 
+#include <endian.h>
+
 typedef union
       {
       struct {
-#if defined(__BIG_ENDIAN__)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
         unsigned long int hi;
         unsigned long int lo;
 #else

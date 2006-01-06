@@ -13,7 +13,11 @@ libm_ARCH_OBJ:=$(patsubst $(libm_ARCH_DIR)/%.c,$(libm_ARCH_OUT)/%.o,$(libm_ARCH_
 
 libm_ARCH_OBJS:=$(libm_ARCH_OBJ)
 
+ifeq ($(DOPIC),y)
+libm-a-$(DO_C99_MATH)+=$(libm_ARCH_OBJS:.o=.os)
+else
 libm-a-$(DO_C99_MATH)+=$(libm_ARCH_OBJS)
+endif
 libm-so-$(DO_C99_MATH)+=$(libm_ARCH_OBJS:.o=.os)
 
 libm-multi-$(DO_C99_MATH)+=$(libm_ARCH_SRC)

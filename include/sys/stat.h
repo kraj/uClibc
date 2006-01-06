@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,1992,1995-2002,2003,2004 Free Software Foundation, Inc.
+/* Copyright (C) 1991,1992,1995-2004,2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -211,11 +211,11 @@ extern int stat (__const char *__restrict __file,
    that file descriptor FD is open on and put them in BUF.  */
 extern int fstat (int __fd, struct stat *__buf) __THROW __nonnull ((2));
 #else
-# ifdef __REDIRECT
-extern int __REDIRECT (stat, (__const char *__restrict __file,
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (stat, (__const char *__restrict __file,
 				  struct stat *__restrict __buf), stat64)
      __nonnull ((1, 2));
-extern int __REDIRECT (fstat, (int __fd, struct stat *__buf), fstat64)
+extern int __REDIRECT_NTH (fstat, (int __fd, struct stat *__buf), fstat64)
      __nonnull ((2));
 # else
 #  define stat stat64
@@ -228,6 +228,27 @@ extern int stat64 (__const char *__restrict __file,
 extern int fstat64 (int __fd, struct stat64 *__buf) __THROW __nonnull ((2));
 #endif
 
+#if 0 /*def __USE_GNU*/
+/* Similar to stat, get the attributes for FILE and put them in BUF.
+   Relative path names are interpreted relative to FD unless FD is
+   AT_FDCWD.  */
+# ifndef __USE_FILE_OFFSET64
+extern int fstatat (int __fd, __const char *__file, struct stat *__buf,
+		    int __flag) __THROW __nonnull ((2, 3));
+# else
+#  ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (fstatat, (int __fd, __const char *__file,
+				     struct stat *__buf, int __flag),
+			   fstatat64) __nonnull ((2, 3));
+#  else
+#   define fstatat fstatat64
+#  endif
+# endif
+
+extern int fstatat64 (int __fd, __const char *__file, struct stat64 *__buf,
+		      int __flag) __THROW __nonnull ((2, 3));
+#endif
+
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 # ifndef __USE_FILE_OFFSET64
 /* Get file attributes about FILE and put them in BUF.
@@ -235,8 +256,8 @@ extern int fstat64 (int __fd, struct stat64 *__buf) __THROW __nonnull ((2));
 extern int lstat (__const char *__restrict __file,
 		  struct stat *__restrict __buf) __THROW __nonnull ((1, 2));
 # else
-#  ifdef __REDIRECT
-extern int __REDIRECT (lstat,
+#  ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (lstat,
 			   (__const char *__restrict __file,
 			    struct stat *__restrict __buf), lstat64)
      __nonnull ((1, 2));
@@ -256,7 +277,7 @@ extern int lstat64 (__const char *__restrict __file,
 extern int chmod (__const char *__file, __mode_t __mode)
      __THROW __nonnull ((1));
 
-#if 0 /* def __USE_BSD */
+#if 0 /*def __USE_BSD*/
 /* Set file access permissions for FILE to MODE.
    If FILE is a symbolic link, this affects the link itself
    rather than its target.  */
@@ -274,7 +295,7 @@ extern int fchmod (int __fd, __mode_t __mode) __THROW;
    and return the old creation mask.  */
 extern __mode_t umask (__mode_t __mask) __THROW;
 
-#ifdef	__USE_GNU
+#if 0 /*def	__USE_GNU*/
 /* Get the current `umask' value without changing it.
    This function is only available under the GNU Hurd.  */
 extern __mode_t getumask (void) __THROW;
@@ -284,6 +305,14 @@ extern __mode_t getumask (void) __THROW;
 extern int mkdir (__const char *__path, __mode_t __mode)
      __THROW __nonnull ((1));
 
+#if 0 /*def __USE_GNU*/
+/* Like mkdir, create a new directory with permission bits MODE.  But
+   interpret relative PATH names relative to the directory associated
+   with FD.  */
+extern int mkdirat (int __fd, __const char *__path, __mode_t __mode)
+     __THROW __nonnull ((2));
+#endif
+
 /* Create a device file named PATH, with permission and special bits MODE
    and device number DEV (which can be constructed from major and minor
    device numbers with the `makedev' macro above).  */
@@ -292,10 +321,26 @@ extern int mknod (__const char *__path, __mode_t __mode, __dev_t __dev)
      __THROW __nonnull ((1));
 #endif
 
+#if 0 /*def __USE_GNU*/
+/* Like mknod, create a new device file with permission bits MODE and
+   device number DEV.  But interpret relative PATH names relative to
+   the directory associated with FD.  */
+extern int mknodat (int __fd, __const char *__path, __mode_t __mode,
+		    __dev_t __dev) __THROW __nonnull ((2));
+#endif
+
 
 /* Create a new FIFO named PATH, with permission bits MODE.  */
 extern int mkfifo (__const char *__path, __mode_t __mode)
      __THROW __nonnull ((1));
+
+#if 0 /*def __USE_GNU*/
+/* Like mkfifo, create a new FIFO with permission bits MODE.  But
+   interpret relative PATH names relative to the directory associated
+   with FD.  */
+extern int mkfifoat (int __fd, __const char *__path, __mode_t __mode)
+     __THROW __nonnull ((2));
+#endif
 
 __END_DECLS
 
