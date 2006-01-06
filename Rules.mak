@@ -36,6 +36,7 @@ STRIPTOOL  = $(CROSS)strip
 INSTALL    = install
 LN         = ln
 RM         = rm -f
+TAR        = tar
 
 STRIP_FLAGS ?= -x -R .note -R .comment
 
