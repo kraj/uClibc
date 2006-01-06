@@ -58,6 +58,10 @@ H8300
 S:	Unmaintained
 
 
+HPPA
+S:	Unmaintained
+
+
 I386
 N:	Erik Andersen
 E:	andersen@codepoet.org

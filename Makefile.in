@@ -52,7 +52,7 @@ endif
 headers: include/bits/uClibc_config.h
 	$(MAKE) headers-y
 	@$(SHELL_SET_X); \
-	$(top_srcdir)extra/scripts/fix_includes.sh \
+	$(SHELL) $(top_srcdir)extra/scripts/fix_includes.sh \
 		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
 		$(header_extra_args)
 	if [ -f libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h ] ; then \
@@ -86,7 +86,7 @@ headers: include/bits/uClibc_config.h
 	@cd $(top_builddir); \
 	set -e; \
 	$(SHELL_SET_X); \
-	top_builddir=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
+	top_builddir=. CC="$(CC)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
 	if cmp include/bits/sysnum.h include/bits/sysnum.h.new >/dev/null 2>&1; then \
 		$(RM) include/bits/sysnum.h.new; \
 	else \
@@ -107,13 +107,13 @@ RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/rela
 # Installs header files.
 install_headers:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
-	if [ "$(KERNEL_SOURCE)" == "$(DEVEL_PREFIX)" ] ; then \
+	if [ "$(KERNEL_SOURCE)" = "$(DEVEL_PREFIX)" ] ; then \
 		extra_exclude="--exclude include/linux --exclude include/asm'*'" ; \
 	else \
 		extra_exclude="" ; \
 	fi ; \
-	tar -chf - --exclude .svn $$extra_exclude include \
-		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
+	$(TAR) -chf - --exclude .svn $$extra_exclude include \
+		| $(TAR) -xf - -C $(PREFIX)$(DEVEL_PREFIX)
 	echo -e '#ifndef _LIBC_INTERNAL_H\n#define _LIBC_INTERNAL_H 1\n#endif\n' > \
 		$(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dl-osinfo.h
@@ -334,7 +334,7 @@ dist release:
 	$(MAKE) -s distclean
 	$(RM) -r ../uClibc-$(VERSION) ../uClibc-$(VERSION).tar.gz
 	svn -q export . ../uClibc-$(VERSION)
-	tar czf ../uClibc-$(VERSION).tar.gz -C .. uClibc-$(VERSION)
+	$(TAR) czf ../uClibc-$(VERSION).tar.gz -C .. uClibc-$(VERSION)
 	du -b ../uClibc-$(VERSION).tar.gz
 
 check:
