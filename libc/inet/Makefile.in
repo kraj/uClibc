@@ -9,8 +9,8 @@
 include $(top_srcdir)libc/inet/rpc/Makefile.in
 
 CSRC:=	getservice.c getproto.c hostid.c getnetent.c getnetbynm.c getnetbyad.c \
-	inet_net.c ntop.c herror.c if_nametoindex.c gai_strerror.c getaddrinfo.c \
-	in6_addr.c ether_addr.c ntohl.c
+	inet_net.c ntop.c herror.c if_index.c gai_strerror.c getaddrinfo.c \
+	in6_addr.c ether_addr.c ntohl.c opensock.c
 
 MSRC1:=	addr.c
 MOBJ1:=	inet_aton.o inet_addr.o inet_ntoa.o inet_makeaddr.o inet_lnaof.o \
