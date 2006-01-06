@@ -36,6 +36,8 @@ extern void *alloca (size_t __size) __THROW;
 # define alloca(size)	__builtin_alloca (size)
 #endif /* GCC.  */
 
+#define __MAX_ALLOCA_CUTOFF	65536
+
 __END_DECLS
 
 #endif /* alloca.h */

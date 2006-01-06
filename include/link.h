@@ -25,7 +25,7 @@
 #include <elf.h>
 #include <dlfcn.h>
 #include <sys/types.h>
-#ifdef _LIBC
+#if defined _LIBC && defined __UCLIBC_HAS_THREADS_NATIVE__
 #include <tls.h>
 #endif
 
