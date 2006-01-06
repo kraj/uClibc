@@ -72,7 +72,7 @@ int __old_sem_init(old_sem_t *sem, int pshared, unsigned int value)
    waiting inside __old_sem_wait. Here we simply unconditionally
    indicate that the thread is to be woken, by returning 1. */
 
-static int old_sem_extricate_func(void *obj, pthread_descr th)
+static int old_sem_extricate_func(void *obj attribute_unused, pthread_descr th attribute_unused)
 {
     return 1;
 }

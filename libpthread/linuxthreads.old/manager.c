@@ -381,7 +381,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
          attributes (stack_size = STACK_SIZE - pagesize) do not need
 	 a guard page, since the RLIMIT_STACK soft limit prevents stacks
 	 from running into one another. */
-      if (stacksize == STACK_SIZE - pagesize)
+      if (stacksize == (size_t) (STACK_SIZE - pagesize))
         {
           /* We don't need a guard page. */
           guardaddr = NULL;
@@ -498,6 +498,14 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
                                  &new_thread, &new_thread_bottom,
                                  &guardaddr, &guardsize) == 0)
         break;
+#ifndef __ARCH_HAS_MMU__
+      else
+        /* When there is MMU, mmap () is used to allocate the stack. If one
+         * segment is already mapped, we should continue to see if we can
+         * use the next one. However, when there is no MMU, malloc () is used.
+         * It's waste of CPU cycles to continue to try if it fails.  */
+        return EAGAIN;
+#endif
     }
   __pthread_handles_num++;
   /* Allocate new thread identifier */
@@ -868,7 +876,7 @@ static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
 
 /* Handler for __pthread_sig_cancel in thread manager thread */
 
-void __pthread_manager_sighandler(int sig)
+void __pthread_manager_sighandler(int sig attribute_unused)
 {
     int kick_manager = terminated_children == 0 && main_thread_exiting;
     terminated_children = 1;

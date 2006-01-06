@@ -68,7 +68,7 @@ strong_alias (__pthread_attr_init_2_1, pthread_attr_init)
 #endif
 #endif /* DO_PTHREAD_VERSIONING_WITH_UCLIBC */
 
-int pthread_attr_destroy(pthread_attr_t *attr)
+int pthread_attr_destroy(pthread_attr_t *attr attribute_unused)
 {
   return 0;
 }

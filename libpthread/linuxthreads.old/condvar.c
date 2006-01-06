@@ -26,7 +26,7 @@
 #include "restart.h"
 
 int pthread_cond_init(pthread_cond_t *cond,
-                      const pthread_condattr_t *cond_attr)
+                      const pthread_condattr_t *cond_attr attribute_unused)
 {
   __pthread_init_lock(&cond->__c_lock);
   cond->__c_waiting = NULL;
@@ -267,23 +267,23 @@ int pthread_cond_broadcast(pthread_cond_t *cond)
   return 0;
 }
 
-int pthread_condattr_init(pthread_condattr_t *attr)
+int pthread_condattr_init(pthread_condattr_t *attr attribute_unused)
 {
   return 0;
 }
 
-int pthread_condattr_destroy(pthread_condattr_t *attr)
+int pthread_condattr_destroy(pthread_condattr_t *attr attribute_unused)
 {
   return 0;
 }
 
-int pthread_condattr_getpshared (const pthread_condattr_t *attr, int *pshared)
+int pthread_condattr_getpshared (const pthread_condattr_t *attr attribute_unused, int *pshared)
 {
   *pshared = PTHREAD_PROCESS_PRIVATE;
   return 0;
 }
 
-int pthread_condattr_setpshared (pthread_condattr_t *attr, int pshared)
+int pthread_condattr_setpshared (pthread_condattr_t *attr attribute_unused, int pshared)
 {
   if (pshared != PTHREAD_PROCESS_PRIVATE && pshared != PTHREAD_PROCESS_SHARED)
     return EINVAL;

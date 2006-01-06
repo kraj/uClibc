@@ -178,7 +178,7 @@ printf(__FUNCTION__": signahdler installed, __sigaction successful\n");
 strong_alias(__sigaction, sigaction)
 
 /* A signal handler that does nothing */
-static void pthread_null_sighandler(int sig) { }
+static void pthread_null_sighandler(int sig attribute_unused) { }
 
 /* sigwait -- synchronously wait for a signal */
 int sigwait(const sigset_t * set, int * sig)

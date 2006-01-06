@@ -440,6 +440,10 @@ static inline pthread_descr thread_self (void)
 #define SPIN_SLEEP_DURATION 2000001
 #endif
 
+/* Defined and used in libc.so.  */
+extern int __libc_multiple_threads attribute_hidden;
+extern int __librt_multiple_threads;
+
 /* Debugging */
 
 #ifdef DEBUG
@@ -510,9 +514,19 @@ extern ssize_t __libc_write (int fd, const void *buf, size_t count);
 /* Prototypes for some of the new semaphore functions.  */
 extern int __new_sem_post (sem_t * sem);
 
+/* TSD.  */
+extern int __pthread_internal_tsd_set (int key, const void * pointer);
+extern void * __pthread_internal_tsd_get (int key);
+extern void ** __attribute__ ((__const__))
+  __pthread_internal_tsd_address (int key);
+
 /* The functions called the signal events.  */
 extern void __linuxthreads_create_event (void);
 extern void __linuxthreads_death_event (void);
 extern void __linuxthreads_reap_event (void);
+
+#include <pthread-functions.h>
+
+extern int * __libc_pthread_init (const struct pthread_functions *functions);
 
 #endif /* internals.h */

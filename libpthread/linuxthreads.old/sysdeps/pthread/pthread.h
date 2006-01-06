@@ -24,7 +24,7 @@
 #include <signal.h>
 #include <bits/pthreadtypes.h>
 #include <bits/initspin.h>
-#ifdef _LIBC
+#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 #include <bits/uClibc_pthread.h>
 #endif
 
