@@ -35,25 +35,6 @@ __rpc_thread_destroy (void)
 	}
 }
 
-
-/* XXX: maybe turn this into a normal __pthread_once() via pthreads/weaks.c ? */
-extern int weak_function __pthread_once (pthread_once_t *__once_control,
-			   void (*__init_routine) (void));
-
-# define __libc_once_define(CLASS, NAME) \
-  CLASS pthread_once_t NAME = PTHREAD_ONCE_INIT
-
-/* Call handler iff the first call.  */
-#define __libc_once(ONCE_CONTROL, INIT_FUNCTION) \
-  do {									      \
-    if (__pthread_once != NULL)						      \
-      __pthread_once (&(ONCE_CONTROL), (INIT_FUNCTION));		      \
-    else if ((ONCE_CONTROL) == PTHREAD_ONCE_INIT) {			      \
-      INIT_FUNCTION ();							      \
-      (ONCE_CONTROL) = !PTHREAD_ONCE_INIT;				      \
-    }									      \
-  } while (0)
-
 /*
  * Initialize RPC multi-threaded operation
  */

@@ -44,6 +44,8 @@ enum __libc_tsd_key_t { _LIBC_TSD_KEY_MALLOC = 0,
 
 #else
 
+# include <bits/libc-lock.h>
+
 # ifndef SHARED
 extern void ** __pthread_internal_tsd_address (int);
 extern void *__pthread_internal_tsd_get (int);
@@ -53,10 +55,6 @@ weak_extern (__pthread_internal_tsd_address)
 weak_extern (__pthread_internal_tsd_get)
 weak_extern (__pthread_internal_tsd_set)
 # endif
-
-#define __libc_maybe_call2(FUNC, ARGS, ELSE) \
-  ({__builtin_expect (__libc_pthread_functions.ptr_##FUNC != NULL, 0) \
-    ? __libc_pthread_functions.ptr_##FUNC ARGS : ELSE; })
 
 #define __libc_tsd_define(CLASS, KEY)	CLASS void *__libc_tsd_##KEY##_data;
 #define __libc_tsd_address(KEY) \
