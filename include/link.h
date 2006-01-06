@@ -25,6 +25,9 @@
 #include <elf.h>
 #include <dlfcn.h>
 #include <sys/types.h>
+#ifdef _LIBC
+#include <tls.h>
+#endif
 
 /* We use this macro to refer to ELF types independent of the native wordsize.
    `ElfW(TYPE)' is used in place of `Elf32_TYPE' or `Elf64_TYPE'.  */
@@ -90,6 +93,30 @@ struct link_map
     char *l_name;		/* Absolute file name object was found in.  */
     ElfW(Dyn) *l_ld;		/* Dynamic section of the shared object.  */
     struct link_map *l_next, *l_prev; /* Chain of loaded objects.  */
+
+#ifdef USE_TLS
+    /* Thread-local storage related info.  */
+
+    /* Start of the initialization image.  */
+    void *l_tls_initimage;
+    /* Size of the initialization image.  */
+    size_t l_tls_initimage_size;
+    /* Size of the TLS block.  */
+    size_t l_tls_blocksize;
+    /* Alignment requirement of the TLS block.  */
+    size_t l_tls_align;
+    /* Offset of first byte module alignment.  */
+    size_t l_tls_firstbyte_offset;
+# ifndef NO_TLS_OFFSET
+#  define NO_TLS_OFFSET	0
+# endif
+    /* For objects present at startup time: offset in the static TLS block.  */
+    ptrdiff_t l_tls_offset;
+    /* Index of the module in the dtv array.  */
+    size_t l_tls_modid;
+    /* Nonzero if _dl_init_static_tls should be called for this module */
+    unsigned int l_need_tls_init:1;
+#endif
   };
 
 #ifdef __USE_GNU
