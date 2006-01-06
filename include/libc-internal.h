@@ -174,6 +174,10 @@
 # define attribute_noreturn
 #endif
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+# define attribute_tls_model_ie __attribute__ ((tls_model ("initial-exec")))
+#endif
+
 /* Pull in things like __attribute_used__ */
 #include <sys/cdefs.h>
 
