@@ -597,6 +597,20 @@ config UCLIBC_HAS_REENTRANT_RPC
 	help
 	  Most packages utilize the normal (non-reentrant) RPC functions, but 
 	  some (like exportfs from nfs-utils) need these reentrant versions.  
+
+	  Most people can safely answer N.
+
+config UCLIBC_USE_NETLINK
+	bool "Use netlink to query interfaces"
+	default n
+	help
+	  In newer versions of Linux (2.4.17+), support was added for querying
+	  network device information via netlink rather than the old style
+	  ioctl's.  Most of the time, the older ioctl style is sufficient (and
+	  it is smaller than netlink), but if you find that not all of your
+	  devices are being returned by the if_nameindex() function, you will
+	  have to use the netlink implementation.
+
 	  Most people can safely answer N.
 
 endmenu
