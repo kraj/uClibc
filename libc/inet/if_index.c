@@ -65,6 +65,7 @@ if_nametoindex(const char* ifname)
   return ifr.ifr_ifindex;
 #endif
 }
+hidden_strong_alias(if_nametoindex,__if_nametoindex)
 
 void
 if_freenameindex (struct if_nameindex *ifn)
