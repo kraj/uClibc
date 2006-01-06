@@ -107,7 +107,7 @@ RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/rela
 # Installs header files.
 install_headers:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
-	if [ "$(KERNEL_SOURCE)" == "$(DEVEL_PREFIX)" ] ; then \
+	if [ "$(KERNEL_SOURCE)" = "$(DEVEL_PREFIX)" ] ; then \
 		extra_exclude="--exclude include/linux --exclude include/asm'*'" ; \
 	else \
 		extra_exclude="" ; \
