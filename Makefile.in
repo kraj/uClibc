@@ -52,7 +52,7 @@ endif
 headers: include/bits/uClibc_config.h
 	$(MAKE) headers-y
 	@$(SHELL_SET_X); \
-	$(top_srcdir)extra/scripts/fix_includes.sh \
+	$(SHELL) $(top_srcdir)extra/scripts/fix_includes.sh \
 		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
 		$(header_extra_args)
 	if [ -f libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h ] ; then \
@@ -86,7 +86,7 @@ headers: include/bits/uClibc_config.h
 	@cd $(top_builddir); \
 	set -e; \
 	$(SHELL_SET_X); \
-	top_builddir=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
+	top_builddir=. CC="$(CC)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
 	if cmp include/bits/sysnum.h include/bits/sysnum.h.new >/dev/null 2>&1; then \
 		$(RM) include/bits/sysnum.h.new; \
 	else \
