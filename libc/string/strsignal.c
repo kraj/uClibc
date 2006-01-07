@@ -17,6 +17,7 @@
 #include <features.h>
 #include <string.h>
 #include <bits/uClibc_uintmaxtostr.h>
+#include <signal.h>
 
 #define _SYS_NSIG			32
 
