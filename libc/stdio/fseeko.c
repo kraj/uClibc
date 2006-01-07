@@ -74,8 +74,8 @@ int attribute_hidden FSEEK(register FILE *stream, OFFSET_TYPE offset, int whence
 }
 
 #ifdef __DO_LARGEFILE
-weak_alias(__fseeko64,fseeko64)
+strong_alias(__fseeko64,fseeko64)
 #else
-weak_alias(__fseek,fseek)
-weak_alias(fseek,fseeko)
+strong_alias(__fseek,fseek)
+weak_alias(__fseek,fseeko)
 #endif

@@ -22,9 +22,6 @@
 #include "_glibc_inc.h"
 
         .text
-.global strcmp
-.set strcmp,__strcmp
-.hidden __strcmp
 ENTRY (BP_SYM (__strcmp))
 L(oop):	movb	(%rdi), %al
 	cmpb	(%rsi), %al
@@ -42,3 +39,5 @@ L(neq):	movl	$1, %eax
 	cmovbl	%ecx, %eax
 	ret
 END (BP_SYM (__strcmp))
+
+strong_alias(__strcmp,strcmp)

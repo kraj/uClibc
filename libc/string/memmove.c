@@ -1,14 +1,57 @@
 /*
+ * Copyright (C) 2002     Manuel Novoa III
  * Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define L_memmove
-#define Wmemmove __memmove
+#include "_string.h"
 
-#include "wstring.c"
+#ifdef WANT_WIDE
+# define __Wmemmove __wmemmove
+# define Wmemmove wmemmove
+#else
+# define __Wmemmove __memmove
+# define Wmemmove memmove
+#endif
 
-strong_alias(__memmove, memmove)
+Wvoid attribute_hidden *__Wmemmove(Wvoid *s1, const Wvoid *s2, size_t n)
+{
+#ifdef __BCC__
+	register Wchar *s = (Wchar *) s1;
+	register const Wchar *p = (const Wchar *) s2;
 
-#undef L_memmove
+	if (p >= s) {
+		while (n--) {
+			*s++ = *p++;
+		}
+	} else {
+		s += n;
+		p += n;
+		while (n--) {
+			*--s = *--p;
+		}
+	}
+
+	return s1;
+#else
+	register Wchar *s = (Wchar *) s1;
+	register const Wchar *p = (const Wchar *) s2;
+
+	if (p >= s) {
+		while (n) {
+			*s++ = *p++;
+			--n;
+		}
+	} else {
+		while (n) {
+			--n;
+			s[n] = p[n];
+		}
+	}
+
+	return s1;
+#endif
+}
+
+strong_alias(__Wmemmove,Wmemmove)

@@ -36,8 +36,6 @@
 #ifndef SHARED
 void *__libc_stack_end=NULL;
 
-/* probably all the weak_*function stuff below should be in here */
-
 #ifdef __UCLIBC_HAS_SSP__
 #include <dl-osinfo.h>
 #ifndef THREAD_SET_STACK_GUARD
@@ -56,14 +54,24 @@ strong_alias(__stack_chk_guard,__guard)
 /*
  * Prototypes.
  */
-extern void weak_function _stdio_init(void);
+extern void weak_function _stdio_init(void) attribute_hidden;
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
 #ifdef __UCLIBC_HAS_LOCALE__
-extern void weak_function _locale_init(void);
+extern void weak_function _locale_init(void) attribute_hidden;
 #endif
 #ifdef __UCLIBC_HAS_THREADS__
 extern void weak_function __pthread_initialize_minimal(void);
+#endif
+
+attribute_hidden const char *__uclibc_progname = NULL;
+#ifdef __UCLIBC_HAS___PROGNAME__
+strong_alias (__uclibc_progname, __progname)
+#endif
+#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+attribute_hidden const char *__progname_full = NULL;
+strong_alias (__uclibc_progname, program_invocation_short_name)
+strong_alias (__progname_full, program_invocation_name)
 #endif
 
 /*
@@ -72,23 +80,20 @@ extern void weak_function __pthread_initialize_minimal(void);
  * environ symbol is also included.
  */
 char **__environ = 0;
-weak_alias(__environ, environ);
+weak_alias(__environ, environ)
 
 size_t __pagesize = 0;
-const char *__progname = 0;
 
 #ifndef O_NOFOLLOW
 # define O_NOFOLLOW	0
 #endif
-
-extern int __libc_fcntl(int fd, int cmd, ...);
 
 #ifdef __ARCH_HAS_MMU__
 
 static void __check_one_fd(int fd, int mode)
 {
     /* Check if the specified fd is already open */
-    if (unlikely(__libc_fcntl(fd, F_GETFD)==-1 && *(__errno_location())==EBADF))
+    if (unlikely(__fcntl(fd, F_GETFD)==-1 && *(__errno_location())==EBADF))
     {
 	/* The descriptor is probably not open, so try to use /dev/null */
 	struct stat st;
@@ -96,13 +101,11 @@ static void __check_one_fd(int fd, int mode)
 	/* /dev/null is major=1 minor=3.  Make absolutely certain
 	 * that is in fact the device that we have opened and not
 	 * some other wierd file... */
-	if ( (nullfd!=fd) || fstat(fd, &st) || !S_ISCHR(st.st_mode) ||
+	if ( (nullfd!=fd) || __fstat(fd, &st) || !S_ISCHR(st.st_mode) ||
 		(st.st_rdev != makedev(1, 3)))
 	{
 	    /* Somebody is trying some trickery here... */
-	    while (1) {
 		abort();
-	    }
 	}
     }
 }
@@ -195,7 +198,7 @@ void attribute_hidden (*__rtld_fini)(void) = NULL;
  * called from crt1 (version 0.9.28 or newer), after ALL shared libraries
  * are initialized, just before we call the application's main function.
  */
-void __attribute__ ((__noreturn__))
+void attribute_noreturn
 __uClibc_main(int (*main)(int, char **, char **), int argc,
 		    char **argv, void (*app_init)(void), void (*app_fini)(void),
 		    void (*rtld_fini)(void), void *stack_end)
@@ -221,8 +224,8 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 	__environ = &argv[argc];
     }
 
-    /* Pull stuff from the ELF header when possible */
 #ifdef __ARCH_HAS_MMU__
+    /* Pull stuff from the ELF header when possible */
     aux_dat = (unsigned long*)__environ;
     while (*aux_dat) {
 	aux_dat++;
@@ -235,19 +238,21 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 	}
 	aux_dat += 2;
     }
+#endif
 
     /* We need to initialize uClibc.  If we are dynamically linked this
      * may have already been completed by the shared lib loader.  We call
      * __uClibc_init() regardless, to be sure the right thing happens. */
     __uClibc_init();
 
+#ifdef __ARCH_HAS_MMU__
     /* Make certain getpagesize() gives the correct answer */
     __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 
     /* Prevent starting SUID binaries where the stdin. stdout, and
      * stderr file descriptors are not already opened. */
-    if ((auxvt[AT_UID].a_un.a_val==-1 && __check_suid()) ||
-	    (auxvt[AT_UID].a_un.a_val != -1 &&
+    if ((auxvt[AT_UID].a_un.a_val == (size_t)-1 && __check_suid()) ||
+	    (auxvt[AT_UID].a_un.a_val != (size_t)-1 &&
 	    (auxvt[AT_UID].a_un.a_val != auxvt[AT_EUID].a_un.a_val ||
 	     auxvt[AT_GID].a_un.a_val != auxvt[AT_EGID].a_un.a_val)))
     {
@@ -257,7 +262,16 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     }
 #endif
 
-    __progname = *argv;
+#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+    __progname_full = *argv;
+    __progname = __strrchr(*argv, '/');
+    if (__progname != NULL)
+	++__progname;
+    else
+	__progname = __progname_full;
+#else
+    __uclibc_progname = *argv;
+#endif
 
 #ifdef __UCLIBC_CTOR_DTOR__
     /* Arrange for the application's dtors to run before we exit.  */
@@ -283,5 +297,5 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     /*
      * Finally, invoke application's main and then exit.
      */
-    exit(main(argc, argv, __environ));
+    __exit(main(argc, argv, __environ));
 }

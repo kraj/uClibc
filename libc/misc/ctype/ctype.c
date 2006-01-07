@@ -156,11 +156,9 @@ int CTYPE_NAME(NAME) (int c) \
 #ifdef L___ctype_assert
 #ifdef __UCLIBC_HAS_CTYPE_ENFORCED__
 
-extern const char *__progname;
-
 void __isctype_assert(int c, int mask)
 {
-	fprintf(stderr,	"%s: __is*{_l}(%d,%#x {locale})\n", __progname, c, mask);
+	fprintf(stderr,	"%s: __is*{_l}(%d,%#x {locale})\n", __uclibc_progname, c, mask);
 	abort();
 }
 
@@ -270,7 +268,7 @@ IS_FUNC_BODY(xdigit);
 
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
-int tolower(int c)
+int attribute_hidden __tolower(int c)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
 	assert(CTYPE_DOMAIN_CHECK(c));
@@ -280,12 +278,13 @@ int tolower(int c)
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
-int tolower(int c)
+int attribute_hidden __tolower(int c)
 {
 	return __C_tolower(c);
 }
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
+strong_alias(__tolower,tolower)
 
 #endif
 /**********************************************************************/
@@ -310,7 +309,7 @@ weak_alias(__tolower_l, tolower_l)
 
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
-int toupper(int c)
+int attribute_hidden __toupper(int c)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
 	assert(CTYPE_DOMAIN_CHECK(c));
@@ -320,12 +319,13 @@ int toupper(int c)
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
-int toupper(int c)
+int attribute_hidden __toupper(int c)
 {
 	return __C_toupper(c);
 }
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
+strong_alias(__toupper,toupper)
 
 #endif
 /**********************************************************************/
@@ -385,64 +385,6 @@ int toascii(int c)
 {
 	return __toascii(c);		/* locale-independent */
 }
-
-#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
-
-#endif
-/**********************************************************************/
-/* old uClibc extensions */
-/**********************************************************************/
-#ifdef L_isxlower
-
-#ifdef __UCLIBC_HAS_CTYPE_TABLES__
-
-int isxlower(int C)
-{
-#if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
-	assert(CTYPE_DOMAIN_CHECK(C));
- 	return (__isctype(C, (_ISxdigit|_ISupper)) == _ISxdigit);
-#elif defined(__UCLIBC_HAS_CTYPE_CHECKED__)
-	return CTYPE_DOMAIN_CHECK(C)
-		? (__isctype(C, (_ISxdigit|_ISupper)) == _ISxdigit)
-		: 0;
-#elif defined(__UCLIBC_HAS_CTYPE_UNSAFE__)
-	return (__isctype(C, (_ISxdigit|_ISupper)) == _ISxdigit);
-#else  /* No checking done. */
-#error Unknown type of ctype checking!
-#endif
-}
-
-#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
-
-IS_FUNC_BODY(xlower);
-
-#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
-
-#endif
-/**********************************************************************/
-#ifdef L_isxupper
-
-#ifdef __UCLIBC_HAS_CTYPE_TABLES__
-
-int isxupper(int C)
-{
-#if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
-	assert(CTYPE_DOMAIN_CHECK(C));
- 	return (__isctype(C, (_ISxdigit|_ISlower)) == _ISxdigit);
-#elif defined(__UCLIBC_HAS_CTYPE_CHECKED__)
-	return CTYPE_DOMAIN_CHECK(C)
-		? (__isctype(C, (_ISxdigit|_ISlower)) == _ISxdigit)
-		: 0;
-#elif defined(__UCLIBC_HAS_CTYPE_UNSAFE__)
-	return (__isctype(C, (_ISxdigit|_ISlower)) == _ISxdigit);
-#else  /* No checking done. */
-#error Unknown type of ctype checking!
-#endif
-}
-
-#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
-
-IS_FUNC_BODY(xupper);
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 

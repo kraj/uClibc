@@ -16,6 +16,7 @@
 
 #define mmap __mmap
 #define sysconf __sysconf
+#define sbrk __sbrk
 
 #include <features.h>
 #include <stddef.h>
@@ -929,7 +930,7 @@ extern struct malloc_state __malloc_state;  /* never directly referenced */
 #define get_malloc_state() (&(__malloc_state))
 
 /* External internal utilities operating on mstates */
-void   __malloc_consolidate(mstate);
+void   __malloc_consolidate(mstate) attribute_hidden;
 
 
 /* Debugging support */

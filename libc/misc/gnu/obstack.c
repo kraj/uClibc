@@ -502,7 +502,7 @@ print_and_abort ()
   else
 # endif
     fprintf (stderr, "%s\n", _("memory exhausted"));
-  exit (obstack_exit_failure);
+  __exit (obstack_exit_failure);
 }
 
 # if 0

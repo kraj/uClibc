@@ -126,14 +126,15 @@ int attribute_hidden __fflush_unlocked(register FILE *stream)
 #endif /* __STDIO_BUFFERS */
 }
 
-weak_alias(__fflush_unlocked,fflush_unlocked);
+weak_alias(__fflush_unlocked,fflush_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fflush_unlocked,fflush);
+hidden_strong_alias(__fflush_unlocked,__fflush)
+weak_alias(__fflush_unlocked,fflush)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int fflush(register FILE *stream)
+int attribute_hidden __fflush(register FILE *stream)
 {
 	int retval;
 	__STDIO_AUTO_THREADLOCK_VAR;
@@ -155,5 +156,6 @@ int fflush(register FILE *stream)
 
 	return retval;
 }
+strong_alias(__fflush,fflush)
 
 #endif

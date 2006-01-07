@@ -32,9 +32,11 @@
    and the process ID of the new process to the old process.  */
 
 .text
-.align 4
+.globl	__vfork
+.hidden	__vfork
 .type	__vfork,@function
-.globl	__vfork;
+.align 4
+
 __vfork:
 	mov.w	.L2, r3
 	trapa	#0x10
@@ -104,9 +106,9 @@ __vfork:
 	.word	__NR_vfork
 .L3:
 	.word	__NR_fork
-        .size   __vfork, .-__vfork
-.weak	vfork
-	vfork =  __vfork
+
+.size   __vfork, .-__vfork
+strong_alias(__vfork,vfork)
 
 #include "syscall_error.S"
 

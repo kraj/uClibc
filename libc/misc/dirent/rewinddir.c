@@ -12,7 +12,7 @@ void rewinddir(DIR * dir)
 		return;
 	}
 	__pthread_mutex_lock(&(dir->dd_lock));
-	lseek(dir->dd_fd, 0, SEEK_SET);
+	__lseek(dir->dd_fd, 0, SEEK_SET);
 	dir->dd_nextoff = dir->dd_nextloc = dir->dd_size = 0;
 	__pthread_mutex_unlock(&(dir->dd_lock));
 }

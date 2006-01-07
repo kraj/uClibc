@@ -7,8 +7,11 @@
 #
 
 CSRC:=	alphasort.c closedir.c dirfd.c opendir.c readdir.c rewinddir.c scandir.c \
-	seekdir.c telldir.c readdir64.c alphasort64.c scandir64.c readdir_r.c \
-	readdir64_r.c
+	seekdir.c telldir.c readdir_r.c
+
+ifeq ($(UCLIBC_HAS_LFS),y)
+CSRC+=	readdir64.c alphasort64.c scandir64.c readdir64_r.c
+endif
 
 MISC_DIRENT_DIR:=$(top_srcdir)libc/misc/dirent
 MISC_DIRENT_OUT:=$(top_builddir)libc/misc/dirent

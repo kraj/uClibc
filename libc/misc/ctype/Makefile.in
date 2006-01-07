@@ -10,7 +10,7 @@ MSRC:=ctype.c
 MOBJ:=	isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o \
 	isgraph.o islower.o isprint.o ispunct.o isspace.o \
 	isupper.o isxdigit.o toascii.o tolower.o toupper.o \
-	isblank.o isxlower.o isxupper.o
+	isblank.o
 
 ifeq ($(UCLIBC_HAS_CTYPE_TABLES),y)
 MOBJ+=	__C_ctype_b.o __C_ctype_tolower.o __C_ctype_toupper.o \
@@ -21,7 +21,7 @@ endif
 MOBJx:=	isalnum_l.o isalpha_l.o isascii_l.o iscntrl_l.o isdigit_l.o \
 	isgraph_l.o islower_l.o isprint_l.o ispunct_l.o isspace_l.o \
 	isupper_l.o isxdigit_l.o toascii_l.o tolower_l.o toupper_l.o \
-	isblank_l.o # isxlower_l.o isxupper_l.o
+	isblank_l.o
 
 MISC_CTYPE_DIR:=$(top_srcdir)libc/misc/ctype
 MISC_CTYPE_OUT:=$(top_builddir)libc/misc/ctype

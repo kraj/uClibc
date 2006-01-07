@@ -26,6 +26,7 @@
 	.comm	__curbrk,4,4
 	.text
 	.globl	__brk
+	.hidden	__brk
 	.type	__brk,@function
 	.align	2
 

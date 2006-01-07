@@ -47,9 +47,6 @@
 
 	.text
 	.align		32
-.globl strcat
-.set strcat,__strcat
-.hidden __strcat
 ENTRY(__strcat)
 	sethi		%hi(0x01010101), %g1		/* IEU0		Group		*/
 	ldub		[%o0], %o3			/* Load				*/
@@ -339,3 +336,5 @@ ENTRY(__strcat)
 	retl						/* CTI+IEU1	Group		*/
 	 mov		%g6, %o0			/* IEU0				*/
 END(__strcat)
+
+strong_alias(__strcat,strcat)

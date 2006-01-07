@@ -75,7 +75,7 @@ __clone:
 	   breakpoints work.*/
 
 	mov.p	gr17, gr15
-	call	_exit
+	call	_exit_internal
 
 	/* Should never get here.  */
 	jmpl	@(gr0, gr0)

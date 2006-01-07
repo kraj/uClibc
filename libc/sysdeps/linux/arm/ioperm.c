@@ -37,6 +37,7 @@
 #define mmap __mmap
 #define sscanf __sscanf
 #define fscanf __fscanf
+#define fgets __fgets
 
 #include <errno.h>
 #include <fcntl.h>

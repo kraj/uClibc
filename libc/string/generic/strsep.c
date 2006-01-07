@@ -20,8 +20,6 @@
 
 #include <string.h>
 
-#undef strsep
-
 char attribute_hidden *__strsep (char **stringp, const char *delim)
 {
   char *begin, *end;
@@ -66,4 +64,4 @@ char attribute_hidden *__strsep (char **stringp, const char *delim)
   return begin;
 }
 
-strong_alias(__strsep, strsep)
+strong_alias(__strsep,strsep)

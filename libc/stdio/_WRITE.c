@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define write __write
+
 #include "_stdio.h"
 
 /* Given a writing stream with no buffered output, write the

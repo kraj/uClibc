@@ -121,7 +121,7 @@ int old_atexit(aefuncp func)
                         &__dso_handle == NULL ? NULL : __dso_handle);
 }
 #ifndef L_atexit
-weak_alias(old_atexit,atexit);
+weak_alias(old_atexit,atexit)
 #endif
 #endif
 
@@ -305,7 +305,7 @@ void __exit_handler(int status)
 #endif
 
 #ifdef L_exit
-extern void weak_function _stdio_term(void);
+extern void weak_function _stdio_term(void) attribute_hidden;
 void (*__exit_cleanup) (int) = 0;
 #ifdef __UCLIBC_HAS_THREADS__
 pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -320,7 +320,9 @@ extern void (*__rtld_fini)(void);
 /*
  * Normal program termination
  */
-void exit(int rv)
+#undef exit
+#undef __exit
+void attribute_hidden __exit(int rv)
 {
 	/* Perform exit-specific cleanup (atexit and on_exit) */
 	LOCK;
@@ -343,6 +345,7 @@ void exit(int rv)
 	if (_stdio_term) 
 	    _stdio_term();
 
-	_exit(rv);
+	_exit_internal(rv);
 }
+strong_alias(__exit,exit)
 #endif

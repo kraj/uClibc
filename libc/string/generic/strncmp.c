@@ -19,8 +19,6 @@
 #include <string.h>
 #include "memcopy.h"
 
-#undef strncmp
-
 /* Compare no more than N characters of S1 and S2,
    returning less than, equal to or greater than zero
    if S1 is lexicographically less than, equal to or
@@ -67,4 +65,4 @@ int attribute_hidden __strncmp (const char *s1, const char *s2, size_t n)
   return c1 - c2;
 }
 
-strong_alias(__strncmp, strncmp)
+strong_alias(__strncmp,strncmp)

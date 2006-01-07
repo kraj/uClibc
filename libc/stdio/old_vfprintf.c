@@ -166,7 +166,7 @@
 
 #ifdef __STDIO_BUFFERS
 
-#define PUTC(C,F)      putc_unlocked((C),(F))
+#define PUTC(C,F)      __putc_unlocked((C),(F))
 #define OUTNSTR        _outnstr
 #define _outnstr(stream, string, len)	__stdio_fwrite(string, len, stream)
 
@@ -199,7 +199,7 @@ static void _outnstr(FILE *stream, const unsigned char *s, size_t n)
 static void putc_unlocked_sprintf(int c, __FILE_vsnprintf *f)
 {
 	if (!__STDIO_STREAM_IS_FAKE_VSNPRINTF_NB(&f->f)) {
-		putc_unlocked(c, &f->f);
+		__putc_unlocked(c, &f->f);
 	} else if (f->bufpos < f->bufend) {
 		*f->bufpos++ = c;
 	}

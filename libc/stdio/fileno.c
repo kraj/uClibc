@@ -21,10 +21,10 @@ int attribute_hidden __fileno_unlocked(register FILE *stream)
 	return -1;
 }
 
-weak_alias(__fileno_unlocked,fileno_unlocked);
+weak_alias(__fileno_unlocked,fileno_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-hidden_weak_alias(__fileno_unlocked,__fileno);
-weak_alias(__fileno_unlocked,fileno);
+hidden_weak_alias(__fileno_unlocked,__fileno)
+weak_alias(__fileno_unlocked,fileno)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__

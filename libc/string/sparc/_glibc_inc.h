@@ -14,6 +14,7 @@
 
 #define ENTRY(sym) \
 	.global sym; \
+	.hidden sym; \
 	.align  ENTRY_ALIGN; \
 	.type   sym,%function; \
 	sym:
@@ -23,8 +24,3 @@
 
 #define END(sym) \
 	.size sym,.-sym;
-
-#undef weak_alias
-#define weak_alias(sym, alias) \
-	.weak alias; \
-    alias = sym;

@@ -22,9 +22,6 @@
 
 
 	.text
-.globl strchr
-.set strchr,__strchr
-.hidden __strchr
 ENTRY (BP_SYM (__strchr))
 
 	/* Before we start with the main loop we process single bytes
@@ -287,4 +284,5 @@ ENTRY (BP_SYM (__strchr))
 	retq
 END (BP_SYM (__strchr))
 
-weak_alias (BP_SYM (strchr), BP_SYM (index))
+strong_alias(__strchr,strchr)
+strong_alias (BP_SYM (__strchr), BP_SYM (index))

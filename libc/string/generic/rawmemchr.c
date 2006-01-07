@@ -29,8 +29,6 @@
 
 #define LONG_MAX_32_BITS 2147483647
 
-#undef rawmemchr
-
 /* Find the first occurrence of C in S.  */
 void attribute_hidden *__rawmemchr (const void * s, int c_in)
 {
@@ -159,4 +157,4 @@ void attribute_hidden *__rawmemchr (const void * s, int c_in)
     }
 }
 
-strong_alias(__rawmemchr, rawmemchr)
+strong_alias(__rawmemchr,rawmemchr)

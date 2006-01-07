@@ -63,9 +63,6 @@
 	b		6f
 	 andcc		%o0, 3, %g3
 
-.globl strcpy
-.set strcpy,__strcpy
-.hidden __strcpy
 ENTRY(__strcpy)
 	mov		%o0, %g2
 	andcc		%o1, 3, %g0
@@ -273,3 +270,5 @@ ENTRY(__strcpy)
 	retl
 	 mov		%g2, %o0
 END(__strcpy)
+
+strong_alias(__strcpy,strcpy)

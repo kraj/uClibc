@@ -23,8 +23,6 @@
 #include "memcopy.h"
 #include "pagecopy.h"
 
-#undef memcpy
-
 /* _wordcopy_fwd_aligned -- Copy block beginning at SRCP to
    block beginning at DSTP with LEN `op_t' words (not LEN bytes!).
    Both SRCP and DSTP should be aligned for memory operations on `op_t's.  */
@@ -245,4 +243,4 @@ void attribute_hidden *__memcpy (void *dstpp, const void *srcpp, size_t len)
   return dstpp;
 }
 
-strong_alias(__memcpy, memcpy)
+strong_alias(__memcpy,memcpy)

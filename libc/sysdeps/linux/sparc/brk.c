@@ -26,7 +26,7 @@
 void *__curbrk = 0;
 
 
-int brk (void *addr)
+int attribute_hidden __brk (void *addr)
 {
     void *newbrk;
 
@@ -47,3 +47,4 @@ int brk (void *addr)
 
     return 0;
 }
+strong_alias(__brk,brk)

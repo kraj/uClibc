@@ -7,8 +7,6 @@
 
 #include <string.h>
 
-#undef mempcpy
-
 void attribute_hidden *__mempcpy (void *dstpp, const void *srcpp, size_t len)
 {
   __memcpy(dstpp, srcpp, len);

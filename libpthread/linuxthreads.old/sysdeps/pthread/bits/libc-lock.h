@@ -24,7 +24,7 @@
 #include <pthread.h>
 
 #if defined _LIBC && !defined NOT_IN_libc
-#include <linuxthreads/internals.h>
+#include <linuxthreads.old/internals.h>
 #endif
 
 /* Mutex type.  */

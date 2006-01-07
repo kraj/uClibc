@@ -29,8 +29,8 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-.global strncmp
-.set strncmp,__strncmp
+#include <features.h>
+
 .text
 .global __strncmp
 .hidden __strncmp
@@ -57,3 +57,5 @@ __strncmp:
 	mov	pc, lr
 
 .size __strncmp,.-__strncmp
+
+strong_alias(__strncmp,strncmp)

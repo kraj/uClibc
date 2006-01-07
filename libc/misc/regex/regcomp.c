@@ -292,7 +292,7 @@ re_set_fastmap (char *fastmap, int icase, int ch)
 {
   fastmap[ch] = 1;
   if (icase)
-    fastmap[tolower (ch)] = 1;
+    fastmap[__tolower (ch)] = 1;
 }
 
 /* Helper function for re_compile_fastmap.
@@ -833,7 +833,14 @@ init_dfa (re_dfa_t *dfa, size_t pat_len)
   dfa->state_table = calloc (sizeof (struct re_state_table_entry), table_size);
   dfa->state_hash_mask = table_size - 1;
 
+#ifdef __UCLIBC_HAS_WCHAR__
+# undef MB_CUR_MAX
+# define	MB_CUR_MAX	(_stdlib_mb_cur_max_internal ())
+extern size_t _stdlib_mb_cur_max_internal (void) __THROW __wur attribute_hidden;
   dfa->mb_cur_max = MB_CUR_MAX;
+#else
+  dfa->mb_cur_max = 1;
+#endif
 #ifdef _LIBC
   if (dfa->mb_cur_max == 6
       && strcmp (_NL_CURRENT (LC_CTYPE, _NL_CTYPE_CODESET_NAME), "UTF-8") == 0)

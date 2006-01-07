@@ -17,15 +17,18 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
+
 #include <asm/unistd.h>
 #define _ERRNO_H       1
 #include <bits/errno.h>
 
        .text
-       .globl  vfork
-       .type vfork,@function
+       .globl	__vfork
+       .hidden	__vfork
+       .type	__vfork,@function
 /* int vfork(void) */
-vfork:
+__vfork:
 	setlos.p #__NR_vfork, gr7
 	setlos	#-4096, gr4
 	tra	gr0, gr0
@@ -38,5 +41,6 @@ vfork:
 	ldd	@(gr14, gr15), gr14
 	jmpl	@(gr14, gr0)
 
-       .size   vfork,.-vfork
+       .size   __vfork,.-__vfork
 
+strong_alias(__vfork,vfork)

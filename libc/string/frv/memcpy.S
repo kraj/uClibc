@@ -18,6 +18,7 @@
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <features.h>
 
         .text
         .p2align	4
@@ -30,8 +31,6 @@
 #         to caller's fixup routine, aborting the remainder of the copy
 #
 ###############################################################################
-        .globl		memcpy
-	.set		memcpy,__memcpy
         .globl		__memcpy
         .hidden		__memcpy
         .type		__memcpy,@function
@@ -125,3 +124,5 @@ memcpy_32:
 	bralr
 
 	.size		__memcpy, .-__memcpy
+
+strong_alias(__memcpy,memcpy)

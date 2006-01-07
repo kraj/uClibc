@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define close __close
+
 #include "_stdio.h"
 
 #undef fclose

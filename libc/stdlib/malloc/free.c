@@ -12,6 +12,7 @@
  */
 
 #define munmap __munmap
+#define sbrk __sbrk
 
 #include <stdlib.h>
 #include <unistd.h>

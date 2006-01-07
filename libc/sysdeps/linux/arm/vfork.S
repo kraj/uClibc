@@ -8,16 +8,20 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
+#include <features.h>
+
 #define _ERRNO_H
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
 #ifdef __NR_fork
 .text
-.global vfork
-.type vfork,%function
+.global	__vfork
+.hidden	__vfork
+.type	__vfork,%function
 .align 4
-vfork:
+
+__vfork:
 
 #ifdef __NR_vfork
 	swi	__NR_vfork
@@ -34,11 +38,12 @@ vfork:
 	swi     __NR_fork
 	cmn     r0, #4096
 
-	/* Syscal worked.  Return to child/parent */
+	/* Syscall worked.  Return to child/parent */
 	movcc   pc, lr
 
 __error:
 	b	__syscall_error
 
-.size vfork,.-vfork
+.size __vfork,.-__vfork
+strong_alias(__vfork,vfork)
 #endif

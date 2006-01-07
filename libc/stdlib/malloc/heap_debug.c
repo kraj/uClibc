@@ -80,13 +80,13 @@ __heap_check_failure (struct heap *heap, struct heap_free_area *fa,
   vfprintf (stderr, fmt, val);
   va_end (val);
 
-  putc ('\n', stderr);
+  __putc ('\n', stderr);
 
   __malloc_debug_set_indent (0);
   __malloc_debug_printf (1, "heap dump:");
   __heap_dump_freelist (heap);
 
-  exit (22);
+  __exit (22);
 }
 
 /* Do some consistency checks on HEAP.  If they fail, output an error

@@ -17,8 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define strsep __strsep
-
 #include <features.h>
 
 #define __USE_GNU
@@ -31,17 +29,16 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 
-
 int statvfs (const char *file, struct statvfs *buf)
 {
     struct statfs fsbuf;
     struct stat st;
 
     /* Get as much information as possible from the system.  */
-    if (statfs (file, &fsbuf) < 0)
+    if (__statfs (file, &fsbuf) < 0)
 	return -1;
 
-#define STAT(st) stat (file, st)
+#define STAT(st) __stat (file, st)
 #include "internal_statvfs.c"
 
     /* We signal success if the statfs call succeeded.  */

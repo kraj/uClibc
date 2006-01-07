@@ -17,6 +17,7 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <features.h>
+#undef __lockf64
 
 #ifdef __UCLIBC_HAS_LFS__
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
@@ -41,16 +42,18 @@
 #include <sys/syscall.h>
 
 #ifdef __NR_fcntl64
-extern int fcntl64 (int fd, int cmd, ...);
 #define flock flock64
-#define fcntl fcntl64
+#define fcntl __fcntl64
 #define F_GETLK F_GETLK64
 #define F_SETLK F_SETLK64
+#else
+#define fcntl __fcntl
 #endif
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */
 
-int lockf64 (int fd, int cmd, off64_t len64)
+#undef lockf64
+int attribute_hidden __lockf64 (int fd, int cmd, off64_t len64)
 {
     struct flock fl;
     off_t len = (off_t) len64;
@@ -103,3 +106,4 @@ int lockf64 (int fd, int cmd, off64_t len64)
     return fcntl(fd, cmd, &fl);
 }
 
+strong_alias(__lockf64,lockf64)

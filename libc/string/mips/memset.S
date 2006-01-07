@@ -17,6 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 /*#include <sysdep.h>*/
 #include <endian.h>
 #include "sysdep.h"
@@ -33,7 +34,7 @@
 # define SWHI	swr		/* high part is right in little-endian	*/
 #endif
 
-ENTRY (memset)
+ENTRY (__memset)
 	.set	noreorder
 
 	slti	t1, a2, 8		# Less than 8?
@@ -86,5 +87,6 @@ L(exit):
 	nop
 
 	.set	reorder
-END (memset)
-libc_hidden_builtin_def (memset)
+END (__memset)
+
+strong_alias(__memset,memset)

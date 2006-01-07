@@ -18,8 +18,6 @@
 
 #include <string.h>
 
-#undef strcspn
-
 /* Return the length of the maximum initial segment of S
    which contains no characters from REJECT.  */
 size_t attribute_hidden __strcspn (const char *s, const char *reject)
@@ -35,4 +33,4 @@ size_t attribute_hidden __strcspn (const char *s, const char *reject)
   return count;
 }
 
-strong_alias(__strcspn, strcspn)
+strong_alias(__strcspn,strcspn)

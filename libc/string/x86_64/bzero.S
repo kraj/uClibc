@@ -1,3 +1,3 @@
-#define memset __bzero
+#define __memset __bzero
 #include "memset.S"
-weak_alias (__bzero, bzero)
+strong_alias(__bzero,bzero)

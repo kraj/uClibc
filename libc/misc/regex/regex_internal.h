@@ -670,7 +670,9 @@ typedef struct
   {
     unsigned char ch;
     unsigned char *name;
+#ifdef __UCLIBC_HAS_WCHAR__
     wchar_t wch;
+#endif
   } opr;
 } bracket_elem_t;
 

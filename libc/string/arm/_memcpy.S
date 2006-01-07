@@ -73,6 +73,7 @@
 
 .text
 .global _memcpy
+.hidden _memcpy
 .type _memcpy,%function
 .align 4
 

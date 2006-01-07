@@ -31,8 +31,6 @@
 
 #include <features.h>
 
-.global strcmp
-.set strcmp,__strcmp
 .text
 .global __strcmp
 .hidden __strcmp
@@ -50,7 +48,9 @@ __strcmp:
 	mov	pc, lr
 
 .size __strcmp,.-__strcmp
+
+strong_alias(__strcmp,strcmp)
 #ifndef __UCLIBC_HAS_LOCALE__
-.global __strcoll ; .hidden __strcoll ; __strcoll = __strcmp
-.global strcoll ; .set strcoll,__strcmp
+hidden_strong_alias(__strcmp,__strcoll)
+strong_alias(__strcmp,strcoll)
 #endif

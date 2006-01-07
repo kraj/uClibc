@@ -37,9 +37,9 @@ wchar_t attribute_hidden *__fgetws_unlocked(wchar_t *__restrict ws, int n,
 	return ws;
 }
 
-weak_alias(__fgetws_unlocked,fgetws_unlocked);
+weak_alias(__fgetws_unlocked,fgetws_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fgetws_unlocked,fgetws);
+weak_alias(__fgetws_unlocked,fgetws)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__

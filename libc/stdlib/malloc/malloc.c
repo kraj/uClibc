@@ -12,6 +12,7 @@
  */
 
 #define mmap __mmap
+#define sbrk __sbrk
 
 #include <stdlib.h>
 #include <unistd.h>

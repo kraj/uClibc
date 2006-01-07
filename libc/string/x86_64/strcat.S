@@ -23,9 +23,6 @@
 
 
 	.text
-.global strcat
-.set strcat,__strcat
-.hidden __strcat
 ENTRY (BP_SYM (__strcat))
 	movq %rdi, %rcx		/* Dest. register. */
 	andl $7, %ecx		/* mask alignment bits */
@@ -257,3 +254,5 @@ ENTRY (BP_SYM (__strcat))
 	movq	%rdi, %rax	/* Source is return value.  */
 	retq
 END (BP_SYM (__strcat))
+
+strong_alias(__strcat,strcat)

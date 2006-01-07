@@ -96,11 +96,11 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 
 	/* Since we must not change the file pointer preserve the 
 	 * value so that we can restore it later.  */
-	if ((old_offset=lseek(fd, 0, SEEK_CUR)) == (off_t) -1)
+	if ((old_offset=__lseek(fd, 0, SEEK_CUR)) == (off_t) -1)
 		return -1;
 
 	/* Set to wanted position.  */
-	if (lseek (fd, offset, SEEK_SET) == (off_t) -1)
+	if (__lseek (fd, offset, SEEK_SET) == (off_t) -1)
 		return -1;
 
 	if (do_pwrite==1) {
@@ -114,7 +114,7 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 	/* Now we have to restore the position.  If this fails we 
 	 * have to return this as an error.  */
 	save_errno = errno;
-	if (lseek(fd, old_offset, SEEK_SET) == (off_t) -1)
+	if (__lseek(fd, old_offset, SEEK_SET) == (off_t) -1)
 	{
 		if (result == -1)
 			__set_errno(save_errno);
@@ -134,11 +134,11 @@ static ssize_t __fake_pread_write64(int fd, void *buf,
 
 	/* Since we must not change the file pointer preserve the 
 	 * value so that we can restore it later.  */
-	if ((old_offset=lseek64(fd, 0, SEEK_CUR)) == (off64_t) -1)
+	if ((old_offset=__lseek64(fd, 0, SEEK_CUR)) == (off64_t) -1)
 		return -1;
 
 	/* Set to wanted position.  */
-	if (lseek64(fd, offset, SEEK_SET) == (off64_t) -1) 
+	if (__lseek64(fd, offset, SEEK_SET) == (off64_t) -1) 
 		return -1;                               
 
 	if (do_pwrite==1) {
@@ -151,7 +151,7 @@ static ssize_t __fake_pread_write64(int fd, void *buf,
 
 	/* Now we have to restore the position. */
 	save_errno = errno;
-	if (lseek64 (fd, old_offset, SEEK_SET) == (off64_t) -1) {
+	if (__lseek64 (fd, old_offset, SEEK_SET) == (off64_t) -1) {
 		if (result == -1)
 			__set_errno (save_errno);
 		return -1;

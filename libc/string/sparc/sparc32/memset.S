@@ -61,10 +61,8 @@ ENTRY(__bzero)
 	b		4f
 	 sub		%o0, %o2, %o0
 END(__bzero)
+strong_alias(__bzero,bzero)
 
-.globl memset
-.set memset,__memset
-.hidden __memset
 ENTRY(__memset)
 	and		%o1, 0xff, %g3
 	sll		%g3, 8, %g2
@@ -151,5 +149,4 @@ ENTRY(__memset)
 0:	retl
 	 nop
 END(__memset)
-
-weak_alias (__bzero, bzero)
+strong_alias(__memset,memset)

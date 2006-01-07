@@ -37,8 +37,8 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-.global memmove
-.set memmove,__memmove
+#include <features.h>
+
 .text
 .global __memmove
 .hidden __memmove
@@ -47,7 +47,9 @@
 
 __memmove:
 	stmfd	sp!, {r0, lr}
-	bl	_memcpy (PLT)
+	bl	_memcpy
 	ldmfd	sp!, {r0, pc}
 
 .size __memmove,.-__memmove
+
+strong_alias(__memmove,memmove)

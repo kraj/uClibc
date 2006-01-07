@@ -19,8 +19,6 @@
 #include <string.h>
 #include "memcopy.h"
 
-#undef memset
-
 void attribute_hidden *__memset (void *dstpp, int c, size_t len)
 {
   long int dstp = (long int) dstpp;
@@ -85,4 +83,4 @@ void attribute_hidden *__memset (void *dstpp, int c, size_t len)
   return dstpp;
 }
 
-strong_alias(__memset, memset)
+strong_alias(__memset,memset)

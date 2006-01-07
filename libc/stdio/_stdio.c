@@ -188,7 +188,7 @@ void attribute_hidden __stdio_init_mutex(pthread_mutex_t *m)
 /**********************************************************************/
 
 /* We assume here that we are the only remaining thread. */
-void _stdio_term(void)
+void attribute_hidden _stdio_term(void)
 {
 #if defined(__STDIO_BUFFERS) || defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
 	register FILE *ptr;
@@ -258,7 +258,7 @@ void _stdio_term(void)
 #endif
 }
 
-void _stdio_init(void)
+void attribute_hidden _stdio_init(void)
 {
 #ifdef __STDIO_BUFFERS
 	int old_errno = errno;

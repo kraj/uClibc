@@ -26,8 +26,6 @@
 
 #include "memcopy.h"
 
-#undef strchrnul
-
 /* Find the first occurrence of C in S or the final NUL byte.  */
 char attribute_hidden *__strchrnul (const char *s, int c_in)
 {
@@ -164,4 +162,4 @@ char attribute_hidden *__strchrnul (const char *s, int c_in)
   return NULL;
 }
 
-strong_alias(__strchrnul, strchrnul)
+strong_alias(__strchrnul,strchrnul)

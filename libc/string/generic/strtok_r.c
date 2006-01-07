@@ -17,14 +17,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define rawmemchr __rawmemchr
-#define strspn __strspn
-#define strpbrk __strpbrk
-
 #define _GNU_SOURCE
 #include <string.h>
-
-#undef strtok_r
 
 /* Parse S into tokens separated by characters in DELIM.
    If S is NULL, the saved pointer in SAVE_PTR is used as
@@ -44,7 +38,7 @@ char attribute_hidden *__strtok_r (char *s, const char *delim, char **save_ptr)
     s = *save_ptr;
 
   /* Scan leading delimiters.  */
-  s += strspn (s, delim);
+  s += __strspn (s, delim);
   if (*s == '\0')
     {
       *save_ptr = s;
@@ -53,10 +47,10 @@ char attribute_hidden *__strtok_r (char *s, const char *delim, char **save_ptr)
 
   /* Find the end of the token.  */
   token = s;
-  s = strpbrk (token, delim);
+  s = __strpbrk (token, delim);
   if (s == NULL)
     /* This token finishes the string.  */
-    *save_ptr = rawmemchr (token, '\0');
+    *save_ptr = __rawmemchr (token, '\0');
   else
     {
       /* Terminate the token and make *SAVE_PTR point past it.  */
@@ -66,4 +60,4 @@ char attribute_hidden *__strtok_r (char *s, const char *delim, char **save_ptr)
   return token;
 }
 
-strong_alias(__strtok_r, strtok_r)
+strong_alias(__strtok_r,strtok_r)

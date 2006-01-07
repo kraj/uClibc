@@ -9,9 +9,6 @@
 
 #include "_stdio.h"
 
-extern int __fputws_unlocked(const wchar_t *__restrict ws,
-					FILE *__restrict stream) attribute_hidden;
-
 #ifdef __DO_UNLOCKED
 
 int attribute_hidden __fputws_unlocked(const wchar_t *__restrict ws,
@@ -24,12 +21,16 @@ int attribute_hidden __fputws_unlocked(const wchar_t *__restrict ws,
 
 weak_alias(__fputws_unlocked,fputws_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
+hidden_strong_alias(__fputws_unlocked,__fputws)
 weak_alias(__fputws_unlocked,fputws)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int fputws(const wchar_t *__restrict ws, register FILE *__restrict stream)
+extern int __fputws_unlocked(const wchar_t *__restrict ws,
+					FILE *__restrict stream) attribute_hidden;
+
+int attribute_hidden __fputws(const wchar_t *__restrict ws, register FILE *__restrict stream)
 {
 	int retval;
 	__STDIO_AUTO_THREADLOCK_VAR;
@@ -42,5 +43,6 @@ int fputws(const wchar_t *__restrict ws, register FILE *__restrict stream)
 
 	return retval;
 }
+strong_alias(__fputws,fputws)
 
 #endif

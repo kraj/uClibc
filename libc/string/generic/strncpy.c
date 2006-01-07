@@ -19,8 +19,6 @@
 #include <string.h>
 #include "memcopy.h"
 
-#undef strncpy
-
 char attribute_hidden *__strncpy (char *s1, const char *s2, size_t n)
 {
   reg_char c;
@@ -81,4 +79,4 @@ char attribute_hidden *__strncpy (char *s1, const char *s2, size_t n)
   return s;
 }
 
-strong_alias(__strncpy, strncpy)
+strong_alias(__strncpy,strncpy)

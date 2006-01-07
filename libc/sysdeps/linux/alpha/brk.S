@@ -39,6 +39,7 @@ __curbrk: .skip 8
 
 	.text
 .globl  __brk;
+.hidden __brk;
 .align 3;
 .ent  __brk , 0;
 

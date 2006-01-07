@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#undef memset
 void attribute_hidden *__memset(void *s, int c, size_t count)
 {
     int d0, d1;
@@ -45,4 +44,4 @@ void attribute_hidden *__memset(void *s, int c, size_t count)
     return s;
 }
 
-strong_alias(__memset, memset)
+strong_alias(__memset,memset)

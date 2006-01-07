@@ -22,9 +22,6 @@
 
 #ifndef USE_AS_STPCPY
 # define STRCPY __strcpy
-.global strcpy
-.set strcpy,__strcpy
-.hidden __strcpy
 #endif
 
 	.text
@@ -154,3 +151,6 @@ ENTRY (BP_SYM (STRCPY))
 #endif
 	retq
 END (BP_SYM (STRCPY))
+#ifndef USE_AS_STPCPY
+strong_alias(__strcpy,strcpy)
+#endif

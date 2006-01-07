@@ -65,9 +65,6 @@
 1:	retl
 	 add		%o0, -1, %o0
 
-.globl stpcpy
-.set stpcpy,__stpcpy
-.hidden __stpcpy
 ENTRY(__stpcpy)
 	andcc		%o1, 3, %g0
 	bne		10b
@@ -160,3 +157,5 @@ ENTRY(__stpcpy)
 19:	retl
 	 nop
 END(__stpcpy)
+
+strong_alias(__stpcpy,stpcpy)

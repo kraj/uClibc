@@ -18,8 +18,6 @@
 
 #include <string.h>
 
-#undef strrchr
-
 /* Find the last occurrence of C in S.  */
 char attribute_hidden *__strrchr (const char *s, int c)
 {
@@ -42,6 +40,6 @@ char attribute_hidden *__strrchr (const char *s, int c)
   return (char *) found;
 }
 
-strong_alias(__strrchr, strrchr)
+strong_alias(__strrchr,strrchr)
 
-weak_alias (strrchr, rindex)
+strong_alias (__strrchr,rindex)

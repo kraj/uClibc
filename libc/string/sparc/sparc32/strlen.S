@@ -63,9 +63,6 @@
 3:	retl
 	 mov		2, %o0
 
-.globl strlen
-.set strlen,__strlen
-.hidden __strlen
 ENTRY(__strlen)
 	mov		%o0, %o1
 	andcc		%o0, 3, %g0
@@ -102,3 +99,5 @@ ENTRY(__strlen)
 13:	retl
 	 sub		%o4, %o1, %o0
 END(__strlen)
+
+strong_alias(__strlen,strlen)

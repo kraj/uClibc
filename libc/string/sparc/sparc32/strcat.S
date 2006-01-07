@@ -91,9 +91,6 @@
 	b		3f
 	 sub		%o0, 1, %o0
 
-.globl strcat
-.set strcat,__strcat
-.hidden __strcat
 ENTRY(__strcat)
 	mov		%o0, %g2
 	andcc		%o0, 3, %g0
@@ -347,3 +344,5 @@ ENTRY(__strcat)
 	retl
 	 mov		%g2, %o0
 END(__strcat)
+
+strong_alias(__strcat,strcat)

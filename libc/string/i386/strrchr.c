@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#undef strrchr
 char attribute_hidden *__strrchr(const char *s, int c)
 {
     int d0, d1;
@@ -49,6 +48,6 @@ char attribute_hidden *__strrchr(const char *s, int c)
     return __res;
 }
 
-strong_alias(__strrchr, strrchr)
+strong_alias(__strrchr,strrchr)
 
-weak_alias(strrchr, rindex)
+strong_alias(__strrchr,rindex)

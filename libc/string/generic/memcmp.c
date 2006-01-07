@@ -20,8 +20,6 @@
 
 #include <string.h>
 
-#undef memcmp
-
 #include "memcopy.h"
 
 #include <endian.h>
@@ -332,6 +330,6 @@ attribute_hidden __memcmp (const __ptr_t s1, const __ptr_t s2, size_t len)
   return 0;
 }
 
-strong_alias(__memcmp, memcmp)
+strong_alias(__memcmp,memcmp)
 
-weak_alias(memcmp, bcmp)
+strong_alias(__memcmp,bcmp)

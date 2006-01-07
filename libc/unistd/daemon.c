@@ -26,6 +26,7 @@
 #define dup2 __dup2
 #define setsid __setsid
 #define chdir __chdir
+#define fork __fork
 
 #include <stdio.h>
 #include <features.h>
@@ -45,7 +46,7 @@ int daemon( int nochdir, int noclose )
 		case 0:
 			break;
 		default:
-			_exit(0);
+			_exit_internal(0);
 	}
 
 	if (setsid() == -1)
@@ -54,7 +55,7 @@ int daemon( int nochdir, int noclose )
 	/* Make certain we are not a session leader, or else we
 	 * might reacquire a controlling terminal */
 	if (fork())
-		_exit(0);
+		_exit_internal(0);
 
 	if (!nochdir)
 		chdir("/");

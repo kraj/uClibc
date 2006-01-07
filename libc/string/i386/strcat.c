@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#undef strcat
 char attribute_hidden *__strcat(char * dest, const char * src)
 {
     int d0, d1, d2, d3;
@@ -49,4 +48,4 @@ char attribute_hidden *__strcat(char * dest, const char * src)
     return dest;
 }
 
-strong_alias(__strcat, strcat)
+strong_alias(__strcat,strcat)

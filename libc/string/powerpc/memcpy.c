@@ -21,7 +21,6 @@
 
 #include <string.h>
 
-#undef memcpy
 void attribute_hidden *__memcpy(void *to, const void *from, size_t n)
 /* PPC can do pre increment and load/store, but not post increment and load/store.
    Therefore use *++ptr instead of *ptr++. */
@@ -78,4 +77,4 @@ void attribute_hidden *__memcpy(void *to, const void *from, size_t n)
 	goto lessthan8;
 }
 
-strong_alias(__memcpy, memcpy)
+strong_alias(__memcpy,memcpy)

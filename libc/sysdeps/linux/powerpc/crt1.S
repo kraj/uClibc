@@ -60,7 +60,8 @@ _start:
 	lwz	r4,0(r9)
 	/* find argv one word offset from the stack pointer */
 	addi	r5,r9,4
-	mr	r8,r7 /* Pass _dl_fini from ldso or NULL if statically linked */
+	mr	r8,r3 /* Pass _dl_fini from ldso or NULL if statically linked
+			Note:	 using r3 instead of r7, since linux 2.6 clobbers r7 */
 	/* Ok, now run uClibc's main() -- shouldn't return */
 #ifdef __PIC__
 	lwz	r6,_init@got(r31)

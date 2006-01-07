@@ -49,7 +49,7 @@ int scandir(const char *dir, struct dirent ***namelist,
     __set_errno (0);
 
     pos = 0;
-    while ((current = readdir (dp)) != NULL)
+    while ((current = __readdir (dp)) != NULL)
 	if (selector == NULL || (*selector) (current))
 	{
 	    struct dirent *vnew;

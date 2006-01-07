@@ -22,14 +22,15 @@ int attribute_hidden __fputs_unlocked(register const char * __restrict s,
 	return ((__fwrite_unlocked(s, 1, n, stream) == n) ? n : EOF);
 }
 
-weak_alias(__fputs_unlocked,fputs_unlocked);
+weak_alias(__fputs_unlocked,fputs_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fputs_unlocked,fputs);
+hidden_strong_alias(__fputs_unlocked,__fputs)
+weak_alias(__fputs_unlocked,fputs)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int fputs(const char * __restrict s, register FILE * __restrict stream)
+int attribute_hidden __fputs(const char * __restrict s, register FILE * __restrict stream)
 {
 	int retval;
 	__STDIO_AUTO_THREADLOCK_VAR;
@@ -42,5 +43,6 @@ int fputs(const char * __restrict s, register FILE * __restrict stream)
 
 	return retval;
 }
+strong_alias(__fputs,fputs)
 
 #endif

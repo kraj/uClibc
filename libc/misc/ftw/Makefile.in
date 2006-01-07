@@ -5,36 +5,23 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-MSRC:=ftw.c
-MOBJ:=ftw.o ftw64.o
+SRC := ftw.c
+ifeq ($(UCLIBC_HAS_LFS),y)
+SRC += ftw64.c
+endif
 
-MISC_FTW_DIR:=$(top_srcdir)libc/misc/ftw
-MISC_FTW_OUT:=$(top_builddir)libc/misc/ftw
+MISC_FTW_DIR := $(top_srcdir)libc/misc/ftw
+MISC_FTW_OUT := $(top_builddir)libc/misc/ftw
 
-# ftw.c has to be rewritten to allow multi
-MISC_FTW_NO_MULTI:=ftw64.o
+MISC_FTW_SRC := $(patsubst %.c,$(MISC_FTW_DIR)/%.c,$(SRC))
+MISC_FTW_OBJ := $(patsubst %.c,$(MISC_FTW_OUT)/%.o,$(SRC))
 
-MISC_FTW_MSRC:=$(MISC_FTW_DIR)/$(MSRC)
-MISC_FTW_MOBJ:=$(patsubst %.o,$(MISC_FTW_OUT)/%.o,$(MOBJ))
+libc-a-$(UCLIBC_HAS_FTW) += $(MISC_FTW_OBJ)
+libc-so-$(UCLIBC_HAS_FTW) += $(MISC_FTW_OBJ:.o=.os)
 
-MISC_FTW_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(filter-out $(MISC_FTW_NO_MULTI),$(notdir $(MISC_FTW_MOBJ)))))
+libc-multi-$(UCLIBC_HAS_FTW) += $(MISC_FTW_SRC)
 
-MISC_FTW_OBJS:=$(MISC_FTW_MOBJ)
-
-$(MISC_FTW_OBJS): $(MISC_FTW_MSRC)
-	$(compile.m)
-
-$(MISC_FTW_OBJS:.o=.os): $(MISC_FTW_MSRC)
-	$(compile.m)
-
-libc-a-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_OBJS)
-libc-so-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_OBJS:.o=.os)
-
-CFLAGS-multi-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_DEF)
-libc-multi-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_MSRC)
-libc-nomulti-$(UCLIBC_HAS_FTW)+=$(patsubst %.o,$(MISC_FTW_OUT)/%.o,$(MISC_FTW_NO_MULTI))
-
-objclean-y+=misc_ftw_objclean
+objclean-y += misc_ftw_objclean
 
 misc_ftw_objclean:
 	$(RM) $(MISC_FTW_OUT)/*.{o,os}

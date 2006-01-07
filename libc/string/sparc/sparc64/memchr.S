@@ -255,7 +255,7 @@ ENTRY(__memchr)
 	 add		%o0, -1, %o0			/* IEU0				*/
 END(__memchr)
 
-weak_alias (__memchr, memchr)
+strong_alias(__memchr,memchr)
 #if !__BOUNDED_POINTERS__
-weak_alias (__memchr, __ubp_memchr)
+weak_alias(__memchr,__ubp_memchr)
 #endif

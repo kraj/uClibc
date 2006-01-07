@@ -19,7 +19,7 @@
  *   equivalent to rmdir(path). 
  */
 
-int remove(register const char *filename)
+int attribute_hidden __remove(register const char *filename)
 {
 	int saved_errno = errno;
 	int rv;
@@ -30,3 +30,4 @@ int remove(register const char *filename)
 	}
 	return rv;
 }
+strong_alias(__remove,remove)

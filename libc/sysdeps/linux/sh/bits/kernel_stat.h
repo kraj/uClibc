@@ -30,10 +30,10 @@ struct kernel_stat {
 };
 
 struct kernel_stat64 {
-#if defined(__BIG_ENDIAN__)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
 	unsigned char   __pad0b[6];
 	unsigned short	st_dev;
-#elif defined(__LITTLE_ENDIAN__)
+#elif (__BYTE_ORDER == __LITTLE_ENDIAN)
 	unsigned short	st_dev;
 	unsigned char	__pad0b[6];
 #else
@@ -48,7 +48,7 @@ struct kernel_stat64 {
 	unsigned long	st_uid;
 	unsigned long	st_gid;
 
-#if defined(__BIG_ENDIAN__)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
 	unsigned char	__pad3b[6];
 	unsigned short	st_rdev;
 #else /* Must be little */
@@ -60,7 +60,7 @@ struct kernel_stat64 {
 	long long	st_size;
 	unsigned long	st_blksize;
 
-#if defined(__BIG_ENDIAN__)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
 	unsigned long	__pad4;		/* Future possible st_blocks hi bits */
 	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
 #else /* Must be little */

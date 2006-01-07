@@ -23,7 +23,7 @@
 /* BEWARE: `#ifdef memcpy' means that memcpy is redefined as `mempcpy',
    and the return value is the byte after the last one copied in
    the destination. */
-#define MEMPCPY_P (defined memcpy)
+#define MEMPCPY_P (defined __memcpy)
 
         .text
 #if defined PIC && !defined NOT_IN_libc
@@ -32,9 +32,6 @@ ENTRY (__memcpy_chk)
 	jb	HIDDEN_JUMPTARGET (__chk_fail)
 END (__memcpy_chk)
 #endif
-.global memcpy
-.set memcpy,__memcpy
-.hidden __memcpy
 ENTRY (BP_SYM (__memcpy))
 	/* Cutoff for the big loop is a size of 32 bytes since otherwise
 	   the loop will never be entered.  */
@@ -96,3 +93,6 @@ ENTRY (BP_SYM (__memcpy))
 	ret
 
 END (BP_SYM (__memcpy))
+#if !MEMPCPY_P
+strong_alias(__memcpy,memcpy)
+#endif

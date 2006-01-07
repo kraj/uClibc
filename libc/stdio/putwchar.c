@@ -14,16 +14,18 @@ wint_t __putwchar_unlocked(wchar_t wc)
 	return __fputwc_unlocked(wc, stdout);
 }
 
-weak_alias(__putwchar_unlocked,putwchar_unlocked);
+weak_alias(__putwchar_unlocked,putwchar_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__putwchar_unlocked,putwchar);
+weak_alias(__putwchar_unlocked,putwchar)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+extern int __fputc (int __c, FILE *__stream) attribute_hidden;
+
 wint_t putwchar(wchar_t wc)
 {
-	return fputc(wc, stdout);
+	return __fputc(wc, stdout);
 }
 
 #endif

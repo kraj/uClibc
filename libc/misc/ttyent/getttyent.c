@@ -29,6 +29,7 @@
 
 #define __fsetlocking __fsetlocking_internal
 #define rewind __rewind
+#define fgets_unlocked __fgets_unlocked
 
 #define _GNU_SOURCE
 #include <features.h>
@@ -41,6 +42,8 @@
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 #endif
+
+extern int __getc_unlocked (FILE *__stream) attribute_hidden;
 
 static char zapchar;
 static FILE *tf;
@@ -130,7 +133,7 @@ struct ttyent attribute_hidden * __getttyent(void)
 	}
 	/* skip lines that are too big */
 	if (!__strchr(p, '\n')) {
-	    while ((c = getc_unlocked(tf)) != '\n' && c != EOF)
+	    while ((c = __getc_unlocked(tf)) != '\n' && c != EOF)
 		;
 	    continue;
 	}

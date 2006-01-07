@@ -25,7 +25,7 @@ key_t ftok (const char *pathname, int proj_id)
   struct stat st;
   key_t key;
 
-  if (stat(pathname, &st) < 0)
+  if (__stat(pathname, &st) < 0)
     return (key_t) -1;
 
   key = ((st.st_ino & 0xffff) | ((st.st_dev & 0xff) << 16)

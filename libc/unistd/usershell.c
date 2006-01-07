@@ -32,6 +32,7 @@
 
 #define __fsetlocking __fsetlocking_internal
 #define fileno __fileno
+#define fgets_unlocked __fgets_unlocked
 
 #define _GNU_SOURCE
 #include <sys/param.h>
@@ -103,7 +104,7 @@ static char ** initshells(void)
 
     if ((fp = fopen(_PATH_SHELLS, "r")) == NULL)
 	return (char **) validsh;
-    if (fstat(fileno(fp), &statb) == -1) {
+    if (__fstat(fileno(fp), &statb) == -1) {
 	goto cleanup;
     }
     if ((strings = malloc((unsigned)statb.st_size + 1)) == NULL) {

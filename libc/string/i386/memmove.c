@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#undef memmove
 void attribute_hidden *__memmove(void *dest, const void *src, size_t n)
 {
     int d0, d1, d2;
@@ -57,4 +56,4 @@ void attribute_hidden *__memmove(void *dest, const void *src, size_t n)
     return dest;
 }
 
-strong_alias(__memmove, memmove)
+strong_alias(__memmove,memmove)

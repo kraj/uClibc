@@ -45,9 +45,6 @@
 
 	.text
 	.align		32
-.globl strcpy
-.set strcpy,__strcpy
-.hidden __strcpy
 ENTRY(__strcpy)
 	sethi		%hi(0x01010101), %g1		/* IEU0		Group		*/
 	mov		%o0, %g6			/* IEU1				*/
@@ -244,3 +241,5 @@ ENTRY(__strcpy)
 	retl						/* CTI+IEU1	Group		*/
 	 mov		%g6, %o0			/* IEU0				*/
 END(__strcpy)
+
+strong_alias(__strcpy,strcpy)

@@ -69,7 +69,7 @@ ENTRY (__clone)
 	jsr	r0
 
 	SETUP_PIC
-	PLTCALL	(_exit)
+	PLTCALL	(_exit_internal)
 
 	/* Die horribly.  */
 	test.d	[6809]

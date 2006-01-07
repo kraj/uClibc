@@ -74,9 +74,6 @@
 2:	retl
 	 mov		%o4, %o0
 
-.globl strcmp
-.set strcmp,__strcmp
-.hidden __strcmp
 ENTRY(__strcmp)
 	andcc		%o0, 3, %g0
 	bne		10b
@@ -256,3 +253,5 @@ ENTRY(__strcmp)
 	jmpl		%i7 + 8, %g0
 	 restore	%g4, %g0, %o0
 END(__strcmp)
+
+strong_alias(__strcmp,strcmp)

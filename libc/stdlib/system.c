@@ -1,6 +1,8 @@
 #define wait4 __wait4
 #define execl __execl
 #define signal __signal
+#define vfork __vfork
+#define fork __fork
 
 #include <stdio.h>
 #include <stddef.h>
@@ -38,7 +40,7 @@ int __libc_system(char *command)
 		signal(SIGCHLD, SIG_DFL);
 
 		execl("/bin/sh", "sh", "-c", command, (char *) 0);
-		_exit(127);
+		_exit_internal(127);
 	}
 	/* Signals are not absolutly guarenteed with vfork */
 	signal(SIGQUIT, SIG_IGN);

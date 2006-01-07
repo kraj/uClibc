@@ -9,8 +9,8 @@ extern void * __curbrk;
 
 extern int __init_brk (void);
 
-void *
-sbrk(intptr_t increment)
+void attribute_hidden *
+__sbrk(intptr_t increment)
 {
 	if (__init_brk () == 0) {
 		void * tmp = __curbrk + increment;
@@ -34,3 +34,4 @@ sbrk(intptr_t increment)
 	}
 	return ((void *) -1);
 }
+strong_alias(__sbrk,sbrk)

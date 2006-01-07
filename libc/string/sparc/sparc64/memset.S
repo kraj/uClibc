@@ -36,9 +36,6 @@
 	/* Well, memset is a lot easier to get right than bcopy... */
 	.text
 	.align		32
-.globl memset
-.set memset,__memset
-.hidden __memset
 ENTRY(__memset)
 	andcc		%o1, 0xff, %o1
 	mov		%o0, %o5
@@ -180,6 +177,7 @@ ENTRY(__memset)
 	ba,pt		%xcc, 18b
 	 ldd		[%o0], %f0
 END(__memset)
+strong_alias(__memset,memset)
 
 #define ZERO_BLOCKS(base, offset, source)		\
 	stx		source, [base - offset - 0x38];	\
@@ -312,5 +310,4 @@ ENTRY(__bzero)
 0:	retl
 	 mov		%o5, %o0
 END(__bzero)
-
-weak_alias (__bzero, bzero)
+strong_alias(__bzero,bzero)

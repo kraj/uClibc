@@ -53,6 +53,7 @@
 #define wcsrtombs __wcsrtombs
 #define mbrtowc __mbrtowc
 #define wcrtomb __wcrtomb
+#define fflush_unlocked __fflush_unlocked
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -288,7 +289,7 @@ UNLOCKED(wchar_t *,fgetws,(wchar_t *__restrict ws, int n,
 	wint_t wi;
 
 	while ((n > 1)
-		   && ((wi = fgetwc_unlocked(stream)) != WEOF)
+		   && ((wi = __fgetwc_unlocked(stream)) != WEOF)
 		   && ((*p++ = wi) != '\n')
 		   ) {
 		--n;

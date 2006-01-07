@@ -18,6 +18,8 @@
    02111-1307 USA.  */
 
 #include <features.h>
+#undef __statfs64
+#undef __statfs
 
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
@@ -37,13 +39,13 @@
 #include <sys/statfs.h>
 
 #if defined __UCLIBC_HAS_LFS__
-
+#undef statfs64
 /* Return information about the filesystem on which FILE resides.  */
-int statfs64 (const char *file, struct statfs64 *buf)
+int attribute_hidden __statfs64 (const char *file, struct statfs64 *buf)
 {
     struct statfs buf32;
 
-    if (statfs (file, &buf32) < 0)
+    if (__statfs (file, &buf32) < 0)
 	return -1;
 
     buf->f_type = buf32.f_type;
@@ -59,4 +61,6 @@ int statfs64 (const char *file, struct statfs64 *buf)
 
     return 0;
 }
+strong_alias(__statfs64,statfs64)
+
 #endif

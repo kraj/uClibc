@@ -7,6 +7,10 @@
 
 #include "_stdio.h"
 
+#ifndef __DO_LARGEFILE
+#define FSEEK __fseek
+#endif
+
 int fsetpos(FILE *stream, register const fpos_t *pos)
 {
 #ifdef __STDIO_MBSTATE
@@ -16,7 +20,7 @@ int fsetpos(FILE *stream, register const fpos_t *pos)
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	if ((retval = fseek(stream, pos->__pos, SEEK_SET)) == 0) {
+	if ((retval = FSEEK(stream, pos->__pos, SEEK_SET)) == 0) {
 		__COPY_MBSTATE(&(stream->__state), &(pos->__mbstate));
 		stream->__ungot_width[0]= pos->__mblen_pending;
 	}
@@ -27,7 +31,7 @@ int fsetpos(FILE *stream, register const fpos_t *pos)
 
 #else
 
-	return fseek(stream, pos->__pos, SEEK_SET);
+	return FSEEK(stream, pos->__pos, SEEK_SET);
 
 #endif
 }

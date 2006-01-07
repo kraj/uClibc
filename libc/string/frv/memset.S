@@ -18,6 +18,7 @@
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <features.h>
 
         .text
         .p2align	4
@@ -31,8 +32,6 @@
 #         GR4, GR7, GR8, and GR11 must be managed
 #
 ###############################################################################
-        .globl		memset
-	.set		memset,__memset
         .globl		__memset
         .hidden		__memset
         .type		__memset,@function
@@ -156,3 +155,5 @@ __memset:
 	cstb.p		gr12,@(gr4,gr0)		,cc7,#1
 	bralr
 	.size		__memset, .-__memset
+
+strong_alias(__memset,memset)

@@ -47,9 +47,6 @@
 
 	.text
 	.align		32
-.globl strchr
-.set strchr,__strchr
-.hidden __strchr
 ENTRY(__strchr)
 	andcc		%o1, 0xff, %o1			/* IEU1		Group		*/
 	be,pn		%icc, 17f			/* CTI				*/
@@ -331,11 +328,10 @@ ENTRY(__strchr)
 	retl						/* CTI+IEU1	Group		*/
 	 add		%o0, -1, %o0			/* IEU0				*/
 END(__strchr)
+strong_alias(__strchr,strchr)
+strong_alias(__strchr,index)
 
 	.align		32
-.globl strrchr
-.set strrchr,__strrchr
-.hidden __strrchr
 ENTRY(__strrchr)
 	andcc		%o1, 0xff, %o1			/* IEU1		Group		*/
 	be,pn		%icc, 17b			/* CTI				*/
@@ -481,6 +477,5 @@ ENTRY(__strrchr)
 
 	 ldx		[%o0], %o3			/* Load				*/
 END(__strrchr)
-
-weak_alias (strchr, index)
-weak_alias (strrchr, rindex)
+strong_alias(__strrchr,strrchr)
+strong_alias(__strrchr,rindex)
