@@ -19,11 +19,13 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <signal.h>
+#include <libc-internal.h>
 
 /* This function is called by the `sigsetjmp' macro
    before doing a `__setjmp' on ENV[0].__jmpbuf.
    Always return zero.  */
 
+attribute_hidden
 int __sigjmp_save (sigjmp_buf env, int savemask)
 {
     env[0].__mask_was_saved = (savemask && 
