@@ -201,10 +201,10 @@ extern struct hostent *__gethostbyaddr (__const void *__addr, __socklen_t __len,
 
 
 /* Global stuff (stuff needing to be locked to be thread safe)... */
-extern int __nameservers;
-extern char * __nameserver[MAX_SERVERS];
-extern int __searchdomains;
-extern char * __searchdomain[MAX_SEARCH];
+extern int __nameservers attribute_hidden;
+extern char * __nameserver[MAX_SERVERS] attribute_hidden;
+extern int __searchdomains attribute_hidden;
+extern char * __searchdomain[MAX_SEARCH] attribute_hidden;
 
 
 #ifdef __UCLIBC_HAS_THREADS__
