@@ -118,13 +118,14 @@ int attribute_hidden ___path_search (char *tmpl, size_t tmpl_len, const char *di
 	return -1;
     }
 
-    __sprintf (tmpl, "%.*s/%.*sXXXXXX", (int) dlen, dir, (int) plen, pfx);
+    __sprintf (tmpl, "%.*s/%.*sXXXXXX", dlen, dir, plen, pfx);
     return 0;
 }
 
 /* These are the characters used in temporary filenames.  */
 static const char letters[] =
 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+#define NUM_LETTERS (62)
 
 static unsigned int fillrand(unsigned char *buf, unsigned int len)
 {
@@ -152,15 +153,15 @@ static void brain_damaged_fillrand(unsigned char *buf, unsigned int len)
 	low = value & UINT32_MAX;
 	high = value >> 32;
 	for (i = 0; i < len; ++i) {
-		rh = high % 62;
-		high /= 62;
-#define L ((UINT32_MAX % 62 + 1) % 62)
-		k = (low % 62) + (L * rh);
+		rh = high % NUM_LETTERS;
+		high /= NUM_LETTERS;
+#define L ((UINT32_MAX % NUM_LETTERS + 1) % NUM_LETTERS)
+		k = (low % NUM_LETTERS) + (L * rh);
 #undef L
-#define H ((UINT32_MAX / 62) + ((UINT32_MAX % 62 + 1) / 62))
-		low = (low / 62) + (H * rh) + (k / 62);
+#define H ((UINT32_MAX / NUM_LETTERS) + ((UINT32_MAX % NUM_LETTERS + 1) / NUM_LETTERS))
+		low = (low / NUM_LETTERS) + (H * rh) + (k / NUM_LETTERS);
 #undef H
-		k %= 62;
+		k %= NUM_LETTERS;
 		buf[i] = letters[k];
 	}
 }
@@ -182,49 +183,44 @@ static void brain_damaged_fillrand(unsigned char *buf, unsigned int len)
 int attribute_hidden __gen_tempname (char *tmpl, int kind)
 {
     char *XXXXXX;
-    unsigned int i, k;
-    int len, count, fd, save_errno = errno;
+    unsigned int i;
+    int fd, save_errno = errno;
     unsigned char randomness[6];
+    size_t len;
 
     len = __strlen (tmpl);
-    if (len < 6 || __strcmp (&tmpl[len - 6], "XXXXXX"))
+    /* This is where the Xs start.  */
+    XXXXXX = tmpl + len - 6;
+    if (len < 6 || __strcmp (XXXXXX, "XXXXXX"))
     {
 	__set_errno (EINVAL);
 	return -1;
     }
 
-    /* This is where the Xs start.  */
-    XXXXXX = &tmpl[len - 6];
-
     /* Get some random data.  */
-	if (fillrand(randomness, sizeof(randomness)) != sizeof(randomness)) {
-		/* if random device nodes failed us, lets use the braindamaged ver */
-		brain_damaged_fillrand(randomness, sizeof(randomness));
-    }
-    for (i = 0 ; i < sizeof(randomness) ; i++) {
-	k = ((randomness[i]) % 62);
-	XXXXXX[i] = letters[k];
+    if (fillrand(randomness, sizeof(randomness)) != sizeof(randomness)) {
+	/* if random device nodes failed us, lets use the braindamaged ver */
+	brain_damaged_fillrand(randomness, sizeof(randomness));
     }
 
-    for (count = 0; count < TMP_MAX; ++count)
-    {
+    for (i = 0; i < sizeof(randomness); ++i)
+	XXXXXX[i] = letters[(randomness[i]) % NUM_LETTERS];
+
+    for (i = 0; i < TMP_MAX; ++i) {
+
 	switch(kind) {
 	    case __GT_NOCREATE:
 		{
 		    struct stat st;
-		    if (__stat (tmpl, &st) < 0)
-		    {
-			if (errno == ENOENT)
-			{
-			    __set_errno (save_errno);
-			    return 0;
-			}
-			else
+		    if (__stat (tmpl, &st) < 0) {
+			if (errno == ENOENT) {
+			    fd = 0;
+			    goto restore_and_ret;
+			} else
 			    /* Give up now. */
 			    return -1;
-		    }
-		    else
-			continue;
+		    } else
+			fd = 0;
 		}
 	    case __GT_FILE:
 		fd = __open (tmpl, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
@@ -243,6 +239,7 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind)
 	}
 
 	if (fd >= 0) {
+restore_and_ret:
 	    __set_errno (save_errno);
 	    return fd;
 	}
