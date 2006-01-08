@@ -22,18 +22,14 @@
 #  include <sys/time.h>
 
 #  ifdef IS_IN_libc
-#   ifndef __SSP_QUICK_CANARY__
-#     define OPEN __open
-#     define READ __read
-#     define CLOSE __close
-#   endif
+#   define OPEN __open
+#   define READ __read
+#   define CLOSE __close
 #   define GETTIMEOFDAY gettimeofday
 #  else
-#   ifndef __SSP_QUICK_CANARY__
-#    define OPEN _dl_open
-#    define READ _dl_read
-#    define CLOSE _dl_close
-#   endif
+#   define OPEN _dl_open
+#   define READ _dl_read
+#   define CLOSE _dl_close
 #   define GETTIMEOFDAY _dl_gettimeofday
 #  endif
 
