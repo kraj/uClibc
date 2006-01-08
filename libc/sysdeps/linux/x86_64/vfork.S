@@ -51,13 +51,10 @@ __vfork:
 	pushq	%rdi
 
 	cmpl	$-4095, %eax
-	jae __error		/* Branch forward if it failed.  */
+	jae __syscall_error		/* Branch forward if it failed.  */
 
 	/* Normal return.  */
 	ret
-
-__error:
-	jmp __syscall_error
 
 .size __vfork,.-__vfork
 

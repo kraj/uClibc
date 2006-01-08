@@ -37,10 +37,7 @@ syscall:
 	movq 8(%rsp),%r9	/* arg6 is on the stack.  */
 	syscall			/* Do the system call.  */
 	cmpq $-4095, %rax	/* Check %rax for error.  */
-	jae __error		/* Branch forward if it failed.  */
+	jae __syscall_error		/* Branch forward if it failed.  */
 	ret			/* Return to caller.  */
-
-__error:
-	jmp __syscall_error
 
 .size syscall,.-syscall

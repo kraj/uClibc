@@ -57,9 +57,9 @@ __clone:
 	/* Sanity check arguments.  */
 	movq	$-EINVAL,%rax
 	testq	%rdi,%rdi		/* no NULL function pointers */
-	jz	__error
+	jz	__syscall_error
 	testq	%rsi,%rsi		/* no NULL stack pointers */
-	jz	__error
+	jz	__syscall_error
 
 	/* Insert the argument onto the new stack.  */
 	subq	$16,%rsi
@@ -79,7 +79,7 @@ __clone:
 	syscall
 
 	testq	%rax,%rax
-	jl	__error
+	jl	__syscall_error
 	jz	.Lthread_start
 
 .Lpseudo_end:
@@ -110,9 +110,6 @@ __clone:
 	/* Call exit with return value from function call. */
 	movq	%rax, %rdi
 	call	_exit_internal
-
-__error:
-	jmp __syscall_error
 
 .size __clone,.-__clone
 
