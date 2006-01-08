@@ -13,7 +13,7 @@
 
 #ifdef __UCLIBC_HAS_ERRNO_MESSAGES__
 
-extern const char _string_syserrmsgs[];
+extern const char _string_syserrmsgs[] attribute_hidden;
 
 #if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
 
