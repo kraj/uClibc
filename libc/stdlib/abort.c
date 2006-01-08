@@ -104,7 +104,7 @@ void attribute_hidden __abort(void)
 
 #ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__
 			/* If we are using stdio, try to shut it down.  At the very least,
-			 * this will attemt to commit all buffered writes.  It may also
+			 * this will attempt to commit all buffered writes.  It may also
 			 * unboffer all writable files, or close them outright.
 			 * Check the stdio routines for details. */
 			if (_stdio_term) {
