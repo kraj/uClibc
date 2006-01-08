@@ -57,7 +57,7 @@
 extern int __libc_sa_len (sa_family_t __af) __THROW attribute_hidden;
 
 int	rexecoptions;
-char	ahostbuf[NI_MAXHOST];
+char	ahostbuf[NI_MAXHOST] attribute_hidden;
 extern int __ruserpass(const char *host, const char **aname, const char **apass) attribute_hidden;
 
 int attribute_hidden
