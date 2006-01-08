@@ -7,12 +7,18 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
+/* need to hide the 64bit prototype or the weak_alias()
+ * will fail when __NR_lstat64 doesnt exist */
+#define __lstat64 __hide__lstat64
+
 #include "syscalls.h"
 #include <unistd.h>
 #define _SYS_STAT_H
 #include <bits/stat.h>
 #include <bits/kernel_stat.h>
 #include "xstatconv.h"
+
+#undef __lstat64
 
 #define __NR___syscall_lstat __NR_lstat
 #undef __lstat
@@ -34,5 +40,6 @@ int attribute_hidden __lstat(const char *file_name, struct stat *buf)
 strong_alias(__lstat,lstat)
 
 #if ! defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
+hidden_strong_alias(__lstat,__lstat64)
 weak_alias(lstat,lstat64)
 #endif
