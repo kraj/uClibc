@@ -70,7 +70,9 @@ void init_testsuite(const char* testname)
 	printf("%s", testname);
 	test_number = 0;
 	failures = 0;
+#if !defined(__UCLIBC__) || defined(__UCLIBC_DYNAMIC_ATEXIT__)
 	atexit(done_testing);
+#endif
 }
 
 #endif /* __NO_TESTCODE__ */
