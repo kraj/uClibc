@@ -310,8 +310,8 @@ int attribute_hidden __rresvport(int *alport)
 }
 strong_alias(__rresvport,rresvport)
 
-int	__check_rhosts_file = 1;
-char    *__rcmd_errstr;
+static int  __check_rhosts_file = 1;
+static char *__rcmd_errstr;
 
 int ruserok(rhost, superuser, ruser, luser)
 	const char *rhost, *ruser, *luser;
