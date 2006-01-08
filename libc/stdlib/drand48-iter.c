@@ -24,7 +24,7 @@
 #include <sys/types.h>
 
 /* Global state for non-reentrant functions.  */
-struct drand48_data __libc_drand48_data;
+struct drand48_data __libc_drand48_data attribute_hidden;
 
 
 int attribute_hidden

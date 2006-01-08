@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 /* Global state for non-reentrant functions.  Defined in drand48-iter.c.  */
-extern struct drand48_data __libc_drand48_data;
+extern struct drand48_data __libc_drand48_data attribute_hidden;
 
 long int jrand48 (unsigned short int xsubi[3])
 {
