@@ -189,6 +189,7 @@ void __uClibc_init(void)
 	_stdio_init();
 
 }
+hidden_strong_alias(__uClibc_init,__uClibc_init_internal)
 
 #ifdef __UCLIBC_CTOR_DTOR__
 void attribute_hidden (*__app_fini)(void) = NULL;
@@ -245,7 +246,7 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     /* We need to initialize uClibc.  If we are dynamically linked this
      * may have already been completed by the shared lib loader.  We call
      * __uClibc_init() regardless, to be sure the right thing happens. */
-    __uClibc_init();
+    __uClibc_init_internal();
 
 #ifdef __ARCH_HAS_MMU__
     /* Make certain getpagesize() gives the correct answer */
