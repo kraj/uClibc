@@ -35,7 +35,8 @@
 extern int __putc(int c, FILE *stream) attribute_hidden;
 
 /* This variable is incremented each time `error' is called.  */
-unsigned int error_message_count;
+unsigned int error_message_count = 0;
+hidden_strong_alias(error_message_count, __error_message_count)
 /* Sometimes we want to have at most one error per line.  This
    variable controls whether this mode is selected or not.  */
 int error_one_per_line;
@@ -54,7 +55,7 @@ void __error (int status, int errnum, const char *message, ...)
     va_start (args, message);
     vfprintf (stderr, message, args);
     va_end (args);
-    ++error_message_count;
+    ++__error_message_count;
     if (errnum) {
 	fprintf (stderr, ": %s", strerror (errnum));
     }
@@ -90,7 +91,7 @@ void __error_at_line (int status, int errnum, const char *file_name,
     vfprintf (stderr, message, args);
     va_end (args);
 
-    ++error_message_count;
+    ++__error_message_count;
     if (errnum) {
 	fprintf (stderr, ": %s", strerror (errnum));
     }
