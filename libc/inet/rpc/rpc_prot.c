@@ -109,6 +109,7 @@ xdr_accepted_reply (XDR *xdrs, struct accepted_reply *ar)
     }
   return TRUE;		/* TRUE => open ended set of problems */
 }
+hidden_strong_alias(xdr_accepted_reply,__xdr_accepted_reply)
 
 /*
  * XDR the MSG_DENIED part of a reply message union
@@ -131,11 +132,12 @@ xdr_rejected_reply (XDR *xdrs, struct rejected_reply *rr)
     }
   return FALSE;
 }
+hidden_strong_alias(xdr_rejected_reply,__xdr_rejected_reply)
 
 static const struct xdr_discrim reply_dscrm[3] =
 {
-  {(int) MSG_ACCEPTED, (xdrproc_t) xdr_accepted_reply},
-  {(int) MSG_DENIED, (xdrproc_t) xdr_rejected_reply},
+  {(int) MSG_ACCEPTED, (xdrproc_t) __xdr_accepted_reply},
+  {(int) MSG_DENIED, (xdrproc_t) __xdr_rejected_reply},
   {__dontcare__, NULL_xdrproc_t}};
 
 /*
