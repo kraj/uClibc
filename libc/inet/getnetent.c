@@ -43,7 +43,7 @@ static char *line = NULL;
 static struct netent net;
 static char *net_aliases[MAXALIASES];
 
-int _net_stayopen;
+int _net_stayopen attribute_hidden;
 
 void attribute_hidden __setnetent(int f)
 {

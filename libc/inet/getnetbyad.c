@@ -23,7 +23,7 @@
 #include <features.h>
 #include <netdb.h>
 
-extern int _net_stayopen;
+extern int _net_stayopen attribute_hidden;
 
 struct netent *getnetbyaddr (uint32_t net, int type)
 {

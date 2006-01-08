@@ -24,7 +24,7 @@
 #include <netdb.h>
 #include <string.h>
 
-extern int _net_stayopen;
+extern int _net_stayopen attribute_hidden;
 
 struct netent *
 getnetbyname(const char *name)
