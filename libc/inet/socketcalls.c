@@ -1,3 +1,7 @@
+#ifdef L_recv
+#define recvfrom __recvfrom
+#endif
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <errno.h>
