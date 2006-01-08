@@ -209,7 +209,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 		case R_X86_64_GLOB_DAT:
 		case R_X86_64_JUMP_SLOT:
-			*reloc_addr = symbol_addr;
+			*reloc_addr = symbol_addr + rpnt->r_addend;
 			break;
 
 		/* handled by elf_machine_relative()
@@ -261,7 +261,6 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	return 0;
 }
 
-#if 0
 static int
 _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		  ELF_RELOC *rpnt, ElfW(Sym) *symtab, char *strtab)
@@ -288,7 +287,7 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		case R_X86_64_NONE:
 			break;
 		case R_X86_64_JUMP_SLOT:
-			*reloc_addr = tpnt->loadaddr + symtab[symtab_index].st_value;
+			*reloc_addr += (unsigned long)tpnt->loadaddr;
 			break;
 		default:
 			_dl_exit(1);
@@ -302,17 +301,13 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	return 0;
 }
-#endif
 
 void
 _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 				      unsigned long rel_addr,
 				      unsigned long rel_size)
 {
-	_dl_parse_relocation_information(rpnt, rel_addr, rel_size);
-/*	jump slot isnt working
 	(void)_dl_parse(rpnt->dyn, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
-*/
 }
 
 int
