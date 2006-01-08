@@ -22,12 +22,12 @@
 #include <netinet/in.h>
 
 #ifdef __UCLIBC_HAS_IPV6__
-const struct in6_addr __in6addr_any =
+const struct in6_addr in6addr_any =
 { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } };
-weak_alias (__in6addr_any, in6addr_any)
-const struct in6_addr __in6addr_loopback =
+hidden_weak_alias (in6addr_any, __in6addr_any)
+const struct in6_addr in6addr_loopback =
 { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } };
-weak_alias(__in6addr_loopback, in6addr_loopback)
+hidden_weak_alias(in6addr_loopback, __in6addr_loopback)
 #endif /* __UCLIBC_HAS_IPV6__ */
 
 
