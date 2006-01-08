@@ -35,7 +35,7 @@
 
 #ifdef __UCLIBC_HAS_SIGNUM_MESSAGES__
 
-extern const char _string_syssigmsgs[];
+extern const char _string_syssigmsgs[] attribute_hidden;
 
 #if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
 static const unsigned char sstridx[] = {

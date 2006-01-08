@@ -10,7 +10,7 @@
 #include <stddef.h>
 #include <signal.h>
 
-extern const char _string_syssigmsgs[];
+extern const char _string_syssigmsgs[] attribute_hidden;
 
 #ifdef __UCLIBC_HAS_SYS_SIGLIST__
 

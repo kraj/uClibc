@@ -9,6 +9,7 @@
 
 #ifdef __UCLIBC_HAS_SIGNUM_MESSAGES__
 
+attribute_hidden
 const char _string_syssigmsgs[] = {
 	/*   0:    0,  1 */ "\0"
 	/*   1:    1,  7 */ "Hangup\0"
