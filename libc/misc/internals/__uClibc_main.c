@@ -82,7 +82,9 @@ strong_alias (__progname_full, program_invocation_name)
 char **__environ = 0;
 weak_alias(__environ, environ)
 
+/* TODO: don't export __pagesize; we cant now because libpthread uses it */
 size_t __pagesize = 0;
+hidden_strong_alias(__pagesize,__pagesize_internal)
 
 #ifndef O_NOFOLLOW
 # define O_NOFOLLOW	0
@@ -150,7 +152,7 @@ void __uClibc_init(void)
 
     /* Setup an initial value.  This may not be perfect, but is
      * better than  malloc using __pagesize=0 for atexit, ctors, etc.  */
-    __pagesize = PAGE_SIZE;
+    __pagesize_internal = PAGE_SIZE;
 
 #ifdef __UCLIBC_HAS_THREADS__
     /* Before we start initializing uClibc we have to call
@@ -247,7 +249,7 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 
 #ifdef __ARCH_HAS_MMU__
     /* Make certain getpagesize() gives the correct answer */
-    __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+    __pagesize_internal = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 
     /* Prevent starting SUID binaries where the stdin. stdout, and
      * stderr file descriptors are not already opened. */

@@ -19,14 +19,14 @@
 #include <unistd.h>
 #include <features.h>
 #include <sys/param.h>
-extern size_t __pagesize;
+extern size_t __pagesize_internal attribute_hidden;
 
 /* Return the system page size.  */
 /* couldn't make __getpagesize hidden, because shm.h uses it in a macro */
 int attribute_hidden __getpagesize_internal(void)
 {
-  if (__pagesize != 0)
-    return __pagesize;
+  if (__pagesize_internal != 0)
+    return __pagesize_internal;
 
 #ifdef	EXEC_PAGESIZE
   return EXEC_PAGESIZE;
