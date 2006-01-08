@@ -66,9 +66,9 @@ typedef enum {
 extern void (*__exit_cleanup) (int);
 
 /* these are in the L___do_exit object */
-extern int __exit_slots;
-extern int __exit_count;
-extern void __exit_handler(int);
+extern int __exit_slots attribute_hidden;
+extern int __exit_count attribute_hidden;
+extern void __exit_handler(int) attribute_hidden;
 struct exit_function {
         /*
          * 'type' should be of type of the 'enum ef_type' above but since we
@@ -88,9 +88,9 @@ struct exit_function {
 	} funcs;
 };
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
-extern struct exit_function *__exit_function_table;
+extern struct exit_function *__exit_function_table attribute_hidden;
 #else
-extern struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT];
+extern struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT] attribute_hidden;
 #endif
 extern struct exit_function *__new_exitfn (void) attribute_hidden;
 
