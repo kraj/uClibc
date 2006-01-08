@@ -845,6 +845,12 @@ extern int getloadavg (double __loadavg[], int __nelem)
      __THROW __nonnull ((1));
 #endif
 
+#ifdef __UCLIBC_HAS_ARC4RANDOM__
+extern u_int32_t arc4random(void);
+extern void arc4random_stir(void);
+extern void arc4random_addrandom(unsigned char *, int);
+#endif
+
 #endif /* don't just need malloc and calloc */
 #undef __need_malloc_and_calloc
 
