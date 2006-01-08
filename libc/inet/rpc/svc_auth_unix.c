@@ -53,6 +53,7 @@
 /*
  * Unix longhand authenticator
  */
+attribute_hidden
 enum auth_stat
 _svcauth_unix (struct svc_req *rqst, struct rpc_msg *msg)
 {
@@ -151,6 +152,7 @@ done:
  * Looks up longhand in a cache.
  */
 /*ARGSUSED */
+attribute_hidden
 enum auth_stat
 _svcauth_short (struct svc_req *rqst attribute_unused, struct rpc_msg *msg attribute_unused)
 {
