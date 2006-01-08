@@ -12,6 +12,8 @@
  * the main directory of this archive for more details.
  */
 
+#define truncate __truncate
+
 #include <features.h>
 #include <unistd.h>
 #include <errno.h>

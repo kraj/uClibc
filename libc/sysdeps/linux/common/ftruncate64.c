@@ -12,6 +12,8 @@
  * the main directory of this archive for more details.
  */
 
+#define ftruncate __ftruncate
+
 #include <features.h>
 #include <unistd.h>
 #include <errno.h>

@@ -10,3 +10,4 @@
 #include "syscalls.h"
 #include <unistd.h>
 _syscall2(int, ftruncate, int, fd, __off_t, length);
+hidden_strong_alias(ftruncate, __ftruncate)
