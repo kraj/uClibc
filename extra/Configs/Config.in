@@ -1231,6 +1231,19 @@ config UCLIBC_BUILD_PIE
 		libraries have to be built with -fPIC or -fpic, and all assembler
 		functions must be written as position independent code (PIC).
 
+config UCLIBC_HAS_ARC4RANDOM
+	bool "Include the arc4random() function"
+	default n
+	help
+	  Answer Y to support the OpenBSD-like arc4random() function. This
+	  function picks a random number between 0 and N, and will always return
+	  something even if the random driver is dead. If urandom fails then
+	  gettimeofday(2) will be used as the random seed. This function is
+	  designed to be more dependable than invoking /dev/urandom directly.
+	  OpenSSL and OpenNTPD currently support this function.
+
+	  Most people will answer N.
+
 config HAVE_NO_SSP
 	bool
 	default n
