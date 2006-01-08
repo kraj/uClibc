@@ -206,7 +206,7 @@ extern char *__nl_langinfo_l (nl_item __item, __locale_t l) attribute_hidden;
 
 /**********************************************************************/
 
-extern struct tm __time_tm;
+extern struct tm __time_tm attribute_hidden;
 
 extern struct tm *__localtime_r (__const time_t *__restrict __timer,
 			       struct tm *__restrict __tp) attribute_hidden;
@@ -230,7 +230,7 @@ extern pthread_mutex_t _time_tzlock;
 #define TZLOCK		__pthread_mutex_lock(&_time_tzlock)
 #define TZUNLOCK	__pthread_mutex_unlock(&_time_tzlock)
 
-extern rule_struct _time_tzinfo[2];
+extern rule_struct _time_tzinfo[2] attribute_hidden;
 
 extern struct tm *_time_t2tm(const time_t *__restrict timer,
 					int offset, struct tm *__restrict result) attribute_hidden;
