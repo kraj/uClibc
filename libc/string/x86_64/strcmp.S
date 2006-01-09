@@ -41,3 +41,4 @@ L(neq):	movl	$1, %eax
 END (BP_SYM (__strcmp))
 
 strong_alias(__strcmp,strcmp)
+hidden_strong_alias(__strcmp,__strcoll)
