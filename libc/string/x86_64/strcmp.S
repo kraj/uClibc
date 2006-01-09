@@ -41,4 +41,7 @@ L(neq):	movl	$1, %eax
 END (BP_SYM (__strcmp))
 
 strong_alias(__strcmp,strcmp)
+#ifndef __UCLIBC_HAS_LOCALE__
 hidden_strong_alias(__strcmp,__strcoll)
+strong_alias(__strcmp,strcoll)
+#endif
