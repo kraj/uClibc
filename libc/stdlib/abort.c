@@ -37,7 +37,7 @@ Cambridge, MA 02139, USA.  */
 #elif defined(__arm__)
 #define ABORT_INSTRUCTION asm ("bl abort")
 #elif defined(__hppa__)
-#define ABORT_INSTRUCTION asm ("iitlbp %r0,(%r0)")
+#define ABORT_INSTRUCTION asm ("iitlbp %r0,(%sr0,%r0)")
 #elif defined(__i386__)
 #define ABORT_INSTRUCTION asm ("hlt")
 #elif defined(__ia64__)
