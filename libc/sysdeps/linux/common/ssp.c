@@ -88,7 +88,7 @@ void attribute_noreturn __stack_smash_handler(char func[], int damaged)
 		terminate();
 }
 
-void attribute_noreturn attribute_hidden __stack_chk_fail_internal(void)
+void attribute_noreturn __stack_chk_fail(void)
 {
 	static const char msg1[] = "stack smashing detected: ";
 	static const char msg3[] = " terminated";
@@ -101,7 +101,6 @@ void attribute_noreturn attribute_hidden __stack_chk_fail_internal(void)
 	while(1)
 		terminate();
 }
-strong_alias(__stack_chk_fail_internal,__stack_chk_fail)
 
 #if 0
 void attribute_noreturn __chk_fail(void)

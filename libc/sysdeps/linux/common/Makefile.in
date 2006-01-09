@@ -14,19 +14,17 @@ ifeq ($(EXCLUDE_BRK),y)
 CSRC:=$(filter-out sbrk.c,$(CSRC))
 endif
 
-COMMON_SSP:=ssp.c ssp-local.c
-
 # full list
 #COMMON_NO_MULTI:=getcwd.c getrlimit.c getrlimit64.c setrlimit.c setrlimit64.c getpriority.c getpriority64.c setpriority.c getrusage.c wait4.c getitimer.c setitimer.c open.c open64.c uname.c __syscall_fcntl.c __syscall_fcntl64.c
 COMMON_NO_MULTI:=getrlimit.c getrlimit64.c setrlimit.c setrlimit64.c getpriority.c setpriority.c getrusage.c getitimer.c setitimer.c uname.c __syscall_rt_sigaction.c
 
+CSRC:=$(filter-out ssp-local.c,$(CSRC))
 ifneq ($(UCLIBC_HAS_SSP),y)
-CSRC:=$(filter-out $(COMMON_SSP),$(CSRC))
+CSRC:=$(filter-out ssp.c,$(CSRC))
 endif
 
 ifneq ($(DOMULTI),n)
 CSRC:=$(filter-out $(COMMON_NO_MULTI),$(CSRC))
-CSRC:=$(filter-out $(COMMON_SSP),$(CSRC))
 endif
 
 # fails for some reason
@@ -42,11 +40,11 @@ COMMON_OBJ:=$(patsubst %.c,$(COMMON_OUT)/%.o,$(CSRC))
 
 libc-a-y+=$(COMMON_OBJ)
 libc-so-y+=$(COMMON_OBJ:.o=.os)
+libc-static-$(UCLIBC_HAS_SSP)+=$(COMMON_OUT)/ssp-local.o
 libc-nonshared-$(UCLIBC_HAS_SSP)+=$(COMMON_OUT)/ssp-local.os
 
 libc-multi-y+=$(COMMON_SRC)
 libc-nomulti-y+=$(patsubst %.c,$(COMMON_OUT)/%.o,$(COMMON_NO_MULTI))
-libc-nomulti-$(UCLIBC_HAS_SSP)+=$(patsubst %.c,$(COMMON_OUT)/%.o,$(COMMON_SSP))
 
 objclean-y+=common_objclean
 
