@@ -21,7 +21,6 @@
 
 #include <features.h>
 #include <stdint.h>
-#include <linux/types.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 
