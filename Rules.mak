@@ -249,6 +249,10 @@ ifeq ($(TARGET_ARCH),frv)
 	UCLIBC_LDSO=ld.so.1
 endif
 
+ifeq ($(TARGET_ARCH),x86_64)
+	UCLIBC_LDSO := ld64-uClibc.so.$(MAJOR_VERSION)
+endif
+
 # Keep the check_gcc from being needlessly executed
 ifndef PIEFLAG
 ifneq ($(UCLIBC_BUILD_PIE),y)
