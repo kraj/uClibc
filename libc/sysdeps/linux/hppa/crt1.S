@@ -107,7 +107,7 @@ _start:
 	bl	__uClibc_main,%r2
 	nop
 	/* die horribly if it returned (it shouldn't) */
-	iitlbp %r0,(%r0)
+	iitlbp %r0,(%sr0,%r0)
 	nop
 
 	.procend
