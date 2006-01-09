@@ -24,7 +24,7 @@
 #include "queue.h"
 #include "restart.h"
 
-int __pthread_mutex_init(pthread_mutex_t * mutex,
+int pthread_mutex_init(pthread_mutex_t * mutex,
                        const pthread_mutexattr_t * mutex_attr)
 {
   __pthread_init_lock(&mutex->__m_lock);
@@ -34,10 +34,9 @@ int __pthread_mutex_init(pthread_mutex_t * mutex,
   mutex->__m_owner = NULL;
   return 0;
 }
-strong_alias (__pthread_mutex_init, pthread_mutex_init)
-hidden_def (__pthread_mutex_init)
+hidden_strong_alias (pthread_mutex_init, __pthread_mutex_init)
 
-int __pthread_mutex_destroy(pthread_mutex_t * mutex)
+int pthread_mutex_destroy(pthread_mutex_t * mutex)
 {
   switch (mutex->__m_kind) {
   case PTHREAD_MUTEX_ADAPTIVE_NP:
@@ -54,10 +53,9 @@ int __pthread_mutex_destroy(pthread_mutex_t * mutex)
     return EINVAL;
   }
 }
-strong_alias (__pthread_mutex_destroy, pthread_mutex_destroy)
-hidden_def (__pthread_mutex_destroy)
+hidden_strong_alias (pthread_mutex_destroy, __pthread_mutex_destroy)
 
-int __pthread_mutex_trylock(pthread_mutex_t * mutex)
+int pthread_mutex_trylock(pthread_mutex_t * mutex)
 {
   pthread_descr self;
   int retcode;
@@ -91,10 +89,9 @@ int __pthread_mutex_trylock(pthread_mutex_t * mutex)
     return EINVAL;
   }
 }
-strong_alias (__pthread_mutex_trylock, pthread_mutex_trylock)
-hidden_def (__pthread_mutex_trylock)
+hidden_strong_alias (pthread_mutex_trylock, __pthread_mutex_trylock)
 
-int __pthread_mutex_lock(pthread_mutex_t * mutex)
+int pthread_mutex_lock(pthread_mutex_t * mutex)
 {
   pthread_descr self;
 
@@ -125,10 +122,9 @@ int __pthread_mutex_lock(pthread_mutex_t * mutex)
     return EINVAL;
   }
 }
-strong_alias (__pthread_mutex_lock, pthread_mutex_lock)
-hidden_def (__pthread_mutex_lock)
+hidden_strong_alias (pthread_mutex_lock, __pthread_mutex_lock)
 
-int __pthread_mutex_timedlock (pthread_mutex_t *mutex,
+int pthread_mutex_timedlock (pthread_mutex_t *mutex,
 			       const struct timespec *abstime)
 {
   pthread_descr self;
@@ -170,10 +166,9 @@ int __pthread_mutex_timedlock (pthread_mutex_t *mutex,
     return EINVAL;
   }
 }
-strong_alias (__pthread_mutex_timedlock, pthread_mutex_timedlock)
-hidden_def (__pthread_mutex_timedlock)
+hidden_strong_alias (pthread_mutex_timedlock, __pthread_mutex_timedlock)
 
-int __pthread_mutex_unlock(pthread_mutex_t * mutex)
+int pthread_mutex_unlock(pthread_mutex_t * mutex)
 {
   switch (mutex->__m_kind) {
   case PTHREAD_MUTEX_ADAPTIVE_NP:
@@ -202,8 +197,7 @@ int __pthread_mutex_unlock(pthread_mutex_t * mutex)
     return EINVAL;
   }
 }
-strong_alias (__pthread_mutex_unlock, pthread_mutex_unlock)
-hidden_def (__pthread_mutex_unlock)
+hidden_strong_alias (pthread_mutex_unlock, __pthread_mutex_unlock)
 
 int __pthread_mutexattr_init(pthread_mutexattr_t *attr)
 {

@@ -140,7 +140,6 @@
 #else
 # define attribute_hidden
 #endif
-#define hidden_def(name) extern __typeof (name) name attribute_hidden;
 
 #ifndef __ASSEMBLER__
 # define hidden_strong_alias(name, aliasname) _hidden_strong_alias(name, aliasname)
