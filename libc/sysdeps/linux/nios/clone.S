@@ -21,7 +21,7 @@
    and invokes a function in the right context after its all over.  */
 
 #include <asm/errno.h>
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 #include "NM_Macros.S"
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
@@ -87,5 +87,5 @@ __thread_start:
 
 	.size	__thread_start, .-__thread_start
 
-.globl	clone;
+.weak clone
     clone = __clone
