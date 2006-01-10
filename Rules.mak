@@ -61,7 +61,11 @@ LIBC := libc
 SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
 UCLIBC_LDSO := ld-uClibc.so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
+ifeq ($(HAVE_SHARED),y)
 libc := $(top_builddir)lib/$(SHARED_MAJORNAME)
+else
+libc :=
+endif
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
 headers_dep := $(top_builddir)include/bits/sysnum.h
