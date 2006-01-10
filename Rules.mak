@@ -212,8 +212,8 @@ endif
 ifeq ($(TARGET_ARCH),h8300)
 	CPU_LDFLAGS-$(CONFIG_H8300H)+= -ms8300h
 	CPU_LDFLAGS-$(CONFIG_H8S)   += -ms8300s
-	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32 -fsigned-char
-	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32 -fsigned-char
+	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32
+	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32
 endif
 
 ifeq ($(TARGET_ARCH),cris)
@@ -290,6 +290,9 @@ OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
 CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
+
+# Make sure "char" behavior is the same everywhere
+CPU_CFLAGS += -fsigned-char
 
 LDADD_LIBFLOAT=
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
