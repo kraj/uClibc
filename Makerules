@@ -188,7 +188,11 @@ $(CTOR_TARGETS):
 	$(do_ar)
 endif
 
-$(crt-y): $(CRTS) $(CTOR_TARGETS)
+CRTS_COMPAT = $(top_builddir)lib/crt0.o
+$(CRTS_COMPAT):
+	ln -fs crt1.o $(top_builddir)lib/crt0.o
+
+$(crt-y): $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT)
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)
