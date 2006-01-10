@@ -29,9 +29,6 @@
 _start:
     nop
     br 0f
-	.long _stext	/* start address of .text + 4 */
-	.long _etext	/* start address of .data */
-	.long _edata	/* start address of .bss */
 0:
     /* load gp */
     movhi gp, %hiadj(_gp)
