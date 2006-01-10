@@ -21,7 +21,7 @@ Cambridge, MA 02139, USA.  */
 
 /* Enable GNU extensions in fnmatch.h.  */
 #ifndef _GNU_SOURCE
-# define _GNU_SOURCE	1
+# define _GNU_SOURCE
 #endif
 
 #include <errno.h>
