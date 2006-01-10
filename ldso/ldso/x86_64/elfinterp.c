@@ -165,6 +165,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	int reloc_type;
 	int symtab_index;
 	char *symname;
+	ElfW(Sym) *sym;
 	ElfW(Addr) *reloc_addr;
 	ElfW(Addr) symbol_addr;
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -174,8 +175,9 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	reloc_addr = (ElfW(Addr)*)(tpnt->loadaddr + (unsigned long)rpnt->r_offset);
 	reloc_type = ELF_R_TYPE(rpnt->r_info);
 	symtab_index = ELF_R_SYM(rpnt->r_info);
+	sym = &symtab[symtab_index];
 	symbol_addr = 0;
-	symname = strtab + symtab[symtab_index].st_name;
+	symname = strtab + sym->st_name;
 
 	if (symtab_index) {
 		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, tpnt,
@@ -185,7 +187,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		 * might have been intentional.  We should not be linking local
 		 * symbols here, so all bases should be covered.
 		 */
-		if (unlikely(!symbol_addr && ELF_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
+		if (unlikely(!symbol_addr && ELF_ST_BIND(sym->st_info) != STB_WEAK)) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
 			_dl_exit(1);
 		};
@@ -217,33 +219,33 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			*reloc_addr = map->l_addr + rpnt->r_addend;
 			break;
 		*/
-#if 0
 		case R_X86_64_DTPMOD64:
+			*reloc_addr = 1;
 			break;
 		case R_X86_64_DTPOFF64:
-			*reloc_addr = symbol_addr + rpnt->r_addend;
+			*reloc_addr = sym->st_value + rpnt->r_addend;
 			break;
 		case R_X86_64_TPOFF64:
-			*reloc_addr = symbol_addr + rpnt->r_addend;
+			*reloc_addr = sym->st_value + rpnt->r_addend - symbol_addr;
 			break;
 		case R_X86_64_32:
-			*reloc_addr = symbol_addr + rpnt->r_addend;
+			*(unsigned int *) reloc_addr = symbol_addr + rpnt->r_addend;
+			/* XXX: should check for overflow eh ? */
 			break;
 
-#endif
 		case R_X86_64_COPY:
 			if (symbol_addr) {
 #if defined (__SUPPORT_LD_DEBUG__)
 				if (_dl_debug_move)
 					_dl_dprintf(_dl_debug_file,
 						    "\t%s move %d bytes from %x to %x\n",
-						    symname, symtab[symtab_index].st_size,
+						    symname, sym->st_size,
 						    symbol_addr, reloc_addr);
 #endif
 
 				_dl_memcpy((char *)reloc_addr,
 					   (char *)symbol_addr,
-					   symtab[symtab_index].st_size);
+					   sym->st_size);
 			} else
 				_dl_dprintf(_dl_debug_file, "no symbol_addr to copy !?\n");
 			break;
