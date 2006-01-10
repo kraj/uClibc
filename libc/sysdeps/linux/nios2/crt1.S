@@ -47,7 +47,9 @@ _start:
     movhi r7, %hi(_init)
     ori  r7, r7, %lo(_init)
 
-    /* reuse the argc stack slot for the 5th arg */
+    /* Allocate space on the stack for 6-7th arg, reuse 5th space */
+    addi sp,sp,-8
+    /* push 5-7th args on stack */
     movhi r8, %hi(_fini)
     ori  r8, r8, %lo(_fini)
     stw  r8, 0(sp)

@@ -9,23 +9,20 @@
  * 
  * Written by Wentao Xu <wentao@microtronix.com>
  */
-#include <asm/unistd.h>
 
-#ifndef __NR_vfork
-#define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */
-#endif
+#include <features.h>
 
-   .text
-   .balign 4
-   .globl errno
-   .globl vfork
-   .globl __libc_vfork
-#if defined __HAVE_ELF__
-   .type    vfork,@function
-   .type    __libc_vfork,@function
-#endif
-vfork:
-__libc_vfork:
+#define _ERRNO_H
+#include <bits/errno.h>
+#include <sys/syscall.h>
+
+#ifdef __NR_fork
+.text
+.global	__vfork
+.hidden	__vfork
+.type	__vfork,%function
+.align 4
+
     movui   r2, TRAP_ID_SYSCALL
     movui   r3, __NR_vfork
     trap
@@ -51,3 +48,6 @@ fix_errno:
     addi  sp, sp, 8
     ret
 
+.size __vfork,.-__vfork
+strong_alias(__vfork,vfork)
+#endif

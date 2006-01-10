@@ -11,6 +11,7 @@
  * 
  */
 
+#include <features.h>
 #define _ASM
 #define _SETJMP_H
 #include <bits/setjmp.h>
@@ -45,4 +46,4 @@ __longjmp:
   /* return to saved RA */    
     ret
 
-
+.size __longjmp,.-__longjmp
