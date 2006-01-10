@@ -22,4 +22,3 @@ config LIBGCC_CFLAGS
 
 config CROSS
 	string
-	default nios-elf-
