@@ -13,7 +13,7 @@ top_builddir=../
 
 ALL_SUBDIRS = \
 	args assert crypt ctype pwd_grp signal silly stdlib string unistd \
-	#misc
+	mmap #misc
 DIRS := $(ALL_SUBDIRS)
 
 ifeq ($(HAVE_SHARED),y)
