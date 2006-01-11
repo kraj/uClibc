@@ -76,7 +76,11 @@
 
 /* Tacking on "\n\t#" to the section name makes gcc put it's bogus
    section attributes on what looks like a comment to the assembler.  */
-# define __sec_comment "\n\t#"
+# ifdef __sparc__ //HAVE_SECTION_QUOTES
+#  define __sec_comment "\"\n\t#\""
+# else
+#  define __sec_comment "\n\t#"
+# endif
 # ifdef __cris__
 #  define link_warning(symbol, msg)
 # else
