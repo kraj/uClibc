@@ -19,6 +19,7 @@
 
 /* Code taken from glibc2.2.2/sysdeps/unix/sysv/linux/sparc/vfork.S */
 
+#include <features.h>
 #include <sys/syscall.h>
 
 #ifndef __NR_vfork
