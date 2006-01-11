@@ -22,7 +22,7 @@
 .hidden	__vfork
 .type	__vfork,%function
 .align 4
-
+__vfork:
     movui   r2, TRAP_ID_SYSCALL
     movui   r3, __NR_vfork
     trap
