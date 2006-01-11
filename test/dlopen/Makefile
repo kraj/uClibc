@@ -33,10 +33,10 @@ test3: test3.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o test3 test3.c -ldl ./libtest1.so ./libtest2.so
 
 libtest1.o: libtest1.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -fPIC -c libtest1.c -o libtest1.o
+	$(CC) $(CFLAGS) -fPIC -c libtest1.c -o libtest1.o
 
 libtest2.o: libtest2.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -fPIC -c libtest2.c -o libtest2.o
+	$(CC) $(CFLAGS) -fPIC -c libtest2.c -o libtest2.o
 
 libtest1.so: libtest1.o
 	$(CC) $(CFLAGS) -fPIC -shared -o libtest1.so -Wl,-soname,libtest1.so libtest1.o ./libtest2.so
