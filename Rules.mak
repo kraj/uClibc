@@ -1,7 +1,7 @@
 # Rules.make for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -61,11 +61,7 @@ LIBC := libc
 SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
 UCLIBC_LDSO := ld-uClibc.so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
-ifeq ($(HAVE_SHARED),y)
 libc := $(top_builddir)lib/$(SHARED_MAJORNAME)
-else
-libc :=
-endif
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
 headers_dep := $(top_builddir)include/bits/sysnum.h
@@ -82,6 +78,10 @@ endif
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 -include $(top_builddir).config
+endif
+
+ifneq ($(HAVE_SHARED),y)
+libc :=
 endif
 
 ifndef CROSS
