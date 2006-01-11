@@ -882,8 +882,9 @@ re_node_set_alloc (re_node_set *set, int size)
 {
   set->alloc = size;
   set->nelem = 0;
-  set->elems = re_malloc (int, size);
-  if (BE (set->elems == NULL, 0))
+  set->elems = re_malloc (int, size);	/* can be NULL if size == 0
+					   (see re_node_set_init_empty(set)) */
+  if (BE (set->elems == NULL && size != 0, 0))
     return REG_ESPACE;
   return REG_NOERROR;
 }
