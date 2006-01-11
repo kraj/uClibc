@@ -8,21 +8,8 @@
 
 #define MMAP_HAS_6_ARGS
 
-#define __NR_exit		  1
-#define __NR_read		  3
-#define __NR_write		  4
-#define __NR_open		  5
-#define __NR_close		  6
-#define __NR_getpid		 20
-#define __NR_getuid		 24
-#define __NR_getgid		 47
-#define __NR_geteuid		 49
-#define __NR_getegid		 50
-#define __NR_readlink		 58
-#define __NR_mmap		 71
-#define __NR_munmap		 73
-#define __NR_stat		 38
-#define __NR_mprotect		 74
+#define _SYSCALL_H
+#include <bits/sysnum.h>
 
 /* We can't use the real errno in ldso, since it has not yet
  * been dynamicly linked in yet. */
