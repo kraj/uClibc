@@ -187,10 +187,10 @@ ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	# Remove this as it is only used internally.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tls.h
 endif
-	-@for i in `find $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
+	-@for i in `find $(PREFIX)$(DEVEL_PREFIX)include -type d` ; do \
 	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
 	done
-	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1:\2/'` $(PREFIX)$(DEVEL_PREFIX)
+	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1:\2/'` $(PREFIX)$(DEVEL_PREFIX)include
 
 # Installs development library links.
 install_dev: install_headers
