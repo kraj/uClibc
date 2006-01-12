@@ -698,6 +698,9 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	char *start, *ptr, *string;
 	static char *buf;
 
+	if (!fmt)
+		return;
+
 	buf = _dl_mmap((void *) 0, _dl_pagesize, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(buf)) {
@@ -706,9 +709,6 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	}
 
 	start = ptr = buf;
-
-	if (!fmt)
-		return;
 
 	if (_dl_strlen(fmt) >= (_dl_pagesize - 1)) {
 		_dl_write(fd, "overflow\n", 11);
