@@ -53,7 +53,7 @@ loff_t attribute_hidden __lseek64(int fd, loff_t offset, int whence)
 extern __off_t __lseek(int fildes, off_t offset, int whence) attribute_hidden;
 loff_t __lseek64(int fd, loff_t offset, int whence)
 {
-	return(loff_t)(__lseek(fd, (off_t) (offset & 0xffffffff), whence));
+	return(loff_t)(__lseek(fd, (off_t) (offset), whence));
 }
 #endif
 strong_alias(__lseek64,lseek64)
