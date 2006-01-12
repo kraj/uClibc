@@ -39,7 +39,7 @@ libtest2.o: libtest2.c
 	$(CC) $(CFLAGS) -fPIC -c libtest2.c -o libtest2.o
 
 libtest1.so: libtest1.o
-	$(CC) $(CFLAGS) -fPIC -shared -o libtest1.so -Wl,-soname,libtest1.so libtest1.o ./libtest2.so
+	$(CC) $(CFLAGS) $(LDFLAGS) -fPIC -shared -o libtest1.so -Wl,-soname,libtest1.so libtest1.o ./libtest2.so
 
 libtest2.so: libtest2.o
 	$(CC) $(CFLAGS) -fPIC -shared -o libtest2.so -Wl,-soname,libtest2.so libtest2.o
@@ -48,14 +48,14 @@ dltest: dltest.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -DLIBNAME="\"./libtest.so\"" dltest.c -ldl -lpthread -o dltest
 
 libtest.so: libtest.c
-	$(CC) $(CFLAGS) -fPIC -shared -Wl,-soname,libtest.so libtest.c -o libtest.so
+	$(CC) $(CFLAGS) $(LDFLAGS) -fPIC -shared -Wl,-soname,libtest.so libtest.c -o libtest.so
 
 # Second time, directly link libtest3.so with libpthread
 dltest2: dltest.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -DLIBNAME="\"./libtest3.so\"" dltest.c -ldl -lpthread -o dltest2
 
 libtest3.so: libtest.c
-	$(CC) $(CFLAGS) -fPIC -shared -Wl,-soname,libtest3.so libtest.c -o libtest3.so -lpthread
+	$(CC) $(CFLAGS) $(LDFLAGS) -fPIC -shared -Wl,-soname,libtest3.so libtest.c -o libtest3.so -lpthread
 
 run: libtest2.so libtest1.so test1 test2 test3 dltest libtest.so dltest2 libtest3.so
 	@echo "----------running test 1--------------"
