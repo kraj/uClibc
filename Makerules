@@ -15,7 +15,7 @@ libs: $(lib-a-y)
 endif
 objs: all_objs
 
-shared_objs =  $(ld-uClibc-so-y) $(libc-so-y) $(libc-nonshared-y) $(libdl-so-y)
+shared_objs =  $(ldso-y) $(libc-so-y) $(libc-nonshared-y) $(libdl-so-y)
 shared_objs += $(libcrypt-so-y) $(libintl-so-y) $(libm-so-y) $(libnsl-so-y) $(libpthread-so-y)
 shared_objs += $(libthread_db-so-y) $(libresolv-so-y) $(librt-so-y) $(libutil-so-y)
 ar_objs =  $(libc-a-y) $(libdl-a-y) $(libcrypt-a-y) $(libintl-a-y) $(libm-a-y) $(libnsl-a-y)

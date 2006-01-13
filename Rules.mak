@@ -49,6 +49,22 @@ BUILD_CFLAGS = -O2 -Wall
 # Nothing beyond this point should ever be touched by mere
 # mortals.  Unless you hang out with the gods, you should
 # probably leave all this stuff alone.
+
+# Pull in the user's uClibc configuration
+ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+-include $(top_builddir).config
+endif
+
+# Make certain these contain a final "/", but no "//"s.
+TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
+TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
+RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
+DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
+KERNEL_SOURCE:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_SOURCE))))))
+export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_SOURCE
+
+
+# Now config hard core
 MAJOR_VERSION := 0
 MINOR_VERSION := 9
 SUBLEVEL      := 28
@@ -59,7 +75,11 @@ export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
 
 LIBC := libc
 SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
-UCLIBC_LDSO := ld-uClibc.so.$(MAJOR_VERSION)
+UCLIBC_LDSO_NAME := ld-uClibc
+ifeq ($(TARGET_ARCH),x86_64)
+UCLIBC_LDSO_NAME := ld64-uClibc
+endif
+UCLIBC_LDSO := $(UCLIBC_LDSO_NAME).so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
 libc := $(top_builddir)lib/$(SHARED_MAJORNAME)
 interp := $(top_builddir)lib/interp.os
@@ -73,11 +93,6 @@ LIBS := $(interp) -L$(top_builddir)lib $(libc:.$(MAJOR_VERSION)=)
 # PREFIX is a uClibcism while DESTDIR is a common GNUism
 ifndef PREFIX
 PREFIX = $(DESTDIR)
-endif
-
-# Pull in the user's uClibc configuration
-ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
--include $(top_builddir).config
 endif
 
 ifneq ($(HAVE_SHARED),y)
@@ -106,14 +121,6 @@ export MAKE_IS_SILENT=y
 SECHO=-@false
 SHELL_SET_X=set +x
 endif
-
-# Make certain these contain a final "/", but no "//"s.
-TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
-TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
-RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
-DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
-KERNEL_SOURCE:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_SOURCE))))))
-export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_SOURCE
 
 ARFLAGS:=cr
 
@@ -251,10 +258,6 @@ ifeq ($(TARGET_ARCH),frv)
 	# which would break as well, but -Bsymbolic comes to the rescue.
 	export LDPIEFLAG:=-shared -Bsymbolic
 	UCLIBC_LDSO=ld.so.1
-endif
-
-ifeq ($(TARGET_ARCH),x86_64)
-	UCLIBC_LDSO := ld64-uClibc.so.$(MAJOR_VERSION)
 endif
 
 # Keep the check_gcc from being needlessly executed

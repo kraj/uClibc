@@ -33,37 +33,37 @@ CFLAGS-ldso/ldso/$(TARGET_ARCH)/ := $(CFLAGS-ldso)
 CFLAGS-ldso.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
 
 ifneq ($(SUPPORT_LD_DEBUG),y)
-LDFLAGS-ld-uClibc.so := $(LDFLAGS)
+LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS)
 else
-LDFLAGS-ld-uClibc.so := $(LDFLAGS_NOSTRIP) -z defs
+LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS_NOSTRIP) -z defs
 endif
-LDFLAGS-ld-uClibc.so += -e _start -z now -Bsymbolic --export-dynamic --sort-common --discard-locals --discard-all --no-undefined
+LDFLAGS-$(UCLIBC_LDSO_NAME).so += -e _start -z now -Bsymbolic --export-dynamic --sort-common --discard-locals --discard-all --no-undefined
 
-ldso_FULL_NAME := ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+ldso_FULL_NAME := $(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-ld-uClibc_DIR := $(top_srcdir)ldso/ldso
-ld-uClibc_OUT := $(top_builddir)ldso/ldso
+$(UCLIBC_LDSO_NAME)_DIR := $(top_srcdir)ldso/ldso
+$(UCLIBC_LDSO_NAME)_OUT := $(top_builddir)ldso/ldso
 
-ld-uClibc_CSRC := $(ld-uClibc_DIR)/ldso.c
-ld-uClibc_COBJ := $(patsubst $(ld-uClibc_DIR)/%.c,$(ld-uClibc_OUT)/%.o,$(ld-uClibc_CSRC))
+$(UCLIBC_LDSO_NAME)_CSRC := $($(UCLIBC_LDSO_NAME)_DIR)/ldso.c
+$(UCLIBC_LDSO_NAME)_COBJ := $(patsubst $($(UCLIBC_LDSO_NAME)_DIR)/%.c,$($(UCLIBC_LDSO_NAME)_OUT)/%.o,$($(UCLIBC_LDSO_NAME)_CSRC))
 
-ld-uClibc_SSRC := $(wildcard $(ld-uClibc_DIR)/$(TARGET_ARCH)/*.S)
-ld-uClibc_SOBJ := $(patsubst $(ld-uClibc_DIR)/$(TARGET_ARCH)/%.S,$(ld-uClibc_OUT)/$(TARGET_ARCH)/%.o,$(ld-uClibc_SSRC))
+$(UCLIBC_LDSO_NAME)_SSRC := $(wildcard $($(UCLIBC_LDSO_NAME)_DIR)/$(TARGET_ARCH)/*.S)
+$(UCLIBC_LDSO_NAME)_SOBJ := $(patsubst $($(UCLIBC_LDSO_NAME)_DIR)/$(TARGET_ARCH)/%.S,$($(UCLIBC_LDSO_NAME)_OUT)/$(TARGET_ARCH)/%.o,$($(UCLIBC_LDSO_NAME)_SSRC))
 
-ld-uClibc_OBJS := $(ld-uClibc_COBJ) $(ld-uClibc_SOBJ)
+$(UCLIBC_LDSO_NAME)_OBJS := $($(UCLIBC_LDSO_NAME)_COBJ) $($(UCLIBC_LDSO_NAME)_SOBJ)
 
-ld-uClibc-so-y := $(ld-uClibc_OBJS:.o=.oS)
+ldso-y := $($(UCLIBC_LDSO_NAME)_OBJS:.o=.oS)
 
 lib-so-y += $(ldso)
-objclean-y += ld-uClibc_clean
+objclean-y += $(UCLIBC_LDSO_NAME)_clean
 
-$(ldso:.$(MAJOR_VERSION)=): $(ld-uClibc_OUT)/ld-uClibc_so.a
+$(ldso:.$(MAJOR_VERSION)=): $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a
 	$(call link.so,$(ldso_FULL_NAME),$(MAJOR_VERSION))
 
-$(ld-uClibc_OUT)/ld-uClibc_so.a: $(ld-uClibc-so-y)
+$($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a: $(ldso-y)
 	$(Q)$(RM) $@
 	$(do_strip)
 	$(do_ar)
 
-ld-uClibc_clean:
-	$(RM) $(ld-uClibc_OUT)/*.{o,os,oS,a} $(ld-uClibc_OUT)/*/*.{o,os}
+$(UCLIBC_LDSO_NAME)_clean:
+	$(RM) $($(UCLIBC_LDSO_NAME)_OUT)/*.{o,os,oS,a} $($(UCLIBC_LDSO_NAME)_OUT)/*/*.{o,os}
