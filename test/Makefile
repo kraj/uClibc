@@ -16,7 +16,7 @@ ALL_SUBDIRS = \
 	mmap #misc
 DIRS := $(ALL_SUBDIRS)
 
-ifeq ($(HAVE_SHARED),y)
+ifeq ($(HAVE_SHARED)$(UCLIBC_HAS_THREADS),yy)
 	DIRS += dlopen
 endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
