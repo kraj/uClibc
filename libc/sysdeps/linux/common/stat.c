@@ -9,14 +9,15 @@
 
 /* need to hide the 64bit prototype or the weak_alias()
  * will fail when __NR_stat64 doesnt exist */
+#define stat64 __hidestat64
 #define __stat64 __hide__stat64
 
 #include "syscalls.h"
 #include <unistd.h>
-#define _SYS_STAT_H
-#include <bits/stat.h>
+#include <sys/stat.h>
 #include "xstatconv.h"
 
+#undef stat64
 #undef __stat64
 
 #define __NR___syscall_stat __NR_stat

@@ -9,15 +9,15 @@
 
 /* need to hide the 64bit prototype or the weak_alias()
  * will fail when __NR_lstat64 doesnt exist */
+#define lstat64 __hidelstat64
 #define __lstat64 __hide__lstat64
 
 #include "syscalls.h"
 #include <unistd.h>
-#define _SYS_STAT_H
-#include <bits/stat.h>
-#include <bits/kernel_stat.h>
+#include <sys/stat.h>
 #include "xstatconv.h"
 
+#undef lstat64
 #undef __lstat64
 
 #define __NR___syscall_lstat __NR_lstat

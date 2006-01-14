@@ -13,7 +13,6 @@
 #define __NR___syscall_stat64 __NR_stat64
 #include <unistd.h>
 #include <sys/stat.h>
-#include <bits/kernel_stat.h>
 #include "xstatconv.h"
 
 static inline _syscall2(int, __syscall_stat64,

@@ -12,7 +12,6 @@
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_lstat64
 #include <unistd.h>
 #include <sys/stat.h>
-#include <bits/kernel_stat.h>
 #include "xstatconv.h"
 
 #define __NR___syscall_lstat64 __NR_lstat64
