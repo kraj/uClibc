@@ -12,6 +12,11 @@ _start:\n\
 	move.l %sp, -(%sp)\n\
 	jbsr _dl_start\n\
 	addq.l #4, %sp\n\
+	/* FALLTHRU */\n\
+\n\
+	.globl _dl_start_user\n\
+.type _dl_start_user,@function\n\
+_dl_start_user:\n\
 	# Save the user entry point address in %a4.\n\
 	move.l %d0, %a4\n\
 	# See if we were run as a command with the executable file\n\
