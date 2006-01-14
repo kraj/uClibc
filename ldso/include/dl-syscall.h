@@ -10,22 +10,50 @@
 
 /* Pull in the arch specific syscall implementation */
 #include <dl-syscalls.h>
-/* For MAP_ANONYMOUS -- differs between platforms */
+/*  For MAP_ANONYMOUS -- differs between platforms */
 #include <asm/mman.h>
+/* Pull in whatever this particular arch's kernel thinks the kernel version of
+ * struct stat should look like.  It turns out that each arch has a different
+ * opinion on the subject, and different kernel revs use different names... */
+#define kernel_stat stat
+#include <bits/kernel_stat.h>
+#include <bits/kernel_types.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
+/* _dl_open() parameters */
+#define O_RDONLY        0x0000
+#define O_WRONLY	     01
+#define O_RDWR		     02
+#define O_CREAT		   0100
+
+/* Encoding of the file mode.  */
+#define	S_IFMT		0170000	/* These bits determine file type.  */
+
+/* File types.  */
+#define	S_IFDIR		0040000	/* Directory.  */
+#define	S_IFCHR		0020000	/* Character device.  */
+#define	S_IFBLK		0060000	/* Block device.  */
+#define	S_IFREG		0100000	/* Regular file.  */
+#define	S_IFIFO		0010000	/* FIFO.  */
+#define	S_IFLNK		0120000	/* Symbolic link.  */
+#define	S_IFSOCK	0140000	/* Socket.  */
+
+/* Protection bits.  */
+#define	S_ISUID		04000	/* Set user ID on execution.  */
+#define	S_ISGID		02000	/* Set group ID on execution.  */
+#define	S_ISVTX		01000	/* Save swapped text after use (sticky).  */
+#define	S_IREAD		0400	/* Read by owner.  */
+#define	S_IWRITE	0200	/* Write by owner.  */
+#define	S_IEXEC		0100	/* Execute by owner.  */
 
 /* Stuff for _dl_mmap */
 #if 0
-# define MAP_FAILED	((void *) -1)
-# define _dl_mmap_check_error(X) (((void *)X) == MAP_FAILED)
+#define MAP_FAILED	((void *) -1)
+#define _dl_mmap_check_error(X) (((void *)X) == MAP_FAILED)
 #else
-# ifndef _dl_MAX_ERRNO
-#  define _dl_MAX_ERRNO 4096
-# endif
-# define _dl_mmap_check_error(__res) \
+#ifndef _dl_MAX_ERRNO
+#define _dl_MAX_ERRNO 4096
+#endif
+#define _dl_mmap_check_error(__res) \
 	(((long)__res) < 0 && ((long)__res) >= -_dl_MAX_ERRNO)
 #endif
 
