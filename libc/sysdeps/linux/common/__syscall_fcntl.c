@@ -10,6 +10,7 @@
 #include "syscalls.h"
 #include <stdarg.h>
 #include <fcntl.h>
+#include <bits/wordsize.h>
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
 extern int __libc_fcntl64(int fd, int cmd, ...);
@@ -29,6 +30,7 @@ int __libc_fcntl(int fd, int cmd, ...)
 	arg = va_arg(list, long);
 	va_end(list);
 
+#if __WORDSIZE == 32
 	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) {
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
 		return __libc_fcntl64(fd, cmd, arg);
@@ -37,6 +39,8 @@ int __libc_fcntl(int fd, int cmd, ...)
 		return -1;
 #endif
 	}
+#endif
+
 	return (__syscall_fcntl(fd, cmd, arg));
 }
 libc_hidden_proto(__libc_fcntl)
