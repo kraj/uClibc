@@ -267,7 +267,8 @@ int atoi(const char *nptr)
 {
 	return (int) strtol(nptr, (char **) NULL, 10);
 }
-strong_alias(__atoi,atoi)
+libc_hidden_proto(atoi)
+libc_hidden_def(atoi)
 
 #endif /* INT_MAX < LONG_MAX  */
 
