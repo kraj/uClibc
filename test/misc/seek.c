@@ -43,8 +43,8 @@ int main(void)
 		return 1;
 	}
 
-	assert(fseeko64(fp, 1024, SEEK_SET) == 0);
-	assert(fseeko64(fp, (off_t)-16, SEEK_CUR) == 0);
+	assert(fseeko(fp, 1024, SEEK_SET) == 0);
+	assert(fseeko(fp, (off_t)-16, SEEK_CUR) == 0);
 	ret = ftell(fp);
 	if (ret != (1024-16)) {
 		fprintf(stderr, "ftell() failed, we wanted pos %i but got %i: ", (1024-16), ret);
