@@ -35,6 +35,8 @@ libc_hidden_proto(memset)
 libc_hidden_proto(strchr)
 libc_hidden_proto(strcpy)
 libc_hidden_proto(strlen)
+libc_hidden_proto(sprintf)
+libc_hidden_proto(tolower)
 
 /*
  * WARNING: Don't even consider trying to compile this on a system where
@@ -168,7 +170,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 			tp += strlen(tp);
 			break;
 		}
-		tp += __sprintf(tp, "%x", words[i]);
+		tp += sprintf(tp, "%x", words[i]);
 	}
 	/* Was it a trailing run of 0x00's? */
 	if (best.base != -1 && (best.base + best.len) == 8)
@@ -254,7 +256,7 @@ inet_pton4(const char *src, u_char *dst)
  * So undef it here so we get the function version of tolower
  * instead.
  */
-#undef __tolower
+#undef tolower
 
 static int
 inet_pton6(const char *src, u_char *dst)
@@ -276,7 +278,7 @@ inet_pton6(const char *src, u_char *dst)
 	curtok = src;
 	saw_xdigit = 0;
 	val = 0;
-	while ((ch = __tolower (*src++)) != '\0') {
+	while ((ch = tolower (*src++)) != '\0') {
 		const char *pch;
 
 		pch = strchr(xdigits, ch);
