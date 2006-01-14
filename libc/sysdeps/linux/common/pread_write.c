@@ -40,6 +40,9 @@
 #include <unistd.h>
 #include <stdint.h>
 
+libc_hidden_proto(read)
+libc_hidden_proto(write)
+
 #ifdef __UCLIBC_HAS_LFS__
 libc_hidden_proto(lseek64)
 #else
@@ -115,10 +118,10 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 
 	if (do_pwrite==1) {
 		/* Write the data.  */
-		result = __write(fd, buf, count);
+		result = write(fd, buf, count);
 	} else {
 		/* Read the data.  */
-		result = __read(fd, buf, count);
+		result = read(fd, buf, count);
 	}
 
 	/* Now we have to restore the position.  If this fails we 
@@ -153,10 +156,10 @@ static ssize_t __fake_pread_write64(int fd, void *buf,
 
 	if (do_pwrite==1) {
 		/* Write the data.  */
-		result = __write(fd, buf, count);
+		result = write(fd, buf, count);
 	} else {
 		/* Read the data.  */
-		result = __read(fd, buf, count);
+		result = read(fd, buf, count);
 	}
 
 	/* Now we have to restore the position. */
