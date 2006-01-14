@@ -7,6 +7,8 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fclose)
+
 /* NOTE: GLIBC difference!!! -- fcloseall
  * According to the info pages, glibc actually fclose()s all open files.
  * Apparently, glibc's new version only fflush()s and unbuffers all

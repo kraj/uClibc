@@ -8,12 +8,11 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
-#define getpriority __getpriority
-#define setpriority __setpriority
-
 #include "syscalls.h"
 #include <unistd.h>
 #include <sys/resource.h>
+
+libc_hidden_proto(getpriority)
 
 #ifdef __NR_nice
 
@@ -23,6 +22,8 @@ static inline _syscall1(int, __syscall_nice, int, incr);
 #else
 
 #include <limits.h>
+
+libc_hidden_proto(setpriority)
 
 static inline int int_add_no_wrap(int a, int b)
 {

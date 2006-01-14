@@ -82,3 +82,5 @@ void __longjmp (__jmp_buf env, int val_arg)
     /* Avoid `volatile function does return' warnings.  */
     for (;;);
 }
+libc_hidden_proto(__longjmp)
+libc_hidden_def(__longjmp)

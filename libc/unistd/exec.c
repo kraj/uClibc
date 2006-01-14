@@ -30,10 +30,6 @@
  * to free the storage allocated for the copy.  Better ideas anyone?
  */
 
-#define mmap __mmap
-#define munmap __munmap
-#define execve __execve
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,7 +40,17 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-extern char *__strchrnul(const char *s, int c);
+libc_hidden_proto(execl)
+libc_hidden_proto(execvp)
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strchrnul)
+libc_hidden_proto(execve)
+libc_hidden_proto(mmap)
+libc_hidden_proto(munmap)
+libc_hidden_proto(getenv)
 
 /**********************************************************************/
 #if defined(__ARCH_HAS_MMU__) || defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
@@ -68,12 +74,12 @@ extern char *__strchrnul(const char *s, int c);
 # define EXEC_ALLOC(SIZE,VAR)	__exec_alloc((VAR = (SIZE)))
 # define EXEC_FREE(PTR,VAR)		__exec_free((PTR),(VAR))
 
-extern void *__exec_alloc(size_t size);
-extern void __exec_free(void *ptr, size_t size);
+extern void *__exec_alloc(size_t size) attribute_hidden;
+extern void __exec_free(void *ptr, size_t size) attribute_hidden;
 
 # ifdef L___exec_alloc
 
-void *__exec_alloc(size_t size)
+void attribute_hidden *__exec_alloc(size_t size)
 {
 	void *p;
 
@@ -82,7 +88,7 @@ void *__exec_alloc(size_t size)
 	return (p != MAP_FAILED) ? p : NULL;
 }
 
-void __exec_free(void *ptr, size_t size)
+void attribute_hidden __exec_free(void *ptr, size_t size)
 {
 	if (ptr) {
 		munmap(ptr, size);
@@ -95,7 +101,7 @@ void __exec_free(void *ptr, size_t size)
 /**********************************************************************/
 #ifdef L_execl
 
-int attribute_hidden __execl(const char *path, const char *arg, ...)
+int execl(const char *path, const char *arg, ...)
 {
 	EXEC_ALLOC_SIZE(size)		/* Do NOT add a semicolon! */
 	int n;
@@ -126,7 +132,7 @@ int attribute_hidden __execl(const char *path, const char *arg, ...)
 
 	return n;
 }
-strong_alias(__execl,execl)
+libc_hidden_def(execl)
 
 #endif
 /**********************************************************************/
@@ -179,8 +185,6 @@ int execle(const char *path, const char *arg, ...)
 /**********************************************************************/
 #ifdef L_execlp
 
-extern int __execvp(const char *path, char *const argv[]) attribute_hidden;
-	
 int execlp(const char *file, const char *arg, ...)
 {
 	EXEC_ALLOC_SIZE(size)		/* Do NOT add a semicolon! */
@@ -206,7 +210,7 @@ int execlp(const char *file, const char *arg, ...)
 	} while (--n);
 	va_end(args);
 
-	n = __execvp(file, (char *const *) argv);
+	n = execvp(file, (char *const *) argv);
 
 	EXEC_FREE(argv, size);
 
@@ -222,7 +226,7 @@ int execlp(const char *file, const char *arg, ...)
  * /bin, and then /usr/bin. */
 static const char default_path[] = ":/bin:/usr/bin";
 
-int attribute_hidden __execvp(const char *path, char *const argv[])
+int execvp(const char *path, char *const argv[])
 {
 	char *buf = NULL;
 	char *p;
@@ -239,7 +243,7 @@ int attribute_hidden __execvp(const char *path, char *const argv[])
 		return -1;
 	}
 
-	if (__strchr(path, '/')) {
+	if (strchr(path, '/')) {
 		execve(path, argv, __environ);
 	CHECK_ENOEXEC:
 		if (errno == ENOEXEC) {
@@ -252,12 +256,12 @@ int attribute_hidden __execvp(const char *path, char *const argv[])
 			nargv = (char **) EXEC_ALLOC((n+2) * sizeof(char *), size2);
 			nargv[0] = argv[0];
 			nargv[1] = (char *)path;
-			__memcpy(nargv+2, argv+1, n*sizeof(char *));
+			memcpy(nargv+2, argv+1, n*sizeof(char *));
 			execve("/bin/sh", nargv, __environ);
 			EXEC_FREE(nargv, size2);
 		}
 	} else {
-		if ((p = __getenv("PATH")) != NULL) {
+		if ((p = getenv("PATH")) != NULL) {
 			if (!*p) {
 				goto BAD;
 			}
@@ -265,7 +269,7 @@ int attribute_hidden __execvp(const char *path, char *const argv[])
 			p = (char *) default_path;
 		}
 
-		plen = __strlen(path);
+		plen = strlen(path);
 		if (plen > (FILENAME_MAX - 1)) {
 		ALL_TOO_LONG:
 			__set_errno(ENAMETOOLONG);
@@ -276,11 +280,11 @@ int attribute_hidden __execvp(const char *path, char *const argv[])
 		if ((buf = EXEC_ALLOC(FILENAME_MAX, size)) != NULL) {
 			int seen_small = 0;
 			s0 = buf + len;
-			__memcpy(s0, path, plen+1);
+			memcpy(s0, path, plen+1);
 
 			do {
 				s = s0;
-				e = __strchrnul(p, ':');
+				e = strchrnul(p, ':');
 				if (e > p) {
 					plen = e - p;
 					if (e[-1] != '/') {
@@ -290,7 +294,7 @@ int attribute_hidden __execvp(const char *path, char *const argv[])
 						goto NEXT;
 					}
 					s -= plen;
-					__memcpy(s, p, plen);
+					memcpy(s, p, plen);
 					s[plen-1] = '/';
 				}
 
@@ -319,7 +323,7 @@ int attribute_hidden __execvp(const char *path, char *const argv[])
 
 	return -1;
 }
-strong_alias(__execvp,execvp)
+libc_hidden_def(execvp)
 
 #endif
 /**********************************************************************/

@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-void attribute_hidden *__memchr(const void *cs, int c, size_t count)
+void *memchr(const void *cs, int c, size_t count)
 {
     int d0;
     register void * __res;
@@ -47,5 +47,5 @@ void attribute_hidden *__memchr(const void *cs, int c, size_t count)
 	    :"=D" (__res), "=&c" (d0) : "a" (c),"0" (cs),"1" (count));
     return __res;
 }
-
-strong_alias(__memchr,memchr)
+libc_hidden_proto(memchr)
+libc_hidden_def(memchr)

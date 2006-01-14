@@ -1,3 +1,3 @@
-#define __memcpy __mempcpy
+#define memcpy mempcpy
 #include "memcpy.S"
-strong_alias(__mempcpy,mempcpy)
+libc_hidden_def(mempcpy)

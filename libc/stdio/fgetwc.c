@@ -5,9 +5,11 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define mbrtowc __mbrtowc
-
 #include "_stdio.h"
+
+libc_hidden_proto(fgetwc_unlocked)
+
+libc_hidden_proto(mbrtowc)
 
 #ifdef __DO_UNLOCKED
 
@@ -19,7 +21,7 @@ static void munge_stream(register FILE *stream, unsigned char *buf)
 	__STDIO_STREAM_DISABLE_PUTC(stream);
 }
 
-wint_t attribute_hidden __fgetwc_unlocked(register FILE *stream)
+wint_t fgetwc_unlocked(register FILE *stream)
 {
 	wint_t wi;
 	wchar_t wc[1];
@@ -107,31 +109,33 @@ wint_t attribute_hidden __fgetwc_unlocked(register FILE *stream)
 
 	return wi;
 }
+libc_hidden_def(fgetwc_unlocked)
 
-weak_alias(__fgetwc_unlocked,fgetwc_unlocked)
-weak_alias(__fgetwc_unlocked,getwc_unlocked)
+strong_alias(fgetwc_unlocked,getwc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-hidden_strong_alias(__fgetwc_unlocked,__fgetwc)
-weak_alias(__fgetwc_unlocked,fgetwc)
-weak_alias(__fgetwc_unlocked,getwc)
+strong_alias(fgetwc_unlocked,fgetwc)
+libc_hidden_proto(fgetwc)
+libc_hidden_def(fgetwc)
+strong_alias(fgetwc_unlocked,getwc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-wint_t attribute_hidden __fgetwc(register FILE *stream)
+wint_t fgetwc(register FILE *stream)
 {
 	wint_t retval;
 	__STDIO_AUTO_THREADLOCK_VAR;
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	retval = __fgetwc_unlocked(stream);
+	retval = fgetwc_unlocked(stream);
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	return retval;
 }
-strong_alias(__fgetwc,fgetwc)
-weak_alias(__fgetwc,getwc)
+libc_hidden_proto(fgetwc)
+libc_hidden_def(fgetwc)
+strong_alias(fgetwc,getwc)
 
 #endif

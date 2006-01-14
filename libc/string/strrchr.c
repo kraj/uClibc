@@ -8,14 +8,13 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstrrchr __wcsrchr
 # define Wstrrchr wcsrchr
 #else
-# define __Wstrrchr __strrchr
+libc_hidden_proto(strrchr)
 # define Wstrrchr strrchr
 #endif
 
-Wchar attribute_hidden *__Wstrrchr(register const  Wchar *s, Wint c)
+Wchar *Wstrrchr(register const  Wchar *s, Wint c)
 {
 	register const Wchar *p;
 
@@ -28,8 +27,7 @@ Wchar attribute_hidden *__Wstrrchr(register const  Wchar *s, Wint c)
 
 	return (Wchar *) p;			/* silence the warning */
 }
-
-strong_alias(__Wstrrchr,Wstrrchr)
+libc_hidden_def(strrchr)
 #ifndef WANT_WIDE
-strong_alias(__strrchr,rindex)
+strong_alias(strrchr,rindex)
 #endif

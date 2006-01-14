@@ -16,7 +16,7 @@
 static inline
 _syscall2(int, __ugetrlimit, enum __rlimit_resource, resource,
 		  struct rlimit *, rlim);
-int attribute_hidden __getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
+int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {
 	return (__ugetrlimit(resource, rlimits));
 }
@@ -28,7 +28,7 @@ int attribute_hidden __getrlimit(__rlimit_resource_t resource, struct rlimit *rl
 static inline
 _syscall2(int, __syscall_getrlimit, int, resource, struct rlimit *, rlim);
 
-int attribute_hidden __getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
+int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {
 	int result;
 
@@ -47,4 +47,5 @@ int attribute_hidden __getrlimit(__rlimit_resource_t resource, struct rlimit *rl
 }
 #endif
 
-strong_alias(__getrlimit,getrlimit)
+libc_hidden_proto(getrlimit)
+libc_hidden_def(getrlimit)

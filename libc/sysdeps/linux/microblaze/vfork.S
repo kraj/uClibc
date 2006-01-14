@@ -27,7 +27,7 @@
 
 .global C_SYMBOL_NAME(errno)
 
-C_ENTRY (__vfork):
+C_ENTRY (vfork):
 	addi	r12, r0, SYS_vfork
 	bralid	r17, 0x08;
 	nop
@@ -39,7 +39,6 @@ C_ENTRY (__vfork):
 	swi	r3, r0, C_SYMBOL_NAME(errno);
 	rtsd	r15, 8			// error return
 	nop
-C_END(__vfork)
+C_END(vfork)
 
-.weak	C_SYMBOL_NAME(vfork)
-C_SYMBOL_NAME(vfork) = C_SYMBOL_NAME(__vfork)
+libc_hidden_def(vfork)

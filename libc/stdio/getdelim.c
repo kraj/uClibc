@@ -7,6 +7,8 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(__fgetc_unlocked)
+
 /* Note: There is a defect in this function.  (size_t vs ssize_t). */
 
 /* glibc function --
@@ -20,7 +22,7 @@
 
 #define GETDELIM_GROWBY		64
 
-ssize_t attribute_hidden __getdelim(char **__restrict lineptr, size_t *__restrict n,
+ssize_t getdelim(char **__restrict lineptr, size_t *__restrict n,
 				   int delimiter, register FILE *__restrict stream)
 {
 	register char *buf;
@@ -73,5 +75,5 @@ ssize_t attribute_hidden __getdelim(char **__restrict lineptr, size_t *__restric
 
 	return pos;
 }
-
-strong_alias(__getdelim,getdelim)
+libc_hidden_proto(getdelim)
+libc_hidden_def(getdelim)

@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-char attribute_hidden *__strcat(char * dest, const char * src)
+char *strcat(char * dest, const char * src)
 {
     int d0, d1, d2, d3;
     __asm__ __volatile__(
@@ -47,5 +47,5 @@ char attribute_hidden *__strcat(char * dest, const char * src)
 	    : "0" (src), "1" (dest), "2" (0), "3" (0xffffffff):"memory");
     return dest;
 }
-
-strong_alias(__strcat,strcat)
+libc_hidden_proto(strcat)
+libc_hidden_def(strcat)

@@ -7,10 +7,12 @@
 
 #include <string.h>
 
-void attribute_hidden *__mempcpy (void *dstpp, const void *srcpp, size_t len)
+libc_hidden_proto(memcpy)
+
+void *mempcpy (void *dstpp, const void *srcpp, size_t len)
 {
-  __memcpy(dstpp, srcpp, len);
+  memcpy(dstpp, srcpp, len);
   return (void *)(((char *)dstpp) + len);
 }
-
-strong_alias(__mempcpy,mempcpy)
+libc_hidden_proto(mempcpy)
+libc_hidden_def(mempcpy)

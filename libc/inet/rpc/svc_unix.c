@@ -37,26 +37,6 @@
  * and a record/unix stream.
  */
 
-#define xdrrec_create __xdrrec_create
-#define xdrrec_endofrecord __xdrrec_endofrecord
-#define xdrrec_skiprecord __xdrrec_skiprecord
-#define xdrrec_eof __xdrrec_eof
-#define xdr_callmsg __xdr_callmsg
-#define xdr_replymsg __xdr_replymsg
-#define xprt_register __xprt_register
-#define xprt_unregister __xprt_unregister
-#define getegid __getegid
-#define geteuid __geteuid
-#define getsockname __getsockname
-#define setsockopt __setsockopt
-#define bind __bind
-#define recvmsg __recvmsg
-#define sendmsg __sendmsg
-#define poll __poll
-#define accept __accept
-#define listen __listen
-#define fputs __fputs
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -74,6 +54,34 @@
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
 #endif
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memset)
+libc_hidden_proto(strlen)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(perror)
+libc_hidden_proto(getpid)
+libc_hidden_proto(xdrrec_create)
+libc_hidden_proto(xdrrec_endofrecord)
+libc_hidden_proto(xdrrec_skiprecord)
+libc_hidden_proto(xdrrec_eof)
+libc_hidden_proto(xdr_callmsg)
+libc_hidden_proto(xdr_replymsg)
+libc_hidden_proto(xprt_register)
+libc_hidden_proto(xprt_unregister)
+libc_hidden_proto(getegid)
+libc_hidden_proto(geteuid)
+libc_hidden_proto(getsockname)
+libc_hidden_proto(setsockopt)
+libc_hidden_proto(bind)
+libc_hidden_proto(recvmsg)
+libc_hidden_proto(sendmsg)
+libc_hidden_proto(poll)
+libc_hidden_proto(accept)
+libc_hidden_proto(listen)
+libc_hidden_proto(fputs)
+libc_hidden_proto(abort)
 
 /*
  * Ops vector for AF_UNIX based rpc service handle
@@ -167,17 +175,17 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
 
   if (sock == RPC_ANYSOCK)
     {
-      if ((sock = __socket (AF_UNIX, SOCK_STREAM, 0)) < 0)
+      if ((sock = socket (AF_UNIX, SOCK_STREAM, 0)) < 0)
 	{
-	  __perror (_("svc_unix.c - AF_UNIX socket creation problem"));
+	  perror (_("svc_unix.c - AF_UNIX socket creation problem"));
 	  return (SVCXPRT *) NULL;
 	}
       madesock = TRUE;
     }
-  __memset (&addr, '\0', sizeof (addr));
+  memset (&addr, '\0', sizeof (addr));
   addr.sun_family = AF_UNIX;
-  len = __strlen (path) + 1;
-  __memcpy (addr.sun_path, path, len);
+  len = strlen (path) + 1;
+  memcpy (addr.sun_path, path, len);
   len += sizeof (addr.sun_family);
 
   bind (sock, (struct sockaddr *) &addr, len);
@@ -185,9 +193,9 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
   if (getsockname (sock, (struct sockaddr *) &addr, &len) != 0
       || listen (sock, 2) != 0)
     {
-      __perror (_("svc_unix.c - cannot getsockname or listen"));
+      perror (_("svc_unix.c - cannot getsockname or listen"));
       if (madesock)
-	__close (sock);
+	close (sock);
       return (SVCXPRT *) NULL;
     }
 
@@ -284,10 +292,10 @@ again:
   /*
    * make a new transporter (re-uses xprt)
    */
-  __memset (&in_addr, '\0', sizeof (in_addr));
+  memset (&in_addr, '\0', sizeof (in_addr));
   in_addr.sin_family = AF_UNIX;
   xprt = makefd_xprt (sock, r->sendsize, r->recvsize);
-  __memcpy (&xprt->xp_raddr, &in_addr, sizeof (in_addr));
+  memcpy (&xprt->xp_raddr, &in_addr, sizeof (in_addr));
   xprt->xp_addrlen = len;
   return FALSE;		/* there is never an rpc msg to be processed */
 }
@@ -304,7 +312,7 @@ svcunix_destroy (SVCXPRT *xprt)
   struct unix_conn *cd = (struct unix_conn *) xprt->xp_p1;
 
   xprt_unregister (xprt);
-  __close (xprt->xp_sock);
+  close (xprt->xp_sock);
   if (xprt->xp_port != 0)
     {
       /* a rendezvouser socket */
@@ -392,11 +400,11 @@ __msgwrite (int sock, void *data, size_t cnt)
   /* XXX I'm not sure, if gete?id() is always correct, or if we should use
      get?id(). But since keyserv needs geteuid(), we have no other chance.
      It would be much better, if the kernel could pass both to the server. */
-  cred.pid = __getpid ();
+  cred.pid = getpid ();
   cred.uid = geteuid ();
   cred.gid = getegid ();
 
-  __memcpy (CMSG_DATA(cmsg), &cred, sizeof (struct ucred));
+  memcpy (CMSG_DATA(cmsg), &cred, sizeof (struct ucred));
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_CREDENTIALS;
   cmsg->cmsg_len = sizeof(*cmsg) + sizeof(struct ucred);

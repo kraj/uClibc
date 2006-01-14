@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#define __fsetlocking __fsetlocking_internal
-#define rewind __rewind
-#define fgets_unlocked __fgets_unlocked
-
 #define _GNU_SOURCE
 #include <features.h>
 #include <ttyent.h>
@@ -43,7 +39,17 @@
 #include <pthread.h>
 #endif
 
-extern int __getc_unlocked (FILE *__stream) attribute_hidden;
+libc_hidden_proto(strchr)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strncmp)
+libc_hidden_proto(__fsetlocking)
+libc_hidden_proto(rewind)
+libc_hidden_proto(fgets_unlocked)
+libc_hidden_proto(getc_unlocked)
+libc_hidden_proto(__fgetc_unlocked)
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(abort)
 
 static char zapchar;
 static FILE *tf;
@@ -89,7 +95,7 @@ static char * skip(register char *p)
 static char * value(register char *p)
 {
 
-    return ((p = __strchr(p, '=')) ? ++p : NULL);
+    return ((p = strchr(p, '=')) ? ++p : NULL);
 }
 
 int attribute_hidden __setttyent(void)
@@ -132,8 +138,8 @@ struct ttyent attribute_hidden * __getttyent(void)
 	    return (NULL);
 	}
 	/* skip lines that are too big */
-	if (!__strchr(p, '\n')) {
-	    while ((c = __getc_unlocked(tf)) != '\n' && c != EOF)
+	if (!strchr(p, '\n')) {
+	    while ((c = getc_unlocked(tf)) != '\n' && c != EOF)
 		;
 	    continue;
 	}
@@ -158,8 +164,8 @@ struct ttyent attribute_hidden * __getttyent(void)
     tty.ty_status = 0;
     tty.ty_window = NULL;
 
-#define	scmp(e)	!__strncmp(p, e, sizeof(e) - 1) && isspace(p[sizeof(e) - 1])
-#define	vcmp(e)	!__strncmp(p, e, sizeof(e) - 1) && p[sizeof(e) - 1] == '='
+#define	scmp(e)	!strncmp(p, e, sizeof(e) - 1) && isspace(p[sizeof(e) - 1])
+#define	vcmp(e)	!strncmp(p, e, sizeof(e) - 1) && p[sizeof(e) - 1] == '='
     for (; *p; p = skip(p)) {
 	if (scmp(_TTYS_OFF))
 	    tty.ty_status &= ~TTY_ON;
@@ -181,7 +187,7 @@ struct ttyent attribute_hidden * __getttyent(void)
     tty.ty_comment = p;
     if (*p == 0)
 	tty.ty_comment = 0;
-    if ((p = __strchr(p, '\n')))
+    if ((p = strchr(p, '\n')))
 	*p = '\0';
     return (&tty);
 }
@@ -206,7 +212,7 @@ struct ttyent * getttynam(const char *tty)
 
     __setttyent();
     while ((t = __getttyent()))
-	if (!__strcmp(tty, t->ty_name))
+	if (!strcmp(tty, t->ty_name))
 	    break;
     __endttyent();
     return (t);

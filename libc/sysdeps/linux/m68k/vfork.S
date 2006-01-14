@@ -11,13 +11,12 @@
 	.text
 	.align 2
 	.globl errno
-	.globl	__vfork
+	.globl	vfork
 #ifdef __HAVE_ELF__
-	.hidden	__vfork
-	.type	__vfork,@function
+	.type	vfork,@function
 #endif
 
-__vfork:
+vfork:
 	movl	%sp@+, %a1               /* save the return address for later */
 	movl	IMM __NR_vfork,%d0
 	trap	#0
@@ -36,5 +35,5 @@ fix_errno:
 	movl	IMM -1, %d0
 	jmp		%a1@                     /* don't return,  just jmp directly */
 
-.size __vfork,.-__vfork
-strong_alias(__vfork,vfork)
+.size vfork,.-vfork
+libc_hidden_def(vfork)

@@ -11,6 +11,8 @@
 #include <locale.h>
 #include <bits/uClibc_fpmax.h>
 
+libc_hidden_proto(memset)
+
 typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
 								intptr_t buf);
 
@@ -417,7 +419,7 @@ ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info 
 	if (mode == 'f') {
 		round += exp;
 		if (round < -1) {
-			__memset(buf, '0', DECIMAL_DIG); /* OK, since 'f' -> decimal case. */
+			memset(buf, '0', DECIMAL_DIG); /* OK, since 'f' -> decimal case. */
 		    exp = -1;
 		    round = -1;
 		}

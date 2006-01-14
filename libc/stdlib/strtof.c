@@ -23,9 +23,9 @@
  * to an internal conversion from a double to a float, thereby wasting a bunch
  * of precision.  But this is small, and works for now... */
 
-#define strtod __strtod
-
 #include <stdlib.h>
+
+libc_hidden_proto(strtod)
 
 float strtof (const char *str, char **endptr)
 {

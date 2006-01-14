@@ -47,7 +47,7 @@
 
 	.text
 	.align		32
-ENTRY(__strchr)
+ENTRY(strchr)
 	andcc		%o1, 0xff, %o1			/* IEU1		Group		*/
 	be,pn		%icc, 17f			/* CTI				*/
 	 sllx		%o1, 8, %g3			/* IEU0		Group		*/
@@ -327,12 +327,12 @@ ENTRY(__strchr)
 	 lduba		[%o0] ASI_PNF, %o3		/* Load				*/
 	retl						/* CTI+IEU1	Group		*/
 	 add		%o0, -1, %o0			/* IEU0				*/
-END(__strchr)
-strong_alias(__strchr,strchr)
-strong_alias(__strchr,index)
+END(strchr)
+libc_hidden_def(strchr)
+strong_alias(strchr,index)
 
 	.align		32
-ENTRY(__strrchr)
+ENTRY(strrchr)
 	andcc		%o1, 0xff, %o1			/* IEU1		Group		*/
 	be,pn		%icc, 17b			/* CTI				*/
 	 clr		%g4				/* IEU0				*/
@@ -476,6 +476,6 @@ ENTRY(__strrchr)
 	ba,pt		%xcc, 1b			/* CTI		Group		*/
 
 	 ldx		[%o0], %o3			/* Load				*/
-END(__strrchr)
-strong_alias(__strrchr,strrchr)
-strong_alias(__strrchr,rindex)
+END(strrchr)
+libc_hidden_def(strrchr)
+strong_alias(strrchr,rindex)

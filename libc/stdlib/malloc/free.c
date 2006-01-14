@@ -11,16 +11,15 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
-#define munmap __munmap
-#define sbrk __sbrk
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/mman.h>
 
+libc_hidden_proto(munmap)
+libc_hidden_proto(sbrk)
+
 #include "malloc.h"
 #include "heap.h"
-
 
 static void
 free_to_heap (void *mem, struct heap *heap)

@@ -21,6 +21,8 @@
 #include <unistd.h>
 #include <string.h>
 
+libc_hidden_proto(memcpy)
+
 #define CS_PATH "/bin:/usr/bin"
 
 /* If BUF is not NULL and LEN > 0, fill in at most LEN - 1 bytes
@@ -48,10 +50,10 @@ size_t confstr ( int name, char *buf, size_t len)
   if (len > 0 && buf != NULL)
     {
       if (string_len <= len)
-	__memcpy (buf, string, string_len);
+	memcpy (buf, string, string_len);
       else
 	{
-	  __memcpy (buf, string, len - 1);
+	  memcpy (buf, string, len - 1);
 	  buf[len - 1] = '\0';
 	}
     }

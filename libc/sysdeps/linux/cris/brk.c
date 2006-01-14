@@ -7,7 +7,7 @@ extern void * __curbrk;
 
 extern int __init_brk (void);
 
-int attribute_hidden __brk(void * end_data_seg)
+int brk(void * end_data_seg)
 {
 	if (__init_brk () == 0) {
 		/*
@@ -29,4 +29,5 @@ int attribute_hidden __brk(void * end_data_seg)
 	return -1;
 
 }
-strong_alias(__brk,brk)
+libc_hidden_proto(brk)
+libc_hidden_def(brk)

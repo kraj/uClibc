@@ -52,7 +52,7 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 #endif
 
 #elif !defined __NR_fadvise64
-/* This is declared as a weak alias in posix_fadvise.c if __NR_fadvise64
+/* This is declared as a strong alias in posix_fadvise.c if __NR_fadvise64
  * is defined.
  */
 int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)

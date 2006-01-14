@@ -7,12 +7,15 @@
 
 #include "_stdio.h"
 
-FILE attribute_hidden *__fdopen(int filedes, const char *mode)
+libc_hidden_proto(fdopen)
+libc_hidden_proto(fcntl)
+
+FILE *fdopen(int filedes, const char *mode)
 {
 	intptr_t cur_mode;
 
-	return (((cur_mode = __fcntl(filedes, F_GETFL))) != -1)
+	return (((cur_mode = fcntl(filedes, F_GETFL))) != -1)
 		? _stdio_fopen(cur_mode, mode, NULL, filedes) 
 		: NULL;
 }
-strong_alias(__fdopen,fdopen)
+libc_hidden_def(fdopen)

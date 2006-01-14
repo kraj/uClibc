@@ -1,23 +1,10 @@
-/* wtmp support rubbish (i.e. complete crap)
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * Written by Erik Andersen <andersee@debian.org> 
- *
- * This library is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Library General Public License as 
- * published by the Free Software Foundation; either version 2 of the 
- * License, or (at your option) any later version.  
- *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
- * Library General Public License for more details.  
- *
- * You should have received a copy of the GNU Library General Public 
- * License along with this library; see the file COPYING.LIB.  If not, 
- * write to the Free Software Foundation, Inc., 675 Mass Ave, 
- * Cambridge, MA 02139, USA.  */
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
-#define gettimeofday __gettimeofday
+/* wtmp support rubbish (i.e. complete crap) */
 
 #include <string.h>
 #include <sys/time.h>
@@ -27,36 +14,45 @@
 #include <fcntl.h>
 #include <sys/file.h>
 
+#if 0
+libc_hidden_proto(memset)
+libc_hidden_proto(strncpy)
+libc_hidden_proto(updwtmp)
+#endif
+libc_hidden_proto(open)
+libc_hidden_proto(write)
+libc_hidden_proto(close)
+libc_hidden_proto(lockf)
+libc_hidden_proto(gettimeofday)
 
 #if 0
 /* This is enabled in uClibc/libutil/logwtmp.c */
 void logwtmp (const char *line, const char *name, const char *host)
 {
     struct utmp lutmp;
-    __memset (&(lutmp), 0, sizeof (struct utmp));
+    memset (&(lutmp), 0, sizeof (struct utmp));
 
     lutmp.ut_type = (name && *name)? USER_PROCESS : DEAD_PROCESS;
     lutmp.ut_pid = __getpid();
-    __strncpy(lutmp.ut_line, line, sizeof(lutmp.ut_line)-1);
-    __strncpy(lutmp.ut_name, name, sizeof(lutmp.ut_name)-1);
-    __strncpy(lutmp.ut_host, host, sizeof(lutmp.ut_host)-1);
+    strncpy(lutmp.ut_line, line, sizeof(lutmp.ut_line)-1);
+    strncpy(lutmp.ut_name, name, sizeof(lutmp.ut_name)-1);
+    strncpy(lutmp.ut_host, host, sizeof(lutmp.ut_host)-1);
     gettimeofday(&(lutmp.ut_tv), NULL);
 
     updwtmp(_PATH_WTMP, &(lutmp));
 }
 #endif
 
-extern void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
+void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 {
     int fd;
 
-    fd = __open(wtmp_file, O_APPEND | O_WRONLY, 0);
+    fd = open(wtmp_file, O_APPEND | O_WRONLY, 0);
     if (fd >= 0) {
-	if (__lockf(fd, F_LOCK, 0)==0) {
-	    __write(fd, (const char *) lutmp, sizeof(struct utmp));
-	    __lockf(fd, F_ULOCK, 0);
-	    __close(fd);
+	if (lockf(fd, F_LOCK, 0)==0) {
+	    write(fd, (const char *) lutmp, sizeof(struct utmp));
+	    lockf(fd, F_ULOCK, 0);
+	    close(fd);
 	}
     }
 }
-

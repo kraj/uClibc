@@ -21,13 +21,10 @@
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
-.global mmap
-.set mmap,__mmap
 .text
-.global __mmap
-.hidden __mmap
-.type   __mmap,%function
-__mmap:
+.global mmap
+.type   mmap,%function
+mmap:
 
 	/* Save registers.  */
 	movl %ebx, %edx
@@ -49,4 +46,6 @@ __mmap:
 	/* Successful; return the syscall's value.  */
 	ret
 
-.size __mmap,.-__mmap
+.size mmap,.-mmap
+
+libc_hidden_def(mmap)

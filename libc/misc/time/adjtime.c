@@ -1,9 +1,15 @@
-#define adjtimex __adjtimex
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <limits.h>
 #include <sys/time.h>
 #include <sys/timex.h>
 #include <errno.h>
+
+libc_hidden_proto(adjtimex)
 
 #define MAX_SEC	(LONG_MAX / 1000000L - 2)
 #define MIN_SEC	(LONG_MIN / 1000000L + 2)

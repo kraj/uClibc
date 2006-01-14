@@ -17,13 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define time __time
-#define sendto __sendto
-#define recvmsg __recvmsg
-#define bind __bind
-#define mempcpy __mempcpy
-#define getsockname __getsockname
-
 #define __FORCE_GLIBC
 #include <features.h>
 #define __USE_GNU
@@ -37,6 +30,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -46,6 +40,17 @@
 
 #include "netlinkaccess.h"
 
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(time)
+libc_hidden_proto(sendto)
+libc_hidden_proto(recvmsg)
+libc_hidden_proto(bind)
+libc_hidden_proto(memset)
+libc_hidden_proto(mempcpy)
+libc_hidden_proto(getsockname)
+libc_hidden_proto(fclose)
+libc_hidden_proto(abort)
 
 #ifndef __libc_use_alloca
 # define __libc_use_alloca(x) (x < __MAX_ALLOCA_CUTOFF)
@@ -116,7 +121,7 @@ __netlink_sendreq (struct netlink_handle *h, int type)
   memset (&nladdr, '\0', sizeof (nladdr));
   nladdr.nl_family = AF_NETLINK;
 
-  return TEMP_FAILURE_RETRY (__sendto (h->fd, (void *) &req, sizeof (req), 0,
+  return TEMP_FAILURE_RETRY (sendto (h->fd, (void *) &req, sizeof (req), 0,
 				       (struct sockaddr *) &nladdr,
 				       sizeof (nladdr)));
 }
@@ -167,7 +172,7 @@ __netlink_request (struct netlink_handle *h, int type)
 	  0
 	};
 
-      read_len = TEMP_FAILURE_RETRY (__recvmsg (h->fd, &msg, 0));
+      read_len = TEMP_FAILURE_RETRY (recvmsg (h->fd, &msg, 0));
       if (read_len < 0)
 	goto out_fail;
 
@@ -282,7 +287,7 @@ __netlink_close (struct netlink_handle *h)
 {
   /* Don't modify errno.  */
   int serrno = errno;
-  __close(h->fd);
+  close(h->fd);
   __set_errno(serrno);
 }
 
@@ -293,13 +298,13 @@ __netlink_open (struct netlink_handle *h)
 {
   struct sockaddr_nl nladdr;
 
-  h->fd = __socket (PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+  h->fd = socket (PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
   if (h->fd < 0)
     goto out;
 
   memset (&nladdr, '\0', sizeof (nladdr));
   nladdr.nl_family = AF_NETLINK;
-  if (__bind (h->fd, (struct sockaddr *) &nladdr, sizeof (nladdr)) < 0)
+  if (bind (h->fd, (struct sockaddr *) &nladdr, sizeof (nladdr)) < 0)
     {
     close_and_out:
       __netlink_close (h);
@@ -313,7 +318,7 @@ __netlink_open (struct netlink_handle *h)
      It is not necessarily the PID if there is more than one socket
      open.  */
   socklen_t addr_len = sizeof (nladdr);
-  if (__getsockname (h->fd, (struct sockaddr *) &nladdr, &addr_len) < 0)
+  if (getsockname (h->fd, (struct sockaddr *) &nladdr, &addr_len) < 0)
     goto close_and_out;
   h->pid = nladdr.nl_pid;
   return 0;

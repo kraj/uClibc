@@ -33,10 +33,6 @@
  * Copyright (c) 1985 by Sun Microsystems, Inc.
  */
 
-#define atoi __atoi
-#define rewind __rewind
-#define fgets __fgets
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include <stdio.h>
@@ -47,6 +43,17 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memset)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strlen)
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(atoi)
+libc_hidden_proto(rewind)
+libc_hidden_proto(fgets)
 
 /*
  * Internet version.
@@ -77,7 +84,7 @@ static struct rpcdata *_rpcdata(void)
 	return d;
 }
 
-void attribute_hidden __endrpcent(void)
+void endrpcent(void)
 {
 	register struct rpcdata *d = _rpcdata();
 
@@ -94,9 +101,10 @@ void attribute_hidden __endrpcent(void)
 		d->rpcf = NULL;
 	}
 }
-strong_alias(__endrpcent,endrpcent)
+libc_hidden_proto(endrpcent)
+libc_hidden_def(endrpcent)
 
-void attribute_hidden __setrpcent(int f)
+void setrpcent(int f)
 {
 	register struct rpcdata *d = _rpcdata();
 
@@ -111,7 +119,8 @@ void attribute_hidden __setrpcent(int f)
 	d->current = NULL;
 	d->stayopen |= f;
 }
-strong_alias(__setrpcent,setrpcent)
+libc_hidden_proto(setrpcent)
+libc_hidden_def(setrpcent)
 
 static struct rpcent *interpret(struct rpcdata *);
 
@@ -122,7 +131,7 @@ static struct rpcent *__get_next_rpcent(struct rpcdata *d)
 	return interpret(d);
 }
 
-struct rpcent attribute_hidden *__getrpcent(void)
+struct rpcent *getrpcent(void)
 {
 	register struct rpcdata *d = _rpcdata();
 
@@ -132,51 +141,54 @@ struct rpcent attribute_hidden *__getrpcent(void)
 		return NULL;
 	return __get_next_rpcent(d);
 }
-strong_alias(__getrpcent,getrpcent)
+libc_hidden_proto(getrpcent)
+libc_hidden_def(getrpcent)
 
-struct rpcent attribute_hidden *__getrpcbynumber(register int number)
+struct rpcent *getrpcbynumber(register int number)
 {
 	register struct rpcdata *d = _rpcdata();
 	register struct rpcent *rpc;
 
 	if (d == NULL)
 		return NULL;
-	__setrpcent(0);
-	while ((rpc = __getrpcent())) {
+	setrpcent(0);
+	while ((rpc = getrpcent())) {
 		if (rpc->r_number == number)
 			break;
 	}
-	__endrpcent();
+	endrpcent();
 	return rpc;
 }
-strong_alias(__getrpcbynumber,getrpcbynumber)
+libc_hidden_proto(getrpcbynumber)
+libc_hidden_def(getrpcbynumber)
 
-struct rpcent attribute_hidden *__getrpcbyname(const char *name)
+struct rpcent *getrpcbyname(const char *name)
 {
 	struct rpcent *rpc;
 	char **rp;
 
-	__setrpcent(0);
-	while ((rpc = __getrpcent())) {
-		if (__strcmp(rpc->r_name, name) == 0)
+	setrpcent(0);
+	while ((rpc = getrpcent())) {
+		if (strcmp(rpc->r_name, name) == 0)
 			return rpc;
 		for (rp = rpc->r_aliases; *rp != NULL; rp++) {
-			if (__strcmp(*rp, name) == 0)
+			if (strcmp(*rp, name) == 0)
 				return rpc;
 		}
 	}
-	__endrpcent();
+	endrpcent();
 	return NULL;
 }
-strong_alias(__getrpcbyname,getrpcbyname)
+libc_hidden_proto(getrpcbyname)
+libc_hidden_def(getrpcbyname)
 
 #ifdef __linux__
 static char *firstwhite(char *s)
 {
 	char *s1, *s2;
 
-	s1 = __strchr(s, ' ');
-	s2 = __strchr(s, '\t');
+	s1 = strchr(s, ' ');
+	s2 = strchr(s, '\t');
 	if (s1) {
 		if (s2)
 			return (s1 < s2) ? s1 : s2;
@@ -193,12 +205,12 @@ static struct rpcent *interpret(register struct rpcdata *d)
 	register char *cp, **q;
 
 	p = d->line;
-	d->line[__strlen(p)-1] = '\n';
+	d->line[strlen(p)-1] = '\n';
 	if (*p == '#')
 		return __get_next_rpcent(d);
-	cp = __strchr(p, '#');
+	cp = strchr(p, '#');
 	if (cp == NULL) {
-		cp = __strchr(p, '\n');
+		cp = strchr(p, '\n');
 		if (cp == NULL)
 			return __get_next_rpcent(d);
 	}
@@ -209,9 +221,9 @@ static struct rpcent *interpret(register struct rpcdata *d)
 	else
 		return __get_next_rpcent(d);
 #else
-	cp = __strchr(p, ' ');
+	cp = strchr(p, ' ');
 	if (cp == NULL) {
-		cp = __strchr(p, '\t');
+		cp = strchr(p, '\t');
 		if (cp == NULL)
 			return __get_next_rpcent(d);
 	}
@@ -227,11 +239,11 @@ static struct rpcent *interpret(register struct rpcdata *d)
 	if ((cp = firstwhite(cp)))
 		*cp++ = '\0';
 #else
-	cp = __strchr(p, ' ');
+	cp = strchr(p, ' ');
 	if (cp != NULL)
 		*cp++ = '\0';
 	else {
-		cp = __strchr(p, '\t');
+		cp = strchr(p, '\t');
 		if (cp != NULL)
 			*cp++ = '\0';
 	}
@@ -247,11 +259,11 @@ static struct rpcent *interpret(register struct rpcdata *d)
 		if ((cp = firstwhite(cp)))
 			*cp++ = '\0';
 #else
-		cp = __strchr(p, ' ');
+		cp = strchr(p, ' ');
 		if (cp != NULL)
 			*cp++ = '\0';
 		else {
-			cp = __strchr(p, '\t');
+			cp = strchr(p, '\t');
 			if (cp != NULL)
 				*cp++ = '\0';
 		}
@@ -281,8 +293,8 @@ static int __copy_rpcent(struct rpcent *r, struct rpcent *result_buf, char *buff
 		return ENOENT;
 
 	/* copy the struct from the shared mem */
-	__memset(result_buf, 0x00, sizeof(*result_buf));
-	__memset(buffer, 0x00, buflen);
+	memset(result_buf, 0x00, sizeof(*result_buf));
+	memset(buffer, 0x00, buflen);
 
 	result_buf->r_number = r->r_number;
 
@@ -299,21 +311,21 @@ static int __copy_rpcent(struct rpcent *r, struct rpcent *result_buf, char *buff
 	buflen -= s;
 
 	while (i-- > 0) {
-		s = __strlen(r->r_aliases[i]) + 1;
+		s = strlen(r->r_aliases[i]) + 1;
 		if (buflen < s)
 			goto err_out;
 		result_buf->r_aliases[i] = buffer;
 		buffer += s;
 		buflen -= s;
-		__memcpy(result_buf->r_aliases[i], r->r_aliases[i], s);
+		memcpy(result_buf->r_aliases[i], r->r_aliases[i], s);
 	}
 
 	/* copy the name */
-	i = __strlen(r->r_name);
+	i = strlen(r->r_name);
 	if (buflen <= i)
 		goto err_out;
 	result_buf->r_name = buffer;
-	__memcpy(result_buf->r_name, r->r_name, i);
+	memcpy(result_buf->r_name, r->r_name, i);
 
 	/* that was a hoot eh ? */
 	*result = result_buf;
@@ -328,7 +340,7 @@ int getrpcbynumber_r(int number, struct rpcent *result_buf, char *buffer,
 {
 	int ret;
 	LOCK;
-	ret = __copy_rpcent(__getrpcbynumber(number), result_buf, buffer, buflen, result);
+	ret = __copy_rpcent(getrpcbynumber(number), result_buf, buffer, buflen, result);
 	UNLOCK;
 	return ret;
 }
@@ -338,7 +350,7 @@ int getrpcbyname_r(const char *name, struct rpcent *result_buf, char *buffer,
 {
 	int ret;
 	LOCK;
-	ret = __copy_rpcent(__getrpcbyname(name), result_buf, buffer, buflen, result);
+	ret = __copy_rpcent(getrpcbyname(name), result_buf, buffer, buflen, result);
 	UNLOCK;
 	return ret;
 }
@@ -348,7 +360,7 @@ int getrpcent_r(struct rpcent *result_buf, char *buffer,
 {
 	int ret;
 	LOCK;
-	ret = __copy_rpcent(__getrpcent(), result_buf, buffer, buflen, result);
+	ret = __copy_rpcent(getrpcent(), result_buf, buffer, buflen, result);
 	UNLOCK;
 	return ret;
 }

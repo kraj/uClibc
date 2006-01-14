@@ -16,8 +16,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define sigaction __sigaction
-
 #include <errno.h>
 #define __need_NULL
 #include <stddef.h>
@@ -25,6 +23,8 @@
 #include <signal.h>
 #include <string.h>	/* For the real memset prototype.  */
 
+libc_hidden_proto(sigaction)
+libc_hidden_proto(sigprocmask)
 
 /* Set the disposition for SIG.  */
 __sighandler_t
@@ -48,7 +48,7 @@ sigset (sig, disp)
 	return SIG_ERR;
 
       /* Add the signal set to the current signal mask.  */
-      if (__sigprocmask (SIG_BLOCK, &set, NULL) < 0)
+      if (sigprocmask (SIG_BLOCK, &set, NULL) < 0)
 	return SIG_ERR;
 
       return SIG_HOLD;
@@ -78,7 +78,7 @@ sigset (sig, disp)
     return SIG_ERR;
 
   /* Remove the signal set from the current signal mask.  */
-  if (__sigprocmask (SIG_UNBLOCK, &set, NULL) < 0)
+  if (sigprocmask (SIG_UNBLOCK, &set, NULL) < 0)
     return SIG_ERR;
 
   return oact.sa_handler;

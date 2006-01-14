@@ -19,19 +19,14 @@
 #include <errno.h>
 #include <assert.h>
 
-extern size_t __strlcpy(char *__restrict dst, const char *__restrict src,
-                      size_t n) attribute_hidden;
-
+libc_hidden_proto(memset)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(strlcpy)
 #ifdef WANT_WIDE
-extern int __wcscmp (__const wchar_t *__s1, __const wchar_t *__s2) attribute_hidden;
-extern size_t __wcsxfrm (wchar_t *__restrict __s1,
-		       __const wchar_t *__restrict __s2, size_t __n) attribute_hidden;
-#endif
-#ifdef __UCLIBC_HAS_XLOCALE__
-extern int __strcoll_l (__const char *__s1, __const char *__s2, __locale_t __l) attribute_hidden;
-extern size_t __strxfrm_l (char *__dest, __const char *__src, size_t __n, __locale_t __l) attribute_hidden;
-extern int __wcscoll_l (__const wchar_t *__s1, __const wchar_t *__s2, __locale_t __loc) attribute_hidden;
-extern size_t __wcsxfrm_l (wchar_t *__s1, __const wchar_t *__s2, size_t __n, __locale_t __loc) attribute_hidden;
+libc_hidden_proto(wcsxfrm)
+libc_hidden_proto(wcscmp)
+#else
+libc_hidden_proto(strcmp)
 #endif
 
 #ifdef __UCLIBC_HAS_LOCALE__
@@ -49,13 +44,9 @@ extern size_t __wcsxfrm_l (wchar_t *__s1, __const wchar_t *__s2, size_t __n, __l
 #if defined(L_strxfrm) || defined(L_strxfrm_l)
 
 #define wcscoll   strcoll
-#define __wcscoll   __strcoll
 #define wcscoll_l strcoll_l
-#define __wcscoll_l __strcoll_l
 #define wcsxfrm   strxfrm
-#define __wcsxfrm   __strxfrm
 #define wcsxfrm_l strxfrm_l
-#define __wcsxfrm_l __strxfrm_l
 
 #undef WANT_WIDE
 #undef Wvoid
@@ -69,17 +60,23 @@ extern size_t __wcsxfrm_l (wchar_t *__s1, __const wchar_t *__s2, size_t __n, __l
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-int attribute_hidden __wcscoll (const Wchar *s0, const Wchar *s1)
-{
-	return __wcscoll_l(s0, s1, __UCLIBC_CURLOCALE );
-}
-strong_alias(__wcscoll,wcscoll)
+libc_hidden_proto(wcscoll_l)
 
-size_t attribute_hidden __wcsxfrm(Wchar *__restrict ws1, const Wchar *__restrict ws2, size_t n)
+int wcscoll (const Wchar *s0, const Wchar *s1)
 {
-	return __wcsxfrm_l(ws1, ws2, n, __UCLIBC_CURLOCALE );
+	return wcscoll_l(s0, s1, __UCLIBC_CURLOCALE );
 }
-strong_alias(__wcsxfrm,wcsxfrm)
+libc_hidden_proto(wcscoll)
+libc_hidden_def(wcscoll)
+
+libc_hidden_proto(wcsxfrm_l)
+
+size_t wcsxfrm(Wchar *__restrict ws1, const Wchar *__restrict ws2, size_t n)
+{
+	return wcsxfrm_l(ws1, ws2, n, __UCLIBC_CURLOCALE );
+}
+libc_hidden_proto(wcsxfrm)
+libc_hidden_def(wcsxfrm)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -160,7 +157,7 @@ static int lookup(wchar_t wc   __LOCALE_PARAM )
 
 static void init_col_state(col_state_t *cs, const Wchar *wcs)
 {
-	__memset(cs, 0, sizeof(col_state_t));
+	memset(cs, 0, sizeof(col_state_t));
 	cs->s = wcs;
 	cs->bp = cs->back_buf = cs->ibb;
 	cs->bb_size = 128;
@@ -392,7 +389,7 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 								cs->weight = 0;
 								return;
 							}
-							__memcpy(cs->bp, cs->back_buf, cs->bb_size);
+							memcpy(cs->bp, cs->back_buf, cs->bb_size);
 
 						} else {
 							cs->bp = realloc(cs->back_buf, cs->bb_size + 128);
@@ -517,16 +514,16 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 	} while (1);
 }
 
-int attribute_hidden __UCXL(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
+int __XL_NPP(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 {
 	col_state_t ws[2];
 	int pass;
 
 	if (!CUR_COLLATE->num_weights) { /* C locale */
 #ifdef WANT_WIDE
-		return __wcscmp(s0, s1);
+		return wcscmp(s0, s1);
 #else  /* WANT_WIDE */
-		return __strcmp(s0, s1);
+		return strcmp(s0, s1);
 #endif /* WANT_WIDE */
 	}
 
@@ -550,11 +547,15 @@ int attribute_hidden __UCXL(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCAL
 
 	return 0;
 }
-__UCXL_ALIAS(wcscoll)
+libc_hidden_proto(__XL_NPP(wcscoll))
+libc_hidden_def(__XL_NPP(wcscoll))
 
 #ifdef WANT_WIDE
 
-size_t attribute_hidden __UCXL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
+extern size_t __wcslcpy(wchar_t *__restrict dst,
+		const wchar_t *__restrict src, size_t n);
+
+size_t __XL_NPP(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 					 size_t n   __LOCALE_PARAM )
 {
 	col_state_t cs;
@@ -562,7 +563,7 @@ size_t attribute_hidden __UCXL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *
 	int pass;
 
 	if (!CUR_COLLATE->num_weights) { /* C locale */
-		return __wcsxfrm(ws1, ws2, n);
+		return __wcslcpy(ws1, ws2, n);
 	}
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -591,8 +592,8 @@ size_t attribute_hidden __UCXL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *
 	}
 	return count-1;
 }
-
-__UCXL_ALIAS(wcsxfrm)
+libc_hidden_proto(__XL_NPP(wcsxfrm))
+libc_hidden_def(__XL_NPP(wcsxfrm))
 
 #else  /* WANT_WIDE */
 
@@ -636,7 +637,7 @@ static size_t store(unsigned char *s, size_t count, size_t n, __uwchar_t weight)
 	return r;
 }
 
-size_t attribute_hidden __UCXL(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_t n
+size_t __XL_NPP(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_t n
 					 __LOCALE_PARAM )
 {
 	col_state_t cs;
@@ -644,7 +645,7 @@ size_t attribute_hidden __UCXL(strxfrm)(char *__restrict ws1, const char *__rest
 	int pass;
 
 	if (!CUR_COLLATE->num_weights) { /* C locale */
-		return __strlcpy(ws1, ws2, n);
+		return strlcpy(ws1, ws2, n);
 	}
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -673,8 +674,8 @@ size_t attribute_hidden __UCXL(strxfrm)(char *__restrict ws1, const char *__rest
 	}
 	return count-1;
 }
-
-__UCXL_ALIAS(strxfrm)
+libc_hidden_proto(__XL_NPP(strxfrm))
+libc_hidden_def(__XL_NPP(strxfrm))
 
 #endif /* WANT_WIDE */
 

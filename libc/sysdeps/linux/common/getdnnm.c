@@ -1,4 +1,8 @@
-#define uname __uname
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <stdlib.h>
 #include <string.h>
@@ -7,9 +11,12 @@
 #define __USE_GNU
 #include <sys/utsname.h>
 
+libc_hidden_proto(strlen)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(uname)
 
-int attribute_hidden
-__getdomainname(char *name, size_t len)
+int
+getdomainname(char *name, size_t len)
 {
   struct utsname uts;
 
@@ -20,11 +27,12 @@ __getdomainname(char *name, size_t len)
 
   if (uname(&uts) == -1) return -1;
 
-  if (__strlen(uts.domainname)+1 > len) {
+  if (strlen(uts.domainname)+1 > len) {
     __set_errno(EINVAL);
     return -1;
   }
-  __strcpy(name, uts.domainname);
+  strcpy(name, uts.domainname);
   return 0;
 }
-strong_alias(__getdomainname,getdomainname)
+libc_hidden_proto(getdomainname)
+libc_hidden_def(getdomainname)

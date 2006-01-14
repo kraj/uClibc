@@ -7,18 +7,19 @@
 
 #include "_stdio.h"
 
+#undef clearerr
 #ifdef __DO_UNLOCKED
 
-void __clearerr_unlocked(register FILE *stream)
+#undef clearerr_unlocked
+void clearerr_unlocked(register FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
 	__CLEARERR_UNLOCKED(stream);
 }
 
-weak_alias(__clearerr_unlocked,clearerr_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__clearerr_unlocked,clearerr)
+strong_alias(clearerr_unlocked,clearerr)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__

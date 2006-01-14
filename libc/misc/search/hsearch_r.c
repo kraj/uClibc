@@ -67,7 +67,7 @@ static int isprime (unsigned int number)
    indexing as explained in the comment for the hsearch function.
    The contents of the table is zeroed, especially the field used
    becomes zero.  */
-int attribute_hidden __hcreate_r (size_t nel, struct hsearch_data *htab)
+int hcreate_r (size_t nel, struct hsearch_data *htab)
 {
   /* Test for correct arguments.  */
   if (htab == NULL)
@@ -96,13 +96,14 @@ int attribute_hidden __hcreate_r (size_t nel, struct hsearch_data *htab)
   /* everything went alright */
   return 1;
 }
-strong_alias(__hcreate_r,hcreate_r)
+libc_hidden_proto(hcreate_r)
+libc_hidden_def(hcreate_r)
 #endif
 
 #ifdef L_hdestroy_r
 /* After using the hash table it has to be destroyed. The used memory can
    be freed and the local static variable can be marked as not used.  */
-void attribute_hidden __hdestroy_r (struct hsearch_data *htab)
+void hdestroy_r (struct hsearch_data *htab)
 {
   /* Test for correct arguments.  */
   if (htab == NULL)
@@ -118,7 +119,8 @@ void attribute_hidden __hdestroy_r (struct hsearch_data *htab)
   /* the sign for an existing table is an value != NULL in htable */
   htab->table = NULL;
 }
-strong_alias(__hdestroy_r,hdestroy_r)
+libc_hidden_proto(hdestroy_r)
+libc_hidden_def(hdestroy_r)
 #endif
 
 #ifdef L_hsearch_r
@@ -135,12 +137,16 @@ strong_alias(__hdestroy_r,hdestroy_r)
    means used. The used field can be used as a first fast comparison for
    equality of the stored and the parameter value. This helps to prevent
    unnecessary expensive calls of strcmp.  */
-int attribute_hidden __hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
+
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strlen)
+
+int hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
 	       struct hsearch_data *htab)
 {
   unsigned int hval;
   unsigned int count;
-  unsigned int len = __strlen (item.key);
+  unsigned int len = strlen (item.key);
   unsigned int idx;
 
   /* Compute an value for the given string. Perhaps use a better method. */
@@ -166,7 +172,7 @@ int attribute_hidden __hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
       unsigned hval2;
 
       if (htab->table[idx].used == hval
-	  && __strcmp (item.key, htab->table[idx].entry.key) == 0)
+	  && strcmp (item.key, htab->table[idx].entry.key) == 0)
 	{
 	  *retval = &htab->table[idx].entry;
 	  return 1;
@@ -190,7 +196,7 @@ int attribute_hidden __hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
 
             /* If entry is found use it. */
           if (htab->table[idx].used == hval
-	      && __strcmp (item.key, htab->table[idx].entry.key) == 0)
+	      && strcmp (item.key, htab->table[idx].entry.key) == 0)
 	    {
 	      *retval = &htab->table[idx].entry;
 	      return 1;
@@ -224,5 +230,6 @@ int attribute_hidden __hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
   *retval = NULL;
   return 0;
 }
-strong_alias(__hsearch_r,hsearch_r)
+libc_hidden_proto(hsearch_r)
+libc_hidden_def(hsearch_r)
 #endif

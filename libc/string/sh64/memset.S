@@ -21,13 +21,12 @@
 #endif
 
 	.section .text..SHmedia32,"ax"
-	.globl	__memset
-	.hidden	__memset
-	.type	__memset, @function
+	.globl	memset
+	.type	memset, @function
 
 	.align 5
 
-__memset:
+memset:
 	pta/l multiquad, tr0
 	andi r2, 7, r22
 	ptabs r18, tr2
@@ -92,6 +91,6 @@ loop:
 	sthi.q r5, -1, r3
 	blink tr2,r63
 
-	.size	__memset,.-__memset
+	.size	memset,.-memset
 
-strong_alias(__memset,memset)
+libc_hidden_def(memset)

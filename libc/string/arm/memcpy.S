@@ -40,16 +40,15 @@
 #include <features.h>
 
 .text
-.global __memcpy
-.hidden __memcpy
-.type __memcpy,%function
+.global memcpy
+.type memcpy,%function
 .align 4
 
-__memcpy:
+memcpy:
 	stmfd	sp!, {r0, lr}
 	bl	_memcpy
 	ldmfd	sp!, {r0, pc}
 
-.size __memcpy,.-__memcpy
+.size memcpy,.-memcpy
 
-strong_alias(__memcpy,memcpy)
+libc_hidden_def(memcpy)

@@ -15,14 +15,15 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#define setnetent __setnetent
-#define getnetent __getnetent
-#define endnetent __endnetent
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include <netdb.h>
 #include <string.h>
+
+libc_hidden_proto(strcmp)
+libc_hidden_proto(setnetent)
+libc_hidden_proto(getnetent)
+libc_hidden_proto(endnetent)
 
 extern int _net_stayopen attribute_hidden;
 
@@ -34,10 +35,10 @@ getnetbyname(const char *name)
 
 	setnetent(_net_stayopen);
 	while ((p = getnetent())) {
-		if (__strcmp(p->n_name, name) == 0)
+		if (strcmp(p->n_name, name) == 0)
 			break;
 		for (cp = p->n_aliases; *cp != 0; cp++)
-			if (__strcmp(*cp, name) == 0)
+			if (strcmp(*cp, name) == 0)
 				goto found;
 	}
 found:

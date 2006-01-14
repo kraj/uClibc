@@ -18,8 +18,10 @@
 
 #include <string.h>
 
+libc_hidden_proto(strchr)
+
 /* Find the last occurrence of C in S.  */
-char attribute_hidden *__strrchr (const char *s, int c)
+char *strrchr (const char *s, int c)
 {
   register const char *found, *p;
 
@@ -28,10 +30,10 @@ char attribute_hidden *__strrchr (const char *s, int c)
   /* Since strchr is fast, we use it rather than the obvious loop.  */
 
   if (c == '\0')
-    return __strchr (s, '\0');
+    return strchr (s, '\0');
 
   found = NULL;
-  while ((p = __strchr (s, c)) != NULL)
+  while ((p = strchr (s, c)) != NULL)
     {
       found = p;
       s = p + 1;
@@ -39,7 +41,6 @@ char attribute_hidden *__strrchr (const char *s, int c)
 
   return (char *) found;
 }
-
-strong_alias(__strrchr,strrchr)
-
-strong_alias (__strrchr,rindex)
+libc_hidden_proto(strrchr)
+libc_hidden_def(strrchr)
+strong_alias(strrchr,rindex)

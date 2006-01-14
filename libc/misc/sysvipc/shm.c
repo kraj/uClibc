@@ -18,13 +18,15 @@
    Boston, MA 02111-1307, USA.  */
 
 /* SHMLBA uses it */
-#define __getpagesize __getpagesize_internal
+#define __getpagesize getpagesize
 
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/shm.h>
 #include <syscall.h>
 #include "ipc.h"
+
+libc_hidden_proto(getpagesize)
 
 #ifdef L_shmat
 /* Attach the shared memory segment associated with SHMID to the data

@@ -47,3 +47,4 @@ __longjmp:
     ret
 
 .size __longjmp,.-__longjmp
+libc_hidden_def(__longjmp)

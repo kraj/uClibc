@@ -27,7 +27,6 @@
 
 #define ENTRY(name) \
   .globl name;                                                                \
-  .hidden name;                                                               \
   .align 2;                                                                   \
   .ent name,0;                                                                \
   name##:

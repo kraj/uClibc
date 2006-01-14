@@ -26,10 +26,10 @@
 #include "_glibc_inc.h"
 
 /* BEWARE: `#ifdef strcspn' means that strcspn is redefined as `strpbrk' */
-#define STRPBRK_P (defined __strcspn)
+#define STRPBRK_P (defined strcspn)
 
 	.text
-ENTRY (__strcspn)
+ENTRY (strcspn)
 
 	movq %rdi, %rdx		/* Save SRC.  */
 
@@ -120,8 +120,8 @@ L(4):	addq $256, %rsp		/* remove skipset */
 				   non-valid character */
 #endif
 	ret
-END (__strcspn)
+END (strcspn)
 
 #if !STRPBRK_P
-strong_alias(__strcspn,strcspn)
+libc_hidden_def(strcspn)
 #endif

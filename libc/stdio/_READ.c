@@ -5,9 +5,10 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define read __read
-
 #include "_stdio.h"
+
+libc_hidden_proto(read)
+libc_hidden_proto(abort)
 
 /* Given a reading stream without its end-of-file indicator set and
  * with no buffered input or ungots, read at most 'bufsize' bytes

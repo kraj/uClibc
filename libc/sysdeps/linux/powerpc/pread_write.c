@@ -33,7 +33,6 @@
 # undef __USE_FILE_OFFSET64
 #endif
 
-
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
@@ -52,14 +51,14 @@ ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 { 
 	return(__syscall_pread(fd, buf, count, (off64_t)offset));
 }
-weak_alias (__libc_pread, pread)
+strong_alias(__libc_pread,pread)
 
 #if defined __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 { 
 	return(__syscall_pread(fd, buf, count, offset));
 }
-weak_alias (__libc_pread64, pread64)
+strong_alias(__libc_pread64,pread64)
 #endif /* __UCLIBC_HAS_LFS__  */
 #endif /* __NR_pread */
 
@@ -73,20 +72,25 @@ ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 { 
 	return(__syscall_pwrite(fd, buf, count, (off64_t)offset));
 }
-weak_alias (__libc_pwrite, pwrite)
+strong_alias(__libc_pwrite,pwrite)
 
 #if defined __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 { 
 	return(__syscall_pwrite(fd, buf, count, offset));
 }
-weak_alias (__libc_pwrite64, pwrite64)
+strong_alias(__libc_pwrite64,pwrite64)
 #endif /* __UCLIBC_HAS_LFS__  */
 #endif /* __NR_pwrite */
 
 
 
 #if ! defined __NR_pread || ! defined __NR_pwrite
+libc_hidden_proto(lseek)
+libc_hidden_proto(lseek64)
+libc_hidden_proto(read)
+libc_hidden_proto(write)
+
 static ssize_t __fake_pread_write(int fd, void *buf, 
 		size_t count, off_t offset, int do_pwrite)
 {
@@ -96,11 +100,11 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 
 	/* Since we must not change the file pointer preserve the 
 	 * value so that we can restore it later.  */
-	if ((old_offset=__lseek(fd, 0, SEEK_CUR)) == (off_t) -1)
+	if ((old_offset=lseek(fd, 0, SEEK_CUR)) == (off_t) -1)
 		return -1;
 
 	/* Set to wanted position.  */
-	if (__lseek (fd, offset, SEEK_SET) == (off_t) -1)
+	if (lseek (fd, offset, SEEK_SET) == (off_t) -1)
 		return -1;
 
 	if (do_pwrite==1) {
@@ -114,7 +118,7 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 	/* Now we have to restore the position.  If this fails we 
 	 * have to return this as an error.  */
 	save_errno = errno;
-	if (__lseek(fd, old_offset, SEEK_SET) == (off_t) -1)
+	if (lseek(fd, old_offset, SEEK_SET) == (off_t) -1)
 	{
 		if (result == -1)
 			__set_errno(save_errno);
@@ -134,11 +138,11 @@ static ssize_t __fake_pread_write64(int fd, void *buf,
 
 	/* Since we must not change the file pointer preserve the 
 	 * value so that we can restore it later.  */
-	if ((old_offset=__lseek64(fd, 0, SEEK_CUR)) == (off64_t) -1)
+	if ((old_offset=lseek64(fd, 0, SEEK_CUR)) == (off64_t) -1)
 		return -1;
 
 	/* Set to wanted position.  */
-	if (__lseek64(fd, offset, SEEK_SET) == (off64_t) -1) 
+	if (lseek64(fd, offset, SEEK_SET) == (off64_t) -1) 
 		return -1;                               
 
 	if (do_pwrite==1) {
@@ -151,7 +155,7 @@ static ssize_t __fake_pread_write64(int fd, void *buf,
 
 	/* Now we have to restore the position. */
 	save_errno = errno;
-	if (__lseek64 (fd, old_offset, SEEK_SET) == (off64_t) -1) {
+	if (lseek64 (fd, old_offset, SEEK_SET) == (off64_t) -1) {
 		if (result == -1)
 			__set_errno (save_errno);
 		return -1;
@@ -167,14 +171,14 @@ ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 {
 	return(__fake_pread_write(fd, buf, count, offset, 0));
 }
-weak_alias (__libc_pread, pread)
+strong_alias(__libc_pread,pread)
 
 #if defined __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 { 
 	return(__fake_pread_write64(fd, buf, count, offset, 0));
 }
-weak_alias (__libc_pread64, pread64)
+strong_alias(__libc_pread64,pread64)
 #endif /* __UCLIBC_HAS_LFS__  */
 #endif /* ! __NR_pread */
 
@@ -184,14 +188,13 @@ ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 {
 	return(__fake_pread_write(fd, buf, count, offset, 1));
 }
-weak_alias (__libc_pwrite, pwrite)
+strong_alias(__libc_pwrite,pwrite)
 
 #if defined __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 { 
 	return(__fake_pread_write64(fd, (void*)buf, count, offset, 1));
 }
-weak_alias (__libc_pwrite64, pwrite64)
+strong_alias(__libc_pwrite64,pwrite64)
 #endif /* __UCLIBC_HAS_LFS__  */
 #endif /* ! __NR_pwrite */
-

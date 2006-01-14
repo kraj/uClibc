@@ -19,7 +19,7 @@
 #include <string.h>
 #include "memcopy.h"
 
-void attribute_hidden *__memset (void *dstpp, int c, size_t len)
+void *memset (void *dstpp, int c, size_t len)
 {
   long int dstp = (long int) dstpp;
 
@@ -82,5 +82,5 @@ void attribute_hidden *__memset (void *dstpp, int c, size_t len)
 
   return dstpp;
 }
-
-strong_alias(__memset,memset)
+libc_hidden_proto(memset)
+libc_hidden_def(memset)

@@ -38,9 +38,9 @@
 
 .text
 .align 4
-.type	__clone,@function
-.globl	__clone;
-__clone:
+.type	clone,@function
+.globl	clone;
+clone:
 	/* sanity check arguments.  */
 	tst	r4, r4
 	bt	0f
@@ -118,10 +118,7 @@ __clone:
 #endif
 	.align	2
 .L1:
-	.long	PLTJMP(_exit_internal)
-.size __clone,.-__clone;
-
-.globl  clone;
-    clone = __clone
+	.long	PLTJMP( HIDDEN_JUMPTARGET(_exit))
+.size clone,.-clone;
 
 #include "syscall_error.S"

@@ -8,18 +8,21 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstrtok_r __wcstok
+libc_hidden_proto(wcsspn)
+libc_hidden_proto(wcspbrk)
 # define Wstrtok_r wcstok
-# define Wstrspn __wcsspn
-# define Wstrpbrk __wcspbrk
+# define Wstrspn wcsspn
+# define Wstrpbrk wcspbrk
 #else
-# define __Wstrtok_r __strtok_r
+libc_hidden_proto(strtok_r)
+libc_hidden_proto(strspn)
+libc_hidden_proto(strpbrk)
 # define Wstrtok_r strtok_r
-# define Wstrspn __strspn
-# define Wstrpbrk __strpbrk
+# define Wstrspn strspn
+# define Wstrpbrk strpbrk
 #endif
 
-Wchar attribute_hidden *__Wstrtok_r(Wchar * __restrict s1, const Wchar * __restrict s2,
+Wchar *Wstrtok_r(Wchar * __restrict s1, const Wchar * __restrict s2,
 				 Wchar ** __restrict next_start)
 {
 	register Wchar *s;
@@ -52,4 +55,6 @@ Wchar attribute_hidden *__Wstrtok_r(Wchar * __restrict s1, const Wchar * __restr
 #endif
 }
 
-strong_alias(__Wstrtok_r,Wstrtok_r)
+#ifndef WANT_WIDE
+libc_hidden_def(strtok_r)
+#endif

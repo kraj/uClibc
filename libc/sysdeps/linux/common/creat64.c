@@ -16,8 +16,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define open64 __open64
-
 #include <features.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -37,7 +35,7 @@
 # undef __USE_FILE_OFFSET64
 #endif
 
-#undef	creat
+libc_hidden_proto(open64)
 
 /* Create FILE with protections MODE.  */
 int creat64 (const char *file, mode_t mode)

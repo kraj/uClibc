@@ -13,11 +13,6 @@
  * avoided in the static library case.
  */
 
-#define getgid __getgid
-#define getuid __getuid
-#define getegid __getegid
-#define geteuid __geteuid
-
 #define	_ERRNO_H
 #include <features.h>
 #include <unistd.h>
@@ -32,6 +27,21 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(strrchr)
+libc_hidden_proto(getgid)
+libc_hidden_proto(getuid)
+libc_hidden_proto(getegid)
+libc_hidden_proto(geteuid)
+libc_hidden_proto(fstat)
+libc_hidden_proto(abort)
+libc_hidden_proto(exit)
+
+extern int __libc_open (__const char *__file, int __oflag, ...) __nonnull ((1));
+libc_hidden_proto(__libc_open)
+extern int __libc_fcntl (int __fd, int __cmd, ...);
+libc_hidden_proto(__libc_fcntl)
 
 #ifndef SHARED
 void *__libc_stack_end=NULL;
@@ -84,7 +94,8 @@ weak_alias(__environ, environ)
 
 /* TODO: don't export __pagesize; we cant now because libpthread uses it */
 size_t __pagesize = 0;
-hidden_strong_alias(__pagesize,__pagesize_internal)
+libc_hidden_proto(__pagesize)
+libc_hidden_def(__pagesize)
 
 #ifndef O_NOFOLLOW
 # define O_NOFOLLOW	0
@@ -95,18 +106,17 @@ hidden_strong_alias(__pagesize,__pagesize_internal)
 static void __check_one_fd(int fd, int mode)
 {
     /* Check if the specified fd is already open */
-    if (unlikely(__fcntl(fd, F_GETFD)==-1 && *(__errno_location())==EBADF))
+    if (unlikely(__libc_fcntl(fd, F_GETFD)==-1 && *(__errno_location())==EBADF))
     {
 	/* The descriptor is probably not open, so try to use /dev/null */
 	struct stat st;
-	int nullfd = __open(_PATH_DEVNULL, mode);
+	int nullfd = __libc_open(_PATH_DEVNULL, mode);
 	/* /dev/null is major=1 minor=3.  Make absolutely certain
 	 * that is in fact the device that we have opened and not
 	 * some other wierd file... */
-	if ( (nullfd!=fd) || __fstat(fd, &st) || !S_ISCHR(st.st_mode) ||
+	if ( (nullfd!=fd) || fstat(fd, &st) || !S_ISCHR(st.st_mode) ||
 		(st.st_rdev != makedev(1, 3)))
 	{
-	    /* Somebody is trying some trickery here... */
 		abort();
 	}
     }
@@ -152,7 +162,7 @@ void __uClibc_init(void)
 
     /* Setup an initial value.  This may not be perfect, but is
      * better than  malloc using __pagesize=0 for atexit, ctors, etc.  */
-    __pagesize_internal = PAGE_SIZE;
+    __pagesize = PAGE_SIZE;
 
 #ifdef __UCLIBC_HAS_THREADS__
     /* Before we start initializing uClibc we have to call
@@ -189,7 +199,8 @@ void __uClibc_init(void)
 	_stdio_init();
 
 }
-hidden_strong_alias(__uClibc_init,__uClibc_init_internal)
+libc_hidden_proto(__uClibc_init)
+libc_hidden_def(__uClibc_init)
 
 #ifdef __UCLIBC_CTOR_DTOR__
 void attribute_hidden (*__app_fini)(void) = NULL;
@@ -237,7 +248,7 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     while (*aux_dat) {
 	ElfW(auxv_t) *auxv_entry = (ElfW(auxv_t) *) aux_dat;
 	if (auxv_entry->a_type <= AT_EGID) {
-	    __memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(ElfW(auxv_t)));
+	    memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(ElfW(auxv_t)));
 	}
 	aux_dat += 2;
     }
@@ -246,11 +257,11 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     /* We need to initialize uClibc.  If we are dynamically linked this
      * may have already been completed by the shared lib loader.  We call
      * __uClibc_init() regardless, to be sure the right thing happens. */
-    __uClibc_init_internal();
+    __uClibc_init();
 
 #ifdef __ARCH_HAS_MMU__
     /* Make certain getpagesize() gives the correct answer */
-    __pagesize_internal = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+    __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 
     /* Prevent starting SUID binaries where the stdin. stdout, and
      * stderr file descriptors are not already opened. */
@@ -267,7 +278,7 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
     __progname_full = *argv;
-    __progname = __strrchr(*argv, '/');
+    __progname = strrchr(*argv, '/');
     if (__progname != NULL)
 	++__progname;
     else
@@ -300,5 +311,5 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     /*
      * Finally, invoke application's main and then exit.
      */
-    __exit(main(argc, argv, __environ));
+    exit(main(argc, argv, __environ));
 }

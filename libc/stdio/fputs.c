@@ -7,6 +7,11 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fputs_unlocked)
+
+libc_hidden_proto(strlen)
+libc_hidden_proto(fwrite_unlocked)
+
 /* Note: The standard says fputs returns a nonnegative number on
  * success.  In this implementation, we return the length of the
  * string written on success.
@@ -14,35 +19,37 @@
 
 #ifdef __DO_UNLOCKED
 
-int attribute_hidden __fputs_unlocked(register const char * __restrict s,
+int fputs_unlocked(register const char * __restrict s,
 					 FILE * __restrict stream)
 {
-	size_t n = __strlen(s);
+	size_t n = strlen(s);
 
-	return ((__fwrite_unlocked(s, 1, n, stream) == n) ? n : EOF);
+	return ((fwrite_unlocked(s, 1, n, stream) == n) ? n : EOF);
 }
+libc_hidden_def(fputs_unlocked)
 
-weak_alias(__fputs_unlocked,fputs_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-hidden_strong_alias(__fputs_unlocked,__fputs)
-weak_alias(__fputs_unlocked,fputs)
+strong_alias(fputs_unlocked,fputs)
+libc_hidden_proto(fputs)
+libc_hidden_def(fputs)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int attribute_hidden __fputs(const char * __restrict s, register FILE * __restrict stream)
+int fputs(const char * __restrict s, register FILE * __restrict stream)
 {
 	int retval;
 	__STDIO_AUTO_THREADLOCK_VAR;
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	retval = __fputs_unlocked(s, stream);
+	retval = fputs_unlocked(s, stream);
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	return retval;
 }
-strong_alias(__fputs,fputs)
+libc_hidden_proto(fputs)
+libc_hidden_def(fputs)
 
 #endif

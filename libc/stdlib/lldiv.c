@@ -58,5 +58,5 @@ lldiv (long long int numer, long long int denom)
 
 #if __WORDSIZE != 64
 #undef imaxdiv
-weak_alias (lldiv, imaxdiv)
+strong_alias(lldiv,imaxdiv)
 #endif

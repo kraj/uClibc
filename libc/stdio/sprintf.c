@@ -12,17 +12,20 @@
 #warning Skipping sprintf since no vsnprintf!
 #else
 
-int attribute_hidden __sprintf(char *__restrict buf, const char * __restrict format, ...)
+libc_hidden_proto(vsnprintf)
+
+int sprintf(char *__restrict buf, const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = __vsnprintf(buf, SIZE_MAX, format, arg);
+	rv = vsnprintf(buf, SIZE_MAX, format, arg);
 	va_end(arg);
 
 	return rv;
 }
-strong_alias(__sprintf,sprintf)
+libc_hidden_proto(sprintf)
+libc_hidden_def(sprintf)
 
 #endif

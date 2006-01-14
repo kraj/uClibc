@@ -17,6 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #define _SETJMP_H
 #define _ASM
 #include <bits/setjmp.h>
@@ -69,3 +70,5 @@ __longjmp:
 
 	bv,n	%r0(%r2)
 	.procend
+
+libc_hidden_def(__longjmp)

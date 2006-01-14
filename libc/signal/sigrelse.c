@@ -18,12 +18,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define sigdelset __sigdelset_internal
-
 #define __need_NULL
 #include <stddef.h>
 #define _GNU_SOURCE
 #include <signal.h>
+
+libc_hidden_proto(sigprocmask)
+libc_hidden_proto(sigdelset)
 
 int
 sigrelse (sig)
@@ -32,7 +33,7 @@ sigrelse (sig)
   sigset_t set;
 
   /* Retrieve current signal set.  */
-  if (__sigprocmask (SIG_SETMASK, NULL, &set) < 0)
+  if (sigprocmask (SIG_SETMASK, NULL, &set) < 0)
     return -1;
 
   /* Remove the specified signal.  */
@@ -40,5 +41,5 @@ sigrelse (sig)
     return -1;
 
   /* Set the new mask.  */
-  return __sigprocmask (SIG_SETMASK, &set, NULL);
+  return sigprocmask (SIG_SETMASK, &set, NULL);
 }

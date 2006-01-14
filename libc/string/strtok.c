@@ -9,11 +9,13 @@
 
 #if 0 /*def WANT_WIDE*/
 # define Wstrtok wcstok
-# define Wstrtok_r __wcstok_r
+# define Wstrtok_r wcstok_r
 #else
 # define Wstrtok strtok
-# define Wstrtok_r __strtok_r
+# define Wstrtok_r strtok_r
 #endif
+
+libc_hidden_proto(Wstrtok_r)
 
 Wchar *Wstrtok(Wchar * __restrict s1, const Wchar * __restrict s2)
 {

@@ -32,3 +32,5 @@ sigaddset (set, signo)
 
   return __sigaddset (set, signo);
 }
+libc_hidden_proto(sigaddset)
+libc_hidden_def(sigaddset)

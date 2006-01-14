@@ -65,7 +65,7 @@
 1:	retl
 	 add		%o0, -1, %o0
 
-ENTRY(__stpcpy)
+ENTRY(stpcpy)
 	andcc		%o1, 3, %g0
 	bne		10b
 	 sethi		%hi(0x80808080), %o4
@@ -156,6 +156,6 @@ ENTRY(__stpcpy)
 	 add		%o0, 1, %o0
 19:	retl
 	 nop
-END(__stpcpy)
+END(stpcpy)
 
-strong_alias(__stpcpy,stpcpy)
+libc_hidden_def(stpcpy)

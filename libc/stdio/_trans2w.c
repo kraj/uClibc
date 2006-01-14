@@ -7,6 +7,8 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fseek)
+
 /* Function to handle transition to writing.
  *   Initialize or verify the stream's orientation (even if readonly).
  *   Check that the stream is writable.
@@ -64,7 +66,7 @@ int attribute_hidden __stdio_trans2w(FILE * __restrict stream)
 			 *   the end even if not reading.*/
 			if (((__STDIO_STREAM_BUFFER_RAVAIL(stream))
 				 || (stream->__modeflags & __FLAG_UNGOT))
-				&& __fseek(stream, 0L,
+				&& fseek(stream, 0L,
 						 ((stream->__modeflags & __FLAG_APPEND)
 						  ? SEEK_END : SEEK_CUR))
 				) {

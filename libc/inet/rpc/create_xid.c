@@ -17,10 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define lrand48_r __lrand48_r
-#define srand48_r __srand48_r
-#define gettimeofday __gettimeofday
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -28,6 +24,10 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <rpc/rpc.h>
+
+libc_hidden_proto(lrand48_r)
+libc_hidden_proto(srand48_r)
+libc_hidden_proto(gettimeofday)
 
 /* The RPC code is not threadsafe, but new code should be threadsafe. */
 

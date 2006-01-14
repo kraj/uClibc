@@ -1,6 +1,7 @@
 /* Copyright (C) 2004       Manuel Novoa III    <mjn3@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  *
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
@@ -14,19 +15,22 @@
  *   Fix failure exit code for failed execve().
  */
 
-#define waitpid __waitpid
-#define execl __execl
-#define dup2 __dup2
-#define fdopen __fdopen
-#define pipe __pipe
-#define vfork __vfork
-#define fork __fork
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/wait.h>
+
+libc_hidden_proto(close)
+libc_hidden_proto(_exit)
+libc_hidden_proto(waitpid)
+libc_hidden_proto(execl)
+libc_hidden_proto(dup2)
+libc_hidden_proto(fdopen)
+libc_hidden_proto(pipe)
+libc_hidden_proto(vfork)
+libc_hidden_proto(fork)
+libc_hidden_proto(fclose)
 
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
 #include <sys/syscall.h>
@@ -88,36 +92,36 @@ FILE *popen(const char *command, const char *modes)
 	parent_fd = pipe_fd[1-child_writing];
 
 	if (!(fp = fdopen(parent_fd, modes))) {
-		__close(parent_fd);
-		__close(child_fd);
+		close(parent_fd);
+		close(child_fd);
 		goto FREE_PI;
 	}
 
 	VFORK_LOCK;
 	if ((pid = vfork()) == 0) {	/* Child of vfork... */
-		__close(parent_fd);
+		close(parent_fd);
 		if (child_fd != child_writing) {
 			dup2(child_fd, child_writing);
-			__close(child_fd);
+			close(child_fd);
 		}
 
 		/* SUSv3 requires that any previously popen()'d streams in the
 		 * parent shall be closed in the child. */
 		for (po = popen_list ; po ; po = po->next) {
-			__close(po->f->__filedes);
+			close(po->f->__filedes);
 		}
 
 		execl("/bin/sh", "sh", "-c", command, (char *)0);
 
 		/* SUSv3 mandates an exit code of 127 for the child if the
 		 * command interpreter can not be invoked. */
-		_exit_internal(127);
+		_exit(127);
 	}
 	VFORK_UNLOCK;
 
 	/* We need to close the child filedes whether vfork failed or
 	 * it succeeded and we're in the parent. */
-	__close(child_fd);
+	close(child_fd);
 
 	if (pid > 0) {				/* Parent of vfork... */
 		pi->pid = pid;

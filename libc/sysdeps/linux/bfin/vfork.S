@@ -1,4 +1,4 @@
-
+#include <features.h>
 #include <asm/unistd.h>
 	.text
 	.globl _vfork
@@ -10,3 +10,4 @@ _vfork:
 	p0 = __NR_vfork;
 	excpt 0;
 	rts;
+libc_hidden_def(_vfork)

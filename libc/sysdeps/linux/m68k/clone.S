@@ -13,9 +13,9 @@
 
 .text
 .align 4
-.type	__clone,@function
-.globl	__clone;
-__clone:
+.type	clone,@function
+.globl	clone;
+clone:
 	/* Sanity check arguments.  */
 	movel   #-EINVAL, %d0
 	movel   4(%sp), %d1             /* no NULL function pointers */
@@ -73,10 +73,3 @@ thread_start:
 	movel	#__NR_exit, %d0
 	trap	#0
 	/*jsr    exit*/
-
-#if defined(__HAVE_ELF__)
-	.weak clone
-	clone = __clone
-#else
-	.set clone,__clone
-#endif

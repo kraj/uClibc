@@ -8,14 +8,14 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wmemchr __wmemchr
 # define Wmemchr wmemchr
 #else
-# define __Wmemchr __memchr
 # define Wmemchr memchr
 #endif
 
-Wvoid attribute_hidden *__Wmemchr(const Wvoid *s, Wint c, size_t n)
+libc_hidden_proto(Wmemchr)
+
+Wvoid *Wmemchr(const Wvoid *s, Wint c, size_t n)
 {
 	register const Wuchar *r = (const Wuchar *) s;
 #ifdef __BCC__
@@ -37,4 +37,4 @@ Wvoid attribute_hidden *__Wmemchr(const Wvoid *s, Wint c, size_t n)
 }
 #undef np
 
-strong_alias(__Wmemchr,Wmemchr)
+libc_hidden_def(Wmemchr)

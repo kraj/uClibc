@@ -17,9 +17,9 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define jrand48_r __jrand48_r
-
 #include <stdlib.h>
+
+libc_hidden_proto(jrand48_r)
 
 int mrand48_r (struct drand48_data *buffer, long int *result)
 {

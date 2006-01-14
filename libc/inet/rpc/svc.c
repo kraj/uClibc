@@ -36,17 +36,6 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define ffs __ffs
-#define pmap_set __pmap_set
-#define pmap_unset __pmap_unset
-#define _authenticate _authenticate_internal
-#define _rpc_dtablesize _rpc_dtablesize_internal
-/* used by svc_[max_]pollfd */
-#define __rpc_thread_svc_pollfd __rpc_thread_svc_pollfd_internal
-#define __rpc_thread_svc_max_pollfd __rpc_thread_svc_max_pollfd_internal
-/* used by svc_fdset */
-#define __rpc_thread_svc_fdset __rpc_thread_svc_fdset_internal
-
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -57,6 +46,17 @@
 #include <rpc/svc.h>
 #include <rpc/pmap_clnt.h>
 #include <sys/poll.h>
+
+libc_hidden_proto(ffs)
+libc_hidden_proto(pmap_set)
+libc_hidden_proto(pmap_unset)
+libc_hidden_proto(_authenticate)
+libc_hidden_proto(_rpc_dtablesize)
+/* used by svc_[max_]pollfd */
+libc_hidden_proto(__rpc_thread_svc_pollfd)
+libc_hidden_proto(__rpc_thread_svc_max_pollfd)
+/* used by svc_fdset */
+libc_hidden_proto(__rpc_thread_svc_fdset)
 
 #ifdef __UCLIBC_HAS_THREADS__
 #define xports (*(SVCXPRT ***)&RPC_THREAD_VARIABLE(svc_xports_s))
@@ -86,8 +86,8 @@ static struct svc_callout *svc_head;
 /* ***************  SVCXPRT related stuff **************** */
 
 /* Activate a transport handle. */
-void attribute_hidden
-__xprt_register (SVCXPRT *xprt)
+void
+xprt_register (SVCXPRT *xprt)
 {
   register int sock = xprt->xp_sock;
   register int i;
@@ -126,11 +126,12 @@ __xprt_register (SVCXPRT *xprt)
 					       POLLRDNORM | POLLRDBAND);
     }
 }
-strong_alias(__xprt_register,xprt_register)
+libc_hidden_proto(xprt_register)
+libc_hidden_def(xprt_register)
 
 /* De-activate a transport handle. */
-void attribute_hidden
-__xprt_unregister (SVCXPRT *xprt)
+void
+xprt_unregister (SVCXPRT *xprt)
 {
   register int sock = xprt->xp_sock;
   register int i;
@@ -147,7 +148,8 @@ __xprt_unregister (SVCXPRT *xprt)
 	  svc_pollfd[i].fd = -1;
     }
 }
-strong_alias(__xprt_unregister,xprt_unregister)
+libc_hidden_proto(xprt_unregister)
+libc_hidden_def(xprt_unregister)
 
 
 /* ********************** CALLOUT list related stuff ************* */
@@ -174,8 +176,8 @@ done:
 /* Add a service program to the callout list.
    The dispatch routine will be called when a rpc request for this
    program number comes in. */
-bool_t attribute_hidden
-__svc_register (SVCXPRT * xprt, rpcprog_t prog, rpcvers_t vers,
+bool_t
+svc_register (SVCXPRT * xprt, rpcprog_t prog, rpcvers_t vers,
 	      void (*dispatch) (struct svc_req *, SVCXPRT *),
 	      rpcproc_t protocol)
 {
@@ -205,11 +207,12 @@ pmap_it:
 
   return TRUE;
 }
-strong_alias(__svc_register,svc_register)
+libc_hidden_proto(svc_register)
+libc_hidden_def(svc_register)
 
 /* Remove a service program from the callout list. */
-void attribute_hidden
-__svc_unregister (rpcprog_t prog, rpcvers_t vers)
+void
+svc_unregister (rpcprog_t prog, rpcvers_t vers)
 {
   struct svc_callout *prev;
   register struct svc_callout *s;
@@ -227,13 +230,14 @@ __svc_unregister (rpcprog_t prog, rpcvers_t vers)
   /* now unregister the information with the local binder service */
   pmap_unset (prog, vers);
 }
-strong_alias(__svc_unregister,svc_unregister)
+libc_hidden_proto(svc_unregister)
+libc_hidden_def(svc_unregister)
 
 /* ******************* REPLY GENERATION ROUTINES  ************ */
 
 /* Send a reply to an rpc request */
-bool_t attribute_hidden
-__svc_sendreply (register SVCXPRT *xprt, xdrproc_t xdr_results,
+bool_t
+svc_sendreply (register SVCXPRT *xprt, xdrproc_t xdr_results,
 	       caddr_t xdr_location)
 {
   struct rpc_msg rply;
@@ -246,7 +250,8 @@ __svc_sendreply (register SVCXPRT *xprt, xdrproc_t xdr_results,
   rply.acpted_rply.ar_results.proc = xdr_results;
   return SVC_REPLY (xprt, &rply);
 }
-strong_alias(__svc_sendreply,svc_sendreply)
+libc_hidden_proto(svc_sendreply)
+libc_hidden_def(svc_sendreply)
 
 /* No procedure error reply */
 void
@@ -262,8 +267,8 @@ svcerr_noproc (register SVCXPRT *xprt)
 }
 
 /* Can't decode args error reply */
-void attribute_hidden
-__svcerr_decode (register SVCXPRT *xprt)
+void
+svcerr_decode (register SVCXPRT *xprt)
 {
   struct rpc_msg rply;
 
@@ -273,7 +278,8 @@ __svcerr_decode (register SVCXPRT *xprt)
   rply.acpted_rply.ar_stat = GARBAGE_ARGS;
   SVC_REPLY (xprt, &rply);
 }
-strong_alias(__svcerr_decode,svcerr_decode)
+libc_hidden_proto(svcerr_decode)
+libc_hidden_def(svcerr_decode)
 
 /* Some system error */
 void
@@ -289,8 +295,8 @@ svcerr_systemerr (register SVCXPRT *xprt)
 }
 
 /* Authentication error reply */
-void attribute_hidden
-__svcerr_auth (SVCXPRT *xprt, enum auth_stat why)
+void
+svcerr_auth (SVCXPRT *xprt, enum auth_stat why)
 {
   struct rpc_msg rply;
 
@@ -300,18 +306,19 @@ __svcerr_auth (SVCXPRT *xprt, enum auth_stat why)
   rply.rjcted_rply.rj_why = why;
   SVC_REPLY (xprt, &rply);
 }
-strong_alias(__svcerr_auth,svcerr_auth)
+libc_hidden_proto(svcerr_auth)
+libc_hidden_def(svcerr_auth)
 
 /* Auth too weak error reply */
 void
 svcerr_weakauth (SVCXPRT *xprt)
 {
-  __svcerr_auth (xprt, AUTH_TOOWEAK);
+  svcerr_auth (xprt, AUTH_TOOWEAK);
 }
 
 /* Program unavailable error reply */
-void attribute_hidden
-__svcerr_noprog (register SVCXPRT *xprt)
+void
+svcerr_noprog (register SVCXPRT *xprt)
 {
   struct rpc_msg rply;
 
@@ -321,11 +328,12 @@ __svcerr_noprog (register SVCXPRT *xprt)
   rply.acpted_rply.ar_stat = PROG_UNAVAIL;
   SVC_REPLY (xprt, &rply);
 }
-strong_alias(__svcerr_noprog,svcerr_noprog)
+libc_hidden_proto(svcerr_noprog)
+libc_hidden_def(svcerr_noprog)
 
 /* Program version mismatch error reply */
-void attribute_hidden
-__svcerr_progvers (register SVCXPRT *xprt, rpcvers_t low_vers,
+void
+svcerr_progvers (register SVCXPRT *xprt, rpcvers_t low_vers,
 		 rpcvers_t high_vers)
 {
   struct rpc_msg rply;
@@ -338,7 +346,8 @@ __svcerr_progvers (register SVCXPRT *xprt, rpcvers_t low_vers,
   rply.acpted_rply.ar_vers.high = high_vers;
   SVC_REPLY (xprt, &rply);
 }
-strong_alias(__svcerr_progvers,svcerr_progvers)
+libc_hidden_proto(svcerr_progvers)
+libc_hidden_def(svcerr_progvers)
 
 /* ******************* SERVER INPUT STUFF ******************* */
 
@@ -358,8 +367,8 @@ strong_alias(__svcerr_progvers,svcerr_progvers)
  * is mallocated in kernel land.
  */
 
-void attribute_hidden
-__svc_getreq_common (const int fd)
+void
+svc_getreq_common (const int fd)
 {
   enum xprt_stat stat;
   struct rpc_msg msg;
@@ -403,7 +412,7 @@ __svc_getreq_common (const int fd)
 	    }
 	  else if ((why = _authenticate (&r, &msg)) != AUTH_OK)
 	    {
-	      __svcerr_auth (xprt, why);
+	      svcerr_auth (xprt, why);
 	      goto call_done;
 	    }
 
@@ -433,9 +442,9 @@ __svc_getreq_common (const int fd)
 	  /* if we got here, the program or version
 	     is not served ... */
 	  if (prog_found)
-	    __svcerr_progvers (xprt, low_vers, high_vers);
+	    svcerr_progvers (xprt, low_vers, high_vers);
 	  else
-	    __svcerr_noprog (xprt);
+	    svcerr_noprog (xprt);
 	  /* Fall through to ... */
 	}
     call_done:
@@ -447,10 +456,11 @@ __svc_getreq_common (const int fd)
     }
   while (stat == XPRT_MOREREQS);
 }
-strong_alias(__svc_getreq_common,svc_getreq_common)
+libc_hidden_proto(svc_getreq_common)
+libc_hidden_def(svc_getreq_common)
 
-void attribute_hidden
-__svc_getreqset (fd_set *readfds)
+void
+svc_getreqset (fd_set *readfds)
 {
   register u_int32_t mask;
   register u_int32_t *maskp;
@@ -462,23 +472,25 @@ __svc_getreqset (fd_set *readfds)
   maskp = (u_int32_t *) readfds->fds_bits;
   for (sock = 0; sock < setsize; sock += 32)
     for (mask = *maskp++; (bit = ffs (mask)); mask ^= (1 << (bit - 1)))
-      __svc_getreq_common (sock + bit - 1);
+      svc_getreq_common (sock + bit - 1);
 }
-strong_alias(__svc_getreqset,svc_getreqset)
+libc_hidden_proto(svc_getreqset)
+libc_hidden_def(svc_getreqset)
 
-void attribute_hidden
-__svc_getreq (int rdfds)
+void
+svc_getreq (int rdfds)
 {
   fd_set readfds;
 
   FD_ZERO (&readfds);
   readfds.fds_bits[0] = rdfds;
-  __svc_getreqset (&readfds);
+  svc_getreqset (&readfds);
 }
-strong_alias(__svc_getreq,svc_getreq)
+libc_hidden_proto(svc_getreq)
+libc_hidden_def(svc_getreq)
 
-void attribute_hidden
-__svc_getreq_poll (struct pollfd *pfdp, int pollretval)
+void
+svc_getreq_poll (struct pollfd *pfdp, int pollretval)
 {
   register int i;
   register int fds_found;
@@ -493,13 +505,14 @@ __svc_getreq_poll (struct pollfd *pfdp, int pollretval)
 	  ++fds_found;
 
 	  if (p->revents & POLLNVAL)
-	    __xprt_unregister (xports[p->fd]);
+	    xprt_unregister (xports[p->fd]);
 	  else
-	    __svc_getreq_common (p->fd);
+	    svc_getreq_common (p->fd);
 	}
     }
 }
-strong_alias(__svc_getreq_poll,svc_getreq_poll)
+libc_hidden_proto(svc_getreq_poll)
+libc_hidden_def(svc_getreq_poll)
 
 #ifdef __UCLIBC_HAS_THREADS__
 
@@ -508,7 +521,7 @@ void attribute_hidden __rpc_thread_svc_cleanup (void)
   struct svc_callout *svcp;
 
   while ((svcp = svc_head) != NULL)
-    __svc_unregister (svcp->sc_prog, svcp->sc_vers);
+    svc_unregister (svcp->sc_prog, svcp->sc_vers);
 }
 
 #endif /* __UCLIBC_HAS_THREADS__ */

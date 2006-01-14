@@ -23,12 +23,11 @@
 #include <sys/syscall.h>
 
 .text
-.global	__fork
-.hidden	__fork
-.type	__fork,%function
+.global	fork
+.type	fork,%function
 .align 4
 
-__fork:
+fork:
 	mov __NR_fork, %g1
 	ta	0x10
 	bcc,a	9000f
@@ -45,6 +44,6 @@ __fork:
 	retl
 	and	%o0, %o1, %o0
 
-.size __fork,.-__fork
-strong_alias(__fork,fork)
-weak_alias(fork,__libc_fork)
+.size fork,.-fork
+libc_hidden_def(fork)
+strong_alias(fork,__libc_fork)

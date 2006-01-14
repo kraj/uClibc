@@ -18,11 +18,10 @@
 
 #ifdef __NR_fork
 .text
-.global	__vfork
-.hidden	__vfork
-.type	__vfork,%function
+.global	vfork
+.type	vfork,%function
 .align 4
-__vfork:
+vfork:
     movui   r2, TRAP_ID_SYSCALL
     movui   r3, __NR_vfork
     trap
@@ -48,6 +47,6 @@ fix_errno:
     addi  sp, sp, 8
     ret
 
-.size __vfork,.-__vfork
-strong_alias(__vfork,vfork)
+.size vfork,.-vfork
+libc_hidden_def(vfork)
 #endif

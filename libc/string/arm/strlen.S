@@ -27,12 +27,11 @@
  */
 
 .text
-.global __strlen
-.hidden __strlen
-.type __strlen,%function
+.global strlen
+.type strlen,%function
 .align 4
 
-__strlen:
+strlen:
 	bic     r1, r0, $3              @ addr of word containing first byte
 	ldr     r2, [r1], $4            @ get the first word
 	ands    r3, r0, $3              @ how many bytes are duff?
@@ -78,6 +77,6 @@ Llastword:				@ drop through to here once we find a
 #endif
 	mov	pc,lr
 
-.size __strlen,.-__strlen
+.size strlen,.-strlen
 
-strong_alias(__strlen,strlen)
+libc_hidden_def(strlen)

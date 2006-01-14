@@ -15,6 +15,8 @@
 #include <string.h>
 #include <errno.h>
 
+libc_hidden_proto(memcpy)
+
 #include "malloc.h"
 #include "heap.h"
 
@@ -66,7 +68,7 @@ realloc (void *mem, size_t new_size)
 	  void *new_mem = malloc (new_size - MALLOC_HEADER_SIZE);
 	  if (new_mem)
 	    {
-	      __memcpy (new_mem, mem, size - MALLOC_HEADER_SIZE);
+	      memcpy (new_mem, mem, size - MALLOC_HEADER_SIZE);
 	      free (mem);
 	    }
 	  mem = new_mem;

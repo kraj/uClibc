@@ -9,6 +9,6 @@
 
 #include "syscalls.h"
 #include <sys/resource.h>
-#define __NR___setpriority __NR_setpriority
-attribute_hidden _syscall3(int, __setpriority, __priority_which_t, which, id_t, who, int, prio);
-strong_alias(__setpriority,setpriority)
+_syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio);
+libc_hidden_proto(setpriority)
+libc_hidden_def(setpriority)

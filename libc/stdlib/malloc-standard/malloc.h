@@ -14,10 +14,6 @@
   Hacked up for uClibc by Erik Andersen <andersen@codepoet.org>
 */
 
-#define mmap __mmap
-#define sysconf __sysconf
-#define sbrk __sbrk
-
 #include <features.h>
 #include <stddef.h>
 #include <unistd.h>
@@ -25,7 +21,12 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdlib.h>
+#include <sys/mman.h>
 
+libc_hidden_proto(mmap)
+libc_hidden_proto(sysconf)
+libc_hidden_proto(sbrk)
+libc_hidden_proto(abort)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>

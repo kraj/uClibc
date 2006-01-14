@@ -22,7 +22,7 @@
 
 
 	.text
-ENTRY (BP_SYM (__strchr))
+ENTRY (BP_SYM (strchr))
 
 	/* Before we start with the main loop we process single bytes
 	   until the source pointer is aligned.  This has two reasons:
@@ -282,7 +282,7 @@ ENTRY (BP_SYM (__strchr))
 6:
 	nop
 	retq
-END (BP_SYM (__strchr))
+END (BP_SYM (strchr))
 
-strong_alias(__strchr,strchr)
-strong_alias (BP_SYM (__strchr), BP_SYM (index))
+libc_hidden_def(strchr)
+strong_alias (BP_SYM (strchr), BP_SYM (index))

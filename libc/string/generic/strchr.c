@@ -24,10 +24,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+libc_hidden_proto(abort)
+
 #include "memcopy.h"
 
 /* Find the first occurrence of C in S.  */
-char attribute_hidden *__strchr (const char *s, int c_in)
+char *strchr (const char *s, int c_in)
 {
   const unsigned char *char_ptr;
   const unsigned long int *longword_ptr;
@@ -178,7 +180,6 @@ char attribute_hidden *__strchr (const char *s, int c_in)
 
   return NULL;
 }
-
-strong_alias(__strchr,strchr)
-
-strong_alias(__strchr,index)
+libc_hidden_proto(strchr)
+libc_hidden_def(strchr)
+strong_alias(strchr,index)

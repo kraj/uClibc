@@ -7,7 +7,7 @@
 
 #include "_string.h"
 
-void attribute_hidden *__memmem(const void *haystack, size_t haystacklen,
+void *memmem(const void *haystack, size_t haystacklen,
 		     const void *needle, size_t needlelen)
 {
 	register const char *ph;
@@ -36,5 +36,3 @@ void attribute_hidden *__memmem(const void *haystack, size_t haystacklen,
 
 	return NULL;
 }
-
-strong_alias(__memmem,memmem)

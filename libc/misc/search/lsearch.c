@@ -12,9 +12,11 @@
 #include <stdio.h>
 #include <search.h>
 
+libc_hidden_proto(lfind)
+
 #ifdef L_lfind
 
-void attribute_hidden *__lfind(const void *key, const void *base, size_t *nmemb,
+void *lfind(const void *key, const void *base, size_t *nmemb,
 	size_t size, int (*compar)(const void *, const void *))
 {
 	register int n = *nmemb;
@@ -26,22 +28,21 @@ void attribute_hidden *__lfind(const void *key, const void *base, size_t *nmemb,
 	}
 	return (NULL);
 }
-strong_alias(__lfind,lfind)
+libc_hidden_def(lfind)
 
 #endif
 
 #ifdef L_lsearch
 
-extern void *__lfind (__const void *__key, __const void *__base,
-		    size_t *__nmemb, size_t __size, __compar_fn_t __compar) attribute_hidden;
+libc_hidden_proto(memcpy)
 
 void *lsearch(const void *key, void *base, size_t *nmemb, 
 	size_t size, int (*compar)(const void *, const void *))
 {
 	register char *p;
 
-	if ((p = __lfind(key, base, nmemb, size, compar)) == NULL) {
-		p = __memcpy((base + (size * (*nmemb))), key, size);
+	if ((p = lfind(key, base, nmemb, size, compar)) == NULL) {
+		p = memcpy((base + (size * (*nmemb))), key, size);
 		++(*nmemb);
 	}
 	return (p);

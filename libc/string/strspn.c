@@ -8,14 +8,14 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstrspn __wcsspn
 # define Wstrspn wcsspn
 #else
-# define __Wstrspn __strspn
 # define Wstrspn strspn
 #endif
 
-size_t attribute_hidden __Wstrspn(const Wchar *s1, const Wchar *s2)
+libc_hidden_proto(Wstrspn)
+
+size_t Wstrspn(const Wchar *s1, const Wchar *s2)
 {
 	register const Wchar *s = s1;
 	register const Wchar *p = s2;
@@ -28,5 +28,4 @@ size_t attribute_hidden __Wstrspn(const Wchar *s1, const Wchar *s2)
 	}
 	return s - s1;
 }
-
-strong_alias(__Wstrspn,Wstrspn)
+libc_hidden_def(Wstrspn)

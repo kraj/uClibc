@@ -19,7 +19,6 @@
 
 #include <features.h>
 
-#ifdef __UCLIBC_HAS_LFS__
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
 #define	_FILE_OFFSET_BITS   64
@@ -29,7 +28,6 @@
 #endif
 #ifndef __USE_LARGEFILE64
 # define __USE_LARGEFILE64	1
-#endif
 #endif
 
 #define __USE_GNU
@@ -42,16 +40,19 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 
+//libc_hidden_proto(fstatfs)
+//libc_hidden_proto(fstat)
+
 int fstatvfs (int fd, struct statvfs *buf)
 {
     struct statfs fsbuf;
     struct stat st;
 
     /* Get as much information as possible from the system.  */
-    if (__fstatfs (fd, &fsbuf) < 0)
+    if (fstatfs (fd, &fsbuf) < 0)
 	return -1;
 
-#define STAT(st) __fstat (fd, st)
+#define STAT(st) fstat (fd, st)
 #include "internal_statvfs.c"
 
     /* We signal success if the statfs call succeeded.  */

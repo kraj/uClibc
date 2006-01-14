@@ -30,10 +30,6 @@
  * November 2002, Erik Andersen <andersen@codepoet.org> 
  */
 
-#define __fsetlocking __fsetlocking_internal
-#define fileno __fileno
-#define fgets_unlocked __fgets_unlocked
-
 #define _GNU_SOURCE
 #include <sys/param.h>
 #include <sys/file.h>
@@ -44,6 +40,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <paths.h>
+
+libc_hidden_proto(fstat)
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(__fsetlocking)
+libc_hidden_proto(fileno)
+libc_hidden_proto(fgets_unlocked)
 
 /*
  * Local shells should NOT be added here.  They should be added in
@@ -104,7 +107,7 @@ static char ** initshells(void)
 
     if ((fp = fopen(_PATH_SHELLS, "r")) == NULL)
 	return (char **) validsh;
-    if (__fstat(fileno(fp), &statb) == -1) {
+    if (fstat(fileno(fp), &statb) == -1) {
 	goto cleanup;
     }
     if ((strings = malloc((unsigned)statb.st_size + 1)) == NULL) {

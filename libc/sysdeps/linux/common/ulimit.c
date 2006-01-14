@@ -18,10 +18,6 @@
  *
  */
 
-#define sysconf __sysconf
-#define getrlimit __getrlimit
-#define setrlimit __setrlimit
-
 #define _GNU_SOURCE
 #define _LARGEFILE64_SOURCE
 #include <features.h>
@@ -47,6 +43,10 @@ _syscall2(long, ulimit, int, cmd, int, arg);
 #include <ulimit.h>
 #include <errno.h>
 #include <sys/resource.h>
+
+libc_hidden_proto(sysconf)
+libc_hidden_proto(getrlimit)
+libc_hidden_proto(setrlimit)
 
 long int ulimit(int cmd, ...)
 {

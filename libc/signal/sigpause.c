@@ -17,25 +17,26 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define sigdelset __sigdelset_internal
-#define sigsuspend __sigsuspend
-
 #include <errno.h>
 #include <signal.h>
 #include <stddef.h>		/* For NULL.  */
+
+libc_hidden_proto(sigprocmask)
+libc_hidden_proto(sigdelset)
+libc_hidden_proto(sigsuspend)
 
 #include "sigset-cvt-mask.h"
 
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
-int attribute_hidden __sigpause_internal (int sig_or_mask, int is_sig)
+int __sigpause (int sig_or_mask, int is_sig)
 {
   sigset_t set;
 
   if (is_sig != 0)
     {
       /* The modern X/Open implementation is requested.  */
-      if (__sigprocmask (0, NULL, &set) < 0
+      if (sigprocmask (0, NULL, &set) < 0
 	  /* Yes, we call `sigdelset' and not `__sigdelset'.  */
 	  || sigdelset (&set, sig_or_mask) < 0)
 	return -1;
@@ -45,7 +46,8 @@ int attribute_hidden __sigpause_internal (int sig_or_mask, int is_sig)
 
   return sigsuspend (&set);
 }
-strong_alias(__sigpause_internal,__sigpause)
+libc_hidden_proto(__sigpause)
+libc_hidden_def(__sigpause)
 
 #undef sigpause
 
@@ -54,5 +56,7 @@ strong_alias(__sigpause_internal,__sigpause)
    the BSD version.  So make this the default.  */
 int sigpause (int mask)
 {
-  return __sigpause_internal (mask, 0);
+  return __sigpause (mask, 0);
 }
+libc_hidden_proto(sigpause)
+libc_hidden_def(sigpause)

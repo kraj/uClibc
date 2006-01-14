@@ -8,15 +8,18 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-int attribute_hidden __printf(const char * __restrict format, ...)
+libc_hidden_proto(vfprintf)
+
+int printf(const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = __vfprintf(stdout, format, arg);
+	rv = vfprintf(stdout, format, arg);
 	va_end(arg);
 
 	return rv;
 }
-strong_alias(__printf,printf)
+libc_hidden_proto(printf)
+libc_hidden_def(printf)

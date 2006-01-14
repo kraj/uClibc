@@ -34,22 +34,23 @@
  * XDR for UNIX style authentication parameters for RPC
  */
 
-#define xdr_string __xdr_string
-#define xdr_u_int __xdr_u_int
-#define xdr_array __xdr_array
-#define xdr_u_long __xdr_u_long
-
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 #include <rpc/auth.h>
 #include <rpc/auth_unix.h>
 
+libc_hidden_proto(xdr_string)
+libc_hidden_def(xdr_string)
+libc_hidden_proto(xdr_u_int)
+libc_hidden_proto(xdr_array)
+libc_hidden_proto(xdr_u_long)
+
 /*
  * XDR for unix authentication parameters.
  * Unfortunately, none of these can be declared const.
  */
-bool_t attribute_hidden
-__xdr_authunix_parms (XDR * xdrs, struct authunix_parms *p)
+bool_t
+xdr_authunix_parms (XDR * xdrs, struct authunix_parms *p)
 {
   if (xdr_u_long (xdrs, &(p->aup_time))
       && xdr_string (xdrs, &(p->aup_machname), MAX_MACHINE_NAME)
@@ -68,4 +69,5 @@ __xdr_authunix_parms (XDR * xdrs, struct authunix_parms *p)
     }
   return FALSE;
 }
-strong_alias(__xdr_authunix_parms,xdr_authunix_parms)
+libc_hidden_proto(xdr_authunix_parms)
+libc_hidden_def(xdr_authunix_parms)

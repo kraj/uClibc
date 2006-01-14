@@ -41,22 +41,6 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
  * and a record/tcp stream.
  */
 
-#define xdrrec_create __xdrrec_create
-#define xdrrec_endofrecord __xdrrec_endofrecord
-#define xdrrec_skiprecord __xdrrec_skiprecord
-#define xdrrec_eof __xdrrec_eof
-#define xdr_callmsg __xdr_callmsg
-#define xdr_replymsg __xdr_replymsg
-#define xprt_register __xprt_register
-#define xprt_unregister __xprt_unregister
-#define getsockname __getsockname
-#define bind __bind
-#define bindresvport __bindresvport
-#define poll __poll
-#define accept __accept
-#define listen __listen
-#define fputs __fputs
-
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -75,6 +59,31 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
 # include <libio/iolibio.h>
 # define fputs(s, f) _IO_fputs (s, f)
 #endif
+
+libc_hidden_proto(memset)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(read)
+libc_hidden_proto(write)
+libc_hidden_proto(perror)
+libc_hidden_proto(xdrrec_create)
+libc_hidden_proto(xdrrec_endofrecord)
+libc_hidden_proto(xdrrec_skiprecord)
+libc_hidden_proto(xdrrec_eof)
+libc_hidden_proto(xdr_callmsg)
+libc_hidden_proto(xdr_replymsg)
+libc_hidden_proto(xprt_register)
+libc_hidden_proto(xprt_unregister)
+libc_hidden_proto(getsockname)
+libc_hidden_proto(bind)
+libc_hidden_proto(bindresvport)
+libc_hidden_proto(poll)
+libc_hidden_proto(accept)
+libc_hidden_proto(listen)
+libc_hidden_proto(fputs)
+libc_hidden_proto(fclose)
+libc_hidden_proto(abort)
 
 /*
  * Ops vector for TCP/IP based rpc service handle
@@ -170,14 +179,14 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
 
   if (sock == RPC_ANYSOCK)
     {
-      if ((sock = __socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+      if ((sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 	{
-	  __perror (_("svc_tcp.c - tcp socket creation problem"));
+	  perror (_("svc_tcp.c - tcp socket creation problem"));
 	  return (SVCXPRT *) NULL;
 	}
       madesock = TRUE;
     }
-  __memset ((char *) &addr, 0, sizeof (addr));
+  memset ((char *) &addr, 0, sizeof (addr));
   addr.sin_family = AF_INET;
   if (bindresvport (sock, &addr))
     {
@@ -187,9 +196,9 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
   if ((getsockname (sock, (struct sockaddr *) &addr, &len) != 0) ||
       (listen (sock, 2) != 0))
     {
-      __perror (_("svc_tcp.c - cannot getsockname or listen"));
+      perror (_("svc_tcp.c - cannot getsockname or listen"));
       if (madesock)
-	(void) __close (sock);
+	(void) close (sock);
       return (SVCXPRT *) NULL;
     }
   r = (struct tcp_rendezvous *) mem_alloc (sizeof (*r));
@@ -285,7 +294,7 @@ again:
    * make a new transporter (re-uses xprt)
    */
   xprt = makefd_xprt (sock, r->sendsize, r->recvsize);
-  __memcpy (&xprt->xp_raddr, &addr, sizeof (addr));
+  memcpy (&xprt->xp_raddr, &addr, sizeof (addr));
   xprt->xp_addrlen = len;
   return FALSE;		/* there is never an rpc msg to be processed */
 }
@@ -302,7 +311,7 @@ svctcp_destroy (SVCXPRT *xprt)
   struct tcp_conn *cd = (struct tcp_conn *) xprt->xp_p1;
 
   xprt_unregister (xprt);
-  (void) __close (xprt->xp_sock);
+  (void) close (xprt->xp_sock);
   if (xprt->xp_port != 0)
     {
       /* a rendezvouser socket */
@@ -352,7 +361,7 @@ readtcp (char *xprtptr, char *buf, int len)
     }
   while ((pollfd.revents & POLLIN) == 0);
 
-  if ((len = __read (sock, buf, len)) > 0)
+  if ((len = read (sock, buf, len)) > 0)
     return len;
 
  fatal_err:
@@ -372,7 +381,7 @@ writetcp (char *xprtptr, char * buf, int len)
 
   for (cnt = len; cnt > 0; cnt -= i, buf += i)
     {
-      if ((i = __write (xprt->xp_sock, buf, cnt)) < 0)
+      if ((i = write (xprt->xp_sock, buf, cnt)) < 0)
 	{
 	  ((struct tcp_conn *) (xprt->xp_p1))->strm_stat = XPRT_DIED;
 	  return -1;

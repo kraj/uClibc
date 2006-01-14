@@ -41,5 +41,7 @@
 #include <bits/stat.h>
 
 #define __NR___syscall_fstat __NR_fstat
-_syscall2(int, __syscall_fstat, int, fd, struct stat *, buf);
-strong_alias(__syscall_fstat, fstat)
+attribute_hidden _syscall2(int, __syscall_fstat, int, fd, struct stat *, buf);
+strong_alias(__syscall_fstat,fstat)
+libc_hidden_proto(fstat)
+libc_hidden_def(fstat)

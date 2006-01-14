@@ -18,19 +18,21 @@
 
 #include <string.h>
 
+libc_hidden_proto(strchr)
+
 /* Return the length of the maximum initial segment of S
    which contains no characters from REJECT.  */
-size_t attribute_hidden __strcspn (const char *s, const char *reject)
+size_t strcspn (const char *s, const char *reject)
 {
   size_t count = 0;
 
   while (*s != '\0')
-    if (__strchr (reject, *s++) == NULL)
+    if (strchr (reject, *s++) == NULL)
       ++count;
     else
       return count;
 
   return count;
 }
-
-strong_alias(__strcspn,strcspn)
+libc_hidden_proto(strcspn)
+libc_hidden_def(strcspn)

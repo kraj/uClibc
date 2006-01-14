@@ -5,8 +5,6 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define vfprintf __vfprintf
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,6 +20,18 @@
 #warning REMINDER: Deal with wide oriented stderr case.
 #endif
 
+libc_hidden_proto(vwarn)
+libc_hidden_proto(vwarnx)
+libc_hidden_proto(err)
+libc_hidden_proto(verr)
+libc_hidden_proto(verrx)
+
+libc_hidden_proto(fprintf)
+libc_hidden_proto(vfprintf)
+libc_hidden_proto(__xpg_strerror_r)
+libc_hidden_proto(exit)
+libc_hidden_proto(vfprintf)
+
 static void vwarn_work(const char *format, va_list args, int showerr)
 {
 	/*                         0123 45678 9 a b*/
@@ -34,7 +44,7 @@ static void vwarn_work(const char *format, va_list args, int showerr)
 	f = fmt + 11;				/* At 11. */
 	if (showerr) {
 		f -= 4;					/* At 7. */
-		__xpg_strerror_r_internal(errno, buf, sizeof(buf));
+		__xpg_strerror_r(errno, buf, sizeof(buf));
 	}
 
 	__STDIO_AUTO_THREADLOCK(stderr);
@@ -49,68 +59,68 @@ static void vwarn_work(const char *format, va_list args, int showerr)
 	__STDIO_AUTO_THREADUNLOCK(stderr);
 }
 
-void attribute_hidden __vwarn(const char *format, va_list args)
+void vwarn(const char *format, va_list args)
 {
 	vwarn_work(format, args, 1);
 }
-strong_alias(__vwarn,vwarn)
+libc_hidden_def(vwarn)
 
 void warn(const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	__vwarn(format, args);
+	vwarn(format, args);
 	va_end(args);
 }
 
-void attribute_hidden __vwarnx(const char *format, va_list args)
+void vwarnx(const char *format, va_list args)
 {
 	vwarn_work(format, args, 0);
 }
-strong_alias(__vwarnx,vwarnx)
+libc_hidden_def(vwarnx)
 
 void warnx(const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	__vwarnx(format, args);
+	vwarnx(format, args);
 	va_end(args);
 }
 
-void attribute_hidden __verr(int status, const char *format, va_list args)
+void verr(int status, const char *format, va_list args)
 {
-	__vwarn(format, args);
-	__exit(status);
+	vwarn(format, args);
+	exit(status);
 }
-strong_alias(__verr,verr)
+libc_hidden_def(verr)
 
 void attribute_noreturn err(int status, const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	__verr(status, format, args);
+	verr(status, format, args);
 	/* This should get optimized away.  We'll leave it now for safety. */
 	/* The loop is added only to keep gcc happy. */
 	while(1)
 		va_end(args);
 }
 
-void attribute_hidden __verrx(int status, const char *format, va_list args)
+void verrx(int status, const char *format, va_list args)
 {
-	__vwarnx(format, args);
-	__exit(status);
+	vwarnx(format, args);
+	exit(status);
 }
-strong_alias(__verrx,verrx)
+libc_hidden_def(verrx)
 
 void attribute_noreturn errx(int status, const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	__verrx(status, format, args);
+	verrx(status, format, args);
 	/* This should get optimized away.  We'll leave it now for safety. */
 	/* The loop is added only to keep gcc happy. */
 	while(1)

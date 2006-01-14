@@ -17,11 +17,11 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define erand48_r __erand48_r
-
 #include <errno.h>
 #include <math.h>
 #include <stdlib.h>
+
+libc_hidden_proto(erand48_r)
 
 int drand48_r (struct drand48_data *buffer, double *result)
 {

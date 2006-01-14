@@ -39,20 +39,6 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define authunix_create_default __authunix_create_default
-#define xdrmem_create __xdrmem_create
-#define xdr_callmsg __xdr_callmsg
-#define xdr_replymsg __xdr_replymsg
-#define xdr_reference __xdr_reference
-#define xdr_u_long __xdr_u_long
-#define inet_makeaddr __inet_makeaddr
-#define inet_netof __inet_netof
-#define clntudp_create __clntudp_create
-#define setsockopt __setsockopt
-#define recvfrom __recvfrom
-#define sendto __sendto
-#define poll __poll
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -73,6 +59,27 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 #include <arpa/inet.h>
 #define MAX_BROADCAST_SIZE 1400
 
+libc_hidden_proto(memset)
+libc_hidden_proto(ioctl)
+libc_hidden_proto(perror)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(authunix_create_default)
+libc_hidden_proto(xdrmem_create)
+libc_hidden_proto(xdr_callmsg)
+libc_hidden_proto(xdr_replymsg)
+libc_hidden_proto(xdr_reference)
+libc_hidden_proto(xdr_u_long)
+libc_hidden_proto(inet_makeaddr)
+libc_hidden_proto(inet_netof)
+libc_hidden_proto(clntudp_create)
+libc_hidden_proto(setsockopt)
+libc_hidden_proto(recvfrom)
+libc_hidden_proto(sendto)
+libc_hidden_proto(poll)
+libc_hidden_proto(fprintf)
+
+
 extern u_long _create_xid (void) attribute_hidden;
 
 static const struct timeval timeout = {3, 0};
@@ -81,8 +88,8 @@ static const struct timeval timeout = {3, 0};
  * XDR remote call arguments
  * written for XDR_ENCODE direction only
  */
-bool_t attribute_hidden
-__xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
+bool_t
+xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
 {
   u_int lenposition, argposition, position;
 
@@ -106,7 +113,8 @@ __xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
     }
   return FALSE;
 }
-strong_alias(__xdr_rmtcall_args,xdr_rmtcall_args)
+libc_hidden_proto(xdr_rmtcall_args)
+libc_hidden_def(xdr_rmtcall_args)
 
 /*
  * pmapper remote-call-service interface.
@@ -142,7 +150,7 @@ pmap_rmtcall (addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_p
       r.port_ptr = port_ptr;
       r.results_ptr = resp;
       r.xdr_results = xdrres;
-      stat = CLNT_CALL (client, PMAPPROC_CALLIT, (xdrproc_t)__xdr_rmtcall_args,
+      stat = CLNT_CALL (client, PMAPPROC_CALLIT, (xdrproc_t)xdr_rmtcall_args,
 			(caddr_t)&a, (xdrproc_t)xdr_rmtcallres,
 			(caddr_t)&r, tout);
       CLNT_DESTROY (client);
@@ -151,7 +159,7 @@ pmap_rmtcall (addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_p
     {
       stat = RPC_FAILED;
     }
-  /* (void)__close(socket); CLNT_DESTROY already closed it */
+  /* (void)close(socket); CLNT_DESTROY already closed it */
   addr->sin_port = 0;
   return stat;
 }
@@ -198,18 +206,18 @@ getbroadcastnets (struct in_addr *addrs, int sock, char *buf)
 
   ifc.ifc_len = UDPMSGSIZE;
   ifc.ifc_buf = buf;
-  if (__ioctl (sock, SIOCGIFCONF, (char *) &ifc) < 0)
+  if (ioctl (sock, SIOCGIFCONF, (char *) &ifc) < 0)
     {
-      __perror (_("broadcast: ioctl (get interface configuration)"));
+      perror (_("broadcast: ioctl (get interface configuration)"));
       return (0);
     }
   ifr = ifc.ifc_req;
   for (i = 0, n = ifc.ifc_len / sizeof (struct ifreq); n > 0; n--, ifr++)
     {
       ifreq = *ifr;
-      if (__ioctl (sock, SIOCGIFFLAGS, (char *) &ifreq) < 0)
+      if (ioctl (sock, SIOCGIFFLAGS, (char *) &ifreq) < 0)
 	{
-	  __perror (_("broadcast: ioctl (get interface flags)"));
+	  perror (_("broadcast: ioctl (get interface flags)"));
 	  continue;
 	}
       if ((ifreq.ifr_flags & IFF_BROADCAST) &&
@@ -218,7 +226,7 @@ getbroadcastnets (struct in_addr *addrs, int sock, char *buf)
 	{
 	  sin = (struct sockaddr_in *) &ifr->ifr_addr;
 #ifdef SIOCGIFBRDADDR		/* 4.3BSD */
-	  if (__ioctl (sock, SIOCGIFBRDADDR, (char *) &ifreq) < 0)
+	  if (ioctl (sock, SIOCGIFBRDADDR, (char *) &ifreq) < 0)
 	    {
 	      addrs[i++] = inet_makeaddr (inet_netof
 	      /* Changed to pass struct instead of s_addr member
@@ -277,16 +285,16 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
    * initialization: create a socket, a broadcast address, and
    * preserialize the arguments into a send buffer.
    */
-  if ((sock = __socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+  if ((sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
     {
-      __perror (_("Cannot create socket for broadcast rpc"));
+      perror (_("Cannot create socket for broadcast rpc"));
       stat = RPC_CANTSEND;
       goto done_broad;
     }
 #ifdef SO_BROADCAST
   if (setsockopt (sock, SOL_SOCKET, SO_BROADCAST, &on, sizeof (on)) < 0)
     {
-      __perror (_("Cannot set socket option SO_BROADCAST"));
+      perror (_("Cannot set socket option SO_BROADCAST"));
       stat = RPC_CANTSEND;
       goto done_broad;
     }
@@ -294,7 +302,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
   fd.fd = sock;
   fd.events = POLLIN;
   nets = getbroadcastnets (addrs, sock, inbuf);
-  __memset ((char *) &baddr, 0, sizeof (baddr));
+  memset ((char *) &baddr, 0, sizeof (baddr));
   baddr.sin_family = AF_INET;
   baddr.sin_port = htons (PMAPPORT);
   baddr.sin_addr.s_addr = htonl (INADDR_ANY);
@@ -317,7 +325,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
   r.xdr_results = xresults;
   r.results_ptr = resultsp;
   xdrmem_create (xdrs, outbuf, MAX_BROADCAST_SIZE, XDR_ENCODE);
-  if ((!xdr_callmsg (xdrs, &msg)) || (!__xdr_rmtcall_args (xdrs, &a)))
+  if ((!xdr_callmsg (xdrs, &msg)) || (!xdr_rmtcall_args (xdrs, &a)))
     {
       stat = RPC_CANTENCODEARGS;
       goto done_broad;
@@ -337,7 +345,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 		      (struct sockaddr *) &baddr,
 		      sizeof (struct sockaddr)) != outlen)
 	    {
-	      __perror (_("Cannot send broadcast packet"));
+	      perror (_("Cannot send broadcast packet"));
 	      stat = RPC_CANTSEND;
 	      goto done_broad;
 	    }
@@ -362,7 +370,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	case -1:		/* some kind of error */
 	  if (errno == EINTR)
 	    goto recv_again;
-	  __perror (_("Broadcast poll problem"));
+	  perror (_("Broadcast poll problem"));
 	  stat = RPC_CANTRECV;
 	  goto done_broad;
 
@@ -375,7 +383,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	{
 	  if (errno == EINTR)
 	    goto try_again;
-	  __perror (_("Cannot receive reply to broadcast"));
+	  perror (_("Cannot receive reply to broadcast"));
 	  stat = RPC_CANTRECV;
 	  goto done_broad;
 	}
@@ -422,7 +430,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	}
     }
 done_broad:
-  (void) __close (sock);
+  (void) close (sock);
   AUTH_DESTROY (unix_auth);
   return stat;
 }

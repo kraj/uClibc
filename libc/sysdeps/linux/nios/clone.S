@@ -28,10 +28,10 @@
 
 	.text
 	.align	2
-	.globl	__clone
-	.type	__clone,@function
+	.globl	clone
+	.type	clone,@function
 
-__clone:
+clone:
 	save	%sp,-16
 
 	MOVIP	%l0, -EINVAL
@@ -74,7 +74,7 @@ CLONE_ERROR_LABEL:
 	ret
 	 restore
 
-	.size	__clone, .-__clone
+	.size	clone, .-clone
 
 	.type	__thread_start,@function
 
@@ -86,6 +86,3 @@ __thread_start:
 	 nop
 
 	.size	__thread_start, .-__thread_start
-
-.weak clone
-    clone = __clone

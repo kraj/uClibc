@@ -19,7 +19,7 @@ static inline
 _syscall4(int, __rt_sigprocmask, int, how, const sigset_t *, set,
 		  sigset_t *, oldset, size_t, size);
 
-int attribute_hidden __sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
+int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 {
 	if (set &&
 #if (SIG_BLOCK == 0) && (SIG_UNBLOCK == 1) && (SIG_SETMASK == 2)
@@ -44,7 +44,7 @@ static inline
 _syscall3(int, __syscall_sigprocmask, int, how, const sigset_t *, set,
 		  sigset_t *, oldset);
 
-int attribute_hidden __sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
+int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 {
 	if (set &&
 #if (SIG_BLOCK == 0) && (SIG_UNBLOCK == 1) && (SIG_SETMASK == 2)
@@ -62,4 +62,5 @@ int attribute_hidden __sigprocmask(int how, const sigset_t * set, sigset_t * old
 }
 #endif
 
-strong_alias(__sigprocmask,sigprocmask)
+libc_hidden_proto(sigprocmask)
+libc_hidden_def(sigprocmask)

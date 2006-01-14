@@ -80,3 +80,5 @@ FP(	lfd fp31,((JB_FPRS+17*2)*4)(r3))
 	mr r3,r4
 	blr
 .size     __longjmp,.-__longjmp
+
+libc_hidden_def(__longjmp)

@@ -20,7 +20,9 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-struct dirent64 attribute_hidden *__readdir64(DIR * dir)
+libc_hidden_proto(readdir64)
+
+struct dirent64 *readdir64(DIR * dir)
 {
 	ssize_t bytes;
 	struct dirent64 *de;
@@ -60,4 +62,4 @@ all_done:
 
 	return de;
 }
-strong_alias(__readdir64,readdir64)
+libc_hidden_def(readdir64)

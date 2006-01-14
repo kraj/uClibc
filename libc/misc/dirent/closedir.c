@@ -4,7 +4,10 @@
 #include <unistd.h>
 #include "dirstream.h"
 
-int attribute_hidden __closedir(DIR * dir)
+libc_hidden_proto(closedir)
+libc_hidden_proto(close)
+
+int closedir(DIR * dir)
 {
 	int fd;
 
@@ -24,6 +27,6 @@ int attribute_hidden __closedir(DIR * dir)
 	__pthread_mutex_unlock(&(dir->dd_lock));
 	free(dir->dd_buf);
 	free(dir);
-	return __close(fd);
+	return close(fd);
 }
-strong_alias(__closedir,closedir)
+libc_hidden_def(closedir)

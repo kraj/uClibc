@@ -28,10 +28,10 @@
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
 .text
-.global __clone
-.type __clone,%function
+.global clone
+.type clone,%function
 .align 4
-__clone:
+clone:
 	@ sanity check args
 	cmp	r0, #0
 	cmpne	r1, #0
@@ -59,14 +59,11 @@ __clone:
 	ldr 	pc, [sp]
 
 	@ and we are done, passing the return value through r0
-	b	_exit_internal
+	b	HIDDEN_JUMPTARGET(_exit)
 
 __error:
 	b	__syscall_error
 
-.size __clone,.-__clone
-
-.weak clone
-	clone = __clone
+.size clone,.-clone
 
 #endif

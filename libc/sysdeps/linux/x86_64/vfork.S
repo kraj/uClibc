@@ -26,18 +26,17 @@
 
 #ifndef __NR_vfork
 /* No vfork so use fork instead */
-hidden_strong_alias(__fork,__vfork)
-weak_alias(vfork,__libc_fork)
+strong_alias(fork,vfork)
+strong_alias(vfork,__libc_fork)
 
 #else
 
 .text
-.global __vfork
-.hidden __vfork
-.type	__vfork,%function
+.global vfork
+.type	vfork,%function
 .align 16
 
-__vfork:
+vfork:
 
 	/* Pop the return PC value into RDI.  We need a register that
 	   is preserved by the syscall and that we're allowed to destroy. */
@@ -56,7 +55,7 @@ __vfork:
 	/* Normal return.  */
 	ret
 
-.size __vfork,.-__vfork
+.size vfork,.-vfork
 
 #endif /* __NR_vfork */
-strong_alias(__vfork,vfork)
+libc_hidden_def(vfork)

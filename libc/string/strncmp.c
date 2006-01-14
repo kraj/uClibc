@@ -8,14 +8,13 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstrncmp __wcsncmp
 # define Wstrncmp wcsncmp
 #else
-# define __Wstrncmp __strncmp
+libc_hidden_proto(strncmp)
 # define Wstrncmp strncmp
 #endif
 
-int attribute_hidden __Wstrncmp(register const Wchar *s1, register const Wchar *s2, size_t n)
+int Wstrncmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 {
 #ifdef WANT_WIDE
 	while (n && (*((Wuchar *)s1) == *((Wuchar *)s2))) {
@@ -38,5 +37,4 @@ int attribute_hidden __Wstrncmp(register const Wchar *s1, register const Wchar *
 	return r;
 #endif
 }
-
-strong_alias(__Wstrncmp,Wstrncmp)
+libc_hidden_def(strncmp)

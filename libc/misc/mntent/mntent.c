@@ -1,13 +1,23 @@
-#define strtok_r __strtok_r
-#define strstr __strstr
-#define atoi __atoi
-#define fseek __fseek
-#define fgets __fgets
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <mntent.h>
+
+libc_hidden_proto(strstr)
+libc_hidden_proto(strtok_r)
+libc_hidden_proto(atoi)
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(fseek)
+libc_hidden_proto(fgets)
+libc_hidden_proto(abort)
+libc_hidden_proto(fprintf)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
@@ -17,7 +27,7 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #define UNLOCK	__pthread_mutex_unlock(&mylock)
 
 /* Reentrant version of getmntent.  */
-struct mntent attribute_hidden *__getmntent_r (FILE *filep, 
+struct mntent *getmntent_r (FILE *filep, 
 	struct mntent *mnt, char *buff, int bufsize)
 {
 	char *cp, *ptrptr;
@@ -64,7 +74,8 @@ struct mntent attribute_hidden *__getmntent_r (FILE *filep,
 
 	return mnt;
 }
-strong_alias(__getmntent_r,getmntent_r)
+libc_hidden_proto(getmntent_r)
+libc_hidden_def(getmntent_r)
 
 struct mntent *getmntent(FILE * filep)
 {
@@ -79,7 +90,7 @@ struct mntent *getmntent(FILE * filep)
 		    abort();
     }
     
-    tmp = __getmntent_r(filep, &mnt, buff, BUFSIZ);
+    tmp = getmntent_r(filep, &mnt, buff, BUFSIZ);
     UNLOCK;
     return(tmp);
 }
@@ -101,16 +112,18 @@ char *hasmntopt(const struct mntent *mnt, const char *opt)
 	return strstr(mnt->mnt_opts, opt);
 }
 
-FILE attribute_hidden *__setmntent(const char *name, const char *mode)
+FILE *setmntent(const char *name, const char *mode)
 {
 	return fopen(name, mode);
 }
-strong_alias(__setmntent,setmntent)
+libc_hidden_proto(setmntent)
+libc_hidden_def(setmntent)
 
-int attribute_hidden __endmntent(FILE * filep)
+int endmntent(FILE * filep)
 {
 	if (filep != NULL)
 		fclose(filep);
 	return 1;
 }
-strong_alias(__endmntent,endmntent)
+libc_hidden_proto(endmntent)
+libc_hidden_def(endmntent)

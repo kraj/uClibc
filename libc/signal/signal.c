@@ -18,12 +18,11 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define sigaction __sigaction
-
 #include <errno.h>
 #include <signal.h>
 #include <string.h>	/* For the real memset prototype.  */
 
+libc_hidden_proto(sigaction)
 
 sigset_t _sigintr attribute_hidden;		/* Set by siginterrupt.  */
 
@@ -51,6 +50,7 @@ __bsd_signal (int sig, __sighandler_t handler)
 
   return oact.sa_handler;
 }
-weak_alias (__bsd_signal, bsd_signal)
-hidden_weak_alias (__bsd_signal, __signal)
-weak_alias (__bsd_signal, signal)
+strong_alias(__bsd_signal,bsd_signal)
+strong_alias(__bsd_signal,signal)
+libc_hidden_proto(signal)
+libc_hidden_def(signal)

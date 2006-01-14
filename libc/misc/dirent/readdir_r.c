@@ -5,6 +5,8 @@
 #include <dirent.h>
 #include "dirstream.h"
 
+libc_hidden_proto(memcpy)
+
 int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 {
 	int ret;
@@ -45,7 +47,7 @@ int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 	if (de == NULL) {
 	    *result = NULL;
 	} else {
-	    *result = __memcpy (entry, de, de->d_reclen);
+	    *result = memcpy (entry, de, de->d_reclen);
 	}
 	ret = 0;
 

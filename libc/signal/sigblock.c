@@ -19,20 +19,22 @@
 #include <errno.h>
 #include <signal.h>
 
+libc_hidden_proto(sigprocmask)
+
 #include "sigset-cvt-mask.h"
 
 /* Block signals in MASK, returning the old mask.  */
-int attribute_hidden __sigblock (int mask)
+int sigblock (int mask)
 {
   sigset_t set, oset;
 
   if (sigset_set_old_mask (&set, mask) < 0)
     return -1;
 
-  if (__sigprocmask (SIG_BLOCK, &set, &oset) < 0)
+  if (sigprocmask (SIG_BLOCK, &set, &oset) < 0)
     return -1;
 
   return sigset_get_old_mask (&oset);
 }
-
-strong_alias (__sigblock, sigblock)
+libc_hidden_proto(sigblock)
+libc_hidden_def(sigblock)

@@ -21,7 +21,7 @@
 #include "_glibc_inc.h"
 
 #ifndef USE_AS_STPCPY
-# define STRCPY __strcpy
+# define STRCPY strcpy
 #endif
 
 	.text
@@ -152,5 +152,5 @@ ENTRY (BP_SYM (STRCPY))
 	retq
 END (BP_SYM (STRCPY))
 #ifndef USE_AS_STPCPY
-strong_alias(__strcpy,strcpy)
+libc_hidden_def(strcpy)
 #endif

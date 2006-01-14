@@ -95,9 +95,6 @@
 
 /**********************************************************************/
 
-#define iswspace __iswspace
-#define iswspace_l __iswspace_l
-
 #define _ISOC99_SOURCE 1
 #define _GNU_SOURCE
 #include <stdlib.h>
@@ -121,8 +118,6 @@
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
 #endif /* __UCLIBC_HAS_XLOCALE__ */
-
-
 
 /* Handle _STRTOD_HEXADECIMAL_FLOATS via uClibc config now. */
 #undef _STRTOD_HEXADECIMAL_FLOATS
@@ -212,6 +207,8 @@ __fpmax_t attribute_hidden __strtofpmax(const Wchar *str, Wchar **endptr, int ex
 }
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
+
+libc_hidden_proto(memcmp)
 
 __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_power
 								 __LOCALE_PARAM )
@@ -317,7 +314,7 @@ __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endp
 		goto LOOP;
 	}
 #else
-	if (!pos0 && !__memcmp(pos, decpt, decpt_len)) { /* First decimal point? */
+	if (!pos0 && !memcmp(pos, decpt, decpt_len)) { /* First decimal point? */
 		pos0 = (pos += decpt_len);
 		goto LOOP;
 	}
@@ -513,8 +510,6 @@ void attribute_hidden __fp_range_check(__fpmax_t y, __fpmax_t x)
 #if defined(L_wcstof) || defined(L_wcstof_l)
 #define strtof           wcstof
 #define strtof_l         wcstof_l
-#define __strtof         __wcstof
-#define __strtof_l       __wcstof_l
 #define __strtofpmax     __wcstofpmax
 #define __strtofpmax_l   __wcstofpmax_l
 #define Wchar wchar_t
@@ -523,7 +518,7 @@ void attribute_hidden __fp_range_check(__fpmax_t y, __fpmax_t x)
 #endif
 
 
-float attribute_hidden __UCXL(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
+float __XL_NPP(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 1
 	return __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
@@ -539,8 +534,8 @@ float attribute_hidden __UCXL(strtof)(const Wchar *str, Wchar **endptr   __LOCAL
 	return y;
 #endif
 }
-
-__UCXL_ALIAS(strtof)
+libc_hidden_proto(__XL_NPP(strtof))
+libc_hidden_def(__XL_NPP(strtof))
 
 #endif
 #endif
@@ -551,8 +546,6 @@ __UCXL_ALIAS(strtof)
 #if defined(L_wcstod) || defined(L_wcstod_l)
 #define strtod           wcstod
 #define strtod_l         wcstod_l
-#define __strtod         __wcstod
-#define __strtod_l       __wcstod_l
 #define __strtofpmax     __wcstofpmax
 #define __strtofpmax_l   __wcstofpmax_l
 #define Wchar wchar_t
@@ -560,7 +553,7 @@ __UCXL_ALIAS(strtof)
 #define Wchar char
 #endif
 
-double attribute_hidden __UCXL(strtod)(const Wchar *__restrict str,
+double __XL_NPP(strtod)(const Wchar *__restrict str,
 					Wchar **__restrict endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 2
@@ -577,8 +570,8 @@ double attribute_hidden __UCXL(strtod)(const Wchar *__restrict str,
 	return y;
 #endif
 }
-
-__UCXL_ALIAS(strtod)
+libc_hidden_proto(__XL_NPP(strtod))
+libc_hidden_def(__XL_NPP(strtod))
 
 #endif
 #endif
@@ -589,8 +582,6 @@ __UCXL_ALIAS(strtod)
 #if defined(L_wcstold) || defined(L_wcstold_l)
 #define strtold           wcstold
 #define strtold_l         wcstold_l
-#define __strtold         __wcstold
-#define __strtold_l       __wcstold_l
 #define __strtofpmax     __wcstofpmax
 #define __strtofpmax_l   __wcstofpmax_l
 #define Wchar wchar_t
@@ -598,7 +589,7 @@ __UCXL_ALIAS(strtod)
 #define Wchar char
 #endif
 
-long double attribute_hidden __UCXL(strtold)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
+long double __XL_NPP(strtold) (const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 3
 	return __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
@@ -614,8 +605,8 @@ long double attribute_hidden __UCXL(strtold)(const Wchar *str, Wchar **endptr   
 	return y;
 #endif
 }
-
-__UCXL_ALIAS(strtold)
+libc_hidden_proto(__XL_NPP(strtold))
+libc_hidden_def(__XL_NPP(strtold))
 
 #endif
 #endif

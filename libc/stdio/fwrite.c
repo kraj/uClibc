@@ -7,9 +7,11 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fwrite_unlocked)
+
 #ifdef __DO_UNLOCKED
 
-size_t attribute_hidden __fwrite_unlocked(const void * __restrict ptr, size_t size,
+size_t fwrite_unlocked(const void * __restrict ptr, size_t size,
 						 size_t nmemb, register FILE * __restrict stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
@@ -33,16 +35,17 @@ size_t attribute_hidden __fwrite_unlocked(const void * __restrict ptr, size_t si
 
 	return 0;
 }
+libc_hidden_def(fwrite_unlocked)
 
-weak_alias(__fwrite_unlocked,fwrite_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-hidden_strong_alias(__fwrite_unlocked,__fwrite)
-weak_alias(__fwrite_unlocked,fwrite)
+strong_alias(fwrite_unlocked,fwrite)
+libc_hidden_proto(fwrite)
+libc_hidden_def(fwrite)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-size_t attribute_hidden __fwrite(const void * __restrict ptr, size_t size,
+size_t fwrite(const void * __restrict ptr, size_t size,
 			  size_t nmemb, register FILE * __restrict stream)
 {
 	size_t retval;
@@ -50,12 +53,13 @@ size_t attribute_hidden __fwrite(const void * __restrict ptr, size_t size,
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	retval = __fwrite_unlocked(ptr, size, nmemb, stream);
+	retval = fwrite_unlocked(ptr, size, nmemb, stream);
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	return retval;
 }
-strong_alias(__fwrite,fwrite)
+libc_hidden_proto(fwrite)
+libc_hidden_def(fwrite)
 
 #endif

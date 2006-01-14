@@ -129,49 +129,54 @@
  *            differs (intentionally) from glibc's behavior.
  */
 
-#define strnlen __strnlen
-#define gettimeofday __gettimeofday
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 #include <limits.h>
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
 #include <langinfo.h>
 #include <locale.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <bits/uClibc_uintmaxtostr.h>
 
-extern void __tzset (void) __THROW attribute_hidden;
-
-extern long int __strtol (__const char *__restrict __nptr,
-			char **__restrict __endptr, int __base)
-     __THROW __nonnull ((1)) __wur attribute_hidden;
-
-extern char *__nl_langinfo (nl_item __item) __THROW attribute_hidden;
-
+#ifdef __UCLIBC_HAS_WCHAR__
+#include <wchar.h>
+#endif
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
-extern long int __strtol_l (__const char *__restrict __nptr,
-			  char **__restrict __endptr, int __base,
-			  __locale_t __loc) __THROW __nonnull ((1, 4)) __wur attribute_hidden;
-extern int __strncasecmp_l (__const char *__s1, __const char *__s2,
-			  size_t __n, __locale_t __loc)
-     __THROW __attribute_pure__ __nonnull ((1, 2, 4)) attribute_hidden;
-extern size_t __strftime_l (char *__restrict __s, size_t __maxsize,
-			  __const char *__restrict __format,
-			  __const struct tm *__restrict __tp,
-			  __locale_t __loc) __THROW attribute_hidden;
+#endif
 
-extern char *__strptime_l (__const char *__restrict __s,
-			 __const char *__restrict __fmt, struct tm *__tp,
-			 __locale_t __loc) __THROW attribute_hidden;
+libc_hidden_proto(memset)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strncpy)
+libc_hidden_proto(strnlen)
+/* libc_hidden_proto(sprintf) */
+libc_hidden_proto(open)
+libc_hidden_proto(read)
+libc_hidden_proto(close)
+libc_hidden_proto(getenv)
+libc_hidden_proto(tzset)
+libc_hidden_proto(gettimeofday)
+libc_hidden_proto(strncasecmp)
+libc_hidden_proto(strtol)
+libc_hidden_proto(strtoul)
+libc_hidden_proto(nl_langinfo)
 
-extern char *__nl_langinfo_l (nl_item __item, __locale_t l) attribute_hidden;
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(strncasecmp_l)
+libc_hidden_proto(strtol_l)
+libc_hidden_proto(strtoul_l)
+libc_hidden_proto(nl_langinfo_l)
 #endif
 
 #ifndef __isleap
@@ -191,8 +196,6 @@ extern char *__nl_langinfo_l (nl_item __item, __locale_t l) attribute_hidden;
 #ifdef __UCLIBC_HAS_TZ_FILE__
 
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include "paths.h"
 /* ":<tzname>+hh:mm:ss<tzname>+hh:mm:ss,Mmm.w.d/hh:mm:ss,Mmm.w.d/hh:mm:ss" + nul */
 /* 1 + 2*(1+TZNAME_MAX+1 + 9 + 7 + 9) + 1 = 2*TZNAME_MAX + 56 */
@@ -207,11 +210,6 @@ extern char *__nl_langinfo_l (nl_item __item, __locale_t l) attribute_hidden;
 /**********************************************************************/
 
 extern struct tm __time_tm attribute_hidden;
-
-extern struct tm *__localtime_r (__const time_t *__restrict __timer,
-			       struct tm *__restrict __tp) attribute_hidden;
-
-extern struct tm *__localtime (__const time_t *__timer) attribute_hidden;
 
 typedef struct {
 	long gmt_offset;
@@ -244,21 +242,19 @@ extern struct tm *__time_localtime_tzi(const time_t *__restrict timer,
 extern time_t _time_mktime_tzi(struct tm *timeptr, int store_on_success,
 					rule_struct *tzi) attribute_hidden;
 
-extern char *__asctime (__const struct tm *__tp) attribute_hidden;
-
-extern char *__asctime_r (__const struct tm *__restrict __tp,
-			char *__restrict __buf) attribute_hidden;
-
 /**********************************************************************/
 #ifdef L_asctime
 
+libc_hidden_proto(asctime_r)
+
 static char __time_str[26];
 
-char attribute_hidden *__asctime(const struct tm *ptm)
+char *asctime(const struct tm *ptm)
 {
-	return __asctime_r(ptm, __time_str);
+	return asctime_r(ptm, __time_str);
 }
-strong_alias(__asctime,asctime)
+libc_hidden_proto(asctime)
+libc_hidden_def(asctime)
 
 #endif
 /**********************************************************************/
@@ -278,7 +274,7 @@ strong_alias(__asctime,asctime)
  *       };
  *       static char result[26];
  *   
- *       __sprintf(result, "%.3s %.3s%3d %.2d:%.2d:%.2d %d\n",
+ *       sprintf(result, "%.3s %.3s%3d %.2d:%.2d:%.2d %d\n",
  *           wday_name[timeptr->tm_wday],                   
  *           mon_name[timeptr->tm_mon],
  *           timeptr->tm_mday, timeptr->tm_hour,
@@ -326,7 +322,7 @@ static const unsigned char at_data[] = {
 	' ', '?', '?', '?', '?', '\n', 0
 };
 
-char attribute_hidden *__asctime_r(register const struct tm *__restrict ptm,
+char *asctime_r(register const struct tm *__restrict ptm,
 				register char *__restrict buffer)
 {
 	int tmp;
@@ -335,23 +331,23 @@ char attribute_hidden *__asctime_r(register const struct tm *__restrict ptm,
 	assert(buffer);
 
 #ifdef SAFE_ASCTIME_R
-	__memcpy(buffer, at_data + 3*(7 + 12), sizeof(at_data) - 3*(7 + 12));
+	memcpy(buffer, at_data + 3*(7 + 12), sizeof(at_data) - 3*(7 + 12));
 
 	if (((unsigned int)(ptm->tm_wday)) <= 6) {
-		__memcpy(buffer, at_data + 3 * ptm->tm_wday, 3);
+		memcpy(buffer, at_data + 3 * ptm->tm_wday, 3);
 	}
 
 	if (((unsigned int)(ptm->tm_mon)) <= 11) {
-		__memcpy(buffer + 4, at_data + 3*7 + 3 * ptm->tm_mon, 3);
+		memcpy(buffer + 4, at_data + 3*7 + 3 * ptm->tm_mon, 3);
 	}
 #else
 	assert(((unsigned int)(ptm->tm_wday)) <= 6);
 	assert(((unsigned int)(ptm->tm_mon)) <= 11);
 
-	__memcpy(buffer, at_data + 3*(7 + 12) - 3, sizeof(at_data) + 3 - 3*(7 + 12));
+	memcpy(buffer, at_data + 3*(7 + 12) - 3, sizeof(at_data) + 3 - 3*(7 + 12));
 
-	__memcpy(buffer, at_data + 3 * ptm->tm_wday, 3);
-	__memcpy(buffer + 4, at_data + 3*7 + 3 * ptm->tm_mon, 3);
+	memcpy(buffer, at_data + 3 * ptm->tm_wday, 3);
+	memcpy(buffer + 4, at_data + 3*7 + 3 * ptm->tm_mon, 3);
 #endif
 
 #ifdef SAFE_ASCTIME_R
@@ -400,15 +396,16 @@ char attribute_hidden *__asctime_r(register const struct tm *__restrict ptm,
 
 	return buffer - 8;
 }
-strong_alias(__asctime_r,asctime_r)
+libc_hidden_proto(asctime_r)
+libc_hidden_def(asctime_r)
 
 #endif
 /**********************************************************************/
 #ifdef L_clock
 
-#define times __times
-
 #include <sys/times.h>
+
+libc_hidden_proto(times)
 
 #ifndef __BCC__
 #if CLOCKS_PER_SEC != 1000000L
@@ -474,21 +471,28 @@ clock_t clock(void)
 /**********************************************************************/
 #ifdef L_ctime
 
-char attribute_hidden *__ctime(const time_t *clock)
+libc_hidden_proto(asctime)
+libc_hidden_proto(localtime)
+
+char *ctime(const time_t *clock)
 {
 	/* ANSI/ISO/SUSv3 say that ctime is equivalent to the following. */
-	return __asctime(__localtime(clock));
+	return asctime(localtime(clock));
 }
-strong_alias(__ctime,ctime)
+libc_hidden_proto(ctime)
+libc_hidden_def(ctime)
 #endif
 /**********************************************************************/
 #ifdef L_ctime_r
+
+libc_hidden_proto(asctime_r)
+libc_hidden_proto(localtime_r)
 
 char *ctime_r(const time_t *clock, char *buf)
 {
 	struct tm xtm;
 
-	return __asctime_r(__localtime_r(clock, &xtm), buf);
+	return asctime_r(localtime_r(clock, &xtm), buf);
 }
 
 #endif
@@ -556,28 +560,31 @@ struct tm *gmtime_r(const time_t *__restrict timer,
 /**********************************************************************/
 #ifdef L_localtime
 
-struct tm attribute_hidden *__localtime(const time_t *timer)
+libc_hidden_proto(localtime_r)
+
+struct tm *localtime(const time_t *timer)
 {
 	register struct tm *ptm = &__time_tm;
 
 	/* In this implementation, tzset() is called by localtime_r().  */
 
-	__localtime_r(timer, ptm);	/* Can return NULL... */
+	localtime_r(timer, ptm);	/* Can return NULL... */
 
 	return ptm;
 }
-strong_alias(__localtime,localtime)
+libc_hidden_proto(localtime)
+libc_hidden_def(localtime)
 
 #endif
 /**********************************************************************/
 #ifdef L_localtime_r
 
-struct tm attribute_hidden *__localtime_r(register const time_t *__restrict timer,
+struct tm *localtime_r(register const time_t *__restrict timer,
 					   register struct tm *__restrict result)
 {
 	TZLOCK;
 
-	__tzset();
+	tzset();
 
 	__time_localtime_tzi(timer, result, _time_tzinfo);
 
@@ -585,7 +592,8 @@ struct tm attribute_hidden *__localtime_r(register const time_t *__restrict time
 
 	return result;
 }
-strong_alias(__localtime_r,localtime_r)
+libc_hidden_proto(localtime_r)
+libc_hidden_def(localtime_r)
 
 #endif
 /**********************************************************************/
@@ -610,7 +618,7 @@ static const char *lookup_tzname(const char *key)
 	ll_tzname_item_t *p;
 
 	for (p=ll_tzname ; p ; p=p->next) {
-		if (!__strcmp(p->tzname, key)) {
+		if (!strcmp(p->tzname, key)) {
 			return p->tzname;
 		}
 	}
@@ -621,7 +629,7 @@ static const char *lookup_tzname(const char *key)
 			/* Insert as 3rd item in the list. */
 			p->next = ll_tzname[1].next;
 			ll_tzname[1].next = p;
-			__strcpy(p->tzname, key);
+			strcpy(p->tzname, key);
 			return p->tzname;
 		}
 	}
@@ -765,8 +773,8 @@ time_t timegm(struct tm *timeptr)
 {
 	rule_struct gmt_tzinfo[2];
 
-	__memset(gmt_tzinfo, 0, sizeof(gmt_tzinfo));
-	__strcpy(gmt_tzinfo[0].tzname, "GMT"); /* Match glibc behavior here. */
+	memset(gmt_tzinfo, 0, sizeof(gmt_tzinfo));
+	strcpy(gmt_tzinfo[0].tzname, "GMT"); /* Match glibc behavior here. */
 
 	return  _time_mktime_tzi(timeptr, 1, gmt_tzinfo);
 }
@@ -777,13 +785,16 @@ time_t timegm(struct tm *timeptr)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-size_t attribute_hidden __strftime(char *__restrict s, size_t maxsize,
+libc_hidden_proto(strftime_l)
+
+size_t strftime(char *__restrict s, size_t maxsize,
 				const char *__restrict format,
 				const struct tm *__restrict timeptr)
 {
-	return __strftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
+	return strftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
 }
-strong_alias(__strftime,strftime)
+libc_hidden_proto(strftime)
+libc_hidden_def(strftime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -983,7 +994,7 @@ static int load_field(int k, const struct tm *__restrict timeptr)
 #warning TODO: Check multibyte format string validity.
 #endif
 
-size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
+size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 					  const char *__restrict format,
 					  const struct tm *__restrict timeptr   __LOCALE_PARAM )
 {
@@ -1003,7 +1014,7 @@ size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
 	unsigned char mod;
 	unsigned char code;
 
-	__tzset();					/* We'll, let's get this out of the way. */
+	tzset();					/* We'll, let's get this out of the way. */
 
 	lvl = 0;
 	p = format;
@@ -1056,7 +1067,7 @@ size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
 				+ (code & 7);
 #ifdef ENABLE_ERA_CODE
 			if ((mod & NO_E_MOD) /* Actually, this means E modifier present. */
-				&& (*(o = __UCXL(nl_langinfo)(_NL_ITEM(LC_TIME,
+				&& (*(o = __XL_NPP(nl_langinfo)(_NL_ITEM(LC_TIME,
 											 (int)(((unsigned char *)p)[4]))
 											__LOCALE_ARG
 									  )))
@@ -1065,7 +1076,7 @@ size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
 				goto LOOP;
 			}
 #endif
-			p = __UCXL(nl_langinfo)(_NL_ITEM(LC_TIME,
+			p = __XL_NPP(nl_langinfo)(_NL_ITEM(LC_TIME,
 									 (int)(*((unsigned char *)p)))
 								  __LOCALE_ARG
 								  );
@@ -1242,7 +1253,7 @@ size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
 		if ((code & MASK_SPEC) == STRING_SPEC) {
 			o_count = SIZE_MAX;
 			field_val += spec[STRINGS_NL_ITEM_START + (code & 0xf)];
-			o = __UCXL(nl_langinfo)(_NL_ITEM(LC_TIME, field_val)  __LOCALE_ARG );
+			o = __XL_NPP(nl_langinfo)(_NL_ITEM(LC_TIME, field_val)  __LOCALE_ARG );
 		} else {
 			o_count = ((i >> 1) & 3) + 1;
 			o = buf + o_count;
@@ -1265,8 +1276,8 @@ size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
 	}
 	goto LOOP;
 }
-
-__UCXL_ALIAS(strftime)
+libc_hidden_proto(__XL_NPP(strftime))
+libc_hidden_def(__XL_NPP(strftime))
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -1284,12 +1295,15 @@ __UCXL_ALIAS(strftime)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-char attribute_hidden *__strptime(const char *__restrict buf, const char *__restrict format,
+libc_hidden_proto(strptime_l)
+
+char *strptime(const char *__restrict buf, const char *__restrict format,
 			   struct tm *__restrict tm)
 {
-	return __strptime_l(buf, format, tm, __UCLIBC_CURLOCALE);
+	return strptime_l(buf, format, tm, __UCLIBC_CURLOCALE);
 }
-strong_alias(__strptime,strptime)
+libc_hidden_proto(strptime)
+libc_hidden_def(strptime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -1435,7 +1449,9 @@ static const unsigned char spec[] = {
 
 #define MAX_PUSH 4
 
-char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *__restrict format,
+libc_hidden_proto(localtime_r)
+
+char *__XL_NPP(strptime)(const char *__restrict buf, const char *__restrict format,
 					 struct tm *__restrict tm   __LOCALE_PARAM)
 {
 	register const char *p;
@@ -1503,7 +1519,7 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 				+ (code & 7);
 #ifdef ENABLE_ERA_CODE
 			if ((mod & NO_E_MOD) /* Actually, this means E modifier present. */
-				&& (*(o = __UCXL(nl_langinfo)(_NL_ITEM(LC_TIME,
+				&& (*(o = __XL_NPP(nl_langinfo)(_NL_ITEM(LC_TIME,
 											  (int)(((unsigned char *)p)[4]))
 											__LOCALE_ARG
 											)))
@@ -1512,7 +1528,7 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 				goto LOOP;
 			}
 #endif
-			p = __UCXL(nl_langinfo)(_NL_ITEM(LC_TIME,
+			p = __XL_NPP(nl_langinfo)(_NL_ITEM(LC_TIME,
 										   (int)(*((unsigned char *)p)))
 								  __LOCALE_ARG );
 			goto LOOP;
@@ -1527,8 +1543,8 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 			/* Go backwards to check full names before abreviations. */
 			do {
 				--j;
-				o = __UCXL(nl_langinfo)(i+j   __LOCALE_ARG);
-				if (!__UCXL(strncasecmp)(buf,o,__strlen(o)   __LOCALE_ARG) && *o) {
+				o = __XL_NPP(nl_langinfo)(i+j   __LOCALE_ARG);
+				if (!__XL_NPP(strncasecmp)(buf,o,strlen(o)   __LOCALE_ARG) && *o) {
 					do {		/* Found a match. */
 						++buf;
 					} while (*++o);
@@ -1556,9 +1572,9 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 				__set_errno(0);
 				if (!ISSPACE(*buf)) { /* Signal an error if whitespace. */
 #ifdef TIME_T_IS_UNSIGNED
-					t = __UCXL(strtoul)(buf, &o, 10   __LOCALE_ARG);
+					t = __XL_NPP(strtoul)(buf, &o, 10   __LOCALE_ARG);
 #else
-					t = __UCXL(strtol)(buf, &o, 10   __LOCALE_ARG);
+					t = __XL_NPP(strtol)(buf, &o, 10   __LOCALE_ARG);
 #endif
 				}
 				if ((o == buf) || errno) { /* Not a number or overflow. */
@@ -1568,7 +1584,7 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 				buf = o;
 
 				if (!code) {	/* s */
-					__localtime_r(&t, tm); /* TODO: check for failure? */
+					localtime_r(&t, tm); /* TODO: check for failure? */
 					i = 0;
 					do {		/* Now copy values from tm to fields. */
 						 fields[i] = ((int *) tm)[i];
@@ -1644,8 +1660,8 @@ char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *
 	}
 	return NULL;
 }
-
-__UCXL_ALIAS(strptime)
+libc_hidden_proto(__XL_NPP(strptime))
+libc_hidden_def(__XL_NPP(strptime))
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -1783,11 +1799,11 @@ static char *read_TZ_file(char *buf)
 	size_t todo;
 	char *p = NULL;
 
-	if ((fd = __open(__UCLIBC_TZ_FILE_PATH__, O_RDONLY)) >= 0) {
+	if ((fd = open(__UCLIBC_TZ_FILE_PATH__, O_RDONLY)) >= 0) {
 		todo = TZ_BUFLEN;
 		p = buf;
 		do {
-			if ((r = __read(fd, p, todo)) < 0) {
+			if ((r = read(fd, p, todo)) < 0) {
 				goto ERROR;
 			}
 			if (r == 0) {
@@ -1807,14 +1823,14 @@ static char *read_TZ_file(char *buf)
 		ERROR:
 			p = NULL;
 		}
-		__close(fd);
+		close(fd);
 	}
 	return p;
 }
 
 #endif /* __UCLIBC_HAS_TZ_FILE__ */
 
-void attribute_hidden __tzset(void)
+void tzset(void)
 {
 	register const char *e;
 	register char *s;
@@ -1832,7 +1848,7 @@ void attribute_hidden __tzset(void)
 
 	TZLOCK;
 
-	e = __getenv(TZ);				/* TZ env var always takes precedence. */
+	e = getenv(TZ);				/* TZ env var always takes precedence. */
 
 #if defined(__UCLIBC_HAS_TZ_FILE__) && !defined(__UCLIBC_HAS_TZ_FILE_READ_MANY__)
 	/* Put this inside the lock to prevent the possiblity of two different
@@ -1859,8 +1875,8 @@ void attribute_hidden __tzset(void)
 #ifdef __UCLIBC_HAS_TZ_CACHING__
 		*oldval = 0;			/* Set oldval to an empty string. */
 #endif /* __UCLIBC_HAS_TZ_CACHING__ */
-		__memset(_time_tzinfo, 0, 2*sizeof(rule_struct));
-		__strcpy(_time_tzinfo[0].tzname, UTC);
+		memset(_time_tzinfo, 0, 2*sizeof(rule_struct));
+		strcpy(_time_tzinfo[0].tzname, UTC);
 		goto DONE;
 	}
 
@@ -1869,13 +1885,13 @@ void attribute_hidden __tzset(void)
 	}
 
 #ifdef __UCLIBC_HAS_TZ_CACHING__
-	if (__strcmp(e, oldval) == 0) { /* Same string as last time... */
+	if (strcmp(e, oldval) == 0) { /* Same string as last time... */
 		goto FAST_DONE;			/* So nothing to do. */
 	}
 	/* Make a copy of the TZ env string.  It won't be nul-terminated if
 	 * it is too long, but it that case it will be illegal and will be reset
 	 * to the empty string anyway. */
-	__strncpy(oldval, e, TZ_BUFLEN);
+	strncpy(oldval, e, TZ_BUFLEN);
 #endif /* __UCLIBC_HAS_TZ_CACHING__ */
 	
 	count = 0;
@@ -1989,7 +2005,7 @@ void attribute_hidden __tzset(void)
 		}
 	}
 
-	__memcpy(_time_tzinfo, new_rules, sizeof(new_rules));
+	memcpy(_time_tzinfo, new_rules, sizeof(new_rules));
  DONE:
 	tzname[0] = _time_tzinfo[0].tzname;
 	tzname[1] = _time_tzinfo[1].tzname;
@@ -2001,7 +2017,7 @@ void attribute_hidden __tzset(void)
 #endif
 	TZUNLOCK;
 }
-strong_alias(__tzset,tzset)
+libc_hidden_def(tzset)
 #endif
 /**********************************************************************/
 /*  #ifdef L_utime */
@@ -2203,7 +2219,7 @@ time_t attribute_hidden _time_mktime(struct tm *timeptr, int store_on_success)
 
 	TZLOCK;
 
-	__tzset();
+	tzset();
 
 	t = _time_mktime_tzi(timeptr, store_on_success, _time_tzinfo);
 
@@ -2236,7 +2252,7 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 	register const unsigned char *s;
 	int d, default_dst;
 
-	__memcpy(p, timeptr, sizeof(struct tm));
+	memcpy(p, timeptr, sizeof(struct tm));
 
 	if (!tzi[1].tzname[0]) { /* No dst in this timezone, */
 		p[8] = 0;				/* so set tm_isdst to 0. */
@@ -2326,7 +2342,7 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 
 
 	if (store_on_success) {
-		__memcpy(timeptr, p, sizeof(struct tm));
+		memcpy(timeptr, p, sizeof(struct tm));
 	}
 
 
@@ -2340,29 +2356,28 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-extern size_t __wcsftime_l (wchar_t *__restrict __s, size_t __maxsize,
-			  __const wchar_t *__restrict __format,
-			  __const struct tm *__restrict __timeptr,
-			  __locale_t __loc) __THROW attribute_hidden;
+libc_hidden_proto(wcsftime_l)
 
 size_t wcsftime(wchar_t *__restrict s, size_t maxsize,
 				const wchar_t *__restrict format,
 				const struct tm *__restrict timeptr)
 {
-	return __wcsftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
+	return wcsftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
 }
+libc_hidden_proto(wcsftime)
+libc_hidden_def(wcsftime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-size_t attribute_hidden __UCXL(wcsftime)(wchar_t *__restrict s, size_t maxsize,
+size_t __XL_NPP(wcsftime)(wchar_t *__restrict s, size_t maxsize,
 					  const wchar_t *__restrict format,
 					  const struct tm *__restrict timeptr   __LOCALE_PARAM )
 {
 #warning wcsftime always fails
 	return 0;					/* always fail */
 }
-
-__UCXL_ALIAS(wcsftime)
+libc_hidden_proto(__XL_NPP(wcsftime))
+libc_hidden_def(__XL_NPP(wcsftime))
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 

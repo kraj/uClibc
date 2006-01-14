@@ -43,11 +43,6 @@ static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 S
  * what unix uses.
  */
 
-#define connect __connect
-#define recvfrom __recvfrom
-#define sendto __sendto
-#define poll __poll
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -63,6 +58,14 @@ static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 S
 #include <errno.h>
 #include <netinet/in.h>
 
+libc_hidden_proto(read)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(connect)
+libc_hidden_proto(recvfrom)
+libc_hidden_proto(sendto)
+libc_hidden_proto(poll)
+
 #define NYEARS	(u_long)(1970 - 1900)
 #define TOFFSET (u_long)(60*60*24*(365*NYEARS + (NYEARS/4)))
 
@@ -74,7 +77,7 @@ do_close (int s)
   int save;
 
   save = errno;
-  __close (s);
+  close (s);
   __set_errno (save);
 }
 
@@ -96,7 +99,7 @@ rtime (struct sockaddr_in *addrp, struct rpc_timeval *timep,
   else
     type = SOCK_DGRAM;
 
-  s = __socket (AF_INET, type, 0);
+  s = socket (AF_INET, type, 0);
   if (s < 0)
     return (-1);
 
@@ -138,7 +141,7 @@ rtime (struct sockaddr_in *addrp, struct rpc_timeval *timep,
 	  do_close (s);
 	  return -1;
 	}
-      res = __read (s, (char *) &thetime, sizeof (thetime));
+      res = read (s, (char *) &thetime, sizeof (thetime));
       do_close (s);
       if (res < 0)
 	return (-1);

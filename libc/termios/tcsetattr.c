@@ -22,6 +22,10 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 
+libc_hidden_proto(tcsetattr)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(ioctl)
+
 /* The difference here is that the termios structure used in the
    kernel is not the same as we use in the libc.  Therefore we must
    translate it here.  */
@@ -47,7 +51,7 @@
 
 
 /* Set the state of FD to *TERMIOS_P.  */
-int attribute_hidden __tcsetattr (int fd, int optional_actions, const struct termios *termios_p)
+int tcsetattr (int fd, int optional_actions, const struct termios *termios_p)
 {
     struct __kernel_termios k_termios;
     unsigned long int cmd;
@@ -80,17 +84,17 @@ int attribute_hidden __tcsetattr (int fd, int optional_actions, const struct ter
 #ifdef _HAVE_C_OSPEED
     k_termios.c_ospeed = termios_p->c_ospeed;
 #endif
-    __memcpy (&k_termios.c_cc[0], &termios_p->c_cc[0],
+    memcpy (&k_termios.c_cc[0], &termios_p->c_cc[0],
 	    __KERNEL_NCCS * sizeof (cc_t));
 
-    retval = __ioctl (fd, cmd, &k_termios);
+    retval = ioctl (fd, cmd, &k_termios);
 
     if (retval == 0 && cmd == TCSETS)
     {
 	/* The Linux kernel has a bug which silently ignore the invalid
 	   c_cflag on pty. We have to check it here. */
 	int save = errno;
-	retval = __ioctl (fd, TCGETS, &k_termios);
+	retval = ioctl (fd, TCGETS, &k_termios);
 	if (retval)
 	{
 	    /* We cannot verify if the setting is ok. We don't return
@@ -114,4 +118,4 @@ int attribute_hidden __tcsetattr (int fd, int optional_actions, const struct ter
 
     return retval;
 }
-strong_alias(__tcsetattr,tcsetattr)
+libc_hidden_def(tcsetattr)

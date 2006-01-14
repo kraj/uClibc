@@ -133,24 +133,6 @@
  *
  */
 
-#define strnlen __strnlen
-#define strncat __strncat
-#define strstr __strstr
-#define random __random
-#define getservbyport __getservbyport
-#define getdomainname __getdomainname
-#define uname __uname
-#define inet_addr __inet_addr
-#define inet_aton __inet_aton
-#define inet_pton __inet_pton
-#define inet_ntop __inet_ntop
-#define connect __connect
-#define select __select
-#define recv __recv
-#define send __send
-#define snprintf __snprintf
-#define fgets __fgets
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include <string.h>
@@ -171,14 +153,53 @@
 #include <sys/utsname.h>
 #include <sys/un.h>
 
-extern int __gethostbyname_r (__const char *__restrict __name,
-			    struct hostent *__restrict __result_buf,
-			    char *__restrict __buf, size_t __buflen,
-			    struct hostent **__restrict __result,
-			    int *__restrict __h_errnop) attribute_hidden;
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memset)
+libc_hidden_proto(memmove)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strdup)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strncat)
+libc_hidden_proto(strncpy)
+/* libc_hidden_proto(strnlen) */
+libc_hidden_proto(strstr)
+libc_hidden_proto(strcasecmp)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(random)
+libc_hidden_proto(getservbyport)
+libc_hidden_proto(getdomainname)
+libc_hidden_proto(uname)
+libc_hidden_proto(inet_addr)
+libc_hidden_proto(inet_aton)
+libc_hidden_proto(inet_pton)
+libc_hidden_proto(inet_ntop)
+libc_hidden_proto(connect)
+libc_hidden_proto(select)
+libc_hidden_proto(recv)
+libc_hidden_proto(send)
+libc_hidden_proto(printf)
+libc_hidden_proto(sprintf)
+libc_hidden_proto(snprintf)
+libc_hidden_proto(fgets)
+libc_hidden_proto(gethostbyname)
+libc_hidden_proto(gethostbyname_r)
+libc_hidden_proto(gethostbyname2_r)
+libc_hidden_proto(gethostbyaddr)
+libc_hidden_proto(gethostbyaddr_r)
+libc_hidden_proto(ns_name_uncompress)
+libc_hidden_proto(ns_name_unpack)
+libc_hidden_proto(ns_name_ntop)
+libc_hidden_proto(res_init)
+libc_hidden_proto(res_query)
+libc_hidden_proto(res_querydomain)
+libc_hidden_proto(gethostent_r)
+libc_hidden_proto(fprintf)
 
-extern struct hostent *__gethostbyaddr (__const void *__addr, __socklen_t __len,
-				      int __type) attribute_hidden;
 #define MAX_RECURSE 5
 #define REPLY_TIMEOUT 10
 #define MAX_RETRIES 3
@@ -281,7 +302,7 @@ extern int __decode_header(unsigned char * data, struct resolv_header * h) attri
 extern int __encode_question(struct resolv_question * q,
 	unsigned char * dest, int maxlen) attribute_hidden;
 extern int __decode_question(unsigned char * message, int offset,
-	struct resolv_question * q);
+	struct resolv_question * q) attribute_hidden;
 extern int __encode_answer(struct resolv_answer * a,
 	unsigned char * dest, int maxlen) attribute_hidden;
 extern int __decode_answer(unsigned char * message, int offset,
@@ -291,17 +312,6 @@ extern int __open_nameservers(void) attribute_hidden;
 extern void __close_nameservers(void) attribute_hidden;
 extern int __dn_expand(const u_char *, const u_char *, const u_char *,
 	char *, int);
-extern int __ns_name_uncompress_internal(const u_char *, const u_char *,
-		const u_char *, char *, size_t) attribute_hidden;
-extern int __ns_name_ntop_internal(const u_char *, char *, size_t) attribute_hidden;
-extern int __ns_name_unpack_internal(const u_char *, const u_char *, const u_char *,
-               u_char *, size_t) attribute_hidden;
-
-
-extern int __gethostent_r (struct hostent *__restrict __result_buf,
-			 char *__restrict __buf, size_t __buflen,
-			 struct hostent **__restrict __result,
-			 int *__restrict __h_errnop) attribute_hidden;
 
 #ifdef L_encodeh
 int attribute_hidden __encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
@@ -360,14 +370,14 @@ int attribute_hidden __encode_dotted(const char *dotted, unsigned char *dest, in
 	int used = 0;
 
 	while (dotted && *dotted) {
-		char *c = __strchr(dotted, '.');
-		int l = c ? c - dotted : __strlen(dotted);
+		char *c = strchr(dotted, '.');
+		int l = c ? c - dotted : strlen(dotted);
 
 		if (l >= (maxlen - used - 1))
 			return -1;
 
 		dest[used++] = l;
-		__memcpy(dest + used, dotted, l);
+		memcpy(dest + used, dotted, l);
 		used += l;
 
 		if (c)
@@ -415,7 +425,7 @@ int attribute_hidden __decode_dotted(const unsigned char *data, int offset,
 		if ((used + l + 1) >= maxlen)
 			return -1;
 
-		__memcpy(dest + used, data + offset, l);
+		memcpy(dest + used, data + offset, l);
 		offset += l;
 		used += l;
 		if (measure)
@@ -439,7 +449,6 @@ int attribute_hidden __decode_dotted(const unsigned char *data, int offset,
 #endif
 
 #ifdef L_lengthd
-
 int attribute_hidden __length_dotted(const unsigned char *data, int offset)
 {
 	int orig_offset = offset;
@@ -488,7 +497,7 @@ int attribute_hidden __encode_question(struct resolv_question *q,
 #endif
 
 #ifdef L_decodeq
-int __decode_question(unsigned char *message, int offset,
+int attribute_hidden __decode_question(unsigned char *message, int offset,
 					struct resolv_question *q)
 {
 	char temp[256];
@@ -500,7 +509,7 @@ int __decode_question(unsigned char *message, int offset,
 
 	offset += i;
 
-	q->dotted = __strdup(temp);
+	q->dotted = strdup(temp);
 	q->qtype = (message[offset + 0] << 8) | message[offset + 1];
 	q->qclass = (message[offset + 2] << 8) | message[offset + 3];
 
@@ -546,7 +555,7 @@ int attribute_hidden __encode_answer(struct resolv_answer *a, unsigned char *des
 	*dest++ = (a->ttl & 0x000000ff) >> 0;
 	*dest++ = (a->rdlength & 0xff00) >> 8;
 	*dest++ = (a->rdlength & 0x00ff) >> 0;
-	__memcpy(dest, a->rdata, a->rdlength);
+	memcpy(dest, a->rdata, a->rdlength);
 
 	return i + RRFIXEDSZ + a->rdlength;
 }
@@ -565,7 +574,7 @@ int attribute_hidden __decode_answer(unsigned char *message, int offset,
 
 	message += offset + i;
 
-	a->dotted = __strdup(temp);
+	a->dotted = strdup(temp);
 	a->atype = (message[0] << 8) | message[1];
 	message += 2;
 	a->aclass = (message[0] << 8) | message[1];
@@ -585,7 +594,7 @@ int attribute_hidden __decode_answer(unsigned char *message, int offset,
 #endif
 
 #ifdef L_encodep
-int __encode_packet(struct resolv_header *h,
+int attribute_hidden __encode_packet(struct resolv_header *h,
 	struct resolv_question **q,
 	struct resolv_answer **an,
 	struct resolv_answer **ns,
@@ -642,7 +651,7 @@ int __encode_packet(struct resolv_header *h,
 #endif
 
 #ifdef L_decodep
-int __decode_packet(unsigned char *data, struct resolv_header *h)
+int attribute_hidden __decode_packet(unsigned char *data, struct resolv_header *h)
 {
 	return __decode_header(data, h);
 }
@@ -656,7 +665,7 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 	struct resolv_question q;
 	int i, j;
 
-	__memset(&h, 0, sizeof(h));
+	memset(&h, 0, sizeof(h));
 	h.id = id;
 	h.qdcount = 1;
 
@@ -729,11 +738,11 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 	while (retries < MAX_RETRIES) {
 		if (fd != -1)
-			__close(fd);
+			close(fd);
 
-		__memset(packet, 0, PACKETSZ);
+		memset(packet, 0, PACKETSZ);
 
-		__memset(&h, 0, sizeof(h));
+		memset(&h, 0, sizeof(h));
 
 		++local_id;
 		local_id &= 0xffff;
@@ -749,7 +758,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		if (i < 0)
 			goto fail;
 
-		__strncpy(lookup,name,MAXDNAME);
+		strncpy(lookup,name,MAXDNAME);
 		if (variant >= 0) {
                         BIGLOCK;
                         if (variant < __searchdomains) {
@@ -774,9 +783,9 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 #ifdef __UCLIBC_HAS_IPV6__
 		v6 = inet_pton(AF_INET6, dns, &sa6.sin6_addr) > 0;
-		fd = __socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #else
-		fd = __socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #endif
 		if (fd < 0) {
                     retries++;
@@ -880,7 +889,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 			ma.buf = a->buf;
 			ma.buflen = a->buflen;
 			ma.add_count = a->add_count;
-			__memcpy(a, &ma, sizeof(ma));
+			memcpy(a, &ma, sizeof(ma));
 			if (a->atype != T_SIG && (0 == a->buf || (type != T_A && type != T_AAAA)))
 			{
 			    break;
@@ -912,7 +921,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 				    ma.rdlength, a->rdlength);
 			    goto again;
 			}
-			__memcpy(a->buf + (a->add_count * ma.rdlength), ma.rdata, ma.rdlength);
+			memcpy(a->buf + (a->add_count * ma.rdlength), ma.rdata, ma.rdlength);
 			++a->add_count;
 		    }
 		}
@@ -920,7 +929,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		DPRINTF("Answer name = |%s|\n", a->dotted);
 		DPRINTF("Answer type = |%d|\n", a->atype);
 
-		__close(fd);
+		close(fd);
 
 		if (outpacket)
 			*outpacket = packet;
@@ -972,7 +981,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 fail:
 	if (fd != -1)
-	    __close(fd);
+	    close(fd);
 	if (lookup)
 	    free(lookup);
 	if (packet)
@@ -1038,21 +1047,21 @@ int attribute_hidden __open_nameservers()
 					*p++ = '\0';
 			}
 
-			if (__strcmp(argv[0], "nameserver") == 0) {
+			if (strcmp(argv[0], "nameserver") == 0) {
 				for (i = 1; i < argc && __nameservers < MAX_SERVERS; i++) {
-					__nameserver[__nameservers++] = __strdup(argv[i]);
+					__nameserver[__nameservers++] = strdup(argv[i]);
 					DPRINTF("adding nameserver %s\n", argv[i]);
 				}
 			}
 
 			/* domain and search are mutually exclusive, the last one wins */
-			if (__strcmp(argv[0],"domain")==0 || __strcmp(argv[0],"search")==0) {
+			if (strcmp(argv[0],"domain")==0 || strcmp(argv[0],"search")==0) {
 				while (__searchdomains > 0) {
 					free(__searchdomain[--__searchdomains]);
 					__searchdomain[__searchdomains] = NULL;
 				}
 				for (i=1; i < argc && __searchdomains < MAX_SEARCH; i++) {
-					__searchdomain[__searchdomains++] = __strdup(argv[i]);
+					__searchdomain[__searchdomains++] = strdup(argv[i]);
 					DPRINTF("adding search %s\n", argv[i]);
 				}
 			}
@@ -1089,7 +1098,7 @@ void attribute_hidden __close_nameservers(void)
 
 #ifdef L_gethostbyname
 
-struct hostent attribute_hidden *__gethostbyname(const char *name)
+struct hostent *gethostbyname(const char *name)
 {
 	static struct hostent h;
 	static char buf[sizeof(struct in_addr) +
@@ -1097,29 +1106,19 @@ struct hostent attribute_hidden *__gethostbyname(const char *name)
 			sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
-	__gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
+	gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
 
 	return hp;
 }
-strong_alias(__gethostbyname,gethostbyname)
+libc_hidden_def(gethostbyname)
 #endif
 
 #ifdef L_gethostbyname2
 
-#ifndef __UCLIBC_HAS_IPV6__
-extern struct hostent *__gethostbyname (__const char *__name) attribute_hidden;
-#else
-extern int __gethostbyname2_r (__const char *__restrict __name, int __af,
-			     struct hostent *__restrict __result_buf,
-			     char *__restrict __buf, size_t __buflen,
-			     struct hostent **__restrict __result,
-			     int *__restrict __h_errnop) attribute_hidden;
-#endif
-
 struct hostent *gethostbyname2(const char *name, int family)
 {
 #ifndef __UCLIBC_HAS_IPV6__
-	return family == AF_INET ? __gethostbyname(name) : (struct hostent*)0;
+	return family == AF_INET ? gethostbyname(name) : (struct hostent*)0;
 #else /* __UCLIBC_HAS_IPV6__ */
 	static struct hostent h;
 	static char buf[sizeof(struct in6_addr) +
@@ -1127,7 +1126,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 			sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
-	__gethostbyname2_r(name, family, &h, buf, sizeof(buf), &hp, &h_errno);
+	gethostbyname2_r(name, family, &h, buf, sizeof(buf), &hp, &h_errno);
 
 	return hp;
 #endif /* __UCLIBC_HAS_IPV6__ */
@@ -1139,7 +1138,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 #ifdef L_res_init
 struct __res_state _res;
 
-int attribute_hidden __res_init_internal(void)
+int res_init(void)
 {
 	struct __res_state *rp = &(_res);
 
@@ -1184,7 +1183,7 @@ int attribute_hidden __res_init_internal(void)
 
 	return(0);
 }
-strong_alias(__res_init_internal,res_init)
+libc_hidden_def(res_init)
 
 void res_close( void )
 {
@@ -1200,11 +1199,7 @@ void res_close( void )
 #define MIN(x, y)	((x) < (y) ? (x) : (y))
 #endif
 
-int		__res_init_internal (void) __THROW attribute_hidden;
-int		__res_querydomain_internal (const char *, const char *, int, int,
-				 u_char *, int) __THROW attribute_hidden;
-
-int attribute_hidden __res_query_internal(const char *dname, int class, int type,
+int res_query(const char *dname, int class, int type,
               unsigned char *answer, int anslen)
 {
 	int i;
@@ -1219,7 +1214,7 @@ int attribute_hidden __res_query_internal(const char *dname, int class, int type
 		return(-1);
 	}
 
-	__memset((char *) &a, '\0', sizeof(a));
+	memset((char *) &a, '\0', sizeof(a));
 
 	BIGLOCK;
 	__nameserversXX=__nameservers;
@@ -1236,7 +1231,7 @@ int attribute_hidden __res_query_internal(const char *dname, int class, int type
 
 	if (a.atype == type) { /* CNAME*/
 		int len = MIN(anslen, i);
-		__memcpy(answer, packet, len);
+		memcpy(answer, packet, len);
 		if (packet)
 			free(packet);
 		return(len);
@@ -1245,7 +1240,7 @@ int attribute_hidden __res_query_internal(const char *dname, int class, int type
 		free(packet);
 	return i;
 }
-strong_alias(__res_query_internal,res_query)
+libc_hidden_def(res_query)
 
 /*
  * Formulate a normal query, send, and retrieve answer in supplied buffer.
@@ -1265,7 +1260,7 @@ int res_search(name, class, type, answer, anslen)
 	int trailing_dot, ret, saved_herrno;
 	int got_nodata = 0, got_servfail = 0, tried_as_is = 0;
 
-	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && __res_init_internal() == -1)) {
+	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && res_init() == -1)) {
 		h_errno = NETDB_INTERNAL;
 		return (-1);
 	}
@@ -1285,7 +1280,7 @@ int res_search(name, class, type, answer, anslen)
 	 */
 	saved_herrno = -1;
 	if (dots >= _res.ndots) {
-		ret = __res_querydomain_internal(name, NULL, class, type, answer, anslen);
+		ret = res_querydomain(name, NULL, class, type, answer, anslen);
 		if (ret > 0)
 			return (ret);
 		saved_herrno = h_errno;
@@ -1306,7 +1301,7 @@ int res_search(name, class, type, answer, anslen)
 		   *domain && !done;
 		   domain++) {
 
-			ret = __res_querydomain_internal(name, *domain, class, type,
+			ret = res_querydomain(name, *domain, class, type,
 			    answer, anslen);
 			if (ret > 0)
 				return (ret);
@@ -1362,7 +1357,7 @@ int res_search(name, class, type, answer, anslen)
 	 * name or whether it ends with a dot.
 	 */
 	if (!tried_as_is) {
-		ret = __res_querydomain_internal(name, NULL, class, type, answer, anslen);
+		ret = res_querydomain(name, NULL, class, type, answer, anslen);
 		if (ret > 0)
 			return (ret);
 	}
@@ -1388,7 +1383,7 @@ int res_search(name, class, type, answer, anslen)
  * Perform a call on res_query on the concatenation of name and domain,
  * removing a trailing dot from name if domain is NULL.
  */
-int attribute_hidden __res_querydomain_internal(name, domain, class, type, answer, anslen)
+int res_querydomain(name, domain, class, type, answer, anslen)
 	const char *name, *domain;
 	int class, type;	/* class and type of query */
 	u_char *answer;		/* buffer to put answer */
@@ -1398,14 +1393,14 @@ int attribute_hidden __res_querydomain_internal(name, domain, class, type, answe
 	const char *longname = nbuf;
 	size_t n, d;
 
-	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && __res_init_internal() == -1)) {
+	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && res_init() == -1)) {
 		h_errno = NETDB_INTERNAL;
 		return (-1);
 	}
 
 #ifdef DEBUG
 	if (_res.options & RES_DEBUG)
-		__printf(";; res_querydomain(%s, %s, %d, %d)\n",
+		printf(";; res_querydomain(%s, %s, %d, %d)\n",
 			name, domain?domain:"<Nil>", class, type);
 #endif
 	if (domain == NULL) {
@@ -1413,28 +1408,28 @@ int attribute_hidden __res_querydomain_internal(name, domain, class, type, answe
 		 * Check for trailing '.';
 		 * copy without '.' if present.
 		 */
-		n = __strlen(name);
+		n = strlen(name);
 		if (n + 1 > sizeof(nbuf)) {
 			h_errno = NO_RECOVERY;
 			return (-1);
 		}
 		if (n > 0 && name[--n] == '.') {
-			__strncpy(nbuf, name, n);
+			strncpy(nbuf, name, n);
 			nbuf[n] = '\0';
 		} else
 			longname = name;
 	} else {
-		n = __strlen(name);
-		d = __strlen(domain);
+		n = strlen(name);
+		d = strlen(domain);
 		if (n + 1 + d + 1 > sizeof(nbuf)) {
 			h_errno = NO_RECOVERY;
 			return (-1);
 		}
 		snprintf(nbuf, sizeof(nbuf), "%s.%s", name, domain);
 	}
-	return (__res_query_internal(longname, class, type, answer, anslen));
+	return (res_query(longname, class, type, answer, anslen));
 }
-strong_alias(__res_querydomain_internal,res_querydomain)
+libc_hidden_def(res_querydomain)
 
 /* res_mkquery */
 /* res_send */
@@ -1443,14 +1438,7 @@ strong_alias(__res_querydomain_internal,res_querydomain)
 #endif
 
 #ifdef L_gethostbyaddr
-extern int __gethostbyaddr_r (__const void *__restrict __addr, __socklen_t __len,
-			    int __type,
-			    struct hostent *__restrict __result_buf,
-			    char *__restrict __buf, size_t __buflen,
-			    struct hostent **__restrict __result,
-			    int *__restrict __h_errnop) attribute_hidden;
-
-struct hostent attribute_hidden *__gethostbyaddr (const void *addr, socklen_t len, int type)
+struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 {
 	static struct hostent h;
 	static char buf[
@@ -1462,11 +1450,11 @@ struct hostent attribute_hidden *__gethostbyaddr (const void *addr, socklen_t le
 		sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
-	__gethostbyaddr_r(addr, len, type, &h, buf, sizeof(buf), &hp, &h_errno);
+	gethostbyaddr_r(addr, len, type, &h, buf, sizeof(buf), &hp, &h_errno);
 
 	return hp;
 }
-strong_alias(__gethostbyaddr,gethostbyaddr)
+libc_hidden_def(gethostbyaddr)
 #endif
 
 
@@ -1551,7 +1539,7 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 
 	*h_errnop=HOST_NOT_FOUND;
 	while (fgets(buf, buflen, fp)) {
-		if ((cp = __strchr(buf, '#')))
+		if ((cp = strchr(buf, '#')))
 			*cp = '\0';
 		DPRINTF("Looking at: %s\n", buf);
 		aliases = 0;
@@ -1576,12 +1564,12 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 			/* Return whatever the next entry happens to be. */
 			break;
 		} else if (action==GET_HOSTS_BYADDR) {
-			if (__strcmp(name, alias[0]) != 0)
+			if (strcmp(name, alias[0]) != 0)
 				continue;
 		} else {
 			/* GET_HOSTS_BYNAME */
 			for (i = 1; i < aliases; i++)
-				if (__strcasecmp(name, alias[i]) == 0)
+				if (strcasecmp(name, alias[i]) == 0)
 					break;
 			if (i >= aliases)
 				continue;
@@ -1652,7 +1640,7 @@ void sethostent (int stay_open)
     UNLOCK;
 }
 
-int attribute_hidden __gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
+int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
 	struct hostent **result, int *h_errnop)
 {
     int ret;
@@ -1675,7 +1663,7 @@ int attribute_hidden __gethostent_r(struct hostent *result_buf, char *buf, size_
     UNLOCK;
     return(ret);
 }
-strong_alias(__gethostent_r,gethostent_r)
+libc_hidden_def(gethostent_r)
 
 struct hostent *gethostent (void)
 {
@@ -1691,7 +1679,7 @@ struct hostent *gethostent (void)
     struct hostent *host;
 
     LOCK;
-    __gethostent_r(&h, buf, sizeof(buf), &host, &h_errno);
+    gethostent_r(&h, buf, sizeof(buf), &host, &h_errno);
     UNLOCK;
     return(host);
 }
@@ -1752,7 +1740,7 @@ int attribute_hidden __get_hosts_byaddr_r(const char * addr, int len, int type,
 # define min(x,y) (((x) > (y)) ? (y) : (x))
 #endif /* min */
 
-int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
+int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 	     socklen_t hostlen, char *serv, socklen_t servlen,
 	     unsigned int flags)
 {
@@ -1793,12 +1781,12 @@ int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen
 			if (!(flags & NI_NUMERICHOST)) {
 #ifdef __UCLIBC_HAS_IPV6__
 				if (sa->sa_family == AF_INET6)
-					h = __gethostbyaddr ((const void *)
+					h = gethostbyaddr ((const void *)
 						&(((const struct sockaddr_in6 *) sa)->sin6_addr),
 						sizeof(struct in6_addr), AF_INET6);
 				else
 #endif /* __UCLIBC_HAS_IPV6__ */
-                    h = __gethostbyaddr ((const void *) &(((const struct sockaddr_in *)sa)->sin_addr),
+                    h = gethostbyaddr ((const void *) &(((const struct sockaddr_in *)sa)->sin_addr),
 					  sizeof(struct in_addr), AF_INET);
 
 				if (h) {
@@ -1807,12 +1795,12 @@ int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen
 					    && (getdomainname (domain, sizeof(domain)) == 0)
 					    && (c = strstr (h->h_name, domain))
 					    && (c != h->h_name) && (*(--c) == '.')) {
-						__strncpy (host, h->h_name,
+						strncpy (host, h->h_name,
 							min(hostlen, (size_t) (c - h->h_name)));
 						host[min(hostlen - 1, (size_t) (c - h->h_name))] = '\0';
 						ok = 1;
 					} else {
-						__strncpy (host, h->h_name, hostlen);
+						strncpy (host, h->h_name, hostlen);
 						ok = 1;
 					}
 				 }
@@ -1841,7 +1829,7 @@ int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen
 							char scopebuf[IFNAMSIZ + 1];
 							char *scopeptr;
 							int ni_numericscope = 0;
-							size_t real_hostlen = __strnlen (host, hostlen);
+							size_t real_hostlen = strnlen (host, hostlen);
 							size_t scopelen = 0;
 
 							scopebuf[0] = SCOPE_DELIMITER;
@@ -1853,7 +1841,7 @@ int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen
 								if (if_indextoname (scopeid, scopeptr) == NULL)
 									++ni_numericscope;
 								else
-									scopelen = __strlen (scopebuf);
+									scopelen = strlen (scopebuf);
 							} else {
 								++ni_numericscope;
 							}
@@ -1867,7 +1855,7 @@ int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen
 
 							if (real_hostlen + scopelen + 1 > hostlen)
 								return EAI_SYSTEM;
-							__memcpy (host + real_hostlen, scopebuf, scopelen + 1);
+							memcpy (host + real_hostlen, scopebuf, scopelen + 1);
 						}
 #endif
 					} else
@@ -1890,7 +1878,7 @@ int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen
 				struct utsname utsname;
 
 				if (!uname (&utsname)) {
-					__strncpy (host, utsname.nodename, hostlen);
+					strncpy (host, utsname.nodename, hostlen);
 					break;
 				};
 			};
@@ -1900,7 +1888,7 @@ int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen
 				return EAI_NONAME;
 			}
 
-			__strncpy (host, "localhost", hostlen);
+			strncpy (host, "localhost", hostlen);
 			break;
 
 		default:
@@ -1918,7 +1906,7 @@ int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen
 				s = getservbyport (((const struct sockaddr_in *) sa)->sin_port,
 				      ((flags & NI_DGRAM) ? "udp" : "tcp"));
 				if (s) {
-					__strncpy (serv, s->s_name, servlen);
+					strncpy (serv, s->s_name, servlen);
 					break;
 				}
 			}
@@ -1927,7 +1915,7 @@ int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen
 			break;
 
 		case AF_LOCAL:
-			__strncpy (serv, ((const struct sockaddr_un *) sa)->sun_path, servlen);
+			strncpy (serv, ((const struct sockaddr_un *) sa)->sun_path, servlen);
 			break;
 		}
 	}
@@ -1938,13 +1926,14 @@ int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen
 	errno = serrno;
 	return 0;
 }
-strong_alias(__getnameinfo,getnameinfo)
+libc_hidden_proto(getnameinfo)
+libc_hidden_def(getnameinfo)
 #endif
 
 
 #ifdef L_gethostbyname_r
 
-int attribute_hidden __gethostbyname_r(const char * name,
+int gethostbyname_r(const char * name,
 			    struct hostent * result_buf,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
@@ -2013,7 +2002,7 @@ int attribute_hidden __gethostbyname_r(const char * name,
 
 	if (buflen<256)
 		return ERANGE;
-	__strncpy(buf, name, buflen);
+	strncpy(buf, name, buflen);
 
 	alias[0] = buf;
 	alias[1] = NULL;
@@ -2057,7 +2046,7 @@ int attribute_hidden __gethostbyname_r(const char * name,
 	    }
 	    else if(a.add_count > 0)
 	    {
-		__memmove(buf - sizeof(struct in_addr*)*2, buf, a.add_count * a.rdlength);
+		memmove(buf - sizeof(struct in_addr*)*2, buf, a.add_count * a.rdlength);
 		addr_list = (struct in_addr**)(buf + a.add_count * a.rdlength);
 		addr_list[0] = in;
 		for (i = a.add_count-1; i>=0; --i)
@@ -2067,11 +2056,11 @@ int attribute_hidden __gethostbyname_r(const char * name,
 		buf = (char*)&addr_list[a.add_count + 2];
 	    }
 
-	    __strncpy(buf, a.dotted, buflen);
+	    strncpy(buf, a.dotted, buflen);
 	    free(a.dotted);
 
 	    if (a.atype == T_A) { /* ADDRESS */
-		__memcpy(in, a.rdata, sizeof(*in));
+		memcpy(in, a.rdata, sizeof(*in));
 		result_buf->h_name = buf;
 		result_buf->h_addrtype = AF_INET;
 		result_buf->h_length = sizeof(*in);
@@ -2093,19 +2082,19 @@ int attribute_hidden __gethostbyname_r(const char * name,
 	*h_errnop = NETDB_SUCCESS;
 	return NETDB_SUCCESS;
 }
-strong_alias(__gethostbyname_r,gethostbyname_r)
+libc_hidden_def(gethostbyname_r)
 #endif
 
 #ifdef L_gethostbyname2_r
 
-int attribute_hidden __gethostbyname2_r(const char *name, int family,
+int gethostbyname2_r(const char *name, int family,
 			    struct hostent * result_buf,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
 			    int * h_errnop)
 {
 #ifndef __UCLIBC_HAS_IPV6__
-	return family == (AF_INET)? __gethostbyname_r(name, result_buf,
+	return family == (AF_INET)? gethostbyname_r(name, result_buf,
 		buf, buflen, result, h_errnop) : HOST_NOT_FOUND;
 #else /* __UCLIBC_HAS_IPV6__ */
 	struct in6_addr *in;
@@ -2118,7 +2107,7 @@ int attribute_hidden __gethostbyname2_r(const char *name, int family,
 	char ** __nameserverXX;
 
 	if (family == AF_INET)
-		return __gethostbyname_r(name, result_buf, buf, buflen, result, h_errnop);
+		return gethostbyname_r(name, result_buf, buf, buflen, result, h_errnop);
 
 	if (family != AF_INET6)
 		return EINVAL;
@@ -2171,7 +2160,7 @@ int attribute_hidden __gethostbyname2_r(const char *name, int family,
 
 	if (buflen<256)
 		return ERANGE;
-	__strncpy(buf, name, buflen);
+	strncpy(buf, name, buflen);
 
 	/* First check if this is already an address */
 	if (inet_pton(AF_INET6, name, in)) {
@@ -2184,7 +2173,7 @@ int attribute_hidden __gethostbyname2_r(const char *name, int family,
 	    return NETDB_SUCCESS;
 	}
 
-	__memset((char *) &a, '\0', sizeof(a));
+	memset((char *) &a, '\0', sizeof(a));
 
 	for (;;) {
 	BIGLOCK;
@@ -2199,7 +2188,7 @@ int attribute_hidden __gethostbyname2_r(const char *name, int family,
 			return TRY_AGAIN;
 		}
 
-		__strncpy(buf, a.dotted, buflen);
+		strncpy(buf, a.dotted, buflen);
 		free(a.dotted);
 
 		if (a.atype == T_CNAME) {		/* CNAME */
@@ -2217,7 +2206,7 @@ int attribute_hidden __gethostbyname2_r(const char *name, int family,
 			}
 			continue;
 		} else if (a.atype == T_AAAA) {	/* ADDRESS */
-			__memcpy(in, a.rdata, sizeof(*in));
+			memcpy(in, a.rdata, sizeof(*in));
 			result_buf->h_name = buf;
 			result_buf->h_addrtype = AF_INET6;
 			result_buf->h_length = sizeof(*in);
@@ -2236,11 +2225,11 @@ int attribute_hidden __gethostbyname2_r(const char *name, int family,
 	return NETDB_SUCCESS;
 #endif /* __UCLIBC_HAS_IPV6__ */
 }
-strong_alias(__gethostbyname2_r,gethostbyname2_r)
+libc_hidden_def(gethostbyname2_r)
 #endif
 
 #ifdef L_gethostbyaddr_r
-int attribute_hidden __gethostbyaddr_r (const void *addr, socklen_t len, int type,
+int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 			    struct hostent * result_buf,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
@@ -2266,7 +2255,7 @@ int attribute_hidden __gethostbyaddr_r (const void *addr, socklen_t len, int typ
 	if (!addr)
 		return EINVAL;
 
-	__memset((char *) &a, '\0', sizeof(a));
+	memset((char *) &a, '\0', sizeof(a));
 
 	switch (type) {
 		case AF_INET:
@@ -2340,24 +2329,24 @@ int attribute_hidden __gethostbyaddr_r (const void *addr, socklen_t len, int typ
 	if(type == AF_INET) {
 		unsigned char *tmp_addr = (unsigned char *)addr;
 
-		__memcpy(&in->s_addr, addr, len);
+		memcpy(&in->s_addr, addr, len);
 
 		addr_list[0] = in;
 
-		__sprintf(buf, "%u.%u.%u.%u.in-addr.arpa",
+		sprintf(buf, "%u.%u.%u.%u.in-addr.arpa",
 			tmp_addr[3], tmp_addr[2], tmp_addr[1], tmp_addr[0]);
 #ifdef __UCLIBC_HAS_IPV6__
 	} else {
-		__memcpy(in6->s6_addr, addr, len);
+		memcpy(in6->s6_addr, addr, len);
 
 		addr_list6[0] = in6;
 		qp = buf;
 
 		for (i = len - 1; i >= 0; i--) {
-			qp += __sprintf(qp, "%x.%x.", in6->s6_addr[i] & 0xf,
+			qp += sprintf(qp, "%x.%x.", in6->s6_addr[i] & 0xf,
 				(in6->s6_addr[i] >> 4) & 0xf);
     	}
-    	__strcpy(qp, "ip6.int");
+    	strcpy(qp, "ip6.int");
 #endif /* __UCLIBC_HAS_IPV6__ */
 	}
 
@@ -2376,7 +2365,7 @@ int attribute_hidden __gethostbyaddr_r (const void *addr, socklen_t len, int typ
 			return TRY_AGAIN;
 		}
 
-		__strncpy(buf, a.dotted, buflen);
+		strncpy(buf, a.dotted, buflen);
 		free(a.dotted);
 
 		if (a.atype == T_CNAME) {		/* CNAME */
@@ -2421,7 +2410,7 @@ int attribute_hidden __gethostbyaddr_r (const void *addr, socklen_t len, int typ
 	*h_errnop = NETDB_SUCCESS;
 	return NETDB_SUCCESS;
 }
-strong_alias(__gethostbyaddr_r,gethostbyaddr_r)
+libc_hidden_def(gethostbyaddr_r)
 #endif
 
 #ifdef L_res_comp
@@ -2435,7 +2424,7 @@ strong_alias(__gethostbyaddr_r,gethostbyaddr_r)
 int __dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
           char *dst, int dstsiz)
 {
-	int n = __ns_name_uncompress_internal(msg, eom, src, dst, (size_t)dstsiz);
+	int n = ns_name_uncompress(msg, eom, src, dst, (size_t)dstsiz);
 
 	if (n > 0 && dst[0] == '.')
 		dst[0] = '\0';
@@ -2487,19 +2476,19 @@ static int special(int ch)
  * note:
  *      Root domain returns as "." not "".
  */
-int attribute_hidden __ns_name_uncompress_internal(const u_char *msg, const u_char *eom,
+int ns_name_uncompress(const u_char *msg, const u_char *eom,
 		const u_char *src, char *dst, size_t dstsiz)
 {
 	u_char tmp[NS_MAXCDNAME];
 	int n;
 
-	if ((n = __ns_name_unpack_internal(msg, eom, src, tmp, sizeof tmp)) == -1)
+	if ((n = ns_name_unpack(msg, eom, src, tmp, sizeof tmp)) == -1)
 		return (-1);
-	if (__ns_name_ntop_internal(tmp, dst, dstsiz) == -1)
+	if (ns_name_ntop(tmp, dst, dstsiz) == -1)
 		return (-1);
 	return (n);
 }
-strong_alias(__ns_name_uncompress_internal,__ns_name_uncompress)
+libc_hidden_def(ns_name_uncompress)
 
 
 /*
@@ -2511,7 +2500,7 @@ strong_alias(__ns_name_uncompress_internal,__ns_name_uncompress)
  *      The root is returned as "."
  *      All other domains are returned in non absolute form
  */
-int attribute_hidden __ns_name_ntop_internal(const u_char *src, char *dst, size_t dstsiz) {
+int ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
 	const u_char *cp;
 	char *dn, *eom;
 	u_char c;
@@ -2580,7 +2569,7 @@ int attribute_hidden __ns_name_ntop_internal(const u_char *src, char *dst, size_
 	*dn++ = '\0';
         return (dn - dst);
 }
-strong_alias(__ns_name_ntop_internal,__ns_name_ntop)
+libc_hidden_def(ns_name_ntop)
 
 /*
  * ns_name_unpack(msg, eom, src, dst, dstsiz)
@@ -2588,7 +2577,7 @@ strong_alias(__ns_name_ntop_internal,__ns_name_ntop)
  * return:
  *      -1 if it fails, or consumed octets if it succeeds.
  */
-int attribute_hidden __ns_name_unpack_internal(const u_char *msg, const u_char *eom, const u_char *src,
+int ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
                u_char *dst, size_t dstsiz)
 {
 	const u_char *srcp, *dstlim;
@@ -2616,7 +2605,7 @@ int attribute_hidden __ns_name_unpack_internal(const u_char *msg, const u_char *
 			}
 			checked += n + 1;
 			*dstp++ = n;
-			__memcpy(dstp, srcp, n);
+			memcpy(dstp, srcp, n);
 			dstp += n;
 			srcp += n;
 			break;
@@ -2655,5 +2644,5 @@ int attribute_hidden __ns_name_unpack_internal(const u_char *msg, const u_char *
 		len = srcp - src;
 	return (len);
 }
-strong_alias(__ns_name_unpack_internal,__ns_name_unpack)
+libc_hidden_def(ns_name_unpack)
 #endif /* L_ns_name */

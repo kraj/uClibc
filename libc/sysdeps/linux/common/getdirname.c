@@ -17,13 +17,17 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define getcwd __getcwd
-
 #include <features.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <string.h>
+
+libc_hidden_proto(strdup)
+libc_hidden_proto(getcwd)
+libc_hidden_proto(getenv)
+libc_hidden_proto(stat)
+libc_hidden_proto(stat64)
 
 /* Return a malloc'd string containing the current directory name.
    If the environment variable `PWD' is set, and its value is correct,
@@ -39,19 +43,19 @@ get_current_dir_name (void)
 	struct stat dotstat, pwdstat;
 #endif
 
-	pwd = __getenv ("PWD");
+	pwd = getenv ("PWD");
 	if (pwd != NULL
 #if defined __UCLIBC_HAS_LFS__
-		&& __stat64 (".", &dotstat) == 0
-		&& __stat64 (pwd, &pwdstat) == 0
+		&& stat64 (".", &dotstat) == 0
+		&& stat64 (pwd, &pwdstat) == 0
 #else
-		&& __stat (".", &dotstat) == 0
-		&& __stat (pwd, &pwdstat) == 0
+		&& stat (".", &dotstat) == 0
+		&& stat (pwd, &pwdstat) == 0
 #endif
 		&& pwdstat.st_dev == dotstat.st_dev
 		&& pwdstat.st_ino == dotstat.st_ino)
 		/* The PWD value is correct.  Use it.  */
-		return __strdup (pwd);
+		return strdup (pwd);
 
 	return getcwd ((char *) NULL, 0);
 }

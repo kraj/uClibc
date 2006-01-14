@@ -7,9 +7,11 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fileno_unlocked)
+
 #ifdef __DO_UNLOCKED
 
-int attribute_hidden __fileno_unlocked(register FILE *stream)
+int fileno_unlocked(register FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
@@ -20,27 +22,30 @@ int attribute_hidden __fileno_unlocked(register FILE *stream)
 	__set_errno(EBADF);
 	return -1;
 }
+libc_hidden_def(fileno_unlocked)
 
-weak_alias(__fileno_unlocked,fileno_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-hidden_weak_alias(__fileno_unlocked,__fileno)
-weak_alias(__fileno_unlocked,fileno)
+strong_alias(fileno_unlocked,fileno)
+libc_hidden_proto(fileno)
+libc_hidden_def(fileno)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int attribute_hidden __fileno(register FILE *stream)
+int fileno(register FILE *stream)
 {
 	int retval;
 	__STDIO_AUTO_THREADLOCK_VAR;
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	retval = __fileno_unlocked(stream);
+	retval = fileno_unlocked(stream);
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	return retval;
 }
-strong_alias(__fileno,fileno)
+libc_hidden_proto(fileno)
+libc_hidden_def(fileno)
+
 #endif

@@ -27,17 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#define getsockname __getsockname
-#define getnameinfo __getnameinfo
-#define getaddrinfo __getaddrinfo
-#define freeaddrinfo __freeaddrinfo
-#define sleep __sleep
-#define atoi __atoi
-#define connect __connect
-#define snprintf __snprintf
-#define accept __accept
-#define listen __listen
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include <sys/types.h>
@@ -53,15 +42,36 @@
 #include <string.h>
 #include <unistd.h>
 
+libc_hidden_proto(memset)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strncpy)
+libc_hidden_proto(read)
+libc_hidden_proto(write)
+libc_hidden_proto(close)
+libc_hidden_proto(socket)
+libc_hidden_proto(perror)
+libc_hidden_proto(sprintf)
+libc_hidden_proto(snprintf)
+libc_hidden_proto(getsockname)
+libc_hidden_proto(getnameinfo)
+libc_hidden_proto(getaddrinfo)
+libc_hidden_proto(freeaddrinfo)
+libc_hidden_proto(sleep)
+libc_hidden_proto(atoi)
+libc_hidden_proto(connect)
+libc_hidden_proto(accept)
+libc_hidden_proto(listen)
+
 #define SA_LEN(_x)      __libc_sa_len((_x)->sa_family)
 extern int __libc_sa_len (sa_family_t __af) __THROW attribute_hidden;
 
 int	rexecoptions;
 char	ahostbuf[NI_MAXHOST] attribute_hidden;
-extern int __ruserpass(const char *host, const char **aname, const char **apass) attribute_hidden;
+extern int ruserpass(const char *host, const char **aname, const char **apass) attribute_hidden;
+libc_hidden_proto(ruserpass)
 
-int attribute_hidden
-__rexec_af(char **ahost, int rport, const char *name, const char *pass, const char *cmd, int *fd2p, sa_family_t af)
+int
+rexec_af(char **ahost, int rport, const char *name, const char *pass, const char *cmd, int *fd2p, sa_family_t af)
 {
 	struct sockaddr_storage sa2, from;
 	struct addrinfo hints, *res0;
@@ -76,7 +86,7 @@ __rexec_af(char **ahost, int rport, const char *name, const char *pass, const ch
 	snprintf(servbuff, sizeof(servbuff), "%d", ntohs(rport));
 	servbuff[sizeof(servbuff) - 1] = '\0';
 
-	__memset(&hints, 0, sizeof(hints));
+	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = af;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_CANONNAME;
@@ -87,51 +97,51 @@ __rexec_af(char **ahost, int rport, const char *name, const char *pass, const ch
 	}
 
 	if (res0->ai_canonname){
-		__strncpy(ahostbuf, res0->ai_canonname, sizeof(ahostbuf));
+		strncpy(ahostbuf, res0->ai_canonname, sizeof(ahostbuf));
 		ahostbuf[sizeof(ahostbuf)-1] = '\0';
 		*ahost = ahostbuf;
 	}
 	else{
 		*ahost = NULL;
 	}
-	__ruserpass(res0->ai_canonname, &name, &pass);
+	ruserpass(res0->ai_canonname, &name, &pass);
 retry:
-	s = __socket(res0->ai_family, res0->ai_socktype, 0);
+	s = socket(res0->ai_family, res0->ai_socktype, 0);
 	if (s < 0) {
-		__perror("rexec: socket");
+		perror("rexec: socket");
 		return (-1);
 	}
 	if (connect(s, res0->ai_addr, res0->ai_addrlen) < 0) {
 		if (errno == ECONNREFUSED && timo <= 16) {
-			(void) __close(s);
+			(void) close(s);
 			sleep(timo);
 			timo *= 2;
 			goto retry;
 		}
-		__perror(res0->ai_canonname);
+		perror(res0->ai_canonname);
 		return (-1);
 	}
 	if (fd2p == 0) {
-		(void) __write(s, "", 1);
+		(void) write(s, "", 1);
 		port = 0;
 	} else {
 		char num[32];
 		int s2, sa2len;
 
-		s2 = __socket(res0->ai_family, res0->ai_socktype, 0);
+		s2 = socket(res0->ai_family, res0->ai_socktype, 0);
 		if (s2 < 0) {
-			(void) __close(s);
+			(void) close(s);
 			return (-1);
 		}
 		listen(s2, 1);
 		sa2len = sizeof (sa2);
 		if (getsockname(s2, (struct sockaddr *)&sa2, &sa2len) < 0) {
-			__perror("getsockname");
-			(void) __close(s2);
+			perror("getsockname");
+			(void) close(s2);
 			goto bad;
 		} else if (sa2len != SA_LEN((struct sockaddr *)&sa2)) {
 			__set_errno(EINVAL);
-			(void) __close(s2);
+			(void) close(s2);
 			goto bad;
 		}
 		port = 0;
@@ -139,23 +149,23 @@ retry:
 				 NULL, 0, servbuff, sizeof(servbuff),
 				 NI_NUMERICSERV))
 			port = atoi(servbuff);
-		(void) __sprintf(num, "%u", port);
-		(void) __write(s, num, __strlen(num)+1);
+		(void) sprintf(num, "%u", port);
+		(void) write(s, num, strlen(num)+1);
 		{ socklen_t len = sizeof (from);
 		  s3 = accept(s2, (struct sockaddr *)&from, &len);
-		  __close(s2);
+		  close(s2);
 		  if (s3 < 0) {
-			__perror("accept");
+			perror("accept");
 			port = 0;
 			goto bad;
 		  }
 		}
 		*fd2p = s3;
 	}
-	(void) __write(s, name, __strlen(name) + 1);
+	(void) write(s, name, strlen(name) + 1);
 	/* should public key encypt the password here */
-	(void) __write(s, pass, __strlen(pass) + 1);
-	(void) __write(s, cmd, __strlen(cmd) + 1);
+	(void) write(s, pass, strlen(pass) + 1);
+	(void) write(s, cmd, strlen(cmd) + 1);
 
 	/* We don't need the memory allocated for the name and the password
 	   in ruserpass anymore.  */
@@ -164,13 +174,13 @@ retry:
 	if (pass != orig_pass)
 	  free ((char *) pass);
 
-	if (__read(s, &c, 1) != 1) {
-		__perror(*ahost);
+	if (read(s, &c, 1) != 1) {
+		perror(*ahost);
 		goto bad;
 	}
 	if (c != 0) {
-		while (__read(s, &c, 1) == 1) {
-			(void) __write(2, &c, 1);
+		while (read(s, &c, 1) == 1) {
+			(void) write(2, &c, 1);
 			if (c == '\n')
 				break;
 		}
@@ -180,12 +190,13 @@ retry:
 	return (s);
 bad:
 	if (port)
-		(void) __close(*fd2p);
-	(void) __close(s);
+		(void) close(*fd2p);
+	(void) close(s);
 	freeaddrinfo(res0);
 	return (-1);
 }
-strong_alias(__rexec_af,rexec_af)
+libc_hidden_proto(rexec_af)
+libc_hidden_def(rexec_af)
 
 int
 rexec(ahost, rport, name, pass, cmd, fd2p)
@@ -194,5 +205,5 @@ rexec(ahost, rport, name, pass, cmd, fd2p)
 	const char *name, *pass, *cmd;
 	int *fd2p;
 {
-	return __rexec_af(ahost, rport, name, pass, cmd, fd2p, AF_INET);
+	return rexec_af(ahost, rport, name, pass, cmd, fd2p, AF_INET);
 }

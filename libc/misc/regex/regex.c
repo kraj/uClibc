@@ -23,6 +23,7 @@
 #endif
 
 /* uClibc addons */
+#define _GNU_SOURCE
 #include <features.h>
 
 #ifdef __UCLIBC__
@@ -30,46 +31,50 @@
 #define _REGEX_RE_COMP
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 #ifdef __UCLIBC_HAS_WCHAR__
 #define RE_ENABLE_I18N
-#define wcscoll __wcscoll
-#define wcrtomb __wcrtomb
-#define mbrtowc __mbrtowc
-#define iswctype __iswctype
-#define iswlower __iswlower
-#define iswalnum __iswalnum
-#define towlower __towlower
-#define towupper __towupper
-#define mbsinit __mbsinit
 #include <wchar.h>
 #include <wctype.h>
 
-/* attribute_hidden produces text relocation */
-//extern int __wcscoll (__const wchar_t *__s1, __const wchar_t *__s2) __THROW /*attribute_hidden*/;
+#define __iswctype iswctype
+#define __wcrtomb wcrtomb
+#define __btowc btowc
+#define __wctype wctype
+libc_hidden_proto(wcscoll)
+libc_hidden_proto(wcrtomb)
+libc_hidden_proto(mbrtowc)
+libc_hidden_proto(iswctype)
+libc_hidden_proto(iswlower)
+libc_hidden_proto(iswalnum)
+libc_hidden_proto(towlower)
+libc_hidden_proto(towupper)
+libc_hidden_proto(mbsinit)
+libc_hidden_proto(btowc)
+libc_hidden_proto(wctype)
 
-extern size_t __wcrtomb (char *__restrict __s, wchar_t __wc,
-		       mbstate_t *__restrict __ps) attribute_hidden;
-
-extern wint_t __btowc (int __c) attribute_hidden;
-
-extern wctype_t __wctype (__const char *__property) attribute_hidden;
-
-//extern int __iswctype (wint_t __wc, wctype_t __desc) /*attribute_hidden*/;
 #endif
 
-#define memcmp __memcmp
-#define memcpy __memcpy
-#define memmove __memmove
-#define memset __memset
-#define strchr __strchr
-#define strcmp __strcmp
-#define strlen __strlen
-#define strncpy __strncpy
-#define getenv __getenv
-#define strcasecmp __strcasecmp
+#include <ctype.h>
+#define __toupper toupper
+#define __tolower tolower
+#define __mempcpy mempcpy
+libc_hidden_proto(toupper)
+libc_hidden_proto(tolower)
+libc_hidden_proto(memcmp)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memmove)
+libc_hidden_proto(memset)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strncpy)
+libc_hidden_proto(getenv)
+libc_hidden_proto(strcasecmp)
+libc_hidden_proto(mempcpy)
+libc_hidden_proto(abort)
 
-extern void *__mempcpy (void *__restrict __dest,
-			__const void *__restrict __src, size_t __n) attribute_hidden;
 #endif
 
 /* Make sure noone compiles this code with a C++ compiler.  */

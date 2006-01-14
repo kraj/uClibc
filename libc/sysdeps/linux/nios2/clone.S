@@ -18,10 +18,10 @@
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
 .text
-.global __clone
-.type __clone,%function
+.global clone
+.type   clone,%function
 .align 4
-__clone:
+clone:
 	addi    sp,sp,-8
 	mov     r8,r4
 	stw     ra,4(sp)
@@ -65,9 +65,6 @@ CLONE_OK:
 	addi    sp,sp,8
 	ret
 
-.size __clone,.-__clone
-
-.weak clone
-	clone = __clone
+.size clone,.-clone
 
 #endif

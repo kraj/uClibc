@@ -20,7 +20,7 @@
 MSRC:=wchar.c
 MOBJ:=	btowc.o wctob.o mbsinit.o mbrlen.o mbrtowc.o wcrtomb.o mbsrtowcs.o \
 	wcsrtombs.o _wchar_utf8sntowcs.o _wchar_wcsntoutf8s.o \
-	__mbsnrtowcs.o __wcsnrtombs.o wcwidth.o wcswidth.o
+	mbsnrtowcs.o wcsnrtombs.o wcwidth.o wcswidth.o
 
 ifeq ($(UCLIBC_HAS_LOCALE),y)
 MOBJ+=iconv.o

@@ -11,13 +11,13 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
-#define mmap __mmap
-#define sbrk __sbrk
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/mman.h>
+
+libc_hidden_proto(mmap)
+libc_hidden_proto(sbrk)
 
 #include "malloc.h"
 #include "heap.h"

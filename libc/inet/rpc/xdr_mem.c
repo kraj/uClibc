@@ -46,6 +46,8 @@
 #include <string.h>
 #include <rpc/rpc.h>
 
+libc_hidden_proto(memcpy)
+
 static bool_t xdrmem_getlong (XDR *, long *);
 static bool_t xdrmem_putlong (XDR *, const long *);
 static bool_t xdrmem_getbytes (XDR *, caddr_t, u_int);
@@ -75,8 +77,8 @@ static const struct xdr_ops xdrmem_ops =
  * The procedure xdrmem_create initializes a stream descriptor for a
  * memory buffer.
  */
-void attribute_hidden
-__xdrmem_create (XDR *xdrs, const caddr_t addr, u_int size, enum xdr_op op)
+void
+xdrmem_create (XDR *xdrs, const caddr_t addr, u_int size, enum xdr_op op)
 {
   xdrs->x_op = op;
   /* We have to add the const since the `struct xdr_ops' in `struct XDR'
@@ -85,7 +87,8 @@ __xdrmem_create (XDR *xdrs, const caddr_t addr, u_int size, enum xdr_op op)
   xdrs->x_private = xdrs->x_base = addr;
   xdrs->x_handy = size;
 }
-strong_alias(__xdrmem_create,xdrmem_create)
+libc_hidden_proto(xdrmem_create)
+libc_hidden_def(xdrmem_create)
 
 /*
  * Nothing needs to be done for the memory case.  The argument is clearly
@@ -138,7 +141,7 @@ xdrmem_getbytes (XDR *xdrs, caddr_t addr, u_int len)
 {
   if ((xdrs->x_handy -= len) < 0)
     return FALSE;
-  __memcpy (addr, xdrs->x_private, len);
+  memcpy (addr, xdrs->x_private, len);
   xdrs->x_private += len;
   return TRUE;
 }
@@ -152,7 +155,7 @@ xdrmem_putbytes (XDR *xdrs, const char *addr, u_int len)
 {
   if ((xdrs->x_handy -= len) < 0)
     return FALSE;
-  __memcpy (xdrs->x_private, addr, len);
+  memcpy (xdrs->x_private, addr, len);
   xdrs->x_private += len;
   return TRUE;
 }

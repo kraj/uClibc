@@ -22,6 +22,8 @@
 #include <string.h>
 #include <errno.h>
 
+libc_hidden_proto(memset)
+
 void * calloc(size_t nmemb, size_t lsize)
 {
 	void *result;
@@ -34,7 +36,7 @@ void * calloc(size_t nmemb, size_t lsize)
 		return NULL;
 	}
 	if ((result=malloc(size)) != NULL) {
-		__memset(result, 0, size);
+		memset(result, 0, size);
 	}
 	return result;
 }

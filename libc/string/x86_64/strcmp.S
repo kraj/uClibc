@@ -22,7 +22,7 @@
 #include "_glibc_inc.h"
 
         .text
-ENTRY (BP_SYM (__strcmp))
+ENTRY (BP_SYM (strcmp))
 L(oop):	movb	(%rdi), %al
 	cmpb	(%rsi), %al
 	jne	L(neq)
@@ -38,10 +38,10 @@ L(neq):	movl	$1, %eax
 	movl	$-1, %ecx
 	cmovbl	%ecx, %eax
 	ret
-END (BP_SYM (__strcmp))
+END (BP_SYM (strcmp))
 
-strong_alias(__strcmp,strcmp)
+libc_hidden_def(strcmp)
 #ifndef __UCLIBC_HAS_LOCALE__
-hidden_strong_alias(__strcmp,__strcoll)
-strong_alias(__strcmp,strcoll)
+strong_alias(strcmp,strcoll)
+libc_hidden_def(strcoll)
 #endif

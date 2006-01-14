@@ -16,11 +16,11 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define sigaction __sigaction
-
 #include <stddef.h>
 #include <signal.h>
 #include <errno.h>
+
+libc_hidden_proto(sigaction)
 
 /* If INTERRUPT is nonzero, make signal SIG interrupt system calls
    (causing them to fail with EINTR); if INTERRUPT is zero, make system

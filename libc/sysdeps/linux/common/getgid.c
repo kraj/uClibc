@@ -16,8 +16,9 @@
 #endif
 
 static inline _syscall0(int, __syscall_getgid);
-gid_t attribute_hidden __getgid(void)
+gid_t getgid(void)
 {
 	return (__syscall_getgid());
 }
-strong_alias(__getgid,getgid)
+libc_hidden_proto(getgid)
+libc_hidden_def(getgid)

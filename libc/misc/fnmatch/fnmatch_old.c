@@ -28,6 +28,9 @@ Cambridge, MA 02139, USA.  */
 #include <fnmatch.h>
 #include <ctype.h>
 
+libc_hidden_proto(fnmatch)
+
+libc_hidden_proto(tolower)
 /* Comment out all this code if we are using the GNU C Library, and are not
    actually compiling the library itself.  This code is part of the GNU C
    Library, but also included in many other GNU distributions.  Compiling
@@ -50,13 +53,13 @@ Cambridge, MA 02139, USA.  */
 
 /* Match STRING against the filename pattern PATTERN, returning zero if
    it matches, nonzero if not.  */
-int attribute_hidden __fnmatch(const char *pattern, const char *string, int flags)
+int fnmatch(const char *pattern, const char *string, int flags)
 {
 	register const char *p = pattern, *n = string;
 	register char c;
 
 /* Note that this evaluates C many times.  */
-# define FOLD(c) ((flags & FNM_CASEFOLD) && ISUPPER (c) ? __tolower (c) : (c))
+# define FOLD(c) ((flags & FNM_CASEFOLD) && ISUPPER (c) ? tolower (c) : (c))
 
 	while ((c = *p++) != '\0') {
 		c = FOLD(c);
@@ -116,7 +119,7 @@ int attribute_hidden __fnmatch(const char *pattern, const char *string, int flag
 				c1 = FOLD(c1);
 				for (--p; *n != '\0'; ++n)
 					if ((c == '[' || FOLD(*n) == c1) &&
-						__fnmatch(p, n, flags & ~FNM_PERIOD) == 0)
+						fnmatch(p, n, flags & ~FNM_PERIOD) == 0)
 						return 0;
 				return FNM_NOMATCH;
 			}
@@ -220,5 +223,5 @@ int attribute_hidden __fnmatch(const char *pattern, const char *string, int flag
 
 # undef FOLD
 }
-strong_alias(__fnmatch,fnmatch)
+libc_hidden_def(fnmatch)
 #endif							/* _LIBC or not __GNU_LIBRARY__.  */

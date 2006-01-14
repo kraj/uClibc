@@ -8,16 +8,18 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-#undef fprintf
-int attribute_hidden __fprintf(FILE * __restrict stream, const char * __restrict format, ...)
+libc_hidden_proto(vfprintf)
+
+int fprintf(FILE * __restrict stream, const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = __vfprintf(stream, format, arg);
+	rv = vfprintf(stream, format, arg);
 	va_end(arg);
 
 	return rv;
 }
-strong_alias(__fprintf,fprintf)
+libc_hidden_proto(fprintf)
+libc_hidden_def(fprintf)

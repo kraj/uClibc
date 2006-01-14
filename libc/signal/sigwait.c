@@ -18,14 +18,13 @@
  * Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA.  */
 
-#define sigwaitinfo __sigwaitinfo
-
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
 
-#undef sigwait
-int attribute_hidden __sigwait (const sigset_t *set, int *sig)
+libc_hidden_proto(sigwaitinfo)
+
+int sigwait (const sigset_t *set, int *sig)
 {
 	int ret = 1;
 	if ((ret = sigwaitinfo(set, NULL)) != -1) {
@@ -34,6 +33,5 @@ int attribute_hidden __sigwait (const sigset_t *set, int *sig)
 	}
 	return 1;
 }
-
-/* psm: keep this weak, because the one in libpthread.so could overwrite it */
-weak_alias(__sigwait, sigwait)
+libc_hidden_proto(sigwait)
+libc_hidden_def(sigwait)

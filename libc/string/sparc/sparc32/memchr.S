@@ -63,7 +63,7 @@
 1:	retl
 	 sub		%o0, 1, %o0
 
-ENTRY(__memchr)
+ENTRY(memchr)
 	andcc		%o1, 0xff, %o1
 	sll		%o1, 8, %g6
 	andcc		%o0, 3, %g0
@@ -136,9 +136,9 @@ ENTRY(__memchr)
 	 sub		%o0, 3, %o0
 4:	retl
 	 sub		%o0, 4, %o0
-END(__memchr)
-strong_alias(__memchr,memchr)
+END(memchr)
+libc_hidden_def(memchr)
 
 #if !__BOUNDED_POINTERS__
-weak_alias(__memchr,__ubp_memchr)
+weak_alias(memchr,__ubp_memchr)
 #endif

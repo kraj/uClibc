@@ -22,7 +22,7 @@
 extern int __drand48_iterate(unsigned short xsubi[3], 
 	struct drand48_data *buffer) attribute_hidden;
 
-int attribute_hidden __jrand48_r (unsigned short int xsubi[3], struct drand48_data *buffer, long int *result)
+int jrand48_r (unsigned short int xsubi[3], struct drand48_data *buffer, long int *result)
 {
     /* Compute next state.  */
     if (__drand48_iterate (xsubi, buffer) < 0)
@@ -33,4 +33,5 @@ int attribute_hidden __jrand48_r (unsigned short int xsubi[3], struct drand48_da
 
     return 0;
 }
-strong_alias(__jrand48_r,jrand48_r)
+libc_hidden_proto(jrand48_r)
+libc_hidden_def(jrand48_r)

@@ -2,10 +2,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-extern __pid_t __fork (void) __THROW attribute_hidden;
+libc_hidden_proto(fork)
 
-pid_t attribute_hidden __vfork(void)
+pid_t vfork(void)
 {
-    return __fork();
+    return fork();
 }
-strong_alias(__vfork,vfork)
+libc_hidden_proto(vfork)
+libc_hidden_def(vfork)

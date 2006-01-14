@@ -35,9 +35,6 @@ static  char sccsid[] = "@(#)getrpcport.c 1.3 87/08/11 SMI";
  * Copyright (c) 1985 by Sun Microsystems, Inc.
  */
 
-#define pmap_getport __pmap_getport
-#define gethostbyname_r __gethostbyname_r
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -50,6 +47,10 @@ static  char sccsid[] = "@(#)getrpcport.c 1.3 87/08/11 SMI";
 #include <rpc/clnt.h>
 #include <rpc/pmap_clnt.h>
 #include <sys/socket.h>
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(pmap_getport)
+libc_hidden_proto(gethostbyname_r)
 
 int
 getrpcport (const char *host, u_long prognum, u_long versnum, u_int proto)
@@ -73,7 +74,7 @@ getrpcport (const char *host, u_long prognum, u_long versnum, u_int proto)
 	buffer = alloca (buflen);
       }
 
-  __memcpy ((char *) &addr.sin_addr, hp->h_addr, hp->h_length);
+  memcpy ((char *) &addr.sin_addr, hp->h_addr, hp->h_length);
   addr.sin_family = AF_INET;
   addr.sin_port = 0;
   return pmap_getport (&addr, prognum, versnum, proto);

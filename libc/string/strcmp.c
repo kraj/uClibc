@@ -8,14 +8,16 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstrcmp __wcscmp
 # define Wstrcmp wcscmp
+# define Wstrcoll wcscoll
 #else
-# define __Wstrcmp __strcmp
 # define Wstrcmp strcmp
+# define Wstrcoll strcoll
 #endif
 
-int attribute_hidden __Wstrcmp(register const Wchar *s1, register const Wchar *s2)
+libc_hidden_proto(Wstrcmp)
+
+int Wstrcmp(register const Wchar *s1, register const Wchar *s2)
 {
 #ifdef WANT_WIDE
 	while (*((Wuchar *)s1) == *((Wuchar *)s2)) {
@@ -35,15 +37,10 @@ int attribute_hidden __Wstrcmp(register const Wchar *s1, register const Wchar *s
 	return r;
 #endif
 }
-
-strong_alias(__Wstrcmp,Wstrcmp)
+libc_hidden_def(Wstrcmp)
 
 #ifndef __UCLIBC_HAS_LOCALE__
-# ifdef WANT_WIDE
-hidden_strong_alias(__wcscmp,__wcscoll)
-strong_alias(__wcscmp,wcscoll)
-# else
-hidden_strong_alias(__strcmp,__strcoll)
-strong_alias(__strcmp,strcoll)
-# endif
+strong_alias(Wstrcmp,Wstrcoll)
+libc_hidden_proto(Wstrcoll)
+libc_hidden_def(Wstrcoll)
 #endif

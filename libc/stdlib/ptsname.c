@@ -17,8 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define isatty __isatty
-
 #define _ISOC99_SOURCE
 #include <stdio.h>
 #include <errno.h>
@@ -32,6 +30,13 @@
 #include <unistd.h>
 #include <bits/uClibc_uintmaxtostr.h>
 
+libc_hidden_proto(strcat)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strlen)
+libc_hidden_proto(isatty)
+libc_hidden_proto(ioctl)
+libc_hidden_proto(fstat)
+libc_hidden_proto(stat)
 
 #if !defined __UNIX98PTY_ONLY__
 
@@ -64,7 +69,7 @@ extern const char __libc_ptyname2[] attribute_hidden;
 /* Store at most BUFLEN characters of the pathname of the slave pseudo
    terminal associated with the master FD is open on in BUF.
    Return 0 on success, otherwise an error number.  */
-int attribute_hidden __ptsname_r (int fd, char *buf, size_t buflen)
+int ptsname_r (int fd, char *buf, size_t buflen)
 {
   int save_errno = errno;
 #if !defined __UNIX98PTY_ONLY__
@@ -88,7 +93,7 @@ int attribute_hidden __ptsname_r (int fd, char *buf, size_t buflen)
 # error "__UNIX98PTY_ONLY__ enabled but TIOCGPTN ioctl not supported by your kernel."
 #endif
 #ifdef TIOCGPTN
-  if (__ioctl (fd, TIOCGPTN, &ptyno) == 0)
+  if (ioctl (fd, TIOCGPTN, &ptyno) == 0)
     {
       /* Buffer we use to print the number in. */
       char numbuf[__BUFLEN_INT10TOSTR];
@@ -103,8 +108,8 @@ int attribute_hidden __ptsname_r (int fd, char *buf, size_t buflen)
 	  return ERANGE;
 	}
 
-      __strcpy (buf, devpts);
-      __strcat (buf, p);
+      strcpy (buf, devpts);
+      strcat (buf, p);
       /* Note: Don't bother with stat on the slave name and checking the
 	 driver's major device number - the ioctl above succeeded so
 	 we know the fd was a Unix'98 master and the /dev/pts/ prefix
@@ -130,13 +135,13 @@ int attribute_hidden __ptsname_r (int fd, char *buf, size_t buflen)
     {
       char *p;
 
-      if (buflen < __strlen (_PATH_TTY) + 3)
+      if (buflen < strlen (_PATH_TTY) + 3)
 	{
 	  errno = ERANGE;
 	  return ERANGE;
 	}
 
-      if (__fstat (fd, &st) < 0)
+      if (fstat (fd, &st) < 0)
 	return errno;
 
       /* Check if FD really is a master pseudo terminal.  */
@@ -152,20 +157,20 @@ int attribute_hidden __ptsname_r (int fd, char *buf, size_t buflen)
       if (major (st.st_rdev) == 4)
 	ptyno -= 128;
 
-      if (ptyno / 16 >= __strlen (__libc_ptyname1))
+      if (ptyno / 16 >= strlen (__libc_ptyname1))
 	{
 	  errno = ENOTTY;
 	  return ENOTTY;
 	}
 
-      __strcpy (buf, _PATH_TTY);
-      p = buf + __strlen (buf);
+      strcpy (buf, _PATH_TTY);
+      p = buf + strlen (buf);
       p[0] = __libc_ptyname1[ptyno / 16];
       p[1] = __libc_ptyname2[ptyno % 16];
       p[2] = '\0';
     }
 
-  if (__stat(buf, &st) < 0)
+  if (stat(buf, &st) < 0)
     return errno;
 
   /* Check if the name we're about to return really corresponds to a
@@ -181,7 +186,8 @@ int attribute_hidden __ptsname_r (int fd, char *buf, size_t buflen)
   errno = save_errno;
   return 0;
 }
-strong_alias(__ptsname_r,ptsname_r)
+libc_hidden_proto(ptsname_r)
+libc_hidden_def(ptsname_r)
 
 /* Return the pathname of the pseudo terminal slave assoicated with
    the master FD is open on, or NULL on errors.
@@ -191,5 +197,5 @@ ptsname (int fd)
 {
   static char buffer[sizeof (_PATH_DEVPTS) + 20];
 
-  return __ptsname_r (fd, buffer, sizeof (buffer)) != 0 ? NULL : buffer;
+  return ptsname_r (fd, buffer, sizeof (buffer)) != 0 ? NULL : buffer;
 }

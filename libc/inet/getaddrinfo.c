@@ -1,3 +1,10 @@
+/*
+ * Copyright 1996 by Craig Metz 
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 /* $USAGI: getaddrinfo.c,v 1.16 2001/10/04 09:52:03 sekiya Exp $ */
 
 /* The Inner Net License, Version 2.00
@@ -42,24 +49,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   If these license terms cause you a real problem, contact the author.  */
 
-/* This software is Copyright 1996 by Craig Metz, All Rights Reserved.  */
-
-#define getservbyname_r __getservbyname_r
-#define gethostbyname_r __gethostbyname_r
-#define gethostbyname2_r __gethostbyname2_r
-#define gethostbyaddr_r __gethostbyaddr_r
-#define inet_pton __inet_pton
-#define inet_ntop __inet_ntop
-#define strtoul __strtoul
-#define if_nametoindex __if_nametoindex
-#if 0
-#define uname __uname
-#define stpcpy __stpcpy
-/* strdupa is using these */
-#define memcpy __memcpy
-#define strlen __strlen
-#endif
-
 #define _GNU_SOURCE
 #define __FORCE_GLIBC
 #include <features.h>
@@ -78,6 +67,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/un.h>
 #include <sys/utsname.h>
 #include <net/if.h>
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memset)
+/* libc_hidden_proto(strcmp) */
+/* libc_hidden_proto(stpcpy) */
+libc_hidden_proto(strchr)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strlen)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(getservbyname_r)
+libc_hidden_proto(gethostbyname_r)
+libc_hidden_proto(gethostbyname2_r)
+libc_hidden_proto(gethostbyaddr_r)
+libc_hidden_proto(inet_pton)
+libc_hidden_proto(inet_ntop)
+libc_hidden_proto(strtoul)
+libc_hidden_proto(if_nametoindex)
+/* libc_hidden_proto(uname) */
+#ifdef __UCLIBC_HAS_IPV6__
+libc_hidden_proto(in6addr_loopback)
+#endif
 
 /* The following declarations and definitions have been removed from
  *    the public header since we don't want people to use them.  */
@@ -160,12 +171,12 @@ static int addrconfig (sa_family_t af)
     int s;
     int ret;
     int saved_errno = errno;
-    s = __socket(af, SOCK_DGRAM, 0);
+    s = socket(af, SOCK_DGRAM, 0);
     if (s < 0)
 	ret = (errno == EMFILE) ? 1 : 0;
     else
     {
-	__close(s);
+	close(s);
 	ret = 1;
     }
     __set_errno (saved_errno);
@@ -189,10 +200,10 @@ gaih_local (const char *name, const struct gaih_service *service,
 
     if (name != NULL)
     {
-	if (__strcmp(name, "localhost") &&
-	    __strcmp(name, "local") &&
-	    __strcmp(name, "unix") &&
-	    __strcmp(name, utsname.nodename))
+	if (strcmp(name, "localhost") &&
+	    strcmp(name, "local") &&
+	    strcmp(name, "unix") &&
+	    strcmp(name, utsname.nodename))
 	    return GAIH_OKIFUNSPEC | -EAI_NONAME;
     }
 
@@ -219,7 +230,7 @@ gaih_local (const char *name, const struct gaih_service *service,
 
     *pai = malloc (sizeof (struct addrinfo) + sizeof (struct sockaddr_un)
 		   + ((req->ai_flags & AI_CANONNAME)
-		      ? (__strlen(utsname.nodename) + 1): 0));
+		      ? (strlen(utsname.nodename) + 1): 0));
     if (*pai == NULL)
 	return -EAI_MEMORY;
 
@@ -237,22 +248,22 @@ gaih_local (const char *name, const struct gaih_service *service,
 #endif /* SALEN */
 
     ((struct sockaddr_un *)(*pai)->ai_addr)->sun_family = AF_LOCAL;
-    __memset(((struct sockaddr_un *)(*pai)->ai_addr)->sun_path, 0, UNIX_PATH_MAX);
+    memset(((struct sockaddr_un *)(*pai)->ai_addr)->sun_path, 0, UNIX_PATH_MAX);
 
     if (service)
     {
 	struct sockaddr_un *sunp = (struct sockaddr_un *) (*pai)->ai_addr;
 
-	if (__strchr (service->name, '/') != NULL)
+	if (strchr (service->name, '/') != NULL)
 	{
-	    if (__strlen (service->name) >= sizeof (sunp->sun_path))
+	    if (strlen (service->name) >= sizeof (sunp->sun_path))
 		return GAIH_OKIFUNSPEC | -EAI_SERVICE;
 
-	    __strcpy (sunp->sun_path, service->name);
+	    strcpy (sunp->sun_path, service->name);
 	}
 	else
 	{
-	    if (__strlen (P_tmpdir "/") + 1 + __strlen (service->name) >=
+	    if (strlen (P_tmpdir "/") + 1 + strlen (service->name) >=
 		sizeof (sunp->sun_path))
 		return GAIH_OKIFUNSPEC | -EAI_SERVICE;
 
@@ -274,7 +285,7 @@ gaih_local (const char *name, const struct gaih_service *service,
     }
 
     if (req->ai_flags & AI_CANONNAME)
-	(*pai)->ai_canonname = __strcpy ((char *) *pai + sizeof (struct addrinfo)
+	(*pai)->ai_canonname = strcpy ((char *) *pai + sizeof (struct addrinfo)
 				       + sizeof (struct sockaddr_un),
 				       utsname.nodename);
     else
@@ -354,7 +365,7 @@ gaih_inet_serv (const char *servicename, const struct gaih_typeproto *tp,
 	    }								\
 	    (*pat)->next = NULL;					\
 		(*pat)->family = _family;				\
-		__memcpy ((*pat)->addr, h->h_addr_list[i],		\
+		memcpy ((*pat)->addr, h->h_addr_list[i],		\
 			sizeof(_type));					\
 		pat = &((*pat)->next);					\
 	}								\
@@ -505,7 +516,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	    char *namebuf = strdupa (name);
 	    char *scope_delim;
 
-	    scope_delim = __strchr (namebuf, SCOPE_DELIMITER);
+	    scope_delim = strchr (namebuf, SCOPE_DELIMITER);
 	    if (scope_delim != NULL)
 		*scope_delim = '\0';
 
@@ -588,21 +599,20 @@ gaih_inet (const char *name, const struct gaih_service *service,
     {
 	struct gaih_addrtuple *atr;
 	atr = at = alloca (sizeof (struct gaih_addrtuple));
-	__memset (at, '\0', sizeof (struct gaih_addrtuple));
+	memset (at, '\0', sizeof (struct gaih_addrtuple));
 
 	if (req->ai_family == 0)
 	{
 	    at->next = alloca (sizeof (struct gaih_addrtuple));
-	    __memset (at->next, '\0', sizeof (struct gaih_addrtuple));
+	    memset (at->next, '\0', sizeof (struct gaih_addrtuple));
 	}
 
 #if __UCLIBC_HAS_IPV6__
 	if (req->ai_family == 0 || req->ai_family == AF_INET6)
 	{
-	    extern const struct in6_addr __in6addr_loopback attribute_hidden;
 	    at->family = AF_INET6;
 	    if ((req->ai_flags & AI_PASSIVE) == 0)
-		__memcpy (at->addr, &__in6addr_loopback, sizeof (struct in6_addr));
+		memcpy (at->addr, &in6addr_loopback, sizeof (struct in6_addr));
 	    atr = at->next;
 	}
 #endif
@@ -674,7 +684,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		if (c == NULL)
 		    return GAIH_OKIFUNSPEC | -EAI_NONAME;
 
-		namelen = __strlen (c) + 1;
+		namelen = strlen (c) + 1;
 	    }
 	    else
 		namelen = 0;
@@ -718,7 +728,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		    sin6p->sin6_flowinfo = 0;
 		    if (at2->family == AF_INET6)
 		    {
-			__memcpy (&sin6p->sin6_addr,
+			memcpy (&sin6p->sin6_addr,
 				at2->addr, sizeof (struct in6_addr));
 		    }
 		    else
@@ -726,7 +736,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 			sin6p->sin6_addr.s6_addr32[0] = 0;
 			sin6p->sin6_addr.s6_addr32[1] = 0;
 			sin6p->sin6_addr.s6_addr32[2] = htonl(0x0000ffff);
-			__memcpy(&sin6p->sin6_addr.s6_addr32[3], 
+			memcpy(&sin6p->sin6_addr.s6_addr32[3], 
 			       at2->addr, sizeof (sin6p->sin6_addr.s6_addr32[3]));
 		    }
 		    sin6p->sin6_port = st2->port;
@@ -738,17 +748,17 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		    struct sockaddr_in *sinp =
 			(struct sockaddr_in *) (*pai)->ai_addr;
 
-		    __memcpy (&sinp->sin_addr,
+		    memcpy (&sinp->sin_addr,
 			    at2->addr, sizeof (struct in_addr));
 		    sinp->sin_port = st2->port;
-		    __memset (sinp->sin_zero, '\0', sizeof (sinp->sin_zero));
+		    memset (sinp->sin_zero, '\0', sizeof (sinp->sin_zero));
 		}
 
 		if (c)
 		{
 		    (*pai)->ai_canonname = ((void *) (*pai) +
 					    sizeof (struct addrinfo) + socklen);
-		    __strcpy ((*pai)->ai_canonname, c);
+		    strcpy ((*pai)->ai_canonname, c);
 		}
 		else
 		    (*pai)->ai_canonname = NULL;
@@ -775,8 +785,8 @@ static struct gaih gaih[] =
     { PF_UNSPEC, NULL }
 };
 
-void attribute_hidden
-__freeaddrinfo (struct addrinfo *ai)
+void
+freeaddrinfo (struct addrinfo *ai)
 {
     struct addrinfo *p;
 
@@ -787,10 +797,11 @@ __freeaddrinfo (struct addrinfo *ai)
 	free (p);
     }
 }
-strong_alias(__freeaddrinfo,freeaddrinfo)
+libc_hidden_proto(freeaddrinfo)
+libc_hidden_def(freeaddrinfo)
 
-int attribute_hidden
-__getaddrinfo (const char *name, const char *service,
+int
+getaddrinfo (const char *name, const char *service,
 	     const struct addrinfo *hints, struct addrinfo **pai)
 {
     int i = 0, j = 0, last_i = 0;
@@ -860,7 +871,7 @@ __getaddrinfo (const char *name, const char *service,
 			continue;
 
 		    if (p)
-			__freeaddrinfo (p);
+			freeaddrinfo (p);
 
 		    return -(i & GAIH_EAI);
 		}
@@ -884,8 +895,9 @@ __getaddrinfo (const char *name, const char *service,
 	return 0;
 
     if (p)
-	__freeaddrinfo (p);
+	freeaddrinfo (p);
 
     return last_i ? -(last_i & GAIH_EAI) : EAI_NONAME;
 }
-strong_alias(__getaddrinfo,getaddrinfo)
+libc_hidden_proto(getaddrinfo)
+libc_hidden_def(getaddrinfo)

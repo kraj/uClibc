@@ -31,17 +31,6 @@
 #define HAVE_SYS_PARAM_H 1
 #define HAVE_DECL_STPCPY 1
 #define HAVE_MEMPCPY 1
-#define dirfd __dirfd
-#define tsearch __tsearch
-#define tfind __tfind
-#define tdestroy __tdestroy
-#define getcwd __getcwd
-#define chdir __chdir
-#define fchdir __fchdir
-#define mempcpy __mempcpy
-#define opendir __opendir
-#define closedir __closedir
-#define stpcpy __stpcpy
 #endif
 
 #if __GNUC__
@@ -64,7 +53,7 @@ char *alloca ();
 #else
 # if HAVE_DIRENT_H
 #  include <dirent.h>
-#  define NAMLEN(dirent) __strlen ((dirent)->d_name)
+#  define NAMLEN(dirent) strlen ((dirent)->d_name)
 # else
 #  define dirent direct
 #  define NAMLEN(dirent) (dirent)->d_namlen
@@ -96,6 +85,28 @@ char *alloca ();
 # include <sys/stat.h>
 #endif
 
+libc_hidden_proto(memset)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strlen)
+libc_hidden_proto(dirfd)
+libc_hidden_proto(tsearch)
+libc_hidden_proto(tfind)
+libc_hidden_proto(tdestroy)
+libc_hidden_proto(getcwd)
+libc_hidden_proto(chdir)
+libc_hidden_proto(fchdir)
+libc_hidden_proto(mempcpy)
+libc_hidden_proto(opendir)
+#ifdef __UCLIBC_HAS_LFS__
+libc_hidden_proto(readdir64)
+libc_hidden_proto(lstat64)
+libc_hidden_proto(stat64)
+#endif
+libc_hidden_proto(closedir)
+libc_hidden_proto(stpcpy)
+libc_hidden_proto(lstat)
+libc_hidden_proto(stat)
+
 #if ! _LIBC && !HAVE_DECL_STPCPY && !defined stpcpy
 char *stpcpy ();
 #endif
@@ -108,24 +119,30 @@ char *stpcpy ();
 /* #define NDEBUG 1 */
 #include <assert.h>
 
-#if !defined _LIBC && !defined __UCLIBC__
+#if !defined _LIBC
 # undef __chdir
 # define __chdir chdir
 # undef __closedir
 # define __closedir closedir
 # undef __fchdir
 # define __fchdir fchdir
-# ifndef __UCLIBC__
 # undef __getcwd
+# ifndef __UCLIBC__
 # define __getcwd(P, N) xgetcwd ()
 extern char *xgetcwd (void);
+# else
+# define __getcwd getcwd
 # endif
 # undef __mempcpy
 # define __mempcpy mempcpy
 # undef __opendir
 # define __opendir opendir
 # undef __readdir64
+# ifndef __UCLIBC_HAS_LFS__
 # define __readdir64 readdir
+# else
+# define __readdir64 readdir64
+# endif
 # undef __stpcpy
 # define __stpcpy stpcpy
 # undef __tdestroy
@@ -136,8 +153,10 @@ extern char *xgetcwd (void);
 # define __tsearch tsearch
 # undef internal_function
 # define internal_function /* empty */
+# ifndef __UCLIBC_HAS_LFS__
 # undef dirent64
 # define dirent64 dirent
+# endif
 # undef MAX
 # define MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif
@@ -167,21 +186,11 @@ int rpl_lstat (const char *, struct stat *);
 #  define LXSTAT __lxstat
 #  define XSTAT __xstat
 # else
-#  ifdef __UCLIBC__
-#    define LXSTAT(V,f,sb) __lstat(f,sb)
-#    define XSTAT(V,f,sb) __stat(f,sb)
-#    define __readdir64 __readdir
-#    define dirent64 dirent
-#  else
 #  define LXSTAT(V,f,sb) lstat (f,sb)
 #  define XSTAT(V,f,sb) stat (f,sb)
-#  endif
 # endif
 # define FTW_FUNC_T __ftw_func_t
 # define NFTW_FUNC_T __nftw_func_t
-extern struct dirent *__readdir (DIR *__dirp) __nonnull ((1)) attribute_hidden;
-# else
-extern struct dirent64 *__readdir64 (DIR *__dirp) __nonnull ((1)) attribute_hidden;
 #endif
 
 /* We define PATH_MAX if the system does not provide a definition.
@@ -520,7 +529,7 @@ fail:
 
   /* Next, update the `struct FTW' information.  */
   ++data->ftw.level;
-  startp = __strchr (data->dirbuf, '\0');
+  startp = strchr (data->dirbuf, '\0');
   /* There always must be a directory name.  */
   assert (startp != data->dirbuf);
   if (startp[-1] != '/')
@@ -556,7 +565,7 @@ fail:
 
       while (result == 0 && *runp != '\0')
 	{
-	  char *endp = __strchr (runp, '\0');
+	  char *endp = strchr (runp, '\0');
 
 	  result = process_entry (data, &dir, runp, endp - runp);
 
@@ -633,10 +642,10 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors,
   data.actdir = 0;
   data.dirstreams = (struct dir_data **) alloca (data.maxdir
 						 * sizeof (struct dir_data *));
-  __memset (data.dirstreams, '\0', data.maxdir * sizeof (struct dir_data *));
+  memset (data.dirstreams, '\0', data.maxdir * sizeof (struct dir_data *));
 
   /* PATH_MAX is always defined when we get here.  */
-  data.dirbufsize = MAX (2 * __strlen (dir), PATH_MAX);
+  data.dirbufsize = MAX (2 * strlen (dir), PATH_MAX);
   data.dirbuf = (char *) malloc (data.dirbufsize);
   if (data.dirbuf == NULL)
     return -1;

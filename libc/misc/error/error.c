@@ -22,17 +22,21 @@
 /* Written by David MacKenzie <djm@gnu.ai.mit.edu>.  */
 /* Adjusted slightly by Erik Andersen <andersen@uclibc.org> */
 
-#define strerror __strerror
-#define vfprintf __vfprintf
-#define fflush __fflush
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include "error.h"
 
-extern int __putc(int c, FILE *stream) attribute_hidden;
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strerror)
+libc_hidden_proto(fprintf)
+libc_hidden_proto(exit)
+libc_hidden_proto(putc)
+libc_hidden_proto(vfprintf)
+libc_hidden_proto(fflush)
+libc_hidden_proto(fputc)
+libc_hidden_proto(__fputc_unlocked)
 
 /* This variable is incremented each time `error' is called.  */
 unsigned int error_message_count = 0;
@@ -59,9 +63,9 @@ void __error (int status, int errnum, const char *message, ...)
     if (errnum) {
 	fprintf (stderr, ": %s", strerror (errnum));
     }
-    __putc ('\n', stderr);
+    putc ('\n', stderr);
     if (status)
-	__exit (status);
+	exit (status);
 }
 
 void __error_at_line (int status, int errnum, const char *file_name,
@@ -74,7 +78,7 @@ void __error_at_line (int status, int errnum, const char *file_name,
 	static unsigned int old_line_number;
 
 	if (old_line_number == line_number &&
-		(file_name == old_file_name || !__strcmp (old_file_name, file_name)))
+		(file_name == old_file_name || !strcmp (old_file_name, file_name)))
 	    /* Simply return and print nothing.  */
 	    return;
 
@@ -95,9 +99,9 @@ void __error_at_line (int status, int errnum, const char *file_name,
     if (errnum) {
 	fprintf (stderr, ": %s", strerror (errnum));
     }
-    __putc ('\n', stderr);
+    putc ('\n', stderr);
     if (status)
-	__exit (status);
+	exit (status);
 }
 
 /* Use the weaks here in an effort at controlling namespace pollution */

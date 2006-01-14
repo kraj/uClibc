@@ -38,12 +38,6 @@ static char sccsid[] = "@(#)rpc_callmsg.c 1.4 87/08/11 Copyr 1984 Sun Micro";
  *
  */
 
-#define xdr_enum __xdr_enum
-#define xdr_opaque __xdr_opaque
-#define xdr_u_int __xdr_u_int
-#define xdr_u_long __xdr_u_long
-#define xdr_opaque_auth __xdr_opaque_auth
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -51,11 +45,18 @@ static char sccsid[] = "@(#)rpc_callmsg.c 1.4 87/08/11 Copyr 1984 Sun Micro";
 #include <sys/param.h>
 #include <rpc/rpc.h>
 
+libc_hidden_proto(memcpy)
+libc_hidden_proto(xdr_enum)
+libc_hidden_proto(xdr_opaque)
+libc_hidden_proto(xdr_u_int)
+libc_hidden_proto(xdr_u_long)
+libc_hidden_proto(xdr_opaque_auth)
+
 /*
  * XDR a call message
  */
-bool_t attribute_hidden
-__xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
+bool_t
+xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 {
   int32_t *buf;
   struct opaque_auth *oa;
@@ -91,7 +92,7 @@ __xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 	  IXDR_PUT_INT32 (buf, oa->oa_length);
 	  if (oa->oa_length)
 	    {
-	      __memcpy ((caddr_t) buf, oa->oa_base, oa->oa_length);
+	      memcpy ((caddr_t) buf, oa->oa_base, oa->oa_length);
 	      buf = (int32_t *) ((char *) buf + RNDUP (oa->oa_length));
 	    }
 	  oa = &cmsg->rm_call.cb_verf;
@@ -99,7 +100,7 @@ __xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 	  IXDR_PUT_INT32 (buf, oa->oa_length);
 	  if (oa->oa_length)
 	    {
-	      __memcpy ((caddr_t) buf, oa->oa_base, oa->oa_length);
+	      memcpy ((caddr_t) buf, oa->oa_base, oa->oa_length);
 	      /* no real need....
 	         buf = (long *) ((char *) buf + RNDUP(oa->oa_length));
 	       */
@@ -147,7 +148,7 @@ __xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 		}
 	      else
 		{
-		  __memcpy (oa->oa_base, (caddr_t) buf, oa->oa_length);
+		  memcpy (oa->oa_base, (caddr_t) buf, oa->oa_length);
 		  /* no real need....
 		     buf = (long *) ((char *) buf
 		     + RNDUP(oa->oa_length));
@@ -187,7 +188,7 @@ __xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 		}
 	      else
 		{
-		  __memcpy (oa->oa_base, (caddr_t) buf, oa->oa_length);
+		  memcpy (oa->oa_base, (caddr_t) buf, oa->oa_length);
 		  /* no real need...
 		     buf = (long *) ((char *) buf
 		     + RNDUP(oa->oa_length));
@@ -210,4 +211,5 @@ __xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
     return xdr_opaque_auth (xdrs, &(cmsg->rm_call.cb_verf));
   return FALSE;
 }
-strong_alias(__xdr_callmsg,xdr_callmsg)
+libc_hidden_proto(xdr_callmsg)
+libc_hidden_def(xdr_callmsg)

@@ -16,6 +16,7 @@
 
 #include "malloc.h"
 
+libc_hidden_proto(memset)
 
 /* ------------------------------ calloc ------------------------------ */
 void* calloc(size_t n_elements, size_t elem_size)
@@ -54,7 +55,7 @@ void* calloc(size_t n_elements, size_t elem_size)
 	    assert(nclears >= 3);
 
 	    if (nclears > 9)
-		__memset(d, 0, clearsize);
+		memset(d, 0, clearsize);
 
 	    else {
 		*(d+0) = 0;
@@ -83,7 +84,7 @@ void* calloc(size_t n_elements, size_t elem_size)
 	    d = (size_t*)mem;
 	    /* Note the additional (sizeof(size_t)) */
 	    clearsize = chunksize(p) - 2*(sizeof(size_t));
-	    __memset(d, 0, clearsize);
+	    memset(d, 0, clearsize);
 	}
 #endif
     }

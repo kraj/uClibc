@@ -38,14 +38,6 @@ static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define svc_sendreply __svc_sendreply
-#define svc_register __svc_register
-#define svcerr_decode __svcerr_decode
-#define svcudp_create __svcudp_create
-#define pmap_unset __pmap_unset
-#define asprintf __asprintf
-#define fputs __fputs
-
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -63,6 +55,18 @@ static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
 # include <libio/iolibio.h>
 # define fputs(s, f) _IO_fputs (s, f)
 #endif
+
+libc_hidden_proto(strdup)
+libc_hidden_proto(memset)
+libc_hidden_proto(asprintf)
+libc_hidden_proto(fputs)
+libc_hidden_proto(write)
+libc_hidden_proto(exit)
+libc_hidden_proto(svc_sendreply)
+libc_hidden_proto(svc_register)
+libc_hidden_proto(svcerr_decode)
+libc_hidden_proto(svcudp_create)
+libc_hidden_proto(pmap_unset)
 
 struct proglst_
   {
@@ -105,7 +109,7 @@ registerrpc (u_long prognum, u_long versnum, u_long procnum,
       transp = svcudp_create (RPC_ANYSOCK);
       if (transp == NULL)
 	{
-	  buf = __strdup (_("couldn't create an rpc server\n"));
+	  buf = strdup (_("couldn't create an rpc server\n"));
 	  goto err_out;
 	}
     }
@@ -120,7 +124,7 @@ registerrpc (u_long prognum, u_long versnum, u_long procnum,
   pl = (struct proglst_ *) malloc (sizeof (struct proglst_));
   if (pl == NULL)
     {
-      buf = __strdup (_("registerrpc: out of memory\n"));
+      buf = strdup (_("registerrpc: out of memory\n"));
       goto err_out;
     }
   pl->p_progname = progname;
@@ -159,8 +163,8 @@ universal (struct svc_req *rqstp, SVCXPRT *transp_l)
     {
       if (svc_sendreply (transp_l, (xdrproc_t)xdr_void, (char *) NULL) == FALSE)
 	{
-	  __write (STDERR_FILENO, "xxx\n", 4);
-	  __exit (1);
+	  write (STDERR_FILENO, "xxx\n", 4);
+	  exit (1);
 	}
       return;
     }
@@ -170,7 +174,7 @@ universal (struct svc_req *rqstp, SVCXPRT *transp_l)
     if (pl->p_prognum == prog && pl->p_procnum == proc)
       {
 	/* decode arguments into a CLEAN buffer */
-	__memset (xdrbuf, 0, sizeof (xdrbuf));	/* required ! */
+	memset (xdrbuf, 0, sizeof (xdrbuf));	/* required ! */
 	if (!svc_getargs (transp_l, pl->p_inproc, xdrbuf))
 	  {
 	    svcerr_decode (transp_l);
@@ -185,7 +189,7 @@ universal (struct svc_req *rqstp, SVCXPRT *transp_l)
 	    (void) asprintf (&buf,
 			       _("trouble replying to prog %d\n"),
 			       pl->p_prognum);
-	    __exit (1);
+	    exit (1);
 	  }
 	/* free the decoded arguments */
 	(void) svc_freeargs (transp_l, pl->p_inproc, xdrbuf);
@@ -199,5 +203,5 @@ universal (struct svc_req *rqstp, SVCXPRT *transp_l)
 #endif
     fputs (buf, stderr);
   free (buf);
-  __exit (1);
+  exit (1);
 }

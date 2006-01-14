@@ -17,18 +17,12 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-extern FILE *__setmntent (__const char *__file, __const char *__mode) __THROW attribute_hidden;
-
-extern struct mntent *__getmntent_r (FILE *__restrict __stream,
-				   struct mntent *__restrict __result,
-				   char *__restrict __buffer,
-				   int __bufsize) __THROW attribute_hidden;
-
-extern int __endmntent (FILE *__stream) __THROW attribute_hidden;
-
-extern char *__strsep (char **__restrict __stringp,
-		     __const char *__restrict __delim)
-     __THROW __nonnull ((1, 2)) attribute_hidden;
+libc_hidden_proto(memset)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strsep)
+libc_hidden_proto(setmntent)
+libc_hidden_proto(getmntent_r)
+libc_hidden_proto(endmntent)
 
   /* Now fill in the fields we have information for.  */
   buf->f_bsize = fsbuf.f_bsize;
@@ -52,7 +46,7 @@ extern char *__strsep (char **__restrict __stringp,
   buf->__f_unused = 0;
 #endif
   buf->f_namemax = fsbuf.f_namelen;
-  __memset (buf->__f_spare, '\0', 6 * sizeof (int));
+  memset (buf->__f_spare, '\0', 6 * sizeof (int));
 
   /* What remains to do is to fill the fields f_favail and f_flag.  */
 
@@ -70,20 +64,20 @@ extern char *__strsep (char **__restrict __stringp,
       struct mntent mntbuf;
       FILE *mtab;
 
-      mtab = __setmntent ("/proc/mounts", "r");
+      mtab = setmntent ("/proc/mounts", "r");
       if (mtab == NULL)
-	mtab = __setmntent (_PATH_MOUNTED, "r");
+	mtab = setmntent (_PATH_MOUNTED, "r");
 
       if (mtab != NULL)
 	{
 	  char tmpbuf[1024];
 
-	  while (__getmntent_r (mtab, &mntbuf, tmpbuf, sizeof (tmpbuf)))
+	  while (getmntent_r (mtab, &mntbuf, tmpbuf, sizeof (tmpbuf)))
 	    {
 	      struct stat fsst;
 
 	      /* Find out about the device the current entry is for.  */
-	      if (__stat (mntbuf.mnt_dir, &fsst) >= 0
+	      if (stat (mntbuf.mnt_dir, &fsst) >= 0
 		  && st.st_dev == fsst.st_dev)
 		{
 		  /* Bingo, we found the entry for the device FD is on.
@@ -91,22 +85,22 @@ extern char *__strsep (char **__restrict __stringp,
 		  char *cp = mntbuf.mnt_opts;
 		  char *opt;
 
-		  while ((opt = __strsep (&cp, ",")) != NULL)
-		    if (__strcmp (opt, "ro") == 0)
+		  while ((opt = strsep (&cp, ",")) != NULL)
+		    if (strcmp (opt, "ro") == 0)
 		      buf->f_flag |= ST_RDONLY;
-		    else if (__strcmp (opt, "nosuid") == 0)
+		    else if (strcmp (opt, "nosuid") == 0)
 		      buf->f_flag |= ST_NOSUID;
-		    else if (__strcmp (opt, "noexec") == 0)
+		    else if (strcmp (opt, "noexec") == 0)
 		      buf->f_flag |= ST_NOEXEC;
-		    else if (__strcmp (opt, "nodev") == 0)
+		    else if (strcmp (opt, "nodev") == 0)
 		      buf->f_flag |= ST_NODEV;
-		    else if (__strcmp (opt, "sync") == 0)
+		    else if (strcmp (opt, "sync") == 0)
 		      buf->f_flag |= ST_SYNCHRONOUS;
-		    else if (__strcmp (opt, "mand") == 0)
+		    else if (strcmp (opt, "mand") == 0)
 		      buf->f_flag |= ST_MANDLOCK;
-		    else if (__strcmp (opt, "noatime") == 0)
+		    else if (strcmp (opt, "noatime") == 0)
 		      buf->f_flag |= ST_NOATIME;
-		    else if (__strcmp (opt, "nodiratime") == 0)
+		    else if (strcmp (opt, "nodiratime") == 0)
 		      buf->f_flag |= ST_NODIRATIME;
 
 		  /* We can stop looking for more entries.  */
@@ -115,7 +109,7 @@ extern char *__strsep (char **__restrict __stringp,
 	    }
 
 	  /* Close the file.  */
-	  __endmntent (mtab);
+	  endmntent (mtab);
 	}
 
       __set_errno (save_errno);

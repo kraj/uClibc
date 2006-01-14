@@ -58,7 +58,7 @@ ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 { 
 	return(__syscall_pread(fd,buf,count,0,__LONG_LONG_PAIR((off_t)0,offset)));
 }
-weak_alias (__libc_pread, pread)
+strong_alias(__libc_pread,pread)
 
 #if defined __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
@@ -67,7 +67,7 @@ ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
     uint32_t high = offset >> 32;
 	return(__syscall_pread(fd, buf, count, 0, __LONG_LONG_PAIR (high, low)));
 }
-weak_alias (__libc_pread64, pread64)
+strong_alias(__libc_pread64,pread64)
 #endif /* __UCLIBC_HAS_LFS__  */
 
 #endif /* __NR_pread */
@@ -91,7 +91,7 @@ ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 { 
 	return(__syscall_pwrite(fd,buf,count,0,__LONG_LONG_PAIR((off_t)0,offset)));
 }
-weak_alias (__libc_pwrite, pwrite)
+strong_alias(__libc_pwrite,pwrite)
 
 #if defined __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
@@ -100,7 +100,7 @@ ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
     uint32_t high = offset >> 32;
 	return(__syscall_pwrite(fd, buf, count, 0, __LONG_LONG_PAIR (high, low)));
 }
-weak_alias (__libc_pwrite64, pwrite64)
+strong_alias(__libc_pwrite64,pwrite64)
 #endif /* __UCLIBC_HAS_LFS__  */
 
 #endif /* __NR_pwrite */

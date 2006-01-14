@@ -14,8 +14,9 @@
 #define __NR___syscall_kill __NR_kill
 static inline _syscall2(int, __syscall_kill, __kernel_pid_t, pid, int, sig);
 
-int attribute_hidden __kill(pid_t pid, int sig)
+int kill(pid_t pid, int sig)
 {
 	return (__syscall_kill(pid, sig));
 }
-strong_alias(__kill,kill)
+libc_hidden_proto(kill)
+libc_hidden_def(kill)

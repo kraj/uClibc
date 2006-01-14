@@ -43,14 +43,6 @@
  * standards and from an official C standard defect report.
  */
 
-#define wcslen __wcslen
-#define mbsrtowcs __mbsrtowcs
-#define mbrtowc __mbrtowc
-#define ungetc __ungetc
-#define ungetwc __ungetwc
-#define iswspace __iswspace
-#define wcrtomb __wcrtomb
-
 #define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
 #define _GNU_SOURCE
 #include <features.h>
@@ -85,6 +77,27 @@
 #include <float.h>
 #include <bits/uClibc_fpmax.h>
 #endif /* __UCLIBC_HAS_FLOATS__ */
+
+libc_hidden_proto(memcmp)
+libc_hidden_proto(memset)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strlen)
+libc_hidden_proto(ungetc)
+libc_hidden_proto(vfscanf)
+libc_hidden_proto(vsscanf)
+libc_hidden_proto(fclose)
+libc_hidden_proto(getc_unlocked)
+libc_hidden_proto(__fgetc_unlocked)
+#ifdef __UCLIBC_HAS_WCHAR__
+libc_hidden_proto(wcslen)
+libc_hidden_proto(vfwscanf)
+libc_hidden_proto(vswscanf)
+libc_hidden_proto(mbsrtowcs)
+libc_hidden_proto(mbrtowc)
+libc_hidden_proto(ungetwc)
+libc_hidden_proto(iswspace)
+libc_hidden_proto(fgetwc_unlocked)
+#endif
 
 #ifdef __UCLIBC_HAS_SCANF_GLIBC_A_FLAG__
 #ifdef L_vfscanf
@@ -147,18 +160,19 @@ _stdlib_strto_l(register const char * __restrict str,
 /**********************************************************************/
 #ifdef L_fscanf
 
-int attribute_hidden __fscanf(FILE * __restrict stream, const char * __restrict format, ...)
+int fscanf(FILE * __restrict stream, const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = __vfscanf(stream, format, arg);
+	rv = vfscanf(stream, format, arg);
 	va_end(arg);
 
 	return rv;
 }
-strong_alias(__fscanf,fscanf)
+libc_hidden_proto(fscanf)
+libc_hidden_def(fscanf)
 
 #endif
 /**********************************************************************/
@@ -170,7 +184,7 @@ int scanf(const char * __restrict format, ...)
 	int rv;
 
 	va_start(arg, format);
-	rv = __vfscanf(stdin, format, arg);
+	rv = vfscanf(stdin, format, arg);
 	va_end(arg);
 
 	return rv;
@@ -182,18 +196,19 @@ int scanf(const char * __restrict format, ...)
 
 #ifdef __STDIO_HAS_VSSCANF
 
-int attribute_hidden __sscanf(const char * __restrict str, const char * __restrict format, ...)
+int sscanf(const char * __restrict str, const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = __vsscanf(str, format, arg);
+	rv = vsscanf(str, format, arg);
 	va_end(arg);
 
 	return rv;
 }
-strong_alias(__sscanf,sscanf)
+libc_hidden_proto(sscanf)
+libc_hidden_def(sscanf)
 
 #else  /* __STDIO_HAS_VSSCANF */
 #warning Skipping sscanf since no vsscanf!
@@ -203,11 +218,12 @@ strong_alias(__sscanf,sscanf)
 /**********************************************************************/
 #ifdef L_vscanf
 
-int attribute_hidden __vscanf(const char * __restrict format, va_list arg)
+int vscanf(const char * __restrict format, va_list arg)
 {
-	return __vfscanf(stdin, format, arg);
+	return vfscanf(stdin, format, arg);
 }
-strong_alias(__vscanf,vscanf)
+libc_hidden_proto(vscanf)
+libc_hidden_def(vscanf)
 
 #endif
 /**********************************************************************/
@@ -219,7 +235,7 @@ strong_alias(__vscanf,vscanf)
 
 #ifdef __STDIO_BUFFERS
 
-int attribute_hidden __vsscanf(__const char *sp, __const char *fmt, va_list ap)
+int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	FILE f;
 
@@ -253,22 +269,22 @@ int attribute_hidden __vsscanf(__const char *sp, __const char *fmt, va_list ap)
 	f.__bufstart = 
 	f.__bufpos = (unsigned char *) ((void *) sp);
 	f.__bufread =
-	f.__bufend = f.__bufstart + __strlen(sp);
+	f.__bufend = f.__bufstart + strlen(sp);
 	__STDIO_STREAM_ENABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
 
-	return __vfscanf(&f, fmt, ap);
+	return vfscanf(&f, fmt, ap);
 }
-strong_alias(__vsscanf,vsscanf)
+libc_hidden_def(vsscanf)
 
 #elif !defined(__UCLIBC_HAS_WCHAR__)
 
-int attribute_hidden __vsscanf(__const char *sp, __const char *fmt, va_list ap)
+int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	__FILE_vsscanf f;
 
 	f.bufpos = (unsigned char *) ((void *) sp);
-	f.bufread = f.bufpos + __strlen(sp);
+	f.bufread = f.bufpos + strlen(sp);
 
 /* 	__STDIO_STREAM_RESET_GCS(&f.f); */
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
@@ -296,25 +312,25 @@ int attribute_hidden __vsscanf(__const char *sp, __const char *fmt, va_list ap)
 #endif
 	f.f.__nextopen = NULL;
 
-	return __vfscanf(&f.f, fmt, ap);
+	return vfscanf(&f.f, fmt, ap);
 }
-strong_alias(__vsscanf,vsscanf)
+libc_hidden_def(vsscanf)
 
 #elif defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
 
-int attribute_hidden __vsscanf(__const char *sp, __const char *fmt, va_list ap)
+int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	FILE *f;
 	int rv = EOF;
 
-	if ((f = fmemopen((char *)sp, __strlen(sp), "r")) != NULL) {
-		rv = __vfscanf(f, fmt, ap);
+	if ((f = fmemopen((char *)sp, strlen(sp), "r")) != NULL) {
+		rv = vfscanf(f, fmt, ap);
 		fclose(f);
 	}
 
 	return rv;
 }
-strong_alias(__vsscanf,vsscanf)
+libc_hidden_def(vsscanf)
 
 #else
 #warning Skipping vsscanf since no buffering, no custom streams, and wchar enabled!
@@ -333,7 +349,7 @@ int fwscanf(FILE * __restrict stream, const wchar_t * __restrict format, ...)
 	int rv;
 
 	va_start(arg, format);
-	rv = __vfwscanf(stream, format, arg);
+	rv = vfwscanf(stream, format, arg);
 	va_end(arg);
 
 	return rv;
@@ -349,7 +365,7 @@ int wscanf(const wchar_t * __restrict format, ...)
 	int rv;
 
 	va_start(arg, format);
-	rv = __vfwscanf(stdin, format, arg);
+	rv = vfwscanf(stdin, format, arg);
 	va_end(arg);
 
 	return rv;
@@ -368,7 +384,7 @@ int swscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 	int rv;
 
 	va_start(arg, format);
-	rv = __vswscanf(str, format, arg);
+	rv = vswscanf(str, format, arg);
 	va_end(arg);
 
 	return rv;
@@ -383,7 +399,7 @@ int swscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 
 int vwscanf(const wchar_t * __restrict format, va_list arg)
 {
-	return __vfwscanf(stdin, format, arg);
+	return vfwscanf(stdin, format, arg);
 }
 
 #endif
@@ -392,7 +408,7 @@ int vwscanf(const wchar_t * __restrict format, va_list arg)
 
 #ifdef __STDIO_BUFFERS
 
-int attribute_hidden __vswscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
+int vswscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 			va_list arg)
 {
 	FILE f;
@@ -429,9 +445,9 @@ int attribute_hidden __vswscanf(const wchar_t * __restrict str, const wchar_t * 
 #endif
 	f.__nextopen = NULL;
 
-	return __vfwscanf(&f, format, arg);
+	return vfwscanf(&f, format, arg);
 }
-strong_alias(__vswscanf,vswscanf)
+libc_hidden_def(vswscanf)
 #else  /* __STDIO_BUFFERS */
 #warning Skipping vswscanf since no buffering!
 #endif /* __STDIO_BUFFERS */
@@ -580,7 +596,6 @@ enum {
 #define Wchar wchar_t
 #define Wuchar __uwchar_t
 #define ISSPACE(C) iswspace((C))
-#define HIDDEN_VFSCANF __vfwscanf
 #define VFSCANF vfwscanf
 #define GETC(SC) (SC)->sc_getc((SC))
 #else
@@ -590,12 +605,11 @@ typedef unsigned char __uchar_t;
 #define Wchar char
 #define Wuchar __uchar_t
 #define ISSPACE(C) isspace((C))
-#define HIDDEN_VFSCANF __vfscanf
 #define VFSCANF vfscanf
 #ifdef __UCLIBC_HAS_WCHAR__
 #define GETC(SC) (SC)->sc_getc((SC))
 #else  /* __UCLIBC_HAS_WCHAR__ */
-#define GETC(SC) __getc_unlocked((SC)->fp)
+#define GETC(SC) getc_unlocked((SC)->fp)
 #endif /* __UCLIBC_HAS_WCHAR__ */
 #endif
 
@@ -959,7 +973,7 @@ int attribute_hidden __psfs_parse_spec(register psfs_t *psfs)
 #ifdef L_vfscanf
 static int sc_getc(register struct scan_cookie *sc)
 {
-	return (__getc_unlocked)(sc->fp);	/* Disable the macro. */
+	return (getc_unlocked)(sc->fp);	/* Disable the macro. */
 }
 
 static int scan_getwc(register struct scan_cookie *sc)
@@ -1031,7 +1045,7 @@ static int sc_getc(register struct scan_cookie *sc)
 			sc->fp->__modeflags |= __FLAG_EOF;
 			return EOF;
 		}
-	} else if ((wc = __fgetwc_unlocked(sc->fp)) == WEOF) {
+	} else if ((wc = fgetwc_unlocked(sc->fp)) == WEOF) {
 		return EOF;
 	}
 
@@ -1077,7 +1091,7 @@ static int scan_getwc(register struct scan_cookie *sc)
 				sc->ungot_flag |= 2;
 				return -1;
 			}
-		} else if ((wc = __fgetwc_unlocked(sc->fp)) == WEOF) {
+		} else if ((wc = fgetwc_unlocked(sc->fp)) == WEOF) {
 			sc->ungot_flag |= 2;
 			return -1;
 		}
@@ -1148,7 +1162,7 @@ static const char fake_thousands_sep_str[] = ",";
 #endif /* L_vfwscanf */
 
 
-int attribute_hidden HIDDEN_VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
+int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 {
 	const Wuchar *fmt;
 	unsigned char *b;
@@ -1201,7 +1215,7 @@ int attribute_hidden HIDDEN_VFSCANF (FILE *__restrict fp, const Wchar *__restric
 #if defined(NL_ARGMAX) && (NL_ARGMAX > 0)
 	psfs.num_pos_args = -1;		/* Must start at -1. */
 	/* Initialize positional arg ptrs to NULL. */
-	__memset(psfs.pos_args, 0, sizeof(psfs.pos_args));
+	memset(psfs.pos_args, 0, sizeof(psfs.pos_args));
 #endif /* defined(NL_ARGMAX) && (NL_ARGMAX > 0) */
 
 	__STDIO_AUTO_THREADLOCK(fp);
@@ -1433,7 +1447,7 @@ int attribute_hidden HIDDEN_VFSCANF (FILE *__restrict fp, const Wchar *__restric
 						++fmt;
 						invert = 1;
  					}
-					__memset(scanset, invert, sizeof(scanset));
+					memset(scanset, invert, sizeof(scanset));
 					invert = 1-invert;
 
 					if (*fmt == ']') {
@@ -1752,7 +1766,7 @@ int attribute_hidden HIDDEN_VFSCANF (FILE *__restrict fp, const Wchar *__restric
 
 	return psfs.cnt;
 }
-strong_alias(HIDDEN_VFSCANF,VFSCANF)
+libc_hidden_def(VFSCANF)
 #endif
 /**********************************************************************/
 #ifdef L___psfs_do_numeric
@@ -1983,14 +1997,14 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 
 							if ((psfs->conv_num > CONV_i) /* float conversion */
 								&& (!pass || (i == nblk1)) /* possible last */
-								&& !__memcmp(sc->thousands_sep, sc->fake_decpt, k)
+								&& !memcmp(sc->thousands_sep, sc->fake_decpt, k)
 								/* and prefix matched, so could be decpt */
 								) {
 								__scan_getc(sc);
 								p = sc->fake_decpt + k;
 								do {
 									if (!*++p) {
-										__strcpy(b, sc->decpt);
+										strcpy(b, sc->decpt);
 										b += sc->decpt_len;
 										goto GOT_DECPT;
 									}
@@ -2084,7 +2098,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 	p = sc->fake_decpt;
 	do {
 		if (!*p) {
-			__strcpy(b, sc->decpt);
+			strcpy(b, sc->decpt);
 			b += sc->decpt_len;
 			break;
 		}

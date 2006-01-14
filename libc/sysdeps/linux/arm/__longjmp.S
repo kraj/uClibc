@@ -60,3 +60,4 @@ __longjmp:
 	ldmia     ip ,  {v1-v6, sl, fp, sp, pc}
 
 .size __longjmp,.-__longjmp
+libc_hidden_def(__longjmp)

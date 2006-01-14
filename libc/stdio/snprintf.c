@@ -12,17 +12,20 @@
 #warning Skipping snprintf since no vsnprintf!
 #else
 
-int attribute_hidden __snprintf(char *__restrict buf, size_t size,
+libc_hidden_proto(vsnprintf)
+
+int snprintf(char *__restrict buf, size_t size,
 			 const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = __vsnprintf(buf, size, format, arg);
+	rv = vsnprintf(buf, size, format, arg);
 	va_end(arg);
 	return rv;
 }
-strong_alias(__snprintf,snprintf)
+libc_hidden_proto(snprintf)
+libc_hidden_def(snprintf)
 
 #endif

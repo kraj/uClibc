@@ -8,7 +8,10 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-int attribute_hidden __vdprintf(int filedes, const char * __restrict format, va_list arg)
+libc_hidden_proto(vfprintf)
+libc_hidden_proto(fflush_unlocked)
+
+int vdprintf(int filedes, const char * __restrict format, va_list arg)
 {
 	FILE f;
 	int rv;
@@ -47,11 +50,11 @@ int attribute_hidden __vdprintf(int filedes, const char * __restrict format, va_
 #endif
 	f.__nextopen = NULL;
 
-	rv = __vfprintf(&f, format, arg);
+	rv = vfprintf(&f, format, arg);
 
 #ifdef __STDIO_BUFFERS
 	/* If not buffering, then fflush is unnecessary. */
-	if ((rv > 0) && __fflush_unlocked(&f)) {
+	if ((rv > 0) && fflush_unlocked(&f)) {
 		rv = -1;
 	}
 #endif
@@ -60,4 +63,5 @@ int attribute_hidden __vdprintf(int filedes, const char * __restrict format, va_
 
 	return rv;
 }
-strong_alias(__vdprintf,vdprintf)
+libc_hidden_proto(vdprintf)
+libc_hidden_def(vdprintf)

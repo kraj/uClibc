@@ -18,12 +18,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define memchr __memchr
-
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <string.h>
 
-extern char *__strchrnul(const char *s, int c);
+libc_hidden_proto(memchr)
+libc_hidden_proto(memcmp)
+libc_hidden_proto(strchrnul)
 
 /* Parse comma separated suboption from *OPTIONP and match against
    strings in TOKENS.  If found return index and set *VALUEP to
@@ -40,7 +41,7 @@ int getsubopt(char **optionp, char *const *tokens, char **valuep)
     return -1;
 
   /* Find end of next token.  */
-  endp = __strchrnul (*optionp, ',');
+  endp = strchrnul (*optionp, ',');
 
   /* Find start of value.  */
   vstart = memchr (*optionp, '=', endp - *optionp);
@@ -50,7 +51,7 @@ int getsubopt(char **optionp, char *const *tokens, char **valuep)
   /* Try to match the characters between *OPTIONP and VSTART against
      one of the TOKENS.  */
   for (cnt = 0; tokens[cnt] != NULL; ++cnt)
-    if (__memcmp (*optionp, tokens[cnt], vstart - *optionp) == 0
+    if (memcmp (*optionp, tokens[cnt], vstart - *optionp) == 0
 	&& tokens[cnt][vstart - *optionp] == '\0')
       {
 	/* We found the current option in TOKENS.  */

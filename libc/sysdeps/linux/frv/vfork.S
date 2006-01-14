@@ -24,11 +24,10 @@
 #include <bits/errno.h>
 
        .text
-       .globl	__vfork
-       .hidden	__vfork
-       .type	__vfork,@function
+       .globl	vfork
+       .type	vfork,@function
 /* int vfork(void) */
-__vfork:
+vfork:
 	setlos.p #__NR_vfork, gr7
 	setlos	#-4096, gr4
 	tra	gr0, gr0
@@ -41,6 +40,6 @@ __vfork:
 	ldd	@(gr14, gr15), gr14
 	jmpl	@(gr14, gr0)
 
-       .size   __vfork,.-__vfork
+       .size   vfork,.-vfork
 
-strong_alias(__vfork,vfork)
+libc_hidden_def(vfork)

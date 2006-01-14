@@ -7,7 +7,9 @@
 
 #include "_string.h"
 
-void attribute_hidden *__memrchr(const void *s, int c, size_t n)
+libc_hidden_proto(memrchr)
+
+void *memrchr(const void *s, int c, size_t n)
 {
 	register const unsigned char *r;
 #ifdef __BCC__
@@ -30,4 +32,4 @@ void attribute_hidden *__memrchr(const void *s, int c, size_t n)
 }
 #undef np
 
-strong_alias(__memrchr,memrchr)
+libc_hidden_def(memrchr)

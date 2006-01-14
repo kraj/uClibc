@@ -16,18 +16,18 @@
 static _syscall4(int, __rt_sigtimedwait, const sigset_t *, set, siginfo_t *, info,
 		  const struct timespec *, timeout, size_t, setsize);
 
-int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
+int sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {
 	return __rt_sigtimedwait(set, info, NULL, _NSIG / 8);
 }
 
-int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
+int sigtimedwait(const sigset_t * set, siginfo_t * info,
 				 const struct timespec *timeout)
 {
 	return __rt_sigtimedwait(set, info, timeout, _NSIG / 8);
 }
 #else
-int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
+int sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {
 	if (set == NULL)
 		__set_errno(EINVAL);
@@ -36,7 +36,7 @@ int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
 	return -1;
 }
 
-int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
+int sigtimedwait(const sigset_t * set, siginfo_t * info,
 				 const struct timespec *timeout)
 {
 	if (set == NULL)
@@ -46,6 +46,7 @@ int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
 	return -1;
 }
 #endif
-/* keep these weak so that libpthread can overwrite them */
-weak_alias(__sigtimedwait,sigtimedwait)
-weak_alias(__sigwaitinfo,sigwaitinfo)
+libc_hidden_proto(sigwaitinfo)
+libc_hidden_def(sigwaitinfo)
+libc_hidden_proto(sigtimedwait)
+libc_hidden_def(sigtimedwait)

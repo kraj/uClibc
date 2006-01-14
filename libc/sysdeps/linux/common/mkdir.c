@@ -14,8 +14,9 @@
 static inline _syscall2(int, __syscall_mkdir, const char *, pathname,
 		__kernel_mode_t, mode);
 
-int attribute_hidden __mkdir(const char *pathname, mode_t mode)
+int mkdir(const char *pathname, mode_t mode)
 {
 	return (__syscall_mkdir(pathname, mode));
 }
-strong_alias(__mkdir,mkdir)
+libc_hidden_proto(mkdir)
+libc_hidden_def(mkdir)

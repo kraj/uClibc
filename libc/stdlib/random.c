@@ -22,16 +22,16 @@
  * Rewritten to use reentrant functions by Ulrich Drepper, 1995.
  */
 
-#define random_r __random_r
-#define srandom_r __srandom_r
-#define setstate_r __setstate_r
-#define initstate_r __initstate_r
-
 #define _GNU_SOURCE
 #include <features.h>
 #include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
+
+libc_hidden_proto(random_r)
+libc_hidden_proto(srandom_r)
+libc_hidden_proto(setstate_r)
+libc_hidden_proto(initstate_r)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
@@ -191,7 +191,7 @@ void srandom (unsigned int x)
     srandom_r (x, &unsafe_state);
     __pthread_mutex_unlock(&lock);
 }
-weak_alias (srandom, srand)
+strong_alias(srandom,srand)
 
 /* Initialize the state information in the given array of N bytes for
    future random number generation.  Based on the number of bytes we
@@ -246,7 +246,7 @@ char * setstate (char *arg_state)
    rear pointers can't wrap on the same call by not testing the rear
    pointer if the front one has wrapped.  Returns a 31-bit random number.  */
 
-long int attribute_hidden __random (void)
+long int random (void)
 {
   int32_t retval;
 
@@ -255,4 +255,5 @@ long int attribute_hidden __random (void)
   __pthread_mutex_unlock(&lock);
   return retval;
 }
-strong_alias(__random,random)
+libc_hidden_proto(random)
+libc_hidden_def(random)

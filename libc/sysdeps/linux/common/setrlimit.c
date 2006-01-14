@@ -18,7 +18,7 @@
 #define RMIN(x, y) ((x) < (y) ? (x) : (y))
 static inline
 _syscall2(int, __syscall_setrlimit, int, resource, const struct rlimit *, rlim);
-int attribute_hidden __setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
+int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 {
 	struct rlimit rlimits_small;
 
@@ -37,9 +37,9 @@ int attribute_hidden __setrlimit(__rlimit_resource_t resource, const struct rlim
 
 #include <unistd.h>
 struct rlimit;
-#define __NR___setrlimit __NR_setrlimit
-attribute_hidden _syscall2(int, __setrlimit, unsigned int, resource,
+_syscall2(int, setrlimit, unsigned int, resource,
 		const struct rlimit *, rlim);
 #endif
 
-strong_alias(__setrlimit,setrlimit)
+libc_hidden_proto(setrlimit)
+libc_hidden_def(setrlimit)

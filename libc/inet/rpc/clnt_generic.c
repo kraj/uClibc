@@ -30,12 +30,6 @@
  * Copyright (C) 1987, Sun Microsystems, Inc.
  */
 
-#define clnttcp_create __clnttcp_create
-#define clntudp_create __clntudp_create
-#define clntunix_create __clntunix_create
-#define getprotobyname_r __getprotobyname_r
-#define gethostbyname_r __gethostbyname_r
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -46,10 +40,16 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-#undef get_rpc_createerr
-extern struct rpc_createerr *__rpc_thread_createerr_internal (void)
-     __attribute__ ((__const__)) attribute_hidden;
-#define get_rpc_createerr() (*__rpc_thread_createerr_internal ())
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memset)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(clnttcp_create)
+libc_hidden_proto(clntudp_create)
+libc_hidden_proto(clntunix_create)
+libc_hidden_proto(getprotobyname_r)
+libc_hidden_proto(gethostbyname_r)
+libc_hidden_proto(__rpc_thread_createerr)
 
 /*
  * Generic client creation: takes (hostname, program-number, protocol) and
@@ -73,11 +73,11 @@ clnt_create (const char *hostname, u_long prog, u_long vers,
   CLIENT *client;
   int herr;
 
-  if (__strcmp (proto, "unix") == 0)
+  if (strcmp (proto, "unix") == 0)
     {
-      __memset ((char *)&sun, 0, sizeof (sun));
+      memset ((char *)&sun, 0, sizeof (sun));
       sun.sun_family = AF_UNIX;
-      __strcpy (sun.sun_path, hostname);
+      strcpy (sun.sun_path, hostname);
       sock = RPC_ANYSOCK;
       client = clntunix_create (&sun, prog, vers, &sock, 0, 0);
       if (client == NULL)
@@ -122,8 +122,8 @@ clnt_create (const char *hostname, u_long prog, u_long vers,
     }
   sin.sin_family = h->h_addrtype;
   sin.sin_port = 0;
-  __memset (sin.sin_zero, 0, sizeof (sin.sin_zero));
-  __memcpy ((char *) &sin.sin_addr, h->h_addr, h->h_length);
+  memset (sin.sin_zero, 0, sizeof (sin.sin_zero));
+  memcpy ((char *) &sin.sin_addr, h->h_addr, h->h_length);
 
   prtbuflen = 1024;
   prttmpbuf = alloca (prtbuflen);

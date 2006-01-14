@@ -32,7 +32,7 @@ static inline int expand_byte_word(int c){
 	return c;
 }
 
-void attribute_hidden *__memset(void *to, int c, size_t n)
+void *memset(void *to, int c, size_t n)
 {
 	unsigned long rem, chunks;
 	unsigned char *tmp_to;
@@ -78,5 +78,5 @@ void attribute_hidden *__memset(void *to, int c, size_t n)
 		goto copy_chunks;
 	goto lessthan8;
 }
-
-strong_alias(__memset,memset)
+libc_hidden_proto(memset)
+libc_hidden_def(memset)

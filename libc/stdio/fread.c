@@ -7,9 +7,14 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fread_unlocked)
+
 #ifdef __DO_UNLOCKED
 
-size_t attribute_hidden __fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
+libc_hidden_proto(memcpy)
+libc_hidden_proto(fflush_unlocked)
+
+size_t fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
 						FILE * __restrict stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
@@ -44,7 +49,7 @@ size_t attribute_hidden __fread_unlocked(void * __restrict ptr, size_t size, siz
 				if (avail > todo) {
 					avail = todo;
 				}
-				__memcpy(buffer, stream->__bufpos, avail);
+				memcpy(buffer, stream->__bufpos, avail);
 				buffer += avail;
 				stream->__bufpos += avail;
 				if (!(todo -= avail)) {
@@ -82,16 +87,17 @@ size_t attribute_hidden __fread_unlocked(void * __restrict ptr, size_t size, siz
 	__STDIO_STREAM_VALIDATE(stream);
 	return 0;
 }
+libc_hidden_def(fread_unlocked)
 
-weak_alias(__fread_unlocked,fread_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-hidden_strong_alias(__fread_unlocked,__fread)
-weak_alias(__fread_unlocked,fread)
+strong_alias(fread_unlocked,fread)
+libc_hidden_proto(fread)
+libc_hidden_def(fread)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-size_t attribute_hidden __fread(void * __restrict ptr, size_t size, size_t nmemb,
+size_t fread(void * __restrict ptr, size_t size, size_t nmemb,
 			 register FILE * __restrict stream)
 {
 	size_t retval;
@@ -99,12 +105,13 @@ size_t attribute_hidden __fread(void * __restrict ptr, size_t size, size_t nmemb
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	retval = __fread_unlocked(ptr, size, nmemb, stream);
+	retval = fread_unlocked(ptr, size, nmemb, stream);
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	return retval;
 }
-strong_alias(__fread,fread)
+libc_hidden_proto(fread)
+libc_hidden_def(fread)
 
 #endif

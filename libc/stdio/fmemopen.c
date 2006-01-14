@@ -5,9 +5,10 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define fopencookie __fopencookie
-
 #include "_stdio.h"
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(fopencookie)
 
 #ifndef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
 #error no custom streams!
@@ -37,7 +38,7 @@ static ssize_t fmo_read(register void *cookie, char *buf, size_t bufsize)
 		bufsize = count;
 	}
 
-	__memcpy(buf, COOKIE->buf + COOKIE->pos, bufsize);
+	memcpy(buf, COOKIE->buf + COOKIE->pos, bufsize);
 	COOKIE->pos += bufsize;
 
 	return bufsize;
@@ -64,7 +65,7 @@ static ssize_t fmo_write(register void *cookie, const char *buf, size_t bufsize)
 		}
 	}
 
-	__memcpy(COOKIE->buf + COOKIE->pos, buf, bufsize);
+	memcpy(COOKIE->buf + COOKIE->pos, buf, bufsize);
 	COOKIE->pos += bufsize;
 
 	if (COOKIE->pos > COOKIE->eof) {

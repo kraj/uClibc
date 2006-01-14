@@ -9,11 +9,13 @@
 #include <stdarg.h>
 #include <wchar.h>
 
+libc_hidden_proto(vfwprintf)
+
 #ifndef __STDIO_BUFFERS
 #warning Skipping vswprintf since no buffering!
 #else  /* __STDIO_BUFFERS */
 
-int attribute_hidden __vswprintf(wchar_t *__restrict buf, size_t size,
+int vswprintf(wchar_t *__restrict buf, size_t size,
 			  const wchar_t * __restrict format, va_list arg)
 {
 	FILE f;
@@ -52,7 +54,7 @@ int attribute_hidden __vswprintf(wchar_t *__restrict buf, size_t size,
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
 
-	rv = __vfwprintf(&f, format, arg);
+	rv = vfwprintf(&f, format, arg);
 
 	/* NOTE: Return behaviour differs from snprintf... */
 	if (f.__bufpos == f.__bufend) {
@@ -66,6 +68,7 @@ int attribute_hidden __vswprintf(wchar_t *__restrict buf, size_t size,
 	}
 	return rv;
 }
-strong_alias(__vswprintf,vswprintf)
+libc_hidden_proto(vswprintf)
+libc_hidden_def(vswprintf)
 
 #endif /* __STDIO_BUFFERS */

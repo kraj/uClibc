@@ -1,8 +1,10 @@
-/* These functions find the absolute path to the current working directory.  */
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
-#define opendir __opendir
-#define closedir __closedir
-#define readdir __readdir
+/* These functions find the absolute path to the current working directory.  */
 
 #include <stdlib.h>
 #include <errno.h>
@@ -10,6 +12,15 @@
 #include <dirent.h>
 #include <string.h>
 #include <sys/syscall.h>
+
+libc_hidden_proto(strcat)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strncpy)
+libc_hidden_proto(strlen)
+libc_hidden_proto(opendir)
+libc_hidden_proto(readdir)
+libc_hidden_proto(closedir)
+libc_hidden_proto(stat)
 
 #ifdef __NR_getcwd
 
@@ -43,7 +54,7 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 	int slow_search = (sizeof(ino_t) != sizeof(d->d_ino));
 #endif
 
-	if (__stat(path_buf, &st) < 0) {
+	if (stat(path_buf, &st) < 0) {
 		goto oops;
 	}
 #ifdef FAST_DIR_SEARCH_POSSIBLE
@@ -51,13 +62,13 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 		slow_search = 1;
 #endif
 
-	slen = __strlen(path_buf);
+	slen = strlen(path_buf);
 	ptr = path_buf + slen - 1;
 	if (*ptr != '/') {
 		if (slen + 2 > path_size) {
 			goto oops;
 		}
-		__strcpy(++ptr, "/");
+		strcpy(++ptr, "/");
 		slen++;
 	}
 	slen++;
@@ -71,11 +82,11 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 #ifdef FAST_DIR_SEARCH_POSSIBLE
 		if (slow_search || this_ino == d->d_ino) {
 #endif
-			if (slen + __strlen(d->d_name) > path_size) {
+			if (slen + strlen(d->d_name) > path_size) {
 			    goto oops;
 			}
-			__strcpy(ptr + 1, d->d_name);
-			if (__stat(path_buf, &st) < 0)
+			strcpy(ptr + 1, d->d_name);
+			if (stat(path_buf, &st) < 0)
 				continue;
 			if (st.st_ino == this_ino && st.st_dev == this_dev) {
 				closedir(dp);
@@ -101,7 +112,7 @@ static char *recurser(char *path_buf, int path_size, dev_t root_dev, ino_t root_
 	dev_t this_dev;
 	ino_t this_ino;
 
-	if (__stat(path_buf, &st) < 0) {
+	if (stat(path_buf, &st) < 0) {
 	    if (errno != EFAULT)
 		goto oops;
 	    return 0;
@@ -112,13 +123,13 @@ static char *recurser(char *path_buf, int path_size, dev_t root_dev, ino_t root_
 		if (path_size < 2) {
 		    goto oops;
 		}
-		__strcpy(path_buf, "/");
+		strcpy(path_buf, "/");
 		return path_buf;
 	}
-	if (__strlen(path_buf) + 4 > path_size) {
+	if (strlen(path_buf) + 4 > path_size) {
 	    goto oops;
 	}
-	__strcat(path_buf, "/..");
+	strcat(path_buf, "/..");
 	if (recurser(path_buf, path_size, root_dev, root_ino) == 0)
 		return 0;
 
@@ -140,16 +151,16 @@ int __syscall_getcwd(char * buf, unsigned long size)
     len = -1;
 
     /* get stat for root to have a valid parameters for the terminating condition */
-    if (__stat("/", &st) < 0) {
+    if (stat("/", &st) < 0) {
 	/* root dir not found! */
 	return -1;
     }
     /* start with actual dir */
-    if (buf) __strncpy(buf, ".", size);
+    if (buf) strncpy(buf, ".", size);
 
     cwd = recurser(buf, size, st.st_dev, st.st_ino);
     if (cwd) {
-	len = __strlen(buf);
+	len = strlen(buf);
 	__set_errno(olderrno);
     }
     return len;
@@ -157,7 +168,7 @@ int __syscall_getcwd(char * buf, unsigned long size)
 
 #endif
 
-char attribute_hidden *__getcwd(char *buf, size_t size)
+char *getcwd(char *buf, size_t size)
 {
     int ret;
     char *path;
@@ -189,4 +200,5 @@ char attribute_hidden *__getcwd(char *buf, size_t size)
 	free (path);
     return NULL;
 }
-strong_alias(__getcwd,getcwd)
+libc_hidden_proto(getcwd)
+libc_hidden_def(getcwd)

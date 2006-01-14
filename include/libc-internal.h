@@ -119,6 +119,11 @@
 # define IS_IN_libc 1
 #endif
 
+/* need this to unset defaults in libpthread for files that get added to libc */
+#ifdef IS_IN_libc
+# undef NOT_IN_libc
+#endif
+
 /* Prepare for the case that `__builtin_expect' is not available.  */
 #if __GNUC__ == 2 && __GNUC_MINOR__ < 96
 # define __builtin_expect(x, expected_value) (x)
@@ -138,32 +143,369 @@
 
 #define attribute_unused __attribute__ ((unused))
 
+/* The following macros are used for PLT bypassing within libc.so
+   (and if needed other libraries similarly).
+   First of all, you need to have the function prototyped somewhere,
+   say in foo/foo.h:
+
+   int foo (int __bar);
+
+   If calls to foo within libc.so should always go to foo defined in libc.so,
+   then in include/foo.h you add:
+
+   libc_hidden_proto (foo)
+
+   line and after the foo function definition:
+
+   int foo (int __bar)
+   {
+     return __bar;
+   }
+   libc_hidden_def (foo)
+
+   or
+
+   int foo (int __bar)
+   {
+     return __bar;
+   }
+   libc_hidden_weak (foo)
+
+   Simularly for global data. If references to foo within libc.so should
+   always go to foo defined in libc.so, then in include/foo.h you add:
+
+   libc_hidden_proto (foo)
+
+   line and after foo's definition:
+
+   int foo = INITIAL_FOO_VALUE;
+   libc_hidden_data_def (foo)
+
+   or
+
+   int foo = INITIAL_FOO_VALUE;
+   libc_hidden_data_weak (foo)
+
+   If foo is normally just an alias (strong or weak) of some other function,
+   you should use the normal strong_alias first, then add libc_hidden_def
+   or libc_hidden_weak:
+
+   int baz (int __bar)
+   {
+     return __bar;
+   }
+   strong_alias (baz, foo)
+   libc_hidden_weak (foo)
+
+   If the function should be internal to multiple objects, say ld.so and
+   libc.so, the best way is to use:
+
+   #if !defined NOT_IN_libc || defined IS_IN_rtld
+   hidden_proto (foo)
+   #endif
+
+   in include/foo.h and the normal macros at all function definitions
+   depending on what DSO they belong to.
+
+   If versioned_symbol macro is used to define foo,
+   libc_hidden_ver macro should be used, as in:
+
+   int __real_foo (int __bar)
+   {
+     return __bar;
+   }
+   versioned_symbol (libc, __real_foo, foo, GLIBC_2_1);
+   libc_hidden_ver (__real_foo, foo)  */
+
+/* uClibc specific (the above comment was copied from glibc):
+ * a. when ppc64 will be supported, we need changes to support:
+ * strong_data_alias (used by asm hidden_data_def) / HAVE_ASM_GLOBAL_DOT_NAME
+ * b. libc_hidden_proto(foo) should be added after the header having foo's prototype
+ * or after extern foo... to all source files that should use the internal version
+ * of foo within libc, even to the file defining foo itself, libc_hidden_def does
+ * not hide __GI_foo itself, although the name suggests it (hiding is done exclusively
+ * by libc_hidden_proto). The reasoning to have it after the header w/ foo's prototype is
+ * to get first the __REDIRECT from original header and then create the __GI_foo alias
+ * c. no versioning support, hidden[_data]_ver are noop */
+
 /* Arrange to hide uClibc internals */
 #if __GNUC_PREREQ (3, 3)
 # define attribute_hidden __attribute__ ((visibility ("hidden")))
+# define __hidden_proto_hiddenattr(attrs...) __attribute__ ((visibility ("hidden"), ##attrs))
 #else
 # define attribute_hidden
+# define __hidden_proto_hiddenattr(attrs...)
 #endif
 
-#ifndef __ASSEMBLER__
-# define hidden_strong_alias(name, aliasname) _hidden_strong_alias(name, aliasname)
-# define _hidden_strong_alias(name, aliasname) \
-  extern __typeof (name) aliasname __attribute__ ((alias (#name))) attribute_hidden;
+/* if ppc64 will be supported, this section needs adapting due to HAVE_ASM_GLOBAL_DOT_NAME */
+#if 1 /* SHARED */
+# ifndef __ASSEMBLER__
+#  define hidden_strong_alias(name, aliasname) _hidden_strong_alias(name, aliasname)
+#  define _hidden_strong_alias(name, aliasname) \
+   extern __typeof (name) aliasname __attribute__ ((alias (#name))) attribute_hidden;
 
-# define hidden_weak_alias(name, aliasname) _hidden_weak_alias (name, aliasname)
-# define _hidden_weak_alias(name, aliasname) \
-  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name))) attribute_hidden;
-#else /* __ASSEMBLER__ */
-# define hidden_strong_alias(name, aliasname)				\
-  .global C_SYMBOL_NAME (aliasname) ;					\
-  .hidden C_SYMBOL_NAME (aliasname) ;					\
-  .set C_SYMBOL_NAME(aliasname),C_SYMBOL_NAME(name)
+#  define hidden_weak_alias(name, aliasname) _hidden_weak_alias (name, aliasname)
+#  define _hidden_weak_alias(name, aliasname) \
+   extern __typeof (name) aliasname __attribute__ ((weak, alias (#name))) attribute_hidden;
 
-# define hidden_weak_alias(name, aliasname)				\
-  .weak C_SYMBOL_NAME(aliasname) ;					\
-  .hidden C_SYMBOL_NAME(aliasname) ;					\
-  C_SYMBOL_NAME(aliasname) = C_SYMBOL_NAME(name)
-#endif /* __ASSEMBLER__ */
+#  define hidden_proto(name, attrs...) __hidden_proto (name, __GI_##name, ##attrs)
+#  define __hidden_proto(name, internal, attrs...) \
+   extern __typeof (name) name __asm__ (__hidden_asmname (#internal)) \
+   __hidden_proto_hiddenattr (attrs);
+#  define __hidden_asmname(name) __hidden_asmname1 (__USER_LABEL_PREFIX__, name)
+#  define __hidden_asmname1(prefix, name) __hidden_asmname2(prefix, name)
+#  define __hidden_asmname2(prefix, name) #prefix name
+#  define __hidden_ver1(local, internal, name) \
+   extern __typeof (name) __EI_##name __asm__(__hidden_asmname (#internal)); \
+   extern __typeof (name) __EI_##name __attribute__((alias (__hidden_asmname (#local))))
+#  define hidden_def(name)		__hidden_ver1(__GI_##name, name, name);
+#  define hidden_data_def(name)		hidden_def(name)
+#  define hidden_weak(name)		__hidden_ver1(__GI_##name, name, name) __attribute__((weak));
+#  define hidden_data_weak(name)	hidden_weak(name)
+
+# else /* __ASSEMBLER__ */
+#  define hidden_strong_alias(name, aliasname)				\
+   .global C_SYMBOL_NAME (aliasname) ;					\
+   .hidden C_SYMBOL_NAME (aliasname) ;					\
+   .set C_SYMBOL_NAME(aliasname),C_SYMBOL_NAME(name)
+
+#  define hidden_weak_alias(name, aliasname)				\
+   .weak C_SYMBOL_NAME(aliasname) ;					\
+   .hidden C_SYMBOL_NAME(aliasname) ;					\
+   C_SYMBOL_NAME(aliasname) = C_SYMBOL_NAME(name)
+
+/* For assembly, we need to do the opposite of what we do in C:
+   in assembly gcc __REDIRECT stuff is not in place, so functions
+   are defined by its normal name and we need to create the
+   __GI_* alias to it, in C __REDIRECT causes the function definition
+   to use __GI_* name and we need to add alias to the real name.
+   There is no reason to use hidden_weak over hidden_def in assembly,
+   but we provide it for consistency with the C usage.
+   hidden_proto doesn't make sense for assembly but the equivalent
+   is to call via the HIDDEN_JUMPTARGET macro instead of JUMPTARGET.  */
+#  define hidden_def(name)	hidden_strong_alias (name, __GI_##name)
+#  define hidden_data_def(name)	hidden_strong_alias (name, __GI_##name)
+#  define hidden_weak(name)	hidden_def (name)
+#  define hidden_data_weak(name)	hidden_data_def (name)
+#  define HIDDEN_JUMPTARGET(name) __GI_##name
+# endif /* __ASSEMBLER__ */
+#else /* SHARED */
+# define hidden_strong_alias(name, aliasname)
+# define hidden_weak_alias(name, aliasname)
+
+# ifndef __ASSEMBLER__
+#  define hidden_proto(name, attrs...)
+# else
+#  define HIDDEN_JUMPTARGET(name) name
+# endif
+# define hidden_def(name)
+# define hidden_data_def(name)
+# define hidden_weak(name)
+# define hidden_data_weak(name)
+#endif /* SHARED */
+
+/* uClibc does not support versioning yet. */
+#define versioned_symbol(lib, local, symbol, version) /* weak_alias(local, symbol) */
+#define hidden_ver(local, name) /* strong_alias(local, __GI_##name) */
+#define hidden_data_ver(local, name) /* strong_alias(local,__GI_##name) */
+
+#if !defined NOT_IN_libc
+# define libc_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define libc_hidden_def(name) hidden_def (name)
+# define libc_hidden_weak(name) hidden_weak (name)
+# define libc_hidden_ver(local, name) hidden_ver (local, name)
+# define libc_hidden_data_def(name) hidden_data_def (name)
+# define libc_hidden_data_weak(name) hidden_data_weak (name)
+# define libc_hidden_data_ver(local, name) hidden_data_ver (local, name)
+#else
+# define libc_hidden_proto(name, attrs...)
+# define libc_hidden_def(name)
+# define libc_hidden_weak(name)
+# define libc_hidden_ver(local, name)
+# define libc_hidden_data_def(name)
+# define libc_hidden_data_weak(name)
+# define libc_hidden_data_ver(local, name)
+#endif
+
+#if defined NOT_IN_libc && defined IS_IN_rtld
+# define rtld_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define rtld_hidden_def(name) hidden_def (name)
+# define rtld_hidden_weak(name) hidden_weak (name)
+# define rtld_hidden_ver(local, name) hidden_ver (local, name)
+# define rtld_hidden_data_def(name) hidden_data_def (name)
+# define rtld_hidden_data_weak(name) hidden_data_weak (name)
+# define rtld_hidden_data_ver(local, name) hidden_data_ver (local, name)
+#else
+# define rtld_hidden_proto(name, attrs...)
+# define rtld_hidden_def(name)
+# define rtld_hidden_weak(name)
+# define rtld_hidden_ver(local, name)
+# define rtld_hidden_data_def(name)
+# define rtld_hidden_data_weak(name)
+# define rtld_hidden_data_ver(local, name)
+#endif
+
+#if defined NOT_IN_libc && defined IS_IN_libm
+# define libm_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define libm_hidden_def(name) hidden_def (name)
+# define libm_hidden_weak(name) hidden_weak (name)
+# define libm_hidden_ver(local, name) hidden_ver (local, name)
+# define libm_hidden_data_def(name) hidden_data_def (name)
+# define libm_hidden_data_weak(name) hidden_data_weak (name)
+# define libm_hidden_data_ver(local, name) hidden_data_ver (local, name)
+#else
+# define libm_hidden_proto(name, attrs...)
+# define libm_hidden_def(name)
+# define libm_hidden_weak(name)
+# define libm_hidden_ver(local, name)
+# define libm_hidden_data_def(name)
+# define libm_hidden_data_weak(name)
+# define libm_hidden_data_ver(local, name)
+#endif
+
+#if defined NOT_IN_libc && defined IS_IN_libresolv
+# define libresolv_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define libresolv_hidden_def(name) hidden_def (name)
+# define libresolv_hidden_weak(name) hidden_weak (name)
+# define libresolv_hidden_ver(local, name) hidden_ver (local, name)
+# define libresolv_hidden_data_def(name) hidden_data_def (name)
+# define libresolv_hidden_data_weak(name) hidden_data_weak (name)
+# define libresolv_hidden_data_ver(local, name) hidden_data_ver (local, name)
+#else
+# define libresolv_hidden_proto(name, attrs...)
+# define libresolv_hidden_def(name)
+# define libresolv_hidden_weak(name)
+# define libresolv_hidden_ver(local, name)
+# define libresolv_hidden_data_def(name)
+# define libresolv_hidden_data_weak(name)
+# define libresolv_hidden_data_ver(local, name)
+#endif
+
+#if defined NOT_IN_libc && defined IS_IN_librt
+# define librt_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define librt_hidden_def(name) hidden_def (name)
+# define librt_hidden_weak(name) hidden_weak (name)
+# define librt_hidden_ver(local, name) hidden_ver (local, name)
+# define librt_hidden_data_def(name) hidden_data_def (name)
+# define librt_hidden_data_weak(name) hidden_data_weak (name)
+# define librt_hidden_data_ver(local, name) hidden_data_ver (local, name)
+#else
+# define librt_hidden_proto(name, attrs...)
+# define librt_hidden_def(name)
+# define librt_hidden_weak(name)
+# define librt_hidden_ver(local, name)
+# define librt_hidden_data_def(name)
+# define librt_hidden_data_weak(name)
+# define librt_hidden_data_ver(local, name)
+#endif
+
+#if defined NOT_IN_libc && defined IS_IN_libdl
+# define libdl_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define libdl_hidden_def(name) hidden_def (name)
+# define libdl_hidden_weak(name) hidden_weak (name)
+# define libdl_hidden_ver(local, name) hidden_ver (local, name)
+# define libdl_hidden_data_def(name) hidden_data_def (name)
+# define libdl_hidden_data_weak(name) hidden_data_weak (name)
+# define libdl_hidden_data_ver(local, name) hidden_data_ver (local, name)
+#else
+# define libdl_hidden_proto(name, attrs...)
+# define libdl_hidden_def(name)
+# define libdl_hidden_weak(name)
+# define libdl_hidden_ver(local, name)
+# define libdl_hidden_data_def(name)
+# define libdl_hidden_data_weak(name)
+# define libdl_hidden_data_ver(local, name)
+#endif
+
+#if defined NOT_IN_libc && defined IS_IN_libintl
+# define libintl_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define libintl_hidden_def(name) hidden_def (name)
+# define libintl_hidden_weak(name) hidden_weak (name)
+# define libintl_hidden_ver(local, name) hidden_ver (local, name)
+# define libintl_hidden_data_def(name) hidden_data_def (name)
+# define libintl_hidden_data_weak(name) hidden_data_weak (name)
+# define libintl_hidden_data_ver(local, name) hidden_data_ver(local, name)
+#else
+# define libintl_hidden_proto(name, attrs...)
+# define libintl_hidden_def(name)
+# define libintl_hidden_weak(name)
+# define libintl_hidden_ver(local, name)
+# define libintl_hidden_data_def(name)
+# define libintl_hidden_data_weak(name)
+# define libintl_hidden_data_ver(local, name)
+#endif
+
+#if defined NOT_IN_libc && defined IS_IN_libnsl
+# define libnsl_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define libnsl_hidden_def(name) hidden_def (name)
+# define libnsl_hidden_weak(name) hidden_weak (name)
+# define libnsl_hidden_ver(local, name) hidden_ver (local, name)
+# define libnsl_hidden_data_def(name) hidden_data_def (name)
+# define libnsl_hidden_data_weak(name) hidden_data_weak (name)
+# define libnsl_hidden_data_ver(local, name) hidden_data_ver (local, name)
+#else
+# define libnsl_hidden_proto(name, attrs...)
+# define libnsl_hidden_def(name)
+# define libnsl_hidden_weak(name)
+# define libnsl_hidden_ver(local, name)
+# define libnsl_hidden_data_def(name)
+# define libnsl_hidden_data_weak(name)
+# define libnsl_hidden_data_ver(local, name)
+#endif
+
+#if defined NOT_IN_libc && defined IS_IN_libutil
+# define libutil_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define libutil_hidden_def(name) hidden_def (name)
+# define libutil_hidden_weak(name) hidden_weak (name)
+# define libutil_hidden_ver(local, name) hidden_ver (local, name)
+# define libutil_hidden_data_def(name) hidden_data_def (name)
+# define libutil_hidden_data_weak(name) hidden_data_weak (name)
+# define libutil_hidden_data_ver(local, name) hidden_data_ver (local, name)
+#else
+# define libutil_hidden_proto(name, attrs...)
+# define libutil_hidden_def(name)
+# define libutil_hidden_weak(name)
+# define libutil_hidden_ver(local, name)
+# define libutil_hidden_data_def(name)
+# define libutil_hidden_data_weak(name)
+# define libutil_hidden_data_ver(local, name)
+#endif
+
+#if defined NOT_IN_libc && defined IS_IN_libcrypt
+# define libcrypt_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define libcrypt_hidden_def(name) hidden_def (name)
+# define libcrypt_hidden_weak(name) hidden_weak (name)
+# define libcrypt_hidden_ver(local, name) hidden_ver (local, name)
+# define libcrypt_hidden_data_def(name) hidden_data_def (name)
+# define libcrypt_hidden_data_weak(name) hidden_data_weak (name)
+# define libcrypt_hidden_data_ver(local, name) hidden_data_ver (local, name)
+#else
+# define libcrypt_hidden_proto(name, attrs...)
+# define libcrypt_hidden_def(name)
+# define libcrypt_hidden_weak(name)
+# define libcrypt_hidden_ver(local, name)
+# define libcrypt_hidden_data_def(name)
+# define libcrypt_hidden_data_weak(name)
+# define libcrypt_hidden_data_ver(local, name)
+#endif
+
+#if defined NOT_IN_libc && defined IS_IN_libpthread
+# define libpthread_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
+# define libpthread_hidden_def(name) hidden_def (name)
+# define libpthread_hidden_weak(name) hidden_weak (name)
+# define libpthread_hidden_ver(local, name) hidden_ver (local, name)
+# define libpthread_hidden_data_def(name) hidden_data_def (name)
+# define libpthread_hidden_data_weak(name) hidden_data_weak (name)
+# define libpthread_hidden_data_ver(local, name) hidden_data_ver (local, name)
+#else
+# define libpthread_hidden_proto(name, attrs...)
+# define libpthread_hidden_def(name)
+# define libpthread_hidden_weak(name)
+# define libpthread_hidden_ver(local, name)
+# define libpthread_hidden_data_def(name)
+# define libpthread_hidden_data_weak(name)
+# define libpthread_hidden_data_ver(local, name)
+#endif
 
 #ifdef __UCLIBC_BUILD_RELRO__
 # define attribute_relro __attribute__ ((section (".data.rel.ro")))
@@ -190,254 +532,12 @@
 #ifndef __ASSEMBLER__
 # ifdef IS_IN_libc
 
-#  define __UC(N) __ ## N
-#  define __UC_ALIAS(N) strong_alias( __ ## N , N )
-#  if defined __UCLIBC_HAS_XLOCALE__ && defined __UCLIBC_DO_XLOCALE
-#   define __UCXL(N) __ ## N ## _l
-#   define __UCXL_ALIAS(N) strong_alias ( __ ## N ## _l , N ## _l )
-#  else
-#   define __UCXL(N) __UC(N)
-#   define __UCXL_ALIAS(N) __UC_ALIAS(N)
-#  endif
-
 #  define __need_size_t
-#  ifdef __UCLIBC_HAS_WCHAR__
-#   define __need_wchar_t
-#   define __need_wint_t
-#  endif
 #  include <stddef.h>
 
-#  include <bits/types.h>
-
-#  ifndef __ssize_t_defined
-typedef __ssize_t ssize_t;
-#   define __ssize_t_defined
-#  endif
-
-#  include <bits/sigset.h>
-
-/* prototypes for internal use, please keep these in sync w/ updated headers */
-/* #include <fcntl.h> */
-#ifndef __USE_FILE_OFFSET64
-extern int __open (__const char *__file, int __oflag, ...) __nonnull ((1)) attribute_hidden;
-extern int __fcntl (int __fd, int __cmd, ...) attribute_hidden;
-#else
-# ifdef __REDIRECT
-extern int __REDIRECT (__open, (__const char *__file, int __oflag, ...), __open64)
-     __nonnull ((1)) attribute_hidden;
-extern int __REDIRECT (__fcntl, (int __fd, int __cmd, ...), __fcntl64) attribute_hidden;
-# else
-#  define __open __open64
-#  define __fcntl __fcntl64
-# endif
-#endif
-#ifdef __USE_LARGEFILE64
-extern int __open64 (__const char *__file, int __oflag, ...) __nonnull ((1)) attribute_hidden;
-extern int __fcntl64 (int __fd, int __cmd, ...) attribute_hidden;
-#endif
-
-/* #include <string.h> */
-extern int __memcmp (__const void *__s1, __const void *__s2, size_t __n) attribute_hidden;
-extern void *__memcpy (void *__restrict __dest,
-		     __const void *__restrict __src, size_t __n) attribute_hidden;
-extern void *__memmove (void *__dest, __const void *__src, size_t __n) attribute_hidden;
-extern void *__memset (void *__s, int __c, size_t __n) attribute_hidden;
-extern char *__strcpy (char *__restrict __dest, __const char *__restrict __src) attribute_hidden;
-extern size_t __strlen (__const char *__s) attribute_hidden;
-extern int __strcmp (__const char *__s1, __const char *__s2) attribute_hidden;
-extern char *__strcat (char *__restrict __dest, __const char *__restrict __src) attribute_hidden;
-extern char *__strncpy (char *__restrict __dest,
-		      __const char *__restrict __src, size_t __n) attribute_hidden;
-extern char *__strchr (__const char *__s, int __c) attribute_hidden;
-extern char *__strrchr (__const char *__s, int __c) attribute_hidden;
-extern int __strncmp (__const char *__s1, __const char *__s2, size_t __n) attribute_hidden;
-extern char *__strdup (__const char *__s) attribute_hidden;
-extern int __strcasecmp (__const char *__s1, __const char *__s2) attribute_hidden;
-extern int __strncasecmp (__const char *__s1, __const char *__s2, size_t __n) attribute_hidden;
-extern void *__rawmemchr (__const void *__s, int __c) __THROW __attribute_pure__ __nonnull ((1)) attribute_hidden;
-extern size_t __strspn (__const char *__s, __const char *__accept)
-     __THROW __attribute_pure__ __nonnull ((1, 2)) attribute_hidden;
-extern char *__strpbrk (__const char *__s, __const char *__accept)
-     __THROW __attribute_pure__ __nonnull ((1, 2)) attribute_hidden;
-extern size_t __strnlen (__const char *__string, size_t __maxlen)
-     __THROW __attribute_pure__ __nonnull ((1)) attribute_hidden;
-extern char *__strtok_r (char *__restrict __s, __const char *__restrict __delim,
-		       char **__restrict __save_ptr) __THROW __nonnull ((2, 3)) attribute_hidden;
-
 /* sources are built w/ _GNU_SOURCE, this gets undefined */
-extern int __xpg_strerror_r_internal (int __errnum, char *__buf, size_t __buflen) attribute_hidden;
-extern char *__glibc_strerror_r_internal (int __errnum, char *__buf, size_t __buflen) attribute_hidden;
-
-/* ctype.h */
-extern int __tolower (int __c) __THROW attribute_hidden;
-extern int __toupper (int __c) __THROW attribute_hidden;
-
-#ifdef __UCLIBC_HAS_WCHAR__
-/* wchar.h */
-extern size_t __wcslen (__const wchar_t *__s) __THROW __attribute_pure__ attribute_hidden;
-extern wchar_t *__wcscpy (wchar_t *__restrict __dest, __const wchar_t *__restrict __src) __THROW attribute_hidden;
-extern size_t __wcsspn (__const wchar_t *__wcs, __const wchar_t *__accept)
-     __THROW __attribute_pure__ attribute_hidden;
-extern wchar_t *__wcspbrk (__const wchar_t *__wcs, __const wchar_t *__accept)
-     __THROW __attribute_pure__ attribute_hidden;
-/* wctype.h */
-extern wint_t __towlower (wint_t __wc) __THROW attribute_hidden;
-#endif
-
-/* #include <unistd.h> */
-extern ssize_t __read(int __fd, void *__buf, size_t __nbytes) attribute_hidden;
-extern ssize_t __write(int __fd, __const void *__buf, size_t __n) attribute_hidden;
-extern int __close(int __fd) attribute_hidden;
-extern __pid_t __getpid (void) attribute_hidden;
-extern void _exit_internal (int __status) __attribute__ ((__noreturn__)) attribute_hidden;
-#ifndef __USE_FILE_OFFSET64
-extern int __lockf (int __fd, int __cmd, __off_t __len) attribute_hidden;
-extern __off_t __lseek (int __fd, __off_t __offset, int __whence) __THROW attribute_hidden;
-#else
-# ifdef __REDIRECT
-extern int __REDIRECT (__lockf, (int __fd, int __cmd, __off64_t __len),
-		       __lockf64) attribute_hidden;
-extern __off64_t __REDIRECT (__lseek,
-				 (int __fd, __off64_t __offset, int __whence),
-				 __lseek64) attribute_hidden;
-# else
-#  define __lockf __lockf64
-#  define __lseek __lseek64
-# endif
-#endif
-#ifdef __USE_LARGEFILE64
-extern int __lockf64 (int __fd, int __cmd, __off64_t __len) attribute_hidden;
-extern __off64_t __lseek64 (int __fd, __off64_t __offset, int __whence) __THROW attribute_hidden;
-#endif
-
-/* #include <stdio.h> */
-extern void __perror (__const char *__s) attribute_hidden;
-extern int __printf (__const char *__restrict __format, ...) attribute_hidden;
-extern int __sprintf (char *__restrict __s,
-		    __const char *__restrict __format, ...) attribute_hidden;
-
-/* hack */
-#define abort __abort
-#define fprintf __fprintf
-#define fclose __fclose
-#ifndef __USE_FILE_OFFSET64
-#define fopen __fopen
-#else
-#define fopen __fopen64
-#endif
-#ifdef __USE_LARGEFILE64
-#define fopen64 __fopen64
-#endif
-
-/* #include <stdlib.h> */
-extern char *__getenv (__const char *__name) attribute_hidden;
-extern void __exit (int __status) __THROW __attribute__ ((__noreturn__)) attribute_hidden;
-
-/* #include <signal.h> */
-extern int __sigprocmask (int __how, __const __sigset_t *__restrict __set,
-			__sigset_t *__restrict __oset) attribute_hidden;
-
-/* #include <sys/ioctl.h> */
-extern int __ioctl (int __fd, unsigned long int __request, ...) attribute_hidden;
-
-/* #include <sys/socket.h> */
-extern int __socket (int __domain, int __type, int __protocol) attribute_hidden;
-
-/* #include <sys/stat.h> */
-#ifndef __USE_FILE_OFFSET64
-struct stat;
-extern int __stat (__const char *__restrict __file,
-		 struct stat *__restrict __buf) __THROW __nonnull ((1, 2)) attribute_hidden;
-extern int __fstat (int __fd, struct stat *__buf) __THROW __nonnull ((2)) attribute_hidden;
-extern int __lstat (__const char *__restrict __file,
-		  struct stat *__restrict __buf) __THROW __nonnull ((1, 2)) attribute_hidden;
-#else
-# ifdef __REDIRECT_NTH
-extern int __REDIRECT_NTH (__stat, (__const char *__restrict __file,
-				  struct stat *__restrict __buf), __stat64)
-     __nonnull ((1, 2)) attribute_hidden;
-extern int __REDIRECT_NTH (__fstat, (int __fd, struct stat *__buf), __fstat64)
-     __nonnull ((2)) attribute_hidden;
-extern int __REDIRECT_NTH (__lstat,
-			   (__const char *__restrict __file,
-			    struct stat *__restrict __buf), __lstat64)
-     __nonnull ((1, 2)) attribute_hidden;
-# else
-#  define __stat __stat64
-#  define __fstat __fstat64
-#   define __lstat __lstat64
-# endif
-#endif
-#ifdef __USE_LARGEFILE64
-struct stat64;
-extern int __stat64 (__const char *__restrict __file,
-		   struct stat64 *__restrict __buf) __THROW __nonnull ((1, 2)) attribute_hidden;
-extern int __fstat64 (int __fd, struct stat64 *__buf) __THROW __nonnull ((2)) attribute_hidden;
-extern int __lstat64 (__const char *__restrict __file,
-		    struct stat64 *__restrict __buf)
-     __THROW __nonnull ((1, 2)) attribute_hidden;
-#endif
-
-/* #include <sys/statfs.h> */
-#ifndef __USE_FILE_OFFSET64
-struct statfs;
-extern int __statfs (__const char *__file, struct statfs *__buf)
-     __THROW __nonnull ((1, 2)) attribute_hidden;
-extern int __fstatfs (int __fildes, struct statfs *__buf)
-     __THROW __nonnull ((2)) attribute_hidden;
-#else
-# ifdef __REDIRECT
-extern int __REDIRECT (__statfs,
-			   (__const char *__file, struct statfs *__buf),
-			   __statfs64) __nonnull ((1, 2)) attribute_hidden;
-extern int __REDIRECT (__fstatfs, (int __fildes, struct statfs *__buf),
-			   __fstatfs64) __nonnull ((2)) attribute_hidden;
-# else
-#  define __statfs __statfs64
-# endif
-#endif
-#ifdef __USE_LARGEFILE64
-struct statfs64;
-extern int __statfs64 (__const char *__file, struct statfs64 *__buf)
-     __THROW __nonnull ((1, 2)) attribute_hidden;
-extern int __fstatfs64 (int __fildes, struct statfs64 *__buf)
-     __THROW __nonnull ((2)) attribute_hidden;
-#endif
-
-#  if 0 /* undoable here */
-/* #include <dirent.h> */
-typedef struct __dirstream DIR;
-extern DIR *__opendir (__const char *__name) attribute_hidden;
-extern int __closedir (DIR *__dirp) attribute_hidden;
-
-/* #include <stdio.h> */
-extern int __vfprintf (FILE *__restrict __s, __const char *__restrict __format,
-		     __gnuc_va_list __arg) attribute_hidden;
-extern int __fprintf (FILE *__restrict __stream,
-		    __const char *__restrict __format, ...) attribute_hidden;
-extern int __fclose (FILE *__stream) attribute_hidden;
-
-#ifndef __USE_FILE_OFFSET64
-extern FILE *__fopen (__const char *__restrict __filename,
-		    __const char *__restrict __modes) attribute_hidden;
-#else
-# ifdef __REDIRECT
-extern FILE *__REDIRECT (__fopen, (__const char *__restrict __filename,
-				 __const char *__restrict __modes), __fopen64) attribute_hidden;
-# else
-#  define __fopen __fopen64
-# endif
-#endif
-#ifdef __USE_LARGEFILE64
-extern FILE *__fopen64 (__const char *__restrict __filename,
-		      __const char *__restrict __modes) attribute_hidden;
-#endif
-
-/* #include <sys/time.h> */
-#   define __need_timeval
-#   include <bits/time.h>
-extern int __gettimeofday(struct timeval *__restrict __tv, *__restrict __timezone__ptr_t __tz) attribute_hidden;
-#  endif
+extern int __xpg_strerror_r (int __errnum, char *__buf, size_t __buflen);
+//extern char *__glibc_strerror_r (int __errnum, char *__buf, size_t __buflen);
 
 /* #include <pthread.h> */
 #  ifndef __UCLIBC_HAS_THREADS__

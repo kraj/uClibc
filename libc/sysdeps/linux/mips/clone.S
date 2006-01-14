@@ -29,12 +29,12 @@
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg) */
 
 	.text
-.globl   __clone ;
+.globl   clone ;
 	.align       2;
-	.type         __clone,@function;
-	.ent        __clone, 0;
+	.type         clone,@function;
+	.ent        clone, 0;
 	
-__clone:
+clone:
 	.frame	    sp, 4*SZREG, sp
 #ifdef __PIC__
 	.set		noreorder
@@ -106,8 +106,5 @@ __thread_start:
 
 	/* Call _exit rather than doing it inline for breakpoint purposes.  */
 	move		a0,v0
-	jal		_exit_internal
+	jal		HIDDEN_JUMPTARGET(_exit)
 	.end  __thread_start
-
-.weak clone;
-	clone = __clone

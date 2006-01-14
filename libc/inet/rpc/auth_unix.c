@@ -38,17 +38,6 @@
  * for the credentials.
  */
 
-#define sysconf __sysconf
-#define getegid __getegid
-#define geteuid __geteuid
-#define getgroups __getgroups
-#define gethostname __gethostname
-#define xdrmem_create __xdrmem_create
-#define xdr_authunix_parms __xdr_authunix_parms
-#define xdr_opaque_auth __xdr_opaque_auth
-#define gettimeofday __gettimeofday
-#define fputs __fputs
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -65,6 +54,23 @@
 
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
+#endif
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(sysconf)
+libc_hidden_proto(getegid)
+libc_hidden_proto(geteuid)
+libc_hidden_proto(getgroups)
+libc_hidden_proto(gethostname)
+libc_hidden_proto(xdrmem_create)
+libc_hidden_proto(xdr_authunix_parms)
+libc_hidden_proto(xdr_opaque_auth)
+libc_hidden_proto(gettimeofday)
+libc_hidden_proto(fputs)
+libc_hidden_proto(perror)
+libc_hidden_proto(abort)
+#ifdef USE_IN_LIBIO
+libc_hidden_proto(fwprintf)
 #endif
 
 /*
@@ -103,8 +109,8 @@ static bool_t marshal_new_auth (AUTH *) internal_function;
  * Create a unix style authenticator.
  * Returns an auth handle with the given stuff in it.
  */
-AUTH attribute_hidden *
-__authunix_create (char *machname, uid_t uid, gid_t gid, int len,
+AUTH *
+authunix_create (char *machname, uid_t uid, gid_t gid, int len,
 		 gid_t *aup_gids)
 {
   struct authunix_parms aup;
@@ -124,7 +130,7 @@ __authunix_create (char *machname, uid_t uid, gid_t gid, int len,
 no_memory:
 #ifdef USE_IN_LIBIO
       if (_IO_fwide (stderr, 0) > 0)
-	(void) __fwprintf (stderr, L"%s",
+	(void) fwprintf (stderr, L"%s",
 			   _("authunix_create: out of memory\n"));
       else
 #endif
@@ -160,7 +166,7 @@ no_memory:
   au->au_origcred.oa_base = mem_alloc ((u_int) len);
   if (au->au_origcred.oa_base == NULL)
     goto no_memory;
-  __memcpy(au->au_origcred.oa_base, mymem, (u_int) len);
+  memcpy(au->au_origcred.oa_base, mymem, (u_int) len);
 
   /*
    * set auth handle to reflect new cred.
@@ -169,14 +175,15 @@ no_memory:
   marshal_new_auth (auth);
   return auth;
 }
-strong_alias(__authunix_create,authunix_create)
+libc_hidden_proto(authunix_create)
+libc_hidden_def(authunix_create)
 
 /*
  * Returns an auth handle with parameters determined by doing lots of
  * syscalls.
  */
-AUTH attribute_hidden *
-__authunix_create_default (void)
+AUTH *
+authunix_create_default (void)
 {
   int len;
   char machname[MAX_MACHINE_NAME + 1];
@@ -203,12 +210,13 @@ __authunix_create_default (void)
   /* This braindamaged Sun code forces us here to truncate the
      list of groups to NGRPS members since the code in
      authuxprot.c transforms a fixed array.  Grrr.  */
-  ret_auth = __authunix_create (machname, uid, gid, MIN (NGRPS, len), gids);
+  ret_auth = authunix_create (machname, uid, gid, MIN (NGRPS, len), gids);
   if (gids)
     free (gids);
   return ret_auth;
 }
-strong_alias(__authunix_create_default,authunix_create_default)
+libc_hidden_proto(authunix_create_default)
+libc_hidden_def(authunix_create_default)
 
 /*
  * authunix operations
@@ -338,7 +346,7 @@ marshal_new_auth (AUTH *auth)
   xdrmem_create (xdrs, au->au_marshed, MAX_AUTH_BYTES, XDR_ENCODE);
   if ((!xdr_opaque_auth (xdrs, &(auth->ah_cred))) ||
       (!xdr_opaque_auth (xdrs, &(auth->ah_verf))))
-    __perror (_("auth_none.c - Fatal marshalling problem"));
+    perror (_("auth_none.c - Fatal marshalling problem"));
   else
     au->au_mpos = XDR_GETPOS (xdrs);
 

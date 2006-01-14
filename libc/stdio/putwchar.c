@@ -9,23 +9,25 @@
 
 #ifdef __DO_UNLOCKED
 
-wint_t __putwchar_unlocked(wchar_t wc)
+libc_hidden_proto(fputwc_unlocked)
+
+wint_t putwchar_unlocked(wchar_t wc)
 {
-	return __fputwc_unlocked(wc, stdout);
+	return fputwc_unlocked(wc, stdout);
 }
 
-weak_alias(__putwchar_unlocked,putwchar_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__putwchar_unlocked,putwchar)
+strong_alias(putwchar_unlocked,putwchar)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-extern int __fputc (int __c, FILE *__stream) attribute_hidden;
+/* psm: should this be fputwc? */
+libc_hidden_proto(fputc)
 
 wint_t putwchar(wchar_t wc)
 {
-	return __fputc(wc, stdout);
+	return fputc(wc, stdout);
 }
 
 #endif

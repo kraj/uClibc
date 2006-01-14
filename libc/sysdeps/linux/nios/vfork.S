@@ -22,11 +22,11 @@
 
    .text
    .align 2
-   .globl __vfork
+   .globl vfork
 #if defined __HAVE_ELF__
-   .type    __vfork,@function
+   .type  vfork,@function
 #endif
-__vfork:
+vfork:
 	MOVIP	%g1, __NR_vfork
 	trap	63
 	
@@ -50,5 +50,5 @@ fix_errno:
 	ret
 	restore
 
-.size __vfork,.-__vfork
-strong_alias(__vfork,vfork)
+.size vfork,.-vfork
+libc_hidden_def(vfork)

@@ -38,3 +38,4 @@ fix_errno:
 	dec.l	#1,er0
 	jmp	@er1                     /* don't return,  just jmp directly */
 
+libc_hidden_def(_vork)

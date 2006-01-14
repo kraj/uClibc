@@ -9,7 +9,7 @@
 
 #include "syscalls.h"
 #include <sys/time.h>
-#define __NR___settimeofday __NR_settimeofday
-attribute_hidden _syscall2(int, __settimeofday, const struct timeval *, tv,
+attribute_hidden _syscall2(int, settimeofday, const struct timeval *, tv,
 		  const struct timezone *, tz);
-strong_alias(__settimeofday,settimeofday)
+libc_hidden_proto(settimeofday)
+libc_hidden_def(settimeofday)

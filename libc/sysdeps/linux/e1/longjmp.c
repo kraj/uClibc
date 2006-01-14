@@ -40,10 +40,12 @@ void longjmp(jmp_buf state, int value )
 #undef _state_
 }
 
+libc_hidden_proto(sigprocmask)
+
 void siglongjmp(sigjmp_buf state, int value )
 {
 	if( state->__mask_was_saved )
-		__sigprocmask(SIG_SETMASK, &state->__saved_mask, NULL);
+		sigprocmask(SIG_SETMASK, &state->__saved_mask, NULL);
 
 	if(!value)
 		state->__jmpbuf->ReturnValue = 1;

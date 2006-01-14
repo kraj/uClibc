@@ -1,4 +1,4 @@
 #define USE_AS_STPCPY
-#define STRCPY __stpcpy
+#define STRCPY stpcpy
 #include "strcpy.S"
-strong_alias(__stpcpy,stpcpy)
+libc_hidden_def(stpcpy)

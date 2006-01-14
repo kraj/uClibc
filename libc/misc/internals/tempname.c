@@ -31,10 +31,6 @@
  * Use brain damaged getpid() if real random fails.
  */
 
-#define open64 __open64
-#define mkdir __mkdir
-#define gettimeofday __gettimeofday
-
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -49,12 +45,23 @@
 #include <sys/time.h>
 #include "tempname.h"
 
+libc_hidden_proto(strlen)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(sprintf)
+libc_hidden_proto(mkdir)
+libc_hidden_proto(open)
+libc_hidden_proto(open64)
+libc_hidden_proto(read)
+libc_hidden_proto(close)
+libc_hidden_proto(getpid)
+libc_hidden_proto(stat)
+libc_hidden_proto(gettimeofday)
 
 /* Return nonzero if DIR is an existent directory.  */
 static int direxists (const char *dir)
 {
     struct stat buf;
-    return __stat(dir, &buf) == 0 && S_ISDIR (buf.st_mode);
+    return stat(dir, &buf) == 0 && S_ISDIR (buf.st_mode);
 }
 
 /* Path search algorithm, for tmpnam, tmpfile, etc.  If DIR is
@@ -76,7 +83,7 @@ int attribute_hidden ___path_search (char *tmpl, size_t tmpl_len, const char *di
     }
     else
     {
-	plen = __strlen (pfx);
+	plen = strlen (pfx);
 	if (plen > 5)
 	    plen = 5;
     }
@@ -98,7 +105,7 @@ int attribute_hidden ___path_search (char *tmpl, size_t tmpl_len, const char *di
     {
 	if (direxists (P_tmpdir))
 	    dir = P_tmpdir;
-	else if (__strcmp (P_tmpdir, "/tmp") != 0 && direxists ("/tmp"))
+	else if (strcmp (P_tmpdir, "/tmp") != 0 && direxists ("/tmp"))
 	    dir = "/tmp";
 	else
 	{
@@ -107,7 +114,7 @@ int attribute_hidden ___path_search (char *tmpl, size_t tmpl_len, const char *di
 	}
     }
 
-    dlen = __strlen (dir);
+    dlen = strlen (dir);
     while (dlen > 1 && dir[dlen - 1] == '/')
 	dlen--;			/* remove trailing slashes */
 
@@ -118,7 +125,7 @@ int attribute_hidden ___path_search (char *tmpl, size_t tmpl_len, const char *di
 	return -1;
     }
 
-    __sprintf (tmpl, "%.*s/%.*sXXXXXX", dlen, dir, plen, pfx);
+    sprintf (tmpl, "%.*s/%.*sXXXXXX", dlen, dir, plen, pfx);
     return 0;
 }
 
@@ -131,13 +138,13 @@ static unsigned int fillrand(unsigned char *buf, unsigned int len)
 {
     int fd;
     unsigned int result = -1;
-    fd = __open("/dev/urandom", O_RDONLY);
+    fd = open("/dev/urandom", O_RDONLY);
     if (fd < 0) {
-	fd = __open("/dev/random", O_RDONLY | O_NONBLOCK);
+	fd = open("/dev/random", O_RDONLY | O_NONBLOCK);
     }
     if (fd >= 0) {
-	result = __read(fd, buf, len);
-	__close(fd);
+	result = read(fd, buf, len);
+	close(fd);
     }
     return result;
 }
@@ -149,7 +156,7 @@ static void brain_damaged_fillrand(unsigned char *buf, unsigned int len)
 	uint32_t high, low, rh;
 	static uint64_t value;
 	gettimeofday(&tv, NULL);
-	value += ((uint64_t) tv.tv_usec << 16) ^ tv.tv_sec ^ __getpid();
+	value += ((uint64_t) tv.tv_usec << 16) ^ tv.tv_sec ^ getpid();
 	low = value & UINT32_MAX;
 	high = value >> 32;
 	for (i = 0; i < len; ++i) {
@@ -188,10 +195,10 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind)
     unsigned char randomness[6];
     size_t len;
 
-    len = __strlen (tmpl);
+    len = strlen (tmpl);
     /* This is where the Xs start.  */
     XXXXXX = tmpl + len - 6;
-    if (len < 6 || __strcmp (XXXXXX, "XXXXXX"))
+    if (len < 6 || strcmp (XXXXXX, "XXXXXX"))
     {
 	__set_errno (EINVAL);
 	return -1;
@@ -212,7 +219,7 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind)
 	    case __GT_NOCREATE:
 		{
 		    struct stat st;
-		    if (__stat (tmpl, &st) < 0) {
+		    if (stat (tmpl, &st) < 0) {
 			if (errno == ENOENT) {
 			    fd = 0;
 			    goto restore_and_ret;
@@ -223,7 +230,7 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind)
 			fd = 0;
 		}
 	    case __GT_FILE:
-		fd = __open (tmpl, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+		fd = open (tmpl, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
 		break;
 #if defined __UCLIBC_HAS_LFS__
 	    case __GT_BIGFILE:

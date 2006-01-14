@@ -8,12 +8,13 @@
 #include <features.h>
 #include <string.h>
 
-char attribute_hidden *__glibc_strerror_r_internal(int errnum, char *strerrbuf, size_t buflen)
+libc_hidden_proto(__glibc_strerror_r)
+libc_hidden_proto(__xpg_strerror_r)
+
+char *__glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
-    __xpg_strerror_r_internal(errnum, strerrbuf, buflen);
+    __xpg_strerror_r(errnum, strerrbuf, buflen);
 
     return strerrbuf;
 }
-
-strong_alias(__glibc_strerror_r_internal,__glibc_strerror_r)
-/*hidden_weak_alias(__glibc_strerror_r_internal,__strerror_r)*/
+libc_hidden_def(__glibc_strerror_r)

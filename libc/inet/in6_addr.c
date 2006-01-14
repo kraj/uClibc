@@ -24,10 +24,12 @@
 #ifdef __UCLIBC_HAS_IPV6__
 const struct in6_addr in6addr_any =
 { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } };
-hidden_weak_alias (in6addr_any, __in6addr_any)
+//libc_hidden_proto(in6addr_any)
+//libc_hidden_def(in6addr_any)
 const struct in6_addr in6addr_loopback =
 { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } };
-hidden_weak_alias(in6addr_loopback, __in6addr_loopback)
+libc_hidden_proto(in6addr_loopback)
+libc_hidden_def(in6addr_loopback)
 #endif /* __UCLIBC_HAS_IPV6__ */
 
 

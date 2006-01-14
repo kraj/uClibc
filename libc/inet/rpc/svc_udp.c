@@ -39,21 +39,6 @@ static char sccsid[] = "@(#)svc_udp.c 1.24 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define xprt_register __xprt_register
-#define xprt_unregister __xprt_unregister
-#define xdrmem_create __xdrmem_create
-#define xdr_callmsg __xdr_callmsg
-#define xdr_replymsg __xdr_replymsg
-#define getsockname __getsockname
-#define setsockopt __setsockopt
-#define bind __bind
-#define bindresvport __bindresvport
-#define recvfrom __recvfrom
-#define sendto __sendto
-#define recvmsg __recvmsg
-#define sendmsg __sendmsg
-#define fputs __fputs
-
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -73,7 +58,30 @@ static char sccsid[] = "@(#)svc_udp.c 1.24 87/08/11 Copyr 1984 Sun Micro";
 # include <wchar.h>
 # include <libio/iolibio.h>
 # define fputs(s, f) _IO_fputs (s, f)
+libc_hidden_proto(fwprintf)
 #endif
+
+libc_hidden_proto(memcmp)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memset)
+libc_hidden_proto(perror)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(xprt_register)
+libc_hidden_proto(xprt_unregister)
+libc_hidden_proto(xdrmem_create)
+libc_hidden_proto(xdr_callmsg)
+libc_hidden_proto(xdr_replymsg)
+libc_hidden_proto(getsockname)
+libc_hidden_proto(setsockopt)
+libc_hidden_proto(bind)
+libc_hidden_proto(bindresvport)
+libc_hidden_proto(recvfrom)
+libc_hidden_proto(sendto)
+libc_hidden_proto(recvmsg)
+libc_hidden_proto(sendmsg)
+libc_hidden_proto(fputs)
+libc_hidden_proto(fprintf)
 
 #define rpc_buffer(xprt) ((xprt)->xp_p1)
 #ifndef MAX
@@ -127,8 +135,8 @@ struct svcudp_data
  * see (svc.h, xprt_register).
  * The routines returns NULL if a problem occurred.
  */
-SVCXPRT attribute_hidden *
-__svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
+SVCXPRT *
+svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
 {
   bool_t madesock = FALSE;
   SVCXPRT *xprt;
@@ -140,14 +148,14 @@ __svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
 
   if (sock == RPC_ANYSOCK)
     {
-      if ((sock = __socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+      if ((sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
 	{
-	  __perror (_("svcudp_create: socket creation problem"));
+	  perror (_("svcudp_create: socket creation problem"));
 	  return (SVCXPRT *) NULL;
 	}
       madesock = TRUE;
     }
-  __memset ((char *) &addr, 0, sizeof (addr));
+  memset ((char *) &addr, 0, sizeof (addr));
   addr.sin_family = AF_INET;
   if (bindresvport (sock, &addr))
     {
@@ -156,9 +164,9 @@ __svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
     }
   if (getsockname (sock, (struct sockaddr *) &addr, &len) != 0)
     {
-      __perror (_("svcudp_create - cannot getsockname"));
+      perror (_("svcudp_create - cannot getsockname"));
       if (madesock)
-	(void) __close (sock);
+	(void) close (sock);
       return (SVCXPRT *) NULL;
     }
   xprt = (SVCXPRT *) mem_alloc (sizeof (SVCXPRT));
@@ -168,7 +176,7 @@ __svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
     {
 #ifdef USE_IN_LIBIO
       if (_IO_fwide (stderr, 0) > 0)
-	(void) __fwprintf (stderr, L"%s", _("svcudp_create: out of memory\n"));
+	(void) fwprintf (stderr, L"%s", _("svcudp_create: out of memory\n"));
       else
 #endif
 	(void) fputs (_("svcudp_create: out of memory\n"), stderr);
@@ -194,7 +202,7 @@ __svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
     {
 # ifdef USE_IN_LIBIO
       if (_IO_fwide (stderr, 0) > 0)
-	(void) __fwprintf (stderr, L"%s",
+	(void) fwprintf (stderr, L"%s",
 			   _("svcudp_create: xp_pad is too small for IP_PKTINFO\n"));
       else
 # endif
@@ -211,20 +219,22 @@ __svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
 #endif
     /* Clear the padding. */
     pad = 0;
-  __memset (&xprt->xp_pad [0], pad, sizeof (xprt->xp_pad));
+  memset (&xprt->xp_pad [0], pad, sizeof (xprt->xp_pad));
 
   xprt_register (xprt);
   return xprt;
 }
-strong_alias(__svcudp_bufcreate,svcudp_bufcreate)
+libc_hidden_proto(svcudp_bufcreate)
+libc_hidden_def(svcudp_bufcreate)
 
-SVCXPRT attribute_hidden *
-__svcudp_create (int sock)
+SVCXPRT *
+svcudp_create (int sock)
 {
 
-  return __svcudp_bufcreate (sock, UDPMSGSIZE, UDPMSGSIZE);
+  return svcudp_bufcreate (sock, UDPMSGSIZE, UDPMSGSIZE);
 }
-strong_alias(__svcudp_create,svcudp_create)
+libc_hidden_proto(svcudp_create)
+libc_hidden_def(svcudp_create)
 
 static enum xprt_stat
 svcudp_stat (xprt)
@@ -387,7 +397,7 @@ svcudp_destroy (xprt)
   struct svcudp_data *su = su_data (xprt);
 
   xprt_unregister (xprt);
-  (void) __close (xprt->xp_sock);
+  (void) close (xprt->xp_sock);
   XDR_DESTROY (&(su->su_xdrs));
   mem_free (rpc_buffer (xprt), su->su_iosz);
   mem_free ((caddr_t) su, sizeof (struct svcudp_data));
@@ -420,7 +430,7 @@ svcudp_destroy (xprt)
 	(type *) mem_alloc((unsigned) (sizeof(type) * (size)))
 
 #define BZERO(addr, type, size)	 \
-	__memset((char *) addr, 0, sizeof(type) * (int) (size))
+	memset((char *) addr, 0, sizeof(type) * (int) (size))
 
 /*
  * An entry in the cache
@@ -598,7 +608,7 @@ cache_get (xprt, msg, replyp, replylenp)
   struct svcudp_data *su = su_data (xprt);
   struct udp_cache *uc = (struct udp_cache *) su->su_cache;
 
-#define EQADDR(a1, a2)	(__memcmp((char*)&a1, (char*)&a2, sizeof(a1)) == 0)
+#define EQADDR(a1, a2)	(memcmp((char*)&a1, (char*)&a2, sizeof(a1)) == 0)
 
   loc = CACHE_LOC (xprt, su->su_xid);
   for (ent = uc->uc_entries[loc]; ent != NULL; ent = ent->cache_next)
@@ -621,6 +631,6 @@ cache_get (xprt, msg, replyp, replylenp)
   uc->uc_proc = msg->rm_call.cb_proc;
   uc->uc_vers = msg->rm_call.cb_vers;
   uc->uc_prog = msg->rm_call.cb_prog;
-  __memcpy (&uc->uc_addr, &xprt->xp_raddr, sizeof (uc->uc_addr));
+  memcpy (&uc->uc_addr, &xprt->xp_raddr, sizeof (uc->uc_addr));
   return 0;
 }

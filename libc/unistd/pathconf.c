@@ -36,6 +36,8 @@
 
 //#include "linux_fsinfo.h"
 
+libc_hidden_proto(statfs)
+libc_hidden_proto(stat)
 
 /* The Linux kernel headers mention this as a kind of generic value.  */
 #define LINUX_LINK_MAX	127
@@ -57,7 +59,7 @@ long int pathconf(const char *path, int name)
 	struct statfs fsbuf;
 
 	/* Determine the filesystem type.  */
-	if (__statfs (path, &fsbuf) < 0)
+	if (statfs (path, &fsbuf) < 0)
 	{
 	    if (errno == ENOSYS)
 		/* not possible, return the default value.  */
@@ -131,7 +133,7 @@ long int pathconf(const char *path, int name)
 		struct statfs buf;
 		int save_errno = errno;
 
-		if (__statfs (path, &buf) < 0)
+		if (statfs (path, &buf) < 0)
 		{
 		    if (errno == ENOSYS)
 		    {
@@ -205,7 +207,7 @@ long int pathconf(const char *path, int name)
 		/* AIO is only allowed on regular files and block devices.  */
 		struct stat st;
 
-		if (__stat (path, &st) < 0 || (! S_ISREG (st.st_mode) && ! S_ISBLK (st.st_mode)))
+		if (stat (path, &st) < 0 || (! S_ISREG (st.st_mode) && ! S_ISBLK (st.st_mode)))
 		    return -1;
 		else
 		    return 1;

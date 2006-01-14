@@ -45,7 +45,7 @@
 
 	.text
 	.align		32
-ENTRY(__stpcpy)
+ENTRY(stpcpy)
 	sethi		%hi(0x01010101), %g1		/* IEU0		Group		*/
 	or		%g1, %lo(0x01010101), %g1	/* IEU0		Group		*/
 	andcc		%o0, 7, %g0			/* IEU1				*/
@@ -267,6 +267,5 @@ ENTRY(__stpcpy)
 	retl						/* CTI+IEU1	Group		*/
 
 	 mov		%g6, %o0			/* IEU0				*/
-END(__stpcpy)
-
-strong_alias(__stpcpy,stpcpy)
+END(stpcpy)
+libc_hidden_def(stpcpy)

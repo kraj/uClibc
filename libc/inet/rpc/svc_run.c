@@ -31,13 +31,6 @@
  * Wait for input, call server program.
  */
 
-#define svc_getreq_poll __svc_getreq_poll
-#define poll __poll
-
-/* used by svc_[max_]pollfd */
-#define __rpc_thread_svc_pollfd __rpc_thread_svc_pollfd_internal
-#define __rpc_thread_svc_max_pollfd __rpc_thread_svc_max_pollfd_internal
-
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -46,6 +39,13 @@
 #include <unistd.h>
 #include <sys/poll.h>
 #include <rpc/rpc.h>
+
+libc_hidden_proto(perror)
+libc_hidden_proto(svc_getreq_poll)
+libc_hidden_proto(poll)
+/* used by svc_[max_]pollfd */
+libc_hidden_proto(__rpc_thread_svc_pollfd)
+libc_hidden_proto(__rpc_thread_svc_max_pollfd)
 
 /* This function can be used as a signal handler to terminate the
    server loop.  */
@@ -83,7 +83,7 @@ svc_run (void)
 	  free (my_pollfd);
 	  if (errno == EINTR)
 	    continue;
-	  __perror (_("svc_run: - poll failed"));
+	  perror (_("svc_run: - poll failed"));
 	  return;
 	case 0:
 	  free (my_pollfd);

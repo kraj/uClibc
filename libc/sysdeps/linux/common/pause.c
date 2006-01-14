@@ -7,9 +7,6 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
-#define __sigpause __sigpause_internal
-#define sigblock __sigblock
-
 #include "syscalls.h"
 #include <unistd.h>
 
@@ -18,9 +15,12 @@
 _syscall0(int, __libc_pause);
 #else
 #include <signal.h>
+libc_hidden_proto(__sigpause)
+libc_hidden_proto(sigblock)
+
 int __libc_pause(void)
 {
 	return (__sigpause(sigblock(0), 0));
 }
 #endif
-weak_alias(__libc_pause, pause)
+strong_alias(__libc_pause,pause)

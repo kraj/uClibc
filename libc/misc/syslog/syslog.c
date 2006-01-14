@@ -31,14 +31,6 @@
  * SUCH DAMAGE.
  */
 
-#define ctime __ctime
-#define sigaction __sigaction
-#define connect __connect
-#define vsnprintf __vsnprintf
-
-#define __FORCE_GLIBC
-#define _GNU_SOURCE
-#include <features.h>
 /*
  * SYSLOG -- print message on log file
  *
@@ -66,6 +58,9 @@
  *  - Major code cleanup.
  */
 
+#define __FORCE_GLIBC
+#define _GNU_SOURCE
+#include <features.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/file.h>
@@ -85,7 +80,30 @@
 #include <ctype.h>
 #include <signal.h>
 
-extern time_t __time (time_t *__timer) attribute_hidden;
+libc_hidden_proto(openlog)
+libc_hidden_proto(syslog)
+libc_hidden_proto(vsyslog)
+libc_hidden_proto(closelog)
+
+libc_hidden_proto(memset)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memmove)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strncpy)
+libc_hidden_proto(open)
+/*libc_hidden_proto(fcntl)*/
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(write)
+libc_hidden_proto(getpid)
+libc_hidden_proto(ctime)
+libc_hidden_proto(sigaction)
+libc_hidden_proto(sigemptyset)
+libc_hidden_proto(connect)
+libc_hidden_proto(sprintf)
+libc_hidden_proto(vsnprintf)
+libc_hidden_proto(time)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
@@ -108,7 +126,7 @@ closelog_intern(int to_default)
 {
 	LOCK;
 	if (LogFile != -1) {
-	    (void) __close(LogFile);
+	    (void) close(LogFile);
 	}
 	LogFile = -1;
 	connected = 0;
@@ -131,8 +149,8 @@ sigpipe_handler (attribute_unused int sig)
 /*
  * OPENLOG -- open system log
  */
-void attribute_hidden
-__openlog( const char *ident, int logstat, int logfac )
+void
+openlog( const char *ident, int logstat, int logfac )
 {
     int logType = SOCK_DGRAM;
 
@@ -145,33 +163,33 @@ __openlog( const char *ident, int logstat, int logfac )
 	LogFacility = logfac;
     if (LogFile == -1) {
 	SyslogAddr.sa_family = AF_UNIX;
-	(void)__strncpy(SyslogAddr.sa_data, _PATH_LOG,
+	(void)strncpy(SyslogAddr.sa_data, _PATH_LOG,
 		      sizeof(SyslogAddr.sa_data));
 retry:
 	if (LogStat & LOG_NDELAY) {
-	    if ((LogFile = __socket(AF_UNIX, logType, 0)) == -1){
+	    if ((LogFile = socket(AF_UNIX, logType, 0)) == -1){
 		UNLOCK;
 		return;
 	    }
-	    /*			__fcntl(LogFile, F_SETFD, 1); */
+	    /*			fcntl(LogFile, F_SETFD, 1); */
 	}
     }
 
     if (LogFile != -1 && !connected) {
 	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) - 
-		    sizeof(SyslogAddr.sa_data) + __strlen(SyslogAddr.sa_data)) != -1)
+		    sizeof(SyslogAddr.sa_data) + strlen(SyslogAddr.sa_data)) != -1)
 	{
 	    connected = 1;
 	} else if (logType == SOCK_DGRAM) {
 	    logType = SOCK_STREAM;
 	    if (LogFile != -1) {
-		__close(LogFile);
+		close(LogFile);
 		LogFile = -1;
 	    }
 	    goto retry;
 	} else {
 	    if (LogFile != -1) {
-		__close(LogFile);
+		close(LogFile);
 		LogFile = -1;
 	    }
 	}
@@ -179,14 +197,14 @@ retry:
 
     UNLOCK;
 }
-strong_alias(__openlog,openlog)
+libc_hidden_def(openlog)
 
 /*
  * syslog, vsyslog --
  *     print message on log file; output is intended for syslogd(8).
  */
-void attribute_hidden
-__vsyslog( int pri, const char *fmt, va_list ap )
+void
+vsyslog( int pri, const char *fmt, va_list ap )
 {
 	register char *p;
 	char *last_chr, *head_end, *end, *stdp;
@@ -197,7 +215,7 @@ __vsyslog( int pri, const char *fmt, va_list ap )
 
 	struct sigaction action, oldaction;
 	int sigpipe;
-	__memset (&action, 0, sizeof (action));
+	memset (&action, 0, sizeof (action));
 	action.sa_handler = sigpipe_handler;
 	sigemptyset (&action.sa_mask);
 	sigpipe = sigaction (SIGPIPE, &action, &oldaction);
@@ -210,7 +228,7 @@ __vsyslog( int pri, const char *fmt, va_list ap )
 	if (!(LogMask & LOG_MASK(LOG_PRI(pri))) || (pri &~ (LOG_PRIMASK|LOG_FACMASK)))
 		goto getout;
 	if (LogFile < 0 || !connected)
-		__openlog(LogTag, LogStat | LOG_NDELAY, 0);
+		openlog(LogTag, LogStat | LOG_NDELAY, 0);
 
 	/* Set default facility if none specified. */
 	if ((pri & LOG_FACMASK) == 0)
@@ -220,16 +238,16 @@ __vsyslog( int pri, const char *fmt, va_list ap )
 	 * no longer than 64 characters plus length of the LogTag. So it's
 	 * safe to test only LogTag and use normal sprintf everywhere else.
 	 */
-	(void)__time(&now);
-	stdp = p = tbuf + __sprintf(tbuf, "<%d>%.15s ", pri, ctime(&now) + 4);
+	(void)time(&now);
+	stdp = p = tbuf + sprintf(tbuf, "<%d>%.15s ", pri, ctime(&now) + 4);
 	if (LogTag) {
-		if (__strlen(LogTag) < sizeof(tbuf) - 64)
-			p += __sprintf(p, "%s", LogTag);
+		if (strlen(LogTag) < sizeof(tbuf) - 64)
+			p += sprintf(p, "%s", LogTag);
 		else
-			p += __sprintf(p, "<BUFFER OVERRUN ATTEMPT>");
+			p += sprintf(p, "<BUFFER OVERRUN ATTEMPT>");
 	}
 	if (LogStat & LOG_PID)
-		p += __sprintf(p, "[%d]", __getpid());
+		p += sprintf(p, "[%d]", getpid());
 	if (LogTag) {
 		*p++ = ':';
 		*p++ = ' ';
@@ -246,9 +264,9 @@ __vsyslog( int pri, const char *fmt, va_list ap )
 	p += vsnprintf(p, end - p, fmt, ap);
 	if (p >= end || p < head_end) {	/* Returned -1 in case of error... */
 		static const char truncate_msg[12] = "[truncated] ";
-		__memmove(head_end + sizeof(truncate_msg), head_end,
+		memmove(head_end + sizeof(truncate_msg), head_end,
 			end - head_end - sizeof(truncate_msg));
-		__memcpy(head_end, truncate_msg, sizeof(truncate_msg));
+		memcpy(head_end, truncate_msg, sizeof(truncate_msg));
 		if (p < head_end) {
 			while (p < end && *p) {
 				p++;
@@ -264,14 +282,14 @@ __vsyslog( int pri, const char *fmt, va_list ap )
 	/* Output to stderr if requested. */
 	if (LogStat & LOG_PERROR) {
 		*last_chr = '\n';
-		(void)__write(STDERR_FILENO, stdp, last_chr - stdp + 1);
+		(void)write(STDERR_FILENO, stdp, last_chr - stdp + 1);
 	}
 
 	/* Output the message to the local logger using NUL as a message delimiter. */
 	p = tbuf;
 	*last_chr = 0;
 	do {
-		rc = __write(LogFile, p, last_chr + 1 - p);
+		rc = write(LogFile, p, last_chr + 1 - p);
 		if (rc < 0) {
 			if ((errno==EAGAIN) || (errno==EINTR))
 				rc=0;
@@ -292,12 +310,12 @@ __vsyslog( int pri, const char *fmt, va_list ap )
 	 */
 	/* should mode be `O_WRONLY | O_NOCTTY' ? -- Uli */
 	if (LogStat & LOG_CONS &&
-	    (fd = __open(_PATH_CONSOLE, O_WRONLY, 0)) >= 0) {
-		p = __strchr(tbuf, '>') + 1;
+	    (fd = open(_PATH_CONSOLE, O_WRONLY, 0)) >= 0) {
+		p = strchr(tbuf, '>') + 1;
 		last_chr[0] = '\r';
 		last_chr[1] = '\n';
-		(void)__write(fd, p, last_chr - p + 2);
-		(void)__close(fd);
+		(void)write(fd, p, last_chr - p + 2);
+		(void)close(fd);
 	}
 
 getout:
@@ -306,28 +324,28 @@ getout:
 		sigaction (SIGPIPE, &oldaction,
 			(struct sigaction *) NULL);
 }
-strong_alias(__vsyslog,vsyslog)
+libc_hidden_def(vsyslog)
 
-void attribute_hidden
-__syslog(int pri, const char *fmt, ...)
+void
+syslog(int pri, const char *fmt, ...)
 {
 	va_list ap;
 
 	va_start(ap, fmt);
-	__vsyslog(pri, fmt, ap);
+	vsyslog(pri, fmt, ap);
 	va_end(ap);
 }
-strong_alias(__syslog,syslog)
+libc_hidden_def(syslog)
 
 /*
  * CLOSELOG -- close the system log
  */
-void attribute_hidden
-__closelog( void )
+void
+closelog( void )
 {
 	closelog_intern(1);
 }
-strong_alias(__closelog,closelog)
+libc_hidden_def(closelog)
 
 /* setlogmask -- set the log mask level */
 int setlogmask(int pmask)

@@ -31,8 +31,6 @@
 static char sccsid[] = "@(#)rpc_dtablesize.c 1.2 87/08/11 Copyr 1987 Sun Micro";
 #endif
 
-#define getdtablesize __getdtablesize
-
 #define __FORCE_GLIBC
 #define __USE_BSD
 #include <features.h>
@@ -40,12 +38,14 @@ static char sccsid[] = "@(#)rpc_dtablesize.c 1.2 87/08/11 Copyr 1987 Sun Micro";
 #include <unistd.h>
 #include <rpc/clnt.h>
 
+libc_hidden_proto(getdtablesize)
+
 /*
  * Cache the result of getdtablesize(), so we don't have to do an
  * expensive system call every time.
  */
-int attribute_hidden
-_rpc_dtablesize_internal (void)
+int
+_rpc_dtablesize(void)
 {
   static int size;
 
@@ -54,4 +54,5 @@ _rpc_dtablesize_internal (void)
 
   return size;
 }
-strong_alias(_rpc_dtablesize_internal,_rpc_dtablesize)
+libc_hidden_proto(_rpc_dtablesize)
+libc_hidden_def(_rpc_dtablesize)

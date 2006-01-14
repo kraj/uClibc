@@ -15,11 +15,6 @@ License along with this library; see the file COPYING.LIB.  If
 not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
-#define strrchr __strrchr
-#define strcoll __strcoll
-#define qsort __qsort
-#define fnmatch __fnmatch
-
 #include <features.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,8 +28,17 @@ Cambridge, MA 02139, USA.  */
 #define _GNU_SOURCE
 #include <glob.h>
 
-extern DIR *__opendir (__const char *__name) __nonnull ((1)) attribute_hidden;
-extern int __closedir (DIR *__dirp) __nonnull ((1)) attribute_hidden;
+libc_hidden_proto(memcpy)
+libc_hidden_proto(strcat)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strrchr)
+libc_hidden_proto(strcoll)
+libc_hidden_proto(opendir)
+libc_hidden_proto(closedir)
+libc_hidden_proto(fnmatch)
+libc_hidden_proto(qsort)
+libc_hidden_proto(lstat)
 
 extern __ptr_t (*__glob_opendir_hook) __P ((const char *directory));
 extern void (*__glob_closedir_hook) __P ((__ptr_t stream));
@@ -51,12 +55,15 @@ static int collated_compare __P ((const __ptr_t, const __ptr_t));
 
 #ifdef __GLOB64
 extern int __glob_pattern_p(const char *pattern, int quote) attribute_hidden;
+libc_hidden_proto(readdir64)
+#define __readdir readdir64
 #else
-extern struct dirent *__readdir (DIR *__dirp) __nonnull ((1)) attribute_hidden;
 extern int __glob (__const char *__restrict __pattern, int __flags,
 		 int (*__errfunc) (__const char *, int),
 		 glob_t *__restrict __pglob) __THROW attribute_hidden;
 extern void __globfree (glob_t *__pglob) __THROW attribute_hidden;
+#define __readdir readdir
+libc_hidden_proto(readdir)
 /* Return nonzero if PATTERN contains any metacharacters.
    Metacharacters can be quoted with backslashes if QUOTE is nonzero.  */
 int attribute_hidden __glob_pattern_p(const char *pattern, int quote)
@@ -138,7 +145,7 @@ __glob (pattern, flags, errfunc, pglob)
     {
       dirlen = filename - pattern;
       dirname = (char *) alloca (dirlen + 1);
-      __memcpy (dirname, pattern, dirlen);
+      memcpy (dirname, pattern, dirlen);
       dirname[dirlen] = '\0';
       ++filename;
     }
@@ -230,11 +237,11 @@ __glob (pattern, flags, errfunc, pglob)
 	/* No matches.  */
 	if (flags & GLOB_NOCHECK)
 	{
-	    size_t len = __strlen (pattern) + 1;
+	    size_t len = strlen (pattern) + 1;
 	    char *patcopy = (char *) malloc (len);
 	    if (patcopy == NULL)
 	      return GLOB_NOSPACE;
-	    __memcpy (patcopy, pattern, len);
+	    memcpy (patcopy, pattern, len);
 
 	    pglob->gl_pathv
 	      = (char **) realloc (pglob->gl_pathv,
@@ -290,9 +297,9 @@ __glob (pattern, flags, errfunc, pglob)
       int i;
       struct stat st;
       for (i = oldcount; i < pglob->gl_pathc; ++i)
-	if (__lstat (pglob->gl_pathv[i], &st) == 0 &&
+	if (lstat (pglob->gl_pathv[i], &st) == 0 &&
 	    S_ISDIR (st.st_mode))
-	  __strcat (pglob->gl_pathv[i], "/");
+	  strcat (pglob->gl_pathv[i], "/");
     }
 
   if (!(flags & GLOB_NOSORT))
@@ -364,7 +371,7 @@ prefix_array (dirname, array, n, add_slash)
      int add_slash;
 {
   register size_t i;
-  size_t dirlen = __strlen (dirname);
+  size_t dirlen = strlen (dirname);
 
   if (dirlen == 1 && dirname[0] == '/')
     /* DIRNAME is just "/", so normal prepending would get us "//foo".
@@ -373,7 +380,7 @@ prefix_array (dirname, array, n, add_slash)
 
   for (i = 0; i < n; ++i)
     {
-      size_t eltlen = __strlen (array[i]) + 1;
+      size_t eltlen = strlen (array[i]) + 1;
       char *new = (char *) malloc (dirlen + 1 + eltlen + (add_slash ? 1 : 0));
       if (new == NULL)
 	{
@@ -382,9 +389,9 @@ prefix_array (dirname, array, n, add_slash)
 	  return 1;
 	}
 
-      __memcpy (new, dirname, dirlen);
+      memcpy (new, dirname, dirlen);
       new[dirlen] = '/';
-      __memcpy (&new[dirlen + 1], array[i], eltlen);
+      memcpy (&new[dirlen + 1], array[i], eltlen);
       free ((__ptr_t) array[i]);
       array[i] = new;
     }
@@ -417,7 +424,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
   int meta;
 
   stream = (__glob_opendir_hook ? (*__glob_opendir_hook) (directory)
-	   : (__ptr_t) __opendir (directory));
+	   : (__ptr_t) opendir (directory));
   if (stream == NULL)
     {
       if ((errfunc != NULL && (*errfunc) (directory, errno)) ||
@@ -457,7 +464,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 #endif
 	}
 		
-      if ((!meta && __strcmp (pattern, name) == 0)
+      if ((!meta && strcmp (pattern, name) == 0)
 	  || fnmatch (pattern, name,
 		      (!(flags & GLOB_PERIOD) ? FNM_PERIOD : 0) |
 		      ((flags & GLOB_NOESCAPE) ? FNM_NOESCAPE : 0)) == 0)
@@ -465,12 +472,12 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 	  struct globlink *new
 	    = (struct globlink *) alloca (sizeof (struct globlink));
 	  if (len == 0)
-	    len = __strlen (name);
+	    len = strlen (name);
 	  new->name
 	    = (char *) malloc (len + ((flags & GLOB_MARK) ? 1 : 0) + 1);
 	  if (new->name == NULL)
 	    goto memory_error;
-	  __memcpy ((__ptr_t) new->name, name, len);
+	  memcpy ((__ptr_t) new->name, name, len);
 	  new->name[len] = '\0';
 	  new->next = names;
 	  names = new;
@@ -482,14 +489,14 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 
   if (nfound == 0 && (flags & GLOB_NOCHECK))
     {
-      size_t len = __strlen (pattern);
+      size_t len = strlen (pattern);
       nfound = 1;
       names = (struct globlink *) alloca (sizeof (struct globlink));
       names->next = NULL;
       names->name = (char *) malloc (len + (flags & GLOB_MARK ? 1 : 0) + 1);
       if (names->name == NULL)
 	goto memory_error;
-      __memcpy (names->name, pattern, len);
+      memcpy (names->name, pattern, len);
       names->name[len] = '\0';
     }
 
@@ -517,7 +524,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
     if (__glob_closedir_hook)
       (*__glob_closedir_hook) (stream);
     else
-      (void) __closedir ((DIR *) stream);
+      (void) closedir ((DIR *) stream);
     errno = save;
   }
   return nfound == 0 ? GLOB_NOMATCH : 0;
@@ -528,7 +535,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
     if (__glob_closedir_hook)
       (*__glob_closedir_hook) (stream);
     else
-      (void) __closedir ((DIR *) stream);
+      (void) closedir ((DIR *) stream);
     errno = save;
   }
   while (names != NULL)

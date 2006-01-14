@@ -20,16 +20,17 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
+#include <features.h>
 #include <asm/unistd.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
 .text
-.global __clone
-.type   __clone,%function
+.global clone
+.type   clone,%function
 .align 4
 
-__clone:
+clone:
 	save	%sp,-96,%sp
 
 	/* sanity check arguments */
@@ -52,17 +53,14 @@ __clone:
 __error:
 	jmp __syscall_error
 
-.size __clone,.-__clone
+.size clone,.-clone
 
 .type __thread_start,%function
 
 __thread_start:
 	call	%i0
 	mov	%i3,%o0
-	call	_exit_internal,0
+	call	HIDDEN_JUMPTARGET(_exit),0
 	nop
 
 .size __thread_start,.-__thread_start
-
-.weak clone
-	clone = __clone

@@ -16,12 +16,11 @@
 
 #ifdef __NR_fork
 .text
-.global	__vfork
-.hidden	__vfork
-.type	__vfork,%function
+.global	vfork
+.type	vfork,%function
 .align 4
 
-__vfork:
+vfork:
 
 #ifdef __NR_vfork
 	swi	__NR_vfork
@@ -44,6 +43,6 @@ __vfork:
 __error:
 	b	__syscall_error
 
-.size __vfork,.-__vfork
-strong_alias(__vfork,vfork)
+.size vfork,.-vfork
+libc_hidden_def(vfork)
 #endif

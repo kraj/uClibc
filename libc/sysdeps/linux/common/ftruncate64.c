@@ -12,8 +12,6 @@
  * the main directory of this archive for more details.
  */
 
-#define ftruncate __ftruncate
-
 #include <features.h>
 #include <unistd.h>
 #include <errno.h>
@@ -64,6 +62,8 @@ int ftruncate64 (int fd, __off64_t length)
 #endif /* __WORDSIZE */
 
 #else  /* __NR_ftruncate64 */
+
+libc_hidden_proto(ftruncate)
 
 int ftruncate64 (int fd, __off64_t length)
 {

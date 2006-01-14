@@ -29,16 +29,19 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 
+libc_hidden_proto(statfs)
+libc_hidden_proto(stat)
+
 int statvfs (const char *file, struct statvfs *buf)
 {
     struct statfs fsbuf;
     struct stat st;
 
     /* Get as much information as possible from the system.  */
-    if (__statfs (file, &fsbuf) < 0)
+    if (statfs (file, &fsbuf) < 0)
 	return -1;
 
-#define STAT(st) __stat (file, st)
+#define STAT(st) stat (file, st)
 #include "internal_statvfs.c"
 
     /* We signal success if the statfs call succeeded.  */

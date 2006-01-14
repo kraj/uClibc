@@ -11,18 +11,16 @@
 #include <stdarg.h>
 #include <fcntl.h>
 
-#undef __fcntl
-
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
-extern int __fcntl64(int fd, int cmd, ...) attribute_hidden;
+extern int __libc_fcntl64(int fd, int cmd, ...);
+libc_hidden_proto(__libc_fcntl64)
 #endif
 
-#undef fcntl
 #define __NR___syscall_fcntl __NR_fcntl
 static inline
 _syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg);
 
-int attribute_hidden __fcntl(int fd, int cmd, ...)
+int __libc_fcntl(int fd, int cmd, ...)
 {
 	long arg;
 	va_list list;
@@ -33,7 +31,7 @@ int attribute_hidden __fcntl(int fd, int cmd, ...)
 
 	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) {
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
-		return __fcntl64(fd, cmd, arg);
+		return __libc_fcntl64(fd, cmd, arg);
 #else
 		__set_errno(ENOSYS);
 		return -1;
@@ -41,10 +39,15 @@ int attribute_hidden __fcntl(int fd, int cmd, ...)
 	}
 	return (__syscall_fcntl(fd, cmd, arg));
 }
-strong_alias(__fcntl,fcntl)
-weak_alias(__fcntl,__libc_fcntl)
+libc_hidden_proto(__libc_fcntl)
+libc_hidden_def(__libc_fcntl)
+
+strong_alias(__libc_fcntl,fcntl)
+libc_hidden_proto(fcntl)
+libc_hidden_def(fcntl)
 #if ! defined __NR_fcntl64 && defined __UCLIBC_HAS_LFS__
-hidden_strong_alias(__fcntl,__fcntl64)
-weak_alias(__fcntl,fcntl64)
-weak_alias(__fcntl,__libc_fcntl64)
+strong_alias(__libc_fcntl,__libc_fcntl64)
+strong_alias(__libc_fcntl,fcntl64)
+libc_hidden_proto(fcntl64)
+libc_hidden_def(fcntl64)
 #endif

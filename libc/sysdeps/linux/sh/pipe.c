@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <syscall.h>
 
-int attribute_hidden __pipe(int *fd)
+int pipe(int *fd)
 {
 	long __res, __res2;
 	__asm__ __volatile__ (
@@ -27,4 +27,3 @@ int attribute_hidden __pipe(int *fd)
 	fd[1] = __res2;
 	return(0);
 }
-strong_alias(__pipe,pipe)

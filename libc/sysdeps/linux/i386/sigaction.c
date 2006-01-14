@@ -29,6 +29,8 @@
 
 
 #if defined __NR_rt_sigaction
+libc_hidden_proto(memcpy)
+
 extern void restore_rt (void) asm ("__restore_rt") attribute_hidden;
 extern void restore (void) asm ("__restore") attribute_hidden;
 
@@ -48,7 +50,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
-	__memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
+	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
 	kact.sa_flags = act->sa_flags;
 
 	kact.sa_flags = act->sa_flags | SA_RESTORER;
@@ -63,7 +65,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (oact && result >= 0) {
 	oact->sa_handler = koact.k_sa_handler;
-	__memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
+	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
 	oact->sa_flags = koact.sa_flags;
 	oact->sa_restorer = koact.sa_restorer;
     }
@@ -121,8 +123,9 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 #endif
 
 #ifndef LIBC_SIGACTION
-hidden_weak_alias(__libc_sigaction,__sigaction)
-weak_alias(__libc_sigaction,sigaction)
+strong_alias(__libc_sigaction,sigaction)
+libc_hidden_proto(sigaction)
+libc_hidden_def(sigaction)
 #endif
 
 

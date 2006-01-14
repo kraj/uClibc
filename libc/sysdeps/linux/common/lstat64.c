@@ -15,11 +15,10 @@
 #include "xstatconv.h"
 
 #define __NR___syscall_lstat64 __NR_lstat64
-#undef lstat64
 static inline _syscall2(int, __syscall_lstat64, const char *, file_name,
 		  struct kernel_stat64 *, buf);
 
-int attribute_hidden __lstat64(const char *file_name, struct stat64 *buf)
+int lstat64(const char *file_name, struct stat64 *buf)
 {
 	int result;
 	struct kernel_stat64 kbuf;
@@ -30,6 +29,7 @@ int attribute_hidden __lstat64(const char *file_name, struct stat64 *buf)
 	}
 	return result;
 }
-strong_alias(__lstat64,lstat64)
+libc_hidden_proto(lstat64)
+libc_hidden_def(lstat64)
 
 #endif							/* __UCLIBC_HAS_LFS__ */

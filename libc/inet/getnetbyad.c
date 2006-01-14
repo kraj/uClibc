@@ -15,13 +15,13 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#define setnetent __setnetent
-#define getnetent __getnetent
-#define endnetent __endnetent
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include <netdb.h>
+
+libc_hidden_proto(setnetent)
+libc_hidden_proto(getnetent)
+libc_hidden_proto(endnetent)
 
 extern int _net_stayopen attribute_hidden;
 

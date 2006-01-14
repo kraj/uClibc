@@ -42,9 +42,9 @@
 #define CTID        TLS+PTR_SIZE
 
 .text
-.global __clone
-.type   __clone,%function
-__clone:
+.global clone
+.type   clone,%function
+clone:
 	/* Sanity check arguments.  */
 	movl	$-EINVAL,%eax
 
@@ -120,7 +120,4 @@ __clone:
 __error:
 	jmp __syscall_error
 
-.size __clone,.-__clone
-
-.weak clone
-	clone = __clone
+.size clone,.-clone

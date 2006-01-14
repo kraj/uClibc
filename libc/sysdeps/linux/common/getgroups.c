@@ -7,12 +7,12 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
-#define sysconf __sysconf
-
 #include "syscalls.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <grp.h>
+
+libc_hidden_proto(sysconf)
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
@@ -20,7 +20,7 @@
 static inline _syscall2(int, __syscall_getgroups,
 		int, size, __kernel_gid_t *, list);
 
-int attribute_hidden __getgroups(int size, gid_t groups[])
+int getgroups(int size, gid_t groups[])
 {
 	if (unlikely(size < 0)) {
 ret_error:
@@ -47,4 +47,5 @@ ret_error:
 		return ngids;
 	}
 }
-strong_alias(__getgroups,getgroups)
+libc_hidden_proto(getgroups)
+libc_hidden_def(getgroups)

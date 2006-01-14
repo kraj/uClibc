@@ -32,12 +32,11 @@
 #include <features.h>
 
 .text
-.global __memcmp
-.hidden __memcmp
-.type __memcmp,%function
+.global memcmp
+.type memcmp,%function
 .align 4
 
-__memcmp:
+memcmp:
 	/* if ((len - 1) < 0) return 0 */
 	subs	r2, r2, #1
 	movmi	r0, #0
@@ -54,7 +53,7 @@ __memcmp:
 	sub	r0, r2, r3
 	mov	pc, lr
 
-.size __memcmp,.-__memcmp
+.size memcmp,.-memcmp
 
-strong_alias(__memcmp,memcmp)
-strong_alias(__memcmp,bcmp)
+libc_hidden_def(memcmp)
+strong_alias(memcmp,bcmp)

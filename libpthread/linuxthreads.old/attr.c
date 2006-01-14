@@ -15,6 +15,7 @@
 /* changed for uClibc */
 #define __sched_get_priority_min sched_get_priority_min
 #define __sched_get_priority_max sched_get_priority_max
+#define __getpagesize getpagesize
 
 /* Handling of thread attributes */
 
@@ -24,8 +25,6 @@
 #include <sys/param.h>
 #include "pthread.h"
 #include "internals.h"
-
-extern int __getpagesize(void);
 
 /* NOTE: With uClibc I don't think we need this versioning stuff.
  * Therefore, define the function pthread_attr_init() here using

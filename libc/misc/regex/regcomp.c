@@ -835,8 +835,9 @@ init_dfa (re_dfa_t *dfa, size_t pat_len)
 
 #ifdef __UCLIBC_HAS_WCHAR__
 # undef MB_CUR_MAX
-# define	MB_CUR_MAX	(_stdlib_mb_cur_max_internal ())
-extern size_t _stdlib_mb_cur_max_internal (void) __THROW __wur attribute_hidden;
+# define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
+extern size_t _stdlib_mb_cur_max (void) __THROW __wur;
+libc_hidden_proto(_stdlib_mb_cur_max)
   dfa->mb_cur_max = MB_CUR_MAX;
 #else
   dfa->mb_cur_max = 1;

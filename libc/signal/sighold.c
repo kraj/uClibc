@@ -23,6 +23,9 @@
 #define _GNU_SOURCE
 #include <signal.h>
 
+libc_hidden_proto(sigprocmask)
+libc_hidden_proto(sigaddset)
+
 int
 sighold (sig)
      int sig;
@@ -30,7 +33,7 @@ sighold (sig)
   sigset_t set;
 
   /* Retrieve current signal set.  */
-  if (__sigprocmask (SIG_SETMASK, NULL, &set) < 0)
+  if (sigprocmask (SIG_SETMASK, NULL, &set) < 0)
     return -1;
 
   /* Add the specified signal.  */
@@ -38,5 +41,5 @@ sighold (sig)
     return -1;
 
   /* Set the new mask.  */
-  return __sigprocmask (SIG_SETMASK, &set, NULL);
+  return sigprocmask (SIG_SETMASK, &set, NULL);
 }

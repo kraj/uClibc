@@ -10,7 +10,7 @@
 #include "syscalls.h"
 #include <unistd.h>
 #include <sys/mman.h>
-#define __NR___mremap __NR_mremap
-attribute_hidden _syscall4(__ptr_t, __mremap, __ptr_t, old_address, size_t, old_size, size_t,
+_syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t,
 		  new_size, int, may_move);
-strong_alias(__mremap,mremap)
+libc_hidden_proto(mremap)
+libc_hidden_def(mremap)

@@ -37,24 +37,6 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-/* CMSG_NXTHDR is using it */
-#define __cmsg_nxthdr __cmsg_nxthdr_internal
-
-#define authnone_create __authnone_create
-#define xdrmem_create __xdrmem_create
-#define xdr_callhdr __xdr_callhdr
-#define xdr_replymsg __xdr_replymsg
-#define xdr_opaque_auth __xdr_opaque_auth
-#define pmap_getport __pmap_getport
-#define _seterr_reply __seterr_reply
-#define setsockopt __setsockopt
-#define bindresvport __bindresvport
-#define recvfrom __recvfrom
-#define sendto __sendto
-#define recvmsg __recvmsg
-#define poll __poll
-#define fputs __fputs
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -72,6 +54,7 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #include <net/if.h>
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
+libc_hidden_proto(fwprintf)
 #endif
 
 #ifdef IP_RECVERR
@@ -79,12 +62,30 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #include <sys/uio.h>
 #endif
 
-extern u_long _create_xid (void) attribute_hidden;
+libc_hidden_proto(memcmp)
+libc_hidden_proto(ioctl)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+/* CMSG_NXTHDR is using it */
+libc_hidden_proto(__cmsg_nxthdr)
 
-#undef get_rpc_createerr
-extern struct rpc_createerr *__rpc_thread_createerr_internal (void)
-     __attribute__ ((__const__)) attribute_hidden;
-#define get_rpc_createerr() (*__rpc_thread_createerr_internal ())
+libc_hidden_proto(authnone_create)
+libc_hidden_proto(xdrmem_create)
+libc_hidden_proto(xdr_callhdr)
+libc_hidden_proto(xdr_replymsg)
+libc_hidden_proto(xdr_opaque_auth)
+libc_hidden_proto(pmap_getport)
+libc_hidden_proto(_seterr_reply)
+libc_hidden_proto(setsockopt)
+libc_hidden_proto(bindresvport)
+libc_hidden_proto(recvfrom)
+libc_hidden_proto(sendto)
+libc_hidden_proto(recvmsg)
+libc_hidden_proto(poll)
+libc_hidden_proto(fputs)
+libc_hidden_proto(__rpc_thread_createerr)
+
+extern u_long _create_xid (void) attribute_hidden;
 
 /*
  * UDP bases client side rpc operations
@@ -143,8 +144,8 @@ struct cu_data
  * sendsz and recvsz are the maximum allowable packet sizes that can be
  * sent and received.
  */
-CLIENT attribute_hidden *
-__clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
+CLIENT *
+clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
 		   struct timeval wait, int *sockp, u_int sendsz,
 		   u_int recvsz)
 {
@@ -161,7 +162,7 @@ __clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
       struct rpc_createerr *ce = &get_rpc_createerr ();
 #ifdef USE_IN_LIBIO
       if (_IO_fwide (stderr, 0) > 0)
-	(void) __fwprintf (stderr, L"%s",
+	(void) fwprintf (stderr, L"%s",
 			   _("clntudp_create: out of memory\n"));
       else
 #endif
@@ -207,7 +208,7 @@ __clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
     {
       int dontblock = 1;
 
-      *sockp = __socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+      *sockp = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
       if (*sockp < 0)
 	{
 	  struct rpc_createerr *ce = &get_rpc_createerr ();
@@ -218,7 +219,7 @@ __clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
       /* attempt to bind to prov port */
       (void) bindresvport (*sockp, (struct sockaddr_in *) 0);
       /* the sockets rpc controls are non-blocking */
-      (void) __ioctl (*sockp, FIONBIO, (char *) &dontblock);
+      (void) ioctl (*sockp, FIONBIO, (char *) &dontblock);
 #ifdef IP_RECVERR
       {
 	int on = 1;
@@ -241,16 +242,18 @@ fooy:
     mem_free ((caddr_t) cl, sizeof (CLIENT));
   return (CLIENT *) NULL;
 }
-strong_alias(__clntudp_bufcreate,clntudp_bufcreate)
+libc_hidden_proto(clntudp_bufcreate)
+libc_hidden_def(clntudp_bufcreate)
 
-CLIENT attribute_hidden *
-__clntudp_create (struct sockaddr_in *raddr, u_long program, u_long version, struct timeval wait, int *sockp)
+CLIENT *
+clntudp_create (struct sockaddr_in *raddr, u_long program, u_long version, struct timeval wait, int *sockp)
 {
 
-  return __clntudp_bufcreate (raddr, program, version, wait, sockp,
+  return clntudp_bufcreate (raddr, program, version, wait, sockp,
 			    UDPMSGSIZE, UDPMSGSIZE);
 }
-strong_alias(__clntudp_create,clntudp_create)
+libc_hidden_proto(clntudp_create)
+libc_hidden_def(clntudp_create)
 
 static int
 is_network_up (int sock)
@@ -262,13 +265,13 @@ is_network_up (int sock)
 
   ifc.ifc_len = sizeof (buf);
   ifc.ifc_buf = buf;
-  if (__ioctl(sock, SIOCGIFCONF, (char *) &ifc) == 0)
+  if (ioctl(sock, SIOCGIFCONF, (char *) &ifc) == 0)
     {
       ifr = ifc.ifc_req;
       for (n = ifc.ifc_len / sizeof (struct ifreq); n > 0; n--, ifr++)
 	{
 	  ifreq = *ifr;
-	  if (__ioctl (sock, SIOCGIFFLAGS, (char *) &ifreq) < 0)
+	  if (ioctl (sock, SIOCGIFFLAGS, (char *) &ifreq) < 0)
 	    break;
 
 	  if ((ifreq.ifr_flags & IFF_UP)
@@ -419,13 +422,13 @@ send_again:
 	  msg.msg_controllen = 256;
 	  ret = recvmsg (cu->cu_sock, &msg, MSG_ERRQUEUE);
 	  if (ret >= 0
-	      && __memcmp (cbuf + 256, cu->cu_outbuf, ret) == 0
+	      && memcmp (cbuf + 256, cu->cu_outbuf, ret) == 0
 	      && (msg.msg_flags & MSG_ERRQUEUE)
 	      && ((msg.msg_namelen == 0
 		   && ret >= 12)
 		  || (msg.msg_namelen == sizeof (err_addr)
 		      && err_addr.sin_family == AF_INET
-		      && __memcmp (&err_addr.sin_addr, &cu->cu_raddr.sin_addr,
+		      && memcmp (&err_addr.sin_addr, &cu->cu_raddr.sin_addr,
 				 sizeof (err_addr.sin_addr)) == 0
 		      && err_addr.sin_port == cu->cu_raddr.sin_port)))
 	    for (cmsg = CMSG_FIRSTHDR (&msg); cmsg;
@@ -620,7 +623,7 @@ clntudp_destroy (CLIENT *cl)
 
   if (cu->cu_closeit)
     {
-      (void) __close (cu->cu_sock);
+      (void) close (cu->cu_sock);
     }
   XDR_DESTROY (&(cu->cu_outxdrs));
   mem_free ((caddr_t) cu, (sizeof (*cu) + cu->cu_sendsz + cu->cu_recvsz));

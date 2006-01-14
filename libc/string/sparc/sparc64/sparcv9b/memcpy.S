@@ -36,7 +36,7 @@
 	.text
 	.align	32
 
-ENTRY(__bcopy)
+ENTRY(bcopy)
 	sub		%o1, %o0, %o4
 	mov		%o0, %g4
 	cmp		%o4, %o2
@@ -50,8 +50,8 @@ ENTRY(__bcopy)
 	 add		%o0, %o2, %o0
 	retl
 	 nop
-END(__bcopy)
-strong_alias(__bcopy,bcopy)
+END(bcopy)
+libc_hidden_def(bcopy)
 
 	/* Special/non-trivial issues of this code:
 	 *
@@ -68,7 +68,7 @@ strong_alias(__bcopy,bcopy)
 	 * of up to 2.4GB per second.
 	 */
 	.align		32
-ENTRY(__memcpy)
+ENTRY(memcpy)
 
 100: /* %o0=dst, %o1=src, %o2=len */
 	mov		%o0, %g5
@@ -329,8 +329,8 @@ small_copy_unaligned:
 	retl
 	 mov		%g5, %o0
 
-END(__memcpy)
-strong_alias(__memcpy,memcpy)
+END(memcpy)
+libc_hidden_def(memcpy)
 
 #define RMOVE_BIGCHUNK(src, dst, offset, t0, t1, t2, t3)	\
 	ldx		[%src - offset - 0x20], %t0; 		\
@@ -405,7 +405,7 @@ strong_alias(__memcpy,memcpy)
 	 mov		%g4, %o0
 
 	.align		32
-ENTRY(__memmove)
+ENTRY(memmove)
 	mov		%o0, %g5
 #ifndef USE_BPR
 	srl		%o2, 0, %o2			/* IEU1		Group		*/
@@ -597,8 +597,8 @@ ENTRY(__memmove)
 234:	wr		%g0, FPRS_FEF, %fprs
 	retl
 	 mov		%g4, %o0
-END(__memmove)
-strong_alias(__memmove,memmove)
+END(memmove)
+libc_hidden_def(memmove)
 
 #ifdef USE_BPR
 weak_alias(memcpy,__align_cpy_1)

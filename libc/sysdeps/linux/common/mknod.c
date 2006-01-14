@@ -15,7 +15,7 @@
 static inline _syscall3(int, __syscall_mknod, const char *, path,
 		__kernel_mode_t, mode, __kernel_dev_t, dev);
 
-int attribute_hidden __mknod(const char *path, mode_t mode, dev_t dev)
+int mknod(const char *path, mode_t mode, dev_t dev)
 {
 	/* We must convert the dev_t value to a __kernel_dev_t */
 	__kernel_dev_t k_dev;
@@ -23,4 +23,5 @@ int attribute_hidden __mknod(const char *path, mode_t mode, dev_t dev)
 	k_dev = ((major(dev) & 0xff) << 8) | (minor(dev) & 0xff);
 	return __syscall_mknod(path, mode, k_dev);
 }
-strong_alias(__mknod,mknod)
+libc_hidden_proto(mknod)
+libc_hidden_def(mknod)

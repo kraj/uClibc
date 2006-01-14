@@ -18,8 +18,6 @@ Cambridge, MA 02139, USA.  */
 
 /* Hacked up for uClibc by Erik Andersen */
 
-#define sigaction __sigaction
-
 #define _GNU_SOURCE
 #include <features.h>
 #include <signal.h>
@@ -30,6 +28,13 @@ Cambridge, MA 02139, USA.  */
 #include <signal.h>
 #include <errno.h>
 
+libc_hidden_proto(abort)
+
+libc_hidden_proto(memset)
+libc_hidden_proto(sigaction)
+libc_hidden_proto(sigprocmask)
+libc_hidden_proto(raise)
+libc_hidden_proto(_exit)
 
 /* Our last ditch effort to commit suicide */
 #if defined(__alpha__)
@@ -80,12 +85,8 @@ static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #define LOCK	__pthread_mutex_lock(&mylock)
 #define UNLOCK	__pthread_mutex_unlock(&mylock)
 
-extern int __raise (int __sig) __THROW attribute_hidden;
-
 /* Cause an abnormal program termination with core-dump */
-#undef __abort
-#undef abort
-void attribute_hidden __abort(void)
+void abort(void)
 {
 	sigset_t sigset;
 
@@ -94,7 +95,7 @@ void attribute_hidden __abort(void)
 
 	/* Unmask SIGABRT to be sure we can get it */
 	if (__sigemptyset(&sigset) == 0 && __sigaddset(&sigset, SIGABRT) == 0) {
-		__sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
+		sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
 	}
 
 	while (1) {
@@ -114,7 +115,7 @@ void attribute_hidden __abort(void)
 
 abort_it:
 			UNLOCK;
-			__raise(SIGABRT);
+			raise(SIGABRT);
 			LOCK;
 		}
 
@@ -123,7 +124,7 @@ abort_it:
 			struct sigaction act;
 
 			been_there_done_that++;
-			__memset(&act, '\0', sizeof(struct sigaction));
+			memset(&act, '\0', sizeof(struct sigaction));
 			act.sa_handler = SIG_DFL;
 			__sigfillset(&act.sa_mask);
 			act.sa_flags = 0;
@@ -141,7 +142,7 @@ abort_it:
 		/* Still here?  Try to at least exit */
 		if (been_there_done_that == 3) {
 			been_there_done_that++;
-			_exit_internal(127);
+			_exit(127);
 		}
 
 		/* Still here?  We're screwed.  Sleepy time.  Good night. */
@@ -150,4 +151,4 @@ abort_it:
 			ABORT_INSTRUCTION;
 	}
 }
-strong_alias(__abort,abort)
+libc_hidden_def(abort)

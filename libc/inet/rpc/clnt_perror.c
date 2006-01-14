@@ -38,8 +38,6 @@ static char sccsid[] = "@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
  *
  */
 
-#define fputs __fputs
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -51,6 +49,15 @@ static char sccsid[] = "@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
 # include <wchar.h>
 # include <libio/iolibio.h>
 # define fputs(s, f) _IO_fputs (s, f)
+#endif
+
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strlen)
+libc_hidden_proto(sprintf)
+libc_hidden_proto(__glibc_strerror_r)
+libc_hidden_proto(fputs)
+#ifdef USE_IN_LIBIO
+libc_hidden_proto(fwprintf)
 #endif
 
 static char *auth_errmsg (enum auth_stat stat) internal_function;
@@ -179,8 +186,8 @@ static const struct rpc_errtab rpc_errlist[] =
 /*
  * This interface for use by clntrpc
  */
-char attribute_hidden *
-__clnt_sperrno (enum clnt_stat stat)
+char *
+clnt_sperrno (enum clnt_stat stat)
 {
   size_t i;
 
@@ -193,24 +200,25 @@ __clnt_sperrno (enum clnt_stat stat)
     }
   return _("RPC: (unknown error code)");
 }
-strong_alias(__clnt_sperrno,clnt_sperrno)
+libc_hidden_proto(clnt_sperrno)
+libc_hidden_def(clnt_sperrno)
 
 void
 clnt_perrno (enum clnt_stat num)
 {
 #ifdef USE_IN_LIBIO
   if (_IO_fwide (stderr, 0) > 0)
-    (void) __fwprintf (stderr, L"%s", __clnt_sperrno (num));
+    (void) fwprintf (stderr, L"%s", clnt_sperrno (num));
   else
 #endif
-    (void) fputs (__clnt_sperrno (num), stderr);
+    (void) fputs (clnt_sperrno (num), stderr);
 }
 
 /*
  * Print reply error info
  */
-char attribute_hidden *
-__clnt_sperror (CLIENT * rpch, const char *msg)
+char *
+clnt_sperror (CLIENT * rpch, const char *msg)
 {
   char chrbuf[1024];
   struct rpc_err e;
@@ -223,11 +231,11 @@ __clnt_sperror (CLIENT * rpch, const char *msg)
     return NULL;
   CLNT_GETERR (rpch, &e);
 
-  len = __sprintf (str, "%s: ", msg);
+  len = sprintf (str, "%s: ", msg);
   str += len;
 
-  (void) __strcpy(str, __clnt_sperrno(e.re_status));
-  str += __strlen(str);
+  (void) strcpy(str, clnt_sperrno(e.re_status));
+  str += strlen(str);
 
   switch (e.re_status)
     {
@@ -248,43 +256,43 @@ __clnt_sperror (CLIENT * rpch, const char *msg)
 
     case RPC_CANTSEND:
     case RPC_CANTRECV:
-      __glibc_strerror_r_internal (e.re_errno, chrbuf, sizeof chrbuf);
-      len = __sprintf (str, "; errno = %s", chrbuf); 
+      __glibc_strerror_r (e.re_errno, chrbuf, sizeof chrbuf);
+      len = sprintf (str, "; errno = %s", chrbuf); 
       str += len;
       break;
 
     case RPC_VERSMISMATCH:
-      len= __sprintf (str, _("; low version = %lu, high version = %lu"),
+      len= sprintf (str, _("; low version = %lu, high version = %lu"),
 		    e.re_vers.low, e.re_vers.high);
       str += len;
       break;
 
     case RPC_AUTHERROR:
       err = auth_errmsg (e.re_why);
-      (void) __strcpy(str, _("; why = "));
-      str += __strlen(str);
+      (void) strcpy(str, _("; why = "));
+      str += strlen(str);
 
       if (err != NULL)
 	{
-	  (void) __strcpy(str, err);
-	  str += __strlen(str);
+	  (void) strcpy(str, err);
+	  str += strlen(str);
 	}
       else
 	{
-	  len = __sprintf (str, _("(unknown authentication error - %d)"),
+	  len = sprintf (str, _("(unknown authentication error - %d)"),
 			 (int) e.re_why);
 	  str += len;
 	}
       break;
 
     case RPC_PROGVERSMISMATCH:
-      len = __sprintf (str, _("; low version = %lu, high version = %lu"),
+      len = sprintf (str, _("; low version = %lu, high version = %lu"),
 		     e.re_vers.low, e.re_vers.high);
       str += len;
       break;
 
     default:			/* unknown */
-      len = __sprintf (str, "; s1 = %lu, s2 = %lu", e.re_lb.s1, e.re_lb.s2);
+      len = sprintf (str, "; s1 = %lu, s2 = %lu", e.re_lb.s1, e.re_lb.s2);
       str += len;
       break;
     }
@@ -292,22 +300,24 @@ __clnt_sperror (CLIENT * rpch, const char *msg)
   *++str = '\0';
   return (strstart);
 }
-strong_alias(__clnt_sperror,clnt_sperror)
+libc_hidden_proto(clnt_sperror)
+libc_hidden_def(clnt_sperror)
 
-void attribute_hidden
-__clnt_perror (CLIENT * rpch, const char *msg)
+void
+clnt_perror (CLIENT * rpch, const char *msg)
 {
 #ifdef USE_IN_LIBIO
   if (_IO_fwide (stderr, 0) > 0)
-    (void) __fwprintf (stderr, L"%s", __clnt_sperror (rpch, msg));
+    (void) fwprintf (stderr, L"%s", clnt_sperror (rpch, msg));
   else
 #endif
-    (void) fputs (__clnt_sperror (rpch, msg), stderr);
+    (void) fputs (clnt_sperror (rpch, msg), stderr);
 }
-strong_alias(__clnt_perror,clnt_perror)
+libc_hidden_proto(clnt_perror)
+libc_hidden_def(clnt_perror)
 
-char attribute_hidden *
-__clnt_spcreateerror (const char *msg)
+char *
+clnt_spcreateerror (const char *msg)
 {
   char chrbuf[1024];
   char *str = _buf ();
@@ -318,29 +328,29 @@ __clnt_spcreateerror (const char *msg)
   if (str == NULL)
     return NULL;
   ce = &get_rpc_createerr ();
-  len = __sprintf (str, "%s: ", msg);
+  len = sprintf (str, "%s: ", msg);
   cp = str + len;
-  (void) __strcpy(cp, __clnt_sperrno (ce->cf_stat));
-  cp += __strlen(cp);
+  (void) strcpy(cp, clnt_sperrno (ce->cf_stat));
+  cp += strlen(cp);
 
   switch (ce->cf_stat)
     {
     case RPC_PMAPFAILURE:
-      (void) __strcpy(cp, " - ");
-      cp += __strlen(cp);
+      (void) strcpy(cp, " - ");
+      cp += strlen(cp);
 
-      (void) __strcpy(cp, __clnt_sperrno (ce->cf_error.re_status));
-      cp += __strlen(cp);
+      (void) strcpy(cp, clnt_sperrno (ce->cf_error.re_status));
+      cp += strlen(cp);
 
       break;
 
     case RPC_SYSTEMERROR:
-      (void) __strcpy(cp, " - ");
-      cp += __strlen(cp);
+      (void) strcpy(cp, " - ");
+      cp += strlen(cp);
 
-      __glibc_strerror_r_internal (ce->cf_error.re_errno, chrbuf, sizeof chrbuf);
-      (void) __strcpy(cp, chrbuf);
-      cp += __strlen(cp);
+      __glibc_strerror_r (ce->cf_error.re_errno, chrbuf, sizeof chrbuf);
+      (void) strcpy(cp, chrbuf);
+      cp += strlen(cp);
       break;
     default:
       break;
@@ -349,17 +359,18 @@ __clnt_spcreateerror (const char *msg)
   *++cp = '\0';
   return str;
 }
-strong_alias(__clnt_spcreateerror,clnt_spcreateerror)
+libc_hidden_proto(clnt_spcreateerror)
+libc_hidden_def(clnt_spcreateerror)
 
 void
 clnt_pcreateerror (const char *msg)
 {
 #ifdef USE_IN_LIBIO
   if (_IO_fwide (stderr, 0) > 0)
-    (void) __fwprintf (stderr, L"%s", __clnt_spcreateerror (msg));
+    (void) fwprintf (stderr, L"%s", clnt_spcreateerror (msg));
   else
 #endif
-    (void) fputs (__clnt_spcreateerror (msg), stderr);
+    (void) fputs (clnt_spcreateerror (msg), stderr);
 }
 
 struct auth_errtab

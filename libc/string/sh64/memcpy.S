@@ -39,12 +39,11 @@
 #include <features.h>
 
 	.section .text..SHmedia32,"ax"
-	.globl	__memcpy
-	.hidden	__memcpy
-	.type	__memcpy, @function
+	.globl	memcpy
+	.type	memcpy, @function
 	.align	5
 
-__memcpy:
+memcpy:
 
 #define LDUAQ(P,O,D0,D1) ldlo.q P,O,D0; ldhi.q P,O+7,D1
 #define STUAQ(P,O,D0,D1) stlo.q P,O,D0; sthi.q P,O+7,D1
@@ -201,6 +200,6 @@ Loop_ua:
 	stlo.q r5, 8, r1
 	blink tr1, r63
 
-	.size __memcpy,.-__memcpy
+	.size memcpy,.-memcpy
 
-strong_alias(__memcpy,memcpy)
+libc_hidden_def(memcpy)

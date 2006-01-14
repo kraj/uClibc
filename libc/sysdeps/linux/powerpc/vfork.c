@@ -9,7 +9,7 @@
 	return (__sc_err & 0x10000000 ? errno = __sc_ret, __sc_ret = -1 : 0), \
 	       (type) __sc_ret
 
-pid_t attribute_hidden __vfork(void)
+pid_t vfork(void)
 {
 	unsigned long __sc_ret, __sc_err;
 	register unsigned long __sc_0 __asm__ ("r0");
@@ -46,4 +46,5 @@ pid_t attribute_hidden __vfork(void)
 
 	__syscall_return (pid_t);
 }
-strong_alias(__vfork,vfork)
+libc_hidden_proto(vfork)
+libc_hidden_def(vfork)

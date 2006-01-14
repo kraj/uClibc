@@ -10,4 +10,5 @@
 #include "syscalls.h"
 #include <unistd.h>
 _syscall2(int, truncate, const char *, path, __off_t, length);
-hidden_strong_alias(truncate, __truncate)
+libc_hidden_proto(truncate)
+libc_hidden_def(truncate)

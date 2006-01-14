@@ -16,8 +16,9 @@
 static inline _syscall2(int, __syscall_statfs,
 		const char *, path, struct statfs *, buf);
 
-int attribute_hidden __statfs(const char *path, struct statfs * buf)
+int statfs(const char *path, struct statfs * buf)
 {
 	return __syscall_statfs(path, buf);
 }
-strong_alias(__statfs,statfs)
+libc_hidden_proto(statfs)
+libc_hidden_def(statfs)

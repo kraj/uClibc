@@ -1,10 +1,15 @@
-#define wait4 __wait4
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <syscall.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/resource.h>
 
+libc_hidden_proto(wait4)
 
 /* Wait for a child to exit.  When one does, put its status in *STAT_LOC and
  * return its process ID.  For errors return (pid_t) -1.  If USAGE is not nil,

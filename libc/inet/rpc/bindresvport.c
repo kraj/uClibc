@@ -30,8 +30,6 @@
  * Copyright (c) 1987 by Sun Microsystems, Inc.
  */
 
-#define bind __bind
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -42,11 +40,15 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+libc_hidden_proto(memset)
+libc_hidden_proto(bind)
+libc_hidden_proto(getpid)
+
 /*
  * Bind a socket to a privileged IP port
  */
-int attribute_hidden
-__bindresvport (int sd, struct sockaddr_in *sin)
+int
+bindresvport (int sd, struct sockaddr_in *sin)
 {
   int res;
   static short port;
@@ -60,7 +62,7 @@ __bindresvport (int sd, struct sockaddr_in *sin)
   if (sin == (struct sockaddr_in *) 0)
     {
       sin = &myaddr;
-      __memset (sin, 0, sizeof (*sin));
+      memset (sin, 0, sizeof (*sin));
       sin->sin_family = AF_INET;
     }
   else if (sin->sin_family != AF_INET)
@@ -71,7 +73,7 @@ __bindresvport (int sd, struct sockaddr_in *sin)
 
   if (port == 0)
     {
-      port = (__getpid () % NPORTS) + STARTPORT;
+      port = (getpid () % NPORTS) + STARTPORT;
     }
   res = -1;
   __set_errno (EADDRINUSE);
@@ -88,4 +90,5 @@ __bindresvport (int sd, struct sockaddr_in *sin)
 
   return res;
 }
-strong_alias(__bindresvport,bindresvport)
+libc_hidden_proto(bindresvport)
+libc_hidden_def(bindresvport)

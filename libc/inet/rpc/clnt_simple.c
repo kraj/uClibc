@@ -38,9 +38,6 @@ static char sccsid[] = "@(#)clnt_simple.c 1.35 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define clntudp_create __clntudp_create
-#define gethostbyname_r __gethostbyname_r
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -52,6 +49,13 @@ static char sccsid[] = "@(#)clnt_simple.c 1.35 87/08/11 Copyr 1984 Sun Micro";
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strncpy)
+libc_hidden_proto(close)
+libc_hidden_proto(clntudp_create)
+libc_hidden_proto(gethostbyname_r)
 
 struct callrpc_private_s
   {
@@ -90,7 +94,7 @@ callrpc (const char *host, u_long prognum, u_long versnum, u_long procnum,
       crp->socket = RPC_ANYSOCK;
     }
   if (crp->valid && crp->oldprognum == prognum && crp->oldversnum == versnum
-      && __strcmp (crp->oldhost, host) == 0)
+      && strcmp (crp->oldhost, host) == 0)
     {
       /* reuse old client */
     }
@@ -103,7 +107,7 @@ callrpc (const char *host, u_long prognum, u_long versnum, u_long procnum,
       crp->valid = 0;
       if (crp->socket != RPC_ANYSOCK)
 	{
-	  (void) __close (crp->socket);
+	  (void) close (crp->socket);
 	  crp->socket = RPC_ANYSOCK;
 	}
       if (crp->client)
@@ -128,7 +132,7 @@ callrpc (const char *host, u_long prognum, u_long versnum, u_long procnum,
 
       timeout.tv_usec = 0;
       timeout.tv_sec = 5;
-      __memcpy ((char *) &server_addr.sin_addr, hp->h_addr, hp->h_length);
+      memcpy ((char *) &server_addr.sin_addr, hp->h_addr, hp->h_length);
       server_addr.sin_family = AF_INET;
       server_addr.sin_port = 0;
       if ((crp->client = clntudp_create (&server_addr, (u_long) prognum,
@@ -137,7 +141,7 @@ callrpc (const char *host, u_long prognum, u_long versnum, u_long procnum,
       crp->valid = 1;
       crp->oldprognum = prognum;
       crp->oldversnum = versnum;
-      (void) __strncpy (crp->oldhost, host, 255);
+      (void) strncpy (crp->oldhost, host, 255);
       crp->oldhost[255] = '\0';
     }
   tottimeout.tv_sec = 25;

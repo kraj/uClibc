@@ -16,21 +16,25 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define setvbuf __setvbuf
-#define tcsetattr __tcsetattr
-#define tcgetattr __tcgetattr
-#define fileno __fileno
-#define fflush __fflush
-#define fgets __fgets
-#define fputs __fputs
-
 #include <stdio.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
 #include <string.h>
 
-extern int __putc(int c, FILE *stream) attribute_hidden;
+libc_hidden_proto(strlen)
+libc_hidden_proto(tcsetattr)
+libc_hidden_proto(tcgetattr)
+libc_hidden_proto(setvbuf)
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(fileno)
+libc_hidden_proto(fflush)
+libc_hidden_proto(fgets)
+libc_hidden_proto(fputs)
+libc_hidden_proto(fputc)
+libc_hidden_proto(putc)
+libc_hidden_proto(__fputc_unlocked)
 
 /* It is desirable to use this bit on systems that have it.
    The only bit of terminal state we want to twiddle is echoing, which is
@@ -90,7 +94,7 @@ getpass (prompt)
   fgets (buf, PWD_BUFFER_SIZE-1, in);
   if (buf != NULL)
     {
-      nread = __strlen(buf);
+      nread = strlen(buf);
       if (nread < 0)
 	buf[0] = '\0';
       else if (buf[nread - 1] == '\n')
@@ -99,7 +103,7 @@ getpass (prompt)
 	  buf[nread - 1] = '\0';
 	  if (tty_changed)
 	    /* Write the newline that was not echoed.  */
-	    __putc('\n', out);
+	    putc('\n', out);
 	}
     }
 

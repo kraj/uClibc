@@ -42,6 +42,9 @@
 extern int __bsd_getpt (void) attribute_hidden;
 #endif
 
+libc_hidden_proto(open)
+libc_hidden_proto(close)
+
 /* Open a master pseudo terminal and return its file descriptor.  */
 int
 getpt (void)
@@ -55,7 +58,7 @@ getpt (void)
   if (!have_no_dev_ptmx)
 #endif
     {
-      fd = __open (_PATH_DEVPTMX, O_RDWR);
+      fd = open (_PATH_DEVPTMX, O_RDWR);
       if (fd != -1)
 	{
 #if defined __ASSUME_DEVPTS__
@@ -79,7 +82,7 @@ getpt (void)
 
 	  /* If /dev/pts is not mounted then the UNIX98 pseudo terminals
              are not usable.  */
-	  __close (fd);
+	  close (fd);
 #if !defined __UNIX98PTY_ONLY__
 	  have_no_dev_ptmx = 1;
 #endif

@@ -12,15 +12,19 @@
 #endif
 
 #ifndef __DO_LARGEFILE
-# define FSEEK         __fseek
+# define FSEEK         fseek
 # define OFFSET_TYPE   long int
 #endif
 
-int attribute_hidden FSEEK(register FILE *stream, OFFSET_TYPE offset, int whence)
+#if defined(__UCLIBC_HAS_LFS__) && !defined(__DO_LARGEFILE)
+libc_hidden_proto(fseeko64)
+#endif
+
+int FSEEK(register FILE *stream, OFFSET_TYPE offset, int whence)
 {
 #if defined(__UCLIBC_HAS_LFS__) && !defined(__DO_LARGEFILE)
 
-	return __fseeko64(stream, offset, whence);
+	return fseeko64(stream, offset, whence);
 
 #else
 
@@ -74,8 +78,10 @@ int attribute_hidden FSEEK(register FILE *stream, OFFSET_TYPE offset, int whence
 }
 
 #ifdef __DO_LARGEFILE
-strong_alias(__fseeko64,fseeko64)
+libc_hidden_proto(fseeko64)
+libc_hidden_def(fseeko64)
 #else
-strong_alias(__fseek,fseek)
-weak_alias(__fseek,fseeko)
+libc_hidden_proto(fseek)
+libc_hidden_def(fseek)
+strong_alias(fseek,fseeko)
 #endif

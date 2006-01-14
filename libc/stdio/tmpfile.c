@@ -16,13 +16,14 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define fdopen __fdopen
-#define remove __remove
-
 #include <features.h>
 #include <stdio.h>
 #include <unistd.h>
 #include "../misc/internals/tempname.h"
+
+libc_hidden_proto(fdopen)
+libc_hidden_proto(remove)
+libc_hidden_proto(close)
 
 /* This returns a new stream opened on a temporary file (generated
    by tmpnam).  The file is opened with mode "w+b" (binary read/write).
@@ -45,10 +46,10 @@ FILE * tmpfile (void)
     (void) remove (buf);
 
     if ((f = fdopen (fd, "w+b")) == NULL)
-	__close (fd);
+	close (fd);
 
     return f;
 }
 #ifdef __UCLIBC_HAS_LFS__
-weak_alias(tmpfile,tmpfile64)
+strong_alias(tmpfile,tmpfile64)
 #endif

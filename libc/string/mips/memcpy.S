@@ -40,7 +40,7 @@
 #  define SWLO	swl		/* low part is left in little-endian	*/
 #endif
 
-ENTRY (__memcpy)
+ENTRY (memcpy)
 	.set	noreorder
 
 	slti	t0, a2, 8		# Less than 8?
@@ -137,6 +137,6 @@ L(shfth):
 	move	a2, t0
 
 	.set	reorder
-END (__memcpy)
+END (memcpy)
 
-strong_alias(__memcpy,memcpy)
+libc_hidden_def(memcpy)

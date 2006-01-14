@@ -8,14 +8,13 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wmemset __wmemset
 # define Wmemset wmemset
 #else
-# define __Wmemset __memset
+libc_hidden_proto(memset)
 # define Wmemset memset
 #endif
 
-Wvoid attribute_hidden *__Wmemset(Wvoid *s, Wint c, size_t n)
+Wvoid *Wmemset(Wvoid *s, Wint c, size_t n)
 {
 	register Wuchar *p = (Wuchar *) s;
 #ifdef __BCC__
@@ -34,4 +33,6 @@ Wvoid attribute_hidden *__Wmemset(Wvoid *s, Wint c, size_t n)
 }
 #undef np
 
-strong_alias(__Wmemset,Wmemset)
+#ifndef WANT_WIDE
+libc_hidden_def(memset)
+#endif

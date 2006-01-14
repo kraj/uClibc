@@ -49,12 +49,6 @@
  * Should auto_wr_transition init the mbstate object?
 */
 
-#define wcslen __wcslen
-#define wcsrtombs __wcsrtombs
-#define mbrtowc __mbrtowc
-#define wcrtomb __wcrtomb
-#define fflush_unlocked __fflush_unlocked
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <wchar.h>
@@ -168,6 +162,8 @@ static void munge_stream(register FILE *stream, unsigned char *buf)
 	stream->bufpos = stream->bufread = stream->bufend = stream->bufstart = buf;
 }
 
+libc_hidden_proto(mbrtowc)
+
 UNLOCKED(wint_t,fgetwc,(register FILE *stream),(stream))
 {
 	wint_t wi;
@@ -263,6 +259,8 @@ UNLOCKED(wint_t,fgetwc,(register FILE *stream),(stream))
 
 	return wi;
 }
+libc_hidden_proto(fgetwc_unlocked)
+libc_hidden_def(fgetwc_unlocked)
 
 strong_alias(fgetwc_unlocked,getwc_unlocked)
 strong_alias(fgetwc,getwc)
@@ -270,6 +268,8 @@ strong_alias(fgetwc,getwc)
 #endif
 /**********************************************************************/
 #ifdef L_getwchar
+
+libc_hidden_proto(fgetwc_unlocked)
 
 UNLOCKED_STREAM(wint_t,getwchar,(void),(),stdin)
 {
@@ -282,6 +282,8 @@ UNLOCKED_STREAM(wint_t,getwchar,(void),(),stdin)
 /**********************************************************************/
 #ifdef L_fgetws
 
+libc_hidden_proto(fgetwc_unlocked)
+
 UNLOCKED(wchar_t *,fgetws,(wchar_t *__restrict ws, int n,
 						   FILE *__restrict stream),(ws, n, stream))
 {
@@ -289,7 +291,7 @@ UNLOCKED(wchar_t *,fgetws,(wchar_t *__restrict ws, int n,
 	wint_t wi;
 
 	while ((n > 1)
-		   && ((wi = __fgetwc_unlocked(stream)) != WEOF)
+		   && ((wi = fgetwc_unlocked(stream)) != WEOF)
 		   && ((*p++ = wi) != '\n')
 		   ) {
 		--n;
@@ -308,6 +310,8 @@ UNLOCKED(wchar_t *,fgetws,(wchar_t *__restrict ws, int n,
 #endif
 /**********************************************************************/
 #ifdef L_fputwc
+
+/* libc_hidden_proto(wcrtomb) */
 
 UNLOCKED(wint_t,fputwc,(wchar_t wc, FILE *stream),(wc, stream))
 {
@@ -329,6 +333,8 @@ UNLOCKED(wint_t,fputwc,(wchar_t wc, FILE *stream),(wc, stream))
 		? wc : WEOF;
 #endif
 }
+libc_hidden_proto(fputwc_unlocked)
+libc_hidden_def(fputwc_unlocked)
 
 strong_alias(fputwc_unlocked,putwc_unlocked)
 strong_alias(fputwc,putwc)
@@ -336,6 +342,8 @@ strong_alias(fputwc,putwc)
 #endif
 /**********************************************************************/
 #ifdef L_putwchar
+
+libc_hidden_proto(fputwc_unlocked)
 
 UNLOCKED_STREAM(wint_t,putwchar,(wchar_t wc),(wc),stdout)
 {
@@ -347,6 +355,9 @@ UNLOCKED_STREAM(wint_t,putwchar,(wchar_t wc),(wc),stdout)
 #endif
 /**********************************************************************/
 #ifdef L_fputws
+
+libc_hidden_proto(wcslen)
+/* libc_hidden_proto(wcsrtombs) */
 
 UNLOCKED(int,fputws,(const wchar_t *__restrict ws,
 					 register FILE *__restrict stream),(ws, stream))
@@ -392,6 +403,8 @@ UNLOCKED(int,fputws,(const wchar_t *__restrict ws,
  */
 
 /* Reentrant. */
+
+libc_hidden_proto(fflush_unlocked)
 
 wint_t ungetwc(wint_t c, register FILE *stream)
 {

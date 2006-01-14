@@ -88,15 +88,6 @@
  *   treats this as an error.
  */
 
-#define strnlen __strnlen
-#define wcslen __wcslen
-#define wcsnlen __wcsnlen
-#define wcsrtombs __wcsrtombs
-#define mbsrtowcs __mbsrtowcs
-#define btowc __btowc
-#define wcrtomb __wcrtomb
-#define fputws __fputws
-
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE
 #include <features.h>
@@ -126,6 +117,23 @@
 
 #include <bits/uClibc_uintmaxtostr.h>
 #include <bits/uClibc_va_copy.h>
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memset)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strnlen)
+libc_hidden_proto(__glibc_strerror_r)
+libc_hidden_proto(fputs_unlocked)
+libc_hidden_proto(abort)
+#ifdef __UCLIBC_HAS_WCHAR__
+libc_hidden_proto(wcslen)
+libc_hidden_proto(wcsnlen)
+libc_hidden_proto(mbsrtowcs)
+libc_hidden_proto(wcsrtombs)
+libc_hidden_proto(btowc)
+libc_hidden_proto(wcrtomb)
+libc_hidden_proto(fputws)
+#endif
 
 /* Some older or broken gcc toolchains define LONG_LONG_MAX but not
  * LLONG_MAX.  Since LLONG_MAX is part of the standard, that's what
@@ -510,7 +518,7 @@ int attribute_hidden _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 	int r;
 
 	/* First, zero out everything... argnumber[], argtype[], argptr[] */
-	__memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
+	memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
 #ifdef NL_ARGMAX
 	--ppfs->maxposarg;			/* set to -1 */
 #endif /* NL_ARGMAX */
@@ -1116,7 +1124,7 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 	} else {
 #endif /* NL_ARGMAX */
 		ppfs->argnumber[2] = 1;
-		__memcpy(ppfs->argtype, argtype + 2, ppfs->num_data_args * sizeof(int));
+		memcpy(ppfs->argtype, argtype + 2, ppfs->num_data_args * sizeof(int));
 #ifdef NL_ARGMAX
 	}
 
@@ -1196,13 +1204,12 @@ static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad);
 
 #ifdef L_vfprintf
 
-#define HIDDEN_VFPRINTF __vfprintf
 #define VFPRINTF vfprintf
 #define FMT_TYPE char
 #define OUTNSTR _outnstr
-#define STRLEN  __strlen
+#define STRLEN  strlen
 #define _PPFS_init _ppfs_init
-#define OUTPUT(F,S)			__fputs_unlocked(S,F)
+#define OUTPUT(F,S)			fputs_unlocked(S,F)
 /* #define _outnstr(stream, string, len)	__stdio_fwrite(string, len, stream) */
 #define _outnstr(stream, string, len)	((len > 0) ? __stdio_fwrite(string, len, stream) : 0)
 #define FP_OUT _fp_out_narrow
@@ -1214,7 +1221,7 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 	size_t r = 0;
 
 	if (type & 0x80) {			/* Some type of padding needed. */
-		int buflen = __strlen((const char *) buf);
+		int buflen = strlen((const char *) buf);
 		if ((len -= buflen) > 0) {
 			if ((r = _charpad(fp, (type & 0x7f), len)) != len) {
 				return r;
@@ -1229,7 +1236,6 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 
 #else  /* L_vfprintf */
 
-#define HIDDEN_VFPRINTF __vfwprintf
 #define VFPRINTF vfwprintf
 #define FMT_TYPE wchar_t
 #define OUTNSTR _outnwcs
@@ -1285,7 +1291,7 @@ static size_t _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 	int i;
 
 	if (type & 0x80) {			/* Some type of padding needed */
-		int buflen = __strlen(s);
+		int buflen = strlen(s);
 		if ((len -= buflen) > 0) {
 			if ((r = _charpad(fp, (type & 0x7f), len)) != len) {
 				return r;
@@ -1329,7 +1335,7 @@ static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 	int r;
 
 	/* First, zero out everything... argnumber[], argtype[], argptr[] */
-	__memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
+	memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
 #ifdef NL_ARGMAX
 	--ppfs->maxposarg;			/* set to -1 */
 #endif /* NL_ARGMAX */
@@ -1739,7 +1745,7 @@ static int _do_one_spec(FILE * __restrict stream,
 
 #ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
 		} else if (ppfs->conv_num == CONV_m) {
-			s = __glibc_strerror_r_internal(errno, buf, sizeof(buf));
+			s = __glibc_strerror_r(errno, buf, sizeof(buf));
 			goto SET_STRING_LEN;
 #endif
 		} else {
@@ -1847,7 +1853,9 @@ static int _do_one_spec(FILE * __restrict stream,
 	return 0;
 }
 
-int attribute_hidden HIDDEN_VFPRINTF (FILE * __restrict stream,
+libc_hidden_proto(fprintf)
+
+int VFPRINTF (FILE * __restrict stream,
 			  register const FMT_TYPE * __restrict format,
 			  va_list arg)
 {
@@ -1924,6 +1932,7 @@ int attribute_hidden HIDDEN_VFPRINTF (FILE * __restrict stream,
 
 	return count;
 }
-strong_alias(HIDDEN_VFPRINTF,VFPRINTF)
+libc_hidden_proto(VFPRINTF)
+libc_hidden_def(VFPRINTF)
 #endif
 /**********************************************************************/

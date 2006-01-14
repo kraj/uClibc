@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-char attribute_hidden *__strncpy(char * dest, const char * src, size_t count)
+char *strncpy(char * dest, const char * src, size_t count)
 {
     int d0, d1, d2, d3;
     __asm__ __volatile__(
@@ -52,5 +52,5 @@ char attribute_hidden *__strncpy(char * dest, const char * src, size_t count)
 	    :"0" (src),"1" (dest),"2" (count) : "memory");
     return dest;
 }
-
-strong_alias(__strncpy,strncpy)
+libc_hidden_proto(strncpy)
+libc_hidden_def(strncpy)

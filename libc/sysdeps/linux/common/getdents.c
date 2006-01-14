@@ -28,6 +28,9 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
+libc_hidden_proto(memcpy)
+libc_hidden_proto(lseek)
+
 #ifndef offsetof
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #endif
@@ -75,7 +78,7 @@ ssize_t attribute_hidden __getdents (int fd, char *buf, size_t nbytes)
 	    /* Our heuristic failed.  We read too many entries.  Reset
 	       the stream.  */
 	    assert (last_offset != -1);
-	    __lseek(fd, last_offset, SEEK_SET);
+	    lseek(fd, last_offset, SEEK_SET);
 
 	    if ((char *) dp == buf) {
 		/* The buffer the user passed in is too small to hold even
@@ -91,7 +94,7 @@ ssize_t attribute_hidden __getdents (int fd, char *buf, size_t nbytes)
 	dp->d_off = kdp->d_off;
 	dp->d_reclen = new_reclen;
 	dp->d_type = DT_UNKNOWN;
-	__memcpy (dp->d_name, kdp->d_name,
+	memcpy (dp->d_name, kdp->d_name,
 		kdp->d_reclen - offsetof (struct kernel_dirent, d_name));
 	dp = (struct dirent *) ((char *) dp + new_reclen);
 	kdp = (struct kernel_dirent *) (((char *) kdp) + kdp->d_reclen);

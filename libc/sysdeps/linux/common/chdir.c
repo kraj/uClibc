@@ -13,8 +13,9 @@
 
 #define __NR___syscall_chdir __NR_chdir
 static inline _syscall1(int, __syscall_chdir, const char *, path);
-int attribute_hidden __chdir(const char *path)
+int chdir(const char *path)
 {
 	return __syscall_chdir(path);
 }
-strong_alias(__chdir,chdir)
+libc_hidden_proto(chdir)
+libc_hidden_def(chdir)

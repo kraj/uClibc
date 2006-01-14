@@ -10,5 +10,5 @@
 #define __DO_LARGEFILE
 #define fgetpos	fgetpos64
 #define fpos_t        fpos64_t
-#define FTELL         __ftello64
+#define FTELL         ftello64
 #include "fgetpos.c"

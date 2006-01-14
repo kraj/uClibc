@@ -1,5 +1,8 @@
-#define setresuid __setresuid
-#define setreuid __setreuid
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #define _GNU_SOURCE
 #include <unistd.h>
@@ -9,7 +12,10 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-int attribute_hidden __seteuid(uid_t uid)
+libc_hidden_proto(setresuid)
+libc_hidden_proto(setreuid)
+
+int seteuid(uid_t uid)
 {
     int result;
 
@@ -29,4 +35,4 @@ int attribute_hidden __seteuid(uid_t uid)
 
     return result;
 }
-strong_alias(__seteuid,seteuid)
+libc_hidden_proto(seteuid)

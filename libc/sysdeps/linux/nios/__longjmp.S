@@ -100,10 +100,4 @@ __longjmp_done:
 	jmp	%o7		; and kinda return there.
 	mov	%o0,%g1		; (delay slot) return value
 
-
-
-
-
-
-
-
+libc_hidden_def(__longjmp)

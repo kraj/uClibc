@@ -209,7 +209,7 @@ static void _wordcopy_fwd_dest_aligned (long int dstp, long int srcp, size_t len
   ((op_t *) dstp)[0] = MERGE (a2, sh_1, a3, sh_2);
 }
 
-void attribute_hidden *__memcpy (void *dstpp, const void *srcpp, size_t len)
+void *memcpy (void *dstpp, const void *srcpp, size_t len)
 {
   unsigned long int dstp = (long int) dstpp;
   unsigned long int srcp = (long int) srcpp;
@@ -242,5 +242,5 @@ void attribute_hidden *__memcpy (void *dstpp, const void *srcpp, size_t len)
 
   return dstpp;
 }
-
-strong_alias(__memcpy,memcpy)
+libc_hidden_proto(memcpy)
+libc_hidden_def(memcpy)

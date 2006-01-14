@@ -11,6 +11,8 @@
 #include <locale.h>
 #include <bits/uClibc_uintmaxtostr.h>
 
+libc_hidden_proto(memcpy)
+
 /* Avoid using long long / and % operations to cut down dependencies on
  * libgcc.a.  Definitely helps on i386 at least. */
 #if (INTMAX_MAX > INT_MAX) && (((INTMAX_MAX/INT_MAX)/2) - 2 <= INT_MAX)
@@ -61,7 +63,7 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
 			bufend -= __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
-			__memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
+			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
 				   __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
 				/* Note: g[1] == -1 means no further grouping.  But since
@@ -79,7 +81,7 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
 #ifndef __LOCALE_C_ONLY
 		if (unlikely(outdigit)) {
 			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
-			__memcpy(bufend,
+			memcpy(bufend,
 				   (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
 				   __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
 		} else
@@ -104,7 +106,7 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
 			bufend -= __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
-			__memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
+			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
 				   __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
 				/* Note: g[1] == -1 means no further grouping.  But since
@@ -131,7 +133,7 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
 #ifndef __LOCALE_C_ONLY
 		if (unlikely(outdigit)) {
 			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
-			__memcpy(bufend,
+			memcpy(bufend,
 				   (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
 				   __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
 		} else

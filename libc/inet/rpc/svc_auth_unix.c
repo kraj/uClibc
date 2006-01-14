@@ -38,9 +38,6 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define xdrmem_create __xdrmem_create
-#define xdr_authunix_parms __xdr_authunix_parms
-
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -49,6 +46,11 @@
 #include <string.h>
 #include <rpc/rpc.h>
 #include <rpc/svc.h>
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(printf)
+libc_hidden_proto(xdrmem_create)
+libc_hidden_proto(xdr_authunix_parms)
 
 /*
  * Unix longhand authenticator
@@ -88,7 +90,7 @@ _svcauth_unix (struct svc_req *rqst, struct rpc_msg *msg)
 	  stat = AUTH_BADCRED;
 	  goto done;
 	}
-      __memcpy (aup->aup_machname, (caddr_t) buf, (u_int) str_len);
+      memcpy (aup->aup_machname, (caddr_t) buf, (u_int) str_len);
       aup->aup_machname[str_len] = 0;
       str_len = RNDUP (str_len);
       buf = (int32_t *) ((char *) buf + str_len);
@@ -111,7 +113,7 @@ _svcauth_unix (struct svc_req *rqst, struct rpc_msg *msg)
        */
       if ((5 + gid_len) * BYTES_PER_XDR_UNIT + str_len > auth_len)
 	{
-	  (void) __printf ("bad auth_len gid %d str %d auth %d\n",
+	  (void) printf ("bad auth_len gid %d str %d auth %d\n",
 			 gid_len, str_len, auth_len);
 	  stat = AUTH_BADCRED;
 	  goto done;

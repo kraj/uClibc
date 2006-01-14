@@ -9,15 +9,14 @@
 
 #ifndef __DO_LARGEFILE
 # define FILEDES_ARG    (-1)
-#undef __fopen
 #undef fopen
 #else
-#undef __fopen64
 #undef fopen64
 #endif
 
-FILE attribute_hidden *__fopen(const char * __restrict filename, const char * __restrict mode)
+FILE *fopen(const char * __restrict filename, const char * __restrict mode)
 {
 	return _stdio_fopen(((intptr_t) filename), mode, NULL, FILEDES_ARG);
 }
-strong_alias(__fopen,fopen)
+libc_hidden_proto(fopen)
+libc_hidden_def(fopen)

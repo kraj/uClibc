@@ -24,10 +24,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+libc_hidden_proto(abort)
+
 #include "memcopy.h"
 
 /* Find the first occurrence of C in S or the final NUL byte.  */
-char attribute_hidden *__strchrnul (const char *s, int c_in)
+char *strchrnul (const char *s, int c_in)
 {
   const unsigned char *char_ptr;
   const unsigned long int *longword_ptr;
@@ -161,5 +163,5 @@ char attribute_hidden *__strchrnul (const char *s, int c_in)
   /* This should never happen.  */
   return NULL;
 }
-
-strong_alias(__strchrnul,strchrnul)
+libc_hidden_proto(strchrnul)
+libc_hidden_def(strchrnul)

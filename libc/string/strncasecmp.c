@@ -9,44 +9,40 @@
 #include <ctype.h>
 #include <locale.h>
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-extern int __strncasecmp_l (__const char *__s1, __const char *__s2,
-			  size_t __n, __locale_t __loc)
-     __THROW __attribute_pure__ __nonnull ((1, 2, 4)) attribute_hidden;
-extern int __wcsncasecmp_l (__const wchar_t *__s1, __const wchar_t *__s2,
-			  size_t __n, __locale_t __loc) __THROW attribute_hidden;
-#endif
-
 #ifdef WANT_WIDE
 # define strncasecmp wcsncasecmp
-# define __strncasecmp __wcsncasecmp
 # define strncasecmp_l wcsncasecmp_l
-# define __strncasecmp_l __wcsncasecmp_l
 # ifdef __UCLIBC_DO_XLOCALE
-#  define TOLOWER(C) __towlower_l((C), locale_arg)
-extern wint_t __towlower_l (wint_t __wc, __locale_t __locale) __THROW attribute_hidden;
+libc_hidden_proto(towlower_l)
+#  define TOLOWER(C) towlower_l((C), locale_arg)
 # else
-#  define TOLOWER(C) __towlower((C))
+libc_hidden_proto(towlower)
+#  define TOLOWER(C) towlower((C))
 # endif
 #else
 # ifdef __UCLIBC_DO_XLOCALE
-#  define TOLOWER(C) __tolower_l((C), locale_arg)
+libc_hidden_proto(tolower_l)
+#  define TOLOWER(C) tolower_l((C), locale_arg)
 # else
-#  define TOLOWER(C) __tolower((C))
+libc_hidden_proto(tolower)
+#  define TOLOWER(C) tolower((C))
 # endif
 #endif
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-int attribute_hidden __strncasecmp(register const Wchar *s1, register const Wchar *s2, size_t n)
+libc_hidden_proto(strncasecmp_l)
+
+int strncasecmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 {
-	return __strncasecmp_l(s1, s2, n, __UCLIBC_CURLOCALE);
+	return strncasecmp_l(s1, s2, n, __UCLIBC_CURLOCALE);
 }
-strong_alias(__strncasecmp,strncasecmp)
+libc_hidden_proto(strncasecmp)
+libc_hidden_def(strncasecmp)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-int attribute_hidden __UCXL(strncasecmp)(register const Wchar *s1, register const Wchar *s2,
+int __XL_NPP(strncasecmp)(register const Wchar *s1, register const Wchar *s2,
 					  size_t n   __LOCALE_PARAM )
 {
 #ifdef WANT_WIDE
@@ -73,6 +69,7 @@ int attribute_hidden __UCXL(strncasecmp)(register const Wchar *s1, register cons
 	return r;
 #endif
 }
-__UCXL_ALIAS(strncasecmp)
+libc_hidden_proto(__XL_NPP(strncasecmp))
+libc_hidden_def(__XL_NPP(strncasecmp))
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */

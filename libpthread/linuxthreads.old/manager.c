@@ -14,7 +14,7 @@
 
 /* The "thread manager" thread: manages creation and termination of threads */
 
-/* mods for uClibc: getpwd and getpagesize are the syscalls */
+/* mods for uClibc: getpid and getpagesize are the syscalls */
 #define __getpid getpid
 #define __getpagesize getpagesize
 

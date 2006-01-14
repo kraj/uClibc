@@ -5,13 +5,13 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define rmdir __rmdir
-#define unlink __unlink
-
 #include "_stdio.h"
 
 #include <unistd.h>
 #include <errno.h>
+
+libc_hidden_proto(rmdir)
+libc_hidden_proto(unlink)
 
 /* SUSv3 states:
  *   If path does not name a directory, remove(path) shall be equivalent
@@ -19,7 +19,7 @@
  *   equivalent to rmdir(path). 
  */
 
-int attribute_hidden __remove(register const char *filename)
+int remove(register const char *filename)
 {
 	int saved_errno = errno;
 	int rv;
@@ -30,4 +30,5 @@ int attribute_hidden __remove(register const char *filename)
 	}
 	return rv;
 }
-strong_alias(__remove,remove)
+libc_hidden_proto(remove)
+libc_hidden_def(remove)

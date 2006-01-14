@@ -10,4 +10,5 @@
 #include "syscalls.h"
 #include <unistd.h>
 _syscall2(int, ftruncate, int, fd, __off_t, length);
-hidden_strong_alias(ftruncate, __ftruncate)
+libc_hidden_proto(ftruncate)
+libc_hidden_def(ftruncate)

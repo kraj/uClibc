@@ -40,16 +40,15 @@
 #include <features.h>
 
 .text
-.global __memmove
-.hidden __memmove
-.type __memmove,%function
+.global memmove
+.type memmove,%function
 .align 4
 
-__memmove:
+memmove:
 	stmfd	sp!, {r0, lr}
 	bl	_memcpy
 	ldmfd	sp!, {r0, pc}
 
-.size __memmove,.-__memmove
+.size memmove,.-memmove
 
-strong_alias(__memmove,memmove)
+libc_hidden_def(memmove)

@@ -51,11 +51,6 @@
 ** SUCH DAMAGE.
 */
 
-#define strpbrk __strpbrk
-#define atoi __atoi
-#define rewind __rewind
-#define fgets __fgets
-
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -69,6 +64,14 @@
 #include <arpa/inet.h>
 #include <errno.h>
 
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strpbrk)
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(atoi)
+libc_hidden_proto(rewind)
+libc_hidden_proto(fgets)
+libc_hidden_proto(abort)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
@@ -97,7 +100,7 @@ static void __initbuf(void)
     }
 }
 
-extern void attribute_hidden __setservent(int f)
+void setservent(int f)
 {
     LOCK;
     if (servf == NULL)
@@ -107,9 +110,10 @@ extern void attribute_hidden __setservent(int f)
     serv_stayopen |= f;
     UNLOCK;
 }
-strong_alias(__setservent,setservent)
+libc_hidden_proto(setservent)
+libc_hidden_def(setservent)
 
-extern void attribute_hidden __endservent(void)
+void endservent(void)
 {
     LOCK;
     if (servf) {
@@ -119,9 +123,10 @@ extern void attribute_hidden __endservent(void)
     serv_stayopen = 0;
     UNLOCK;
 }
-strong_alias(__endservent,endservent)
+libc_hidden_proto(endservent)
+libc_hidden_def(endservent)
 
-extern int attribute_hidden __getservent_r(struct servent * result_buf,
+int getservent_r(struct servent * result_buf,
 		 char * buf, size_t buflen,
 		 struct servent ** result)
 {
@@ -200,18 +205,19 @@ again:
     UNLOCK;
     return 0;
 }
-strong_alias(__getservent_r,getservent_r)
+libc_hidden_proto(getservent_r)
+libc_hidden_def(getservent_r)
 
 struct servent * getservent(void)
 {
     struct servent *result;
 
     __initbuf();
-    __getservent_r(&serv, servbuf, SBUFSIZE, &result);
+    getservent_r(&serv, servbuf, SBUFSIZE, &result);
     return result;
 }
 
-extern int attribute_hidden __getservbyname_r(const char *name, const char *proto,
+int getservbyname_r(const char *name, const char *proto,
 	struct servent * result_buf, char * buf, size_t buflen,
 	struct servent ** result)
 {
@@ -219,62 +225,65 @@ extern int attribute_hidden __getservbyname_r(const char *name, const char *prot
     int ret;
 
     LOCK;
-    __setservent(serv_stayopen);
-    while (!(ret=__getservent_r(result_buf, buf, buflen, result))) {
-	if (__strcmp(name, result_buf->s_name) == 0)
+    setservent(serv_stayopen);
+    while (!(ret=getservent_r(result_buf, buf, buflen, result))) {
+	if (strcmp(name, result_buf->s_name) == 0)
 	    goto gotname;
 	for (cp = result_buf->s_aliases; *cp; cp++)
-	    if (__strcmp(name, *cp) == 0)
+	    if (strcmp(name, *cp) == 0)
 		goto gotname;
 	continue;
 gotname:
-	if (proto == 0 || __strcmp(result_buf->s_proto, proto) == 0)
+	if (proto == 0 || strcmp(result_buf->s_proto, proto) == 0)
 	    break;
     }
     if (!serv_stayopen)
-	__endservent();
+	endservent();
     UNLOCK;
     return *result?0:ret;
 }
-strong_alias(__getservbyname_r,getservbyname_r)
+libc_hidden_proto(getservbyname_r)
+libc_hidden_def(getservbyname_r)
 
 struct servent *getservbyname(const char *name, const char *proto)
 {
     struct servent *result;
 
     __initbuf();
-    __getservbyname_r(name, proto, &serv, servbuf, SBUFSIZE, &result);
+    getservbyname_r(name, proto, &serv, servbuf, SBUFSIZE, &result);
     return result;
 }
 
 
-extern int attribute_hidden __getservbyport_r(int port, const char *proto,
+int getservbyport_r(int port, const char *proto,
 	struct servent * result_buf, char * buf,
 	size_t buflen, struct servent ** result)
 {
     int ret;
 
     LOCK;
-    __setservent(serv_stayopen);
-    while (!(ret=__getservent_r(result_buf, buf, buflen, result))) {
+    setservent(serv_stayopen);
+    while (!(ret=getservent_r(result_buf, buf, buflen, result))) {
 	if (result_buf->s_port != port)
 	    continue;
-	if (proto == 0 || __strcmp(result_buf->s_proto, proto) == 0)
+	if (proto == 0 || strcmp(result_buf->s_proto, proto) == 0)
 	    break;
     }
     if (!serv_stayopen)
-	__endservent();
+	endservent();
     UNLOCK;
     return *result?0:ret;
 }
-strong_alias(__getservbyport_r,getservbyport_r)
+libc_hidden_proto(getservbyport_r)
+libc_hidden_def(getservbyport_r)
 
-struct servent attribute_hidden * __getservbyport(int port, const char *proto)
+struct servent * getservbyport(int port, const char *proto)
 {
     struct servent *result;
 
     __initbuf();
-    __getservbyport_r(port, proto, &serv, servbuf, SBUFSIZE, &result);
+    getservbyport_r(port, proto, &serv, servbuf, SBUFSIZE, &result);
     return result;
 }
-strong_alias(__getservbyport,getservbyport)
+libc_hidden_proto(getservbyport)
+libc_hidden_def(getservbyport)

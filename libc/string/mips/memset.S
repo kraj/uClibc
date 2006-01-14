@@ -34,7 +34,7 @@
 # define SWHI	swr		/* high part is right in little-endian	*/
 #endif
 
-ENTRY (__memset)
+ENTRY (memset)
 	.set	noreorder
 
 	slti	t1, a2, 8		# Less than 8?
@@ -87,6 +87,6 @@ L(exit):
 	nop
 
 	.set	reorder
-END (__memset)
+END (memset)
 
-strong_alias(__memset,memset)
+libc_hidden_def(memset)

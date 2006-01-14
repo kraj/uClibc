@@ -25,6 +25,7 @@
 #include <signal.h>
 
 extern int __longjmp(char *env, int val);
+libc_hidden_proto(__longjmp)
 
 /* Set the signal mask to the one specified in ENV, and jump
    to the position specified in ENV, causing the setjmp

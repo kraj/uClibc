@@ -37,12 +37,6 @@
  * from the stream.
  */
 
-#define fread __fread
-#define fwrite __fwrite
-#define fseek __fseek
-#define fflush __fflush
-#define ftell __ftell
-
 #include <rpc/types.h>
 #include <stdio.h>
 #include <rpc/xdr.h>
@@ -54,6 +48,12 @@
 # define ftell(s) _IO_ftell (s)
 # define fwrite(p, m, n, s) _IO_fwrite (p, m, n, s)
 #endif
+
+libc_hidden_proto(fread)
+libc_hidden_proto(fwrite)
+libc_hidden_proto(fseek)
+libc_hidden_proto(fflush)
+libc_hidden_proto(ftell)
 
 static bool_t xdrstdio_getlong (XDR *, long *);
 static bool_t xdrstdio_putlong (XDR *, const long *);

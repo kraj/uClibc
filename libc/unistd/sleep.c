@@ -18,19 +18,25 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define sigaction __sigaction
-#define nanosleep __nanosleep
-
 #include <errno.h>
 #include <time.h>
 #include <signal.h>
 #include <unistd.h>
 
+libc_hidden_proto(sleep)
+
+libc_hidden_proto(sigaction)
+libc_hidden_proto(sigprocmask)
+//libc_hidden_proto(__sigaddset)
+//libc_hidden_proto(__sigemptyset)
+//libc_hidden_proto(__sigismember)
+libc_hidden_proto(nanosleep)
+
 #if 0
 /* This is a quick and dirty, but not 100% compliant with
  * the stupid SysV SIGCHLD vs. SIG_IGN behaviour.  It is
  * fine unless you are messing with SIGCHLD...  */
-unsigned int attribute_hidden __sleep (unsigned int sec)
+unsigned int sleep (unsigned int sec)
 {
 	unsigned int res;
 	struct timespec ts = { .tv_sec = (long int) seconds, .tv_nsec = 0 };
@@ -44,7 +50,7 @@ unsigned int attribute_hidden __sleep (unsigned int sec)
 /* We are going to use the `nanosleep' syscall of the kernel.  But the
    kernel does not implement the sstupid SysV SIGCHLD vs. SIG_IGN
    behaviour for this syscall.  Therefore we have to emulate it here.  */
-unsigned int attribute_hidden __sleep (unsigned int seconds)
+unsigned int sleep (unsigned int seconds)
 {
     struct timespec ts = { .tv_sec = (long int) seconds, .tv_nsec = 0 };
     sigset_t set, oset;
@@ -59,7 +65,7 @@ unsigned int attribute_hidden __sleep (unsigned int seconds)
        in libc.  We block SIGCHLD first.  */
     if (__sigemptyset (&set) < 0
 	    || __sigaddset (&set, SIGCHLD) < 0
-	    || __sigprocmask (SIG_BLOCK, &set, &oset))
+	    || sigprocmask (SIG_BLOCK, &set, &oset))
 	return -1;
 
     /* If SIGCHLD is already blocked, we don't have to do anything.  */
@@ -76,7 +82,7 @@ unsigned int attribute_hidden __sleep (unsigned int seconds)
 	{
 	    saved_errno = errno;
 	    /* Restore the original signal mask.  */
-	    (void) __sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
+	    (void) sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
 	    __set_errno (saved_errno);
 	    return -1;
 	}
@@ -88,13 +94,13 @@ unsigned int attribute_hidden __sleep (unsigned int seconds)
 
 	    saved_errno = errno;
 	    /* Restore the original signal mask.  */
-	    (void) __sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
+	    (void) sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
 	    __set_errno (saved_errno);
 	}
 	else
 	{
 	    /* We should unblock SIGCHLD.  Restore the original signal mask.  */
-	    (void) __sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
+	    (void) sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
 	    result = nanosleep (&ts, &ts);
 	}
     }
@@ -108,4 +114,4 @@ unsigned int attribute_hidden __sleep (unsigned int seconds)
     return result;
 }
 #endif
-strong_alias(__sleep,sleep)
+libc_hidden_def(sleep)

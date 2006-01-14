@@ -43,7 +43,7 @@
 
 	.text
 	.align 4
-ENTRY(__bzero)
+ENTRY(bzero)
 	b		1f
 	 mov		%g0, %g3
 
@@ -60,10 +60,10 @@ ENTRY(__bzero)
 	add		%o1, %o2, %o1
 	b		4f
 	 sub		%o0, %o2, %o0
-END(__bzero)
-strong_alias(__bzero,bzero)
+END(bzero)
+libc_hidden_def(bzero)
 
-ENTRY(__memset)
+ENTRY(memset)
 	and		%o1, 0xff, %g3
 	sll		%g3, 8, %g2
 	or		%g3, %g2, %g3
@@ -148,5 +148,5 @@ ENTRY(__memset)
 	stb		%g3, [%o0 + 6]
 0:	retl
 	 nop
-END(__memset)
-strong_alias(__memset,memset)
+END(memset)
+libc_hidden_def(memset)

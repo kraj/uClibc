@@ -27,14 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#define __fsetlocking __fsetlocking_internal
-#define getgid __getgid
-#define getuid __getuid
-#define getegid __getegid
-#define geteuid __geteuid
-#define gethostname __gethostname
-#define fileno __fileno
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include <sys/types.h>
@@ -50,7 +42,27 @@
 #include <string.h>
 #include <unistd.h>
 
-extern int __getc_unlocked (FILE *__stream) attribute_hidden;
+libc_hidden_proto(strcat)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strcasecmp)
+libc_hidden_proto(strncasecmp)
+libc_hidden_proto(getenv)
+libc_hidden_proto(printf)
+libc_hidden_proto(fstat)
+libc_hidden_proto(__fsetlocking)
+libc_hidden_proto(getgid)
+libc_hidden_proto(getuid)
+libc_hidden_proto(getegid)
+libc_hidden_proto(geteuid)
+libc_hidden_proto(gethostname)
+libc_hidden_proto(fileno)
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(getc_unlocked)
+libc_hidden_proto(__fgetc_unlocked)
 
 #define _(X)  (X)
 /* #include "ftp_var.h" */
@@ -101,7 +113,7 @@ static const struct toktab {
 
 
 
-int attribute_hidden __ruserpass(const char *host, const char **aname, const char **apass)
+int ruserpass(const char *host, const char **aname, const char **apass)
 {
 	char *hdir, *buf, *tmp;
 	char myname[1024], *mydomain;
@@ -111,20 +123,20 @@ int attribute_hidden __ruserpass(const char *host, const char **aname, const cha
 	/* Give up when running a setuid or setgid app. */
 	if ((getuid() != geteuid()) || getgid() != getegid())
 	    return -1;
-	hdir = __getenv("HOME");
+	hdir = getenv("HOME");
 	if (hdir == NULL) {
 		/* If we can't get HOME, fail instead of trying ".",
 		   which is no improvement. */
 	  	return -1;
 	}
 
-	buf = alloca (__strlen(hdir) + 8);
-	__strcpy(buf, hdir);
-	__strcat(buf, "/.netrc");
+	buf = alloca (strlen(hdir) + 8);
+	strcpy(buf, hdir);
+	strcat(buf, "/.netrc");
 	cfile = fopen(buf, "r");
 	if (cfile == NULL) {
 		if (errno != ENOENT)
-			__printf("%s", buf);
+			printf("%s", buf);
 		return (0);
 	}
 	/* No threads use this stream.  */
@@ -133,9 +145,9 @@ int attribute_hidden __ruserpass(const char *host, const char **aname, const cha
 #endif
 	if (gethostname(myname, sizeof(myname)) < 0)
 		myname[0] = '\0';
-	mydomain = __strchr(myname, '.');
+	mydomain = strchr(myname, '.');
 	if (mydomain==NULL) {
-	    mydomain=myname + __strlen(myname);
+	    mydomain=myname + strlen(myname);
 	}
 next:
 	while ((t = token())) switch(t) {
@@ -153,11 +165,11 @@ next:
 			 * or official hostname.  Also allow match of
 			 * incompletely-specified host in local domain.
 			 */
-			if (__strcasecmp(host, tokval) == 0)
+			if (strcasecmp(host, tokval) == 0)
 				goto match;
-			if ((tmp = __strchr(host, '.')) != NULL &&
-			    __strcasecmp(tmp, mydomain) == 0 &&
-			    __strncasecmp(host, tokval, tmp - host) == 0 &&
+			if ((tmp = strchr(host, '.')) != NULL &&
+			    strcasecmp(tmp, mydomain) == 0 &&
+			    strncasecmp(host, tokval, tmp - host) == 0 &&
 			    tokval[tmp - host] == '\0')
 				goto match;
 			continue;
@@ -169,49 +181,49 @@ next:
 			if (token()) {
 				if (*aname == 0) {
 				  char *newp;
-				  newp = malloc((unsigned) __strlen(tokval) + 1);
+				  newp = malloc((unsigned) strlen(tokval) + 1);
 				  if (newp == NULL)
 				    {
-				      __printf(_("out of memory"));
+				      printf(_("out of memory"));
 				      goto bad;
 				    }
-				  *aname = __strcpy(newp, tokval);
+				  *aname = strcpy(newp, tokval);
 				} else {
-					if (__strcmp(*aname, tokval))
+					if (strcmp(*aname, tokval))
 						goto next;
 				}
 			}
 			break;
 		case PASSWD:
-			if (__strcmp(*aname, "anonymous") &&
-			    __fstat(fileno(cfile), &stb) >= 0 &&
+			if (strcmp(*aname, "anonymous") &&
+			    fstat(fileno(cfile), &stb) >= 0 &&
 			    (stb.st_mode & 077) != 0) {
-	__printf(_("Error: .netrc file is readable by others."));
-	__printf(_("Remove password or make file unreadable by others."));
+	printf(_("Error: .netrc file is readable by others."));
+	printf(_("Remove password or make file unreadable by others."));
 				goto bad;
 			}
 			if (token() && *apass == 0) {
 				char *newp;
-				newp = malloc((unsigned) __strlen(tokval) + 1);
+				newp = malloc((unsigned) strlen(tokval) + 1);
 				if (newp == NULL)
 				  {
-				    __printf(_("out of memory"));
+				    printf(_("out of memory"));
 				    goto bad;
 				  }
-				*apass = __strcpy(newp, tokval);
+				*apass = strcpy(newp, tokval);
 			}
 			break;
 		case ACCOUNT:
 #if 0
-			if (__fstat(fileno(cfile), &stb) >= 0
+			if (fstat(fileno(cfile), &stb) >= 0
 			    && (stb.st_mode & 077) != 0) {
-	__printf("Error: .netrc file is readable by others.");
-	__printf("Remove account or make file unreadable by others.");
+	printf("Error: .netrc file is readable by others.");
+	printf("Remove account or make file unreadable by others.");
 				goto bad;
 			}
 			if (token() && *aacct == 0) {
-				*aacct = malloc((unsigned) __strlen(tokval) + 1);
-				(void) __strcpy(*aacct, tokval);
+				*aacct = malloc((unsigned) strlen(tokval) + 1);
+				(void) strcpy(*aacct, tokval);
 			}
 #endif
 			break;
@@ -221,33 +233,33 @@ next:
 				(void) fclose(cfile);
 				return (0);
 			}
-			while ((c=__getc_unlocked(cfile)) != EOF && c == ' '
+			while ((c=getc_unlocked(cfile)) != EOF && c == ' '
 			       || c == '\t');
 			if (c == EOF || c == '\n') {
-				__printf("Missing macdef name argument.\n");
+				printf("Missing macdef name argument.\n");
 				goto bad;
 			}
 			if (macnum == 16) {
-				__printf("Limit of 16 macros have already been defined\n");
+				printf("Limit of 16 macros have already been defined\n");
 				goto bad;
 			}
 			tmp = macros[macnum].mac_name;
 			*tmp++ = c;
-			for (i=0; i < 8 && (c=__getc_unlocked(cfile)) != EOF &&
+			for (i=0; i < 8 && (c=getc_unlocked(cfile)) != EOF &&
 			    !isspace(c); ++i) {
 				*tmp++ = c;
 			}
 			if (c == EOF) {
-				__printf("Macro definition missing null line terminator.\n");
+				printf("Macro definition missing null line terminator.\n");
 				goto bad;
 			}
 			*tmp = '\0';
 			if (c != '\n') {
-				while ((c=__getc_unlocked(cfile)) != EOF
+				while ((c=getc_unlocked(cfile)) != EOF
 				       && c != '\n');
 			}
 			if (c == EOF) {
-				__printf("Macro definition missing null line terminator.\n");
+				printf("Macro definition missing null line terminator.\n");
 				goto bad;
 			}
 			if (macnum == 0) {
@@ -258,8 +270,8 @@ next:
 			}
 			tmp = macros[macnum].mac_start;
 			while (tmp != macbuf + 4096) {
-				if ((c=__getc_unlocked(cfile)) == EOF) {
-				__printf("Macro definition missing null line terminator.\n");
+				if ((c=getc_unlocked(cfile)) == EOF) {
+				printf("Macro definition missing null line terminator.\n");
 					goto bad;
 				}
 				*tmp = c;
@@ -273,13 +285,13 @@ next:
 				tmp++;
 			}
 			if (tmp == macbuf + 4096) {
-				__printf("4K macro buffer exceeded\n");
+				printf("4K macro buffer exceeded\n");
 				goto bad;
 			}
 #endif
 			break;
 		default:
-			__printf(_("Unknown .netrc keyword %s"), tokval);
+			printf(_("Unknown .netrc keyword %s"), tokval);
 			break;
 		}
 		goto done;
@@ -291,7 +303,8 @@ bad:
 	(void) fclose(cfile);
 	return (-1);
 }
-strong_alias(__ruserpass,ruserpass)
+libc_hidden_proto(ruserpass)
+libc_hidden_def(ruserpass)
 
 static int
 token()
@@ -302,24 +315,24 @@ token()
 
 	if (feof_unlocked(cfile) || ferror_unlocked(cfile))
 		return (0);
-	while ((c = __getc_unlocked(cfile)) != EOF &&
+	while ((c = getc_unlocked(cfile)) != EOF &&
 	    (c == '\n' || c == '\t' || c == ' ' || c == ','))
 		continue;
 	if (c == EOF)
 		return (0);
 	cp = tokval;
 	if (c == '"') {
-		while ((c = __getc_unlocked(cfile)) != EOF && c != '"') {
+		while ((c = getc_unlocked(cfile)) != EOF && c != '"') {
 			if (c == '\\')
-				c = __getc_unlocked(cfile);
+				c = getc_unlocked(cfile);
 			*cp++ = c;
 		}
 	} else {
 		*cp++ = c;
-		while ((c = __getc_unlocked(cfile)) != EOF
+		while ((c = getc_unlocked(cfile)) != EOF
 		    && c != '\n' && c != '\t' && c != ' ' && c != ',') {
 			if (c == '\\')
-				c = __getc_unlocked(cfile);
+				c = getc_unlocked(cfile);
 			*cp++ = c;
 		}
 	}
@@ -327,7 +340,7 @@ token()
 	if (tokval[0] == 0)
 		return (0);
 	for (i = 0; i < (int) (sizeof (toktab) / sizeof (toktab[0])); ++i)
-		if (!__strcmp(&tokstr[toktab[i].tokstr_off], tokval))
+		if (!strcmp(&tokstr[toktab[i].tokstr_off], tokval))
 			return toktab[i].tval;
 	return (ID);
 }

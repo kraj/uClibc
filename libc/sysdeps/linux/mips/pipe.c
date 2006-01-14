@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <syscall.h>
 
-int attribute_hidden __pipe(int *fd)
+int pipe(int *fd)
 {
     register long int res __asm__ ("$2"); // v0
     register long int res2 __asm__ ("$3"); // v1
@@ -21,4 +21,3 @@ int attribute_hidden __pipe(int *fd)
 	fd[1] = res2;
 	return(0);
 }
-strong_alias(__pipe,pipe)

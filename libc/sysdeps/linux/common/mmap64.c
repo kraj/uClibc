@@ -19,13 +19,10 @@
 
 /* Massivly hacked up for uClibc by Erik Andersen */
 
-#define mmap __mmap
-
 #include <features.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/mman.h>
-
 
 #if defined __UCLIBC_HAS_LFS__
 
@@ -44,6 +41,8 @@
 
 
 #if ! defined __NR_mmap2 || ! defined _syscall6
+
+libc_hidden_proto(mmap)
 
 /* 
  * This version is a stub that just chops off everything at the mmap 32 bit

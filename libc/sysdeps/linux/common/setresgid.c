@@ -14,7 +14,7 @@
 static inline _syscall3(int, __syscall_setresgid,
 		__kernel_gid_t, rgid, __kernel_gid_t, egid, __kernel_gid_t, sgid);
 
-int attribute_hidden __setresgid(gid_t rgid, gid_t egid, gid_t sgid)
+int setresgid(gid_t rgid, gid_t egid, gid_t sgid)
 {
 	if (((rgid + 1) > (gid_t) ((__kernel_gid_t) - 1U))
 		|| ((egid + 1) > (gid_t) ((__kernel_gid_t) - 1U))
@@ -24,5 +24,6 @@ int attribute_hidden __setresgid(gid_t rgid, gid_t egid, gid_t sgid)
 	}
 	return (__syscall_setresgid(rgid, egid, sgid));
 }
-strong_alias(__setresgid,setresgid)
+libc_hidden_proto(setresgid)
+libc_hidden_def(setresgid)
 #endif

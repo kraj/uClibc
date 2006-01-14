@@ -20,10 +20,6 @@
 /* Modified for uClibc by Erik Andersen
    */
 
-#define qsort __qsort
-#define opendir __opendir
-#define closedir __closedir
-
 #include <features.h>
 
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
@@ -47,6 +43,11 @@
 #include <sys/types.h>
 #include "dirstream.h"
 
+libc_hidden_proto(memcpy)
+libc_hidden_proto(opendir)
+libc_hidden_proto(closedir)
+libc_hidden_proto(qsort)
+
 int scandir64(const char *dir, struct dirent64 ***namelist, 
 	int (*selector) (const struct dirent64 *),
 	int (*compar) (const void *, const void *))
@@ -64,7 +65,7 @@ int scandir64(const char *dir, struct dirent64 ***namelist,
     __set_errno (0);
 
     pos = 0;
-    while ((current = __readdir64 (dp)) != NULL)
+    while ((current = readdir64 (dp)) != NULL)
 	if (selector == NULL || (*selector) (current))
 	{
 	    struct dirent64 *vnew;
@@ -91,7 +92,7 @@ int scandir64(const char *dir, struct dirent64 ***namelist,
 	    if (vnew == NULL)
 		break;
 
-	    names[pos++] = (struct dirent64 *) __memcpy (vnew, current, dsize);
+	    names[pos++] = (struct dirent64 *) memcpy (vnew, current, dsize);
 	}
 
     if (unlikely(errno != 0))

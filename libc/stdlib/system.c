@@ -1,14 +1,21 @@
-#define wait4 __wait4
-#define execl __execl
-#define signal __signal
-#define vfork __vfork
-#define fork __fork
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <stdio.h>
 #include <stddef.h>
 #include <signal.h>
 #include <unistd.h>
 #include <sys/wait.h>
+
+libc_hidden_proto(_exit)
+libc_hidden_proto(wait4)
+libc_hidden_proto(execl)
+libc_hidden_proto(signal)
+libc_hidden_proto(vfork)
+libc_hidden_proto(fork)
 
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
 #include <sys/syscall.h>
@@ -40,7 +47,7 @@ int __libc_system(char *command)
 		signal(SIGCHLD, SIG_DFL);
 
 		execl("/bin/sh", "sh", "-c", command, (char *) 0);
-		_exit_internal(127);
+		_exit(127);
 	}
 	/* Signals are not absolutly guarenteed with vfork */
 	signal(SIGQUIT, SIG_IGN);
@@ -58,4 +65,4 @@ int __libc_system(char *command)
 	signal(SIGCHLD, save_chld);
 	return wait_val;
 }
-weak_alias(__libc_system, system)
+strong_alias(__libc_system,system)

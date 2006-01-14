@@ -8,14 +8,14 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wmemcpy __wmemcpy
 # define Wmemcpy wmemcpy
 #else
-# define __Wmemcpy __memcpy
 # define Wmemcpy memcpy
 #endif
 
-Wvoid attribute_hidden *__Wmemcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
+libc_hidden_proto(Wmemcpy)
+
+Wvoid *Wmemcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
 {
 	register Wchar *r1 = s1;
 	register const Wchar *r2 = s2;
@@ -33,5 +33,4 @@ Wvoid attribute_hidden *__Wmemcpy(Wvoid * __restrict s1, const Wvoid * __restric
 
 	return s1;
 }
-
-strong_alias(__Wmemcpy,Wmemcpy)
+libc_hidden_def(Wmemcpy)

@@ -16,8 +16,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define setrlimit __setrlimit
-
 #include <features.h>
 
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
@@ -37,6 +35,8 @@
 #include <sys/resource.h>
 
 #if defined __UCLIBC_HAS_LFS__
+
+libc_hidden_proto(setrlimit)
 
 /* Set the soft and hard limits for RESOURCE to *RLIMITS.
    Only the super-user can increase hard limits.

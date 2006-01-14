@@ -54,3 +54,4 @@ __longjmp:
 	ret
 
 .end  __longjmp
+libc_hidden_def(__longjmp)

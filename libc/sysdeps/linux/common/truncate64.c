@@ -12,8 +12,6 @@
  * the main directory of this archive for more details.
  */
 
-#define truncate __truncate
-
 #include <features.h>
 #include <unistd.h>
 #include <errno.h>
@@ -66,6 +64,8 @@ int truncate64 (const char * path, __off64_t length)
 
 #else  /* __NR_truncate64 */
 
+libc_hidden_proto(truncate)
+
 int truncate64 (const char * path, __off64_t length)
 {
 	__off_t x = (__off_t) length;
@@ -82,4 +82,3 @@ int truncate64 (const char * path, __off64_t length)
 #endif /* __NR_truncate64 */
 
 #endif /* __UCLIBC_HAS_LFS__ */
-

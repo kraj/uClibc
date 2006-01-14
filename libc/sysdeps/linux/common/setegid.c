@@ -1,5 +1,8 @@
-#define setresgid __setresgid
-#define setregid __setregid
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #define _GNU_SOURCE
 #include <unistd.h>
@@ -8,6 +11,9 @@
 #include <grp.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
+
+libc_hidden_proto(setresgid)
+libc_hidden_proto(setregid)
 
 int setegid(gid_t gid)
 {

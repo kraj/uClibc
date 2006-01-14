@@ -19,8 +19,10 @@
 #include <string.h>
 #include <stddef.h>
 
+libc_hidden_proto(memcmp)
+
 /* Return the first occurrence of NEEDLE in HAYSTACK.  */
-void attribute_hidden *__memmem (const void *haystack, size_t haystack_len,
+void *memmem (const void *haystack, size_t haystack_len,
 			  const void *needle,  size_t needle_len)
 {
   const char *begin;
@@ -39,12 +41,12 @@ void attribute_hidden *__memmem (const void *haystack, size_t haystack_len,
 
   for (begin = (const char *) haystack; begin <= last_possible; ++begin)
     if (begin[0] == ((const char *) needle)[0] &&
-	!__memcmp ((const void *) &begin[1],
+	!memcmp ((const void *) &begin[1],
 		 (const void *) ((const char *) needle + 1),
 		 needle_len - 1))
       return (void *) begin;
 
   return NULL;
 }
-
-strong_alias(__memmem,memmem)
+libc_hidden_proto(memmem)
+libc_hidden_def(memmem)

@@ -15,10 +15,6 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#define inet_network __inet_network
-#define rewind __rewind
-#define fgets __fgets
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include <stdio.h>
@@ -26,6 +22,12 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(inet_network)
+libc_hidden_proto(rewind)
+libc_hidden_proto(fgets)
+libc_hidden_proto(abort)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
@@ -45,7 +47,7 @@ static char *net_aliases[MAXALIASES];
 
 int _net_stayopen attribute_hidden;
 
-void attribute_hidden __setnetent(int f)
+void setnetent(int f)
 {
     LOCK;
     if (netf == NULL)
@@ -56,9 +58,10 @@ void attribute_hidden __setnetent(int f)
     UNLOCK;
     return;
 }
-strong_alias(__setnetent,setnetent)
+libc_hidden_proto(setnetent)
+libc_hidden_def(setnetent)
 
-void attribute_hidden __endnetent(void)
+void endnetent(void)
 {
     LOCK;
     if (netf) {
@@ -68,7 +71,8 @@ void attribute_hidden __endnetent(void)
     _net_stayopen = 0;
     UNLOCK;
 }
-strong_alias(__endnetent,endnetent)
+libc_hidden_proto(endnetent)
+libc_hidden_def(endnetent)
 
 static char * any(register char *cp, char *match)
 {
@@ -83,7 +87,7 @@ static char * any(register char *cp, char *match)
     return ((char *)0);
 }
 
-struct netent attribute_hidden * __getnetent(void)
+struct netent *getnetent(void)
 {
     char *p;
     register char *cp, **q;
@@ -142,4 +146,5 @@ again:
     UNLOCK;
     return (&net);
 }
-strong_alias(__getnetent,getnetent)
+libc_hidden_proto(getnetent)
+libc_hidden_def(getnetent)

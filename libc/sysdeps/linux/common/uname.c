@@ -9,6 +9,6 @@
 
 #include "syscalls.h"
 #include <sys/utsname.h>
-#define __NR___uname __NR_uname
-attribute_hidden _syscall1(int, __uname, struct utsname *, buf);
-strong_alias(__uname,uname)
+_syscall1(int, uname, struct utsname *, buf);
+libc_hidden_proto(uname)
+libc_hidden_def(uname)

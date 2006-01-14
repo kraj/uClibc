@@ -25,10 +25,10 @@
 #include <bits/errno.h>
 
 	.text
-	.globl	__clone
-	.type __clone,@function
+	.globl	clone
+	.type clone,@function
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg) */
-__clone:
+clone:
 	/* Sanity check arguments.  */
 	cmp.p	gr8, gr0, icc0
 	cmp	gr9, gr0, icc1
@@ -75,11 +75,8 @@ __clone:
 	   breakpoints work.*/
 
 	mov.p	gr17, gr15
-	call	_exit_internal
+	call	HIDDEN_JUMPTARGET(_exit)
 
 	/* Should never get here.  */
 	jmpl	@(gr0, gr0)
-	.size	__clone,.-__clone
-
-.weak	clone
-	clone = __clone
+	.size	clone,.-clone

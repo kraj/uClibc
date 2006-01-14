@@ -39,9 +39,6 @@ static char sccsid[] = "@(#)pmap_getmaps.c 1.10 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define clnt_perror __clnt_perror
-#define clnttcp_create __clnttcp_create
-
 #include <rpc/rpc.h>
 #include <rpc/pmap_prot.h>
 #include <rpc/pmap_clnt.h>
@@ -49,6 +46,9 @@ static char sccsid[] = "@(#)pmap_getmaps.c 1.10 87/08/11 Copyr 1984 Sun Micro";
 #include <netdb.h>
 #include <stdio.h>
 #include <errno.h>
+
+libc_hidden_proto(clnt_perror)
+libc_hidden_proto(clnttcp_create)
 
 /*
  * Get a copy of the current port maps.

@@ -33,7 +33,7 @@
 #define _GNU_SOURCE
 #include <string.h>
 
-size_t attribute_hidden __strnlen(const char *s, size_t count)
+size_t strnlen(const char *s, size_t count)
 {
     int d0;
     register int __res;
@@ -51,5 +51,5 @@ size_t attribute_hidden __strnlen(const char *s, size_t count)
 	    :"c" (s),"1" (count));
     return __res;
 }
-
-strong_alias(__strnlen,strnlen)
+libc_hidden_proto(strnlen)
+libc_hidden_def(strnlen)

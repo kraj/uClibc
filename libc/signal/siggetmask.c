@@ -19,11 +19,12 @@
 
 #include <signal.h>
 
-extern int __sigblock (int __mask) __THROW /*__attribute_deprecated__*/ attribute_hidden;
+libc_hidden_proto(sigblock)
+
 int
 siggetmask (void)
 {
-  return __sigblock (0);
+  return sigblock (0);
 }
 
 link_warning (siggetmask,

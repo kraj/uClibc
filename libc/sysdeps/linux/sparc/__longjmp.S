@@ -16,6 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <sys/syscall.h>
 
 #define _ASM 1
@@ -83,3 +84,5 @@ __longjmp:
 	 mov %g2, %o0		/* Delay slot: set return value.  */
 
 .size __longjmp,.-__longjmp
+
+libc_hidden_def(__longjmp)

@@ -156,6 +156,9 @@ int CTYPE_NAME(NAME) (int c) \
 #ifdef L___ctype_assert
 #ifdef __UCLIBC_HAS_CTYPE_ENFORCED__
 
+libc_hidden_proto(fprintf)
+libc_hidden_proto(abort)
+
 void __isctype_assert(int c, int mask)
 {
 	fprintf(stderr,	"%s: __is*{_l}(%d,%#x {locale})\n", __uclibc_progname, c, mask);
@@ -266,9 +269,10 @@ IS_FUNC_BODY(xdigit);
 /**********************************************************************/
 #ifdef L_tolower
 
+#undef tolower
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
-int attribute_hidden __tolower(int c)
+int tolower(int c)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
 	assert(CTYPE_DOMAIN_CHECK(c));
@@ -278,38 +282,38 @@ int attribute_hidden __tolower(int c)
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
-int attribute_hidden __tolower(int c)
+int tolower(int c)
 {
 	return __C_tolower(c);
 }
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
-strong_alias(__tolower,tolower)
+libc_hidden_proto(tolower)
+libc_hidden_def(tolower)
 
 #endif
 /**********************************************************************/
 #ifdef L_tolower_l
 
 #undef tolower_l
-#undef __tolower_l
-
-int __tolower_l(int c, __locale_t l)
+int tolower_l(int c, __locale_t l)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
 	assert(CTYPE_DOMAIN_CHECK(c));
 #endif
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_tolower[c] : c;
 }
-
-weak_alias(__tolower_l, tolower_l)
+libc_hidden_proto(tolower_l)
+libc_hidden_def(tolower_l)
 
 #endif
 /**********************************************************************/
 #ifdef L_toupper
 
+#undef toupper
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
-int attribute_hidden __toupper(int c)
+int toupper(int c)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
 	assert(CTYPE_DOMAIN_CHECK(c));
@@ -319,22 +323,21 @@ int attribute_hidden __toupper(int c)
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
-int attribute_hidden __toupper(int c)
+int toupper(int c)
 {
 	return __C_toupper(c);
 }
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
-strong_alias(__toupper,toupper)
+libc_hidden_proto(toupper)
+libc_hidden_def(toupper)
 
 #endif
 /**********************************************************************/
 #ifdef L_toupper_l
 
 #undef toupper_l
-#undef __toupper_l
-
-int __toupper_l(int c, __locale_t l)
+int toupper_l(int c, __locale_t l)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
 	assert(CTYPE_DOMAIN_CHECK(c));
@@ -342,7 +345,8 @@ int __toupper_l(int c, __locale_t l)
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_toupper[c] : c;
 }
 
-weak_alias(__toupper_l, toupper_l)
+libc_hidden_proto(toupper_l)
+libc_hidden_def(toupper_l)
 
 #endif
 /**********************************************************************/

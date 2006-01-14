@@ -44,6 +44,9 @@
 #include <errno.h>
 #include <atomic.h>
 
+libc_hidden_proto(exit)
+libc_hidden_proto(_exit)
+
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
 extern pthread_mutex_t mylock;
@@ -320,9 +323,7 @@ extern void (*__rtld_fini)(void);
 /*
  * Normal program termination
  */
-#undef exit
-#undef __exit
-void attribute_hidden __exit(int rv)
+void exit(int rv)
 {
 	/* Perform exit-specific cleanup (atexit and on_exit) */
 	LOCK;
@@ -345,7 +346,7 @@ void attribute_hidden __exit(int rv)
 	if (_stdio_term) 
 	    _stdio_term();
 
-	_exit_internal(rv);
+	_exit(rv);
 }
-strong_alias(__exit,exit)
+libc_hidden_def(exit)
 #endif

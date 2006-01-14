@@ -19,14 +19,19 @@
    modified for uClibc by Erik Andersen <andersen@codepoet.org>
    */
 
-#define strndup __strndup
-
 #define _GNU_SOURCE
 #include <features.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strncmp)
+libc_hidden_proto(strndup)
+libc_hidden_proto(unsetenv)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
@@ -35,7 +40,6 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #define LOCK	__pthread_mutex_lock(&mylock)
 #define UNLOCK	__pthread_mutex_unlock(&mylock)
 
-extern int __unsetenv (__const char *__name) attribute_hidden;
 
 /* If this variable is not a null pointer we allocated the current
    environment.  */
@@ -53,8 +57,8 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
 {
     register char **ep;
     register size_t size;
-    const size_t namelen = __strlen (name);
-    const size_t vallen = value != NULL ? __strlen (value) + 1 : 0;
+    const size_t namelen = strlen (name);
+    const size_t vallen = value != NULL ? strlen (value) + 1 : 0;
 
     LOCK;
 
@@ -65,7 +69,7 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
     size = 0;
     if (ep != NULL) {
 	for (; *ep != NULL; ++ep) {
-	    if (!__strncmp (*ep, name, namelen) && (*ep)[namelen] == '=')
+	    if (!strncmp (*ep, name, namelen) && (*ep)[namelen] == '=')
 		break;
 	    else
 		++size;
@@ -97,13 +101,13 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
 		return -1;
 	    }
 
-	    __memcpy (new_environ[size], name, namelen);
+	    memcpy (new_environ[size], name, namelen);
 	    new_environ[size][namelen] = '=';
-	    __memcpy (&new_environ[size][namelen + 1], value, vallen);
+	    memcpy (&new_environ[size][namelen + 1], value, vallen);
 	}
 
 	if (__environ != last_environ) {
-	    __memcpy ((char *) new_environ, (char *) __environ,
+	    memcpy ((char *) new_environ, (char *) __environ,
 		    size * sizeof (char *));
 	}
 
@@ -121,9 +125,9 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
 		UNLOCK;
 		return -1;
 	    }
-	    __memcpy (np, name, namelen);
+	    memcpy (np, name, namelen);
 	    np[namelen] = '=';
-	    __memcpy (&np[namelen + 1], value, vallen);
+	    memcpy (&np[namelen + 1], value, vallen);
 	}
 	*ep = np;
     }
@@ -132,27 +136,28 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
     return 0;
 }
 
-int attribute_hidden __setenv (const char *name, const char *value, int replace)
+int setenv (const char *name, const char *value, int replace)
 {
     return __add_to_environ (name, value, NULL, replace);
 }
-strong_alias(__setenv,setenv)
+libc_hidden_proto(setenv)
+libc_hidden_def(setenv)
 
-int attribute_hidden __unsetenv (const char *name)
+int unsetenv (const char *name)
 {
     size_t len;
     char **ep;
 
-    if (name == NULL || *name == '\0' || __strchr (name, '=') != NULL) {
+    if (name == NULL || *name == '\0' || strchr (name, '=') != NULL) {
 	__set_errno (EINVAL);
 	return -1;
     }
 
-    len = __strlen (name);
+    len = strlen (name);
     LOCK;
     ep = __environ;
     while (*ep != NULL) {
-	if (!__strncmp (*ep, name, len) && (*ep)[len] == '=') {
+	if (!strncmp (*ep, name, len) && (*ep)[len] == '=') {
 	    /* Found it.  Remove this pointer by moving later ones back.  */
 	    char **dp = ep;
 	    do {
@@ -166,7 +171,8 @@ int attribute_hidden __unsetenv (const char *name)
     UNLOCK;
     return 0;
 }
-strong_alias(__unsetenv,unsetenv)
+libc_hidden_proto(unsetenv)
+libc_hidden_def(unsetenv)
 
 /* The `clearenv' was planned to be added to POSIX.1 but probably
    never made it.  Nevertheless the POSIX.9 standard (POSIX bindings
@@ -189,7 +195,7 @@ int clearenv (void)
 int putenv (char *string)
 {
     int result;
-    const char *const name_end = __strchr (string, '=');
+    const char *const name_end = strchr (string, '=');
 
     if (name_end != NULL) {
 	char *name = strndup(string, name_end - string);
@@ -197,7 +203,7 @@ int putenv (char *string)
 	free(name);
 	return(result);
     }
-    __unsetenv (string);
+    unsetenv (string);
     return 0;
 }
 

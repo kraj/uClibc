@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <stdio.h>
@@ -76,8 +82,8 @@ __rpc_thread_variables (void)
 #undef svc_pollfd
 #undef svc_max_pollfd
 
-fd_set attribute_hidden *
-__rpc_thread_svc_fdset_internal (void)
+fd_set *
+__rpc_thread_svc_fdset (void)
 {
 	struct rpc_thread_variables *tvp;
 
@@ -86,10 +92,9 @@ __rpc_thread_svc_fdset_internal (void)
 		return &svc_fdset;
 	return &tvp->svc_fdset_s;
 }
-strong_alias(__rpc_thread_svc_fdset_internal,__rpc_thread_svc_fdset)
 
-struct rpc_createerr attribute_hidden *
-__rpc_thread_createerr_internal (void)
+struct rpc_createerr *
+__rpc_thread_createerr (void)
 {
 	struct rpc_thread_variables *tvp;
 
@@ -98,11 +103,9 @@ __rpc_thread_createerr_internal (void)
 		return &rpc_createerr;
 	return &tvp->rpc_createerr_s;
 }
-#undef __rpc_thread_createerr
-strong_alias(__rpc_thread_createerr_internal,__rpc_thread_createerr)
 
-struct pollfd attribute_hidden **
-__rpc_thread_svc_pollfd_internal (void)
+struct pollfd **
+__rpc_thread_svc_pollfd (void)
 {
 	struct rpc_thread_variables *tvp;
 
@@ -111,10 +114,9 @@ __rpc_thread_svc_pollfd_internal (void)
 		return &svc_pollfd;
 	return &tvp->svc_pollfd_s;
 }
-strong_alias(__rpc_thread_svc_pollfd_internal,__rpc_thread_svc_pollfd)
 
-int attribute_hidden *
-__rpc_thread_svc_max_pollfd_internal (void)
+int *
+__rpc_thread_svc_max_pollfd (void)
 {
 	struct rpc_thread_variables *tvp;
 
@@ -123,7 +125,6 @@ __rpc_thread_svc_max_pollfd_internal (void)
 		return &svc_max_pollfd;
 	return &tvp->svc_max_pollfd_s;
 }
-strong_alias(__rpc_thread_svc_max_pollfd_internal,__rpc_thread_svc_max_pollfd)
 #else
 
 #undef svc_fdset
@@ -131,34 +132,37 @@ strong_alias(__rpc_thread_svc_max_pollfd_internal,__rpc_thread_svc_max_pollfd)
 #undef svc_pollfd
 #undef svc_max_pollfd
 
-fd_set attribute_hidden * __rpc_thread_svc_fdset_internal (void)
+fd_set * __rpc_thread_svc_fdset (void)
 {
     extern fd_set svc_fdset;
     return &(svc_fdset);
 }
-strong_alias(__rpc_thread_svc_fdset_internal,__rpc_thread_svc_fdset)
 
-struct rpc_createerr attribute_hidden * __rpc_thread_createerr_internal (void)
+struct rpc_createerr * __rpc_thread_createerr (void)
 {
     extern struct rpc_createerr rpc_createerr;
     return &(rpc_createerr);
 }
-#undef __rpc_thread_createerr
-strong_alias(__rpc_thread_createerr_internal,__rpc_thread_createerr)
 
-struct pollfd attribute_hidden ** __rpc_thread_svc_pollfd_internal (void)
+struct pollfd ** __rpc_thread_svc_pollfd (void)
 {
     extern struct pollfd *svc_pollfd;
     return &(svc_pollfd);
 }
-strong_alias(__rpc_thread_svc_pollfd_internal,__rpc_thread_svc_pollfd)
 
-int attribute_hidden * __rpc_thread_svc_max_pollfd_internal (void)
+int * __rpc_thread_svc_max_pollfd (void)
 {
     extern int svc_max_pollfd;
     return &(svc_max_pollfd);
 }
-strong_alias(__rpc_thread_svc_max_pollfd_internal,__rpc_thread_svc_max_pollfd)
 
 #endif /* __UCLIBC_HAS_THREADS__ */
 
+libc_hidden_proto(__rpc_thread_svc_fdset)
+libc_hidden_def(__rpc_thread_svc_fdset)
+libc_hidden_proto(__rpc_thread_createerr)
+libc_hidden_def(__rpc_thread_createerr)
+libc_hidden_proto(__rpc_thread_svc_pollfd)
+libc_hidden_def(__rpc_thread_svc_pollfd)
+libc_hidden_proto(__rpc_thread_svc_max_pollfd)
+libc_hidden_def(__rpc_thread_svc_max_pollfd)

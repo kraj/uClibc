@@ -10,5 +10,5 @@
 #define __DO_LARGEFILE
 #define fsetpos	fsetpos64
 #define fpos_t        fpos64_t
-#define FSEEK       __fseeko64
+#define FSEEK         fseeko64
 #include "fsetpos.c"

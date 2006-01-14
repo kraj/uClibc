@@ -25,8 +25,10 @@
 #include "internals.h"
 #include "sysdeps/pthread/pthread-functions.h"
 
+libc_hidden_proto(memcpy)
+
 #if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
-extern __locale_t __uselocale (__locale_t __dataset) __THROW attribute_hidden;
+libc_hidden_proto(uselocale)
 #endif
 
 int __libc_multiple_threads attribute_hidden __attribute__((nocommon));
@@ -39,14 +41,14 @@ __libc_pthread_init (functions)
   /* We copy the content of the variable pointed to by the FUNCTIONS
      parameter to one in libc.so since this means access to the array
      can be done with one memory access instead of two.  */
-  __memcpy (&__libc_pthread_functions, functions,
+  memcpy (&__libc_pthread_functions, functions,
 	  sizeof (__libc_pthread_functions));
 #endif
 
 #if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */
-  __uselocale (LC_GLOBAL_LOCALE);
+  uselocale (LC_GLOBAL_LOCALE);
 #endif
 
   return &__libc_multiple_threads;

@@ -51,7 +51,7 @@ register node	**rootp;	 address of tree root
 int	(*compar)();		 ordering function
 */
 
-void attribute_hidden *__tsearch(__const void *key, void **vrootp, __compar_fn_t compar)
+void *tsearch(__const void *key, void **vrootp, __compar_fn_t compar)
 {
     register node *q;
     register node **rootp = (node **) vrootp;
@@ -77,11 +77,12 @@ void attribute_hidden *__tsearch(__const void *key, void **vrootp, __compar_fn_t
     }
     return (q);
 }
-strong_alias(__tsearch,tsearch)
+libc_hidden_proto(tsearch)
+libc_hidden_def(tsearch)
 #endif
 
 #ifdef L_tfind
-void attribute_hidden *__tfind(__const void *key, void * __const *vrootp, __compar_fn_t compar)
+void *tfind(__const void *key, void * __const *vrootp, __compar_fn_t compar)
 {
     register node **rootp = (node **) vrootp;
 
@@ -99,7 +100,8 @@ void attribute_hidden *__tfind(__const void *key, void * __const *vrootp, __comp
     }
     return NULL;
 }
-strong_alias(__tfind,tfind)
+libc_hidden_proto(tfind)
+libc_hidden_def(tfind)
 #endif
 
 #ifdef L_tdelete
@@ -206,15 +208,15 @@ tdestroy_recurse (node *root, __free_fn_t freefct)
     free (root);
 }
 
-void attribute_hidden __tdestroy (void *vroot, __free_fn_t freefct)
+void tdestroy (void *vroot, __free_fn_t freefct)
 {
     node *root = (node *) vroot;
     if (root != NULL) {
 	tdestroy_recurse (root, freefct);
     }
 }
-strong_alias(__tdestroy,tdestroy)
+libc_hidden_proto(tdestroy)
+libc_hidden_def(tdestroy)
 #endif
 
 /* tsearch.c ends here */
-

@@ -8,14 +8,14 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstrnlen __wcsnlen
 # define Wstrnlen wcsnlen
 #else
-# define __Wstrnlen __strnlen
 # define Wstrnlen strnlen
 #endif
 
-size_t attribute_hidden __Wstrnlen(const Wchar *s, size_t max)
+libc_hidden_proto(Wstrnlen)
+
+size_t Wstrnlen(const Wchar *s, size_t max)
 {
 	register const Wchar *p = s;
 #ifdef __BCC__
@@ -34,4 +34,4 @@ size_t attribute_hidden __Wstrnlen(const Wchar *s, size_t max)
 }
 #undef maxp
 
-strong_alias(__Wstrnlen,Wstrnlen)
+libc_hidden_def(Wstrnlen)

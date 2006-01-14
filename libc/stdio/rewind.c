@@ -7,15 +7,18 @@
 
 #include "_stdio.h"
 
-void attribute_hidden __rewind(register FILE *stream)
+libc_hidden_proto(fseek)
+
+void rewind(register FILE *stream)
 {
 	__STDIO_AUTO_THREADLOCK_VAR;
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
 	__STDIO_STREAM_CLEAR_ERROR(stream);	/* Clear the error indicator */
-	__fseek(stream, 0L, SEEK_SET); /* first since fseek could set it. */
+	fseek(stream, 0L, SEEK_SET); /* first since fseek could set it. */
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 }
-strong_alias(__rewind,rewind)
+libc_hidden_proto(rewind)
+libc_hidden_def(rewind)

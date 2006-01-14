@@ -17,6 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include "ppc_asm.h"
 #define _ERRNO_H	1
 #include <bits/errno.h>
@@ -25,12 +26,11 @@
 #ifdef __NR_brk
 	.comm	__curbrk,4,4
 	.text
-	.globl	__brk
-	.hidden	__brk
-	.type	__brk,@function
+	.globl	brk
+	.type	brk,@function
 	.align	2
 
-__brk:
+brk:
 	stwu    r1,-16(r1)
 	stw	r3,8(r1)
 	li 0, __NR_brk;   
@@ -55,8 +55,7 @@ __brk:
 
 	b	__syscall_error
 
-	.size __brk,.-__brk
+	.size brk,.-brk
 
-	.weak brk
-	brk=__brk        
+libc_hidden_def(brk)
 #endif	

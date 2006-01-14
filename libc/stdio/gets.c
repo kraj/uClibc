@@ -11,6 +11,9 @@ link_warning(gets, "the 'gets' function is dangerous and should not be used.")
 
 /* UNSAFE FUNCTION -- do not bother optimizing */
 
+libc_hidden_proto(getchar_unlocked)
+libc_hidden_proto(__fgetc_unlocked)
+
 char *gets(char *s)
 {
 	register char *p = s;
@@ -21,7 +24,7 @@ char *gets(char *s)
 
 	/* Note: don't worry about performance here... this shouldn't be used!
 	 * Therefore, force actual function call. */
-	while (((c = __getchar_unlocked()) != EOF) && ((*p = c) != '\n')) {
+	while (((c = getchar_unlocked()) != EOF) && ((*p = c) != '\n')) {
 		++p;
 	}
 	if ((c == EOF) || (s == p)) {

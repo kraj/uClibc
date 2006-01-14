@@ -11,11 +11,13 @@
 #include <stdarg.h>
 #include <sys/ioctl.h>
 
+libc_hidden_proto(ioctl)
+
 #define __NR___syscall_ioctl __NR_ioctl
 static inline
 _syscall3(int, __syscall_ioctl, int, fd, unsigned long int, request, void *, arg);
 
-int attribute_hidden __ioctl(int fd, unsigned long int request, ...)
+int ioctl(int fd, unsigned long int request, ...)
 {
     void *arg;
     va_list list;
@@ -26,4 +28,4 @@ int attribute_hidden __ioctl(int fd, unsigned long int request, ...)
     va_end(list);
     return __syscall_ioctl(fd, request, arg);
 }
-strong_alias(__ioctl,ioctl)
+libc_hidden_def(ioctl)

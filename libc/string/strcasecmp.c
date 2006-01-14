@@ -9,44 +9,40 @@
 #include <ctype.h>
 #include <locale.h>
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-extern int __strcasecmp_l (__const char *__s1, __const char *__s2,
-			 __locale_t __loc)
-     __THROW __attribute_pure__ __nonnull ((1, 2, 3)) attribute_hidden;
-extern int __wcscasecmp_l (__const wchar_t *__s1, __const wchar_t *__s2,
-			 __locale_t __loc) __THROW attribute_hidden;
-#endif
-
 #ifdef WANT_WIDE
 # define strcasecmp wcscasecmp
-# define __strcasecmp __wcscasecmp
 # define strcasecmp_l wcscasecmp_l
-# define __strcasecmp_l __wcscasecmp_l
 # ifdef __UCLIBC_DO_XLOCALE
-#  define TOLOWER(C) __towlower_l((C), locale_arg)
-extern wint_t __towlower_l (wint_t __wc, __locale_t __locale) __THROW attribute_hidden;
+libc_hidden_proto(towlower_l)
+#  define TOLOWER(C) towlower_l((C), locale_arg)
 # else
-#  define TOLOWER(C) __towlower((C))
+libc_hidden_proto(towlower)
+#  define TOLOWER(C) towlower((C))
 # endif
 #else
 # ifdef __UCLIBC_DO_XLOCALE
-#  define TOLOWER(C) __tolower_l((C), locale_arg)
+libc_hidden_proto(tolower_l)
+#  define TOLOWER(C) tolower_l((C), locale_arg)
 # else
-#  define TOLOWER(C) __tolower((C))
+libc_hidden_proto(tolower)
+#  define TOLOWER(C) tolower((C))
 # endif
 #endif
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-int attribute_hidden __strcasecmp(register const Wchar *s1, register const Wchar *s2)
+libc_hidden_proto(strcasecmp_l)
+
+int strcasecmp(register const Wchar *s1, register const Wchar *s2)
 {
-	return __strcasecmp_l(s1, s2, __UCLIBC_CURLOCALE);
+	return strcasecmp_l(s1, s2, __UCLIBC_CURLOCALE);
 }
-strong_alias(__strcasecmp,strcasecmp)
+libc_hidden_proto(strcasecmp)
+libc_hidden_def(strcasecmp)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-int attribute_hidden __UCXL(strcasecmp)(register const Wchar *s1, register const Wchar *s2
+int __XL_NPP(strcasecmp)(register const Wchar *s1, register const Wchar *s2
 					  __LOCALE_PARAM )
 {
 #ifdef WANT_WIDE
@@ -70,6 +66,7 @@ int attribute_hidden __UCXL(strcasecmp)(register const Wchar *s1, register const
 	return r;
 #endif
 }
-__UCXL_ALIAS(strcasecmp)
+libc_hidden_proto(__XL_NPP(strcasecmp))
+libc_hidden_def(__XL_NPP(strcasecmp))
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */

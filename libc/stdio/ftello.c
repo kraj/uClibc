@@ -7,16 +7,20 @@
 
 #include "_stdio.h"
 
+#if defined(__UCLIBC_HAS_LFS__) && !defined(__DO_LARGEFILE)
+libc_hidden_proto(ftello64)
+#endif
+
 #ifndef __DO_LARGEFILE
-# define FTELL         __ftell
+# define FTELL         ftell
 # define OFFSET_TYPE   long int
 #endif
 
-OFFSET_TYPE attribute_hidden FTELL(register FILE *stream)
+OFFSET_TYPE FTELL(register FILE *stream)
 {
 #if defined(__UCLIBC_HAS_LFS__) && !defined(__DO_LARGEFILE)
 
-	__offmax_t pos = __ftello64(stream);
+	__offmax_t pos = ftello64(stream);
 
 	if ((sizeof(long) >= sizeof(__offmax_t)) || (((long) pos) == pos)) {
 		return ((long) pos);
@@ -47,8 +51,10 @@ OFFSET_TYPE attribute_hidden FTELL(register FILE *stream)
 }
 
 #ifdef __DO_LARGEFILE
-weak_alias(__ftello64,ftello64)
+libc_hidden_proto(ftello64)
+libc_hidden_def(ftello64)
 #else
-weak_alias(__ftell,ftell)
-weak_alias(ftell,ftello)
+libc_hidden_proto(ftell)
+libc_hidden_def(ftell)
+strong_alias(ftell,ftello)
 #endif

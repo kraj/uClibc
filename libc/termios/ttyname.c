@@ -1,17 +1,11 @@
-#define opendir __opendir
-#define closedir __closedir
-#define readdir __readdir
-#define isatty __isatty
-
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <sys/stat.h>
-
-/* Jan 1, 2004    Manuel Novoa III
+/*
+ * Copyright (C) Jan 1, 2004    Manuel Novoa III
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
+/*
  * Kept the same approach, but rewrote the code for the most part.
  * Fixed some minor issues plus (as I recall) one SUSv3 errno case.
  */
@@ -29,6 +23,24 @@
  *
  * If you change this, also change _SC_TTY_NAME_MAX in libc/unistd/sysconf.c
  */
+
+#include <string.h>
+#include <errno.h>
+#include <assert.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/stat.h>
+
+libc_hidden_proto(ttyname_r)
+libc_hidden_proto(fstat)
+libc_hidden_proto(lstat)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strlen)
+libc_hidden_proto(opendir)
+libc_hidden_proto(closedir)
+libc_hidden_proto(readdir)
+libc_hidden_proto(isatty)
+
 #define TTYNAME_BUFLEN		32
 
 static const char dirlist[] =
@@ -39,7 +51,7 @@ static const char dirlist[] =
 "\011/dev/pts/\0"	/* and try /dev/pts next */
 "\005/dev/\0";		/* and try walking through /dev last */
 
-int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
+int ttyname_r(int fd, char *ubuf, size_t ubuflen)
 {
 	struct dirent *d;
 	struct stat st;
@@ -51,7 +63,7 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 	size_t len;
 	char buf[TTYNAME_BUFLEN];
 
-	if (__fstat(fd, &st) < 0) {
+	if (fstat(fd, &st) < 0) {
 		return errno;
 	}
 
@@ -66,7 +78,7 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 
 		assert(len + 2 <= TTYNAME_BUFLEN); /* dirname + 1 char + nul */
 
-		__strcpy(buf, p);
+		strcpy(buf, p);
 		s = buf + len;
 		len =  (TTYNAME_BUFLEN-2) - len; /* Available non-nul space. */
 
@@ -77,13 +89,13 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 		while ((d = readdir(fp)) != NULL) {
 			/* This should never trigger for standard names, but we
 			 * check it to be safe.  */
-			if (__strlen(d->d_name) > len) { /* Too big? */
+			if (strlen(d->d_name) > len) { /* Too big? */
 				continue;
 			}
 
-			__strcpy(s, d->d_name);
+			strcpy(s, d->d_name);
 
-			if ((__lstat(buf, &dst) == 0)
+			if ((lstat(buf, &dst) == 0)
 #if 0
 				/* Stupid filesystems like cramfs fail to guarantee that
 				 * st_ino and st_dev uniquely identify a file, contrary to
@@ -98,8 +110,8 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 
 				/* We treat NULL buf as ERANGE rather than EINVAL. */
 				rv = ERANGE;
-				if (ubuf && (__strlen(buf) <= ubuflen)) {
-					__strcpy(ubuf, buf);
+				if (ubuf && (strlen(buf) <= ubuflen)) {
+					strcpy(ubuf, buf);
 					rv = 0;
 				}
 				goto DONE;
@@ -114,11 +126,11 @@ int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 
 	return rv;
 }
-strong_alias(__ttyname_r,ttyname_r)
+libc_hidden_def(ttyname_r)
 
 char *ttyname(int fd)
 {
 	static char name[TTYNAME_BUFLEN];
 
-	return __ttyname_r(fd, name, TTYNAME_BUFLEN) ? NULL : name;
+	return ttyname_r(fd, name, TTYNAME_BUFLEN) ? NULL : name;
 }

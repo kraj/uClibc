@@ -9,18 +9,17 @@
 #ifndef __NR_vfork
 
 /* No vfork so use fork instead */
-hidden_strong_alias(__fork,__vfork)
-weak_alias(vfork,__libc_fork)
+strong_alias(fork,vfork)
+strong_alias(vfork,__libc_fork)
 
 #else
 
 .text
-.global __vfork
-.hidden __vfork
-.type   __vfork,%function
+.global vfork
+.type   vfork,%function
 .align 1<<4
 
-__vfork:
+vfork:
 	popl %ecx
 	movl $__NR_vfork,%eax
 	int $0x80
@@ -29,6 +28,6 @@ __vfork:
 	jae __syscall_error
 	ret
 
-.size __vfork,.-__vfork
+.size vfork,.-vfork
 #endif
-strong_alias(__vfork,vfork)
+libc_hidden_def(vfork)

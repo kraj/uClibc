@@ -23,6 +23,7 @@
 
 #include <libc-internal.h>
 
+libc_hidden_def(exit)
 
 /* Pointers to the libc functions.  */
 struct pthread_functions __libc_pthread_functions attribute_hidden;
@@ -101,7 +102,7 @@ FORWARD (pthread_equal, (pthread_t thread1, pthread_t thread2),
 
 
 /* Use an alias to avoid warning, as pthread_exit is declared noreturn.  */
-FORWARD2 (__pthread_exit, void, (void *retval), (retval), __exit (EXIT_SUCCESS))
+FORWARD2 (__pthread_exit, void, (void *retval), (retval), exit (EXIT_SUCCESS))
 strong_alias (__pthread_exit, pthread_exit);
 
 

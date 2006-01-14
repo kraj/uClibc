@@ -30,11 +30,11 @@
    		  int flags [r5], void *arg [r6]); */
 
 #ifdef __NR_clone
-	.globl __clone
-	.type __clone,@function
+	.globl clone
+	.type clone,@function
 	.align 2
 
-__clone:
+clone:
 	/* Check for child_stack == NULL || fn == NULL.  */
 	cmpwi	cr0,r4,0
 	cmpwi	cr1,r3,0
@@ -78,7 +78,7 @@ __clone:
 	mr	r3,r31
 	bctrl
 	/* Call _exit with result from procedure.  */
-	b	_exit_internal
+	b	HIDDEN_JUMPTARGET(_exit)
 
 .Lparent:
 	/* Parent.  Restore registers & return.  */
@@ -93,7 +93,5 @@ __clone:
 
 	b	__syscall_error
 
-	.size __clone,.-__clone
-	.weak clone
-	clone=__clone
+	.size clone,.-clone
 #endif

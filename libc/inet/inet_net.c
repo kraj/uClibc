@@ -42,8 +42,8 @@
  * The library routines call this routine to interpret
  * network numbers.
  */
-in_addr_t attribute_hidden
-__inet_network(const char *cp)
+in_addr_t
+inet_network(const char *cp)
 {
 	register in_addr_t val, base, n;
 	register char c;
@@ -98,4 +98,5 @@ again:
 	}
 	return (val);
 }
-strong_alias(__inet_network,inet_network)
+libc_hidden_proto(inet_network)
+libc_hidden_def(inet_network)

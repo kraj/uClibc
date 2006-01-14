@@ -46,24 +46,6 @@
  * Now go hang yourself.
  */
 
-#define authnone_create __authnone_create
-#define xdrrec_create __xdrrec_create
-#define xdrrec_endofrecord __xdrrec_endofrecord
-#define xdrrec_skiprecord __xdrrec_skiprecord
-#define xdr_callhdr __xdr_callhdr
-#define xdr_replymsg __xdr_replymsg
-#define xdr_opaque_auth __xdr_opaque_auth
-#define xdrmem_create __xdrmem_create
-#define getegid __getegid
-#define geteuid __geteuid
-#define _seterr_reply __seterr_reply
-#define setsockopt __setsockopt
-#define connect __connect
-#define recvmsg __recvmsg
-#define sendmsg __sendmsg
-#define poll __poll
-#define fputs __fputs
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -78,14 +60,34 @@
 #include <rpc/pmap_clnt.h>
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
+libc_hidden_proto(fwprintf)
 #endif
 
-extern u_long _create_xid (void) attribute_hidden;
+libc_hidden_proto(strlen)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(getpid)
+libc_hidden_proto(authnone_create)
+libc_hidden_proto(xdrrec_create)
+libc_hidden_proto(xdrrec_endofrecord)
+libc_hidden_proto(xdrrec_skiprecord)
+libc_hidden_proto(xdr_callhdr)
+libc_hidden_proto(xdr_replymsg)
+libc_hidden_proto(xdr_opaque_auth)
+libc_hidden_proto(xdrmem_create)
+libc_hidden_proto(getegid)
+libc_hidden_proto(geteuid)
+libc_hidden_proto(_seterr_reply)
+libc_hidden_proto(setsockopt)
+libc_hidden_proto(connect)
+libc_hidden_proto(recvmsg)
+libc_hidden_proto(sendmsg)
+libc_hidden_proto(poll)
+libc_hidden_proto(fputs)
+libc_hidden_proto(__rpc_thread_createerr)
 
-#undef get_rpc_createerr
-extern struct rpc_createerr *__rpc_thread_createerr_internal (void)
-     __attribute__ ((__const__)) attribute_hidden;
-#define get_rpc_createerr() (*__rpc_thread_createerr_internal ())
+extern u_long _create_xid (void) attribute_hidden;
 
 #define MCALL_MSG_SIZE 24
 
@@ -137,8 +139,8 @@ static struct clnt_ops unix_ops =
  * NB: The rpch->cl_auth is set null authentication.  Caller may wish to set this
  * something more useful.
  */
-CLIENT attribute_hidden *
-__clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
+CLIENT *
+clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
 		 int *sockp, u_int sendsz, u_int recvsz)
 {
   CLIENT *h;
@@ -152,7 +154,7 @@ __clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
       struct rpc_createerr *ce = &get_rpc_createerr ();
 #ifdef USE_IN_LIBIO
       if (_IO_fwide (stderr, 0) > 0)
-	(void) __fwprintf (stderr, L"%s",
+	(void) fwprintf (stderr, L"%s",
 			   _("clntunix_create: out of memory\n"));
       else
 #endif
@@ -167,8 +169,8 @@ __clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
    */
   if (*sockp < 0)
     {
-      *sockp = __socket (AF_UNIX, SOCK_STREAM, 0);
-      len = __strlen (raddr->sun_path) + sizeof (raddr->sun_family) + 1;
+      *sockp = socket (AF_UNIX, SOCK_STREAM, 0);
+      len = strlen (raddr->sun_path) + sizeof (raddr->sun_family) + 1;
       if (*sockp < 0
 	  || connect (*sockp, (struct sockaddr *) raddr, len) < 0)
 	{
@@ -176,7 +178,7 @@ __clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
 	  ce->cf_stat = RPC_SYSTEMERROR;
 	  ce->cf_error.re_errno = errno;
 	  if (*sockp != -1)
-	    __close (*sockp);
+	    close (*sockp);
 	  goto fooy;
 	}
       ct->ct_closeit = TRUE;
@@ -210,7 +212,7 @@ __clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
   if (!xdr_callhdr (&(ct->ct_xdrs), &call_msg))
     {
       if (ct->ct_closeit)
-	__close (*sockp);
+	close (*sockp);
       goto fooy;
     }
   ct->ct_mpos = XDR_GETPOS (&(ct->ct_xdrs));
@@ -235,7 +237,8 @@ fooy:
   mem_free ((caddr_t) h, sizeof (CLIENT));
   return (CLIENT *) NULL;
 }
-strong_alias(__clntunix_create,clntunix_create)
+libc_hidden_proto(clntunix_create)
+libc_hidden_def(clntunix_create)
 
 static enum clnt_stat
 clntunix_call (h, proc, xdr_args, args_ptr, xdr_results, results_ptr, timeout)
@@ -457,7 +460,7 @@ clntunix_destroy (CLIENT *h)
 
   if (ct->ct_closeit)
     {
-      (void) __close (ct->ct_sock);
+      (void) close (ct->ct_sock);
     }
   XDR_DESTROY (&(ct->ct_xdrs));
   mem_free ((caddr_t) ct, sizeof (struct ct_data));
@@ -526,11 +529,11 @@ __msgwrite (int sock, void *data, size_t cnt)
   /* XXX I'm not sure, if gete?id() is always correct, or if we should use
      get?id(). But since keyserv needs geteuid(), we have no other chance.
      It would be much better, if the kernel could pass both to the server. */
-  cred.pid = __getpid ();
+  cred.pid = getpid ();
   cred.uid = geteuid ();
   cred.gid = getegid ();
 
-  __memcpy (CMSG_DATA(cmsg), &cred, sizeof (struct ucred));
+  memcpy (CMSG_DATA(cmsg), &cred, sizeof (struct ucred));
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_CREDENTIALS;
   cmsg->cmsg_len = sizeof(*cmsg) + sizeof(struct ucred);

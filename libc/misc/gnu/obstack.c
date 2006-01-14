@@ -51,7 +51,7 @@
 # endif
 #endif
 
-#if defined _LIBC && defined USE_IN_LIBIO
+#if (defined _LIBC && defined USE_IN_LIBIO) || defined __UCLIBC_HAS_WCHAR__
 # include <wchar.h>
 #endif
 
@@ -105,6 +105,14 @@ void (*obstack_alloc_failed_handler) () = print_and_abort;
 # ifndef EXIT_FAILURE
 #  define EXIT_FAILURE 1
 # endif
+
+libc_hidden_proto(fprintf)
+libc_hidden_proto(abort)
+libc_hidden_proto(exit)
+#ifdef __UCLIBC_HAS_WCHAR__
+libc_hidden_proto(fwprintf)
+#endif
+
 int obstack_exit_failure = EXIT_FAILURE;
 
 /* The non-GNU-C macros copy the obstack into this global variable
@@ -480,15 +488,8 @@ _obstack_memory_used (h)
 #  define fputs(s, f) _IO_fputs (s, f)
 # endif
 
-# ifndef __attribute__
-/* This feature is available in gcc versions 2.5 and later.  */
-#  if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 5)
-#   define __attribute__(Spec) /* empty */
-#  endif
-# endif
-
 static void
-__attribute__ ((noreturn))
+attribute_noreturn
 print_and_abort ()
 {
   /* Don't change any of these strings.  Yes, it would be possible to add
@@ -498,11 +499,11 @@ print_and_abort ()
      a very similar string which requires a separate translation.  */
 # if defined _LIBC && defined USE_IN_LIBIO
   if (_IO_fwide (stderr, 0) > 0)
-    __fwprintf (stderr, L"%s\n", _("memory exhausted"));
+    fwprintf (stderr, L"%s\n", _("memory exhausted"));
   else
 # endif
     fprintf (stderr, "%s\n", _("memory exhausted"));
-  __exit (obstack_exit_failure);
+  exit (obstack_exit_failure);
 }
 
 # if 0

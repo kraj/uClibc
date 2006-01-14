@@ -17,8 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define strcmp __strcmp
-
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -34,11 +32,6 @@
 # define HAVE_STRING_H 1
 # define STDC_HEADERS
 # define HAVE___STRCHRNUL 1
-extern void *__mempcpy (void *__restrict __dest,
-			__const void *__restrict __src, size_t __n)
-     __THROW __nonnull ((1, 2)) attribute_hidden;
-extern void *__memchr (__const void *__s, int __c, size_t __n)
-      __THROW __attribute_pure__ __nonnull ((1)) attribute_hidden;
 # ifdef __UCLIBC_HAS_WCHAR__
 #  define HAVE_WCHAR_H 1
 #  define HAVE_WCTYPE_H 1
@@ -64,6 +57,22 @@ extern void *__memchr (__const void *__s, int __c, size_t __n)
 # include <stdlib.h>
 #endif
 
+#ifdef __UCLIBC__
+#define __memset memset
+libc_hidden_proto(memchr)
+libc_hidden_proto(memset)
+libc_hidden_proto(mempcpy)
+libc_hidden_proto(strcat)
+libc_hidden_proto(strcmp)
+/*libc_hidden_proto(strchr)*/
+/*libc_hidden_proto(strchrnul)*/
+libc_hidden_proto(strlen)
+libc_hidden_proto(strcoll)
+libc_hidden_proto(tolower)
+libc_hidden_proto(fnmatch)
+libc_hidden_proto(getenv)
+#endif
+
 /* For platform which support the ISO C amendement 1 functionality we
    support user defined character classes.  */
 #if defined _LIBC || (defined HAVE_WCTYPE_H && defined HAVE_WCHAR_H)
@@ -71,24 +80,20 @@ extern void *__memchr (__const void *__s, int __c, size_t __n)
 # include <wchar.h>
 # include <wctype.h>
 # ifdef __UCLIBC__
-extern wctype_t __wctype (__const char *__property) __THROW attribute_hidden;
-extern int __iswctype (wint_t __wc, wctype_t __desc) __THROW attribute_hidden;
-extern wint_t __btowc (int __c) __THROW attribute_hidden;
+libc_hidden_proto(wctype)
+libc_hidden_proto(iswctype)
+libc_hidden_proto(btowc)
 #  ifdef __UCLIBC_HAS_LOCALE__
-extern size_t __mbsrtowcs (wchar_t *__restrict __dst,
-			 __const char **__restrict __src, size_t __len,
-			 mbstate_t *__restrict __ps) __THROW attribute_hidden;
-extern size_t __wcslen (__const wchar_t *__s) __THROW __attribute_pure__ attribute_hidden;
-extern wchar_t *__wmempcpy (wchar_t *__restrict __s1,
-			  __const wchar_t *__restrict __s2, size_t __n)
-     __THROW attribute_hidden;
-extern wchar_t *__wcscat (wchar_t *__restrict __dest,
-			__const wchar_t *__restrict __src) __THROW attribute_hidden;
-extern size_t __strnlen (__const char *__string, size_t __maxlen)
-     __THROW __attribute_pure__ __nonnull ((1)) attribute_hidden;
-extern wchar_t *__wmemchr (__const wchar_t *__s, wchar_t __c, size_t __n)
-     __THROW __attribute_pure__ attribute_hidden;
-extern wint_t __towlower (wint_t __wc) __THROW attribute_hidden;
+libc_hidden_proto(wmemchr)
+libc_hidden_proto(wmempcpy)
+libc_hidden_proto(wcscat)
+/*libc_hidden_proto(wcschr)*/
+/*libc_hidden_proto(wcschrnul)*/
+libc_hidden_proto(wcslen)
+libc_hidden_proto(wcscoll)
+libc_hidden_proto(towlower)
+libc_hidden_proto(mbsrtowcs)
+libc_hidden_proto(strnlen)
 #  endif
 # endif
 #endif
@@ -96,20 +101,21 @@ extern wint_t __towlower (wint_t __wc) __THROW attribute_hidden;
 /* We need some of the locale data (the collation sequence information)
    but there is no interface to get this information in general.  Therefore
    we support a correct implementation only in glibc.  */
-#if defined _LIBC || defined __UCLIBC__
-# ifndef __UCLIBC__
+#if defined _LIBC
 # include "../locale/localeinfo.h"
 # include "../locale/elem-hash.h"
 # include "../locale/coll-lookup.h"
 # include <shlib-compat.h>
-# endif
 
 # define CONCAT(a,b) __CONCAT(a,b)
-# if defined _LIBC || defined __UCLIBC_HAS_LOCALE__
+# if defined _LIBC
 # define mbsrtowcs __mbsrtowcs
 # endif
 # define fnmatch __fnmatch
 extern int fnmatch (const char *pattern, const char *string, int flags) attribute_hidden;
+#endif
+#ifdef __UCLIBC__
+# define CONCAT(a,b) __CONCAT(a,b)
 #endif
 
 /* We often have to test for FNM_FILE_NAME and FNM_PERIOD being both set.  */
@@ -168,13 +174,13 @@ extern int fnmatch (const char *pattern, const char *string, int flags) attribut
 #   define CHAR_CLASS_MAX_LENGTH 256
 #  endif
 
-#  if defined _LIBC || defined __UCLIBC__
+#  if defined _LIBC
 #   define IS_CHAR_CLASS(string) __wctype (string)
 #  else
 #   define IS_CHAR_CLASS(string) wctype (string)
 #  endif
 
-#  if defined _LIBC || defined __UCLIBC__
+#  if defined _LIBC
 #   define ISWCTYPE(WC, WT)	__iswctype (WC, WT)
 #  else
 #   define ISWCTYPE(WC, WT)	iswctype (WC, WT)
@@ -246,7 +252,7 @@ __wcschrnul (s, c)
 # endif
 
 /* Note that this evaluates C many times.  */
-# if defined _LIBC || defined __UCLIBC__
+# if defined _LIBC
 #  define FOLD(c) ((flags & FNM_CASEFOLD) ? __tolower (c) : (c))
 # else
 #  define FOLD(c) ((flags & FNM_CASEFOLD) && ISUPPER (c) ? tolower (c) : (c))
@@ -258,22 +264,22 @@ __wcschrnul (s, c)
 # define EXT	ext_match
 # define END	end_pattern
 # define L(CS)	CS
-# if defined _LIBC || defined __UCLIBC__
+# if defined _LIBC
 #  define BTOWC(C)	__btowc (C)
 # else
 #  define BTOWC(C)	btowc (C)
 # endif
-# define STRLEN(S) __strlen (S)
-# define STRCAT(D, S) __strcat (D, S)
-# define MEMPCPY(D, S, N) __mempcpy (D, S, N)
-# define MEMCHR(S, C, N) __memchr (S, C, N)
-# define STRCOLL(S1, S2) __strcoll (S1, S2)
+# define STRLEN(S) strlen (S)
+# define STRCAT(D, S) strcat (D, S)
+# define MEMPCPY(D, S, N) mempcpy (D, S, N)
+# define MEMCHR(S, C, N) memchr (S, C, N)
+# define STRCOLL(S1, S2) strcoll (S1, S2)
 # include "fnmatch_loop.c"
 
 
 # if HANDLE_MULTIBYTE
 /* Note that this evaluates C many times.  */
-#  if defined _LIBC || defined __UCLIBC__
+#  if defined _LIBC
 #   define FOLD(c) ((flags & FNM_CASEFOLD) ? __towlower (c) : (c))
 #  else
 #   define FOLD(c) ((flags & FNM_CASEFOLD) && ISUPPER (c) ? towlower (c) : (c))
@@ -286,11 +292,11 @@ __wcschrnul (s, c)
 # define END	end_wpattern
 #  define L(CS)	L##CS
 #  define BTOWC(C)	(C)
-#  define STRLEN(S) __wcslen (S)
-#  define STRCAT(D, S) __wcscat (D, S)
-#  define MEMPCPY(D, S, N) __wmempcpy (D, S, N)
-#  define MEMCHR(S, C, N) __wmemchr (S, C, N)
-#  define STRCOLL(S1, S2) __wcscoll (S1, S2)
+#  define STRLEN(S) wcslen (S)
+#  define STRCAT(D, S) wcscat (D, S)
+#  define MEMPCPY(D, S, N) wmempcpy (D, S, N)
+#  define MEMCHR(S, C, N) wmemchr (S, C, N)
+#  define STRCOLL(S1, S2) wcscoll (S1, S2)
 #  ifndef __UCLIBC__
 #  define WIDE_CHAR_VERSION 1
 #  endif
@@ -354,7 +360,7 @@ is_char_class (const wchar_t *wcs)
 
   *cp = '\0';
 
-#  if defined _LIBC || defined __UCLIBC__
+#  if defined _LIBC
   return __wctype (s);
 #  else
   return wctype (s);
@@ -365,15 +371,16 @@ is_char_class (const wchar_t *wcs)
 #  include "fnmatch_loop.c"
 # endif
 
+extern size_t _stdlib_mb_cur_max (void) __THROW __wur;
+libc_hidden_proto(_stdlib_mb_cur_max)
 
-int attribute_hidden
+int
 fnmatch (const char *pattern, const char *string, int flags)
 {
 # if HANDLE_MULTIBYTE
 #  ifdef __UCLIBC_HAS_WCHAR__
 #   undef MB_CUR_MAX
-#   define	MB_CUR_MAX	(_stdlib_mb_cur_max_internal ())
-extern size_t _stdlib_mb_cur_max_internal (void) __THROW __wur attribute_hidden;
+#   define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
 #  endif
   if (__builtin_expect (MB_CUR_MAX, 1) != 1)
     {
@@ -387,9 +394,9 @@ extern size_t _stdlib_mb_cur_max_internal (void) __THROW __wur attribute_hidden;
       __memset (&ps, '\0', sizeof (ps));
       p = pattern;
 #if defined _LIBC || defined __UCLIBC__
-      n = __strnlen (pattern, 1024);
+      n = strnlen (pattern, 1024);
 #else
-      n = __strlen (pattern);
+      n = strlen (pattern);
 #endif
       if (__builtin_expect (n < 1024, 1))
 	{
@@ -418,9 +425,9 @@ extern size_t _stdlib_mb_cur_max_internal (void) __THROW __wur attribute_hidden;
 
       assert (mbsinit (&ps));
 #if defined _LIBC || defined __UCLIBC__
-      n = __strnlen (string, 1024);
+      n = strnlen (string, 1024);
 #else
-      n = __strlen (string);
+      n = strlen (string);
 #endif
       p = string;
       if (__builtin_expect (n < 1024, 1))
@@ -453,11 +460,11 @@ extern size_t _stdlib_mb_cur_max_internal (void) __THROW __wur attribute_hidden;
     }
 # endif  /* mbstate_t and mbsrtowcs or _LIBC.  */
 
-  return internal_fnmatch (pattern, string, string + __strlen (string),
+  return internal_fnmatch (pattern, string, string + strlen (string),
 			   flags & FNM_PERIOD, flags);
 }
 
-# if defined _LIBC || defined __UCLIBC__
+# if defined _LIBC
 #  undef fnmatch
 #  ifndef __UCLIBC__
 versioned_symbol (libc, __fnmatch, fnmatch, GLIBC_2_2_3);
@@ -466,9 +473,10 @@ strong_alias (__fnmatch, __fnmatch_old)
 compat_symbol (libc, __fnmatch_old, fnmatch, GLIBC_2_0);
 #  endif
 libc_hidden_ver (__fnmatch, fnmatch)
-#  else
-strong_alias(__fnmatch,fnmatch)
 #  endif
+# else
+libc_hidden_proto(fnmatch)
+libc_hidden_def(fnmatch)
 # endif
 
 #endif	/* _LIBC or not __GNU_LIBRARY__.  */

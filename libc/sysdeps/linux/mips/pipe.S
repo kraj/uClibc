@@ -8,10 +8,8 @@
 #include <asm/regdef.h>
 
 	.globl	pipe
-        .globl  __pipe
-	.hidden	__pipe
-        .ent    __pipe, 0
-__pipe:
+        .ent    pipe, 0
+pipe:
         addiu   sp,sp,-24
         sw      a0,16(sp)
         li      v0,__NR_pipe
@@ -29,6 +27,5 @@ __pipe:
 2:
         addiu   sp,sp,24
         j       ra
-        .end    __pipe
-        .size   __pipe,.-__pipe
-	.weak	pipe; pipe = __pipe
+        .end    pipe
+        .size   pipe,.-pipe

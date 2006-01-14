@@ -24,7 +24,7 @@
 extern int __drand48_iterate(unsigned short xsubi[3], 
 	struct drand48_data *buffer) attribute_hidden;
 
-int attribute_hidden __erand48_r (unsigned short int xsubi[3], struct drand48_data *buffer, double *result)
+int erand48_r (unsigned short int xsubi[3], struct drand48_data *buffer, double *result)
 {
     union ieee754_double temp;
 
@@ -45,4 +45,5 @@ int attribute_hidden __erand48_r (unsigned short int xsubi[3], struct drand48_da
 
     return 0;
 }
-strong_alias(__erand48_r,erand48_r)
+libc_hidden_proto(erand48_r)
+libc_hidden_def(erand48_r)

@@ -50,10 +50,10 @@
 
 
 .text
-.global __clone
-.type   __clone,%function
+.global clone
+.type   clone,%function
 .align 4
-__clone:
+clone:
 	/* Sanity check arguments.  */
 	movq	$-EINVAL,%rax
 	testq	%rdi,%rdi		/* no NULL function pointers */
@@ -109,9 +109,6 @@ __clone:
 	call	*%rax
 	/* Call exit with return value from function call. */
 	movq	%rax, %rdi
-	call	_exit_internal
+	call	HIDDEN_JUMPTARGET(_exit)
 
-.size __clone,.-__clone
-
-.weak clone
-	clone = __clone
+.size clone,.-clone

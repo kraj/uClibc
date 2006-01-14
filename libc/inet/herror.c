@@ -23,6 +23,8 @@
 #include <string.h>
 #include <netdb.h>
 
+libc_hidden_proto(fprintf)
+
 static const char *error_msg = "Resolver error";
 static const char *const h_errlist[] = {
 	"Error 0",
@@ -36,7 +38,7 @@ static const int h_nerr = { sizeof(h_errlist)/sizeof(h_errlist[0]) };
 /*
  * herror -- print the error indicated by the h_errno value.
  */
-void attribute_hidden __herror(const char *s)
+void herror(const char *s)
 {
 	static const char colon_space[] = ": ";
 	const char *p;
@@ -52,7 +54,8 @@ void attribute_hidden __herror(const char *s)
 	}
 	fprintf(stderr, "%s%s%s\n", s, c, p);
 }
-strong_alias(__herror,herror)
+libc_hidden_proto(herror)
+libc_hidden_def(herror)
 
 
 const char *hstrerror(int err)

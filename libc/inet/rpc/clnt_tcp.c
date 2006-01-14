@@ -50,21 +50,6 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
  * Now go hang yourself.
  */
 
-#define authnone_create __authnone_create
-#define xdrrec_create __xdrrec_create
-#define xdrrec_endofrecord __xdrrec_endofrecord
-#define xdrrec_skiprecord __xdrrec_skiprecord
-#define xdr_callhdr __xdr_callhdr
-#define xdr_replymsg __xdr_replymsg
-#define xdr_opaque_auth __xdr_opaque_auth
-#define xdrmem_create __xdrmem_create
-#define pmap_getport __pmap_getport
-#define _seterr_reply __seterr_reply
-#define connect __connect
-#define bindresvport __bindresvport
-#define poll __poll
-#define fputs __fputs
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -80,12 +65,30 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
 # include <wchar.h>
 #endif
 
-extern u_long _create_xid (void) attribute_hidden;
+libc_hidden_proto(socket)
+libc_hidden_proto(read)
+libc_hidden_proto(write)
+libc_hidden_proto(close)
+libc_hidden_proto(authnone_create)
+libc_hidden_proto(xdrrec_create)
+libc_hidden_proto(xdrrec_endofrecord)
+libc_hidden_proto(xdrrec_skiprecord)
+libc_hidden_proto(xdr_callhdr)
+libc_hidden_proto(xdr_replymsg)
+libc_hidden_proto(xdr_opaque_auth)
+libc_hidden_proto(xdrmem_create)
+libc_hidden_proto(pmap_getport)
+libc_hidden_proto(_seterr_reply)
+libc_hidden_proto(connect)
+libc_hidden_proto(bindresvport)
+libc_hidden_proto(poll)
+libc_hidden_proto(fputs)
+#ifdef USE_IN_LIBIO
+libc_hidden_proto(fwprintf)
+#endif
+libc_hidden_proto(__rpc_thread_createerr)
 
-#undef get_rpc_createerr
-extern struct rpc_createerr *__rpc_thread_createerr_internal (void)
-     __attribute__ ((__const__)) attribute_hidden;
-#define get_rpc_createerr() (*__rpc_thread_createerr_internal ())
+extern u_long _create_xid (void) attribute_hidden;
 
 #define MCALL_MSG_SIZE 24
 
@@ -137,8 +140,8 @@ static struct clnt_ops tcp_ops =
  * NB: The rpch->cl_auth is set null authentication.  Caller may wish to set this
  * something more useful.
  */
-CLIENT attribute_hidden *
-__clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
+CLIENT *
+clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
 		int *sockp, u_int sendsz, u_int recvsz)
 {
   CLIENT *h;
@@ -152,7 +155,7 @@ __clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
       struct rpc_createerr *ce = &get_rpc_createerr ();
 #ifdef USE_IN_LIBIO
       if (_IO_fwide (stderr, 0) > 0)
-	(void) __fwprintf (stderr, L"%s",
+	(void) fwprintf (stderr, L"%s",
 			   _("clnttcp_create: out of memory\n"));
       else
 #endif
@@ -182,7 +185,7 @@ __clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
    */
   if (*sockp < 0)
     {
-      *sockp = __socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
+      *sockp = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
       (void) bindresvport (*sockp, (struct sockaddr_in *) 0);
       if ((*sockp < 0)
 	  || (connect (*sockp, (struct sockaddr *) raddr,
@@ -192,7 +195,7 @@ __clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
 	  ce->cf_stat = RPC_SYSTEMERROR;
 	  ce->cf_error.re_errno = errno;
 	  if (*sockp >= 0)
-	    (void) __close (*sockp);
+	    (void) close (*sockp);
 	  goto fooy;
 	}
       ct->ct_closeit = TRUE;
@@ -228,7 +231,7 @@ __clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
     {
       if (ct->ct_closeit)
 	{
-	  (void) __close (*sockp);
+	  (void) close (*sockp);
 	}
       goto fooy;
     }
@@ -254,7 +257,8 @@ fooy:
   mem_free ((caddr_t) h, sizeof (CLIENT));
   return ((CLIENT *) NULL);
 }
-strong_alias(__clnttcp_create,clnttcp_create)
+libc_hidden_proto(clnttcp_create)
+libc_hidden_def(clnttcp_create)
 
 static enum clnt_stat
 clnttcp_call (h, proc, xdr_args, args_ptr, xdr_results, results_ptr, timeout)
@@ -482,7 +486,7 @@ clnttcp_destroy (CLIENT *h)
 
   if (ct->ct_closeit)
     {
-      (void) __close (ct->ct_sock);
+      (void) close (ct->ct_sock);
     }
   XDR_DESTROY (&(ct->ct_xdrs));
   mem_free ((caddr_t) ct, sizeof (struct ct_data));
@@ -524,7 +528,7 @@ readtcp (char *ctptr, char *buf, int len)
 	}
       break;
     }
-  switch (len = __read (ct->ct_sock, buf, len))
+  switch (len = read (ct->ct_sock, buf, len))
     {
 
     case 0:
@@ -550,7 +554,7 @@ writetcp (char *ctptr, char *buf, int len)
 
   for (cnt = len; cnt > 0; cnt -= i, buf += i)
     {
-      if ((i = __write (ct->ct_sock, buf, cnt)) == -1)
+      if ((i = write (ct->ct_sock, buf, cnt)) == -1)
 	{
 	  ct->ct_error.re_errno = errno;
 	  ct->ct_error.re_status = RPC_CANTSEND;

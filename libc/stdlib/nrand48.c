@@ -17,9 +17,9 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define nrand48_r __nrand48_r
-
 #include <stdlib.h>
+
+libc_hidden_proto(nrand48_r)
 
 /* Global state for non-reentrant functions.  Defined in drand48-iter.c.  */
 extern struct drand48_data __libc_drand48_data attribute_hidden;

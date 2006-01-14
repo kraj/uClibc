@@ -1,3 +1,3 @@
-#define __strcspn __strpbrk
+#define strcspn strpbrk
 #include "strcspn.S"
-strong_alias(__strpbrk,strpbrk)
+libc_hidden_proto(strpbrk)

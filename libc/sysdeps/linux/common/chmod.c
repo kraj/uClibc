@@ -13,8 +13,9 @@
 #define __NR___syscall_chmod __NR_chmod
 static inline _syscall2(int, __syscall_chmod, const char *, path, __kernel_mode_t, mode);
 
-int attribute_hidden __chmod(const char *path, mode_t mode)
+int chmod(const char *path, mode_t mode)
 {
 	return __syscall_chmod(path, mode);
 }
-strong_alias(__chmod,chmod)
+libc_hidden_proto(chmod)
+libc_hidden_def(chmod)

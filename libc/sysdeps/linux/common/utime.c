@@ -7,18 +7,18 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
-#define utimes __utimes
-#define gettimeofday __gettimeofday
-
 #include "syscalls.h"
 #include <utime.h>
 #ifdef __NR_utime
-#define __NR___utime __NR_utime
-attribute_hidden _syscall2(int, __utime, const char *, file, const struct utimbuf *, times);
+attribute_hidden _syscall2(int, utime, const char *, file, const struct utimbuf *, times);
 #else
 #include <stdlib.h>
 #include <sys/time.h>
-int attribute_hidden __utime(const char *file, const struct utimbuf *times)
+
+libc_hidden_proto(utimes)
+libc_hidden_proto(gettimeofday)
+
+int utime(const char *file, const struct utimbuf *times)
 {
 	struct timeval timevals[2];
 
@@ -36,4 +36,5 @@ int attribute_hidden __utime(const char *file, const struct utimbuf *times)
 	return utimes(file, timevals);
 }
 #endif
-strong_alias(__utime,utime)
+libc_hidden_proto(utime)
+libc_hidden_def(utime)

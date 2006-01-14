@@ -9,18 +9,21 @@
 #include <stdlib.h>
 
 #ifdef WANT_WIDE
-# define __Wstrdup __wcsdup
+libc_hidden_proto(wcslen)
+libc_hidden_proto(wcscpy)
 # define Wstrdup wcsdup
-# define Wstrlen __wcslen
-# define Wstrcpy __wcscpy
+# define Wstrlen wcslen
+# define Wstrcpy wcscpy
 #else
-# define __Wstrdup __strdup
+libc_hidden_proto(strdup)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strcpy)
 # define Wstrdup strdup
-# define Wstrlen __strlen
-# define Wstrcpy __strcpy
+# define Wstrlen strlen
+# define Wstrcpy strcpy
 #endif
 
-Wchar attribute_hidden *__Wstrdup(register const Wchar *s1)
+Wchar *Wstrdup(register const Wchar *s1)
 {
 	register Wchar *s;
 
@@ -31,4 +34,6 @@ Wchar attribute_hidden *__Wstrdup(register const Wchar *s1)
 	return s;
 }
 
-strong_alias(__Wstrdup,Wstrdup)
+#ifndef WANT_WIDE
+libc_hidden_def(strdup)
+#endif

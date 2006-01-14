@@ -51,11 +51,6 @@
 ** SUCH DAMAGE.
 */
 
-#define strpbrk __strpbrk
-#define atoi __atoi
-#define rewind __rewind
-#define fgets __fgets
-
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -67,6 +62,14 @@
 #include <string.h>
 #include <errno.h>
 
+libc_hidden_proto(fopen)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strpbrk)
+libc_hidden_proto(atoi)
+libc_hidden_proto(rewind)
+libc_hidden_proto(fgets)
+libc_hidden_proto(fclose)
+libc_hidden_proto(abort)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
@@ -94,7 +97,7 @@ static void __initbuf(void)
     }
 }
 
-void attribute_hidden __setprotoent(int f)
+void setprotoent(int f)
 {
     LOCK;
     if (protof == NULL)
@@ -104,9 +107,10 @@ void attribute_hidden __setprotoent(int f)
     proto_stayopen |= f;
     UNLOCK;
 }
-strong_alias(__setprotoent,setprotoent)
+libc_hidden_proto(setprotoent)
+libc_hidden_def(setprotoent)
 
-void attribute_hidden __endprotoent(void)
+void endprotoent(void)
 {
     LOCK;
     if (protof) {
@@ -116,9 +120,10 @@ void attribute_hidden __endprotoent(void)
     proto_stayopen = 0;
     UNLOCK;
 }
-strong_alias(__endprotoent,endprotoent)
+libc_hidden_proto(endprotoent)
+libc_hidden_def(endprotoent)
 
-int attribute_hidden __getprotoent_r(struct protoent *result_buf,
+int getprotoent_r(struct protoent *result_buf,
 		  char *buf, size_t buflen,
 		  struct protoent **result)
 {
@@ -194,19 +199,20 @@ again:
     UNLOCK;
     return 0;
 }
-strong_alias(__getprotoent_r,getprotoent_r)
+libc_hidden_proto(getprotoent_r)
+libc_hidden_def(getprotoent_r)
 
 struct protoent * getprotoent(void)
 {
     struct protoent *result;
 
     __initbuf();
-    __getprotoent_r(&proto, static_aliases, SBUFSIZE, &result);
+    getprotoent_r(&proto, static_aliases, SBUFSIZE, &result);
     return result;
 }
 
 
-int attribute_hidden __getprotobyname_r(const char *name,
+int getprotobyname_r(const char *name,
 		    struct protoent *result_buf,
 		    char *buf, size_t buflen,
 		    struct protoent **result)
@@ -215,21 +221,22 @@ int attribute_hidden __getprotobyname_r(const char *name,
     int ret;
 
     LOCK;
-    __setprotoent(proto_stayopen);
-    while (!(ret=__getprotoent_r(result_buf, buf, buflen, result))) {
-	if (__strcmp(result_buf->p_name, name) == 0)
+    setprotoent(proto_stayopen);
+    while (!(ret=getprotoent_r(result_buf, buf, buflen, result))) {
+	if (strcmp(result_buf->p_name, name) == 0)
 	    break;
 	for (cp = result_buf->p_aliases; *cp != 0; cp++)
-	    if (__strcmp(*cp, name) == 0)
+	    if (strcmp(*cp, name) == 0)
 		goto found;
     }
 found:
     if (!proto_stayopen)
-	__endprotoent();
+	endprotoent();
     UNLOCK;
     return *result?0:ret;
 }
-strong_alias(__getprotobyname_r,getprotobyname_r)
+libc_hidden_proto(getprotobyname_r)
+libc_hidden_def(getprotobyname_r)
 
 
 struct protoent * getprotobyname(const char *name)
@@ -237,12 +244,12 @@ struct protoent * getprotobyname(const char *name)
     struct protoent *result;
 
     __initbuf();
-    __getprotobyname_r(name, &proto, static_aliases, SBUFSIZE, &result);
+    getprotobyname_r(name, &proto, static_aliases, SBUFSIZE, &result);
     return result;
 }
 
 
-int attribute_hidden __getprotobynumber_r (int proto_num,
+int getprotobynumber_r (int proto_num,
 			struct protoent *result_buf,
 			char *buf, size_t buflen,
 			struct protoent **result)
@@ -250,23 +257,24 @@ int attribute_hidden __getprotobynumber_r (int proto_num,
     int ret;
 
     LOCK;
-    __setprotoent(proto_stayopen);
-    while (!(ret=__getprotoent_r(result_buf, buf, buflen, result)))
+    setprotoent(proto_stayopen);
+    while (!(ret=getprotoent_r(result_buf, buf, buflen, result)))
 	if (result_buf->p_proto == proto_num)
 	    break;
     if (!proto_stayopen)
-	__endprotoent();
+	endprotoent();
     UNLOCK;
     return *result?0:ret;
 }
-strong_alias(__getprotobynumber_r,getprotobynumber_r)
+libc_hidden_proto(getprotobynumber_r)
+libc_hidden_def(getprotobynumber_r)
 
 struct protoent * getprotobynumber(int proto_num)
 {
     struct protoent *result;
 
     __initbuf();
-    __getprotobynumber_r(proto_num, &proto, static_aliases,
+    getprotobynumber_r(proto_num, &proto, static_aliases,
                        SBUFSIZE, &result);
     return result;
 }

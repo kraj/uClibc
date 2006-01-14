@@ -39,10 +39,9 @@ extern void __default_rt_sa_restorer(void);
   __default_sa_restorer
 #endif
 
-
-
 #ifdef __NR_rt_sigaction
 
+libc_hidden_proto(memcpy)
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -53,7 +52,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
-	__memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
+	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
 	kact.sa_flags = act->sa_flags;
 # ifdef HAVE_SA_RESTORER
 	/* If the user specified SA_ONSTACK this means she is trying to
@@ -78,7 +77,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	    oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
     if (oact && result >= 0) {
 	oact->sa_handler = koact.k_sa_handler;
-	__memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
+	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
 	oact->sa_flags = koact.sa_flags;
 # ifdef HAVE_SA_RESTORER
 	oact->sa_restorer = koact.sa_restorer;
@@ -89,8 +88,6 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
 
 #else
-
-
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -129,6 +126,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 #endif
 
 #ifndef LIBC_SIGACTION
-hidden_weak_alias(__libc_sigaction,__sigaction)
-weak_alias(__libc_sigaction,sigaction)
+strong_alias(__libc_sigaction,sigaction)
+libc_hidden_proto(sigaction)
+libc_hidden_def(sigaction)
 #endif

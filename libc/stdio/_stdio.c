@@ -5,9 +5,10 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define isatty __isatty
-
 #include "_stdio.h"
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(isatty)
 
 /* This is pretty much straight from uClibc, but with one important
  * difference.
@@ -169,7 +170,7 @@ void attribute_hidden __stdio_init_mutex(pthread_mutex_t *m)
 	static const pthread_mutex_t __stdio_mutex_initializer
 		= PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-	__memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
+	memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
 }
 
 #endif

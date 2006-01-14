@@ -5,11 +5,11 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define vswprintf __vswprintf
-
 #include "_stdio.h"
 #include <stdarg.h>
 #include <wchar.h>
+
+libc_hidden_proto(vswprintf)
 
 #ifndef __STDIO_BUFFERS
 #warning Skipping swprintf since no buffering!

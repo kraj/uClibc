@@ -65,12 +65,3 @@ weak_extern (__setjmp)
 weak_extern (_setjmp)
 weak_extern (setjmp)
 */
-
-
-
-
-
-
-
-
-

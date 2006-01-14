@@ -26,18 +26,24 @@
 # define SSP_SIGTYPE SIGABRT
 #endif
 
-#define openlog __openlog
-#define syslog __syslog
-#define closelog __closelog
-#define sigfillset __sigfillset_internal
-#define sigdelset __sigdelset_internal
-#define sigaction __sigaction
-#define kill __kill
-
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/syslog.h>
+
+libc_hidden_proto(memset)
+libc_hidden_proto(strlen)
+libc_hidden_proto(sigaction)
+libc_hidden_proto(sigfillset)
+libc_hidden_proto(sigdelset)
+libc_hidden_proto(sigprocmask)
+libc_hidden_proto(write)
+libc_hidden_proto(openlog)
+libc_hidden_proto(syslog)
+libc_hidden_proto(closelog)
+libc_hidden_proto(kill)
+libc_hidden_proto(getpid)
+libc_hidden_proto(_exit)
 
 static void block_signals(void)
 {
@@ -47,10 +53,10 @@ static void block_signals(void)
 	sigfillset(&mask);
 
 	sigdelset(&mask, SSP_SIGTYPE);	/* Block all signal handlers */
-	__sigprocmask(SIG_BLOCK, &mask, NULL);	/* except SSP_SIGTYPE */
+	sigprocmask(SIG_BLOCK, &mask, NULL);	/* except SSP_SIGTYPE */
 
 	/* Make the default handler associated with the signal handler */
-	__memset(&sa, 0, sizeof(struct sigaction));
+	memset(&sa, 0, sizeof(struct sigaction));
 	sigfillset(&sa.sa_mask);	/* Block all signals */
 	sa.sa_flags = 0;
 	sa.sa_handler = SIG_DFL;
@@ -59,10 +65,10 @@ static void block_signals(void)
 
 static void ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3)
 {
-	__write(fd, msg1, __strlen(msg1));
-	__write(fd, msg2, __strlen(msg2));
-	__write(fd, msg3, __strlen(msg3));
-	__write(fd, "()\n", 3);
+	write(fd, msg1, strlen(msg1));
+	write(fd, msg2, strlen(msg2));
+	write(fd, msg3, strlen(msg3));
+	write(fd, "()\n", 3);
 	openlog("ssp", LOG_CONS | LOG_PID, LOG_USER);
 	syslog(LOG_INFO, "%s%s%s()", msg1, msg2, msg3);
 	closelog();
@@ -70,8 +76,8 @@ static void ssp_write(int fd, const char *msg1, const char *msg2, const char *ms
 
 static attribute_noreturn void terminate(void)
 {
-	(void) kill(__getpid(), SSP_SIGTYPE);
-	_exit_internal(127);
+	(void) kill(getpid(), SSP_SIGTYPE);
+	_exit(127);
 }
 
 void attribute_noreturn __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));

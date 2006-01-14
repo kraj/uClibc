@@ -10,7 +10,8 @@
 #include "syscalls.h"
 #include <unistd.h>
 
-#define __NR___close __NR_close
-attribute_hidden _syscall1(int, __close, int, fd);
-strong_alias(__close,close)
-weak_alias(__close,__libc_close)
+#define __NR___libc_close __NR_close
+_syscall1(int, __libc_close, int, fd);
+strong_alias(__libc_close,close)
+libc_hidden_proto(close)
+libc_hidden_def(close)

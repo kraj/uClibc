@@ -1,28 +1,8 @@
-/* Copyright (C) 1992-1998, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
-
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
-
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  
-   */
-
-/* Modified for uClibc by Erik Andersen
-   */
-
-#define qsort __qsort
-#define opendir __opendir
-#define closedir __closedir
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <dirent.h>
 #include <stdio.h>
@@ -31,6 +11,12 @@
 #include <errno.h>
 #include <sys/types.h>
 #include "dirstream.h"
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(readdir)
+libc_hidden_proto(opendir)
+libc_hidden_proto(closedir)
+libc_hidden_proto(qsort)
 
 int scandir(const char *dir, struct dirent ***namelist, 
 	int (*selector) (const struct dirent *),
@@ -49,7 +35,7 @@ int scandir(const char *dir, struct dirent ***namelist,
     __set_errno (0);
 
     pos = 0;
-    while ((current = __readdir (dp)) != NULL)
+    while ((current = readdir (dp)) != NULL)
 	if (selector == NULL || (*selector) (current))
 	{
 	    struct dirent *vnew;
@@ -76,7 +62,7 @@ int scandir(const char *dir, struct dirent ***namelist,
 	    if (vnew == NULL)
 		break;
 
-	    names[pos++] = (struct dirent *) __memcpy (vnew, current, dsize);
+	    names[pos++] = (struct dirent *) memcpy (vnew, current, dsize);
 	}
 
     if (unlikely(errno != 0))

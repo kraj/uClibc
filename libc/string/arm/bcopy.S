@@ -42,18 +42,17 @@
 #include <features.h>
 
 .text
-.global __bcopy
-.hidden __bcopy
-.type __bcopy,%function
+.global bcopy
+.type bcopy,%function
 .align 4
 
-__bcopy:
+bcopy:
 	/* switch the source and destination registers */
 	eor     r0, r1, r0 
 	eor     r1, r0, r1 
 	eor     r0, r1, r0 
-	b	_memcpy (PLT)
+	b	_memcpy /* (PLT) */
 	
-.size __bcopy,.-__bcopy
+.size bcopy,.-bcopy
 
-strong_alias(__bcopy,bcopy)
+libc_hidden_def(bcopy)

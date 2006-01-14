@@ -8,18 +8,22 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstrlcpy __wcslcpy
-# define Wstrlcpy wcslcpy
+# define Wstrlcpy __wcslcpy
+# define Wstrxfrm wcsxfrm
 #else
-# define __Wstrlcpy __strlcpy
 # define Wstrlcpy strlcpy
+# define Wstrxfrm strxfrm
 #endif
+
 
 /* OpenBSD function:
  * Copy at most n-1 chars from src to dst and nul-terminate dst.
  * Returns strlen(src), so truncation occurred if the return value is >= n. */
 
-size_t attribute_hidden __Wstrlcpy(register Wchar *__restrict dst,
+#ifdef WANT_WIDE
+attribute_hidden
+#endif
+size_t Wstrlcpy(register Wchar *__restrict dst,
 				  register const Wchar *__restrict src,
 				  size_t n)
 {
@@ -42,15 +46,16 @@ size_t attribute_hidden __Wstrlcpy(register Wchar *__restrict dst,
 
 	return src - src0;
 }
-
-strong_alias(__Wstrlcpy,Wstrlcpy)
-
+#ifndef WANT_WIDE
+libc_hidden_proto(strlcpy)
+libc_hidden_def(strlcpy)
 #ifndef __UCLIBC_HAS_LOCALE__
-# ifdef WANT_WIDE
-hidden_strong_alias(__wcslcpy,__wcsxfrm)
+strong_alias(strlcpy,strxfrm)
+libc_hidden_proto(strxfrm)
+libc_hidden_def(strxfrm)
+#endif
+#else
+#ifndef __UCLIBC_HAS_LOCALE__
 strong_alias(__wcslcpy,wcsxfrm)
-# else
-hidden_strong_alias(__strlcpy,__strxfrm)
-strong_alias(__strlcpy,strxfrm)
-# endif
+#endif
 #endif

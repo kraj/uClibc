@@ -5,16 +5,16 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define vasprintf __vasprintf
-
 #include "_stdio.h"
 #include <stdarg.h>
+
+libc_hidden_proto(vasprintf)
 
 #ifndef __STDIO_HAS_VSNPRINTF
 #warning Skipping asprintf and __asprintf since no vsnprintf!
 #else
 
-int attribute_hidden __asprintf(char **__restrict buf, const char * __restrict format, ...)
+int asprintf(char **__restrict buf, const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
@@ -26,6 +26,7 @@ int attribute_hidden __asprintf(char **__restrict buf, const char * __restrict f
 	return rv;
 }
 
-strong_alias(__asprintf,asprintf)
+libc_hidden_proto(asprintf)
+libc_hidden_def(asprintf)
 
 #endif

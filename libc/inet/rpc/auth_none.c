@@ -35,12 +35,12 @@
  * credentials and verifiers to remote systems.
  */
 
-#define xdrmem_create __xdrmem_create
-#define xdr_opaque_auth __xdr_opaque_auth
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include "rpc_private.h"
+
+libc_hidden_proto(xdrmem_create)
+libc_hidden_proto(xdr_opaque_auth)
 
 #define MAX_MARSHEL_SIZE 20
 
@@ -72,8 +72,8 @@ struct authnone_private_s {
 static struct authnone_private_s *authnone_private;
 #endif
 
-AUTH attribute_hidden *
-__authnone_create (void)
+AUTH *
+authnone_create (void)
 {
   struct authnone_private_s *ap;
   XDR xdr_stream;
@@ -101,7 +101,8 @@ __authnone_create (void)
     }
   return (&ap->no_client);
 }
-strong_alias(__authnone_create,authnone_create)
+libc_hidden_proto(authnone_create)
+libc_hidden_def(authnone_create)
 
 /*ARGSUSED */
 static bool_t

@@ -5,9 +5,11 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define isatty __isatty
-
 #include "_stdio.h"
+
+libc_hidden_proto(isatty)
+libc_hidden_proto(open)
+libc_hidden_proto(fcntl)
 
 /*
  * Cases:
@@ -121,7 +123,7 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 		/* NOTE: fopencookie needs changing if the basic check changes! */
 		if (((i & (((int) fname_or_mode) + 1)) != i) /* Basic agreement? */
 			|| (((open_mode & ~((__mode_t) fname_or_mode)) & O_APPEND)
-				&& __fcntl(filedes, F_SETFL, O_APPEND))	/* Need O_APPEND. */
+				&& fcntl(filedes, F_SETFL, O_APPEND))	/* Need O_APPEND. */
 			) {
 			goto DO_EINVAL;
 		}
@@ -130,7 +132,7 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 										& O_LARGEFILE) );
 	} else {
 		__STDIO_WHEN_LFS( if (filedes < -1) open_mode |= O_LARGEFILE );
-		if ((stream->__filedes = __open(((const char *) fname_or_mode),
+		if ((stream->__filedes = open(((const char *) fname_or_mode),
 									  open_mode, 0666)) < 0) {
 			goto FREE_STREAM;
 		}

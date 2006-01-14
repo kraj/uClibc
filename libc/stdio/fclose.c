@@ -9,8 +9,10 @@
 
 #include "_stdio.h"
 
-#undef fclose
-int attribute_hidden __fclose(register FILE *stream)
+libc_hidden_proto(close)
+libc_hidden_proto(fflush_unlocked)
+
+int fclose(register FILE *stream)
 {
 	int rv = 0;
 	__STDIO_AUTO_THREADLOCK_VAR;
@@ -47,7 +49,7 @@ int attribute_hidden __fclose(register FILE *stream)
 #ifdef __STDIO_BUFFERS
 	/* Write any pending buffered chars. */
 	if (__STDIO_STREAM_IS_WRITING(stream)) {
-		rv = __fflush_unlocked(stream);
+		rv = fflush_unlocked(stream);
 	}
 #endif
 
@@ -87,4 +89,5 @@ int attribute_hidden __fclose(register FILE *stream)
 
 	return rv;
 }
-strong_alias(__fclose,fclose)
+libc_hidden_proto(fclose)
+libc_hidden_def(fclose)

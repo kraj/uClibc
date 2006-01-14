@@ -1,78 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /* daemon implementation for uClibc
  *
- * Copyright (c) 1991, 1993
- *	The Regents of the University of California.  All rights reserved.
- *
- * Modified for uClibc by Erik Andersen <andersee@debian.org>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Library General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License
- * for more details.
- *
- * You should have received a copy of the GNU Library General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * Original copyright notice is retained at the end of this file.
- */
-
-#define dup2 __dup2
-#define setsid __setsid
-#define chdir __chdir
-#define fork __fork
-
-#include <stdio.h>
-#include <features.h>
-#include <fcntl.h>
-#include <paths.h>
-#include <unistd.h>
-
-#if defined __ARCH_HAS_MMU__
-
-int daemon( int nochdir, int noclose )
-{
-	int fd;
-
-	switch (fork()) {
-		case -1:
-			return(-1);
-		case 0:
-			break;
-		default:
-			_exit_internal(0);
-	}
-
-	if (setsid() == -1)
-		return(-1);
-
-	/* Make certain we are not a session leader, or else we
-	 * might reacquire a controlling terminal */
-	if (fork())
-		_exit_internal(0);
-
-	if (!nochdir)
-		chdir("/");
-
-	if (!noclose && (fd = __open(_PATH_DEVNULL, O_RDWR, 0)) != -1) {
-		dup2(fd, STDIN_FILENO);
-		dup2(fd, STDOUT_FILENO);
-		dup2(fd, STDERR_FILENO);
-		if (fd > 2)
-			__close(fd);
-	}
-	return(0);
-}
-
-#endif
-
-/*-
  * Copyright (c) 1990, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
@@ -105,4 +33,60 @@ int daemon( int nochdir, int noclose )
  * SUCH DAMAGE.
  */
 
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ * Modified for uClibc by Erik Andersen <andersee@debian.org>
+ */
 
+#include <stdio.h>
+#include <features.h>
+#include <fcntl.h>
+#include <paths.h>
+#include <unistd.h>
+
+#if defined __ARCH_HAS_MMU__
+libc_hidden_proto(open)
+libc_hidden_proto(close)
+libc_hidden_proto(_exit)
+libc_hidden_proto(dup2)
+libc_hidden_proto(setsid)
+libc_hidden_proto(chdir)
+libc_hidden_proto(fork)
+
+int daemon( int nochdir, int noclose )
+{
+	int fd;
+
+	switch (fork()) {
+		case -1:
+			return(-1);
+		case 0:
+			break;
+		default:
+			_exit(0);
+	}
+
+	if (setsid() == -1)
+		return(-1);
+
+	/* Make certain we are not a session leader, or else we
+	 * might reacquire a controlling terminal */
+	if (fork())
+		_exit(0);
+
+	if (!nochdir)
+		chdir("/");
+
+	if (!noclose && (fd = open(_PATH_DEVNULL, O_RDWR, 0)) != -1) {
+		dup2(fd, STDIN_FILENO);
+		dup2(fd, STDOUT_FILENO);
+		dup2(fd, STDERR_FILENO);
+		if (fd > 2)
+			close(fd);
+	}
+	return(0);
+}
+
+#endif

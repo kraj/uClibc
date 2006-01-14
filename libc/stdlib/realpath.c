@@ -1,20 +1,10 @@
 /*
  * realpath.c -- canonicalize pathname by removing symlinks
  * Copyright (C) 1993 Rick Sladkey <jrs@world.std.com>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Library Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Library Public License for more details.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-
-#define readlink __readlink
-#define getcwd __getcwd
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -30,6 +20,12 @@
 #include <errno.h>
 
 #include <sys/stat.h>			/* for S_IFLNK */
+
+libc_hidden_proto(strcat)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strlen)
+libc_hidden_proto(readlink)
+libc_hidden_proto(getcwd)
 
 #ifndef PATH_MAX
 #ifdef _POSIX_VERSION
@@ -62,11 +58,11 @@ char resolved_path[];
 	int n;
 
 	/* Make a copy of the source path since we may need to modify it. */
-	if (__strlen(path) >= PATH_MAX - 2) {
+	if (strlen(path) >= PATH_MAX - 2) {
 		__set_errno(ENAMETOOLONG);
 		return NULL;
 	}
-	__strcpy(copy_path, path);
+	strcpy(copy_path, path);
 	path = copy_path;
 	max_path = copy_path + PATH_MAX - 2;
 	/* If it's a relative pathname use getwd for starters. */
@@ -78,7 +74,7 @@ char resolved_path[];
 #else
 		getwd(new_path);
 #endif
-		new_path += __strlen(new_path);
+		new_path += strlen(new_path);
 		if (new_path[-1] != '/')
 			*new_path++ = '/';
 	} else {
@@ -132,7 +128,7 @@ char resolved_path[];
 			if (errno != EINVAL) {
 				/* Make sure it's null terminated. */
 				*new_path = '\0';
-				__strcpy(resolved_path, got_path);
+				strcpy(resolved_path, got_path);
 				return NULL;
 			}
 		} else {
@@ -145,13 +141,13 @@ char resolved_path[];
 				/* Otherwise back up over this component. */
 				while (*(--new_path) != '/');
 			/* Safe sex check. */
-			if (__strlen(path) + n >= PATH_MAX - 2) {
+			if (strlen(path) + n >= PATH_MAX - 2) {
 				__set_errno(ENAMETOOLONG);
 				return NULL;
 			}
 			/* Insert symlink contents into path. */
-			__strcat(link_path, path);
-			__strcpy(copy_path, link_path);
+			strcat(link_path, path);
+			strcpy(copy_path, link_path);
 			path = copy_path;
 		}
 #endif							/* S_IFLNK */
@@ -162,6 +158,6 @@ char resolved_path[];
 		new_path--;
 	/* Make sure it's null terminated. */
 	*new_path = '\0';
-	__strcpy(resolved_path, got_path);
+	strcpy(resolved_path, got_path);
 	return resolved_path;
 }

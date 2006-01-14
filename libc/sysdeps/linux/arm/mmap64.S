@@ -52,7 +52,7 @@ mmap64:
 	mov	r0, ip			@ first arg was clobbered
 	teq	r5, $0
 	ldmeqfd	sp!, {r4, r5, lr}
-	beq	__mmap
+	beq	HIDDEN_JUMPTARGET(mmap)
 .Linval:
 	mov	r0, $-EINVAL
 	ldmfd	sp!, {r4, r5, lr}

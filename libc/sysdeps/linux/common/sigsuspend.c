@@ -15,7 +15,7 @@
 #define __NR___rt_sigsuspend __NR_rt_sigsuspend
 static inline _syscall2(int, __rt_sigsuspend, const sigset_t *, mask, size_t, size);
 
-int attribute_hidden __sigsuspend(const sigset_t * mask)
+int sigsuspend(const sigset_t * mask)
 {
 	return __rt_sigsuspend(mask, _NSIG / 8);
 }
@@ -24,9 +24,10 @@ int attribute_hidden __sigsuspend(const sigset_t * mask)
 static inline _syscall3(int, __syscall_sigsuspend, int, a, unsigned long int, b,
 		  unsigned long int, c);
 
-int attribute_hidden __sigsuspend(const sigset_t * set)
+int sigsuspend(const sigset_t * set)
 {
 	return __syscall_sigsuspend(0, 0, set->__val[0]);
 }
 #endif
-strong_alias(__sigsuspend,sigsuspend)
+libc_hidden_proto(sigsuspend)
+libc_hidden_def(sigsuspend)

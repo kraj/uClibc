@@ -18,8 +18,7 @@
 static inline _syscall2(int, __syscall_stat64,
 		const char *, file_name, struct kernel_stat64 *, buf);
 
-#undef stat64
-int attribute_hidden __stat64(const char *file_name, struct stat64 *buf)
+int stat64(const char *file_name, struct stat64 *buf)
 {
 	int result;
 	struct kernel_stat64 kbuf;
@@ -30,6 +29,7 @@ int attribute_hidden __stat64(const char *file_name, struct stat64 *buf)
 	}
 	return result;
 }
-strong_alias(__stat64,stat64)
+libc_hidden_proto(stat64)
+libc_hidden_def(stat64)
 
 #endif							/* __UCLIBC_HAS_LFS__ */

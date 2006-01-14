@@ -16,14 +16,14 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define tcsetattr __tcsetattr
-#define tcgetattr __tcgetattr
-
 #include <stdarg.h>
 #include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
+
+libc_hidden_proto(tcsetattr)
+libc_hidden_proto(tcgetattr)
 
 /* The user-visible size of struct termios has changed.  Catch ioctl calls
    using the new-style struct termios, and translate them to old-style.  */
@@ -33,7 +33,7 @@ static inline
 _syscall3(int, __syscall_ioctl, int, fd, unsigned long int, request, void *, arg);
 
 
-int attribute_hidden __ioctl (int fd, unsigned long int request, ...)
+int ioctl (int fd, unsigned long int request, ...)
 {
     void *arg;
     va_list ap;
@@ -69,4 +69,5 @@ int attribute_hidden __ioctl (int fd, unsigned long int request, ...)
 
     return result;
 }
-strong_alias(__ioctl,ioctl)
+libc_hidden_proto(ioctl)
+libc_hidden_def(ioctl)

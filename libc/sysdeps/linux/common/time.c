@@ -7,16 +7,15 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
-#define gettimeofday __gettimeofday
-
 #include "syscalls.h"
 #include <time.h>
 #include <sys/time.h>
 #ifdef __NR_time
-#define __NR___time __NR_time
-attribute_hidden _syscall1(time_t, __time, time_t *, t);
+_syscall1(time_t, time, time_t *, t);
 #else
-time_t attribute_hidden __time(time_t * t)
+libc_hidden_proto(gettimeofday)
+
+time_t time(time_t * t)
 {
 	time_t result;
 	struct timeval tv;
@@ -32,4 +31,5 @@ time_t attribute_hidden __time(time_t * t)
 	return result;
 }
 #endif
-strong_alias(__time,time)
+libc_hidden_proto(time)
+libc_hidden_def(time)

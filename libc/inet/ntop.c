@@ -30,6 +30,11 @@
 #include <string.h>
 #include <ctype.h>
 
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memset)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strlen)
 
 /*
  * WARNING: Don't even consider trying to compile this on a system where
@@ -76,12 +81,12 @@ inet_ntop4(const u_char *src, char *dst, size_t size)
 	}
 	tmp[i - 1] = '\0';
 
-	if (__strlen (tmp) > size) {
+	if (strlen (tmp) > size) {
 		__set_errno (ENOSPC);
 		return (NULL);
 	}
 
-	return __strcpy(dst, tmp);
+	return strcpy(dst, tmp);
 }
 
 
@@ -114,7 +119,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 	 *	Copy the input (bytewise) array into a wordwise array.
 	 *	Find the longest run of 0x00's in src[] for :: shorthanding.
 	 */
-	__memset(words, '\0', sizeof words);
+	memset(words, '\0', sizeof words);
 	for (i = 0; i < 16; i += 2)
 		words[i / 2] = (src[i] << 8) | src[i + 1];
 	best.base = -1;
@@ -160,7 +165,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 		    (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
 			if (!inet_ntop4(src+12, tp, sizeof tmp - (tp - tmp)))
 				return (NULL);
-			tp += __strlen(tp);
+			tp += strlen(tp);
 			break;
 		}
 		tp += __sprintf(tp, "%x", words[i]);
@@ -177,7 +182,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 		__set_errno (ENOSPC);
 		return (NULL);
 	}
-	return __strcpy(dst, tmp);
+	return strcpy(dst, tmp);
 }
 #endif /* __UCLIBC_HAS_IPV6__ */
 
@@ -224,7 +229,7 @@ inet_pton4(const char *src, u_char *dst)
 	}
 	if (octets < 4)
 		return (0);
-	__memcpy(dst, tmp, 4);
+	memcpy(dst, tmp, 4);
 	return (1);
 }
 
@@ -261,7 +266,7 @@ inet_pton6(const char *src, u_char *dst)
 	u_int val;
 
 
-	tp = __memset(tmp, '\0', 16);
+	tp = memset(tmp, '\0', 16);
 	endp = tp + 16;
 	colonp = NULL;
 	/* Leading :: requires some special handling. */
@@ -274,7 +279,7 @@ inet_pton6(const char *src, u_char *dst)
 	while ((ch = __tolower (*src++)) != '\0') {
 		const char *pch;
 
-		pch = __strchr(xdigits, ch);
+		pch = strchr(xdigits, ch);
 		if (pch != NULL) {
 			val <<= 4;
 			val |= (pch - xdigits);
@@ -333,7 +338,7 @@ inet_pton6(const char *src, u_char *dst)
 	}
 	if (tp != endp)
 		return (0);
-	__memcpy(dst, tmp, 16);
+	memcpy(dst, tmp, 16);
 	return (1);
 }
 
@@ -349,8 +354,8 @@ inet_pton6(const char *src, u_char *dst)
  * author:
  *	Paul Vixie, 1996.
  */
-const char attribute_hidden *
-__inet_ntop(int af, const void *src, char *dst, socklen_t size)
+const char *
+inet_ntop(int af, const void *src, char *dst, socklen_t size)
 {
 	switch (af) {
 	case AF_INET:
@@ -365,7 +370,8 @@ __inet_ntop(int af, const void *src, char *dst, socklen_t size)
 	}
 	/* NOTREACHED */
 }
-strong_alias(__inet_ntop,inet_ntop)
+libc_hidden_proto(inet_ntop)
+libc_hidden_def(inet_ntop)
 
 
 /* int
@@ -379,8 +385,8 @@ strong_alias(__inet_ntop,inet_ntop)
  * author:
  *	Paul Vixie, 1996.
  */
-int attribute_hidden
-__inet_pton(int af, const char *src, void *dst)
+int
+inet_pton(int af, const char *src, void *dst)
 {
 	switch (af) {
 	case AF_INET:
@@ -395,4 +401,5 @@ __inet_pton(int af, const char *src, void *dst)
 	}
 	/* NOTREACHED */
 }
-strong_alias(__inet_pton,inet_pton)
+libc_hidden_proto(inet_pton)
+libc_hidden_def(inet_pton)

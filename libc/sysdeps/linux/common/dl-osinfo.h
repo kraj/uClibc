@@ -7,8 +7,6 @@
 #ifndef _DL_OSINFO_H
 #define _DL_OSINFO_H 1
 
-#define gettimeofday __gettimeofday
-
 #include <features.h>
 
 #ifdef __UCLIBC_HAS_SSP__
@@ -22,9 +20,14 @@
 #  include <sys/time.h>
 
 #  ifdef IS_IN_libc
-#   define OPEN __open
-#   define READ __read
-#   define CLOSE __close
+#include <fcntl.h>
+libc_hidden_proto(open)
+libc_hidden_proto(read)
+libc_hidden_proto(close)
+libc_hidden_proto(gettimeofday)
+#   define OPEN open
+#   define READ read
+#   define CLOSE close
 #   define GETTIMEOFDAY gettimeofday
 #  else
 #   define OPEN _dl_open

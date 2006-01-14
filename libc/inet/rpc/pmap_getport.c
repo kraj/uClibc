@@ -38,17 +38,13 @@ static char sccsid[] = "@(#)pmap_getport.c 1.9 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define clntudp_bufcreate __clntudp_bufcreate
-
 #include <rpc/rpc.h>
 #include <rpc/pmap_prot.h>
 #include <rpc/pmap_clnt.h>
 #include <sys/socket.h>
 
-#undef get_rpc_createerr
-extern struct rpc_createerr *__rpc_thread_createerr_internal (void)
-     __attribute__ ((__const__)) attribute_hidden;
-#define get_rpc_createerr() (*__rpc_thread_createerr_internal ())
+libc_hidden_proto(clntudp_bufcreate)
+libc_hidden_proto(__rpc_thread_createerr)
 
 static const struct timeval timeout =
 {5, 0};
@@ -60,8 +56,8 @@ static const struct timeval tottimeout =
  * Calls the pmap service remotely to do the lookup.
  * Returns 0 if no map exists.
  */
-u_short attribute_hidden
-__pmap_getport (struct sockaddr_in *address, u_long program, u_long version, u_int protocol)
+u_short
+pmap_getport (struct sockaddr_in *address, u_long program, u_long version, u_int protocol)
 {
   u_short port = 0;
   int socket = -1;
@@ -95,4 +91,5 @@ __pmap_getport (struct sockaddr_in *address, u_long program, u_long version, u_i
   address->sin_port = 0;
   return port;
 }
-strong_alias(__pmap_getport,pmap_getport)
+libc_hidden_proto(pmap_getport)
+libc_hidden_def(pmap_getport)

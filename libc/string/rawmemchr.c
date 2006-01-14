@@ -7,7 +7,9 @@
 
 #include "_string.h"
 
-void attribute_hidden *__rawmemchr(const void *s, int c)
+libc_hidden_proto(rawmemchr)
+
+void *rawmemchr(const void *s, int c)
 {
 	register const unsigned char *r = s;
 
@@ -15,5 +17,4 @@ void attribute_hidden *__rawmemchr(const void *s, int c)
 
 	return (void *) r;	/* silence the warning */
 }
-
-strong_alias(__rawmemchr,rawmemchr)
+libc_hidden_def(rawmemchr)

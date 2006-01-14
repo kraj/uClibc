@@ -44,8 +44,6 @@
  * The other 31 bits encode the byte length of the fragment.
  */
 
-#define fputs __fputs
-
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -60,7 +58,12 @@
 # include <wchar.h>
 # include <libio/iolibio.h>
 # define fputs(s, f) _IO_fputs (s, f)
+libc_hidden_proto(fwprintf)
 #endif
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(fputs)
+libc_hidden_proto(lseek)
 
 static bool_t xdrrec_getlong (XDR *, long *);
 static bool_t xdrrec_putlong (XDR *, const long *);
@@ -144,8 +147,8 @@ static bool_t get_input_bytes (RECSTREAM *, caddr_t, int) internal_function;
  * write respectively.   They are like the system
  * calls expect that they take an opaque handle rather than an fd.
  */
-void attribute_hidden
-__xdrrec_create (XDR *xdrs, u_int sendsize,
+void
+xdrrec_create (XDR *xdrs, u_int sendsize,
 	       u_int recvsize, caddr_t tcp_handle,
 	       int (*readit) (char *, char *, int),
 	       int (*writeit) (char *, char *, int))
@@ -162,7 +165,7 @@ __xdrrec_create (XDR *xdrs, u_int sendsize,
     {
 #ifdef USE_IN_LIBIO
       if (_IO_fwide (stderr, 0) > 0)
-	(void) __fwprintf (stderr, L"%s", _("xdrrec_create: out of memory\n"));
+	(void) fwprintf (stderr, L"%s", _("xdrrec_create: out of memory\n"));
       else
 #endif
 	(void) fputs (_("xdrrec_create: out of memory\n"), stderr);
@@ -206,7 +209,8 @@ __xdrrec_create (XDR *xdrs, u_int sendsize,
   rstrm->fbtbc = 0;
   rstrm->last_frag = TRUE;
 }
-strong_alias(__xdrrec_create,xdrrec_create)
+libc_hidden_proto(xdrrec_create)
+libc_hidden_def(xdrrec_create)
 
 
 /*
@@ -299,7 +303,7 @@ xdrrec_putbytes (XDR *xdrs, const char *addr, u_int len)
     {
       current = rstrm->out_boundry - rstrm->out_finger;
       current = (len < current) ? len : current;
-      __memcpy (rstrm->out_finger, addr, current);
+      memcpy (rstrm->out_finger, addr, current);
       rstrm->out_finger += current;
       addr += current;
       len -= current;
@@ -319,7 +323,7 @@ xdrrec_getpos (const XDR *xdrs)
   RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
   long pos;
 
-  pos = __lseek ((int) (long) rstrm->tcp_handle, (long) 0, 1);
+  pos = lseek ((int) (long) rstrm->tcp_handle, (long) 0, 1);
   if (pos != -1)
     switch (xdrs->x_op)
       {
@@ -478,8 +482,8 @@ xdrrec_putint32 (XDR *xdrs, const int32_t *ip)
  * Before reading (deserializing from the stream, one should always call
  * this procedure to guarantee proper record alignment.
  */
-bool_t attribute_hidden
-__xdrrec_skiprecord (XDR *xdrs)
+bool_t
+xdrrec_skiprecord (XDR *xdrs)
 {
   RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
 
@@ -494,15 +498,16 @@ __xdrrec_skiprecord (XDR *xdrs)
   rstrm->last_frag = FALSE;
   return TRUE;
 }
-strong_alias(__xdrrec_skiprecord,xdrrec_skiprecord)
+libc_hidden_proto(xdrrec_skiprecord)
+libc_hidden_def(xdrrec_skiprecord)
 
 /*
  * Lookahead function.
  * Returns TRUE iff there is no more input in the buffer
  * after consuming the rest of the current record.
  */
-bool_t attribute_hidden
-__xdrrec_eof (XDR *xdrs)
+bool_t
+xdrrec_eof (XDR *xdrs)
 {
   RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
 
@@ -518,7 +523,8 @@ __xdrrec_eof (XDR *xdrs)
     return TRUE;
   return FALSE;
 }
-strong_alias(__xdrrec_eof,xdrrec_eof)
+libc_hidden_proto(xdrrec_eof)
+libc_hidden_def(xdrrec_eof)
 
 /*
  * The client must tell the package when an end-of-record has occurred.
@@ -526,8 +532,8 @@ strong_alias(__xdrrec_eof,xdrrec_eof)
  * (output) tcp stream.  (This lets the package support batched or
  * pipelined procedure calls.)  TRUE => immediate flush to tcp connection.
  */
-bool_t attribute_hidden
-__xdrrec_endofrecord (XDR *xdrs, bool_t sendnow)
+bool_t
+xdrrec_endofrecord (XDR *xdrs, bool_t sendnow)
 {
   RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
   u_long len;		/* fragment length */
@@ -545,7 +551,8 @@ __xdrrec_endofrecord (XDR *xdrs, bool_t sendnow)
   rstrm->out_finger += BYTES_PER_XDR_UNIT;
   return TRUE;
 }
-strong_alias(__xdrrec_endofrecord,xdrrec_endofrecord)
+libc_hidden_proto(xdrrec_endofrecord)
+libc_hidden_def(xdrrec_endofrecord)
 
 /*
  * Internal useful routines
@@ -603,7 +610,7 @@ get_input_bytes (RECSTREAM *rstrm, caddr_t addr, int len)
 	  continue;
 	}
       current = (len < current) ? len : current;
-      __memcpy (addr, rstrm->in_finger, current);
+      memcpy (addr, rstrm->in_finger, current);
       rstrm->in_finger += current;
       addr += current;
       len -= current;

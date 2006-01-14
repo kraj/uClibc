@@ -7,18 +7,18 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
-#define sysconf __sysconf
-
 #include "syscalls.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <grp.h>
 
+libc_hidden_proto(sysconf)
+
 #define __NR___syscall_setgroups __NR_setgroups
 static inline _syscall2(int, __syscall_setgroups,
 		size_t, size, const __kernel_gid_t *, list);
 
-int attribute_hidden __setgroups(size_t size, const gid_t *groups)
+int setgroups(size_t size, const gid_t *groups)
 {
 	if (size > (size_t) sysconf(_SC_NGROUPS_MAX)) {
 ret_error:
@@ -47,4 +47,5 @@ ret_error:
 		return i;
 	}
 }
-strong_alias(__setgroups,setgroups)
+libc_hidden_proto(setgroups)
+libc_hidden_def(setgroups)

@@ -10,9 +10,11 @@
 #include "syscalls.h"
 #include <unistd.h>
 
-#define __NR___lseek __NR_lseek
-#undef __lseek
-#undef lseek
-attribute_hidden _syscall3(__off_t, __lseek, int, fildes, __off_t, offset, int, whence);
-strong_alias(__lseek,lseek)
-weak_alias(__lseek,__libc_lseek)
+#define __NR___libc_lseek __NR_lseek
+_syscall3(__off_t, __libc_lseek, int, fildes, __off_t, offset, int, whence);
+libc_hidden_proto(__libc_lseek)
+libc_hidden_def(__libc_lseek)
+
+strong_alias(__libc_lseek,lseek)
+libc_hidden_proto(lseek)
+libc_hidden_def(lseek)

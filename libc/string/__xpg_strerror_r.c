@@ -8,8 +8,13 @@
 #define _GNU_SOURCE
 #include <features.h>
 #include <errno.h>
+#include <string.h>
 #include <bits/uClibc_uintmaxtostr.h>
 #include "_syserrmsg.h"
+
+libc_hidden_proto(__xpg_strerror_r)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(strlen)
 
 #ifdef __UCLIBC_HAS_ERRNO_MESSAGES__
 
@@ -154,8 +159,7 @@ static const unsigned char estridx[] = {
 
 #endif
 
-/* __xpg_strerror_r is used in header */
-int attribute_hidden __xpg_strerror_r_internal(int errnum, char *strerrbuf, size_t buflen)
+int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
     register char *s;
     int i, retval;
@@ -207,20 +211,20 @@ int attribute_hidden __xpg_strerror_r_internal(int errnum, char *strerrbuf, size
 #endif /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
 
     s = _int10tostr(buf+sizeof(buf)-1, errnum) - sizeof(unknown);
-    __memcpy(s, unknown, sizeof(unknown));
+    memcpy(s, unknown, sizeof(unknown));
 
  GOT_MESG:
     if (!strerrbuf) {		/* SUSv3  */
 		buflen = 0;
     }
-    i = __strlen(s) + 1;
+    i = strlen(s) + 1;
     if (i > buflen) {
 		i = buflen;
 		retval = ERANGE;
     }
 
     if (i) {
-		__memcpy(strerrbuf, s, i);
+		memcpy(strerrbuf, s, i);
 		strerrbuf[i-1] = 0;	/* In case buf was too small. */
     }
 
@@ -233,7 +237,7 @@ int attribute_hidden __xpg_strerror_r_internal(int errnum, char *strerrbuf, size
 
 #else  /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
 
-int attribute_hidden __xpg_strerror_r_internal(int errnum, char *strerrbuf, size_t buflen)
+int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
     register char *s;
     int i, retval;
@@ -243,7 +247,7 @@ int attribute_hidden __xpg_strerror_r_internal(int errnum, char *strerrbuf, size
     };
 
     s = _int10tostr(buf+sizeof(buf)-1, errnum) - sizeof(unknown);
-    __memcpy(s, unknown, sizeof(unknown));
+    memcpy(s, unknown, sizeof(unknown));
 
     if (!strerrbuf) {		/* SUSv3  */
 		buflen = 0;
@@ -259,7 +263,7 @@ int attribute_hidden __xpg_strerror_r_internal(int errnum, char *strerrbuf, size
     }
 
     if (i) {
-		__memcpy(strerrbuf, s, i);
+		memcpy(strerrbuf, s, i);
 		strerrbuf[i-1] = 0;	/* In case buf was too small. */
     }
 
@@ -269,5 +273,4 @@ int attribute_hidden __xpg_strerror_r_internal(int errnum, char *strerrbuf, size
 }
 
 #endif /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
-
-strong_alias(__xpg_strerror_r_internal,__xpg_strerror_r)
+libc_hidden_def(__xpg_strerror_r)

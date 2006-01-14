@@ -19,10 +19,6 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define sigfillset __sigfillset_internal
-#define sigaction __sigaction
-#define alarm __alarm
-
 #include <features.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -30,6 +26,17 @@
 #include <unistd.h>
 #include <sys/file.h>
 #include <paths.h>
+
+libc_hidden_proto(memset)
+libc_hidden_proto(open)
+libc_hidden_proto(fcntl)
+libc_hidden_proto(close)
+libc_hidden_proto(sigfillset)
+libc_hidden_proto(sigaction)
+libc_hidden_proto(sigprocmask)
+libc_hidden_proto(sigaddset)
+libc_hidden_proto(sigemptyset)
+libc_hidden_proto(alarm)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
@@ -46,7 +53,7 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 static int lock_fd = -1;
 
 /* Prototypes for local functions.  */
-static void noop_handler __P ((int __sig));
+static void noop_handler (int __sig);
 
 
 int lckpwdf (void)
@@ -65,7 +72,7 @@ int lckpwdf (void)
 
 	LOCK;
 
-	lock_fd = __open (_PATH_PASSWD, O_WRONLY);
+	lock_fd = open (_PATH_PASSWD, O_WRONLY);
 	if (lock_fd == -1) {
 		/* Cannot create lock file.  */
 		UNLOCK;
@@ -73,18 +80,18 @@ int lckpwdf (void)
 	}
 
 	/* Make sure file gets correctly closed when process finished.  */
-	flags = __fcntl (lock_fd, F_GETFD, 0);
+	flags = fcntl (lock_fd, F_GETFD, 0);
 	if (flags == -1) {
 		/* Cannot get file flags.  */
-		__close(lock_fd);
+		close(lock_fd);
 		lock_fd = -1;
 		UNLOCK;
 		return -1;
 	}
 	flags |= FD_CLOEXEC;		/* Close on exit.  */
-	if (__fcntl (lock_fd, F_SETFD, flags) < 0) {
+	if (fcntl (lock_fd, F_SETFD, flags) < 0) {
 		/* Cannot set new flags.  */
-		__close(lock_fd);
+		close(lock_fd);
 		lock_fd = -1;
 		UNLOCK;
 		return -1;
@@ -98,7 +105,7 @@ int lckpwdf (void)
 
 	   It is important that we don't change the signal state.  We must
 	   restore the old signal behaviour.  */
-	__memset (&new_act, '\0', sizeof (struct sigaction));
+	memset (&new_act, '\0', sizeof (struct sigaction));
 	new_act.sa_handler = noop_handler;
 	sigfillset (&new_act.sa_mask);
 	new_act.sa_flags = 0ul;
@@ -106,7 +113,7 @@ int lckpwdf (void)
 	/* Install new action handler for alarm and save old.  */
 	if (sigaction (SIGALRM, &new_act, &saved_act) < 0) {
 		/* Cannot install signal handler.  */
-		__close(lock_fd);
+		close(lock_fd);
 		lock_fd = -1;
 		UNLOCK;
 		return -1;
@@ -115,9 +122,9 @@ int lckpwdf (void)
 	/* Now make sure the alarm signal is not blocked.  */
 	sigemptyset (&new_set);
 	sigaddset (&new_set, SIGALRM);
-	if (__sigprocmask (SIG_UNBLOCK, &new_set, &saved_set) < 0) {
+	if (sigprocmask (SIG_UNBLOCK, &new_set, &saved_set) < 0) {
 		sigaction (SIGALRM, &saved_act, NULL);
-		__close(lock_fd);
+		close(lock_fd);
 		lock_fd = -1;
 		UNLOCK;
 		return -1;
@@ -128,24 +135,24 @@ int lckpwdf (void)
 	alarm (TIMEOUT);
 
 	/* Try to get the lock.  */
-	__memset (&fl, '\0', sizeof (struct flock));
+	memset (&fl, '\0', sizeof (struct flock));
 	fl.l_type = F_WRLCK;
 	fl.l_whence = SEEK_SET;
-	result = __fcntl (lock_fd, F_SETLKW, &fl);
+	result = fcntl (lock_fd, F_SETLKW, &fl);
 
 	/* Clear alarm.  */
 	alarm (0);
 
 	/* Restore old set of handled signals.  We don't need to know
 	   about the current one.*/
-	__sigprocmask (SIG_SETMASK, &saved_set, NULL);
+	sigprocmask (SIG_SETMASK, &saved_set, NULL);
 
 	/* Restore old action handler for alarm.  We don't need to know
 	   about the current one.  */
 	sigaction (SIGALRM, &saved_act, NULL);
 
 	if (result < 0) {
-		__close(lock_fd);
+		close(lock_fd);
 		lock_fd = -1;
 		UNLOCK;
 		return -1;
@@ -166,7 +173,7 @@ int ulckpwdf (void)
 	}
 	else {
 		LOCK;
-		result = __close (lock_fd);
+		result = close (lock_fd);
 		/* Mark descriptor as unused.  */
 		lock_fd = -1;
 		UNLOCK;

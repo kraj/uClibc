@@ -25,7 +25,7 @@
 	.syntax no_register_prefix
 
         .text
-ENTRY (__clone)
+ENTRY (clone)
 	/* Sanity check arguments: No NULL function pointers.  Allow a NULL
 	   stack pointer though; it makes the kernel allocate stack.  */
 	test.d	r10
@@ -69,7 +69,7 @@ ENTRY (__clone)
 	jsr	r0
 
 	SETUP_PIC
-	PLTCALL	(_exit_internal)
+	PLTCALL	(HIDDEN_JUMPTARGET(_exit))
 
 	/* Die horribly.  */
 	test.d	[6809]
@@ -83,7 +83,4 @@ ENTRY (__clone)
 1:
 	movs.w	-EINVAL,r10
 	/* Drop through into the ordinary error handler.  */
-PSEUDO_END (__clone)
-
-.globl clone
-	clone = __clone
+PSEUDO_END (clone)

@@ -20,6 +20,8 @@
 #include <signal.h>
 #include <string.h>
 
+libc_hidden_proto(memset)
+
 /* Clear all signals from SET.  */
 int
 sigemptyset (set)
@@ -31,7 +33,9 @@ sigemptyset (set)
       return -1;
     }
 
-  __memset (set, 0, sizeof (sigset_t));
+  memset (set, 0, sizeof (sigset_t));
 
   return 0;
 }
+libc_hidden_proto(sigemptyset)
+libc_hidden_def(sigemptyset)

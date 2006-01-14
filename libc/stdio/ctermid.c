@@ -7,6 +7,8 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(strcpy)
+
 char *ctermid(register char *s)
 {
 	static char sbuf[L_ctermid];
@@ -21,6 +23,6 @@ char *ctermid(register char *s)
 	return s;
 #else
 	/* glibc always returns /dev/tty for linux. */
-	return __strcpy((s ? s : sbuf), "/dev/tty");
+	return strcpy((s ? s : sbuf), "/dev/tty");
 #endif
 }

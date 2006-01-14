@@ -7,9 +7,13 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fgets_unlocked)
+
 #ifdef __DO_UNLOCKED
 
-char attribute_hidden *__fgets_unlocked(char *__restrict s, int n,
+libc_hidden_proto(__fgetc_unlocked)
+
+char *fgets_unlocked(char *__restrict s, int n,
 					   register FILE * __restrict stream)
 {
 	register char *p;
@@ -34,7 +38,7 @@ char attribute_hidden *__fgets_unlocked(char *__restrict s, int n,
 				break;
 			}
 		} else {
-			if ((c = __fgetc_unlocked_internal(stream)) == EOF) {
+			if ((c = __fgetc_unlocked(stream)) == EOF) {
 				if (__FERROR_UNLOCKED(stream)) {
 					goto ERROR;
 				}
@@ -57,17 +61,17 @@ char attribute_hidden *__fgets_unlocked(char *__restrict s, int n,
  ERROR:
 	return NULL;
 }
-
-weak_alias(__fgets_unlocked,fgets_unlocked)
+libc_hidden_def(fgets_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-hidden_strong_alias(__fgets_unlocked,__fgets)
-weak_alias(__fgets_unlocked,fgets)
+strong_alias(fgets_unlocked,fgets)
+libc_hidden_proto(fgets)
+libc_hidden_def(fgets)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-char attribute_hidden *__fgets(char *__restrict s, int n,
+char *fgets(char *__restrict s, int n,
 			register FILE * __restrict stream)
 {
 	char *retval;
@@ -75,12 +79,13 @@ char attribute_hidden *__fgets(char *__restrict s, int n,
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	retval = __fgets_unlocked(s, n, stream);
+	retval = fgets_unlocked(s, n, stream);
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	return retval;
 }
-strong_alias(__fgets,fgets)
+libc_hidden_proto(fgets)
+libc_hidden_def(fgets)
 
 #endif

@@ -8,14 +8,13 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstrncat __wcsncat
 # define Wstrncat wcsncat
 #else
-# define __Wstrncat __strncat
+libc_hidden_proto(strncat)
 # define Wstrncat strncat
 #endif
 
-Wchar attribute_hidden *__Wstrncat(Wchar * __restrict s1, register const Wchar * __restrict s2,
+Wchar *Wstrncat(Wchar * __restrict s1, register const Wchar * __restrict s2,
 				size_t n)
 {
 	register Wchar *s = s1;
@@ -35,4 +34,6 @@ Wchar attribute_hidden *__Wstrncat(Wchar * __restrict s1, register const Wchar *
 	return s1;
 }
 
-strong_alias(__Wstrncat,Wstrncat)
+#ifndef WANT_WIDE
+libc_hidden_def(strncat)
+#endif

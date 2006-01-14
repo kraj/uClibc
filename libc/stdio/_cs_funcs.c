@@ -7,20 +7,29 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(read)
+libc_hidden_proto(write)
+libc_hidden_proto(close)
+#ifdef __UCLIBC_HAS_LFS__
+libc_hidden_proto(lseek64)
+#else
+libc_hidden_proto(lseek)
+#endif
+
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
 /**********************************************************************/
 
 ssize_t attribute_hidden _cs_read(void *cookie, char *buf, size_t bufsize)
 {
-	return __read(*((int *) cookie), buf, bufsize);
+	return read(*((int *) cookie), buf, bufsize);
 }
 
 /**********************************************************************/
 
 ssize_t attribute_hidden _cs_write(void *cookie, const char *buf, size_t bufsize)
 {
-	return __write(*((int *) cookie), (char *) buf, bufsize);
+	return write(*((int *) cookie), (char *) buf, bufsize);
 }
 
 /**********************************************************************/
@@ -30,9 +39,9 @@ int attribute_hidden _cs_seek(void *cookie, register __offmax_t *pos, int whence
 	__offmax_t res;
 
 #ifdef __UCLIBC_HAS_LFS__
-	res = __lseek64(*((int *) cookie), *pos, whence);
+	res = lseek64(*((int *) cookie), *pos, whence);
 #else
-	res = __lseek(*((int *) cookie), *pos, whence);
+	res = lseek(*((int *) cookie), *pos, whence);
 #endif
 
 	return (res >= 0) ? ((*pos = res), 0) : ((int) res);
@@ -42,7 +51,7 @@ int attribute_hidden _cs_seek(void *cookie, register __offmax_t *pos, int whence
 
 int attribute_hidden _cs_close(void *cookie)
 {
-	return __close(*((int *) cookie));
+	return close(*((int *) cookie));
 }
 
 /**********************************************************************/
@@ -54,9 +63,9 @@ int attribute_hidden __stdio_seek(FILE *stream, register __offmax_t *pos, int wh
 	__offmax_t res;
 
 #ifdef __UCLIBC_HAS_LFS__
-	res = __lseek64(stream->__filedes, *pos, whence);
+	res = lseek64(stream->__filedes, *pos, whence);
 #else
-	res = __lseek(stream->__filedes, *pos, whence);
+	res = lseek(stream->__filedes, *pos, whence);
 #endif
 
 	return (res >= 0) ? ((*pos = res), 0) : ((int) res);

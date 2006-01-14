@@ -8,18 +8,21 @@
 #include "_string.h"
 #include <stdlib.h>
 
-char attribute_hidden *__strndup(register const char *s1, size_t n)
+libc_hidden_proto(strndup)
+libc_hidden_proto(strnlen)
+libc_hidden_proto(memcpy)
+
+char *strndup(register const char *s1, size_t n)
 {
 	register char *s;
 
-	n = __strnlen(s1,n);			/* Avoid problems if s1 not nul-terminated. */
+	n = strnlen(s1,n);			/* Avoid problems if s1 not nul-terminated. */
 
     if ((s = malloc(n + 1)) != NULL) {
-		__memcpy(s, s1, n);
+		memcpy(s, s1, n);
 		s[n] = 0;
 	}
 
 	return s;
 }
-
-strong_alias(__strndup,strndup)
+libc_hidden_def(strndup)

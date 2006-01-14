@@ -26,7 +26,7 @@
 void *__curbrk = 0;
 
 
-int attribute_hidden __brk (void *addr)
+int brk (void *addr)
 {
     void *newbrk;
     register int r2 asm("r2") = TRAP_ID_SYSCALL;
@@ -44,4 +44,5 @@ int attribute_hidden __brk (void *addr)
 
     return 0;
 }
-strong_alias(__brk,brk)
+libc_hidden_proto(brk)
+libc_hidden_def(brk)

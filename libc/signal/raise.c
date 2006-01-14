@@ -3,18 +3,18 @@
  * under the GNU Library General Public License.
  */
 
-#define kill __kill
-
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
 #include <sys/types.h>
 
-#undef raise
-int attribute_hidden __raise(int signo)
-{
-    return kill(__getpid(), signo);
-}
+libc_hidden_proto(raise)
 
-/* psm: keep this weak, because the one in libpthread.so could overwrite it */
-weak_alias(__raise, raise)
+libc_hidden_proto(getpid)
+libc_hidden_proto(kill)
+
+int raise(int signo)
+{
+    return kill(getpid(), signo);
+}
+libc_hidden_def(raise)

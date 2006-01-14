@@ -5,9 +5,11 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define fopencookie __fopencookie
-
 #include "_stdio.h"
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memset)
+libc_hidden_proto(fopencookie)
 
 #ifndef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
 #error no custom streams!
@@ -53,7 +55,7 @@ static ssize_t oms_write(register void *cookie, const char *buf, size_t bufsize)
 		}
 	}
 
-	__memcpy(COOKIE->buf + COOKIE->pos, buf, bufsize);
+	memcpy(COOKIE->buf + COOKIE->pos, buf, bufsize);
 	COOKIE->pos += bufsize;
 
 	if (COOKIE->pos > COOKIE->eof) {
@@ -92,7 +94,7 @@ static int oms_seek(register void *cookie, __offmax_t *pos, int whence)
 		if (buf) {
 			*COOKIE->bufloc = COOKIE->buf = buf;
 			COOKIE->len = leastlen;
-			__memset(buf + COOKIE->eof, leastlen - COOKIE->eof, 0); /* 0-fill */
+			memset(buf + COOKIE->eof, leastlen - COOKIE->eof, 0); /* 0-fill */
 		} else {
 			/* TODO: check glibc errno setting... */
 			return -1;
@@ -102,7 +104,7 @@ static int oms_seek(register void *cookie, __offmax_t *pos, int whence)
 	*pos = COOKIE->pos = --leastlen;
 
 	if (leastlen > COOKIE->eof) {
-		__memset(COOKIE->buf + COOKIE->eof, leastlen - COOKIE->eof, 0);
+		memset(COOKIE->buf + COOKIE->eof, leastlen - COOKIE->eof, 0);
 		*COOKIE->sizeloc = COOKIE->eof;
 	}
 
@@ -126,7 +128,7 @@ static const cookie_io_functions_t _oms_io_funcs = {
  * (ie replace the FILE buffer with the cookie buffer and update FILE bufstart,
  * etc. whenever we seek). */
 
-FILE attribute_hidden *__open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
+FILE *open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
 {
 	register __oms_cookie *cookie;
 	register FILE *fp;
@@ -162,4 +164,5 @@ FILE attribute_hidden *__open_memstream(char **__restrict bufloc, size_t *__rest
 
 	return NULL;
 }
-strong_alias(__open_memstream,open_memstream)
+libc_hidden_proto(open_memstream)
+libc_hidden_def(open_memstream)

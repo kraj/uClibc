@@ -33,12 +33,6 @@
    the area affected (this is a kernel limitation).  So we now just
    enable all the ports all of the time.  */
 
-#define readlink __readlink
-#define mmap __mmap
-#define sscanf __sscanf
-#define fscanf __fscanf
-#define fgets __fgets
-
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -52,6 +46,18 @@
 
 #include <asm/page.h>
 #include <sys/sysctl.h>
+
+libc_hidden_proto(readlink)
+libc_hidden_proto(mmap)
+libc_hidden_proto(sscanf)
+libc_hidden_proto(fscanf)
+libc_hidden_proto(fprintf)
+libc_hidden_proto(fgets)
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(open)
+libc_hidden_proto(close)
 
 #include <linux/version.h>
 
@@ -163,7 +169,7 @@ init_iosys (void)
 
     /* translate systype name into i/o system: */
     for (i = 0; i < sizeof (platform) / sizeof (platform[0]); ++i) {
-	if (__strcmp (platform[i].name, systype) == 0) {
+	if (strcmp (platform[i].name, systype) == 0) {
 	    io.shift = platform[i].shift;
 	    io.io_base = platform[i].io_base;
 	    io.initdone = 1;
@@ -191,14 +197,14 @@ int ioperm (unsigned long int from, unsigned long int num, int turn_on)
 	if (! io.base) {
 	    int fd;
 
-	    fd = __open ("/dev/mem", O_RDWR);
+	    fd = open ("/dev/mem", O_RDWR);
 	    if (fd < 0)
 		return -1;
 
 	    io.base = (unsigned long int) mmap (0, MAX_PORT << io.shift,
 					  PROT_READ | PROT_WRITE,
 					  MAP_SHARED, fd, io.io_base);
-	    __close (fd);
+	    close (fd);
 	    if ((long) io.base == -1)
 		return -1;
 	}
@@ -206,6 +212,8 @@ int ioperm (unsigned long int from, unsigned long int num, int turn_on)
 
     return 0;
 }
+libc_hidden_proto(ioperm)
+libc_hidden_def(ioperm)
 
 
 void

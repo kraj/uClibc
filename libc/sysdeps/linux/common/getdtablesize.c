@@ -16,18 +16,18 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define getrlimit __getrlimit
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/resource.h>
 #include <limits.h>
 
+libc_hidden_proto(getrlimit)
+
 #define __LOCAL_OPEN_MAX	    256
 
 /* Return the maximum number of file descriptors
    the current process could possibly have.  */
-int attribute_hidden __getdtablesize (void)
+int getdtablesize (void)
 {
   struct rlimit ru;
 
@@ -36,4 +36,5 @@ int attribute_hidden __getdtablesize (void)
      returns -1.  */
   return getrlimit (RLIMIT_NOFILE, &ru) < 0 ? __LOCAL_OPEN_MAX : ru.rlim_cur;
 }
-strong_alias(__getdtablesize,getdtablesize)
+libc_hidden_proto(getdtablesize)
+libc_hidden_def(getdtablesize)

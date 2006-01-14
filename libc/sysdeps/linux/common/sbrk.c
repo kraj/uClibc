@@ -19,29 +19,31 @@
 #include <unistd.h>
 #include <errno.h>
 
+libc_hidden_proto(brk)
+
 /* Defined in brk.c.  */
 extern void *__curbrk;
-extern int __brk (void *addr) attribute_hidden;
 
 
 /* Extend the process's data space by INCREMENT.
    If INCREMENT is negative, shrink data space by - INCREMENT.
    Return start of new space allocated, or -1 for errors.  */
-void attribute_hidden * __sbrk (intptr_t increment)
+void * sbrk (intptr_t increment)
 {
     void *oldbrk;
 
     if (__curbrk == NULL)
-	if (__brk (0) < 0)		/* Initialize the break.  */
+	if (brk (0) < 0)		/* Initialize the break.  */
 	    return (void *) -1;
 
     if (increment == 0)
 	return __curbrk;
 
     oldbrk = __curbrk;
-    if (__brk (oldbrk + increment) < 0)
+    if (brk (oldbrk + increment) < 0)
 	return (void *) -1;
 
     return oldbrk;
 }
-strong_alias(__sbrk,sbrk)
+libc_hidden_proto(sbrk)
+libc_hidden_def(sbrk)

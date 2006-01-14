@@ -16,9 +16,10 @@
 
 #include "malloc.h"
 
+libc_hidden_proto(fprintf)
 
 /* ------------------------------ mallinfo ------------------------------ */
-struct mallinfo attribute_hidden __mallinfo(void)
+struct mallinfo mallinfo(void)
 {
     mstate av;
     struct mallinfo mi;
@@ -78,7 +79,8 @@ struct mallinfo attribute_hidden __mallinfo(void)
     UNLOCK;
     return mi;
 }
-strong_alias(__mallinfo,mallinfo)
+libc_hidden_proto(mallinfo)
+libc_hidden_def(mallinfo)
 
 void malloc_stats(FILE *file)
 {
@@ -88,7 +90,7 @@ void malloc_stats(FILE *file)
 	file = stderr;
     }
 
-    mi = __mallinfo();
+    mi = mallinfo();
     fprintf(file, "total bytes allocated             = %10u\n", (unsigned int)(mi.arena + mi.hblkhd));
     fprintf(file, "total bytes in use bytes          = %10u\n", (unsigned int)(mi.uordblks + mi.hblkhd));
     fprintf(file, "total non-mmapped bytes allocated = %10d\n", mi.arena);

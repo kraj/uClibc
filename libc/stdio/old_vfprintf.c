@@ -127,8 +127,6 @@
 
 /**************************************************************************/
 
-#define strnlen __strnlen
-
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE				/* for strnlen */
 #include "_stdio.h"
@@ -148,6 +146,12 @@
 #include <pthread.h>
 #endif /* __UCLIBC_HAS_THREADS__ */
 
+libc_hidden_proto(strlen)
+libc_hidden_proto(strnlen)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(putc_unlocked)
+libc_hidden_proto(__glibc_strerror_r)
+
 /*  #undef __UCLIBC_HAS_FLOATS__ */
 /*  #undef WANT_FLOAT_ERROR */
 /*  #define WANT_FLOAT_ERROR      1 */
@@ -166,7 +170,7 @@
 
 #ifdef __STDIO_BUFFERS
 
-#define PUTC(C,F)      __putc_unlocked((C),(F))
+#define PUTC(C,F)      putc_unlocked((C),(F))
 #define OUTNSTR        _outnstr
 #define _outnstr(stream, string, len)	__stdio_fwrite(string, len, stream)
 
@@ -190,7 +194,7 @@ static void _outnstr(FILE *stream, const unsigned char *s, size_t n)
 		if (r > n) {
 			r = n;
 		}
-		__memcpy(f->bufpos, s, r);
+		memcpy(f->bufpos, s, r);
 		f->bufpos += r;
 	}
 }
@@ -199,7 +203,7 @@ static void _outnstr(FILE *stream, const unsigned char *s, size_t n)
 static void putc_unlocked_sprintf(int c, __FILE_vsnprintf *f)
 {
 	if (!__STDIO_STREAM_IS_FAKE_VSNPRINTF_NB(&f->f)) {
-		__putc_unlocked(c, &f->f);
+		putc_unlocked(c, &f->f);
 	} else if (f->bufpos < f->bufend) {
 		*f->bufpos++ = c;
 	}
@@ -236,7 +240,7 @@ static void _charpad(FILE * __restrict stream, int padchar, size_t numpad)
 static void _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 {
 	if (type & 0x80) {			/* Some type of padding needed. */
-		int buflen = __strlen((const char *) buf);
+		int buflen = strlen((const char *) buf);
 		if ((len -= buflen) > 0) {
 			_charpad(fp, (type & 0x7f), len);
 		}
@@ -341,7 +345,7 @@ static const char u_spec[] = "%nbopxXudics";
 /* u_radix[i] <-> u_spec[i+2] for unsigned entries only */
 static const char u_radix[] = "\x02\x08\x10\x10\x10\x0a";
 
-int attribute_hidden __vfprintf(FILE * __restrict op, register const char * __restrict fmt,
+int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 			 va_list ap)
 {
 	union {
@@ -450,7 +454,7 @@ int attribute_hidden __vfprintf(FILE * __restrict op, register const char * __re
 			if (*fmt == 'm') {
 				flag[FLAG_PLUS] = '\0';
 				flag[FLAG_0_PAD] = ' ';
-				p = __glibc_strerror_r_internal(errno, tmp, sizeof(tmp));
+				p = __glibc_strerror_r(errno, tmp, sizeof(tmp));
 				goto print;
 			}
 #endif
@@ -711,4 +715,5 @@ int attribute_hidden __vfprintf(FILE * __restrict op, register const char * __re
 
 	return i;
 }
-strong_alias(__vfprintf,vfprintf)
+libc_hidden_proto(vfprintf)
+libc_hidden_def(vfprintf)

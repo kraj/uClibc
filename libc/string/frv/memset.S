@@ -32,10 +32,9 @@
 #         GR4, GR7, GR8, and GR11 must be managed
 #
 ###############################################################################
-        .globl		__memset
-        .hidden		__memset
-        .type		__memset,@function
-__memset:
+        .globl		memset
+        .type		memset,@function
+memset:
 	orcc.p		gr10,gr0,gr5,icc3		; GR5 = count
 	andi		gr9,#0xff,gr9
 	or.p		gr8,gr0,gr4			; GR4 = address
@@ -154,6 +153,6 @@ __memset:
 	cknc		icc0,cc7
 	cstb.p		gr12,@(gr4,gr0)		,cc7,#1
 	bralr
-	.size		__memset, .-__memset
+	.size		memset, .-memset
 
-strong_alias(__memset,memset)
+libc_hidden_proto(memset)

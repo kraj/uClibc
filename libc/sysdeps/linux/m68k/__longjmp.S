@@ -22,3 +22,4 @@ __longjmp:
 	movel	%a0@(JB_PC), %sp@
 	rts
 
+libc_hidden_def(__longjmp)

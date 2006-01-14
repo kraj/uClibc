@@ -31,10 +31,9 @@
 #         to caller's fixup routine, aborting the remainder of the copy
 #
 ###############################################################################
-        .globl		__memcpy
-        .hidden		__memcpy
-        .type		__memcpy,@function
-__memcpy:
+        .globl		memcpy
+        .type		memcpy,@function
+memcpy:
 	or.p		gr8,gr9,gr4
 	orcc		gr10,gr0,gr0,icc3
 	or.p		gr10,gr4,gr4
@@ -123,6 +122,6 @@ memcpy_32:
 	bne		icc0,#2,0b
 	bralr
 
-	.size		__memcpy, .-__memcpy
+	.size		memcpy, .-memcpy
 
-strong_alias(__memcpy,memcpy)
+libc_hidden_def(memcpy)

@@ -19,6 +19,9 @@
 #include <bits/uClibc_uintmaxtostr.h>
 #include <signal.h>
 
+libc_hidden_proto(strsignal)
+libc_hidden_proto(memcpy)
+
 #define _SYS_NSIG			32
 
 #ifdef __UCLIBC_HAS_SIGNUM_MESSAGES__
@@ -81,7 +84,7 @@ static const unsigned char sstridx[] = {
 };
 #endif
 
-char attribute_hidden *__strsignal(int signum)
+char *strsignal(int signum)
 {
     register char *s;
     int i;
@@ -120,7 +123,7 @@ char attribute_hidden *__strsignal(int signum)
     }
 
     s = _int10tostr(buf+sizeof(buf)-1, signum) - sizeof(unknown);
-    __memcpy(s, unknown, sizeof(unknown));
+    memcpy(s, unknown, sizeof(unknown));
 
  DONE:
 	return s;
@@ -128,18 +131,18 @@ char attribute_hidden *__strsignal(int signum)
 
 #else  /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
 
-char attribute_hidden *__strsignal(int signum)
+char *strsignal(int signum)
 {
     static char buf[_STRSIGNAL_BUFSIZE];
     static const char unknown[] = {
 		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 's', 'i', 'g', 'n', 'a', 'l', ' '
     };
 
-    return (char *) __memcpy(_int10tostr(buf+sizeof(buf)-1, signum)
+    return (char *) memcpy(_int10tostr(buf+sizeof(buf)-1, signum)
 						   - sizeof(unknown),
 						   unknown, sizeof(unknown));
 }
 
 #endif /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
 
-strong_alias(__strsignal,strsignal)
+libc_hidden_def(strsignal)

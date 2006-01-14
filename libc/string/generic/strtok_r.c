@@ -20,6 +20,10 @@
 #define _GNU_SOURCE
 #include <string.h>
 
+libc_hidden_proto(strspn)
+libc_hidden_proto(strpbrk)
+libc_hidden_proto(rawmemchr)
+
 /* Parse S into tokens separated by characters in DELIM.
    If S is NULL, the saved pointer in SAVE_PTR is used as
    the next starting point.  For example:
@@ -30,7 +34,7 @@
 	x = strtok_r(NULL, "=", &sp);	// x = NULL
 		// s = "abc\0-def\0"
 */
-char attribute_hidden *__strtok_r (char *s, const char *delim, char **save_ptr)
+char *strtok_r (char *s, const char *delim, char **save_ptr)
 {
   char *token;
 
@@ -38,7 +42,7 @@ char attribute_hidden *__strtok_r (char *s, const char *delim, char **save_ptr)
     s = *save_ptr;
 
   /* Scan leading delimiters.  */
-  s += __strspn (s, delim);
+  s += strspn (s, delim);
   if (*s == '\0')
     {
       *save_ptr = s;
@@ -47,10 +51,10 @@ char attribute_hidden *__strtok_r (char *s, const char *delim, char **save_ptr)
 
   /* Find the end of the token.  */
   token = s;
-  s = __strpbrk (token, delim);
+  s = strpbrk (token, delim);
   if (s == NULL)
     /* This token finishes the string.  */
-    *save_ptr = __rawmemchr (token, '\0');
+    *save_ptr = rawmemchr (token, '\0');
   else
     {
       /* Terminate the token and make *SAVE_PTR point past it.  */
@@ -59,5 +63,5 @@ char attribute_hidden *__strtok_r (char *s, const char *delim, char **save_ptr)
     }
   return token;
 }
-
-strong_alias(__strtok_r,strtok_r)
+libc_hidden_proto(strtok_r)
+libc_hidden_def(strtok_r)

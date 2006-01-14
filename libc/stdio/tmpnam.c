@@ -20,6 +20,8 @@
 #include <string.h>
 #include "../misc/internals/tempname.h"
 
+libc_hidden_proto(memcpy)
+
 static char tmpnam_buffer[L_tmpnam];
 
 /* Generate a unique filename in P_tmpdir.
@@ -41,7 +43,7 @@ char * tmpnam (char *s)
 	return NULL;
 
     if (s == NULL)
-	return (char *) __memcpy (tmpnam_buffer, tmpbuf, L_tmpnam);
+	return (char *) memcpy (tmpnam_buffer, tmpbuf, L_tmpnam);
 
     return s;
 }

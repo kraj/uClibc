@@ -17,7 +17,7 @@ static inline _syscall2(int, __syscall_getpriority,
 /* The return value of __syscall_getpriority is biased by this value
  * to avoid returning negative values.  */
 #define PZERO 20
-int attribute_hidden __getpriority(enum __priority_which which, id_t who)
+int getpriority(enum __priority_which which, id_t who)
 {
 	int res;
 
@@ -26,4 +26,5 @@ int attribute_hidden __getpriority(enum __priority_which which, id_t who)
 		res = PZERO - res;
 	return res;
 }
-strong_alias(__getpriority,getpriority)
+libc_hidden_proto(getpriority)
+libc_hidden_def(getpriority)

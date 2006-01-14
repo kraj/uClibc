@@ -7,32 +7,37 @@
 #include <sys/stat.h>
 #include "dirstream.h"
 
+libc_hidden_proto(opendir)
+libc_hidden_proto(open)
+libc_hidden_proto(fcntl)
+libc_hidden_proto(close)
+libc_hidden_proto(stat)
 
 /* opendir just makes an open() call - it return NULL if it fails
  * (open sets errno), otherwise it returns a DIR * pointer.
  */
-DIR attribute_hidden *__opendir(const char *name)
+DIR *opendir(const char *name)
 {
 	int fd;
 	struct stat statbuf;
 	char *buf;
 	DIR *ptr;
 
-	if (__stat(name, &statbuf))
+	if (stat(name, &statbuf))
 		return NULL;
 	if (!S_ISDIR(statbuf.st_mode)) {
 		__set_errno(ENOTDIR);
 		return NULL;
 	}
-	if ((fd = __open(name, O_RDONLY)) < 0)
+	if ((fd = open(name, O_RDONLY)) < 0)
 		return NULL;
 	/* According to POSIX, directory streams should be closed when
 	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
 	 */
-	if (__fcntl(fd, F_SETFD, FD_CLOEXEC) < 0)
+	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0)
 		return NULL;
 	if (!(ptr = malloc(sizeof(*ptr)))) {
-		__close(fd);
+		close(fd);
 		__set_errno(ENOMEM);
 		return NULL;
 	}
@@ -45,7 +50,7 @@ DIR attribute_hidden *__opendir(const char *name)
 		ptr->dd_max = 512;
 
 	if (!(buf = calloc(1, ptr->dd_max))) {
-		__close(fd);
+		close(fd);
 		free(ptr);
 		__set_errno(ENOMEM);
 		return NULL;
@@ -54,4 +59,4 @@ DIR attribute_hidden *__opendir(const char *name)
 	__pthread_mutex_init(&(ptr->dd_lock), NULL);
 	return ptr;
 }
-strong_alias(__opendir,opendir)
+libc_hidden_def(opendir)
