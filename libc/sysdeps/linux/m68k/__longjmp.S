@@ -4,11 +4,12 @@
 
 #define _ASM
 #define _SETJMP_H
+#include <features.h>
 #include <bits/setjmp.h>
 
-.globl __longjmp;
+.globl __longjmp
 .type  __longjmp,@function
-.align 4;                                                               \
+.align 4
 __longjmp:
 	moveal	%sp@(4), %a0
 	movel	%sp@(8), %d0
