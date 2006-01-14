@@ -1016,8 +1016,8 @@ strong_alias(wcstol,wcstoimax)
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
 strong_alias(__XL_NPP(wcstol),__XL_NPP(wcstoll))
-libc_hidden_proto(__XL_NPP(wcstoll)
-libc_hidden_def(__XL_NPP(wcstoll)
+libc_hidden_proto(__XL_NPP(wcstoll))
+libc_hidden_def(__XL_NPP(wcstoll))
 #endif
 
 #endif
