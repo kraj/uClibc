@@ -104,8 +104,7 @@ Arch specific TODO:
     update crt1 code again for nommu (http://bugs.uclibc.org/view.php?id=538)
     recruit jbowler and integrate thumb support
   m68k:
-    need to verify libc again
-    ldso needs to be updated since it's totally broken atm
+    ldso lazy relocation doesnt work
     add syscall() http://bugs.uclibc.org/view.php?id=164
   mips:
     brk/pipe fixes: http://www.uclibc.org/lists/uclibc/2006-January/013824.html
