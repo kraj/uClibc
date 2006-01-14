@@ -223,17 +223,29 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			break;
 		case R_68K_GLOB_DAT:
 		case R_68K_JMP_SLOT:
-			*reloc_addr = symbol_addr;
+			*reloc_addr = symbol_addr + rpnt->r_addend;
 			break;
+		/* handled by elf_machine_relative()
 		case R_68K_RELATIVE:
 			*reloc_addr = ((unsigned int) tpnt->loadaddr
-			              /* Compatibility kludge.  */
+			              / * Compatibility kludge.  * /
 			              + (rpnt->r_addend ? : *reloc_addr));
+		*/
 			break;
 		case R_68K_COPY:
-			_dl_memcpy ((void *) reloc_addr,
-			            (void *) symbol_addr,
-			            symtab[symtab_index].st_size);
+			if (symbol_addr) {
+#if defined (__SUPPORT_LD_DEBUG__)
+				if (_dl_debug_move)
+					_dl_dprintf(_dl_debug_file,
+						    "\t%s move %d bytes from %x to %x\n",
+						    symname, sym->st_size,
+						    symbol_addr, reloc_addr);
+#endif
+				_dl_memcpy ((void *) reloc_addr,
+				            (void *) symbol_addr,
+				            sym->st_size);
+			} else
+				_dl_dprintf(_dl_debug_file, "no symbol_addr to copy !?\n");
 			break;
 
 		default:
@@ -249,7 +261,8 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	return 0;
 }
 
-#if 0
+#undef LAZY_RELOC_WORKS
+#ifdef LAZY_RELOC_WORKS
 static int
 _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		  ELF_RELOC *rpnt, ElfW(Sym) *symtab, char *strtab)
@@ -297,10 +310,11 @@ _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 				      unsigned long rel_addr,
 				      unsigned long rel_size)
 {
-	_dl_parse_relocation_information(rpnt, rel_addr, rel_size);
-/*
+#ifdef LAZY_RELOC_WORKS
 	(void)_dl_parse(rpnt->dyn, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
-*/
+#else
+	_dl_parse_relocation_information(rpnt, rel_addr, rel_size);
+#endif
 }
 
 int
