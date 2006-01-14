@@ -21,8 +21,16 @@
 
 #include <features.h>
 #include <stdint.h>
-#include <linux/netlink.h>
+#include <sys/types.h>
+
+#define _LINUX_TYPES_H
+typedef uint8_t __u8;
+typedef uint16_t __u16;
+typedef uint32_t __u32;
+typedef uint64_t __u64;
+typedef int32_t __s32;
 #include <linux/rtnetlink.h>
+#include <linux/netlink.h>
 
 /* Should prob be a configure option or something */
 #ifdef __UCLIBC_USE_NETLINK__
