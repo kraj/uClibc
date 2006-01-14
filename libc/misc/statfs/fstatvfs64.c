@@ -40,19 +40,22 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 
-//libc_hidden_proto(fstatfs)
-//libc_hidden_proto(fstat)
+#undef stat
+#define stat stat64
+libc_hidden_proto(fstatfs64)
+libc_hidden_proto(fstat64)
+libc_hidden_proto(stat64)
 
 int fstatvfs (int fd, struct statvfs *buf)
 {
-    struct statfs fsbuf;
-    struct stat st;
+    struct statfs64 fsbuf;
+    struct stat64 st;
 
     /* Get as much information as possible from the system.  */
-    if (fstatfs (fd, &fsbuf) < 0)
+    if (fstatfs64 (fd, &fsbuf) < 0)
 	return -1;
 
-#define STAT(st) fstat (fd, st)
+#define STAT(st) fstat64 (fd, st)
 #include "internal_statvfs.c"
 
     /* We signal success if the statfs call succeeded.  */

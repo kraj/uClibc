@@ -42,16 +42,18 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 
-//libc_hidden_proto(statfs)
-//libc_hidden_proto(stat)
+#undef stat
+#define stat stat64
+libc_hidden_proto(statfs64)
+libc_hidden_proto(stat64)
 
 int statvfs (const char *file, struct statvfs *buf)
 {
-    struct statfs fsbuf;
-    struct stat st;
+    struct statfs64 fsbuf;
+    struct stat64 st;
 
     /* Get as much information as possible from the system.  */
-    if (statfs (file, &fsbuf) < 0)
+    if (statfs64 (file, &fsbuf) < 0)
 	return -1;
 
 #define STAT(st) stat (file, st)
