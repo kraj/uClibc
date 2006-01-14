@@ -37,7 +37,13 @@
 #include <sys/time.h>
 #ifdef __ARC4RANDOM_USE_ERANDOM__
 #include <sys/sysctl.h>
+//libc_hidden_proto(sysctl)
 #endif
+
+libc_hidden_proto(open)
+libc_hidden_proto(read)
+libc_hidden_proto(close)
+libc_hidden_proto(gettimeofday)
 
 struct arc4_stream {
 	u_int8_t i;
@@ -98,10 +104,10 @@ arc4_stir(as)
 	int	n;
 
 	gettimeofday(&rdat.tv, NULL);
-	fd = __open("/dev/urandom", O_RDONLY);
+	fd = open("/dev/urandom", O_RDONLY);
 	if (fd != -1) {
-		__read(fd, rdat.rnd, sizeof(rdat.rnd));
-		__close(fd);
+		read(fd, rdat.rnd, sizeof(rdat.rnd));
+		close(fd);
 	}
 #ifdef __ARC4RANDOM_USE_ERANDOM__
 	else {
