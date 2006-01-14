@@ -2,9 +2,9 @@
 /*
  * open() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
@@ -13,6 +13,9 @@
 #include <fcntl.h>
 #include <string.h>
 #include <sys/param.h>
+
+extern int __libc_open(const char *file, int flags, ...);
+libc_hidden_proto(__libc_open)
 
 #define __NR___syscall_open __NR_open
 static inline _syscall3(int, __syscall_open, const char *, file,
@@ -33,7 +36,6 @@ int __libc_open(const char *file, int flags, ...)
 	}
 	return __syscall_open(file, flags, mode);
 }
-libc_hidden_proto(__libc_open)
 libc_hidden_def(__libc_open)
 
 strong_alias(__libc_open,open)

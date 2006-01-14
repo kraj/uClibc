@@ -49,6 +49,7 @@ libc_hidden_proto(xdr_u_long)
  * XDR for unix authentication parameters.
  * Unfortunately, none of these can be declared const.
  */
+libc_hidden_proto(xdr_authunix_parms)
 bool_t
 xdr_authunix_parms (XDR * xdrs, struct authunix_parms *p)
 {
@@ -69,5 +70,4 @@ xdr_authunix_parms (XDR * xdrs, struct authunix_parms *p)
     }
   return FALSE;
 }
-libc_hidden_proto(xdr_authunix_parms)
 libc_hidden_def(xdr_authunix_parms)

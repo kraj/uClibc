@@ -11,6 +11,8 @@
 #define __USE_GNU
 #include <sys/utsname.h>
 
+libc_hidden_proto(getdomainname)
+
 libc_hidden_proto(strlen)
 libc_hidden_proto(strcpy)
 libc_hidden_proto(uname)
@@ -34,5 +36,4 @@ getdomainname(char *name, size_t len)
   strcpy(name, uts.domainname);
   return 0;
 }
-libc_hidden_proto(getdomainname)
 libc_hidden_def(getdomainname)

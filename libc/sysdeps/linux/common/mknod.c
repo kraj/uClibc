@@ -2,14 +2,16 @@
 /*
  * mknod() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
+
+libc_hidden_proto(mknod)
 
 #define __NR___syscall_mknod __NR_mknod
 static inline _syscall3(int, __syscall_mknod, const char *, path,
@@ -23,5 +25,4 @@ int mknod(const char *path, mode_t mode, dev_t dev)
 	k_dev = ((major(dev) & 0xff) << 8) | (minor(dev) & 0xff);
 	return __syscall_mknod(path, mode, k_dev);
 }
-libc_hidden_proto(mknod)
 libc_hidden_def(mknod)

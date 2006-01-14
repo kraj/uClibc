@@ -16,9 +16,11 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define _GNU_SOURCE
 #include <string.h>
 #include <stddef.h>
 
+libc_hidden_proto(memmem)
 libc_hidden_proto(memcmp)
 
 /* Return the first occurrence of NEEDLE in HAYSTACK.  */
@@ -48,5 +50,4 @@ void *memmem (const void *haystack, size_t haystack_len,
 
   return NULL;
 }
-libc_hidden_proto(memmem)
 libc_hidden_def(memmem)

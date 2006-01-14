@@ -47,6 +47,8 @@
 #include <asm/page.h>
 #include <sys/sysctl.h>
 
+libc_hidden_proto(ioperm)
+
 libc_hidden_proto(readlink)
 libc_hidden_proto(mmap)
 libc_hidden_proto(sscanf)
@@ -212,7 +214,6 @@ int ioperm (unsigned long int from, unsigned long int num, int turn_on)
 
     return 0;
 }
-libc_hidden_proto(ioperm)
 libc_hidden_def(ioperm)
 
 

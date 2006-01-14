@@ -1,8 +1,15 @@
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <unistd.h>
 #include <sys/mman.h>
 #include <errno.h>
 #include <sys/syscall.h>
+
+libc_hidden_proto(mmap)
 
 #define __syscall_clobbers \
 	"r9", "r10", "r11", "r12"
@@ -45,5 +52,4 @@ void * mmap(void *start, size_t length, int prot, int flags, int fd,
 
 	__syscall_return (void *);
 }
-libc_hidden_proto(mmap)
 libc_hidden_def(mmap)

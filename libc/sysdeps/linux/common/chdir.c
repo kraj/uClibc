@@ -2,14 +2,17 @@
 /*
  * chdir() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <string.h>
+#include <unistd.h>
 #include <sys/param.h>
+
+libc_hidden_proto(chdir)
 
 #define __NR___syscall_chdir __NR_chdir
 static inline _syscall1(int, __syscall_chdir, const char *, path);
@@ -17,5 +20,4 @@ int chdir(const char *path)
 {
 	return __syscall_chdir(path);
 }
-libc_hidden_proto(chdir)
 libc_hidden_def(chdir)

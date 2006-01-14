@@ -10,6 +10,7 @@
 
 libc_hidden_proto(vfprintf)
 
+libc_hidden_proto(printf)
 int printf(const char * __restrict format, ...)
 {
 	va_list arg;
@@ -21,5 +22,4 @@ int printf(const char * __restrict format, ...)
 
 	return rv;
 }
-libc_hidden_proto(printf)
 libc_hidden_def(printf)

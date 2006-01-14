@@ -28,6 +28,7 @@
 /* Currently no real reentrancy issues other than a possible double close(). */
 
 #ifndef __BCC__
+libc_hidden_proto(fopencookie)
 FILE *fopencookie(void * __restrict cookie, const char * __restrict mode,
 				  cookie_io_functions_t io_functions)
 #else
@@ -58,6 +59,5 @@ FILE *_fopencookie(void * __restrict cookie, const char * __restrict mode,
 	return stream;
 }
 #ifndef __BCC__
-libc_hidden_proto(fopencookie)
 libc_hidden_def(fopencookie)
 #endif

@@ -8,6 +8,8 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
+libc_hidden_proto(asprintf)
+
 libc_hidden_proto(vasprintf)
 
 #ifndef __STDIO_HAS_VSNPRINTF
@@ -25,8 +27,6 @@ int asprintf(char **__restrict buf, const char * __restrict format, ...)
 
 	return rv;
 }
-
-libc_hidden_proto(asprintf)
 libc_hidden_def(asprintf)
 
 #endif

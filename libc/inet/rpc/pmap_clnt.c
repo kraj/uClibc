@@ -121,6 +121,7 @@ static const struct timeval tottimeout = {60, 0};
  * Set a mapping between program,version and port.
  * Calls the pmap service remotely to do the mapping.
  */
+libc_hidden_proto(pmap_set)
 bool_t
 pmap_set (u_long program, u_long version, int protocol, u_short port)
 {
@@ -151,13 +152,13 @@ pmap_set (u_long program, u_long version, int protocol, u_short port)
   /* (void)close(socket); CLNT_DESTROY closes it */
   return rslt;
 }
-libc_hidden_proto(pmap_set)
 libc_hidden_def(pmap_set)
 
 /*
  * Remove the mapping between program,version and port.
  * Calls the pmap service remotely to do the un-mapping.
  */
+libc_hidden_proto(pmap_unset)
 bool_t
 pmap_unset (u_long program, u_long version)
 {
@@ -182,5 +183,4 @@ pmap_unset (u_long program, u_long version)
   /* (void)close(socket); CLNT_DESTROY already closed it */
   return rslt;
 }
-libc_hidden_proto(pmap_unset)
 libc_hidden_def(pmap_unset)

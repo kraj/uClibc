@@ -2,17 +2,19 @@
 /*
  * getrlimit() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
 #include <sys/resource.h>
 
+libc_hidden_proto(getrlimit)
+
 #ifdef __NR_ugetrlimit
-#define __NR___ugetrlimit __NR_ugetrlimit
+# define __NR___ugetrlimit __NR_ugetrlimit
 static inline
 _syscall2(int, __ugetrlimit, enum __rlimit_resource, resource,
 		  struct rlimit *, rlim);
@@ -24,7 +26,7 @@ int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 #else							/* __NR_ugetrlimit */
 
 /* Only include the old getrlimit if the new one (ugetrlimit) is not around */
-#define __NR___syscall_getrlimit __NR_getrlimit
+# define __NR___syscall_getrlimit __NR_getrlimit
 static inline
 _syscall2(int, __syscall_getrlimit, int, resource, struct rlimit *, rlim);
 
@@ -46,6 +48,4 @@ int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 	return result;
 }
 #endif
-
-libc_hidden_proto(getrlimit)
 libc_hidden_def(getrlimit)

@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(strncmp)
 int strncmp(const char *cs, const char *ct, size_t count)
 {
     register int __res;
@@ -54,5 +55,4 @@ int strncmp(const char *cs, const char *ct, size_t count)
 	    :"1" (cs),"2" (ct),"3" (count));
     return __res;
 }
-libc_hidden_proto(strncmp)
 libc_hidden_def(strncmp)

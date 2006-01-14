@@ -55,6 +55,7 @@ libc_hidden_proto(xdr_opaque_auth)
 /*
  * XDR a call message
  */
+libc_hidden_proto(xdr_callmsg)
 bool_t
 xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 {
@@ -211,5 +212,4 @@ xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
     return xdr_opaque_auth (xdrs, &(cmsg->rm_call.cb_verf));
   return FALSE;
 }
-libc_hidden_proto(xdr_callmsg)
 libc_hidden_def(xdr_callmsg)

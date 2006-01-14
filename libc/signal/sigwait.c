@@ -24,6 +24,7 @@
 
 libc_hidden_proto(sigwaitinfo)
 
+libc_hidden_proto(sigwait)
 int sigwait (const sigset_t *set, int *sig)
 {
 	int ret = 1;
@@ -33,5 +34,4 @@ int sigwait (const sigset_t *set, int *sig)
 	}
 	return 1;
 }
-libc_hidden_proto(sigwait)
 libc_hidden_def(sigwait)

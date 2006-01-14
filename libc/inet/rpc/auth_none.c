@@ -72,6 +72,7 @@ struct authnone_private_s {
 static struct authnone_private_s *authnone_private;
 #endif
 
+libc_hidden_proto(authnone_create)
 AUTH *
 authnone_create (void)
 {
@@ -101,7 +102,6 @@ authnone_create (void)
     }
   return (&ap->no_client);
 }
-libc_hidden_proto(authnone_create)
 libc_hidden_def(authnone_create)
 
 /*ARGSUSED */

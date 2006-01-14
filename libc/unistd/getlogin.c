@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 libc_hidden_proto(strcpy)
 libc_hidden_proto(strncpy)
@@ -33,11 +34,11 @@ libc_hidden_proto(getenv)
  * the user specify whatever they want via the LOGNAME environment
  * variable, or we return NULL if getenv() fails to find anything */
 
+libc_hidden_proto(getlogin)
 char * getlogin(void)
 {
 	return (getenv("LOGNAME"));
 }
-libc_hidden_proto(getlogin)
 libc_hidden_def(getlogin)
 
 int getlogin_r(char *name, size_t len)

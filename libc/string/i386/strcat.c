@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(strcat)
 char *strcat(char * dest, const char * src)
 {
     int d0, d1, d2, d3;
@@ -47,5 +48,4 @@ char *strcat(char * dest, const char * src)
 	    : "0" (src), "1" (dest), "2" (0), "3" (0xffffffff):"memory");
     return dest;
 }
-libc_hidden_proto(strcat)
 libc_hidden_def(strcat)

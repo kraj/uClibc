@@ -12,7 +12,9 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
+#ifdef __NR_setresgid
 libc_hidden_proto(setresgid)
+#endif
 libc_hidden_proto(setregid)
 
 int setegid(gid_t gid)

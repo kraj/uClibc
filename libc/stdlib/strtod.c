@@ -518,6 +518,7 @@ void attribute_hidden __fp_range_check(__fpmax_t y, __fpmax_t x)
 #endif
 
 
+libc_hidden_proto(__XL_NPP(strtof))
 float __XL_NPP(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 1
@@ -534,7 +535,6 @@ float __XL_NPP(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 	return y;
 #endif
 }
-libc_hidden_proto(__XL_NPP(strtof))
 libc_hidden_def(__XL_NPP(strtof))
 
 #endif
@@ -553,6 +553,7 @@ libc_hidden_def(__XL_NPP(strtof))
 #define Wchar char
 #endif
 
+libc_hidden_proto(__XL_NPP(strtod))
 double __XL_NPP(strtod)(const Wchar *__restrict str,
 					Wchar **__restrict endptr   __LOCALE_PARAM )
 {
@@ -570,7 +571,6 @@ double __XL_NPP(strtod)(const Wchar *__restrict str,
 	return y;
 #endif
 }
-libc_hidden_proto(__XL_NPP(strtod))
 libc_hidden_def(__XL_NPP(strtod))
 
 #endif
@@ -589,6 +589,7 @@ libc_hidden_def(__XL_NPP(strtod))
 #define Wchar char
 #endif
 
+libc_hidden_proto(__XL_NPP(strtold))
 long double __XL_NPP(strtold) (const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 3
@@ -605,7 +606,6 @@ long double __XL_NPP(strtold) (const Wchar *str, Wchar **endptr   __LOCALE_PARAM
 	return y;
 #endif
 }
-libc_hidden_proto(__XL_NPP(strtold))
 libc_hidden_def(__XL_NPP(strtold))
 
 #endif

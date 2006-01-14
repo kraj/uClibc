@@ -135,6 +135,7 @@ struct svcudp_data
  * see (svc.h, xprt_register).
  * The routines returns NULL if a problem occurred.
  */
+libc_hidden_proto(svcudp_bufcreate)
 SVCXPRT *
 svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
 {
@@ -224,16 +225,15 @@ svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
   xprt_register (xprt);
   return xprt;
 }
-libc_hidden_proto(svcudp_bufcreate)
 libc_hidden_def(svcudp_bufcreate)
 
+libc_hidden_proto(svcudp_create)
 SVCXPRT *
 svcudp_create (int sock)
 {
 
   return svcudp_bufcreate (sock, UDPMSGSIZE, UDPMSGSIZE);
 }
-libc_hidden_proto(svcudp_create)
 libc_hidden_def(svcudp_create)
 
 static enum xprt_stat

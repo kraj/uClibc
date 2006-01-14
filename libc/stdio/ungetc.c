@@ -24,6 +24,7 @@
  *     (See section 7.19.6.2 of the C9X rationale -- WG14/N897.)
  */
 
+libc_hidden_proto(ungetc)
 int ungetc(int c, register FILE *stream)
 {
 	__STDIO_AUTO_THREADLOCK_VAR;
@@ -75,5 +76,4 @@ int ungetc(int c, register FILE *stream)
 
 	return c;
 }
-libc_hidden_proto(ungetc)
 libc_hidden_def(ungetc)

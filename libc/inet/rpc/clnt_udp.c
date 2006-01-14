@@ -144,6 +144,7 @@ struct cu_data
  * sendsz and recvsz are the maximum allowable packet sizes that can be
  * sent and received.
  */
+libc_hidden_proto(clntudp_bufcreate)
 CLIENT *
 clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
 		   struct timeval wait, int *sockp, u_int sendsz,
@@ -242,9 +243,9 @@ fooy:
     mem_free ((caddr_t) cl, sizeof (CLIENT));
   return (CLIENT *) NULL;
 }
-libc_hidden_proto(clntudp_bufcreate)
 libc_hidden_def(clntudp_bufcreate)
 
+libc_hidden_proto(clntudp_create)
 CLIENT *
 clntudp_create (struct sockaddr_in *raddr, u_long program, u_long version, struct timeval wait, int *sockp)
 {
@@ -252,7 +253,6 @@ clntudp_create (struct sockaddr_in *raddr, u_long program, u_long version, struc
   return clntudp_bufcreate (raddr, program, version, wait, sockp,
 			    UDPMSGSIZE, UDPMSGSIZE);
 }
-libc_hidden_proto(clntudp_create)
 libc_hidden_def(clntudp_create)
 
 static int

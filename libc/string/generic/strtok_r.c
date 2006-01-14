@@ -20,6 +20,7 @@
 #define _GNU_SOURCE
 #include <string.h>
 
+libc_hidden_proto(strtok_r)
 libc_hidden_proto(strspn)
 libc_hidden_proto(strpbrk)
 libc_hidden_proto(rawmemchr)
@@ -63,5 +64,4 @@ char *strtok_r (char *s, const char *delim, char **save_ptr)
     }
   return token;
 }
-libc_hidden_proto(strtok_r)
 libc_hidden_def(strtok_r)

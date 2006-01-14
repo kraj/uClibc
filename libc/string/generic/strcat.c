@@ -19,6 +19,7 @@
 #include <string.h>
 #include "memcopy.h"
 
+libc_hidden_proto(strcat)
 /* Append SRC on the end of DEST.  */
 char *strcat (char *dest, const char *src)
 {
@@ -44,5 +45,4 @@ char *strcat (char *dest, const char *src)
 
   return dest;
 }
-libc_hidden_proto(strcat)
 libc_hidden_def(strcat)

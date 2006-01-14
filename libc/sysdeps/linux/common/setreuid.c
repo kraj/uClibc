@@ -2,13 +2,15 @@
 /*
  * setreuid() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
+
+libc_hidden_proto(setreuid)
 
 #define __NR___syscall_setreuid __NR_setreuid
 static inline _syscall2(int, __syscall_setreuid,
@@ -23,5 +25,4 @@ int setreuid(uid_t ruid, uid_t euid)
 	}
 	return (__syscall_setreuid(ruid, euid));
 }
-libc_hidden_proto(setreuid)
 libc_hidden_def(setreuid)

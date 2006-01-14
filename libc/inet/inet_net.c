@@ -36,12 +36,14 @@
 #include <features.h>
 #include <ctype.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 /*
  * Internet network address interpretation routine.
  * The library routines call this routine to interpret
  * network numbers.
  */
+libc_hidden_proto(inet_network)
 in_addr_t
 inet_network(const char *cp)
 {
@@ -98,5 +100,4 @@ again:
 	}
 	return (val);
 }
-libc_hidden_proto(inet_network)
 libc_hidden_def(inet_network)

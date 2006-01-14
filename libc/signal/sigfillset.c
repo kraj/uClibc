@@ -21,9 +21,9 @@
 #include <string.h>
 
 libc_hidden_proto(memset)
-libc_hidden_proto(__sigdelset)
 
 /* Set all signals in SET.  */
+libc_hidden_proto(sigfillset)
 int
 sigfillset (sigset_t *set)
 {
@@ -46,5 +46,4 @@ sigfillset (sigset_t *set)
 
   return 0;
 }
-libc_hidden_proto(sigfillset)
 libc_hidden_def(sigfillset)

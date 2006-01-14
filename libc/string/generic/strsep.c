@@ -18,6 +18,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(strsep)
 libc_hidden_proto(strchr)
 libc_hidden_proto(strpbrk)
 
@@ -64,5 +65,4 @@ char *strsep (char **stringp, const char *delim)
 
   return begin;
 }
-libc_hidden_proto(strsep)
 libc_hidden_def(strsep)

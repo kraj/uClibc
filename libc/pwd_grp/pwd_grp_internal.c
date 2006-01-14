@@ -55,6 +55,7 @@
 /**********************************************************************/
 #ifdef GETXXKEY_R_FUNC
 
+libc_hidden_proto(GETXXKEY_R_FUNC)
 int GETXXKEY_R_FUNC(DO_GETXXKEY_R_KEYTYPE key,
 					GETXXKEY_R_ENTTYPE *__restrict resultbuf,
 					char *__restrict buffer, size_t buflen,
@@ -89,7 +90,6 @@ int GETXXKEY_R_FUNC(DO_GETXXKEY_R_KEYTYPE key,
 
 	return rv;
 }
-libc_hidden_proto(GETXXKEY_R_FUNC)
 libc_hidden_def(GETXXKEY_R_FUNC)
 
 #endif

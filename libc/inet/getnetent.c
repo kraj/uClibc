@@ -47,6 +47,7 @@ static char *net_aliases[MAXALIASES];
 
 int _net_stayopen attribute_hidden;
 
+libc_hidden_proto(setnetent)
 void setnetent(int f)
 {
     LOCK;
@@ -58,9 +59,9 @@ void setnetent(int f)
     UNLOCK;
     return;
 }
-libc_hidden_proto(setnetent)
 libc_hidden_def(setnetent)
 
+libc_hidden_proto(endnetent)
 void endnetent(void)
 {
     LOCK;
@@ -71,7 +72,6 @@ void endnetent(void)
     _net_stayopen = 0;
     UNLOCK;
 }
-libc_hidden_proto(endnetent)
 libc_hidden_def(endnetent)
 
 static char * any(register char *cp, char *match)
@@ -87,6 +87,7 @@ static char * any(register char *cp, char *match)
     return ((char *)0);
 }
 
+libc_hidden_proto(getnetent)
 struct netent *getnetent(void)
 {
     char *p;
@@ -146,5 +147,4 @@ again:
     UNLOCK;
     return (&net);
 }
-libc_hidden_proto(getnetent)
 libc_hidden_def(getnetent)

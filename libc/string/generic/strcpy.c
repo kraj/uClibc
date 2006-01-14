@@ -22,6 +22,7 @@
 #include "memcopy.h"
 #include "bp-checks.h"
 
+libc_hidden_proto(strcpy)
 /* Copy SRC to DEST.  */
 char *strcpy (char *dest, const char *src)
 {
@@ -43,5 +44,4 @@ char *strcpy (char *dest, const char *src)
 
   return dest;
 }
-libc_hidden_proto(strcpy)
 libc_hidden_def(strcpy)

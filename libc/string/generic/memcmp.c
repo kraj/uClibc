@@ -19,8 +19,9 @@
    02111-1307 USA.  */
 
 #include <string.h>
-
 #include "memcopy.h"
+
+libc_hidden_proto(memcmp)
 
 #include <endian.h>
 
@@ -329,6 +330,5 @@ memcmp (const __ptr_t s1, const __ptr_t s2, size_t len)
 
   return 0;
 }
-libc_hidden_proto(memcmp)
 libc_hidden_def(memcmp)
 strong_alias(memcmp,bcmp)

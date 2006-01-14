@@ -21,9 +21,11 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdlib.h>
 
+libc_hidden_proto(strnlen)
 libc_hidden_proto(abort)
 
 /* Find the length of S, but scan at most MAXLEN characters.  If no
@@ -158,5 +160,4 @@ size_t strnlen (const char *str, size_t maxlen)
     char_ptr = end_ptr;
   return char_ptr - str;
 }
-libc_hidden_proto(strnlen)
 libc_hidden_def(strnlen)

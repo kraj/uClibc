@@ -27,6 +27,10 @@
 
 #include <search.h>
 
+libc_hidden_proto(hcreate_r)
+libc_hidden_proto(hdestroy_r)
+libc_hidden_proto(hsearch_r)
+
 /* [Aho,Sethi,Ullman] Compilers: Principles, Techniques and Tools, 1986
    [Knuth]            The Art of Computer Programming, part 3 (6.4)  */
 
@@ -96,7 +100,6 @@ int hcreate_r (size_t nel, struct hsearch_data *htab)
   /* everything went alright */
   return 1;
 }
-libc_hidden_proto(hcreate_r)
 libc_hidden_def(hcreate_r)
 #endif
 
@@ -119,7 +122,6 @@ void hdestroy_r (struct hsearch_data *htab)
   /* the sign for an existing table is an value != NULL in htable */
   htab->table = NULL;
 }
-libc_hidden_proto(hdestroy_r)
 libc_hidden_def(hdestroy_r)
 #endif
 
@@ -230,6 +232,5 @@ int hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
   *retval = NULL;
   return 0;
 }
-libc_hidden_proto(hsearch_r)
 libc_hidden_def(hsearch_r)
 #endif

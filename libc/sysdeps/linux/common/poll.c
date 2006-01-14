@@ -20,6 +20,8 @@
 #include "syscalls.h"
 #include <sys/poll.h>
 
+libc_hidden_proto(poll)
+
 #ifdef __NR_poll
 _syscall3(int, poll, struct pollfd *, fds,
 	unsigned long int, nfds, int, timeout);
@@ -205,5 +207,4 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 }
 
 #endif
-libc_hidden_proto(poll)
 libc_hidden_def(poll)

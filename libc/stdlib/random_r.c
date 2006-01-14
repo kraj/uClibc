@@ -134,6 +134,7 @@ static const struct random_poly_info random_poly_info =
    rear pointers can't wrap on the same call by not testing the rear
    pointer if the front one has wrapped.  Returns a 31-bit random number.  */
 
+libc_hidden_proto(random_r)
 int random_r(struct random_data *buf, int32_t *result)
 {
     int32_t *state;
@@ -181,7 +182,6 @@ fail:
     __set_errno (EINVAL);
     return -1;
 }
-libc_hidden_proto(random_r)
 libc_hidden_def(random_r)
 
 /* Initialize the random number generator based on the given seed.  If the
@@ -192,6 +192,7 @@ libc_hidden_def(random_r)
    information a given number of times to get rid of any initial dependencies
    introduced by the L.C.R.N.G.  Note that the initialization of randtbl[]
    for default usage relies on values produced by this routine.  */
+libc_hidden_proto(srandom_r)
 int srandom_r (unsigned int seed, struct random_data *buf)
 {
     int type;
@@ -246,7 +247,6 @@ done:
 fail:
     return -1;
 }
-libc_hidden_proto(srandom_r)
 libc_hidden_def(srandom_r)
 
 /* Initialize the state information in the given array of N bytes for
@@ -260,6 +260,7 @@ libc_hidden_def(srandom_r)
    Note: The first thing we do is save the current state, if any, just like
    setstate so that it doesn't matter when initstate is called.
    Returns a pointer to the old state.  */
+libc_hidden_proto(initstate_r)
 int initstate_r (unsigned int seed, char *arg_state, size_t n, struct random_data *buf)
 {
     int type;
@@ -308,7 +309,6 @@ fail:
     __set_errno (EINVAL);
     return -1;
 }
-libc_hidden_proto(initstate_r)
 libc_hidden_def(initstate_r)
 
 /* Restore the state from the given state array.
@@ -319,6 +319,7 @@ libc_hidden_def(initstate_r)
    to the order in which things are done, it is OK to call setstate with the
    same state as the current state
    Returns a pointer to the old state information.  */
+libc_hidden_proto(setstate_r)
 int setstate_r (char *arg_state, struct random_data *buf)
 {
     int32_t *new_state = 1 + (int32_t *) arg_state;
@@ -362,5 +363,4 @@ fail:
     __set_errno (EINVAL);
     return -1;
 }
-libc_hidden_proto(setstate_r)
 libc_hidden_def(setstate_r)

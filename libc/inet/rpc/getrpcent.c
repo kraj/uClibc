@@ -84,6 +84,7 @@ static struct rpcdata *_rpcdata(void)
 	return d;
 }
 
+libc_hidden_proto(endrpcent)
 void endrpcent(void)
 {
 	register struct rpcdata *d = _rpcdata();
@@ -101,9 +102,9 @@ void endrpcent(void)
 		d->rpcf = NULL;
 	}
 }
-libc_hidden_proto(endrpcent)
 libc_hidden_def(endrpcent)
 
+libc_hidden_proto(setrpcent)
 void setrpcent(int f)
 {
 	register struct rpcdata *d = _rpcdata();
@@ -119,7 +120,6 @@ void setrpcent(int f)
 	d->current = NULL;
 	d->stayopen |= f;
 }
-libc_hidden_proto(setrpcent)
 libc_hidden_def(setrpcent)
 
 static struct rpcent *interpret(struct rpcdata *);
@@ -131,6 +131,7 @@ static struct rpcent *__get_next_rpcent(struct rpcdata *d)
 	return interpret(d);
 }
 
+libc_hidden_proto(getrpcent)
 struct rpcent *getrpcent(void)
 {
 	register struct rpcdata *d = _rpcdata();
@@ -141,9 +142,9 @@ struct rpcent *getrpcent(void)
 		return NULL;
 	return __get_next_rpcent(d);
 }
-libc_hidden_proto(getrpcent)
 libc_hidden_def(getrpcent)
 
+libc_hidden_proto(getrpcbynumber)
 struct rpcent *getrpcbynumber(register int number)
 {
 	register struct rpcdata *d = _rpcdata();
@@ -159,9 +160,9 @@ struct rpcent *getrpcbynumber(register int number)
 	endrpcent();
 	return rpc;
 }
-libc_hidden_proto(getrpcbynumber)
 libc_hidden_def(getrpcbynumber)
 
+libc_hidden_proto(getrpcbyname)
 struct rpcent *getrpcbyname(const char *name)
 {
 	struct rpcent *rpc;
@@ -179,7 +180,6 @@ struct rpcent *getrpcbyname(const char *name)
 	endrpcent();
 	return NULL;
 }
-libc_hidden_proto(getrpcbyname)
 libc_hidden_def(getrpcbyname)
 
 #ifdef __linux__

@@ -33,6 +33,8 @@
 #include <regex.h>
 #endif
 
+libc_hidden_proto(sysconf)
+
 libc_hidden_proto(getpagesize)
 libc_hidden_proto(getdtablesize)
 
@@ -883,5 +885,4 @@ long int sysconf(int name)
 #endif
     }
 }
-libc_hidden_proto(sysconf)
 libc_hidden_def(sysconf)

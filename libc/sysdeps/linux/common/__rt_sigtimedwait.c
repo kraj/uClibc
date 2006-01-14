@@ -2,15 +2,19 @@
 /*
  * __rt_sigtimedwait() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <signal.h>
 #define __need_NULL
 #include <stddef.h>
+
+libc_hidden_proto(sigwaitinfo)
+libc_hidden_proto(sigtimedwait)
+
 #ifdef __NR_rt_sigtimedwait
 #define __NR___rt_sigtimedwait __NR_rt_sigtimedwait
 static _syscall4(int, __rt_sigtimedwait, const sigset_t *, set, siginfo_t *, info,
@@ -46,7 +50,5 @@ int sigtimedwait(const sigset_t * set, siginfo_t * info,
 	return -1;
 }
 #endif
-libc_hidden_proto(sigwaitinfo)
 libc_hidden_def(sigwaitinfo)
-libc_hidden_proto(sigtimedwait)
 libc_hidden_def(sigtimedwait)

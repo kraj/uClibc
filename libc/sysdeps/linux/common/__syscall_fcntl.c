@@ -2,7 +2,7 @@
 /*
  * __syscall_fcntl() for uClibc
  *
- * Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
@@ -11,6 +11,9 @@
 #include <stdarg.h>
 #include <fcntl.h>
 #include <bits/wordsize.h>
+
+extern int __libc_fcntl(int fd, int cmd, ...);
+libc_hidden_proto(__libc_fcntl)
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
 extern int __libc_fcntl64(int fd, int cmd, ...);
@@ -43,7 +46,6 @@ int __libc_fcntl(int fd, int cmd, ...)
 
 	return (__syscall_fcntl(fd, cmd, arg));
 }
-libc_hidden_proto(__libc_fcntl)
 libc_hidden_def(__libc_fcntl)
 
 strong_alias(__libc_fcntl,fcntl)

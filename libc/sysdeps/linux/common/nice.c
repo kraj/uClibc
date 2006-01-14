@@ -2,10 +2,10 @@
 /*
  * nice() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  * Copyright (C) 2005 by Manuel Novoa III <mjn3@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
@@ -16,12 +16,12 @@ libc_hidden_proto(getpriority)
 
 #ifdef __NR_nice
 
-#define __NR___syscall_nice __NR_nice
+# define __NR___syscall_nice __NR_nice
 static inline _syscall1(int, __syscall_nice, int, incr);
 
 #else
 
-#include <limits.h>
+# include <limits.h>
 
 libc_hidden_proto(setpriority)
 
@@ -41,10 +41,10 @@ static inline int int_add_no_wrap(int a, int b)
 static inline int __syscall_nice(int incr)
 {
 	int old_priority;
-#if 1
+# if 1
 	/* This should never fail. */
 	old_priority = getpriority(PRIO_PROCESS, 0);
-#else
+# else
 	/* But if you want to be paranoid... */
 	int old_errno;
 
@@ -55,7 +55,7 @@ static inline int __syscall_nice(int incr)
 		return -1;
 	}
 	__set_errno(old_errno);
-#endif
+# endif
 
 	if (setpriority(PRIO_PROCESS, 0, int_add_no_wrap(old_priority, incr))) {
 		__set_errno(EPERM);	/* SUSv3 mandates EPERM for nice failure. */

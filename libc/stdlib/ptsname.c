@@ -18,6 +18,7 @@
    02111-1307 USA.  */
 
 #define _ISOC99_SOURCE
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <errno.h>
 #include <paths.h>
@@ -69,6 +70,7 @@ extern const char __libc_ptyname2[] attribute_hidden;
 /* Store at most BUFLEN characters of the pathname of the slave pseudo
    terminal associated with the master FD is open on in BUF.
    Return 0 on success, otherwise an error number.  */
+libc_hidden_proto(ptsname_r)
 int ptsname_r (int fd, char *buf, size_t buflen)
 {
   int save_errno = errno;
@@ -186,7 +188,6 @@ int ptsname_r (int fd, char *buf, size_t buflen)
   errno = save_errno;
   return 0;
 }
-libc_hidden_proto(ptsname_r)
 libc_hidden_def(ptsname_r)
 
 /* Return the pathname of the pseudo terminal slave assoicated with

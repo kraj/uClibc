@@ -153,6 +153,12 @@
 #include <xlocale.h>
 #endif
 
+libc_hidden_proto(asctime)
+libc_hidden_proto(asctime_r)
+libc_hidden_proto(ctime)
+libc_hidden_proto(localtime)
+libc_hidden_proto(localtime_r)
+
 libc_hidden_proto(memset)
 libc_hidden_proto(memcpy)
 libc_hidden_proto(strcmp)
@@ -245,15 +251,12 @@ extern time_t _time_mktime_tzi(struct tm *timeptr, int store_on_success,
 /**********************************************************************/
 #ifdef L_asctime
 
-libc_hidden_proto(asctime_r)
-
 static char __time_str[26];
 
 char *asctime(const struct tm *ptm)
 {
 	return asctime_r(ptm, __time_str);
 }
-libc_hidden_proto(asctime)
 libc_hidden_def(asctime)
 
 #endif
@@ -396,7 +399,6 @@ char *asctime_r(register const struct tm *__restrict ptm,
 
 	return buffer - 8;
 }
-libc_hidden_proto(asctime_r)
 libc_hidden_def(asctime_r)
 
 #endif
@@ -471,22 +473,15 @@ clock_t clock(void)
 /**********************************************************************/
 #ifdef L_ctime
 
-libc_hidden_proto(asctime)
-libc_hidden_proto(localtime)
-
 char *ctime(const time_t *clock)
 {
 	/* ANSI/ISO/SUSv3 say that ctime is equivalent to the following. */
 	return asctime(localtime(clock));
 }
-libc_hidden_proto(ctime)
 libc_hidden_def(ctime)
 #endif
 /**********************************************************************/
 #ifdef L_ctime_r
-
-libc_hidden_proto(asctime_r)
-libc_hidden_proto(localtime_r)
 
 char *ctime_r(const time_t *clock, char *buf)
 {
@@ -560,8 +555,6 @@ struct tm *gmtime_r(const time_t *__restrict timer,
 /**********************************************************************/
 #ifdef L_localtime
 
-libc_hidden_proto(localtime_r)
-
 struct tm *localtime(const time_t *timer)
 {
 	register struct tm *ptm = &__time_tm;
@@ -572,7 +565,6 @@ struct tm *localtime(const time_t *timer)
 
 	return ptm;
 }
-libc_hidden_proto(localtime)
 libc_hidden_def(localtime)
 
 #endif
@@ -592,7 +584,6 @@ struct tm *localtime_r(register const time_t *__restrict timer,
 
 	return result;
 }
-libc_hidden_proto(localtime_r)
 libc_hidden_def(localtime_r)
 
 #endif
@@ -785,6 +776,8 @@ time_t timegm(struct tm *timeptr)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
+libc_hidden_proto(strftime)
+
 libc_hidden_proto(strftime_l)
 
 size_t strftime(char *__restrict s, size_t maxsize,
@@ -793,7 +786,6 @@ size_t strftime(char *__restrict s, size_t maxsize,
 {
 	return strftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
 }
-libc_hidden_proto(strftime)
 libc_hidden_def(strftime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -994,6 +986,7 @@ static int load_field(int k, const struct tm *__restrict timeptr)
 #warning TODO: Check multibyte format string validity.
 #endif
 
+libc_hidden_proto(__XL_NPP(strftime))
 size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 					  const char *__restrict format,
 					  const struct tm *__restrict timeptr   __LOCALE_PARAM )
@@ -1276,7 +1269,6 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 	}
 	goto LOOP;
 }
-libc_hidden_proto(__XL_NPP(strftime))
 libc_hidden_def(__XL_NPP(strftime))
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -1295,6 +1287,8 @@ libc_hidden_def(__XL_NPP(strftime))
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
+libc_hidden_proto(strptime)
+
 libc_hidden_proto(strptime_l)
 
 char *strptime(const char *__restrict buf, const char *__restrict format,
@@ -1302,7 +1296,6 @@ char *strptime(const char *__restrict buf, const char *__restrict format,
 {
 	return strptime_l(buf, format, tm, __UCLIBC_CURLOCALE);
 }
-libc_hidden_proto(strptime)
 libc_hidden_def(strptime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -1449,8 +1442,7 @@ static const unsigned char spec[] = {
 
 #define MAX_PUSH 4
 
-libc_hidden_proto(localtime_r)
-
+libc_hidden_proto(__XL_NPP(strptime))
 char *__XL_NPP(strptime)(const char *__restrict buf, const char *__restrict format,
 					 struct tm *__restrict tm   __LOCALE_PARAM)
 {
@@ -1660,7 +1652,6 @@ char *__XL_NPP(strptime)(const char *__restrict buf, const char *__restrict form
 	}
 	return NULL;
 }
-libc_hidden_proto(__XL_NPP(strptime))
 libc_hidden_def(__XL_NPP(strptime))
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -2356,6 +2347,8 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
+libc_hidden_proto(wcsftime)
+
 libc_hidden_proto(wcsftime_l)
 
 size_t wcsftime(wchar_t *__restrict s, size_t maxsize,
@@ -2364,11 +2357,11 @@ size_t wcsftime(wchar_t *__restrict s, size_t maxsize,
 {
 	return wcsftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
 }
-libc_hidden_proto(wcsftime)
 libc_hidden_def(wcsftime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
+libc_hidden_proto(__XL_NPP(wcsftime))
 size_t __XL_NPP(wcsftime)(wchar_t *__restrict s, size_t maxsize,
 					  const wchar_t *__restrict format,
 					  const struct tm *__restrict timeptr   __LOCALE_PARAM )
@@ -2376,7 +2369,6 @@ size_t __XL_NPP(wcsftime)(wchar_t *__restrict s, size_t maxsize,
 #warning wcsftime always fails
 	return 0;					/* always fail */
 }
-libc_hidden_proto(__XL_NPP(wcsftime))
 libc_hidden_def(__XL_NPP(wcsftime))
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */

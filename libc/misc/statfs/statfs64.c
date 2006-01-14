@@ -36,6 +36,8 @@
 #include <stddef.h>
 #include <sys/statfs.h>
 
+libc_hidden_proto(statfs64)
+
 libc_hidden_proto(memcpy)
 libc_hidden_proto(statfs)
 
@@ -60,5 +62,4 @@ int statfs64 (const char *file, struct statfs64 *buf)
 
     return 0;
 }
-libc_hidden_proto(statfs64)
 libc_hidden_def(statfs64)

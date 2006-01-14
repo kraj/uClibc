@@ -185,21 +185,21 @@ enum {
 #ifdef __UCLIBC_DO_XLOCALE
 
 #define ISW_FUNC_BODY(NAME) \
+libc_hidden_proto(__PASTE3(isw,NAME,_l)); \
 int __PASTE3(isw,NAME,_l) (wint_t wc, __locale_t l) \
 { \
 	return iswctype_l(wc, __PASTE2(_CTYPE_is,NAME), l); \
 } \
-libc_hidden_proto(__PASTE3(isw,NAME,_l)); \
 libc_hidden_def(__PASTE3(isw,NAME,_l))
 
 #else  /* __UCLIBC_DO_XLOCALE */
 
 #define ISW_FUNC_BODY(NAME) \
+libc_hidden_proto(__PASTE2(isw,NAME)); \
 int __PASTE2(isw,NAME) (wint_t wc) \
 { \
 	return iswctype(wc, __PASTE2(_CTYPE_is,NAME)); \
 } \
-libc_hidden_proto(__PASTE2(isw,NAME)); \
 libc_hidden_def(__PASTE2(isw,NAME))
 
 #endif /* __UCLIBC_DO_XLOCALE */
@@ -500,6 +500,7 @@ libc_hidden_def(towupper)
 static const unsigned char typestring[] = __CTYPE_TYPESTRING;
 /*  extern const unsigned char typestring[]; */
 
+libc_hidden_proto(wctype)
 wctype_t wctype(const char *property)
 {
 	const unsigned char *p;
@@ -518,7 +519,6 @@ wctype_t wctype(const char *property)
 	/* TODO - Add locale-specific classifications. */
 	return 0;
 }
-libc_hidden_proto(wctype)
 libc_hidden_def(wctype)
 
 #endif
@@ -531,11 +531,11 @@ libc_hidden_def(wctype)
 
 libc_hidden_proto(wctype)
 
+libc_hidden_proto(wctype_l)
 wctype_t wctype_l (const char *property, __locale_t locale)
 {
 	return wctype(property);
 }
-libc_hidden_proto(wctype_l)
 libc_hidden_def(wctype_l)
 
 #endif
@@ -907,6 +907,7 @@ libc_hidden_def(towctrans)
 
 static const char transstring[] = __CTYPE_TRANSTRING;
 
+libc_hidden_proto(wctrans)
 wctrans_t wctrans(const char *property)
 {
 	const unsigned char *p;
@@ -925,7 +926,6 @@ wctrans_t wctrans(const char *property)
 	/* TODO - Add locale-specific translations. */
 	return 0;
 }
-libc_hidden_proto(wctrans)
 libc_hidden_def(wctrans)
 
 #endif

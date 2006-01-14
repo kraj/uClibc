@@ -70,6 +70,7 @@ char	ahostbuf[NI_MAXHOST] attribute_hidden;
 extern int ruserpass(const char *host, const char **aname, const char **apass) attribute_hidden;
 libc_hidden_proto(ruserpass)
 
+libc_hidden_proto(rexec_af)
 int
 rexec_af(char **ahost, int rport, const char *name, const char *pass, const char *cmd, int *fd2p, sa_family_t af)
 {
@@ -195,7 +196,6 @@ bad:
 	freeaddrinfo(res0);
 	return (-1);
 }
-libc_hidden_proto(rexec_af)
 libc_hidden_def(rexec_af)
 
 int

@@ -33,15 +33,16 @@ libc_hidden_proto(tolower)
 
 libc_hidden_proto(strcasecmp_l)
 
+libc_hidden_proto(strcasecmp)
 int strcasecmp(register const Wchar *s1, register const Wchar *s2)
 {
 	return strcasecmp_l(s1, s2, __UCLIBC_CURLOCALE);
 }
-libc_hidden_proto(strcasecmp)
 libc_hidden_def(strcasecmp)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
+libc_hidden_proto(__XL_NPP(strcasecmp))
 int __XL_NPP(strcasecmp)(register const Wchar *s1, register const Wchar *s2
 					  __LOCALE_PARAM )
 {
@@ -66,7 +67,6 @@ int __XL_NPP(strcasecmp)(register const Wchar *s1, register const Wchar *s2
 	return r;
 #endif
 }
-libc_hidden_proto(__XL_NPP(strcasecmp))
 libc_hidden_def(__XL_NPP(strcasecmp))
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */

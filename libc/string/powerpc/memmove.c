@@ -21,6 +21,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(memmove)
 void *memmove(void *to, const void *from, size_t n)
 {
 	unsigned long rem, chunks, tmp1, tmp2;
@@ -72,5 +73,4 @@ void *memmove(void *to, const void *from, size_t n)
 		goto copy_chunks;
 	goto lessthan8;
 }
-libc_hidden_proto(memmove)
 libc_hidden_def(memmove)

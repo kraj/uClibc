@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(memcpy)
 void *memcpy(void * to, const void * from, size_t n)
 {
     int d0, d1, d2;
@@ -49,5 +50,4 @@ void *memcpy(void * to, const void * from, size_t n)
 	    : "memory");
     return (to);
 }
-libc_hidden_proto(memcpy)
 libc_hidden_def(memcpy)

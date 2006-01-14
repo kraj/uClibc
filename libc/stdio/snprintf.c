@@ -14,6 +14,7 @@
 
 libc_hidden_proto(vsnprintf)
 
+libc_hidden_proto(snprintf)
 int snprintf(char *__restrict buf, size_t size,
 			 const char * __restrict format, ...)
 {
@@ -25,7 +26,6 @@ int snprintf(char *__restrict buf, size_t size,
 	va_end(arg);
 	return rv;
 }
-libc_hidden_proto(snprintf)
 libc_hidden_def(snprintf)
 
 #endif

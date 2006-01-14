@@ -22,6 +22,8 @@
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
 
+libc_hidden_proto(ioctl)
+
 libc_hidden_proto(tcsetattr)
 libc_hidden_proto(tcgetattr)
 
@@ -69,5 +71,4 @@ int ioctl (int fd, unsigned long int request, ...)
 
     return result;
 }
-libc_hidden_proto(ioctl)
 libc_hidden_def(ioctl)

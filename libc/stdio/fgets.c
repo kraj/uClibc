@@ -71,6 +71,7 @@ libc_hidden_def(fgets)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+libc_hidden_proto(fgets)
 char *fgets(char *__restrict s, int n,
 			register FILE * __restrict stream)
 {
@@ -85,7 +86,6 @@ char *fgets(char *__restrict s, int n,
 
 	return retval;
 }
-libc_hidden_proto(fgets)
 libc_hidden_def(fgets)
 
 #endif

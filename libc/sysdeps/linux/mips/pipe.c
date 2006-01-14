@@ -1,10 +1,16 @@
 /* pipe system call for Linux/MIPS */
-
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 /*see uClibc's sh/pipe.c and glibc-2.2.4's mips/pipe.S */
 
 #include <errno.h>
 #include <unistd.h>
 #include <syscall.h>
+
+libc_hidden_proto(pipe)
 
 int pipe(int *fd)
 {
@@ -21,5 +27,4 @@ int pipe(int *fd)
 	fd[1] = res2;
 	return(0);
 }
-libc_hidden_proto(pipe)
 libc_hidden_def(pipe)

@@ -1,8 +1,10 @@
 /* 
- * Distributed under the terms of the GNU General Public License v2
- * $Header: /var/cvs/uClibc/libc/sysdeps/linux/common/xattr.c,v 1.2 2004/12/22 19:53:11 andersen Exp $
+ * Copyright (C) 2004 <solar@gentoo.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * This file provides the following Extended Attribute system calls to uClibc.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+/* This file provides the following Extended Attribute system calls to uClibc.
  *
  *	setxattr(), lsetxattr(), fsetxattr(),
  *	getxattr(), lgetxattr(), fgetxattr(),

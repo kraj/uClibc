@@ -56,6 +56,7 @@ static const struct timeval tottimeout =
  * Calls the pmap service remotely to do the lookup.
  * Returns 0 if no map exists.
  */
+libc_hidden_proto(pmap_getport)
 u_short
 pmap_getport (struct sockaddr_in *address, u_long program, u_long version, u_int protocol)
 {
@@ -91,5 +92,4 @@ pmap_getport (struct sockaddr_in *address, u_long program, u_long version, u_int
   address->sin_port = 0;
   return port;
 }
-libc_hidden_proto(pmap_getport)
 libc_hidden_def(pmap_getport)

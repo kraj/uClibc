@@ -17,6 +17,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#include <features.h>
 #include <sysdep.h>
 #define _SETJMP_H
 #define _ASM
@@ -35,6 +36,5 @@ ENTRY (__longjmp)
 	movem [$r10],$pc
 END (__longjmp)
 
-	.weak longjmp
-	longjmp = __longjmp
-
+libc_hidden_def(__longjmp)
+strong_alias(__longjmp,longjmp)

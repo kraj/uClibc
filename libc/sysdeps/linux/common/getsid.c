@@ -2,13 +2,15 @@
 /*
  * getsid() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
+
+libc_hidden_proto(getsid)
 
 #define __NR___syscall_getsid __NR_getsid
 static inline _syscall1(__kernel_pid_t, __syscall_getsid, __kernel_pid_t, pid);
@@ -17,5 +19,4 @@ pid_t getsid(pid_t pid)
 {
 	return (__syscall_getsid(pid));
 }
-libc_hidden_proto(getsid)
 libc_hidden_def(getsid)

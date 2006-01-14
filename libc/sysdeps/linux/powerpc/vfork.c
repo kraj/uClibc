@@ -3,6 +3,8 @@
 #include <errno.h>
 #include <sys/syscall.h>
 
+libc_hidden_proto(vfork)
+
 #define __syscall_clobbers \
 	"r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"
 #define __syscall_return(type) \
@@ -46,5 +48,4 @@ pid_t vfork(void)
 
 	__syscall_return (pid_t);
 }
-libc_hidden_proto(vfork)
 libc_hidden_def(vfork)

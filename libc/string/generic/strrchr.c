@@ -18,6 +18,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(strrchr)
 libc_hidden_proto(strchr)
 
 /* Find the last occurrence of C in S.  */
@@ -41,6 +42,5 @@ char *strrchr (const char *s, int c)
 
   return (char *) found;
 }
-libc_hidden_proto(strrchr)
 libc_hidden_def(strrchr)
 strong_alias(strrchr,rindex)

@@ -2,13 +2,15 @@
 /*
  * mkdir() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <sys/stat.h>
+
+libc_hidden_proto(mkdir)
 
 #define __NR___syscall_mkdir __NR_mkdir
 static inline _syscall2(int, __syscall_mkdir, const char *, pathname,
@@ -18,5 +20,4 @@ int mkdir(const char *pathname, mode_t mode)
 {
 	return (__syscall_mkdir(pathname, mode));
 }
-libc_hidden_proto(mkdir)
 libc_hidden_def(mkdir)

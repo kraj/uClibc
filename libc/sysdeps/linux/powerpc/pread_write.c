@@ -1,26 +1,15 @@
 /* vi: set sw=4 ts=4:
  *
- * Copyright (C) 2002 by Erik Andersen <andersen@uclibc.org>
- * Based in part on the files
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+/* Based in part on the files
  *		./sysdeps/unix/sysv/linux/pwrite.c,
  *		./sysdeps/unix/sysv/linux/pread.c, 
  *		sysdeps/posix/pread.c
  *		sysdeps/posix/pwrite.c
  * from GNU libc 2.2.5, but reworked considerably...
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Library General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License
- * for more details.
- *
- * You should have received a copy of the GNU Library General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #define _GNU_SOURCE
@@ -86,10 +75,10 @@ strong_alias(__libc_pwrite64,pwrite64)
 
 
 #if ! defined __NR_pread || ! defined __NR_pwrite
-libc_hidden_proto(lseek)
-libc_hidden_proto(lseek64)
 libc_hidden_proto(read)
 libc_hidden_proto(write)
+libc_hidden_proto(lseek)
+libc_hidden_proto(lseek64)
 
 static ssize_t __fake_pread_write(int fd, void *buf, 
 		size_t count, off_t offset, int do_pwrite)

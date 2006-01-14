@@ -7,6 +7,8 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(getline)
+
 libc_hidden_proto(getdelim)
 
 ssize_t getline(char **__restrict lineptr, size_t *__restrict n,
@@ -14,5 +16,4 @@ ssize_t getline(char **__restrict lineptr, size_t *__restrict n,
 {
 	return getdelim(lineptr, n, '\n', stream);
 }
-libc_hidden_proto(getline)
 libc_hidden_def(getline)

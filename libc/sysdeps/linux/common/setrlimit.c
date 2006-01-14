@@ -2,19 +2,21 @@
 /*
  * setrlimit() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
+#include <unistd.h>
+#include <sys/resource.h>
+
+libc_hidden_proto(setrlimit)
 
 #ifndef __NR_ugetrlimit
 /* Only wrap setrlimit if the new ugetrlimit is not present */
 
 #define __NR___syscall_setrlimit __NR_setrlimit
-#include <unistd.h>
-#include <sys/resource.h>
 #define RMIN(x, y) ((x) < (y) ? (x) : (y))
 static inline
 _syscall2(int, __syscall_setrlimit, int, resource, const struct rlimit *, rlim);
@@ -34,12 +36,7 @@ int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 #undef RMIN
 
 #else							/* We don't need to wrap setrlimit */
-
-#include <unistd.h>
-struct rlimit;
 _syscall2(int, setrlimit, unsigned int, resource,
 		const struct rlimit *, rlim);
 #endif
-
-libc_hidden_proto(setrlimit)
 libc_hidden_def(setrlimit)

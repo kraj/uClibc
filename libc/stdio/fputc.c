@@ -12,6 +12,8 @@
 #undef putc
 #undef putc_unlocked
 
+libc_hidden_proto(__fputc_unlocked)
+
 #ifdef __DO_UNLOCKED
 
 int __fputc_unlocked(int c, register FILE *stream)
@@ -68,7 +70,6 @@ int __fputc_unlocked(int c, register FILE *stream)
  BAD:
 	return EOF;
 }
-libc_hidden_proto(__fputc_unlocked)
 libc_hidden_def(__fputc_unlocked)
 
 strong_alias(__fputc_unlocked,fputc_unlocked)
@@ -86,8 +87,7 @@ libc_hidden_def(putc)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-libc_hidden_proto(__fputc_unlocked)
-
+libc_hidden_proto(fputc)
 int fputc(int c, register FILE *stream)
 {
 	if (stream->__user_locking != 0) {
@@ -100,7 +100,6 @@ int fputc(int c, register FILE *stream)
 		return retval;
 	}
 }
-libc_hidden_proto(fputc)
 libc_hidden_def(fputc)
 
 strong_alias(fputc,putc)

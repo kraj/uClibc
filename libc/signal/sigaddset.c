@@ -19,6 +19,7 @@
 #include "sigsetops.h"
 
 /* Add SIGNO to SET.  */
+libc_hidden_proto(sigaddset)
 int
 sigaddset (set, signo)
      sigset_t *set;
@@ -32,5 +33,4 @@ sigaddset (set, signo)
 
   return __sigaddset (set, signo);
 }
-libc_hidden_proto(sigaddset)
 libc_hidden_def(sigaddset)

@@ -160,6 +160,7 @@ _stdlib_strto_l(register const char * __restrict str,
 /**********************************************************************/
 #ifdef L_fscanf
 
+libc_hidden_proto(fscanf)
 int fscanf(FILE * __restrict stream, const char * __restrict format, ...)
 {
 	va_list arg;
@@ -171,7 +172,6 @@ int fscanf(FILE * __restrict stream, const char * __restrict format, ...)
 
 	return rv;
 }
-libc_hidden_proto(fscanf)
 libc_hidden_def(fscanf)
 
 #endif
@@ -196,6 +196,7 @@ int scanf(const char * __restrict format, ...)
 
 #ifdef __STDIO_HAS_VSSCANF
 
+libc_hidden_proto(sscanf)
 int sscanf(const char * __restrict str, const char * __restrict format, ...)
 {
 	va_list arg;
@@ -207,7 +208,6 @@ int sscanf(const char * __restrict str, const char * __restrict format, ...)
 
 	return rv;
 }
-libc_hidden_proto(sscanf)
 libc_hidden_def(sscanf)
 
 #else  /* __STDIO_HAS_VSSCANF */
@@ -218,11 +218,11 @@ libc_hidden_def(sscanf)
 /**********************************************************************/
 #ifdef L_vscanf
 
+libc_hidden_proto(vscanf)
 int vscanf(const char * __restrict format, va_list arg)
 {
 	return vfscanf(stdin, format, arg);
 }
-libc_hidden_proto(vscanf)
 libc_hidden_def(vscanf)
 
 #endif

@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+libc_hidden_proto(strchr)
 libc_hidden_proto(abort)
 
 #include "memcopy.h"
@@ -180,6 +181,5 @@ char *strchr (const char *s, int c_in)
 
   return NULL;
 }
-libc_hidden_proto(strchr)
 libc_hidden_def(strchr)
 strong_alias(strchr,index)

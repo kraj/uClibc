@@ -97,6 +97,7 @@ libc_hidden_def(fread)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+libc_hidden_proto(fread)
 size_t fread(void * __restrict ptr, size_t size, size_t nmemb,
 			 register FILE * __restrict stream)
 {
@@ -111,7 +112,6 @@ size_t fread(void * __restrict ptr, size_t size, size_t nmemb,
 
 	return retval;
 }
-libc_hidden_proto(fread)
 libc_hidden_def(fread)
 
 #endif

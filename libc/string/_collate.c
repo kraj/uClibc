@@ -514,6 +514,7 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 	} while (1);
 }
 
+libc_hidden_proto(__XL_NPP(wcscoll))
 int __XL_NPP(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 {
 	col_state_t ws[2];
@@ -547,7 +548,6 @@ int __XL_NPP(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 
 	return 0;
 }
-libc_hidden_proto(__XL_NPP(wcscoll))
 libc_hidden_def(__XL_NPP(wcscoll))
 
 #ifdef WANT_WIDE
@@ -555,6 +555,7 @@ libc_hidden_def(__XL_NPP(wcscoll))
 extern size_t __wcslcpy(wchar_t *__restrict dst,
 		const wchar_t *__restrict src, size_t n);
 
+libc_hidden_proto(__XL_NPP(wcsxfrm))
 size_t __XL_NPP(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 					 size_t n   __LOCALE_PARAM )
 {
@@ -592,7 +593,6 @@ size_t __XL_NPP(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 	}
 	return count-1;
 }
-libc_hidden_proto(__XL_NPP(wcsxfrm))
 libc_hidden_def(__XL_NPP(wcsxfrm))
 
 #else  /* WANT_WIDE */
@@ -637,6 +637,7 @@ static size_t store(unsigned char *s, size_t count, size_t n, __uwchar_t weight)
 	return r;
 }
 
+libc_hidden_proto(__XL_NPP(strxfrm))
 size_t __XL_NPP(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_t n
 					 __LOCALE_PARAM )
 {
@@ -674,7 +675,6 @@ size_t __XL_NPP(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_
 	}
 	return count-1;
 }
-libc_hidden_proto(__XL_NPP(strxfrm))
 libc_hidden_def(__XL_NPP(strxfrm))
 
 #endif /* WANT_WIDE */

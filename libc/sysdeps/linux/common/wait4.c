@@ -2,13 +2,16 @@
 /*
  * wait4() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
+#include <sys/wait.h>
 #include <sys/resource.h>
+
+libc_hidden_proto(wait4)
 
 #define __NR___syscall_wait4 __NR_wait4
 static inline _syscall4(int, __syscall_wait4, __kernel_pid_t, pid,
@@ -18,5 +21,4 @@ pid_t wait4(pid_t pid, int *status, int opts, struct rusage *rusage)
 {
 	return (__syscall_wait4(pid, status, opts, rusage));
 }
-libc_hidden_proto(wait4)
 libc_hidden_def(wait4)

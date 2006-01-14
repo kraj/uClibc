@@ -2,9 +2,9 @@
 /*
  * lstat() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 /* need to hide the 64bit prototype or the weak_alias()
@@ -18,8 +18,9 @@
 
 #undef lstat64
 
+libc_hidden_proto(lstat)
+
 #define __NR___syscall_lstat __NR_lstat
-#undef lstat
 static inline _syscall2(int, __syscall_lstat,
 		const char *, file_name, struct kernel_stat *, buf);
 
@@ -34,7 +35,6 @@ int lstat(const char *file_name, struct stat *buf)
 	}
 	return result;
 }
-libc_hidden_proto(lstat)
 libc_hidden_def(lstat)
 
 #if ! defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__

@@ -8,6 +8,8 @@
 #include "_stdio.h"
 #include <stdio_ext.h>
 
+libc_hidden_proto(__fsetlocking)
+
 /* Not threadsafe. */
 
 /* Notes:
@@ -43,6 +45,4 @@ int __fsetlocking(FILE *stream, int locking_mode)
 	return FSETLOCKING_INTERNAL;
 #endif
 }
-
-libc_hidden_proto(__fsetlocking)
 libc_hidden_def(__fsetlocking)

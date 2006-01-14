@@ -2,13 +2,17 @@
 /*
  * utimes() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <utime.h>
+#include <sys/time.h>
+
+libc_hidden_proto(utimes)
+
 #ifdef __NR_utimes
 _syscall2(int, utimes, const char *, file, const struct timeval *, tvp);
 #else
@@ -31,5 +35,4 @@ int utimes(const char *file, const struct timeval tvp[2])
 	return utime(file, times);
 }
 #endif
-libc_hidden_proto(utimes)
 libc_hidden_def(utimes)

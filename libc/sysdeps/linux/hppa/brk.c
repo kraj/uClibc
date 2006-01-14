@@ -20,6 +20,8 @@
 #include <errno.h>
 #include <sys/syscall.h>
 
+libc_hidden_proto(brk)
+
 /* This must be initialized data because commons can't have aliases.  */
 void *__curbrk = 0;
 
@@ -38,5 +40,4 @@ brk (void *addr)
 
   return 0;
 }
-libc_hidden_proto(brk)
 libc_hidden_def(brk)

@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(strcmp)
 int strcmp(const char *cs, const char *ct)
 {
     int d0, d1;
@@ -51,7 +52,6 @@ int strcmp(const char *cs, const char *ct)
 	    :"1" (cs),"2" (ct));
     return __res;
 }
-libc_hidden_proto(strcmp)
 libc_hidden_def(strcmp)
 
 #ifndef __UCLIBC_HAS_LOCALE__

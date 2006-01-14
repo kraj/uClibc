@@ -38,6 +38,8 @@
 #include <sys/statvfs.h>
 #include <stddef.h>
 
+libc_hidden_proto(fstatfs64)
+
 libc_hidden_proto(memcpy)
 libc_hidden_proto(fstatfs)
 
@@ -62,5 +64,4 @@ int fstatfs64 (int fd, struct statfs64 *buf)
 
     return 0;
 }
-libc_hidden_proto(fstatfs64)
 libc_hidden_def(fstatfs64)

@@ -109,6 +109,7 @@ static bool_t marshal_new_auth (AUTH *) internal_function;
  * Create a unix style authenticator.
  * Returns an auth handle with the given stuff in it.
  */
+libc_hidden_proto(authunix_create)
 AUTH *
 authunix_create (char *machname, uid_t uid, gid_t gid, int len,
 		 gid_t *aup_gids)
@@ -175,13 +176,13 @@ no_memory:
   marshal_new_auth (auth);
   return auth;
 }
-libc_hidden_proto(authunix_create)
 libc_hidden_def(authunix_create)
 
 /*
  * Returns an auth handle with parameters determined by doing lots of
  * syscalls.
  */
+libc_hidden_proto(authunix_create_default)
 AUTH *
 authunix_create_default (void)
 {
@@ -215,7 +216,6 @@ authunix_create_default (void)
     free (gids);
   return ret_auth;
 }
-libc_hidden_proto(authunix_create_default)
 libc_hidden_def(authunix_create_default)
 
 /*

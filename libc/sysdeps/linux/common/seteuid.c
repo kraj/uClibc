@@ -12,6 +12,8 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
+libc_hidden_proto(seteuid)
+
 libc_hidden_proto(setresuid)
 libc_hidden_proto(setreuid)
 
@@ -35,5 +37,4 @@ int seteuid(uid_t uid)
 
     return result;
 }
-libc_hidden_proto(seteuid)
 libc_hidden_def(seteuid)

@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(strchr)
 char *strchr(const char *s, int c)
 {
     int d0;
@@ -49,6 +50,5 @@ char *strchr(const char *s, int c)
 	    :"=a" (__res), "=&S" (d0) : "1" (s),"0" (c));
     return __res;
 }
-libc_hidden_proto(strchr)
 libc_hidden_def(strchr)
 strong_alias(strchr,index)

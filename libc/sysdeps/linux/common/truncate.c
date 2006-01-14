@@ -2,13 +2,15 @@
 /*
  * truncate() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
-_syscall2(int, truncate, const char *, path, __off_t, length);
+
 libc_hidden_proto(truncate)
+
+_syscall2(int, truncate, const char *, path, __off_t, length);
 libc_hidden_def(truncate)

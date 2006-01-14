@@ -20,6 +20,7 @@
 
 #include "memcopy.h"
 
+libc_hidden_proto(strcmp)
 /* Compare S1 and S2, returning less than, equal to or
    greater than zero if S1 is lexicographically less than,
    equal to or greater than S2.  */
@@ -40,7 +41,6 @@ int strcmp (const char *p1, const char *p2)
 
   return c1 - c2;
 }
-libc_hidden_proto(strcmp)
 libc_hidden_def(strcmp)
 
 #ifndef __UCLIBC_HAS_LOCALE__

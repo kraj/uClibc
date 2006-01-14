@@ -270,6 +270,7 @@ IS_FUNC_BODY(xdigit);
 #ifdef L_tolower
 
 #undef tolower
+libc_hidden_proto(tolower)
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 int tolower(int c)
@@ -288,7 +289,6 @@ int tolower(int c)
 }
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
-libc_hidden_proto(tolower)
 libc_hidden_def(tolower)
 
 #endif
@@ -296,6 +296,7 @@ libc_hidden_def(tolower)
 #ifdef L_tolower_l
 
 #undef tolower_l
+libc_hidden_proto(tolower_l)
 int tolower_l(int c, __locale_t l)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
@@ -303,7 +304,6 @@ int tolower_l(int c, __locale_t l)
 #endif
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_tolower[c] : c;
 }
-libc_hidden_proto(tolower_l)
 libc_hidden_def(tolower_l)
 
 #endif
@@ -311,6 +311,7 @@ libc_hidden_def(tolower_l)
 #ifdef L_toupper
 
 #undef toupper
+libc_hidden_proto(toupper)
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 int toupper(int c)
@@ -329,7 +330,6 @@ int toupper(int c)
 }
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
-libc_hidden_proto(toupper)
 libc_hidden_def(toupper)
 
 #endif
@@ -337,6 +337,7 @@ libc_hidden_def(toupper)
 #ifdef L_toupper_l
 
 #undef toupper_l
+libc_hidden_proto(toupper_l)
 int toupper_l(int c, __locale_t l)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
@@ -344,8 +345,6 @@ int toupper_l(int c, __locale_t l)
 #endif
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_toupper[c] : c;
 }
-
-libc_hidden_proto(toupper_l)
 libc_hidden_def(toupper_l)
 
 #endif

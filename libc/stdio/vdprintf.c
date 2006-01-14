@@ -11,6 +11,7 @@
 libc_hidden_proto(vfprintf)
 libc_hidden_proto(fflush_unlocked)
 
+libc_hidden_proto(vdprintf)
 int vdprintf(int filedes, const char * __restrict format, va_list arg)
 {
 	FILE f;
@@ -63,5 +64,4 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 
 	return rv;
 }
-libc_hidden_proto(vdprintf)
 libc_hidden_def(vdprintf)

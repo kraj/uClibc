@@ -21,6 +21,8 @@
 #include <features.h>
 #include <sys/socket.h>
 
+libc_hidden_proto(__cmsg_nxthdr)
+
 struct cmsghdr *
 __cmsg_nxthdr (struct msghdr *mhdr, struct cmsghdr *cmsg)
 {
@@ -38,5 +40,4 @@ __cmsg_nxthdr (struct msghdr *mhdr, struct cmsghdr *cmsg)
     return NULL;
   return cmsg;
 }
-libc_hidden_proto(__cmsg_nxthdr)
 libc_hidden_def(__cmsg_nxthdr)

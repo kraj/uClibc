@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(strncpy)
 char *strncpy(char * dest, const char * src, size_t count)
 {
     int d0, d1, d2, d3;
@@ -52,5 +53,4 @@ char *strncpy(char * dest, const char * src, size_t count)
 	    :"0" (src),"1" (dest),"2" (count) : "memory");
     return dest;
 }
-libc_hidden_proto(strncpy)
 libc_hidden_def(strncpy)

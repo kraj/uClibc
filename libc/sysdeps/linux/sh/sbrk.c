@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
+libc_hidden_proto(sbrk)
+
 extern void * __curbrk;
 
 extern int __init_brk (void);
@@ -23,5 +25,4 @@ sbrk(intptr_t increment)
     }
     return ((void *) -1);
 }
-libc_hidden_proto(sbrk)
 libc_hidden_def(sbrk)

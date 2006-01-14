@@ -23,6 +23,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <bits/uClibc_uintmaxtostr.h>
 
 #ifdef L_inet_aton
@@ -42,6 +43,7 @@
  * leading 0   -> octal
  * all else    -> decimal
  */
+libc_hidden_proto(inet_aton)
 int inet_aton(const char *cp, struct in_addr *addrptr)
 {
 	in_addr_t addr;
@@ -88,7 +90,6 @@ int inet_aton(const char *cp, struct in_addr *addrptr)
 
 	return 1;
 }
-libc_hidden_proto(inet_aton)
 libc_hidden_def(inet_aton)
 #endif
 
@@ -96,6 +97,7 @@ libc_hidden_def(inet_aton)
 #include <arpa/inet.h>
 libc_hidden_proto(inet_aton)
 
+libc_hidden_proto(inet_addr)
 in_addr_t inet_addr(const char *cp)
 {
 	struct in_addr a;
@@ -105,7 +107,6 @@ in_addr_t inet_addr(const char *cp)
 	else
 		return a.s_addr;
 }
-libc_hidden_proto(inet_addr)
 libc_hidden_def(inet_addr)
 #endif
 
@@ -113,6 +114,8 @@ libc_hidden_def(inet_addr)
 
 #define INET_NTOA_MAX_LEN	16	/* max 12 digits + 3 '.'s + 1 nul */
 
+extern char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN]);
+libc_hidden_proto(inet_ntoa_r)
 char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 {
 	in_addr_t addr = ntohl(in.s_addr);
@@ -132,15 +135,14 @@ char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 
 	return p+1;
 }
-libc_hidden_proto(inet_ntoa_r)
 libc_hidden_def(inet_ntoa_r)
 
+libc_hidden_proto(inet_ntoa)
 char *inet_ntoa(struct in_addr in)
 {
 	static char buf[INET_NTOA_MAX_LEN];
 	return(inet_ntoa_r(in, buf));
 }
-libc_hidden_proto(inet_ntoa)
 libc_hidden_def(inet_ntoa)
 #endif
 
@@ -153,6 +155,7 @@ libc_hidden_proto(memmove)
  * Formulate an Internet address from network + host.  Used in
  * building addresses stored in the ifnet structure.
  */
+libc_hidden_proto(inet_makeaddr)
 struct in_addr inet_makeaddr(in_addr_t net, in_addr_t host)
 {
 	in_addr_t addr;
@@ -168,7 +171,6 @@ struct in_addr inet_makeaddr(in_addr_t net, in_addr_t host)
 	addr = htonl(addr);
 	return (*(struct in_addr *)&addr);
 }
-libc_hidden_proto(inet_makeaddr)
 libc_hidden_def(inet_makeaddr)
 #endif
 
@@ -197,6 +199,7 @@ in_addr_t inet_lnaof(struct in_addr in)
  * Return the network number from an internet
  * address; handles class a/b/c network #'s.
  */
+libc_hidden_proto(inet_netof)
 in_addr_t
 inet_netof(struct in_addr in)
 {
@@ -209,6 +212,5 @@ inet_netof(struct in_addr in)
 	else
 	return (((i)&IN_CLASSC_NET) >> IN_CLASSC_NSHIFT);
 }
-libc_hidden_proto(inet_netof)
 libc_hidden_def(inet_netof)
 #endif

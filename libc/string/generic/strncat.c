@@ -20,6 +20,7 @@
 
 #include "memcopy.h"
 
+libc_hidden_proto(strncat)
 char *strncat (char *s1, const char *s2, size_t n)
 {
   reg_char c;
@@ -73,5 +74,4 @@ char *strncat (char *s1, const char *s2, size_t n)
 
   return s;
 }
-libc_hidden_proto(strncat)
 libc_hidden_def(strncat)

@@ -9,6 +9,10 @@
 #include <string.h>
 #include <mntent.h>
 
+libc_hidden_proto(getmntent_r)
+libc_hidden_proto(setmntent)
+libc_hidden_proto(endmntent)
+
 libc_hidden_proto(strstr)
 libc_hidden_proto(strtok_r)
 libc_hidden_proto(atoi)
@@ -74,7 +78,6 @@ struct mntent *getmntent_r (FILE *filep,
 
 	return mnt;
 }
-libc_hidden_proto(getmntent_r)
 libc_hidden_def(getmntent_r)
 
 struct mntent *getmntent(FILE * filep)
@@ -116,7 +119,6 @@ FILE *setmntent(const char *name, const char *mode)
 {
 	return fopen(name, mode);
 }
-libc_hidden_proto(setmntent)
 libc_hidden_def(setmntent)
 
 int endmntent(FILE * filep)
@@ -125,5 +127,4 @@ int endmntent(FILE * filep)
 		fclose(filep);
 	return 1;
 }
-libc_hidden_proto(endmntent)
 libc_hidden_def(endmntent)

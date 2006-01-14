@@ -2,18 +2,18 @@
 /*
  * capset() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
-#	ifdef __NR_capset
+#ifdef __NR_capset
 _syscall2(int, capset, void *, header, const void *, data);
-#	else
+#else
 int capset(void *header, const void *data)
 {
 	__set_errno(ENOSYS);
 	return -1;
 }
-#	endif
+#endif

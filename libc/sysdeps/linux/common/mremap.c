@@ -2,15 +2,17 @@
 /*
  * mremap() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
 #include <sys/mman.h>
+
+libc_hidden_proto(mremap)
+
 _syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t,
 		  new_size, int, may_move);
-libc_hidden_proto(mremap)
 libc_hidden_def(mremap)

@@ -88,6 +88,7 @@ static const struct timeval timeout = {3, 0};
  * XDR remote call arguments
  * written for XDR_ENCODE direction only
  */
+libc_hidden_proto(xdr_rmtcall_args)
 bool_t
 xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
 {
@@ -113,7 +114,6 @@ xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
     }
   return FALSE;
 }
-libc_hidden_proto(xdr_rmtcall_args)
 libc_hidden_def(xdr_rmtcall_args)
 
 /*

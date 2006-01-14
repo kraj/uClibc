@@ -1012,6 +1012,7 @@ static const unsigned char nl_data[C_LC_ALL + 1 + 90 + 320] = {
 	   ']', '\x00',    '^',    '[',    'n',    'N',    ']', '\x00', 
 };
 
+libc_hidden_proto(nl_langinfo)
 char *nl_langinfo(nl_item item)
 {
 	unsigned int c;
@@ -1025,12 +1026,13 @@ char *nl_langinfo(nl_item item)
 	}
 	return (char *) cat_start;	/* Conveniently, this is the empty string. */
 }
-libc_hidden_proto(nl_langinfo)
 libc_hidden_def(nl_langinfo)
 
 #else  /* __LOCALE_C_ONLY */
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
+
+libc_hidden_proto(nl_langinfo)
 
 libc_hidden_proto(nl_langinfo_l)
 
@@ -1038,10 +1040,11 @@ char *nl_langinfo(nl_item item)
 {
 	return nl_langinfo_l(item, __UCLIBC_CURLOCALE);
 }
-libc_hidden_proto(nl_langinfo)
 libc_hidden_def(nl_langinfo)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
+
+libc_hidden_proto(__XL_NPP(nl_langinfo))
 
 static const char empty[] = "";
 
@@ -1057,7 +1060,6 @@ char *__XL_NPP(nl_langinfo)(nl_item item   __LOCALE_PARAM )
 
 	return (char *) empty;
 }
-libc_hidden_proto(__XL_NPP(nl_langinfo))
 libc_hidden_def(__XL_NPP(nl_langinfo))
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -1067,6 +1069,8 @@ libc_hidden_def(__XL_NPP(nl_langinfo))
 #endif
 /**********************************************************************/
 #ifdef L_newlocale
+
+libc_hidden_proto(newlocale)
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Move posix and utf8 strings.
@@ -1305,12 +1309,13 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 
 	return base;
 }
-libc_hidden_proto(newlocale)
 libc_hidden_def(newlocale)
 
 #endif
 /**********************************************************************/
 #ifdef L_duplocale
+
+libc_hidden_proto(duplocale)
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning REMINDER: When we allocate ctype tables, remember to dup them.
@@ -1339,7 +1344,6 @@ __locale_t duplocale(__locale_t dataset)
 	}
 	return r;
 }
-libc_hidden_proto(duplocale)
 libc_hidden_def(duplocale)
 
 #endif
@@ -1362,6 +1366,8 @@ void freelocale(__locale_t dataset)
 #endif
 /**********************************************************************/
 #ifdef L_uselocale
+
+libc_hidden_proto(uselocale)
 
 __locale_t uselocale(__locale_t dataset)
 {
@@ -1386,7 +1392,6 @@ __locale_t uselocale(__locale_t dataset)
 	}
 	return old;
 }
-libc_hidden_proto(uselocale)
 libc_hidden_def(uselocale)
 
 #endif

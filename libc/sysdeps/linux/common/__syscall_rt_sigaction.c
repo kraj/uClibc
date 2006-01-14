@@ -2,9 +2,9 @@
 /*
  * __syscall_rt_sigaction() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
@@ -17,5 +17,4 @@
 attribute_hidden _syscall4(int, __syscall_rt_sigaction, int, signum,
 		  const struct sigaction *, act, struct sigaction *, oldact,
 		  size_t, size);
-
 #endif

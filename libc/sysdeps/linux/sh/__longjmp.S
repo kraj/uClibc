@@ -64,5 +64,7 @@ __longjmp:
 .size __longjmp,.-__longjmp
 libc_hidden_def(__longjmp)
 
+/* sigprocmask is not defined here, why the weak then ?*/
+/* it should rather be libc_hidden_def(sigprocmask) if needed */
 .weak __sigprocmask
 __sigprocmask = sigprocmask

@@ -136,13 +136,14 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
     return 0;
 }
 
+libc_hidden_proto(setenv)
 int setenv (const char *name, const char *value, int replace)
 {
     return __add_to_environ (name, value, NULL, replace);
 }
-libc_hidden_proto(setenv)
 libc_hidden_def(setenv)
 
+libc_hidden_proto(unsetenv)
 int unsetenv (const char *name)
 {
     size_t len;
@@ -171,7 +172,6 @@ int unsetenv (const char *name)
     UNLOCK;
     return 0;
 }
-libc_hidden_proto(unsetenv)
 libc_hidden_def(unsetenv)
 
 /* The `clearenv' was planned to be added to POSIX.1 but probably

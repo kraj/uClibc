@@ -32,6 +32,7 @@ libc_hidden_def(fileno)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+libc_hidden_proto(fileno)
 int fileno(register FILE *stream)
 {
 	int retval;
@@ -45,7 +46,6 @@ int fileno(register FILE *stream)
 
 	return retval;
 }
-libc_hidden_proto(fileno)
 libc_hidden_def(fileno)
 
 #endif

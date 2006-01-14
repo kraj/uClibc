@@ -93,8 +93,9 @@ char **__environ = 0;
 weak_alias(__environ, environ)
 
 /* TODO: don't export __pagesize; we cant now because libpthread uses it */
-size_t __pagesize = 0;
+extern size_t __pagesize;
 libc_hidden_proto(__pagesize)
+size_t __pagesize = 0;
 libc_hidden_def(__pagesize)
 
 #ifndef O_NOFOLLOW
@@ -152,6 +153,8 @@ static int __check_suid(void)
  * __uClibc_main.
  */
 
+extern void __uClibc_init(void);
+libc_hidden_proto(__uClibc_init)
 void __uClibc_init(void)
 {
     static int been_there_done_that = 0;
@@ -199,7 +202,6 @@ void __uClibc_init(void)
 	_stdio_init();
 
 }
-libc_hidden_proto(__uClibc_init)
 libc_hidden_def(__uClibc_init)
 
 #ifdef __UCLIBC_CTOR_DTOR__

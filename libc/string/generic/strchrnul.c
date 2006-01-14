@@ -21,9 +21,11 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdlib.h>
 
+libc_hidden_proto(strchrnul)
 libc_hidden_proto(abort)
 
 #include "memcopy.h"
@@ -163,5 +165,4 @@ char *strchrnul (const char *s, int c_in)
   /* This should never happen.  */
   return NULL;
 }
-libc_hidden_proto(strchrnul)
 libc_hidden_def(strchrnul)

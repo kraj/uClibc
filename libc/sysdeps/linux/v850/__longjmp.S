@@ -41,4 +41,3 @@ C_END(__longjmp)
 
 .weak C_SYMBOL_NAME(__sigprocmask)
 C_SYMBOL_NAME(__sigprocmask) = C_SYMBOL_NAME(sigprocmask)
-libc_hidden_def(__longjmp)

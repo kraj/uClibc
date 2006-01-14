@@ -45,6 +45,7 @@ libc_hidden_def(fwrite)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+libc_hidden_proto(fwrite)
 size_t fwrite(const void * __restrict ptr, size_t size,
 			  size_t nmemb, register FILE * __restrict stream)
 {
@@ -59,7 +60,6 @@ size_t fwrite(const void * __restrict ptr, size_t size,
 
 	return retval;
 }
-libc_hidden_proto(fwrite)
 libc_hidden_def(fwrite)
 
 #endif

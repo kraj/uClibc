@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(strlen)
 size_t strlen(const char *s)
 {
     int d0;
@@ -44,5 +45,4 @@ size_t strlen(const char *s)
 	    :"=c" (__res), "=&D" (d0) :"1" (s),"a" (0), "0" (0xffffffff));
     return __res;
 }
-libc_hidden_proto(strlen)
 libc_hidden_def(strlen)

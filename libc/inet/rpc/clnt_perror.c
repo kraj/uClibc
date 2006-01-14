@@ -186,6 +186,7 @@ static const struct rpc_errtab rpc_errlist[] =
 /*
  * This interface for use by clntrpc
  */
+libc_hidden_proto(clnt_sperrno)
 char *
 clnt_sperrno (enum clnt_stat stat)
 {
@@ -200,7 +201,6 @@ clnt_sperrno (enum clnt_stat stat)
     }
   return _("RPC: (unknown error code)");
 }
-libc_hidden_proto(clnt_sperrno)
 libc_hidden_def(clnt_sperrno)
 
 void
@@ -217,6 +217,7 @@ clnt_perrno (enum clnt_stat num)
 /*
  * Print reply error info
  */
+libc_hidden_proto(clnt_sperror)
 char *
 clnt_sperror (CLIENT * rpch, const char *msg)
 {
@@ -300,9 +301,9 @@ clnt_sperror (CLIENT * rpch, const char *msg)
   *++str = '\0';
   return (strstart);
 }
-libc_hidden_proto(clnt_sperror)
 libc_hidden_def(clnt_sperror)
 
+libc_hidden_proto(clnt_perror)
 void
 clnt_perror (CLIENT * rpch, const char *msg)
 {
@@ -313,9 +314,9 @@ clnt_perror (CLIENT * rpch, const char *msg)
 #endif
     (void) fputs (clnt_sperror (rpch, msg), stderr);
 }
-libc_hidden_proto(clnt_perror)
 libc_hidden_def(clnt_perror)
 
+libc_hidden_proto(clnt_spcreateerror)
 char *
 clnt_spcreateerror (const char *msg)
 {
@@ -359,7 +360,6 @@ clnt_spcreateerror (const char *msg)
   *++cp = '\0';
   return str;
 }
-libc_hidden_proto(clnt_spcreateerror)
 libc_hidden_def(clnt_spcreateerror)
 
 void

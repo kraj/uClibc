@@ -9,6 +9,8 @@
 #include <sys/utsname.h>
 #include <errno.h>
 
+libc_hidden_proto(gethostname)
+
 libc_hidden_proto(strlen)
 libc_hidden_proto(strcpy)
 libc_hidden_proto(uname)
@@ -32,5 +34,4 @@ gethostname(char *name, size_t len)
   strcpy(name, uts.nodename);
   return 0;
 }
-libc_hidden_proto(gethostname)
 libc_hidden_def(gethostname)

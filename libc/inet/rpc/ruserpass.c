@@ -113,6 +113,8 @@ static const struct toktab {
 
 
 
+extern int ruserpass(const char *host, const char **aname, const char **apass);
+libc_hidden_proto(ruserpass)
 int ruserpass(const char *host, const char **aname, const char **apass)
 {
 	char *hdir, *buf, *tmp;
@@ -303,7 +305,6 @@ bad:
 	(void) fclose(cfile);
 	return (-1);
 }
-libc_hidden_proto(ruserpass)
 libc_hidden_def(ruserpass)
 
 static int

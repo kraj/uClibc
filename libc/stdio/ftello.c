@@ -7,9 +7,8 @@
 
 #include "_stdio.h"
 
-#if defined(__UCLIBC_HAS_LFS__) && !defined(__DO_LARGEFILE)
 libc_hidden_proto(ftello64)
-#endif
+libc_hidden_proto(ftell)
 
 #ifndef __DO_LARGEFILE
 # define FTELL         ftell
@@ -51,10 +50,8 @@ OFFSET_TYPE FTELL(register FILE *stream)
 }
 
 #ifdef __DO_LARGEFILE
-libc_hidden_proto(ftello64)
 libc_hidden_def(ftello64)
 #else
-libc_hidden_proto(ftell)
 libc_hidden_def(ftell)
 strong_alias(ftell,ftello)
 #endif

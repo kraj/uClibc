@@ -2,14 +2,16 @@
 /*
  * settimeofday() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <sys/time.h>
-attribute_hidden _syscall2(int, settimeofday, const struct timeval *, tv,
-		  const struct timezone *, tz);
+
 libc_hidden_proto(settimeofday)
+
+_syscall2(int, settimeofday, const struct timeval *, tv,
+		  const struct timezone *, tz);
 libc_hidden_def(settimeofday)

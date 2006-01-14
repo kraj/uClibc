@@ -23,6 +23,7 @@
 libc_hidden_proto(memset)
 
 /* Clear all signals from SET.  */
+libc_hidden_proto(sigemptyset)
 int
 sigemptyset (set)
      sigset_t *set;
@@ -37,5 +38,4 @@ sigemptyset (set)
 
   return 0;
 }
-libc_hidden_proto(sigemptyset)
 libc_hidden_def(sigemptyset)

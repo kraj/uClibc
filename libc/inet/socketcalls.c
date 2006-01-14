@@ -55,6 +55,7 @@ libc_hidden_def(accept)
 #endif
 
 #ifdef L_bind
+libc_hidden_proto(bind)
 #ifdef __NR_bind
 _syscall3(int, bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen);
 #elif defined(__NR_socketcall)
@@ -68,7 +69,6 @@ int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 	return __socketcall(SYS_BIND, args);
 }
 #endif
-libc_hidden_proto(bind)
 libc_hidden_def(bind)
 #endif
 
@@ -109,6 +109,7 @@ int getpeername(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 #endif
 
 #ifdef L_getsockname
+libc_hidden_proto(getsockname)
 #ifdef __NR_getsockname
 _syscall3(int, getsockname, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen);
 #elif defined(__NR_socketcall)
@@ -122,7 +123,6 @@ int getsockname(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 	return __socketcall(SYS_GETSOCKNAME, args);
 }
 #endif
-libc_hidden_proto(getsockname)
 libc_hidden_def(getsockname)
 #endif
 
@@ -146,6 +146,7 @@ int getsockopt(int fd, int level, int optname, __ptr_t optval,
 #endif
 
 #ifdef L_listen
+libc_hidden_proto(listen)
 #ifdef __NR_listen
 _syscall2(int, listen, int, sockfd, int, backlog);
 #elif defined(__NR_socketcall)
@@ -158,7 +159,6 @@ int listen(int sockfd, int backlog)
 	return __socketcall(SYS_LISTEN, args);
 }
 #endif
-libc_hidden_proto(listen)
 libc_hidden_def(listen)
 #endif
 
@@ -311,6 +311,7 @@ libc_hidden_def(sendto)
 #endif
 
 #ifdef L_setsockopt
+libc_hidden_proto(setsockopt)
 #ifdef __NR_setsockopt
 _syscall5(int, setsockopt, int, fd, int, level, int, optname, const void *, optval, socklen_t, optlen);
 #elif defined(__NR_socketcall)
@@ -328,7 +329,6 @@ int setsockopt(int fd, int level, int optname, const void *optval,
 	return (__socketcall(SYS_SETSOCKOPT, args));
 }
 #endif
-libc_hidden_proto(setsockopt)
 libc_hidden_def(setsockopt)
 #endif
 
@@ -349,6 +349,7 @@ int shutdown(int sockfd, int how)
 #endif
 
 #ifdef L_socket
+libc_hidden_proto(socket)
 #ifdef __NR_socket
 _syscall3(int, socket, int, family, int, type, int, protocol);
 #elif defined(__NR_socketcall)
@@ -362,7 +363,6 @@ int socket(int family, int type, int protocol)
 	return __socketcall(SYS_SOCKET, args);
 }
 #endif
-libc_hidden_proto(socket)
 libc_hidden_def(socket)
 #endif
 

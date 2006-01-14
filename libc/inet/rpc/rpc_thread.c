@@ -10,6 +10,11 @@
 #include <assert.h>
 #include "rpc_private.h"
 
+libc_hidden_proto(__rpc_thread_svc_fdset)
+libc_hidden_proto(__rpc_thread_createerr)
+libc_hidden_proto(__rpc_thread_svc_pollfd)
+libc_hidden_proto(__rpc_thread_svc_max_pollfd)
+
 #ifdef __UCLIBC_HAS_THREADS__
 
 #include <bits/libc-tsd.h>
@@ -158,11 +163,7 @@ int * __rpc_thread_svc_max_pollfd (void)
 
 #endif /* __UCLIBC_HAS_THREADS__ */
 
-libc_hidden_proto(__rpc_thread_svc_fdset)
 libc_hidden_def(__rpc_thread_svc_fdset)
-libc_hidden_proto(__rpc_thread_createerr)
 libc_hidden_def(__rpc_thread_createerr)
-libc_hidden_proto(__rpc_thread_svc_pollfd)
 libc_hidden_def(__rpc_thread_svc_pollfd)
-libc_hidden_proto(__rpc_thread_svc_max_pollfd)
 libc_hidden_def(__rpc_thread_svc_max_pollfd)

@@ -7,6 +7,8 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(getdelim)
+
 libc_hidden_proto(__fgetc_unlocked)
 
 /* Note: There is a defect in this function.  (size_t vs ssize_t). */
@@ -75,5 +77,4 @@ ssize_t getdelim(char **__restrict lineptr, size_t *__restrict n,
 
 	return pos;
 }
-libc_hidden_proto(getdelim)
 libc_hidden_def(getdelim)

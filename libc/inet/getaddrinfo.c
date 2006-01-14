@@ -785,6 +785,7 @@ static struct gaih gaih[] =
     { PF_UNSPEC, NULL }
 };
 
+libc_hidden_proto(freeaddrinfo)
 void
 freeaddrinfo (struct addrinfo *ai)
 {
@@ -797,9 +798,9 @@ freeaddrinfo (struct addrinfo *ai)
 	free (p);
     }
 }
-libc_hidden_proto(freeaddrinfo)
 libc_hidden_def(freeaddrinfo)
 
+libc_hidden_proto(getaddrinfo)
 int
 getaddrinfo (const char *name, const char *service,
 	     const struct addrinfo *hints, struct addrinfo **pai)
@@ -899,5 +900,4 @@ getaddrinfo (const char *name, const char *service,
 
     return last_i ? -(last_i & GAIH_EAI) : EAI_NONAME;
 }
-libc_hidden_proto(getaddrinfo)
 libc_hidden_def(getaddrinfo)

@@ -19,6 +19,7 @@
 libc_hidden_proto(fprintf)
 
 /* ------------------------------ mallinfo ------------------------------ */
+libc_hidden_proto(mallinfo)
 struct mallinfo mallinfo(void)
 {
     mstate av;
@@ -79,7 +80,6 @@ struct mallinfo mallinfo(void)
     UNLOCK;
     return mi;
 }
-libc_hidden_proto(mallinfo)
 libc_hidden_def(mallinfo)
 
 void malloc_stats(FILE *file)

@@ -97,6 +97,7 @@ static void __initbuf(void)
     }
 }
 
+libc_hidden_proto(setprotoent)
 void setprotoent(int f)
 {
     LOCK;
@@ -107,9 +108,9 @@ void setprotoent(int f)
     proto_stayopen |= f;
     UNLOCK;
 }
-libc_hidden_proto(setprotoent)
 libc_hidden_def(setprotoent)
 
+libc_hidden_proto(endprotoent)
 void endprotoent(void)
 {
     LOCK;
@@ -120,9 +121,9 @@ void endprotoent(void)
     proto_stayopen = 0;
     UNLOCK;
 }
-libc_hidden_proto(endprotoent)
 libc_hidden_def(endprotoent)
 
+libc_hidden_proto(getprotoent_r)
 int getprotoent_r(struct protoent *result_buf,
 		  char *buf, size_t buflen,
 		  struct protoent **result)
@@ -199,7 +200,6 @@ again:
     UNLOCK;
     return 0;
 }
-libc_hidden_proto(getprotoent_r)
 libc_hidden_def(getprotoent_r)
 
 struct protoent * getprotoent(void)
@@ -212,6 +212,7 @@ struct protoent * getprotoent(void)
 }
 
 
+libc_hidden_proto(getprotobyname_r)
 int getprotobyname_r(const char *name,
 		    struct protoent *result_buf,
 		    char *buf, size_t buflen,
@@ -235,7 +236,6 @@ found:
     UNLOCK;
     return *result?0:ret;
 }
-libc_hidden_proto(getprotobyname_r)
 libc_hidden_def(getprotobyname_r)
 
 
@@ -249,6 +249,7 @@ struct protoent * getprotobyname(const char *name)
 }
 
 
+libc_hidden_proto(getprotobynumber_r)
 int getprotobynumber_r (int proto_num,
 			struct protoent *result_buf,
 			char *buf, size_t buflen,
@@ -266,7 +267,6 @@ int getprotobynumber_r (int proto_num,
     UNLOCK;
     return *result?0:ret;
 }
-libc_hidden_proto(getprotobynumber_r)
 libc_hidden_def(getprotobynumber_r)
 
 struct protoent * getprotobynumber(int proto_num)

@@ -137,6 +137,7 @@ libc_hidden_def(fflush)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+libc_hidden_proto(fflush)
 int fflush(register FILE *stream)
 {
 	int retval;
@@ -159,7 +160,6 @@ int fflush(register FILE *stream)
 
 	return retval;
 }
-libc_hidden_proto(fflush)
 libc_hidden_def(fflush)
 
 #endif

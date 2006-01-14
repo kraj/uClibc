@@ -1740,6 +1740,7 @@ int attribute_hidden __get_hosts_byaddr_r(const char * addr, int len, int type,
 # define min(x,y) (((x) > (y)) ? (y) : (x))
 #endif /* min */
 
+libc_hidden_proto(getnameinfo)
 int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 	     socklen_t hostlen, char *serv, socklen_t servlen,
 	     unsigned int flags)
@@ -1926,7 +1927,6 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 	errno = serrno;
 	return 0;
 }
-libc_hidden_proto(getnameinfo)
 libc_hidden_def(getnameinfo)
 #endif
 

@@ -33,6 +33,7 @@
 #define _GNU_SOURCE
 #include <string.h>
 
+libc_hidden_proto(strnlen)
 size_t strnlen(const char *s, size_t count)
 {
     int d0;
@@ -51,5 +52,4 @@ size_t strnlen(const char *s, size_t count)
 	    :"c" (s),"1" (count));
     return __res;
 }
-libc_hidden_proto(strnlen)
 libc_hidden_def(strnlen)

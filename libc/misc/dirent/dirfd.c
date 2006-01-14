@@ -8,6 +8,8 @@
 #include <errno.h>
 #include "dirstream.h"
 
+libc_hidden_proto(dirfd)
+
 int dirfd(DIR * dir)
 {
 	if (!dir || dir->dd_fd == -1) {
@@ -17,5 +19,4 @@ int dirfd(DIR * dir)
 
 	return dir->dd_fd;
 }
-libc_hidden_proto(dirfd)
 libc_hidden_def(dirfd)

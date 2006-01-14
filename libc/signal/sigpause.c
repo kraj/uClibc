@@ -17,6 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define _BSD_SOURCE
 #include <errno.h>
 #include <signal.h>
 #include <stddef.h>		/* For NULL.  */
@@ -29,6 +30,7 @@ libc_hidden_proto(sigsuspend)
 
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
+libc_hidden_proto(__sigpause)
 int __sigpause (int sig_or_mask, int is_sig)
 {
   sigset_t set;
@@ -46,7 +48,6 @@ int __sigpause (int sig_or_mask, int is_sig)
 
   return sigsuspend (&set);
 }
-libc_hidden_proto(__sigpause)
 libc_hidden_def(__sigpause)
 
 #undef sigpause
@@ -54,9 +55,9 @@ libc_hidden_def(__sigpause)
 /* We have to provide a default version of this function since the
    standards demand it.  The version which is a bit more reasonable is
    the BSD version.  So make this the default.  */
+libc_hidden_proto(sigpause)
 int sigpause (int mask)
 {
   return __sigpause (mask, 0);
 }
-libc_hidden_proto(sigpause)
 libc_hidden_def(sigpause)

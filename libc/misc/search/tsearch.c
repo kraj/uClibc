@@ -32,6 +32,10 @@ Cambridge, MA 02139, USA.  */
 #include <search.h>
 #include <stdlib.h>
 
+libc_hidden_proto(tsearch)
+libc_hidden_proto(tfind)
+libc_hidden_proto(tdestroy)
+
 /* This routine is not very bad. It makes many assumptions about
  * the compiler. It assumpts that the first field in node must be
  * the "key" field, which points to the datum. It is a very trick
@@ -77,7 +81,6 @@ void *tsearch(__const void *key, void **vrootp, __compar_fn_t compar)
     }
     return (q);
 }
-libc_hidden_proto(tsearch)
 libc_hidden_def(tsearch)
 #endif
 
@@ -100,7 +103,6 @@ void *tfind(__const void *key, void * __const *vrootp, __compar_fn_t compar)
     }
     return NULL;
 }
-libc_hidden_proto(tfind)
 libc_hidden_def(tfind)
 #endif
 
@@ -215,7 +217,6 @@ void tdestroy (void *vroot, __free_fn_t freefct)
 	tdestroy_recurse (root, freefct);
     }
 }
-libc_hidden_proto(tdestroy)
 libc_hidden_def(tdestroy)
 #endif
 

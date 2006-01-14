@@ -2,12 +2,12 @@
 /*
  * fstat() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-/* need to hide the 64bit prototype or the weak_alias()
+/* need to hide the 64bit prototype or the strong_alias()
  * will fail when __NR_fstat64 doesnt exist */
 #define fstat64 __hidefstat64
 
@@ -18,8 +18,9 @@
 
 #undef fstat64
 
+libc_hidden_proto(fstat)
+
 #define __NR___syscall_fstat __NR_fstat
-#undef fstat
 static inline _syscall2(int, __syscall_fstat, int, fd, struct kernel_stat *, buf);
 
 int fstat(int fd, struct stat *buf)
@@ -33,7 +34,6 @@ int fstat(int fd, struct stat *buf)
 	}
 	return result;
 }
-libc_hidden_proto(fstat)
 libc_hidden_def(fstat)
 
 #if ! defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__

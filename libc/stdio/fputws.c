@@ -30,6 +30,7 @@ libc_hidden_def(fputws)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+libc_hidden_proto(fputws)
 int fputws(const wchar_t *__restrict ws, register FILE *__restrict stream)
 {
 	int retval;
@@ -43,7 +44,6 @@ int fputws(const wchar_t *__restrict ws, register FILE *__restrict stream)
 
 	return retval;
 }
-libc_hidden_proto(fputws)
 libc_hidden_def(fputws)
 
 #endif

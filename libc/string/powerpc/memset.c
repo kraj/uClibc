@@ -21,6 +21,8 @@
 
 #include <string.h>
 
+libc_hidden_proto(memset)
+
 static inline int expand_byte_word(int c){
 	/* this does: 
 	   c = c << 8 | c;
@@ -78,5 +80,4 @@ void *memset(void *to, int c, size_t n)
 		goto copy_chunks;
 	goto lessthan8;
 }
-libc_hidden_proto(memset)
 libc_hidden_def(memset)

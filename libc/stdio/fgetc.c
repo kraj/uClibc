@@ -13,6 +13,8 @@
 #undef getc
 #undef getc_unlocked
 
+libc_hidden_proto(__fgetc_unlocked)
+
 #ifdef __DO_UNLOCKED
 
 libc_hidden_proto(fflush_unlocked)
@@ -71,7 +73,6 @@ int __fgetc_unlocked(FILE *stream)
 
 	return EOF;
 }
-libc_hidden_proto(__fgetc_unlocked)
 libc_hidden_def(__fgetc_unlocked)
 
 strong_alias(__fgetc_unlocked,fgetc_unlocked)
@@ -94,8 +95,7 @@ strong_alias(__fgetc_unlocked,getc)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-libc_hidden_proto(__fgetc_unlocked)
-
+libc_hidden_proto(fgetc)
 int fgetc(register FILE *stream)
 {
 	if (stream->__user_locking != 0) {
@@ -108,7 +108,6 @@ int fgetc(register FILE *stream)
 		return retval;
 	}
 }
-libc_hidden_proto(fgetc)
 libc_hidden_def(fgetc)
 
 strong_alias(fgetc,getc)

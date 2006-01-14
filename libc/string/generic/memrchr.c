@@ -22,10 +22,12 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
 
+libc_hidden_proto(memrchr)
 libc_hidden_proto(abort)
 
 #include "memcopy.h"
@@ -172,5 +174,4 @@ void *memrchr (const void * s, int c_in, size_t n)
 
   return 0;
 }
-libc_hidden_proto(memrchr)
 libc_hidden_def(memrchr)

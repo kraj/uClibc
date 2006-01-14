@@ -36,6 +36,7 @@ libc_hidden_def(fputs)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+libc_hidden_proto(fputs)
 int fputs(const char * __restrict s, register FILE * __restrict stream)
 {
 	int retval;
@@ -49,7 +50,6 @@ int fputs(const char * __restrict s, register FILE * __restrict stream)
 
 	return retval;
 }
-libc_hidden_proto(fputs)
 libc_hidden_def(fputs)
 
 #endif

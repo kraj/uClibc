@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(memchr)
 void *memchr(const void *cs, int c, size_t count)
 {
     int d0;
@@ -47,5 +48,4 @@ void *memchr(const void *cs, int c, size_t count)
 	    :"=D" (__res), "=&c" (d0) : "a" (c),"0" (cs),"1" (count));
     return __res;
 }
-libc_hidden_proto(memchr)
 libc_hidden_def(memchr)

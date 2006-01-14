@@ -246,6 +246,7 @@ char * setstate (char *arg_state)
    rear pointers can't wrap on the same call by not testing the rear
    pointer if the front one has wrapped.  Returns a 31-bit random number.  */
 
+libc_hidden_proto(random)
 long int random (void)
 {
   int32_t retval;
@@ -255,5 +256,4 @@ long int random (void)
   __pthread_mutex_unlock(&lock);
   return retval;
 }
-libc_hidden_proto(random)
 libc_hidden_def(random)

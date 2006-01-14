@@ -2,13 +2,15 @@
 /*
  * setpgid() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
+
+libc_hidden_proto(setpgid)
 
 #define __NR___syscall_setpgid __NR_setpgid
 static inline _syscall2(int, __syscall_setpgid,
@@ -18,5 +20,4 @@ int setpgid(pid_t pid, pid_t pgid)
 {
 	return (__syscall_setpgid(pid, pgid));
 }
-libc_hidden_proto(setpgid)
 libc_hidden_def(setpgid)

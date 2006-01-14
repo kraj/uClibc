@@ -71,6 +71,7 @@ libc_hidden_proto(fputs)
  * size is the size of the referneced structure.
  * proc is the routine to handle the referenced structure.
  */
+libc_hidden_proto(xdr_reference)
 bool_t
 xdr_reference (XDR *xdrs, caddr_t *pp, u_int size, xdrproc_t proc)
 {
@@ -111,7 +112,6 @@ xdr_reference (XDR *xdrs, caddr_t *pp, u_int size, xdrproc_t proc)
     }
   return stat;
 }
-libc_hidden_proto(xdr_reference)
 libc_hidden_def(xdr_reference)
 
 /*

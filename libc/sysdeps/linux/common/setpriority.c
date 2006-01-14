@@ -2,13 +2,15 @@
 /*
  * setpriority() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <sys/resource.h>
-_syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio);
+
 libc_hidden_proto(setpriority)
+
+_syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio);
 libc_hidden_def(setpriority)

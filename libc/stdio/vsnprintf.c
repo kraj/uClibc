@@ -8,6 +8,8 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
+libc_hidden_proto(vsnprintf)
+
 libc_hidden_proto(vfprintf)
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -68,7 +70,6 @@ int vsnprintf(char *__restrict buf, size_t size,
 	}
 	return rv;
 }
-libc_hidden_proto(vsnprintf)
 libc_hidden_def(vsnprintf)
 
 #elif defined(__USE_OLD_VFPRINTF__)
@@ -126,7 +127,6 @@ int vsnprintf(char *__restrict buf, size_t size,
 	}
 	return rv;
 }
-libc_hidden_proto(vsnprintf)
 libc_hidden_def(vsnprintf)
 
 #elif defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
@@ -207,7 +207,6 @@ int vsnprintf(char *__restrict buf, size_t size,
 
 	return rv;
 }
-libc_hidden_proto(vsnprintf)
 libc_hidden_def(vsnprintf)
 
 #else

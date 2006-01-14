@@ -40,5 +40,3 @@ C_ENTRY (vfork):
 	rtsd	r15, 8			// error return
 	nop
 C_END(vfork)
-
-libc_hidden_def(vfork)

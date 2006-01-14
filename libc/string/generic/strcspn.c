@@ -18,6 +18,7 @@
 
 #include <string.h>
 
+libc_hidden_proto(strcspn)
 libc_hidden_proto(strchr)
 
 /* Return the length of the maximum initial segment of S
@@ -34,5 +35,4 @@ size_t strcspn (const char *s, const char *reject)
 
   return count;
 }
-libc_hidden_proto(strcspn)
 libc_hidden_def(strcspn)

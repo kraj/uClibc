@@ -100,6 +100,7 @@ static void __initbuf(void)
     }
 }
 
+libc_hidden_proto(setservent)
 void setservent(int f)
 {
     LOCK;
@@ -110,9 +111,9 @@ void setservent(int f)
     serv_stayopen |= f;
     UNLOCK;
 }
-libc_hidden_proto(setservent)
 libc_hidden_def(setservent)
 
+libc_hidden_proto(endservent)
 void endservent(void)
 {
     LOCK;
@@ -123,9 +124,9 @@ void endservent(void)
     serv_stayopen = 0;
     UNLOCK;
 }
-libc_hidden_proto(endservent)
 libc_hidden_def(endservent)
 
+libc_hidden_proto(getservent_r)
 int getservent_r(struct servent * result_buf,
 		 char * buf, size_t buflen,
 		 struct servent ** result)
@@ -205,7 +206,6 @@ again:
     UNLOCK;
     return 0;
 }
-libc_hidden_proto(getservent_r)
 libc_hidden_def(getservent_r)
 
 struct servent * getservent(void)
@@ -217,6 +217,7 @@ struct servent * getservent(void)
     return result;
 }
 
+libc_hidden_proto(getservbyname_r)
 int getservbyname_r(const char *name, const char *proto,
 	struct servent * result_buf, char * buf, size_t buflen,
 	struct servent ** result)
@@ -242,7 +243,6 @@ gotname:
     UNLOCK;
     return *result?0:ret;
 }
-libc_hidden_proto(getservbyname_r)
 libc_hidden_def(getservbyname_r)
 
 struct servent *getservbyname(const char *name, const char *proto)
@@ -255,6 +255,7 @@ struct servent *getservbyname(const char *name, const char *proto)
 }
 
 
+libc_hidden_proto(getservbyport_r)
 int getservbyport_r(int port, const char *proto,
 	struct servent * result_buf, char * buf,
 	size_t buflen, struct servent ** result)
@@ -274,9 +275,9 @@ int getservbyport_r(int port, const char *proto,
     UNLOCK;
     return *result?0:ret;
 }
-libc_hidden_proto(getservbyport_r)
 libc_hidden_def(getservbyport_r)
 
+libc_hidden_proto(getservbyport)
 struct servent * getservbyport(int port, const char *proto)
 {
     struct servent *result;
@@ -285,5 +286,4 @@ struct servent * getservbyport(int port, const char *proto)
     getservbyport_r(port, proto, &serv, servbuf, SBUFSIZE, &result);
     return result;
 }
-libc_hidden_proto(getservbyport)
 libc_hidden_def(getservbyport)

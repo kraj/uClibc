@@ -121,6 +121,7 @@ strong_alias(fgetwc_unlocked,getwc)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+libc_hidden_proto(fgetwc)
 wint_t fgetwc(register FILE *stream)
 {
 	wint_t retval;
@@ -134,7 +135,6 @@ wint_t fgetwc(register FILE *stream)
 
 	return retval;
 }
-libc_hidden_proto(fgetwc)
 libc_hidden_def(fgetwc)
 strong_alias(fgetwc,getwc)
 

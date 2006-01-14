@@ -1,15 +1,13 @@
 /*
- * truncate64 syscall.  Copes with 64 bit and 32 bit machines
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+/* truncate64 syscall.  Copes with 64 bit and 32 bit machines
  * and on 32 bit machines this sends things into the kernel as
  * two 32-bit arguments (high and low 32 bits of length) that 
  * are ordered based on endianess.  It turns out endian.h has
  * just the macro we need to order things, __LONG_LONG_PAIR.
- *
- *  Copyright (C) 2002  Erik Andersen <andersen@codepoet.org>
- *
- * This file is subject to the terms and conditions of the GNU
- * Lesser General Public License.  See the file COPYING.LIB in
- * the main directory of this archive for more details.
  */
 
 #include <features.h>

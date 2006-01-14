@@ -38,5 +38,3 @@ C_ENTRY (vfork):
 	st.w	r10, 0[r11]
 	jmp	[lp]			// error return
 C_END(vfork)
-
-libc_hidden_def(vfork)
