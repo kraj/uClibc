@@ -1,5 +1,5 @@
 /* Copyright (C) 2002, David McCullough <davidm@snapgear.com> */
-/* Copyright (C) 1997, 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1997,1998,2005,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -25,13 +25,15 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
-#ifndef	_ASM
-
 typedef struct
   {
-    unsigned long __dregs[6]; /* save d2 - d7 */
-    unsigned long __aregs[6]; /* save a2 - a7 */
-	unsigned long __pc;       /* the return address */
+    /* There are eight 4-byte data registers, but D0 is not saved.  */
+    long int __dregs[7];
+
+    /* There are six 4-byte address registers, plus the FP and SP.  */
+    int *__aregs[6];
+    int *__fp;
+    int *__sp;
 
 #if defined __HAVE_68881__ || defined __HAVE_FPU__
     /* There are eight floating point registers which
@@ -40,8 +42,6 @@ typedef struct
 #endif
 
   } __jmp_buf[1];
-
-#endif /* _ASM */
 
 #define JB_REGS   0
 #define JB_DREGS  0
