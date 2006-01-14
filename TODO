@@ -1,5 +1,12 @@
-TODO list for the uClibc 0.9.28 release:
+TODO list for the uClibc 0.9.29 release:
 -------------------------------------------------
+    *) cleanup fallout from hidden_proto() updates
+    *) misc stdio bugs:
+	http://bugs.uclibc.org/view.php?id=420
+	http://bugs.uclibc.org/view.php?id=539
+    *) bug in getopt handling:
+	http://bugs.uclibc.org/view.php?id=61
+	http://www.uclibc.org/lists/uclibc/2006-January/013851.html
     *) Audit header files.  Remove prototypes for all functions that
 	are not supported -- especially needed for the libm headers.
     *) Audit header files.  When options are disabled, also disable
@@ -14,6 +21,7 @@ TODO list for the uClibc 0.9.28 release:
 	output virtually useless due to the excess noise.
     *)  Change all references to the older "Library GPL" to the "Lesser GPL"
 	and update COPYING.LIB to LGPL version 2.1.
+    *)  vapier todo: finish new linuxthreads import
 
 
 
@@ -92,17 +100,23 @@ Arch specific TODO:
     _init/_fini hangs signal-ed (assert test)
     output from cloned children seems funky (unistd/clone test)
     ldso is not implemented
+  arm:
+    update crt1 code again for nommu (http://bugs.uclibc.org/view.php?id=538)
+    recruit jbowler and integrate thumb support
   m68k:
     need to verify libc again
     ldso needs to be updated since it's totally broken atm
+    add syscall() http://bugs.uclibc.org/view.php?id=164
+  mips:
+    brk/pipe fixes: http://www.uclibc.org/lists/uclibc/2006-January/013824.html
+                    http://bugs.uclibc.org/view.php?id=469
   sparc:
     need a sigaction.c since common one doesnt work (signal tests)
     ldso needs to be updated since it's totally broken atm
   x86_64:
-    ldso needs to have lazy bindings checked
     pthread isn't working really at all (pthreads tests)
 
-  cris rfv nios nios2 sh64:
+  bfin cris rfv sh64:
     need to be updated to new ldso changes and unification of the 
      two uClibc_main funcs (__uClibc_start_main doesnt exist anymore)
 
