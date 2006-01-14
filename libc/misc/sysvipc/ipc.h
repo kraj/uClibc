@@ -1,8 +1,13 @@
 #ifndef IPC_H
 #define IPC_H
 #include <syscall.h>
+#include <bits/wordsize.h>
 
-#define __IPC_64	0x100
+#if __WORDSIZE == 32
+# define __IPC_64	0x100
+#else
+# define __IPC_64	0x0
+#endif
 
 #ifdef __NR_ipc
 
