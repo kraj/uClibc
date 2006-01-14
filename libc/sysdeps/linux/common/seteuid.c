@@ -36,3 +36,4 @@ int seteuid(uid_t uid)
     return result;
 }
 libc_hidden_proto(seteuid)
+libc_hidden_def(seteuid)
