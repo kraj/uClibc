@@ -25,6 +25,8 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
+#ifndef _ASM
+
 typedef struct
   {
     /* There are eight 4-byte data registers, but D0 is not saved.  */
@@ -42,6 +44,8 @@ typedef struct
 #endif
 
   } __jmp_buf[1];
+
+#endif
 
 #define JB_REGS   0
 #define JB_DREGS  0
