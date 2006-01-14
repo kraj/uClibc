@@ -110,9 +110,19 @@ _start:
 	mov fp, #0
 	mov lr, #0
 
+#ifdef __ARCH_HAS_MMU__
 	/* Pop argc off the stack and save a pointer to argv */
 	ldr a2, [sp], #4
 	mov a3, sp
+#else
+	/*
+	 * uClinux/arm stacks look a little different from normal
+	 * MMU-full Linux/arm stacks (for no good reason)
+	 */
+	/* pull argc and argv off the stack */
+	ldr a2, [sp, #0]
+	ldr a3, [sp, #4]
+#endif
 
 	/* Push stack limit */
 	str a3, [sp, #-4]!
