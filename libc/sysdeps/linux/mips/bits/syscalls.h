@@ -22,6 +22,9 @@
 
 #ifndef __ASSEMBLER__
 
+#define __SYSCALL_CLOBBERS "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13", \
+	"$14", "$15", "$24", "$25", "memory"
+
 #define _syscall0(type,name) \
 type name(void) \
 { 									\
@@ -37,8 +40,7 @@ type name(void) \
 	".set reorder" 							\
 	: "=r" (__v0), "=r" (__a3) 					\
 	: "i" (SYS_ify(name))						\
-	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
-		"$14", "$15", "$24", "$25", "memory");			\
+	: __SYSCALL_CLOBBERS); \
 	err = __a3;							\
 	sys_result = __v0;						\
 	}								\
@@ -64,8 +66,7 @@ type name(atype a) \
 	".set reorder" 							\
 	: "=r" (__v0), "=r" (__a3) 					\
 	: "r" (__a0), "i" (SYS_ify(name)) 				\
-	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
-		"$14", "$15", "$24", "$25", "memory");			\
+	: __SYSCALL_CLOBBERS); \
 	err = __a3;							\
 	sys_result = __v0;						\
 	}								\
@@ -92,8 +93,7 @@ type name(atype a,btype b) \
 	".set	reorder" 						\
 	: "=r" (__v0), "=r" (__a3) 					\
 	: "r" (__a0), "r" (__a1), "i" (SYS_ify(name))			\
-	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
-		"$14", "$15", "$24", "$25", "memory");			\
+	: __SYSCALL_CLOBBERS); \
 	err = __a3;							\
 	sys_result = __v0;						\
 	}								\
@@ -121,8 +121,7 @@ type name (atype a, btype b, ctype c) \
 	".set	reorder" 						\
 	: "=r" (__v0), "=r" (__a3) 					\
 	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (SYS_ify(name)) 	\
-	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
-		"$14", "$15", "$24", "$25", "memory");			\
+	: __SYSCALL_CLOBBERS); \
 	err = __a3;							\
 	sys_result = __v0;						\
 	}								\
@@ -150,8 +149,7 @@ type name (atype a, btype b, ctype c, dtype d) \
 	".set	reorder" 						\
 	: "=r" (__v0), "+r" (__a3) 					\
 	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (SYS_ify(name)) 	\
-	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
-		"$14", "$15", "$24", "$25", "memory");			\
+	: __SYSCALL_CLOBBERS); \
 	err = __a3;							\
 	sys_result = __v0;						\
 	}								\
@@ -185,8 +183,7 @@ type name (atype a,btype b,ctype c,dtype d,etype e) \
 	: "=r" (__v0), "+r" (__a3) 					\
 	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (SYS_ify(name)), 	\
 	  "m" (constE)							\
-	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
-		"$14", "$15", "$24", "$25", "memory");			\
+	: __SYSCALL_CLOBBERS); \
 	err = __a3;							\
 	sys_result = __v0;						\
 	}								\
@@ -223,8 +220,7 @@ type name (atype a,btype b,ctype c,dtype d,etype e,ftype f) \
 	: "=r" (__v0), "+r" (__a3) 					\
 	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (SYS_ify(name)), 	\
 	  "m" (constE), "m" (constF)					\
-	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
-		"$14", "$15", "$24", "$25", "memory");			\
+	: __SYSCALL_CLOBBERS); \
 	err = __a3;							\
 	sys_result = __v0;						\
 	}								\
@@ -264,8 +260,7 @@ type name (atype a,btype b,ctype c,dtype d,etype e,ftype f,gtype g) \
 	: "=r" (__v0), "+r" (__a3) 					\
 	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (SYS_ify(name)), 	\
 	  "m" (constE), "m" (constF), "m" (constG)			\
-	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
-		"$14", "$15", "$24", "$25", "memory");			\
+	: __SYSCALL_CLOBBERS); \
 	err = __a3;							\
 	sys_result = __v0;						\
 	}								\

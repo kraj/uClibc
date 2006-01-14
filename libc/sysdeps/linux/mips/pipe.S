@@ -8,7 +8,6 @@
 #include <asm/regdef.h>
 
 	.globl	pipe
-	.set	pipe,__pipe
         .globl  __pipe
 	.hidden	__pipe
         .ent    __pipe, 0
@@ -32,3 +31,4 @@ __pipe:
         j       ra
         .end    __pipe
         .size   __pipe,.-__pipe
+	.weak	pipe; pipe = __pipe

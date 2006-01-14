@@ -37,7 +37,7 @@
 struct stat
   {
 	__dev_t st_dev;
-    long int st_pad1[3];
+    long int st_pad1[2];
 #ifndef __USE_FILE_OFFSET64
     __ino_t st_ino;		/* File serial number.		*/
 #else
@@ -49,12 +49,12 @@ struct stat
     __gid_t st_gid;		/* Group ID of the file's group.*/
     __dev_t st_rdev;	/* Device number, if device.  */
 #ifndef __USE_FILE_OFFSET64
-    long int st_pad2[2];
+    long int st_pad2[1];
     __off_t st_size;		/* Size of file, in bytes.  */
     /* SVR4 added this extra long to allow for expansion of off_t.  */
     long int st_pad3;
 #else
-    long int st_pad2[3];
+    long int st_pad2[2];
     __off64_t st_size;		/* Size of file, in bytes.  */
 #endif
     /*
@@ -81,14 +81,14 @@ struct stat
 struct stat64
   {
     __dev_t st_dev;
-    long int st_pad1[3];
+    long int st_pad1[2];
     __ino64_t st_ino;		/* File serial number.		*/
     __mode_t st_mode;		/* File mode.  */
     __nlink_t st_nlink;		/* Link count.  */
     __uid_t st_uid;		/* User ID of the file's owner.	*/
     __gid_t st_gid;		/* Group ID of the file's group.*/
     __dev_t st_rdev;	/* Device number, if device.  */
-    long int st_pad2[3];
+    long int st_pad2[2];
     __off64_t st_size;		/* Size of file, in bytes.  */
     /*
      * Actually this should be timestruc_t st_atime, st_mtime and

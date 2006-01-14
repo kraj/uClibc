@@ -39,7 +39,11 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
+#ifdef IS_IN_libc
 	__memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
+#else
+	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
+#endif
 	kact.sa_flags = act->sa_flags;
 # ifdef HAVE_SA_RESTORER
 #  if _MIPS_SIM == _ABIO32
@@ -57,7 +61,11 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (oact && result >= 0) {
 	oact->sa_handler = koact.k_sa_handler;
+#ifdef IS_IN_libc
 	__memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
+#else
+	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
+#endif
 	oact->sa_flags = koact.sa_flags;
 # ifdef HAVE_SA_RESTORER
 	oact->sa_restorer = koact.sa_restorer;
