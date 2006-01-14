@@ -33,7 +33,7 @@ libc_hidden_proto(memcpy)
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int attribute_hidden
+int
 __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	int result;
@@ -70,7 +70,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int attribute_hidden
+int
 __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	int result;
