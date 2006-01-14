@@ -29,3 +29,5 @@ pipe:
         j       ra
         .end    pipe
         .size   pipe,.-pipe
+
+libc_hidden_def(pipe)

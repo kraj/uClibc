@@ -27,3 +27,5 @@ int pipe(int *fd)
 	fd[1] = __res2;
 	return(0);
 }
+libc_hidden_proto(pipe)
+libc_hidden_def(pipe)
