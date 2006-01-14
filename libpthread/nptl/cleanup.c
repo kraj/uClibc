@@ -35,7 +35,6 @@ __pthread_register_cancel (__pthread_unwind_buf_t *buf)
   /* Store the new cleanup handler info.  */
   THREAD_SETMEM (self, cleanup_jmp_buf, (struct pthread_unwind_buf *) buf);
 }
-hidden_def (__pthread_register_cancel)
 
 
 void
@@ -46,4 +45,3 @@ __pthread_unregister_cancel (__pthread_unwind_buf_t *buf)
 
   THREAD_SETMEM (THREAD_SELF, cleanup_jmp_buf, ibuf->priv.data.prev);
 }
-hidden_def (__pthread_unregister_cancel)

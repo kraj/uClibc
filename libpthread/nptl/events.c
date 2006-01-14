@@ -25,10 +25,8 @@ void
 __nptl_create_event (void)
 {
 }
-hidden_def (__nptl_create_event)
 
 void
 __nptl_death_event (void)
 {
 }
-hidden_def (__nptl_death_event)

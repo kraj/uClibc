@@ -1,14 +1,6 @@
 #ifndef _LIBC_SYMBOLS_H
 #define _LIBC_SYMBOLS_H 1
 
-#ifndef __SYMBOL_PREFIX
-# ifndef C_SYMBOL_PREFIX
-#  define __SYMBOL_PREFIX
-# else
-#  define __SYMBOL_PREFIX	C_SYMBOL_PREFIX
-# endif
-#endif
-
 /* Handling on non-exported internal names.  We have to do this only
    for shared code.  */
 #ifdef SHARED
@@ -61,24 +53,6 @@
 # define hidden_data_weak(name)
 # define hidden_data_def(name)
 # define hidden_data_ver(local, name)
-
-#if defined NOT_IN_libc && defined IS_IN_rtld
-# define rtld_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
-# define rtld_hidden_def(name)
-# define rtld_hidden_weak(name) hidden_weak (name)
-# define rtld_hidden_ver(local, name) hidden_ver (local, name)
-# define rtld_hidden_data_def(name) hidden_data_def (name)
-# define rtld_hidden_data_weak(name) hidden_data_weak (name)
-# define rtld_hidden_data_ver(local, name) hidden_data_ver (local, name)
-#else
-# define rtld_hidden_proto(name, attrs...)
-# define rtld_hidden_def(name)
-# define rtld_hidden_weak(name)
-# define rtld_hidden_ver(local, name)
-# define rtld_hidden_data_def(name)
-# define rtld_hidden_data_weak(name)
-# define rtld_hidden_data_ver(local, name)
-#endif
 
 #if !defined NOT_IN_libc
 # define libc_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)

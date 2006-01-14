@@ -30,7 +30,11 @@ __sigfillset_internal (sigset_t *set)
       return -1;
     }
 
+#ifdef IS_IN_libc
   __memset (set, 0xff, sizeof (sigset_t));
+#else
+  memset (set, 0xff, sizeof (sigset_t));
+#endif
 
   /* If the implementation uses a cancellation signal don't set the bit.  */
 #ifdef SIGCANCEL

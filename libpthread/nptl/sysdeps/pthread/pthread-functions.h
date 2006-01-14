@@ -72,8 +72,12 @@ struct pthread_functions
   int (*ptr_pthread_mutex_destroy) (pthread_mutex_t *);
   int (*ptr_pthread_mutex_init) (pthread_mutex_t *,
 				 const pthread_mutexattr_t *);
+  int (*ptr_pthread_mutex_trylock) (pthread_mutex_t *);
   int (*ptr_pthread_mutex_lock) (pthread_mutex_t *);
   int (*ptr_pthread_mutex_unlock) (pthread_mutex_t *);
+  int (*ptr_pthread_mutexattr_init) (pthread_mutexattr_t *attr);
+  int (*ptr_pthread_mutexattr_destroy) (pthread_mutexattr_t *attr);
+  int (*ptr_pthread_mutexattr_settype) (pthread_mutexattr_t *attr, int kind);
   pthread_t (*ptr_pthread_self) (void);
   int (*ptr_pthread_setcancelstate) (int, int *);
   int (*ptr_pthread_setcanceltype) (int, int *);

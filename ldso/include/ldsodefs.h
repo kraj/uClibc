@@ -30,7 +30,6 @@
    platforms.  But this does not matter, ld.so can always use the local
    copy.  */
 extern void *__libc_stack_end;
-rtld_hidden_proto (__libc_stack_end)
 
 /* Determine next available module ID.  */
 extern size_t _dl_next_tls_modid (void) internal_function attribute_hidden;
@@ -42,11 +41,9 @@ extern void _dl_determine_tlsoffset (void) internal_function attribute_hidden;
    Returns nonzero on malloc failure.
    This is called from _dl_map_object_from_fd or by libpthread.  */
 extern int _dl_tls_setup (void) internal_function;
-rtld_hidden_proto (_dl_tls_setup)
 
 /* Allocate memory for static TLS block (unless MEM is nonzero) and dtv.  */
 extern void *_dl_allocate_tls (void *mem) internal_function;
-rtld_hidden_proto (_dl_allocate_tls)
 
 /* Get size and alignment requirements of the static TLS block.  */
 extern void _dl_get_tls_static_info (size_t *sizep, size_t *alignp)
@@ -60,11 +57,9 @@ extern void _dl_allocate_static_tls (struct link_map *map)
 extern void *_dl_allocate_tls_storage (void)
      internal_function attribute_hidden;
 extern void *_dl_allocate_tls_init (void *) internal_function;
-rtld_hidden_proto (_dl_allocate_tls_init)
 
 /* Deallocate memory allocated with _dl_allocate_tls.  */
 extern void _dl_deallocate_tls (void *tcb, bool dealloc_tcb) internal_function;
-rtld_hidden_proto (_dl_deallocate_tls)
 
 extern void _dl_nothread_init_static_tls (struct link_map *) attribute_hidden;
 

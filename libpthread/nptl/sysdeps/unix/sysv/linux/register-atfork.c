@@ -106,7 +106,7 @@ __register_atfork (prepare, parent, child, dso_handle)
 
   return newp == NULL ? ENOMEM : 0;
 }
-libc_hidden_def (__register_atfork)
+hidden_def (__register_atfork)
 
 
 #ifndef __UCLIBC__

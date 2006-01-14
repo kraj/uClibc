@@ -19,9 +19,10 @@
 
 #include <unistd.h>
 
+
 pid_t
 __fork (void)
 {
-  return __libc_fork_nptl ();
+  return __libc_fork ();
 }
 strong_alias (__fork, fork)

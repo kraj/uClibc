@@ -302,7 +302,6 @@ _dl_tls_setup (void)
 
   return 0;
 }
-rtld_hidden_def (_dl_tls_setup)
 # endif
 
 static void *
@@ -473,7 +472,6 @@ _dl_allocate_tls_init (void *result)
 
   return result;
 }
-rtld_hidden_def (_dl_allocate_tls_init)
 
 void *
 internal_function
@@ -483,7 +481,6 @@ _dl_allocate_tls (void *mem)
 				? _dl_allocate_tls_storage ()
 				: allocate_dtv (mem));
 }
-rtld_hidden_def (_dl_allocate_tls)
 
 
 void
@@ -518,7 +515,6 @@ _dl_deallocate_tls (void *tcb, bool dealloc_tcb)
       free (tcb);
     }
 }
-rtld_hidden_def (_dl_deallocate_tls)
 
 
 # ifdef SHARED

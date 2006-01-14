@@ -8,10 +8,10 @@
 libpthread_SSRC = pt-vfork.S #clone.S
 libpthread_CSRC = pthread_once.c
 
-libc_a_CSRC = fork-nptl.c
+libc_a_CSRC = fork.c
 
 ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
-CFLAGS-fork-nptl.c = -D__USE_STDIO_FUTEXES__
+CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
 endif
 CFLAGS-pthread_once.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 

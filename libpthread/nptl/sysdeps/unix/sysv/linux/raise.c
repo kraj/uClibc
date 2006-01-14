@@ -71,5 +71,5 @@ raise (sig)
   return INLINE_SYSCALL (tkill, 2, selftid, sig);
 #endif
 }
-libc_hidden_def (raise)
+hidden_def (raise)
 weak_alias (raise, gsignal)

@@ -463,7 +463,7 @@ _dl_tls_setup (void)
 
   return 0;
 }
-rtld_hidden_def (_dl_tls_setup)
+hidden_def (_dl_tls_setup)
 
 static void *
 internal_function
@@ -631,7 +631,6 @@ _dl_allocate_tls_init (void *result)
 
   return result;
 }
-rtld_hidden_def (_dl_allocate_tls_init)
 
 void *
 internal_function
@@ -641,7 +640,6 @@ _dl_allocate_tls (void *mem)
 				? _dl_allocate_tls_storage ()
 				: allocate_dtv (mem));
 }
-rtld_hidden_def (_dl_allocate_tls)
 
 void
 internal_function
@@ -673,7 +671,6 @@ _dl_deallocate_tls (void *tcb, bool dealloc_tcb)
       _dl_free (tcb);
     }
 }
-rtld_hidden_def (_dl_deallocate_tls)
 
 static void *
 allocate_and_init (struct link_map *map)
@@ -1039,4 +1036,4 @@ init_tls (void)
 
 	return tcbp;
 }
-rtld_hidden_def (init_tls)
+hidden_def (init_tls)
