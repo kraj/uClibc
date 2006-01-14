@@ -29,6 +29,8 @@
 #undef __OPTIMIZE__
 #include <libintl.h>
 
+libc_hidden_proto(strcmp)
+
 /**********************************************************************/
 #ifdef L___uClibc_dgettext
 
@@ -60,7 +62,7 @@ char *__uClibc_textdomain(const char *domainname)
 {
 	static const char default_str[] = "messages";
 
-	if (domainname && *domainname && __strcmp(domainname, default_str)) {
+	if (domainname && *domainname && strcmp(domainname, default_str)) {
 		__set_errno(EINVAL);
 		return NULL;
 	}
@@ -82,7 +84,7 @@ char *__uClibc_bindtextdomain(const char *domainname, const char *dirname)
 #if 1
 			&& ((dirname[0] != '/') || dirname[1])
 #else
-			&& __strcmp(dirname, dir)
+			&& strcmp(dirname, dir)
 #endif
 			)
 		) {
