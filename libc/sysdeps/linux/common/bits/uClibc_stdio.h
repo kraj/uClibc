@@ -397,8 +397,8 @@ struct __STDIO_FILE_STRUCT {
  **********************************************************************/
 #if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 
-extern void _stdio_init(void);
-extern void _stdio_term(void);
+extern void _stdio_init(void) attribute_hidden;
+extern void _stdio_term(void) attribute_hidden;
 
 #ifdef __STDIO_HAS_OPENLIST
 
@@ -440,7 +440,7 @@ extern void __stdio_init_mutex(pthread_mutex_t *m) attribute_hidden;
 extern int __fgetc_unlocked(FILE *__stream);
 extern int __fputc_unlocked(int __c, FILE *__stream);
 
-/* First define the default definitions.  They overriden below as necessary. */
+/* First define the default definitions.  They will be overwritten below as necessary. */
 #define __FGETC_UNLOCKED(__stream)		(__fgetc_unlocked)((__stream))
 #define __FGETC(__stream)				(fgetc)((__stream))
 #define __GETC_UNLOCKED_MACRO(__stream)	(__fgetc_unlocked)((__stream))

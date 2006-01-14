@@ -39,7 +39,7 @@
 #include <signal.h>
 #include <sys/syslog.h>
 
-static __always_inline void block_signals(void)
+static void block_signals(void)
 {
 	struct sigaction sa;
 	sigset_t mask;
@@ -57,7 +57,7 @@ static __always_inline void block_signals(void)
 	sigaction(SSP_SIGTYPE, &sa, NULL);
 }
 
-static __always_inline void ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3)
+static void ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3)
 {
 	__write(fd, msg1, __strlen(msg1));
 	__write(fd, msg2, __strlen(msg2));
@@ -68,52 +68,50 @@ static __always_inline void ssp_write(int fd, const char *msg1, const char *msg2
 	closelog();
 }
 
-static __always_inline attribute_noreturn void terminate(void)
+static attribute_noreturn void terminate(void)
 {
 	(void) kill(__getpid(), SSP_SIGTYPE);
-	_exit(127);
+	_exit_internal(127);
 }
 
 void attribute_noreturn __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));
 void attribute_noreturn __stack_smash_handler(char func[], int damaged)
 {
-	extern char *__progname;
 	static const char message[] = ": stack smashing attack in function ";
 
 	block_signals();
 
-	ssp_write(STDERR_FILENO, __progname, message, func);
+	ssp_write(STDERR_FILENO, __uclibc_progname, message, func);
 
 	/* The loop is added only to keep gcc happy. */
 	while(1)
 		terminate();
 }
 
-void attribute_noreturn __stack_chk_fail(void)
+void attribute_noreturn attribute_hidden __stack_chk_fail_internal(void)
 {
-	extern char *__progname;
 	static const char msg1[] = "stack smashing detected: ";
 	static const char msg3[] = " terminated";
 
 	block_signals();
 
-	ssp_write(STDERR_FILENO, msg1, __progname, msg3);
+	ssp_write(STDERR_FILENO, msg1, __uclibc_progname, msg3);
 
 	/* The loop is added only to keep gcc happy. */
 	while(1)
 		terminate();
 }
+strong_alias(__stack_chk_fail_internal,__stack_chk_fail)
 
 #if 0
 void attribute_noreturn __chk_fail(void)
 {
-	extern char *__progname;
 	static const char msg1[] = "buffer overflow detected: ";
 	static const char msg3[] = " terminated";
 
 	block_signals();
 
-	ssp_write(STDERR_FILENO, msg1, __progname, msg3);
+	ssp_write(STDERR_FILENO, msg1, __uclibc_progname, msg3);
 
 	/* The loop is added only to keep gcc happy. */
 	while(1)

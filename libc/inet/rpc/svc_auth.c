@@ -118,7 +118,7 @@ _authenticate_internal (register struct svc_req *rqst, struct rpc_msg *msg)
 strong_alias(_authenticate_internal,_authenticate)
 
 static enum auth_stat
-_svcauth_null (struct svc_req *rqst, struct rpc_msg *msg)
+_svcauth_null (struct svc_req *rqst attribute_unused, struct rpc_msg *msg attribute_unused)
 {
   return AUTH_OK;
 }

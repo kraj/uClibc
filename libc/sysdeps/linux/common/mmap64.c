@@ -55,13 +55,12 @@
 
 __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t offset)
 {
-    if (offset != (off_t) offset || (offset + len) != (off_t) (offset + len))
-    {
-	__set_errno (EINVAL);
-	return MAP_FAILED;
-    }
+	if (offset != (off_t) offset || (offset + len) != (off_t) (offset + len)) {
+		__set_errno (EINVAL);
+		return MAP_FAILED;
+	}
 
-    return mmap (addr, len, prot, flags, fd, (off_t) offset);
+	return mmap (addr, len, prot, flags, fd, (off_t) offset);
 }
 
 #else
@@ -77,11 +76,11 @@ static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
 
 __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t offset)
 {
-    if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1)) {
-	__set_errno (EINVAL);
-	return MAP_FAILED;
-    }
-    return(__syscall_mmap2(addr, len, prot, flags, fd, (off_t) (offset >> MMAP2_PAGE_SHIFT)));
+	if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1)) {
+		__set_errno (EINVAL);
+		return MAP_FAILED;
+	}
+	return(__syscall_mmap2(addr, len, prot, flags, fd, (off_t) (offset >> MMAP2_PAGE_SHIFT)));
 }
 
 #endif

@@ -65,21 +65,20 @@
 #define __LC_ALL			6
 
 /**********************************************************************/
-/* #if defined(_LIBC) && !defined(__LOCALE_C_ONLY) */
 #ifndef __LOCALE_C_ONLY
 
-#ifdef _LIBC
+#if defined _LIBC /* && (defined IS_IN_libc || defined NOT_IN_libc) */
 #include <stddef.h>
 #include <stdint.h>
 #include <bits/uClibc_touplow.h>
-#endif
 
-#if defined(_LIBC) && !defined(__UCLIBC_GEN_LOCALE)
+#ifndef __UCLIBC_GEN_LOCALE
 #include <bits/uClibc_locale_data.h>
 #endif
+#endif
 
-extern void _locale_set(const unsigned char *p);
-extern void _locale_init(void);
+/* extern void _locale_set(const unsigned char *p); */
+/* extern void _locale_init(void); */
 
 enum {
 	__ctype_encoding_7_bit,		/* C/POSIX */
@@ -101,7 +100,7 @@ enum {
   * In particular, C/POSIX locale is '#' + "\x80\x01"}*LC_ALL + nul.
   */
 
-#if defined(_LIBC) && !defined(__UCLIBC_GEN_LOCALE)
+#if defined _LIBC && !defined __UCLIBC_GEN_LOCALE /* && (defined IS_IN_libc || defined NOT_IN_libc) */
 typedef struct {
 	uint16_t num_weights;
 	uint16_t num_starters;
@@ -319,14 +318,15 @@ typedef struct __uclibc_locale_struct {
 
 extern __uclibc_locale_t __global_locale_data;
 extern struct __uclibc_locale_struct * __global_locale;
-#endif
+#endif /* _LIBC */
 
 typedef struct __uclibc_locale_struct *__locale_t;
 
-#ifdef _LIBC
+/* if we need to leave only _LIBC, then attribute_hidden is not usable */
+#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
 							  const char *__restrict src,
-							  __locale_t loc );
+							  __locale_t loc ) attribute_hidden;
 #endif
 
 #ifdef L_setlocale
@@ -368,7 +368,7 @@ extern __locale_t __curlocale_set(__locale_t newloc);
 #define __LOCALE_ARG      , locale_arg
 #define __LOCALE_PTR      locale_arg
 
-#else  /* defined(__UCLIBC_HAS_XLOCALE__) && defined(__STDLIB_DO_XLOCALE) */
+#else  /* defined(__UCLIBC_HAS_XLOCALE__) && defined(__UCLIBC_DO_XLOCALE) */
 
 #define __XL(N) N
 #define __XL_NPP(N) N
@@ -377,10 +377,10 @@ extern __locale_t __curlocale_set(__locale_t newloc);
 #define __LOCALE_ARG
 #define __LOCALE_PTR      __UCLIBC_CURLOCALE
 
-#endif /* defined(__UCLIBC_HAS_XLOCALE__) && defined(__STDLIB_DO_XLOCALE) */
+#endif /* defined(__UCLIBC_HAS_XLOCALE__) && defined(__UCLIBC_DO_XLOCALE) */
 /**********************************************************************/
 
-#endif /* defined(_LIBC) && !defined(__LOCALE_C_ONLY) */
+#endif /* !defined(__LOCALE_C_ONLY) */
 /**********************************************************************/
 
 #endif /* _UCLIBC_LOCALE_H */

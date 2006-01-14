@@ -10,7 +10,9 @@
 #define sysconf __sysconf
 
 #include "syscalls.h"
+#include <stdlib.h>
 #include <unistd.h>
+#include <grp.h>
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
@@ -18,21 +20,30 @@
 static inline _syscall2(int, __syscall_getgroups,
 		int, size, __kernel_gid_t *, list);
 
-int attribute_hidden __getgroups(int n, gid_t * groups)
+int attribute_hidden __getgroups(int size, gid_t groups[])
 {
-	if (unlikely(n < 0)) {
+	if (unlikely(size < 0)) {
+ret_error:
 		__set_errno(EINVAL);
 		return -1;
 	} else {
 		int i, ngids;
-		__kernel_gid_t kernel_groups[n = MIN(n, sysconf(_SC_NGROUPS_MAX))];
+		__kernel_gid_t *kernel_groups;
 
-		ngids = __syscall_getgroups(n, kernel_groups);
-		if (n != 0 && ngids > 0) {
+		size = MIN(size, sysconf(_SC_NGROUPS_MAX));
+		kernel_groups = (__kernel_gid_t *)malloc(sizeof(*kernel_groups) * size);
+		if (size && kernel_groups == NULL)
+			goto ret_error;
+
+		ngids = __syscall_getgroups(size, kernel_groups);
+		if (size != 0 && ngids > 0) {
 			for (i = 0; i < ngids; i++) {
 				groups[i] = kernel_groups[i];
 			}
 		}
+
+		if (kernel_groups)
+			free(kernel_groups);
 		return ngids;
 	}
 }

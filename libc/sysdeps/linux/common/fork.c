@@ -12,8 +12,9 @@
 
 #ifdef __ARCH_HAS_MMU__
 #ifdef __NR_fork
-#define __NR___libc_fork __NR_fork
-_syscall0(pid_t, __libc_fork);
-weak_alias(__libc_fork, fork);
+#define __NR___fork __NR_fork
+attribute_hidden _syscall0(pid_t, __fork);
+strong_alias(__fork,fork)
+weak_alias(__fork,__libc_fork)
 #endif
 #endif

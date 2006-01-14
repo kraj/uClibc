@@ -55,6 +55,7 @@
 #define poll __poll
 #define accept __accept
 #define listen __listen
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -263,7 +264,7 @@ makefd_xprt (int fd, u_int sendsize, u_int recvsize)
 }
 
 static bool_t
-rendezvous_request (SVCXPRT *xprt, struct rpc_msg *errmsg)
+rendezvous_request (SVCXPRT *xprt, struct rpc_msg *errmsg attribute_unused)
 {
   int sock;
   struct unix_rendezvous *r;
@@ -292,7 +293,7 @@ again:
 }
 
 static enum xprt_stat
-rendezvous_stat (SVCXPRT *xprt)
+rendezvous_stat (SVCXPRT *xprt attribute_unused)
 {
   return XPRT_IDLE;
 }

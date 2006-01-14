@@ -53,6 +53,7 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #define sendto __sendto
 #define recvmsg __recvmsg
 #define poll __poll
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -79,6 +80,11 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #endif
 
 extern u_long _create_xid (void) attribute_hidden;
+
+#undef get_rpc_createerr
+extern struct rpc_createerr *__rpc_thread_createerr_internal (void)
+     __attribute__ ((__const__)) attribute_hidden;
+#define get_rpc_createerr() (*__rpc_thread_createerr_internal ())
 
 /*
  * UDP bases client side rpc operations

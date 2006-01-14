@@ -7,6 +7,7 @@
 #ifdef __UCLIBC_HAS_THREADS__
 
 #include <bits/libc-tsd.h>
+#include <bits/libc-lock.h>
 
 /* Variable used in non-threaded applications or for the first thread.  */
 static struct rpc_thread_variables __libc_tsd_RPC_VARS_mem;
@@ -39,25 +40,6 @@ __rpc_thread_destroy (void)
 		free (tvp);
 	}
 }
-
-
-/* XXX: maybe turn this into a normal __pthread_once() via pthreads/weaks.c ? */
-extern int weak_function __pthread_once (pthread_once_t *__once_control,
-			   void (*__init_routine) (void));
-
-# define __libc_once_define(CLASS, NAME) \
-  CLASS pthread_once_t NAME = PTHREAD_ONCE_INIT
-
-/* Call handler iff the first call.  */
-#define __libc_once(ONCE_CONTROL, INIT_FUNCTION) \
-  do {									      \
-    if (__pthread_once != NULL)						      \
-      __pthread_once (&(ONCE_CONTROL), (INIT_FUNCTION));		      \
-    else if ((ONCE_CONTROL) == PTHREAD_ONCE_INIT) {			      \
-      INIT_FUNCTION ();							      \
-      (ONCE_CONTROL) = !PTHREAD_ONCE_INIT;				      \
-    }									      \
-  } while (0)
 
 /*
  * Initialize RPC multi-threaded operation
@@ -116,8 +98,8 @@ __rpc_thread_svc_fdset_internal (void)
 }
 strong_alias(__rpc_thread_svc_fdset_internal,__rpc_thread_svc_fdset)
 
-struct rpc_createerr *
-__rpc_thread_createerr (void)
+struct rpc_createerr attribute_hidden *
+__rpc_thread_createerr_internal (void)
 {
 	struct rpc_thread_variables *tvp;
 
@@ -126,6 +108,8 @@ __rpc_thread_createerr (void)
 		return &rpc_createerr;
 	return &tvp->rpc_createerr_s;
 }
+#undef __rpc_thread_createerr
+strong_alias(__rpc_thread_createerr_internal,__rpc_thread_createerr)
 
 struct pollfd attribute_hidden **
 __rpc_thread_svc_pollfd_internal (void)
@@ -164,11 +148,13 @@ fd_set attribute_hidden * __rpc_thread_svc_fdset_internal (void)
 }
 strong_alias(__rpc_thread_svc_fdset_internal,__rpc_thread_svc_fdset)
 
-struct rpc_createerr * __rpc_thread_createerr (void)
+struct rpc_createerr attribute_hidden * __rpc_thread_createerr_internal (void)
 {
     extern struct rpc_createerr rpc_createerr;
     return &(rpc_createerr);
 }
+#undef __rpc_thread_createerr
+strong_alias(__rpc_thread_createerr_internal,__rpc_thread_createerr)
 
 struct pollfd attribute_hidden ** __rpc_thread_svc_pollfd_internal (void)
 {

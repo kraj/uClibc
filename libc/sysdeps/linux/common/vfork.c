@@ -2,7 +2,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-pid_t vfork(void)
+extern __pid_t __fork (void) __THROW attribute_hidden;
+
+pid_t attribute_hidden __vfork(void)
 {
-    return fork();
+    return __fork();
 }
+strong_alias(__vfork,vfork)

@@ -52,6 +52,7 @@ static char sccsid[] = "@(#)svc_udp.c 1.24 87/08/11 Copyr 1984 Sun Micro";
 #define sendto __sendto
 #define recvmsg __recvmsg
 #define sendmsg __sendmsg
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
@@ -227,7 +228,7 @@ strong_alias(__svcudp_create,svcudp_create)
 
 static enum xprt_stat
 svcudp_stat (xprt)
-     SVCXPRT *xprt;
+     SVCXPRT *xprt attribute_unused;
 {
 
   return XPRT_IDLE;

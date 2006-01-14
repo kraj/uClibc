@@ -39,6 +39,9 @@
 
 #define fread __fread
 #define fwrite __fwrite
+#define fseek __fseek
+#define fflush __fflush
+#define ftell __ftell
 
 #include <rpc/types.h>
 #include <stdio.h>
@@ -160,7 +163,7 @@ xdrstdio_setpos (XDR *xdrs, u_int pos)
 }
 
 static int32_t *
-xdrstdio_inline (XDR *xdrs, int len)
+xdrstdio_inline (XDR *xdrs attribute_unused, int len attribute_unused)
 {
   /*
    * Must do some work to implement this: must insure

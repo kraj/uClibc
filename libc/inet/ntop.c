@@ -246,10 +246,10 @@ inet_pton4(const char *src, u_char *dst)
 
 /* We cannot use the macro version of tolower() or very bad
  * things happen when '*src++' gets evaluated multiple times.  
- * So * undef it here so we get the function version of tolower
+ * So undef it here so we get the function version of tolower
  * instead.
  */
-#undef tolower
+#undef __tolower
 
 static int
 inet_pton6(const char *src, u_char *dst)
@@ -271,7 +271,7 @@ inet_pton6(const char *src, u_char *dst)
 	curtok = src;
 	saw_xdigit = 0;
 	val = 0;
-	while ((ch = tolower (*src++)) != '\0') {
+	while ((ch = __tolower (*src++)) != '\0') {
 		const char *pch;
 
 		pch = __strchr(xdigits, ch);

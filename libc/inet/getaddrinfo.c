@@ -51,6 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define inet_pton __inet_pton
 #define inet_ntop __inet_ntop
 #define strtoul __strtoul
+#define if_nametoindex __if_nametoindex
 #if 0
 #define uname __uname
 #define stpcpy __stpcpy

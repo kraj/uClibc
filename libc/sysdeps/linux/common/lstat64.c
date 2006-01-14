@@ -16,6 +16,7 @@
 #include "xstatconv.h"
 
 #define __NR___syscall_lstat64 __NR_lstat64
+#undef lstat64
 static inline _syscall2(int, __syscall_lstat64, const char *, file_name,
 		  struct kernel_stat64 *, buf);
 

@@ -20,12 +20,12 @@
 _syscall4(int, posix_fadvise, int, fd, off_t, offset,
           off_t, len, int, advice);
 
-#if defined __UCLIBC_HAS_LFS__ && !defined __NR_fadvise64_64
-weak_alias(posix_fadvise, posix_fadvise64);
+#if defined __UCLIBC_HAS_LFS__ && (!defined __NR_fadvise64_64 || !defined _syscall6)
+weak_alias(posix_fadvise, posix_fadvise64)
 #endif
 
 #else
-int posix_fadvise(int fd, off_t offset, off_t len, int advice)
+int posix_fadvise(int fd attribute_unused, off_t offset attribute_unused, off_t len attribute_unused, int advice attribute_unused)
 {
 	__set_errno(ENOSYS);
 	return -1;

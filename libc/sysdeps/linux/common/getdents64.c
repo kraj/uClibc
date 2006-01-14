@@ -80,7 +80,7 @@ ssize_t attribute_hidden __getdents64 (int fd, char *buf, size_t nbytes)
 	    /* Our heuristic failed.  We read too many entries.  Reset
 	       the stream.  */
 	    assert (last_offset != -1);
-	    lseek64(fd, last_offset, SEEK_SET);
+	    __lseek64(fd, last_offset, SEEK_SET);
 
 	    if ((char *) dp == buf) {
 		/* The buffer the user passed in is too small to hold even

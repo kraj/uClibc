@@ -81,6 +81,7 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 
 
 extern int __rresvport(int *alport) attribute_hidden;
+extern int __getc_unlocked (FILE *__stream) attribute_hidden;
 
 /* some forward declarations */
 static int __ivaliduser2(FILE *hostf, u_int32_t raddr,
@@ -169,7 +170,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			sigsetmask(oldmask); /* sigsetmask */
 			return -1;
 		}
-		fcntl(s, F_SETOWN, pid); /* __fcntl */
+		__fcntl(s, F_SETOWN, pid); /* __fcntl */
 		sin.sin_family = hp->h_addrtype;
 		bcopy(hp->h_addr_list[0], &sin.sin_addr,
 		      MIN (sizeof (sin.sin_addr), hp->h_length));
@@ -385,7 +386,7 @@ iruserfopen (char *file, uid_t okuser)
      root, if writeable by anyone but the owner, or if hardlinked
      anywhere, quit.  */
   cp = NULL;
-  if (lstat (file, &st))
+  if (__lstat (file, &st))
     cp = "lstat failed";
   else if (!S_ISREG (st.st_mode))
     cp = "not regular file";
@@ -394,7 +395,7 @@ iruserfopen (char *file, uid_t okuser)
       res = fopen (file, "r");
       if (!res)
 	cp = "cannot open";
-      else if (fstat (fileno (res), &st) < 0)
+      else if (__fstat (fileno (res), &st) < 0)
 	cp = "fstat failed";
       else if (st.st_uid && st.st_uid != okuser)
 	cp = "bad owner";
@@ -664,15 +665,15 @@ __ivaliduser2(hostf, raddr, luser, ruser, rhost)
 
 	/* Skip lines that are too long. */
 	if (__strchr (p, '\n') == NULL) {
-	    int ch = getc_unlocked (hostf);
+	    int ch = __getc_unlocked (hostf);
 
 	    while (ch != '\n' && ch != EOF)
-	      ch = getc_unlocked (hostf);
+	      ch = __getc_unlocked (hostf);
 	    continue;
 	}
 
 	for (;*p && !isspace(*p); ++p) {
-	    *p = tolower (*p);
+	    *p = __tolower (*p);
 	}
 
 	/* Next we want to find the permitted name for the remote user.  */

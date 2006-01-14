@@ -10,6 +10,7 @@
 #define sysconf __sysconf
 
 #include "syscalls.h"
+#include <stdlib.h>
 #include <unistd.h>
 #include <grp.h>
 
@@ -17,23 +18,33 @@
 static inline _syscall2(int, __syscall_setgroups,
 		size_t, size, const __kernel_gid_t *, list);
 
-int attribute_hidden __setgroups(size_t n, const gid_t * groups)
+int attribute_hidden __setgroups(size_t size, const gid_t *groups)
 {
-	if (n > (size_t) sysconf(_SC_NGROUPS_MAX)) {
+	if (size > (size_t) sysconf(_SC_NGROUPS_MAX)) {
+ret_error:
 		__set_errno(EINVAL);
 		return -1;
 	} else {
 		size_t i;
-		__kernel_gid_t kernel_groups[n];
+		__kernel_gid_t *kernel_groups = NULL;
 
-		for (i = 0; i < n; i++) {
+		if (size) {
+			kernel_groups = (__kernel_gid_t *)malloc(sizeof(*kernel_groups) * size);
+			if (kernel_groups == NULL)
+				goto ret_error;
+		}
+
+		for (i = 0; i < size; i++) {
 			kernel_groups[i] = (groups)[i];
 			if (groups[i] != (gid_t) ((__kernel_gid_t) groups[i])) {
-				__set_errno(EINVAL);
-				return -1;
+				goto ret_error;
 			}
 		}
-		return (__syscall_setgroups(n, kernel_groups));
+
+		i = __syscall_setgroups(size, kernel_groups);
+		if (kernel_groups)
+			free(kernel_groups);
+		return i;
 	}
 }
 strong_alias(__setgroups,setgroups)

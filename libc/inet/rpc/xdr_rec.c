@@ -44,6 +44,8 @@
  * The other 31 bits encode the byte length of the fragment.
  */
 
+#define fputs __fputs
+
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -317,7 +319,7 @@ xdrrec_getpos (const XDR *xdrs)
   RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
   long pos;
 
-  pos = lseek ((int) (long) rstrm->tcp_handle, (long) 0, 1);
+  pos = __lseek ((int) (long) rstrm->tcp_handle, (long) 0, 1);
   if (pos != -1)
     switch (xdrs->x_op)
       {

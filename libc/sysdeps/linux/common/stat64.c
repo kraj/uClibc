@@ -19,6 +19,7 @@
 static inline _syscall2(int, __syscall_stat64,
 		const char *, file_name, struct kernel_stat64 *, buf);
 
+#undef stat64
 int attribute_hidden __stat64(const char *file_name, struct stat64 *buf)
 {
 	int result;

@@ -105,7 +105,7 @@ strong_alias(__authnone_create,authnone_create)
 
 /*ARGSUSED */
 static bool_t
-authnone_marshal (AUTH *client, XDR *xdrs)
+authnone_marshal (AUTH *client attribute_unused, XDR *xdrs)
 {
   struct authnone_private_s *ap;
 
@@ -116,23 +116,23 @@ authnone_marshal (AUTH *client, XDR *xdrs)
 }
 
 static void
-authnone_verf (AUTH *auth)
+authnone_verf (AUTH *auth attribute_unused)
 {
 }
 
 static bool_t
-authnone_validate (AUTH *auth, struct opaque_auth *oa)
+authnone_validate (AUTH *auth attribute_unused, struct opaque_auth *oa attribute_unused)
 {
   return TRUE;
 }
 
 static bool_t
-authnone_refresh (AUTH *auth)
+authnone_refresh (AUTH *auth attribute_unused)
 {
   return FALSE;
 }
 
 static void
-authnone_destroy (AUTH *auth)
+authnone_destroy (AUTH *auth attribute_unused)
 {
 }

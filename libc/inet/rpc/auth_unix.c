@@ -47,6 +47,7 @@
 #define xdr_authunix_parms __xdr_authunix_parms
 #define xdr_opaque_auth __xdr_opaque_auth
 #define gettimeofday __gettimeofday
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -182,7 +183,14 @@ __authunix_create_default (void)
   uid_t uid;
   gid_t gid;
   int max_nr_groups = sysconf (_SC_NGROUPS_MAX);
-  gid_t gids[max_nr_groups];
+  gid_t *gids = NULL;
+  AUTH *ret_auth;
+
+  if (max_nr_groups) {
+    gids = (gid_t*)malloc(sizeof(*gids) * max_nr_groups);
+    if (gids == NULL)
+      abort ();
+  }
 
   if (gethostname (machname, MAX_MACHINE_NAME) == -1)
     abort ();
@@ -195,7 +203,10 @@ __authunix_create_default (void)
   /* This braindamaged Sun code forces us here to truncate the
      list of groups to NGRPS members since the code in
      authuxprot.c transforms a fixed array.  Grrr.  */
-  return __authunix_create (machname, uid, gid, MIN (NGRPS, len), gids);
+  ret_auth = __authunix_create (machname, uid, gid, MIN (NGRPS, len), gids);
+  if (gids)
+    free (gids);
+  return ret_auth;
 }
 strong_alias(__authunix_create_default,authunix_create_default)
 
@@ -204,7 +215,7 @@ strong_alias(__authunix_create_default,authunix_create_default)
  */
 
 static void
-authunix_nextverf (AUTH *auth)
+authunix_nextverf (AUTH *auth attribute_unused)
 {
   /* no action necessary */
 }

@@ -149,6 +149,7 @@
 #define recv __recv
 #define send __send
 #define snprintf __snprintf
+#define fgets __fgets
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -1136,7 +1137,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 
 
 #ifdef L_res_init
-int res_init(void)
+int attribute_hidden __res_init_internal(void)
 {
 	__close_nameservers();
 	__open_nameservers();
@@ -1180,6 +1181,7 @@ int res_init(void)
 
 	return(0);
 }
+strong_alias(__res_init_internal,res_init)
 
 void res_close( void )
 {
@@ -1231,7 +1233,6 @@ __res_state (void)
 	return __resp;
 }
 # endif
-hidden_def (__res_state)
 
 #endif
 
@@ -1241,7 +1242,11 @@ hidden_def (__res_state)
 #define MIN(x, y)	((x) < (y) ? (x) : (y))
 #endif
 
-int res_query(const char *dname, int class, int type,
+int		__res_init_internal (void) __THROW attribute_hidden;
+int		__res_querydomain_internal (const char *, const char *, int, int,
+				 u_char *, int) __THROW attribute_hidden;
+
+int attribute_hidden __res_query_internal(const char *dname, int class, int type,
               unsigned char *answer, int anslen)
 {
 	int i;
@@ -1282,6 +1287,7 @@ int res_query(const char *dname, int class, int type,
 		free(packet);
 	return i;
 }
+strong_alias(__res_query_internal,res_query)
 
 /*
  * Formulate a normal query, send, and retrieve answer in supplied buffer.
@@ -1301,7 +1307,7 @@ int res_search(name, class, type, answer, anslen)
 	int trailing_dot, ret, saved_herrno;
 	int got_nodata = 0, got_servfail = 0, tried_as_is = 0;
 
-	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && res_init() == -1)) {
+	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && __res_init_internal() == -1)) {
 		h_errno = NETDB_INTERNAL;
 		return (-1);
 	}
@@ -1321,7 +1327,7 @@ int res_search(name, class, type, answer, anslen)
 	 */
 	saved_herrno = -1;
 	if (dots >= _res.ndots) {
-		ret = res_querydomain(name, NULL, class, type, answer, anslen);
+		ret = __res_querydomain_internal(name, NULL, class, type, answer, anslen);
 		if (ret > 0)
 			return (ret);
 		saved_herrno = h_errno;
@@ -1342,7 +1348,7 @@ int res_search(name, class, type, answer, anslen)
 		   *domain && !done;
 		   domain++) {
 
-			ret = res_querydomain(name, *domain, class, type,
+			ret = __res_querydomain_internal(name, *domain, class, type,
 			    answer, anslen);
 			if (ret > 0)
 				return (ret);
@@ -1398,7 +1404,7 @@ int res_search(name, class, type, answer, anslen)
 	 * name or whether it ends with a dot.
 	 */
 	if (!tried_as_is) {
-		ret = res_querydomain(name, NULL, class, type, answer, anslen);
+		ret = __res_querydomain_internal(name, NULL, class, type, answer, anslen);
 		if (ret > 0)
 			return (ret);
 	}
@@ -1424,7 +1430,7 @@ int res_search(name, class, type, answer, anslen)
  * Perform a call on res_query on the concatenation of name and domain,
  * removing a trailing dot from name if domain is NULL.
  */
-int res_querydomain(name, domain, class, type, answer, anslen)
+int attribute_hidden __res_querydomain_internal(name, domain, class, type, answer, anslen)
 	const char *name, *domain;
 	int class, type;	/* class and type of query */
 	u_char *answer;		/* buffer to put answer */
@@ -1434,7 +1440,7 @@ int res_querydomain(name, domain, class, type, answer, anslen)
 	const char *longname = nbuf;
 	size_t n, d;
 
-	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && res_init() == -1)) {
+	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && __res_init_internal() == -1)) {
 		h_errno = NETDB_INTERNAL;
 		return (-1);
 	}
@@ -1468,8 +1474,9 @@ int res_querydomain(name, domain, class, type, answer, anslen)
 		}
 		snprintf(nbuf, sizeof(nbuf), "%s.%s", name, domain);
 	}
-	return (res_query(longname, class, type, answer, anslen));
+	return (__res_query_internal(longname, class, type, answer, anslen));
 }
+strong_alias(__res_querydomain_internal,res_querydomain)
 
 /* res_mkquery */
 /* res_send */

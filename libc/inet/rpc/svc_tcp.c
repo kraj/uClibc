@@ -55,6 +55,7 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
 #define poll __poll
 #define accept __accept
 #define listen __listen
+#define fputs __fputs
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
@@ -264,7 +265,7 @@ makefd_xprt (int fd, u_int sendsize, u_int recvsize)
 }
 
 static bool_t
-rendezvous_request (SVCXPRT *xprt, struct rpc_msg *errmsg)
+rendezvous_request (SVCXPRT *xprt, struct rpc_msg *errmsg attribute_unused)
 {
   int sock;
   struct tcp_rendezvous *r;
@@ -290,7 +291,7 @@ again:
 }
 
 static enum xprt_stat
-rendezvous_stat (SVCXPRT *xprt)
+rendezvous_stat (SVCXPRT *xprt attribute_unused)
 {
   return XPRT_IDLE;
 }

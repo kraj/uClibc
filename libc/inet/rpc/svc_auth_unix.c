@@ -152,7 +152,7 @@ done:
  */
 /*ARGSUSED */
 enum auth_stat
-_svcauth_short (struct svc_req *rqst, struct rpc_msg *msg)
+_svcauth_short (struct svc_req *rqst attribute_unused, struct rpc_msg *msg attribute_unused)
 {
   return AUTH_REJECTEDCRED;
 }
