@@ -24,3 +24,4 @@ int setregid(gid_t rgid, gid_t egid)
 	return (__syscall_setregid(rgid, egid));
 }
 libc_hidden_proto(setregid)
+libc_hidden_def(setregid)
