@@ -20,6 +20,7 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
+#include <features.h>
 #include <asm/unistd.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
