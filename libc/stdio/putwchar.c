@@ -22,6 +22,7 @@ strong_alias(putwchar_unlocked,putwchar)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
+libc_hidden_proto(__fputc_unlocked)
 /* psm: should this be fputwc? */
 libc_hidden_proto(fputc)
 
