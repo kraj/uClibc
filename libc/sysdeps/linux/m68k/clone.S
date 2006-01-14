@@ -55,17 +55,6 @@ clone:
 
 	rts
 
-__syscall_error:
-	negl	%d0
-	movel	%d0, %sp@-
-	lea		__errno_location-.-8, %a0
-	jsr		%pc@(%a0)
-	movel	%d0, %a0
-	movel	%sp@+, %a0@
-	moveq	#-1, %d0
-
-	rts
-
 thread_start:
 	/*subl    %fp, %fp*/        /* terminate the stack frame */
 	jsr     (%a0)
