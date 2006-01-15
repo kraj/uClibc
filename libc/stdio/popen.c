@@ -29,7 +29,6 @@ libc_hidden_proto(dup2)
 libc_hidden_proto(fdopen)
 libc_hidden_proto(pipe)
 libc_hidden_proto(vfork)
-libc_hidden_proto(fork)
 libc_hidden_proto(fclose)
 
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
@@ -38,6 +37,7 @@ libc_hidden_proto(fclose)
 # define vfork fork	
 # define VFORK_LOCK		((void) 0)
 # define VFORK_UNLOCK	((void) 0)
+libc_hidden_proto(fork)
 #endif
 
 #ifdef __UCLIBC_HAS_THREADS__
