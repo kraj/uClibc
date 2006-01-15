@@ -103,7 +103,7 @@
 #undef NDEBUG
 #include <assert.h>
 
-extern void __isctype_assert(int c, int mask) __attribute__ ((__noreturn__));
+extern void __isctype_assert(int c, int mask) __attribute__ ((__noreturn__)) attribute_hidden;
 
 #define CTYPE_BODY(NAME,C,MASK) \
 	if (CTYPE_DOMAIN_CHECK(C)) { \
@@ -159,7 +159,7 @@ int CTYPE_NAME(NAME) (int c) \
 libc_hidden_proto(fprintf)
 libc_hidden_proto(abort)
 
-void __isctype_assert(int c, int mask)
+attribute_hidden void __isctype_assert(int c, int mask)
 {
 	fprintf(stderr,	"%s: __is*{_l}(%d,%#x {locale})\n", __uclibc_progname, c, mask);
 	abort();
@@ -353,19 +353,19 @@ libc_hidden_def(toupper_l)
 
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
-int __XL(isascii)(int c)
+int __XL_NPP(isascii)(int c)
 {
 	return __isascii(c);		/* locale-independent */
 }
 
-__XL_ALIAS(isascii)
-
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
+libc_hidden_proto(isascii)
 int isascii(int c)
 {
 	return __isascii(c);		/* locale-independent */
 }
+libc_hidden_def(isascii)
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
@@ -375,12 +375,10 @@ int isascii(int c)
 
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
-int __XL(toascii)(int c)
+int __XL_NPP(toascii)(int c)
 {
 	return __toascii(c);		/* locale-independent */
 }
-
-__XL_ALIAS(toascii)
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
