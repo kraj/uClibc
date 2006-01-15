@@ -93,8 +93,8 @@ extern __sighandler_t signal (int __sig, __sighandler_t __handler)
      __THROW;
 #else
 /* Make sure the used `signal' implementation is the SVID version. */
-# ifdef __REDIRECT
-extern __sighandler_t __REDIRECT (signal,
+# ifdef __REDIRECT_NTH
+extern __sighandler_t __REDIRECT_NTH (signal,
 				      (int __sig, __sighandler_t __handler),
 				      __sysv_signal);
 # else

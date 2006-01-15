@@ -28,8 +28,8 @@ sigset_t _sigintr attribute_hidden;		/* Set by siginterrupt.  */
 
 /* Set the handler for the signal SIG to HANDLER,
    returning the old handler, or SIG_ERR on error.  */
-__sighandler_t
-bsd_signal (int sig, __sighandler_t handler)
+attribute_hidden __sighandler_t
+__bsd_signal (int sig, __sighandler_t handler)
 {
   struct sigaction act, oact;
 
@@ -50,6 +50,7 @@ bsd_signal (int sig, __sighandler_t handler)
 
   return oact.sa_handler;
 }
-strong_alias(bsd_signal,signal)
+strong_alias(__bsd_signal,bsd_signal)
+strong_alias(__bsd_signal,signal)
 libc_hidden_proto(signal)
 libc_hidden_def(signal)
