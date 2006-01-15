@@ -1821,6 +1821,10 @@ static char *read_TZ_file(char *buf)
 
 #endif /* __UCLIBC_HAS_TZ_FILE__ */
 
+#ifndef __UCLIBC_HAS_CTYPE_TABLES__
+libc_hidden_proto(isascii)
+#endif
+
 void tzset(void)
 {
 	register const char *e;
