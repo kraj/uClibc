@@ -57,8 +57,10 @@ libc_hidden_proto(wctype)
 #endif
 
 #include <ctype.h>
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 #define __toupper toupper
 #define __tolower tolower
+#endif
 #define __mempcpy mempcpy
 libc_hidden_proto(toupper)
 libc_hidden_proto(tolower)
