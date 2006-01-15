@@ -40,9 +40,9 @@ libc_hidden_proto(fnmatch)
 libc_hidden_proto(qsort)
 libc_hidden_proto(lstat)
 
-extern __ptr_t (*__glob_opendir_hook) __P ((const char *directory));
-extern void (*__glob_closedir_hook) __P ((__ptr_t stream));
-extern const char *(*__glob_readdir_hook) __P ((__ptr_t stream));
+extern __ptr_t (*__glob_opendir_hook) __P ((const char *directory)) attribute_hidden;
+extern void (*__glob_closedir_hook) __P ((__ptr_t stream)) attribute_hidden;
+extern const char *(*__glob_readdir_hook) __P ((__ptr_t stream)) attribute_hidden;
 
 
 static int glob_in_dir __P ((const char *pattern, const char *directory,
