@@ -14,10 +14,6 @@ ifeq ($(EXCLUDE_BRK),y)
 CSRC:=$(filter-out sbrk.c,$(CSRC))
 endif
 
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC:=$(filter-out fork.c,$(CSRC))
-endif
-
 COMMON_SSP:=ssp.c ssp-local.c
 
 # full list
@@ -34,7 +30,7 @@ CSRC:=$(filter-out $(COMMON_SSP),$(CSRC))
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC:=$(filter-out getpid.c raise.c,$(CSRC))
+CSRC:=$(filter-out fork.c getpid.c raise.c,$(CSRC))
 endif
 
 # fails for some reason

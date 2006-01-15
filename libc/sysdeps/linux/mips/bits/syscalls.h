@@ -9,13 +9,6 @@
  * programs.  */
 #include <bits/sysnum.h>
 
-#ifndef __set_errno
-# ifdef __UCLIBC_HAS_THREADS__
-#  define __set_errno(val) (*__errno_location ()) = (val)
-# else
-#  define __set_errno(val) (errno = (val))
-# endif
-#endif
 #ifndef SYS_ify
 # define SYS_ify(syscall_name)  (__NR_##syscall_name)
 #endif

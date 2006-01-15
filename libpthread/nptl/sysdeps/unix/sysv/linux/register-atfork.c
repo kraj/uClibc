@@ -106,32 +106,3 @@ __register_atfork (prepare, parent, child, dso_handle)
 
   return newp == NULL ? ENOMEM : 0;
 }
-hidden_def (__register_atfork)
-
-
-#ifndef __UCLIBC__
-libc_freeres_fn (free_mem)
-{
-  /* Get the lock to not conflict with running forks.  */
-  lll_lock (__fork_lock);
-
-  /* No more fork handlers.  */
-  __fork_handlers = NULL;
-
-  /* Free eventually alloated memory blocks for the object pool.  */
-  struct fork_handler_pool *runp = fork_handler_pool.next;
-
-  memset (&fork_handler_pool, '\0', sizeof (fork_handler_pool));
-
-  /* Release the lock.  */
-  lll_unlock (__fork_lock);
-
-  /* We can free the memory after releasing the lock.  */
-  while (runp != NULL)
-    {
-      struct fork_handler_pool *oldp = runp;
-      runp = runp->next;
-      free (oldp);
-    }
-}
-#endif

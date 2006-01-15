@@ -64,7 +64,7 @@ libpthread-routines = init vars events version \
 		      pthread_cancel pthread_testcancel \
 		      pthread_setcancelstate pthread_setcanceltype \
 		      pthread_once \
-		      old_pthread_atfork pthread_atfork \
+		      pthread_atfork \
 		      pthread_getcpuclockid \
 		      pthread_clock_gettime pthread_clock_settime \
 		      sem_init sem_destroy \
@@ -94,7 +94,6 @@ libpthread-routines = init vars events version \
 		      cleanup_routine unwind-forcedunwind
 
 libpthread-shared-only-routines = version pt-allocrtsig unwind-forcedunwind
-libpthread-static-only-routines = pthread_atfork
 
 CFLAGS-pthread_atfork.c = -DNOT_IN_libc
 
@@ -234,8 +233,7 @@ libpthread_a_SRC = $(patsubst %, $(libpthread_DIR)/%.c,			\
 	       $(libpthread-routines)))
 libpthread_so_SRC = $(patsubst %, $(libpthread_DIR)/%.c,		\
 		$(filter-out $(libpthread-os-routines) \
-	       $(libpthread-misc-routines)				 \
-	       $(libpthread-static-only-routines), $(libpthread-routines)))
+	       $(libpthread-misc-routines), $(libpthread-routines)))
 
 libc-a-y += $(patsubst %.c, $(libpthread_OUT)/%.o, alloca_cutoff.c	\
 	    forward.c libc-cancellation.c)

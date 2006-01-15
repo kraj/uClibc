@@ -398,7 +398,7 @@ extern __thread struct __res_state *__resp attribute_tls_model_ie;
 #    endif
 #   else
 #    undef _res
-extern struct __res_state _res;
+#    define _res (*__resp)
 #   endif /* __UCLIBC_HAS_THREADS_NATIVE__ */
 #  endif /* __UCLIBC_HAS_THREADS__ */
 # endif /* _LIBC */
