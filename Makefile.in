@@ -107,14 +107,14 @@ RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/rela
 # Installs header files.
 install_headers:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
-	echo -e ".svn\n.cvsignore\nCVS" > tar_exclude ; \
+	printf ".svn\n.cvsignore\nCVS\n" > tar_exclude ; \
 	if [ "$(KERNEL_SOURCE)" = "$(DEVEL_PREFIX)" ] ; then \
 		ls -1d include/linux include/asm* >> tar_exclude ; \
 	fi ; \
-	$(TAR) -chf - --exclude-from tar_exclude include \
+	$(TAR) -chf - -X tar_exclude include \
 		| $(TAR) -xf - -C $(PREFIX)$(DEVEL_PREFIX)
 	rm -f tar_exclude
-	echo -e '#ifndef _LIBC_INTERNAL_H\n#define _LIBC_INTERNAL_H 1\n#endif\n' > \
+	printf '#ifndef _LIBC_INTERNAL_H\n#define _LIBC_INTERNAL_H 1\n#endif\n' > \
 		$(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dl-osinfo.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_uintmaxtostr.h
