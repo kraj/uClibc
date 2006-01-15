@@ -189,13 +189,13 @@ $(CTOR_TARGETS):
 	$(do_ar)
 endif
 
-ifeq ($(TARGET_ARCH),nios)
-CRTS_COMPAT := $(top_builddir)lib/crt0.o
-$(CRTS_COMPAT):
-	ln -fs crt1.o $(top_builddir)lib/crt0.o
-else
+#ifeq ($(TARGET_ARCH),nios)
+#CRTS_COMPAT := $(top_builddir)lib/crt0.o
+#$(CRTS_COMPAT):
+#	ln -fs crt1.o $(top_builddir)lib/crt0.o
+#else
 CRTS_COMPAT :=
-endif
+#endif
 
 $(crt-y): $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT)
 
