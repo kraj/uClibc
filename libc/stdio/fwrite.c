@@ -38,8 +38,8 @@ size_t fwrite_unlocked(const void * __restrict ptr, size_t size,
 libc_hidden_def(fwrite_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-strong_alias(fwrite_unlocked,fwrite)
 libc_hidden_proto(fwrite)
+strong_alias(fwrite_unlocked,fwrite)
 libc_hidden_def(fwrite)
 #endif
 

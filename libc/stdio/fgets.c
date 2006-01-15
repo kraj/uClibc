@@ -64,8 +64,8 @@ char *fgets_unlocked(char *__restrict s, int n,
 libc_hidden_def(fgets_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-strong_alias(fgets_unlocked,fgets)
 libc_hidden_proto(fgets)
+strong_alias(fgets_unlocked,fgets)
 libc_hidden_def(fgets)
 #endif
 

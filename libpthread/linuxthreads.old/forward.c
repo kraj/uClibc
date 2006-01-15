@@ -17,13 +17,14 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <dlfcn.h>
-#include "internals.h"
+#include <features.h>
 #include <stdlib.h>
+#include <dlfcn.h>
 
-#include <libc-internal.h>
+/* psm: keep this before internals.h */
+libc_hidden_proto(exit)
 
-libc_hidden_def(exit)
+#include "internals.h"
 
 /* Pointers to the libc functions.  */
 struct pthread_functions __libc_pthread_functions attribute_hidden;
@@ -103,7 +104,7 @@ FORWARD (pthread_equal, (pthread_t thread1, pthread_t thread2),
 
 /* Use an alias to avoid warning, as pthread_exit is declared noreturn.  */
 FORWARD2 (__pthread_exit, void, (void *retval), (retval), exit (EXIT_SUCCESS))
-strong_alias (__pthread_exit, pthread_exit);
+strong_alias (__pthread_exit, pthread_exit)
 
 
 FORWARD (pthread_getschedparam,

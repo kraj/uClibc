@@ -56,6 +56,9 @@
 #include <errno.h>
 #include <assert.h>
 
+libc_hidden_proto(fgetwc_unlocked)
+libc_hidden_proto(fputwc_unlocked)
+
 #ifndef __UCLIBC_HAS_THREADS__
 
 #ifdef __BCC__
@@ -259,7 +262,6 @@ UNLOCKED(wint_t,fgetwc,(register FILE *stream),(stream))
 
 	return wi;
 }
-libc_hidden_proto(fgetwc_unlocked)
 libc_hidden_def(fgetwc_unlocked)
 
 strong_alias(fgetwc_unlocked,getwc_unlocked)
@@ -268,8 +270,6 @@ strong_alias(fgetwc,getwc)
 #endif
 /**********************************************************************/
 #ifdef L_getwchar
-
-libc_hidden_proto(fgetwc_unlocked)
 
 UNLOCKED_STREAM(wint_t,getwchar,(void),(),stdin)
 {
@@ -281,8 +281,6 @@ UNLOCKED_STREAM(wint_t,getwchar,(void),(),stdin)
 #endif
 /**********************************************************************/
 #ifdef L_fgetws
-
-libc_hidden_proto(fgetwc_unlocked)
 
 UNLOCKED(wchar_t *,fgetws,(wchar_t *__restrict ws, int n,
 						   FILE *__restrict stream),(ws, n, stream))
@@ -333,7 +331,6 @@ UNLOCKED(wint_t,fputwc,(wchar_t wc, FILE *stream),(wc, stream))
 		? wc : WEOF;
 #endif
 }
-libc_hidden_proto(fputwc_unlocked)
 libc_hidden_def(fputwc_unlocked)
 
 strong_alias(fputwc_unlocked,putwc_unlocked)
@@ -342,8 +339,6 @@ strong_alias(fputwc,putwc)
 #endif
 /**********************************************************************/
 #ifdef L_putwchar
-
-libc_hidden_proto(fputwc_unlocked)
 
 UNLOCKED_STREAM(wint_t,putwchar,(wchar_t wc),(wc),stdout)
 {

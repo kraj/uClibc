@@ -30,7 +30,7 @@ int __libc_fcntl64(int fd, int cmd, ...)
 }
 libc_hidden_def(__libc_fcntl64)
 
-strong_alias(__libc_fcntl64,fcntl64)
 libc_hidden_proto(fcntl64)
+strong_alias(__libc_fcntl64,fcntl64)
 libc_hidden_def(fcntl64)
 #endif

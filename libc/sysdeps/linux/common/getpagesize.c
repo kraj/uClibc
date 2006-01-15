@@ -43,6 +43,6 @@ int __getpagesize(void)
 #endif	/* NBPG.  */
 #endif	/* EXEC_PAGESIZE.  */
 }
-strong_alias(__getpagesize,getpagesize)
 libc_hidden_proto(getpagesize)
+strong_alias(__getpagesize,getpagesize)
 libc_hidden_def(getpagesize)

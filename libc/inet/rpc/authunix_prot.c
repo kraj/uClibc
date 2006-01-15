@@ -40,7 +40,6 @@
 #include <rpc/auth_unix.h>
 
 libc_hidden_proto(xdr_string)
-libc_hidden_def(xdr_string)
 libc_hidden_proto(xdr_u_int)
 libc_hidden_proto(xdr_array)
 libc_hidden_proto(xdr_u_long)

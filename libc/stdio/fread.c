@@ -90,8 +90,8 @@ size_t fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
 libc_hidden_def(fread_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-strong_alias(fread_unlocked,fread)
 libc_hidden_proto(fread)
+strong_alias(fread_unlocked,fread)
 libc_hidden_def(fread)
 #endif
 

@@ -15,6 +15,6 @@
 #endif
 #define __NR___libc_getpid __NR_getpid
 _syscall0(pid_t, __libc_getpid);
-strong_alias(__libc_getpid, getpid)
 libc_hidden_proto(getpid)
+strong_alias(__libc_getpid, getpid)
 libc_hidden_def(getpid)

@@ -38,7 +38,7 @@ int lstat(const char *file_name, struct stat *buf)
 libc_hidden_def(lstat)
 
 #if ! defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
-strong_alias(lstat,lstat64)
 libc_hidden_proto(lstat64)
+strong_alias(lstat,lstat64)
 libc_hidden_def(lstat64)
 #endif

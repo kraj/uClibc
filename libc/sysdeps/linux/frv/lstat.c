@@ -30,6 +30,6 @@
 
 #define __NR___syscall_lstat __NR_lstat
 static inline _syscall2(int, __syscall_lstat, const char *, file_name, struct stat *, buf);
-strong_alias(__syscall_lstat,lstat)
 libc_hidden_proto(lstat)
+strong_alias(__syscall_lstat,lstat)
 libc_hidden_def(lstat)

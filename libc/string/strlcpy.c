@@ -50,8 +50,8 @@ size_t Wstrlcpy(register Wchar *__restrict dst,
 #ifndef WANT_WIDE
 libc_hidden_def(strlcpy)
 #ifndef __UCLIBC_HAS_LOCALE__
-strong_alias(strlcpy,strxfrm)
 libc_hidden_proto(strxfrm)
+strong_alias(strlcpy,strxfrm)
 libc_hidden_def(strxfrm)
 #endif
 #else

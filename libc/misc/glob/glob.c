@@ -15,6 +15,7 @@ License along with this library; see the file COPYING.LIB.  If
 not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
+#define _GNU_SOURCE
 #include <features.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +26,6 @@ Cambridge, MA 02139, USA.  */
 #include <dirent.h>
 #include <malloc.h>
 #include <fnmatch.h>
-#define _GNU_SOURCE
 #include <glob.h>
 
 libc_hidden_proto(memcpy)
@@ -40,6 +40,7 @@ libc_hidden_proto(fnmatch)
 libc_hidden_proto(qsort)
 libc_hidden_proto(lstat)
 
+
 extern __ptr_t (*__glob_opendir_hook) __P ((const char *directory)) attribute_hidden;
 extern void (*__glob_closedir_hook) __P ((__ptr_t stream)) attribute_hidden;
 extern const char *(*__glob_readdir_hook) __P ((__ptr_t stream)) attribute_hidden;
@@ -53,20 +54,20 @@ static int prefix_array __P ((const char *prefix, char **array, size_t n,
 			      int add_slash));
 static int collated_compare __P ((const __ptr_t, const __ptr_t));
 
+libc_hidden_proto(glob_pattern_p)
 #ifdef __GLOB64
-extern int __glob_pattern_p(const char *pattern, int quote) attribute_hidden;
+libc_hidden_proto(glob64)
+libc_hidden_proto(globfree64)
 libc_hidden_proto(readdir64)
 #define __readdir readdir64
 #else
-extern int __glob (__const char *__restrict __pattern, int __flags,
-		 int (*__errfunc) (__const char *, int),
-		 glob_t *__restrict __pglob) __THROW attribute_hidden;
-extern void __globfree (glob_t *__pglob) __THROW attribute_hidden;
+libc_hidden_proto(glob)
+libc_hidden_proto(globfree)
 #define __readdir readdir
 libc_hidden_proto(readdir)
 /* Return nonzero if PATTERN contains any metacharacters.
    Metacharacters can be quoted with backslashes if QUOTE is nonzero.  */
-int attribute_hidden __glob_pattern_p(const char *pattern, int quote)
+int glob_pattern_p(const char *pattern, int quote)
 {
     const char *p;
     int open = 0;
@@ -95,7 +96,7 @@ int attribute_hidden __glob_pattern_p(const char *pattern, int quote)
 
     return 0;
 }
-strong_alias(__glob_pattern_p,glob_pattern_p)
+libc_hidden_def(glob_pattern_p)
 #endif
 
 
@@ -107,8 +108,8 @@ strong_alias(__glob_pattern_p,glob_pattern_p)
    `glob' returns GLOB_ABEND; if it returns zero, the error is ignored.
    If memory cannot be allocated for PGLOB, GLOB_NOSPACE is returned.
    Otherwise, `glob' returns zero.  */
-int attribute_hidden
-__glob (pattern, flags, errfunc, pglob)
+int
+glob (pattern, flags, errfunc, pglob)
      const char *pattern;
      int flags;
      int (*errfunc) __P ((const char *, int));
@@ -153,7 +154,7 @@ __glob (pattern, flags, errfunc, pglob)
   if (filename[0] == '\0' && dirlen > 1)
     /* "pattern/".  Expand "pattern", appending slashes.  */
     {
-      int val = __glob (dirname, flags | GLOB_MARK, errfunc, pglob);
+      int val = glob (dirname, flags | GLOB_MARK, errfunc, pglob);
       if (val == 0)
 	pglob->gl_flags = (pglob->gl_flags & ~GLOB_MARK) | (flags & GLOB_MARK);
       return val;
@@ -167,7 +168,7 @@ __glob (pattern, flags, errfunc, pglob)
 
   oldcount = pglob->gl_pathc;
 
-  if (__glob_pattern_p (dirname, !(flags & GLOB_NOESCAPE)))
+  if (glob_pattern_p (dirname, !(flags & GLOB_NOESCAPE)))
     {
       /* The directory name contains metacharacters, so we
 	 have to glob for the directory, and then glob for
@@ -175,7 +176,7 @@ __glob (pattern, flags, errfunc, pglob)
       glob_t dirs;
       register int i;
 
-      status = __glob (dirname,
+      status = glob (dirname,
 		     ((flags & (GLOB_ERR | GLOB_NOCHECK | GLOB_NOESCAPE)) |
 		      GLOB_NOSORT),
 		     errfunc, &dirs);
@@ -196,8 +197,8 @@ __glob (pattern, flags, errfunc, pglob)
 
 	    if (interrupt_state)
 	      {
-		__globfree (&dirs);
-		__globfree (&files);
+		globfree (&dirs);
+		globfree (&files);
 		return GLOB_ABEND;
 	      }
 	  }
@@ -213,8 +214,8 @@ __glob (pattern, flags, errfunc, pglob)
 
 	  if (status != 0)
 	    {
-	      __globfree (&dirs);
-	      __globfree (pglob);
+	      globfree (&dirs);
+	      globfree (pglob);
 	      return status;
 	    }
 
@@ -224,8 +225,8 @@ __glob (pattern, flags, errfunc, pglob)
 			    pglob->gl_pathc - oldcount,
 			    flags & GLOB_MARK))
 	    {
-	      __globfree (&dirs);
-	      __globfree (pglob);
+	      globfree (&dirs);
+	      globfree (pglob);
 	      return GLOB_NOSPACE;
 	    }
 	}
@@ -284,7 +285,7 @@ __glob (pattern, flags, errfunc, pglob)
 			    pglob->gl_pathc - oldcount,
 			    flags & GLOB_MARK))
 	    {
-	      __globfree (pglob);
+	      globfree (pglob);
 	      return GLOB_NOSPACE;
 	    }
 	}
@@ -311,15 +312,15 @@ __glob (pattern, flags, errfunc, pglob)
   return 0;
 }
 #ifdef __GLOB64
-strong_alias(__glob64,glob64)
+libc_hidden_def(glob64)
 #else
-strong_alias(__glob,glob)
+libc_hidden_def(glob)
 #endif
 
 
 /* Free storage allocated in PGLOB by a previous `glob' call.  */
-void attribute_hidden
-__globfree (pglob)
+void
+globfree (pglob)
      register glob_t *pglob;
 {
   if (pglob->gl_pathv != NULL)
@@ -332,9 +333,9 @@ __globfree (pglob)
     }
 }
 #ifdef __GLOB64
-strong_alias(__globfree64,globfree64)
+libc_hidden_def(globfree64)
 #else
-strong_alias(__globfree,globfree)
+libc_hidden_def(globfree)
 #endif
 
 
@@ -432,7 +433,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 	return GLOB_ABORTED;
     }
 
-  meta = __glob_pattern_p (pattern, !(flags & GLOB_NOESCAPE));
+  meta = glob_pattern_p (pattern, !(flags & GLOB_NOESCAPE));
 
   if (meta)
     flags |= GLOB_MAGCHAR;

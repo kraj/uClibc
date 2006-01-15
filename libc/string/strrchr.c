@@ -27,7 +27,7 @@ Wchar *Wstrrchr(register const  Wchar *s, Wint c)
 
 	return (Wchar *) p;			/* silence the warning */
 }
-libc_hidden_def(strrchr)
 #ifndef WANT_WIDE
+libc_hidden_def(strrchr)
 strong_alias(strrchr,rindex)
 #endif

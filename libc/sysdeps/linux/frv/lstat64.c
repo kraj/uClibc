@@ -31,7 +31,7 @@
 #if defined __UCLIBC_HAS_LFS__
 #define __NR___syscall_lstat64 __NR_lstat64
 static inline _syscall2(int, __syscall_lstat64, const char *, file_name, struct stat64 *, buf);
-strong_alias(__syscall_lstat64,lstat64)
 libc_hidden_proto(lstat64)
+strong_alias(__syscall_lstat64,lstat64)
 libc_hidden_def(lstat64)
 #endif

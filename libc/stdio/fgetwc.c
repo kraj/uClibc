@@ -113,9 +113,10 @@ libc_hidden_def(fgetwc_unlocked)
 
 strong_alias(fgetwc_unlocked,getwc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-strong_alias(fgetwc_unlocked,fgetwc)
 libc_hidden_proto(fgetwc)
+strong_alias(fgetwc_unlocked,fgetwc)
 libc_hidden_def(fgetwc)
+
 strong_alias(fgetwc_unlocked,getwc)
 #endif
 
@@ -136,6 +137,6 @@ wint_t fgetwc(register FILE *stream)
 	return retval;
 }
 libc_hidden_def(fgetwc)
-strong_alias(fgetwc,getwc)
 
+strong_alias(fgetwc,getwc)
 #endif

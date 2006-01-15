@@ -14,6 +14,6 @@ SYSCALL__ (__libc_fork, 0)
 	   R0&-1==R0, and the child gets R0&0==0.  */
      /* i dunno what the blurb above is useful for. we just return. */
 __asm__("ret\n\tnop");
-strong_alias(__libc_fork,fork)
 libc_hidden_proto(fork)
+strong_alias(__libc_fork,fork)
 libc_hidden_def(fork)

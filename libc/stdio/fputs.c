@@ -29,8 +29,8 @@ int fputs_unlocked(register const char * __restrict s,
 libc_hidden_def(fputs_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-strong_alias(fputs_unlocked,fputs)
 libc_hidden_proto(fputs)
+strong_alias(fputs_unlocked,fputs)
 libc_hidden_def(fputs)
 #endif
 

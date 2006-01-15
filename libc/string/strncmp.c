@@ -37,4 +37,6 @@ int Wstrncmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 	return r;
 #endif
 }
+#ifndef WANT_WIDE
 libc_hidden_def(strncmp)
+#endif

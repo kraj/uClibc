@@ -130,8 +130,8 @@ int fflush_unlocked(register FILE *stream)
 libc_hidden_def(fflush_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-strong_alias(fflush_unlocked,fflush)
 libc_hidden_proto(fflush)
+strong_alias(fflush_unlocked,fflush)
 libc_hidden_def(fflush)
 #endif
 

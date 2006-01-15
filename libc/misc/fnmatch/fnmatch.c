@@ -475,7 +475,6 @@ compat_symbol (libc, __fnmatch_old, fnmatch, GLIBC_2_0);
 libc_hidden_ver (__fnmatch, fnmatch)
 #  endif
 # else
-libc_hidden_proto(fnmatch)
 libc_hidden_def(fnmatch)
 # endif
 

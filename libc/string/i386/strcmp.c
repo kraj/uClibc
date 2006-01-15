@@ -55,7 +55,7 @@ int strcmp(const char *cs, const char *ct)
 libc_hidden_def(strcmp)
 
 #ifndef __UCLIBC_HAS_LOCALE__
-strong_alias(strcmp,strcoll)
 libc_hidden_proto(strcoll)
+strong_alias(strcmp,strcoll)
 libc_hidden_def(strcoll)
 #endif

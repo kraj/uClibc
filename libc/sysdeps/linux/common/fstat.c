@@ -37,7 +37,7 @@ int fstat(int fd, struct stat *buf)
 libc_hidden_def(fstat)
 
 #if ! defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
-strong_alias(fstat,fstat64)
 libc_hidden_proto(fstat64)
+strong_alias(fstat,fstat64)
 libc_hidden_def(fstat64)
 #endif

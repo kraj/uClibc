@@ -48,12 +48,12 @@ int __libc_fcntl(int fd, int cmd, ...)
 }
 libc_hidden_def(__libc_fcntl)
 
-strong_alias(__libc_fcntl,fcntl)
 libc_hidden_proto(fcntl)
+strong_alias(__libc_fcntl,fcntl)
 libc_hidden_def(fcntl)
 #if ! defined __NR_fcntl64 && defined __UCLIBC_HAS_LFS__
 strong_alias(__libc_fcntl,__libc_fcntl64)
-strong_alias(__libc_fcntl,fcntl64)
 libc_hidden_proto(fcntl64)
+strong_alias(__libc_fcntl,fcntl64)
 libc_hidden_def(fcntl64)
 #endif

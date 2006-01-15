@@ -12,8 +12,8 @@
 
 #define __NR___libc_write __NR_write
 _syscall3(ssize_t, __libc_write, int, fd, const __ptr_t, buf, size_t, count);
-strong_alias(__libc_write,write)
 libc_hidden_proto(write)
+strong_alias(__libc_write,write)
 libc_hidden_def(write)
 #if 0
 /* Stupid libgcc.a from gcc 2.95.x uses __write in pure.o

@@ -98,7 +98,8 @@ static char * value(register char *p)
     return ((p = strchr(p, '=')) ? ++p : NULL);
 }
 
-int attribute_hidden __setttyent(void)
+libc_hidden_proto(setttyent)
+int setttyent(void)
 {
 
     if (tf) {
@@ -113,15 +114,16 @@ int attribute_hidden __setttyent(void)
     }
     return (0);
 }
-strong_alias(__setttyent,setttyent)
+libc_hidden_def(setttyent)
 
-struct ttyent attribute_hidden * __getttyent(void)
+libc_hidden_proto(getttyent)
+struct ttyent * getttyent(void)
 {
     register int c;
     register char *p;
     static char *line = NULL;
 
-    if (!tf && !__setttyent())
+    if (!tf && !setttyent())
 	return (NULL);
 
     if (!line) {
@@ -191,9 +193,10 @@ struct ttyent attribute_hidden * __getttyent(void)
 	*p = '\0';
     return (&tty);
 }
-strong_alias(__getttyent,getttyent)
+libc_hidden_def(getttyent)
 
-int attribute_hidden __endttyent(void)
+libc_hidden_proto(endttyent)
+int endttyent(void)
 {
     int rval;
 
@@ -204,16 +207,16 @@ int attribute_hidden __endttyent(void)
     }
     return (1);
 }
-strong_alias(__endttyent,endttyent)
+libc_hidden_def(endttyent)
 
 struct ttyent * getttynam(const char *tty)
 {
     register struct ttyent *t;
 
-    __setttyent();
-    while ((t = __getttyent()))
+    setttyent();
+    while ((t = getttyent()))
 	if (!strcmp(tty, t->ty_name))
 	    break;
-    __endttyent();
+    endttyent();
     return (t);
 }

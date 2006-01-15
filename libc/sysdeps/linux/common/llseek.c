@@ -17,6 +17,7 @@
 # undef __USE_FILE_OFFSET64
 #endif
 #include <errno.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
 
@@ -44,7 +45,7 @@ loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 	return(loff_t)(__libc_lseek(fd, (off_t) (offset), whence));
 }
 #endif
-strong_alias(__libc_lseek64,lseek64)
 libc_hidden_proto(lseek64)
+strong_alias(__libc_lseek64,lseek64)
 libc_hidden_def(lseek64)
 //strong_alias(__libc_lseek64,_llseek)

@@ -34,4 +34,6 @@ Wchar *Wstrncpy(Wchar * __restrict s1, register const Wchar * __restrict s2,
 	
 	return s1;
 }
+#ifndef WANT_WIDE
 libc_hidden_def(strncpy)
+#endif

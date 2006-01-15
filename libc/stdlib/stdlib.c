@@ -286,8 +286,11 @@ long atol(const char *nptr)
 libc_hidden_def(atol)
 
 #if UINT_MAX == ULONG_MAX
-strong_alias(atol,atoi)
+/* psm: need to redefine atoi here */
+#undef atoi
+extern long int atoi (__const char *__nptr) __THROW __attribute_pure__ __nonnull ((1)) __wur;
 libc_hidden_proto(atoi)
+strong_alias(atol,atoi)
 libc_hidden_def(atoi)
 #endif
 
@@ -327,8 +330,8 @@ strong_alias(strtol,strtoimax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-strong_alias(__XL_NPP(strtol),__XL_NPP(strtoll))
 libc_hidden_proto(__XL_NPP(strtoll))
+strong_alias(__XL_NPP(strtol),__XL_NPP(strtoll))
 libc_hidden_def(__XL_NPP(strtoll))
 #endif
 
@@ -375,8 +378,8 @@ strong_alias(strtoul,strtoumax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-strong_alias(__XL_NPP(strtoul),__XL_NPP(strtoull))
 libc_hidden_proto(__XL_NPP(strtoull))
+strong_alias(__XL_NPP(strtoul),__XL_NPP(strtoull))
 libc_hidden_def(__XL_NPP(strtoull))
 #endif
 
@@ -1015,8 +1018,8 @@ strong_alias(wcstol,wcstoimax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-strong_alias(__XL_NPP(wcstol),__XL_NPP(wcstoll))
 libc_hidden_proto(__XL_NPP(wcstoll))
+strong_alias(__XL_NPP(wcstol),__XL_NPP(wcstoll))
 libc_hidden_def(__XL_NPP(wcstoll))
 #endif
 
@@ -1063,8 +1066,8 @@ strong_alias(wcstoul,wcstoumax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-strong_alias(__XL_NPP(wcstoul),__XL_NPP(wcstoull))
 libc_hidden_proto(__XL_NPP(wcstoull))
+strong_alias(__XL_NPP(wcstoul),__XL_NPP(wcstoull))
 libc_hidden_def(__XL_NPP(wcstoull))
 #endif
 

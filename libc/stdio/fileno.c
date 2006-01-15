@@ -25,8 +25,8 @@ int fileno_unlocked(register FILE *stream)
 libc_hidden_def(fileno_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-strong_alias(fileno_unlocked,fileno)
 libc_hidden_proto(fileno)
+strong_alias(fileno_unlocked,fileno)
 libc_hidden_def(fileno)
 #endif
 

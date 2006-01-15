@@ -23,8 +23,8 @@ int fputws_unlocked(const wchar_t *__restrict ws,
 libc_hidden_def(fputws_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-strong_alias(fputws_unlocked,fputws)
 libc_hidden_proto(fputws)
+strong_alias(fputws_unlocked,fputws)
 libc_hidden_def(fputws)
 #endif
 
