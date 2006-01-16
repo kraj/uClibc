@@ -34,13 +34,6 @@
 #include <libintl.h>
 #endif
 
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncmp)
-libc_hidden_proto(getenv)
-libc_hidden_proto(fprintf)
-
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Enable gettext awareness.
 #endif /* __UCLIBC_MJN3_ONLY__ */
@@ -66,7 +59,19 @@ libc_hidden_proto(fprintf)
    GNU application programs can use a third alternative mode in which
    they can distinguish the relative order of options and other arguments.  */
 
-#include "getopt.h"
+#include <getopt.h>
+
+libc_hidden_proto(strchr)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strncmp)
+libc_hidden_proto(getenv)
+libc_hidden_proto(fprintf)
+libc_hidden_proto(optarg)
+libc_hidden_proto(opterr)
+libc_hidden_proto(optind)
+libc_hidden_proto(optopt)
+libc_hidden_proto(stderr)
 
 extern int _getopt_internal (int argc, char *const *argv, const char *optstring, 
 	const struct option *longopts, int *longind, int long_only) attribute_hidden;
@@ -79,6 +84,7 @@ extern int _getopt_internal (int argc, char *const *argv, const char *optstring,
    each non-option ARGV-element is returned here.  */
 
 char *optarg = NULL;
+libc_hidden_def(optarg)
 
 /* Index in ARGV of the next element to be scanned.
    This is used for communication to and from the caller
@@ -94,17 +100,20 @@ char *optarg = NULL;
 
 /* 1003.2 says this must be 1 before any call.  */
 int optind = 1;
+libc_hidden_def(optind)
 
 /* Callers store zero here to inhibit the error message
    for unrecognized options.  */
 
 int opterr = 1;
+libc_hidden_def(opterr)
 
 /* Set to an option character which was unrecognized.
    This must be initialized on some systems to avoid linking in the
    system's own getopt implementation.  */
 
 int optopt = '?';
+libc_hidden_def(optopt)
 
 /* The next char to be scanned in the option-element
    in which the last option character we returned was found.

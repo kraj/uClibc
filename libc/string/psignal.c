@@ -12,6 +12,7 @@
 
 libc_hidden_proto(fprintf)
 libc_hidden_proto(strsignal)
+libc_hidden_proto(stderr)
 
 /* TODO: make this threadsafe with a reentrant version of strsignal? */
 

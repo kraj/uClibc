@@ -51,6 +51,11 @@ libc_hidden_proto(sprintf)
 libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
 libc_hidden_proto(fprintf)
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+#else
+libc_hidden_proto(__ctype_b)
+#endif
 
 /**********************************************************************/
 /* Sizes for staticly allocated buffers. */

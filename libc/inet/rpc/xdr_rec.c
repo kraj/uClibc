@@ -64,6 +64,7 @@ libc_hidden_proto(fwprintf)
 libc_hidden_proto(memcpy)
 libc_hidden_proto(fputs)
 libc_hidden_proto(lseek)
+libc_hidden_proto(stderr)
 
 static bool_t xdrrec_getlong (XDR *, long *);
 static bool_t xdrrec_putlong (XDR *, const long *);

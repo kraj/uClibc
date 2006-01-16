@@ -86,6 +86,9 @@ libc_hidden_proto(iswspace)
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
 #endif /* __UCLIBC_HAS_XLOCALE__ */
+#ifdef __UCLIBC_HAS_LOCALE__
+libc_hidden_proto(__global_locale)
+#endif
 
 /* TODO: clean up the following... */
 
@@ -476,6 +479,12 @@ unsigned long attribute_hidden _stdlib_strto_l(register const Wchar * __restrict
 /* This is the main work fuction which handles both strtol (sflag = 1) and
  * strtoul (sflag = 0). */
 
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+#else
+libc_hidden_proto(__ctype_b)
+#endif
+
 unsigned long attribute_hidden __XL_NPP(_stdlib_strto_l)(register const Wchar * __restrict str,
 										Wchar ** __restrict endptr, int base,
 										int sflag   __LOCALE_PARAM )
@@ -618,6 +627,9 @@ unsigned long long attribute_hidden _stdlib_strto_ll(register const Wchar * __re
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
+#ifndef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b)
+#endif
 /* This is the main work fuction which handles both strtoll (sflag = 1) and
  * strtoull (sflag = 0). */
 

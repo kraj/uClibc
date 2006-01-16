@@ -99,6 +99,14 @@ libc_hidden_proto(ungetwc)
 libc_hidden_proto(iswspace)
 libc_hidden_proto(fgetwc_unlocked)
 #endif
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+#else
+#ifdef __UCLIBC_HAS_LOCALE__
+libc_hidden_proto(__global_locale)
+#endif
+libc_hidden_proto(__ctype_b)
+#endif
 
 #ifdef __UCLIBC_HAS_SCANF_GLIBC_A_FLAG__
 #ifdef L_vfscanf

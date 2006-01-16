@@ -89,8 +89,10 @@ strong_alias (__progname_full, program_invocation_name)
  * Note: Apparently we must initialize __environ to ensure that the weak
  * environ symbol is also included.
  */
+libc_hidden_proto(__environ)
 char **__environ = 0;
-weak_alias(__environ, environ)
+libc_hidden_def(__environ)
+strong_alias(__environ,environ)
 
 /* TODO: don't export __pagesize; we cant now because libpthread uses it */
 extern size_t __pagesize;

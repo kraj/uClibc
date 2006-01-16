@@ -13,6 +13,7 @@ link_warning(gets, "the 'gets' function is dangerous and should not be used.")
 
 libc_hidden_proto(getchar_unlocked)
 libc_hidden_proto(__fgetc_unlocked)
+libc_hidden_proto(__stdin)
 
 char *gets(char *s)
 {

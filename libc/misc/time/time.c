@@ -183,6 +183,9 @@ libc_hidden_proto(strncasecmp_l)
 libc_hidden_proto(strtol_l)
 libc_hidden_proto(strtoul_l)
 libc_hidden_proto(nl_langinfo_l)
+libc_hidden_proto(__ctype_b_loc)
+#else
+libc_hidden_proto(__ctype_b)
 #endif
 
 #ifndef __isleap
@@ -229,7 +232,7 @@ typedef struct {
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
-extern pthread_mutex_t _time_tzlock;
+extern pthread_mutex_t _time_tzlock attribute_hidden;
 #endif
 #define TZLOCK		__pthread_mutex_lock(&_time_tzlock)
 #define TZUNLOCK	__pthread_mutex_unlock(&_time_tzlock)
@@ -1701,12 +1704,18 @@ static const char vals[] = {
 #define DEFAULT_RULES (vals + 22)
 
 /* Initialize to UTC. */
+libc_hidden_proto(daylight)
 int daylight = 0;
+libc_hidden_def(daylight)
+libc_hidden_proto(timezone)
 long timezone = 0;
+libc_hidden_def(timezone)
+libc_hidden_proto(tzname)
 char *tzname[2] = { (char *) UTC, (char *) (UTC-1) };
+libc_hidden_def(tzname)
 
 #ifdef __UCLIBC_HAS_THREADS__
-pthread_mutex_t _time_tzlock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+attribute_hidden pthread_mutex_t _time_tzlock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 rule_struct _time_tzinfo[2];

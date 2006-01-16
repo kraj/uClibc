@@ -43,6 +43,11 @@
  * leading 0   -> octal
  * all else    -> decimal
  */
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+#else
+libc_hidden_proto(__ctype_b)
+#endif
 libc_hidden_proto(inet_aton)
 int inet_aton(const char *cp, struct in_addr *addrptr)
 {

@@ -102,6 +102,14 @@ libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
 libc_hidden_proto(fprintf)
 libc_hidden_proto(__h_errno_location)
+libc_hidden_proto(stderr)
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+libc_hidden_proto(__ctype_tolower_loc)
+#else
+libc_hidden_proto(__ctype_b)
+libc_hidden_proto(__ctype_tolower)
+#endif
 
 libc_hidden_proto(rresvport)
 

@@ -112,6 +112,9 @@
 #include <wchar.h>
 #include <bits/uClibc_uwchar.h>
 
+#ifdef __UCLIBC_HAS_LOCALE__
+libc_hidden_proto(__global_locale)
+#endif
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_LOCALE__
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -1233,6 +1236,8 @@ enum {
  *
  */
 
+extern const unsigned char __iconv_codesets[];
+libc_hidden_proto(__iconv_codesets)
 const unsigned char __iconv_codesets[] =
 	"\x0a\xe0""WCHAR_T\x00"		/* superset of UCS-4 but platform-endian */
 #if __BYTE_ORDER == __BIG_ENDIAN
@@ -1265,6 +1270,7 @@ const unsigned char __iconv_codesets[] =
 	"\x08\x02""UTF-8\x00"
 	"\x0b\x01""US-ASCII\x00"
 	"\x07\x01""ASCII";			/* Must be last! (special case to save a nul) */
+libc_hidden_def(__iconv_codesets)
 
 libc_hidden_proto(strcasecmp)
 

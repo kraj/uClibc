@@ -24,6 +24,9 @@ libc_hidden_proto(towlower)
 libc_hidden_proto(tolower_l)
 #  define TOLOWER(C) tolower_l((C), locale_arg)
 # else
+#ifndef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_tolower)
+#endif
 libc_hidden_proto(tolower)
 #  define TOLOWER(C) tolower((C))
 # endif

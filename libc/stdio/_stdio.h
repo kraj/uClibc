@@ -22,6 +22,9 @@
 #include <wchar.h>
 #endif
 
+libc_hidden_proto(stdin)
+libc_hidden_proto(stdout)
+
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 

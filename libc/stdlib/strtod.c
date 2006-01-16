@@ -176,6 +176,16 @@ extern void __fp_range_check(__fpmax_t y, __fpmax_t x) attribute_hidden;
 /**********************************************************************/
 #if defined(L___strtofpmax) || defined(L___strtofpmax_l) || defined(L___wcstofpmax) || defined(L___wcstofpmax_l)
 
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+#else
+#ifdef __UCLIBC_HAS_LOCALE__
+libc_hidden_proto(__global_locale)
+#endif
+libc_hidden_proto(__ctype_b)
+libc_hidden_proto(__ctype_tolower)
+#endif
+
 #if defined(L___wcstofpmax) || defined(L___wcstofpmax_l)
 
 #define __strtofpmax    __wcstofpmax

@@ -37,6 +37,11 @@
 #include <ctype.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+#else
+libc_hidden_proto(__ctype_b)
+#endif
 
 /*
  * Internet network address interpretation routine.

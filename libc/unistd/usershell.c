@@ -47,6 +47,11 @@ libc_hidden_proto(fclose)
 libc_hidden_proto(__fsetlocking)
 libc_hidden_proto(fileno)
 libc_hidden_proto(fgets_unlocked)
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+#else
+libc_hidden_proto(__ctype_b)
+#endif
 
 /*
  * Local shells should NOT be added here.  They should be added in

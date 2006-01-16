@@ -50,6 +50,11 @@ libc_hidden_proto(__fgetc_unlocked)
 libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
 libc_hidden_proto(abort)
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+#else
+libc_hidden_proto(__ctype_b)
+#endif
 
 static char zapchar;
 static FILE *tf;

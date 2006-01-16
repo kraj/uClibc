@@ -84,6 +84,7 @@ libc_hidden_proto(recvmsg)
 libc_hidden_proto(poll)
 libc_hidden_proto(fputs)
 libc_hidden_proto(__rpc_thread_createerr)
+libc_hidden_proto(stderr)
 
 extern u_long _create_xid (void) attribute_hidden;
 

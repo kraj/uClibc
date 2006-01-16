@@ -125,12 +125,19 @@ static FILE _stdio_streams[] = {
 							 0 )
 };
 
+/* psm: moved to _stdio.h: libc_hidden_proto(stdin/stdout) */
 FILE *stdin  = _stdio_streams;
+libc_hidden_def(stdin)
 FILE *stdout = _stdio_streams + 1;
+libc_hidden_def(stdout)
+libc_hidden_proto(stderr)
 FILE *stderr = _stdio_streams + 2;
+libc_hidden_def(stderr)
 
 #ifdef __STDIO_GETC_MACRO
+libc_hidden_proto(__stdin)
 FILE *__stdin = _stdio_streams;		 /* For getchar() macro. */
+libc_hidden_def(__stdin)
 #endif
 #ifdef __STDIO_PUTC_MACRO
 FILE *__stdout = _stdio_streams + 1; /* For putchar() macro. */

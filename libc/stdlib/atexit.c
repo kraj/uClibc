@@ -66,7 +66,7 @@ typedef enum {
 } ef_type; /* exit function types */
 
 /* this is in the L_exit object */
-extern void (*__exit_cleanup) (int);
+extern void (*__exit_cleanup) (int) attribute_hidden;
 
 /* these are in the L___do_exit object */
 extern int __exit_slots attribute_hidden;
@@ -309,7 +309,7 @@ void __exit_handler(int status)
 
 #ifdef L_exit
 extern void weak_function _stdio_term(void) attribute_hidden;
-void (*__exit_cleanup) (int) = 0;
+attribute_hidden void (*__exit_cleanup) (int) = 0;
 #ifdef __UCLIBC_HAS_THREADS__
 pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif

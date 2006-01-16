@@ -68,6 +68,13 @@ libc_hidden_proto(strcmp)
 /*libc_hidden_proto(strchrnul)*/
 libc_hidden_proto(strlen)
 libc_hidden_proto(strcoll)
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+libc_hidden_proto(__ctype_tolower_loc)
+#else
+libc_hidden_proto(__ctype_b)
+libc_hidden_proto(__ctype_tolower)
+#endif
 libc_hidden_proto(tolower)
 libc_hidden_proto(fnmatch)
 libc_hidden_proto(getenv)

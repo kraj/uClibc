@@ -62,6 +62,13 @@ libc_hidden_proto(wctype)
 #define __tolower tolower
 #endif
 #define __mempcpy mempcpy
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+libc_hidden_proto(__ctype_toupper_loc)
+#else
+libc_hidden_proto(__ctype_b)
+libc_hidden_proto(__ctype_toupper)
+#endif
 libc_hidden_proto(toupper)
 libc_hidden_proto(tolower)
 libc_hidden_proto(memcmp)

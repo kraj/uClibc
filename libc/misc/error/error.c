@@ -37,6 +37,8 @@ libc_hidden_proto(vfprintf)
 libc_hidden_proto(fflush)
 libc_hidden_proto(fputc)
 libc_hidden_proto(__fputc_unlocked)
+libc_hidden_proto(stdout)
+libc_hidden_proto(stderr)
 
 /* This variable is incremented each time `error' is called.  */
 unsigned int error_message_count = 0;

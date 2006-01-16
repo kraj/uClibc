@@ -8,6 +8,11 @@
 #include "_string.h"
 #include <ctype.h>
 
+#ifndef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_tolower)
+#else
+libc_hidden_proto(__ctype_tolower_loc)
+#endif
 libc_hidden_proto(tolower)
 
 char *strcasestr(const char *s1, const char *s2)
