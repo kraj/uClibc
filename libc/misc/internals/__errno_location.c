@@ -8,3 +8,5 @@ int * weak_const_function __errno_location (void)
     return &errno;
 }
 #ifdef IS_IN_libc /* not really need, only to keep in sync w/ libc_hidden_proto */
+libc_hidden_def(__errno_location)
+#endif
