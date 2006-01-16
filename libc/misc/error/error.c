@@ -26,7 +26,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include "error.h"
+#include <error.h>
 
 libc_hidden_proto(strcmp)
 libc_hidden_proto(strerror)

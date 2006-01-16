@@ -67,6 +67,7 @@ libc_hidden_proto(svc_register)
 libc_hidden_proto(svcerr_decode)
 libc_hidden_proto(svcudp_create)
 libc_hidden_proto(pmap_unset)
+libc_hidden_proto(xdr_void)
 
 struct proglst_
   {

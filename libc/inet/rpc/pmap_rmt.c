@@ -70,6 +70,8 @@ libc_hidden_proto(xdr_callmsg)
 libc_hidden_proto(xdr_replymsg)
 libc_hidden_proto(xdr_reference)
 libc_hidden_proto(xdr_u_long)
+libc_hidden_proto(xdr_void)
+libc_hidden_proto(xdr_rmtcallres)
 libc_hidden_proto(inet_makeaddr)
 libc_hidden_proto(inet_netof)
 libc_hidden_proto(clntudp_create)
@@ -185,6 +187,7 @@ xdr_rmtcallres (xdrs, crp)
     }
   return FALSE;
 }
+libc_hidden_def(xdr_rmtcallres)
 
 
 /*

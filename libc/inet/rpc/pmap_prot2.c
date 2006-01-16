@@ -44,6 +44,7 @@ static char sccsid[] = "@(#)pmap_prot2.c 1.3 87/08/11 Copyr 1984 Sun Micro";
 
 libc_hidden_proto(xdr_bool)
 libc_hidden_proto(xdr_reference)
+libc_hidden_proto(xdr_pmap)
 
 /*
  * What is going on with linked lists? (!)
@@ -83,6 +84,7 @@ libc_hidden_proto(xdr_reference)
  * the net, yet is the data that the pointer points to which is interesting;
  * this sounds like a job for xdr_reference!
  */
+libc_hidden_proto(xdr_pmaplist)
 bool_t
 xdr_pmaplist (xdrs, rp)
      XDR *xdrs;
@@ -118,3 +120,4 @@ xdr_pmaplist (xdrs, rp)
       rp = freeing ? next : &((*rp)->pml_next);
     }
 }
+libc_hidden_def(xdr_pmaplist)

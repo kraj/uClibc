@@ -101,6 +101,7 @@ libc_hidden_proto(__fgetc_unlocked)
 libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
 libc_hidden_proto(fprintf)
+libc_hidden_proto(__h_errno_location)
 
 libc_hidden_proto(rresvport)
 

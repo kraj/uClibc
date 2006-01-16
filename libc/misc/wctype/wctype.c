@@ -39,6 +39,8 @@
 #include <bits/uClibc_uwchar.h>
 
 libc_hidden_proto(strcmp)
+libc_hidden_proto(tolower)
+libc_hidden_proto(toupper)
 libc_hidden_proto(towlower)
 libc_hidden_proto(towupper)
 libc_hidden_proto(towctrans)
@@ -372,14 +374,12 @@ wint_t TOWLOWER(wint_t wc)
 #endif /* SMALL_UPLOW */
 
 #ifdef L_towlower_l
-//libc_hidden_proto(towlower_l)
 libc_hidden_def(towlower_l)
 #endif /* L_towlower_l */
 
 #endif /* __LOCALE_C_ONLY */
 
 #ifndef L_towlower_l
-//libc_hidden_proto(towlower)
 libc_hidden_def(towlower)
 #endif
 
@@ -482,14 +482,12 @@ wint_t TOWUPPER(wint_t wc)
 #endif /* SMALL_UPLOW */
 
 #ifdef L_towupper_l
-//libc_hidden_proto(towupper_l)
 libc_hidden_def(towupper_l)
 #endif /* L_towupper_l */
 
 #endif /* __LOCALE_C_ONLY */
 
 #ifndef L_towupper_l
-//libc_hidden_proto(towupper)
 libc_hidden_def(towupper)
 #endif
 
@@ -715,14 +713,12 @@ int ISWCTYPE(wint_t wc, wctype_t desc)
 #endif /* defined(L_iswctype) && defined(__UCLIBC_HAS_XLOCALE__) */
 
 #ifdef L_iswctype_l
-//libc_hidden_proto(iswctype_l)
 libc_hidden_def(iswctype_l)
 #endif /* L_iswctype_l */
 
 #endif /* __LOCALE_C_ONLY */
 
 #ifdef L_iswctype
-//libc_hidden_proto(iswctype)
 libc_hidden_def(iswctype)
 #endif /* L_iswctype */
 
@@ -890,14 +886,12 @@ wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
 #endif /* defined(L_towctrans) && defined(__UCLIBC_HAS_XLOCALE__) */
 
 #ifdef L_towctrans_l
-//libc_hidden_proto(towctrans_l)
 libc_hidden_def(towctrans_l)
 #endif /* L_towctrans_l */
 
 #endif /* __LOCALE_C_ONLY */
 
 #ifndef L_towctrans_l
-//libc_hidden_proto(towctrans)
 libc_hidden_def(towctrans)
 #endif
 

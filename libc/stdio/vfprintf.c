@@ -227,9 +227,9 @@ libc_hidden_proto(fputws)
 	(__PA_FLAG_CHAR|PA_FLAG_SHORT|__PA_FLAG_INT|PA_FLAG_LONG|PA_FLAG_LONG_LONG)
 
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__
-extern printf_function _custom_printf_handler[MAX_USER_SPEC];
-extern printf_arginfo_function *_custom_printf_arginfo[MAX_USER_SPEC];
-extern char *_custom_printf_spec;
+extern printf_function _custom_printf_handler[MAX_USER_SPEC] attribute_hidden;
+extern printf_arginfo_function *_custom_printf_arginfo[MAX_USER_SPEC] attribute_hidden;
+extern char *_custom_printf_spec attribute_hidden;
 #endif /* __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__ */
 
 /**********************************************************************/
@@ -831,9 +831,9 @@ static int _is_equal_or_bigger_arg(int curtype, int newtype)
 /* TODO - do this differently? */
 static char _bss_custom_printf_spec[MAX_USER_SPEC]; /* 0-init'd for us.  */
 
-char *_custom_printf_spec = _bss_custom_printf_spec;
-printf_arginfo_function *_custom_printf_arginfo[MAX_USER_SPEC];
-printf_function _custom_printf_handler[MAX_USER_SPEC];
+attribute_hidden char *_custom_printf_spec = _bss_custom_printf_spec;
+attribute_hidden printf_arginfo_function *_custom_printf_arginfo[MAX_USER_SPEC];
+attribute_hidden printf_function _custom_printf_handler[MAX_USER_SPEC];
 #endif /* __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__ */
 
 int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)

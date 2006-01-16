@@ -88,11 +88,13 @@ xdr_free (xdrproc_t proc, char *objp)
 /*
  * XDR nothing
  */
+libc_hidden_proto(xdr_void)
 bool_t
 xdr_void (void)
 {
   return TRUE;
 }
+libc_hidden_def(xdr_void)
 
 /*
  * XDR long integers
@@ -342,6 +344,7 @@ xdr_u_longlong_t (XDR *xdrs, u_quad_t *ullp)
 /*
  * XDR unsigned short integers
  */
+libc_hidden_proto(xdr_u_short)
 bool_t
 xdr_u_short (XDR *xdrs, u_short *usp)
 {
@@ -366,6 +369,7 @@ xdr_u_short (XDR *xdrs, u_short *usp)
     }
   return FALSE;
 }
+libc_hidden_def(xdr_u_short)
 
 
 /*

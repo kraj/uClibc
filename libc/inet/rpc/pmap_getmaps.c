@@ -49,6 +49,9 @@ static char sccsid[] = "@(#)pmap_getmaps.c 1.10 87/08/11 Copyr 1984 Sun Micro";
 
 libc_hidden_proto(clnt_perror)
 libc_hidden_proto(clnttcp_create)
+libc_hidden_proto(xdr_pmap)
+libc_hidden_proto(xdr_pmaplist)
+libc_hidden_proto(xdr_void)
 
 /*
  * Get a copy of the current port maps.

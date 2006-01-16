@@ -85,6 +85,7 @@ libc_hidden_proto(inet_pton)
 libc_hidden_proto(inet_ntop)
 libc_hidden_proto(strtoul)
 libc_hidden_proto(if_nametoindex)
+libc_hidden_proto(__h_errno_location)
 /* libc_hidden_proto(uname) */
 #ifdef __UCLIBC_HAS_IPV6__
 libc_hidden_proto(in6addr_loopback)

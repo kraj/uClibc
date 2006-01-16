@@ -45,6 +45,8 @@ static char sccsid[] = "@(#)pmap_getport.c 1.9 87/08/11 Copyr 1984 Sun Micro";
 
 libc_hidden_proto(clntudp_bufcreate)
 libc_hidden_proto(__rpc_thread_createerr)
+libc_hidden_proto(xdr_u_short)
+libc_hidden_proto(xdr_pmap)
 
 static const struct timeval timeout =
 {5, 0};
