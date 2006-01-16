@@ -16,7 +16,7 @@
  */
 
 /*
- *  Supply some weaks for use by strerror*(), etc.
+ *  Supply some strongs for use by strerror*(), etc.
  *
  *  Aug 30, 2003
  *  Add some hidden names to support locale-enabled libstd++.
@@ -40,7 +40,7 @@ char *__uClibc_dgettext(const char *domainname,
 	return (char *) msgid;
 }
 
-weak_alias(__uClibc_dgettext, __dgettext)
+strong_alias(__uClibc_dgettext, __dgettext)
 
 #endif
 /**********************************************************************/
@@ -52,7 +52,7 @@ char *__uClibc_dcgettext(const char *domainname,
 	return (char *) msgid;
 }
 
-weak_alias(__uClibc_dcgettext, __dcgettext)
+strong_alias(__uClibc_dcgettext, __dcgettext)
 
 #endif
 /**********************************************************************/
@@ -69,7 +69,7 @@ char *__uClibc_textdomain(const char *domainname)
 	return (char *) default_str;
 }
 
-weak_alias(__uClibc_textdomain, __textdomain)
+strong_alias(__uClibc_textdomain, __textdomain)
 
 #endif
 /**********************************************************************/
@@ -95,7 +95,7 @@ char *__uClibc_bindtextdomain(const char *domainname, const char *dirname)
 	return (char *) dir;
 }
 
-weak_alias(__uClibc_bindtextdomain, __bindtextdomain)
+strong_alias(__uClibc_bindtextdomain, __bindtextdomain)
 
 #endif
 /**********************************************************************/

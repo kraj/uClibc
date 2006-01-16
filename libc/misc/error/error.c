@@ -52,7 +52,7 @@ int error_one_per_line;
 void (*error_print_progname) (void) = NULL;
 
 
-void __error (int status, int errnum, const char *message, ...)
+attribute_hidden void __error (int status, int errnum, const char *message, ...)
 {
     va_list args;
 
@@ -70,7 +70,7 @@ void __error (int status, int errnum, const char *message, ...)
 	exit (status);
 }
 
-void __error_at_line (int status, int errnum, const char *file_name,
+attribute_hidden void __error_at_line (int status, int errnum, const char *file_name,
 	       unsigned int line_number, const char *message, ...)
 {
     va_list args;
@@ -106,8 +106,7 @@ void __error_at_line (int status, int errnum, const char *file_name,
 	exit (status);
 }
 
-/* Use the weaks here in an effort at controlling namespace pollution */
 #undef error
 #undef error_at_line
-weak_alias (__error, error)
-weak_alias (__error_at_line, error_at_line)
+strong_alias(__error,error)
+strong_alias(__error_at_line,error_at_line)

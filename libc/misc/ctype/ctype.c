@@ -93,7 +93,7 @@ libc_hidden_proto(__ctype_b)
 #ifdef __UCLIBC_DO_XLOCALE
 #define CTYPE_NAME(X)  __is ## X ## _l
 #define ISCTYPE(C,F)   __isctype_l( C, F, locale_arg)
-#define CTYPE_ALIAS(NAME)    weak_alias( __is ## NAME ## _l , is ## NAME ## _l)
+#define CTYPE_ALIAS(NAME)    strong_alias( __is ## NAME ## _l , is ## NAME ## _l)
 #else
 #define CTYPE_NAME(X)  is ## X
 #define ISCTYPE(C,F)   __isctype( C, F )

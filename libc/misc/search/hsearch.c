@@ -53,7 +53,6 @@ void hdestroy (void)
 {
   hdestroy_r (&htab);
 }
-/* weak_alias (__hdestroy, hdestroy) */
 
 /* Make sure the table is freed if we want to free everything before
    exiting.  */

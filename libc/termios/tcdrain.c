@@ -27,4 +27,4 @@ int __libc_tcdrain (int fd)
 {
       return ioctl(fd, TCSBRK, 1);
 }
-weak_alias (__libc_tcdrain, tcdrain)
+strong_alias(__libc_tcdrain,tcdrain)

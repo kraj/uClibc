@@ -233,7 +233,7 @@ re_compile_pattern (pattern, length, bufp)
   return gettext (__re_error_msgid + __re_error_msgid_idx[(int) ret]);
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_compile_pattern, re_compile_pattern)
+strong_alias(__re_compile_pattern, re_compile_pattern)
 #endif
 
 /* Set by `re_set_syntax' to the current regexp syntax to recognize.  Can
@@ -261,7 +261,7 @@ re_set_syntax (syntax)
   return ret;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_set_syntax, re_set_syntax)
+strong_alias(__re_set_syntax, re_set_syntax)
 #endif
 
 int
@@ -283,7 +283,7 @@ re_compile_fastmap (bufp)
   return 0;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_compile_fastmap, re_compile_fastmap)
+strong_alias(__re_compile_fastmap, re_compile_fastmap)
 #endif
 
 static inline void
@@ -499,7 +499,7 @@ regcomp (preg, pattern, cflags)
   return (int) ret;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__regcomp, regcomp)
+strong_alias(__regcomp, regcomp)
 #endif
 
 /* Returns a message corresponding to an error code, ERRCODE, returned
@@ -546,7 +546,7 @@ regerror (errcode, preg, errbuf, errbuf_size)
   return msg_size;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__regerror, regerror)
+strong_alias(__regerror, regerror)
 #endif
 
 
@@ -630,7 +630,7 @@ regfree (preg)
   preg->translate = NULL;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__regfree, regfree)
+strong_alias(__regfree, regfree)
 #endif
 
 /* Entry points compatible with 4.2 BSD regex library.  We don't define

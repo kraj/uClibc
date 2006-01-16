@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-/* need to hide the 64bit prototype or the weak_alias()
+/* need to hide the 64bit prototype or the strong_alias()
  * will fail when __NR_lstat64 doesnt exist */
 #define lstat64 __hidelstat64
 
