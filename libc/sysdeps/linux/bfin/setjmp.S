@@ -13,7 +13,9 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-.globl ___sigsetjmp;
+.text
+.global ___sigsetjmp;
+.type	___sigsetjmp,STT_FUNC;
 .align 4;
 
 ___sigsetjmp:
@@ -102,4 +104,4 @@ ___sigsetjmp:
 finished:
 	R0 = 0;
 	RTS;
-___sigsetjmp.end:
+.size ___sigsetjmp,.-___sigsetjmp

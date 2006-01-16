@@ -14,7 +14,9 @@
 #define _ASM
 #include <bits/setjmp.h>
 
-.globl ___longjmp;
+.text
+.global ___longjmp;
+.type	___longjmp,STT_FUNC;
 .align 4;
 
 ___longjmp:
@@ -107,4 +109,4 @@ ___longjmp:
 	R0 = 1;
 finished:
 	RTS;
-___longjmp.end:
+.size ___longjmp,.-___longjmp

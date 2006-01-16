@@ -6,11 +6,13 @@
 
 #include <features.h>
 #include <asm/unistd.h>
-	.text
-	.globl _vfork
-	.type	 _vfork,STT_FUNC;
-	.align 4
+
+.text
+.global _vfork
+.type	_vfork,STT_FUNC;
+.align 4
 _vfork:
 	p0 = __NR_vfork;
 	excpt 0;
 	rts;
+.size _vfork,.-_vfork
