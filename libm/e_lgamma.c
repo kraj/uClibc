@@ -18,9 +18,9 @@
  * Method: call __ieee754_lgamma_r
  */
 
+#include <math.h>
 #include "math_private.h"
 
-extern int signgam;
 libm_hidden_proto(signgam)
 
 #ifdef __STDC__

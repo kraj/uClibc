@@ -20,10 +20,9 @@ static char rcsid[] = "$NetBSD: w_lgamma.c,v 1.6 1995/05/10 20:49:24 jtc Exp $";
  * Method: call __ieee754_lgamma_r
  */
 
-#include "math.h"
+#include <math.h>
 #include "math_private.h"
 
-extern int signgam;
 libm_hidden_proto(signgam)
 
 libm_hidden_proto(lgamma)
