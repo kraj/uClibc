@@ -105,7 +105,6 @@ Arch specific TODO:
     recruit jbowler and integrate thumb support
   m68k:
     ldso lazy relocation doesnt work
-    add syscall() http://bugs.uclibc.org/view.php?id=164
   mips:
     brk/pipe fixes: http://www.uclibc.org/lists/uclibc/2006-January/013824.html
                     http://bugs.uclibc.org/view.php?id=469
