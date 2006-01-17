@@ -170,8 +170,9 @@ arc4_getword(as)
 	return val;
 }
 
+libc_hidden_proto(arc4random_stir)
 void
-arc4random_stir()
+arc4random_stir(void)
 {
 	if (!rs_initialized) {
 		arc4_init(&rs);
@@ -179,11 +180,10 @@ arc4random_stir()
 	}
 	arc4_stir(&rs);
 }
+libc_hidden_def(arc4random_stir)
 
 void
-arc4random_addrandom(dat, datlen)
-	u_char *dat;
-	int     datlen;
+arc4random_addrandom(u_char *dat, int datlen)
 {
 	if (!rs_initialized)
 		arc4random_stir();
@@ -191,7 +191,7 @@ arc4random_addrandom(dat, datlen)
 }
 
 u_int32_t
-arc4random()
+arc4random(void)
 {
 	if (!rs_initialized)
 		arc4random_stir();
