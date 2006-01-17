@@ -13,6 +13,6 @@
 #endif
 
 #ifndef __UCLIBC_HAS_LOCALE__
-hidden_strong_alias(__strcmp,__strcoll)
-strong_alias(__strcmp,strcoll)
+strong_alias(strcmp,strcoll)
+libc_hidden_def(strcoll)
 #endif
