@@ -15,7 +15,14 @@
 
 libc_hidden_proto(mmap)
 
-#define __NR__mmap __NR_mmap
+#ifdef __UCLIBC_MMAP_HAS_6_ARGS__
+
+_syscall6(void *, mmap, void *, start, size_t, length,
+		int, prot, int, flags, int, fd, off_t, offset);
+
+#else
+
+# define __NR__mmap __NR_mmap
 static inline _syscall1(__ptr_t, _mmap, unsigned long *, buffer);
 __ptr_t mmap(__ptr_t addr, size_t len, int prot,
 			 int flags, int fd, __off_t offset)
@@ -30,5 +37,8 @@ __ptr_t mmap(__ptr_t addr, size_t len, int prot,
 	buffer[5] = (unsigned long) offset;
 	return (__ptr_t) _mmap(buffer);
 }
+
+#endif
+
 libc_hidden_def(mmap)
 #endif
