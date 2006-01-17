@@ -1,9 +1,9 @@
-
+/* vi: set sw=4 ts=4: */
 /*
  * Various assmbly language/system dependent  hacks that are required
  * so that we can minimize the amount of platform specific code.
+ * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
-#define LINUXBIN
 
 /* Define this if the system uses RELOCA.  */
 #define ELF_USES_RELOCA
@@ -31,19 +31,14 @@
 #undef  MAGIC2
 
 /* Used for error messages */
-#define ELF_TARGET "Sparc"
+#define ELF_TARGET "sparc"
 
-#ifndef COMPILE_ASM
-extern unsigned int _dl_linux_resolver(unsigned int reloc_entry,
-					unsigned int * i);
-#endif
+struct elf_resolve;
+unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
 /*
  * Define this if you want a dynamic loader that works on Solaris.
  */
-#ifndef __linux__
-#define SOLARIS_COMPATIBLE
-#endif
 
 #ifndef COMPILE_ASM
 /* Cheap modulo implementation, taken from arm/ld_sysdep.h. */
@@ -85,13 +80,6 @@ sparc_mod(unsigned long m, unsigned long p)
 }
 
 #define do_rem(result, n, base) ((result) = sparc_mod(n, base))
-#endif
-
-/*
- * dbx wants the binder to have a specific name.  Mustn't disappoint it.
- */
-#ifdef SOLARIS_COMPATIBLE
-#define _dl_linux_resolve _elf_rtbndr
 #endif
 
 /* 4096 bytes alignment */
@@ -160,7 +148,7 @@ static inline void
 elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
 {
-	 Elf32_Rela * rpnt = (void *)rel_addr;
+	Elf32_Rela * rpnt = (void *)rel_addr;
 	--rpnt;
 	do {
 		Elf32_Addr *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
