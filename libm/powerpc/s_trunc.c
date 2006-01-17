@@ -27,6 +27,7 @@ static const double twoTo52      = 4503599627370496.0;
 *                                                                              *
 *******************************************************************************/
 
+libm_hidden_proto(trunc)
 double trunc ( double x )
       {
 	DblInHex argument,OldEnvironment;
@@ -85,3 +86,4 @@ double trunc ( double x )
 *******************************************************************************/
 	return ( x );
 	}
+libm_hidden_def(trunc)

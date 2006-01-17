@@ -32,6 +32,7 @@ static const double huge = 1.0e300;
 static double huge = 1.0e300;
 #endif
 
+libm_hidden_proto(ceil)
 #ifdef __STDC__
 	double ceil(double x)
 #else
@@ -78,4 +79,4 @@ static double huge = 1.0e300;
 	INSERT_WORDS(x,i0,i1);
 	return x;
 }
-
+libm_hidden_def(ceil)

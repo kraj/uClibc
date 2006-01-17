@@ -104,6 +104,7 @@ static const double zero = 0.0;
 static double zero = 0.0;
 #endif
 
+libm_hidden_proto(log1p)
 #ifdef __STDC__
 	double log1p(double x)
 #else
@@ -172,3 +173,4 @@ static double zero = 0.0;
 	if(k==0) return f-(hfsq-s*(hfsq+R)); else
 		 return k*ln2_hi-((hfsq-(s*(hfsq+R)+(k*ln2_lo+c)))-f);
 }
+libm_hidden_def(log1p)

@@ -29,6 +29,7 @@ static const double twoTo52      = 4503599627370496.0;
 *                                                                              *
 *******************************************************************************/
 
+libm_hidden_proto(round)
 double round ( double x )
       {
       DblInHex argument, OldEnvironment;
@@ -111,3 +112,4 @@ double round ( double x )
 *******************************************************************************/
       return ( x );
       }
+libm_hidden_def(round)

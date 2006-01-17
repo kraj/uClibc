@@ -33,4 +33,6 @@ static char rcsid[] = "$NetBSD: s_finite.c,v 1.8 1995/05/10 20:47:17 jtc Exp $";
 	GET_HIGH_WORD(hx,x);
 	return (int)((u_int32_t)((hx&0x7fffffff)-0x7ff00000)>>31);
 }
-weak_alias(__finite,finite)
+libm_hidden_proto(finite)
+strong_alias(__finite,finite)
+libm_hidden_def(finite)

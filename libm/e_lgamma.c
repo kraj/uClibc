@@ -21,6 +21,7 @@
 #include "math_private.h"
 
 extern int signgam;
+libm_hidden_proto(signgam)
 
 #ifdef __STDC__
 	//__private_extern__

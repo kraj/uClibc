@@ -39,6 +39,7 @@ typedef union
       double dbl;
       } DblInHex;
 
+libm_hidden_proto(frexp)
 double frexp ( double value, int *eptr )
       {
       DblInHex argument;
@@ -61,4 +62,4 @@ double frexp ( double value, int *eptr )
 	argument.words.hi = ( argument.words.hi & 0x800fffff ) | 0x3fe00000;
 	return argument.dbl;
 	}
-
+libm_hidden_def(frexp)

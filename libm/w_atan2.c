@@ -20,7 +20,7 @@ static char rcsid[] = "$NetBSD: w_atan2.c,v 1.6 1995/05/10 20:48:39 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-
+libm_hidden_proto(atan2)
 #ifdef __STDC__
 	double atan2(double y, double x)	/* wrapper atan2 */
 #else
@@ -40,3 +40,4 @@ static char rcsid[] = "$NetBSD: w_atan2.c,v 1.6 1995/05/10 20:48:39 jtc Exp $";
 	    return z;
 #endif
 }
+libm_hidden_def(atan2)

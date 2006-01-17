@@ -22,7 +22,7 @@
 
 #include "math_private.h"
 
-
+libm_hidden_proto(llround)
 long long int
 llround (double x)
 {
@@ -73,3 +73,4 @@ llround (double x)
 
   return sign * result;
 }
+libm_hidden_def(llround)

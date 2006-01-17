@@ -33,6 +33,7 @@ static const double one = 1.0;
 static double one = 1.0;
 #endif
 
+libm_hidden_proto(modf)
 #ifdef __STDC__
 	double modf(double x, double *iptr)
 #else
@@ -81,3 +82,4 @@ static double one = 1.0;
 	    }
 	}
 }
+libm_hidden_def(modf)

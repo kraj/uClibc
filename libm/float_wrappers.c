@@ -77,6 +77,7 @@ float       tanhf(float);
 
 
 #ifdef L_acosf
+libm_hidden_proto(acos)
 float acosf (float x)
 {
 	return (float) acos( (double)x );
@@ -85,6 +86,7 @@ float acosf (float x)
 
 
 #ifdef L_acoshf
+libm_hidden_proto(acosh)
 float acoshf (float x)
 {
 	return (float) acosh( (double)x );
@@ -93,6 +95,7 @@ float acoshf (float x)
 
 
 #ifdef L_asinf
+libm_hidden_proto(asin)
 float asinf (float x)
 {
 	return (float) asin( (double)x );
@@ -101,6 +104,7 @@ float asinf (float x)
 
 
 #ifdef L_asinhf
+libm_hidden_proto(asinh)
 float asinhf (float x)
 {
 	return (float) asinh( (double)x );
@@ -109,6 +113,7 @@ float asinhf (float x)
 
 
 #ifdef L_atan2f
+libm_hidden_proto(atan2)
 float atan2f (float x, float y)
 {
 	return (float) atan2( (double)x, (double)y );
@@ -117,6 +122,7 @@ float atan2f (float x, float y)
 
 
 #ifdef L_atanf
+libm_hidden_proto(atan)
 float atanf (float x)
 {
 	return (float) atan( (double)x );
@@ -125,6 +131,7 @@ float atanf (float x)
 
 
 #ifdef L_atanhf
+libm_hidden_proto(atanh)
 float atanhf (float x)
 {
 	return (float) atanh( (double)x );
@@ -133,6 +140,7 @@ float atanhf (float x)
 
 
 #ifdef L_cbrtf
+libm_hidden_proto(cbrt)
 float cbrtf (float x)
 {
 	return (float) cbrt( (double)x );
@@ -141,6 +149,7 @@ float cbrtf (float x)
 
 
 #ifdef L_ceilf
+libm_hidden_proto(ceil)
 float ceilf (float x)
 {
 	return (float) ceil( (double)x );
@@ -149,6 +158,7 @@ float ceilf (float x)
 
 
 #ifdef L_copysignf
+libm_hidden_proto(copysign)
 float copysignf (float x, float y)
 {
 	return (float) copysign( (double)x, (double)y );
@@ -157,6 +167,7 @@ float copysignf (float x, float y)
 
 
 #ifdef L_cosf
+libm_hidden_proto(cos)
 float cosf (float x)
 {
 	return (float) cos( (double)x );
@@ -165,6 +176,7 @@ float cosf (float x)
 
 
 #ifdef L_coshf
+libm_hidden_proto(cosh)
 float coshf (float x)
 {
 	return (float) cosh( (double)x );
@@ -173,6 +185,7 @@ float coshf (float x)
 
 
 #ifdef L_erfcf
+libm_hidden_proto(erfc)
 float erfcf (float x)
 {
 	return (float) erfc( (double)x );
@@ -181,6 +194,7 @@ float erfcf (float x)
 
 
 #ifdef L_erff
+libm_hidden_proto(erf)
 float erff (float x)
 {
 	return (float) erf( (double)x );
@@ -189,6 +203,7 @@ float erff (float x)
 
 
 #ifdef L_exp2f
+libm_hidden_proto(exp2)
 float exp2f (float x)
 {
 	return (float) exp2( (double)x );
@@ -197,6 +212,7 @@ float exp2f (float x)
 
 
 #ifdef L_expf
+libm_hidden_proto(exp)
 float expf (float x)
 {
 	return (float) exp( (double)x );
@@ -205,6 +221,7 @@ float expf (float x)
 
 
 #ifdef L_expm1f
+libm_hidden_proto(expm1)
 float expm1f (float x)
 {
 	return (float) expm1( (double)x );
@@ -213,6 +230,7 @@ float expm1f (float x)
 
 
 #ifdef L_fabsf
+libm_hidden_proto(fabs)
 float fabsf (float x)
 {
 	return (float) fabs( (double)x );
@@ -221,6 +239,7 @@ float fabsf (float x)
 
 
 #ifdef L_fdimf
+libm_hidden_proto(fdim)
 float fdimf (float x, float y)
 {
 	return (float) fdim( (double)x, (double)y );
@@ -229,6 +248,7 @@ float fdimf (float x, float y)
 
 
 #ifdef L_floorf
+libm_hidden_proto(floor)
 float floorf (float x)
 {
 	return (float) floor( (double)x );
@@ -237,6 +257,7 @@ float floorf (float x)
 
 
 #ifdef L_fmaf
+libm_hidden_proto(fma)
 float fmaf (float x, float y, float z)
 {
 	return (float) fma( (double)x, (double)y, (double)z );
@@ -245,6 +266,7 @@ float fmaf (float x, float y, float z)
 
 
 #ifdef L_fmaxf
+libm_hidden_proto(fmax)
 float fmaxf (float x, float y)
 {
 	return (float) fmax( (double)x, (double)y );
@@ -253,6 +275,7 @@ float fmaxf (float x, float y)
 
 
 #ifdef L_fminf
+libm_hidden_proto(fmin)
 float fminf (float x, float y)
 {
 	return (float) fmin( (double)x, (double)y );
@@ -261,6 +284,7 @@ float fminf (float x, float y)
 
 
 #ifdef L_fmodf
+libm_hidden_proto(fmod)
 float fmodf (float x, float y)
 {
 	return (float) fmod( (double)x, (double)y );
@@ -269,6 +293,7 @@ float fmodf (float x, float y)
 
 
 #ifdef L_frexpf
+libm_hidden_proto(frexp)
 float frexpf (float x, int *exp)
 {
 	return (float) frexp( (double)x, exp );
@@ -277,6 +302,7 @@ float frexpf (float x, int *exp)
 
 
 #ifdef L_hypotf
+libm_hidden_proto(hypot)
 float hypotf (float x, float y)
 {
 	return (float) hypot( (double)x, (double)y );
@@ -285,6 +311,7 @@ float hypotf (float x, float y)
 
 
 #ifdef L_ilogbf
+libm_hidden_proto(ilogb)
 int ilogbf (float x)
 {
 	return (float) ilogb( (double)x );
@@ -293,6 +320,7 @@ int ilogbf (float x)
 
 
 #ifdef L_ldexpf
+libm_hidden_proto(ldexp)
 float ldexpf (float x, int exp)
 {
 	return (float) ldexp( (double)x, exp );
@@ -301,6 +329,7 @@ float ldexpf (float x, int exp)
 
 
 #ifdef L_lgammaf
+libm_hidden_proto(lgamma)
 float lgammaf (float x)
 {
 	return (float) lgamma( (double)x );
@@ -309,6 +338,7 @@ float lgammaf (float x)
 
 
 #ifdef L_llrintf
+libm_hidden_proto(llrint)
 long long llrintf (float x)
 {
 	return (float) llrint( (double)x );
@@ -317,6 +347,7 @@ long long llrintf (float x)
 
 
 #ifdef L_llroundf
+libm_hidden_proto(llround)
 long long llroundf (float x)
 {
 	return (float) llround( (double)x );
@@ -325,6 +356,7 @@ long long llroundf (float x)
 
 
 #ifdef L_log10f
+libm_hidden_proto(log10)
 float log10f (float x)
 {
 	return (float) log10( (double)x );
@@ -333,6 +365,7 @@ float log10f (float x)
 
 
 #ifdef L_log1pf
+libm_hidden_proto(log1p)
 float log1pf (float x)
 {
 	return (float) log1p( (double)x );
@@ -341,6 +374,7 @@ float log1pf (float x)
 
 
 #ifdef L_log2f
+libm_hidden_proto(log2)
 float log2f (float x)
 {
 	return (float) log2( (double)x );
@@ -349,6 +383,7 @@ float log2f (float x)
 
 
 #ifdef L_logbf
+libm_hidden_proto(logb)
 float logbf (float x)
 {
 	return (float) logb( (double)x );
@@ -357,6 +392,7 @@ float logbf (float x)
 
 
 #ifdef L_logf
+libm_hidden_proto(log)
 float logf (float x)
 {
 	return (float) log( (double)x );
@@ -365,6 +401,7 @@ float logf (float x)
 
 
 #ifdef L_lrintf
+libm_hidden_proto(lrint)
 long lrintf (float x)
 {
 	return (float) lrint( (double)x );
@@ -373,6 +410,7 @@ long lrintf (float x)
 
 
 #ifdef L_lroundf
+libm_hidden_proto(lround)
 long lroundf (float x)
 {
 	return (float) lround( (double)x );
@@ -381,6 +419,7 @@ long lroundf (float x)
 
 
 #ifdef L_modff
+libm_hidden_proto(modf)
 float modff (float x, float *iptr)
 {
 	double y, result;
@@ -393,6 +432,7 @@ float modff (float x, float *iptr)
 
 
 #ifdef L_nearbyintf
+libm_hidden_proto(nearbyint)
 float nearbyintf (float x)
 {
 	return (float) nearbyint( (double)x );
@@ -401,6 +441,7 @@ float nearbyintf (float x)
 
 
 #ifdef L_nextafterf
+libm_hidden_proto(nextafter)
 float nextafterf (float x, float y)
 {
 	return (float) nextafter( (double)x, (double)y );
@@ -409,6 +450,7 @@ float nextafterf (float x, float y)
 
 
 #ifdef L_nexttowardf
+libm_hidden_proto(nexttoward)
 float nexttowardf (float x, long double y)
 {
 	return (float) nexttoward( (double)x, (double)y );
@@ -417,6 +459,7 @@ float nexttowardf (float x, long double y)
 
 
 #ifdef L_powf
+libm_hidden_proto(pow)
 float powf (float x, float y)
 {
 	return (float) pow( (double)x, (double)y );
@@ -425,6 +468,7 @@ float powf (float x, float y)
 
 
 #ifdef L_remainderf
+libm_hidden_proto(remainder)
 float remainderf (float x, float y)
 {
 	return (float) remainder( (double)x, (double)y );
@@ -433,6 +477,7 @@ float remainderf (float x, float y)
 
 
 #ifdef L_remquof
+libm_hidden_proto(remquo)
 float remquof (float x, float y, int *quo)
 {
 	return (float) remquo( (double)x, (double)y, quo );
@@ -441,6 +486,7 @@ float remquof (float x, float y, int *quo)
 
 
 #ifdef L_rintf
+libm_hidden_proto(rint)
 float rintf (float x)
 {
 	return (float) rint( (double)x );
@@ -449,6 +495,7 @@ float rintf (float x)
 
 
 #ifdef L_roundf
+libm_hidden_proto(round)
 float roundf (float x)
 {
 	return (float) round( (double)x );
@@ -457,6 +504,7 @@ float roundf (float x)
 
 
 #ifdef L_scalblnf
+libm_hidden_proto(scalbln)
 float scalblnf (float x, long exp)
 {
 	return (float) scalbln( (double)x, exp );
@@ -465,6 +513,7 @@ float scalblnf (float x, long exp)
 
 
 #ifdef L_scalbnf
+libm_hidden_proto(scalbn)
 float scalbnf (float x, int exp)
 {
 	return (float) scalbn( (double)x, exp );
@@ -473,6 +522,7 @@ float scalbnf (float x, int exp)
 
 
 #ifdef L_sinf
+libm_hidden_proto(sin)
 float sinf (float x)
 {
 	return (float) sin( (double)x );
@@ -481,6 +531,7 @@ float sinf (float x)
 
 
 #ifdef L_sinhf
+libm_hidden_proto(sinh)
 float sinhf (float x)
 {
 	return (float) sinh( (double)x );
@@ -489,6 +540,7 @@ float sinhf (float x)
 
 
 #ifdef L_sqrtf
+libm_hidden_proto(sqrt)
 float sqrtf (float x)
 {
 	return (float) sqrt( (double)x );
@@ -497,6 +549,7 @@ float sqrtf (float x)
 
 
 #ifdef L_tanf
+libm_hidden_proto(tan)
 float tanf (float x)
 {
 	return (float) tan( (double)x );
@@ -505,6 +558,7 @@ float tanf (float x)
 
 
 #ifdef L_tanhf
+libm_hidden_proto(tanh)
 float tanhf (float x)
 {
 	return (float) tanh( (double)x );
@@ -513,6 +567,7 @@ float tanhf (float x)
 
 
 #ifdef L_tgammaf
+libm_hidden_proto(tgamma)
 float tgammaf (float x)
 {
 	return (float) tgamma( (double)x );
@@ -521,6 +576,7 @@ float tgammaf (float x)
 
 
 #ifdef L_truncf
+libm_hidden_proto(trunc)
 float truncf (float x)
 {
 	return (float) trunc( (double)x );

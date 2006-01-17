@@ -112,6 +112,8 @@ static char rcsid[] = "$NetBSD: s_erf.c,v 1.8 1995/05/10 20:47:05 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
+libm_hidden_proto(fabs)
+
 #ifdef __STDC__
 static const double
 #else
@@ -191,6 +193,7 @@ sb5  =  2.55305040643316442583e+03, /* 0x40A3F219, 0xCEDF3BE6 */
 sb6  =  4.74528541206955367215e+02, /* 0x407DA874, 0xE79FE763 */
 sb7  = -2.24409524465858183362e+01; /* 0xC03670E2, 0x42712D62 */
 
+libm_hidden_proto(erf)
 #ifdef __STDC__
 	double erf(double x)
 #else
@@ -246,7 +249,9 @@ sb7  = -2.24409524465858183362e+01; /* 0xC03670E2, 0x42712D62 */
 	r  =  __ieee754_exp(-z*z-0.5625)*__ieee754_exp((z-x)*(z+x)+R/S);
 	if(hx>=0) return one-r/x; else return  r/x-one;
 }
+libm_hidden_def(erf)
 
+libm_hidden_proto(erfc)
 #ifdef __STDC__
 	double erfc(double x)
 #else
@@ -312,3 +317,4 @@ sb7  = -2.24409524465858183362e+01; /* 0xC03670E2, 0x42712D62 */
 	    if(hx>0) return tiny*tiny; else return two-tiny;
 	}
 }
+libm_hidden_def(erfc)

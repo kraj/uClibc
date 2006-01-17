@@ -40,6 +40,7 @@
    Calls:  none
 ***********************************************************************/
 
+libm_hidden_proto(__fpclassifyf)
 int __fpclassifyf ( float x )
 {
    unsigned int iexp;
@@ -66,6 +67,7 @@ int __fpclassifyf ( float x )
    else
       return FP_SUBNORMAL;        /* must be subnormal */
 }
+libm_hidden_def(__fpclassifyf)
 
 
 /***********************************************************************
@@ -78,6 +80,7 @@ int __fpclassifyf ( float x )
    Calls:  none
 ***********************************************************************/
 
+libm_hidden_proto(__fpclassify)
 int __fpclassify ( double arg )
 {
 	register unsigned int exponent;
@@ -106,6 +109,7 @@ int __fpclassify ( double arg )
 			return FP_SUBNORMAL;
 		}
 }
+libm_hidden_def(__fpclassify)
 
 
 /***********************************************************************
@@ -158,14 +162,14 @@ int __finitef ( float x )
    z.fval = x;
    return ((z.lval & FEXP_MASK) != FEXP_MASK);
 }
-weak_alias (__finitef, finitef)
+strong_alias(__finitef,finitef)
 
 #if 0 /* use __finite in s_finite.c */
 int __finite ( double x )
 {
 	return ( __fpclassify ( x ) >= FP_ZERO );
 }
-weak_alias (__finite, finite)
+strong_alias(__finite,finite)
 #endif
 
 
@@ -178,6 +182,7 @@ weak_alias (__finite, finite)
    Calls:  none
 ***********************************************************************/
 
+libm_hidden_proto(__signbitf)
 int __signbitf ( float x )
 {
    union {
@@ -188,6 +193,7 @@ int __signbitf ( float x )
    z.fval = x;
    return ((z.lval & SIGN_MASK) != 0);
 }
+libm_hidden_def(__signbitf)
 
 
 /***********************************************************************
@@ -197,6 +203,7 @@ int __signbitf ( float x )
    Calls:  none
 ***********************************************************************/
 
+libm_hidden_proto(__signbit)
 int __signbit ( double arg )
 {
       union
@@ -210,6 +217,7 @@ int __signbit ( double arg )
       sign = ( ( x.hex.high & dSgnMask ) == dSgnMask ) ? 1 : 0;
       return sign;
 }
+libm_hidden_def(__signbit)
 
 
 /***********************************************************************
@@ -227,7 +235,7 @@ int __isinff ( float x )
     }
     return 0;
 }
-weak_alias (__isinff, isinff)
+strong_alias(__isinff,isinff)
 
 int __isinf ( double x )
 {
@@ -237,7 +245,7 @@ int __isinf ( double x )
     }
     return 0;
 }
-weak_alias (__isinf, isinf)
+strong_alias(__isinf,isinf)
 
 #if 0
 int __isinfl ( long double x )
@@ -248,7 +256,7 @@ int __isinfl ( long double x )
     }
     return 0;
 }
-weak_alias (__isinfl, isinfl)
+strong_alias(__isinfl,isinfl)
 #endif
 
 /***********************************************************************
@@ -271,14 +279,16 @@ int __isnanf ( float x )
    z.fval = x;
    return (((z.lval&FEXP_MASK) == FEXP_MASK) && ((z.lval&FFRAC_MASK) != 0));
 }
-weak_alias (__isnanf, isnanf)
+strong_alias(__isnanf,isnanf)
 
+libm_hidden_proto(__isnan)
 int __isnan ( double x )
 {
 	int class = __fpclassify(x);
 	return ( class == FP_NAN );
 }
-weak_alias (__isnan, isnan)
+libm_hidden_def(__isnan)
+strong_alias(__isnan,isnan)
 
 #if 0
 int __isnanl ( long double x )
@@ -286,6 +296,6 @@ int __isnanl ( long double x )
 	int class = __fpclassify(x);
 	return ( class == FP_NAN );
 }
-weak_alias (__isnanl, isnanl)
+strong_alias(__isnanl,isnanl)
 #endif
 

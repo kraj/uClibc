@@ -48,6 +48,7 @@ typedef union
 *      Floor(x) returns the largest integer not greater than x.                *
 *******************************************************************************/
 
+libm_hidden_proto(floor)
 double floor ( double x )
 	{
 	DblInHex xInHex,OldEnvironment;
@@ -108,4 +109,4 @@ double floor ( double x )
 *******************************************************************************/
 	return ( x );
 	}
-
+libm_hidden_def(floor)

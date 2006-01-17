@@ -21,7 +21,7 @@ static char rcsid[] = "$NetBSD: w_fmod.c,v 1.6 1995/05/10 20:48:55 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-
+libm_hidden_proto(fmod)
 #ifdef __STDC__
 	double fmod(double x, double y)	/* wrapper fmod */
 #else
@@ -41,3 +41,4 @@ static char rcsid[] = "$NetBSD: w_fmod.c,v 1.6 1995/05/10 20:48:55 jtc Exp $";
 	    return z;
 #endif
 }
+libm_hidden_def(fmod)

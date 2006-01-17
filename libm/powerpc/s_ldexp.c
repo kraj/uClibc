@@ -37,6 +37,7 @@ typedef union
       double dbl;
       } DblInHex;
 
+libm_hidden_proto(ldexp)
 double ldexp ( double value, int exp )
       {
       if ( exp > SHRT_MAX )
@@ -45,4 +46,4 @@ double ldexp ( double value, int exp )
             exp = -SHRT_MAX;
       return scalb ( value, exp  );
       }
-
+libm_hidden_def(ldexp)

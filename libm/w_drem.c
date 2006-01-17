@@ -7,6 +7,8 @@
 
 #include <math.h>
 
+libm_hidden_proto(remainder)
+
 double
 drem(x, y)
 	double x, y;

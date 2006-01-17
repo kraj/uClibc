@@ -48,6 +48,7 @@ typedef union
 *      Ceil(x) returns the smallest integer not less than x.                   *
 *******************************************************************************/
 
+libm_hidden_proto(ceil)
 double ceil ( double x )
 	{
 	DblInHex xInHex,OldEnvironment;
@@ -108,4 +109,4 @@ double ceil ( double x )
 *******************************************************************************/
 	return ( x );
 	}
-
+libm_hidden_def(ceil)
