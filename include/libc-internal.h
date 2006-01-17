@@ -21,6 +21,39 @@
 
 #include <features.h>
 
+#undef __SYMBOL_PREFIX
+#ifndef __SYMBOL_PREFIX
+# ifdef NO_UNDERSCORES
+#  define __SYMBOL_PREFIX
+# else
+#  define __SYMBOL_PREFIX "_"
+# endif
+#endif
+
+#undef C_SYMBOL_NAME
+#ifndef C_SYMBOL_NAME
+# ifdef NO_UNDERSCORES
+#  define C_SYMBOL_NAME(name) name
+# else
+#  define C_SYMBOL_NAME(name) _##name
+# endif
+#endif
+
+#ifndef ASM_LINE_SEP
+# define ASM_LINE_SEP ;
+#endif
+
+#ifdef HAVE_ASM_GLOBAL_DOT_NAME
+# ifndef C_SYMBOL_DOT_NAME
+#  if defined __GNUC__ && defined __GNUC_MINOR__ \
+      && (__GNUC__ << 16) + __GNUC_MINOR__ >= (3 << 16) + 1
+#   define C_SYMBOL_DOT_NAME(name) .name
+#  else
+#   define C_SYMBOL_DOT_NAME(name) .##name
+#  endif
+# endif
+#endif
+
 #ifndef __ASSEMBLER__
 /* GCC understands weak symbols and aliases; use its interface where
    possible, instead of embedded assembly language.  */
@@ -46,12 +79,6 @@
 # define _weak_extern(expr) _Pragma (#expr)
 
 #else /* __ASSEMBLER__ */
-
-#ifdef __SYMBOL_PREFIX
-# define C_SYMBOL_NAME(name) _##name
-#else
-# define C_SYMBOL_NAME(name) name
-#endif
 
 # define strong_alias(name, aliasname)					\
   .global C_SYMBOL_NAME (aliasname) ;					\
@@ -257,7 +284,7 @@
 #  define __hidden_asmname2(prefix, name) #prefix name
 #  define __hidden_ver1(local, internal, name) \
    extern __typeof (name) __EI_##name __asm__(__hidden_asmname (#internal)); \
-   extern __typeof (name) __EI_##name __attribute__((alias (__hidden_asmname (#local))))
+   extern __typeof (name) __EI_##name __attribute__((alias (__hidden_asmname1 (,#local))))
 #  define hidden_def(name)		__hidden_ver1(__GI_##name, name, name);
 #  define hidden_data_def(name)		hidden_def(name)
 #  define hidden_weak(name)		__hidden_ver1(__GI_##name, name, name) __attribute__((weak));
