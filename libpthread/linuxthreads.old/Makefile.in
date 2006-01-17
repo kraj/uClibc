@@ -63,6 +63,7 @@ CFLAGS-forward.c := -DIS_IN_libc
 CFLAGS-libc_pthread_init.c := -DIS_IN_libc
 libpthread_libc_CSRC := forward.c libc_pthread_init.c
 libpthread_libc_OBJ  := $(patsubst %.c, $(libpthread_OUT)/%.o,$(libpthread_libc_CSRC))
+libc-static-y += $(libpthread_OUT)/libc_pthread_init.o
 libc-shared-y += $(libpthread_libc_OBJ:.o=.oS)
 
 libpthread-static-y += $(patsubst %.c,$(libpthread_OUT)/%.o,$(libpthread_SPEC_SRC))
