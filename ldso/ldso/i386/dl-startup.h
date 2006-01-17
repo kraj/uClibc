@@ -64,8 +64,3 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 			_dl_exit(1);
 	}
 }
-
-/* Transfer control to the user's application, once the dynamic loader is
- * done.  This routine has to exit the current function, then call the
- * _dl_elf_main function.  */
-#define START() return _dl_elf_main
