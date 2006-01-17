@@ -24,6 +24,7 @@ static char rcsid[] = "$NetBSD: s_lib_version.c,v 1.6 1995/05/10 20:47:44 jtc Ex
 /*
  * define and initialize _LIB_VERSION
  */
+libm_hidden_proto(_LIB_VERSION)
 #ifdef _POSIX_MODE
 _LIB_VERSION_TYPE _LIB_VERSION = _POSIX_;
 #else
@@ -37,3 +38,4 @@ _LIB_VERSION_TYPE _LIB_VERSION = _IEEE_;
 #endif
 #endif
 #endif
+libm_hidden_def(_LIB_VERSION)

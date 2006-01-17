@@ -14,13 +14,14 @@
 static char rcsid[] = "$NetBSD: k_standard.c,v 1.6 1995/05/10 20:46:35 jtc Exp $";
 #endif
 
-#include "math.h"
+#include <math.h>
 #include "math_private.h"
 #include <errno.h>
 
 libm_hidden_proto(copysign)
 libm_hidden_proto(matherr)
 libm_hidden_proto(rint)
+libm_hidden_proto(_LIB_VERSION)
 
 #ifndef _USE_WRITE
 #include <stdio.h>			/* fputs(), stderr */
