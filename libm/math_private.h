@@ -192,40 +192,4 @@ extern double __kernel_cos (double,double) attribute_hidden;
 extern double __kernel_tan (double,double,int) attribute_hidden;
 extern int    __kernel_rem_pio2 (double*,double*,int,int,int,const int*) attribute_hidden;
 
-
-/* ieee style elementary float functions */
-extern float __ieee754_sqrtf (float) attribute_hidden;
-extern float __ieee754_acosf (float) attribute_hidden;
-extern float __ieee754_acoshf (float) attribute_hidden;
-extern float __ieee754_logf (float) attribute_hidden;
-extern float __ieee754_atanhf (float) attribute_hidden;
-extern float __ieee754_asinf (float) attribute_hidden;
-extern float __ieee754_atan2f (float,float) attribute_hidden;
-extern float __ieee754_expf (float) attribute_hidden;
-extern float __ieee754_coshf (float) attribute_hidden;
-extern float __ieee754_fmodf (float,float) attribute_hidden;
-extern float __ieee754_powf (float,float) attribute_hidden;
-extern float __ieee754_lgammaf_r (float,int *) attribute_hidden;
-extern float __ieee754_gammaf_r (float,int *) attribute_hidden;
-extern float __ieee754_lgammaf (float) attribute_hidden;
-extern float __ieee754_gammaf (float) attribute_hidden;
-extern float __ieee754_log10f (float) attribute_hidden;
-extern float __ieee754_sinhf (float) attribute_hidden;
-extern float __ieee754_hypotf (float,float) attribute_hidden;
-extern float __ieee754_j0f (float) attribute_hidden;
-extern float __ieee754_j1f (float) attribute_hidden;
-extern float __ieee754_y0f (float) attribute_hidden;
-extern float __ieee754_y1f (float) attribute_hidden;
-extern float __ieee754_jnf (int,float) attribute_hidden;
-extern float __ieee754_ynf (int,float) attribute_hidden;
-extern float __ieee754_remainderf (float,float) attribute_hidden;
-extern int   __ieee754_rem_pio2f (float,float*) attribute_hidden;
-extern float __ieee754_scalbf (float,float) attribute_hidden;
-
-/* float versions of fdlibm kernel functions */
-extern float __kernel_sinf (float,float,int) attribute_hidden;
-extern float __kernel_cosf (float,float) attribute_hidden;
-extern float __kernel_tanf (float,float,int) attribute_hidden;
-extern int   __kernel_rem_pio2f (float*,float*,int,int,int,const int*) attribute_hidden;
-
 #endif /* _MATH_PRIVATE_H_ */
