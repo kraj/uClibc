@@ -153,79 +153,79 @@ do {								\
 } while (0)
 
 /* ieee style elementary functions */
-extern double __ieee754_sqrt __P((double));
-extern double __ieee754_acos __P((double));
-extern double __ieee754_acosh __P((double));
-extern double __ieee754_log __P((double));
-extern double __ieee754_atanh __P((double));
-extern double __ieee754_asin __P((double));
-extern double __ieee754_atan2 __P((double,double));
-extern double __ieee754_exp __P((double));
-extern double __ieee754_cosh __P((double));
-extern double __ieee754_fmod __P((double,double));
-extern double __ieee754_pow __P((double,double));
-extern double __ieee754_lgamma_r __P((double,int *));
-extern double __ieee754_gamma_r __P((double,int *));
-extern double __ieee754_lgamma __P((double));
-extern double __ieee754_gamma __P((double));
-extern double __ieee754_log10 __P((double));
-extern double __ieee754_sinh __P((double));
-extern double __ieee754_hypot __P((double,double));
-extern double __ieee754_j0 __P((double));
-extern double __ieee754_j1 __P((double));
-extern double __ieee754_y0 __P((double));
-extern double __ieee754_y1 __P((double));
-extern double __ieee754_jn __P((int,double));
-extern double __ieee754_yn __P((int,double));
-extern double __ieee754_remainder __P((double,double));
-extern int    __ieee754_rem_pio2 __P((double,double*));
+extern double __ieee754_sqrt (double) attribute_hidden;
+extern double __ieee754_acos (double) attribute_hidden;
+extern double __ieee754_acosh (double) attribute_hidden;
+extern double __ieee754_log (double) attribute_hidden;
+extern double __ieee754_atanh (double) attribute_hidden;
+extern double __ieee754_asin (double) attribute_hidden;
+extern double __ieee754_atan2 (double,double) attribute_hidden;
+extern double __ieee754_exp (double) attribute_hidden;
+extern double __ieee754_cosh (double) attribute_hidden;
+extern double __ieee754_fmod (double,double) attribute_hidden;
+extern double __ieee754_pow (double,double) attribute_hidden;
+extern double __ieee754_lgamma_r (double,int *) attribute_hidden;
+extern double __ieee754_gamma_r (double,int *) attribute_hidden;
+extern double __ieee754_lgamma (double) attribute_hidden;
+extern double __ieee754_gamma (double) attribute_hidden;
+extern double __ieee754_log10 (double) attribute_hidden;
+extern double __ieee754_sinh (double) attribute_hidden;
+extern double __ieee754_hypot (double,double) attribute_hidden;
+extern double __ieee754_j0 (double) attribute_hidden;
+extern double __ieee754_j1 (double) attribute_hidden;
+extern double __ieee754_y0 (double) attribute_hidden;
+extern double __ieee754_y1 (double) attribute_hidden;
+extern double __ieee754_jn (int,double) attribute_hidden;
+extern double __ieee754_yn (int,double) attribute_hidden;
+extern double __ieee754_remainder (double,double) attribute_hidden;
+extern int    __ieee754_rem_pio2 (double,double*) attribute_hidden;
 #if defined(_SCALB_INT)
-extern double __ieee754_scalb __P((double,int));
+extern double __ieee754_scalb (double,int) attribute_hidden;
 #else
-extern double __ieee754_scalb __P((double,double));
+extern double __ieee754_scalb (double,double) attribute_hidden;
 #endif
 
 /* fdlibm kernel function */
-extern double __kernel_standard __P((double,double,int)) attribute_hidden;
-extern double __kernel_sin __P((double,double,int)) attribute_hidden;
-extern double __kernel_cos __P((double,double)) attribute_hidden;
-extern double __kernel_tan __P((double,double,int)) attribute_hidden;
-extern int    __kernel_rem_pio2 __P((double*,double*,int,int,int,const int*)) attribute_hidden;
+extern double __kernel_standard (double,double,int) attribute_hidden;
+extern double __kernel_sin (double,double,int) attribute_hidden;
+extern double __kernel_cos (double,double) attribute_hidden;
+extern double __kernel_tan (double,double,int) attribute_hidden;
+extern int    __kernel_rem_pio2 (double*,double*,int,int,int,const int*) attribute_hidden;
 
 
 /* ieee style elementary float functions */
-extern float __ieee754_sqrtf __P((float));
-extern float __ieee754_acosf __P((float));
-extern float __ieee754_acoshf __P((float));
-extern float __ieee754_logf __P((float));
-extern float __ieee754_atanhf __P((float));
-extern float __ieee754_asinf __P((float));
-extern float __ieee754_atan2f __P((float,float));
-extern float __ieee754_expf __P((float));
-extern float __ieee754_coshf __P((float));
-extern float __ieee754_fmodf __P((float,float));
-extern float __ieee754_powf __P((float,float));
-extern float __ieee754_lgammaf_r __P((float,int *));
-extern float __ieee754_gammaf_r __P((float,int *));
-extern float __ieee754_lgammaf __P((float));
-extern float __ieee754_gammaf __P((float));
-extern float __ieee754_log10f __P((float));
-extern float __ieee754_sinhf __P((float));
-extern float __ieee754_hypotf __P((float,float));
-extern float __ieee754_j0f __P((float));
-extern float __ieee754_j1f __P((float));
-extern float __ieee754_y0f __P((float));
-extern float __ieee754_y1f __P((float));
-extern float __ieee754_jnf __P((int,float));
-extern float __ieee754_ynf __P((int,float));
-extern float __ieee754_remainderf __P((float,float));
-extern int   __ieee754_rem_pio2f __P((float,float*));
-extern float __ieee754_scalbf __P((float,float));
+extern float __ieee754_sqrtf (float) attribute_hidden;
+extern float __ieee754_acosf (float) attribute_hidden;
+extern float __ieee754_acoshf (float) attribute_hidden;
+extern float __ieee754_logf (float) attribute_hidden;
+extern float __ieee754_atanhf (float) attribute_hidden;
+extern float __ieee754_asinf (float) attribute_hidden;
+extern float __ieee754_atan2f (float,float) attribute_hidden;
+extern float __ieee754_expf (float) attribute_hidden;
+extern float __ieee754_coshf (float) attribute_hidden;
+extern float __ieee754_fmodf (float,float) attribute_hidden;
+extern float __ieee754_powf (float,float) attribute_hidden;
+extern float __ieee754_lgammaf_r (float,int *) attribute_hidden;
+extern float __ieee754_gammaf_r (float,int *) attribute_hidden;
+extern float __ieee754_lgammaf (float) attribute_hidden;
+extern float __ieee754_gammaf (float) attribute_hidden;
+extern float __ieee754_log10f (float) attribute_hidden;
+extern float __ieee754_sinhf (float) attribute_hidden;
+extern float __ieee754_hypotf (float,float) attribute_hidden;
+extern float __ieee754_j0f (float) attribute_hidden;
+extern float __ieee754_j1f (float) attribute_hidden;
+extern float __ieee754_y0f (float) attribute_hidden;
+extern float __ieee754_y1f (float) attribute_hidden;
+extern float __ieee754_jnf (int,float) attribute_hidden;
+extern float __ieee754_ynf (int,float) attribute_hidden;
+extern float __ieee754_remainderf (float,float) attribute_hidden;
+extern int   __ieee754_rem_pio2f (float,float*) attribute_hidden;
+extern float __ieee754_scalbf (float,float) attribute_hidden;
 
 /* float versions of fdlibm kernel functions */
-extern float __kernel_sinf __P((float,float,int));
-extern float __kernel_cosf __P((float,float));
-extern float __kernel_tanf __P((float,float,int));
-extern int   __kernel_rem_pio2f __P((float*,float*,int,int,int,const int*));
+extern float __kernel_sinf (float,float,int) attribute_hidden;
+extern float __kernel_cosf (float,float) attribute_hidden;
+extern float __kernel_tanf (float,float,int) attribute_hidden;
+extern int   __kernel_rem_pio2f (float*,float*,int,int,int,const int*) attribute_hidden;
 
 #endif /* _MATH_PRIVATE_H_ */
