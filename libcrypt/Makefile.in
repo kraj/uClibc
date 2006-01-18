@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -33,17 +33,27 @@ lib-a-y += $(top_builddir)lib/libcrypt.a
 lib-so-y += $(top_builddir)lib/libcrypt.so
 objclean-y += libcrypt_clean
 
+ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libcrypt.so: $(top_builddir)lib/libcrypt.a $(libc)
 else
 $(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc)
 endif
 	$(call link.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
+else
+$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt.oS $(libc)
+	$(call linkm.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
+endif
 
 $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)
 	$(Q)$(RM) $@
 	$(do_strip)
 	$(do_ar)
+
+$(libcrypt_OUT)/libcrypt.oS: $(libcrypt_SRC)
+	$(Q)$(RM) $@
+	$(compile-m)
+	$(Q)$(STRIPTOOL) $(STRIP_FLAGS) $@
 
 $(top_builddir)lib/libcrypt.a: $(libcrypt-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
@@ -52,4 +62,4 @@ $(top_builddir)lib/libcrypt.a: $(libcrypt-a-y)
 	$(do_ar)
 
 libcrypt_clean:
-	$(RM) $(libcrypt_OUT)/*.{o,os,a}
+	$(RM) $(libcrypt_OUT)/*.{o,os,oS,a}
