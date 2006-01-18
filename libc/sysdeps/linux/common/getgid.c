@@ -13,6 +13,6 @@
 #if defined __NR_getxgid
 # define __NR_getgid __NR_getxgid
 #endif
-_syscall0(gid_t, getgid);
 libc_hidden_proto(getgid)
+_syscall0(gid_t, getgid);
 libc_hidden_def(getgid)
