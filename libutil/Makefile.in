@@ -55,7 +55,7 @@ $(libutil_OUT)/libutil_so.a: $(libutil-so-y)
 $(libutil_OUT)/libutil.oS: $(libutil_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
-	$(Q)$(STRIPTOOL) $(STRIP_FLAGS) $@
+	$(do_t_strip)
 
 $(top_builddir)lib/libutil.a: $(libutil-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)

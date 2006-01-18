@@ -53,7 +53,7 @@ $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)
 $(libcrypt_OUT)/libcrypt.oS: $(libcrypt_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
-	$(Q)$(STRIPTOOL) $(STRIP_FLAGS) $@
+	$(do_t_strip)
 
 $(top_builddir)lib/libcrypt.a: $(libcrypt-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
