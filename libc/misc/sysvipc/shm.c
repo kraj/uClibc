@@ -32,8 +32,8 @@ libc_hidden_proto(getpagesize)
 /* Attach the shared memory segment associated with SHMID to the data
    segment of the calling process.  SHMADDR and SHMFLG determine how
    and where the segment is attached.  */
-#if defined (__alpha__)
-#define __NR_shmat  __NR_osf_shmat
+#if defined(__NR_osf_shmat)
+# define __NR_shmat  __NR_osf_shmat
 #endif
 #ifdef __NR_shmat
 _syscall3(void *, shmat, int, shmid, const void *,shmaddr, int, shmflg);
