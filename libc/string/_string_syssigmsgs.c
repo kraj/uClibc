@@ -43,7 +43,7 @@ const char _string_syssigmsgs[] = {
 	/*  29:  445, 13 */ "I/O possible\0"
 	/*  30:  458, 14 */ "Power failure\0"
 	/*  31:  472, 16 */ "Bad system call"
-#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+#if defined SIGEMT
 	/*  32:  488,  9 */ "\0EMT trap"
 #endif
 };

@@ -145,14 +145,14 @@ static const unsigned char estridx[] = {
 	ENAVAIL,
 	EISNAM,
 	EREMOTEIO,
-#ifdef __mips__
-	0,							/* mips has an outrageous value for this... */
+#if EDQUOT > 200			/* mips has an outrageous value for this... */
+	0,							
 #else
 	EDQUOT,
 #endif
 	ENOMEDIUM,
 	EMEDIUMTYPE,
-#if defined(__mips__) || defined(__sparc__)
+#if EDEADLOCK != EDEADLK
 	EDEADLOCK,
 #endif
 };
@@ -181,11 +181,10 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 		}
 	}
 	i = INT_MAX;	/* Failed, but may need to check mips special case. */
-#ifdef __mips__
-	if (errnum == EDQUOT) {	/* Deal with large EDQUOT value on mips */
+#if EDQUOT > 200	/* Deal with large EDQUOT value on mips */
+	if (errnum == EDQUOT)
 		i = 122;
-	}
-#endif /* __mips__ */
+#endif
  GOT_ESTRIDX:
 #else
 	/* No errno to string index translation needed. */

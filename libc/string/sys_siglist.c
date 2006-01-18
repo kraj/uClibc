@@ -31,7 +31,7 @@ const char *const sys_siglist[_NSIG] = {
 	[SIGPIPE] =			_string_syssigmsgs + 178,
 	[SIGALRM] =			_string_syssigmsgs + 190,
 	[SIGTERM] =			_string_syssigmsgs + 202,
-#if !(defined(__alpha__) || defined(__mips__) || defined(__sparc__))
+#if defined SIGSTKFLT /* not all arches define this, yeah ! */
 	[SIGSTKFLT] =			_string_syssigmsgs + 213,
 #endif
 	[SIGCHLD] =			_string_syssigmsgs + 225,
@@ -49,7 +49,7 @@ const char *const sys_siglist[_NSIG] = {
 	[SIGIO] =			_string_syssigmsgs + 445,
 	[SIGPWR] =			_string_syssigmsgs + 458,
 	[SIGSYS] =			_string_syssigmsgs + 472,
-#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+#if defined SIGEMT /* only some arches define this, yeah ! */
 	[SIGEMT] =			_string_syssigmsgs + 488,
 #endif
 };

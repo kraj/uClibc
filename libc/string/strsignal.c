@@ -58,10 +58,10 @@ static const unsigned char sstridx[] = {
 	SIGPIPE,
 	SIGALRM,
 	SIGTERM,
-#if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
-	0,
-#else
+#if defined SIGSTKFLT
 	SIGSTKFLT,
+#else
+	0,
 #endif
 	SIGCHLD,
 	SIGCONT,
@@ -78,7 +78,7 @@ static const unsigned char sstridx[] = {
 	SIGIO,
 	SIGPWR,
 	SIGSYS,
-#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+#if defined SIGEMT
 	SIGEMT,
 #endif
 };
