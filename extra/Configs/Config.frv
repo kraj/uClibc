@@ -5,7 +5,7 @@
 
 config HAVE_ELF
 	bool
-	select HAS_FPU
+	select UCLIBC_HAS_FPU
 	select ARCH_BIG_ENDIAN
 	select ARCH_HAS_NO_MMU
 	default y
