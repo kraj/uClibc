@@ -191,8 +191,6 @@ extern double difftime (time_t __time1, time_t __time0)
      __THROW __attribute__ ((__const__));
 #endif /* __UCLIBC_HAS_FLOATS__ */
 
-# define CLOCK_IDFIELD_SIZE	3
-
 /* Return the `time_t' representation of TP and normalize TP.  */
 extern time_t mktime (struct tm *__tp) __THROW;
 
