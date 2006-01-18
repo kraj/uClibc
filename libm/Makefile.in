@@ -33,7 +33,7 @@ LIBS-libm.so := $(LIBS)
 
 libm_FULL_NAME := libm-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-ifeq ($(HAS_FPU),y)
+ifeq ($(UCLIBC_HAS_FPU),y)
 -include $(top_srcdir)libm/$(TARGET_ARCH)/Makefile.arch
 endif
 
@@ -84,7 +84,7 @@ libm_DIR := $(top_srcdir)libm
 libm_OUT := $(top_builddir)libm
 
 # assume that arch specific versions are provided as single sources/objects
-ifeq ($(HAS_FPU),y)
+ifeq ($(UCLIBC_HAS_FPU),y)
 ifneq ($(strip $(libm_ARCH_OBJS)),)
 
 # remove generic sources, if arch specific version is present
