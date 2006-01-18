@@ -10,17 +10,9 @@
 #include "syscalls.h"
 #include <unistd.h>
 
-libc_hidden_proto(getuid)
-
-#if defined (__alpha__)
-#define __NR_getuid     __NR_getxuid
+#if defined __NR_getxuid
+# define __NR_getuid     __NR_getxuid
 #endif
-#define __NR___syscall_getuid __NR_getuid
-
-static inline _syscall0(int, __syscall_getuid);
-
-uid_t getuid(void)
-{
-	return (__syscall_getuid());
-}
+libc_hidden_proto(getuid)
+_syscall0(uid_t, getuid);
 libc_hidden_def(getuid)

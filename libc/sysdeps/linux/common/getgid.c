@@ -10,16 +10,9 @@
 #include "syscalls.h"
 #include <unistd.h>
 
-libc_hidden_proto(getgid)
-
-#define __NR___syscall_getgid __NR_getgid
-#if defined (__alpha__)
-#define __NR_getgid     __NR_getxgid
+#if defined __NR_getxgid
+# define __NR_getgid __NR_getxgid
 #endif
-
-static inline _syscall0(int, __syscall_getgid);
-gid_t getgid(void)
-{
-	return (__syscall_getgid());
-}
+_syscall0(gid_t, getgid);
+libc_hidden_proto(getgid)
 libc_hidden_def(getgid)
