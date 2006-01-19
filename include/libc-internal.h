@@ -22,8 +22,6 @@
 #include <features.h>
 #include <bits/uClibc_arch_features.h>
 
-#define HAVE_ELF 1
-
 #ifdef __UCLIBC_NO_UNDERSCORES__
 # define NO_UNDERSCORES
 #else
@@ -197,35 +195,29 @@
 
 #endif /* __ASSEMBLER__ */
 
-/* When a reference to SYMBOL is encountered, the linker will emit a
-   warning message MSG.  */
-#ifdef HAVE_ELF
-
 /* We want the .gnu.warning.SYMBOL section to be unallocated.  */
-# define __make_section_unallocated(section_string)	\
+#define __make_section_unallocated(section_string)	\
   asm (".section " section_string "\n\t.previous");
 
 /* Tacking on "\n\t#" to the section name makes gcc put it's bogus
    section attributes on what looks like a comment to the assembler.  */
-# ifdef __sparc__ //HAVE_SECTION_QUOTES
-#  define __sec_comment "\"\n\t#\""
-# else
-#  define __sec_comment "\n\t#"
-# endif
-# ifdef __cris__
-#  define link_warning(symbol, msg)
-# else
-#  define link_warning(symbol, msg) \
+#ifdef __sparc__ //HAVE_SECTION_QUOTES
+# define __sec_comment "\"\n\t#\""
+#else
+# define __sec_comment "\n\t#"
+#endif
+
+/* When a reference to SYMBOL is encountered, the linker will emit a
+   warning message MSG.  */
+#ifdef __cris__
+# define link_warning(symbol, msg)
+#else
+# define link_warning(symbol, msg) \
   __make_section_unallocated (".gnu.warning." #symbol) \
   static const char __evoke_link_warning_##symbol[]	\
     __attribute__ ((used, section (".gnu.warning." #symbol __sec_comment))) \
     = msg;
-# endif
-#else /* HAVE_ELF */
-# define link_warning(symbol, msg)		\
-     asm (".stabs \"" msg "\",30,0,0,0\n\t"	\
-          ".stabs \"" __USER_LABEL_PREFIX__ #symbol "\",1,0,0,0\n");
-#endif /* HAVE_ELF */
+#endif
 
 #ifndef weak_function
 /* If we do not have the __attribute__ ((weak)) syntax, there is no way we

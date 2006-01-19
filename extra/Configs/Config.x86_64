@@ -3,13 +3,9 @@
 # see extra/config/Kconfig-language.txt
 #
 
-config HAVE_ELF
-	bool
+config TARGET_ARCH
 	select ARCH_HAS_MMU
 	select UCLIBC_HAS_LFS
-	default y
-
-config TARGET_ARCH
 	string
 	default "x86_64"
 

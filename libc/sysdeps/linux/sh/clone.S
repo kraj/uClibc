@@ -25,7 +25,7 @@
 #include <bits/errno.h>
 
 
-#if defined __HAVE_ELF__ && defined __HAVE_SHARED__ 
+#ifdef __HAVE_SHARED__ 
 #define PLTJMP(_x)	_x##@PLT
 #else
 #define PLTJMP(_x)	_x
@@ -98,7 +98,7 @@ clone:
 
 	/* we are done, passing the return value through r0  */
 	mov.l	.L1, r1
-#if defined __HAVE_ELF__ && defined __HAVE_SHARED__ 
+#ifdef __HAVE_SHARED__ 
 	mov.l	r12, @-r15
 	sts.l	pr, @-r15
 	mov	r0, r4

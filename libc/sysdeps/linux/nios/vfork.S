@@ -23,9 +23,7 @@
    .text
    .align 2
    .globl vfork
-#if defined __HAVE_ELF__
    .type  vfork,@function
-#endif
 vfork:
 	MOVIP	%g1, __NR_vfork
 	trap	63

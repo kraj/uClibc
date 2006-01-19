@@ -3,10 +3,6 @@
 # see extra/config/Kconfig-language.txt
 #
 
-config HAVE_ELF
-	bool
-	default y
-
 config TARGET_ARCH
 	default "arm"
 

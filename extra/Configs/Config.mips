@@ -6,10 +6,6 @@
 config TARGET_ARCH
 	default "mips"
 
-config HAVE_ELF
-	bool
-	default y
-
 config ARCH_CFLAGS
 	string
 	default "-mno-split-addresses"

@@ -4,13 +4,9 @@
 #
 
 config TARGET_ARCH
-	default "v850"
-
-config HAVE_ELF
-	bool
 	select ARCH_HAS_NO_MMU
 	select HAVE_NO_PIC
-	default y
+	default "v850"
 
 config ARCH_SUPPORTS_LITTLE_ENDIAN
 	bool

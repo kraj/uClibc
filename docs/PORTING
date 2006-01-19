@@ -11,7 +11,7 @@ you are hacking on.
 - Initially you will want to disable shared libraries, since making
    the shared library loader work requires you first have basic architecture
    support working.  Thus you should add HAVE_NO_SHARED and ARCH_HAS_NO_LDSO
-   to Config.ARCH's HAVE_ELF
+   to Config.ARCH's TARGET_ARCH
 
 ====================
 === libc sysdeps ===

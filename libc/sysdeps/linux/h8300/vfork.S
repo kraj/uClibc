@@ -14,9 +14,7 @@
 	.align 2
 	.globl _errno
 	.globl _vfork
-#if defined __HAVE_ELF__
 	.type	 vfork,@function
-#endif
 _vfork:
 	mov.l	@sp+, er1
 	sub.l	er0,er0

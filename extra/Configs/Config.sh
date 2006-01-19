@@ -6,19 +6,11 @@
 config TARGET_ARCH
 	default "sh"
 
-config HAVE_ELF
-	bool
-	default y
-
 config ARCH_CFLAGS
 	string
 
 config LIBGCC_CFLAGS
 	string
-
-config HAVE_DOT_HIDDEN
-	bool
-	default y
 
 config ARCH_SUPPORTS_BIG_ENDIAN
 	bool

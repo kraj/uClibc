@@ -4,12 +4,8 @@
 #
 
 config TARGET_ARCH
-	default "powerpc"
-
-config HAVE_ELF
-	bool
 	select ARCH_HAS_MMU
-	default y
+	default "powerpc"
 
 config ARCH_SUPPORTS_BIG_ENDIAN
 	bool

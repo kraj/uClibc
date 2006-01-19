@@ -3,17 +3,13 @@
 # see extra/config/Kconfig-language.txt
 #
 
-config HAVE_ELF
-	select ARCH_HAS_NO_MMU
-	select HAVE_NO_SHARED
-	bool
-	default n
-
 config ARCH_SUPPORTS_BIG_ENDIAN
 	bool
 	default y
 
 config TARGET_ARCH
+	select ARCH_HAS_NO_MMU
+	select HAVE_NO_SHARED
 	default "e1"
 
 config ARCH_E1 

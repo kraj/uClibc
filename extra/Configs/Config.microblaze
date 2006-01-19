@@ -4,12 +4,8 @@
 #
 
 config TARGET_ARCH
-	default "microblaze"
-
-config HAVE_ELF
-	bool
 	select ARCH_HAS_NO_MMU
-	default y
+	default "microblaze"
 
 config ARCH_SUPPORTS_BIG_ENDIAN
 	bool

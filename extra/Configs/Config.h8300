@@ -3,11 +3,6 @@
 # see extra/config/Kconfig-language.txt
 #
 
-config HAVE_ELF
-	bool
-	select ARCH_HAS_NO_MMU
-	default y
-
 config ARCH_SUPPORTS_BIG_ENDIAN
 	bool
 	default y
@@ -17,6 +12,7 @@ config ARCH_SUPPORTS_LITTLE_ENDIAN
 	default y
 
 config TARGET_ARCH
+	select ARCH_HAS_NO_MMU
 	default "h8300"
 
 choice

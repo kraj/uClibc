@@ -77,7 +77,7 @@ __sigsetjmp_intern:
 	mov.l	r9, @-r4
 	mov.l	r8, @-r4
 
-#if defined __HAVE_ELF__ && defined __HAVE_SHARED__ 
+#ifdef __HAVE_SHARED__ 
 	mov.l	.LG, r2
 	mova	.LG, r0
 	add	r0, r2

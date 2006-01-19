@@ -3,12 +3,8 @@
 # see extra/config/Kconfig-language.txt
 #
 
-config HAVE_ELF
-	bool
-	select ARCH_HAS_MMU
-	default y
-
 config TARGET_ARCH
+	select ARCH_HAS_MMU
 	string
 	default "i386"
 

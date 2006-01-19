@@ -4,13 +4,9 @@
 #
 
 config TARGET_ARCH
-	default "i960"
-
-config HAVE_ELF
-	bool
 	select ARCH_HAS_NO_MMU
 	select HAS_NO_THREADS
-	default n
+	default "i960"
 
 config ARCH_SUPPORTS_LITTLE_ENDIAN
 	bool

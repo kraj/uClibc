@@ -3,18 +3,14 @@
 # see extra/config/Kconfig-language.txt
 #
 
-config HAVE_ELF
-	select ARCH_HAS_MMU
-	select ARCH_HAS_NO_LDSO
-	select UCLIBC_HAS_LFS
-	bool
-	default y
-
 config ARCH_SUPPORTS_LITTLE_ENDIAN
 	bool
 	default y
 
 config TARGET_ARCH
+	select ARCH_HAS_MMU
+	select ARCH_HAS_NO_LDSO
+	select UCLIBC_HAS_LFS
 	default "alpha"
 
 config ARCH_CFLAGS

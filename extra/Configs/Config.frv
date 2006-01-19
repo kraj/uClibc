@@ -3,14 +3,10 @@
 # see extra/config/Kconfig-language.txt
 #
 
-config HAVE_ELF
-	bool
+config TARGET_ARCH
 	select UCLIBC_HAS_FPU
 	select ARCH_BIG_ENDIAN
 	select ARCH_HAS_NO_MMU
-	default y
-
-config TARGET_ARCH
 	string
 	default "frv"
 
@@ -19,7 +15,3 @@ config ARCH_CFLAGS
 
 config LIBGCC_CFLAGS
 	string
-
-config HAVE_DOT_HIDDEN
-	bool
-	default y
