@@ -224,7 +224,7 @@
 #else /* HAVE_ELF */
 # define link_warning(symbol, msg)		\
      asm (".stabs \"" msg "\",30,0,0,0\n\t"	\
-          ".stabs \"" __C_SYMBOL_PREFIX__ #symbol "\",1,0,0,0\n");
+          ".stabs \"" __USER_LABEL_PREFIX__ #symbol "\",1,0,0,0\n");
 #endif /* HAVE_ELF */
 
 #ifndef weak_function

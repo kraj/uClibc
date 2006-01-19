@@ -22,7 +22,3 @@ config ARCH_CFLAGS
 
 config LIBGCC_CFLAGS
 	string
-	
-config ARCH_HAS_C_SYMBOL_PREFIX
-	bool
-	default y
