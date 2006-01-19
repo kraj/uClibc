@@ -69,4 +69,4 @@ linuxthreads_db_headers_clean:
 	$(RM) $(top_builddir)include/thread_db.h
 
 libthread_db_clean:
-	$(RM) $(libthread_db_OUT)/*.{o,os,a}
+	$(RM) $(libthread_db_OUT)/*.{o,os,oS,a}
