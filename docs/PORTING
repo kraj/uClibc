@@ -77,6 +77,7 @@ TODO: nptl / linuxthreads / linuxthreads.old
 - dl-startup.h:
   - define the _start function which should call _dl_start which takes just one
     parameter ... a pointer to argc (usually on the stack)
+    glibc stores this function in libc/sysdeps/ARCH/dl-machine.h as RTLD_START
   - define the GET_ARGV() macro which calculates the value of argv based upon
     the parameter passed to _dl_start (usually it's simply just ARGS+1)
   - define PERFORM_BOOTSTRAP_RELOC() macro which will handle just the relocs
@@ -113,3 +114,4 @@ TODO: nptl / linuxthreads / linuxthreads.old
   - call _dl_linux_resolver()
   - clean up after call
   - jump to function address now stored in PLT
+  glibc stores this function in libc/sysdeps/ARCH/dl-trampoline.S
