@@ -24,11 +24,16 @@
 /* does your target have an asm .set ? */
 #define __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
 
-/* shouldn't need to change these ... */
-#define __UCLIBC_ASM_GLOBAL_DIRECTIVE__
-#define __UCLIBC_ASM_TYPE_DIRECTIVE_PREFIX__
+/* define if target doesn't like .global */
+#undef __UCLIBC_ASM_GLOBAL_DIRECTIVE__
+
+/* define if target supports .weak */
 #define __UCLIBC_HAVE_ASM_WEAK_DIRECTIVE__
-#define __UCLIBC_HAVE_ASM_WEAKEXT_DIRECTIVE__
-#define __UCLIBC_HAVE_ASM_GLOBAL_DOT_NAME__
+
+/* define if target supports .weakext */
+#undef __UCLIBC_HAVE_ASM_WEAKEXT_DIRECTIVE__
+
+/* needed probably only for ppc64 */
+#undef __UCLIBC_HAVE_ASM_GLOBAL_DOT_NAME__
 
 #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */
