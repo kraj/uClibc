@@ -27,8 +27,6 @@ libcrypt-a-y := $(libcrypt_OBJ)
 endif
 libcrypt-so-y := $(libcrypt_OBJ:.o=.os)
 
-libcrypt-multi-y := $(libcrypt_SRC)
-
 lib-a-y += $(top_builddir)lib/libcrypt.a
 lib-so-y += $(top_builddir)lib/libcrypt.so
 objclean-y += libcrypt_clean
