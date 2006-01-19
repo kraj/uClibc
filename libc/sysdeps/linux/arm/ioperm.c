@@ -47,6 +47,8 @@
 #include <asm/page.h>
 #include <sys/sysctl.h>
 
+#include <sys/io.h>
+
 libc_hidden_proto(ioperm)
 
 libc_hidden_proto(readlink)
@@ -232,27 +234,27 @@ outw(unsigned short b, unsigned long int port)
 
 
 void
-outl(unsigned int b, unsigned long int port)
+outl(unsigned long b, unsigned long int port)
 {
     *((volatile unsigned long *)(IO_ADDR (port))) = b;
 }
 
 
-unsigned int
+unsigned char
 inb (unsigned long int port)
 {
     return *((volatile unsigned char *)(IO_ADDR (port)));
 }
 
 
-unsigned int
+unsigned short int
 inw(unsigned long int port)
 {
     return *((volatile unsigned short *)(IO_ADDR (port)));
 }
 
 
-unsigned int
+unsigned long int
 inl(unsigned long int port)
 {
     return *((volatile unsigned long *)(IO_ADDR (port)));
