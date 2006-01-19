@@ -108,8 +108,7 @@ libm_MSRC := $(libm_DIR)/$(FL_MSRC)
 libm_MOBJ := $(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
 
 ifeq ($(DOMULTI),y)
-libm_DEF := $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
-CFLAGS-libm += $(libm_DEF)
+CFLAGS-libm += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
 endif
 
 libm_OBJS := $(libm_OBJ) $(libm_MOBJ)
