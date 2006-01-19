@@ -52,6 +52,7 @@ pur_disp_compile.S = echo "  "AS $(show_objs)
 pur_disp_compile.m = $(pur_disp_compile.c)
 pur_disp_compile-m = echo "  "CC-m $(show_objs)
 pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS) $@
+pur_disp_t_strip   = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
 pur_disp_ld        = echo "  "LD $(1)
 
@@ -60,6 +61,7 @@ sil_disp_compile.S = true
 sil_disp_compile.m = true
 sil_disp_compile-m = true
 sil_disp_strip     = true
+sil_disp_t_strip   = true
 sil_disp_ar        = true
 sil_disp_ld        = true
 
@@ -68,6 +70,7 @@ ver_disp_compile.S = echo $(cmd_compile.S)
 ver_disp_compile.m = echo $(cmd_compile.m)
 ver_disp_compile-m = echo $(cmd_compile-m)
 ver_disp_strip     = echo $(cmd_strip)
+ver_disp_t_strip   = echo $(cmd_t_strip)
 ver_disp_ar        = echo $(cmd_ar)
 ver_disp_ld        = 
 
@@ -76,6 +79,7 @@ disp_compile.S = $($(DISP)_disp_compile.S)
 disp_compile.m = $($(DISP)_disp_compile.m)
 disp_compile-m = $($(DISP)_disp_compile-m)
 disp_strip     = $($(DISP)_disp_strip)
+disp_t_strip   = $($(DISP)_disp_t_strip)
 disp_ar        = $($(DISP)_disp_ar)
 disp_ld        = $($(DISP)_disp_ld)
 
@@ -95,7 +99,7 @@ compile.S = @$(disp_compile.S) ; $(cmd_compile.S)
 compile.m = @$(disp_compile.m) ; $(cmd_compile.m)
 compile-m = @$(disp_compile-m) ; $(cmd_compile-m)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
-do_t_strip= @$(disp_strip)     ; $(cmd_t_strip)
+do_t_strip= @$(disp_t_strip)   ; $(cmd_t_strip)
 do_ar     = @$(disp_ar)        ; $(cmd_ar)
 
 define compile.u
