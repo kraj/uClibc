@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -25,7 +25,9 @@ libintl_OUT := $(top_builddir)libintl
 libintl_MSRC := $(libintl_DIR)/intl.c
 libintl_MOBJ := $(patsubst %.o,$(libintl_OUT)/%.o,$(MOBJ))
 
-libintl_DEF := $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libintl_MOBJ))))
+ifeq ($(DOMULTI),y)
+CFLAGS-libintl += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libintl_MOBJ))))
+endif
 
 ifeq ($(DOPIC),y)
 libintl-a-y := $(libintl_MOBJ:.o=.os)
@@ -34,24 +36,31 @@ libintl-a-y := $(libintl_MOBJ)
 endif
 libintl-so-y := $(libintl_MOBJ:.o=.os)
 
-CFLAGS-multi-y := $(libintl_DEF)
-libintl-multi-y := $(libintl_MSRC)
-
 lib-a-$(UCLIBC_HAS_GETTEXT_AWARENESS) += $(top_builddir)lib/libintl.a
 lib-so-$(UCLIBC_HAS_GETTEXT_AWARENESS) += $(top_builddir)lib/libintl.so
 objclean-y += libintl_clean
 
+ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libintl.so: $(top_builddir)lib/libintl.a $(libc)
 else
 $(top_builddir)lib/libintl.so: $(libintl_OUT)/libintl_so.a $(libc)
 endif
 	$(call link.so,$(libintl_FULL_NAME),$(MAJOR_VERSION))
+else
+$(top_builddir)lib/libintl.so: $(libintl_OUT)/libintl.oS $(libc)
+	$(call linkm.so,$(libintl_FULL_NAME),$(MAJOR_VERSION))
+endif
 
 $(libintl_OUT)/libintl_so.a: $(libintl-so-y)
 	$(Q)$(RM) $@
 	$(do_strip)
 	$(do_ar)
+
+$(libintl_OUT)/libintl.oS: $(libintl_MSRC)
+	$(Q)$(RM) $@
+	$(compile-m)
+	$(do_t_strip)
 
 $(top_builddir)lib/libintl.a: $(libintl-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
