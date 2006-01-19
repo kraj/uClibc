@@ -13,6 +13,6 @@
 #error Machine byte order unknown.
 
 #if 0
-#define __BYTE_ORDER __BID_ENDIAN
+#define __BYTE_ORDER __BIG_ENDIAN
 #define __BYTE_ORDER __LITTLE_ENDIAN
 #endif
