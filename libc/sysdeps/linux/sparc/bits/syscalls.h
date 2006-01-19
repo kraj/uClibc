@@ -4,8 +4,6 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
-#define __UCLIBC_MMAP_HAS_6_ARGS__
-
 #include <bits/wordsize.h>
 
 /* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
