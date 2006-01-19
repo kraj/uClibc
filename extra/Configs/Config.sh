@@ -6,12 +6,6 @@
 config TARGET_ARCH
 	default "sh"
 
-config ARCH_CFLAGS
-	string
-
-config LIBGCC_CFLAGS
-	string
-
 config ARCH_SUPPORTS_BIG_ENDIAN
 	bool
 	default y
@@ -19,6 +13,16 @@ config ARCH_SUPPORTS_BIG_ENDIAN
 config ARCH_SUPPORTS_LITTLE_ENDIAN
 	bool
 	default y
+
+config TARGET_ARCH_FEATURES
+	bool
+	default y
+
+config ARCH_CFLAGS
+	string
+
+config LIBGCC_CFLAGS
+	string
 
 choice
 	prompt "Target Processor Type"

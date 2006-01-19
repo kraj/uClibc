@@ -3,14 +3,22 @@
 # see extra/config/Kconfig-language.txt
 #
 
+config TARGET_ARCH
+	default "e1"
+
 config ARCH_SUPPORTS_BIG_ENDIAN
 	bool
 	default y
 
-config TARGET_ARCH
+config ARCH_SUPPORTS_LITTLE_ENDIAN
+	bool
+	default n
+
+config TARGET_ARCH_FEATURES
+	bool
+	default y
 	select ARCH_HAS_NO_MMU
 	select HAVE_NO_SHARED
-	default "e1"
 
 config ARCH_E1 
 	bool

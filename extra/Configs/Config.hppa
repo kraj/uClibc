@@ -4,15 +4,23 @@
 #
 
 config TARGET_ARCH
-	select ARCH_HAS_MMU
-	select HAS_NO_THREADS
-	select ARCH_HAS_NO_LDSO
-	select HAVE_NO_SSP
 	default "hppa"
 
 config ARCH_SUPPORTS_BIG_ENDIAN
 	bool
 	default y
+
+config ARCH_SUPPORTS_LITTLE_ENDIAN
+	bool
+	default n
+
+config TARGET_ARCH_FEATURES
+	bool
+	default y
+	select ARCH_HAS_MMU
+	select HAS_NO_THREADS
+	select ARCH_HAS_NO_LDSO
+	select HAVE_NO_SSP
 
 config ARCH_CFLAGS
 	string

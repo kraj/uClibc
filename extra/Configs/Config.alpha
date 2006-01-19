@@ -3,15 +3,23 @@
 # see extra/config/Kconfig-language.txt
 #
 
+config TARGET_ARCH
+	default "alpha"
+
+config ARCH_SUPPORTS_BIG_ENDIAN
+	bool
+	default n
+
 config ARCH_SUPPORTS_LITTLE_ENDIAN
 	bool
 	default y
 
-config TARGET_ARCH
+config TARGET_ARCH_FEATURES
+	bool
+	default y
 	select ARCH_HAS_MMU
 	select ARCH_HAS_NO_LDSO
 	select UCLIBC_HAS_LFS
-	default "alpha"
 
 config ARCH_CFLAGS
 	string

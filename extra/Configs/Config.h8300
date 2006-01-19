@@ -3,6 +3,9 @@
 # see extra/config/Kconfig-language.txt
 #
 
+config TARGET_ARCH
+	default "h8300"
+
 config ARCH_SUPPORTS_BIG_ENDIAN
 	bool
 	default y
@@ -11,9 +14,10 @@ config ARCH_SUPPORTS_LITTLE_ENDIAN
 	bool
 	default y
 
-config TARGET_ARCH
+config TARGET_ARCH_FEATURES
+	bool
+	default y
 	select ARCH_HAS_NO_MMU
-	default "h8300"
 
 choice
 	prompt "Target Processor"
