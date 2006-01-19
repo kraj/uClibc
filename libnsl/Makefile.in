@@ -26,8 +26,6 @@ libnsl-a-y := $(libnsl_OBJ)
 endif
 libnsl-so-y := $(libnsl_OBJ:.o=.os)
 
-libnsl-multi-y := $(libnsl_SRC)
-
 lib-a-y += $(top_builddir)lib/libnsl.a
 lib-so-y += $(top_builddir)lib/libnsl.so
 objclean-y += libnsl_clean
