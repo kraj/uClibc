@@ -119,7 +119,7 @@ static inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv, struct time
 #endif
 
 #ifdef __NR_mmap
-#ifdef MMAP_HAS_6_ARGS
+#ifdef __UCLIBC_MMAP_HAS_6_ARGS__
 #define __NR__dl_mmap __NR_mmap
 static inline _syscall6(void *, _dl_mmap, void *, start, size_t, length,
 		int, prot, int, flags, int, fd, off_t, offset);

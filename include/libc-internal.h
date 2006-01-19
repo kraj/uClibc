@@ -21,6 +21,17 @@
 
 #include <features.h>
 
+#ifdef __UCLIBC_NO_UNDERSCORES__
+# define NO_UNDERSCORES
+#else
+# undef NO_UNDERSCORES
+#endif
+#ifdef __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
+# define HAVE_ASM_SET_DIRECTIVE
+#else
+# undef HAVE_ASM_SET_DIRECTIVE
+#endif
+
 #undef __SYMBOL_PREFIX
 #ifndef __SYMBOL_PREFIX
 # ifdef NO_UNDERSCORES

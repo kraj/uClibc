@@ -37,39 +37,11 @@ libc_hidden_proto(raise)
 libc_hidden_proto(_exit)
 
 /* Our last ditch effort to commit suicide */
-#if defined(__alpha__)
-#define ABORT_INSTRUCTION asm ("call_pal 0")
-#elif defined(__arm__)
-#define ABORT_INSTRUCTION asm ("bl abort")
-#elif defined(__hppa__)
-#define ABORT_INSTRUCTION asm ("iitlbp %r0,(%sr0,%r0)")
-#elif defined(__i386__)
-#define ABORT_INSTRUCTION asm ("hlt")
-#elif defined(__ia64__)
-#define ABORT_INSTRUCTION asm ("break 0")
-#elif defined(__m68k__)
-#define ABORT_INSTRUCTION asm ("illegal")
-#elif defined(__mc68000__)
-#define ABORT_INSTRUCTION asm (".long 0xffffffff")
-#elif defined(__mips__)
-#define ABORT_INSTRUCTION asm ("break 255")
-#elif defined(__powerpc__)
-#define ABORT_INSTRUCTION asm (".long 0")
-#elif defined(__s390__)
-#define ABORT_INSTRUCTION asm (".word 0")
-#elif defined(__sparc__)
-#define ABORT_INSTRUCTION asm ("unimp 0xf00")
-#elif defined(__SH5__)
-#define ABORT_INSTRUCTION asm ("movi 0x10, r9; shori 0xff, r9; trapa r9")
-#elif defined(__sh2__)
-#define ABORT_INSTRUCTION asm ("trapa #32")
-#elif defined(__sh__)
-#define ABORT_INSTRUCTION asm ("trapa #0xff")
-#elif defined(__x86_64__)
-#define ABORT_INSTRUCTION asm ("hlt")
+#ifdef __UCLIBC_ABORT_INSTRUCTION__
+# define ABORT_INSTRUCTION asm(__UCLIBC_ABORT_INSTRUCTION__)
 #else
-#define ABORT_INSTRUCTION
-#warning no abort instruction defined for your arch
+# define ABORT_INSTRUCTION
+# warning "no abort instruction defined for your arch"
 #endif
 
 #ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__

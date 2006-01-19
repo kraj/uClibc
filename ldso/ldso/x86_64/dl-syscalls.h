@@ -4,5 +4,3 @@
 extern int _dl_errno;
 #undef __set_errno
 #define __set_errno(X) {(_dl_errno) = (X);}
-
-#define MMAP_HAS_6_ARGS

@@ -13,11 +13,8 @@
 
 #ifdef __NR_create_module
 
-#if defined(__i386__) || defined(__m68k__) || defined(__arm__) || defined(__thumb__) || defined(__cris__) || defined(__i960__)
+#if defined(__UCLIBC_BROKEN_CREATE_MODULE__)
 # define __NR___create_module  __NR_create_module
-# ifdef __STR_NR_create_module
-#  define __STR_NR___create_module  __STR_NR_create_module
-# endif
 static inline _syscall2(long, __create_module, const char *, name, size_t, size);
 /* By checking the value of errno, we know if we have been fooled 
  * by the syscall2 macro making a very high address look like a 
@@ -33,7 +30,7 @@ unsigned long create_module(const char *name, size_t size)
 	}
 	return ret;
 }
-#elif defined(__alpha__)
+#elif defined(__UCLIBC_SLIGHTLY_BROKEN_CREATE_MODULE__)
 # define __NR___create_module  __NR_create_module
 /* Alpha doesn't have the same problem, exactly, but a bug in older
    kernels fails to clear the error flag.  Clear it here explicitly.  */

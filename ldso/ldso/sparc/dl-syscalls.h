@@ -6,8 +6,6 @@
  *       sysdeps/linux/sparc/bits/syscalls.h at some point ...
  */
 
-#define MMAP_HAS_6_ARGS
-
 #define _SYSCALL_H
 #include <bits/sysnum.h>
 

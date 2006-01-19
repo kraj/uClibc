@@ -32,7 +32,7 @@ _syscall2(int, truncate64, const char *, path, __off64_t, length);
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_truncate64 (args)
 #define __NR___syscall_truncate64 __NR_truncate64
-#if defined(__powerpc__) || defined(__mips__)
+#if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
 static inline _syscall4(int, __syscall_truncate64, const char *, path,
 	uint32_t, pad, unsigned long, high_length, unsigned long, low_length);
 #else
@@ -47,7 +47,7 @@ int truncate64 (const char * path, __off64_t length)
 {
     uint32_t low = length & 0xffffffff;
     uint32_t high = length >> 32;
-#if defined(__powerpc__) || defined(__mips__)
+#if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
     return INLINE_SYSCALL(truncate64, 4, path, 0,
 	    __LONG_LONG_PAIR (high, low));
 #else
