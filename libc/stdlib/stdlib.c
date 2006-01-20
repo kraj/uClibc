@@ -333,6 +333,7 @@ strong_alias(strtol,strtoimax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+extern __typeof(strtol) __XL_NPP(strtoll);
 libc_hidden_proto(__XL_NPP(strtoll))
 strong_alias(__XL_NPP(strtol),__XL_NPP(strtoll))
 libc_hidden_def(__XL_NPP(strtoll))
@@ -381,6 +382,7 @@ strong_alias(strtoul,strtoumax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+extern __typeof(strtoul) __XL_NPP(strtoull);
 libc_hidden_proto(__XL_NPP(strtoull))
 strong_alias(__XL_NPP(strtoul),__XL_NPP(strtoull))
 libc_hidden_def(__XL_NPP(strtoull))
@@ -930,7 +932,7 @@ int mblen(register const char *s, size_t n)
 	if ((r = mbrlen(s, n, &state)) == (size_t) -2) {
 		/* TODO: Should we set an error state? */
 		state.__wc = 0xffffU;	/* Make sure we're in an error state. */
-		return (size_t) -1;		/* TODO: Change error code above? */
+		return -1;		/* TODO: Change error code above? */
 	}
 	return r;
 }
@@ -958,7 +960,7 @@ int mbtowc(wchar_t *__restrict pwc, register const char *__restrict s, size_t n)
 	if ((r = mbrtowc(pwc, s, n, &state)) == (size_t) -2) {
 		/* TODO: Should we set an error state? */
 		state.__wc = 0xffffU;	/* Make sure we're in an error state. */
-		return (size_t) -1;		/* TODO: Change error code above? */
+		return -1;		/* TODO: Change error code above? */
 	}
 	return r;
 }
@@ -1030,6 +1032,7 @@ strong_alias(wcstol,wcstoimax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+extern __typeof(wcstol) __XL_NPP(wcstoll);
 libc_hidden_proto(__XL_NPP(wcstoll))
 strong_alias(__XL_NPP(wcstol),__XL_NPP(wcstoll))
 libc_hidden_def(__XL_NPP(wcstoll))
@@ -1078,6 +1081,7 @@ strong_alias(wcstoul,wcstoumax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+extern __typeof(wcstoul) __XL_NPP(wcstoull);
 libc_hidden_proto(__XL_NPP(wcstoull))
 strong_alias(__XL_NPP(wcstoul),__XL_NPP(wcstoull))
 libc_hidden_def(__XL_NPP(wcstoull))
