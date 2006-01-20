@@ -94,18 +94,33 @@ static inline _syscall2(int, _dl_fstat, int, fd, struct stat *, buf);
 #define __NR__dl_munmap __NR_munmap
 static inline _syscall2(int, _dl_munmap, void *, start, unsigned long, length);
 
+#ifdef __NR_getxuid
+# define __NR_getuid __NR_getxuid
+#endif
 #define __NR__dl_getuid __NR_getuid
 static inline _syscall0(uid_t, _dl_getuid);
 
+#ifndef __NR_geteuid
+# define __NR_geteuid __NR_getuid
+#endif
 #define __NR__dl_geteuid __NR_geteuid
 static inline _syscall0(uid_t, _dl_geteuid);
 
+#ifdef __NR_getxgid
+# define __NR_getgid __NR_getxgid
+#endif
 #define __NR__dl_getgid __NR_getgid
 static inline _syscall0(gid_t, _dl_getgid);
 
+#ifndef __NR_getegid
+# define __NR_getegid __NR_getgid
+#endif
 #define __NR__dl_getegid __NR_getegid
 static inline _syscall0(gid_t, _dl_getegid);
 
+#ifdef __NR_getxpid
+# define __NR_getpid __NR_getxpid
+#endif
 #define __NR__dl_getpid __NR_getpid
 static inline _syscall0(gid_t, _dl_getpid);
 
