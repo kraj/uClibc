@@ -45,6 +45,7 @@ libc_hidden_proto(strlen)
 libc_hidden_proto(strndup)
 libc_hidden_proto(strspn)
 libc_hidden_proto(strcspn)
+libc_hidden_proto(__environ)
 libc_hidden_proto(setenv)
 libc_hidden_proto(unsetenv)
 libc_hidden_proto(waitpid)
@@ -66,12 +67,15 @@ libc_hidden_proto(getpid)
 libc_hidden_proto(sprintf)
 libc_hidden_proto(fprintf)
 libc_hidden_proto(abort)
-
-extern void __wordfree (wordexp_t *__wordexp) __THROW attribute_hidden;
-extern int __glob (__const char *__restrict __pattern, int __flags,
-		 int (*__errfunc) (__const char *, int),
-		 glob_t *__restrict __pglob) __THROW attribute_hidden;
-extern void __globfree (glob_t *__pglob) __THROW attribute_hidden;
+libc_hidden_proto(stderr)
+libc_hidden_proto(glob)
+libc_hidden_proto(globfree)
+libc_hidden_proto(wordfree)
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+#else
+libc_hidden_proto(__ctype_b)
+#endif
 
 #define __WORDEXP_FULL
 //#undef __WORDEXP_FULL
@@ -85,8 +89,8 @@ extern void __globfree (glob_t *__pglob) __THROW attribute_hidden;
 //extern char **__libc_argv;
 
 /* FIXME!!!! */
-int __libc_argc;
-char **__libc_argv;
+int attribute_hidden __libc_argc;
+char attribute_hidden **__libc_argv;
 
 /* Some forward declarations */
 static int parse_dollars(char **word, size_t * word_length,
@@ -379,7 +383,7 @@ do_parse_glob(const char *glob_word, char **word, size_t * word_length,
 	int match;
 	glob_t globbuf;
 
-	error = __glob(glob_word, GLOB_NOCHECK, NULL, &globbuf);
+	error = glob(glob_word, GLOB_NOCHECK, NULL, &globbuf);
 
 	if (error != 0) {
 		/* We can only run into memory problems.  */
@@ -398,7 +402,7 @@ do_parse_glob(const char *glob_word, char **word, size_t * word_length,
 								 globbuf.gl_pathv[match]);
 		}
 
-		__globfree(&globbuf);
+		globfree(&globbuf);
 		return *word ? 0 : WRDE_NOSPACE;
 	}
 
@@ -412,12 +416,12 @@ do_parse_glob(const char *glob_word, char **word, size_t * word_length,
 		char *matching_word = strdup(globbuf.gl_pathv[match]);
 
 		if (matching_word == NULL || w_addword(pwordexp, matching_word)) {
-			__globfree(&globbuf);
+			globfree(&globbuf);
 			return WRDE_NOSPACE;
 		}
 	}
 
-	__globfree(&globbuf);
+	globfree(&globbuf);
 	return 0;
 }
 
@@ -500,7 +504,7 @@ parse_glob(char **word, size_t * word_length, size_t * max_length,
 
 	/* Now tidy up */
   tidy_up:
-	__wordfree(&glob_list);
+	wordfree(&glob_list);
 	return error;
 }
 
@@ -2040,7 +2044,7 @@ parse_dquote(char **word, size_t * word_length, size_t * max_length,
  * wordfree() is to be called after pwordexp is finished with.
  */
 
-void attribute_hidden __wordfree(wordexp_t * pwordexp)
+void wordfree(wordexp_t * pwordexp)
 {
 
 	/* wordexp can set pwordexp to NULL */
@@ -2054,7 +2058,7 @@ void attribute_hidden __wordfree(wordexp_t * pwordexp)
 		pwordexp->we_wordv = NULL;
 	}
 }
-strong_alias(__wordfree,wordfree)
+libc_hidden_def(wordfree)
 
 /*
  * wordexp()
@@ -2073,7 +2077,7 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 
 	if (flags & WRDE_REUSE) {
 		/* Minimal implementation of WRDE_REUSE for now */
-		__wordfree(we);
+		wordfree(we);
 		old_word.we_wordv = NULL;
 	}
 
@@ -2275,7 +2279,7 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 		return WRDE_NOSPACE;
 
 	if ((flags & WRDE_APPEND) == 0)
-		__wordfree(we);
+		wordfree(we);
 
 	*we = old_word;
 	return error;
