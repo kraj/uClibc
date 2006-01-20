@@ -357,7 +357,7 @@
  * by libc_hidden_proto). The reasoning to have it after the header w/ foo's prototype is
  * to get first the __REDIRECT from original header and then create the __GI_foo alias
  * c. no versioning support, hidden[_data]_ver are noop
- * d. hidden_strong_alias() added, and hidden_def() in asm is hidden_strong_alias (not strong_alias)
+ * d. hidden_strong_alias() added, and hidden_def() in asm is hidden_strong_alias (not strong_alias) */
 
 /* Arrange to hide uClibc internals */
 #if defined __GNUC__ && defined __GNUC_MINOR__ && \
