@@ -14,7 +14,7 @@ config ARCH_SUPPORTS_LITTLE_ENDIAN
 	bool
 	default n
 
-config TARGET_ARCH_FEATURES
+config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
 	select ARCH_HAS_MMU
