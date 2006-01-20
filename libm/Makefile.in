@@ -34,7 +34,7 @@ libm_ARCH_OUT:=$(top_builddir)libm/$(TARGET_ARCH)
 
 ifeq ($(UCLIBC_HAS_FPU),y)
 ifeq ($(DO_C99_MATH),y)
--include $(top_srcdir)libm/$(TARGET_ARCH)/Makefile.arch
+-include $(libm_ARCH_DIR)/Makefile.arch
 endif
 endif
 
@@ -162,4 +162,4 @@ $(libm_MOBJ:.o=.os): $(libm_MSRC)
 	$(compile.m)
 
 libm_clean:
-	$(RM) $(libm_OUT)/*.{o,os,oS,a} $(libm_ARCH_OUT)/*.{o,os,oS}
+	$(RM) $(libm_OUT)/{,*/}*.{o,os,oS,a}
