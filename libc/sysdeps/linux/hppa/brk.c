@@ -19,6 +19,7 @@
 
 #include <errno.h>
 #include <sys/syscall.h>
+#include <unistd.h>
 
 libc_hidden_proto(brk)
 
