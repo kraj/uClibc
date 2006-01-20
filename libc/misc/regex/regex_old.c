@@ -3316,11 +3316,15 @@ PREFIX(regex_compile) (ARG_PREFIX(pattern), ARG_PREFIX(size), syntax, bufp)
                         PATFETCH (c);
                         if ((c == ':' && *p == ']') || p == pend)
                           break;
+#if CHAR_CLASS_MAX_LENGTH != 256
 			if (c1 < CHAR_CLASS_MAX_LENGTH)
 			  str[c1++] = c;
 			else
 			  /* This is in any case an invalid class name.  */
 			  str[0] = '\0';
+#else
+			  str[c1++] = c;
+#endif
                       }
                     str[c1] = '\0';
 
