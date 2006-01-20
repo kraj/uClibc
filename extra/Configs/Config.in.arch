@@ -81,23 +81,6 @@ config DO_C99_MATH
 	  If your applications require the newer C99 math library functions, 
 	  then answer Y.
 
-config UCLIBC_HAS_FENV
-	bool "Enable C99 fp rounding and exception handling (fenv.h)"
-	depends on UCLIBC_HAS_FLOATS
-	default n
-	help
-	  Enable support for the C99 floating point rounding and exception
-	  handling routines.  These 11 functions are:
-	    feclearexcept            fegetexceptflag
-	    feraiseexcept            fesetexceptflag
-	    fetestexcept             feholdexcept
-	    fegetround               fesetround
-	    fegetenv                 fesetenv
-	    feupdateenv
-
-	  This functions are not widely used, so if you're unsure, you
-	  can probably safely say N.
-
 config KERNEL_SOURCE
 	string "Linux kernel header location"
 	default "/usr/src/linux"
