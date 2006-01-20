@@ -329,8 +329,9 @@ SSP_CFLAGS:=$(SSP_DISABLE_FLAGS)
 endif
 
 # Some nice CFLAGS to work with
-CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-fno-builtin -nostdinc -D_LIBC -I$(top_builddir)include -I.
+CFLAGS:=-include $(top_builddir)include/libc-symbols.h \
+	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
+	-fno-builtin -nostdinc -I$(top_builddir)include -I.
 
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 
