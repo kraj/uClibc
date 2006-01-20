@@ -1,6 +1,7 @@
 /* Trivial implementation for arches that lack vfork */
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/syscall.h>
 
 #ifdef __NR_fork
 
