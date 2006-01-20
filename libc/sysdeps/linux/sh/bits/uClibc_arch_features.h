@@ -6,9 +6,7 @@
 #define _BITS_UCLIBC_ARCH_FEATURES_H
 
 /* instruction used when calling abort() to kill yourself */
-#if defined(__SH5__)
-# define __UCLIBC_ABORT_INSTRUCTION__ "movi 0x10, r9; shori 0xff, r9; trapa r9"
-#elif defined(__sh2__)
+#if defined(__sh2__)
 # define __UCLIBC_ABORT_INSTRUCTION__ "trapa #32"
 #else /* defined(__sh__) */
 # define __UCLIBC_ABORT_INSTRUCTION__ "trapa #0xff"
