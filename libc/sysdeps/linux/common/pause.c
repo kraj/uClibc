@@ -7,6 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
+#define __UCLIBC_HIDE_DEPRECATED__
 #include "syscalls.h"
 #include <unistd.h>
 

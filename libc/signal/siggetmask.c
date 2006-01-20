@@ -17,6 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define __UCLIBC_HIDE_DEPRECATED__
 #include <signal.h>
 
 libc_hidden_proto(sigblock)

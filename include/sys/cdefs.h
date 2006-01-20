@@ -219,7 +219,7 @@
 #endif
 
 /* gcc allows marking deprecated functions.  */
-#if __GNUC_PREREQ (3,2)
+#if __GNUC_PREREQ (3,2) && !defined(__UCLIBC_HIDE_DEPRECATED__)
 # define __attribute_deprecated__ __attribute__ ((__deprecated__))
 #else
 # define __attribute_deprecated__ /* Ignore */

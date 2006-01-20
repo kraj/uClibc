@@ -35,6 +35,7 @@
 static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #endif /* LIBC_SCCS and not lint */
 
+#define __UCLIBC_HIDE_DEPRECATED__
 #define __FORCE_GLIBC
 #include <features.h>
 
