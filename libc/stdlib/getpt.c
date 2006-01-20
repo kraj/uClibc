@@ -17,11 +17,15 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <paths.h>
+
+libc_hidden_proto(open)
+libc_hidden_proto(close)
 
 #if !defined __ASSUME_DEVPTS__
 # include <sys/statfs.h>
@@ -41,9 +45,6 @@
 /* Prototype for function that opens BSD-style master pseudo-terminals.  */
 extern int __bsd_getpt (void) attribute_hidden;
 #endif
-
-libc_hidden_proto(open)
-libc_hidden_proto(close)
 
 /* Open a master pseudo terminal and return its file descriptor.  */
 int
