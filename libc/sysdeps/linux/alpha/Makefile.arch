@@ -5,10 +5,10 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := sysdep.c #brk.c
+CSRC := sysdep.c
 
 SSRC := \
 	__longjmp.S brk.S bsd-_setjmp.S bsd-setjmp.S clone.S \
-	divl.S divq.S reml.S remq.S setjmp.S
+	divl.S divq.S reml.S remq.S setjmp.S syscall.S
 
 include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch
