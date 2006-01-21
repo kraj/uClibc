@@ -10,7 +10,7 @@
 #include "syscalls.h"
 #include <unistd.h>
 
-extern __off_t __libc_lseek (int __fd, __off_t __offset, int __whence) __THROW;
+extern __typeof(lseek) __libc_lseek;
 libc_hidden_proto(__libc_lseek)
 
 #define __NR___libc_lseek __NR_lseek

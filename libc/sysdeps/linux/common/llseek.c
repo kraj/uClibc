@@ -37,7 +37,7 @@ loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 				(off_t) (offset & 0xffffffff), &result, whence) ?: result);
 }
 #else
-extern __off_t __libc_lseek(int fildes, off_t offset, int whence);
+extern __typeof(lseek) __libc_lseek;
 libc_hidden_proto(__libc_lseek)
 
 loff_t __libc_lseek64(int fd, loff_t offset, int whence)
