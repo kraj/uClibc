@@ -9,7 +9,7 @@
 #include "../linuxthreads/descr.h"
 
 
-/* Indeces for the symbol names.  */
+/* Indices for the symbol names.  */
 enum
   {
     PTHREAD_THREADS_EVENTS = 0,
