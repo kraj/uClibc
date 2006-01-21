@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <signal.h>
 
+libc_hidden_proto(sigprocmask)
+
 int setjmp( jmp_buf state)
 {
 	asm volatile(	"mov %0, G3\n\t"           
@@ -32,7 +34,7 @@ int sigsetjmp( sigjmp_buf state , int savesigs)
 	if(savesigs) {
 		state->__mask_was_saved = 1;
 		/* how arg in <sigprocmask> is not significant */
-		__sigprocmask(SIG_SETMASK, NULL, &state->__saved_mask);
+		sigprocmask(SIG_SETMASK, NULL, &state->__saved_mask);
 	} else
 		state->__mask_was_saved = 0;
 
