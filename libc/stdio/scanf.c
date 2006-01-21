@@ -1182,9 +1182,9 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 	wchar_t *wb;
 #endif /* L_vfwscanf */
 
-#ifdef __UCLIBC_HAS_WCHAR__
+#if defined(__UCLIBC_HAS_LOCALE__) && !defined(L_vfwscanf) || !defined(L_vfscanf)
 	mbstate_t mbstate;
-#endif /* __UCLIBC_HAS_WCHAR__ */
+#endif
 
 	struct scan_cookie sc;
 	psfs_t psfs;
