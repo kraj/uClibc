@@ -14,7 +14,7 @@
 #include <string.h>
 #include <sys/param.h>
 
-extern int __libc_open(const char *file, int flags, ...);
+extern __typeof(open) __libc_open;
 libc_hidden_proto(__libc_open)
 
 #define __NR___syscall_open __NR_open

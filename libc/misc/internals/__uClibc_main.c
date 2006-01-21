@@ -38,9 +38,9 @@ libc_hidden_proto(fstat)
 libc_hidden_proto(abort)
 libc_hidden_proto(exit)
 
-extern int __libc_open (__const char *__file, int __oflag, ...) __nonnull ((1));
+extern __typeof(open) __libc_open;
 libc_hidden_proto(__libc_open)
-extern int __libc_fcntl (int __fd, int __cmd, ...);
+extern __typeof(fcntl) __libc_fcntl;
 libc_hidden_proto(__libc_fcntl)
 
 #ifndef SHARED

@@ -14,7 +14,7 @@
 # define O_LARGEFILE	0100000
 #endif
 
-extern int __libc_open (__const char *__file, int __oflag, ...) __nonnull ((1));
+extern __typeof(open) __libc_open;
 libc_hidden_proto(__libc_open)
 
 /* Open FILE with access OFLAG.  If OFLAG includes O_CREAT,

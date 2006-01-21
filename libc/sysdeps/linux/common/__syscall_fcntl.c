@@ -12,11 +12,11 @@
 #include <fcntl.h>
 #include <bits/wordsize.h>
 
-extern int __libc_fcntl(int fd, int cmd, ...);
+extern __typeof(fcntl) __libc_fcntl;
 libc_hidden_proto(__libc_fcntl)
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
-extern int __libc_fcntl64(int fd, int cmd, ...);
+extern __typeof(fcntl64) __libc_fcntl64;
 libc_hidden_proto(__libc_fcntl64)
 #endif
 
