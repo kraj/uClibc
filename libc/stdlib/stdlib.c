@@ -33,7 +33,6 @@
  */
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
-#define _GNU_SOURCE
 #include <limits.h>
 #include <stdint.h>
 #include <inttypes.h>

@@ -18,7 +18,7 @@ else
 CFLAGS-ldconfig += $(CFLAGS-utils-shared)
 endif
 
-CFLAGS-ldd := $(CFLAGS-utils-common) $(CFLAGS-utils-shared) -D_GNU_SOURCE
+CFLAGS-ldd := $(CFLAGS-utils-common) $(CFLAGS-utils-shared)
 
 # needs CFLAGS-utils explicitely, because the source file is not located in utils
 CFLAGS-iconv := $(CFLAGS-utils) $(CFLAGS-utils-shared) -DL_iconv_main
@@ -35,7 +35,7 @@ endif
 
 BUILD_CFLAGS-ldconfig.host := $(BUILD_CFLAGS-utils-common)
 
-BUILD_CFLAGS-ldd.host := $(BUILD_CFLAGS-utils-common) -D_GNU_SOURCE
+BUILD_CFLAGS-ldd.host := $(BUILD_CFLAGS-utils-common)
 
 BUILD_LDFLAGS-utils := -Wl,-s
 

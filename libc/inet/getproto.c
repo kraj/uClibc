@@ -52,7 +52,6 @@
 */
 
 #define __FORCE_GLIBC
-#define _GNU_SOURCE
 #include <features.h>
 #include <sys/types.h>
 #include <sys/socket.h>

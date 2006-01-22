@@ -4,7 +4,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
@@ -12,7 +11,7 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-#ifdef __NR_setresgid
+#if defined __NR_setresgid && defined __USE_GNU
 libc_hidden_proto(setresgid)
 #endif
 libc_hidden_proto(setregid)
@@ -27,7 +26,7 @@ int setegid(gid_t gid)
 	return -1;
     }
 
-#ifdef __NR_setresgid
+#if defined __NR_setresgid && defined __USE_GNU
     result = setresgid(-1, gid, -1);
     if (result == -1 && errno == ENOSYS)
 	/* Will also set the saved group ID if egid != gid,

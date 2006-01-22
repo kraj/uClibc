@@ -18,8 +18,6 @@
    02111-1307 USA.  */
 
 #include <features.h>
-
-#define __USE_GNU
 #include <errno.h>
 #include <mntent.h>
 #include <paths.h>

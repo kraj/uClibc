@@ -10,7 +10,7 @@
 #include "syscalls.h"
 #include <unistd.h>
 
-#ifdef __NR_setresuid
+#if defined __NR_setresuid && defined __USE_GNU
 libc_hidden_proto(setresuid)
 
 #define __NR___syscall_setresuid __NR_setresuid

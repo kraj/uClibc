@@ -44,7 +44,6 @@
  */
 
 #define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
-#define _GNU_SOURCE
 #include <features.h>
 #include "_stdio.h"
 #include <stdlib.h>

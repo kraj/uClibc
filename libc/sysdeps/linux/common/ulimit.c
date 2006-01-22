@@ -5,20 +5,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define _GNU_SOURCE
-#define _LARGEFILE64_SOURCE
-#include <features.h>
-#undef __OPTIMIZE__
-/* We absolutely do _NOT_ want interfaces silently
- *  *  * renamed under us or very bad things will happen... */
-#ifdef __USE_FILE_OFFSET64
-# undef __USE_FILE_OFFSET64
-#endif
+#include "syscalls.h"
 
 #ifdef __NR_ulimit
-
-#include <sys/types.h>
-#include <sys/syscall.h>
 
 _syscall2(long, ulimit, int, cmd, int, arg);
 
@@ -27,7 +16,6 @@ _syscall2(long, ulimit, int, cmd, int, arg);
 #include <stdarg.h>
 #include <unistd.h>
 #include <ulimit.h>
-#include <errno.h>
 #include <sys/resource.h>
 
 libc_hidden_proto(sysconf)
@@ -68,4 +56,3 @@ long int ulimit(int cmd, ...)
 	return result;
 }
 #endif
-

@@ -12,20 +12,7 @@
  * from GNU libc 2.2.5, but reworked considerably...
  */
 
-#define _GNU_SOURCE
-#define _LARGEFILE64_SOURCE
-#include <features.h>
-#undef __OPTIMIZE__
-/* We absolutely do _NOT_ want interfaces silently
- *  *  * renamed under us or very bad things will happen... */
-#ifdef __USE_FILE_OFFSET64
-# undef __USE_FILE_OFFSET64
-#endif
-
-
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/syscall.h>
+#include "../common/syscalls.h"
 #include <unistd.h>
 #include <stdint.h>
 
@@ -37,9 +24,7 @@
 #endif
 
 #ifdef __NR_pread
-
-
-#define __NR___syscall_pread __NR_pread 
+# define __NR___syscall_pread __NR_pread 
 static inline _syscall6(ssize_t, __syscall_pread, int, fd, void *, buf, 
 		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo);
 
@@ -49,7 +34,7 @@ ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 }
 strong_alias(__libc_pread,pread)
 
-#if defined __UCLIBC_HAS_LFS__ 
+# ifdef __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 { 
     uint32_t low = offset & 0xffffffff;
@@ -57,8 +42,7 @@ ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 	return(__syscall_pread(fd, buf, count, 0, __LONG_LONG_PAIR (high, low)));
 }
 strong_alias(__libc_pread64,pread64)
-#endif /* __UCLIBC_HAS_LFS__  */
-
+# endif /* __UCLIBC_HAS_LFS__  */
 #endif /* __NR_pread */
 
 /**********************************************************************/
@@ -71,8 +55,7 @@ strong_alias(__libc_pread64,pread64)
 #endif
 
 #ifdef __NR_pwrite
-
-#define __NR___syscall_pwrite __NR_pwrite 
+# define __NR___syscall_pwrite __NR_pwrite 
 static inline _syscall6(ssize_t, __syscall_pwrite, int, fd, const void *, buf, 
 		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo);
 
@@ -82,7 +65,7 @@ ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 }
 strong_alias(__libc_pwrite,pwrite)
 
-#if defined __UCLIBC_HAS_LFS__ 
+# ifdef __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 { 
     uint32_t low = offset & 0xffffffff;
@@ -90,6 +73,5 @@ ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 	return(__syscall_pwrite(fd, buf, count, 0, __LONG_LONG_PAIR (high, low)));
 }
 strong_alias(__libc_pwrite64,pwrite64)
-#endif /* __UCLIBC_HAS_LFS__  */
-
+# endif /* __UCLIBC_HAS_LFS__  */
 #endif /* __NR_pwrite */

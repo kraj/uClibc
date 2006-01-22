@@ -21,11 +21,6 @@
 # include <config.h>
 #endif
 
-/* Enable GNU extensions in fnmatch.h.  */
-#ifndef _GNU_SOURCE
-# define _GNU_SOURCE
-#endif
-
 #include <features.h>
 #ifdef __UCLIBC__
 # undef _LIBC

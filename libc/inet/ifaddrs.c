@@ -19,7 +19,6 @@
 
 #define __FORCE_GLIBC
 #include <features.h>
-#define __USE_GNU
 #include <alloca.h>
 #include <assert.h>
 #include <errno.h>

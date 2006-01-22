@@ -20,7 +20,6 @@
 
 #define __need_NULL
 #include <stddef.h>
-#define _GNU_SOURCE
 #include <signal.h>
 
 libc_hidden_proto(sigprocmask)

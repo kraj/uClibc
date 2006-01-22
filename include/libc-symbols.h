@@ -24,7 +24,7 @@
 #define _LIBC 1
 
 /* Enable declarations of GNU extensions, since we are compiling them.  */
-/* #define _GNU_SOURCE 1 */
+#define _GNU_SOURCE 1
 
 /* Prepare for the case that `__builtin_expect' is not available.  */
 #if __GNUC__ == 2 && __GNUC_MINOR__ < 96

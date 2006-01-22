@@ -20,15 +20,7 @@
    Modified for uClibc by Erik Andersen <andersen@codepoet.org>
    */
 
-#define _GNU_SOURCE
-#define _LARGEFILE64_SOURCE
-#include <features.h>
-#undef __OPTIMIZE__
-/* We absolutely do _NOT_ want interfaces silently
- *  *  * renamed under us or very bad things will happen... */
-#ifdef __USE_FILE_OFFSET64
-# undef __USE_FILE_OFFSET64
-#endif
+#include "syscalls.h"
 #include <sys/stat.h>
 #include "xstatconv.h"
 
@@ -55,16 +47,16 @@ void attribute_hidden __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 #endif
 }
 
-#if defined(__UCLIBC_HAS_LFS__)
+#ifdef __UCLIBC_HAS_LFS__
 
 void attribute_hidden __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 {
 	/* Convert to current kernel version of `struct stat64'. */
 	buf->st_dev = kbuf->st_dev;
 	buf->st_ino = kbuf->st_ino;
-#ifdef _HAVE_STAT64___ST_INO
+# ifdef _HAVE_STAT64___ST_INO
 	buf->__st_ino = kbuf->__st_ino;
-#endif
+# endif
 	buf->st_mode = kbuf->st_mode;
 	buf->st_nlink = kbuf->st_nlink;
 	buf->st_uid = kbuf->st_uid;
@@ -76,11 +68,11 @@ void attribute_hidden __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *
 	buf->st_atime = kbuf->st_atime;
 	buf->st_mtime = kbuf->st_mtime;
 	buf->st_ctime = kbuf->st_ctime;
-#ifdef STAT_HAVE_NSEC
+# ifdef STAT_HAVE_NSEC
 	buf->st_atimensec = kbuf->st_atime_nsec;
 	buf->st_mtimensec = kbuf->st_mtime_nsec;
 	buf->st_ctimensec = kbuf->st_ctime_nsec;
-#endif
+# endif
 }
 
 #endif /* __UCLIBC_HAS_LFS__ */

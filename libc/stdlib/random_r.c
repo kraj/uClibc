@@ -22,7 +22,6 @@
  * Rewritten to be reentrant by Ulrich Drepper, 1995
  */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <errno.h>
 #include <limits.h>

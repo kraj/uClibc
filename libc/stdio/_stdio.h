@@ -5,8 +5,6 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define _GNU_SOURCE
-
 #include <features.h>
 #include <assert.h>
 #include <errno.h>

@@ -49,7 +49,6 @@
  * Should auto_wr_transition init the mbstate object?
 */
 
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <wchar.h>
 #include <limits.h>

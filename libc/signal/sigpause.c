@@ -18,6 +18,8 @@
    02111-1307 USA.  */
 
 #define __UCLIBC_HIDE_DEPRECATED__
+/* psm: need the BSD version of sigpause here */
+#undef _GNU_SOURCE
 #define _BSD_SOURCE
 #include <errno.h>
 #include <signal.h>

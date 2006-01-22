@@ -4,7 +4,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
@@ -14,7 +13,9 @@
 
 libc_hidden_proto(seteuid)
 
+#if defined __NR_setresuid && defined __USE_GNU
 libc_hidden_proto(setresuid)
+#endif
 libc_hidden_proto(setreuid)
 
 int seteuid(uid_t uid)
@@ -27,7 +28,7 @@ int seteuid(uid_t uid)
 	return -1;
     }
 
-#ifdef __NR_setresuid
+#if defined __NR_setresuid && defined __USE_GNU
     result = setresuid(-1, uid, -1);
     if (result == -1 && errno == ENOSYS)
 	/* Will also set the saved user ID if euid != uid,

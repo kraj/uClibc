@@ -30,7 +30,6 @@
  * to free the storage allocated for the copy.  Better ideas anyone?
  */
 
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

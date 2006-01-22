@@ -30,7 +30,6 @@
 # define __USE_LARGEFILE64	1
 #endif
 
-#define __USE_GNU
 #include <errno.h>
 #include <mntent.h>
 #include <paths.h>

@@ -20,7 +20,6 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-#define __USE_XOPEN_EXTENDED
 #include <unistd.h>
 
 libc_hidden_proto(ioctl)

@@ -6,7 +6,6 @@
  * Parts of the memalign code were stolen from malloc-930716.
  */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <unistd.h>
 #include <stdio.h>

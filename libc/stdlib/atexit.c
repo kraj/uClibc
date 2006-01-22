@@ -37,7 +37,6 @@
  *
  */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <unistd.h>
 #include <stdlib.h>

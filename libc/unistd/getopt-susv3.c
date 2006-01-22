@@ -30,7 +30,6 @@
  *   Initial version of a SUSv3 compliant getopt().
  */
 
-#define _GNU_SOURCE
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>

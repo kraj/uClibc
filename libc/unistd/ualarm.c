@@ -4,7 +4,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define _GNU_SOURCE
 #include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>

@@ -23,7 +23,6 @@
 #endif
 
 /* uClibc addons */
-#define _GNU_SOURCE
 #include <features.h>
 
 #ifdef __UCLIBC__

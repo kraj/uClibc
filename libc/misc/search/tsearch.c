@@ -28,7 +28,6 @@ Cambridge, MA 02139, USA.  */
  */
 /*LINTLIBRARY*/
 
-#define _GNU_SOURCE
 #include <search.h>
 #include <stdlib.h>
 

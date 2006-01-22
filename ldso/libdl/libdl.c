@@ -3,7 +3,7 @@
  * Program to load an ELF binary on a linux system, and run it
  * after resolving ELF shared library symbols
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@uclibc.org>
  * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
  *
@@ -30,7 +30,6 @@
  */
 
 
-#define _GNU_SOURCE
 #include <ldso.h>
 #include <stdio.h>
 
@@ -599,6 +598,7 @@ char *dlerror(void)
 /*
  * Dump information to stderrr about the current loaded modules
  */
+#ifdef __USE_GNU
 static char *type[] = { "Lib", "Exe", "Int", "Mod" };
 
 int dlinfo(void)
@@ -703,3 +703,4 @@ int dladdr(const void *__address, Dl_info * __info)
 		return 1;
 	}
 }
+#endif

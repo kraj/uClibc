@@ -15,7 +15,6 @@
 /* Thread-specific data */
 
 #include <features.h>
-#define __USE_GNU
 #include <errno.h>
 #include <stddef.h>
 #include <stdlib.h>

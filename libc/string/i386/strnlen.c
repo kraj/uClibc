@@ -30,7 +30,6 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
 libc_hidden_proto(strnlen)

@@ -5,7 +5,6 @@
 
 /* Ditch the glibc version and just wrap memcpy. */
 
-#define _GNU_SOURCE
 #include <string.h>
 
 libc_hidden_proto(mempcpy)

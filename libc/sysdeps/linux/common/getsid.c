@@ -10,6 +10,7 @@
 #include "syscalls.h"
 #include <unistd.h>
 
+#ifdef __USE_XOPEN_EXTENDED
 libc_hidden_proto(getsid)
 
 #define __NR___syscall_getsid __NR_getsid
@@ -20,3 +21,4 @@ pid_t getsid(pid_t pid)
 	return (__syscall_getsid(pid));
 }
 libc_hidden_def(getsid)
+#endif

@@ -19,7 +19,7 @@ static inline _syscall2(int, __syscall_getpriority,
 /* The return value of __syscall_getpriority is biased by this value
  * to avoid returning negative values.  */
 #define PZERO 20
-int getpriority(enum __priority_which which, id_t who)
+int getpriority(__priority_which_t which, id_t who)
 {
 	int res;
 

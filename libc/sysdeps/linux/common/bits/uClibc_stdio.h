@@ -237,7 +237,7 @@ typedef struct {
 	__io_close_fn *close;
 } _IO_cookie_io_functions_t;
 
-#if defined(_LIBC) || defined(_GNU_SOURCE)
+#ifdef __USE_GNU
 
 typedef __io_read_fn cookie_read_function_t;
 typedef __io_write_fn cookie_write_function_t;

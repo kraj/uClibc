@@ -18,7 +18,6 @@
    02111-1307 USA.  */
 
 #define _ISOC99_SOURCE
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <errno.h>
 #include <paths.h>

@@ -22,7 +22,6 @@
 
 /* To exclude some unwanted junk.... */
 #undef emacs
-#define _GNU_SOURCE
 #include <features.h>
 #ifdef __UCLIBC__
 # undef _LIBC
@@ -48,9 +47,6 @@ libc_hidden_proto(abort)
 #if defined _AIX && !defined REGEX_MALLOC
   #pragma alloca
 #endif
-
-#undef	_GNU_SOURCE
-#define _GNU_SOURCE
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>

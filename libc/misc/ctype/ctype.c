@@ -26,7 +26,6 @@
  *
  *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
-#define _GNU_SOURCE
 #define __NO_CTYPE
 
 #include <ctype.h>

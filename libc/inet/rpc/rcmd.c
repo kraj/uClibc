@@ -38,8 +38,6 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #define __UCLIBC_HIDE_DEPRECATED__
 #define __FORCE_GLIBC
 #include <features.h>
-
-#define __USE_GNU
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

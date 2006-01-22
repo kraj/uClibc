@@ -46,8 +46,6 @@
  *    locale support had (8-bit codesets only).
  */
 
-#define _GNU_SOURCE
-
 #define __CTYPE_HAS_8_BIT_LOCALES 1
 
 #include <string.h>

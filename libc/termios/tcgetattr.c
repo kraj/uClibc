@@ -17,7 +17,6 @@
    02111-1307 USA.  */
 
 #include <features.h>
-#define __USE_GNU
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>

@@ -13,7 +13,6 @@
 
 /* TODO: make a threadsafe version? */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <string.h>
 #include <bits/uClibc_uintmaxtostr.h>

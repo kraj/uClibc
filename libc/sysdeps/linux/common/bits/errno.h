@@ -37,15 +37,13 @@ extern int errno;
 /* Function to get address of global `errno' variable.  */
 extern int *__errno_location (void) __THROW __attribute__ ((__const__));
 
-# if defined _LIBC
-#ifdef IS_IN_libc
+# if defined _LIBC && ( defined IS_IN_libc || defined NOT_IN_libc )
 libc_hidden_proto(__errno_location)
-#endif
 /* We wouldn't need a special macro anymore but it is history.  */
 #  define __set_errno(val) ((errno) = (val))
 # endif /* _LIBC */
 
-# if defined __UCLIBC_HAS_THREADS__
+# ifdef __UCLIBC_HAS_THREADS__
 /* When using threads, errno is a per-thread value.  */
 #  define errno (*__errno_location ())
 # endif

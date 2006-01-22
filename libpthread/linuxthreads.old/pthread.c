@@ -16,7 +16,6 @@
 
 #define __FORCE_GLIBC
 #include <features.h>
-#define __USE_GNU
 #include <errno.h>
 #include <netdb.h>	/* for h_errno */
 #include <stddef.h>

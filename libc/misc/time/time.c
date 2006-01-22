@@ -129,7 +129,6 @@
  *            differs (intentionally) from glibc's behavior.
  */
 
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>

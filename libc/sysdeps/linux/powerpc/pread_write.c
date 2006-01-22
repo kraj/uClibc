@@ -12,27 +12,15 @@
  * from GNU libc 2.2.5, but reworked considerably...
  */
 
-#define _GNU_SOURCE
-#define _LARGEFILE64_SOURCE
-#include <features.h>
-#undef __OPTIMIZE__
-/* We absolutely do _NOT_ want interfaces silently
- *  *  * renamed under us or very bad things will happen... */
-#ifdef __USE_FILE_OFFSET64
-# undef __USE_FILE_OFFSET64
-#endif
-
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/syscall.h>
+#include "../common/syscalls.h"
 #include <unistd.h>
 
-#if ! defined __UCLIBC_HAS_LFS__ 
-#define off64_t off_t
+#ifndef __UCLIBC_HAS_LFS__ 
+# define off64_t off_t
 #endif
 
 #ifdef __NR_pread
-#define __NR___syscall_pread __NR_pread 
+# define __NR___syscall_pread __NR_pread 
 static inline _syscall4(ssize_t, __syscall_pread, int, fd, 
 		void *, buf, size_t, count, off64_t, offset);
 
@@ -42,18 +30,18 @@ ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 }
 strong_alias(__libc_pread,pread)
 
-#if defined __UCLIBC_HAS_LFS__ 
+# ifdef __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 { 
 	return(__syscall_pread(fd, buf, count, offset));
 }
 strong_alias(__libc_pread64,pread64)
-#endif /* __UCLIBC_HAS_LFS__  */
+# endif /* __UCLIBC_HAS_LFS__  */
 #endif /* __NR_pread */
 
 
 #ifdef __NR_pwrite
-#define __NR___syscall_pwrite __NR_pwrite 
+# define __NR___syscall_pwrite __NR_pwrite 
 static inline _syscall4(ssize_t, __syscall_pwrite, int, fd, 
 		const void *, buf, size_t, count, off64_t, offset);
 
@@ -63,13 +51,13 @@ ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 }
 strong_alias(__libc_pwrite,pwrite)
 
-#if defined __UCLIBC_HAS_LFS__ 
+# ifdef __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 { 
 	return(__syscall_pwrite(fd, buf, count, offset));
 }
 strong_alias(__libc_pwrite64,pwrite64)
-#endif /* __UCLIBC_HAS_LFS__  */
+# endif /* __UCLIBC_HAS_LFS__  */
 #endif /* __NR_pwrite */
 
 
@@ -117,7 +105,7 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 	return(result);
 }
 
-#if defined __UCLIBC_HAS_LFS__ 
+# ifdef __UCLIBC_HAS_LFS__ 
 static ssize_t __fake_pread_write64(int fd, void *buf, 
 		size_t count, off64_t offset, int do_pwrite)
 {
@@ -152,7 +140,7 @@ static ssize_t __fake_pread_write64(int fd, void *buf,
 	__set_errno (save_errno);
 	return result;
 }
-#endif /* __UCLIBC_HAS_LFS__  */
+# endif /* __UCLIBC_HAS_LFS__  */
 #endif /*  ! defined __NR_pread || ! defined __NR_pwrite */
 
 #ifndef __NR_pread
@@ -162,13 +150,13 @@ ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 }
 strong_alias(__libc_pread,pread)
 
-#if defined __UCLIBC_HAS_LFS__ 
+# ifdef __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 { 
 	return(__fake_pread_write64(fd, buf, count, offset, 0));
 }
 strong_alias(__libc_pread64,pread64)
-#endif /* __UCLIBC_HAS_LFS__  */
+# endif /* __UCLIBC_HAS_LFS__  */
 #endif /* ! __NR_pread */
 
 
@@ -179,11 +167,11 @@ ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 }
 strong_alias(__libc_pwrite,pwrite)
 
-#if defined __UCLIBC_HAS_LFS__ 
+# ifdef __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 { 
 	return(__fake_pread_write64(fd, (void*)buf, count, offset, 1));
 }
 strong_alias(__libc_pwrite64,pwrite64)
-#endif /* __UCLIBC_HAS_LFS__  */
+# endif /* __UCLIBC_HAS_LFS__  */
 #endif /* ! __NR_pwrite */

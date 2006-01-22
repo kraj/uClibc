@@ -18,7 +18,6 @@
  *
  */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <stdio.h>
 #include <stdlib.h>

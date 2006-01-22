@@ -36,7 +36,7 @@ int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 #undef RMIN
 
 #else							/* We don't need to wrap setrlimit */
-_syscall2(int, setrlimit, unsigned int, resource,
+_syscall2(int, setrlimit, __rlimit_resource_t, resource,
 		const struct rlimit *, rlim);
 #endif
 libc_hidden_def(setrlimit)

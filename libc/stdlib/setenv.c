@@ -19,7 +19,6 @@
    modified for uClibc by Erik Andersen <andersen@codepoet.org>
    */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <errno.h>
 #include <stdlib.h>

@@ -5,8 +5,6 @@
 #include <errno.h>
 #include <stddef.h>
 #include <sys/syscall.h>
-
-#define __USE_XOPEN2K
 #include <mqueue.h>
 
 librt_hidden_proto(mq_timedreceive)

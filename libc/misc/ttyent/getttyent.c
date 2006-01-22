@@ -27,7 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <ttyent.h>
 #include <stdio.h>

@@ -22,7 +22,6 @@
 
 #define __FORCE_GLIBC
 #include <features.h>
-#define __USE_GNU
 #include <string.h>
 #include <alloca.h>
 #include <errno.h>

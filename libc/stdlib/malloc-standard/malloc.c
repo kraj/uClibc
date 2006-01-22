@@ -14,7 +14,6 @@
   Hacked up for uClibc by Erik Andersen <andersen@codepoet.org>
 */
 
-#define _GNU_SOURCE
 #include "malloc.h"
 
 

@@ -8,7 +8,6 @@
 #ifndef __STRING_H
 #define __STRING_H
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <string.h>
 #include <limits.h>

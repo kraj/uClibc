@@ -16,7 +16,6 @@
  * Changed to use _int10tostr.
  */
 
-#define _GNU_SOURCE
 #define __FORCE_GLIBC
 #include <features.h>
 #include <stdio.h>

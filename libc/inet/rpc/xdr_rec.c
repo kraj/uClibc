@@ -45,7 +45,6 @@
  */
 
 #define __FORCE_GLIBC
-#define _GNU_SOURCE
 #include <features.h>
 
 

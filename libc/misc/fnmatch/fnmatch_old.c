@@ -19,11 +19,6 @@ Cambridge, MA 02139, USA.  */
 # include <config.h>
 #endif
 
-/* Enable GNU extensions in fnmatch.h.  */
-#ifndef _GNU_SOURCE
-# define _GNU_SOURCE
-#endif
-
 #include <errno.h>
 #include <fnmatch.h>
 #include <ctype.h>

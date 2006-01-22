@@ -19,7 +19,6 @@
 #include <errno.h>
 #define __need_NULL
 #include <stddef.h>
-#define __USE_XOPEN_EXTENDED
 #include <signal.h>
 #include <string.h>	/* For the real memset prototype.  */
 

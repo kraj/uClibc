@@ -5,7 +5,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <stdio.h>
 #include <string.h>

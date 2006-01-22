@@ -9,29 +9,12 @@
  * Adapted to FR-V by Alexandre Oliva <aoliva@redhat.com>
  */
 
-#define _GNU_SOURCE
-#define _LARGEFILE64_SOURCE
-#include <features.h>
-#undef __OPTIMIZE__
-/* We absolutely do _NOT_ want interfaces silently
- *  *  * renamed under us or very bad things will happen... */
-#ifdef __USE_FILE_OFFSET64
-# undef __USE_FILE_OFFSET64
-#endif
-
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/syscall.h>
-#include <endian.h>
-
+#include "../common/syscalls.h"
 #include <unistd.h>
-#define _SYS_STAT_H
-#include <bits/stat.h>
+#include <sys/stat.h>
 
-#if defined __UCLIBC_HAS_LFS__
-#define __NR___syscall_fstat64 __NR_fstat64
-static inline _syscall2(int, __syscall_fstat64, int, fd, struct stat64 *, buf);
+#ifdef __UCLIBC_HAS_LFS__
 libc_hidden_proto(fstat64)
-strong_alias(__syscall_fstat64,fstat64)
+_syscall2(int, fstat64, int, fd, struct stat64 *, buf);
 libc_hidden_def(fstat64)
 #endif
