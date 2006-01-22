@@ -133,7 +133,7 @@ tst-cancel7-ARGS = --command tst-cancel7
 tst-exec4-ARGS = tst-exec4
 
 
-all: $(SO_OBJS) $(patsubst %, %, $(TARGETS))
+all: $(OBJS) $(SO_OBJS) $(patsubst %, %, $(TARGETS))
 
 $(patsubst %, %, $(TARGETS)): $(patsubst %, %.o, $(TARGETS))
 	-@ echo "-------"
