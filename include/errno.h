@@ -66,7 +66,7 @@ __END_DECLS
    that printing `error_t' values in the debugger shows the names.  We
    might need this definition sometimes even if this file was included
    before.  */
-#if defined __USE_GNU || defined __need_error_t
+#if ( defined __USE_GNU || defined __need_error_t ) && !defined __ASSEMBLER__
 # ifndef __error_t_defined
 typedef int error_t;
 #  define __error_t_defined	1
