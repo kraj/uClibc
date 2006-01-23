@@ -162,7 +162,7 @@ printf(__FUNCTION__": pthreads wrapper!\n");
   if (__libc_sigaction(sig, newactp, oact) == -1)
     return -1;
 #ifdef DEBUG_PT
-printf(__FUNCTION__": signahdler installed, __sigaction successful\n");
+printf(__FUNCTION__": sighandler installed, __sigaction successful\n");
 #endif
   if (sig > 0 && sig < NSIG)
     {
