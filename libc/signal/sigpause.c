@@ -19,9 +19,8 @@
 
 #define __UCLIBC_HIDE_DEPRECATED__
 /* psm: need the BSD version of sigpause here */
-#undef _GNU_SOURCE
-#define _BSD_SOURCE
 #include <errno.h>
+#define __FAVOR_BSD
 #include <signal.h>
 #include <stddef.h>		/* For NULL.  */
 

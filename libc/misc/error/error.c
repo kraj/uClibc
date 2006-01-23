@@ -41,8 +41,9 @@ libc_hidden_proto(stdout)
 libc_hidden_proto(stderr)
 
 /* This variable is incremented each time `error' is called.  */
+libc_hidden_proto(error_message_count)
 unsigned int error_message_count = 0;
-hidden_strong_alias(error_message_count, __error_message_count)
+libc_hidden_def(error_message_count)
 /* Sometimes we want to have at most one error per line.  This
    variable controls whether this mode is selected or not.  */
 int error_one_per_line;
@@ -61,7 +62,7 @@ attribute_hidden void __error (int status, int errnum, const char *message, ...)
     va_start (args, message);
     vfprintf (stderr, message, args);
     va_end (args);
-    ++__error_message_count;
+    ++error_message_count;
     if (errnum) {
 	fprintf (stderr, ": %s", strerror (errnum));
     }
@@ -97,7 +98,7 @@ attribute_hidden void __error_at_line (int status, int errnum, const char *file_
     vfprintf (stderr, message, args);
     va_end (args);
 
-    ++__error_message_count;
+    ++error_message_count;
     if (errnum) {
 	fprintf (stderr, ": %s", strerror (errnum));
     }
