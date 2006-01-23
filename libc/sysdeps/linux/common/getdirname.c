@@ -26,8 +26,11 @@
 libc_hidden_proto(strdup)
 libc_hidden_proto(getcwd)
 libc_hidden_proto(getenv)
-libc_hidden_proto(stat)
+#ifdef __UCLIBC_HAS_LFS__
 libc_hidden_proto(stat64)
+#else
+libc_hidden_proto(stat)
+#endif
 
 /* Return a malloc'd string containing the current directory name.
    If the environment variable `PWD' is set, and its value is correct,
@@ -37,7 +40,7 @@ char *
 get_current_dir_name (void)
 {
 	char *pwd;
-#if defined __UCLIBC_HAS_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 	struct stat64 dotstat, pwdstat;
 #else
 	struct stat dotstat, pwdstat;
@@ -45,7 +48,7 @@ get_current_dir_name (void)
 
 	pwd = getenv ("PWD");
 	if (pwd != NULL
-#if defined __UCLIBC_HAS_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 		&& stat64 (".", &dotstat) == 0
 		&& stat64 (pwd, &pwdstat) == 0
 #else
