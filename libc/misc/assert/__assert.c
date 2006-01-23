@@ -47,7 +47,7 @@ libc_hidden_proto(stderr)
 
 static int in_assert;			/* bss inits to 0. */
 
-void __assert(const char *assertion, const char * filename,
+void attribute_noreturn __assert(const char *assertion, const char * filename,
 			  int linenumber, register const char * function)
 {
 	if (!in_assert) {
