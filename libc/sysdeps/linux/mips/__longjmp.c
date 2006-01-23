@@ -21,8 +21,8 @@
 #include <setjmp.h>
 #include <stdlib.h>
 
-#undef __longjmp
 
+extern void __longjmp (__jmp_buf __env, int val);
 libc_hidden_proto(__longjmp)
 
 #ifndef	__GNUC__
