@@ -105,6 +105,6 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 
 #ifndef LIBC_SIGACTION
 libc_hidden_proto(sigaction)
-strong_alias(__libc_sigaction,sigaction)
+weak_alias(__libc_sigaction,sigaction)
 libc_hidden_def(sigaction)
 #endif

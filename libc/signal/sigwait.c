@@ -24,8 +24,7 @@
 
 libc_hidden_proto(sigwaitinfo)
 
-libc_hidden_proto(sigwait)
-int sigwait (const sigset_t *set, int *sig)
+int attribute_hidden __sigwait (const sigset_t *set, int *sig)
 {
 	int ret = 1;
 	if ((ret = sigwaitinfo(set, NULL)) != -1) {
@@ -34,4 +33,6 @@ int sigwait (const sigset_t *set, int *sig)
 	}
 	return 1;
 }
+libc_hidden_proto(sigwait)
+weak_alias(__sigwait,sigwait)
 libc_hidden_def(sigwait)
