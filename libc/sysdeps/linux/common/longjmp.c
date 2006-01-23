@@ -44,7 +44,7 @@ void __libc_longjmp (sigjmp_buf env, int val)
   __longjmp (env[0].__jmpbuf, val ?: 1);
 }
 
-strong_alias(__libc_longjmp,longjmp)
-strong_alias(__libc_longjmp,siglongjmp)
+weak_alias(__libc_longjmp,longjmp)
+weak_alias(__libc_longjmp,siglongjmp)
 strong_alias(__libc_longjmp,__libc_siglongjmp)
 strong_alias(__libc_longjmp,_longjmp)
