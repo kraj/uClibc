@@ -106,13 +106,13 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 				 int report_events,
 				 td_thr_events_t *event_maskp);
 static void pthread_handle_free(pthread_t th_id);
-static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode);
+static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode) attribute_noreturn;
 static void pthread_reap_children(void);
 static void pthread_kill_all_threads(int sig, int main_thread_also);
 
 /* The server thread managing requests for thread creation and termination */
 
-int __pthread_manager(void *arg)
+int attribute_noreturn __pthread_manager(void *arg)
 {
   int reqfd = (int) (long int) arg;
 #ifdef USE_SELECT
@@ -269,7 +269,7 @@ int __pthread_manager_event(void *arg)
 
 /* Process creation */
 static int
-__attribute__ ((noreturn))
+attribute_noreturn
 pthread_start_thread(void *arg)
 {
   pthread_descr self = (pthread_descr) arg;
@@ -317,7 +317,7 @@ pthread_start_thread(void *arg)
 }
 
 static int
-__attribute__ ((noreturn))
+attribute_noreturn
 pthread_start_thread_event(void *arg)
 {
   pthread_descr self = (pthread_descr) arg;
