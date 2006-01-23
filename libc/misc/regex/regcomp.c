@@ -805,6 +805,10 @@ re_compile_internal (regex_t *preg, const char * pattern, size_t length,
 /* Initialize DFA.  We use the length of the regular expression PAT_LEN
    as the initial length of some arrays.  */
 
+#ifdef __UCLIBC_HAS_WCHAR__
+libc_hidden_proto(_stdlib_mb_cur_max)
+#endif
+
 static reg_errcode_t
 init_dfa (re_dfa_t *dfa, size_t pat_len)
 {
@@ -834,10 +838,6 @@ init_dfa (re_dfa_t *dfa, size_t pat_len)
   dfa->state_hash_mask = table_size - 1;
 
 #ifdef __UCLIBC_HAS_WCHAR__
-# undef MB_CUR_MAX
-# define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
-extern size_t _stdlib_mb_cur_max (void) __THROW __wur;
-libc_hidden_proto(_stdlib_mb_cur_max)
   dfa->mb_cur_max = MB_CUR_MAX;
 #else
   dfa->mb_cur_max = 1;

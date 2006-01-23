@@ -17,13 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-libc_hidden_proto(memset)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strsep)
-libc_hidden_proto(setmntent)
-libc_hidden_proto(getmntent_r)
-libc_hidden_proto(endmntent)
-
   /* Now fill in the fields we have information for.  */
   buf->f_bsize = fsbuf.f_bsize;
   /* Linux does not support f_frsize, so set it to the full block size.  */
@@ -90,6 +83,7 @@ libc_hidden_proto(endmntent)
 		      buf->f_flag |= ST_RDONLY;
 		    else if (strcmp (opt, "nosuid") == 0)
 		      buf->f_flag |= ST_NOSUID;
+#ifdef _GNU_SOURCE
 		    else if (strcmp (opt, "noexec") == 0)
 		      buf->f_flag |= ST_NOEXEC;
 		    else if (strcmp (opt, "nodev") == 0)
@@ -102,6 +96,7 @@ libc_hidden_proto(endmntent)
 		      buf->f_flag |= ST_NOATIME;
 		    else if (strcmp (opt, "nodiratime") == 0)
 		      buf->f_flag |= ST_NODIRATIME;
+#endif
 
 		  /* We can stop looking for more entries.  */
 		  break;

@@ -27,6 +27,13 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 
+libc_hidden_proto(memset)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strsep)
+libc_hidden_proto(setmntent)
+libc_hidden_proto(getmntent_r)
+libc_hidden_proto(endmntent)
+
 libc_hidden_proto(fstatfs)
 libc_hidden_proto(fstat)
 libc_hidden_proto(stat)
