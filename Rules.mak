@@ -295,11 +295,18 @@ OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
 
 # Add a bunch of extra pedantic annoyingly strict checks
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+XWARNINGS+=-Wnested-externs -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wformat=2
+#XWARNINGS+=-Wmissing-prototypes -Wmissing-declarations
+# works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
+#XWARNINGS+=-Wdeclaration-after-statement
 XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
 CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
 
 # Make sure "char" behavior is the same everywhere
 CPU_CFLAGS += -fsigned-char
+
+# only i386 is known to work if compile.S gets -D__ASSEMBLER__
+#CPU_CFLAGS += -std=c99
 
 LDADD_LIBFLOAT=
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
