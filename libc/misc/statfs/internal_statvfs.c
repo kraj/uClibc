@@ -83,7 +83,7 @@
 		      buf->f_flag |= ST_RDONLY;
 		    else if (strcmp (opt, "nosuid") == 0)
 		      buf->f_flag |= ST_NOSUID;
-#ifdef _GNU_SOURCE
+#ifdef __USE_GNU
 		    else if (strcmp (opt, "noexec") == 0)
 		      buf->f_flag |= ST_NOEXEC;
 		    else if (strcmp (opt, "nodev") == 0)
