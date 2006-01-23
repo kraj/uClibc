@@ -42,7 +42,7 @@
 libc_hidden_proto(xdrmem_create)
 libc_hidden_proto(xdr_opaque_auth)
 
-#define MAX_MARSHEL_SIZE 20
+#define MAX_MARSHAL_SIZE 20
 
 /*
  * Authenticator operations routines
@@ -53,7 +53,7 @@ static bool_t authnone_marshal (AUTH *, XDR *);
 static bool_t authnone_validate (AUTH *, struct opaque_auth *);
 static bool_t authnone_refresh (AUTH *);
 
-static struct auth_ops ops = {
+static const struct auth_ops ops = {
   authnone_verf,
   authnone_marshal,
   authnone_validate,
@@ -61,9 +61,11 @@ static struct auth_ops ops = {
   authnone_destroy
 };
 
+/* Internal data and routines */
+
 struct authnone_private_s {
   AUTH no_client;
-  char marshalled_client[MAX_MARSHEL_SIZE];
+  char marshalled_client[MAX_MARSHAL_SIZE];
   u_int mcnt;
 };
 #ifdef __UCLIBC_HAS_THREADS__
@@ -91,9 +93,9 @@ authnone_create (void)
   if (!ap->mcnt)
     {
       ap->no_client.ah_cred = ap->no_client.ah_verf = _null_auth;
-      ap->no_client.ah_ops = &ops;
+      ap->no_client.ah_ops = (struct auth_ops *)&ops;
       xdrs = &xdr_stream;
-      xdrmem_create (xdrs, ap->marshalled_client, (u_int) MAX_MARSHEL_SIZE,
+      xdrmem_create (xdrs, ap->marshalled_client, (u_int) MAX_MARSHAL_SIZE,
 		     XDR_ENCODE);
       (void) xdr_opaque_auth (xdrs, &ap->no_client.ah_cred);
       (void) xdr_opaque_auth (xdrs, &ap->no_client.ah_verf);
@@ -104,7 +106,6 @@ authnone_create (void)
 }
 libc_hidden_def(authnone_create)
 
-/*ARGSUSED */
 static bool_t
 authnone_marshal (AUTH *client attribute_unused, XDR *xdrs)
 {
