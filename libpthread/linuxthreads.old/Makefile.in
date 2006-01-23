@@ -7,6 +7,7 @@
 #
 
 CFLAGS-linuxthreads.old := -DNOT_IN_libc $(SSP_ALL_CFLAGS)
+CFLAGS-linuxthreads.old += -DIS_IN_linuxthreads=1 -D_GNU_SOURCE
 
 CFLAGS-libpthread/linuxthreads.old/sysdeps/$(TARGET_ARCH)/ := $(CFLAGS-linuxthreads.old)
 
@@ -21,7 +22,7 @@ else
 LDFLAGS-libpthread.so := $(LDFLAGS)
 endif
 
-LIBS-libpthread.so := $(LIBS)
+LIBS-libpthread.so := $(LIBS) $(ldso)
 
 START_FILE-libpthread.so := $(SHARED_START_FILES)
 END_FILE-libpthread.so := $(SHARED_END_FILES)
