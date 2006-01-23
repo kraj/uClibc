@@ -28,20 +28,25 @@
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 
-libc_hidden_proto(memcpy)
+libc_hidden_proto(exit)
+
+#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
 libc_hidden_proto(strrchr)
+#endif
+#ifdef __ARCH_HAS_MMU__
+libc_hidden_proto(memcpy)
 libc_hidden_proto(getgid)
 libc_hidden_proto(getuid)
 libc_hidden_proto(getegid)
 libc_hidden_proto(geteuid)
 libc_hidden_proto(fstat)
 libc_hidden_proto(abort)
-libc_hidden_proto(exit)
 
 extern __typeof(open) __libc_open;
 libc_hidden_proto(__libc_open)
 extern __typeof(fcntl) __libc_fcntl;
 libc_hidden_proto(__libc_fcntl)
+#endif
 
 #ifndef SHARED
 void *__libc_stack_end=NULL;
