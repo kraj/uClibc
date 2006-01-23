@@ -37,7 +37,7 @@ libc_hidden_proto(_exit)
 
 /* Our last ditch effort to commit suicide */
 #ifdef __UCLIBC_ABORT_INSTRUCTION__
-# define ABORT_INSTRUCTION asm(__UCLIBC_ABORT_INSTRUCTION__)
+# define ABORT_INSTRUCTION __asm__(__UCLIBC_ABORT_INSTRUCTION__)
 #else
 # define ABORT_INSTRUCTION
 # warning "no abort instruction defined for your arch"

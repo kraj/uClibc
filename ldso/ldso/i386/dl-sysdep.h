@@ -47,7 +47,7 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
 static inline Elf32_Addr __attribute__ ((unused))
 elf_machine_dynamic (void)
 {
-	register Elf32_Addr *got asm ("%ebx");
+	register Elf32_Addr *got __asm__ ("%ebx");
 	return *got;
 }
 
@@ -61,7 +61,7 @@ elf_machine_load_address (void)
 	   via the GOT to make sure the compiler initialized %ebx in time.  */
 	extern int _dl_errno;
 	Elf32_Addr addr;
-	asm ("leal _dl_start@GOTOFF(%%ebx), %0\n"
+	__asm__ ("leal _dl_start@GOTOFF(%%ebx), %0\n"
 	     "subl _dl_start@GOT(%%ebx), %0"
 	     : "=r" (addr) : "m" (_dl_errno) : "cc");
 	return addr;

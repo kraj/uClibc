@@ -245,7 +245,7 @@
 
 /* We want the .gnu.warning.SYMBOL section to be unallocated.  */
 #define __make_section_unallocated(section_string)	\
-  asm (".section " section_string "\n\t.previous");
+  __asm__ (".section " section_string "\n\t.previous");
 
 /* Tacking on "\n\t#" to the section name makes gcc put it's bogus
    section attributes on what looks like a comment to the assembler.  */

@@ -3,7 +3,7 @@
  * Architecture specific code used by dl-startup.c
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
-asm(
+__asm__(
     "	.text\n"
     "	.align 16\n"
     "	.globl	_start\n"

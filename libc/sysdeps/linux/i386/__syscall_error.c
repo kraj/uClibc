@@ -27,9 +27,9 @@
 
 int attribute_hidden __syscall_error(void)
 {
-	register int edx asm("%edx");
-	asm("mov %eax, %edx");
-	asm("negl %edx");
+	register int edx __asm__("%edx");
+	__asm__("mov %eax, %edx");
+	__asm__("negl %edx");
 	__set_errno(edx);
 	return -1;
 }

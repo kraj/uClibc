@@ -20,7 +20,7 @@
 
 /* We need some help from the assembler to generate optimal code.  We
    define some macros here which later will be used.  */
-asm (".L__X'%ebx = 1\n\t"
+__asm__ (".L__X'%ebx = 1\n\t"
      ".L__X'%ecx = 2\n\t"
      ".L__X'%edx = 2\n\t"
      ".L__X'%eax = 3\n\t"
@@ -112,7 +112,7 @@ return (type) (INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6)); \
 #define INLINE_SYSCALL(name, nr, args...) \
   ({									      \
     unsigned int resultvar;						      \
-    asm volatile (							      \
+    __asm__ __volatile__ (							      \
     LOADARGS_##nr							      \
     "movl %1, %%eax\n\t"						      \
     "int $0x80\n\t"							      \

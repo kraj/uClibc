@@ -366,7 +366,7 @@ extern size_t __pagesize;
    all outstanding operations which modify memory.  Some architectures
    distinguish between full, read and write barriers.  */
 #ifndef MEMORY_BARRIER
-#define MEMORY_BARRIER() asm ("" : : : "memory")
+#define MEMORY_BARRIER() __asm__ ("" : : : "memory")
 #endif
 #ifndef READ_MEMORY_BARRIER
 #define READ_MEMORY_BARRIER() MEMORY_BARRIER()

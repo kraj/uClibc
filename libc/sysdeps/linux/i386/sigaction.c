@@ -31,8 +31,8 @@
 #if defined __NR_rt_sigaction
 libc_hidden_proto(memcpy)
 
-extern void restore_rt (void) asm ("__restore_rt") attribute_hidden;
-extern void restore (void) asm ("__restore") attribute_hidden;
+extern void restore_rt (void) __asm__ ("__restore_rt") attribute_hidden;
+extern void restore (void) __asm__ ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -74,7 +74,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
 
 #else
-extern void restore (void) asm ("__restore") attribute_hidden;
+extern void restore (void) __asm__ ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -97,7 +97,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	kact.sa_restorer = &restore;
     }
 
-    asm volatile ("pushl %%ebx\n"
+    __asm__ __volatile__ ("pushl %%ebx\n"
 	    "movl %2, %%ebx\n"
 	    "int $0x80\n"
 	    "popl %%ebx"
@@ -141,7 +141,7 @@ libc_hidden_def(sigaction)
 
 #define RESTORE(name, syscall) RESTORE2 (name, syscall)
 #define RESTORE2(name, syscall) \
-asm						\
+__asm__						\
   (						\
    ".text\n"					\
    "	.align 16\n"				\
@@ -158,7 +158,7 @@ RESTORE (restore_rt, __NR_rt_sigreturn)
 /* For the boring old signals.  */
 # undef RESTORE2
 # define RESTORE2(name, syscall) \
-asm						\
+__asm__						\
   (						\
    ".text\n"					\
    "	.align 8\n"				\
