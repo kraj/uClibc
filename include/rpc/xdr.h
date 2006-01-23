@@ -42,9 +42,6 @@
 # ifndef __FORCE_GLIBC
 #  define __FORCE_GLIBC
 # endif
-# ifndef _GNU_SOUCE
-#  define _GNU_SOUCE
-# endif
 # define _(X)	X
 #endif
 #include <features.h>
