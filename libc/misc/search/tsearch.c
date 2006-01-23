@@ -31,10 +31,6 @@ Cambridge, MA 02139, USA.  */
 #include <search.h>
 #include <stdlib.h>
 
-libc_hidden_proto(tsearch)
-libc_hidden_proto(tfind)
-libc_hidden_proto(tdestroy)
-
 /* This routine is not very bad. It makes many assumptions about
  * the compiler. It assumpts that the first field in node must be
  * the "key" field, which points to the datum. It is a very trick
@@ -54,6 +50,7 @@ register node	**rootp;	 address of tree root
 int	(*compar)();		 ordering function
 */
 
+libc_hidden_proto(tsearch)
 void *tsearch(__const void *key, void **vrootp, __compar_fn_t compar)
 {
     register node *q;
@@ -84,6 +81,7 @@ libc_hidden_def(tsearch)
 #endif
 
 #ifdef L_tfind
+libc_hidden_proto(tfind)
 void *tfind(__const void *key, void * __const *vrootp, __compar_fn_t compar)
 {
     register node **rootp = (node **) vrootp;
@@ -193,6 +191,7 @@ void twalk(__const void *vroot, __action_fn_t action)
 }
 #endif
 
+#ifdef __USE_GNU
 #ifdef L_tdestroy
 /* The standardized functions miss an important functionality: the
    tree cannot be removed easily.  We provide a function to do this.  */
@@ -209,6 +208,7 @@ tdestroy_recurse (node *root, __free_fn_t freefct)
     free (root);
 }
 
+libc_hidden_proto(tdestroy)
 void tdestroy (void *vroot, __free_fn_t freefct)
 {
     node *root = (node *) vroot;
@@ -217,6 +217,7 @@ void tdestroy (void *vroot, __free_fn_t freefct)
     }
 }
 libc_hidden_def(tdestroy)
+#endif
 #endif
 
 /* tsearch.c ends here */
