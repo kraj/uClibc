@@ -6,7 +6,7 @@
  *
  * Parts taken from glibc/sysdeps/x86_64/dl-machine.h
  */
-asm(
+__asm__ (
 	"	.text\n"
 	"	.align 16\n"
 	"	.global _start\n"

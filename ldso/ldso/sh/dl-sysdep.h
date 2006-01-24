@@ -104,7 +104,7 @@ static inline Elf32_Addr __attribute__ ((unused))
 elf_machine_dynamic (void)
 {
 	register Elf32_Addr *got;
-	asm ("mov r12,%0" :"=r" (got));
+	__asm__ ("mov r12,%0" :"=r" (got));
 	return *got;
 }
 
@@ -113,7 +113,7 @@ static inline Elf32_Addr __attribute__ ((unused))
 elf_machine_load_address (void)
 {
 	Elf32_Addr addr;
-	asm ("mov.l 1f,r0\n\
+	__asm__ ("mov.l 1f,r0\n\
         mov.l 3f,r2\n\
         add r12,r2\n\
         mov.l @(r0,r12),r0\n\

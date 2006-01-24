@@ -656,7 +656,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
 		ElfW(Phdr) *myppnt = (ElfW(Phdr) *) (load_addr + epnt->e_phoff);
 		int j;
-		
+
 		tpnt = _dl_add_elf_hash_table(tpnt->libname, (char *)load_addr,
 					      tpnt->dynamic_info,
 					      (unsigned long)tpnt->dynamic_addr,

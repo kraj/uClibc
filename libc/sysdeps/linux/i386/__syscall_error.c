@@ -8,17 +8,17 @@
 /* This routine is jumped to by all the syscall handlers, to stash
  * an error number into errno.  */
 
-/* This version uses a lot of magic and relies heavily on x86 
- * calling convention ... The advantage is that this is the same 
+/* This version uses a lot of magic and relies heavily on x86
+ * calling convention ... The advantage is that this is the same
  * size as the previous __syscall_error() but all the .S functions
  * need just one instruction.
  *
- * Local .S files have to set %eax to the negative errno value 
- * and then jump to this function.  The neglected return to caller 
- * and return value of -1 is taken care of here so we don't have to 
+ * Local .S files have to set %eax to the negative errno value
+ * and then jump to this function.  The neglected return to caller
+ * and return value of -1 is taken care of here so we don't have to
  * worry about it in the .S functions.
  *
- * We have to stash the errno from %eax in a local stack var because 
+ * We have to stash the errno from %eax in a local stack var because
  * __set_errno will prob call a function thus clobbering %eax on us.
  */
 
@@ -27,9 +27,9 @@
 
 int attribute_hidden __syscall_error(void)
 {
-	register int edx __asm__("%edx");
-	__asm__("mov %eax, %edx");
-	__asm__("negl %edx");
-	__set_errno(edx);
+	register int edx __asm__ ("%edx");
+	__asm__ ("mov %eax, %edx\n\t"
+		 "negl %edx");
+	__set_errno (edx);
 	return -1;
 }
