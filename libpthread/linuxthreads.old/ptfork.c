@@ -103,11 +103,10 @@ pid_t attribute_hidden __fork(void)
 }
 strong_alias(__fork,fork)
 
-pid_t attribute_hidden __vfork(void)
+pid_t vfork(void)
 {
   return __fork();
 }
-strong_alias(__vfork,vfork)
 
 #else
 
