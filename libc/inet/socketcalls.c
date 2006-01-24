@@ -50,7 +50,7 @@ int __libc_accept(int s, struct sockaddr *addr, socklen_t * addrlen)
 }
 #endif
 libc_hidden_proto(accept)
-strong_alias(__libc_accept,accept)
+weak_alias(__libc_accept,accept)
 libc_hidden_def(accept)
 #endif
 
@@ -88,7 +88,7 @@ int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 }
 #endif
 libc_hidden_proto(connect)
-strong_alias(__libc_connect,connect)
+weak_alias(__libc_connect,connect)
 libc_hidden_def(connect)
 #endif
 
@@ -186,7 +186,7 @@ ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 }
 #endif
 libc_hidden_proto(recv)
-strong_alias(__libc_recv,recv)
+weak_alias(__libc_recv,recv)
 libc_hidden_def(recv)
 #endif
 
@@ -212,7 +212,7 @@ ssize_t __libc_recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
 }
 #endif
 libc_hidden_proto(recvfrom)
-strong_alias(__libc_recvfrom,recvfrom)
+weak_alias(__libc_recvfrom,recvfrom)
 libc_hidden_def(recvfrom)
 #endif
 
@@ -232,7 +232,7 @@ ssize_t __libc_recvmsg(int sockfd, struct msghdr *msg, int flags)
 }
 #endif
 libc_hidden_proto(recvmsg)
-strong_alias(__libc_recvmsg,recvmsg)
+weak_alias(__libc_recvmsg,recvmsg)
 libc_hidden_def(recvmsg)
 #endif
 
@@ -260,7 +260,7 @@ ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 }
 #endif
 libc_hidden_proto(send)
-strong_alias(__libc_send,send)
+weak_alias(__libc_send,send)
 libc_hidden_def(send)
 #endif
 
@@ -280,7 +280,7 @@ ssize_t __libc_sendmsg(int sockfd, const struct msghdr *msg, int flags)
 }
 #endif
 libc_hidden_proto(sendmsg)
-strong_alias(__libc_sendmsg,sendmsg)
+weak_alias(__libc_sendmsg,sendmsg)
 libc_hidden_def(sendmsg)
 #endif
 
@@ -306,7 +306,7 @@ ssize_t __libc_sendto(int sockfd, const void *buffer, size_t len, int flags,
 }
 #endif
 libc_hidden_proto(sendto)
-strong_alias(__libc_sendto,sendto)
+weak_alias(__libc_sendto,sendto)
 libc_hidden_def(sendto)
 #endif
 

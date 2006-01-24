@@ -18,4 +18,4 @@ __pid_t __libc_wait (__WAIT_STATUS_DEFN stat_loc)
 {
       return wait4 (WAIT_ANY, stat_loc, 0, (struct rusage *) NULL);
 }
-strong_alias(__libc_wait,wait)
+weak_alias(__libc_wait,wait)

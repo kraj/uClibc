@@ -13,5 +13,5 @@
 #define __NR___libc_read __NR_read
 _syscall3(ssize_t, __libc_read, int, fd, __ptr_t, buf, size_t, count);
 libc_hidden_proto(read)
-strong_alias(__libc_read,read)
+weak_alias(__libc_read,read)
 libc_hidden_def(read)

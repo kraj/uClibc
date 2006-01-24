@@ -17,5 +17,5 @@ __pid_t __libc_waitpid(__pid_t pid, int *wait_stat, int options)
     return wait4(pid, wait_stat, options, NULL);
 }
 libc_hidden_proto(waitpid)
-strong_alias(__libc_waitpid,waitpid)
+weak_alias(__libc_waitpid,waitpid)
 libc_hidden_def(waitpid)

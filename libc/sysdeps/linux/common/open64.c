@@ -34,6 +34,6 @@ int __libc_open64 (const char *file, int oflag, ...)
   return __libc_open(file, oflag | O_LARGEFILE, mode);
 }
 libc_hidden_proto(open64)
-strong_alias(__libc_open64,open64)
+weak_alias(__libc_open64,open64)
 libc_hidden_def(open64)
 #endif /* __UCLIBC_HAS_LFS__ */

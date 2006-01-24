@@ -28,14 +28,14 @@ ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 { 
 	return(__syscall_pread(fd, buf, count, (off64_t)offset));
 }
-strong_alias(__libc_pread,pread)
+weak_alias(__libc_pread,pread)
 
 # ifdef __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 { 
 	return(__syscall_pread(fd, buf, count, offset));
 }
-strong_alias(__libc_pread64,pread64)
+weak_alias(__libc_pread64,pread64)
 # endif /* __UCLIBC_HAS_LFS__  */
 #endif /* __NR_pread */
 
@@ -49,14 +49,14 @@ ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 { 
 	return(__syscall_pwrite(fd, buf, count, (off64_t)offset));
 }
-strong_alias(__libc_pwrite,pwrite)
+weak_alias(__libc_pwrite,pwrite)
 
 # ifdef __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 { 
 	return(__syscall_pwrite(fd, buf, count, offset));
 }
-strong_alias(__libc_pwrite64,pwrite64)
+weak_alias(__libc_pwrite64,pwrite64)
 # endif /* __UCLIBC_HAS_LFS__  */
 #endif /* __NR_pwrite */
 
@@ -148,14 +148,14 @@ ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 {
 	return(__fake_pread_write(fd, buf, count, offset, 0));
 }
-strong_alias(__libc_pread,pread)
+weak_alias(__libc_pread,pread)
 
 # ifdef __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 { 
 	return(__fake_pread_write64(fd, buf, count, offset, 0));
 }
-strong_alias(__libc_pread64,pread64)
+weak_alias(__libc_pread64,pread64)
 # endif /* __UCLIBC_HAS_LFS__  */
 #endif /* ! __NR_pread */
 
@@ -165,13 +165,13 @@ ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 {
 	return(__fake_pread_write(fd, buf, count, offset, 1));
 }
-strong_alias(__libc_pwrite,pwrite)
+weak_alias(__libc_pwrite,pwrite)
 
 # ifdef __UCLIBC_HAS_LFS__ 
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 { 
 	return(__fake_pread_write64(fd, (void*)buf, count, offset, 1));
 }
-strong_alias(__libc_pwrite64,pwrite64)
+weak_alias(__libc_pwrite64,pwrite64)
 # endif /* __UCLIBC_HAS_LFS__  */
 #endif /* ! __NR_pwrite */

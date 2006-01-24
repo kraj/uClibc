@@ -13,5 +13,5 @@
 #define __NR___libc_close __NR_close
 _syscall1(int, __libc_close, int, fd);
 libc_hidden_proto(close)
-strong_alias(__libc_close,close)
+weak_alias(__libc_close,close)
 libc_hidden_def(close)

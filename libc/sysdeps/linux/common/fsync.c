@@ -12,4 +12,4 @@
 
 #define __NR___libc_fsync __NR_fsync
 _syscall1(int, __libc_fsync, int, fd);
-strong_alias(__libc_fsync, fsync)
+weak_alias(__libc_fsync, fsync)

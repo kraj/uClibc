@@ -24,4 +24,4 @@ int __libc_pause(void)
 	return (__sigpause(sigblock(0), 0));
 }
 #endif
-strong_alias(__libc_pause,pause)
+weak_alias(__libc_pause,pause)

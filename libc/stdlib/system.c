@@ -65,4 +65,4 @@ int __libc_system(char *command)
 	signal(SIGCHLD, save_chld);
 	return wait_val;
 }
-strong_alias(__libc_system,system)
+weak_alias(__libc_system,system)
