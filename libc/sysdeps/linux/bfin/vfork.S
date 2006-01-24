@@ -8,11 +8,14 @@
 #include <asm/unistd.h>
 
 .text
-.global _vfork
-.type	_vfork,STT_FUNC;
+.global ___vfork
+.hidden ___vfork
+.type	___vfork,STT_FUNC;
 .align 4
-_vfork:
+___vfork:
 	p0 = __NR_vfork;
 	excpt 0;
 	rts;
-.size _vfork,.-_vfork
+.size ___vfork,.-___vfork
+//weak_alias(___vfork,_vfork)
+//libc_hidden_def(_vfork)

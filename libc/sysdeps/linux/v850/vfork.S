@@ -26,7 +26,7 @@
 
 .global C_SYMBOL_NAME(errno)
 
-C_ENTRY (vfork):
+C_ENTRY (__vfork):
 	addi	SYS_vfork, r0, r12
 	trap	0
 	addi	-125, r0, r11		// minimum err value
@@ -37,4 +37,6 @@ C_ENTRY (vfork):
 	subr	r0, r10
 	st.w	r10, 0[r11]
 	jmp	[lp]			// error return
-C_END(vfork)
+C_END(__vfork)
+//weak_alias(__vfork,vfork)
+//libc_hidden_def(vfork)

@@ -12,10 +12,11 @@
 #endif
 	.text
 	.align 2
-	.globl _errno
-	.globl _vfork
-	.type	 vfork,@function
-_vfork:
+	.globl	_errno
+	.globl	___vfork
+	.hidden	___vfork
+	.type	___vfork,@function
+___vfork:
 	mov.l	@sp+, er1
 	sub.l	er0,er0
 	mov.b	#__NR_vfork,r0l
@@ -35,3 +36,6 @@ fix_errno:
 	sub.l	er0,er0
 	dec.l	#1,er0
 	jmp	@er1                     /* don't return,  just jmp directly */
+
+//weak_alias(___vfork,_vfork)
+//libc_hidden_def(_vfork)

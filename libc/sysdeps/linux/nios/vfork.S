@@ -22,9 +22,10 @@
 
    .text
    .align 2
-   .globl vfork
-   .type  vfork,@function
-vfork:
+   .globl __vfork
+  .hidden __vfork
+  .type   __vfork,@function
+__vfork:
 	MOVIP	%g1, __NR_vfork
 	trap	63
 	
@@ -48,5 +49,6 @@ fix_errno:
 	ret
 	restore
 
-.size vfork,.-vfork
+.size __vfork,.-__vfork
+weak_alias(__vfork,vfork)
 libc_hidden_def(vfork)

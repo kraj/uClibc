@@ -2,7 +2,7 @@
 /* vfork for uClibc
  *
  * Copyright (C) 2000 by Lineo, inc. and Erik Andersen
- * Copyright (C) 2000,2001 by Erik Andersen <andersen@uclibc.org>
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@uclibc.org>
  * Written by Erik Andersen <andersen@uclibc.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
@@ -16,11 +16,12 @@
 
 #ifdef __NR_fork
 .text
-.global	vfork
-.type	vfork,%function
+.global	__vfork
+.hidden	__vfork
+.type	__vfork,%function
 .align 4
 
-vfork:
+__vfork:
 
 #ifdef __NR_vfork
 	swi	__NR_vfork
@@ -43,6 +44,7 @@ vfork:
 __error:
 	b	__syscall_error
 
-.size vfork,.-vfork
+.size __vfork,.-__vfork
+weak_alias(__vfork,vfork)
 libc_hidden_def(vfork)
 #endif

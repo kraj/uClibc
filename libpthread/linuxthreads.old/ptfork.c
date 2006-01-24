@@ -78,9 +78,9 @@ static inline void pthread_call_handlers(struct handler_list * list)
   for (/*nothing*/; list != NULL; list = list->next) (list->handler)();
 }
 
-extern int __libc_fork(void);
+extern __typeof(fork) __libc_fork;
 
-pid_t __fork(void)
+pid_t attribute_hidden __fork(void)
 {
   pid_t pid;
   struct handler_list * prepare, * child, * parent;
@@ -101,13 +101,13 @@ pid_t __fork(void)
   }
   return pid;
 }
-weak_alias (__fork, fork)
+strong_alias(__fork,fork)
 
-pid_t __vfork(void)
+pid_t attribute_hidden __vfork(void)
 {
   return __fork();
 }
-weak_alias (__vfork, vfork)
+strong_alias(__vfork,vfork)
 
 #else
 

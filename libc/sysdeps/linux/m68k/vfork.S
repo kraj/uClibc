@@ -17,10 +17,11 @@
 	.text
 	.align 2
 	.globl errno
-	.globl	vfork
-	.type	vfork,@function
+	.globl	__vfork
+	.hidden	__vfork
+	.type	__vfork,@function
 
-vfork:
+__vfork:
 	movl	%sp@+, %a1               /* save the return address for later */
 	movl	IMM __NR_vfork,%d0
 	trap	#0
@@ -39,5 +40,6 @@ fix_errno:
 	movl	IMM -1, %d0
 	jmp		%a1@                     /* don't return,  just jmp directly */
 
-.size vfork,.-vfork
+.size __vfork,.-__vfork
+weak_alias(__vfork,vfork)
 libc_hidden_def(vfork)

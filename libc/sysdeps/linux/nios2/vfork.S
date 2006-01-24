@@ -16,12 +16,16 @@
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
-#ifdef __NR_fork
+#ifndef __NR_vfork
+#define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */
+#endif
+
 .text
-.global	vfork
-.type	vfork,%function
+.global	__vfork
+.hidden	__vfork
+.type	__vfork,%function
 .align 4
-vfork:
+__vfork:
     movui   r2, TRAP_ID_SYSCALL
     movui   r3, __NR_vfork
     trap
@@ -47,6 +51,6 @@ fix_errno:
     addi  sp, sp, 8
     ret
 
-.size vfork,.-vfork
+.size __vfork,.-__vfork
+weak_alias(__vfork,vfork)
 libc_hidden_def(vfork)
-#endif

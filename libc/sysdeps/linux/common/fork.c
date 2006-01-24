@@ -15,7 +15,7 @@
 #define __NR___libc_fork __NR_fork
 _syscall0(pid_t, __libc_fork);
 libc_hidden_proto(fork)
-strong_alias(__libc_fork,fork)
+weak_alias(__libc_fork,fork)
 libc_hidden_def(fork)
 #endif
 #endif

@@ -3,15 +3,13 @@
 #include <errno.h>
 #include <sys/syscall.h>
 
-libc_hidden_proto(vfork)
-
 #define __syscall_clobbers \
 	"r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"
 #define __syscall_return(type) \
 	return (__sc_err & 0x10000000 ? errno = __sc_ret, __sc_ret = -1 : 0), \
 	       (type) __sc_ret
 
-pid_t vfork(void)
+pid_t attribute_hidden __vfork(void)
 {
 	unsigned long __sc_ret, __sc_err;
 	register unsigned long __sc_0 __asm__ ("r0");
@@ -48,4 +46,6 @@ pid_t vfork(void)
 
 	__syscall_return (pid_t);
 }
+libc_hidden_proto(vfork)
+weak_alias(__vfork,vfork)
 libc_hidden_def(vfork)
