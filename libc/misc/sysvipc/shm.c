@@ -17,7 +17,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-/* SHMLBA uses it */
+/* SHMLBA uses it on most of the archs (not mips) */
 #define __getpagesize getpagesize
 
 #include <stdlib.h>
@@ -25,8 +25,6 @@
 #include <sys/shm.h>
 #include <syscall.h>
 #include "ipc.h"
-
-libc_hidden_proto(getpagesize)
 
 #ifdef L_shmat
 /* Attach the shared memory segment associated with SHMID to the data
@@ -38,6 +36,10 @@ libc_hidden_proto(getpagesize)
 #ifdef __NR_shmat
 _syscall3(void *, shmat, int, shmid, const void *,shmaddr, int, shmflg);
 #else
+/* psm: don't remove this, else mips will fail */
+#include <unistd.h>
+libc_hidden_proto(getpagesize)
+
 void * shmat (int shmid, const void *shmaddr, int shmflg)
 {
     int retval;
