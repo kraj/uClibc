@@ -22,7 +22,7 @@
 
 libc_hidden_proto(sigprocmask)
 
-extern void __longjmp (__jmp_buf __env, int val);
+extern __typeof(longjmp) __longjmp;
 libc_hidden_proto(__longjmp)
 
 /* Set the signal mask to the one specified in ENV, and jump

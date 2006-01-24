@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 
-extern void __longjmp (__jmp_buf __env, int val);
+extern __typeof(longjmp) __longjmp;
 libc_hidden_proto(__longjmp)
 
 #ifndef	__GNUC__

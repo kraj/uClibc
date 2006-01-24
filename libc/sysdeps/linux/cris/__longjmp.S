@@ -37,4 +37,3 @@ ENTRY (__longjmp)
 END (__longjmp)
 
 libc_hidden_def(__longjmp)
-strong_alias(__longjmp,longjmp)
