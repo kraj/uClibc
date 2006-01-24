@@ -22,13 +22,13 @@
 
 libc_hidden_proto(sigprocmask)
 
-extern __typeof(longjmp) __longjmp;
+extern void __longjmp (__jmp_buf __env, int __val) attribute_noreturn;
 libc_hidden_proto(__longjmp)
 
 /* Set the signal mask to the one specified in ENV, and jump
    to the position specified in ENV, causing the setjmp
    call there to return VAL, or 1 if VAL is 0.  */
-void __libc_longjmp (sigjmp_buf env, int val)
+void attribute_noreturn __libc_longjmp (sigjmp_buf env, int val)
 {
 #if 0
   /* Perform any cleanups needed by the frames being unwound.  */
