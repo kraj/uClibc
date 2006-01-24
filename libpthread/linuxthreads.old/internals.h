@@ -25,6 +25,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include "pt-machine.h"
 #include "semaphore.h"
 #include "../linuxthreads.old_db/thread_dbP.h"
