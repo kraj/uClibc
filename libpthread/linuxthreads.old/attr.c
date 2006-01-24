@@ -15,7 +15,6 @@
 /* changed for uClibc */
 #define __sched_get_priority_min sched_get_priority_min
 #define __sched_get_priority_max sched_get_priority_max
-#define __getpagesize getpagesize
 
 /* Handling of thread attributes */
 
@@ -33,7 +32,7 @@
 //int __pthread_attr_init_2_1(pthread_attr_t *attr)
 int pthread_attr_init(pthread_attr_t *attr)
 {
-  size_t ps = __getpagesize ();
+  size_t ps = getpagesize ();
 
   attr->__detachstate = PTHREAD_CREATE_JOINABLE;
   attr->__schedpolicy = SCHED_OTHER;
@@ -155,7 +154,7 @@ int pthread_attr_getscope(const pthread_attr_t *attr, int *scope)
 
 int __pthread_attr_setguardsize(pthread_attr_t *attr, size_t guardsize)
 {
-  size_t ps = __getpagesize ();
+  size_t ps = getpagesize ();
 
   /* First round up the guard size.  */
   guardsize = roundup (guardsize, ps);

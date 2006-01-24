@@ -14,10 +14,6 @@
 
 /* The "thread manager" thread: manages creation and termination of threads */
 
-/* mods for uClibc: getpid and getpagesize are the syscalls */
-#define __getpid getpid
-#define __getpagesize getpagesize
-
 #include <features.h>
 #include <errno.h>
 #include <sched.h>
@@ -282,7 +278,7 @@ pthread_start_thread(void *arg)
   PDEBUG("\n");
   /* Make sure our pid field is initialized, just in case we get there
      before our father has initialized it. */
-  THREAD_SETMEM(self, p_pid, __getpid());
+  THREAD_SETMEM(self, p_pid, getpid());
   /* Initial signal mask is that of the creating thread. (Otherwise,
      we'd just inherit the mask of the thread manager.) */
   sigprocmask(SIG_SETMASK, &self->p_start_args.mask, NULL);
@@ -327,7 +323,7 @@ pthread_start_thread_event(void *arg)
 #endif
   /* Make sure our pid field is initialized, just in case we get there
      before our father has initialized it. */
-  THREAD_SETMEM(self, p_pid, __getpid());
+  THREAD_SETMEM(self, p_pid, getpid());
   /* Get the lock the manager will free once all is correctly set up.  */
   __pthread_lock (THREAD_GETMEM(self, p_lock), NULL);
   /* Free it immediately.  */
@@ -477,7 +473,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   pthread_t new_thread_id;
   char *guardaddr = NULL;
   size_t guardsize = 0;
-  int pagesize = __getpagesize();
+  int pagesize = getpagesize();
   int saved_errno = 0;
 
   /* First check whether we have to change the policy and if yes, whether

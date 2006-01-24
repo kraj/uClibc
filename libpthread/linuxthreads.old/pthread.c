@@ -38,11 +38,8 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-/* mods for uClibc: getpwd and getpagesize are the syscalls */
-#define __getpid getpid
-#define __getpagesize getpagesize
 /* mods for uClibc: __libc_sigaction is not in any standard headers */
-extern int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact);
+extern __typeof(sigaction) __libc_sigaction;
 
 
 /* These variables are used by the setup code.  */
@@ -379,7 +376,7 @@ static void pthread_initialize(void)
   __pthread_initial_thread_bos =
     (char *)(((long)CURRENT_STACK_FRAME - 2 * STACK_SIZE) & ~(STACK_SIZE - 1));
   /* Update the descriptor for the initial thread. */
-  __pthread_initial_thread.p_pid = __getpid();
+  __pthread_initial_thread.p_pid = getpid();
   /* If we have special thread_self processing, initialize that for the
      main thread now.  */
 #ifdef INIT_THREAD_SELF
@@ -413,7 +410,7 @@ static void pthread_initialize(void)
   /* We cannot allocate a huge chunk of memory to mmap all thread stacks later
    * on a non-MMU system. Thus, we don't need the rlimit either. -StS */
   getrlimit(RLIMIT_STACK, &limit);
-  max_stack = STACK_SIZE - 2 * __getpagesize();
+  max_stack = STACK_SIZE - 2 * getpagesize();
   if (limit.rlim_cur > max_stack) {
     limit.rlim_cur = max_stack;
     setrlimit(RLIMIT_STACK, &limit);
@@ -424,7 +421,7 @@ static void pthread_initialize(void)
    * malloc other stack frames such that they don't overlap. -StS
    */
   __pthread_initial_thread_tos =
-    (char *)(((long)CURRENT_STACK_FRAME + __getpagesize()) & ~(__getpagesize() - 1));
+    (char *)(((long)CURRENT_STACK_FRAME + getpagesize()) & ~(getpagesize() - 1));
   __pthread_initial_thread_bos = (char *) 1; /* set it non-zero so we know we have been here */
   PDEBUG("initial thread stack bounds: bos=%p, tos=%p\n",
 	 __pthread_initial_thread_bos, __pthread_initial_thread_tos);
@@ -847,7 +844,7 @@ void __pthread_reset_main_thread()
   }
 
   /* Update the pid of the main thread */
-  THREAD_SETMEM(self, p_pid, __getpid());
+  THREAD_SETMEM(self, p_pid, getpid());
   /* Make the forked thread the main thread */
   __pthread_main_thread = self;
   THREAD_SETMEM(self, p_nextlive, self);
@@ -1089,7 +1086,7 @@ void __pthread_message(char * fmt, ...)
 {
   char buffer[1024];
   va_list args;
-  sprintf(buffer, "%05d : ", __getpid());
+  sprintf(buffer, "%05d : ", getpid());
   va_start(args, fmt);
   vsnprintf(buffer + 8, sizeof(buffer) - 8, fmt, args);
   va_end(args);
