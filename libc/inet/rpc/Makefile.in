@@ -1,50 +1,35 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-ifeq ($(UCLIBC_HAS_FULL_RPC),y)
-CSRC:=	auth_none.c auth_unix.c authunix_prot.c bindresvport.c \
-	clnt_generic.c clnt_perror.c clnt_raw.c clnt_simple.c clnt_tcp.c \
-	clnt_udp.c rpc_dtablesize.c get_myaddress.c getrpcent.c getrpcport.c \
-	pmap_clnt.c pmap_getmaps.c pmap_getport.c pmap_prot.c \
-	pmap_prot2.c pmap_rmt.c rpc_prot.c rpc_commondata.c rpc_cmsg.c \
-	svc.c svc_auth.c svc_authux.c svc_raw.c svc_run.c svc_simple.c \
-	svc_tcp.c svc_udp.c xdr.c xdr_array.c xdr_float.c xdr_mem.c \
-	xdr_rec.c xdr_reference.c xdr_stdio.c \
-	rtime.c clnt_unix.c svc_unix.c create_xid.c xdr_intXX_t.c rcmd.c \
-	rexec.c sa_len.c ruserpass.c rpc_thread.c
-else
+ifneq ($(UCLIBC_HAS_FULL_RPC),y)
 # For now, only compile the stuff needed to do an NFS mount....
-CSRC:=	create_xid.c pmap_clnt.c pmap_getmaps.c pmap_getport.c \
-	pmap_prot.c pmap_prot2.c clnt_simple.c clnt_perror.c \
-	clnt_tcp.c clnt_udp.c bindresvport.c authunix_prot.c \
-	auth_none.c auth_unix.c xdr.c xdr_array.c xdr_rec.c \
-	xdr_reference.c xdr_mem.c svc.c svc_auth.c svc_authux.c \
-	rpc_cmsg.c rpc_prot.c rpc_dtablesize.c rpc_commondata.c \
-	rpc_thread.c rcmd.c rexec.c sa_len.c ruserpass.c rtime.c \
-	getrpcent.c
+CSRC:=	authunix_prot.c auth_none.c auth_unix.c bindresvport.c \
+	clnt_perror.c clnt_simple.c clnt_tcp.c clnt_udp.c \
+	create_xid.c getrpcent.c \
+	pmap_clnt.c pmap_getmaps.c pmap_getport.c pmap_prot.c pmap_prot2.c \
+	rcmd.c rexec.c rpc_cmsg.c rpc_commondata.c rpc_dtablesize.c \
+	rpc_prot.c rpc_thread.c rtime.c ruserpass.c sa_len.c \
+	svc.c svc_auth.c svc_authux.c \
+	xdr.c xdr_array.c xdr_mem.c xdr_rec.c xdr_reference.c
 endif
 
 INET_RPC_DIR:=$(top_srcdir)libc/inet/rpc
 INET_RPC_OUT:=$(top_builddir)libc/inet/rpc
 
-ifneq ($(DOMULTI),n)
-INET_RPC_NO_MULTI:=rpc_commondata.c rpc_thread.c svc.c
-CSRC:=$(filter-out $(INET_RPC_NO_MULTI),$(CSRC))
-endif
-
+ifeq ($(UCLIBC_HAS_FULL_RPC),y)
+INET_RPC_SRC:=$(wildcard $(INET_RPC_DIR)/*.c)
+else
 INET_RPC_SRC:=$(patsubst %.c,$(INET_RPC_DIR)/%.c,$(CSRC))
-INET_RPC_OBJ:=$(patsubst %.c,$(INET_RPC_OUT)/%.o,$(CSRC))
+endif
+INET_RPC_OBJ:=$(patsubst $(INET_RPC_DIR)/%.c,$(INET_RPC_OUT)/%.o,$(INET_RPC_SRC))
 
 libc-a-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OBJ)
 libc-so-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OBJ:.o=.os)
-
-libc-multi-$(UCLIBC_HAS_RPC)+=$(INET_RPC_SRC)
-libc-nomulti-$(UCLIBC_HAS_RPC)+=$(patsubst %.c,$(INET_RPC_OUT)/%.o,$(INET_RPC_NO_MULTI))
 
 objclean-y+=inet_rpc_objclean
 
