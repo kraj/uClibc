@@ -40,7 +40,8 @@
 
 /* mods for uClibc: __libc_sigaction is not in any standard headers */
 extern __typeof(sigaction) __libc_sigaction;
-
+libpthread_hidden_proto(waitpid)
+libpthread_hidden_proto(raise)
 
 /* These variables are used by the setup code.  */
 extern int _errno;
@@ -316,11 +317,11 @@ struct pthread_functions __pthread_functions =
     .ptr___pthread_exit = pthread_exit,
     .ptr_pthread_getschedparam = pthread_getschedparam,
     .ptr_pthread_setschedparam = pthread_setschedparam,
-    .ptr_pthread_mutex_destroy = pthread_mutex_destroy,
-    .ptr_pthread_mutex_init = pthread_mutex_init,
-    .ptr_pthread_mutex_lock = pthread_mutex_lock,
-    .ptr_pthread_mutex_trylock = pthread_mutex_trylock,
-    .ptr_pthread_mutex_unlock = pthread_mutex_unlock,
+    .ptr_pthread_mutex_destroy = __pthread_mutex_destroy,
+    .ptr_pthread_mutex_init = __pthread_mutex_init,
+    .ptr_pthread_mutex_lock = __pthread_mutex_lock,
+    .ptr_pthread_mutex_trylock = __pthread_mutex_trylock,
+    .ptr_pthread_mutex_unlock = __pthread_mutex_unlock,
     .ptr_pthread_self = pthread_self,
     .ptr_pthread_setcancelstate = pthread_setcancelstate,
     .ptr_pthread_setcanceltype = pthread_setcanceltype,

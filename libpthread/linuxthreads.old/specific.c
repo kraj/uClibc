@@ -42,18 +42,18 @@ int pthread_key_create(pthread_key_t * key, destr_function destr)
 {
   int i;
 
-  pthread_mutex_lock(&pthread_keys_mutex);
+  __pthread_mutex_lock(&pthread_keys_mutex);
   for (i = 0; i < PTHREAD_KEYS_MAX; i++) {
     if (! pthread_keys[i].in_use) {
       /* Mark key in use */
       pthread_keys[i].in_use = 1;
       pthread_keys[i].destr = destr;
-      pthread_mutex_unlock(&pthread_keys_mutex);
+      __pthread_mutex_unlock(&pthread_keys_mutex);
       *key = i;
       return 0;
     }
   }
-  pthread_mutex_unlock(&pthread_keys_mutex);
+  __pthread_mutex_unlock(&pthread_keys_mutex);
   return EAGAIN;
 }
 
@@ -62,9 +62,9 @@ int pthread_key_delete(pthread_key_t key)
 {
     pthread_descr self = thread_self();
 
-    pthread_mutex_lock(&pthread_keys_mutex);
+    __pthread_mutex_lock(&pthread_keys_mutex);
     if (key >= PTHREAD_KEYS_MAX || !pthread_keys[key].in_use) {
-	pthread_mutex_unlock(&pthread_keys_mutex);
+	__pthread_mutex_unlock(&pthread_keys_mutex);
 	return EINVAL;
     }
     pthread_keys[key].in_use = 0;
@@ -90,7 +90,7 @@ int pthread_key_delete(pthread_key_t key)
 	} while (th != self);
     }
 
-    pthread_mutex_unlock(&pthread_keys_mutex);
+    __pthread_mutex_unlock(&pthread_keys_mutex);
     return 0;
 }
 

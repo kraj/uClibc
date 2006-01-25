@@ -20,6 +20,10 @@
 #include <stdio.h>
 #include <pthread.h>
 
+libpthread_hidden_proto(pthread_mutexattr_init)
+libpthread_hidden_proto(pthread_mutexattr_settype)
+libpthread_hidden_proto(pthread_mutexattr_destroy)
+
 /* Note: glibc puts flockfile, funlockfile, and ftrylockfile in both
  * libc and libpthread.  In uClibc, they are now in libc only.  */
 
