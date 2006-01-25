@@ -484,8 +484,6 @@ extern int __pthread_attr_getstacksize __P ((__const pthread_attr_t *__attr,
 					     size_t *__stacksize));
 extern int __pthread_getconcurrency __P ((void));
 extern int __pthread_setconcurrency __P ((int __level));
-extern int __pthread_mutexattr_gettype __P ((__const pthread_mutexattr_t *__attr,
-					     int *__kind));
 extern void __pthread_kill_other_threads_np __P ((void));
 
 extern void __pthread_restart_old(pthread_descr th);
