@@ -155,6 +155,7 @@ __asm__						\
 RESTORE (restore_rt, __NR_rt_sigreturn)
 #endif
 
+#ifdef __NR_sigreturn
 /* For the boring old signals.  */
 # undef RESTORE2
 # define RESTORE2(name, syscall) \
@@ -169,3 +170,4 @@ __asm__						\
    );
 
 RESTORE (restore, __NR_sigreturn)
+#endif
