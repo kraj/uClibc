@@ -6,7 +6,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-linuxthreads.old := -DNOT_IN_libc -DIS_IN_linuxthreads $(SSP_ALL_CFLAGS)
+CFLAGS-linuxthreads.old := -DNOT_IN_libc -DIS_IN_libpthread $(SSP_ALL_CFLAGS)
 
 CFLAGS-libpthread/linuxthreads.old/sysdeps/$(TARGET_ARCH)/ := $(CFLAGS-linuxthreads.old)
 
