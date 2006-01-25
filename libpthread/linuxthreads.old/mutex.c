@@ -166,7 +166,6 @@ int pthread_mutex_timedlock (pthread_mutex_t *mutex,
     return EINVAL;
   }
 }
-hidden_strong_alias (pthread_mutex_timedlock, __pthread_mutex_timedlock)
 
 int pthread_mutex_unlock(pthread_mutex_t * mutex)
 {
@@ -199,20 +198,23 @@ int pthread_mutex_unlock(pthread_mutex_t * mutex)
 }
 hidden_strong_alias (pthread_mutex_unlock, __pthread_mutex_unlock)
 
-int __pthread_mutexattr_init(pthread_mutexattr_t *attr)
+libpthread_hidden_proto(pthread_mutexattr_init)
+int pthread_mutexattr_init(pthread_mutexattr_t *attr)
 {
   attr->__mutexkind = PTHREAD_MUTEX_TIMED_NP;
   return 0;
 }
-strong_alias (__pthread_mutexattr_init, pthread_mutexattr_init)
+libpthread_hidden_def(pthread_mutexattr_init)
 
-int __pthread_mutexattr_destroy(pthread_mutexattr_t *attr attribute_unused)
+libpthread_hidden_proto(pthread_mutexattr_destroy)
+int pthread_mutexattr_destroy(pthread_mutexattr_t *attr attribute_unused)
 {
   return 0;
 }
-strong_alias (__pthread_mutexattr_destroy, pthread_mutexattr_destroy)
+libpthread_hidden_def(pthread_mutexattr_destroy)
 
-int __pthread_mutexattr_settype(pthread_mutexattr_t *attr, int kind)
+libpthread_hidden_proto(pthread_mutexattr_settype)
+int pthread_mutexattr_settype(pthread_mutexattr_t *attr, int kind)
 {
   if (kind != PTHREAD_MUTEX_ADAPTIVE_NP
       && kind != PTHREAD_MUTEX_RECURSIVE_NP
@@ -222,8 +224,8 @@ int __pthread_mutexattr_settype(pthread_mutexattr_t *attr, int kind)
   attr->__mutexkind = kind;
   return 0;
 }
-weak_alias (__pthread_mutexattr_settype, pthread_mutexattr_settype)
-strong_alias ( __pthread_mutexattr_settype, __pthread_mutexattr_setkind_np)
+libpthread_hidden_def(pthread_mutexattr_settype)
+strong_alias (pthread_mutexattr_settype, __pthread_mutexattr_setkind_np)
 weak_alias (__pthread_mutexattr_setkind_np, pthread_mutexattr_setkind_np)
 
 int __pthread_mutexattr_gettype(const pthread_mutexattr_t *attr, int *kind)
@@ -272,9 +274,9 @@ static void pthread_once_cancelhandler(void *arg)
 {
     pthread_once_t *once_control = arg;
 
-    pthread_mutex_lock(&once_masterlock);
+    __pthread_mutex_lock(&once_masterlock);
     *once_control = NEVER;
-    pthread_mutex_unlock(&once_masterlock);
+    __pthread_mutex_unlock(&once_masterlock);
     pthread_cond_broadcast(&once_finished);
 }
 
@@ -292,7 +294,7 @@ int __pthread_once(pthread_once_t * once_control, void (*init_routine)(void))
 
   state_changed = 0;
 
-  pthread_mutex_lock(&once_masterlock);
+  __pthread_mutex_lock(&once_masterlock);
 
   /* If this object was left in an IN_PROGRESS state in a parent
      process (indicated by stale generation field), reset it to NEVER. */
@@ -307,16 +309,16 @@ int __pthread_once(pthread_once_t * once_control, void (*init_routine)(void))
   /* Here *once_control is stable and either NEVER or DONE. */
   if (*once_control == NEVER) {
     *once_control = IN_PROGRESS | fork_generation;
-    pthread_mutex_unlock(&once_masterlock);
+    __pthread_mutex_unlock(&once_masterlock);
     pthread_cleanup_push(pthread_once_cancelhandler, once_control);
     init_routine();
     pthread_cleanup_pop(0);
-    pthread_mutex_lock(&once_masterlock);
+    __pthread_mutex_lock(&once_masterlock);
     WRITE_MEMORY_BARRIER();
     *once_control = DONE;
     state_changed = 1;
   }
-  pthread_mutex_unlock(&once_masterlock);
+  __pthread_mutex_unlock(&once_masterlock);
 
   if (state_changed)
     pthread_cond_broadcast(&once_finished);
@@ -337,17 +339,17 @@ strong_alias (__pthread_once, pthread_once)
 
 void __pthread_once_fork_prepare(void)
 {
-  pthread_mutex_lock(&once_masterlock);
+  __pthread_mutex_lock(&once_masterlock);
 }
 
 void __pthread_once_fork_parent(void)
 {
-  pthread_mutex_unlock(&once_masterlock);
+  __pthread_mutex_unlock(&once_masterlock);
 }
 
 void __pthread_once_fork_child(void)
 {
-  pthread_mutex_init(&once_masterlock, NULL);
+  __pthread_mutex_init(&once_masterlock, NULL);
   pthread_cond_init(&once_finished, NULL);
   if (fork_generation <= INT_MAX - 4)
     fork_generation += 4;	/* leave least significant two bits zero */
