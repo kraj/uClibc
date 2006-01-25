@@ -41,9 +41,7 @@ libc_hidden_proto(stdout)
 libc_hidden_proto(stderr)
 
 /* This variable is incremented each time `error' is called.  */
-libc_hidden_proto(error_message_count)
 unsigned int error_message_count = 0;
-libc_hidden_def(error_message_count)
 /* Sometimes we want to have at most one error per line.  This
    variable controls whether this mode is selected or not.  */
 int error_one_per_line;
