@@ -102,9 +102,11 @@ CANCELABLE_SYSCALL (int, msync, (__ptr_t addr, size_t length, int flags),
 
 
 /* nanosleep(2).  */
+libpthread_hidden_proto(nanosleep)
 CANCELABLE_SYSCALL (int, nanosleep, (const struct timespec *requested_time,
 				     struct timespec *remaining),
 		    (requested_time, remaining))
+libpthread_hidden_def(nanosleep)
 
 
 /* open(2).  */
@@ -167,9 +169,11 @@ CANCELABLE_SYSCALL (__pid_t, wait, (__WAIT_STATUS_DEFN stat_loc), (stat_loc))
 
 
 /* waitpid(2).  */
+libpthread_hidden_proto(waitpid)
 CANCELABLE_SYSCALL (__pid_t, waitpid, (__pid_t pid, int *stat_loc,
 				       int options),
 		    (pid, stat_loc, options))
+libpthread_hidden_def(waitpid)
 
 
 /* write(2).  */
