@@ -120,16 +120,16 @@ FORWARD (pthread_mutex_destroy, (pthread_mutex_t *mutex), (mutex), 0)
 FORWARD (pthread_mutex_init,
 	 (pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr),
 	 (mutex, mutexattr), 0)
-hidden_strong_alias(pthread_mutex_init, __pthread_mutex_init)
+strong_alias(pthread_mutex_init, __pthread_mutex_init)
 
 FORWARD (pthread_mutex_lock, (pthread_mutex_t *mutex), (mutex), 0)
-hidden_strong_alias(pthread_mutex_lock, __pthread_mutex_lock)
+strong_alias(pthread_mutex_lock, __pthread_mutex_lock)
 
 FORWARD (pthread_mutex_trylock, (pthread_mutex_t *mutex), (mutex), 0)
-hidden_strong_alias(pthread_mutex_trylock, __pthread_mutex_trylock)
+strong_alias(pthread_mutex_trylock, __pthread_mutex_trylock)
 
 FORWARD (pthread_mutex_unlock, (pthread_mutex_t *mutex), (mutex), 0)
-hidden_strong_alias(pthread_mutex_unlock, __pthread_mutex_unlock)
+strong_alias(pthread_mutex_unlock, __pthread_mutex_unlock)
 
 FORWARD2 (pthread_self, pthread_t, (void), (), return 0)
 

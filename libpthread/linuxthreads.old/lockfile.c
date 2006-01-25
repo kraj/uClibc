@@ -20,9 +20,9 @@
 #include <stdio.h>
 #include <pthread.h>
 
-libpthread_hidden_proto(pthread_mutexattr_init)
-libpthread_hidden_proto(pthread_mutexattr_settype)
-libpthread_hidden_proto(pthread_mutexattr_destroy)
+extern __typeof(pthread_mutexattr_init) __pthread_mutexattr_init attribute_hidden;
+extern __typeof(pthread_mutexattr_settype) __pthread_mutexattr_settype attribute_hidden;
+extern __typeof(pthread_mutexattr_destroy) __pthread_mutexattr_destroy attribute_hidden;
 
 /* Note: glibc puts flockfile, funlockfile, and ftrylockfile in both
  * libc and libpthread.  In uClibc, they are now in libc only.  */
@@ -33,11 +33,11 @@ __fresetlockfiles (void)
   FILE *fp;
   pthread_mutexattr_t attr;
 
-  pthread_mutexattr_init(&attr);
-  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+  __pthread_mutexattr_init(&attr);
+  __pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
 
   for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen)
     __pthread_mutex_init(&fp->__lock, &attr);
 
-  pthread_mutexattr_destroy(&attr);
+  __pthread_mutexattr_destroy(&attr);
 }
