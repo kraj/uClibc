@@ -19,16 +19,12 @@
 
 /* Code taken from glibc2.2.2/sysdeps/unix/sysv/linux/sparc/vfork.S */
 
-#include <features.h>
 #include <sys/syscall.h>
 
 #ifndef __NR_vfork
 /* No vfork so use fork instead */
-
-strong_alias(fork,__libc_fork)
-hidden_strong_alias(__libc_fork,__vfork)
-
-#else
+# define __NR_vfork __NR_fork
+#endif
 
 .text
 .global	__vfork
@@ -54,6 +50,6 @@ __vfork:
 	and	%o0, %o1, %o0
 
 .size __vfork,.-__vfork
-#endif /* __NR_vfork */
+
 weak_alias(__vfork,vfork)
 libc_hidden_def(vfork)
