@@ -1315,7 +1315,7 @@ config UCLIBC_BUILD_RELRO
 config UCLIBC_BUILD_NOW
 	bool "Build uClibc with NOW"
 	depends on HAVE_SHARED
-	default y
+	default n
 	help
 	  Build all libraries and executables with -z now.
 
