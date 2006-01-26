@@ -531,7 +531,8 @@ static void __md5_to64( char *s, unsigned long v, int n)
  * Use MD5 for what it is best at...
  */
 
-extern char attribute_hidden * __md5_crypt( const char *pw, const char *salt)
+char * __md5_crypt( const char *pw, const char *salt) attribute_hidden;
+char * __md5_crypt( const char *pw, const char *salt)
 {
 	/* Static stuff */
 	static const char *sp, *ep;

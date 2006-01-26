@@ -221,8 +221,10 @@ void attribute_hidden (*__rtld_fini)(void) = NULL;
  * called from crt1 (version 0.9.28 or newer), after ALL shared libraries
  * are initialized, just before we call the application's main function.
  */
-void attribute_noreturn
-__uClibc_main(int (*main)(int, char **, char **), int argc,
+void __uClibc_main(int (*main)(int, char **, char **), int argc,
+		    char **argv, void (*app_init)(void), void (*app_fini)(void),
+		    void (*rtld_fini)(void), void *stack_end) attribute_noreturn;
+void __uClibc_main(int (*main)(int, char **, char **), int argc,
 		    char **argv, void (*app_init)(void), void (*app_fini)(void),
 		    void (*rtld_fini)(void), void *stack_end)
 {

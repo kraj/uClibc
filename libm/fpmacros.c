@@ -122,6 +122,7 @@ libm_hidden_def(__fpclassify)
    Calls:  none
 ***********************************************************************/
 
+int __isnormalf ( float x );
 int __isnormalf ( float x )
 {
    unsigned int iexp;
@@ -136,6 +137,7 @@ int __isnormalf ( float x )
 }
 
 
+int __isnormal ( double x );
 int __isnormal ( double x )
 {
 	return ( __fpclassify ( x ) == FP_NORMAL );

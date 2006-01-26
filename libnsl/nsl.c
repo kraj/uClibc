@@ -9,6 +9,7 @@
 
 #include <features.h>
 
+void __stub2(void);
 void __stub2(void)
 {
 	return;
