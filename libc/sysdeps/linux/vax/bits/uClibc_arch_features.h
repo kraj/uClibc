@@ -1,12 +1,9 @@
-#ifndef _BITS_UCLIBC_ARCH_FEATURES_H
-#define _BITS_UCLIBC_ARCH_FEATURES_H
-
 /*
- *
  * Track misc arch-specific features that aren't config options
- *
  */
 
+#ifndef _BITS_UCLIBC_ARCH_FEATURES_H
+#define _BITS_UCLIBC_ARCH_FEATURES_H
 
 /* instruction used when calling abort() to kill yourself */
 #define __UCLIBC_ABORT_INSTRUCTION__	"halt"
