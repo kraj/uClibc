@@ -280,11 +280,11 @@ ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info 
 	}
 
 	if (x == 0) {				/* Handle 0 now to avoid false positive. */
-#if 1
+#ifdef __UCLIBC_HAVE_SIGNED_ZERO__
 		if (zeroisnegative(x)) { /* Handle 'signed' zero. */
 			*sign_str = '-';
 		}
-#endif
+#endif /* __UCLIBC_HAVE_SIGNED_ZERO__ */
 		exp = -1;
 		goto GENERATE_DIGITS;
 	}

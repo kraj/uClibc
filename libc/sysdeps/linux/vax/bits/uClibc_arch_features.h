@@ -1,12 +1,15 @@
-/*
- * Track misc arch-specific features that aren't config options
- */
-
 #ifndef _BITS_UCLIBC_ARCH_FEATURES_H
 #define _BITS_UCLIBC_ARCH_FEATURES_H
 
+/*
+ *
+ * Track misc arch-specific features that aren't config options
+ *
+ */
+
+
 /* instruction used when calling abort() to kill yourself */
-#define __UCLIBC_ABORT_INSTRUCTION__ "hlt"
+#undef __UCLIBC_ABORT_INSTRUCTION__	"halt"
 
 /* can your target use syscall6() for mmap ? */
 #define __UCLIBC_MMAP_HAS_6_ARGS__
@@ -36,6 +39,6 @@
 #undef __UCLIBC_HAVE_ASM_GLOBAL_DOT_NAME__
 
 /* define if target supports IEEE signed zero floats */
-#define __UCLIBC_HAVE_SIGNED_ZERO__
+#undef __UCLIBC_HAVE_SIGNED_ZERO__
 
 #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */
