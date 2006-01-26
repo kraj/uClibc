@@ -40,8 +40,6 @@
 #define END(sym)
 #endif
 
-#define C_SYMBOL_NAME(name) name
-
 #ifdef	__ASSEMBLER__
 
 /* Syntactic details of assembly-code.  */
@@ -54,7 +52,6 @@
    of relying on hearsay.  */
 #define ALIGNARG(log2) log2
 
-#define ASM_GLOBAL_DIRECTIVE .globl 
 #define ASM_TYPE_DIRECTIVE(name,typearg) .type name,typearg
 #define ASM_SIZE_DIRECTIVE(name) .size name,.-name
 
