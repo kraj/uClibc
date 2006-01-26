@@ -265,6 +265,7 @@ int __libc_current_sigrtmax (void)
 /* Allocate real-time signal with highest/lowest available
    priority.  Please note that we don't use a lock since we assume
    this function to be called at program start.  */
+int __libc_allocate_rtsig (int high);
 int __libc_allocate_rtsig (int high)
 {
     if (current_rtmin == -1 || current_rtmin > current_rtmax)
@@ -459,6 +460,7 @@ static void pthread_initialize(void)
   on_exit(pthread_onexit_process, NULL);
 }
 
+void __pthread_initialize(void);
 void __pthread_initialize(void)
 {
   pthread_initialize();

@@ -27,8 +27,8 @@ extern __typeof(pthread_mutexattr_destroy) __pthread_mutexattr_destroy attribute
 /* Note: glibc puts flockfile, funlockfile, and ftrylockfile in both
  * libc and libpthread.  In uClibc, they are now in libc only.  */
 
-void
-__fresetlockfiles (void)
+void __fresetlockfiles (void);
+void __fresetlockfiles (void)
 {
   FILE *fp;
   pthread_mutexattr_t attr;

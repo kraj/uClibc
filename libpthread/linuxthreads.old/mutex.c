@@ -225,6 +225,7 @@ strong_alias(__pthread_mutexattr_settype,pthread_mutexattr_settype)
 strong_alias (__pthread_mutexattr_settype, __pthread_mutexattr_setkind_np)
 weak_alias (__pthread_mutexattr_setkind_np, pthread_mutexattr_setkind_np)
 
+int __pthread_mutexattr_gettype(const pthread_mutexattr_t *attr, int *kind) attribute_hidden;
 int __pthread_mutexattr_gettype(const pthread_mutexattr_t *attr, int *kind)
 {
   *kind = attr->__mutexkind;
@@ -235,6 +236,8 @@ strong_alias (__pthread_mutexattr_gettype, __pthread_mutexattr_getkind_np)
 weak_alias (__pthread_mutexattr_getkind_np, pthread_mutexattr_getkind_np)
 
 int __pthread_mutexattr_getpshared (const pthread_mutexattr_t *attr attribute_unused,
+				   int *pshared) attribute_hidden;
+int __pthread_mutexattr_getpshared (const pthread_mutexattr_t *attr attribute_unused,
 				   int *pshared)
 {
   *pshared = PTHREAD_PROCESS_PRIVATE;
@@ -242,6 +245,7 @@ int __pthread_mutexattr_getpshared (const pthread_mutexattr_t *attr attribute_un
 }
 weak_alias (__pthread_mutexattr_getpshared, pthread_mutexattr_getpshared)
 
+int __pthread_mutexattr_setpshared (pthread_mutexattr_t *attr attribute_unused, int pshared) attribute_hidden;
 int __pthread_mutexattr_setpshared (pthread_mutexattr_t *attr attribute_unused, int pshared)
 {
   if (pshared != PTHREAD_PROCESS_PRIVATE && pshared != PTHREAD_PROCESS_SHARED)
@@ -334,16 +338,19 @@ strong_alias (__pthread_once, pthread_once)
  * and reset them back to NEVER.
  */
 
+void __pthread_once_fork_prepare(void);
 void __pthread_once_fork_prepare(void)
 {
   __pthread_mutex_lock(&once_masterlock);
 }
 
+void __pthread_once_fork_parent(void);
 void __pthread_once_fork_parent(void)
 {
   __pthread_mutex_unlock(&once_masterlock);
 }
 
+void __pthread_once_fork_child(void);
 void __pthread_once_fork_child(void)
 {
   __pthread_mutex_init(&once_masterlock, NULL);

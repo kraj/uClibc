@@ -80,7 +80,8 @@ static inline void pthread_call_handlers(struct handler_list * list)
 
 extern __typeof(fork) __libc_fork;
 
-pid_t attribute_hidden __fork(void)
+pid_t __fork(void) attribute_hidden;
+pid_t __fork(void)
 {
   pid_t pid;
   struct handler_list * prepare, * child, * parent;
