@@ -17,7 +17,7 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <features.h>
-#include <sysdep.h>
+#include "sysdep.h"
 
 /* Make space for the errno variable.  */
 

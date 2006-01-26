@@ -19,7 +19,7 @@
 #include <features.h>
 #include <asm/errno.h>
 #include <sys/syscall.h>
-#include <sysdep.h>
+#include "sysdep.h"
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 

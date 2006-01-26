@@ -17,7 +17,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <sysdep.h>
+#include "sysdep.h"
 #define _ASM
 #define _SETJMP_H
 #include <bits/setjmp.h>
