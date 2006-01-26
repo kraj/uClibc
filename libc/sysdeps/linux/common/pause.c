@@ -11,6 +11,7 @@
 #include "syscalls.h"
 #include <unistd.h>
 
+extern __typeof(pause) __libc_pause;
 #ifdef __NR_pause
 #define __NR___libc_pause __NR_pause
 _syscall0(int, __libc_pause);

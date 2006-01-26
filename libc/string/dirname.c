@@ -6,6 +6,7 @@
  */
 
 #include "_string.h"
+#include <libgen.h>
 
 char *dirname(char *path)
 {

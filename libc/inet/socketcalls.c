@@ -35,6 +35,7 @@ extern int __socketcall(int call, unsigned long *args) attribute_hidden;
 
 
 #ifdef L_accept
+extern __typeof(accept) __libc_accept;
 #ifdef __NR_accept
 #define __NR___libc_accept  __NR_accept
 _syscall3(int, __libc_accept, int, call, struct sockaddr *, addr, socklen_t *,addrlen);
@@ -73,6 +74,7 @@ libc_hidden_def(bind)
 #endif
 
 #ifdef L_connect
+extern __typeof(connect) __libc_connect;
 #ifdef __NR_connect
 #define __NR___libc_connect __NR_connect
 _syscall3(int, __libc_connect, int, sockfd, const struct sockaddr *, saddr, socklen_t, addrlen);
@@ -163,6 +165,7 @@ libc_hidden_def(listen)
 #endif
 
 #ifdef L_recv
+extern __typeof(recv) __libc_recv;
 #ifdef __NR_recv
 #define __NR___libc_recv __NR_recv
 _syscall4(ssize_t, __libc_recv, int, sockfd, __ptr_t, buffer, size_t, len, int, flags);
@@ -191,6 +194,7 @@ libc_hidden_def(recv)
 #endif
 
 #ifdef L_recvfrom
+extern __typeof(recvfrom) __libc_recvfrom;
 #ifdef __NR_recvfrom
 #define __NR___libc_recvfrom __NR_recvfrom
 _syscall6(ssize_t, __libc_recvfrom, int, sockfd, __ptr_t, buffer, size_t, len, int, flags, 
@@ -217,6 +221,7 @@ libc_hidden_def(recvfrom)
 #endif
 
 #ifdef L_recvmsg
+extern __typeof(recvmsg) __libc_recvmsg;
 #ifdef __NR_recvmsg
 #define __NR___libc_recvmsg __NR_recvmsg
 _syscall3(ssize_t, __libc_recvmsg, int, sockfd, struct msghdr *, msg, int, flags);
@@ -237,6 +242,7 @@ libc_hidden_def(recvmsg)
 #endif
 
 #ifdef L_send
+extern __typeof(send) __libc_send;
 #ifdef __NR_send
 #define __NR___libc_send    __NR_send
 _syscall4(ssize_t, __libc_send, int, sockfd, const void *, buffer, size_t, len, int, flags);
@@ -265,6 +271,7 @@ libc_hidden_def(send)
 #endif
 
 #ifdef L_sendmsg
+extern __typeof(sendmsg) __libc_sendmsg;
 #ifdef __NR_sendmsg
 #define __NR___libc_sendmsg __NR_sendmsg
 _syscall3(ssize_t, __libc_sendmsg, int, sockfd, const struct msghdr *, msg, int, flags);
@@ -285,6 +292,7 @@ libc_hidden_def(sendmsg)
 #endif
 
 #ifdef L_sendto
+extern __typeof(sendto) __libc_sendto;
 #ifdef __NR_sendto
 #define __NR___libc_sendto  __NR_sendto
 _syscall6(ssize_t, __libc_sendto, int, sockfd, const void *, buffer, size_t, len, 

@@ -203,7 +203,9 @@ static const __fpmax_t exp16_table[] = {
 #define FPO_STR_WIDTH   (0x80 | ' ');
 #define FPO_STR_PREC    'p'
 
-ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+					__fp_outfunc_t fp_outfunc) attribute_hidden;
+ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 					__fp_outfunc_t fp_outfunc)
 {
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__

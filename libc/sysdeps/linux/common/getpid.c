@@ -10,6 +10,7 @@
 #include "syscalls.h"
 #include <unistd.h>
 
+extern __typeof(getpid) __libc_getpid;
 #if defined __NR_getxpid
 # define __NR_getpid __NR_getxpid
 #endif

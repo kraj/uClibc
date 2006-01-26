@@ -80,8 +80,8 @@ static attribute_noreturn void terminate(void)
 	_exit(127);
 }
 
-void attribute_noreturn __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));
-void attribute_noreturn __stack_smash_handler(char func[], int damaged)
+void __stack_smash_handler(char func[], int damaged __attribute__ ((unused))) attribute_noreturn;
+void __stack_smash_handler(char func[], int damaged)
 {
 	static const char message[] = ": stack smashing attack in function ";
 
@@ -94,7 +94,8 @@ void attribute_noreturn __stack_smash_handler(char func[], int damaged)
 		terminate();
 }
 
-void attribute_noreturn __stack_chk_fail(void)
+void __stack_chk_fail(void) attribute_noreturn;
+void __stack_chk_fail(void)
 {
 	static const char msg1[] = "stack smashing detected: ";
 	static const char msg3[] = " terminated";
@@ -109,7 +110,8 @@ void attribute_noreturn __stack_chk_fail(void)
 }
 
 #if 0
-void attribute_noreturn __chk_fail(void)
+void __chk_fail(void) attribute_noreturn;
+void __chk_fail(void)
 {
 	static const char msg1[] = "buffer overflow detected: ";
 	static const char msg3[] = " terminated";

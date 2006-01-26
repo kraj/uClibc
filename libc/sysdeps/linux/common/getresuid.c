@@ -8,6 +8,7 @@
  */
 
 #include "syscalls.h"
+#include <unistd.h>
 
 #ifdef __NR_getresuid
 # define __NR___syscall_getresuid __NR_getresuid

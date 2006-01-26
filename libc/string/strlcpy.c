@@ -22,7 +22,9 @@ libc_hidden_proto(strlcpy)
  * Returns strlen(src), so truncation occurred if the return value is >= n. */
 
 #ifdef WANT_WIDE
-attribute_hidden
+size_t Wstrlcpy(register Wchar *__restrict dst,
+				  register const Wchar *__restrict src,
+				  size_t n) attribute_hidden;
 #endif
 size_t Wstrlcpy(register Wchar *__restrict dst,
 				  register const Wchar *__restrict src,

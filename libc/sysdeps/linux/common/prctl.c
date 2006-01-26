@@ -9,5 +9,6 @@
 
 #include "syscalls.h"
 #include <stdarg.h>
-//#include <sys/prctl.h>
+/* psm: including sys/prctl.h would depend on kernel headers */
+extern int prctl (int, int, int, int, int);
 _syscall5(int, prctl, int, a, int, b, int, c, int, d, int, e);

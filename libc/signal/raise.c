@@ -12,7 +12,8 @@
 libc_hidden_proto(getpid)
 libc_hidden_proto(kill)
 
-int attribute_hidden __raise(int signo)
+int __raise (int signo)  attribute_hidden;
+int __raise(int signo)
 {
     return kill(getpid(), signo);
 }

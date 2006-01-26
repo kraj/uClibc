@@ -532,6 +532,7 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 }
 
 /* This is the exported version.  */
+int iruserok (u_int32_t raddr, int superuser, const char * ruser, const char * luser);
 int iruserok (u_int32_t raddr, int superuser, const char * ruser, const char * luser)
 {
 	return iruserok2 (raddr, superuser, ruser, luser, "-");
@@ -549,6 +550,8 @@ int iruserok (u_int32_t raddr, int superuser, const char * ruser, const char * l
  * or PAM.
  * Returns 0 if ok, -1 if not ok.
  */
+int
+__ivaliduser(FILE *hostf, u_int32_t raddr, const char *luser, const char *ruser);
 int
 __ivaliduser(FILE *hostf, u_int32_t raddr, const char *luser, const char *ruser)
 {

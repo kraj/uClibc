@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <sys/file.h>
 #include <paths.h>
+#include <shadow.h>
 
 libc_hidden_proto(memset)
 libc_hidden_proto(open)

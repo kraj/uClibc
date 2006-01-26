@@ -17,6 +17,13 @@
 #include <unistd.h>
 #include <stdint.h>
 
+extern __typeof(pread) __libc_pread;
+extern __typeof(pwrite) __libc_pwrite;
+#ifdef __UCLIBC_HAS_LFS__
+extern __typeof(pread64) __libc_pread64;
+extern __typeof(pwrite64) __libc_pwrite64;
+#endif
+
 #ifdef __NR_pread
 
 # define __NR___syscall_pread __NR_pread 

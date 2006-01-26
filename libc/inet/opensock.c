@@ -29,7 +29,8 @@ libc_hidden_proto(socket)
 
 /* Return a socket of any type.  The socket can be used in subsequent
    ioctl calls to talk to the kernel.  */
-int attribute_hidden
+int __opensock(void) attribute_hidden;
+int
 __opensock (void)
 {
   int fd;

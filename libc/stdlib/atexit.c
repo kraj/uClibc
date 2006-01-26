@@ -186,6 +186,7 @@ extern int __cxa_atexit (cxaefuncp func, void *arg, void *dso_handle)
  *  with the same dso handle.  Otherwise, if D is NULL, call all of the
  *  registered handlers.
  */
+void __cxa_finalize (void *dso_handle);
 void __cxa_finalize (void *dso_handle)
 {
     struct exit_function *efp;

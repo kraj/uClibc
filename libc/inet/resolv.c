@@ -600,7 +600,13 @@ int attribute_hidden __decode_answer(unsigned char *message, int offset,
 #endif
 
 #ifdef L_encodep
-int attribute_hidden __encode_packet(struct resolv_header *h,
+int __encode_packet(struct resolv_header *h,
+	struct resolv_question **q,
+	struct resolv_answer **an,
+	struct resolv_answer **ns,
+	struct resolv_answer **ar,
+	unsigned char *dest, int maxlen) attribute_hidden;
+int __encode_packet(struct resolv_header *h,
 	struct resolv_question **q,
 	struct resolv_answer **an,
 	struct resolv_answer **ns,
@@ -657,13 +663,15 @@ int attribute_hidden __encode_packet(struct resolv_header *h,
 #endif
 
 #ifdef L_decodep
-int attribute_hidden __decode_packet(unsigned char *data, struct resolv_header *h)
+int __decode_packet(unsigned char *data, struct resolv_header *h) attribute_hidden;
+int __decode_packet(unsigned char *data, struct resolv_header *h)
 {
 	return __decode_header(data, h);
 }
 #endif
 
 #ifdef L_formquery
+int __form_query(int id, const char *name, int type, unsigned char *packet, int maxlen);
 int __form_query(int id, const char *name, int type, unsigned char *packet,
 			   int maxlen)
 {

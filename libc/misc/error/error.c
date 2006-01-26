@@ -50,8 +50,8 @@ int error_one_per_line;
    function without parameters instead.  */
 void (*error_print_progname) (void) = NULL;
 
-
-attribute_hidden void __error (int status, int errnum, const char *message, ...)
+extern __typeof(error) __error attribute_hidden;
+void __error (int status, int errnum, const char *message, ...)
 {
     va_list args;
 
@@ -69,7 +69,8 @@ attribute_hidden void __error (int status, int errnum, const char *message, ...)
 	exit (status);
 }
 
-attribute_hidden void __error_at_line (int status, int errnum, const char *file_name,
+extern __typeof(error_at_line) __error_at_line attribute_hidden;
+void __error_at_line (int status, int errnum, const char *file_name,
 	       unsigned int line_number, const char *message, ...)
 {
     va_list args;
@@ -105,7 +106,6 @@ attribute_hidden void __error_at_line (int status, int errnum, const char *file_
 	exit (status);
 }
 
-#undef error
-#undef error_at_line
-strong_alias(__error,error)
+/* psm: keep this weak, to many use this outside of libc */
+weak_alias(__error,error)
 strong_alias(__error_at_line,error_at_line)

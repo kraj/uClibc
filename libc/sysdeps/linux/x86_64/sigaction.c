@@ -33,7 +33,9 @@
 /* We do not globally define the SA_RESTORER flag so do it here.  */
 #define SA_RESTORER 0x04000000
 
-#if defined __NR_rt_sigaction
+extern __typeof(sigaction) __libc_sigaction;
+
+#ifdef __NR_rt_sigaction
 /* Using the hidden attribute here does not change the code but it
    helps to avoid warnings.  */
 extern void restore_rt (void) asm ("__restore_rt") attribute_hidden;

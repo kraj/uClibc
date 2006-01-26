@@ -22,6 +22,7 @@
 
 libc_hidden_proto(ioctl)
 
+extern __typeof(tcdrain) __libc_tcdrain;
 /* Wait for pending output to be written on FD.  */
 int __libc_tcdrain (int fd)
 {

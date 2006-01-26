@@ -11,6 +11,7 @@
 
 #ifdef __NR_ipc
 #define __NR___syscall_ipc __NR_ipc
-attribute_hidden _syscall5(int, __syscall_ipc, unsigned int, call, int, first, int, second, int,
+#include "../../../misc/sysvipc/ipc.h"
+_syscall5(int, __syscall_ipc, unsigned int, call, int, first, int, second, int,
 		  third, void *, ptr);
 #endif

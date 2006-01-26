@@ -74,7 +74,8 @@ static int _dl_suid_ok(void);
  * can set an internal breakpoint on it, so that we are notified when the
  * address mapping is changed in some way.
  */
-void _dl_debug_state(void)
+void _dl_debug_state(void);
+void _dl_debug_state()
 {
 }
 

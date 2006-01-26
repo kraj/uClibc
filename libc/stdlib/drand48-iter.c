@@ -27,7 +27,8 @@
 struct drand48_data __libc_drand48_data attribute_hidden;
 
 
-int attribute_hidden
+int __drand48_iterate (unsigned short int xsubi[3], struct drand48_data *buffer) attribute_hidden;
+int
 __drand48_iterate (unsigned short int xsubi[3], struct drand48_data *buffer)
 {
   uint64_t X;

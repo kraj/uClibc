@@ -27,6 +27,7 @@
 
 #define SA_RESTORER	0x04000000
 
+extern __typeof(sigaction) __libc_sigaction;
 
 #if defined __NR_rt_sigaction
 libc_hidden_proto(memcpy)

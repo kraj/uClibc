@@ -25,7 +25,8 @@
 #include <errno.h>
 #include <features.h>
 
-int attribute_hidden __syscall_error(void)
+int __syscall_error(void) attribute_hidden;
+int __syscall_error(void)
 {
 	register int edx __asm__ ("%edx");
 	__asm__ ("mov %eax, %edx\n\t"

@@ -18,6 +18,7 @@
 #include <limits.h>				/* for PATH_MAX */
 #include <sys/param.h>			/* for MAXPATHLEN */
 #include <errno.h>
+#include <stdlib.h>
 
 #include <sys/stat.h>			/* for S_IFLNK */
 

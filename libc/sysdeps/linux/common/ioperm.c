@@ -9,5 +9,6 @@
 
 #include "syscalls.h"
 #if defined __ARCH_HAS_MMU__ && defined __NR_ioperm
+#include <sys/perm.h>
 _syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on);
 #endif

@@ -486,6 +486,7 @@ struct udp_cache
  * Enable use of the cache.
  * Note: there is no disable.
  */
+int svcudp_enablecache (SVCXPRT *transp, u_long size);
 int
 svcudp_enablecache (SVCXPRT *transp, u_long size)
 {

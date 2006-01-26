@@ -10,5 +10,6 @@
 #include "syscalls.h"
 #ifdef __NR_socketcall
 #define __NR___socketcall __NR_socketcall
-attribute_hidden _syscall2(int, __socketcall, int, call, unsigned long *, args);
+int __socketcall(int __call, unsigned long *__args) attribute_hidden;
+_syscall2(int, __socketcall, int, call, unsigned long *, args);
 #endif

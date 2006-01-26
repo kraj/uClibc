@@ -14,6 +14,7 @@
 # define O_LARGEFILE	0100000
 #endif
 
+extern __typeof(open64) __libc_open64;
 extern __typeof(open) __libc_open;
 libc_hidden_proto(__libc_open)
 

@@ -470,6 +470,8 @@ void __fresetlockfiles(void);
 void __pthread_manager_adjust_prio(int thread_prio);
 void __pthread_initialize_minimal (void);
 
+extern void __pthread_exit (void *retval);
+
 extern int __pthread_attr_setguardsize __P ((pthread_attr_t *__attr,
 					     size_t __guardsize));
 extern int __pthread_attr_getguardsize __P ((__const pthread_attr_t *__attr,

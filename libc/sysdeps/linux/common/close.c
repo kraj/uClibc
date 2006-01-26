@@ -10,6 +10,7 @@
 #include "syscalls.h"
 #include <unistd.h>
 
+extern __typeof(close) __libc_close;
 #define __NR___libc_close __NR_close
 _syscall1(int, __libc_close, int, fd);
 libc_hidden_proto(close)

@@ -27,7 +27,7 @@ libc_hidden_proto(sigprocmask)
    before doing a `__setjmp' on ENV[0].__jmpbuf.
    Always return zero.  */
 
-attribute_hidden
+int __sigjmp_save (sigjmp_buf env, int savemask) attribute_hidden;
 int __sigjmp_save (sigjmp_buf env, int savemask)
 {
     env[0].__mask_was_saved = (savemask && 

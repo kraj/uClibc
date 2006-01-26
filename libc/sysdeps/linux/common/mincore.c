@@ -8,6 +8,7 @@
 
 #include "syscalls.h"
 #include <unistd.h>
+#include <sys/mman.h>
 
 #ifdef __NR_mincore
 _syscall3(int, mincore, void *, start, size_t, length, unsigned char *, vec);

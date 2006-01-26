@@ -28,7 +28,7 @@
 extern void __longjmp (__jmp_buf __env, int __val) attribute_noreturn;
 libc_hidden_proto(__longjmp)
 
-void attribute_noreturn __longjmp (__jmp_buf env, int val_arg)
+void __longjmp (__jmp_buf env, int val_arg)
 {
     /* gcc 1.39.19 miscompiled the longjmp routine (as it did setjmp before
        the hack around it); force it to use $a1 for the longjmp value.

@@ -231,6 +231,8 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
  * descriptor as its first input.
  */
 SVCXPRT *
+svcunixfd_create (int fd, u_int sendsize, u_int recvsize);
+SVCXPRT *
 svcunixfd_create (int fd, u_int sendsize, u_int recvsize)
 {
   return makefd_xprt (fd, sendsize, recvsize);

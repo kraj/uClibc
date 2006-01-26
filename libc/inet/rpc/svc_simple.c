@@ -90,6 +90,8 @@ static void universal (struct svc_req *rqstp, SVCXPRT *transp_s);
 static SVCXPRT *transp;
 #endif
 
+int registerrpc (u_long prognum, u_long versnum, u_long procnum,
+	     char *(*progname) (char *), xdrproc_t inproc, xdrproc_t outproc);
 int
 registerrpc (u_long prognum, u_long versnum, u_long procnum,
 	     char *(*progname) (char *), xdrproc_t inproc, xdrproc_t outproc)

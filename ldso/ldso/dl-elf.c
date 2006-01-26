@@ -797,6 +797,7 @@ void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void 
 /* we want this in ldso.so and libdl.a but nowhere else */
 #ifdef __USE_GNU
 #if defined IS_IN_rtld || (defined IS_IN_libdl && ! defined SHARED)
+extern __typeof(dl_iterate_phdr) __dl_iterate_phdr;
 int
 __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void *data), void *data)
 {

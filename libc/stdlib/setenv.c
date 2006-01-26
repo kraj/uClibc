@@ -52,7 +52,9 @@ static char **last_environ;
    must be used directly.  This is all complicated by the fact that we try
    to reuse values once generated for a `setenv' call since we can never
    free the strings.  */
-int attribute_hidden __add_to_environ (const char *name, const char *value, 
+int __add_to_environ (const char *name, const char *value, 
+	const char *combined, int replace) attribute_hidden;
+int __add_to_environ (const char *name, const char *value, 
 	const char *combined, int replace)
 {
     register char **ep;

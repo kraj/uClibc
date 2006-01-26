@@ -24,7 +24,8 @@
 
 libc_hidden_proto(sigwaitinfo)
 
-int attribute_hidden __sigwait (const sigset_t *set, int *sig)
+int __sigwait (const sigset_t *set, int *sig) attribute_hidden;
+int __sigwait (const sigset_t *set, int *sig)
 {
 	int ret = 1;
 	if ((ret = sigwaitinfo(set, NULL)) != -1) {

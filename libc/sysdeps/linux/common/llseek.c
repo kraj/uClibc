@@ -10,6 +10,8 @@
 #include "syscalls.h"
 #include <unistd.h>
 
+extern __typeof(lseek64) __libc_lseek64;
+
 #if defined __NR__llseek && defined __UCLIBC_HAS_LFS__
 
 # ifndef INLINE_SYSCALL

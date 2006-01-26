@@ -10,7 +10,7 @@
 #include "syscalls.h"
 #include <time.h>
 
-
+extern __typeof(nanosleep) __libc_nanosleep;
 #define __NR___libc_nanosleep __NR_nanosleep
 _syscall2(int, __libc_nanosleep, const struct timespec *, req,
 		  struct timespec *, rem);

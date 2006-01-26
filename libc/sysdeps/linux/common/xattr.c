@@ -23,6 +23,7 @@
 
 #include "syscalls.h"
 #include <unistd.h>
+#include <sys/xattr.h>
 
 /* sets */
 #ifdef __NR_setxattr
@@ -122,7 +123,7 @@ ssize_t llistxattr(__const char *__path, char *__list, size_t __size)
 #endif
 
 #ifdef __NR_flistxattr
-_syscall3(size_t, flistxattr, int, filedes, char *, list, size_t, size);
+_syscall3(ssize_t, flistxattr, int, filedes, char *, list, size_t, size);
 #else
 ssize_t flistxattr(int __fd, char *__list, size_t __size)
 {

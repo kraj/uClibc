@@ -8,6 +8,7 @@
  */
 
 #include "syscalls.h"
+#include <sys/reboot.h>
 #define __NR__reboot __NR_reboot
 static inline _syscall3(int, _reboot, int, magic, int, magic2, int, flag);
 int reboot(int flag)

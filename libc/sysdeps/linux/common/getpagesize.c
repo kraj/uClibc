@@ -25,6 +25,7 @@ libc_hidden_proto(__pagesize)
 
 /* Return the system page size.  */
 /* couldn't make __getpagesize hidden, because shm.h uses it in a macro */
+extern __typeof(getpagesize) __getpagesize;
 int __getpagesize(void)
 {
   if (__pagesize != 0)

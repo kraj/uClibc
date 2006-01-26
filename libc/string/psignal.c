@@ -8,6 +8,7 @@
 #include <features.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 libc_hidden_proto(fprintf)
 libc_hidden_proto(strsignal)

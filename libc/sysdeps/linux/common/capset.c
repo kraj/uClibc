@@ -8,6 +8,7 @@
  */
 
 #include "syscalls.h"
+int capset(void *header, const void *data);
 #ifdef __NR_capset
 _syscall2(int, capset, void *, header, const void *, data);
 #else
