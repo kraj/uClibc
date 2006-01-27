@@ -44,7 +44,8 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
    first element of the GOT.  This must be inlined in a function which
    uses global data.  */
-static inline Elf32_Addr __attribute__ ((unused))
+static inline Elf32_Addr elf_machine_dynamic (void) attribute_unused;
+static inline Elf32_Addr
 elf_machine_dynamic (void)
 {
 	register Elf32_Addr *got __asm__ ("%ebx");
@@ -53,7 +54,8 @@ elf_machine_dynamic (void)
 
 
 /* Return the run-time load address of the shared object.  */
-static inline Elf32_Addr __attribute__ ((unused))
+static inline Elf32_Addr elf_machine_load_address (void) attribute_unused;
+static inline Elf32_Addr
 elf_machine_load_address (void)
 {
 	/* It doesn't matter what variable this is, the reference never makes

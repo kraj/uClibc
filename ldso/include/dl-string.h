@@ -8,7 +8,7 @@
 #ifndef _LINUX_STRING_H_
 #define _LINUX_STRING_H_
 
-#include <dl-sysdep.h> // for do_rem
+#include <dl-sysdep.h> /* for do_rem */
 #include <features.h>
 
 static size_t _dl_strlen(const char * str);
