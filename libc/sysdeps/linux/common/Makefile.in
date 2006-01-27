@@ -14,6 +14,11 @@ ifeq ($(EXCLUDE_BRK),y)
 CSRC:=$(filter-out sbrk.c,$(CSRC))
 endif
 
+ifneq ($(UCLIBC_HAS_LFS),y)
+CSRC_LFS:=$(patsubst $(COMMON_DIR)/%.c,%.c,$(wildcard $(COMMON_DIR)/*64.c))
+CSRC:=$(filter-out llseek.c $(CSRC_LFS),$(CSRC))
+endif
+
 # full list
 #COMMON_NO_MULTI:=getcwd.c getrlimit.c getrlimit64.c setrlimit.c setrlimit64.c getpriority.c getpriority64.c setpriority.c getrusage.c wait4.c getitimer.c setitimer.c open.c open64.c uname.c __syscall_fcntl.c __syscall_fcntl64.c
 COMMON_NO_MULTI:=getrlimit.c getrlimit64.c setrlimit.c setrlimit64.c getpriority.c setpriority.c getrusage.c getitimer.c setitimer.c uname.c __syscall_rt_sigaction.c

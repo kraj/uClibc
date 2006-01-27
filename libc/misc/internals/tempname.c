@@ -50,7 +50,9 @@ libc_hidden_proto(strcmp)
 libc_hidden_proto(sprintf)
 libc_hidden_proto(mkdir)
 libc_hidden_proto(open)
+#ifdef __UCLIBC_HAS_LFS__
 libc_hidden_proto(open64)
+#endif
 libc_hidden_proto(read)
 libc_hidden_proto(close)
 libc_hidden_proto(getpid)
