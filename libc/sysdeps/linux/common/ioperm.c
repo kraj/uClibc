@@ -9,6 +9,7 @@
 
 #include "syscalls.h"
 #if defined __ARCH_HAS_MMU__ && defined __NR_ioperm
-#include <sys/io.h>
+/* psm: can't #include <sys/io.h>, some archs miss it */
+extern int ioperm(unsigned long __from, unsigned long __num, int __turn_on) __THROW;
 _syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on);
 #endif

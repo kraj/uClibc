@@ -8,8 +8,8 @@
  */
 
 #include "syscalls.h"
-/* Tuns out the m68k unistd.h kernel header is broken */
-#if defined __ARCH_HAS_MMU__ && defined __NR_iopl && ( !defined(__mc68000__))
-#include <sys/io.h>
+#if defined __ARCH_HAS_MMU__ && defined __NR_iopl
+/* psm: can't #include <sys/io.h>, some archs miss it */
+extern int iopl(int __level) __THROW;
 _syscall1(int, iopl, int, level);
 #endif
