@@ -475,21 +475,21 @@ clock_t clock(void)
 /**********************************************************************/
 #ifdef L_ctime
 
-char *ctime(const time_t *clock)
+char *ctime(const time_t *t)
 {
 	/* ANSI/ISO/SUSv3 say that ctime is equivalent to the following. */
-	return asctime(localtime(clock));
+	return asctime(localtime(t));
 }
 libc_hidden_def(ctime)
 #endif
 /**********************************************************************/
 #ifdef L_ctime_r
 
-char *ctime_r(const time_t *clock, char *buf)
+char *ctime_r(const time_t *t, char *buf)
 {
 	struct tm xtm;
 
-	return asctime_r(localtime_r(clock, &xtm), buf);
+	return asctime_r(localtime_r(t, &xtm), buf);
 }
 
 #endif

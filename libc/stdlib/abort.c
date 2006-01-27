@@ -59,14 +59,14 @@ static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 /* Cause an abnormal program termination with core-dump */
 void abort(void)
 {
-	sigset_t sigset;
+	sigset_t sigs;
 
 	/* Make sure we acquire the lock before proceeding */
 	LOCK;
 
 	/* Unmask SIGABRT to be sure we can get it */
-	if (__sigemptyset(&sigset) == 0 && __sigaddset(&sigset, SIGABRT) == 0) {
-		sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
+	if (__sigemptyset(&sigs) == 0 && __sigaddset(&sigs, SIGABRT) == 0) {
+		sigprocmask(SIG_UNBLOCK, &sigs, (sigset_t *) NULL);
 	}
 
 	while (1) {
@@ -77,7 +77,7 @@ void abort(void)
 #ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__
 			/* If we are using stdio, try to shut it down.  At the very least,
 			 * this will attempt to commit all buffered writes.  It may also
-			 * unboffer all writable files, or close them outright.
+			 * unbuffer all writable files, or close them outright.
 			 * Check the stdio routines for details. */
 			if (_stdio_term) {
 				_stdio_term();

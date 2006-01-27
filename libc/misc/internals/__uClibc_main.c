@@ -57,6 +57,7 @@ void *__libc_stack_end=NULL;
 /* Only exported for architectures that don't store the stack guard canary
  * in thread local area. */
 #include <stdint.h>
+uintptr_t stack_chk_guard;
 /* for gcc-4.1 non-TLS */
 uintptr_t __stack_chk_guard attribute_relro;
 /* for gcc-3.x + Etoh ssp */
@@ -186,7 +187,7 @@ void __uClibc_init(void)
 #ifndef SHARED
 # ifdef __UCLIBC_HAS_SSP__
     /* Set up the stack checker's canary.  */
-    uintptr_t stack_chk_guard = _dl_setup_stack_chk_guard();
+    stack_chk_guard = _dl_setup_stack_chk_guard();
 #  ifdef THREAD_SET_STACK_GUARD
     THREAD_SET_STACK_GUARD (stack_chk_guard);
 #  else
