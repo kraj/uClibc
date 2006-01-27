@@ -1,0 +1,41 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2005 Jan-Benedict Glaw <jbglaw@lug-owl.de>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+CSRC:=brk.c _mmap.c vfork.c
+SSRC:=__longjmp.S setjmp.S _setjmp.S clone.S
+
+ARCH_DIR:=$(top_srcdir)libc/sysdeps/linux/vax
+ARCH_OUT:=$(top_builddir)libc/sysdeps/linux/vax
+
+ARCH_CSRC:=$(patsubst %.c,$(ARCH_DIR)/%.c,$(CSRC))
+ARCH_COBJ:=$(patsubst %.c,$(ARCH_OUT)/%.o,$(CSRC))
+ARCH_SSRC:=$(patsubst %.S,$(ARCH_DIR)/%.S,$(SSRC))
+ARCH_SOBJ:=$(patsubst %.S,$(ARCH_OUT)/%.o,$(SSRC))
+
+ARCH_OBJS:=$(ARCH_COBJ) $(ARCH_SOBJ)
+
+crt-y:=create
+libc-a-y+=$(ARCH_OBJS)
+libc-a-pic-y+=$(ARCH_OBJS:.o=.os)
+libc-so-y+=$(ARCH_OBJS:.o=.os)
+
+#libc-multi-y+=$(ARCH_CSRC)
+libc-nomulti-y+=$(ARCH_OBJS)
+
+objclean-y+=arch_objclean
+
+arch_objclean:
+	$(RM) $(ARCH_OUT)/*.{o,os}
+
+headers-y+=arch_headers
+#
+arch_headers:
+#	arm has this, but we don't (yet?)...
+#	$(LN) -fs ../libc/sysdeps/linux/vax/fpu_control.h $(top_builddir)include/
+#
+

@@ -71,6 +71,9 @@ config TARGET_sparc
 config TARGET_v850
 	bool "v850 (BROKEN)"
 
+config TARGET_vax
+	bool "vax"
+
 config TARGET_x86_64
 	bool "x86_64"
 
@@ -157,6 +160,10 @@ endif
 
 if TARGET_v850
 source "extra/Configs/Config.v850"
+endif
+
+if TARGET_vax
+source "extra/Configs/Config.vax"
 endif
 
 if TARGET_x86_64

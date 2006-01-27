@@ -108,6 +108,11 @@ S:	Maintained
 SPARC
 S:	Unmaintained
 
+VAX
+P:	Jan-Benedict Glaw
+E:	jbglaw@lug-owl.de (personal), linux-vax@pergamentum.com (mailing list)
+W:	http://linux-vax.sourceforge.net/
+S:	Maintained
 
 V850
 S:	Unmaintained
