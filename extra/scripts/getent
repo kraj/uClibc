@@ -65,8 +65,7 @@ case $1 in
 esac
 
 if [ -z "$2" ] ; then
-  cat $file
-  retval=$?
+  exec cat $file
 else
   search_entry "$file" "$2"
 fi
