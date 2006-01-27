@@ -53,12 +53,12 @@ extern void error_at_line (int __status, int __errnum, const char *__fname,
 /* If NULL, error will flush stdout, then print on stderr the program
    name, a colon and a space.  Otherwise, error will call this
    function without parameters instead.  */
-extern void (*error_print_progname) (void);
+/* extern void (*error_print_progname) (void); */
 
 #else
 void error ();
 void error_at_line ();
-extern void (*error_print_progname) ();
+/* extern void (*error_print_progname) (); */
 #endif
 
 /* This variable is incremented each time `error' is called.  */

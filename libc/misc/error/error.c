@@ -32,7 +32,7 @@ int error_one_per_line;
 /* If NULL, error will flush stdout, then print on stderr the program
    name, a colon and a space.  Otherwise, error will call this
    function without parameters instead.  */
-void (*error_print_progname) (void) = NULL;
+/* void (*error_print_progname) (void) = NULL; */
 
 extern __typeof(error) __error attribute_hidden;
 void __error (int status, int errnum, const char *message, ...)
