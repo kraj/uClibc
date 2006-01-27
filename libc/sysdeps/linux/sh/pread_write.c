@@ -24,6 +24,7 @@
 #endif
 
 #ifdef __NR_pread
+extern __typeof(pread) __libc_pread;
 # define __NR___syscall_pread __NR_pread 
 static inline _syscall6(ssize_t, __syscall_pread, int, fd, void *, buf, 
 		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo);
@@ -35,6 +36,7 @@ ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 weak_alias(__libc_pread,pread)
 
 # ifdef __UCLIBC_HAS_LFS__ 
+extern __typeof(pread64) __libc_pread64;
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 { 
     uint32_t low = offset & 0xffffffff;
@@ -55,6 +57,7 @@ weak_alias(__libc_pread64,pread64)
 #endif
 
 #ifdef __NR_pwrite
+extern __typeof(pwrite) __libc_pwrite;
 # define __NR___syscall_pwrite __NR_pwrite 
 static inline _syscall6(ssize_t, __syscall_pwrite, int, fd, const void *, buf, 
 		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo);
@@ -66,6 +69,7 @@ ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 weak_alias(__libc_pwrite,pwrite)
 
 # ifdef __UCLIBC_HAS_LFS__ 
+extern __typeof(pwrite64) __libc_pwrite64;
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 { 
     uint32_t low = offset & 0xffffffff;
