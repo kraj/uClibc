@@ -45,7 +45,6 @@
 
 /* sources are built w/ _GNU_SOURCE, this gets undefined */
 extern int __xpg_strerror_r (int __errnum, char *__buf, size_t __buflen);
-//extern char *__glibc_strerror_r (int __errnum, char *__buf, size_t __buflen);
 
 /* #include <pthread.h> */
 #  ifndef __UCLIBC_HAS_THREADS__
