@@ -257,7 +257,7 @@
 
 /* When a reference to SYMBOL is encountered, the linker will emit a
    warning message MSG.  */
-#ifdef __cris__
+#if defined(__cris__) || defined(__vax__)
 # define link_warning(symbol, msg)
 #else
 # define link_warning(symbol, msg) \
