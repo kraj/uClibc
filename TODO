@@ -113,7 +113,9 @@ Arch specific TODO:
     ldso needs to be updated since it's totally broken atm
   x86_64:
     pthread isn't working really at all (pthreads tests)
-
+  vax:
+    pthread support, linktime warning support (implies GAS patches),
+    general touchups, testing, ldso.
   bfin cris rfv sh64:
     need to be updated to new ldso changes and unification of the 
      two uClibc_main funcs (__uClibc_start_main doesnt exist anymore)
