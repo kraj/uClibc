@@ -16,6 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
@@ -28,6 +29,10 @@ libc_hidden_proto(memcpy)
    kernel is not the same as we use in the libc.  Therefore we must
    translate it here.  */
 #include <bits/kernel_sigaction.h>
+
+#ifndef LIBC_SIGACTION
+extern __typeof(sigaction) __libc_sigaction;
+#endif
 
 #if defined __NR_rt_sigaction
 
