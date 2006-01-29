@@ -433,7 +433,7 @@ int ruserok(rhost, superuser, ruser, luser)
 
 /* Extremely paranoid file open function. */
 static FILE *
-iruserfopen (char *file, uid_t okuser)
+iruserfopen (const char *file, uid_t okuser)
 {
   struct stat st;
   char *cp = NULL;
@@ -442,7 +442,6 @@ iruserfopen (char *file, uid_t okuser)
   /* If not a regular file, if owned by someone other than user or
      root, if writeable by anyone but the owner, or if hardlinked
      anywhere, quit.  */
-  cp = NULL;
   if (lstat (file, &st))
     cp = "lstat failed";
   else if (!S_ISREG (st.st_mode))
