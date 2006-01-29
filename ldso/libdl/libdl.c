@@ -233,11 +233,8 @@ void *dlopen(const char *libname, int flag)
 		runp->tpnt->init_fini = NULL; /* clear any previous dependcies */
 		for (dpnt = (ElfW(Dyn) *) runp->tpnt->dynamic_addr; dpnt->d_tag; dpnt++) {
 			if (dpnt->d_tag == DT_NEEDED) {
-				char *name;
-
 				lpntstr = (char*) (runp->tpnt->dynamic_info[DT_STRTAB] +
 						dpnt->d_un.d_val);
-				name = _dl_get_last_path_component(lpntstr);
 				_dl_if_debug_print("Trying to load '%s', needed by '%s'\n",
 						lpntstr, runp->tpnt->libname);
 				tpnt1 = _dl_load_shared_library(0, &rpnt, runp->tpnt, lpntstr, 0);
