@@ -87,38 +87,6 @@ extern u_long _create_xid (void) attribute_hidden;
 static const struct timeval timeout = {3, 0};
 
 /*
- * XDR remote call arguments
- * written for XDR_ENCODE direction only
- */
-libc_hidden_proto(xdr_rmtcall_args)
-bool_t
-xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
-{
-  u_int lenposition, argposition, position;
-
-  if (xdr_u_long (xdrs, &(cap->prog)) &&
-      xdr_u_long (xdrs, &(cap->vers)) &&
-      xdr_u_long (xdrs, &(cap->proc)))
-    {
-      lenposition = XDR_GETPOS (xdrs);
-      if (!xdr_u_long (xdrs, &(cap->arglen)))
-	return FALSE;
-      argposition = XDR_GETPOS (xdrs);
-      if (!(*(cap->xdr_args)) (xdrs, cap->args_ptr))
-	return FALSE;
-      position = XDR_GETPOS (xdrs);
-      cap->arglen = (u_long) position - (u_long) argposition;
-      XDR_SETPOS (xdrs, lenposition);
-      if (!xdr_u_long (xdrs, &(cap->arglen)))
-	return FALSE;
-      XDR_SETPOS (xdrs, position);
-      return TRUE;
-    }
-  return FALSE;
-}
-libc_hidden_def(xdr_rmtcall_args)
-
-/*
  * pmapper remote-call-service interface.
  * This routine is used to call the pmapper remote call service
  * which will look up a service program in the port maps, and then
@@ -134,14 +102,14 @@ pmap_rmtcall (addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_p
      struct timeval tout;
      u_long *port_ptr;
 {
-  int socket = -1;
+  int _socket = -1;
   CLIENT *client;
   struct rmtcallargs a;
   struct rmtcallres r;
   enum clnt_stat stat;
 
   addr->sin_port = htons (PMAPPORT);
-  client = clntudp_create (addr, PMAPPROG, PMAPVERS, timeout, &socket);
+  client = clntudp_create (addr, PMAPPROG, PMAPVERS, timeout, &_socket);
   if (client != (CLIENT *) NULL)
     {
       a.prog = prog;
@@ -161,11 +129,44 @@ pmap_rmtcall (addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_p
     {
       stat = RPC_FAILED;
     }
-  /* (void)close(socket); CLNT_DESTROY already closed it */
+  /* (void)close(_socket); CLNT_DESTROY already closed it */
   addr->sin_port = 0;
   return stat;
 }
 
+
+/*
+ * XDR remote call arguments
+ * written for XDR_ENCODE direction only
+ */
+libc_hidden_proto(xdr_rmtcall_args)
+bool_t
+xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
+{
+  u_int lenposition, argposition, position;
+
+  if (xdr_u_long (xdrs, &(cap->prog)) &&
+      xdr_u_long (xdrs, &(cap->vers)) &&
+      xdr_u_long (xdrs, &(cap->proc)))
+    {
+      u_long dummy_arglen = 0;
+      lenposition = XDR_GETPOS (xdrs);
+      if (!xdr_u_long (xdrs, &dummy_arglen))
+	return FALSE;
+      argposition = XDR_GETPOS (xdrs);
+      if (!(*(cap->xdr_args)) (xdrs, cap->args_ptr))
+	return FALSE;
+      position = XDR_GETPOS (xdrs);
+      cap->arglen = (u_long) position - (u_long) argposition;
+      XDR_SETPOS (xdrs, lenposition);
+      if (!xdr_u_long (xdrs, &(cap->arglen)))
+	return FALSE;
+      XDR_SETPOS (xdrs, position);
+      return TRUE;
+    }
+  return FALSE;
+}
+libc_hidden_def(xdr_rmtcall_args)
 
 /*
  * XDR remote call results
