@@ -85,13 +85,13 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 
 #undef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...)				\
-  ({ unsigned int _sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
-     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_sys_result, ), 0))	\
+  ({ unsigned int __sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
+     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (__sys_result, ), 0))	\
        {								\
-	 __set_errno (INTERNAL_SYSCALL_ERRNO (_sys_result, ));		\
-	 _sys_result = (unsigned int) -1;				\
+	 __set_errno (INTERNAL_SYSCALL_ERRNO (__sys_result, ));		\
+	 __sys_result = (unsigned int) -1;				\
        }								\
-     (int) _sys_result; })
+     (int) __sys_result; })
 
 #undef INTERNAL_SYSCALL_DECL
 #define INTERNAL_SYSCALL_DECL(err) do { } while (0)
