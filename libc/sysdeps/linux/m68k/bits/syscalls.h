@@ -11,6 +11,13 @@
  * programs.  */
 #include <bits/sysnum.h>
 
+/* m68k headers does stupid stuff with __NR_iopl / __NR_vm86:
+ * #define __NR_iopl   not supported
+ * #define __NR_vm86   not supported
+ */
+#undef __NR_iopl
+#undef __NR_vm86
+
 #ifndef __ASSEMBLER__
 
 /* Linux takes system call arguments in registers:
