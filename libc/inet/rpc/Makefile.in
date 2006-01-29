@@ -11,7 +11,7 @@ ifneq ($(UCLIBC_HAS_FULL_RPC),y)
 CSRC:=	authunix_prot.c auth_none.c auth_unix.c bindresvport.c \
 	clnt_perror.c clnt_simple.c clnt_tcp.c clnt_udp.c \
 	create_xid.c getrpcent.c \
-	pmap_clnt.c pmap_getmaps.c pmap_getport.c pmap_prot.c pmap_prot2.c \
+	pmap_clnt.c pm_getmaps.c pmap_getport.c pmap_prot.c pmap_prot2.c \
 	rcmd.c rexec.c rpc_cmsg.c rpc_commondata.c rpc_dtablesize.c \
 	rpc_prot.c rpc_thread.c rtime.c ruserpass.c sa_len.c \
 	svc.c svc_auth.c svc_authux.c \

@@ -44,8 +44,10 @@ static char sccsid[] = "@(#)pmap_getmaps.c 1.10 87/08/11 Copyr 1984 Sun Micro";
 #include <rpc/pmap_clnt.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <errno.h>
+#include <unistd.h>
 
 libc_hidden_proto(clnt_perror)
 libc_hidden_proto(clnttcp_create)
