@@ -12,7 +12,7 @@
 #ifdef __NR_fork
 libc_hidden_proto(fork)
 
-pid_t attribute_hidden __vfork(void);
+extern __typeof(vfork) __vfork;
 pid_t attribute_hidden __vfork(void)
 {
     return fork();
