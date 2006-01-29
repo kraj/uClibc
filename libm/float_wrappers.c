@@ -294,9 +294,9 @@ float fmodf (float x, float y)
 
 #ifdef L_frexpf
 libm_hidden_proto(frexp)
-float frexpf (float x, int *exp)
+float frexpf (float x, int *_exp)
 {
-	return (float) frexp( (double)x, exp );
+	return (float) frexp( (double)x, _exp );
 }
 #endif
 
@@ -321,9 +321,9 @@ int ilogbf (float x)
 
 #ifdef L_ldexpf
 libm_hidden_proto(ldexp)
-float ldexpf (float x, int exp)
+float ldexpf (float x, int _exp)
 {
-	return (float) ldexp( (double)x, exp );
+	return (float) ldexp( (double)x, _exp );
 }
 #endif
 
@@ -505,18 +505,18 @@ float roundf (float x)
 
 #ifdef L_scalblnf
 libm_hidden_proto(scalbln)
-float scalblnf (float x, long exp)
+float scalblnf (float x, long _exp)
 {
-	return (float) scalbln( (double)x, exp );
+	return (float) scalbln( (double)x, _exp );
 }
 #endif
 
 
 #ifdef L_scalbnf
 libm_hidden_proto(scalbn)
-float scalbnf (float x, int exp)
+float scalbnf (float x, int _exp)
 {
-	return (float) scalbn( (double)x, exp );
+	return (float) scalbn( (double)x, _exp );
 }
 #endif
 
