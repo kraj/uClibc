@@ -187,8 +187,6 @@ glob (pattern, flags, errfunc, pglob)
 	 appending the results to PGLOB.  */
       for (i = 0; i < dirs.gl_pathc; ++i)
 	{
-	  int oldcount;
-
 #ifdef	SHELL
 	  {
 	    /* Make globbing interruptible in the bash shell. */
