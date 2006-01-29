@@ -148,7 +148,6 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 			break;
 		default:
 			{
-				int reloc_type = ELF32_R_TYPE(rpnt->r_info);
 				_dl_dprintf(2, "\n%s: ",_dl_progname);
 
 				if (symtab_index)
