@@ -38,10 +38,11 @@ static char sccsid[] = "@(#)pmap_getport.c 1.9 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+#include <stdbool.h>
+#include <unistd.h>
 #include <rpc/rpc.h>
 #include <rpc/pmap_prot.h>
 #include <rpc/pmap_clnt.h>
-#include <sys/socket.h>
 
 libc_hidden_proto(clntudp_bufcreate)
 libc_hidden_proto(__rpc_thread_createerr)
@@ -60,7 +61,11 @@ static const struct timeval tottimeout =
  */
 libc_hidden_proto(pmap_getport)
 u_short
-pmap_getport (struct sockaddr_in *address, u_long program, u_long version, u_int protocol)
+pmap_getport (address, program, version, protocol)
+     struct sockaddr_in *address;
+     u_long program;
+     u_long version;
+     u_int protocol;
 {
   u_short port = 0;
   int socket = -1;
