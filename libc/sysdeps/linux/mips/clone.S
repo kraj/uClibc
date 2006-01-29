@@ -30,12 +30,12 @@
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg) */
 
 	.text
-.globl   clone ;
+.globl   __clone ;
 	.align       2;
-	.type         clone,@function;
-	.ent        clone, 0;
+	.type         __clone,@function;
+	.ent        __clone, 0;
 	
-clone:
+__clone:
 	.frame	    sp, 4*SZREG, sp
 #ifdef __PIC__
 	.set		noreorder
@@ -109,3 +109,5 @@ __thread_start:
 	move		a0,v0
 	jal		HIDDEN_JUMPTARGET(_exit)
 	.end  __thread_start
+
+weak_alias (__clone, clone)
