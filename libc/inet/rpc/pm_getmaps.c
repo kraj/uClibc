@@ -42,7 +42,6 @@ static char sccsid[] = "@(#)pmap_getmaps.c 1.10 87/08/11 Copyr 1984 Sun Micro";
 #include <rpc/rpc.h>
 #include <rpc/pmap_prot.h>
 #include <rpc/pmap_clnt.h>
-#include <sys/socket.h>
 #include <netdb.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -70,6 +69,8 @@ pmap_getmaps (struct sockaddr_in *address)
   minutetimeout.tv_sec = 60;
   minutetimeout.tv_usec = 0;
   address->sin_port = htons (PMAPPORT);
+
+  /* Don't need a reserved port to get ports from the portmapper.  */
   client = clnttcp_create (address, PMAPPROG,
 			   PMAPVERS, &socket, 50, 500);
   if (client != (CLIENT *) NULL)
