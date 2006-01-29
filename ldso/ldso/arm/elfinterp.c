@@ -65,7 +65,6 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + symtab[symtab_index].st_name;
 
-
 	if (unlikely(reloc_type != R_ARM_JUMP_SLOT)) {
 		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",
 			_dl_progname);
