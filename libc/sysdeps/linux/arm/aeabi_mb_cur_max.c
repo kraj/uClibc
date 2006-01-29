@@ -1,4 +1,4 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* Copyright (C) 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,25 +16,17 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sys/syscall.h>
+#include <langinfo.h>
+#include <locale.h>
+#include <stdlib.h>
 
-/* If no SA_RESTORER function was specified by the application we use
-   one of these.  This avoids the need for the kernel to synthesise a return
-   instruction on the stack, which would involve expensive cache flushes. */
+#undef MB_CUR_MAX
+#define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
+extern size_t _stdlib_mb_cur_max (void) __THROW __wur;
+libc_hidden_proto(_stdlib_mb_cur_max)
 
-.global __default_sa_restorer
-.type __default_sa_restorer,%function
-.align 4
-__default_sa_restorer:
-	DO_CALL (sigreturn)
-
-
-#ifdef __NR_rt_sigreturn
-
-.global __default_rt_sa_restorer
-.type __default_rt_sa_restorer,%function
-.align 4
-__default_rt_sa_restorer:
-	DO_CALL (rt_sigreturn)
-
-#endif
+int
+__aeabi_MB_CUR_MAX (void)
+{
+  return MB_CUR_MAX;
+}

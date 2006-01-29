@@ -26,38 +26,35 @@
 .type __sigsetjmp,%function
 .align 4
 __sigsetjmp:
-	/* Save registers */
-#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
-# ifdef __MAVERICK__
-	cfstrd	mvd4,  [r0], #8 ; nop
-	cfstrd	mvd5,  [r0], #8 ; nop
-	cfstrd	mvd6,  [r0], #8 ; nop
-	cfstrd	mvd7,  [r0], #8 ; nop
-	cfstrd	mvd8,  [r0], #8 ; nop
-	cfstrd	mvd9,  [r0], #8 ; nop
-	cfstrd	mvd10, [r0], #8 ; nop
-	cfstrd	mvd11, [r0], #8 ; nop
-	cfstrd	mvd12, [r0], #8 ; nop
-	cfstrd	mvd13, [r0], #8 ; nop
-	cfstrd	mvd14, [r0], #8 ; nop
-	cfstrd	mvd15, [r0], #8
-# else
-	sfmea   f4, 4, [r0]!
-# endif
-#else
-# ifdef __MAVERICK__
-	add     r0, r0, #96		/* skip the FP registers */
-# else
-	add     r0, r0, #48		/* skip the FP registers */
-# endif
-#endif
-	stmia   r0, {v1-v6, sl, fp, sp, lr}
+	mov	ip, r0
 
-	/* Restore pointer to jmp_buf */
-#ifdef __MAVERICK__
-	sub     r0, r0, #96
-#else
-	sub     r0, r0, #48
+	/* Save registers */
+	stmia	ip!, {v1-v6, sl, fp, sp, lr}
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
+# ifdef __VFP_FP__
+	/* Store the VFP registers.  */
+	/* Following instruction is fstmiax ip!, {d8-d15}.  */
+	stc	p11, cr8, [r12], #68
+	/* Store the floating-point status register.  */
+	/* Following instruction is fmrx r2, fpscr.  */
+	mrc	p10, 7, r2, cr1, cr0, 0
+	str	r2, [ip], #4
+# elif defined __MAVERICK__
+	cfstrd	mvd4,  [ip], #8 ; nop
+	cfstrd	mvd5,  [ip], #8 ; nop
+	cfstrd	mvd6,  [ip], #8 ; nop
+	cfstrd	mvd7,  [ip], #8 ; nop
+	cfstrd	mvd8,  [ip], #8 ; nop
+	cfstrd	mvd9,  [ip], #8 ; nop
+	cfstrd	mvd10, [ip], #8 ; nop
+	cfstrd	mvd11, [ip], #8 ; nop
+	cfstrd	mvd12, [ip], #8 ; nop
+	cfstrd	mvd13, [ip], #8 ; nop
+	cfstrd	mvd14, [ip], #8 ; nop
+	cfstrd	mvd15, [ip], #8
+# else
+	sfmea   f4, 4, [ip]!
+# endif
 #endif
 
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */

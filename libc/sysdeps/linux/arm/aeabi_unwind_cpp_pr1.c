@@ -1,4 +1,4 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* Copyright (C) 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,25 +16,28 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sys/syscall.h>
+/* Because some objects in ld.so and libc.so are built with
+   -fexceptions, we end up with references to this personality
+   routine.  However, these libraries are not linked against
+   libgcc_eh.a, so we need a dummy definition.   This routine will
+   never actually be called.  */
 
-/* If no SA_RESTORER function was specified by the application we use
-   one of these.  This avoids the need for the kernel to synthesise a return
-   instruction on the stack, which would involve expensive cache flushes. */
+#include <stdlib.h>
 
-.global __default_sa_restorer
-.type __default_sa_restorer,%function
-.align 4
-__default_sa_restorer:
-	DO_CALL (sigreturn)
+attribute_hidden
+void
+__aeabi_unwind_cpp_pr0 (void)
+{
+}
 
+attribute_hidden
+void
+__aeabi_unwind_cpp_pr1 (void)
+{
+}
 
-#ifdef __NR_rt_sigreturn
-
-.global __default_rt_sa_restorer
-.type __default_rt_sa_restorer,%function
-.align 4
-__default_rt_sa_restorer:
-	DO_CALL (rt_sigreturn)
-
-#endif
+attribute_hidden
+void
+__aeabi_unwind_cpp_pr2 (void)
+{
+}

@@ -49,7 +49,7 @@ clone:
 	@ get flags
 	mov	r0, r2
 	@ new sp is already in r1
-	swi	__NR_clone
+	DO_CALL (clone)
 	movs	a1, a1
 	blt	__error
 	movne    pc, lr

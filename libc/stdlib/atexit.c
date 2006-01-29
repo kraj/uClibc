@@ -157,6 +157,7 @@ int on_exit(oefuncp func, void *arg)
 #endif
 
 #ifdef L___cxa_atexit
+libc_hidden_proto(__cxa_atexit)
 extern int __cxa_atexit (cxaefuncp func, void *arg, void *dso_handle)
 {
     struct exit_function *efp;
@@ -178,6 +179,7 @@ extern int __cxa_atexit (cxaefuncp func, void *arg, void *dso_handle)
 
     return 0;
 }
+libc_hidden_def(__cxa_atexit)
 #endif
 
 #ifdef L___cxa_finalize

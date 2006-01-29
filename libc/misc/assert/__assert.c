@@ -42,6 +42,7 @@ libc_hidden_proto(stderr)
 #include <assert.h>
 #undef assert
 
+libc_hidden_proto(__assert)
 
 #define ASSERT_SHOW_PROGNAME 1
 
@@ -68,3 +69,5 @@ void attribute_noreturn __assert(const char *assertion, const char * filename,
 	}
 	abort();
 }
+
+libc_hidden_def(__assert)

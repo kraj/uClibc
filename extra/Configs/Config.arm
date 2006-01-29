@@ -24,6 +24,16 @@ config ARCH_CFLAGS
 config LIBGCC_CFLAGS
 	string
 
+config CONFIG_ARM_EABI
+	bool "Use ARM EABI"
+	default n
+	help
+	  If you choose "Y" here, functions and constants required by the
+	  ARM EABI will be built into the library.  You should choose "Y"
+	  if your compiler uses the ARM EABI, in which case you will also
+	  need a kernel supporting the EABI system call interface, or "N"
+	  for a compiler using the old Linux ABI.
+
 choice
 	prompt "Target Processor Type"
 	default CONFIG_GENERIC_ARM

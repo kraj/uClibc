@@ -24,7 +24,7 @@
 __vfork:
 
 #ifdef __NR_vfork
-	swi	__NR_vfork
+	DO_CALL (vfork)
 	cmn	r0, #4096
 	movcc	pc, lr
 
@@ -35,7 +35,7 @@ __vfork:
 #endif
 
 	/* If we don't have vfork, use fork.  */
-	swi     __NR_fork
+	DO_CALL (fork)
 	cmn     r0, #4096
 
 	/* Syscall worked.  Return to child/parent */

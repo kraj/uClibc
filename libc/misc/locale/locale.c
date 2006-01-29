@@ -305,6 +305,8 @@ char *setlocale(int category, const char *locale)
  * placement of the fields in the struct.  If necessary, we could ensure
  * this usings an array of offsets but at some size cost. */
 
+libc_hidden_proto(localeconv)
+
 #ifdef __LOCALE_C_ONLY
 
 link_warning(localeconv,"REMINDER: The 'localeconv' function is hardwired for C/POSIX locale only.")
@@ -357,6 +359,8 @@ struct lconv *localeconv(void)
 }
 
 #endif /* __LOCALE_C_ONLY */
+
+libc_hidden_def(localeconv)
 
 #endif
 /**********************************************************************/

@@ -1,4 +1,4 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* Copyright (C) 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,25 +16,12 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sys/syscall.h>
+#include <locale.h>
 
-/* If no SA_RESTORER function was specified by the application we use
-   one of these.  This avoids the need for the kernel to synthesise a return
-   instruction on the stack, which would involve expensive cache flushes. */
+libc_hidden_proto(localeconv)
 
-.global __default_sa_restorer
-.type __default_sa_restorer,%function
-.align 4
-__default_sa_restorer:
-	DO_CALL (sigreturn)
-
-
-#ifdef __NR_rt_sigreturn
-
-.global __default_rt_sa_restorer
-.type __default_rt_sa_restorer,%function
-.align 4
-__default_rt_sa_restorer:
-	DO_CALL (rt_sigreturn)
-
-#endif
+struct lconv *
+__aeabi_localeconv (void)
+{
+  return localeconv ();
+}

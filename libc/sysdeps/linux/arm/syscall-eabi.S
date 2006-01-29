@@ -1,4 +1,4 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* Copyright (C) 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,23 +18,26 @@
 
 #include <sys/syscall.h>
 
-/* If no SA_RESTORER function was specified by the application we use
-   one of these.  This avoids the need for the kernel to synthesise a return
-   instruction on the stack, which would involve expensive cache flushes. */
+/* In the EABI syscall interface, we don't need a special syscall to
+   implement syscall().  It won't work reliably with 64-bit arguments
+   (but that is true on many modern platforms).  */
 
-.global __default_sa_restorer
-.type __default_sa_restorer,%function
+.text
+.global syscall
+.type syscall,%function
 .align 4
-__default_sa_restorer:
-	DO_CALL (sigreturn)
+syscall:
+	mov	ip, sp
+	stmfd	sp!, {r4, r5, r6, r7}
+	mov	r7, r0
+	mov	r0, r1
+	mov	r1, r2
+	mov	r2, r3
+	ldmfd	ip, {r3, r4, r5, r6}
+	swi	0x0
+	ldmfd	sp!, {r4, r5, r6, r7}
+	cmn	r0, #4096
+	movcc	pc, lr
+	b	__syscall_error
 
-
-#ifdef __NR_rt_sigreturn
-
-.global __default_rt_sa_restorer
-.type __default_rt_sa_restorer,%function
-.align 4
-__default_rt_sa_restorer:
-	DO_CALL (rt_sigreturn)
-
-#endif
+.size syscall,.-syscall
