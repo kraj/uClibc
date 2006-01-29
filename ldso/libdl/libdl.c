@@ -138,7 +138,6 @@ void *dlopen(const char *libname, int flag)
 {
 	struct elf_resolve *tpnt, *tfrom;
 	struct dyn_elf *dyn_chain, *rpnt = NULL, *dyn_ptr, *relro_ptr, *handle;
-	struct dyn_elf *dpnt;
 	ElfW(Addr) from;
 	struct elf_resolve *tpnt1;
 	void (*dl_brk) (void);
@@ -169,12 +168,15 @@ void *dlopen(const char *libname, int flag)
 	 * the application.  Thus this may go away at some time
 	 * in the future.
 	 */
-	tfrom = NULL;
-	for (dpnt = _dl_symbol_tables; dpnt; dpnt = dpnt->next) {
-		tpnt = dpnt->dyn;
-		if (tpnt->loadaddr < from
-				&& (tfrom == NULL || tfrom->loadaddr < tpnt->loadaddr))
-			tfrom = tpnt;
+	{
+		struct dyn_elf *dpnt;
+		tfrom = NULL;
+		for (dpnt = _dl_symbol_tables; dpnt; dpnt = dpnt->next) {
+			tpnt = dpnt->dyn;
+			if (tpnt->loadaddr < from
+					&& (tfrom == NULL || tfrom->loadaddr < tpnt->loadaddr))
+				tfrom = tpnt;
+		}
 	}
 	for(rpnt = _dl_symbol_tables; rpnt && rpnt->next; rpnt=rpnt->next);
 
@@ -298,10 +300,10 @@ void *dlopen(const char *libname, int flag)
 		for (j = 0; init_fini_list[j] != runp2->tpnt; ++j)
 			/* Empty */;
 		for (k = j + 1; k < nlist; ++k) {
-			struct init_fini_list *runp = init_fini_list[k]->init_fini;
+			struct init_fini_list *ele = init_fini_list[k]->init_fini;
 
-			for (; runp; runp = runp->next) {
-				if (runp->tpnt == runp2->tpnt) {
+			for (; ele; ele = ele->next) {
+				if (ele->tpnt == runp2->tpnt) {
 					struct elf_resolve *here = init_fini_list[k];
 					_dl_if_debug_print("Move %s from pos %d to %d in INIT/FINI list.\n", here->libname, k, j);
 					for (i = (k - j); i; --i)
