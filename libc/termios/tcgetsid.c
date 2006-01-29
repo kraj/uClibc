@@ -27,40 +27,42 @@ libc_hidden_proto(getsid)
 libc_hidden_proto(tcgetpgrp)
 
 /* Return the session ID of FD.  */
-pid_t tcgetsid (int fd)
+pid_t
+tcgetsid (fd)
+     int fd;
 {
-    pid_t pgrp;
-    pid_t sid;
+  pid_t pgrp;
+  pid_t sid;
 #ifdef TIOCGSID
-    static int tiocgsid_does_not_work;
+  static int tiocgsid_does_not_work;
 
-    if (! tiocgsid_does_not_work)
+  if (! tiocgsid_does_not_work)
     {
-	int serrno = errno;
-	int sid;
+      int serrno = errno;
+      int sid;
 
-	if (ioctl (fd, TIOCGSID, &sid) < 0)
+      if (ioctl (fd, TIOCGSID, &sid) < 0)
 	{
-	    if (errno == EINVAL)
+	  if (errno == EINVAL)
 	    {
-		tiocgsid_does_not_work = 1;
-		__set_errno(serrno);
+	      tiocgsid_does_not_work = 1;
+	      __set_errno (serrno);
 	    }
-	    else
-		return (pid_t) -1;
+	  else
+	    return (pid_t) -1;
 	}
-	else
-	    return (pid_t) sid;
+      else
+	return (pid_t) sid;
     }
 #endif
 
-    pgrp = tcgetpgrp (fd);
-    if (pgrp == -1)
-	return (pid_t) -1;
+  pgrp = tcgetpgrp (fd);
+  if (pgrp == -1)
+    return (pid_t) -1;
 
-    sid = getsid (pgrp);
-    if (sid == -1 && errno == ESRCH)
-	__set_errno(ENOTTY);
+  sid = getsid (pgrp);
+  if (sid == -1 && errno == ESRCH)
+    __set_errno (ENOTTY);
 
-    return sid;
+  return sid;
 }
