@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
+long syscall(long sysnum, long a, long b, long c, long d, long e, long f);
 long syscall(long sysnum, long a, long b, long c, long d, long e, long f)
 {
 	long __res;
