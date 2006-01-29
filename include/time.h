@@ -361,6 +361,7 @@ extern int clock_nanosleep (clockid_t __clock_id, int __flags,
 /* Return clock ID for CPU-time clock.  */
 extern int clock_getcpuclockid (pid_t __pid, clockid_t *__clock_id) __THROW;
 #  endif
+#endif /* __UCLIBC_MJN3_ONLY__ */
 
 
 /* Create new per-process timer using CLOCK_ID.  */
@@ -382,7 +383,6 @@ extern int timer_gettime (timer_t __timerid, struct itimerspec *__value)
 
 /* Get expiration overrun for timer TIMERID.  */
 extern int timer_getoverrun (timer_t __timerid) __THROW;
-#endif /* __UCLIBC_MJN3_ONLY__ */
 # endif
 
 
