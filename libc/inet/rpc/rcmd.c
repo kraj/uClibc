@@ -369,7 +369,6 @@ int rresvport(int *alport)
 libc_hidden_def(rresvport)
 
 static int  __check_rhosts_file = 1;
-static char *__rcmd_errstr;
 
 int ruserok(rhost, superuser, ruser, luser)
 	const char *rhost, *ruser, *luser;
@@ -466,7 +465,6 @@ iruserfopen (char *file, uid_t okuser)
   /* If there were any problems, quit.  */
   if (cp != NULL)
     {
-      __rcmd_errstr = cp;
       if (res)
 	fclose (res);
       return NULL;
