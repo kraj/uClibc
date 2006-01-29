@@ -39,7 +39,6 @@ tcgetsid (fd)
   if (! tiocgsid_does_not_work)
     {
       int serrno = errno;
-      int sid;
 
       if (ioctl (fd, TIOCGSID, &sid) < 0)
 	{
