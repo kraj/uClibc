@@ -10,5 +10,6 @@
 #include "syscalls.h"
 
 #ifdef __NR_arch_prctl
-_syscall2(int, arch_prctl, int, cod, unsigned long, addr);
+extern int arch_prctl(int code, unsigned long addr);
+_syscall2(int, arch_prctl, int, code, unsigned long, addr);
 #endif
