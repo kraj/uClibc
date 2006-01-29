@@ -213,13 +213,13 @@ int endttyent(void)
 }
 libc_hidden_def(endttyent)
 
-struct ttyent * getttynam(const char *tty)
+struct ttyent * getttynam(const char *_tty)
 {
     register struct ttyent *t;
 
     setttyent();
     while ((t = getttyent()))
-	if (!strcmp(tty, t->ty_name))
+	if (!strcmp(_tty, t->ty_name))
 	    break;
     endttyent();
     return (t);
