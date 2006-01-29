@@ -3,6 +3,7 @@
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
+
 /* Trivial implementation for arches that lack vfork */
 #include <unistd.h>
 #include <sys/types.h>
@@ -11,6 +12,7 @@
 #ifdef __NR_fork
 libc_hidden_proto(fork)
 
+pid_t attribute_hidden __vfork(void);
 pid_t attribute_hidden __vfork(void)
 {
     return fork();
