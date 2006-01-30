@@ -137,6 +137,7 @@ extern void __isctype_assert(int c, int mask) __attribute__ ((__noreturn__)) att
 
 
 #define IS_FUNC_BODY(NAME) \
+int CTYPE_NAME(NAME) (int c  __LOCALE_PARAM ); \
 int CTYPE_NAME(NAME) (int c  __LOCALE_PARAM ) \
 { \
 	CTYPE_BODY(NAME,c,PASTE2(_IS,NAME)) \
@@ -207,6 +208,7 @@ IS_FUNC_BODY(cntrl);
 #define __isdigit_char_or_EOF(C)   __isdigit_int((C))
 #endif
 
+int CTYPE_NAME(digit) (int C   __LOCALE_PARAM);
 int CTYPE_NAME(digit) (int C   __LOCALE_PARAM)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
@@ -367,6 +369,7 @@ libc_hidden_def(toupper_l)
 
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
+int __XL_NPP(isascii)(int c);
 int __XL_NPP(isascii)(int c)
 {
 	return __isascii(c);		/* locale-independent */
@@ -389,6 +392,7 @@ libc_hidden_def(isascii)
 
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
+int __XL_NPP(toascii)(int c);
 int __XL_NPP(toascii)(int c)
 {
 	return __toascii(c);		/* locale-independent */

@@ -937,7 +937,8 @@ void attribute_hidden _locale_init_l(__locale_t base)
 	_locale_set_l(C_LOCALE_SELECTOR, base);
 }
 
-void attribute_hidden _locale_init(void)
+void _locale_init(void) attribute_hidden;
+void _locale_init(void)
 {
 	/* TODO: mmap the locale file  */
 
