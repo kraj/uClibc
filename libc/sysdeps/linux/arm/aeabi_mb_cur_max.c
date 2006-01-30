@@ -20,9 +20,6 @@
 #include <locale.h>
 #include <stdlib.h>
 
-#undef MB_CUR_MAX
-#define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
-extern size_t _stdlib_mb_cur_max (void) __THROW __wur;
 libc_hidden_proto(_stdlib_mb_cur_max)
 
 int
