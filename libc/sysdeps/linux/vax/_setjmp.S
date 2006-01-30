@@ -1,4 +1,3 @@
-
 .globl _setjmp
 .align 4
 _setjmp:

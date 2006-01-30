@@ -30,7 +30,7 @@ brk (void *addr)
 {
 	register unsigned long int result __asm__ ("%%r0");
 
-	asm (
+	__asm__ (
 	"	pushl	%%ap		\n"	/* Start frame				*/
 	"	pushl	%2		\n"	/* New top address we wish to get	*/
 	"	pushl	$1		\n"	/* One argument				*/

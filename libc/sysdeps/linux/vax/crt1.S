@@ -35,16 +35,16 @@ _start:
 	movl	%sp, %r3		/* R3 = argv = &argv[0]		*/
 
 #if (defined L_crt1 || defined L_gcrt1) && defined __UCLIBC_CTOR_DTOR__
-	pushl	%r0	# stack_end
-	pushl	$0	# rtld_fini. This is probably needed for the case
-			# where a dynamic linker is involved. So this is
-			# an open FIXME that needs to be addressed at some
-			# time...
+	pushl	%r0	/* stack_end					*/
+	pushl	$0	/* rtld_fini. This is probably needed for the	*/
+			/* case where a dynamic linker is involved. So	*/
+			/* this is an open FIXME that needs to be	*/
+			/* addressed at some time...			*/
 	pushl	$_fini
 	pushl	$_init
-	pushl	%r3	/* Argument pointer */
-	pushl	%r4	/* And the argument count */
-	pushl	$main	/* main() */
+	pushl	%r3	/* Argument pointer				*/
+	pushl	%r4	/* And the argument count			*/
+	pushl	$main	/* main()					*/
 
 	/* We need to call __uClibc_main which should not return.
 	 * __uClibc_main (int (*main) (int, char **, char **),
@@ -66,8 +66,8 @@ _start:
 	calls	$3, __uClibc_main
 #endif
 
-	/* The above __uClibc_start_main() shouldn't ever return. If it
-	   does, we just crash.  */
+	/* The above __uClibc_start_main() shouldn't ever return. If it	*/
+	/* does, we just crash.						*/
 	halt
 .align 2
 
