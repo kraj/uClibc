@@ -195,7 +195,7 @@ static void
 internal_function
 build_wcs_buffer (re_string_t *pstr)
 {
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
   unsigned char buf[MB_LEN_MAX];
   assert (MB_LEN_MAX >= pstr->mb_cur_max);
 #else
@@ -266,7 +266,7 @@ build_wcs_upper_buffer (re_string_t *pstr)
   mbstate_t prev_st;
   int src_idx, byte_idx, end_idx, remain_len;
   size_t mbclen;
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
   char buf[MB_LEN_MAX];
   assert (MB_LEN_MAX >= pstr->mb_cur_max);
 #else

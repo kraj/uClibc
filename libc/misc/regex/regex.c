@@ -28,6 +28,9 @@
 #ifdef __UCLIBC__
 #undef _LIBC
 #define _REGEX_RE_COMP
+#define HAVE_MEMPCPY
+#define HAVE_LANGINFO
+#define HAVE_LANGINFO_CODESET
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
