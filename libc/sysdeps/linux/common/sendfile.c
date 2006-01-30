@@ -15,6 +15,7 @@ _syscall4(ssize_t, sendfile, int, out_fd, int, in_fd, __off_t *, offset,
 		  size_t, count);
 
 #if ! defined __NR_sendfile64 && defined __UCLIBC_HAS_LFS__
+#undef sendfile64
 extern __typeof(sendfile) sendfile64;
 libc_hidden_proto(sendfile64)
 strong_alias(sendfile,sendfile64)
