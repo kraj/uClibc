@@ -7,7 +7,6 @@
 
 #include "_string.h"
 
-libc_hidden_proto(bcopy)
 libc_hidden_proto(memmove)
 
 void bcopy(const void *s2, void *s1, size_t n)
@@ -52,4 +51,3 @@ void bcopy(const void *s2, void *s1, size_t n)
 #endif
 #endif
 }
-libc_hidden_def(bcopy)

@@ -93,7 +93,7 @@ libc_hidden_proto(strcpy)
 libc_hidden_proto(strlen)
 libc_hidden_proto(strncmp)
 libc_hidden_proto(strnlen)
-libc_hidden_proto(bcopy)
+libc_hidden_proto(memmove)
 libc_hidden_proto(getpid)
 libc_hidden_proto(socket)
 libc_hidden_proto(close)
@@ -230,7 +230,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 		}
 		fcntl(s, F_SETOWN, pid);
 		sin.sin_family = hp->h_addrtype;
-		bcopy(hp->h_addr_list[0], &sin.sin_addr,
+		memmove(&sin.sin_addr, hp->h_addr_list[0],
 		      MIN (sizeof (sin.sin_addr), hp->h_length));
 		sin.sin_port = rport;
 		if (connect(s, (struct sockaddr *)&sin, sizeof(sin)) >= 0) /* __connect */
@@ -253,7 +253,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			__set_errno (oerrno);
 			perror(0);
 			hp->h_addr_list++;
-			bcopy(hp->h_addr_list[0], &sin.sin_addr,
+			memmove(&sin.sin_addr, hp->h_addr_list[0],
 			      MIN (sizeof (sin.sin_addr), hp->h_length));
 			(void)fprintf(stderr, "Trying %s...\n",
 			    inet_ntoa(sin.sin_addr));
@@ -423,7 +423,7 @@ int ruserok(rhost, superuser, ruser, luser)
 	}
 #endif
 	for (ap = hp->h_addr_list; *ap; ++ap) {
-		bcopy(*ap, &addr, sizeof(addr));
+		memmove(&addr, *ap, sizeof(addr));
 		if (iruserok2(addr, superuser, ruser, luser, rhost) == 0)
 			return 0;
 	}
