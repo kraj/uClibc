@@ -12,8 +12,8 @@
 #ifdef __NR_fork
 libc_hidden_proto(fork)
 
-extern __typeof(vfork) __vfork;
-pid_t attribute_hidden __vfork(void)
+extern __typeof(vfork) __vfork attribute_hidden;
+pid_t __vfork(void)
 {
     return fork();
 }
