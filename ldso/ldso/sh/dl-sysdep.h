@@ -25,7 +25,7 @@
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
-static __inline__ unsigned int
+static inline unsigned int
 _dl_urem(unsigned int n, unsigned int base)
 {
   int res;
