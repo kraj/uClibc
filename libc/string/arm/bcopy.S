@@ -54,5 +54,3 @@ bcopy:
 	b	_memcpy /* (PLT) */
 	
 .size bcopy,.-bcopy
-
-libc_hidden_def(bcopy)

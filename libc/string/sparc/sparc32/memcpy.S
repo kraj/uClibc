@@ -166,7 +166,6 @@ ENTRY(bcopy)
 	mov		%o1, %o0
 	mov		%o3, %o1
 END(bcopy)
-libc_hidden_def(bcopy)
 
 ENTRY(memmove)
 	cmp		%o0, %o1

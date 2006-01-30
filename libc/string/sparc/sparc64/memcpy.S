@@ -206,7 +206,6 @@ ENTRY(bcopy)
 	retl
 	 nop
 END(bcopy)
-libc_hidden_def(bcopy)
 
 	.align		32
 200:	be,pt		%xcc, 201f			/* CTI				*/
