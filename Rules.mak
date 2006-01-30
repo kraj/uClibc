@@ -306,7 +306,7 @@ CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
 CPU_CFLAGS += -fsigned-char
 
 # only i386 is known to work if compile.S gets -D__ASSEMBLER__
-#CPU_CFLAGS += -std=c99
+CPU_CFLAGS += $(call check_gcc,-std=c99,)
 
 LDADD_LIBFLOAT=
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
