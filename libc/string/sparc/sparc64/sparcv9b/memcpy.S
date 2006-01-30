@@ -51,7 +51,6 @@ ENTRY(bcopy)
 	retl
 	 nop
 END(bcopy)
-libc_hidden_def(bcopy)
 
 	/* Special/non-trivial issues of this code:
 	 *
