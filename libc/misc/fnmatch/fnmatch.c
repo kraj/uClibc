@@ -95,7 +95,6 @@ libc_hidden_proto(wcslen)
 libc_hidden_proto(wcscoll)
 libc_hidden_proto(towlower)
 libc_hidden_proto(mbsrtowcs)
-libc_hidden_proto(strnlen)
 #  endif
 # endif
 #endif
@@ -373,17 +372,17 @@ is_char_class (const wchar_t *wcs)
 #  include "fnmatch_loop.c"
 # endif
 
-extern size_t _stdlib_mb_cur_max (void) __THROW __wur;
+#ifdef __UCLIBC_HAS_WCHAR__
 libc_hidden_proto(_stdlib_mb_cur_max)
+#else
+#undef MB_CUR_MAX
+#define MB_CUR_MAX 1
+#endif
 
 int
 fnmatch (const char *pattern, const char *string, int flags)
 {
 # if HANDLE_MULTIBYTE
-#  ifdef __UCLIBC_HAS_WCHAR__
-#   undef MB_CUR_MAX
-#   define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
-#  endif
   if (__builtin_expect (MB_CUR_MAX, 1) != 1)
     {
       mbstate_t ps;
@@ -395,7 +394,7 @@ fnmatch (const char *pattern, const char *string, int flags)
       /* Convert the strings into wide characters.  */
       __memset (&ps, '\0', sizeof (ps));
       p = pattern;
-#if defined _LIBC || defined __UCLIBC__
+#ifdef _LIBC
       n = strnlen (pattern, 1024);
 #else
       n = strlen (pattern);
@@ -426,7 +425,7 @@ fnmatch (const char *pattern, const char *string, int flags)
 	}
 
       assert (mbsinit (&ps));
-#if defined _LIBC || defined __UCLIBC__
+#ifdef _LIBC
       n = strnlen (string, 1024);
 #else
       n = strlen (string);
