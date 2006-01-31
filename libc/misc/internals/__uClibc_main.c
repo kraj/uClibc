@@ -98,7 +98,7 @@ strong_alias (__progname_full, program_invocation_name)
 libc_hidden_proto(__environ)
 char **__environ = 0;
 libc_hidden_def(__environ)
-strong_alias(__environ,environ)
+weak_alias(__environ,environ)
 
 /* TODO: don't export __pagesize; we cant now because libpthread uses it */
 extern size_t __pagesize;
