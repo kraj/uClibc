@@ -28,7 +28,7 @@ void* memalign(size_t alignment, size_t bytes)
     size_t nb;             /* padded  request size */
     char*           m;              /* memory returned by malloc call */
     mchunkptr       p;              /* corresponding chunk */
-    char*           brk;            /* alignment point within p */
+    char*           _brk;            /* alignment point within p */
     mchunkptr       newp;           /* chunk to return */
     size_t newsize;        /* its size */
     size_t leadsize;       /* leading space before alignment point */
@@ -79,13 +79,13 @@ void* memalign(size_t alignment, size_t bytes)
 	   total room so that this is always possible.
 	   */
 
-	brk = (char*)mem2chunk((unsigned long)(((unsigned long)(m + alignment - 1)) &
+	_brk = (char*)mem2chunk((unsigned long)(((unsigned long)(m + alignment - 1)) &
 		    -((signed long) alignment)));
-	if ((unsigned long)(brk - (char*)(p)) < MINSIZE)
-	    brk += alignment;
+	if ((unsigned long)(_brk - (char*)(p)) < MINSIZE)
+	    _brk += alignment;
 
-	newp = (mchunkptr)brk;
-	leadsize = brk - (char*)(p);
+	newp = (mchunkptr)_brk;
+	leadsize = _brk - (char*)(p);
 	newsize = chunksize(p) - leadsize;
 
 	/* For mmapped chunks, just adjust offset */
