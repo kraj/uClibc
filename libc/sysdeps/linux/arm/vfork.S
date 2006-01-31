@@ -26,7 +26,7 @@ __vfork:
 #ifdef __NR_vfork
 	DO_CALL (vfork)
 	cmn	r0, #4096
-#if defined(__THUMB_INTERWORK__)
+#if defined(__USE_BX__)
 	bxcc	lr
 #else
 	movcc	pc, lr
@@ -43,7 +43,7 @@ __vfork:
 	cmn     r0, #4096
 
 	/* Syscall worked.  Return to child/parent */
-#if defined(__THUMB_INTERWORK__)
+#if defined(__USE_BX__)
 	bxcc	lr
 #else
 	movcc   pc, lr

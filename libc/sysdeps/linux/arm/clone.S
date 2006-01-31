@@ -52,7 +52,7 @@ clone:
 	DO_CALL (clone)
 	movs	a1, a1
 	blt	__error
-#if defined(__THUMB_INTERWORK__)
+#if defined(__USE_BX__)
 	bxne	lr
 #else
 	movne	pc, lr

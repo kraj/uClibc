@@ -1,8 +1,12 @@
 /* vi: set sw=4 ts=4: */
 /*
  * Architecture specific code used by dl-startup.c
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
+
+#include <features.h>
 
 #if !defined(__thumb__)
 __asm__(
@@ -41,7 +45,7 @@ __asm__(
 	"	ldr	r0, .L_FINI_PROC\n"
 	"	ldr	r0, [sl, r0]\n"
 	"	@ jump to the user_s entry point\n"
-#if defined(__THUMB_INTERWORK__)
+#if defined(__USE_BX__)
 	"	bx	r6\n"
 #else
 	"	mov	pc, r6\n"
@@ -107,7 +111,11 @@ __asm__(
 	"	ldr	r0, .L_FINI_PROC\n"
 	"	ldr	r0, [r7, r0]\n"
 	"	@ jump to the user_s entry point\n"
+#if defined(__USE_BX__)
 	"	bx	r6\n"
+#else
+	"	mov	pc, r6\n"
+#endif
 	"\n\n"
 	".L_GET_GOT:\n"
 	"	.word	_GLOBAL_OFFSET_TABLE_ - .L_GOT_GOT - 4\n"
