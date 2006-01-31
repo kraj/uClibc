@@ -44,7 +44,11 @@ strcmp:
 	cmpcs	r2, r3
 	beq	1b
 	sub	r0, r2, r3
-	mov	pc, lr
+#if defined(__USE_BX__)
+        bx      lr
+#else
+  	mov	pc, lr
+#endif
 
 .size strcmp,.-strcmp
 

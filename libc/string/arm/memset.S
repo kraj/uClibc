@@ -56,7 +56,11 @@ memset:
 	bge	1b
 2:
 	movs	a3, a3		@ anything left?
-	moveq	pc, lr		@ nope
+#if defined(__USE_BX__)
+        bxeq    lr
+#else
+        moveq	pc, lr		@ nope
+#endif
 	rsb	a3, a3, $7
 	add	pc, pc, a3, lsl $2
 	mov	r0, r0
@@ -67,7 +71,11 @@ memset:
 	strb	a2, [a4], $1
 	strb	a2, [a4], $1
 	strb	a2, [a4], $1
-	mov	pc, lr
+#if defined(__USE_BX__)
+        bx      lr
+#else
+ 	mov	pc, lr
+#endif
 
 .size memset,.-memset
 

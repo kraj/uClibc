@@ -40,8 +40,11 @@ memcmp:
 	/* if ((len - 1) < 0) return 0 */
 	subs	r2, r2, #1
 	movmi	r0, #0
+#if defined(__USE_BX__)
+        bxmi    lr
+#else
 	movmi	pc, lr
-
+#endif
 	/* ip == last src address to compare */
 	add	ip, r0, r2
 1:
@@ -51,7 +54,11 @@ memcmp:
 	cmpcs	r2, r3
 	beq	1b
 	sub	r0, r2, r3
-	mov	pc, lr
+#if defined(__USE_BX__)
+        bx      lr
+#else
+ 	mov	pc, lr
+#endif
 
 .size memcmp,.-memcmp
 

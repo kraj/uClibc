@@ -40,7 +40,11 @@ strncmp:
 	/* if (len == 0) return 0 */
 	cmp	r2, #0
 	moveq	r0, #0
+#if defined(__USE_BX__)
+        bxeq    lr
+#else
 	moveq	pc, lr
+#endif
 	subs	r2, r2, #1
 
 	/* ip == last src address to compare */
@@ -53,7 +57,11 @@ strncmp:
 	cmpcs	r2, r3
 	beq	1b
 	sub	r0, r2, r3
-	mov	pc, lr
+#if defined(__USE_BX__)
+        bx      lr
+#else
+  	mov	pc, lr
+#endif
 
 .size strncmp,.-strncmp
 

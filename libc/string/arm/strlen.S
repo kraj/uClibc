@@ -75,7 +75,11 @@ Llastword:				@ drop through to here once we find a
 	tstne   r2, $0x00ff0000         @ (if first three all non-zero, 4th
 	addne   r0, r0, $1              @  must be zero)
 #endif
-	mov	pc,lr
+#if defined(__USE_BX__)
+        bx      lr
+#else
+  	mov	pc,lr
+#endif
 
 .size strlen,.-strlen
 
