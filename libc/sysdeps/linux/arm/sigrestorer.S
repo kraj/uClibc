@@ -24,7 +24,7 @@
 
 .global __default_sa_restorer
 .type __default_sa_restorer,%function
-.align 4
+.align 2
 __default_sa_restorer:
 	DO_CALL (sigreturn)
 
@@ -33,7 +33,7 @@ __default_sa_restorer:
 
 .global __default_rt_sa_restorer
 .type __default_rt_sa_restorer,%function
-.align 4
+.align 2
 __default_rt_sa_restorer:
 	DO_CALL (rt_sigreturn)
 

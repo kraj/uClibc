@@ -27,7 +27,7 @@
 
 .global setjmp
 .type setjmp,%function
-.align 4
+.align 2
 setjmp:
 	mov	r1, #1
 #ifdef __PIC__

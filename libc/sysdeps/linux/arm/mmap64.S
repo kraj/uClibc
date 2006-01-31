@@ -27,7 +27,7 @@
 .text
 .global mmap64
 .type mmap64,%function
-.align 4
+.align 2
 mmap64:
 
 #ifdef __ARM_EABI__

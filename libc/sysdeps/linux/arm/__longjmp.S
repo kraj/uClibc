@@ -25,7 +25,7 @@
 
 .global __longjmp
 .type __longjmp,%function
-.align 4
+.align 2
 __longjmp:
 	mov	ip, r0		/* save jmp_buf pointer */
 	

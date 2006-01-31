@@ -24,7 +24,7 @@
 
 .global __sigsetjmp
 .type __sigsetjmp,%function
-.align 4
+.align 2
 __sigsetjmp:
 	mov	ip, r0
 

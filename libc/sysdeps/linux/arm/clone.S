@@ -31,7 +31,7 @@
 .text
 .global clone
 .type clone,%function
-.align 4
+.align 2
 clone:
 	@ sanity check args
 	cmp	r0, #0
