@@ -8,16 +8,8 @@
 #ifdef IS_IN_libpthread
 #include "kernel-features.h"
 
-#ifndef _GNU_SOURCE
-# define _GNU_SOURCE
-#endif
-
 #ifndef __GLIBC_HAVE_LONG_LONG
 # define __GLIBC_HAVE_LONG_LONG
-#endif
-
-#ifndef __UCLIBC_HAS_XLOCALE__
-# define __uselocale(x)
 #endif
 
 #define __getpagesize getpagesize

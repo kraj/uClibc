@@ -50,7 +50,6 @@ pthread_SRC := \
 	rwlock semaphore sighandler signals specific spinlock
 pthread_SRC := $(patsubst %,$(libpthread_DIR)/%.c,$(pthread_SRC))
 
-#libpthread_shared_SRC := pt-allocrtsig
 libpthread_static_SRC := pthread_atfork
 libpthread_SRC := $(pthread_arch_SRC) $(pthread_linux_SRC) $(pthread_sysdep_SRC) $(pthread_SRC)
 libpthread_OBJ := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpthread_SRC))
@@ -69,14 +68,13 @@ libc-static-y += $(libpthread_OUT)/libc_pthread_init.o
 libc-shared-y += $(libpthread_libc_OBJ:.o=.oS)
 
 libpthread-static-y += $(patsubst %,$(libpthread_OUT)/%.o,$(libpthread_static_SRC))
-libpthread-shared-y += $(patsubst %,$(libpthread_OUT)/%.oS,$(libpthread_shared_SRC))
 
 ifeq ($(DOPIC),y)
 libpthread-a-y  += $(libpthread_OBJ:.o=.os) $(libpthread-static-y:.o=.os)
 else
 libpthread-a-y  += $(libpthread_OBJ) $(libpthread-static-y)
 endif
-libpthread-so-y += $(libpthread_OBJ:.o=.os) $(libpthread-shared-y)
+libpthread-so-y += $(libpthread_OBJ:.o=.os)
 
 lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
@@ -101,7 +99,7 @@ else
 endif
 	$(do_ar)
 
-$(libpthread_OUT)/libpthread.oS: $(libpthread_SRC) $(patsubst %,$(libpthread_DIR)/%.c,$(libpthread_shared_SRC))
+$(libpthread_OUT)/libpthread.oS: $(libpthread_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)

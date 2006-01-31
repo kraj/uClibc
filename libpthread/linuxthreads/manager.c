@@ -38,6 +38,9 @@
 #include <not-cancel.h>
 
 #define __clone clone
+#if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
+#define __uselocale(x) uselocale(x)
+#endif
 
 /* For debugging purposes put the maximum number of threads in a variable.  */
 const int __linuxthreads_pthread_threads_max = PTHREAD_THREADS_MAX;
@@ -291,7 +294,7 @@ pthread_start_thread(void *arg)
       __sched_setscheduler(THREAD_GETMEM(self, p_pid),
                            SCHED_OTHER, &default_params);
     }
-#if !(USE_TLS && HAVE___THREAD)
+#if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */
   __uselocale (LC_GLOBAL_LOCALE);

@@ -25,6 +25,13 @@
 #endif
 #include "internals.h"
 
+#ifdef SHARED
+libc_hidden_proto(memcpy)
+#endif
+#if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(uselocale)
+#endif
+
 int *
 __libc_pthread_init (functions)
      const struct pthread_functions *functions;
@@ -37,10 +44,10 @@ __libc_pthread_init (functions)
 	  sizeof (__libc_pthread_functions));
 #endif
 
-#if !(USE_TLS && HAVE___THREAD)
+#if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */
-  __uselocale (LC_GLOBAL_LOCALE);
+  uselocale (LC_GLOBAL_LOCALE);
 #endif
 
   return &__libc_multiple_threads;

@@ -18,9 +18,11 @@
    02111-1307 USA.  */
 
 #include <dlfcn.h>
-#include "internals.h"
 #include <stdlib.h>
 
+/* psm: keep this before internals.h */
+libc_hidden_proto(exit)
+#include "internals.h"
 
 /* Pointers to the libc functions.  */
 struct pthread_functions __libc_pthread_functions attribute_hidden;
