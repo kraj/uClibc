@@ -141,6 +141,11 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
      }								\
      (int) _sys_result; })
 #else
+#if 0
+/* This doesn't work because GCC uses r7 as a frame pointer in
+ * some cases and doesn't notice that the _r7 value changes
+ * it, resulting in mysterious crashes after the SWI.
+ */
 #define INTERNAL_SYSCALL(name, err, nr, args...)		\
   ({ unsigned int _sys_result;					\
      {								\
@@ -154,6 +159,28 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
        _sys_result = _a1;					\
      }								\
      (int) _sys_result; })
+#else
+/* So hide the use of r7 from the compiler, this would be a lot
+ * easier but for the fact that the syscalls can exceed 255.
+ * For the moment the LOAD_ARG_7 is sacrificed.
+ */
+#define INTERNAL_SYSCALL(name, err, nr, args...)		\
+  ({ unsigned int _sys_result;					\
+     {								\
+       register int _a1 asm ("a1");				\
+       LOAD_ARGS_##nr (args)					\
+       register int _v3 asm ("v3") = (int) (SYS_ify(name));	\
+       asm volatile ("push	{r7}\n"				\
+	       	     "\tmov	r7, v3\n"			\
+	       	     "\tswi	0	@ syscall " #name "\n"	\
+		     "\tpop	{r7}"				\
+		     : "=r" (_a1)				\
+		     : "r" (_v3) ASM_ARGS_##nr			\
+		     : "memory");				\
+       _sys_result = _a1;					\
+     }								\
+     (int) _sys_result; })
+#endif
 #endif
 #endif /* !defined(__ARM_EABI__) */
 
