@@ -26,7 +26,11 @@ __vfork:
 #ifdef __NR_vfork
 	DO_CALL (vfork)
 	cmn	r0, #4096
+#if defined(__THUMB_INTERWORK__)
+	bxcc	lr
+#else
 	movcc	pc, lr
+#endif
 
 	/* Check if vfork even exists.  */
 	ldr     r1, =-ENOSYS
@@ -39,7 +43,11 @@ __vfork:
 	cmn     r0, #4096
 
 	/* Syscall worked.  Return to child/parent */
+#if defined(__THUMB_INTERWORK__)
+	bxcc	lr
+#else
 	movcc   pc, lr
+#endif
 
 __error:
 	b	__syscall_error

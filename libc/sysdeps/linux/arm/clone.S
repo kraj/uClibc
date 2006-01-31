@@ -52,7 +52,11 @@ clone:
 	DO_CALL (clone)
 	movs	a1, a1
 	blt	__error
-	movne    pc, lr
+#if defined(__THUMB_INTERWORK__)
+	bxne	lr
+#else
+	movne	pc, lr
+#endif
 
 	@ pick the function arg and call address off the stack and execute
 	ldr	r0, [sp, #4]
