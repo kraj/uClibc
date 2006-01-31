@@ -1450,6 +1450,12 @@ config WARNINGS
 	help
 	  Set this to the set of gcc warnings you wish to see while compiling.
 
+config EXTRA_WARNINGS
+	bool "Enable extra annoying warnings"
+	default n
+	help
+	  If you wish to build with extra warnings enabled, say Y here.
+
 config DOMULTI
 	bool "Compile all sources at once into an object"
 	default n
