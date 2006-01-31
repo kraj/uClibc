@@ -350,13 +350,7 @@ extern int __pthread_mutex_destroy (pthread_mutex_t *__mutex);
 extern int __pthread_mutex_lock (pthread_mutex_t *__mutex);
 extern int __pthread_mutex_trylock (pthread_mutex_t *__mutex);
 extern int __pthread_mutex_unlock (pthread_mutex_t *__mutex);
-#if defined NOT_IN_libc && defined IS_IN_libpthread
-hidden_proto (__pthread_mutex_init)
-hidden_proto (__pthread_mutex_destroy)
-hidden_proto (__pthread_mutex_lock)
-hidden_proto (__pthread_mutex_trylock)
-hidden_proto (__pthread_mutex_unlock)
-#endif
+
 extern int __pthread_cond_init (pthread_cond_t *cond,
 				const pthread_condattr_t *cond_attr);
 extern int __pthread_cond_destroy (pthread_cond_t *cond);
@@ -480,30 +474,35 @@ extern void __pthread_cleanup_upto (__jmp_buf target,
 				    char *targetframe) attribute_hidden;
 extern pid_t __pthread_fork (struct fork_block *b) attribute_hidden;
 
+#define asm_handle(name) _asm_handle(name)
+#define _asm_handle(name) #name
+#define ASM_GLOBAL asm_handle(ASM_GLOBAL_DIRECTIVE)
+#define ASM_CANCEL(name) asm_handle(C_SYMBOL_NAME(name))
+
 #if !defined NOT_IN_libc
 # define LIBC_CANCEL_ASYNC() \
   __libc_enable_asynccancel ()
 # define LIBC_CANCEL_RESET(oldtype) \
   __libc_disable_asynccancel (oldtype)
 # define LIBC_CANCEL_HANDLED() \
-  __asm (".globl " __SYMBOL_PREFIX "__libc_enable_asynccancel"); \
-  __asm (".globl " __SYMBOL_PREFIX "__libc_disable_asynccancel")
+  __asm__ (ASM_GLOBAL " " ASM_CANCEL(__libc_enable_asynccancel)); \
+  __asm__ (ASM_GLOBAL " " ASM_CANCEL(__libc_disable_asynccancel))
 #elif defined IS_IN_libpthread
 # define LIBC_CANCEL_ASYNC() \
   __pthread_enable_asynccancel ()
 # define LIBC_CANCEL_RESET(oldtype) \
   __pthread_disable_asynccancel (oldtype)
 # define LIBC_CANCEL_HANDLED() \
-  __asm (".globl " __SYMBOL_PREFIX "__pthread_enable_asynccancel"); \
-  __asm (".globl " __SYMBOL_PREFIX "__pthread_disable_asynccancel")
+  __asm__ (ASM_GLOBAL " " ASM_CANCEL(__pthread_enable_asynccancel)); \
+  __asm__ (ASM_GLOBAL " " ASM_CANCEL(__pthread_disable_asynccancel))
 #elif defined IS_IN_librt
 # define LIBC_CANCEL_ASYNC() \
   __librt_enable_asynccancel ()
 # define LIBC_CANCEL_RESET(oldtype) \
   __librt_disable_asynccancel (oldtype)
 # define LIBC_CANCEL_HANDLED() \
-  __asm (".globl " __SYMBOL_PREFIX "__librt_enable_asynccancel"); \
-  __asm (".globl " __SYMBOL_PREFIX "__librt_disable_asynccancel")
+  __asm__ (ASM_GLOBAL " " ASM_CANCEL(__librt_enable_asynccancel)); \
+  __asm__ (ASM_GLOBAL " " ASM_CANCEL(__librt_disable_asynccancel))
 #else
 # define LIBC_CANCEL_ASYNC()    0 /* Just a dummy value.  */
 # define LIBC_CANCEL_RESET(val) ((void)(val)) /* Nothing, but evaluate it.  */

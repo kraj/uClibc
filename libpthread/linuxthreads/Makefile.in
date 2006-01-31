@@ -44,14 +44,14 @@ pthread_sysdep_SRC := $(patsubst %,$(libpthread_DIR)/sysdeps/pthread/%.c,$(pthre
 pthread_SRC := \
 	attr barrier cancel condvar errno events join pthread \
 	lockfile manager mutex pt-machine ptcleanup \
-	ptclock_gettime ptclock_settime ptfork pthandles pthread_atfork \
+	ptclock_gettime ptclock_settime ptfork pthandles \
 	pthread_setegid pthread_seteuid pthread_setgid pthread_setregid \
 	pthread_setresgid pthread_setresuid pthread_setreuid pthread_setuid \
 	rwlock semaphore sighandler signals specific spinlock
 pthread_SRC := $(patsubst %,$(libpthread_DIR)/%.c,$(pthread_SRC))
 
-libpthread_static_SRC := pt-allocrtsig
-libpthread_shared_SRC := pthread_atfork
+#libpthread_shared_SRC := pt-allocrtsig
+libpthread_static_SRC := pthread_atfork
 libpthread_SRC := $(pthread_arch_SRC) $(pthread_linux_SRC) $(pthread_sysdep_SRC) $(pthread_SRC)
 libpthread_OBJ := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpthread_SRC))
 
