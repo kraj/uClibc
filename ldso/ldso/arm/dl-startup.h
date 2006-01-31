@@ -4,8 +4,8 @@
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
 
-#if defined(__arm__)
-asm(
+#if !defined(__thumb__)
+__asm__(
     "	.text\n"
     "	.globl	_start\n"
     "	.type	_start,%function\n"
@@ -57,7 +57,7 @@ asm(
 	".previous\n"
 );
 #else
-asm(
+__asm__(
     "	.text\n"
     "	.arm\n"
     "	.globl	_start\n"
