@@ -21,7 +21,6 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include <sysdep.h>
 #include <sys/syscall.h>
 #include <linuxthreads/internals.h>
 

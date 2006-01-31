@@ -77,6 +77,7 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
 }
 
 
+PT_EI int get_eflags (void);
 PT_EI int
 get_eflags (void)
 {
@@ -86,6 +87,7 @@ get_eflags (void)
 }
 
 
+PT_EI void set_eflags (int newflags);
 PT_EI void
 set_eflags (int newflags)
 {
@@ -93,6 +95,7 @@ set_eflags (int newflags)
 }
 
 
+PT_EI int compare_and_swap_is_available (void);
 PT_EI int
 compare_and_swap_is_available (void)
 {

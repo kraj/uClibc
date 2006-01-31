@@ -20,7 +20,6 @@
 #include <setjmp.h>
 #include "pthread.h"
 #include "internals.h"
-#include <sysdep.h>
 #ifndef NO_PTR_DEMANGLE
 #include <jmpbuf-unwind.h>
 #define __JMPBUF_UNWINDS(a,b,c) _JMPBUF_UNWINDS(a,b,c)

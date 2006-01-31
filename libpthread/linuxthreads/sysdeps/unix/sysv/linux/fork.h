@@ -19,7 +19,6 @@
 
 #include <list.h>
 #include <bits/libc-lock.h>
-#include <sysdep.h>
 
 struct fork_block
 {

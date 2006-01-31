@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 
+int pthread_setuid_np (uid_t uid);
 int
 pthread_setuid_np (uid_t uid)
 {

@@ -5,7 +5,7 @@
 #include <sys/cdefs.h>
 #include <bits/uClibc_page.h>
 
-#if IS_IN_linuxthreads
+#ifdef IS_IN_libpthread
 #include "kernel-features.h"
 
 #ifndef _GNU_SOURCE
@@ -39,7 +39,7 @@
 extern void *__libc_stack_end;
 extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 
-#endif /* IS_IN_linuxthreads */
+#endif /* IS_IN_libpthread */
 
 /* Use a funky version in a probably vein attempt at preventing gdb 
  * from dlopen()'ing glibc's libthread_db library... */

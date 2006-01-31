@@ -40,8 +40,7 @@
 #endif
 
 /* mods for uClibc: __libc_sigaction is not in any standard headers */
-extern int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact);
-extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
+extern __typeof(sigaction) __libc_sigaction;
 
 #if !(USE_TLS && HAVE___THREAD)
 /* These variables are used by the setup code.  */

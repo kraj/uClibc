@@ -36,6 +36,7 @@ __h_errno_location (void)
   return THREAD_GETMEM (self, p_h_errnop);
 }
 
+#if 0
 /* Return thread specific resolver state.  */
 struct __res_state *
 __res_state (void)
@@ -43,4 +44,5 @@ __res_state (void)
   pthread_descr self = thread_self();
   return THREAD_GETMEM (self, p_resp);
 }
+#endif
 #endif

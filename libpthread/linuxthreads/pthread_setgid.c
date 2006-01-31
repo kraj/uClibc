@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 
+int pthread_setgid_np (gid_t gid);
 int
 pthread_setgid_np (gid_t gid)
 {

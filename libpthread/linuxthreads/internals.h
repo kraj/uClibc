@@ -372,7 +372,7 @@ extern pthread_t __pthread_self (void);
 extern pthread_descr __pthread_thread_self (void);
 extern pthread_descr __pthread_self_stack (void) attribute_hidden;
 extern int __pthread_equal (pthread_t thread1, pthread_t thread2);
-extern void __pthread_exit (void *retval);
+extern void __pthread_exit (void *retval) attribute_noreturn;
 extern int __pthread_getschedparam (pthread_t thread, int *policy,
 				    struct sched_param *param);
 extern int __pthread_setschedparam (pthread_t thread, int policy,
@@ -382,11 +382,11 @@ extern int __pthread_setcanceltype (int type, int * oldtype);
 
 extern void __pthread_restart_old(pthread_descr th);
 extern void __pthread_suspend_old(pthread_descr self);
-extern int __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abs);
+extern int __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime);
 
 extern void __pthread_restart_new(pthread_descr th);
 extern void __pthread_suspend_new(pthread_descr self);
-extern int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abs);
+extern int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstime);
 
 extern void __pthread_wait_for_restart_signal(pthread_descr self);
 
@@ -528,7 +528,9 @@ weak_extern (__pthread_thread_self)
 # define __manager_thread __pthread_manager_threadp
 #endif
 
-extern inline __attribute__((always_inline)) pthread_descr
+extern __always_inline pthread_descr
+check_thread_self (void);
+extern __always_inline pthread_descr
 check_thread_self (void)
 {
   pthread_descr self = thread_self ();
