@@ -97,6 +97,8 @@ endif
 
 ifneq ($(HAVE_SHARED),y)
 libc :=
+interp :=
+ldso :=
 endif
 
 ifndef CROSS
@@ -304,21 +306,28 @@ endif
 XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
 CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
 
-# Make sure "char" behavior is the same everywhere
-CPU_CFLAGS += -fsigned-char
+SSP_DISABLE_FLAGS ?= $(call check_gcc,-fno-stack-protector,)
+ifeq ($(UCLIBC_BUILD_SSP),y)
+SSP_CFLAGS := $(call check_gcc,-fno-stack-protector-all,)
+SSP_CFLAGS += $(call check_gcc,-fstack-protector,)
+SSP_ALL_CFLAGS ?= $(call check_gcc,-fstack-protector-all,)
+else
+SSP_CFLAGS := $(SSP_DISABLE_FLAGS)
+endif
 
-# only i386 is known to work if compile.S gets -D__ASSEMBLER__
-#CPU_CFLAGS += $(call check_gcc,-std=c99,)
+# Some nice CFLAGS to work with
+CFLAGS := -include $(top_builddir)include/libc-symbols.h \
+	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
+	-fno-builtin -nostdinc -I$(top_builddir)include -I.
 
 LDADD_LIBFLOAT=
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
-# Add -msoft-float to the CPU_FLAGS since ldso and libdl ignore CFLAGS.
 # If -msoft-float isn't supported, we want an error anyway.
 # Hmm... might need to revisit this for arm since it has 2 different
 # soft float encodings.
 ifneq ($(TARGET_ARCH),nios)
 ifneq ($(TARGET_ARCH),nios2)
-    CPU_CFLAGS += -msoft-float
+CFLAGS += -msoft-float
 endif
 endif
 ifeq ($(TARGET_ARCH),arm)
@@ -328,19 +337,16 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 endif
 
-SSP_DISABLE_FLAGS?=$(call check_gcc,-fno-stack-protector,)
-ifeq ($(UCLIBC_BUILD_SSP),y)
-SSP_CFLAGS:=$(call check_gcc,-fno-stack-protector-all,)
-SSP_CFLAGS+=$(call check_gcc,-fstack-protector,)
-SSP_ALL_CFLAGS?=$(call check_gcc,-fstack-protector-all,)
-else
-SSP_CFLAGS:=$(SSP_DISABLE_FLAGS)
+# Make sure "char" behavior is the same everywhere
+CFLAGS += -fsigned-char
+
+# We need this to be checked within libc-symbols.h
+ifneq ($(HAVE_SHARED),y)
+CFLAGS += -DSTATIC
 endif
 
-# Some nice CFLAGS to work with
-CFLAGS:=-include $(top_builddir)include/libc-symbols.h \
-	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-fno-builtin -nostdinc -I$(top_builddir)include -I.
+# only i386 is known to work if compile.S gets -D__ASSEMBLER__
+#CFLAGS += $(call check_gcc,-std=c99,)
 
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 
