@@ -471,7 +471,7 @@ void __pthread_manager_adjust_prio(int thread_prio);
 void __pthread_initialize_minimal (void);
 
 extern void __pthread_exit (void *retval)
-#if defined NOT_IN_libc && IS_IN_libpthread
+#if defined NOT_IN_libc && defined IS_IN_libpthread
 	attribute_noreturn
 #endif
 	;
