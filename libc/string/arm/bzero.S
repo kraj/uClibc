@@ -50,5 +50,3 @@ bzero:
 	b	HIDDEN_JUMPTARGET(memset)
 
 .size bzero,.-bzero
-
-libc_hidden_def(bzero)

@@ -61,7 +61,6 @@ ENTRY(bzero)
 	b		4f
 	 sub		%o0, %o2, %o0
 END(bzero)
-libc_hidden_def(bzero)
 
 ENTRY(memset)
 	and		%o1, 0xff, %g3

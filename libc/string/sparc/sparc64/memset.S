@@ -310,4 +310,3 @@ ENTRY(bzero)
 0:	retl
 	 mov		%o5, %o0
 END(bzero)
-libc_hidden_def(bzero)
