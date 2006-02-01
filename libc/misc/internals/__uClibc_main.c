@@ -51,19 +51,23 @@ libc_hidden_proto(__libc_fcntl)
 #ifndef SHARED
 void *__libc_stack_end=NULL;
 
-#ifdef __UCLIBC_HAS_SSP__
-#include <dl-osinfo.h>
-#ifndef THREAD_SET_STACK_GUARD
+# ifdef __UCLIBC_HAS_SSP__
+#  include <dl-osinfo.h>
+#  ifndef THREAD_SET_STACK_GUARD
 /* Only exported for architectures that don't store the stack guard canary
  * in thread local area. */
-#include <stdint.h>
+#   include <stdint.h>
 uintptr_t stack_chk_guard;
 /* for gcc-4.1 non-TLS */
 uintptr_t __stack_chk_guard attribute_relro;
 /* for gcc-3.x + Etoh ssp */
+#   ifdef __HAVE_SHARED__
 strong_alias(__stack_chk_guard,__guard)
-#endif
-#endif
+#   else
+uintptr_t __guard attribute_relro;
+#   endif
+#  endif
+# endif
 
 #endif /* !SHARED */
 
@@ -193,6 +197,9 @@ void __uClibc_init(void)
     THREAD_SET_STACK_GUARD (stack_chk_guard);
 #  else
     __stack_chk_guard = stack_chk_guard;
+#   ifndef __HAVE_SHARED__
+     __guard = stack_chk_guard;
+#   endif
 #  endif
 # endif
 #endif
