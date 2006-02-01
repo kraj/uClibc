@@ -294,10 +294,12 @@ pthread_start_thread(void *arg)
       __sched_setscheduler(THREAD_GETMEM(self, p_pid),
                            SCHED_OTHER, &default_params);
     }
-#if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
+#if !(USE_TLS && HAVE___THREAD)
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */
+#ifdef __UCLIBC_HAS_XLOCALE__
   __uselocale (LC_GLOBAL_LOCALE);
+#endif
 #else
   /* Initialize __resp.  */
   __resp = &self->p_res;
