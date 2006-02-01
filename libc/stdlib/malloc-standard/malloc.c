@@ -19,6 +19,7 @@
 
 #ifdef __UCLIBC_HAS_THREADS__
 pthread_mutex_t __malloc_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+libc_hidden_data_def(__malloc_lock)
 #endif
 
 /*
