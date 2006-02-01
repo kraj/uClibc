@@ -33,7 +33,7 @@ extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 /* Make sure gcc doesn't try to be clever and move things around on
    us. We need to use _exactly_ the address the user gave us, not some
    alias that contains the same information.  */
-#define __atomic_fool_gcc(x) (*(volatile struct { int a[100]; } *)x)
+#define __atomic_fool_gcc(x) (*(__volatile__ struct { int a[100]; } *)x)
 
 #ifndef ELF_MACHINE_NAME
 

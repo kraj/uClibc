@@ -136,7 +136,7 @@ TLS_DO_MODIFY_LDT_KERNEL_CHECK(						      \
     { nr, (unsigned long int) (descr), 0xfffff /* 4GB in pages */,	      \
       1, 0, 0, 1, 0, 1, 0 };						      \
   int result;								      \
-  asm volatile (TLS_LOAD_EBX						      \
+  __asm__ __volatile__ (TLS_LOAD_EBX						      \
 		"int $0x80\n\t"						      \
 		TLS_LOAD_EBX						      \
 		: "=a" (result)						      \
@@ -147,7 +147,7 @@ TLS_DO_MODIFY_LDT_KERNEL_CHECK(						      \
 		"m" (ldt_entry), TLS_EBX_ARG (1), "c" (&ldt_entry),	      \
 		"d" (sizeof (ldt_entry)));				      \
   __builtin_expect (result, 0) == 0					      \
-  ? ({ asm ("movw %w0, %%gs" : : "q" ((nr) * 8 + 7)); NULL; })		      \
+  ? ({ __asm__ ("movw %w0, %%gs" : : "q" ((nr) * 8 + 7)); NULL; })		      \
   : "cannot set up LDT for thread-local storage\n";			      \
 }))
 
@@ -159,9 +159,9 @@ TLS_DO_MODIFY_LDT_KERNEL_CHECK(						      \
   int result;								      \
   if (secondcall)							      \
     ldt_entry.entry_number = ({ int _gs;				      \
-				asm ("movw %%gs, %w0" : "=q" (_gs));	      \
+				__asm__ ("movw %%gs, %w0" : "=q" (_gs));	      \
 				(_gs & 0xffff) >> 3; });		      \
-  asm volatile (TLS_LOAD_EBX						      \
+  __asm__ __volatile__ (TLS_LOAD_EBX						      \
 		"int $0x80\n\t"						      \
 		TLS_LOAD_EBX						      \
 		: "=a" (result), "=m" (ldt_entry.entry_number)		      \
@@ -171,7 +171,7 @@ TLS_DO_MODIFY_LDT_KERNEL_CHECK(						      \
 		   here.  */						      \
 		TLS_EBX_ARG (&ldt_entry), "m" (ldt_entry));		      \
   if (__builtin_expect (result, 0) == 0)				      \
-    asm ("movw %w0, %%gs" : : "q" (ldt_entry.entry_number * 8 + 3));	      \
+    __asm__ ("movw %w0, %%gs" : : "q" (ldt_entry.entry_number * 8 + 3));	      \
   result;								      \
 })
 

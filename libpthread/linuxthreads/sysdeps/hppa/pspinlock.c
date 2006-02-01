@@ -27,7 +27,7 @@ __pthread_spin_lock (pthread_spinlock_t *lock)
   unsigned int val;
 
   do
-    asm volatile ("ldcw %1,%0"
+    __asm__ __volatile__ ("ldcw %1,%0"
 		  : "=r" (val), "=m" (*lock)
 		  : "m" (*lock));
   while (!val);
@@ -42,7 +42,7 @@ __pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   unsigned int val;
 
-  asm volatile ("ldcw %1,%0"
+  __asm__ __volatile__ ("ldcw %1,%0"
 		: "=r" (val), "=m" (*lock)
 		: "m" (*lock));
 

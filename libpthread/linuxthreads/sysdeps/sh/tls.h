@@ -91,7 +91,7 @@ typedef struct
 /* Install new dtv for current thread.  */
 #  define INSTALL_NEW_DTV(dtv) \
   ({ tcbhead_t *__tcbp;							      \
-     __asm __volatile ("stc gbr,%0" : "=r" (__tcbp));			      \
+     __asm__ __volatile__ ("stc gbr,%0" : "=r" (__tcbp));			      \
      __tcbp->dtv = (dtv);})
 
 /* Return dtv of given thread descriptor.  */
@@ -102,25 +102,25 @@ typedef struct
    special attention since 'errno' is not yet available and if the
    operation can cause a failure 'errno' must not be touched.  */
 #  define TLS_INIT_TP(tcbp, secondcall) \
-  ({ __asm __volatile ("ldc %0,gbr" : : "r" (tcbp)); 0; })
+  ({ __asm__ __volatile__ ("ldc %0,gbr" : : "r" (tcbp)); 0; })
 
 /* Return the address of the dtv for the current thread.  */
 #  define THREAD_DTV() \
   ({ tcbhead_t *__tcbp;							      \
-     __asm __volatile ("stc gbr,%0" : "=r" (__tcbp));			      \
+     __asm__ __volatile__ ("stc gbr,%0" : "=r" (__tcbp));			      \
      __tcbp->dtv;})
 
 /* Return the thread descriptor for the current thread.  */
 #  undef THREAD_SELF
 #  define THREAD_SELF \
   ({ struct _pthread_descr_struct *__self;				      \
-     __asm ("stc gbr,%0" : "=r" (__self));				      \
+     __asm__ ("stc gbr,%0" : "=r" (__self));				      \
      __self - 1;})
 
 #  undef INIT_THREAD_SELF
 #  define INIT_THREAD_SELF(descr, nr) \
   ({ struct _pthread_descr_struct *__self = (void *) descr;		      \
-     __asm __volatile ("ldc %0,gbr" : : "r" (__self + 1));		      \
+     __asm__ __volatile__ ("ldc %0,gbr" : : "r" (__self + 1));		      \
      0; })
 
 # define TLS_MULTIPLE_THREADS_IN_TCB 1
@@ -149,7 +149,7 @@ typedef struct
 #  define NONTLS_INIT_TP \
   do { 									\
     static const tcbhead_t nontls_init_tp = { .multiple_threads = 0 };	\
-    __asm __volatile ("ldc %0,gbr" : : "r" (&nontls_init_tp));	        \
+    __asm__ __volatile__ ("ldc %0,gbr" : : "r" (&nontls_init_tp));	        \
   } while (0)
 
 # endif /* __ASSEMBLER__ */

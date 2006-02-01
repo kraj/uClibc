@@ -25,7 +25,7 @@
 int
 __pthread_spin_lock (pthread_spinlock_t *lock)
 {
-  asm volatile
+  __asm__ __volatile__
     ("1: ldstub [%0], %%g2\n"
      "   orcc   %%g2, 0x0, %%g0\n"
      "   bne,a  2f\n"
@@ -48,7 +48,7 @@ int
 __pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   int result;
-  asm volatile
+  __asm__ __volatile__
     ("ldstub [%1], %0"
      : "=r" (result)
      : "r" (lock)

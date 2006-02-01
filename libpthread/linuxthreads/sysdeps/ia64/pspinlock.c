@@ -35,7 +35,7 @@ __pthread_spin_lock (pthread_spinlock_t *lock)
     {
       /* Spin without using the atomic instruction.  */
       do
-        __asm __volatile ("" : : : "memory");
+        __asm__ __volatile__ ("" : : : "memory");
       while (*p);
     }
   return 0;

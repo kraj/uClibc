@@ -40,16 +40,16 @@
 
 /* We use embedded asm for .section unconditionally, as this makes it
    easier to insert the necessary directives into crtn.S. */
-#define SECTION(x) asm (".section " x )
+#define SECTION(x) __asm__ (".section " x )
 
 /* Embed an #include to pull in the alignment and .end directives. */
-asm ("\n#include \"defs.h\"");
+__asm__ ("\n#include \"defs.h\"");
 
 /* The initial common code ends here. */
-asm ("\n/*@HEADER_ENDS*/");
+__asm__ ("\n/*@HEADER_ENDS*/");
 
 /* To determine whether we need .end and .align: */
-asm ("\n/*@TESTS_BEGIN*/");
+__asm__ ("\n/*@TESTS_BEGIN*/");
 extern void dummy (void (*foo) (void));
 void
 dummy (void (*foo) (void))
@@ -57,10 +57,10 @@ dummy (void (*foo) (void))
   if (foo)
     (*foo) ();
 }
-asm ("\n/*@TESTS_END*/");
+__asm__ ("\n/*@TESTS_END*/");
 
 /* The beginning of _init:  */
-asm ("\n/*@_init_PROLOG_BEGINS*/");
+__asm__ ("\n/*@_init_PROLOG_BEGINS*/");
 
 static void
 call_initialize_minimal (void)
@@ -78,18 +78,18 @@ _init (void)
   /* The very first thing we must do is to set up the registers.  */
   call_initialize_minimal ();
 
-  asm ("ALIGN");
-  asm("END_INIT");
+  __asm__ ("ALIGN");
+  __asm__("END_INIT");
   /* Now the epilog. */
-  asm ("\n/*@_init_PROLOG_ENDS*/");
-  asm ("\n/*@_init_EPILOG_BEGINS*/");
+  __asm__ ("\n/*@_init_PROLOG_ENDS*/");
+  __asm__ ("\n/*@_init_EPILOG_BEGINS*/");
   SECTION(".init");
 }
-asm ("END_INIT");
+__asm__ ("END_INIT");
 
 /* End of the _init epilog, beginning of the _fini prolog. */
-asm ("\n/*@_init_EPILOG_ENDS*/");
-asm ("\n/*@_fini_PROLOG_BEGINS*/");
+__asm__ ("\n/*@_init_EPILOG_ENDS*/");
+__asm__ ("\n/*@_fini_PROLOG_BEGINS*/");
 
 SECTION (".fini");
 extern void _fini (void);
@@ -98,9 +98,9 @@ _fini (void)
 {
 
   /* End of the _fini prolog. */
-  asm ("ALIGN");
-  asm ("END_FINI");
-  asm ("\n/*@_fini_PROLOG_ENDS*/");
+  __asm__ ("ALIGN");
+  __asm__ ("END_FINI");
+  __asm__ ("\n/*@_fini_PROLOG_ENDS*/");
 
   {
     /* Let GCC know that _fini is not a leaf function by having a dummy
@@ -111,14 +111,14 @@ _fini (void)
   }
 
   /* Beginning of the _fini epilog. */
-  asm ("\n/*@_fini_EPILOG_BEGINS*/");
+  __asm__ ("\n/*@_fini_EPILOG_BEGINS*/");
   SECTION (".fini");
 }
-asm ("END_FINI");
+__asm__ ("END_FINI");
 
 /* End of the _fini epilog.  Any further generated assembly (e.g. .ident)
    is shared between both crt files. */
-asm ("\n/*@_fini_EPILOG_ENDS*/");
-asm ("\n/*@TRAILER_BEGINS*/");
+__asm__ ("\n/*@_fini_EPILOG_ENDS*/");
+__asm__ ("\n/*@TRAILER_BEGINS*/");
 
 /* End of file. */

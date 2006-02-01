@@ -31,7 +31,7 @@ __pthread_spin_lock (pthread_spinlock_t *lock)
 {
   unsigned int tmp1, tmp2;
 
-  asm volatile
+  __asm__ __volatile__
     ("\t\t\t# spin_lock\n"
      "1:\n\t"
      ".set	push\n\t"
@@ -66,7 +66,7 @@ weak_alias (__pthread_spin_trylock, pthread_spin_trylock)
 int
 __pthread_spin_unlock (pthread_spinlock_t *lock)
 {
-  asm volatile
+  __asm__ __volatile__
     ("\t\t\t# spin_unlock\n\t"
      "sw	$0,%0"
      : "=m" (*lock)

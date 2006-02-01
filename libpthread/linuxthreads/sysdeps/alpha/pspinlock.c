@@ -35,7 +35,7 @@ int
 __pthread_spin_lock (pthread_spinlock_t *lock)
 {
   unsigned int tmp;
-  asm volatile
+  __asm__ __volatile__
     ("1:	ldl_l	%0,%1\n"
      "		blbs	%0,2f\n"
      "		or	%0,1,%0\n"
@@ -60,7 +60,7 @@ __pthread_spin_trylock (pthread_spinlock_t *lock)
   unsigned long int oldval;
   unsigned long int temp;
 
-  asm volatile
+  __asm__ __volatile__
     ("1:	ldl_l	%0,%1\n"
      "		and	%0,%3,%2\n"
      "		bne	%2,2f\n"
@@ -83,7 +83,7 @@ weak_alias (__pthread_spin_trylock, pthread_spin_trylock)
 int
 __pthread_spin_unlock (pthread_spinlock_t *lock)
 {
-  asm volatile ("mb");
+  __asm__ __volatile__ ("mb");
   return *lock = 0;
 }
 weak_alias (__pthread_spin_unlock, pthread_spin_unlock)

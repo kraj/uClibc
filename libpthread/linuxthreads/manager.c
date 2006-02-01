@@ -52,17 +52,17 @@ int __pthread_nonstandard_stacks;
 #endif
 
 /* Number of active entries in __pthread_handles (used by gdb) */
-volatile int __pthread_handles_num = 2;
+__volatile__ int __pthread_handles_num = 2;
 
 /* Whether to use debugger additional actions for thread creation
    (set to 1 by gdb) */
-volatile int __pthread_threads_debug;
+__volatile__ int __pthread_threads_debug;
 
 /* Globally enabled events.  */
-volatile td_thr_events_t __pthread_threads_events;
+__volatile__ td_thr_events_t __pthread_threads_events;
 
 /* Pointer to thread descriptor with last event.  */
-volatile pthread_descr __pthread_last_event;
+__volatile__ pthread_descr __pthread_last_event;
 
 static pthread_descr manager_thread;
 
@@ -87,7 +87,7 @@ static inline pthread_descr thread_segment(int seg)
 
 /* Flag set in signal handler to record child termination */
 
-static volatile int terminated_children;
+static __volatile__ int terminated_children;
 
 /* Flag set when the initial thread is blocked on pthread_exit waiting
    for all other threads to terminate */

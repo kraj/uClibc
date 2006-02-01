@@ -46,7 +46,7 @@ strong_alias (__pthread_cond_destroy, pthread_cond_destroy)
 
 static int cond_extricate_func(void *obj, pthread_descr th)
 {
-  volatile pthread_descr self = thread_self();
+  __volatile__ pthread_descr self = thread_self();
   pthread_cond_t *cond = obj;
   int did_remove = 0;
 
@@ -59,7 +59,7 @@ static int cond_extricate_func(void *obj, pthread_descr th)
 
 int __pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 {
-  volatile pthread_descr self = thread_self();
+  __volatile__ pthread_descr self = thread_self();
   pthread_extricate_if extr;
   int already_canceled = 0;
   int spurious_wakeup_count;
@@ -141,7 +141,7 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
 				pthread_mutex_t *mutex,
 				const struct timespec * abstime)
 {
-  volatile pthread_descr self = thread_self();
+  __volatile__ pthread_descr self = thread_self();
   int already_canceled = 0;
   pthread_extricate_if extr;
   int spurious_wakeup_count;

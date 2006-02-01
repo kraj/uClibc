@@ -97,7 +97,7 @@ void __pthread_do_exit(void *retval, char *currentframe)
 
 static int join_extricate_func(void *obj, pthread_descr th)
 {
-  volatile pthread_descr self = thread_self();
+  __volatile__ pthread_descr self = thread_self();
   pthread_handle handle = obj;
   pthread_descr jo;
   int did_remove = 0;
@@ -113,7 +113,7 @@ static int join_extricate_func(void *obj, pthread_descr th)
 
 int pthread_join(pthread_t thread_id, void ** thread_return)
 {
-  volatile pthread_descr self = thread_self();
+  __volatile__ pthread_descr self = thread_self();
   struct pthread_request request;
   pthread_handle handle = thread_handle(thread_id);
   pthread_descr th;

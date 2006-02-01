@@ -24,7 +24,7 @@
   register long __o0 __asm__ ("o0");					\
   register long __o1 __asm__ ("o1");					\
   register long __g1 __asm__ ("g1") = __NR_fork;			\
-  __asm __volatile (__SYSCALL_STRING					\
+  __asm__ __volatile__ (__SYSCALL_STRING					\
 		    : "=r" (__g1), "=r" (__o0), "=r" (__o1)		\
 		    : "0" (__g1)					\
 		    : __SYSCALL_CLOBBERS);				\

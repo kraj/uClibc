@@ -35,7 +35,7 @@
 int
 __pthread_spin_lock (pthread_spinlock_t *lock)
 {
-  asm volatile
+  __asm__ __volatile__
     ("\n"
      "1:\n\t"
      "lock; decl %0\n\t"
@@ -58,7 +58,7 @@ __pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   int oldval;
 
-  asm volatile
+  __asm__ __volatile__
     ("xchgl %0,%1"
      : "=r" (oldval), "=m" (*lock)
      : "0" (0));
@@ -70,7 +70,7 @@ weak_alias (__pthread_spin_trylock, pthread_spin_trylock)
 int
 __pthread_spin_unlock (pthread_spinlock_t *lock)
 {
-  asm volatile
+  __asm__ __volatile__
     ("movl $1,%0"
      : "=m" (*lock));
   return 0;

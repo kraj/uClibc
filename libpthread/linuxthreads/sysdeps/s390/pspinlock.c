@@ -34,7 +34,7 @@
 int
 __pthread_spin_lock (pthread_spinlock_t *lock)
 {
-  asm volatile("    basr  1,0\n"
+  __asm__ __volatile__("    basr  1,0\n"
 	       "0:  slr   0,0\n"
 	       "    cs    0,1,%1\n"
 	       "    jl    0b\n"
@@ -49,7 +49,7 @@ __pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   int oldval;
 
-  asm volatile("    slr   %1,%1\n"
+  __asm__ __volatile__("    slr   %1,%1\n"
 	       "    basr  1,0\n"
 	       "0:  cs    %1,1,%0"
 	       : "=m" (*lock), "=&d" (oldval)
@@ -62,7 +62,7 @@ weak_alias (__pthread_spin_trylock, pthread_spin_trylock)
 int
 __pthread_spin_unlock (pthread_spinlock_t *lock)
 {
-  asm volatile("    xc 0(4,%0),0(%0)\n"
+  __asm__ __volatile__("    xc 0(4,%0),0(%0)\n"
 	       "    bcr 15,0"
 	       : : "a" (lock) : "memory" );
   return 0;

@@ -161,13 +161,13 @@ extern int __pthread_exit_requested, __pthread_exit_code;
 
 /* Set to 1 by gdb if we're debugging */
 
-extern volatile int __pthread_threads_debug;
+extern __volatile__ int __pthread_threads_debug;
 
 /* Globally enabled events.  */
-extern volatile td_thr_events_t __pthread_threads_events;
+extern __volatile__ td_thr_events_t __pthread_threads_events;
 
 /* Pointer to descriptor of thread with last event.  */
-extern volatile pthread_descr __pthread_last_event;
+extern __volatile__ pthread_descr __pthread_last_event;
 
 /* Flag which tells whether we are executing on SMP kernel. */
 extern int __pthread_smp_kernel;
@@ -229,7 +229,7 @@ static inline int nonexisting_handle(pthread_handle h, pthread_t id)
    distinguish between full, read and write barriers.  */
 
 #ifndef MEMORY_BARRIER
-#define MEMORY_BARRIER() asm ("" : : : "memory")
+#define MEMORY_BARRIER() __asm__ ("" : : : "memory")
 #endif
 #ifndef READ_MEMORY_BARRIER
 #define READ_MEMORY_BARRIER() MEMORY_BARRIER()

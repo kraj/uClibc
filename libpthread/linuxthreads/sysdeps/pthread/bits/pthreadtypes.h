@@ -128,7 +128,7 @@ typedef struct
 
 #ifdef __USE_XOPEN2K
 /* POSIX spinlock data type.  */
-typedef volatile int pthread_spinlock_t;
+typedef __volatile__ int pthread_spinlock_t;
 
 /* POSIX barrier. */
 typedef struct {

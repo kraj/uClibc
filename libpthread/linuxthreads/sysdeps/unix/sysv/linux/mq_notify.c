@@ -87,7 +87,7 @@ notification_function (void *arg)
 {
   /* Copy the function and parameter so that the parent thread can go
      on with its life.  */
-  volatile union notify_data *data = (volatile union notify_data *) arg;
+  __volatile__ union notify_data *data = (__volatile__ union notify_data *) arg;
   void (*fct) (union sigval) = data->fct;
   union sigval param = data->param;
 

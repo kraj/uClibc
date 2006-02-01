@@ -26,7 +26,7 @@
 int
 __pthread_spin_lock (pthread_spinlock_t *lock)
 {
-  asm volatile
+  __asm__ __volatile__
     ("1: ldstub  [%0], %%g2\n"
      "   brnz,pn %%g2, 2f\n"
      "    membar #StoreLoad | #StoreStore\n"
@@ -48,7 +48,7 @@ int
 __pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   int result;
-  asm volatile
+  __asm__ __volatile__
     ("ldstub [%1], %0\n"
      "membar #StoreLoad | #StoreStore"
      : "=r" (result)
@@ -62,7 +62,7 @@ weak_alias (__pthread_spin_trylock, pthread_spin_trylock)
 int
 __pthread_spin_unlock (pthread_spinlock_t *lock)
 {
-  asm volatile
+  __asm__ __volatile__
     ("membar #StoreStore | #LoadStore\n"
      "stb    %%g0, [%0]"
      :

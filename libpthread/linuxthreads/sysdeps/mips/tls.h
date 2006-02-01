@@ -39,7 +39,7 @@ typedef union dtv
 
 # define READ_THREAD_POINTER() \
     ({ void *__result;							      \
-       asm volatile (".set\tpush\n\t.set\tmips32r2\n\t"			      \
+       __asm__ __volatile__ (".set\tpush\n\t.set\tmips32r2\n\t"			      \
 		     "rdhwr\t%0, $29\n\t.set\tpop" : "=v" (__result));	      \
        __result; })
 

@@ -141,7 +141,7 @@ strong_alias(__pthread_sigaction, sigaction)
 /* sigwait -- synchronously wait for a signal */
 int __pthread_sigwait(const sigset_t * set, int * sig)
 {
-  volatile pthread_descr self = thread_self();
+  __volatile__ pthread_descr self = thread_self();
   sigset_t mask;
   int s;
   sigjmp_buf jmpbuf;

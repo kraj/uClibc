@@ -44,7 +44,7 @@ int sem_init(sem_t *sem, int pshared, unsigned int value)
 
 static int new_sem_extricate_func(void *obj, pthread_descr th)
 {
-  volatile pthread_descr self = thread_self();
+  __volatile__ pthread_descr self = thread_self();
   sem_t *sem = obj;
   int did_remove = 0;
 
@@ -57,7 +57,7 @@ static int new_sem_extricate_func(void *obj, pthread_descr th)
 
 int sem_wait(sem_t * sem)
 {
-  volatile pthread_descr self = thread_self();
+  __volatile__ pthread_descr self = thread_self();
   pthread_extricate_if extr;
   int already_canceled = 0;
   int spurious_wakeup_count;
