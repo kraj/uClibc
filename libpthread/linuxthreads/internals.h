@@ -366,7 +366,11 @@ extern pthread_t __pthread_self (void);
 extern pthread_descr __pthread_thread_self (void);
 extern pthread_descr __pthread_self_stack (void) attribute_hidden;
 extern int __pthread_equal (pthread_t thread1, pthread_t thread2);
-extern void __pthread_exit (void *retval) attribute_noreturn;
+extern void __pthread_exit (void *retval)
+#if defined NOT_IN_libc && defined IS_IN_libpthread
+	attribute_noreturn
+#endif
+	;
 extern int __pthread_getschedparam (pthread_t thread, int *policy,
 				    struct sched_param *param);
 extern int __pthread_setschedparam (pthread_t thread, int policy,
