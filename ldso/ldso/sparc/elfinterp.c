@@ -308,6 +308,8 @@ reloc_addr[0] = OPCODE_SETHI_G1 | (value >> 10);
 	return 0;
 }
 
+#undef __SPARC_LAZY_RELOC_WORKS
+#ifdef __SPARC_LAZY_RELOC_WORKS
 static int
 _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		  ELF_RELOC *rpnt, ElfW(Sym) *symtab, char *strtab)
@@ -347,14 +349,18 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	return 0;
 }
+#endif
 
 void
 _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 				      unsigned long rel_addr,
 				      unsigned long rel_size)
 {
-//	(void)_dl_parse(rpnt->dyn, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
+#ifdef __SPARC_LAZY_RELOC_WORKS
+	(void)_dl_parse(rpnt->dyn, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
+#else
 	_dl_parse_relocation_information(rpnt, rel_addr, rel_size);
+#endif
 }
 
 int
