@@ -97,7 +97,7 @@ void (*obstack_alloc_failed_handler) (void) = print_and_abort;
 static void print_and_abort ();
 void (*obstack_alloc_failed_handler) () = print_and_abort;
 # endif
-libc_hidden_def(obstack_alloc_failed_handler)
+libc_hidden_data_def(obstack_alloc_failed_handler)
 
 
 /* Exit value used when `print_and_abort' is used.  */
@@ -118,7 +118,7 @@ libc_hidden_proto(fwprintf)
 
 libc_hidden_proto(obstack_exit_failure)
 int obstack_exit_failure = EXIT_FAILURE;
-libc_hidden_def(obstack_exit_failure)
+libc_hidden_data_def(obstack_exit_failure)
 
 /* The non-GNU-C macros copy the obstack into this global variable
    to avoid multiple evaluation.  */

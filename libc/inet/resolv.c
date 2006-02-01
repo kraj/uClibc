@@ -237,6 +237,7 @@ extern char * __searchdomain[MAX_SEARCH] attribute_hidden;
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
 extern pthread_mutex_t __resolv_lock;
+libc_hidden_proto(__resolv_lock)
 #endif
 #define BIGLOCK	__pthread_mutex_lock(&__resolv_lock)
 #define BIGUNLOCK	__pthread_mutex_unlock(&__resolv_lock)
@@ -1021,6 +1022,7 @@ char * __searchdomain[MAX_SEARCH];
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
 pthread_mutex_t __resolv_lock = PTHREAD_MUTEX_INITIALIZER;
+libc_hidden_data_def(__resolv_lock)
 #endif
 
 /*

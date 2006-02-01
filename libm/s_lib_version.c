@@ -38,4 +38,4 @@ _LIB_VERSION_TYPE _LIB_VERSION = _IEEE_;
 #endif
 #endif
 #endif
-libm_hidden_def(_LIB_VERSION)
+libm_hidden_data_def(_LIB_VERSION)

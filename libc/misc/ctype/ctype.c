@@ -856,16 +856,16 @@ const __ctype_mask_t __C_ctype_b_data[] = {
 	/*  254  M-~  */ 0,
 	/*  255  M-^? */ 0
 };
-libc_hidden_def(__C_ctype_b_data)
+libc_hidden_data_def(__C_ctype_b_data)
 
 libc_hidden_proto(__C_ctype_b)
 const __ctype_mask_t *__C_ctype_b = __C_ctype_b_data + __UCLIBC_CTYPE_B_TBL_OFFSET;
-libc_hidden_def(__C_ctype_b)
+libc_hidden_data_def(__C_ctype_b)
 
 #ifndef __UCLIBC_HAS_XLOCALE__
 
 const __ctype_mask_t *__ctype_b = __C_ctype_b_data + __UCLIBC_CTYPE_B_TBL_OFFSET;
-libc_hidden_def(__ctype_b)
+libc_hidden_data_def(__ctype_b)
 
 #endif
 
@@ -975,19 +975,19 @@ const __ctype_touplow_t __C_ctype_tolower_data[] = {
 	 248,          249,          250,          251,
 	 252,          253,          254,          255
 };
-libc_hidden_def(__C_ctype_tolower_data)
+libc_hidden_data_def(__C_ctype_tolower_data)
 
 libc_hidden_proto(__C_ctype_tolower)
 const __ctype_touplow_t *__C_ctype_tolower = __C_ctype_tolower_data
 											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
-libc_hidden_def(__C_ctype_tolower)
+libc_hidden_data_def(__C_ctype_tolower)
 
 #ifndef __UCLIBC_HAS_XLOCALE__
 
 libc_hidden_proto(__ctype_tolower)
 const __ctype_touplow_t *__ctype_tolower = __C_ctype_tolower_data
 											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
-libc_hidden_def(__ctype_tolower)
+libc_hidden_data_def(__ctype_tolower)
 
 #endif
 
@@ -1097,19 +1097,19 @@ const __ctype_touplow_t __C_ctype_toupper_data[] = {
 	 248,          249,          250,          251,
 	 252,          253,          254,          255
 };
-libc_hidden_def(__C_ctype_toupper_data)
+libc_hidden_data_def(__C_ctype_toupper_data)
 
 libc_hidden_proto(__C_ctype_toupper)
 const __ctype_touplow_t *__C_ctype_toupper = __C_ctype_toupper_data
 											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
-libc_hidden_def(__C_ctype_toupper)
+libc_hidden_data_def(__C_ctype_toupper)
 
 #ifndef __UCLIBC_HAS_XLOCALE__
 
 libc_hidden_proto(__ctype_toupper)
 const __ctype_touplow_t *__ctype_toupper = __C_ctype_toupper_data
 											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
-libc_hidden_def(__ctype_toupper)
+libc_hidden_data_def(__ctype_toupper)
 
 #endif
 

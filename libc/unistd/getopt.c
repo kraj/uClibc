@@ -84,7 +84,7 @@ extern int _getopt_internal (int argc, char *const *argv, const char *optstring,
    each non-option ARGV-element is returned here.  */
 
 char *optarg = NULL;
-libc_hidden_def(optarg)
+libc_hidden_data_def(optarg)
 
 /* Index in ARGV of the next element to be scanned.
    This is used for communication to and from the caller
@@ -100,20 +100,20 @@ libc_hidden_def(optarg)
 
 /* 1003.2 says this must be 1 before any call.  */
 int optind = 1;
-libc_hidden_def(optind)
+libc_hidden_data_def(optind)
 
 /* Callers store zero here to inhibit the error message
    for unrecognized options.  */
 
 int opterr = 1;
-libc_hidden_def(opterr)
+libc_hidden_data_def(opterr)
 
 /* Set to an option character which was unrecognized.
    This must be initialized on some systems to avoid linking in the
    system's own getopt implementation.  */
 
 int optopt = '?';
-libc_hidden_def(optopt)
+libc_hidden_data_def(optopt)
 
 /* The next char to be scanned in the option-element
    in which the last option character we returned was found.

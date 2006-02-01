@@ -1269,7 +1269,7 @@ const unsigned char __iconv_codesets[] =
 	"\x08\x02""UTF-8\x00"
 	"\x0b\x01""US-ASCII\x00"
 	"\x07\x01""ASCII";			/* Must be last! (special case to save a nul) */
-libc_hidden_def(__iconv_codesets)
+libc_hidden_data_def(__iconv_codesets)
 
 libc_hidden_proto(strcasecmp)
 

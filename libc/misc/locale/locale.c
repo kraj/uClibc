@@ -377,12 +377,12 @@ libc_hidden_proto(__ctype_toupper)
 __uclibc_locale_t __global_locale_data;
 
 __locale_t __global_locale = &__global_locale_data;
-libc_hidden_def(__global_locale)
+libc_hidden_data_def(__global_locale)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__curlocale_var)
 __locale_t __curlocale_var = &__global_locale_data;
-libc_hidden_def(__curlocale_var)
+libc_hidden_data_def(__curlocale_var)
 #endif
 
 /*----------------------------------------------------------------------*/

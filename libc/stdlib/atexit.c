@@ -49,6 +49,7 @@ libc_hidden_proto(_exit)
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
 extern pthread_mutex_t mylock;
+libc_hidden_proto(mylock)
 #endif
 #define LOCK	__pthread_mutex_lock(&mylock)
 #define UNLOCK	__pthread_mutex_unlock(&mylock)
@@ -314,6 +315,7 @@ extern void weak_function _stdio_term(void) attribute_hidden;
 attribute_hidden void (*__exit_cleanup) (int) = 0;
 #ifdef __UCLIBC_HAS_THREADS__
 pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+libc_hidden_data_def(mylock)
 #endif
 
 #ifdef __UCLIBC_CTOR_DTOR__

@@ -97,7 +97,7 @@ strong_alias (__progname_full, program_invocation_name)
  */
 libc_hidden_proto(__environ)
 char **__environ = 0;
-libc_hidden_def(__environ)
+libc_hidden_data_def(__environ)
 /* psm: arm segfaults with strong_alias, although defined */
 weak_alias(__environ,environ)
 
@@ -105,7 +105,7 @@ weak_alias(__environ,environ)
 extern size_t __pagesize;
 libc_hidden_proto(__pagesize)
 size_t __pagesize = 0;
-libc_hidden_def(__pagesize)
+libc_hidden_data_def(__pagesize)
 
 #ifndef O_NOFOLLOW
 # define O_NOFOLLOW	0

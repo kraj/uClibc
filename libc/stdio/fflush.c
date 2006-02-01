@@ -16,6 +16,7 @@ libc_hidden_proto(fflush_unlocked)
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __UCLIBC_HAS_THREADS__
+libc_hidden_proto(_stdio_user_locking)
 /* Even if the stream is set to user-locking, we still need to lock
  * when all (lbf) writing streams are flushed. */
 #define MY_STDIO_THREADLOCK(STREAM) \
