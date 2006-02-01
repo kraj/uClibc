@@ -13,7 +13,7 @@ libc_hidden_proto(brk)
 
 /* Defined in brk.c.  */
 extern void *__curbrk;
-
+libc_hidden_proto(__curbrk)
 
 /* Extend the process's data space by INCREMENT.
    If INCREMENT is negative, shrink data space by - INCREMENT.

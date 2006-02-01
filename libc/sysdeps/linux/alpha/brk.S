@@ -36,6 +36,7 @@ __curbrk: .skip 8
 #else
 .comm __curbrk, 8
 #endif
+libc_hidden_data_def(__curbrk)
 
 	.text
 .globl  brk;

@@ -23,7 +23,10 @@
 
 libc_hidden_proto(brk)
 
+extern void *__curbrk;
+libc_hidden_proto(__curbrk)
 void *__curbrk = 0;
+libc_hidden_data_def(__curbrk)
 
 int brk (void *addr)
 {

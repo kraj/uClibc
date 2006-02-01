@@ -58,4 +58,6 @@ brk:
 	.size brk,.-brk
 
 libc_hidden_def(brk)
+/* won't help too much, HIDDEN_JUMPTARGET should be used here as well, now the reloc remains */
+libc_hidden_data_def(__curbrk)
 #endif	

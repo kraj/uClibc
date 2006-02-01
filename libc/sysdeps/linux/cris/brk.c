@@ -12,8 +12,10 @@
 libc_hidden_proto(brk)
 
 extern void * __curbrk;
+libc_hidden_proto(__curbrk)
 
 extern int __init_brk (void);
+libc_hidden_proto(__initbrk)
 
 int brk(void * end_data_seg)
 {
