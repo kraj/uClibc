@@ -267,12 +267,6 @@
     = msg;
 #endif
 
-/* A canned warning for sysdeps/stub functions.  */
-#define	stub_warning(name) \
-  __make_section_unallocated (".gnu.uClibc-stub." #name) \
-  link_warning (name, \
-		"warning: " #name " is not implemented and will always fail")
-
 /* Handling on non-exported internal names.  We have to do this only
    for shared code.  */
 #ifdef SHARED
@@ -394,7 +388,7 @@
 # define __hidden_proto_hiddenattr(attrs...)
 #endif
 
-#if 1 /* SHARED */
+#ifndef STATIC
 # ifndef __ASSEMBLER__
 #  define hidden_proto(name, attrs...) __hidden_proto (name, __GI_##name, ##attrs)
 #  define __hidden_proto(name, internal, attrs...) \
