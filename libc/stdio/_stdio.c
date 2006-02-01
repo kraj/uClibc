@@ -127,7 +127,7 @@ static FILE _stdio_streams[] = {
 
 /* psm: moved to _stdio.h: libc_hidden_proto(stdin/stdout) */
 FILE *stdin  = _stdio_streams;
-libc_hidden_def(stdin)
+libc_hidden_data_def(stdin)
 FILE *stdout = _stdio_streams + 1;
 libc_hidden_data_def(stdout)
 libc_hidden_proto(stderr)
