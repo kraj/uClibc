@@ -1,14 +1,54 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-# order is relevant
--include $(top_srcdir)libc/string/$(TARGET_ARCH)/Makefile.arch
-include $(top_srcdir)libc/string/generic/Makefile.in
+#
+# Arch specific fun
+#
+STRING_ARCH_DIR:=$(top_srcdir)libc/string/$(TARGET_ARCH)
+STRING_ARCH_OUT:=$(top_builddir)libc/string/$(TARGET_ARCH)
 
+STRING_ARCH_SRC:=$(wildcard $(STRING_ARCH_DIR)/*.c)
+STRING_ARCH_OBJ:=$(patsubst $(STRING_ARCH_DIR)/%.c,$(STRING_ARCH_OUT)/%.o,$(STRING_ARCH_SRC))
+
+STRING_ARCH_SSRC:=$(wildcard $(STRING_ARCH_DIR)/*.S)
+STRING_ARCH_SOBJ:=$(patsubst $(STRING_ARCH_DIR)/%.S,$(STRING_ARCH_OUT)/%.o,$(STRING_ARCH_SSRC))
+
+STRING_ARCH_OBJS:=$(STRING_ARCH_OBJ) $(STRING_ARCH_SOBJ)
+
+libc-a-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS)
+libc-so-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS:.o=.os)
+
+libc-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_SRC)
+libc-nomulti-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_SOBJ)
+
+#
+# Generic stuff
+#
+STRING_GENERIC_DIR:=$(top_srcdir)libc/string/generic
+STRING_GENERIC_OUT:=$(top_builddir)libc/string/generic
+
+STRING_GENERIC_SRC:=$(wildcard $(STRING_GENERIC_DIR)/*.c)
+
+ifeq ($(UCLIBC_HAS_STRING_ARCH_OPT),y)
+ifneq ($(strip $(STRING_ARCH_OBJS)),)
+STRING_GENERIC_SRC:=$(filter-out $(patsubst %.o,$(STRING_GENERIC_DIR)/%.c,$(notdir $(STRING_ARCH_OBJS))),$(STRING_GENERIC_SRC))
+endif
+endif
+
+STRING_GENERIC_OBJS:=$(patsubst $(STRING_GENERIC_DIR)/%.c,$(STRING_GENERIC_OUT)/%.o,$(STRING_GENERIC_SRC))
+
+libc-a-$(UCLIBC_HAS_STRING_GENERIC_OPT)+=$(STRING_GENERIC_OBJS)
+libc-so-$(UCLIBC_HAS_STRING_GENERIC_OPT)+=$(STRING_GENERIC_OBJS:.o=.os)
+
+libc-multi-$(UCLIBC_HAS_STRING_GENERIC_OPT)+=$(STRING_GENERIC_SRC)
+
+#
+# Top level string
+#
 STRING_DIR:=$(top_srcdir)libc/string
 STRING_OUT:=$(top_builddir)libc/string
 
