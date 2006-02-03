@@ -157,6 +157,7 @@ extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
 extern int getopt ();
 #endif /* __GNU_LIBRARY__ */
 
+#ifdef __UCLIBC_HAS_GNU_GETOPT__
 #ifndef __need_getopt
 extern int getopt_long (int ___argc, char *const *___argv,
 			const char *__shortopts,
@@ -167,6 +168,7 @@ extern int getopt_long_only (int ___argc, char *const *___argv,
 		             const struct option *__longopts, int *__longind)
        __THROW;
 
+#endif
 #endif
 
 #ifdef	__cplusplus
