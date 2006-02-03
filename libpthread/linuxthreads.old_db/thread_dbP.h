@@ -33,8 +33,8 @@ enum
 
 /* Comment out the following for less verbose output.  */
 #ifndef NDEBUG
-# define LOG(c) if (__td_debug) __libc_write (2, c "\n", strlen (c "\n"))
-extern int __td_debug;
+# define LOG(c) if (__td_debug) write (2, c "\n", strlen (c "\n"))
+extern int __td_debug attribute_hidden;
 #else
 # define LOG(c)
 #endif

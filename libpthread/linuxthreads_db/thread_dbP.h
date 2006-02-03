@@ -32,7 +32,7 @@ enum
 /* Comment out the following for less verbose output.  */
 #ifndef NDEBUG
 # define LOG(c) if (__td_debug) write (2, c "\n", strlen (c "\n"))
-extern int __td_debug;
+extern int __td_debug attribute_hidden;
 #else
 # define LOG(c)
 #endif
