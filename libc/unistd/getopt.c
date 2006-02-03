@@ -67,10 +67,6 @@ libc_hidden_proto(strlen)
 libc_hidden_proto(strncmp)
 libc_hidden_proto(getenv)
 libc_hidden_proto(fprintf)
-libc_hidden_proto(optarg)
-libc_hidden_proto(opterr)
-libc_hidden_proto(optind)
-libc_hidden_proto(optopt)
 libc_hidden_proto(stderr)
 
 extern int _getopt_internal (int argc, char *const *argv, const char *optstring, 
@@ -83,6 +79,7 @@ extern int _getopt_internal (int argc, char *const *argv, const char *optstring,
    Also, when `ordering' is RETURN_IN_ORDER,
    each non-option ARGV-element is returned here.  */
 
+libc_hidden_proto(optarg)
 char *optarg = NULL;
 libc_hidden_data_def(optarg)
 
@@ -99,12 +96,14 @@ libc_hidden_data_def(optarg)
    how much of ARGV has been scanned so far.  */
 
 /* 1003.2 says this must be 1 before any call.  */
+libc_hidden_proto(optind)
 int optind = 1;
 libc_hidden_data_def(optind)
 
 /* Callers store zero here to inhibit the error message
    for unrecognized options.  */
 
+libc_hidden_proto(opterr)
 int opterr = 1;
 libc_hidden_data_def(opterr)
 
@@ -112,6 +111,7 @@ libc_hidden_data_def(opterr)
    This must be initialized on some systems to avoid linking in the
    system's own getopt implementation.  */
 
+libc_hidden_proto(optopt)
 int optopt = '?';
 libc_hidden_data_def(optopt)
 
@@ -327,7 +327,7 @@ static const char *_getopt_initialize (attribute_unused int argc, attribute_unus
    If LONG_ONLY is nonzero, '-' as well as '--' can introduce
    long-named options.  */
 
-int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *optstring, 
+int _getopt_internal (int argc, char *const *argv, const char *optstring, 
 	const struct option *longopts, int *longind, int long_only)
 {
     int print_errors = opterr;
