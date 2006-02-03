@@ -34,7 +34,11 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifndef __BCC__
 libc_hidden_proto(fprintf)
+libc_hidden_proto(strchr)
+libc_hidden_proto(stderr)
+#endif
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Enable gettext awareness.
@@ -88,7 +92,7 @@ int getopt(int argc, char * const argv[], const char *optstring)
 #endif
 	retval = (unsigned char) *o; /* Avoid problems for char val of -1. */
 
-	if ((*o == ':') || !(s = __strchr(optstring, *o))) { /* Illegal option? */
+	if ((*o == ':') || !(s = strchr(optstring, *o))) { /* Illegal option? */
 		s = illegal;
 		retval = '?';
 		goto BAD;
