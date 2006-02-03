@@ -34,11 +34,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifndef __BCC__
 libc_hidden_proto(fprintf)
 libc_hidden_proto(strchr)
 libc_hidden_proto(stderr)
-#endif
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Enable gettext awareness.
