@@ -46,4 +46,4 @@ __libc_fork:
 
 .size __libc_fork,.-__libc_fork
 weak_alias(__libc_fork,fork)
-libc_hidden_def(fork)
+libc_hidden_weak(fork)

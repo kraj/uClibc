@@ -17,6 +17,6 @@ extern __typeof(fork) __libc_fork;
 _syscall0(pid_t, __libc_fork);
 libc_hidden_proto(fork)
 weak_alias(__libc_fork,fork)
-libc_hidden_def(fork)
+libc_hidden_weak(fork)
 #endif
 #endif

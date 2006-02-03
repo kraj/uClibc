@@ -16,4 +16,4 @@ SYSCALL__ (__libc_fork, 0)
 __asm__("ret\n\tnop");
 libc_hidden_proto(fork)
 weak_alias(__libc_fork,fork)
-libc_hidden_def(fork)
+libc_hidden_weak(fork)
