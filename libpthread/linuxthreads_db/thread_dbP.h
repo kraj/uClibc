@@ -103,6 +103,6 @@ ta_ok (const td_thragent_t *ta)
 
 
 /* Internal wrapper around ps_pglobal_lookup.  */
-extern int td_lookup (struct ps_prochandle *ps, int idx, psaddr_t *sym_addr);
+extern int td_lookup (struct ps_prochandle *ps, int idx, psaddr_t *sym_addr) attribute_hidden;
 
 #endif /* thread_dbP.h */
