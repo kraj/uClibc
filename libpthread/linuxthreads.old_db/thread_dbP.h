@@ -86,7 +86,7 @@ struct agent_list
 };
 
 /* List of all known descriptors.  */
-extern struct agent_list *__td_agent_list;
+extern struct agent_list *__td_agent_list attribute_hidden;
 
 /* Function used to test for correct thread agent pointer.  */
 static inline int
