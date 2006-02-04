@@ -42,6 +42,11 @@ DIR *opendir(const char *name)
 #endif
 	if ((fd = open(name, O_RDONLY|O_NDELAY|O_DIRECTORY)) < 0)
 		return NULL;
+	/* Note: we should check to make sure that between the stat() and open()
+	 * call, 'name' didnt change on us, but that's only if O_DIRECTORY isnt
+	 * defined and since Linux has supported it for like ever, i'm not going
+	 * to worry about it right now (if ever). */
+
 	/* According to POSIX, directory streams should be closed when
 	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
 	 */
