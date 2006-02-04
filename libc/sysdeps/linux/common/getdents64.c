@@ -86,7 +86,7 @@ ssize_t attribute_hidden __getdents64 (int fd, char *buf, size_t nbytes)
 	dp->d_ino = kdp->d_ino;
 	dp->d_off = kdp->d_off;
 	dp->d_reclen = new_reclen;
-	dp->d_type = DT_UNKNOWN;
+	dp->d_type = kdp->d_type;
 	memcpy (dp->d_name, kdp->d_name,
 		kdp->d_reclen - offsetof (struct kernel_dirent64, d_name));
 	dp = (struct dirent64 *) ((char *) dp + new_reclen);
