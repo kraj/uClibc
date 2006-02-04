@@ -363,8 +363,10 @@ static void pthread_initialize(void)
 {
   struct sigaction sa;
   sigset_t mask;
+#ifdef __ARCH_HAS_MMU__
   struct rlimit limit;
   rlim_t max_stack;
+#endif
 
   /* If already done (e.g. by a constructor called earlier!), bail out */
   if (__pthread_initial_thread_bos != NULL) return;
