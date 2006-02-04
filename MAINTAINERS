@@ -62,6 +62,10 @@ HPPA
 S:	Unmaintained
 
 
+IA64
+S:	Unmaintained
+
+
 I386
 N:	Erik Andersen
 E:	andersen@codepoet.org

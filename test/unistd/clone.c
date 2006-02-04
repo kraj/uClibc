@@ -28,6 +28,7 @@
 #include <signal.h>
 #include <sched.h>
 #include <sys/wait.h>
+#include "clone_cruft.h"
 
 #define GOT1     (1 << 1)
 #define GOT2     (1 << 2)
@@ -56,15 +57,15 @@ int main(void)
 
 	signal(SIGCHLD, child_handler);
 
-	if ((clone1 = clone(clone_main, clone1_stack, 0, (void*)11)) == -1) {
+	if ((clone1 = do_clone(clone_main, clone1_stack, 0, (void*)11)) == -1) {
 		perror("Clone 1 failed");
 		exit(-1);
 	}
-	if ((clone2 = clone(clone_main, clone2_stack, 0, (void*)22)) == -1) {
+	if ((clone2 = do_clone(clone_main, clone2_stack, 0, (void*)22)) == -1) {
 		perror("Clone 2 failed");
 		exit(-2);
 	}
-	if ((clone3 = clone(clone_main, clone3_stack, 0, (void*)33)) == -1) {
+	if ((clone3 = do_clone(clone_main, clone3_stack, 0, (void*)33)) == -1) {
 		perror("Clone 3 failed");
 		exit(-3);
 	}
