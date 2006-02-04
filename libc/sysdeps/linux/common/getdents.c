@@ -16,6 +16,16 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
+/* With newer versions of linux, the getdents syscall returns d_type
+ * information after the name field.  Someday, we should add support for
+ * that instead of always calling getdents64 ...
+ *
+ * See __ASSUME_GETDENTS32_D_TYPE in glibc's kernel-features.h for specific
+ * version / arch details.
+ */
+
+#if ! defined __UCLIBC_HAS_LFS__ || ! defined __NR_getdents64
+
 libc_hidden_proto(memcpy)
 libc_hidden_proto(lseek)
 
@@ -25,10 +35,10 @@ libc_hidden_proto(lseek)
 
 struct kernel_dirent
 {
-    long		d_ino;
-    __kernel_off_t	d_off;
-    unsigned short	d_reclen;
-    char		d_name[256];
+	long int d_ino;
+	__kernel_off_t d_off;
+	unsigned short int d_reclen;
+	char d_name[256];
 };
 
 #define __NR___syscall_getdents __NR_getdents
@@ -89,3 +99,7 @@ ssize_t attribute_hidden __getdents (int fd, char *buf, size_t nbytes)
     }
     return (char *) dp - buf;
 }
+
+attribute_hidden strong_alias(__getdents,__getdents64)
+
+#endif

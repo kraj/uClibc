@@ -17,7 +17,7 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-#if defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64 
+#if defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64
 
 libc_hidden_proto(memcpy)
 libc_hidden_proto(lseek64)
@@ -94,10 +94,9 @@ ssize_t attribute_hidden __getdents64 (int fd, char *buf, size_t nbytes)
     }
     return (char *) dp - buf;
 }
-#else
-extern ssize_t __getdents (int fd, char *buf, size_t nbytes) attribute_hidden;
-ssize_t attribute_hidden __getdents64 (int fd, char *buf, size_t nbytes)
-{
-    return(__getdents(fd, buf, nbytes));
-}
+
+/* since getdents doesnt give us d_type but getdents64 does, try and
+ * use getdents64 as much as possible */
+attribute_hidden strong_alias(__getdents64,__getdents)
+
 #endif /* __UCLIBC_HAS_LFS__ */
