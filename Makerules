@@ -32,6 +32,7 @@ endif
 
 headers-y: $(headers-y)
 
+MAKEFLAGS += --no-print-directory
 ifneq ($(findstring s,$(MAKEFLAGS)),)
 DISP := sil
 Q := @
