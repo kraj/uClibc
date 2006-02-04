@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/dir.h>
@@ -29,13 +30,17 @@ DIR *opendir(const char *name)
 	char *buf;
 	DIR *ptr;
 
+#ifndef O_DIRECTORY
+	/* O_DIRECTORY is linux specific and has been around since like 2.1.x */
 	if (stat(name, &statbuf))
 		return NULL;
 	if (!S_ISDIR(statbuf.st_mode)) {
 		__set_errno(ENOTDIR);
 		return NULL;
 	}
-	if ((fd = open(name, O_RDONLY)) < 0)
+# define O_DIRECTORY 0
+#endif
+	if ((fd = open(name, O_RDONLY|O_NDELAY|O_DIRECTORY)) < 0)
 		return NULL;
 	/* According to POSIX, directory streams should be closed when
 	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
