@@ -78,6 +78,10 @@ extern struct r_debug _r_debug;
    */
 extern ElfW(Dyn) _DYNAMIC[];
 
+#ifdef __FRV_FDPIC__
+# include <bits/elf-fdpic.h>
+#endif
+
 /* Structure describing a loaded shared object.  The `l_next' and `l_prev'
    members form a chain of all the shared objects loaded at startup.
 
@@ -89,7 +93,11 @@ struct link_map
     /* These first few members are part of the protocol with the debugger.
        This is the same format used in SVR4.  */
 
+#ifdef __FRV_FDPIC__
+    struct elf32_fdpic_loadaddr l_addr;
+#else
     ElfW(Addr) l_addr;		/* Base address shared object is loaded at.  */
+#endif
     char *l_name;		/* Absolute file name object was found in.  */
     ElfW(Dyn) *l_ld;		/* Dynamic section of the shared object.  */
     struct link_map *l_next, *l_prev; /* Chain of loaded objects.  */
@@ -123,7 +131,11 @@ struct link_map
 
 struct dl_phdr_info
   {
+#ifdef __FRV_FDPIC__
+    struct elf32_fdpic_loadaddr dlpi_addr;
+#else
     ElfW(Addr) dlpi_addr;
+#endif
     const char *dlpi_name;
     const ElfW(Phdr) *dlpi_phdr;
     ElfW(Half) dlpi_phnum;
