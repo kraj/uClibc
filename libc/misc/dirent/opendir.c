@@ -27,7 +27,6 @@ DIR *opendir(const char *name)
 {
 	int fd;
 	struct stat statbuf;
-	char *buf;
 	DIR *ptr;
 
 #ifndef O_DIRECTORY
@@ -42,21 +41,27 @@ DIR *opendir(const char *name)
 #endif
 	if ((fd = open(name, O_RDONLY|O_NDELAY|O_DIRECTORY)) < 0)
 		return NULL;
+
 	/* Note: we should check to make sure that between the stat() and open()
 	 * call, 'name' didnt change on us, but that's only if O_DIRECTORY isnt
 	 * defined and since Linux has supported it for like ever, i'm not going
 	 * to worry about it right now (if ever). */
+	if (fstat(fd, &statbuf) < 0)
+		goto close_and_ret;
 
 	/* According to POSIX, directory streams should be closed when
 	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
 	 */
-	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0)
-		return NULL;
-	if (!(ptr = malloc(sizeof(*ptr)))) {
+	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
+		int saved_errno;
+close_and_ret:
+		saved_errno = errno;
 		close(fd);
-		__set_errno(ENOMEM);
+		__set_errno(saved_errno);
 		return NULL;
 	}
+	if (!(ptr = malloc(sizeof(*ptr))))
+		goto nomem_close_and_ret;
 
 	ptr->dd_fd = fd;
 	ptr->dd_nextloc = ptr->dd_size = ptr->dd_nextoff = 0;
@@ -65,13 +70,13 @@ DIR *opendir(const char *name)
 	if (ptr->dd_max < 512)
 		ptr->dd_max = 512;
 
-	if (!(buf = calloc(1, ptr->dd_max))) {
-		close(fd);
+	if (!(ptr->dd_buf = calloc(1, ptr->dd_max))) {
 		free(ptr);
+nomem_close_and_ret:
+		close(fd);
 		__set_errno(ENOMEM);
 		return NULL;
 	}
-	ptr->dd_buf = buf;
 	__pthread_mutex_init(&(ptr->dd_lock), NULL);
 	return ptr;
 }
