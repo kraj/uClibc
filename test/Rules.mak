@@ -51,7 +51,7 @@ export TARGET_ARCH
 
 CROSS      = $(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
 CC         = $(CROSS)gcc
-STRIPTOOL  = strip
+STRIPTOOL  = $(CROSS)strip
 RM         = rm -f
 ifeq ($(LDSO_LDD_SUPPORT),y)
 LDD        = $(top_builddir)utils/ldd
