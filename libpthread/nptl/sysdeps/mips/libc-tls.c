@@ -20,8 +20,6 @@
 #include <../generic/libc-tls.c>
 #include <dl-tls.h>
 
-extern int sjh;
-
 #if USE_TLS
 
 /* On MIPS, linker optimizations are not required, so __tls_get_addr
@@ -32,7 +30,6 @@ extern int sjh;
 void *
 __tls_get_addr (tls_index *ti)
 {
-	sjh = 4;
   dtv_t *dtv = THREAD_DTV ();
   return (char *) dtv[1].pointer.val + GET_ADDR_OFFSET;
 }

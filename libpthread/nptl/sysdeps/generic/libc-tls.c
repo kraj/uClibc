@@ -27,8 +27,6 @@
 #include <link.h>
 #include <string.h>
 
-//#define __sbrk	sbrk
-
 
 #ifdef SHARED
  #error makefile bug, this file is for static only
