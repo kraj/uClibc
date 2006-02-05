@@ -1,0 +1,12 @@
+#include <errno.h>
+
+-- These errno codes are used by some assembly code.
+
+EAGAIN		EAGAIN
+EBUSY		EBUSY
+EDEADLK		EDEADLK
+EINTR		EINTR
+EINVAL		EINVAL
+ENOSYS		ENOSYS
+ETIMEDOUT	ETIMEDOUT
+EWOULDBLOCK	EWOULDBLOCK

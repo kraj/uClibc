@@ -44,9 +44,6 @@ libpthread-routines = init vars events version \
 		      pthread_cond_init pthread_cond_destroy \
 		      pthread_cond_wait pthread_cond_timedwait \
 		      pthread_cond_signal pthread_cond_broadcast \
-		      old_pthread_cond_init old_pthread_cond_destroy \
-		      old_pthread_cond_wait old_pthread_cond_timedwait \
-		      old_pthread_cond_signal old_pthread_cond_broadcast \
 		      pthread_condattr_init pthread_condattr_destroy \
 		      pthread_condattr_getpshared pthread_condattr_setpshared \
 		      pthread_condattr_getclock pthread_condattr_setclock \
@@ -223,42 +220,42 @@ endif
 
 libpthread_FULL_NAME := libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-libpthread_DIR := $(top_srcdir)libpthread/nptl
-libpthread_OUT := $(top_builddir)libpthread/nptl
+PTHREAD_DIR := $(top_srcdir)libpthread/nptl
+PTHREAD_OUT := $(top_builddir)libpthread/nptl
 
-libpthread_a_SRC = $(patsubst %, $(libpthread_DIR)/%.c,			\
+libpthread_a_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,			\
 		$(filter-out $(libpthread-os-routines) \
 	       $(libpthread-misc-routines)				 \
 	       $(libpthread-shared-only-routines),			 \
 	       $(libpthread-routines)))
-libpthread_so_SRC = $(patsubst %, $(libpthread_DIR)/%.c,		\
+libpthread_so_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,		\
 		$(filter-out $(libpthread-os-routines) \
 	       $(libpthread-misc-routines), $(libpthread-routines)))
 
-libc-a-y += $(patsubst %.c, $(libpthread_OUT)/%.o, alloca_cutoff.c	\
+libc-a-y += $(patsubst %.c, $(PTHREAD_OUT)/%.o, alloca_cutoff.c	\
 	    forward.c libc-cancellation.c)
-libc-so-y += $(patsubst %.c, $(libpthread_OUT)/%.oS, forward.c		\
+libc-so-y += $(patsubst %.c, $(PTHREAD_OUT)/%.oS, forward.c		\
 	    libc-cancellation.c)
 
-libpthread-a-y := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpthread_a_SRC))
-libpthread-so-y := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.oS,$(libpthread_so_SRC))
+libpthread-a-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.o,$(libpthread_a_SRC))
+libpthread-so-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.oS,$(libpthread_so_SRC))
 
--include $(libpthread_DIR)/sysdeps/pthread/Makefile.in
--include $(libpthread_DIR)/sysdeps/$(TARGET_ARCH)/Makefile.arch
--include $(libpthread_DIR)/sysdeps/unix/sysv/linux/Makefile.in
--include $(libpthread_DIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/Makefile.arch
+objclean-y += libpthread_clean
+headers_clean-y += nptl_headers_clean
+
+-include $(PTHREAD_DIR)/sysdeps/generic/Makefile.in
+-include $(PTHREAD_DIR)/sysdeps/pthread/Makefile.in
+-include $(PTHREAD_DIR)/sysdeps/$(TARGET_ARCH)/Makefile.arch
+-include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/Makefile.in
+-include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/Makefile.arch
 
 lib-a-y += $(top_builddir)lib/libpthread.a
 lib-so-y += $(top_builddir)lib/libpthread.so
 
-objclean-y += libpthread_clean
-headers-y += nptl_headers
-headers_clean-y += nptl_headers_clean
-
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a
+$(top_builddir)lib/libpthread.so: $(PTHREAD_OUT)/libpthread_so.a
 	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 
-$(libpthread_OUT)/libpthread_so.a: $(libpthread-so-y)
+$(PTHREAD_OUT)/libpthread_so.a: $(libpthread-so-y)
 	$(Q)$(RM) $@
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(do_strip:-x=-X --strip-debug)
@@ -277,6 +274,20 @@ endif
 	$(do_strip)
 	$(do_ar)
 
+#
+# Create 'pthread-errnos.h' header file.
+#
+CFLAGS-pthread-errnos.c = -S
+
+$(PTHREAD_OUT)/pthread-errnos.c: $(PTHREAD_DIR)/pthread-errnos.sym
+	awk -f $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(PTHREAD_OUT)/pthread-errnos.s: $(PTHREAD_OUT)/pthread-errnos.c
+	$(compile.c)
+
+$(PTHREAD_OUT)/pthread-errnos.h: $(PTHREAD_OUT)/pthread-errnos.s
+	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $(PTHREAD_OUT)/pthread-errnos.h
+
 nptl_headers:
 	@sed 's/\(.*\)/"\1\\n"/' $(PTDIR)/Banner > $(PTDIR)/banner.h
 	@echo "#define VERSION \""$(VERSION)"\"" > $(PTDIR)/version.h
@@ -287,10 +298,12 @@ nptl_headers:
 	$(LN) -sf ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(top_builddir)include/bits/
 	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/libc-lock.h $(top_builddir)include/bits/
 	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/stdio-lock.h $(top_builddir)include/bits/
+	$(MAKE) $(PTHREAD_OUT)/pthread-errnos.h
 
 nptl_headers_clean:
 	$(RM) $(PTDIR)/banner.h $(top_builddir)include/pthread.h	\
-	      $(PTDIR)/version.h $(top_builddir)include/semaphore.h
+	      $(PTDIR)/version.h $(top_builddir)include/semaphore.h	\
+	      $(PTHREAD_OUT)/pthread-errnos.{c,h,s}
 
 libpthread_clean:
-	$(RM) $(libpthread_OUT)/*.{o,os,oS}
+	$(RM) $(PTHREAD_OUT)/*.{o,os,oS}

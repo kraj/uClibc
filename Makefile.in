@@ -96,6 +96,11 @@ headers: include/bits/uClibc_config.h
 ifeq ($(UCLIBC_HAS_LOCALE),y)
 	$(MAKE) locale_headers
 endif
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+	$(MAKE) nptl_headers
+	$(MAKE) nptl_arch_headers
+	$(MAKE) nptl_linux_headers
+endif
 
 pregen: headers
 
