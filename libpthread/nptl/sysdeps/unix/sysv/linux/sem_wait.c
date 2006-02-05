@@ -23,9 +23,7 @@
 #include <lowlevellock.h>
 #include <internaltypes.h>
 #include <semaphore.h>
-
 #include <pthreadP.h>
-#include <shlib-compat.h>
 
 
 int
@@ -55,9 +53,4 @@ __new_sem_wait (sem_t *sem)
   __set_errno (-err);
   return -1;
 }
-
-versioned_symbol (libpthread, __new_sem_wait, sem_wait, GLIBC_2_1);
-#if SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_1)
-strong_alias (__new_sem_wait, __old_sem_wait)
-compat_symbol (libpthread, __old_sem_wait, sem_wait, GLIBC_2_0);
-#endif
+weak_alias(__new_sem_wait, sem_wait)

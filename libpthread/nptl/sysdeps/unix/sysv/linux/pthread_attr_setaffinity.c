@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthreadP.h>
-#include <shlib-compat.h>
 
 
 /* Defined in pthread_setaffinity.c.  */
@@ -80,17 +79,4 @@ __pthread_attr_setaffinity_new (pthread_attr_t *attr, size_t cpusetsize,
 
   return 0;
 }
-versioned_symbol (libpthread, __pthread_attr_setaffinity_new,
-		  pthread_attr_setaffinity_np, GLIBC_2_3_4);
-
-
-#if SHLIB_COMPAT (libpthread, GLIBC_2_3_3, GLIBC_2_3_4)
-int
-__pthread_attr_setaffinity_old (pthread_attr_t *attr, cpu_set_t *cpuset)
-{
-  /* The old interface by default assumed a 1024 processor bitmap.  */
-  return __pthread_attr_setaffinity_new (attr, 128, cpuset);
-}
-compat_symbol (libpthread, __pthread_attr_setaffinity_old,
-	       pthread_attr_setaffinity_np, GLIBC_2_3_3);
-#endif
+weak_alias(__pthread_attr_setaffinity_new, pthread_attr_setaffinity_np)

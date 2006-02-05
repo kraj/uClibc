@@ -27,12 +27,7 @@
 #include "descr.h"
 #include <tls.h>
 #include <lowlevellock.h>
-#ifdef __UCLIBC__
-#include <libc-symbols.h>
 #include <bits/stackinfo.h>
-#else
-#include <stackinfo.h>
-#endif
 #include <internaltypes.h>
 #include <pthread-functions.h>
 #include <atomic.h>
@@ -71,7 +66,7 @@ extern int __is_smp attribute_hidden;
 
 /* Thread descriptor handling.  */
 extern list_t __stack_user;
-hidden_proto (__stack_user)
+hidden_def(__stack_user)
 
 /* Attribute handling.  */
 extern struct pthread_attr *__attr_list attribute_hidden;
@@ -87,7 +82,7 @@ extern int __concurrency_level attribute_hidden;
 
 /* Thread-local data key handling.  */
 extern struct pthread_key_struct __pthread_keys[PTHREAD_KEYS_MAX];
-hidden_proto (__pthread_keys)
+hidden_def(__pthread_keys)
 
 /* Number of threads running.  */
 extern unsigned int __nptl_nthreads attribute_hidden;
@@ -139,10 +134,6 @@ extern void __pthread_register_cancel (__pthread_unwind_buf_t *__buf)
 extern void __pthread_unregister_cancel (__pthread_unwind_buf_t *__buf)
      __cleanup_fct_attribute;
 #if defined NOT_IN_libc && defined IS_IN_libpthread
-hidden_proto (__pthread_unwind)
-hidden_proto (__pthread_unwind_next)
-hidden_proto (__pthread_register_cancel)
-hidden_proto (__pthread_unregister_cancel)
 # ifdef SHARED
 extern void attribute_hidden pthread_cancel_init (void);
 # endif
@@ -243,7 +234,7 @@ extern int __make_stacks_executable (void **stack_endp)
 /* longjmp handling.  */
 extern void __pthread_cleanup_upto (__jmp_buf target, char *targetframe);
 #if defined NOT_IN_libc && defined IS_IN_libpthread
-hidden_proto (__pthread_cleanup_upto)
+hidden_def(__pthread_cleanup_upto)
 #endif
 
 
@@ -261,8 +252,8 @@ extern int __pthread_attr_init_2_0 (pthread_attr_t *attr);
 /* Event handlers for libthread_db interface.  */
 extern void __nptl_create_event (void);
 extern void __nptl_death_event (void);
-hidden_proto (__nptl_create_event)
-hidden_proto (__nptl_death_event)
+hidden_def(__nptl_create_event)
+hidden_def(__nptl_death_event)
 
 /* Register the generation counter in the libpthread with the libc.  */
 #ifdef TLS_MULTIPLE_THREADS_IN_TCB

@@ -22,7 +22,6 @@
 #include <pthreadP.h>
 #include <sysdep.h>
 #include <sys/types.h>
-#include <shlib-compat.h>
 
 
 size_t __kernel_cpumask_size;
@@ -84,17 +83,4 @@ __pthread_setaffinity_new (pthread_t th, size_t cpusetsize,
 	  ? INTERNAL_SYSCALL_ERRNO (res, err)
 	  : 0);
 }
-versioned_symbol (libpthread, __pthread_setaffinity_new,
-		  pthread_setaffinity_np, GLIBC_2_3_4);
-
-
-#if SHLIB_COMPAT (libpthread, GLIBC_2_3_3, GLIBC_2_3_4)
-int
-__pthread_setaffinity_old (pthread_t th, cpu_set_t *cpuset)
-{
-  /* The old interface by default assumed a 1024 processor bitmap.  */
-  return __pthread_setaffinity_new (th, 128, cpuset);
-}
-compat_symbol (libpthread, __pthread_setaffinity_old, pthread_setaffinity_np,
-	       GLIBC_2_3_3);
-#endif
+weak_alias(__pthread_setaffinity_new, pthread_setaffinity_np)

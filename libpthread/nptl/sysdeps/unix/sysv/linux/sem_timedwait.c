@@ -23,9 +23,7 @@
 #include <lowlevellock.h>
 #include <internaltypes.h>
 #include <semaphore.h>
-
 #include <pthreadP.h>
-#include <shlib-compat.h>
 
 
 int

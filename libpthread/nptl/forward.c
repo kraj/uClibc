@@ -21,8 +21,6 @@
 #include <pthreadP.h>
 #include <signal.h>
 #include <stdlib.h>
-
-#include <shlib-compat.h>
 #include <atomic.h>
 #include <sysdep.h>
 
@@ -47,13 +45,8 @@ name decl								      \
 
 FORWARD (pthread_attr_destroy, (pthread_attr_t *attr), (attr), 0)
 
-#if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_1)
-FORWARD (__pthread_attr_init_2_0, (pthread_attr_t *attr), (attr), 0)
-compat_symbol (libc, __pthread_attr_init_2_0, pthread_attr_init, GLIBC_2_0);
-#endif
-
 FORWARD (__pthread_attr_init_2_1, (pthread_attr_t *attr), (attr), 0)
-versioned_symbol (libc, __pthread_attr_init_2_1, pthread_attr_init, GLIBC_2_1);
+weak_alias(__pthread_attr_init_2_1, pthread_attr_init)
 
 FORWARD (pthread_attr_getdetachstate,
 	 (const pthread_attr_t *attr, int *detachstate), (attr, detachstate),
@@ -87,72 +80,28 @@ FORWARD (pthread_attr_setscope, (pthread_attr_t *attr, int scope),
 FORWARD (pthread_condattr_destroy, (pthread_condattr_t *attr), (attr), 0)
 FORWARD (pthread_condattr_init, (pthread_condattr_t *attr), (attr), 0)
 
-#if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_2)
-FORWARD2 (__pthread_cond_broadcast_2_0, int attribute_compat_text_section,
-	  (pthread_cond_2_0_t *cond), (cond), return 0)
-compat_symbol (libc, __pthread_cond_broadcast_2_0, pthread_cond_broadcast,
-	       GLIBC_2_0);
-#endif
 FORWARD (__pthread_cond_broadcast, (pthread_cond_t *cond), (cond), 0)
-versioned_symbol (libc, __pthread_cond_broadcast, pthread_cond_broadcast,
-		  GLIBC_2_3_2);
+weak_alias(__pthread_cond_broadcast, pthread_cond_broadcast)
 
-#if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_2)
-FORWARD2 (__pthread_cond_destroy_2_0, int attribute_compat_text_section,
-	  (pthread_cond_2_0_t *cond), (cond), return 0)
-compat_symbol (libc, __pthread_cond_destroy_2_0, pthread_cond_destroy,
-	       GLIBC_2_0);
-#endif
 FORWARD (__pthread_cond_destroy, (pthread_cond_t *cond), (cond), 0)
-versioned_symbol (libc, __pthread_cond_destroy, pthread_cond_destroy,
-		  GLIBC_2_3_2);
+weak_alias(__pthread_cond_destroy, pthread_cond_destroy)
 
-#if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_2)
-FORWARD2 (__pthread_cond_init_2_0, int attribute_compat_text_section,
-	  (pthread_cond_2_0_t *cond, const pthread_condattr_t *cond_attr),
-	  (cond, cond_attr), return 0)
-compat_symbol (libc, __pthread_cond_init_2_0, pthread_cond_init, GLIBC_2_0);
-#endif
 FORWARD (__pthread_cond_init,
 	 (pthread_cond_t *cond, const pthread_condattr_t *cond_attr),
 	 (cond, cond_attr), 0)
-versioned_symbol (libc, __pthread_cond_init, pthread_cond_init, GLIBC_2_3_2);
+weak_alias(__pthread_cond_init, pthread_cond_init)
 
-#if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_2)
-FORWARD2 (__pthread_cond_signal_2_0, int attribute_compat_text_section,
-	  (pthread_cond_2_0_t *cond), (cond), return 0)
-compat_symbol (libc, __pthread_cond_signal_2_0, pthread_cond_signal,
-	       GLIBC_2_0);
-#endif
 FORWARD (__pthread_cond_signal, (pthread_cond_t *cond), (cond), 0)
-versioned_symbol (libc, __pthread_cond_signal, pthread_cond_signal,
-		  GLIBC_2_3_2);
+weak_alias(__pthread_cond_signal, pthread_cond_signal)
 
-#if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_2)
-FORWARD2 (__pthread_cond_wait_2_0, int attribute_compat_text_section,
-	  (pthread_cond_2_0_t *cond, pthread_mutex_t *mutex), (cond, mutex),
-	  return 0)
-compat_symbol (libc, __pthread_cond_wait_2_0, pthread_cond_wait,
-	       GLIBC_2_0);
-#endif
 FORWARD (__pthread_cond_wait, (pthread_cond_t *cond, pthread_mutex_t *mutex),
 	 (cond, mutex), 0)
-versioned_symbol (libc, __pthread_cond_wait, pthread_cond_wait,
-		  GLIBC_2_3_2);
+weak_alias(__pthread_cond_wait, pthread_cond_wait)
 
-#if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_2)
-FORWARD2 (__pthread_cond_timedwait_2_0, int attribute_compat_text_section,
-	  (pthread_cond_2_0_t *cond, pthread_mutex_t *mutex,
-	   const struct timespec *abstime), (cond, mutex, abstime),
-	  return 0)
-compat_symbol (libc, __pthread_cond_timedwait_2_0, pthread_cond_timedwait,
-	       GLIBC_2_0);
-#endif
 FORWARD (__pthread_cond_timedwait,
 	 (pthread_cond_t *cond, pthread_mutex_t *mutex,
 	  const struct timespec *abstime), (cond, mutex, abstime), 0)
-versioned_symbol (libc, __pthread_cond_timedwait, pthread_cond_timedwait,
-		  GLIBC_2_3_2);
+weak_alias(__pthread_cond_timedwait, pthread_cond_timedwait)
 
 
 FORWARD (pthread_equal, (pthread_t thread1, pthread_t thread2),
@@ -206,8 +155,7 @@ FORWARD (pthread_setcanceltype, (int type, int *oldtype), (type, oldtype), 0)
 
 #define return /* value is void */
 FORWARD2(__pthread_unwind,
-	 void attribute_hidden __attribute ((noreturn)) __cleanup_fct_attribute
-	 attribute_compat_text_section,
+	 void attribute_hidden __attribute ((noreturn)) __cleanup_fct_attribute,
 	 (__pthread_unwind_buf_t *buf), (buf), {
 		       /* We cannot call abort() here.  */
 		       INTERNAL_SYSCALL_DECL (err);

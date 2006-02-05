@@ -115,7 +115,7 @@ static LIST_HEAD (stack_used);
 /* List of the threads with user provided stacks in use.  No need to
    initialize this, since it's done in __pthread_initialize_minimal.  */
 list_t __stack_user __attribute__ ((nocommon));
-hidden_data_def (__stack_user)
+hidden_def (__stack_user)
 
 #if COLORING_INCREMENT != 0
 /* Number of threads created.  */
@@ -389,12 +389,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
       size_t guardsize;
       size_t reqsize;
       void *mem;
-      const int prot = (PROT_READ | PROT_WRITE
-#ifndef __UCLIBC__
-			| ((GL(dl_stack_flags) & PF_X) ? PROT_EXEC : 0));
-#else
-		        );
-#endif
+      const int prot = (PROT_READ | PROT_WRITE);
 
 #if COLORING_INCREMENT != 0
       /* Add one more page for stack coloring.  Don't do it for stacks
@@ -523,30 +518,6 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	  list_add (&pd->list, &stack_used);
 
 	  lll_unlock (stack_cache_lock);
-
-
-	  /* There might have been a race.  Another thread might have
-	     caused the stacks to get exec permission while this new
-	     stack was prepared.  Detect if this was possible and
-	     change the permission if necessary.  */
-#ifndef __UCLIBC__
-	  if (__builtin_expect ((GL(dl_stack_flags) & PF_X) != 0
-				&& (prot & PROT_EXEC) == 0, 0))
-	    {
-	      int err = change_stack_perm (pd
-#ifdef NEED_SEPARATE_REGISTER_STACK
-					   , ~pagesize_m1
-#endif
-					   );
-	      if (err != 0)
-		{
-		  /* Free the stack memory we just allocated.  */
-		  (void) munmap (mem, size);
-
-		  return err;
-		}
-	    }
-#endif
 
 
 	  /* Note that all of the stack and the thread descriptor is
@@ -678,11 +649,7 @@ internal_function
 __make_stacks_executable (void **stack_endp)
 {
   /* First the main thread's stack.  */
-#ifndef __UCLIBC__
-  int err = _dl_make_stack_executable (stack_endp);
-#else
   int err = EPERM;
-#endif
   if (err != 0)
     return err;
 

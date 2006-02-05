@@ -24,7 +24,6 @@
 #include <sysdep.h>
 #include <sys/param.h>
 #include <sys/types.h>
-#include <shlib-compat.h>
 
 
 int
@@ -43,18 +42,5 @@ __pthread_getaffinity_new (pthread_t th, size_t cpusetsize, cpu_set_t *cpuset)
 
   return 0;
 }
-strong_alias (__pthread_getaffinity_new, __pthread_getaffinity_np)
-versioned_symbol (libpthread, __pthread_getaffinity_new,
-		  pthread_getaffinity_np, GLIBC_2_3_4);
-
-
-#if SHLIB_COMPAT (libpthread, GLIBC_2_3_3, GLIBC_2_3_4)
-int
-__pthread_getaffinity_old (pthread_t th, cpu_set_t *cpuset)
-{
-  /* The old interface by default assumed a 1024 processor bitmap.  */
-  return __pthread_getaffinity_new (th, 128, cpuset);
-}
-compat_symbol (libpthread, __pthread_getaffinity_old, pthread_getaffinity_np,
-	       GLIBC_2_3_3);
-#endif
+hidden_strong_alias (__pthread_getaffinity_new, __pthread_getaffinity_np)
+strong_alias (__pthread_getaffinity_new, pthread_getaffinity_np)

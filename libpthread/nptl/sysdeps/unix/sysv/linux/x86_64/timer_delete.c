@@ -17,7 +17,6 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <shlib-compat.h>
 #include "compat-timer.h"
 
 
@@ -25,21 +24,4 @@
 #include "../timer_delete.c"
 
 #undef timer_delete
-versioned_symbol (librt, __timer_delete_new, timer_delete, GLIBC_2_3_3);
-
-
-#if SHLIB_COMPAT (librt, GLIBC_2_2, GLIBC_2_3_3)
-int
-__timer_delete_old (int timerid)
-{
-  int res = __timer_delete_new (__compat_timer_list[timerid]);
-
-  if (res == 0)
-    /* Successful timer deletion, now free the index.  We only need to
-       store a word and that better be atomic.  */
-    __compat_timer_list[timerid] = NULL;
-
-  return res;
-}
-compat_symbol (librt, __timer_delete_old, timer_delete, GLIBC_2_2);
-#endif
+weak_alias(__timer_delete_new, timer_delete)

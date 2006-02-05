@@ -22,7 +22,6 @@
 #include <string.h>
 #include <unistd.h>
 #include "pthreadP.h"
-#include <shlib-compat.h>
 
 int
 __pthread_attr_destroy (attr)
@@ -33,13 +32,8 @@ __pthread_attr_destroy (attr)
   assert (sizeof (*attr) >= sizeof (struct pthread_attr));
   iattr = (struct pthread_attr *) attr;
 
-#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_1)
-  /* In old struct pthread_attr, neither next nor cpuset are
-     present.  */
-  if (__builtin_expect ((iattr->flags & ATTR_FLAG_OLDATTR), 0) == 0)
-#endif
-    /* The affinity CPU set might be allocated dynamically.  */
-    free (iattr->cpuset);
+  /* The affinity CPU set might be allocated dynamically.  */
+  free (iattr->cpuset);
 
   return 0;
 }

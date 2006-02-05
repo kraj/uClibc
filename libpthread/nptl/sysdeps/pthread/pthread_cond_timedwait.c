@@ -24,8 +24,6 @@
 #include <pthread.h>
 #include <pthreadP.h>
 
-#include <shlib-compat.h>
-
 
 /* Cleanup handler, defined in pthread_cond_wait.c.  */
 extern void __condvar_cleanup (void *arg)
@@ -209,6 +207,4 @@ __pthread_cond_timedwait (cond, mutex, abstime)
 
   return err ?: result;
 }
-
-versioned_symbol (libpthread, __pthread_cond_timedwait, pthread_cond_timedwait,
-		  GLIBC_2_3_2);
+weak_alias(__pthread_cond_timedwait, pthread_cond_timedwait)

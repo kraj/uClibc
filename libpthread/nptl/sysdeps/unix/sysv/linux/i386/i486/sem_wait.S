@@ -132,8 +132,3 @@ __new_sem_wait:
 	cfi_endproc
 	.size	__new_sem_wait,.-__new_sem_wait
 	versioned_symbol(libpthread, __new_sem_wait, sem_wait, GLIBC_2_1)
-#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_1)
-	.global	__old_sem_wait
-__old_sem_wait = __new_sem_wait
-	compat_symbol(libpthread, __old_sem_wait, sem_wait, GLIBC_2_0)
-#endif

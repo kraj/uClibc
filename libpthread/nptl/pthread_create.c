@@ -28,8 +28,6 @@
 #include <libc-internal.h>
 #include <resolv.h>
 
-#include <shlib-compat.h>
-
 
 /* Local function to start thread and handle cleanup.  */
 static int start_thread (void *arg);
@@ -267,11 +265,6 @@ start_thread (void *arg)
   /* Run the destructor for the thread-local data.  */
   __nptl_deallocate_tsd ();
 
-#ifndef __UCLIBC__
-  /* Clean up any state libc stored in thread-local variables.  */
-  __libc_thread_freeres ();
-#endif
-
   /* If this is the last thread we terminate the process now.  We
      do not notify the debugger, it might just irritate it if there
      is no thread left.  */
@@ -467,48 +460,7 @@ __pthread_create_2_1 (newthread, attr, start_routine, arg)
 
   return 0;
 }
-versioned_symbol (libpthread, __pthread_create_2_1, pthread_create, GLIBC_2_1);
-
-
-#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_1)
-int
-__pthread_create_2_0 (newthread, attr, start_routine, arg)
-     pthread_t *newthread;
-     const pthread_attr_t *attr;
-     void *(*start_routine) (void *);
-     void *arg;
-{
-  /* The ATTR attribute is not really of type `pthread_attr_t *'.  It has
-     the old size and access to the new members might crash the program.
-     We convert the struct now.  */
-  struct pthread_attr new_attr;
-
-  if (attr != NULL)
-    {
-      struct pthread_attr *iattr = (struct pthread_attr *) attr;
-      size_t ps = __getpagesize ();
-
-      /* Copy values from the user-provided attributes.  */
-      new_attr.schedparam = iattr->schedparam;
-      new_attr.schedpolicy = iattr->schedpolicy;
-      new_attr.flags = iattr->flags;
-
-      /* Fill in default values for the fields not present in the old
-	 implementation.  */
-      new_attr.guardsize = ps;
-      new_attr.stackaddr = NULL;
-      new_attr.stacksize = 0;
-      new_attr.cpuset = NULL;
-
-      /* We will pass this value on to the real implementation.  */
-      attr = (pthread_attr_t *) &new_attr;
-    }
-
-  return __pthread_create_2_1 (newthread, attr, start_routine, arg);
-}
-compat_symbol (libpthread, __pthread_create_2_0, pthread_create,
-	       GLIBC_2_0);
-#endif
+weak_alias(__pthread_create_2_1, pthread_create)
 
 /* Information for libthread_db.  */
 

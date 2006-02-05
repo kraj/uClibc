@@ -18,7 +18,6 @@
    02111-1307 USA.  */
 
 #include <errno.h>
-#include <shlib-compat.h>
 #include "pthreadP.h"
 
 
@@ -57,5 +56,4 @@ __pthread_cond_destroy (cond)
 
   return 0;
 }
-versioned_symbol (libpthread, __pthread_cond_destroy,
-		  pthread_cond_destroy, GLIBC_2_3_2);
+weak_alias(__pthread_cond_destroy, pthread_cond_destroy)

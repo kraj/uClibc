@@ -24,8 +24,6 @@
 #include <pthread.h>
 #include <pthreadP.h>
 
-#include <shlib-compat.h>
-
 
 struct _condvar_cleanup_buffer
 {
@@ -180,6 +178,4 @@ __pthread_cond_wait (cond, mutex)
   /* Get the mutex before returning.  */
   return __pthread_mutex_cond_lock (mutex);
 }
-
-versioned_symbol (libpthread, __pthread_cond_wait, pthread_cond_wait,
-		  GLIBC_2_3_2);
+weak_alias(__pthread_cond_wait, pthread_cond_wait)

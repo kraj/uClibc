@@ -17,7 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <shlib-compat.h>
 #include "pthreadP.h"
 
 
@@ -42,5 +41,4 @@ __pthread_cond_init (cond, cond_attr)
 
   return 0;
 }
-versioned_symbol (libpthread, __pthread_cond_init,
-		  pthread_cond_init, GLIBC_2_3_2);
+weak_alias(__pthread_cond_init, pthread_cond_init)

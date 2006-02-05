@@ -71,11 +71,6 @@ __new_sem_trywait:
 	ret
 	.size	__new_sem_trywait,.-__new_sem_trywait
 	versioned_symbol(libpthread, __new_sem_trywait, sem_trywait, GLIBC_2_1)
-#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_1)
-	.global	__old_sem_trywait
-__old_sem_trywait = __new_sem_trywait
-	compat_symbol(libpthread, __old_sem_trywait, sem_trywait, GLIBC_2_0)
-#endif
 
 
 #ifdef PIC

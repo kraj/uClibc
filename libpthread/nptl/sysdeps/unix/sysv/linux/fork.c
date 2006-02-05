@@ -28,6 +28,7 @@
 #include <ldsodefs.h>
 #include <bits/stdio-lock.h>
 #include <atomic.h>
+#include <errno.h>
 
 
 unsigned long int *__fork_generation_pointer;
@@ -41,12 +42,11 @@ struct fork_handler *__fork_handlers;
 static void
 fresetlockfiles (void)
 {
-#ifdef __UCLIBC__
   FILE *fp;
 #ifdef __USE_STDIO_FUTEXES__
   for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen)
     _IO_lock_init(fp->_lock);
-# else
+#else
   pthread_mutexattr_t attr;
 
   pthread_mutexattr_init(&attr);
@@ -56,12 +56,6 @@ fresetlockfiles (void)
     pthread_mutex_init(&fp->__lock, &attr);
 
   pthread_mutexattr_destroy(&attr);
-# endif
-#else
-  _IO_ITER i;
-
-  for (i = _IO_iter_begin(); i != _IO_iter_end(); i = _IO_iter_next(i))
-    _IO_lock_init (*((_IO_lock_t *) _IO_iter_file(i)->_lock));
 #endif
 }
 
@@ -128,14 +122,10 @@ __libc_fork (void)
       break;
     }
 
-#ifdef __UCLIBC__
 #ifdef __USE_STDIO_FUTEXES__
   _IO_lock_lock (_stdio_openlist_lock);
 #else
   __pthread_mutex_lock(&_stdio_openlist_lock);
-#endif
-#else
-  _IO_list_lock ();
 #endif
 
 #ifndef NDEBUG
@@ -180,19 +170,10 @@ __libc_fork (void)
       fresetlockfiles ();
 
       /* Reset locks in the I/O code.  */
-#ifdef __UCLIBC__
-# ifdef __USE_STDIO_FUTEXES__
+#ifdef __USE_STDIO_FUTEXES__
       _IO_lock_init (_stdio_openlist_lock);
-# else
-      __stdio_init_mutex(&_stdio_openlist_lock);
-# endif
 #else
-      _IO_list_resetlock ();
-#endif
-
-#ifndef __UCLIBC__
-      /* Reset the lock the dynamic loader uses to protect its data.  */
-      __rtld_lock_initialize (GL(dl_load_lock));
+      __stdio_init_mutex(&_stdio_openlist_lock);
 #endif
 
       /* Run the handlers registered for the child.  */
@@ -225,14 +206,10 @@ __libc_fork (void)
       THREAD_SETMEM (THREAD_SELF, pid, parentpid);
 
       /* We execute this even if the 'fork' call failed.  */
-#ifdef __UCLIBC__
-# ifdef __USE_STDIO_FUTEXES__
+#ifdef __USE_STDIO_FUTEXES__
       _IO_lock_unlock(_stdio_openlist_lock);
-# else
-      __pthread_mutex_unlock(&_stdio_openlist_lock);
-# endif
 #else
-      _IO_list_unlock ();
+      __pthread_mutex_unlock(&_stdio_openlist_lock);
 #endif
 
       /* Run the handlers registered for the parent.  */

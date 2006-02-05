@@ -30,7 +30,6 @@
 #include <tls.h>
 #include <fork.h>
 #include <version.h>
-#include <shlib-compat.h>
 #include <smp.h>
 #include <lowlevellock.h>
 
@@ -73,9 +72,6 @@ extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 static const struct pthread_functions pthread_functions =
   {
     .ptr_pthread_attr_destroy = __pthread_attr_destroy,
-# if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_1)
-    .ptr___pthread_attr_init_2_0 = __pthread_attr_init_2_0,
-# endif
     .ptr___pthread_attr_init_2_1 = __pthread_attr_init_2_1,
     .ptr_pthread_attr_getdetachstate = __pthread_attr_getdetachstate,
     .ptr_pthread_attr_setdetachstate = __pthread_attr_setdetachstate,
@@ -95,22 +91,14 @@ static const struct pthread_functions pthread_functions =
     .ptr___pthread_cond_signal = __pthread_cond_signal,
     .ptr___pthread_cond_wait = __pthread_cond_wait,
     .ptr___pthread_cond_timedwait = __pthread_cond_timedwait,
-# if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_3_2)
-    .ptr___pthread_cond_broadcast_2_0 = __pthread_cond_broadcast_2_0,
-    .ptr___pthread_cond_destroy_2_0 = __pthread_cond_destroy_2_0,
-    .ptr___pthread_cond_init_2_0 = __pthread_cond_init_2_0,
-    .ptr___pthread_cond_signal_2_0 = __pthread_cond_signal_2_0,
-    .ptr___pthread_cond_wait_2_0 = __pthread_cond_wait_2_0,
-    .ptr___pthread_cond_timedwait_2_0 = __pthread_cond_timedwait_2_0,
-# endif
     .ptr_pthread_equal = __pthread_equal,
     .ptr___pthread_exit = __pthread_exit,
     .ptr_pthread_getschedparam = __pthread_getschedparam,
     .ptr_pthread_setschedparam = __pthread_setschedparam,
-    .ptr_pthread_mutex_destroy = INTUSE(__pthread_mutex_destroy),
-    .ptr_pthread_mutex_init = INTUSE(__pthread_mutex_init),
-    .ptr_pthread_mutex_lock = INTUSE(__pthread_mutex_lock),
-    .ptr_pthread_mutex_unlock = INTUSE(__pthread_mutex_unlock),
+    .ptr_pthread_mutex_destroy = __pthread_mutex_destroy,
+    .ptr_pthread_mutex_init = __pthread_mutex_init,
+    .ptr_pthread_mutex_lock = __pthread_mutex_lock,
+    .ptr_pthread_mutex_unlock = __pthread_mutex_unlock,
     .ptr_pthread_self = __pthread_self,
     .ptr_pthread_setcancelstate = __pthread_setcancelstate,
     .ptr_pthread_setcanceltype = __pthread_setcanceltype,
@@ -311,30 +299,6 @@ __pthread_initialize_minimal_internal (void)
   __static_tls_align_m1 = static_tls_align - 1;
 
   __static_tls_size = roundup (__static_tls_size, static_tls_align);
-
-/*
- * For now, we are not going to be concerend about locking inside
- * the dynamic loader proper. Maybe later. We also disable stack
- * execution.
- */
-#ifndef __UCLIBC__
-#ifdef SHARED
-  /* Transfer the old value from the dynamic linker's internal location.  */
-  *__libc_dl_error_tsd () = *(*GL(dl_error_catch_tsd)) ();
-  GL(dl_error_catch_tsd) = &__libc_dl_error_tsd;
-
-  /* Make __rtld_lock_{,un}lock_recursive use pthread_mutex_{,un}lock,
-     keep the lock count from the ld.so implementation.  */
-  GL(dl_rtld_lock_recursive) = (void *) INTUSE (__pthread_mutex_lock);
-  GL(dl_rtld_unlock_recursive) = (void *) INTUSE (__pthread_mutex_unlock);
-  unsigned int rtld_lock_count = GL(dl_load_lock).mutex.__data.__count;
-  GL(dl_load_lock).mutex.__data.__count = 0;
-  while (rtld_lock_count-- > 0)
-    INTUSE (__pthread_mutex_lock) (&GL(dl_load_lock).mutex);
-
-  GL(dl_make_stack_executable_hook) = &__make_stacks_executable;
-#endif
-#endif
 
   GL(dl_init_static_tls) = &__pthread_init_static_tls;
 

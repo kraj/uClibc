@@ -17,7 +17,6 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <shlib-compat.h>
 #include "compat-timer.h"
 
 
@@ -25,15 +24,4 @@
 #include "../timer_getoverr.c"
 
 #undef timer_getoverrun
-versioned_symbol (librt, __timer_getoverrun_new, timer_getoverrun,
-		  GLIBC_2_3_3);
-
-
-#if SHLIB_COMPAT (librt, GLIBC_2_2, GLIBC_2_3_3)
-int
-__timer_getoverrun_old (int timerid)
-{
-  return __timer_getoverrun_new (__compat_timer_list[timerid]);
-}
-compat_symbol (librt, __timer_getoverrun_old, timer_getoverrun, GLIBC_2_2);
-#endif
+weak_alias(__timer_getoverrun_new, timer_getoverrun)

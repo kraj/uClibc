@@ -24,8 +24,6 @@
 #include <internaltypes.h>
 #include <semaphore.h>
 
-#include <shlib-compat.h>
-
 
 int
 __new_sem_trywait (sem_t *sem)
@@ -43,8 +41,4 @@ __new_sem_trywait (sem_t *sem)
   __set_errno (EAGAIN);
   return -1;
 }
-versioned_symbol (libpthread, __new_sem_trywait, sem_trywait, GLIBC_2_1);
-#if SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_1)
-strong_alias (__new_sem_trywait, __old_sem_trywait)
-compat_symbol (libpthread, __old_sem_trywait, sem_trywait, GLIBC_2_0);
-#endif
+weak_alias(__new_sem_trywait, sem_trywait)

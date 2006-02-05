@@ -24,8 +24,6 @@
 #include <internaltypes.h>
 #include <semaphore.h>
 
-#include <shlib-compat.h>
-
 int
 __new_sem_post (sem_t *sem)
 {
@@ -41,8 +39,4 @@ __new_sem_post (sem_t *sem)
     }
   return 0;
 }
-versioned_symbol (libpthread, __new_sem_post, sem_post, GLIBC_2_1);
-#if SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_1)
-strong_alias (__new_sem_post, __old_sem_post)
-compat_symbol (libpthread, __old_sem_post, sem_post, GLIBC_2_0);
-#endif
+weak_alias(__new_sem_post, sem_post)

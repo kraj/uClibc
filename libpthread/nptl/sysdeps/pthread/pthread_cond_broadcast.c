@@ -23,8 +23,6 @@
 #include <lowlevellock.h>
 #include <pthread.h>
 #include <pthreadP.h>
-
-#include <shlib-compat.h>
 #include <kernel-features.h>
 
 
@@ -75,6 +73,4 @@ __pthread_cond_broadcast (cond)
 
   return 0;
 }
-
-versioned_symbol (libpthread, __pthread_cond_broadcast, pthread_cond_broadcast,
-		  GLIBC_2_3_2);
+weak_alias(__pthread_cond_broadcast, pthread_cond_broadcast)
