@@ -18,11 +18,9 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-#include <sysdep.h>
-#define _ERRNO_H
-#include <bits/errno.h>
 #include <sys/asm.h>
+#include <sysdep.h>
+#include <bits/errno_values.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
 

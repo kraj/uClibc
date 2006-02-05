@@ -20,7 +20,6 @@
 
 #include <sys/asm.h>
 #include <sysdep.h>
-#include <sgidefs.h>
 
 #ifndef SAVE_PID
 #define SAVE_PID

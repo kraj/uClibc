@@ -17,10 +17,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-/*#include <sysdep.h>*/
+#include <sysdep.h>
 #include <endian.h>
-#include "sysdep.h"
 
 #ifdef __mips64
 #error mips32 code being compiled for mips64!

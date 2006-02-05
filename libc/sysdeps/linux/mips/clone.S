@@ -22,8 +22,7 @@
 
 #include <sys/asm.h>
 #include <sysdep.h>
-#define _ERRNO_H	1
-#include <bits/errno.h>
+#include <bits/errno_values.h>
 #ifdef RESET_PID
 #include <tls.h>
 #endif
@@ -102,9 +101,7 @@ NESTED(__clone,4*SZREG,sp)
 
 	/* Something bad happened -- no child created */
 L(error):
-#ifdef __UCLIBC__
 	move		a0,v0
-#endif
 #ifdef __PIC__
 	PTR_LA		t9,__syscall_error
 	RESTORE_GP64

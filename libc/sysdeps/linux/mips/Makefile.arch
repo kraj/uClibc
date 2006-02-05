@@ -10,7 +10,7 @@ CSRC := __longjmp.c  brk.c setjmp_aux.c mmap.c cacheflush.c	\
 	pread_write.c sysmips.c _test_and_set.c sigaction.c
 
 SSRC := bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S syscall.S	\
-	syscall_error.S pipe.S
+	syscall_error.S pipe.S vfork.S
 
 ARCH_HEADERS := sgidefs.h sysdep.h
 # regdef.h
