@@ -23,13 +23,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/param.h>
-#ifdef __UCLIBC__
 #include <elf.h>
 #include <link.h>
 #include <string.h>
 
-#define __sbrk	sbrk
-#endif
+//#define __sbrk	sbrk
 
 
 #ifdef SHARED
@@ -209,9 +207,6 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
   static_map.l_tls_blocksize = memsz;
   static_map.l_tls_initimage = initimage;
   static_map.l_tls_initimage_size = filesz;
-#ifndef __UCLIBC__
-  static_map.l_type = lt_executable;
-#endif
   static_map.l_tls_modid = 1;
 
   init_slotinfo ();
