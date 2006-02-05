@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * __rt_sigtimedwait() for uClibc
+ * __rt_sigwaitinfo() for uClibc
  *
  * Copyright (C) 2006 by Steven Hill <sjhill@realitydiluted.com>
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
@@ -16,8 +16,7 @@
 # ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #  include <sysdep-cancel.h>
 
-static int do_sigtimedwait(const sigset_t *set, siginfo_t *info,
-						   const struct timespec *timeout)
+static int do_sigwaitinfo(const sigset_t *set, siginfo_t *info)
 {
 #  ifdef SIGCANCEL
 	sigset_t tmpset;
@@ -42,7 +41,7 @@ static int do_sigtimedwait(const sigset_t *set, siginfo_t *info,
 	/* XXX The size argument hopefully will have to be changed to the
 	   real size of the user-level sigset_t.  */
 	int result = INLINE_SYSCALL (rt_sigtimedwait, 4, set, info,
-								 timeout, _NSIG / 8);
+								 NULL, _NSIG / 8);
 
 	/* The kernel generates a SI_TKILL code in si_code in case tkill is
 	   used.  tkill is transparently used in raise().  Since having
@@ -55,17 +54,16 @@ static int do_sigtimedwait(const sigset_t *set, siginfo_t *info,
 }
 
 /* Return any pending signal or wait for one for the given time.  */
-int __sigtimedwait(const sigset_t *set, siginfo_t *info,
-				   const struct timespec *timeout)
+int __sigwaitinfo(const sigset_t *set, siginfo_t *info)
 {
 	if(SINGLE_THREAD_P)
-		return do_sigtimedwait(set, info, timeout);
+		return do_sigwaitinfo(set, info);
 
 	int oldtype = LIBC_CANCEL_ASYNC();
 
 	/* XXX The size argument hopefully will have to be changed to the
 	   real size of the user-level sigset_t.  */
-	int result = do_sigtimedwait(set, info, timeout);
+	int result = do_sigwaitinfo(set, info);
 
 	LIBC_CANCEL_RESET(oldtype);
 
@@ -74,20 +72,18 @@ int __sigtimedwait(const sigset_t *set, siginfo_t *info,
 # else
 #  define __need_NULL
 #  include <stddef.h>
-#  define __NR___rt_sigtimedwait __NR_rt_sigtimedwait
-static _syscall4(int, __rt_sigtimedwait, const sigset_t *, set,
+#  define __NR___rt_sigwaitinfo __NR_rt_sigwaitinfo
+static _syscall4(int, __rt_sigwaitinfo, const sigset_t *, set,
 				 siginfo_t *, info, const struct timespec *, timeout,
 				 size_t, setsize);
 
-int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
-									const struct timespec *timeout)
+int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {
-	return __rt_sigtimedwait(set, info, timeout, _NSIG / 8);
+	return __rt_sigwaitinfo(set, info, NULL, _NSIG / 8);
 }
 # endif
 #else
-int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
-									const struct timespec *timeout)
+int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {
 	if (set == NULL)
 		__set_errno(EINVAL);
@@ -96,4 +92,4 @@ int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
 	return -1;
 }
 #endif
-weak_alias(__sigtimedwait,sigtimedwait)
+weak_alias(__sigwaitinfo,sigwaitinfo)

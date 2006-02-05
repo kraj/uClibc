@@ -18,4 +18,4 @@
 
 #include <pthreadP.h>
 
-#include_next <sigfillset.c>
+#include <../../../../libc/signal/sigfillset.c>

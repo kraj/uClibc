@@ -28,7 +28,7 @@
    SIGCANCEL or SIGTIMER to be handled.  */
 # define LIBC_SIGACTION	1
 
-# include_next <sigaction.c>
+# include <sigaction.c>
 
 int
 __sigaction (sig, act, oact)
@@ -44,7 +44,7 @@ __sigaction (sig, act, oact)
 
   return __libc_sigaction (sig, act, oact);
 }
-weak_alias(__sigaction, sigaction)
+hidden_weak_alias(__sigaction, sigaction)
 
 #else
 

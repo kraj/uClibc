@@ -11,6 +11,10 @@ CSRC:=	allocrtsig.c killpg.c raise.c sigaction.c sigaddset.c sigandset.c \
 	sigorset.c sigpause.c sigrelse.c sigset.c sigsetmask.c sigsetops.c \
 	sysv_signal.c sigwait.c
 
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CSRC:=$(filter-out raise.c,$(CSRC))
+endif
+
 ifneq ($(strip $(ARCH_OBJS)),)
 CSRC:=$(filter-out $(notdir $(ARCH_OBJS:.o=.c)),$(CSRC))
 endif

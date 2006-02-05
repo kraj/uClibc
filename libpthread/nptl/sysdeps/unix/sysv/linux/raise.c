@@ -25,8 +25,8 @@
 #include <kernel-features.h>
 
 
-int
-raise (sig)
+int attribute_hidden
+__raise (sig)
      int sig;
 {
   struct pthread *pd = THREAD_SELF;
@@ -71,5 +71,4 @@ raise (sig)
   return INLINE_SYSCALL (tkill, 2, selftid, sig);
 #endif
 }
-hidden_def (raise)
-weak_alias (raise, gsignal)
+weak_alias(__raise, raise)

@@ -18,4 +18,4 @@
 
 #include <pthreadP.h>
 
-#include_next <sigprocmask.c>
+#include <../../../../libc/sysdeps/linux/common/sigprocmask.c>
