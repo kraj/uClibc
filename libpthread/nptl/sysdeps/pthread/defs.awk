@@ -21,6 +21,4 @@ END {
 	print "#define ALIGN .align", max;
     else
 	print "#define ALIGN";
-
-    print "#include <libc-symbols.h>";
 }

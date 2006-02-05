@@ -22,14 +22,12 @@ include ../Rules.mak
 
 INCLUDES := -I. -I$(TOPDIR)include				\
 	    -I$(PTDIR)						\
-	    -I$(PTDIR)/compat					\
             -I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
             -I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
             -I$(PTDIR)/sysdeps/unix/sysv/linux			\
             -I$(PTDIR)/sysdeps/pthread				\
             -I$(PTDIR)/sysdeps/pthread/bits			\
             -I$(PTDIR)/sysdeps/generic				\
-            -include $(PTDIR)/compat/libc-symbols.h		\
 	    -I$(TOPDIR)ldso/include				\
 	    -I$(TOPDIR)ldso/ldso/$(TARGET_ARCH)
 
