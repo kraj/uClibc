@@ -18,7 +18,18 @@ libpthread_CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c	\
 		  pthread_rwlock_wrlock.c pthread_sigmask.c		\
 		  pthread_spin_destroy.c pthread_spin_init.c		\
 		  pthread_spin_unlock.c pt-sigaction.c pt-sigfillset.c	\
-		  pt-sigprocmask.c unwind-forcedunwind.c
+		  pt-sigprocmask.c unwind-forcedunwind.c pt-longjmp.c
+
+ifeq ($(TARGET_ARCH),i386)
+libpthread_CSRC += pthread_once.c
+endif
+ifeq ($(TARGET_ARCH),sh)
+libpthread_CSRC += pthread_once.c
+endif
+ifeq ($(TARGET_ARCH),x86_64)
+libpthread_CSRC += pthread_once.c
+endif
+
 
 CFLAGS-pt-common = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS)
 
@@ -92,7 +103,18 @@ $(pthread_OUT)/crtn.S: $(pthread_OUT)/pt-initfini.s
 	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
 endif
 
+$(pthread_DIR)/pt-sigaction.c:
+	$(LN) -s sigaction.c $@
+
+$(pthread_DIR)/pt-sigfillset.c:
+	$(LN) -s sigfillset.c $@
+
+$(pthread_DIR)/pt-sigprocmask.c:
+	$(LN) -s sigprocmask.c $@
+
 objclean-y += pthread_objclean
 
 pthread_objclean:
-	$(RM) $(pthread_OUT)/*.{o,os,oS,s,S} $(pthread_OUT)/defs.h
+	$(RM) $(pthread_OUT)/*.{o,os,oS,s,S} $(pthread_OUT)/defs.h \
+	      $(pthread_DIR)/pt-sigaction.c $(pthread_DIR)/pt-sigfillset.c \
+	      $(pthread_DIR)/pt-sigprocmask.c
