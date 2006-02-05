@@ -53,6 +53,7 @@ typedef union dtv
 	.set	pop
 #endif /* __ASSEMBLER__ */
 
+
 /* We require TLS support in the tools.  */
 #define HAVE_TLS_SUPPORT		1
 #define HAVE_TLS_MODEL_ATTRIBUTE	1
@@ -70,7 +71,6 @@ typedef union dtv
 # define TLS_DTV_AT_TP	1
 
 /* Get the thread descriptor definition.  */
-#include <libc-symbols.h>
 #include <../../descr.h>
 
 typedef struct
