@@ -21,7 +21,6 @@
  */
 
 #define _GNU_SOURCE
-#define _LARGEFILE64_SOURCE
 #include <features.h>
 #include <errno.h>
 #include <sys/types.h>
