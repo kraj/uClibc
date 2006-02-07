@@ -31,6 +31,7 @@
 # define RE_TRANSLATE_TYPE char *
 #endif
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -331,7 +332,7 @@ init_syntax_once ()
 # endif /* emacs */
 
 /* Integer type for pointers.  */
-# if !defined _LIBC
+# if !defined _LIBC && !defined __intptr_t_defined
 typedef unsigned long int uintptr_t;
 # endif
 
