@@ -849,7 +849,7 @@ extern int getloadavg (double __loadavg[], int __nelem)
 
 #ifdef __UCLIBC_HAS_ARC4RANDOM__
 #include <stdint.h>
-extern u_int32_t arc4random(void);
+extern uint32_t arc4random(void);
 extern void arc4random_stir(void);
 extern void arc4random_addrandom(unsigned char *, int);
 #endif

@@ -46,9 +46,9 @@ libc_hidden_proto(close)
 libc_hidden_proto(gettimeofday)
 
 struct arc4_stream {
-	u_int8_t i;
-	u_int8_t j;
-	u_int8_t s[256];
+	uint8_t i;
+	uint8_t j;
+	uint8_t s[256];
 };
 
 static int    rs_initialized;
@@ -57,8 +57,8 @@ static struct arc4_stream rs;
 static inline void arc4_init(struct arc4_stream *);
 static inline void arc4_addrandom(struct arc4_stream *, u_char *, int);
 static void arc4_stir(struct arc4_stream *);
-static inline u_int8_t arc4_getbyte(struct arc4_stream *);
-static inline u_int32_t arc4_getword(struct arc4_stream *);
+static inline uint8_t arc4_getbyte(struct arc4_stream *);
+static inline uint32_t arc4_getword(struct arc4_stream *);
 
 static inline void
 arc4_init(as)
@@ -79,7 +79,7 @@ arc4_addrandom(as, dat, datlen)
 	int     datlen;
 {
 	int     n;
-	u_int8_t si;
+	uint8_t si;
 
 	as->i--;
 	for (n = 0; n < 256; n++) {
@@ -99,7 +99,7 @@ arc4_stir(as)
 	int     fd;
 	struct {
 		struct timeval tv;
-		u_int rnd[(128 - sizeof(struct timeval)) / sizeof(u_int)];
+		uint rnd[(128 - sizeof(struct timeval)) / sizeof(uint)];
 	}       rdat;
 	int	n;
 
@@ -112,7 +112,7 @@ arc4_stir(as)
 #ifdef __ARC4RANDOM_USE_ERANDOM__
 	else {
 		int mib[3];
-		u_int i;
+		uint i;
 		size_t len;
 
 		/* Device could not be opened, we might be chrooted, take
@@ -122,8 +122,8 @@ arc4_stir(as)
 		mib[1] = KERN_RANDOM;
 		mib[2] = RANDOM_ERANDOM;
 
-		for (i = 0; i < sizeof(rdat.rnd) / sizeof(u_int); i++) {
-			len = sizeof(u_int);
+		for (i = 0; i < sizeof(rdat.rnd) / sizeof(uint); i++) {
+			len = sizeof(uint);
 			if (sysctl(mib, 3, &rdat.rnd[i], &len, NULL, 0) == -1)
 				break;
 		}
@@ -143,11 +143,11 @@ arc4_stir(as)
 		arc4_getbyte(as);
 }
 
-static inline u_int8_t
+static inline uint8_t
 arc4_getbyte(as)
 	struct arc4_stream *as;
 {
-	u_int8_t si, sj;
+	uint8_t si, sj;
 
 	as->i = (as->i + 1);
 	si = as->s[as->i];
@@ -158,11 +158,11 @@ arc4_getbyte(as)
 	return (as->s[(si + sj) & 0xff]);
 }
 
-static inline u_int32_t
+static inline uint32_t
 arc4_getword(as)
 	struct arc4_stream *as;
 {
-	u_int32_t val;
+	uint32_t val;
 	val = arc4_getbyte(as) << 24;
 	val |= arc4_getbyte(as) << 16;
 	val |= arc4_getbyte(as) << 8;
@@ -190,7 +190,7 @@ arc4random_addrandom(u_char *dat, int datlen)
 	arc4_addrandom(&rs, dat, datlen);
 }
 
-u_int32_t
+uint32_t
 arc4random(void)
 {
 	if (!rs_initialized)
