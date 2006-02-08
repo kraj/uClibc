@@ -23,8 +23,8 @@ volatile int started;
 
 int main(int argc, char ** argv)
 {
-  int i;
-  int pid;
+  unsigned long i;
+  unsigned long pid;
 
   /* create a number to search for */
   pid = getpid();
@@ -66,8 +66,8 @@ void print_it(void *arg)
 
 void *search(void *arg)
 {
-  int num = (int) arg;
-  int i, j, ntries;
+  unsigned long num = (unsigned long) arg;
+  unsigned long i, j, ntries;
   pthread_t tid;
 
   /* get the calling thread ID */
