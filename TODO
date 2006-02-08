@@ -113,8 +113,6 @@ Arch specific TODO:
   sparc:
     need a sigaction.c since common one doesnt work (signal tests)
     ldso needs to be updated since it's totally broken atm
-  x86_64:
-    pthread isn't working really at all (pthreads tests)
   vax:
     pthread support, linktime warning support (implies GAS patches),
     general touchups, testing, ldso.
