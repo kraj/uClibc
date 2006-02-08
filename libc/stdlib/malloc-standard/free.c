@@ -401,13 +401,11 @@ void free(void* mem)
        */
 
     else {
-	int ret;
 	size_t offset = p->prev_size;
 	av->n_mmaps--;
 	av->mmapped_mem -= (size + offset);
-	ret = munmap((char*)p - offset, size + offset);
 	/* munmap returns non-zero on failure */
-	assert(ret == 0);
+	assert(munmap((char*)p - offset, size + offset) == 0);
     }
     UNLOCK;
 }
