@@ -87,7 +87,8 @@ TARGETS = tst-align tst-align2						\
 	  tst-barrier1 tst-barrier2 tst-barrier3 tst-barrier4		\
 	  tst-basic1 tst-basic2 tst-basic4 tst-basic5 tst-basic6	\
 	  tst-cancel1 tst-cancel8 tst-cancel10 tst-cancel12		\
-	  tst-cancel16 tst-cancel19					\
+	  tst-cancel13 tst-cancel14 tst-cancel15  tst-cancel16		\
+	  tst-cancel19							\
 	  tst-cleanup0 tst-cleanup1 tst-cleanup2 tst-cleanup3		\
 	  tst-clock1 tst-clock2						\
 	  tst-cond1 tst-cond2 tst-cond3 tst-cond4 tst-cond5 tst-cond6	\
@@ -96,6 +97,7 @@ TARGETS = tst-align tst-align2						\
 	  tst-cond17 tst-cond18 tst-cond19 tst-cond20 tst-cond21	\
 	  tst-detach1							\
 	  tst-eintr1 tst-eintr2 tst-eintr3 tst-eintr4 tst-eintr5	\
+	  tst-exec2 tst-exec3 tst-exec4					\
 	  tst-flock1 tst-flock2						\
 	  tst-fork1 tst-fork2 tst-fork3 tst-fork4			\
 	  tst-initializers1						\
