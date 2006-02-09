@@ -168,6 +168,7 @@ ifeq ($(TARGET_ARCH),arm)
 	CPU_CFLAGS-$(CONFIG_GENERIC_ARM)+=
 	CPU_CFLAGS-$(CONFIG_ARM610)+=-mtune=arm610 -march=armv3
 	CPU_CFLAGS-$(CONFIG_ARM710)+=-mtune=arm710 -march=armv3
+	CPU_CFLAGS-$(CONFIG_ARM7TDMI)+=-mtune=arm7tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM720T)+=-mtune=arm7tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM920T)+=-mtune=arm9tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM922T)+=-mtune=arm9tdmi -march=armv4

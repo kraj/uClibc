@@ -72,6 +72,10 @@ config CONFIG_ARM710
 	bool "Arm 710"
 	select ARCH_HAS_MMU
 
+config CONFIG_ARM7TDMI
+	bool "Arm 7TDMI"
+	select ARCH_HAS_NO_MMU
+
 config CONFIG_ARM720T
 	bool "Arm 720T"
 	select ARCH_HAS_MMU
