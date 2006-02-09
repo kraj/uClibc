@@ -13,7 +13,9 @@
 int __syscall_error(void) attribute_hidden;
 int __syscall_error(void)
 {
-	register int err_no asm("%rax");
-	__set_errno(-err_no);
+	register int err_no __asm__ ("%rcx");
+	__asm__ ("mov %rax, %rcx\n\t"
+	         "neg %rcx");
+	__set_errno(err_no);
 	return -1;
 }
