@@ -10,5 +10,5 @@
 #include "syscalls.h"
 #include <stdarg.h>
 /* psm: including sys/prctl.h would depend on kernel headers */
-extern int prctl (int, int, int, int, int);
-_syscall5(int, prctl, int, a, int, b, int, c, int, d, int, e);
+extern int prctl (int, long, long, long, long);
+_syscall5(int, prctl, int, option, long, arg2, long, arg3, long, arg4, long, arg5);
