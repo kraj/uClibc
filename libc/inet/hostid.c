@@ -42,7 +42,7 @@ int sethostid(long int new_id)
 
 long int gethostid(void)
 {
-        char host[MAXHOSTNAMELEN + 1];
+	char host[MAXHOSTNAMELEN + 1];
 	int fd, id;
 
 	/* If hostid was already set the we can return that value.
