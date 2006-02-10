@@ -41,6 +41,7 @@ struct statfs
 #endif
     __fsid_t f_fsid;
     __SWORD_TYPE f_namelen;
+    __SWORD_TYPE f_frsize;
     __SWORD_TYPE f_spare[5];
   };
 
@@ -56,9 +57,11 @@ struct statfs64
     __fsfilcnt64_t f_ffree;
     __fsid_t f_fsid;
     __SWORD_TYPE f_namelen;
+    __SWORD_TYPE f_frsize;
     __SWORD_TYPE f_spare[5];
   };
 #endif
 
 /* Tell code we have these members.  */
 #define _STATFS_F_NAMELEN
+#define _STATFS_F_FRSIZE
