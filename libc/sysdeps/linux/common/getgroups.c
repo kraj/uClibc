@@ -14,8 +14,17 @@
 
 libc_hidden_proto(getgroups)
 
-libc_hidden_proto(sysconf)
+#if defined(__NR_getgroups32)
+# undef __NR_getgroups
+# define __NR_getgroups __NR_getgroups32
+_syscall2(int, getgroups, int, size, gid_t *, list);
 
+#elif __WORDSIZE == 64
+_syscall2(int, getgroups, int, size, gid_t *, list);
+
+#else
+
+libc_hidden_proto(sysconf)
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 #define __NR___syscall_getgroups __NR_getgroups
@@ -49,4 +58,6 @@ ret_error:
 		return ngids;
 	}
 }
+#endif
+
 libc_hidden_def(getgroups)

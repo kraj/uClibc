@@ -14,6 +14,16 @@
 
 libc_hidden_proto(setgroups)
 
+#if defined(__NR_setgroups32)
+# undef __NR_setgroups
+# define __NR_setgroups __NR_setgroups32
+_syscall2(int, setgroups, size_t, size, const gid_t *, list);
+
+#elif __WORDSIZE == 64
+_syscall2(int, setgroups, size_t, size, const gid_t *, list);
+
+#else
+
 libc_hidden_proto(sysconf)
 
 #define __NR___syscall_setgroups __NR_setgroups
@@ -49,4 +59,6 @@ ret_error:
 		return i;
 	}
 }
+#endif
+
 libc_hidden_def(setgroups)
