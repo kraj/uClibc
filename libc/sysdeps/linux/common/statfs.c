@@ -13,13 +13,5 @@
 #include <sys/vfs.h>
 
 libc_hidden_proto(statfs)
-
-#define __NR___syscall_statfs __NR_statfs
-static inline _syscall2(int, __syscall_statfs,
-		const char *, path, struct statfs *, buf);
-
-int statfs(const char *path, struct statfs * buf)
-{
-	return __syscall_statfs(path, buf);
-}
+_syscall2(int, statfs, const char *, path, struct statfs *, buf);
 libc_hidden_def(statfs)
