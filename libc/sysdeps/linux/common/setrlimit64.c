@@ -33,8 +33,11 @@
 
 #include <sys/types.h>
 #include <sys/resource.h>
+#include <bits/wordsize.h>
 
-#if defined __UCLIBC_HAS_LFS__
+/* the regular setrlimit will work just fine for 64bit users */
+
+#if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 32
 
 libc_hidden_proto(setrlimit)
 

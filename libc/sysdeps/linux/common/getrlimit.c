@@ -7,25 +7,37 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
+#define getrlimit64 __hide_getrlimit64
 #include "syscalls.h"
 #include <unistd.h>
 #include <sys/resource.h>
+#undef getrlimit64
 
 libc_hidden_proto(getrlimit)
 
-#ifdef __NR_ugetrlimit
-# define __NR___ugetrlimit __NR_ugetrlimit
-static inline
-_syscall2(int, __ugetrlimit, enum __rlimit_resource, resource,
-		  struct rlimit *, rlim);
+/* Only wrap getrlimit if the new ugetrlimit is not present and getrlimit sucks */
+
+#if defined(__NR_ugetrlimit)
+
+/* just call ugetrlimit() */
+# define __NR___syscall_ugetrlimit __NR_ugetrlimit
+static always_inline
+_syscall2(int, __syscall_ugetrlimit, enum __rlimit_resource, resource,
+          struct rlimit *, rlim);
 int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {
-	return (__ugetrlimit(resource, rlimits));
+	return (__syscall_ugetrlimit(resource, rlimits));
 }
 
-#else							/* __NR_ugetrlimit */
+#elif !defined(__UCLIBC_HANDLE_OLDER_RLIMIT__)
 
-/* Only include the old getrlimit if the new one (ugetrlimit) is not around */
+/* We don't need to wrap getrlimit() */
+_syscall2(int, getrlimit, __rlimit_resource_t, resource,
+		struct rlimit *, rlim);
+
+#else
+
+/* we have to handle old style getrlimit() */
 # define __NR___syscall_getrlimit __NR_getrlimit
 static inline
 _syscall2(int, __syscall_getrlimit, int, resource, struct rlimit *, rlim);
@@ -48,4 +60,9 @@ int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 	return result;
 }
 #endif
+
 libc_hidden_def(getrlimit)
+
+#if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
+strong_alias(getrlimit, getrlimit64)
+#endif

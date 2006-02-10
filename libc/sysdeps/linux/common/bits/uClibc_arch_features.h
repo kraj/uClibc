@@ -20,6 +20,9 @@
 /* does your target have a broken create_module() ? */
 #undef __UCLIBC_BROKEN_CREATE_MODULE__
 
+/* does your target have to worry about older [gs]etrlimit() ? */
+#undef __UCLIBC_HANDLE_OLDER_RLIMIT__
+
 /* does your target prefix all symbols with an _ ? */
 #define __UCLIBC_NO_UNDERSCORES__
 

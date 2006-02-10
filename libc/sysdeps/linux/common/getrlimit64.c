@@ -33,10 +33,13 @@
 
 #include <sys/types.h>
 #include <sys/resource.h>
+#include <bits/wordsize.h>
+
+/* the regular getrlimit will work just fine for 64bit users */
+
+#if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 32
 
 libc_hidden_proto(getrlimit)
-
-#if defined __UCLIBC_HAS_LFS__
 
 /* Put the soft and hard limits for RESOURCE in *RLIMITS.
    Returns 0 if successful, -1 if not (and sets errno).  */
