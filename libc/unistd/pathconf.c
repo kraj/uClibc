@@ -35,6 +35,11 @@ libc_hidden_proto(statfs)
 libc_hidden_proto(stat)
 
 
+/* The Linux kernel headers mention this as a kind of generic value. */
+#ifndef LINK_MAX
+# define LINK_MAX 127
+#endif
+
 /* Get file-specific information about PATH.  */
 long int
 pathconf (const char *path, int name)
