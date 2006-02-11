@@ -21,7 +21,7 @@ libc_hidden_proto(setrlimit)
 
 /* just call usetrlimit() */
 # define __NR___syscall_usetrlimit __NR_usetrlimit
-static always_inline
+static inline
 _syscall2(int, __syscall_usetrlimit, enum __rlimit_resource, resource,
           const struct rlimit *, rlim);
 int setrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
