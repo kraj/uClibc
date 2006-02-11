@@ -18,12 +18,20 @@
 
 include ../Rules.mak
 
-TARGETS=test_pwd test_pwd_glibc
-TARGETS+=test_grp test_grp_glibc
-TARGETS+=pwcat pwcat_glibc
-TARGETS+=grcat grcat_glibc
-TARGETS+=getgroups getgroups_glibc
+U_TARGETS := test_pwd test_grp pwcat grcat getgroups
+G_TARGETS := $(patsubst %,%_glibc,$(U_TARGETS))
+
+TARGETS   :=
+ifeq ($(GLIBC_ONLY),)
+TARGETS   += $(U_TARGETS)
+endif
+ifeq ($(UCLIBC_ONLY),)
+TARGETS   += $(G_TARGETS)
+endif
+
+ifeq ($(GLIBC_ONLY),$(UCLIBC_ONLY))
 TARGETS+=test_pwd_diff test_grp_diff pwcat_diff grcat_diff getgroups_diff
+endif
 
 all: $(TARGETS)
 
