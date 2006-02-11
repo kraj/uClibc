@@ -108,7 +108,7 @@ RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/rela
 install_headers:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	printf ".svn\n.cvsignore\nCVS\n" > tar_exclude ; \
-	if [ "$(KERNEL_SOURCE)" = "$(DEVEL_PREFIX)" ] ; then \
+	if [ "$(KERNEL_SOURCE)" = "$(PREFIX)$(DEVEL_PREFIX)" ] ; then \
 		ls -1d include/linux include/asm* >> tar_exclude ; \
 	fi ; \
 	$(TAR) -chf - -X tar_exclude include \
