@@ -64,20 +64,22 @@ void setutent(void)
 	}
 	if (ret < 0) {
 bummer:
-	    UNLOCK;
 	    static_fd = -1;
 	    close(static_fd);
+unlock_and_ret:
+	    UNLOCK;
 	    return;
 	}
     }
     lseek(static_fd, 0, SEEK_SET);
-    UNLOCK;
-    return;
+    goto unlock_and_ret;
 }
 libc_hidden_def(setutent)
 
 static struct utmp *__getutent(int utmp_fd)
 {
+    struct utmp *ret = NULL;
+
     if (utmp_fd == -1) {
 	setutent();
     }
@@ -86,13 +88,13 @@ static struct utmp *__getutent(int utmp_fd)
     }
 
     LOCK;
-    if (read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) != sizeof(struct utmp)) 
+    if (read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) == sizeof(struct utmp)) 
     {
-	return NULL;
+	ret = &static_utmp;
     }
 
     UNLOCK;
-    return &static_utmp;
+    return ret;
 }
 
 void endutent(void)
@@ -163,15 +165,12 @@ struct utmp *pututline (const struct utmp *utmp_entry)
        the file pointer where they want it, everything will work out. */
     lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
 
-    if (getutid(utmp_entry) != NULL) {
+    if (getutid(utmp_entry) != NULL)
 	lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
-	if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
-	    return NULL;
-    } else {
+    else
 	lseek(static_fd, (off_t) 0, SEEK_END);
-	if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
-	    return NULL;
-    }
+    if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
+	utmp_entry = NULL;
 
     UNLOCK;
     return (struct utmp *)utmp_entry;
