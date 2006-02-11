@@ -13,13 +13,6 @@
 #include <sys/param.h>
 
 libc_hidden_proto(execve)
-
-#define __NR___syscall_execve __NR_execve
-static inline _syscall3(int, __syscall_execve, const char *, filename,
+_syscall3(int, execve, const char *, filename,
 		  char *const *, argv, char *const *, envp);
-
-int execve(const char * filename, char *const * argv, char *const * envp)
-{
-	return __syscall_execve(filename, argv, envp);
-}
 libc_hidden_def(execve)
