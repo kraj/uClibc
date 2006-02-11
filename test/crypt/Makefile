@@ -18,7 +18,8 @@
 
 include ../Rules.mak
 
-TARGETS=crypt crypt_glibc diff md5c-test
+TARGETS := crypt diff md5c-test
+
 EXTRA_LIBS=-lcrypt
 
 all: $(TARGETS)
@@ -45,12 +46,12 @@ crypt_glibc: crypt.c Makefile $(TESTDIR)/Rules.mak
 	./$@ < crypt.input > $@.out 2>&1
 	-@ echo " "
 
-diff: crypt_glibc crypt
+diff: crypt
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Diffing output: "
 	-@ echo " "
-	diff -u crypt_glibc.out crypt.out
+	diff -u crypt.good crypt.out
 	-@ echo " "
 
 md5c-test: md5c-test.c Makefile $(TESTDIR)/Rules.mak
