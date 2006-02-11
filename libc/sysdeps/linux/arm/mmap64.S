@@ -52,7 +52,11 @@ mmap64:
 	DO_CALL (mmap2)
 	cmn	r0, $4096
 	ldmfd	sp!, {r4, r5}
+#if defined(__USE_BX__)
+	bxcc	lr
+#else
 	movcc	pc, lr
+#endif
 	b	__syscall_error
 .Linval:
 	mov	r0, $-EINVAL

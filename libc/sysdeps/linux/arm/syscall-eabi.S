@@ -37,7 +37,11 @@ syscall:
 	swi	0x0
 	ldmfd	sp!, {r4, r5, r6, r7}
 	cmn	r0, #4096
+#if defined(__USE_BX__)
+	bxcc	lr
+#else
 	movcc	pc, lr
+#endif
 	b	__syscall_error
 
 .size syscall,.-syscall

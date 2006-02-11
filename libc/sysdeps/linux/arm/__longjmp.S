@@ -61,7 +61,11 @@ __longjmp:
 # endif
 #endif	
 
+#if defined(__USE_BX__)
+	bx	lr
+#else
 	mov pc, lr
+#endif
 
 .size __longjmp,.-__longjmp
 libc_hidden_def(__longjmp)
