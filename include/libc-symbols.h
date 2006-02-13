@@ -438,6 +438,17 @@
 #  endif
 # endif
 
+#  ifdef HAVE_ASM_GLOBAL_DOT_NAME
+#   define _hidden_weak_alias(original, alias)				\
+     .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
+     .hidden C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP			\
+     weak_alias(original, alias)
+#  else
+#   define _hidden_weak_alias(original, alias)				\
+     .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
+     weak_alias(original, alias)
+#  endif
+
 /* For assembly, we need to do the opposite of what we do in C:
    in assembly gcc __REDIRECT stuff is not in place, so functions
    are defined by its normal name and we need to create the
@@ -449,8 +460,8 @@
    is to call via the HIDDEN_JUMPTARGET macro instead of JUMPTARGET.  */
 #  define hidden_def(name)	_hidden_strong_alias (name, __GI_##name)
 #  define hidden_data_def(name)	_hidden_strong_alias (name, __GI_##name)
-#  define hidden_weak(name)	hidden_def (name)
-#  define hidden_data_weak(name)	hidden_data_def (name)
+#  define hidden_weak(name)	_hidden_weak_alias (name, __GI_##name)
+#  define hidden_data_weak(name)	_hidden_weak_alias (name, __GI_##name)
 #  define HIDDEN_JUMPTARGET(name) __GI_##name
 # endif /* __ASSEMBLER__ */
 #else /* SHARED */
