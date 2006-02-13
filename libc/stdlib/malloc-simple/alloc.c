@@ -1,8 +1,10 @@
 /* alloc.c
  *
- * Written by Erik Andersen <andersee@codepoet.org>
- * LGPLv2
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+/*
  * Parts of the memalign code were stolen from malloc-930716.
  */
 
