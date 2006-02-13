@@ -293,6 +293,7 @@
 #define __need_uClibc_config_h
 #include <bits/uClibc_config.h>
 #undef __need_uClibc_config_h
+#include <bits/uClibc_arch_features.h>
 
 #ifdef __UCLIBC_HAS_WCHAR__
 /* wchar_t uses ISO 10646-1 (2nd ed., published 2000-09-15) / Unicode 3.0.  */
