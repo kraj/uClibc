@@ -102,8 +102,10 @@ strong_alias (__progname_full, program_invocation_name)
 libc_hidden_proto(__environ)
 char **__environ = 0;
 libc_hidden_data_def(__environ)
+#ifdef __USE_GNU
 /* psm: arm segfaults with strong_alias, although defined */
 weak_alias(__environ,environ)
+#endif
 
 /* TODO: don't export __pagesize; we cant now because libpthread uses it */
 extern size_t __pagesize;
