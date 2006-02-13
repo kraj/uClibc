@@ -8,6 +8,7 @@
  */
 
 #include "syscalls.h"
+#ifdef __USE_GNU
 #include <unistd.h>
 
 #if defined(__NR_getresgid32)
@@ -33,4 +34,5 @@ int getresgid(gid_t * rgid, gid_t * egid, gid_t * sgid)
 	}
 	return result;
 }
+#endif
 #endif

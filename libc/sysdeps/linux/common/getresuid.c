@@ -8,6 +8,7 @@
  */
 
 #include "syscalls.h"
+#ifdef __USE_GNU
 #include <unistd.h>
 
 #if defined(__NR_getresuid32)
@@ -33,4 +34,5 @@ int getresuid(uid_t * ruid, uid_t * euid, uid_t * suid)
 	}
 	return result;
 }
+#endif
 #endif

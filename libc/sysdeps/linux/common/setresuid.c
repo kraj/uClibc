@@ -8,6 +8,7 @@
  */
 
 #include "syscalls.h"
+#ifdef __USE_GNU
 #include <unistd.h>
 
 libc_hidden_proto(setresuid)
@@ -35,3 +36,4 @@ int setresuid(uid_t ruid, uid_t euid, uid_t suid)
 #endif
 
 libc_hidden_def(setresuid)
+#endif
