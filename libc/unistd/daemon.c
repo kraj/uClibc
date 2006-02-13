@@ -46,7 +46,6 @@
 #include <paths.h>
 #include <unistd.h>
 
-#if defined __ARCH_HAS_MMU__
 libc_hidden_proto(open)
 libc_hidden_proto(close)
 libc_hidden_proto(_exit)
@@ -88,5 +87,3 @@ int daemon( int nochdir, int noclose )
 	}
 	return(0);
 }
-
-#endif
