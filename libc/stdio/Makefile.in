@@ -55,7 +55,7 @@ CUSRC := \
 # putc_unlocked -> alias for fputc_unlocked
 
 # vfprintf and support functions
-MSRC1 := vfprintf.c
+MSRC1 := _vfprintf.c
 ifneq ($(USE_OLD_VFPRINTF),y)
 MOBJ1 := \
 	vfprintf.o \
@@ -67,7 +67,7 @@ CSRC += old_vfprintf.c
 endif
 
 # vfscanf and support functions plus other *scanf funcs
-MSRC2 := scanf.c
+MSRC2 := _scanf.c
 MOBJ2 := \
 	vfscanf.o __scan_cookie.o __psfs_parse_spec.o __psfs_do_numeric.o \
 	scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o

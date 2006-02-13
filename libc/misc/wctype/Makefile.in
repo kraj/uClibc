@@ -6,7 +6,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-MSRC:=wctype.c
+MSRC:=_wctype.c
 MOBJ:=	iswalnum.o iswalpha.o iswcntrl.o iswdigit.o iswgraph.o \
 	iswlower.o iswprint.o iswpunct.o iswspace.o iswupper.o \
 	iswxdigit.o iswblank.o wctrans.o towctrans.o \
