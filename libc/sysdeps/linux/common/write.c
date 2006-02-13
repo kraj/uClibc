@@ -15,7 +15,7 @@ extern __typeof(write) __libc_write;
 _syscall3(ssize_t, __libc_write, int, fd, const __ptr_t, buf, size_t, count);
 libc_hidden_proto(write)
 weak_alias(__libc_write,write)
-libc_hidden_def(write)
+libc_hidden_weak(write)
 #if 0
 /* Stupid libgcc.a from gcc 2.95.x uses __write in pure.o
  * which is a blatent GNU libc-ism... */

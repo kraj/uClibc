@@ -40,7 +40,7 @@ libc_hidden_def(__libc_open)
 
 libc_hidden_proto(open)
 weak_alias(__libc_open,open)
-libc_hidden_def(open)
+libc_hidden_weak(open)
 
 int creat(const char *file, mode_t mode)
 {

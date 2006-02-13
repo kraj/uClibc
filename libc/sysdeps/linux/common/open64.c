@@ -36,5 +36,5 @@ int __libc_open64 (const char *file, int oflag, ...)
 }
 libc_hidden_proto(open64)
 weak_alias(__libc_open64,open64)
-libc_hidden_def(open64)
+libc_hidden_weak(open64)
 #endif /* __UCLIBC_HAS_LFS__ */

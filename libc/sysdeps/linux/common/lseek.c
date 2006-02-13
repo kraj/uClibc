@@ -19,4 +19,4 @@ libc_hidden_def(__libc_lseek)
 
 libc_hidden_proto(lseek)
 weak_alias(__libc_lseek,lseek)
-libc_hidden_def(lseek)
+libc_hidden_weak(lseek)

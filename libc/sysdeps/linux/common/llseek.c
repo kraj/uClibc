@@ -38,5 +38,5 @@ loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 #endif
 libc_hidden_proto(lseek64)
 weak_alias(__libc_lseek64,lseek64)
-libc_hidden_def(lseek64)
+libc_hidden_weak(lseek64)
 //strong_alias(__libc_lseek64,_llseek)

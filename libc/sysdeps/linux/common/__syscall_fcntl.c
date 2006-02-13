@@ -50,10 +50,10 @@ libc_hidden_def(__libc_fcntl)
 
 libc_hidden_proto(fcntl)
 weak_alias(__libc_fcntl,fcntl)
-libc_hidden_def(fcntl)
+libc_hidden_weak(fcntl)
 #if ! defined __NR_fcntl64 && defined __UCLIBC_HAS_LFS__
 strong_alias(__libc_fcntl,__libc_fcntl64)
 libc_hidden_proto(fcntl64)
 weak_alias(__libc_fcntl,fcntl64)
-libc_hidden_def(fcntl64)
+libc_hidden_weak(fcntl64)
 #endif
