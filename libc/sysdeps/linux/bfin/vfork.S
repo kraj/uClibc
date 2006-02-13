@@ -17,5 +17,5 @@ ___vfork:
 	excpt 0;
 	rts;
 .size ___vfork,.-___vfork
-//weak_alias(___vfork,_vfork)
-//libc_hidden_def(_vfork)
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

@@ -29,5 +29,5 @@ ___vfork:
 1:      
         ret
 
-//weak_alias(___vfork,_vfork)
-//libc_hidden_def(_vfork)
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

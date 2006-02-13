@@ -40,5 +40,5 @@ C_ENTRY (__vfork):
 	rtsd	r15, 8			// error return
 	nop
 C_END(__vfork)
-//weak_alias(__vfork,vfork)
-//libc_hidden_def(vfork)
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

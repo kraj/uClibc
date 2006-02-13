@@ -37,5 +37,5 @@ fix_errno:
 	dec.l	#1,er0
 	jmp	@er1                     /* don't return,  just jmp directly */
 
-//weak_alias(___vfork,_vfork)
-//libc_hidden_def(_vfork)
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

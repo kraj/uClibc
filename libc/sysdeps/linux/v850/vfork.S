@@ -38,5 +38,5 @@ C_ENTRY (__vfork):
 	st.w	r10, 0[r11]
 	jmp	[lp]			// error return
 C_END(__vfork)
-//weak_alias(__vfork,vfork)
-//libc_hidden_def(vfork)
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

@@ -12,4 +12,4 @@
 attribute_hidden _syscall0(pid_t, __vfork);
 libc_hidden_proto(vfork)
 weak_alias(__vfork,vfork)
-libc_hidden_def(vfork)
+libc_hidden_weak(vfork)
