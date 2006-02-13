@@ -27,8 +27,6 @@
  */
 
 #include <features.h>
-#ifdef __UCLIBC_HAS_ARC4RANDOM__
-
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -210,5 +208,3 @@ int main(void) {
     return 0;
 }
 #endif
-
-#endif /* __UCLIBC_HAS_ARC4RANDOM__ */
