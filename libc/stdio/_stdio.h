@@ -377,14 +377,6 @@ extern void _stdio_validate_FILE(const FILE *stream);
 
 /**********************************************************************/
 
-extern int _stdio_adjpos(FILE *__restrict stream, __offmax_t * pos);
-extern int _stdio_lseek(FILE *stream, __offmax_t *pos, int whence);
-
-extern size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
-							FILE *stream);
-extern size_t _stdio_fread(unsigned char *buffer, size_t bytes,
-						   FILE *stream);
-
 extern FILE *_stdio_fopen(intptr_t fname_or_mode,
 				  const char *__restrict mode,
 				  FILE *__restrict stream, int filedes) attribute_hidden;
