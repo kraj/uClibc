@@ -1,10 +1,12 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2004 Manuel Novoa III <mjn3@codepoet.org>
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2004 Manuel Novoa III <mjn3@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
-# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+# Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
 #
 
 # SUSv3 functions
@@ -55,96 +57,43 @@ CUSRC := \
 # putc_unlocked -> alias for fputc_unlocked
 
 # vfprintf and support functions
-MSRC1 := _vfprintf.c
 ifneq ($(USE_OLD_VFPRINTF),y)
-MOBJ1 := \
-	vfprintf.o \
-	_ppfs_init.o _ppfs_prepargs.o _ppfs_setargs.o _ppfs_parsespec.o \
-	register_printf_function.o parse_printf_format.o
+CSRC += \
+	vfprintf.c \
+	_ppfs_init.c _ppfs_prepargs.c _ppfs_setargs.c _ppfs_parsespec.c \
+	register_printf_function.c parse_printf_format.c
 else
-MOBJ1 :=
 CSRC += old_vfprintf.c
 endif
 
 # vfscanf and support functions plus other *scanf funcs
-MSRC2 := _scanf.c
-MOBJ2 := \
-	vfscanf.o __scan_cookie.o __psfs_parse_spec.o __psfs_do_numeric.o \
-	scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o
+CSRC += \
+	vfscanf.c __scan_cookie.c __psfs_parse_spec.c __psfs_do_numeric.c \
+	scanf.c sscanf.c fscanf.c vscanf.c vsscanf.c
 
-CWSRC :=
 ifeq ($(UCLIBC_HAS_WCHAR),y)
-CWSRC += _wfwrite.c fwprintf.c swprintf.c vswprintf.c vwprintf.c wprintf.c \
+CSRC += _wfwrite.c fwprintf.c swprintf.c vswprintf.c vwprintf.c wprintf.c \
 	fwide.c ungetwc.c
 CUSRC += fgetwc.c getwchar.c fgetws.c fputwc.c putwchar.c fputws.c
 # getwc (fgetwc alias) getwc_unlocked (fgetwc_unlocked alias)
 # putwc (fputwc alias) putwc_unlocked (fputwc_unlocked alias)
-MOBJ1 += vfwprintf.o
-MOBJ2 += wscanf.o swscanf.o fwscanf.o vwscanf.o vswscanf.o vfwscanf.o
+CSRC += vfwprintf.c
+CSRC += wscanf.c swscanf.c fwscanf.c vwscanf.c vswscanf.c vfwscanf.c
 endif
 
-CSRC += $(CUSRC) $(CWSRC)
+CUSRC_UNLOCKED := $(patsubst %.c,%_unlocked.c,$(CUSRC))
 
-ifneq ($(DOMULTI),n)
-STDIO_CSRC_NO_MULTI := fwrite.c fputc.c fputs.c fprintf.c _fpmaxtostr.c
-CSRC := $(filter-out $(STDIO_CSRC_NO_MULTI),$(CSRC))
-endif
-STDIO_MOBJ1_NO_MULTI := vfprintf.o vfwprintf.o register_printf_function.o
-STDIO_MOBJ2_NO_MULTI := vfscanf.o vfwscanf.o fscanf.o
-STDIO_MOBJ_NO_MULTI := $(STDIO_MOBJ1_NO_MULTI) $(STDIO_MOBJ2_NO_MULTI)
+CSRC += $(CUSRC) $(CUSRC_UNLOCKED)
 
 STDIO_DIR := $(top_srcdir)libc/stdio
 STDIO_OUT := $(top_builddir)libc/stdio
 
 STDIO_SRC := $(patsubst %.c,$(STDIO_DIR)/%.c,$(CSRC))
 STDIO_OBJ := $(patsubst %.c,$(STDIO_OUT)/%.o,$(CSRC))
-STDIO_CUSRC := $(patsubst %.c,$(STDIO_DIR)/%.c,$(CUSRC))
-STDIO_CUOBJ := $(patsubst %.c,$(STDIO_OUT)/%_unlocked.o,$(CUSRC))
 
-STDIO_MSRC1 := $(patsubst %.c,$(STDIO_DIR)/%.c,$(MSRC1))
-STDIO_MSRC2 := $(patsubst %.c,$(STDIO_DIR)/%.c,$(MSRC2))
-STDIO_MOBJ1 := $(patsubst %.o,$(STDIO_OUT)/%.o,$(MOBJ1))
-STDIO_MOBJ2 := $(patsubst %.o,$(STDIO_OUT)/%.o,$(MOBJ2))
+libc-y += $(STDIO_OBJ)
 
-STDIO_MSRC := $(STDIO_MSRC1) $(STDIO_MSRC2)
-STDIO_MOBJ := $(STDIO_MOBJ1) $(STDIO_MOBJ2)
-
-STDIO_DEF := $(patsubst %,-DL_%,$(subst .o,,$(filter-out $(STDIO_MOBJ_NO_MULTI),$(notdir $(STDIO_MOBJ)))))
-
-STDIO_OBJS := $(STDIO_OBJ) $(STDIO_MOBJ) $(STDIO_CUOBJ)
-
-STDIO_NO_MULTI := $(STDIO_CUOBJ)
-
-# these need special handling or rewrite to support multi-build
-# CUOBJ
-%_unlocked.o: %.c
-	$(compile.c) -D__DO_UNLOCKED
-
-%_unlocked.os: %.c
-	$(compile.c) -D__DO_UNLOCKED
-
-$(STDIO_MOBJ1): $(STDIO_MSRC1)
-	$(compile.m)
-
-$(STDIO_MOBJ1:.o=.os): $(STDIO_MSRC1)
-	$(compile.m)
-
-$(STDIO_MOBJ2): $(STDIO_MSRC2)
-	$(compile.m)
-
-$(STDIO_MOBJ2:.o=.os): $(STDIO_MSRC2)
-	$(compile.m)
-
-libc-a-y+=$(STDIO_OBJS)
-libc-so-y+=$(STDIO_OBJS:.o=.os)
-
-CFLAGS-multi-y+=$(STDIO_DEF)
-libc-multi-y+=$(STDIO_SRC) $(STDIO_MSRC)
-libc-nomulti-y+=$(STDIO_NO_MULTI)
-libc-nomulti-y+=$(patsubst %.c,$(STDIO_OUT)/%.o,$(STDIO_CSRC_NO_MULTI))
-libc-nomulti-y+=$(patsubst %.o,$(STDIO_OUT)/%.o,$(STDIO_MOBJ_NO_MULTI))
-
-objclean-y+=stdio_objclean
+objclean-y += stdio_objclean
 
 stdio_objclean:
 	$(RM) $(STDIO_OUT)/*.{o,os}

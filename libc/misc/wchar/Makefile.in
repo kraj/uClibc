@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -17,35 +17,24 @@
 # wcsftime
 #
 
-MSRC:=wchar.c
-MOBJ:=	btowc.o wctob.o mbsinit.o mbrlen.o mbrtowc.o wcrtomb.o mbsrtowcs.o \
-	wcsrtombs.o _wchar_utf8sntowcs.o _wchar_wcsntoutf8s.o \
-	mbsnrtowcs.o wcsnrtombs.o wcwidth.o wcswidth.o
+# multi source wchar.c
+CSRC :=	btowc.c wctob.c mbsinit.c mbrlen.c mbrtowc.c wcrtomb.c mbsrtowcs.c \
+	wcsrtombs.c _wchar_utf8sntowcs.c _wchar_wcsntoutf8s.c \
+	mbsnrtowcs.c wcsnrtombs.c wcwidth.c wcswidth.c
 
 ifeq ($(UCLIBC_HAS_LOCALE),y)
-MOBJ+=iconv.o
+CSRC += iconv.c
 endif
 
-MISC_WCHAR_DIR:=$(top_srcdir)libc/misc/wchar
-MISC_WCHAR_OUT:=$(top_builddir)libc/misc/wchar
+MISC_WCHAR_DIR := $(top_srcdir)libc/misc/wchar
+MISC_WCHAR_OUT := $(top_builddir)libc/misc/wchar
 
-MISC_WCHAR_MSRC:=$(MISC_WCHAR_DIR)/$(MSRC)
-MISC_WCHAR_MOBJ:=$(patsubst %.o,$(MISC_WCHAR_OUT)/%.o,$(MOBJ))
-MISC_WCHAR_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_WCHAR_MOBJ))))
+MISC_WCHAR_SRC := $(patsubst %.c,$(MISC_WCHAR_DIR)/%.c,$(CSRC))
+MISC_WCHAR_OBJ := $(patsubst %.c,$(MISC_WCHAR_OUT)/%.o,$(CSRC))
 
-$(MISC_WCHAR_MOBJ): $(MISC_WCHAR_MSRC)
-	$(compile.m)
+libc-$(UCLIBC_HAS_WCHAR) += $(MISC_WCHAR_OBJ)
 
-$(MISC_WCHAR_MOBJ:.o=.os): $(MISC_WCHAR_MSRC)
-	$(compile.m)
-
-libc-a-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ)
-libc-so-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ:.o=.os)
-
-CFLAGS-multi-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_DEF)
-libc-multi-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MSRC)
-
-objclean-y+=misc_wchar_objclean
+objclean-y += misc_wchar_objclean
 
 misc_wchar_objclean:
 	$(RM) $(MISC_WCHAR_OUT)/*.{o,os}

@@ -1,10 +1,13 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
+
+libc_DIR := $(top_srcdir)libc
+libc_OUT := $(top_builddir)libc
 
 # Check if the target architecture has a version script for
 # libc, and if so, include it when linking.
@@ -20,9 +23,6 @@ LIBS-libc.so := $(interp) $(ldso) $(top_builddir)lib/$(NONSHARED_LIBNAME)
 # we have SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION) defined in Rules.mak
 libc_FULL_NAME := libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-libc_DIR := $(top_srcdir)libc
-libc_OUT := $(top_builddir)libc
-
 # this comes first, so duplicate removal works correctly
 include $(libc_DIR)/sysdeps/Makefile.in
 
@@ -36,21 +36,31 @@ include $(libc_DIR)/signal/Makefile.in
 include $(libc_DIR)/stdlib/Makefile.in
 include $(libc_DIR)/unistd/Makefile.in
 
-libc-a-y += $(libc-static-y)
-libc-so-y += $(libc-shared-y)
-
 ifeq ($(DOPIC),y)
-libc-a-y := $(libc-a-y:.o=.os)
+libc-a-y = $(libc-y:.o=.os) $(libc-static-y:.o=.os)
+else
+libc-a-y = $(libc-y) $(libc-static-y)
 endif
 
-libc-nomulti-y += $(libc-shared-y)
+ifneq ($(DOMULTI),y)
+libc-so-y = $(libc-y:.o=.os) $(libc-shared-y)
+else
+all_sources = $(libc-y:.o=.c)
+all_sources += $(libc-shared-y:.oS=.c)
+libc-multi-y = $(filter-out $(libc-nomulti-y:.o=.c),$(all_sources))
+endif
 
 lib-a-y += $(top_builddir)lib/libc.a
 lib-so-y += $(libc)
 objclean-y += libc_clean
 
+ifneq ($(DOMULTI),y)
 $(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
 	$(call link.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
+else
+$(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc.oS $(libc-nomulti-y:.o=.os) $(LIBS-libc.so)
+	$(call linkm.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
+endif
 	$(Q)$(RM) $@
 	$(Q)echo "/* GNU ld script" > $@
 	$(Q)echo " * Use the shared library, but some functions are only in" >> $@
@@ -70,6 +80,11 @@ else
 endif
 	$(do_ar)
 
+$(libc_OUT)/libc.oS: $(libc-multi-y) | $(top_builddir)lib/libc.a $(top_builddir)lib/$(NONSHARED_LIBNAME)
+	$(Q)$(RM) $@
+	$(compile-m)
+	$(do_t_strip)
+
 $(top_builddir)lib/libc.a: $(libc-a-y) | $(crt-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
@@ -77,4 +92,4 @@ $(top_builddir)lib/libc.a: $(libc-a-y) | $(crt-y)
 	$(do_ar)
 
 libc_clean:
-	$(RM) $(libc_OUT)/*.{o,os,a}
+	$(RM) $(libc_OUT)/*.{o,os,oS,a}

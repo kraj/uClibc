@@ -1,25 +1,22 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC:=mntent.c
+CSRC := mntent.c
 
-MISC_MNTENT_DIR:=$(top_srcdir)libc/misc/mntent
-MISC_MNTENT_OUT:=$(top_builddir)libc/misc/mntent
+MISC_MNTENT_DIR := $(top_srcdir)libc/misc/mntent
+MISC_MNTENT_OUT := $(top_builddir)libc/misc/mntent
 
-MISC_MNTENT_SRC:=$(MISC_MNTENT_DIR)/mntent.c
-MISC_MNTENT_OBJ:=$(MISC_MNTENT_OUT)/mntent.o
+MISC_MNTENT_SRC := $(MISC_MNTENT_DIR)/mntent.c
+MISC_MNTENT_OBJ := $(MISC_MNTENT_OUT)/mntent.o
 
-libc-a-y+=$(MISC_MNTENT_OBJ)
-libc-so-y+=$(MISC_MNTENT_OBJ:.o=.os)
+libc-y += $(MISC_MNTENT_OBJ)
 
-libc-multi-y+=$(MISC_MNTENT_SRC)
-
-objclean-y+=misc_mntent_objclean
+objclean-y += misc_mntent_objclean
 
 misc_mntent_objclean:
 	$(RM) $(MISC_MNTENT_OUT)/*.{o,os}

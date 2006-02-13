@@ -1,57 +1,47 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-COMMON_DIR:=$(top_srcdir)libc/sysdeps/linux/common
-COMMON_OUT:=$(top_builddir)libc/sysdeps/linux/common
+COMMON_DIR := $(top_srcdir)libc/sysdeps/linux/common
+COMMON_OUT := $(top_builddir)libc/sysdeps/linux/common
 
-CSRC:=$(patsubst $(COMMON_DIR)/%.c,%.c,$(wildcard $(COMMON_DIR)/*.c))
+CSRC := $(notdir $(wildcard $(COMMON_DIR)/*.c))
 
 ifeq ($(EXCLUDE_BRK),y)
-CSRC:=$(filter-out sbrk.c,$(CSRC))
+CSRC := $(filter-out sbrk.c,$(CSRC))
 endif
 
 ifneq ($(UCLIBC_HAS_LFS),y)
-CSRC_LFS:=$(patsubst $(COMMON_DIR)/%.c,%.c,$(wildcard $(COMMON_DIR)/*64.c))
-CSRC:=$(filter-out llseek.c $(CSRC_LFS),$(CSRC))
+CSRC_LFS := $(notdir $(wildcard $(COMMON_DIR)/*64.c))
+CSRC := $(filter-out llseek.c $(CSRC_LFS),$(CSRC))
 endif
 
-# full list
-#COMMON_NO_MULTI:=getcwd.c getrlimit.c getrlimit64.c setrlimit.c setrlimit64.c getpriority.c getpriority64.c setpriority.c getrusage.c wait4.c getitimer.c setitimer.c open.c open64.c uname.c __syscall_fcntl.c __syscall_fcntl64.c
-COMMON_NO_MULTI:=getrlimit.c getrlimit64.c setrlimit.c setrlimit64.c getpriority.c setpriority.c getrusage.c getitimer.c setitimer.c uname.c __syscall_rt_sigaction.c
-
-CSRC:=$(filter-out ssp-local.c,$(CSRC))
+CSRC := $(filter-out ssp-local.c,$(CSRC))
 ifneq ($(UCLIBC_HAS_SSP),y)
-CSRC:=$(filter-out ssp.c,$(CSRC))
-endif
-
-ifneq ($(DOMULTI),n)
-CSRC:=$(filter-out $(COMMON_NO_MULTI),$(CSRC))
+CSRC := $(filter-out ssp.c,$(CSRC))
 endif
 
 # fails for some reason
 ifneq ($(strip $(ARCH_OBJS)),)
-CSRC:=$(filter-out $(notdir $(ARCH_OBJS:.o=.c)),$(CSRC))
+CSRC := $(filter-out $(notdir $(ARCH_OBJS:.o=.c)),$(CSRC))
 endif
 
-CFLAGS-ssp.c=$(SSP_DISABLE_FLAGS)
-CFLAGS-ssp-local.c=$(SSP_DISABLE_FLAGS)
+CFLAGS-ssp.c := $(SSP_DISABLE_FLAGS)
+CFLAGS-ssp-local.c := $(SSP_DISABLE_FLAGS)
 
-COMMON_SRC:=$(patsubst %.c,$(COMMON_DIR)/%.c,$(CSRC))
-COMMON_OBJ:=$(patsubst %.c,$(COMMON_OUT)/%.o,$(CSRC))
+COMMON_SRC := $(patsubst %.c,$(COMMON_DIR)/%.c,$(CSRC))
+COMMON_OBJ := $(patsubst %.c,$(COMMON_OUT)/%.o,$(CSRC))
 
-libc-a-y+=$(COMMON_OBJ)
-libc-so-y+=$(COMMON_OBJ:.o=.os)
-libc-static-$(UCLIBC_HAS_SSP)+=$(COMMON_OUT)/ssp-local.o
-libc-nonshared-$(UCLIBC_HAS_SSP)+=$(COMMON_OUT)/ssp-local.os
+libc-y += $(COMMON_OBJ)
+libc-static-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp-local.o
+libc-nonshared-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp-local.os
 
-libc-multi-y+=$(COMMON_SRC)
-libc-nomulti-y+=$(patsubst %.c,$(COMMON_OUT)/%.o,$(COMMON_NO_MULTI))
+libc-nomulti-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp.o
 
-objclean-y+=common_objclean
+objclean-y += common_objclean
 
 common_objclean:
 	$(RM) $(COMMON_OUT)/*.{o,os}

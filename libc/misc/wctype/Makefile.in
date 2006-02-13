@@ -1,53 +1,35 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-MSRC:=_wctype.c
-MOBJ:=	iswalnum.o iswalpha.o iswcntrl.o iswdigit.o iswgraph.o \
-	iswlower.o iswprint.o iswpunct.o iswspace.o iswupper.o \
-	iswxdigit.o iswblank.o wctrans.o towctrans.o \
-	wctype.o iswctype.o towlower.o towupper.o
+# multi source _wctype.c
+COM_SRC := \
+	iswalnum.c iswalpha.c iswcntrl.c iswdigit.c iswgraph.c \
+	iswlower.c iswprint.c iswpunct.c iswspace.c iswupper.c \
+	iswxdigit.c iswblank.c wctrans.c towctrans.c \
+	wctype.c iswctype.c towlower.c towupper.c
 
-MOBJx:=	iswalnum_l.o iswalpha_l.o iswcntrl_l.o iswdigit_l.o iswgraph_l.o \
-	iswlower_l.o iswprint_l.o iswpunct_l.o iswspace_l.o iswupper_l.o \
-	iswxdigit_l.o iswblank_l.o \
-	wctype_l.o iswctype_l.o wctrans_l.o towctrans_l.o towlower_l.o towupper_l.o
+CSRC :=
+ifeq ($(UCLIBC_HAS_WCHAR),y)
+CSRC += $(COM_SRC)
+endif
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+CSRC += $(patsubst %.c,%_l.c,$(COM_SRC))
+endif
 
-MISC_WCTYPE_DIR:=$(top_srcdir)libc/misc/wctype
-MISC_WCTYPE_OUT:=$(top_builddir)libc/misc/wctype
+MISC_WCTYPE_DIR := $(top_srcdir)libc/misc/wctype
+MISC_WCTYPE_OUT := $(top_builddir)libc/misc/wctype
 
-MISC_WCTYPE_MSRC:=$(MISC_WCTYPE_DIR)/$(MSRC)
-MISC_WCTYPE_MOBJ:=$(patsubst %.o,$(MISC_WCTYPE_OUT)/%.o,$(MOBJ))
-MISC_WCTYPE_MOBJx:=$(patsubst %.o,$(MISC_WCTYPE_OUT)/%.o,$(MOBJx))
+MISC_WCTYPE_SRC := $(patsubst %.c,$(MISC_WCTYPE_DIR)/%.c,$(CSRC))
+MISC_WCTYPE_OBJ := $(patsubst %.c,$(MISC_WCTYPE_OUT)/%.o,$(CSRC))
 
-MISC_WCTYPE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_WCTYPE_MOBJ))))
+libc-y += $(MISC_WCTYPE_OBJ)
 
-$(MISC_WCTYPE_MOBJ): $(MISC_WCTYPE_MSRC)
-	$(compile.m)
-
-$(MISC_WCTYPE_MOBJ:.o=.os): $(MISC_WCTYPE_MSRC)
-	$(compile.m)
-
-$(MISC_WCTYPE_MOBJx): $(MISC_WCTYPE_MSRC)
-	$(compile.m) -D__UCLIBC_DO_XLOCALE
-
-$(MISC_WCTYPE_MOBJx:.o=.os): $(MISC_WCTYPE_MSRC)
-	$(compile.m) -D__UCLIBC_DO_XLOCALE
-
-libc-a-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCTYPE_MOBJ)
-libc-a-$(UCLIBC_HAS_XLOCALE)+=$(MISC_WCTYPE_MOBJx)
-libc-so-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCTYPE_MOBJ:.o=.os)
-libc-so-$(UCLIBC_HAS_XLOCALE)+=$(MISC_WCTYPE_MOBJx:.o=.os)
-
-CFLAGS-multi-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCTYPE_DEF)
-libc-multi-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCTYPE_MSRC)
-libc-nomulti-$(UCLIBC_HAS_XLOCALE)+=$(MISC_WCTYPE_MOBJx)
-
-objclean-y+=misc_wctype_objclean
+objclean-y += misc_wctype_objclean
 
 misc_wctype_objclean:
 	$(RM) $(MISC_WCTYPE_OUT)/*.{o,os}

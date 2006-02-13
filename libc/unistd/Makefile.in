@@ -1,60 +1,39 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC:=	sleep.c usleep.c ualarm.c getpass.c sysconf.c getlogin.c \
-	fpathconf.c confstr.c pathconf.c swab.c usershell.c \
-	getsubopt.c
+UNISTD_DIR := $(top_srcdir)libc/unistd
+UNISTD_OUT := $(top_builddir)libc/unistd
+
+CSRC := $(notdir $(wildcard $(UNISTD_DIR)/*.c))
+# multi source
+CSRC := $(filter-out exec.c,$(CSRC))
+
 ifeq ($(ARCH_HAS_MMU),y)
-CSRC+= daemon.c
-endif
-
-MSRC:=exec.c
-MOBJ:=execl.o execv.o execle.o execlp.o execvp.o
-
-ifneq ($(ARCH_HAS_MMU),y)
-MOBJ+=__exec_alloc.o
+CSRC := $(filter-out __exec_alloc.c,$(CSRC))
+else
+CSRC := $(filter-out daemon.c,$(CSRC))
 endif
 
 ifeq ($(UCLIBC_HAS_GNU_GETOPT),y)
-CSRC+=getopt.c
+CSRC := $(filter-out getopt-susv3.c,$(CSRC))
 else
-CSRC+=getopt-susv3.c
+CSRC := $(filter-out getopt.c,$(CSRC))
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC:=$(filter-out sleep.c,$(CSRC))
+CSRC := $(filter-out sleep.c,$(CSRC))
 endif
 
-UNISTD_DIR:=$(top_srcdir)libc/unistd
-UNISTD_OUT:=$(top_builddir)libc/unistd
+UNISTD_SRC := $(patsubst %.c,$(UNISTD_DIR)/%.c,$(CSRC))
+UNISTD_OBJ := $(patsubst %.c,$(UNISTD_OUT)/%.o,$(CSRC))
 
-UNISTD_SRC:=$(patsubst %.c,$(UNISTD_DIR)/%.c,$(CSRC))
-UNISTD_OBJ:=$(patsubst %.c,$(UNISTD_OUT)/%.o,$(CSRC))
+libc-y += $(UNISTD_OBJ)
 
-UNISTD_MSRC:=$(patsubst %.c,$(UNISTD_DIR)/%.c,$(MSRC))
-UNISTD_MOBJ:=$(patsubst %.o,$(UNISTD_OUT)/%.o,$(MOBJ))
-
-UNISTD_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(UNISTD_MOBJ))))
-
-UNISTD_OBJS:=$(UNISTD_OBJ) $(UNISTD_MOBJ)
-
-$(UNISTD_MOBJ): $(UNISTD_MSRC)
-	$(compile.m)
-
-$(UNISTD_MOBJ:.o=.os): $(UNISTD_MSRC)
-	$(compile.m)
-
-libc-a-y+=$(UNISTD_OBJS)
-libc-so-y+=$(UNISTD_OBJS:.o=.os)
-
-CFLAGS-multi-y+=$(UNISTD_DEF)
-libc-multi-y+=$(UNISTD_SRC) $(UNISTD_MSRC)
-
-objclean-y+=unistd_objclean
+objclean-y += unistd_objclean
 
 unistd_objclean:
 	$(RM) $(UNISTD_OUT)/*.{o,os}

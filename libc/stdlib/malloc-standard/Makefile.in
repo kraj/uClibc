@@ -1,32 +1,29 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
 # Turn on malloc debugging if requested
 ifeq ($(UCLIBC_MALLOC_DEBUGGING),y)
-CFLAGS+=-D__MALLOC_DEBUGGING
+CFLAGS += -D__MALLOC_DEBUGGING
 endif
 
 # calloc.c can be found at uClibc/libc/stdlib/calloc.c
 # valloc.c can be found at uClibc/libc/stdlib/valloc.c
-CSRC:=malloc.c calloc.c realloc.c free.c memalign.c mallopt.c mallinfo.c
+CSRC := malloc.c calloc.c realloc.c free.c memalign.c mallopt.c mallinfo.c
 
-STDLIB_MALLOC_STANDARD_DIR:=$(top_srcdir)libc/stdlib/malloc-standard
-STDLIB_MALLOC_STANDARD_OUT:=$(top_builddir)libc/stdlib/malloc-standard
+STDLIB_MALLOC_STANDARD_DIR := $(top_srcdir)libc/stdlib/malloc-standard
+STDLIB_MALLOC_STANDARD_OUT := $(top_builddir)libc/stdlib/malloc-standard
 
-STDLIB_MALLOC_STANDARD_SRC:=$(patsubst %.c,$(STDLIB_MALLOC_STANDARD_DIR)/%.c,$(CSRC))
-STDLIB_MALLOC_STANDARD_OBJ:=$(patsubst %.c,$(STDLIB_MALLOC_STANDARD_OUT)/%.o,$(CSRC))
+STDLIB_MALLOC_STANDARD_SRC := $(patsubst %.c,$(STDLIB_MALLOC_STANDARD_DIR)/%.c,$(CSRC))
+STDLIB_MALLOC_STANDARD_OBJ := $(patsubst %.c,$(STDLIB_MALLOC_STANDARD_OUT)/%.o,$(CSRC))
 
-libc-a-$(MALLOC_STANDARD)+=$(STDLIB_MALLOC_STANDARD_OBJ)
-libc-so-$(MALLOC_STANDARD)+=$(STDLIB_MALLOC_STANDARD_OBJ:.o=.os)
+libc-$(MALLOC_STANDARD) += $(STDLIB_MALLOC_STANDARD_OBJ)
 
-libc-multi-$(MALLOC_STANDARD)+=$(STDLIB_MALLOC_STANDARD_SRC)
-
-objclean-y+=stdlib_malloc_standard_objclean
+objclean-y += stdlib_malloc_standard_objclean
 
 stdlib_malloc_standard_objclean:
 	$(RM) $(STDLIB_MALLOC_STANDARD_OUT)/*.{o,os}

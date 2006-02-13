@@ -1,31 +1,26 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC:=glob.c glob64.c glob-hooks.c
+CSRC := glob.c glob64.c glob-hooks.c
 
-MISC_GLOB_DIR:=$(top_srcdir)libc/misc/glob
-MISC_GLOB_OUT:=$(top_builddir)libc/misc/glob
+MISC_GLOB_DIR := $(top_srcdir)libc/misc/glob
+MISC_GLOB_OUT := $(top_builddir)libc/misc/glob
 
-MISC_GLOB_SRC:=$(patsubst %.c,$(MISC_GLOB_DIR)/%.c,$(CSRC))
-MISC_GLOB_OBJ:=$(patsubst %.c,$(MISC_GLOB_OUT)/%.o,$(CSRC))
+MISC_GLOB_SRC := $(patsubst %.c,$(MISC_GLOB_DIR)/%.c,$(CSRC))
+MISC_GLOB_OBJ := $(patsubst %.c,$(MISC_GLOB_OUT)/%.o,$(CSRC))
 
 $(MISC_GLOB_OUT)/glob64.o: $(MISC_GLOB_DIR)/glob64.c $(MISC_GLOB_DIR)/glob.c
 
 $(MISC_GLOB_OUT)/glob64.os: $(MISC_GLOB_DIR)/glob64.c $(MISC_GLOB_DIR)/glob.c
 
-libc-a-$(UCLIBC_HAS_GLOB)+=$(MISC_GLOB_OBJ)
-libc-so-$(UCLIBC_HAS_GLOB)+=$(MISC_GLOB_OBJ:.o=.os)
+libc-$(UCLIBC_HAS_GLOB) += $(MISC_GLOB_OBJ)
 
-# glob has to be rewritten to allow multi
-#libc-multi-$(UCLIBC_HAS_GLOB)+=$(MISC_GLOB_SRC)
-libc-nomulti-$(UCLIBC_HAS_GLOB)+=$(MISC_GLOB_OBJ)
-
-objclean-y+=misc_glob_objclean
+objclean-y += misc_glob_objclean
 
 misc_glob_objclean:
 	$(RM) $(MISC_GLOB_OUT)/*.{o,os}

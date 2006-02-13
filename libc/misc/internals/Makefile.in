@@ -1,29 +1,26 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-__uClibc_main.c:=$(SSP_DISABLE_FLAGS)
+CFLAGS-__uClibc_main.c := $(SSP_DISABLE_FLAGS)
 
-CSRC:=tempname.c errno.c __errno_location.c __h_errno_location.c
+CSRC := tempname.c errno.c __errno_location.c __h_errno_location.c
 
-MISC_INTERNALS_DIR:=$(top_srcdir)libc/misc/internals
-MISC_INTERNALS_OUT:=$(top_builddir)libc/misc/internals
+MISC_INTERNALS_DIR := $(top_srcdir)libc/misc/internals
+MISC_INTERNALS_OUT := $(top_builddir)libc/misc/internals
 
-MISC_INTERNALS_SRC:=$(patsubst %.c,$(MISC_INTERNALS_DIR)/%.c,$(CSRC))
-MISC_INTERNALS_OBJ:=$(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(CSRC))
+MISC_INTERNALS_SRC := $(patsubst %.c,$(MISC_INTERNALS_DIR)/%.c,$(CSRC))
+MISC_INTERNALS_OBJ := $(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(CSRC))
 
-libc-a-y+=$(MISC_INTERNALS_OBJ)
-libc-so-y+=$(MISC_INTERNALS_OBJ:.o=.os)
-libc-shared-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.oS
-libc-static-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.o
+libc-y += $(MISC_INTERNALS_OBJ)
+libc-shared-y += $(MISC_INTERNALS_OUT)/__uClibc_main.oS
+libc-static-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o
 
-libc-multi-y+=$(MISC_INTERNALS_SRC)
-
-objclean-y+=misc_internals_objclean
+objclean-y += misc_internals_objclean
 
 misc_internals_objclean:
 	$(RM) $(MISC_INTERNALS_OUT)/*.{o,os,oS}

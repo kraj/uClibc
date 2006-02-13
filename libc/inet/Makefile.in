@@ -1,80 +1,45 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
 include $(top_srcdir)libc/inet/rpc/Makefile.in
 
-CSRC:=	getservice.c getproto.c hostid.c getnetent.c getnetbynm.c getnetbyad.c \
+CSRC :=	getservice.c getproto.c hostid.c getnetent.c getnetbynm.c getnetbyad.c \
 	inet_net.c ntop.c herror.c if_index.c gai_strerror.c getaddrinfo.c \
 	in6_addr.c ether_addr.c ntohl.c opensock.c ifaddrs.c
 
-MSRC1:=	addr.c
-MOBJ1:=	inet_aton.o inet_addr.o inet_ntoa.o inet_makeaddr.o inet_lnaof.o \
-	inet_netof.o
+# multi source addr.c
+CSRC +=	inet_aton.c inet_addr.c inet_ntoa.c inet_makeaddr.c inet_lnaof.c \
+	inet_netof.c
 
-MSRC2:=	resolv.c
-MOBJ2:=	encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
-	decodeq.o lengthq.o encodea.o decodea.o encodep.o decodep.o \
-	formquery.o dnslookup.o resolveaddress.o opennameservers.o \
-	closenameservers.o resolvename.o gethostbyname.o res_init.o \
-	res_query.o gethostbyaddr.o read_etc_hosts_r.o get_hosts_byname_r.o \
-	get_hosts_byaddr_r.o gethostbyname2.o getnameinfo.o gethostent.o \
-	gethostbyname_r.o gethostbyname2_r.o gethostbyaddr_r.o \
-	res_comp.o ns_name.o
+# multi source resolv.c
+CSRC +=	encodeh.c decodeh.c encoded.c decoded.c lengthd.c encodeq.c \
+	decodeq.c lengthq.c encodea.c decodea.c encodep.c decodep.c \
+	formquery.c dnslookup.c resolveaddress.c opennameservers.c \
+	closenameservers.c resolvename.c gethostbyname.c res_init.c \
+	res_query.c gethostbyaddr.c read_etc_hosts_r.c get_hosts_byname_r.c \
+	get_hosts_byaddr_r.c gethostbyname2.c getnameinfo.c gethostent.c \
+	gethostbyname_r.c gethostbyname2_r.c gethostbyaddr_r.c \
+	res_comp.c ns_name.c
 
-MSRC3:=	socketcalls.c
-MOBJ3:=	accept.o bind.o connect.o getpeername.o getsockname.o getsockopt.o \
-	listen.o recv.o recvfrom.o recvmsg.o send.o sendmsg.o sendto.o \
-	setsockopt.o shutdown.o socket.o socketpair.o 
+# multi source socketcalls.c
+CSRC +=	accept.c bind.c connect.c getpeername.c getsockname.c getsockopt.c \
+	listen.c recv.c recvfrom.c recvmsg.c send.c sendmsg.c sendto.c \
+	setsockopt.c shutdown.c socket.c socketpair.c 
 
-INET_DIR:=$(top_srcdir)libc/inet
-INET_OUT:=$(top_builddir)libc/inet
+INET_DIR := $(top_srcdir)libc/inet
+INET_OUT := $(top_builddir)libc/inet
 
-INET_SRC:=$(patsubst %.c,$(INET_DIR)/%.c,$(CSRC))
-INET_OBJ:=$(patsubst %.c,$(INET_OUT)/%.o,$(CSRC))
+INET_SRC := $(patsubst %.c,$(INET_DIR)/%.c,$(CSRC))
+INET_OBJ := $(patsubst %.c,$(INET_OUT)/%.o,$(CSRC))
 
-INET_MSRC1:=$(INET_DIR)/$(MSRC1)
-INET_MSRC2:=$(INET_DIR)/$(MSRC2)
-INET_MSRC3:=$(INET_DIR)/$(MSRC3)
-INET_MOBJ1:=$(patsubst %.o,$(INET_OUT)/%.o,$(MOBJ1))
-INET_MOBJ2:=$(patsubst %.o,$(INET_OUT)/%.o,$(MOBJ2))
-INET_MOBJ3:=$(patsubst %.o,$(INET_OUT)/%.o,$(MOBJ3))
+libc-y += $(INET_OBJ)
 
-INET_MSRC:=$(INET_MSRC1) $(INET_MSRC2) $(INET_MSRC3)
-INET_MOBJ:=$(INET_MOBJ1) $(INET_MOBJ2) $(INET_MOBJ3)
-INET_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(INET_MOBJ))))
-
-INET_OBJS:=$(INET_OBJ) $(INET_MOBJ)
-
-$(INET_MOBJ1): $(INET_MSRC1)
-	$(compile.m)
-
-$(INET_MOBJ1:.o=.os): $(INET_MSRC1)
-	$(compile.m)
-
-$(INET_MOBJ2): $(INET_MSRC2)
-	$(compile.m)
-
-$(INET_MOBJ2:.o=.os): $(INET_MSRC2)
-	$(compile.m)
-
-$(INET_MOBJ3): $(INET_MSRC3)
-	$(compile.m)
-
-$(INET_MOBJ3:.o=.os): $(INET_MSRC3)
-	$(compile.m)
-
-libc-a-y+=$(INET_OBJS)
-libc-so-y+=$(INET_OBJS:.o=.os)
-
-CFLAGS-multi-y+=$(INET_DEF)
-libc-multi-y+=$(INET_SRC) $(INET_MSRC)
-
-objclean-y+=inet_objclean
+objclean-y += inet_objclean
 
 inet_objclean:
 	$(RM) $(INET_OUT)/*.{o,os}
