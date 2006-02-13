@@ -6,16 +6,16 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-MSRC1:=tsearch.c
+MSRC1:=_tsearch.c
 MOBJ1:=tsearch.o tfind.o tdelete.o twalk.o tdestroy.o
 
-MSRC2:=lsearch.c
+MSRC2:=_lsearch.c
 MOBJ2:=lfind.o lsearch.o
 
 MSRC3:=insremque.c
 MOBJ3:=insque.o remque.o
 
-MSRC4:=hsearch_r.c
+MSRC4:=_hsearch_r.c
 MOBJ4:=hcreate_r.o hdestroy_r.o hsearch_r.o
 
 CSRC:=hsearch.c
