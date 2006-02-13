@@ -163,6 +163,7 @@ int __pthread_attr_getguardsize(const pthread_attr_t *attr, size_t *guardsize)
 }
 weak_alias (__pthread_attr_getguardsize, pthread_attr_getguardsize)
 
+#if 0 /* uClibc: deprecated stuff disabled */
 int __pthread_attr_setstackaddr(pthread_attr_t *attr, void *stackaddr)
 {
   attr->__stackaddr = stackaddr;
@@ -186,6 +187,7 @@ weak_alias (__pthread_attr_getstackaddr, pthread_attr_getstackaddr)
 
 link_warning (pthread_attr_getstackaddr,
 	      "the use of `pthread_attr_getstackaddr' is deprecated, use `pthread_attr_getstack'")
+#endif
 
 
 int __pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
@@ -213,7 +215,7 @@ int __pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
   return 0;
 }
 
-#if PTHREAD_STACK_MIN == 16384
+#if PTHREAD_STACK_MIN == 16384 || defined __UCLIBC__
 weak_alias (__pthread_attr_setstacksize, pthread_attr_setstacksize)
 #else
 versioned_symbol (libpthread, __pthread_attr_setstacksize,
@@ -281,7 +283,7 @@ int __pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
   return err;
 }
 
-#if PTHREAD_STACK_MIN == 16384
+#if PTHREAD_STACK_MIN == 16384 || defined __UCLIBC__
 weak_alias (__pthread_attr_setstack, pthread_attr_setstack)
 #else
 versioned_symbol (libpthread, __pthread_attr_setstack, pthread_attr_setstack,

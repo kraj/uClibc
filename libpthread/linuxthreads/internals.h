@@ -303,10 +303,12 @@ extern int __pthread_attr_setguardsize (pthread_attr_t *__attr,
 					size_t __guardsize);
 extern int __pthread_attr_getguardsize (const pthread_attr_t *__attr,
 					size_t *__guardsize);
+#if 0 /* uClibc: deprecated stuff disabled */
 extern int __pthread_attr_setstackaddr (pthread_attr_t *__attr,
 					void *__stackaddr);
 extern int __pthread_attr_getstackaddr (const pthread_attr_t *__attr,
 					void **__stackaddr);
+#endif
 extern int __pthread_attr_setstacksize (pthread_attr_t *__attr,
 					size_t __stacksize);
 extern int __pthread_attr_getstacksize (const pthread_attr_t *__attr,
