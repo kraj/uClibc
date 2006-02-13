@@ -30,25 +30,21 @@ char *gettext(const char *msgid)
 /**********************************************************************/
 #ifdef L_dgettext
 
-char *__dgettext(const char *domainname,
+char *dgettext(const char *domainname,
 				 const char *msgid)
 {
 	return (char *) msgid;
 }
 
-strong_alias(__dgettext, dgettext)
-
 #endif
 /**********************************************************************/
 #ifdef L_dcgettext
 
-char *__dcgettext(const char *domainname,
+char *dcgettext(const char *domainname,
 				  const char *msgid, int category)
 {
 	return (char *) msgid;
 }
-
-strong_alias(__dcgettext, dcgettext)
 
 #endif
 /**********************************************************************/
@@ -85,7 +81,7 @@ char *dcngettext(const char *domainname, const char *msgid1,
 /**********************************************************************/
 #ifdef L_textdomain
 
-char *__textdomain(const char *domainname)
+char *textdomain(const char *domainname)
 {
 	static const char default_str[] = "messages";
 
@@ -96,13 +92,11 @@ char *__textdomain(const char *domainname)
 	return (char *) default_str;
 }
 
-strong_alias(__textdomain, textdomain)
-
 #endif
 /**********************************************************************/
 #ifdef L_bindtextdomain
 
-char *__bindtextdomain(const char *domainname, const char *dirname)
+char *bindtextdomain(const char *domainname, const char *dirname)
 {
 	static const char dir[] = "/";
 
@@ -122,16 +116,13 @@ char *__bindtextdomain(const char *domainname, const char *dirname)
 	return (char *) dir;
 }
 
-strong_alias(__bindtextdomain, bindtextdomain)
-
 #endif
 /**********************************************************************/
 #ifdef L_bind_textdomain_codeset
 
 /* Specify the character encoding in which the messages from the
    DOMAINNAME message catalog will be returned.  */
-char *bind_textdomain_codeset(const char *domainname,
-											const char *codeset)
+char *bind_textdomain_codeset(const char *domainname, const char *codeset)
 {
 	if (!domainname || !*domainname || codeset) {
 		__set_errno(EINVAL);
@@ -145,6 +136,7 @@ char *bind_textdomain_codeset(const char *domainname,
 
 /* glibc-ism */
 
+const char *_nl_expand_alias(const char * name);
 const char *_nl_expand_alias(const char * name)
 {
 	return NULL;		 /* uClibc does not support locale aliases. */
