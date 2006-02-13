@@ -420,7 +420,7 @@ int isctype(int c, int mask)
 
 #endif
 /**********************************************************************/
-#if L___ctype_b_loc
+#ifdef L___ctype_b_loc
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 
@@ -434,7 +434,7 @@ libc_hidden_def(__ctype_b_loc)
 
 #endif
 /**********************************************************************/
-#if L___ctype_tolower_loc
+#ifdef L___ctype_tolower_loc
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 
@@ -449,7 +449,7 @@ libc_hidden_def(__ctype_tolower_loc)
 
 #endif
 /**********************************************************************/
-#if L___ctype_toupper_loc
+#ifdef L___ctype_toupper_loc
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 
