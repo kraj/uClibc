@@ -6,8 +6,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-# psm: rename _mmap.c, else the generic won't be overwritten
-CSRC := brk.c _mmap.c
+CSRC := brk.c mmap.c
 SSRC := __longjmp.S setjmp.S _setjmp.S clone.S
 
 include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch
