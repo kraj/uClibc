@@ -18,6 +18,8 @@
    02111-1307 USA.  */
 
 #include <features.h>
+
+#ifdef __USE_GNU
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdlib.h>
@@ -62,3 +64,4 @@ get_current_dir_name (void)
 
 	return getcwd ((char *) NULL, 0);
 }
+#endif
