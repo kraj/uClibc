@@ -337,5 +337,5 @@ dist release:
 	$(TAR) czf ../uClibc-$(VERSION).tar.gz -C .. uClibc-$(VERSION)
 	du -b ../uClibc-$(VERSION).tar.gz
 
-check:
+check: utils
 	$(MAKE) -C test
