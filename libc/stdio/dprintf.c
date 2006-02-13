@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#include <features.h>
+
+#ifdef __USE_GNU
 #include "_stdio.h"
 #include <stdarg.h>
 
@@ -21,3 +24,4 @@ int dprintf(int filedes, const char * __restrict format, ...)
 
 	return rv;
 }
+#endif

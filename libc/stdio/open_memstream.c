@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#include <features.h>
+
+#ifdef __USE_GNU
 #include "_stdio.h"
 
 libc_hidden_proto(memcpy)
@@ -166,3 +169,4 @@ FILE *open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
 	return NULL;
 }
 libc_hidden_def(open_memstream)
+#endif

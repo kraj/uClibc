@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#include <features.h>
+
+#ifdef __USE_GNU
 #include "_stdio.h"
 
 libc_hidden_proto(memcpy)
@@ -177,3 +180,4 @@ FILE *fmemopen(void *s, size_t len, const char *modes)
 
 	return NULL;
 }
+#endif

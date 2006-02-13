@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#include <features.h>
+
+#ifdef __USE_GNU
 #include "_stdio.h"
 #include <stdarg.h>
 
@@ -65,3 +68,4 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 	return rv;
 }
 libc_hidden_def(vdprintf)
+#endif

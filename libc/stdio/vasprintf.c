@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#include <features.h>
+
+#ifdef __USE_GNU
 #include "_stdio.h"
 #include <stdarg.h>
 #include <bits/uClibc_va_copy.h>
@@ -84,4 +87,5 @@ int vasprintf(char **__restrict buf, const char * __restrict format,
 }
 libc_hidden_def(vasprintf)
 
+#endif
 #endif

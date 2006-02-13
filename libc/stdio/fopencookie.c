@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#include <features.h>
+
+#ifdef __USE_GNU
 #include "_stdio.h"
 
 #ifndef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
@@ -60,4 +63,5 @@ FILE *_fopencookie(void * __restrict cookie, const char * __restrict mode,
 }
 #ifndef __BCC__
 libc_hidden_def(fopencookie)
+#endif
 #endif

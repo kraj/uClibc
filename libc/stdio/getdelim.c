@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#include <features.h>
+
+#ifdef __USE_GNU
 #include "_stdio.h"
 
 libc_hidden_proto(getdelim)
@@ -78,3 +81,4 @@ ssize_t getdelim(char **__restrict lineptr, size_t *__restrict n,
 	return pos;
 }
 libc_hidden_def(getdelim)
+#endif

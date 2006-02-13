@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#include <features.h>
+
+#ifdef __USE_GNU
 #include "_stdio.h"
 
 libc_hidden_proto(fclose)
@@ -40,3 +43,4 @@ int fcloseall (void)
 
 #endif
 }
+#endif
