@@ -20,7 +20,7 @@ MOBJ1x:=strtol_l.o strtoul_l.o _stdlib_strto_l_l.o \
 	strtoll_l.o strtoull_l.o _stdlib_strto_ll_l.o
 endif
 
-MSRC2:=strtod.c
+MSRC2:=_strtod.c
 MOBJ2:=
 MOBJ2x:=
 
@@ -50,7 +50,7 @@ endif
 # (aliases) wcstoq.o wcstouq.o
 # wcstod wcstof wcstold
 
-MSRC3:=atexit.c
+MSRC3:=_atexit.c
 MOBJ3:=on_exit.o __cxa_atexit.o __cxa_finalize.o __exit_handler.o exit.o
 ifeq ($(COMPAT_ATEXIT),y)
 MOBJ3+=old_atexit.o
