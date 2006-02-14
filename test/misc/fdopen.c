@@ -35,6 +35,8 @@ main (int argc, char *argv[])
 
   fp = fdopen (fd, "a");
   assert (fp != NULL);
+  /* SuSv3 says that doing a fdopen() does not reset the file position,
+   * thus the '5' here is correct, not '14'. */
   assert (ftell (fp) == 5);
 
 the_end:
