@@ -35,7 +35,7 @@ main (int argc, char *argv[])
 
   fp = fdopen (fd, "a");
   assert (fp != NULL);
-  assert (ftell (fp) == 14);
+  assert (ftell (fp) == 5);
 
 the_end:
   if (fp != NULL)
