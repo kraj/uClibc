@@ -7,25 +7,30 @@
 
 top_builddir=../
 -include $(top_builddir).config
+include Rules.mak
 
-.EXPORT_ALL_VARIABLES:
-
-
-ALL_SUBDIRS = \
-	args assert crypt ctype pwd_grp signal silly stdlib string unistd \
-	mmap #misc
+ALL_SUBDIRS := \
+	args assert crypt ctype pwd_grp signal silly stat stdlib string unistd \
+	mmap misc
 DIRS := $(ALL_SUBDIRS)
 
 ifeq ($(HAVE_SHARED)$(UCLIBC_HAS_THREADS),yy)
+ifeq ($(findstring -static,$(LDFLAGS)),)
 	DIRS += dlopen
+endif
 endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 	DIRS += pthread
 endif
-ALL_SUBDIRS += pthread dlopen
+ifeq ($(UCLIBC_HAS_FULL_RPC),y)
+	DIRS += rpc
+endif
+ALL_SUBDIRS += dlopen pthread rpc
+ALL_SUBDIRS := $(sort $(ALL_SUBDIRS))
+DIRS := $(sort $(DIRS))
 
 
-all: subdirs
+test check all: subdirs
 
 tags:
 	ctags -R
@@ -36,10 +41,9 @@ subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
 $(patsubst %, _dir_%, $(DIRS)) : dummy
-	@echo "Making test in $(patsubst _dir_%,%,$@)"
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
+	$(Q)$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+	$(Q)$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
-.PHONY: dummy
+.PHONY: all check clean dummy subdirs subdirs_clean test
