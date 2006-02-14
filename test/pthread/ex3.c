@@ -28,7 +28,7 @@ int main(int argc, char ** argv)
 
   /* create a number to search for */
   pid = getpid();
-  printf("Searching for the number = %d...\n", pid);
+  printf("Searching for the number = %ld...\n", pid);
 
   /* Initialize the mutex lock */
   pthread_mutex_init(&lock, NULL);
