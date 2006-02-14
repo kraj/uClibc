@@ -51,7 +51,6 @@ export TARGET_ARCH
 
 CROSS      = $(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
 CC         = $(CROSS)gcc
-STRIPTOOL  = strip
 RM         = rm -f
 
 # Select the compiler needed to build binaries for your development system
@@ -83,21 +82,19 @@ HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS)
 
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
-	HOST_CFLAGS  += -g
+	HOST_CFLAGS   += -g
 	LDFLAGS       += -g -Wl,-warn-common
-	HOST_LDFLAGS  = -g -Wl,-warn-common 
-	STRIPTOOL      = true -Since_we_are_debugging
+	HOST_LDFLAGS  := -g -Wl,-warn-common
 else
 	LDFLAGS       += -s -Wl,-warn-common
-	HOST_LDFLAGS  = -s -Wl,-warn-common
-	STRIP          = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $(PROG)
+	HOST_LDFLAGS  := -s -Wl,-warn-common
 endif
 
 ifneq ($(strip $(HAVE_SHARED)),y)
 	LDFLAGS       += -static
 	HOST_LDFLAGS  += -static
 endif
-LDFLAGS += -B$(top_builddir)lib
+LDFLAGS += -B$(top_builddir)lib -Wl,-rpath,$(top_builddir)lib
 
 
 # Filter output
