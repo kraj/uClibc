@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
 {
 	DIR *dirh;
 	struct dirent *de;
-	struct dirent64 *de64;
 	const char *mydir = (argc == 1 ? "/" : argv[1]);
 
 	if ((dirh = opendir(mydir)) == NULL) {
@@ -34,14 +33,7 @@ int main(int argc, char *argv[])
 	while ((de = readdir(dirh)) != NULL)
 		printf("\tdir entry %s: %s\n", types[de->d_type], de->d_name);
 
-	rewinddir(dirh);
-
-	printf("readdir64() says:\n");
-	while ((de64 = readdir64(dirh)) != NULL)
-		printf("\tdir entry %s: %s\n", types[de64->d_type], de64->d_name);
-
 	closedir(dirh);
-
 
 	return 0;
 }
