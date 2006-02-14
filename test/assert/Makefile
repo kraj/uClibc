@@ -1,8 +1,9 @@
 # uClibc assert tests
 # Licensed under the GNU Library General Public License, see COPYING.LIB
 
-TESTS = assert
+TESTS := assert
 
 include ../Test.mak
 
-export RET_assert = 134
+RET_assert     := 134
+WRAPPER_assert := trap ":" ABRT ;

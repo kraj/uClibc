@@ -5,8 +5,9 @@ TESTS := arg_test
 
 include ../Test.mak
 
-export WRAPPER_arg_test = \
+OPTS_arg_test = a b c d e f g h
+WRAPPER_arg_test = \
 	env -i \
 	ENVVAR=123 \
-	SOMETHING=sldajfasdf
-export OPTS_arg_test = a b c d e f g h
+	SOMETHING=sldajfasdf \
+	BLAHBLAH=" hi hi "
