@@ -99,4 +99,4 @@ endif
 
 clean:
 	$(showclean)
-	$(Q)$(RM) *.a *.o *.so *~ core *.out $(TARGETS)
+	$(Q)$(RM) *.a *.o *.so *~ core *.out $(TARGETS) $(EXTRA_CLEAN)
