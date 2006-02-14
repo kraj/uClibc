@@ -87,10 +87,13 @@ TARGETS = tst-align tst-align2						\
 	  tst-barrier1 tst-barrier2 tst-barrier3 tst-barrier4		\
 	  tst-basic1 tst-basic2 tst-basic3				\
 	  tst-basic4 tst-basic5 tst-basic6				\
-	  tst-cancel1 tst-cancel8 tst-cancel10 tst-cancel12		\
-	  tst-cancel13 tst-cancel14 tst-cancel15  tst-cancel16		\
-	  tst-cancel19							\
-	  tst-cleanup0 tst-cleanup1 tst-cleanup2 tst-cleanup3		\
+	  tst-cancel1 tst-cancel2 tst-cancel3 tst-cancel6		\
+	  tst-cancel8 tst-cancel9 tst-cancel10 tst-cancel11		\
+	  tst-cancel12 tst-cancel13 tst-cancel14 tst-cancel15		\
+	  tst-cancel16 tst-cancel19 tst-cancel20 tst-cancel21		\
+	  tst-cancel22							\
+	  tst-cleanup0 tst-cleanup1 tst-cleanup2			\
+	  tst-cleanup3 tst-cleanup4					\
 	  tst-clock1 tst-clock2						\
 	  tst-cond1 tst-cond2 tst-cond3 tst-cond4 tst-cond5 tst-cond6	\
 	  tst-cond7 tst-cond8 tst-cond9 tst-cond10 tst-cond11		\
@@ -103,8 +106,8 @@ TARGETS = tst-align tst-align2						\
 	  tst-flock1 tst-flock2						\
 	  tst-fork1 tst-fork2 tst-fork3 tst-fork4			\
 	  tst-initializers1						\
-	  tst-join1 tst-join2 tst-join3					\
-	  tst-key1 tst-key2 tst-key4					\
+	  tst-join1 tst-join2 tst-join3	tst-join5			\
+	  tst-key1 tst-key2 tst-key3 tst-key4				\
 	  tst-kill1 tst-kill2 tst-kill3 tst-kill4 tst-kill5 tst-kill6	\
 	  tst-mutex1 tst-mutex2 tst-mutex3 tst-mutex4 tst-mutex5	\
 	  tst-mutex6 tst-mutex7 tst-mutex8 tst-mutex9 tst-mutex5a	\
