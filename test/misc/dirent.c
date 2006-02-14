@@ -18,12 +18,12 @@ const char const *types[] = {
 	_DTIFY(DT_WHT)
 };
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
 	DIR *dirh;
 	struct dirent *de;
 	struct dirent64 *de64;
-	const char const mydir[] = ".";
+	const char *mydir = (argc == 1 ? "/" : argv[1]);
 
 	if ((dirh = opendir(mydir)) == NULL) {
 		perror("opendir");
