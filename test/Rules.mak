@@ -53,11 +53,6 @@ CROSS      = $(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
 CC         = $(CROSS)gcc
 STRIPTOOL  = strip
 RM         = rm -f
-ifeq ($(LDSO_LDD_SUPPORT),y)
-LDD        = $(top_builddir)utils/ldd
-else
-LDD        = @true
-endif
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
@@ -82,25 +77,64 @@ endif
 
 XWARNINGS       = $(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
 XARCH_CFLAGS    = $(subst ",, $(strip $(ARCH_CFLAGS)))
-CFLAGS          = $(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS)
-GLIBC_CFLAGS   += $(XWARNINGS) $(OPTIMIZATION)
-LDFLAGS         = 
+CFLAGS          = $(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) -D_GNU_SOURCE
+HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) -D_GNU_SOURCE
 
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
-	GLIBC_CFLAGS  += -g
+	HOST_CFLAGS  += -g
 	LDFLAGS       += -g -Wl,-warn-common
-	GLIBC_LDFLAGS  = -g -Wl,-warn-common 
+	HOST_LDFLAGS  = -g -Wl,-warn-common 
 	STRIPTOOL      = true -Since_we_are_debugging
 else
 	LDFLAGS       += -s -Wl,-warn-common
-	GLIBC_LDFLAGS  = -s -Wl,-warn-common
+	HOST_LDFLAGS  = -s -Wl,-warn-common
 	STRIP          = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $(PROG)
 endif
 
 ifneq ($(strip $(HAVE_SHARED)),y)
 	LDFLAGS       += -static
-	GLIBC_LDFLAGS += -static
-else
-	LDFLAGS       += -Wl,-dynamic-linker,$(top_builddir)lib/$(UCLIBC_LDSO)
+	HOST_LDFLAGS  += -static
 endif
+LDFLAGS += -B$(top_builddir)lib
+
+
+# Filter output
+MAKEFLAGS += --no-print-directory
+ifneq ($(findstring s,$(MAKEFLAGS)),)
+DISP := sil
+Q    := @
+SCAT := -@true
+else
+ifneq ($(V)$(VERBOSE),)
+DISP := ver
+Q    := 
+SCAT := cat
+else
+DISP := pur
+Q    := @
+SCAT := -@true
+endif
+endif
+
+banner := ---------------------------------
+pur_showclean = echo "  "CLEAN $(notdir $(CURDIR))
+pur_showdiff  = echo "  "TEST_DIFF $(notdir $(CURDIR))/
+pur_showlink  = echo "  "TEST_LINK $(notdir $(CURDIR))/ $@
+pur_showtest  = echo "  "TEST_EXEC $(notdir $(CURDIR))/ $@
+sil_showclean = 
+sil_showdiff  = true
+sil_showlink  = true
+sil_showtest  = true
+ver_showclean = 
+ver_showdiff  = true echo
+ver_showlink  = true echo
+ver_showtest  = printf "\n$(banner)\nTEST $(notdir $(PWD))/ $@\n$(banner)\n"
+do_showclean  = $($(DISP)_showclean)
+do_showdiff   = $($(DISP)_showdiff)
+do_showlink   = $($(DISP)_showlink)
+do_showtest   = $($(DISP)_showtest)
+showclean = @$(do_showclean)
+showdiff  = @$(do_showdiff)
+showlink  = @$(do_showlink)
+showtest  = @$(do_showtest)
