@@ -8,27 +8,39 @@
 #include <asm/regdef.h>
 
 	.globl	pipe
-        .globl  __pipe
+	.globl	__pipe
 	.hidden	__pipe
-        .ent    __pipe, 0
+	.ent	__pipe, 0
 __pipe:
-        addiu   sp,sp,-24
-        sw      a0,16(sp)
-        li      v0,__NR_pipe
-        syscall
-        beqz    a3, 1f
-        la      t3, errno
-        sw      v0, (t3)
-        li      v0, -1
-        b       2f
+	.frame	sp, 24, sp
+#ifdef __PIC__
+	.set	noreorder
+	.cpload	$25
+	.set 	reorder
+	addiu	sp,sp,-24
+	.cprestore	16
+#else
+	addiu	sp,sp,-24
+#endif
+	sw	a0,16(sp)
+	li	v0,__NR_pipe
+	syscall
+	beqz	a3, 1f
+#ifdef __PIC__
+	la	t0, __syscall_error
+	jr	t9
+#else
+	j	__syscall_error
+#endif
 1:
-        lw      a0, 16(sp)
-        sw      v0, 0(a0)
-        sw      v1, 4(a0)
-        li      v0, 0
+	lw	a0, 16(sp)
+	sw	v0, 0(a0)
+	sw	v1, 4(a0)
+	li	v0, 0
 2:
-        addiu   sp,sp,24
-        j       ra
-        .end    __pipe
-        .size   __pipe,.-__pipe
-	.weak	pipe; pipe = __pipe
+	addiu	sp,sp,24
+	j	ra
+	.end	__pipe
+	.size	__pipe,.-__pipe
+	.weak	pipe
+	pipe = __pipe
