@@ -1898,6 +1898,7 @@ clog10_test (void)
 #endif
 
 
+#if 0
 static void
 conj_test (void)
 {
@@ -1912,6 +1913,7 @@ conj_test (void)
 
   END (conj, complex);
 }
+#endif
 
 
 static void
@@ -4049,6 +4051,7 @@ rint_test (void)
   END (rint);
 }
 
+#if 0
 static void
 rint_test_tonearest (void)
 {
@@ -4157,7 +4160,6 @@ rint_test_upward (void)
   END (rint_upward);
 }
 
-#if 0
 static void
 round_test (void)
 {
@@ -5050,7 +5052,9 @@ main (int argc, char **argv)
   cimag_test ();
   clog10_test ();
   clog_test ();
+#if 0
   conj_test ();
+#endif
   cpow_test ();
   cproj_test ();
   creal_test ();
