@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/types.h>
 
 
@@ -31,6 +32,16 @@ static char *next_input (char **line, int first, int last);
 static int convert_flags (const char *str);
 static char *flag_output (int flags);
 static char *escape (const char *str, size_t *reslenp, char **resbuf);
+
+
+int str_isalpha(const char *str)
+{
+	size_t i = strlen(str);
+	while (i--)
+		if (isascii(str[i]) == 0)
+			return 0;
+	return 1;
+}
 
 
 int
@@ -118,6 +129,7 @@ main (void)
       /* Now run the actual test.  */
       ++ntests;
 
+#ifdef __UCLIBC_HAS_XLOCALE__
       if (setlocale (LC_COLLATE, locale) == NULL
 	  || setlocale (LC_CTYPE, locale) == NULL)
 	{
@@ -125,6 +137,14 @@ main (void)
 	  ++nfailed;
 	  continue;
 	}
+#else
+      /* skip non-ascii strings */
+      if (!str_isalpha(pattern) || !str_isalpha(input))
+	{
+	  printf("%3d: Skipping test that requires locale support\n", ++nr);
+	  continue;
+	}
+#endif
 
       fnmres = fnmatch (pattern, input, flags_val);
 
