@@ -310,7 +310,7 @@ clean:
 	$(RM) include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
 	$(MAKE) -C extra/locale locale_clean
 	$(MAKE) headers_clean-y
-	$(MAKE) -C test clean
+	$(MAKE) -s -C test clean
 	$(MAKE) -C utils utils_clean
 	@set -e; \
 	for i in `(cd libc/sysdeps/linux/common/sys; ls *.h)` ; do \
