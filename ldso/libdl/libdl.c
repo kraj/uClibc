@@ -51,6 +51,8 @@ extern struct elf_resolve *_dl_loaded_modules;
 extern struct r_debug *_dl_debug_addr;
 extern unsigned long _dl_error_number;
 extern void *(*_dl_malloc_function)(size_t);
+extern void _dl_run_init_array(struct elf_resolve *);
+extern void _dl_run_fini_array(struct elf_resolve *);
 #ifdef __LDSO_CACHE_SUPPORT__
 int _dl_map_cache(void);
 int _dl_unmap_cache(void);
@@ -383,6 +385,8 @@ void *dlopen(const char *libname, int flag)
 				(*dl_elf_func) ();
 			}
 		}
+
+		_dl_run_init_array(tpnt);
 	}
 #endif /* SHARED */
 
@@ -498,13 +502,21 @@ static int do_dlclose(void *vhandle, int need_fini)
 	for (j = 0; j < handle->init_fini.nlist; ++j) {
 		tpnt = handle->init_fini.init_fini[j];
 		if (--tpnt->usage_count == 0) {
-			if (tpnt->dynamic_info[DT_FINI] && need_fini &&
+			if ((tpnt->dynamic_info[DT_FINI]
+			     || tpnt->dynamic_info[DT_FINI_ARRAY])
+			    && need_fini &&
 			    !(tpnt->init_flag & FINI_FUNCS_CALLED)) {
 				tpnt->init_flag |= FINI_FUNCS_CALLED;
-				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
-				_dl_if_debug_print("running dtors for library %s at '%p'\n",
-						tpnt->libname, dl_elf_fini);
-				(*dl_elf_fini) ();
+#ifdef SHARED
+				_dl_run_fini_array(tpnt);
+#endif
+
+				if (tpnt->dynamic_info[DT_FINI]) {
+					dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
+					_dl_if_debug_print("running dtors for library %s at '%p'\n",
+							tpnt->libname, dl_elf_fini);
+					(*dl_elf_fini) ();
+				}
 			}
 
 			_dl_if_debug_print("unmapping: %s\n", tpnt->libname);

@@ -318,11 +318,8 @@ pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 libc_hidden_data_def(mylock)
 #endif
 
-#ifdef __UCLIBC_CTOR_DTOR__
-extern void (*__app_fini)(void);
-#endif
-
-extern void (*__rtld_fini)(void);
+extern void __uClibc_fini(void);
+libc_hidden_proto(__uClibc_fini)
 
 /*
  * Normal program termination
@@ -336,12 +333,7 @@ void exit(int rv)
 	}
 	UNLOCK;
 
-#ifdef __UCLIBC_CTOR_DTOR__
-	if (__app_fini != NULL)
-		(__app_fini)();
-#endif
-	if (__rtld_fini != NULL)
-		(__rtld_fini)();
+	__uClibc_fini();
 
     /* If we are using stdio, try to shut it down.  At the very least,
 	 * this will attempt to commit all buffered writes.  It may also

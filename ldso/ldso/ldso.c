@@ -97,6 +97,53 @@ strong_alias(__stack_chk_guard,__guard)
 #endif
 #endif
 
+static void _dl_run_array_forward(unsigned long array, unsigned long size,
+				  ElfW(Addr) loadaddr)
+{
+	if (array != 0) {
+		unsigned int j;
+		unsigned int jm;
+		ElfW(Addr) *addrs;
+		jm = size / sizeof (ElfW(Addr));
+		addrs = (ElfW(Addr) *) (array + loadaddr);
+		for (j = 0; j < jm; ++j) {
+			void (*dl_elf_func) (void);
+			dl_elf_func = (void (*)(void)) (intptr_t) addrs[j];
+			(*dl_elf_func) ();
+		}
+	}
+}
+
+void _dl_run_init_array(struct elf_resolve *tpnt)
+{
+	_dl_run_array_forward(tpnt->dynamic_info[DT_INIT_ARRAY],
+			      tpnt->dynamic_info[DT_INIT_ARRAYSZ],
+			      tpnt->loadaddr);
+}
+
+void _dl_app_init_array(void)
+{
+	_dl_run_init_array(_dl_loaded_modules);
+}
+
+void _dl_run_fini_array(struct elf_resolve *tpnt)
+{
+	if (tpnt->dynamic_info[DT_FINI_ARRAY]) {
+		ElfW(Addr) *array = (ElfW(Addr) *) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI_ARRAY]);
+		unsigned int i = (tpnt->dynamic_info[DT_FINI_ARRAYSZ] / sizeof(ElfW(Addr)));
+		while (i-- > 0) {
+			void (*dl_elf_func) (void);
+			dl_elf_func = (void (*)(void)) (intptr_t) array[i];
+			(*dl_elf_func) ();
+		}
+	}
+}
+
+void _dl_app_fini_array(void)
+{
+	_dl_run_fini_array(_dl_loaded_modules);
+}
+
 static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 {
 	int i;
@@ -107,6 +154,7 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 		if (tpnt->init_flag & FINI_FUNCS_CALLED)
 			continue;
 		tpnt->init_flag |= FINI_FUNCS_CALLED;
+		_dl_run_fini_array(tpnt);
 		if (tpnt->dynamic_info[DT_FINI]) {
 			void (*dl_elf_func) (void);
 
@@ -769,6 +817,14 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	/* Notify the debugger we have added some objects. */
 	_dl_debug_addr->r_state = RT_ADD;
 	_dl_debug_state();
+
+	/* Run pre-initialization functions for the executable.  */
+	_dl_run_array_forward(_dl_loaded_modules->dynamic_info[DT_PREINIT_ARRAY],
+			      _dl_loaded_modules->dynamic_info[DT_PREINIT_ARRAYSZ],
+			      _dl_loaded_modules->loadaddr);
+
+	/* Run initialization functions for loaded objects.  For the
+	   main executable, they will be run from __uClibc_main.  */
 	for (i = nlist; i; --i) {
 		tpnt = init_fini_list[i-1];
 		tpnt->init_fini = NULL; /* Clear, since alloca was used */
@@ -785,6 +841,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 			(*dl_elf_func) ();
 		}
+
+		_dl_run_init_array(tpnt);
 	}
 
 	/* Find the real malloc function and make ldso functions use that from now on */

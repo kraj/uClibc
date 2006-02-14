@@ -84,6 +84,20 @@ extern void weak_function _locale_init(void) attribute_hidden;
 extern void weak_function __pthread_initialize_minimal(void);
 #endif
 
+#ifdef __UCLIBC_CTOR_DTOR__
+extern void _dl_app_init_array(void);
+extern void _dl_app_fini_array(void);
+#ifndef SHARED
+/* These magic symbols are provided by the linker.  */
+extern void (*__preinit_array_start []) (void) attribute_hidden;
+extern void (*__preinit_array_end []) (void) attribute_hidden;
+extern void (*__init_array_start []) (void) attribute_hidden;
+extern void (*__init_array_end []) (void) attribute_hidden;
+extern void (*__fini_array_start []) (void) attribute_hidden;
+extern void (*__fini_array_end []) (void) attribute_hidden;
+#endif
+#endif
+
 attribute_hidden const char *__uclibc_progname = NULL;
 #ifdef __UCLIBC_HAS___PROGNAME__
 strong_alias (__uclibc_progname, __progname)
@@ -228,6 +242,26 @@ void attribute_hidden (*__app_fini)(void) = NULL;
 
 void attribute_hidden (*__rtld_fini)(void) = NULL;
 
+extern void __uClibc_fini(void);
+libc_hidden_proto(__uClibc_fini)
+void __uClibc_fini(void)
+{
+#ifdef __UCLIBC_CTOR_DTOR__
+#ifdef SHARED
+    _dl_app_fini_array();
+#else
+    size_t i = __fini_array_end - __fini_array_start;
+    while (i-- > 0)
+	(*__fini_array_start [i]) ();
+#endif
+    if (__app_fini != NULL)
+	(__app_fini)();
+#endif
+    if (__rtld_fini != NULL)
+	(__rtld_fini)();
+}
+libc_hidden_def(__uClibc_fini)
+
 /* __uClibc_main is the new main stub for uClibc. This function is
  * called from crt1 (version 0.9.28 or newer), after ALL shared libraries
  * are initialized, just before we call the application's main function.
@@ -313,10 +347,31 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
     /* Arrange for the application's dtors to run before we exit.  */
     __app_fini = app_fini;
 
+#ifndef SHARED
+    /* For dynamically linked executables the preinit array is executed by
+       the dynamic linker (before initializing any shared object).
+       For static executables, preinit happens rights before init.  */
+    {
+	const size_t size = __preinit_array_end - __preinit_array_start;
+	size_t i;
+	for (i = 0; i < size; i++)
+	    (*__preinit_array_start [i]) ();
+    }
+#endif
     /* Run all the application's ctors now.  */
     if (app_init!=NULL) {
 	app_init();
     }
+#ifdef SHARED
+    _dl_app_init_array();
+#else
+    {
+	const size_t size = __init_array_end - __init_array_start;
+	size_t i;
+	for (i = 0; i < size; i++)
+	    (*__init_array_start [i]) ();
+    }
+#endif
 #endif
 
     /* Note: It is possible that any initialization done above could
