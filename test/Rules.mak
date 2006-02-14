@@ -75,10 +75,11 @@ else
 OPTIMIZATION   += $(call check_gcc,-Os,-O2)
 endif
 
-XWARNINGS       = $(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
-XARCH_CFLAGS    = $(subst ",, $(strip $(ARCH_CFLAGS)))
-CFLAGS          = $(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) -D_GNU_SOURCE
-HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) -D_GNU_SOURCE
+XWARNINGS      := $(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
+XARCH_CFLAGS   := $(subst ",, $(strip $(ARCH_CFLAGS)))
+XCOMMON_CFLAGS := -D_GNU_SOURCE -I$(top_builddir)test
+CFLAGS         := $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS)
+HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS)
 
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
