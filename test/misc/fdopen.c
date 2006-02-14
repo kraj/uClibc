@@ -1,6 +1,7 @@
 /* Test for fdopen bugs.  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -12,17 +13,20 @@
       goto the_end; \
     }
 
-char buffer[256];
-
 int
 main (int argc, char *argv[])
 {
-  char *name;
+  char name[256];
   FILE *fp = NULL;
   int retval = 0;
   int fd;
 
-  name = tmpnam (NULL);
+  /* hack to get a tempfile name w/out using tmpname()
+   * as that func causes a link time warning */
+  sprintf(name, "%s-uClibc-test.XXXXXX", __FILE__);
+  fd = mkstemp(name);
+  close(fd);
+
   fp = fopen (name, "w");
   assert (fp != NULL)
   fputs ("foobar and baz", fp);
