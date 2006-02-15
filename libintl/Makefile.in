@@ -25,7 +25,7 @@ libintl_OUT := $(top_builddir)libintl
 libintl_MSRC := $(libintl_DIR)/intl.c
 libintl_MOBJ := $(patsubst %.o,$(libintl_OUT)/%.o,$(MOBJ))
 
-ifeq ($(DOMULTI),y)
+ifneq ($(DOMULTI),n)
 CFLAGS-libintl += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libintl_MOBJ))))
 endif
 
@@ -48,7 +48,7 @@ $(top_builddir)lib/libintl.so: $(libintl_OUT)/libintl_so.a $(libc)
 endif
 	$(call link.so,$(libintl_FULL_NAME),$(MAJOR_VERSION))
 else
-$(top_builddir)lib/libintl.so: $(libintl_OUT)/libintl.oS $(libc)
+$(top_builddir)lib/libintl.so: $(libintl_OUT)/libintl.oS | $(libc)
 	$(call linkm.so,$(libintl_FULL_NAME),$(MAJOR_VERSION))
 endif
 

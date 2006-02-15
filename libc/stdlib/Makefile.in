@@ -82,7 +82,9 @@ libc-static-y += $(STDLIB_OUT)/atexit.o
 # this should always be the PIC version, because it could be used in shared libs
 libc-nonshared-y += $(STDLIB_OUT)/atexit.os
 
+libc-nomulti-y += $(STDLIB_OUT)/labs.o $(STDLIB_OUT)/atol.o $(STDLIB_OUT)/_stdlib_strto_l.o $(STDLIB_OUT)/_stdlib_strto_ll.o
+
 objclean-y += stdlib_objclean
 
 stdlib_objclean:
-	$(RM) $(STDLIB_OUT)/*.{o,os}
+	$(RM) $(STDLIB_OUT)/*.{o,os,oS}

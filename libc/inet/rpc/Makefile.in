@@ -34,6 +34,8 @@ INET_RPC_OBJ:=$(patsubst $(INET_RPC_DIR)/%.c,$(INET_RPC_OUT)/%.o,$(INET_RPC_SRC)
 libc-static-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OUT)/rpc_thread.o
 libc-shared-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OUT)/rpc_thread.oS
 
+libc-nomulti-$(UCLIBC_HAS_RPC) += $(INET_RPC_OUT)/rpc_thread.o
+
 libc-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OBJ)
 
 objclean-y+=inet_rpc_objclean

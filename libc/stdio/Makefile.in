@@ -58,10 +58,11 @@ CUSRC := \
 
 # vfprintf and support functions
 ifneq ($(USE_OLD_VFPRINTF),y)
-CSRC += \
+VF_CSRC := \
 	vfprintf.c \
 	_ppfs_init.c _ppfs_prepargs.c _ppfs_setargs.c _ppfs_parsespec.c \
 	register_printf_function.c parse_printf_format.c
+CSRC += $(VF_CSRC)
 else
 CSRC += old_vfprintf.c
 endif
@@ -93,7 +94,14 @@ STDIO_OBJ := $(patsubst %.c,$(STDIO_OUT)/%.o,$(CSRC))
 
 libc-y += $(STDIO_OBJ)
 
+ifneq ($(USE_OLD_VFPRINTF),y)
+libc-nomulti-y += $(patsubst %.c,$(STDIO_OUT)/%.o,$(VF_CSRC))
+endif
+ifeq ($(UCLIBC_HAS_WCHAR),y)
+libc-nomulti-y += $(STDIO_OUT)/vfwprintf.o $(STDIO_OUT)/vfwscanf.o
+endif
+
 objclean-y += stdio_objclean
 
 stdio_objclean:
-	$(RM) $(STDIO_OUT)/*.{o,os}
+	$(RM) $(STDIO_OUT)/*.{o,os,oS}

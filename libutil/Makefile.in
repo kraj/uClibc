@@ -41,7 +41,7 @@ $(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil_so.a $(libc)
 endif
 	$(call link.so,$(libutil_FULL_NAME),$(MAJOR_VERSION))
 else
-$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil.oS $(libc)
+$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil.oS | $(libc)
 	$(call linkm.so,$(libutil_FULL_NAME),$(MAJOR_VERSION))
 endif
 

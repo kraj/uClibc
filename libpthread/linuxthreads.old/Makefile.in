@@ -79,13 +79,13 @@ objclean-y += libpthread_clean
 headers-$(UCLIBC_HAS_THREADS) += linuxthreads_headers
 headers_clean-y += linuxthreads_headers_clean
 
-ifeq ($(DOMULTI),n)
+#ifeq ($(DOMULTI),n)
 $(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc)
 	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
-else
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS $(libc)
-	$(call linkm.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
-endif
+#else
+#$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS | $(libc)
+#	$(call linkm.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
+#endif
 
 $(libpthread_OUT)/libpthread_so.a: $(libpthread-so-y)
 	$(Q)$(RM) $@

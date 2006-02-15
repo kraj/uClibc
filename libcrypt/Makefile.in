@@ -39,7 +39,7 @@ $(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc)
 endif
 	$(call link.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
 else
-$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt.oS $(libc)
+$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt.oS | $(libc)
 	$(call linkm.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
 endif
 

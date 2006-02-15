@@ -20,6 +20,8 @@ libc-y += $(MISC_INTERNALS_OBJ)
 libc-shared-y += $(MISC_INTERNALS_OUT)/__uClibc_main.oS
 libc-static-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o
 
+libc-nomulti-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o
+
 objclean-y += misc_internals_objclean
 
 misc_internals_objclean:

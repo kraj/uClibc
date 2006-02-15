@@ -11,6 +11,8 @@ MISC_PTHREAD_OUT := $(top_builddir)libc/misc/pthread
 libc-static-$(UCLIBC_HAS_THREADS) += $(MISC_PTHREAD_OUT)/weaks.o
 libc-shared-$(UCLIBC_HAS_THREADS) += $(MISC_PTHREAD_OUT)/no-tsd.oS
 
+libc-nomulti-$(UCLIBC_HAS_THREADS) += $(MISC_PTHREAD_OUT)/no-tsd.o
+
 objclean-y += misc_pthread_objclean
 
 misc_pthread_objclean:

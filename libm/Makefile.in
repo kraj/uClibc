@@ -110,7 +110,7 @@ libm_OBJ := $(patsubst $(libm_DIR)/%.c,$(libm_OUT)/%.o,$(libm_SRC))
 libm_MSRC := $(libm_DIR)/$(FL_MSRC)
 libm_MOBJ := $(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
 
-ifeq ($(DOMULTI),y)
+ifneq ($(DOMULTI),n)
 CFLAGS-libm += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
 endif
 
@@ -135,7 +135,7 @@ $(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a $(libc)
 endif
 	$(call link.so,$(libm_FULL_NAME),$(MAJOR_VERSION))
 else
-$(top_builddir)lib/libm.so: $(libm_OUT)/libm.oS $(libc)
+$(top_builddir)lib/libm.so: $(libm_OUT)/libm.oS | $(libc)
 	$(call linkm.so,$(libm_FULL_NAME),$(MAJOR_VERSION))
 endif
 

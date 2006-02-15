@@ -8,7 +8,7 @@
 ifeq ($(HAVE_SHARED),y)
 .LIBPATTERNS: "lib%.so"
 libs: $(lib-so-y) $(lib-a-y)
-$(lib-so-y): $(interp)
+$(lib-so-y): | $(interp)
 else
 .LIBPATTERNS: "lib%.a"
 libs: $(lib-a-y)
@@ -129,7 +129,7 @@ define linkm.so
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
 	@$(disp_ld)
 	$(Q)$(LD) $(LDFLAGS-$(notdir $@)) -soname=$(notdir $@).$(2) \
-		-o $(dir $@)$(1) $(START_FILE-$(notdir $@)) $(firstword $^) \
+		-o $(dir $@)$(1) $(START_FILE-$(notdir $@)) $^ \
 		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
 	$(Q)$(LN) -sf $(1) $@.$(2)
 	$(Q)$(LN) -sf $(1) $@

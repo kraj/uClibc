@@ -17,7 +17,9 @@ MISC_FILE_OBJ := $(patsubst $(MISC_FILE_DIR)/%.c,$(MISC_FILE_OUT)/%.o,$(MISC_FIL
 
 libc-y += $(MISC_FILE_OBJ)
 
+libc-nomulti-$(UCLIBC_HAS_LFS) += $(MISC_FILE_OUT)/lockf64.o
+
 objclean-y += misc_file_objclean
 
 misc_file_objclean:
-	$(RM) $(MISC_FILE_OUT)/*.{o,os}
+	$(RM) $(MISC_FILE_OUT)/*.{o,os,oS}

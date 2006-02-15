@@ -34,17 +34,17 @@ objclean-y += libthread_db_clean
 headers-$(PTHREADS_DEBUG_SUPPORT) += linuxthreads_db_headers
 headers_clean-y += linuxthreads_db_headers_clean
 
-ifeq ($(DOMULTI),n)
+#ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libthread_db.so: $(top_builddir)lib/libthread_db.a $(libc)
 else
 $(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a $(libc)
 endif
 	$(call link.so,$(libthread_db_FULL_NAME),1)
-else
-$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db.oS $(libc)
-	$(call linkm.so,$(libthread_db_FULL_NAME),1)
-endif
+#else
+#$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db.oS | $(libc)
+#	$(call linkm.so,$(libthread_db_FULL_NAME),1)
+#endif
 
 $(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
 	$(Q)$(RM) $@

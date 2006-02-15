@@ -42,7 +42,7 @@ else
 libc-a-y = $(libc-y) $(libc-static-y)
 endif
 
-ifneq ($(DOMULTI),y)
+ifeq ($(DOMULTI),n)
 libc-so-y = $(libc-y:.o=.os) $(libc-shared-y)
 else
 all_sources = $(libc-y:.o=.c)
@@ -54,11 +54,12 @@ lib-a-y += $(top_builddir)lib/libc.a
 lib-so-y += $(libc)
 objclean-y += libc_clean
 
-ifneq ($(DOMULTI),y)
+ifeq ($(DOMULTI),n)
 $(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
 	$(call link.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
 else
-$(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc.oS $(libc-nomulti-y:.o=.os) $(LIBS-libc.so)
+$(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc.oS $(libc-nomulti-y:.o=.oS) | $(LIBS-libc.so)
+	$(do_strip)
 	$(call linkm.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
 endif
 	$(Q)$(RM) $@
@@ -83,7 +84,7 @@ endif
 $(libc_OUT)/libc.oS: $(libc-multi-y) | $(top_builddir)lib/libc.a $(top_builddir)lib/$(NONSHARED_LIBNAME)
 	$(Q)$(RM) $@
 	$(compile-m)
-	$(do_t_strip)
+	#(do_t_strip)
 
 $(top_builddir)lib/libc.a: $(libc-a-y) | $(crt-y)
 	$(Q)$(INSTALL) -d $(dir $@)
