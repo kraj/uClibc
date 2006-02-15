@@ -114,6 +114,7 @@ static void _dl_run_array_forward(unsigned long array, unsigned long size,
 	}
 }
 
+void _dl_run_init_array(struct elf_resolve *tpnt);
 void _dl_run_init_array(struct elf_resolve *tpnt)
 {
 	_dl_run_array_forward(tpnt->dynamic_info[DT_INIT_ARRAY],
@@ -121,11 +122,13 @@ void _dl_run_init_array(struct elf_resolve *tpnt)
 			      tpnt->loadaddr);
 }
 
+void _dl_app_init_array(void);
 void _dl_app_init_array(void)
 {
 	_dl_run_init_array(_dl_loaded_modules);
 }
 
+void _dl_run_fini_array(struct elf_resolve *tpnt);
 void _dl_run_fini_array(struct elf_resolve *tpnt)
 {
 	if (tpnt->dynamic_info[DT_FINI_ARRAY]) {
@@ -139,6 +142,7 @@ void _dl_run_fini_array(struct elf_resolve *tpnt)
 	}
 }
 
+void _dl_app_fini_array(void);
 void _dl_app_fini_array(void)
 {
 	_dl_run_fini_array(_dl_loaded_modules);
