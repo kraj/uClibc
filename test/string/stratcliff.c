@@ -52,7 +52,7 @@ main (int argc, char *argv[])
         puts ("No test, mmap not available.");
       else
         {
-          printf ("mmap failed: %m");
+          printf ("mmap failed: %s", strerror(errno));
           result = 1;
         }
     }

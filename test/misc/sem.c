@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
@@ -18,7 +20,7 @@ int main(void)
 	printf("semget(IPC_CREAT) = %d\n", k);
 
 	if (k < 0) {
-		fprintf(stderr, "semget failed: %m\n");
+		fprintf(stderr, "semget failed: %s\n", strerror(errno));
 		return 1;
 	}
 

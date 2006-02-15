@@ -117,7 +117,7 @@ create_temp_file (const char *base, char **filename)
   fd = mkstemp (fname);
   if (fd == -1)
     {
-      printf ("cannot open temporary file '%s': %m\n", fname);
+      printf ("cannot open temporary file '%s': %s\n", fname, strerror(errno));
       free (fname);
       return -1;
     }
@@ -335,7 +335,7 @@ main (int argc, char *argv[])
   termpid = TEMP_FAILURE_RETRY (waitpid (pid, &status, 0));
   if (termpid == -1)
     {
-      printf ("Waiting for test program failed: %m\n");
+      printf ("Waiting for test program failed: %s\n", strerror(errno));
       exit (1);
     }
   if (termpid != pid)
