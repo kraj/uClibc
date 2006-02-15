@@ -21,7 +21,7 @@
 
 #include "sysdep.h"
 
-ENTRY(__pipe)
+ENTRY(pipe)
        .regstk 1,0,0,0
        DO_CALL (SYS_ify (pipe))
        cmp.ne p6,p0=-1,r10
@@ -32,7 +32,6 @@ ENTRY(__pipe)
 (p6)   st4 [in0]=r9
 (p6)   ret
        br.cond.spnt.few __syscall_error
-PSEUDO_END(__pipe)
+PSEUDO_END(pipe)
 
-libc_hidden_def (__pipe)
-weak_alias (__pipe, pipe)
+libc_hidden_def (pipe)
