@@ -10,8 +10,8 @@ top_builddir=../
 include Rules.mak
 
 ALL_SUBDIRS := \
-	args assert crypt ctype pwd_grp signal silly stat stdlib string unistd \
-	mmap misc
+	args assert crypt ctype mmap misc pwd_grp setjmp signal silly stat \
+	stdlib string termios unistd
 DIRS := $(ALL_SUBDIRS)
 
 ifeq ($(HAVE_SHARED)$(UCLIBC_HAS_THREADS),yy)
