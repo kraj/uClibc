@@ -60,7 +60,7 @@ void setutent(void)
 	/* Make sure the file will be closed on exec()  */
 	ret = fcntl(static_fd, F_GETFD, 0);
 	if (ret >= 0) {
-	    ret = fcntl(static_fd, F_GETFD, 0);
+	    ret = fcntl(static_fd, F_SETFD, ret | FD_CLOEXEC);
 	}
 	if (ret < 0) {
 bummer:
