@@ -149,6 +149,8 @@ CFLAGS-.oS+=$(PICFLAG) -DSHARED
 %.oS: %.s ; $(compile.S)
 %.E:  %.c ; $(compile.E)
 %.E:  %.S ; $(compile.E)
+%.i:  %.c ; $(compile.E)
+%.i:  %.S ; $(compile.E)
 %.s:  %.c ; $(compile.s)
 %.s:  %.S ; $(compile.s)
 
