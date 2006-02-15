@@ -100,9 +100,8 @@ static struct utmp *__getutent(int utmp_fd)
 void endutent(void)
 {
     LOCK;
-    if (static_fd != -1) {
+    if (static_fd != -1)
 	close(static_fd);
-    }
     static_fd = -1;
     UNLOCK;
 }
@@ -192,6 +191,7 @@ int utmpname (const char *new_ut_name)
 
     if (static_fd != -1)
 	close(static_fd);
+    static_fd = -1;
     UNLOCK;
     return 0;
 }
