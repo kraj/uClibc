@@ -67,7 +67,10 @@ int main(void)
 			goto Failed;
 		}
 	}
-	realloc(lp, 0);
+	{
+	void *unused_ret = realloc(lp, 0);
+	(void) unused_ret;
+	}
 	
 	printf("Allocate another 100 nodes 600 bytes each\n");
 	save = 0;
