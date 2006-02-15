@@ -52,3 +52,8 @@ ENTRY(strcmp)
 	br.ret.sptk.many b0
 END(strcmp)
 libc_hidden_def (strcmp)
+
+#ifndef __UCLIBC_HAS_LOCALE__
+strong_alias(strcmp,strcoll)
+libc_hidden_def(strcoll)
+#endif
