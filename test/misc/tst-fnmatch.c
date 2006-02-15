@@ -42,6 +42,14 @@ int str_isalpha(const char *str)
 			return 0;
 	return 1;
 }
+int str_has_funk(const char *str, const char x)
+{
+	size_t i, max = strlen(str);
+	for (i=0; i+1<max; ++i)
+		if (str[i] == '[' && str[i+1] == x)
+			return 1;
+	return 0;
+}
 
 
 int
@@ -51,6 +59,7 @@ main (void)
   size_t linebuflen = 0;
   int ntests = 0;
   int nfailed = 0;
+  int nskipped = 0;
   char *escinput = NULL;
   size_t escinputlen = 0;
   char *escpattern = NULL;
@@ -141,7 +150,22 @@ main (void)
       /* skip non-ascii strings */
       if (!str_isalpha(pattern) || !str_isalpha(input))
 	{
-	  printf("%3d: Skipping test that requires locale support\n", ++nr);
+	  ++nskipped;
+	  printf("%3d: fnmatch (\"%s\", \"%s\"): SKIP multibyte test (requires locale support)\n", ++nr, pattern, input);
+	  continue;
+	}
+      /* skip collating symbols */
+      if (str_has_funk(pattern, '.') || str_has_funk(input, '.'))
+	{
+	  ++nskipped;
+	  printf("%3d: fnmatch (\"%s\", \"%s\"): SKIP collating symbol test (requires locale support)\n", ++nr, pattern, input);
+	  continue;
+	}
+      /* skip equivalence class expressions */
+      if (str_has_funk(pattern, '=') || str_has_funk(input, '='))
+	{
+	  ++nskipped;
+	  printf("%3d: fnmatch (\"%s\", \"%s\"): SKIP equivalence class test (requires locale support)\n", ++nr, pattern, input);
 	  continue;
 	}
 #endif
@@ -170,7 +194,7 @@ main (void)
 	}
     }
 
-  printf ("=====================\n%3d tests, %3d failed\n", ntests, nfailed);
+  printf ("=====================\n%3d tests, %3d failed, %3d skipped\n", ntests, nfailed, nskipped);
 
   free (escpattern);
   free (escinput);
