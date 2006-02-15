@@ -43,6 +43,7 @@ libc_hidden_proto(xdr_string)
 libc_hidden_proto(xdr_u_int)
 libc_hidden_proto(xdr_array)
 libc_hidden_proto(xdr_u_long)
+libc_hidden_proto(xdr_u_short)
 
 /*
  * XDR for unix authentication parameters.
