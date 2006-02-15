@@ -1,20 +1,15 @@
 # Common makefile rules for tests
 #
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+
+ifeq ($(TESTS),)
+TESTS := $(patsubst %.c,%,$(wildcard *.c))
+endif
+ifneq ($(TESTS_DISABLED),)
+TESTS := $(filter-out $(TESTS_DISABLED),$(TESTS))
+endif
 
 include ../Rules.mak
 
@@ -57,6 +52,7 @@ define uclibc_glibc_diff_test
 	exec diff -u "$$uclibc_out" "$$glibc_out"
 endef
 define exec_test
+	$(showtest)
 	$(Q)\
 	$(WRAPPER) $(WRAPPER_$(patsubst %_glibc,%,$@)) \
 	./$@ $(OPTS) $(OPTS_$(patsubst %_glibc,%,$@)) &> "$@.out" ; \
@@ -72,7 +68,7 @@ define exec_test
 endef
 
 $(U_TARGETS):
-	$(showtest)
+	$(showlink)
 	$(Q)$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$@) -c $@.c -o $@.o
 	$(Q)$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LDFLAGS) $(LDFLAGS_$@)
 ifeq ($(COMPILE_ONLY),)
@@ -81,7 +77,7 @@ ifeq ($(COMPILE_ONLY),)
 endif
 
 $(G_TARGETS):
-	$(showtest)
+	$(showlink)
 	$(Q)$(HOSTCC) $(HOST_CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$(patsubst %_glibc,%,$@)) -c $(patsubst %_glibc,%,$@).c -o $@.o
 	$(Q)$(HOSTCC) $(HOST_LDFLAGS) $@.o -o $@ $(EXTRA_LDFLAGS) $(LDFLAGS_$(patsubst %_glibc,%,$@))
 ifeq ($(COMPILE_ONLY),)
