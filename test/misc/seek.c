@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -38,7 +39,7 @@ int main(void)
 	memset(buf, 0xAB, sizeof(buf));
 	ret = write(fd, buf, sizeof(buf));
 	if (ret != sizeof(buf)) {
-		fprintf(stderr, "write() failed to write %i bytes (wrote %i): ", sizeof(buf), ret);
+		fprintf(stderr, "write() failed to write %zi bytes (wrote %li): ", sizeof(buf), (long)ret);
 		perror("");
 		return 1;
 	}
@@ -47,7 +48,7 @@ int main(void)
 	assert(fseeko(fp, (off_t)-16, SEEK_CUR) == 0);
 	ret = ftell(fp);
 	if (ret != (1024-16)) {
-		fprintf(stderr, "ftell() failed, we wanted pos %i but got %i: ", (1024-16), ret);
+		fprintf(stderr, "ftell() failed, we wanted pos %i but got %li: ", (1024-16), (long)ret);
 		perror("");
 		return 1;
 	}
@@ -55,15 +56,15 @@ int main(void)
 	for (i = 0; i < ARRAY_SIZE(tests); ++i) {
 		ret = lseek(fd, tests[i].offset, tests[i].whence);
 		if (ret != tests[i].offset) {
-			fprintf(stderr, "lseek(%i,%i) failed (wanted %i, got %i): ", tests[i].offset,
-			        tests[i].whence, tests[i].offset, ret);
+			fprintf(stderr, "lseek(%li,%i) failed (wanted %li, got %li): ", (long)tests[i].offset,
+			        tests[i].whence, (long)tests[i].offset, (long)ret);
 			perror("");
 			return 1;
 		}
 		ret = fseek(fp, tests[i].offset, tests[i].whence);
 		if (ret != 0) {
-			fprintf(stderr, "fseek(%i,%i) failed (wanted 0, got %i): ", tests[i].offset,
-			        tests[i].whence, ret);
+			fprintf(stderr, "fseek(%li,%i) failed (wanted 0, got %li): ", (long)tests[i].offset,
+			        tests[i].whence, (long)ret);
 			perror("");
 			return 1;
 		}
