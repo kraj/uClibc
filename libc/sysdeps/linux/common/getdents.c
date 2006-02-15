@@ -63,7 +63,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
     dp = (struct dirent *) buf;
     skdp = kdp = alloca (red_nbytes);
 
-    retval = __syscall_getdents(fd, (char *)kdp, red_nbytes);
+    retval = __syscall_getdents(fd, (unsigned char *)kdp, red_nbytes);
     if (retval == -1)
 	return -1;
 
