@@ -1,8 +1,6 @@
 # uClibc args tests
 # Licensed under the GNU Library General Public License, see COPYING.LIB
 
-TESTS := arg_test
-
 include ../Test.mak
 
 OPTS_arg_test = a b c d e f g h

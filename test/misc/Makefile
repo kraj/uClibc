@@ -1,7 +1,7 @@
 # uClibc misc tests
 # Licensed under the GNU Library General Public License, see COPYING.LIB
 
-TESTS := dirent dirent64 fdopen sem tst-fnmatch #outb
+TESTS_DISABLED := outb
 
 include ../Test.mak
 

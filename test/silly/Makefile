@@ -1,8 +1,6 @@
 # uClibc silly tests
 # Licensed under the GNU Library General Public License, see COPYING.LIB
 
-TESTS := hello tiny
-
 include ../Test.mak
 
 RET_hello := 42

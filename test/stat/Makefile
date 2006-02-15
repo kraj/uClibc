@@ -1,8 +1,6 @@
 # uClibc stat tests
 # Licensed under the GNU Library General Public License, see COPYING.LIB
 
-TESTS := stat stat64
-
 include ../Test.mak
 
 CFLAGS_stat64 := -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64

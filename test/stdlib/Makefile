@@ -1,8 +1,6 @@
 # uClibc stdlib tests
 # Licensed under the GNU Library General Public License, see COPYING.LIB
 
-TESTS := ptytest qsort testatexit teston_exit teststrtol
-
 include ../Test.mak
 
 DODIFF_qsort       := 1
