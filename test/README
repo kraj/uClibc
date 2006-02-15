@@ -23,9 +23,11 @@ The structure of this test system is:
  test/subdir/Makefile  describe the tests to run
  test/subdir/*.c       the tests
 
-Each subdir Makefile must define the TESTS variable and include the
-toplevel Test.mak file:
+Each subdir Makefile must include the toplevel Test.mak file.  Before doing so,
+you may define the TESTS and TESTS_DISABLED variables.  If you do not, TESTS
+is built automatically based upon all the .c files in the subdir.
 TESTS := foo
+TESTS_DISABLED := bar
 include ../Test.mak
 Each test must use a similar .c name; so the "foo" test needs a "foo.c".
 
