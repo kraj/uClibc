@@ -125,6 +125,7 @@
 
 	.ent UFUNC_NAME
 	.globl UFUNC_NAME
+	.hidden UFUNC_NAME
 
 	.align 3
 UFUNC_NAME:
