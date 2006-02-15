@@ -95,8 +95,10 @@ ssize_t attribute_hidden __getdents64 (int fd, char *buf, size_t nbytes)
     return (char *) dp - buf;
 }
 
+#if __WORDSIZE == 64
 /* since getdents doesnt give us d_type but getdents64 does, try and
  * use getdents64 as much as possible */
 attribute_hidden strong_alias(__getdents64,__getdents)
+#endif
 
 #endif /* __UCLIBC_HAS_LFS__ */

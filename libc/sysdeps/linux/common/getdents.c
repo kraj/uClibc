@@ -24,8 +24,6 @@
  * version / arch details.
  */
 
-#if ! defined __UCLIBC_HAS_LFS__ || ! defined __NR_getdents64
-
 libc_hidden_proto(memcpy)
 libc_hidden_proto(lseek)
 
@@ -41,11 +39,14 @@ struct kernel_dirent
 	char d_name[256];
 };
 
+ssize_t attribute_hidden __getdents (int fd, char *buf, size_t nbytes);
+
+#if ! defined __UCLIBC_HAS_LFS__ || ! defined __NR_getdents64
+
 #define __NR___syscall_getdents __NR_getdents
 static inline _syscall3(int, __syscall_getdents, int, fd, unsigned char *, kdirp, size_t, count);
 
-ssize_t attribute_hidden __getdents (int fd, char *buf, size_t nbytes);
-ssize_t attribute_hidden __getdents (int fd, char *buf, size_t nbytes)
+ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {
     struct dirent *dp;
     off_t last_offset = -1;
@@ -100,6 +101,34 @@ ssize_t attribute_hidden __getdents (int fd, char *buf, size_t nbytes)
     return (char *) dp - buf;
 }
 
-attribute_hidden strong_alias(__getdents,__getdents64)
+#elif __WORDSIZE == 32
+
+libc_hidden_proto(memmove)
+
+extern attribute_hidden __typeof(__getdents) __getdents64;
+ssize_t __getdents (int fd, char *buf, size_t nbytes)
+{
+    struct dirent *dp;
+    struct dirent64 *dp64;
+    ssize_t ret = __getdents64 (fd, buf, nbytes);
+
+    if (ret <= 0)
+	return ret;
+
+    dp64 = (struct dirent64 *) buf;
+    buf += ret;
+    while ((void *) dp64 < (void *) buf) {
+	dp = (struct dirent *) dp64;
+	dp->d_ino = dp64->d_ino;
+	dp->d_off = dp64->d_off;
+	dp->d_reclen = dp64->d_reclen;
+	dp->d_type = dp64->d_type;
+	memmove (dp->d_name, dp64->d_name, dp->d_reclen - offsetof (struct dirent64, d_name));
+	memmove (dp64, dp, dp->d_reclen);
+	dp64 = ((void *) dp64) + dp->d_reclen;
+    }
+
+    return ret;
+}
 
 #endif
