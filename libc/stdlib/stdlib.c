@@ -64,23 +64,11 @@
 #include <stdlib.h>
 #include <locale.h>
 
-#ifdef __UCLIBC_DO_XLOCALE
-libc_hidden_proto(isspace_l)
-#else
-libc_hidden_proto(isspace)
-#endif
-
 #ifdef __UCLIBC_HAS_WCHAR__
 
 #include <wchar.h>
 #include <wctype.h>
 #include <bits/uClibc_uwchar.h>
-
-#ifdef __UCLIBC_DO_XLOCALE
-libc_hidden_proto(iswspace_l)
-#else
-libc_hidden_proto(iswspace)
-#endif
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
@@ -449,8 +437,10 @@ strong_alias(strtoull,strtouq)
 #define Wuchar __uwchar_t
 #ifdef __UCLIBC_DO_XLOCALE
 #define ISSPACE(C) iswspace_l((C), locale_arg)
+libc_hidden_proto(iswspace_l)
 #else
 #define ISSPACE(C) iswspace((C))
+libc_hidden_proto(iswspace)
 #endif
 
 #else  /* defined(L__stdlib_wcsto_l) || defined(L__stdlib_wcsto_l_l) */
@@ -459,8 +449,10 @@ strong_alias(strtoull,strtouq)
 #define Wuchar unsigned char
 #ifdef __UCLIBC_DO_XLOCALE
 #define ISSPACE(C) isspace_l((C), locale_arg)
+libc_hidden_proto(isspace_l)
 #else
 #define ISSPACE(C) isspace((C))
+libc_hidden_proto(isspace)
 #endif
 
 #endif /* defined(L__stdlib_wcsto_l) || defined(L__stdlib_wcsto_l_l) */
@@ -600,8 +592,10 @@ unsigned long attribute_hidden __XL_NPP(_stdlib_strto_l)(register const Wchar * 
 #define Wuchar __uwchar_t
 #ifdef __UCLIBC_DO_XLOCALE
 #define ISSPACE(C) iswspace_l((C), locale_arg)
+libc_hidden_proto(iswspace_l)
 #else
 #define ISSPACE(C) iswspace((C))
+libc_hidden_proto(iswspace)
 #endif
 
 #else  /* defined(L__stdlib_wcsto_ll) || defined(L__stdlib_wcsto_ll_l) */
@@ -610,8 +604,10 @@ unsigned long attribute_hidden __XL_NPP(_stdlib_strto_l)(register const Wchar * 
 #define Wuchar unsigned char
 #ifdef __UCLIBC_DO_XLOCALE
 #define ISSPACE(C) isspace_l((C), locale_arg)
+libc_hidden_proto(isspace_l)
 #else
 #define ISSPACE(C) isspace((C))
+libc_hidden_proto(isspace)
 #endif
 
 #endif /* defined(L__stdlib_wcsto_ll) || defined(L__stdlib_wcsto_ll_l) */
