@@ -20,6 +20,12 @@
 
 /* We need some help from the assembler to generate optimal code.  We
    define some macros here which later will be used.  */
+
+#if defined  __SUPPORT_LD_DEBUG__ && defined __DOMULTI__
+#error LD debugging and DOMULTI are incompatible
+#endif
+
+#ifdef __DOMULTI__
 __asm__ (".L__X'%ebx = 1\n\t"
      ".L__X'%ecx = 2\n\t"
      ".L__X'%edx = 2\n\t"
@@ -56,7 +62,41 @@ __asm__ (".L__X'%ebx = 1\n\t"
      ".endif\n\t"
      ".endm\n\t"
      ".endif\n\t");
-
+#else
+__asm__ (".L__X'%ebx = 1\n\t"
+     ".L__X'%ecx = 2\n\t"
+     ".L__X'%edx = 2\n\t"
+     ".L__X'%eax = 3\n\t"
+     ".L__X'%esi = 3\n\t"
+     ".L__X'%edi = 3\n\t"
+     ".L__X'%ebp = 3\n\t"
+     ".L__X'%esp = 3\n\t"
+     ".macro bpushl name reg\n\t"
+     ".if 1 - \\name\n\t"
+     ".if 2 - \\name\n\t"
+     "pushl %ebx\n\t"
+     ".else\n\t"
+     "xchgl \\reg, %ebx\n\t"
+     ".endif\n\t"
+     ".endif\n\t"
+     ".endm\n\t"
+     ".macro bpopl name reg\n\t"
+     ".if 1 - \\name\n\t"
+     ".if 2 - \\name\n\t"
+     "popl %ebx\n\t"
+     ".else\n\t"
+     "xchgl \\reg, %ebx\n\t"
+     ".endif\n\t"
+     ".endif\n\t"
+     ".endm\n\t"
+     ".macro bmovl name reg\n\t"
+     ".if 1 - \\name\n\t"
+     ".if 2 - \\name\n\t"
+     "movl \\reg, %ebx\n\t"
+     ".endif\n\t"
+     ".endif\n\t"
+     ".endm\n\t");
+#endif
 
 #undef _syscall0
 #define _syscall0(type,name) \
