@@ -24,9 +24,6 @@
  * version / arch details.
  */
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(lseek)
-
 #ifndef offsetof
 # define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #endif
@@ -39,9 +36,12 @@ struct kernel_dirent
 	char d_name[256];
 };
 
-ssize_t attribute_hidden __getdents (int fd, char *buf, size_t nbytes);
+ssize_t __getdents (int fd, char *buf, size_t nbytes) attribute_hidden;
 
 #if ! defined __UCLIBC_HAS_LFS__ || ! defined __NR_getdents64
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(lseek)
 
 #define __NR___syscall_getdents __NR_getdents
 static inline _syscall3(int, __syscall_getdents, int, fd, unsigned char *, kdirp, size_t, count);
@@ -105,7 +105,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 
 libc_hidden_proto(memmove)
 
-extern attribute_hidden __typeof(__getdents) __getdents64;
+extern __typeof(__getdents) __getdents64 attribute_hidden;
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {
     struct dirent *dp;
