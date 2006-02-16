@@ -6,7 +6,7 @@
 #include <dirent.h>
 
 #define _DTIFY(DT) [DT] #DT
-const char const *types[] = {
+const char * const types[] = {
 	_DTIFY(DT_UNKNOWN),
 	_DTIFY(DT_FIFO),
 	_DTIFY(DT_CHR),
