@@ -14,6 +14,8 @@ void test_handler(int signo)
 }
 
 
+#ifdef __UCLIBC_HAS_MMU__
+
 int main(void) 
 {
     pid_t mypid;
@@ -57,3 +59,12 @@ int main(void)
     return 0;
 }
 
+#else
+
+int main(void)
+{
+    printf("Skipping test on non-mmu host!\n");
+    return 0;
+}
+
+#endif
