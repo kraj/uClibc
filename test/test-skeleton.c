@@ -193,17 +193,23 @@ timeout_handler (int sig __attribute__ ((unused)))
 int
 main (int argc, char *argv[])
 {
+#ifdef __ARCH_HAS_MMU__
   int direct = 0;	/* Directly call the test function?  */
+#else
+  int direct = 1;
+#endif
   int status;
   int opt;
   unsigned int timeoutfactor = 1;
   pid_t termpid;
 
   /* Make uses of freed and uninitialized memory known.  */
+#ifdef __ARCH_HAS_MMU__
 #ifndef M_PERTURB
 # define M_PERTURB -6
 #endif
   mallopt (M_PERTURB, 42);
+#endif
 
 #ifdef STDOUT_UNBUFFERED
   setbuf (stdout, NULL);
@@ -281,6 +287,7 @@ main (int argc, char *argv[])
      - set up the timer
      - fork and execute the function.  */
 
+#ifdef __UCLIBC_HAS_MMU__
   pid = fork ();
   if (pid == 0)
     {
@@ -318,6 +325,7 @@ main (int argc, char *argv[])
       exit (TEST_FUNCTION);
     }
   else if (pid < 0)
+#endif
     {
       perror ("Cannot fork test program");
       exit (1);
