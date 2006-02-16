@@ -44,6 +44,8 @@ extern __ptr_t (*__glob_opendir_hook) (const char *directory) attribute_hidden;
 extern void (*__glob_closedir_hook) (__ptr_t stream) attribute_hidden;
 extern const char *(*__glob_readdir_hook) (__ptr_t stream) attribute_hidden;
 
+extern int __collated_compare (const __ptr_t a, const __ptr_t b) attribute_hidden;
+extern int __prefix_array (const char *dirname, char **array, size_t n, int add_slash) attribute_hidden;
 
 libc_hidden_proto(glob_pattern_p)
 #ifdef __GLOB64
@@ -88,12 +90,11 @@ int glob_pattern_p(const char *pattern, int quote)
     return 0;
 }
 libc_hidden_def(glob_pattern_p)
-#endif
 
 
 /* Do a collated comparison of A and B.  */
-static int
-collated_compare (const __ptr_t a, const __ptr_t b)
+int
+__collated_compare (const __ptr_t a, const __ptr_t b)
 {
   const char *const s1 = *(const char *const *) a;
   const char *const s2 = *(const char *const *) b;
@@ -114,8 +115,8 @@ collated_compare (const __ptr_t a, const __ptr_t b)
    unless DIRNAME is just "/".  Each old element of ARRAY is freed.
    If ADD_SLASH is non-zero, allocate one character more than
    necessary, so that a slash can be appended later.  */
-static int
-prefix_array (const char *dirname, char **array, size_t n, int add_slash)
+int
+__prefix_array (const char *dirname, char **array, size_t n, int add_slash)
 {
   register size_t i;
   size_t dirlen = strlen (dirname);
@@ -145,6 +146,7 @@ prefix_array (const char *dirname, char **array, size_t n, int add_slash)
 
   return 0;
 }
+#endif
 
 
 /* Like `glob', but PATTERN is a final pathname component,
@@ -407,7 +409,7 @@ glob (pattern, flags, errfunc, pglob)
 	    }
 
 	  /* Stick the directory on the front of each name.  */
-	  if (prefix_array (dirs.gl_pathv[i],
+	  if (__prefix_array (dirs.gl_pathv[i],
 			    &pglob->gl_pathv[oldcount],
 			    pglob->gl_pathc - oldcount,
 			    flags & GLOB_MARK))
@@ -467,7 +469,7 @@ glob (pattern, flags, errfunc, pglob)
       if (dirlen > 0)
 	{
 	  /* Stick the directory on the front of each name.  */
-	  if (prefix_array (dirname,
+	  if (__prefix_array (dirname,
 			    &pglob->gl_pathv[oldcount],
 			    pglob->gl_pathc - oldcount,
 			    flags & GLOB_MARK))
@@ -494,7 +496,7 @@ glob (pattern, flags, errfunc, pglob)
     /* Sort the vector.  */
     qsort ((__ptr_t) &pglob->gl_pathv[oldcount],
 	   pglob->gl_pathc - oldcount,
-	   sizeof (char *), (__compar_fn_t)collated_compare);
+	   sizeof (char *), (__compar_fn_t)__collated_compare);
 
   return 0;
 }
