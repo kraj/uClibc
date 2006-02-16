@@ -29,7 +29,7 @@
 #include <glob.h>
 
 
-attribute_hidden __ptr_t (*__glob_opendir_hook) __P ((const char *directory));
-attribute_hidden const char *(*__glob_readdir_hook) __P ((__ptr_t stream));
-attribute_hidden void (*__glob_closedir_hook) __P ((__ptr_t stream));
+attribute_hidden __ptr_t (*__glob_opendir_hook) (const char *directory);
+attribute_hidden const char *(*__glob_readdir_hook) (__ptr_t stream);
+attribute_hidden void (*__glob_closedir_hook) (__ptr_t stream);
 
