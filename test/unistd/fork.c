@@ -32,6 +32,8 @@
 #define GOT2	(1 << 2)
 #define GOT3	(1 << 3)
 
+#ifdef __ARCH_HAS_MMU__
+
 void child_handler(int sig)
 {
 	fprintf(stderr, "I got a SIGCHLD\n");
@@ -85,6 +87,16 @@ int main(void)
 	fprintf(stderr, "Child process exited.\nGoodbye.\n");
 	return EXIT_SUCCESS;
 }
+
+#else
+
+int main(void)
+{
+	printf("Skipping test on non-mmu host!\n");
+	return EXIT_SUCCESS;
+}
+
+#endif
 
 /*
 Local Variables:
