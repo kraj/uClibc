@@ -31,13 +31,20 @@ all_objs: $(ar_objs)
 endif
 
 headers-y: $(headers-y)
+	@true
 
 MAKEFLAGS += --no-print-directory
+SHELL_SET_X := set +x
 ifneq ($(findstring s,$(MAKEFLAGS)),)
+export MAKE_IS_SILENT := y
+SECHO := -@false
 DISP := sil
 Q := @
 else
+export MAKE_IS_SILENT := n
+SECHO := @echo
 ifneq ($(V)$(VERBOSE),)
+SHELL_SET_X := set -x
 DISP := ver
 Q := 
 else

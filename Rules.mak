@@ -113,17 +113,6 @@ check_as=$(shell \
 	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
 	then echo "-Wa,$(1)"; fi)
 
-# Setup some shortcuts so that silent mode is silent like it should be
-ifeq ($(findstring s,$(MAKEFLAGS)),)
-export MAKE_IS_SILENT=n
-SECHO=@echo
-SHELL_SET_X=set -x
-else
-export MAKE_IS_SILENT=y
-SECHO=-@false
-SHELL_SET_X=set +x
-endif
-
 ARFLAGS:=cr
 
 OPTIMIZATION:=
