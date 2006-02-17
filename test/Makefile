@@ -9,25 +9,22 @@ top_builddir=../
 -include $(top_builddir).config
 include Rules.mak
 
-ALL_SUBDIRS := \
-	args assert crypt ctype mmap misc pwd_grp setjmp signal silly stat \
-	stdlib string termios unistd
-DIRS := $(ALL_SUBDIRS)
+ALL_SUBDIRS := $(patsubst %/Makefile,%,$(wildcard */Makefile))
 
-ifeq ($(HAVE_SHARED)$(UCLIBC_HAS_THREADS),yy)
-ifeq ($(findstring -static,$(LDFLAGS)),)
-	DIRS += dlopen
+DIRS := $(ALL_SUBDIRS)
+ifneq ($(HAVE_SHARED)$(UCLIBC_HAS_THREADS),yy)
+	DIRS := $(filter-out dlopen,$(DIRS))
 endif
+ifneq ($(findstring -static,$(LDFLAGS)),)
+	DIRS := $(filter-out dlopen,$(DIRS))
 endif
-ifeq ($(UCLIBC_HAS_THREADS),y)
-	DIRS += pthread
+ifneq ($(UCLIBC_HAS_THREADS),y)
+	DIRS := $(filter-out pthread,$(DIRS))
 endif
-ifeq ($(UCLIBC_HAS_FULL_RPC),y)
-	DIRS += rpc
+ifneq ($(UCLIBC_HAS_FULL_RPC),y)
+	DIRS := $(filter-out rpc,$(DIRS))
 endif
-ALL_SUBDIRS += dlopen pthread rpc
-ALL_SUBDIRS := $(sort $(ALL_SUBDIRS))
-DIRS := $(sort $(DIRS))
+DIRS := $(filter-out math,$(DIRS))
 
 
 test check all: subdirs
