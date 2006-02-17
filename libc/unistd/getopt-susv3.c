@@ -54,18 +54,10 @@ static const char missing[] = "%s: option requires an argument -- %c\n";
 static const char illegal[] = "%s: illegal option -- %c\n";
 #endif
 
-libc_hidden_proto(opterr)
 int opterr = 1;
-libc_hidden_data_def(opterr)
-libc_hidden_proto(optind)
 int optind = 1;
-libc_hidden_data_def(optind)
-libc_hidden_proto(optopt)
 int optopt = 0;
-libc_hidden_data_def(optopt)
-libc_hidden_proto(optarg)
 char *optarg = NULL;
-libc_hidden_data_def(optarg)
 
 int getopt(int argc, char * const argv[], const char *optstring)
 {
