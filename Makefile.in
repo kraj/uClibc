@@ -49,31 +49,36 @@ export header_extra_args =
 else
 export header_extra_args = -n
 endif
+HEADERS_BITS_COMMON := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/common/bits/*.h))
+HEADERS_BITS_ARCH   := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/*.h))
+HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_ARCH),$(HEADERS_BITS_COMMON))
 headers: include/bits/uClibc_config.h
-	$(MAKE) headers-y
-	@$(SHELL_SET_X); \
+	$(Q)$(MAKE) headers-y
+	$(Q)\
 	$(SHELL) $(top_srcdir)extra/scripts/fix_includes.sh \
 		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
 		$(header_extra_args)
+	$(Q)\
+	set -e; \
 	if [ -f libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h ] ; then \
 		$(LN) -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h include/ ; \
 	else \
 		$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h include/ ; \
-	fi
+	fi; \
 	for f in dl-osinfo.h hp-timing.h ; do \
 		$(LN) -fs ../libc/sysdeps/linux/common/$$f include/ ; \
 	done
-	@cd include/bits; \
+	$(Q)\
+	cd include/bits; \
 	set -e; \
-	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
-		$(LN) -fs $$i .; \
+	for i in $(HEADERS_BITS_COMMON) ; do \
+		$(LN) -fs ../../libc/sysdeps/linux/common/bits/$$i .; \
 	done; \
-	if [ -d ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits ] ; then \
-		for i in `ls ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/*.h` ; do \
-			$(LN) -fs $$i .; \
-		done; \
-	fi
-	@cd include/sys; \
+	for i in $(HEADERS_BITS_ARCH) ; do \
+		$(LN) -fs ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$$i .; \
+	done
+	$(Q)\
+	cd include/sys; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/sys/*.h` ; do \
 		$(LN) -fs $$i .; \
@@ -83,14 +88,13 @@ headers: include/bits/uClibc_config.h
 			$(LN) -fs $$i .; \
 		done; \
 	fi
-	@cd $(top_builddir); \
+	$(Q)\
 	set -e; \
-	$(SHELL_SET_X); \
+	cd $(top_builddir); \
 	top_builddir=. CC="$(CC)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
 	if cmp include/bits/sysnum.h include/bits/sysnum.h.new >/dev/null 2>&1; then \
 		$(RM) include/bits/sysnum.h.new; \
 	else \
-		$(RM) include/bits/sysnum.h; \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
 ifeq ($(UCLIBC_HAS_LOCALE),y)
