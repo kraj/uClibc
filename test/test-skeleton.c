@@ -204,7 +204,7 @@ main (int argc, char *argv[])
   pid_t termpid;
 
   /* Make uses of freed and uninitialized memory known.  */
-#ifdef __ARCH_HAS_MMU__
+#ifdef __MALLOC_STANDARD__
 #ifndef M_PERTURB
 # define M_PERTURB -6
 #endif
