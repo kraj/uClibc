@@ -181,7 +181,7 @@ $(libc):
 $(headers_dep):
 	@cd $(top_builddir); $(MAKE) headers
 
-CRT=crt1
+CRT := crt1
 
 ifeq ($(HAVE_SHARED),y)
 CRTS=$(top_builddir)lib/$(CRT).o $(top_builddir)lib/S$(CRT).o
@@ -189,14 +189,11 @@ else
 CRTS=$(top_builddir)lib/$(CRT).o
 endif
 
-$(top_builddir)lib/$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
+ASFLAGS-$(CRT).o := -DL_$(CRT)
+ASFLAGS-S$(CRT).o := $(PIEFLAG) -DL_S$(CRT)
+$(CRTS): $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
 	$(Q)$(INSTALL) -d $(dir $@)
-	$(compile.S) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
-	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
-
-$(top_builddir)lib/S$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(compile.S) $(PIEFLAG) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
+	$(compile.S)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
