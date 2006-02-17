@@ -87,7 +87,7 @@ TARGETS = tst-align tst-align2						\
 	  tst-barrier1 tst-barrier2 tst-barrier3 tst-barrier4		\
 	  tst-basic1 tst-basic2 tst-basic3				\
 	  tst-basic4 tst-basic5 tst-basic6				\
-	  tst-cancel1 tst-cancel2 tst-cancel3 tst-cancel6		\
+	  tst-cancel1 tst-cancel2 tst-cancel3 tst-cancel6 tst-cancel7	\
 	  tst-cancel8 tst-cancel9 tst-cancel10 tst-cancel11		\
 	  tst-cancel12 tst-cancel13 tst-cancel14 tst-cancel15		\
 	  tst-cancel16 tst-cancel19 tst-cancel20 tst-cancel21		\
