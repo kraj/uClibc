@@ -46,7 +46,7 @@
 #define __IA64_BREAK_SYSCALL	0x100000
 #define ___IA64_BREAK_SYSCALL	"0x100000"
 
-#define _DO_SYSCALL(break_syscall, name, nr, args...) \
+#define _DO_SYSCALL(name, nr, args...) \
     LOAD_ARGS_##nr (args) \
     register long _r8 asm ("r8"); \
     register long _r10 asm ("r10"); \
