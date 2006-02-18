@@ -5,8 +5,7 @@
  * Introduced single menu mode (show all sub-menus in one large tree).
  * 2002-11-06 Petr Baudis <pasky@ucw.cz>
  *
- * Directly use liblxdialog library routines.
- * 2002-11-14 Petr Baudis <pasky@ucw.cz>
+ * i18n, 2005, Arnaldo Carvalho de Melo <acme@conectiva.com.br>
  */
 
 #include <sys/ioctl.h>
@@ -23,13 +22,15 @@
 #include <termios.h>
 #include <unistd.h>
 
+//#include <locale.h>
+
 #include "lxdialog/dialog.h"
 
 #define LKC_DIRECT_LINK
 #include "lkc.h"
 
 static char menu_backtitle[128];
-static const char mconf_readme[] =
+static const char mconf_readme[] = N_(
 "Overview\n"
 "--------\n"
 "Some features may be built directly into uClibc.  Some features\n"
@@ -160,39 +161,39 @@ static const char mconf_readme[] =
 "\n"
 "Note that this mode can eventually be a little more CPU expensive\n"
 "(especially with a larger number of unrolled categories) than the\n"
-"default mode.\n",
-menu_instructions[] =
+"default mode.\n"),
+menu_instructions[] = N_(
 	"Arrow keys navigate the menu.  "
 	"<Enter> selects submenus --->.  "
 	"Highlighted letters are hotkeys.  "
 	"Pressing <Y> selectes a feature, while <N> will exclude a feature.  "
 	"Press <Esc><Esc> to exit, <?> for Help, </> for Search.  "
-	"Legend: [*] feature is selected  [ ] feature is excluded",
-radiolist_instructions[] =
+	"Legend: [*] feature is selected  [ ] feature is excluded"),
+radiolist_instructions[] = N_(
 	"Use the arrow keys to navigate this window or "
 	"press the hotkey of the item you wish to select "
 	"followed by the <SPACE BAR>. "
-	"Press <?> for additional information about this option.",
-inputbox_instructions_int[] =
+	"Press <?> for additional information about this option."),
+inputbox_instructions_int[] = N_(
 	"Please enter a decimal value. "
 	"Fractions will not be accepted.  "
-	"Use the <TAB> key to move from the input field to the buttons below it.",
-inputbox_instructions_hex[] =
+	"Use the <TAB> key to move from the input field to the buttons below it."),
+inputbox_instructions_hex[] = N_(
 	"Please enter a hexadecimal value. "
-	"Use the <TAB> key to move from the input field to the buttons below it.",
-inputbox_instructions_string[] =
+	"Use the <TAB> key to move from the input field to the buttons below it."),
+inputbox_instructions_string[] = N_(
 	"Please enter a string value. "
-	"Use the <TAB> key to move from the input field to the buttons below it.",
-setmod_text[] =
+	"Use the <TAB> key to move from the input field to the buttons below it."),
+setmod_text[] = N_(
 	"This feature depends on another which has been configured as a module.\n"
-	"As a result, this feature will be built as a module.",
-nohelp_text[] =
-	"There is no help available for this option.\n",
-load_config_text[] =
+	"As a result, this feature will be built as a module."),
+nohelp_text[] = N_(
+	"There is no help available for this option.\n"),
+load_config_text[] = N_(
 	"Enter the name of the configuration file you wish to load.  "
 	"Accept the name shown to restore the configuration you "
-	"last retrieved.  Leave blank to abort.",
-load_config_help[] =
+	"last retrieved.  Leave blank to abort."),
+load_config_help[] = N_(
 	"\n"
 	"For various reasons, one may wish to keep several different uClibc\n"
 	"configurations available on a single machine.\n"
@@ -202,11 +203,11 @@ load_config_help[] =
 	"to modify that configuration.\n"
 	"\n"
 	"If you are uncertain, then you have probably never used alternate\n"
-	"configuration files.  You should therefor leave this blank to abort.\n",
-save_config_text[] =
+	"configuration files.  You should therefor leave this blank to abort.\n"),
+save_config_text[] = N_(
 	"Enter a filename to which this configuration should be saved "
-	"as an alternate.  Leave blank to abort.",
-save_config_help[] =
+	"as an alternate.  Leave blank to abort."),
+save_config_help[] = N_(
 	"\n"
 	"For various reasons, one may wish to keep different uClibc\n"
 	"configurations available on a single machine.\n"
@@ -216,8 +217,8 @@ save_config_help[] =
 	"configuration options you have selected at that time.\n"
 	"\n"
 	"If you are uncertain what all this means then you should probably\n"
-	"leave this blank.\n",
-search_help[] =
+	"leave this blank.\n"),
+search_help[] = N_(
 	"\n"
 	"Search for CONFIG_ symbols and display their relations.\n"
 	"Example: search for \"^FOO\"\n"
@@ -254,7 +255,7 @@ search_help[] =
 	"Examples: USB	=> find all CONFIG_ symbols containing USB\n"
 	"          ^USB => find all CONFIG_ symbols starting with USB\n"
 	"          USB$ => find all CONFIG_ symbols ending with USB\n"
-	"\n";
+	"\n");
 
 static char filename[PATH_MAX+1] = ".config";
 static int indent;
@@ -303,8 +304,8 @@ static void init_wsize(void)
 	}
 
 	if (rows < 19 || cols < 80) {
-		fprintf(stderr, "Your display is too small to run Menuconfig!\n");
-		fprintf(stderr, "It must be at least 19 lines by 80 columns.\n");
+		fprintf(stderr, N_("Your display is too small to run Menuconfig!\n"));
+		fprintf(stderr, N_("It must be at least 19 lines by 80 columns.\n"));
 		exit(1);
 	}
 
@@ -935,12 +936,16 @@ int main(int ac, char **av)
 	char *mode;
 	int stat;
 
+	setlocale(LC_ALL, "");
+	bindtextdomain(PACKAGE, LOCALEDIR);
+	textdomain(PACKAGE);
+
 	conf_parse(av[1]);
 	conf_read(NULL);
 
 	sym = sym_lookup("VERSION", 0);
 	sym_calc_value(sym);
-	snprintf(menu_backtitle, 128, "uClibc v%s Configuration",
+	snprintf(menu_backtitle, sizeof(menu_backtitle), _("uClibc v%s Configuration"),
 		sym_get_string_value(sym));
 
 	mode = getenv("MENUCONFIG_MODE");
@@ -966,12 +971,22 @@ int main(int ac, char **av)
 	end_dialog();
 
 	if (stat == 0) {
-		conf_write(NULL);
-		printf("\n\n"
+		if (conf_write(NULL)) {
+			fprintf(stderr, _("\n\n"
+				"Error during writing of the uClibc configuration.\n"
+				"Your uClibc configuration changes were NOT saved."
+				"\n\n"));
+			return 1;
+		}
+		printf(_("\n\n"
 			"*** End of uClibc configuration.\n"
-			"*** Check the top-level Makefile for additional configuration options.\n\n");
-	} else
-		printf("\n\nYour uClibc configuration changes were NOT saved.\n\n");
+			"*** Execute 'make' to build uClibc."
+			"\n\n"));
+	} else {
+		fprintf(stderr, _("\n\n"
+			"Your uClibc configuration changes were NOT saved."
+			"\n\n"));
+	}
 
 	return 0;
 }

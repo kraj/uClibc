@@ -8,6 +8,8 @@
 
 #include "expr.h"
 
+//#include <libintl.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,6 +24,20 @@ extern "C" {
 #undef P
 
 #define SRCTREE "srctree"
+
+#define PACKAGE "linux"
+#define LOCALEDIR "/usr/share/locale"
+
+#if 0
+#define _(text) gettext(text)
+#define N_(text) (text)
+#else
+#define _(text) (text)
+#define N_(text) (text)
+#define setlocale(a,b)
+#define bindtextdomain(p,l)
+#define textdomain(p)
+#endif
 
 int zconfparse(void);
 void zconfdump(FILE *out);
@@ -51,7 +67,7 @@ void menu_add_entry(struct symbol *sym);
 void menu_end_entry(void);
 void menu_add_dep(struct expr *dep);
 struct property *menu_add_prop(enum prop_type type, char *prompt, struct expr *expr, struct expr *dep);
-void menu_add_prompt(enum prop_type type, char *prompt, struct expr *dep);
+struct property *menu_add_prompt(enum prop_type type, char *prompt, struct expr *dep);
 void menu_add_expr(enum prop_type type, struct expr *expr, struct expr *dep);
 void menu_add_symbol(enum prop_type type, struct symbol *sym, struct expr *dep);
 void menu_finalize(struct menu *parent);

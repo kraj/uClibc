@@ -727,7 +727,7 @@ struct symbol *sym_check_deps(struct symbol *sym)
 	if (sym->flags & SYMBOL_CHECK_DONE)
 		return NULL;
 	if (sym->flags & SYMBOL_CHECK) {
-		printf("Warning! Found recursive dependency: %s", sym->name);
+		fprintf(stderr, "Warning! Found recursive dependency: %s\n", sym->name);
 		return sym;
 	}
 
