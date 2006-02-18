@@ -304,6 +304,7 @@ config LDSO_RUNPATH
 
 config UCLIBC_CTOR_DTOR
 	bool "Support global constructors and destructors"
+	depends on !TARGET_bfin
 	default y
 	help
 	  If you wish to build uClibc with support for global constructor
