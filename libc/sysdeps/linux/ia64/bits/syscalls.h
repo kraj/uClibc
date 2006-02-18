@@ -1,4 +1,5 @@
-/* Copyright (C) 1999, 2000, 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 1999, 2000, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Jes Sorensen, <Jes.Sorensen@cern.ch>, April 1999.
    Based on code originally written by David Mosberger-Tang
@@ -42,16 +43,17 @@
 #define SYS_ify(syscall_name)   __NR_##syscall_name
 
 /* taken from asm-ia64/break.h */
-#define __IA64_BREAK_SYSCALL	"0x100000"
+#define __IA64_BREAK_SYSCALL	0x100000
+#define ___IA64_BREAK_SYSCALL	"0x100000"
 
-#define _DO_SYSCALL(name, nr, args...) \
+#define _DO_SYSCALL(break_syscall, name, nr, args...) \
     LOAD_ARGS_##nr (args) \
     register long _r8 asm ("r8"); \
     register long _r10 asm ("r10"); \
     register long _r15 asm ("r15") = SYS_ify(name); \
     long _retval; \
     LOAD_REGS_##nr \
-    __asm __volatile ("break " __IA64_BREAK_SYSCALL ";;\n\t" \
+    __asm __volatile ("break " ___IA64_BREAK_SYSCALL ";;\n\t" \
 		: "=r" (_r8), "=r" (_r10), "=r" (_r15) ASM_OUTARGS_##nr \
 		: "2" (_r15) ASM_ARGS_##nr \
 		: "memory" ASM_CLOBBERS_##nr); \
