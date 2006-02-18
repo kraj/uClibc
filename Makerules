@@ -8,7 +8,7 @@
 ifeq ($(HAVE_SHARED),y)
 .LIBPATTERNS: "lib%.so"
 libs: $(lib-so-y) $(lib-a-y)
-$(lib-so-y): | $(interp)
+$(lib-so-y): $(interp)
 else
 .LIBPATTERNS: "lib%.a"
 libs: $(lib-a-y)
