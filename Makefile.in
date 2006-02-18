@@ -271,43 +271,31 @@ menuconfig: extra/config/mconf
 	$(Q)./extra/config/mconf extra/Configs/Config.in
 
 config: extra/config/conf
-	$(RM) -r include/bits
-	$(INSTALL) -d include/bits
-	@./extra/config/conf extra/Configs/Config.in
+	$(Q)./extra/config/conf extra/Configs/Config.in
 
 oldconfig: extra/config/conf
-	$(RM) -r include/bits
-	$(INSTALL) -d include/bits
-	@./extra/config/conf -o extra/Configs/Config.in
+	$(Q)./extra/config/conf -o extra/Configs/Config.in
 
 randconfig: extra/config/conf
-	$(RM) -r include/bits
-	$(INSTALL) -d include/bits
-	@./extra/config/conf -r extra/Configs/Config.in
+	$(Q)./extra/config/conf -r extra/Configs/Config.in
 
 allyesconfig: extra/config/conf
-	$(RM) -r include/bits
-	$(INSTALL) -d include/bits
-	@./extra/config/conf -y extra/Configs/Config.in
+	$(Q)./extra/config/conf -y extra/Configs/Config.in
 	sed -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" .config
 	sed -i -e "s/^DOASSERTS=.*/# DOASSERTS is not set/" .config
 	sed -i -e "s/^SUPPORT_LD_DEBUG_EARLY=.*/# SUPPORT_LD_DEBUG_EARLY is not set/" .config
 	sed -i -e "s/^SUPPORT_LD_DEBUG=.*/# SUPPORT_LD_DEBUG is not set/" .config
 	sed -i -e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" .config
-	@./extra/config/conf -o extra/Configs/Config.in
+	$(Q)./extra/config/conf -o extra/Configs/Config.in
 
 allnoconfig: extra/config/conf
-	$(RM) -r include/bits
-	$(INSTALL) -d include/bits
-	@./extra/config/conf -n extra/Configs/Config.in
+	$(Q)./extra/config/conf -n extra/Configs/Config.in
 
 defconfig: extra/config/conf
-	$(RM) -r include/bits
-	$(INSTALL) -d include/bits
-	@./extra/config/conf -d extra/Configs/Config.in
+	$(Q)./extra/config/conf -d extra/Configs/Config.in
 
 clean:
-	@$(RM) -r lib include/bits
+	$(Q)$(RM) -r lib include/bits
 	$(RM) lib*/*.a ldso/*/*.a libpthread/*/*.a
 	$(RM) include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
 	$(MAKE) -C extra/locale locale_clean
