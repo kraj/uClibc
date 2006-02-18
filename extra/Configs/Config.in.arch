@@ -32,14 +32,15 @@ comment "Using Big Endian"
 endif
 
 config ARCH_HAS_NO_MMU
-	bool "Target CPU does not have a memory management unit (MMU)"
-	select ARCH_HAS_NO_LDSO if !TARGET_frv
-	default n
+	bool
+if ARCH_HAS_NO_MMU
+comment "Target CPU lacks a memory management unit (MMU)"
+endif
 
 config ARCH_HAS_MMU
 	bool "Target CPU has a memory management unit (MMU)"
-	default y
 	depends !ARCH_HAS_NO_MMU
+	default y
 	help
 	  If your target CPU does not have a memory management unit (MMU), 
 	  then answer N here.  Normally, Linux runs on systems with an MMU.  
