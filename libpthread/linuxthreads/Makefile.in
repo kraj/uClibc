@@ -119,10 +119,10 @@ endif
 	$(do_ar)
 
 linuxthreads_headers:
-	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/pthread.h $(top_builddir)include/
-	$(LN) -sf ../$(PTDIR)/semaphore.h $(top_builddir)include/
-	$(INSTALL) -d $(top_builddir)include/bits
-	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/pthreadtypes.h $(top_builddir)include/bits/
+	$(Q)$(LN) -sf ../$(PTDIR)/sysdeps/pthread/pthread.h $(top_builddir)include/
+	$(Q)$(LN) -sf ../$(PTDIR)/semaphore.h $(top_builddir)include/
+	$(Q)$(INSTALL) -d $(top_builddir)include/bits
+	$(Q)$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/pthreadtypes.h $(top_builddir)include/bits/
 
 linuxthreads_headers_clean:
 	$(RM) $(top_builddir)include/pthread.h $(top_builddir)include/semaphore.h \
