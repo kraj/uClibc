@@ -3,21 +3,33 @@
 # see extra/config/Kconfig-language.txt
 #
 
+config ARCH_ANY_ENDIAN
+	bool
+config ARCH_BIG_ENDIAN
+	bool
+config ARCH_LITTLE_ENDIAN
+	bool
+if ARCH_ANY_ENDIAN
 choice
 	prompt "Target Processor Endianness"
 	help
-	  This is the endianness you wish to build use.  Choose either Big
+	  This is the endianness you wish to use.  Choose either Big
 	  Endian, or Little Endian.
-
-config ARCH_LITTLE_ENDIAN
-	bool "Little Endian"
-	depends on ARCH_SUPPORTS_LITTLE_ENDIAN
-
-config ARCH_BIG_ENDIAN
+config ARCH_WANTS_BIG_ENDIAN
 	bool "Big Endian"
-	depends on ARCH_SUPPORTS_BIG_ENDIAN
-
+	select ARCH_BIG_ENDIAN
+config ARCH_WANTS_LITTLE_ENDIAN
+	bool "Little Endian"
+	select ARCH_LITTLE_ENDIAN
 endchoice
+endif
+# if the arch only supports one endian, just display the setting
+if !ARCH_ANY_ENDIAN && ARCH_LITTLE_ENDIAN
+comment "Using Little Endian"
+endif
+if !ARCH_ANY_ENDIAN && ARCH_BIG_ENDIAN
+comment "Using Big Endian"
+endif
 
 config ARCH_HAS_NO_MMU
 	bool "Target CPU does not have a memory management unit (MMU)"

@@ -6,19 +6,11 @@
 config TARGET_ARCH
 	default "nios"
 
-config ARCH_SUPPORTS_BIG_ENDIAN
-	bool
-	default n
-
-config ARCH_SUPPORTS_LITTLE_ENDIAN
-	bool
-	default y
-
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
-	select ARCH_HAS_NO_MMU
 	select ARCH_LITTLE_ENDIAN
+	select ARCH_HAS_NO_MMU
 	select HAVE_NO_PIC
 
 config ARCH_CFLAGS
