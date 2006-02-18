@@ -13,14 +13,6 @@ CFLAGS-ldso += -fno-omit-frame-pointer
 CFLAGS-ldso += -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include -I$(top_srcdir)ldso/ldso
 CFLAGS-ldso += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\"
 
-ifeq ($(SUPPORT_LD_DEBUG),y)
-CFLAGS-ldso += -D__SUPPORT_LD_DEBUG__
-endif
-
-ifeq ($(SUPPORT_LD_DEBUG_EARLY),y)
-CFLAGS-ldso += -D__SUPPORT_LD_DEBUG_EARLY__
-endif
-
 ifeq ($(DODEBUG),y)
 # Not really much point in including debugging info, since gdb
 # can't really debug ldso, since gdb requires help from ldso to
