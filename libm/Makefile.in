@@ -32,6 +32,10 @@ libm_FULL_NAME := libm-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 libm_ARCH_DIR:=$(top_srcdir)libm/$(TARGET_ARCH)
 libm_ARCH_OUT:=$(top_builddir)libm/$(TARGET_ARCH)
 
+CFLAGS-libm/$(TARGET_ARCH)/fpu/ += -D_GNU_SOURCE
+libm_ARCH_fpu_DIR:=$(libm_ARCH_DIR)/fpu
+libm_ARCH_fpu_OUT:=$(libm_ARCH_OUT)/fpu
+
 ifeq ($(UCLIBC_HAS_FPU),y)
 ifeq ($(DO_C99_MATH),y)
 -include $(libm_ARCH_DIR)/Makefile.arch
@@ -162,4 +166,4 @@ $(libm_MOBJ:.o=.os): $(libm_MSRC)
 	$(compile.m)
 
 libm_clean:
-	$(RM) $(libm_OUT)/{,*/}*.{o,os,oS,a}
+	$(RM) $(libm_OUT)/{,*/,*/*/}*.{o,os,oS,a}
