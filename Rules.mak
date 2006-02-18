@@ -85,6 +85,7 @@ libc := $(top_builddir)lib/$(SHARED_MAJORNAME)
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
 headers_dep := $(top_builddir)include/bits/sysnum.h
+sub_headers := $(headers_dep)
 
 #LIBS :=$(interp) -L$(top_builddir)lib -lc
 LIBS := $(interp) -L$(top_builddir)lib $(libc:.$(MAJOR_VERSION)=)

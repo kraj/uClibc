@@ -13,6 +13,7 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 	release dist tags
 
 include $(top_builddir)Rules.mak
+sub_headers := headers
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 
@@ -267,10 +268,7 @@ extra/config/conf extra/config/mconf:
 	$(MAKE) -C extra/config $(notdir $@)
 
 menuconfig: extra/config/mconf
-	$(RM) -r include/bits
-	$(INSTALL) -d include/bits
-	@./extra/config/mconf extra/Configs/Config.in
-	$(MAKE) headers
+	$(Q)./extra/config/mconf extra/Configs/Config.in
 
 config: extra/config/conf
 	$(RM) -r include/bits

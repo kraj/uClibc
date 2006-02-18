@@ -29,7 +29,7 @@ all_objs: $(sort $(shared_objs) $(ar_objs))
 else
 all_objs: $(ar_objs)
 endif
-$(shared_objs) $(ar_objs): | headers
+$(shared_objs) $(ar_objs): | $(sub_headers)
 
 headers-y: $(headers-y)
 	@true
@@ -162,7 +162,7 @@ CFLAGS-.oS+=$(PICFLAG) -DSHARED
 %.s:  %.c ; $(compile.s)
 %.s:  %.S ; $(compile.s)
 
-$(top_builddir)lib/interp.c: | headers
+$(top_builddir)lib/interp.c: | $(sub_headers)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)echo "/* Force shared libraries to know about the correct library loader */" > $@
 	$(Q)echo "#include <features.h>" >> $@
@@ -180,7 +180,7 @@ $(libc):
 	@cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(MAJOR_VERSION),%,$(notdir $@))
 
 $(headers_dep):
-	@cd $(top_builddir); $(MAKE) headers
+	$(Q)cd $(top_builddir); $(MAKE) headers
 
 CRT := crt1
 
