@@ -57,6 +57,7 @@ ldso-y := $($(UCLIBC_LDSO_NAME)_OBJS:.o=.oS)
 lib-so-y += $(ldso)
 objclean-y += $(UCLIBC_LDSO_NAME)_clean
 
+$(ldso): $(ldso:.$(MAJOR_VERSION)=)
 $(ldso:.$(MAJOR_VERSION)=): $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a
 	$(call link.so,$(ldso_FULL_NAME),$(MAJOR_VERSION))
 
