@@ -89,11 +89,12 @@ then
 fi
 
 if [ "$MAKE_IS_SILENT" != "y" ]; then
+echo ""
 echo "Current kernel version is $VERSION.$PATCHLEVEL.$SUBLEVEL${EXTRAVERSION}"
-echo -e "\n"
+echo ""
 echo "Using kernel headers from $VERSION.$PATCHLEVEL.$SUBLEVEL${EXTRAVERSION} for architecture '$TARGET_ARCH'"
 echo -e "\tprovided in directory $KERNEL_SOURCE"
-echo -e "\n"
+echo ""
 fi
 
 # Create a symlink to include/asm
