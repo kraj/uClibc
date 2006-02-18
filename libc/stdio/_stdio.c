@@ -250,6 +250,7 @@ void attribute_hidden _stdio_term(void)
 #endif
 }
 
+#if defined __STDIO_BUFFERS || !defined __UCLIBC__
 void attribute_hidden _stdio_init(void)
 {
 #ifdef __STDIO_BUFFERS
@@ -263,8 +264,9 @@ void attribute_hidden _stdio_init(void)
 	/* _stdio_term is done automatically when exiting if stdio is used.
 	 * See misc/internals/__uClibc_main.c and and stdlib/atexit.c. */
 	atexit(_stdio_term);
-#endif /* __UCLIBC__ */
+#endif
 }
+#endif
 
 /**********************************************************************/
 
