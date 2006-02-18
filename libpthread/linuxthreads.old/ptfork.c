@@ -18,7 +18,7 @@
 
 #include <errno.h>
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 
 #include <stddef.h>
 #include <stdlib.h>

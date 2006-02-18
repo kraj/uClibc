@@ -36,7 +36,7 @@ void *malloc(size_t size)
 #endif
 	}
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 # define MMAP_FLAGS MAP_PRIVATE | MAP_ANONYMOUS
 #else
 # define MMAP_FLAGS MAP_SHARED | MAP_ANONYMOUS

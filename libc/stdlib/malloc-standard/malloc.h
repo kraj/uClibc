@@ -354,7 +354,7 @@ libc_hidden_proto(__malloc_lock)
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 
 #define MMAP(addr, size, prot) \
  (mmap((addr), (size), (prot), MAP_PRIVATE|MAP_ANONYMOUS, 0, 0))

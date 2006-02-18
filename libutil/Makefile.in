@@ -17,7 +17,7 @@ libutil_DIR := $(top_srcdir)libutil
 libutil_OUT := $(top_builddir)libutil
 
 libutil_SRC := $(wildcard $(libutil_DIR)/*.c)
-ifneq ($(ARCH_HAS_MMU),y)
+ifneq ($(ARCH_USE_MMU),y)
 libutil_SRC := $(filter-out $(libutil_DIR)/forkpty.c,$(libutil_SRC))
 endif
 libutil_OBJ := $(patsubst $(libutil_DIR)/%.c,$(libutil_OUT)/%.o,$(libutil_SRC))

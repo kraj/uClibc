@@ -110,7 +110,7 @@ _start:
 	mov fp, #0
 	mov lr, #0
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 	/* Pop argc off the stack and save a pointer to argv */
 	ldr a2, [sp], #4
 	mov a3, sp

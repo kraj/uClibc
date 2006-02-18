@@ -48,6 +48,16 @@ config ARCH_HAS_MMU
 
 	  Most people will answer Y.
 
+config ARCH_USE_MMU
+	bool "Do you want to utilize the MMU?"
+	depends on ARCH_HAS_MMU
+	default y
+	help
+	  If your target CPU has a MMU, and you wish to actually utilize it,
+	  then answer Y here.  Normal Linux requires an MMU.
+
+	  If you're unsure, answer Y.
+
 config UCLIBC_HAS_FLOATS
 	bool "Enable floating point number support"
 	default y

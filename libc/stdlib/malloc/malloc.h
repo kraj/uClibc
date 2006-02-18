@@ -44,7 +44,7 @@ libc_hidden_proto(__pagesize)
    heap, instead of mmap/munmap.  This is a tradeoff -- sbrk is faster than
    mmap/munmap, and guarantees contiguous allocation, but is also less
    flexible, and causes the heap to only be shrinkable from the end.  */
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 # define MALLOC_USE_SBRK
 #endif
 

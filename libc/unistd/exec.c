@@ -53,7 +53,7 @@ libc_hidden_proto(getenv)
 libc_hidden_proto(__environ)
 
 /**********************************************************************/
-#if defined(__ARCH_HAS_MMU__) || defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
+#if defined(__ARCH_USE_MMU__) || defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
 
 /* We have an MMU, so use alloca() to grab space for buffers and
  * arg lists.  Also fall back to alloca() if munmap() is broken. */

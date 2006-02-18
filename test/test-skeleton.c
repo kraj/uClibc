@@ -193,7 +193,7 @@ timeout_handler (int sig __attribute__ ((unused)))
 int
 main (int argc, char *argv[])
 {
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
   int direct = 0;	/* Directly call the test function?  */
 #else
   int direct = 1;

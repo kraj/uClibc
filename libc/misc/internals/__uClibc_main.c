@@ -33,7 +33,7 @@ libc_hidden_proto(exit)
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
 libc_hidden_proto(strrchr)
 #endif
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 libc_hidden_proto(memcpy)
 libc_hidden_proto(getgid)
 libc_hidden_proto(getuid)
@@ -131,7 +131,7 @@ libc_hidden_data_def(__pagesize)
 # define O_NOFOLLOW	0
 #endif
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 static void __check_one_fd(int fd, int mode)
 {
     /* Check if the specified fd is already open */
@@ -272,7 +272,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 		    char **argv, void (*app_init)(void), void (*app_fini)(void),
 		    void (*rtld_fini)(void), void *stack_end)
 {
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
     unsigned long *aux_dat;
     ElfW(auxv_t) auxvt[AT_EGID + 1];
 #endif
@@ -293,7 +293,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 	__environ = &argv[argc];
     }
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
     /* Pull stuff from the ELF header when possible */
     aux_dat = (unsigned long*)__environ;
     while (*aux_dat) {
@@ -314,7 +314,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
      * __uClibc_init() regardless, to be sure the right thing happens. */
     __uClibc_init();
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
     /* Make certain getpagesize() gives the correct answer */
     __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 

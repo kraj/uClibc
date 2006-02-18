@@ -106,7 +106,7 @@ malloc_from_heap (size_t size, struct heap *heap)
 #else /* !MALLOC_USE_SBRK */
 
       /* Otherwise, use mmap.  */
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
       block = mmap ((void *)0, block_size, PROT_READ | PROT_WRITE,
 		    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 #else

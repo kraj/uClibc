@@ -703,7 +703,7 @@ extern int setresgid (__gid_t __egid, __gid_t __rgid, __gid_t __sgid)
 #endif
 
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 /* Clone the calling process, creating an exact copy.
    Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
@@ -885,7 +885,7 @@ extern void endusershell (void) __THROW; /* Discard cached info.  */
 extern void setusershell (void) __THROW; /* Rewind and re-read the file.  */
 
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 /* Put the program in the background, and dissociate from the controlling
    terminal.  If NOCHDIR is zero, do `chdir ("/")'.  If NOCLOSE is zero,
    redirects stdin, stdout, and stderr to /dev/null.  */

@@ -45,7 +45,7 @@ include/bits/uClibc_config.h: extra/config/conf .config
 # in order to generate the headers correctly :(.  That 
 # means we can't use the $(HOSTCC) in order to get the 
 # correct output.
-ifeq ($(ARCH_HAS_MMU),y)
+ifeq ($(ARCH_USE_MMU),y)
 export header_extra_args = 
 else
 export header_extra_args = -n

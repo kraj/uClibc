@@ -99,7 +99,7 @@ extern int madvise (void *__addr, size_t __len, int __advice) __THROW;
 extern int posix_madvise (void *__addr, size_t __len, int __advice) __THROW;
 #endif
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 /* Guarantee all whole pages mapped by the range [ADDR,ADDR+LEN) to
    be memory resident.  */
 extern int mlock (__const void *__addr, size_t __len) __THROW;

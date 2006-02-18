@@ -8,7 +8,7 @@
  */
 
 #include "syscalls.h"
-#if defined __ARCH_HAS_MMU__ && defined __NR_iopl
+#if defined __ARCH_USE_MMU__ && defined __NR_iopl
 /* psm: can't #include <sys/io.h>, some archs miss it */
 extern int iopl(int __level) __THROW;
 _syscall1(int, iopl, int, level);

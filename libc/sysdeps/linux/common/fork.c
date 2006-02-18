@@ -10,7 +10,7 @@
 #include "syscalls.h"
 #include <unistd.h>
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 #ifdef __NR_fork
 extern __typeof(fork) __libc_fork;
 #define __NR___libc_fork __NR_fork

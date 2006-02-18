@@ -32,7 +32,7 @@
 #define GOT2	(1 << 2)
 #define GOT3	(1 << 3)
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 
 void child_handler(int sig)
 {

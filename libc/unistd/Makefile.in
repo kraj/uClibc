@@ -12,7 +12,7 @@ CSRC := $(notdir $(wildcard $(UNISTD_DIR)/*.c))
 # multi source
 CSRC := $(filter-out exec.c,$(CSRC))
 
-ifeq ($(ARCH_HAS_MMU),y)
+ifeq ($(ARCH_USE_MMU),y)
 CSRC := $(filter-out __exec_alloc.c,$(CSRC))
 else
 CSRC := $(filter-out daemon.c,$(CSRC))

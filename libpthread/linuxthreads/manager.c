@@ -648,7 +648,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 	  new_thread = (pthread_descr) stack_addr;
 #endif
 	  break;
-#ifndef __ARCH_HAS_MMU__
+#ifndef __ARCH_USE_MMU__
 	} else {
 	  /* When there is MMU, mmap () is used to allocate the stack. If one
 	   * segment is already mapped, we should continue to see if we can
