@@ -118,12 +118,12 @@ config KERNEL_SOURCE
 
 config UCLIBC_UCLINUX_BROKEN_MUNMAP
 	bool
-	depends on !ARCH_HAS_MMU
+	depends on !ARCH_USE_MMU
 	default y
 
 config EXCLUDE_BRK
 	bool
-	depends on !ARCH_HAS_MMU
+	depends on !ARCH_USE_MMU
 	default y
 
 config HAVE_DOT_CONFIG

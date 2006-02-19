@@ -378,8 +378,8 @@ config UCLIBC_HAS_LFS
 
 choice
 	prompt "Malloc Implementation"
-	default MALLOC if ! ARCH_HAS_MMU
-	default MALLOC_STANDARD if ARCH_HAS_MMU
+	default MALLOC if ! ARCH_USE_MMU
+	default MALLOC_STANDARD if ARCH_USE_MMU
 	help
 	  "malloc" use mmap for all allocations and so works very well on MMU-less
 	  systems that do not support the brk() system call.   It is pretty smart
@@ -411,7 +411,7 @@ config MALLOC_SIMPLE
 
 config MALLOC_STANDARD
 	bool "malloc-standard"
-	depends on ARCH_HAS_MMU
+	depends on ARCH_USE_MMU
 
 endchoice
 
