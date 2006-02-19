@@ -8,8 +8,9 @@
 
 /* This routine is jumped to by all the syscall handlers, to stash
    an error number into errno.  */
-int attribute_hidden __syscall_error (int err_no)
+int attribute_hidden __syscall_error (void)
 {
-  __set_errno (err_no);
-  return -1;
+	register int err_no __asm__("$0");
+	__set_errno (err_no);
+	return -1;
 }

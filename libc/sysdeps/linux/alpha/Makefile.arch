@@ -5,7 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := sysdep.c
+CSRC := __syscall_error.c
 
 SSRC := \
 	__longjmp.S brk.S bsd-_setjmp.S bsd-setjmp.S clone.S \
