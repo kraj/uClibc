@@ -8,4 +8,4 @@
  */
 
 #include "syscalls.h"
-//_syscall3(int, sysfs, int, option, unsigned int, index, char addr);
+_syscall3(int, sysfs, int, option, unsigned int, index, char, addr);
