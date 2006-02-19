@@ -102,11 +102,11 @@ TARGETS = tst-align tst-align2						\
 	  tst-detach1							\
 	  tst-eintr1 tst-eintr2 tst-eintr3 tst-eintr4 tst-eintr5	\
 	  tst-exec2 tst-exec3 tst-exec4					\
-	  tst-exit2 tst-exit3						\
+	  tst-exit1 tst-exit2 tst-exit3					\
 	  tst-flock1 tst-flock2						\
 	  tst-fork1 tst-fork2 tst-fork3 tst-fork4			\
 	  tst-initializers1						\
-	  tst-join1 tst-join2 tst-join3	tst-join5			\
+	  tst-join1 tst-join2 tst-join3	tst-join4 tst-join5		\
 	  tst-key1 tst-key2 tst-key3 tst-key4				\
 	  tst-kill1 tst-kill2 tst-kill3 tst-kill4 tst-kill5 tst-kill6	\
 	  tst-mutex1 tst-mutex2 tst-mutex3 tst-mutex4 tst-mutex5	\
