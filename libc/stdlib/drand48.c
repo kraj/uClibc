@@ -1,6 +1,6 @@
-/* Copyright (C) 1995, 1996, 1997, 1998, 2001 Free Software Foundation, Inc.
+/* Copyright (C) 1995,1996,1997,1998,2001,2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu <mailto:drepper@gnu.ai.mit.edu>>, August 1995.
+   Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -24,11 +24,12 @@ libc_hidden_proto(erand48_r)
 /* Global state for non-reentrant functions.  Defined in drand48-iter.c.  */
 extern struct drand48_data __libc_drand48_data attribute_hidden;
 
-double drand48 (void)
+double
+drand48 ()
 {
-    double result;
+  double result;
 
-    erand48_r (__libc_drand48_data.__x, &__libc_drand48_data, &result);
+  (void) erand48_r (__libc_drand48_data.__x, &__libc_drand48_data, &result);
 
-    return result;
+  return result;
 }
