@@ -260,7 +260,19 @@ extern int access (__const char *__name, int __type) __THROW __nonnull ((1));
    (as normal file operations use).  */
 extern int euidaccess (__const char *__name, int __type)
      __THROW __nonnull ((1));
+
+/* An alias for `euidaccess', used by some other systems.  */
+extern int eaccess (__const char *__name, int __type)
+     __THROW __nonnull ((1));
 #endif
+
+#ifdef __USE_ATFILE
+/* Test for access to FILE relative to the directory FD is open on.
+   If AT_EACCESS is set in FLAG, then use effective IDs like `eaccess',
+   otherwise use real IDs like `access'.  */
+extern int faccessat (int __fd, __const char *__file, int __type, int __flag)
+     __THROW __nonnull ((2)) __wur;
+#endif /* Use GNU.  */
 
 
 /* Values for the WHENCE argument to lseek.  */
@@ -431,7 +443,7 @@ extern int lchown (__const char *__file, __uid_t __owner, __gid_t __group)
 
 #endif /* Use BSD || X/Open Unix.  */
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Change the owner and group of FILE relative to the directory FD is open
    on.  */
 extern int fchownat (int __fd, __const char *__file, __uid_t __owner,
@@ -681,24 +693,24 @@ extern int setegid (__gid_t __gid) __THROW;
 #endif /* Use BSD.  */
 
 #ifdef __USE_GNU
-/* Fetch the effective user ID, real user ID, and saved-set user ID,
+/* Fetch the real user ID, effective user ID, and saved-set user ID,
    of the calling process.  */
-extern int getresuid (__uid_t *__euid, __uid_t *__ruid, __uid_t *__suid)
+extern int getresuid (__uid_t *__ruid, __uid_t *__euid, __uid_t *__suid)
      __THROW;
 
-/* Fetch the effective group ID, real group ID, and saved-set group ID,
+/* Fetch the real group ID, effective group ID, and saved-set group ID,
    of the calling process.  */
-extern int getresgid (__gid_t *__egid, __gid_t *__rgid, __gid_t *__sgid)
+extern int getresgid (__gid_t *__rgid, __gid_t *__egid, __gid_t *__sgid)
      __THROW;
 
-/* Set the effective user ID, real user ID, and saved-set user ID,
-   of the calling process to EUID, RUID, and SUID, respectively.  */
-extern int setresuid (__uid_t __euid, __uid_t __ruid, __uid_t __suid)
+/* Set the real user ID, effective user ID, and saved-set user ID,
+   of the calling process to RUID, EUID, and SUID, respectively.  */
+extern int setresuid (__uid_t __ruid, __uid_t __euid, __uid_t __suid)
      __THROW;
 
-/* Set the effective group ID, real group ID, and saved-set group ID,
-   of the calling process to EGID, RGID, and SGID, respectively.  */
-extern int setresgid (__gid_t __egid, __gid_t __rgid, __gid_t __sgid)
+/* Set the real group ID, effective group ID, and saved-set group ID,
+   of the calling process to RGID, EGID, and SGID, respectively.  */
+extern int setresgid (__gid_t __rgid, __gid_t __egid, __gid_t __sgid)
      __THROW;
 #endif
 
@@ -744,7 +756,7 @@ extern int ttyslot (void) __THROW;
 extern int link (__const char *__from, __const char *__to)
      __THROW __nonnull ((1, 2)) __wur;
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Like link but relative paths in TO and FROM are interpreted relative
    to FROMFD and TOFD respectively.  */
 extern int linkat (int __fromfd, __const char *__from, int __tofd,
@@ -763,7 +775,7 @@ extern int readlink (__const char *__restrict __path, char *__restrict __buf,
 		     size_t __len) __THROW __nonnull ((1, 2)) __wur;
 #endif /* Use BSD.  */
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Like symlink but a relative path in TO is interpreted relative to TOFD.  */
 extern int symlinkat (__const char *__from, int __tofd,
 		      __const char *__to) __THROW __nonnull ((1, 3)) __wur;
@@ -777,7 +789,7 @@ extern int readlinkat (int __fd, __const char *__restrict __path,
 /* Remove the link NAME.  */
 extern int unlink (__const char *__name) __THROW __nonnull ((1));
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Remove the link NAME relative to FD.  */
 extern int unlinkat (int __fd, __const char *__name, int __flag)
      __THROW __nonnull ((2));
@@ -820,6 +832,7 @@ extern int setlogin (__const char *__name) __THROW __nonnull ((1));
    arguments in ARGV (ARGC of them, minus the program name) for
    options given in OPTS.  */
 # define __need_getopt
+/* keep this for uClibc in bits/, we need it when GNU_GETOPT is disabled */
 # include <bits/getopt.h>
 #endif
 
