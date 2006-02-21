@@ -11,7 +11,7 @@
 static void
 sig_handler (int signum)
 {
-  pid_t child = fork ();
+  pid_t child = vfork ();
   if (child == 0)
     exit (0);
   TEMP_FAILURE_RETRY (waitpid (child, NULL, 0));
@@ -34,7 +34,7 @@ do_test (void)
     }
 
   /* Create a child that sends the signal to be caught.  */
-  pid_t child = fork ();
+  pid_t child = vfork ();
   if (child == 0)
     {
       if (kill (parent, SIGALRM) == -1)
