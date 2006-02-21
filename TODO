@@ -22,7 +22,6 @@ TODO list for the uClibc 0.9.29 release:
     *)  Change all references to the older "Library GPL" to the "Lesser GPL"
 	and update COPYING.LIB to LGPL version 2.1.
     *)  vapier todo: finish new linuxthreads import
-    *)  Split up all conflicting MSRC files to allow IMA compiling
     *)  Correct the dependencies in the build system
 
 
