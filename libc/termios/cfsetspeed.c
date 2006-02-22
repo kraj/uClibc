@@ -91,7 +91,6 @@ static const struct speed_struct speeds[] =
 #ifdef B115200
     { 115200, B115200 },
 #endif
-#if 0 /* limited on uClibc, keep in sync w/ bits/termios.h */
 #ifdef B153600
     { 153600, B153600 },
 #endif
@@ -122,6 +121,9 @@ static const struct speed_struct speeds[] =
 #ifdef B1500000
     { 1500000, B1500000 },
 #endif
+#ifdef B1843200
+    { 1843200, B1843200 },
+#endif
 #ifdef B2000000
     { 2000000, B2000000 },
 #endif
@@ -137,6 +139,11 @@ static const struct speed_struct speeds[] =
 #ifdef B4000000
     { 4000000, B4000000 },
 #endif
+#ifdef B6250000
+    { 6250000, B6250000 },
+#endif
+#ifdef B12500000
+    { 12500000, B12500000 },
 #endif
   };
 
