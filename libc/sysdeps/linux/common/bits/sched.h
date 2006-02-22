@@ -86,7 +86,6 @@ __END_DECLS
 
 #endif	/* need schedparam */
 
-#if 0
 #if !defined __defined_schedparam \
     && (defined __need_schedparam || defined _SCHED_H)
 # define __defined_schedparam	1
@@ -99,6 +98,7 @@ struct __sched_param
 #endif
 
 
+#if 0
 #if defined _SCHED_H && !defined __cpu_set_t_defined
 # define __cpu_set_t_defined
 /* Size definition for CPU sets.  */
