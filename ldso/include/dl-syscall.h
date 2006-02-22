@@ -121,21 +121,46 @@ static inline _syscall3(int, _dl_readlink, const char *, path, char *, buf, size
 static inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv, struct timezone *, tz);
 #endif
 
-#ifdef __NR_mmap
-#ifndef _dl_MAX_ERRNO
-# define _dl_MAX_ERRNO 4096
-#endif
-#define _dl_mmap_check_error(__res) \
-	(((long)__res) < 0 && ((long)__res) >= -_dl_MAX_ERRNO)
 
-#ifdef __UCLIBC_MMAP_HAS_6_ARGS__
-#define __NR__dl_mmap __NR_mmap
+/* handle all the fun mmap intricacies */
+#if defined(__UCLIBC_MMAP_HAS_6_ARGS__) && defined(__NR_mmap) || !defined(__NR_mmap2)
+# define _dl_MAX_ERRNO 4096
+# define _dl_mmap_check_error(__res) \
+	(((long)__res) < 0 && ((long)__res) >= -_dl_MAX_ERRNO)
+#else
+# define MAP_FAILED ((void *) -1)
+# define _dl_mmap_check_error(X) (((void *)X) == MAP_FAILED)
+#endif
+
+/* first try mmap(), syscall6() style */
+#if defined(__UCLIBC_MMAP_HAS_6_ARGS__) && defined(__NR_mmap)
+
+# define __NR__dl_mmap __NR_mmap
 static inline _syscall6(void *, _dl_mmap, void *, start, size_t, length,
 		int, prot, int, flags, int, fd, off_t, offset);
-#else
-#define __NR__dl_mmap_real __NR_mmap
-static inline _syscall1(void *, _dl_mmap_real, unsigned long *, buffer);
 
+/* then try mmap2() */
+#elif defined(__NR_mmap2)
+
+# define __NR___syscall_mmap2       __NR_mmap2
+static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
+		size_t, len, int, prot, int, flags, int, fd, off_t, offset);
+/* always 12, even on architectures where PAGE_SHIFT != 12 */
+# define MMAP2_PAGE_SHIFT 12
+static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
+		int flags, int fd, unsigned long offset)
+{
+    if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1))
+	return MAP_FAILED;
+    return(__syscall_mmap2(addr, size, prot, flags,
+		fd, (off_t) (offset >> MMAP2_PAGE_SHIFT)));
+}
+
+/* finally, fall back to mmap(), syscall1() style */
+#elif defined(__NR_mmap)
+
+# define __NR__dl_mmap_real __NR_mmap
+static inline _syscall1(void *, _dl_mmap_real, unsigned long *, buffer);
 static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 		int flags, int fd, unsigned long offset)
 {
@@ -149,27 +174,9 @@ static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 	buffer[5] = (unsigned long) offset;
 	return (void *) _dl_mmap_real(buffer);
 }
-#endif
-#elif defined __NR_mmap2
 
-#define MAP_FAILED	((void *) -1)
-#define _dl_mmap_check_error(X) (((void *)X) == MAP_FAILED)
-#define __NR___syscall_mmap2       __NR_mmap2
-static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
-		size_t, len, int, prot, int, flags, int, fd, off_t, offset);
-/*always 12, even on architectures where PAGE_SHIFT != 12 */
-#define MMAP2_PAGE_SHIFT 12
-static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
-		int flags, int fd, unsigned long offset)
-{
-    if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1))
-	return MAP_FAILED;
-    return(__syscall_mmap2(addr, size, prot, flags,
-		fd, (off_t) (offset >> MMAP2_PAGE_SHIFT)));
-}
 #else
 # error "Your architecture doesn't seem to provide mmap() !?"
 #endif
 
 #endif /* _LD_SYSCALL_H_ */
-
