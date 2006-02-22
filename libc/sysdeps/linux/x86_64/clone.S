@@ -23,9 +23,8 @@
 #define _ERRNO_H 1
 #include <bits/errno.h>
 #include <sys/syscall.h>
-
-#define CLONE_VM	0x00000100
-#define CLONE_THREAD	0x00010000
+#define _SCHED_H
+#include <bits/sched.h>
 
 /* The userland implementation is:
    int clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg),

@@ -20,11 +20,8 @@
 #include "sysdep.h"
 #define _SIGNAL_H
 #include <bits/signum.h>
-
-/* The following are defined in linux/sched.h, which unfortunately	*/
-/* is not safe for inclusion in an assembly file.			*/
-#define CLONE_VM        0x00000100      /* set if VM shared between processes */
-#define CLONE_VFORK     0x00004000      /* set if the parent wants the child to wake it up on mm_release */
+#define _SCHED_H
+#include <bits/sched.h>
 
 /* pid_t vfork(void); */
 /* Implemented as __clone_syscall(CLONE_VFORK | CLONE_VM | SIGCHLD, 0)	*/
