@@ -8,6 +8,22 @@
 #ifndef _LD_DEFS_H
 #define _LD_DEFS_H
 
+#define FLAG_ANY             -1
+#define FLAG_TYPE_MASK       0x00ff
+#define FLAG_LIBC4           0x0000
+#define FLAG_ELF             0x0001
+#define FLAG_ELF_LIBC5       0x0002
+#define FLAG_ELF_LIBC6       0x0003
+#define FLAG_ELF_UCLIBC      0x0004
+#define FLAG_REQUIRED_MASK   0xff00
+#define FLAG_SPARC_LIB64     0x0100
+#define FLAG_IA64_LIB64      0x0200
+#define FLAG_X8664_LIB64     0x0300
+#define FLAG_S390_LIB64      0x0400
+#define FLAG_POWERPC_LIB64   0x0500
+#define FLAG_MIPS64_LIBN32   0x0600
+#define FLAG_MIPS64_LIBN64   0x0700
+
 #define LIB_ANY	     -1
 #define LIB_DLL       0
 #define LIB_ELF       1
