@@ -21,7 +21,7 @@ config TARGET_bfin
 	bool "bfin (BROKEN)"
 
 config TARGET_cris
-	bool "cris (BROKEN)"
+	bool "cris"
 
 config TARGET_e1
 	bool "e1 (BROKEN)"
