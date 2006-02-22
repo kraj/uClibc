@@ -1,6 +1,6 @@
 /* Definitions of constants and data structure for POSIX 1003.1b-1993
    scheduling interface.
-   Copyright (C) 1996, 1997, 1998, 1999, 2001 Free Software Foundation, Inc.
+   Copyright (C) 1996-1999,2001-2003,2005,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -29,6 +29,9 @@
 #define SCHED_OTHER	0
 #define SCHED_FIFO	1
 #define SCHED_RR	2
+#if 0 /*def __USE_GNU*/
+# define SCHED_BATCH	3
+#endif
 
 #ifdef __USE_MISC
 /* Cloning flags.  */
@@ -37,10 +40,27 @@
 # define CLONE_FS      0x00000200 /* Set if fs info shared between processes.  */
 # define CLONE_FILES   0x00000400 /* Set if open files shared between processes.  */
 # define CLONE_SIGHAND 0x00000800 /* Set if signal handlers shared.  */
-# define CLONE_PID     0x00001000 /* Set if pid shared.  */
 # define CLONE_PTRACE  0x00002000 /* Set if tracing continues on the child.  */
 # define CLONE_VFORK   0x00004000 /* Set if the parent wants the child to
 				     wake it up on mm_release.  */
+# define CLONE_PARENT  0x00008000 /* Set if we want to have the same
+				     parent as the cloner.  */
+# define CLONE_THREAD  0x00010000 /* Set to add to same thread group.  */
+#if 0
+# define CLONE_NEWNS   0x00020000 /* Set to create new namespace.  */
+# define CLONE_SYSVSEM 0x00040000 /* Set to shared SVID SEM_UNDO semantics.  */
+# define CLONE_SETTLS  0x00080000 /* Set TLS info.  */
+# define CLONE_PARENT_SETTID 0x00100000 /* Store TID in userlevel buffer
+					   before MM copy.  */
+# define CLONE_CHILD_CLEARTID 0x00200000 /* Register exit futex and memory
+					    location to clear.  */
+# define CLONE_DETACHED 0x00400000 /* Create clone detached.  */
+# define CLONE_UNTRACED 0x00800000 /* Set if the tracing process can't
+				      force CLONE_PTRACE on this clone.  */
+# define CLONE_CHILD_SETTID 0x01000000 /* Store TID in userlevel buffer in
+					  the child.  */
+# define CLONE_STOPPED	0x02000000 /* Start in stopped state.  */
+#endif
 #endif
 
 /* The official definition.  */
@@ -51,16 +71,22 @@ struct sched_param
 
 __BEGIN_DECLS
 
-/* Clone current process.  */
 #ifdef __USE_MISC
+/* Clone current process.  */
 extern int clone (int (*__fn) (void *__arg), void *__child_stack,
-		  int __flags, void *__arg) __THROW;
+		  int __flags, void *__arg, ...) __THROW;
+
+#if 0
+/* Unshare the specified resources.  */
+extern int unshare (int __flags) __THROW;
+#endif
 #endif
 
 __END_DECLS
 
 #endif	/* need schedparam */
 
+#if 0
 #if !defined __defined_schedparam \
     && (defined __need_schedparam || defined _SCHED_H)
 # define __defined_schedparam	1
@@ -70,4 +96,41 @@ struct __sched_param
     int __sched_priority;
   };
 # undef __need_schedparam
+#endif
+
+
+#if defined _SCHED_H && !defined __cpu_set_t_defined
+# define __cpu_set_t_defined
+/* Size definition for CPU sets.  */
+# define __CPU_SETSIZE	1024
+# define __NCPUBITS	(8 * sizeof (__cpu_mask))
+
+/* Type for array elements in 'cpu_set'.  */
+typedef unsigned long int __cpu_mask;
+
+/* Basic access functions.  */
+# define __CPUELT(cpu)	((cpu) / __NCPUBITS)
+# define __CPUMASK(cpu)	((__cpu_mask) 1 << ((cpu) % __NCPUBITS))
+
+/* Data structure to describe CPU mask.  */
+typedef struct
+{
+  __cpu_mask __bits[__CPU_SETSIZE / __NCPUBITS];
+} cpu_set_t;
+
+/* Access functions for CPU masks.  */
+# define __CPU_ZERO(cpusetp) \
+  do {									      \
+    unsigned int __i;							      \
+    cpu_set_t *__arr = (cpusetp);					      \
+    for (__i = 0; __i < sizeof (cpu_set_t) / sizeof (__cpu_mask); ++__i)      \
+      __arr->__bits[__i] = 0;						      \
+  } while (0)
+# define __CPU_SET(cpu, cpusetp) \
+  ((cpusetp)->__bits[__CPUELT (cpu)] |= __CPUMASK (cpu))
+# define __CPU_CLR(cpu, cpusetp) \
+  ((cpusetp)->__bits[__CPUELT (cpu)] &= ~__CPUMASK (cpu))
+# define __CPU_ISSET(cpu, cpusetp) \
+  (((cpusetp)->__bits[__CPUELT (cpu)] & __CPUMASK (cpu)) != 0)
+#endif
 #endif

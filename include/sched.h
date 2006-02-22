@@ -1,5 +1,5 @@
 /* Definitions for POSIX 1003.1b-1993 (aka POSIX.4) scheduling interface.
-   Copyright (C) 1996, 1997, 1999, 2001 Free Software Foundation, Inc.
+   Copyright (C) 1996,1997,1999,2001-2003,2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -62,11 +62,24 @@ extern int sched_get_priority_min (int __algorithm) __THROW;
 /* Get the SCHED_RR interval for the named process.  */
 extern int sched_rr_get_interval (__pid_t __pid, struct timespec *__t) __THROW;
 
-/* These are Linux specific.  */
-extern int __clone (int (*__fn) (void *__arg), void *__child_stack,
-		    int __flags, void *__arg, ...);
-extern int __clone2 (int (*__fn) (void *__arg), void *__child_stack_base,
-		     size_t __child_stack_size, int __flags, void *__arg, ...);
+
+#if 0 /*def __USE_GNU*/
+/* Access macros for `cpu_set'.  */
+#define CPU_SETSIZE __CPU_SETSIZE
+#define CPU_SET(cpu, cpusetp)	__CPU_SET (cpu, cpusetp)
+#define CPU_CLR(cpu, cpusetp)	__CPU_CLR (cpu, cpusetp)
+#define CPU_ISSET(cpu, cpusetp)	__CPU_ISSET (cpu, cpusetp)
+#define CPU_ZERO(cpusetp)	__CPU_ZERO (cpusetp)
+
+
+/* Set the CPU affinity for a task */
+extern int sched_setaffinity (__pid_t __pid, size_t __cpusetsize,
+			      __const cpu_set_t *__cpuset) __THROW;
+
+/* Get the CPU affinity for a task */
+extern int sched_getaffinity (__pid_t __pid, size_t __cpusetsize,
+			      cpu_set_t *__cpuset) __THROW;
+#endif
 
 __END_DECLS
 
