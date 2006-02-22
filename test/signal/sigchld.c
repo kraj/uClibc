@@ -14,7 +14,7 @@ void test_handler(int signo)
 }
 
 
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 
 int main(void) 
 {

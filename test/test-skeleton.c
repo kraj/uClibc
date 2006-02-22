@@ -31,6 +31,7 @@
 #include <sys/wait.h>
 #include <sys/param.h>
 #include <time.h>
+#include <features.h>
 
 /* The test function is normally called `do_test' and it is called
    with argc and argv as the arguments.  We nevertheless provide the
@@ -287,7 +288,7 @@ main (int argc, char *argv[])
      - set up the timer
      - fork and execute the function.  */
 
-#ifdef __UCLIBC_HAS_MMU__
+#if defined __ARCH_USE_MMU__ || ! defined __UCLIBC__
   pid = fork ();
   if (pid == 0)
     {
