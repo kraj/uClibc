@@ -28,13 +28,13 @@ realloc (void *mem, size_t new_size)
   char *base_mem;
 
   /* Check for special cases.  */
-  if (! mem)
-    return malloc (new_size);
   if (! new_size)
     {
       free (mem);
       return malloc (new_size);
     }
+  if (! mem)
+    return malloc (new_size);
 
   /* Normal realloc.  */
 
