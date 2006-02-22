@@ -45,18 +45,6 @@
 #define	S_IWRITE	0200	/* Write by owner.  */
 #define	S_IEXEC		0100	/* Execute by owner.  */
 
-/* Stuff for _dl_mmap */
-#if 0
-#define MAP_FAILED	((void *) -1)
-#define _dl_mmap_check_error(X) (((void *)X) == MAP_FAILED)
-#else
-#ifndef _dl_MAX_ERRNO
-#define _dl_MAX_ERRNO 4096
-#endif
-#define _dl_mmap_check_error(__res) \
-	(((long)__res) < 0 && ((long)__res) >= -_dl_MAX_ERRNO)
-#endif
-
 
 
 /* Here are the definitions for some syscalls that are used
@@ -134,6 +122,12 @@ static inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv, struct time
 #endif
 
 #ifdef __NR_mmap
+#ifndef _dl_MAX_ERRNO
+# define _dl_MAX_ERRNO 4096
+#endif
+#define _dl_mmap_check_error(__res) \
+	(((long)__res) < 0 && ((long)__res) >= -_dl_MAX_ERRNO)
+
 #ifdef __UCLIBC_MMAP_HAS_6_ARGS__
 #define __NR__dl_mmap __NR_mmap
 static inline _syscall6(void *, _dl_mmap, void *, start, size_t, length,
@@ -157,6 +151,9 @@ static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 }
 #endif
 #elif defined __NR_mmap2
+
+#define MAP_FAILED	((void *) -1)
+#define _dl_mmap_check_error(X) (((void *)X) == MAP_FAILED)
 #define __NR___syscall_mmap2       __NR_mmap2
 static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
 		size_t, len, int, prot, int, flags, int, fd, off_t, offset);
@@ -171,7 +168,7 @@ static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 		fd, (off_t) (offset >> MMAP2_PAGE_SHIFT)));
 }
 #else
-#error "Your architecture doesn't seem to provide mmap() !?"
+# error "Your architecture doesn't seem to provide mmap() !?"
 #endif
 
 #endif /* _LD_SYSCALL_H_ */
