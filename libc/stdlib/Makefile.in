@@ -83,6 +83,7 @@ libc-static-y += $(STDLIB_OUT)/atexit.o
 libc-nonshared-y += $(STDLIB_OUT)/atexit.os
 
 libc-nomulti-y += $(STDLIB_OUT)/labs.o $(STDLIB_OUT)/atol.o $(STDLIB_OUT)/_stdlib_strto_l.o $(STDLIB_OUT)/_stdlib_strto_ll.o
+libc-nomulti-$(UCLIBC_HAS_XLOCALE) += $(STDLIB_OUT)/_stdlib_strto_l_l.o $(STDLIB_OUT)/_stdlib_strto_ll_l.o
 
 objclean-y += stdlib_objclean
 
