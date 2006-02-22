@@ -63,6 +63,8 @@
 #endif
 #endif
 
+#ifndef __ASSEMBLER__
+
 /* The official definition.  */
 struct sched_param
   {
@@ -134,3 +136,5 @@ typedef struct
   (((cpusetp)->__bits[__CPUELT (cpu)] & __CPUMASK (cpu)) != 0)
 #endif
 #endif
+
+#endif /* __ASSEMBLER__ */
