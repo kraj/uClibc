@@ -86,7 +86,11 @@ extern int unshare (int __flags) __THROW;
 
 __END_DECLS
 
+#endif /* __ASSEMBLER__ */
+
 #endif	/* need schedparam */
+
+#ifndef __ASSEMBLER__
 
 #if !defined __defined_schedparam \
     && (defined __need_schedparam || defined _SCHED_H)
