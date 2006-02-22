@@ -10,3 +10,7 @@ DODIFF_stat64 := 1
 
 OPTS_stat   := stat.c
 OPTS_stat64 := stat64.c
+
+# make sure the change in atime doesn't screw us up
+WRAPPER_stat   := touch -r . stat.c
+WRAPPER_stat64 := touch -r . stat64.c
