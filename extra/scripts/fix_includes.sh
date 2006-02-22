@@ -153,10 +153,9 @@ if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then
     fi;
 else
 # No guessing required.....
-ln -fs $KERNEL_SOURCE/include/asm include/asm
-if [ -e $KERNEL_SOURCE/include/asm-$TARGET_ARCH ] ; then
-ln -fs $KERNEL_SOURCE/include/asm-$TARGET_ARCH include/asm-$TARGET_ARCH
-fi
+for x in $KERNEL_SOURCE/include/asm* ; do
+	ln -fs ${x} include/
+done
 fi;
 
 
