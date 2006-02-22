@@ -114,6 +114,9 @@ check_gcc=$(shell \
 check_as=$(shell \
 	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
 	then echo "-Wa,$(1)"; fi)
+check_ld=$(shell \
+	if $(LD) $(1) -o /dev/null -b binary /dev/null > /dev/null 2>&1; \
+	then echo "$(1)"; fi)
 
 ARFLAGS:=cr
 

@@ -8,7 +8,7 @@
 # Get the thread include dependencies and shared object name
 CFLAGS-linuxthreads_db := -DNOT_IN_libc -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
-LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) -s --warn-unresolved-symbols
+LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) -s $(call check_ld,--warn-unresolved-symbols)
 
 LIBS-libthread_db.so := $(LIBS)
 
