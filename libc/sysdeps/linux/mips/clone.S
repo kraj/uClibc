@@ -30,12 +30,12 @@
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg) */
 
 	.text
-.globl   __clone ;
+.globl   clone ;
 	.align       2;
-	.type         __clone,@function;
-	.ent        __clone, 0;
+	.type         clone,@function;
+	.ent        clone, 0;
 	
-__clone:
+clone:
 	.frame	    sp, 4*SZREG, sp
 #ifdef __PIC__
 	.set		noreorder
@@ -84,7 +84,7 @@ error:
 #else
 	j		__syscall_error
 #endif
-	.end  __clone
+	.end  clone
 
 /* Load up the arguments to the function.  Put this block of code in
    its own function so that we can terminate the stack trace with our
@@ -109,5 +109,3 @@ __thread_start:
 	move		a0,v0
 	jal		HIDDEN_JUMPTARGET(_exit)
 	.end  __thread_start
-
-weak_alias (__clone, clone)

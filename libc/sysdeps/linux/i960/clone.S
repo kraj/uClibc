@@ -28,8 +28,8 @@
         
 /* int _clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
-        .globl __clone
-__clone: 
+        .globl clone
+clone: 
         /* set up new stack image in regs r4-r7; argument will be in r3 in child.  */
         ldconst 0, r4                   /* pfp == 0 */
         addo    16, g1, r5              /* sp == newfp + 16 */
