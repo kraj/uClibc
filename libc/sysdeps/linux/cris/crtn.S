@@ -1,27 +1,23 @@
-#NO_APP
-	.file	"initfini.c"
-#APP
-	
-	.section .init
-#NO_APP
-	.align 1
-	.global _init
+/* glibc's sysdeps/cris/elf/initfini.c used for reference [EPILOG] */
+
+	.section	.init
+	.align	1
+	.global	_init
 	.type	_init, @function
-#NO_APP
-	movem [$sp+],$r0
-	Jump [$sp+]
+	move.d	[$sp+],$r0
+	move	$r1,$srp
+	move.d	[$sp+],$r1
+	Ret
+	nop
 	.size	_init, .-_init
-#APP
-	
-	.section .fini
-#NO_APP
-	.align 1
-	.global _fini
+
+	.section	.fini
+	.align	1
+	.global	_fini
 	.type	_fini, @function
-#NO_APP
-	movem [$sp+],$r0
-	Jump [$sp+]
+	move.d	[$sp+],$r0
+	move	$r1,$srp
+	move.d	[$sp+],$r1
+	Ret
+	nop
 	.size	_fini, .-_fini
-#APP
-	
-/*@TRAILER_BEGINS*/

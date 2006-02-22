@@ -2,28 +2,30 @@
 
 #include <features.h>
 
+	.syntax no_register_prefix
+
 /* The first piece of initialized data.  */
-.data
-.global __data_start
-.align 2
-.type	__data_start, @object
-.size	__data_start, 4
+	.data
+	.global	__data_start
+	.align	2
+	.type	__data_start, @object
+	.size	__data_start, 4
 __data_start:
 	.dword	0
 
-.text
-.align 1
-.global _start
-.type   _start,%function
+	.text
+	.align	1
+	.global	_start
+	.type	_start, %function
 #if defined(__UCLIBC_CTOR_DTOR__)
-.type   _init,%function
-.type   _fini,%function
+	.type	_init, %function
+	.type	_fini, %function
 #else
-.weak   _init
-.weak   _fini
+	.weak	_init
+	.weak	_fini
 #endif
-.type   main,%function
-.type   __uClibc_main,%function
+	.type	main, %function
+	.type	__uClibc_main, %function
 
 /*
  * On the stack we have argc. We can calculate argv/envp
@@ -39,20 +41,16 @@ __data_start:
  */
 
 _start:
-	pop $r10
-	move.d $sp, $r11
-	jump .L1
-
-.L1:
-	Push $srp
-	Subq 4,$sp
-	move.d $r10,$r9
-	move.d $r11,$r12
-	move.d _fini,$r13
-	move.d $r13,[$sp]
-	move.d main,$r10
-	move.d $r9,$r11
-	move.d _init,$r13
+	move.d	main, r10
+	move.d	[sp+], r11
+	move.d	sp, r12
+	subq	4, sp
+	move	srp, [sp]
+	subq	4, sp
+	move.d	_fini, r13
+	move.d	r13, [sp]
+	move.d	_init, r13
 	/* Leave control to the libc */
-	jsr __uClibc_main
-.size _start,.-_start
+	jsr	__uClibc_main
+	nop
+	.size	_start, .-_start
