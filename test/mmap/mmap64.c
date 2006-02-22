@@ -7,10 +7,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <features.h>
 
 int main(int argc, char **argv)
 {
-#ifdef __NR_mmap64
+#ifdef __UCLIBC_HAS_LFS__
 	void *ptr;
 
 	ptr = mmap64(NULL, 4096, PROT_READ|PROT_WRITE,
