@@ -25,6 +25,7 @@ endif
 ifeq ($(UCLIBC_ONLY),)
 TARGETS   += $(G_TARGETS)
 endif
+CLEAN_TARGETS := $(U_TARGETS) $(G_TARGETS)
 
 test check all: $(TARGETS)
 # dummy rule to prevent the "Nothing to be done for `all'." message
@@ -95,4 +96,4 @@ endif
 
 clean:
 	$(showclean)
-	$(Q)$(RM) *.a *.o *.so *~ core *.out $(TARGETS) $(EXTRA_CLEAN)
+	$(Q)$(RM) *.a *.o *.so *~ core *.out $(CLEAN_TARGETS) $(EXTRA_CLEAN)
