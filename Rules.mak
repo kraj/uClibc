@@ -355,12 +355,15 @@ endif
 
 LDFLAGS:=$(LDFLAGS_NOSTRIP) -z defs
 ifeq ($(DODEBUG),y)
-    #CFLAGS += -g3
-    CFLAGS += -O0 -g3
-    STRIPTOOL:= true -Since_we_are_debugging
+#CFLAGS += -g3
+CFLAGS += -O0 -g3
 else
-    CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
-    LDFLAGS += -s
+CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
+endif
+ifeq ($(NOSTRIP),y)
+STRIPTOOL := true -Stripping_disabled
+else
+LDFLAGS += -s
 endif
 
 ifeq ($(DOMULTI),y)
