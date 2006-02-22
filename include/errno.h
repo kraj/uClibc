@@ -43,19 +43,19 @@ __BEGIN_DECLS
    variable.  This redeclaration using the macro still works, but it
    will be a function declaration without a prototype and may trigger
    a -Wstrict-prototypes warning.  */
-#ifndef __ASSEMBLER__
-# ifndef	errno
+# ifndef __ASSEMBLER__
+#  ifndef	errno
 extern int errno;
-# endif
-#endif
+#  endif
 
-#if defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+#  if defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
 
 /* The full and simple forms of the name with which the program was
    invoked.  These variables are set up automatically at startup based on
    the value of ARGV[0] (this works only if you use GNU ld).  */
 extern char *program_invocation_name, *program_invocation_short_name;
-#endif /* __USE_GNU */
+#  endif /* __USE_GNU */
+# endif /* __ASSEMBLER__ */
 #endif /* _ERRNO_H */
 
 __END_DECLS
