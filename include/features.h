@@ -19,6 +19,23 @@
 #ifndef	_FEATURES_H
 #define	_FEATURES_H	1
 
+/* This macro indicates that the installed library is uClibc.  Use
+ * __UCLIBC_MAJOR__ and __UCLIBC_MINOR__ to test for the features in
+ * specific releases.  */
+#define	__UCLIBC__		1
+
+/* Load up the current set of uClibc supported features along
+ * with the current uClibc major and minor version numbers.
+ * For uClibc release 0.9.26, these numbers would be:
+ *	#define	__UCLIBC_MAJOR__	0
+ *	#define	__UCLIBC_MINOR__	9
+ *	#define	__UCLIBC_SUBLEVEL__	26
+ */
+#define __need_uClibc_config_h
+#include <bits/uClibc_config.h>
+#undef __need_uClibc_config_h
+#include <bits/uClibc_arch_features.h>
+
 /* For uClibc, always optimize for size -- this should disable
  * a lot of expensive inlining... */
 #define __OPTIMIZE_SIZE__   1
@@ -42,6 +59,7 @@
    _FILE_OFFSET_BITS=N	Select default filesystem interface.
    _BSD_SOURCE		ISO C, POSIX, and 4.3BSD things.
    _SVID_SOURCE		ISO C, POSIX, and SVID things.
+   _ATFILE_SOURCE	Additional *at interfaces.
    _GNU_SOURCE		All of the above, plus GNU extensions.
    _REENTRANT		Select additionally reentrant object.
    _THREAD_SAFE		Same as _REENTRANT, often used by other systems.
@@ -73,6 +91,7 @@
    __USE_BSD		Define 4.3BSD things.
    __USE_SVID		Define SVID things.
    __USE_MISC		Define things common to BSD and System V Unix.
+   __USE_ATFILE		Define *at interfaces and AT_* constants for them.
    __USE_GNU		Define GNU extensions.
    __USE_REENTRANT	Define reentrant/thread-safe *_r functions.
    __USE_FORTIFY_LEVEL	Additional security measures used, according to level.
@@ -106,6 +125,7 @@
 #undef	__USE_BSD
 #undef	__USE_SVID
 #undef	__USE_MISC
+#undef	__USE_ATFILE
 #undef	__USE_GNU
 #undef	__USE_REENTRANT
 #undef	__USE_FORTIFY_LEVEL
@@ -162,6 +182,8 @@
 # define _BSD_SOURCE	1
 # undef  _SVID_SOURCE
 # define _SVID_SOURCE	1
+# undef  _ATFILE_SOURCE
+# define _ATFILE_SOURCE	1
 #endif
 
 /* If nothing (other than _GNU_SOURCE) is defined,
@@ -258,6 +280,10 @@
 # define __USE_SVID	1
 #endif
 
+#ifdef	_ATFILE_SOURCE
+# define __USE_ATFILE	1
+#endif
+
 #ifdef	_GNU_SOURCE
 # define __USE_GNU	1
 #endif
@@ -266,37 +292,23 @@
 # define __USE_REENTRANT	1
 #endif
 
-#if _FORTIFY_SOURCE > 0 && __GNUC_PREREQ (4, 1) && defined(__OPTIMIZE__)
-# if _FORTIFY_SOURCE == 1
-#  define __USE_FORTIFY_LEVEL 1
-# elif _FORTIFY_SOURCE > 1
+#if defined _FORTIFY_SOURCE && _FORTIFY_SOURCE > 0 \
+    && __GNUC_PREREQ (4, 1) && defined __OPTIMIZE__ && __OPTIMIZE__ > 0
+# if _FORTIFY_SOURCE > 1
 #  define __USE_FORTIFY_LEVEL 2
+# else
+#  define __USE_FORTIFY_LEVEL 1
 # endif
+#else
+# define __USE_FORTIFY_LEVEL 0
 #endif
 
 /* We do support the IEC 559 math functionality, real and complex.  */
 #define __STDC_IEC_559__		1
 #define __STDC_IEC_559_COMPLEX__	1
 
-/* This macro indicates that the installed library is uClibc.  Use
- * __UCLIBC_MAJOR__ and __UCLIBC_MINOR__ to test for the features in
- * specific releases.  */
-#define	__UCLIBC__		1
-
-/* Load up the current set of uClibc supported features along
- * with the current uClibc major and minor version numbers.
- * For uClibc release 0.9.26, these numbers would be:
- *	#define	__UCLIBC_MAJOR__	0
- *	#define	__UCLIBC_MINOR__	9
- *	#define	__UCLIBC_SUBLEVEL__	26
- */
-#define __need_uClibc_config_h
-#include <bits/uClibc_config.h>
-#undef __need_uClibc_config_h
-#include <bits/uClibc_arch_features.h>
-
 #ifdef __UCLIBC_HAS_WCHAR__
-/* wchar_t uses ISO 10646-1 (2nd ed., published 2000-09-15) / Unicode 3.0.  */
+/* wchar_t uses ISO 10646-1 (2nd ed., published 2000-09-15) / Unicode 3.1.  */
 # define __STDC_ISO_10646__		200009L
 #endif
 
@@ -308,13 +320,31 @@
  *  are not really intended to check for the presence of a particular library,
  *  but rather are used to define an _interface_.  */
 #if !defined __FORCE_NOGLIBC && (!defined _LIBC || defined __FORCE_GLIBC)
-#   define __GNU_LIBRARY__ 6
-#   define __GLIBC__       2
-#   define __GLIBC_MINOR__ 2
+/* This macro indicates that the installed library is the GNU C Library.
+   For historic reasons the value now is 6 and this will stay from now
+   on.  The use of this variable is deprecated.  */
+# undef  __GNU_LIBRARY__
+# define __GNU_LIBRARY__ 6
+
+/* Major and minor version number of the GNU C library package.  Use
+   these macros to test for features in specific releases.  */
+/* Don't do it, if you want to keep uClibc happy.  */
+# define	__GLIBC__	2
+# define	__GLIBC_MINOR__	2
 #endif
 
 #define __GLIBC_PREREQ(maj, min) \
 	((__GLIBC__ << 16) + __GLIBC_MINOR__ >= ((maj) << 16) + (min))
+
+#ifndef __UCLIBC__
+/* Decide whether a compiler supports the long long datatypes.  */
+#if defined __GNUC__ \
+    || (defined __PGI && defined __i386__ ) \
+    || (defined __INTEL_COMPILER && (defined __i386__ || defined __ia64__)) \
+    || (defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L)
+# define __GLIBC_HAVE_LONG_LONG	1
+#endif
+#endif
 
 /* This is here only because every header file already includes this one.  */
 #ifndef __ASSEMBLER__
@@ -344,32 +374,36 @@
 /* If uClibc was built without large file support, output an error if
  * and 64-bit file offsets were requested, output an error.
  * NOTE: This is probably incorrect on a 64-bit arch... */
-#ifdef __USE_FILE_OFFSET64
-#error It appears you have defined _FILE_OFFSET_BITS=64.  Unfortunately, \
+# ifdef __USE_FILE_OFFSET64
+#  error It appears you have defined _FILE_OFFSET_BITS=64.  Unfortunately, \
 uClibc was built without large file support enabled.
-#endif
+# endif
 
 /* If uClibc was built without large file support and _LARGEFILE64_SOURCE
  * is defined, undefine it. */
-#if defined(_LARGEFILE64_SOURCE)
-#undef _LARGEFILE64_SOURCE
-#undef __USE_LARGEFILE64
-#endif
+# ifdef _LARGEFILE64_SOURCE
+#  undef _LARGEFILE64_SOURCE
+#  undef __USE_LARGEFILE64
+# endif
 
 /* If we're actually building uClibc with large file support,
  * define __USE_LARGEFILE64 and __USE_LARGEFILE. */
-#elif defined(_LIBC)
-#undef _LARGEFILE_SOURCE
-#undef _LARGEFILE64_SOURCE
-#undef _FILE_OFFSET_BITS
-#undef __USE_LARGEFILE
-#undef __USE_LARGEFILE64
-#undef __USE_FILE_OFFSET64
-#define _LARGEFILE_SOURCE       1
-#define _LARGEFILE64_SOURCE     1
-#define __USE_LARGEFILE         1
-#define __USE_LARGEFILE64       1
+#elif defined _LIBC
+# undef _LARGEFILE_SOURCE
+# undef _LARGEFILE64_SOURCE
+# undef _FILE_OFFSET_BITS
+# undef __USE_LARGEFILE
+# undef __USE_LARGEFILE64
+# undef __USE_FILE_OFFSET64
+# define _LARGEFILE_SOURCE       1
+# define _LARGEFILE64_SOURCE     1
+# define __USE_LARGEFILE         1
+# define __USE_LARGEFILE64       1
 #endif
+
+/* uClibc does not support *at interfaces. */
+#undef _ATFILE_SOURCE
+#undef __USE_ATFILE
 
 #ifdef _LIBC
 # include <libc-internal.h>
