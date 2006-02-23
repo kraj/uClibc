@@ -160,9 +160,11 @@ fi;
 
 
 # Annoyingly, 2.6.x kernel headers also need an include/asm-generic/ directory
+if [ ! -e include/asm-generic ] ; then
 if [ $VERSION -eq 2 ] && [ $PATCHLEVEL -ge 6 ] ; then
     ln -fs $KERNEL_SOURCE/include/asm-generic include/asm-generic
 fi;
+fi
 
 
 # Create the include/linux symlink.
