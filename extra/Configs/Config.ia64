@@ -1,0 +1,21 @@
+#
+# For a description of the syntax of this configuration file,
+# see extra/config/Kconfig-language.txt
+#
+
+config TARGET_ARCH
+	default "ia64"
+
+config FORCE_OPTIONS_FOR_ARCH
+	bool
+	default y
+	select ARCH_LITTLE_ENDIAN
+	select ARCH_HAS_MMU
+	select HAS_NO_THREADS
+	select ARCH_HAS_NO_LDSO
+
+config ARCH_CFLAGS
+	string
+
+config LIBGCC_CFLAGS
+	string
