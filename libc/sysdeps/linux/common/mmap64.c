@@ -5,30 +5,17 @@
  */
 /* Massivly hacked up for uClibc by Erik Andersen */
 
-#include <features.h>
+#include "_lfs_64.h"
+
+#ifdef __UCLIBC_HAS_LFS__
+
 #include <errno.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/syscall.h>
 #include <bits/uClibc_page.h>
 
-#ifdef __UCLIBC_HAS_LFS__
-
 libc_hidden_proto(mmap)
-
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64
-# undef _FILE_OFFSET_BITS
-# define _FILE_OFFSET_BITS   64
-#endif
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64      1
-#endif
-/* We absolutely do _NOT_ want interfaces silently
- * renamed under us or very bad things will happen...
- */
-#ifdef __USE_FILE_OFFSET64
-# undef __USE_FILE_OFFSET64
-#endif
 
 # if !defined __NR_mmap2 || !defined _syscall6
 

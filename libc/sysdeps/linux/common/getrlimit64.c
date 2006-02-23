@@ -16,20 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
-#undef _FILE_OFFSET_BITS
-#define	_FILE_OFFSET_BITS   64
-#endif
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64	1
-#endif
-/* We absolutely do _NOT_ want interfaces silently
- * renamed under us or very bad things will happen... */
-#ifdef __USE_FILE_OFFSET64
-# undef __USE_FILE_OFFSET64
-#endif
+#include "_lfs_64.h"
 
 #include <sys/types.h>
 #include <sys/resource.h>
