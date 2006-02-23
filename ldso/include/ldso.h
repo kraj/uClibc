@@ -30,11 +30,11 @@
 #include <bits/wordsize.h>
 /* Pull in the arch specific type information */
 #include <sys/types.h>
+/* Pull in the arch specific page size */
+#include <bits/uClibc_page.h>
 /* Pull in the ldso syscalls and string functions */
 #include <dl-syscall.h>
 #include <dl-string.h>
-/* Pull in the arch specific page size */
-#include <bits/uClibc_page.h>
 /* Now the ldso specific headers */
 #include <dl-elf.h>
 #include <dl-hash.h>
