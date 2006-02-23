@@ -40,7 +40,13 @@
 #define END(sym)
 #endif
 
+#undef SYS_ify
+#define SYS_ify(syscall_name)   (__NR_##syscall_name)
+
 #ifdef __ASSEMBLER__
+
+#undef SYS_ify
+#define SYS_ify(syscall_name)   __NR_##syscall_name
 
 /* Syntactic details of assembly-code.  */
 
@@ -58,6 +64,37 @@
 /* The non-PIC jump is preferred, since it does not stall, and does not
    invoke generation of a PLT.  These macros assume that $r0 is set up as
    GOT register.  */
+#ifdef __arch_v32
+#ifdef __PIC__
+#define PLTJUMP(_x) \
+  ba C_SYMBOL_NAME (_x):PLT				@ \
+  nop
+
+#define PLTCALL(_x) \
+  bsr C_SYMBOL_NAME (_x):PLT				@ \
+  nop
+
+#define SETUP_PIC \
+  subq 4,$sp						@ \
+  move.d $r0,[$sp]					@ \
+  lapc _GLOBAL_OFFSET_TABLE_,$r0
+
+#define TEARDOWN_PIC move.d [$sp+],$r0
+#else
+#define PLTJUMP(_x) \
+  ba C_SYMBOL_NAME (_x)					@ \
+  nop
+
+#define PLTCALL(_x) \
+  bsr  C_SYMBOL_NAME (_x)				@ \
+  nop
+
+#define SETUP_PIC
+#define TEARDOWN_PIC
+#endif
+
+#else
+
 #ifdef __PIC__
 #define PLTJUMP(_x) \
   add.d C_SYMBOL_NAME (_x):PLT,$pc
@@ -78,14 +115,15 @@
 #define TEARDOWN_PIC
 #endif
 
+#endif /* __arch_v32 */
+
 /* Define an entry point visible from C.  */
 #define ENTRY(name) \
   .text							@ \
   ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (name) 		@ \
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME (name), function)	@ \
   .align ALIGNARG (2) 					@ \
-  C_LABEL(name)						@ \
-  CALL_MCOUNT
+  C_LABEL(name)
 
 #undef END
 #define END(name) \
@@ -106,10 +144,6 @@
   SETUP_PIC						@ \
   PLTJUMP (__syscall_error)				@ \
   END (name)
-
-/* If compiled for profiling, do nothing */
-#define CALL_MCOUNT		/* Do nothing.  */
-
 
 #endif /* __ASSEMBLER__ */
 #endif /* _SYSDEP_H_ */

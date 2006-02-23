@@ -1,4 +1,4 @@
-/* Copyright (C) 2001 Free Software Foundation, Inc.
+/* Copyright (C) 2001, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,9 +17,10 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <features.h>
-#include <asm/errno.h>
 #include <sys/syscall.h>
 #include "sysdep.h"
+#define _ERRNO_H	1
+#include <bits/errno.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
@@ -29,12 +30,13 @@
 ENTRY (clone)
 	/* Sanity check arguments: No NULL function pointers.  Allow a NULL
 	   stack pointer though; it makes the kernel allocate stack.  */
-	test.d	r10
+	cmpq	0,r10
 	beq	1f
 	nop
 
 	/* We need to muck with a few registers.  */
-	movem	r1,[sp=sp-8]
+	subq	8,sp
+	movem	r1,[sp]
 
 	/* Save the function pointer and argument.  We can't save them
 	   onto the new stack since it can be NULL.  */
@@ -48,7 +50,7 @@ ENTRY (clone)
 	/* Do the system call.  */
 	movu.w	SYS_ify (clone),r9
 	break	13
-	test.d	r10
+	cmpq	0,r10
 	beq	.Lthread_start
 	nop
 
@@ -65,15 +67,22 @@ ENTRY (clone)
 	/* Terminate frame pointers here.  */
 	moveq	0,r8
 
+#ifdef __arch_v32
+	/* Is this the right place for an argument?  */
+	jsr	r0
+	move.d	r1,r10
+#else
 	/* I've told you once.  */
 	move.d	r1,r10
 	jsr	r0
+#endif
 
 	SETUP_PIC
 	PLTCALL	(HIDDEN_JUMPTARGET(_exit))
 
 	/* Die horribly.  */
-	test.d	[6809]
+	move.d 6809,r13
+	test.d	[r13]
 
 	/* Stop the unstoppable.  */
 9:

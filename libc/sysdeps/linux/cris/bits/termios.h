@@ -161,7 +161,12 @@ struct termios
 #define  B921600  0010005
 #define  B1843200 0010006
 #define  B6250000 0010007
+#ifdef __arch_v32
+#define  B12500000 0010010
+#define __MAX_BAUD B12500000
+#else
 #define __MAX_BAUD B6250000
+#endif
 #ifdef __USE_MISC
 # define CIBAUD	  002003600000		/* input baud rate (not used) */
 # define CMSPAR   010000000000		/* mark or space (stick) parity */

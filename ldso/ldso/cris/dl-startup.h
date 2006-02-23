@@ -4,22 +4,43 @@
 
 /* This code fixes the stack pointer so that the dynamic linker
  * can find argc, argv and auxvt (Auxillary Vector Table).  */
+#ifdef __arch_v32
+
 asm(""					\
 "	.text\n"			\
 "	.globl _start\n"		\
 "	.type _start,@function\n"	\
 "_start:\n"				\
-"	move.d $sp,$r10\n"		\
-"	move.d $pc,$r9\n"		\
-"	add.d _dl_start - ., $r9\n"	\
-"	jsr $r9\n"			\
-"	moveq 0,$r8\n"			\
-"	move $r8,$srp\n"		\
-"	jump $r10\n"			\
+"	move.d	$sp,$r10\n"		\
+"	lapc	_dl_start,$r9\n"	\
+"	jsr	$r9\n"			\
+"	nop\n"				\
+"	moveq	0,$r8\n"		\
+"	jump	$r10\n"			\
+"	move	$r8,$srp\n"		\
 "	.size _start,.-_start\n"	\
 "	.previous\n"			\
 );
 
+#else
+
+asm(""					\
+"	.text\n"			\
+"	.globl _start\n"		\
+"	.type _start,@function\n"	\
+"_start:\n"				\
+"	move.d	$sp,$r10\n"		\
+"	move.d	$pc,$r9\n"		\
+"	add.d	_dl_start - ., $r9\n"	\
+"	jsr	$r9\n"			\
+"	moveq	0,$r8\n"		\
+"	move	$r8,$srp\n"		\
+"	jump	$r10\n"			\
+"	.size _start,.-_start\n"	\
+"	.previous\n"			\
+);
+
+#endif /* __arch_v32 */
 
 /* Get a pointer to the argv array.  On many platforms this can be just
  * the address if the first argument, on other platforms we need to

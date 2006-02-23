@@ -244,6 +244,7 @@ endif
 
 ifeq ($(TARGET_ARCH),cris)
 	CPU_LDFLAGS-$(CONFIG_CRIS)+=-mcrislinux
+	CPU_LDFLAGS-$(CONFIG_CRISV32)+=-mcrislinux
 	CPU_CFLAGS-$(CONFIG_CRIS)+=-mlinux
 	PICFLAG:=-fpic
 	PIEFLAG_NAME:=-fpie

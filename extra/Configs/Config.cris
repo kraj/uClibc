@@ -26,9 +26,14 @@ choice
 
 		These are the possible settings:
 		- CRIS  Generic support for Axis' CRIS architecture.
+		- CRISv32  Support for Axis' CRISv32 architecture.
 
 config CONFIG_CRIS
 	select ARCH_HAS_MMU
 	bool "CRIS"
+
+config CONFIG_CRISV32
+	select ARCH_HAS_MMU
+	bool "CRISv32"
 
 endchoice

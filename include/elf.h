@@ -2591,6 +2591,12 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_390_NUM		61
 
 
+/* CRIS flags.  */
+#define EF_CRIS_VARIANT_MASK           0x0000000e
+#define EF_CRIS_VARIANT_ANY_V0_V10     0x00000000
+#define EF_CRIS_VARIANT_V32            0x00000002
+#define EF_CRIS_VARIANT_COMMON_V10_V32 0x00000004
+
 /* CRIS relocations.  */
 #define R_CRIS_NONE		0
 #define R_CRIS_8		1
