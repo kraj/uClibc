@@ -150,8 +150,15 @@ static inline _syscall6(void *, _dl_mmap, void *, start, size_t, length,
 # define __NR___syscall_mmap2       __NR_mmap2
 static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr, size_t, len,
                         int, prot, int, flags, int, fd, off_t, offset);
-/* always 12, even on architectures where PAGE_SHIFT != 12 */
+
+/* Some architectures always use 12 as page shift for mmap2() eventhough the
+ * real PAGE_SHIFT != 12.  Other architectures use the same value as
+ * PAGE_SHIFT...
+ */
+#ifndef MMAP2_PAGE_SHIFT
 # define MMAP2_PAGE_SHIFT 12
+#endif
+
 static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
                               int flags, int fd, unsigned long offset)
 {
