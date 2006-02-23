@@ -16,7 +16,6 @@
 
 #define __FORCE_GLIBC
 #include <features.h>
-#define __USE_GNU
 #include <errno.h>
 #include <netdb.h>	/* for h_errno */
 #include <stddef.h>
@@ -39,12 +38,10 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-/* mods for uClibc: getpwd and getpagesize are the syscalls */
-#define __getpid getpid
-#define __getpagesize getpagesize
 /* mods for uClibc: __libc_sigaction is not in any standard headers */
-extern int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact);
-
+extern __typeof(sigaction) __libc_sigaction;
+libpthread_hidden_proto(waitpid)
+libpthread_hidden_proto(raise)
 
 /* These variables are used by the setup code.  */
 extern int _errno;
@@ -175,9 +172,9 @@ char *__pthread_initial_thread_bos = NULL;
  * This is adapted when other stacks are malloc'ed since we don't know
  * the bounds a-priori. -StS */
 
-#ifndef __ARCH_HAS_MMU__
+#ifndef __ARCH_USE_MMU__
 char *__pthread_initial_thread_tos = NULL;
-#endif /* __ARCH_HAS_MMU__ */
+#endif /* __ARCH_USE_MMU__ */
 
 /* File descriptor for sending requests to the thread manager. */
 /* Initially -1, meaning that the thread manager is not running. */
@@ -268,6 +265,7 @@ int __libc_current_sigrtmax (void)
 /* Allocate real-time signal with highest/lowest available
    priority.  Please note that we don't use a lock since we assume
    this function to be called at program start.  */
+int __libc_allocate_rtsig (int high);
 int __libc_allocate_rtsig (int high)
 {
     if (current_rtmin == -1 || current_rtmin > current_rtmax)
@@ -320,11 +318,11 @@ struct pthread_functions __pthread_functions =
     .ptr___pthread_exit = pthread_exit,
     .ptr_pthread_getschedparam = pthread_getschedparam,
     .ptr_pthread_setschedparam = pthread_setschedparam,
-    .ptr_pthread_mutex_destroy = pthread_mutex_destroy,
-    .ptr_pthread_mutex_init = pthread_mutex_init,
-    .ptr_pthread_mutex_lock = pthread_mutex_lock,
-    .ptr_pthread_mutex_trylock = pthread_mutex_trylock,
-    .ptr_pthread_mutex_unlock = pthread_mutex_unlock,
+    .ptr_pthread_mutex_destroy = __pthread_mutex_destroy,
+    .ptr_pthread_mutex_init = __pthread_mutex_init,
+    .ptr_pthread_mutex_lock = __pthread_mutex_lock,
+    .ptr_pthread_mutex_trylock = __pthread_mutex_trylock,
+    .ptr_pthread_mutex_unlock = __pthread_mutex_unlock,
     .ptr_pthread_self = pthread_self,
     .ptr_pthread_setcancelstate = pthread_setcancelstate,
     .ptr_pthread_setcanceltype = pthread_setcanceltype,
@@ -365,8 +363,10 @@ static void pthread_initialize(void)
 {
   struct sigaction sa;
   sigset_t mask;
+#ifdef __ARCH_USE_MMU__
   struct rlimit limit;
   rlim_t max_stack;
+#endif
 
   /* If already done (e.g. by a constructor called earlier!), bail out */
   if (__pthread_initial_thread_bos != NULL) return;
@@ -380,7 +380,7 @@ static void pthread_initialize(void)
   __pthread_initial_thread_bos =
     (char *)(((long)CURRENT_STACK_FRAME - 2 * STACK_SIZE) & ~(STACK_SIZE - 1));
   /* Update the descriptor for the initial thread. */
-  __pthread_initial_thread.p_pid = __getpid();
+  __pthread_initial_thread.p_pid = getpid();
   /* If we have special thread_self processing, initialize that for the
      main thread now.  */
 #ifdef INIT_THREAD_SELF
@@ -410,11 +410,11 @@ static void pthread_initialize(void)
      beyond STACK_SIZE minus two pages (one page for the thread descriptor
      immediately beyond, and one page to act as a guard page). */
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
   /* We cannot allocate a huge chunk of memory to mmap all thread stacks later
    * on a non-MMU system. Thus, we don't need the rlimit either. -StS */
   getrlimit(RLIMIT_STACK, &limit);
-  max_stack = STACK_SIZE - 2 * __getpagesize();
+  max_stack = STACK_SIZE - 2 * getpagesize();
   if (limit.rlim_cur > max_stack) {
     limit.rlim_cur = max_stack;
     setrlimit(RLIMIT_STACK, &limit);
@@ -425,11 +425,11 @@ static void pthread_initialize(void)
    * malloc other stack frames such that they don't overlap. -StS
    */
   __pthread_initial_thread_tos =
-    (char *)(((long)CURRENT_STACK_FRAME + __getpagesize()) & ~(__getpagesize() - 1));
+    (char *)(((long)CURRENT_STACK_FRAME + getpagesize()) & ~(getpagesize() - 1));
   __pthread_initial_thread_bos = (char *) 1; /* set it non-zero so we know we have been here */
   PDEBUG("initial thread stack bounds: bos=%p, tos=%p\n",
 	 __pthread_initial_thread_bos, __pthread_initial_thread_tos);
-#endif /* __ARCH_HAS_MMU__ */
+#endif /* __ARCH_USE_MMU__ */
 
   /* Setup signal handlers for the initial thread.
      Since signal handlers are shared between threads, these settings
@@ -462,6 +462,7 @@ static void pthread_initialize(void)
   on_exit(pthread_onexit_process, NULL);
 }
 
+void __pthread_initialize(void);
 void __pthread_initialize(void)
 {
   pthread_initialize();
@@ -848,7 +849,7 @@ void __pthread_reset_main_thread()
   }
 
   /* Update the pid of the main thread */
-  THREAD_SETMEM(self, p_pid, __getpid());
+  THREAD_SETMEM(self, p_pid, getpid());
   /* Make the forked thread the main thread */
   __pthread_main_thread = self;
   THREAD_SETMEM(self, p_nextlive, self);
@@ -1090,7 +1091,7 @@ void __pthread_message(char * fmt, ...)
 {
   char buffer[1024];
   va_list args;
-  sprintf(buffer, "%05d : ", __getpid());
+  sprintf(buffer, "%05d : ", getpid());
   va_start(args, fmt);
   vsnprintf(buffer + 8, sizeof(buffer) - 8, fmt, args);
   va_end(args);

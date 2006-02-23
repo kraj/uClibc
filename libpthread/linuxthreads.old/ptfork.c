@@ -18,7 +18,7 @@
 
 #include <errno.h>
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -61,14 +61,14 @@ int pthread_atfork(void (*prepare)(void),
   struct handler_list_block * block =
     (struct handler_list_block *) malloc(sizeof(struct handler_list_block));
   if (block == NULL) return ENOMEM;
-  pthread_mutex_lock(&pthread_atfork_lock);
+  __pthread_mutex_lock(&pthread_atfork_lock);
   /* "prepare" handlers are called in LIFO */
   pthread_insert_list(&pthread_atfork_prepare, prepare, &block->prepare, 0);
   /* "parent" handlers are called in FIFO */
   pthread_insert_list(&pthread_atfork_parent, parent, &block->parent, 1);
   /* "child" handlers are called in FIFO */
   pthread_insert_list(&pthread_atfork_child, child, &block->child, 1);
-  pthread_mutex_unlock(&pthread_atfork_lock);
+  __pthread_mutex_unlock(&pthread_atfork_lock);
   return 0;
 }
 //strong_alias (__pthread_atfork, pthread_atfork)
@@ -78,18 +78,19 @@ static inline void pthread_call_handlers(struct handler_list * list)
   for (/*nothing*/; list != NULL; list = list->next) (list->handler)();
 }
 
-extern int __libc_fork(void);
+extern __typeof(fork) __libc_fork;
 
+pid_t __fork(void) attribute_hidden;
 pid_t __fork(void)
 {
   pid_t pid;
   struct handler_list * prepare, * child, * parent;
 
-  pthread_mutex_lock(&pthread_atfork_lock);
+  __pthread_mutex_lock(&pthread_atfork_lock);
   prepare = pthread_atfork_prepare;
   child = pthread_atfork_child;
   parent = pthread_atfork_parent;
-  pthread_mutex_unlock(&pthread_atfork_lock);
+  __pthread_mutex_unlock(&pthread_atfork_lock);
   pthread_call_handlers(prepare);
   pid = __libc_fork();
   if (pid == 0) {
@@ -101,13 +102,12 @@ pid_t __fork(void)
   }
   return pid;
 }
-weak_alias (__fork, fork)
+strong_alias(__fork,fork)
 
-pid_t __vfork(void)
+pid_t vfork(void)
 {
   return __fork();
 }
-weak_alias (__vfork, vfork)
 
 #else
 

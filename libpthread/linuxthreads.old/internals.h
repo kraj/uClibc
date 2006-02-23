@@ -25,6 +25,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include "pt-machine.h"
 #include "semaphore.h"
 #include "../linuxthreads.old_db/thread_dbP.h"
@@ -257,7 +258,7 @@ extern pthread_descr __pthread_main_thread;
  * the bounds a-priori. -StS */
 
 extern char *__pthread_initial_thread_bos;
-#ifndef __ARCH_HAS_MMU__
+#ifndef __ARCH_USE_MMU__
 extern char *__pthread_initial_thread_tos;
 #define NOMMU_INITIAL_THREAD_BOUNDS(tos,bos) \
 	if ((tos)>=__pthread_initial_thread_bos \
@@ -265,7 +266,7 @@ extern char *__pthread_initial_thread_tos;
 		__pthread_initial_thread_bos = (tos)+1
 #else
 #define NOMMU_INITIAL_THREAD_BOUNDS(tos,bos) /* empty */
-#endif /* __ARCH_HAS_MMU__ */
+#endif /* __ARCH_USE_MMU__ */
 
 
 /* Indicate whether at least one thread has a user-defined stack (if 1),
@@ -329,7 +330,7 @@ extern size_t __pagesize;
    THREAD_SELF implementation is used, this must be a power of two and
    a multiple of PAGE_SIZE.  */
 #ifndef STACK_SIZE
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 #define STACK_SIZE  (2 * 1024 * 1024)
 #else
 #define STACK_SIZE  (4 * __pagesize)
@@ -366,7 +367,7 @@ extern size_t __pagesize;
    all outstanding operations which modify memory.  Some architectures
    distinguish between full, read and write barriers.  */
 #ifndef MEMORY_BARRIER
-#define MEMORY_BARRIER() asm ("" : : : "memory")
+#define MEMORY_BARRIER() __asm__ ("" : : : "memory")
 #endif
 #ifndef READ_MEMORY_BARRIER
 #define READ_MEMORY_BARRIER() MEMORY_BARRIER()
@@ -386,7 +387,7 @@ static inline pthread_descr thread_self (void)
   return THREAD_SELF;
 #else
   char *sp = CURRENT_STACK_FRAME;
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
   if (sp >= __pthread_initial_thread_bos)
     return &__pthread_initial_thread;
   else if (sp >= __pthread_manager_thread_bos
@@ -419,7 +420,7 @@ static inline pthread_descr thread_self (void)
   else {
       return __pthread_find_self();
   }
-#endif /* __ARCH_HAS_MMU__ */
+#endif /* __ARCH_USE_MMU__ */
 #endif
 }
 
@@ -469,6 +470,12 @@ void __fresetlockfiles(void);
 void __pthread_manager_adjust_prio(int thread_prio);
 void __pthread_initialize_minimal (void);
 
+extern void __pthread_exit (void *retval)
+#if defined NOT_IN_libc && defined IS_IN_libpthread
+	attribute_noreturn
+#endif
+	;
+
 extern int __pthread_attr_setguardsize __P ((pthread_attr_t *__attr,
 					     size_t __guardsize));
 extern int __pthread_attr_getguardsize __P ((__const pthread_attr_t *__attr,
@@ -483,17 +490,15 @@ extern int __pthread_attr_getstacksize __P ((__const pthread_attr_t *__attr,
 					     size_t *__stacksize));
 extern int __pthread_getconcurrency __P ((void));
 extern int __pthread_setconcurrency __P ((int __level));
-extern int __pthread_mutexattr_gettype __P ((__const pthread_mutexattr_t *__attr,
-					     int *__kind));
 extern void __pthread_kill_other_threads_np __P ((void));
 
 extern void __pthread_restart_old(pthread_descr th);
 extern void __pthread_suspend_old(pthread_descr self);
-extern int __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abs);
+extern int __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime);
 
 extern void __pthread_restart_new(pthread_descr th);
 extern void __pthread_suspend_new(pthread_descr self);
-extern int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abs);
+extern int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstime);
 
 extern void __pthread_wait_for_restart_signal(pthread_descr self);
 
@@ -504,12 +509,17 @@ extern void (*__pthread_suspend)(pthread_descr);
 
 /* Prototypes for the function without cancelation support when the
    normal version has it.  */
-extern int __libc_close (int fd);
-extern int __libc_nanosleep (const struct timespec *requested_time,
-			     struct timespec *remaining);
-extern ssize_t __libc_read (int fd, void *buf, size_t count);
-extern pid_t __libc_waitpid (pid_t pid, int *stat_loc, int options);
-extern ssize_t __libc_write (int fd, const void *buf, size_t count);
+extern __typeof(close) __libc_close;
+extern __typeof(nanosleep) __libc_nanosleep;
+extern __typeof(read) __libc_read;
+extern __typeof(waitpid) __libc_waitpid;
+extern __typeof(write) __libc_write;
+
+extern __typeof(pthread_mutex_init) __pthread_mutex_init attribute_hidden;
+extern __typeof(pthread_mutex_destroy) __pthread_mutex_destroy attribute_hidden;
+extern __typeof(pthread_mutex_lock) __pthread_mutex_lock attribute_hidden;
+extern __typeof(pthread_mutex_trylock) __pthread_mutex_trylock attribute_hidden;
+extern __typeof(pthread_mutex_unlock) __pthread_mutex_attribute_hidden;
 
 /* Prototypes for some of the new semaphore functions.  */
 extern int __new_sem_post (sem_t * sem);

@@ -25,8 +25,6 @@
 #include "pthread.h"
 #include "internals.h"
 
-extern int __getpagesize(void);
-
 /* NOTE: With uClibc I don't think we need this versioning stuff.
  * Therefore, define the function pthread_attr_init() here using
  * a strong symbol. */
@@ -34,7 +32,7 @@ extern int __getpagesize(void);
 //int __pthread_attr_init_2_1(pthread_attr_t *attr)
 int pthread_attr_init(pthread_attr_t *attr)
 {
-  size_t ps = __getpagesize ();
+  size_t ps = getpagesize ();
 
   attr->__detachstate = PTHREAD_CREATE_JOINABLE;
   attr->__schedpolicy = SCHED_OTHER;
@@ -50,7 +48,7 @@ int pthread_attr_init(pthread_attr_t *attr)
 
 /* uClibc: leave out this for now. */
 #if DO_PTHREAD_VERSIONING_WITH_UCLIBC
-#if defined __HAVE_ELF__ && defined __PIC__ && defined DO_VERSIONING
+#if defined __PIC__ && defined DO_VERSIONING
 default_symbol_version (__pthread_attr_init_2_1, pthread_attr_init, GLIBC_2.1);
 
 int __pthread_attr_init_2_0(pthread_attr_t *attr)
@@ -156,7 +154,7 @@ int pthread_attr_getscope(const pthread_attr_t *attr, int *scope)
 
 int __pthread_attr_setguardsize(pthread_attr_t *attr, size_t guardsize)
 {
-  size_t ps = __getpagesize ();
+  size_t ps = getpagesize ();
 
   /* First round up the guard size.  */
   guardsize = roundup (guardsize, ps);

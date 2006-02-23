@@ -40,8 +40,8 @@ S:	Maintained
 
 
 CRIS
-P:	Tobias Anderberg
-M:	tobias.anderberg@axis.com
+P:	Ricard Wanderlof
+M:	ricard.wanderlof@axis.com
 W:	http://developer.axis.com
 S:	Maintained
 
@@ -59,6 +59,10 @@ S:	Unmaintained
 
 
 HPPA
+S:	Unmaintained
+
+
+IA64
 S:	Unmaintained
 
 
@@ -108,6 +112,11 @@ S:	Maintained
 SPARC
 S:	Unmaintained
 
+VAX
+P:	Jan-Benedict Glaw
+E:	jbglaw@lug-owl.de (personal), linux-vax@pergamentum.com (mailing list)
+W:	http://linux-vax.sourceforge.net/
+S:	Maintained
 
 V850
 S:	Unmaintained

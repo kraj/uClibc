@@ -25,7 +25,6 @@
 #
 # Target Architecture Features and Options
 #
-HAVE_ELF=y
 # ARCH_SUPPORTS_LITTLE_ENDIAN is not set
 TARGET_ARCH="none"
 # ARCH_LITTLE_ENDIAN is not set
@@ -53,7 +52,6 @@ UCLIBC_HAS_FLOATS=y
 HAS_FPU=y
 DO_C99_MATH=y
 KERNEL_SOURCE="/usr/src/linux"
-C_SYMBOL_PREFIX=""
 HAVE_DOT_CONFIG=y
 
 #

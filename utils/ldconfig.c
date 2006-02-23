@@ -303,7 +303,7 @@ char *is_shlib(const char *dir, const char *name, int *type,
 		    {
 			/* always call readsoname to update type */
 			if(expected_type == LIB_DLL) {
-			    warnx("%s is not an a.out library, its ELF!\n", buff);
+			    warnx("%s is not an a.out library, it's ELF!", buff);
 			    expected_type=LIB_ANY;
 			}
 			*type = LIB_ELF;
@@ -526,7 +526,7 @@ void scan_dir(const char *rawname)
 		    }
 		    else
 		    {
-			warnx("Unknown type field '%s' for dir '%s' - ignored\n", t, name);
+			warnx("Unknown type field '%s' for dir '%s' - ignored", t, name);
 			expected_type = LIB_ANY;
 		    }
 		}
@@ -1055,7 +1055,7 @@ int main(int argc, char **argv)
 			if (strcmp(UCLIBC_RUNTIME_PREFIX "lib", cp) == 0 ||
 			    strcmp(UCLIBC_RUNTIME_PREFIX "usr/lib", cp) == 0) {
 				if (verbose >= 0)
-					warnx("Remove `%s' from `%s'\n", cp, LDSO_CONF);
+					warnx("You should remove `%s' from `%s'", cp, LDSO_CONF);
 				continue;
 			}
 		    scan_dir(cp);

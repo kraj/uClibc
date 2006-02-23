@@ -9,7 +9,7 @@
 #include "../linuxthreads/descr.h"
 
 
-/* Indeces for the symbol names.  */
+/* Indices for the symbol names.  */
 enum
   {
     PTHREAD_THREADS_EVENTS = 0,
@@ -32,7 +32,7 @@ enum
 /* Comment out the following for less verbose output.  */
 #ifndef NDEBUG
 # define LOG(c) if (__td_debug) write (2, c "\n", strlen (c "\n"))
-extern int __td_debug;
+extern int __td_debug attribute_hidden;
 #else
 # define LOG(c)
 #endif
@@ -84,7 +84,7 @@ struct agent_list
 };
 
 /* List of all known descriptors.  */
-extern struct agent_list *__td_agent_list;
+extern struct agent_list *__td_agent_list attribute_hidden;
 
 /* Function used to test for correct thread agent pointer.  */
 static inline int
@@ -103,6 +103,6 @@ ta_ok (const td_thragent_t *ta)
 
 
 /* Internal wrapper around ps_pglobal_lookup.  */
-extern int td_lookup (struct ps_prochandle *ps, int idx, psaddr_t *sym_addr);
+extern int td_lookup (struct ps_prochandle *ps, int idx, psaddr_t *sym_addr) attribute_hidden;
 
 #endif /* thread_dbP.h */

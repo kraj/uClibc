@@ -1,7 +1,7 @@
 # Rules.make for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -49,6 +49,22 @@ BUILD_CFLAGS = -O2 -Wall
 # Nothing beyond this point should ever be touched by mere
 # mortals.  Unless you hang out with the gods, you should
 # probably leave all this stuff alone.
+
+# Pull in the user's uClibc configuration
+ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+-include $(top_builddir).config
+endif
+
+# Make certain these contain a final "/", but no "//"s.
+TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
+TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
+RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
+DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
+KERNEL_SOURCE:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_SOURCE))))))
+export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_SOURCE
+
+
+# Now config hard core
 MAJOR_VERSION := 0
 MINOR_VERSION := 9
 SUBLEVEL      := 28
@@ -59,12 +75,18 @@ export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
 
 LIBC := libc
 SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
-UCLIBC_LDSO := ld-uClibc.so.$(MAJOR_VERSION)
+ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 mips64 powerpc64 s390x sh64 sparc64 x86_64 ),)
+UCLIBC_LDSO_NAME := ld64-uClibc
+else
+UCLIBC_LDSO_NAME := ld-uClibc
+endif
+UCLIBC_LDSO := $(UCLIBC_LDSO_NAME).so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
 libc := $(top_builddir)lib/$(SHARED_MAJORNAME)
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
 headers_dep := $(top_builddir)include/bits/sysnum.h
+sub_headers := $(headers_dep)
 
 #LIBS :=$(interp) -L$(top_builddir)lib -lc
 LIBS := $(interp) -L$(top_builddir)lib $(libc:.$(MAJOR_VERSION)=)
@@ -75,9 +97,10 @@ ifndef PREFIX
 PREFIX = $(DESTDIR)
 endif
 
-# Pull in the user's uClibc configuration
-ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
--include $(top_builddir).config
+ifneq ($(HAVE_SHARED),y)
+libc :=
+interp :=
+ldso :=
 endif
 
 ifndef CROSS
@@ -91,25 +114,9 @@ check_gcc=$(shell \
 check_as=$(shell \
 	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
 	then echo "-Wa,$(1)"; fi)
-
-# Setup some shortcuts so that silent mode is silent like it should be
-ifeq ($(findstring s,$(MAKEFLAGS)),)
-export MAKE_IS_SILENT=n
-SECHO=@echo
-SHELL_SET_X=set -x
-else
-export MAKE_IS_SILENT=y
-SECHO=-@false
-SHELL_SET_X=set +x
-endif
-
-# Make certain these contain a final "/", but no "//"s.
-TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
-TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
-RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
-DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
-KERNEL_SOURCE:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_SOURCE))))))
-export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_SOURCE
+check_ld=$(shell \
+	if $(LD) $(1) -o /dev/null -b binary /dev/null > /dev/null 2>&1; \
+	then echo "$(1)"; fi)
 
 ARFLAGS:=cr
 
@@ -155,6 +162,7 @@ ifeq ($(TARGET_ARCH),arm)
 	CPU_CFLAGS-$(CONFIG_GENERIC_ARM)+=
 	CPU_CFLAGS-$(CONFIG_ARM610)+=-mtune=arm610 -march=armv3
 	CPU_CFLAGS-$(CONFIG_ARM710)+=-mtune=arm710 -march=armv3
+	CPU_CFLAGS-$(CONFIG_ARM7TDMI)+=-mtune=arm7tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM720T)+=-mtune=arm7tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM920T)+=-mtune=arm9tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM922T)+=-mtune=arm9tdmi -march=armv4
@@ -212,8 +220,8 @@ endif
 ifeq ($(TARGET_ARCH),h8300)
 	CPU_LDFLAGS-$(CONFIG_H8300H)+= -ms8300h
 	CPU_LDFLAGS-$(CONFIG_H8S)   += -ms8300s
-	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32 -fsigned-char
-	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32 -fsigned-char
+	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32
+	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32
 endif
 
 ifeq ($(TARGET_ARCH),cris)
@@ -284,18 +292,37 @@ OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
 
 # Add a bunch of extra pedantic annoyingly strict checks
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+ifeq ($(EXTRA_WARNINGS),y)
+XWARNINGS+=-Wnested-externs -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wformat=2
+XWARNINGS+=-Wmissing-prototypes -Wmissing-declarations
+# works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
+#XWARNINGS+=-Wdeclaration-after-statement
+endif
 XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
 CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
 
+SSP_DISABLE_FLAGS ?= $(call check_gcc,-fno-stack-protector,)
+ifeq ($(UCLIBC_BUILD_SSP),y)
+SSP_CFLAGS := $(call check_gcc,-fno-stack-protector-all,)
+SSP_CFLAGS += $(call check_gcc,-fstack-protector,)
+SSP_ALL_CFLAGS ?= $(call check_gcc,-fstack-protector-all,)
+else
+SSP_CFLAGS := $(SSP_DISABLE_FLAGS)
+endif
+
+# Some nice CFLAGS to work with
+CFLAGS := -include $(top_builddir)include/libc-symbols.h \
+	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
+	-fno-builtin -nostdinc -I$(top_builddir)include -I.
+
 LDADD_LIBFLOAT=
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
-# Add -msoft-float to the CPU_FLAGS since ldso and libdl ignore CFLAGS.
 # If -msoft-float isn't supported, we want an error anyway.
 # Hmm... might need to revisit this for arm since it has 2 different
 # soft float encodings.
 ifneq ($(TARGET_ARCH),nios)
 ifneq ($(TARGET_ARCH),nios2)
-    CPU_CFLAGS += -msoft-float
+CFLAGS += -msoft-float
 endif
 endif
 ifeq ($(TARGET_ARCH),arm)
@@ -305,18 +332,16 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 endif
 
-SSP_DISABLE_FLAGS?=$(call check_gcc,-fno-stack-protector,)
-ifeq ($(UCLIBC_BUILD_SSP),y)
-SSP_CFLAGS:=$(call check_gcc,-fno-stack-protector-all,)
-SSP_CFLAGS+=$(call check_gcc,-fstack-protector,)
-SSP_ALL_CFLAGS?=$(call check_gcc,-fstack-protector-all,)
-else
-SSP_CFLAGS:=$(SSP_DISABLE_FLAGS)
+# Make sure "char" behavior is the same everywhere
+CFLAGS += -fsigned-char
+
+# We need this to be checked within libc-symbols.h
+ifneq ($(HAVE_SHARED),y)
+CFLAGS += -DSTATIC
 endif
 
-# Some nice CFLAGS to work with
-CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-fno-builtin -nostdinc -D_LIBC -I$(top_builddir)include -I.
+# only i386 is known to work if compile.S gets -D__ASSEMBLER__
+#CFLAGS += $(call check_gcc,-std=c99,)
 
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 
@@ -330,12 +355,15 @@ endif
 
 LDFLAGS:=$(LDFLAGS_NOSTRIP) -z defs
 ifeq ($(DODEBUG),y)
-    #CFLAGS += -g3
-    CFLAGS += -O0 -g3
-    STRIPTOOL:= true -Since_we_are_debugging
+#CFLAGS += -g3
+CFLAGS += -O0 -g3
 else
-    CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
-    LDFLAGS += -s
+CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
+endif
+ifeq ($(NOSTRIP),y)
+STRIPTOOL := true -Stripping_disabled
+else
+LDFLAGS += -s
 endif
 
 ifeq ($(DOMULTI),y)
@@ -415,10 +443,6 @@ CFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
-endif
-
-ifneq ($(strip $(C_SYMBOL_PREFIX)),"")
-CFLAGS+=-D__SYMBOL_PREFIX=1
 endif
 
 # moved from ldso/{ldso,libdl}

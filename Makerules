@@ -8,16 +8,17 @@
 ifeq ($(HAVE_SHARED),y)
 .LIBPATTERNS: "lib%.so"
 libs: $(lib-so-y) $(lib-a-y)
+$(lib-so-y): $(interp)
 else
 .LIBPATTERNS: "lib%.a"
 libs: $(lib-a-y)
 endif
 objs: all_objs
 
-shared_objs =  $(ld-uClibc-so-y) $(libc-so-y) $(libc-nonshared-y) $(libdl-so-y)
+shared_objs =  $(ldso-y) $(libc-y:.o=.os) $(libc-shared-y) $(libc-nonshared-y) $(libdl-so-y)
 shared_objs += $(libcrypt-so-y) $(libintl-so-y) $(libm-so-y) $(libnsl-so-y) $(libpthread-so-y)
 shared_objs += $(libthread_db-so-y) $(libresolv-so-y) $(librt-so-y) $(libutil-so-y)
-ar_objs =  $(libc-a-y) $(libdl-a-y) $(libcrypt-a-y) $(libintl-a-y) $(libm-a-y) $(libnsl-a-y)
+ar_objs =  $(libc-y) $(libc-static-y) $(libdl-a-y) $(libcrypt-a-y) $(libintl-a-y) $(libm-a-y) $(libnsl-a-y)
 ar_objs += $(libpthread-a-y) $(libthread_db-a-y) $(libresolv-a-y) $(librt-a-y) $(libutil-a-y)
 ifeq ($(DOPIC),y)
 ar_objs := $(ar_objs:.o=.os)
@@ -28,14 +29,23 @@ all_objs: $(sort $(shared_objs) $(ar_objs))
 else
 all_objs: $(ar_objs)
 endif
+$(shared_objs) $(ar_objs): | $(sub_headers)
 
 headers-y: $(headers-y)
+	@true
 
+MAKEFLAGS += --no-print-directory
+SHELL_SET_X := set +x
 ifneq ($(findstring s,$(MAKEFLAGS)),)
+export MAKE_IS_SILENT := y
+SECHO := -@false
 DISP := sil
 Q := @
 else
+export MAKE_IS_SILENT := n
+SECHO := @echo
 ifneq ($(V)$(VERBOSE),)
+SHELL_SET_X := set -x
 DISP := ver
 Q := 
 else
@@ -51,6 +61,7 @@ pur_disp_compile.S = echo "  "AS $(show_objs)
 pur_disp_compile.m = $(pur_disp_compile.c)
 pur_disp_compile-m = echo "  "CC-m $(show_objs)
 pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS) $@
+pur_disp_t_strip   = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
 pur_disp_ld        = echo "  "LD $(1)
 
@@ -59,6 +70,7 @@ sil_disp_compile.S = true
 sil_disp_compile.m = true
 sil_disp_compile-m = true
 sil_disp_strip     = true
+sil_disp_t_strip   = true
 sil_disp_ar        = true
 sil_disp_ld        = true
 
@@ -67,6 +79,7 @@ ver_disp_compile.S = echo $(cmd_compile.S)
 ver_disp_compile.m = echo $(cmd_compile.m)
 ver_disp_compile-m = echo $(cmd_compile-m)
 ver_disp_strip     = echo $(cmd_strip)
+ver_disp_t_strip   = echo $(cmd_t_strip)
 ver_disp_ar        = echo $(cmd_ar)
 ver_disp_ld        = 
 
@@ -75,14 +88,17 @@ disp_compile.S = $($(DISP)_disp_compile.S)
 disp_compile.m = $($(DISP)_disp_compile.m)
 disp_compile-m = $($(DISP)_disp_compile-m)
 disp_strip     = $($(DISP)_disp_strip)
+disp_t_strip   = $($(DISP)_disp_t_strip)
 disp_ar        = $($(DISP)_disp_ar)
 disp_ld        = $($(DISP)_disp_ld)
 
 cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)), $(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))
 cmd_compile.S = $(cmd_compile.c) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
 cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
-cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-multi-y)
+cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@))
+#cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@)) $(CFLAGS-multi-y)
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
+cmd_t_strip   = $(STRIPTOOL) $(STRIP_FLAGS) $@
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
 
 compile.c = @$(disp_compile.c) ; $(cmd_compile.c)
@@ -92,6 +108,7 @@ compile.S = @$(disp_compile.S) ; $(cmd_compile.S)
 compile.m = @$(disp_compile.m) ; $(cmd_compile.m)
 compile-m = @$(disp_compile-m) ; $(cmd_compile-m)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
+do_t_strip= @$(disp_t_strip)   ; $(cmd_t_strip)
 do_ar     = @$(disp_ar)        ; $(cmd_ar)
 
 define compile.u
@@ -115,6 +132,17 @@ define link.so
 	$(Q)$(LN) -sf $(1) $@
 endef
 
+define linkm.so
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
+	@$(disp_ld)
+	$(Q)$(LD) $(LDFLAGS-$(notdir $@)) -soname=$(notdir $@).$(2) \
+		-o $(dir $@)$(1) $(START_FILE-$(notdir $@)) $^ \
+		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
+	$(Q)$(LN) -sf $(1) $@.$(2)
+	$(Q)$(LN) -sf $(1) $@
+endef
+
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
 
@@ -129,17 +157,17 @@ CFLAGS-.oS+=$(PICFLAG) -DSHARED
 %.oS: %.s ; $(compile.S)
 %.E:  %.c ; $(compile.E)
 %.E:  %.S ; $(compile.E)
+%.i:  %.c ; $(compile.E)
+%.i:  %.S ; $(compile.E)
 %.s:  %.c ; $(compile.s)
 %.s:  %.S ; $(compile.s)
 
-$(top_builddir)lib/interp.c:
+$(top_builddir)lib/interp.c: | $(sub_headers)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)echo "/* Force shared libraries to know about the correct library loader */" > $@
 	$(Q)echo "#include <features.h>" >> $@
-	$(Q)echo "#ifdef __HAVE_ELF__" >> $@
 	$(Q)echo "const char __dl_ldso__[] __attribute__ ((section " \
 		"(\".interp\"))) =\""$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)"\";" >> $@
-	$(Q)echo "#endif" >> $@
 
 $(interp): $(top_builddir)lib/interp.c
 	$(compile.c)
@@ -152,13 +180,9 @@ $(libc):
 	@cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(MAJOR_VERSION),%,$(notdir $@))
 
 $(headers_dep):
-	@cd $(top_builddir); $(MAKE) headers
+	$(Q)cd $(top_builddir); $(MAKE) headers
 
-#ifeq ($(HAVE_ELF),y)
-CRT=crt1
-#else
-#CRT=crt0
-#endif
+CRT := crt1
 
 ifeq ($(HAVE_SHARED),y)
 CRTS=$(top_builddir)lib/$(CRT).o $(top_builddir)lib/S$(CRT).o
@@ -166,14 +190,11 @@ else
 CRTS=$(top_builddir)lib/$(CRT).o
 endif
 
-$(top_builddir)lib/$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
+ASFLAGS-$(CRT).o := -DL_$(CRT)
+ASFLAGS-S$(CRT).o := $(PIEFLAG) -DL_S$(CRT)
+$(CRTS): $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
 	$(Q)$(INSTALL) -d $(dir $@)
-	$(compile.S) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
-	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
-
-$(top_builddir)lib/S$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(compile.S) $(PIEFLAG) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
+	$(compile.S)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
@@ -188,7 +209,16 @@ $(CTOR_TARGETS):
 	$(do_ar)
 endif
 
-$(crt-y): $(CRTS) $(CTOR_TARGETS)
+#ifeq ($(TARGET_ARCH),nios)
+#CRTS_COMPAT := $(top_builddir)lib/crt0.o
+#$(CRTS_COMPAT):
+#	ln -fs crt1.o $(top_builddir)lib/crt0.o
+#else
+CRTS_COMPAT :=
+#endif
+
+$(crt-y): $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT)
+$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT): | headers
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)

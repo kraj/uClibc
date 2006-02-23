@@ -15,7 +15,6 @@
 /* Thread termination and joining */
 
 #include <features.h>
-#define __USE_GNU
 #include <errno.h>
 #include <sched.h>
 #include <unistd.h>

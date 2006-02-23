@@ -14,12 +14,7 @@
 
 /* The "thread manager" thread: manages creation and termination of threads */
 
-/* mods for uClibc: getpwd and getpagesize are the syscalls */
-#define __getpid getpid
-#define __getpagesize getpagesize
-
 #include <features.h>
-#define __USE_GNU
 #include <errno.h>
 #include <sched.h>
 #include <stddef.h>
@@ -49,6 +44,8 @@
 # define USE_SELECT
 #endif
 
+libpthread_hidden_proto(waitpid)
+libpthread_hidden_proto(raise)
 
 /* Array of active threads. Entry 0 is reserved for the initial thread. */
 struct pthread_handle_struct __pthread_handles[PTHREAD_THREADS_MAX] =
@@ -107,13 +104,13 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 				 int report_events,
 				 td_thr_events_t *event_maskp);
 static void pthread_handle_free(pthread_t th_id);
-static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode);
+static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode) attribute_noreturn;
 static void pthread_reap_children(void);
 static void pthread_kill_all_threads(int sig, int main_thread_also);
 
 /* The server thread managing requests for thread creation and termination */
 
-int __pthread_manager(void *arg)
+int attribute_noreturn __pthread_manager(void *arg)
 {
   int reqfd = (int) (long int) arg;
 #ifdef USE_SELECT
@@ -270,7 +267,7 @@ int __pthread_manager_event(void *arg)
 
 /* Process creation */
 static int
-__attribute__ ((noreturn))
+attribute_noreturn
 pthread_start_thread(void *arg)
 {
   pthread_descr self = (pthread_descr) arg;
@@ -283,7 +280,7 @@ pthread_start_thread(void *arg)
   PDEBUG("\n");
   /* Make sure our pid field is initialized, just in case we get there
      before our father has initialized it. */
-  THREAD_SETMEM(self, p_pid, __getpid());
+  THREAD_SETMEM(self, p_pid, getpid());
   /* Initial signal mask is that of the creating thread. (Otherwise,
      we'd just inherit the mask of the thread manager.) */
   sigprocmask(SIG_SETMASK, &self->p_start_args.mask, NULL);
@@ -318,7 +315,7 @@ pthread_start_thread(void *arg)
 }
 
 static int
-__attribute__ ((noreturn))
+attribute_noreturn
 pthread_start_thread_event(void *arg)
 {
   pthread_descr self = (pthread_descr) arg;
@@ -328,7 +325,7 @@ pthread_start_thread_event(void *arg)
 #endif
   /* Make sure our pid field is initialized, just in case we get there
      before our father has initialized it. */
-  THREAD_SETMEM(self, p_pid, __getpid());
+  THREAD_SETMEM(self, p_pid, getpid());
   /* Get the lock the manager will free once all is correctly set up.  */
   __pthread_lock (THREAD_GETMEM(self, p_lock), NULL);
   /* Free it immediately.  */
@@ -363,7 +360,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
     }
   else
     {
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
       stacksize = STACK_SIZE - pagesize;
       if (attr != NULL)
         stacksize = MIN (stacksize, roundup(attr->__stacksize, pagesize));
@@ -453,7 +450,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
       /* on non-MMU systems we always have non-standard stack frames */
       __pthread_nonstandard_stacks = 1;
       
-#endif /* __ARCH_HAS_MMU__ */
+#endif /* __ARCH_USE_MMU__ */
     }
 
   /* Clear the thread data structure.  */
@@ -478,7 +475,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   pthread_t new_thread_id;
   char *guardaddr = NULL;
   size_t guardsize = 0;
-  int pagesize = __getpagesize();
+  int pagesize = getpagesize();
   int saved_errno = 0;
 
   /* First check whether we have to change the policy and if yes, whether
@@ -498,7 +495,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
                                  &new_thread, &new_thread_bottom,
                                  &guardaddr, &guardsize) == 0)
         break;
-#ifndef __ARCH_HAS_MMU__
+#ifndef __ARCH_USE_MMU__
       else
         /* When there is MMU, mmap () is used to allocate the stack. If one
          * segment is already mapped, we should continue to see if we can
@@ -635,14 +632,14 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
     /* Free the stack if we allocated it */
     if (attr == NULL || !attr->__stackaddr_set)
       {
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 	if (new_thread->p_guardsize != 0)
 	  munmap(new_thread->p_guardaddr, new_thread->p_guardsize);
 	munmap((caddr_t)((char *)(new_thread+1) - INITIAL_STACK_SIZE),
 	       INITIAL_STACK_SIZE);
 #else
 	free(new_thread_bottom);
-#endif /* __ARCH_HAS_MMU__ */
+#endif /* __ARCH_USE_MMU__ */
       }
     __pthread_handles[sseg].h_descr = NULL;
     __pthread_handles[sseg].h_bottom = NULL;
@@ -719,7 +716,7 @@ static void pthread_free(pthread_descr th)
 
   /* If initial thread, nothing to free */
   if (th == &__pthread_initial_thread) return;
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
   if (!th->p_userstack)
     {
       /* Free the stack and thread descriptor area */
@@ -732,7 +729,7 @@ static void pthread_free(pthread_descr th)
   if (!th->p_userstack) {
       free(h_bottom_save);
   }
-#endif /* __ARCH_HAS_MMU__ */
+#endif /* __ARCH_USE_MMU__ */
 }
 
 /* Handle threads that have exited */

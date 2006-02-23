@@ -15,7 +15,6 @@
 /* Semaphores a la POSIX 1003.1b */
 
 #include <features.h>
-#define __USE_GNU
 #include <errno.h>
 #include "pthread.h"
 #include "semaphore.h"
@@ -24,6 +23,7 @@
 #include "restart.h"
 #include "queue.h"
 
+int __new_sem_init(sem_t *sem, int pshared, unsigned int value);
 int __new_sem_init(sem_t *sem, int pshared, unsigned int value)
 {
   if (value > SEM_VALUE_MAX) {
@@ -56,6 +56,7 @@ static int new_sem_extricate_func(void *obj, pthread_descr th)
   return did_remove;
 }
 
+int __new_sem_wait(sem_t * sem);
 int __new_sem_wait(sem_t * sem)
 {
   volatile pthread_descr self = thread_self();
@@ -118,6 +119,7 @@ int __new_sem_wait(sem_t * sem)
   return 0;
 }
 
+int __new_sem_trywait(sem_t * sem);
 int __new_sem_trywait(sem_t * sem)
 {
   int retval;
@@ -134,6 +136,7 @@ int __new_sem_trywait(sem_t * sem)
   return retval;
 }
 
+int __new_sem_post(sem_t * sem);
 int __new_sem_post(sem_t * sem)
 {
   pthread_descr self = thread_self();
@@ -175,12 +178,14 @@ int __new_sem_post(sem_t * sem)
   return 0;
 }
 
+int __new_sem_getvalue(sem_t * sem, int * sval);
 int __new_sem_getvalue(sem_t * sem, int * sval)
 {
   *sval = sem->__sem_value;
   return 0;
 }
 
+int __new_sem_destroy(sem_t * sem);
 int __new_sem_destroy(sem_t * sem)
 {
   if (sem->__sem_waiting != NULL) {

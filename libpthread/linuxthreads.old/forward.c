@@ -17,12 +17,14 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <dlfcn.h>
-#include "internals.h"
+#include <features.h>
 #include <stdlib.h>
+#include <dlfcn.h>
 
-#include <libc-internal.h>
+/* psm: keep this before internals.h */
+libc_hidden_proto(exit)
 
+#include "internals.h"
 
 /* Pointers to the libc functions.  */
 struct pthread_functions __libc_pthread_functions attribute_hidden;
@@ -101,8 +103,8 @@ FORWARD (pthread_equal, (pthread_t thread1, pthread_t thread2),
 
 
 /* Use an alias to avoid warning, as pthread_exit is declared noreturn.  */
-FORWARD2 (__pthread_exit, void, (void *retval), (retval), __exit (EXIT_SUCCESS))
-strong_alias (__pthread_exit, pthread_exit);
+FORWARD2 (__pthread_exit, void, (void *retval), (retval), exit (EXIT_SUCCESS))
+strong_alias (__pthread_exit, pthread_exit)
 
 
 FORWARD (pthread_getschedparam,
@@ -118,16 +120,16 @@ FORWARD (pthread_mutex_destroy, (pthread_mutex_t *mutex), (mutex), 0)
 FORWARD (pthread_mutex_init,
 	 (pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr),
 	 (mutex, mutexattr), 0)
-hidden_strong_alias(pthread_mutex_init, __pthread_mutex_init)
+strong_alias(pthread_mutex_init, __pthread_mutex_init)
 
 FORWARD (pthread_mutex_lock, (pthread_mutex_t *mutex), (mutex), 0)
-hidden_strong_alias(pthread_mutex_lock, __pthread_mutex_lock)
+strong_alias(pthread_mutex_lock, __pthread_mutex_lock)
 
 FORWARD (pthread_mutex_trylock, (pthread_mutex_t *mutex), (mutex), 0)
-hidden_strong_alias(pthread_mutex_trylock, __pthread_mutex_trylock)
+strong_alias(pthread_mutex_trylock, __pthread_mutex_trylock)
 
 FORWARD (pthread_mutex_unlock, (pthread_mutex_t *mutex), (mutex), 0)
-hidden_strong_alias(pthread_mutex_unlock, __pthread_mutex_unlock)
+strong_alias(pthread_mutex_unlock, __pthread_mutex_unlock)
 
 FORWARD2 (pthread_self, pthread_t, (void), (), return 0)
 

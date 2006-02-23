@@ -21,11 +21,8 @@
 
 /* These functions are not declared anywhere since they shouldn't be
    used at another place but here.  */
-extern void __libc_siglongjmp (sigjmp_buf env, int val)
-     __attribute__ ((noreturn));
-extern void __libc_longjmp (sigjmp_buf env, int val)
-     __attribute__ ((noreturn));
-
+extern __typeof(siglongjmp) __libc_siglongjmp attribute_noreturn;
+extern __typeof(longjmp) __libc_longjmp attribute_noreturn;
 
 static void pthread_cleanup_upto(__jmp_buf target)
 {
@@ -42,14 +39,14 @@ static void pthread_cleanup_upto(__jmp_buf target)
     THREAD_SETMEM(self, p_in_sighandler, NULL);
 }
 
-void siglongjmp(sigjmp_buf env, int val)
+void attribute_noreturn siglongjmp(sigjmp_buf env, int val)
 {
   pthread_cleanup_upto(env->__jmpbuf);
   __libc_siglongjmp(env, val);
 }
 
-void longjmp(jmp_buf env, int val)
+void attribute_noreturn longjmp(jmp_buf env, int val)
 {
   pthread_cleanup_upto(env->__jmpbuf);
-  __libc_siglongjmp(env, val);
+  __libc_longjmp(env, val);
 }

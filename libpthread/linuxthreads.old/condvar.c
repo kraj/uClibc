@@ -96,7 +96,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
     pthread_exit(PTHREAD_CANCELED);
   }
 
-  pthread_mutex_unlock(mutex);
+  __pthread_mutex_unlock(mutex);
 
   spurious_wakeup_count = 0;
   while (1)
@@ -121,7 +121,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
   if (THREAD_GETMEM(self, p_woken_by_cancel)
       && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE) {
     THREAD_SETMEM(self, p_woken_by_cancel, 0);
-    pthread_mutex_lock(mutex);
+    __pthread_mutex_lock(mutex);
     pthread_exit(PTHREAD_CANCELED);
   }
 
@@ -129,7 +129,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
   while (spurious_wakeup_count--)
     restart(self);
 
-  pthread_mutex_lock(mutex);
+  __pthread_mutex_lock(mutex);
   return 0;
 }
 
@@ -171,7 +171,7 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
     pthread_exit(PTHREAD_CANCELED);
   }
 
-  pthread_mutex_unlock(mutex);
+  __pthread_mutex_unlock(mutex);
 
   spurious_wakeup_count = 0;
   while (1)
@@ -188,7 +188,7 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
 
 	if (was_on_queue) {
 	  __pthread_set_own_extricate_if(self, 0);
-	  pthread_mutex_lock(mutex);
+	  __pthread_mutex_lock(mutex);
 	  return ETIMEDOUT;
 	}
 
@@ -215,7 +215,7 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
   if (THREAD_GETMEM(self, p_woken_by_cancel)
       && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE) {
     THREAD_SETMEM(self, p_woken_by_cancel, 0);
-    pthread_mutex_lock(mutex);
+    __pthread_mutex_lock(mutex);
     pthread_exit(PTHREAD_CANCELED);
   }
 
@@ -223,7 +223,7 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
   while (spurious_wakeup_count--)
     restart(self);
 
-  pthread_mutex_lock(mutex);
+  __pthread_mutex_lock(mutex);
   return 0;
 }
 

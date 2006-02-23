@@ -26,13 +26,15 @@
 #include "spinlock.h"
 #include "restart.h"
 
+libpthread_hidden_proto(nanosleep)
+
 static void __pthread_acquire(int * spinlock);
 
 static inline void __pthread_release(int * spinlock)
 {
   WRITE_MEMORY_BARRIER();
   *spinlock = __LT_SPINLOCK_INIT;
-  __asm __volatile ("" : "=m" (*spinlock) : "m" (*spinlock));
+  __asm __volatile__ ("" : "=m" (*spinlock) : "m" (*spinlock));
 }
 
 

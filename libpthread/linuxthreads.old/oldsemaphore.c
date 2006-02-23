@@ -53,6 +53,7 @@ static inline int sem_compare_and_swap(old_sem_t *sem, long oldval, long newval)
 
 static void sem_restart_list(pthread_descr waiting);
 
+int __old_sem_init(old_sem_t *sem, int pshared, unsigned int value);
 int __old_sem_init(old_sem_t *sem, int pshared, unsigned int value)
 {
     if (value > SEM_VALUE_MAX) {
@@ -77,6 +78,7 @@ static int old_sem_extricate_func(void *obj attribute_unused, pthread_descr th a
     return 1;
 }
 
+int __old_sem_wait(old_sem_t * sem);
 int __old_sem_wait(old_sem_t * sem)
 {
     long oldstatus, newstatus;
@@ -139,6 +141,7 @@ int __old_sem_wait(old_sem_t * sem)
     }
 }
 
+int __old_sem_trywait(old_sem_t * sem);
 int __old_sem_trywait(old_sem_t * sem)
 {
   long oldstatus, newstatus;
@@ -155,6 +158,7 @@ int __old_sem_trywait(old_sem_t * sem)
   return 0;
 }
 
+int __old_sem_post(old_sem_t * sem);
 int __old_sem_post(old_sem_t * sem)
 {
   long oldstatus, newstatus;
@@ -178,6 +182,7 @@ int __old_sem_post(old_sem_t * sem)
   return 0;
 }
 
+int __old_sem_getvalue(old_sem_t * sem, int * sval);
 int __old_sem_getvalue(old_sem_t * sem, int * sval)
 {
   long status = sem->sem_status;
@@ -188,6 +193,7 @@ int __old_sem_getvalue(old_sem_t * sem, int * sval)
   return 0;
 }
 
+int __old_sem_destroy(old_sem_t * sem);
 int __old_sem_destroy(old_sem_t * sem)
 {
   if ((sem->sem_status & 1) == 0) {
