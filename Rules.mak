@@ -121,6 +121,24 @@ check_ld=$(shell \
 ARFLAGS:=cr
 
 OPTIMIZATION:=
+# Use '-Os' optimization if available, else use -O2, allow Config to override
+OPTIMIZATION+=$(call check_gcc,-Os,-O2)
+# Use the gcc 3.4 -funit-at-a-time optimization when available
+OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
+
+GCC_MAJOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1)
+#GCC_MINOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 2)
+
+ifeq ($(GCC_MAJOR_VER),4)
+# shrinks code, results are from 4.0.2
+# 0.36%
+OPTIMIZATION+=$(call check_gcc,-fno-tree-loop-optimize,)
+# 0.34%
+OPTIMIZATION+=$(call check_gcc,-fno-tree-dominator-opts,)
+# 0.1%
+OPTIMIZATION+=$(call check_gcc,-fno-strength-reduce,)
+endif
+
 PICFLAG:=-fPIC
 PIEFLAG_NAME:=-fPIE
 
@@ -285,11 +303,6 @@ export ASNEEDED:=$(shell (LD_TMP=$(mktemp LD_XXXXXX) ; echo "GROUP ( AS_NEEDED (
 endif
 endif
 
-# Use '-Os' optimization if available, else use -O2, allow Config to override
-OPTIMIZATION+=$(call check_gcc,-Os,-O2)
-# Use the gcc 3.4 -funit-at-a-time optimization when available
-OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
-
 # Add a bunch of extra pedantic annoyingly strict checks
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 ifeq ($(EXTRA_WARNINGS),y)
@@ -372,8 +385,7 @@ ifeq ($(DOMULTI),y)
 # gcc-3.4.x supports it, but does not need and support --combine. though fails on many sources
 # gcc-4.0.x supports it, supports the --combine flag, but does not need it
 # gcc-4.1(200506xx) supports it, but needs the --combine flag, else libs are useless
-GCC_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1)
-ifeq ($(GCC_VER),3)
+ifeq ($(GCC_MAJOR_VER),3)
 DOMULTI:=n
 else
 CFLAGS+=$(call check_gcc,--combine,)
