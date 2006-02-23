@@ -9,6 +9,8 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <sys/syscall.h>
+#include <bits/uClibc_page.h>
 
 #ifdef __UCLIBC_HAS_LFS__
 
