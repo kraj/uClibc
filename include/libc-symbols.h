@@ -315,7 +315,7 @@
    }
    libc_hidden_weak (foo)
 
-   Simularly for global data. If references to foo within libc.so should
+   Similarly for global data. If references to foo within libc.so should
    always go to foo defined in libc.so, then in include/foo.h you add:
 
    libc_hidden_proto (foo)
