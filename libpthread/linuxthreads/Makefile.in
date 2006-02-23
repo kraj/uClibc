@@ -6,7 +6,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-linuxthreads := -DNOT_IN_libc -DIS_IN_libpthread $(SSP_ALL_CFLAGS)
+CFLAGS-dir_linuxthreads := -DNOT_IN_libc -DIS_IN_libpthread
+CFLAGS-linuxthreads := $(CFLAGS-dir_linuxthreads) $(SSP_ALL_CFLAGS)
 
 CFLAGS-libpthread/linuxthreads/sysdeps/$(TARGET_ARCH)/ := $(CFLAGS-linuxthreads)
 CFLAGS-libpthread/linuxthreads/sysdeps/unix/sysv/linux/ := $(CFLAGS-linuxthreads)
@@ -57,10 +58,10 @@ libpthread_OBJ := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpt
 #
 # Stuff that goes into libc.so, not libpthread.so
 #
-#CFLAGS-alloca_cutoff.c := -DIS_IN_libc
-CFLAGS-forward.c := -DIS_IN_libc
-CFLAGS-libc-cancellation.c := -DIS_IN_libc
-CFLAGS-libc_pthread_init.c := -DIS_IN_libc
+#CFLAGS-OMIT-alloca_cutoff.c := $(CFLAGS-dir_linuxthreads)
+CFLAGS-OMIT-forward.c := $(CFLAGS-dir_linuxthreads)
+CFLAGS-OMIT-libc-cancellation.c := $(CFLAGS-dir_linuxthreads)
+CFLAGS-OMIT-libc_pthread_init.c := $(CFLAGS-dir_linuxthreads)
 libpthread_libc_CSRC := \
 	forward.c libc-cancellation.c libc_pthread_init.c # alloca_cutoff.c
 libpthread_libc_OBJ  := $(patsubst %.c, $(libpthread_OUT)/%.o,$(libpthread_libc_CSRC))

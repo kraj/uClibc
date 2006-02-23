@@ -55,11 +55,6 @@
 # define IS_IN_libc 1
 #endif
 
-/* need this to unset defaults in libpthread for files that get added to libc */
-#ifdef IS_IN_libc
-# undef NOT_IN_libc
-#endif
-
 #ifdef __UCLIBC_NO_UNDERSCORES__
 # define NO_UNDERSCORES
 #else

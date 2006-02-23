@@ -6,7 +6,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-linuxthreads.old := -DNOT_IN_libc -DIS_IN_libpthread $(SSP_ALL_CFLAGS)
+CFLAGS-dir_linuxthreads.old := -DNOT_IN_libc -DIS_IN_libpthread
+CFLAGS-linuxthreads.old := $(CFLAGS-dir_linuxthreads.old) $(SSP_ALL_CFLAGS)
 
 CFLAGS-libpthread/linuxthreads.old/sysdeps/$(TARGET_ARCH)/ := $(CFLAGS-linuxthreads.old)
 
@@ -56,8 +57,8 @@ libpthread_OBJ := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpt
 #
 # Stuff that goes into libc.so, not libpthread.so
 #
-CFLAGS-forward.c := -DIS_IN_libc
-CFLAGS-libc_pthread_init.c := -DIS_IN_libc
+CFLAGS-OMIT-forward.c := $(CFLAGS-dir_linuxthreads.old)
+CFLAGS-OMIT-libc_pthread_init.c := $(CFLAGS-dir_linuxthreads.old)
 libpthread_libc_CSRC := forward.c libc_pthread_init.c
 libpthread_libc_OBJ  := $(patsubst %.c, $(libpthread_OUT)/%.o,$(libpthread_libc_CSRC))
 libc-static-y += $(libpthread_OUT)/libc_pthread_init.o
