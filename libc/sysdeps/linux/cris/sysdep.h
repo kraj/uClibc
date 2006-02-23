@@ -40,7 +40,7 @@
 #define END(sym)
 #endif
 
-#ifdef	__ASSEMBLER__
+#ifdef __ASSEMBLER__
 
 /* Syntactic details of assembly-code.  */
 
@@ -60,15 +60,15 @@
    GOT register.  */
 #ifdef __PIC__
 #define PLTJUMP(_x) \
-  add.d	C_SYMBOL_NAME (_x):PLT,$pc
+  add.d C_SYMBOL_NAME (_x):PLT,$pc
 
 #define PLTCALL(_x) \
   jsr [$r0+C_SYMBOL_NAME (_x):GOTPLT16]
 
 #define SETUP_PIC \
-  push	$r0						@ \
+  push $r0						@ \
   move.d $pc,$r0					@ \
-  sub.d	.:GOTOFF,$r0
+  sub.d .:GOTOFF,$r0
 
 #define TEARDOWN_PIC pop $r0
 #else
@@ -79,7 +79,7 @@
 #endif
 
 /* Define an entry point visible from C.  */
-#define	ENTRY(name) \
+#define ENTRY(name) \
   .text							@ \
   ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (name) 		@ \
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME (name), function)	@ \
@@ -87,24 +87,24 @@
   C_LABEL(name)						@ \
   CALL_MCOUNT
 
-#undef	END
+#undef END
 #define END(name) \
   ASM_SIZE_DIRECTIVE (C_SYMBOL_NAME (name))
 
 #define PSEUDO(name, syscall_name, args) \
-  ENTRY (name)                      @ \
-  DOARGS_##args                     @ \
-  movu.w SYS_ify (syscall_name),$r9         @ \
-  break 13                      @ \
-  cmps.w -4096,$r10                 @ \
-  bhs   0f                      @ \
-  nop                           @ \
+  ENTRY (name)						@ \
+  DOARGS_##args						@ \
+  movu.w SYS_ify (syscall_name),$r9			@ \
+  break 13						@ \
+  cmps.w -4096,$r10					@ \
+  bhs   0f						@ \
+  nop							@ \
   UNDOARGS_return_##args
 
 #define PSEUDO_END(name) \
-0:                          @ \
-  SETUP_PIC                     @ \
-  PLTJUMP (__syscall_error)               @ \
+0:							@ \
+  SETUP_PIC						@ \
+  PLTJUMP (__syscall_error)				@ \
   END (name)
 
 /* If compiled for profiling, do nothing */
