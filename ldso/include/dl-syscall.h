@@ -20,7 +20,7 @@
 #include <bits/kernel_types.h>
 
 /* _dl_open() parameters */
-#define O_RDONLY        0x0000
+#define O_RDONLY	     00
 #define O_WRONLY	     01
 #define O_RDWR		     02
 #define O_CREAT		   0100
@@ -60,21 +60,24 @@ static inline _syscall1(void, _dl_exit, int, status);
 static inline _syscall1(int, _dl_close, int, fd);
 
 #define __NR__dl_open __NR_open
-static inline _syscall3(int, _dl_open, const char *, fn, int, flags, __kernel_mode_t, mode);
+static inline _syscall3(int, _dl_open, const char *, fn, int, flags,
+                        __kernel_mode_t, mode);
 
 #define __NR__dl_write __NR_write
 static inline _syscall3(unsigned long, _dl_write, int, fd,
-	    const void *, buf, unsigned long, count);
+                        const void *, buf, unsigned long, count);
 
 #define __NR__dl_read __NR_read
 static inline _syscall3(unsigned long, _dl_read, int, fd,
-	    const void *, buf, unsigned long, count);
+                        const void *, buf, unsigned long, count);
 
 #define __NR__dl_mprotect __NR_mprotect
-static inline _syscall3(int, _dl_mprotect, const void *, addr, unsigned long, len, int, prot);
+static inline _syscall3(int, _dl_mprotect, const void *, addr,
+                        unsigned long, len, int, prot);
 
 #define __NR__dl_stat __NR_stat
-static inline _syscall2(int, _dl_stat, const char *, file_name, struct stat *, buf);
+static inline _syscall2(int, _dl_stat, const char *, file_name,
+                        struct stat *, buf);
 
 #define __NR__dl_fstat __NR_fstat
 static inline _syscall2(int, _dl_fstat, int, fd, struct stat *, buf);
@@ -113,17 +116,19 @@ static inline _syscall0(gid_t, _dl_getegid);
 static inline _syscall0(gid_t, _dl_getpid);
 
 #define __NR__dl_readlink __NR_readlink
-static inline _syscall3(int, _dl_readlink, const char *, path, char *, buf, size_t, bufsiz);
+static inline _syscall3(int, _dl_readlink, const char *, path, char *, buf,
+                        size_t, bufsiz);
 
 #ifdef __UCLIBC_HAS_SSP__
 #include <sys/time.h>
 #define __NR__dl_gettimeofday __NR_gettimeofday
-static inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv, struct timezone *, tz);
+static inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv,
+                        struct timezone *, tz);
 #endif
 
 
 /* handle all the fun mmap intricacies */
-#if defined(__UCLIBC_MMAP_HAS_6_ARGS__) && defined(__NR_mmap) || !defined(__NR_mmap2)
+#if (defined(__UCLIBC_MMAP_HAS_6_ARGS__) && defined(__NR_mmap)) || !defined(__NR_mmap2)
 # define _dl_MAX_ERRNO 4096
 # define _dl_mmap_check_error(__res) \
 	(((long)__res) < 0 && ((long)__res) >= -_dl_MAX_ERRNO)
@@ -137,23 +142,23 @@ static inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv, struct time
 
 # define __NR__dl_mmap __NR_mmap
 static inline _syscall6(void *, _dl_mmap, void *, start, size_t, length,
-		int, prot, int, flags, int, fd, off_t, offset);
+                        int, prot, int, flags, int, fd, off_t, offset);
 
 /* then try mmap2() */
 #elif defined(__NR_mmap2)
 
 # define __NR___syscall_mmap2       __NR_mmap2
-static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
-		size_t, len, int, prot, int, flags, int, fd, off_t, offset);
+static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr, size_t, len,
+                        int, prot, int, flags, int, fd, off_t, offset);
 /* always 12, even on architectures where PAGE_SHIFT != 12 */
 # define MMAP2_PAGE_SHIFT 12
 static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
-		int flags, int fd, unsigned long offset)
+                              int flags, int fd, unsigned long offset)
 {
-    if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1))
-	return MAP_FAILED;
-    return(__syscall_mmap2(addr, size, prot, flags,
-		fd, (off_t) (offset >> MMAP2_PAGE_SHIFT)));
+	if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1))
+		return MAP_FAILED;
+	return __syscall_mmap2(addr, size, prot, flags,
+	                       fd, (off_t) (offset >> MMAP2_PAGE_SHIFT));
 }
 
 /* finally, fall back to mmap(), syscall1() style */
@@ -162,7 +167,7 @@ static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 # define __NR__dl_mmap_real __NR_mmap
 static inline _syscall1(void *, _dl_mmap_real, unsigned long *, buffer);
 static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
-		int flags, int fd, unsigned long offset)
+                              int flags, int fd, unsigned long offset)
 {
 	unsigned long buffer[6];
 
