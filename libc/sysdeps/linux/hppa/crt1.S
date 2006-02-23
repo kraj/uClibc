@@ -37,8 +37,13 @@
 	.import main, code
 	.import $global$, data
 	.import __uClibc_main, code
+#if defined(__UCLIBC_CTOR_DTOR__)
 	.import _fini, code
 	.import _init, code
+#else
+	.weak _fini
+	.weak _init
+#endif
 
 	/* Have the linker create plabel words
            so we get PLABEL32 relocs and not 21/14 */
