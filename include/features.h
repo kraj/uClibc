@@ -372,7 +372,7 @@
 #ifndef __UCLIBC_HAS_LFS__
 
 /* If uClibc was built without large file support, output an error if
- * and 64-bit file offsets were requested, output an error.
+ * 64-bit file offsets were requested.
  * NOTE: This is probably incorrect on a 64-bit arch... */
 # ifdef __USE_FILE_OFFSET64
 #  error It appears you have defined _FILE_OFFSET_BITS=64.  Unfortunately, \
