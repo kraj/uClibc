@@ -34,32 +34,61 @@
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #include <limits.h>
+/* Work around gcc's refusal to create aliases. 
+ * TODO: Add in a define to disable the aliases? */
+
+#if UINT_MAX == ULONG_MAX
+#ifdef L_labs
+#define abs __ignore_abs
+#endif
+#ifdef L_atol
+#define atoi __ignore_atoi
+#endif
+#endif
+#if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+#ifdef L_labs
+#define llabs __ignore_llabs
+#endif
+#ifdef L_atol
+#define atoll __ignore_atoll
+#endif
+#ifdef L_strtol
+#define strtoll __ignore_strtoll
+#endif
+#ifdef L_strtoul
+#define strtoull __ignore_strtoull
+#endif
+#ifdef L_wcstol
+#define wcstoll __ignore_wcstoll
+#endif
+#ifdef L_wcstoul
+#define wcstoull __ignore_wcstoull
+#endif
+#ifdef strtol_l
+#define strtoll_l __ignore_strtoll_l
+#endif
+#ifdef L_strtoul_l
+#define strtoull_l __ignore_strtoull_l
+#endif
+#ifdef L_wcstol_l
+#define wcstoll_l __ignore_wcstoll_l
+#endif
+#ifdef L_wcstoul_l
+#define wcstoull_l __ignore_wcstoull_l
+#endif
+#endif
+#if defined(ULLONG_MAX) && (ULLONG_MAX == UINTMAX_MAX)
+#if defined L_labs || defined L_llabs
+#define imaxabs __ignore_imaxabs
+#endif
+#endif
+
 #include <stdint.h>
 #include <inttypes.h>
 #include <ctype.h>
 #include <errno.h>
 #include <assert.h>
 #include <unistd.h>
-
-/* Work around gcc's refusal to create aliases. 
- * TODO: Add in a define to disable the aliases? */
-
-#if UINT_MAX == ULONG_MAX
-#define atoi __ignore_atoi
-#define abs __ignore_abs
-#endif
-#if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-#define llabs __ignore_llabs
-#define atoll __ignore_atoll
-#define strtoll __ignore_strtoll
-#define strtoull __ignore_strtoull
-#define wcstoll __ignore_wcstoll
-#define wcstoull __ignore_wcstoull
-#define strtoll_l __ignore_strtoll_l
-#define strtoull_l __ignore_strtoull_l
-#define wcstoll_l __ignore_wcstoll_l
-#define wcstoull_l __ignore_wcstoull_l
-#endif
 
 #include <stdlib.h>
 #include <locale.h>
@@ -112,23 +141,6 @@ libc_hidden_proto(__global_locale)
 #endif
 
 #endif /* __UCLIBC_HAS_LOCALE__ */
-
-#if UINT_MAX == ULONG_MAX
-#undef atoi
-#undef abs
-#endif
-#if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-#undef llabs
-#undef atoll
-#undef strtoll
-#undef strtoull
-#undef wcstoll
-#undef wcstoull
-#undef strtoll_l
-#undef strtoull_l
-#undef wcstoll_l
-#undef wcstoull_l
-#endif /* __UCLIBC_HAS_WCHAR__ */
 
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_XLOCALE__
@@ -217,14 +229,20 @@ long int labs(long int j)
 }
 
 #if UINT_MAX == ULONG_MAX
+#undef abs
+extern __typeof(labs) abs;
 strong_alias(labs,abs)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+#undef llabs
+extern __typeof(labs) llabs;
 strong_alias(labs,llabs)
 #endif
 
 #if ULONG_MAX == UINTMAX_MAX
+#undef imaxabs
+extern __typeof(labs) imaxabs;
 strong_alias(labs,imaxabs)
 #endif
 
@@ -240,6 +258,8 @@ long long int llabs(long long int j)
 }
 
 #if (ULLONG_MAX == UINTMAX_MAX)
+#undef imaxabs
+extern __typeof(llabs) imaxabs;
 strong_alias(llabs,imaxabs)
 #endif
 
@@ -276,15 +296,16 @@ long atol(const char *nptr)
 libc_hidden_def(atol)
 
 #if UINT_MAX == ULONG_MAX
-/* psm: need to redefine atoi here */
 #undef atoi
-extern long int atoi (__const char *__nptr) __THROW __attribute_pure__ __nonnull ((1)) __wur;
+extern __typeof(atol) atoi;
 libc_hidden_proto(atoi)
 strong_alias(atol,atoi)
 libc_hidden_def(atoi)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+#undef atoll
+extern __typeof(atol) atoll;
 strong_alias(atol,atoll)
 #endif
 
@@ -320,6 +341,7 @@ strong_alias(strtol,strtoimax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+#undef __XL_NPP(strtoll)
 extern __typeof(strtol) __XL_NPP(strtoll);
 libc_hidden_proto(__XL_NPP(strtoll))
 strong_alias(__XL_NPP(strtol),__XL_NPP(strtoll))
@@ -369,6 +391,7 @@ strong_alias(strtoul,strtoumax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+#undef __XL_NPP(strtoull)
 extern __typeof(strtoul) __XL_NPP(strtoull);
 libc_hidden_proto(__XL_NPP(strtoull))
 strong_alias(__XL_NPP(strtoul),__XL_NPP(strtoull))
@@ -1027,6 +1050,7 @@ strong_alias(wcstol,wcstoimax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+#undef __XL_NPP(wcstoll)
 extern __typeof(wcstol) __XL_NPP(wcstoll);
 libc_hidden_proto(__XL_NPP(wcstoll))
 strong_alias(__XL_NPP(wcstol),__XL_NPP(wcstoll))
@@ -1076,6 +1100,7 @@ strong_alias(wcstoul,wcstoumax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+#undef __XL_NPP(wcstoull)
 extern __typeof(wcstoul) __XL_NPP(wcstoull);
 libc_hidden_proto(__XL_NPP(wcstoull))
 strong_alias(__XL_NPP(wcstoul),__XL_NPP(wcstoull))
