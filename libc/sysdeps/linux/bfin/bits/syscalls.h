@@ -139,8 +139,8 @@ type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5) {	\
 __syscall_return(type,__res);						\
 }
 
-#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5)	\
-type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5) {	\
+#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6)	\
+type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6) {	\
   long __res;								\
   __asm__ __volatile__ (						\
   "[--sp] = r5;\n\t"                                                    \
