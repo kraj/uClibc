@@ -341,7 +341,11 @@ strong_alias(strtol,strtoimax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-#undef __XL_NPP(strtoll)
+#ifdef L_strtol_l
+#undef strtoll_l
+#else
+#undef strtoll
+#endif
 extern __typeof(strtol) __XL_NPP(strtoll);
 libc_hidden_proto(__XL_NPP(strtoll))
 strong_alias(__XL_NPP(strtol),__XL_NPP(strtoll))
@@ -391,7 +395,11 @@ strong_alias(strtoul,strtoumax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-#undef __XL_NPP(strtoull)
+#ifdef L_strtoul_l
+#undef strtoull_l
+#else
+#undef strtoull
+#endif
 extern __typeof(strtoul) __XL_NPP(strtoull);
 libc_hidden_proto(__XL_NPP(strtoull))
 strong_alias(__XL_NPP(strtoul),__XL_NPP(strtoull))
@@ -1050,7 +1058,11 @@ strong_alias(wcstol,wcstoimax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-#undef __XL_NPP(wcstoll)
+#ifdef L_wcstol_l
+#undef wcstoll_l
+#else
+#undef wcstoll
+#endif
 extern __typeof(wcstol) __XL_NPP(wcstoll);
 libc_hidden_proto(__XL_NPP(wcstoll))
 strong_alias(__XL_NPP(wcstol),__XL_NPP(wcstoll))
@@ -1100,7 +1112,11 @@ strong_alias(wcstoul,wcstoumax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-#undef __XL_NPP(wcstoull)
+#ifdef L_wcstoul_l
+#undef wcstoull_l
+#else
+#undef wcstoull
+#endif
 extern __typeof(wcstoul) __XL_NPP(wcstoull);
 libc_hidden_proto(__XL_NPP(wcstoull))
 strong_alias(__XL_NPP(wcstoul),__XL_NPP(wcstoull))
