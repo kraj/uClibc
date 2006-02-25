@@ -6,15 +6,12 @@
 config TARGET_ARCH
 	default "i960"
 
-config HAVE_ELF
-	bool
-	select ARCH_HAS_NO_MMU
-	select HAS_NO_THREADS
-	default n
-
-config ARCH_SUPPORTS_LITTLE_ENDIAN
+config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
+	select ARCH_LITTLE_ENDIAN
+	select ARCH_HAS_NO_MMU
+	select HAS_NO_THREADS
 
 config ARCH_CFLAGS
 	string
@@ -22,7 +19,3 @@ config ARCH_CFLAGS
 
 config LIBGCC_CFLAGS
 	string
-	
-config ARCH_HAS_C_SYMBOL_PREFIX
-	bool
-	default y

@@ -6,27 +6,16 @@
 config TARGET_ARCH
 	default "sh"
 
-config HAVE_ELF
+config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
+	select ARCH_ANY_ENDIAN
 
 config ARCH_CFLAGS
 	string
 
 config LIBGCC_CFLAGS
 	string
-
-config HAVE_DOT_HIDDEN
-	bool
-	default y
-
-config ARCH_SUPPORTS_BIG_ENDIAN
-	bool
-	default y
-
-config ARCH_SUPPORTS_LITTLE_ENDIAN
-	bool
-	default y
 
 choice
 	prompt "Target Processor Type"

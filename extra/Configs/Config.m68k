@@ -6,13 +6,10 @@
 config TARGET_ARCH
 	default "m68k"
 
-config HAVE_ELF
+config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
-
-config ARCH_SUPPORTS_BIG_ENDIAN
-	bool
-	default y
+	select ARCH_BIG_ENDIAN
 
 config ARCH_CFLAGS
 	string
@@ -20,7 +17,3 @@ config ARCH_CFLAGS
 
 config LIBGCC_CFLAGS
 	string
-
-config HAVE_ELF
-	bool
-	default y

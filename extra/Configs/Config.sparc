@@ -6,13 +6,10 @@
 config TARGET_ARCH
 	default "sparc"
 
-config HAVE_ELF
+config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
-
-config ARCH_SUPPORTS_BIG_ENDIAN
-	bool
-	default y
+	select ARCH_BIG_ENDIAN
 
 config ARCH_CFLAGS
 	string

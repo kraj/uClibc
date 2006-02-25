@@ -3,24 +3,20 @@
 # see extra/config/Kconfig-language.txt
 #
 
-config HAVE_ELF
-	bool
-	select ARCH_HAS_MMU
-	default y
-
 config TARGET_ARCH
-	string
 	default "i386"
+
+config FORCE_OPTIONS_FOR_ARCH
+	bool
+	default y
+	select ARCH_LITTLE_ENDIAN
+	select ARCH_HAS_MMU
 
 config ARCH_CFLAGS
 	string
 
 config LIBGCC_CFLAGS
 	string
-
-config ARCH_SUPPORTS_LITTLE_ENDIAN
-	bool
-	default y
 
 choice
 	prompt "Target x86 Processor Family"
