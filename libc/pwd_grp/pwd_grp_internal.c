@@ -1,7 +1,8 @@
 /*
- * Copyright (C) 2003     Manuel Novoa III
+ * Copyright (C) 2003     Manuel Novoa III <mjn3@uclibc.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 /*  Nov 6, 2003  Initial version.
@@ -18,7 +19,6 @@
  *
  */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,7 +55,8 @@
 /**********************************************************************/
 #ifdef GETXXKEY_R_FUNC
 
-int attribute_hidden GETXXKEY_R_FUNC_HIDDEN(DO_GETXXKEY_R_KEYTYPE key,
+libc_hidden_proto(GETXXKEY_R_FUNC)
+int GETXXKEY_R_FUNC(DO_GETXXKEY_R_KEYTYPE key,
 					GETXXKEY_R_ENTTYPE *__restrict resultbuf,
 					char *__restrict buffer, size_t buflen,
 					GETXXKEY_R_ENTTYPE **__restrict result)
@@ -89,7 +90,7 @@ int attribute_hidden GETXXKEY_R_FUNC_HIDDEN(DO_GETXXKEY_R_KEYTYPE key,
 
 	return rv;
 }
-strong_alias(GETXXKEY_R_FUNC_HIDDEN,GETXXKEY_R_FUNC)
+libc_hidden_def(GETXXKEY_R_FUNC)
 
 #endif
 /**********************************************************************/
