@@ -1,4 +1,5 @@
-/* Copyright (C) 1997, 1999 Free Software Foundation, Inc.
+/* tcflow -- Suspend or restart transmission on termios file descriptor.
+   Copyright (C) 1993,1997,2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,49 +20,11 @@
 #include <errno.h>
 #include <termios.h>
 #include <sys/ioctl.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 libc_hidden_proto(ioctl)
-libc_hidden_proto(getsid)
-libc_hidden_proto(tcgetpgrp)
 
-/* Return the session ID of FD.  */
-pid_t
-tcgetsid (fd)
-     int fd;
+/* Suspend or restart transmission on FD.  */
+int tcflow (int fd, int action)
 {
-  pid_t pgrp;
-  pid_t sid;
-#ifdef TIOCGSID
-  static int tiocgsid_does_not_work;
-
-  if (! tiocgsid_does_not_work)
-    {
-      int serrno = errno;
-
-      if (ioctl (fd, TIOCGSID, &sid) < 0)
-	{
-	  if (errno == EINVAL)
-	    {
-	      tiocgsid_does_not_work = 1;
-	      __set_errno (serrno);
-	    }
-	  else
-	    return (pid_t) -1;
-	}
-      else
-	return (pid_t) sid;
-    }
-#endif
-
-  pgrp = tcgetpgrp (fd);
-  if (pgrp == -1)
-    return (pid_t) -1;
-
-  sid = getsid (pgrp);
-  if (sid == -1 && errno == ESRCH)
-    __set_errno (ENOTTY);
-
-  return sid;
+  return ioctl (fd, TCXONC, action);
 }

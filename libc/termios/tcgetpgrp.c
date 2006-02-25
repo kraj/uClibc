@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 1997, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,52 +16,21 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <errno.h>
-#include <termios.h>
 #include <sys/ioctl.h>
-#include <sys/types.h>
+#include <errno.h>
 #include <unistd.h>
+#include <sys/types.h>
 
-libc_hidden_proto(ioctl)
-libc_hidden_proto(getsid)
 libc_hidden_proto(tcgetpgrp)
+libc_hidden_proto(ioctl)
 
-/* Return the session ID of FD.  */
-pid_t
-tcgetsid (fd)
-     int fd;
+/* Return the foreground process group ID of FD.  */
+pid_t tcgetpgrp (int fd)
 {
-  pid_t pgrp;
-  pid_t sid;
-#ifdef TIOCGSID
-  static int tiocgsid_does_not_work;
+  int pgrp;
 
-  if (! tiocgsid_does_not_work)
-    {
-      int serrno = errno;
-
-      if (ioctl (fd, TIOCGSID, &sid) < 0)
-	{
-	  if (errno == EINVAL)
-	    {
-	      tiocgsid_does_not_work = 1;
-	      __set_errno (serrno);
-	    }
-	  else
-	    return (pid_t) -1;
-	}
-      else
-	return (pid_t) sid;
-    }
-#endif
-
-  pgrp = tcgetpgrp (fd);
-  if (pgrp == -1)
+  if (ioctl (fd, TIOCGPGRP, &pgrp) < 0)
     return (pid_t) -1;
-
-  sid = getsid (pgrp);
-  if (sid == -1 && errno == ESRCH)
-    __set_errno (ENOTTY);
-
-  return sid;
+  return (pid_t) pgrp;
 }
+libc_hidden_def (tcgetpgrp)

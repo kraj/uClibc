@@ -22,6 +22,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <stdio.h>
+
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strncpy)
+libc_hidden_proto(getenv)
 
 /* uClibc makes it policy to not mess with the utmp file whenever
  * possible, since I consider utmp a complete waste of time.  Since
@@ -29,29 +35,30 @@
  * the user specify whatever they want via the LOGNAME environment
  * variable, or we return NULL if getenv() fails to find anything */
 
-extern char attribute_hidden * __getlogin(void)
+libc_hidden_proto(getlogin)
+char * getlogin(void)
 {
-	return (__getenv("LOGNAME"));
+	return (getenv("LOGNAME"));
 }
-strong_alias(__getlogin,getlogin)
+libc_hidden_def(getlogin)
 
 int getlogin_r(char *name, size_t len)
 {
-	char * foo = __getenv("LOGNAME");
+	char * foo = getenv("LOGNAME");
 
 	if (! foo)
 		return -1;
 
-	__strncpy(name, foo, len);
+	strncpy(name, foo, len);
 	name[len-1] = '\0';
 	return 0;
 }
 
 char *cuserid(char *s)
 {
-	char *name = __getlogin();
+	char *name = getlogin();
 	if (s) {
-		return(__strcpy(s, name ? name : ""));
+		return(strcpy(s, name ? name : ""));
 	}
 	return name;
 }
