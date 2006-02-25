@@ -39,13 +39,10 @@
 #ifdef _LIBC
 /* Some adjustments to make the libc source from glibc
  * compile more easily with uClibc... */
-#ifndef __FORCE_GLIBC
-#define __FORCE_GLIBC
-#endif
-#ifndef _GNU_SOUCE
-#define _GNU_SOUCE
-#endif
-#define _(X)	X
+# ifndef __FORCE_GLIBC
+#  define __FORCE_GLIBC
+# endif
+# define _(X)	X
 #endif
 #include <features.h>
 #include <sys/types.h>
@@ -137,7 +134,7 @@ struct XDR
 	/* returns bytes off from beginning */
 	bool_t (*x_setpostn) (XDR *__xdrs, u_int __pos);
 	/* lets you reposition the stream */
-	int32_t *(*x_inline) (XDR *__xdrs, int __len);
+	int32_t *(*x_inline) (XDR *__xdrs, u_int __len);
 	/* buf quick ptr to buffered data */
 	void (*x_destroy) (XDR *__xdrs);
 	/* free privates of this xdr_stream */
@@ -150,7 +147,7 @@ struct XDR
     caddr_t x_public;		/* users' data */
     caddr_t x_private;		/* pointer to private data */
     caddr_t x_base;		/* private used for position info */
-    int x_handy;		/* extra private word */
+    u_int x_handy;		/* extra private word */
   };
 
 /*
@@ -273,20 +270,8 @@ struct xdr_discrim
  * and shouldn't be used any longer. Code which use this defines or longs
  * in the RPC code will not work on 64bit Solaris platforms !
  */
-/* #define IXDR_GET_LONG(buf) \ */
-/* 	((long)ntohl((u_long)*(*(u_int32_t**)&(buf))++)) */
-/* #define IXDR_PUT_LONG(buf, v) \ */
-/* 	(*(*(u_int32_t**)&(buf))++ = (long)htonl((u_long)(v))) */
-
-/* WARNING: These macros are not safe against side effects for the 'buf'
- * argument.  But the old versions they're replacing took the address of
- * 'buf' and were probably not safe in that situation either. */
-#define IXDR_GET_LONG(buf) \
-	((long) ntohl((u_long) (((u_int32_t *)(buf = (void *)(((char *) buf) + sizeof(u_int32_t))))[-1]) ))
-#define IXDR_PUT_LONG(buf, v) \
-	(((u_int32_t *)(buf = (void *)(((char *) buf) + sizeof(u_int32_t))))[-1]) = (long)htonl((u_long)(v))
-
-
+#define IXDR_GET_LONG(buf) ((long)IXDR_GET_U_INT32(buf))
+#define IXDR_PUT_LONG(buf, v) ((long)IXDR_PUT_INT32(buf, (long)(v)))
 #define IXDR_GET_U_LONG(buf)	      ((u_long)IXDR_GET_LONG(buf))
 #define IXDR_PUT_U_LONG(buf, v)	      IXDR_PUT_LONG(buf, (long)(v))
 

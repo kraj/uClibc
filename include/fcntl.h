@@ -79,6 +79,9 @@ extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...), fcntl64);
 #  define fcntl fcntl64
 # endif
 #endif
+#ifdef __USE_LARGEFILE64
+extern int fcntl64 (int __fd, int __cmd, ...);
+#endif
 
 /* Open FILE and return a new file descriptor for it, or -1 on error.
    OFLAG determines the type of access used.  If O_CREAT is on OFLAG,

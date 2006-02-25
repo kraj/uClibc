@@ -693,10 +693,11 @@ __END_NAMESPACE_C99
 #endif
 
 
-#if 0 /* defined __USE_SVID || defined __USE_XOPEN_EXTENDED */
+#if defined __USE_SVID || defined __USE_XOPEN_EXTENDED
 /* Convert floating point numbers to strings.  The returned values are
    valid only until another call to the same function.  */
 
+#if 0
 /* Convert VALUE to a string with NDIGIT digits and return a pointer to
    this.  Set *DECPT with the position of the decimal character and *SIGN
    with the sign of the number.  */
@@ -708,6 +709,7 @@ extern char *ecvt (double __value, int __ndigit, int *__restrict __decpt,
    the number.  */
 extern char *fcvt (double __value, int __ndigit, int *__restrict __decpt,
 		   int *__restrict __sign) __THROW __nonnull ((3, 4)) __wur;
+#endif
 
 /* If possible convert VALUE to a string with NDIGIT significant digits.
    Otherwise use exponential representation.  The resulting string will
@@ -716,7 +718,7 @@ extern char *gcvt (double __value, int __ndigit, char *__buf)
      __THROW __nonnull ((3)) __wur;
 
 
-# ifdef __USE_MISC
+# if 0 /*def __USE_MISC*/
 /* Long double versions of above functions.  */
 extern char *qecvt (long double __value, int __ndigit,
 		    int *__restrict __decpt, int *__restrict __sign)
@@ -843,6 +845,13 @@ extern int getpt (void);
    three, but may be less than NELEM), or -1 if an error occurred.  */
 extern int getloadavg (double __loadavg[], int __nelem)
      __THROW __nonnull ((1));
+#endif
+
+#ifdef __UCLIBC_HAS_ARC4RANDOM__
+#include <stdint.h>
+extern uint32_t arc4random(void);
+extern void arc4random_stir(void);
+extern void arc4random_addrandom(unsigned char *, int);
 #endif
 
 #endif /* don't just need malloc and calloc */

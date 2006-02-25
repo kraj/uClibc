@@ -27,11 +27,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-extern int getpt (void);
-extern int grantpt (int fd);
-extern int ptsname_r (int fd, char *buf, size_t buflen);
-extern int unlockpt (int fd);
-
 /* BCS: the following function is, IMO, overkill */
 #if 0
 /* Return the result of ptsname_r in the buffer pointed to by PTS,
@@ -90,8 +85,9 @@ pts_name (int fd, char **pts, size_t buf_len)
 /* Create pseudo tty master slave pair and set terminal attributes
    according to TERMP and WINP.  Return handles for both ends in
    AMASTER and ASLAVE, and return the name of the slave end in NAME.  */
-int attribute_hidden
-__openpty (int *amaster, int *aslave, char *name, struct termios *termp,
+libutil_hidden_proto(openpty)
+int
+openpty (int *amaster, int *aslave, char *name, struct termios *termp,
 	 struct winsize *winp)
 {
 #if 0
@@ -158,5 +154,4 @@ __openpty (int *amaster, int *aslave, char *name, struct termios *termp,
   close (master);
   return -1;
 }
-
-strong_alias(__openpty,openpty)
+libutil_hidden_def(openpty)

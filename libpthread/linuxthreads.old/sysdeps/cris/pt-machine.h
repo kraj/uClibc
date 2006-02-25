@@ -18,15 +18,9 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#ifndef _PT_MACHINE_H
-#define _PT_MACHINE_H   1
-
 #ifndef PT_EI
 # define PT_EI extern inline __attribute__ ((always_inline))
 #endif
-
-extern long int testandset (int *spinlock);
-extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 
 PT_EI long int
 testandset (int *spinlock)
@@ -35,6 +29,19 @@ testandset (int *spinlock)
 
   /* Note the use of a dummy output of *spinlock to expose the write.  The
      memory barrier is to stop *other* writes being moved past this code.  */
+
+#ifdef __arch_v32
+  __asm__ __volatile__("clearf p\n"
+		       "0:\n\t"
+		       "movu.b [%2],%0\n\t"
+		       "ax\n\t"
+		       "move.b %3,[%2]\n\t"
+		       "bcs 0b\n\t"
+		       "clearf p"
+		       : "=&r" (ret), "=m" (*spinlock)
+		       : "r" (spinlock), "r" ((int) 1), "m" (*spinlock)
+		       : "memory");
+#else  /* not __arch_v32 */
   __asm__ __volatile__("clearf\n"
 		       "0:\n\t"
 		       "movu.b [%2],%0\n\t"
@@ -43,8 +50,9 @@ testandset (int *spinlock)
 		       "bwf 0b\n\t"
 		       "clearf"
 		       : "=&r" (ret), "=m" (*spinlock)
-		       : "r" (spinlock), "r" ((int) 1)
+		       : "r" (spinlock), "r" ((int) 1), "m" (*spinlock)
 		       : "memory");
+#endif /* __arch_v32 */
   return ret;
 }
 
@@ -54,5 +62,3 @@ testandset (int *spinlock)
    I don't trust register variables, so let's do this the safe way.  */
 #define CURRENT_STACK_FRAME \
  ({ char *sp; __asm__ ("move.d $sp,%0" : "=rm" (sp)); sp; })
-
-#endif /* pt-machine.h */

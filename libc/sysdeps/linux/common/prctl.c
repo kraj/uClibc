@@ -2,12 +2,13 @@
 /*
  * prctl() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <stdarg.h>
-//#include <sys/prctl.h>
-_syscall5(int, prctl, int, a, int, b, int, c, int, d, int, e);
+/* psm: including sys/prctl.h would depend on kernel headers */
+extern int prctl (int, long, long, long, long);
+_syscall5(int, prctl, int, option, long, arg2, long, arg3, long, arg4, long, arg5);

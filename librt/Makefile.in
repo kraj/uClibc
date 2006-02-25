@@ -26,8 +26,6 @@ librt-a-y += $(librt_OBJ)
 endif
 librt-so-y += $(librt_OBJ:.o=.os)
 
-librt-multi-y += $(librt_SRC)
-
 lib-a-y += $(top_builddir)lib/librt.a
 lib-so-y += $(top_builddir)lib/librt.so
 objclean-y += librt_clean

@@ -55,11 +55,6 @@
 # define IS_IN_libc 1
 #endif
 
-/* need this to unset defaults in libpthread for files that get added to libc */
-#ifdef IS_IN_libc
-# undef NOT_IN_libc
-#endif
-
 #ifdef __UCLIBC_NO_UNDERSCORES__
 # define NO_UNDERSCORES
 #else
@@ -320,7 +315,7 @@
    }
    libc_hidden_weak (foo)
 
-   Simularly for global data. If references to foo within libc.so should
+   Similarly for global data. If references to foo within libc.so should
    always go to foo defined in libc.so, then in include/foo.h you add:
 
    libc_hidden_proto (foo)

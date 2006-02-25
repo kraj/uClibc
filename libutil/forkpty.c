@@ -17,14 +17,14 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define openpty __openpty
-#define login_tty __login_tty
-
 #include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
 #include <utmp.h>
 #include <pty.h>
+
+libutil_hidden_proto(openpty)
+libutil_hidden_proto(login_tty)
 
 int
 forkpty (amaster, name, termp, winp)

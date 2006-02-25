@@ -36,7 +36,8 @@
 #include <fcntl.h>
 #include <utmp.h>
 
-int attribute_hidden __login_tty(int fd)
+libutil_hidden_proto(login_tty)
+int login_tty(int fd)
 {
 	(void) setsid();
 #ifdef TIOCSCTTY
@@ -67,5 +68,4 @@ int attribute_hidden __login_tty(int fd)
 		(void) close(fd);
 	return (0);
 }
-
-strong_alias(__login_tty,login_tty)
+libutil_hidden_def(login_tty)

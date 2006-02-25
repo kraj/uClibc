@@ -260,7 +260,19 @@ extern int access (__const char *__name, int __type) __THROW __nonnull ((1));
    (as normal file operations use).  */
 extern int euidaccess (__const char *__name, int __type)
      __THROW __nonnull ((1));
+
+/* An alias for `euidaccess', used by some other systems.  */
+extern int eaccess (__const char *__name, int __type)
+     __THROW __nonnull ((1));
 #endif
+
+#ifdef __USE_ATFILE
+/* Test for access to FILE relative to the directory FD is open on.
+   If AT_EACCESS is set in FLAG, then use effective IDs like `eaccess',
+   otherwise use real IDs like `access'.  */
+extern int faccessat (int __fd, __const char *__file, int __type, int __flag)
+     __THROW __nonnull ((2)) __wur;
+#endif /* Use GNU.  */
 
 
 /* Values for the WHENCE argument to lseek.  */
@@ -337,16 +349,18 @@ extern ssize_t pread (int __fd, void *__buf, size_t __nbytes,
 extern ssize_t pwrite (int __fd, __const void *__buf, size_t __n,
 		       __off_t __offset) __wur;
 # else
-#  ifdef __REDIRECT
+#  ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#   ifdef __REDIRECT
 extern ssize_t __REDIRECT (pread, (int __fd, void *__buf, size_t __nbytes,
 				   __off64_t __offset),
 			   pread64) __wur;
 extern ssize_t __REDIRECT (pwrite, (int __fd, __const void *__buf,
 				    size_t __nbytes, __off64_t __offset),
 			   pwrite64) __wur;
-#  else
-#   define pread pread64
-#   define pwrite pwrite64
+#   else
+#    define pread pread64
+#    define pwrite pwrite64
+#   endif
 #  endif
 # endif
 
@@ -431,7 +445,7 @@ extern int lchown (__const char *__file, __uid_t __owner, __gid_t __group)
 
 #endif /* Use BSD || X/Open Unix.  */
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Change the owner and group of FILE relative to the directory FD is open
    on.  */
 extern int fchownat (int __fd, __const char *__file, __uid_t __owner,
@@ -681,29 +695,29 @@ extern int setegid (__gid_t __gid) __THROW;
 #endif /* Use BSD.  */
 
 #ifdef __USE_GNU
-/* Fetch the effective user ID, real user ID, and saved-set user ID,
+/* Fetch the real user ID, effective user ID, and saved-set user ID,
    of the calling process.  */
-extern int getresuid (__uid_t *__euid, __uid_t *__ruid, __uid_t *__suid)
+extern int getresuid (__uid_t *__ruid, __uid_t *__euid, __uid_t *__suid)
      __THROW;
 
-/* Fetch the effective group ID, real group ID, and saved-set group ID,
+/* Fetch the real group ID, effective group ID, and saved-set group ID,
    of the calling process.  */
-extern int getresgid (__gid_t *__egid, __gid_t *__rgid, __gid_t *__sgid)
+extern int getresgid (__gid_t *__rgid, __gid_t *__egid, __gid_t *__sgid)
      __THROW;
 
-/* Set the effective user ID, real user ID, and saved-set user ID,
-   of the calling process to EUID, RUID, and SUID, respectively.  */
-extern int setresuid (__uid_t __euid, __uid_t __ruid, __uid_t __suid)
+/* Set the real user ID, effective user ID, and saved-set user ID,
+   of the calling process to RUID, EUID, and SUID, respectively.  */
+extern int setresuid (__uid_t __ruid, __uid_t __euid, __uid_t __suid)
      __THROW;
 
-/* Set the effective group ID, real group ID, and saved-set group ID,
-   of the calling process to EGID, RGID, and SGID, respectively.  */
-extern int setresgid (__gid_t __egid, __gid_t __rgid, __gid_t __sgid)
+/* Set the real group ID, effective group ID, and saved-set group ID,
+   of the calling process to RGID, EGID, and SGID, respectively.  */
+extern int setresgid (__gid_t __rgid, __gid_t __egid, __gid_t __sgid)
      __THROW;
 #endif
 
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 /* Clone the calling process, creating an exact copy.
    Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
@@ -717,6 +731,9 @@ extern __pid_t fork (void) __THROW;
    and the process ID of the new process to the old process.  */
 extern __pid_t vfork (void) __THROW;
 #endif /* Use BSD. */
+
+/* Special exit function which only terminates the current thread.  */
+extern void __exit_thread (int val) __attribute__ ((noreturn));
 
 
 /* Return the pathname of the terminal FD is open on, or NULL on errors.
@@ -744,7 +761,7 @@ extern int ttyslot (void) __THROW;
 extern int link (__const char *__from, __const char *__to)
      __THROW __nonnull ((1, 2)) __wur;
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Like link but relative paths in TO and FROM are interpreted relative
    to FROMFD and TOFD respectively.  */
 extern int linkat (int __fromfd, __const char *__from, int __tofd,
@@ -763,7 +780,7 @@ extern int readlink (__const char *__restrict __path, char *__restrict __buf,
 		     size_t __len) __THROW __nonnull ((1, 2)) __wur;
 #endif /* Use BSD.  */
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Like symlink but a relative path in TO is interpreted relative to TOFD.  */
 extern int symlinkat (__const char *__from, int __tofd,
 		      __const char *__to) __THROW __nonnull ((1, 3)) __wur;
@@ -777,7 +794,7 @@ extern int readlinkat (int __fd, __const char *__restrict __path,
 /* Remove the link NAME.  */
 extern int unlink (__const char *__name) __THROW __nonnull ((1));
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Remove the link NAME relative to FD.  */
 extern int unlinkat (int __fd, __const char *__name, int __flag)
      __THROW __nonnull ((2));
@@ -820,6 +837,7 @@ extern int setlogin (__const char *__name) __THROW __nonnull ((1));
    arguments in ARGV (ARGC of them, minus the program name) for
    options given in OPTS.  */
 # define __need_getopt
+/* keep this for uClibc in bits/, we need it when GNU_GETOPT is disabled */
 # include <bits/getopt.h>
 #endif
 
@@ -885,7 +903,7 @@ extern void endusershell (void) __THROW; /* Discard cached info.  */
 extern void setusershell (void) __THROW; /* Rewind and re-read the file.  */
 
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 /* Put the program in the background, and dissociate from the controlling
    terminal.  If NOCHDIR is zero, do `chdir ("/")'.  If NOCLOSE is zero,
    redirects stdin, stdout, and stderr to /dev/null.  */

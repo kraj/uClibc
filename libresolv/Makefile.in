@@ -26,8 +26,6 @@ libresolv-a-y := $(libresolv_OBJ)
 endif
 libresolv-so-y := $(libresolv_OBJ:.o=.os)
 
-libresolv-multi-y := $(libresolv_SRC)
-
 lib-a-y += $(top_builddir)lib/libresolv.a
 lib-so-y += $(top_builddir)lib/libresolv.so
 objclean-y += libresolv_clean
