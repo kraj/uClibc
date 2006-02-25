@@ -16,9 +16,9 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define adjtimex __adjtimex
-
 #include <sys/timex.h>
+
+libc_hidden_proto(adjtimex)
 
 int ntp_gettime(struct ntptimeval *ntv)
 {
@@ -26,7 +26,7 @@ int ntp_gettime(struct ntptimeval *ntv)
     int result;
 
     tntx.modes = 0;
-    result = __adjtimex(&tntx);
+    result = adjtimex(&tntx);
     ntv->time = tntx.time;
     ntv->maxerror = tntx.maxerror;
     ntv->esterror = tntx.esterror;
