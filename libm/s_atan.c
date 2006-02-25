@@ -37,6 +37,8 @@ static char rcsid[] = "$NetBSD: s_atan.c,v 1.8 1995/05/10 20:46:45 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
+libm_hidden_proto(fabs)
+
 #ifdef __STDC__
 static const double atanhi[] = {
 #else
@@ -77,6 +79,7 @@ static double aT[] = {
   1.62858201153657823623e-02, /* 0x3F90AD3A, 0xE322DA11 */
 };
 
+libm_hidden_proto(atan)
 #ifdef __STDC__
 	static const double
 #else
@@ -137,3 +140,4 @@ huge   = 1.0e300;
 	    return (hx<0)? -z:z;
 	}
 }
+libm_hidden_def(atan)

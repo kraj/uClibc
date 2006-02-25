@@ -11,3 +11,8 @@
 #else
 # include "sparc64/strcmp.S"
 #endif
+
+#ifndef __UCLIBC_HAS_LOCALE__
+strong_alias(strcmp,strcoll)
+libc_hidden_def(strcoll)
+#endif

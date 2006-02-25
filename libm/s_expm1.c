@@ -131,6 +131,7 @@ Q3  =  -7.93650757867487942473e-05, /* BF14CE19 9EAADBB7 */
 Q4  =   4.00821782732936239552e-06, /* 3ED0CFCA 86E65239 */
 Q5  =  -2.01099218183624371326e-07; /* BE8AFDB7 6E09C32D */
 
+libm_hidden_proto(expm1)
 #ifdef __STDC__
 	double expm1(double x)
 #else
@@ -227,3 +228,4 @@ Q5  =  -2.01099218183624371326e-07; /* BE8AFDB7 6E09C32D */
 	}
 	return y;
 }
+libm_hidden_def(expm1)

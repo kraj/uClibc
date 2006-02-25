@@ -14,10 +14,9 @@
   Hacked up for uClibc by Erik Andersen <andersen@codepoet.org>
 */
 
-#define munmap __munmap
-
 #include "malloc.h"
 
+libc_hidden_proto(munmap)
 
 /* ------------------------- __malloc_trim -------------------------
    __malloc_trim is an inverse of sorts to __malloc_alloc.  It gives memory
@@ -402,13 +401,10 @@ void free(void* mem)
        */
 
     else {
-	int ret;
 	size_t offset = p->prev_size;
 	av->n_mmaps--;
 	av->mmapped_mem -= (size + offset);
-	ret = munmap((char*)p - offset, size + offset);
-	/* munmap returns non-zero on failure */
-	assert(ret == 0);
+	munmap((char*)p - offset, size + offset);
     }
     UNLOCK;
 }

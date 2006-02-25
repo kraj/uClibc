@@ -32,7 +32,8 @@
 
 #include <string.h>
 
-void attribute_hidden *__memmove(void *dest, const void *src, size_t n)
+libc_hidden_proto(memmove)
+void *memmove(void *dest, const void *src, size_t n)
 {
     int d0, d1, d2;
     if (dest<src)
@@ -55,5 +56,4 @@ void attribute_hidden *__memmove(void *dest, const void *src, size_t n)
 		:"memory");
     return dest;
 }
-
-strong_alias(__memmove,memmove)
+libc_hidden_def(memmove)

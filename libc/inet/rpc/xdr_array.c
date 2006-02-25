@@ -40,11 +40,7 @@ static char sccsid[] = "@(#)xdr_array.c 1.10 87/08/11 Copyr 1984 Sun Micro";
  * arrays.  See xdr.h for more info on the interface to xdr.
  */
 
-#define xdr_u_int __xdr_u_int
-#define fputs __fputs
-
 #define __FORCE_GLIBC
-#define _GNU_SOURCE
 #include <features.h>
 
 #include <stdio.h>
@@ -55,7 +51,13 @@ static char sccsid[] = "@(#)xdr_array.c 1.10 87/08/11 Copyr 1984 Sun Micro";
 
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
+libc_hidden_proto(fwprintf)
 #endif
+
+libc_hidden_proto(memset)
+libc_hidden_proto(fputs)
+libc_hidden_proto(xdr_u_int)
+libc_hidden_proto(stderr)
 
 #define LASTUNSIGNED	((u_int)0-1)
 
@@ -67,8 +69,9 @@ static char sccsid[] = "@(#)xdr_array.c 1.10 87/08/11 Copyr 1984 Sun Micro";
  * elsize is the size (in bytes) of each element, and elproc is the
  * xdr procedure to call to handle each element of the array.
  */
-bool_t attribute_hidden
-__xdr_array (XDR *xdrs, caddr_t *addrp, u_int *sizep, u_int maxsize, u_int elsize, xdrproc_t elproc)
+libc_hidden_proto(xdr_array)
+bool_t
+xdr_array (XDR *xdrs, caddr_t *addrp, u_int *sizep, u_int maxsize, u_int elsize, xdrproc_t elproc)
 {
   u_int i;
   caddr_t target = *addrp;
@@ -107,14 +110,14 @@ __xdr_array (XDR *xdrs, caddr_t *addrp, u_int *sizep, u_int maxsize, u_int elsiz
 	  {
 #ifdef USE_IN_LIBIO
 	    if (_IO_fwide (stderr, 0) > 0)
-	      (void) __fwprintf (stderr, L"%s",
+	      (void) fwprintf (stderr, L"%s",
 				 _("xdr_array: out of memory\n"));
 	    else
 #endif
 	      (void) fputs (_("xdr_array: out of memory\n"), stderr);
 	    return FALSE;
 	  }
-	__memset (target, 0, nodesize);
+	memset (target, 0, nodesize);
 	break;
 
       case XDR_FREE:
@@ -142,7 +145,7 @@ __xdr_array (XDR *xdrs, caddr_t *addrp, u_int *sizep, u_int maxsize, u_int elsiz
     }
   return stat;
 }
-strong_alias(__xdr_array,xdr_array)
+libc_hidden_def(xdr_array)
 
 /*
  * xdr_vector():

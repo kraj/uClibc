@@ -19,6 +19,7 @@
 **
 ***********************************************************************/
 
+#include <math.h>
 #include <endian.h>
 
 typedef union
@@ -50,7 +51,12 @@ static const double twoToM1022 = 2.225073858507201383e-308;  // 0x1p-1022
       Calls:  none.
 ***********************************************************************/
 
+libm_hidden_proto(scalb)
+#ifdef _SCALB_INT
 double scalb ( double x, int n  )
+#else
+double scalb ( double x, double n  )
+#endif
       {
       DblInHex xInHex;
 
@@ -85,3 +91,4 @@ double scalb ( double x, int n  )
       xInHex.words.hi = ( ( unsigned long ) ( n + 1023 ) ) << 20;
       return ( x * xInHex.dbl );
       }
+libm_hidden_def(scalb)

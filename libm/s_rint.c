@@ -37,6 +37,7 @@ TWO52[2]={
  -4.50359962737049600000e+15, /* 0xC3300000, 0x00000000 */
 };
 
+libm_hidden_proto(rint)
 #ifdef __STDC__
 	double rint(double x)
 #else
@@ -84,3 +85,4 @@ TWO52[2]={
 	w = TWO52[sx]+x;
 	return w-TWO52[sx];
 }
+libm_hidden_def(rint)

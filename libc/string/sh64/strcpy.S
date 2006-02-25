@@ -18,12 +18,11 @@
 #endif
 
 	.section .text..SHmedia32,"ax"
-	.globl	__strcpy
-	.hidden	__strcpy
-	.type	__strcpy, @function
+	.globl	strcpy
+	.type	strcpy, @function
 	.align 5
 
-__strcpy:
+strcpy:
 
 	pta/l shortstring,tr1
 	ldlo.q r3,0,r4
@@ -98,6 +97,6 @@ loop:
 	addi r0, 8, r0
 	blink tr1, r63 // shortstring
 
-	.size	__strcpy,.-__strcpy
+	.size	strcpy,.-strcpy
 
-strong_alias(__strcpy,strcpy)
+libc_hidden_def(strcpy)

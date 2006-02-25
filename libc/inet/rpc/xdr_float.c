@@ -42,7 +42,6 @@ static char sccsid[] = "@(#)xdr_float.c 1.12 87/08/11 Copyr 1984 Sun Micro";
  */
 
 #define __FORCE_GLIBC
-#define _GNU_SOURCE
 #include <features.h>
 
 #include <stdio.h>

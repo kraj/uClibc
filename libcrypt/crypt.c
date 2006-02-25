@@ -3,24 +3,11 @@
  * crypt() for uClibc
  *
  * Copyright (C) 2000 by Lineo, inc. and Erik Andersen
- * Copyright (C) 2000,2001 by Erik Andersen <andersen@uclibc.org>
- * Written by Erik Andersen <andersen@uclibc.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; see the file COPYING.LIB.  If not,
- * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
+/* Written by Erik Andersen <andersen@uclibc.org> */
 
 #define __FORCE_GLIBC
 #include <crypt.h>
@@ -29,7 +16,7 @@
 extern char * __md5_crypt( const char *pw, const char *salt) attribute_hidden;
 extern char * __des_crypt( const char *pw, const char *salt) attribute_hidden;
 
-extern char * crypt(const char *key, const char *salt)
+char * crypt(const char *key, const char *salt)
 {
 	/* First, check if we are supposed to be using the MD5 replacement
 	 * instead of DES...  */

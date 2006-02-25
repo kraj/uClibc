@@ -21,14 +21,17 @@
 
 #include <string.h>
 
-void attribute_hidden *__memmove(void *to, const void *from, size_t n)
+libc_hidden_proto(memcpy)
+
+libc_hidden_proto(memmove)
+void *memmove(void *to, const void *from, size_t n)
 {
 	unsigned long rem, chunks, tmp1, tmp2;
 	unsigned char *tmp_to;
 	unsigned char *tmp_from = (unsigned char *)from;
 
 	if (tmp_from >= (unsigned char *)to)
-		return __memcpy(to, from, n);
+		return memcpy(to, from, n);
 	chunks = n / 8;
 	tmp_from += n;
 	tmp_to = to + n;
@@ -72,5 +75,4 @@ void attribute_hidden *__memmove(void *to, const void *from, size_t n)
 		goto copy_chunks;
 	goto lessthan8;
 }
-
-strong_alias(__memmove,memmove)
+libc_hidden_def(memmove)

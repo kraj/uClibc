@@ -47,7 +47,7 @@
 
 	.text
 	.align		32
-ENTRY(__strcat)
+ENTRY(strcat)
 	sethi		%hi(0x01010101), %g1		/* IEU0		Group		*/
 	ldub		[%o0], %o3			/* Load				*/
 	or		%g1, %lo(0x01010101), %g1	/* IEU0		Group		*/
@@ -335,6 +335,5 @@ ENTRY(__strcat)
 	stb		%o4, [%o0 - 8]			/* Store			*/
 	retl						/* CTI+IEU1	Group		*/
 	 mov		%g6, %o0			/* IEU0				*/
-END(__strcat)
-
-strong_alias(__strcat,strcat)
+END(strcat)
+libc_hidden_def(strcat)

@@ -23,6 +23,9 @@ static char rcsid[] = "$NetBSD: s_logb.c,v 1.8 1995/05/10 20:47:50 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
+libm_hidden_proto(fabs)
+
+libm_hidden_proto(logb)
 #ifdef __STDC__
 	double logb(double x)
 #else
@@ -40,3 +43,4 @@ static char rcsid[] = "$NetBSD: s_logb.c,v 1.8 1995/05/10 20:47:50 jtc Exp $";
 	else
 		return (double) (ix-1023);
 }
+libm_hidden_def(logb)

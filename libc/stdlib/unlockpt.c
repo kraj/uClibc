@@ -22,6 +22,7 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 
+libc_hidden_proto(ioctl)
 
 /* Unlock the slave pseudo terminal associated with the master pseudo
    terminal specified by FD.  */
@@ -32,7 +33,7 @@ unlockpt (int fd)
   int save_errno = errno;
   int unlock = 0;
 
-  if (__ioctl (fd, TIOCSPTLCK, &unlock))
+  if (ioctl (fd, TIOCSPTLCK, &unlock))
     {
       if (errno == EINVAL)
 	{

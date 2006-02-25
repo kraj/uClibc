@@ -8,7 +8,14 @@
 #include "_string.h"
 #include <ctype.h>
 
-char attribute_hidden *__strcasestr(const char *s1, const char *s2)
+#ifndef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_tolower)
+#else
+libc_hidden_proto(__ctype_tolower_loc)
+#endif
+libc_hidden_proto(tolower)
+
+char *strcasestr(const char *s1, const char *s2)
 {
 	register const char *s = s1;
 	register const char *p = s2;
@@ -19,7 +26,7 @@ char attribute_hidden *__strcasestr(const char *s1, const char *s2)
 			return (char *) s1;;
 		}
 		if ((*p == *s)
-			|| (__tolower(*((unsigned char *)p)) == __tolower(*((unsigned char *)s)))
+			|| (tolower(*((unsigned char *)p)) == tolower(*((unsigned char *)s)))
 			) {
 			++p;
 			++s;
@@ -34,7 +41,7 @@ char attribute_hidden *__strcasestr(const char *s1, const char *s2)
 #else
 	while (*p && *s) {
 		if ((*p == *s)
-			|| (__tolower(*((unsigned char *)p)) == __tolower(*((unsigned char *)s)))
+			|| (tolower(*((unsigned char *)p)) == tolower(*((unsigned char *)s)))
 			) {
 			++p;
 			++s;
@@ -47,5 +54,3 @@ char attribute_hidden *__strcasestr(const char *s1, const char *s2)
 	return (*p) ? NULL : (char *) s1;
 #endif
 }
-
-strong_alias(__strcasestr,strcasestr)

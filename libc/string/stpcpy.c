@@ -8,14 +8,13 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstpcpy __wcpcpy
 # define Wstpcpy wcpcpy
 #else
-# define __Wstpcpy __stpcpy
+libc_hidden_proto(stpcpy)
 # define Wstpcpy stpcpy
 #endif
 
-Wchar attribute_hidden *__Wstpcpy(register Wchar * __restrict s1, const Wchar * __restrict s2)
+Wchar *Wstpcpy(register Wchar * __restrict s1, const Wchar * __restrict s2)
 {
 #ifdef __BCC__
 	do {
@@ -28,4 +27,6 @@ Wchar attribute_hidden *__Wstpcpy(register Wchar * __restrict s1, const Wchar * 
 	return s1 - 1;
 }
 
-strong_alias(__Wstpcpy,Wstpcpy)
+#ifndef WANT_WIDE
+libc_hidden_def(stpcpy)
+#endif

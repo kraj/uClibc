@@ -42,19 +42,20 @@ static char sccsid[] = "@(#)clnt_raw.c 1.22 87/08/11 Copyr 1984 Sun Micro";
  * any interference from the kernel.
  */
 
-#define authnone_create __authnone_create
-#define xdrmem_create __xdrmem_create
-#define xdr_callhdr __xdr_callhdr
-#define xdr_replymsg __xdr_replymsg
-#define xdr_opaque_auth __xdr_opaque_auth
-#define svc_getreq __svc_getreq
-#define _seterr_reply __seterr_reply
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include "rpc_private.h"
 #include <rpc/svc.h>
 #include <rpc/xdr.h>
+
+libc_hidden_proto(perror)
+libc_hidden_proto(authnone_create)
+libc_hidden_proto(xdrmem_create)
+libc_hidden_proto(xdr_callhdr)
+libc_hidden_proto(xdr_replymsg)
+libc_hidden_proto(xdr_opaque_auth)
+libc_hidden_proto(svc_getreq)
+libc_hidden_proto(_seterr_reply)
 
 #define MCALL_MSG_SIZE 24
 
@@ -121,7 +122,7 @@ clntraw_create (u_long prog, u_long vers)
   xdrmem_create (xdrs, clp->mashl_callmsg, MCALL_MSG_SIZE, XDR_ENCODE);
   if (!xdr_callhdr (xdrs, &call_msg))
     {
-      __perror (_ ("clnt_raw.c - Fatal header serialization error."));
+      perror (_ ("clnt_raw.c - Fatal header serialization error."));
     }
   clp->mcnt = XDR_GETPOS (xdrs);
   XDR_DESTROY (xdrs);

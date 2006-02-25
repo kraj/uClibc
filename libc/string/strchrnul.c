@@ -8,18 +8,17 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstrchrnul __wcschrnul
 # define Wstrchrnul wcschrnul
 #else
-# define __Wstrchrnul __strchrnul
 # define Wstrchrnul strchrnul
 #endif
 
-Wchar attribute_hidden *__Wstrchrnul(register const Wchar *s, Wint c)
+libc_hidden_proto(Wstrchrnul)
+
+Wchar *Wstrchrnul(register const Wchar *s, Wint c)
 {
 	--s;
 	while (*++s && (*s != ((Wchar)c)));
 	return (Wchar *) s;
 }
-
-strong_alias(__Wstrchrnul,Wstrchrnul)
+libc_hidden_def(Wstrchrnul)

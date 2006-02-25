@@ -34,10 +34,6 @@
  * Client interface to pmap rpc service.
  */
 
-#define clnt_perror __clnt_perror
-#define clntudp_bufcreate __clntudp_bufcreate
-#define xdr_bool __xdr_bool
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -51,6 +47,16 @@
 #include <rpc/rpc.h>
 #include <rpc/pmap_prot.h>
 #include <rpc/pmap_clnt.h>
+
+libc_hidden_proto(ioctl)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(perror)
+libc_hidden_proto(exit)
+libc_hidden_proto(clnt_perror)
+libc_hidden_proto(clntudp_bufcreate)
+libc_hidden_proto(xdr_bool)
+libc_hidden_proto(xdr_pmap)
 
 /*
  * Same as get_myaddress, but we try to use the loopback
@@ -66,17 +72,17 @@ __get_myaddress (struct sockaddr_in *addr)
   struct ifreq ifreq, *ifr;
   int len, loopback = 1;
 
-  if ((s = __socket (AF_INET, SOCK_DGRAM, 0)) < 0)
+  if ((s = socket (AF_INET, SOCK_DGRAM, 0)) < 0)
     {
-      __perror ("__get_myaddress: socket");
-      __exit (1);
+      perror ("__get_myaddress: socket");
+      exit (1);
     }
   ifc.ifc_len = sizeof (buf);
   ifc.ifc_buf = buf;
-  if (__ioctl (s, SIOCGIFCONF, (char *) &ifc) < 0)
+  if (ioctl (s, SIOCGIFCONF, (char *) &ifc) < 0)
     {
-      __perror (_("__get_myaddress: ioctl (get interface configuration)"));
-      __exit (1);
+      perror (_("__get_myaddress: ioctl (get interface configuration)"));
+      exit (1);
     }
 
  again:
@@ -84,17 +90,17 @@ __get_myaddress (struct sockaddr_in *addr)
   for (len = ifc.ifc_len; len; len -= sizeof ifreq)
     {
       ifreq = *ifr;
-      if (__ioctl (s, SIOCGIFFLAGS, (char *) &ifreq) < 0)
+      if (ioctl (s, SIOCGIFFLAGS, (char *) &ifreq) < 0)
         {
-          __perror ("__get_myaddress: ioctl");
-          __exit (1);
+          perror ("__get_myaddress: ioctl");
+          exit (1);
         }
       if ((ifreq.ifr_flags & IFF_UP) && (ifr->ifr_addr.sa_family == AF_INET)
           && ((ifreq.ifr_flags & IFF_LOOPBACK) || (loopback == 0)))
         {
           *addr = *((struct sockaddr_in *) &ifr->ifr_addr);
           addr->sin_port = htons (PMAPPORT);
-          __close (s);
+          close (s);
           return TRUE;
         }
       ifr++;
@@ -104,7 +110,7 @@ __get_myaddress (struct sockaddr_in *addr)
       loopback = 0;
       goto again;
     }
-  __close (s);
+  close (s);
   return FALSE;
 }
 
@@ -116,11 +122,12 @@ static const struct timeval tottimeout = {60, 0};
  * Set a mapping between program,version and port.
  * Calls the pmap service remotely to do the mapping.
  */
-bool_t attribute_hidden
-__pmap_set (u_long program, u_long version, int protocol, u_short port)
+libc_hidden_proto(pmap_set)
+bool_t
+pmap_set (u_long program, u_long version, int protocol, u_short port)
 {
   struct sockaddr_in myaddress;
-  int socket = -1;
+  int _socket = -1;
   CLIENT *client;
   struct pmap parms;
   bool_t rslt;
@@ -128,7 +135,7 @@ __pmap_set (u_long program, u_long version, int protocol, u_short port)
   if (!__get_myaddress (&myaddress))
     return FALSE;
   client = clntudp_bufcreate (&myaddress, PMAPPROG, PMAPVERS,
-			timeout, &socket, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
+			timeout, &_socket, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
   if (client == (CLIENT *) NULL)
     return (FALSE);
   parms.pm_prog = program;
@@ -140,23 +147,24 @@ __pmap_set (u_long program, u_long version, int protocol, u_short port)
 		 tottimeout) != RPC_SUCCESS)
     {
       clnt_perror (client, _("Cannot register service"));
-      return FALSE;
+      rslt = FALSE;
     }
   CLNT_DESTROY (client);
-  /* (void)__close(socket); CLNT_DESTROY closes it */
+  /* (void)close(_socket); CLNT_DESTROY closes it */
   return rslt;
 }
-strong_alias(__pmap_set,pmap_set)
+libc_hidden_def (pmap_set)
 
 /*
  * Remove the mapping between program,version and port.
  * Calls the pmap service remotely to do the un-mapping.
  */
-bool_t attribute_hidden
-__pmap_unset (u_long program, u_long version)
+libc_hidden_proto(pmap_unset)
+bool_t
+pmap_unset (u_long program, u_long version)
 {
   struct sockaddr_in myaddress;
-  int socket = -1;
+  int _socket = -1;
   CLIENT *client;
   struct pmap parms;
   bool_t rslt;
@@ -164,7 +172,7 @@ __pmap_unset (u_long program, u_long version)
   if (!__get_myaddress (&myaddress))
     return FALSE;
   client = clntudp_bufcreate (&myaddress, PMAPPROG, PMAPVERS,
-			timeout, &socket, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
+			timeout, &_socket, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
   if (client == (CLIENT *) NULL)
     return FALSE;
   parms.pm_prog = program;
@@ -173,7 +181,7 @@ __pmap_unset (u_long program, u_long version)
   CLNT_CALL (client, PMAPPROC_UNSET, (xdrproc_t)xdr_pmap, (caddr_t)&parms,
 	     (xdrproc_t)xdr_bool, (caddr_t)&rslt, tottimeout);
   CLNT_DESTROY (client);
-  /* (void)__close(socket); CLNT_DESTROY already closed it */
+  /* (void)close(_socket); CLNT_DESTROY already closed it */
   return rslt;
 }
-strong_alias(__pmap_unset,pmap_unset)
+libc_hidden_def (pmap_unset)

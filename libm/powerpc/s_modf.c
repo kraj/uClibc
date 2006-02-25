@@ -280,6 +280,7 @@ long int roundtol ( double x )
 *     modf is the double implementation.                                       *
 *******************************************************************************/
 
+libm_hidden_proto(modf)
 double modf ( double x, double *iptr )
       {
       register double OldEnvironment, xtrunc;
@@ -340,3 +341,4 @@ double modf ( double x, double *iptr )
             return ( argument.dbl );
             }
       }
+libm_hidden_def(modf)

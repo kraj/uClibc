@@ -28,9 +28,11 @@
 
 #include <string.h>
 
+libc_hidden_proto(strstr)
+
 typedef unsigned chartype;
 
-char attribute_hidden *__strstr (const char *phaystack, const char *pneedle)
+char *strstr (const char *phaystack, const char *pneedle)
 {
   const unsigned char *haystack, *needle;
   chartype b;
@@ -109,5 +111,4 @@ foundneedle:
 ret0:
   return 0;
 }
-
-strong_alias(__strstr,strstr)
+libc_hidden_def(strstr)

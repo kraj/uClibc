@@ -13,11 +13,13 @@
 
 /* TODO: make a threadsafe version? */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <string.h>
 #include <bits/uClibc_uintmaxtostr.h>
 #include <signal.h>
+
+libc_hidden_proto(strsignal)
+libc_hidden_proto(memcpy)
 
 #define _SYS_NSIG			32
 
@@ -35,7 +37,7 @@
 
 #ifdef __UCLIBC_HAS_SIGNUM_MESSAGES__
 
-extern const char _string_syssigmsgs[];
+extern const char _string_syssigmsgs[] attribute_hidden;
 
 #if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
 static const unsigned char sstridx[] = {
@@ -55,10 +57,10 @@ static const unsigned char sstridx[] = {
 	SIGPIPE,
 	SIGALRM,
 	SIGTERM,
-#if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
-	0,
-#else
+#if defined SIGSTKFLT
 	SIGSTKFLT,
+#else
+	0,
 #endif
 	SIGCHLD,
 	SIGCONT,
@@ -75,13 +77,13 @@ static const unsigned char sstridx[] = {
 	SIGIO,
 	SIGPWR,
 	SIGSYS,
-#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+#if defined SIGEMT
 	SIGEMT,
 #endif
 };
 #endif
 
-char attribute_hidden *__strsignal(int signum)
+char *strsignal(int signum)
 {
     register char *s;
     int i;
@@ -120,7 +122,7 @@ char attribute_hidden *__strsignal(int signum)
     }
 
     s = _int10tostr(buf+sizeof(buf)-1, signum) - sizeof(unknown);
-    __memcpy(s, unknown, sizeof(unknown));
+    memcpy(s, unknown, sizeof(unknown));
 
  DONE:
 	return s;
@@ -128,18 +130,18 @@ char attribute_hidden *__strsignal(int signum)
 
 #else  /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
 
-char attribute_hidden *__strsignal(int signum)
+char *strsignal(int signum)
 {
     static char buf[_STRSIGNAL_BUFSIZE];
     static const char unknown[] = {
 		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 's', 'i', 'g', 'n', 'a', 'l', ' '
     };
 
-    return (char *) __memcpy(_int10tostr(buf+sizeof(buf)-1, signum)
+    return (char *) memcpy(_int10tostr(buf+sizeof(buf)-1, signum)
 						   - sizeof(unknown),
 						   unknown, sizeof(unknown));
 }
 
 #endif /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
 
-strong_alias(__strsignal,strsignal)
+libc_hidden_def(strsignal)

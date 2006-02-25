@@ -11,13 +11,15 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
-#define atoi __atoi
-#define vfprintf __vfprintf
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdarg.h>
+
+libc_hidden_proto(atoi)
+libc_hidden_proto(vfprintf)
+libc_hidden_proto(putc)
+libc_hidden_proto(getenv)
 
 #include "malloc.h"
 #include "heap.h"
@@ -42,7 +44,7 @@ __malloc_debug_printf (int indent, const char *fmt, ...)
 
   while (spaces > 0)
     {
-      __putc (' ', stderr);
+      putc (' ', stderr);
       spaces--;
     }
 
@@ -50,7 +52,7 @@ __malloc_debug_printf (int indent, const char *fmt, ...)
   vfprintf (stderr, fmt, val);
   va_end (val);
 
-  __putc ('\n', stderr);
+  putc ('\n', stderr);
 
   __malloc_debug_indent (indent);
 }
@@ -58,7 +60,7 @@ __malloc_debug_printf (int indent, const char *fmt, ...)
 void
 __malloc_debug_init (void)
 {
-  char *ev = __getenv ("MALLOC_DEBUG");
+  char *ev = getenv ("MALLOC_DEBUG");
   if (ev)
     {
       int val = atoi (ev);

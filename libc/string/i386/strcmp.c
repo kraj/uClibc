@@ -32,7 +32,8 @@
 
 #include <string.h>
 
-int attribute_hidden __strcmp(const char *cs, const char *ct)
+libc_hidden_proto(strcmp)
+int strcmp(const char *cs, const char *ct)
 {
     int d0, d1;
     register int __res;
@@ -51,10 +52,10 @@ int attribute_hidden __strcmp(const char *cs, const char *ct)
 	    :"1" (cs),"2" (ct));
     return __res;
 }
-
-strong_alias(__strcmp,strcmp)
+libc_hidden_def(strcmp)
 
 #ifndef __UCLIBC_HAS_LOCALE__
-hidden_strong_alias(__strcmp,__strcoll)
-strong_alias(__strcmp,strcoll)
+libc_hidden_proto(strcoll)
+strong_alias(strcmp,strcoll)
+libc_hidden_def(strcoll)
 #endif

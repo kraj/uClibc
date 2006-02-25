@@ -18,6 +18,10 @@ static char rcsid[] = "$NetBSD: s_ldexp.c,v 1.6 1995/05/10 20:47:40 jtc Exp $";
 #include "math_private.h"
 #include <errno.h>
 
+libm_hidden_proto(scalbn)
+libm_hidden_proto(finite)
+
+libm_hidden_proto(ldexp)
 #ifdef __STDC__
 	double ldexp(double value, int exp)
 #else
@@ -30,3 +34,4 @@ static char rcsid[] = "$NetBSD: s_ldexp.c,v 1.6 1995/05/10 20:47:40 jtc Exp $";
 	if(!finite(value)||value==0.0) errno = ERANGE;
 	return value;
 }
+libm_hidden_def(ldexp)

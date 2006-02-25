@@ -136,9 +136,9 @@ struct property *menu_add_prop(enum prop_type type, char *prompt, struct expr *e
 	return prop;
 }
 
-void menu_add_prompt(enum prop_type type, char *prompt, struct expr *dep)
+struct property *menu_add_prompt(enum prop_type type, char *prompt, struct expr *dep)
 {
-	menu_add_prop(type, prompt, NULL, dep);
+	return menu_add_prop(type, prompt, NULL, dep);
 }
 
 void menu_add_expr(enum prop_type type, struct expr *expr, struct expr *dep)
@@ -365,9 +365,9 @@ bool menu_is_visible(struct menu *menu)
 const char *menu_get_prompt(struct menu *menu)
 {
 	if (menu->prompt)
-		return menu->prompt->text;
+		return _(menu->prompt->text);
 	else if (menu->sym)
-		return menu->sym->name;
+		return _(menu->sym->name);
 	return NULL;
 }
 

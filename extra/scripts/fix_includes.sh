@@ -89,11 +89,12 @@ then
 fi
 
 if [ "$MAKE_IS_SILENT" != "y" ]; then
+echo ""
 echo "Current kernel version is $VERSION.$PATCHLEVEL.$SUBLEVEL${EXTRAVERSION}"
-echo -e "\n"
+echo ""
 echo "Using kernel headers from $VERSION.$PATCHLEVEL.$SUBLEVEL${EXTRAVERSION} for architecture '$TARGET_ARCH'"
 echo -e "\tprovided in directory $KERNEL_SOURCE"
-echo -e "\n"
+echo ""
 fi
 
 # Create a symlink to include/asm
@@ -152,17 +153,18 @@ if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then
     fi;
 else
 # No guessing required.....
-ln -fs $KERNEL_SOURCE/include/asm include/asm
-if [ -e $KERNEL_SOURCE/include/asm-$TARGET_ARCH ] ; then
-ln -fs $KERNEL_SOURCE/include/asm-$TARGET_ARCH include/asm-$TARGET_ARCH
-fi
+for x in $KERNEL_SOURCE/include/asm* ; do
+	ln -fs ${x} include/
+done
 fi;
 
 
 # Annoyingly, 2.6.x kernel headers also need an include/asm-generic/ directory
+if [ ! -e include/asm-generic ] ; then
 if [ $VERSION -eq 2 ] && [ $PATCHLEVEL -ge 6 ] ; then
     ln -fs $KERNEL_SOURCE/include/asm-generic include/asm-generic
 fi;
+fi
 
 
 # Create the include/linux symlink.

@@ -8,7 +8,7 @@
 #include <features.h>
 #include <errno.h>
 
-extern const char _string_syserrmsgs[];
+extern const char _string_syserrmsgs[] attribute_hidden;
 
 #ifdef __UCLIBC_HAS_SYS_ERRLIST__
 

@@ -14,11 +14,10 @@
   Hacked up for uClibc by Erik Andersen <andersen@codepoet.org>
 */
 
-#define mremap __mremap
-
 #include "malloc.h"
 
-
+libc_hidden_proto(mremap)
+libc_hidden_proto(memcpy)
 
 /* ------------------------------ realloc ------------------------------ */
 void* realloc(void* oldmem, size_t bytes)
@@ -128,7 +127,7 @@ void* realloc(void* oldmem, size_t bytes)
 		    assert(ncopies >= 3);
 
 		    if (ncopies > 9)
-			__memcpy(d, s, copysize);
+			memcpy(d, s, copysize);
 
 		    else {
 			*(d+0) = *(s+0);
@@ -228,7 +227,7 @@ void* realloc(void* oldmem, size_t bytes)
 	    /* Must alloc, copy, free. */
 	    newmem = malloc(nb - MALLOC_ALIGN_MASK);
 	    if (newmem != 0) {
-		__memcpy(newmem, oldmem, oldsize - 2*(sizeof(size_t)));
+		memcpy(newmem, oldmem, oldsize - 2*(sizeof(size_t)));
 		free(oldmem);
 	    }
 	}

@@ -24,6 +24,7 @@ static char rcsid[] = "$NetBSD: s_nextafter.c,v 1.8 1995/05/10 20:47:58 jtc Exp 
 #include "math.h"
 #include "math_private.h"
 
+libm_hidden_proto(nextafter)
 #ifdef __STDC__
 	double nextafter(double x, double y)
 #else
@@ -77,3 +78,4 @@ static char rcsid[] = "$NetBSD: s_nextafter.c,v 1.8 1995/05/10 20:47:58 jtc Exp 
 	INSERT_WORDS(x,hx,lx);
 	return x;
 }
+libm_hidden_def(nextafter)

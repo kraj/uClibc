@@ -40,16 +40,13 @@
 #include <features.h>
 
 .text
-.global __bzero
-.hidden __bzero
-.type __bzero,%function
+.global bzero
+.type bzero,%function
 .align 4
 
-__bzero:
+bzero:
 	mov	r2, r1
 	mov	r1, #0
-	b	__memset
+	b	HIDDEN_JUMPTARGET(memset)
 
-.size __bzero,.-__bzero
-
-strong_alias(__bzero,bzero)
+.size bzero,.-bzero

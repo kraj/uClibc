@@ -1,4 +1,32 @@
 /*
+ * Copyright (C) 1998 WIDE Project.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+/*
  * Copyright (c) 1983, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
@@ -10,10 +38,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -35,53 +59,89 @@
 static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #endif /* LIBC_SCCS and not lint */
 
-#define bcopy __bcopy
-#define sysconf __sysconf
-#define getline __getline
-#define geteuid __geteuid
-#define seteuid __seteuid
-#define getpwnam_r __getpwnam_r
-#define gethostbyname __gethostbyname
-#define gethostbyname_r __gethostbyname_r
-#define fileno __fileno
-#define sleep __sleep
-#define inet_addr __inet_addr
-#define inet_ntoa __inet_ntoa
-#define herror __herror
-#define bind __bind
-#define connect __connect
-#define sigblock __sigblock
-#define snprintf __snprintf
-#define poll __poll
-#define accept __accept
-#define listen __listen
-#define sigsetmask __sigsetmask
-
-#define __FORCE_GLIBC
+#define __UCLIBC_HIDE_DEPRECATED__
 #include <features.h>
-
-#define __USE_GNU
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <alloca.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <pwd.h>
 #include <sys/param.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <netdb.h>
+
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <alloca.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdio_ext.h>
+#include <ctype.h>
+#include <string.h>
+#include <libintl.h>
+#include <stdlib.h>
+#ifdef __UCLIBC_HAS_WCHAR__
+#include <wchar.h>
+#endif
+#include <sys/uio.h>
 
-extern int __rresvport(int *alport) attribute_hidden;
-extern int __getc_unlocked (FILE *__stream) attribute_hidden;
+libc_hidden_proto(memcmp)
+libc_hidden_proto(strcat)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strncmp)
+libc_hidden_proto(strnlen)
+libc_hidden_proto(memmove)
+libc_hidden_proto(getpid)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(fcntl)
+libc_hidden_proto(read)
+libc_hidden_proto(write)
+libc_hidden_proto(perror)
+libc_hidden_proto(lstat)
+libc_hidden_proto(fstat)
+libc_hidden_proto(tolower)
+libc_hidden_proto(sysconf)
+libc_hidden_proto(getline)
+libc_hidden_proto(geteuid)
+libc_hidden_proto(seteuid)
+libc_hidden_proto(getpwnam_r)
+libc_hidden_proto(gethostbyname)
+libc_hidden_proto(gethostbyname_r)
+libc_hidden_proto(fileno)
+libc_hidden_proto(sleep)
+libc_hidden_proto(inet_addr)
+libc_hidden_proto(inet_ntoa)
+libc_hidden_proto(herror)
+libc_hidden_proto(bind)
+libc_hidden_proto(connect)
+libc_hidden_proto(sigblock)
+libc_hidden_proto(snprintf)
+libc_hidden_proto(poll)
+libc_hidden_proto(accept)
+libc_hidden_proto(listen)
+libc_hidden_proto(sigsetmask)
+libc_hidden_proto(getc_unlocked)
+libc_hidden_proto(__fgetc_unlocked)
+libc_hidden_proto(fopen)
+libc_hidden_proto(fclose)
+libc_hidden_proto(fprintf)
+libc_hidden_proto(__h_errno_location)
+libc_hidden_proto(stderr)
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+libc_hidden_proto(__ctype_tolower_loc)
+#else
+libc_hidden_proto(__ctype_b)
+libc_hidden_proto(__ctype_tolower)
+#endif
+
+libc_hidden_proto(rresvport)
 
 /* some forward declarations */
 static int __ivaliduser2(FILE *hostf, u_int32_t raddr,
@@ -110,11 +170,11 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	int s, lport, timo;
 	char c;
 
-	pid = __getpid();
+	pid = getpid();
 
 #ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	hstbuflen = 1024;
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 	tmphstbuf = alloca (hstbuflen);
 #else
 	tmphstbuf = malloc (hstbuflen);
@@ -126,7 +186,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	    if (herr != NETDB_INTERNAL || errno != ERANGE)
 	    {
 		__set_h_errno (herr);
-#ifndef __ARCH_HAS_MMU__
+#ifndef __ARCH_USE_MMU__
 		free(tmphstbuf);
 #endif
 		herror(*ahost);
@@ -136,7 +196,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	    {
 		/* Enlarge the buffer.  */
 		hstbuflen *= 2;
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 		tmphstbuf = alloca (hstbuflen);
 #else
 		if (tmphstbuf) {
@@ -146,7 +206,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 #endif
 	    }
 	}
-#ifndef __ARCH_HAS_MMU__
+#ifndef __ARCH_USE_MMU__
 	free(tmphstbuf);
 #endif
 #else /* call the non-reentrant version */
@@ -160,7 +220,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
         *ahost = hp->h_name;
         oldmask = sigblock(sigmask(SIGURG)); /* __sigblock */
 	for (timo = 1, lport = IPPORT_RESERVED - 1;;) {
-		s = __rresvport(&lport);
+		s = rresvport(&lport);
 		if (s < 0) {
 			if (errno == EAGAIN)
 			    (void)fprintf(stderr,
@@ -170,14 +230,14 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			sigsetmask(oldmask); /* sigsetmask */
 			return -1;
 		}
-		__fcntl(s, F_SETOWN, pid); /* __fcntl */
+		fcntl(s, F_SETOWN, pid);
 		sin.sin_family = hp->h_addrtype;
-		bcopy(hp->h_addr_list[0], &sin.sin_addr,
+		memmove(&sin.sin_addr, hp->h_addr_list[0],
 		      MIN (sizeof (sin.sin_addr), hp->h_length));
 		sin.sin_port = rport;
 		if (connect(s, (struct sockaddr *)&sin, sizeof(sin)) >= 0) /* __connect */
 			break;
-		(void)__close(s);
+		(void)close(s);
 		if (errno == EADDRINUSE) {
 			lport--;
 			continue;
@@ -193,9 +253,9 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			(void)fprintf(stderr, "connect to address %s: ",
 			    inet_ntoa(sin.sin_addr));
 			__set_errno (oerrno);
-			__perror(0);
+			perror(0);
 			hp->h_addr_list++;
-			bcopy(hp->h_addr_list[0], &sin.sin_addr,
+			memmove(&sin.sin_addr, hp->h_addr_list[0],
 			      MIN (sizeof (sin.sin_addr), hp->h_length));
 			(void)fprintf(stderr, "Trying %s...\n",
 			    inet_ntoa(sin.sin_addr));
@@ -207,21 +267,21 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	}
 	lport--;
 	if (fd2p == 0) {
-		__write(s, "", 1);
+		write(s, "", 1);
 		lport = 0;
 	} else {
 		char num[8];
-		int s2 = __rresvport(&lport), s3;
+		int s2 = rresvport(&lport), s3;
 		socklen_t len = sizeof(from);
 
 		if (s2 < 0)
 			goto bad;
 		listen(s2, 1);
 		(void)snprintf(num, sizeof(num), "%d", lport); /* __snprintf */
-		if (__write(s, num, __strlen(num)+1) != __strlen(num)+1) {
+		if (write(s, num, strlen(num)+1) != strlen(num)+1) {
 			(void)fprintf(stderr,
 				      "rcmd: write (setting up stderr): %m\n");
-			(void)__close(s2);
+			(void)close(s2);
 			goto bad;
 		}
 		pfd[0].fd = s;
@@ -232,11 +292,11 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			(void)fprintf(stderr, "rcmd: poll (setting up stderr): %m\n");
 		    else
 			(void)fprintf(stderr, "poll: protocol failure in circuit setup\n");
-			(void)__close(s2);
+			(void)close(s2);
 			goto bad;
 		}
 		s3 = accept(s2, (struct sockaddr *)&from, &len);
-		(void)__close(s2);
+		(void)close(s2);
 		if (s3 < 0) {
 			(void)fprintf(stderr,
 			    "rcmd: accept: %m\n");
@@ -253,17 +313,17 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			goto bad2;
 		}
 	}
-	(void)__write(s, locuser, __strlen(locuser)+1);
-	(void)__write(s, remuser, __strlen(remuser)+1);
-	(void)__write(s, cmd, __strlen(cmd)+1);
-	if (__read(s, &c, 1) != 1) {
+	(void)write(s, locuser, strlen(locuser)+1);
+	(void)write(s, remuser, strlen(remuser)+1);
+	(void)write(s, cmd, strlen(cmd)+1);
+	if (read(s, &c, 1) != 1) {
 		(void)fprintf(stderr,
 		    "rcmd: %s: %m\n", *ahost);
 		goto bad2;
 	}
 	if (c != 0) {
-		while (__read(s, &c, 1) == 1) {
-			(void)__write(STDERR_FILENO, &c, 1);
+		while (read(s, &c, 1) == 1) {
+			(void)write(STDERR_FILENO, &c, 1);
 			if (c == '\n')
 				break;
 		}
@@ -273,21 +333,21 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	return s;
 bad2:
 	if (lport)
-		(void)__close(*fd2p);
+		(void)close(*fd2p);
 bad:
-	(void)__close(s);
+	(void)close(s);
 	sigsetmask(oldmask);
 	return -1;
 }
 
-int attribute_hidden __rresvport(int *alport)
+int rresvport(int *alport)
 {
     struct sockaddr_in sin;
     int s;
 
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = INADDR_ANY;
-    s = __socket(AF_INET, SOCK_STREAM, 0);
+    s = socket(AF_INET, SOCK_STREAM, 0);
     if (s < 0)
 	return -1;
     for (;;) {
@@ -295,12 +355,12 @@ int attribute_hidden __rresvport(int *alport)
 	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) >= 0)
 	    return s;
 	if (errno != EADDRINUSE) {
-	    (void)__close(s);
+	    (void)close(s);
 	    return -1;
 	}
 	(*alport)--;
 	if (*alport == IPPORT_RESERVED/2) {
-	    (void)__close(s);
+	    (void)close(s);
 	    __set_errno (EAGAIN);		/* close */
 	    return -1;
 	}
@@ -308,10 +368,9 @@ int attribute_hidden __rresvport(int *alport)
     
     return -1;
 }
-strong_alias(__rresvport,rresvport)
+libc_hidden_def(rresvport)
 
-int	__check_rhosts_file = 1;
-char    *__rcmd_errstr;
+static int  __check_rhosts_file = 1;
 
 int ruserok(rhost, superuser, ruser, luser)
 	const char *rhost, *ruser, *luser;
@@ -329,7 +388,7 @@ int ruserok(rhost, superuser, ruser, luser)
 
 #ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	buflen = 1024;
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 	buffer = alloca (buflen);
 #else
 	buffer = malloc (buflen);
@@ -339,7 +398,7 @@ int ruserok(rhost, superuser, ruser, luser)
 		    buflen, &hp, &herr) != 0 || hp == NULL) 
 	{
 	    if (herr != NETDB_INTERNAL || errno != ERANGE) {
-#ifndef __ARCH_HAS_MMU__
+#ifndef __ARCH_USE_MMU__
 		free(buffer);
 #endif
 		return -1;
@@ -347,7 +406,7 @@ int ruserok(rhost, superuser, ruser, luser)
 	    {
 		/* Enlarge the buffer.  */
 		buflen *= 2;
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 		buffer = alloca (buflen);
 #else
 		if (buffer) {
@@ -357,7 +416,7 @@ int ruserok(rhost, superuser, ruser, luser)
 #endif
 	    }
 	}
-#ifndef __ARCH_HAS_MMU__
+#ifndef __ARCH_USE_MMU__
 	free(buffer);
 #endif
 #else
@@ -366,7 +425,7 @@ int ruserok(rhost, superuser, ruser, luser)
 	}
 #endif
 	for (ap = hp->h_addr_list; *ap; ++ap) {
-		bcopy(*ap, &addr, sizeof(addr));
+		memmove(&addr, *ap, sizeof(addr));
 		if (iruserok2(addr, superuser, ruser, luser, rhost) == 0)
 			return 0;
 	}
@@ -376,7 +435,7 @@ int ruserok(rhost, superuser, ruser, luser)
 
 /* Extremely paranoid file open function. */
 static FILE *
-iruserfopen (char *file, uid_t okuser)
+iruserfopen (const char *file, uid_t okuser)
 {
   struct stat st;
   char *cp = NULL;
@@ -385,8 +444,7 @@ iruserfopen (char *file, uid_t okuser)
   /* If not a regular file, if owned by someone other than user or
      root, if writeable by anyone but the owner, or if hardlinked
      anywhere, quit.  */
-  cp = NULL;
-  if (__lstat (file, &st))
+  if (lstat (file, &st))
     cp = "lstat failed";
   else if (!S_ISREG (st.st_mode))
     cp = "not regular file";
@@ -395,7 +453,7 @@ iruserfopen (char *file, uid_t okuser)
       res = fopen (file, "r");
       if (!res)
 	cp = "cannot open";
-      else if (__fstat (fileno (res), &st) < 0)
+      else if (fstat (fileno (res), &st) < 0)
 	cp = "fstat failed";
       else if (st.st_uid && st.st_uid != okuser)
 	cp = "bad owner";
@@ -408,7 +466,6 @@ iruserfopen (char *file, uid_t okuser)
   /* If there were any problems, quit.  */
   if (cp != NULL)
     {
-      __rcmd_errstr = cp;
       if (res)
 	fclose (res);
       return NULL;
@@ -456,7 +513,7 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 #ifdef __UCLIBC_HAS_REENTRANT_RPC__
 		size_t buflen = sysconf (_SC_GETPW_R_SIZE_MAX);
 		struct passwd pwdbuf;
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 		char *buffer = alloca (buflen);
 #else
 		char *buffer = malloc (buflen);
@@ -465,12 +522,12 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 		if (getpwnam_r (luser, &pwdbuf, buffer, 
 			    buflen, &pwd) != 0 || pwd == NULL)
 		{
-#ifndef __ARCH_HAS_MMU__
+#ifndef __ARCH_USE_MMU__
 			free(buffer);
 #endif
 			return -1;
 		}
-#ifndef __ARCH_HAS_MMU__
+#ifndef __ARCH_USE_MMU__
 		free(buffer);
 #endif
 #else
@@ -478,10 +535,10 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 			return -1;
 #endif
 
-		dirlen = __strlen (pwd->pw_dir);
+		dirlen = strlen (pwd->pw_dir);
 		pbuf = malloc (dirlen + sizeof "/.rhosts");
-		__strcpy (pbuf, pwd->pw_dir);
-		__strcat (pbuf, "/.rhosts");
+		strcpy (pbuf, pwd->pw_dir);
+		strcat (pbuf, "/.rhosts");
 
 		/* Change effective uid while reading .rhosts.  If root and
 		   reading an NFS mounted file system, can't read files that
@@ -503,6 +560,7 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 }
 
 /* This is the exported version.  */
+int iruserok (u_int32_t raddr, int superuser, const char * ruser, const char * luser);
 int iruserok (u_int32_t raddr, int superuser, const char * ruser, const char * luser)
 {
 	return iruserok2 (raddr, superuser, ruser, luser, "-");
@@ -520,6 +578,8 @@ int iruserok (u_int32_t raddr, int superuser, const char * ruser, const char * l
  * or PAM.
  * Returns 0 if ok, -1 if not ok.
  */
+int
+__ivaliduser(FILE *hostf, u_int32_t raddr, const char *luser, const char *ruser);
 int
 __ivaliduser(FILE *hostf, u_int32_t raddr, const char *luser, const char *ruser)
 {
@@ -546,18 +606,18 @@ __icheckhost (u_int32_t raddr, char *lhost, const char *rhost)
 
 #ifdef HAVE_NETGROUP
 	/* Check nis netgroup.  */
-	if (__strncmp ("+@", lhost, 2) == 0)
+	if (strncmp ("+@", lhost, 2) == 0)
 		return innetgr (&lhost[2], rhost, NULL, NULL);
 
-	if (__strncmp ("-@", lhost, 2) == 0)
+	if (strncmp ("-@", lhost, 2) == 0)
 		return -innetgr (&lhost[2], rhost, NULL, NULL);
 #endif /* HAVE_NETGROUP */
 
 	/* -host */
-	if (__strncmp ("-", lhost,1) == 0) {
+	if (strncmp ("-", lhost,1) == 0) {
 		negate = -1;
 		lhost++;
-	} else if (__strcmp ("+",lhost) == 0) {
+	} else if (strcmp ("+",lhost) == 0) {
 		return 1;                    /* asking for trouble, but ok.. */
 	}
 
@@ -587,7 +647,7 @@ __icheckhost (u_int32_t raddr, char *lhost, const char *rhost)
 
 	/* Spin through ip addresses. */
 	for (pp = hp->h_addr_list; *pp; ++pp)
-		if (!__memcmp (&raddr, *pp, sizeof (u_int32_t)))
+		if (!memcmp (&raddr, *pp, sizeof (u_int32_t)))
 			return negate;
 
 	/* No match. */
@@ -606,23 +666,23 @@ __icheckuser (const char *luser, const char *ruser)
 
 #ifdef HAVE_NETGROUP
     /* [-+]@netgroup */
-    if (__strncmp ("+@", luser, 2) == 0)
+    if (strncmp ("+@", luser, 2) == 0)
 	return innetgr (&luser[2], NULL, ruser, NULL);
 
-    if (__strncmp ("-@", luser,2) == 0)
+    if (strncmp ("-@", luser,2) == 0)
 	return -innetgr (&luser[2], NULL, ruser, NULL);
 #endif /* HAVE_NETGROUP */
 
     /* -user */
-    if (__strncmp ("-", luser, 1) == 0)
-	return -(__strcmp (&luser[1], ruser) == 0);
+    if (strncmp ("-", luser, 1) == 0)
+	return -(strcmp (&luser[1], ruser) == 0);
 
     /* + */
-    if (__strcmp ("+", luser) == 0)
+    if (strcmp ("+", luser) == 0)
 	return 1;
 
     /* simple string match */
-    return __strcmp (ruser, luser) == 0;
+    return strcmp (ruser, luser) == 0;
 }
 
 /*
@@ -664,16 +724,16 @@ __ivaliduser2(hostf, raddr, luser, ruser, rhost)
 	}
 
 	/* Skip lines that are too long. */
-	if (__strchr (p, '\n') == NULL) {
-	    int ch = __getc_unlocked (hostf);
+	if (strchr (p, '\n') == NULL) {
+	    int ch = getc_unlocked (hostf);
 
 	    while (ch != '\n' && ch != EOF)
-	      ch = __getc_unlocked (hostf);
+	      ch = getc_unlocked (hostf);
 	    continue;
 	}
 
 	for (;*p && !isspace(*p); ++p) {
-	    *p = __tolower (*p);
+	    *p = tolower (*p);
 	}
 
 	/* Next we want to find the permitted name for the remote user.  */

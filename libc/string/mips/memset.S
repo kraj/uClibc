@@ -17,8 +17,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sysdep.h>
+#include <features.h>
+/*#include <sysdep.h>*/
 #include <endian.h>
+#include "sysdep.h"
 
 #ifdef __mips64
 #error mips32 code being compiled for mips64!
@@ -32,7 +34,7 @@
 # define SWHI	swr		/* high part is right in little-endian	*/
 #endif
 
-ENTRY (__memset)
+ENTRY (memset)
 	.set	noreorder
 
 	slti	t1, a2, 8		# Less than 8?
@@ -85,6 +87,6 @@ L(exit):
 	nop
 
 	.set	reorder
-END (__memset)
+END (memset)
 
-strong_alias(__memset,memset)
+libc_hidden_def(memset)

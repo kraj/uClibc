@@ -8,14 +8,13 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wmemmove __wmemmove
 # define Wmemmove wmemmove
 #else
-# define __Wmemmove __memmove
+libc_hidden_proto(memmove)
 # define Wmemmove memmove
 #endif
 
-Wvoid attribute_hidden *__Wmemmove(Wvoid *s1, const Wvoid *s2, size_t n)
+Wvoid *Wmemmove(Wvoid *s1, const Wvoid *s2, size_t n)
 {
 #ifdef __BCC__
 	register Wchar *s = (Wchar *) s1;
@@ -54,4 +53,6 @@ Wvoid attribute_hidden *__Wmemmove(Wvoid *s1, const Wvoid *s2, size_t n)
 #endif
 }
 
-strong_alias(__Wmemmove,Wmemmove)
+#ifndef WANT_WIDE
+libc_hidden_def(Wmemmove)
+#endif

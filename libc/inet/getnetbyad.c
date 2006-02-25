@@ -15,15 +15,15 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#define setnetent __setnetent
-#define getnetent __getnetent
-#define endnetent __endnetent
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include <netdb.h>
 
-extern int _net_stayopen;
+libc_hidden_proto(setnetent)
+libc_hidden_proto(getnetent)
+libc_hidden_proto(endnetent)
+
+extern int _net_stayopen attribute_hidden;
 
 struct netent *getnetbyaddr (uint32_t net, int type)
 {

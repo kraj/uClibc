@@ -20,11 +20,8 @@
    Reworked Dec 2002 by Erik Andersen <andersen@codepoet.org>
  */
 
-#define strndup __strndup
-
 #define __FORCE_GLIBC
 #include <features.h>
-#define __USE_GNU
 #include <string.h>
 #include <alloca.h>
 #include <errno.h>
@@ -35,11 +32,21 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <libc-internal.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <not-cancel.h>
+#endif
 
 #include "netlinkaccess.h"
 
+libc_hidden_proto(strndup)
+libc_hidden_proto(strncpy)
+libc_hidden_proto(strdup)
+libc_hidden_proto(ioctl)
+libc_hidden_proto(close)
+
 extern int __opensock(void) attribute_hidden;
 
+libc_hidden_proto(if_nametoindex)
 unsigned int
 if_nametoindex(const char* ifname) 
 {
@@ -53,22 +60,31 @@ if_nametoindex(const char* ifname)
   if (fd < 0)
     return 0;
 
-  __strncpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
-  if (__ioctl (fd, SIOCGIFINDEX, &ifr) < 0)
+  strncpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
+  if (ioctl (fd, SIOCGIFINDEX, &ifr) < 0)
     {
       int saved_errno = errno;
-      __close(fd);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+      close_not_cancel_no_status(fd);
+#else
+      close(fd);
+#endif
       if (saved_errno == EINVAL)
 	__set_errno(ENOSYS);
       return 0;
     }
 
-  __close(fd);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+  close_not_cancel_no_status(fd);
+#else
+  close(fd);
+#endif
   return ifr.ifr_ifindex;
 #endif
 }
-hidden_strong_alias(if_nametoindex,__if_nametoindex)
+libc_hidden_def(if_nametoindex)
 
+libc_hidden_proto(if_freenameindex)
 void
 if_freenameindex (struct if_nameindex *ifn)
 {
@@ -80,8 +96,9 @@ if_freenameindex (struct if_nameindex *ifn)
     }
   free (ifn);
 }
-hidden_strong_alias(if_freenameindex,__if_freenameindex)
+libc_hidden_def(if_freenameindex)
 
+libc_hidden_proto(if_nameindex)
 #if !__ASSUME_NETLINK_SUPPORT
 struct if_nameindex *
 if_nameindex (void)
@@ -112,9 +129,13 @@ if_nameindex (void)
       ifc.ifc_buf = extend_alloca (ifc.ifc_buf, rq_len, 2 * rq_len);
       ifc.ifc_len = rq_len;
 
-      if (__ioctl (fd, SIOCGIFCONF, &ifc) < 0)
+      if (ioctl (fd, SIOCGIFCONF, &ifc) < 0)
 	{
-	  __close (fd);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	  close_not_cancel_no_status (fd);
+#else
+	  close (fd);
+#endif
 	  return NULL;
 	}
     }
@@ -125,7 +146,11 @@ if_nameindex (void)
   idx = malloc ((nifs + 1) * sizeof (struct if_nameindex));
   if (idx == NULL)
     {
-      __close(fd);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+      close_not_cancel_no_status (fd);
+#else
+      close(fd);
+#endif
       __set_errno(ENOBUFS);
       return NULL;
     }
@@ -133,9 +158,9 @@ if_nameindex (void)
   for (i = 0; i < nifs; ++i)
     {
       struct ifreq *ifr = &ifc.ifc_req[i];
-      idx[i].if_name = __strdup (ifr->ifr_name);
+      idx[i].if_name = strdup (ifr->ifr_name);
       if (idx[i].if_name == NULL
-	  || __ioctl (fd, SIOCGIFINDEX, ifr) < 0)
+	  || ioctl (fd, SIOCGIFINDEX, ifr) < 0)
 	{
 	  int saved_errno = errno;
 	  unsigned int j;
@@ -143,7 +168,11 @@ if_nameindex (void)
 	  for (j =  0; j < i; ++j)
 	    free (idx[j].if_name);
 	  free(idx);
-	  __close(fd);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	  close_not_cancel_no_status (fd);
+#else
+	  close(fd);
+#endif
 	  if (saved_errno == EINVAL)
 	    saved_errno = ENOSYS;
 	  else if (saved_errno == ENOMEM)
@@ -157,7 +186,11 @@ if_nameindex (void)
   idx[i].if_index = 0;
   idx[i].if_name = NULL;
 
-  __close(fd);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+  close_not_cancel_no_status (fd);
+#else
+  close(fd);
+#endif
   return idx;
 #endif
 }
@@ -248,11 +281,11 @@ if_nameindex (void)
 
 		  if (rta->rta_type == IFLA_IFNAME)
 		    {
-		      idx[nifs].if_name = __strndup (rta_data, rta_payload);
+		      idx[nifs].if_name = strndup (rta_data, rta_payload);
 		      if (idx[nifs].if_name == NULL)
 			{
 			  idx[nifs].if_index = 0;
-			  __if_freenameindex (idx);
+			  if_freenameindex (idx);
 			  idx = NULL;
 			  goto nomem;
 			}
@@ -277,7 +310,7 @@ if_nameindex (void)
   return idx;
 }
 #endif
-hidden_strong_alias(if_nameindex,__if_nameindex)
+libc_hidden_def(if_nameindex)
 
 #if 0
 struct if_nameindex *
@@ -305,36 +338,44 @@ if_indextoname (unsigned int ifindex, char *ifname)
     return NULL;
 
   ifr.ifr_ifindex = ifindex;
-  if (__ioctl (fd, SIOCGIFNAME, &ifr) < 0)
+  if (ioctl (fd, SIOCGIFNAME, &ifr) < 0)
     {
       int serrno = errno;
-      __close (fd);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+      close_not_cancel_no_status (fd);
+#else
+      close (fd);
+#endif
       if (serrno == ENODEV)
 	/* POSIX requires ENXIO.  */
 	serrno = ENXIO;
       __set_errno (serrno);
       return NULL;
   }
-  __close (fd);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+  close_not_cancel_no_status (fd);
+#else
+  close (fd);
+#endif
 
-  return __strncpy (ifname, ifr.ifr_name, IFNAMSIZ);
+  return strncpy (ifname, ifr.ifr_name, IFNAMSIZ);
 # else
   struct if_nameindex *idx;
   struct if_nameindex *p;
   char *result = NULL;
 
-  idx = __if_nameindex();
+  idx = if_nameindex();
 
   if (idx != NULL)
     {
       for (p = idx; p->if_index || p->if_name; ++p)
 	if (p->if_index == ifindex)
 	  {
-	    result = __strncpy (ifname, p->if_name, IFNAMSIZ);
+	    result = strncpy (ifname, p->if_name, IFNAMSIZ);
 	    break;
 	  }
 
-      __if_freenameindex (idx);
+      if_freenameindex (idx);
 
       if (result == NULL)
 	__set_errno (ENXIO);

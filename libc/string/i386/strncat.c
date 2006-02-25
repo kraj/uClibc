@@ -32,7 +32,8 @@
 
 #include <string.h>
 
-char attribute_hidden *__strncat(char * dest, 
+libc_hidden_proto(strncat)
+char *strncat(char * dest, 
 	const char * src, size_t count)
 {
     int d0, d1, d2, d3;
@@ -57,5 +58,4 @@ char attribute_hidden *__strncat(char * dest,
 	    : "memory");
     return dest;
 }
-
-strong_alias(__strncat,strncat)
+libc_hidden_def(strncat)

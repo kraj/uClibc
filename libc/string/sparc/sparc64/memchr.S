@@ -54,7 +54,7 @@
 
 	.text
 	.align		32
-ENTRY(__memchr)
+ENTRY(memchr)
 	and		%o1, 0xff, %o1			/* IEU0		Group		*/
 #ifdef USE_BPR
 	brz,pn		%o2, 12f			/* CTI+IEU1			*/
@@ -253,9 +253,9 @@ ENTRY(__memchr)
 
 23:	retl						/* CTI+IEU1	Group		*/
 	 add		%o0, -1, %o0			/* IEU0				*/
-END(__memchr)
+END(memchr)
 
-strong_alias(__memchr,memchr)
+libc_hidden_def(memchr)
 #if !__BOUNDED_POINTERS__
-weak_alias(__memchr,__ubp_memchr)
+weak_alias(memchr,__ubp_memchr)
 #endif

@@ -25,7 +25,7 @@
 
 static const double huge = 1.0e300;
 
-
+libm_hidden_proto(round)
 double
 round (double x)
 {
@@ -90,3 +90,4 @@ round (double x)
   INSERT_WORDS (x, i0, i1);
   return x;
 }
+libm_hidden_def(round)

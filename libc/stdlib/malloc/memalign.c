@@ -30,6 +30,7 @@
     \____ INIT ____/ \______ RETURNED _______/ \____ END ___/
 */
 
+void *memalign (size_t alignment, size_t size);
 void *
 memalign (size_t alignment, size_t size)
 {

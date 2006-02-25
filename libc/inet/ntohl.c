@@ -22,43 +22,48 @@
 #include <endian.h>
 #include <byteswap.h>
 
+uint32_t ntohl (uint32_t x);
+uint16_t ntohs (uint16_t x);
+uint32_t htonl (uint32_t x);
+uint16_t htons (uint16_t x);
+
 #if __BYTE_ORDER == __BIG_ENDIAN
-extern uint32_t ntohl (uint32_t x)
+uint32_t ntohl (uint32_t x)
 {
 	return x;
 }
 
-extern uint16_t ntohs (uint16_t x)
+uint16_t ntohs (uint16_t x)
 {
 	return x;
 }
 
-extern uint32_t htonl (uint32_t x)
+uint32_t htonl (uint32_t x)
 {
 	return x;
 }
 
-extern uint16_t htons (uint16_t x)
+uint16_t htons (uint16_t x)
 {
 	return x;
 }
 #elif __BYTE_ORDER == __LITTLE_ENDIAN
-extern uint32_t ntohl (uint32_t x)
+uint32_t ntohl (uint32_t x)
 {
 	return __bswap_32(x);
 }
 
-extern uint16_t ntohs (uint16_t x)
+uint16_t ntohs (uint16_t x)
 {
 	return __bswap_16(x);
 }
 
-extern uint32_t htonl (uint32_t x)
+uint32_t htonl (uint32_t x)
 {
 	return __bswap_32(x);
 }
 
-extern uint16_t htons (uint16_t x)
+uint16_t htons (uint16_t x)
 {
 	return __bswap_16(x);
 }

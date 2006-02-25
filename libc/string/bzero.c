@@ -7,10 +7,12 @@
 
 #include "_string.h"
 
-void attribute_hidden __bzero(void *s, size_t n)
+libc_hidden_proto(memset)
+
+void bzero(void *s, size_t n)
 {
 #if 1
-	(void)__memset(s, 0, n);
+	(void)memset(s, 0, n);
 #else
 	register unsigned char *p = s;
 #ifdef __BCC__
@@ -27,5 +29,3 @@ void attribute_hidden __bzero(void *s, size_t n)
 #endif
 }
 #undef np
-
-strong_alias(__bzero,bzero)

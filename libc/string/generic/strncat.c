@@ -20,7 +20,8 @@
 
 #include "memcopy.h"
 
-char attribute_hidden *__strncat (char *s1, const char *s2, size_t n)
+libc_hidden_proto(strncat)
+char *strncat (char *s1, const char *s2, size_t n)
 {
   reg_char c;
   char *s = s1;
@@ -73,5 +74,4 @@ char attribute_hidden *__strncat (char *s1, const char *s2, size_t n)
 
   return s;
 }
-
-strong_alias(__strncat,strncat)
+libc_hidden_def(strncat)

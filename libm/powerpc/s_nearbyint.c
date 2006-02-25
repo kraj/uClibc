@@ -15,6 +15,7 @@
 
 static const double twoTo52      = 4503599627370496.0;
 
+libm_hidden_proto(nearbyint)
 double nearbyint ( double x )
       {
 	double y;
@@ -34,3 +35,4 @@ double nearbyint ( double x )
 	asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment ));
       return ( y );
 	}
+libm_hidden_def(nearbyint)

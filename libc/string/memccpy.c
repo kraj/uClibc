@@ -9,7 +9,7 @@
 
 #include "_string.h"
 
-void attribute_hidden *__memccpy(void * __restrict s1, const void * __restrict s2, int c, size_t n)
+void *memccpy(void * __restrict s1, const void * __restrict s2, int c, size_t n)
 {
 	register char *r1 = s1;
 	register const char *r2 = s2;
@@ -18,5 +18,3 @@ void attribute_hidden *__memccpy(void * __restrict s1, const void * __restrict s
 
 	return (n == (size_t) -1) ? NULL : r1;
 }
-
-strong_alias(__memccpy,memccpy)

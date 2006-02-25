@@ -9,13 +9,15 @@
 #include <string.h>
 #include "_syserrmsg.h"
 
-char attribute_hidden *__strerror(int errnum)
+libc_hidden_proto(strerror)
+libc_hidden_proto(__xpg_strerror_r)
+
+char *strerror(int errnum)
 {
     static char buf[_STRERROR_BUFSIZE];
 
-	__xpg_strerror_r_internal(errnum, buf, sizeof(buf));
+	__xpg_strerror_r(errnum, buf, sizeof(buf));
 
 	return buf;
 }
-
-strong_alias(__strerror,strerror)
+libc_hidden_def(strerror)

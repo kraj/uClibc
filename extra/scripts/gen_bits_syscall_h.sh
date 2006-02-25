@@ -17,8 +17,13 @@
 UNISTD_H_PATH=$top_builddir/include/asm/unistd.h
 INCLUDE_OPTS="-I$top_builddir/include"
 
+case $CC in
+*icc*) CC_SYSNUM_ARGS="-dM" ;;
+*)     CC_SYSNUM_ARGS="-dN" ;;
+esac
+
 ( echo "#include \"$UNISTD_H_PATH\"" ;
-  $CC -E -dN $INCLUDE_OPTS $UNISTD_H_PATH | # needed to strip out any kernel-internal defines
+  $CC -E $CC_SYSNUM_ARGS $INCLUDE_OPTS $UNISTD_H_PATH | # needed to strip out any kernel-internal defines
   sed -ne 's/^[ ]*#define[ ]*__NR_\([A-Za-z0-9_]*\).*/UCLIBC_\1 __NR_\1/gp'
 ) |
 $CC -E $INCLUDE_OPTS - |

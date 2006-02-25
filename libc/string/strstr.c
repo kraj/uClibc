@@ -8,16 +8,15 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wstrstr __wcsstr
 # define Wstrstr wcsstr
 #else
-# define __Wstrstr __strstr
+libc_hidden_proto(strstr)
 # define Wstrstr strstr
 #endif
 
 /* NOTE: This is the simple-minded O(len(s1) * len(s2)) worst-case approach. */
 
-Wchar attribute_hidden *__Wstrstr(const Wchar *s1, const Wchar *s2)
+Wchar *Wstrstr(const Wchar *s1, const Wchar *s2)
 {
 	register const Wchar *s = s1;
 	register const Wchar *p = s2;
@@ -38,8 +37,8 @@ Wchar attribute_hidden *__Wstrstr(const Wchar *s1, const Wchar *s2)
 		}
 	} while (1);
 }
-
-strong_alias(__Wstrstr,Wstrstr)
-#ifdef WANT_WIDE
-strong_alias(__wcsstr,wcswcs)
+#ifndef WANT_WIDE
+libc_hidden_def(strstr)
+#else
+strong_alias(wcsstr,wcswcs)
 #endif

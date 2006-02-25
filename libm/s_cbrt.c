@@ -39,6 +39,7 @@ E =  1.41428571428571436819e+00, /* 99/70     = 0x3FF6A0EA, 0x0EA0EA0F */
 F =  1.60714285714285720630e+00, /* 45/28     = 0x3FF9B6DB, 0x6DB6DB6E */
 G =  3.57142857142857150787e-01; /* 5/14      = 0x3FD6DB6D, 0xB6DB6DB7 */
 
+libm_hidden_proto(cbrt)
 #ifdef __STDC__
 	double cbrt(double x)
 #else
@@ -91,3 +92,4 @@ G =  3.57142857142857150787e-01; /* 5/14      = 0x3FD6DB6D, 0xB6DB6DB7 */
 	SET_HIGH_WORD(t,high|sign);
 	return(t);
 }
+libm_hidden_def(cbrt)

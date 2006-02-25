@@ -33,12 +33,11 @@
 #include <features.h>
 
 	.section .text..SHmedia32,"ax"
-	.globl	__strlen
-	.hidden	__strlen
-	.type	__strlen,@function
+	.globl	strlen
+	.type	strlen,@function
 
 	.balign 16
-__strlen:
+strlen:
 	ptabs	r18, tr4
 
 	/*
@@ -59,6 +58,6 @@ loop:
 	or	r0, r63, r2
 	blink	tr4, r63
 
-	.size	__strlen,.-__strlen
+	.size	strlen,.-strlen
 
-strong_alias(__strlen,strlen)
+libc_hidden_def(strlen)

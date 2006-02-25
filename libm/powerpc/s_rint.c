@@ -70,6 +70,7 @@ static const double doubleToLong = 4503603922337792.0;	            // 2^52
 static const DblInHex Huge       = {{ 0x7FF00000, 0x00000000 }};
 static const DblInHex TOWARDZERO = {{ 0x00000000, 0x00000001 }};
 
+libm_hidden_proto(rint)
 /*******************************************************************************
 *                                                                              *
 *     The function rint rounds its double argument to integral value           *
@@ -155,4 +156,4 @@ double rint ( double x )
 *******************************************************************************/
       return ( x );
       }
-
+libm_hidden_def(rint)

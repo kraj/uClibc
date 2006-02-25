@@ -4,10 +4,8 @@
 /* Now define the internal interfaces.  */
 extern u_long _create_xid (void) attribute_hidden;
 
-#undef get_rpc_createerr
-extern struct rpc_createerr *__rpc_thread_createerr_internal (void)
-     __attribute__ ((__const__)) attribute_hidden;
-#define get_rpc_createerr() (*__rpc_thread_createerr_internal ())
+libc_hidden_proto(__rpc_thread_createerr)
+libc_hidden_proto(stderr)
 
 /*
  * Multi-threaded support

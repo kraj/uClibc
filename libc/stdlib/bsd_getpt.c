@@ -22,6 +22,8 @@
 #include <string.h>
 #include <unistd.h>
 
+libc_hidden_proto(open)
+libc_hidden_proto(mempcpy)
 
 /* Prefix for master pseudo terminal nodes.  */
 #define _PATH_PTY "/dev/pty"
@@ -48,7 +50,7 @@ __getpt (void)
   const char *p, *q;
   char *s;
 
-  s = __mempcpy (buf, _PATH_PTY, sizeof (_PATH_PTY) - 1);
+  s = mempcpy (buf, _PATH_PTY, sizeof (_PATH_PTY) - 1);
   /* s[0] and s[1] will be filled in the loop.  */
   s[2] = '\0';
 
@@ -62,7 +64,7 @@ __getpt (void)
 
 	  s[1] = *q;
 
-	  fd = __open (buf, O_RDWR);
+	  fd = open (buf, O_RDWR);
 	  if (fd != -1)
 	    return fd;
 

@@ -22,7 +22,7 @@
 
 
 	.text
-ENTRY (__strlen)
+ENTRY (strlen)
 	movq %rdi, %rcx		/* Duplicate source pointer. */
 	andl $7, %ecx		/* mask alignment bits */
 	movq %rdi, %rax		/* duplicate destination.  */
@@ -132,6 +132,6 @@ ENTRY (__strlen)
 2:
 	subq %rdi, %rax		/* compute difference to string start */
 	ret
-END (__strlen)
+END (strlen)
 
-strong_alias(__strlen,strlen)
+libc_hidden_def(strlen)

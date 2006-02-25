@@ -7,18 +7,22 @@
 
 #include "_string.h"
 
-char attribute_hidden *__strsep(char ** __restrict s1, const char * __restrict s2)
+libc_hidden_proto(strsep)
+libc_hidden_proto(strpbrk)
+libc_hidden_proto(strcspn)
+
+char *strsep(char ** __restrict s1, const char * __restrict s2)
 {
 	register char *s = *s1;
 	register char *p;
 
 #if 1
 	p = NULL;
-	if (s && *s && (p = __strpbrk(s, s2))) {
+	if (s && *s && (p = strpbrk(s, s2))) {
 		*p++ = 0;
 	}
 #else
-	if (s && *s && *(p = s + __strcspn(s, s2))) {
+	if (s && *s && *(p = s + strcspn(s, s2))) {
 		*p++ = 0;
 	} else {
 		p = NULL;
@@ -27,5 +31,4 @@ char attribute_hidden *__strsep(char ** __restrict s1, const char * __restrict s
 	*s1 = p;
 	return s;
 }
-
-strong_alias(__strsep,strsep)
+libc_hidden_def(strsep)

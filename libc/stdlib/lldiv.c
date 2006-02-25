@@ -17,7 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define _GNU_SOURCE
 #include <features.h>
 #include <stdlib.h>
 
@@ -58,5 +57,5 @@ lldiv (long long int numer, long long int denom)
 
 #if __WORDSIZE != 64
 #undef imaxdiv
-weak_alias (lldiv, imaxdiv)
+strong_alias(lldiv,imaxdiv)
 #endif

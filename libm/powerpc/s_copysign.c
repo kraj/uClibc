@@ -22,6 +22,7 @@
 *                                                                              *
 *******************************************************************************/
 
+#include <math.h>
 #include "../fp_private.h"
 
 /*******************************************************************************
@@ -34,6 +35,7 @@
 *     suggested in the IEEE standard 754.                                      *
 *******************************************************************************/
 
+libm_hidden_proto(copysign)
 double copysign ( double arg2, double arg1 )
       {
       union
@@ -54,3 +56,4 @@ double copysign ( double arg2, double arg1 )
 
       return y.dbl;
       }
+libm_hidden_def(copysign)

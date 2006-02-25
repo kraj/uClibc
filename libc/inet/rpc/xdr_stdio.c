@@ -37,12 +37,6 @@
  * from the stream.
  */
 
-#define fread __fread
-#define fwrite __fwrite
-#define fseek __fseek
-#define fflush __fflush
-#define ftell __ftell
-
 #include <rpc/types.h>
 #include <stdio.h>
 #include <rpc/xdr.h>
@@ -55,13 +49,19 @@
 # define fwrite(p, m, n, s) _IO_fwrite (p, m, n, s)
 #endif
 
+libc_hidden_proto(fread)
+libc_hidden_proto(fwrite)
+libc_hidden_proto(fseek)
+libc_hidden_proto(fflush)
+libc_hidden_proto(ftell)
+
 static bool_t xdrstdio_getlong (XDR *, long *);
 static bool_t xdrstdio_putlong (XDR *, const long *);
 static bool_t xdrstdio_getbytes (XDR *, caddr_t, u_int);
 static bool_t xdrstdio_putbytes (XDR *, const char *, u_int);
 static u_int xdrstdio_getpos (const XDR *);
 static bool_t xdrstdio_setpos (XDR *, u_int);
-static int32_t *xdrstdio_inline (XDR *, int);
+static int32_t *xdrstdio_inline (XDR *, u_int);
 static void xdrstdio_destroy (XDR *);
 static bool_t xdrstdio_getint32 (XDR *, int32_t *);
 static bool_t xdrstdio_putint32 (XDR *, const int32_t *);
@@ -114,20 +114,20 @@ xdrstdio_destroy (XDR *xdrs)
 static bool_t
 xdrstdio_getlong (XDR *xdrs, long *lp)
 {
-  int32_t mycopy;
+  u_int32_t mycopy;
 
-  if (fread ((caddr_t) & mycopy, 4, 1, (FILE *) xdrs->x_private) != 1)
+  if (fread ((caddr_t) &mycopy, 4, 1, (FILE *) xdrs->x_private) != 1)
     return FALSE;
-  *lp = (int32_t) ntohl (mycopy);
+  *lp = (long) ntohl (mycopy);
   return TRUE;
 }
 
 static bool_t
 xdrstdio_putlong (XDR *xdrs, const long *lp)
 {
-  long mycopy = htonl (*lp);
-  lp = &mycopy;
-  if (fwrite ((caddr_t) lp, 4, 1, (FILE *) xdrs->x_private) != 1)
+  int32_t mycopy = htonl ((u_int32_t) *lp);
+
+  if (fwrite ((caddr_t) &mycopy, 4, 1, (FILE *) xdrs->x_private) != 1)
     return FALSE;
   return TRUE;
 }
@@ -163,7 +163,7 @@ xdrstdio_setpos (XDR *xdrs, u_int pos)
 }
 
 static int32_t *
-xdrstdio_inline (XDR *xdrs attribute_unused, int len attribute_unused)
+xdrstdio_inline (XDR *xdrs attribute_unused, u_int len attribute_unused)
 {
   /*
    * Must do some work to implement this: must insure

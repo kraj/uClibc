@@ -1,3 +1,2 @@
-#define __memset __bzero
+#define memset bzero
 #include "memset.S"
-strong_alias(__bzero,bzero)

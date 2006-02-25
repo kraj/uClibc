@@ -1,7 +1,8 @@
-#define geteuid __geteuid
-#define getuid __getuid
-#define gethostbyname __gethostbyname
-#define gethostname __gethostname
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -13,7 +14,19 @@
 #include <netdb.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <not-cancel.h>
+#endif
 
+libc_hidden_proto(memcpy)
+libc_hidden_proto(open)
+libc_hidden_proto(close)
+libc_hidden_proto(read)
+libc_hidden_proto(write)
+libc_hidden_proto(getuid)
+libc_hidden_proto(geteuid)
+libc_hidden_proto(gethostbyname)
+libc_hidden_proto(gethostname)
 
 #define HOSTID "/etc/hostid"
 
@@ -23,28 +36,45 @@ int sethostid(long int new_id)
 	int ret;
 
 	if (geteuid() || getuid()) return __set_errno(EPERM);
-	if ((fd=__open(HOSTID,O_CREAT|O_WRONLY,0644))<0) return -1;
-	ret = __write(fd,(void *)&new_id,sizeof(new_id)) == sizeof(new_id)
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	if ((fd=open_not_cancel(HOSTID,O_CREAT|O_WRONLY,0644))<0) return -1;
+	ret = write_not_cancel(fd,(void *)&new_id,sizeof(new_id)) ==
+		sizeof(new_id) ? 0 : -1;
+	close_not_cancel_no_status (fd);
+#else
+	if ((fd=open(HOSTID,O_CREAT|O_WRONLY,0644))<0) return -1;
+	ret = write(fd,(void *)&new_id,sizeof(new_id)) == sizeof(new_id)
 		? 0 : -1;
-	__close (fd);
+	close (fd);
+#endif
 	return ret;
 }
 
 long int gethostid(void)
 {
-        char host[MAXHOSTNAMELEN + 1];
+	char host[MAXHOSTNAMELEN + 1];
 	int fd, id;
 
 	/* If hostid was already set the we can return that value.
 	 * It is not an error if we cannot read this file. It is not even an
 	 * error if we cannot read all the bytes, we just carry on trying...
 	 */
-	if ((fd=__open(HOSTID,O_RDONLY))>=0 && __read(fd,(void *)&id,sizeof(id)))
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	if ((fd =open_not_cancel_2 (HOSTID, O_RDONLY)) >= 0 &&
+	     read_not_cancel (fd, (void *) &id, sizeof (id)))
 	{
-		__close (fd);
+		close_not_cancel_no_status (fd);
 		return id;
 	}
-	if (fd >= 0) __close (fd);
+	if (fd >= 0) close_not_cancel_no_status (fd);
+#else
+	if ((fd=open(HOSTID,O_RDONLY))>=0 && read(fd,(void *)&id,sizeof(id)))
+	{
+		close (fd);
+		return id;
+	}
+	if (fd >= 0) close (fd);
+#endif
 
 	/* Try some methods of returning a unique 32 bit id. Clearly IP
 	 * numbers, if on the internet, will have a unique address. If they
@@ -70,7 +100,7 @@ long int gethostid(void)
 		 */
 			return 0;
 		else {
-			__memcpy((char *) &in, (char *) hp->h_addr, hp->h_length);
+			memcpy((char *) &in, (char *) hp->h_addr, hp->h_length);
 
 			/* Just so it doesn't look exactly like the IP addr */
 			return(in.s_addr<<16|in.s_addr>>16);

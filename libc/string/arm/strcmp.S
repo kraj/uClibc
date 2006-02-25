@@ -32,12 +32,11 @@
 #include <features.h>
 
 .text
-.global __strcmp
-.hidden __strcmp
-.type __strcmp,%function
+.global strcmp
+.type strcmp,%function
 .align 4
 
-__strcmp:
+strcmp:
 1:
 	ldrb	r2, [r0], #1
 	ldrb	r3, [r1], #1
@@ -45,12 +44,16 @@ __strcmp:
 	cmpcs	r2, r3
 	beq	1b
 	sub	r0, r2, r3
-	mov	pc, lr
+#if defined(__USE_BX__)
+        bx      lr
+#else
+  	mov	pc, lr
+#endif
 
-.size __strcmp,.-__strcmp
+.size strcmp,.-strcmp
 
-strong_alias(__strcmp,strcmp)
+libc_hidden_def(strcmp)
 #ifndef __UCLIBC_HAS_LOCALE__
-hidden_strong_alias(__strcmp,__strcoll)
-strong_alias(__strcmp,strcoll)
+strong_alias(strcmp,strcoll)
+libc_hidden_def(strcoll)
 #endif

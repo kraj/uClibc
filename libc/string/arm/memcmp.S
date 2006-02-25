@@ -32,17 +32,19 @@
 #include <features.h>
 
 .text
-.global __memcmp
-.hidden __memcmp
-.type __memcmp,%function
+.global memcmp
+.type memcmp,%function
 .align 4
 
-__memcmp:
+memcmp:
 	/* if ((len - 1) < 0) return 0 */
 	subs	r2, r2, #1
 	movmi	r0, #0
+#if defined(__USE_BX__)
+        bxmi    lr
+#else
 	movmi	pc, lr
-
+#endif
 	/* ip == last src address to compare */
 	add	ip, r0, r2
 1:
@@ -52,9 +54,13 @@ __memcmp:
 	cmpcs	r2, r3
 	beq	1b
 	sub	r0, r2, r3
-	mov	pc, lr
+#if defined(__USE_BX__)
+        bx      lr
+#else
+ 	mov	pc, lr
+#endif
 
-.size __memcmp,.-__memcmp
+.size memcmp,.-memcmp
 
-strong_alias(__memcmp,memcmp)
-strong_alias(__memcmp,bcmp)
+libc_hidden_def(memcmp)
+strong_alias(memcmp,bcmp)

@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #define LKC_DIRECT_LINK
@@ -23,10 +24,10 @@ const char *conf_confnames[] = {
 	NULL,
 };
 
-static char *conf_expand_value(const signed char *in)
+static char *conf_expand_value(const char *in)
 {
 	struct symbol *sym;
-	const signed char *src;
+	const char *src;
 	static char res_value[SYMBOL_MAXLENGTH];
 	char *dst, name[SYMBOL_MAXLENGTH];
 
@@ -84,9 +85,9 @@ int conf_read(const char *name)
 			name = conf_expand_value(name);
 			in = zconf_fopen(name);
 			if (in) {
-				printf("#\n"
-				       "# using defaults found in %s\n"
-				       "#\n", name);
+				printf(_("#\n"
+				         "# using defaults found in %s\n"
+				         "#\n"), name);
 				break;
 			}
 		}
@@ -264,6 +265,9 @@ int conf_write(const char *name)
 	char dirname[128], tmpname[128], newname[128];
 	int type, l;
 	const char *str;
+	time_t now;
+	int use_timestamp = 1;
+	char *env;
 
 	dirname[0] = 0;
 	if (name && name[0]) {
@@ -297,25 +301,36 @@ int conf_write(const char *name)
 		if (!out_h)
 			return 1;
 	}
-	fprintf(out, "#\n"
-		     "# Automatically generated make config: don't edit\n"
-		     "#\n");
+	time(&now);
+	env = getenv("KCONFIG_NOTIMESTAMP");
+	if (env && *env)
+		use_timestamp = 0;
+
+	fprintf(out, _("#\n"
+		       "# Automatically generated make config: don't edit\n"
+		       "%s%s"
+		       "#\n"),
+		     use_timestamp ? "# " : "",
+		     use_timestamp ? ctime(&now) : "");
 	if (out_h)
 		fprintf(out_h, "/*\n"
-			     " * Automatically generated C config: don't edit\n"
-			     " */\n"
-			     "#if !defined __FEATURES_H && !defined __need_uClibc_config_h\n"
-			     "#error Never include <bits/uClibc_config.h> directly; use <features.h> instead\n"
-			     "#endif\n\n"
-			     "/*\n"
-			     " * Version Number\n"
-			     " */\n"
-			     "#define __UCLIBC_MAJOR__ %s\n"
-			     "#define __UCLIBC_MINOR__ %s\n"
-			     "#define __UCLIBC_SUBLEVEL__ %s\n",
-			     getenv("MAJOR_VERSION"),
-			     getenv("MINOR_VERSION"),
-			     getenv("SUBLEVEL"));
+			       " * Automatically generated C config: don't edit\n"
+			       "%s%s"
+			       " */\n"
+			       "#if !defined __FEATURES_H && !defined __need_uClibc_config_h\n"
+			       "#error Never include <bits/uClibc_config.h> directly; use <features.h> instead\n"
+			       "#endif\n\n"
+			       "/*\n"
+			       " * Version Number\n"
+			       " */\n"
+			       "#define __UCLIBC_MAJOR__ %s\n"
+			       "#define __UCLIBC_MINOR__ %s\n"
+			       "#define __UCLIBC_SUBLEVEL__ %s\n",
+			       use_timestamp ? " * " : "",
+			       use_timestamp ? ctime(&now) : "",
+			       getenv("MAJOR_VERSION"),
+			       getenv("MINOR_VERSION"),
+			       getenv("SUBLEVEL"));
 
 	if (!sym_change_count)
 		sym_clear_all_valid();

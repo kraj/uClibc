@@ -14,7 +14,6 @@
 
 #define ENTRY(sym) \
 	.global sym; \
-	.hidden sym; \
 	.align  ENTRY_ALIGN; \
 	.type   sym,%function; \
 	sym:

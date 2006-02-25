@@ -14,10 +14,6 @@
   Hacked up for uClibc by Erik Andersen <andersen@codepoet.org>
 */
 
-#define mmap __mmap
-#define sysconf __sysconf
-#define sbrk __sbrk
-
 #include <features.h>
 #include <stddef.h>
 #include <unistd.h>
@@ -25,11 +21,17 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdlib.h>
+#include <sys/mman.h>
 
+libc_hidden_proto(mmap)
+libc_hidden_proto(sysconf)
+libc_hidden_proto(sbrk)
+libc_hidden_proto(abort)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
 extern pthread_mutex_t __malloc_lock;
+libc_hidden_proto(__malloc_lock)
 #endif
 #define LOCK	__pthread_mutex_lock(&__malloc_lock)
 #define UNLOCK	__pthread_mutex_unlock(&__malloc_lock)
@@ -352,7 +354,7 @@ extern pthread_mutex_t __malloc_lock;
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 
 #define MMAP(addr, size, prot) \
  (mmap((addr), (size), (prot), MAP_PRIVATE|MAP_ANONYMOUS, 0, 0))

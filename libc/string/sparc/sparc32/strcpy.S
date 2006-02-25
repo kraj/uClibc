@@ -63,7 +63,7 @@
 	b		6f
 	 andcc		%o0, 3, %g3
 
-ENTRY(__strcpy)
+ENTRY(strcpy)
 	mov		%o0, %g2
 	andcc		%o1, 3, %g0
 	bne		1b
@@ -269,6 +269,5 @@ ENTRY(__strcpy)
 	 srl		%o5, 16, %o4
 	retl
 	 mov		%g2, %o0
-END(__strcpy)
-
-strong_alias(__strcpy,strcpy)
+END(strcpy)
+libc_hidden_def(strcpy)

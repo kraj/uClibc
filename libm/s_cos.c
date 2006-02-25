@@ -48,6 +48,7 @@ static char rcsid[] = "$NetBSD: s_cos.c,v 1.7 1995/05/10 20:47:02 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
+libm_hidden_proto(cos)
 #ifdef __STDC__
 	double cos(double x)
 #else
@@ -80,3 +81,4 @@ static char rcsid[] = "$NetBSD: s_cos.c,v 1.7 1995/05/10 20:47:02 jtc Exp $";
 	    }
 	}
 }
+libm_hidden_def(cos)

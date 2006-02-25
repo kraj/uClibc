@@ -32,7 +32,8 @@
 
 #include <string.h>
 
-void attribute_hidden *__memset(void *s, int c, size_t count)
+libc_hidden_proto(memset)
+void *memset(void *s, int c, size_t count)
 {
     int d0, d1;
     __asm__ __volatile__(
@@ -43,5 +44,4 @@ void attribute_hidden *__memset(void *s, int c, size_t count)
 	    :"memory");
     return s;
 }
-
-strong_alias(__memset,memset)
+libc_hidden_def(memset)

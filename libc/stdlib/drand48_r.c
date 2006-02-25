@@ -1,6 +1,6 @@
 /* Copyright (C) 1995, 1996, 1997, 1998, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu <mailto:drepper@gnu.ai.mit.edu>>, August 1995.
+   Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -17,13 +17,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define erand48_r __erand48_r
-
 #include <errno.h>
 #include <math.h>
 #include <stdlib.h>
 
+libc_hidden_proto(erand48_r)
+
 int drand48_r (struct drand48_data *buffer, double *result)
 {
-    return erand48_r (buffer->__x, buffer, result);
+  return erand48_r (buffer->__x, buffer, result);
 }

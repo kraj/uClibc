@@ -17,8 +17,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sysdep.h>
+#include <features.h>
+/*#include <sysdep.h>*/
 #include <endian.h>
+#include "sysdep.h"
 
 #ifdef __mips64
 #error mips32 code being compiled for mips64!
@@ -38,7 +40,7 @@
 #  define SWLO	swl		/* low part is left in little-endian	*/
 #endif
 
-ENTRY (__memcpy)
+ENTRY (memcpy)
 	.set	noreorder
 
 	slti	t0, a2, 8		# Less than 8?
@@ -135,6 +137,6 @@ L(shfth):
 	move	a2, t0
 
 	.set	reorder
-END (__memcpy)
+END (memcpy)
 
-strong_alias(__memcpy,memcpy)
+libc_hidden_def(memcpy)

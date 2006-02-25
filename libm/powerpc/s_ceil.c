@@ -21,6 +21,7 @@
 *                                                                              *
 *******************************************************************************/
 
+#include <math.h>
 #include <endian.h>
 
 static const double        twoTo52  = 4503599627370496.0;
@@ -48,6 +49,7 @@ typedef union
 *      Ceil(x) returns the smallest integer not less than x.                   *
 *******************************************************************************/
 
+libm_hidden_proto(ceil)
 double ceil ( double x )
 	{
 	DblInHex xInHex,OldEnvironment;
@@ -108,4 +110,4 @@ double ceil ( double x )
 *******************************************************************************/
 	return ( x );
 	}
-
+libm_hidden_def(ceil)

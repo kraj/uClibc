@@ -19,7 +19,8 @@
 #include <string.h>
 #include "memcopy.h"
 
-char attribute_hidden *__strncpy (char *s1, const char *s2, size_t n)
+libc_hidden_proto(strncpy)
+char *strncpy (char *s1, const char *s2, size_t n)
 {
   reg_char c;
   char *s = s1;
@@ -78,5 +79,4 @@ char attribute_hidden *__strncpy (char *s1, const char *s2, size_t n)
 
   return s;
 }
-
-strong_alias(__strncpy,strncpy)
+libc_hidden_def(strncpy)

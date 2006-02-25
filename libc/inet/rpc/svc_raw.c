@@ -40,14 +40,14 @@ static char sccsid[] = "@(#)svc_raw.c 1.15 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define xdrmem_create __xdrmem_create
-#define xdr_callmsg __xdr_callmsg
-#define xdr_replymsg __xdr_replymsg
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include "rpc_private.h"
 #include <rpc/svc.h>
+
+libc_hidden_proto(xdrmem_create)
+libc_hidden_proto(xdr_callmsg)
+libc_hidden_proto(xdr_replymsg)
 
 /*
  * This is the "network" that we will be moving data over

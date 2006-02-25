@@ -50,6 +50,12 @@ static char sccsid[] = "@(#)get_myaddress.c 1.4 87/08/11 Copyr 1984 Sun Micro";
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+libc_hidden_proto(ioctl)
+libc_hidden_proto(socket)
+libc_hidden_proto(close)
+libc_hidden_proto(perror)
+libc_hidden_proto(exit)
+
 /*
  * don't use gethostbyname, which would invoke yellow pages
  *
@@ -65,17 +71,17 @@ get_myaddress (struct sockaddr_in *addr)
   struct ifreq ifreq, *ifr;
   int len, loopback = 0;
 
-  if ((s = __socket (AF_INET, SOCK_DGRAM, 0)) < 0)
+  if ((s = socket (AF_INET, SOCK_DGRAM, 0)) < 0)
     {
-      __perror ("get_myaddress: socket");
-      __exit (1);
+      perror ("get_myaddress: socket");
+      exit (1);
     }
   ifc.ifc_len = sizeof (buf);
   ifc.ifc_buf = buf;
-  if (__ioctl (s, SIOCGIFCONF, (char *) &ifc) < 0)
+  if (ioctl (s, SIOCGIFCONF, (char *) &ifc) < 0)
     {
-      __perror (_("get_myaddress: ioctl (get interface configuration)"));
-      __exit (1);
+      perror (_("get_myaddress: ioctl (get interface configuration)"));
+      exit (1);
     }
 
  again:
@@ -83,10 +89,10 @@ get_myaddress (struct sockaddr_in *addr)
   for (len = ifc.ifc_len; len; len -= sizeof ifreq)
     {
       ifreq = *ifr;
-      if (__ioctl (s, SIOCGIFFLAGS, (char *) &ifreq) < 0)
+      if (ioctl (s, SIOCGIFFLAGS, (char *) &ifreq) < 0)
 	{
-          __perror ("get_myaddress: ioctl");
-          __exit (1);
+          perror ("get_myaddress: ioctl");
+          exit (1);
 	}
       if ((ifreq.ifr_flags & IFF_UP) && (ifr->ifr_addr.sa_family == AF_INET)
 	  && (!(ifreq.ifr_flags & IFF_LOOPBACK) ||
@@ -94,7 +100,7 @@ get_myaddress (struct sockaddr_in *addr)
 	{
 	  *addr = *((struct sockaddr_in *) &ifr->ifr_addr);
 	  addr->sin_port = htons (PMAPPORT);
-	  __close (s);
+	  close (s);
 	  return;
 	}
       ifr++;
@@ -104,5 +110,5 @@ get_myaddress (struct sockaddr_in *addr)
       loopback = 1;
       goto again;
     }
-  __close (s);
+  close (s);
 }

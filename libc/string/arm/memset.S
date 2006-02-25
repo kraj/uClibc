@@ -21,12 +21,11 @@
 #include <sys/syscall.h>
 
 .text
-.global __memset
-.hidden __memset
-.type __memset,%function
+.global memset
+.type memset,%function
 .align 4
 
-__memset:
+memset:
 	mov	a4, a1
 	cmp	a3, $8		@ at least 8 bytes to do?
 	blt	2f
@@ -57,7 +56,11 @@ __memset:
 	bge	1b
 2:
 	movs	a3, a3		@ anything left?
-	moveq	pc, lr		@ nope
+#if defined(__USE_BX__)
+        bxeq    lr
+#else
+        moveq	pc, lr		@ nope
+#endif
 	rsb	a3, a3, $7
 	add	pc, pc, a3, lsl $2
 	mov	r0, r0
@@ -68,8 +71,12 @@ __memset:
 	strb	a2, [a4], $1
 	strb	a2, [a4], $1
 	strb	a2, [a4], $1
-	mov	pc, lr
+#if defined(__USE_BX__)
+        bx      lr
+#else
+ 	mov	pc, lr
+#endif
 
-.size __memset,.-__memset
+.size memset,.-memset
 
-strong_alias(__memset,memset)
+libc_hidden_def(memset)

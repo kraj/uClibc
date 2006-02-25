@@ -20,7 +20,8 @@
 #include <stdlib.h>
 #include <limits.h>
 
-int attribute_hidden __srand48_r (long int seedval, struct drand48_data *buffer)
+libc_hidden_proto(srand48_r)
+int srand48_r (long int seedval, struct drand48_data *buffer)
 {
     /* The standards say we only have 32 bits.  */
     if (sizeof (long int) > 4)
@@ -36,4 +37,4 @@ int attribute_hidden __srand48_r (long int seedval, struct drand48_data *buffer)
 
     return 0;
 }
-strong_alias(__srand48_r,srand48_r)
+libc_hidden_def(srand48_r)

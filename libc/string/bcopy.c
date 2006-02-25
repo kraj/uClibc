@@ -7,10 +7,12 @@
 
 #include "_string.h"
 
-void attribute_hidden __bcopy(const void *s2, void *s1, size_t n)
+libc_hidden_proto(memmove)
+
+void bcopy(const void *s2, void *s1, size_t n)
 {
 #if 1
-	__memmove(s1, s2, n);
+	memmove(s1, s2, n);
 #else
 #ifdef __BCC__
 	register char *s;
@@ -49,5 +51,3 @@ void attribute_hidden __bcopy(const void *s2, void *s1, size_t n)
 #endif
 #endif
 }
-
-strong_alias(__bcopy,bcopy)

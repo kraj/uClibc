@@ -27,12 +27,11 @@
  */
 
 .text
-.global __strlen
-.hidden __strlen
-.type __strlen,%function
+.global strlen
+.type strlen,%function
 .align 4
 
-__strlen:
+strlen:
 	bic     r1, r0, $3              @ addr of word containing first byte
 	ldr     r2, [r1], $4            @ get the first word
 	ands    r3, r0, $3              @ how many bytes are duff?
@@ -76,8 +75,12 @@ Llastword:				@ drop through to here once we find a
 	tstne   r2, $0x00ff0000         @ (if first three all non-zero, 4th
 	addne   r0, r0, $1              @  must be zero)
 #endif
-	mov	pc,lr
+#if defined(__USE_BX__)
+        bx      lr
+#else
+  	mov	pc,lr
+#endif
 
-.size __strlen,.-__strlen
+.size strlen,.-strlen
 
-strong_alias(__strlen,strlen)
+libc_hidden_def(strlen)

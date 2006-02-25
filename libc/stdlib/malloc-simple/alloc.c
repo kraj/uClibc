@@ -1,15 +1,13 @@
 /* alloc.c
  *
- * Written by Erik Andersen <andersee@codepoet.org>
- * LGPLv2
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+/*
  * Parts of the memalign code were stolen from malloc-930716.
  */
 
-#define mmap __mmap
-#define munmap __munmap
-
-#define _GNU_SOURCE
 #include <features.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -19,6 +17,10 @@
 #include <errno.h>
 #include <sys/mman.h>
 
+libc_hidden_proto(memcpy)
+/*libc_hidden_proto(memset)*/
+libc_hidden_proto(mmap)
+libc_hidden_proto(munmap)
 
 #ifdef L_malloc
 void *malloc(size_t size)
@@ -34,7 +36,7 @@ void *malloc(size_t size)
 #endif
 	}
 
-#ifdef __ARCH_HAS_MMU__
+#ifdef __ARCH_USE_MMU__
 # define MMAP_FLAGS MAP_PRIVATE | MAP_ANONYMOUS
 #else
 # define MMAP_FLAGS MAP_SHARED | MAP_ANONYMOUS
@@ -67,7 +69,7 @@ void * calloc(size_t nmemb, size_t lsize)
 	 * doesn't need to actually zero anything....
 	 */
 	if (result != NULL) {
-		__memset(result, 0, size);
+		memset(result, 0, size);
 	}
 #endif
 	return result;
@@ -88,7 +90,7 @@ void *realloc(void *ptr, size_t size)
 
 	newptr = malloc(size);
 	if (newptr) {
-		__memcpy(newptr, ptr, *((size_t *) (ptr - sizeof(size_t))));
+		memcpy(newptr, ptr, *((size_t *) (ptr - sizeof(size_t))));
 		free(ptr);
 	}
 	return newptr;

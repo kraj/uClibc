@@ -67,7 +67,7 @@
 1:	retl
 	 sub		%o0, 1, %o0
 
-ENTRY(__strchr)
+ENTRY(strchr)
 	andcc		%o1, 0xff, %o1
 	be		12f
 	 sll		%o1, 8, %o2
@@ -215,11 +215,11 @@ ENTRY(__strchr)
 1:	 or		%o4, %lo(0x01010101), %o2
 	b		7f
 	 ld		[%o0], %g4
-END(__strchr)
-strong_alias(__strchr,strchr)
-strong_alias(__strchr,index)
+END(strchr)
+libc_hidden_def(strchr)
+strong_alias(strchr,index)
 
-ENTRY(__strrchr)
+ENTRY(strrchr)
 	andcc		%o1, 0xff, %o1
 	clr		%o5
 	be		12b
@@ -276,6 +276,6 @@ ENTRY(__strrchr)
 	 ld		[%o0], %g4
 9:	retl
 	 mov		%o5, %o0
-END(__strrchr)
-strong_alias(__strrchr,strrchr)
-strong_alias(__strrchr,rindex)
+END(strrchr)
+libc_hidden_def(strrchr)
+strong_alias(strrchr,rindex)

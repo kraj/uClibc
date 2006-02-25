@@ -8,14 +8,13 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-# define __Wmemcmp __wmemcmp
 # define Wmemcmp wmemcmp
 #else
-# define __Wmemcmp __memcmp
+libc_hidden_proto(memcmp)
 # define Wmemcmp memcmp
 #endif
 
-int attribute_hidden __Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
+int Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 {
 	register const Wuchar *r1 = (const Wuchar *) s1;
 	register const Wuchar *r2 = (const Wuchar *) s2;
@@ -37,7 +36,7 @@ int attribute_hidden __Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 #endif
 }
 
-strong_alias(__Wmemcmp,Wmemcmp)
 #ifndef WANT_WIDE
-strong_alias(__memcmp,bcmp)
+libc_hidden_def(memcmp)
+strong_alias(memcmp,bcmp)
 #endif

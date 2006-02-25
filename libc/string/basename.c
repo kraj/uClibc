@@ -7,7 +7,9 @@
 
 #include "_string.h"
 
-char attribute_hidden *__basename(const char *path)
+libc_hidden_proto(basename)
+
+char *basename(const char *path)
 {
 	register const char *s;
 	register const char *p;
@@ -22,5 +24,4 @@ char attribute_hidden *__basename(const char *path)
 
 	return (char *) p;
 }
-
-strong_alias(__basename,basename)
+libc_hidden_def(basename)

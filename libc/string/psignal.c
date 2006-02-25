@@ -8,8 +8,11 @@
 #include <features.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
-extern char *__strsignal (int __sig) __THROW attribute_hidden;
+libc_hidden_proto(fprintf)
+libc_hidden_proto(strsignal)
+libc_hidden_proto(stderr)
 
 /* TODO: make this threadsafe with a reentrant version of strsignal? */
 
@@ -26,5 +29,5 @@ void psignal(int signum, register const char *message)
 		message = (sep += 2);	/* or passed an empty string. */
 	}
 
-	fprintf(stderr, "%s%s%s\n", message, sep, __strsignal(signum));
+	fprintf(stderr, "%s%s%s\n", message, sep, strsignal(signum));
 }

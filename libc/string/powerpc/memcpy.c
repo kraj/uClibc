@@ -21,7 +21,8 @@
 
 #include <string.h>
 
-void attribute_hidden *__memcpy(void *to, const void *from, size_t n)
+libc_hidden_proto(memcpy)
+void *memcpy(void *to, const void *from, size_t n)
 /* PPC can do pre increment and load/store, but not post increment and load/store.
    Therefore use *++ptr instead of *ptr++. */
 {
@@ -76,5 +77,4 @@ void attribute_hidden *__memcpy(void *to, const void *from, size_t n)
 		goto copy_chunks;
 	goto lessthan8;
 }
-
-strong_alias(__memcpy,memcpy)
+libc_hidden_def(memcpy)

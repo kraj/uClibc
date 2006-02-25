@@ -32,7 +32,8 @@
 
 #include <string.h>
 
-char attribute_hidden *__strrchr(const char *s, int c)
+libc_hidden_proto(strrchr)
+char *strrchr(const char *s, int c)
 {
     int d0, d1;
     register char * __res;
@@ -47,7 +48,5 @@ char attribute_hidden *__strrchr(const char *s, int c)
 	    :"=g" (__res), "=&S" (d0), "=&a" (d1) :"0" (0),"1" (s),"2" (c));
     return __res;
 }
-
-strong_alias(__strrchr,strrchr)
-
-strong_alias(__strrchr,rindex)
+libc_hidden_def(strrchr)
+strong_alias(strrchr,rindex)

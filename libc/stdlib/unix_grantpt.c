@@ -17,16 +17,6 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define memchr __memchr
-#define getgid __getgid
-#define getuid __getuid
-#define setrlimit __setrlimit
-#define waitpid __waitpid
-#define dup2 __dup2
-#define chmod __chmod
-#define vfork __vfork
-#define fork __fork
-
 #include <assert.h>
 #include <errno.h>
 #include <grp.h>
@@ -40,14 +30,26 @@
 #include <unistd.h>
 #include "pty-private.h"
 
+libc_hidden_proto(memchr)
+libc_hidden_proto(getgid)
+libc_hidden_proto(getuid)
+libc_hidden_proto(setrlimit)
+libc_hidden_proto(waitpid)
+libc_hidden_proto(dup2)
+libc_hidden_proto(chmod)
+libc_hidden_proto(chown)
+libc_hidden_proto(vfork)
+libc_hidden_proto(fork)
+libc_hidden_proto(stat)
+libc_hidden_proto(ptsname_r)
+libc_hidden_proto(execle)
+libc_hidden_proto(_exit)
 
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
 #include <sys/syscall.h>
 #if ! defined __NR_vfork
 #define vfork fork
 #endif
-
-extern int __ptsname_r (int fd, char *buf, size_t buflen) attribute_hidden;
 
 /* Return the result of ptsname_r in the buffer pointed to by PTS,
    which should be of length BUF_LEN.  If it is too long to fit in
@@ -65,7 +67,7 @@ pts_name (int fd, char **pts, size_t buf_len)
 
       if (buf_len)
 	{
-	  rv = __ptsname_r (fd, buf, buf_len);
+	  rv = ptsname_r (fd, buf, buf_len);
 
 	  if (rv != 0 || memchr (buf, '\0', buf_len))
 	    /* We either got an error, or we succeeded and the
@@ -122,7 +124,7 @@ grantpt (int fd)
   if (pts_name (fd, &buf, sizeof (_buf)))
     return -1;
 
-  if (__stat(buf, &st) < 0)
+  if (stat(buf, &st) < 0)
     goto cleanup;
 
   /* Make sure that we own the device.  */
@@ -168,10 +170,10 @@ grantpt (int fd)
       /* We pase the master pseudo terminal as file descriptor PTY_FILENO.  */
       if (fd != PTY_FILENO)
 	if (dup2 (fd, PTY_FILENO) < 0)
-	  _exit_internal (FAIL_EBADF);
+	  _exit (FAIL_EBADF);
 
       execle (_PATH_PT_CHOWN, _PATH_PT_CHOWN, NULL, NULL);
-      _exit_internal (FAIL_EXEC);
+      _exit (FAIL_EXEC);
     }
   else
     {

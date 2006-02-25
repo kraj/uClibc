@@ -16,11 +16,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define strpbrk __strpbrk
-
 #include <string.h>
 
-char attribute_hidden *__strsep (char **stringp, const char *delim)
+libc_hidden_proto(strsep)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strpbrk)
+
+char *strsep (char **stringp, const char *delim)
 {
   char *begin, *end;
 
@@ -44,7 +46,7 @@ char attribute_hidden *__strsep (char **stringp, const char *delim)
 	  else if (*begin == '\0')
 	    end = NULL;
 	  else
-	    end = __strchr (begin + 1, ch);
+	    end = strchr (begin + 1, ch);
 	}
     }
   else
@@ -63,5 +65,4 @@ char attribute_hidden *__strsep (char **stringp, const char *delim)
 
   return begin;
 }
-
-strong_alias(__strsep,strsep)
+libc_hidden_def(strsep)

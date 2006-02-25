@@ -63,7 +63,7 @@
 3:	retl
 	 mov		2, %o0
 
-ENTRY(__strlen)
+ENTRY(strlen)
 	mov		%o0, %o1
 	andcc		%o0, 3, %g0
 	bne		10b
@@ -98,6 +98,5 @@ ENTRY(__strlen)
 	add		%o4, 1, %o4
 13:	retl
 	 sub		%o4, %o1, %o0
-END(__strlen)
-
-strong_alias(__strlen,strlen)
+END(strlen)
+libc_hidden_def(strlen)

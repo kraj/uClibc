@@ -32,7 +32,8 @@
 
 #include <string.h>
 
-void attribute_hidden *__memcpy(void * to, const void * from, size_t n)
+libc_hidden_proto(memcpy)
+void *memcpy(void * to, const void * from, size_t n)
 {
     int d0, d1, d2;
     __asm__ __volatile__(
@@ -49,5 +50,4 @@ void attribute_hidden *__memcpy(void * to, const void * from, size_t n)
 	    : "memory");
     return (to);
 }
-
-strong_alias(__memcpy,memcpy)
+libc_hidden_def(memcpy)

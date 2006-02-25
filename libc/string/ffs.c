@@ -9,7 +9,9 @@
 
 #include "_string.h"
 
-int attribute_hidden __ffs(int i)
+libc_hidden_proto(ffs)
+
+int ffs(int i)
 {
 #if 1
 	/* inlined binary search method */
@@ -50,5 +52,4 @@ int attribute_hidden __ffs(int i)
 	return n;
 #endif
 }
-
-strong_alias(__ffs,ffs)
+libc_hidden_def(ffs)

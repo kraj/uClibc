@@ -25,16 +25,19 @@
 #include <features.h>
 #include <libc-internal.h>
 
+libc_hidden_proto(socket)
+
 /* Return a socket of any type.  The socket can be used in subsequent
    ioctl calls to talk to the kernel.  */
-int attribute_hidden
+int __opensock(void) attribute_hidden;
+int
 __opensock (void)
 {
   int fd;
 #ifdef __UCLIBC_HAS_IPV6__
-  fd = __socket(AF_INET6, SOCK_DGRAM, 0);
+  fd = socket(AF_INET6, SOCK_DGRAM, 0);
   if (fd<0)
 #endif /* __UCLIBC_HAS_IPV6__ */
-    fd = __socket(AF_INET, SOCK_DGRAM, 0);
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
   return(fd);
 }

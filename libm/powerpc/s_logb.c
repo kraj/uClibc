@@ -32,6 +32,7 @@
 *     Standard 754.                                                            *
 *******************************************************************************/
 
+#include <math.h>
 #include <endian.h>
 
 typedef union
@@ -60,6 +61,7 @@ static const DblInHex minusInf  = {{ 0xFFF00000, 0x00000000 }};
 ********************************************************************************
 *******************************************************************************/
 
+libm_hidden_proto(logb)
 double logb (  double x  )
       {
       DblInHex xInHex;
@@ -102,4 +104,4 @@ double logb (  double x  )
             return ( xInHex.dbl - klTod );
             }
       }
-
+libm_hidden_def(logb)

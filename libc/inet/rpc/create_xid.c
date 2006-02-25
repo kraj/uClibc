@@ -17,10 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define lrand48_r __lrand48_r
-#define srand48_r __srand48_r
-#define gettimeofday __gettimeofday
-
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -28,6 +24,10 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <rpc/rpc.h>
+
+libc_hidden_proto(lrand48_r)
+libc_hidden_proto(srand48_r)
+libc_hidden_proto(gettimeofday)
 
 /* The RPC code is not threadsafe, but new code should be threadsafe. */
 
@@ -41,7 +41,8 @@ static pthread_mutex_t createxid_lock = PTHREAD_MUTEX_INITIALIZER;
 static int is_initialized;
 static struct drand48_data __rpc_lrand48_data;
 
-u_long attribute_hidden _create_xid (void)
+u_long _create_xid (void) attribute_hidden;
+u_long _create_xid (void)
 {
   unsigned long res;
 

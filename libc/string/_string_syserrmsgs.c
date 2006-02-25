@@ -9,6 +9,7 @@
 
 #ifdef __UCLIBC_HAS_ERRNO_MESSAGES__
 
+attribute_hidden
 const char _string_syserrmsgs[] = {
 	/*   0:    0,  8 */ "Success\0"
 	/*   1:    8, 24 */ "Operation not permitted\0"

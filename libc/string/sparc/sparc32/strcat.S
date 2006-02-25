@@ -91,7 +91,7 @@
 	b		3f
 	 sub		%o0, 1, %o0
 
-ENTRY(__strcat)
+ENTRY(strcat)
 	mov		%o0, %g2
 	andcc		%o0, 3, %g0
 	bne		11b
@@ -343,6 +343,6 @@ ENTRY(__strcat)
 	 srl		%o5, 16, %o4
 	retl
 	 mov		%g2, %o0
-END(__strcat)
+END(strcat)
 
-strong_alias(__strcat,strcat)
+libc_hidden_def(strcat)
