@@ -645,7 +645,9 @@ static struct library * find_elf_interpreter(ElfW(Ehdr)* ehdr)
 }
 
 /* map the .so, and locate interesting pieces */
+/*
 #warning "There may be two warnings here about vfork() clobbering, ignore them"
+*/
 int find_dependancies(char* filename)
 {
 	int is_suid = 0;
