@@ -5,10 +5,13 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define vdprintf __vdprintf
+#include <features.h>
 
+#ifdef __USE_GNU
 #include "_stdio.h"
 #include <stdarg.h>
+
+libc_hidden_proto(vdprintf)
 
 int dprintf(int filedes, const char * __restrict format, ...)
 {
@@ -21,3 +24,4 @@ int dprintf(int filedes, const char * __restrict format, ...)
 
 	return rv;
 }
+#endif

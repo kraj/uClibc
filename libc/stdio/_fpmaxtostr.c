@@ -11,6 +11,11 @@
 #include <locale.h>
 #include <bits/uClibc_fpmax.h>
 
+libc_hidden_proto(memset)
+#ifdef __UCLIBC_HAS_LOCALE__
+libc_hidden_proto(__global_locale)
+#endif
+
 typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
 								intptr_t buf);
 
@@ -198,7 +203,9 @@ static const __fpmax_t exp16_table[] = {
 #define FPO_STR_WIDTH   (0x80 | ' ');
 #define FPO_STR_PREC    'p'
 
-ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+					__fp_outfunc_t fp_outfunc) attribute_hidden;
+ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 					__fp_outfunc_t fp_outfunc)
 {
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
@@ -275,11 +282,11 @@ ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info 
 	}
 
 	if (x == 0) {				/* Handle 0 now to avoid false positive. */
-#if 1
+#ifdef __UCLIBC_HAVE_SIGNED_ZERO__
 		if (zeroisnegative(x)) { /* Handle 'signed' zero. */
 			*sign_str = '-';
 		}
-#endif
+#endif /* __UCLIBC_HAVE_SIGNED_ZERO__ */
 		exp = -1;
 		goto GENERATE_DIGITS;
 	}
@@ -417,7 +424,7 @@ ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info 
 	if (mode == 'f') {
 		round += exp;
 		if (round < -1) {
-			__memset(buf, '0', DECIMAL_DIG); /* OK, since 'f' -> decimal case. */
+			memset(buf, '0', DECIMAL_DIG); /* OK, since 'f' -> decimal case. */
 		    exp = -1;
 		    round = -1;
 		}

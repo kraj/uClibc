@@ -9,13 +9,15 @@
 #include <stdarg.h>
 #include <wchar.h>
 
+libc_hidden_proto(vfwprintf)
+
 int fwprintf(FILE * __restrict stream, const wchar_t * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
 
 	va_start(arg, format);
-	rv = __vfwprintf(stream, format, arg);
+	rv = vfwprintf(stream, format, arg);
 	va_end(arg);
 
 	return rv;

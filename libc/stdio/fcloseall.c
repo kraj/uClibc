@@ -5,7 +5,12 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#include <features.h>
+
+#ifdef __USE_GNU
 #include "_stdio.h"
+
+libc_hidden_proto(fclose)
 
 /* NOTE: GLIBC difference!!! -- fcloseall
  * According to the info pages, glibc actually fclose()s all open files.
@@ -38,3 +43,4 @@ int fcloseall (void)
 
 #endif
 }
+#endif

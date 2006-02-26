@@ -5,9 +5,15 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define isatty __isatty
-
 #include "_stdio.h"
+
+libc_hidden_proto(isatty)
+libc_hidden_proto(open)
+libc_hidden_proto(fcntl)
+
+#ifdef __UCLIBC_HAS_THREADS__
+libc_hidden_proto(_stdio_user_locking)
+#endif
 
 /*
  * Cases:
@@ -100,11 +106,7 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 #ifdef __UCLIBC_HAS_THREADS__
 		/* We only initialize the mutex in the non-freopen case. */
 		/* stream->__user_locking = _stdio_user_locking; */
-#ifdef __USE_STDIO_FUTEXES__
-		_IO_lock_init (stream->_lock);
-#else
 		__stdio_init_mutex(&stream->__lock);
-#endif
 #endif
 	}
 
@@ -125,7 +127,7 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 		/* NOTE: fopencookie needs changing if the basic check changes! */
 		if (((i & (((int) fname_or_mode) + 1)) != i) /* Basic agreement? */
 			|| (((open_mode & ~((__mode_t) fname_or_mode)) & O_APPEND)
-				&& __fcntl(filedes, F_SETFL, O_APPEND))	/* Need O_APPEND. */
+				&& fcntl(filedes, F_SETFL, O_APPEND))	/* Need O_APPEND. */
 			) {
 			goto DO_EINVAL;
 		}
@@ -134,7 +136,7 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 										& O_LARGEFILE) );
 	} else {
 		__STDIO_WHEN_LFS( if (filedes < -1) open_mode |= O_LARGEFILE );
-		if ((stream->__filedes = __open(((const char *) fname_or_mode),
+		if ((stream->__filedes = open(((const char *) fname_or_mode),
 									  open_mode, 0666)) < 0) {
 			goto FREE_STREAM;
 		}
@@ -196,11 +198,7 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 #ifdef __UCLIBC_HAS_THREADS__
 	/* Even in the freopen case, we reset the user locking flag. */
 	stream->__user_locking = _stdio_user_locking;
-#ifdef __USE_STDIO_FUTEXES__
-	/* _IO_lock_init (stream->_lock); */
-#else
 	/* __stdio_init_mutex(&stream->__lock); */
-#endif
 #endif
 
 #ifdef __STDIO_HAS_OPENLIST

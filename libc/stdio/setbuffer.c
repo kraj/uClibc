@@ -7,6 +7,8 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(setvbuf)
+
 /* A BSD function.  The implementation matches the linux man page,
  * except that we do not bother calling setvbuf if not configured
  * for stream buffering.
@@ -16,6 +18,6 @@ void setbuffer(FILE * __restrict stream, register char * __restrict buf,
 			   size_t size)
 {
 #ifdef __STDIO_BUFFERS
-	__setvbuf(stream, buf, (buf ? _IOFBF : _IONBF), size);
+	setvbuf(stream, buf, (buf ? _IOFBF : _IONBF), size);
 #endif
 }

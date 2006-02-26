@@ -8,8 +8,10 @@
 #include "_stdio.h"
 
 #ifndef __DO_LARGEFILE
-#define FTELL __ftell
+#define FTELL ftell
 #endif
+
+libc_hidden_proto(FTELL)
 
 int fgetpos(FILE * __restrict stream, register fpos_t * __restrict pos)
 {

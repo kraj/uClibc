@@ -5,11 +5,13 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define open_memstream __open_memstream
+#include <features.h>
 
+#ifdef __USE_GNU
 #include "_stdio.h"
 #include <stdarg.h>
 #include <bits/uClibc_va_copy.h>
+
 
 #ifdef __UCLIBC_MJN3_ONLY__
 /* Do the memstream stuff inline to avoid fclose and the openlist? */
@@ -20,7 +22,16 @@
 #warning Skipping vasprintf since no vsnprintf!
 #else
 
-int attribute_hidden __vasprintf(char **__restrict buf, const char * __restrict format,
+#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
+libc_hidden_proto(open_memstream)
+libc_hidden_proto(fclose)
+libc_hidden_proto(vfprintf)
+#else
+libc_hidden_proto(vsnprintf)
+#endif
+
+libc_hidden_proto(vasprintf)
+int vasprintf(char **__restrict buf, const char * __restrict format,
 			 va_list arg)
 {
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
@@ -32,7 +43,7 @@ int attribute_hidden __vasprintf(char **__restrict buf, const char * __restrict 
 	*buf = NULL;
 
 	if ((f = open_memstream(buf, &size)) != NULL) {
-		rv = __vfprintf(f, format, arg);
+		rv = vfprintf(f, format, arg);
 		fclose(f);
 		if (rv < 0) {
 			free(*buf);
@@ -54,14 +65,14 @@ int attribute_hidden __vasprintf(char **__restrict buf, const char * __restrict 
 	int rv;
 
 	va_copy(arg2, arg);
- 	rv = __vsnprintf(NULL, 0, format, arg2);
+ 	rv = vsnprintf(NULL, 0, format, arg2);
 	va_end(arg2);
 
 	*buf = NULL;
 
 	if (rv >= 0) {
 		if ((*buf = malloc(++rv)) != NULL) {
-			if ((rv = __vsnprintf(*buf, rv, format, arg)) < 0) {
+			if ((rv = vsnprintf(*buf, rv, format, arg)) < 0) {
 				free(*buf);
 				*buf = NULL;
 			}
@@ -74,6 +85,7 @@ int attribute_hidden __vasprintf(char **__restrict buf, const char * __restrict 
 
 #endif /* __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
 }
-strong_alias(__vasprintf,vasprintf)
+libc_hidden_def(vasprintf)
 
+#endif
 #endif

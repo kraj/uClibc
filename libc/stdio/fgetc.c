@@ -1,6 +1,7 @@
 /* Copyright (C) 2004       Manuel Novoa III    <mjn3@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  *
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
@@ -12,9 +13,13 @@
 #undef getc
 #undef getc_unlocked
 
+libc_hidden_proto(__fgetc_unlocked)
+
 #ifdef __DO_UNLOCKED
 
-int attribute_hidden __fgetc_unlocked_internal(FILE *stream)
+libc_hidden_proto(fflush_unlocked)
+
+int __fgetc_unlocked(FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
@@ -68,20 +73,32 @@ int attribute_hidden __fgetc_unlocked_internal(FILE *stream)
 
 	return EOF;
 }
+libc_hidden_def(__fgetc_unlocked)
 
-strong_alias(__fgetc_unlocked_internal,__fgetc_unlocked)
-weak_alias(__fgetc_unlocked_internal,fgetc_unlocked)
-hidden_strong_alias(__fgetc_unlocked_internal,__getc_unlocked)
-weak_alias(__fgetc_unlocked_internal,getc_unlocked)
+libc_hidden_proto(fgetc_unlocked)
+strong_alias(__fgetc_unlocked,fgetc_unlocked)
+libc_hidden_def(fgetc_unlocked)
+
+//libc_hidden_proto(__getc_unlocked)
+//strong_alias(__fgetc_unlocked,__getc_unlocked)
+//libc_hidden_def(__getc_unlocked)
+
+libc_hidden_proto(getc_unlocked)
+strong_alias(__fgetc_unlocked,getc_unlocked)
+libc_hidden_def(getc_unlocked)
+
 #ifndef __UCLIBC_HAS_THREADS__
-hidden_strong_alias(__fgetc_unlocked_internal,__fgetc)
-weak_alias(__fgetc_unlocked_internal,fgetc)
-weak_alias(__fgetc_unlocked_internal,getc)
+libc_hidden_proto(fgetc)
+strong_alias(__fgetc_unlocked,fgetc)
+libc_hidden_def(fgetc)
+
+strong_alias(__fgetc_unlocked,getc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int attribute_hidden __fgetc(register FILE *stream)
+libc_hidden_proto(fgetc)
+int fgetc(register FILE *stream)
 {
 	if (stream->__user_locking != 0) {
 		return __GETC_UNLOCKED_MACRO(stream);
@@ -93,7 +110,8 @@ int attribute_hidden __fgetc(register FILE *stream)
 		return retval;
 	}
 }
-strong_alias(__fgetc,fgetc)
-weak_alias(__fgetc,getc)
+libc_hidden_def(fgetc)
+
+strong_alias(fgetc,getc)
 
 #endif

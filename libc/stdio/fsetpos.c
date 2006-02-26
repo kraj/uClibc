@@ -8,8 +8,10 @@
 #include "_stdio.h"
 
 #ifndef __DO_LARGEFILE
-#define FSEEK __fseek
+#define FSEEK fseek
 #endif
+
+libc_hidden_proto(FSEEK)
 
 int fsetpos(FILE *stream, register const fpos_t *pos)
 {

@@ -7,12 +7,14 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fread_unlocked)
+
 /* SUSv2 Legacy function -- need not be reentrant. */
 
 int getw(FILE *stream)
 {
 	int aw;
 
-	return (__fread_unlocked((void *) &aw, sizeof(int), 1, stream) != 0)
+	return (fread_unlocked((void *) &aw, sizeof(int), 1, stream) != 0)
 		? aw : EOF;
 }

@@ -7,18 +7,19 @@
 
 #include "_stdio.h"
 
+#undef ferror
 #ifdef __DO_UNLOCKED
 
-int __ferror_unlocked(register FILE *stream)
+#undef ferror_unlocked
+int ferror_unlocked(register FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
 	return __FERROR_UNLOCKED(stream);
 }
 
-weak_alias(__ferror_unlocked,ferror_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__ferror_unlocked,ferror)
+strong_alias(ferror_unlocked,ferror)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__

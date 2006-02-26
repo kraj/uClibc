@@ -7,6 +7,8 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fflush_unlocked)
+
 #ifdef __DO_UNLOCKED
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -14,6 +16,7 @@
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __UCLIBC_HAS_THREADS__
+libc_hidden_proto(_stdio_user_locking)
 /* Even if the stream is set to user-locking, we still need to lock
  * when all (lbf) writing streams are flushed. */
 #define MY_STDIO_THREADLOCK(STREAM) \
@@ -31,7 +34,7 @@
 #endif
 
 
-int attribute_hidden __fflush_unlocked(register FILE *stream)
+int fflush_unlocked(register FILE *stream)
 {
 #ifdef __STDIO_BUFFERS
 
@@ -125,16 +128,18 @@ int attribute_hidden __fflush_unlocked(register FILE *stream)
 	return 0;
 #endif /* __STDIO_BUFFERS */
 }
+libc_hidden_def(fflush_unlocked)
 
-weak_alias(__fflush_unlocked,fflush_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-hidden_strong_alias(__fflush_unlocked,__fflush)
-weak_alias(__fflush_unlocked,fflush)
+libc_hidden_proto(fflush)
+strong_alias(fflush_unlocked,fflush)
+libc_hidden_def(fflush)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int attribute_hidden __fflush(register FILE *stream)
+libc_hidden_proto(fflush)
+int fflush(register FILE *stream)
 {
 	int retval;
 	__STDIO_AUTO_THREADLOCK_VAR;
@@ -147,15 +152,15 @@ int attribute_hidden __fflush(register FILE *stream)
 
 		__STDIO_AUTO_THREADLOCK(stream);
 
-		retval = __fflush_unlocked(stream);
+		retval = fflush_unlocked(stream);
 
 		__STDIO_AUTO_THREADUNLOCK(stream);
 	} else {
-		retval = __fflush_unlocked(stream);
+		retval = fflush_unlocked(stream);
 	}
 
 	return retval;
 }
-strong_alias(__fflush,fflush)
+libc_hidden_def(fflush)
 
 #endif

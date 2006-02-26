@@ -8,6 +8,11 @@
 #include "_stdio.h"
 #include <stdio_ext.h>
 
+libc_hidden_proto(__fsetlocking)
+#ifdef __UCLIBC_HAS_THREADS__
+libc_hidden_proto(_stdio_user_locking)
+#endif
+
 /* Not threadsafe. */
 
 /* Notes:
@@ -15,7 +20,7 @@
  *   glibc treats invalid locking_mode args as FSETLOCKING_INTERNAL.
  */
 
-int attribute_hidden __fsetlocking_internal(FILE *stream, int locking_mode)
+int __fsetlocking(FILE *stream, int locking_mode)
 {
 #ifdef __UCLIBC_HAS_THREADS__
 	int current = 1 + (stream->__user_locking & 1);
@@ -43,5 +48,4 @@ int attribute_hidden __fsetlocking_internal(FILE *stream, int locking_mode)
 	return FSETLOCKING_INTERNAL;
 #endif
 }
-
-strong_alias(__fsetlocking_internal,__fsetlocking)
+libc_hidden_def(__fsetlocking)

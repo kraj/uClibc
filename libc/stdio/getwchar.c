@@ -9,23 +9,24 @@
 
 #ifdef __DO_UNLOCKED
 
-wint_t __getwchar_unlocked(void)
+libc_hidden_proto(fgetwc_unlocked)
+
+wint_t getwchar_unlocked(void)
 {
-	return __fgetwc_unlocked(stdin);
+	return fgetwc_unlocked(stdin);
 }
 
-weak_alias(__getwchar_unlocked,getwchar_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__getwchar_unlocked,getwchar)
+strong_alias(getwchar_unlocked,getwchar)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-extern wint_t __fgetwc (__FILE *__stream) attribute_hidden;
+libc_hidden_proto(fgetwc)
 
 wint_t getwchar(void)
 {
-	return __fgetwc(stdin);
+	return fgetwc(stdin);
 }
 
 #endif

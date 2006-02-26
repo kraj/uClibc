@@ -12,9 +12,11 @@
 #undef putc
 #undef putc_unlocked
 
+libc_hidden_proto(__fputc_unlocked)
+
 #ifdef __DO_UNLOCKED
 
-int attribute_hidden __fputc_unlocked_internal(int c, register FILE *stream)
+int __fputc_unlocked(int c, register FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
@@ -68,20 +70,25 @@ int attribute_hidden __fputc_unlocked_internal(int c, register FILE *stream)
  BAD:
 	return EOF;
 }
+libc_hidden_def(__fputc_unlocked)
 
-strong_alias(__fputc_unlocked_internal,__fputc_unlocked)
-weak_alias(__fputc_unlocked_internal,fputc_unlocked)
-weak_alias(__fputc_unlocked_internal,putc_unlocked)
+strong_alias(__fputc_unlocked,fputc_unlocked)
+
+libc_hidden_proto(putc_unlocked)
+strong_alias(__fputc_unlocked,putc_unlocked)
+libc_hidden_def(putc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-hidden_strong_alias(__fputc_unlocked_internal,__fputc)
-weak_alias(__fputc_unlocked_internal,fputc)
-hidden_strong_alias(__fputc_unlocked_internal,__putc)
-weak_alias(__fputc_unlocked_internal,putc)
+strong_alias(__fputc_unlocked,fputc)
+
+libc_hidden_proto(putc)
+strong_alias(__fputc_unlocked,putc)
+libc_hidden_def(putc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int attribute_hidden __fputc(int c, register FILE *stream)
+libc_hidden_proto(fputc)
+int fputc(int c, register FILE *stream)
 {
 	if (stream->__user_locking != 0) {
 		return __PUTC_UNLOCKED_MACRO(c, stream);
@@ -93,8 +100,10 @@ int attribute_hidden __fputc(int c, register FILE *stream)
 		return retval;
 	}
 }
-strong_alias(__fputc,fputc)
-hidden_strong_alias(__fputc,__putc)
-weak_alias(__fputc,putc)
+libc_hidden_def(fputc)
+
+libc_hidden_proto(putc)
+strong_alias(fputc,putc)
+libc_hidden_def(putc)
 
 #endif

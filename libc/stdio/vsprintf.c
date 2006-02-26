@@ -12,10 +12,12 @@
 #warning Skipping vsprintf since no vsnprintf!
 #else
 
+libc_hidden_proto(vsnprintf)
+
 int vsprintf(char *__restrict buf, const char * __restrict format,
 			 va_list arg)
 {
-	return __vsnprintf(buf, SIZE_MAX, format, arg);
+	return vsnprintf(buf, SIZE_MAX, format, arg);
 }
 
 #endif

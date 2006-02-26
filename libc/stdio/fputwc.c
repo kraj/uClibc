@@ -7,18 +7,20 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fputwc_unlocked)
+
 #ifdef __DO_UNLOCKED
 
-wint_t attribute_hidden __fputwc_unlocked(wchar_t wc, FILE *stream)
+wint_t fputwc_unlocked(wchar_t wc, FILE *stream)
 {
 	return _wstdio_fwrite(&wc, 1, stream) ? wc : WEOF;
 }
+libc_hidden_def(fputwc_unlocked)
 
-weak_alias(__fputwc_unlocked,fputwc_unlocked)
-weak_alias(__fputwc_unlocked,putwc_unlocked)
+strong_alias(fputwc_unlocked,putwc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fputwc_unlocked,fputwc)
-weak_alias(__fputwc_unlocked,putwc)
+strong_alias(fputwc_unlocked,fputwc)
+strong_alias(fputwc_unlocked,putwc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
@@ -30,13 +32,13 @@ wint_t fputwc(wchar_t wc, register FILE *stream)
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	retval = __fputwc_unlocked(wc, stream);
+	retval = fputwc_unlocked(wc, stream);
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	return retval;
 }
 
-weak_alias(fputwc,putwc)
+strong_alias(fputwc,putwc)
 
 #endif

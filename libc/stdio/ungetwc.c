@@ -12,7 +12,8 @@
  * as reset stream->__ungot_width[1] for use by _stdio_adjpos().
  */
 
-wint_t attribute_hidden __ungetwc(wint_t c, register FILE *stream)
+libc_hidden_proto(ungetwc)
+wint_t ungetwc(wint_t c, register FILE *stream)
 {
 	__STDIO_AUTO_THREADLOCK_VAR;
 
@@ -46,4 +47,4 @@ wint_t attribute_hidden __ungetwc(wint_t c, register FILE *stream)
 
 	return c;
 }
-strong_alias(__ungetwc,ungetwc)
+libc_hidden_def(ungetwc)

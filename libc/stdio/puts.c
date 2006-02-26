@@ -7,6 +7,9 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(__fputc_unlocked)
+libc_hidden_proto(fputs_unlocked)
+
 int puts(register const char * __restrict s)
 {
 	register FILE *stream = stdout; /* This helps bcc optimize. */
@@ -20,9 +23,9 @@ int puts(register const char * __restrict s)
 	 * then we could have a newline in the buffer of an LBF stream. */
 
 	/* Note: Nonportable as fputs need only return nonnegative on success. */
-	if ((n = __fputs_unlocked(s, stream)) != EOF) {
+	if ((n = fputs_unlocked(s, stream)) != EOF) {
 		++n;
-		if (__fputc_unlocked_internal('\n', stream) == EOF) {
+		if (__fputc_unlocked('\n', stream) == EOF) {
 			n = EOF;
 		}
 	}

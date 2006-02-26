@@ -7,6 +7,8 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(fwrite_unlocked)
+
 /* SUSv2 Legacy function -- need not be reentrant. */
 
 int putw(int w, FILE *stream)
@@ -20,9 +22,9 @@ int putw(int w, FILE *stream)
 #endif
 
 #if EOF == -1
-	return __fwrite_unlocked((void *) PW, sizeof(int), 1, stream) - 1;
+	return fwrite_unlocked((void *) PW, sizeof(int), 1, stream) - 1;
 #else
-	return (__fwrite_unlocked((void *) PW, sizeof(int), 1, stream) != 0)
+	return (fwrite_unlocked((void *) PW, sizeof(int), 1, stream) != 0)
 		? 0 : EOF;
 #endif
 }

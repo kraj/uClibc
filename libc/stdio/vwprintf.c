@@ -9,7 +9,9 @@
 #include <stdarg.h>
 #include <wchar.h>
 
+libc_hidden_proto(vfwprintf)
+
 int vwprintf(const wchar_t * __restrict format, va_list arg)
 {
-	return __vfwprintf(stdout, format, arg);
+	return vfwprintf(stdout, format, arg);
 }

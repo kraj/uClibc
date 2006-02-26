@@ -8,6 +8,6 @@
 #include "_stdio.h"
 
 #define __DO_LARGEFILE
-#define FTELL         __ftello64
+#define FTELL         ftello64
 #define OFFSET_TYPE   __off64_t
 #include "ftello.c"

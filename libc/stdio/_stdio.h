@@ -5,8 +5,6 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define _GNU_SOURCE
-
 #include <features.h>
 #include <assert.h>
 #include <errno.h>
@@ -18,51 +16,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-extern int __vfprintf (FILE *__restrict __s, __const char *__restrict __format,
-		     __gnuc_va_list __arg) attribute_hidden;
-
-extern int __vsnprintf (char *__restrict __s, size_t __maxlen,
-		      __const char *__restrict __format, __gnuc_va_list __arg)
-     __THROW __attribute__ ((__format__ (__printf__, 3, 0))) attribute_hidden;
-
-extern int __vfscanf (FILE *__restrict __s, __const char *__restrict __format,
-		    __gnuc_va_list __arg)
-     __attribute__ ((__format__ (__scanf__, 2, 0))) attribute_hidden;
-
-extern int __vsscanf (__const char *__restrict __s,
-		    __const char *__restrict __format, __gnuc_va_list __arg)
-     __THROW __attribute__ ((__format__ (__scanf__, 2, 0))) attribute_hidden;
-
 #ifdef __UCLIBC_HAS_WCHAR__
 #include <wchar.h>
-
-extern int __vfwprintf (__FILE *__restrict __s,
-		      __const wchar_t *__restrict __format,
-		      __gnuc_va_list __arg) attribute_hidden;
-
-extern int __vfwscanf (__FILE *__restrict __s,
-		     __const wchar_t *__restrict __format,
-		     __gnuc_va_list __arg) attribute_hidden;
-
-extern int __vswscanf (__const wchar_t *__restrict __s,
-		     __const wchar_t *__restrict __format,
-		     __gnuc_va_list __arg) __THROW attribute_hidden;
 #endif
+
+libc_hidden_proto(stdin)
+libc_hidden_proto(stdout)
+
+libc_hidden_proto(_stdio_openlist)
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
+libc_hidden_proto(_stdio_openlist_lock)
 
-#ifdef __USE_STDIO_FUTEXES___
-#define __STDIO_THREADLOCK_OPENLIST \
-	_IO_lock_lock(_stdio_openlist_lock)
-
-#define __STDIO_THREADUNLOCK_OPENLIST \
-	_IO_lock_unlock(_stdio_openlist_lock)
-
-#define __STDIO_THREADTRYLOCK_OPENLIST \
-	_IO_lock_trylock(_stdio_openlist_lock)
-#else
 #define __STDIO_THREADLOCK_OPENLIST \
 	__pthread_mutex_lock(&_stdio_openlist_lock)
 
@@ -71,9 +37,6 @@ extern int __vswscanf (__const wchar_t *__restrict __s,
 
 #define __STDIO_THREADTRYLOCK_OPENLIST \
 	__pthread_mutex_trylock(&_stdio_openlist_lock)
-#endif
-
-
 
 #else
 
@@ -300,8 +263,6 @@ extern int __stdio_trans2w(FILE *__restrict stream) attribute_hidden;
 extern int __stdio_trans2r_o(FILE *__restrict stream, int oflag) attribute_hidden;
 extern int __stdio_trans2w_o(FILE *__restrict stream, int oflag) attribute_hidden;
 
-extern int __setvbuf (FILE *__restrict __stream, char *__restrict __buf,
-		    int __modes, size_t __n) __THROW attribute_hidden;
 /**********************************************************************/
 #ifdef __STDIO_BUFFERS
 
@@ -389,46 +350,11 @@ extern int __setvbuf (FILE *__restrict __stream, char *__restrict __buf,
 #endif /* __STDIO_BUFFERS */
 /**********************************************************************/
 
-extern int __fputs_unlocked(const char *__restrict s, FILE *__restrict stream) attribute_hidden;
-
-extern int __putchar_unlocked(int c);
-
-
-extern size_t __fwrite_unlocked(const void *__restrict ptr, size_t size,
-						size_t nmemb, FILE *__restrict stream) attribute_hidden;
-
-extern size_t __fread_unlocked(void *__restrict ptr, size_t size,
-						size_t nmemb, FILE *__restrict stream) attribute_hidden;
-
-extern int __fputc_unlocked_internal(int c, FILE *stream) attribute_hidden;
-
-extern int __fflush_unlocked(FILE *stream) attribute_hidden;
-
 extern int __stdio_adjust_position(FILE *__restrict stream, __offmax_t *pos) attribute_hidden;
-
-extern void __clearerr_unlocked(FILE *stream);
-extern int __feof_unlocked(FILE *stream);
-extern int __ferror_unlocked(FILE *stream);
-
-extern int __fgetc_unlocked_internal(FILE *stream) attribute_hidden;
-extern int __getc_unlocked(FILE *stream) attribute_hidden;
-extern char *__fgets_unlocked(char *__restrict s, int n,
-					FILE * __restrict stream) attribute_hidden;
-
-extern int __fileno_unlocked(FILE *stream) attribute_hidden;
-
-extern int __getchar_unlocked(void) attribute_hidden;
-
-extern int __fseek(FILE *stream, long int offset, int whence) attribute_hidden;
-extern long int __ftell(FILE *stream) attribute_hidden;
-#ifdef __UCLIBC_HAS_LFS__
-extern int __fseeko64(FILE *stream, __off64_t offset, int whence) attribute_hidden;
-extern __off64_t __ftello64(FILE *stream) attribute_hidden;
-#endif
 
 #ifdef __STDIO_HAS_OPENLIST
 	/* Uses an implementation hack!!! */
-#define __STDIO_FLUSH_LBF_STREAMS  __fflush_unlocked((FILE *) &_stdio_openlist)
+#define __STDIO_FLUSH_LBF_STREAMS  fflush_unlocked((FILE *) &_stdio_openlist)
 #else
 #define __STDIO_FLUSH_LBF_STREAMS		((void)0)
 #endif
@@ -451,14 +377,6 @@ extern void _stdio_validate_FILE(const FILE *stream);
 
 /**********************************************************************/
 
-extern int _stdio_adjpos(FILE *__restrict stream, __offmax_t * pos);
-extern int _stdio_lseek(FILE *stream, __offmax_t *pos, int whence);
-
-extern size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
-							FILE *stream);
-extern size_t _stdio_fread(unsigned char *buffer, size_t bytes,
-						   FILE *stream);
-
 extern FILE *_stdio_fopen(intptr_t fname_or_mode,
 				  const char *__restrict mode,
 				  FILE *__restrict stream, int filedes) attribute_hidden;
@@ -466,9 +384,6 @@ extern FILE *_stdio_fopen(intptr_t fname_or_mode,
 #ifdef __UCLIBC_HAS_WCHAR__
 extern size_t _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
 						 FILE *__restrict stream) attribute_hidden;
-
-extern wint_t __fgetwc_unlocked(register FILE *stream) attribute_hidden;
-extern wint_t __fputwc_unlocked(wchar_t wc, FILE *stream) attribute_hidden;
 #endif
 
 /**********************************************************************/

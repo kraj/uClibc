@@ -7,12 +7,13 @@
 
 #include "_stdio.h"
 
-extern wchar_t *__fgetws_unlocked(wchar_t *__restrict ws, int n,
-						FILE *__restrict stream) attribute_hidden;
+libc_hidden_proto(fgetws_unlocked)
+
+libc_hidden_proto(fgetwc_unlocked)
 
 #ifdef __DO_UNLOCKED
 
-wchar_t attribute_hidden *__fgetws_unlocked(wchar_t *__restrict ws, int n,
+wchar_t *fgetws_unlocked(wchar_t *__restrict ws, int n,
 						   FILE *__restrict stream)
 {
 	register wchar_t *p = ws;
@@ -21,7 +22,7 @@ wchar_t attribute_hidden *__fgetws_unlocked(wchar_t *__restrict ws, int n,
 	__STDIO_STREAM_VALIDATE(stream);
 
 	while ((n > 1)
-		   && ((wi = __fgetwc_unlocked(stream)) != WEOF)
+		   && ((wi = fgetwc_unlocked(stream)) != WEOF)
 		   && ((*p++ = wi) != '\n')
 		   ) {
 		--n;
@@ -36,10 +37,10 @@ wchar_t attribute_hidden *__fgetws_unlocked(wchar_t *__restrict ws, int n,
 	*p = 0;
 	return ws;
 }
+libc_hidden_def(fgetws_unlocked)
 
-weak_alias(__fgetws_unlocked,fgetws_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fgetws_unlocked,fgetws)
+strong_alias(fgetws_unlocked,fgetws)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
@@ -51,7 +52,7 @@ wchar_t *fgetws(wchar_t *__restrict ws, int n, FILE *__restrict stream)
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	retval = __fgetws_unlocked(ws, n, stream);
+	retval = fgetws_unlocked(ws, n, stream);
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 

@@ -7,9 +7,11 @@
 
 #include "_stdio.h"
 
+libc_hidden_proto(setvbuf)
+
 void setbuf(FILE * __restrict stream, register char * __restrict buf)
 {
 #ifdef __STDIO_BUFFERS
-	__setvbuf(stream, buf, ((buf != NULL) ? _IOFBF : _IONBF), BUFSIZ);
+	setvbuf(stream, buf, ((buf != NULL) ? _IOFBF : _IONBF), BUFSIZ);
 #endif
 }

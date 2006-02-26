@@ -8,6 +8,6 @@
 #include "_stdio.h"
 
 #define __DO_LARGEFILE
-#define FSEEK         __fseeko64
+#define FSEEK         fseeko64
 #define OFFSET_TYPE   __off64_t
 #include "fseeko.c"

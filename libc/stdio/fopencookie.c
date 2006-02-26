@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#include <features.h>
+
+#ifdef __USE_GNU
 #include "_stdio.h"
 
 #ifndef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
@@ -28,7 +31,8 @@
 /* Currently no real reentrancy issues other than a possible double close(). */
 
 #ifndef __BCC__
-FILE attribute_hidden *__fopencookie(void * __restrict cookie, const char * __restrict mode,
+libc_hidden_proto(fopencookie)
+FILE *fopencookie(void * __restrict cookie, const char * __restrict mode,
 				  cookie_io_functions_t io_functions)
 #else
 FILE *_fopencookie(void * __restrict cookie, const char * __restrict mode,
@@ -58,5 +62,6 @@ FILE *_fopencookie(void * __restrict cookie, const char * __restrict mode,
 	return stream;
 }
 #ifndef __BCC__
-strong_alias(__fopencookie,fopencookie)
+libc_hidden_def(fopencookie)
+#endif
 #endif

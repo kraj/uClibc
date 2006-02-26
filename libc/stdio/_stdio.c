@@ -5,9 +5,10 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define isatty __isatty
-
 #include "_stdio.h"
+
+libc_hidden_proto(memcpy)
+libc_hidden_proto(isatty)
 
 /* This is pretty much straight from uClibc, but with one important
  * difference.
@@ -129,12 +130,19 @@ static FILE _stdio_streams[] = {
 							 0 )
 };
 
+/* psm: moved to _stdio.h: libc_hidden_proto(stdin/stdout) */
 FILE *stdin  = _stdio_streams;
+libc_hidden_data_def(stdin)
 FILE *stdout = _stdio_streams + 1;
+libc_hidden_data_def(stdout)
+libc_hidden_proto(stderr)
 FILE *stderr = _stdio_streams + 2;
+libc_hidden_data_def(stderr)
 
 #ifdef __STDIO_GETC_MACRO
+libc_hidden_proto(__stdin)
 FILE *__stdin = _stdio_streams;		 /* For getchar() macro. */
+libc_hidden_data_def(__stdin)
 #endif
 #ifdef __STDIO_PUTC_MACRO
 FILE *__stdout = _stdio_streams + 1; /* For putchar() macro. */
@@ -156,6 +164,7 @@ FILE *__stdout = _stdio_streams + 1; /* For putchar() macro. */
  */
 
 FILE *_stdio_openlist = _stdio_streams;
+libc_hidden_data_def(_stdio_openlist)
 
 # ifdef __UCLIBC_HAS_THREADS__
 #  ifdef __USE_STDIO_FUTEXES__
@@ -164,6 +173,7 @@ _IO_lock_t _stdio_openlist_lock = _IO_lock_initializer;
 #  else
 pthread_mutex_t _stdio_openlist_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #  endif
+libc_hidden_data_def(_stdio_openlist_lock)
 int _stdio_openlist_delflag = 0;
 # endif
 
@@ -172,7 +182,9 @@ int _stdio_openlist_delflag = 0;
 #ifdef __UCLIBC_HAS_THREADS__
 
 /* 2 if threading not initialized and 0 otherwise; */
+libc_hidden_proto(_stdio_user_locking)
 int _stdio_user_locking = 2;
+libc_hidden_data_def(_stdio_user_locking)
 
 #ifndef __USE_STDIO_FUTEXES__
 void attribute_hidden __stdio_init_mutex(pthread_mutex_t *m)
@@ -180,7 +192,7 @@ void attribute_hidden __stdio_init_mutex(pthread_mutex_t *m)
 	static const pthread_mutex_t __stdio_mutex_initializer
 		= PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-	__memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
+	memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
 }
 #endif
 
@@ -258,6 +270,7 @@ void attribute_hidden _stdio_term(void)
 #endif
 }
 
+#if defined __STDIO_BUFFERS || !defined __UCLIBC__
 void attribute_hidden _stdio_init(void)
 {
 #ifdef __STDIO_BUFFERS
@@ -271,8 +284,9 @@ void attribute_hidden _stdio_init(void)
 	/* _stdio_term is done automatically when exiting if stdio is used.
 	 * See misc/internals/__uClibc_main.c and and stdlib/atexit.c. */
 	atexit(_stdio_term);
-#endif /* __UCLIBC__ */
+#endif
 }
+#endif
 
 /**********************************************************************/
 
