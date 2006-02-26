@@ -20,20 +20,7 @@
 /* Modified for uClibc by Erik Andersen
    */
 
-#include <features.h>
-
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
-#undef _FILE_OFFSET_BITS
-#define	_FILE_OFFSET_BITS   64
-#endif
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64	1
-#endif
-/* We absolutely do _NOT_ want interfaces silently
- * renamed under us or very bad things will happen... */
-#ifdef __USE_FILE_OFFSET64
-# undef __USE_FILE_OFFSET64
-#endif
+#include <_lfs_64.h>
 
 #include <dirent.h>
 #include <stdio.h>
@@ -47,6 +34,7 @@ libc_hidden_proto(memcpy)
 libc_hidden_proto(opendir)
 libc_hidden_proto(closedir)
 libc_hidden_proto(qsort)
+libc_hidden_proto(readdir64)
 
 int scandir64(const char *dir, struct dirent64 ***namelist, 
 	int (*selector) (const struct dirent64 *),
