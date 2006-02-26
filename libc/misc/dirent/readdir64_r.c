@@ -4,20 +4,8 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <features.h>
+#include <_lfs_64.h>
 
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
-#undef _FILE_OFFSET_BITS
-#define	_FILE_OFFSET_BITS   64
-#endif
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64	1
-#endif
-/* We absolutely do _NOT_ want interfaces silently
- * renamed under us or very bad things will happen... */
-#ifdef __USE_FILE_OFFSET64
-# undef __USE_FILE_OFFSET64
-#endif
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -28,6 +16,7 @@
 
 libc_hidden_proto(memcpy)
 
+libc_hidden_proto(readdir64_r)
 int readdir64_r(DIR *dir, struct dirent64 *entry, struct dirent64 **result)
 {
 	int ret;
@@ -77,3 +66,4 @@ all_done:
 	__pthread_mutex_unlock(&(dir->dd_lock));
         return((de != NULL)? 0 : ret);
 }
+libc_hidden_def(readdir64_r)

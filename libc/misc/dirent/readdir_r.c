@@ -13,6 +13,7 @@
 
 libc_hidden_proto(memcpy)
 
+libc_hidden_proto(readdir_r)
 int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 {
 	int ret;
@@ -63,3 +64,4 @@ all_done:
 
 	return((de != NULL)? 0 : ret);
 }
+libc_hidden_def(readdir_r)
