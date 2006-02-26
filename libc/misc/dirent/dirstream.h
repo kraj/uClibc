@@ -72,10 +72,8 @@ struct __dirstream {
 
 
 extern ssize_t __getdents(int fd, char *buf, size_t count) attribute_hidden;
-libc_hidden_proto(readdir)
 #ifdef __UCLIBC_HAS_LFS__
 extern ssize_t __getdents64 (int fd, char *buf, size_t count) attribute_hidden;
-libc_hidden_proto(readdir64)
 #endif
 
 #endif /* dirent.h  */
