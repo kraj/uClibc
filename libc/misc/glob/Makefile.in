@@ -6,7 +6,10 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := glob.c glob64.c glob-hooks.c
+CSRC := glob.c glob-hooks.c
+ifeq ($(UCLIBC_HAS_LFS),y)
+CSRC += glob64.c
+endif
 
 MISC_GLOB_DIR := $(top_srcdir)libc/misc/glob
 MISC_GLOB_OUT := $(top_builddir)libc/misc/glob
