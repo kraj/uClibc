@@ -20,9 +20,12 @@
 #include <signal.h>
 #include <string.h>
 
+libc_hidden_proto(memset)
+
 /* Set all signals in SET.  */
-int attribute_hidden
-__sigfillset_internal (sigset_t *set)
+libc_hidden_proto(sigfillset)
+int
+sigfillset (sigset_t *set)
 {
   if (set == NULL)
     {
@@ -30,11 +33,7 @@ __sigfillset_internal (sigset_t *set)
       return -1;
     }
 
-#ifdef IS_IN_libc
-  __memset (set, 0xff, sizeof (sigset_t));
-#else
   memset (set, 0xff, sizeof (sigset_t));
-#endif
 
   /* If the implementation uses a cancellation signal don't set the bit.  */
 #ifdef SIGCANCEL
@@ -47,4 +46,4 @@ __sigfillset_internal (sigset_t *set)
 
   return 0;
 }
-strong_alias(__sigfillset_internal,sigfillset)
+libc_hidden_def(sigfillset)

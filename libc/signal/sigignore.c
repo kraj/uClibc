@@ -18,15 +18,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define sigaction __sigaction
-
-#define _GNU_SOURCE
 #include <errno.h>
 #define __need_NULL
 #include <stddef.h>
 #include <signal.h>
 #include <string.h>	/* For the real memset prototype.  */
 
+libc_hidden_proto(sigaction)
 
 int
 sigignore (sig)

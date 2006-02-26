@@ -8,4 +8,4 @@
 # define __USE_EXTERN_INLINES	1
 #endif
 
-#include "signal.h"
+#include <signal.h>

@@ -1,4 +1,4 @@
-/* Copyright (C) 1997,1998,1999,2000,2002,2003 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2000,2002,2003,2005,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,17 +16,23 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
 
 #include <sys/syscall.h>
 
+libc_hidden_proto(memcpy)
 
 /* The difference here is that the sigaction structure used in the
    kernel is not the same as we use in the libc.  Therefore we must
    translate it here.  */
 #include <bits/kernel_sigaction.h>
+
+#ifndef LIBC_SIGACTION
+extern __typeof(sigaction) __libc_sigaction;
+#endif
 
 #if defined __NR_rt_sigaction
 
@@ -40,7 +46,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 
 	if (act) {
 		kact.k_sa_handler = act->sa_handler;
-		__memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
+		memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
 		kact.sa_flags = act->sa_flags;
 # ifdef HAVE_SA_RESTORER
 		kact.sa_restorer = act->sa_restorer;
@@ -55,7 +61,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 
 	if (oact && result >= 0) {
 		oact->sa_handler = koact.k_sa_handler;
-		__memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
+		memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
 		oact->sa_flags = koact.sa_flags;
 # ifdef HAVE_SA_RESTORER
 		oact->sa_restorer = koact.sa_restorer;
@@ -103,6 +109,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 #endif
 
 #ifndef LIBC_SIGACTION
-hidden_weak_alias(__libc_sigaction,__sigaction)
+libc_hidden_proto(sigaction)
 weak_alias(__libc_sigaction,sigaction)
+libc_hidden_weak(sigaction)
 #endif

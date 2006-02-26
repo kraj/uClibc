@@ -19,8 +19,8 @@
 #include "sigsetops.h"
 
 /* Add SIGNO to SET.  */
-int attribute_hidden
-__sigdelset_internal (sigset_t *set, int signo)
+libc_hidden_proto(sigdelset)
+int sigdelset (sigset_t *set, int signo)
 {
   if (set == NULL || signo <= 0 || signo >= NSIG)
     {
@@ -30,4 +30,4 @@ __sigdelset_internal (sigset_t *set, int signo)
 
   return __sigdelset (set, signo);
 }
-strong_alias(__sigdelset_internal,sigdelset)
+libc_hidden_def(sigdelset)
