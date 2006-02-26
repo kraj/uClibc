@@ -16,7 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include "_lfs_64.h"
+#include <_lfs_64.h>
 
 #ifdef __UCLIBC_HAS_LFS__
 #include <fcntl.h>

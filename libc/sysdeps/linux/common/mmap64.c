@@ -5,7 +5,7 @@
  */
 /* Massivly hacked up for uClibc by Erik Andersen */
 
-#include "_lfs_64.h"
+#include <_lfs_64.h>
 
 #ifdef __UCLIBC_HAS_LFS__
 
