@@ -1139,7 +1139,6 @@ config UCLIBC_HAS_FNMATCH_OLD
 config UCLIBC_HAS_WORDEXP
 	bool "Support the wordexp() interface"
 	depends on UCLIBC_HAS_GLOB
-	depends on UCLIBC_HAS_FNMATCH
 	default n
 	help
 	  The SuSv3 wordexp() interface performs word expansions per the  Shell
@@ -1162,6 +1161,7 @@ config UCLIBC_HAS_FTW
 
 config UCLIBC_HAS_GLOB
 	bool "Support the glob() interface"
+	depends on UCLIBC_HAS_FNMATCH
 	default y
 	help
 
