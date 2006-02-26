@@ -16,20 +16,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <features.h>
-
-#ifdef __UCLIBC_HAS_LFS__
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
-#undef _FILE_OFFSET_BITS
-#define	_FILE_OFFSET_BITS   64
-#endif
-#ifndef __USE_FILE_OFFSET64
-# define __USE_FILE_OFFSET64	1
-#endif
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64	1
-#endif
-#endif
+#include <_lfs_64.h>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -43,16 +30,17 @@
 #define fcntl fcntl64
 #define F_GETLK F_GETLK64
 #define F_SETLK F_SETLK64
+libc_hidden_proto(fcntl64)
+#else
+libc_hidden_proto(fcntl)
 #endif
 
-libc_hidden_proto(lockf64)
-
 libc_hidden_proto(memset)
-libc_hidden_proto(fcntl64)
 libc_hidden_proto(getpid)
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */
 
+libc_hidden_proto(lockf64)
 int lockf64 (int fd, int cmd, off64_t len64)
 {
     struct flock fl;

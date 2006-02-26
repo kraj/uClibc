@@ -17,18 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
-#undef _FILE_OFFSET_BITS
-#define	_FILE_OFFSET_BITS   64
-#endif
-#ifndef __USE_FILE_OFFSET64
-# define __USE_FILE_OFFSET64	1
-#endif
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64	1
-#endif
+#include <_lfs_64.h>
 
 #include <errno.h>
 #include <mntent.h>
@@ -52,7 +41,7 @@ libc_hidden_proto(fstatfs64)
 libc_hidden_proto(fstat64)
 libc_hidden_proto(stat64)
 
-int fstatvfs (int fd, struct statvfs *buf)
+int fstatvfs64 (int fd, struct statvfs64 *buf)
 {
     struct statfs64 fsbuf;
     struct stat64 st;
