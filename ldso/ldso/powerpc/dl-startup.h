@@ -80,9 +80,3 @@ asm(
 		_dl_exit(100+ELF32_R_TYPE((RELP)->r_info));\
 	}						\
 	}
-/*
- * Transfer control to the user's application, once the dynamic loader
- * is done.  This routine has to exit the current function, then
- * call the _dl_elf_main function.
- */
-#define START()	    return _dl_elf_main

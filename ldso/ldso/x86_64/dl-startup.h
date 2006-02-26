@@ -6,7 +6,7 @@
  *
  * Parts taken from glibc/sysdeps/x86_64/dl-machine.h
  */
-asm(
+__asm__ (
 	"	.text\n"
 	"	.align 16\n"
 	"	.global _start\n"
@@ -63,8 +63,3 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, ElfW(Addr) *reloc_addr,
 			_dl_exit(1);
 	}
 }
-
-/* Transfer control to the user's application, once the dynamic loader is
- * done.  This routine has to exit the current function, then call the
- * _dl_elf_main function.  */
-#define START() return _dl_elf_main
