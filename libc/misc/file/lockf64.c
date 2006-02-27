@@ -28,7 +28,9 @@
 #ifdef __NR_fcntl64
 #define flock flock64
 #define fcntl fcntl64
+#undef F_GETLK
 #define F_GETLK F_GETLK64
+#undef F_SETLK
 #define F_SETLK F_SETLK64
 libc_hidden_proto(fcntl64)
 #else
