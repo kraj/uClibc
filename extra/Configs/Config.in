@@ -1086,6 +1086,14 @@ config UCLIBC_HAS_GNU_GETOPT
 
 	  Most people will answer Y.
 
+config UCLIBC_HAS_GNU_GETSUBOPT
+	bool "Support glibc getsubopt"
+	default y
+	help
+	  Answer Y if you want to include glibc getsubopt() instead of a
+	  smaller SUSv3 compatible getsubopt().
+
+	  Most people will answer Y.
 endmenu
 
 
