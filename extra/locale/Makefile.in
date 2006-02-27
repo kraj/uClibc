@@ -163,12 +163,6 @@ $(locale_OUT)/uClibc_locale_data.h: $(locale_OUT)/lt_defines.h $(locale_OUT)/c8t
 
 endif
 
-$(locale_OBJ): $(locale_SRC) | $(headers_dep)
-	$(compile.c)
-
-$(locale_OBJ:.o=.os): $(locale_SRC) | $(headers_dep)
-	$(compile.c)
-
 $(top_builddir)include/bits/uClibc_locale_data.h: $(locale_OUT)/uClibc_locale_data.h | $(top_builddir)include/bits/uClibc_config.h
 	cat $< | awk 'BEGIN{i=1}{ if ( /WANT_/ ) i = /endif/ ; else if (i) print $0 }' > $@
 
