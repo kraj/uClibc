@@ -55,6 +55,7 @@ typedef __SIZE_TYPE__ size_t;
 
 #if !defined __USE_POSIX2 || defined __USE_BSD || defined __USE_GNU
 # define GLOB_MAGCHAR	 (1 << 8)/* Set in gl_flags if any metachars seen.  */
+#if 0 /* uClibc's gnu glob does not support these */
 # define GLOB_ALTDIRFUNC (1 << 9)/* Use gl_opendir et al functions.  */
 # define GLOB_BRACE	 (1 << 10)/* Expand "{a,b}" to "a" "b".  */
 # define GLOB_NOMAGIC	 (1 << 11)/* If no magic chars, return the pattern.  */
@@ -66,6 +67,11 @@ typedef __SIZE_TYPE__ size_t;
 			 GLOB_NOESCAPE|GLOB_NOCHECK|GLOB_APPEND|     \
 			 GLOB_PERIOD|GLOB_ALTDIRFUNC|GLOB_BRACE|     \
 			 GLOB_NOMAGIC|GLOB_TILDE|GLOB_ONLYDIR|GLOB_TILDE_CHECK)
+#else
+# define __GLOB_FLAGS	(GLOB_ERR|GLOB_MARK|GLOB_NOSORT|GLOB_DOOFFS| \
+			 GLOB_NOESCAPE|GLOB_NOCHECK|GLOB_APPEND|     \
+			 GLOB_PERIOD)
+#endif
 #else
 # define __GLOB_FLAGS	(GLOB_ERR|GLOB_MARK|GLOB_NOSORT|GLOB_DOOFFS| \
 			 GLOB_NOESCAPE|GLOB_NOCHECK|GLOB_APPEND|     \
