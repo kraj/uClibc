@@ -24,6 +24,6 @@
 
 #else
 
-# error Don't include this header in files not built when LFS is disabled
+# error Do not include this header in files not built when LFS is disabled
 
 #endif
