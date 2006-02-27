@@ -59,6 +59,7 @@ int optind = 1;
 int optopt = 0;
 char *optarg = NULL;
 
+libc_hidden_proto(getopt)
 int getopt(int argc, char * const argv[], const char *optstring)
 {
 	static const char *o;		/* multi opt position */
@@ -135,3 +136,4 @@ int getopt(int argc, char * const argv[], const char *optstring)
  DONE:
 	return retval;
 }
+libc_hidden_def(getopt)

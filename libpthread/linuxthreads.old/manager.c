@@ -583,9 +583,16 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 	  __pthread_lock(new_thread->p_lock, NULL);
 
 	  /* We have to report this event.  */
+#ifdef __ia64__
+	  pid = __clone2(pthread_start_thread_event, (void **) new_thread,
+			(char *)new_thread - new_thread_bottom,
+			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+			__pthread_sig_cancel, new_thread);
+#else
 	  pid = clone(pthread_start_thread_event, (void **) new_thread,
 			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 			__pthread_sig_cancel, new_thread);
+#endif
 
 	  saved_errno = errno;
 	  if (pid != -1)
@@ -614,9 +621,16 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   if (pid == 0)
     {
       PDEBUG("cloning new_thread = %p\n", new_thread);
+#ifdef __ia64__
+      pid = __clone2(pthread_start_thread, (void **) new_thread,
+			(char *)new_thread - new_thread_bottom,
+		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+		    __pthread_sig_cancel, new_thread);
+#else
       pid = clone(pthread_start_thread, (void **) new_thread,
 		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 		    __pthread_sig_cancel, new_thread);
+#endif
       saved_errno = errno;
     }
   /* Check if cloning succeeded */
