@@ -17,15 +17,11 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define hdestroy_r __hdestroy_r
-#define hsearch_r __hsearch_r
-#define hcreate_r __hcreate_r
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
 #include <search.h>
+
+libc_hidden_proto(hdestroy_r)
+libc_hidden_proto(hsearch_r)
+libc_hidden_proto(hcreate_r)
 
 /* The non-reentrant version use a global space for storing the table.  */
 static struct hsearch_data htab;
@@ -53,7 +49,6 @@ void hdestroy (void)
 {
   hdestroy_r (&htab);
 }
-/* weak_alias (__hdestroy, hdestroy) */
 
 /* Make sure the table is freed if we want to free everything before
    exiting.  */

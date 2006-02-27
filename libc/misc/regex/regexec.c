@@ -275,7 +275,7 @@ __compat_regexec (const regex_t *__restrict preg,
 compat_symbol (libc, __compat_regexec, regexec, GLIBC_2_0);
 # endif
 #elif __UCLIBC__
-weak_alias(__regexec,regexec)
+strong_alias(__regexec,regexec)
 #endif
 
 /* Entry points for GNU code.  */
@@ -317,7 +317,7 @@ re_match (bufp, string, length, start, regs)
   return re_search_stub (bufp, string, length, start, 0, length, regs, 1);
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_match, re_match)
+strong_alias(__re_match, re_match)
 #endif
 
 int
@@ -330,7 +330,7 @@ re_search (bufp, string, length, start, range, regs)
   return re_search_stub (bufp, string, length, start, range, length, regs, 0);
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_search, re_search)
+strong_alias(__re_search, re_search)
 #endif
 
 int
@@ -344,7 +344,7 @@ re_match_2 (bufp, string1, length1, string2, length2, start, regs, stop)
 			   start, 0, regs, stop, 1);
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_match_2, re_match_2)
+strong_alias(__re_match_2, re_match_2)
 #endif
 
 int
@@ -358,7 +358,7 @@ re_search_2 (bufp, string1, length1, string2, length2, start, range, regs, stop)
 			   start, range, regs, stop, 0);
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_search_2, re_search_2)
+strong_alias(__re_search_2, re_search_2)
 #endif
 
 static int
@@ -593,7 +593,7 @@ re_set_registers (bufp, regs, num_regs, starts, ends)
     }
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_set_registers, re_set_registers)
+strong_alias(__re_set_registers, re_set_registers)
 #endif
 
 /* Entry points compatible with 4.2 BSD regex library.  We don't define

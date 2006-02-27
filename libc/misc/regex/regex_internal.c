@@ -195,7 +195,7 @@ static void
 internal_function
 build_wcs_buffer (re_string_t *pstr)
 {
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
   unsigned char buf[MB_LEN_MAX];
   assert (MB_LEN_MAX >= pstr->mb_cur_max);
 #else
@@ -266,7 +266,7 @@ build_wcs_upper_buffer (re_string_t *pstr)
   mbstate_t prev_st;
   int src_idx, byte_idx, end_idx, remain_len;
   size_t mbclen;
-#ifdef _LIBC
+#if defined _LIBC || defined __UCLIBC__
   char buf[MB_LEN_MAX];
   assert (MB_LEN_MAX >= pstr->mb_cur_max);
 #else
@@ -882,8 +882,9 @@ re_node_set_alloc (re_node_set *set, int size)
 {
   set->alloc = size;
   set->nelem = 0;
-  set->elems = re_malloc (int, size);
-  if (BE (set->elems == NULL, 0))
+  set->elems = re_malloc (int, size);	/* can be NULL if size == 0
+					   (see re_node_set_init_empty(set)) */
+  if (BE (set->elems == NULL && size != 0, 0))
     return REG_ESPACE;
   return REG_NOERROR;
 }

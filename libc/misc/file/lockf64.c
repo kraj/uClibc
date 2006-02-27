@@ -16,23 +16,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <features.h>
-#undef __lockf64
-
-#ifdef __UCLIBC_HAS_LFS__
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
-#undef _FILE_OFFSET_BITS
-#define	_FILE_OFFSET_BITS   64
-#endif
-#ifndef __USE_FILE_OFFSET64
-# define __USE_FILE_OFFSET64	1
-#endif
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64	1
-#endif
-#endif
-
-#define __USE_GNU
+#include <_lfs_64.h>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -43,17 +27,23 @@
 
 #ifdef __NR_fcntl64
 #define flock flock64
-#define fcntl __fcntl64
+#define fcntl fcntl64
+#undef F_GETLK
 #define F_GETLK F_GETLK64
+#undef F_SETLK
 #define F_SETLK F_SETLK64
+libc_hidden_proto(fcntl64)
 #else
-#define fcntl __fcntl
+libc_hidden_proto(fcntl)
 #endif
+
+libc_hidden_proto(memset)
+libc_hidden_proto(getpid)
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */
 
-#undef lockf64
-int attribute_hidden __lockf64 (int fd, int cmd, off64_t len64)
+libc_hidden_proto(lockf64)
+int lockf64 (int fd, int cmd, off64_t len64)
 {
     struct flock fl;
     off_t len = (off_t) len64;
@@ -65,7 +55,7 @@ int attribute_hidden __lockf64 (int fd, int cmd, off64_t len64)
 	return -1;
     }
 
-    __memset((char *) &fl, '\0', sizeof (fl));
+    memset((char *) &fl, '\0', sizeof (fl));
 
     /* lockf is always relative to the current file position.  */
     fl.l_whence = SEEK_CUR;
@@ -80,7 +70,7 @@ int attribute_hidden __lockf64 (int fd, int cmd, off64_t len64)
 	    fl.l_type = F_RDLCK;
 	    if (fcntl (fd, F_GETLK, &fl) < 0)
 		return -1;
-	    if (fl.l_type == F_UNLCK || fl.l_pid == __getpid ())
+	    if (fl.l_type == F_UNLCK || fl.l_pid == getpid ())
 		return 0;
 	    __set_errno(EACCES);
 	    return -1;
@@ -105,5 +95,4 @@ int attribute_hidden __lockf64 (int fd, int cmd, off64_t len64)
 
     return fcntl(fd, cmd, &fl);
 }
-
-strong_alias(__lockf64,lockf64)
+libc_hidden_def(lockf64)

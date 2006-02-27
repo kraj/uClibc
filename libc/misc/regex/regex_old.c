@@ -20,45 +20,34 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define HAVE_MEMPCPY
-#define memset __memset
-#define memcmp __memcmp
-#define strcmp __strcmp
-#define strlen __strlen
-#define wcslen __wcslen
-/* for some reason this does not work */
-#define memcpy __memcpy
-#define mbrtowc __mbrtowc
-#define wcrtomb __wcrtomb
-#define wcscoll __wcscoll
-#define wctype __wctype
-#define iswctype __iswctype
-#define iswalnum __iswalnum
-#define printf __printf
-#define btowc __btowc
-
 /* To exclude some unwanted junk.... */
 #undef emacs
-#define _REGEX_RE_COMP
 #include <features.h>
 #ifdef __UCLIBC__
 # undef _LIBC
+# define _REGEX_RE_COMP
+# define HAVE_MEMPCPY
+# define STDC_HEADERS
+# define RE_TRANSLATE_TYPE char *
 #endif
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
-#define STDC_HEADERS
-#define RE_TRANSLATE_TYPE char *
+#include <stdio.h>
 
-extern void *__mempcpy (void *__restrict __dest,
-			__const void *__restrict __src, size_t __n) /*attribute_hidden*/;
+libc_hidden_proto(memset)
+libc_hidden_proto(memcmp)
+libc_hidden_proto(memcpy)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strlen)
+libc_hidden_proto(printf)
+libc_hidden_proto(mempcpy)
+libc_hidden_proto(abort)
 
 /* AIX requires this to be the first thing in the file. */
 #if defined _AIX && !defined REGEX_MALLOC
   #pragma alloca
 #endif
-
-#undef	_GNU_SOURCE
-#define _GNU_SOURCE
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -89,6 +78,15 @@ extern void *__mempcpy (void *__restrict __dest,
 /* Solaris 2.5 has a bug: <wchar.h> must be included before <wctype.h>.  */
 #  include <wchar.h>
 #  include <wctype.h>
+libc_hidden_proto(wcslen)
+libc_hidden_proto(mbrtowc)
+libc_hidden_proto(wcrtomb)
+libc_hidden_proto(wcscoll)
+libc_hidden_proto(wctype)
+libc_hidden_proto(iswctype)
+libc_hidden_proto(iswalnum)
+libc_hidden_proto(btowc)
+
 # endif
 
 # if defined _LIBC || defined __UCLIBC__
@@ -113,10 +111,10 @@ extern void *__mempcpy (void *__restrict __dest,
 	__re_search_2 (bufp, st1, s1, st2, s2, startpos, range, regs, stop)
 #  define re_compile_fastmap(bufp) __re_compile_fastmap (bufp)
 
+# ifndef __UCLIBC__
 #  define btowc __btowc
 
 /* We are also using some library internals.  */
-# ifndef __UCLIBC__
 #  include <locale/localeinfo.h>
 #  include <locale/elem-hash.h>
 #  include <langinfo.h>
@@ -334,7 +332,7 @@ init_syntax_once ()
 # endif /* emacs */
 
 /* Integer type for pointers.  */
-# if !defined _LIBC
+# if !defined _LIBC && !defined __intptr_t_defined
 typedef unsigned long int uintptr_t;
 # endif
 
@@ -1389,7 +1387,7 @@ re_set_syntax (syntax)
   return ret;
 }
 # if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_set_syntax, re_set_syntax)
+strong_alias(__re_set_syntax, re_set_syntax)
 # endif
 
 /* This table gives an error message for each of the error codes listed
@@ -3315,11 +3313,15 @@ PREFIX(regex_compile) (ARG_PREFIX(pattern), ARG_PREFIX(size), syntax, bufp)
                         PATFETCH (c);
                         if ((c == ':' && *p == ']') || p == pend)
                           break;
+#if CHAR_CLASS_MAX_LENGTH != 256
 			if (c1 < CHAR_CLASS_MAX_LENGTH)
 			  str[c1++] = c;
 			else
 			  /* This is in any case an invalid class name.  */
 			  str[0] = '\0';
+#else
+			  str[c1++] = c;
+#endif
                       }
                     str[c1] = '\0';
 
@@ -5009,7 +5011,7 @@ re_compile_fastmap (bufp)
     return byte_re_compile_fastmap(bufp);
 } /* re_compile_fastmap */
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_compile_fastmap, re_compile_fastmap)
+strong_alias(__re_compile_fastmap, re_compile_fastmap)
 #endif
 
 
@@ -5048,7 +5050,7 @@ re_set_registers (bufp, regs, num_regs, starts, ends)
     }
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_set_registers, re_set_registers)
+strong_alias(__re_set_registers, re_set_registers)
 #endif
 
 /* Searching routines.  */
@@ -5067,7 +5069,7 @@ re_search (bufp, string, size, startpos, range, regs)
 		      regs, size);
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_search, re_search)
+strong_alias(__re_search, re_search)
 #endif
 
 
@@ -5112,7 +5114,7 @@ re_search_2 (bufp, string1, size1, string2, size2, startpos, range, regs, stop)
 			     range, regs, stop);
 } /* re_search_2 */
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_search_2, re_search_2)
+strong_alias(__re_search_2, re_search_2)
 #endif
 
 #endif /* not INSIDE_RECURSION */
@@ -5571,7 +5573,7 @@ re_match (bufp, string, size, pos, regs)
   return result;
 }
 # if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_match, re_match)
+strong_alias(__re_match, re_match)
 # endif
 #endif /* not emacs */
 
@@ -5632,7 +5634,7 @@ re_match_2 (bufp, string1, size1, string2, size2, pos, regs, stop)
   return result;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_match_2, re_match_2)
+strong_alias(__re_match_2, re_match_2)
 #endif
 
 #endif /* not INSIDE_RECURSION */
@@ -7971,7 +7973,7 @@ re_compile_pattern (pattern, length, bufp)
   return gettext (re_error_msgid + re_error_msgid_idx[(int) ret]);
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_compile_pattern, re_compile_pattern)
+strong_alias(__re_compile_pattern, re_compile_pattern)
 #endif
 
 /* Entry points compatible with 4.2 BSD regex library.  We don't define
@@ -8167,7 +8169,7 @@ regcomp (preg, pattern, cflags)
   return (int) ret;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__regcomp, regcomp)
+strong_alias(__regcomp, regcomp)
 #endif
 
 
@@ -8245,7 +8247,7 @@ regexec (preg, string, nmatch, pmatch, eflags)
   return ret >= 0 ? (int) REG_NOERROR : (int) REG_NOMATCH;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__regexec, regexec)
+strong_alias(__regexec, regexec)
 #endif
 
 
@@ -8280,7 +8282,7 @@ regerror (errcode, preg, errbuf, errbuf_size)
       if (msg_size > errbuf_size)
         {
 #if defined HAVE_MEMPCPY || defined _LIBC
-	  *((char *) __mempcpy (errbuf, msg, errbuf_size - 1)) = '\0';
+	  *((char *) mempcpy (errbuf, msg, errbuf_size - 1)) = '\0';
 #else
           memcpy (errbuf, msg, errbuf_size - 1);
           errbuf[errbuf_size - 1] = 0;
@@ -8293,7 +8295,7 @@ regerror (errcode, preg, errbuf, errbuf_size)
   return msg_size;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__regerror, regerror)
+strong_alias(__regerror, regerror)
 #endif
 
 
@@ -8320,7 +8322,7 @@ regfree (preg)
   preg->translate = NULL;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__regfree, regfree)
+strong_alias(__regfree, regfree)
 #endif
 
 #endif /* not emacs  */

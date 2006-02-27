@@ -214,7 +214,7 @@ FCT (pattern, string, string_end, no_leading_period, flags)
 	    UCHAR fn;
 
 	    if (posixly_correct == 0)
-	      posixly_correct = __getenv ("POSIXLY_CORRECT") != NULL ? 1 : -1;
+	      posixly_correct = getenv ("POSIXLY_CORRECT") != NULL ? 1 : -1;
 
 	    if (n == string_end)
 	      return FNM_NOMATCH;
@@ -993,7 +993,7 @@ END (const CHAR *pattern)
       {
 	/* Handle brackets special.  */
 	if (posixly_correct == 0)
-	  posixly_correct = __getenv ("POSIXLY_CORRECT") != NULL ? 1 : -1;
+	  posixly_correct = getenv ("POSIXLY_CORRECT") != NULL ? 1 : -1;
 
 	/* Skip the not sign.  We have to recognize it because of a possibly
 	   following ']'.  */
@@ -1045,7 +1045,7 @@ EXT (INT opt, const CHAR *pattern, const CHAR *string, const CHAR *string_end,
       {
 	/* Handle brackets special.  */
 	if (posixly_correct == 0)
-	  posixly_correct = __getenv ("POSIXLY_CORRECT") != NULL ? 1 : -1;
+	  posixly_correct = getenv ("POSIXLY_CORRECT") != NULL ? 1 : -1;
 
 	/* Skip the not sign.  We have to recognize it because of a possibly
 	   following ']'.  */

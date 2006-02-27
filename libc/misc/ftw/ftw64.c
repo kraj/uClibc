@@ -24,8 +24,8 @@
 #define NFTW_NEW_NAME __new_nftw64
 #define INO_T ino64_t
 #define STAT stat64
-#define LXSTAT(V,f,sb) __lstat64(f,sb)
-#define XSTAT(V,f,sb) __stat64(f,sb)
+#define LXSTAT(V,f,sb) lstat64(f,sb)
+#define XSTAT(V,f,sb) stat64(f,sb)
 #define FTW_FUNC_T __ftw64_func_t
 #define NFTW_FUNC_T __nftw64_func_t
 

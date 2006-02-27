@@ -29,6 +29,7 @@
 
 #if defined HAVE_LANGINFO_H || defined HAVE_LANGINFO_CODESET || defined _LIBC
 # include <langinfo.h>
+libc_hidden_proto(nl_langinfo)
 #endif
 #if defined HAVE_LOCALE_H || defined _LIBC
 # include <locale.h>
@@ -52,7 +53,7 @@
 #endif
 
 /* In case that the system doesn't have isblank().  */
-#if !defined _LIBC && !defined HAVE_ISBLANK && !defined isblank
+#if !defined _LIBC && !defined HAVE_ISBLANK && !defined isblank && !defined __UCLIBC__
 # define isblank(ch) ((ch) == ' ' || (ch) == '\t')
 #endif
 

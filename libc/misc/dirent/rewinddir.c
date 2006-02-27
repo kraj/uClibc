@@ -1,8 +1,15 @@
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 #include <dirent.h>
 #include <errno.h>
 #include <unistd.h>
 #include "dirstream.h"
 
+libc_hidden_proto(lseek)
 
 /* rewinddir() just does an lseek(fd,0,0) - see close for comments */
 void rewinddir(DIR * dir)
@@ -12,7 +19,7 @@ void rewinddir(DIR * dir)
 		return;
 	}
 	__pthread_mutex_lock(&(dir->dd_lock));
-	__lseek(dir->dd_fd, 0, SEEK_SET);
+	lseek(dir->dd_fd, 0, SEEK_SET);
 	dir->dd_nextoff = dir->dd_nextloc = dir->dd_size = 0;
 	__pthread_mutex_unlock(&(dir->dd_lock));
 }

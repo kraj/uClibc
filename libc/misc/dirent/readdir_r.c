@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,6 +11,9 @@
 #include <dirent.h>
 #include "dirstream.h"
 
+libc_hidden_proto(memcpy)
+
+libc_hidden_proto(readdir_r)
 int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 {
 	int ret;
@@ -45,7 +54,7 @@ int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 	if (de == NULL) {
 	    *result = NULL;
 	} else {
-	    *result = __memcpy (entry, de, de->d_reclen);
+	    *result = memcpy (entry, de, de->d_reclen);
 	}
 	ret = 0;
 
@@ -55,3 +64,4 @@ all_done:
 
 	return((de != NULL)? 0 : ret);
 }
+libc_hidden_def(readdir_r)

@@ -233,7 +233,7 @@ re_compile_pattern (pattern, length, bufp)
   return gettext (__re_error_msgid + __re_error_msgid_idx[(int) ret]);
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_compile_pattern, re_compile_pattern)
+strong_alias(__re_compile_pattern, re_compile_pattern)
 #endif
 
 /* Set by `re_set_syntax' to the current regexp syntax to recognize.  Can
@@ -261,7 +261,7 @@ re_set_syntax (syntax)
   return ret;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_set_syntax, re_set_syntax)
+strong_alias(__re_set_syntax, re_set_syntax)
 #endif
 
 int
@@ -283,7 +283,7 @@ re_compile_fastmap (bufp)
   return 0;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__re_compile_fastmap, re_compile_fastmap)
+strong_alias(__re_compile_fastmap, re_compile_fastmap)
 #endif
 
 static inline void
@@ -499,7 +499,7 @@ regcomp (preg, pattern, cflags)
   return (int) ret;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__regcomp, regcomp)
+strong_alias(__regcomp, regcomp)
 #endif
 
 /* Returns a message corresponding to an error code, ERRCODE, returned
@@ -546,7 +546,7 @@ regerror (errcode, preg, errbuf, errbuf_size)
   return msg_size;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__regerror, regerror)
+strong_alias(__regerror, regerror)
 #endif
 
 
@@ -630,7 +630,7 @@ regfree (preg)
   preg->translate = NULL;
 }
 #if defined _LIBC || defined __UCLIBC__
-weak_alias (__regfree, regfree)
+strong_alias(__regfree, regfree)
 #endif
 
 /* Entry points compatible with 4.2 BSD regex library.  We don't define
@@ -805,6 +805,10 @@ re_compile_internal (regex_t *preg, const char * pattern, size_t length,
 /* Initialize DFA.  We use the length of the regular expression PAT_LEN
    as the initial length of some arrays.  */
 
+#ifdef __UCLIBC_HAS_WCHAR__
+libc_hidden_proto(_stdlib_mb_cur_max)
+#endif
+
 static reg_errcode_t
 init_dfa (re_dfa_t *dfa, size_t pat_len)
 {
@@ -834,9 +838,6 @@ init_dfa (re_dfa_t *dfa, size_t pat_len)
   dfa->state_hash_mask = table_size - 1;
 
 #ifdef __UCLIBC_HAS_WCHAR__
-# undef MB_CUR_MAX
-# define	MB_CUR_MAX	(_stdlib_mb_cur_max_internal ())
-extern size_t _stdlib_mb_cur_max_internal (void) __THROW __wur attribute_hidden;
   dfa->mb_cur_max = MB_CUR_MAX;
 #else
   dfa->mb_cur_max = 1;
@@ -1651,8 +1652,6 @@ calc_eclosure_iter (re_node_set *new_set, re_dfa_t *dfa, int node, int root)
       && dfa->edests[node].nelem
       && !dfa->nodes[dfa->edests[node].elems[0]].duplicated)
     {
-      int org_node, cur_node;
-      org_node = cur_node = node;
       err = duplicate_node_closure (dfa, node, node, node, constraint);
       if (BE (err != REG_NOERROR, 0))
 	return err;

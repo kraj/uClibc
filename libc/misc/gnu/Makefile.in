@@ -1,25 +1,22 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC:=obstack.c
+CSRC := obstack.c
 
-MISC_GNU_DIR:=$(top_srcdir)libc/misc/gnu
-MISC_GNU_OUT:=$(top_builddir)libc/misc/gnu
+MISC_GNU_DIR := $(top_srcdir)libc/misc/gnu
+MISC_GNU_OUT := $(top_builddir)libc/misc/gnu
 
-MISC_GNU_SRC:=$(MISC_GNU_DIR)/obstack.c
-MISC_GNU_OBJ:=$(MISC_GNU_OUT)/obstack.o
+MISC_GNU_SRC := $(MISC_GNU_DIR)/obstack.c
+MISC_GNU_OBJ := $(MISC_GNU_OUT)/obstack.o
 
-libc-a-y+=$(MISC_GNU_OBJ)
-libc-so-y+=$(MISC_GNU_OBJ:.o=.os)
+libc-y += $(MISC_GNU_OBJ)
 
-libc-multi-y+=$(MISC_GNU_SRC)
-
-objclean-y+=misc_gnu_objclean
+objclean-y += misc_gnu_objclean
 
 misc_gnu_objclean:
 	$(RM) $(MISC_GNU_OUT)/*.{o,os}
