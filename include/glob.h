@@ -53,7 +53,7 @@ typedef __SIZE_TYPE__ size_t;
 #define	GLOB_NOESCAPE	(1 << 6)/* Backslashes don't quote metacharacters.  */
 #define	GLOB_PERIOD	(1 << 7)/* Leading `.' can be matched by metachars.  */
 
-#if !defined __USE_POSIX2 || defined __USE_BSD || defined __USE_GNU
+#if ( !defined __USE_POSIX2 || defined __USE_BSD || defined __USE_GNU ) && defined __UCLIBC_HAS_GNU_GLOB__
 # define GLOB_MAGCHAR	 (1 << 8)/* Set in gl_flags if any metachars seen.  */
 #if 0 /* uClibc's gnu glob does not support these */
 # define GLOB_ALTDIRFUNC (1 << 9)/* Use gl_opendir et al functions.  */
@@ -83,14 +83,14 @@ typedef __SIZE_TYPE__ size_t;
 #define	GLOB_ABORTED	2	/* Read error.  */
 #define	GLOB_NOMATCH	3	/* No matches found.  */
 #define GLOB_NOSYS	4	/* Not implemented.  */
-#ifdef __USE_GNU
+#if defined __USE_GNU && defined __UCLIBC_HAS_GNU_GLOB__
 /* Previous versions of this file defined GLOB_ABEND instead of
    GLOB_ABORTED.  Provide a compatibility definition here.  */
 # define GLOB_ABEND GLOB_ABORTED
 #endif
 
 /* Structure describing a globbing run.  */
-#ifdef __USE_GNU
+#if defined __USE_GNU && defined __UCLIBC_HAS_GNU_GLOB__
 struct stat;
 #endif
 typedef struct
@@ -98,6 +98,7 @@ typedef struct
     __size_t gl_pathc;		/* Count of paths matched by the pattern.  */
     char **gl_pathv;		/* List of matched pathnames.  */
     __size_t gl_offs;		/* Slots to reserve in `gl_pathv'.  */
+#ifdef __UCLIBC_HAS_GNU_GLOB__
     int gl_flags;		/* Set to FLAGS, maybe | GLOB_MAGCHAR.  */
 
     /* If the GLOB_ALTDIRFUNC flag is set, the following functions
@@ -116,10 +117,11 @@ typedef struct
     int (*gl_lstat) (__const char *__restrict, void *__restrict);
     int (*gl_stat) (__const char *__restrict, void *__restrict);
 #endif
+#endif /* __UCLIBC_HAS_GNU_GLOB__ */
   } glob_t;
 
 #ifdef __USE_LARGEFILE64
-# ifdef __USE_GNU
+# if defined __USE_GNU && defined __UCLIBC_HAS_GNU_GLOB__
 struct stat64;
 # endif
 typedef struct
@@ -127,6 +129,7 @@ typedef struct
     __size_t gl_pathc;
     char **gl_pathv;
     __size_t gl_offs;
+#ifdef __UCLIBC_HAS_GNU_GLOB__
     int gl_flags;
 
     /* If the GLOB_ALTDIRFUNC flag is set, the following functions
@@ -145,6 +148,7 @@ typedef struct
     int (*gl_lstat) (__const char *__restrict, void *__restrict);
     int (*gl_stat) (__const char *__restrict, void *__restrict);
 # endif
+#endif /* __UCLIBC_HAS_GNU_GLOB__ */
   } glob64_t;
 #endif
 
@@ -186,7 +190,7 @@ extern void globfree64 (glob64_t *__pglob) __THROW;
 #endif
 
 
-#ifdef __USE_GNU
+#if defined __USE_GNU && defined __UCLIBC_HAS_GNU_GLOB__
 /* Return nonzero if PATTERN contains any metacharacters.
    Metacharacters can be quoted with backslashes if QUOTE is nonzero.
 

@@ -1165,11 +1165,26 @@ config UCLIBC_HAS_GLOB
 	default y
 	help
 
-	  The glob interface is somewhat large (weighing in at about 4k).  It
+	  The glob interface is somewhat large (weighing in at about 2,5k).  It
 	  is used fairly often, but is an option since people wanting to go for
 	  absolute minimum size may wish to omit it.
 
 	  Most people will answer Y.
+
+config UCLIBC_HAS_GNU_GLOB
+	bool "Support gnu glob() interface"
+	depends on UCLIBC_HAS_GLOB
+	default y
+	help
+	  The gnu glob interface is somewhat larger (weighing in at about 4,2k) than
+	  it's SuSv3 counterpart (and is out of date). It is an old copy from glibc and
+	  does not support all the GNU specific options.
+
+	  Answer Y if you want to include full gnu glob() instead of the smaller SUSv3
+	  compatible glob().
+	  It is only default, because it is the old/stable version.
+
+	  Most people will answer N.
 
 endmenu
 
