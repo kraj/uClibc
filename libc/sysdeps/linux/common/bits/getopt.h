@@ -157,7 +157,7 @@ extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
 extern int getopt ();
 #endif /* __GNU_LIBRARY__ */
 
-#ifdef __UCLIBC_HAS_GNU_GETOPT__
+#if defined __UCLIBC_HAS_GNU_GETOPT__ || defined __UCLIBC_HAS_GETOPT_LONG__
 #ifndef __need_getopt
 extern int getopt_long (int ___argc, char *const *___argv,
 			const char *__shortopts,

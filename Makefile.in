@@ -174,8 +174,10 @@ ifneq ($(UCLIBC_HAS_GLOB),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/glob.h
 endif
 ifneq ($(UCLIBC_HAS_GNU_GETOPT),y)
+ifneq ($(UCLIBC_HAS_GETOPT_LONG),y)
 	# Remove getopt header since gnu getopt support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/getopt.h
+endif
 endif
 ifneq ($(HAS_SHADOW),y)
 	# Remove shadow header since shadow password support is disabled.

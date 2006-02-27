@@ -1086,6 +1086,16 @@ config UCLIBC_HAS_GNU_GETOPT
 
 	  Most people will answer Y.
 
+config UCLIBC_HAS_GETOPT_LONG
+	bool "Support getopt_long/getopt_long_only"
+	depends !UCLIBC_HAS_GNU_GETOPT
+	default y
+	help
+	  Answer Y if you want to include getopt_long[_only() used by many
+	  apps, even busybox.
+
+	  Most people will answer Y.
+
 config UCLIBC_HAS_GNU_GETSUBOPT
 	bool "Support glibc getsubopt"
 	default y
