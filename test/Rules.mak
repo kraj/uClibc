@@ -13,9 +13,7 @@ TESTDIR=$(top_builddir)test/
 
 -include $(top_builddir).config
 
-ifndef UCLIBC_LDSO
-UCLIBC_LDSO := ld-uClibc.so.0
-endif
+UCLIBC_LDSO ?= $(firstword $(wildcard $(top_builddir)lib/ld*))
 
 #--------------------------------------------------------
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc. 
@@ -95,6 +93,9 @@ ifneq ($(strip $(HAVE_SHARED)),y)
 	HOST_LDFLAGS  += -static
 endif
 LDFLAGS += -B$(top_builddir)lib -Wl,-rpath,$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib
+ifeq ($(findstring -static,$(LDFLAGS)),)
+LDFLAGS += -Wl,--dynamic-linker,$(UCLIBC_LDSO)
+endif
 
 
 # Filter output
