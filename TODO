@@ -95,6 +95,8 @@ TODO list for AFTER the uClibc 1.0.0 release:
 Arch specific TODO:
 -------------------------------------------------
   alpha:
+    signal handling is all screwed; common linux versions do not work for us,
+       need to import all the stuff from glibc ...
     _init/_fini hangs signal-ed (assert test)
     output from cloned children seems funky (unistd/clone test)
     ldso is not implemented
