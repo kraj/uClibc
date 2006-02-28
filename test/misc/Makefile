@@ -11,4 +11,5 @@ CFLAGS_tst-regex2 := -std=c99
 DODIFF_dirent    := 1
 DODIFF_dirent64  := 1
 
+OPTS_bug-glob1   := $(PWD)
 OPTS_tst-fnmatch := < tst-fnmatch.input
