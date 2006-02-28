@@ -18,7 +18,7 @@
    02111-1307 USA.  */
 
 #include <features.h>
-#include <asm/regdef.h>
+#include <sys/regdef.h>
 #include <asm/pal.h>
 
 /*

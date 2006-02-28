@@ -24,7 +24,7 @@
 #define _ERRNO_H	1
 #include <bits/errno.h>
 #include <sys/syscall.h>
-#include <asm/regdef.h>
+#include <sys/regdef.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg) */
 

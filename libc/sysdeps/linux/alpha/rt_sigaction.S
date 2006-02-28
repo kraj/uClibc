@@ -19,7 +19,7 @@
 
 #include <features.h>
 #include <sys/syscall.h>
-#include <asm/regdef.h>
+#include <sys/regdef.h>
 #include <asm/pal.h>
 
 /* On Alpha we desparately want to avoid having to issue an imb.  Ordinarily
