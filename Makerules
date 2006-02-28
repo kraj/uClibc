@@ -203,8 +203,9 @@ CTOR_TARGETS:=
 endif
 
 ifneq ($(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/initfini.c),)
+CFLAGS-initfini.s := -S -g0 $(PICFLAG) -fno-inline-functions -finhibit-size-directive
 $(top_builddir)lib/initfini.s: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/initfini.c
-	$(compile.c) -S -finhibit-size-directive
+	$(compile.c)
 
 $(top_builddir)lib/defs.h: $(top_builddir)lib/initfini.s
 	$(Q)sed -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
