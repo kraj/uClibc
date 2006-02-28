@@ -31,6 +31,7 @@ TODO list for the uClibc 0.9.29 release:
 
 TODO list for the uClibc 1.0.0 release:
 -------------------------------------------------
+    *) glob / fnmatch tests fail
     *) Finish hiding uClibc internal symbols from our exported namespace.
     *) Explicity add some sortof CONFIG_LINUX_2_2_ABI, CONFIG_LINUX_2_4_ABI
 	and CONFIG_LINUX_2_6_ABI type options, rather than having the abi
@@ -95,10 +96,7 @@ TODO list for AFTER the uClibc 1.0.0 release:
 Arch specific TODO:
 -------------------------------------------------
   alpha:
-    signal handling is all screwed; common linux versions do not work for us,
-       need to import all the stuff from glibc ...
-    _init/_fini hangs signal-ed (assert test)
-    output from cloned children seems funky (unistd/clone test)
+    
     ldso is not implemented
   arm:
     update crt1 code again for nommu (http://bugs.uclibc.org/view.php?id=538)
