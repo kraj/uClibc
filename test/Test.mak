@@ -11,6 +11,10 @@ ifneq ($(TESTS_DISABLED),)
 TESTS := $(filter-out $(TESTS_DISABLED),$(TESTS))
 endif
 
+ifneq ($(filter-out test,$(TESTS)),$(TESTS))
+$(error Sanity check: cannot have a test named "test.c")
+endif
+
 include ../Rules.mak
 
 U_TARGETS := $(TESTS)
