@@ -27,8 +27,9 @@
 
 static inline _syscall2(int, osf_sigprocmask, int, how, unsigned long int, setval);
 
+libc_hidden_proto(sigprocmask)
 int
-__sigprocmask (int how, const sigset_t *set, sigset_t *oset)
+sigprocmask (int how, const sigset_t *set, sigset_t *oset)
 {
   unsigned long int setval;
   long result;
@@ -57,5 +58,4 @@ __sigprocmask (int how, const sigset_t *set, sigset_t *oset)
     }
   return 0;
 }
-
-weak_alias (__sigprocmask, sigprocmask);
+libc_hidden_def(sigprocmask)
