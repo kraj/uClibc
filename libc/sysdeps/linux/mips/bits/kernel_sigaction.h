@@ -38,3 +38,6 @@ struct kernel_sigaction {
 	void		(*sa_restorer)(void);
 	int		s_resv[1]; /* reserved */
 };
+
+extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
+	struct kernel_sigaction *__unbounded, size_t);

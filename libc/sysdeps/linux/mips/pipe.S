@@ -7,9 +7,9 @@
 #include <asm/unistd.h>
 #include <asm/regdef.h>
 
-	.globl	__pipe
-	.ent	__pipe, 0
-__pipe:
+	.globl	pipe
+	.ent	pipe, 0
+pipe:
 	.frame	sp, 24, sp
 #ifdef __PIC__
 	.set	noreorder
@@ -38,7 +38,6 @@ __pipe:
 2:
 	addiu	sp,sp,24
 	j	ra
-	.end	__pipe
-	.size	__pipe,.-__pipe
+	.end	pipe
+	.size	pipe,.-pipe
 libc_hidden_def(pipe)
-weak_alias(__pipe, pipe)

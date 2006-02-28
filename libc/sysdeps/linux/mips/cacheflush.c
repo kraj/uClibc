@@ -21,6 +21,6 @@
 #include <sys/syscall.h>
 
 _syscall3(int, cacheflush, void *, addr, const int, nbytes, const int, op);
-weak_alias(cacheflush, _flush_cache)
+strong_alias(cacheflush, _flush_cache)
 _syscall3(int, cachectl, void *, addr, const int, nbytes, const int, op);
 

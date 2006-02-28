@@ -1,8 +1,16 @@
 /* Use new style mmap for mips */
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 #include <unistd.h>
 #include <errno.h>
 #include <sys/mman.h>
 #include <sys/syscall.h>
+
+libc_hidden_proto(mmap)
 
 #if 0
 /* For now, leave mmap using mmap1 since mmap2 seems
@@ -14,7 +22,6 @@
 #endif
 #endif
 
-#define __NR___mmap __NR_mmap
-attribute_hidden _syscall6 (__ptr_t, __mmap, __ptr_t, addr, size_t, len, int, prot,
+_syscall6 (__ptr_t, mmap, __ptr_t, addr, size_t, len, int, prot,
 	   int, flags, int, fd, __off_t, offset);
-strong_alias(__mmap,mmap)
+libc_hidden_def(mmap)
