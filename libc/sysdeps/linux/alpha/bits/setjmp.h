@@ -1,5 +1,5 @@
 /* Define the machine-dependent type `jmp_buf'.  Alpha version.
-   Copyright (C) 1992, 1997, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1992,1997,2003,2005,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
    02111-1307 USA.  */
 
 #ifndef _BITS_SETJMP_H
-#define _BITS_SETJMP_H	1
+#define _BITS_SETJMP_H  1
 
 #if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
@@ -84,4 +84,4 @@ typedef long int __jmp_buf[17];
      ((void *)(_address) < (void *)((_jmpbuf)[JB_SP]))
 #endif
 
-#endif	/* bits/setjmp.h */
+#endif  /* bits/setjmp.h */
