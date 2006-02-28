@@ -29,8 +29,8 @@ main (int argc, char *argv[])
 
   fp = fopen (name, "w");
   assert (fp != NULL)
-  fputs ("foobar and baz", fp);
-  fclose (fp);
+  assert (fputs ("foobar and baz", fp) > 0);
+  assert (fclose (fp) == 0);
   fp = NULL;
 
   fd = open (name, O_RDWR|O_CREAT);
@@ -45,7 +45,7 @@ main (int argc, char *argv[])
 
 the_end:
   if (fp != NULL)
-    fclose (fp);
+    assert (fclose (fp) == 0);
   unlink (name);
 
   return retval;
