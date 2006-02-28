@@ -21,11 +21,15 @@
 #include <sys/syscall.h>
 #include <errno.h>
 
+libc_hidden_proto(brk)
 
 /* This must be initialized data because commons can't have aliases.  */
+extern void *__curbrk;
+libc_hidden_proto(__curbrk)
 void *__curbrk = 0;
+libc_hidden_data_def(__curbrk)
 
-int attribute_hidden __brk (void *addr)
+int brk (void *addr)
 {
     void *newbrk;
     register int g1 asm("%g1") = __NR_brk;
@@ -42,4 +46,4 @@ int attribute_hidden __brk (void *addr)
 
     return 0;
 }
-strong_alias(__brk,brk)
+libc_hidden_def(brk)

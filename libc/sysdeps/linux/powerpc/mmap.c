@@ -1,8 +1,15 @@
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <unistd.h>
 #include <sys/mman.h>
 #include <errno.h>
 #include <sys/syscall.h>
+
+libc_hidden_proto(mmap)
 
 #define __syscall_clobbers \
 	"r9", "r10", "r11", "r12"
@@ -10,7 +17,7 @@
 	return (__sc_err & 0x10000000 ? errno = __sc_ret, __sc_ret = -1 : 0), \
 	       (type) __sc_ret
 
-void attribute_hidden * __mmap(void *start, size_t length, int prot, int flags, int fd,
+void * mmap(void *start, size_t length, int prot, int flags, int fd,
 	off_t offset)
 {
 	unsigned long __sc_ret, __sc_err;
@@ -45,4 +52,4 @@ void attribute_hidden * __mmap(void *start, size_t length, int prot, int flags, 
 
 	__syscall_return (void *);
 }
-strong_alias(__mmap,mmap)
+libc_hidden_def(mmap)

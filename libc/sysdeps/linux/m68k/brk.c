@@ -1,13 +1,23 @@
 /* consider this code LGPL - davidm */
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <errno.h>
 
-/* This must be initialized data because commons can't have aliases.  */
-void * __curbrk = 0;
+libc_hidden_proto(brk)
 
-int attribute_hidden __brk (void *addr)
+/* This must be initialized data because commons can't have aliases.  */
+extern void *__curbrk;
+libc_hidden_proto(__curbrk)
+void * __curbrk = 0;
+libc_hidden_data_def(__curbrk)
+
+int brk (void *addr)
 {
     void *newbrk;
 
@@ -28,4 +38,4 @@ int attribute_hidden __brk (void *addr)
 
     return 0;
 }
-strong_alias(__brk,brk)
+libc_hidden_def(brk)

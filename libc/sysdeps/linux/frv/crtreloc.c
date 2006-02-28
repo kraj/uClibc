@@ -26,14 +26,11 @@ License along with the GNU C Library; see the file COPYING.LIB.  If
 not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
-#define _GNU_SOURCE 1
 #include <sys/types.h>
 #include <link.h>
 
 /* This file is to be compiled into crt object files, to enable
    executables to easily self-relocate.  */
-
-#define hidden __attribute__((__visibility__("hidden")))
 
 /* Compute the runtime address of pointer in the range [p,e), and then
    map the pointer pointed by it.  */
@@ -65,7 +62,7 @@ reloc_range_indirect (void ***p, void ***e,
 /* Call __reloc_range_indirect for the given range except for the last
    entry, whose contents are only relocated.  It's expected to hold
    the GOT value.  */
-void* hidden
+void* attribute_hidden
 __self_reloc (const struct elf32_fdpic_loadmap *map,
 	      void ***p, void ***e)
 {
@@ -96,7 +93,7 @@ reloc_range (void **p, void **e,
 
 /* Remap p, adjust e by the same offset, then map the pointers in the
    range determined by them.  */
-void hidden
+void attribute_hidden
 __reloc_range (const struct elf32_fdpic_loadmap *map,
 	       void **p, void **e)
 {
@@ -110,7 +107,7 @@ __reloc_range (const struct elf32_fdpic_loadmap *map,
 /* Remap p, adjust e by the same offset, then map pointers referenced
    by the (unadjusted) pointers in the range.  Return the relocated
    value of the last pointer in the range.  */
-void* hidden
+void* attribute_hidden
 __reloc_range_indirect (const struct elf32_fdpic_loadmap *map,
 			void ***p, void ***e)
 {

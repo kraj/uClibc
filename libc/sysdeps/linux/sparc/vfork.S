@@ -23,11 +23,8 @@
 
 #ifndef __NR_vfork
 /* No vfork so use fork instead */
-
-hidden_strong_alias(__fork,__vfork)
-weak_alias(vfork,__libc_fork)
-
-#else
+# define __NR_vfork __NR_fork
+#endif
 
 .text
 .global	__vfork
@@ -53,5 +50,6 @@ __vfork:
 	and	%o0, %o1, %o0
 
 .size __vfork,.-__vfork
-#endif /* __NR_vfork */
-strong_alias(__vfork,vfork)
+
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

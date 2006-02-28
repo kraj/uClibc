@@ -29,9 +29,9 @@
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg) */
 
 .text
-.global __clone
-.type   __clone,%function
-__clone:
+.global clone
+.type   clone,%function
+clone:
 	/* FIXME: I have no idea how profiling works on hppa. */
 
 	/* Sanity check arguments.  */
@@ -90,13 +90,10 @@ thread_start:
 	bl	$$dyncall,%r31
 	copy	%r31,%rp
 
-	bl	_exit_internal,%rp
+	bl	HIDDEN_JUMPTARGET(_exit),%rp
 	copy	%ret0,%arg0
 
 	/* Die horribly.  */
 	iitlbp	%r0,(%r0)
 
-.size __clone,.-__clone
-
-.weak clone
-	clone = __clone
+.size clone,.-clone

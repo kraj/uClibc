@@ -25,7 +25,7 @@
 #include <bits/errno.h>
 
 
-#if defined __HAVE_ELF__ && defined __HAVE_SHARED__ 
+#ifdef __HAVE_SHARED__ 
 #define PLTJMP(_x)	_x##@PLT
 #else
 #define PLTJMP(_x)	_x
@@ -38,9 +38,9 @@
 
 .text
 .align 4
-.type	__clone,@function
-.globl	__clone;
-__clone:
+.type	clone,@function
+.globl	clone;
+clone:
 	/* sanity check arguments.  */
 	tst	r4, r4
 	bt	0f
@@ -98,7 +98,7 @@ __clone:
 
 	/* we are done, passing the return value through r0  */
 	mov.l	.L1, r1
-#if defined __HAVE_ELF__ && defined __HAVE_SHARED__ 
+#ifdef __HAVE_SHARED__ 
 	mov.l	r12, @-r15
 	sts.l	pr, @-r15
 	mov	r0, r4
@@ -118,10 +118,7 @@ __clone:
 #endif
 	.align	2
 .L1:
-	.long	PLTJMP(_exit_internal)
-.size __clone,.-__clone;
-
-.globl  clone;
-    clone = __clone
+	.long	PLTJMP( HIDDEN_JUMPTARGET(_exit))
+.size clone,.-clone;
 
 #include "syscall_error.S"

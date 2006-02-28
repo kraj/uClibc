@@ -29,11 +29,11 @@
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg) */
 
 .text
-.globl  __clone;
+.globl  clone;
 .align 3;
-.ent  __clone , 0;
+.ent  clone , 0;
 
-__clone:
+clone:
 	.frame $30 , 0, $26
 	.prologue 0
 
@@ -64,7 +64,7 @@ $error:
 1:	ldgp	gp,0(gp)
 	jmp	zero,__syscall_error
 
-.end __clone
+.end clone
 
 /* Load up the arguments to the function.  Put this block of code in
    its own function so that we can terminate the stack trace with our
@@ -87,13 +87,9 @@ thread_start:
 
 	/* Call _exit rather than doing it inline for breakpoint purposes */
 	mov	v0,a0
-	jsr	ra,_exit_internal
+	jsr	ra,HIDDEN_JUMPTARGET(_exit)
 
 	/* Die horribly.  */
 	halt
 
 	.end thread_start
-
-.weak    clone;
-    clone    =   __clone
-

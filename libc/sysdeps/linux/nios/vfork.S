@@ -9,7 +9,11 @@
  * 
  * Written by Wentao Xu <wentao@microtronix.com>
  */
-#include <asm/unistd.h>
+
+#include <features.h>
+
+#include <bits/errno.h>
+#include <sys/syscall.h>
 #include "NM_Macros.S"
 
 #ifndef __NR_vfork
@@ -18,15 +22,10 @@
 
    .text
    .align 2
-   .globl errno
-   .globl vfork
-   .globl __libc_vfork
-#if defined __HAVE_ELF__
-   .type    vfork,@function
-   .type    __libc_vfork,@function
-#endif
-vfork:
-__libc_vfork:
+   .globl __vfork
+  .hidden __vfork
+  .type   __vfork,@function
+__vfork:
 	MOVIP	%g1, __NR_vfork
 	trap	63
 	
@@ -34,25 +33,22 @@ __libc_vfork:
 	not		%g1			/* (unsigned long) -4096 */
 	cmp		%o0, %g1
 	skps	cc_hi
- 	  jmp	%o7
-	  nop
-	  
+	jmp		%o7
+	nop
+	
 fix_errno:
 	neg		%o0
 	save	%sp, -16
 	MOVIA	%g1, __errno_location@h
 	call	%g1
-	 nop
+	nop
 	st	[%o0], %i0		/* store errno */
 	
 	xor %i0, %i0
 	subi %i0, 1		/* retval=-1 */
 	ret
-	 restore
-	
-		
-	
+	restore
 
-
-
-
+.size __vfork,.-__vfork
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

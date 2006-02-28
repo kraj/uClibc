@@ -16,3 +16,6 @@ struct kernel_sigaction {
 	unsigned long sa_flags;
 	sigset_t sa_mask;
 };
+
+extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
+	struct kernel_sigaction *__unbounded, size_t);

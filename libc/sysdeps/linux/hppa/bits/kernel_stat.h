@@ -4,8 +4,6 @@
 #ifndef _PARISC_STAT_H
 #define _PARISC_STAT_H
 
-#include <linux/types.h>
-
 struct kernel_stat {
 	unsigned int	st_dev;		/* dev_t is 32 bits on parisc */
 	ino_t		st_ino;		/* 32 bits */

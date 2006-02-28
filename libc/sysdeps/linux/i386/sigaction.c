@@ -27,10 +27,13 @@
 
 #define SA_RESTORER	0x04000000
 
+extern __typeof(sigaction) __libc_sigaction;
 
 #if defined __NR_rt_sigaction
-extern void restore_rt (void) asm ("__restore_rt") attribute_hidden;
-extern void restore (void) asm ("__restore") attribute_hidden;
+libc_hidden_proto(memcpy)
+
+extern void restore_rt (void) __asm__ ("__restore_rt") attribute_hidden;
+extern void restore (void) __asm__ ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -48,7 +51,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
-	__memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
+	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
 	kact.sa_flags = act->sa_flags;
 
 	kact.sa_flags = act->sa_flags | SA_RESTORER;
@@ -63,7 +66,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (oact && result >= 0) {
 	oact->sa_handler = koact.k_sa_handler;
-	__memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
+	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
 	oact->sa_flags = koact.sa_flags;
 	oact->sa_restorer = koact.sa_restorer;
     }
@@ -72,7 +75,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
 
 #else
-extern void restore (void) asm ("__restore") attribute_hidden;
+extern void restore (void) __asm__ ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -95,7 +98,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	kact.sa_restorer = &restore;
     }
 
-    asm volatile ("pushl %%ebx\n"
+    __asm__ __volatile__ ("pushl %%ebx\n"
 	    "movl %2, %%ebx\n"
 	    "int $0x80\n"
 	    "popl %%ebx"
@@ -121,8 +124,9 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 #endif
 
 #ifndef LIBC_SIGACTION
-hidden_weak_alias(__libc_sigaction,__sigaction)
+libc_hidden_proto(sigaction)
 weak_alias(__libc_sigaction,sigaction)
+libc_hidden_weak(sigaction)
 #endif
 
 
@@ -138,7 +142,7 @@ weak_alias(__libc_sigaction,sigaction)
 
 #define RESTORE(name, syscall) RESTORE2 (name, syscall)
 #define RESTORE2(name, syscall) \
-asm						\
+__asm__						\
   (						\
    ".text\n"					\
    "	.align 16\n"				\
@@ -152,10 +156,11 @@ asm						\
 RESTORE (restore_rt, __NR_rt_sigreturn)
 #endif
 
+#ifdef __NR_sigreturn
 /* For the boring old signals.  */
 # undef RESTORE2
 # define RESTORE2(name, syscall) \
-asm						\
+__asm__						\
   (						\
    ".text\n"					\
    "	.align 8\n"				\
@@ -166,3 +171,4 @@ asm						\
    );
 
 RESTORE (restore, __NR_sigreturn)
+#endif

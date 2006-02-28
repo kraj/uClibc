@@ -61,7 +61,5 @@ __longjmp:
 	rts
 	 ldc.l	@r4+, gbr
 #endif		
-.size __longjmp,.-__longjmp;
-
-.weak __sigprocmask
-__sigprocmask = sigprocmask
+.size __longjmp,.-__longjmp
+libc_hidden_def(__longjmp)

@@ -66,9 +66,5 @@ $(SOBJ): %.o : %.S
 $(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-headers:
-	$(LN) -fs ../libc/sysdeps/linux/frv/link.h $(TOPDIR)/include/
-
 clean:
 	$(RM) *.o *~ core
-	$(RM) $(TOPDIR)/include/link.h

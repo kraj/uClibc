@@ -11,6 +11,7 @@
  * 
  */
 
+#include <features.h>
 #define _ASM
 #define _SETJMP_H
 #include <bits/setjmp.h>
@@ -47,5 +48,4 @@ __sigsetjmp:
     jmp r8
 #endif
 
-
-
+.size __sigsetjmp,.-__sigsetjmp

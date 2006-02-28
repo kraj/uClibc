@@ -19,12 +19,12 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
+#include <features.h>
 #define _ERRNO_H 1
 #include <bits/errno.h>
 #include <sys/syscall.h>
-
-#define CLONE_VM	0x00000100
-#define CLONE_THREAD	0x00010000
+#define _SCHED_H
+#include <bits/sched.h>
 
 /* The userland implementation is:
    int clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg),
@@ -50,16 +50,16 @@
 
 
 .text
-.global __clone
-.type   __clone,%function
+.global clone
+.type   clone,%function
 .align 4
-__clone:
+clone:
 	/* Sanity check arguments.  */
 	movq	$-EINVAL,%rax
 	testq	%rdi,%rdi		/* no NULL function pointers */
-	jz	__error
+	jz	__syscall_error
 	testq	%rsi,%rsi		/* no NULL stack pointers */
-	jz	__error
+	jz	__syscall_error
 
 	/* Insert the argument onto the new stack.  */
 	subq	$16,%rsi
@@ -79,7 +79,7 @@ __clone:
 	syscall
 
 	testq	%rax,%rax
-	jl	__error
+	jl	__syscall_error
 	jz	.Lthread_start
 
 .Lpseudo_end:
@@ -109,12 +109,6 @@ __clone:
 	call	*%rax
 	/* Call exit with return value from function call. */
 	movq	%rax, %rdi
-	call	_exit_internal
+	call	HIDDEN_JUMPTARGET(_exit)
 
-__error:
-	jmp __syscall_error
-
-.size __clone,.-__clone
-
-.weak clone
-	clone = __clone
+.size clone,.-clone

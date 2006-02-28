@@ -1,11 +1,9 @@
 /*
  * libc/sysdeps/linux/bfin/clone.c -- `clone' syscall for linux/blackfin
  *
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License.  See the file COPYING.LIB in the main
- * directory of this archive for more details.
- *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include <asm/unistd.h>

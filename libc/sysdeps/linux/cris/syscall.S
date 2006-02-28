@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2001, 2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,13 +16,33 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <sysdep.h>
+#include "sysdep.h"
 
 	.syntax no_register_prefix
 
 /* Make syscall (callno, ...) into a system call.  */
 
 ENTRY (syscall)
+#ifdef __arch_v32
+	subq	4,sp
+	move.d	r10,r9
+	move	srp,[sp]
+	addoq	8,sp,acr
+	move.d	r11,r10
+	move	[acr],mof
+	addoq	12,sp,acr
+	move.d	r12,r11
+	move	[acr],srp
+	addoq	4,sp,acr
+	move.d	r13,r12
+	move.d	[acr],r13
+	break	13
+	cmps.w	-4096,r10
+	bhs	0f
+	move	[sp+],srp
+	Ret
+	nop
+#else
 	push	srp
 	move.d	r10,r9
 	move.d	r11,r10
@@ -37,4 +57,5 @@ ENTRY (syscall)
 	pop	srp
 	Ret
 	nop
+#endif
 PSEUDO_END (syscall)

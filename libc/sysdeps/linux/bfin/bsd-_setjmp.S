@@ -6,7 +6,9 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-.globl _setjmp;
+.text
+.global _setjmp;
+.type	_setjmp,STT_FUNC;
 .align 4;
 
 _setjmp:
@@ -92,6 +94,4 @@ _setjmp:
 	R0 = 0;
 
 	RTS;
-_setjmp.end:
-
-
+.size _setjmp,.-_setjmp

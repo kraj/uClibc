@@ -4,14 +4,19 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
+#include <errno.h>
+
 /* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
  * header files.  It also defines the traditional `SYS_<name>' macros for older
  * programs.  */
 #include <bits/sysnum.h>
 
-#ifndef __set_errno
-# define __set_errno(val) (*__errno_location ()) = (val)
-#endif
+/* m68k headers does stupid stuff with __NR_iopl / __NR_vm86:
+ * #define __NR_iopl   not supported
+ * #define __NR_vm86   not supported
+ */
+#undef __NR_iopl
+#undef __NR_vm86
 
 #ifndef __ASSEMBLER__
 

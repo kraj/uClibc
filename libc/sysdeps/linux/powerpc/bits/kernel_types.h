@@ -4,9 +4,11 @@
  * our private content, and not the kernel header, will win.
  *  -Erik
  */
-#if ! defined _PPC_POSIX_TYPES_H && ! defined _PPC64_POSIX_TYPES_H
+#if ! defined _PPC_POSIX_TYPES_H && ! defined _PPC64_POSIX_TYPES_H && \
+    ! defined _ASM_POWERPC_POSIX_TYPES_H
 #define _PPC_POSIX_TYPES_H
 #define _PPC64_POSIX_TYPES_H
+#define _ASM_POWERPC_POSIX_TYPES_H
 
 # if __WORDSIZE == 64
 typedef unsigned int	__kernel_dev_t;

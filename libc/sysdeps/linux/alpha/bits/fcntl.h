@@ -1,5 +1,5 @@
 /* O_*, F_*, FD_* bit values for Linux.
-   Copyright (C) 1995-1999, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1995-1999, 2000, 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -44,10 +44,10 @@
 #define O_ASYNC		020000	/* fcntl, for BSD compatibility */
 
 #ifdef __USE_GNU
-# define O_DIRECT	040000	/* Direct disk access.  */
 # define O_DIRECTORY	0100000	/* Must be a directory.  */
 # define O_NOFOLLOW	0200000	/* Do not follow links.  */
-# define O_STREAMING	04000000/* streaming access */
+# define O_DIRECT	02000000 /* Direct disk access.  */
+# define O_NOATIME	04000000 /* Do not set atime.  */
 #endif
 
 #ifdef __USE_LARGEFILE64
@@ -76,7 +76,7 @@
 #define F_SETLK64	F_SETLK	/* Set record locking info (non-blocking).  */
 #define F_SETLKW64	F_SETLKW /* Set record locking info (blocking).  */
 
-#if defined __USE_BSD || defined __USE_XOPEN2K
+#if defined __USE_BSD || defined __USE_UNIX98
 # define F_SETOWN	5	/* Get owner of socket (receiver of SIGIO).  */
 # define F_GETOWN	6	/* Set owner of socket (receiver of SIGIO).  */
 #endif
@@ -169,6 +169,14 @@ struct flock64
 # define POSIX_FADV_RANDOM	1 /* Expect random page references.  */
 # define POSIX_FADV_SEQUENTIAL	2 /* Expect sequential page references.  */
 # define POSIX_FADV_WILLNEED	3 /* Will need these pages.  */
-# define POSIX_FADV_DONTNEED	6 /* Don't need these pages.  */
-# define POSIX_FADV_NOREUSE	7 /* Data will be accessed once.  */
+# define POSIX_FADV_DONTNEED	4 /* Don't need these pages.  */
+# define POSIX_FADV_NOREUSE	5 /* Data will be accessed once.  */
 #endif
+
+__BEGIN_DECLS
+
+/* Provide kernel hint to read ahead.  */
+extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
+    __THROW;
+
+__END_DECLS

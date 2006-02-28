@@ -1,11 +1,17 @@
-
-/* Copyright (C) 2001 Lineo, <davidm@lineo.com> */
+/*
+ * Copyright (C) 2001 Lineo, <davidm@lineo.com>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <errno.h>
 #include <unistd.h>
 #include <syscall.h>
 
-int attribute_hidden __pipe(int *fd)
+libc_hidden_proto(pipe)
+
+int pipe(int *fd)
 {
 	long __res, __res2;
 	__asm__ __volatile__ (
@@ -27,4 +33,4 @@ int attribute_hidden __pipe(int *fd)
 	fd[1] = __res2;
 	return(0);
 }
-strong_alias(__pipe,pipe)
+libc_hidden_def(pipe)

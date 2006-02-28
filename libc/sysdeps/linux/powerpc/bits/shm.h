@@ -22,7 +22,6 @@
 #endif
 
 #include <bits/types.h>
-#include <bits/wordsize.h>
 
 /* Permission flag for shmget.  */
 #define SHM_R          0400            /* or S_IRUGO from <linux/stat.h> */
@@ -81,9 +80,10 @@ struct shmid_ds
 # define SHM_INFO      14
 
 /* shm_mode upper byte flags */
-# define SHM_DEST      01000   /* segment will be destroyed on last detach */
-# define SHM_LOCKED    02000   /* segment will not be swapped */
+# define SHM_DEST      01000	/* segment will be destroyed on last detach */
+# define SHM_LOCKED    02000	/* segment will not be swapped */
 # define SHM_HUGETLB   04000	/* segment is mapped via hugetlb */
+# define SHM_NORESERVE 010000	/* don't check for reservations */
 
 struct shminfo
   {

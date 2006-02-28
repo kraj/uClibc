@@ -24,17 +24,17 @@
 
 .global __default_sa_restorer
 .type __default_sa_restorer,%function
-.align 4
+.align 2
 __default_sa_restorer:
-	swi	__NR_sigreturn
+	DO_CALL (sigreturn)
 
 
 #ifdef __NR_rt_sigreturn
 
 .global __default_rt_sa_restorer
 .type __default_rt_sa_restorer,%function
-.align 4
+.align 2
 __default_rt_sa_restorer:
-	swi	__NR_rt_sigreturn
+	DO_CALL (rt_sigreturn)
 
 #endif

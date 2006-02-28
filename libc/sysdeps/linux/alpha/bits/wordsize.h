@@ -1,4 +1,4 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1999, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,3 +17,14 @@
    02111-1307 USA.  */
 
 #define __WORDSIZE	64
+
+#if !defined __NO_LONG_DOUBLE_MATH && !defined __LONG_DOUBLE_MATH_OPTIONAL
+
+/* Signal that we didn't used to have a `long double'. The changes all
+   the `long double' function variants to be redirects to the double
+   functions.  */
+# define __LONG_DOUBLE_MATH_OPTIONAL	1
+# ifndef __LONG_DOUBLE_128__
+#  define __NO_LONG_DOUBLE_MATH		1
+# endif
+#endif

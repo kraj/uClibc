@@ -21,6 +21,7 @@
    and invokes a function in the right context after its all over.  */
 
 #define _ERRNO_H
+#include <features.h>
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
@@ -28,10 +29,10 @@
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
 .text
-.global __clone
-.type __clone,%function
-.align 4
-__clone:
+.global clone
+.type clone,%function
+.align 2
+clone:
 	@ sanity check args
 	cmp	r0, #0
 	cmpne	r1, #0
@@ -48,10 +49,14 @@ __clone:
 	@ get flags
 	mov	r0, r2
 	@ new sp is already in r1
-	swi	__NR_clone
+	DO_CALL (clone)
 	movs	a1, a1
 	blt	__error
-	movne    pc, lr
+#if defined(__USE_BX__)
+	bxne	lr
+#else
+	movne	pc, lr
+#endif
 
 	@ pick the function arg and call address off the stack and execute
 	ldr	r0, [sp, #4]
@@ -59,14 +64,11 @@ __clone:
 	ldr 	pc, [sp]
 
 	@ and we are done, passing the return value through r0
-	b	_exit_internal
+	b	HIDDEN_JUMPTARGET(_exit)
 
 __error:
 	b	__syscall_error
 
-.size __clone,.-__clone
-
-.weak clone
-	clone = __clone
+.size clone,.-clone
 
 #endif

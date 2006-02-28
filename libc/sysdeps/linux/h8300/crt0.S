@@ -56,12 +56,8 @@ __exit:
  */
 empty_func:
 	rts
-#if defined(__HAVE_ELF__)
 	.weak atexit
 	atexit = empty_func
-#else
-	.set atexit,empty_func
-#endif
 
 
 /* Define a symbol for the first piece of initialized data.  */

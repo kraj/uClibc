@@ -1,24 +1,14 @@
-#
-# clone.S, part of the i960 support for the uClibc library.
-#
-# Copyright (C) 2002 by Okiok Data Ltd.  http://www.okiok.com/
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this program; if not, write to the Free Software Foundation, Inc.,
-# at 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-#
-# Derived from an old port of uC-libc to the i960 by Keith Adams (kma@cse.ogi.edu).
-#
+/*
+ * clone.S, part of the i960 support for the uClibc library.
+ *
+ * Copyright (C) 2002 by Okiok Data Ltd.  http://www.okiok.com/
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+/*
+ * Derived from an old port of uC-libc to the i960 by Keith Adams (kma@cse.ogi.edu).
+ */
 
 #include <sys/syscall.h>
         
@@ -26,8 +16,9 @@
 #define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */
 #endif
      
-        .globl _vfork
-_vfork: 
+        .globl	___vfork
+        .hidden	___vfork
+___vfork:
         mov         g13, r3
         ldconst     __NR_vfork, g13
         calls       0
@@ -38,3 +29,5 @@ _vfork:
 1:      
         ret
 
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

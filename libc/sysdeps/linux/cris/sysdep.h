@@ -40,9 +40,13 @@
 #define END(sym)
 #endif
 
-#define C_SYMBOL_NAME(name) name
+#undef SYS_ify
+#define SYS_ify(syscall_name)   (__NR_##syscall_name)
 
-#ifdef	__ASSEMBLER__
+#ifdef __ASSEMBLER__
+
+#undef SYS_ify
+#define SYS_ify(syscall_name)   __NR_##syscall_name
 
 /* Syntactic details of assembly-code.  */
 
@@ -54,24 +58,54 @@
    of relying on hearsay.  */
 #define ALIGNARG(log2) log2
 
-#define ASM_GLOBAL_DIRECTIVE .globl 
 #define ASM_TYPE_DIRECTIVE(name,typearg) .type name,typearg
 #define ASM_SIZE_DIRECTIVE(name) .size name,.-name
 
 /* The non-PIC jump is preferred, since it does not stall, and does not
    invoke generation of a PLT.  These macros assume that $r0 is set up as
    GOT register.  */
+#ifdef __arch_v32
 #ifdef __PIC__
 #define PLTJUMP(_x) \
-  add.d	C_SYMBOL_NAME (_x):PLT,$pc
+  ba C_SYMBOL_NAME (_x):PLT				@ \
+  nop
+
+#define PLTCALL(_x) \
+  bsr C_SYMBOL_NAME (_x):PLT				@ \
+  nop
+
+#define SETUP_PIC \
+  subq 4,$sp						@ \
+  move.d $r0,[$sp]					@ \
+  lapc _GLOBAL_OFFSET_TABLE_,$r0
+
+#define TEARDOWN_PIC move.d [$sp+],$r0
+#else
+#define PLTJUMP(_x) \
+  ba C_SYMBOL_NAME (_x)					@ \
+  nop
+
+#define PLTCALL(_x) \
+  bsr  C_SYMBOL_NAME (_x)				@ \
+  nop
+
+#define SETUP_PIC
+#define TEARDOWN_PIC
+#endif
+
+#else
+
+#ifdef __PIC__
+#define PLTJUMP(_x) \
+  add.d C_SYMBOL_NAME (_x):PLT,$pc
 
 #define PLTCALL(_x) \
   jsr [$r0+C_SYMBOL_NAME (_x):GOTPLT16]
 
 #define SETUP_PIC \
-  push	$r0						@ \
+  push $r0						@ \
   move.d $pc,$r0					@ \
-  sub.d	.:GOTOFF,$r0
+  sub.d .:GOTOFF,$r0
 
 #define TEARDOWN_PIC pop $r0
 #else
@@ -81,38 +115,35 @@
 #define TEARDOWN_PIC
 #endif
 
+#endif /* __arch_v32 */
+
 /* Define an entry point visible from C.  */
-#define	ENTRY(name) \
+#define ENTRY(name) \
   .text							@ \
   ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (name) 		@ \
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME (name), function)	@ \
   .align ALIGNARG (2) 					@ \
-  C_LABEL(name)						@ \
-  CALL_MCOUNT
+  C_LABEL(name)
 
-#undef	END
+#undef END
 #define END(name) \
   ASM_SIZE_DIRECTIVE (C_SYMBOL_NAME (name))
 
 #define PSEUDO(name, syscall_name, args) \
-  ENTRY (name)                      @ \
-  DOARGS_##args                     @ \
-  movu.w SYS_ify (syscall_name),$r9         @ \
-  break 13                      @ \
-  cmps.w -4096,$r10                 @ \
-  bhs   0f                      @ \
-  nop                           @ \
+  ENTRY (name)						@ \
+  DOARGS_##args						@ \
+  movu.w SYS_ify (syscall_name),$r9			@ \
+  break 13						@ \
+  cmps.w -4096,$r10					@ \
+  bhs   0f						@ \
+  nop							@ \
   UNDOARGS_return_##args
 
 #define PSEUDO_END(name) \
-0:                          @ \
-  SETUP_PIC                     @ \
-  PLTJUMP (__syscall_error)               @ \
+0:							@ \
+  SETUP_PIC						@ \
+  PLTJUMP (__syscall_error)				@ \
   END (name)
-
-/* If compiled for profiling, do nothing */
-#define CALL_MCOUNT		/* Do nothing.  */
-
 
 #endif /* __ASSEMBLER__ */
 #endif /* _SYSDEP_H_ */

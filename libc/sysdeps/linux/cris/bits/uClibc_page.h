@@ -25,4 +25,10 @@
 #define PAGE_SIZE	(1UL << PAGE_SHIFT)
 #define PAGE_MASK	(~(PAGE_SIZE-1))
 
+/* Some architectures always use 12 as page shift for mmap2() eventhough the
+ * real PAGE_SHIFT != 12.  Other architectures use the same value as
+ * PAGE_SHIFT...
+ */
+#define MMAP2_PAGE_SHIFT PAGE_SHIFT
+
 #endif /* _UCLIBC_PAGE_H */

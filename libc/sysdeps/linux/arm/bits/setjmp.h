@@ -27,14 +27,22 @@
 #ifndef _ASM
 /* Jump buffer contains v1-v6, sl, fp, sp and pc.  Other registers are not
    saved.  */
-#ifdef __MAVERICK__
+#ifdef __ARM_EABI__
+/* The exact set of registers saved may depend on the particular core
+   in use, as some coprocessor registers may need to be saved.  The C
+   Library ABI requires that the buffer be 8-byte aligned, and
+   recommends that the buffer contain 64 words.  The first 28 words
+   are occupied by v1-v6, sl, fp, sp, pc, d8-d15, and fpscr.  (Note
+   that d8-15 require 17 words, due to the use of fstmx.)  */
+typedef int __jmp_buf[64] __attribute__((aligned (8)));
+#elif defined __MAVERICK__
 typedef int __jmp_buf[34];
 #else
 typedef int __jmp_buf[22];
 #endif
 #endif
 
-#define __JMP_BUF_SP		20
+#define __JMP_BUF_SP		8
 
 /* Test if longjmp to JMPBUF would unwind the frame
    containing a local variable at ADDRESS.  */

@@ -130,13 +130,13 @@ return (type) (INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6)); \
 #undef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) \
   ({									      \
-    unsigned long resultvar = INTERNAL_SYSCALL (name, , nr, args);	      \
-    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (resultvar, ), 0))	      \
+    unsigned long _resultvar = INTERNAL_SYSCALL (name, , nr, args);	      \
+    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_resultvar, ), 0))	      \
       {									      \
-	__set_errno (INTERNAL_SYSCALL_ERRNO (resultvar, ));		      \
-	resultvar = (unsigned long) -1;					      \
+	__set_errno (INTERNAL_SYSCALL_ERRNO (_resultvar, ));		      \
+	_resultvar = (unsigned long) -1;					      \
       }									      \
-    (long) resultvar; })
+    (long) _resultvar; })
 
 #undef INTERNAL_SYSCALL_DECL
 #define INTERNAL_SYSCALL_DECL(err) do { } while (0)

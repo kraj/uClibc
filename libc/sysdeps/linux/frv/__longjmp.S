@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 #define _SETJMP_H
 #define _ASM
 #include <bits/setjmp.h>
@@ -73,3 +79,5 @@ __longjmp:
 	ret
 .Lend2:
 	.size	__longjmp,.Lend2-__longjmp
+
+libc_hidden_def(__longjmp)

@@ -9,19 +9,19 @@
  * 
  * Written by Wentao Xu <wentao@microtronix.com>
  */
-#include <asm/errno.h>
-#include <asm/unistd.h>
 
+#define _ERRNO_H
+#include <bits/errno.h>
+#include <sys/syscall.h>
+
+#ifdef __NR_clone
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
 .text
-.balign 4
-.type	clone,@function
-.globl	clone;
+.global clone
+.type   clone,%function
+.align 4
 clone:
-.type	__clone,@function
-.globl	__clone;
-__clone:
 	addi    sp,sp,-8
 	mov     r8,r4
 	stw     ra,4(sp)
@@ -64,3 +64,7 @@ CLONE_OK:
 	ldw     r16,0(sp)
 	addi    sp,sp,8
 	ret
+
+.size clone,.-clone
+
+#endif

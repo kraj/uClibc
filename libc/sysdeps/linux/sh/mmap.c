@@ -23,6 +23,8 @@
 #include <errno.h>
 #include <sys/mman.h>
 
+libc_hidden_proto(mmap)
+
 #ifdef HIOS
 # define __SH_SYSCALL6_TRAPA "0x2E"
 #else
@@ -31,6 +33,5 @@
 
 #include <sys/syscall.h>
 
-#define __NR___mmap __NR_mmap
-attribute_hidden _syscall6(__ptr_t, __mmap, __ptr_t, addr, size_t, len, int, prot, int, flags, int, fd, __off_t, offset);
-strong_alias(__mmap,mmap)
+_syscall6(__ptr_t, mmap, __ptr_t, addr, size_t, len, int, prot, int, flags, int, fd, __off_t, offset);
+libc_hidden_def(mmap)

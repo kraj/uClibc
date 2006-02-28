@@ -13,9 +13,9 @@
 
 .text
 .align 4
-.type	__clone,@function
-.globl	__clone;
-__clone:
+.type	clone,@function
+.globl	clone;
+clone:
 	/* Sanity check arguments.  */
 	movel   #-EINVAL, %d0
 	movel   4(%sp), %d1             /* no NULL function pointers */
@@ -55,17 +55,6 @@ __clone:
 
 	rts
 
-__syscall_error:
-	negl	%d0
-	movel	%d0, %sp@-
-	lea		__errno_location-.-8, %a0
-	jsr		%pc@(%a0)
-	movel	%d0, %a0
-	movel	%sp@+, %a0@
-	moveq	#-1, %d0
-
-	rts
-
 thread_start:
 	/*subl    %fp, %fp*/        /* terminate the stack frame */
 	jsr     (%a0)
@@ -73,10 +62,3 @@ thread_start:
 	movel	#__NR_exit, %d0
 	trap	#0
 	/*jsr    exit*/
-
-#if defined(__HAVE_ELF__)
-	.weak clone
-	clone = __clone
-#else
-	.set clone,__clone
-#endif

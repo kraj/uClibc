@@ -11,6 +11,7 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
+#include <features.h>
 #define _SETJMP_H
 #define _ASM
 #include <bits/setjmp.h>
@@ -37,6 +38,4 @@ C_ENTRY(__longjmp):
 	mov	1, r10			// return val
 	jmp	[lp]
 C_END(__longjmp)
-
-.weak C_SYMBOL_NAME(__sigprocmask)
-C_SYMBOL_NAME(__sigprocmask) = C_SYMBOL_NAME(sigprocmask)
+libc_hidden_def(__longjmp)

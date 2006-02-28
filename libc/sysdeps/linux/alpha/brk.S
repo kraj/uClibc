@@ -36,14 +36,14 @@ __curbrk: .skip 8
 #else
 .comm __curbrk, 8
 #endif
+libc_hidden_data_def(__curbrk)
 
 	.text
-.globl  __brk;
-.hidden __brk;
+.globl  brk;
 .align 3;
-.ent  __brk , 0;
+.ent  brk , 0;
 
-__brk:
+brk:
     .frame $30 ,   8 , $26
 	ldgp	$29, 0($27)
 	subq	$30, 8, $30
@@ -77,7 +77,6 @@ $err0:	ldi	$0, ENOMEM
 $err1:	addq	$30, 8, $30
 	jmp	$31, __syscall_error
 
-	.end __brk
+	.end brk
 
-.weak    brk;
-    brk    =   __brk
+libc_hidden_def(brk)

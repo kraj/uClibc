@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998 Free Software Foundation, Inc.
+/* Copyright (C) 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,10 +18,8 @@
 
 #include <errno.h>
 
-/* This routine is jumped to by all the syscall handlers, to stash
-   an error number into errno.  */
-int __syscall_error (int err_no)
+volatile int *
+__aeabi_errno_addr (void)
 {
-  __set_errno (err_no);
-  return -1;
+  return &errno;
 }

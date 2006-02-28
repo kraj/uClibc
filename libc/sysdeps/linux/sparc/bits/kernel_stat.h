@@ -30,26 +30,24 @@ struct kernel_stat {
 #endif
 
 struct kernel_stat64 {
-	unsigned char	__pad0[6];
-	unsigned short	st_dev;
+	unsigned long long	st_dev;
 	unsigned long long	st_ino;
 	unsigned int	st_mode;
 	unsigned int	st_nlink;
 	unsigned int	st_uid;
 	unsigned int	st_gid;
-	unsigned char	__pad2[6];
-	unsigned short	st_rdev;
+	unsigned long long	st_rdev;
 	unsigned char	__pad3[8];
 	long long	st_size;
 	unsigned int	st_blksize;
 	unsigned char	__pad4[8];
 	unsigned int	st_blocks;
 	unsigned int	st_atime;
-	unsigned int	__unused1;
+	unsigned int	st_atime_nsec;
 	unsigned int	st_mtime;
-	unsigned int	__unused2;
+	unsigned int	st_mtime_nsec;
 	unsigned int	st_ctime;
-	unsigned int	__unused3;
+	unsigned int	st_ctime_nsec;
 	unsigned int	__unused4;
 	unsigned int	__unused5;
 };

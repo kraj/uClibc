@@ -20,7 +20,34 @@
 #ifndef _FPU_CONTROL_H
 #define _FPU_CONTROL_H
 
-#ifdef __MAVERICK__
+#ifdef __VFP_FP__
+
+/* masking of interrupts */
+#define _FPU_MASK_IM	0x00000100	/* invalid operation */
+#define _FPU_MASK_ZM	0x00000200	/* divide by zero */
+#define _FPU_MASK_OM	0x00000400	/* overflow */
+#define _FPU_MASK_UM	0x00000800	/* underflow */
+#define _FPU_MASK_PM	0x00001000	/* inexact */
+
+/* Some bits in the FPSCR are not yet defined.  They must be preserved when
+   modifying the contents.  */
+#define _FPU_RESERVED	0x0e08e0e0
+#define _FPU_DEFAULT    0x00000000
+/* Default + exceptions enabled. */
+#define _FPU_IEEE	(_FPU_DEFAULT | 0x00001f00)
+
+/* Type of the control word.  */
+typedef unsigned int fpu_control_t;
+
+/* Macros for accessing the hardware control word.  */
+/* This is fmrx %0, fpscr.  */
+#define _FPU_GETCW(cw) \
+  __asm__ __volatile__ ("mrc p10, 7, %0, cr1, cr0, 0" : "=r" (cw))
+/* This is fmxr fpscr, %0.  */
+#define _FPU_SETCW(cw) \
+  __asm__ __volatile__ ("mcr p10, 7, %0, cr1, cr0, 0" : : "r" (cw))
+
+#elif defined __MAVERICK__
 
 /* DSPSC register: (from EP9312 User's Guide)
  *

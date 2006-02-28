@@ -1,4 +1,10 @@
-#include <sysdep.h>
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
+#include "sysdep.h"
 
 #define __NR___libc_fork __NR_fork
 SYSCALL__ (__libc_fork, 0)
@@ -8,4 +14,6 @@ SYSCALL__ (__libc_fork, 0)
 	   R0&-1==R0, and the child gets R0&0==0.  */
      /* i dunno what the blurb above is useful for. we just return. */
 __asm__("ret\n\tnop");
-weak_alias(__libc_fork, fork)
+libc_hidden_proto(fork)
+weak_alias(__libc_fork,fork)
+libc_hidden_weak(fork)

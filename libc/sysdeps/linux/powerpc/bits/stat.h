@@ -27,11 +27,11 @@
 #define _STAT_VER_LINUX_OLD	1
 #define _STAT_VER_KERNEL	1
 #define _STAT_VER_SVR4		2
+#define _STAT_VER_LINUX	  3
 #if __WORDSIZE == 32
-# define _STAT_VER_LINUX	3
-# define _STAT_VER		_STAT_VER_LINUX	/* The one defined below.  */
+# define _STAT_VER		_STAT_VER_LINUX
 #else
-# define _STAT_VER		_STAT_VER_KERNEL /* The one defined below.  */
+# define _STAT_VER		_STAT_VER_KERNEL
 #endif
 
 /* Versions of the `xmknod' interface.  */
@@ -70,11 +70,11 @@ struct stat
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
 # endif
     __time_t st_atime;			/* Time of last access.  */
-    unsigned long int __unused1;	/* Reserved for atime.nanoseconds.  */
+    unsigned long int st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;			/* Time of last modification.  */
-    unsigned long int __unused2;	/* Reserved for mtime.nanoseconds.  */
+    unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;			/* Time of last status change.  */
-    unsigned long int __unused3;	/* Reserved for ctime.nanoseconds.  */
+    unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
     unsigned long int __unused4;
     unsigned long int __unused5;
   };
@@ -95,11 +95,11 @@ struct stat64
     __blksize_t st_blksize;		/* Optimal block size for I/O.  */
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
     __time_t st_atime;			/* Time of last access.  */
-    unsigned long int __unused1;	/* Reserved for atime.nanoseconds.  */
+    unsigned long int st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;			/* Time of last modification.  */
-    unsigned long int __unused2;	/* Reserved for mtime.nanoseconds.  */
+    unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;			/* Time of last status change.  */
-    unsigned long int __unused3;	/* Reserved for ctime.nanoseconds.  */
+    unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
     unsigned long int __unused4;
     unsigned long int __unused5;
   };
@@ -134,11 +134,11 @@ struct stat
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
 # endif
     __time_t st_atime;			/* Time of last access.  */
-    unsigned long int __unused1;	/* Reserved for atime.nanoseconds.  */
+    unsigned long int st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;			/* Time of last modification.  */
-    unsigned long int __unused2;	/* Reserved for mtime.nanoseconds.  */
+    unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;			/* Time of last status change.  */
-    unsigned long int __unused3;	/* Reserved for ctime.nanoseconds.  */
+    unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
     unsigned long int __unused4;
     unsigned long int __unused5;
     unsigned long int __unused6;
@@ -159,11 +159,11 @@ struct stat64
     __blksize_t st_blksize;		/* Optimal block size for I/O.  */
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
     __time_t st_atime;			/* Time of last access.  */
-    unsigned long int __unused1;	/* Reserved for atime.nanoseconds.  */
+    unsigned long int st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;			/* Time of last modification.  */
-    unsigned long int __unused2;	/* Reserved for mtime.nanoseconds.  */
+    unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;			/* Time of last status change.  */
-    unsigned long int __unused3;	/* Reserved for ctime.nanoseconds.  */
+    unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
     unsigned long int __unused4;
     unsigned long int __unused5;
     unsigned long int __unused6;
@@ -175,6 +175,8 @@ struct stat64
 /* Tell code we have these members.  */
 #define	_STATBUF_ST_BLKSIZE
 #define _STATBUF_ST_RDEV
+/* Nanosecond resolution time values are supported.  */
+#define _STATBUF_ST_NSEC
 
 /* Encoding of the file mode.  */
 

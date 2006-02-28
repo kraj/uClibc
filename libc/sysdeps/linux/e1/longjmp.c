@@ -1,6 +1,9 @@
-/*  This file is lisenced under LGPL
- *  Copyright (C) 2002-2003,    George Thanos <george.thanos@gdt.gr>
- *                              Yannis Mitsos <yannis.mitsos@gdt.gr>
+/*
+ * Copyright (C) 2002-2003,    George Thanos <george.thanos@gdt.gr>
+ *                             Yannis Mitsos <yannis.mitsos@gdt.gr>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include <syscall.h>
@@ -40,10 +43,12 @@ void longjmp(jmp_buf state, int value )
 #undef _state_
 }
 
+libc_hidden_proto(sigprocmask)
+
 void siglongjmp(sigjmp_buf state, int value )
 {
 	if( state->__mask_was_saved )
-		__sigprocmask(SIG_SETMASK, &state->__saved_mask, NULL);
+		sigprocmask(SIG_SETMASK, &state->__saved_mask, NULL);
 
 	if(!value)
 		state->__jmpbuf->ReturnValue = 1;

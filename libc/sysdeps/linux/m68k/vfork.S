@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 #include <features.h>
 
 #include <asm/unistd.h>
@@ -12,10 +18,8 @@
 	.align 2
 	.globl errno
 	.globl	__vfork
-#ifdef __HAVE_ELF__
 	.hidden	__vfork
 	.type	__vfork,@function
-#endif
 
 __vfork:
 	movl	%sp@+, %a1               /* save the return address for later */
@@ -37,4 +41,5 @@ fix_errno:
 	jmp		%a1@                     /* don't return,  just jmp directly */
 
 .size __vfork,.-__vfork
-strong_alias(__vfork,vfork)
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

@@ -19,9 +19,7 @@
 
 .text
 .globl	_clone
-.globl	___clone
 _clone:
-___clone:
 	/* Sanity check arguments.  */
 	mov.l	#-EINVAL,er3
 	mov.l	er0,er0			/* no NULL function pointers */
@@ -68,11 +66,3 @@ thread_start:
 	mov.l	er0,er1
 	mov.l	#__NR_exit,er0
 	trapa	#0
-
-#if defined(__HAVE_ELF__)
-	.weak clone
-	clone = __clone
-#else
-	.set clone,__clone
-#endif
-

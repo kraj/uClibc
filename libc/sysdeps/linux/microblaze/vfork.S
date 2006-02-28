@@ -1,14 +1,14 @@
 /*
  * libc/sysdeps/linux/microblaze/vfork.S -- `vfork' syscall for linux/microblaze
  *
- *  Copyright (C) 2003  John Williams <jwilliams@itee.uq.edu.au>
- *  Copyright (C) 2001  NEC Corporation
- *  Copyright (C) 2001  Miles Bader <miles@gnu.org>
+ * Copyright (C) 2001  NEC Corporation
+ * Copyright (C) 2001  Miles Bader <miles@gnu.org>
+ * Copyright (C) 2003  John Williams <jwilliams@itee.uq.edu.au>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License.  See the file COPYING.LIB in the main
- * directory of this archive for more details.
- * 
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+/* 
  * Written by Miles Bader <miles@gnu.org>
  * Microblaze port by John Williams
  */
@@ -40,6 +40,5 @@ C_ENTRY (__vfork):
 	rtsd	r15, 8			// error return
 	nop
 C_END(__vfork)
-
-.weak	C_SYMBOL_NAME(vfork)
-C_SYMBOL_NAME(vfork) = C_SYMBOL_NAME(__vfork)
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

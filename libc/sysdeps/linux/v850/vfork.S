@@ -11,6 +11,7 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
+#include <features.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
 #define _SYSCALL_H
@@ -37,6 +38,5 @@ C_ENTRY (__vfork):
 	st.w	r10, 0[r11]
 	jmp	[lp]			// error return
 C_END(__vfork)
-
-.weak	C_SYMBOL_NAME(vfork)
-C_SYMBOL_NAME(vfork) = C_SYMBOL_NAME(__vfork)
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)

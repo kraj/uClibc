@@ -21,17 +21,17 @@
    and invokes a function in the right context after its all over.  */
 
 #include <asm/errno.h>
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 #include "NM_Macros.S"
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
 	.text
 	.align	2
-	.globl	__clone
-	.type	__clone,@function
+	.globl	clone
+	.type	clone,@function
 
-__clone:
+clone:
 	save	%sp,-16
 
 	MOVIP	%l0, -EINVAL
@@ -74,7 +74,7 @@ CLONE_ERROR_LABEL:
 	ret
 	 restore
 
-	.size	__clone, .-__clone
+	.size	clone, .-clone
 
 	.type	__thread_start,@function
 
@@ -86,6 +86,3 @@ __thread_start:
 	 nop
 
 	.size	__thread_start, .-__thread_start
-
-.globl	clone;
-    clone = __clone

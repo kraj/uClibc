@@ -108,7 +108,7 @@ __vfork:
 	.word	__NR_fork
 
 .size   __vfork, .-__vfork
-strong_alias(__vfork,vfork)
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)
 
 #include "syscall_error.S"
-

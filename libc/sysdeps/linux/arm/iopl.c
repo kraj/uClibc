@@ -21,6 +21,8 @@
 #include <sys/io.h>
 #include <errno.h>
 
+libc_hidden_proto(ioperm)
+
 #define MAX_PORT	0x10000
 
 int iopl(int level) 

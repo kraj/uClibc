@@ -23,10 +23,7 @@
 #include <signal.h>
 #include <string.h>
 
-
 #include <sys/syscall.h>
-
-
 
 /* The difference here is that the sigaction structure used in the
    kernel is not the same as we use in the libc.  Therefore we must
@@ -36,16 +33,18 @@
 /* We do not globally define the SA_RESTORER flag so do it here.  */
 #define SA_RESTORER 0x04000000
 
-#if defined __NR_rt_sigaction
+extern __typeof(sigaction) __libc_sigaction;
+
+#ifdef __NR_rt_sigaction
 /* Using the hidden attribute here does not change the code but it
    helps to avoid warnings.  */
 extern void restore_rt (void) asm ("__restore_rt") attribute_hidden;
 extern void restore (void) asm ("__restore") attribute_hidden;
 
+libc_hidden_proto(memcpy)
+
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-/* psm: couldn't use __sigaction, if building w/ disabled hidden,
- *      it will conflict w/ the one in libpthread */
 int
 __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
@@ -54,7 +53,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 
 	if (act) {
 		kact.k_sa_handler = act->sa_handler;
-		__memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
+		memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
 		kact.sa_flags = act->sa_flags | SA_RESTORER;
 
 		kact.sa_restorer = &restore_rt;
@@ -67,7 +66,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 	                         oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
 	if (oact && result >= 0) {
 		oact->sa_handler = koact.k_sa_handler;
-		__memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
+		memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
 		oact->sa_flags = koact.sa_flags;
 		oact->sa_restorer = koact.sa_restorer;
 	}
@@ -121,8 +120,9 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 #endif
 
 #ifndef LIBC_SIGACTION
-hidden_weak_alias(__libc_sigaction,__sigaction)
+libc_hidden_proto(sigaction)
 weak_alias(__libc_sigaction,sigaction)
+libc_hidden_weak(sigaction)
 #endif
 
 /* NOTE: Please think twice before making any changes to the bits of
