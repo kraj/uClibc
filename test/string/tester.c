@@ -34,6 +34,11 @@
 #include <strings.h>
 #include <fcntl.h>
 
+#ifdef __UCLIBC__
+# define __TEST_BSD_FUNCS__
+#else
+# undef __TEST_BSD_FUNCS__
+#endif
 
 #define	STREQ(a, b)	(strcmp((a), (b)) == 0)
 
@@ -350,6 +355,53 @@ test_strncat (void)
 }
 
 static void
+test_strlcat (void)
+{
+#ifdef __TEST_BSD_FUNCS__
+  /* First test it as strcat, with big counts, then test the count
+     mechanism.  */
+  it = "strlcat";
+  (void) strcpy (one, "ijk");
+  check (strlcat (one, "lmn", 99) == 6, 1);	/* Returned value. */
+  equal (one, "ijklmn", 2);		/* Basic test. */
+
+  (void) strcpy (one, "x");
+  (void) strlcat (one, "yz", 99);
+  equal (one, "xyz", 3);		/* Writeover. */
+  equal (one+4, "mn", 4);		/* Wrote too much? */
+
+  (void) strcpy (one, "gh");
+  (void) strcpy (two, "ef");
+  (void) strlcat (one, two, 99);
+  equal (one, "ghef", 5);			/* Basic test encore. */
+  equal (two, "ef", 6);			/* Stomped on source? */
+
+  (void) strcpy (one, "");
+  (void) strlcat (one, "", 99);
+  equal (one, "", 7);			/* Boundary conditions. */
+  (void) strcpy (one, "ab");
+  (void) strlcat (one, "", 99);
+  equal (one, "ab", 8);
+  (void) strcpy (one, "");
+  (void) strlcat (one, "cd", 99);
+  equal (one, "cd", 9);
+
+  (void) strcpy (one, "ab");
+  (void) strlcat (one, "cdef", 2);
+  equal (one, "ab", 10);			/* Count-limited. */
+
+  (void) strlcat (one, "gh", 0);
+  equal (one, "ab", 11);			/* Zero count. */
+
+  (void) strlcat (one, "gh", 4);
+  equal (one, "abg", 12);		/* Count and length equal. */
+
+  (void) strlcat (one, "ij", (size_t)-1);	/* set sign bit in count */
+  equal (one, "abgij", 13);
+#endif
+}
+
+static void
 test_strncmp (void)
 {
   /* First test as strcmp with big counts, then test count code.  */
@@ -411,6 +463,50 @@ test_strncpy (void)
   (void) strncpy (two, one, 9);
   equal (two, "hi there", 14);		/* Just paranoia. */
   equal (one, "hi there", 15);		/* Stomped on source? */
+}
+
+static void
+test_strlcpy (void)
+{
+#ifdef __TEST_BSD_FUNCS__
+  /* Testing is a bit different because of odd semantics.  */
+  it = "strlcpy";
+  check (strlcpy (one, "abc", sizeof(one)) == 3, 1);	/* Returned value. */
+  equal (one, "abc", 2);			/* Did the copy go right? */
+
+  (void) strcpy (one, "abcdefgh");
+  (void) strlcpy (one, "xyz", 2);
+  equal (one, "x\0cdefgh", 3);			/* Copy cut by count. */
+
+  (void) strcpy (one, "abcdefgh");
+  (void) strlcpy (one, "xyz", 3);		/* Copy cut just before NUL. */
+  equal (one, "xy\0defgh", 4);
+
+  (void) strcpy (one, "abcdefgh");
+  (void) strlcpy (one, "xyz", 4);		/* Copy just includes NUL. */
+  equal (one, "xyz", 5);
+  equal (one+4, "efgh", 6);			/* Wrote too much? */
+
+  (void) strcpy (one, "abcdefgh");
+  (void) strlcpy (one, "xyz", 5);		/* Copy includes padding. */
+  equal (one, "xyz", 7);
+  equal (one+3, "", 8);
+  equal (one+4, "efgh", 9);
+
+  (void) strcpy (one, "abc");
+  (void) strlcpy (one, "xyz", 0);		/* Zero-length copy. */
+  equal (one, "abc", 10);
+
+  (void) strlcpy (one, "", 2);		/* Zero-length source. */
+  equal (one, "", 11);
+  equal (one+1, "bc", 12);
+  equal (one+2, "c", 13);
+
+  (void) strcpy (one, "hi there");
+  (void) strlcpy (two, one, 9);
+  equal (two, "hi there", 14);		/* Just paranoia. */
+  equal (one, "hi there", 15);		/* Stomped on source? */
+#endif
 }
 
 static void
@@ -1401,11 +1497,17 @@ main (void)
   /* strncat.  */
   test_strncat ();
 
+  /* strlcat.  */
+  test_strlcat ();
+
   /* strncmp.  */
   test_strncmp ();
 
   /* strncpy.  */
   test_strncpy ();
+
+  /* strlcpy.  */
+  test_strlcpy ();
 
   /* strlen.  */
   test_strlen ();
