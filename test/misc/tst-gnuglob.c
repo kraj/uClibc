@@ -356,8 +356,6 @@ main (void)
   const char *fmt;
   int flags;
 
-  mtrace ();
-
   memset (&gl, '\0', sizeof (gl));
 
   gl.gl_closedir = my_closedir;
