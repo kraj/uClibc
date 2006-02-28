@@ -19,26 +19,6 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define mempcpy __mempcpy
-#define stpcpy __stpcpy
-#define strndup __strndup
-#define strspn __strspn
-#define strcspn __strcspn
-#define setenv __setenv
-#define unsetenv __unsetenv
-#define waitpid __waitpid
-#define kill __kill
-#define getuid __getuid
-#define getpwnam_r __getpwnam_r
-#define getpwuid_r __getpwuid_r
-#define execve __execve
-#define dup2 __dup2
-#define atoi __atoi
-#define fnmatch __fnmatch
-#define pipe __pipe
-#define fork __fork
-
-#define _GNU_SOURCE
 #include <features.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -55,11 +35,46 @@
 #include <glob.h>
 #include <wordexp.h>
 
-extern void __wordfree (wordexp_t *__wordexp) __THROW attribute_hidden;
-extern int __glob (__const char *__restrict __pattern, int __flags,
-		 int (*__errfunc) (__const char *, int),
-		 glob_t *__restrict __pglob) __THROW attribute_hidden;
-extern void __globfree (glob_t *__pglob) __THROW attribute_hidden;
+libc_hidden_proto(mempcpy)
+libc_hidden_proto(stpcpy)
+libc_hidden_proto(strchr)
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strdup)
+libc_hidden_proto(strlen)
+libc_hidden_proto(strndup)
+libc_hidden_proto(strspn)
+libc_hidden_proto(strcspn)
+libc_hidden_proto(__environ)
+libc_hidden_proto(setenv)
+libc_hidden_proto(unsetenv)
+libc_hidden_proto(waitpid)
+libc_hidden_proto(kill)
+libc_hidden_proto(getuid)
+libc_hidden_proto(getpwnam_r)
+libc_hidden_proto(getpwuid_r)
+libc_hidden_proto(execve)
+libc_hidden_proto(dup2)
+libc_hidden_proto(atoi)
+libc_hidden_proto(fnmatch)
+libc_hidden_proto(pipe)
+libc_hidden_proto(fork)
+libc_hidden_proto(open)
+libc_hidden_proto(close)
+libc_hidden_proto(read)
+libc_hidden_proto(getenv)
+libc_hidden_proto(getpid)
+libc_hidden_proto(sprintf)
+libc_hidden_proto(fprintf)
+libc_hidden_proto(abort)
+libc_hidden_proto(stderr)
+libc_hidden_proto(glob)
+libc_hidden_proto(globfree)
+libc_hidden_proto(wordfree)
+#ifdef __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(__ctype_b_loc)
+#else
+libc_hidden_proto(__ctype_b)
+#endif
 
 #define __WORDEXP_FULL
 //#undef __WORDEXP_FULL
@@ -73,8 +88,8 @@ extern void __globfree (glob_t *__pglob) __THROW attribute_hidden;
 //extern char **__libc_argv;
 
 /* FIXME!!!! */
-int __libc_argc;
-char **__libc_argv;
+int attribute_hidden __libc_argc;
+char attribute_hidden **__libc_argv;
 
 /* Some forward declarations */
 static int parse_dollars(char **word, size_t * word_length,
@@ -155,7 +170,7 @@ static char *w_addstr(char *buffer, size_t * actlen, size_t * maxlen,
 {
 	size_t len;
 	assert(str != NULL);		/* w_addstr only called from this file */
-	len = __strlen(str);
+	len = strlen(str);
 
 	return w_addmem(buffer, actlen, maxlen, str, len);
 }
@@ -170,7 +185,7 @@ static int w_addword(wordexp_t * pwordexp, char *word)
 	 * the caller sees them.
 	 */
 	if (word == NULL) {
-		word = __strdup("");
+		word = strdup("");
 		if (word == NULL)
 			goto no_space;
 	}
@@ -272,7 +287,7 @@ parse_tilde(char **word, size_t * word_length, size_t * max_length,
 	if (*word_length != 0) {
 		if (!((*word)[*word_length - 1] == '=' && wordc == 0)) {
 			if (!((*word)[*word_length - 1] == ':'
-				  && __strchr(*word, '=') && wordc == 0)) {
+				  && strchr(*word, '=') && wordc == 0)) {
 				*word = w_addchar(*word, word_length, max_length, '~');
 				return *word ? 0 : WRDE_NOSPACE;
 			}
@@ -303,7 +318,7 @@ parse_tilde(char **word, size_t * word_length, size_t * max_length,
 		   results are unspecified.  We do a lookup on the uid if
 		   HOME is unset. */
 
-		home = __getenv("HOME");
+		home = getenv("HOME");
 		if (home != NULL) {
 			*word = w_addstr(*word, word_length, max_length, home);
 			if (*word == NULL)
@@ -367,7 +382,7 @@ do_parse_glob(const char *glob_word, char **word, size_t * word_length,
 	int match;
 	glob_t globbuf;
 
-	error = __glob(glob_word, GLOB_NOCHECK, NULL, &globbuf);
+	error = glob(glob_word, GLOB_NOCHECK, NULL, &globbuf);
 
 	if (error != 0) {
 		/* We can only run into memory problems.  */
@@ -386,7 +401,7 @@ do_parse_glob(const char *glob_word, char **word, size_t * word_length,
 								 globbuf.gl_pathv[match]);
 		}
 
-		__globfree(&globbuf);
+		globfree(&globbuf);
 		return *word ? 0 : WRDE_NOSPACE;
 	}
 
@@ -397,15 +412,15 @@ do_parse_glob(const char *glob_word, char **word, size_t * word_length,
 	}
 
 	for (match = 0; match < globbuf.gl_pathc; ++match) {
-		char *matching_word = __strdup(globbuf.gl_pathv[match]);
+		char *matching_word = strdup(globbuf.gl_pathv[match]);
 
 		if (matching_word == NULL || w_addword(pwordexp, matching_word)) {
-			__globfree(&globbuf);
+			globfree(&globbuf);
 			return WRDE_NOSPACE;
 		}
 	}
 
-	__globfree(&globbuf);
+	globfree(&globbuf);
 	return 0;
 }
 
@@ -424,8 +439,8 @@ parse_glob(char **word, size_t * word_length, size_t * max_length,
 	glob_list.we_wordv = NULL;
 	glob_list.we_offs = 0;
 	for (; words[*offset] != '\0'; ++*offset) {
-		if ((ifs && __strchr(ifs, words[*offset])) ||
-			(!ifs && __strchr(" \t\n", words[*offset])))
+		if ((ifs && strchr(ifs, words[*offset])) ||
+			(!ifs && strchr(" \t\n", words[*offset])))
 			/* Reached IFS */
 			break;
 
@@ -488,7 +503,7 @@ parse_glob(char **word, size_t * word_length, size_t * max_length,
 
 	/* Now tidy up */
   tidy_up:
-	__wordfree(&glob_list);
+	wordfree(&glob_list);
 	return error;
 }
 
@@ -515,7 +530,7 @@ static int eval_expr(char *expr, long int *result);
 
 static char *_itoa(unsigned long long int value, char *buflim)
 {
-	__sprintf(buflim, "%llu", value);
+	sprintf(buflim, "%llu", value);
 	return buflim;
 }
 
@@ -782,24 +797,24 @@ exec_comm_child(char *comm, int *fildes, int showerr, int noexec)
 
 	/* Redirect output.  */
 	dup2(fildes[1], 1);
-	__close(fildes[1]);
+	close(fildes[1]);
 
 	/* Redirect stderr to /dev/null if we have to.  */
 	if (showerr == 0) {
 		int fd;
 
-		__close(2);
-		fd = __open(_PATH_DEVNULL, O_WRONLY);
+		close(2);
+		fd = open(_PATH_DEVNULL, O_WRONLY);
 		if (fd >= 0 && fd != 2) {
 			dup2(fd, 2);
-			__close(fd);
+			close(fd);
 		}
 	}
 
 	/* Make sure the subshell doesn't field-split on our behalf. */
 	unsetenv("IFS");
 
-	__close(fildes[0]);
+	close(fildes[0]);
 	execve(_PATH_BSHELL, (char *const *) args, __environ);
 
 	/* Bad.  What now?  */
@@ -832,8 +847,8 @@ exec_comm(char *comm, char **word, size_t * word_length,
 
 	if ((pid = fork()) < 0) {
 		/* Bad */
-		__close(fildes[0]);
-		__close(fildes[1]);
+		close(fildes[0]);
+		close(fildes[1]);
 		return WRDE_NOSPACE;
 	}
 
@@ -842,17 +857,17 @@ exec_comm(char *comm, char **word, size_t * word_length,
 
 	/* Parent */
 
-	__close(fildes[1]);
+	close(fildes[1]);
 	buffer = alloca(bufsize);
 
 	if (!pwordexp)
 		/* Quoted - no field splitting */
 	{
 		while (1) {
-			if ((buflen = __read(fildes[0], buffer, bufsize)) < 1) {
+			if ((buflen = read(fildes[0], buffer, bufsize)) < 1) {
 				if (waitpid(pid, &status, WNOHANG) == 0)
 					continue;
-				if ((buflen = __read(fildes[0], buffer, bufsize)) < 1)
+				if ((buflen = read(fildes[0], buffer, bufsize)) < 1)
 					break;
 			}
 
@@ -875,17 +890,17 @@ exec_comm(char *comm, char **word, size_t * word_length,
 		 */
 
 		while (1) {
-			if ((buflen = __read(fildes[0], buffer, bufsize)) < 1) {
+			if ((buflen = read(fildes[0], buffer, bufsize)) < 1) {
 				if (waitpid(pid, &status, WNOHANG) == 0)
 					continue;
-				if ((buflen = __read(fildes[0], buffer, bufsize)) < 1)
+				if ((buflen = read(fildes[0], buffer, bufsize)) < 1)
 					break;
 			}
 
 			for (i = 0; i < buflen; ++i) {
-				if (__strchr(ifs, buffer[i]) != NULL) {
+				if (strchr(ifs, buffer[i]) != NULL) {
 					/* Current character is IFS */
-					if (__strchr(ifs_white, buffer[i]) == NULL) {
+					if (strchr(ifs_white, buffer[i]) == NULL) {
 						/* Current character is IFS but not whitespace */
 						if (copying == 2) {
 							/*            current character
@@ -979,7 +994,7 @@ exec_comm(char *comm, char **word, size_t * word_length,
 		}
 	}
 
-	__close(fildes[0]);
+	close(fildes[0]);
 
 	/* Check for syntax error (re-execute but with "-n" flag) */
 	if (buflen < 1 && status != 0) {
@@ -1002,7 +1017,7 @@ exec_comm(char *comm, char **word, size_t * word_length,
   no_space:
 	kill(pid, SIGKILL);
 	waitpid(pid, NULL, 0);
-	__close(fildes[0]);
+	close(fildes[0]);
 	return WRDE_NOSPACE;
 }
 
@@ -1201,7 +1216,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 				goto envsubst;
 		}
 		while (isdigit(words[++*offset]));
-	} else if (__strchr("*@$", words[*offset]) != NULL) {
+	} else if (strchr("*@$", words[*offset]) != NULL) {
 		/* Special parameter. */
 		special = 1;
 		env = w_addchar(env, &env_length, &env_maxlen, words[*offset]);
@@ -1237,7 +1252,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 			break;
 
 		case ':':
-			if (__strchr("-=?+", words[1 + *offset]) == NULL)
+			if (strchr("-=?+", words[1 + *offset]) == NULL)
 				goto syntax;
 
 			colon_seen = 1;
@@ -1348,7 +1363,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 		/* Is it `$$'? */
 		if (*env == '$') {
 			buffer[20] = '\0';
-			value = _itoa(__getpid(), &buffer[20]);
+			value = _itoa(getpid(), &buffer[20]);
 		}
 		/* Is it `${#*}' or `${#@}'? */
 		else if ((*env == '*' || *env == '@') && seen_hash) {
@@ -1369,7 +1384,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 
 			/* Build up value parameter by parameter (copy them) */
 			for (p = 1; __libc_argv[p]; ++p)
-				plist_len += __strlen(__libc_argv[p]) + 1;	/* for space */
+				plist_len += strlen(__libc_argv[p]) + 1;	/* for space */
 			value = malloc(plist_len);
 			if (value == NULL)
 				goto no_space;
@@ -1399,7 +1414,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 					goto no_space;
 
 				for (p = 2; __libc_argv[p + 1]; p++) {
-					char *newword = __strdup(__libc_argv[p]);
+					char *newword = strdup(__libc_argv[p]);
 
 					if (newword == NULL || w_addword(pwordexp, newword))
 						goto no_space;
@@ -1415,7 +1430,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 			}
 		}
 	} else
-		value = __getenv(env);
+		value = getenv(env);
 
 	if (value == NULL && (flags & WRDE_UNDEF)) {
 		/* Variable not defined. */
@@ -1579,7 +1594,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 			if (value == NULL || pattern == NULL || *pattern == '\0')
 				break;
 
-			end = value + __strlen(value);
+			end = value + strlen(value);
 
 			switch (action) {
 			case ACT_RP_SHORT_LEFT:
@@ -1589,7 +1604,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 					if (fnmatch(pattern, value, 0) != FNM_NOMATCH) {
 						*p = c;
 						if (free_value) {
-							char *newval = __strdup(p);
+							char *newval = strdup(p);
 
 							if (newval == NULL) {
 								free(value);
@@ -1613,7 +1628,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 					if (fnmatch(pattern, value, 0) != FNM_NOMATCH) {
 						*p = c;
 						if (free_value) {
-							char *newval = __strdup(p);
+							char *newval = strdup(p);
 
 							if (newval == NULL) {
 								free(value);
@@ -1717,7 +1732,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 				/* Substitute NULL */
 				goto success;
 
-			value = pattern ? __strdup(pattern) : pattern;
+			value = pattern ? strdup(pattern) : pattern;
 			free_value = 1;
 
 			if (pattern && !value)
@@ -1730,7 +1745,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 				if (free_value && value)
 					free(value);
 
-				value = pattern ? __strdup(pattern) : pattern;
+				value = pattern ? strdup(pattern) : pattern;
 				free_value = 1;
 
 				if (pattern && !value)
@@ -1759,7 +1774,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 			if (free_value && value)
 				free(value);
 
-			value = pattern ? __strdup(pattern) : pattern;
+			value = pattern ? strdup(pattern) : pattern;
 			free_value = 1;
 
 			if (pattern && !value)
@@ -1783,7 +1798,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 
 		param_length[20] = '\0';
 		*word = w_addstr(*word, word_length, max_length,
-						 _itoa(value ? __strlen(value) : 0,
+						 _itoa(value ? strlen(value) : 0,
 									&param_length[20]));
 		if (free_value) {
 			assert(value != NULL);
@@ -1805,7 +1820,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 		return *word ? 0 : WRDE_NOSPACE;
 	} else {
 		/* Need to field-split */
-		char *value_copy = __strdup(value);	/* Don't modify value */
+		char *value_copy = strdup(value);	/* Don't modify value */
 		char *field_begin = value_copy;
 		int seen_nonws_ifs = 0;
 
@@ -1845,7 +1860,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 
 			/* Skip at most one non-whitespace IFS character after the field */
 			seen_nonws_ifs = 0;
-			if (*next_field && __strchr(ifs, *next_field)) {
+			if (*next_field && strchr(ifs, *next_field)) {
 				seen_nonws_ifs = 1;
 				next_field++;
 			}
@@ -2028,7 +2043,7 @@ parse_dquote(char **word, size_t * word_length, size_t * max_length,
  * wordfree() is to be called after pwordexp is finished with.
  */
 
-void attribute_hidden __wordfree(wordexp_t * pwordexp)
+void wordfree(wordexp_t * pwordexp)
 {
 
 	/* wordexp can set pwordexp to NULL */
@@ -2042,7 +2057,7 @@ void attribute_hidden __wordfree(wordexp_t * pwordexp)
 		pwordexp->we_wordv = NULL;
 	}
 }
-strong_alias(__wordfree,wordfree)
+libc_hidden_def(wordfree)
 
 /*
  * wordexp()
@@ -2061,7 +2076,7 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 
 	if (flags & WRDE_REUSE) {
 		/* Minimal implementation of WRDE_REUSE for now */
-		__wordfree(we);
+		wordfree(we);
 		old_word.we_wordv = NULL;
 	}
 
@@ -2088,11 +2103,11 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 	/* Find out what the field separators are.
 	 * There are two types: whitespace and non-whitespace.
 	 */
-	ifs = __getenv("IFS");
+	ifs = getenv("IFS");
 
 	if (!ifs)
 		/* IFS unset - use <space><tab><newline>. */
-		ifs = __strcpy(ifs_white, " \t\n");
+		ifs = strcpy(ifs_white, " \t\n");
 	else {
 		char *ifsch = ifs;
 		char *whch = ifs_white;
@@ -2211,11 +2226,11 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 
 		default:
 			/* Is it a word separator? */
-			if (__strchr(" \t", words[words_offset]) == NULL) {
+			if (strchr(" \t", words[words_offset]) == NULL) {
 				char ch = words[words_offset];
 
 				/* Not a word separator -- but is it a valid word char? */
-				if (__strchr("\n|&;<>(){}", ch)) {
+				if (strchr("\n|&;<>(){}", ch)) {
 					/* Fail */
 					error = WRDE_BADCHAR;
 					goto do_error;
@@ -2263,7 +2278,7 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 		return WRDE_NOSPACE;
 
 	if ((flags & WRDE_APPEND) == 0)
-		__wordfree(we);
+		wordfree(we);
 
 	*we = old_word;
 	return error;

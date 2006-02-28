@@ -7,7 +7,7 @@
 
 #ifdef __NR_msgctl
 #define __NR___libc_msgctl __NR_msgctl
-_syscall3(int, __libc_msgctl, int, msqid, int, cmd, struct msqid_ds *, buf);
+static inline _syscall3(int, __libc_msgctl, int, msqid, int, cmd, struct msqid_ds *, buf);
 #endif
 /* Message queue control operation.  */
 int msgctl(int msqid, int cmd, struct msqid_ds *buf)

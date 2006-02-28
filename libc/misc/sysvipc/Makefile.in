@@ -1,69 +1,31 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-MSRC1:=sem.c
-MOBJ1:=semget.o semctl.o semop.o
+CSRC := ftok.c 
 
-MSRC2:=shm.c
-MOBJ2:=shmat.o shmctl.o shmdt.o shmget.o
+# multi source sem.c
+CSRC += semget.c semctl.c semop.c
 
-MSRC3:=msgq.c
-MOBJ3:=msgctl.o msgget.o msgrcv.o msgsnd.o
+# multi source shm.c
+CSRC += shmat.c shmctl.c shmdt.c shmget.c
 
-CSRC:=ftok.c 
+# multi source msgq.c
+CSRC += msgctl.c msgget.c msgrcv.c msgsnd.c
 
-MISC_SYSVIPC_DIR:=$(top_srcdir)libc/misc/sysvipc
-MISC_SYSVIPC_OUT:=$(top_builddir)libc/misc/sysvipc
+MISC_SYSVIPC_DIR := $(top_srcdir)libc/misc/sysvipc
+MISC_SYSVIPC_OUT := $(top_builddir)libc/misc/sysvipc
 
-MISC_SYSVIPC_SRC:=$(patsubst %.c,$(MISC_SYSVIPC_DIR)/%.c,$(CSRC))
-MISC_SYSVIPC_OBJ:=$(patsubst %.c,$(MISC_SYSVIPC_OUT)/%.o,$(CSRC))
+MISC_SYSVIPC_SRC := $(patsubst %.c,$(MISC_SYSVIPC_DIR)/%.c,$(CSRC))
+MISC_SYSVIPC_OBJ := $(patsubst %.c,$(MISC_SYSVIPC_OUT)/%.o,$(CSRC))
 
-MISC_SYSVIPC_NO_MULTI:=$(MOBJ1) $(MOBJ3)
+libc-y += $(MISC_SYSVIPC_OBJ)
 
-MISC_SYSVIPC_MSRC1:=$(patsubst %.c,$(MISC_SYSVIPC_DIR)/%.c,$(MSRC1))
-MISC_SYSVIPC_MSRC2:=$(patsubst %.c,$(MISC_SYSVIPC_DIR)/%.c,$(MSRC2))
-MISC_SYSVIPC_MSRC3:=$(patsubst %.c,$(MISC_SYSVIPC_DIR)/%.c,$(MSRC3))
-MISC_SYSVIPC_MOBJ1:=$(patsubst %.o,$(MISC_SYSVIPC_OUT)/%.o,$(MOBJ1))
-MISC_SYSVIPC_MOBJ2:=$(patsubst %.o,$(MISC_SYSVIPC_OUT)/%.o,$(MOBJ2))
-MISC_SYSVIPC_MOBJ3:=$(patsubst %.o,$(MISC_SYSVIPC_OUT)/%.o,$(MOBJ3))
-
-MISC_SYSVIPC_MSRC:=$(MISC_SYSVIPC_MSRC1) $(MISC_SYSVIPC_MSRC2) $(MISC_SYSVIPC_MSRC3)
-MISC_SYSVIPC_MOBJ:=$(MISC_SYSVIPC_MOBJ1) $(MISC_SYSVIPC_MOBJ2) $(MISC_SYSVIPC_MOBJ3)
-
-MISC_SYSVIPC_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_SYSVIPC_MOBJ))))
-
-MISC_SYSVIPC_OBJS:=$(MISC_SYSVIPC_OBJ) $(MISC_SYSVIPC_MOBJ)
-
-$(MISC_SYSVIPC_MOBJ1): $(MISC_SYSVIPC_MSRC1)
-	$(compile.m)
-
-$(MISC_SYSVIPC_MOBJ1:.o=.os): $(MISC_SYSVIPC_MSRC1)
-	$(compile.m)
-
-$(MISC_SYSVIPC_MOBJ2): $(MISC_SYSVIPC_MSRC2)
-	$(compile.m)
-
-$(MISC_SYSVIPC_MOBJ2:.o=.os): $(MISC_SYSVIPC_MSRC2)
-	$(compile.m)
-
-$(MISC_SYSVIPC_MOBJ3): $(MISC_SYSVIPC_MSRC3)
-	$(compile.m)
-
-$(MISC_SYSVIPC_MOBJ3:.o=.os): $(MISC_SYSVIPC_MSRC3)
-	$(compile.m)
-
-libc-a-y+=$(MISC_SYSVIPC_OBJS)
-libc-so-y+=$(MISC_SYSVIPC_OBJS:.o=.os)
-
-CFLAGS-multi-y+=$(MISC_SYSVIPC_DEF)
-libc-multi-y+=$(MISC_SYSVIPC_SRC) $(MISC_SYSVIPC_MSRC)
-
-objclean-y+=misc_sysvipc_objclean
+objclean-y += misc_sysvipc_objclean
 
 misc_sysvipc_objclean:
 	$(RM) $(MISC_SYSVIPC_OUT)/*.{o,os}

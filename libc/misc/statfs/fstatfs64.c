@@ -17,24 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-#undef __fstatfs64
-#undef __fstatfs
-
-#ifdef __UCLIBC_HAS_LFS__
-
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
-#undef _FILE_OFFSET_BITS
-#define	_FILE_OFFSET_BITS   64
-#endif
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64	1
-#endif
-/* We absolutely do _NOT_ want interfaces silently
- * renamed under us or very bad things will happen... */
-#ifdef __USE_FILE_OFFSET64
-# undef __USE_FILE_OFFSET64
-#endif
+#include <_lfs_64.h>
 
 #include <errno.h>
 #include <string.h>
@@ -42,13 +25,16 @@
 #include <sys/statvfs.h>
 #include <stddef.h>
 
-#undef fstatfs64
+libc_hidden_proto(memcpy)
+libc_hidden_proto(fstatfs)
+
 /* Return information about the filesystem on which FD resides.  */
-int attribute_hidden __fstatfs64 (int fd, struct statfs64 *buf)
+libc_hidden_proto(fstatfs64)
+int fstatfs64 (int fd, struct statfs64 *buf)
 {
     struct statfs buf32;
 
-    if (__fstatfs (fd, &buf32) < 0)
+    if (fstatfs (fd, &buf32) < 0)
 	return -1;
 
     buf->f_type = buf32.f_type;
@@ -60,10 +46,8 @@ int attribute_hidden __fstatfs64 (int fd, struct statfs64 *buf)
     buf->f_ffree = buf32.f_ffree;
     buf->f_fsid = buf32.f_fsid;
     buf->f_namelen = buf32.f_namelen;
-    __memcpy (buf->f_spare, buf32.f_spare, sizeof (buf32.f_spare));
+    memcpy (buf->f_spare, buf32.f_spare, sizeof (buf32.f_spare));
 
     return 0;
 }
-strong_alias(__fstatfs64,fstatfs64)
-
-#endif /* __UCLIBC_HAS_LFS__ */
+libc_hidden_def(fstatfs64)

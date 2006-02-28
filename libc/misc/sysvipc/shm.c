@@ -17,8 +17,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-/* SHMLBA uses it */
-#define __getpagesize __getpagesize_internal
+/* SHMLBA uses it on most of the archs (not mips) */
+#define __getpagesize getpagesize
 
 #include <stdlib.h>
 #include <errno.h>
@@ -30,12 +30,16 @@
 /* Attach the shared memory segment associated with SHMID to the data
    segment of the calling process.  SHMADDR and SHMFLG determine how
    and where the segment is attached.  */
-#if defined (__alpha__)
-#define __NR_shmat  __NR_osf_shmat
+#if defined(__NR_osf_shmat)
+# define __NR_shmat  __NR_osf_shmat
 #endif
 #ifdef __NR_shmat
 _syscall3(void *, shmat, int, shmid, const void *,shmaddr, int, shmflg);
 #else
+/* psm: don't remove this, else mips will fail */
+#include <unistd.h>
+libc_hidden_proto(getpagesize)
+
 void * shmat (int shmid, const void *shmaddr, int shmflg)
 {
     int retval;
@@ -52,7 +56,7 @@ void * shmat (int shmid, const void *shmaddr, int shmflg)
 /* Provide operations to control over shared memory segments.  */
 #ifdef __NR_shmctl
 #define __NR___libc_shmctl __NR_shmctl
-_syscall3(int, __libc_shmctl, int, shmid, int, cmd, struct shmid_ds *, buf);
+static inline _syscall3(int, __libc_shmctl, int, shmid, int, cmd, struct shmid_ds *, buf);
 #endif
 int shmctl(int shmid, int cmd, struct shmid_ds *buf)
 {

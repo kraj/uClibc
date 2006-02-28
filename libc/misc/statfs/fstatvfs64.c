@@ -17,22 +17,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
+#include <_lfs_64.h>
 
-#ifdef __UCLIBC_HAS_LFS__
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
-#undef _FILE_OFFSET_BITS
-#define	_FILE_OFFSET_BITS   64
-#endif
-#ifndef __USE_FILE_OFFSET64
-# define __USE_FILE_OFFSET64	1
-#endif
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64	1
-#endif
-#endif
-
-#define __USE_GNU
 #include <errno.h>
 #include <mntent.h>
 #include <paths.h>
@@ -42,16 +28,29 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 
-int fstatvfs (int fd, struct statvfs *buf)
+libc_hidden_proto(memset)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strsep)
+libc_hidden_proto(setmntent)
+libc_hidden_proto(getmntent_r)
+libc_hidden_proto(endmntent)
+
+#undef stat
+#define stat stat64
+libc_hidden_proto(fstatfs64)
+libc_hidden_proto(fstat64)
+libc_hidden_proto(stat64)
+
+int fstatvfs64 (int fd, struct statvfs64 *buf)
 {
-    struct statfs fsbuf;
-    struct stat st;
+    struct statfs64 fsbuf;
+    struct stat64 st;
 
     /* Get as much information as possible from the system.  */
-    if (__fstatfs (fd, &fsbuf) < 0)
+    if (fstatfs64 (fd, &fsbuf) < 0)
 	return -1;
 
-#define STAT(st) __fstat (fd, st)
+#define STAT(st) fstat64 (fd, st)
 #include "internal_statvfs.c"
 
     /* We signal success if the statfs call succeeded.  */

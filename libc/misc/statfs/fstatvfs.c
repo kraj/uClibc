@@ -18,8 +18,6 @@
    02111-1307 USA.  */
 
 #include <features.h>
-
-#define __USE_GNU
 #include <errno.h>
 #include <mntent.h>
 #include <paths.h>
@@ -29,16 +27,27 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 
+libc_hidden_proto(memset)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strsep)
+libc_hidden_proto(setmntent)
+libc_hidden_proto(getmntent_r)
+libc_hidden_proto(endmntent)
+
+libc_hidden_proto(fstatfs)
+libc_hidden_proto(fstat)
+libc_hidden_proto(stat)
+
 int fstatvfs (int fd, struct statvfs *buf)
 {
     struct statfs fsbuf;
     struct stat st;
 
     /* Get as much information as possible from the system.  */
-    if (__fstatfs (fd, &fsbuf) < 0)
+    if (fstatfs (fd, &fsbuf) < 0)
 	return -1;
 
-#define STAT(st) __fstat (fd, st)
+#define STAT(st) fstat (fd, st)
 #include "internal_statvfs.c"
 
     /* We signal success if the statfs call succeeded.  */
