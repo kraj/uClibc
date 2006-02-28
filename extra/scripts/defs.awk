@@ -23,5 +23,5 @@ END {
 	print "#define ALIGN";
 
     print "#include <libc-symbols.h>";
-    print "weak_extern (__gmon_start__)";
+    #print "weak_extern (__gmon_start__)";
 }
