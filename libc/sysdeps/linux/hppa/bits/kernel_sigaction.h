@@ -1,3 +1,6 @@
+#ifndef _BITS_SIGACTION_STRUCT_H
+#define _BITS_SIGACTION_STRUCT_H
+
 /* We have a separate header file here because we do not support
    SA_RESTORER on hppa. */
 
@@ -18,4 +21,6 @@ struct kernel_sigaction {
 };
 
 extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
-	struct kernel_sigaction *__unbounded, size_t);
+	struct kernel_sigaction *__unbounded, size_t) attribute_hidden;
+
+#endif

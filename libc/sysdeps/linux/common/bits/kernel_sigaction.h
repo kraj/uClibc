@@ -1,5 +1,5 @@
-#ifndef _BITS_STAT_STRUCT_H
-#define _BITS_STAT_STRUCT_H
+#ifndef _BITS_SIGACTION_STRUCT_H
+#define _BITS_SIGACTION_STRUCT_H
 
 /* This file provides whatever this particular arch's kernel thinks 
  * the sigaction struct should look like... */
@@ -59,10 +59,10 @@ struct kernel_sigaction {
 
 #ifndef NO_OLD_SIGACTION
 extern int __syscall_sigaction (int, const struct old_kernel_sigaction *__unbounded,
-	struct old_kernel_sigaction *__unbounded);
+	struct old_kernel_sigaction *__unbounded) attribute_hidden;
 #endif
 
 extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
-	struct kernel_sigaction *__unbounded, size_t);
+	struct kernel_sigaction *__unbounded, size_t) attribute_hidden;
 
-#endif /* _BITS_STAT_STRUCT_H */
+#endif /* _BITS_SIGACTION_STRUCT_H */

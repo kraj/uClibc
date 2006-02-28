@@ -1,3 +1,6 @@
+#ifndef _BITS_SIGACTION_STRUCT_H
+#define _BITS_SIGACTION_STRUCT_H
+
 /* This is the sigaction struction from the Linux 2.1.20 kernel.  */
 
 struct old_kernel_sigaction {
@@ -15,4 +18,6 @@ struct kernel_sigaction {
 };
 
 extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
-	struct kernel_sigaction *__unbounded, size_t);
+	struct kernel_sigaction *__unbounded, size_t) attribute_hidden;
+
+#endif
