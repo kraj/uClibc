@@ -2,25 +2,36 @@
 /*
  * getgroups() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-
-#define sysconf __sysconf
 
 #include "syscalls.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <grp.h>
 
+libc_hidden_proto(getgroups)
+
+#if defined(__NR_getgroups32)
+# undef __NR_getgroups
+# define __NR_getgroups __NR_getgroups32
+_syscall2(int, getgroups, int, size, gid_t *, list);
+
+#elif __WORDSIZE == 64
+_syscall2(int, getgroups, int, size, gid_t *, list);
+
+#else
+
+libc_hidden_proto(sysconf)
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 #define __NR___syscall_getgroups __NR_getgroups
 static inline _syscall2(int, __syscall_getgroups,
 		int, size, __kernel_gid_t *, list);
 
-int attribute_hidden __getgroups(int size, gid_t groups[])
+int getgroups(int size, gid_t groups[])
 {
 	if (unlikely(size < 0)) {
 ret_error:
@@ -47,4 +58,6 @@ ret_error:
 		return ngids;
 	}
 }
-strong_alias(__getgroups,getgroups)
+#endif
+
+libc_hidden_def(getgroups)

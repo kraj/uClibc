@@ -3,16 +3,18 @@
  * posix_fadvise() for uClibc
  * http://www.opengroup.org/onlinepubs/009695399/functions/posix_fadvise.html
  *
- * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-/* need to hide the posix_fadvise64 prototype or the weak_alias()
+/* need to hide the 64bit prototype or the strong_alias()
  * will fail when __NR_fadvise64_64 doesnt exist */
-#define posix_fadvise64 __hide_posix_fadvise64
+#define posix_fadvise64 __hideposix_fadvise64
+
 #include "syscalls.h"
 #include <fcntl.h>
+
 #undef posix_fadvise64
 
 #ifdef __NR_fadvise64
@@ -21,7 +23,8 @@ _syscall4(int, posix_fadvise, int, fd, off_t, offset,
           off_t, len, int, advice);
 
 #if defined __UCLIBC_HAS_LFS__ && (!defined __NR_fadvise64_64 || !defined _syscall6)
-weak_alias(posix_fadvise, posix_fadvise64)
+extern __typeof(posix_fadvise) posix_fadvise64;
+strong_alias(posix_fadvise,posix_fadvise64)
 #endif
 
 #else

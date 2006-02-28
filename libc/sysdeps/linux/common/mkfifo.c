@@ -20,12 +20,12 @@
                     by Erik Andersen <andersee@debian.org>
  */
 
-#define mknod __mknod
-
 #include <errno.h>
 #include <stddef.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
+libc_hidden_proto(mknod)
 
 /* Create a named pipe (FIFO) named PATH with protections MODE.  */
 int

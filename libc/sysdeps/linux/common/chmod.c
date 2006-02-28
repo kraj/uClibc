@@ -2,19 +2,21 @@
 /*
  * chmod() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <sys/stat.h>
 
+libc_hidden_proto(chmod)
+
 #define __NR___syscall_chmod __NR_chmod
 static inline _syscall2(int, __syscall_chmod, const char *, path, __kernel_mode_t, mode);
 
-int attribute_hidden __chmod(const char *path, mode_t mode)
+int chmod(const char *path, mode_t mode)
 {
 	return __syscall_chmod(path, mode);
 }
-strong_alias(__chmod,chmod)
+libc_hidden_def(chmod)

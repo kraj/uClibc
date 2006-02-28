@@ -2,21 +2,25 @@
 /*
  * alarm() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-
-#define setitimer __setitimer
 
 #include "syscalls.h"
 #include <unistd.h>
+
+libc_hidden_proto(alarm)
+
 #ifdef __NR_alarm
 #define __NR___alarm __NR_alarm
-attribute_hidden _syscall1(unsigned int, __alarm, unsigned int, seconds);
+_syscall1(unsigned int, alarm, unsigned int, seconds);
 #else
 #include <sys/time.h>
-unsigned int attribute_hidden __alarm(unsigned int seconds)
+
+libc_hidden_proto(setitimer)
+
+unsigned int alarm(unsigned int seconds)
 {
 	struct itimerval old, new;
 	unsigned int retval;
@@ -35,4 +39,4 @@ unsigned int attribute_hidden __alarm(unsigned int seconds)
 	return retval;
 }
 #endif
-strong_alias(__alarm,alarm)
+libc_hidden_def(alarm)

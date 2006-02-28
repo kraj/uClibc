@@ -2,22 +2,7 @@
 /* Syscalls for uClibc
  *
  * Copyright (C) 2000 by Lineo, inc. and Erik Andersen
- * Copyright (C) 2000,2001 by Erik Andersen <andersen@uclibc.org>
- * Written by Erik Andersen <andersen@uclibc.org>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Library General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License
- * for more details.
- *
- * You should have received a copy of the GNU Library General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  */
 
 #include <errno.h>
@@ -26,14 +11,12 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-
 #ifdef __NR_create_module
 
-#if defined(__i386__) || defined(__m68k__) || defined(__arm__) || defined(__thumb__) || defined(__cris__) || defined(__i960__)
+unsigned long create_module(const char *name, size_t size);
+
+#if defined(__UCLIBC_BROKEN_CREATE_MODULE__)
 # define __NR___create_module  __NR_create_module
-# ifdef __STR_NR_create_module
-#  define __STR_NR___create_module  __STR_NR_create_module
-# endif
 static inline _syscall2(long, __create_module, const char *, name, size_t, size);
 /* By checking the value of errno, we know if we have been fooled 
  * by the syscall2 macro making a very high address look like a 
@@ -49,7 +32,7 @@ unsigned long create_module(const char *name, size_t size)
 	}
 	return ret;
 }
-#elif defined(__alpha__)
+#elif defined(__UCLIBC_SLIGHTLY_BROKEN_CREATE_MODULE__)
 # define __NR___create_module  __NR_create_module
 /* Alpha doesn't have the same problem, exactly, but a bug in older
    kernels fails to clear the error flag.  Clear it here explicitly.  */
@@ -65,6 +48,7 @@ _syscall2(unsigned long, create_module, const char *, name, size_t, size);
 #endif
 
 #else /* !__NR_create_module */
+caddr_t create_module(const char *name attribute_unused, size_t size attribute_unused);
 caddr_t create_module(const char *name attribute_unused, size_t size attribute_unused)
 {
 	__set_errno(ENOSYS);

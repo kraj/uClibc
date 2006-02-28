@@ -2,19 +2,28 @@
 /*
  * setresuid() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
+#ifdef __USE_GNU
+#include <unistd.h>
 
-#ifdef __NR_setresuid
-#define __NR___syscall_setresuid __NR_setresuid
+libc_hidden_proto(setresuid)
+
+#if defined(__NR_setresuid32)
+# undef __NR_setresuid
+# define __NR_setresuid __NR_setresuid32
+_syscall3(int, setresuid, uid_t, ruid, uid_t, euid, uid_t, suid)
+
+#elif defined(__NR_setresuid)
+# define __NR___syscall_setresuid __NR_setresuid
 static inline _syscall3(int, __syscall_setresuid,
 		__kernel_uid_t, rgid, __kernel_uid_t, egid, __kernel_uid_t, sgid);
 
-int attribute_hidden __setresuid(uid_t ruid, uid_t euid, uid_t suid)
+int setresuid(uid_t ruid, uid_t euid, uid_t suid)
 {
 	if (((ruid + 1) > (uid_t) ((__kernel_uid_t) - 1U))
 		|| ((euid + 1) > (uid_t) ((__kernel_uid_t) - 1U))
@@ -24,5 +33,7 @@ int attribute_hidden __setresuid(uid_t ruid, uid_t euid, uid_t suid)
 	}
 	return (__syscall_setresuid(ruid, euid, suid));
 }
-strong_alias(__setresuid,setresuid)
+#endif
+
+libc_hidden_def(setresuid)
 #endif

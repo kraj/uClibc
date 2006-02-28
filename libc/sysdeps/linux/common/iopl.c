@@ -2,13 +2,14 @@
 /*
  * iopl() for uClibc
  *
- * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
-/* Tuns out the m68k unistd.h kernel header is broken */
-#if defined __ARCH_HAS_MMU__ && defined __NR_iopl && ( !defined(__mc68000__))
+#if defined __ARCH_USE_MMU__ && defined __NR_iopl
+/* psm: can't #include <sys/io.h>, some archs miss it */
+extern int iopl(int __level) __THROW;
 _syscall1(int, iopl, int, level);
 #endif

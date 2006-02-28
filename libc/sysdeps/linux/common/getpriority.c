@@ -2,13 +2,15 @@
 /*
  * getpriority() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <sys/resource.h>
+
+libc_hidden_proto(getpriority)
 
 #define __NR___syscall_getpriority __NR_getpriority
 static inline _syscall2(int, __syscall_getpriority,
@@ -17,7 +19,7 @@ static inline _syscall2(int, __syscall_getpriority,
 /* The return value of __syscall_getpriority is biased by this value
  * to avoid returning negative values.  */
 #define PZERO 20
-int attribute_hidden __getpriority(enum __priority_which which, id_t who)
+int getpriority(__priority_which_t which, id_t who)
 {
 	int res;
 
@@ -26,4 +28,4 @@ int attribute_hidden __getpriority(enum __priority_which which, id_t who)
 		res = PZERO - res;
 	return res;
 }
-strong_alias(__getpriority,getpriority)
+libc_hidden_def(getpriority)

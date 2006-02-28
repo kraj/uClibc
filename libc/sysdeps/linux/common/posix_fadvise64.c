@@ -3,9 +3,9 @@
  * posix_fadvise64() for uClibc
  * http://www.opengroup.org/onlinepubs/009695399/functions/posix_fadvise.html
  *
- * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include <features.h>
@@ -52,7 +52,7 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 #endif
 
 #elif !defined __NR_fadvise64
-/* This is declared as a weak alias in posix_fadvise.c if __NR_fadvise64
+/* This is declared as a strong alias in posix_fadvise.c if __NR_fadvise64
  * is defined.
  */
 int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)

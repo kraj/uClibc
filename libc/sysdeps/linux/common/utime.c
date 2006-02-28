@@ -2,23 +2,26 @@
 /*
  * utime() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-
-#define utimes __utimes
-#define gettimeofday __gettimeofday
 
 #include "syscalls.h"
 #include <utime.h>
+
+libc_hidden_proto(utime)
+
 #ifdef __NR_utime
-#define __NR___utime __NR_utime
-attribute_hidden _syscall2(int, __utime, const char *, file, const struct utimbuf *, times);
+attribute_hidden _syscall2(int, utime, const char *, file, const struct utimbuf *, times);
 #else
 #include <stdlib.h>
 #include <sys/time.h>
-int attribute_hidden __utime(const char *file, const struct utimbuf *times)
+
+libc_hidden_proto(utimes)
+libc_hidden_proto(gettimeofday)
+
+int utime(const char *file, const struct utimbuf *times)
 {
 	struct timeval timevals[2];
 
@@ -36,4 +39,4 @@ int attribute_hidden __utime(const char *file, const struct utimbuf *times)
 	return utimes(file, timevals);
 }
 #endif
-strong_alias(__utime,utime)
+libc_hidden_def(utime)

@@ -41,9 +41,7 @@
 
 #define __LOCALE_C_ONLY 
 
-#define __XL(N) N
 #define __XL_NPP(N) N
-#define __XL_ALIAS(N)
 #define __LOCALE_PARAM
 #define __LOCALE_ARG
 
@@ -361,18 +359,14 @@ extern __locale_t __curlocale_set(__locale_t newloc);
 /**********************************************************************/
 #if defined(__UCLIBC_HAS_XLOCALE__) && defined(__UCLIBC_DO_XLOCALE)
 
-#define __XL(N) __ ## N ## _l
 #define __XL_NPP(N) N ## _l
-#define __XL_ALIAS(N) weak_alias( __ ## N ## _l , N ## _l )
 #define __LOCALE_PARAM    , __locale_t locale_arg
 #define __LOCALE_ARG      , locale_arg
 #define __LOCALE_PTR      locale_arg
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && defined(__UCLIBC_DO_XLOCALE) */
 
-#define __XL(N) N
 #define __XL_NPP(N) N
-#define __XL_ALIAS(N)
 #define __LOCALE_PARAM
 #define __LOCALE_ARG
 #define __LOCALE_PTR      __UCLIBC_CURLOCALE

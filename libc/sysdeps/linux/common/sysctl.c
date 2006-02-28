@@ -2,12 +2,16 @@
 /*
  * _sysctl() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
+/* psm: including sys/sysctl.h would depend on kernel headers */
+extern int sysctl (int *__name, int __nlen, void *__oldval,
+		   size_t *__oldlenp, void *__newval, size_t __newlen) __THROW;
+
 struct __sysctl_args {
 	int *name;
 	int nlen;

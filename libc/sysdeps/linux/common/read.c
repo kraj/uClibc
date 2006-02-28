@@ -2,15 +2,17 @@
 /*
  * read() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
 
-#define __NR___read __NR_read
-attribute_hidden _syscall3(ssize_t, __read, int, fd, __ptr_t, buf, size_t, count);
-strong_alias(__read,read)
-weak_alias(__read,__libc_read)
+extern __typeof(read) __libc_read;
+#define __NR___libc_read __NR_read
+_syscall3(ssize_t, __libc_read, int, fd, __ptr_t, buf, size_t, count);
+libc_hidden_proto(read)
+weak_alias(__libc_read,read)
+libc_hidden_weak(read)

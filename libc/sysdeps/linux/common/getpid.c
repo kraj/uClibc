@@ -2,19 +2,20 @@
 /*
  * getpid() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@codepoet.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
 
-#if defined (__alpha__)
-#define __NR___getpid __NR_getxpid
+extern __typeof(getpid) __libc_getpid;
+#if defined __NR_getxpid
+# define __NR_getpid __NR_getxpid
 #endif
-#define __NR___getpid __NR_getpid
-attribute_hidden _syscall0(pid_t, __getpid);
-strong_alias(__getpid, getpid)
-/* not used in libpthread */
-/* weak_alias(__getpid, __libc_getpid) */
+#define __NR___libc_getpid __NR_getpid
+_syscall0(pid_t, __libc_getpid);
+libc_hidden_proto(getpid)
+weak_alias(__libc_getpid, getpid)
+libc_hidden_weak(getpid)

@@ -2,20 +2,22 @@
 /*
  * ioctl() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <stdarg.h>
 #include <sys/ioctl.h>
 
+libc_hidden_proto(ioctl)
+
 #define __NR___syscall_ioctl __NR_ioctl
 static inline
 _syscall3(int, __syscall_ioctl, int, fd, unsigned long int, request, void *, arg);
 
-int attribute_hidden __ioctl(int fd, unsigned long int request, ...)
+int ioctl(int fd, unsigned long int request, ...)
 {
     void *arg;
     va_list list;
@@ -26,4 +28,4 @@ int attribute_hidden __ioctl(int fd, unsigned long int request, ...)
     va_end(list);
     return __syscall_ioctl(fd, request, arg);
 }
-strong_alias(__ioctl,ioctl)
+libc_hidden_def(ioctl)

@@ -1,8 +1,10 @@
 /* 
- * Distributed under the terms of the GNU General Public License v2
- * $Header: /var/cvs/uClibc/libc/sysdeps/linux/common/xattr.c,v 1.2 2004/12/22 19:53:11 andersen Exp $
+ * Copyright (C) 2004 <solar@gentoo.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * This file provides the following Extended Attribute system calls to uClibc.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+/* This file provides the following Extended Attribute system calls to uClibc.
  *
  *	setxattr(), lsetxattr(), fsetxattr(),
  *	getxattr(), lgetxattr(), fgetxattr(),
@@ -21,6 +23,7 @@
 
 #include "syscalls.h"
 #include <unistd.h>
+#include <sys/xattr.h>
 
 /* sets */
 #ifdef __NR_setxattr
@@ -120,7 +123,7 @@ ssize_t llistxattr(__const char *__path, char *__list, size_t __size)
 #endif
 
 #ifdef __NR_flistxattr
-_syscall3(size_t, flistxattr, int, filedes, char *, list, size_t, size);
+_syscall3(ssize_t, flistxattr, int, filedes, char *, list, size_t, size);
 #else
 ssize_t flistxattr(int __fd, char *__list, size_t __size)
 {

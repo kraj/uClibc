@@ -2,13 +2,15 @@
 /*
  * uname() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <sys/utsname.h>
-#define __NR___uname __NR_uname
-attribute_hidden _syscall1(int, __uname, struct utsname *, buf);
-strong_alias(__uname,uname)
+
+libc_hidden_proto(uname)
+
+_syscall1(int, uname, struct utsname *, buf);
+libc_hidden_def(uname)

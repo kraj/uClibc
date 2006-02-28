@@ -2,14 +2,16 @@
 /*
  * setitimer() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <sys/time.h>
-#define __NR___setitimer __NR_setitimer
-attribute_hidden _syscall3(int, __setitimer, __itimer_which_t, which,
+
+libc_hidden_proto(setitimer)
+
+_syscall3(int, setitimer, __itimer_which_t, which,
 		  const struct itimerval *, new, struct itimerval *, old);
-strong_alias(__setitimer,setitimer)
+libc_hidden_def(setitimer)

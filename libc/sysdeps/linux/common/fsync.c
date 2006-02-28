@@ -2,14 +2,15 @@
 /*
  * fsync() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
 
+extern __typeof(fsync) __libc_fsync;
 #define __NR___libc_fsync __NR_fsync
 _syscall1(int, __libc_fsync, int, fd);
 weak_alias(__libc_fsync, fsync)

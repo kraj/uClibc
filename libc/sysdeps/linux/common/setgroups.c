@@ -2,23 +2,35 @@
 /*
  * setgroups() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-
-#define sysconf __sysconf
 
 #include "syscalls.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <grp.h>
 
+libc_hidden_proto(setgroups)
+
+#if defined(__NR_setgroups32)
+# undef __NR_setgroups
+# define __NR_setgroups __NR_setgroups32
+_syscall2(int, setgroups, size_t, size, const gid_t *, list);
+
+#elif __WORDSIZE == 64
+_syscall2(int, setgroups, size_t, size, const gid_t *, list);
+
+#else
+
+libc_hidden_proto(sysconf)
+
 #define __NR___syscall_setgroups __NR_setgroups
 static inline _syscall2(int, __syscall_setgroups,
 		size_t, size, const __kernel_gid_t *, list);
 
-int attribute_hidden __setgroups(size_t size, const gid_t *groups)
+int setgroups(size_t size, const gid_t *groups)
 {
 	if (size > (size_t) sysconf(_SC_NGROUPS_MAX)) {
 ret_error:
@@ -47,4 +59,6 @@ ret_error:
 		return i;
 	}
 }
-strong_alias(__setgroups,setgroups)
+#endif
+
+libc_hidden_def(setgroups)

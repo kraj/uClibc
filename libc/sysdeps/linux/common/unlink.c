@@ -2,13 +2,15 @@
 /*
  * unlink() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
-#define __NR___unlink __NR_unlink
-attribute_hidden _syscall1(int, __unlink, const char *, pathname);
-strong_alias(__unlink,unlink)
+
+libc_hidden_proto(unlink)
+
+_syscall1(int, unlink, const char *, pathname);
+libc_hidden_def(unlink)

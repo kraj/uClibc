@@ -2,19 +2,21 @@
 /*
  * setregid() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
 
+libc_hidden_proto(setregid)
+
 #define __NR___syscall_setregid __NR_setregid
 static inline _syscall2(int, __syscall_setregid,
 		__kernel_gid_t, rgid, __kernel_gid_t, egid);
 
-int attribute_hidden __setregid(gid_t rgid, gid_t egid)
+int setregid(gid_t rgid, gid_t egid)
 {
 	if (((rgid + 1) > (gid_t) ((__kernel_gid_t) - 1U))
 		|| ((egid + 1) > (gid_t) ((__kernel_gid_t) - 1U))) {
@@ -23,4 +25,4 @@ int attribute_hidden __setregid(gid_t rgid, gid_t egid)
 	}
 	return (__syscall_setregid(rgid, egid));
 }
-strong_alias(__setregid,setregid)
+libc_hidden_def(setregid)

@@ -2,25 +2,25 @@
 /*
  * fstat64() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fstat64
-#define __NR___syscall_fstat64 __NR_fstat64
 #include <unistd.h>
 #include <sys/stat.h>
-#include <bits/kernel_stat.h>
 #include "xstatconv.h"
 
+libc_hidden_proto(fstat64)
+
+#define __NR___syscall_fstat64 __NR_fstat64
 static inline _syscall2(int, __syscall_fstat64,
 		int, filedes, struct kernel_stat64 *, buf);
 
-#undef fstat64
-int attribute_hidden __fstat64(int fd, struct stat64 *buf)
+int fstat64(int fd, struct stat64 *buf)
 {
 	int result;
 	struct kernel_stat64 kbuf;
@@ -31,6 +31,5 @@ int attribute_hidden __fstat64(int fd, struct stat64 *buf)
 	}
 	return result;
 }
-strong_alias(__fstat64,fstat64)
-
-#endif							/* __UCLIBC_HAS_LFS__ */
+libc_hidden_def(fstat64)
+#endif

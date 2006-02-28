@@ -2,25 +2,29 @@
 /*
  * lstat() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
+
+/* need to hide the 64bit prototype or the strong_alias()
+ * will fail when __NR_lstat64 doesnt exist */
+#define lstat64 __hidelstat64
 
 #include "syscalls.h"
 #include <unistd.h>
-#define _SYS_STAT_H
-#include <bits/stat.h>
-#include <bits/kernel_stat.h>
+#include <sys/stat.h>
 #include "xstatconv.h"
 
+#undef lstat64
+
+libc_hidden_proto(lstat)
+
 #define __NR___syscall_lstat __NR_lstat
-#undef __lstat
-#undef lstat
 static inline _syscall2(int, __syscall_lstat,
 		const char *, file_name, struct kernel_stat *, buf);
 
-int attribute_hidden __lstat(const char *file_name, struct stat *buf)
+int lstat(const char *file_name, struct stat *buf)
 {
 	int result;
 	struct kernel_stat kbuf;
@@ -31,8 +35,11 @@ int attribute_hidden __lstat(const char *file_name, struct stat *buf)
 	}
 	return result;
 }
-strong_alias(__lstat,lstat)
+libc_hidden_def(lstat)
 
 #if ! defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
-weak_alias(lstat,lstat64)
+extern __typeof(lstat) lstat64;
+libc_hidden_proto(lstat64)
+strong_alias(lstat,lstat64)
+libc_hidden_def(lstat64)
 #endif

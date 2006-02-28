@@ -1,15 +1,13 @@
 /*
- * truncate64 syscall.  Copes with 64 bit and 32 bit machines
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+/* truncate64 syscall.  Copes with 64 bit and 32 bit machines
  * and on 32 bit machines this sends things into the kernel as
  * two 32-bit arguments (high and low 32 bits of length) that 
  * are ordered based on endianess.  It turns out endian.h has
  * just the macro we need to order things, __LONG_LONG_PAIR.
- *
- *  Copyright (C) 2002  Erik Andersen <andersen@codepoet.org>
- *
- * This file is subject to the terms and conditions of the GNU
- * Lesser General Public License.  See the file COPYING.LIB in
- * the main directory of this archive for more details.
  */
 
 #include <features.h>
@@ -34,7 +32,7 @@ _syscall2(int, truncate64, const char *, path, __off64_t, length);
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_truncate64 (args)
 #define __NR___syscall_truncate64 __NR_truncate64
-#if defined(__powerpc__) || defined(__mips__)
+#if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
 static inline _syscall4(int, __syscall_truncate64, const char *, path,
 	uint32_t, pad, unsigned long, high_length, unsigned long, low_length);
 #else
@@ -49,7 +47,7 @@ int truncate64 (const char * path, __off64_t length)
 {
     uint32_t low = length & 0xffffffff;
     uint32_t high = length >> 32;
-#if defined(__powerpc__) || defined(__mips__)
+#if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
     return INLINE_SYSCALL(truncate64, 4, path, 0,
 	    __LONG_LONG_PAIR (high, low));
 #else
@@ -63,6 +61,8 @@ int truncate64 (const char * path, __off64_t length)
 #endif /* __WORDSIZE */
 
 #else  /* __NR_truncate64 */
+
+libc_hidden_proto(truncate)
 
 int truncate64 (const char * path, __off64_t length)
 {
@@ -80,4 +80,3 @@ int truncate64 (const char * path, __off64_t length)
 #endif /* __NR_truncate64 */
 
 #endif /* __UCLIBC_HAS_LFS__ */
-

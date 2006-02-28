@@ -2,15 +2,16 @@
 /*
  * msync() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
 #include <sys/mman.h>
 
+extern __typeof(msync) __libc_msync;
 #define __NR___libc_msync __NR_msync
 _syscall3(int, __libc_msync, void *, addr, size_t, length, int, flags);
-weak_alias(__libc_msync, msync)
+weak_alias(__libc_msync,msync)

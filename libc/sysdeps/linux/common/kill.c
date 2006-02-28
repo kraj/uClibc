@@ -2,20 +2,21 @@
 /*
  * kill() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <signal.h>
 
-#undef kill
+libc_hidden_proto(kill)
+
 #define __NR___syscall_kill __NR_kill
 static inline _syscall2(int, __syscall_kill, __kernel_pid_t, pid, int, sig);
 
-int attribute_hidden __kill(pid_t pid, int sig)
+int kill(pid_t pid, int sig)
 {
 	return (__syscall_kill(pid, sig));
 }
-strong_alias(__kill,kill)
+libc_hidden_def(kill)

@@ -2,15 +2,17 @@
 /*
  * close() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
 
-#define __NR___close __NR_close
-attribute_hidden _syscall1(int, __close, int, fd);
-strong_alias(__close,close)
-weak_alias(__close,__libc_close)
+extern __typeof(close) __libc_close;
+#define __NR___libc_close __NR_close
+_syscall1(int, __libc_close, int, fd);
+libc_hidden_proto(close)
+weak_alias(__libc_close,close)
+libc_hidden_weak(close)

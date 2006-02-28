@@ -20,10 +20,12 @@
 #include <setjmp.h>
 #include <signal.h>
 
+libc_hidden_proto(sigprocmask)
 
-extern void __longjmp (__jmp_buf __env, int val);
+extern void __longjmp (__jmp_buf __env, int __val) attribute_noreturn;
+libc_hidden_proto(__longjmp)
 
-
+extern __typeof(longjmp) __libc_longjmp attribute_noreturn;
 /* Set the signal mask to the one specified in ENV, and jump
    to the position specified in ENV, causing the setjmp
    call there to return VAL, or 1 if VAL is 0.  */
@@ -36,14 +38,14 @@ void __libc_longjmp (sigjmp_buf env, int val)
 
   if (env[0].__mask_was_saved)
     /* Restore the saved signal mask.  */
-    (void) __sigprocmask (SIG_SETMASK, &env[0].__saved_mask,
+    (void) sigprocmask (SIG_SETMASK, &env[0].__saved_mask,
 			  (sigset_t *) NULL);
 
   /* Call the machine-dependent function to restore machine state.  */
   __longjmp (env[0].__jmpbuf, val ?: 1);
 }
 
-weak_alias (__libc_longjmp, longjmp)
-weak_alias (__libc_longjmp, _longjmp)
-weak_alias (__libc_longjmp, siglongjmp)
-weak_alias (__libc_longjmp, __libc_siglongjmp)
+weak_alias(__libc_longjmp,longjmp)
+weak_alias(__libc_longjmp,siglongjmp)
+strong_alias(__libc_longjmp,__libc_siglongjmp)
+strong_alias(__libc_longjmp,_longjmp)

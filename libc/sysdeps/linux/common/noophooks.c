@@ -21,6 +21,8 @@
 #include <libc-internal.h>
 
 void
+__cyg_profile_func_enter (attribute_unused void *this_fn, attribute_unused void *call_site);
+void
 __cyg_profile_func_enter (attribute_unused void *this_fn, attribute_unused void *call_site)
 {
 }

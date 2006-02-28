@@ -2,16 +2,18 @@
 /*
  * nanosleep() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <time.h>
 
+extern __typeof(nanosleep) __libc_nanosleep;
 #define __NR___libc_nanosleep __NR_nanosleep
 _syscall2(int, __libc_nanosleep, const struct timespec *, req,
 		  struct timespec *, rem);
-hidden_weak_alias(__libc_nanosleep,__nanosleep)
+libc_hidden_proto(nanosleep)
 weak_alias(__libc_nanosleep,nanosleep)
+libc_hidden_weak(nanosleep)

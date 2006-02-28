@@ -1,7 +1,9 @@
-#define setresuid __setresuid
-#define setreuid __setreuid
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
-#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
@@ -9,7 +11,14 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-int attribute_hidden __seteuid(uid_t uid)
+libc_hidden_proto(seteuid)
+
+#if defined __NR_setresuid || defined __NR_setresuid32
+libc_hidden_proto(setresuid)
+#endif
+libc_hidden_proto(setreuid)
+
+int seteuid(uid_t uid)
 {
     int result;
 
@@ -19,7 +28,7 @@ int attribute_hidden __seteuid(uid_t uid)
 	return -1;
     }
 
-#ifdef __NR_setresuid
+#if defined __NR_setresuid || defined __NR_setresuid32
     result = setresuid(-1, uid, -1);
     if (result == -1 && errno == ENOSYS)
 	/* Will also set the saved user ID if euid != uid,
@@ -29,4 +38,4 @@ int attribute_hidden __seteuid(uid_t uid)
 
     return result;
 }
-strong_alias(__seteuid,seteuid)
+libc_hidden_def(seteuid)
