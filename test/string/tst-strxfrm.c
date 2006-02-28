@@ -1,6 +1,6 @@
 /* Based on a test case by Paul Eggert.  */
 #include <features.h>
-#ifdef __UCLIBC_HAS_LOCALE__
+#ifdef __UCLIBC_HAS_XLOCALE__
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
