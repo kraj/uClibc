@@ -17,7 +17,7 @@
 *	R0=argc
 *	R1=argv
 *	R2=__init
-*   SP=__fini
+*	SP=__fini
 */
 
 #include <features.h>
