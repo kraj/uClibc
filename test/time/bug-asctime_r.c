@@ -1,3 +1,8 @@
+/* Note: we disable this on uClibc because we dont bother
+ * verifying if the year is sane ... we just return ????
+ * for the year value ...
+ */
+
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
