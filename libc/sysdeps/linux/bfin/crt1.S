@@ -6,7 +6,7 @@
  */
 
 /* When we enter this piece of code, the user stack looks like this:
-*      argc            argument counter (integer)
+* [SP] argc            argument counter (integer)
 *      argv[0]         program name (pointer)
 *      argv[1...N]     program args (pointers)
 *      NULL
@@ -15,8 +15,9 @@
 
 *   When we are done here, we want
 *	R0=argc
-*	R1=*argv[0]
-*	R2=*envp[0]
+*	R1=argv
+*	R2=__init
+*   SP=__fini
 */
 
 #include <features.h>
@@ -28,31 +29,20 @@
 .global ___uClibc_main;
 .type	___uClibc_main,STT_FUNC;
 
+#define __UCLIBC_CTOR_DTOR__
 #if defined(__UCLIBC_CTOR_DTOR__)
-.type   __init,%function
-.type   __fini,%function
-#else
-.weak   __init
-.weak   __fini
+.weak	__init;
+.weak	__fini;
 #endif
-
-/*
-	When we enter, our stack looks like:
-	[ SP ]
-	[argc][argv]...
-
-	Call ___uClibc_main(argc, argv, __init, __fini)
-	                     R0    R1     R2    stack
-
-	Before we call main, we want:
-	[ SP ]
-	[fini][argc][argv]
-*/
 
 __start:
 
-/*	clear the frame pointer */
+/*	clear the frame pointer and the L registers.  */
 	FP = 0;
+	L0 = 0;
+	L1 = 0;
+	L2 = 0;
+	L3 = 0;
 
 /*	Load register R0 (argc) from the stack to its final resting place */
 	P0 = SP;
@@ -61,14 +51,22 @@ __start:
 /*	Copy argv pointer into R1 */
 	R1 = P0;
 
+#if defined(__UCLIBC_CTOR_DTOR__)
 /*	Load __init into R2 */
-	R2 = __init;
+	R2.H = __init;
+	R2.L = __init;
 
 /*	Load __fini onto the stack */
-	P0 = __fini;
-	[SP--] = P0;
+	SP += -16;
+	R3.H = __fini;
+	R3.L = __fini;
+	[SP+12] = R3;
+#else
+/*	Just fixup the stack */
+	sp += -12;
+#endif
 
 /*	Ok, now run uClibc's main() -- shouldn't return */
-	sp += -8;
 	jump.l	___uClibc_main;
+
 .size __start,.-__start
