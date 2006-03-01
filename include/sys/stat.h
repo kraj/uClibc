@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,1992,1995-2004,2005 Free Software Foundation, Inc.
+/* Copyright (C) 1991,1992,1995-2004,2005,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -228,25 +228,28 @@ extern int stat64 (__const char *__restrict __file,
 extern int fstat64 (int __fd, struct stat64 *__buf) __THROW __nonnull ((2));
 #endif
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Similar to stat, get the attributes for FILE and put them in BUF.
    Relative path names are interpreted relative to FD unless FD is
    AT_FDCWD.  */
 # ifndef __USE_FILE_OFFSET64
-extern int fstatat (int __fd, __const char *__file, struct stat *__buf,
-		    int __flag) __THROW __nonnull ((2, 3));
+extern int fstatat (int __fd, __const char *__restrict __file,
+		    struct stat *__restrict __buf, int __flag)
+     __THROW __nonnull ((2, 3));
 # else
 #  ifdef __REDIRECT_NTH
-extern int __REDIRECT_NTH (fstatat, (int __fd, __const char *__file,
-				     struct stat *__buf, int __flag),
+extern int __REDIRECT_NTH (fstatat, (int __fd, __const char *__restrict __file,
+				     struct stat *__restrict __buf,
+				     int __flag),
 			   fstatat64) __nonnull ((2, 3));
 #  else
 #   define fstatat fstatat64
 #  endif
 # endif
 
-extern int fstatat64 (int __fd, __const char *__file, struct stat64 *__buf,
-		      int __flag) __THROW __nonnull ((2, 3));
+extern int fstatat64 (int __fd, __const char *__restrict __file,
+		      struct stat64 *__restrict __buf, int __flag)
+     __THROW __nonnull ((2, 3));
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
@@ -290,6 +293,14 @@ extern int lchmod (__const char *__file, __mode_t __mode)
 extern int fchmod (int __fd, __mode_t __mode) __THROW;
 #endif
 
+#ifdef __USE_ATFILE
+/* Set file access permissions of FILE relative to
+   the directory FD is open on.  */
+extern int fchmodat (int __fd, __const char *__file, __mode_t mode, int __flag)
+     __THROW __nonnull ((2)) __wur;
+#endif /* Use ATFILE.  */
+
+
 
 /* Set the file creation mask of the current process to MASK,
    and return the old creation mask.  */
@@ -305,7 +316,7 @@ extern __mode_t getumask (void) __THROW;
 extern int mkdir (__const char *__path, __mode_t __mode)
      __THROW __nonnull ((1));
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Like mkdir, create a new directory with permission bits MODE.  But
    interpret relative PATH names relative to the directory associated
    with FD.  */
@@ -321,7 +332,7 @@ extern int mknod (__const char *__path, __mode_t __mode, __dev_t __dev)
      __THROW __nonnull ((1));
 #endif
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Like mknod, create a new device file with permission bits MODE and
    device number DEV.  But interpret relative PATH names relative to
    the directory associated with FD.  */
@@ -334,13 +345,20 @@ extern int mknodat (int __fd, __const char *__path, __mode_t __mode,
 extern int mkfifo (__const char *__path, __mode_t __mode)
      __THROW __nonnull ((1));
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 /* Like mkfifo, create a new FIFO with permission bits MODE.  But
    interpret relative PATH names relative to the directory associated
    with FD.  */
 extern int mkfifoat (int __fd, __const char *__path, __mode_t __mode)
      __THROW __nonnull ((2));
 #endif
+
+/* on uClibc we have unversioned struct stat and mknod.
+ * bits/stat.h is filled with wrong info, so we undo it here.  */
+#undef _STAT_VER
+#define _STAT_VER 0
+#undef _MKNOD_VER
+#define _MKNOD_VER 0
 
 __END_DECLS
 
