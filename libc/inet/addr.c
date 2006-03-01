@@ -98,7 +98,6 @@ libc_hidden_def(inet_aton)
 #endif
 
 #ifdef L_inet_addr
-#include <arpa/inet.h>
 libc_hidden_proto(inet_aton)
 
 libc_hidden_proto(inet_addr)
