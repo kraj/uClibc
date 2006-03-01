@@ -22,8 +22,7 @@ TODO list for the uClibc 0.9.29 release:
     *) bug in getopt handling:
 	http://bugs.uclibc.org/view.php?id=61
 	http://www.uclibc.org/lists/uclibc/2006-January/013851.html
-    *)  Change all references to the older "Library GPL" to the "Lesser GPL"
-	and update COPYING.LIB to LGPL version 2.1.
+    *)  Change all references to the older "Library GPL" to the "Lesser GPL".
     *) fold NPTL branch back into trunk
     *) as many of the arch-specific issues as possible
 
@@ -32,6 +31,7 @@ TODO list for the uClibc 0.9.29 release:
 TODO list for the uClibc 1.0.0 release:
 -------------------------------------------------
     *) glob / fnmatch tests fail
+    *) regex should pass AT&T conformance tests
     *) Finish hiding uClibc internal symbols from our exported namespace.
     *) Explicity add some sortof CONFIG_LINUX_2_2_ABI, CONFIG_LINUX_2_4_ABI
 	and CONFIG_LINUX_2_6_ABI type options, rather than having the abi
