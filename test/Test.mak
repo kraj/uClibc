@@ -73,7 +73,7 @@ endef
 
 $(U_TARGETS):
 	$(showlink)
-	$(Q)$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$@) -c $@.c -o $@.o
+	$(Q)$(CC) $(filter-out $(CFLAGS-OMIT_$@.c),$(CFLAGS)) $(EXTRA_CFLAGS) $(CFLAGS_$@) -c $@.c -o $@.o
 	$(Q)$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LDFLAGS) $(LDFLAGS_$@)
 ifeq ($(COMPILE_ONLY),)
 	$(exec_test)
