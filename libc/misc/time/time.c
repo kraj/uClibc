@@ -365,10 +365,22 @@ char *asctime_r(register const struct tm *__restrict ptm,
 			tmp /= 10;
 		} while (*--buffer == '?');
 	}
+/*	Not sure if we should even bother ...
+	} else {
+		__set_errno(EOVERFLOW);
+		return NULL;
+	}
+*/
 #else  /* SAFE_ASCTIME_R */
 	buffer += 23;
 	tmp = ptm->tm_year + 1900;
 	assert( ((unsigned int) tmp) < 10000 );
+/*	Not sure if we should even bother ...
+	if ( ((unsigned int) tmp) >= 10000 ) {
+		__set_errno(EOVERFLOW);
+		return NULL;
+	}
+*/
 	do {
 		*buffer = '0' + (tmp % 10);
 		tmp /= 10;
