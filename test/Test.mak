@@ -10,6 +10,9 @@ endif
 ifneq ($(TESTS_DISABLED),)
 TESTS := $(filter-out $(TESTS_DISABLED),$(TESTS))
 endif
+ifeq ($(SHELL_TESTS),)
+SHELL_TESTS := $(patsubst %.sh,shell_%,$(wildcard *.sh))
+endif
 
 ifneq ($(filter-out test,$(TESTS)),$(TESTS))
 $(error Sanity check: cannot have a test named "test.c")
@@ -22,7 +25,7 @@ G_TARGETS := $(patsubst %,%_glibc,$(U_TARGETS))
 U_TARGETS += $(U_TESTS)
 G_TARGETS += $(G_TESTS)
 
-TARGETS    = 
+TARGETS   := $(SHELL_TESTS)
 ifeq ($(GLIBC_ONLY),)
 TARGETS   += $(U_TARGETS)
 endif
@@ -32,10 +35,6 @@ endif
 CLEAN_TARGETS := $(U_TARGETS) $(G_TARGETS)
 
 test check all: $(TARGETS)
-# dummy rule to prevent the "Nothing to be done for `all'." message
-ifeq ($(Q),@)
-	@true
-endif
 
 $(TARGETS): Makefile $(TESTDIR)Makefile $(TESTDIR)Rules.mak $(TESTDIR)Test.mak
 $(U_TARGETS): $(patsubst %,%.c,$(U_TARGETS))
@@ -91,6 +90,10 @@ ifeq ($(COMPILE_ONLY),)
 	$(uclibc_glibc_diff_test)
 endif
 
+shell_%:
+	$(showtest)
+	$(Q)$(SHELL) $(patsubst shell_%,%.sh,$@)
+
 %.so: %.c
 	$(showlink)
 	$(Q)$(CC) \
@@ -101,3 +104,5 @@ endif
 clean:
 	$(showclean)
 	$(Q)$(RM) *.a *.o *.so *~ core *.out $(CLEAN_TARGETS) $(EXTRA_CLEAN)
+
+.PHONY: all check clean test
