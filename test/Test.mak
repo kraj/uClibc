@@ -91,8 +91,10 @@ ifeq ($(COMPILE_ONLY),)
 endif
 
 shell_%:
+ifeq ($(COMPILE_ONLY),)
 	$(showtest)
 	$(Q)$(SHELL) $(patsubst shell_%,%.sh,$@)
+endif
 
 %.so: %.c
 	$(showlink)
