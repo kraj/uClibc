@@ -41,4 +41,7 @@
 #define sp	$30	/* stack pointer */
 #define zero	$31	/* reads as zero, writes are noops */
 
+#define r0	v0
+#define r1	a4
+
 #endif /* __alpha_regdef_h__ */
