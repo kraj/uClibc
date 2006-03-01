@@ -5,6 +5,8 @@ TESTS_DISABLED := testregexn
 
 include ../Test.mak
 
+CFLAGS_tst-regex2 := -std=c99
+
 CFLAGS-OMIT_testregex.c := -D_GNU_SOURCE
 CFLAGS-OMIT_testregexc.c := -D_GNU_SOURCE
 CFLAGS-OMIT_testregexf.c := -D_GNU_SOURCE

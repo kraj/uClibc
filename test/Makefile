@@ -24,6 +24,9 @@ endif
 ifneq ($(UCLIBC_HAS_FULL_RPC),y)
 	DIRS := $(filter-out rpc,$(DIRS))
 endif
+ifneq ($(UCLIBC_HAS_REGEX),y)
+	DIRS := $(filter-out regex,$(DIRS))
+endif
 DIRS := $(filter-out math,$(DIRS))
 
 
