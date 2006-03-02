@@ -52,4 +52,4 @@ $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a: $(ldso-y)
 	$(do_ar)
 
 $(UCLIBC_LDSO_NAME)_clean:
-	$(RM) $($(UCLIBC_LDSO_NAME)_OUT)/*.{o,os,oS,a} $($(UCLIBC_LDSO_NAME)_OUT)/*/*.{o,os}
+	$(RM) $($(UCLIBC_LDSO_NAME)_OUT)/*.{o,os,oS,a} $($(UCLIBC_LDSO_NAME)_OUT)/*/*.{o,os,oS}
