@@ -73,7 +73,7 @@ endef
 
 $(U_TARGETS):
 	$(showlink)
-	$(Q)$(CC) $(filter-out $(CFLAGS-OMIT_$@),$(CFLAGS)) $(EXTRA_CFLAGS) $(CFLAGS_$@) -c $@.c -o $@.o
+	$(Q)$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$@) -c $@.c -o $@.o
 	$(Q)$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LDFLAGS) $(LDFLAGS_$@)
 ifeq ($(COMPILE_ONLY),)
 	$(exec_test)
@@ -82,7 +82,7 @@ endif
 
 $(G_TARGETS):
 	$(showlink)
-	$(Q)$(HOSTCC) $(filter-out $(CFLAGS-OMIT_$(patsubst %_glibc,%,$@)),$(HOST_CFLAGS)) $(EXTRA_CFLAGS) $(CFLAGS_$(patsubst %_glibc,%,$@)) -c $(patsubst %_glibc,%,$@).c -o $@.o
+	$(Q)$(HOSTCC) $(HOST_CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$(patsubst %_glibc,%,$@)) -c $(patsubst %_glibc,%,$@).c -o $@.o
 	$(Q)$(HOSTCC) $(HOST_LDFLAGS) $@.o -o $@ $(EXTRA_LDFLAGS) $(LDFLAGS_$(patsubst %_glibc,%,$@))
 ifeq ($(COMPILE_ONLY),)
 	$(exec_test)

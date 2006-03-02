@@ -985,7 +985,7 @@ gotcha(int sig)
 }
 
 static char*
-getline(FILE* fp)
+my_getline(FILE* fp)
 {
 	static char	buf[32 * 1024];
 
@@ -1343,7 +1343,7 @@ main(int argc, char** argv)
 			signal(SIGBUS, gotcha);
 			signal(SIGSEGV, gotcha);
 		}
-		while (p = getline(fp))
+		while (p = my_getline(fp))
 		{
 
 		/* parse: */
