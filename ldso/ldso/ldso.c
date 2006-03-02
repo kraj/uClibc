@@ -536,8 +536,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 					     PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 		_dl_close(fd);
 		if (preload == (caddr_t) -1) {
-			_dl_dprintf(_dl_debug_file, "%s: can't map file '%s'\n",
-				    _dl_progname, LDSO_PRELOAD);
+			_dl_dprintf(_dl_debug_file, "%s:%i: can't map '%s'\n",
+				    _dl_progname, __LINE__, LDSO_PRELOAD);
 			break;
 		}
 

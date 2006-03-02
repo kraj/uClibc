@@ -60,8 +60,8 @@ int _dl_map_cache(void)
 	_dl_cache_addr = (caddr_t) _dl_mmap(0, _dl_cache_size, PROT_READ, MAP_SHARED, fd, 0);
 	_dl_close(fd);
 	if (_dl_mmap_check_error(_dl_cache_addr)) {
-		_dl_dprintf(2, "%s: can't map cache '%s'\n",
-				_dl_progname, LDSO_CACHE);
+		_dl_dprintf(2, "%s:%i: can't map '%s'\n",
+				_dl_progname, __LINE__, LDSO_CACHE);
 		return -1;
 	}
 
@@ -371,7 +371,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	header = _dl_mmap((void *) 0, _dl_pagesize, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(header)) {
-		_dl_dprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
+		_dl_dprintf(2, "%s:%i: can't map '%s'\n", _dl_progname, __LINE__, libname);
 		_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 		_dl_close(infile);
 		return NULL;
@@ -445,7 +445,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	status = (char *) _dl_mmap((char *) (piclib ? 0 : minvma),
 			maxvma - minvma, PROT_NONE, flags | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(status)) {
-		_dl_dprintf(2, "%s: can't map %s\n", _dl_progname, libname);
+		_dl_dprintf(2, "%s:%i: can't map '%s'\n", _dl_progname, __LINE__, libname);
 		_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 		_dl_close(infile);
 		_dl_munmap(header, _dl_pagesize);
@@ -482,8 +482,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 						ppnt->p_offset & OFFS_ALIGN);
 
 				if (_dl_mmap_check_error(status)) {
-					_dl_dprintf(2, "%s: can't map '%s'\n",
-							_dl_progname, libname);
+					_dl_dprintf(2, "%s:%i: can't map '%s'\n",
+							_dl_progname, __LINE__, libname);
 					_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 					_dl_munmap((char *) libaddr, maxvma - minvma);
 					_dl_close(infile);
@@ -516,7 +516,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 						ppnt->p_filesz, LXFLAGS(ppnt->p_flags), flags,
 						infile, ppnt->p_offset & OFFS_ALIGN);
 			if (_dl_mmap_check_error(status)) {
-				_dl_dprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
+				_dl_dprintf(2, "%s:%i: can't map '%s'\n", _dl_progname, __LINE__, libname);
 				_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 				_dl_munmap((char *) libaddr, maxvma - minvma);
 				_dl_close(infile);
