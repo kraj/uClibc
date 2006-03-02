@@ -3,7 +3,7 @@
  * This file contains the helper routines to load an ELF shared
  * library into memory and add the symbol table info to the chain.
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@codepoet.org>
  * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
  *
@@ -375,7 +375,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 		_dl_close(infile);
 		return NULL;
-	};
+	}
 
 	_dl_read(infile, header, _dl_pagesize);
 	epnt = (ElfW(Ehdr) *) (intptr_t) header;
@@ -390,7 +390,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_close(infile);
 		_dl_munmap(header, _dl_pagesize);
 		return NULL;
-	};
+	}
 
 	if ((epnt->e_type != ET_DYN) || (epnt->e_machine != MAGIC1
 #ifdef MAGIC2
@@ -405,7 +405,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_close(infile);
 		_dl_munmap(header, _dl_pagesize);
 		return NULL;
-	};
+	}
 
 	ppnt = (ElfW(Phdr) *)(intptr_t) & header[epnt->e_phoff];
 
@@ -417,7 +417,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				_dl_dprintf(2, "%s: '%s' has more than one dynamic section\n",
 						_dl_progname, libname);
 			dynamic_addr = ppnt->p_vaddr;
-		};
+		}
 
 		if (ppnt->p_type == PT_LOAD) {
 			/* See if this is a PIC library. */
@@ -433,7 +433,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			}
 		}
 		ppnt++;
-	};
+	}
 
 	maxvma = (maxvma + ADDR_ALIGN) & ~ADDR_ALIGN;
 	minvma = minvma & ~0xffffU;
@@ -450,7 +450,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_close(infile);
 		_dl_munmap(header, _dl_pagesize);
 		return NULL;
-	};
+	}
 	libaddr = (unsigned long) status;
 	flags |= MAP_FIXED;
 
@@ -489,7 +489,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					_dl_close(infile);
 					_dl_munmap(header, _dl_pagesize);
 					return NULL;
-				};
+				}
 
 				/* Pad the last page with zeroes. */
 				cpnt = (char *) (status + (ppnt->p_vaddr & ADDR_ALIGN) +
@@ -522,15 +522,15 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				_dl_close(infile);
 				_dl_munmap(header, _dl_pagesize);
 				return NULL;
-			};
+			}
 
 			/* if(libaddr == 0 && piclib) {
 			   libaddr = (unsigned long) status;
 			   flags |= MAP_FIXED;
-			   }; */
-		};
+			   } */
+		}
 		ppnt++;
-	};
+	}
 	_dl_close(infile);
 
 	/* For a non-PIC library, the addresses are all absolute */
