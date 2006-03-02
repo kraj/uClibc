@@ -53,13 +53,9 @@ RM         = rm -f
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
-BUILD_CFLAGS = -O2 -Wall
 
 
 #--------------------------------------------------------
-# Check if 'ls -sh' works or not
-LSFLAGS = -l
-
 # A nifty macro to make testing gcc features easier
 check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; else echo "$(2)"; fi)
@@ -75,17 +71,17 @@ endif
 XWARNINGS      := $(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
 XARCH_CFLAGS   := $(subst ",, $(strip $(ARCH_CFLAGS)))
 XCOMMON_CFLAGS := -D_GNU_SOURCE -I$(top_builddir)test
-CFLAGS         := $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS) -I$(top_builddir)include
+CFLAGS         += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS) -I$(top_builddir)include
 HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS)
 
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
 	HOST_CFLAGS   += -g
 	LDFLAGS       += -g -Wl,-warn-common
-	HOST_LDFLAGS  := -g -Wl,-warn-common
+	HOST_LDFLAGS  += -g -Wl,-warn-common
 else
 	LDFLAGS       += -s -Wl,-warn-common
-	HOST_LDFLAGS  := -s -Wl,-warn-common
+	HOST_LDFLAGS  += -s -Wl,-warn-common
 endif
 
 ifneq ($(strip $(HAVE_SHARED)),y)
