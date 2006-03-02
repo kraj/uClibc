@@ -43,6 +43,7 @@ main (int argc, char *argv[])
 
   return res;
 #else
+  puts("Test requires locale; skipping");
   return 0;
 #endif
 }
