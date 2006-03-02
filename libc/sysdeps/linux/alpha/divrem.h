@@ -85,7 +85,9 @@
 
 	.ent UFUNC_NAME
 	.globl UFUNC_NAME
+#ifndef IS_IN_rtld
 	.hidden UFUNC_NAME
+#endif
 
 	.align 3
 UFUNC_NAME:
