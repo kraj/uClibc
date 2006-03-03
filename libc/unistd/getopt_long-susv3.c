@@ -17,11 +17,11 @@ static int __getopt_long(int argc, char *const *argv, const char *optstring, con
 		(argv[optind][1] == '-' && argv[optind][2]))
 	{
 		int i;
-		char *opt = argv[optind]+2;
 		for (i=0; longopts[i].name; i++) {
 			const char *name = longopts[i].name;
+			char *opt = argv[optind]+2;
 			while (*name && *name++ == *opt++);
-			if (*name && *opt != '=') continue;
+			if (*name || (*opt && *opt != '=')) continue;
 			if (*opt == '=') {
 				if (!longopts[i].has_arg) continue;
 				optarg = opt+1;
