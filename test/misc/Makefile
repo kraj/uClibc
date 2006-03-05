@@ -1,7 +1,7 @@
 # uClibc misc tests
 # Licensed under the GNU Library General Public License, see COPYING.LIB
 
-TESTS_DISABLED := outb tst-fnmatch bug-glob1
+TESTS_DISABLED := outb tst-fnmatch bug-glob1 tst-gnuglob
 
 include ../Test.mak
 
