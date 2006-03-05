@@ -959,13 +959,6 @@ int __pthread_getschedparam(pthread_t thread, int *policy,
 }
 strong_alias (__pthread_getschedparam, pthread_getschedparam);
 
-int __pthread_yield (void)
-{
-  /* For now this is equivalent with the POSIX call.  */
-  return sched_yield ();
-}
-weak_alias (__pthread_yield, pthread_yield)
-
 /* Process-wide exit() request */
 
 static void pthread_onexit_process(int retcode, void *arg)

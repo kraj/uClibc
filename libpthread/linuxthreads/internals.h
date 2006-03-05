@@ -392,8 +392,6 @@ extern void __pthread_wait_for_restart_signal(pthread_descr self);
 
 extern void __pthread_sigsuspend (const sigset_t *mask) attribute_hidden;
 
-extern int __pthread_yield (void);
-
 extern int __pthread_rwlock_timedrdlock (pthread_rwlock_t *__restrict __rwlock,
 					 __const struct timespec *__restrict
 					 __abstime);
