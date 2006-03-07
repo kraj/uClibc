@@ -61,11 +61,15 @@ uintptr_t stack_chk_guard;
 /* for gcc-4.1 non-TLS */
 uintptr_t __stack_chk_guard attribute_relro;
 /* for gcc-3.x + Etoh ssp */
-#   ifdef __HAVE_SHARED__
+#   ifdef __UCLIBC_HAS_SSP_COMPAT__
+#    ifdef __HAVE_SHARED__
 strong_alias(__stack_chk_guard,__guard)
-#   else
+#    else
 uintptr_t __guard attribute_relro;
+#    endif
 #   endif
+#  elif defined __UCLIBC_HAS_SSP_COMPAT__
+uintptr_t __guard attribute_relro;
 #  endif
 # endif
 
@@ -210,9 +214,12 @@ void __uClibc_init(void)
     stack_chk_guard = _dl_setup_stack_chk_guard();
 #  ifdef THREAD_SET_STACK_GUARD
     THREAD_SET_STACK_GUARD (stack_chk_guard);
+#   ifdef __UCLIBC_HAS_SSP_COMPAT__
+    __guard = stack_chk_guard;
+#   endif
 #  else
     __stack_chk_guard = stack_chk_guard;
-#   ifndef __HAVE_SHARED__
+#   if !defined __HAVE_SHARED__ && defined __UCLIBC_HAS_SSP_COMPAT__
      __guard = stack_chk_guard;
 #   endif
 #  endif
