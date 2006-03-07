@@ -87,7 +87,7 @@ static unsigned int nlist; /* # items in init_fini_list */
 extern void _start(void);
 
 #ifdef __UCLIBC_HAS_SSP__
-#include <dl-osinfo.h>
+# include <dl-osinfo.h>
 uintptr_t stack_chk_guard;
 # ifndef THREAD_SET_STACK_GUARD
 /* Only exported for architectures that don't store the stack guard canary
@@ -99,7 +99,6 @@ strong_alias(__stack_chk_guard,__guard)
 # elif __UCLIBC_HAS_SSP_COMPAT__
 uintptr_t __guard attribute_relro;
 # endif
-#endif
 #endif
 
 static void _dl_run_array_forward(unsigned long array, unsigned long size,
