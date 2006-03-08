@@ -43,6 +43,7 @@ static inline unsigned long arm_modulus(unsigned long m, unsigned long p)
 	return m;
 }
 #define do_rem(result, n, base) ((result) = arm_modulus(n, base))
+#define do_div_10(result, remain) ((result) = (((result) - (remain)) / 2) * -(-1ul / 5ul))
 
 /* Here we define the magic numbers that this dynamic loader should accept */
 #define MAGIC1 EM_ARM
