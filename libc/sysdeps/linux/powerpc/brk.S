@@ -24,7 +24,19 @@
 #include <sys/syscall.h>
 
 #ifdef __NR_brk
-	.comm	__curbrk,4,4
+
+#ifdef __PIC__
+.section .bss
+	.align 4
+	.globl __curbrk
+__curbrk: .skip 4
+	.type __curbrk,@object
+	.size __curbrk,4
+#else
+.comm __curbrk, 4,4
+#endif
+libc_hidden_data_def(__curbrk)
+
 	.text
 	.globl	brk
 	.type	brk,@function
