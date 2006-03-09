@@ -295,24 +295,30 @@ convert_flags (const char *str)
 	  result |= FNM_PERIOD;
 	  len = 6;
 	}
+#ifdef FNM_LEADING_DIR
       else if (strncasecmp (str, "LEADING_DIR", 11) == 0
 	       && (str[11] == '|' || str[11] == '\0'))
 	{
 	  result |= FNM_LEADING_DIR;
 	  len = 11;
 	}
+#endif
+#ifdef FNM_CASEFOLD
       else if (strncasecmp (str, "CASEFOLD", 8) == 0
 	       && (str[8] == '|' || str[8] == '\0'))
 	{
 	  result |= FNM_CASEFOLD;
 	  len = 8;
 	}
+#endif
+#ifdef FNM_EXTMATCH
       else if (strncasecmp (str, "EXTMATCH", 8) == 0
 	       && (str[8] == '|' || str[8] == '\0'))
 	{
 	  result |= FNM_EXTMATCH;
 	  len = 8;
 	}
+#endif
       else
 	return -1;
 
@@ -351,6 +357,7 @@ flag_output (int flags)
       cp = stpcpy (cp, "FNM_PERIOD");
       first = 0;
     }
+#ifdef FNM_LEADING_DIR
   if (flags & FNM_LEADING_DIR)
     {
       if (! first)
@@ -358,6 +365,8 @@ flag_output (int flags)
       cp = stpcpy (cp, "FNM_LEADING_DIR");
       first = 0;
     }
+#endif
+#ifdef FNM_CASEFOLD
   if (flags & FNM_CASEFOLD)
     {
       if (! first)
@@ -365,6 +374,8 @@ flag_output (int flags)
       cp = stpcpy (cp, "FNM_CASEFOLD");
       first = 0;
     }
+#endif
+#ifdef FNM_EXTMATCH
   if (flags & FNM_EXTMATCH)
     {
       if (! first)
@@ -372,6 +383,7 @@ flag_output (int flags)
       cp = stpcpy (cp, "FNM_EXTMATCH");
       first = 0;
     }
+#endif
   if (cp == buf)
     *cp++ = '0';
   *cp = '\0';
