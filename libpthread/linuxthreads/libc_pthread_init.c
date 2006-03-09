@@ -29,7 +29,7 @@
 libc_hidden_proto(memcpy)
 #endif
 
-#if !(USE_TLS && HAVE___THREAD)
+#if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(uselocale)
 #endif
 
