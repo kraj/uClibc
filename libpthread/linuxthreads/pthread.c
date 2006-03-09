@@ -242,7 +242,7 @@ struct pthread_functions __pthread_functions =
 #endif
     .ptr_pthread_fork = __pthread_fork,
     .ptr_pthread_attr_destroy = __pthread_attr_destroy,
-    .ptr___pthread_attr_init = __pthread_attr_init,
+    .ptr_pthread_attr_init = __pthread_attr_init,
     .ptr_pthread_attr_getdetachstate = __pthread_attr_getdetachstate,
     .ptr_pthread_attr_setdetachstate = __pthread_attr_setdetachstate,
     .ptr_pthread_attr_getinheritsched = __pthread_attr_getinheritsched,
