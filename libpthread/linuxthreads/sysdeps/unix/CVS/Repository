@@ -1,1 +1,1 @@
-ports/linuxthreads/sysdeps/unix
+linuxthreads/linuxthreads/sysdeps/unix
