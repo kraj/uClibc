@@ -63,9 +63,7 @@ $(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc.oS $(libc-nomulti-y:.o=.oS) | $(LIB
 	$(call linkm.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
 endif
 	$(Q)$(RM) $@
-	$(Q)echo "/* GNU ld script" > $@
-	$(Q)echo " * Use the shared library, but some functions are only in" >> $@
-	$(Q)echo " * the static library, so try that secondarily. */" >> $@
+	$(Q)cp $(top_srcdir)extra/scripts/format.lds $@
 ifeq ($(COMPAT_ATEXIT),y)
 	$(Q)echo "GROUP ( $(NONSHARED_LIBNAME) $(SHARED_MAJORNAME) $(ASNEEDED) )" >> $@
 else
