@@ -56,7 +56,7 @@ __libc_current_sigrtmin (void)
     init ();
   return current_rtmin;
 }
-strong_alias (__libc_current_sigrtmin, __libc_current_sigrtmin_private);
+strong_alias (__libc_current_sigrtmin, __libc_current_sigrtmin_private)
 libc_hidden_def (__libc_current_sigrtmin)
 
 /* Return number of available real-time signal with lowest priority.  */
@@ -67,7 +67,7 @@ __libc_current_sigrtmax (void)
     init ();
   return current_rtmax;
 }
-strong_alias (__libc_current_sigrtmax, __libc_current_sigrtmax_private);
+strong_alias (__libc_current_sigrtmax, __libc_current_sigrtmax_private)
 libc_hidden_def (__libc_current_sigrtmax)
 
 /* Allocate real-time signal with highest/lowest available
@@ -84,4 +84,4 @@ __libc_allocate_rtsig (int high)
 
   return high ? current_rtmin++ : current_rtmax--;
 }
-strong_alias (__libc_allocate_rtsig, __libc_allocate_rtsig_private);
+strong_alias (__libc_allocate_rtsig, __libc_allocate_rtsig_private)

@@ -849,13 +849,13 @@ pthread_t __pthread_self(void)
   pthread_descr self = thread_self();
   return THREAD_GETMEM(self, p_tid);
 }
-strong_alias (__pthread_self, pthread_self);
+strong_alias (__pthread_self, pthread_self)
 
 int __pthread_equal(pthread_t thread1, pthread_t thread2)
 {
   return thread1 == thread2;
 }
-strong_alias (__pthread_equal, pthread_equal);
+strong_alias (__pthread_equal, pthread_equal)
 
 /* Helper function for thread_self in the case of user-provided stacks */
 
@@ -936,7 +936,7 @@ int __pthread_setschedparam(pthread_t thread, int policy,
     __pthread_manager_adjust_prio(th->p_priority);
   return 0;
 }
-strong_alias (__pthread_setschedparam, pthread_setschedparam);
+strong_alias (__pthread_setschedparam, pthread_setschedparam)
 
 int __pthread_getschedparam(pthread_t thread, int *policy,
                             struct sched_param *param)
@@ -957,7 +957,7 @@ int __pthread_getschedparam(pthread_t thread, int *policy,
   *policy = pol;
   return 0;
 }
-strong_alias (__pthread_getschedparam, pthread_getschedparam);
+strong_alias (__pthread_getschedparam, pthread_getschedparam)
 
 /* Process-wide exit() request */
 

@@ -83,11 +83,11 @@ pid_t __fork (void)
 {
   return __libc_fork ();
 }
-weak_alias (__fork, fork);
+weak_alias (__fork, fork)
 
 pid_t __vfork(void)
 {
   return __libc_fork ();
 }
-weak_alias (__vfork, vfork);
+weak_alias (__vfork, vfork)
 #endif

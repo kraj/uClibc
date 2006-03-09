@@ -43,7 +43,7 @@ int __pthread_setcancelstate(int state, int * oldstate)
     __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   return 0;
 }
-strong_alias (__pthread_setcancelstate, pthread_setcancelstate);
+strong_alias (__pthread_setcancelstate, pthread_setcancelstate)
 
 int __pthread_setcanceltype(int type, int * oldtype)
 {
@@ -58,7 +58,7 @@ int __pthread_setcanceltype(int type, int * oldtype)
     __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   return 0;
 }
-strong_alias (__pthread_setcanceltype, pthread_setcanceltype);
+strong_alias (__pthread_setcanceltype, pthread_setcanceltype)
 
 
 /* The next two functions are similar to pthread_setcanceltype() but

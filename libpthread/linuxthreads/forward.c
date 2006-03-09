@@ -102,7 +102,7 @@ FORWARD (pthread_equal, (pthread_t thread1, pthread_t thread2),
 
 /* Use an alias to avoid warning, as pthread_exit is declared noreturn.  */
 FORWARD2 (__pthread_exit, void, (void *retval), (retval), exit (EXIT_SUCCESS))
-strong_alias (__pthread_exit, pthread_exit);
+strong_alias (__pthread_exit, pthread_exit)
 
 
 FORWARD (pthread_getschedparam,

@@ -28,7 +28,7 @@ void __pthread_exit(void * retval)
 {
   __pthread_do_exit (retval, CURRENT_STACK_FRAME);
 }
-strong_alias (__pthread_exit, pthread_exit);
+strong_alias (__pthread_exit, pthread_exit)
 
 void __pthread_do_exit(void *retval, char *currentframe)
 {
