@@ -70,6 +70,8 @@ libc-shared-y += $(libpthread_libc_OBJ:.o=.oS)
 
 libpthread-static-y += $(patsubst %,$(libpthread_OUT)/%.o,$(libpthread_static_SRC))
 
+libpthread-nonshared-y += $(patsubst %,$(libpthread_OUT)/%.oS,$(libpthread_static_SRC))
+
 ifeq ($(DOPIC),y)
 libpthread-a-y  += $(libpthread_OBJ:.o=.os) $(libpthread-static-y:.o=.os)
 else
@@ -84,12 +86,15 @@ headers-$(UCLIBC_HAS_THREADS) += linuxthreads_headers
 headers_clean-y += linuxthreads_headers_clean
 
 #ifeq ($(DOMULTI),n)
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc)
+$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc) $(top_builddir)lib/libpthread_nonshared.a
 	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 #else
-#$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS | $(libc)
+#$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS | $(libc) $(top_builddir)lib/libpthread_nonshared.a
 #	$(call linkm.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 #endif
+	$(Q)$(RM) $@
+	$(Q)cp $(top_srcdir)extra/scripts/format.lds $@
+	$(Q)echo "GROUP ( $(notdir $@).$(MAJOR_VERSION) libpthread_nonshared.a )" >> $@
 
 $(libpthread_OUT)/libpthread_so.a: $(libpthread-so-y)
 	$(Q)$(RM) $@
