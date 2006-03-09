@@ -358,7 +358,7 @@ endif
 #CFLAGS += $(call check_gcc,-std=c99,)
 
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
-LDFLAGS_NOSTRIP+=$(call check_ld,--gc-sections)
+#LDFLAGS_NOSTRIP+=$(call check_ld,--gc-sections)
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS_NOSTRIP+=-z relro
