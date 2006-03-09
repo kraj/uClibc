@@ -16,7 +16,7 @@ endif
 objs: all_objs
 
 shared_objs =  $(ldso-y) $(libc-y:.o=.os) $(libc-shared-y) $(libc-nonshared-y) $(libdl-so-y)
-shared_objs += $(libcrypt-so-y) $(libintl-so-y) $(libm-so-y) $(libnsl-so-y) $(libpthread-so-y)
+shared_objs += $(libcrypt-so-y) $(libintl-so-y) $(libm-so-y) $(libnsl-so-y) $(libpthread-so-y) $(libpthread-nonshared-y)
 shared_objs += $(libthread_db-so-y) $(libresolv-so-y) $(librt-so-y) $(libutil-so-y)
 ar_objs =  $(libc-y) $(libc-static-y) $(libdl-a-y) $(libcrypt-a-y) $(libintl-a-y) $(libm-a-y) $(libnsl-a-y)
 ar_objs += $(libpthread-a-y) $(libthread_db-a-y) $(libresolv-a-y) $(librt-a-y) $(libutil-a-y)
@@ -244,6 +244,14 @@ $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT): | headers
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+$(top_builddir)lib/libpthread_nonshared.a: $(libpthread-nonshared-y)
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
 	$(do_ar)
 
 .PHONY: dummy create
