@@ -36,7 +36,6 @@ extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 # define __uselocale(x) uselocale(x)
-libc_hidden_proto(uselocale)
 #else
 # define __uselocale(x) ((void)0)
 #endif

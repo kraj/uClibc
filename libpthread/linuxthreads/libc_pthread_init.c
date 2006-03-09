@@ -29,6 +29,10 @@
 libc_hidden_proto(memcpy)
 #endif
 
+#if !(USE_TLS && HAVE___THREAD)
+libc_hidden_proto(uselocale)
+#endif
+
 int *
 __libc_pthread_init (functions)
      const struct pthread_functions *functions;
