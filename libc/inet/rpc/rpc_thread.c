@@ -137,27 +137,27 @@ __rpc_thread_svc_max_pollfd (void)
 #undef svc_pollfd
 #undef svc_max_pollfd
 
+extern fd_set svc_fdset;
 fd_set * __rpc_thread_svc_fdset (void)
 {
-    extern fd_set svc_fdset;
     return &(svc_fdset);
 }
 
+extern struct rpc_createerr rpc_createerr;
 struct rpc_createerr * __rpc_thread_createerr (void)
 {
-    extern struct rpc_createerr rpc_createerr;
     return &(rpc_createerr);
 }
 
+extern struct pollfd *svc_pollfd;
 struct pollfd ** __rpc_thread_svc_pollfd (void)
 {
-    extern struct pollfd *svc_pollfd;
     return &(svc_pollfd);
 }
 
+extern int svc_max_pollfd;
 int * __rpc_thread_svc_max_pollfd (void)
 {
-    extern int svc_max_pollfd;
     return &(svc_max_pollfd);
 }
 
