@@ -9,7 +9,6 @@
 
 libc_hidden_proto(fprintf)
 libc_hidden_proto(__glibc_strerror_r)
-libc_hidden_proto(stderr)
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning CONSIDER: Increase buffer size for error message (non-%m case)?

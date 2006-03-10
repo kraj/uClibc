@@ -12,9 +12,6 @@
 #include <bits/uClibc_uintmaxtostr.h>
 
 libc_hidden_proto(memcpy)
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
 
 /* Avoid using long long / and % operations to cut down dependencies on
  * libgcc.a.  Definitely helps on i386 at least. */

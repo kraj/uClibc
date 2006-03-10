@@ -16,7 +16,6 @@
 
 /* The system pagesize... */
 extern size_t __pagesize;
-libc_hidden_proto(__pagesize)
 #define MALLOC_PAGE_SIZE	__pagesize
 
 /* The minimum size of block we request from the the system to extend the

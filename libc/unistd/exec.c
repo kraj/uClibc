@@ -50,7 +50,6 @@ libc_hidden_proto(execve)
 libc_hidden_proto(mmap)
 libc_hidden_proto(munmap)
 libc_hidden_proto(getenv)
-libc_hidden_proto(__environ)
 
 /**********************************************************************/
 #if defined(__ARCH_USE_MMU__) || defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)

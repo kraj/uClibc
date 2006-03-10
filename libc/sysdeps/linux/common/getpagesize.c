@@ -21,7 +21,6 @@
 #include <sys/param.h>
 
 extern size_t __pagesize;
-libc_hidden_proto(__pagesize)
 
 /* Return the system page size.  */
 /* couldn't make __getpagesize hidden, because shm.h uses it in a macro */

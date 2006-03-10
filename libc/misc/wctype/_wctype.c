@@ -60,9 +60,6 @@ libc_hidden_proto(iswctype_l)
 #else
 libc_hidden_proto(__ctype_b)
 #endif /* __UCLIBC_HAS_XLOCALE__ */
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
 
 /* We know wide char support is enabled.  We wouldn't be here otherwise. */
 

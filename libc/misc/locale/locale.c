@@ -148,10 +148,6 @@ extern void _locale_init_l(__locale_t base) attribute_hidden;
 #include <langinfo.h>
 #include <nl_types.h>
 
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
-
 /**********************************************************************/
 #ifdef L_setlocale
 
@@ -377,12 +373,9 @@ libc_hidden_proto(__ctype_toupper)
 __uclibc_locale_t __global_locale_data;
 
 __locale_t __global_locale = &__global_locale_data;
-libc_hidden_data_def(__global_locale)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__curlocale_var)
 __locale_t __curlocale_var = &__global_locale_data;
-libc_hidden_data_def(__curlocale_var)
 #endif
 
 /*----------------------------------------------------------------------*/
@@ -1386,8 +1379,6 @@ void freelocale(__locale_t dataset)
 /**********************************************************************/
 #ifdef L_uselocale
 
-libc_hidden_proto(__curlocale_var)
-
 libc_hidden_proto(uselocale)
 __locale_t uselocale(__locale_t dataset)
 {
@@ -1419,8 +1410,6 @@ libc_hidden_def(uselocale)
 #ifdef L___curlocale
 
 #ifdef __UCLIBC_HAS_THREADS__
-
-libc_hidden_proto(__curlocale_var)
 
 __locale_t weak_const_function __curlocale(void)
 {

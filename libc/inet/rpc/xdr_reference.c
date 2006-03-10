@@ -58,7 +58,6 @@ libc_hidden_proto(fwprintf)
 libc_hidden_proto(memset)
 libc_hidden_proto(xdr_bool)
 libc_hidden_proto(fputs)
-libc_hidden_proto(stderr)
 
 #define LASTUNSIGNED	((u_int)0-1)
 

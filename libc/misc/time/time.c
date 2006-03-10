@@ -1715,15 +1715,9 @@ static const char vals[] = {
 #define DEFAULT_RULES (vals + 22)
 
 /* Initialize to UTC. */
-libc_hidden_proto(daylight)
 int daylight = 0;
-libc_hidden_data_def(daylight)
-libc_hidden_proto(timezone)
 long timezone = 0;
-libc_hidden_data_def(timezone)
-libc_hidden_proto(tzname)
 char *tzname[2] = { (char *) UTC, (char *) (UTC-1) };
-libc_hidden_data_def(tzname)
 
 #ifdef __UCLIBC_HAS_THREADS__
 attribute_hidden pthread_mutex_t _time_tzlock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;

@@ -11,10 +11,6 @@ libc_hidden_proto(isatty)
 libc_hidden_proto(open)
 libc_hidden_proto(fcntl)
 
-#ifdef __UCLIBC_HAS_THREADS__
-libc_hidden_proto(_stdio_user_locking)
-#endif
-
 /*
  * Cases:
  *  fopen64  : filename != NULL, stream == NULL, filedes == -2

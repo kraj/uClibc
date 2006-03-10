@@ -57,8 +57,6 @@ libc_hidden_proto(wcscmp)
 
 #endif /* defined(L_strxfrm) || defined(L_strxfrm_l) */
 
-libc_hidden_proto(__global_locale)
-
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
 libc_hidden_proto(wcscoll_l)

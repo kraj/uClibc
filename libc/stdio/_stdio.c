@@ -125,19 +125,12 @@ static FILE _stdio_streams[] = {
 							 0 )
 };
 
-/* psm: moved to _stdio.h: libc_hidden_proto(stdin/stdout) */
 FILE *stdin  = _stdio_streams;
-libc_hidden_data_def(stdin)
 FILE *stdout = _stdio_streams + 1;
-libc_hidden_data_def(stdout)
-libc_hidden_proto(stderr)
 FILE *stderr = _stdio_streams + 2;
-libc_hidden_data_def(stderr)
 
 #ifdef __STDIO_GETC_MACRO
-libc_hidden_proto(__stdin)
 FILE *__stdin = _stdio_streams;		 /* For getchar() macro. */
-libc_hidden_data_def(__stdin)
 #endif
 #ifdef __STDIO_PUTC_MACRO
 FILE *__stdout = _stdio_streams + 1; /* For putchar() macro. */
@@ -159,11 +152,9 @@ FILE *__stdout = _stdio_streams + 1; /* For putchar() macro. */
  */
 
 FILE *_stdio_openlist = _stdio_streams;
-libc_hidden_data_def(_stdio_openlist)
 
 # ifdef __UCLIBC_HAS_THREADS__
 pthread_mutex_t _stdio_openlist_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-libc_hidden_data_def(_stdio_openlist_lock)
 int _stdio_openlist_delflag = 0;
 # endif
 
@@ -172,9 +163,7 @@ int _stdio_openlist_delflag = 0;
 #ifdef __UCLIBC_HAS_THREADS__
 
 /* 2 if threading not initialized and 0 otherwise; */
-libc_hidden_proto(_stdio_user_locking)
 int _stdio_user_locking = 2;
-libc_hidden_data_def(_stdio_user_locking)
 
 void attribute_hidden __stdio_init_mutex(pthread_mutex_t *m)
 {

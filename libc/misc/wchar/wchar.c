@@ -111,9 +111,6 @@
 #include <wchar.h>
 #include <bits/uClibc_uwchar.h>
 
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_LOCALE__
 #ifdef __UCLIBC_MJN3_ONLY__

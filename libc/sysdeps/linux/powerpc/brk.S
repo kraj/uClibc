@@ -35,7 +35,6 @@ __curbrk: .skip 4
 #else
 .comm __curbrk, 4,4
 #endif
-libc_hidden_data_def(__curbrk)
 
 	.text
 	.globl	brk
@@ -52,12 +51,12 @@ brk:
 	mflr    r4
 	bl      _GLOBAL_OFFSET_TABLE_@local-4
 	mflr    r5
-	lwz     r5,HIDDEN_JUMPTARGET(__curbrk)@got(r5)
+	lwz     r5,__curbrk@got(r5)
 	mtlr    r4
 	stw     r3,0(r5)
 #else
-	lis     r4,HIDDEN_JUMPTARGET(__curbrk)@ha
-	stw     r3,HIDDEN_JUMPTARGET(__curbrk)@l(r4)
+	lis     r4,__curbrk@ha
+	stw     r3,__curbrk@l(r4)
 #endif
 	cmplw   r6,r3
 	addi    r1,r1,16

@@ -12,9 +12,6 @@
 #include <bits/uClibc_fpmax.h>
 
 libc_hidden_proto(memset)
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
 
 typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
 								intptr_t buf);

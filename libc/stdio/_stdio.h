@@ -20,14 +20,8 @@
 #include <wchar.h>
 #endif
 
-libc_hidden_proto(stdin)
-libc_hidden_proto(stdout)
-
-libc_hidden_proto(_stdio_openlist)
-
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-libc_hidden_proto(_stdio_openlist_lock)
 
 #define __STDIO_THREADLOCK_OPENLIST \
 	__pthread_mutex_lock(&_stdio_openlist_lock)

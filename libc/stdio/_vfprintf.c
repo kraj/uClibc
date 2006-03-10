@@ -512,10 +512,6 @@ size_t parse_printf_format(register const char *template,
 /**********************************************************************/
 #ifdef L__ppfs_init
 
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
-
 int attribute_hidden _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 {
 	int r;
@@ -1253,10 +1249,6 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 #define OUTPUT(F,S)			fputws(S,F)
 #define _outnwcs(stream, wstring, len)	_wstdio_fwrite(wstring, len, stream)
 #define FP_OUT _fp_out_wide
-
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
 
 static size_t _outnstr(FILE *stream, const char *s, size_t wclen)
 {

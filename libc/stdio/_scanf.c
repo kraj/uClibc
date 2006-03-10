@@ -101,9 +101,6 @@ libc_hidden_proto(fgetwc_unlocked)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
 #else
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
 libc_hidden_proto(__ctype_b)
 #endif
 

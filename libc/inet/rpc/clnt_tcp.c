@@ -85,7 +85,6 @@ libc_hidden_proto(bindresvport)
 libc_hidden_proto(poll)
 libc_hidden_proto(fputs)
 libc_hidden_proto(__rpc_thread_createerr)
-libc_hidden_proto(stderr)
 #ifdef USE_IN_LIBIO
 libc_hidden_proto(fwprintf)
 #endif

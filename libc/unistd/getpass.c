@@ -35,8 +35,6 @@ libc_hidden_proto(fputs)
 libc_hidden_proto(fputc)
 libc_hidden_proto(putc)
 libc_hidden_proto(__fputc_unlocked)
-libc_hidden_proto(stdin)
-libc_hidden_proto(stderr)
 
 /* It is desirable to use this bit on systems that have it.
    The only bit of terminal state we want to twiddle is echoing, which is

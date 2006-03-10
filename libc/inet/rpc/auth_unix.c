@@ -69,7 +69,6 @@ libc_hidden_proto(gettimeofday)
 libc_hidden_proto(fputs)
 libc_hidden_proto(perror)
 libc_hidden_proto(abort)
-libc_hidden_proto(stderr)
 #ifdef USE_IN_LIBIO
 libc_hidden_proto(fwprintf)
 #endif

@@ -102,9 +102,6 @@
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
 #endif /* __UCLIBC_HAS_XLOCALE__ */
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
 
 /* TODO: clean up the following... */
 

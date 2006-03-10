@@ -113,23 +113,15 @@ strong_alias (__progname_full, program_invocation_name)
 #endif
 
 /*
- * Declare the __environ global variable and create a weak alias environ.
- * Note: Apparently we must initialize __environ to ensure that the weak
+ * Declare the __environ global variable and create a strong alias environ.
+ * Note: Apparently we must initialize __environ to ensure that the strong
  * environ symbol is also included.
  */
-libc_hidden_proto(__environ)
 char **__environ = 0;
-libc_hidden_data_def(__environ)
-#ifdef __USE_GNU
-/* psm: arm segfaults with strong_alias, although defined */
-weak_alias(__environ,environ)
-#endif
+strong_alias(__environ,environ)
 
 /* TODO: don't export __pagesize; we cant now because libpthread uses it */
-extern size_t __pagesize;
-libc_hidden_proto(__pagesize)
 size_t __pagesize = 0;
-libc_hidden_data_def(__pagesize)
 
 #ifndef O_NOFOLLOW
 # define O_NOFOLLOW	0

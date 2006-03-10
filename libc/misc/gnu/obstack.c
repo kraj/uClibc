@@ -89,7 +89,6 @@ union fooround {long x; double d;};
    abort gracefully or use longjump - but shouldn't return.  This
    variable by default points to the internal function
    `print_and_abort'.  */
-libc_hidden_proto(obstack_alloc_failed_handler)
 # if defined __STDC__ && __STDC__
 static void print_and_abort (void);
 void (*obstack_alloc_failed_handler) (void) = print_and_abort;
@@ -97,7 +96,6 @@ void (*obstack_alloc_failed_handler) (void) = print_and_abort;
 static void print_and_abort ();
 void (*obstack_alloc_failed_handler) () = print_and_abort;
 # endif
-libc_hidden_data_def(obstack_alloc_failed_handler)
 
 
 /* Exit value used when `print_and_abort' is used.  */
@@ -111,14 +109,11 @@ libc_hidden_data_def(obstack_alloc_failed_handler)
 libc_hidden_proto(fprintf)
 libc_hidden_proto(abort)
 libc_hidden_proto(exit)
-libc_hidden_proto(stderr)
 #ifdef __UCLIBC_HAS_WCHAR__
 libc_hidden_proto(fwprintf)
 #endif
 
-libc_hidden_proto(obstack_exit_failure)
 int obstack_exit_failure = EXIT_FAILURE;
-libc_hidden_data_def(obstack_exit_failure)
 
 /* The non-GNU-C macros copy the obstack into this global variable
    to avoid multiple evaluation.  */
