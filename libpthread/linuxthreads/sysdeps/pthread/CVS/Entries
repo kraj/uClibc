@@ -1,5 +1,4 @@
 D/bits////
-/Subdirs/1.1/Tue Nov 15 14:20:47 2005//
 /errno-loc.c/1.4/Tue Nov 15 14:20:47 2005//
 /flockfile.c/1.2/Tue Nov 15 14:20:47 2005//
 /ftrylockfile.c/1.1/Tue Nov 15 14:20:47 2005//
@@ -24,4 +23,5 @@ D/bits////
 /timer_settime.c/1.5/Tue Nov 15 14:20:47 2005//
 /tst-timer.c/1.5/Tue Nov 15 14:20:47 2005//
 /sigaction.c/1.2/Thu Dec 29 06:43:12 2005//
-/Makefile/1.7/Tue Jan 31 05:06:14 2006//
+/Makefile/1.7/Thu Mar  9 20:32:31 2006//
+/Subdirs/1.2/Thu Mar  9 20:32:31 2006//

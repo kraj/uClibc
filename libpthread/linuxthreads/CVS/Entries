@@ -2,7 +2,6 @@
 /lockfile.c/1.10/Wed Dec 18 01:16:46 2002//
 /pthread.c/1.136/Sun Jan  9 20:02:37 2005//
 D/sysdeps////
-/Makefile/1.99/Mon Nov  7 16:58:12 2005//
 /descr.h/1.16/Mon Nov 14 19:51:28 2005//
 /attr.c/1.36/Tue Nov 15 14:20:47 2005//
 /barrier.c/1.4/Tue Nov 15 14:20:48 2005//
@@ -26,7 +25,6 @@ D/sysdeps////
 /ptclock_gettime.c/1.3/Tue Nov 15 14:20:48 2005//
 /ptclock_settime.c/1.3/Tue Nov 15 14:20:47 2005//
 /pthandles.c/1.1/Tue Nov 15 14:20:47 2005//
-/pthread_atfork.c/1.2/Tue Nov 15 14:20:47 2005//
 /pthread_setegid.c/1.1/Tue Nov 15 14:20:47 2005//
 /pthread_seteuid.c/1.1/Tue Nov 15 14:20:47 2005//
 /pthread_setgid.c/1.1/Tue Nov 15 14:20:48 2005//
@@ -42,7 +40,6 @@ D/sysdeps////
 /semaphore.h/1.13/Tue Nov 15 14:20:48 2005//
 /sighandler.c/1.2/Tue Nov 15 14:20:47 2005//
 /signals.c/1.29/Tue Nov 15 14:20:47 2005//
-/spinlock.c/1.38/Tue Nov 15 14:20:47 2005//
 /spinlock.h/1.24/Tue Nov 15 14:20:48 2005//
 /tst-_res1.c/-1.1/Tue Nov 15 16:18:58 2005//
 /tst-_res1mod1.c/-1.1/Tue Nov 15 16:18:58 2005//
@@ -89,17 +86,20 @@ D/sysdeps////
 /libc-cancellation.c/1.6/Fri Jan 20 15:05:11 2006//
 /alloca_cutoff.c/1.2/Tue Apr  1 00:52:40 2003//
 /Banner/1.4/Tue Jan 31 05:06:13 2006//
-/ChangeLog/1.861/Tue Jan 31 05:06:13 2006//
 /Changes/1.2/Tue Jan 31 05:06:13 2006//
 /FAQ.html/1.3/Tue Jan 31 05:06:13 2006//
 /LICENSE/1.1/Tue Jan 31 05:06:13 2006//
 /Makeconfig/1.3/Tue Jan 31 05:06:13 2006//
 /README/1.2/Tue Jan 31 05:06:13 2006//
 /README.Xfree3.2/1.1/Tue Jan 31 05:06:13 2006//
-/configure/1.3/Tue Jan 31 05:06:13 2006//
-/configure.in/1.1/Tue Jan 31 05:06:13 2006//
 /linuxthreads.texi/1.15/Tue Jan 31 05:06:14 2006//
 /shlib-versions/1.10/Tue Jan 31 05:06:14 2006//
 D/Examples////
 D/man////
-/Versions/1.49/Thu Feb  2 15:33:05 2006//
+/ChangeLog/1.866/Thu Mar  9 20:32:29 2006//
+/Makefile/1.100/Result of merge+Thu Mar  9 20:32:30 2006//
+/Versions/1.49/Thu Mar  9 20:32:30 2006//
+/configure/1.4/Thu Mar  9 20:32:30 2006//
+/configure.in/1.2/Thu Mar  9 20:32:30 2006//
+/pthread_atfork.c/1.2/Thu Mar  9 20:26:41 2006//
+/spinlock.c/1.39/Result of merge//
