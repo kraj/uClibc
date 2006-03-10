@@ -29,6 +29,12 @@
 #define __libc_current_sigrtmin_private __libc_current_sigrtmin
 #define __clone clone
 
+/* taken from ldsodefs.h, modified */
+#define GL(name) _##name
+void (*_dl_rtld_lock_recursive) (void *);
+void (*_dl_rtld_unlock_recursive) (void *);
+void **(*_dl_error_catch_tsd) (void) __attribute__ ((const));
+
 extern void *__libc_stack_end;
 extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 
