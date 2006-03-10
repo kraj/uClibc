@@ -68,7 +68,7 @@ brk:
 
 	/* Update __curbrk and return cleanly.  */
 	mov	$31, $0
-$ok:	stq	$16, __curbrk
+$ok:	stq	$16, HIDDEN_JUMPTARGET(__curbrk)
 	addq	$30, 8, $30
 	ret
 

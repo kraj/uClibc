@@ -31,14 +31,15 @@
 	.align	8
 __curbrk:
 	data8	0
+libc_hidden_data_def(__curbrk)
 
 weak_alias (__curbrk, ___brk_addr)
 
-LEAF(__brk)
+LEAF(brk)
 	.regstk 1, 0, 0, 0
 	DO_CALL(__NR_brk)
 	cmp.ltu	p6, p0 = ret0, in0
-	addl r9 = @ltoff(__curbrk), gp
+	addl r9 = @ltoff(HIDDEN_JUMPTARGET(__curbrk)), gp
 	;;
 	ld8 r9 = [r9]
 (p6) 	mov ret0 = ENOMEM
@@ -47,6 +48,5 @@ LEAF(__brk)
 	st8 [r9] = ret0
 	mov ret0 = 0
 	ret
-END(__brk)
-
-weak_alias (__brk, brk)
+END(brk)
+libc_hidden_def(brk)
