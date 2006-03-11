@@ -1,5 +1,3 @@
-#pragma prototyped noticed
-
 /*
  * regex(3) test harness
  *
@@ -502,30 +500,30 @@ static const char* unsupported[] =
 
 static const struct { int code; char* name; } codes[] =
 {
-	REG_UNKNOWN,	"UNKNOWN",
-	REG_NOMATCH,	"NOMATCH",
-	REG_BADPAT,	"BADPAT",
-	REG_ECOLLATE,	"ECOLLATE",
-	REG_ECTYPE,	"ECTYPE",
-	REG_EESCAPE,	"EESCAPE",
-	REG_ESUBREG,	"ESUBREG",
-	REG_EBRACK,	"EBRACK",
-	REG_EPAREN,	"EPAREN",
-	REG_EBRACE,	"EBRACE",
-	REG_BADBR,	"BADBR",
-	REG_ERANGE,	"ERANGE",
-	REG_ESPACE,	"ESPACE",
-	REG_BADRPT,	"BADRPT",
-	REG_ENEWLINE,	"ENEWLINE",
-	REG_ENULL,	"ENULL",
-	REG_ECOUNT,	"ECOUNT",
-	REG_BADESC,	"BADESC",
-	REG_EMEM,	"EMEM",
-	REG_EHUNG,	"EHUNG",
-	REG_EBUS,	"EBUS",
-	REG_EFAULT,	"EFAULT",
-	REG_EFLAGS,	"EFLAGS",
-	REG_EDELIM,	"EDELIM",
+	{REG_UNKNOWN,	"UNKNOWN"},
+	{REG_NOMATCH,	"NOMATCH"},
+	{REG_BADPAT,	"BADPAT"},
+	{REG_ECOLLATE,	"ECOLLATE"},
+	{REG_ECTYPE,	"ECTYPE"},
+	{REG_EESCAPE,	"EESCAPE"},
+	{REG_ESUBREG,	"ESUBREG"},
+	{REG_EBRACK,	"EBRACK"},
+	{REG_EPAREN,	"EPAREN"},
+	{REG_EBRACE,	"EBRACE"},
+	{REG_BADBR,	"BADBR"},
+	{REG_ERANGE,	"ERANGE"},
+	{REG_ESPACE,	"ESPACE"},
+	{REG_BADRPT,	"BADRPT"},
+	{REG_ENEWLINE,	"ENEWLINE"},
+	{REG_ENULL,	"ENULL"},
+	{REG_ECOUNT,	"ECOUNT"},
+	{REG_BADESC,	"BADESC"},
+	{REG_EMEM,	"EMEM"},
+	{REG_EHUNG,	"EHUNG"},
+	{REG_EBUS,	"EBUS"},
+	{REG_EFAULT,	"EFAULT"},
+	{REG_EFLAGS,	"EFLAGS"},
+	{REG_EDELIM,	"EDELIM"},
 };
 
 static struct
@@ -697,7 +695,7 @@ escape(char* s)
 	char*	e;
 	int	c;
 
-	for (b = t = s; *t = *s; s++, t++)
+	for (b = t = s; (*t = *s); s++, t++)
 		if (*s == '\\')
 			switch (*++s)
 			{
@@ -710,7 +708,7 @@ escape(char* s)
 				*t = '\b';
 				break;
 			case 'c':
-				if (*t = *++s)
+				if ((*t = *++s))
 					*t &= 037;
 				else
 					s--;
@@ -827,7 +825,7 @@ matchprint(regmatch_t* match, int nmatch, int nsub, char* ans, unsigned long tes
 	int	i;
 
 	for (; nmatch > nsub + 1; nmatch--)
-		if ((match[nmatch-1].rm_so != -1 || match[nmatch-1].rm_eo != -1) && (!(test & TEST_IGNORE_POSITION) || match[nmatch-1].rm_so >= 0 && match[nmatch-1].rm_eo >= 0))
+		if ((match[nmatch-1].rm_so != -1 || match[nmatch-1].rm_eo != -1) && (!(test & TEST_IGNORE_POSITION) || (match[nmatch-1].rm_so >= 0 && match[nmatch-1].rm_eo >= 0)))
 			break;
 	for (i = 0; i < nmatch; i++)
 	{
@@ -1069,7 +1067,7 @@ extract(int* tabs, char* spec, char* re, char* s, char* ans, char* msg, char* ac
 		printf("%s", TABS(*tabs++));
 		quote(s, -1, test);
 		printf("%s", TABS(*tabs++));
-		if (!(test & (TEST_ACTUAL|TEST_BASELINE)) || !accept && !match)
+		if (!(test & (TEST_ACTUAL|TEST_BASELINE)) || (!accept && !match))
 			printf("%s", ans);
 		else if (accept)
 			printf("%s", accept);
@@ -1129,7 +1127,7 @@ main(int argc, char** argv)
 	int		expected;
 	int		got;
 	int		locale;
-	int		subunitlen;
+	int		subunitlen = 0;
 	int		testno;
 	unsigned long	level;
 	unsigned long	skip;
@@ -1141,8 +1139,8 @@ main(int argc, char** argv)
 	char*		ans;
 	char*		msg;
 	char*		fun;
-	char*		ppat;
-	char*		subunit;
+	char*		ppat = NULL;
+	char*		subunit = NULL;
 	char*		version;
 	char*		field[6];
 	char*		delim[6];
@@ -1234,7 +1232,7 @@ main(int argc, char** argv)
 	if (!*argv)
 		argv = filter;
 	locale = 0;
-	while (state.file = *argv++)
+	while ((state.file = *argv++))
 	{
 		if (streq(state.file, "-") || streq(state.file, "/dev/stdin") || streq(state.file, "/dev/fd/0"))
 		{
@@ -1253,7 +1251,7 @@ main(int argc, char** argv)
 		if (!(test & (TEST_ACTUAL|TEST_BASELINE|TEST_FAIL|TEST_PASS|TEST_SUMMARY)))
 		{
 			printf("TEST\t%s ", unit);
-			if (s = state.file)
+			if ((s = state.file))
 			{
 				subunit = p = 0;
 				for (;;)
@@ -1343,7 +1341,7 @@ main(int argc, char** argv)
 			signal(SIGBUS, gotcha);
 			signal(SIGSEGV, gotcha);
 		}
-		while (p = my_getline(fp))
+		while ((p = my_getline(fp)))
 		{
 
 		/* parse: */
@@ -1647,7 +1645,7 @@ main(int argc, char** argv)
 				}
 				break;
 			}
-			if ((cflags|eflags) == NOTEST || (skip & level) && (test & TEST_BASELINE))
+			if ((cflags|eflags) == NOTEST || ((skip & level) && (test & TEST_BASELINE)))
 			{
 				if (test & TEST_BASELINE)
 				{
@@ -1679,7 +1677,7 @@ main(int argc, char** argv)
 				bad("too few fields\n", NiL, NiL, 0, test);
 			while (i < elementsof(field))
 				field[i++] = 0;
-			if (re = field[1])
+			if ((re = field[1]))
 			{
 				if (streq(re, "SAME"))
 				{
@@ -1891,7 +1889,7 @@ main(int argc, char** argv)
 			{
 				if (test & TEST_LENIENT)
 					/* we'll let it go this time */;
-				else if (!*ans || ans[0]=='(' || cret == REG_BADPAT && streq(ans, "NOMATCH"))
+				else if (!*ans || ans[0]=='(' || (cret == REG_BADPAT && streq(ans, "NOMATCH")))
 				{
 					got = 0;
 					for (i = 1; i < elementsof(codes); i++)
