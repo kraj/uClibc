@@ -50,7 +50,11 @@ main (void)
     merror ("malloc (10) failed.");
 
   p = realloc (p, 0);
+#ifdef __MALLOC_GLIBC_COMPAT__
+  if (!p)
+#else
   if (p != NULL)
+#endif
     merror ("realloc (p, 0) failed.");
 
   p = malloc (0);
@@ -62,7 +66,11 @@ main (void)
     merror ("malloc (0) failed.");
 
   p = realloc (p, 0);
+#ifdef __MALLOC_GLIBC_COMPAT__
+  if (!p)
+#else
   if (p != NULL)
+#endif
     merror ("realloc (p, 0) failed.");
 
   q = malloc (256);
