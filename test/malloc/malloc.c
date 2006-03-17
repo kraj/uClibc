@@ -70,11 +70,7 @@ int test2(void)
 	
 	ptr = malloc(100);
 	ptr = realloc(ptr, 0);
-#ifdef __MALLOC_GLIBC_COMPAT__
-	if (!ptr) {
-#else
 	if (ptr) {
-#endif
 		printf("realloc(,0) failed\n");
 		++ret;
 		free(ptr);

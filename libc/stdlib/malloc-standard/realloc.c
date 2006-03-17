@@ -52,7 +52,7 @@ void* realloc(void* oldmem, size_t bytes)
 	return malloc(bytes);
     if (! bytes) {
 	free (oldmem);
-	return malloc(bytes);
+	return NULL;
     }
 
     LOCK;

@@ -54,16 +54,9 @@ main (void)
 
   /* realloc (p, 0) == free (p).  */
   p = realloc (p, 0);
-#ifdef __MALLOC_GLIBC_COMPAT__
-  if (!p)
-#else
   if (p != NULL)
-#endif
     merror ("realloc (p, 0) failed.");
 
-#ifdef __MALLOC_GLIBC_COMPAT__
-  free (p);
-#endif
   p = malloc (0);
 #if !defined(__UCLIBC__) || defined(__MALLOC_GLIBC_COMPAT__)
   if (p == NULL)
@@ -73,16 +66,8 @@ main (void)
     merror ("malloc (0) failed.");
 
   p = realloc (p, 0);
-#ifdef __MALLOC_GLIBC_COMPAT__
-  if (!p)
-#else
   if (p != NULL)
-#endif
     merror ("realloc (p, 0) failed.");
-
-#ifdef __MALLOC_GLIBC_COMPAT__
-  free (p);
-#endif
 
   return errors != 0;
 }
