@@ -56,7 +56,7 @@ extern struct rpcent *getrpcbyname (__const char *__name) __THROW;
 extern struct rpcent *getrpcbynumber (int __number) __THROW;
 extern struct rpcent *getrpcent (void) __THROW;
 
-#ifdef __USE_MISC
+#if defined __USE_MISC && defined __UCLIBC_HAS_REENTRANT_RPC__
 extern int getrpcbyname_r (__const char *__name, struct rpcent *__result_buf,
 			   char *__buffer, size_t __buflen,
 			   struct rpcent **__result) __THROW;
