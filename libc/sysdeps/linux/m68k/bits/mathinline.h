@@ -109,7 +109,7 @@
 #endif
 
 #define __inline_mathop1(float_type,func, op)				      \
-  __m81_defun (float_type, func, (float_type __mathop_x)) __THROW	      \
+  __m81_defun (float_type, func, (float_type __mathop_x))		      \
   {									      \
     float_type __result;						      \
     __asm("f" __STRING(op) "%.x %1, %0" : "=f" (__result) : "f" (__mathop_x));\
@@ -167,7 +167,7 @@ __inline_mathop(trunc, intrz)
 
 #define __inline_functions(float_type, s)				  \
 __m81_inline float_type							  \
-__m81_u(__CONCAT(__frexp,s))(float_type __value, int *__expptr)	__THROW	  \
+__m81_u(__CONCAT(__frexp,s))(float_type __value, int *__expptr)		  \
 {									  \
   float_type __mantissa, __exponent;					  \
   int __iexponent;							  \
@@ -188,7 +188,7 @@ __m81_u(__CONCAT(__frexp,s))(float_type __value, int *__expptr)	__THROW	  \
   return __mantissa;							  \
 }									  \
 									  \
-__m81_defun (float_type, __CONCAT(__floor,s), (float_type __x))	__THROW	  \
+__m81_defun (float_type, __CONCAT(__floor,s), (float_type __x))		  \
 {									  \
   float_type __result;							  \
   unsigned long int __ctrl_reg;						  \
@@ -204,7 +204,7 @@ __m81_defun (float_type, __CONCAT(__floor,s), (float_type __x))	__THROW	  \
   return __result;							  \
 }									  \
 									  \
-__m81_defun (float_type, __CONCAT(__ceil,s), (float_type __x)) __THROW	  \
+__m81_defun (float_type, __CONCAT(__ceil,s), (float_type __x)) 		  \
 {									  \
   float_type __result;							  \
   unsigned long int __ctrl_reg;						  \
@@ -230,7 +230,7 @@ __inline_functions(long double,l)
 #ifdef __USE_MISC
 
 # define __inline_functions(float_type, s)				  \
-__m81_defun (int, __CONCAT(__isinf,s), (float_type __value)) __THROW	  \
+__m81_defun (int, __CONCAT(__isinf,s), (float_type __value))		  \
 {									  \
   /* There is no branch-condition for infinity,				  \
      so we must extract and examine the condition codes manually.  */	  \
@@ -240,7 +240,7 @@ __m81_defun (int, __CONCAT(__isinf,s), (float_type __value)) __THROW	  \
   return (__fpsr & (2 << 24)) ? (__fpsr & (8 << 24) ? -1 : 1) : 0;	  \
 }									  \
 									  \
-__m81_defun (int, __CONCAT(__finite,s), (float_type __value)) __THROW	  \
+__m81_defun (int, __CONCAT(__finite,s), (float_type __value))		  \
 {									  \
   /* There is no branch-condition for infinity, so we must extract and	  \
      examine the condition codes manually.  */				  \
@@ -251,7 +251,7 @@ __m81_defun (int, __CONCAT(__finite,s), (float_type __value)) __THROW	  \
 }									  \
 									  \
 __m81_defun (float_type, __CONCAT(__scalbn,s),				  \
-	     (float_type __x, int __n))	__THROW				  \
+	     (float_type __x, int __n))					  \
 {									  \
   float_type __result;							  \
   __asm ("fscale%.l %1, %0" : "=f" (__result) : "dmi" (__n), "0" (__x));  \
@@ -268,7 +268,7 @@ __inline_functions(long double,l)
 #if defined __USE_MISC || defined __USE_XOPEN
 
 # define __inline_functions(float_type, s)				  \
-__m81_defun (int, __CONCAT(__isnan,s), (float_type __value)) __THROW	  \
+__m81_defun (int, __CONCAT(__isnan,s), (float_type __value))		  \
 {									  \
   char __result;							  \
   __asm("ftst%.x %1\n"							  \
@@ -288,7 +288,7 @@ __inline_functions(long double,l)
 #ifdef __USE_ISOC99
 
 # define __inline_functions(float_type, s)				  \
-__m81_defun (int, __CONCAT(__signbit,s), (float_type __value)) __THROW	  \
+__m81_defun (int, __CONCAT(__signbit,s), (float_type __value))		  \
 {									  \
   /* There is no branch-condition for the sign bit, so we must extract	  \
      and examine the condition codes manually.  */			  \
@@ -299,12 +299,12 @@ __m81_defun (int, __CONCAT(__signbit,s), (float_type __value)) __THROW	  \
 }									  \
 									  \
 __m81_defun (float_type, __CONCAT(__scalbln,s),				  \
-	     (float_type __x, long int __n)) __THROW			  \
+	     (float_type __x, long int __n))				  \
 {									  \
   return __CONCAT(__scalbn,s) (__x, __n);				  \
 }									  \
 									  \
-__m81_defun (float_type, __CONCAT(__nearbyint,s), (float_type __x)) __THROW \
+__m81_defun (float_type, __CONCAT(__nearbyint,s), (float_type __x))	  \
 {									  \
   float_type __result;							  \
   unsigned long int __ctrl_reg;						  \
@@ -318,7 +318,7 @@ __m81_defun (float_type, __CONCAT(__nearbyint,s), (float_type __x)) __THROW \
   return __result;							  \
 }									  \
 									  \
-__m81_defun (long int, __CONCAT(__lrint,s), (float_type __x)) __THROW	  \
+__m81_defun (long int, __CONCAT(__lrint,s), (float_type __x))		  \
 {									  \
   long int __result;							  \
   __asm ("fmove%.l %1, %0" : "=dm" (__result) : "f" (__x));		  \
@@ -327,7 +327,7 @@ __m81_defun (long int, __CONCAT(__lrint,s), (float_type __x)) __THROW	  \
 									  \
 __m81_inline float_type							  \
 __m81_u(__CONCAT(__fma,s))(float_type __x, float_type __y,		  \
-			   float_type __z) __THROW			  \
+			   float_type __z)				  \
 {									  \
   return (__x * __y) + __z;						  \
 }
@@ -344,7 +344,7 @@ __inline_functions (long double,l)
 # define __inline_functions(float_type, s)				\
 __m81_inline void							\
 __m81_u(__CONCAT(__sincos,s))(float_type __x, float_type *__sinx,	\
-			      float_type *__cosx) __THROW		\
+			      float_type *__cosx)			\
 {									\
   __asm ("fsincos%.x %2,%1:%0"						\
 	 : "=f" (*__sinx), "=f" (*__cosx) : "f" (__x));			\
@@ -365,13 +365,13 @@ __inline_functions (long double,l)
    NAME, to make token pasting work correctly with -traditional.  */
 # define __inline_forward_c(rettype, name, args1, args2)	\
 extern __inline rettype __attribute__((__const__))	\
-name args1 __THROW					\
+name args1						\
 {							\
   return __CONCAT(__,name) args2;			\
 }
 
 # define __inline_forward(rettype, name, args1, args2)	\
-extern __inline rettype name args1 __THROW		\
+extern __inline rettype name args1			\
 {							\
   return __CONCAT(__,name) args2;			\
 }

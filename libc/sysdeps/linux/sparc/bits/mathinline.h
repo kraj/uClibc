@@ -106,7 +106,7 @@
 
 /* Test for negative number.  Used in the signbit() macro.  */
 __MATH_INLINE int
-__signbitf (float __x) __THROW
+__NTH (__signbitf (float __x))
 {
   __extension__ union { float __f; int __i; } __u = { __f: __x };
   return __u.__i < 0;
@@ -115,14 +115,14 @@ __signbitf (float __x) __THROW
 #   if __WORDSIZE == 32
 
 __MATH_INLINE int
-__signbit (double __x) __THROW
+__NTH (__signbit (double __x))
 {
   __extension__ union { double __d; int __i[2]; } __u = { __d: __x };
   return __u.__i[0] < 0;
 }
 
 __MATH_INLINE int
-__signbitl (long double __x) __THROW
+__NTH (__signbitl (long double __x))
 {
   return __signbit ((double)__x);
 }
@@ -130,14 +130,14 @@ __signbitl (long double __x) __THROW
 #   else /* sparc64 */
 
 __MATH_INLINE int
-__signbit (double __x) __THROW
+__NTH (__signbit (double __x))
 {
   __extension__ union { double __d; long int __i; } __u = { __d: __x };
   return __u.__i < 0;
 }
 
 __MATH_INLINE int
-__signbitl (long double __x) __THROW
+__NTH (__signbitl (long double __x))
 {
   __extension__ union { long double __l; long int __i[2]; } __u = { __l: __x };
   return __u.__i[0] < 0;
@@ -150,7 +150,7 @@ __signbitl (long double __x) __THROW
 #  ifndef __NO_MATH_INLINES
 
 __MATH_INLINE double
-sqrt (double __x) __THROW
+__NTH (sqrt (double __x))
 {
   register double __r;
   __asm ("fsqrtd %1,%0" : "=f" (__r) : "f" (__x));
@@ -158,7 +158,7 @@ sqrt (double __x) __THROW
 }
 
 __MATH_INLINE float
-sqrtf (float __x) __THROW
+__NTH (sqrtf (float __x))
 {
   register float __r;
   __asm ("fsqrts %1,%0" : "=f" (__r) : "f" (__x));
@@ -167,7 +167,7 @@ sqrtf (float __x) __THROW
 
 #   if __WORDSIZE == 64
 __MATH_INLINE long double
-sqrtl (long double __x) __THROW
+__NTH (sqrtl (long double __x))
 {
   long double __r;
   extern void _Qp_sqrt (long double *, __const__ long double *);
@@ -213,16 +213,16 @@ __ieee754_sqrtl (long double __x)
 
 #  ifndef __NO_MATH_INLINES
 
-__MATH_INLINE double fdim (double __x, double __y);
+__MATH_INLINE double __NTH (fdim (double __x, double __y));
 __MATH_INLINE double
-fdim (double __x, double __y)
+__NTH (fdim (double __x, double __y))
 {
   return __x < __y ? 0 : __x - __y;
 }
 
-__MATH_INLINE float fdimf (float __x, float __y);
+__MATH_INLINE float __NTH (fdimf (float __x, float __y));
 __MATH_INLINE float
-fdimf (float __x, float __y)
+__NTH (fdimf (float __x, float __y))
 {
   return __x < __y ? 0 : __x - __y;
 }
