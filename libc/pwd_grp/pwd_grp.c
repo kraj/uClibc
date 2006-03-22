@@ -92,6 +92,7 @@ extern int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
 /**********************************************************************/
 #ifdef L_fgetpwent_r
 
+#ifdef __USE_SVID
 libc_hidden_proto(fgetpwent_r)
 int fgetpwent_r(FILE *__restrict stream, struct passwd *__restrict resultbuf,
 				char *__restrict buffer, size_t buflen,
@@ -108,11 +109,13 @@ int fgetpwent_r(FILE *__restrict stream, struct passwd *__restrict resultbuf,
 	return rv;
 }
 libc_hidden_def(fgetpwent_r)
+#endif
 
 #endif
 /**********************************************************************/
 #ifdef L_fgetgrent_r
 
+#ifdef __USE_SVID
 libc_hidden_proto(fgetgrent_r)
 int fgetgrent_r(FILE *__restrict stream, struct group *__restrict resultbuf,
 				char *__restrict buffer, size_t buflen,
@@ -129,6 +132,7 @@ int fgetgrent_r(FILE *__restrict stream, struct group *__restrict resultbuf,
 	return rv;
 }
 libc_hidden_def(fgetgrent_r)
+#endif
 
 #endif
 /**********************************************************************/
@@ -159,6 +163,7 @@ libc_hidden_def(fgetspent_r)
 /**********************************************************************/
 #ifdef L_fgetpwent
 
+#ifdef __USE_SVID
 libc_hidden_proto(fgetpwent_r)
 
 struct passwd *fgetpwent(FILE *stream)
@@ -170,11 +175,13 @@ struct passwd *fgetpwent(FILE *stream)
 	fgetpwent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
+#endif
 
 #endif
 /**********************************************************************/
 #ifdef L_fgetgrent
 
+#ifdef __USE_SVID
 libc_hidden_proto(fgetgrent_r)
 
 struct group *fgetgrent(FILE *stream)
@@ -186,6 +193,7 @@ struct group *fgetgrent(FILE *stream)
 	fgetgrent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
+#endif
 
 #endif
 /**********************************************************************/
@@ -752,6 +760,7 @@ int initgroups(const char *user, gid_t gid)
 /**********************************************************************/
 #ifdef L_putpwent
 
+#ifdef __USE_SVID
 int putpwent(const struct passwd *__restrict p, FILE *__restrict f)
 {
 	int rv = -1;
@@ -772,6 +781,7 @@ int putpwent(const struct passwd *__restrict p, FILE *__restrict f)
 
 	return rv;
 }
+#endif
 
 #endif
 /**********************************************************************/
