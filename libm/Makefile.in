@@ -21,7 +21,7 @@
 #
 
 CFLAGS-libm := -DNOT_IN_libc -DIS_IN_libm $(SSP_ALL_CFLAGS)
-CFLAGS-libm += -D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
+CFLAGS-libm += -D_IEEE_LIBM
 
 LDFLAGS-libm.so := $(LDFLAGS)
 

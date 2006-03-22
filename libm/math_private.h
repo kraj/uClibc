@@ -186,7 +186,9 @@ extern double __ieee754_scalb (double,double) attribute_hidden;
 #endif
 
 /* fdlibm kernel function */
+#ifndef _IEEE_LIBM
 extern double __kernel_standard (double,double,int) attribute_hidden;
+#endif
 extern double __kernel_sin (double,double,int) attribute_hidden;
 extern double __kernel_cos (double,double) attribute_hidden;
 extern double __kernel_tan (double,double,int) attribute_hidden;
