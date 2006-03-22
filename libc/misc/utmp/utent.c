@@ -29,7 +29,6 @@ libc_hidden_proto(open)
 libc_hidden_proto(fcntl)
 libc_hidden_proto(close)
 libc_hidden_proto(lseek)
-libc_hidden_proto(setutent)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
@@ -46,11 +45,11 @@ static struct utmp static_utmp;
 static const char default_file_name[] = _PATH_UTMP;
 static const char *static_ut_name = (const char *) default_file_name;
 
-void setutent(void)
+/* This function must be called with the LOCK held */
+static void __setutent(void)
 {
     int ret;
 
-    LOCK;
     if (static_fd == -1) {
 	if ((static_fd = open(static_ut_name, O_RDWR)) < 0) {
 	    if ((static_fd = open(static_ut_name, O_RDONLY)) < 0) {
@@ -66,34 +65,39 @@ void setutent(void)
 bummer:
 	    static_fd = -1;
 	    close(static_fd);
-unlock_and_ret:
-	    UNLOCK;
 	    return;
 	}
     }
     lseek(static_fd, 0, SEEK_SET);
-    goto unlock_and_ret;
+    return;
+}
+
+libc_hidden_proto(setutent)
+void setutent(void)
+{
+    LOCK;
+    __setutent();
+    UNLOCK;
 }
 libc_hidden_def(setutent)
 
+/* This function must be called with the LOCK held */
 static struct utmp *__getutent(int utmp_fd)
 {
     struct utmp *ret = NULL;
 
     if (utmp_fd == -1) {
-	setutent();
+	__setutent();
     }
     if (utmp_fd == -1) {
 	return NULL;
     }
 
-    LOCK;
     if (read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) == sizeof(struct utmp)) 
     {
 	ret = &static_utmp;
     }
 
-    UNLOCK;
     return ret;
 }
 
@@ -106,15 +110,19 @@ void endutent(void)
     UNLOCK;
 }
 
-/* Locking is done in __getutent */
 struct utmp *getutent(void)
 {
-    return __getutent(static_fd);
+    struct utmp *ret = NULL;
+
+    LOCK;
+    ret = __getutent(static_fd);
+    UNLOCK;
+
+    return ret;
 }
 
-/* Locking is done in __getutent */
-libc_hidden_proto(getutid)
-struct utmp *getutid (const struct utmp *utmp_entry)
+/* This function must be called with the LOCK held */
+static struct utmp *__getutid(const struct utmp *utmp_entry)
 {
     struct utmp *lutmp;
 
@@ -139,22 +147,34 @@ struct utmp *getutid (const struct utmp *utmp_entry)
 
     return NULL;
 }
+
+libc_hidden_proto(getutid)
+struct utmp *getutid(const struct utmp *utmp_entry)
+{
+    struct utmp *ret = NULL;
+
+    LOCK;
+    ret = __getutid(utmp_entry);
+    UNLOCK;
+
+    return ret;
+}
 libc_hidden_def(getutid)
 
-/* Locking is done in __getutent */
 struct utmp *getutline(const struct utmp *utmp_entry)
 {
-    struct utmp *lutmp;
+    struct utmp *lutmp = NULL;
 
+    LOCK;
     while ((lutmp = __getutent(static_fd)) != NULL) {
 	if ((lutmp->ut_type == USER_PROCESS || lutmp->ut_type == LOGIN_PROCESS) &&
-		!strcmp(lutmp->ut_line, utmp_entry->ut_line))
-	{
-	    return lutmp;
+		!strcmp(lutmp->ut_line, utmp_entry->ut_line)) {
+	    break;
 	}
     }
+    UNLOCK;
 
-    return NULL;
+    return lutmp;
 }
 
 struct utmp *pututline (const struct utmp *utmp_entry)
@@ -164,7 +184,7 @@ struct utmp *pututline (const struct utmp *utmp_entry)
        the file pointer where they want it, everything will work out. */
     lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
 
-    if (getutid(utmp_entry) != NULL)
+    if (__getutid(utmp_entry) != NULL)
 	lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
     else
 	lseek(static_fd, (off_t) 0, SEEK_END);
