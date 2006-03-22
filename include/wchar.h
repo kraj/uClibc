@@ -329,8 +329,10 @@ extern size_t wcrtomb (char *__restrict __s, wchar_t __wc,
 		       mbstate_t *__restrict __ps) __THROW;
 
 /* Return number of bytes in multibyte character pointed to by S.  */
+#if 0 /* uClibc: disabled */
 extern size_t __mbrlen (__const char *__restrict __s, size_t __n,
 			mbstate_t *__restrict __ps) __THROW;
+#endif
 extern size_t mbrlen (__const char *__restrict __s, size_t __n,
 		      mbstate_t *__restrict __ps) __THROW;
 
@@ -721,8 +723,7 @@ extern size_t wcsftime (wchar_t *__restrict __s, size_t __maxsize,
 			__const struct tm *__restrict __tp) __THROW;
 __END_NAMESPACE_C99
 
-# ifdef __USE_GNU
-#ifdef __UCLIBC_HAS_XLOCALE__
+# if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
 # include <xlocale.h>
 
 /* Similar to `wcsftime' but takes the information from
@@ -731,7 +732,6 @@ extern size_t wcsftime_l (wchar_t *__restrict __s, size_t __maxsize,
 			  __const wchar_t *__restrict __format,
 			  __const struct tm *__restrict __tp,
 			  __locale_t __loc) __THROW;
-#endif /* __UCLIBC_HAS_XLOCALE__ */
 # endif
 
 /* The X/Open standard demands that most of the functions defined in
