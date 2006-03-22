@@ -1401,6 +1401,7 @@ config DODEBUG
 	bool "Build uClibc with debugging symbols"
 	default n
 	select NOSTRIP
+	select EXTRA_WARNINGS
 	help
 	  Say Y here if you wish to compile uClibc with debugging symbols.
 	  This will allow you to use a debugger to examine uClibc internals
