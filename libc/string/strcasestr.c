@@ -8,10 +8,10 @@
 #include "_string.h"
 #include <ctype.h>
 
-#ifndef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__ctype_tolower)
-#else
+#ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_tolower_loc)
+#elif __UCLIBC_HAS_CTYPE_TABLES__
+libc_hidden_proto(__ctype_tolower)
 #endif
 libc_hidden_proto(tolower)
 

@@ -67,7 +67,9 @@ libc_hidden_proto(strcpy)
 libc_hidden_proto(strncmp)
 libc_hidden_proto(strchr)
 libc_hidden_proto(getenv)
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__C_ctype_toupper)
+#endif
 /*libc_hidden_proto(fflush)*/
 
 #ifdef __UCLIBC_MJN3_ONLY__

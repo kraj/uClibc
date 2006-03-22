@@ -202,7 +202,7 @@ libc_hidden_proto(fprintf)
 libc_hidden_proto(__h_errno_location)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#else
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 
