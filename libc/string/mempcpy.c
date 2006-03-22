@@ -7,6 +7,8 @@
 
 #include "_string.h"
 
+#ifdef __USE_GNU
+
 #ifdef WANT_WIDE
 # define Wmempcpy wmempcpy
 #else
@@ -35,3 +37,4 @@ Wvoid *Wmempcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
 }
 
 libc_hidden_def(Wmempcpy)
+#endif

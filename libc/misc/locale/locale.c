@@ -60,7 +60,6 @@
 
 libc_hidden_proto(memcpy)
 libc_hidden_proto(memset)
-libc_hidden_proto(stpcpy)
 libc_hidden_proto(strtok_r)
 libc_hidden_proto(strlen)
 libc_hidden_proto(strcmp)
@@ -192,6 +191,7 @@ static const char utf8[] = "UTF-8";
  */
 static char hr_locale[(MAX_LOCALE_CATEGORY_STR * LC_ALL) + MAX_LOCALE_STR];
 
+libc_hidden_proto(stpcpy)
 libc_hidden_proto(newlocale)
 
 static void update_hr_locale(const unsigned char *spec)
@@ -1082,6 +1082,7 @@ libc_hidden_def(__XL_NPP(nl_langinfo))
 /**********************************************************************/
 #ifdef L_newlocale
 
+libc_hidden_proto(stpcpy)
 libc_hidden_proto(newlocale)
 
 #ifdef __UCLIBC_MJN3_ONLY__

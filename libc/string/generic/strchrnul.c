@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef __USE_GNU
 libc_hidden_proto(strchrnul)
 libc_hidden_proto(abort)
 
@@ -165,3 +166,4 @@ char *strchrnul (const char *s, int c_in)
   return NULL;
 }
 libc_hidden_def(strchrnul)
+#endif

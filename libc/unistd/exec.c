@@ -45,7 +45,6 @@ libc_hidden_proto(execvp)
 libc_hidden_proto(memcpy)
 libc_hidden_proto(strchr)
 libc_hidden_proto(strlen)
-libc_hidden_proto(strchrnul)
 libc_hidden_proto(execve)
 libc_hidden_proto(mmap)
 libc_hidden_proto(munmap)
@@ -219,6 +218,8 @@ int execlp(const char *file, const char *arg, ...)
 #endif
 /**********************************************************************/
 #ifdef L_execvp
+
+libc_hidden_proto(strchrnul)
 
 /* Use a default path that matches glibc behavior, since SUSv3 says
  * this is implementation-defined.  The default is current working dir,

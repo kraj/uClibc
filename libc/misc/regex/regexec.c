@@ -385,7 +385,7 @@ re_search_2_stub (bufp, string1, length1, string2, length2, start, range, regs,
 
 	if (BE (s == NULL, 0))
 	  return -2;
-#if defined _LIBC || defined __UCLIBC__
+#if (defined _LIBC || defined __UCLIBC__) && defined __USE_GNU
 	memcpy (__mempcpy (s, string1, length1), string2, length2);
 #else
 	memcpy (s, string1, length1);

@@ -98,7 +98,6 @@
  * Manuel
  */
 
-#define _ISOC99_SOURCE
 #include <errno.h>
 #include <stddef.h>
 #include <limits.h>

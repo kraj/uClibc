@@ -7,8 +7,8 @@
 
 #include "_string.h"
 
+#ifdef __USE_GNU
 libc_hidden_proto(rawmemchr)
-
 void *rawmemchr(const void *s, int c)
 {
 	register const unsigned char *r = s;
@@ -18,3 +18,4 @@ void *rawmemchr(const void *s, int c)
 	return (void *) r;	/* silence the warning */
 }
 libc_hidden_def(rawmemchr)
+#endif

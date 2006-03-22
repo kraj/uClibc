@@ -532,7 +532,7 @@ regerror (errcode, preg, errbuf, errbuf_size)
     {
       if (BE (msg_size > errbuf_size, 0))
 	{
-#if defined HAVE_MEMPCPY || defined _LIBC
+#if (defined HAVE_MEMPCPY || defined _LIBC) && defined __USE_GNU
 	  *((char *) __mempcpy (errbuf, msg, errbuf_size - 1)) = '\0';
 #else
 	  memcpy (errbuf, msg, errbuf_size - 1);

@@ -164,7 +164,6 @@ libc_hidden_proto(strcmp)
 libc_hidden_proto(strcpy)
 libc_hidden_proto(strlen)
 libc_hidden_proto(strncpy)
-libc_hidden_proto(strnlen)
 /* libc_hidden_proto(sprintf) */
 libc_hidden_proto(open)
 libc_hidden_proto(read)
@@ -605,6 +604,8 @@ libc_hidden_def(localtime_r)
 #ifdef L__time_localtime_tzi
 
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+
+libc_hidden_proto(strnlen)
 
 struct ll_tzname_item;
 

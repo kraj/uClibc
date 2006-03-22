@@ -35,11 +35,13 @@
 
 #include "netlinkaccess.h"
 
-libc_hidden_proto(strndup)
 libc_hidden_proto(strncpy)
 libc_hidden_proto(strdup)
 libc_hidden_proto(ioctl)
 libc_hidden_proto(close)
+#if __ASSUME_NETLINK_SUPPORT
+libc_hidden_proto(strndup)
+#endif
 
 extern int __opensock(void) attribute_hidden;
 

@@ -27,7 +27,6 @@
  * and is useful in debugging the stdio code.
  */
 
-#define _ISOC99_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

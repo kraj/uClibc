@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+#ifdef __USE_GNU
 libc_hidden_proto(strnlen)
 size_t strnlen(const char *s, size_t count)
 {
@@ -52,3 +53,4 @@ size_t strnlen(const char *s, size_t count)
     return __res;
 }
 libc_hidden_def(strnlen)
+#endif

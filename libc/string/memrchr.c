@@ -7,6 +7,8 @@
 
 #include "_string.h"
 
+#ifdef __USE_GNU
+
 libc_hidden_proto(memrchr)
 
 void *memrchr(const void *s, int c, size_t n)
@@ -33,3 +35,4 @@ void *memrchr(const void *s, int c, size_t n)
 #undef np
 
 libc_hidden_def(memrchr)
+#endif

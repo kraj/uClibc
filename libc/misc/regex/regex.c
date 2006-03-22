@@ -28,7 +28,9 @@
 #ifdef __UCLIBC__
 #undef _LIBC
 #define _REGEX_RE_COMP
-#define HAVE_MEMPCPY
+#ifdef __USE_GNU
+# define HAVE_MEMPCPY
+#endif
 #define HAVE_LANGINFO
 #define HAVE_LANGINFO_CODESET
 #include <stdbool.h>
@@ -83,8 +85,10 @@ libc_hidden_proto(strlen)
 libc_hidden_proto(strncpy)
 libc_hidden_proto(getenv)
 libc_hidden_proto(strcasecmp)
-libc_hidden_proto(mempcpy)
 libc_hidden_proto(abort)
+#ifdef __USE_GNU
+libc_hidden_proto(mempcpy)
+#endif
 
 #endif
 

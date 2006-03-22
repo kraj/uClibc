@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef __USE_GNU
 libc_hidden_proto(strnlen)
 libc_hidden_proto(abort)
 
@@ -160,3 +161,4 @@ size_t strnlen (const char *str, size_t maxlen)
   return char_ptr - str;
 }
 libc_hidden_def(strnlen)
+#endif
