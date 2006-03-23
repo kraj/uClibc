@@ -120,10 +120,14 @@ static inline _syscall3(int, _dl_readlink, const char *, path, char *, buf,
                         size_t, bufsiz);
 
 #ifdef __UCLIBC_HAS_SSP__
-#include <sys/time.h>
-#define __NR__dl_gettimeofday __NR_gettimeofday
+# include <sys/time.h>
+# define __NR__dl_gettimeofday __NR_gettimeofday
 static inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv,
+# ifdef __USE_BSD
                         struct timezone *, tz);
+# else
+                        void *, tz);
+# endif
 #endif
 
 
