@@ -22,6 +22,8 @@
 #include <unistd.h>
 #include <string.h>
 
+#if defined __USE_BSD && (defined __USE_XOPEN && !defined __USE_XOPEN2K)
+
 libc_hidden_proto(strlen)
 libc_hidden_proto(tcsetattr)
 libc_hidden_proto(tcgetattr)
@@ -118,3 +120,4 @@ getpass (prompt)
 
   return buf;
 }
+#endif

@@ -9,6 +9,6 @@
 
 #include "syscalls.h"
 #include <sys/mman.h>
-#ifdef __NR_madvise
+#if defined __NR_madvise && defined __USE_BSD
 _syscall3(int, madvise, void *, __addr, size_t, __len, int, __advice);
 #endif

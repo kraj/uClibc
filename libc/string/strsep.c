@@ -7,10 +7,12 @@
 
 #include "_string.h"
 
-libc_hidden_proto(strsep)
+#ifdef __USE_BSD
+
 libc_hidden_proto(strpbrk)
 libc_hidden_proto(strcspn)
 
+libc_hidden_proto(strsep)
 char *strsep(char ** __restrict s1, const char * __restrict s2)
 {
 	register char *s = *s1;
@@ -32,3 +34,4 @@ char *strsep(char ** __restrict s1, const char * __restrict s2)
 	return s;
 }
 libc_hidden_def(strsep)
+#endif

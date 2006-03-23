@@ -42,7 +42,6 @@ libc_hidden_proto(strchr)
 libc_hidden_proto(strcmp)
 libc_hidden_proto(strcpy)
 libc_hidden_proto(strlen)
-libc_hidden_proto(setgroups)
 libc_hidden_proto(strtoul)
 libc_hidden_proto(rewind)
 libc_hidden_proto(fgets_unlocked)
@@ -702,6 +701,10 @@ struct spwd *sgetspent(const char *string)
 /**********************************************************************/
 #ifdef L_initgroups
 
+#ifdef __USE_BSD
+
+libc_hidden_proto(setgroups)
+
 int initgroups(const char *user, gid_t gid)
 {
 	FILE *grfile;
@@ -755,6 +758,7 @@ int initgroups(const char *user, gid_t gid)
 	free(group_list);
 	return rv;
 }
+#endif
 
 #endif
 /**********************************************************************/

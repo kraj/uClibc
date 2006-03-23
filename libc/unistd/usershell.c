@@ -40,6 +40,8 @@
 #include <unistd.h>
 #include <paths.h>
 
+#if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
+
 libc_hidden_proto(fstat)
 libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
@@ -146,3 +148,4 @@ cleanup:
     fclose(fp);
     return (char **) validsh;
 }
+#endif

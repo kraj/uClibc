@@ -46,6 +46,8 @@
 #include <paths.h>
 #include <unistd.h>
 
+#if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
+
 libc_hidden_proto(open)
 libc_hidden_proto(close)
 libc_hidden_proto(_exit)
@@ -87,3 +89,4 @@ int daemon( int nochdir, int noclose )
 	}
 	return(0);
 }
+#endif

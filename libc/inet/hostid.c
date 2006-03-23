@@ -27,6 +27,7 @@ libc_hidden_proto(gethostname)
 
 #define HOSTID "/etc/hostid"
 
+#ifdef __USE_BSD
 int sethostid(long int new_id)
 {
 	int fd;
@@ -39,6 +40,7 @@ int sethostid(long int new_id)
 	close (fd);
 	return ret;
 }
+#endif
 
 long int gethostid(void)
 {

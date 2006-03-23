@@ -20,6 +20,8 @@
 #include <errno.h>
 #include <stddef.h>
 
+#ifdef __USE_BSD
+
 libc_hidden_proto(cfsetispeed)
 libc_hidden_proto(cfsetospeed)
 
@@ -171,3 +173,4 @@ int cfsetspeed (struct termios *termios_p, speed_t speed)
 
   return -1;
 }
+#endif

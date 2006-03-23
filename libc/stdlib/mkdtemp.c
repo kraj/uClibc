@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include "../misc/internals/tempname.h"
 
+#ifdef __USE_BSD
 /* Generate a unique temporary directory name from TEMPLATE.
    The last six characters of TEMPLATE must be "XXXXXX";
    they are replaced with a string that makes the filename unique.
@@ -34,3 +35,4 @@ char * mkdtemp (char *template)
 
     return template;
 }
+#endif

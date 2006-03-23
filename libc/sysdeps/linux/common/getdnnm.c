@@ -11,14 +11,13 @@
 #include <errno.h>
 #include <sys/utsname.h>
 
-libc_hidden_proto(getdomainname)
-
+#if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
 libc_hidden_proto(strlen)
 libc_hidden_proto(strcpy)
 libc_hidden_proto(uname)
 
-int
-getdomainname(char *name, size_t len)
+libc_hidden_proto(getdomainname)
+int getdomainname(char *name, size_t len)
 {
   struct utsname uts;
 
@@ -45,3 +44,4 @@ getdomainname(char *name, size_t len)
   return 0;
 }
 libc_hidden_def(getdomainname)
+#endif

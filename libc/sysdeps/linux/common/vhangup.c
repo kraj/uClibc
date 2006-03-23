@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <unistd.h>
+#if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
 _syscall0(int, vhangup);
+#endif

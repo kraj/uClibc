@@ -18,10 +18,12 @@
 
 #include <string.h>
 
-libc_hidden_proto(strsep)
+#ifdef __USE_BSD
+
 libc_hidden_proto(strchr)
 libc_hidden_proto(strpbrk)
 
+libc_hidden_proto(strsep)
 char *strsep (char **stringp, const char *delim)
 {
   char *begin, *end;
@@ -66,3 +68,4 @@ char *strsep (char **stringp, const char *delim)
   return begin;
 }
 libc_hidden_def(strsep)
+#endif
