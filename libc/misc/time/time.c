@@ -133,6 +133,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <strings.h>
 #include <time.h>
 #include <sys/time.h>
 #include <limits.h>
@@ -748,8 +749,13 @@ struct tm attribute_hidden *__time_localtime_tzi(register const time_t *__restri
 		_time_t2tm(x, days, result);
 		result->tm_isdst = dst;
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+# ifdef __USE_BSD
 		result->tm_gmtoff = - tzi[dst].gmt_offset;
 		result->tm_zone = lookup_tzname(tzi[dst].tzname);
+# else
+		result->__tm_gmtoff = - tzi[dst].gmt_offset;
+		result->__tm_zone = lookup_tzname(tzi[dst].tzname);
+# endif
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
 	} while ((++dst < 2)
 			 && ((result->tm_isdst = tm_isdst(result, tzi)) != 0));
@@ -1128,8 +1134,13 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 
 #define RSP_TZUNLOCK	((void) 0)
-#define RSP_TZNAME		timeptr->tm_zone
-#define RSP_GMT_OFFSET	(-timeptr->tm_gmtoff)
+# ifdef __USE_BSD
+#  define RSP_TZNAME		timeptr->tm_zone
+#  define RSP_GMT_OFFSET	(-timeptr->tm_gmtoff)
+# else
+#  define RSP_TZNAME		timeptr->__tm_zone
+#  define RSP_GMT_OFFSET	(-timeptr->__tm_gmtoff)
+# endif
 
 #else
 
@@ -2206,8 +2217,13 @@ struct tm attribute_hidden *_time_t2tm(const time_t *__restrict timer,
 	/* TODO -- should this be 0? */
 	p[4] = 0;					/* result[8] .. tm_isdst */
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+# ifdef __USE_BSD
 	result->tm_gmtoff = 0;
 	result->tm_zone = utc_string;
+# else
+	result->__tm_gmtoff = 0;
+	result->__tm_zone = utc_string;
+# endif
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
 
 	return result;

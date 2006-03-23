@@ -1191,6 +1191,7 @@ typedef struct {
 
 #include <iconv.h>
 #include <string.h>
+#include <strings.h>
 #include <endian.h>
 #include <byteswap.h>
 

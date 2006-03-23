@@ -136,6 +136,7 @@
 #define __FORCE_GLIBC
 #include <features.h>
 #include <string.h>
+#include <strings.h>
 #include <stdio.h>
 #include <signal.h>
 #include <errno.h>
