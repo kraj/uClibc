@@ -7,6 +7,8 @@
 
 #include "_string.h"
 
+#ifdef __UCLIBC_SUSV3_LEGACY__
+
 libc_hidden_proto(memset)
 
 void bzero(void *s, size_t n)
@@ -29,3 +31,4 @@ void bzero(void *s, size_t n)
 #endif
 }
 #undef np
+#endif

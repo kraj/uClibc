@@ -20,6 +20,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
+
 	/* Store 64 bytes at (BASE + OFFSET) using value SOURCE. */
 #define ZERO_BIG_BLOCK(base, offset, source)    	\
 	std		source, [base + offset + 0x00]; \
@@ -43,6 +45,7 @@
 
 	.text
 	.align 4
+#ifdef __UCLIBC_SUSV3_LEGACY__
 ENTRY(bzero)
 	b		1f
 	 mov		%g0, %g3
@@ -61,6 +64,7 @@ ENTRY(bzero)
 	b		4f
 	 sub		%o0, %o2, %o0
 END(bzero)
+#endif
 
 ENTRY(memset)
 	and		%o1, 0xff, %g3

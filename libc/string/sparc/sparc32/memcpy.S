@@ -21,6 +21,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
+
 /* Both these macros have to start with exactly the same insn */
 #define MOVE_BIGCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, t7) 				\
 	ldd	[%src + offset + 0x00], %t0; 								\
@@ -161,11 +163,13 @@
 	b		3f
 	 sub		%o0, 2, %o0
 
+#ifdef __UCLIBC_SUSV3_LEGACY__
 ENTRY(bcopy)
 	mov		%o0, %o3
 	mov		%o1, %o0
 	mov		%o3, %o1
 END(bcopy)
+#endif
 
 ENTRY(memmove)
 	cmp		%o0, %o1

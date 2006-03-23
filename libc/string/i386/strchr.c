@@ -51,4 +51,6 @@ char *strchr(const char *s, int c)
     return __res;
 }
 libc_hidden_def(strchr)
+#ifdef __UCLIBC_SUSV3_LEGACY__
 strong_alias(strchr,index)
+#endif

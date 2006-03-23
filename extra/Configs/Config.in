@@ -455,6 +455,15 @@ config COMPAT_ATEXIT
 	  Enable this option if you want to update from 0.9.28 to svn/0.9.29, else
 	  you will be missing atexit() until you rebuild all apps.
 
+config UCLIBC_SUSV3_LEGACY
+	bool "Enable SuSv3 LEGACY functions"
+	default n
+	help
+	  Enable this option if you want to have SuSv3 LEGACY functions
+	  in the library, else they are replaced by SuSv3 proposed macros.
+	  Currently applies to bcopy/bzero/bcmp/index/rindex.
+	  WARNING! ABI incompatibility.
+
 config HAS_SHADOW
 	bool "Shadow Password Support"
 	default y

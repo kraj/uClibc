@@ -33,6 +33,7 @@
 
 __BEGIN_DECLS
 
+# ifdef __UCLIBC_SUSV3_LEGACY__
 /* Copy N bytes of SRC to DEST (like memmove, but args reversed).  */
 extern void bcopy (__const void *__src, void *__dest, size_t __n)
      __THROW __nonnull ((1, 2));
@@ -51,6 +52,17 @@ extern char *index (__const char *__s, int __c)
 /* Find the last occurrence of C in S (same as strrchr).  */
 extern char *rindex (__const char *__s, int __c)
      __THROW __attribute_pure__ __nonnull ((1));
+# else
+/* bcopy/bzero/bcmp/index/rindex are marked LEGACY in SuSv3.
+ * They are replaced as proposed by SuSv3. Don't sync this part 
+ * with glibc and keep it in sync with string.h.  */
+
+#  define bcopy(src,dest,n) (memmove((dest), (src), (n)), (void) 0)
+#  define bzero(s,n) (memset((s), '\0', (n)), (void) 0)
+#  define bcmp(s1,s2,n) memcmp((s1), (s2), (size_t)(n))
+#  define index(s,c) strchr((s), (c))
+#  define rindex(s,c) strrchr((s), (c))
+# endif
 
 /* Return the position of the first bit set in I, or 0 if none are set.
    The least-significant bit is position 1, the most-significant 32.  */

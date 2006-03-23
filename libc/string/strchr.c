@@ -27,6 +27,6 @@ Wchar *Wstrchr(register const Wchar *s, Wint c)
 }
 libc_hidden_def(Wstrchr)
 
-#ifndef WANT_WIDE
+#if !defined WANT_WIDE && defined __UCLIBC_SUSV3_LEGACY__
 strong_alias(strchr,index)
 #endif

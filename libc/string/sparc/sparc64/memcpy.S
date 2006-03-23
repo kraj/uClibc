@@ -20,6 +20,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <asm/asi.h>
 #ifndef XCC
 #define USE_BPR
@@ -191,6 +192,7 @@
 	.text
 	.align		32
 
+#ifdef __UCLIBC_SUSV3_LEGACY__
 ENTRY(bcopy)
 	sub		%o1, %o0, %o4			/* IEU0		Group		*/
 	mov		%o0, %g3			/* IEU1				*/
@@ -206,6 +208,7 @@ ENTRY(bcopy)
 	retl
 	 nop
 END(bcopy)
+#endif
 
 	.align		32
 200:	be,pt		%xcc, 201f			/* CTI				*/

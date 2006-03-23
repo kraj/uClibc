@@ -35,6 +35,8 @@
 	   in these days for an average user.
 	 */
 
+#include <features.h>
+
 	.text
 	.align		4
 10:	ldub		[%o0], %g4
@@ -217,7 +219,9 @@ ENTRY(strchr)
 	 ld		[%o0], %g4
 END(strchr)
 libc_hidden_def(strchr)
+#ifdef __UCLIBC_SUSV3_LEGACY__
 strong_alias(strchr,index)
+#endif
 
 ENTRY(strrchr)
 	andcc		%o1, 0xff, %o1
@@ -278,4 +282,6 @@ ENTRY(strrchr)
 	 mov		%o5, %o0
 END(strrchr)
 libc_hidden_def(strrchr)
+#ifdef __UCLIBC_SUSV3_LEGACY__
 strong_alias(strrchr,rindex)
+#endif

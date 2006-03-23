@@ -20,6 +20,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <asm/asi.h>
 #ifndef XCC
 #define XCC xcc
@@ -191,6 +192,7 @@ libc_hidden_def(memset)
 
 	.text
 	.align		32
+#ifdef __UCLIBC_SUSV3_LEGACY__
 ENTRY(bzero)
 #ifndef USE_BPR
 	srl		%o1, 0, %o1
@@ -310,3 +312,4 @@ ENTRY(bzero)
 0:	retl
 	 mov		%o5, %o0
 END(bzero)
+#endif

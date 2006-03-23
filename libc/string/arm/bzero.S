@@ -39,6 +39,8 @@
 
 #include <features.h>
 
+#ifdef __UCLIBC_SUSV3_LEGACY__
+
 .text
 .global bzero
 .type bzero,%function
@@ -50,3 +52,5 @@ bzero:
 	b	HIDDEN_JUMPTARGET(memset)
 
 .size bzero,.-bzero
+
+#endif

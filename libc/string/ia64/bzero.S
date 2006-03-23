@@ -33,6 +33,9 @@
    to get peak speed.  */
 
 #include "sysdep.h"
+
+#ifdef __UCLIBC_SUSV3_LEGACY__
+
 #undef ret
 
 #define dest		in0
@@ -313,3 +316,5 @@ ENTRY(bzero)
 	br.ret.sptk.many rp
 ;; }
 END(bzero)
+
+#endif
