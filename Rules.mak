@@ -250,6 +250,13 @@ ifeq ($(TARGET_ARCH),cris)
 	PIEFLAG_NAME:=-fpie
 endif
 
+ifeq ($(TARGET_ARCH),m68k)
+	# -fPIC is only supported for 68020 and above.  It is not supported
+	# for 68000, 68010, or Coldfire.
+	PICFLAG:=-fpic
+	PIEFLAG_NAME:=-fpie
+endif
+
 ifeq ($(TARGET_ARCH),powerpc)
 # PowerPC can hold 8192 entries in its GOT with -fpic which is more than
 # enough. Therefore use -fpic which will reduce code size and generates
