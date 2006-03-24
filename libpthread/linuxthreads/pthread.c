@@ -32,8 +32,6 @@
 #include "smp.h"
 #include <not-cancel.h>
 
-#define __clone clone
-
 /* Sanity check.  */
 #if !defined __SIGRTMIN || (__SIGRTMAX - __SIGRTMIN) < 3
 # error "This must not happen"
