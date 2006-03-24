@@ -49,6 +49,7 @@
 ENTRY(bzero)
 	b		1f
 	 mov		%g0, %g3
+#endif
 
 3:	cmp		%o2, 3
 	be		2f
@@ -63,6 +64,7 @@ ENTRY(bzero)
 	add		%o1, %o2, %o1
 	b		4f
 	 sub		%o0, %o2, %o0
+#ifdef __UCLIBC_SUSV3_LEGACY__
 END(bzero)
 #endif
 
