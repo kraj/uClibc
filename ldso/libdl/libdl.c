@@ -608,7 +608,7 @@ char *dlerror(void)
 }
 
 /*
- * Dump information to stderrr about the current loaded modules
+ * Dump information to stderr about the current loaded modules
  */
 #ifdef __USE_GNU
 static char *type[] = { "Lib", "Exe", "Int", "Mod" };
