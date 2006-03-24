@@ -78,7 +78,8 @@ pid_t __pthread_fork (struct fork_block *b)
   return pid;
 }
 
-#ifdef SHARED
+/* psm: have no idea why these are here, sjhill? */
+#if 0 /*def SHARED*/
 pid_t __fork (void)
 {
   return __libc_fork ();

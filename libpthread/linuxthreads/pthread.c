@@ -449,7 +449,9 @@ __pthread_init_max_stacksize(void)
     }
 }
 
-#ifdef SHARED
+/* psm: we do not have any ld.so support yet
+ *	 remove the USE_TLS guard if nptl is added */
+#if defined SHARED && defined USE_TLS
 # if USE___THREAD
 /* When using __thread for this, we do it in libc so as not
    to give libpthread its own TLS segment just for this.  */
@@ -587,7 +589,9 @@ static void pthread_initialize(void)
   /* How many processors.  */
   __pthread_smp_kernel = is_smp_system ();
 
-#ifdef SHARED
+/* psm: we do not have any ld.so support yet
+ *	 remove the USE_TLS guard if nptl is added */
+#if defined SHARED && defined USE_TLS
   /* Transfer the old value from the dynamic linker's internal location.  */
   *__libc_dl_error_tsd () = *(*GL(dl_error_catch_tsd)) ();
   GL(dl_error_catch_tsd) = &__libc_dl_error_tsd;
