@@ -13,7 +13,7 @@
  *    lenient.  See the various glibc difference comments below.
  *
  *  TODO:
- *    Move to dynamic allocation of (currently staticly allocated)
+ *    Move to dynamic allocation of (currently statically allocated)
  *      buffers; especially for the group-related functions since
  *      large group member lists will cause error returns.
  *
@@ -57,7 +57,7 @@ libc_hidden_proto(__ctype_b)
 #endif
 
 /**********************************************************************/
-/* Sizes for staticly allocated buffers. */
+/* Sizes for statically allocated buffers. */
 
 /* If you change these values, also change _SC_GETPW_R_SIZE_MAX and
  * _SC_GETGR_R_SIZE_MAX in libc/unistd/sysconf.c to match */
@@ -157,7 +157,7 @@ libc_hidden_def(fgetspent_r)
 #endif
 /**********************************************************************/
 /* For the various fget??ent funcs, return NULL on failure and a
- * pointer to the appropriate struct (staticly allocated) on success.
+ * pointer to the appropriate struct (statically allocated) on success.
  */
 /**********************************************************************/
 #ifdef L_fgetpwent
