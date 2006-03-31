@@ -312,7 +312,7 @@ endif
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
-XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -fno-strict-aliasing
 ifeq ($(EXTRA_WARNINGS),y)
 XWARNINGS+=-Wnested-externs -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wformat=2
 XWARNINGS+=-Wmissing-prototypes -Wmissing-declarations
