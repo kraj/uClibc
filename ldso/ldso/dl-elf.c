@@ -162,7 +162,7 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 	}
 #endif
 
-	_dl_strcpy(path, path_list);
+	_dl_memcpy(path, path_list, done);
 
 	/* Unlike ldd.c, don't bother to eliminate double //s */
 
