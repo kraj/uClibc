@@ -115,7 +115,7 @@ int _dl_unmap_cache(void)
 #endif
 
 
-void 
+void
 _dl_protect_relro (struct elf_resolve *l)
 {
 	ElfW(Addr) start = ((l->loadaddr + l->relro_addr)
@@ -169,7 +169,7 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 	/* Replace colons with zeros in path_list */
 	/* : at the beginning or end of path maps to CWD */
 	/* :: anywhere maps CWD */
-	/* "" maps to CWD */ 
+	/* "" maps to CWD */
 	done = 0;
 	path_n = path;
 	do {
@@ -650,7 +650,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		return goof;
 	tpnt = rpnt->dyn;
 
-	if(!(tpnt->init_flag & RELOCS_DONE)) 
+	if(!(tpnt->init_flag & RELOCS_DONE))
 		_dl_if_debug_dprint("relocation processing: %s\n", tpnt->libname);
 
 	if (unlikely(tpnt->dynamic_info[UNSUPPORTED_RELOC_TYPE])) {
@@ -685,7 +685,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	if (tpnt->dynamic_info[DT_JMPREL] &&
 	    (!(tpnt->init_flag & JMP_RELOCS_DONE) ||
 	     (now_flag && !(tpnt->rtld_flags & now_flag)))) {
-		tpnt->rtld_flags |= now_flag; 
+		tpnt->rtld_flags |= now_flag;
 		if (!(tpnt->rtld_flags & RTLD_NOW)) {
 			_dl_parse_lazy_relocation_information(rpnt,
 					tpnt->dynamic_info[DT_JMPREL],
