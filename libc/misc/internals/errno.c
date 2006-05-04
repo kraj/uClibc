@@ -16,7 +16,7 @@ int _errno = 0;
 int _h_errno = 0;
 #endif
 
-strong_alias(_errno,errno)
+weak_alias(_errno,errno)
 libc_hidden_def(errno)
-strong_alias(_h_errno,h_errno)
+weak_alias(_h_errno,h_errno)
 libc_hidden_def(h_errno)
