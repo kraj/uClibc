@@ -339,7 +339,7 @@
    }
    libc_hidden_weak (foo)
 
-   Similarly for global data. If references to foo within libc.so should
+   Similarly for global data.  If references to foo within libc.so should
    always go to foo defined in libc.so, then in include/foo.h you add:
 
    libc_hidden_proto (foo)
@@ -354,7 +354,7 @@
    int foo = INITIAL_FOO_VALUE;
    libc_hidden_data_weak (foo)
 
-   If foo is normally just an alias (strong or weak) of some other function,
+   If foo is normally just an alias (strong or weak) to some other function,
    you should use the normal strong_alias first, then add libc_hidden_def
    or libc_hidden_weak:
 
@@ -419,9 +419,12 @@
 #  define __hidden_ver1(local, internal, name) \
    extern __typeof (name) __EI_##name __asm__(__hidden_asmname (#internal)); \
    extern __typeof (name) __EI_##name __attribute__((alias (__hidden_asmname1 (,#local))))
+#  define hidden_ver(local, name)	__hidden_ver1(local, __GI_##name, name);
+#  define hidden_data_ver(local, name)	hidden_ver(local, name)
 #  define hidden_def(name)		__hidden_ver1(__GI_##name, name, name);
 #  define hidden_data_def(name)		hidden_def(name)
-#  define hidden_weak(name)		__hidden_ver1(__GI_##name, name, name) __attribute__((weak));
+#  define hidden_weak(name)	\
+	__hidden_ver1(__GI_##name, name, name) __attribute__((weak));
 #  define hidden_data_weak(name)	hidden_weak(name)
 
 # else /* __ASSEMBLER__ */
@@ -478,26 +481,36 @@
    hidden_proto doesn't make sense for assembly but the equivalent
    is to call via the HIDDEN_JUMPTARGET macro instead of JUMPTARGET.  */
 #  define hidden_def(name)	_hidden_strong_alias (name, __GI_##name)
-#  define hidden_data_def(name)	_hidden_strong_alias (name, __GI_##name)
 #  define hidden_weak(name)	_hidden_weak_alias (name, __GI_##name)
+#  define hidden_ver(local, name) strong_alias (local, __GI_##name)
+#  define hidden_data_def(name)	_hidden_strong_alias (name, __GI_##name)
 #  define hidden_data_weak(name)	_hidden_weak_alias (name, __GI_##name)
-#  define HIDDEN_JUMPTARGET(name) __GI_##name
+#  define hidden_data_ver(local, name) strong_data_alias (local, __GI_##name)
+#  ifdef HAVE_ASM_GLOBAL_DOT_NAME
+#   define HIDDEN_JUMPTARGET(name) .__GI_##name
+#  else
+#   define HIDDEN_JUMPTARGET(name) __GI_##name
+#  endif
 # endif /* __ASSEMBLER__ */
 #else /* SHARED */
 # ifndef __ASSEMBLER__
 #  define hidden_proto(name, attrs...)
 # else
 #  define HIDDEN_JUMPTARGET(name) name
-# endif
-# define hidden_def(name)
-# define hidden_data_def(name)
+# endif /* Not  __ASSEMBLER__ */
 # define hidden_weak(name)
+# define hidden_def(name)
+# define hidden_ver(local, name)
 # define hidden_data_weak(name)
+# define hidden_data_def(name)
+# define hidden_data_ver(local, name)
 #endif /* SHARED */
 
 /* uClibc does not support versioning yet. */
 #define versioned_symbol(lib, local, symbol, version) /* weak_alias(local, symbol) */
+#undef hidden_ver
 #define hidden_ver(local, name) /* strong_alias(local, __GI_##name) */
+#undef hidden_data_ver
 #define hidden_data_ver(local, name) /* strong_alias(local,__GI_##name) */
 
 #if !defined NOT_IN_libc
@@ -698,4 +711,4 @@
 # define libpthread_hidden_data_ver(local, name)
 #endif
 
-#endif /* _LIBC_SYMBOLS_H */
+#endif /* libc-symbols.h */
