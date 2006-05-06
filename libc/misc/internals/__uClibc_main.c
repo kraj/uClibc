@@ -227,6 +227,8 @@ void __uClibc_init(void)
     /*
      * Initialize stdio here.  In the static library case, this will
      * be bypassed if not needed because of the weak alias above.
+     * Thus we get a nice size savings because the stdio functions
+     * won't be pulled into the final static binary unless used.
      */
     if (likely(_stdio_init != NULL))
 	_stdio_init();
