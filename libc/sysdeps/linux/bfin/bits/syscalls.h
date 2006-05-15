@@ -4,25 +4,45 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
-#include <features.h>
-
 /* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
  * header files.  It also defines the traditional `SYS_<name>' macros for older
  * programs.  */
 #include <bits/sysnum.h>
 
-/* This code is mostly cut & paste from the uClinux bfin port */
+#ifndef __set_errno
+# define __set_errno(val) ((*__errno_location ()) = (val))
+#endif
+
+#ifndef SYS_ify
+# define SYS_ify(syscall_name)  (__NR_##syscall_name)
+#endif
 
 #ifndef __ASSEMBLER__
 
-#define __syscall_return(type, res)					\
-do {									\
-	if ((unsigned long)(res) >= (unsigned long)(-125)) 		\
-	{	__set_errno(-(res));					\
-		res = -1;						\
-	}								\
-	return (type) (res);						\
+/* user-visible error numbers are in the range -1 - -4095: see <asm-frv/errno.h> */
+#if defined _LIBC && !defined __set_errno
+# define __syscall_return(type, res) \
+do { \
+        unsigned long __sr2 = (res);		    			    \
+	if (__builtin_expect ((unsigned long)(__sr2)			    \
+			      >= (unsigned long)(-4095), 0)) {		    \
+		extern int __syscall_error (int);			    \
+		return (type) __syscall_error (__sr2);		    	    \
+	}								    \
+	return (type) (__sr2); 						    \
 } while (0)
+#else
+# define __syscall_return(type, res) \
+do { \
+        unsigned long __sr2 = (res);		    			    \
+	if (__builtin_expect ((unsigned long)(__sr2)			    \
+			      >= (unsigned long)(-4095), 0)) {		    \
+		__set_errno (-__sr2);				    	    \
+		__sr2 = -1; 						    \
+	}								    \
+	return (type) (__sr2); 						    \
+} while (0)
+#endif
 
 #define _syscall0(type,name)						\
 type name(void) {							\

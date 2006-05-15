@@ -4,9 +4,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
+#include <errno.h>
 #include <unistd.h>
 #include <sys/syscall.h>
-#include <errno.h>
 
 libc_hidden_proto(brk)
 

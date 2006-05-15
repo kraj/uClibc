@@ -98,10 +98,5 @@ ___sigsetjmp:
 	[P0 + 0x9C] = R0;
 
 	R0 = [P0 + 0x20];
-	CC = R1 == 1;
-	IF CC JUMP finished;
-	CALL ___sigjmp_save;
-finished:
-	R0 = 0;
-	RTS;
-.size ___sigsetjmp,.-___sigsetjmp
+	JUMP.L ___sigjmp_save; 
+.size ___sigsetjmp, .-___sigsetjmp

@@ -1,23 +1,35 @@
-/* Initial C runtime code for Blackfin
- *
- * Copyright (C) 2004-2006 Erik Andersen <andersen@uclibc.org>
- *
- * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
- */
+/* Copyright (C) 1991, 1992 Free Software Foundation, Inc.
+
+This file is part of the GNU C Library.
+
+The GNU C Library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+The GNU C Library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Library General Public
+License along with the GNU C Library; see the file COPYING.LIB.  If
+not, write to the Free Software Foundation, Inc., 675 Mass Ave,
+Cambridge, MA 02139, USA.  */
+
 
 /* When we enter this piece of code, the user stack looks like this:
-* [SP] argc            argument counter (integer)
+*      argc            argument counter (integer)
 *      argv[0]         program name (pointer)
 *      argv[1...N]     program args (pointers)
 *      NULL
 *      env[0...N]      environment variables (pointers)
 *      NULL
-
+	
 *   When we are done here, we want
 *	R0=argc
-*	R1=argv
-*	R2=__init
-*	SP=__fini
+*	R1=*argv[0]
+*	R2=*envp[0]  
 */
 
 #include <features.h>
@@ -29,13 +41,35 @@
 .global ___uClibc_main;
 .type	___uClibc_main,STT_FUNC;
 
-#define __UCLIBC_CTOR_DTOR__
-#if defined(__UCLIBC_CTOR_DTOR__)
-.weak	__init;
-.weak	__fini;
-#endif
+/* Stick in a dummy reference to main(), so that if an application
+ * is linking when the main() function is in a static library (.a)
+ * we can be sure that main() actually gets linked in */
+
+.type	_main,STT_FUNC;
 
 __start:
+
+#ifdef __BFIN_FDPIC__
+	/* P0 contains a pointer to the program's load map.  */
+	call	.Lcall;
+.Lcall:
+	R4 = RETS;
+	SP += -12;
+	R0.L = .Lcall;
+	R0.H = .Lcall;
+	R1.L = __ROFIXUP_LIST__;
+	R1.H = __ROFIXUP_LIST__;
+	R2.L = __ROFIXUP_END__;
+	R2.H = __ROFIXUP_END__;
+	R1 = R1 - R0;
+	R1 = R1 + R4;
+	R2 = R2 - R0;
+	R2 = R2 + R4;
+	R0 = P0;
+	CALL	___self_reloc;
+	SP += 12;
+	P3 = R0;
+#endif
 
 /*	clear the frame pointer and the L registers.  */
 	FP = 0;
@@ -43,30 +77,50 @@ __start:
 	L1 = 0;
 	L2 = 0;
 	L3 = 0;
-
-/*	Load register R0 (argc) from the stack to its final resting place */
+	
+/*	Load register R1 (argc) from the stack to its final resting place */
 	P0 = SP;
-	R0 = [P0++];
+	R1 = [P0++];
 
-/*	Copy argv pointer into R1 */
-	R1 = P0;
+/*	Copy argv pointer into R2 -- which its final resting place */
+	R2 = P0;
 
-#if defined(__UCLIBC_CTOR_DTOR__)
-/*	Load __init into R2 */
-	R2.H = __init;
-	R2.L = __init;
+/*	Skip to the end of argv and put a pointer to the environment in
+	[SP + 12] */
+	R3 = R1;
+	R3 <<= 2;
+	R3 += 4;
+	R3 = R2 + R3;
 
-/*	Load __fini onto the stack */
-	SP += -16;
-	R3.H = __fini;
-	R3.L = __fini;
-	[SP+12] = R3;
-#else
-/*	Just fixup the stack */
-	sp += -12;
-#endif
+	SP += -24;
+	[SP + 12] = R3;
 
 /*	Ok, now run uClibc's main() -- shouldn't return */
-	jump.l	___uClibc_main;
+#if defined L_crt1 && defined __UCLIBC_CTOR_DTOR__
+#ifdef __BFIN_FDPIC__
+	R3 = [P3 + __init@FUNCDESC_GOT17M4];
+#else
+	R3.H = __init;
+	R3.L = __init;
+#endif
+	[SP+16] = R3;
+#ifdef __BFIN_FDPIC__
+	R3 = [P3 + __fini@FUNCDESC_GOT17M4];
+#else
+	R3.H = __fini;
+	R3.L = __fini;
+#endif
+	[SP+20] = R3;
+#else /* no ctor/dtor handling */
+	R3 = 0;
+	[SP + 16] = R3;
+	[SP + 20] = R3;
+#endif
 
-.size __start,.-__start
+#ifdef __BFIN_FDPIC__
+	R0 = [P3 + _main@FUNCDESC_GOT17M4];
+#else
+	R0.H = _main;
+	R0.L = _main;
+#endif
+	jump.l	___uClibc_main;
