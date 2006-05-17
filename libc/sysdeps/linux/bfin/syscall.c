@@ -15,7 +15,7 @@
 long syscall(long sysnum, long a, long b, long c, long d, long e)
 {
 	int _r0 = 0;
-    asm volatile(
+    __asm__ volatile(
 	    "p0 = %1;"		/*SysCall Number*/
 	    "r0 = %2;"
 	    "r1 = %3;"
