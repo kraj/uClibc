@@ -29,6 +29,12 @@
 #include <tls.h>
 #endif
 
+#if defined __FRV_FDPIC__ || defined __BFIN_FDPIC__
+# define ___LINK_H_FDPIC___
+#else
+# undef ___LINK_H_FDPIC___
+#endif
+
 /* We use this macro to refer to ELF types independent of the native wordsize.
    `ElfW(TYPE)' is used in place of `Elf32_TYPE' or `Elf64_TYPE'.  */
 #define ElfW(type)	_ElfW (Elf, __ELF_NATIVE_CLASS, type)
@@ -78,7 +84,7 @@ extern struct r_debug _r_debug;
    */
 extern ElfW(Dyn) _DYNAMIC[];
 
-#ifdef __FRV_FDPIC__
+#ifdef ___LINK_H_FDPIC___
 # include <bits/elf-fdpic.h>
 #endif
 
@@ -93,7 +99,7 @@ struct link_map
     /* These first few members are part of the protocol with the debugger.
        This is the same format used in SVR4.  */
 
-#ifdef __FRV_FDPIC__
+#ifdef ___LINK_H_FDPIC___
     struct elf32_fdpic_loadaddr l_addr;
 #else
     ElfW(Addr) l_addr;		/* Base address shared object is loaded at.  */
@@ -131,7 +137,7 @@ struct link_map
 
 struct dl_phdr_info
   {
-#ifdef __FRV_FDPIC__
+#ifdef ___LINK_H_FDPIC___
     struct elf32_fdpic_loadaddr dlpi_addr;
 #else
     ElfW(Addr) dlpi_addr;
@@ -162,5 +168,7 @@ extern int dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,
 __END_DECLS
 
 #endif
+
+#undef ___LINK_H_FDPIC___
 
 #endif /* link.h */
