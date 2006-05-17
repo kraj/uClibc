@@ -1,15 +1,15 @@
-/*
- * setjmp for the Blackfin project
+/* setjmp for the Blackfin project
  *
- * Copyright (C) 2003,  Metrowerks
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ * Copyright (C) 2003 Metrowerks
  * Based on code from Analog Devices.
  *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License.  See the file COPYING.LIB in the main
- * directory of this archive for more details.
- *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
+
 #include <setjmp.h>
+
+#undef setjmp
 
 int setjmp(jmp_buf env){
    __asm__ __volatile__("[--SP] = p0;\n\t"

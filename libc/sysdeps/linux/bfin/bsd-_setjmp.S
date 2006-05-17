@@ -1,10 +1,10 @@
-
-/* Copyright (C) 2002, David McCullough <davidm@snapgear.com> */
-/* This file is released under the LGPL, any version you like */
-
-#define _ASM
-#define _SETJMP_H
-#include <bits/setjmp.h>
+/* __setjmp for the Blackfin project
+ *
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ * Copyright (C) 2002, David McCullough <davidm@snapgear.com>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 .text
 .global __setjmp;
