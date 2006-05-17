@@ -35,8 +35,6 @@ Cambridge, MA 02139, USA.  */
 /* This file is to be compiled into crt object files, to enable
    executables to easily self-relocate.  */
 
-#define hidden __attribute__((__visibility__("hidden")))
-
 union word {
     char c[4];
     void *v;
@@ -85,7 +83,7 @@ reloc_range_indirect (void ***p, void ***e,
 /* Call __reloc_range_indirect for the given range except for the last
    entry, whose contents are only relocated.  It's expected to hold
    the GOT value.  */
-void* hidden
+void* attribute_hidden
 __self_reloc (const struct elf32_fdpic_loadmap *map,
 	      void ***p, void ***e)
 {
@@ -116,7 +114,7 @@ reloc_range (void **p, void **e,
 
 /* Remap p, adjust e by the same offset, then map the pointers in the
    range determined by them.  */
-void hidden
+void attribute_hidden
 __reloc_range (const struct elf32_fdpic_loadmap *map,
 	       void **p, void **e)
 {
@@ -130,7 +128,7 @@ __reloc_range (const struct elf32_fdpic_loadmap *map,
 /* Remap p, adjust e by the same offset, then map pointers referenced
    by the (unadjusted) pointers in the range.  Return the relocated
    value of the last pointer in the range.  */
-void* hidden
+void* attribute_hidden
 __reloc_range_indirect (const struct elf32_fdpic_loadmap *map,
 			void ***p, void ***e)
 {
