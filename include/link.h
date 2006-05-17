@@ -133,8 +133,9 @@ struct link_map
 #endif
   };
 
-#if 0 /* #ifdef __USE_GNU */
+#ifdef __USE_GNU
 
+#if 0
 /* Version numbers for la_version handshake interface.  */
 #define LAV_CURRENT	1
 
@@ -174,6 +175,7 @@ enum
     LA_SYMB_ALTVALUE = 0x10	/* Value has been changed by a previous
 				   la_symbind call.  */
   };
+#endif
 
 struct dl_phdr_info
   {
