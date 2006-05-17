@@ -6,10 +6,11 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <asm/unistd.h>
+#include <sched.h>
+#include <sys/syscall.h>
 
 int
-clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg)
+clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg, ...)
 {
 	register long rval = -1;
 
