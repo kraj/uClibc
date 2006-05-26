@@ -40,6 +40,7 @@
 #include <sys/mman.h>
 
 libc_hidden_proto(execl)
+libc_hidden_proto(execle)
 libc_hidden_proto(execvp)
 
 libc_hidden_proto(memcpy)
