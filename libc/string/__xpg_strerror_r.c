@@ -8,7 +8,6 @@
 #include <features.h>
 #include <errno.h>
 #include <string.h>
-#include <bits/uClibc_uintmaxtostr.h>
 #include "_syserrmsg.h"
 
 libc_hidden_proto(__xpg_strerror_r)
