@@ -179,6 +179,7 @@ int execle(const char *path, const char *arg, ...)
 
 	return n;
 }
+libc_hidden_def(execle)
 
 #endif
 /**********************************************************************/

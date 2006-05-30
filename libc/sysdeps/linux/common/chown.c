@@ -25,3 +25,4 @@ int chown(const char *path, uid_t owner, gid_t group)
 	}
 	return (__syscall_chown(path, owner, group));
 }
+libc_hidden_def(chown)
