@@ -59,4 +59,4 @@ ENTRY(strncmp)
 .restore_and_exit:
 	br.ret.sptk.many b0
 END(strncmp)	
-libc_hidden_def (strncmp)
+libc_hidden_weak (strncmp)

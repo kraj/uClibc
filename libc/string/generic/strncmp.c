@@ -65,4 +65,4 @@ int strncmp (const char *s1, const char *s2, size_t n)
 
   return c1 - c2;
 }
-libc_hidden_def(strncmp)
+libc_hidden_weak(strncmp)

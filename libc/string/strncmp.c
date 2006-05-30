@@ -38,5 +38,5 @@ int Wstrncmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 #endif
 }
 #ifndef WANT_WIDE
-libc_hidden_def(strncmp)
+libc_hidden_weak(strncmp)
 #endif
