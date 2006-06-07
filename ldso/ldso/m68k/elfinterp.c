@@ -44,7 +44,7 @@
 
 extern int _dl_linux_resolve(void);
 
-unsigned int
+unsigned long
 _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 {
 	int reloc_type;
