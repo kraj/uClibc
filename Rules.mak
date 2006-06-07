@@ -266,9 +266,7 @@ ifeq ($(TARGET_ARCH),powerpc)
 endif
 
 ifeq ($(TARGET_ARCH),bfin)
-	# This should also work, but why bother ? ;)
-	#PICFLAG:=-fPIC -mid-shared-library
-	PICFLAG:=-fpic
+	PICFLAG:=-mfdpic
 endif
 
 ifeq ($(TARGET_ARCH),frv)
