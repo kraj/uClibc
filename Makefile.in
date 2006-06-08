@@ -253,7 +253,7 @@ ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
 	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(RUNTIME_PREFIX)lib
-	cp -PRf lib/*.so.* $(PREFIX)$(RUNTIME_PREFIX)lib
+	cd lib && $(TAR) -cf - *.so.* | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
 	@if [ -x lib/$(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -e; \
 		$(SHELL_SET_X); \
