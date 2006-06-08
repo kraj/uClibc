@@ -28,7 +28,6 @@ Cambridge, MA 02139, USA.  */
 
 #ifdef __BFIN_FDPIC__
 
-#define _GNU_SOURCE 1
 #include <sys/types.h>
 #include <link.h>
 
