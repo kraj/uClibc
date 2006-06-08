@@ -40,13 +40,13 @@ include/bits/uClibc_config.h: extra/config/conf .config
 	$(INSTALL) -d $(dir $@)
 	@$< -o $(top_srcdir)extra/Configs/Config.in
 
-# For the moment, we have to keep re-running this target 
-# because the fix includes scripts rely on pre-processers 
-# in order to generate the headers correctly :(.  That 
-# means we can't use the $(HOSTCC) in order to get the 
+# For the moment, we have to keep re-running this target
+# because the fix includes scripts rely on pre-processers
+# in order to generate the headers correctly :(.  That
+# means we can't use the $(HOSTCC) in order to get the
 # correct output.
 ifeq ($(ARCH_USE_MMU),y)
-export header_extra_args = 
+export header_extra_args =
 else
 export header_extra_args = -n
 endif
@@ -216,10 +216,10 @@ ifeq ($(HAVE_SHARED),y)
 	done
 	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
-		sed 	-e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
-			-e 's:$(SHARED_MAJORNAME):$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME):' \
-			-e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO):' \
-			$(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+		sed -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
+		    -e 's:$(SHARED_MAJORNAME):$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME):' \
+		    -e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO):' \
+		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifneq ($(LINUXTHREADS_OLD),y)
@@ -255,10 +255,10 @@ ifeq ($(HAVE_SHARED),y)
 		$(PREFIX)$(RUNTIME_PREFIX)lib
 	cd lib && $(TAR) -cf - *.so.* | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
 	@if [ -x lib/$(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
-	    set -e; \
+		set -e; \
 		$(SHELL_SET_X); \
-	    $(INSTALL) -m 755 lib/$(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-	    		$(PREFIX)$(RUNTIME_PREFIX)lib; \
+		$(INSTALL) -m 755 lib/$(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+			$(PREFIX)$(RUNTIME_PREFIX)lib; \
 	fi
 endif
 
