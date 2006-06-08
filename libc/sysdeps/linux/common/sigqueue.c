@@ -33,7 +33,7 @@ libc_hidden_proto(memset)
 static inline _syscall3(int, __libc_rt_sigqueueinfo, pid_t, pid, int, sig, void*, value);
 
 /* Return any pending signal or wait for one for the given time.  */
-int __sigqueue (pid_t pid, int sig, const union sigval val)
+int sigqueue (pid_t pid, int sig, const union sigval val)
 {
   siginfo_t info;
 
@@ -49,5 +49,5 @@ int __sigqueue (pid_t pid, int sig, const union sigval val)
 
   return __libc_rt_sigqueueinfo(pid, sig, __ptrvalue (&info));
 }
-weak_alias (__sigqueue, sigqueue)
+
 #endif
