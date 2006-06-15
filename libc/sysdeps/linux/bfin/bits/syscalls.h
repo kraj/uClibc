@@ -53,7 +53,7 @@ type name(void) {							\
 		"%0=r0;\n\t"						\
 		: "=da" (__res)						\
 		: "i" (__NR_##name)					\
-		: "memory","CC","P0");					\
+		: "memory","CC","R0","P0");				\
 	__syscall_return(type,__res);					\
 }
 
