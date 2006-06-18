@@ -11,8 +11,8 @@
 /* Initialization sequence for a GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE) \
 do { \
-	GOT_BASE[2] = (int) _dl_linux_resolve; \
-	GOT_BASE[1] = (int) (MODULE); \
+	GOT_BASE[2] = (unsigned long) _dl_linux_resolve; \
+	GOT_BASE[1] = (unsigned long) (MODULE); \
 } while(0)
 
 /* Here we define the magic numbers that this dynamic loader should accept */
@@ -23,11 +23,7 @@ do { \
 #define ELF_TARGET "m68k"
 
 struct elf_resolve;
-extern unsigned int _dl_linux_resolver (struct elf_resolve *, int);
-
-/* Define this because we do not want to call .udiv in the library.
-   Not needed for m68k.  */
-#define do_rem(result, n, base)  ((result) = (n) % (base))
+extern unsigned long _dl_linux_resolver (struct elf_resolve *, int);
 
 /* 4096 bytes alignment */
 #define PAGE_ALIGN 0xfffff000

@@ -12,9 +12,11 @@
 #include <dirent.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/param.h>
 #include <sys/syscall.h>
 
 libc_hidden_proto(getcwd)
+libc_hidden_proto(getpagesize)
 
 libc_hidden_proto(strcat)
 libc_hidden_proto(strcpy)
@@ -182,7 +184,7 @@ char *getcwd(char *buf, size_t size)
 	    __set_errno(EINVAL);
 	    return NULL;
 	}
-	alloc_size = PATH_MAX;
+	alloc_size = MAX (PATH_MAX, getpagesize ());
     }
     path=buf;
     if (buf == NULL) {

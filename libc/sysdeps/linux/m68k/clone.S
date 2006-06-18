@@ -21,11 +21,11 @@ clone:
 	movel   4(%sp), %d1             /* no NULL function pointers */
 	movel	%d1, %a0
 	tstl    %d1
-	beq.w   __syscall_error
+	jbeq    __syscall_error
 	movel   8(%sp), %d1             /* no NULL stack pointers */
 	movel	%d1, %a1
 	tstl    %d1
-	beq.w   __syscall_error
+	jbeq    __syscall_error
 
 	/* Allocate space and copy the argument onto the new stack.  */
 	movel   16(%sp), -(%a1)
@@ -50,7 +50,7 @@ clone:
 #endif
 
 	tstl    %d0
-	bmi.w   __syscall_error
+	jbmi    __syscall_error
 	beq.w   thread_start
 
 	rts

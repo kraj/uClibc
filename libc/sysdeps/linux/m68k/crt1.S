@@ -51,6 +51,13 @@
 		(4*(argc+1))(%sp)	envp[0]
 		...
 					NULL
+
+   The uclinux conventions are different.  %a1 is not defined on entry
+   and the stack is laid out as follows:
+
+		0(%sp)			argc
+		4(%sp)			argv
+		8(%sp)			envp
 */
 
 #include <features.h>
@@ -73,15 +80,23 @@ _start:
 	   arguments for `main': argc, argv.  envp will be determined
 	   later in __libc_start_main.  */
 	move.l (%sp)+, %d0	/* Pop the argument count.  */
+#ifndef __ARCH_USE_MMU__
+	move.l (%sp)+, %a0
+#else
 	move.l %sp, %a0		/* The argument vector starts just at the
 				   current stack top.  */
+#endif
 
 	/* Provide the highest stack address to the user code (for stacks
 	   which grow downward).  */
 	pea (%sp)
 
+#ifndef __ARCH_USE_MMU__
+	clr.l -(%sp)
+#else
 	pea (%a1)		/* Push address of the shared library
 				   termination function.  */
+#endif
 
 	/* Push the address of our own entry points to `.fini' and
 	   `.init'.  */
