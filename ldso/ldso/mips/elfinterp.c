@@ -70,7 +70,7 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	if (_dl_debug_bindings)
 	{
 		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
-		if(_dl_debug_detail) _dl_dprintf(_dl_debug_file,
+		if (_dl_debug_detail) _dl_dprintf(_dl_debug_file,
 				"\n\tpatched %x ==> %x @ %x\n", *got_addr, new_addr, got_addr);
 	}
 	if (!_dl_debug_nofixups) {
@@ -160,11 +160,11 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #endif
 				_dl_exit(1);
 			}
-		};
+		}
 
-	};
+	}
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail && reloc_addr)
+	if (_dl_debug_reloc && _dl_debug_detail && reloc_addr)
 		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x\n", old_val, *reloc_addr, reloc_addr);
 #endif
 
@@ -193,12 +193,12 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 		i = tpnt->dynamic_info[DT_MIPS_SYMTABNO_IDX] - tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
 
 #if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug_reloc)
+		if (_dl_debug_reloc)
 			_dl_dprintf(2, "_dl_perform_mips_global_got_relocations for '%s'\n", tpnt->libname);
 #endif
 		tmp_lazy = lazy && !tpnt->dynamic_info[DT_BIND_NOW];
 		/* Relocate the global GOT entries for the object */
-		while(i--) {
+		while (i--) {
 			if (sym->st_shndx == SHN_UNDEF) {
 				if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC && sym->st_value && tmp_lazy) {
 					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;

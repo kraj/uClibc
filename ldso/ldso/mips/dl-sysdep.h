@@ -19,9 +19,9 @@
 do { \
 if (dpnt->d_tag == DT_MIPS_GOTSYM) \
      dynamic[DT_MIPS_GOTSYM_IDX] = dpnt->d_un.d_val; \
-else if(dpnt->d_tag == DT_MIPS_LOCAL_GOTNO) \
+else if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO) \
      dynamic[DT_MIPS_LOCAL_GOTNO_IDX] = dpnt->d_un.d_val; \
-else if(dpnt->d_tag == DT_MIPS_SYMTABNO) \
+else if (dpnt->d_tag == DT_MIPS_SYMTABNO) \
      dynamic[DT_MIPS_SYMTABNO_IDX] = dpnt->d_un.d_val; \
 else if (dpnt->d_tag == DT_MIPS_RLD_MAP) \
      *(Elf32_Addr *)(dpnt->d_un.d_ptr) =  (Elf32_Addr) debug_addr; \

@@ -190,7 +190,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		if (unlikely(!symbol_addr && ELF_ST_BIND(sym->st_info) != STB_WEAK)) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
 			_dl_exit(1);
-		};
+		}
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)

@@ -692,7 +692,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		}
 	}
 #ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug) {
+	if (_dl_debug) {
 		_dl_dprintf(_dl_debug_file, "\nINIT/FINI order and dependencies:\n");
 		for (i = 0; i < nlist; i++) {
 			struct init_fini_list *tmp;
@@ -908,7 +908,7 @@ static int _dl_suid_ok(void)
 	gid = _dl_getgid();
 	egid = _dl_getegid();
 
-	if(uid == euid && gid == egid) {
+	if (uid == euid && gid == egid) {
 		return 1;
 	}
 	return 0;

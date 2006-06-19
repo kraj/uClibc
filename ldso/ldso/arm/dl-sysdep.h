@@ -19,25 +19,25 @@ static inline unsigned long arm_modulus(unsigned long m, unsigned long p)
 {
 	unsigned long i,t,inc;
 	i=p; t=0;
-	while(!(i&(1<<31))) {
+	while (!(i&(1<<31))) {
 		i<<=1;
 		t++;
 	}
 	t--;
-	for(inc=t;inc>2;inc--) {
+	for (inc=t;inc>2;inc--) {
 		i=p<<inc;
-		if(i&(1<<31))
+		if (i&(1<<31))
 			break;
-		while(m>=i) {
+		while (m>=i) {
 			m-=i;
 			i<<=1;
-			if(i&(1<<31))
+			if (i&(1<<31))
 				break;
-			if(i<p)
+			if (i<p)
 				break;
 		}
 	}
-	while(m>=p) {
+	while (m>=p) {
 		m-=p;
 	}
 	return m;
