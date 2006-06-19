@@ -296,7 +296,7 @@ ifndef LDPIEFLAG
 ifneq ($(UCLIBC_BUILD_PIE),y)
 export LDPIEFLAG:=
 else
-export LDPIEFLAG:=$(shell $(LD) --help | grep -q pie && echo "-Wl,-pie")
+export LDPIEFLAG:=$(shell $(LD) --help 2>/dev/null | grep -q -- -pie && echo "-Wl,-pie")
 endif
 endif
 
