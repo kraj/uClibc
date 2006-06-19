@@ -375,7 +375,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	/* Check if file is already loaded */
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		if(tpnt->st_dev == st.st_dev && tpnt->st_ino == st.st_ino) {
+		if (tpnt->st_dev == st.st_dev && tpnt->st_ino == st.st_ino) {
 			/* Already loaded */
 			tpnt->usage_count++;
 			_dl_close(infile);
@@ -484,8 +484,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				/* flags |= MAP_FIXED; */
 			}
 
-
-
 			if (ppnt->p_flags & PF_W) {
 				unsigned long map_size;
 				char *cpnt;
@@ -538,7 +536,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				return NULL;
 			}
 
-			/* if(libaddr == 0 && piclib) {
+			/* if (libaddr == 0 && piclib) {
 			   libaddr = (unsigned long) status;
 			   flags |= MAP_FIXED;
 			   } */
@@ -650,7 +648,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		return goof;
 	tpnt = rpnt->dyn;
 
-	if(!(tpnt->init_flag & RELOCS_DONE))
+	if (!(tpnt->init_flag & RELOCS_DONE))
 		_dl_if_debug_dprint("relocation processing: %s\n", tpnt->libname);
 
 	if (unlikely(tpnt->dynamic_info[UNSUPPORTED_RELOC_TYPE])) {
