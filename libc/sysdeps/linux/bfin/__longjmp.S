@@ -103,3 +103,5 @@ ___longjmp:
 finished:
 	RTS;
 .size ___longjmp,.-___longjmp
+
+libc_hidden_def(__longjmp)
