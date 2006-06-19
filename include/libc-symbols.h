@@ -420,7 +420,7 @@
 # define __hidden_proto_hiddenattr(attrs...)
 #endif
 
-#if !defined STATIC && !defined __BCC__
+#if /*!defined STATIC &&*/ !defined __BCC__
 # ifndef __ASSEMBLER__
 #  define hidden_proto(name, attrs...) __hidden_proto (name, __GI_##name, ##attrs)
 #  define __hidden_proto(name, internal, attrs...) \
