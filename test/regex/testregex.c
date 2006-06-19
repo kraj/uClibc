@@ -1863,7 +1863,7 @@ main(int argc, char** argv)
 								else
 								{
 									report("re_nsub incorrect", fun, re, NiL, -1, msg, flags, test);
-									printf("at least %d expected, %d returned\n", nsub, preg.re_nsub);
+									printf("at least %d expected, %zd returned\n", nsub, preg.re_nsub);
 									state.errors++;
 								}
 							}
