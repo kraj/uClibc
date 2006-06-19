@@ -1,3 +1,6 @@
+#if 0
+static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 SMI";
+#endif
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
  * unrestricted use provided that this legend is included on all tape
@@ -26,9 +29,6 @@
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-#if 0
-static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 SMI";
-#endif
 
 /*
  * Copyright (c) 1988 by Sun Microsystems, Inc.
@@ -89,9 +89,10 @@ rtime (struct sockaddr_in *addrp, struct rpc_timeval *timep,
   struct pollfd fd;
   int milliseconds;
   int res;
-  unsigned long thetime;
+  /* RFC 868 says the time is transmitted as a 32-bit value.  */
+  uint32_t thetime;
   struct sockaddr_in from;
-  int fromlen;
+  socklen_t fromlen;
   int type;
 
   if (timeout == NULL)
@@ -108,7 +109,7 @@ rtime (struct sockaddr_in *addrp, struct rpc_timeval *timep,
   if (type == SOCK_DGRAM)
     {
       res = sendto (s, (char *) &thetime, sizeof (thetime), 0,
-		    (struct sockaddr *) addrp, sizeof (*addrp));
+		      (struct sockaddr *) addrp, sizeof (*addrp));
       if (res < 0)
 	{
 	  do_close (s);
@@ -129,7 +130,7 @@ rtime (struct sockaddr_in *addrp, struct rpc_timeval *timep,
 	}
       fromlen = sizeof (from);
       res = recvfrom (s, (char *) &thetime, sizeof (thetime), 0,
-		      (struct sockaddr *) &from, &fromlen);
+			(struct sockaddr *) &from, &fromlen);
       do_close (s);
       if (res < 0)
 	return -1;
@@ -156,3 +157,4 @@ rtime (struct sockaddr_in *addrp, struct rpc_timeval *timep,
   timep->tv_usec = 0;
   return 0;
 }
+libc_hidden_def (rtime)
