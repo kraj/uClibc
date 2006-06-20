@@ -65,6 +65,7 @@ libc_hidden_proto(connect)
 libc_hidden_proto(recvfrom)
 libc_hidden_proto(sendto)
 libc_hidden_proto(poll)
+libc_hidden_proto(rtime)
 
 #define NYEARS	(u_long)(1970 - 1900)
 #define TOFFSET (u_long)(60*60*24*(365*NYEARS + (NYEARS/4)))
