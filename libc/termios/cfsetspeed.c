@@ -111,6 +111,9 @@ static const struct speed_struct speeds[] =
 #ifdef B576000
     { 576000, B576000 },
 #endif
+#ifdef B614400
+    { 614400, B614400 },
+#endif
 #ifdef B921600
     { 921600, B921600 },
 #endif
