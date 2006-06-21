@@ -131,7 +131,9 @@
 # endif
 #endif
 
-#ifndef ASM_LINE_SEP
+#ifdef __UCLIBC_ASM_LINE_SEP__
+# define ASM_LINE_SEP __UCLIBC_ASM_LINE_SEP__
+#else
 # define ASM_LINE_SEP ;
 #endif
 
