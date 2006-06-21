@@ -22,10 +22,6 @@
  * and save/restore r19 across the syscall. */
 #define PIC
 
-#ifndef ASM_LINE_SEP
-# define ASM_LINE_SEP ;
-#endif
-
 /* Definition taken from glibc 2.3.3
  * sysdeps/unix/sysv/linux/hppa/sysdep.h
  */
