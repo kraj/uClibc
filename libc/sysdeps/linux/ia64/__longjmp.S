@@ -158,3 +158,5 @@ LEAF(__longjmp)
 	mov pr=r24,-1
 	ret
 END(__longjmp)
+
+libc_hidden_def(__longjmp)
