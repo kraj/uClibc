@@ -29,7 +29,8 @@ INCLUDES := -I. -I$(TOPDIR)include				\
             -I$(PTDIR)/sysdeps/pthread/bits			\
             -I$(PTDIR)/sysdeps/generic				\
 	    -I$(TOPDIR)ldso/include				\
-	    -I$(TOPDIR)ldso/ldso/$(TARGET_ARCH)
+	    -I$(TOPDIR)ldso/ldso/$(TARGET_ARCH)			\
+	    -include $(TOPDIR)include/libc-symbols.h
 
 CFLAGS = -D_LIBC -D_GNU_SOURCE $(INCLUDES) -std=gnu99		\
 	 -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -Os
