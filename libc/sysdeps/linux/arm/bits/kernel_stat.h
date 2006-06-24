@@ -68,6 +68,10 @@ struct kernel_stat64 {
 	unsigned long      st_ctime;
 	unsigned long      st_ctime_nsec;
 	unsigned long long st_ino;
+#ifndef __ARM_EABI__
 } __attribute__((packed));
+#else
+};
+#endif
 
 #endif	/*  _BITS_STAT_STRUCT_H */
