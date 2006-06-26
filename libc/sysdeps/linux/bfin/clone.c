@@ -7,6 +7,7 @@
  */
 
 #include <sched.h>
+#include <errno.h>
 #include <sys/syscall.h>
 
 int
@@ -57,6 +58,10 @@ clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg, ...)
 			: "i" (__NR_clone), "a" (child_stack), "a" (flags), "a" (arg), "a" (fn), "i" (__NR_exit)
 			: "CC", "R0", "R1", "P0");
 #endif
+
+	} else {
+		__set_errno(EINVAL);
 	}
+
 	return rval;
 }
