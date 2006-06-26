@@ -105,6 +105,6 @@ endif
 
 clean:
 	$(showclean)
-	$(Q)$(RM) *.a *.o *.so *~ core *.out $(CLEAN_TARGETS) $(EXTRA_CLEAN)
+	$(Q)$(RM) *.a *.o *.so *~ core *.out *.gdb $(CLEAN_TARGETS) $(EXTRA_CLEAN)
 
 .PHONY: all check clean test
