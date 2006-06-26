@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 
 	while (--argc) {
 		if (!setlocale(LC_CTYPE, *++argv)) {
-			printf("setlocale(LC_CTYPE,%s) failed!\n", *argv);
+			printf("setlocale(LC_CTYPE,%s) failed!  Skipping this locale...\n", *argv);
 			continue;
 		}
 
