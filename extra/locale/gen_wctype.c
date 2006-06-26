@@ -785,6 +785,8 @@ size_t newopt(unsigned char *ut, size_t usize, int shift, table_data *tbl)
 	unsigned char uit[RANGE+1];
 	int shift2;
 
+	memset(uniqblock, 0x00, sizeof(uniqblock));
+
 	ii_save = NULL;
 	blocksize = 1 << shift;
 	numblocks = usize >> shift;
