@@ -65,6 +65,7 @@ beginloop:
 	cc |= az;	// true if either is zero
 	if cc jump zero4;	// leave if a zero somewhere
 endloop:
+	NOP;
 	cc = r1 == r2;
 
  // loop exits
@@ -103,6 +104,7 @@ beginloop1:
 	cc &= an;
 	if !cc jump exitloop1;
 endloop1:
+	NOP;
 	r2 = B[p2++] (Z);
 
 exitloop1: // here means we found a zero or a difference.
