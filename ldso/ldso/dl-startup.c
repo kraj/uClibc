@@ -114,7 +114,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 {
 	unsigned int argc;
 	char **argv, **envp;
-	unsigned long load_addr;
+	DL_LOADADDR_TYPE load_addr;
 	ElfW(Addr) got;
 	unsigned long *aux_dat;
 	ElfW(Ehdr) *header;
@@ -168,7 +168,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	 * (esp since SEND_STDERR() needs this on some platforms... */
 	if (!auxvt[AT_BASE].a_un.a_val)
 		auxvt[AT_BASE].a_un.a_val = elf_machine_load_address();
-	load_addr = auxvt[AT_BASE].a_un.a_val;
+	DL_INIT_LOADADDR_BOOT(load_addr, auxvt[AT_BASE].a_un.a_val);
 	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
 
 	/* Check the ELF header to make sure everything looks ok.  */
@@ -186,14 +186,14 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 		_dl_exit(0);
 	}
 	SEND_STDERR_DEBUG("ELF header=");
-	SEND_ADDRESS_STDERR_DEBUG(load_addr, 1);
+	SEND_ADDRESS_STDERR_DEBUG(DL_LOADADDR_BASE (load_addr), 1);
 
 	/* Locate the global offset table.  Since this code must be PIC
 	 * we can take advantage of the magic offset register, if we
 	 * happen to know what that is for this architecture.  If not,
 	 * we can always read stuff out of the ELF file to find it... */
 	got = elf_machine_dynamic();
-	dpnt = (ElfW(Dyn) *) (got + load_addr);
+	dpnt = (ElfW(Dyn) *) DL_RELOC_ADDR (got, load_addr);
 	SEND_STDERR_DEBUG("First Dynamic section entry=");
 	SEND_ADDRESS_STDERR_DEBUG(dpnt, 1);
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
@@ -259,9 +259,10 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 				rel_addr += relative_count * sizeof(ELF_RELOC);
 			}
 
-			rpnt = (ELF_RELOC *) (rel_addr + load_addr);
+			rpnt = (ELF_RELOC *) DL_RELOC_ADDR (rel_addr, load_addr);
 			for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
-				reloc_addr = (unsigned long *) (load_addr + (unsigned long) rpnt->r_offset);
+				reloc_addr = (unsigned long *) DL_RELOC_ADDR ((unsigned long) rpnt->r_offset,
+									      load_addr);
 				symtab_index = ELF_R_SYM(rpnt->r_info);
 				symbol_addr = 0;
 				sym = NULL;
@@ -272,7 +273,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 					symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
 					strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 					sym = &symtab[symtab_index];
-					symbol_addr = load_addr + sym->st_value;
+					symbol_addr = (unsigned long) DL_RELOC_ADDR (sym->st_value, load_addr);
 
 					SEND_STDERR_DEBUG("relocating symbol: ");
 					SEND_STDERR_DEBUG(strtab + sym->st_name);

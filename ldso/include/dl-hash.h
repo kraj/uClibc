@@ -28,7 +28,7 @@ struct dyn_elf{
 struct elf_resolve{
   /* These entries must be in this order to be compatible with the interface used
      by gdb to obtain the list of symbols. */
-  ElfW(Addr) loadaddr;		/* Base address shared object is loaded at.  */
+  DL_LOADADDR_TYPE loadaddr;	/* Base address shared object is loaded at.  */
   char *libname;		/* Absolute file name object was found in.  */
   ElfW(Dyn) *dynamic_addr;	/* Dynamic section of the shared object.  */
   struct elf_resolve * next;
@@ -77,7 +77,7 @@ extern struct elf_resolve * _dl_loaded_modules;
 extern struct dyn_elf 	  * _dl_handles;
 
 extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname, 
-	char * loadaddr, unsigned long * dynamic_info, 
+	DL_LOADADDR_TYPE loadaddr, unsigned long * dynamic_info, 
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
 extern char * _dl_find_hash(const char * name, struct dyn_elf * rpnt1, 

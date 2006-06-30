@@ -66,4 +66,70 @@ typedef struct {
 
 #endif
 
+/* Machines in which different sections may be relocated by different
+   amounts should define this and LD_RELOC_ADDR.  If you change this,
+   make sure you change struct link_map in include/link.h accordingly
+   such that it matches a prefix of struct elf_resolve.  */
+#ifndef DL_LOADADDR_TYPE
+# define DL_LOADADDR_TYPE ElfW(Addr)
+#endif
+
+/* When DL_LOADADDR_TYPE is not a scalar value, or some different
+   computation is needed to relocate an address, define this.  */
+#ifndef DL_RELOC_ADDR
+# define DL_RELOC_ADDR(ADDR, LOADADDR) \
+  ((void*)((intptr_t)(ADDR) + (intptr_t)(LOADADDR)))
+#endif
+
+/* Define if any declarations/definitions of local variables are
+   needed in a function that calls DT_INIT_LOADADDR or
+   DL_INIT_LOADADDR_HDR.  Declarations must be properly terminated
+   with a semicolon, and non-declaration statements are forbidden.  */
+#ifndef DL_INIT_LOADADDR_EXTRA_DECLS
+# define DL_INIT_LOADADDR_EXTRA_DECLS /* int i; */
+#endif
+
+/* Prepare a DL_LOADADDR_TYPE data structure for incremental
+   initialization with DL_INIT_LOADADDR_HDR, given pointers to a base
+   load address and to program headers.  */
+#ifndef DL_INIT_LOADADDR
+# define DL_INIT_LOADADDR(LOADADDR, BASEADDR, PHDR, PHDRCNT) \
+  ((LOADADDR) = (BASEADDR))
+#endif
+
+/* Convert a DL_LOADADDR_TYPE to an identifying pointer.  Used mostly
+   for debugging.  */
+#ifndef DL_LOADADDR_BASE
+# define DL_LOADADDR_BASE(LOADADDR) (LOADADDR)
+#endif
+
+/* Initialize a LOADADDR representing the loader itself.  It's only
+   called from DL_BOOT, so additional arguments passed to it may be
+   referenced.  */
+#ifndef DL_INIT_LOADADDR_BOOT
+# define DL_INIT_LOADADDR_BOOT(LOADADDR, BASEADDR) \
+  ((LOADADDR) = (BASEADDR))
+#endif
+
+/* Initialize a LOADADDR representing the program.  It's called from
+   DL_BOOT only.  */
+#ifndef DL_INIT_LOADADDR_PROG
+# define DL_INIT_LOADADDR_PROG(LOADADDR, BASEADDR) \
+  ((LOADADDR) = (BASEADDR))
+#endif
+
+/* Test whether a given ADDR is more likely to be within the memory
+   region mapped to TPNT (a struct elf_resolve *) than to TFROM.
+   Everywhere that this is used, TFROM is initially NULL, and whenever
+   a potential match is found, it's updated.  One might want to walk
+   the chain of elf_resolve to locate the best match and return false
+   whenever TFROM is non-NULL, or use an exact-matching algorithm
+   using additional information encoded in DL_LOADADDR_TYPE to test
+   for exact containment.  */
+#ifndef DL_ADDR_IN_LOADADDR
+# define DL_ADDR_IN_LOADADDR(ADDR, TPNT, TFROM) \
+  ((void*)(TPNT)->loadaddr < (void*)(ADDR)			\
+   && (! (TFROM) || (TFROM)->loadaddr < (TPNT)->loadaddr))
+#endif
+
 #endif	/* _LD_DEFS_H */

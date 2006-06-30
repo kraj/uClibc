@@ -83,7 +83,7 @@ static inline Elf_Symndx _dl_elf_hash(const char *name)
  * externals properly.
  */
 struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
-	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
+	DL_LOADADDR_TYPE loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
 	attribute_unused unsigned long dynamic_size)
 {
 	Elf_Symndx *hash_addr;
@@ -117,7 +117,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 		hash_addr += tpnt->nbucket;
 		tpnt->chains = hash_addr;
 	}
-	tpnt->loadaddr = (ElfW(Addr))loadaddr;
+	tpnt->loadaddr = loadaddr;
 	for (i = 0; i < DYNAMIC_SIZE; i++)
 		tpnt->dynamic_info[i] = dynamic_info[i];
 	return tpnt;
@@ -163,8 +163,10 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 
 		/* Avoid calling .urem here. */
 		do_rem(hn, elf_hash_number, tpnt->nbucket);
-		symtab = (ElfW(Sym) *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB]);
-		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB]);
+		symtab = (ElfW(Sym) *) DL_RELOC_ADDR (tpnt->dynamic_info[DT_SYMTAB],
+						      tpnt->loadaddr);
+		strtab = (char *) DL_RELOC_ADDR (tpnt->dynamic_info[DT_STRTAB],
+						 tpnt->loadaddr);
 
 		for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si]) {
 			sym = &symtab[si];
@@ -184,11 +186,13 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 /* Perhaps we should support old style weak symbol handling
  * per what glibc does when you export LD_DYNAMIC_WEAK */
 				if (!weak_result)
-					weak_result = (char *)tpnt->loadaddr + sym->st_value;
+					weak_result = (char *) DL_RELOC_ADDR (sym->st_value,
+									      tpnt->loadaddr);
 				break;
 #endif
 			case STB_GLOBAL:
-				return (char*)tpnt->loadaddr + sym->st_value;
+				return (char*) DL_RELOC_ADDR (sym->st_value,
+							      tpnt->loadaddr);
 			default:	/* Local symbols not handled here */
 				break;
 			}
