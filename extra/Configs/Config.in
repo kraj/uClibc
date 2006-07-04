@@ -1200,7 +1200,7 @@ config UCLIBC_HAS_GLOB
 config UCLIBC_HAS_GNU_GLOB
 	bool "Support gnu glob() interface"
 	depends on UCLIBC_HAS_GLOB
-	default y
+	default n
 	help
 	  The gnu glob interface is somewhat larger (weighing in at about 4,2k) than
 	  it's SuSv3 counterpart (and is out of date). It is an old copy from glibc and
@@ -1208,7 +1208,6 @@ config UCLIBC_HAS_GNU_GLOB
 
 	  Answer Y if you want to include full gnu glob() instead of the smaller SUSv3
 	  compatible glob().
-	  It is only default, because it is the old/stable version.
 
 	  Most people will answer N.
 

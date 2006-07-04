@@ -11,6 +11,8 @@
 #include <sys/stat.h>
 
 #define dirent dirent64
+#define __readdir(dirp)	    readdir64 (dirp)
+#define __readdir64(dirp)   readdir64 (dirp)
 
 #define glob_t glob64_t
 #define glob(pattern, flags, errfunc, pglob) \
@@ -19,8 +21,10 @@
 
 #undef stat
 #define stat stat64
-#define lstat lstat64
+#undef __stat
+#define __stat(file, buf) stat64(file, buf)
 
-#define __GLOB64    1
-    
+#define COMPILE_GLOB64	1
+
 #include "glob.c"
+
