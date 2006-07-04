@@ -1429,11 +1429,12 @@ config DODEBUG_PT
 	  Otherwise, answer N.
 
 config NOSTRIP
-	bool "Do not build stripped libraries and executables"
+	bool "Do not strip libraries and executables"
 	default n
 	help
 	  Say Y here if you do not wish to strip all uClibc libraries and
-	  executables.  This increases the size of the binaries considerably.
+	  executables.  This increases the size of the binaries considerably,
+	  but makes it possible to directly debug uClibc libraries.
 	  Most people will answer N.
 
 config DOASSERTS
