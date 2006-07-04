@@ -95,7 +95,7 @@ TODO list for AFTER the uClibc 1.0.0 release:
 Arch specific TODO:
 -------------------------------------------------
   alpha:
-    
+
     ldso is not implemented
   arm:
     update crt1 code again for nommu (http://bugs.uclibc.org/view.php?id=538)
@@ -106,8 +106,6 @@ Arch specific TODO:
     ldso is not implemented
   m68k:
     ldso lazy relocation doesnt work
-  mips:
-    brk/pipe fixes: http://bugs.uclibc.org/view.php?id=469
   sparc:
     need a sigaction.c since common one doesnt work (signal tests)
     ldso needs to be updated since it's totally broken atm
@@ -115,7 +113,7 @@ Arch specific TODO:
     pthread support, linktime warning support (implies GAS patches),
     general touchups, testing, ldso.
   bfin cris rfv sh64:
-    need to be updated to new ldso changes and unification of the 
+    need to be updated to new ldso changes and unification of the
      two uClibc_main funcs (__uClibc_start_main doesnt exist anymore)
 
 
