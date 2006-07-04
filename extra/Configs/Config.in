@@ -1407,7 +1407,6 @@ config CROSS_COMPILER_PREFIX
 config DODEBUG
 	bool "Build uClibc with debugging symbols"
 	default n
-	select NOSTRIP
 	select EXTRA_WARNINGS
 	help
 	  Say Y here if you wish to compile uClibc with debugging symbols.
@@ -1428,14 +1427,15 @@ config DODEBUG_PT
 
 	  Otherwise, answer N.
 
-config NOSTRIP
-	bool "Do not strip libraries and executables"
-	default n
+config DOSTRIP
+	bool "Strip libraries and executables"
+	default y
+	depends on !DODEBUG
 	help
-	  Say Y here if you do not wish to strip all uClibc libraries and
-	  executables.  This increases the size of the binaries considerably,
-	  but makes it possible to directly debug uClibc libraries.
-	  Most people will answer N.
+	  Say Y here if you do wish to strip all uClibc libraries and
+	  executables.  No stripping increases the size of the binaries
+	  considerably, but makes it possible to debug uClibc libraries.
+	  Most people will answer Y.
 
 config DOASSERTS
 	bool "Build uClibc with run-time assertion testing"

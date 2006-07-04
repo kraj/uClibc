@@ -381,10 +381,10 @@ CFLAGS += -O0 -g3
 else
 CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
 endif
-ifeq ($(NOSTRIP),y)
-STRIPTOOL := true -Stripping_disabled
-else
+ifeq ($(DOSTRIP),y)
 LDFLAGS += -s
+else
+STRIPTOOL := true -Stripping_disabled
 endif
 
 ifeq ($(DOMULTI),y)
