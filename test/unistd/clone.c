@@ -1,10 +1,7 @@
 /* vi: set sw=4 ts=4: */
 /*
  * clone test for uClibc
- *
- * Copyright (C) 2000 by Lineo, inc. and Erik Andersen
  * Copyright (C) 2000-2006 by Erik Andersen <andersen@uclibc.org>
- * Written by Erik Andersen <andersen@uclibc.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
@@ -36,7 +33,7 @@ int clone_main(void *arg)
 	return input + 20;
 }
 
-int main(void) 
+int main(void)
 {
 	int clone1, clone2, clone3;
 	char clone1_stack[8192], clone2_stack[8192], clone3_stack[8192];

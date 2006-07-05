@@ -1,10 +1,7 @@
 /* vi: set sw=4 ts=4: */
 /*
  * Some simple macros for use in test applications.
- *
- * Copyright (C) 2000 by Lineo, inc. and Erik Andersen
  * Copyright (C) 2000-2006 by Erik Andersen <andersen@uclibc.org>
- * Written by Erik Andersen <andersen@uclibc.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
@@ -32,13 +29,13 @@ void error_msg(int result, int line, const char* file, const char* command)
 
 	printf("\nFAILED TEST %lu: \n\t%s\n", (unsigned long)test_number, command);
 	printf("AT LINE: %d, FILE: %s\n\n", line, file);
-}   
+}
 
 void success_msg(int result, const char* command)
 {
 #if 0
 	printf("passed test: %s == 0\n", command);
-#endif	
+#endif
 }
 
 void done_testing(void)
@@ -99,5 +96,5 @@ void init_testsuite(const char* testname)
 	} while (0)
 
 #define STR_CMD(cmd) cmd
-		
+
 #endif	/* TESTSUITE_H */
