@@ -101,6 +101,10 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
     return (char *) dp - buf;
 }
 
+#if defined __UCLIBC_HAS_LFS__ && ! defined __NR_getdents64
+attribute_hidden strong_alias(__getdents,__getdents64)
+#endif
+
 #elif __WORDSIZE == 32
 
 libc_hidden_proto(memmove)
