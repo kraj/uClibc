@@ -4,7 +4,7 @@
  * after resolving ELF shared library symbols
  *
  * Copyright (C) 2005 by Joakim Tjernlund
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@codepoet.org>
  * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
  *
@@ -168,7 +168,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	 * (esp since SEND_STDERR() needs this on some platforms... */
 	if (!auxvt[AT_BASE].a_un.a_val)
 		auxvt[AT_BASE].a_un.a_val = elf_machine_load_address();
-	load_addr = auxvt[AT_BASE].a_un.a_val;
+	DL_INIT_LOADADDR_BOOT(load_addr, auxvt[AT_BASE].a_un.a_val);
 	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
 
 	/* Check the ELF header to make sure everything looks ok.  */
