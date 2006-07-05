@@ -1,5 +1,5 @@
 # uClibc dlopen tests
-# Licensed under the GNU Library General Public License, see COPYING.LIB
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
 # rules need a little love to work with glibc ...
 export UCLIBC_ONLY := 1

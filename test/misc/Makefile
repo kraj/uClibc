@@ -1,5 +1,5 @@
 # uClibc misc tests
-# Licensed under the GNU Library General Public License, see COPYING.LIB
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
 TESTS_DISABLED := outb tst-fnmatch bug-glob1 tst-gnuglob
 

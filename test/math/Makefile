@@ -1,5 +1,5 @@
 # uClibc math tests
-# Licensed under the GNU Library General Public License, see COPYING.LIB
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
 TESTS := basic-test rint tst-definitions test-fpucw
 # test-double test-idouble
