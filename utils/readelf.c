@@ -2,7 +2,7 @@
 /*
  * A small little readelf implementation for uClibc
  *
- * Copyright (C) 2000-2006 Erik Andersen <andersee@debian.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
  * Several functions in this file (specifically, elf_find_section_type(),
  * elf_find_phdr_type(), and elf_find_dynamic(), were stolen from elflib.c from
@@ -10,7 +10,7 @@
  * <jreiser@BitWagon.com>, which is copyright 2000 BitWagon Software LLC
  * (GPL2).
  *
- * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ * Licensed under GPLv2 or later
  */
 
 
