@@ -124,6 +124,5 @@ objclean-y += config_clean
 clean: config_clean
 
 config_clean:
-	$(RM) $(config_OUT)/*.o $(config_SHIPPED_SRC) $(MCONF_OBJS) $(CONF_OBJS) \
+	$(RM) $(config_OUT)/*.o $(config_OUT)/lxdialog/*.o $(config_SHIPPED_SRC) $(MCONF_OBJS) $(CONF_OBJS) \
 		conf mconf lkc_defs.h
-
