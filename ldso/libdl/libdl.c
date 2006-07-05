@@ -650,18 +650,16 @@ int dladdr(const void *__address, Dl_info * __info)
 	 */
 	pelf = NULL;
 
-#if 0
-	fprintf(stderr, "dladdr( %p, %p )\n", __address, __info);
-#endif
+	_dl_if_debug_print("__address: %p  __info: %p\n", __address, __info);
 
 	for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next) {
 		struct elf_resolve *tpnt;
 
 		tpnt = rpnt;
-#if 0
-		fprintf(stderr, "Module \"%s\" at %p\n",
-				tpnt->libname, tpnt->loadaddr);
-#endif
+
+		_dl_if_debug_print("Module \"%s\" at %p\n",
+		                   tpnt->libname, tpnt->loadaddr);
+
 		if (DL_ADDR_IN_LOADADDR((ElfW(Addr)) __address,  tpnt, pelf))
 			pelf = tpnt;
 	}
@@ -695,10 +693,9 @@ int dladdr(const void *__address, Dl_info * __info)
 					sn = si;
 					sf = 1;
 				}
-#if 0
-				fprintf(stderr, "Symbol \"%s\" at %p\n",
-						strtab + symtab[si].st_name, symbol_addr);
-#endif
+
+				_dl_if_debug_print("Symbol \"%s\" at %p\n",
+				                   strtab + symtab[si].st_name, symbol_addr);
 			}
 		}
 
