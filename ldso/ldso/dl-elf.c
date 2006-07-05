@@ -801,7 +801,8 @@ char *_dl_strdup(const char *string)
 	return retval;
 }
 
-void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void *debug_addr, ElfW(Addr) load_off)
+void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
+                            void *debug_addr, DL_LOADADDR_TYPE load_off)
 {
 	__dl_parse_dynamic_info(dpnt, dynamic_info, debug_addr, load_off);
 }

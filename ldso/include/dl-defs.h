@@ -66,6 +66,15 @@ typedef struct {
 
 #endif
 
+/* Machines in which different sections may be relocated by different
+ * amounts should define this and LD_RELOC_ADDR.  If you change this,
+ * make sure you change struct link_map in include/link.h accordingly
+ * such that it matches a prefix of struct elf_resolve.
+ */
+#ifndef DL_LOADADDR_TYPE
+# define DL_LOADADDR_TYPE ElfW(Addr)
+#endif
+
 /* Initialize a LOADADDR representing the loader itself.  It's only
  * called from DL_BOOT, so additional arguments passed to it may be
  * referenced.

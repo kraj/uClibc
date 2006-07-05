@@ -114,7 +114,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 {
 	unsigned int argc;
 	char **argv, **envp;
-	ElfW(Addr) load_addr;
+	DL_LOADADDR_TYPE load_addr;
 	ElfW(Addr) got;
 	unsigned long *aux_dat;
 	ElfW(Ehdr) *header;

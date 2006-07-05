@@ -88,7 +88,7 @@ extern void _dl_unsetenv(const char *symbol, char **envp);
 extern char *_dl_strdup(const char *string);
 extern void _dl_dprintf(int, const char *, ...);
 
-extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, ElfW(Addr) load_addr,
-		ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv);
+extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
+                                 ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv);
 
 #endif /* _LDSO_H_ */

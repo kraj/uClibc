@@ -83,7 +83,7 @@ static inline Elf_Symndx _dl_elf_hash(const char *name)
  * externals properly.
  */
 struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
-	ElfW(Addr) loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
+	DL_LOADADDR_TYPE loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
 	attribute_unused unsigned long dynamic_size)
 {
 	Elf_Symndx *hash_addr;

@@ -102,7 +102,7 @@ uintptr_t __guard attribute_relro;
 #endif
 
 static void _dl_run_array_forward(unsigned long array, unsigned long size,
-				  ElfW(Addr) loadaddr)
+                                  DL_LOADADDR_TYPE loadaddr)
 {
 	if (array != 0) {
 		unsigned int j;
@@ -173,9 +173,9 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 	}
 }
 
-void _dl_get_ready_to_run(struct elf_resolve *tpnt, ElfW(Addr) load_addr,
-			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp,
-			  char **argv)
+void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
+                          ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp,
+                          char **argv)
 {
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
