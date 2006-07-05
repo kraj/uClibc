@@ -1,23 +1,9 @@
-     /* Copyright (C) 2003 Red Hat, Inc.
-	Contributed by Alexandre Oliva <aoliva@redhat.com>
+/* Copyright (C) 2003 Red Hat, Inc.
+ * Contributed by Alexandre Oliva <aoliva@redhat.com>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
-This file is part of uClibc.
-
-uClibc is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as
-published by the Free Software Foundation; either version 2.1 of the
-License, or (at your option) any later version.
-
-uClibc is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with uClibc; see the file COPYING.LIB.  If not, write to
-the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
-USA.  */
-	
 /* Any assembly language/system dependent hacks needed to setup
  * boot1.c so it will work as expected and cope with whatever platform
  * specific wierdness is needed for this architecture.
