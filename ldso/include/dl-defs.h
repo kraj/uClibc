@@ -75,6 +75,14 @@ typedef struct {
 # define DL_LOADADDR_TYPE ElfW(Addr)
 #endif
 
+/* When DL_LOADADDR_TYPE is not a scalar value, or some different
+ * computation is needed to relocate an address, define this.
+ */
+#ifndef DL_RELOC_ADDR
+# define DL_RELOC_ADDR(LOADADDR, ADDR) \
+	((LOADADDR) + (ADDR))
+#endif
+
 /* Initialize a LOADADDR representing the loader itself.  It's only
  * called from DL_BOOT, so additional arguments passed to it may be
  * referenced.
@@ -84,12 +92,37 @@ typedef struct {
 	((LOADADDR) = (BASEADDR))
 #endif
 
+/* Define if any declarations/definitions of local variables are
+ * needed in a function that calls DT_INIT_LOADADDR or
+ * DL_INIT_LOADADDR_HDR.  Declarations must be properly terminated
+ * with a semicolon, and non-declaration statements are forbidden.
+ */
+#ifndef DL_INIT_LOADADDR_EXTRA_DECLS
+# define DL_INIT_LOADADDR_EXTRA_DECLS /* int i; */
+#endif
+
+/* Prepare a DL_LOADADDR_TYPE data structure for incremental
+ * initialization with DL_INIT_LOADADDR_HDR, given pointers to a base
+ * load address and to program headers.
+ */
+#ifndef DL_INIT_LOADADDR
+# define DL_INIT_LOADADDR(LOADADDR, BASEADDR, PHDR, PHDRCNT) \
+	((LOADADDR) = (BASEADDR))
+#endif
+
 /* Initialize a LOADADDR representing the program.  It's called from
  * DL_BOOT only.
  */
 #ifndef DL_INIT_LOADADDR_PROG
 # define DL_INIT_LOADADDR_PROG(LOADADDR, BASEADDR) \
 	((LOADADDR) = (DL_LOADADDR_TYPE)(BASEADDR))
+#endif
+
+/* Convert a DL_LOADADDR_TYPE to an identifying pointer.  Used mostly
+ * for debugging.
+ */
+#ifndef DL_LOADADDR_BASE
+# define DL_LOADADDR_BASE(LOADADDR) (LOADADDR)
 #endif
 
 /* Test whether a given ADDR is more likely to be within the memory

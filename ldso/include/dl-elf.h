@@ -141,7 +141,7 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
 #define ADJUST_DYN_INFO(tag, load_off) \
 	do { \
 		if (dynamic_info[tag]) \
-			dynamic_info[tag] += load_off; \
+			dynamic_info[tag] = (unsigned long) DL_RELOC_ADDR(load_off, dynamic_info[tag]); \
 	} while(0)
 	ADJUST_DYN_INFO(DT_HASH, load_off);
 	ADJUST_DYN_INFO(DT_PLTGOT, load_off);

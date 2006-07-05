@@ -109,7 +109,7 @@ static void _dl_run_array_forward(unsigned long array, unsigned long size,
 		unsigned int jm;
 		ElfW(Addr) *addrs;
 		jm = size / sizeof (ElfW(Addr));
-		addrs = (ElfW(Addr) *) (array + loadaddr);
+		addrs = (ElfW(Addr) *) DL_RELOC_ADDR(loadaddr, array);
 		for (j = 0; j < jm; ++j) {
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) (intptr_t) addrs[j];
@@ -136,7 +136,7 @@ void _dl_run_fini_array(struct elf_resolve *tpnt);
 void _dl_run_fini_array(struct elf_resolve *tpnt)
 {
 	if (tpnt->dynamic_info[DT_FINI_ARRAY]) {
-		ElfW(Addr) *array = (ElfW(Addr) *) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI_ARRAY]);
+		ElfW(Addr) *array = (ElfW(Addr) *) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_FINI_ARRAY]);
 		unsigned int i = (tpnt->dynamic_info[DT_FINI_ARRAYSZ] / sizeof(ElfW(Addr)));
 		while (i-- > 0) {
 			void (*dl_elf_func) (void);
@@ -166,7 +166,7 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 		if (tpnt->dynamic_info[DT_FINI]) {
 			void (*dl_elf_func) (void);
 
-			dl_elf_func = (void (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
+			dl_elf_func = (void (*)(void)) (intptr_t) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_FINI]);
 			_dl_if_debug_dprint("\ncalling FINI: %s\n\n", tpnt->libname);
 			(*dl_elf_func) ();
 		}
@@ -299,9 +299,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 				break;
 			}
 
-		if (app_tpnt->loadaddr)
+		if (DL_LOADADDR_BASE(app_tpnt->loadaddr))
 			_dl_debug_early("Position Independent Executable: "
-					"app_tpnt->loadaddr=%x\n", app_tpnt->loadaddr);
+					"app_tpnt->loadaddr=%x\n", DL_LOADADDR_BASE(app_tpnt->loadaddr));
 	}
 
 	/*
@@ -318,7 +318,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			relro_size = ppnt->p_memsz;
 		}
 		if (ppnt->p_type == PT_DYNAMIC) {
-			dpnt = (ElfW(Dyn) *) (ppnt->p_vaddr + app_tpnt->loadaddr);
+			dpnt = (ElfW(Dyn) *) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr);
 			_dl_parse_dynamic_info(dpnt, app_tpnt->dynamic_info, debug_addr, app_tpnt->loadaddr);
 #ifndef __FORCE_SHAREABLE_TEXT_SEGMENTS__
 			/* Ugly, ugly.  We need to call mprotect to change the
@@ -332,7 +332,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 				ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
 				for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 					if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
-						_dl_mprotect((void *) ((ppnt->p_vaddr + app_tpnt->loadaddr) & PAGE_ALIGN),
+						_dl_mprotect((void *) (DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr) & PAGE_ALIGN),
 							     ((ppnt->p_vaddr + app_tpnt->loadaddr) & ADDR_ALIGN) +
 							     (unsigned long) ppnt->p_filesz,
 							     PROT_READ | PROT_WRITE | PROT_EXEC);
@@ -347,7 +347,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 #endif
 			/* OK, we have what we need - slip this one into the list. */
 			app_tpnt = _dl_add_elf_hash_table(_dl_progname, app_tpnt->loadaddr,
-					app_tpnt->dynamic_info, ppnt->p_vaddr + app_tpnt->loadaddr, ppnt->p_filesz);
+					app_tpnt->dynamic_info,
+					DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr),
+					ppnt->p_filesz);
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
 			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
@@ -368,7 +370,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		if (ppnt->p_type == PT_INTERP) {
 			char *ptmp;
 
-			tpnt->libname = (char *) ppnt->p_vaddr + app_tpnt->loadaddr;
+			tpnt->libname = (char *) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr);
 
 			/* Store the path where the shared lib loader was found
 			 * for later use
@@ -378,7 +380,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			if (ptmp != _dl_ldsopath)
 				*ptmp = '\0';
 
-			_dl_debug_early("Lib Loader: (%x) %s\n", tpnt->loadaddr, tpnt->libname);
+			_dl_debug_early("Lib Loader: (%x) %s\n", DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
 		}
 	}
 	app_tpnt->relro_addr = relro_addr;
@@ -450,7 +452,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 */
 	debug_addr->r_map = (struct link_map *) _dl_loaded_modules;
 	debug_addr->r_version = 1;
-	debug_addr->r_ldbase = load_addr;
+	debug_addr->r_ldbase = DL_LOADADDR_BASE(load_addr);
 	debug_addr->r_brk = (unsigned long) &_dl_debug_state;
 	_dl_debug_addr = debug_addr;
 
@@ -497,7 +499,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 				} else {
 					tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
-					_dl_debug_early("Loading: (%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
+					_dl_debug_early("Loading: (%x) %s\n", DL_LOADADDR_BASE(tpnt1->loadaddr), tpnt1->libname);
 
 #ifdef __LDSO_LDD_SUPPORT__
 					if (trace_loaded_objects &&
@@ -509,7 +511,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 						 */
 						if (_dl_strcmp(_dl_progname, str) != 0)
 							_dl_dprintf(1, "\t%s => %s (%x)\n", str, tpnt1->libname,
-								    tpnt1->loadaddr);
+								    DL_LOADADDR_BASE(tpnt1->loadaddr));
 					}
 #endif
 				}
@@ -588,14 +590,14 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			} else {
 				tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
-				_dl_debug_early("Loading: (%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
+				_dl_debug_early("Loading: (%x) %s\n", DL_LOADADDR_BASE(tpnt1->loadaddr), tpnt1->libname);
 
 #ifdef __LDSO_LDD_SUPPORT__
 				if (trace_loaded_objects &&
 				    tpnt1->usage_count == 1) {
 					_dl_dprintf(1, "\t%s => %s (%x)\n",
 						    cp2, tpnt1->libname,
-						    (unsigned)tpnt1->loadaddr);
+						    DL_LOADADDR_BASE(tpnt1->loadaddr));
 				}
 #endif
 			}
@@ -647,14 +649,14 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 				tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
-				_dl_debug_early("Loading: (%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
+				_dl_debug_early("Loading: (%x) %s\n", DL_LOADADDR_BASE(tpnt1->loadaddr), tpnt1->libname);
 
 #ifdef __LDSO_LDD_SUPPORT__
 				if (trace_loaded_objects &&
 				    tpnt1->usage_count == 1) {
 					_dl_dprintf(1, "\t%s => %s (%x)\n",
 						    lpntstr, tpnt1->libname,
-						    (unsigned)tpnt1->loadaddr);
+						    DL_LOADADDR_BASE(tpnt1->loadaddr));
 				}
 #endif
 			}
@@ -715,7 +717,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 */
 	if (tpnt) {
 		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
-		ElfW(Phdr) *myppnt = (ElfW(Phdr) *) (load_addr + epnt->e_phoff);
+		ElfW(Phdr) *myppnt = (ElfW(Phdr) *) DL_RELOC_ADDR(load_addr, epnt->e_phoff);
 		int j;
 
 		tpnt = _dl_add_elf_hash_table(tpnt->libname, load_addr,
@@ -765,7 +767,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	if (trace_loaded_objects) {
 		_dl_dprintf(1, "\t%s => %s (%x)\n",
 			    rpnt->dyn->libname + _dl_strlen(_dl_ldsopath) + 1,
-			    rpnt->dyn->libname, rpnt->dyn->loadaddr);
+			    rpnt->dyn->libname, DL_LOADADDR_BASE(rpnt->dyn->loadaddr));
 		_dl_exit(0);
 	}
 #endif
@@ -817,7 +819,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
 			for (myppnt = tpnt->ppnt, j = 0; j < tpnt->n_phent; j++, myppnt++) {
 				if (myppnt->p_type == PT_LOAD && !(myppnt->p_flags & PF_W) && tpnt->dynamic_info[DT_TEXTREL]) {
-					_dl_mprotect((void *) (tpnt->loadaddr + (myppnt->p_vaddr & PAGE_ALIGN)),
+					_dl_mprotect((void *) (DL_RELOC_ADDR(tpnt->loadaddr, myppnt->p_vaddr) & PAGE_ALIGN),
 							(myppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) myppnt->p_filesz, LXFLAGS(myppnt->p_flags));
 				}
 			}
@@ -846,7 +848,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		if (tpnt->dynamic_info[DT_INIT]) {
 			void (*dl_elf_func) (void);
 
-			dl_elf_func = (void (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
+			dl_elf_func = (void (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_INIT]);
 
 			_dl_if_debug_dprint("calling INIT: %s\n\n", tpnt->libname);
 

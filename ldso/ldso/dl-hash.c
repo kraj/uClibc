@@ -163,7 +163,7 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 
 		/* Avoid calling .urem here. */
 		do_rem(hn, elf_hash_number, tpnt->nbucket);
-		symtab = (ElfW(Sym) *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB]);
+		symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
 		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB]);
 
 		for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si]) {
@@ -184,11 +184,11 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 /* Perhaps we should support old style weak symbol handling
  * per what glibc does when you export LD_DYNAMIC_WEAK */
 				if (!weak_result)
-					weak_result = (char *)tpnt->loadaddr + sym->st_value;
+					weak_result = (char *) DL_RELOC_ADDR(tpnt->loadaddr, sym->st_value);
 				break;
 #endif
 			case STB_GLOBAL:
-				return (char*)tpnt->loadaddr + sym->st_value;
+				return (char*) DL_RELOC_ADDR(tpnt->loadaddr, sym->st_value);
 			default:	/* Local symbols not handled here */
 				break;
 			}
