@@ -175,7 +175,8 @@ void *dlopen(const char *libname, int flag)
 		tfrom = NULL;
 		for (dpnt = _dl_symbol_tables; dpnt; dpnt = dpnt->next) {
 			tpnt = dpnt->dyn;
-			if (DL_ADDR_IN_LOADADDR (from, tpnt, tfrom))
+			if (tpnt->loadaddr < from
+					&& (tfrom == NULL || tfrom->loadaddr < tpnt->loadaddr))
 				tfrom = tpnt;
 		}
 	}
@@ -377,7 +378,7 @@ void *dlopen(const char *libname, int flag)
 
 		if (tpnt->dynamic_info[DT_INIT]) {
 			void (*dl_elf_func) (void);
-			dl_elf_func = (void (*)(void)) DL_RELOC_ADDR (tpnt->dynamic_info[DT_INIT], tpnt->loadaddr);
+			dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 			if (dl_elf_func && *dl_elf_func != NULL) {
 				_dl_if_debug_print("running ctors for library %s at '%p'\n",
 						tpnt->libname, dl_elf_func);
@@ -435,7 +436,8 @@ void *dlsym(void *vhandle, const char *name)
 		tfrom = NULL;
 		for (rpnt = _dl_symbol_tables; rpnt; rpnt = rpnt->next) {
 			tpnt = rpnt->dyn;
-			if (DL_ADDR_IN_LOADADDR (from, tpnt, tfrom)) {
+			if (tpnt->loadaddr < from
+					&& (tfrom == NULL || tfrom->loadaddr < tpnt->loadaddr)) {
 				tfrom = tpnt;
 				handle = rpnt->next;
 			}
@@ -510,7 +512,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 #endif
 
 				if (tpnt->dynamic_info[DT_FINI]) {
-				    dl_elf_fini = (int (*)(void)) DL_RELOC_ADDR (tpnt->dynamic_info[DT_FINI], tpnt->loadaddr);
+					dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
 					_dl_if_debug_print("running dtors for library %s at '%p'\n",
 							tpnt->libname, dl_elf_fini);
 					(*dl_elf_fini) ();
@@ -620,7 +622,7 @@ int dlinfo(void)
 	/* First start with a complete list of all of the loaded files. */
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
 		fprintf(stderr, "\t%p %p %p %s %d %s\n",
-		        DL_LOADADDR_BASE (tpnt->loadaddr), tpnt, tpnt->symbol_scope,
+		        tpnt->loadaddr, tpnt, tpnt->symbol_scope,
 		        type[tpnt->libtype],
 		        tpnt->usage_count, tpnt->libname);
 	}
@@ -660,10 +662,12 @@ int dladdr(const void *__address, Dl_info * __info)
 		tpnt = rpnt;
 #if 0
 		fprintf(stderr, "Module \"%s\" at %p\n",
-			tpnt->libname, DL_LOADADDR_BASE (tpnt->loadaddr));
+				tpnt->libname, tpnt->loadaddr);
 #endif
-		if (DL_ADDR_IN_LOADADDR ((ElfW(Addr)) __address,  tpnt, pelf))
+		if (tpnt->loadaddr < (ElfW(Addr)) __address
+				&& (pelf == NULL || pelf->loadaddr < tpnt->loadaddr)) {
 			pelf = tpnt;
+		}
 	}
 
 	if (!pelf) {
@@ -689,7 +693,7 @@ int dladdr(const void *__address, Dl_info * __info)
 			for (si = pelf->elf_buckets[hn]; si; si = pelf->chains[si]) {
 				ElfW(Addr) symbol_addr;
 
-				symbol_addr = (ElfW(Addr)) DL_RELOC_ADDR (symtab[si].st_value, pelf->loadaddr);
+				symbol_addr = pelf->loadaddr + symtab[si].st_value;
 				if (symbol_addr <= (ElfW(Addr))__address && (!sf || sa < symbol_addr)) {
 					sa = symbol_addr;
 					sn = si;
@@ -704,7 +708,7 @@ int dladdr(const void *__address, Dl_info * __info)
 
 		if (sf) {
 			__info->dli_fname = pelf->libname;
-			__info->dli_fbase = DL_LOADADDR_BASE (pelf->loadaddr);
+			__info->dli_fbase = (void *)pelf->loadaddr;
 			__info->dli_sname = strtab + symtab[sn].st_name;
 			__info->dli_saddr = (void *)sa;
 		}

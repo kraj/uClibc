@@ -118,10 +118,10 @@ int _dl_unmap_cache(void)
 void
 _dl_protect_relro (struct elf_resolve *l)
 {
-	ElfW(Addr) base = (ElfW(Addr)) DL_RELOC_ADDR (l->relro_addr,
-						      l->loadaddr);
-	ElfW(Addr) start = (base & ~(_dl_pagesize - 1));
-	ElfW(Addr) end = ((base + l->relro_size) & ~(_dl_pagesize - 1));
+	ElfW(Addr) start = ((l->loadaddr + l->relro_addr)
+			    & ~(_dl_pagesize - 1));
+	ElfW(Addr) end = ((l->loadaddr + l->relro_addr + l->relro_size)
+			  & ~(_dl_pagesize - 1));
 	_dl_if_debug_dprint("RELRO protecting %s:  start:%x, end:%x\n", l->libname, start, end);
 	if (start != end &&
 	    _dl_mprotect ((void *) start, end - start, PROT_READ) < 0) {
@@ -262,8 +262,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 #ifdef __LDSO_RUNPATH__
 	pnt = (tpnt ? (char *)tpnt->dynamic_info[DT_RUNPATH] : NULL);
 	if (pnt) {
-		pnt += (intptr_t) DL_RELOC_ADDR (tpnt->dynamic_info[DT_STRTAB],
-						 tpnt->loadaddr);
+		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
 		_dl_if_debug_dprint("\tsearching RUNPATH='%s'\n", pnt);
 		if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
 			return tpnt1;
@@ -353,8 +352,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
 	struct stat st;
-	DL_LOADADDR_TYPE lib_loadaddr;
-	DL_INIT_LOADADDR_EXTRA_DECLS
 
 	libaddr = 0;
 	infile = _dl_open(libname, O_RDONLY, 0);
@@ -470,10 +467,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 	libaddr = (unsigned long) status;
 	flags |= MAP_FIXED;
-	DL_INIT_LOADADDR (lib_loadaddr, libaddr,
-			  (Elf32_Phdr *)& header[epnt->e_phoff],
-			  epnt->e_phnum);
-	
+
 	/* Get the memory to store the library */
 	ppnt = (ElfW(Phdr) *)(intptr_t) & header[epnt->e_phoff];
 
@@ -553,8 +547,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	/* For a non-PIC library, the addresses are all absolute */
 	if (piclib) {
-		dynamic_addr = (unsigned long) DL_RELOC_ADDR (dynamic_addr,
-							      lib_loadaddr);
+		dynamic_addr += (unsigned long) libaddr;
 	}
 
 	/*
@@ -574,7 +567,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	dpnt = (ElfW(Dyn) *) dynamic_addr;
 	_dl_memset(dynamic_info, 0, sizeof(dynamic_info));
-	_dl_parse_dynamic_info(dpnt, dynamic_info, NULL, lib_loadaddr);
+	_dl_parse_dynamic_info(dpnt, dynamic_info, NULL, libaddr);
 	/* If the TEXTREL is set, this means that we need to make the pages
 	   writable before we perform relocations.  Do this now. They get set
 	   back again later. */
@@ -595,14 +588,13 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 #endif
 	}
 
-	tpnt = _dl_add_elf_hash_table(libname, lib_loadaddr, dynamic_info,
+	tpnt = _dl_add_elf_hash_table(libname, (char *) libaddr, dynamic_info,
 			dynamic_addr, 0);
 	tpnt->relro_addr = relro_addr;
 	tpnt->relro_size = relro_size;
 	tpnt->st_dev = st.st_dev;
 	tpnt->st_ino = st.st_ino;
-	tpnt->ppnt = (ElfW(Phdr) *) DL_RELOC_ADDR (epnt->e_phoff,
-						   tpnt->loadaddr);
+	tpnt->ppnt = (ElfW(Phdr) *)(intptr_t) (tpnt->loadaddr + epnt->e_phoff);
 	tpnt->n_phent = epnt->e_phnum;
 
 	/*
@@ -633,11 +625,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 
 	_dl_if_debug_dprint("\n\tfile='%s';  generating link map\n", libname);
-	_dl_if_debug_dprint("\t\tdynamic: %x  base: %x\n", dynamic_addr,
-			    DL_LOADADDR_BASE (libaddr));
+	_dl_if_debug_dprint("\t\tdynamic: %x  base: %x\n", dynamic_addr, libaddr);
 	_dl_if_debug_dprint("\t\t  entry: %x  phdr: %x  phnum: %x\n\n",
-			    DL_RELOC_ADDR (epnt->e_entry, lib_loadaddr),
-			    tpnt->ppnt, tpnt->n_phent);
+			epnt->e_entry + libaddr, tpnt->ppnt, tpnt->n_phent);
 
 	_dl_munmap(header, _dl_pagesize);
 
@@ -811,7 +801,7 @@ char *_dl_strdup(const char *string)
 	return retval;
 }
 
-void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void *debug_addr, DL_LOADADDR_TYPE load_off)
+void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void *debug_addr, ElfW(Addr) load_off)
 {
 	__dl_parse_dynamic_info(dpnt, dynamic_info, debug_addr, load_off);
 }
@@ -828,7 +818,7 @@ __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void
 	int ret = 0;
 
 	for (l = _dl_loaded_modules; l != NULL; l = l->next) {
-		info.dlpi_addr = (ElfW(Addr))DL_LOADADDR_BASE (l->loadaddr);
+		info.dlpi_addr = l->loadaddr;
 		info.dlpi_name = l->libname;
 		info.dlpi_phdr = l->ppnt;
 		info.dlpi_phnum = l->n_phent;
