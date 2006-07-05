@@ -15,7 +15,7 @@ LDFLAGS_dltest  := -ldl -lpthread
 LDFLAGS_dltest2 := -ldl -lpthread
 LDFLAGS_test1   := -ldl
 LDFLAGS_test2   := -ldl
-LDFLAGS_test3   := -ldl ./libtest1.so ./libtest2.so
+LDFLAGS_test3   := -ldl ./libtest1.so ./libtest2.so -Wl,-rpath,.
 
 DEBUG_LIBS := X
 WRAPPER := env $(DEBUG_LIBS)=all LD_LIBRARY_PATH="$$PWD:.:$(LD_LIBRARY_PATH)"
@@ -26,5 +26,6 @@ test1: libtest1.so
 test2: libtest1.so libtest2.so
 test3: libtest1.so libtest2.so
 libtest1.so: libtest2.so
-LDFLAGS_libtest1.so := ./libtest2.so
-LDFLAGS_libtest3.so := -lpthread
+LDFLAGS_libtest1.so := ./libtest2.so -Wl,-rpath,.
+LDFLAGS_libtest2.so := -Wl,-rpath,.
+LDFLAGS_libtest3.so := -lpthread -Wl,-rpath,.
