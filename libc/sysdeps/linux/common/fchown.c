@@ -9,6 +9,15 @@
 
 #include "syscalls.h"
 #include <unistd.h>
+#include <linux/version.h>
+
+/* Linux 2.3.39 introduced 32bit UID/GIDs.  Some platforms had 32
+   bit type all along.  */
+#if LINUX_VERSION_CODE >= 131879
+
+_syscall3(int, fchown, int, fd, uid_t, owner, gid_t, group);
+
+#else
 
 #define __NR___syscall_fchown __NR_fchown
 static inline _syscall3(int, __syscall_fchown, int, fd,
@@ -23,3 +32,5 @@ int fchown(int fd, uid_t owner, gid_t group)
 	}
 	return (__syscall_fchown(fd, owner, group));
 }
+
+#endif
