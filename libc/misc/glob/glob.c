@@ -1,19 +1,23 @@
-/* Copyright (C) 1991, 1992, 1993, 1994, 1995 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2002,2003,2004,2005,2006 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Library General Public License as
-published by the Free Software Foundation; either version 2 of the
-License, or (at your option) any later version.
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
-You should have received a copy of the GNU Library General Public
-License along with this library; see the file COPYING.LIB.  If
-not, write to the Free Software Foundation, Inc., 675 Mass Ave,
-Cambridge, MA 02139, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+#undef ENABLE_GLOB_BRACE_EXPANSION
+#undef ENABLE_GLOB_TILDE_EXPANSION
 
 #include <features.h>
 #include <stdlib.h>
@@ -26,7 +30,6 @@ Cambridge, MA 02139, USA.  */
 #include <malloc.h>
 #include <fnmatch.h>
 #include <glob.h>
-#include <pwd.h>
 
 libc_hidden_proto(memcpy)
 libc_hidden_proto(strcat)
@@ -38,8 +41,11 @@ libc_hidden_proto(opendir)
 libc_hidden_proto(closedir)
 libc_hidden_proto(fnmatch)
 libc_hidden_proto(qsort)
-libc_hidden_proto(lstat)
+
+#ifdef ENABLE_GLOB_TILDE_EXPANSION
+#include <pwd.h>
 libc_hidden_proto(getpwnam_r)
+#endif
 
 /* When used in the GNU libc the symbol _DIRENT_HAVE_D_TYPE is available
    if the `d_type' member for `struct dirent' is available.
@@ -89,40 +95,33 @@ libc_hidden_proto(getpwnam_r)
   CONVERT_D_INO (d64, d32)						      \
   CONVERT_D_TYPE (d64, d32)
 
-
 extern __ptr_t (*__glob_opendir_hook) (const char *directory) attribute_hidden;
 extern void (*__glob_closedir_hook) (__ptr_t stream) attribute_hidden;
 extern const char *(*__glob_readdir_hook) (__ptr_t stream) attribute_hidden;
 
-extern int collated_compare (const __ptr_t a, const __ptr_t b);
-extern int prefix_array (const char *dirname, char **array, size_t n);
-extern const char * next_brace_sub (const char *cp, int flags);
-
-static int link_exists_p (const char *dir, size_t dirlen, const char *fname,
-	       glob_t *pglob, int flags);
-static int glob_in_dir (const char *pattern, const char *directory, int flags,
-	     int (*errfunc) (const char *, int),
-	     glob_t *pglob);
+extern int __collated_compare (const void *a, const void *b) attribute_hidden;
+extern int __prefix_array (const char *dirname, char **array, size_t n) attribute_hidden;
+#if defined ENABLE_GLOB_BRACE_EXPANSION
+extern const char *__next_brace_sub (const char *cp, int flags) attribute_hidden;
+#endif
 
 libc_hidden_proto(glob_pattern_p)
-libc_hidden_proto(collated_compare)
-libc_hidden_proto(prefix_array)
-libc_hidden_proto(next_brace_sub)
 #ifdef COMPILE_GLOB64
 libc_hidden_proto(glob64)
 libc_hidden_proto(globfree64)
 libc_hidden_proto(readdir64)
-# define struct_stat64          struct stat64
-# define __stat64(fname, buf)   stat64 (fname, buf)
+#define __readdir readdir64
+#define __readdir64 readdir64
+#define struct_stat64          struct stat64
+#define __stat64(fname, buf)   stat64 (fname, buf)
 #else
 libc_hidden_proto(glob)
 libc_hidden_proto(globfree)
 #define __readdir readdir
 #define __readdir64 readdir64
-//#define __stat64(fname, buf)   stat64 (fname, buf)
+#define struct_stat64          struct stat
+#define __stat64(fname, buf)   stat (fname, buf)
 libc_hidden_proto(readdir)
-# define struct_stat64          struct stat
-# define __stat64(fname, buf)   stat (fname, buf)
 /* Return nonzero if PATTERN contains any metacharacters.
    Metacharacters can be quoted with backslashes if QUOTE is nonzero.  */
 int glob_pattern_p(const char *pattern, int quote)
@@ -158,7 +157,7 @@ libc_hidden_def(glob_pattern_p)
 
 
 /* Do a collated comparison of A and B.  */
-int collated_compare (const void *a, const void *b)
+int __collated_compare (const void *a, const void *b)
 {
   const char *const s1 = *(const char *const * const) a;
   const char *const s2 = *(const char *const * const) b;
@@ -172,11 +171,14 @@ int collated_compare (const void *a, const void *b)
   return strcoll (s1, s2);
 }
 
+
 /* Prepend DIRNAME to each of N members of ARRAY, replacing ARRAY's
    elements in place.  Return nonzero if out of memory, zero if successful.
    A slash is inserted between DIRNAME and each elt of ARRAY,
-   unless DIRNAME is just "/".  Each old element of ARRAY is freed.  */
-int prefix_array (const char *dirname, char **array, size_t n)
+   unless DIRNAME is just "/".  Each old element of ARRAY is freed.
+   If ADD_SLASH is non-zero, allocate one character more than
+   necessary, so that a slash can be appended later.  */
+int __prefix_array (const char *dirname, char **array, size_t n)
 {
   register size_t i;
   size_t dirlen = strlen (dirname);
@@ -210,9 +212,10 @@ int prefix_array (const char *dirname, char **array, size_t n)
   return 0;
 }
 
+#if defined ENABLE_GLOB_BRACE_EXPANSION
 /* Find the end of the sub-pattern in a brace expression.  */
 const char *
-next_brace_sub (const char *cp, int flags)
+__next_brace_sub (const char *cp, int flags)
 {
   unsigned int depth = 0;
   while (*cp != '\0')
@@ -234,6 +237,8 @@ next_brace_sub (const char *cp, int flags)
   return *cp != '\0' ? cp : NULL;
 }
 #endif
+#endif
+
 
 static int
 link_exists_p (const char *dir, size_t dirlen, const char *fname,
@@ -472,7 +477,6 @@ static int glob_in_dir (const char *pattern, const char *directory, int flags,
   return GLOB_NOSPACE;
 }
 
-
 /* Do glob searching for PATTERN, placing results in PGLOB.
    The bits defined above may be set in FLAGS.
    If a directory cannot be opened or read and ERRFUNC is not nil,
@@ -500,11 +504,13 @@ glob (pattern, flags, errfunc, pglob)
       return -1;
     }
 
+
   if (!(flags & GLOB_DOOFFS))
     /* Have to do this so `globfree' knows where to start freeing.  It
        also makes all the code that uses gl_offs simpler. */
     pglob->gl_offs = 0;
 
+#if defined ENABLE_GLOB_BRACE_EXPANSION
   if (flags & GLOB_BRACE)
     {
       const char *begin;
@@ -548,7 +554,7 @@ glob (pattern, flags, errfunc, pglob)
 
 	  /* Find the first sub-pattern and at the same time find the
 	     rest after the closing brace.  */
-	  next = next_brace_sub (begin + 1, flags);
+	  next = __next_brace_sub (begin + 1, flags);
 	  if (next == NULL)
 	    {
 	      /* It is an illegal expression.  */
@@ -559,7 +565,7 @@ glob (pattern, flags, errfunc, pglob)
 	  rest = next;
 	  while (*rest != '}')
 	    {
-	      rest = next_brace_sub (rest + 1, flags);
+	      rest = __next_brace_sub (rest + 1, flags);
 	      if (rest == NULL)
 		{
 		  /* It is an illegal expression.  */
@@ -613,7 +619,7 @@ glob (pattern, flags, errfunc, pglob)
 		break;
 
 	      p = next + 1;
-	      next = next_brace_sub (p, flags);
+	      next = __next_brace_sub (p, flags);
 	      /* assert (next != NULL); */
 	    }
 
@@ -625,6 +631,7 @@ glob (pattern, flags, errfunc, pglob)
 	    return GLOB_NOMATCH;
 	}
     }
+#endif
 
   /* Find the filename.  */
   filename = strrchr (pattern, '/');
@@ -697,6 +704,7 @@ glob (pattern, flags, errfunc, pglob)
 
   oldcount = pglob->gl_pathc + pglob->gl_offs;
 
+#if defined ENABLE_GLOB_TILDE_EXPANSION
   if ((flags & (GLOB_TILDE|GLOB_TILDE_CHECK)) && dirname[0] == '~')
     {
       if (dirname[1] == '\0' || dirname[1] == '/')
@@ -868,6 +876,7 @@ glob (pattern, flags, errfunc, pglob)
       /* Not found.  */
       return GLOB_NOMATCH;
     }
+#endif
 
   if (glob_pattern_p (dirname, !(flags & GLOB_NOESCAPE)))
     {
@@ -921,7 +930,7 @@ glob (pattern, flags, errfunc, pglob)
 	    }
 
 	  /* Stick the directory on the front of each name.  */
-	  if (prefix_array (dirs.gl_pathv[i],
+	  if (__prefix_array (dirs.gl_pathv[i],
 			    &pglob->gl_pathv[old_pathc + pglob->gl_offs],
 			    pglob->gl_pathc - old_pathc))
 	    {
@@ -990,7 +999,7 @@ glob (pattern, flags, errfunc, pglob)
       if (dirlen > 0)
 	{
 	  /* Stick the directory on the front of each name.  */
-	  if (prefix_array (dirname,
+	  if (__prefix_array (dirname,
 			    &pglob->gl_pathv[old_pathc + pglob->gl_offs],
 			    pglob->gl_pathc - old_pathc))
 	    {
@@ -1015,9 +1024,9 @@ glob (pattern, flags, errfunc, pglob)
 	     : (__stat64 (pglob->gl_pathv[i], &st64) == 0
 		&& S_ISDIR (st64.st_mode))))
 	  {
- 	    size_t len = strlen (pglob->gl_pathv[i]) + 2;
+	    size_t len = strlen (pglob->gl_pathv[i]) + 2;
 	    char *new = realloc (pglob->gl_pathv[i], len);
- 	    if (new == NULL)
+	    if (new == NULL)
 	      {
 		globfree (pglob);
 		pglob->gl_pathc = 0;
@@ -1033,7 +1042,7 @@ glob (pattern, flags, errfunc, pglob)
       /* Sort the vector.  */
       qsort (&pglob->gl_pathv[oldcount],
 	     pglob->gl_pathc + pglob->gl_offs - oldcount,
-	     sizeof (char *), collated_compare);
+	     sizeof (char *), __collated_compare);
     }
 
   return 0;
