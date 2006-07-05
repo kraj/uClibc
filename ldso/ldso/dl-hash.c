@@ -4,7 +4,7 @@
  * after resolving ELF shared library symbols
  *
  * Copyright (C) 2004 by Joakim Tjernlund <joakim.tjernlund@lumentis.se>
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@codepoet.org>
  * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
  *
@@ -83,7 +83,7 @@ static inline Elf_Symndx _dl_elf_hash(const char *name)
  * externals properly.
  */
 struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
-	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
+	ElfW(Addr) loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
 	attribute_unused unsigned long dynamic_size)
 {
 	Elf_Symndx *hash_addr;
@@ -117,7 +117,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 		hash_addr += tpnt->nbucket;
 		tpnt->chains = hash_addr;
 	}
-	tpnt->loadaddr = (ElfW(Addr))loadaddr;
+	tpnt->loadaddr = loadaddr;
 	for (i = 0; i < DYNAMIC_SIZE; i++)
 		tpnt->dynamic_info[i] = dynamic_info[i];
 	return tpnt;

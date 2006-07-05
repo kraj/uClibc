@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@codepoet.org>
  *
  * GNU Lesser General Public License version 2.1 or later.
  */
@@ -17,7 +17,7 @@ struct init_fini {
 	unsigned long nlist; /* Number of entries in init_fini */
 };
 
-struct dyn_elf{
+struct dyn_elf {
   struct elf_resolve * dyn;
   struct dyn_elf * next_handle;  /* Used by dlopen et al. */
   struct init_fini init_fini;
@@ -25,7 +25,7 @@ struct dyn_elf{
   struct dyn_elf * prev;
 };
 
-struct elf_resolve{
+struct elf_resolve {
   /* These entries must be in this order to be compatible with the interface used
      by gdb to obtain the list of symbols. */
   ElfW(Addr) loadaddr;		/* Base address shared object is loaded at.  */
@@ -76,11 +76,11 @@ extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;
 extern struct dyn_elf 	  * _dl_handles;
 
-extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname, 
-	char * loadaddr, unsigned long * dynamic_info, 
+extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
+	ElfW(Addr) loadaddr, unsigned long * dynamic_info,
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
-extern char * _dl_find_hash(const char * name, struct dyn_elf * rpnt1, 
+extern char * _dl_find_hash(const char * name, struct dyn_elf * rpnt1,
 			    struct elf_resolve *mytpnt, int type_class);
 
 extern int _dl_linux_dynamic_link(void);
@@ -95,7 +95,6 @@ static inline int _dl_symbol(char * name)
   return 1;
 }
 
-
 #define LD_ERROR_NOFILE 1
 #define LD_ERROR_NOZERO 2
 #define LD_ERROR_NOTELF 3
@@ -107,8 +106,4 @@ static inline int _dl_symbol(char * name)
 #define LD_BAD_HANDLE 9
 #define LD_NO_SYMBOL 10
 
-
-
 #endif /* _LD_HASH_H_ */
-
-

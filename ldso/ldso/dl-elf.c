@@ -588,7 +588,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 #endif
 	}
 
-	tpnt = _dl_add_elf_hash_table(libname, (char *) libaddr, dynamic_info,
+	tpnt = _dl_add_elf_hash_table(libname, libaddr, dynamic_info,
 			dynamic_addr, 0);
 	tpnt->relro_addr = relro_addr;
 	tpnt->relro_size = relro_size;
