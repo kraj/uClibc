@@ -61,7 +61,7 @@ static void noop_handler (int __sig);
 
 
 int
-__lckpwdf (void)
+lckpwdf (void)
 {
   int flags;
   sigset_t saved_set;			/* Saved set of caught signals.  */
@@ -170,7 +170,7 @@ __lckpwdf (void)
 
 
 int
-__ulckpwdf (void)
+ulckpwdf (void)
 {
   int result;
 
