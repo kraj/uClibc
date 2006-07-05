@@ -84,6 +84,14 @@ typedef struct {
 	((LOADADDR) = (BASEADDR))
 #endif
 
+/* Initialize a LOADADDR representing the program.  It's called from
+ * DL_BOOT only.
+ */
+#ifndef DL_INIT_LOADADDR_PROG
+# define DL_INIT_LOADADDR_PROG(LOADADDR, BASEADDR) \
+	((LOADADDR) = (DL_LOADADDR_TYPE)(BASEADDR))
+#endif
+
 /* Test whether a given ADDR is more likely to be within the memory
  * region mapped to TPNT (a struct elf_resolve *) than to TFROM.
  * Everywhere that this is used, TFROM is initially NULL, and whenever

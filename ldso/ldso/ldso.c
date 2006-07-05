@@ -295,7 +295,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 		for (idx = 0; idx < auxvt[AT_PHNUM].a_un.a_val; idx++, phdr++)
 			if (phdr->p_type == PT_PHDR) {
-				app_tpnt->loadaddr = (ElfW(Addr)) (auxvt[AT_PHDR].a_un.a_val - phdr->p_vaddr);
+				DL_INIT_LOADADDR_PROG(app_tpnt->loadaddr, auxvt[AT_PHDR].a_un.a_val - phdr->p_vaddr);
 				break;
 			}
 
