@@ -75,4 +75,19 @@ typedef struct {
 	((LOADADDR) = (BASEADDR))
 #endif
 
+/* Test whether a given ADDR is more likely to be within the memory
+ * region mapped to TPNT (a struct elf_resolve *) than to TFROM.
+ * Everywhere that this is used, TFROM is initially NULL, and whenever
+ * a potential match is found, it's updated.  One might want to walk
+ * the chain of elf_resolve to locate the best match and return false
+ * whenever TFROM is non-NULL, or use an exact-matching algorithm
+ * using additional information encoded in DL_LOADADDR_TYPE to test
+ * for exact containment.
+ */
+#ifndef DL_ADDR_IN_LOADADDR
+# define DL_ADDR_IN_LOADADDR(ADDR, TPNT, TFROM) \
+	((void*)(TPNT)->loadaddr < (void*)(ADDR) \
+	 && (!(TFROM) || (TFROM)->loadaddr < (TPNT)->loadaddr))
+#endif
+
 #endif	/* _LD_DEFS_H */

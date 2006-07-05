@@ -175,8 +175,7 @@ void *dlopen(const char *libname, int flag)
 		tfrom = NULL;
 		for (dpnt = _dl_symbol_tables; dpnt; dpnt = dpnt->next) {
 			tpnt = dpnt->dyn;
-			if (tpnt->loadaddr < from
-					&& (tfrom == NULL || tfrom->loadaddr < tpnt->loadaddr))
+			if (DL_ADDR_IN_LOADADDR(from, tpnt, tfrom))
 				tfrom = tpnt;
 		}
 	}
@@ -436,8 +435,7 @@ void *dlsym(void *vhandle, const char *name)
 		tfrom = NULL;
 		for (rpnt = _dl_symbol_tables; rpnt; rpnt = rpnt->next) {
 			tpnt = rpnt->dyn;
-			if (tpnt->loadaddr < from
-					&& (tfrom == NULL || tfrom->loadaddr < tpnt->loadaddr)) {
+			if (DL_ADDR_IN_LOADADDR(from, tpnt, tfrom)) {
 				tfrom = tpnt;
 				handle = rpnt->next;
 			}
@@ -664,10 +662,8 @@ int dladdr(const void *__address, Dl_info * __info)
 		fprintf(stderr, "Module \"%s\" at %p\n",
 				tpnt->libname, tpnt->loadaddr);
 #endif
-		if (tpnt->loadaddr < (ElfW(Addr)) __address
-				&& (pelf == NULL || pelf->loadaddr < tpnt->loadaddr)) {
+		if (DL_ADDR_IN_LOADADDR((ElfW(Addr)) __address,  tpnt, pelf))
 			pelf = tpnt;
-		}
 	}
 
 	if (!pelf) {
