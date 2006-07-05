@@ -1,6 +1,5 @@
 # Rules.make for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
@@ -8,16 +7,16 @@
 
 #-----------------------------------------------------------
 # This file contains rules which are shared between multiple
-# Makefiles.  All normal configuration options live in the 
-# file named ".config".  Don't mess with this file unless 
+# Makefiles.  All normal configuration options live in the
+# file named ".config".  Don't mess with this file unless
 # you know what you are doing.
 
 
 #-----------------------------------------------------------
-# If you are running a cross compiler, you will want to set 
-# 'CROSS' to something more interesting ...  Target 
-# architecture is determined by asking the CC compiler what 
-# arch it compiles things for, so unless your compiler is 
+# If you are running a cross compiler, you will want to set
+# 'CROSS' to something more interesting ...  Target
+# architecture is determined by asking the CC compiler what
+# arch it compiles things for, so unless your compiler is
 # broken, you should not need to specify TARGET_ARCH.
 #
 # Most people will set this stuff on the command line, i.e.
@@ -289,8 +288,8 @@ else
 export PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),$(PICFLAG))
 endif
 endif
-# We need to keep track of both the CC PIE flag (above) as 
-# well as the LD PIE flag (below) because we can't rely on 
+# We need to keep track of both the CC PIE flag (above) as
+# well as the LD PIE flag (below) because we can't rely on
 # gcc passing -pie if we used -fPIE
 ifndef LDPIEFLAG
 ifneq ($(UCLIBC_BUILD_PIE),y)
@@ -452,8 +451,8 @@ PTINC := \
 endif
 CFLAGS+=$(PTINC)
 else
-	PTNAME := 
-	PTINC  := 
+	PTNAME :=
+	PTINC  :=
 endif
 
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'

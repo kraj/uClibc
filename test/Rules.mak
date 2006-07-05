@@ -1,9 +1,10 @@
 # Rules.mak for uClibc test subdirs
 #
-# Copyright (C) 2001 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
 #
 # Note: This does not read the top level Rules.mak file
 #
@@ -16,7 +17,7 @@ TESTDIR=$(top_builddir)test/
 UCLIBC_LDSO ?= $(firstword $(wildcard $(top_builddir)lib/ld*))
 
 #--------------------------------------------------------
-# Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc. 
+# Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
 LC_ALL:= C
 export LC_ALL
 
@@ -103,7 +104,7 @@ SCAT := -@true
 else
 ifneq ($(V)$(VERBOSE),)
 DISP := ver
-Q    := 
+Q    :=
 SCAT := cat
 else
 DISP := pur
@@ -117,11 +118,11 @@ pur_showclean = echo "  "CLEAN $(notdir $(CURDIR))
 pur_showdiff  = echo "  "TEST_DIFF $(notdir $(CURDIR))/
 pur_showlink  = echo "  "TEST_LINK $(notdir $(CURDIR))/ $@
 pur_showtest  = echo "  "TEST_EXEC $(notdir $(CURDIR))/ $@
-sil_showclean = 
+sil_showclean =
 sil_showdiff  = true
 sil_showlink  = true
 sil_showtest  = true
-ver_showclean = 
+ver_showclean =
 ver_showdiff  = true echo
 ver_showlink  = true echo
 ver_showtest  = printf "\n$(banner)\nTEST $(notdir $(PWD))/ $@\n$(banner)\n"

@@ -1,6 +1,5 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
@@ -9,7 +8,7 @@
 # The stdio and time related wide functions are now built in the normal
 # directories.
 #
-# stdio: 
+# stdio:
 #	fwide fgetwc getwchar fgetws fputwc putwchar fputws ungetwc
 #	getwc (fgetwc alias) getwc_unlocked (fgetwc_unlocked alias)
 #	putwc (fputwc alias) putwc_unlocked (fputwc_unlocked alias)
