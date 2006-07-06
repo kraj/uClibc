@@ -57,14 +57,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
 	kact.sa_flags = act->sa_flags;
 # ifdef HAVE_SA_RESTORER
-	/* If the user specified SA_ONSTACK this means she is trying to
-	   use the old-style stack switching.  Unfortunately this
-	   requires the sa_restorer field so we cannot install our own
-	   handler.  (In fact the user is likely to be out of luck anyway
-	   since the kernel currently only supports stack switching via
-	   the X/Open sigaltstack interface, but we allow for the
-	   possibility that this might change in the future.)  */
-	if (kact.sa_flags & (SA_RESTORER | SA_ONSTACK)) {
+	if (kact.sa_flags & SA_RESTORER) {
 	    kact.sa_restorer = act->sa_restorer;
 	} else {
 	    kact.sa_restorer = choose_restorer (kact.sa_flags);
@@ -103,8 +96,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	kact.sa_mask = act->sa_mask.__val[0];
 	kact.sa_flags = act->sa_flags;
 # ifdef HAVE_SA_RESTORER
-	/* See the comments above for why we test SA_ONSTACK.  */
-	if (kact.sa_flags & (SA_RESTORER | SA_ONSTACK)) {
+	if (kact.sa_flags & SA_RESTORER) {
 	    kact.sa_restorer = act->sa_restorer;
 	} else {
 	    kact.sa_restorer = choose_restorer (kact.sa_flags);
