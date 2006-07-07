@@ -31,7 +31,9 @@ TODO list for the uClibc 1.0.0 release:
 -------------------------------------------------
     *) glob / fnmatch tests fail
     *) regex should pass AT&T conformance tests
-    *) Finish hiding uClibc internal symbols from our exported namespace.
+    *) Finish hiding uClibc internal symbols from our exported namespace
+    *) Add system for generating minimal system call asm wrappers that abuse
+	the C ABI to minimize amount of register/stack manipulation
     *) Explicity add some sortof CONFIG_LINUX_2_2_ABI, CONFIG_LINUX_2_4_ABI
 	and CONFIG_LINUX_2_6_ABI type options, rather than having the abi
 	depend on the selected set of kernel headers.  This will likely also
@@ -95,13 +97,14 @@ TODO list for AFTER the uClibc 1.0.0 release:
 Arch specific TODO:
 -------------------------------------------------
   alpha:
-
     ldso is not implemented
   arm:
     update crt1 code again for nommu (http://bugs.uclibc.org/view.php?id=538)
     recruit jbowler and integrate thumb support
   hppa:
     errno.c test segfaults causes segfault in clone.S (seems to be in glibc too)
+  i386:
+    add support for fast system calls
   ia64:
     ldso is not implemented
   m68k:
@@ -112,7 +115,7 @@ Arch specific TODO:
   vax:
     pthread support, linktime warning support (implies GAS patches),
     general touchups, testing, ldso.
-  bfin cris rfv sh64:
+  frv sh64:
     need to be updated to new ldso changes and unification of the
      two uClibc_main funcs (__uClibc_start_main doesnt exist anymore)
 
