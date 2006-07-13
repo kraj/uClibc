@@ -33,17 +33,11 @@
 
 libc_hidden_proto(closedir)
 libc_hidden_proto(fnmatch)
-libc_hidden_proto(free)
-libc_hidden_proto(malloc)
 libc_hidden_proto(memcpy)
 libc_hidden_proto(mempcpy)
 libc_hidden_proto(opendir)
 libc_hidden_proto(qsort)
 libc_hidden_proto(readdir)
-libc_hidden_proto(readdir64)
-libc_hidden_proto(realloc)
-libc_hidden_proto(stat)
-libc_hidden_proto(stat64)
 libc_hidden_proto(strchr)
 libc_hidden_proto(strcoll)
 libc_hidden_proto(strcpy)
@@ -68,11 +62,19 @@ libc_hidden_proto(getpwnam_r)
 #define glob_t glob64_t
 #define glob(pattern, flags, errfunc, pglob) glob64 (pattern, flags, errfunc, pglob)
 #define globfree(pglob) globfree64 (pglob)
+libc_hidden_proto(stat64)
+libc_hidden_proto(readdir64)
 #else
 #define __readdir readdir
+#ifdef __UCLIBC_HAS_LFS__
 #define __readdir64 readdir64
+libc_hidden_proto(readdir64)
+#else
+#define __readdir64 readdir
+#endif
 #define struct_stat64          struct stat
 #define __stat64(fname, buf)   stat (fname, buf)
+libc_hidden_proto(stat)
 #endif
 
 
@@ -124,19 +126,13 @@ libc_hidden_proto(getpwnam_r)
   CONVERT_D_INO (d64, d32)						      \
   CONVERT_D_TYPE (d64, d32)
 
-extern __ptr_t (*__glob_opendir_hook) (const char *directory) attribute_hidden;
-extern void (*__glob_closedir_hook) (__ptr_t stream) attribute_hidden;
-extern const char *(*__glob_readdir_hook) (__ptr_t stream) attribute_hidden;
-
-extern int collated_compare (const void *a, const void *b) attribute_hidden;
-extern int prefix_array (const char *dirname, char **array, size_t n) attribute_hidden;
+extern int __collated_compare (const void *a, const void *b) attribute_hidden;
+extern int __prefix_array (const char *dirname, char **array, size_t n) attribute_hidden;
 #if defined ENABLE_GLOB_BRACE_EXPANSION
 extern const char *__next_brace_sub (const char *cp, int flags) attribute_hidden;
 #endif
 
 libc_hidden_proto(glob_pattern_p)
-libc_hidden_proto(collated_compare)
-libc_hidden_proto(prefix_array)
 #ifndef COMPILE_GLOB64
 /* Return nonzero if PATTERN contains any metacharacters.
    Metacharacters can be quoted with backslashes if QUOTE is nonzero.  */
@@ -173,7 +169,7 @@ libc_hidden_def(glob_pattern_p)
 
 
 /* Do a collated comparison of A and B.  */
-int collated_compare (const void *a, const void *b)
+int __collated_compare (const void *a, const void *b)
 {
   const char *const s1 = *(const char *const * const) a;
   const char *const s2 = *(const char *const * const) b;
@@ -194,7 +190,7 @@ int collated_compare (const void *a, const void *b)
    unless DIRNAME is just "/".  Each old element of ARRAY is freed.
    If ADD_SLASH is non-zero, allocate one character more than
    necessary, so that a slash can be appended later.  */
-int prefix_array (const char *dirname, char **array, size_t n)
+int __prefix_array (const char *dirname, char **array, size_t n)
 {
   register size_t i;
   size_t dirlen = strlen (dirname);
@@ -953,7 +949,7 @@ glob (pattern, flags, errfunc, pglob)
 	    }
 
 	  /* Stick the directory on the front of each name.  */
-	  if (prefix_array (dirs.gl_pathv[i],
+	  if (__prefix_array (dirs.gl_pathv[i],
 			    &pglob->gl_pathv[old_pathc + pglob->gl_offs],
 			    pglob->gl_pathc - old_pathc))
 	    {
@@ -1022,7 +1018,7 @@ glob (pattern, flags, errfunc, pglob)
       if (dirlen > 0)
 	{
 	  /* Stick the directory on the front of each name.  */
-	  if (prefix_array (dirname,
+	  if (__prefix_array (dirname,
 			    &pglob->gl_pathv[old_pathc + pglob->gl_offs],
 			    pglob->gl_pathc - old_pathc))
 	    {
@@ -1065,7 +1061,7 @@ glob (pattern, flags, errfunc, pglob)
       /* Sort the vector.  */
       qsort (&pglob->gl_pathv[oldcount],
 	     pglob->gl_pathc + pglob->gl_offs - oldcount,
-	     sizeof (char *), collated_compare);
+	     sizeof (char *), __collated_compare);
     }
 
   return 0;
