@@ -6,7 +6,7 @@
 #
 
 ifeq ($(UCLIBC_HAS_GNU_GLOB),y)
-CSRC := glob.c glob-hooks.c
+CSRC := glob.c
 ifeq ($(UCLIBC_HAS_LFS),y)
 CSRC += glob64.c
 endif
