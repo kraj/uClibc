@@ -12,7 +12,7 @@
  */
 
 /* The alignment we guarantee for malloc return values.  */
-#define MALLOC_ALIGNMENT	(sizeof (double))
+#define MALLOC_ALIGNMENT	(__alignof__ (double))
 
 /* The system pagesize... */
 extern size_t __pagesize;
