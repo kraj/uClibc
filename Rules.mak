@@ -1,6 +1,5 @@
 # Rules.make for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
@@ -8,16 +7,16 @@
 
 #-----------------------------------------------------------
 # This file contains rules which are shared between multiple
-# Makefiles.  All normal configuration options live in the 
-# file named ".config".  Don't mess with this file unless 
+# Makefiles.  All normal configuration options live in the
+# file named ".config".  Don't mess with this file unless
 # you know what you are doing.
 
 
 #-----------------------------------------------------------
-# If you are running a cross compiler, you will want to set 
-# 'CROSS' to something more interesting ...  Target 
-# architecture is determined by asking the CC compiler what 
-# arch it compiles things for, so unless your compiler is 
+# If you are running a cross compiler, you will want to set
+# 'CROSS' to something more interesting ...  Target
+# architecture is determined by asking the CC compiler what
+# arch it compiles things for, so unless your compiler is
 # broken, you should not need to specify TARGET_ARCH.
 #
 # Most people will set this stuff on the command line, i.e.
@@ -67,7 +66,7 @@ export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_SOURCE
 # Now config hard core
 MAJOR_VERSION := 0
 MINOR_VERSION := 9
-SUBLEVEL      := 28
+SUBLEVEL      := 29
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
 LC_ALL := C
@@ -121,6 +120,24 @@ check_ld=$(shell \
 ARFLAGS:=cr
 
 OPTIMIZATION:=
+# Use '-Os' optimization if available, else use -O2, allow Config to override
+OPTIMIZATION+=$(call check_gcc,-Os,-O2)
+# Use the gcc 3.4 -funit-at-a-time optimization when available
+OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
+
+GCC_MAJOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1)
+#GCC_MINOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 2)
+
+ifeq ($(GCC_MAJOR_VER),4)
+# shrinks code, results are from 4.0.2
+# 0.36%
+OPTIMIZATION+=$(call check_gcc,-fno-tree-loop-optimize,)
+# 0.34%
+OPTIMIZATION+=$(call check_gcc,-fno-tree-dominator-opts,)
+# 0.1%
+OPTIMIZATION+=$(call check_gcc,-fno-strength-reduce,)
+endif
+
 PICFLAG:=-fPIC
 PIEFLAG_NAME:=-fPIE
 
@@ -226,7 +243,15 @@ endif
 
 ifeq ($(TARGET_ARCH),cris)
 	CPU_LDFLAGS-$(CONFIG_CRIS)+=-mcrislinux
+	CPU_LDFLAGS-$(CONFIG_CRISV32)+=-mcrislinux
 	CPU_CFLAGS-$(CONFIG_CRIS)+=-mlinux
+	PICFLAG:=-fpic
+	PIEFLAG_NAME:=-fpie
+endif
+
+ifeq ($(TARGET_ARCH),m68k)
+	# -fPIC is only supported for 68020 and above.  It is not supported
+	# for 68000, 68010, or Coldfire.
 	PICFLAG:=-fpic
 	PIEFLAG_NAME:=-fpie
 endif
@@ -240,9 +265,7 @@ ifeq ($(TARGET_ARCH),powerpc)
 endif
 
 ifeq ($(TARGET_ARCH),bfin)
-	# This should also work, but why bother ? ;)
-	#PICFLAG:=-fPIC -mid-shared-library
-	PICFLAG:=-fpic
+	PICFLAG:=-mfdpic
 endif
 
 ifeq ($(TARGET_ARCH),frv)
@@ -265,14 +288,14 @@ else
 export PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),$(PICFLAG))
 endif
 endif
-# We need to keep track of both the CC PIE flag (above) as 
-# well as the LD PIE flag (below) because we can't rely on 
+# We need to keep track of both the CC PIE flag (above) as
+# well as the LD PIE flag (below) because we can't rely on
 # gcc passing -pie if we used -fPIE
 ifndef LDPIEFLAG
 ifneq ($(UCLIBC_BUILD_PIE),y)
 export LDPIEFLAG:=
 else
-export LDPIEFLAG:=$(shell $(LD) --help | grep -q pie && echo "-Wl,-pie")
+export LDPIEFLAG:=$(shell $(LD) --help 2>/dev/null | grep -q -- -pie && echo "-Wl,-pie")
 endif
 endif
 
@@ -285,13 +308,8 @@ export ASNEEDED:=$(shell (LD_TMP=$(mktemp LD_XXXXXX) ; echo "GROUP ( AS_NEEDED (
 endif
 endif
 
-# Use '-Os' optimization if available, else use -O2, allow Config to override
-OPTIMIZATION+=$(call check_gcc,-Os,-O2)
-# Use the gcc 3.4 -funit-at-a-time optimization when available
-OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
-
 # Add a bunch of extra pedantic annoyingly strict checks
-XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -fno-strict-aliasing
 ifeq ($(EXTRA_WARNINGS),y)
 XWARNINGS+=-Wnested-externs -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wformat=2
 XWARNINGS+=-Wmissing-prototypes -Wmissing-declarations
@@ -344,6 +362,8 @@ endif
 #CFLAGS += $(call check_gcc,-std=c99,)
 
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
+# binutils-2.16.1 warns about ignored sections, 2.16.91.0.3 and newer are ok
+#LDFLAGS_NOSTRIP+=$(call check_ld,--gc-sections)
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS_NOSTRIP+=-z relro
@@ -360,10 +380,10 @@ CFLAGS += -O0 -g3
 else
 CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
 endif
-ifeq ($(NOSTRIP),y)
-STRIPTOOL := true -Stripping_disabled
-else
+ifeq ($(DOSTRIP),y)
 LDFLAGS += -s
+else
+STRIPTOOL := true -Stripping_disabled
 endif
 
 ifeq ($(DOMULTI),y)
@@ -372,8 +392,7 @@ ifeq ($(DOMULTI),y)
 # gcc-3.4.x supports it, but does not need and support --combine. though fails on many sources
 # gcc-4.0.x supports it, supports the --combine flag, but does not need it
 # gcc-4.1(200506xx) supports it, but needs the --combine flag, else libs are useless
-GCC_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1)
-ifeq ($(GCC_VER),3)
+ifeq ($(GCC_MAJOR_VER),3)
 DOMULTI:=n
 else
 CFLAGS+=$(call check_gcc,--combine,)
@@ -404,7 +423,6 @@ PTINC:=	-I$(PTDIR)						\
 	-I$(PTDIR)/sysdeps/generic				\
 	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH)			\
 	-I$(top_srcdir)ldso/include
-
 #
 # Test for TLS if NPTL support was selected.
 #
@@ -433,8 +451,8 @@ PTINC := \
 endif
 CFLAGS+=$(PTINC)
 else
-	PTNAME := 
-	PTINC  := 
+	PTNAME :=
+	PTINC  :=
 endif
 
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
