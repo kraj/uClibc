@@ -27,11 +27,18 @@
 #define __close close
 #define __on_exit on_exit
 #define __libc_current_sigrtmin_private __libc_current_sigrtmin
+#define __clone clone
 
 extern void *__libc_stack_end;
 extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 
 #endif /* IS_IN_libpthread */
+
+#ifdef __UCLIBC_HAS_XLOCALE__
+# define __uselocale(x) uselocale(x)
+#else
+# define __uselocale(x) ((void)0)
+#endif
 
 /* Use a funky version in a probably vein attempt at preventing gdb 
  * from dlopen()'ing glibc's libthread_db library... */

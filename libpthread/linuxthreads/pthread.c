@@ -32,8 +32,6 @@
 #include "smp.h"
 #include <not-cancel.h>
 
-#define __clone clone
-
 /* Sanity check.  */
 #if !defined __SIGRTMIN || (__SIGRTMAX - __SIGRTMIN) < 3
 # error "This must not happen"
@@ -242,7 +240,7 @@ struct pthread_functions __pthread_functions =
 #endif
     .ptr_pthread_fork = __pthread_fork,
     .ptr_pthread_attr_destroy = __pthread_attr_destroy,
-    .ptr___pthread_attr_init = __pthread_attr_init,
+    .ptr_pthread_attr_init = __pthread_attr_init,
     .ptr_pthread_attr_getdetachstate = __pthread_attr_getdetachstate,
     .ptr_pthread_attr_setdetachstate = __pthread_attr_setdetachstate,
     .ptr_pthread_attr_getinheritsched = __pthread_attr_getinheritsched,
@@ -451,7 +449,9 @@ __pthread_init_max_stacksize(void)
     }
 }
 
-#ifdef SHARED
+/* psm: we do not have any ld.so support yet
+ *	 remove the USE_TLS guard if nptl is added */
+#if defined SHARED && defined USE_TLS
 # if USE___THREAD
 /* When using __thread for this, we do it in libc so as not
    to give libpthread its own TLS segment just for this.  */
@@ -589,7 +589,9 @@ static void pthread_initialize(void)
   /* How many processors.  */
   __pthread_smp_kernel = is_smp_system ();
 
-#ifdef SHARED
+/* psm: we do not have any ld.so support yet
+ *	 remove the USE_TLS guard if nptl is added */
+#if defined SHARED && defined USE_TLS
   /* Transfer the old value from the dynamic linker's internal location.  */
   *__libc_dl_error_tsd () = *(*GL(dl_error_catch_tsd)) ();
   GL(dl_error_catch_tsd) = &__libc_dl_error_tsd;
@@ -849,13 +851,13 @@ pthread_t __pthread_self(void)
   pthread_descr self = thread_self();
   return THREAD_GETMEM(self, p_tid);
 }
-strong_alias (__pthread_self, pthread_self);
+strong_alias (__pthread_self, pthread_self)
 
 int __pthread_equal(pthread_t thread1, pthread_t thread2)
 {
   return thread1 == thread2;
 }
-strong_alias (__pthread_equal, pthread_equal);
+strong_alias (__pthread_equal, pthread_equal)
 
 /* Helper function for thread_self in the case of user-provided stacks */
 
@@ -936,7 +938,7 @@ int __pthread_setschedparam(pthread_t thread, int policy,
     __pthread_manager_adjust_prio(th->p_priority);
   return 0;
 }
-strong_alias (__pthread_setschedparam, pthread_setschedparam);
+strong_alias (__pthread_setschedparam, pthread_setschedparam)
 
 int __pthread_getschedparam(pthread_t thread, int *policy,
                             struct sched_param *param)
@@ -957,14 +959,7 @@ int __pthread_getschedparam(pthread_t thread, int *policy,
   *policy = pol;
   return 0;
 }
-strong_alias (__pthread_getschedparam, pthread_getschedparam);
-
-int __pthread_yield (void)
-{
-  /* For now this is equivalent with the POSIX call.  */
-  return sched_yield ();
-}
-weak_alias (__pthread_yield, pthread_yield)
+strong_alias (__pthread_getschedparam, pthread_getschedparam)
 
 /* Process-wide exit() request */
 
