@@ -28,6 +28,7 @@
 #ifdef SHARED
 libc_hidden_proto(memcpy)
 #endif
+
 #if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(uselocale)
 #endif
@@ -44,10 +45,10 @@ __libc_pthread_init (functions)
 	  sizeof (__libc_pthread_functions));
 #endif
 
-#if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
+#if !(USE_TLS && HAVE___THREAD)
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */
-  uselocale (LC_GLOBAL_LOCALE);
+  __uselocale (LC_GLOBAL_LOCALE);
 #endif
 
   return &__libc_multiple_threads;

@@ -37,11 +37,6 @@
 #include "semaphore.h"
 #include <not-cancel.h>
 
-#define __clone clone
-#if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
-#define __uselocale(x) uselocale(x)
-#endif
-
 /* For debugging purposes put the maximum number of threads in a variable.  */
 const int __linuxthreads_pthread_threads_max = PTHREAD_THREADS_MAX;
 
@@ -297,9 +292,7 @@ pthread_start_thread(void *arg)
 #if !(USE_TLS && HAVE___THREAD)
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */
-#ifdef __UCLIBC_HAS_XLOCALE__
   __uselocale (LC_GLOBAL_LOCALE);
-#endif
 #else
   /* Initialize __resp.  */
   __resp = &self->p_res;
