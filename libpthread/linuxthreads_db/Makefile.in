@@ -9,7 +9,7 @@
 CFLAGS-linuxthreads_db := -DNOT_IN_libc -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
 LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) $(call check_ld,--warn-unresolved-symbols)
-ifneq ($(NOSTRIP),y)
+ifeq ($(DOSTRIP),y)
 LDFLAGS-libthread_db.so += -s
 endif
 
