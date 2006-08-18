@@ -24,7 +24,7 @@
 #include <signal.h>
 #include <bits/pthreadtypes.h>
 #include <bits/initspin.h>
-#if defined _LIBC && ( defined IS_IN_libc && defined NOT_IN_libc )
+#if defined _LIBC && ( defined IS_IN_libc || defined NOT_IN_libc )
 #include <bits/uClibc_pthread.h>
 #endif
 
@@ -318,14 +318,6 @@ extern int pthread_getconcurrency (void) __THROW;
 
 /* Set new concurrency level to LEVEL.  */
 extern int pthread_setconcurrency (int __level) __THROW;
-#endif
-
-#ifdef __USE_GNU
-/* Yield the processor to another thread or process.
-   This function is similar to the POSIX `sched_yield' function but
-   might be differently implemented in the case of a m-on-n thread
-   implementation.  */
-extern int pthread_yield (void) __THROW;
 #endif
 
 /* Functions for mutex handling.  */

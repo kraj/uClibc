@@ -33,7 +33,7 @@ struct pthread_functions
 {
   pid_t (*ptr_pthread_fork) (struct fork_block *);
   int (*ptr_pthread_attr_destroy) (pthread_attr_t *);
-  int (*ptr___pthread_attr_init) (pthread_attr_t *);
+  int (*ptr_pthread_attr_init) (pthread_attr_t *);
   int (*ptr_pthread_attr_getdetachstate) (const pthread_attr_t *, int *);
   int (*ptr_pthread_attr_setdetachstate) (pthread_attr_t *, int);
   int (*ptr_pthread_attr_getinheritsched) (const pthread_attr_t *, int *);
