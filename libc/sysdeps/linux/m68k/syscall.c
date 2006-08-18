@@ -41,6 +41,7 @@ long syscall(long sysnum, long a, long b, long c, long d, long e, long f)
 		: "g" (sysnum),
 		  "g" ((long)a), "g" ((long)b), "g" ((long)c),
 		  "g" ((long)d), "g" ((long)e), "g" ((long)f)
-		: "cc", "%d0", "%d1", "%d2", "%d3", "%d4", "%d5", "%a0");
+		: "memory", "cc", "%d0", "%d1", "%d2", "%d3",
+		  "%d4", "%d5", "%a0");
 	__syscall_return(long,__res);
 }

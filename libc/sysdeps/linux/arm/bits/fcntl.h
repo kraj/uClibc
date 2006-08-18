@@ -1,5 +1,5 @@
 /* O_*, F_*, FD_* bit values for Linux.
-   Copyright (C) 1995-1998, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1995-1998, 2000, 2004, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -45,7 +45,7 @@
 # define O_DIRECTORY	040000	/* Must be a directory.	 */
 # define O_NOFOLLOW	0100000	/* Do not follow links.	 */
 # define O_DIRECT	0200000	/* Direct disk access.	*/
-# define O_STREAMING	04000000/* streaming access */
+# define O_NOATIME	01000000 /* Do not set atime.  */
 #endif
 
 #ifdef __USE_LARGEFILE64
@@ -80,7 +80,7 @@
 #define F_SETLK64	13	/* Set record locking info (non-blocking).  */
 #define F_SETLKW64	14	/* Set record locking info (blocking).	*/
 
-#if defined __USE_BSD || defined __USE_XOPEN2K
+#if defined __USE_BSD || defined __USE_UNIX98
 # define F_SETOWN	8	/* Get owner of socket (receiver of SIGIO).  */
 # define F_GETOWN	9	/* Set owner of socket (receiver of SIGIO).  */
 #endif
@@ -179,3 +179,17 @@ struct flock64
 # define POSIX_FADV_DONTNEED	4 /* Don't need these pages.  */
 # define POSIX_FADV_NOREUSE	5 /* Data will be accessed once.  */
 #endif
+
+/* Linux-specific operations for posix_fadvise.  */
+#ifdef __USE_GNU
+# define LINUX_FADV_ASYNC_WRITE	32 /* Start writeout on range.  */
+# define LINUX_FADV_WRITE_WAIT	33 /* Wait upon writeout to range.  */
+#endif
+
+__BEGIN_DECLS
+
+/* Provide kernel hint to read ahead.  */
+extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
+    __THROW;
+
+__END_DECLS

@@ -67,7 +67,7 @@ type name(void) \
 		"movel	%%d0, %0" \
 		: "=g" (__res) \
 		: "i" (__NR_##name) \
-		: "cc", "%d0"); \
+		: "memory", "cc", "%d0"); \
 	__syscall_return(type, __res); \
 }
 
@@ -83,7 +83,7 @@ type name(atype a) \
 		: "=g" (__res) \
 		: "i" (__NR_##name), \
 		  "g" ((long)a) \
-		: "cc", "%d0", "%d1"); \
+		: "memory", "cc", "%d0", "%d1"); \
 	__syscall_return(type, __res); \
 }
 
@@ -101,7 +101,7 @@ type name(atype a, btype b) \
 		: "i" (__NR_##name), \
 		  "a" ((long)a), \
 		  "g" ((long)b) \
-		: "cc", "%d0", "%d1", "%d2"); \
+		: "memory", "cc", "%d0", "%d1", "%d2"); \
 	__syscall_return(type, __res); \
 }
 
@@ -121,7 +121,7 @@ type name(atype a, btype b, ctype c) \
 		  "a" ((long)a), \
 		  "a" ((long)b), \
 		  "g" ((long)c) \
-		: "cc", "%d0", "%d1", "%d2", "%d3"); \
+		: "memory", "cc", "%d0", "%d1", "%d2", "%d3"); \
 	__syscall_return(type, __res); \
 }
 
@@ -143,7 +143,7 @@ type name(atype a, btype b, ctype c, dtype d) \
 		  "a" ((long)b), \
 		  "a" ((long)c), \
 		  "g" ((long)d) \
-		: "cc", "%d0", "%d1", "%d2", "%d3", \
+		: "memory", "cc", "%d0", "%d1", "%d2", "%d3", \
 		  "%d4"); \
 	__syscall_return(type, __res); \
 }
@@ -168,7 +168,7 @@ type name(atype a, btype b, ctype c, dtype d, etype e) \
 		  "a" ((long)c), \
 		  "a" ((long)d), \
 		  "g" ((long)e) \
-		: "cc", "%d0", "%d1", "%d2", "%d3", \
+		: "memory", "cc", "%d0", "%d1", "%d2", "%d3", \
 		  "%d4", "%d5"); \
 	__syscall_return(type, __res); \
 }
@@ -195,7 +195,7 @@ type name(atype a, btype b, ctype c, dtype d, etype e, ftype f) \
 		  "a" ((long)d), \
 		  "g" ((long)e), \
 		  "g" ((long)f) \
-		: "cc", "%d0", "%d1", "%d2", "%d3", \
+		: "memory", "cc", "%d0", "%d1", "%d2", "%d3", \
 		  "%d4", "%d5", "%a0"); \
 	__syscall_return(type, __res); \
 }

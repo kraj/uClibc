@@ -1,17 +1,17 @@
-
-/* Copyright (C) 2002, David McCullough <davidm@snapgear.com> */
-/* This file is released under the LGPL, any version you like */
-
-#define _ASM
-#define _SETJMP_H
-#include <bits/setjmp.h>
+/* __setjmp for the Blackfin project
+ *
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ * Copyright (C) 2002, David McCullough <davidm@snapgear.com>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 .text
-.global _setjmp;
-.type	_setjmp,STT_FUNC;
+.global __setjmp;
+.type	__setjmp,STT_FUNC;
 .align 4;
 
-_setjmp:
+__setjmp:
 	[--SP] = P0;	// Save P0
 	P0 = R0;
 	R0 = [SP++];
@@ -90,8 +90,7 @@ _setjmp:
 	R0 = RETS;
 	[P0 + 0x9C] = R0;
 
-	R0 = [P0 + 0x20];
 	R0 = 0;
 
 	RTS;
-.size _setjmp,.-_setjmp
+.size __setjmp,.-__setjmp

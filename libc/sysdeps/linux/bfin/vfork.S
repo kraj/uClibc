@@ -4,8 +4,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <features.h>
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 
 .text
 .global ___vfork

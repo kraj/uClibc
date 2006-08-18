@@ -12,7 +12,7 @@
 #include <bits/sysnum.h>
 
 /*
-   Some of the sneaky macros in the code were taken from 
+   Some of the sneaky macros in the code were taken from
    glibc-2.2.5/sysdeps/unix/sysv/linux/i386/sysdep.h
 */
 
@@ -131,7 +131,7 @@ return (type) (INLINE_SYSCALL(name, 3, arg1, arg2, arg3)); \
 type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
 { \
 return (type) (INLINE_SYSCALL(name, 4, arg1, arg2, arg3, arg4)); \
-} 
+}
 
 #undef _syscall5
 #define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \

@@ -72,16 +72,15 @@
 /* Flags for `mremap'.  */
 #ifdef __USE_GNU
 # define MREMAP_MAYMOVE	1
-# define MREMAP_FIXED	2
 #endif
 
 /* Advice to `madvise'.  */
 #ifdef __USE_BSD
-# define MADV_NORMAL	 0	/* No further special treatment.  */
-# define MADV_RANDOM	 1	/* Expect random page references.  */
-# define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
-# define MADV_WILLNEED	 3	/* Will need these pages.  */
-# define MADV_DONTNEED	 4	/* Don't need these pages.  */
+# define MADV_NORMAL	 0x0	/* No further special treatment.  */
+# define MADV_RANDOM	 0x1	/* Expect random page references.  */
+# define MADV_SEQUENTIAL 0x2	/* Expect sequential page references.  */
+# define MADV_WILLNEED	 0x3	/* Will need these pages.  */
+# define MADV_DONTNEED	 0x4	/* Don't need these pages.  */
 #endif
 
 /* The POSIX people had to invent similar names for the same things.  */
