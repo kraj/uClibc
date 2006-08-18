@@ -9,6 +9,7 @@
 
 librt_hidden_proto(mq_timedsend)
 
+#ifndef __UCLIBC_HAS_THREADS_NATIVE__
 #ifdef __NR_mq_timedsend
 #define __NR___syscall_mq_timedsend __NR_mq_timedsend
 static inline _syscall5(int, __syscall_mq_timedsend, int, mqdes,
@@ -32,6 +33,7 @@ int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
 #endif
 }
 librt_hidden_def(mq_timedsend)
+#endif
 
 /* Add a message to queue */
 int mq_send(mqd_t mqdes, const char *msg_ptr, size_t msg_len,

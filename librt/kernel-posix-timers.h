@@ -10,6 +10,20 @@
 #include <pthread.h>
 #endif
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+/* Nonzero if the system calls are not available.  */
+extern int __no_posix_timers attribute_hidden;
+
+/* Callback to start helper thread.  */
+extern void __start_helper_thread (void) attribute_hidden;
+
+/* Control variable for helper thread creation.  */
+extern pthread_once_t __helper_once attribute_hidden;
+
+/* TID of the helper thread.  */
+extern pid_t __helper_tid attribute_hidden;
+#endif
+
 /* Type of timers in the kernel */
 typedef int kernel_timer_t;
 

@@ -9,6 +9,7 @@
 
 librt_hidden_proto(mq_timedreceive)
 
+#ifndef __UCLIBC_HAS_THREADS_NATIVE__
 #ifdef __NR_mq_timedreceive
 #define __NR___syscall_mq_timedreceive __NR_mq_timedreceive
 static inline _syscall5(int, __syscall_mq_timedreceive, int, mqdes,
@@ -32,6 +33,7 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
 #endif
 }
 librt_hidden_def(mq_timedreceive)
+#endif
 
 /* Receive the oldest from highest priority messages */
 ssize_t mq_receive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
