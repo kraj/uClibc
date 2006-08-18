@@ -87,7 +87,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	if ((unsigned long) got_addr < 0x20000000) {
 		if (_dl_debug_bindings) {
 			_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
-			if(_dl_debug_detail) _dl_dprintf(_dl_debug_file,
+			if (_dl_debug_detail) _dl_dprintf(_dl_debug_file,
 					"\n\tpatched %x ==> %x @ %x\n", *got_addr, new_addr, got_addr);
 		}
 	}
@@ -198,7 +198,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		case R_SH_COPY:
 			if (symbol_addr) {
 #if defined (__SUPPORT_LD_DEBUG__)
-				if(_dl_debug_move)
+				if (_dl_debug_move)
 					_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
 						    symname, symtab[symtab_index].st_size,
 						    symbol_addr, reloc_addr);
@@ -222,7 +222,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			return -1; /*call _dl_exit(1) */
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
-	    if(_dl_debug_reloc && _dl_debug_detail)
+	    if (_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
 #endif
 
@@ -259,7 +259,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 			return -1; /*call _dl_exit(1) */
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail)
+	if (_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
 #endif
 	return 0;

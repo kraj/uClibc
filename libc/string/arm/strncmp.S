@@ -65,4 +65,4 @@ strncmp:
 
 .size strncmp,.-strncmp
 
-libc_hidden_def(strncmp)
+libc_hidden_weak(strncmp)

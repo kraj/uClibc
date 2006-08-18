@@ -55,4 +55,4 @@ int strncmp(const char *cs, const char *ct, size_t count)
 	    :"1" (cs),"2" (ct),"3" (count));
     return __res;
 }
-libc_hidden_def(strncmp)
+libc_hidden_weak(strncmp)

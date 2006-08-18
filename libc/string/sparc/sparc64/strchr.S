@@ -20,6 +20,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <asm/asi.h>
 #ifndef XCC
 #define XCC xcc
@@ -329,7 +330,9 @@ ENTRY(strchr)
 	 add		%o0, -1, %o0			/* IEU0				*/
 END(strchr)
 libc_hidden_def(strchr)
+#ifdef __UCLIBC_SUSV3_LEGACY__
 strong_alias(strchr,index)
+#endif
 
 	.align		32
 ENTRY(strrchr)
@@ -478,4 +481,6 @@ ENTRY(strrchr)
 	 ldx		[%o0], %o3			/* Load				*/
 END(strrchr)
 libc_hidden_def(strrchr)
+#ifdef __UCLIBC_SUSV3_LEGACY__
 strong_alias(strrchr,rindex)
+#endif

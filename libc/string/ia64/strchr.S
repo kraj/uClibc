@@ -107,6 +107,7 @@ ENTRY(strchr)
 	ld8	val2 = [ret0], 8	// bomb out here
 	br.cond.sptk	.back
 END(strchr)
-
-weak_alias (strchr, index)
 libc_hidden_def (strchr)
+#ifdef __UCLIBC_SUSV3_LEGACY__
+strong_alias (strchr, index)
+#endif

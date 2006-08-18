@@ -160,6 +160,7 @@ ENTRY(memcmp)
 	mov 	ar.lc = saved_lc	// restore the loop counter
 	br.ret.sptk.many b0
 END(memcmp)
-
-weak_alias (memcmp, bcmp)
 libc_hidden_def (memcmp)
+#ifdef __UCLIBC_SUSV3_LEGACY__
+strong_alias (memcmp, bcmp)
+#endif

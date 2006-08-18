@@ -19,6 +19,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
+
 #define ASI_BLK_P 0xf0
 #define FPRS_FEF  0x04
 #define VISEntryHalf rd %fprs, %o5; wr %g0, FPRS_FEF, %fprs
@@ -36,6 +38,7 @@
 	.text
 	.align	32
 
+#ifdef __UCLIBC_SUSV3_LEGACY__
 ENTRY(bcopy)
 	sub		%o1, %o0, %o4
 	mov		%o0, %g4
@@ -51,6 +54,7 @@ ENTRY(bcopy)
 	retl
 	 nop
 END(bcopy)
+#endif
 
 	/* Special/non-trivial issues of this code:
 	 *

@@ -188,7 +188,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
 			_dl_exit(1);
-		};
+		}
 
 		symbol_addr += rpnt->r_addend;
 	}

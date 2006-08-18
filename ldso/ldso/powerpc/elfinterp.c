@@ -125,14 +125,14 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	if (unlikely(ELF32_R_TYPE(this_reloc->r_info) != R_PPC_JMP_SLOT)) {
 		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocation\n", _dl_progname);
 		_dl_exit(1);
-	};
+	}
 #endif
 
 	/* Address of dump instruction to fix up */
 	reloc_addr = (Elf32_Addr *) (tpnt->loadaddr + this_reloc->r_offset);
 
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail)
+	if (_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "\n\tResolving symbol %s %x --> ", symname, (Elf32_Addr)reloc_addr);
 #endif
 
@@ -142,10 +142,10 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	if (unlikely(!finaladdr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'.\n", _dl_progname, symname, tpnt->libname);
 		_dl_exit(1);
-	};
+	}
 	finaladdr += this_reloc->r_addend;
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail)
+	if (_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "%x\n", finaladdr);
 #endif
 	delta = finaladdr - (Elf32_Word)reloc_addr;
@@ -246,7 +246,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	}
 	case R_PPC_COPY:
 #if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug_move)
+		if (_dl_debug_move)
 			_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
 				    symname, symtab[symtab_index].st_size,
 				    symbol_addr, reloc_addr);
@@ -264,7 +264,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 #if 0
 		{
 			Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
-			if(unlikely(delta<<6>>6 != delta)) {
+			if (unlikely(delta<<6>>6 != delta)) {
 				_dl_dprintf(2, "%s: symbol '%s' R_PPC_REL24 is out of range.\n\t"
 						"Compile shared libraries with -fPIC!\n",
 						_dl_progname, symname);
@@ -287,7 +287,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		if (symtab_index)
 			_dl_dprintf(2, "'%s'\n", symname);
 		return -1;
-	};
+	}
 
 	/* instructions were modified */
 	PPC_DCBST(reloc_addr);
@@ -296,7 +296,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	PPC_ISYNC;
  out_nocode:
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail)
+	if (_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
 #endif
 	return 0;

@@ -41,6 +41,8 @@
 
 #include <features.h>
 
+#ifdef __UCLIBC_SUSV3_LEGACY__
+
 .text
 .global bcopy
 .type bcopy,%function
@@ -54,3 +56,5 @@ bcopy:
 	b	_memcpy /* (PLT) */
 	
 .size bcopy,.-bcopy
+
+#endif

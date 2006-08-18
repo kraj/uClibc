@@ -37,8 +37,8 @@ byte_loop_s:
 	R3 = B[P0++](Z);
 	CC = R3 == R1;
 	IF CC JUMP found;
-	NOP;
 byte_loop_e:
+	NOP;
 
 failed:
 	R0=0;
