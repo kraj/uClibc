@@ -1,28 +1,14 @@
 /* FR-V FDPIC ELF shared library loader suppport
-   Copyright (C) 2003, 2004 Red Hat, Inc.
-   Contributed by Alexandre Oliva <aoliva@redhat.com>
-   Lots of code copied from ../i386/elfinterp.c, so:
-   Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
-  				David Engel, Hongjiu Lu and Mitch D'Souza
-   Copyright (C) 2001-2002, Erik Andersen
-   All rights reserved.
-
-This file is part of uClibc.
-
-uClibc is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as
-published by the Free Software Foundation; either version 2.1 of the
-License, or (at your option) any later version.
-
-uClibc is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with uClibc; see the file COPYING.LIB.  If not, write to
-the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
-USA.  */
+ * Copyright (C) 2003, 2004 Red Hat, Inc.
+ * Contributed by Alexandre Oliva <aoliva@redhat.com>
+ * Lots of code copied from ../i386/elfinterp.c, so:
+ * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
+ *               David Engel, Hongjiu Lu and Mitch D'Souza
+ * Copyright (C) 2001-2002, Erik Andersen
+ * All rights reserved.
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 #include <features.h>
 
@@ -95,7 +81,7 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 		if (_dl_debug_bindings)
 		{
 			_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
-			if(_dl_debug_detail)
+			if (_dl_debug_detail)
 				_dl_dprintf(_dl_debug_file, 
 					    "\n\tpatched (%x,%x) ==> (%x,%x) @ %x\n",
 					    got_entry->entry_point, got_entry->got_value,
@@ -276,7 +262,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		return -1; /*call _dl_exit(1) */
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail) {
+	if (_dl_debug_reloc && _dl_debug_detail) {
 		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, reloc_value, reloc_addr);
 		switch (reloc_type) {
 		case R_FRV_FUNCDESC_VALUE:
@@ -331,7 +317,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt,
 				return -1; /*call _dl_exit(1) */
 		}
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail)
+	if (_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, reloc_addr->entry_point, reloc_addr);
 #endif
 	return 0;

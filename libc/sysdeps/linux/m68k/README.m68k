@@ -19,7 +19,7 @@ Configuration:
 	CROSS = m68k-pic-coff-
 	CC = $(CROSS)gcc
 	STRIPTOOL = $(CROSS)strip
-	KERNEL_SOURCE=/opt/uClinux/linux	
+	KERNEL_SOURCE=/opt/uClinux/linux
 	HAS_MMU = false
 	HAS_FLOATS = false
 	MALLOC = malloc-simple
@@ -32,7 +32,7 @@ Installation:
 	Theoretically, you should be able to install right over the
 	existing uC-libc 0.9.1 files in
 	/opt/uClinux/m68k-pic-coff/include, but I recommend cleaning
-	out all the include files there.  
+	out all the include files there.
 
 	The only file in there that's not from the old uC-libc is
 	assert.h, but I don't know why that would be the valid copy.

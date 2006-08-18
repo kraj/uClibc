@@ -1,23 +1,9 @@
-     /* Copyright (C) 2003, 2004 Red Hat, Inc.
-	Contributed by Alexandre Oliva <aoliva@redhat.com>
-	Based on ../i386/dl-sysdep.h
-
-This file is part of uClibc.
-
-uClibc is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as
-published by the Free Software Foundation; either version 2.1 of the
-License, or (at your option) any later version.
-
-uClibc is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with uClibc; see the file COPYING.LIB.  If not, write to
-the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
-USA.  */
+/* Copyright (C) 2003, 2004 Red Hat, Inc.
+ * Contributed by Alexandre Oliva <aoliva@redhat.com>
+ * Based on ../i386/dl-sysdep.h
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
 
 /*
  * Various assembly language/system dependent  hacks that are required
@@ -64,8 +50,6 @@ struct funcdesc_value
 
 
 extern int _dl_linux_resolve(void) __attribute__((__visibility__("hidden")));
-
-#define do_rem(result, n, base) ((result) = (n) % (base))
 
 /* 16KiB page alignment.  Should perhaps be made dynamic using
    getpagesize(), based on AT_PAGESZ from auxvt?  */
