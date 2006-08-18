@@ -40,13 +40,13 @@ include/bits/uClibc_config.h: extra/config/conf .config
 	$(INSTALL) -d $(dir $@)
 	@$< -o $(top_srcdir)extra/Configs/Config.in
 
-# For the moment, we have to keep re-running this target 
-# because the fix includes scripts rely on pre-processers 
-# in order to generate the headers correctly :(.  That 
-# means we can't use the $(HOSTCC) in order to get the 
+# For the moment, we have to keep re-running this target
+# because the fix includes scripts rely on pre-processers
+# in order to generate the headers correctly :(.  That
+# means we can't use the $(HOSTCC) in order to get the
 # correct output.
 ifeq ($(ARCH_USE_MMU),y)
-export header_extra_args = 
+export header_extra_args =
 else
 export header_extra_args = -n
 endif
@@ -105,8 +105,10 @@ ifeq ($(UCLIBC_HAS_LOCALE),y)
 endif
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	$(MAKE) nptl_headers
+ ifeq ($(shell $(CC) --help >& /dev/null && echo yes),yes)
 	$(MAKE) nptl_arch_headers
 	$(MAKE) nptl_linux_headers
+ endif
 endif
 
 pregen: headers
@@ -129,7 +131,10 @@ install_headers:
 	printf '#ifndef _LIBC_INTERNAL_H\n#define _LIBC_INTERNAL_H 1\n#endif\n' > \
 		$(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dl-osinfo.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/_lfs_64.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_uintmaxtostr.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/kernel_sigaction.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/kernel_stat.h
 ifneq ($(UCLIBC_HAS_FLOATS),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
@@ -178,8 +183,10 @@ ifneq ($(UCLIBC_HAS_GLOB),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/glob.h
 endif
 ifneq ($(UCLIBC_HAS_GNU_GETOPT),y)
+ifneq ($(UCLIBC_HAS_GETOPT_LONG),y)
 	# Remove getopt header since gnu getopt support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/getopt.h
+endif
 endif
 ifneq ($(HAS_SHADOW),y)
 	# Remove shadow header since shadow password support is disabled.
@@ -196,7 +203,7 @@ ifneq ($(UCLIBC_HAS_THREADS),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/*thread*.h
 endif
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-	# Remove this as it is only used for building.
+	# Remove this as it is only used internally.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tls.h
 endif
 	-@for i in `find $(PREFIX)$(DEVEL_PREFIX)include -type d` ; do \
@@ -216,11 +223,21 @@ ifeq ($(HAVE_SHARED),y)
 	done
 	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
-		sed 	-e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
-			-e 's:$(SHARED_MAJORNAME):$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME):' \
-			-e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO):' \
-			$(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+		sed -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
+		    -e 's:$(SHARED_MAJORNAME):$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME):' \
+		    -e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO):' \
+		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
+ifeq ($(UCLIBC_HAS_THREADS),y)
+ifneq ($(LINUXTHREADS_OLD),y)
+	if [ -f $(top_builddir)lib/libpthread.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/libpthread.so.$(MAJOR_VERSION) ] ; then \
+		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
+		cp $(top_srcdir)extra/scripts/format.lds $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
+		echo "GROUP ( $(RUNTIME_PREFIX)lib/libpthread.so.$(MAJOR_VERSION) $(DEVEL_PREFIX)lib/libpthread_nonshared.a )" \
+			>> $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
+	fi
+endif
+endif
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
 		$(PREFIX)$(DEVEL_PREFIX)lib/libthread_db.so
@@ -243,12 +260,12 @@ ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
 	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(RUNTIME_PREFIX)lib
-	cp -dRf lib/*.so.* $(PREFIX)$(RUNTIME_PREFIX)lib
+	cd lib && $(TAR) -cf - *.so.* | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
 	@if [ -x lib/$(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
-	    set -e; \
+		set -e; \
 		$(SHELL_SET_X); \
-	    $(INSTALL) -m 755 lib/$(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-	    		$(PREFIX)$(RUNTIME_PREFIX)lib; \
+		$(INSTALL) -m 755 lib/$(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+			$(PREFIX)$(RUNTIME_PREFIX)lib; \
 	fi
 endif
 
