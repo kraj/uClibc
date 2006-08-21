@@ -42,6 +42,8 @@ CFLAGS-locale_data.c := -D__WCHAR_ENABLED -I$(locale_OUT) -I$(locale_DIR)
 #headers-$(UCLIBC_HAS_LOCALE) += locale_headers
 
 libc-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
+libc-static-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
+libc-shared-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
 
 libc-nomulti-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
 
