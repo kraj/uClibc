@@ -18,7 +18,7 @@ config TARGET_arm
 	bool "arm"
 
 config TARGET_bfin
-	bool "bfin (BROKEN)"
+	bool "bfin"
 
 config TARGET_cris
 	bool "cris"
@@ -1229,7 +1229,7 @@ config UCLIBC_HAS_GLOB
 config UCLIBC_HAS_GNU_GLOB
 	bool "Support gnu glob() interface"
 	depends on UCLIBC_HAS_GLOB
-	default y
+	default n
 	help
 	  The gnu glob interface is somewhat larger (weighing in at about 4,2k) than
 	  it's SuSv3 counterpart (and is out of date). It is an old copy from glibc and
@@ -1237,7 +1237,6 @@ config UCLIBC_HAS_GNU_GLOB
 
 	  Answer Y if you want to include full gnu glob() instead of the smaller SUSv3
 	  compatible glob().
-	  It is only default, because it is the old/stable version.
 
 	  Most people will answer N.
 
@@ -1437,7 +1436,6 @@ config CROSS_COMPILER_PREFIX
 config DODEBUG
 	bool "Build uClibc with debugging symbols"
 	default n
-	select NOSTRIP
 	select EXTRA_WARNINGS
 	help
 	  Say Y here if you wish to compile uClibc with debugging symbols.
@@ -1458,13 +1456,15 @@ config DODEBUG_PT
 
 	  Otherwise, answer N.
 
-config NOSTRIP
-	bool "Do not build stripped libraries and executables"
-	default n
+config DOSTRIP
+	bool "Strip libraries and executables"
+	default y
+	depends on !DODEBUG
 	help
-	  Say Y here if you do not wish to strip all uClibc libraries and
-	  executables.  This increases the size of the binaries considerably.
-	  Most people will answer N.
+	  Say Y here if you do wish to strip all uClibc libraries and
+	  executables.  No stripping increases the size of the binaries
+	  considerably, but makes it possible to debug uClibc libraries.
+	  Most people will answer Y.
 
 config DOASSERTS
 	bool "Build uClibc with run-time assertion testing"
