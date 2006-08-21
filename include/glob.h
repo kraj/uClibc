@@ -55,7 +55,7 @@ typedef __SIZE_TYPE__ size_t;
 
 #if ( !defined __USE_POSIX2 || defined __USE_BSD || defined __USE_GNU ) && defined __UCLIBC_HAS_GNU_GLOB__
 # define GLOB_MAGCHAR	 (1 << 8)/* Set in gl_flags if any metachars seen.  */
-#if 0 /* uClibc's gnu glob does not support these */
+#if 1 /* uClibc gnu glob does not support these */
 # define GLOB_ALTDIRFUNC (1 << 9)/* Use gl_opendir et al functions.  */
 # define GLOB_BRACE	 (1 << 10)/* Expand "{a,b}" to "a" "b".  */
 # define GLOB_NOMAGIC	 (1 << 11)/* If no magic chars, return the pattern.  */
@@ -101,6 +101,7 @@ typedef struct
 #ifdef __UCLIBC_HAS_GNU_GLOB__
     int gl_flags;		/* Set to FLAGS, maybe | GLOB_MAGCHAR.  */
 
+#if 1 /* uClibc gnu glob does not support these */
     /* If the GLOB_ALTDIRFUNC flag is set, the following functions
        are used instead of the normal file access functions.  */
     void (*gl_closedir) (void *);
@@ -117,6 +118,7 @@ typedef struct
     int (*gl_lstat) (__const char *__restrict, void *__restrict);
     int (*gl_stat) (__const char *__restrict, void *__restrict);
 #endif
+#endif
 #endif /* __UCLIBC_HAS_GNU_GLOB__ */
   } glob_t;
 
@@ -132,6 +134,7 @@ typedef struct
 #ifdef __UCLIBC_HAS_GNU_GLOB__
     int gl_flags;
 
+#if 1 /* uClibc gnu glob does not support these */
     /* If the GLOB_ALTDIRFUNC flag is set, the following functions
        are used instead of the normal file access functions.  */
     void (*gl_closedir) (void *);
@@ -148,6 +151,7 @@ typedef struct
     int (*gl_lstat) (__const char *__restrict, void *__restrict);
     int (*gl_stat) (__const char *__restrict, void *__restrict);
 # endif
+#endif
 #endif /* __UCLIBC_HAS_GNU_GLOB__ */
   } glob64_t;
 #endif
