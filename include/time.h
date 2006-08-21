@@ -349,8 +349,7 @@ extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp) __THROW;
 extern int clock_settime (clockid_t __clock_id, __const struct timespec *__tp)
      __THROW;
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning "mjn3 FIXME: a bunch of unimplemented function prototypes."
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #  ifdef __USE_XOPEN2K
 /* High-resolution sleep with the specified clock.
 
