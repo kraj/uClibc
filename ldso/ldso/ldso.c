@@ -78,7 +78,8 @@ static int _dl_suid_ok(void);
  * can set an internal breakpoint on it, so that we are notified when the
  * address mapping is changed in some way.
  */
-void _dl_debug_state(void)
+void _dl_debug_state(void);
+void _dl_debug_state()
 {
 }
 
@@ -86,18 +87,74 @@ static unsigned char *_dl_malloc_addr = 0;	/* Lets _dl_malloc use the already al
 static unsigned char *_dl_mmap_zero   = 0;	/* Also used by _dl_malloc */
 
 static struct elf_resolve **init_fini_list;
-static int nlist; /* # items in init_fini_list */
+static unsigned int nlist; /* # items in init_fini_list */
 extern void _start(void);
 
 #ifdef __UCLIBC_HAS_SSP__
-#include <dl-osinfo.h>
-#ifndef THREAD_SET_STACK_GUARD
+# include <dl-osinfo.h>
+uintptr_t stack_chk_guard;
+# ifndef THREAD_SET_STACK_GUARD
 /* Only exported for architectures that don't store the stack guard canary
  * in local thread area.  */
 uintptr_t __stack_chk_guard attribute_relro;
+#  ifdef __UCLIBC_HAS_SSP_COMPAT__
 strong_alias(__stack_chk_guard,__guard)
+#  endif
+# elif __UCLIBC_HAS_SSP_COMPAT__
+uintptr_t __guard attribute_relro;
+# endif
 #endif
-#endif
+
+static void _dl_run_array_forward(unsigned long array, unsigned long size,
+				  ElfW(Addr) loadaddr)
+{
+	if (array != 0) {
+		unsigned int j;
+		unsigned int jm;
+		ElfW(Addr) *addrs;
+		jm = size / sizeof (ElfW(Addr));
+		addrs = (ElfW(Addr) *) (array + loadaddr);
+		for (j = 0; j < jm; ++j) {
+			void (*dl_elf_func) (void);
+			dl_elf_func = (void (*)(void)) (intptr_t) addrs[j];
+			(*dl_elf_func) ();
+		}
+	}
+}
+
+void _dl_run_init_array(struct elf_resolve *tpnt);
+void _dl_run_init_array(struct elf_resolve *tpnt)
+{
+	_dl_run_array_forward(tpnt->dynamic_info[DT_INIT_ARRAY],
+			      tpnt->dynamic_info[DT_INIT_ARRAYSZ],
+			      tpnt->loadaddr);
+}
+
+void _dl_app_init_array(void);
+void _dl_app_init_array(void)
+{
+	_dl_run_init_array(_dl_loaded_modules);
+}
+
+void _dl_run_fini_array(struct elf_resolve *tpnt);
+void _dl_run_fini_array(struct elf_resolve *tpnt)
+{
+	if (tpnt->dynamic_info[DT_FINI_ARRAY]) {
+		ElfW(Addr) *array = (ElfW(Addr) *) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI_ARRAY]);
+		unsigned int i = (tpnt->dynamic_info[DT_FINI_ARRAYSZ] / sizeof(ElfW(Addr)));
+		while (i-- > 0) {
+			void (*dl_elf_func) (void);
+			dl_elf_func = (void (*)(void)) (intptr_t) array[i];
+			(*dl_elf_func) ();
+		}
+	}
+}
+
+void _dl_app_fini_array(void);
+void _dl_app_fini_array(void)
+{
+	_dl_run_fini_array(_dl_loaded_modules);
+}
 
 static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 {
@@ -126,7 +183,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
 	char *lpntstr;
-	int i, unlazy = 0, trace_loaded_objects = 0;
+	unsigned int i;
+	int unlazy = 0, trace_loaded_objects = 0;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
 	struct elf_resolve *tpnt1;
@@ -146,6 +204,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * setup so we can use _dl_dprintf() to print debug noise
 	 * instead of the SEND_STDERR macros used in dl-startup.c */
 
+	_dl_memset(app_tpnt, 0x00, sizeof(*app_tpnt));
 
 	/* Store the page size for later use */
 	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
@@ -186,8 +245,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * Note that for SUID programs we ignore the settings in
 	 * LD_LIBRARY_PATH.
 	 */
-	if ((auxvt[AT_UID].a_un.a_val == -1 && _dl_suid_ok()) ||
-	    (auxvt[AT_UID].a_un.a_val != -1 &&
+	if ((auxvt[AT_UID].a_un.a_val == (size_t)-1 && _dl_suid_ok()) ||
+	    (auxvt[AT_UID].a_un.a_val != (size_t)-1 &&
 	     auxvt[AT_UID].a_un.a_val == auxvt[AT_EUID].a_un.a_val &&
 	     auxvt[AT_GID].a_un.a_val == auxvt[AT_EGID].a_un.a_val)) {
 		_dl_secure = 0;
@@ -221,9 +280,12 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 #ifdef __UCLIBC_HAS_SSP__
 	/* Set up the stack checker's canary.  */
-	uintptr_t stack_chk_guard = _dl_setup_stack_chk_guard ();
+	stack_chk_guard = _dl_setup_stack_chk_guard ();
 # ifdef THREAD_SET_STACK_GUARD
 	THREAD_SET_STACK_GUARD (stack_chk_guard);
+#  ifdef __UCLIBC_HAS_SSP_COMPAT__
+	__guard = stack_chk_guard;
+#  endif
 # else
 	__stack_chk_guard = stack_chk_guard;
 # endif
@@ -239,12 +301,12 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * different from what the ELF header says for ET_DYN/PIE executables.
 	 */
 	{
-		int i;
-		ElfW(Phdr) *ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
+		unsigned int idx;
+		ElfW(Phdr) *phdr = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
 
-		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
-			if (ppnt->p_type == PT_PHDR) {
-				app_tpnt->loadaddr = (ElfW(Addr)) (auxvt[AT_PHDR].a_un.a_val - ppnt->p_vaddr);
+		for (idx = 0; idx < auxvt[AT_PHNUM].a_un.a_val; idx++, phdr++)
+			if (phdr->p_type == PT_PHDR) {
+				app_tpnt->loadaddr = (ElfW(Addr)) (auxvt[AT_PHDR].a_un.a_val - phdr->p_vaddr);
 				break;
 			}
 
@@ -365,8 +427,15 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * case the executable is actually an ET_DYN object.
 	 */
 	if (app_tpnt->l_tls_initimage != NULL)
+	{
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+		unsigned int tmp = (unsigned int) app_tpnt->l_tls_initimage;
+#endif
 		app_tpnt->l_tls_initimage =
 			(char *) app_tpnt->l_tls_initimage + app_tpnt->loadaddr;
+		_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n", tmp, app_tpnt->l_tls_initimage, app_tpnt->l_tls_initimage_size);
+
+	}
 #endif
 
 #ifdef __SUPPORT_LD_DEBUG__
@@ -597,15 +666,15 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 	nlist = 0;
 	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next) {
-		ElfW(Dyn) *dpnt;
+		ElfW(Dyn) *this_dpnt;
 
 		nlist++;
-		for (dpnt = (ElfW(Dyn) *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) {
-			if (dpnt->d_tag == DT_NEEDED) {
+		for (this_dpnt = (ElfW(Dyn) *) tcurr->dynamic_addr; this_dpnt->d_tag; this_dpnt++) {
+			if (this_dpnt->d_tag == DT_NEEDED) {
 				char *name;
 				struct init_fini_list *tmp;
 
-				lpntstr = (char*) (tcurr->dynamic_info[DT_STRTAB] + dpnt->d_un.d_val);
+				lpntstr = (char*) (tcurr->dynamic_info[DT_STRTAB] + this_dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
 				if (_dl_strcmp(name, UCLIBC_LDSO) == 0)
 					continue;
@@ -677,7 +746,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		}
 	}
 #ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug) {
+	if (_dl_debug) {
 		_dl_dprintf(_dl_debug_file, "\nINIT/FINI order and dependencies:\n");
 		for (i = 0; i < nlist; i++) {
 			struct init_fini_list *tmp;
@@ -702,7 +771,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
 		ElfW(Phdr) *myppnt = (ElfW(Phdr) *) (load_addr + epnt->e_phoff);
 		int j;
-		
+
 		tpnt = _dl_add_elf_hash_table(tpnt->libname, (char *)load_addr,
 					      tpnt->dynamic_info,
 					      (unsigned long)tpnt->dynamic_addr,
@@ -765,7 +834,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * multiple threads (from a non-TLS-using libpthread).  */
 	bool was_tls_init_tp_called = tls_init_tp_called;
 	if (tcbp == NULL)
+	{
+		_dl_debug_early("Calling init_tls()!\n");
 		tcbp = init_tls ();
+	}
 #endif
 
 	_dl_debug_early("Beginning relocation fixups\n");
@@ -842,6 +914,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 			(*dl_elf_func) ();
 		}
+
+		_dl_run_init_array(tpnt);
 	}
 
 	/* Find the real malloc function and make ldso functions use that from now on */
@@ -861,6 +935,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 	if (!was_tls_init_tp_called && _dl_tls_max_dtv_idx > 0)
 		++_dl_tls_generation;
+
+	_dl_debug_early("Calling _dl_allocate_tls_init()!\n");
 
 	/* Now that we have completed relocation, the initializer data
 	   for the TLS blocks has its final values and we can copy them
@@ -928,7 +1004,7 @@ static int _dl_suid_ok(void)
 	gid = _dl_getgid();
 	egid = _dl_getegid();
 
-	if(uid == euid && gid == egid) {
+	if (uid == euid && gid == egid) {
 		return 1;
 	}
 	return 0;

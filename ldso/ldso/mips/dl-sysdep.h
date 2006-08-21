@@ -22,9 +22,9 @@
 do { \
 if (dpnt->d_tag == DT_MIPS_GOTSYM) \
      dynamic[DT_MIPS_GOTSYM_IDX] = dpnt->d_un.d_val; \
-else if(dpnt->d_tag == DT_MIPS_LOCAL_GOTNO) \
+else if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO) \
      dynamic[DT_MIPS_LOCAL_GOTNO_IDX] = dpnt->d_un.d_val; \
-else if(dpnt->d_tag == DT_MIPS_SYMTABNO) \
+else if (dpnt->d_tag == DT_MIPS_SYMTABNO) \
      dynamic[DT_MIPS_SYMTABNO_IDX] = dpnt->d_un.d_val; \
 else if (dpnt->d_tag == DT_MIPS_RLD_MAP) \
      *(Elf32_Addr *)(dpnt->d_un.d_ptr) =  (Elf32_Addr) debug_addr; \
@@ -33,7 +33,7 @@ else if (dpnt->d_tag == DT_MIPS_RLD_MAP) \
 /* Initialization sequence for the application/library GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE)						\
 do {										\
-	unsigned long i;							\
+	unsigned long idx;							\
 										\
 	/* Check if this is the dynamic linker itself */			\
 	if (MODULE->libtype == program_interpreter)				\
@@ -44,9 +44,9 @@ do {										\
 	GOT_BASE[1] = (unsigned long) MODULE;					\
 										\
 	/* Add load address displacement to all local GOT entries */		\
-	i = 2;									\
-	while (i < MODULE->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX])		\
-		GOT_BASE[i++] += (unsigned long) MODULE->loadaddr;		\
+	idx = 2;									\
+	while (idx < MODULE->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX])		\
+		GOT_BASE[idx++] += (unsigned long) MODULE->loadaddr;		\
 										\
 } while (0)
 
@@ -65,8 +65,6 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 
 struct elf_resolve;
 void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy);
-
-#define do_rem(result, n, base) ((result) = (n) % (base))
 
 /* 4096 bytes alignment */
 #define PAGE_ALIGN 0xfffff000

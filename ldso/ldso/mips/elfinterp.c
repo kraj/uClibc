@@ -27,6 +27,8 @@
  * SUCH DAMAGE.
  */
 
+#include "ldso.h"
+
 extern int _dl_runtime_resolve(void);
 
 #define OFFSET_GP_GOT 0x7ff0
@@ -68,7 +70,7 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	if (_dl_debug_bindings)
 	{
 		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
-		if(_dl_debug_detail) _dl_dprintf(_dl_debug_file,
+		if (_dl_debug_detail) _dl_dprintf(_dl_debug_file,
 				"\n\tpatched %x ==> %x @ %x\n", *got_addr, new_addr, got_addr);
 	}
 	if (!_dl_debug_nofixups) {
@@ -138,34 +140,49 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 		case R_MIPS_TLS_TPREL32:
 # endif
 			{
+				ElfW(Sym) *sym_tls = &symtab[symtab_index];
+				struct elf_resolve *tpnt_tls = tpnt;
+
+				if (ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_LOCAL) {
+					_dl_find_hash2((strtab + symtab[symtab_index].st_name),
+							_dl_symbol_tables, NULL, 1, &sym_tls, &tpnt_tls);
+				}
+
 				switch (reloc_type)
 	  			{
 					case R_MIPS_TLS_DTPMOD64:
 					case R_MIPS_TLS_DTPMOD32:
-						if (symtab_index)
-							*(ElfW(Word) *)reloc_addr = tpnt->l_tls_modid;
+						if (tpnt_tls)
+							*(ElfW(Word) *)reloc_addr = tpnt_tls->l_tls_modid;
+#if defined (__SUPPORT_LD_DEBUG__)
+_dl_dprintf(2, "TLS_DTPMOD : %s, %d, %d\n", (strtab + symtab[symtab_index].st_name), old_val, *((unsigned int *)reloc_addr));
+#endif
 						break;
 
 					case R_MIPS_TLS_DTPREL64:
 					case R_MIPS_TLS_DTPREL32:
 						*(ElfW(Word) *)reloc_addr +=
-							(symtab[symtab_index].st_value -
-							TLS_DTV_OFFSET);
+							TLS_DTPREL_VALUE (sym_tls);
+#if defined (__SUPPORT_LD_DEBUG__)
+_dl_dprintf(2, "TLS_DTPREL : %s, %x, %x\n", (strtab + symtab[symtab_index].st_name), old_val, *((unsigned int *)reloc_addr));
+#endif
 						break;
 
 					case R_MIPS_TLS_TPREL32:
 					case R_MIPS_TLS_TPREL64:
-						CHECK_STATIC_TLS ((struct link_map *) tpnt);
+						CHECK_STATIC_TLS((struct link_map *)tpnt_tls);
 						*(ElfW(Word) *)reloc_addr +=
-							(tpnt->l_tls_offset +
-							symtab[symtab_index].st_value -
-							TLS_TP_OFFSET);
+							TLS_TPREL_VALUE (tpnt_tls, sym_tls);
+#if defined (__SUPPORT_LD_DEBUG__)
+_dl_dprintf(2, "TLS_TPREL  : %s, %x, %x\n", (strtab + symtab[symtab_index].st_name), old_val, *((unsigned int *)reloc_addr));
+#endif
 						break;
 				}
 
 				break;
 			}
 #endif
+
 		case R_MIPS_REL32:
 			if (symtab_index) {
 				if (symtab_index < tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX])
@@ -197,11 +214,11 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #endif
 				_dl_exit(1);
 			}
-		};
+		}
 
-	};
+	}
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail && reloc_addr)
+	if (_dl_debug_reloc && _dl_debug_detail && reloc_addr)
 		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x\n", old_val, *reloc_addr, reloc_addr);
 #endif
 
@@ -230,12 +247,12 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 		i = tpnt->dynamic_info[DT_MIPS_SYMTABNO_IDX] - tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
 
 #if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug_reloc)
+		if (_dl_debug_reloc)
 			_dl_dprintf(2, "_dl_perform_mips_global_got_relocations for '%s'\n", tpnt->libname);
 #endif
 		tmp_lazy = lazy && !tpnt->dynamic_info[DT_BIND_NOW];
 		/* Relocate the global GOT entries for the object */
-		while(i--) {
+		while (i--) {
 			if (sym->st_shndx == SHN_UNDEF) {
 				if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC && sym->st_value && tmp_lazy) {
 					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;

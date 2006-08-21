@@ -103,6 +103,10 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void
 		if (dpnt->d_tag < DT_NUM) {
 			dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
 #ifndef __mips__
+			/* we disable for mips because normally this page is readonly
+			 * and modifying the value here needlessly dirties a page.
+			 * see this post for more info:
+			 * http://uclibc.org/lists/uclibc/2006-April/015224.html */
 			if (dpnt->d_tag == DT_DEBUG)
 				dpnt->d_un.d_val = (unsigned long)debug_addr;
 #endif

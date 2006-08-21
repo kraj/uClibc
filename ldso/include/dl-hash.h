@@ -108,6 +108,9 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 extern char * _dl_find_hash(const char * name, struct dyn_elf * rpnt1, 
 			    struct elf_resolve *mytpnt, int type_class);
 
+extern char * _dl_find_hash2(const char * name, struct dyn_elf * rpnt1, 
+			    struct elf_resolve *mytpnt, int type_class, ElfW(Sym) **sym_tls, struct elf_resolve **tpnt_tls);
+
 extern int _dl_linux_dynamic_link(void);
 
 extern char * _dl_library_path;
@@ -136,4 +139,5 @@ static inline int _dl_symbol(char * name)
 
 
 #endif /* _LD_HASH_H_ */
+
 

@@ -53,6 +53,16 @@ struct dyn_elf *_dl_symbol_tables = NULL;
  */
 struct dyn_elf *_dl_handles = NULL;
 
+#if USE_TLS
+/*
+ * These are only used when doing TLS relocations.  They are referenced from
+ * other parts of the linker and from 'libdl.so'. This allows preservation
+ * of the '_dl_find_hash' interface.
+ */
+ElfW(Sym) *_dl_tls_reloc_sym = NULL;
+struct elf_resolve *_dl_tls_reloc_tpnt = NULL;
+#endif
+
 
 /* This is the hash function that is used by the ELF linker to generate the
  * hash table that each executable and library is required to have.  We need
@@ -84,7 +94,7 @@ static inline Elf_Symndx _dl_elf_hash(const char *name)
  */
 struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
-	unsigned long dynamic_size)
+	attribute_unused unsigned long dynamic_size)
 {
 	Elf_Symndx *hash_addr;
 	struct elf_resolve *tpnt;
@@ -137,6 +147,10 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 	unsigned long elf_hash_number, hn;
 	const ElfW(Sym) *sym;
 	char *weak_result = NULL;
+#if USE_TLS
+	_dl_tls_reloc_sym = NULL;
+	_dl_tls_reloc_tpnt = NULL;
+#endif
 
 	elf_hash_number = _dl_elf_hash(name);
 
@@ -166,16 +180,26 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 		symtab = (ElfW(Sym) *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB]);
 		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB]);
 
-		for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si]) {
+		for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si])
+		{
 			sym = &symtab[si];
 
-			if (type_class & (sym->st_shndx == SHN_UNDEF))
+			if ((sym->st_value == 0
+#if USE_TLS
+				&& ELF_ST_TYPE(sym->st_info) != STT_TLS
+#endif
+				)
+				|| (type_class & (sym->st_shndx == SHN_UNDEF)))
 				continue;
+
+			if (ELF_ST_TYPE(sym->st_info) > STT_FUNC
+#if USE_TLS
+				&& ELF_ST_TYPE(sym->st_info) != STT_TLS
+#endif
+				)
+				continue;
+
 			if (_dl_strcmp(strtab + sym->st_name, name) != 0)
-				continue;
-			if (sym->st_value == 0)
-				continue;
-			if (ELF_ST_TYPE(sym->st_info) > STT_FUNC)
 				continue;
 
 			switch (ELF_ST_BIND(sym->st_info)) {
@@ -188,6 +212,105 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 				break;
 #endif
 			case STB_GLOBAL:
+#if USE_TLS
+				/* Update these pointers if we are doing TLS relocations. */
+				_dl_tls_reloc_sym = (ElfW(Sym) *) sym;
+				_dl_tls_reloc_tpnt = tpnt;
+#endif
+				return (char*)tpnt->loadaddr + sym->st_value;
+			default:	/* Local symbols not handled here */
+				break;
+			}
+		}
+	}
+	return weak_result;
+}
+
+
+
+/* TLS Version
+ * This function resolves externals, and this is either called when we process
+ * relocations or when we call an entry in the PLT table for the first time.
+ */
+char *_dl_find_hash2(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt, int type_class, ElfW(Sym) **sym_tls, struct elf_resolve **tpnt_tls)
+{
+	struct elf_resolve *tpnt;
+	int si;
+	char *strtab;
+	ElfW(Sym) *symtab;
+	unsigned long elf_hash_number, hn;
+	const ElfW(Sym) *sym;
+	char *weak_result = NULL;
+#if USE_TLS
+	_dl_tls_reloc_sym = NULL;
+	_dl_tls_reloc_tpnt = NULL;
+#endif
+
+	elf_hash_number = _dl_elf_hash(name);
+
+	for (; rpnt; rpnt = rpnt->next) {
+		tpnt = rpnt->dyn;
+
+		if (!(tpnt->rtld_flags & RTLD_GLOBAL) && mytpnt) {
+			if (mytpnt == tpnt)
+				;
+			else {
+				struct init_fini_list *tmp;
+
+				for (tmp = mytpnt->rtld_local; tmp; tmp = tmp->next) {
+					if (tmp->tpnt == tpnt)
+						break;
+				}
+				if (!tmp)
+					continue;
+			}
+		}
+		/* Don't search the executable when resolving a copy reloc. */
+		if ((type_class &  ELF_RTYPE_CLASS_COPY) && tpnt->libtype == elf_executable)
+			continue;
+
+		/* Avoid calling .urem here. */
+		do_rem(hn, elf_hash_number, tpnt->nbucket);
+		symtab = (ElfW(Sym) *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB]);
+		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB]);
+
+		for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si])
+		{
+			sym = &symtab[si];
+
+			if ((sym->st_value == 0
+#if USE_TLS
+				&& ELF_ST_TYPE(sym->st_info) != STT_TLS
+#endif
+				)
+				|| (type_class & (sym->st_shndx == SHN_UNDEF)))
+				continue;
+
+			if (ELF_ST_TYPE(sym->st_info) > STT_FUNC
+#if USE_TLS
+				&& ELF_ST_TYPE(sym->st_info) != STT_TLS
+#endif
+				)
+				continue;
+
+			if (_dl_strcmp(strtab + sym->st_name, name) != 0)
+				continue;
+
+			switch (ELF_ST_BIND(sym->st_info)) {
+			case STB_WEAK:
+#if 0
+/* Perhaps we should support old style weak symbol handling
+ * per what glibc does when you export LD_DYNAMIC_WEAK */
+				if (!weak_result)
+					weak_result = (char *)tpnt->loadaddr + sym->st_value;
+				break;
+#endif
+			case STB_GLOBAL:
+#if USE_TLS
+				/* Update these pointers if we are doing TLS relocations. */
+				*sym_tls = (ElfW(Sym) *) sym;
+				*tpnt_tls = tpnt;
+#endif
 				return (char*)tpnt->loadaddr + sym->st_value;
 			default:	/* Local symbols not handled here */
 				break;

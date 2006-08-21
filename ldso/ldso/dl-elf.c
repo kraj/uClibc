@@ -3,7 +3,7 @@
  * This file contains the helper routines to load an ELF shared
  * library into memory and add the symbol table info to the chain.
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@codepoet.org>
  * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
  *
@@ -60,8 +60,8 @@ int _dl_map_cache(void)
 	_dl_cache_addr = (caddr_t) _dl_mmap(0, _dl_cache_size, PROT_READ, MAP_SHARED, fd, 0);
 	_dl_close(fd);
 	if (_dl_mmap_check_error(_dl_cache_addr)) {
-		_dl_dprintf(2, "%s: can't map cache '%s'\n",
-				_dl_progname, LDSO_CACHE);
+		_dl_dprintf(2, "%s:%i: can't map '%s'\n",
+				_dl_progname, __LINE__, LDSO_CACHE);
 		return -1;
 	}
 
@@ -115,7 +115,7 @@ int _dl_unmap_cache(void)
 #endif
 
 
-void 
+void
 _dl_protect_relro (struct elf_resolve *l)
 {
 	ElfW(Addr) start = ((l->loadaddr + l->relro_addr)
@@ -136,27 +136,41 @@ static struct elf_resolve *
 search_for_named_library(const char *name, int secure, const char *path_list,
 	struct dyn_elf **rpnt)
 {
-	char *path, *path_n;
-	char mylibname[2050];
+	char *path, *path_n, *mylibname;
 	struct elf_resolve *tpnt;
-	int done = 0;
+	int done;
 
 	if (path_list==NULL)
 		return NULL;
 
-	/* We need a writable copy of this string */
-	path = _dl_strdup(path_list);
-	if (!path) {
+	/* We need a writable copy of this string, but we don't
+	 * need this allocated permanently since we don't want
+	 * to leak memory, so use alloca to put path on the stack */
+	done = _dl_strlen(path_list);
+	path = alloca(done + 1);
+
+	/* another bit of local storage */
+	mylibname = alloca(2050);
+
+	/* gcc inlines alloca using a single instruction adjusting
+	 * the stack pointer and no stack overflow check and thus
+	 * no NULL error return.  No point leaving in dead code... */
+#if 0
+	if (!path || !mylibname) {
 		_dl_dprintf(2, "Out of memory!\n");
 		_dl_exit(0);
 	}
+#endif
+
+	_dl_memcpy(path, path_list, done+1);
 
 	/* Unlike ldd.c, don't bother to eliminate double //s */
 
 	/* Replace colons with zeros in path_list */
 	/* : at the beginning or end of path maps to CWD */
 	/* :: anywhere maps CWD */
-	/* "" maps to CWD */ 
+	/* "" maps to CWD */
+	done = 0;
 	path_n = path;
 	do {
 		if (*path == 0) {
@@ -329,9 +343,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	ElfW(Dyn) *dpnt;
 	struct elf_resolve *tpnt;
 	ElfW(Phdr) *ppnt;
-#if USE_TLS
-	ElfW(Phdr) *tlsppnt = NULL;
-#endif
 	char *status, *header;
 	unsigned long dynamic_info[DYNAMIC_SIZE];
 	unsigned long *lpnt;
@@ -364,7 +375,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	/* Check if file is already loaded */
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		if(tpnt->st_dev == st.st_dev && tpnt->st_ino == st.st_ino) {
+		if (tpnt->st_dev == st.st_dev && tpnt->st_ino == st.st_ino) {
 			/* Already loaded */
 			tpnt->usage_count++;
 			_dl_close(infile);
@@ -374,11 +385,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	header = _dl_mmap((void *) 0, _dl_pagesize, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(header)) {
-		_dl_dprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
+		_dl_dprintf(2, "%s:%i: can't map '%s'\n", _dl_progname, __LINE__, libname);
 		_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 		_dl_close(infile);
 		return NULL;
-	};
+	}
 
 	_dl_read(infile, header, _dl_pagesize);
 	epnt = (ElfW(Ehdr) *) (intptr_t) header;
@@ -393,7 +404,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_close(infile);
 		_dl_munmap(header, _dl_pagesize);
 		return NULL;
-	};
+	}
 
 	if ((epnt->e_type != ET_DYN) || (epnt->e_machine != MAGIC1
 #ifdef MAGIC2
@@ -408,7 +419,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_close(infile);
 		_dl_munmap(header, _dl_pagesize);
 		return NULL;
-	};
+	}
 
 	ppnt = (ElfW(Phdr) *)(intptr_t) & header[epnt->e_phoff];
 
@@ -420,7 +431,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				_dl_dprintf(2, "%s: '%s' has more than one dynamic section\n",
 						_dl_progname, libname);
 			dynamic_addr = ppnt->p_vaddr;
-		};
+		}
 
 		if (ppnt->p_type == PT_LOAD) {
 			/* See if this is a PIC library. */
@@ -435,32 +446,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				maxvma = ppnt->p_vaddr + ppnt->p_memsz;
 			}
 		}
-
-		if (ppnt->p_type == PT_TLS)
-		{
-#if USE_TLS
-			if (ppnt->p_memsz == 0)
-				/* Nothing to do for an empty segment.  */
-				continue;
-			else
-				/* Save for after 'tpnt' is actually allocated. */
-				tlsppnt = ppnt;
-#else
-			/*
-			 * Yup, the user was an idiot and tried to sneak in a library with
-			 * TLS in it and we don't support it. Let's fall on our own sword
-			 * and scream at the luser while we die.
-			 */
-			_dl_dprintf(2, "%s: '%s' library contains unsupported TLS\n",
-				_dl_progname, libname);
-			_dl_internal_error_number = LD_ERROR_TLS_FAILED;
-			_dl_close(infile);
-			_dl_munmap(header, _dl_pagesize);
-			return NULL;
-#endif
-		}
 		ppnt++;
-	};
+	}
 
 	maxvma = (maxvma + ADDR_ALIGN) & ~ADDR_ALIGN;
 	minvma = minvma & ~0xffffU;
@@ -472,12 +459,12 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	status = (char *) _dl_mmap((char *) (piclib ? 0 : minvma),
 			maxvma - minvma, PROT_NONE, flags | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(status)) {
-		_dl_dprintf(2, "%s: can't map %s\n", _dl_progname, libname);
+		_dl_dprintf(2, "%s:%i: can't map '%s'\n", _dl_progname, __LINE__, libname);
 		_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 		_dl_close(infile);
 		_dl_munmap(header, _dl_pagesize);
 		return NULL;
-	};
+	}
 	libaddr = (unsigned long) status;
 	flags |= MAP_FIXED;
 
@@ -497,8 +484,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				/* flags |= MAP_FIXED; */
 			}
 
-
-
 			if (ppnt->p_flags & PF_W) {
 				unsigned long map_size;
 				char *cpnt;
@@ -509,14 +494,14 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 						ppnt->p_offset & OFFS_ALIGN);
 
 				if (_dl_mmap_check_error(status)) {
-					_dl_dprintf(2, "%s: can't map '%s'\n",
-							_dl_progname, libname);
+					_dl_dprintf(2, "%s:%i: can't map '%s'\n",
+							_dl_progname, __LINE__, libname);
 					_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 					_dl_munmap((char *) libaddr, maxvma - minvma);
 					_dl_close(infile);
 					_dl_munmap(header, _dl_pagesize);
 					return NULL;
-				};
+				}
 
 				/* Pad the last page with zeroes. */
 				cpnt = (char *) (status + (ppnt->p_vaddr & ADDR_ALIGN) +
@@ -543,21 +528,21 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 						ppnt->p_filesz, LXFLAGS(ppnt->p_flags), flags,
 						infile, ppnt->p_offset & OFFS_ALIGN);
 			if (_dl_mmap_check_error(status)) {
-				_dl_dprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
+				_dl_dprintf(2, "%s:%i: can't map '%s'\n", _dl_progname, __LINE__, libname);
 				_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 				_dl_munmap((char *) libaddr, maxvma - minvma);
 				_dl_close(infile);
 				_dl_munmap(header, _dl_pagesize);
 				return NULL;
-			};
+			}
 
-			/* if(libaddr == 0 && piclib) {
+			/* if (libaddr == 0 && piclib) {
 			   libaddr = (unsigned long) status;
 			   flags |= MAP_FIXED;
-			   }; */
-		};
+			   } */
+		}
 		ppnt++;
-	};
+	}
 	_dl_close(infile);
 
 	/* For a non-PIC library, the addresses are all absolute */
@@ -613,73 +598,39 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	tpnt->n_phent = epnt->e_phnum;
 
 #if USE_TLS
-	if (tlsppnt)
-	{
-		tpnt->l_tls_blocksize = tlsppnt->p_memsz;
-		tpnt->l_tls_align = tlsppnt->p_align;
-		if (tlsppnt->p_align == 0)
+	for (i = 0, ppnt = tpnt->ppnt; i < tpnt->n_phent; i++) {
+		if (ppnt->p_type == PT_TLS)
+		{
+			if(ppnt->p_memsz == 0)
+				break;
+		_dl_debug_early("Found TLS header for %s\n", libname);
+#if NO_TLS_OFFSET != 0
+		tpnt->l_tls_offset = NO_TLS_OFFSET;
+#endif
+		tpnt->l_tls_blocksize = ppnt->p_memsz;
+		tpnt->l_tls_align = ppnt->p_align;
+		if (ppnt->p_align == 0)
 			tpnt->l_tls_firstbyte_offset = 0;
 		else
-			tpnt->l_tls_firstbyte_offset = tlsppnt->p_vaddr &
-				(tlsppnt->p_align - 1);
-		tpnt->l_tls_initimage_size = tlsppnt->p_filesz;
+			tpnt->l_tls_firstbyte_offset = ppnt->p_vaddr &
+				(ppnt->p_align - 1);
+		tpnt->l_tls_initimage_size = ppnt->p_filesz;
+		tpnt->l_tls_initimage = (void *) ppnt->p_vaddr;
+	
+		/* Assign the next available module ID.  */
+		tpnt->l_tls_modid = _dl_next_tls_modid ();
+		
 		/* We know the load address, so add it to the offset. */
-		if ((void *) tlsppnt->p_vaddr != NULL)
-			tpnt->l_tls_initimage = (void *) tlsppnt->p_vaddr + tpnt->loadaddr;
-		else
-			tpnt->l_tls_initimage = NULL;
-
-		/* If _dl_tls_dtv_slotinfo_list == NULL, then ldso.c did
-		   not set up TLS data structures, so don't use them now.  */
-		if (__builtin_expect (_dl_tls_dtv_slotinfo_list != NULL, 1))
+		if (tpnt->l_tls_initimage != NULL)
 		{
-			/* Assign the next available module ID.  */
-			tpnt->l_tls_modid = _dl_next_tls_modid ();
-			goto tls_success;
+			unsigned int tmp = (unsigned int) tpnt->l_tls_initimage;
+			tpnt->l_tls_initimage = (char *) ppnt->p_vaddr + tpnt->loadaddr;
+			_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n", tmp, tpnt->l_tls_initimage, tpnt->l_tls_initimage_size);
+			tmp = 0;
 		}
-
-# ifdef SHARED
-		/* In a static binary there is no way to tell if we dynamically
-		   loaded libpthread.  */
-		if (_dl_error_catch_tsd == &_dl_initial_error_catch_tsd)
-# endif
-		{
-			/* We have not yet loaded libpthread.
-			   We can do the TLS setup right now!  */
-			void *tcb;
-
-			/* The first call allocates TLS bookkeeping data structures.
-			   Then we allocate the TCB for the initial thread.  */
-			if (__builtin_expect (_dl_tls_setup (), 0)
-				|| __builtin_expect ((tcb = _dl_allocate_tls(NULL)) == NULL, 0))
-			{
-				_dl_dprintf(2, "%s: '%s' cannot allocate TLS data structures for initial thread\n", _dl_progname, libname);
-				goto tls_fail;
-			}
-
-			/* Now we install the TCB in the thread register.  */
-			if (__builtin_expect (TLS_INIT_TP (tcb, 0) == NULL, 1))
-			{
-				/* Now we are all good.  */
-				tpnt->l_tls_modid = ++_dl_tls_max_dtv_idx;
-				goto tls_success;
-			}
-
-			/* The kernel is too old or somesuch.  */
-			_dl_dprintf(2, "%s: '%s' unknown TLS error\n", _dl_progname, libname);
-			_dl_deallocate_tls (tcb, 1);
+		break;
 		}
-
-tls_fail:
-		_dl_dprintf(2, "%s: '%s' library contains unsupported TLS\n",
-			_dl_progname, libname);
-		_dl_internal_error_number = LD_ERROR_TLS_FAILED;
-		_dl_close(infile);
-		_dl_munmap(header, _dl_pagesize);
-		return NULL;
-
-tls_success:
-		_dl_debug_early("parsed TLS program header\n");
+		ppnt++;
 	}
 #endif
 
@@ -734,7 +685,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		return goof;
 	tpnt = rpnt->dyn;
 
-	if(!(tpnt->init_flag & RELOCS_DONE)) 
+	if (!(tpnt->init_flag & RELOCS_DONE))
 		_dl_if_debug_dprint("relocation processing: %s\n", tpnt->libname);
 
 	if (unlikely(tpnt->dynamic_info[UNSUPPORTED_RELOC_TYPE])) {
@@ -769,7 +720,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	if (tpnt->dynamic_info[DT_JMPREL] &&
 	    (!(tpnt->init_flag & JMP_RELOCS_DONE) ||
 	     (now_flag && !(tpnt->rtld_flags & now_flag)))) {
-		tpnt->rtld_flags |= now_flag; 
+		tpnt->rtld_flags |= now_flag;
 		if (!(tpnt->rtld_flags & RTLD_NOW)) {
 			_dl_parse_lazy_relocation_information(rpnt,
 					tpnt->dynamic_info[DT_JMPREL],
@@ -803,6 +754,9 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	char *start, *ptr, *string;
 	static char *buf;
 
+	if (!fmt)
+		return;
+
 	buf = _dl_mmap((void *) 0, _dl_pagesize, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(buf)) {
@@ -811,9 +765,6 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	}
 
 	start = ptr = buf;
-
-	if (!fmt)
-		return;
 
 	if (_dl_strlen(fmt) >= (_dl_pagesize - 1)) {
 		_dl_write(fd, "overflow\n", 11);
@@ -902,6 +853,7 @@ void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void 
 /* we want this in ldso.so and libdl.a but nowhere else */
 #ifdef __USE_GNU
 #if defined IS_IN_rtld || (defined IS_IN_libdl && ! defined SHARED)
+extern __typeof(dl_iterate_phdr) __dl_iterate_phdr;
 int
 __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void *data), void *data)
 {
@@ -920,6 +872,6 @@ __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void
 	}
 	return ret;
 }
-strong_alias(__dl_iterate_phdr, dl_iterate_phdr);
+strong_alias(__dl_iterate_phdr, dl_iterate_phdr)
 #endif
 #endif

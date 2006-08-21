@@ -463,7 +463,7 @@ _dl_tls_setup (void)
 
   return 0;
 }
-hidden_def (_dl_tls_setup)
+rtld_hidden_def (_dl_tls_setup)
 
 static void *
 internal_function
@@ -1036,4 +1036,3 @@ init_tls (void)
 
 	return tcbp;
 }
-hidden_def (init_tls)

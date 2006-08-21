@@ -136,13 +136,3 @@ do {										\
 		SEND_STDERR("Aiieeee!");					\
 		_dl_exit(1);							\
 	}
-
-
-/*
- * Transfer control to the user's application, once the dynamic loader
- * is done.  This routine has to exit the current function, then
- * call the _dl_elf_main function. For MIPS, we do it in assembly
- * because the stack doesn't get properly restored otherwise. Got look
- * at boot1_arch.h
- */
-#define START() return _dl_elf_main
