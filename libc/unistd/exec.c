@@ -1,18 +1,6 @@
 /*  Copyright (C) 2004     Manuel Novoa III
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public
- *  License as published by the Free Software Foundation; either
- *  version 2 of the License, or (at your option) any later version.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Library General Public License for more details.
- *
- *  You should have received a copy of the GNU Library General Public
- *  License along with this library; if not, write to the Free
- *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 /* Jan 1, 2004
@@ -40,17 +28,16 @@
 #include <sys/mman.h>
 
 libc_hidden_proto(execl)
+libc_hidden_proto(execle)
 libc_hidden_proto(execvp)
 
 libc_hidden_proto(memcpy)
 libc_hidden_proto(strchr)
 libc_hidden_proto(strlen)
-libc_hidden_proto(strchrnul)
 libc_hidden_proto(execve)
 libc_hidden_proto(mmap)
 libc_hidden_proto(munmap)
 libc_hidden_proto(getenv)
-libc_hidden_proto(__environ)
 
 /**********************************************************************/
 #if defined(__ARCH_USE_MMU__) || defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
@@ -180,6 +167,7 @@ int execle(const char *path, const char *arg, ...)
 
 	return n;
 }
+libc_hidden_def(execle)
 
 #endif
 /**********************************************************************/
@@ -220,6 +208,8 @@ int execlp(const char *file, const char *arg, ...)
 #endif
 /**********************************************************************/
 #ifdef L_execvp
+
+libc_hidden_proto(strchrnul)
 
 /* Use a default path that matches glibc behavior, since SUSv3 says
  * this is implementation-defined.  The default is current working dir,

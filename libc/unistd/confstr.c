@@ -1,20 +1,21 @@
-/* Copyright (C) 1991, 1996, 1997, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 1996, 1997, 2000-2002, 2003, 2004
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #include <stddef.h>
 #include <errno.h>
@@ -28,7 +29,7 @@ libc_hidden_proto(memcpy)
 /* If BUF is not NULL and LEN > 0, fill in at most LEN - 1 bytes
    of BUF with the value corresponding to NAME and zero-terminate BUF.
    Return the number of bytes required to hold NAME's entire value.  */
-size_t confstr ( int name, char *buf, size_t len)
+size_t confstr (int name, char *buf, size_t len)
 {
   const char *string;
   size_t string_len;

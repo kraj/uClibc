@@ -1,3 +1,4 @@
+/* vi: set sw=4 ts=4: */
 /* Copyright (C) 1991, 93, 95, 96, 97, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -31,6 +32,9 @@
 #include <sys/types.h>
 #ifdef __UCLIBC_HAS_REGEX__
 #include <regex.h>
+#endif
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep.h>
 #endif
 
 libc_hidden_proto(sysconf)
@@ -80,6 +84,26 @@ long int sysconf(int name)
     default:
       __set_errno(EINVAL);
       return -1;
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+# ifdef __NR_clock_getres
+	case _SC_MONOTONIC_CLOCK:
+	/* Check using the clock_getres system call.  */
+	{
+		struct timespec ts;
+		INTERNAL_SYSCALL_DECL (err);
+		int r;
+		r = INTERNAL_SYSCALL (clock_getres, err, 2, CLOCK_MONOTONIC, &ts);
+		return INTERNAL_SYSCALL_ERROR_P (r, err) ? -1 : _POSIX_VERSION;
+	}
+# endif
+	case _SC_THREAD_CPUTIME:
+# ifdef _POSIX_THREAD_CPUTIME > 0
+		return _POSIX_THREAD_CPUTIME;
+# else
+		return -1;
+# endif
+#endif
 
     case _SC_ARG_MAX:
 #ifdef	ARG_MAX
