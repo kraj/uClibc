@@ -27,7 +27,7 @@ td_ta_event_addr (const td_thragent_t *ta_arg,
 {
   td_thragent_t *const ta = (td_thragent_t *) ta_arg;
   td_err_e err;
-  psaddr_t taddr;
+  psaddr_t taddr = NULL;
 
   LOG ("td_ta_event_addr");
 

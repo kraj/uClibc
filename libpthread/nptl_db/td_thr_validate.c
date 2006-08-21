@@ -57,7 +57,7 @@ td_err_e
 td_thr_validate (const td_thrhandle_t *th)
 {
   td_err_e err;
-  psaddr_t list;
+  psaddr_t list = NULL;
 
   LOG ("td_thr_validate");
 

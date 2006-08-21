@@ -30,7 +30,7 @@ td_thr_set_event (th, event)
 {
   td_err_e err;
   psaddr_t eventmask;
-  void *copy;
+  void *copy = NULL;
 
   LOG ("td_thr_set_event");
 

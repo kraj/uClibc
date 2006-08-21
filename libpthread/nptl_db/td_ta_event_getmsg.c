@@ -31,7 +31,7 @@ td_ta_event_getmsg (const td_thragent_t *ta_arg, td_event_msg_t *msg)
   td_err_e err;
   psaddr_t eventbuf, eventnum, eventdata;
   psaddr_t thp, next;
-  void *copy;
+  void *copy = NULL;
 
   /* XXX I cannot think of another way but using a static variable.  */
   /* XXX Use at least __thread once it is possible.  */

@@ -28,7 +28,7 @@ td_thr_event_getmsg (const td_thrhandle_t *th, td_event_msg_t *msg)
   td_err_e err;
   psaddr_t eventbuf, eventnum, eventdata;
   psaddr_t thp, prevp;
-  void *copy;
+  void *copy = NULL;
 
   LOG ("td_thr_event_getmsg");
 
