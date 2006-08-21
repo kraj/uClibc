@@ -21,7 +21,7 @@ PTHREAD_GENERIC_OUT:=$(top_builddir)libpthread/nptl/sysdeps/generic
 
 LIBC_GENERIC_OBJ:=$(patsubst %.c,$(PTHREAD_GENERIC_OUT)/%.o,$(libc_a_CSRC))
 
-libc-a-y+=$(LIBC_GENERIC_OBJ)
+libc-static-y+=$(LIBC_GENERIC_OBJ)
 
 libc-nomulti-y+=$(LIBC_GENERIC_OBJ)
 

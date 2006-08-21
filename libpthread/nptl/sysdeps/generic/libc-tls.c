@@ -147,10 +147,10 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
      IE-model TLS.  */
 # if TLS_TCB_AT_TP
   tcb_offset = roundup (memsz + GL(dl_tls_static_size), tcbalign);
-  tlsblock = __sbrk (tcb_offset + tcbsize + max_align);
+  tlsblock = sbrk (tcb_offset + tcbsize + max_align);
 # elif TLS_DTV_AT_TP
   tcb_offset = roundup (tcbsize, align ?: 1);
-  tlsblock = __sbrk (tcb_offset + memsz + max_align
+  tlsblock = sbrk (tcb_offset + memsz + max_align
 		     + TLS_PRE_TCB_SIZE + GL(dl_tls_static_size));
   tlsblock += TLS_PRE_TCB_SIZE;
 # else

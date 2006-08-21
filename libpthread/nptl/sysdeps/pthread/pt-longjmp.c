@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include "pthreadP.h"
 
+extern void __libc_longjmp (sigjmp_buf env, int val)
+	__attribute__ ((noreturn));
 void
 longjmp (jmp_buf env, int val)
 {

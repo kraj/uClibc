@@ -76,4 +76,35 @@
 # define L(label) .L ## label
 #endif
 
+/* Note that while it's better structurally, going back to call __syscall_error
+   can make things confusing if you're debugging---it looks like it's jumping
+   backwards into the previous fn.  */
+#ifdef __PIC__
+#define PSEUDO(name, syscall_name, args) \
+  .align 2;								      \
+  99: la t9,__syscall_error;						      \
+  jr t9;								      \
+  ENTRY(name)								      \
+  .set noreorder;							      \
+  .cpload t9;								      \
+  li v0, SYS_ify(syscall_name);						      \
+  syscall;								      \
+  .set reorder;								      \
+  bne a3, zero, 99b;							      \
+L(syse1):
+#else
+#define PSEUDO(name, syscall_name, args) \
+  .set noreorder;							      \
+  .align 2;								      \
+  99: j __syscall_error;						      \
+  nop;									      \
+  ENTRY(name)								      \
+  .set noreorder;							      \
+  li v0, SYS_ify(syscall_name);						      \
+  syscall;								      \
+  .set reorder;								      \
+  bne a3, zero, 99b;							      \
+L(syse1):
+#endif
+
 #endif

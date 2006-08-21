@@ -42,5 +42,5 @@ __pthread_getaffinity_new (pthread_t th, size_t cpusetsize, cpu_set_t *cpuset)
 
   return 0;
 }
-hidden_strong_alias (__pthread_getaffinity_new, __pthread_getaffinity_np)
-strong_alias (__pthread_getaffinity_new, pthread_getaffinity_np)
+strong_alias(__pthread_getaffinity_new, __pthread_getaffinity_np)
+strong_alias(__pthread_getaffinity_new, pthread_getaffinity_np)

@@ -26,7 +26,7 @@
 int
 system (const char *line)
 {
-  return system (line);
+  return __libc_system (line);
 }
 
 /* __libc_system in libc.so handles cancellation.  */

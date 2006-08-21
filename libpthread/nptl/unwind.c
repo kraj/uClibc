@@ -162,6 +162,7 @@ __pthread_unwind (__pthread_unwind_buf_t *buf)
   /* We better do not get here.  */
   abort ();
 }
+hidden_def (__pthread_unwind)
 
 
 void
@@ -172,3 +173,4 @@ __pthread_unwind_next (__pthread_unwind_buf_t *buf)
 
   __pthread_unwind ((__pthread_unwind_buf_t *) ibuf->priv.data.prev);
 }
+hidden_def (__pthread_unwind_next)

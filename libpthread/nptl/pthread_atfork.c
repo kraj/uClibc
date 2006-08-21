@@ -41,6 +41,9 @@
 extern void *__dso_handle __attribute__ ((__weak__));
 
 
+/* Hide the symbol so that no definition but the one locally in the
+   executable or DSO is used.  */
+int
 __pthread_atfork (prepare, parent, child)
      void (*prepare) (void);
      void (*parent) (void);
@@ -49,4 +52,4 @@ __pthread_atfork (prepare, parent, child)
   return __register_atfork (prepare, parent, child,
 			    &__dso_handle == NULL ? NULL : __dso_handle);
 }
-strong_alias (__pthread_atfork, pthread_atfork)
+strong_alias(__pthread_atfork, pthread_atfork)

@@ -23,7 +23,6 @@
 #include <sysdep.h>
 #include <tls.h>
 
-
 #define ARCH_FORK() \
   INLINE_SYSCALL (clone, 5,						      \
 		  CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID | SIGCHLD, 0,     \

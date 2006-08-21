@@ -67,6 +67,9 @@ static const char nptl_version[] __attribute_used__ = VERSION;
 extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 #endif
 
+int
+__libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact);
+
 
 #ifdef SHARED
 static const struct pthread_functions pthread_functions =

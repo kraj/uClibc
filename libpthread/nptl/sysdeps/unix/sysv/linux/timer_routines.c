@@ -23,7 +23,7 @@
 #include <stdbool.h>
 #include <sysdep.h>
 #include <kernel-features.h>
-#include <nptl/pthreadP.h>
+#include <pthreadP.h>
 #include "kernel-posix-timers.h"
 
 

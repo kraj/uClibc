@@ -10,6 +10,7 @@ libpthread_CSRC = pthread_once.c
 
 libc_a_CSRC = fork.c
 
+CFLAGS-OMIT-fork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
 CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
 endif
@@ -33,8 +34,8 @@ libpthread-nomulti-y+=$(LINUX_ARCH_OBJS)
 
 LIBC_LINUX_ARCH_OBJ:=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libc_a_CSRC))
 
-libc-a-y+=$(LIBC_LINUX_ARCH_OBJ)
-libc-so-y+=$(LIBC_LINUX_ARCH_OBJ:.o=.oS)
+libc-static-y+=$(LIBC_LINUX_ARCH_OBJ)
+libc-shared-y+=$(LIBC_LINUX_ARCH_OBJ:.o=.oS)
 
 libc-nomulti-y+=$(LIBC_LINUX_ARCH_OBJ)
 

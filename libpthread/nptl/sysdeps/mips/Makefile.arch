@@ -31,7 +31,7 @@ libpthread-nomulti-y += $(PTHREAD_ARCH_OBJ)
 
 LIBC_ARCH_OBJ := $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libc_a_CSRC))
 
-libc-a-y += $(LIBC_ARCH_OBJ)
+libc-static-y += $(LIBC_ARCH_OBJ)
 
 libc-nomulti-y += $(LIBC_ARCH_OBJ)
 

@@ -22,11 +22,11 @@
 #include <sysdep.h>
 
 
+extern __typeof(getpid) __getpid;
 #ifndef NOT_IN_libc
-static inline __attribute__((always_inline)) pid_t really_getpid (pid_t oldval);
+static __always_inline pid_t really_getpid (pid_t oldval);
 
-static inline __attribute__((always_inline)) pid_t
-really_getpid (pid_t oldval)
+static __always_inline pid_t really_getpid (pid_t oldval)
 {
   if (__builtin_expect (oldval == 0, 1))
     {
@@ -46,8 +46,7 @@ really_getpid (pid_t oldval)
 }
 #endif
 
-pid_t attribute_hidden
-__getpid (void)
+pid_t __getpid (void)
 {
 #ifdef NOT_IN_libc
   INTERNAL_SYSCALL_DECL (err);
@@ -59,5 +58,6 @@ __getpid (void)
 #endif
   return result;
 }
-
-weak_alias (__getpid, getpid)
+libc_hidden_proto(getpid)
+weak_alias(__getpid, getpid)
+libc_hidden_weak(getpid)

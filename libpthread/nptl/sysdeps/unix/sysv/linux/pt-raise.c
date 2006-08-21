@@ -23,10 +23,8 @@
 #include <tls.h>
 #include <kernel-features.h>
 
-
-int
-raise (sig)
-     int sig;
+extern __typeof(raise) __raise;
+int __raise (int sig)
 {
 #if __ASSUME_TGKILL || defined __NR_tgkill
   /* raise is an async-safe function.  It could be called while the
@@ -50,3 +48,6 @@ raise (sig)
   return INLINE_SYSCALL (tkill, 2, THREAD_GETMEM (THREAD_SELF, tid), sig);
 #endif
 }
+libc_hidden_proto(raise)
+weak_alias(__raise, raise)
+libc_hidden_weak(raise)

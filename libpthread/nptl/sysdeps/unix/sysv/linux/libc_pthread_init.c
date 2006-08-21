@@ -25,6 +25,7 @@
 #include <pthreadP.h>
 #include <bits/libc-lock.h>
 
+libc_hidden_proto(memcpy)
 
 #ifdef TLS_MULTIPLE_THREADS_IN_TCB
 void
@@ -48,7 +49,7 @@ __libc_pthread_init (ptr, reclaim, functions)
   /* We copy the content of the variable pointed to by the FUNCTIONS
      parameter to one in libc.so since this means access to the array
      can be done with one memory access instead of two.  */
-  __memcpy (&__libc_pthread_functions, functions,
+  memcpy (&__libc_pthread_functions, functions,
 	  sizeof (__libc_pthread_functions));
 #endif
 

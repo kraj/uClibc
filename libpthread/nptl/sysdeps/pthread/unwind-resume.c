@@ -19,6 +19,7 @@
 
 #include <dlfcn.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unwind.h>
 
 static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
@@ -29,14 +30,15 @@ static _Unwind_Reason_Code (*libgcc_s_personality)
 static void
 init (void)
 {
-  void *resume, *personality;
+  void *resume = NULL;
+  void *personality = NULL;
   void *handle;
 
-  handle = __libc_dlopen ("libgcc_s.so.1");
+  handle = dlopen ("libgcc_s.so.1", (RTLD_LOCAL | RTLD_LAZY));
 
   if (handle == NULL
-      || (resume = __libc_dlsym (handle, "_Unwind_Resume")) == NULL
-      || (personality = __libc_dlsym (handle, "__gcc_personality_v0")) == NULL)
+      || (resume = dlsym (handle, "_Unwind_Resume")) == NULL
+      || (personality = dlsym (handle, "__gcc_personality_v0")) == NULL)
   {
     printf("libgcc_s.so.1 must be installed for pthread_cancel to work\n");
     abort();

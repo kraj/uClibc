@@ -17,5 +17,6 @@
    02111-1307 USA.  */
 
 #include <pthreadP.h>
+#undef _LARGEFILE64_SOURCE
 
 #include <../../../../libc/sysdeps/linux/common/sigprocmask.c>

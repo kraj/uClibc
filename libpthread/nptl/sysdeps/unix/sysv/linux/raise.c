@@ -25,9 +25,8 @@
 #include <kernel-features.h>
 
 
-int attribute_hidden
-__raise (sig)
-     int sig;
+extern __typeof(raise) __raise;
+int __raise (int sig)
 {
   struct pthread *pd = THREAD_SELF;
 #if __ASSUME_TGKILL || defined __NR_tgkill
@@ -71,4 +70,6 @@ __raise (sig)
   return INLINE_SYSCALL (tkill, 2, selftid, sig);
 #endif
 }
+libc_hidden_proto(raise)
 weak_alias(__raise, raise)
+libc_hidden_weak(raise)

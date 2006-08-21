@@ -31,11 +31,13 @@ pthread_cancel (th)
 {
   volatile struct pthread *pd = (volatile struct pthread *) th;
 
+//printf("%s:%d\n", __FUNCTION__, __LINE__);
   /* Make sure the descriptor is valid.  */
   if (INVALID_TD_P (pd))
     /* Not a valid thread handle.  */
     return ESRCH;
 
+//printf("%s:%d\n", __FUNCTION__, __LINE__);
 #ifdef SHARED
   pthread_cancel_init ();
 #endif
@@ -47,17 +49,20 @@ pthread_cancel (th)
       oldval = pd->cancelhandling;
       newval = oldval | CANCELING_BITMASK | CANCELED_BITMASK;
 
+//printf("%s:%d\n", __FUNCTION__, __LINE__);
       /* Avoid doing unnecessary work.  The atomic operation can
 	 potentially be expensive if the bug has to be locked and
 	 remote cache lines have to be invalidated.  */
       if (oldval == newval)
 	break;
 
+//printf("%s:%d newval = %x\n", __FUNCTION__, __LINE__, newval);
       /* If the cancellation is handled asynchronously just send a
 	 signal.  We avoid this if possible since it's more
 	 expensive.  */
       if (CANCEL_ENABLED_AND_CANCELED_AND_ASYNCHRONOUS (newval))
 	{
+//printf("%s:%d\n", __FUNCTION__, __LINE__);
 	  /* Mark the cancellation as "in progress".  */
 	  atomic_bit_set (&pd->cancelhandling, CANCELING_BIT);
 
@@ -76,19 +81,23 @@ pthread_cancel (th)
 	  val = INTERNAL_SYSCALL (tgkill, err, 3,
 				  THREAD_GETMEM (THREAD_SELF, pid), pd->tid,
 				  SIGCANCEL);
+//printf("%s:%d\n", __FUNCTION__, __LINE__);
 #else
 # ifdef __NR_tgkill
 	  val = INTERNAL_SYSCALL (tgkill, err, 3,
 				  THREAD_GETMEM (THREAD_SELF, pid), pd->tid,
 				  SIGCANCEL);
+//printf("%s:%d\n", __FUNCTION__, __LINE__);
 	  if (INTERNAL_SYSCALL_ERROR_P (val, err)
 	      && INTERNAL_SYSCALL_ERRNO (val, err) == ENOSYS)
 # endif
 	    val = INTERNAL_SYSCALL (tkill, err, 2, pd->tid, SIGCANCEL);
+//printf("%s:%d\n", __FUNCTION__, __LINE__);
 #endif
 
 	  if (INTERNAL_SYSCALL_ERROR_P (val, err))
 	    result = INTERNAL_SYSCALL_ERRNO (val, err);
+//printf("%s:%d\n", __FUNCTION__, __LINE__);
 
 	  break;
 	}
@@ -97,6 +106,7 @@ pthread_cancel (th)
      atomically since other bits could be modified as well.  */
   while (atomic_compare_and_exchange_bool_acq (&pd->cancelhandling, newval,
 					       oldval));
+//printf("%s:%d\n", __FUNCTION__, __LINE__);
 
   return result;
 }

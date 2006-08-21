@@ -1,6 +1,6 @@
 # Makefile for uClibc NPTL
 #
-# Copyright (C) 2005 Steven J. Hill <sjhill@realitydiluted.com>
+# Copyright (C) 2005-2006 Steven J. Hill <sjhill@realitydiluted.com>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -223,6 +223,8 @@ libpthread_FULL_NAME := libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 PTHREAD_DIR := $(top_srcdir)libpthread/nptl
 PTHREAD_OUT := $(top_builddir)libpthread/nptl
 
+libpthread_static_SRC := pthread_atfork
+
 libpthread_a_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,			\
 		$(filter-out $(libpthread-os-routines) \
 	       $(libpthread-misc-routines)				 \
@@ -232,13 +234,15 @@ libpthread_so_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,		\
 		$(filter-out $(libpthread-os-routines) \
 	       $(libpthread-misc-routines), $(libpthread-routines)))
 
-libc-a-y += $(patsubst %.c, $(PTHREAD_OUT)/%.o, alloca_cutoff.c	\
+libc-static-y += $(patsubst %.c, $(PTHREAD_OUT)/%.o, alloca_cutoff.c	\
 	    forward.c libc-cancellation.c)
-libc-so-y += $(patsubst %.c, $(PTHREAD_OUT)/%.oS, forward.c		\
+libc-shared-y += $(patsubst %.c, $(PTHREAD_OUT)/%.oS, forward.c		\
 	    libc-cancellation.c)
+libpthread-nonshared-y += $(patsubst %,$(PTHREAD_OUT)/%.oS,$(libpthread_static_SRC))
 
 libpthread-a-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.o,$(libpthread_a_SRC))
 libpthread-so-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.oS,$(libpthread_so_SRC))
+libpthread-static-y += $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.o,$(libpthread_a_SRC) $(libpthread_static_SRC))
 
 objclean-y += libpthread_clean
 headers_clean-y += nptl_headers_clean
@@ -252,8 +256,11 @@ headers_clean-y += nptl_headers_clean
 lib-a-y += $(top_builddir)lib/libpthread.a
 lib-so-y += $(top_builddir)lib/libpthread.so
 
-$(top_builddir)lib/libpthread.so: $(PTHREAD_OUT)/libpthread_so.a
+$(top_builddir)lib/libpthread.so: $(PTHREAD_OUT)/libpthread_so.a $(libc) $(top_builddir)lib/libpthread_nonshared.a
 	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
+	$(Q)$(RM) $@
+	$(Q)cp $(top_srcdir)extra/scripts/format.lds $@
+	$(Q)echo "GROUP ( $(notdir $@).$(MAJOR_VERSION) libpthread_nonshared.a )" >> $@
 
 $(PTHREAD_OUT)/libpthread_so.a: $(libpthread-so-y)
 	$(Q)$(RM) $@
@@ -298,7 +305,9 @@ nptl_headers:
 	$(LN) -sf ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(top_builddir)include/bits/
 	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/libc-lock.h $(top_builddir)include/bits/
 	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/stdio-lock.h $(top_builddir)include/bits/
+ifeq ($(shell $(CC) --help >& /dev/null && echo yes),yes)
 	$(MAKE) $(PTHREAD_OUT)/pthread-errnos.h
+endif
 
 nptl_headers_clean:
 	$(RM) $(PTDIR)/banner.h $(top_builddir)include/pthread.h	\
