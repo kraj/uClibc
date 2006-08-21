@@ -16,7 +16,7 @@ endif
 objs: all_objs
 
 shared_objs =  $(ldso-y) $(libc-y:.o=.os) $(libc-shared-y) $(libc-nonshared-y) $(libdl-so-y)
-shared_objs += $(libcrypt-so-y) $(libintl-so-y) $(libm-so-y) $(libnsl-so-y) $(libpthread-so-y)
+shared_objs += $(libcrypt-so-y) $(libintl-so-y) $(libm-so-y) $(libnsl-so-y) $(libpthread-so-y) $(libpthread-nonshared-y)
 shared_objs += $(libthread_db-so-y) $(libresolv-so-y) $(librt-so-y) $(libutil-so-y)
 ar_objs =  $(libc-y) $(libc-static-y) $(libdl-a-y) $(libcrypt-a-y) $(libintl-a-y) $(libm-a-y) $(libnsl-a-y)
 ar_objs += $(libpthread-a-y) $(libthread_db-a-y) $(libresolv-a-y) $(librt-a-y) $(libutil-a-y)
@@ -92,11 +92,10 @@ disp_t_strip   = $($(DISP)_disp_t_strip)
 disp_ar        = $($(DISP)_disp_ar)
 disp_ld        = $($(DISP)_disp_ld)
 
-cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)), $(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))
-cmd_compile.S = $(cmd_compile.c) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
+cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))
+cmd_compile.S = $(cmd_compile.c) -D__ASSEMBLER__ $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
 cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
 cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@))
-#cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@)) $(CFLAGS-multi-y)
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_t_strip   = $(STRIPTOOL) $(STRIP_FLAGS) $@
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
@@ -197,16 +196,39 @@ $(CRTS): $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
 	$(compile.S)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
-CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
-
 ifeq ($(UCLIBC_CTOR_DTOR),y)
-$(CTOR_TARGETS): $(top_builddir)lib/%.o : $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/%.S
+CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
+else
+CTOR_TARGETS:=
+endif
+
+ifneq ($(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/initfini.c),)
+CFLAGS-initfini.s := -S -g0 $(PICFLAG) -fno-inline-functions -finhibit-size-directive
+$(top_builddir)lib/initfini.s: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/initfini.c
+	$(compile.c)
+
+$(top_builddir)lib/defs.h: $(top_builddir)lib/initfini.s
+	$(Q)sed -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
+		gawk -f $(top_srcdir)extra/scripts/defs.awk > $@.tmp
+	$(Q)mv $@.tmp $@
+
+$(top_builddir)lib/crti.S: $(top_builddir)lib/initfini.s $(top_builddir)lib/defs.h
+	$(Q)sed -n -e '1,/@HEADER_ENDS/p' \
+	       -e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
+	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
+
+$(top_builddir)lib/crtn.S: $(top_builddir)lib/initfini.s
+	$(Q)sed -n -e '1,/@HEADER_ENDS/p' \
+	       -e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
+	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
+
+$(CTOR_TARGETS): $(top_builddir)lib/%.o : $(top_builddir)lib/%.S
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
 else
-$(CTOR_TARGETS):
+$(CTOR_TARGETS): $(top_builddir)lib/%.o : $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/%.S
 	$(Q)$(INSTALL) -d $(dir $@)
-	$(do_ar)
+	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
 endif
 
 #ifeq ($(TARGET_ARCH),nios)
@@ -222,6 +244,14 @@ $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT): | headers
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+$(top_builddir)lib/libpthread_nonshared.a: $(libpthread-nonshared-y)
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
 	$(do_ar)
 
 .PHONY: dummy create
