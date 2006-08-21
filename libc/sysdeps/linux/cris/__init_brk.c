@@ -5,10 +5,7 @@
 #include <errno.h>
 #include "sysdep.h"
 
-extern void *__curbrk;
-libc_hidden_proto(__curbrk)
 void * __curbrk = 0;
-libc_hidden_data_def(__curbrk)
 
 extern int __init_brk (void);
 libc_hidden_proto(__init_brk)

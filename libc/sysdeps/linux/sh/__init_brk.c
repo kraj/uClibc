@@ -4,10 +4,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-extern void * __curbrk;
-libc_hidden_proto(__curbrk)
 void * __curbrk = 0;
-libc_hidden_data_def(__curbrk)
 
 #define __NR__brk __NR_brk
 attribute_hidden _syscall1(void *, _brk, void *, ptr);

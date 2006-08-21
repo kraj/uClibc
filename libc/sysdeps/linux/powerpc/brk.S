@@ -24,7 +24,18 @@
 #include <sys/syscall.h>
 
 #ifdef __NR_brk
-	.comm	__curbrk,4,4
+
+#ifdef __PIC__
+.section .bss
+	.align 4
+	.globl __curbrk
+__curbrk: .skip 4
+	.type __curbrk,@object
+	.size __curbrk,4
+#else
+.comm __curbrk, 4,4
+#endif
+
 	.text
 	.globl	brk
 	.type	brk,@function
@@ -58,6 +69,4 @@ brk:
 	.size brk,.-brk
 
 libc_hidden_def(brk)
-/* won't help too much, HIDDEN_JUMPTARGET should be used here as well, now the reloc remains */
-libc_hidden_data_def(__curbrk)
 #endif	
