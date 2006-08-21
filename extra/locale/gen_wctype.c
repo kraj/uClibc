@@ -8,10 +8,6 @@
 #include <wchar.h>
 #include <ctype.h>
 
-#ifdef __linux__
-#include <sys/resource.h>
-#endif
-
 #ifndef _CTYPE_H
 #define _CTYPE_H
 #endif
@@ -245,14 +241,6 @@ int main(int argc, char **argv)
 	static const char empty_slot[] = "empty_slot";
 	int built = 0;
 
-#ifdef __linux__
-	struct rlimit limit;
-
-	limit.rlim_max = RLIM_INFINITY;
-	limit.rlim_cur = RLIM_INFINITY;
-	setrlimit(RLIMIT_STACK, &limit);
-#endif
-
 #define INIT_TYPENAME(X) typename[__CTYPE_##X] = "C_" #X
 
 	for (i=0 ; i < 16 ; i++) {
@@ -279,7 +267,7 @@ int main(int argc, char **argv)
 
 	while (--argc) {
 		if (!setlocale(LC_CTYPE, *++argv)) {
-			printf("setlocale(LC_CTYPE,%s) failed!\n", *argv);
+			printf("setlocale(LC_CTYPE,%s) failed!  Skipping this locale...\n", *argv);
 			continue;
 		}
 
@@ -784,6 +772,8 @@ size_t newopt(unsigned char *ut, size_t usize, int shift, table_data *tbl)
 	int uniqblock[256];
 	unsigned char uit[RANGE+1];
 	int shift2;
+
+	memset(uniqblock, 0x00, sizeof(uniqblock));
 
 	ii_save = NULL;
 	blocksize = 1 << shift;
