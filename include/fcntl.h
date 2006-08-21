@@ -70,17 +70,9 @@ __BEGIN_DECLS
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-#ifndef __USE_FILE_OFFSET64
 extern int fcntl (int __fd, int __cmd, ...);
-#else
-# ifdef __REDIRECT
-extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...), fcntl64);
-# else
-#  define fcntl fcntl64
-# endif
-#endif
-#ifdef __USE_LARGEFILE64
-extern int fcntl64 (int __fd, int __cmd, ...);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+extern int __fcntl_nocancel (int fd, int cmd, ...);
 #endif
 
 /* Open FILE and return a new file descriptor for it, or -1 on error.
