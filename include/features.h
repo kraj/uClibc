@@ -292,6 +292,8 @@
 # define __USE_REENTRANT	1
 #endif
 
+/* uClibc does not support _FORTIFY_SOURCE */
+#undef _FORTIFY_SOURCE
 #if defined _FORTIFY_SOURCE && _FORTIFY_SOURCE > 0 \
     && __GNUC_PREREQ (4, 1) && defined __OPTIMIZE__ && __OPTIMIZE__ > 0
 # if _FORTIFY_SOURCE > 1

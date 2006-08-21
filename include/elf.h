@@ -1253,6 +1253,46 @@ typedef struct
 /* Keep this the last entry.  */
 #define R_386_NUM	   38
 
+/* Blackfin specific definitions.  */
+#define R_BFIN_unused0			0x00
+#define R_BFIN_pcrel5m2			0x01
+#define R_BFIN_unused1			0x02
+#define R_BFIN_pcrel10			0x03
+#define R_BFIN_pcrel12_jump		0x04
+#define R_BFIN_rimm16			0x05
+#define R_BFIN_luimm16			0x06
+#define R_BFIN_huimm16			0x07
+#define R_BFIN_pcrel12_jump_s		0x08
+#define R_BFIN_pcrel24_jump_x		0x09
+#define R_BFIN_pcrel24			0x0a
+#define R_BFIN_unusedb			0x0b
+#define R_BFIN_unusedc			0x0c
+#define R_BFIN_pcrel24_jump_l		0x0d
+#define R_BFIN_pcrel24_call_x		0x0e
+#define R_BFIN_var_eq_symb		0x0f
+#define R_BFIN_byte_data		0x10
+#define R_BFIN_byte2_data		0x11
+#define R_BFIN_byte4_data		0x12
+#define R_BFIN_pcrel11			0x13
+
+#define R_BFIN_GOT17M4			0x14
+#define R_BFIN_GOTHI			0x15
+#define R_BFIN_GOTLO			0x16
+#define R_BFIN_FUNCDESC			0x17
+#define R_BFIN_FUNCDESC_GOT17M4		0x18
+#define R_BFIN_FUNCDESC_GOTHI		0x19
+#define R_BFIN_FUNCDESC_GOTLO		0x1a
+#define R_BFIN_FUNCDESC_VALUE		0x1b
+#define R_BFIN_FUNCDESC_GOTOFF17M4	0x1c
+#define R_BFIN_FUNCDESC_GOTOFFHI	0x1d
+#define R_BFIN_FUNCDESC_GOTOFFLO	0x1e
+#define R_BFIN_GOTOFF17M4		0x1f
+#define R_BFIN_GOTOFFHI			0x20
+#define R_BFIN_GOTOFFLO			0x21
+
+#define EF_BFIN_PIC		0x00000001	/* -fpic */
+#define EF_BFIN_FDPIC		0x00000002      /* -mfdpic */
+
 /* FR-V specific definitions.  */
 #define R_FRV_NONE		0	/* No reloc.  */
 #define R_FRV_32		1	/* Direct 32 bit.  */

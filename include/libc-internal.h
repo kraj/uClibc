@@ -35,7 +35,7 @@
 #include <sys/cdefs.h>
 
 /* --- this is added to integrate linuxthreads */
-#define __USE_UNIX98            1
+/*#define __USE_UNIX98            1*/
 
 #ifndef __ASSEMBLER__
 # ifdef IS_IN_libc
@@ -44,7 +44,11 @@
 #  include <stddef.h>
 
 /* sources are built w/ _GNU_SOURCE, this gets undefined */
+#ifdef __USE_GNU
 extern int __xpg_strerror_r (int __errnum, char *__buf, size_t __buflen);
+#else
+extern char *__glibc_strerror_r (int __errnum, char *__buf, size_t __buflen);
+#endif
 
 /* #include <pthread.h> */
 #  ifndef __UCLIBC_HAS_THREADS__

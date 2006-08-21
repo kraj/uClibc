@@ -1,4 +1,7 @@
-/* Copyright (C) 1991,92,93,95,96,97,98,99,2000,2001 Free Software Foundation, Inc.
+/* Support macros for making weak and strong aliases for symbols,
+   and for using symbol sets and linker warnings with GNU ld.
+   Copyright (C) 1995-1998,2000-2003,2004,2005,2006
+	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,14 +20,38 @@
    02111-1307 USA.  */
 
 #ifndef _LIBC_SYMBOLS_H
-#define _LIBC_SYMBOLS_H 1
+#define _LIBC_SYMBOLS_H	1
+
+/* This file's macros are included implicitly in the compilation of every
+   file in the C library by -imacros.
+
+   We include uClibc_arch_features.h which is defined by arch devs.
+   It should define for us the following symbols:
+
+   * HAVE_ASM_SET_DIRECTIVE if we have `.set B, A' instead of `A = B'.
+   * ASM_GLOBAL_DIRECTIVE with `.globl' or `.global'.
+   * ASM_TYPE_DIRECTIVE_PREFIX with `@' or `#' or whatever for .type,
+     or leave it undefined if there is no .type directive.
+   * HAVE_ELF if using ELF, which supports weak symbols using `.weak'.
+   * HAVE_ASM_WEAK_DIRECTIVE if we have weak symbols using `.weak'.
+   * HAVE_ASM_WEAKEXT_DIRECTIVE if we have weak symbols using `.weakext'.
+
+   */
 
 #include <bits/uClibc_arch_features.h>
 
-#define _LIBC 1
+
+/* This is defined for the compilation of all C library code.  features.h
+   tests this to avoid inclusion of stubs.h while compiling the library,
+   before stubs.h has been generated.  Some library code that is shared
+   with other packages also tests this symbol to see if it is being
+   compiled as part of the C library.  We must define this before including
+   config.h, because it makes some definitions conditional on whether libc
+   itself is being compiled, or just some generator program.  */
+#define _LIBC	1
 
 /* Enable declarations of GNU extensions, since we are compiling them.  */
-#define _GNU_SOURCE 1
+#define _GNU_SOURCE	1
 
 /* Prepare for the case that `__builtin_expect' is not available.  */
 #if __GNUC__ == 2 && __GNUC_MINOR__ < 96
@@ -128,12 +155,12 @@
 # define _strong_alias(name, aliasname) \
   extern __typeof (name) aliasname __attribute__ ((alias (#name)));
 
-# ifdef HAVE_WEAK_SYMBOLS
-
 /* This comes between the return type and function name in
    a function definition to make that definition weak.  */
 # define weak_function __attribute__ ((weak))
 # define weak_const_function __attribute__ ((weak, __const__))
+
+# ifdef HAVE_WEAK_SYMBOLS
 
 /* Define ALIASNAME as a weak alias for NAME.
    If weak aliases are not available, this defines a strong alias.  */
@@ -235,7 +262,7 @@
    functions not exported) a bit faster by using a different calling
    convention.  */
 #ifndef internal_function
-# define internal_function      /* empty */
+# define internal_function	/* empty */
 #endif
 
 /* We want the .gnu.warning.SYMBOL section to be unallocated.  */
@@ -315,7 +342,7 @@
    }
    libc_hidden_weak (foo)
 
-   Similarly for global data. If references to foo within libc.so should
+   Similarly for global data.  If references to foo within libc.so should
    always go to foo defined in libc.so, then in include/foo.h you add:
 
    libc_hidden_proto (foo)
@@ -330,7 +357,7 @@
    int foo = INITIAL_FOO_VALUE;
    libc_hidden_data_weak (foo)
 
-   If foo is normally just an alias (strong or weak) of some other function,
+   If foo is normally just an alias (strong or weak) to some other function,
    you should use the normal strong_alias first, then add libc_hidden_def
    or libc_hidden_weak:
 
@@ -385,63 +412,31 @@
 
 #if !defined STATIC && !defined __BCC__
 # ifndef __ASSEMBLER__
-#  define hidden_proto(name, attrs...) __hidden_proto (name, __GI_##name, ##attrs)
-#  define __hidden_proto(name, internal, attrs...) \
-   extern __typeof (name) name __asm__ (__hidden_asmname (#internal)) \
-   __hidden_proto_hiddenattr (attrs);
-#  define __hidden_asmname(name) __hidden_asmname1 (__USER_LABEL_PREFIX__, name)
-#  define __hidden_asmname1(prefix, name) __hidden_asmname2(prefix, name)
-#  define __hidden_asmname2(prefix, name) #prefix name
-#  define __hidden_ver1(local, internal, name) \
-   extern __typeof (name) __EI_##name __asm__(__hidden_asmname (#internal)); \
-   extern __typeof (name) __EI_##name __attribute__((alias (__hidden_asmname1 (,#local))))
-#  define hidden_def(name)		__hidden_ver1(__GI_##name, name, name);
-#  define hidden_data_def(name)		hidden_def(name)
-#  define hidden_weak(name)		__hidden_ver1(__GI_##name, name, name) __attribute__((weak));
-#  define hidden_data_weak(name)	hidden_weak(name)
+#  define hidden_proto(name, attrs...)
+#  define hidden_def(name)
+#  define hidden_data_def(name)
+#  define hidden_weak(name)
+#  define hidden_data_weak(name)
 
 # else /* __ASSEMBLER__ */
 # ifdef HAVE_ASM_SET_DIRECTIVE
 #  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define _hidden_strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  .set C_SYMBOL_NAME (alias),C_SYMBOL_NAME (original) ASM_LINE_SEP	\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP			\
-  .set C_SYMBOL_DOT_NAME (alias),C_SYMBOL_DOT_NAME (original)
+#   define _hidden_strong_alias(original, alias)
 #  else
-#   define _hidden_strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  .set C_SYMBOL_NAME (alias),C_SYMBOL_NAME (original)
+#   define _hidden_strong_alias(original, alias)
 #  endif
 # else
 #  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define _hidden_strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original) ASM_LINE_SEP		\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP			\
-  C_SYMBOL_DOT_NAME (alias) = C_SYMBOL_DOT_NAME (original)
+#   define _hidden_strong_alias(original, alias)
 #  else
-#   define _hidden_strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original)
+#   define _hidden_strong_alias(original, alias)
 #  endif
 # endif
 
 #  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define _hidden_weak_alias(original, alias)				\
-     .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-     .hidden C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP			\
-     weak_alias(original, alias)
+#   define _hidden_weak_alias(original, alias)
 #  else
-#   define _hidden_weak_alias(original, alias)				\
-     .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-     weak_alias(original, alias)
+#   define _hidden_weak_alias(original, alias)
 #  endif
 
 /* For assembly, we need to do the opposite of what we do in C:
@@ -453,11 +448,11 @@
    but we provide it for consistency with the C usage.
    hidden_proto doesn't make sense for assembly but the equivalent
    is to call via the HIDDEN_JUMPTARGET macro instead of JUMPTARGET.  */
-#  define hidden_def(name)	_hidden_strong_alias (name, __GI_##name)
-#  define hidden_data_def(name)	_hidden_strong_alias (name, __GI_##name)
-#  define hidden_weak(name)	_hidden_weak_alias (name, __GI_##name)
-#  define hidden_data_weak(name)	_hidden_weak_alias (name, __GI_##name)
-#  define HIDDEN_JUMPTARGET(name) __GI_##name
+#  define hidden_def(name)
+#  define hidden_data_def(name)
+#  define hidden_weak(name)
+#  define hidden_data_weak(name)
+#  define HIDDEN_JUMPTARGET(name)
 # endif /* __ASSEMBLER__ */
 #else /* SHARED */
 # ifndef __ASSEMBLER__
@@ -674,4 +669,4 @@
 # define libpthread_hidden_data_ver(local, name)
 #endif
 
-#endif /* _LIBC_SYMBOLS_H */
+#endif /* libc-symbols.h */
