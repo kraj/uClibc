@@ -1,13 +1,12 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
 ifeq ($(UCLIBC_HAS_GNU_GLOB),y)
-CSRC := glob.c glob-hooks.c
+CSRC := glob.c
 ifeq ($(UCLIBC_HAS_LFS),y)
 CSRC += glob64.c
 endif
@@ -25,6 +24,8 @@ MISC_GLOB_SRC := $(patsubst %.c,$(MISC_GLOB_DIR)/%.c,$(CSRC))
 MISC_GLOB_OBJ := $(patsubst %.c,$(MISC_GLOB_OUT)/%.o,$(CSRC))
 
 libc-$(UCLIBC_HAS_GLOB) += $(MISC_GLOB_OBJ)
+libc-a-$(UCLIBC_HAS_GLOB) += $(MISC_GLOB_OBJ)
+libc-so-$(UCLIBC_HAS_GLOB) += $(MISC_GLOB_OBJ:.o=.os)
 
 objclean-y += misc_glob_objclean
 
