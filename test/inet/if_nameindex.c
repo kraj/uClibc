@@ -52,7 +52,7 @@ void test_if_nametoindex(void)
 	printf("if_nametoindex(%s) = %i\n", ifname, ifindex);
 }
 
-int main()
+int main(void)
 {
 	test_if_nameindex();
 	test_if_indextoname();

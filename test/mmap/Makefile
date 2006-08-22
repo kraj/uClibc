@@ -1,6 +1,4 @@
 # uClibc mmap tests
-# Licensed under the GNU Library General Public License, see COPYING.LIB
-
-TESTS = mmap mmap64
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
 include ../Test.mak

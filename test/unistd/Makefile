@@ -1,10 +1,13 @@
 # uClibc unistd tests
-# Licensed under the GNU Library General Public License, see COPYING.LIB
-
-TESTS = clone errno fork getcwd getopt getopt_long preadwrite tstgetopt vfork
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
 include ../Test.mak
 
-export OPTS_getopt = -abcXXX -9
-export OPTS_getopt_long = --add XXX --delete YYY --verbose
-export OPTS_tstgetopt = -a -b -cfoobar --required foobar --optional=bazbug --none random --col --color --colour
+OPTS_getopt      := -abcXXX -9
+OPTS_getopt_long := --add XXX --delete YYY --verbose
+ifeq ($(UCLIBC_HAS_GNU_GETOPT),y)
+OPTS_tstgetopt   := -a -b -cfoobar --required foobar --optional=bazbug --none random --col --color --colour
+else
+# reordering is not supported, behaves as if POSIXLY_CORRECT would be set
+OPTS_tstgetopt   := -a -b -cfoobar --required foobar --optional=bazbug --none --colou --color --colour random
+endif

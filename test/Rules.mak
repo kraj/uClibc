@@ -1,9 +1,10 @@
 # Rules.mak for uClibc test subdirs
 #
-# Copyright (C) 2001 by Lineo, inc.
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
 #
 # Note: This does not read the top level Rules.mak file
 #
@@ -13,12 +14,10 @@ TESTDIR=$(top_builddir)test/
 
 -include $(top_builddir).config
 
-ifndef UCLIBC_LDSO
-UCLIBC_LDSO := ld-uClibc.so.0
-endif
+UCLIBC_LDSO ?= $(firstword $(wildcard $(top_builddir)lib/ld*))
 
 #--------------------------------------------------------
-# Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc. 
+# Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
 LC_ALL:= C
 export LC_ALL
 
@@ -51,23 +50,13 @@ export TARGET_ARCH
 
 CROSS      = $(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
 CC         = $(CROSS)gcc
-STRIPTOOL  = $(CROSS)strip
 RM         = rm -f
-ifeq ($(LDSO_LDD_SUPPORT),y)
-LDD        = $(top_builddir)utils/ldd
-else
-LDD        = @true
-endif
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
-BUILD_CFLAGS = -O2 -Wall
 
 
 #--------------------------------------------------------
-# Check if 'ls -sh' works or not
-LSFLAGS = -l
-
 # A nifty macro to make testing gcc features easier
 check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; else echo "$(2)"; fi)
@@ -75,36 +64,73 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 # use '-Os' optimization if available, else use -O2, allow Config to override
 # Override optimization settings when debugging
 ifeq ($(DODEBUG),y)
- ifeq ($(strip $(TARGET_ARCH)),mips)
-OPTIMIZATION    = -O1
- else
 OPTIMIZATION    = -O0
- endif
 else
 OPTIMIZATION   += $(call check_gcc,-Os,-O2)
 endif
 
-XWARNINGS       = $(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
-XARCH_CFLAGS    = $(subst ",, $(strip $(ARCH_CFLAGS)))
-CFLAGS          = $(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS)
-GLIBC_CFLAGS   += $(XWARNINGS) $(OPTIMIZATION)
-LDFLAGS         = 
+XWARNINGS      := $(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
+XARCH_CFLAGS   := $(subst ",, $(strip $(ARCH_CFLAGS)))
+XCOMMON_CFLAGS := -D_GNU_SOURCE -I$(top_builddir)test
+CFLAGS         += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS) -I$(top_builddir)include
+HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS)
 
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
-	GLIBC_CFLAGS  += -g
+	HOST_CFLAGS   += -g
 	LDFLAGS       += -g -Wl,-warn-common
-	GLIBC_LDFLAGS  = -g -Wl,-warn-common 
-	STRIPTOOL      = true -Since_we_are_debugging
+	HOST_LDFLAGS  += -g -Wl,-warn-common
 else
 	LDFLAGS       += -s -Wl,-warn-common
-	GLIBC_LDFLAGS  = -s -Wl,-warn-common
-	STRIP          = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $(PROG)
+	HOST_LDFLAGS  += -s -Wl,-warn-common
 endif
 
 ifneq ($(strip $(HAVE_SHARED)),y)
 	LDFLAGS       += -static
-	GLIBC_LDFLAGS += -static
-else
-	LDFLAGS       += -Wl,-dynamic-linker,$(top_builddir)lib/$(UCLIBC_LDSO)
+	HOST_LDFLAGS  += -static
 endif
+LDFLAGS += -B$(top_builddir)lib -Wl,-rpath,$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib
+ifeq ($(findstring -static,$(LDFLAGS)),)
+LDFLAGS += -Wl,--dynamic-linker,$(UCLIBC_LDSO)
+endif
+
+
+# Filter output
+MAKEFLAGS += --no-print-directory
+ifneq ($(findstring s,$(MAKEFLAGS)),)
+DISP := sil
+Q    := @
+SCAT := -@true
+else
+ifneq ($(V)$(VERBOSE),)
+DISP := ver
+Q    :=
+SCAT := cat
+else
+DISP := pur
+Q    := @
+SCAT := -@true
+endif
+endif
+
+banner := ---------------------------------
+pur_showclean = echo "  "CLEAN $(notdir $(CURDIR))
+pur_showdiff  = echo "  "TEST_DIFF $(notdir $(CURDIR))/
+pur_showlink  = echo "  "TEST_LINK $(notdir $(CURDIR))/ $@
+pur_showtest  = echo "  "TEST_EXEC $(notdir $(CURDIR))/ $@
+sil_showclean =
+sil_showdiff  = true
+sil_showlink  = true
+sil_showtest  = true
+ver_showclean =
+ver_showdiff  = true echo
+ver_showlink  = true echo
+ver_showtest  = printf "\n$(banner)\nTEST $(notdir $(PWD))/ $@\n$(banner)\n"
+do_showclean  = $($(DISP)_showclean)
+do_showdiff   = $($(DISP)_showdiff)
+do_showlink   = $($(DISP)_showlink)
+do_showtest   = $($(DISP)_showtest)
+showclean = @$(do_showclean)
+showdiff  = @$(do_showdiff)
+showlink  = @$(do_showlink)
+showtest  = @$(do_showtest)

@@ -1,6 +1,7 @@
 /* Test for fdopen bugs.  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -12,21 +13,24 @@
       goto the_end; \
     }
 
-char buffer[256];
-
 int
 main (int argc, char *argv[])
 {
-  char *name;
+  char name[256];
   FILE *fp = NULL;
   int retval = 0;
   int fd;
 
-  name = tmpnam (NULL);
+  /* hack to get a tempfile name w/out using tmpname()
+   * as that func causes a link time warning */
+  sprintf(name, "%s-uClibc-test.XXXXXX", __FILE__);
+  fd = mkstemp(name);
+  close(fd);
+
   fp = fopen (name, "w");
   assert (fp != NULL)
-  fputs ("foobar and baz", fp);
-  fclose (fp);
+  assert (fputs ("foobar and baz", fp) > 0);
+  assert (fclose (fp) == 0);
   fp = NULL;
 
   fd = open (name, O_RDWR|O_CREAT);
@@ -35,11 +39,13 @@ main (int argc, char *argv[])
 
   fp = fdopen (fd, "a");
   assert (fp != NULL);
-  assert (ftell (fp) == 14);
+  /* SuSv3 says that doing a fdopen() does not reset the file position,
+   * thus the '5' here is correct, not '14'. */
+  assert (ftell (fp) == 5);
 
 the_end:
   if (fp != NULL)
-    fclose (fp);
+    assert (fclose (fp) == 0);
   unlink (name);
 
   return retval;

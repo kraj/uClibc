@@ -31,6 +31,7 @@
 #include <sys/wait.h>
 #include <sys/param.h>
 #include <time.h>
+#include <features.h>
 
 /* The test function is normally called `do_test' and it is called
    with argc and argv as the arguments.  We nevertheless provide the
@@ -117,7 +118,7 @@ create_temp_file (const char *base, char **filename)
   fd = mkstemp (fname);
   if (fd == -1)
     {
-      printf ("cannot open temporary file '%s': %m\n", fname);
+      printf ("cannot open temporary file '%s': %s\n", fname, strerror(errno));
       free (fname);
       return -1;
     }
@@ -152,7 +153,9 @@ timeout_handler (int sig __attribute__ ((unused)))
 	 nanosleep() call return prematurely, all the better.  We
 	 won't restart it since this probably means the child process
 	 finally died.  */
-      struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000000 };
+      struct timespec ts;
+      ts.tv_sec = 0;
+      ts.tv_nsec = 100000000;
       nanosleep (&ts, NULL);
     }
   if (killed != 0 && killed != pid)
@@ -191,14 +194,23 @@ timeout_handler (int sig __attribute__ ((unused)))
 int
 main (int argc, char *argv[])
 {
+#ifdef __ARCH_USE_MMU__
   int direct = 0;	/* Directly call the test function?  */
+#else
+  int direct = 1;
+#endif
   int status;
   int opt;
   unsigned int timeoutfactor = 1;
   pid_t termpid;
 
   /* Make uses of freed and uninitialized memory known.  */
+#ifdef __MALLOC_STANDARD__
+#ifndef M_PERTURB
+# define M_PERTURB -6
+#endif
   mallopt (M_PERTURB, 42);
+#endif
 
 #ifdef STDOUT_UNBUFFERED
   setbuf (stdout, NULL);
@@ -276,6 +288,7 @@ main (int argc, char *argv[])
      - set up the timer
      - fork and execute the function.  */
 
+#if defined __ARCH_USE_MMU__ || ! defined __UCLIBC__
   pid = fork ();
   if (pid == 0)
     {
@@ -313,6 +326,7 @@ main (int argc, char *argv[])
       exit (TEST_FUNCTION);
     }
   else if (pid < 0)
+#endif
     {
       perror ("Cannot fork test program");
       exit (1);
@@ -330,7 +344,7 @@ main (int argc, char *argv[])
   termpid = TEMP_FAILURE_RETRY (waitpid (pid, &status, 0));
   if (termpid == -1)
     {
-      printf ("Waiting for test program failed: %m\n");
+      printf ("Waiting for test program failed: %s\n", strerror(errno));
       exit (1);
     }
   if (termpid != pid)

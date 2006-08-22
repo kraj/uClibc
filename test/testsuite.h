@@ -1,25 +1,9 @@
 /* vi: set sw=4 ts=4: */
 /*
  * Some simple macros for use in test applications.
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@uclibc.org>
  *
- * Copyright (C) 2000 by Lineo, inc. and Erik Andersen
- * Copyright (C) 2000,2001 by Erik Andersen <andersen@uclibc.org>
- * Written by Erik Andersen <andersen@uclibc.org>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Library General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License
- * for more details.
- *
- * You should have received a copy of the GNU Library General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #ifndef TESTSUITE_H
@@ -45,13 +29,13 @@ void error_msg(int result, int line, const char* file, const char* command)
 
 	printf("\nFAILED TEST %lu: \n\t%s\n", (unsigned long)test_number, command);
 	printf("AT LINE: %d, FILE: %s\n\n", line, file);
-}   
+}
 
 void success_msg(int result, const char* command)
 {
 #if 0
 	printf("passed test: %s == 0\n", command);
-#endif	
+#endif
 }
 
 void done_testing(void)
@@ -70,7 +54,9 @@ void init_testsuite(const char* testname)
 	printf("%s", testname);
 	test_number = 0;
 	failures = 0;
+#if !defined(__UCLIBC__) || defined(__UCLIBC_DYNAMIC_ATEXIT__)
 	atexit(done_testing);
+#endif
 }
 
 #endif /* __NO_TESTCODE__ */
@@ -110,5 +96,5 @@ void init_testsuite(const char* testname)
 	} while (0)
 
 #define STR_CMD(cmd) cmd
-		
+
 #endif	/* TESTSUITE_H */

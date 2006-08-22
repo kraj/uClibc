@@ -1,6 +1,6 @@
-/* Copyright (C) 1997, 1998, 1999, 2000, 2001 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Contributed by Andreas Jaeger <aj@arthur.rhein-neckar.de>, 1997.
+   Contributed by Andreas Jaeger <aj@suse.de>, 1997.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@
    This file is processed by a perl script.  The resulting file has to
    be included by a master file that defines:
 
-   Makros:
+   Macros:
    FUNC(function): converts general function name (like cos) to
    name with correct suffix (e.g. cosl or cosf)
    MATHCONST(x):   like FUNC but for constants (e.g convert 0.0 to 0.0L)
@@ -51,14 +51,14 @@
    pow, remainder, remquo, rint, lrint, llrint,
    round, lround, llround,
    scalb, scalbn, scalbln, signbit, sin, sincos, sinh, sqrt, tan, tanh, tgamma, trunc,
-   y0, y1, yn
+   y0, y1, yn, significand
 
    and for the following complex math functions:
    cabs, cacos, cacosh, carg, casin, casinh, catan, catanh,
    ccos, ccosh, cexp, clog, cpow, cproj, csin, csinh, csqrt, ctan, ctanh.
 
    At the moment the following functions aren't tested:
-   drem, significand, nan
+   drem, nan
 
    Parameter handling is primitive in the moment:
    --verbose=[0..3] for different levels of output:
@@ -84,7 +84,7 @@
    aren't checked at the moment.
 
    NaN values: There exist signalling and quiet NaNs.  This implementation
-   only uses signalling NaN as parameter but does not differenciate
+   only uses quiet NaN as parameter but does not differenciate
    between the two kinds of NaNs as result.
 
    Inline functions: Inlining functions should give an improvement in
@@ -107,9 +107,10 @@
 
 
    To Do: All parameter should be numbers that can be represented as
-   exact floating point values.  Currently some values cannot be represented
-   exactly and therefore the result is not the expected result.
-*/
+   exact floating point values.  Currently some values cannot be
+   represented exactly and therefore the result is not the expected
+   result.  For this we will use 36 digits so that numbers can be
+   represented exactly.  */
 
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
@@ -119,6 +120,7 @@
 #include <complex.h>
 #include <math.h>
 #include <float.h>
+#include "fenv.h"
 #include <limits.h>
 
 #include <errno.h>
@@ -126,10 +128,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
-
-//#include <fenv.h>
-#define feclearexcept(X)
-#define fetestexcept(X)	    0
 
 /* Possible exceptions */
 #define NO_EXCEPTION			0x0
@@ -155,6 +153,7 @@
 #define M_PI2_LOG10El		M_PI_2l * M_LOG10El
 #define M_PI4_LOG10El		M_PI_4l * M_LOG10El
 #define M_PI_LOG10El		M_PIl * M_LOG10El
+#define M_SQRT_2_2		0.70710678118654752440084436210484903L /* sqrt (2) / 2 */
 
 static FILE *ulps_file;	/* File to document difference.  */
 static int output_ulps;	/* Should ulps printed?  */
@@ -171,7 +170,7 @@ static int output_points;	/* Should the single function results printed?  */
 static int ignore_max_ulp;	/* Should we ignore max_ulp?  */
 
 static FLOAT minus_zero, plus_zero;
-static FLOAT plus_infty, minus_infty, nan_value;
+static FLOAT plus_infty, minus_infty, nan_value, max_value, min_value;
 
 static FLOAT max_error, real_max_error, imag_max_error;
 
@@ -499,7 +498,7 @@ check_float_internal (const char *test_name, FLOAT computed, FLOAT expected,
 	  && computed == 0.0 && expected == 0.0
 	  && signbit(computed) != signbit (expected))
 	ok = 0;
-      else if (ulp == 0.0 || (ulp <= max_ulp && !ignore_max_ulp))
+      else if (ulp <= 0.5 || (ulp <= max_ulp && !ignore_max_ulp))
 	ok = 1;
       else
 	{
@@ -726,8 +725,8 @@ acos_test (void)
   TEST_f_f (acos, nan_value, nan_value);
 
   /* |x| > 1: */
-  TEST_f_f (acos, 1.1L, nan_value, INVALID_EXCEPTION);
-  TEST_f_f (acos, -1.1L, nan_value, INVALID_EXCEPTION);
+  TEST_f_f (acos, 1.125L, nan_value, INVALID_EXCEPTION);
+  TEST_f_f (acos, -1.125L, nan_value, INVALID_EXCEPTION);
 
   TEST_f_f (acos, 0, M_PI_2l);
   TEST_f_f (acos, minus_zero, M_PI_2l);
@@ -735,8 +734,9 @@ acos_test (void)
   TEST_f_f (acos, -1, M_PIl);
   TEST_f_f (acos, 0.5, M_PI_6l*2.0);
   TEST_f_f (acos, -0.5, M_PI_6l*4.0);
-  TEST_f_f (acos, 0.7L, 0.79539883018414355549096833892476432L);
-
+  TEST_f_f (acos, 0.75L, 0.722734247813415611178377352641333362L);
+  TEST_f_f (acos, 2e-17L, 1.57079632679489659923132169163975144L);
+  TEST_f_f (acos, 0.0625L, 1.50825556499840522843072005474337068L);
   END (acos);
 }
 
@@ -755,10 +755,10 @@ acosh_test (void)
   TEST_f_f (acosh, minus_infty, nan_value, INVALID_EXCEPTION);
 
   /* x < 1:  */
-  TEST_f_f (acosh, -1.1L, nan_value, INVALID_EXCEPTION);
+  TEST_f_f (acosh, -1.125L, nan_value, INVALID_EXCEPTION);
 
   TEST_f_f (acosh, 1, 0);
-  TEST_f_f (acosh, 7, 2.633915793849633417250092694615937L);
+  TEST_f_f (acosh, 7, 2.63391579384963341725009269461593689L);
 
   END (acosh);
 }
@@ -779,8 +779,8 @@ asin_test (void)
   TEST_f_f (asin, nan_value, nan_value);
 
   /* asin x == NaN plus invalid exception for |x| > 1.  */
-  TEST_f_f (asin, 1.1L, nan_value, INVALID_EXCEPTION);
-  TEST_f_f (asin, -1.1L, nan_value, INVALID_EXCEPTION);
+  TEST_f_f (asin, 1.125L, nan_value, INVALID_EXCEPTION);
+  TEST_f_f (asin, -1.125L, nan_value, INVALID_EXCEPTION);
 
   TEST_f_f (asin, 0, 0);
   TEST_f_f (asin, minus_zero, minus_zero);
@@ -788,7 +788,7 @@ asin_test (void)
   TEST_f_f (asin, -0.5, -M_PI_6l);
   TEST_f_f (asin, 1.0, M_PI_2l);
   TEST_f_f (asin, -1.0, -M_PI_2l);
-  TEST_f_f (asin, 0.7L, 0.77539749661075306374035335271498708L);
+  TEST_f_f (asin, 0.75L, 0.848062078981481008052944338998418080L);
 
   END (asin);
 }
@@ -811,7 +811,7 @@ asinh_test (void)
   TEST_f_f (asinh, minus_infty, minus_infty);
 #endif
   TEST_f_f (asinh, nan_value, nan_value);
-  TEST_f_f (asinh, 0.7L, 0.652666566082355786L);
+  TEST_f_f (asinh, 0.75L, 0.693147180559945309417232121458176568L);
 
   END (asinh);
 }
@@ -837,7 +837,7 @@ atan_test (void)
   TEST_f_f (atan, 1, M_PI_4l);
   TEST_f_f (atan, -1, -M_PI_4l);
 
-  TEST_f_f (atan, 0.7L, 0.61072596438920861654375887649023613L);
+  TEST_f_f (atan, 0.75L, 0.643501108793284386802809228717322638L);
 
   END (atan);
 }
@@ -864,10 +864,10 @@ atanh_test (void)
   TEST_f_f (atanh, nan_value, nan_value);
 
   /* atanh (x) == NaN plus invalid exception if |x| > 1.  */
-  TEST_f_f (atanh, 1.1L, nan_value, INVALID_EXCEPTION);
-  TEST_f_f (atanh, -1.1L, nan_value, INVALID_EXCEPTION);
+  TEST_f_f (atanh, 1.125L, nan_value, INVALID_EXCEPTION);
+  TEST_f_f (atanh, -1.125L, nan_value, INVALID_EXCEPTION);
 
-  TEST_f_f (atanh, 0.7L, 0.8673005276940531944L);
+  TEST_f_f (atanh, 0.75L, 0.972955074527656652552676371721589865L);
 
   END (atanh);
 }
@@ -937,16 +937,17 @@ atan2_test (void)
   TEST_ff_f (atan2, minus_infty, minus_infty, -M_PI_34l);
   TEST_ff_f (atan2, nan_value, nan_value, nan_value);
 
-  TEST_ff_f (atan2, 0.7L, 1, 0.61072596438920861654375887649023613L);
-  TEST_ff_f (atan2, -0.7L, 1.0L, -0.61072596438920861654375887649023613L);
-  TEST_ff_f (atan2, 0.7L, -1.0L, 2.530866689200584621918884506789267L);
-  TEST_ff_f (atan2, -0.7L, -1.0L, -2.530866689200584621918884506789267L);
-  TEST_ff_f (atan2, 0.4L, 0.0003L, 1.5700463269355215717704032607580829L);
-  TEST_ff_f (atan2, 1.4L, -0.93L, 2.1571487668237843754887415992772736L);
+  TEST_ff_f (atan2, 0.75L, 1, 0.643501108793284386802809228717322638L);
+  TEST_ff_f (atan2, -0.75L, 1.0L, -0.643501108793284386802809228717322638L);
+  TEST_ff_f (atan2, 0.75L, -1.0L, 2.49809154479650885165983415456218025L);
+  TEST_ff_f (atan2, -0.75L, -1.0L, -2.49809154479650885165983415456218025L);
+  TEST_ff_f (atan2, 0.390625L, .00029L, 1.57005392693128974780151246612928941L);
+  TEST_ff_f (atan2, 1.390625L, 0.9296875L, 0.981498387184244311516296577615519772L);
+
+  TEST_ff_f (atan2, -0.00756827042671106339L, -.001792735857538728036L, -1.80338464113663849327153994379639112L);
 
   END (atan2);
 }
-
 
 static void
 cabs_test (void)
@@ -972,27 +973,28 @@ cabs_test (void)
   TEST_c_f (cabs, nan_value, nan_value, nan_value);
 
   /* cabs (x,y) == cabs (y,x).  */
-  TEST_c_f (cabs, 0.7L, 12.4L, 12.419742348374220601176836866763271L);
+  TEST_c_f (cabs, 0.75L, 12.390625L, 12.4133028598606664302388810868156657L);
   /* cabs (x,y) == cabs (-x,y).  */
-  TEST_c_f (cabs, -12.4L, 0.7L, 12.419742348374220601176836866763271L);
+  TEST_c_f (cabs, -12.390625L, 0.75L, 12.4133028598606664302388810868156657L);
   /* cabs (x,y) == cabs (-y,x).  */
-  TEST_c_f (cabs, -0.7L, 12.4L, 12.419742348374220601176836866763271L);
+  TEST_c_f (cabs, -0.75L, 12.390625L, 12.4133028598606664302388810868156657L);
   /* cabs (x,y) == cabs (-x,-y).  */
-  TEST_c_f (cabs, -12.4L, -0.7L, 12.419742348374220601176836866763271L);
+  TEST_c_f (cabs, -12.390625L, -0.75L, 12.4133028598606664302388810868156657L);
   /* cabs (x,y) == cabs (-y,-x).  */
-  TEST_c_f (cabs, -0.7L, -12.4L, 12.419742348374220601176836866763271L);
+  TEST_c_f (cabs, -0.75L, -12.390625L, 12.4133028598606664302388810868156657L);
   /* cabs (x,0) == fabs (x).  */
-  TEST_c_f (cabs, -0.7L, 0, 0.7L);
-  TEST_c_f (cabs, 0.7L, 0, 0.7L);
+  TEST_c_f (cabs, -0.75L, 0, 0.75L);
+  TEST_c_f (cabs, 0.75L, 0, 0.75L);
   TEST_c_f (cabs, -1.0L, 0, 1.0L);
   TEST_c_f (cabs, 1.0L, 0, 1.0L);
   TEST_c_f (cabs, -5.7e7L, 0, 5.7e7L);
   TEST_c_f (cabs, 5.7e7L, 0, 5.7e7L);
 
-  TEST_c_f (cabs, 0.7L, 1.2L, 1.3892443989449804508432547041028554L);
+  TEST_c_f (cabs, 0.75L, 1.25L, 1.45773797371132511771853821938639577L);
 
   END (cabs);
 }
+
 
 #if 0
 static void
@@ -1052,12 +1054,11 @@ cacos_test (void)
 
   TEST_c_c (cacos, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (cacos, 0.7L, 1.2L, 1.1351827477151551088992008271819053L, -1.0927647857577371459105272080819308L);
+  TEST_c_c (cacos, 0.75L, 1.25L, 1.11752014915610270578240049553777969L, -1.13239363160530819522266333696834467L);
   TEST_c_c (cacos, -2, -3, 2.1414491111159960199416055713254211L, 1.9833870299165354323470769028940395L);
 
   END (cacos, complex);
 }
-
 
 static void
 cacosh_test (void)
@@ -1115,11 +1116,12 @@ cacosh_test (void)
 
   TEST_c_c (cacosh, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (cacosh, 0.7L, 1.2L, 1.0927647857577371459105272080819308L, 1.1351827477151551088992008271819053L);
-  TEST_c_c (cacosh, -2, -3, -1.9833870299165354323470769028940395L, 2.1414491111159960199416055713254211L);
+  TEST_c_c (cacosh, 0.75L, 1.25L, 1.13239363160530819522266333696834467L, 1.11752014915610270578240049553777969L);
+  TEST_c_c (cacosh, -2, -3, 1.9833870299165354323470769028940395L, -2.1414491111159960199416055713254211L);
 
   END (cacosh, complex);
 }
+
 
 static void
 carg_test (void)
@@ -1245,7 +1247,7 @@ casin_test (void)
 
   TEST_c_c (casin, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (casin, 0.7L, 1.2L, 0.4356135790797415103321208644578462L, 1.0927647857577371459105272080819308L);
+  TEST_c_c (casin, 0.75L, 1.25L, 0.453276177638793913448921196101971749L, 1.13239363160530819522266333696834467L);
   TEST_c_c (casin, -2, -3, -0.57065278432109940071028387968566963L, -1.9833870299165354323470769028940395L);
 
   END (casin, complex);
@@ -1309,7 +1311,7 @@ casinh_test (void)
 
   TEST_c_c (casinh, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (casinh, 0.7L, 1.2L, 0.97865459559367387689317593222160964L, 0.91135418953156011567903546856170941L);
+  TEST_c_c (casinh, 0.75L, 1.25L, 1.03171853444778027336364058631006594L, 0.911738290968487636358489564316731207L);
   TEST_c_c (casinh, -2, -3, -1.9686379257930962917886650952454982L, -0.96465850440760279204541105949953237L);
 
   END (casinh, complex);
@@ -1377,8 +1379,7 @@ catan_test (void)
 
   TEST_c_c (catan, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (catan, 0.7L, 1.2L, 1.0785743834118921877443707996386368L, 0.57705737765343067644394541889341712L);
-
+  TEST_c_c (catan, 0.75L, 1.25L, 1.10714871779409050301706546017853704L, 0.549306144334054845697622618461262852L);
   TEST_c_c (catan, -2, -3, -1.4099210495965755225306193844604208L, -0.22907268296853876629588180294200276L);
 
   END (catan, complex);
@@ -1444,7 +1445,7 @@ catanh_test (void)
 
   TEST_c_c (catanh, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (catanh, 0.7L, 1.2L, 0.2600749516525135959200648705635915L, 0.97024030779509898497385130162655963L);
+  TEST_c_c (catanh, 0.75L, 1.25L, 0.261492138795671927078652057366532140L, 0.996825126463918666098902241310446708L);
   TEST_c_c (catanh, -2, -3, -0.14694666622552975204743278515471595L, -1.3389725222944935611241935759091443L);
 
   END (catanh, complex);
@@ -1472,11 +1473,12 @@ cbrt_test (void)
   TEST_f_f (cbrt, -0.001L, -0.1L);
   TEST_f_f (cbrt, 8, 2);
   TEST_f_f (cbrt, -27.0, -3.0);
-  TEST_f_f (cbrt, 0.970299L, 0.99L);
-  TEST_f_f (cbrt, 0.7L, 0.8879040017426007084L);
+  TEST_f_f (cbrt, 0.9921875L, 0.997389022060725270579075195353955217L);
+  TEST_f_f (cbrt, 0.75L, 0.908560296416069829445605878163630251L);
 
   END (cbrt);
 }
+
 
 #if 0
 static void
@@ -1540,9 +1542,8 @@ ccos_test (void)
 
   TEST_c_c (ccos, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (ccos, 0.7L, 1.2L, 1.3848657645312111080L, -0.97242170335830028619L);
-
-  TEST_c_c (ccos, -2, -3, -4.1896256909688072301L, -9.1092278937553365979L);
+  TEST_c_c (ccos, 0.75L, 1.25L, 1.38173873063425888530729933139078645L, -1.09193013555397466170919531722024128L);
+  TEST_c_c (ccos, -2, -3, -4.18962569096880723013255501961597373L, -9.10922789375533659797919726277886212L);
 
   END (ccos, complex);
 }
@@ -1609,13 +1610,14 @@ ccosh_test (void)
 
   TEST_c_c (ccosh, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (ccosh, 0.7L, 1.2L, 0.4548202223691477654L, 0.7070296600921537682L);
+  TEST_c_c (ccosh, 0.75L, 1.25L, 0.408242591877968807788852146397499084L, 0.780365930845853240391326216300863152L);
 
-  TEST_c_c (ccosh, -2, -3, -3.7245455049153225654L, 0.5118225699873846088L);
+  TEST_c_c (ccosh, -2, -3, -3.72454550491532256547397070325597253L, 0.511822569987384608834463849801875634L);
 
   END (ccosh, complex);
 }
 #endif
+
 
 static void
 ceil_test (void)
@@ -1630,9 +1632,57 @@ ceil_test (void)
 
   TEST_f_f (ceil, M_PIl, 4.0);
   TEST_f_f (ceil, -M_PIl, -3.0);
+  TEST_f_f (ceil, 0.25, 1.0);
+  TEST_f_f (ceil, -0.25, minus_zero);
+
+#ifdef TEST_LDOUBLE
+  /* The result can only be represented in long double.  */
+  TEST_f_f (ceil, 4503599627370495.5L, 4503599627370496.0L);
+  TEST_f_f (ceil, 4503599627370496.25L, 4503599627370497.0L);
+  TEST_f_f (ceil, 4503599627370496.5L, 4503599627370497.0L);
+  TEST_f_f (ceil, 4503599627370496.75L, 4503599627370497.0L);
+  TEST_f_f (ceil, 4503599627370497.5L, 4503599627370498.0L);
+
+  TEST_f_f (ceil, -4503599627370495.5L, -4503599627370495.0L);
+  TEST_f_f (ceil, -4503599627370496.25L, -4503599627370496.0L);
+  TEST_f_f (ceil, -4503599627370496.5L, -4503599627370496.0L);
+  TEST_f_f (ceil, -4503599627370496.75L, -4503599627370496.0L);
+  TEST_f_f (ceil, -4503599627370497.5L, -4503599627370497.0L);
+
+  TEST_f_f (ceil, 9007199254740991.5L, 9007199254740992.0L);
+  TEST_f_f (ceil, 9007199254740992.25L, 9007199254740993.0L);
+  TEST_f_f (ceil, 9007199254740992.5L, 9007199254740993.0L);
+  TEST_f_f (ceil, 9007199254740992.75L, 9007199254740993.0L);
+  TEST_f_f (ceil, 9007199254740993.5L, 9007199254740994.0L);
+
+  TEST_f_f (ceil, -9007199254740991.5L, -9007199254740991.0L);
+  TEST_f_f (ceil, -9007199254740992.25L, -9007199254740992.0L);
+  TEST_f_f (ceil, -9007199254740992.5L, -9007199254740992.0L);
+  TEST_f_f (ceil, -9007199254740992.75L, -9007199254740992.0L);
+  TEST_f_f (ceil, -9007199254740993.5L, -9007199254740993.0L);
+
+  TEST_f_f (ceil, 72057594037927935.5L, 72057594037927936.0L);
+  TEST_f_f (ceil, 72057594037927936.25L, 72057594037927937.0L);
+  TEST_f_f (ceil, 72057594037927936.5L, 72057594037927937.0L);
+  TEST_f_f (ceil, 72057594037927936.75L, 72057594037927937.0L);
+  TEST_f_f (ceil, 72057594037927937.5L, 72057594037927938.0L);
+
+  TEST_f_f (ceil, -72057594037927935.5L, -72057594037927935.0L);
+  TEST_f_f (ceil, -72057594037927936.25L, -72057594037927936.0L);
+  TEST_f_f (ceil, -72057594037927936.5L, -72057594037927936.0L);
+  TEST_f_f (ceil, -72057594037927936.75L, -72057594037927936.0L);
+  TEST_f_f (ceil, -72057594037927937.5L, -72057594037927937.0L);
+
+  TEST_f_f (ceil, 10141204801825835211973625643007.5L, 10141204801825835211973625643008.0L);
+  TEST_f_f (ceil, 10141204801825835211973625643008.25L, 10141204801825835211973625643009.0L);
+  TEST_f_f (ceil, 10141204801825835211973625643008.5L, 10141204801825835211973625643009.0L);
+  TEST_f_f (ceil, 10141204801825835211973625643008.75L, 10141204801825835211973625643009.0L);
+  TEST_f_f (ceil, 10141204801825835211973625643009.5L, 10141204801825835211973625643010.0L);
+#endif
 
   END (ceil);
 }
+
 
 #if 0
 static void
@@ -1692,11 +1742,12 @@ cexp_test (void)
   TEST_c_c (cexp, 1, nan_value, nan_value, nan_value, INVALID_EXCEPTION_OK);
   TEST_c_c (cexp, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (cexp, 0.7L, 1.2L, 0.72969890915032360123451688642930727L, 1.8768962328348102821139467908203072L);
+  TEST_c_c (cexp, 0.75L, 1.25L, 0.667537446429131586942201977015932112L, 2.00900045494094876258347228145863909L);
   TEST_c_c (cexp, -2.0, -3.0, -0.13398091492954261346140525546115575L, -0.019098516261135196432576240858800925L);
 
   END (cexp, complex);
 }
+
 
 static void
 cimag_test (void)
@@ -1772,6 +1823,8 @@ clog_test (void)
   TEST_c_c (clog, nan_value, -5, nan_value, nan_value, INVALID_EXCEPTION_OK);
 
   TEST_c_c (clog, nan_value, nan_value, nan_value, nan_value);
+
+  TEST_c_c (clog, 0.75L, 1.25L, 0.376885901188190075998919126749298416L, 1.03037682652431246378774332703115153L);
   TEST_c_c (clog, -2, -3, 1.2824746787307683680267437207826593L, -2.1587989303424641704769327722648368L);
 
   END (clog, complex);
@@ -1837,13 +1890,15 @@ clog10_test (void)
 
   TEST_c_c (clog10, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (clog10, 0.7L, 1.2L, 0.1427786545038868803L, 0.4528483579352493248L);
-  TEST_c_c (clog10, -2, -3, 0.5569716761534183846L, -0.9375544629863747085L);
+  TEST_c_c (clog10, 0.75L, 1.25L, 0.163679467193165171449476605077428975L, 0.447486970040493067069984724340855636L);
+  TEST_c_c (clog10, -2, -3, 0.556971676153418384603252578971164214L, -0.937554462986374708541507952140189646L);
 
   END (clog10, complex);
 }
 #endif
 
+
+#if 0
 static void
 conj_test (void)
 {
@@ -1858,6 +1913,7 @@ conj_test (void)
 
   END (conj, complex);
 }
+#endif
 
 
 static void
@@ -1889,6 +1945,7 @@ copysign_test (void)
   END (copysign);
 }
 
+
 static void
 cos_test (void)
 {
@@ -1910,10 +1967,15 @@ cos_test (void)
   TEST_f_f (cos, M_PI_6l * 4.0, -0.5);
   TEST_f_f (cos, M_PI_2l, 0);
 
-  TEST_f_f (cos, 0.7L, 0.76484218728448842625585999019186495L);
+  TEST_f_f (cos, 0.75L, 0.731688868873820886311838753000084544L);
+
+#ifdef TEST_DOUBLE
+  TEST_f_f (cos, 0.80190127184058835, 0.69534156199418473);
+#endif
 
   END (cos);
 }
+
 
 static void
 cosh_test (void)
@@ -1934,9 +1996,11 @@ cosh_test (void)
 #endif
   TEST_f_f (cosh, nan_value, nan_value);
 
-  TEST_f_f (cosh, 0.7L, 1.255169005630943018L);
+  TEST_f_f (cosh, 0.75L, 1.29468328467684468784170818539018176L);
+
   END (cosh);
 }
+
 
 #if 0
 static void
@@ -1958,8 +2022,14 @@ cpow_test (void)
 
   TEST_cc_c (cpow, nan_value, nan_value, nan_value, nan_value, nan_value, nan_value);
 
+  TEST_cc_c (cpow, 0.75L, 1.25L, 0.75L, 1.25L, 0.117506293914473555420279832210420483L, 0.346552747708338676483025352060418001L);
+  TEST_cc_c (cpow, 0.75L, 1.25L, 1.0L, 1.0L, 0.0846958290317209430433805274189191353L, 0.513285749182902449043287190519090481L);
+  TEST_cc_c (cpow, 0.75L, 1.25L, 1.0L, 0.0L, 0.75L, 1.25L);
+  TEST_cc_c (cpow, 0.75L, 1.25L, 0.0L, 1.0L, 0.331825439177608832276067945276730566L, 0.131338600281188544930936345230903032L);
+
   END (cpow, complex);
 }
+
 
 static void
 cproj_test (void)
@@ -1982,6 +2052,7 @@ cproj_test (void)
 
   END (cproj, complex);
 }
+
 
 static void
 creal_test (void)
@@ -2059,9 +2130,8 @@ csin_test (void)
 
   TEST_c_c (csin, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (csin, 0.7L, 1.2L, 1.1664563419657581376L, 1.1544997246948547371L);
-
-  TEST_c_c (csin, -2, -3, -9.1544991469114295734L, 4.1689069599665643507L);
+  TEST_c_c (csin, 0.75L, 1.25L, 1.28722291002649188575873510790565441L, 1.17210635989270256101081285116138863L);
+  TEST_c_c (csin, -2, -3, -9.15449914691142957346729954460983256L, 4.16890695996656435075481305885375484L);
 
   END (csin, complex);
 }
@@ -2128,11 +2198,12 @@ csinh_test (void)
 
   TEST_c_c (csinh, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (csinh, 0.7L, 1.2L, 0.27487868678117583582L, 1.1698665727426565139L);
-  TEST_c_c (csinh, -2, -3, 3.5905645899857799520L, -0.5309210862485198052L);
+  TEST_c_c (csinh, 0.75L, 1.25L, 0.259294854551162779153349830618433028L, 1.22863452409509552219214606515777594L);
+  TEST_c_c (csinh, -2, -3, 3.59056458998577995201256544779481679L, -0.530921086248519805267040090660676560L);
 
   END (csinh, complex);
 }
+
 
 static void
 csqrt_test (void)
@@ -2193,9 +2264,12 @@ csqrt_test (void)
   TEST_c_c (csqrt, -1, 0, 0.0, 1.0);
   TEST_c_c (csqrt, 0, 2, 1.0, 1.0);
   TEST_c_c (csqrt, 119, 120, 12.0, 5.0);
-  TEST_c_c (csqrt, 0.7L, 1.2L, 1.022067610030026450706487883081139L, 0.58704531296356521154977678719838035L);
+  TEST_c_c (csqrt, 0.75L, 1.25L, 1.05065169626078392338656675760808326L, 0.594868882070379067881984030639932657L);
   TEST_c_c (csqrt, -2, -3, 0.89597747612983812471573375529004348L, -1.6741492280355400404480393008490519L);
   TEST_c_c (csqrt, -2, 3, 0.89597747612983812471573375529004348L, 1.6741492280355400404480393008490519L);
+  /* Principal square root should be returned (i.e., non-negative real
+     part).  */
+  TEST_c_c (csqrt, 0, -1, M_SQRT_2_2, -M_SQRT_2_2);
 
   END (csqrt, complex);
 }
@@ -2251,8 +2325,8 @@ ctan_test (void)
 
   TEST_c_c (ctan, nan_value, nan_value, nan_value, nan_value);
 
-  TEST_c_c (ctan, 0.7L, 1.2L, 0.1720734197630349001L, 0.9544807059989405538L);
-  TEST_c_c (ctan, -2, -3, 0.0037640256415042482L, -1.0032386273536098014L);
+  TEST_c_c (ctan, 0.75L, 1.25L, 0.160807785916206426725166058173438663L, 0.975363285031235646193581759755216379L);
+  TEST_c_c (ctan, -2, -3, 0.376402564150424829275122113032269084e-2L, -1.00323862735360980144635859782192726L);
 
   END (ctan, complex);
 }
@@ -2310,12 +2384,13 @@ ctanh_test (void)
 
   TEST_c_c (ctanh, 0, M_PI_4l, 0.0, 1.0);
 
-  TEST_c_c (ctanh, 0.7L, 1.2L, 1.3472197399061191630L, 0.4778641038326365540L);
-  TEST_c_c (ctanh, -2, -3, -0.9653858790221331242L, 0.0098843750383224937L);
+  TEST_c_c (ctanh, 0.75L, 1.25L, 1.37260757053378320258048606571226857L, 0.385795952609750664177596760720790220L);
+  TEST_c_c (ctanh, -2, -3, -0.965385879022133124278480269394560686L, 0.988437503832249372031403430350121098e-2L);
 
   END (ctanh, complex);
 }
 #endif
+
 
 static void
 erf_test (void)
@@ -2334,12 +2409,12 @@ erf_test (void)
   TEST_f_f (erf, minus_infty, -1);
   TEST_f_f (erf, nan_value, nan_value);
 
-  TEST_f_f (erf, 0.7L, 0.67780119383741847297L);
-
-  TEST_f_f (erf, 1.2L, 0.91031397822963538024L);
-  TEST_f_f (erf, 2.0, 0.99532226501895273416L);
-  TEST_f_f (erf, 4.1L, 0.99999999329997234592L);
-  TEST_f_f (erf, 27, 1.0L);
+  TEST_f_f (erf, 0.125L, 0.140316204801333817393029446521623398L);
+  TEST_f_f (erf, 0.75L, 0.711155633653515131598937834591410777L);
+  TEST_f_f (erf, 1.25L, 0.922900128256458230136523481197281140L);
+  TEST_f_f (erf, 2.0L, 0.995322265018952734162069256367252929L);
+  TEST_f_f (erf, 4.125L, 0.999999994576599200434933994687765914L);
+  TEST_f_f (erf, 27.0L, 1.0L);
 
   END (erf);
 }
@@ -2362,15 +2437,21 @@ erfc_test (void)
   TEST_f_f (erfc, minus_zero, 1.0);
   TEST_f_f (erfc, nan_value, nan_value);
 
-  TEST_f_f (erfc, 0.7L, 0.32219880616258152702L);
-
-  TEST_f_f (erfc, 1.2L, 0.089686021770364619762L);
-  TEST_f_f (erfc, 2.0, 0.0046777349810472658379L);
-  TEST_f_f (erfc, 4.1L, 0.67000276540848983727e-8L);
-  TEST_f_f (erfc, 9, 0.41370317465138102381e-36L);
+  TEST_f_f (erfc, 0.125L, 0.859683795198666182606970553478376602L);
+  TEST_f_f (erfc, 0.75L, 0.288844366346484868401062165408589223L);
+  TEST_f_f (erfc, 1.25L, 0.0770998717435417698634765188027188596L);
+  TEST_f_f (erfc, 2.0L, 0.00467773498104726583793074363274707139L);
+  TEST_f_f (erfc, 4.125L, 0.542340079956506600531223408575531062e-8L);
+#ifdef TEST_LDOUBLE
+  /* The result can only be represented in long double.  */
+# if LDBL_MIN_10_EXP < -319
+  TEST_f_f (erfc, 27.0L, 0.523704892378925568501606768284954709e-318L);
+# endif
+#endif
 
   END (erfc);
 }
+
 
 static void
 exp_test (void)
@@ -2395,12 +2476,13 @@ exp_test (void)
 
   TEST_f_f (exp, 2, M_E2l);
   TEST_f_f (exp, 3, M_E3l);
-  TEST_f_f (exp, 0.7L, 2.0137527074704765216L);
+  TEST_f_f (exp, 0.75L, 2.11700001661267466854536981983709561L);
   TEST_f_f (exp, 50.0L, 5184705528587072464087.45332293348538L);
 #ifdef TEST_LDOUBLE
   /* The result can only be represented in long double.  */
   TEST_f_f (exp, 1000.0L, 0.197007111401704699388887935224332313e435L);
 #endif
+
   END (exp);
 }
 
@@ -2427,10 +2509,11 @@ exp10_test (void)
   TEST_f_f (exp10, -1, 0.1L);
   TEST_f_f (exp10, 1e6, plus_infty);
   TEST_f_f (exp10, -1e6, 0);
-  TEST_f_f (exp10, 0.7L, 5.0118723362727228500155418688494574L);
+  TEST_f_f (exp10, 0.75L, 5.62341325190349080394951039776481231L);
 
   END (exp10);
 }
+
 
 static void
 exp2_test (void)
@@ -2453,11 +2536,12 @@ exp2_test (void)
   TEST_f_f (exp2, -1, 0.5);
   TEST_f_f (exp2, 1e6, plus_infty);
   TEST_f_f (exp2, -1e6, 0);
-  TEST_f_f (exp2, 0.7L, 1.6245047927124710452L);
+  TEST_f_f (exp2, 0.75L, 1.68179283050742908606225095246642979L);
 
   END (exp2);
 }
 #endif
+
 
 static void
 expm1_test (void)
@@ -2480,10 +2564,11 @@ expm1_test (void)
   TEST_f_f (expm1, nan_value, nan_value);
 
   TEST_f_f (expm1, 1, M_El - 1.0);
-  TEST_f_f (expm1, 0.7L, 1.0137527074704765216L);
+  TEST_f_f (expm1, 0.75L, 1.11700001661267466854536981983709561L);
 
   END (expm1);
 }
+
 
 static void
 fabs_test (void)
@@ -2502,6 +2587,7 @@ fabs_test (void)
 
   END (fabs);
 }
+
 
 #if 0
 static void
@@ -2535,9 +2621,12 @@ fdim_test (void)
   TEST_ff_f (fdim, nan_value, minus_infty, nan_value);
   TEST_ff_f (fdim, nan_value, nan_value, nan_value);
 
+  TEST_ff_f (fdim, plus_infty, plus_infty, 0);
+
   END (fdim);
 }
 #endif
+
 
 static void
 floor_test (void)
@@ -2553,8 +2642,58 @@ floor_test (void)
   TEST_f_f (floor, M_PIl, 3.0);
   TEST_f_f (floor, -M_PIl, -4.0);
 
+  TEST_f_f (floor, 0.25, 0.0);
+  TEST_f_f (floor, -0.25, -1.0);
+
+
+#ifdef TEST_LDOUBLE
+  /* The result can only be represented in long double.  */
+  TEST_f_f (floor, 4503599627370495.5L, 4503599627370495.0L);
+  TEST_f_f (floor, 4503599627370496.25L, 4503599627370496.0L);
+  TEST_f_f (floor, 4503599627370496.5L, 4503599627370496.0L);
+  TEST_f_f (floor, 4503599627370496.75L, 4503599627370496.0L);
+  TEST_f_f (floor, 4503599627370497.5L, 4503599627370497.0L);
+
+  TEST_f_f (floor, -4503599627370495.5L, -4503599627370496.0L);
+  TEST_f_f (floor, -4503599627370496.25L, -4503599627370497.0L);
+  TEST_f_f (floor, -4503599627370496.5L, -4503599627370497.0L);
+  TEST_f_f (floor, -4503599627370496.75L, -4503599627370497.0L);
+  TEST_f_f (floor, -4503599627370497.5L, -4503599627370498.0L);
+
+  TEST_f_f (floor, 9007199254740991.5L, 9007199254740991.0L);
+  TEST_f_f (floor, 9007199254740992.25L, 9007199254740992.0L);
+  TEST_f_f (floor, 9007199254740992.5L, 9007199254740992.0L);
+  TEST_f_f (floor, 9007199254740992.75L, 9007199254740992.0L);
+  TEST_f_f (floor, 9007199254740993.5L, 9007199254740993.0L);
+
+  TEST_f_f (floor, -9007199254740991.5L, -9007199254740992.0L);
+  TEST_f_f (floor, -9007199254740992.25L, -9007199254740993.0L);
+  TEST_f_f (floor, -9007199254740992.5L, -9007199254740993.0L);
+  TEST_f_f (floor, -9007199254740992.75L, -9007199254740993.0L);
+  TEST_f_f (floor, -9007199254740993.5L, -9007199254740994.0L);
+
+  TEST_f_f (floor, 72057594037927935.5L, 72057594037927935.0L);
+  TEST_f_f (floor, 72057594037927936.25L, 72057594037927936.0L);
+  TEST_f_f (floor, 72057594037927936.5L, 72057594037927936.0L);
+  TEST_f_f (floor, 72057594037927936.75L, 72057594037927936.0L);
+  TEST_f_f (floor, 72057594037927937.5L, 72057594037927937.0L);
+
+  TEST_f_f (floor, -72057594037927935.5L, -72057594037927936.0L);
+  TEST_f_f (floor, -72057594037927936.25L, -72057594037927937.0L);
+  TEST_f_f (floor, -72057594037927936.5L, -72057594037927937.0L);
+  TEST_f_f (floor, -72057594037927936.75L, -72057594037927937.0L);
+  TEST_f_f (floor, -72057594037927937.5L, -72057594037927938.0L);
+
+  TEST_f_f (floor, 10141204801825835211973625643007.5L, 10141204801825835211973625643007.0L);
+  TEST_f_f (floor, 10141204801825835211973625643008.25L, 10141204801825835211973625643008.0L);
+  TEST_f_f (floor, 10141204801825835211973625643008.5L, 10141204801825835211973625643008.0L);
+  TEST_f_f (floor, 10141204801825835211973625643008.75L, 10141204801825835211973625643008.0L);
+  TEST_f_f (floor, 10141204801825835211973625643009.5L, 10141204801825835211973625643009.0L);
+#endif
+
   END (floor);
 }
+
 
 #if 0
 static void
@@ -2579,6 +2718,8 @@ fma_test (void)
   TEST_fff_f (fma, minus_infty, plus_infty, plus_infty, nan_value, INVALID_EXCEPTION);
   TEST_fff_f (fma, plus_infty, minus_infty, plus_infty, nan_value, INVALID_EXCEPTION);
   TEST_fff_f (fma, minus_infty, minus_infty, minus_infty, nan_value, INVALID_EXCEPTION);
+
+  TEST_fff_f (fma, 1.25L, 0.75L, 0.0625L, 1.0L);
 
   END (fma);
 }
@@ -2659,6 +2800,7 @@ fmin_test (void)
 }
 #endif
 
+
 static void
 fmod_test (void)
 {
@@ -2692,13 +2834,14 @@ fmod_test (void)
 
   TEST_ff_f (fmod, nan_value, nan_value, nan_value);
 
-  TEST_ff_f (fmod, 6.5, 2.3L, 1.9L);
-  TEST_ff_f (fmod, -6.5, 2.3L, -1.9L);
-  TEST_ff_f (fmod, 6.5, -2.3L, 1.9L);
-  TEST_ff_f (fmod, -6.5, -2.3L, -1.9L);
+  TEST_ff_f (fmod, 6.5, 2.25L, 2.0L);
+  TEST_ff_f (fmod, -6.5, 2.25L, -2.0L);
+  TEST_ff_f (fmod, 6.5, -2.25L, 2.0L);
+  TEST_ff_f (fmod, -6.5, -2.25L, -2.0L);
 
   END (fmod);
 }
+
 
 static void
 fpclassify_test (void)
@@ -2799,11 +2942,11 @@ hypot_test (void)
   TEST_ff_f (hypot, -12.4L, -0.7L, 12.419742348374220601176836866763271L);
 
   /*  hypot (x,0) == fabs (x)  */
-  TEST_ff_f (hypot, 0.7L, 0, 0.7L);
-  TEST_ff_f (hypot, -0.7L, 0, 0.7L);
+  TEST_ff_f (hypot, 0.75L, 0, 0.75L);
+  TEST_ff_f (hypot, -0.75L, 0, 0.75L);
   TEST_ff_f (hypot, -5.7e7, 0, 5.7e7L);
 
-  TEST_ff_f (hypot, 0.7L, 1.2L, 1.3892443989449804508432547041028554L);
+  TEST_ff_f (hypot, 0.75L, 1.25L, 1.45773797371132511771853821938639577L);
 
   END (hypot);
 }
@@ -2881,15 +3024,15 @@ j0_test (void)
   /* j0 is the Bessel function of the first kind of order 0 */
   TEST_f_f (j0, nan_value, nan_value);
   TEST_f_f (j0, plus_infty, 0);
-  TEST_f_f (j0, -1.0, 0.76519768655796655145L);
+  TEST_f_f (j0, -1.0, 0.765197686557966551449717526102663221L);
   TEST_f_f (j0, 0.0, 1.0);
-  TEST_f_f (j0, 0.1L, 0.99750156206604003228L);
-  TEST_f_f (j0, 0.7L, 0.88120088860740528084L);
-  TEST_f_f (j0, 1.0, 0.76519768655796655145L);
-  TEST_f_f (j0, 1.5, 0.51182767173591812875L);
-  TEST_f_f (j0, 2.0, 0.22389077914123566805L);
-  TEST_f_f (j0, 8.0, 0.17165080713755390609L);
-  TEST_f_f (j0, 10.0, -0.24593576445134833520L);
+  TEST_f_f (j0, 0.125L, 0.996097563041985204620768999453174712L);
+  TEST_f_f (j0, 0.75L, 0.864242275166648623555731103820923211L);
+  TEST_f_f (j0, 1.0, 0.765197686557966551449717526102663221L);
+  TEST_f_f (j0, 1.5, 0.511827671735918128749051744283411720L);
+  TEST_f_f (j0, 2.0, 0.223890779141235668051827454649948626L);
+  TEST_f_f (j0, 8.0, 0.171650807137553906090869407851972001L);
+  TEST_f_f (j0, 10.0, -0.245935764451348335197760862485328754L);
   TEST_f_f (j0, 4.0, -3.9714980986384737228659076845169804197562E-1L);
   TEST_f_f (j0, -4.0, -3.9714980986384737228659076845169804197562E-1L);
 
@@ -2920,15 +3063,15 @@ j1_test (void)
   TEST_f_f (j1, nan_value, nan_value);
   TEST_f_f (j1, plus_infty, 0);
 
-  TEST_f_f (j1, -1.0, -0.44005058574493351596L);
+  TEST_f_f (j1, -1.0, -0.440050585744933515959682203718914913L);
   TEST_f_f (j1, 0.0, 0.0);
-  TEST_f_f (j1, 0.1L, 0.049937526036241997556L);
-  TEST_f_f (j1, 0.7L, 0.32899574154005894785L);
-  TEST_f_f (j1, 1.0, 0.44005058574493351596L);
-  TEST_f_f (j1, 1.5, 0.55793650791009964199L);
-  TEST_f_f (j1, 2.0, 0.57672480775687338720L);
-  TEST_f_f (j1, 8.0, 0.23463634685391462438L);
-  TEST_f_f (j1, 10.0, 0.043472746168861436670L);
+  TEST_f_f (j1, 0.125L, 0.0623780091344946810942311355879361177L);
+  TEST_f_f (j1, 0.75L, 0.349243602174862192523281016426251335L);
+  TEST_f_f (j1, 1.0, 0.440050585744933515959682203718914913L);
+  TEST_f_f (j1, 1.5, 0.557936507910099641990121213156089400L);
+  TEST_f_f (j1, 2.0, 0.576724807756873387202448242269137087L);
+  TEST_f_f (j1, 8.0, 0.234636346853914624381276651590454612L);
+  TEST_f_f (j1, 10.0, 0.0434727461688614366697487680258592883L);
 
   END (j1);
 }
@@ -2955,53 +3098,54 @@ jn_test (void)
   /* jn (0, x) == j0 (x)  */
   TEST_ff_f (jn, 0, nan_value, nan_value);
   TEST_ff_f (jn, 0, plus_infty, 0);
-  TEST_ff_f (jn, 0, -1.0, 0.76519768655796655145L);
+  TEST_ff_f (jn, 0, -1.0, 0.765197686557966551449717526102663221L);
   TEST_ff_f (jn, 0, 0.0, 1.0);
-  TEST_ff_f (jn, 0, 0.1L, 0.99750156206604003228L);
-  TEST_ff_f (jn, 0, 0.7L, 0.88120088860740528084L);
-  TEST_ff_f (jn, 0, 1.0, 0.76519768655796655145L);
-  TEST_ff_f (jn, 0, 1.5, 0.51182767173591812875L);
-  TEST_ff_f (jn, 0, 2.0, 0.22389077914123566805L);
-  TEST_ff_f (jn, 0, 8.0, 0.17165080713755390609L);
-  TEST_ff_f (jn, 0, 10.0, -0.24593576445134833520L);
+  TEST_ff_f (jn, 0, 0.125L, 0.996097563041985204620768999453174712L);
+  TEST_ff_f (jn, 0, 0.75L, 0.864242275166648623555731103820923211L);
+  TEST_ff_f (jn, 0, 1.0, 0.765197686557966551449717526102663221L);
+  TEST_ff_f (jn, 0, 1.5, 0.511827671735918128749051744283411720L);
+  TEST_ff_f (jn, 0, 2.0, 0.223890779141235668051827454649948626L);
+  TEST_ff_f (jn, 0, 8.0, 0.171650807137553906090869407851972001L);
+  TEST_ff_f (jn, 0, 10.0, -0.245935764451348335197760862485328754L);
+  TEST_ff_f (jn, 0, 4.0, -3.9714980986384737228659076845169804197562E-1L);
+  TEST_ff_f (jn, 0, -4.0, -3.9714980986384737228659076845169804197562E-1L);
 
   /* jn (1, x) == j1 (x)  */
   TEST_ff_f (jn, 1, nan_value, nan_value);
   TEST_ff_f (jn, 1, plus_infty, 0);
-
-  TEST_ff_f (jn, 1, -1.0, -0.44005058574493351596L);
+  TEST_ff_f (jn, 1, -1.0, -0.440050585744933515959682203718914913L);
   TEST_ff_f (jn, 1, 0.0, 0.0);
-  TEST_ff_f (jn, 1, 0.1L, 0.049937526036241997556L);
-  TEST_ff_f (jn, 1, 0.7L, 0.32899574154005894785L);
-  TEST_ff_f (jn, 1, 1.0, 0.44005058574493351596L);
-  TEST_ff_f (jn, 1, 1.5, 0.55793650791009964199L);
-  TEST_ff_f (jn, 1, 2.0, 0.57672480775687338720L);
-  TEST_ff_f (jn, 1, 8.0, 0.23463634685391462438L);
-  TEST_ff_f (jn, 1, 10.0, 0.043472746168861436670L);
+  TEST_ff_f (jn, 1, 0.125L, 0.0623780091344946810942311355879361177L);
+  TEST_ff_f (jn, 1, 0.75L, 0.349243602174862192523281016426251335L);
+  TEST_ff_f (jn, 1, 1.0, 0.440050585744933515959682203718914913L);
+  TEST_ff_f (jn, 1, 1.5, 0.557936507910099641990121213156089400L);
+  TEST_ff_f (jn, 1, 2.0, 0.576724807756873387202448242269137087L);
+  TEST_ff_f (jn, 1, 8.0, 0.234636346853914624381276651590454612L);
+  TEST_ff_f (jn, 1, 10.0, 0.0434727461688614366697487680258592883L);
 
   /* jn (3, x)  */
   TEST_ff_f (jn, 3, nan_value, nan_value);
   TEST_ff_f (jn, 3, plus_infty, 0);
 
-  TEST_ff_f (jn, 3, -1.0, -0.019563353982668405919L);
+  TEST_ff_f (jn, 3, -1.0, -0.0195633539826684059189053216217515083L);
   TEST_ff_f (jn, 3, 0.0, 0.0);
-  TEST_ff_f (jn, 3, 0.1L, 0.000020820315754756261429L);
-  TEST_ff_f (jn, 3, 0.7L, 0.0069296548267508408077L);
-  TEST_ff_f (jn, 3, 1.0, 0.019563353982668405919L);
-  TEST_ff_f (jn, 3, 2.0, 0.12894324947440205110L);
-  TEST_ff_f (jn, 3, 10.0, 0.058379379305186812343L);
+  TEST_ff_f (jn, 3, 0.125L, 0.406503832554912875023029337653442868e-4L);
+  TEST_ff_f (jn, 3, 0.75L, 0.848438342327410884392755236884386804e-2L);
+  TEST_ff_f (jn, 3, 1.0, 0.0195633539826684059189053216217515083L);
+  TEST_ff_f (jn, 3, 2.0, 0.128943249474402051098793332969239835L);
+  TEST_ff_f (jn, 3, 10.0, 0.0583793793051868123429354784103409563L);
 
   /*  jn (10, x)  */
   TEST_ff_f (jn, 10, nan_value, nan_value);
   TEST_ff_f (jn, 10, plus_infty, 0);
 
-  TEST_ff_f (jn, 10, -1.0, 0.26306151236874532070e-9L);
+  TEST_ff_f (jn, 10, -1.0, 0.263061512368745320699785368779050294e-9L);
   TEST_ff_f (jn, 10, 0.0, 0.0);
-  TEST_ff_f (jn, 10, 0.1L, 0.26905328954342155795e-19L);
-  TEST_ff_f (jn, 10, 0.7L, 0.75175911502153953928e-11L);
-  TEST_ff_f (jn, 10, 1.0, 0.26306151236874532070e-9L);
-  TEST_ff_f (jn, 10, 2.0, 0.25153862827167367096e-6L);
-  TEST_ff_f (jn, 10, 10.0, 0.20748610663335885770L);
+  TEST_ff_f (jn, 10, 0.125L, 0.250543369809369890173993791865771547e-18L);
+  TEST_ff_f (jn, 10, 0.75L, 0.149621713117596814698712483621682835e-10L);
+  TEST_ff_f (jn, 10, 1.0, 0.263061512368745320699785368779050294e-9L);
+  TEST_ff_f (jn, 10, 2.0, 0.251538628271673670963516093751820639e-6L);
+  TEST_ff_f (jn, 10, 10.0, 0.207486106633358857697278723518753428L);
 
   END (jn);
 }
@@ -3023,6 +3167,7 @@ ldexp_test (void)
   /* ldexp (x, 0) == x.  */
   TEST_ff_f (ldexp, 1.0L, 0L, 1.0L);
 }
+
 
 static void
 lgamma_test (void)
@@ -3050,11 +3195,12 @@ lgamma_test (void)
 
   TEST_f_f1 (lgamma, 0.5, M_LOG_SQRT_PIl, 1);
   TEST_f_f1 (lgamma, -0.5, M_LOG_2_SQRT_PIl, -1);
-  TEST_f_f1 (lgamma, 0.7L, 0.26086724653166651439L, 1);
-  TEST_f_f1 (lgamma, 1.2L, -0.853740900033158497197e-1L, 1);
+  TEST_f_f1 (lgamma, 0.7L, 0.260867246531666514385732417016759578L, 1);
+  TEST_f_f1 (lgamma, 1.2L, -0.853740900033158497197028392998854470e-1L, 1);
 
   END (lgamma);
 }
+
 
 #if 0
 static void
@@ -3077,8 +3223,17 @@ lrint_test (void)
   TEST_f_l (lrint, 8388600.3L, 8388600);
   TEST_f_l (lrint, -8388600.3L, -8388600);
 
+  TEST_f_l (lrint, 1071930.0008, 1071930);
+#ifndef TEST_FLOAT
+  TEST_f_l (lrint, 1073741824.01, 1073741824);
+# if LONG_MAX > 281474976710656
+  TEST_f_l (lrint, 281474976710656.025, 281474976710656);
+# endif
+#endif
+
   END (lrint);
 }
+
 
 static void
 llrint_test (void)
@@ -3100,6 +3255,8 @@ llrint_test (void)
   TEST_f_L (llrint, 8388600.3L, 8388600);
   TEST_f_L (llrint, -8388600.3L, -8388600);
 
+  TEST_f_l (llrint, 1071930.0008, 1071930);
+
   /* Test boundary conditions.  */
   /* 0x1FFFFF */
   TEST_f_L (llrint, 2097151.0,2097151LL);
@@ -3111,6 +3268,8 @@ llrint_test (void)
   TEST_f_L (llrint, 2199023255552.0, 2199023255552LL);
   /* 0x40000000000 */
   TEST_f_L (llrint, 4398046511104.0, 4398046511104LL);
+  /* 0x1000000000000 */
+  TEST_f_L (llrint, 281474976710656.0, 281474976710656LL);
   /* 0x10000000000000 */
   TEST_f_L (llrint, 4503599627370496.0, 4503599627370496LL);
   /* 0x10000080000000 */
@@ -3121,10 +3280,49 @@ llrint_test (void)
   TEST_f_L (llrint, 36028797018963968.0, 36028797018963968LL);
   /* 0x100000000000000 */
   TEST_f_L (llrint, 72057594037927936.0, 72057594037927936LL);
+#ifdef TEST_LDOUBLE
+  /* The input can only be represented in long double.  */
+  TEST_f_L (llrint, 4503599627370495.5L, 4503599627370496LL);
+  TEST_f_L (llrint, 4503599627370496.25L, 4503599627370496LL);
+  TEST_f_L (llrint, 4503599627370496.5L, 4503599627370496LL);
+  TEST_f_L (llrint, 4503599627370496.75L, 4503599627370497LL);
+  TEST_f_L (llrint, 4503599627370497.5L, 4503599627370498LL);
+
+  TEST_f_L (llrint, -4503599627370495.5L, -4503599627370496LL);
+  TEST_f_L (llrint, -4503599627370496.25L, -4503599627370496LL);
+  TEST_f_L (llrint, -4503599627370496.5L, -4503599627370496LL);
+  TEST_f_L (llrint, -4503599627370496.75L, -4503599627370497LL);
+  TEST_f_L (llrint, -4503599627370497.5L, -4503599627370498LL);
+
+  TEST_f_L (llrint, 9007199254740991.5L, 9007199254740992LL);
+  TEST_f_L (llrint, 9007199254740992.25L, 9007199254740992LL);
+  TEST_f_L (llrint, 9007199254740992.5L, 9007199254740992LL);
+  TEST_f_L (llrint, 9007199254740992.75L, 9007199254740993LL);
+  TEST_f_L (llrint, 9007199254740993.5L, 9007199254740994LL);
+
+  TEST_f_L (llrint, -9007199254740991.5L, -9007199254740992LL);
+  TEST_f_L (llrint, -9007199254740992.25L, -9007199254740992LL);
+  TEST_f_L (llrint, -9007199254740992.5L, -9007199254740992LL);
+  TEST_f_L (llrint, -9007199254740992.75L, -9007199254740993LL);
+  TEST_f_L (llrint, -9007199254740993.5L, -9007199254740994LL);
+
+  TEST_f_L (llrint, 72057594037927935.5L, 72057594037927936LL);
+  TEST_f_L (llrint, 72057594037927936.25L, 72057594037927936LL);
+  TEST_f_L (llrint, 72057594037927936.5L, 72057594037927936LL);
+  TEST_f_L (llrint, 72057594037927936.75L, 72057594037927937LL);
+  TEST_f_L (llrint, 72057594037927937.5L, 72057594037927938LL);
+
+  TEST_f_L (llrint, -72057594037927935.5L, -72057594037927936LL);
+  TEST_f_L (llrint, -72057594037927936.25L, -72057594037927936LL);
+  TEST_f_L (llrint, -72057594037927936.5L, -72057594037927936LL);
+  TEST_f_L (llrint, -72057594037927936.75L, -72057594037927937LL);
+  TEST_f_L (llrint, -72057594037927937.5L, -72057594037927938LL);
+#endif
 
   END (llrint);
 }
 #endif
+
 
 static void
 log_test (void)
@@ -3148,7 +3346,7 @@ log_test (void)
   TEST_f_f (log, 1.0 / M_El, -1);
   TEST_f_f (log, 2, M_LN2l);
   TEST_f_f (log, 10, M_LN10l);
-  TEST_f_f (log, 0.7L, -0.35667494393873237891263871124118447L);
+  TEST_f_f (log, 0.75L, -0.287682072451780927439219005993827432L);
 
   END (log);
 }
@@ -3181,7 +3379,7 @@ log10_test (void)
   TEST_f_f (log10, 100.0, 2);
   TEST_f_f (log10, 10000.0, 4);
   TEST_f_f (log10, M_El, M_LOG10El);
-  TEST_f_f (log10, 0.7L, -0.15490195998574316929L);
+  TEST_f_f (log10, 0.75L, -0.124938736608299953132449886193870744L);
 
   END (log10);
 }
@@ -3209,10 +3407,12 @@ log1p_test (void)
 
   TEST_f_f (log1p, M_El - 1.0, 1);
 
-  TEST_f_f (log1p, -0.3L, -0.35667494393873237891263871124118447L);
+  TEST_f_f (log1p, -0.25L, -0.287682072451780927439219005993827432L);
+  TEST_f_f (log1p, -0.875, -2.07944154167983592825169636437452970L);
 
   END (log1p);
 }
+
 
 #if 0
 static void
@@ -3240,7 +3440,7 @@ log2_test (void)
   TEST_f_f (log2, 2.0, 1);
   TEST_f_f (log2, 16.0, 4);
   TEST_f_f (log2, 256.0, 8);
-  TEST_f_f (log2, 0.7L, -0.51457317282975824043L);
+  TEST_f_f (log2, 0.75L, -.415037499278843818546261056052183492L);
 
   END (log2);
 }
@@ -3268,6 +3468,7 @@ logb_test (void)
   END (logb);
 }
 
+
 #if 0
 static void
 lround_test (void)
@@ -3286,7 +3487,12 @@ lround_test (void)
   TEST_f_l (lround, -1.5, -2);
   TEST_f_l (lround, 22514.5, 22515);
   TEST_f_l (lround, -22514.5, -22515);
+  TEST_f_l (lround, 1071930.0008, 1071930);
 #ifndef TEST_FLOAT
+  TEST_f_l (lround, 1073741824.01, 1073741824);
+# if LONG_MAX > 281474976710656
+  TEST_f_l (lround, 281474976710656.025, 281474976710656);
+# endif
   TEST_f_l (lround, 2097152.5, 2097153);
   TEST_f_l (lround, -2097152.5, -2097153);
 #endif
@@ -3311,6 +3517,7 @@ llround_test (void)
   TEST_f_L (llround, -1.5, -2);
   TEST_f_L (llround, 22514.5, 22515);
   TEST_f_L (llround, -22514.5, -22515);
+  TEST_f_l (llround, 1071930.0008, 1071930);
 #ifndef TEST_FLOAT
   TEST_f_L (llround, 2097152.5, 2097153);
   TEST_f_L (llround, -2097152.5, -2097153);
@@ -3329,10 +3536,12 @@ llround_test (void)
   TEST_f_L (llround, 2199023255552.0, 2199023255552LL);
   /* 0x40000000000 */
   TEST_f_L (llround, 4398046511104.0, 4398046511104LL);
+  /* 0x1000000000000 */
+  TEST_f_L (llround, 281474976710656.0, 281474976710656LL);
   /* 0x10000000000000 */
   TEST_f_L (llround, 4503599627370496.0, 4503599627370496LL);
   /* 0x10000080000000 */
-  TEST_f_L (llrint, 4503601774854144.0, 4503601774854144LL);
+  TEST_f_L (llround, 4503601774854144.0, 4503601774854144LL);
   /* 0x20000000000000 */
   TEST_f_L (llround, 9007199254740992.0, 9007199254740992LL);
   /* 0x80000000000000 */
@@ -3345,6 +3554,52 @@ llround_test (void)
   TEST_f_L (llround, 4294967295.5, 4294967296LL);
   /* 0x200000000 */
   TEST_f_L (llround, 8589934591.5, 8589934592LL);
+#endif
+
+#ifdef TEST_LDOUBLE
+  /* The input can only be represented in long double.  */
+  TEST_f_L (llround, 4503599627370495.5L, 4503599627370496LL);
+  TEST_f_L (llround, 4503599627370496.25L, 4503599627370496LL);
+  TEST_f_L (llround, 4503599627370496.5L, 4503599627370497LL);
+  TEST_f_L (llround, 4503599627370496.75L, 4503599627370497LL);
+  TEST_f_L (llround, 4503599627370497.5L, 4503599627370498LL);
+
+  TEST_f_L (llround, -4503599627370495.5L, -4503599627370496LL);
+  TEST_f_L (llround, -4503599627370496.25L, -4503599627370496LL);
+  TEST_f_L (llround, -4503599627370496.5L, -4503599627370497LL);
+  TEST_f_L (llround, -4503599627370496.75L, -4503599627370497LL);
+  TEST_f_L (llround, -4503599627370497.5L, -4503599627370498LL);
+
+  TEST_f_L (llround, 9007199254740991.5L, 9007199254740992LL);
+  TEST_f_L (llround, 9007199254740992.25L, 9007199254740992LL);
+  TEST_f_L (llround, 9007199254740992.5L, 9007199254740993LL);
+  TEST_f_L (llround, 9007199254740992.75L, 9007199254740993LL);
+  TEST_f_L (llround, 9007199254740993.5L, 9007199254740994LL);
+
+  TEST_f_L (llround, -9007199254740991.5L, -9007199254740992LL);
+  TEST_f_L (llround, -9007199254740992.25L, -9007199254740992LL);
+  TEST_f_L (llround, -9007199254740992.5L, -9007199254740993LL);
+  TEST_f_L (llround, -9007199254740992.75L, -9007199254740993LL);
+  TEST_f_L (llround, -9007199254740993.5L, -9007199254740994LL);
+
+  TEST_f_L (llround, 72057594037927935.5L, 72057594037927936LL);
+  TEST_f_L (llround, 72057594037927936.25L, 72057594037927936LL);
+  TEST_f_L (llround, 72057594037927936.5L, 72057594037927937LL);
+  TEST_f_L (llround, 72057594037927936.75L, 72057594037927937LL);
+  TEST_f_L (llround, 72057594037927937.5L, 72057594037927938LL);
+
+  TEST_f_L (llround, -72057594037927935.5L, -72057594037927936LL);
+  TEST_f_L (llround, -72057594037927936.25L, -72057594037927936LL);
+  TEST_f_L (llround, -72057594037927936.5L, -72057594037927937LL);
+  TEST_f_L (llround, -72057594037927936.75L, -72057594037927937LL);
+  TEST_f_L (llround, -72057594037927937.5L, -72057594037927938LL);
+
+  TEST_f_L (llround, 9223372036854775806.25L, 9223372036854775806LL);
+  TEST_f_L (llround, -9223372036854775806.25L, -9223372036854775806LL);
+  TEST_f_L (llround, 9223372036854775806.5L, 9223372036854775807LL);
+  TEST_f_L (llround, -9223372036854775806.5L, -9223372036854775807LL);
+  TEST_f_L (llround, 9223372036854775807.0L, 9223372036854775807LL);
+  TEST_f_L (llround, -9223372036854775807.0L, -9223372036854775807LL);
 #endif
 
   END (llround);
@@ -3414,6 +3669,16 @@ nextafter_test (void)
   TEST_ff_f (nextafter, 1.1L, nan_value, nan_value);
   TEST_ff_f (nextafter, nan_value, nan_value, nan_value);
 
+  FLOAT fltmax = CHOOSE (LDBL_MAX, DBL_MAX, FLT_MAX,
+			 LDBL_MAX, DBL_MAX, FLT_MAX);
+  TEST_ff_f (nextafter, fltmax, plus_infty, plus_infty);
+  TEST_ff_f (nextafter, -fltmax, minus_infty, minus_infty);
+
+#ifdef TEST_LDOUBLE
+  // XXX Enable once gcc is fixed.
+  //TEST_ff_f (nextafter, 0x0.00000040000000000000p-16385L, -0.1L, 0x0.0000003ffffffff00000p-16385L);
+#endif
+
   /* XXX We need the hexadecimal FP number representation here for further
      tests.  */
 
@@ -3445,6 +3710,7 @@ nexttoward_test (void)
   END (nexttoward);
 }
 #endif
+
 
 static void
 pow_test (void)
@@ -3540,6 +3806,28 @@ pow_test (void)
   TEST_ff_f (pow, -1, plus_infty, 1);
   TEST_ff_f (pow, 1, minus_infty, 1);
   TEST_ff_f (pow, -1, minus_infty, 1);
+  TEST_ff_f (pow, 1, 1, 1);
+  TEST_ff_f (pow, 1, -1, 1);
+  TEST_ff_f (pow, 1, 1.25, 1);
+  TEST_ff_f (pow, 1, -1.25, 1);
+  TEST_ff_f (pow, 1, 0x1p62L, 1);
+  TEST_ff_f (pow, 1, 0x1p63L, 1);
+  TEST_ff_f (pow, 1, 0x1p64L, 1);
+  TEST_ff_f (pow, 1, 0x1p72L, 1);
+
+  /* pow (x, +-0) == 1.  */
+  TEST_ff_f (pow, plus_infty, 0, 1);
+  TEST_ff_f (pow, plus_infty, minus_zero, 1);
+  TEST_ff_f (pow, minus_infty, 0, 1);
+  TEST_ff_f (pow, minus_infty, minus_zero, 1);
+  TEST_ff_f (pow, 32.75L, 0, 1);
+  TEST_ff_f (pow, 32.75L, minus_zero, 1);
+  TEST_ff_f (pow, -32.75L, 0, 1);
+  TEST_ff_f (pow, -32.75L, minus_zero, 1);
+  TEST_ff_f (pow, 0x1p72L, 0, 1);
+  TEST_ff_f (pow, 0x1p72L, minus_zero, 1);
+  TEST_ff_f (pow, 0x1p-72L, 0, 1);
+  TEST_ff_f (pow, 0x1p-72L, minus_zero, 1);
 
   TEST_ff_f (pow, -0.1L, 1.1L, nan_value, INVALID_EXCEPTION);
   TEST_ff_f (pow, -0.1L, -1.1L, nan_value, INVALID_EXCEPTION);
@@ -3556,6 +3844,10 @@ pow_test (void)
   TEST_ff_f (pow, minus_zero, -2, plus_infty, DIVIDE_BY_ZERO_EXCEPTION);
   TEST_ff_f (pow, minus_zero, -11.1L, plus_infty, DIVIDE_BY_ZERO_EXCEPTION);
 
+  TEST_ff_f (pow, 0x1p72L, 0x1p72L, plus_infty);
+  TEST_ff_f (pow, 10, -0x1p72L, 0);
+  TEST_ff_f (pow, max_value, max_value, plus_infty);
+  TEST_ff_f (pow, 10, -max_value, 0);
 
   TEST_ff_f (pow, 0, 1, 0);
   TEST_ff_f (pow, 0, 11, 0);
@@ -3570,6 +3862,8 @@ pow_test (void)
 
   TEST_ff_f (pow, minus_zero, 2, 0);
   TEST_ff_f (pow, minus_zero, 11.1L, 0);
+  TEST_ff_f (pow, 0, plus_infty, 0);
+  TEST_ff_f (pow, minus_zero, plus_infty, 0);
 
 #ifndef TEST_INLINE
   /* pow (x, +inf) == +inf for |x| > 1.  */
@@ -3614,7 +3908,12 @@ pow_test (void)
   /* pow (-0, y) == +0 for y > 0 and not an odd integer.  */
   TEST_ff_f (pow, minus_zero, 4, 0.0);
 
-  TEST_ff_f (pow, 0.7L, 1.2L, 0.65180494056638638188L);
+  TEST_ff_f (pow, 16, 0.25L, 2);
+  TEST_ff_f (pow, 0x1p64L, 0.125L, 256);
+  TEST_ff_f (pow, 2, 4, 16);
+  TEST_ff_f (pow, 256, 8, 0x1p64L);
+
+  TEST_ff_f (pow, 0.75L, 1.25L, 0.697953644326574699205914060237425566L);
 
 #if defined TEST_DOUBLE || defined TEST_LDOUBLE
   TEST_ff_f (pow, -7.49321e+133, -9.80818e+16, 0);
@@ -3704,11 +4003,163 @@ rint_test (void)
   TEST_f_f (rint, -2.5, -2.0);
   TEST_f_f (rint, -3.5, -4.0);
   TEST_f_f (rint, -4.5, -4.0);
+#ifdef TEST_LDOUBLE
+  /* The result can only be represented in long double.  */
+  TEST_f_f (rint, 4503599627370495.5L, 4503599627370496.0L);
+  TEST_f_f (rint, 4503599627370496.25L, 4503599627370496.0L);
+  TEST_f_f (rint, 4503599627370496.5L, 4503599627370496.0L);
+  TEST_f_f (rint, 4503599627370496.75L, 4503599627370497.0L);
+  TEST_f_f (rint, 4503599627370497.5L, 4503599627370498.0L);
+
+  TEST_f_f (rint, -4503599627370495.5L, -4503599627370496.0L);
+  TEST_f_f (rint, -4503599627370496.25L, -4503599627370496.0L);
+  TEST_f_f (rint, -4503599627370496.5L, -4503599627370496.0L);
+  TEST_f_f (rint, -4503599627370496.75L, -4503599627370497.0L);
+  TEST_f_f (rint, -4503599627370497.5L, -4503599627370498.0L);
+
+  TEST_f_f (rint, 9007199254740991.5L, 9007199254740992.0L);
+  TEST_f_f (rint, 9007199254740992.25L, 9007199254740992.0L);
+  TEST_f_f (rint, 9007199254740992.5L, 9007199254740992.0L);
+  TEST_f_f (rint, 9007199254740992.75L, 9007199254740993.0L);
+  TEST_f_f (rint, 9007199254740993.5L, 9007199254740994.0L);
+
+  TEST_f_f (rint, -9007199254740991.5L, -9007199254740992.0L);
+  TEST_f_f (rint, -9007199254740992.25L, -9007199254740992.0L);
+  TEST_f_f (rint, -9007199254740992.5L, -9007199254740992.0L);
+  TEST_f_f (rint, -9007199254740992.75L, -9007199254740993.0L);
+  TEST_f_f (rint, -9007199254740993.5L, -9007199254740994.0L);
+
+  TEST_f_f (rint, 72057594037927935.5L, 72057594037927936.0L);
+  TEST_f_f (rint, 72057594037927936.25L, 72057594037927936.0L);
+  TEST_f_f (rint, 72057594037927936.5L, 72057594037927936.0L);
+  TEST_f_f (rint, 72057594037927936.75L, 72057594037927937.0L);
+  TEST_f_f (rint, 72057594037927937.5L, 72057594037927938.0L);
+
+  TEST_f_f (rint, -72057594037927935.5L, -72057594037927936.0L);
+  TEST_f_f (rint, -72057594037927936.25L, -72057594037927936.0L);
+  TEST_f_f (rint, -72057594037927936.5L, -72057594037927936.0L);
+  TEST_f_f (rint, -72057594037927936.75L, -72057594037927937.0L);
+  TEST_f_f (rint, -72057594037927937.5L, -72057594037927938.0L);
+
+  TEST_f_f (rint, 10141204801825835211973625643007.5L, 10141204801825835211973625643008.0L);
+  TEST_f_f (rint, 10141204801825835211973625643008.25L, 10141204801825835211973625643008.0L);
+  TEST_f_f (rint, 10141204801825835211973625643008.5L, 10141204801825835211973625643008.0L);
+  TEST_f_f (rint, 10141204801825835211973625643008.75L, 10141204801825835211973625643009.0L);
+  TEST_f_f (rint, 10141204801825835211973625643009.5L, 10141204801825835211973625643010.0L);
+#endif
 
   END (rint);
 }
 
 #if 0
+static void
+rint_test_tonearest (void)
+{
+  int save_round_mode;
+  START (rint_tonearest);
+
+  save_round_mode = fegetround();
+
+  if (!fesetround (FE_TONEAREST))
+  {
+    TEST_f_f (rint, 2.0, 2.0);
+    TEST_f_f (rint, 1.5, 2.0);
+    TEST_f_f (rint, 1.0, 1.0);
+    TEST_f_f (rint, 0.5, 0.0);
+    TEST_f_f (rint, 0.0, 0.0);
+    TEST_f_f (rint, minus_zero, minus_zero);
+    TEST_f_f (rint, -0.5, -0.0);
+    TEST_f_f (rint, -1.0, -1.0);
+    TEST_f_f (rint, -1.5, -2.0);
+    TEST_f_f (rint, -2.0, -2.0);
+  }
+
+  fesetround(save_round_mode);
+
+  END (rint_tonearest);
+}
+
+static void
+rint_test_towardzero (void)
+{
+  int save_round_mode;
+  START (rint_towardzero);
+
+  save_round_mode = fegetround();
+
+  if (!fesetround (FE_TOWARDZERO))
+  {
+    TEST_f_f (rint, 2.0, 2.0);
+    TEST_f_f (rint, 1.5, 1.0);
+    TEST_f_f (rint, 1.0, 1.0);
+    TEST_f_f (rint, 0.5, 0.0);
+    TEST_f_f (rint, 0.0, 0.0);
+    TEST_f_f (rint, minus_zero, minus_zero);
+    TEST_f_f (rint, -0.5, -0.0);
+    TEST_f_f (rint, -1.0, -1.0);
+    TEST_f_f (rint, -1.5, -1.0);
+    TEST_f_f (rint, -2.0, -2.0);
+  }
+
+  fesetround(save_round_mode);
+
+  END (rint_towardzero);
+}
+
+static void
+rint_test_downward (void)
+{
+  int save_round_mode;
+  START (rint_downward);
+
+  save_round_mode = fegetround();
+
+  if (!fesetround (FE_DOWNWARD))
+  {
+    TEST_f_f (rint, 2.0, 2.0);
+    TEST_f_f (rint, 1.5, 1.0);
+    TEST_f_f (rint, 1.0, 1.0);
+    TEST_f_f (rint, 0.5, 0.0);
+    TEST_f_f (rint, 0.0, 0.0);
+    TEST_f_f (rint, minus_zero, minus_zero);
+    TEST_f_f (rint, -0.5, -1.0);
+    TEST_f_f (rint, -1.0, -1.0);
+    TEST_f_f (rint, -1.5, -2.0);
+    TEST_f_f (rint, -2.0, -2.0);
+  }
+
+  fesetround(save_round_mode);
+
+  END (rint_downward);
+}
+
+static void
+rint_test_upward (void)
+{
+  int save_round_mode;
+  START (rint_upward);
+
+  save_round_mode = fegetround();
+
+  if (!fesetround (FE_UPWARD))
+  {
+    TEST_f_f (rint, 2.0, 2.0);
+    TEST_f_f (rint, 1.5, 2.0);
+    TEST_f_f (rint, 1.0, 1.0);
+    TEST_f_f (rint, 0.5, 1.0);
+    TEST_f_f (rint, 0.0, 0.0);
+    TEST_f_f (rint, minus_zero, minus_zero);
+    TEST_f_f (rint, -0.5, -0.0);
+    TEST_f_f (rint, -1.0, -1.0);
+    TEST_f_f (rint, -1.5, -1.0);
+    TEST_f_f (rint, -2.0, -2.0);
+  }
+
+  fesetround(save_round_mode);
+
+  END (rint_upward);
+}
+
 static void
 round_test (void)
 {
@@ -3726,6 +4177,51 @@ round_test (void)
   TEST_f_f (round, -1.5, -2.0);
   TEST_f_f (round, 2097152.5, 2097153);
   TEST_f_f (round, -2097152.5, -2097153);
+
+#ifdef TEST_LDOUBLE
+  /* The result can only be represented in long double.  */
+  TEST_f_f (round, 4503599627370495.5L, 4503599627370496.0L);
+  TEST_f_f (round, 4503599627370496.25L, 4503599627370496.0L);
+  TEST_f_f (round, 4503599627370496.5L, 4503599627370497.0L); 
+  TEST_f_f (round, 4503599627370496.75L, 4503599627370497.0L);
+  TEST_f_f (round, 4503599627370497.5L, 4503599627370498.0L);  
+
+  TEST_f_f (round, -4503599627370495.5L, -4503599627370496.0L); 
+  TEST_f_f (round, -4503599627370496.25L, -4503599627370496.0L); 
+  TEST_f_f (round, -4503599627370496.5L, -4503599627370497.0L);
+  TEST_f_f (round, -4503599627370496.75L, -4503599627370497.0L); 
+  TEST_f_f (round, -4503599627370497.5L, -4503599627370498.0L);
+
+  TEST_f_f (round, 9007199254740991.5L, 9007199254740992.0L);
+  TEST_f_f (round, 9007199254740992.25L, 9007199254740992.0L);
+  TEST_f_f (round, 9007199254740992.5L, 9007199254740993.0L);
+  TEST_f_f (round, 9007199254740992.75L, 9007199254740993.0L);
+  TEST_f_f (round, 9007199254740993.5L, 9007199254740994.0L);
+
+  TEST_f_f (round, -9007199254740991.5L, -9007199254740992.0L);
+  TEST_f_f (round, -9007199254740992.25L, -9007199254740992.0L);
+  TEST_f_f (round, -9007199254740992.5L, -9007199254740993.0L);
+  TEST_f_f (round, -9007199254740992.75L, -9007199254740993.0L);
+  TEST_f_f (round, -9007199254740993.5L, -9007199254740994.0L);
+
+  TEST_f_f (round, 72057594037927935.5L, 72057594037927936.0L);
+  TEST_f_f (round, 72057594037927936.25L, 72057594037927936.0L);
+  TEST_f_f (round, 72057594037927936.5L, 72057594037927937.0L);
+  TEST_f_f (round, 72057594037927936.75L, 72057594037927937.0L);
+  TEST_f_f (round, 72057594037927937.5L, 72057594037927938.0L);
+
+  TEST_f_f (round, -72057594037927935.5L, -72057594037927936.0L);
+  TEST_f_f (round, -72057594037927936.25L, -72057594037927936.0L);
+  TEST_f_f (round, -72057594037927936.5L, -72057594037927937.0L);
+  TEST_f_f (round, -72057594037927936.75L, -72057594037927937.0L);
+  TEST_f_f (round, -72057594037927937.5L, -72057594037927938.0L);
+
+  TEST_f_f (round, 10141204801825835211973625643007.5L, 10141204801825835211973625643008.0L);
+  TEST_f_f (round, 10141204801825835211973625643008.25L, 10141204801825835211973625643008.0L);
+  TEST_f_f (round, 10141204801825835211973625643008.5L, 10141204801825835211973625643009.0L);
+  TEST_f_f (round, 10141204801825835211973625643008.75L, 10141204801825835211973625643009.0L);
+  TEST_f_f (round, 10141204801825835211973625643009.5L, 10141204801825835211973625643010.0L);
+#endif
 
   END (round);
 }
@@ -3813,6 +4309,7 @@ scalbn_test (void)
   END (scalbn);
 }
 
+
 #if 0
 static void
 scalbln_test (void)
@@ -3836,6 +4333,7 @@ scalbln_test (void)
 }
 #endif
 
+
 static void
 signbit_test (void)
 {
@@ -3854,6 +4352,7 @@ signbit_test (void)
 
   END (signbit);
 }
+
 
 static void
 sin_test (void)
@@ -3876,11 +4375,16 @@ sin_test (void)
   TEST_f_f (sin, -M_PI_6l, -0.5);
   TEST_f_f (sin, M_PI_2l, 1);
   TEST_f_f (sin, -M_PI_2l, -1);
-  TEST_f_f (sin, 0.7L, 0.64421768723769105367261435139872014L);
+  TEST_f_f (sin, 0.75L, 0.681638760023334166733241952779893935L);
+
+#ifdef TEST_DOUBLE
+  TEST_f_f (sin, 0.80190127184058835, 0.71867942238767868);
+#endif
 
   END (sin);
 
 }
+
 
 #if 0
 static void
@@ -3907,7 +4411,11 @@ sincos_test (void)
   TEST_extra (sincos, M_PI_2l, 1, 0);
   TEST_extra (sincos, M_PI_6l, 0.5, 0.86602540378443864676372317075293616L);
   TEST_extra (sincos, M_PI_6l*2.0, 0.86602540378443864676372317075293616L, 0.5);
-  TEST_extra (sincos, 0.7L, 0.64421768723769105367261435139872014L, 0.76484218728448842625585999019186495L);
+  TEST_extra (sincos, 0.75L, 0.681638760023334166733241952779893935L, 0.731688868873820886311838753000084544L);
+
+#ifdef TEST_DOUBLE
+  TEST_extra (sincos, 0.80190127184058835, 0.71867942238767868, 0.69534156199418473);
+#endif
 
   END (sincos);
 }
@@ -3932,7 +4440,7 @@ sinh_test (void)
 #endif
   TEST_f_f (sinh, nan_value, nan_value);
 
-  TEST_f_f (sinh, 0.7L, 0.75858370183953350346L);
+  TEST_f_f (sinh, 0.75L, 0.822316731935829980703661634446913849L);
   TEST_f_f (sinh, 0x8p-32L, 1.86264514923095703232705808926175479e-9L);
 
   END (sinh);
@@ -3965,11 +4473,12 @@ sqrt_test (void)
   TEST_f_f (sqrt, 2, M_SQRT2l);
   TEST_f_f (sqrt, 0.25, 0.5);
   TEST_f_f (sqrt, 6642.25, 81.5);
-  TEST_f_f (sqrt, 15239.9025L, 123.45L);
-  TEST_f_f (sqrt, 0.7L, 0.83666002653407554797817202578518747L);
+  TEST_f_f (sqrt, 15190.5625L, 123.25L);
+  TEST_f_f (sqrt, 0.75L, 0.866025403784438646763723170752936183L);
 
   END (sqrt);
 }
+
 
 static void
 tan_test (void)
@@ -3989,7 +4498,7 @@ tan_test (void)
   TEST_f_f (tan, nan_value, nan_value);
 
   TEST_f_f (tan, M_PI_4l, 1);
-  TEST_f_f (tan, 0.7L, 0.84228838046307944812813500221293775L);
+  TEST_f_f (tan, 0.75L, 0.931596459944072461165202756573936428L);
 
   END (tan);
 }
@@ -4014,14 +4523,14 @@ tanh_test (void)
 #endif
   TEST_f_f (tanh, nan_value, nan_value);
 
-  TEST_f_f (tanh, 0.7L, 0.60436777711716349631L);
-  TEST_f_f (tanh, -0.7L, -0.60436777711716349631L);
+  TEST_f_f (tanh, 0.75L, 0.635148952387287319214434357312496495L);
+  TEST_f_f (tanh, -0.75L, -0.635148952387287319214434357312496495L);
 
   TEST_f_f (tanh, 1.0L, 0.7615941559557648881194582826047935904L);
   TEST_f_f (tanh, -1.0L, -0.7615941559557648881194582826047935904L);
 
   /* 2^-57  */
-  TEST_f_f (tanh, 6.938893903907228377647697925567626953125e-18L,6.938893903907228377647697925567626953125e-18L);
+  TEST_f_f (tanh, 0x1p-57L, 6.938893903907228377647697925567626953125e-18L);
 
   END (tanh);
 }
@@ -4040,8 +4549,8 @@ tgamma_test (void)
   START (tgamma);
 
   TEST_f_f (tgamma, plus_infty, plus_infty);
-  TEST_f_f (tgamma, 0, nan_value, INVALID_EXCEPTION);
-  TEST_f_f (tgamma, minus_zero, nan_value, INVALID_EXCEPTION);
+  TEST_f_f (tgamma, 0, plus_infty, DIVIDE_BY_ZERO_EXCEPTION);
+  TEST_f_f (tgamma, minus_zero, minus_infty, DIVIDE_BY_ZERO_EXCEPTION);
   /* tgamma (x) == NaN plus invalid exception for integer x <= 0.  */
   TEST_f_f (tgamma, -2, nan_value, INVALID_EXCEPTION);
   TEST_f_f (tgamma, minus_infty, nan_value, INVALID_EXCEPTION);
@@ -4053,12 +4562,13 @@ tgamma_test (void)
   TEST_f_f (tgamma, 1, 1);
   TEST_f_f (tgamma, 4, 6);
 
-  TEST_f_f (tgamma, 0.7L, 1.29805533264755778568L);
-  TEST_f_f (tgamma, 1.2L, 0.91816874239976061064L);
+  TEST_f_f (tgamma, 0.7L, 1.29805533264755778568117117915281162L);
+  TEST_f_f (tgamma, 1.2L, 0.918168742399760610640951655185830401L);
 
   END (tgamma);
 }
 #endif
+
 
 #if 0
 static void
@@ -4088,6 +4598,50 @@ trunc_test (void)
   TEST_f_f (trunc, 4294967296.625L, 4294967296.0L);
   TEST_f_f (trunc, -4294967296.625L, -4294967296.0L);
 
+#ifdef TEST_LDOUBLE
+  /* The result can only be represented in long double.  */
+  TEST_f_f (trunc, 4503599627370495.5L, 4503599627370495.0L);
+  TEST_f_f (trunc, 4503599627370496.25L, 4503599627370496.0L);
+  TEST_f_f (trunc, 4503599627370496.5L, 4503599627370496.0L);
+  TEST_f_f (trunc, 4503599627370496.75L, 4503599627370496.0L);
+  TEST_f_f (trunc, 4503599627370497.5L, 4503599627370497.0L);
+
+  TEST_f_f (trunc, -4503599627370495.5L, -4503599627370495.0L);
+  TEST_f_f (trunc, -4503599627370496.25L, -4503599627370496.0L);
+  TEST_f_f (trunc, -4503599627370496.5L, -4503599627370496.0L);
+  TEST_f_f (trunc, -4503599627370496.75L, -4503599627370496.0L);
+  TEST_f_f (trunc, -4503599627370497.5L, -4503599627370497.0L);
+
+  TEST_f_f (trunc, 9007199254740991.5L, 9007199254740991.0L);
+  TEST_f_f (trunc, 9007199254740992.25L, 9007199254740992.0L);
+  TEST_f_f (trunc, 9007199254740992.5L, 9007199254740992.0L);
+  TEST_f_f (trunc, 9007199254740992.75L, 9007199254740992.0L);
+  TEST_f_f (trunc, 9007199254740993.5L, 9007199254740993.0L);
+
+  TEST_f_f (trunc, -9007199254740991.5L, -9007199254740991.0L);
+  TEST_f_f (trunc, -9007199254740992.25L, -9007199254740992.0L);
+  TEST_f_f (trunc, -9007199254740992.5L, -9007199254740992.0L);
+  TEST_f_f (trunc, -9007199254740992.75L, -9007199254740992.0L);
+  TEST_f_f (trunc, -9007199254740993.5L, -9007199254740993.0L);
+
+  TEST_f_f (trunc, 72057594037927935.5L, 72057594037927935.0L);
+  TEST_f_f (trunc, 72057594037927936.25L, 72057594037927936.0L);
+  TEST_f_f (trunc, 72057594037927936.5L, 72057594037927936.0L);
+  TEST_f_f (trunc, 72057594037927936.75L, 72057594037927936.0L);
+  TEST_f_f (trunc, 72057594037927937.5L, 72057594037927937.0L);
+
+  TEST_f_f (trunc, -72057594037927935.5L, -72057594037927935.0L);
+  TEST_f_f (trunc, -72057594037927936.25L, -72057594037927936.0L);
+  TEST_f_f (trunc, -72057594037927936.5L, -72057594037927936.0L);
+  TEST_f_f (trunc, -72057594037927936.75L, -72057594037927936.0L);
+  TEST_f_f (trunc, -72057594037927937.5L, -72057594037927937.0L);
+
+  TEST_f_f (trunc, 10141204801825835211973625643007.5L, 10141204801825835211973625643007.0L);
+  TEST_f_f (trunc, 10141204801825835211973625643008.25L, 10141204801825835211973625643008.0L);
+  TEST_f_f (trunc, 10141204801825835211973625643008.5L, 10141204801825835211973625643008.0L);
+  TEST_f_f (trunc, 10141204801825835211973625643008.75L, 10141204801825835211973625643008.0L);
+  TEST_f_f (trunc, 10141204801825835211973625643009.5L, 10141204801825835211973625643009.0L); 
+#endif
 
   END (trunc);
 }
@@ -4112,18 +4666,18 @@ y0_test (void)
   /* y0 is the Bessel function of the second kind of order 0 */
   START (y0);
 
-  TEST_f_f (y0, -1.0, minus_infty);
+  TEST_f_f (y0, -1.0, minus_infty, INVALID_EXCEPTION);
   TEST_f_f (y0, 0.0, minus_infty);
   TEST_f_f (y0, nan_value, nan_value);
   TEST_f_f (y0, plus_infty, 0);
 
-  TEST_f_f (y0, 0.1L, -1.5342386513503668441L);
-  TEST_f_f (y0, 0.7L, -0.19066492933739506743L);
-  TEST_f_f (y0, 1.0, 0.088256964215676957983L);
-  TEST_f_f (y0, 1.5, 0.38244892379775884396L);
-  TEST_f_f (y0, 2.0, 0.51037567264974511960L);
-  TEST_f_f (y0, 8.0, 0.22352148938756622053L);
-  TEST_f_f (y0, 10.0, 0.055671167283599391424L);
+  TEST_f_f (y0, 0.125L, -1.38968062514384052915582277745018693L);
+  TEST_f_f (y0, 0.75L, -0.137172769385772397522814379396581855L);
+  TEST_f_f (y0, 1.0, 0.0882569642156769579829267660235151628L);
+  TEST_f_f (y0, 1.5, 0.382448923797758843955068554978089862L);
+  TEST_f_f (y0, 2.0, 0.510375672649745119596606592727157873L);
+  TEST_f_f (y0, 8.0, 0.223521489387566220527323400498620359L);
+  TEST_f_f (y0, 10.0, 0.0556711672835993914244598774101900481L);
 
   END (y0);
 }
@@ -4148,21 +4702,22 @@ y1_test (void)
   /* y1 is the Bessel function of the second kind of order 1 */
   START (y1);
 
-  TEST_f_f (y1, -1.0, minus_infty);
+  TEST_f_f (y1, -1.0, minus_infty, INVALID_EXCEPTION);
   TEST_f_f (y1, 0.0, minus_infty);
   TEST_f_f (y1, plus_infty, 0);
   TEST_f_f (y1, nan_value, nan_value);
 
-  TEST_f_f (y1, 0.1L, -6.4589510947020269877L);
-  TEST_f_f (y1, 0.7L, -1.1032498719076333697L);
-  TEST_f_f (y1, 1.0, -0.78121282130028871655L);
-  TEST_f_f (y1, 1.5, -0.41230862697391129595L);
-  TEST_f_f (y1, 2.0, -0.10703243154093754689L);
-  TEST_f_f (y1, 8.0, -0.15806046173124749426L);
-  TEST_f_f (y1, 10.0, 0.24901542420695388392L);
+  TEST_f_f (y1, 0.125L, -5.19993611253477499595928744876579921L);
+  TEST_f_f (y1, 0.75L, -1.03759455076928541973767132140642198L);
+  TEST_f_f (y1, 1.0, -0.781212821300288716547150000047964821L);
+  TEST_f_f (y1, 1.5, -0.412308626973911295952829820633445323L);
+  TEST_f_f (y1, 2.0, -0.107032431540937546888370772277476637L);
+  TEST_f_f (y1, 8.0, -0.158060461731247494255555266187483550L);
+  TEST_f_f (y1, 10.0, 0.249015424206953883923283474663222803L);
 
   END (y1);
 }
+
 
 static void
 yn_test (void)
@@ -4184,57 +4739,70 @@ yn_test (void)
   START (yn);
 
   /* yn (0, x) == y0 (x)  */
-  TEST_ff_f (yn, 0, -1.0, minus_infty);
+  TEST_ff_f (yn, 0, -1.0, minus_infty, INVALID_EXCEPTION);
   TEST_ff_f (yn, 0, 0.0, minus_infty);
   TEST_ff_f (yn, 0, nan_value, nan_value);
   TEST_ff_f (yn, 0, plus_infty, 0);
 
-  TEST_ff_f (yn, 0, 0.1L, -1.5342386513503668441L);
-  TEST_ff_f (yn, 0, 0.7L, -0.19066492933739506743L);
-  TEST_ff_f (yn, 0, 1.0, 0.088256964215676957983L);
-  TEST_ff_f (yn, 0, 1.5, 0.38244892379775884396L);
-  TEST_ff_f (yn, 0, 2.0, 0.51037567264974511960L);
-  TEST_ff_f (yn, 0, 8.0, 0.22352148938756622053L);
-  TEST_ff_f (yn, 0, 10.0, 0.055671167283599391424L);
+  TEST_ff_f (yn, 0, 0.125L, -1.38968062514384052915582277745018693L);
+  TEST_ff_f (yn, 0, 0.75L, -0.137172769385772397522814379396581855L);
+  TEST_ff_f (yn, 0, 1.0, 0.0882569642156769579829267660235151628L);
+  TEST_ff_f (yn, 0, 1.5, 0.382448923797758843955068554978089862L);
+  TEST_ff_f (yn, 0, 2.0, 0.510375672649745119596606592727157873L);
+  TEST_ff_f (yn, 0, 8.0, 0.223521489387566220527323400498620359L);
+  TEST_ff_f (yn, 0, 10.0, 0.0556711672835993914244598774101900481L);
 
   /* yn (1, x) == y1 (x)  */
-  TEST_ff_f (yn, 1, -1.0, minus_infty);
+  TEST_ff_f (yn, 1, -1.0, minus_infty, INVALID_EXCEPTION);
   TEST_ff_f (yn, 1, 0.0, minus_infty);
   TEST_ff_f (yn, 1, plus_infty, 0);
   TEST_ff_f (yn, 1, nan_value, nan_value);
 
-  TEST_ff_f (yn, 1, 0.1L, -6.4589510947020269877L);
-  TEST_ff_f (yn, 1, 0.7L, -1.1032498719076333697L);
-  TEST_ff_f (yn, 1, 1.0, -0.78121282130028871655L);
-  TEST_ff_f (yn, 1, 1.5, -0.41230862697391129595L);
-  TEST_ff_f (yn, 1, 2.0, -0.10703243154093754689L);
-  TEST_ff_f (yn, 1, 8.0, -0.15806046173124749426L);
-  TEST_ff_f (yn, 1, 10.0, 0.24901542420695388392L);
+  TEST_ff_f (yn, 1, 0.125L, -5.19993611253477499595928744876579921L);
+  TEST_ff_f (yn, 1, 0.75L, -1.03759455076928541973767132140642198L);
+  TEST_ff_f (yn, 1, 1.0, -0.781212821300288716547150000047964821L);
+  TEST_ff_f (yn, 1, 1.5, -0.412308626973911295952829820633445323L);
+  TEST_ff_f (yn, 1, 2.0, -0.107032431540937546888370772277476637L);
+  TEST_ff_f (yn, 1, 8.0, -0.158060461731247494255555266187483550L);
+  TEST_ff_f (yn, 1, 10.0, 0.249015424206953883923283474663222803L);
 
   /* yn (3, x)  */
   TEST_ff_f (yn, 3, plus_infty, 0);
   TEST_ff_f (yn, 3, nan_value, nan_value);
 
-  TEST_ff_f (yn, 3, 0.1L, -5099.3323786129048894L);
-  TEST_ff_f (yn, 3, 0.7L, -15.819479052819633505L);
-  TEST_ff_f (yn, 3, 1.0, -5.8215176059647288478L);
-  TEST_ff_f (yn, 3, 2.0, -1.1277837768404277861L);
-  TEST_ff_f (yn, 3, 10.0, -0.25136265718383732978L);
+  TEST_ff_f (yn, 3, 0.125L, -2612.69757350066712600220955744091741L);
+  TEST_ff_f (yn, 3, 0.75L, -12.9877176234475433186319774484809207L);
+  TEST_ff_f (yn, 3, 1.0, -5.82151760596472884776175706442981440L);
+  TEST_ff_f (yn, 3, 2.0, -1.12778377684042778608158395773179238L);
+  TEST_ff_f (yn, 3, 10.0, -0.251362657183837329779204747654240998L);
 
   /* yn (10, x)  */
   TEST_ff_f (yn, 10, plus_infty, 0);
   TEST_ff_f (yn, 10, nan_value, nan_value);
 
-  TEST_ff_f (yn, 10, 0.1L, -0.11831335132045197885e19L);
-  TEST_ff_f (yn, 10, 0.7L, -0.42447194260703866924e10L);
-  TEST_ff_f (yn, 10, 1.0, -0.12161801427868918929e9L);
-  TEST_ff_f (yn, 10, 2.0, -129184.54220803928264L);
-  TEST_ff_f (yn, 10, 10.0, -0.35981415218340272205L);
+  TEST_ff_f (yn, 10, 0.125L, -127057845771019398.252538486899753195L);
+  TEST_ff_f (yn, 10, 0.75L, -2133501638.90573424452445412893839236L);
+  TEST_ff_f (yn, 10, 1.0, -121618014.278689189288130426667971145L);
+  TEST_ff_f (yn, 10, 2.0, -129184.542208039282635913145923304214L);
+  TEST_ff_f (yn, 10, 10.0, -0.359814152183402722051986577343560609L);
 
   END (yn);
 
 }
 
+
+static void
+significand_test (void)
+{
+  /* significand returns the mantissa of the exponential representation.  */
+  START (significand);
+
+  TEST_f_f (significand, 4.0, 1.0);
+  TEST_f_f (significand, 6.0, 1.5);
+  TEST_f_f (significand, 8.0, 1.0);
+
+  END (significand);
+}
 
 
 static void
@@ -4249,12 +4817,18 @@ initialize (void)
 		       HUGE_VALL, HUGE_VAL, HUGE_VALF);
   minus_infty = CHOOSE (-HUGE_VALL, -HUGE_VAL, -HUGE_VALF,
 			-HUGE_VALL, -HUGE_VAL, -HUGE_VALF);
+  max_value = CHOOSE (LDBL_MAX, DBL_MAX, FLT_MAX,
+		      LDBL_MAX, DBL_MAX, FLT_MAX);
+  min_value = CHOOSE (LDBL_MIN, DBL_MIN, FLT_MIN,
+		      LDBL_MIN, DBL_MIN, FLT_MIN);
 
   (void) &plus_zero;
   (void) &nan_value;
   (void) &minus_zero;
   (void) &plus_infty;
   (void) &minus_infty;
+  (void) &max_value;
+  (void) &min_value;
 
   /* Clear all exceptions.  From now on we must not get random exceptions.  */
   feclearexcept (FE_ALL_EXCEPT);
@@ -4404,6 +4978,7 @@ main (int argc, char **argv)
 #if 0
   scalbln_test ();
 #endif
+  significand_test ();
 
   /* Power and absolute value functions:  */
   cbrt_test ();
@@ -4429,6 +5004,10 @@ main (int argc, char **argv)
 #endif
   rint_test ();
 #if 0
+  rint_test_tonearest ();
+  rint_test_towardzero ();
+  rint_test_downward ();
+  rint_test_upward ();
   lrint_test ();
   llrint_test ();
   round_test ();
@@ -4473,7 +5052,9 @@ main (int argc, char **argv)
   cimag_test ();
   clog10_test ();
   clog_test ();
+#if 0
   conj_test ();
+#endif
   cpow_test ();
   cproj_test ();
   creal_test ();

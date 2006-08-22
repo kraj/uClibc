@@ -25,7 +25,7 @@ event_t main_event;
 void *
 test_thread (void *ms_param)
 {
-    int status = 0;
+    unsigned long status = 0;
     event_t foo;
     struct timespec time;
     struct timeval  now;

@@ -7,30 +7,33 @@
 
 top_builddir=../
 -include $(top_builddir).config
+include Rules.mak
 
-.EXPORT_ALL_VARIABLES:
+ALL_SUBDIRS := $(patsubst %/Makefile,%,$(wildcard */Makefile))
 
-
-ALL_SUBDIRS = \
-	args assert crypt ctype pwd_grp signal silly stdlib string unistd \
-	#misc
 DIRS := $(ALL_SUBDIRS)
-
-ifeq ($(HAVE_SHARED),y)
-	DIRS += dlopen
-ALL_SUBDIRS  += dlopen
+ifneq ($(HAVE_SHARED)$(UCLIBC_HAS_THREADS),yy)
+	DIRS := $(filter-out dlopen,$(DIRS))
 endif
-ifeq ($(UCLIBC_HAS_THREADS),y)
-	DIRS += pthread
-ALL_SUBDIRS  += pthread
+ifneq ($(findstring -static,$(LDFLAGS)),)
+	DIRS := $(filter-out dlopen,$(DIRS))
 endif
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-	DIRS += tls nptl
-ALL_SUBDIRS  += tls nptl
+ifneq ($(UCLIBC_HAS_THREADS),y)
+	DIRS := $(filter-out pthread,$(DIRS))
 endif
+ifneq ($(UCLIBC_HAS_FULL_RPC),y)
+	DIRS := $(filter-out rpc,$(DIRS))
+endif
+ifneq ($(UCLIBC_HAS_REGEX),y)
+	DIRS := $(filter-out regex,$(DIRS))
+endif
+ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+	DIRS += $(filter-out tls nptl,$(DIRS))
+endif
+DIRS := $(filter-out math,$(DIRS))
 
 
-all: subdirs
+test check all: subdirs
 
 tags:
 	ctags -R
@@ -41,10 +44,9 @@ subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
 $(patsubst %, _dir_%, $(DIRS)) : dummy
-	@echo "Making test in $(patsubst _dir_%,%,$@)"
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
+	$(Q)$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+	$(Q)$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
-.PHONY: dummy
+.PHONY: all check clean dummy subdirs subdirs_clean test

@@ -1,7 +1,6 @@
 # uClibc malloc tests
-# Licensed under the GNU Library General Public License, see COPYING.LIB
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
-TESTS = malloc mallocbug realloc0 testmalloc
-#time_malloc
+TESTS_DISABLED := time_malloc
 
 include ../Test.mak
