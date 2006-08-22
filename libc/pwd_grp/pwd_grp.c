@@ -13,7 +13,7 @@
  *    lenient.  See the various glibc difference comments below.
  *
  *  TODO:
- *    Move to dynamic allocation of (currently staticly allocated)
+ *    Move to dynamic allocation of (currently statically allocated)
  *      buffers; especially for the group-related functions since
  *      large group member lists will cause error returns.
  *
@@ -42,7 +42,6 @@ libc_hidden_proto(strchr)
 libc_hidden_proto(strcmp)
 libc_hidden_proto(strcpy)
 libc_hidden_proto(strlen)
-libc_hidden_proto(setgroups)
 libc_hidden_proto(strtoul)
 libc_hidden_proto(rewind)
 libc_hidden_proto(fgets_unlocked)
@@ -53,12 +52,12 @@ libc_hidden_proto(fclose)
 libc_hidden_proto(fprintf)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#else
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 
 /**********************************************************************/
-/* Sizes for staticly allocated buffers. */
+/* Sizes for statically allocated buffers. */
 
 /* If you change these values, also change _SC_GETPW_R_SIZE_MAX and
  * _SC_GETGR_R_SIZE_MAX in libc/unistd/sysconf.c to match */
@@ -92,6 +91,7 @@ extern int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
 /**********************************************************************/
 #ifdef L_fgetpwent_r
 
+#ifdef __USE_SVID
 libc_hidden_proto(fgetpwent_r)
 int fgetpwent_r(FILE *__restrict stream, struct passwd *__restrict resultbuf,
 				char *__restrict buffer, size_t buflen,
@@ -108,11 +108,13 @@ int fgetpwent_r(FILE *__restrict stream, struct passwd *__restrict resultbuf,
 	return rv;
 }
 libc_hidden_def(fgetpwent_r)
+#endif
 
 #endif
 /**********************************************************************/
 #ifdef L_fgetgrent_r
 
+#ifdef __USE_SVID
 libc_hidden_proto(fgetgrent_r)
 int fgetgrent_r(FILE *__restrict stream, struct group *__restrict resultbuf,
 				char *__restrict buffer, size_t buflen,
@@ -129,6 +131,7 @@ int fgetgrent_r(FILE *__restrict stream, struct group *__restrict resultbuf,
 	return rv;
 }
 libc_hidden_def(fgetgrent_r)
+#endif
 
 #endif
 /**********************************************************************/
@@ -154,11 +157,12 @@ libc_hidden_def(fgetspent_r)
 #endif
 /**********************************************************************/
 /* For the various fget??ent funcs, return NULL on failure and a
- * pointer to the appropriate struct (staticly allocated) on success.
+ * pointer to the appropriate struct (statically allocated) on success.
  */
 /**********************************************************************/
 #ifdef L_fgetpwent
 
+#ifdef __USE_SVID
 libc_hidden_proto(fgetpwent_r)
 
 struct passwd *fgetpwent(FILE *stream)
@@ -170,11 +174,13 @@ struct passwd *fgetpwent(FILE *stream)
 	fgetpwent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
+#endif
 
 #endif
 /**********************************************************************/
 #ifdef L_fgetgrent
 
+#ifdef __USE_SVID
 libc_hidden_proto(fgetgrent_r)
 
 struct group *fgetgrent(FILE *stream)
@@ -186,6 +192,7 @@ struct group *fgetgrent(FILE *stream)
 	fgetgrent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
+#endif
 
 #endif
 /**********************************************************************/
@@ -694,6 +701,10 @@ struct spwd *sgetspent(const char *string)
 /**********************************************************************/
 #ifdef L_initgroups
 
+#ifdef __USE_BSD
+
+libc_hidden_proto(setgroups)
+
 int initgroups(const char *user, gid_t gid)
 {
 	FILE *grfile;
@@ -747,11 +758,13 @@ int initgroups(const char *user, gid_t gid)
 	free(group_list);
 	return rv;
 }
+#endif
 
 #endif
 /**********************************************************************/
 #ifdef L_putpwent
 
+#ifdef __USE_SVID
 int putpwent(const struct passwd *__restrict p, FILE *__restrict f)
 {
 	int rv = -1;
@@ -772,6 +785,7 @@ int putpwent(const struct passwd *__restrict p, FILE *__restrict f)
 
 	return rv;
 }
+#endif
 
 #endif
 /**********************************************************************/

@@ -1,6 +1,5 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
@@ -25,6 +24,8 @@ PWDGRP_SRC := $(patsubst %.c,$(PWDGRP_DIR)/%.c,$(CSRC))
 PWDGRP_OBJ := $(patsubst %.c,$(PWDGRP_OUT)/%.o,$(CSRC))
 
 libc-y += $(PWDGRP_OBJ)
+libc-a-y += $(PWDGRP_OBJ)
+libc-so-y += $(PWDGRP_OBJ:.o=.os)
 
 objclean-y += pwdgrp_objclean
 
