@@ -23,6 +23,9 @@
 #define __FAVOR_BSD
 #include <signal.h>
 #include <stddef.h>		/* For NULL.  */
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep-cancel.h>
+#endif
 
 libc_hidden_proto(sigprocmask)
 libc_hidden_proto(sigdelset)
@@ -48,6 +51,9 @@ int __sigpause (int sig_or_mask, int is_sig)
   else if (sigset_set_old_mask (&set, sig_or_mask) < 0)
     return -1;
 
+  /* Note the sigpause() is a cancellation point.  But since we call
+     sigsuspend() which itself is a cancellation point we do not have
+     to do anything here.  */
   return sigsuspend (&set);
 }
 libc_hidden_def(__sigpause)
@@ -60,6 +66,19 @@ libc_hidden_def(__sigpause)
 libc_hidden_proto(sigpause)
 int sigpause (int mask)
 {
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+  if (SINGLE_THREAD_P)
+    return __sigpause (mask, 0);
+
+  int oldtype = LIBC_CANCEL_ASYNC ();
+
+  int result = __sigpause (mask, 0);
+
+  LIBC_CANCEL_RESET (oldtype);
+
+  return result;
+#else
   return __sigpause (mask, 0);
+#endif
 }
 libc_hidden_def(sigpause)
