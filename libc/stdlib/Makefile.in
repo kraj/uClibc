@@ -1,6 +1,5 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
@@ -78,6 +77,8 @@ STDLIB_SRC := $(patsubst %.c,$(STDLIB_DIR)/%.c,$(CSRC))
 STDLIB_OBJ := $(patsubst %.c,$(STDLIB_OUT)/%.o,$(CSRC))
 
 libc-y += $(STDLIB_OBJ)
+libc-a-y += $(STDLIB_OBJ)
+libc-so-y += $(STDLIB_OBJ:.o=.os)
 libc-static-y += $(STDLIB_OUT)/atexit.o
 # this should always be the PIC version, because it could be used in shared libs
 libc-nonshared-y += $(STDLIB_OUT)/atexit.os

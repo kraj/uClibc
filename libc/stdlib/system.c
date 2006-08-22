@@ -15,8 +15,8 @@
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sched.h>
 #include <errno.h>
-#include <bits/libc-lock.h>
 #include <sysdep-cancel.h>
+#include <bits/libc-lock.h>
 #endif
 
 libc_hidden_proto(_exit)
@@ -134,12 +134,12 @@ do_system (const char *line)
   DO_LOCK ();
   if (ADD_REF () == 0)
     {
-      if (__sigaction (SIGINT, &sa, &intr) < 0)
+      if (sigaction (SIGINT, &sa, &intr) < 0)
 	{
 	  SUB_REF ();
 	  goto out;
 	}
-      if (__sigaction (SIGQUIT, &sa, &quit) < 0)
+      if (sigaction (SIGQUIT, &sa, &quit) < 0)
 	{
 	  save = errno;
 	  SUB_REF ();
@@ -158,9 +158,9 @@ do_system (const char *line)
 	  if (SUB_REF () == 0)
 	    {
 	      save = errno;
-	      (void) __sigaction (SIGQUIT, &quit, (struct sigaction *) NULL);
+	      (void) sigaction (SIGQUIT, &quit, (struct sigaction *) NULL);
 	    out_restore_sigint:
-	      (void) __sigaction (SIGINT, &intr, (struct sigaction *) NULL);
+	      (void) sigaction (SIGINT, &intr, (struct sigaction *) NULL);
 	      __set_errno (save);
 	    }
 	out:
@@ -200,7 +200,7 @@ do_system (const char *line)
       /* Note the system() is a cancellation point.  But since we call
 	 waitpid() which itself is a cancellation point we do not
 	 have to do anything here.  */
-      if (TEMP_FAILURE_RETRY (__waitpid (pid, &status, 0)) != pid)
+      if (TEMP_FAILURE_RETRY (waitpid (pid, &status, 0)) != pid)
 	status = -1;
     }
 
@@ -251,7 +251,7 @@ cancel_handler (void *arg)
   INTERNAL_SYSCALL_DECL (err);
   INTERNAL_SYSCALL (kill, err, 2, child, SIGKILL);
 
-  TEMP_FAILURE_RETRY (__waitpid (child, NULL, 0));
+  TEMP_FAILURE_RETRY (waitpid (child, NULL, 0));
 
   DO_LOCK ();
 

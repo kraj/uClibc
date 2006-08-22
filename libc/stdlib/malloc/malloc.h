@@ -12,11 +12,10 @@
  */
 
 /* The alignment we guarantee for malloc return values.  */
-#define MALLOC_ALIGNMENT	(sizeof (double))
+#define MALLOC_ALIGNMENT	(__alignof__ (double))
 
 /* The system pagesize... */
 extern size_t __pagesize;
-libc_hidden_proto(__pagesize)
 #define MALLOC_PAGE_SIZE	__pagesize
 
 /* The minimum size of block we request from the the system to extend the

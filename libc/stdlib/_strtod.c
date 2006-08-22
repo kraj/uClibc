@@ -177,10 +177,7 @@ extern void __fp_range_check(__fpmax_t y, __fpmax_t x) attribute_hidden;
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#else
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 libc_hidden_proto(__ctype_tolower)
 #endif

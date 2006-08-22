@@ -17,7 +17,6 @@
 #include "malloc.h"
 
 libc_hidden_proto(fprintf)
-libc_hidden_proto(stderr)
 
 /* ------------------------------ mallinfo ------------------------------ */
 libc_hidden_proto(mallinfo)

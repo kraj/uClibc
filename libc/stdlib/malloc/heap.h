@@ -25,7 +25,7 @@
    HEAP_GRANULARITY must be a power of 2.  Malloc depends on this being the
    same as MALLOC_ALIGNMENT.  */
 #define HEAP_GRANULARITY_TYPE	double
-#define HEAP_GRANULARITY	(sizeof (HEAP_GRANULARITY_TYPE))
+#define HEAP_GRANULARITY	(__alignof__ (HEAP_GRANULARITY_TYPE))
 
 
 /* A heap is a collection of memory blocks, from which smaller blocks

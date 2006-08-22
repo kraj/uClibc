@@ -102,9 +102,6 @@
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
 #endif /* __UCLIBC_HAS_XLOCALE__ */
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
 
 /* TODO: clean up the following... */
 
@@ -505,7 +502,7 @@ unsigned long attribute_hidden _stdlib_strto_l(register const Wchar * __restrict
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#else
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 
@@ -655,7 +652,7 @@ unsigned long long attribute_hidden _stdlib_strto_ll(register const Wchar * __re
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-#ifndef __UCLIBC_HAS_XLOCALE__
+#if !defined __UCLIBC_HAS_XLOCALE__ && defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 /* This is the main work fuction which handles both strtoll (sflag = 1) and

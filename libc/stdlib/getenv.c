@@ -11,7 +11,6 @@
 libc_hidden_proto(getenv)
 libc_hidden_proto(memcmp)
 libc_hidden_proto(strlen)
-libc_hidden_proto(__environ)
 
 /* IEEE Std 1003.1-2001 says getenv need not be thread safe, so 
  * don't bother locking access to __environ */

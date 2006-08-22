@@ -31,7 +31,6 @@ libc_hidden_proto(strlen)
 libc_hidden_proto(strncmp)
 libc_hidden_proto(strndup)
 libc_hidden_proto(unsetenv)
-libc_hidden_proto(__environ)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
