@@ -20,6 +20,8 @@
 #include <errno.h>
 #include <stddef.h>
 
+#ifdef __USE_BSD
+
 libc_hidden_proto(cfsetispeed)
 libc_hidden_proto(cfsetospeed)
 
@@ -109,6 +111,9 @@ static const struct speed_struct speeds[] =
 #ifdef B576000
     { 576000, B576000 },
 #endif
+#ifdef B614400
+    { 614400, B614400 },
+#endif
 #ifdef B921600
     { 921600, B921600 },
 #endif
@@ -171,3 +176,4 @@ int cfsetspeed (struct termios *termios_p, speed_t speed)
 
   return -1;
 }
+#endif

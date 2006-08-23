@@ -18,6 +18,7 @@
 
 #include <termios.h>
 
+#ifdef __USE_BSD
 /* Set *T to indicate raw mode.  */
 void cfmakeraw (struct termios *t)
 {
@@ -29,3 +30,4 @@ void cfmakeraw (struct termios *t)
   t->c_cc[VMIN] = 1;		/* read returns when one char is available.  */
   t->c_cc[VTIME] = 0;
 }
+#endif
