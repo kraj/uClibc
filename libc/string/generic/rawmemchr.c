@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#ifdef __USE_GNU
 libc_hidden_proto(rawmemchr)
 libc_hidden_proto(abort)
 
@@ -160,3 +161,4 @@ void *rawmemchr (const void * s, int c_in)
     }
 }
 libc_hidden_def(rawmemchr)
+#endif

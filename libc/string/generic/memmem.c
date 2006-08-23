@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stddef.h>
 
+#ifdef __USE_GNU
 libc_hidden_proto(memmem)
 libc_hidden_proto(memcmp)
 
@@ -50,3 +51,4 @@ void *memmem (const void *haystack, size_t haystack_len,
   return NULL;
 }
 libc_hidden_def(memmem)
+#endif

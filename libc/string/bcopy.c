@@ -7,6 +7,8 @@
 
 #include "_string.h"
 
+#ifdef __UCLIBC_SUSV3_LEGACY__
+
 libc_hidden_proto(memmove)
 
 void bcopy(const void *s2, void *s1, size_t n)
@@ -51,3 +53,4 @@ void bcopy(const void *s2, void *s1, size_t n)
 #endif
 #endif
 }
+#endif

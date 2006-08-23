@@ -8,6 +8,8 @@
 #ifndef __SYSERRMSG_H
 #define __SYSERRMSG_H 1
 
+#include <bits/uClibc_uintmaxtostr.h>
+
 /**********************************************************************/
 /* NOTE: If we ever do internationalized syserr messages, this will
  * have to be changed! */

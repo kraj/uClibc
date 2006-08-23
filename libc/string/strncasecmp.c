@@ -6,6 +6,7 @@
  */
 
 #include "_string.h"
+#include <strings.h>
 #include <ctype.h>
 #include <locale.h>
 
@@ -24,7 +25,7 @@ libc_hidden_proto(towlower)
 libc_hidden_proto(tolower_l)
 #  define TOLOWER(C) tolower_l((C), locale_arg)
 # else
-#ifndef __UCLIBC_HAS_XLOCALE__
+#if !defined __UCLIBC_HAS_XLOCALE__ && defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_tolower)
 #endif
 libc_hidden_proto(tolower)

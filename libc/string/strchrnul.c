@@ -7,6 +7,8 @@
 
 #include "_string.h"
 
+#ifdef __USE_GNU
+
 #ifdef WANT_WIDE
 # define Wstrchrnul wcschrnul
 #else
@@ -22,3 +24,4 @@ Wchar *Wstrchrnul(register const Wchar *s, Wint c)
 	return (Wchar *) s;
 }
 libc_hidden_def(Wstrchrnul)
+#endif

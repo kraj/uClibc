@@ -7,6 +7,7 @@
 
 #include "_string.h"
 
+#ifdef __USE_GNU
 libc_hidden_proto(basename)
 
 char *basename(const char *path)
@@ -25,3 +26,4 @@ char *basename(const char *path)
 	return (char *) p;
 }
 libc_hidden_def(basename)
+#endif

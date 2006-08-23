@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef __USE_GNU
 libc_hidden_proto(strchrnul)
 libc_hidden_proto(abort)
 
@@ -41,8 +42,8 @@ char *strchrnul (const char *s, int c_in)
 
   /* Handle the first few characters by reading one character at a time.
      Do this until CHAR_PTR is aligned on a longword boundary.  */
-  for (char_ptr = s; ((unsigned long int) char_ptr
-		      & (sizeof (longword) - 1)) != 0;
+  for (char_ptr = (const unsigned char *) s;
+       ((unsigned long int) char_ptr & (sizeof (longword) - 1)) != 0;
        ++char_ptr)
     if (*char_ptr == c || *char_ptr == '\0')
       return (void *) char_ptr;
@@ -165,3 +166,4 @@ char *strchrnul (const char *s, int c_in)
   return NULL;
 }
 libc_hidden_def(strchrnul)
+#endif

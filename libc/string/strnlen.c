@@ -7,6 +7,8 @@
 
 #include "_string.h"
 
+#ifdef __USE_GNU
+
 #ifdef WANT_WIDE
 # define Wstrnlen wcsnlen
 #else
@@ -35,3 +37,4 @@ size_t Wstrnlen(const Wchar *s, size_t max)
 #undef maxp
 
 libc_hidden_def(Wstrnlen)
+#endif

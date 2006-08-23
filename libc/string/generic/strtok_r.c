@@ -22,7 +22,13 @@
 libc_hidden_proto(strtok_r)
 libc_hidden_proto(strspn)
 libc_hidden_proto(strpbrk)
+#ifdef __USE_GNU
+# define __rawmemchr rawmemchr
 libc_hidden_proto(rawmemchr)
+#else
+# define __rawmemchr strchr
+libc_hidden_proto(strchr)
+#endif
 
 /* Parse S into tokens separated by characters in DELIM.
    If S is NULL, the saved pointer in SAVE_PTR is used as
@@ -54,7 +60,7 @@ char *strtok_r (char *s, const char *delim, char **save_ptr)
   s = strpbrk (token, delim);
   if (s == NULL)
     /* This token finishes the string.  */
-    *save_ptr = rawmemchr (token, '\0');
+    *save_ptr = __rawmemchr (token, '\0');
   else
     {
       /* Terminate the token and make *SAVE_PTR point past it.  */
