@@ -1,3 +1,11 @@
+2006-04-25  Bernhard Fischer  <rep.nop@aon.at>
+
+	* td_init.c (__td_debug): Only declare when NDEBUG is undefined.
+
+2006-04-25  Bernhard Fischer  <rep.nop@aon.at>
+
+	* thread_dbP.h: Fix Indices typo in comment.
+
 2005-11-02  Daniel Jacobowitz  <dan@codesourcery.com>
 
 	* td_ta_clear_event.c (td_ta_clear_event): Correct arguments to

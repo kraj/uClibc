@@ -1,5 +1,5 @@
 /* Initialization function of thread debugger support library.
-   Copyright (C) 1999, 2001 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2001, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
@@ -23,6 +23,7 @@
 #ifndef NDEBUG
 int __td_debug;
 #endif
+
 
 td_err_e
 td_init (void)
