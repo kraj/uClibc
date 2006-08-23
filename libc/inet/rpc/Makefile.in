@@ -1,6 +1,5 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
@@ -33,10 +32,14 @@ INET_RPC_OBJ:=$(patsubst $(INET_RPC_DIR)/%.c,$(INET_RPC_OUT)/%.o,$(INET_RPC_SRC)
 
 libc-static-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OUT)/rpc_thread.o
 libc-shared-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OUT)/rpc_thread.oS
+libc-a-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OUT)/rpc_thread.o
+libc-so-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OUT)/rpc_thread.oS
 
 libc-nomulti-$(UCLIBC_HAS_RPC) += $(INET_RPC_OUT)/rpc_thread.o
 
 libc-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OBJ)
+libc-a-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OBJ)
+libc-so-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OBJ:.o=.os)
 
 objclean-y+=inet_rpc_objclean
 

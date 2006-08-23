@@ -82,7 +82,6 @@ libc_hidden_proto(accept)
 libc_hidden_proto(listen)
 libc_hidden_proto(fputs)
 libc_hidden_proto(abort)
-libc_hidden_proto(stderr)
 
 /*
  * Ops vector for AF_UNIX based rpc service handle

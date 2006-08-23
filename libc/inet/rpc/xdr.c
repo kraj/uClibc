@@ -58,7 +58,6 @@ libc_hidden_proto(fwprintf)
 
 libc_hidden_proto(strlen)
 libc_hidden_proto(fputs)
-libc_hidden_proto(stderr)
 
 /*
  * constants specific to the xdr "protocol"

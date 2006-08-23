@@ -1,6 +1,7 @@
 /* Copyright (C) 1995,1996 Robert de Bath <rdebath@cix.compulink.co.uk>
- * This file is part of the Linux-8086 C library and is distributed
- * under the GNU Library General Public License.
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 /*
@@ -44,7 +45,7 @@
  */
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#else
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 libc_hidden_proto(inet_aton)
@@ -98,7 +99,6 @@ libc_hidden_def(inet_aton)
 #endif
 
 #ifdef L_inet_addr
-#include <arpa/inet.h>
 libc_hidden_proto(inet_aton)
 
 libc_hidden_proto(inet_addr)

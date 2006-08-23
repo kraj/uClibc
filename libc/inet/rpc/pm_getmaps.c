@@ -62,7 +62,7 @@ struct pmaplist *
 pmap_getmaps (struct sockaddr_in *address)
 {
   struct pmaplist *head = (struct pmaplist *) NULL;
-  int socket = -1;
+  int _socket = -1;
   struct timeval minutetimeout;
   CLIENT *client;
 
@@ -72,7 +72,7 @@ pmap_getmaps (struct sockaddr_in *address)
 
   /* Don't need a reserved port to get ports from the portmapper.  */
   client = clnttcp_create (address, PMAPPROG,
-			   PMAPVERS, &socket, 50, 500);
+			   PMAPVERS, &_socket, 50, 500);
   if (client != (CLIENT *) NULL)
     {
       if (CLNT_CALL (client, PMAPPROC_DUMP, (xdrproc_t)xdr_void, NULL,
@@ -83,7 +83,7 @@ pmap_getmaps (struct sockaddr_in *address)
 	}
       CLNT_DESTROY (client);
     }
-  /* (void)__close(socket); CLNT_DESTROY already closed it */
+  /* (void)__close(_socket); CLNT_DESTROY already closed it */
   address->sin_port = 0;
   return head;
 }

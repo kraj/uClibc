@@ -72,6 +72,7 @@ libc_hidden_proto(xdr_reference)
 libc_hidden_proto(xdr_u_long)
 libc_hidden_proto(xdr_void)
 libc_hidden_proto(xdr_rmtcallres)
+libc_hidden_proto(xdr_rmtcall_args)
 libc_hidden_proto(inet_makeaddr)
 libc_hidden_proto(inet_netof)
 libc_hidden_proto(clntudp_create)
@@ -139,7 +140,6 @@ pmap_rmtcall (addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_p
  * XDR remote call arguments
  * written for XDR_ENCODE direction only
  */
-libc_hidden_proto(xdr_rmtcall_args)
 bool_t
 xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
 {

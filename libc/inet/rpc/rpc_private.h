@@ -5,7 +5,6 @@
 extern u_long _create_xid (void) attribute_hidden;
 
 libc_hidden_proto(__rpc_thread_createerr)
-libc_hidden_proto(stderr)
 
 /*
  * Multi-threaded support

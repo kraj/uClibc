@@ -81,7 +81,6 @@ libc_hidden_proto(recvmsg)
 libc_hidden_proto(sendmsg)
 libc_hidden_proto(fputs)
 libc_hidden_proto(fprintf)
-libc_hidden_proto(stderr)
 
 #define rpc_buffer(xprt) ((xprt)->xp_p1)
 #ifndef MAX

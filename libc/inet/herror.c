@@ -25,7 +25,6 @@
 
 libc_hidden_proto(fprintf)
 libc_hidden_proto(__h_errno_location)
-libc_hidden_proto(stderr)
 
 static const char *error_msg = "Resolver error";
 static const char *const h_errlist[] = {

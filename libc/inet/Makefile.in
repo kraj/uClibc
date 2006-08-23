@@ -1,6 +1,5 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
@@ -24,12 +23,17 @@ CSRC +=	encodeh.c decodeh.c encoded.c decoded.c lengthd.c encodeq.c \
 	res_query.c gethostbyaddr.c read_etc_hosts_r.c get_hosts_byname_r.c \
 	get_hosts_byaddr_r.c gethostbyname2.c getnameinfo.c gethostent.c \
 	gethostbyname_r.c gethostbyname2_r.c gethostbyaddr_r.c \
-	res_comp.c ns_name.c
+	res_comp.c ns_name.c _res_state.c
 
 # multi source socketcalls.c
 CSRC +=	accept.c bind.c connect.c getpeername.c getsockname.c getsockopt.c \
 	listen.c recv.c recvfrom.c recvmsg.c send.c sendmsg.c sendto.c \
 	setsockopt.c shutdown.c socket.c socketpair.c 
+
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CSRC := $(filter-out accept.c connect.c recv.c recvfrom.c recvmsg.c send.c \
+	  sendmsg.c sendto.c, $(CSRC))
+endif
 
 INET_DIR := $(top_srcdir)libc/inet
 INET_OUT := $(top_builddir)libc/inet
@@ -38,6 +42,8 @@ INET_SRC := $(patsubst %.c,$(INET_DIR)/%.c,$(CSRC))
 INET_OBJ := $(patsubst %.c,$(INET_OUT)/%.o,$(CSRC))
 
 libc-y += $(INET_OBJ)
+libc-a-y += $(INET_OBJ)
+libc-so-y += $(INET_OBJ:.o=.os)
 
 objclean-y += inet_objclean
 

@@ -136,6 +136,7 @@
 #define __FORCE_GLIBC
 #include <features.h>
 #include <string.h>
+#include <strings.h>
 #include <stdio.h>
 #include <signal.h>
 #include <errno.h>
@@ -202,7 +203,7 @@ libc_hidden_proto(fprintf)
 libc_hidden_proto(__h_errno_location)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#else
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 
@@ -237,7 +238,6 @@ extern char * __searchdomain[MAX_SEARCH] attribute_hidden;
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
 extern pthread_mutex_t __resolv_lock;
-libc_hidden_proto(__resolv_lock)
 #endif
 #define BIGLOCK	__pthread_mutex_lock(&__resolv_lock)
 #define BIGUNLOCK	__pthread_mutex_unlock(&__resolv_lock)
@@ -1022,7 +1022,6 @@ char * __searchdomain[MAX_SEARCH];
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
 pthread_mutex_t __resolv_lock = PTHREAD_MUTEX_INITIALIZER;
-libc_hidden_data_def(__resolv_lock)
 #endif
 
 /*
@@ -1152,7 +1151,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 
 
 #ifdef L_res_init
-int attribute_hidden __res_init_internal(void)
+int res_init(void)
 {
 	__close_nameservers();
 	__open_nameservers();
@@ -1196,7 +1195,7 @@ int attribute_hidden __res_init_internal(void)
 
 	return(0);
 }
-strong_alias(__res_init_internal,res_init)
+libc_hidden_def(res_init)
 
 void res_close( void )
 {
@@ -2306,6 +2305,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	struct in6_addr	*in6;
 	struct in6_addr	**addr_list6;
 #endif /* __UCLIBC_HAS_IPV6__ */
+	char **alias;
 	unsigned char *packet;
 	struct resolv_answer a;
 	int i;
@@ -2366,6 +2366,12 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	buf+=sizeof(*addr_list)*2;
 	buflen-=sizeof(*addr_list)*2;
 
+	if (buflen < sizeof(char *)*(ALIAS_DIM))
+		return ERANGE;
+	alias=(char **)buf;
+	buf+=sizeof(*alias)*(ALIAS_DIM);
+	buflen-=sizeof(*alias)*(ALIAS_DIM);
+
 #ifdef __UCLIBC_HAS_IPV6__
 	if (plen < sizeof(*in6))
 		return ERANGE;
@@ -2414,6 +2420,9 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 
 	addr_list[1] = 0;
 
+	alias[0] = buf;
+	alias[1] = 0;
+
 	for (;;) {
 
 	BIGLOCK;
@@ -2460,6 +2469,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
     		}
 
 			result_buf->h_addr_list = (char **) addr_list;
+			result_buf->h_aliases = alias;
 			break;
 		} else {
 			free(packet);

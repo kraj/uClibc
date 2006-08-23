@@ -83,7 +83,6 @@ libc_hidden_proto(listen)
 libc_hidden_proto(fputs)
 libc_hidden_proto(fclose)
 libc_hidden_proto(abort)
-libc_hidden_proto(stderr)
 
 /*
  * Ops vector for TCP/IP based rpc service handle
