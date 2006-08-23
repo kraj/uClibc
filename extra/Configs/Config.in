@@ -463,7 +463,7 @@ config UCLIBC_SUSV3_LEGACY
 	  Currently applies to bcopy/bzero/bcmp/index/rindex.
 	  WARNING! ABI incompatibility.
 
-config HAS_SHADOW
+config UCLIBC_HAS_SHADOW
 	bool "Shadow Password Support"
 	default y
 	help

@@ -181,7 +181,7 @@ ifneq ($(UCLIBC_HAS_GETOPT_LONG),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/getopt.h
 endif
 endif
-ifneq ($(HAS_SHADOW),y)
+ifneq ($(UCLIBC_HAS_SHADOW),y)
 	# Remove shadow header since shadow password support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/shadow.h
 endif
