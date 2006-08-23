@@ -19,6 +19,9 @@
 
 #include <stdint.h>
 
+#if defined __CONFIG_GENERIC_I386__ || defined __CONFIG_I386__
+# warning this file is only good for 486 or better
+#endif
 
 typedef int8_t atomic8_t;
 typedef uint8_t uatomic8_t;

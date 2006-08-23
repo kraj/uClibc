@@ -1,5 +1,6 @@
 /* System dependent definitions for run-time dynamic loading.
-   Copyright (C) 1996, 1997, 1999, 2000, 2001 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 1999, 2000, 2001, 2004
+	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -24,8 +25,9 @@
 /* The MODE argument to `dlopen' contains one of the following: */
 #define RTLD_LAZY	0x0001	/* Lazy function call binding.  */
 #define RTLD_NOW	0x0002	/* Immediate function call binding.  */
-#define	RTLD_BINDING_MASK  0x3	/* Mask of binding time value.  */
+#define RTLD_BINDING_MASK  0x3	/* Mask of binding time value.  */
 #define RTLD_NOLOAD	0x00008	/* Do not load the object.  */
+#define RTLD_DEEPBIND	0x00010	/* Use deep binding.  */
 
 /* If the following bit is set in the MODE argument to `dlopen',
    the symbols of the loaded object and its dependencies are made
@@ -40,3 +42,25 @@
 /* Do not delete object when closed.  */
 #define RTLD_NODELETE	0x01000
 
+#if 0 /*def __USE_GNU*/
+/* To support profiling of shared objects it is a good idea to call
+   the function found using `dlsym' using the following macro since
+   these calls do not use the PLT.  But this would mean the dynamic
+   loader has no chance to find out when the function is called.  The
+   macro applies the necessary magic so that profiling is possible.
+   Rewrite
+	foo = (*fctp) (arg1, arg2);
+   into
+        foo = DL_CALL_FCT (fctp, (arg1, arg2));
+*/
+# define DL_CALL_FCT(fctp, args) \
+  (_dl_mcount_wrapper_check ((void *) (fctp)), (*(fctp)) args)
+
+__BEGIN_DECLS
+
+/* This function calls the profiling functions.  */
+extern void _dl_mcount_wrapper_check (void *__selfpc) __THROW;
+
+__END_DECLS
+
+#endif

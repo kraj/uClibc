@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 #ifndef _SYS_USER_H
 #define _SYS_USER_H	1
 
+#include <sgidefs.h>
+
 /* The whole purpose of this file is for GDB and GDB only.  Don't read
    too much into it.  Don't use it for anything other than GDB unless
    you know what you are doing.  */
@@ -30,7 +32,7 @@
    instead of included separately, doesn't change in any way the
    licensing status of a program that includes user.h.  Since this is
    for gdb alone, and gdb is GPLed, no surprises here.  */
-#if _MIPS_SIM == _MIPS_SIM_ABI32
+#if _MIPS_SIM == _ABIO32
 /*
  * Various register offset definitions for debuggers, core file
  * examiners and whatnot.
@@ -98,7 +100,7 @@
 
 #endif /* __ASM_MIPS_REG_H */
 
-#else /* _MIPS_SIM != _MIPS_SIM_ABI32 */
+#else /* _MIPS_SIM != _ABIO32 */
 
 /*
  * Various register offset definitions for debuggers, core file
@@ -168,9 +170,9 @@
 
 #endif /* _ASM_REG_H */
 
-#endif /* _MIPS_SIM != _MIPS_SIM_ABI32 */
+#endif /* _MIPS_SIM != _ABIO32 */
 
-#if _MIPS_SIM == _MIPS_SIM_ABI32
+#if _MIPS_SIM == _ABIO32
 
 struct user
 {

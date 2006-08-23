@@ -20,7 +20,7 @@
 #ifndef _UCLIBC_PAGE_H
 #define _UCLIBC_PAGE_H
 
-/* PAGE_SHIFT determines the page size -- in this case 16384 */
+/* PAGE_SHIFT determines the page size -- in this case 4096 */
 #define PAGE_SHIFT	(14)
 #ifndef __ASSEMBLY__
 #define PAGE_SIZE	(1UL << PAGE_SHIFT)

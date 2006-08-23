@@ -41,9 +41,27 @@
 
    Use neat tidy anonymous unions and structures when possible.  */
 
-#define __ST_TIME(X)				\
+#if 0 /*def __USE_MISC*/
+# if __GNUC_PREREQ(3,3)
+#  define __ST_TIME(X)				\
+	__extension__ union {			\
+	    struct timespec st_##X##tim;	\
+	    struct {				\
+		__time_t st_##X##time;		\
+		unsigned long st_##X##timensec;	\
+	    };					\
+	}
+# else
+#  define __ST_TIME(X) struct timespec st_##X##tim
+#  define st_atime st_atim.tv_sec
+#  define st_mtime st_mtim.tv_sec
+#  define st_ctime st_ctim.tv_sec
+# endif
+#else
+# define __ST_TIME(X)				\
 	__time_t st_##X##time;			\
 	unsigned long st_##X##timensec
+#endif
 
 
 struct stat
