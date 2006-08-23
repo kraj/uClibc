@@ -1,5 +1,5 @@
 /* Error constants.  Linux specific version.
-   Copyright (C) 1996, 1997, 1998, 1999, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 1998, 1999, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,35 +19,41 @@
 
 #ifdef _ERRNO_H
 
-#include <bits/errno_values.h>
+# undef EDOM
+# undef EILSEQ
+# undef ERANGE
+# include <bits/errno_values.h>
 
-#ifndef ENOTSUP
+/* Linux has no ENOTSUP error code.  */
 # define ENOTSUP EOPNOTSUPP
-#endif
 
-#ifndef ECANCELED
-# define ECANCELED	125
-#endif
+/* Older Linux versions also had no ECANCELED error code.  */
+# ifndef ECANCELED
+#  define ECANCELED	125
+# endif
 
-#ifndef __ASSEMBLER__
+/* Support for error codes to support robust mutexes was added later, too.  */
+# ifndef EOWNERDEAD
+#  define EOWNERDEAD		130
+#  define ENOTRECOVERABLE	131
+# endif
 
-/* We now need a declaration of the `errno' variable.  */
-extern int errno;
-
+# ifndef __ASSEMBLER__
 /* Function to get address of global `errno' variable.  */
 extern int *__errno_location (void) __THROW __attribute__ ((__const__));
 
-# if defined _LIBC && ( defined IS_IN_libc || defined NOT_IN_libc )
-libc_hidden_proto(__errno_location)
-/* We wouldn't need a special macro anymore but it is history.  */
-#  define __set_errno(val) ((errno) = (val))
-# endif /* _LIBC */
-
-# ifdef __UCLIBC_HAS_THREADS__
+#  ifdef __UCLIBC_HAS_THREADS__
 /* When using threads, errno is a per-thread value.  */
-#  define errno (*__errno_location ())
-# endif
-
-#endif /* !__ASSEMBLER__ */
-
+#   define errno (*__errno_location ())
+#  endif
+# endif /* !__ASSEMBLER__ */
 #endif /* _ERRNO_H */
+
+#if !defined _ERRNO_H && defined __need_Emath
+/* This is ugly but the kernel header is not clean enough.  We must
+   define only the values EDOM, EILSEQ and ERANGE in case __need_Emath is
+   defined.  */
+# define EDOM	33	/* Math argument out of domain of function.  */
+# define EILSEQ	84	/* Illegal byte sequence.  */
+# define ERANGE	34	/* Math result not representable.  */
+#endif /* !_ERRNO_H && __need_Emath */

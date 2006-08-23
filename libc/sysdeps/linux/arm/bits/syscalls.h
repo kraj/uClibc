@@ -9,19 +9,17 @@
  * programs.  */
 #include <bits/sysnum.h>
 
-#ifndef __set_errno
-# define __set_errno(val) (*__errno_location ()) = (val)
-#endif
-#ifndef SYS_ify
-# define SYS_ify(syscall_name)	(__NR_##syscall_name)
-#endif
-
 /*
    Some of the sneaky macros in the code were taken from 
    glibc-2.3.2/sysdeps/unix/sysv/linux/arm/sysdep.h
 */
 
 #ifdef __ASSEMBLER__
+
+#include <errno.h>
+
+#define SYS_ify(syscall_name)  (__NR_##syscall_name)
+
 /* Call a given syscall, with arguments loaded.  For EABI, we must
    save and restore r7 for the syscall number.  Unlike the DO_CALL
    macro in glibc, this macro does not load syscall arguments.  */

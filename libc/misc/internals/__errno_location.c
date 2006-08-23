@@ -1,8 +1,16 @@
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 #include <errno.h>
 #undef errno
+extern int errno;
 libc_hidden_proto(errno)
 
 /* psm: moved to bits/errno.h: libc_hidden_proto(__errno_location) */
+libc_hidden_proto(__errno_location)
 int * weak_const_function __errno_location (void)
 {
     return &errno;

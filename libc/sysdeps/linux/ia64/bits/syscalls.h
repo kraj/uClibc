@@ -31,16 +31,13 @@
  * programs.  */
 #include <bits/sysnum.h>
 
-#ifndef __set_errno
-# define __set_errno(val) (*__errno_location ()) = (val)
-#endif
-
-
 #ifndef __ASSEMBLER__
 
-#undef IA64_USE_NEW_STUB
+#include <errno.h>
 
-#define SYS_ify(syscall_name)   __NR_##syscall_name
+#define SYS_ify(syscall_name)  (__NR_##syscall_name)
+
+#undef IA64_USE_NEW_STUB
 
 /* taken from asm-ia64/break.h */
 #define __IA64_BREAK_SYSCALL	0x100000

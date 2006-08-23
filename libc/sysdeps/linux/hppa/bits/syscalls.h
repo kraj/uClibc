@@ -9,11 +9,9 @@
  * programs.  */
 #include <bits/sysnum.h>
 
-#ifndef __set_errno
-# define __set_errno(val) (*__errno_location ()) = (val)
-#endif
-
 #ifndef __ASSEMBLER__
+
+#include <errno.h>
 
 #define SYS_ify(syscall_name)   __NR_##syscall_name
 

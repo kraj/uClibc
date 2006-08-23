@@ -9,14 +9,11 @@
  * programs.  */
 #include <bits/sysnum.h>
 
-#ifndef __set_errno
-# define __set_errno(val) (*__errno_location ()) = (val)
-#endif
-#ifndef SYS_ify
-# define SYS_ify(syscall_name)  (__NR_##syscall_name)
-#endif
-
 #ifndef __ASSEMBLER__
+
+#include <errno.h>
+
+#define SYS_ify(syscall_name)  (__NR_##syscall_name)
 
 #define __SYSCALL_CLOBBERS "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13", \
 	"$14", "$15", "$24", "$25", "memory"

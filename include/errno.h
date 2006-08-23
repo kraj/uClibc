@@ -43,22 +43,24 @@ __BEGIN_DECLS
    variable.  This redeclaration using the macro still works, but it
    will be a function declaration without a prototype and may trigger
    a -Wstrict-prototypes warning.  */
-# ifndef __ASSEMBLER__
-#  ifndef	errno
+#ifndef	errno
 extern int errno;
-#  endif
+#endif
 
-#  if defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+#if defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
 
 /* The full and simple forms of the name with which the program was
    invoked.  These variables are set up automatically at startup based on
    the value of ARGV[0] (this works only if you use GNU ld).  */
 extern char *program_invocation_name, *program_invocation_short_name;
-#  endif /* __USE_GNU */
-# endif /* __ASSEMBLER__ */
+#endif /* __USE_GNU */
 #endif /* _ERRNO_H */
 
 __END_DECLS
+
+#if defined _LIBC && ( defined IS_IN_libc || defined NOT_IN_libc )
+#include <bits/uClibc_errno.h>
+#endif
 
 #endif /* _ERRNO_H */
 
@@ -66,7 +68,7 @@ __END_DECLS
    that printing `error_t' values in the debugger shows the names.  We
    might need this definition sometimes even if this file was included
    before.  */
-#if ( defined __USE_GNU || defined __need_error_t ) && !defined __ASSEMBLER__
+#if defined __USE_GNU || defined __need_error_t
 # ifndef __error_t_defined
 typedef int error_t;
 #  define __error_t_defined	1

@@ -5,6 +5,4 @@
  * forbidden.  Don't do it.  It is bad for you. 
  */ 
 
-
-#error You have not provided architecture specific _syscall[0-5] macros
-
+#error You have not provided architecture specific _syscall[0-6] macros
