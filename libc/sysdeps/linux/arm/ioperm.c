@@ -222,40 +222,40 @@ libc_hidden_def(ioperm)
 void
 outb(unsigned char b, unsigned long int port)
 {
-    *((volatile unsigned char *)(IO_ADDR (port))) = b;
+    *((__volatile__ unsigned char *)(IO_ADDR (port))) = b;
 }
 
 
 void
 outw(unsigned short b, unsigned long int port)
 {
-    *((volatile unsigned short *)(IO_ADDR (port))) = b;
+    *((__volatile__ unsigned short *)(IO_ADDR (port))) = b;
 }
 
 
 void
 outl(unsigned long b, unsigned long int port)
 {
-    *((volatile unsigned long *)(IO_ADDR (port))) = b;
+    *((__volatile__ unsigned long *)(IO_ADDR (port))) = b;
 }
 
 
 unsigned char
 inb (unsigned long int port)
 {
-    return *((volatile unsigned char *)(IO_ADDR (port)));
+    return *((__volatile__ unsigned char *)(IO_ADDR (port)));
 }
 
 
 unsigned short int
 inw(unsigned long int port)
 {
-    return *((volatile unsigned short *)(IO_ADDR (port)));
+    return *((__volatile__ unsigned short *)(IO_ADDR (port)));
 }
 
 
 unsigned long int
 inl(unsigned long int port)
 {
-    return *((volatile unsigned long *)(IO_ADDR (port)));
+    return *((__volatile__ unsigned long *)(IO_ADDR (port)));
 }
