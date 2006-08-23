@@ -20,10 +20,11 @@
 #include "syscalls.h"
 #include <sys/poll.h>
 
-libc_hidden_proto(poll)
+extern __typeof(poll) __libc_poll;
 
 #ifdef __NR_poll
-_syscall3(int, poll, struct pollfd *, fds,
+# define __NR___libc_poll __NR_poll
+_syscall3(int, __libc_poll, struct pollfd *, fds,
 	unsigned long int, nfds, int, timeout);
 #else
 
@@ -48,7 +49,7 @@ libc_hidden_proto(select)
    Returns the number of file descriptors with events, zero if timed out,
    or -1 for errors.  */
 
-int poll(struct pollfd *fds, nfds_t nfds, int timeout)
+int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
     static int max_fd_size;
     struct timeval tv;
@@ -207,4 +208,6 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 }
 
 #endif
-libc_hidden_def(poll)
+libc_hidden_proto(poll)
+weak_alias(__libc_poll,poll)
+libc_hidden_weak(poll)

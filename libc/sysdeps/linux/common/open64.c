@@ -20,6 +20,7 @@ libc_hidden_proto(__libc_open)
 
 /* Open FILE with access OFLAG.  If OFLAG includes O_CREAT,
    a third argument is the file protection.  */
+libc_hidden_proto(__libc_open64)
 int __libc_open64 (const char *file, int oflag, ...)
 {
   int mode = 0;
@@ -34,6 +35,8 @@ int __libc_open64 (const char *file, int oflag, ...)
 
   return __libc_open(file, oflag | O_LARGEFILE, mode);
 }
+libc_hidden_def(__libc_open64)
+
 libc_hidden_proto(open64)
 weak_alias(__libc_open64,open64)
 libc_hidden_weak(open64)

@@ -15,12 +15,13 @@
 #include <sys/param.h>
 
 extern __typeof(open) __libc_open;
-libc_hidden_proto(__libc_open)
+extern __typeof(creat) __libc_creat;
 
 #define __NR___syscall_open __NR_open
 static inline _syscall3(int, __syscall_open, const char *, file,
 		int, flags, __kernel_mode_t, mode);
 
+libc_hidden_proto(__libc_open)
 int __libc_open(const char *file, int flags, ...)
 {
 	/* gcc may warn about mode being uninitialized.
@@ -42,7 +43,8 @@ libc_hidden_proto(open)
 weak_alias(__libc_open,open)
 libc_hidden_weak(open)
 
-int creat(const char *file, mode_t mode)
+int __libc_creat(const char *file, mode_t mode)
 {
 	return __libc_open(file, O_WRONLY | O_CREAT | O_TRUNC, mode);
 }
+weak_alias(__libc_creat,creat)

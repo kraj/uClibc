@@ -9,15 +9,14 @@
 
 #include "syscalls.h"
 #include <signal.h>
-#undef sigsuspend
 
-libc_hidden_proto(sigsuspend)
+extern __typeof(sigsuspend) __libc_sigsuspend;
 
 #ifdef __NR_rt_sigsuspend
 # define __NR___rt_sigsuspend __NR_rt_sigsuspend
 static inline _syscall2(int, __rt_sigsuspend, const sigset_t *, mask, size_t, size);
 
-int sigsuspend(const sigset_t * mask)
+int __libc_sigsuspend(const sigset_t * mask)
 {
 	return __rt_sigsuspend(mask, _NSIG / 8);
 }
@@ -26,9 +25,11 @@ int sigsuspend(const sigset_t * mask)
 static inline _syscall3(int, __syscall_sigsuspend, int, a, unsigned long int, b,
 		  unsigned long int, c);
 
-int sigsuspend(const sigset_t * set)
+int __libc_sigsuspend(const sigset_t * set)
 {
 	return __syscall_sigsuspend(0, 0, set->__val[0]);
 }
 #endif
-libc_hidden_def(sigsuspend)
+libc_hidden_proto(sigsuspend)
+weak_alias(__libc_sigsuspend,sigsuspend)
+libc_hidden_weak(sigsuspend)

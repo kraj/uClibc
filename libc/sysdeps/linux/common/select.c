@@ -10,12 +10,15 @@
 #include "syscalls.h"
 #include <sys/select.h>
 
-libc_hidden_proto(select)
+extern __typeof(select) __libc_select;
 
 #ifdef __NR__newselect
-# undef __NR_select
-# define __NR_select __NR__newselect
+# define __NR___libc_select __NR__newselect
+#else
+# define __NR___libc_select __NR_select
 #endif
-_syscall5(int, select, int, n, fd_set *, readfds, fd_set *, writefds,
+_syscall5(int, __libc_select, int, n, fd_set *, readfds, fd_set *, writefds,
 		  fd_set *, exceptfds, struct timeval *, timeout);
-libc_hidden_def(select)
+libc_hidden_proto(select)
+weak_alias(__libc_select,select)
+libc_hidden_weak(select)

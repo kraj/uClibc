@@ -23,6 +23,8 @@
 #include <sys/time.h>
 #include <sys/select.h>
 
+extern __typeof(pselect) __libc_pselect;
+
 libc_hidden_proto(sigprocmask)
 libc_hidden_proto(select)
 
@@ -34,7 +36,7 @@ libc_hidden_proto(select)
    SIGMASK for this call.  Returns the number of ready descriptors, or -1 for
    errors.  */
 int
-pselect (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+__libc_pselect (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 	   const struct timespec *timeout, const sigset_t *sigmask)
 {
   struct timeval tval;
@@ -64,3 +66,4 @@ pselect (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 
   return retval;
 }
+weak_alias(__libc_pselect,pselect)
