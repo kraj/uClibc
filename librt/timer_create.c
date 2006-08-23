@@ -13,7 +13,9 @@
 
 #ifdef __NR_timer_create
 
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+#ifndef offsetof
+# define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+#endif
 
 #define __NR___syscall_timer_create __NR_timer_create
 static inline _syscall3(int, __syscall_timer_create, clockid_t, clock_id,
