@@ -9,9 +9,6 @@
 #include <stdio_ext.h>
 
 libc_hidden_proto(__fsetlocking)
-#ifdef __UCLIBC_HAS_THREADS__
-libc_hidden_proto(_stdio_user_locking)
-#endif
 
 /* Not threadsafe. */
 

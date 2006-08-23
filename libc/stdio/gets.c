@@ -13,9 +13,7 @@ link_warning(gets, "the 'gets' function is dangerous and should not be used.")
 
 libc_hidden_proto(getchar_unlocked)
 libc_hidden_proto(__fgetc_unlocked)
-#ifdef __STDIO_GETC_MACRO
-libc_hidden_proto(__stdin)
-#else
+#ifndef __STDIO_GETC_MACRO
 #define __stdin stdin
 #endif
 

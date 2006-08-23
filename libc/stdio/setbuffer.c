@@ -7,6 +7,8 @@
 
 #include "_stdio.h"
 
+#ifdef __USE_BSD
+
 libc_hidden_proto(setvbuf)
 
 /* A BSD function.  The implementation matches the linux man page,
@@ -21,3 +23,4 @@ void setbuffer(FILE * __restrict stream, register char * __restrict buf,
 	setvbuf(stream, buf, (buf ? _IOFBF : _IONBF), size);
 #endif
 }
+#endif
