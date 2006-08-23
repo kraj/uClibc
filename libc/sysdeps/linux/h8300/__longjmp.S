@@ -1,7 +1,3 @@
-#define _ASM
-#define _SETJMP_H
-#include <bits/setjmp.h>
-
 #ifdef __H8300S__
 	.h8300s
 #else
