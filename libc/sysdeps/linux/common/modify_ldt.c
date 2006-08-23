@@ -7,14 +7,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-/* Nobody really uses this ... */
-#if 0
-
 #include "syscalls.h"
 
-#ifdef __NR_modify_ldt
 int modify_ldt (int func, void *ptr, unsigned long bytecount);
+#ifdef __NR_modify_ldt
 _syscall3(int, modify_ldt, int, func, void *, ptr, unsigned long, bytecount);
-#endif
-
 #endif
