@@ -14,9 +14,10 @@
  */
 
 #include <errno.h>
+#include <sched.h>
 #include <sys/syscall.h>
 
-int clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg)
+int clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg, ...)
 {
   register unsigned long rval asm ("r2") = -EINVAL;
 
