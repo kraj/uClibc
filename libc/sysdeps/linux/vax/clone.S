@@ -18,8 +18,6 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
-#include <features.h>
-#include <bits/errno.h>
 #include <sys/syscall.h>
 
 #warning "This file contains a hardcoded constant for SYS_clone"

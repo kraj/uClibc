@@ -1,8 +1,3 @@
-#include <features.h>
-#define _SETJMP_H
-#define _ASM
-#include <bits/setjmp.h>
-
 	.text
 
 /* This just does a tail-call to `__sigsetjmp (ARG, 0)'.
