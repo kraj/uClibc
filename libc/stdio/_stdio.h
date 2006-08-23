@@ -20,15 +20,19 @@
 #include <wchar.h>
 #endif
 
-libc_hidden_proto(stdin)
-libc_hidden_proto(stdout)
-
-libc_hidden_proto(_stdio_openlist)
-
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-libc_hidden_proto(_stdio_openlist_lock)
 
+#ifdef __USE_STDIO_FUTEXES___
+#define __STDIO_THREADLOCK_OPENLIST \
+	_IO_lock_lock(_stdio_openlist_lock)
+
+#define __STDIO_THREADUNLOCK_OPENLIST \
+	_IO_lock_unlock(_stdio_openlist_lock)
+
+#define __STDIO_THREADTRYLOCK_OPENLIST \
+	_IO_lock_trylock(_stdio_openlist_lock)
+#else
 #define __STDIO_THREADLOCK_OPENLIST \
 	__pthread_mutex_lock(&_stdio_openlist_lock)
 
@@ -37,6 +41,7 @@ libc_hidden_proto(_stdio_openlist_lock)
 
 #define __STDIO_THREADTRYLOCK_OPENLIST \
 	__pthread_mutex_trylock(&_stdio_openlist_lock)
+#endif
 
 #else
 
@@ -86,10 +91,10 @@ extern int __stdio_seek(FILE *stream, register __offmax_t *pos, int whence) attr
 	(read((STREAMPTR)->__filedes,(BUF),(SIZE)))
 #define __WRITE(STREAMPTR,BUF,SIZE) \
 	(write((STREAMPTR)->__filedes,(BUF),(SIZE)))
-#define __SEEK(STREAMPTR,PPOS,WHENCE) \
-	(__stdio_seek((STREAMPTR),(PPOS),(WHENCE)))
 #define __CLOSE(STREAMPTR) \
 	(close((STREAMPTR)->__filedes))
+#define __SEEK(STREAMPTR,PPOS,WHENCE) \
+	(__stdio_seek((STREAMPTR),(PPOS),(WHENCE)))
 
 #endif /* __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
 

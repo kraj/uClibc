@@ -1,6 +1,5 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2004 Manuel Novoa III <mjn3@uclibc.org>
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
@@ -93,6 +92,8 @@ STDIO_SRC := $(patsubst %.c,$(STDIO_DIR)/%.c,$(CSRC))
 STDIO_OBJ := $(patsubst %.c,$(STDIO_OUT)/%.o,$(CSRC))
 
 libc-y += $(STDIO_OBJ)
+libc-a-y += $(STDIO_OBJ)
+libc-so-y += $(STDIO_OBJ:.o=.os)
 
 ifneq ($(USE_OLD_VFPRINTF),y)
 libc-nomulti-y += $(patsubst %.c,$(STDIO_OUT)/%.o,$(VF_CSRC))

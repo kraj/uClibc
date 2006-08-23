@@ -11,10 +11,6 @@ libc_hidden_proto(isatty)
 libc_hidden_proto(open)
 libc_hidden_proto(fcntl)
 
-#ifdef __UCLIBC_HAS_THREADS__
-libc_hidden_proto(_stdio_user_locking)
-#endif
-
 /*
  * Cases:
  *  fopen64  : filename != NULL, stream == NULL, filedes == -2
@@ -80,13 +76,13 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 
 	while (*++mode) {
 # ifdef __UCLIBC_HAS_FOPEN_EXCLUSIVE_MODE__
-		if (*mode == 'x') {	   /* Open exclusive (a glibc extension). */
+		if (*mode == 'x') {	/* Open exclusive (a glibc extension). */
 			open_mode |= O_EXCL;
 			continue;
 		}
 # endif
 # ifdef __UCLIBC_HAS_FOPEN_LARGEFILE_MODE__
-		if (*mode == 'F') {		/* Open as large file (uClibc extension). */
+		if (*mode == 'F') {	/* Open as large file (uClibc extension). */
 			open_mode |= O_LARGEFILE;
 			continue;
 		}
@@ -106,7 +102,11 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 #ifdef __UCLIBC_HAS_THREADS__
 		/* We only initialize the mutex in the non-freopen case. */
 		/* stream->__user_locking = _stdio_user_locking; */
+#ifdef __USE_STDIO_FUTEXES__
+		_IO_lock_init (stream->_lock);
+#else
 		__stdio_init_mutex(&stream->__lock);
+#endif
 #endif
 	}
 
@@ -198,7 +198,11 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 #ifdef __UCLIBC_HAS_THREADS__
 	/* Even in the freopen case, we reset the user locking flag. */
 	stream->__user_locking = _stdio_user_locking;
+#ifdef __USE_STDIO_FUTEXES__
+	/* _IO_lock_init (stream->_lock); */
+#else
 	/* __stdio_init_mutex(&stream->__lock); */
+#endif
 #endif
 
 #ifdef __STDIO_HAS_OPENLIST
