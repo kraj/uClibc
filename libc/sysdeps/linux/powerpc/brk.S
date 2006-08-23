@@ -29,6 +29,7 @@
 .section .bss
 	.align 4
 	.globl __curbrk
+	.hidden __curbrk
 __curbrk: .skip 4
 	.type __curbrk,@object
 	.size __curbrk,4
@@ -69,4 +70,4 @@ brk:
 	.size brk,.-brk
 
 libc_hidden_def(brk)
-#endif	
+#endif

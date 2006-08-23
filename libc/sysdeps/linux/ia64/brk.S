@@ -25,6 +25,7 @@
 #include <asm/errno.h>
 
 	.global __curbrk
+	.hidden __curbrk
 	.type __curbrk,@object
 	.size __curbrk,8
 	.data

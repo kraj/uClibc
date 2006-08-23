@@ -10,13 +10,10 @@
 #include <errno.h>
 #include "sysdep.h"
 
+extern void * __curbrk attribute_hidden;
+extern int __init_brk (void) attribute_hidden;
+
 libc_hidden_proto(sbrk)
-
-extern void * __curbrk;
-
-extern int __init_brk (void);
-libc_hidden_proto(__init_brk)
-
 void *
 sbrk(intptr_t increment)
 {

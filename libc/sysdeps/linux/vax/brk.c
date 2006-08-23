@@ -22,7 +22,7 @@
 #include <sys/syscall.h>
 
 /* This must be initialized data because commons can't have aliases.  */
-void *__curbrk = NULL;
+void *__curbrk attribute_hidden = NULL;
 
 libc_hidden_proto(brk)
 int

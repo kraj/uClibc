@@ -21,10 +21,9 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
+void *__curbrk attribute_hidden = 0;
+
 libc_hidden_proto(brk)
-
-void *__curbrk = 0;
-
 int brk (void *addr)
 {
   void *newbrk;
