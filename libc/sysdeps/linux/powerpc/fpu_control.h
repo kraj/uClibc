@@ -63,7 +63,9 @@ typedef unsigned int fpu_control_t __attribute__ ((__mode__ (__SI__)));
   __asm__ ("lfd%U0 0,%0; mtfsf 255,0" : : "m" (tmp.d) : "fr0"); \
 }
 
+#if 0
 /* Default control word set at startup.  */
 extern fpu_control_t __fpu_control;
+#endif
 
 #endif /* _FPU_CONTROL_H */

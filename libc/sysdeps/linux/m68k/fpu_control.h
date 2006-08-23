@@ -1,4 +1,4 @@
-/* FPU control word definitions.  PowerPC version.
+/* 68k FPU control word definitions.
    Copyright (C) 1996, 1997, 1998 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -20,50 +20,84 @@
 #ifndef _FPU_CONTROL_H
 #define _FPU_CONTROL_H
 
-/* rounding control */
-#define _FPU_RC_NEAREST 0x00   /* RECOMMENDED */
-#define _FPU_RC_DOWN    0x03
-#define _FPU_RC_UP      0x02
-#define _FPU_RC_ZERO    0x01
+/*
+ * Motorola floating point control register bits.
+ *
+ * 31-16  -> reserved (read as 0, ignored on write)
+ * 15     -> enable trap for BSUN exception
+ * 14     -> enable trap for SNAN exception
+ * 13     -> enable trap for OPERR exception
+ * 12     -> enable trap for OVFL exception
+ * 11     -> enable trap for UNFL exception
+ * 10     -> enable trap for DZ exception
+ *  9     -> enable trap for INEX2 exception
+ *  8     -> enable trap for INEX1 exception
+ *  7-6   -> Precision Control
+ *  5-4   -> Rounding Control
+ *  3-0   -> zero (read as 0, write as 0)
+ *
+ *
+ * Precision Control:
+ * 00 - round to extended precision
+ * 01 - round to single precision
+ * 10 - round to double precision
+ * 11 - undefined
+ *
+ * Rounding Control:
+ * 00 - rounding to nearest (RN)
+ * 01 - rounding toward zero (RZ)
+ * 10 - rounding (down)toward minus infinity (RM)
+ * 11 - rounding (up) toward plus infinity (RP)
+ *
+ * The hardware default is 0x0000. I choose 0x5400.
+ */
 
-#define _FPU_MASK_NI  0x04 /* non-ieee mode */
+#include <features.h>
 
 /* masking of interrupts */
-#define _FPU_MASK_ZM  0x10 /* zero divide */
-#define _FPU_MASK_OM  0x40 /* overflow */
-#define _FPU_MASK_UM  0x20 /* underflow */
-#define _FPU_MASK_XM  0x08 /* inexact */
-#define _FPU_MASK_IM  0x80 /* invalid operation */
+#define _FPU_MASK_BSUN  0x8000
+#define _FPU_MASK_SNAN  0x4000
+#define _FPU_MASK_OPERR 0x2000
+#define _FPU_MASK_OVFL  0x1000
+#define _FPU_MASK_UNFL  0x0800
+#define _FPU_MASK_DZ    0x0400
+#define _FPU_MASK_INEX1 0x0200
+#define _FPU_MASK_INEX2 0x0100
 
-#define _FPU_RESERVED 0xffffff00 /* These bits are reserved are not changed. */
+/* precision control */
+#define _FPU_EXTENDED 0x00   /* RECOMMENDED */
+#define _FPU_DOUBLE   0x80
+#define _FPU_SINGLE   0x40     /* DO NOT USE */
 
-/* The fdlibm code requires no interrupts for exceptions.  */
-#define _FPU_DEFAULT  0x00000000 /* Default value.  */
+/* rounding control */
+#define _FPU_RC_NEAREST 0x00    /* RECOMMENDED */
+#define _FPU_RC_ZERO    0x10
+#define _FPU_RC_DOWN    0x20
+#define _FPU_RC_UP      0x30
 
-/* IEEE:  same as above, but (some) exceptions;
-   we leave the 'inexact' exception off.
- */
-#define _FPU_IEEE     0x000000f0
+#define _FPU_RESERVED 0xFFFF000F  /* Reserved bits in fpucr */
+
+
+/* Now two recommended fpucr */
+
+/* The fdlibm code requires no interrupts for exceptions.  Don't
+   change the rounding mode, it would break long double I/O!  */
+#define _FPU_DEFAULT  0x00000000
+
+/* IEEE:  same as above, but exceptions.  We must make it non-zero so
+   that __setfpucw works.  This bit will be ignored.  */
+#define _FPU_IEEE     0x00000001
 
 /* Type of the control word.  */
 typedef unsigned int fpu_control_t __attribute__ ((__mode__ (__SI__)));
 
 /* Macros for accessing the hardware control word.  */
-#define _FPU_GETCW(__cw) ( { \
-  union { double d; fpu_control_t cw[2]; } \
-    tmp __attribute__ ((__aligned__(8))); \
-  __asm__ ("mffs 0; stfd%U0 0,%0" : "=m" (tmp.d) : : "fr0"); \
-  (__cw)=tmp.cw[1]; \
-  tmp.cw[1]; } )
-#define _FPU_SETCW(__cw) { \
-  union { double d; fpu_control_t cw[2]; } \
-    tmp __attribute__ ((__aligned__(8))); \
-  tmp.cw[0] = 0xFFF80000; /* More-or-less arbitrary; this is a QNaN. */ \
-  tmp.cw[1] = __cw; \
-  __asm__ ("lfd%U0 0,%0; mtfsf 255,0" : : "m" (tmp.d) : "fr0"); \
-}
+#define _FPU_GETCW(cw) __asm__ ("fmove%.l %!, %0" : "=dm" (cw))
+#define _FPU_SETCW(cw) __asm__ volatile ("fmove%.l %0, %!" : : "dm" (cw))
 
+#if 0
 /* Default control word set at startup.  */
 extern fpu_control_t __fpu_control;
+#endif
 
-#endif /* _FPU_CONTROL_H */
+#endif /* _M68K_FPU_CONTROL_H */

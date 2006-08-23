@@ -89,7 +89,7 @@ typedef unsigned int fpu_control_t;
 #define _FPU_GETCW(cw) ({			\
 	register int __t1, __t2;		\
 						\
-	__asm__ volatile (			\
+	__asm__ __volatile__ (			\
 	"cfmvr64l	%1, mvdx0\n\t"		\
 	"cfmvr64h	%2, mvdx0\n\t"		\
 	"cfmv32sc	mvdx0, dspsc\n\t"	\
@@ -103,7 +103,7 @@ typedef unsigned int fpu_control_t;
 #define _FPU_SETCW(cw) ({			\
 	register int __t0, __t1, __t2;		\
 						\
-	__asm__ volatile (			\
+	__asm__ __volatile__ (			\
 	"cfmvr64l	%1, mvdx0\n\t"		\
 	"cfmvr64h	%2, mvdx0\n\t"		\
 	"cfmv64lr	mvdx0, %0\n\t"		\
@@ -195,7 +195,9 @@ typedef unsigned int fpu_control_t;
 
 #endif /* __MAVERICK__ */
 
+#if 0
 /* Default control word set at startup.  */
 extern fpu_control_t __fpu_control;
+#endif
 
 #endif /* _FPU_CONTROL_H */
