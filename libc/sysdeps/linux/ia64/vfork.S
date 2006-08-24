@@ -39,6 +39,6 @@ ENTRY(__vfork)
 (p6)	br.cond.spnt.few __syscall_error
 	ret
 PSEUDO_END(__vfork)
-libc_hidden_def (__vfork)
 
-weak_alias (__vfork, vfork)
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)
