@@ -33,10 +33,12 @@ typedef int32_t __s32;
 #include <linux/netlink.h>
 
 /* Should prob be a configure option or something */
+#ifndef __ASSUME_NETLINK_SUPPORT
 #ifdef __UCLIBC_USE_NETLINK__
 # define __ASSUME_NETLINK_SUPPORT 1
 #else
 # define __ASSUME_NETLINK_SUPPORT 0
+#endif
 #endif
 
 
