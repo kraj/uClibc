@@ -13,6 +13,10 @@
 #include <utmp.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <errno.h>
+#include <not-cancel.h>
+#endif
 
 #if 0
 libc_hidden_proto(memset)
@@ -47,6 +51,16 @@ void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 {
     int fd;
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+    fd = open_not_cancel(wtmp_file, O_APPEND | O_WRONLY, 0);
+    if (fd >= 0) {
+	if (lockf(fd, F_LOCK, 0)==0) {
+	    write_not_cancel(fd, (const char *) lutmp, sizeof(struct utmp));
+	    lockf(fd, F_ULOCK, 0);
+	    close_not_cancel_no_status(fd);
+	}
+    }
+#else
     fd = open(wtmp_file, O_APPEND | O_WRONLY, 0);
     if (fd >= 0) {
 	if (lockf(fd, F_LOCK, 0)==0) {
@@ -55,4 +69,5 @@ void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 	    close(fd);
 	}
     }
+#endif
 }

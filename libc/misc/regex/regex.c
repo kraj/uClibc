@@ -28,12 +28,15 @@
 #ifdef __UCLIBC__
 #undef _LIBC
 #define _REGEX_RE_COMP
-#define HAVE_MEMPCPY
+#ifdef __USE_GNU
+# define HAVE_MEMPCPY
+#endif
 #define HAVE_LANGINFO
 #define HAVE_LANGINFO_CODESET
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <strings.h>
 #include <stdlib.h>
 #ifdef __UCLIBC_HAS_WCHAR__
 #define RE_ENABLE_I18N
@@ -67,9 +70,11 @@ libc_hidden_proto(wctype)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
 libc_hidden_proto(__ctype_toupper_loc)
-#else
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 libc_hidden_proto(__ctype_toupper)
+#else
+libc_hidden_proto(isascii)
 #endif
 libc_hidden_proto(toupper)
 libc_hidden_proto(tolower)
@@ -83,8 +88,10 @@ libc_hidden_proto(strlen)
 libc_hidden_proto(strncpy)
 libc_hidden_proto(getenv)
 libc_hidden_proto(strcasecmp)
-libc_hidden_proto(mempcpy)
 libc_hidden_proto(abort)
+#ifdef __USE_GNU
+libc_hidden_proto(mempcpy)
+#endif
 
 #endif
 

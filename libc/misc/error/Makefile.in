@@ -14,6 +14,8 @@ MISC_ERROR_SRC := $(patsubst %.c,$(MISC_ERROR_DIR)/%.c,$(CSRC))
 MISC_ERROR_OBJ := $(patsubst %.c,$(MISC_ERROR_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_ERROR_OBJ)
+libc-a-y += $(MISC_ERROR_OBJ)
+libc-so-y += $(MISC_ERROR_OBJ:.o=.os)
 
 objclean-y += misc_error_objclean
 

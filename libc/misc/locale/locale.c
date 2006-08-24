@@ -60,7 +60,6 @@
 
 libc_hidden_proto(memcpy)
 libc_hidden_proto(memset)
-libc_hidden_proto(stpcpy)
 libc_hidden_proto(strtok_r)
 libc_hidden_proto(strlen)
 libc_hidden_proto(strcmp)
@@ -68,7 +67,9 @@ libc_hidden_proto(strcpy)
 libc_hidden_proto(strncmp)
 libc_hidden_proto(strchr)
 libc_hidden_proto(getenv)
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__C_ctype_toupper)
+#endif
 /*libc_hidden_proto(fflush)*/
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -148,10 +149,6 @@ extern void _locale_init_l(__locale_t base) attribute_hidden;
 #include <langinfo.h>
 #include <nl_types.h>
 
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
-
 /**********************************************************************/
 #ifdef L_setlocale
 
@@ -196,6 +193,7 @@ static const char utf8[] = "UTF-8";
  */
 static char hr_locale[(MAX_LOCALE_CATEGORY_STR * LC_ALL) + MAX_LOCALE_STR];
 
+libc_hidden_proto(stpcpy)
 libc_hidden_proto(newlocale)
 
 static void update_hr_locale(const unsigned char *spec)
@@ -377,12 +375,9 @@ libc_hidden_proto(__ctype_toupper)
 __uclibc_locale_t __global_locale_data;
 
 __locale_t __global_locale = &__global_locale_data;
-libc_hidden_data_def(__global_locale)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__curlocale_var)
 __locale_t __curlocale_var = &__global_locale_data;
-libc_hidden_data_def(__curlocale_var)
 #endif
 
 /*----------------------------------------------------------------------*/
@@ -1089,6 +1084,7 @@ libc_hidden_def(__XL_NPP(nl_langinfo))
 /**********************************************************************/
 #ifdef L_newlocale
 
+libc_hidden_proto(stpcpy)
 libc_hidden_proto(newlocale)
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -1386,8 +1382,6 @@ void freelocale(__locale_t dataset)
 /**********************************************************************/
 #ifdef L_uselocale
 
-libc_hidden_proto(__curlocale_var)
-
 libc_hidden_proto(uselocale)
 __locale_t uselocale(__locale_t dataset)
 {
@@ -1419,8 +1413,6 @@ libc_hidden_def(uselocale)
 #ifdef L___curlocale
 
 #ifdef __UCLIBC_HAS_THREADS__
-
-libc_hidden_proto(__curlocale_var)
 
 __locale_t weak_const_function __curlocale(void)
 {

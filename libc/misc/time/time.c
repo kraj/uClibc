@@ -133,6 +133,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <strings.h>
 #include <time.h>
 #include <sys/time.h>
 #include <limits.h>
@@ -164,7 +165,6 @@ libc_hidden_proto(strcmp)
 libc_hidden_proto(strcpy)
 libc_hidden_proto(strlen)
 libc_hidden_proto(strncpy)
-libc_hidden_proto(strnlen)
 /* libc_hidden_proto(sprintf) */
 libc_hidden_proto(open)
 libc_hidden_proto(read)
@@ -183,7 +183,7 @@ libc_hidden_proto(strtol_l)
 libc_hidden_proto(strtoul_l)
 libc_hidden_proto(nl_langinfo_l)
 libc_hidden_proto(__ctype_b_loc)
-#else
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 
@@ -365,10 +365,22 @@ char *asctime_r(register const struct tm *__restrict ptm,
 			tmp /= 10;
 		} while (*--buffer == '?');
 	}
+/*	Not sure if we should even bother ...
+	} else {
+		__set_errno(EOVERFLOW);
+		return NULL;
+	}
+*/
 #else  /* SAFE_ASCTIME_R */
 	buffer += 23;
 	tmp = ptm->tm_year + 1900;
 	assert( ((unsigned int) tmp) < 10000 );
+/*	Not sure if we should even bother ...
+	if ( ((unsigned int) tmp) >= 10000 ) {
+		__set_errno(EOVERFLOW);
+		return NULL;
+	}
+*/
 	do {
 		*buffer = '0' + (tmp % 10);
 		tmp /= 10;
@@ -594,6 +606,8 @@ libc_hidden_def(localtime_r)
 
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 
+libc_hidden_proto(strnlen)
+
 struct ll_tzname_item;
 
 typedef struct ll_tzname_item {
@@ -735,8 +749,13 @@ struct tm attribute_hidden *__time_localtime_tzi(register const time_t *__restri
 		_time_t2tm(x, days, result);
 		result->tm_isdst = dst;
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+# ifdef __USE_BSD
 		result->tm_gmtoff = - tzi[dst].gmt_offset;
 		result->tm_zone = lookup_tzname(tzi[dst].tzname);
+# else
+		result->__tm_gmtoff = - tzi[dst].gmt_offset;
+		result->__tm_zone = lookup_tzname(tzi[dst].tzname);
+# endif
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
 	} while ((++dst < 2)
 			 && ((result->tm_isdst = tm_isdst(result, tzi)) != 0));
@@ -1115,8 +1134,13 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 
 #define RSP_TZUNLOCK	((void) 0)
-#define RSP_TZNAME		timeptr->tm_zone
-#define RSP_GMT_OFFSET	(-timeptr->tm_gmtoff)
+# ifdef __USE_BSD
+#  define RSP_TZNAME		timeptr->tm_zone
+#  define RSP_GMT_OFFSET	(-timeptr->tm_gmtoff)
+# else
+#  define RSP_TZNAME		timeptr->__tm_zone
+#  define RSP_GMT_OFFSET	(-timeptr->__tm_gmtoff)
+# endif
 
 #else
 
@@ -1703,15 +1727,9 @@ static const char vals[] = {
 #define DEFAULT_RULES (vals + 22)
 
 /* Initialize to UTC. */
-libc_hidden_proto(daylight)
 int daylight = 0;
-libc_hidden_data_def(daylight)
-libc_hidden_proto(timezone)
 long timezone = 0;
-libc_hidden_data_def(timezone)
-libc_hidden_proto(tzname)
 char *tzname[2] = { (char *) UTC, (char *) (UTC-1) };
-libc_hidden_data_def(tzname)
 
 #ifdef __UCLIBC_HAS_THREADS__
 attribute_hidden pthread_mutex_t _time_tzlock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -2199,8 +2217,13 @@ struct tm attribute_hidden *_time_t2tm(const time_t *__restrict timer,
 	/* TODO -- should this be 0? */
 	p[4] = 0;					/* result[8] .. tm_isdst */
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+# ifdef __USE_BSD
 	result->tm_gmtoff = 0;
 	result->tm_zone = utc_string;
+# else
+	result->__tm_gmtoff = 0;
+	result->__tm_zone = utc_string;
+# endif
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
 
 	return result;

@@ -38,9 +38,7 @@
 #include <bits/uClibc_uwchar.h>
 
 libc_hidden_proto(strcmp)
-libc_hidden_proto(__C_ctype_tolower)
 libc_hidden_proto(tolower)
-libc_hidden_proto(__C_ctype_toupper)
 libc_hidden_proto(toupper)
 libc_hidden_proto(towlower)
 libc_hidden_proto(towupper)
@@ -57,11 +55,13 @@ libc_hidden_proto(towlower_l)
 libc_hidden_proto(towupper_l)
 libc_hidden_proto(towctrans_l)
 libc_hidden_proto(iswctype_l)
-#else
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif /* __UCLIBC_HAS_XLOCALE__ */
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
+
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
+libc_hidden_proto(__C_ctype_tolower)
+libc_hidden_proto(__C_ctype_toupper)
 #endif
 
 /* We know wide char support is enabled.  We wouldn't be here otherwise. */

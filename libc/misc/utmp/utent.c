@@ -19,6 +19,9 @@
 #include <errno.h>
 #include <string.h>
 #include <utmp.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <not-cancel.h>
+#endif
 
 libc_hidden_proto(strcmp)
 libc_hidden_proto(strdup)
@@ -52,20 +55,37 @@ void setutent(void)
 
     LOCK;
     if (static_fd == -1) {
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	if ((static_fd = open_not_cancel_2(static_ut_name, O_RDWR)) < 0) {
+	    if ((static_fd = open_not_cancel_2(static_ut_name, O_RDONLY)) < 0) {
+#else
 	if ((static_fd = open(static_ut_name, O_RDWR)) < 0) {
 	    if ((static_fd = open(static_ut_name, O_RDONLY)) < 0) {
+#endif
 		goto bummer;
 	    }
 	}
 	/* Make sure the file will be closed on exec()  */
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	ret = fcntl_not_cancel(static_fd, F_GETFD, 0);
+#else
 	ret = fcntl(static_fd, F_GETFD, 0);
+#endif
 	if (ret >= 0) {
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	    ret = fcntl_not_cancel(static_fd, F_SETFD, ret | FD_CLOEXEC);
+#else
 	    ret = fcntl(static_fd, F_SETFD, ret | FD_CLOEXEC);
+#endif
 	}
 	if (ret < 0) {
 bummer:
 	    static_fd = -1;
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	    close_not_cancel_no_status(static_fd);
+#else
 	    close(static_fd);
+#endif
 unlock_and_ret:
 	    UNLOCK;
 	    return;
@@ -88,7 +108,11 @@ static struct utmp *__getutent(int utmp_fd)
     }
 
     LOCK;
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+    if (read_not_cancel(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) == sizeof(struct utmp)) 
+#else
     if (read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) == sizeof(struct utmp)) 
+#endif
     {
 	ret = &static_utmp;
     }
@@ -101,7 +125,11 @@ void endutent(void)
 {
     LOCK;
     if (static_fd != -1)
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	close_not_cancel_no_status(static_fd);
+#else
 	close(static_fd);
+#endif
     static_fd = -1;
     UNLOCK;
 }
@@ -168,7 +196,11 @@ struct utmp *pututline (const struct utmp *utmp_entry)
 	lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
     else
 	lseek(static_fd, (off_t) 0, SEEK_END);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
     if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
+#else
+    if (write_not_cancel(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
+#endif
 	utmp_entry = NULL;
 
     UNLOCK;
@@ -190,7 +222,11 @@ int utmpname (const char *new_ut_name)
     }
 
     if (static_fd != -1)
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	close_not_cancel_no_status(static_fd);
+#else
 	close(static_fd);
+#endif
     static_fd = -1;
     UNLOCK;
     return 0;

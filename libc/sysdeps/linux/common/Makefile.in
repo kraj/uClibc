@@ -25,7 +25,9 @@ CSRC := $(filter-out ssp.c,$(CSRC))
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC := $(filter-out fork.c getpid.c raise.c pause.c open.c close.c read.c write.c nanosleep.c __syscall_rt_sigaction.c,$(CSRC))
+CSRC := $(filter-out fork.c getpid.c raise.c pause.c open.c close.c	\
+	  read.c write.c nanosleep.c __syscall_rt_sigaction.c msync.c	\
+	  lseek.c __syscall_fcntl64.c, $(CSRC))
 endif
 
 # fails for some reason
@@ -42,6 +44,9 @@ COMMON_OBJ := $(patsubst %.c,$(COMMON_OUT)/%.o,$(CSRC))
 libc-y += $(COMMON_OBJ)
 libc-static-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp-local.o
 libc-nonshared-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp-local.os
+libc-a-y += $(COMMON_OBJ)
+libc-so-y += $(COMMON_OBJ)
+libc-a-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp-local.o
 
 libc-nomulti-y += $(COMMON_OUT)/__syscall_rt_sigaction.o $(COMMON_OUT)/__syscall_sigaction.o
 libc-nomulti-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp.o

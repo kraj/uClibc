@@ -42,6 +42,34 @@ struct new_msg_buf{
 
 
 #ifdef L_msgrcv
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep-cancel.h>
+
+int
+__libc_msgrcv (int msqid, void *msgp, size_t msgsz, long int msgtyp, int msgflg)
+{
+  /* The problem here is that Linux' calling convention only allows up to
+     fives parameters to a system call.  */
+  struct new_msg_buf tmp;
+
+  tmp.oldmsg = msgp;
+  tmp.r_msgtyp = msgtyp;
+
+  if (SINGLE_THREAD_P)
+    return INLINE_SYSCALL (ipc, 5, IPCOP_msgrcv, msqid, msgsz, msgflg,
+			   __ptrvalue (&tmp));
+
+  int oldtype = LIBC_CANCEL_ASYNC ();
+
+  int result = INLINE_SYSCALL (ipc, 5, IPCOP_msgrcv, msqid, msgsz, msgflg,
+			       __ptrvalue (&tmp));
+
+   LIBC_CANCEL_RESET (oldtype);
+
+  return result;
+}
+weak_alias(__libc_msgrcv, msgrcv)
+#else
 #ifdef __NR_msgrcv
 _syscall5(int, msgrcv, int, msqid, void *, msgp, size_t, msgsz, long int, msgtyp, int, msgflg);
 #else
@@ -56,10 +84,32 @@ int msgrcv (int msqid, void *msgp, size_t msgsz,
 }
 #endif
 #endif
+#endif
 
 
 
 #ifdef L_msgsnd
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep-cancel.h>
+
+int
+__libc_msgsnd (int msqid, const void *msgp, size_t msgsz, int msgflg)
+{
+  if (SINGLE_THREAD_P)
+    return INLINE_SYSCALL (ipc, 5, IPCOP_msgsnd, msqid, msgsz,
+			   msgflg, msgp);
+
+  int oldtype = LIBC_CANCEL_ASYNC ();
+
+  int result = INLINE_SYSCALL (ipc, 5, IPCOP_msgsnd, msqid, msgsz,
+			       msgflg, msgp);
+
+  LIBC_CANCEL_RESET (oldtype);
+
+  return result;
+}
+weak_alias(__libc_msgsnd, msgsnd)
+#else
 #ifdef __NR_msgsnd
 _syscall4(int, msgsnd, int, msqid, const void *, msgp, size_t, msgsz, int, msgflg);
 #else
@@ -68,6 +118,7 @@ int msgsnd (int msqid, const void *msgp, size_t msgsz, int msgflg)
 {
     return __syscall_ipc(IPCOP_msgsnd, msqid, msgsz, msgflg, (void *)msgp);
 }
+#endif
 #endif
 #endif
 

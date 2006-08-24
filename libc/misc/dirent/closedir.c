@@ -1,10 +1,22 @@
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include "dirstream.h"
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <not-cancel.h>
+#endif
 
-int attribute_hidden __closedir(DIR * dir)
+libc_hidden_proto(closedir)
+libc_hidden_proto(close)
+
+int closedir(DIR * dir)
 {
 	int fd;
 
@@ -24,6 +36,10 @@ int attribute_hidden __closedir(DIR * dir)
 	__pthread_mutex_unlock(&(dir->dd_lock));
 	free(dir->dd_buf);
 	free(dir);
-	return __close(fd);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	return close_not_cancel(fd);
+#else
+	return close(fd);
+#endif
 }
-strong_alias(__closedir,closedir)
+libc_hidden_def(closedir)

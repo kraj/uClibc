@@ -1,41 +1,79 @@
+/*
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/dir.h>
 #include <sys/stat.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <not-cancel.h>
+#endif
 #include "dirstream.h"
 
+libc_hidden_proto(opendir)
+libc_hidden_proto(open)
+libc_hidden_proto(fcntl)
+libc_hidden_proto(close)
+libc_hidden_proto(stat)
+libc_hidden_proto(fstat)
 
 /* opendir just makes an open() call - it return NULL if it fails
  * (open sets errno), otherwise it returns a DIR * pointer.
  */
-DIR attribute_hidden *__opendir(const char *name)
+DIR *opendir(const char *name)
 {
 	int fd;
 	struct stat statbuf;
-	char *buf;
 	DIR *ptr;
 
-	if (__stat(name, &statbuf))
+#ifndef O_DIRECTORY
+	/* O_DIRECTORY is linux specific and has been around since like 2.1.x */
+	if (stat(name, &statbuf))
 		return NULL;
 	if (!S_ISDIR(statbuf.st_mode)) {
 		__set_errno(ENOTDIR);
 		return NULL;
 	}
-	if ((fd = __open(name, O_RDONLY)) < 0)
+# define O_DIRECTORY 0
+#endif
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	if ((fd = open_not_cancel_2(name, O_RDONLY|O_NDELAY|O_DIRECTORY)) < 0)
+#else
+	if ((fd = open(name, O_RDONLY|O_NDELAY|O_DIRECTORY)) < 0)
+#endif
 		return NULL;
+
+	/* Note: we should check to make sure that between the stat() and open()
+	 * call, 'name' didnt change on us, but that's only if O_DIRECTORY isnt
+	 * defined and since Linux has supported it for like ever, i'm not going
+	 * to worry about it right now (if ever). */
+	if (fstat(fd, &statbuf) < 0)
+		goto close_and_ret;
+
 	/* According to POSIX, directory streams should be closed when
 	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
 	 */
-	if (__fcntl(fd, F_SETFD, FD_CLOEXEC) < 0)
-		return NULL;
-	if (!(ptr = malloc(sizeof(*ptr)))) {
-		__close(fd);
-		__set_errno(ENOMEM);
+	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
+		int saved_errno;
+close_and_ret:
+		saved_errno = errno;
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+		close_not_cancel_no_status(fd);
+#else
+		close(fd);
+#endif
+		__set_errno(saved_errno);
 		return NULL;
 	}
+	if (!(ptr = malloc(sizeof(*ptr))))
+		goto nomem_close_and_ret;
 
 	ptr->dd_fd = fd;
 	ptr->dd_nextloc = ptr->dd_size = ptr->dd_nextoff = 0;
@@ -44,14 +82,18 @@ DIR attribute_hidden *__opendir(const char *name)
 	if (ptr->dd_max < 512)
 		ptr->dd_max = 512;
 
-	if (!(buf = calloc(1, ptr->dd_max))) {
-		__close(fd);
+	if (!(ptr->dd_buf = calloc(1, ptr->dd_max))) {
 		free(ptr);
+nomem_close_and_ret:
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+		close_not_cancel_no_status(fd);
+#else
+		close(fd);
+#endif
 		__set_errno(ENOMEM);
 		return NULL;
 	}
-	ptr->dd_buf = buf;
 	__pthread_mutex_init(&(ptr->dd_lock), NULL);
 	return ptr;
 }
-strong_alias(__opendir,opendir)
+libc_hidden_def(opendir)

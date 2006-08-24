@@ -1,6 +1,5 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
@@ -15,6 +14,8 @@ MISC_SYSLOG_SRC := $(patsubst %.c,$(MISC_SYSLOG_DIR)/%.c,$(CSRC))
 MISC_SYSLOG_OBJ := $(patsubst %.c,$(MISC_SYSLOG_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_SYSLOG_OBJ)
+libc-a-y += $(MISC_SYSLOG_OBJ)
+libc-so-y += $(MISC_SYSLOG_OBJ)
 
 objclean-y += misc_syslog_objclean
 

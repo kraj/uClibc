@@ -16,6 +16,9 @@ ARCH_SOBJ := $(patsubst %.s,$(ARCH_OUT)/%.o,$(patsubst %.S,$(ARCH_OUT)/%.o,$(SSR
 ARCH_OBJS := $(ARCH_COBJ) $(ARCH_SOBJ)
 
 crt-y          := create
+libc-a-y       += $(ARCH_OBJS)
+libc-so-y      += $(ARCH_OBJS:.o=.os)
+libc-multi-y   += $(ARCH_CSRC)
 libc-y         += $(ARCH_OBJS)
 libc-nomulti-y += $(ARCH_SOBJ)
 objclean-y     += arch_objclean

@@ -35,8 +35,6 @@ libc_hidden_proto(vfprintf)
 libc_hidden_proto(fflush)
 libc_hidden_proto(fputc)
 libc_hidden_proto(__fputc_unlocked)
-libc_hidden_proto(stdout)
-libc_hidden_proto(stderr)
 
 /* This variable is incremented each time `error' is called.  */
 unsigned int error_message_count = 0;
@@ -66,6 +64,7 @@ void __error (int status, int errnum, const char *message, ...)
     if (status)
 	exit (status);
 }
+weak_alias(__error,error)
 
 extern __typeof(error_at_line) __error_at_line attribute_hidden;
 void __error_at_line (int status, int errnum, const char *file_name,
@@ -103,7 +102,4 @@ void __error_at_line (int status, int errnum, const char *file_name,
     if (status)
 	exit (status);
 }
-
-/* psm: keep this weak, too many use this in common code */
-weak_alias(__error,error)
-strong_alias(__error_at_line,error_at_line)
+weak_alias(__error_at_line,error_at_line)

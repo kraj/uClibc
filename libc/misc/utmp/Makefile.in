@@ -1,6 +1,5 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
@@ -15,6 +14,8 @@ MISC_UTMP_SRC := $(patsubst %.c,$(MISC_UTMP_DIR)/%.c,$(CSRC))
 MISC_UTMP_OBJ := $(patsubst %.c,$(MISC_UTMP_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_UTMP_OBJ)
+libc-a-y += $(MISC_UTMP_OBJ)
+libc-so-y += $(MISC_UTMP_OBJ)
 
 objclean-y += misc_utmp_objclean
 

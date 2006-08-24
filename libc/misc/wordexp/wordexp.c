@@ -44,7 +44,6 @@ libc_hidden_proto(strlen)
 libc_hidden_proto(strndup)
 libc_hidden_proto(strspn)
 libc_hidden_proto(strcspn)
-libc_hidden_proto(__environ)
 libc_hidden_proto(setenv)
 libc_hidden_proto(unsetenv)
 libc_hidden_proto(waitpid)
@@ -66,13 +65,12 @@ libc_hidden_proto(getpid)
 libc_hidden_proto(sprintf)
 libc_hidden_proto(fprintf)
 libc_hidden_proto(abort)
-libc_hidden_proto(stderr)
 libc_hidden_proto(glob)
 libc_hidden_proto(globfree)
 libc_hidden_proto(wordfree)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#else
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 

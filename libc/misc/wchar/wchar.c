@@ -98,7 +98,6 @@
  * Manuel
  */
 
-#define _ISOC99_SOURCE
 #include <errno.h>
 #include <stddef.h>
 #include <limits.h>
@@ -111,9 +110,6 @@
 #include <wchar.h>
 #include <bits/uClibc_uwchar.h>
 
-#ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(__global_locale)
-#endif
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_LOCALE__
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -1195,6 +1191,7 @@ typedef struct {
 
 #include <iconv.h>
 #include <string.h>
+#include <strings.h>
 #include <endian.h>
 #include <byteswap.h>
 

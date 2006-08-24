@@ -66,7 +66,7 @@ libc_hidden_proto(strcoll)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
 libc_hidden_proto(__ctype_tolower_loc)
-#else
+#elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 libc_hidden_proto(__ctype_tolower)
 #endif
@@ -102,21 +102,16 @@ libc_hidden_proto(mbsrtowcs)
 /* We need some of the locale data (the collation sequence information)
    but there is no interface to get this information in general.  Therefore
    we support a correct implementation only in glibc.  */
-#if defined _LIBC
+#ifdef _LIBC
 # include "../locale/localeinfo.h"
 # include "../locale/elem-hash.h"
 # include "../locale/coll-lookup.h"
 # include <shlib-compat.h>
 
 # define CONCAT(a,b) __CONCAT(a,b)
-# if defined _LIBC
 # define mbsrtowcs __mbsrtowcs
-# endif
 # define fnmatch __fnmatch
-extern int fnmatch (const char *pattern, const char *string, int flags) attribute_hidden;
-#endif
-#ifdef __UCLIBC__
-# define CONCAT(a,b) __CONCAT(a,b)
+extern int fnmatch (const char *pattern, const char *string, int flags);
 #endif
 
 /* We often have to test for FNM_FILE_NAME and FNM_PERIOD being both set.  */
@@ -175,13 +170,13 @@ extern int fnmatch (const char *pattern, const char *string, int flags) attribut
 #   define CHAR_CLASS_MAX_LENGTH 256
 #  endif
 
-#  if defined _LIBC
+#  ifdef _LIBC
 #   define IS_CHAR_CLASS(string) __wctype (string)
 #  else
 #   define IS_CHAR_CLASS(string) wctype (string)
 #  endif
 
-#  if defined _LIBC
+#  ifdef _LIBC
 #   define ISWCTYPE(WC, WT)	__iswctype (WC, WT)
 #  else
 #   define ISWCTYPE(WC, WT)	iswctype (WC, WT)
@@ -253,8 +248,8 @@ __wcschrnul (s, c)
 # endif
 
 /* Note that this evaluates C many times.  */
-# if defined _LIBC
-#  define FOLD(c) ((flags & FNM_CASEFOLD) ? __tolower (c) : (c))
+# ifdef _LIBC
+#  define FOLD(c) ((flags & FNM_CASEFOLD) ? tolower (c) : (c))
 # else
 #  define FOLD(c) ((flags & FNM_CASEFOLD) && ISUPPER (c) ? tolower (c) : (c))
 # endif
@@ -265,7 +260,7 @@ __wcschrnul (s, c)
 # define EXT	ext_match
 # define END	end_pattern
 # define L(CS)	CS
-# if defined _LIBC
+# ifdef _LIBC
 #  define BTOWC(C)	__btowc (C)
 # else
 #  define BTOWC(C)	btowc (C)
@@ -280,8 +275,8 @@ __wcschrnul (s, c)
 
 # if HANDLE_MULTIBYTE
 /* Note that this evaluates C many times.  */
-#  if defined _LIBC
-#   define FOLD(c) ((flags & FNM_CASEFOLD) ? __towlower (c) : (c))
+#  ifdef _LIBC
+#   define FOLD(c) ((flags & FNM_CASEFOLD) ? towlower (c) : (c))
 #  else
 #   define FOLD(c) ((flags & FNM_CASEFOLD) && ISUPPER (c) ? towlower (c) : (c))
 #  endif
@@ -361,7 +356,7 @@ is_char_class (const wchar_t *wcs)
 
   *cp = '\0';
 
-#  if defined _LIBC
+#  ifdef _LIBC
   return __wctype (s);
 #  else
   return wctype (s);
@@ -465,16 +460,14 @@ fnmatch (const char *pattern, const char *string, int flags)
 			   flags & FNM_PERIOD, flags);
 }
 
-# if defined _LIBC
+# ifdef _LIBC
 #  undef fnmatch
-#  ifndef __UCLIBC__
 versioned_symbol (libc, __fnmatch, fnmatch, GLIBC_2_2_3);
 #  if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_2_3)
 strong_alias (__fnmatch, __fnmatch_old)
 compat_symbol (libc, __fnmatch_old, fnmatch, GLIBC_2_0);
 #  endif
 libc_hidden_ver (__fnmatch, fnmatch)
-#  endif
 # else
 libc_hidden_def(fnmatch)
 # endif
