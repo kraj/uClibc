@@ -18,9 +18,6 @@
    02111-1307 USA.  */
 
 #include <features.h>
-#define _SETJMP_H
-#define _ASM
-#include <bits/setjmp.h>
 
 .global __sigsetjmp
 .type __sigsetjmp,%function

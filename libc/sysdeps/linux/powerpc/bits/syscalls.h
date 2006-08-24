@@ -5,12 +5,12 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
-#include <errno.h>
-
 /* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
  * header files.  It also defines the traditional `SYS_<name>' macros for older
  * programs.  */
 #include <bits/sysnum.h>
+
+#ifndef __ASSEMBLER__
 
 /* Define a macro which expands inline into the wrapper code for a system
    call. This use is for internal calls that do not need to handle errors
@@ -19,6 +19,10 @@
    function call, with the exception of LR (which is needed for the
    "sc; bnslr+" sequence) and CR (where only CR0.SO is clobbered to signal
    an error return status).  */
+
+#include <errno.h>
+
+#define SYS_ify(syscall_name)  (__NR_##syscall_name)
 
 # undef INLINE_SYSCALL
 #if 1
@@ -164,5 +168,5 @@ type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6
   return (type) INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6); \
 }
 
+#endif /* __ASSEMBLER__ */
 #endif /* _BITS_SYSCALLS_H */
-

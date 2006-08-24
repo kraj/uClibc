@@ -95,7 +95,9 @@ typedef unsigned int fpu_control_t __attribute__ ((__mode__ (__HI__)));
 #define _FPU_GETCW(cw) __asm__ ("fnstcw %0" : "=m" (*&cw))
 #define _FPU_SETCW(cw) __asm__ ("fldcw %0" : : "m" (*&cw))
 
+#if 0
 /* Default control word set at startup.  */
 extern fpu_control_t __fpu_control;
+#endif
 
 #endif	/* fpu_control.h */

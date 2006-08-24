@@ -1,5 +1,5 @@
 /* Macros to swap the order of bytes in integer values.
-   Copyright (C) 1997, 1998, 2000, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1997, 1998, 2000, 2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -28,60 +28,78 @@
 #define __bswap_constant_16(x) \
      ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8))
 
-#if defined __GNUC__ && __GNUC__ >= 2
-# define __bswap_16(x) \
+#ifdef __GNUC__
+# if __GNUC__ >= 2
+#  define __bswap_16(x) \
      (__extension__							      \
-      ({ register unsigned short int __v;				      \
-	 if (__builtin_constant_p (x))					      \
-	   __v = __bswap_constant_16 (x);				      \
+      ({ register unsigned short int __v, __x = (x);			      \
+	 if (__builtin_constant_p (__x))				      \
+	   __v = __bswap_constant_16 (__x);				      \
 	 else								      \
-	   __asm__ __volatile__ ("rorw $8, %w0"				      \
-				 : "=r" (__v)				      \
-				 : "0" ((unsigned short int) (x))	      \
-				 : "cc");				      \
+	   __asm__ ("rorw $8, %w0"					      \
+		    : "=r" (__v)					      \
+ 		    : "0" (__x)						      \
+ 		    : "cc");						      \
 	 __v; }))
-#else
+# else
 /* This is better than nothing.  */
-# define __bswap_16(x) __bswap_constant_16 (x)
+#  define __bswap_16(x) \
+     (__extension__							      \
+      ({ register unsigned short int __x = (x); __bswap_constant_16 (__x); }))
+# endif
+#else
+static __inline unsigned short int
+__bswap_16 (unsigned short int __bsx)
+{
+  return __bswap_constant_16 (__bsx);
+}
 #endif
-
 
 /* Swap bytes in 32 bit value.  */
 #define __bswap_constant_32(x) \
      ((((x) & 0xff000000) >> 24) | (((x) & 0x00ff0000) >>  8) |		      \
       (((x) & 0x0000ff00) <<  8) | (((x) & 0x000000ff) << 24))
 
-#if defined __GNUC__ && __GNUC__ >= 2
+#ifdef __GNUC__
+# if __GNUC__ >= 2
 /* To swap the bytes in a word the i486 processors and up provide the
    `bswap' opcode.  On i386 we have to use three instructions.  */
-# if !defined __i486__ && !defined __pentium__ && !defined __pentiumpro__
-#  define __bswap_32(x) \
+#  if !defined __i486__ && !defined __pentium__ && !defined __pentiumpro__ \
+      && !defined __pentium4__
+#   define __bswap_32(x)						      \
      (__extension__							      \
-      ({ register unsigned int __v;					      \
-	 if (__builtin_constant_p (x))					      \
-	   __v = __bswap_constant_32 (x);				      \
+      ({ register unsigned int __v, __x = (x);				      \
+	 if (__builtin_constant_p (__x))				      \
+	   __v = __bswap_constant_32 (__x);				      \
 	 else								      \
-	   __asm__ __volatile__ ("rorw $8, %w0;"			      \
-				 "rorl $16, %0;"			      \
-				 "rorw $8, %w0"				      \
-				 : "=r" (__v)				      \
-				 : "0" ((unsigned int) (x))		      \
-				 : "cc");				      \
+	   __asm__ ("rorw $8, %w0;"					      \
+		    "rorl $16, %0;"					      \
+		    "rorw $8, %w0"					      \
+		    : "=r" (__v)					      \
+		    : "0" (__x)						      \
+		    : "cc");						      \
 	 __v; }))
+#  else
+#   define __bswap_32(x) \
+     (__extension__							      \
+      ({ register unsigned int __v, __x = (x);				      \
+	 if (__builtin_constant_p (__x))				      \
+	   __v = __bswap_constant_32 (__x);				      \
+	 else								      \
+	   __asm__ ("bswap %0" : "=r" (__v) : "0" (__x));		      \
+	 __v; }))
+#  endif
 # else
 #  define __bswap_32(x) \
      (__extension__							      \
-      ({ register unsigned int __v;					      \
-	 if (__builtin_constant_p (x))					      \
-	   __v = __bswap_constant_32 (x);				      \
-	 else								      \
-	   __asm__ __volatile__ ("bswap %0"				      \
-				 : "=r" (__v)				      \
-				 : "0" ((unsigned int) (x)));		      \
-	 __v; }))
+      ({ register unsigned int __x = (x); __bswap_constant_32 (__x); }))
 # endif
 #else
-# define __bswap_32(x) __bswap_constant_32 (x)
+static __inline unsigned int
+__bswap_32 (unsigned int __bsx)
+{
+  return __bswap_constant_32 (__bsx);
+}
 #endif
 
 

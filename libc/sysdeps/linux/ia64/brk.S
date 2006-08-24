@@ -25,6 +25,7 @@
 #include <asm/errno.h>
 
 	.global __curbrk
+	.hidden __curbrk
 	.type __curbrk,@object
 	.size __curbrk,8
 	.data
@@ -34,7 +35,7 @@ __curbrk:
 
 weak_alias (__curbrk, ___brk_addr)
 
-LEAF(__brk)
+LEAF(brk)
 	.regstk 1, 0, 0, 0
 	DO_CALL(__NR_brk)
 	cmp.ltu	p6, p0 = ret0, in0
@@ -47,6 +48,5 @@ LEAF(__brk)
 	st8 [r9] = ret0
 	mov ret0 = 0
 	ret
-END(__brk)
-
-weak_alias (__brk, brk)
+END(brk)
+libc_hidden_def(brk)

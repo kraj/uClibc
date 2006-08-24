@@ -4,13 +4,12 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-void * __curbrk = 0;
+void * __curbrk attribute_hidden = 0;
 
 #define __NR__brk __NR_brk
 attribute_hidden _syscall1(void *, _brk, void *, ptr);
 
-extern int __init_brk(void);
-libc_hidden_proto(__init_brk)
+extern int __init_brk(void) attribute_hidden;
 int
 __init_brk (void)
 {
@@ -25,4 +24,3 @@ __init_brk (void)
     }
     return 0;
 }
-libc_hidden_def(__init_brk)

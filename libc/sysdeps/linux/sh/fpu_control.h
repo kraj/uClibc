@@ -20,6 +20,8 @@
 #ifndef _FPU_CONTROL_H
 #define _FPU_CONTROL_H
 
+#warning This file is only correct for sh4
+
 /* masking of interrupts */
 #define _FPU_MASK_VM	0x0800	/* Invalid operation */
 #define _FPU_MASK_ZM	0x0400	/* Division by zero  */
@@ -50,7 +52,9 @@ typedef unsigned int fpu_control_t;
 #define _FPU_SETCW(cw) __asm__ ("lds %0,fpscr" : : "r" (cw))
 #endif
 
+#if 0
 /* Default control word set at startup.	 */
 extern fpu_control_t __fpu_control;
+#endif
 
 #endif /* _FPU_CONTROL_H */

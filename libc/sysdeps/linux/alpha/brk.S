@@ -30,13 +30,13 @@
 .section .bss
 	.align 3
 	.globl __curbrk
+	.hidden __curbrk
 __curbrk: .skip 8
 	.type __curbrk,@object
 	.size __curbrk,8
 #else
 .comm __curbrk, 8
 #endif
-libc_hidden_data_def(__curbrk)
 
 	.text
 .globl  brk;

@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1998, 1999, 2000, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -31,11 +31,12 @@ typedef long double float_t;	/* `float' expressions are evaluated as
 typedef long double double_t;	/* `double' expressions are evaluated as
 				   `long double'.  */
 
-/* Define `INFINITY' as value of type `float'.  */
-# define INFINITY	HUGE_VALF
-
 /* The values returned by `ilogb' for 0 and NaN respectively.  */
 # define FP_ILOGB0	(-2147483647 - 1)
 # define FP_ILOGBNAN	(2147483647)
 
 #endif	/* ISO C99 */
+
+#if !defined __NO_LONG_DOUBLE_MATH && !defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
+# define __NO_LONG_DOUBLE_MATH	1
+#endif

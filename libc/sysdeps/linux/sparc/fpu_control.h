@@ -67,7 +67,9 @@ typedef unsigned long int fpu_control_t;
 # define _FPU_SETCW(cw) __asm__ ("ld %0,%%fsr" : : "m" (*&cw))
 #endif
 
+#if 0
 /* Default control word set at startup.  */
 extern fpu_control_t __fpu_control;
+#endif
 
 #endif	/* fpu_control.h */

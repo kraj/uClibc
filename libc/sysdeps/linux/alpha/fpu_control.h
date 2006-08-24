@@ -100,7 +100,9 @@
 /* Type of the control word.  */
 typedef unsigned int fpu_control_t;
 
+#if 0
 /* Default control word set at startup.  */
 extern fpu_control_t __fpu_control;
+#endif
 
 #endif	/* _ALPHA_FPU_CONTROL */
