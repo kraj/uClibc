@@ -4,8 +4,6 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
-#include <errno.h>
-
 /* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
  * header files.  It also defines the traditional `SYS_<name>' macros for older
  * programs.  */
@@ -19,6 +17,8 @@
 #undef __NR_vm86
 
 #ifndef __ASSEMBLER__
+
+#include <errno.h>
 
 /* Linux takes system call arguments in registers:
 
