@@ -64,6 +64,7 @@
 #include <pwd.h>
 #include <string.h>
 #include <crypt.h>
+#include "libcrypt.h"
 
 /* Re-entrantify me -- all this junk needs to be in 
  * struct crypt_data to make this really reentrant... */
@@ -638,9 +639,7 @@ encrypt(char *block, int flag)
 			block[(i << 5) | j] = (io[i] & bits32[j]) ? 1 : 0;
 }
 
-char *__des_crypt(const char *key, const char *setting) attribute_hidden;
-char *
-__des_crypt(const char *key, const char *setting)
+char *__des_crypt(const unsigned char *key, const unsigned char *setting)
 {
 	u_int32_t	count, salt, l, r0, r1, keybuf[2];
 	u_char		*p, *q;

@@ -79,7 +79,8 @@
 #include <stdio.h>
 #include <crypt.h>
 #include <sys/cdefs.h>
-	
+#include "libcrypt.h"
+
 /* MD5 context. */
 struct MD5Context {
   u_int32_t state[4];	/* state (ABCD) */
@@ -98,14 +99,6 @@ static const unsigned char __md5__magic[] = "$1$";	/* This string is magic for t
 						   it this way, we can get better later on */
 static const unsigned char __md5_itoa64[] =		/* 0 ... 63 => ascii - 64 */
 	"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-
-/* shut up gcc-4.x signed warnings */
-#define strcpy(dst,src) strcpy((char*)dst,(char*)src)
-#define strlen(s) strlen((char*)s)
-#define strncat(dst,src,n) strncat((char*)dst,(char*)src,n)
-#define strncmp(s1,s2,n) strncmp((char*)s1,(char*)s2,n)
-
 
 
 #ifdef i386
@@ -538,8 +531,7 @@ static void __md5_to64( char *s, unsigned long v, int n)
  * Use MD5 for what it is best at...
  */
 
-char * __md5_crypt( const unsigned char *pw, const unsigned char *salt) attribute_hidden;
-char * __md5_crypt( const unsigned char *pw, const unsigned char *salt)
+char *__md5_crypt(const unsigned char *pw, const unsigned char *salt)
 {
 	/* Static stuff */
 	static const unsigned char *sp, *ep;
