@@ -14,7 +14,7 @@
    glibc-2.3.2/sysdeps/unix/sysv/linux/arm/sysdep.h
 */
 
-#ifdef __ASSEMBLER__
+#ifndef __ASSEMBLER__
 
 #include <errno.h>
 
