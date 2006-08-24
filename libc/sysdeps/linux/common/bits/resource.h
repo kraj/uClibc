@@ -81,7 +81,26 @@ enum __rlimit_resource
   __RLIMIT_LOCKS = 10,
 #define RLIMIT_LOCKS __RLIMIT_LOCKS
 
-  __RLIMIT_NLIMITS = 11,
+  /* Maximum number of pending signals.  */
+  __RLIMIT_SIGPENDING = 11,
+#define RLIMIT_SIGPENDING __RLIMIT_SIGPENDING
+
+  /* Maximum bytes in POSIX message queues.  */
+  __RLIMIT_MSGQUEUE = 12,
+#define RLIMIT_MSGQUEUE __RLIMIT_MSGQUEUE
+
+  /* Maximum nice priority allowed to raise to.
+     Nice levels 19 .. -20 correspond to 0 .. 39
+     values of this resource limit.  */
+  __RLIMIT_NICE = 13,
+#define RLIMIT_NICE __RLIMIT_NICE
+
+  /* Maximum realtime priority allowed for non-priviledged
+     processes.  */
+  __RLIMIT_RTPRIO = 14,
+#define RLIMIT_RTPRIO __RLIMIT_RTPRIO
+
+  __RLIMIT_NLIMITS = 15,
   __RLIM_NLIMITS = __RLIMIT_NLIMITS
 #define RLIMIT_NLIMITS __RLIMIT_NLIMITS
 #define RLIM_NLIMITS __RLIM_NLIMITS
@@ -89,13 +108,13 @@ enum __rlimit_resource
 
 /* Value to indicate that there is no limit.  */
 #ifndef __USE_FILE_OFFSET64
-# define RLIM_INFINITY ((long int)(~0UL >> 1))
+# define RLIM_INFINITY ((unsigned long int)(~0UL))
 #else
-# define RLIM_INFINITY 0x7fffffffffffffffLL
+# define RLIM_INFINITY 0xffffffffffffffffuLL
 #endif
 
 #ifdef __USE_LARGEFILE64
-# define RLIM64_INFINITY 0x7fffffffffffffffLL
+# define RLIM64_INFINITY 0xffffffffffffffffuLL
 #endif
 
 /* We can represent all limits.  */
@@ -139,12 +158,8 @@ enum __rusage_who
 #define RUSAGE_SELF RUSAGE_SELF
 
   /* All of its terminated child processes.  */
-  RUSAGE_CHILDREN = -1,
+  RUSAGE_CHILDREN = -1
 #define RUSAGE_CHILDREN RUSAGE_CHILDREN
-
-  /* Both.  */
-  RUSAGE_BOTH = -2
-#define RUSAGE_BOTH RUSAGE_BOTH
 };
 
 #define __need_timeval

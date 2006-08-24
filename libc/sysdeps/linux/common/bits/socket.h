@@ -1,5 +1,5 @@
 /* System-specific socket constants and types.  Linux version.
-   Copyright (C) 1991,1992,1994-2001, 2004 Free Software Foundation, Inc.
+   Copyright (C) 1991,1992,1994-2001,2004,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -286,13 +286,12 @@ __NTH (__cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg))
    <linux/socket.h>.  */
 enum
   {
-    SCM_RIGHTS = 0x01,		/* Transfer file descriptors.  */
+    SCM_RIGHTS = 0x01		/* Transfer file descriptors.  */
 #define SCM_RIGHTS SCM_RIGHTS
 #ifdef __USE_BSD
-    SCM_CREDENTIALS = 0x02,     /* Credentials passing.  */
+    , SCM_CREDENTIALS = 0x02	/* Credentials passing.  */
 # define SCM_CREDENTIALS SCM_CREDENTIALS
 #endif
-    __SCM_CONNECT = 0x03	/* Data array is `struct scm_connect'.  */
   };
 
 /* User visible structure for SCM_CREDENTIALS message */

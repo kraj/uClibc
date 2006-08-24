@@ -29,7 +29,7 @@
 #define SCHED_OTHER	0
 #define SCHED_FIFO	1
 #define SCHED_RR	2
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_GNU
 # define SCHED_BATCH	3
 #endif
 
@@ -46,7 +46,6 @@
 # define CLONE_PARENT  0x00008000 /* Set if we want to have the same
 				     parent as the cloner.  */
 # define CLONE_THREAD  0x00010000 /* Set to add to same thread group.  */
-#if 0
 # define CLONE_NEWNS   0x00020000 /* Set to create new namespace.  */
 # define CLONE_SYSVSEM 0x00040000 /* Set to shared SVID SEM_UNDO semantics.  */
 # define CLONE_SETTLS  0x00080000 /* Set TLS info.  */
@@ -61,9 +60,6 @@
 					  the child.  */
 # define CLONE_STOPPED	0x02000000 /* Start in stopped state.  */
 #endif
-#endif
-
-#ifndef __ASSEMBLER__
 
 /* The official definition.  */
 struct sched_param
@@ -86,11 +82,7 @@ extern int unshare (int __flags) __THROW;
 
 __END_DECLS
 
-#endif /* __ASSEMBLER__ */
-
 #endif	/* need schedparam */
-
-#ifndef __ASSEMBLER__
 
 #if !defined __defined_schedparam \
     && (defined __need_schedparam || defined _SCHED_H)
@@ -104,7 +96,6 @@ struct __sched_param
 #endif
 
 
-#if 0
 #if defined _SCHED_H && !defined __cpu_set_t_defined
 # define __cpu_set_t_defined
 /* Size definition for CPU sets.  */
@@ -139,6 +130,3 @@ typedef struct
 # define __CPU_ISSET(cpu, cpusetp) \
   (((cpusetp)->__bits[__CPUELT (cpu)] & __CPUMASK (cpu)) != 0)
 #endif
-#endif
-
-#endif /* __ASSEMBLER__ */

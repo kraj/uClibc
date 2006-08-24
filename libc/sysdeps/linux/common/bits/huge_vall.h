@@ -1,5 +1,6 @@
-/* Definition of locale category symbol values.
-   Copyright (C) 2001 Free Software Foundation, Inc.
+/* Default `HUGE_VALL' constant.
+   Used by <stdlib.h> and <math.h> functions for overflow.
+   Copyright (C) 1992, 1996, 1997, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,30 +18,12 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#if !defined _LOCALE_H && !defined _LANGINFO_H
-# error "Never use <bits/locale.h> directly; include <locale.h> instead."
+#ifndef _MATH_H
+# error "Never use <bits/huge_vall.h> directly; include <math.h> instead."
 #endif
 
-#ifndef _BITS_LOCALE_H
-#define _BITS_LOCALE_H	1
-
-enum
-{
-  __LC_CTYPE = 0,
-  __LC_NUMERIC = 1,
-  __LC_TIME = 2,
-  __LC_COLLATE = 3,
-  __LC_MONETARY = 4,
-  __LC_MESSAGES = 5,
-  __LC_ALL = 6,
-#if 0
-  __LC_PAPER = 7,
-  __LC_NAME = 8,
-  __LC_ADDRESS = 9,
-  __LC_TELEPHONE = 10,
-  __LC_MEASUREMENT = 11,
-  __LC_IDENTIFICATION = 12
+#if __GNUC_PREREQ(3,3)
+# define HUGE_VALL	(__builtin_huge_vall())
+#else
+# define HUGE_VALL	((long double) HUGE_VAL)
 #endif
-};
-
-#endif	/* bits/locale.h */
