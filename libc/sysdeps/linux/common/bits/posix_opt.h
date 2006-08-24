@@ -58,7 +58,7 @@
 
 /* Setting of memory protections is supported.  */
 #ifdef __ARCH_USE_MMU__
-# define	_POSIX_MEMORY_PROTECTION	1
+# define	_POSIX_MEMORY_PROTECTION	200112L
 #else
 # undef		_POSIX_MEMORY_PROTECTION
 #endif
@@ -101,7 +101,7 @@
 
 /* We have the reentrant functions described in POSIX.  */
 #ifdef __UCLIBC_HAS_THREADS__
-# define _POSIX_REENTRANT_FUNCTIONS      1
+# define _POSIX_REENTRANT_FUNCTIONS	1
 # define _POSIX_THREAD_SAFE_FUNCTIONS	1
 #else
 # undef _POSIX_REENTRANT_FUNCTIONS
@@ -165,6 +165,14 @@
 # define _POSIX_THREAD_CPUTIME  200912L
 #endif
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+/* CPU-time clocks support needs to be checked at runtime.  */
+#define _POSIX_CPUTIME  0
+
+/* Clock support in threads must be also checked at runtime.  */
+#define _POSIX_THREAD_CPUTIME   0
+#endif
+
 /* Reader/Writer locks are available.  */
 #define _POSIX_READER_WRITER_LOCKS	200912L
 
@@ -190,7 +198,23 @@
 /* The barrier functions are available.  */
 #define _POSIX_BARRIERS	200912L
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+/* POSIX message queues are available.  */
+# define _POSIX_MESSAGE_PASSING  200112L
+#else
 /* POSIX message queues are not yet supported.  */
-#undef	_POSIX_MESSAGE_PASSING
+# undef	_POSIX_MESSAGE_PASSING
+#endif
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+/* Thread process-shared synchronization is supported.  */
+#define _POSIX_THREAD_PROCESS_SHARED    200112L
+
+/* The monotonic clock might be available.  */
+#define _POSIX_MONOTONIC_CLOCK  0
+
+/* The clock selection interfaces are available.  */
+#define _POSIX_CLOCK_SELECTION  200112L
+#endif
 
 #endif /* bits/posix_opt.h */

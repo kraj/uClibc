@@ -22,6 +22,9 @@
 #include <stddef.h>	/* For NULL.  */
 #include <sys/time.h>
 #include <sys/select.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep-cancel.h>
+#endif
 
 libc_hidden_proto(sigprocmask)
 libc_hidden_proto(select)
@@ -33,8 +36,13 @@ libc_hidden_proto(select)
    after waiting the interval specified therein.  Additionally set the sigmask
    SIGMASK for this call.  Returns the number of ready descriptors, or -1 for
    errors.  */
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+static int
+__pselect (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+#else
 int
 pselect (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+#endif
 	   const struct timespec *timeout, const sigset_t *sigmask)
 {
   struct timeval tval;
@@ -64,3 +72,23 @@ pselect (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 
   return retval;
 }
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+int
+pselect (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+	   const struct timespec *timeout, const sigset_t *sigmask)
+{
+	if (SINGLE_THREAD_P)
+		return __pselect (nfds, readfds, writefds, exceptfds,
+				  timeout, sigmask);
+
+	int oldtype = LIBC_CANCEL_ASYNC ();
+
+	int result = __pselect (nfds, readfds, writefds, exceptfds,
+				 timeout, sigmask);
+
+	LIBC_CANCEL_RESET (oldtype);
+
+	return result;
+}
+#endif

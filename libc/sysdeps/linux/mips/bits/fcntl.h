@@ -1,5 +1,6 @@
 /* O_*, F_*, FD_* bit values for Linux.
-   Copyright (C) 1995, 1996, 1997, 1998, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1995, 1996, 1997, 1998, 2000, 2002, 2003, 2004, 2006
+	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -21,8 +22,8 @@
 # error "Never use <bits/fcntl.h> directly; include <fcntl.h> instead."
 #endif
 
+#include <sgidefs.h>
 #include <sys/types.h>
-
 
 /* open/fcntl - O_SYNC is only implemented on blocks devices and on files
    located on an ext2 file system */
@@ -48,7 +49,7 @@
 # define O_NOFOLLOW	0x20000	/* Do not follow links.	 */
 # define O_DIRECT	0x8000	/* Direct disk access hint.  */
 # define O_DIRECTORY	0x10000	/* Must be a directory.	 */
-# define O_STREAMING	0x4000000/* streaming access */
+# define O_NOATIME	0x40000	/* Do not set atime.  */
 #endif
 
 #define O_NDELAY	O_NONBLOCK
@@ -81,7 +82,7 @@
 #define F_SETLK64	34	/* Set record locking info (non-blocking).  */
 #define F_SETLKW64	35	/* Set record locking info (blocking).	*/
 
-#if defined __USE_BSD || defined __USE_XOPEN2K
+#if defined __USE_BSD || defined __USE_UNIX98
 # define F_SETOWN	24	/* Get owner of socket (receiver of SIGIO).  */
 # define F_GETOWN	23	/* Set owner of socket (receiver of SIGIO).  */
 #endif
@@ -143,14 +144,20 @@ typedef struct flock
 #ifndef __USE_FILE_OFFSET64
     __off_t l_start;	/* Offset where the lock begins.  */
     __off_t l_len;	/* Size of the locked area; zero means until EOF.  */
-    long int l_sysid;	/* XXX */
+#if _MIPS_SIM != _ABI64
+    /* The 64-bit flock structure, used by the n64 ABI, and for 64-bit
+       fcntls in o32 and n32, never has this field.  */
+    long int l_sysid;
+#endif
 #else
     __off64_t l_start;	/* Offset where the lock begins.  */
     __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
 #endif
     __pid_t l_pid;	/* Process holding the lock.  */
-#ifndef __USE_FILE_OFFSET64
-    long int pad[4];	/* XXX */
+#if ! defined __USE_FILE_OFFSET64 && _MIPS_SIM != _ABI64
+    /* The 64-bit flock structure, used by the n64 ABI, and for 64-bit
+       flock in o32 and n32, never has this field.  */
+    long int pad[4];
 #endif
 } flock_t;
 
@@ -185,3 +192,17 @@ struct flock64
 # define POSIX_FADV_DONTNEED	4 /* Don't need these pages.  */
 # define POSIX_FADV_NOREUSE	5 /* Data will be accessed once.  */
 #endif
+
+/* Linux-specific operations for posix_fadvise.  */
+#ifdef __USE_GNU
+# define LINUX_FADV_ASYNC_WRITE	32 /* Start writeout on range.  */
+# define LINUX_FADV_WRITE_WAIT	33 /* Wait upon writeout to range.  */
+#endif
+
+__BEGIN_DECLS
+
+/* Provide kernel hint to read ahead.  */
+extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
+    __THROW;
+
+__END_DECLS

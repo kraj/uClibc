@@ -8,7 +8,7 @@
  */
 
 #include "syscalls.h"
-#include <unistd.h>
+#include <sys/select.h>
 
 libc_hidden_proto(select)
 

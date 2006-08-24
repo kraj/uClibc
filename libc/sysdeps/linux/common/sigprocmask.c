@@ -13,6 +13,8 @@
 
 #undef sigprocmask
 
+libc_hidden_proto(sigprocmask)
+
 #ifdef __NR_rt_sigprocmask
 
 #define __NR___rt_sigprocmask __NR_rt_sigprocmask
@@ -20,7 +22,7 @@ static inline
 _syscall4(int, __rt_sigprocmask, int, how, const sigset_t *, set,
 		  sigset_t *, oldset, size_t, size);
 
-int __sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
+int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 {
 #ifdef SIGCANCEL
 	sigset_t local_newmask;
@@ -55,7 +57,7 @@ static inline
 _syscall3(int, __syscall_sigprocmask, int, how, const sigset_t *, set,
 		  sigset_t *, oldset);
 
-int __sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
+int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 {
 #ifdef SIGCANCEL
 	sigset_t local_newmask;
@@ -82,5 +84,4 @@ int __sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 	return (__syscall_sigprocmask(how, set, oldset));
 }
 #endif
-
-weak_alias (__sigprocmask, sigprocmask)
+libc_hidden_def(sigprocmask)

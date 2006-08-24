@@ -10,6 +10,8 @@
 #include "syscalls.h"
 #include <unistd.h>
 
+libc_hidden_proto(chown)
+
 #define __NR___syscall_chown __NR_chown
 static inline _syscall3(int, __syscall_chown, const char *, path,
 		__kernel_uid_t, owner, __kernel_gid_t, group);
@@ -23,3 +25,4 @@ int chown(const char *path, uid_t owner, gid_t group)
 	}
 	return (__syscall_chown(path, owner, group));
 }
+libc_hidden_def(chown)

@@ -19,7 +19,7 @@
 
 #ifdef _ERRNO_H
 
-# include <bits/errno_values.h>
+#include <bits/errno_values.h>
 
 #ifndef ENOTSUP
 # define ENOTSUP EOPNOTSUPP

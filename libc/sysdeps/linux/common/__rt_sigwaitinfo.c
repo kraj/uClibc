@@ -10,6 +10,9 @@
 
 #include "syscalls.h"
 #include <signal.h>
+#include <string.h>
+
+libc_hidden_proto(memcpy)
 
 #ifdef __NR_rt_sigtimedwait
 
@@ -29,7 +32,7 @@ static int do_sigwaitinfo(const sigset_t *set, siginfo_t *info)
 	{
 		/* Create a temporary mask without the bit for SIGCANCEL set.  */
 		// We are not copying more than we have to.
-		__memcpy (&tmpset, set, _NSIG / 8);
+		memcpy (&tmpset, set, _NSIG / 8);
 		__sigdelset (&tmpset, SIGCANCEL);
 #   ifdef SIGSETXID
 		__sigdelset (&tmpset, SIGSETXID);

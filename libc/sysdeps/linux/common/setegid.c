@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-#if defined __NR_setresgid || defined __NR_setresgid32
+#if (defined __NR_setresgid || defined __NR_setresgid32) && defined __USE_GNU
 libc_hidden_proto(setresgid)
 #endif
 libc_hidden_proto(setregid)
@@ -26,7 +26,7 @@ int setegid(gid_t gid)
 	return -1;
     }
 
-#if defined __NR_setresgid || defined __NR_setresgid32
+#if (defined __NR_setresgid || defined __NR_setresgid32) && defined __USE_GNU
     result = setresgid(-1, gid, -1);
     if (result == -1 && errno == ENOSYS)
 	/* Will also set the saved group ID if egid != gid,

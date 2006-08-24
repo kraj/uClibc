@@ -96,8 +96,7 @@ NESTED(__clone,4*SZREG,sp)
 	/* Successful return from the parent */
 	RESTORE_GP64
 	PTR_ADDU	sp, FRAMESZ
-	j		ra
-	nop
+	ret
 
 	/* Something bad happened -- no child created */
 L(error):
@@ -118,7 +117,7 @@ L(error):
    its own function so that we can terminate the stack trace with our
    debug info.  */
 
-LEAF(__thread_start)
+ENTRY(__thread_start)
 L(thread_start):
 	/* cp is already loaded.  */
 	SAVE_GP (GPOFF)
@@ -164,5 +163,4 @@ L(gotpid):
 
 	END(__thread_start)
 
-.weak clone;
-	clone = __clone
+weak_alias (__clone, clone)

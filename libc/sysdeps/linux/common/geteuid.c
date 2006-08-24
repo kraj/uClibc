@@ -2,27 +2,35 @@
 /*
  * geteuid() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-
-#define getuid __getuid
 
 #include "syscalls.h"
 #include <unistd.h>
 
-#ifdef	__NR_geteuid
-#define __NR___syscall_geteuid __NR_geteuid
+libc_hidden_proto(geteuid)
+
+#if defined(__NR_geteuid32)
+# undef __NR_geteuid
+# define __NR_geteuid __NR_geteuid32
+_syscall0(uid_t, geteuid);
+
+#elif defined(__NR_geteuid)
+# define __NR___syscall_geteuid __NR_geteuid
 static inline _syscall0(int, __syscall_geteuid);
-uid_t attribute_hidden __geteuid(void)
+uid_t geteuid(void)
 {
 	return (__syscall_geteuid());
 }
+
 #else
-uid_t attribute_hidden __geteuid(void)
+libc_hidden_proto(getuid)
+uid_t geteuid(void)
 {
 	return (getuid());
 }
 #endif
-strong_alias(__geteuid,geteuid)
+
+libc_hidden_def(geteuid)

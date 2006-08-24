@@ -12,6 +12,7 @@
 #include <string.h>
 #include <sys/param.h>
 
+#if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 #define __NR___syscall_chroot __NR_chroot
 static inline _syscall1(int, __syscall_chroot, const char *, path);
 
@@ -19,3 +20,4 @@ int chroot(const char *path)
 {
 	return __syscall_chroot(path);
 }
+#endif

@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <grp.h>
 
+#ifdef __USE_BSD
+
 libc_hidden_proto(setgroups)
 
 #if defined(__NR_setgroups32)
@@ -62,3 +64,4 @@ ret_error:
 #endif
 
 libc_hidden_def(setgroups)
+#endif
