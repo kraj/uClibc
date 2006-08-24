@@ -33,7 +33,9 @@ typedef unsigned int fpu_control_t;
 #define _FPU_GETCW(cw) 0
 #define _FPU_SETCW(cw) do { } while (0)
 
+#if 0
 /* Default control word set at startup.  */
 extern fpu_control_t __fpu_control;
+#endif
 
 #endif /* _FPU_CONTROL_H */
