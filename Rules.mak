@@ -5,6 +5,11 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+# check for proper make version
+ifneq ($(findstring 3.7,$(MAKE_VERSION)),)
+$(error Your make is too old $(MAKE_VERSION). Go get at least 3.80)
+endif
+
 #-----------------------------------------------------------
 # This file contains rules which are shared between multiple
 # Makefiles.  All normal configuration options live in the
