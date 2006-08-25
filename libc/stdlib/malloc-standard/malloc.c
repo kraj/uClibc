@@ -33,7 +33,7 @@ struct malloc_state __malloc_state;  /* never directly referenced */
 /* forward declaration */
 static int __malloc_largebin_index(unsigned int sz);
 
-#ifdef __MALLOC_DEBUGGING
+#ifdef __UCLIBC_MALLOC_DEBUGGING__
 
 /*
   Debugging support
@@ -43,21 +43,21 @@ static int __malloc_largebin_index(unsigned int sz);
   programs.  This can be very effective (albeit in an annoying way)
   in helping track down dangling pointers.
 
-  If you compile with -D__MALLOC_DEBUGGING, a number of assertion checks are
+  If you compile with __UCLIBC_MALLOC_DEBUGGING__, a number of assertion checks are
   enabled that will catch more memory errors. You probably won't be
   able to make much sense of the actual assertion errors, but they
   should help you locate incorrectly overwritten memory.  The
   checking is fairly extensive, and will slow down execution
-  noticeably. Calling malloc_stats or mallinfo with __MALLOC_DEBUGGING set will
+  noticeably. Calling malloc_stats or mallinfo with __UCLIBC_MALLOC_DEBUGGING__ set will
   attempt to check every non-mmapped allocated and free chunk in the
   course of computing the summmaries. (By nature, mmapped regions
   cannot be checked very much automatically.)
 
-  Setting __MALLOC_DEBUGGING may also be helpful if you are trying to modify
+  Setting __UCLIBC_MALLOC_DEBUGGING__ may also be helpful if you are trying to modify
   this code. The assertions in the check routines spell out in more
   detail the assumptions and invariants underlying the algorithms.
 
-  Setting __MALLOC_DEBUGGING does NOT provide an automated mechanism for checking
+  Setting __UCLIBC_MALLOC_DEBUGGING__ does NOT provide an automated mechanism for checking
   that all accesses to malloced memory stay within their
   bounds. However, there are several add-ons and adaptations of this
   or other mallocs available that do this.

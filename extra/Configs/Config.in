@@ -1496,7 +1496,7 @@ config SUPPORT_LD_DEBUG_EARLY
 
 config UCLIBC_MALLOC_DEBUGGING
 	bool "Build malloc with debugging support"
-	depends MALLOC
+	depends MALLOC || MALLOC_STANDARD
 	default n
 	help
 	  Answer Y here to compile extra debugging support code into malloc.

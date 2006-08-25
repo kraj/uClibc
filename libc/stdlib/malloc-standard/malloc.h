@@ -925,7 +925,7 @@ extern struct malloc_state __malloc_state;  /* never directly referenced */
    At most one "call" to get_malloc_state is made per invocation of
    the public versions of malloc and free, but other routines
    that in turn invoke malloc and/or free may call more then once.
-   Also, it is called in check* routines if __MALLOC_DEBUGGING is set.
+   Also, it is called in check* routines if __UCLIBC_MALLOC_DEBUGGING__ is set.
 */
 
 #define get_malloc_state() (&(__malloc_state))
@@ -935,7 +935,7 @@ void   __malloc_consolidate(mstate) attribute_hidden;
 
 
 /* Debugging support */
-#if ! __MALLOC_DEBUGGING
+#ifndef __UCLIBC_MALLOC_DEBUGGING__
 
 #define check_chunk(P)
 #define check_free_chunk(P)
