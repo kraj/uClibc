@@ -1419,7 +1419,7 @@ config DODEBUG
 
 config DODEBUG_PT
 	bool "Build pthread with debugging output"
-	depends on UCLIBC_HAS_THREADS
+	depends on UCLIBC_HAS_THREADS && LINUXTHREADS_OLD
 	default n
 	help
 	  Enable debug output in libpthread.  This is only useful when doing 
