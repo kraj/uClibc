@@ -34,7 +34,7 @@ int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 		bytes = __getdents(dir->dd_fd, dir->dd_buf, dir->dd_max);
 		if (bytes <= 0) {
 		    *result = NULL;
-		    ret = errno;
+		    ret = (bytes==0)? 0 : errno;
 		    goto all_done;
 		}
 		dir->dd_size = bytes;
