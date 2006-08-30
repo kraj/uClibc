@@ -23,17 +23,17 @@ libc_hidden_proto(__libc_open)
 libc_hidden_proto(__libc_open64)
 int __libc_open64 (const char *file, int oflag, ...)
 {
-  int mode = 0;
+    mode_t mode = 0;
 
-  if (oflag & O_CREAT)
+    if (oflag & O_CREAT)
     {
-      va_list arg;
-      va_start (arg, oflag);
-      mode = va_arg (arg, int);
-      va_end (arg);
+	va_list arg;
+	va_start (arg, oflag);
+	mode = va_arg (arg, mode_t);
+	va_end (arg);
     }
 
-  return __libc_open(file, oflag | O_LARGEFILE, mode);
+    return __libc_open(file, oflag | O_LARGEFILE, mode);
 }
 libc_hidden_def(__libc_open64)
 

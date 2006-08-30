@@ -24,8 +24,8 @@ int ioctl(int fd, unsigned long int request, ...)
 
     va_start(list, request);
     arg = va_arg(list, void *);
-
     va_end(list);
+
     return __syscall_ioctl(fd, request, arg);
 }
 libc_hidden_def(ioctl)

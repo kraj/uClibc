@@ -24,8 +24,8 @@ int __libc_fcntl64(int fd, int cmd, ...)
 
 	va_start(list, cmd);
 	arg = va_arg(list, long);
-
 	va_end(list);
+
 	return (__syscall_fcntl64(fd, cmd, arg));
 }
 libc_hidden_def(__libc_fcntl64)
