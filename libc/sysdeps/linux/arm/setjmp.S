@@ -53,6 +53,16 @@ __sigsetjmp:
 	sfmea   f4, 4, [ip]!
 # endif
 #endif
+#ifdef __IWMMXT__
+	/* Save the call-preserved iWMMXt registers.  */
+	/* Following instructions are wstrd wr10, [ip], #8 (etc.)  */
+	stcl	p1, cr10, [r12], #8
+	stcl	p1, cr11, [r12], #8
+	stcl	p1, cr12, [r12], #8
+	stcl	p1, cr13, [r12], #8
+	stcl	p1, cr14, [r12], #8
+	stcl	p1, cr15, [r12], #8
+#endif
 
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */
 #ifdef __PIC__
