@@ -26,15 +26,14 @@ int __libc_open(const char *file, int oflag, ...)
 {
 	mode_t mode = 0;
 
-	if (oflag & O_CREAT)
-	{
+	if (oflag & O_CREAT) {
 		va_list arg;
 		va_start (arg, oflag);
 		mode = va_arg (arg, mode_t);
 		va_end (arg);
 	}
 
-	return __syscall_open(file, flags, mode);
+	return __syscall_open(file, oflag, mode);
 }
 libc_hidden_def(__libc_open)
 
