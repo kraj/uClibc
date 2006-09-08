@@ -100,6 +100,7 @@ extern int posix_madvise (void *__addr, size_t __len, int __advice) __THROW;
 #endif
 
 #ifdef __ARCH_USE_MMU__
+
 /* Guarantee all whole pages mapped by the range [ADDR,ADDR+LEN) to
    be memory resident.  */
 extern int mlock (__const void *__addr, size_t __len) __THROW;
@@ -115,6 +116,17 @@ extern int mlockall (int __flags) __THROW;
 /* All currently mapped pages of the process' address space become
    unlocked.  */
 extern int munlockall (void) __THROW;
+
+#else
+
+/* On no-mmu systems, memory cannot be swapped out, so
+ * these functions will always succeed.
+ */
+static inline int mlock (__const void *__addr, size_t __len) { return 0; }
+static inline int munlock (__const void *__addr, size_t __len) { return 0; }
+static inline int mlockall (int __flags) { return 0; }
+static inline int munlockall (void) { return 0; }
+
 #endif
 
 #ifdef __USE_MISC
