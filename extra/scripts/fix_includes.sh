@@ -36,6 +36,10 @@ usage() {
 	exit 1
 }
 
+
+#
+# Parse our arguments
+#
 HAS_MMU="y"
 while [ -n "$1" ]; do
 	case $1 in
@@ -47,6 +51,10 @@ while [ -n "$1" ]; do
 	esac
 done
 
+
+#
+# Perform some sanity checks on our kernel sources
+#
 if [ ! -f "$KERNEL_SOURCE/Makefile" -a ! -f "$KERNEL_SOURCE/include/linux/version.h" ]; then
 	echo ""
 	echo ""
@@ -56,7 +64,6 @@ if [ ! -f "$KERNEL_SOURCE/Makefile" -a ! -f "$KERNEL_SOURCE/include/linux/versio
 	echo ""
 	exit 1
 fi
-
 if [ ! -d "$KERNEL_SOURCE" ]; then
 	echo ""
 	echo ""
@@ -66,38 +73,10 @@ if [ ! -d "$KERNEL_SOURCE" ]; then
 	exit 1
 fi
 
-if [ -f "$KERNEL_SOURCE/Makefile" ] ; then
-	# set current VERSION, PATCHLEVEL, SUBLEVEL, EXTRAVERSION
-	eval `sed -n -e 's/^\([A-Z]*\) = \([0-9]*\)$/\1=\2/p' -e 's/^\([A-Z]*\) = \(-[-a-z0-9]*\)$/\1=\2/p' $KERNEL_SOURCE/Makefile`
-else
-	ver=`grep UTS_RELEASE $KERNEL_SOURCE/include/linux/version.h | cut -d '"' -f 2`
-	VERSION=`echo "$ver" | cut -d '.' -f 1`
-	PATCHLEVEL=`echo "$ver" | cut -d '.' -f 2`
-	if echo "$ver" | grep -q '-' ; then
-		SUBLEVEL=`echo "$ver" | sed "s/${VERSION}.${PATCHLEVEL}.//" | cut -d '-' -f 1`
-		EXTRAVERSION=`echo "$ver" | sed "s/${VERSION}.${PATCHLEVEL}.${SUBLEVEL}-//"`
-	else
-		SUBLEVEL=`echo "$ver" | cut -d '.' -f 3`
-		#EXTRAVERSION=
-	fi
-fi
-if [ -z "$VERSION" -o -z "$PATCHLEVEL" -o -z "$SUBLEVEL" ]; then
-	echo "Unable to determine version for kernel headers"
-	echo -e "\tprovided in directory $KERNEL_SOURCE"
-	exit 1
-fi
 
-if [ "$MAKE_IS_SILENT" != "y" ]; then
-	echo ""
-	echo "Current kernel version is $VERSION.$PATCHLEVEL.$SUBLEVEL${EXTRAVERSION}"
-	echo ""
-	echo "Using kernel headers from $VERSION.$PATCHLEVEL.$SUBLEVEL${EXTRAVERSION} for architecture '$TARGET_ARCH'"
-	echo -e "\tprovided in directory $KERNEL_SOURCE"
-	echo ""
-fi
-
+#
 # Create a symlink to include/asm
-
+#
 rm -f include/asm*
 if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then
 	echo ""
@@ -160,14 +139,17 @@ else
 fi
 
 
+#
 # Annoyingly, 2.6.x kernel headers also need an include/asm-generic/ directory
-if [ $VERSION -eq 2 ] && [ $PATCHLEVEL -ge 6 ]; then
-	if [ ! -e include/asm-generic ] && [ -e $KERNEL_SOURCE/include/asm-generic ]; then
-		ln -fs $KERNEL_SOURCE/include/asm-generic include/asm-generic
-	fi
+#
+if [ -e $KERNEL_SOURCE/include/asm-generic ]; then
+	rm -f include/asm-generic
+	ln -fs $KERNEL_SOURCE/include/asm-generic include/asm-generic
 fi
 
 
+#
 # Create the include/linux symlink.
+#
 rm -f include/linux
 ln -fs $KERNEL_SOURCE/include/linux include/linux
