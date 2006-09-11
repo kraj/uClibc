@@ -22,6 +22,9 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 #include <bits/wordsize.h>
+#include <_lfs_64.h>
+
+#ifdef __UCLIBC_HAS_LFS__
 
 #ifdef __NR_readahead
 
@@ -50,3 +53,4 @@ ssize_t readahead(int fd, off64_t offset, size_t count)
 # endif
 
 #endif
+#endif /* __UCLIBC_HAS_LFS__ */
