@@ -17,8 +17,8 @@
    02111-1307 USA.  */
 
 #include <features.h>
-#include <asm/asm.h>
-#include <asm/regdef.h>
+#include <sys/asm.h>
+#include <sys/regdef.h>
 
 #ifdef __PIC__
 	.option pic2

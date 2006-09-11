@@ -8,9 +8,9 @@
 /*see uClibc's sh/pipe.c and glibc-2.2.4's mips/pipe.S */
 
 #include <features.h>
-#include <asm/asm.h>
+#include <sys/asm.h>
 #include <asm/unistd.h>
-#include <asm/regdef.h>
+#include <sys/regdef.h>
 
 	.globl	pipe
 	.ent	pipe, 0
