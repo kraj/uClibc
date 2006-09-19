@@ -118,10 +118,9 @@ int _dl_unmap_cache(void)
 void
 _dl_protect_relro (struct elf_resolve *l)
 {
-	ElfW(Addr) start = (DL_RELOC_ADDR(l->loadaddr, l->relro_addr)
-			    & ~(_dl_pagesize - 1));
-	ElfW(Addr) end = ((DL_RELOC_ADDR(l->loadaddr, l->relro_addr) + l->relro_size)
-			  & ~(_dl_pagesize - 1));
+	ElfW(Addr) base = (ElfW(Addr)) DL_RELOC_ADDR(l->loadaddr, l->relro_addr);
+	ElfW(Addr) start = (base & ~(_dl_pagesize - 1));
+	ElfW(Addr) end = ((base + l->relro_size) & ~(_dl_pagesize - 1));
 	_dl_if_debug_dprint("RELRO protecting %s:  start:%x, end:%x\n", l->libname, start, end);
 	if (start != end &&
 	    _dl_mprotect ((void *) start, end - start, PROT_READ) < 0) {
@@ -628,7 +627,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 
 	_dl_if_debug_dprint("\n\tfile='%s';  generating link map\n", libname);
-	_dl_if_debug_dprint("\t\tdynamic: %x  base: %x\n", dynamic_addr, DL_LOADADDR_BASE(libaddr));
+	_dl_if_debug_dprint("\t\tdynamic: %x  base: %x\n", dynamic_addr, DL_LOADADDR_BASE(lib_loadaddr));
 	_dl_if_debug_dprint("\t\t  entry: %x  phdr: %x  phnum: %x\n\n",
 			DL_RELOC_ADDR(lib_loadaddr, epnt->e_entry), tpnt->ppnt, tpnt->n_phent);
 
@@ -822,7 +821,7 @@ __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void
 	int ret = 0;
 
 	for (l = _dl_loaded_modules; l != NULL; l = l->next) {
-		info.dlpi_addr = DL_LOADADDR_BASE(l->loadaddr);
+		info.dlpi_addr = l->loadaddr;
 		info.dlpi_name = l->libname;
 		info.dlpi_phdr = l->ppnt;
 		info.dlpi_phnum = l->n_phent;

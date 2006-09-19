@@ -113,7 +113,7 @@ static void _dl_run_array_forward(unsigned long array, unsigned long size,
 		for (j = 0; j < jm; ++j) {
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) (intptr_t) addrs[j];
-			(*dl_elf_func) ();
+			DL_CALL_FUNC_AT_ADDR (dl_elf_func, loadaddr, (void (*)(void)));
 		}
 	}
 }
@@ -141,7 +141,7 @@ void _dl_run_fini_array(struct elf_resolve *tpnt)
 		while (i-- > 0) {
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) (intptr_t) array[i];
-			(*dl_elf_func) ();
+			DL_CALL_FUNC_AT_ADDR (dl_elf_func, tpnt->loadaddr, (void (*)(void)));
 		}
 	}
 }
@@ -168,7 +168,7 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 
 			dl_elf_func = (void (*)(void)) (intptr_t) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_FINI]);
 			_dl_if_debug_dprint("\ncalling FINI: %s\n\n", tpnt->libname);
-			(*dl_elf_func) ();
+			DL_CALL_FUNC_AT_ADDR (dl_elf_func, tpnt->loadaddr, (void(*)(void)));
 		}
 	}
 }
@@ -852,7 +852,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 			_dl_if_debug_dprint("calling INIT: %s\n\n", tpnt->libname);
 
-			(*dl_elf_func) ();
+			DL_CALL_FUNC_AT_ADDR (dl_elf_func, tpnt->loadaddr, (void(*)(void)));
 		}
 
 		_dl_run_init_array(tpnt);

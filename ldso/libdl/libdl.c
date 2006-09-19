@@ -378,10 +378,10 @@ void *dlopen(const char *libname, int flag)
 		if (tpnt->dynamic_info[DT_INIT]) {
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_INIT]);
-			if (dl_elf_func && *dl_elf_func != NULL) {
+			if (dl_elf_func) {
 				_dl_if_debug_print("running ctors for library %s at '%p'\n",
 						tpnt->libname, dl_elf_func);
-				(*dl_elf_func) ();
+				DL_CALL_FUNC_AT_ADDR (dl_elf_func, tpnt->loadaddr, (void(*)(void)));
 			}
 		}
 
@@ -513,7 +513,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 					dl_elf_fini = (int (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_FINI]);
 					_dl_if_debug_print("running dtors for library %s at '%p'\n",
 							tpnt->libname, dl_elf_fini);
-					(*dl_elf_fini) ();
+					DL_CALL_FUNC_AT_ADDR (dl_elf_fini, tpnt->loadaddr, (int (*)(void)));
 				}
 			}
 
@@ -660,7 +660,7 @@ int dladdr(const void *__address, Dl_info * __info)
 		_dl_if_debug_print("Module \"%s\" at %p\n",
 		                   tpnt->libname, DL_LOADADDR_BASE(tpnt->loadaddr));
 
-		if (DL_ADDR_IN_LOADADDR((ElfW(Addr)) __address,  tpnt, pelf))
+		if (DL_ADDR_IN_LOADADDR((ElfW(Addr)) __address, tpnt, pelf))
 			pelf = tpnt;
 	}
 

@@ -259,7 +259,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 				rel_addr += relative_count * sizeof(ELF_RELOC);
 			}
 
-			rpnt = (ELF_RELOC *) DL_RELOC_ADDR(load_addr, rel_addr);
+			rpnt = (ELF_RELOC *) rel_addr;
 			for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
 				reloc_addr = (unsigned long *) DL_RELOC_ADDR(load_addr, (unsigned long)rpnt->r_offset);
 				symtab_index = ELF_R_SYM(rpnt->r_info);

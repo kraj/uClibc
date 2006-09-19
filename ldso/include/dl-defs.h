@@ -140,4 +140,16 @@ typedef struct {
 	 && (!(TFROM) || (TFROM)->loadaddr < (TPNT)->loadaddr))
 #endif
 
+/* On some platforms, computing a pointer to function is more
+   expensive than calling a function at a given address, so this
+   alternative is provided.  The function signature must be given
+   within parentheses, as in a type cast.  */
+#ifndef DL_ADDR_TO_FUNC_PTR
+# define DL_ADDR_TO_FUNC_PTR(ADDR, LOADADDR) (ADDR)
+#endif
+#ifndef DL_CALL_FUNC_AT_ADDR
+# define DL_CALL_FUNC_AT_ADDR(ADDR, LOADADDR, SIGNATURE, ...) \
+  ((*SIGNATURE DL_ADDR_TO_FUNC_PTR ((ADDR), (LOADADDR)))(__VA_ARGS__))
+#endif
+
 #endif	/* _LD_DEFS_H */
