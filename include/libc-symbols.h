@@ -281,25 +281,21 @@
 #define __make_section_unallocated(section_string)	\
   __asm__ (".section " section_string "\n\t.previous");
 
-/* Tacking on "\n\t#" to the section name makes gcc put it's bogus
+/* Tacking on "\n#APP\n\t#" to the section name makes gcc put it's bogus
    section attributes on what looks like a comment to the assembler.  */
 #ifdef __sparc__ //HAVE_SECTION_QUOTES
-# define __sec_comment "\"\n\t#\""
+# define __sec_comment "\"\n#APP\n\t#\""
 #else
-# define __sec_comment "\n\t#"
+# define __sec_comment "\n#APP\n\t#"
 #endif
 
 /* When a reference to SYMBOL is encountered, the linker will emit a
    warning message MSG.  */
-#if defined(__cris__) || defined(__vax__)
-# define link_warning(symbol, msg)
-#else
-# define link_warning(symbol, msg) \
+#define link_warning(symbol, msg) \
   __make_section_unallocated (".gnu.warning." #symbol) \
   static const char __evoke_link_warning_##symbol[]	\
     __attribute__ ((used, section (".gnu.warning." #symbol __sec_comment))) \
     = msg;
-#endif
 
 /* Handling on non-exported internal names.  We have to do this only
    for shared code.  */
