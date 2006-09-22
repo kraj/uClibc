@@ -19,15 +19,6 @@
 #include <features.h>
 #include "sysdep.h"
 
-/* Make space for the errno variable.  */
-
-	.globl	C_SYMBOL_NAME(errno)
-	.type	C_SYMBOL_NAME(errno),@object
-	.lcomm	C_SYMBOL_NAME(errno),4
-
-	.weak errno
-	errno = _errno
-
 /* The syscall stubs jump here when they detect an error, bot for PIC and
    non-PIC.  */
 
