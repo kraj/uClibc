@@ -883,6 +883,13 @@ long int sysconf(int name)
 #else
       RETURN_NEG_1;
 #endif
+
+    case _SC_MONOTONIC_CLOCK:
+      /* Check using the clock_getres system call.  */
+      if (clock_getres(CLOCK_MONOTONIC, NULL) >= 0)
+        return _POSIX_VERSION;
+
+      RETURN_NEG_1;
     }
 }
 libc_hidden_def(sysconf)
