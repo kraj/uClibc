@@ -313,7 +313,7 @@ float hypotf (float x, float y)
 libm_hidden_proto(ilogb)
 int ilogbf (float x)
 {
-	return (float) ilogb( (double)x );
+	return (int) ilogb( (double)x );
 }
 #endif
 
@@ -340,7 +340,7 @@ float lgammaf (float x)
 libm_hidden_proto(llrint)
 long long llrintf (float x)
 {
-	return (float) llrint( (double)x );
+	return (long long) llrint( (double)x );
 }
 #endif
 
@@ -349,7 +349,7 @@ long long llrintf (float x)
 libm_hidden_proto(llround)
 long long llroundf (float x)
 {
-	return (float) llround( (double)x );
+	return (long long) llround( (double)x );
 }
 #endif
 
@@ -403,7 +403,7 @@ float logf (float x)
 libm_hidden_proto(lrint)
 long lrintf (float x)
 {
-	return (float) lrint( (double)x );
+	return (long) lrint( (double)x );
 }
 #endif
 
@@ -412,7 +412,7 @@ long lrintf (float x)
 libm_hidden_proto(lround)
 long lroundf (float x)
 {
-	return (float) lround( (double)x );
+	return (long) lround( (double)x );
 }
 #endif
 
