@@ -21,7 +21,6 @@
 #undef L_fminf         /*float       fminf(float, float);*/
 #undef L_llrintf       /*long long   llrintf(float);*/
 #undef L_log2f         /*float       log2f(float);*/
-#undef L_lrintf        /*long        lrintf(float);*/
 #undef L_nearbyintf    /*float       nearbyintf(float);*/
 #undef L_nexttowardf   /*float       nexttowardf(float, long double);*/
 #undef L_remquof       /*float       remquof(float, float, int *);*/
