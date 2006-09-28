@@ -2,24 +2,26 @@
 /*
  * fchown() for uClibc
  *
- * Copyright (C) 2000-2006 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@codepoet.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
 #include <unistd.h>
-#include <linux/version.h>
+#include <bits/wordsize.h>
 
-/* Linux 2.3.39 introduced 32bit UID/GIDs.  Some platforms had 32
-   bit type all along.  */
-#if LINUX_VERSION_CODE >= 131879
+#if (__WORDSIZE == 32 && defined(__NR_fchown32)) || __WORDSIZE == 64
+# ifdef __NR_fchown32
+#  undef __NR_fchown
+#  define __NR_fchown __NR_fchown32
+# endif
 
 _syscall3(int, fchown, int, fd, uid_t, owner, gid_t, group);
 
 #else
 
-#define __NR___syscall_fchown __NR_fchown
+# define __NR___syscall_fchown __NR_fchown
 static inline _syscall3(int, __syscall_fchown, int, fd,
 		__kernel_uid_t, owner, __kernel_gid_t, group);
 

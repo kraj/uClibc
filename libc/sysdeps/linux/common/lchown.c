@@ -9,8 +9,19 @@
 
 #include "syscalls.h"
 #include <unistd.h>
+#include <bits/wordsize.h>
 
-#define __NR___syscall_lchown __NR_lchown
+#if (__WORDSIZE == 32 && defined(__NR_lchown32)) || __WORDSIZE == 64
+# ifdef __NR_lchown32
+#  undef __NR_lchown
+#  define __NR_lchown __NR_lchown32
+# endif
+
+_syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group);
+
+#else
+
+# define __NR___syscall_lchown __NR_lchown
 static inline _syscall3(int, __syscall_lchown, const char *, path,
 		__kernel_uid_t, owner, __kernel_gid_t, group);
 
@@ -23,3 +34,5 @@ int lchown(const char *path, uid_t owner, gid_t group)
 	}
 	return __syscall_lchown(path, owner, group);
 }
+
+#endif
