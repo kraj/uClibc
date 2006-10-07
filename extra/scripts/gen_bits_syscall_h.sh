@@ -23,8 +23,9 @@ case $CC in
 esac
 
 ( echo "#include \"$UNISTD_H_PATH\"" ;
-  $CC -E $CC_SYSNUM_ARGS $INCLUDE_OPTS $UNISTD_H_PATH | # needed to strip out any kernel-internal defines
-  sed -ne 's/^[ ]*#define[ ]*__NR_\([A-Za-z0-9_]*\).*/UCLIBC_\1 __NR_\1/gp'
+  $CC -E $CC_SYSNUM_ARGS $INCLUDE_OPTS $UNISTD_H_PATH |
+  sed -ne 's/^[ ]*#define[ ]*__NR_\([A-Za-z0-9_]*\).*/UCLIBC_\1 __NR_\1/gp' \
+      -e 's/^[ ]*#undef[ ]*__NR_\([A-Za-z0-9_]*\).*/UNDEFUCLIBC_\1 __NR_\1/gp' # needed to strip out any kernel-internal defines
 ) |
 $CC -E $INCLUDE_OPTS - |
 ( echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" ; echo ;
@@ -36,7 +37,8 @@ $CC -E $INCLUDE_OPTS - |
   echo "#endif" ; echo ;
   sed -ne 's/^UCLIBC_\([A-Za-z0-9_]*\) *\(.*\)/#undef __NR_\1\
 #define __NR_\1 \2\
-#define SYS_\1 __NR_\1/gp'
+#define SYS_\1 __NR_\1/gp' \
+     -e 's/^UNDEFUCLIBC_\([A-Za-z0-9_]*\).*/#undef __NR_\1/gp'
   echo ;
   echo "#endif" ;
 )
