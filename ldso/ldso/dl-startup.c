@@ -137,11 +137,11 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	aux_dat++;					/* Skip over NULL at end of argv */
 	envp = (char **) aux_dat;
 #ifndef NO_EARLY_SEND_STDERR
-	SEND_STDERR_DEBUG("argc=");
+	SEND_EARLY_STDERR_DEBUG("argc=");
 	SEND_NUMBER_STDERR_DEBUG(argc, 0);
-	SEND_STDERR_DEBUG(" argv=");
+	SEND_EARLY_STDERR_DEBUG(" argv=");
 	SEND_ADDRESS_STDERR_DEBUG(argv, 0);
-	SEND_STDERR_DEBUG(" envp=");
+	SEND_EARLY_STDERR_DEBUG(" envp=");
 	SEND_ADDRESS_STDERR_DEBUG(envp, 1);
 #endif
 	while (*aux_dat)
@@ -182,10 +182,10 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 			|| header->e_ident[EI_MAG2] != ELFMAG2
 			|| header->e_ident[EI_MAG3] != ELFMAG3)
 	{
-		SEND_STDERR("Invalid ELF header\n");
+		SEND_EARLY_STDERR("Invalid ELF header\n");
 		_dl_exit(0);
 	}
-	SEND_STDERR_DEBUG("ELF header=");
+	SEND_EARLY_STDERR_DEBUG("ELF header=");
 	SEND_ADDRESS_STDERR_DEBUG(DL_LOADADDR_BASE(load_addr), 1);
 
 	/* Locate the global offset table.  Since this code must be PIC
@@ -194,13 +194,13 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	 * we can always read stuff out of the ELF file to find it... */
 	got = elf_machine_dynamic();
 	dpnt = (ElfW(Dyn) *) DL_RELOC_ADDR(load_addr, got);
-	SEND_STDERR_DEBUG("First Dynamic section entry=");
+	SEND_EARLY_STDERR_DEBUG("First Dynamic section entry=");
 	SEND_ADDRESS_STDERR_DEBUG(dpnt, 1);
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
 	tpnt->loadaddr = load_addr;
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
-	SEND_STDERR_DEBUG("Scanning DYNAMIC section\n");
+	SEND_EARLY_STDERR_DEBUG("Scanning DYNAMIC section\n");
 	tpnt->dynamic_addr = dpnt;
 #if defined(NO_FUNCS_BEFORE_BOOTSTRAP)
 	/* Some architectures cannot call functions here, must inline */
@@ -209,11 +209,11 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	_dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
 #endif
 
-	SEND_STDERR_DEBUG("Done scanning DYNAMIC section\n");
+	SEND_EARLY_STDERR_DEBUG("Done scanning DYNAMIC section\n");
 
 #if defined(PERFORM_BOOTSTRAP_GOT)
 
-	SEND_STDERR_DEBUG("About to do specific GOT bootstrap\n");
+	SEND_EARLY_STDERR_DEBUG("About to do specific GOT bootstrap\n");
 	/* some arches (like MIPS) we have to tweak the GOT before relocations */
 	PERFORM_BOOTSTRAP_GOT(tpnt);
 
@@ -221,7 +221,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 
 	/* OK, now do the relocations.  We do not do a lazy binding here, so
 	   that once we are done, we have considerably more flexibility. */
-	SEND_STDERR_DEBUG("About to do library loader relocations\n");
+	SEND_EARLY_STDERR_DEBUG("About to do library loader relocations\n");
 
 	{
 		int goof, indx;
@@ -274,9 +274,11 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 					sym = &symtab[symtab_index];
 					symbol_addr = (unsigned long) DL_RELOC_ADDR(load_addr, sym->st_value);
 
+#ifndef EARLY_STDERR_SPECIAL
 					SEND_STDERR_DEBUG("relocating symbol: ");
 					SEND_STDERR_DEBUG(strtab + sym->st_name);
 					SEND_STDERR_DEBUG("\n");
+#endif
 				} else
 					SEND_STDERR_DEBUG("relocating unknown symbol\n");
 				/* Use this machine-specific macro to perform the actual relocation.  */

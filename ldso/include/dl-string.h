@@ -338,12 +338,25 @@ static __always_inline char * _dl_simple_ltoahex(char * local, unsigned long i)
 }
 #endif
 
+/* Some targets may have to override this to something that doesn't
+ * reference constant strings through the GOT.  This macro should be
+ * preferred over SEND_STDERR for constant strings before we complete
+ * bootstrap.
+ */
+#ifndef SEND_EARLY_STDERR
+# define SEND_EARLY_STDERR(S) SEND_STDERR(S)
+#else
+# define EARLY_STDERR_SPECIAL
+#endif
+
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 # define SEND_STDERR_DEBUG(X) SEND_STDERR(X)
+# define SEND_EARLY_STDERR_DEBUG(X) SEND_EARLY_STDERR(X)
 # define SEND_NUMBER_STDERR_DEBUG(X, add_a_newline) SEND_NUMBER_STDERR(X, add_a_newline)
 # define SEND_ADDRESS_STDERR_DEBUG(X, add_a_newline) SEND_ADDRESS_STDERR(X, add_a_newline)
 #else
 # define SEND_STDERR_DEBUG(X)
+# define SEND_EARLY_STDERR_DEBUG(X)
 # define SEND_NUMBER_STDERR_DEBUG(X, add_a_newline)
 # define SEND_ADDRESS_STDERR_DEBUG(X, add_a_newline)
 #endif
