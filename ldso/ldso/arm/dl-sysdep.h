@@ -69,15 +69,39 @@ unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
    | (((type) == R_ARM_COPY) * ELF_RTYPE_CLASS_COPY))
 
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
-   first element of the GOT.  This must be inlined in a function which
-   uses global data.  */
+   first element of the GOT.  We used to use the PIC register to do this
+   without a constant pool reference, but GCC 4.2 will use a pseudo-register
+   for the PIC base, so it may not be in r10.  */
 static inline Elf32_Addr __attribute__ ((unused))
 elf_machine_dynamic (void)
 {
-	register Elf32_Addr *got asm ("r10");
-	return *got;
-}
+  Elf32_Addr dynamic;
+#if !defined __thumb__
+  asm ("ldr %0, 2f\n"
+       "1: ldr %0, [pc, %0]\n"
+       "b 3f\n"
+       "2: .word _GLOBAL_OFFSET_TABLE_ - (1b+8)\n"
+       "3:" : "=r" (dynamic));
+#else
+  int tmp;
+  asm (".align 2\n"
+       "bx     pc\n"
+       "nop\n"
+       ".arm\n"
+       "ldr %0, 2f\n"
+       "1: ldr %0, [pc, %0]\n"
+       "b 3f\n"
+       "2: .word _GLOBAL_OFFSET_TABLE_ - (1b+8)\n"
+       "3:"
+       ".align  2\n"
+        "orr     %1, pc, #1\n"
+        "bx      %1\n"
+        ".force_thumb\n"
+       : "=r" (dynamic), "=&r" (tmp));
+#endif
 
+  return dynamic;
+}
 
 /* Return the run-time load address of the shared object.  */
 static inline Elf32_Addr __attribute__ ((unused))
