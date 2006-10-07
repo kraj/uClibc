@@ -85,6 +85,10 @@ config CONFIG_ARM926T
 	bool "Arm 926T"
 	select ARCH_HAS_MMU
 
+config CONFIG_ARM10T
+	bool "Arm 10T"
+	select ARCH_HAS_MMU
+
 config CONFIG_ARM1136JF_S
 	bool "Arm 1136JF-S"
 	select ARCH_HAS_MMU
@@ -99,6 +103,10 @@ config CONFIG_ARM_SA1100
 
 config CONFIG_ARM_XSCALE
 	bool "Intel Xscale"
+	select ARCH_HAS_MMU
+
+config CONFIG_ARM_IWMMXT
+	bool "Intel Xscale With WMMX PXA27x"
 	select ARCH_HAS_MMU
 
 endchoice
