@@ -24,8 +24,8 @@
 #include <sys/types.h>
 
 #include "bswap.h"
-#include "elf.h"
 #include "link.h"
+/* makefile will include elf.h for us */
 
 int byteswap;
 inline uint32_t byteswap32_to_host(uint32_t value)

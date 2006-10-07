@@ -27,8 +27,8 @@
 
 #include "bswap.h"
 #include "link.h"
-#include "elf.h"
 #include "dl-defs.h"
+/* makefile will include elf.h for us */
 
 #ifdef DMALLOC
 #include <dmalloc.h>
