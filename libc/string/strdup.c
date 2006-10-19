@@ -10,25 +10,23 @@
 
 #ifdef WANT_WIDE
 libc_hidden_proto(wcslen)
-libc_hidden_proto(wcscpy)
 # define Wstrdup wcsdup
 # define Wstrlen wcslen
-# define Wstrcpy wcscpy
 #else
 libc_hidden_proto(strdup)
 libc_hidden_proto(strlen)
-libc_hidden_proto(strcpy)
 # define Wstrdup strdup
 # define Wstrlen strlen
-# define Wstrcpy strcpy
 #endif
+libc_hidden_proto(memcpy)
 
 Wchar *Wstrdup(register const Wchar *s1)
 {
 	register Wchar *s;
+	register size_t l = (Wstrlen(s1) + 1) * sizeof(Wchar);
 
-    if ((s = malloc((Wstrlen(s1) + 1) * sizeof(Wchar))) != NULL) {
-		Wstrcpy(s, s1);
+	if ((s = malloc(l)) != NULL) {
+		memcpy(s, s1, l);
 	}
 
 	return s;
