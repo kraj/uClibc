@@ -4,6 +4,13 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
+/* The Linux kernel uses different trap numbers on sh-2.  */
+#ifdef __CONFIG_SH2__
+# define __SH_SYSCALL_TRAP_BASE 0x20
+#else
+# define __SH_SYSCALL_TRAP_BASE 0x10
+#endif
+
 /* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
  * header files.  It also defines the traditional `SYS_<name>' macros for older
  * programs.  */
@@ -33,9 +40,9 @@ do { \
 type name(void) \
 { \
 register long __sc0 __asm__ ("r3") = __NR_##name; \
-__asm__ __volatile__ ("trapa	#0x10" \
+__asm__ __volatile__ ("trapa	%1" \
 	: "=z" (__sc0) \
-	: "0" (__sc0) \
+	: "i" (__SH_SYSCALL_TRAP_BASE), "0" (__sc0) \
 	: "memory" ); \
 __syscall_return(type,__sc0); \
 }
@@ -45,9 +52,9 @@ type name(type1 arg1) \
 { \
 register long __sc0 __asm__ ("r3") = __NR_##name; \
 register long __sc4 __asm__ ("r4") = (long) arg1; \
-__asm__ __volatile__ ("trapa	#0x11" \
+__asm__ __volatile__ ("trapa	%1" \
 	: "=z" (__sc0) \
-	: "0" (__sc0), "r" (__sc4) \
+	: "i" (__SH_SYSCALL_TRAP_BASE + 1), "0" (__sc0), "r" (__sc4) \
 	: "memory"); \
 __syscall_return(type,__sc0); \
 }
@@ -58,9 +65,10 @@ type name(type1 arg1,type2 arg2) \
 register long __sc0 __asm__ ("r3") = __NR_##name; \
 register long __sc4 __asm__ ("r4") = (long) arg1; \
 register long __sc5 __asm__ ("r5") = (long) arg2; \
-__asm__ __volatile__ ("trapa	#0x12" \
+__asm__ __volatile__ ("trapa	%1" \
 	: "=z" (__sc0) \
-	: "0" (__sc0), "r" (__sc4), "r" (__sc5) \
+	: "i" (__SH_SYSCALL_TRAP_BASE + 2), "0" (__sc0), "r" (__sc4), \
+          "r" (__sc5) \
 	: "memory"); \
 __syscall_return(type,__sc0); \
 }
@@ -72,9 +80,10 @@ register long __sc0 __asm__ ("r3") = __NR_##name; \
 register long __sc4 __asm__ ("r4") = (long) arg1; \
 register long __sc5 __asm__ ("r5") = (long) arg2; \
 register long __sc6 __asm__ ("r6") = (long) arg3; \
-__asm__ __volatile__ ("trapa	#0x13" \
+__asm__ __volatile__ ("trapa	%1" \
 	: "=z" (__sc0) \
-	: "0" (__sc0), "r" (__sc4), "r" (__sc5), "r" (__sc6) \
+	: "i" (__SH_SYSCALL_TRAP_BASE + 3), "0" (__sc0), "r" (__sc4), \
+          "r" (__sc5), "r" (__sc6) \
 	: "memory"); \
 __syscall_return(type,__sc0); \
 }
@@ -87,9 +96,10 @@ register long __sc4 __asm__ ("r4") = (long) arg1; \
 register long __sc5 __asm__ ("r5") = (long) arg2; \
 register long __sc6 __asm__ ("r6") = (long) arg3; \
 register long __sc7 __asm__ ("r7") = (long) arg4; \
-__asm__ __volatile__ ("trapa	#0x14" \
+__asm__ __volatile__ ("trapa	%1" \
 	: "=z" (__sc0) \
-	: "0" (__sc0), "r" (__sc4), "r" (__sc5), "r" (__sc6),  \
+	: "i" (__SH_SYSCALL_TRAP_BASE + 4), "0" (__sc0), "r" (__sc4), \
+          "r" (__sc5), "r" (__sc6),  \
 	  "r" (__sc7) \
 	: "memory" ); \
 __syscall_return(type,__sc0); \
@@ -104,18 +114,19 @@ register long __sc5 __asm__ ("r5") = (long) arg2; \
 register long __sc6 __asm__ ("r6") = (long) arg3; \
 register long __sc7 __asm__ ("r7") = (long) arg4; \
 register long __sc0 __asm__ ("r0") = (long) arg5; \
-__asm__ __volatile__ ("trapa	#0x15" \
+__asm__ __volatile__ ("trapa	%1" \
 	: "=z" (__sc0) \
-	: "0" (__sc0), "r" (__sc4), "r" (__sc5), "r" (__sc6), "r" (__sc7),  \
-	  "r" (__sc3) \
+	: "i" (__SH_SYSCALL_TRAP_BASE + 5), "0" (__sc0), "r" (__sc4), \
+          "r" (__sc5), "r" (__sc6), "r" (__sc7), "r" (__sc3) \
 	: "memory" ); \
 __syscall_return(type,__sc0); \
 }
 
-/* Add in _syscall6 which is not in the kernel header */
 #ifndef __SH_SYSCALL6_TRAPA
-# define __SH_SYSCALL6_TRAPA "0x16"
+#define __SH_SYSCALL6_TRAPA __SH_SYSCALL_TRAP_BASE + 6
 #endif
+
+/* Add in _syscall6 which is not in the kernel header */
 #define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6) \
 type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6) \
 { \
@@ -126,10 +137,10 @@ register long __sc6 __asm__ ("r6") = (long) arg3; \
 register long __sc7 __asm__ ("r7") = (long) arg4; \
 register long __sc0 __asm__ ("r0") = (long) arg5; \
 register long __sc1 __asm__ ("r1") = (long) arg6; \
-__asm__ __volatile__ ("trapa	#" __SH_SYSCALL6_TRAPA \
+__asm__ __volatile__ ("trapa	%1" \
 	: "=z" (__sc0) \
-	: "0" (__sc0), "r" (__sc4), "r" (__sc5), "r" (__sc6), "r" (__sc7), \
-	  "r" (__sc3), "r" (__sc1) \
+	: "i" (__SH_SYSCALL6_TRAPA), "0" (__sc0), "r" (__sc4), \
+          "r" (__sc5), "r" (__sc6), "r" (__sc7), "r" (__sc3), "r" (__sc1) \
 	: "memory" ); \
 __syscall_return(type,__sc0); \
 }
