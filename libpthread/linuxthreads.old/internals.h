@@ -445,17 +445,6 @@ static inline pthread_descr thread_self (void)
 extern int __libc_multiple_threads attribute_hidden;
 extern int __librt_multiple_threads;
 
-/* Debugging */
-
-#ifdef DEBUG
-#include <assert.h>
-#define ASSERT assert
-#define MSG __pthread_message
-#else
-#define ASSERT(x)
-#define MSG(msg,arg...)
-#endif
-
 /* Internal global functions */
 
 void __pthread_destroy_specifics(void);

@@ -148,7 +148,6 @@ int attribute_noreturn __pthread_manager(void *arg)
   /* Synchronize debugging of the thread manager */
   n = TEMP_FAILURE_RETRY(__libc_read(reqfd, (char *)&request,
 				     sizeof(request)));
-  ASSERT(n == sizeof(request) && request.req_kind == REQ_DEBUG);
 #ifndef USE_SELECT
   ufd.fd = reqfd;
   ufd.events = POLLIN;
@@ -187,7 +186,6 @@ int attribute_noreturn __pthread_manager(void *arg)
       PDEBUG("before __libc_read\n");
       n = __libc_read(reqfd, (char *)&request, sizeof(request));
       PDEBUG("after __libc_read, n=%d\n", n);
-      ASSERT(n == sizeof(request));
       switch(request.req_kind) {
       case REQ_CREATE:
         PDEBUG("got REQ_CREATE\n");
@@ -698,7 +696,6 @@ static void pthread_free(pthread_descr th)
   pthread_readlock_info *iter, *next;
   char *h_bottom_save;
 
-  ASSERT(th->p_exited);
   /* Make the handle invalid */
   handle =  thread_handle(th->p_tid);
   __pthread_lock(&handle->h_lock, NULL);
