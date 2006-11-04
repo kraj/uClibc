@@ -33,6 +33,16 @@ extern __typeof(sigaction) __libc_sigaction;
 
 libc_hidden_proto(memcpy)
 
+#if _MIPS_SIM != _ABIO32
+
+# ifdef __NR_rt_sigreturn
+static void restore_rt (void) asm ("__restore_rt");
+# endif
+# ifdef __NR_sigreturn
+static void restore (void) asm ("__restore");
+# endif
+#endif
+
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
 int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
@@ -118,4 +128,32 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 libc_hidden_proto(sigaction)
 weak_alias(__libc_sigaction,sigaction)
 libc_hidden_weak(sigaction)
+#endif
+
+/* NOTE: Please think twice before making any changes to the bits of
+   code below.  GDB needs some intimate knowledge about it to
+   recognize them as signal trampolines, and make backtraces through
+   signal handlers work right.  Important are both the names
+   (__restore_rt) and the exact instruction sequence.
+   If you ever feel the need to make any changes, please notify the
+   appropriate GDB maintainer.  */
+
+#define RESTORE(name, syscall) RESTORE2 (name, syscall)
+#define RESTORE2(name, syscall) \
+asm						\
+  (						\
+   ".align 4\n"					\
+   "__" #name ":\n"				\
+   "	li $2, " #syscall "\n"			\
+   "	syscall\n"				\
+   );
+
+/* The return code for realtime-signals.  */
+#if _MIPS_SIM != _ABIO32
+# ifdef __NR_rt_sigreturn
+RESTORE (restore_rt, __NR_rt_sigreturn)
+# endif
+# ifdef __NR_sigreturn
+RESTORE (restore, __NR_sigreturn)
+# endif
 #endif
