@@ -54,3 +54,21 @@ config CONFIG_MIPS_ISA_MIPS64
 	bool "MIPS64"
 
 endchoice
+
+choice
+	prompt "Target ABI"
+	default CONFIG_MIPS_O32_ABI
+	help
+	  This is the ABI you wish to build use.  Choose either O32, N32
+	  or N64.
+
+config CONFIG_MIPS_O32_ABI
+	bool "O32 ABI"
+
+config CONFIG_MIPS_N64_ABI
+	bool "N64 ABI"
+
+config CONFIG_MIPS_N32_ABI
+	bool "N32 ABI"
+
+endchoice

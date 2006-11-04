@@ -207,6 +207,17 @@ ifeq ($(TARGET_ARCH),mips)
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_4)+=-mips4 -mtune=mips4
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS32)+=-mips32 -mtune=mips32
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS64)+=-mips64 -mtune=mips32
+	ifeq ($(strip $(ARCH_BIG_ENDIAN)),y)
+		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-melf64btsmip
+		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-melf32btsmip
+	endif
+	ifeq ($(strip $(ARCH_LITTLE_ENDIAN)),y)
+		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-melf64ltsmip
+		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-melf32ltsmip
+	endif
+	CPU_CFLAGS-$(CONFIG_MIPS_N64_ABI)+=-mabi=64
+	CPU_CFLAGS-$(CONFIG_MIPS_O32_ABI)+=-mabi=32
+	CPU_CFLAGS-$(CONFIG_MIPS_N32_ABI)+=-mabi=n32
 endif
 
 ifeq ($(TARGET_ARCH),nios)

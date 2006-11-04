@@ -94,7 +94,7 @@ headers: include/bits/uClibc_config.h
 	cd $(top_builddir); \
 	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null`; \
 	[ -z "$$tmp" ] && tmp='include/bits/sysnum.h.new'; \
-	top_builddir=. CC="$(CC)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
+	top_builddir=. CC="$(CC) $(CPU_CFLAGS)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
 	if cmp include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
 		$(RM) $$tmp; \
 	else \
