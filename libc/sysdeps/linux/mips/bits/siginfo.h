@@ -265,7 +265,8 @@ enum
 
 /* Structure to transport application-defined values with signals.  */
 # define __SIGEV_MAX_SIZE	64
-# define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE / sizeof (int)) - 3)
+# define __SIGEV_HEAD_SIZE	(sizeof(long) + 2*sizeof(int))
+# define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE - __SIGEV_HEAD_SIZE) / sizeof (int))
 
 /* Forward declaration of the `pthread_attr_t' type.  */
 struct __pthread_attr_s;

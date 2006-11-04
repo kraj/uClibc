@@ -5,9 +5,57 @@
  * struct kernel_stat should look like...  It turns out each arch has a 
  * different opinion on the subject... */
 
-#if __WORDSIZE == 64
-#define kernel_stat kernel_stat64
-#else
+#include <sgidefs.h>
+
+#if _MIPS_SIM == _MIPS_SIM_ABI64
+/* The memory layout is the same as of struct stat64 of the 32-bit kernel.  */
+struct kernel_stat {
+	__kernel_dev_t	st_dev;
+	unsigned int	st_pad1[3];
+	__kernel_ino_t	st_ino;
+	__kernel_mode_t	st_mode;
+	__kernel_nlink_t st_nlink;
+	__kernel_uid_t	st_uid;
+	__kernel_gid_t	st_gid;
+	__kernel_dev_t	st_rdev;
+	unsigned int	st_pad2[3];
+	__kernel_off_t	st_size;
+	unsigned int	st_atime;
+	unsigned int	reserved0;
+	unsigned int	st_mtime;
+	unsigned int	reserved1;
+	unsigned int	st_ctime;
+	unsigned int	reserved2;
+	unsigned int	st_blksize;
+	unsigned int	reserved3;
+	unsigned long	st_blocks;
+};
+#define kernel_stat64 kernel_stat
+#elif _MIPS_SIM == _MIPS_SIM_NABI32
+/* The memory layout is the same as of struct stat64 of the 32-bit kernel.  */
+struct kernel_stat {
+	unsigned int	st_dev;
+	unsigned int	st_pad1[3];
+	unsigned long long	st_ino;
+	__kernel_mode_t	st_mode;
+	__kernel_nlink_t st_nlink;
+	__kernel_uid_t	st_uid;
+	__kernel_gid_t	st_gid;
+	unsigned int	st_rdev;
+	unsigned int	st_pad2[3];
+	unsigned long long	st_size;
+	unsigned int	st_atime;
+	unsigned int	reserved0;
+	unsigned int	st_mtime;
+	unsigned int	reserved1;
+	unsigned int	st_ctime;
+	unsigned int	reserved2;
+	unsigned int	st_blksize;
+	unsigned int	reserved3;
+	unsigned long long	st_blocks;
+};
+#define kernel_stat64 kernel_stat
+#else /* O32 */
 struct kernel_stat {
 	__kernel_dev_t	st_dev;
 	long		st_pad1[3];
@@ -30,7 +78,6 @@ struct kernel_stat {
 	long		st_blocks;
 	long		st_pad4[14];
 };
-#endif
 
 struct kernel_stat64 {
 	unsigned long	st_dev;
@@ -53,6 +100,7 @@ struct kernel_stat64 {
 	unsigned long	st_pad2;
 	long long	st_blocks;
 };
+#endif	/* O32 */
 
 #endif	/*  _BITS_STAT_STRUCT_H */
 

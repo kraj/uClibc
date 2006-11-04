@@ -62,7 +62,11 @@
 #endif
 
 #ifdef __USE_LARGEFILE64
-# define O_LARGEFILE	0x2000	/* Allow large file opens.  */
+# if __WORDSIZE == 64
+#  define O_LARGEFILE	0
+# else
+#  define O_LARGEFILE	0x2000	/* Allow large file opens.  */
+# endif
 #endif
 
 /* Values for the second argument to `fcntl'.  */
@@ -81,9 +85,15 @@
 # define F_SETLKW	F_SETLKW64 /* Set record locking info (blocking).  */
 #endif
 
-#define F_GETLK64	33	/* Get record locking info.  */
-#define F_SETLK64	34	/* Set record locking info (non-blocking).  */
-#define F_SETLKW64	35	/* Set record locking info (blocking).	*/
+#if __WORDSIZE == 64
+# define F_GETLK64	14	/* Get record locking info.  */
+# define F_SETLK64	6	/* Set record locking info (non-blocking).  */
+# define F_SETLKW64	7	/* Set record locking info (blocking).	*/
+#else
+# define F_GETLK64	33	/* Get record locking info.  */
+# define F_SETLK64	34	/* Set record locking info (non-blocking).  */
+# define F_SETLKW64	35	/* Set record locking info (blocking).	*/
+#endif
 
 #if defined __USE_BSD || defined __USE_UNIX98
 # define F_SETOWN	24	/* Get owner of socket (receiver of SIGIO).  */

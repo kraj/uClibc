@@ -20,6 +20,8 @@
 # error "Never include <bits/stat.h> directly; use <sys/stat.h> instead."
 #endif
 
+#include <sgidefs.h>
+
 /* Versions of the `struct stat' data structure.  */
 #define _STAT_VER_LINUX_OLD	1
 #define _STAT_VER_KERNEL	1
@@ -33,6 +35,7 @@
 #define _MKNOD_VER		_MKNOD_VER_LINUX /* The bits defined below.  */
 
 
+#if _MIPS_SIM == _MIPS_SIM_ABI32
 /* Structure describing file characteristics.  */
 struct stat
   {
@@ -76,8 +79,38 @@ struct stat
 #endif
     long int st_pad5[14];
   };
+#else /* N32 || N64 */
+/* The memory layout is the same as of struct stat64 of the 32-bit kernel.  */
+struct stat {
+    unsigned int st_dev;
+    int st_pad1[3];
+    __ino_t st_ino;		/* File serial number.		*/
+    __mode_t st_mode;		/* File mode.  */
+    __nlink_t st_nlink;		/* Link count.  */
+    __uid_t st_uid;		/* User ID of the file's owner.	*/
+    __gid_t st_gid;		/* Group ID of the file's group.*/
+    unsigned int st_rdev;	/* Device number, if device.  */
+    int st_pad2[3];
+    __off_t st_size;		/* Size of file, in bytes.  */
+    /*
+     * Actually this should be timestruc_t st_atime, st_mtime and
+     * st_ctime but we don't have it under Linux.
+     */
+    int st_atime;
+    int reserved0;	/* Reserved for st_atime expansion  */
+    int st_mtime;
+    int reserved1;	/* Reserved for st_mtime expansion  */
+    int st_ctime;
+    int reserved2;	/* Reserved for st_ctime expansion  */
+    int st_blksize;	/* Optimal block size for I/O.  */
+    int st_pad3;
+    __blkcnt_t st_blocks;	/* Number of 512-byte blocks allocated.  */
+    int st_pad4[14];
+};
+#endif /* N32 || N64 */
 
 #ifdef __USE_LARGEFILE64
+#if _MIPS_SIM == _MIPS_SIM_ABI32
 struct stat64
   {
     __dev_t st_dev;
@@ -105,6 +138,35 @@ struct stat64
     __blkcnt64_t st_blocks;	/* Number of 512-byte blocks allocated.  */
     long int st_pad4[14];
   };
+#else	/* N32 || N64 */
+/* stat64 of N32/N64 is just an alias of stat syscall. */
+struct stat64 {
+    unsigned int st_dev;
+    int st_pad1[3];
+    __ino_t st_ino;		/* File serial number.		*/
+    __mode_t st_mode;		/* File mode.  */
+    __nlink_t st_nlink;		/* Link count.  */
+    __uid_t st_uid;		/* User ID of the file's owner.	*/
+    __gid_t st_gid;		/* Group ID of the file's group.*/
+    unsigned int st_rdev;	/* Device number, if device.  */
+    int st_pad2[3];
+    __off_t st_size;		/* Size of file, in bytes.  */
+    /*
+     * Actually this should be timestruc_t st_atime, st_mtime and
+     * st_ctime but we don't have it under Linux.
+     */
+    int st_atime;
+    int reserved0;	/* Reserved for st_atime expansion  */
+    int st_mtime;
+    int reserved1;	/* Reserved for st_mtime expansion  */
+    int st_ctime;
+    int reserved2;	/* Reserved for st_ctime expansion  */
+    int st_blksize;	/* Optimal block size for I/O.  */
+    int st_pad3;
+    __blkcnt_t st_blocks;	/* Number of 512-byte blocks allocated.  */
+    int st_pad4[14];
+};
+#endif	/* N32 || N64 */
 #endif
 
 /* Tell code we have these members.  */
