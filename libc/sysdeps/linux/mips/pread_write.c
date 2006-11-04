@@ -15,6 +15,7 @@
 #include "../common/syscalls.h"
 #include <unistd.h>
 #include <stdint.h>
+#include <sgidefs.h>
 
 #ifdef __NR_pread64             /* Newer kernels renamed but it's the same.  */
 # ifdef __NR_pread
@@ -26,9 +27,14 @@
 #ifdef __NR_pread
 extern __typeof(pread) __libc_pread;
 
-# ifdef __mips64
-_syscall4(ssize_t, pread, int, fd, void *, buf, size_t, count, off_t, offset);
-# else /* !__mips64 */
+# if _MIPS_SIM == _MIPS_SIM_ABI64
+#  define __NR___libc_pread __NR_pread 
+_syscall4(ssize_t, __libc_pread, int, fd, void *, buf, size_t, count, off_t, offset);
+weak_alias (__libc_pread, pread)
+#  define __NR___libc_pread64 __NR_pread 
+_syscall4(ssize_t, __libc_pread64, int, fd, void *, buf, size_t, count, off64_t, offset);
+weak_alias (__libc_pread64, pread64)
+# else /* O32 || N32 */
 #  define __NR___syscall_pread __NR_pread 
 static inline _syscall6(ssize_t, __syscall_pread, int, fd, void *, buf, 
 		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo);
@@ -49,7 +55,7 @@ ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 }
 weak_alias(__libc_pread64,pread64)
 #  endif /* __UCLIBC_HAS_LFS__  */
-# endif /* !__mips64 */
+# endif /* O32 || N32 */
 
 #endif /* __NR_pread */
 
@@ -65,9 +71,14 @@ weak_alias(__libc_pread64,pread64)
 #ifdef __NR_pwrite
 extern __typeof(pwrite) __libc_pwrite;
 
-# ifdef __mips64
-_syscall4(ssize_t, pwrite, int, fd, const void *, buf, size_t, count, off_t, offset);
-# else /* !__mips64 */
+# if _MIPS_SIM == _MIPS_SIM_ABI64
+#  define __NR___libc_pwrite __NR_pwrite 
+_syscall4(ssize_t, __libc_pwrite, int, fd, const void *, buf, size_t, count, off_t, offset);
+weak_alias (__libc_pwrite, pwrite)
+#  define __NR___libc_pwrite64 __NR_pwrite 
+_syscall4(ssize_t, __libc_pwrite64, int, fd, const void *, buf, size_t, count, off64_t, offset);
+weak_alias (__libc_pwrite64, pwrite64)
+# else /* O32 || N32 */
 #  define __NR___syscall_pwrite __NR_pwrite 
 static inline _syscall6(ssize_t, __syscall_pwrite, int, fd, const void *, buf, 
 		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo);
@@ -88,5 +99,5 @@ ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 }
 weak_alias(__libc_pwrite64,pwrite64)
 #  endif /* __UCLIBC_HAS_LFS__  */
-# endif /* !__mips64 */
+# endif /* O32 || N32 */
 #endif /* __NR_pwrite */
