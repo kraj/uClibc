@@ -22,6 +22,7 @@
    in setjmp doesn't clobber the state restored by longjmp.  */
 
 #include <sys/regdef.h>
+#include <sys/asm.h>
 
 #ifdef __PIC__
 	.option pic2
@@ -35,10 +36,16 @@
 
 _setjmp:
 #ifdef __PIC__
+#if (_MIPS_SIM == _MIPS_SIM_ABI32)
 	.set	noreorder
 	.cpload t9
 	.set	reorder
 	la	t9, __sigsetjmp
+#else
+	.cpsetup t9, v0, _setjmp
+	PTR_LA	t9, __sigsetjmp
+	.cpreturn
+#endif
 #endif
 	move	a1,zero		/* Pass a second argument of zero.  */
 #ifdef __PIC__

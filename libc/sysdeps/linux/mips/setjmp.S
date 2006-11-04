@@ -17,6 +17,7 @@
    02111-1307 USA.  */
 
 #include <sys/regdef.h>
+#include <sys/asm.h>
 
 /* The function __sigsetjmp_aux saves all the registers, but it can't
    reliably access the stack or frame pointers, so we pass them in as
@@ -35,7 +36,11 @@
 __sigsetjmp:
 #ifdef __PIC__
 	.set	noreorder
+#if _MIPS_SIM == _MIPS_SIM_ABI32
 	.cpload	t9
+#else
+	.cpsetup t9, v0, __sigsetjmp
+#endif
 	.set	reorder
 #endif
 	move	a2, sp
@@ -45,7 +50,10 @@ __sigsetjmp:
 	move	a3, $fp
 #endif
 #ifdef __PIC__
-	la	t9, __sigsetjmp_aux
+	PTR_LA	t9, __sigsetjmp_aux
+#if _MIPS_SIM != _MIPS_SIM_ABI32
+	.cpreturn
+#endif
 	jr	t9
 #else
 	j	__sigsetjmp_aux

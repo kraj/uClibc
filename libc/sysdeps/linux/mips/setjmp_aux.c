@@ -19,6 +19,8 @@
 
 #include <features.h>
 #include <setjmp.h>
+#include <sgidefs.h>
+#include <sys/asm.h>
 
 /* This function is only called via the assembly language routine
    __sigsetjmp, which arranges to pass in the stack pointer and the frame
@@ -28,20 +30,39 @@
 extern int __sigjmp_save (sigjmp_buf, int);
 
 int
+#if _MIPS_SIM == _MIPS_SIM_ABI64
+__sigsetjmp_aux (jmp_buf env, int savemask, long sp, long fp)
+#else /* O32 || N32 */
 __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
+#endif /* O32 || N32 */
 {
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
   /* Store the floating point callee-saved registers...  */
+#if _MIPS_SIM == _MIPS_SIM_ABI64
+  asm volatile ("s.d $f24, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[0]));
+  asm volatile ("s.d $f25, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[1]));
+  asm volatile ("s.d $f26, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[2]));
+  asm volatile ("s.d $f27, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[3]));
+  asm volatile ("s.d $f28, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[4]));
+  asm volatile ("s.d $f29, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[5]));
+  asm volatile ("s.d $f30, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[6]));
+  asm volatile ("s.d $f31, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[7]));
+#else /* O32 || N32 */
   asm volatile ("s.d $f20, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[0]));
   asm volatile ("s.d $f22, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[1]));
   asm volatile ("s.d $f24, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[2]));
   asm volatile ("s.d $f26, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[3]));
   asm volatile ("s.d $f28, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[4]));
   asm volatile ("s.d $f30, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[5]));
+#endif /* O32 || N32 */
 #endif
 
   /* .. and the PC;  */
+#if _MIPS_SIM == _MIPS_SIM_ABI64
+  asm volatile ("sd $31, %0" : : "m" (env[0].__jmpbuf[0].__pc));
+#else
   asm volatile ("sw $31, %0" : : "m" (env[0].__jmpbuf[0].__pc));
+#endif
 
   /* .. and the stack pointer;  */
   env[0].__jmpbuf[0].__sp = (void *) sp;
@@ -50,9 +71,14 @@ __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
   env[0].__jmpbuf[0].__fp = (void *) fp;
 
   /* .. and the GP; */
+#if _MIPS_SIM == _MIPS_SIM_ABI64
+  asm volatile ("sd $gp, %0" : : "m" (env[0].__jmpbuf[0].__gp));
+#else
   asm volatile ("sw $gp, %0" : : "m" (env[0].__jmpbuf[0].__gp));
+#endif
 
   /* .. and the callee-saved registers; */
+#if (_MIPS_SIM == _MIPS_SIM_ABI32)
   asm volatile ("sw $16, %0" : : "m" (env[0].__jmpbuf[0].__regs[0]));
   asm volatile ("sw $17, %0" : : "m" (env[0].__jmpbuf[0].__regs[1]));
   asm volatile ("sw $18, %0" : : "m" (env[0].__jmpbuf[0].__regs[2]));
@@ -61,6 +87,16 @@ __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
   asm volatile ("sw $21, %0" : : "m" (env[0].__jmpbuf[0].__regs[5]));
   asm volatile ("sw $22, %0" : : "m" (env[0].__jmpbuf[0].__regs[6]));
   asm volatile ("sw $23, %0" : : "m" (env[0].__jmpbuf[0].__regs[7]));
+#else	/* N32 || N64 */
+  asm volatile ("sd $16, %0" : : "m" (env[0].__jmpbuf[0].__regs[0]));
+  asm volatile ("sd $17, %0" : : "m" (env[0].__jmpbuf[0].__regs[1]));
+  asm volatile ("sd $18, %0" : : "m" (env[0].__jmpbuf[0].__regs[2]));
+  asm volatile ("sd $19, %0" : : "m" (env[0].__jmpbuf[0].__regs[3]));
+  asm volatile ("sd $20, %0" : : "m" (env[0].__jmpbuf[0].__regs[4]));
+  asm volatile ("sd $21, %0" : : "m" (env[0].__jmpbuf[0].__regs[5]));
+  asm volatile ("sd $22, %0" : : "m" (env[0].__jmpbuf[0].__regs[6]));
+  asm volatile ("sd $23, %0" : : "m" (env[0].__jmpbuf[0].__regs[7]));
+#endif	/* N32 || N64 */
 
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
   /* .. and finally get and reconstruct the floating point csr.  */
