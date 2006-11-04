@@ -8,6 +8,7 @@
  * header files.  It also defines the traditional `SYS_<name>' macros for older
  * programs.  */
 #include <bits/sysnum.h>
+#include <sgidefs.h>
 
 #ifndef __ASSEMBLER__
 
@@ -152,6 +153,7 @@ type name (atype a, btype b, ctype c, dtype d) \
 	return (type)-1;						\
 }
 
+#if _MIPS_SIM == _MIPS_SIM_ABI32
 #define _syscall5(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e) \
 type name (atype a,btype b,ctype c,dtype d,etype e) \
 { 									\
@@ -262,6 +264,100 @@ type name (atype a,btype b,ctype c,dtype d,etype e,ftype f,gtype g) \
 	__set_errno(sys_result);					\
 	return (type)-1;						\
 }
+#else /* N32 || N64 */
+#define _syscall5(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e) \
+type name (atype a,btype b,ctype c,dtype d,etype e) \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a0 asm("$4") = (unsigned long) a; 	\
+	register unsigned long __a1 asm("$5") = (unsigned long) b; 	\
+	register unsigned long __a2 asm("$6") = (unsigned long) c; 	\
+	register unsigned long __a3 asm("$7") = (unsigned long) d; 	\
+	register unsigned long __a4 asm("$8") = (unsigned long) e; 	\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"li	$2, %6\t\t\t# " #name "\n\t" 				\
+	"syscall\n\t" 							\
+	".set	reorder" 						\
+	: "=r" (__v0), "+r" (__a3)					\
+	: "r" (__a0), "r" (__a1), "r" (__a2), "r" (__a4), "i" (SYS_ify(name)) 	\
+	: "$1", "$3", "$9", "$10", "$11", "$12", "$13",			\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
+}
+
+#define _syscall6(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e,ftype,f) \
+type name (atype a,btype b,ctype c,dtype d,etype e,ftype f) \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a0 asm("$4") = (unsigned long) a; 	\
+	register unsigned long __a1 asm("$5") = (unsigned long) b; 	\
+	register unsigned long __a2 asm("$6") = (unsigned long) c; 	\
+	register unsigned long __a3 asm("$7") = (unsigned long) d;	\
+	register unsigned long __a4 asm("$8") = (unsigned long) e; 	\
+	register unsigned long __a5 asm("$9") = (unsigned long) f; 	\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"li	$2, %7\t\t\t# " #name "\n\t" 				\
+	"syscall\n\t" 							\
+	".set	reorder" 						\
+	: "=r" (__v0), "+r" (__a3)					\
+	: "r" (__a0), "r" (__a1), "r" (__a2), "r" (__a4), "r" (__a5), "i" (SYS_ify(name)) 	\
+	: "$1", "$3", "$10", "$11", "$12", "$13",			\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
+}
+
+#define _syscall7(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e,ftype,f,gtype,g) \
+type name (atype a,btype b,ctype c,dtype d,etype e,ftype f,gtype g) \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a0 asm("$4") = (unsigned long) a; 	\
+	register unsigned long __a1 asm("$5") = (unsigned long) b; 	\
+	register unsigned long __a2 asm("$6") = (unsigned long) c; 	\
+	register unsigned long __a3 asm("$7") = (unsigned long) d;	\
+	register unsigned long __a4 asm("$8") = (unsigned long) e; 	\
+	register unsigned long __a5 asm("$9") = (unsigned long) f; 	\
+	register unsigned long __a6 asm("$10") = (unsigned long) g; 	\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"li	$2, %8\t\t\t# " #name "\n\t" 				\
+	"syscall\n\t" 							\
+	".set	reorder" 						\
+	: "=r" (__v0), "+r" (__a3)					\
+	: "r" (__a0), "r" (__a1), "r" (__a2), "r" (__a4), "r" (__a5), "r" (__a6), "i" (SYS_ify(name)) 	\
+	: "$1", "$3", "$11", "$12", "$13",			\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
+}
+#endif	/* N32 || N64 */
 
 #endif /* __ASSEMBLER__ */
 #endif /* _BITS_SYSCALLS_H */
