@@ -8,6 +8,89 @@
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
 #include <elf.h>
+
+#ifdef __mips64	/* from glibc sysdeps/mips/elf/ldsodefs.h 1.4 */
+/* The 64-bit MIPS ELF ABI uses an unusual reloc format.  Each
+   relocation entry specifies up to three actual relocations, all at
+   the same address.  The first relocation which required a symbol
+   uses the symbol in the r_sym field.  The second relocation which
+   requires a symbol uses the symbol in the r_ssym field.  If all
+   three relocations require a symbol, the third one uses a zero
+   value.
+
+   We define these structures in internal headers because we're not
+   sure we want to make them part of the ABI yet.  Eventually, some of
+   this may move into elf/elf.h.  */
+
+/* An entry in a 64 bit SHT_REL section.  */
+
+typedef struct
+{
+  Elf32_Word    r_sym;		/* Symbol index */
+  unsigned char r_ssym;		/* Special symbol for 2nd relocation */
+  unsigned char r_type3;	/* 3rd relocation type */
+  unsigned char r_type2;	/* 2nd relocation type */
+  unsigned char r_type1;	/* 1st relocation type */
+} _Elf64_Mips_R_Info;
+
+typedef union
+{
+  Elf64_Xword	r_info_number;
+  _Elf64_Mips_R_Info r_info_fields;
+} _Elf64_Mips_R_Info_union;
+
+typedef struct
+{
+  Elf64_Addr	r_offset;		/* Address */
+  _Elf64_Mips_R_Info_union r_info;	/* Relocation type and symbol index */
+} Elf64_Mips_Rel;
+
+typedef struct
+{
+  Elf64_Addr	r_offset;		/* Address */
+  _Elf64_Mips_R_Info_union r_info;	/* Relocation type and symbol index */
+  Elf64_Sxword	r_addend;		/* Addend */
+} Elf64_Mips_Rela;
+
+#define ELF64_MIPS_R_SYM(i) \
+  ((__extension__ (_Elf64_Mips_R_Info_union)(i)).r_info_fields.r_sym)
+#define ELF64_MIPS_R_TYPE(i) \
+  (((_Elf64_Mips_R_Info_union)(i)).r_info_fields.r_type1 \
+   | ((Elf32_Word)(__extension__ (_Elf64_Mips_R_Info_union)(i) \
+		   ).r_info_fields.r_type2 << 8) \
+   | ((Elf32_Word)(__extension__ (_Elf64_Mips_R_Info_union)(i) \
+		   ).r_info_fields.r_type3 << 16) \
+   | ((Elf32_Word)(__extension__ (_Elf64_Mips_R_Info_union)(i) \
+		   ).r_info_fields.r_ssym << 24))
+#define ELF64_MIPS_R_INFO(sym, type) \
+  (__extension__ (_Elf64_Mips_R_Info_union) \
+   (__extension__ (_Elf64_Mips_R_Info) \
+   { (sym), ELF64_MIPS_R_SSYM (type), \
+       ELF64_MIPS_R_TYPE3 (type), \
+       ELF64_MIPS_R_TYPE2 (type), \
+       ELF64_MIPS_R_TYPE1 (type) \
+   }).r_info_number)
+/* These macros decompose the value returned by ELF64_MIPS_R_TYPE, and
+   compose it back into a value that it can be used as an argument to
+   ELF64_MIPS_R_INFO.  */
+#define ELF64_MIPS_R_SSYM(i) (((i) >> 24) & 0xff)
+#define ELF64_MIPS_R_TYPE3(i) (((i) >> 16) & 0xff)
+#define ELF64_MIPS_R_TYPE2(i) (((i) >> 8) & 0xff)
+#define ELF64_MIPS_R_TYPE1(i) ((i) & 0xff)
+#define ELF64_MIPS_R_TYPEENC(type1, type2, type3, ssym) \
+  ((type1) \
+   | ((Elf32_Word)(type2) << 8) \
+   | ((Elf32_Word)(type3) << 16) \
+   | ((Elf32_Word)(ssym) << 24))
+
+#undef ELF64_R_SYM
+#define ELF64_R_SYM(i) ELF64_MIPS_R_SYM (i)
+#undef ELF64_R_TYPE
+#define ELF64_R_TYPE(i) ELF64_MIPS_R_TYPE (i)
+#undef ELF64_R_INFO
+#define ELF64_R_INFO(sym, type) ELF64_MIPS_R_INFO ((sym), (type))
+#endif	/* __mips64 */
+
 #include <link.h>
 
 #define ARCH_NUM 3
@@ -24,7 +107,7 @@ else if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO) \
 else if (dpnt->d_tag == DT_MIPS_SYMTABNO) \
      dynamic[DT_MIPS_SYMTABNO_IDX] = dpnt->d_un.d_val; \
 else if (dpnt->d_tag == DT_MIPS_RLD_MAP) \
-     *(Elf32_Addr *)(dpnt->d_un.d_ptr) =  (Elf32_Addr) debug_addr; \
+     *(ElfW(Addr) *)(dpnt->d_un.d_ptr) =  (ElfW(Addr)) debug_addr; \
 } while (0)
 
 /* Initialization sequence for the application/library GOT.  */
@@ -64,9 +147,15 @@ struct elf_resolve;
 void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy);
 
 /* 4096 bytes alignment */
+#if _MIPS_SIM == _MIPS_SIM_ABI64
+#define PAGE_ALIGN (~0xfffUL)
+#define ADDR_ALIGN 0xfffUL
+#define OFFS_ALIGN (0x10000000000UL-0x1000)
+#else	/* O32 || N32 */
 #define PAGE_ALIGN 0xfffff000
 #define ADDR_ALIGN 0xfff
 #define OFFS_ALIGN 0x7ffff000
+#endif	/* O32 || N32 */
 
 #define elf_machine_type_class(type)		ELF_RTYPE_CLASS_PLT
 /* MIPS does not have COPY relocs */
@@ -94,8 +183,13 @@ elf_machine_dynamic (void)
 #define STRINGXP(X) __STRING(X)
 #define STRINGXV(X) STRINGV_(X)
 #define STRINGV_(...) # __VA_ARGS__
+#if _MIPS_SIM == _MIPS_SIM_ABI64
+#define PTR_LA               dla
+#define PTR_SUBU     dsubu
+#else
 #define PTR_LA               la
 #define PTR_SUBU     subu
+#endif
 
 /* Return the run-time load address of the shared object.  */
 static inline ElfW(Addr)
@@ -115,8 +209,8 @@ elf_machine_load_address (void)
 }
 
 static inline void
-elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
-		      Elf32_Word relative_count)
+elf_machine_relative (ElfW(Addr) load_off, const ElfW(Addr) rel_addr,
+		      ElfW(Word) relative_count)
 {
-	/* No REALTIVE relocs in MIPS? */
+	/* No RELATIVE relocs in MIPS? */
 }

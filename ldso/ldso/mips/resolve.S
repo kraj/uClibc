@@ -12,12 +12,14 @@
  *
  */
 
+#include <sgidefs.h>
 .text
 .align	2
 .globl	_dl_runtime_resolve
 .type	_dl_runtime_resolve,@function
 .ent	_dl_runtime_resolve
 _dl_runtime_resolve:
+#if _MIPS_SIM == _MIPS_SIM_ABI32
 	.frame	$29, 40, $31
 	.set noreorder
 
@@ -60,6 +62,51 @@ _dl_runtime_resolve:
 
 	# Do a tail call to the original function
 	addiu	$29, 40
+#else	/* N32 || N64 */
+	.set noreorder
+
+	# Save GP.
+	move	$3, $28
+
+	# Save arguments and sp value on stack.
+	dsubu	$29, 80
+
+	# Compute GP.
+	.set noreorder
+	.cpsetup	$25, 0, _dl_runtime_resolve
+	.set reorder
+
+	# Store function arguments from registers to stack
+	sd	$15, 72($29)
+	sd	$4, 8($29)
+	sd	$5, 16($29)
+	sd	$6, 24($29)
+	sd	$7, 32($29)
+	sd	$8, 40($29)
+	sd	$9, 48($29)
+	sd	$10, 56($29)
+	sd	$11, 64($29)
+
+	# Setup functions args and call __dl_runtime_resolve
+	move	$4, $24
+	move	$5, $3
+	jal	__dl_runtime_resolve
+
+	# Restore function arguments from stack to registers
+	ld	$31, 72($29)
+	ld	$4, 8($29)
+	ld	$5, 16($29)
+	ld	$6, 24($29)
+	ld	$7, 32($29)
+	ld	$8, 40($29)
+	ld	$9, 48($29)
+	ld	$10, 56($29)
+	ld	$11, 64($29)
+
+	# Do a tail call to the original function
+	.cpreturn
+	daddu	$29, 80
+#endif	/* N32 || N64 */
 	move	$25, $2
 	jr	$25
 .end	_dl_runtime_resolve

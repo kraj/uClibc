@@ -38,7 +38,7 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 {
 	unsigned long *got = (unsigned long *) (old_gpreg - OFFSET_GP_GOT);
 	struct elf_resolve *tpnt = (struct elf_resolve *) got[1];
-	Elf32_Sym *sym;
+	ElfW(Sym) *sym;
 	char *strtab;
 	unsigned long local_gotno;
 	unsigned long gotsym;
@@ -50,7 +50,7 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	gotsym = tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
 	local_gotno = tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];
 
-	sym = ((Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB]) + sym_index;
+	sym = ((ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB]) + sym_index;
 	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + sym->st_name;
 
@@ -93,8 +93,8 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 	unsigned long rel_addr, unsigned long rel_size)
 {
-	Elf32_Sym *symtab;
-	Elf32_Rel *rpnt;
+	ElfW(Sym) *symtab;
+	ElfW(Rel) *rpnt;
 	char *strtab;
 	unsigned long i;
 	unsigned long *got;
@@ -107,18 +107,18 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #endif
 
 	/* Now parse the relocation information */
-	rel_size = rel_size / sizeof(Elf32_Rel);
-	rpnt = (Elf32_Rel *) rel_addr;
+	rel_size = rel_size / sizeof(ElfW(Rel));
+	rpnt = (ElfW(Rel) *) rel_addr;
 
-	symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
+	symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 	got = (unsigned long *) tpnt->dynamic_info[DT_PLTGOT];
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		reloc_addr = (unsigned long *) (tpnt->loadaddr +
 			(unsigned long) rpnt->r_offset);
-		reloc_type = ELF32_R_TYPE(rpnt->r_info);
-		symtab_index = ELF32_R_SYM(rpnt->r_info);
+		reloc_type = ELF_R_TYPE(rpnt->r_info);
+		symtab_index = ELF_R_SYM(rpnt->r_info);
 		symbol_addr = 0;
 
 		debug_sym(symtab,strtab,symtab_index);
@@ -129,7 +129,11 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #endif
 
 		switch (reloc_type) {
+#if _MIPS_SIM == _MIPS_SIM_ABI64
+		case (R_MIPS_64 << 8) | R_MIPS_REL32:
+#else	/* O32 || N32 */
 		case R_MIPS_REL32:
+#endif	/* O32 || N32 */
 			if (symtab_index) {
 				if (symtab_index < tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX])
 					*reloc_addr +=
@@ -174,7 +178,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 /* Relocate the global GOT entries for the object */
 void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 {
-	Elf32_Sym *sym;
+	ElfW(Sym) *sym;
 	char *strtab;
 	unsigned long i, tmp_lazy;
 	unsigned long *got_entry;
@@ -188,7 +192,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 		/* Setup the loop variables */
 		got_entry = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT])
 			+ tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];
-		sym = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB] + tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
+		sym = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB] + tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
 		strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 		i = tpnt->dynamic_info[DT_MIPS_SYMTABNO_IDX] - tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
 
@@ -200,7 +204,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 		/* Relocate the global GOT entries for the object */
 		while (i--) {
 			if (sym->st_shndx == SHN_UNDEF) {
-				if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC && sym->st_value && tmp_lazy) {
+				if (ELF_ST_TYPE(sym->st_info) == STT_FUNC && sym->st_value && tmp_lazy) {
 					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;
 				}
 				else {
@@ -212,11 +216,11 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
 					sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 			}
-			else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&
+			else if (ELF_ST_TYPE(sym->st_info) == STT_FUNC &&
 				*got_entry != sym->st_value && tmp_lazy) {
 				*got_entry += (unsigned long) tpnt->loadaddr;
 			}
-			else if (ELF32_ST_TYPE(sym->st_info) == STT_SECTION) {
+			else if (ELF_ST_TYPE(sym->st_info) == STT_SECTION) {
 				if (sym->st_other == 0)
 					*got_entry += (unsigned long) tpnt->loadaddr;
 			}
