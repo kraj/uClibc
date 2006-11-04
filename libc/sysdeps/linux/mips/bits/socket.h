@@ -213,16 +213,29 @@ enum
 
 /* Structure describing messages sent by
    `sendmsg' and received by `recvmsg'.  */
+/* Note: do not change these members to match glibc; these match the
+   SuSv3 spec already (e.g. msg_iovlen/msg_controllen).
+   http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/socket.h.html */
+/* Note: linux kernel uses __kernel_size_t (which is 8bytes on 64bit
+   platforms, and 4bytes on 32bit platforms) for msg_iovlen/msg_controllen */
 struct msghdr
   {
     void *msg_name;		/* Address to send to/receive from.  */
     socklen_t msg_namelen;	/* Length of address data.  */
 
     struct iovec *msg_iov;	/* Vector of data to send/receive into.  */
+#if __WORDSIZE == 32
     int msg_iovlen;		/* Number of elements in the vector.  */
+#else
+    size_t msg_iovlen;		/* Number of elements in the vector.  */
+#endif
 
     void *msg_control;		/* Ancillary data (eg BSD filedesc passing). */
+#if __WORDSIZE == 32
     socklen_t msg_controllen;	/* Ancillary data buffer length.  */
+#else
+    size_t msg_controllen;	/* Ancillary data buffer length.  */
+#endif
 
     int msg_flags;		/* Flags on received message.  */
   };
