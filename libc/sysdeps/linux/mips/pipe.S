@@ -19,7 +19,7 @@ pipe:
 	syscall
 	beqz	a3, 1f
 #ifdef __PIC__
-	la	t9, __syscall_error
+	PTR_LA	t9, __syscall_error
 	jr	t9
 #else
 	j	__syscall_error
