@@ -3,7 +3,7 @@
 #include <syscall.h>
 #include <bits/wordsize.h>
 
-#if __WORDSIZE == 32 || defined __alpha__
+#if __WORDSIZE == 32 || defined __alpha__ || defined __mips__
 # define __IPC_64	0x100
 #else
 # define __IPC_64	0x0
