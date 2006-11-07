@@ -196,7 +196,9 @@ libc_hidden_proto(__ctype_b)
 #endif
 
 #if defined (L_tzset) || defined (L_localtime_r) || defined(L_strftime) || \
-    defined(L__time_mktime) || defined(L__time_mktime_tzi)
+    defined(L__time_mktime) || defined(L__time_mktime_tzi) || \
+    ((defined(L_strftime) || defined(L_strftime_l)) && \
+    defined(__UCLIBC_HAS_XLOCALE__))
 
 void _time_tzset(int use_old_rules);
 libc_hidden_proto(_time_tzset)
