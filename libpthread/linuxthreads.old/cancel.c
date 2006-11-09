@@ -26,6 +26,14 @@
 extern void __rpc_thread_destroy(void);
 #endif
 
+#ifdef _STACK_GROWS_DOWN
+# define FRAME_LEFT(frame, other) ((char *) frame >= (char *) other)
+#elif _STACK_GROWS_UP
+# define FRAME_LEFT(frame, other) ((char *) frame <= (char *) other)
+#else
+# error "Define either _STACK_GROWS_DOWN or _STACK_GROWS_UP"
+#endif
+
 
 int pthread_setcancelstate(int state, int * oldstate)
 {
@@ -128,6 +136,8 @@ void _pthread_cleanup_push(struct _pthread_cleanup_buffer * buffer,
   buffer->__routine = routine;
   buffer->__arg = arg;
   buffer->__prev = THREAD_GETMEM(self, p_cleanup);
+  if (buffer->__prev != NULL && FRAME_LEFT (buffer, buffer->__prev))
+    buffer->__prev = NULL;
   THREAD_SETMEM(self, p_cleanup, buffer);
 }
 
@@ -147,6 +157,8 @@ void _pthread_cleanup_push_defer(struct _pthread_cleanup_buffer * buffer,
   buffer->__arg = arg;
   buffer->__canceltype = THREAD_GETMEM(self, p_canceltype);
   buffer->__prev = THREAD_GETMEM(self, p_cleanup);
+  if (buffer->__prev != NULL && FRAME_LEFT (buffer, buffer->__prev))
+    buffer->__prev = NULL;
   THREAD_SETMEM(self, p_canceltype, PTHREAD_CANCEL_DEFERRED);
   THREAD_SETMEM(self, p_cleanup, buffer);
 }
