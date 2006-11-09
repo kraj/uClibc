@@ -37,9 +37,13 @@ void __pthread_do_exit(void *retval, char *currentframe)
   struct pthread_request request;
   PDEBUG("self=%p, pid=%d\n", self, self->p_pid);
 
-  /* Reset the cancellation flag to avoid looping if the cleanup handlers
-     contain cancellation points */
-  THREAD_SETMEM(self, p_canceled, 0);
+  /* obey POSIX behavior and prevent cancellation functions from
+   * being called more than once.
+   * http://sourceware.org/ml/libc-ports/2006-10/msg00043.html
+   */
+  THREAD_SETMEM(self, p_cancelstate, PTHREAD_CANCEL_DISABLE);
+  THREAD_SETMEM(self, p_canceltype, PTHREAD_CANCEL_DEFERRED);
+
   /* Call cleanup functions and destroy the thread-specific data */
   __pthread_perform_cleanup(currentframe);
   __pthread_destroy_specifics();
