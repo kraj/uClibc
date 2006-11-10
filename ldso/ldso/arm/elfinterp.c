@@ -57,7 +57,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	rel_addr = (ELF_RELOC *) tpnt->dynamic_info[DT_JMPREL];
 
-	this_reloc = rel_addr + (reloc_entry >> 3);
+	this_reloc = rel_addr + reloc_entry;
 	reloc_type = ELF32_R_TYPE(this_reloc->r_info);
 	symtab_index = ELF32_R_SYM(this_reloc->r_info);
 
@@ -85,7 +85,9 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		_dl_exit(1);
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
+#if !defined __SUPPORT_LD_DEBUG_EARLY__
 	if ((unsigned long) got_addr < 0x40000000)
+#endif
 	{
 		if (_dl_debug_bindings)
 		{
