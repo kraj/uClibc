@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 	verbose = 0;
 	max = 10;
 
-	/* test vfork() instead of sigsetjmp/siglongjmp */
+	/* test vfork()/exec() inside of sigsetjmp/siglongjmp */
 	cnt = 0;
 	sigsetjmp(sigenv, 1);
 	++cnt;
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 	if (cnt < max)
 		siglongjmp(sigenv, 0);
 
-	/* test vfork() inside of setjmp/longjmp */
+	/* test vfork()/sigprocmask() inside of setjmp/longjmp */
 	cnt = 0;
 	setjmp(env);
 	++cnt;
