@@ -4,6 +4,9 @@
 #include <setjmp.h>
 #include <alloca.h>
 
+int ret;
+int verbose;
+
 static void
 sub5 (jmp_buf buf)
 {
@@ -17,10 +20,14 @@ test (int x)
   char *foo;
   int arr[100];
 
+  ++ret;
+
   arr[77] = x;
   if (setjmp (buf))
     {
-      printf ("made it ok; %d\n", arr[77]);
+      --ret;
+      if (verbose)
+        printf ("made it ok; %d\n", arr[77]);
       return;
     }
 
@@ -29,12 +36,15 @@ test (int x)
 }
 
 int
-main (void)
+main (int argc, char *argv[])
 {
   int i;
+
+  verbose = (argc != 1);
+  ret = 0;
 
   for (i = 123; i < 345; ++i)
     test (i);
 
-  return 0;
+  return ret;
 }
