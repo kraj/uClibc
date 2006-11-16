@@ -108,8 +108,10 @@ _dl_linux_resolve:
          @ function must branch to the real function, and that expects
          @ r0-r3 and lr to be as they were before the whole PLT stuff -
          @ ip can be trashed.
+	 @ This routine is called after pushing lr, so we must push an odd
+	 @ number of words to keep the stack correctly aligned.
 
-         stmdb sp!, {r0, r1, r2, r3, sl, fp}
+         stmdb sp!, {r0, r1, r2, r3, r4}
          ldr r0, [lr, #-4]       @ r0 :        = [lr-4] (GOT_TABLE[1])
          sub r1, lr, ip          @ r1 :        = (lr-ip) (a multple of 4)
          mvn r1, r1, ASR #2      @ r1 :        = ~((lr-ip)>>2), since -x = (1+~x)
@@ -119,7 +121,7 @@ _dl_linux_resolve:
 	bl _dl_linux_resolver
 
 	mov ip, r0
-        ldmia sp!, {r0-r3, lr}
+        ldmia sp!, {r0, r1, r2, r3, r4, lr}
 
 #if defined(__USE_BX__)
 	bx ip
@@ -141,7 +143,9 @@ _dl_linux_resolve:
        @ function must branch to the real function, and that expects
        @ r0-r3 and lr to be as they were before the whole PLT stuff -
        @ ip can be trashed.
-       push    {r0-r3}
+       @ This routine is called after pushing lr, so we must push an odd
+       @ number of words to keep the stack correctly aligned.
+       push    {r0-r4}
        mov     r1, lr          @ &GOT_TABLE[2]
        sub     r0, r1, #4
        mov     r2, ip          @ &GOT[n]
@@ -154,9 +158,9 @@ _dl_linux_resolve:
        @ r0 contains the branch address, the return address is above
        @ the saved r0..r3
        mov     ip, r0
-       ldr     r1, [sp, #16]
+       ldr     r1, [sp, #20]
        mov     lr, r1
-       pop     {r0-r3}
+       pop     {r0-r4}
        add     sp, #4
        bx      ip
 
