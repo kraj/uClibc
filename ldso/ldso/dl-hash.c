@@ -123,6 +123,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	return tpnt;
 }
 
+
 /*
  * This function resolves externals, and this is either called when we process
  * relocations or when we call an entry in the PLT table for the first time.
@@ -166,53 +167,30 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB]);
 
 		for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si]) {
-                        char *result;
 			sym = &symtab[si];
 
- 			if (sym->st_shndx == SHN_UNDEF)
-  				continue;
- 			if (ELF_ST_TYPE(sym->st_info) > STT_FUNC
-#if defined(__arm__) || defined(__thumb__)
-                            /* On ARM (only) STT_ARM_TFUNC is a function
-                             * and has a value >STT_FUNC, so this must
-                             * be checked specially.
-                             */
-                            && ELF_ST_TYPE(sym->st_info) != STT_ARM_TFUNC
-#endif
-                            )
-                          continue;
- 			if (_dl_strcmp(strtab + sym->st_name, name) != 0)
-                          continue;
+			if (type_class & (sym->st_shndx == SHN_UNDEF))
+				continue;
+			if (_dl_strcmp(strtab + sym->st_name, name) != 0)
+				continue;
+			if (sym->st_value == 0)
+				continue;
+			if (ELF_ST_TYPE(sym->st_info) > STT_FUNC)
+				continue;
+
+			switch (ELF_ST_BIND(sym->st_info)) {
+			case STB_WEAK:
 #if 0
- 			/* I don't know how to write this test - need to test shndx
- 			 * to see if it is the PLT for this module.
- 			 */
- 			if ((type_class & ELF_RTYPE_CLASS_PLT) && some test)
-                          continue;
+/* Perhaps we should support old style weak symbol handling
+ * per what glibc does when you export LD_DYNAMIC_WEAK */
+				if (!weak_result)
+					weak_result = (char *) DL_RELOC_ADDR(tpnt->loadaddr, sym->st_value);
+				break;
 #endif
-
-#if defined(__arm__) || defined(__thumb__)
- 			/* On ARM the caller needs to know that STT_ARM_TFUNC
- 			 * is a thumb function call, this is now indicated by
- 			 * setting the low bit of the value (and newer binutils
- 			 * will do this and record STT_FUNC).
- 			 */
- 			result = (char*)tpnt->loadaddr + (sym->st_value |
-                                                          (ELF_ST_TYPE(sym->st_info) == STT_ARM_TFUNC));
-#else
- 			result = (char*)tpnt->loadaddr + sym->st_value;
-#endif
-  			switch (ELF_ST_BIND(sym->st_info)) {
-  			case STB_WEAK:
-                          /* Record for use later if we can't find a global. */
-                          if (!weak_result)
-                            weak_result = result;
-                          break;
-
-  			case STB_GLOBAL:
-                          return result;
+			case STB_GLOBAL:
+				return (char*) DL_RELOC_ADDR(tpnt->loadaddr, sym->st_value);
 			default:	/* Local symbols not handled here */
-                          break;
+				break;
 			}
 		}
 	}
