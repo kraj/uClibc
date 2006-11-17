@@ -2,7 +2,7 @@
 # Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
 #
 
-.SUFFIXES: .c .S .o .os .oS .so .a .s .i .E
+.SUFFIXES: .c .S .o .os .oS .so .a .s .i
 
 # order is important, the stripping uses STRIP_FLAGS for lib-so, but not for lib-a
 ifeq ($(HAVE_SHARED),y)
@@ -101,7 +101,7 @@ cmd_t_strip   = $(STRIPTOOL) $(STRIP_FLAGS) $@
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
 
 compile.c = @$(disp_compile.c) ; $(cmd_compile.c)
-compile.E = $(cmd_compile.c:-c=-E)
+compile.i = $(cmd_compile.c:-c=-E -dD)
 compile.s = $(cmd_compile.c:-c=-S)
 compile.S = @$(disp_compile.S) ; $(cmd_compile.S)
 compile.m = @$(disp_compile.m) ; $(cmd_compile.m)
@@ -154,10 +154,8 @@ CFLAGS-.oS+=$(PICFLAG) -DSHARED
 %.o:  %.s ; $(compile.S)
 %.os: %.s ; $(compile.S)
 %.oS: %.s ; $(compile.S)
-%.E:  %.c ; $(compile.E)
-%.E:  %.S ; $(compile.E)
-%.i:  %.c ; $(compile.E)
-%.i:  %.S ; $(compile.E)
+%.i:  %.c ; $(compile.i)
+%.i:  %.S ; $(compile.i)
 %.s:  %.c ; $(compile.s)
 %.s:  %.S ; $(compile.s)
 
