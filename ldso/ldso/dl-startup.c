@@ -110,7 +110,7 @@ strong_alias(__rtld_stack_end, __libc_stack_end) /* Exported version of __rtld_s
 	NULL
 	auxvt[0...N]   Auxiliary Vector Table elements (mixed types)
 */
-static void * __attribute_used__ _dl_start(unsigned long args)
+DL_START(unsigned long args)
 {
 	unsigned int argc;
 	char **argv, **envp;
@@ -313,7 +313,6 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 #ifndef START
 	return _dl_elf_main;
 #else
-#warning You need to update your arch ldso code
 	START();
 #endif
 }

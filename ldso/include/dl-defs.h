@@ -66,6 +66,12 @@ typedef struct {
 
 #endif
 
+/* Provide a means for a port to pass additional arguments to the _dl_start
+   function.  */
+#ifndef DL_START
+# define DL_START(X) static void * __attribute_used__ _dl_start(X)
+#endif
+
 /* Machines in which different sections may be relocated by different
  * amounts should define this and LD_RELOC_ADDR.  If you change this,
  * make sure you change struct link_map in include/link.h accordingly
