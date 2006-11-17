@@ -66,7 +66,9 @@ int main(int argc, char *argv[])
 	const char *prog;
 	jmp_buf env;
 	sigjmp_buf sigenv;
-	int cnt, max, ret;
+	int max;
+	/* values modified between setjmp/longjmp cannot be local to this func */
+	static int cnt, ret;
 
 	memset(&orig_mask, 0x00, sizeof(orig_mask));
 	ret = sigprocmask(SIG_BLOCK, NULL, &orig_mask);
