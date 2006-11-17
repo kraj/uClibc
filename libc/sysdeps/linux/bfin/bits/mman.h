@@ -57,6 +57,8 @@
 # define MAP_EXECUTABLE	0x1000		/* Mark it as an executable.  */
 # define MAP_LOCKED	0x2000		/* Lock the mapping.  */
 # define MAP_NORESERVE	0x4000		/* Don't check for reservations.  */
+# define MAP_UNINITIALIZE 0x4000000     /* For anonymous mmap, memory could
+					   be uninitialized. */
 #endif
 
 /* Flags to `msync'.  */
