@@ -6,6 +6,7 @@ The following make variables may help you in testing:
  - UCLIBC_ONLY  - only run tests against uClibc
  - GLIBC_ONLY   - only run tests against glibc
  - COMPILE_ONLY - just build the tests, don't run them
+ - CHECK_ONLY - only run the tests, don't compile or link them
  - V / VERBOSE  - run tests with a lot of output
 
 So, to just run the uClibc tests, try this:

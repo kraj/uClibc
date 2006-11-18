@@ -72,9 +72,11 @@ define exec_test
 endef
 
 $(U_TARGETS):
+ifeq ($(CHECK_ONLY),)
 	$(showlink)
 	$(Q)$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$@) -c $@.c -o $@.o
 	$(Q)$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LDFLAGS) $(LDFLAGS_$@)
+endif
 ifeq ($(COMPILE_ONLY),)
 	$(exec_test)
 	$(diff_test)
