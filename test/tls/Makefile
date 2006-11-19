@@ -1,252 +1,97 @@
-# Makefile for TLS testsuite in uClibc
-#
-# Copyright (C) 2005 Steven J. Hill <sjhill@uclibc.org>
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# uClibc TLS tests
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
-TOPDIR = ../../
-PTDIR = $(TOPDIR)libpthread/nptl
-include ../Rules.mak
+TESTS := tst-tls1 tst-tls2 tst-tls3 tst-tls4 tst-tls5 tst-tls6 tst-tls7	\
+	tst-tls8 tst-tls9 tst-tls10 tst-tls11 tst-tls12 tst-tls13	\
+	tst-tls14 tst-tls15 tst-tls1-static tst-tls2-static		\
+	tst-tls9-static
+TESTS_DISABLED := tst-tls1-static tst-tls2-static tst-tls9-static
 
-INCLUDES := -I. -I$(TOPDIR)include				\
-	    -I$(PTDIR)						\
-            -I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
-            -I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
-            -I$(PTDIR)/sysdeps/unix/sysv/linux			\
-            -I$(PTDIR)/sysdeps/pthread				\
-            -I$(PTDIR)/sysdeps/pthread/bits			\
-            -I$(PTDIR)/sysdeps/generic				\
-	    -I$(TOPDIR)ldso/include				\
-	    -I$(TOPDIR)ldso/ldso/$(TARGET_ARCH)			\
-	    -include $(TOPDIR)include/libc-symbols.h
+include ../Test.mak
 
-CFLAGS = -D_LIBC -D_GNU_SOURCE $(INCLUDES) -std=gnu99		\
-	 -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -Os
+PTDIR = $(top_builddir)libpthread/nptl
 
-LDFLAGS +=
+EXTRA_CFLAGS := -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC	\
+	-std=gnu99 -I. -I$(PTDIR)				\
+	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
+	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
+	-I$(PTDIR)/sysdeps/unix/sysv/linux			\
+	-I$(PTDIR)/sysdeps/pthread				\
+	-I$(PTDIR)/sysdeps/pthread/bits				\
+	-I$(PTDIR)/sysdeps/generic				\
+	-I$(top_builddir)ldso/include				\
+	-I$(top_builddir)ldso/ldso/$(TARGET_ARCH)		\
+	-include $(top_builddir)include/libc-symbols.h
 
-#
-# Targets and defines to build DSO modules
-#
-SO_CFLAGS = $(CFLAGS) -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod1.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod2.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod3.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod4.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod5.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod6.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod7.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod8.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod9.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod10.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod11.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod12.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod13.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod13a.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod14a.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod14b.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod15a.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod15b.so := -fPIC -DSHARED -shared
 
-SO_LDFLAGS = $(LDFLAGS) -shared -static-libgcc -L$(TOPDIR)lib
-SO_LDFLAGS-tst-tlsmod3.os = tst-tlsmod2.so
-SO_LDFLAGS-tst-tlsmod8.os = tst-tlsmod7.so
-SO_LDFLAGS-tst-tlsmod10.os = tst-tlsmod9.so
-SO_LDFLAGS-tst-tlsmod12.os = tst-tlsmod11.so
-SO_LDFLAGS-tst-tlsmod13a.os = tst-tlsmod13.so
+LDFLAGS_tst-tlsmod1.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod2.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod3.so := -shared -static-libgcc -L$(top_builddir)lib	\
+	tst-tlsmod2.so
+LDFLAGS_tst-tlsmod4.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod5.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod6.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod7.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod8.so := -shared -static-libgcc -L$(top_builddir)lib	\
+	tst-tlsmod7.so
+LDFLAGS_tst-tlsmod9.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod10.so := -shared -static-libgcc -L$(top_builddir)lib	\
+	tst-tlsmod9.so
+LDFLAGS_tst-tlsmod11.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod12.so := -shared -static-libgcc -L$(top_builddir)lib	\
+	tst-tlsmod11.so
+LDFLAGS_tst-tlsmod13.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod13a.so := -shared -static-libgcc -L$(top_builddir)lib	\
+	tst-tlsmod13.so
+LDFLAGS_tst-tlsmod14a.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod14b.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod15a.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod15b.so := -shared -static-libgcc -L$(top_builddir)lib
 
-OS_OBJS = $(patsubst %.c, %.os, $(wildcard tst-tlsmod*.c))
-SO_OBJS = $(patsubst %.c, %.so, $(wildcard tst-tlsmod*.c))
+LDFLAGS_tst-tls3 := tst-tlsmod1.so
+LDFLAGS_tst-tls4 := -ldl
+LDFLAGS_tst-tls5 := -ldl
+LDFLAGS_tst-tls6 := -ldl
+LDFLAGS_tst-tls7 := -ldl
+LDFLAGS_tst-tls8 := -ldl
+LDFLAGS_tst-tls9 := -ldl
+LDFLAGS_tst-tls10 := -Wl,-rpath-link=. tst-tlsmod8.so
+LDFLAGS_tst-tls11 := -Wl,-rpath-link=. tst-tlsmod10.so
+LDFLAGS_tst-tls12 := -Wl,-rpath-link=. tst-tlsmod12.so
+LDFLAGS_tst-tls13 := -ldl -Wl,-rpath-link=.
+LDFLAGS_tst-tls14 := -ldl -Wl,-rpath-link=. tst-tlsmod14a.so
+LDFLAGS_tst-tls15 := -ldl -Wl,-rpath-link=.
 
-#
-# Test applications
-#
-APPS =	tst-tls1 tst-tls2 tst-tls3 tst-tls4 tst-tls5		\
-	tst-tls6 tst-tls7 tst-tls8 tst-tls9 tst-tls10		\
-	tst-tls11 tst-tls12 tst-tls13 tst-tls14 tst-tls15
-#	tst-tls1-static tst-tls2-static tst-tls9-static
+tst-tls3: tst-tlsmod1.so
+tst-tls4: tst-tlsmod2.so
+tst-tls5: tst-tlsmod2.so
+tst-tls6: tst-tlsmod2.so
+tst-tls7: tst-tlsmod2.so tst-tlsmod3.so
+tst-tls8: tst-tlsmod2.so tst-tlsmod3.so tst-tlsmod4.so
+tst-tls9: tst-tlsmod5.so tst-tlsmod6.so
+tst-tls10: tst-tlsmod7.so tst-tlsmod8.so
+tst-tls11: tst-tlsmod9.so tst-tlsmod10.so
+tst-tls12: tst-tlsmod11.so tst-tlsmod12.so
+tst-tls13: tst-tlsmod13.so tst-tlsmod13a.so
+tst-tls14: tst-tlsmod14a.so tst-tlsmod14b.so
+tst-tls15: tst-tlsmod15a.so tst-tlsmod15b.so
 
-all: $(APPS)
-
-$(OS_OBJS): %.os : %.c
-	$(CC) $(SO_CFLAGS) -c $< -o $@
-
-$(SO_OBJS): %.so : %.os
-	$(CC) $(SO_LDFLAGS) $(SO_LDFLAGS-$<) $< -o $@
-
-tst-tls1: tst-tls1.c
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls2: tst-tls2.c
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls3: tst-tls3.c tst-tlsmod1.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) $@.o tst-tlsmod1.so -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls4: tst-tls4.c tst-tlsmod2.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -ldl $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls5: tst-tls5.c tst-tlsmod2.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -ldl $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls6: tst-tls6.c tst-tlsmod2.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -ldl $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls7: tst-tls7.c tst-tlsmod2.so tst-tlsmod3.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -ldl $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls8: tst-tls8.c tst-tlsmod3.so tst-tlsmod4.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -ldl $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls9: tst-tls9.c tst-tlsmod5.so tst-tlsmod6.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -ldl $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls10: tst-tls10.c tst-tlsmod7.so tst-tlsmod8.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -Wl,-rpath-link=. tst-tlsmod8.so $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls11: tst-tls11.c tst-tlsmod9.so tst-tlsmod10.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -Wl,-rpath-link=. tst-tlsmod10.so $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls12: tst-tls12.c tst-tlsmod11.so tst-tlsmod12.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -Wl,-rpath-link=. tst-tlsmod12.so $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls13: tst-tls13.c tst-tlsmod13.so tst-tlsmod13a.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -ldl -Wl,-rpath-link=. $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls14: tst-tls14.c tst-tlsmod14a.so tst-tlsmod14b.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -ldl -Wl,-rpath-link=. tst-tlsmod14a.so $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls15: tst-tls15.c tst-tlsmod15a.so tst-tlsmod15b.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) -ldl -Wl,-rpath-link=. $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls1-static: tst-tls1-static.c
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) -static $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls2-static: tst-tls2-static.c
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) -static $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-tst-tls9-static: tst-tls9-static.c tst-tlsmod5.so tst-tlsmod6.so
-	-@ echo "-------"
-	-@ echo " "
-	-@ echo "Compiling $@ vs uClibc: "
-	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) -ldl -static $@.o -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
-	-@ echo " "
-
-clean:
-	$(RM) *.o *.os *.so *~ core $(APPS)
+WRAPPER := env LD_LIBRARY_PATH="$$PWD:.:$(LD_LIBRARY_PATH)"
