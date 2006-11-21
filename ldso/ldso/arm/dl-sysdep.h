@@ -110,24 +110,20 @@ elf_machine_load_address (void)
 	extern void __dl_start asm ("_dl_start");
 	Elf32_Addr got_addr = (Elf32_Addr) &__dl_start;
 	Elf32_Addr pcrel_addr;
-#if !defined __thumb__
+#if defined __OPTIMIZE__ && !defined __thumb__
 	asm ("adr %0, _dl_start" : "=r" (pcrel_addr));
 #else
+	/* A simple adr does not work in Thumb mode because the offset is
+	   negative, and for debug builds may be too large.  */
 	int tmp;
-	/* The above adr will not work on thumb because it
-	 * is negative.  The only safe way is to temporarily
-	 * swap to arm.
-	 */
-	asm(   ".align	2\n"
-	"	bx	pc\n"
-	"	nop	\n"
-	"	.arm	\n"
-	"	adr	%0, _dl_start\n"
-	"	.align	2\n"
-	"	orr	%1, pc, #1\n"
-	"	bx	%1\n"
-	"	.force_thumb\n"
-	: "=r" (pcrel_addr), "=&r" (tmp));
+	asm ("adr %1, 1f\n\t"
+		 "ldr %0, [%1]\n\t"
+		 "add %0, %0, %1\n\t"
+		 "b 2f\n\t"
+		 ".align 2\n\t"
+		 "1: .word _dl_start - 1b\n\t"
+		 "2:"
+		 : "=r" (pcrel_addr), "=r" (tmp));
 #endif
 	return pcrel_addr - got_addr;
 }
