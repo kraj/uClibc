@@ -136,13 +136,26 @@ static struct elf_resolve *
 search_for_named_library(const char *name, int secure, const char *path_list,
 	struct dyn_elf **rpnt)
 {
+#ifdef USE_TLS
+	char *path, *path_n;
+	char mylibname[2050];
+#else
 	char *path, *path_n, *mylibname;
+#endif
 	struct elf_resolve *tpnt;
 	int done;
 
 	if (path_list==NULL)
 		return NULL;
 
+#ifdef USE_TLS
+	/* We need a writable copy of this string */
+	path = _dl_strdup(path_list);
+	if (!path) {
+		_dl_dprintf(2, "Out of memory!\n");
+		_dl_exit(0);
+	}
+#else
 	/* We need a writable copy of this string, but we don't
 	 * need this allocated permanently since we don't want
 	 * to leak memory, so use alloca to put path on the stack */
@@ -152,17 +165,8 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 	/* another bit of local storage */
 	mylibname = alloca(2050);
 
-	/* gcc inlines alloca using a single instruction adjusting
-	 * the stack pointer and no stack overflow check and thus
-	 * no NULL error return.  No point leaving in dead code... */
-#if 0
-	if (!path || !mylibname) {
-		_dl_dprintf(2, "Out of memory!\n");
-		_dl_exit(0);
-	}
-#endif
-
 	_dl_memcpy(path, path_list, done+1);
+#endif
 
 	/* Unlike ldd.c, don't bother to eliminate double //s */
 
