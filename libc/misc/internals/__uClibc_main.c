@@ -296,6 +296,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 
 #ifdef __ARCH_USE_MMU__
     /* Pull stuff from the ELF header when possible */
+    memset(auxvt, 0x00, sizeof(auxvt));
     aux_dat = (unsigned long*)__environ;
     while (*aux_dat) {
 	aux_dat++;
