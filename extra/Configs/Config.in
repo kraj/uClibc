@@ -462,6 +462,14 @@ config UCLIBC_SUSV3_LEGACY
 	  Currently applies to bcopy/bzero/bcmp/index/rindex.
 	  WARNING! ABI incompatibility.
 
+config UCLIBC_SUSV3_LEGACY_MACROS
+	bool "Enable SuSv3 LEGACY macros"
+	default n
+	help
+	  Enable this option if you want to have SuSv3 LEGACY macros.
+	  Currently applies to bcopy/bzero/bcmp/index/rindex et al.
+	  WARNING! ABI incompatibility.
+
 config UCLIBC_HAS_SHADOW
 	bool "Shadow Password Support"
 	default y
