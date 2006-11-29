@@ -63,8 +63,8 @@
 
 /* The number of threads per process.  */
 #define _POSIX_THREAD_THREADS_MAX	64
-/* We have no predefined limit on the number of threads.  */
-#undef PTHREAD_THREADS_MAX
+/* This is the value this implementation supports.  */
+#define PTHREAD_THREADS_MAX	16384
 
 /* Maximum amount by which a process can descrease its asynchronous I/O
    priority level.  */
@@ -72,6 +72,9 @@
 
 /* Minimum size for a thread.  We are free to choose a reasonable value.  */
 #define PTHREAD_STACK_MIN	16384
+
+/* Maximum number of POSIX timers available.  */
+#define TIMER_MAX	256
 
 /* Maximum number of timer expiration overruns.  */
 #define DELAYTIMER_MAX	2147483647
