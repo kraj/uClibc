@@ -66,15 +66,10 @@ char resolved_path[];
 	strcpy(copy_path, path);
 	path = copy_path;
 	max_path = copy_path + PATH_MAX - 2;
-	/* If it's a relative pathname use getwd for starters. */
+	/* If it's a relative pathname use getcwd for starters. */
 	if (*path != '/') {
 		/* Ohoo... */
-#define HAVE_GETCWD
-#ifdef HAVE_GETCWD
 		getcwd(new_path, PATH_MAX - 1);
-#else
-		getwd(new_path);
-#endif
 		new_path += strlen(new_path);
 		if (new_path[-1] != '/')
 			*new_path++ = '/';
