@@ -35,3 +35,8 @@ weak_alias (__pthread_return_0, __pthread_mutex_init)
 weak_alias (__pthread_return_0, __pthread_mutex_lock)
 weak_alias (__pthread_return_0, __pthread_mutex_trylock)
 weak_alias (__pthread_return_0, __pthread_mutex_unlock)
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+weak_alias (__pthread_return_0, __pthread_mutexattr_init)
+weak_alias (__pthread_return_0, __pthread_mutexattr_destroy)
+weak_alias (__pthread_return_0, __pthread_mutexattr_settype)
+#endif
