@@ -40,6 +40,12 @@
 # undef __TEST_BSD_FUNCS__
 #endif
 
+#if defined(__UCLIBC_SUSV3_LEGACY__) || defined(__UCLIBC_SUSV3_LEGACY__)
+# define __TEST_SUSV3_LEGACY__
+#else
+# undef __TEST_SUSV3_LEGACY__
+#endif
+
 #define	STREQ(a, b)	(strcmp((a), (b)) == 0)
 
 const char *it = "<UNSET>";	/* Routine name for message routines. */
@@ -646,6 +652,7 @@ test_rawmemchr (void)
 static void
 test_index (void)
 {
+#ifdef __TEST_SUSV3_LEGACY__
   it = "index";
   check (index ("abcd", 'z') == NULL, 1);	/* Not found. */
   (void) strcpy (one, "abcd");
@@ -658,6 +665,7 @@ test_index (void)
   (void) strcpy (one, "");
   check (index (one, 'b') == NULL, 7);	/* Empty string. */
   check (index (one, '\0') == one, 8);	/* NUL in empty string. */
+#endif
 }
 
 static void
@@ -738,6 +746,7 @@ test_memrchr (void)
 static void
 test_rindex (void)
 {
+#ifdef __TEST_SUSV3_LEGACY__
   it = "rindex";
   check (rindex ("abcd", 'z') == NULL, 1);	/* Not found. */
   (void) strcpy (one, "abcd");
@@ -750,6 +759,7 @@ test_rindex (void)
   (void) strcpy (one, "");
   check (rindex (one, 'b') == NULL, 7);	/* Empty string. */
   check (rindex (one, '\0') == one, 8);	/* NUL in empty string. */
+#endif
 }
 
 static void
@@ -1346,6 +1356,7 @@ test_memset (void)
 static void
 test_bcopy (void)
 {
+#ifdef __TEST_SUSV3_LEGACY__
   /* Much like memcpy.  Berklix manual is silent about overlap, so
      don't test it.  */
   it = "bcopy";
@@ -1365,11 +1376,13 @@ test_bcopy (void)
   (void) bcopy(one, two, 9);
   equal(two, "hi there", 4);		/* Just paranoia. */
   equal(one, "hi there", 5);		/* Stomped on source? */
+#endif
 }
 
 static void
 test_bzero (void)
 {
+#ifdef __TEST_SUSV3_LEGACY__
   it = "bzero";
   (void) strcpy(one, "abcdef");
   bzero(one+2, 2);
@@ -1380,6 +1393,7 @@ test_bzero (void)
   (void) strcpy(one, "abcdef");
   bzero(one+2, 0);
   equal(one, "abcdef", 4);		/* Zero-length copy. */
+#endif
 }
 
 static void
@@ -1409,6 +1423,7 @@ test_strndup (void)
 static void
 test_bcmp (void)
 {
+#ifdef __TEST_SUSV3_LEGACY__
   it = "bcmp";
   check(bcmp("a", "a", 1) == 0, 1);	/* Identity. */
   check(bcmp("abc", "abc", 3) == 0, 2);	/* Multicharacter. */
@@ -1417,6 +1432,7 @@ test_bcmp (void)
   check(bcmp("alph", "beta", 4) != 0, 5);
   check(bcmp("abce", "abcd", 3) == 0, 6);	/* Count limited. */
   check(bcmp("abc", "def", 0) == 0, 8);	/* Zero count. */
+#endif
 }
 
 static void
