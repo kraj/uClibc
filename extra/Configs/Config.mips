@@ -67,8 +67,10 @@ config CONFIG_MIPS_O32_ABI
 
 config CONFIG_MIPS_N64_ABI
 	bool "N64 ABI"
+	select CONFIG_MIPS_ISA_3
 
 config CONFIG_MIPS_N32_ABI
 	bool "N32 ABI"
+	select CONFIG_MIPS_ISA_3
 
 endchoice
