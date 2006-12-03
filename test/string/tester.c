@@ -40,7 +40,7 @@
 # undef __TEST_BSD_FUNCS__
 #endif
 
-#if defined(__UCLIBC_SUSV3_LEGACY__) || defined(__UCLIBC_SUSV3_LEGACY__)
+#if defined(__UCLIBC_SUSV3_LEGACY__) || defined(__UCLIBC_SUSV3_LEGACY_MACROS__)
 # define __TEST_SUSV3_LEGACY__
 #else
 # undef __TEST_SUSV3_LEGACY__
