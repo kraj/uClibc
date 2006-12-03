@@ -17,15 +17,23 @@ config ARCH_CFLAGS
 config LIBGCC_CFLAGS
 	string
 
-config CONFIG_ARM_EABI
-	bool "Use ARM EABI"
-	default n
+choice
+	prompt "Target ABI"
+	default CONFIG_ARM_OABI
 	help
-	  If you choose "Y" here, functions and constants required by the
-	  ARM EABI will be built into the library.  You should choose "Y"
+	  If you choose "EABI" here, functions and constants required by the
+	  ARM EABI will be built into the library.  You should choose "EABI"
 	  if your compiler uses the ARM EABI, in which case you will also
-	  need a kernel supporting the EABI system call interface, or "N"
+	  need a kernel supporting the EABI system call interface, or "OABI"
 	  for a compiler using the old Linux ABI.
+
+config CONFIG_ARM_OABI
+	bool "OABI"
+
+config CONFIG_ARM_EABI
+	bool "EABI"
+
+endchoice
 
 config USE_BX
 	bool "Use BX in function return"
