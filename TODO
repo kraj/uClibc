@@ -36,6 +36,9 @@ TODO list for the uClibc 0.9.29 release:
     *) bug in getopt handling:
 	http://bugs.uclibc.org/view.php?id=61
 	http://www.uclibc.org/lists/uclibc/2006-January/013851.html
+    *) Should integrate test subdir better ... need to propagate CPU
+	CFLAGS/LDFLAGS to the build/link for target binaries so that when we have
+	a multilib toolchain, the proper ABI is selected.
 
 
 TODO list for the uClibc 1.0.0 release:
