@@ -4,6 +4,10 @@
 #ifndef _PARISC_STAT_H
 #define _PARISC_STAT_H
 
+#ifndef _LIBC
+#error bits/kernel_stat.h is for internal uClibc use only!
+#endif
+
 struct kernel_stat {
 	unsigned int	st_dev;		/* dev_t is 32 bits on parisc */
 	ino_t		st_ino;		/* 32 bits */

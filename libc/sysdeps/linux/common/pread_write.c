@@ -24,6 +24,8 @@ extern __typeof(pread64) __libc_pread64;
 extern __typeof(pwrite64) __libc_pwrite64;
 #endif
 
+#include <bits/kernel_types.h>
+
 #ifdef __NR_pread
 
 # define __NR___syscall_pread __NR_pread 

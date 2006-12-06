@@ -4,6 +4,10 @@
 #ifndef _ASM_IA64_STAT_H
 #define _ASM_IA64_STAT_H
 
+#ifndef _LIBC
+#error bits/kernel_stat.h is for internal uClibc use only!
+#endif
+
 /*
  * Modified 1998, 1999
  *	David Mosberger-Tang <davidm@hpl.hp.com>, Hewlett-Packard Co
