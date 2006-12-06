@@ -15,6 +15,7 @@
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
+#include <bits/kernel_types.h>
 
 /* With newer versions of linux, the getdents syscall returns d_type
  * information after the name field.  Someday, we should add support for
