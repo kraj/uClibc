@@ -1234,7 +1234,7 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 		}
 		len = buflen;
 	}
-	return r + OUTNSTR(fp, (const char *) buf, len);
+	return r + OUTNSTR(fp, (const unsigned char *) buf, len);
 }
 
 #endif /* __STDIO_PRINTF_FLOAT */

@@ -11,6 +11,6 @@ void flockfile(FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
-	__STDIO_ALWAYS_THREADLOCK(stream);
+	__STDIO_ALWAYS_THREADLOCK_CANCEL_UNSAFE(stream);
 }
 

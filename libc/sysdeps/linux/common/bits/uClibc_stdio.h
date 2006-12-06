@@ -148,24 +148,47 @@
 #define __STDIO_AUTO_THREADLOCK_VAR			int __infunc_user_locking
 
 #define __STDIO_AUTO_THREADLOCK(__stream)								\
+	do {																	\
+		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;		\
 	if ((__infunc_user_locking = (__stream)->__user_locking) == 0) {	\
+			_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,	\
+										__pthread_mutex_unlock,				\
+										&(__stream)->__lock);				\
 		__pthread_mutex_lock(&(__stream)->__lock);						\
-	}
+		}																	\
+		((void)0)
 
 #define __STDIO_AUTO_THREADUNLOCK(__stream)				\
 	if (__infunc_user_locking == 0) {					\
-		__pthread_mutex_unlock(&(__stream)->__lock);		\
-	}
+			_pthread_cleanup_pop_restore(&__infunc_pthread_cleanup_buffer,1);\
+		}																	\
+	} while (0)
 
 #define __STDIO_SET_USER_LOCKING(__stream)	((__stream)->__user_locking = 1)
 
 #define __STDIO_ALWAYS_THREADLOCK(__stream)	\
+	do {																	\
+		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;		\
+		_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,		\
+									__pthread_mutex_unlock,					\
+									&(__stream)->__lock);					\
+		__pthread_mutex_lock(&(__stream)->__lock);							\
+		((void)0)
+
+/* #define __STDIO_ALWAYS_THREADTRYLOCK(__stream)	\ */
+/* 		__pthread_mutex_trylock(&(__stream)->__lock) */
+
+#define __STDIO_ALWAYS_THREADUNLOCK(__stream)								\
+		_pthread_cleanup_pop_restore(&__infunc_pthread_cleanup_buffer,1);	\
+	} while (0)
+
+#define __STDIO_ALWAYS_THREADLOCK_CANCEL_UNSAFE(__stream)		\
 		__pthread_mutex_lock(&(__stream)->__lock)
 
-#define __STDIO_ALWAYS_THREADTRYLOCK(__stream)	\
+#define __STDIO_ALWAYS_THREADTRYLOCK_CANCEL_UNSAFE(__stream)	\
 		__pthread_mutex_trylock(&(__stream)->__lock)
 
-#define __STDIO_ALWAYS_THREADUNLOCK(__stream) \
+#define __STDIO_ALWAYS_THREADUNLOCK_CANCEL_UNSAFE(__stream) 	\
 		__pthread_mutex_unlock(&(__stream)->__lock)
 
 #else  /* __UCLIBC_HAS_THREADS__ */
@@ -178,8 +201,12 @@
 #define __STDIO_SET_USER_LOCKING(__stream)		((void)0)
 
 #define __STDIO_ALWAYS_THREADLOCK(__stream)		((void)0)
-#define __STDIO_ALWAYS_THREADTRYLOCK(__stream)	(0)	/* Always succeed. */
+/* #define __STDIO_ALWAYS_THREADTRYLOCK(__stream)	(0)	/\* Always succeed. *\/ */
 #define __STDIO_ALWAYS_THREADUNLOCK(__stream)	((void)0)
+
+#define __STDIO_ALWAYS_THREADLOCK_CANCEL_UNSAFE(__stream)		((void)0)
+#define __STDIO_ALWAYS_THREADTRYLOCK_CANCEL_UNSAFE(__stream)	(0)	/* Ok? */
+#define __STDIO_ALWAYS_THREADUNLOCK_CANCEL_UNSAFE(__stream)		((void)0)
 
 #endif /* __UCLIBC_HAS_THREADS__ */
 /**********************************************************************/
@@ -343,6 +370,7 @@ struct __STDIO_FILE_STRUCT {
 #define __FLAG_FREEFILE		0x2000U
 #define __FLAG_FREEBUF		0x4000U
 #define __FLAG_LARGEFILE    0x8000U /* fixed! == 0_LARGEFILE for linux */
+#define __FLAG_FAILED_FREOPEN    __FLAG_LARGEFILE
 
 /* Note: In no-buffer mode, it would be possible to pack the necessary
  * flags into one byte.  Since we wouldn't be buffering and there would
@@ -371,8 +399,12 @@ extern void _stdio_term(void) attribute_hidden;
 extern struct __STDIO_FILE_STRUCT *_stdio_openlist;
 
 #ifdef __UCLIBC_HAS_THREADS__
-extern pthread_mutex_t _stdio_openlist_lock;
-extern int _stdio_openlist_delflag;
+extern pthread_mutex_t _stdio_openlist_add_lock;
+#ifdef __STDIO_BUFFERS
+extern pthread_mutex_t _stdio_openlist_del_lock;
+extern volatile int _stdio_openlist_use_count; /* _stdio_openlist_del_lock */
+extern int _stdio_openlist_del_count; /* _stdio_openlist_del_lock */
+#endif
 extern int _stdio_user_locking;
 /* #ifdef _LIBC */
 extern void __stdio_init_mutex(pthread_mutex_t *m) attribute_hidden;

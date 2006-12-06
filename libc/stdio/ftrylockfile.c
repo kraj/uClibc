@@ -15,5 +15,5 @@ int ftrylockfile(FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
-	return __STDIO_ALWAYS_THREADTRYLOCK(stream);
+	return __STDIO_ALWAYS_THREADTRYLOCK_CANCEL_UNSAFE(stream);
 }

@@ -23,20 +23,76 @@
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 
-#define __STDIO_THREADLOCK_OPENLIST \
-	__pthread_mutex_lock(&_stdio_openlist_lock)
+#define __STDIO_THREADLOCK_OPENLIST_ADD										\
+	do {																	\
+		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;		\
+		_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,		\
+									__pthread_mutex_unlock,					\
+									&_stdio_openlist_add_lock);				\
+		__pthread_mutex_lock(&_stdio_openlist_add_lock);					\
 
-#define __STDIO_THREADUNLOCK_OPENLIST \
-	__pthread_mutex_unlock(&_stdio_openlist_lock)
+#define __STDIO_THREADUNLOCK_OPENLIST_ADD									\
+		_pthread_cleanup_pop_restore(&__infunc_pthread_cleanup_buffer,1);	\
+	} while (0)
 
-#define __STDIO_THREADTRYLOCK_OPENLIST \
-	__pthread_mutex_trylock(&_stdio_openlist_lock)
 
-#else
+#ifdef __STDIO_BUFFERS
 
-#define	__STDIO_THREADLOCK_OPENLIST     ((void)0)
-#define	__STDIO_THREADUNLOCK_OPENLIST   ((void)0)
+#define __STDIO_THREADLOCK_OPENLIST_DEL										\
+	do {																	\
+		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;		\
+		_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,		\
+									__pthread_mutex_unlock,					\
+									&_stdio_openlist_del_lock);				\
+		__pthread_mutex_lock(&_stdio_openlist_del_lock);					\
 
+#define __STDIO_THREADUNLOCK_OPENLIST_DEL									\
+		_pthread_cleanup_pop_restore(&__infunc_pthread_cleanup_buffer,1);	\
+	} while (0)
+
+#define __STDIO_OPENLIST_INC_USE \
+do { \
+	__STDIO_THREADLOCK_OPENLIST_DEL; \
+	++_stdio_openlist_use_count; \
+	__STDIO_THREADUNLOCK_OPENLIST_DEL; \
+} while (0)
+
+extern void _stdio_openlist_dec_use(void);
+
+#define __STDIO_OPENLIST_DEC_USE \
+	_stdio_openlist_dec_use()
+
+#define __STDIO_OPENLIST_INC_DEL_CNT \
+do { \
+	__STDIO_THREADLOCK_OPENLIST_DEL; \
+	++_stdio_openlist_del_count; \
+	__STDIO_THREADUNLOCK_OPENLIST_DEL; \
+} while (0)
+
+#define __STDIO_OPENLIST_DEC_DEL_CNT \
+do { \
+	__STDIO_THREADLOCK_OPENLIST_DEL; \
+	--_stdio_openlist_del_count; \
+	__STDIO_THREADUNLOCK_OPENLIST_DEL; \
+} while (0)
+
+#endif
+
+#endif  /* __UCLIBC_HAS_THREADS__ */
+
+#ifndef __STDIO_THREADLOCK_OPENLIST_ADD
+#define	__STDIO_THREADLOCK_OPENLIST_ADD     ((void)0)
+#define	__STDIO_THREADUNLOCK_OPENLIST_ADD   ((void)0)
+#endif
+
+#ifndef __STDIO_THREADLOCK_OPENLIST_DEL
+#define	__STDIO_THREADLOCK_OPENLIST_DEL     ((void)0)
+#define	__STDIO_THREADUNLOCK_OPENLIST_DEL   ((void)0)
+/* #define __STDIO_OPENLIST_USE_CNT() (0) */
+#define __STDIO_OPENLIST_INC_USE            ((void)0)
+#define __STDIO_OPENLIST_DEC_USE            ((void)0)
+#define __STDIO_OPENLIST_INC_DEL_CNT        ((void)0)
+#define __STDIO_OPENLIST_DEC_DEL_CNT        ((void)0)
 #endif
 
 #define __UNDEFINED_OR_NONPORTABLE ((void)0)

@@ -18,20 +18,68 @@ libc_hidden_proto(fflush_unlocked)
 #ifdef __UCLIBC_HAS_THREADS__
 /* Even if the stream is set to user-locking, we still need to lock
  * when all (lbf) writing streams are flushed. */
-#define MY_STDIO_THREADLOCK(STREAM) \
-	if (_stdio_user_locking != 2) { \
-		__STDIO_ALWAYS_THREADLOCK(STREAM); \
-	}
 
-#define MY_STDIO_THREADUNLOCK(STREAM) \
+#define __MY_STDIO_THREADLOCK(__stream)										\
+	do {																	\
+		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;		\
 	if (_stdio_user_locking != 2) { \
-		__STDIO_ALWAYS_THREADUNLOCK(STREAM); \
-	}
+			_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,	\
+										__pthread_mutex_unlock,				\
+										&(__stream)->__lock);				\
+			__pthread_mutex_lock(&(__stream)->__lock);						\
+		}																	\
+		((void)0)
+
+#define __MY_STDIO_THREADUNLOCK(__stream)									\
+	if (_stdio_user_locking != 2) { \
+			_pthread_cleanup_pop_restore(&__infunc_pthread_cleanup_buffer,1);\
+		}																	\
+	} while (0)
+
 #else
-#define MY_STDIO_THREADLOCK(STREAM)		((void)0)
-#define MY_STDIO_THREADUNLOCK(STREAM)	((void)0)
+#define __MY_STDIO_THREADLOCK(STREAM)		((void)0)
+#define __MY_STDIO_THREADUNLOCK(STREAM)		((void)0)
 #endif
 
+#if defined(__UCLIBC_HAS_THREADS__) && defined(__STDIO_BUFFERS)
+void _stdio_openlist_dec_use(void)
+{
+	__STDIO_THREADLOCK_OPENLIST_DEL;
+	if ((_stdio_openlist_use_count == 1) && (_stdio_openlist_del_count > 0)) {
+		FILE *p = NULL;
+		FILE *n;
+		FILE *stream;
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: As an optimization, we could unlock after we move past the head.
+#endif
+		/* Grab the openlist add lock since we might change the head of the list. */
+		__STDIO_THREADLOCK_OPENLIST_ADD;
+		for (stream = _stdio_openlist; stream; stream = n) {
+			n = stream->__nextopen;
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: fix for nonatomic
+#endif
+			if ((stream->__modeflags & (__FLAG_READONLY|__FLAG_WRITEONLY|__FLAG_FAILED_FREOPEN))
+				== (__FLAG_READONLY|__FLAG_WRITEONLY)
+				) {		 /* The file was closed and should be removed from the list. */
+				if (!p) {
+					_stdio_openlist = n;
+				} else {
+					p->__nextopen = n;
+				}
+				__STDIO_STREAM_FREE_FILE(stream);
+			} else {
+				p = stream;
+			}
+		}
+		__STDIO_THREADUNLOCK_OPENLIST_ADD;
+		_stdio_openlist_del_count = 0; /* Should be clean now. */
+	}
+	--_stdio_openlist_use_count;
+	__STDIO_THREADUNLOCK_OPENLIST_DEL;
+}
+#endif
 
 int fflush_unlocked(register FILE *stream)
 {
@@ -55,23 +103,39 @@ int fflush_unlocked(register FILE *stream)
 	}
 
 	if (!stream) {				/* Flush all (lbf) writing streams. */
-		__STDIO_THREADLOCK_OPENLIST;
-		for (stream = _stdio_openlist; stream ; stream = stream->__nextopen) {
-			MY_STDIO_THREADLOCK(stream);
-			if (!(((stream->__modeflags | bufmask)
-				   ^ (__FLAG_WRITING|__FLAG_LBF)
-				   ) & (__FLAG_WRITING|__MASK_BUFMODE))
-				) {
-				if (!__STDIO_COMMIT_WRITE_BUFFER(stream)) {
-					__STDIO_STREAM_DISABLE_PUTC(stream);
-					__STDIO_STREAM_CLEAR_WRITING(stream);
-				} else {
-					retval = EOF;
+
+		__STDIO_OPENLIST_INC_USE;
+
+		__STDIO_THREADLOCK_OPENLIST_ADD;
+		stream = _stdio_openlist;
+		__STDIO_THREADUNLOCK_OPENLIST_ADD;
+
+		while(stream) {
+			/* We only care about currently writing streams and do not want to
+			 * block trying to obtain mutexes on non-writing streams. */
+#warning fix for nonatomic
+#warning unnecessary check if no threads
+			if (__STDIO_STREAM_IS_WRITING(stream)) { /* ONLY IF ATOMIC!!! */
+				__MY_STDIO_THREADLOCK(stream);
+				/* Need to check again once we have the lock. */
+				if (!(((stream->__modeflags | bufmask)
+					   ^ (__FLAG_WRITING|__FLAG_LBF)
+					   ) & (__FLAG_WRITING|__MASK_BUFMODE))
+					) {
+					if (!__STDIO_COMMIT_WRITE_BUFFER(stream)) {
+						__STDIO_STREAM_DISABLE_PUTC(stream);
+						__STDIO_STREAM_CLEAR_WRITING(stream);
+					} else {
+						retval = EOF;
+					}
 				}
+				__MY_STDIO_THREADUNLOCK(stream);
 			}
-			MY_STDIO_THREADUNLOCK(stream);
+			stream = stream->__nextopen;
 		}
-		__STDIO_THREADUNLOCK_OPENLIST;
+
+		__STDIO_OPENLIST_DEC_USE;
+
 	} else if (__STDIO_STREAM_IS_WRITING(stream)) {
 		if (!__STDIO_COMMIT_WRITE_BUFFER(stream)) {
 			__STDIO_STREAM_DISABLE_PUTC(stream);
