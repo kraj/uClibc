@@ -16,7 +16,7 @@
 
 /* On multi-threaded systems, the heap includes a lock.  */
 #ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
+# include <bits/uClibc_mutex.h>
 # define HEAP_USE_LOCKING
 #endif
 
@@ -39,7 +39,7 @@ struct heap
   /* A lock that can be used by callers to control access to the heap.
      The heap code _does not_ use this lock, it's merely here for the
      convenience of users!  */
-  pthread_mutex_t lock;
+  __UCLIBC_MUTEX_TYPE lock;
 #endif
 };
 
@@ -135,8 +135,8 @@ extern void __heap_dump (struct heap *heap, const char *str);
 extern void __heap_check (struct heap *heap, const char *str);
 
 
-#define __heap_lock(heap)	__pthread_mutex_lock (&(heap)->lock)
-#define __heap_unlock(heap)	__pthread_mutex_unlock (&(heap)->lock)
+#define __heap_lock(heap)	__UCLIBC_MUTEX_LOCK (&(heap)->lock)
+#define __heap_unlock(heap)	__UCLIBC_MUTEX_UNLOCK (&(heap)->lock)
 
 
 /* Delete the free-area FA from HEAP.  */

@@ -7,23 +7,23 @@
  * may copy or modify Sun RPC without charge, but are not authorized
  * to license or distribute it to anyone else except as part of a product or
  * program developed by the user.
- * 
+ *
  * SUN RPC IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING THE
  * WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
- * 
+ *
  * Sun RPC is provided with no support and without any obligation on the
  * part of Sun Microsystems, Inc. to assist in its use, correction,
  * modification or enhancement.
- * 
+ *
  * SUN MICROSYSTEMS, INC. SHALL HAVE NO LIABILITY WITH RESPECT TO THE
  * INFRINGEMENT OF COPYRIGHTS, TRADE SECRETS OR ANY PATENTS BY SUN RPC
  * OR ANY PART THEREOF.
- * 
+ *
  * In no event will Sun Microsystems, Inc. be liable for any lost revenue
  * or profits or other special, indirect and consequential damages, even if
  * Sun has been advised of the possibility of such damages.
- * 
+ *
  * Sun Microsystems, Inc.
  * 2550 Garcia Avenue
  * Mountain View, California  94043
@@ -275,14 +275,11 @@ static struct rpcent *interpret(register struct rpcdata *d)
 
 #if defined(__UCLIBC_HAS_REENTRANT_RPC__)
 
-#if defined(__UCLIBC_HAS_THREADS__)
-# include <pthread.h>
-static pthread_mutex_t rpcdata_lock = PTHREAD_MUTEX_INITIALIZER;
-#endif
-#define LOCK    __pthread_mutex_lock(&rpcdata_lock)
-#define UNLOCK  __pthread_mutex_unlock(&rpcdata_lock)
+#include <bits/uClibc_mutex.h>
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
-static int __copy_rpcent(struct rpcent *r, struct rpcent *result_buf, char *buffer, 
+
+static int __copy_rpcent(struct rpcent *r, struct rpcent *result_buf, char *buffer,
 		size_t buflen, struct rpcent **result)
 {
 	size_t i, s;
@@ -298,7 +295,7 @@ static int __copy_rpcent(struct rpcent *r, struct rpcent *result_buf, char *buff
 
 	result_buf->r_number = r->r_number;
 
-	/* copy the aliases ... need to not only copy the alias strings, 
+	/* copy the aliases ... need to not only copy the alias strings,
 	 * but the array of pointers to the alias strings */
 	i = 0;
 	while (r->r_aliases[i++]) ;
@@ -339,9 +336,9 @@ int getrpcbynumber_r(int number, struct rpcent *result_buf, char *buffer,
 		size_t buflen, struct rpcent **result)
 {
 	int ret;
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	ret = __copy_rpcent(getrpcbynumber(number), result_buf, buffer, buflen, result);
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 	return ret;
 }
 
@@ -349,19 +346,19 @@ int getrpcbyname_r(const char *name, struct rpcent *result_buf, char *buffer,
 		size_t buflen, struct rpcent **result)
 {
 	int ret;
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	ret = __copy_rpcent(getrpcbyname(name), result_buf, buffer, buflen, result);
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 	return ret;
 }
 
-int getrpcent_r(struct rpcent *result_buf, char *buffer, 
+int getrpcent_r(struct rpcent *result_buf, char *buffer,
 		size_t buflen, struct rpcent **result)
 {
 	int ret;
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	ret = __copy_rpcent(getrpcent(), result_buf, buffer, buflen, result);
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 	return ret;
 }
 

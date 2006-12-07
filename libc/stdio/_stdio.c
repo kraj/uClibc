@@ -154,9 +154,9 @@ FILE *__stdout = _stdio_streams + 1; /* For putchar() macro. */
 FILE *_stdio_openlist = _stdio_streams;
 
 # ifdef __UCLIBC_HAS_THREADS__
-pthread_mutex_t _stdio_openlist_add_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+__UCLIBC_MUTEX_INIT(_stdio_openlist_add_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 #ifdef __STDIO_BUFFERS
-pthread_mutex_t _stdio_openlist_del_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+__UCLIBC_MUTEX_INIT(_stdio_openlist_del_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 volatile int _stdio_openlist_use_count = 0;
 int _stdio_openlist_del_count = 0;
 #endif
@@ -169,10 +169,10 @@ int _stdio_openlist_del_count = 0;
 /* 2 if threading not initialized and 0 otherwise; */
 int _stdio_user_locking = 2;
 
-void attribute_hidden __stdio_init_mutex(pthread_mutex_t *m)
+void attribute_hidden __stdio_init_mutex(__UCLIBC_MUTEX_TYPE *m)
 {
-	static const pthread_mutex_t __stdio_mutex_initializer
-		= PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+	const __UCLIBC_MUTEX_STATIC(__stdio_mutex_initializer,
+		PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 	memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
 }
@@ -190,7 +190,7 @@ void attribute_hidden _stdio_term(void)
 	/* First, make sure the open file list is unlocked.  If it was
 	 * locked, then I suppose there is a chance that a pointer in the
 	 * chain might be corrupt due to a partial store.
-	 */ 
+	 */
 	__stdio_init_mutex(&_stdio_openlist_add_lock);
 #warning check
 #ifdef __STDIO_BUFFERS
@@ -214,7 +214,7 @@ void attribute_hidden _stdio_term(void)
 			__STDIO_STREAM_DISABLE_PUTC(ptr);
 			__STDIO_STREAM_INIT_BUFREAD_BUFPOS(ptr);
 		}
-		
+
 		ptr->__user_locking = 1; /* Set locking mode to "by caller". */
 		__stdio_init_mutex(&ptr->__lock); /* Shouldn't be necessary, but... */
 	}

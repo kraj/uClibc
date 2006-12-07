@@ -125,11 +125,11 @@ extern int __malloc_mmb_debug;
 /* Locking for multithreaded apps.  */
 #ifdef __UCLIBC_HAS_THREADS__
 
-# include <pthread.h>
+# include <bits/uClibc_mutex.h>
 
 # define MALLOC_USE_LOCKING
 
-typedef pthread_mutex_t malloc_mutex_t;
+typedef __UCLIBC_MUTEX_TYPE malloc_mutex_t;
 # define MALLOC_MUTEX_INIT	PTHREAD_MUTEX_INITIALIZER
 
 # ifdef MALLOC_USE_SBRK
@@ -138,8 +138,8 @@ typedef pthread_mutex_t malloc_mutex_t;
    things will break if these multiple calls are interleaved with another
    thread's use of sbrk!).  */
 extern malloc_mutex_t __malloc_sbrk_lock;
-#  define __malloc_lock_sbrk()	__pthread_mutex_lock (&__malloc_sbrk_lock)
-#  define __malloc_unlock_sbrk() __pthread_mutex_unlock (&__malloc_sbrk_lock)
+#  define __malloc_lock_sbrk()	__UCLIBC_MUTEX_LOCK (&__malloc_sbrk_lock)
+#  define __malloc_unlock_sbrk() __UCLIBC_MUTEX_UNLOCK (&__malloc_sbrk_lock)
 # endif /* MALLOC_USE_SBRK */
 
 #else /* !__UCLIBC_HAS_THREADS__ */
