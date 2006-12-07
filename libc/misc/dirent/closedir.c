@@ -27,10 +27,10 @@ int closedir(DIR * dir)
 		__set_errno(EBADF);
 		return -1;
 	}
-	__pthread_mutex_lock(&(dir->dd_lock));
+	__UCLIBC_MUTEX_LOCK(dir->dd_lock);
 	fd = dir->dd_fd;
 	dir->dd_fd = -1;
-	__pthread_mutex_unlock(&(dir->dd_lock));
+	__UCLIBC_MUTEX_UNLOCK(dir->dd_lock);
 	free(dir->dd_buf);
 	free(dir);
 	return close(fd);

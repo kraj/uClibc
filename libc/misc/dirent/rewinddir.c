@@ -18,8 +18,8 @@ void rewinddir(DIR * dir)
 		__set_errno(EBADF);
 		return;
 	}
-	__pthread_mutex_lock(&(dir->dd_lock));
+	__UCLIBC_MUTEX_LOCK(dir->dd_lock);
 	lseek(dir->dd_fd, 0, SEEK_SET);
 	dir->dd_nextoff = dir->dd_nextloc = dir->dd_size = 0;
-	__pthread_mutex_unlock(&(dir->dd_lock));
+	__UCLIBC_MUTEX_UNLOCK(dir->dd_lock);
 }

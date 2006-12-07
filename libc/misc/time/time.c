@@ -86,7 +86,7 @@
  *   NOTE: uClibc mktime behavior is different than glibc's when
  *   the struct tm has tm_isdst == -1 and also had fields outside of
  *   the normal ranges.
- * 
+ *
  *   Apparently, glibc examines (at least) tm_sec and guesses the app's
  *   intention of assuming increasing or decreasing time when entering an
  *   ambiguous time period at the dst<->st boundaries.
@@ -145,6 +145,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <bits/uClibc_uintmaxtostr.h>
+#include <bits/uClibc_mutex.h>
+
 
 #ifdef __UCLIBC_HAS_WCHAR__
 #include <wchar.h>
@@ -246,12 +248,7 @@ typedef struct {
 	char tzname[TZNAME_MAX+1];
 } rule_struct;
 
-#ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
-extern pthread_mutex_t _time_tzlock attribute_hidden;
-#endif
-#define TZLOCK		__pthread_mutex_lock(&_time_tzlock)
-#define TZUNLOCK	__pthread_mutex_unlock(&_time_tzlock)
+__UCLIBC_MUTEX_EXTERN(_time_tzlock);
 
 extern rule_struct _time_tzinfo[2] attribute_hidden;
 
@@ -292,16 +289,16 @@ libc_hidden_def(asctime)
  *       };
  *       static char mon_name[12][3] = {
  *           "Jan", "Feb", "Mar", "Apr", "May", "Jun",
- *           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" 
+ *           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
  *       };
  *       static char result[26];
- *   
+ *
  *       sprintf(result, "%.3s %.3s%3d %.2d:%.2d:%.2d %d\n",
- *           wday_name[timeptr->tm_wday],                   
+ *           wday_name[timeptr->tm_wday],
  *           mon_name[timeptr->tm_mon],
  *           timeptr->tm_mday, timeptr->tm_hour,
- *           timeptr->tm_min, timeptr->tm_sec,  
- *           1900 + timeptr->tm_year);        
+ *           timeptr->tm_min, timeptr->tm_sec,
+ *           1900 + timeptr->tm_year);
  *       return result;
  *   }
  *
@@ -327,10 +324,10 @@ static const unsigned char at_data[] = {
 
 	'J', 'a', 'n', 'F', 'e', 'b', 'M', 'a', 'r', 'A', 'p', 'r',
 	'M', 'a', 'y', 'J', 'u', 'n', 'J', 'u', 'l', 'A', 'u', 'g',
-	'S', 'e', 'p', 'O', 'c', 't', 'N', 'o', 'v', 'D', 'e', 'c', 
+	'S', 'e', 'p', 'O', 'c', 't', 'N', 'o', 'v', 'D', 'e', 'c',
 
 #ifdef SAFE_ASCTIME_R
-	'?', '?', '?', 
+	'?', '?', '?',
 #endif
 	' ', '?', '?', '?',
 	' ', '0',
@@ -605,13 +602,13 @@ libc_hidden_def(localtime)
 struct tm *localtime_r(register const time_t *__restrict timer,
 					   register struct tm *__restrict result)
 {
-	TZLOCK;
+	__UCLIBC_MUTEX_LOCK(_time_tzlock);
 
 	_time_tzset(*timer < new_rule_starts);
 
 	__time_localtime_tzi(timer, result, _time_tzinfo);
 
-	TZUNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(_time_tzlock);
 
 	return result;
 }
@@ -666,7 +663,7 @@ static const char *lookup_tzname(const char *key)
 
 static const unsigned char day_cor[] = { /* non-leap */
 	31, 31, 34, 34, 35, 35, 36, 36, 36, 37, 37, 38, 38
-/* 	 0,  0,  3,  3,  4,  4,  5,  5,  5,  6,  6,  7,  7 */
+/*	 0,  0,  3,  3,  4,  4,  5,  5,  5,  6,  6,  7,  7 */
 /*	    31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 */
 };
 
@@ -1052,7 +1049,7 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 	p = format;
 	count = maxsize;
 
- LOOP:
+LOOP:
 	if (!count) {
 		return 0;
 	}
@@ -1115,7 +1112,7 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 			goto LOOP;
 		}
 
-		o = spec + 26;		/* set to "????" */
+		o = ((const char *) spec) + 26;	/* set to "????" */
 		if ((code & MASK_SPEC) == CALC_SPEC) {
 
 			if (*p == 's') {
@@ -1151,7 +1148,6 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 
-#define RSP_TZUNLOCK	((void) 0)
 # ifdef __USE_BSD
 #  define RSP_TZNAME		timeptr->tm_zone
 #  define RSP_GMT_OFFSET	(-timeptr->tm_gmtoff)
@@ -1162,11 +1158,10 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 
 #else
 
-#define RSP_TZUNLOCK	TZUNLOCK
 #define RSP_TZNAME		rsp->tzname
 #define RSP_GMT_OFFSET	rsp->gmt_offset
 
-				TZLOCK;
+				__UCLIBC_MUTEX_LOCK(_time_tzlock);
 
 				rsp = _time_tzinfo;
 				if (timeptr->tm_isdst > 0) {
@@ -1197,24 +1192,30 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 					}
 #endif
 					o_count = SIZE_MAX;
-					RSP_TZUNLOCK;
+#ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 					goto OUTPUT;
+#endif
 				} else {		/* z */
 					*s = '+';
 					if ((tzo = -RSP_GMT_OFFSET) < 0) {
 						tzo = -tzo;
 						*s = '-';
 					}
-					RSP_TZUNLOCK;
 					++s;
 					--count;
 
 					i = tzo / 60;
 					field_val = ((i / 60) * 100) + (i % 60);
-			
+
 					i = 16 + 6;	/* 0-fill, width = 4 */
 				}
-
+#ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+#else
+				__UCLIBC_MUTEX_UNLOCK(_time_tzlock);
+				if (*p == 'Z') {
+					goto OUTPUT;
+				}
+#endif
 			} else {
 				/* TODO: don't need year for U, W */
 				for (i=0 ; i < 3 ; i++) {
@@ -1286,7 +1287,7 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 				field_val += 7;
 			}
 		}
-		
+
 		if ((code & MASK_SPEC) == STRING_SPEC) {
 			o_count = SIZE_MAX;
 			field_val += spec[STRINGS_NL_ITEM_START + (code & 0xf)];
@@ -1304,7 +1305,7 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 		}
 	}
 
- OUTPUT:
+OUTPUT:
 	++p;
 	while (o_count && count && *o) {
 		*s++ = *o++;
@@ -1506,7 +1507,7 @@ char *__XL_NPP(strptime)(const char *__restrict buf, const char *__restrict form
 	lvl = 0;
 	p = format;
 
- LOOP:
+LOOP:
 	if (!*p) {
 		if (lvl == 0) {			/* Done. */
 			if (fields[6] == 7) { /* Cleanup for %u here since just once. */
@@ -1752,9 +1753,7 @@ int daylight = 0;
 long timezone = 0;
 char *tzname[2] = { (char *) UTC, (char *) (UTC-1) };
 
-#ifdef __UCLIBC_HAS_THREADS__
-attribute_hidden pthread_mutex_t _time_tzlock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#endif
+__UCLIBC_MUTEX_INIT(_time_tzlock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 rule_struct _time_tzinfo[2];
 
@@ -1827,7 +1826,7 @@ static const char *getnumber(register const char *e, int *pn)
 #ifdef __UCLIBC_HAS_TZ_FILE__
 
 #ifndef __UCLIBC_HAS_TZ_FILE_READ_MANY__
-static int TZ_file_read;  		/* Let BSS initialization set this to 0. */
+static int TZ_file_read;		/* Let BSS initialization set this to 0. */
 #endif /* __UCLIBC_HAS_TZ_FILE_READ_MANY__ */
 
 static char *read_TZ_file(char *buf)
@@ -1858,7 +1857,7 @@ static char *read_TZ_file(char *buf)
 			++TZ_file_read;
 #endif /* __UCLIBC_HAS_TZ_FILE_READ_MANY__ */
 		} else {
-		ERROR:
+ERROR:
 			p = NULL;
 		}
 		close(fd);
@@ -1893,7 +1892,7 @@ void _time_tzset(int use_old_rules)
 	static char oldval[TZ_BUFLEN]; /* BSS-zero'd. */
 #endif /* __UCLIBC_HAS_TZ_CACHING__ */
 
-	TZLOCK;
+	__UCLIBC_MUTEX_LOCK(_time_tzlock);
 
 	e = getenv(TZ);				/* TZ env var always takes precedence. */
 
@@ -1918,7 +1917,7 @@ void _time_tzset(int use_old_rules)
 		 && !(e = read_TZ_file(buf)) /* and no file or invalid file */
 #endif /* __UCLIBC_HAS_TZ_FILE__ */
 		 ) || !*e) {			/* or set to empty string. */
-	ILLEGAL:					/* TODO: Clean up the following... */
+ILLEGAL:					/* TODO: Clean up the following... */
 #ifdef __UCLIBC_HAS_TZ_CACHING__
 		*oldval = 0;			/* Set oldval to an empty string. */
 #endif /* __UCLIBC_HAS_TZ_CACHING__ */
@@ -1940,10 +1939,10 @@ void _time_tzset(int use_old_rules)
 	 * to the empty string anyway. */
 	strncpy(oldval, e, TZ_BUFLEN);
 #endif /* __UCLIBC_HAS_TZ_CACHING__ */
-	
+
 	count = 0;
 	new_rules[1].tzname[0] = 0;
- LOOP:
+LOOP:
 	/* Get std or dst name. */
 	c = 0;
 	if (*e == '<') {
@@ -1989,7 +1988,7 @@ void _time_tzset(int use_old_rules)
 	if (*s == '-') {
 		off = -off;				/* Save off in case needed for dst default. */
 	}
- SKIP_OFFSET:
+SKIP_OFFSET:
 	new_rules[count].gmt_offset = off;
 
 	if (!count) {
@@ -2002,7 +2001,7 @@ void _time_tzset(int use_old_rules)
 		count = 0;
 		if (!*e) {				/* No rules so default to US rules. */
 		        e = use_old_rules ? DEFAULT_RULES : DEFAULT_2007_RULES;
-#ifdef DEBUG_TZSET			
+#ifdef DEBUG_TZSET
 			if (e == DEFAULT_RULES)
 			    printf("tzset: Using old rules.\n");
 			else if (e == DEFAULT_2007_RULES)
@@ -2061,16 +2060,16 @@ void _time_tzset(int use_old_rules)
 	}
 
 	memcpy(_time_tzinfo, new_rules, sizeof(new_rules));
- DONE:
+DONE:
 	tzname[0] = _time_tzinfo[0].tzname;
 	tzname[1] = _time_tzinfo[1].tzname;
 	daylight = !!_time_tzinfo[1].tzname[0];
 	timezone = _time_tzinfo[0].gmt_offset;
 
 #if defined(__UCLIBC_HAS_TZ_FILE__) || defined(__UCLIBC_HAS_TZ_CACHING__)
- FAST_DONE:
+FAST_DONE:
 #endif
-	TZUNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(_time_tzlock);
 }
 libc_hidden_def(tzset)
 #endif
@@ -2171,7 +2170,7 @@ struct tm attribute_hidden *_time_t2tm(const time_t *__restrict timer,
 				++v;
 				/* Change to days since 1/1/1601 so that for 32 bit time_t
 				 * values, we'll have t >= 0.  This should be changed for
-				 * archs with larger time_t types. 
+				 * archs with larger time_t types.
 				 * Also, correct for offset since a multiple of 7. */
 
 				/* TODO: Does this still work on archs with time_t > 32 bits? */
@@ -2277,13 +2276,13 @@ time_t attribute_hidden _time_mktime(struct tm *timeptr, int store_on_success)
 {
 	time_t t;
 
-	TZLOCK;
+	__UCLIBC_MUTEX_LOCK(_time_tzlock);
 
 	tzset();
 
 	t = _time_mktime_tzi(timeptr, store_on_success, _time_tzinfo);
 
-	TZUNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(_time_tzlock);
 
 	return t;
 }
@@ -2336,7 +2335,7 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 	if (__isleap(d)) {
 		s += 11;
 	}
-	
+
 	p[7] = 0;
 	d = p[4];
 	while (d) {
@@ -2355,7 +2354,7 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 	days = -719163L + ((long)d)*365 + ((d/4) - (d/100) + (d/400) + p[3] + p[7]);
 	secs = p[0] + 60*( p[1] + 60*((long)(p[2])) )
 		+ tzi[default_dst].gmt_offset;
- DST_CORRECT:
+DST_CORRECT:
 	if (secs < 0) {
 		secs += 120009600L;
 		days -= 1389;
@@ -2375,7 +2374,7 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 					 + 24*(((146073L * ((long long)(p[6])) + d)
 							+ p[3]) + p[7])));
 
- DST_CORRECT:
+DST_CORRECT:
 	if (((unsigned long long)(secs - LONG_MIN))
 		> (((unsigned long long)LONG_MAX) - LONG_MIN)
 		) {
@@ -2408,7 +2407,7 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 	}
 
 
- DONE:
+DONE:
 	return t;
 }
 

@@ -17,9 +17,7 @@
 #include "malloc.h"
 
 
-#ifdef __UCLIBC_HAS_THREADS__
-pthread_mutex_t __malloc_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#endif
+__UCLIBC_MUTEX_INIT(__malloc_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 /*
    There is exactly one instance of this struct in this malloc.
@@ -825,12 +823,13 @@ void* malloc(size_t bytes)
     mchunkptr       fwd;              /* misc temp for linking */
     mchunkptr       bck;              /* misc temp for linking */
     void *          sysmem;
+    void *          retval;
 
 #if !defined(__MALLOC_GLIBC_COMPAT__)
     if (!bytes) return NULL;
 #endif
 
-    LOCK;
+    __MALLOC_LOCK;
     av = get_malloc_state();
     /*
        Convert request size to internal form by adding (sizeof(size_t)) bytes
@@ -861,8 +860,8 @@ void* malloc(size_t bytes)
 	if ( (victim = *fb) != 0) {
 	    *fb = victim->fd;
 	    check_remalloced_chunk(victim, nb);
-	    UNLOCK;
-	    return chunk2mem(victim);
+	    retval = chunk2mem(victim);
+	    goto DONE;
 	}
     }
 
@@ -885,8 +884,8 @@ void* malloc(size_t bytes)
 	    bck->fd = bin;
 
 	    check_malloced_chunk(victim, nb);
-	    UNLOCK;
-	    return chunk2mem(victim);
+	    retval = chunk2mem(victim);
+	    goto DONE;
 	}
     }
 
@@ -902,7 +901,7 @@ void* malloc(size_t bytes)
 
     else {
 	idx = __malloc_largebin_index(nb);
-	if (have_fastchunks(av)) 
+	if (have_fastchunks(av))
 	    __malloc_consolidate(av);
     }
 
@@ -942,8 +941,8 @@ void* malloc(size_t bytes)
 	    set_foot(remainder, remainder_size);
 
 	    check_malloced_chunk(victim, nb);
-	    UNLOCK;
-	    return chunk2mem(victim);
+	    retval = chunk2mem(victim);
+	    goto DONE;
 	}
 
 	/* remove from unsorted list */
@@ -955,8 +954,8 @@ void* malloc(size_t bytes)
 	if (size == nb) {
 	    set_inuse_bit_at_offset(victim, size);
 	    check_malloced_chunk(victim, nb);
-	    UNLOCK;
-	    return chunk2mem(victim);
+	    retval = chunk2mem(victim);
+	    goto DONE;
 	}
 
 	/* place chunk in bin */
@@ -1019,8 +1018,8 @@ void* malloc(size_t bytes)
 		if (remainder_size < MINSIZE)  {
 		    set_inuse_bit_at_offset(victim, size);
 		    check_malloced_chunk(victim, nb);
-		    UNLOCK;
-		    return chunk2mem(victim);
+		    retval = chunk2mem(victim);
+		    goto DONE;
 		}
 		/* Split */
 		else {
@@ -1031,8 +1030,8 @@ void* malloc(size_t bytes)
 		    set_head(remainder, remainder_size | PREV_INUSE);
 		    set_foot(remainder, remainder_size);
 		    check_malloced_chunk(victim, nb);
-		    UNLOCK;
-		    return chunk2mem(victim);
+		    retval = chunk2mem(victim);
+		    goto DONE;
 		}
 	    }
 	}
@@ -1100,8 +1099,8 @@ void* malloc(size_t bytes)
 	    if (remainder_size < MINSIZE) {
 		set_inuse_bit_at_offset(victim, size);
 		check_malloced_chunk(victim, nb);
-		UNLOCK;
-		return chunk2mem(victim);
+		retval = chunk2mem(victim);
+		goto DONE;
 	    }
 
 	    /* Split */
@@ -1118,8 +1117,8 @@ void* malloc(size_t bytes)
 		set_head(remainder, remainder_size | PREV_INUSE);
 		set_foot(remainder, remainder_size);
 		check_malloced_chunk(victim, nb);
-		UNLOCK;
-		return chunk2mem(victim);
+		retval = chunk2mem(victim);
+		goto DONE;
 	    }
 	}
     }
@@ -1151,13 +1150,15 @@ use_top:
 	set_head(remainder, remainder_size | PREV_INUSE);
 
 	check_malloced_chunk(victim, nb);
-	UNLOCK;
-	return chunk2mem(victim);
+	retval = chunk2mem(victim);
+	goto DONE;
     }
 
     /* If no space in top, relay to handle system-dependent cases */
     sysmem = __malloc_alloc(nb, av);
-    UNLOCK;
-    return sysmem;
+    retval = sysmem;
+DONE:
+    __MALLOC_UNLOCK;
+    return retval;
 }
 

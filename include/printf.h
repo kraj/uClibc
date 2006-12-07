@@ -75,6 +75,7 @@ struct printf_info
   unsigned int is_short:1;	/* h flag.  */
   unsigned int is_long:1;	/* l flag.  */
   unsigned int is_long_double:1;/* L flag.  */
+  unsigned int __padding:20;/* non-gnu -- total of 32 bits on 32bit arch */
 
 #elif __BYTE_ORDER == __BIG_ENDIAN
 

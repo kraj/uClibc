@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mntent.h>
+#include <bits/uClibc_mutex.h>
+
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 libc_hidden_proto(getmntent_r)
 libc_hidden_proto(setmntent)
@@ -22,13 +25,6 @@ libc_hidden_proto(fseek)
 libc_hidden_proto(fgets)
 libc_hidden_proto(abort)
 libc_hidden_proto(fprintf)
-
-#ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-#endif
-#define LOCK	__pthread_mutex_lock(&mylock)
-#define UNLOCK	__pthread_mutex_unlock(&mylock)
 
 /* Reentrant version of getmntent.  */
 struct mntent *getmntent_r (FILE *filep, 
@@ -85,7 +81,7 @@ struct mntent *getmntent(FILE * filep)
     struct mntent *tmp;
     static char *buff = NULL;
     static struct mntent mnt;
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     
     if (!buff) {
             buff = malloc(BUFSIZ);
@@ -94,7 +90,7 @@ struct mntent *getmntent(FILE * filep)
     }
     
     tmp = getmntent_r(filep, &mnt, buff, BUFSIZ);
-    UNLOCK;
+    __UCLIBC_MUTEX_UNLOCK(mylock);
     return(tmp);
 }
 

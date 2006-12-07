@@ -48,12 +48,8 @@ libc_hidden_proto(alarm)
 static int lock_fd = -1;
 
 /* Prevent problems in multithreaded program by using mutex.  */
-#ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-#endif
-#define LOCK   __pthread_mutex_lock(&mylock)
-#define UNLOCK __pthread_mutex_unlock(&mylock)
+#include <bits/uClibc_mutex.h>
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 
 /* Prototypes for local functions.  */
@@ -70,19 +66,19 @@ lckpwdf (void)
   struct sigaction new_act;		/* New signal action.  */
   struct flock fl;			/* Information struct for locking.  */
   int result;
+  int rv = -1;
 
   if (lock_fd != -1)
     /* Still locked by own process.  */
     return -1;
 
   /* Prevent problems caused by multiple threads.  */
-  LOCK;
+  __UCLIBC_MUTEX_LOCK(mylock);
 
   lock_fd = open (_PATH_PASSWD, O_WRONLY);
   if (lock_fd == -1) {
     /* Cannot create lock file.  */
-    UNLOCK;
-    return -1;
+	goto DONE;
   }
 
   /* Make sure file gets correctly closed when process finished.  */
@@ -91,16 +87,14 @@ lckpwdf (void)
     /* Cannot get file flags.  */
     close(lock_fd);
     lock_fd = -1;
-    UNLOCK;
-    return -1;
+	goto DONE;
   }
   flags |= FD_CLOEXEC;		/* Close on exit.  */
   if (fcntl (lock_fd, F_SETFD, flags) < 0) {
     /* Cannot set new flags.  */
     close(lock_fd);
     lock_fd = -1;
-    UNLOCK;
-    return -1;
+	goto DONE;
   }
 
   /* Now we have to get exclusive write access.  Since multiple
@@ -121,8 +115,7 @@ lckpwdf (void)
     /* Cannot install signal handler.  */
     close(lock_fd);
     lock_fd = -1;
-    UNLOCK;
-    return -1;
+	goto DONE;
   }
 
   /* Now make sure the alarm signal is not blocked.  */
@@ -132,8 +125,7 @@ lckpwdf (void)
     sigaction (SIGALRM, &saved_act, NULL);
     close(lock_fd);
     lock_fd = -1;
-    UNLOCK;
-    return -1;
+	goto DONE;
   }
 
   /* Start timer.  If we cannot get the lock in the specified time we
@@ -160,11 +152,12 @@ lckpwdf (void)
   if (result < 0) {
     close(lock_fd);
     lock_fd = -1;
-    UNLOCK;
-    return -1;
+	goto DONE;
   }
+  rv = 0;
 
-  UNLOCK;
+DONE:
+  __UCLIBC_MUTEX_UNLOCK(mylock);
   return 0;
 }
 
@@ -180,7 +173,7 @@ ulckpwdf (void)
   else
     {
       /* Prevent problems caused by multiple threads.  */
-      LOCK;
+	  __UCLIBC_MUTEX_LOCK(mylock);
 
       result = close (lock_fd);
 
@@ -188,7 +181,7 @@ ulckpwdf (void)
       lock_fd = -1;
 
       /* Clear mutex.  */
-      UNLOCK;
+	  __UCLIBC_MUTEX_UNLOCK(mylock);
     }
 
   return result;

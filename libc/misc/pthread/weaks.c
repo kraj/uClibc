@@ -30,11 +30,14 @@
 
 static int __pthread_return_0 (void);
 static int __pthread_return_0 (void) { return 0; }
+static void __pthread_return_void (void) { return; }
 
 weak_alias (__pthread_return_0, __pthread_mutex_init)
 weak_alias (__pthread_return_0, __pthread_mutex_lock)
 weak_alias (__pthread_return_0, __pthread_mutex_trylock)
 weak_alias (__pthread_return_0, __pthread_mutex_unlock)
+weak_alias (__pthread_return_void, _pthread_cleanup_push_defer)
+weak_alias (__pthread_return_void, _pthread_cleanup_pop_restore)
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 weak_alias (__pthread_return_0, __pthread_mutexattr_init)
 weak_alias (__pthread_return_0, __pthread_mutexattr_destroy)

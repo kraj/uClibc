@@ -32,7 +32,7 @@ struct mallinfo mallinfo(void)
     int nblocks;
     int nfastblocks;
 
-    LOCK;
+    __MALLOC_LOCK;
     av = get_malloc_state();
     /* Ensure initialization */
     if (av->top == 0)  {
@@ -77,7 +77,7 @@ struct mallinfo mallinfo(void)
     mi.fsmblks = fastavail;
     mi.keepcost = chunksize(av->top);
     mi.usmblks = av->max_total_mem;
-    UNLOCK;
+    __MALLOC_UNLOCK;
     return mi;
 }
 libc_hidden_def(mallinfo)
@@ -91,19 +91,36 @@ void malloc_stats(FILE *file)
     }
 
     mi = mallinfo();
-    fprintf(file, "total bytes allocated             = %10u\n", (unsigned int)(mi.arena + mi.hblkhd));
-    fprintf(file, "total bytes in use bytes          = %10u\n", (unsigned int)(mi.uordblks + mi.hblkhd));
-    fprintf(file, "total non-mmapped bytes allocated = %10d\n", mi.arena);
-    fprintf(file, "number of mmapped regions         = %10d\n", mi.hblks);
-    fprintf(file, "total allocated mmap space        = %10d\n", mi.hblkhd);
-    fprintf(file, "total allocated sbrk space        = %10d\n", mi.uordblks);
+    fprintf(file,
+	    "total bytes allocated             = %10u\n"
+	    "total bytes in use bytes          = %10u\n"
+	    "total non-mmapped bytes allocated = %10d\n"
+	    "number of mmapped regions         = %10d\n"
+	    "total allocated mmap space        = %10d\n"
+	    "total allocated sbrk space        = %10d\n"
 #if 0
-    fprintf(file, "number of free chunks             = %10d\n", mi.ordblks);
-    fprintf(file, "number of fastbin blocks          = %10d\n", mi.smblks);
-    fprintf(file, "space in freed fastbin blocks     = %10d\n", mi.fsmblks);
+	    "number of free chunks             = %10d\n"
+	    "number of fastbin blocks          = %10d\n"
+	    "space in freed fastbin blocks     = %10d\n"
 #endif
-    fprintf(file, "maximum total allocated space     = %10d\n", mi.usmblks);
-    fprintf(file, "total free space                  = %10d\n", mi.fordblks);
-    fprintf(file, "memory releasable via malloc_trim = %10d\n", mi.keepcost);
+	    "maximum total allocated space     = %10d\n"
+	    "total free space                  = %10d\n"
+	    "memory releasable via malloc_trim = %10d\n",
+
+	    (unsigned int)(mi.arena + mi.hblkhd),
+	    (unsigned int)(mi.uordblks + mi.hblkhd),
+	    mi.arena,
+	    mi.hblks,
+	    mi.hblkhd,
+	    mi.uordblks,
+#if 0
+	    mi.ordblks,
+	    mi.smblks,
+	    mi.fsmblks,
+#endif
+	    mi.usmblks,
+	    mi.fordblks,
+	    mi.keepcost
+	   );
 }
 

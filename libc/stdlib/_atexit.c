@@ -20,7 +20,7 @@
  *      _stdio_term.
  *
  * Jul 2001          Steve Thayer
- * 
+ *
  *   Added an on_exit implementation (that now matches gnu libc definition.)
  *   Pulled atexit_handler out of the atexit object since it is now required by
  *   on_exit as well.  Renamed it to __exit_handler.
@@ -43,15 +43,11 @@
 #include <errno.h>
 #include <atomic.h>
 
+#include <bits/uClibc_mutex.h>
+__UCLIBC_MUTEX_EXTERN(__atexit_lock);
+
 libc_hidden_proto(exit)
 libc_hidden_proto(_exit)
-
-#ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
-extern pthread_mutex_t mylock;
-#endif
-#define LOCK	__pthread_mutex_lock(&mylock)
-#define UNLOCK	__pthread_mutex_unlock(&mylock)
 
 
 typedef void (*aefuncp) (void);         /* atexit function pointer */
@@ -137,7 +133,7 @@ weak_alias(old_atexit,atexit)
 int on_exit(oefuncp func, void *arg)
 {
     struct exit_function *efp;
-    
+
     if (func == NULL) {
         return 0;
     }
@@ -161,7 +157,7 @@ libc_hidden_proto(__cxa_atexit)
 int __cxa_atexit (cxaefuncp func, void *arg, void *dso_handle)
 {
     struct exit_function *efp;
-    
+
     if (func == NULL) {
         return 0;
     }
@@ -243,26 +239,25 @@ struct exit_function attribute_hidden *__new_exitfn(void)
 {
     struct exit_function *efp;
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(__atexit_lock);
 
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
     /* If we are out of function table slots, make some more */
     if (__exit_slots < __exit_count+1) {
-        efp=realloc(__exit_function_table, 
+        efp=realloc(__exit_function_table,
                     (__exit_slots+20)*sizeof(struct exit_function));
         if (efp == NULL) {
-            UNLOCK;
             __set_errno(ENOMEM);
-            return 0;
+	    goto DONE;
         }
         __exit_function_table = efp;
         __exit_slots += 20;
     }
 #else
     if (__exit_count >= __UCLIBC_MAX_ATEXIT) {
-        UNLOCK;
         __set_errno(ENOMEM);
-        return 0;
+	efp = NULL;
+	goto DONE;
     }
 #endif
 
@@ -270,8 +265,8 @@ struct exit_function attribute_hidden *__new_exitfn(void)
     efp = &__exit_function_table[__exit_count++];
     efp->type = ef_in_use;
 
-    UNLOCK;
-
+DONE:
+    __UCLIBC_MUTEX_UNLOCK(__atexit_lock);
     return efp;
 }
 
@@ -302,7 +297,7 @@ void __exit_handler(int status)
 		}
 	}
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
-	/* Free up memory used by the __exit_function_table structure */ 
+	/* Free up memory used by the __exit_function_table structure */
 	if (__exit_function_table)
 	    free(__exit_function_table);
 #endif
@@ -312,9 +307,7 @@ void __exit_handler(int status)
 #ifdef L_exit
 extern void weak_function _stdio_term(void) attribute_hidden;
 attribute_hidden void (*__exit_cleanup) (int) = 0;
-#ifdef __UCLIBC_HAS_THREADS__
-pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#endif
+__UCLIBC_MUTEX_INIT(__atexit_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 extern void __uClibc_fini(void);
 libc_hidden_proto(__uClibc_fini)
@@ -325,11 +318,11 @@ libc_hidden_proto(__uClibc_fini)
 void exit(int rv)
 {
 	/* Perform exit-specific cleanup (atexit and on_exit) */
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(__atexit_lock);
 	if (__exit_cleanup) {
 		__exit_cleanup(rv);
 	}
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(__atexit_lock);
 
 	__uClibc_fini();
 
@@ -337,7 +330,7 @@ void exit(int rv)
 	 * this will attempt to commit all buffered writes.  It may also
 	 * unbuffer all writable files, or close them outright.
 	 * Check the stdio routines for details. */
-	if (_stdio_term) 
+	if (_stdio_term)
 	    _stdio_term();
 
 	_exit(rv);

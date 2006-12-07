@@ -46,6 +46,7 @@ void* realloc(void* oldmem, size_t bytes)
     size_t* s;               /* copy source */
     size_t* d;               /* copy destination */
 
+    void *retval;
 
     /* Check for special cases.  */
     if (! oldmem)
@@ -55,7 +56,7 @@ void* realloc(void* oldmem, size_t bytes)
 	return NULL;
     }
 
-    LOCK;
+    __MALLOC_LOCK;
     av = get_malloc_state();
     checked_request2size(bytes, nb);
 
@@ -82,8 +83,8 @@ void* realloc(void* oldmem, size_t bytes)
 		set_head_size(oldp, nb);
 		av->top = chunk_at_offset(oldp, nb);
 		set_head(av->top, (newsize - nb) | PREV_INUSE);
-		UNLOCK;
-		return chunk2mem(oldp);
+		retval = chunk2mem(oldp);
+		goto DONE;
 	    }
 
 	    /* Try to expand forward into next chunk;  split off remainder below */
@@ -99,8 +100,8 @@ void* realloc(void* oldmem, size_t bytes)
 	    else {
 		newmem = malloc(nb - MALLOC_ALIGN_MASK);
 		if (newmem == 0) {
-		    UNLOCK;
-		    return 0; /* propagate failure */
+		    retval = 0; /* propagate failure */
+		    goto DONE;
 		}
 
 		newp = mem2chunk(newmem);
@@ -149,8 +150,8 @@ void* realloc(void* oldmem, size_t bytes)
 
 		    free(oldmem);
 		    check_inuse_chunk(newp);
-		    UNLOCK;
-		    return chunk2mem(newp);
+		    retval = chunk2mem(newp);
+		    goto DONE;
 		}
 	    }
 	}
@@ -175,8 +176,8 @@ void* realloc(void* oldmem, size_t bytes)
 	}
 
 	check_inuse_chunk(newp);
-	UNLOCK;
-	return chunk2mem(newp);
+	retval = chunk2mem(newp);
+	goto DONE;
     }
 
     /*
@@ -194,8 +195,8 @@ void* realloc(void* oldmem, size_t bytes)
 
 	/* don't need to remap if still within same page */
 	if (oldsize == newsize - offset) {
-	    UNLOCK;
-	    return oldmem;
+	    retval = oldmem;
+	    goto DONE;
 	}
 
 	cp = (char*)mremap((char*)oldp - offset, oldsize + offset, newsize, 1);
@@ -216,8 +217,8 @@ void* realloc(void* oldmem, size_t bytes)
 	    if (sum > (unsigned long)(av->max_total_mem))
 		av->max_total_mem = sum;
 
-	    UNLOCK;
-	    return chunk2mem(newp);
+	    retval = chunk2mem(newp);
+	    goto DONE;
 	}
 
 	/* Note the extra (sizeof(size_t)) overhead. */
@@ -231,8 +232,11 @@ void* realloc(void* oldmem, size_t bytes)
 		free(oldmem);
 	    }
 	}
-	UNLOCK;
-	return newmem;
+	retval = newmem;
     }
+
+ DONE:
+    __MALLOC_UNLOCK;
+    return retval;
 }
 

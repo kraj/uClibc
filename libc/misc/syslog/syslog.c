@@ -104,12 +104,8 @@ libc_hidden_proto(sprintf)
 libc_hidden_proto(vsnprintf)
 libc_hidden_proto(time)
 
-#ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#endif
-#define LOCK	__pthread_mutex_lock(&mylock)
-#define UNLOCK	__pthread_mutex_unlock(&mylock)
+#include <bits/uClibc_mutex.h>
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 
 static int	LogFile = -1;		/* fd for log */
@@ -120,10 +116,10 @@ static int	LogFacility = LOG_USER;	/* default facility code */
 static int	LogMask = 0xff;		/* mask of priorities to be logged */
 static struct sockaddr SyslogAddr;	/* AF_UNIX address of local logger */
 
-static void 
+static void
 closelog_intern(int to_default)
 {
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	if (LogFile != -1) {
 	    (void) close(LogFile);
 	}
@@ -136,7 +132,7 @@ closelog_intern(int to_default)
 		LogFacility = LOG_USER;
 		LogMask = 0xff;
 	}
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 static void
@@ -153,7 +149,7 @@ openlog( const char *ident, int logstat, int logfac )
 {
     int logType = SOCK_DGRAM;
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
 
     if (ident != NULL)
 	LogTag = ident;
@@ -166,16 +162,15 @@ openlog( const char *ident, int logstat, int logfac )
 		      sizeof(SyslogAddr.sa_data));
 retry:
 	if (LogStat & LOG_NDELAY) {
-	    if ((LogFile = socket(AF_UNIX, logType, 0)) == -1){
-		UNLOCK;
-		return;
+	    if ((LogFile = socket(AF_UNIX, logType, 0)) == -1) {
+		goto DONE;
 	    }
 	    /*			fcntl(LogFile, F_SETFD, 1); */
 	}
     }
 
     if (LogFile != -1 && !connected) {
-	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) - 
+	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) -
 		    sizeof(SyslogAddr.sa_data) + strlen(SyslogAddr.sa_data)) != -1)
 	{
 	    connected = 1;
@@ -194,7 +189,8 @@ retry:
 	}
     }
 
-    UNLOCK;
+DONE:
+    __UCLIBC_MUTEX_UNLOCK(mylock);
 }
 libc_hidden_def(openlog)
 
@@ -221,7 +217,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 
 	saved_errno = errno;
 
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 
 	/* See if we should just throw out this message. */
 	if (!(LogMask & LOG_MASK(LOG_PRI(pri))) || (pri &~ (LOG_PRIMASK|LOG_FACMASK)))
@@ -264,7 +260,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	if (p >= end || p < head_end) {	/* Returned -1 in case of error... */
 		static const char truncate_msg[12] = "[truncated] ";
 		memmove(head_end + sizeof(truncate_msg), head_end,
-			end - head_end - sizeof(truncate_msg));
+				end - head_end - sizeof(truncate_msg));
 		memcpy(head_end, truncate_msg, sizeof(truncate_msg));
 		if (p < head_end) {
 			while (p < end && *p) {
@@ -299,7 +295,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 		}
 		p+=rc;
 	} while (p <= last_chr);
-	if (rc >= 0) 
+	if (rc >= 0)
 		goto getout;
 
 	/*
@@ -318,10 +314,10 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	}
 
 getout:
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 	if (sigpipe == 0)
 		sigaction (SIGPIPE, &oldaction,
-			(struct sigaction *) NULL);
+				   (struct sigaction *) NULL);
 }
 libc_hidden_def(vsyslog)
 
@@ -352,10 +348,10 @@ int setlogmask(int pmask)
     int omask;
 
     omask = LogMask;
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     if (pmask != 0)
-	LogMask = pmask;
-    UNLOCK;
+		LogMask = pmask;
+    __UCLIBC_MUTEX_UNLOCK(mylock);
     return (omask);
 }
 

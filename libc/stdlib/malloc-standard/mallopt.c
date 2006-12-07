@@ -25,7 +25,7 @@ int mallopt(int param_number, int value)
 
     ret = 0;
 
-    LOCK;
+    __MALLOC_LOCK;
     av = get_malloc_state();
     /* Ensure initialization/consolidation */
     __malloc_consolidate(av);
@@ -58,7 +58,7 @@ int mallopt(int param_number, int value)
 	    ret = 1;
 	    break;
     }
-    UNLOCK;
+    __MALLOC_UNLOCK;
     return ret;
 }
 
