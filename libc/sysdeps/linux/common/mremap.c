@@ -9,6 +9,9 @@
 
 #include "syscalls.h"
 #include <unistd.h>
+
+#ifdef __NR_mremap
+
 #define mremap _hidemremap
 #include <sys/mman.h>
 #undef mremap
@@ -19,3 +22,5 @@ libc_hidden_proto(mremap)
 _syscall5(void *, mremap, void *, old_address, size_t, old_size, size_t,
 		  new_size, int, may_move, void *, new_address);
 libc_hidden_def(mremap)
+
+#endif
