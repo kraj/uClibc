@@ -19,13 +19,11 @@
 #ifndef _SYSCALL_H
 #define _SYSCALL_H	1
 
-/* This file provides us with the nicely useful _syscall[0-5] macros. */
+/* This file provides us with the useful _syscall[0-6] macros.  The kernel
+ * provided syscall macros from asm/unistd.h are not suitable for user-space,
+ * lacking PIC support etc, so we use our own libc versions to be certain all
+ * such variations are handled properly. */
 #include <features.h>
-#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
-# include <bits/syscalls.h>
-#else
-# include <asm/unistd.h>
-# include <bits/sysnum.h>
-#endif
+#include <bits/syscalls.h>
 
 #endif
