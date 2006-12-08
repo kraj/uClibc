@@ -56,6 +56,8 @@ extern char *__glibc_strerror_r (int __errnum, char *__buf, size_t __buflen);
 #   define __pthread_mutex_lock(mutex)                    ((void)0)
 #   define __pthread_mutex_trylock(mutex)                 ((void)0)
 #   define __pthread_mutex_unlock(mutex)                  ((void)0)
+#   define _pthread_cleanup_push_defer(mutex)             ((void)0)
+#   define _pthread_cleanup_pop_restore(mutex)            ((void)0)
 #  endif
 
 /* internal access to program name */

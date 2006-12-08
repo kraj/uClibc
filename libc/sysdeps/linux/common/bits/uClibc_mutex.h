@@ -13,6 +13,7 @@
 #ifdef __UCLIBC_HAS_THREADS__
 
 #include <pthread.h>
+#include <bits/uClibc_pthread.h>
 
 #define __UCLIBC_MUTEX_TYPE				pthread_mutex_t
 
