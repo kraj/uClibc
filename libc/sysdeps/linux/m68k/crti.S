@@ -1,27 +1,17 @@
-	.file	"initfini.c"
-#APP
-	
+#include "m68k_pic.S"
+
 	.section .init
-#NO_APP
 	.align	2
 	.globl	_init
 	.type	_init, @function
 _init:
-	link.w %a6,#0
-#APP
-	
-	.align 2
-	
+	link.w	%a6,#0
+	INIT_GP
 	
 	.section .fini
-#NO_APP
 	.align	2
 	.globl	_fini
 	.type	_fini, @function
 _fini:
-	link.w %a6,#0
-#APP
-	.align 2
-	
-	
-	.ident	"GCC: (GNU) 3.3.2"
+	link.w	%a6,#0
+	INIT_GP

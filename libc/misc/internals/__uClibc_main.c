@@ -88,7 +88,9 @@ extern void weak_function _locale_init(void) attribute_hidden;
 extern void weak_function __pthread_initialize_minimal(void);
 #endif
 
-#ifdef __UCLIBC_CTOR_DTOR__
+/* If __HAVE_SHARED_FLAT__, all array initialisation and finalisation
+ * is handled by the routines passed to __uClibc_main().  */
+#if defined (__UCLIBC_CTOR_DTOR__) && !defined (__HAVE_SHARED_FLAT__)
 extern void _dl_app_init_array(void);
 extern void _dl_app_fini_array(void);
 # ifndef SHARED
@@ -247,9 +249,11 @@ libc_hidden_proto(__uClibc_fini)
 void __uClibc_fini(void)
 {
 #ifdef __UCLIBC_CTOR_DTOR__
+    /* If __HAVE_SHARED_FLAT__, all array finalisation is handled
+     * by __app_fini.  */
 # ifdef SHARED
     _dl_app_fini_array();
-# else
+# elif !defined (__HAVE_SHARED_FLAT__)
     size_t i = __fini_array_end - __fini_array_start;
     while (i-- > 0)
 	(*__fini_array_start [i]) ();
@@ -348,7 +352,9 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
     /* Arrange for the application's dtors to run before we exit.  */
     __app_fini = app_fini;
 
-# ifndef SHARED
+    /* If __HAVE_SHARED_FLAT__, all array initialisation is handled
+     * by __app_init.  */
+# if !defined (SHARED) && !defined (__HAVE_SHARED_FLAT__)
     /* For dynamically linked executables the preinit array is executed by
        the dynamic linker (before initializing any shared object).
        For static executables, preinit happens rights before init.  */
@@ -363,9 +369,11 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
     if (app_init!=NULL) {
 	app_init();
     }
+    /* If __HAVE_SHARED_FLAT__, all array initialisation is handled
+     * by __app_init.  */
 # ifdef SHARED
     _dl_app_init_array();
-# else
+# elif !defined (__HAVE_SHARED_FLAT__)
     {
 	const size_t size = __init_array_end - __init_array_start;
 	size_t i;

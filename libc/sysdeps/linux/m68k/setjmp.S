@@ -5,6 +5,7 @@
 #define _ASM
 #define _SETJMP_H
 #include <bits/setjmp.h>
+#include "m68k_pic.S"
 
 .globl __sigsetjmp;
 .type  __sigsetjmp,@function
@@ -18,6 +19,5 @@ __sigsetjmp:
 	fmovemx %fp2-%fp7, %a0@(JB_FPREGS)
 #endif
 	clrl	%d0
-	lea		__sigjmp_save-.-8, %a0
-	jmp		0(%pc, %a0)
+	JUMP	__sigjmp_save,%a0
 

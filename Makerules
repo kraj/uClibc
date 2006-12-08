@@ -11,6 +11,9 @@ libs: $(lib-so-y) $(lib-a-y)
 $(lib-so-y): $(interp)
 else
 .LIBPATTERNS: "lib%.a"
+ifeq ($(HAVE_SHARED_FLAT),y)
+libs: $(lib-gdb-y)
+endif
 libs: $(lib-a-y)
 endif
 objs: all_objs
@@ -131,6 +134,29 @@ define link.so
 	$(Q)$(LN) -sf $(1) $@
 endef
 
+# CRT files needed by link-flat.so
+LINK_FLAT_CRTS := $(top_builddir)lib/Scrt1.o $(top_builddir)lib/crti.o \
+	$(top_builddir)lib/crtn.o
+
+# Create a shared flat library from the archive named by the first dependency.
+# $@ names the shared library's .gdb file, not the flat file itself.
+# (This is because the .gdb suffix makes the ELF file more distinctive
+# than the suffixless flat file.)
+#
+# Argument 1 is the shared library file -- i.e. $(@:.gdb=) -- and argument 2
+# is the shared library identifier.  If it wasn't for $(disp_ld), we could
+# avoid passing $(@:.gdb=) as an argument and use $(@:.gdb=) instead of $(1).
+define link-flat.so
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $(1) $@
+	@$(disp_ld)
+	$(Q)$(LD) $(LDFLAGS-$(notdir $@)) -o $(1) \
+		-elf2flt -shared-lib-id $(2) $(top_builddir)lib/Scrt1.o \
+		$(top_builddir)/lib/crti.o --whole-archive $(firstword $^) \
+		--no-whole-archive $(LIBS-$(notdir $@)) $(LIBGCC) \
+		$(top_builddir)/lib/crtn.o
+endef
+
 define linkm.so
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
@@ -181,7 +207,7 @@ $(headers_dep):
 
 CRT := crt1
 
-ifeq ($(HAVE_SHARED),y)
+ifeq ($(HAVE_SHARED)$(HAVE_SHARED_FLAT),y)
 CRTS=$(top_builddir)lib/$(CRT).o $(top_builddir)lib/S$(CRT).o
 else
 CRTS=$(top_builddir)lib/$(CRT).o

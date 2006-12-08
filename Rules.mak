@@ -506,16 +506,3 @@ ifeq ($(UCLIBC_CTOR_DTOR),y)
 SHARED_START_FILES:=$(top_builddir)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
 SHARED_END_FILES:=$(LIBGCC_DIR)crtendS.o $(top_builddir)lib/crtn.o
 endif
-
-########################################
-#
-# uClinux shared lib support
-#
-
-ifeq ($(CONFIG_BINFMT_SHARED_FLAT),y)
-  # For the shared version of this, we specify no stack and its library ID
-  FLTFLAGS += -s 0
-  LIBID=1
-  export LIBID FLTFLAGS
-  SHARED_TARGET = lib/libc
-endif
