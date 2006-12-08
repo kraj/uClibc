@@ -322,6 +322,7 @@ struct __STDIO_FILE_STRUCT {
 #define __FLAG_FREEFILE		0x2000U
 #define __FLAG_FREEBUF		0x4000U
 #define __FLAG_LARGEFILE	0x8000U /* fixed! == 0_LARGEFILE for linux */
+#define __FLAG_FAILED_FREOPEN	__FLAG_LARGEFILE
 
 /* Note: In no-buffer mode, it would be possible to pack the necessary
  * flags into one byte.  Since we wouldn't be buffering and there would

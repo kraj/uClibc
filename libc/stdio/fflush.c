@@ -15,31 +15,16 @@ libc_hidden_proto(fflush_unlocked)
 #warning WISHLIST: Add option to test for undefined behavior of fflush.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
-#ifdef __UCLIBC_HAS_THREADS__
 /* Even if the stream is set to user-locking, we still need to lock
  * when all (lbf) writing streams are flushed. */
 
-#define __MY_STDIO_THREADLOCK(__stream)										\
-	do {																	\
-		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;		\
-	if (_stdio_user_locking != 2) { \
-			_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,	\
-										__pthread_mutex_unlock,				\
-										&(__stream)->__lock);				\
-			__pthread_mutex_lock(&(__stream)->__lock);						\
-		}																	\
-		((void)0)
+#define __MY_STDIO_THREADLOCK(__stream)					\
+        __UCLIBC_MUTEX_CONDITIONAL_LOCK((__stream)->__lock,		\
+	(_stdio_user_locking != 2))
 
-#define __MY_STDIO_THREADUNLOCK(__stream)									\
-	if (_stdio_user_locking != 2) { \
-			_pthread_cleanup_pop_restore(&__infunc_pthread_cleanup_buffer,1);\
-		}																	\
-	} while (0)
-
-#else
-#define __MY_STDIO_THREADLOCK(STREAM)		((void)0)
-#define __MY_STDIO_THREADUNLOCK(STREAM)		((void)0)
-#endif
+#define __MY_STDIO_THREADUNLOCK(__stream)				\
+        __UCLIBC_MUTEX_CONDITIONAL_UNLOCK((__stream)->__lock,		\
+	(_stdio_user_locking != 2))
 
 #if defined(__UCLIBC_HAS_THREADS__) && defined(__STDIO_BUFFERS)
 void _stdio_openlist_dec_use(void)
