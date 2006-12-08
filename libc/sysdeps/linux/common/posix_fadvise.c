@@ -12,7 +12,7 @@
  * will fail when __NR_fadvise64_64 doesnt exist */
 #define posix_fadvise64 __hideposix_fadvise64
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <fcntl.h>
 
 #undef posix_fadvise64

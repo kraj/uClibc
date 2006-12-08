@@ -25,7 +25,7 @@
 #include <bits/sysnum.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
-#include <bits/syscalls.h>
+#include <bits/sysnum.h>
 
 /* Clone the calling process, but without copying the whole address space.
    The calling process is suspended until the new process exits or is

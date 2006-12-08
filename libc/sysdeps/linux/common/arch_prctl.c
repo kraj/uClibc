@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 
 #ifdef __NR_arch_prctl
 extern int arch_prctl(int code, unsigned long addr);

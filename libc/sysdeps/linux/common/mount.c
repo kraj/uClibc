@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <sys/mount.h>
 _syscall5(int, mount, const char *, specialfile, const char *, dir,
 		  const char *, filesystemtype, unsigned long, rwflag,

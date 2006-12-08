@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #ifdef __NR_umount2	/* Old kernels don't have umount2 */
 #include <sys/mount.h>
 _syscall2(int, umount2, const char *, special_file, int, flags);

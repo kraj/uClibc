@@ -11,7 +11,7 @@
  * will fail when __NR_stat64 doesnt exist */
 #define stat64 __hidestat64
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include "xstatconv.h"

@@ -17,7 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <sys/poll.h>
 
 extern __typeof(poll) __libc_poll;

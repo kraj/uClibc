@@ -8,7 +8,7 @@
  */
 
 #define getrlimit64 __hide_getrlimit64
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/resource.h>
 #undef getrlimit64

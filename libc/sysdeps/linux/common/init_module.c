@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 int init_module(void *first, void *second, void *third, void *fourth, void *fifth);
 #ifdef __NR_init_module
 /* This may have 5 arguments (for old 2.0 kernels) or 2 arguments

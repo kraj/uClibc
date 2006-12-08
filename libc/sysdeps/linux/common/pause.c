@@ -8,7 +8,7 @@
  */
 
 #define __UCLIBC_HIDE_DEPRECATED__
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
 
 extern __typeof(pause) __libc_pause;

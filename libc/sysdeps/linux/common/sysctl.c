@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 /* psm: including sys/sysctl.h would depend on kernel headers */
 extern int sysctl (int *__name, int __nlen, void *__oldval,
 		   size_t *__oldlenp, void *__newval, size_t __newlen) __THROW;

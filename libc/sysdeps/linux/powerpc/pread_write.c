@@ -12,7 +12,7 @@
  * from GNU libc 2.2.5, but reworked considerably...
  */
 
-#include "../common/syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
 
 #ifndef __UCLIBC_HAS_LFS__ 

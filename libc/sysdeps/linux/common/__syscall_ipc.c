@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 
 #ifdef __NR_ipc
 #define __NR___syscall_ipc __NR_ipc

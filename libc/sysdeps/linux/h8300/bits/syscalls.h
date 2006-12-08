@@ -8,12 +8,6 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
-/* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
- * header files.  It also defines the traditional `SYS_<name>' macros for older
- * programs.  */
-#include <bits/sysnum.h>
-
-
 #define __syscall_return(type, res) \
 do { \
 	if ((unsigned long)(res) >= (unsigned long)(-125)) { \

@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fstat64
 #include <unistd.h>

@@ -6,7 +6,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 int delete_module(const char *name);
 #ifdef __NR_delete_module
 _syscall1(int, delete_module, const char *, name);

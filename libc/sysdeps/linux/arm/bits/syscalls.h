@@ -4,11 +4,6 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
-/* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
- * header files.  It also defines the traditional `SYS_<name>' macros for older
- * programs.  */
-#include <bits/sysnum.h>
-
 /*
    Some of the sneaky macros in the code were taken from 
    glibc-2.3.2/sysdeps/unix/sysv/linux/arm/sysdep.h

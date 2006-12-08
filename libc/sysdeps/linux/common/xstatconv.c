@@ -20,7 +20,7 @@
    Modified for uClibc by Erik Andersen <andersen@codepoet.org>
    */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <sys/stat.h>
 #include "xstatconv.h"
 

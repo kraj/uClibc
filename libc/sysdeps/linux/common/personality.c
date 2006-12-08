@@ -7,6 +7,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <sys/personality.h>
 _syscall1(int, personality, unsigned long int, __persona);

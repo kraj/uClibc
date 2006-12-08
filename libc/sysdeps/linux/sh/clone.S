@@ -24,7 +24,7 @@
 #define _ERRNO_H	1
 #include <bits/errno.h>
 #define _SYSCALL_H
-#include <bits/syscalls.h>
+#include <bits/sysnum.h>
 
 
 #ifdef __HAVE_SHARED__ 

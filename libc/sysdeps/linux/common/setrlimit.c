@@ -8,7 +8,7 @@
  */
 
 #define setrlimit64 __hide_setrlimit64
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/resource.h>
 #undef setrlimit64

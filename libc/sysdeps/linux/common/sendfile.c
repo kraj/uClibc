@@ -11,7 +11,7 @@
  * will fail when __NR_sendfile64 doesnt exist */
 #define sendfile64 __hidesendfile64
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/sendfile.h>
 

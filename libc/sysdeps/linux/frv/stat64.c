@@ -9,7 +9,7 @@
  * Adapted to FR-V by Alexandre Oliva <aoliva@redhat.com>
  */
 
-#include "../common/syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/stat.h>
 
