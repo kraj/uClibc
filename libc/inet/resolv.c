@@ -155,6 +155,7 @@
 #include <sys/un.h>
 #include <bits/uClibc_mutex.h>
 
+__UCLIBC_MUTEX_EXTERN(__resolv_lock);
 
 libc_hidden_proto(memcpy)
 libc_hidden_proto(memset)
@@ -209,7 +210,6 @@ libc_hidden_proto(__ctype_b_loc)
 libc_hidden_proto(__ctype_b)
 #endif
 
-__UCLIBC_MUTEX_EXTERN(__resolv_lock);
 
 
 #define MAX_RECURSE 5
@@ -1011,7 +1011,7 @@ char * __nameserver[MAX_SERVERS];
 int __searchdomains;
 char * __searchdomain[MAX_SEARCH];
 
-__UCLIBC_MUTEX_STATIC(__resolv_lock, PTHREAD_MUTEX_INITIALIZER);
+__UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_MUTEX_INITIALIZER);
 
 /*
  *	we currently read formats not quite the same as that on normal
