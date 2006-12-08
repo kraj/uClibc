@@ -9,4 +9,7 @@
 
 #include "syscalls.h"
 #include <sys/mman.h>
+
+#ifdef __NR_mprotect
 _syscall3(int, mprotect, void *, addr, size_t, len, int, prot);
+#endif
