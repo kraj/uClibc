@@ -27,7 +27,7 @@
 # error "Always include <pthread.h> rather than <bits/uClibc_pthread.h>"
 #endif
 
-#ifdef _LIBC
+#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 extern int __pthread_mutex_init (pthread_mutex_t *__restrict __mutex,
 		__const pthread_mutexattr_t *__restrict __mutex_attr) attribute_hidden;
 extern int __pthread_mutex_trylock (pthread_mutex_t *__mutex) attribute_hidden;
