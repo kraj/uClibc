@@ -7,8 +7,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <sys/syscall.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/syscall.h>
 
 extern __typeof(lseek64) __libc_lseek64;
 
