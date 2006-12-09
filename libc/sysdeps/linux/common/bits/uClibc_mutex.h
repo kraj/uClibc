@@ -36,7 +36,7 @@
 		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;				\
 		if (C) {										\
 			_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,			\
-										__pthread_mutex_unlock,	\
+										__uclibc_mutex_unlock,	\
 										&(M));			\
 			__pthread_mutex_lock(&(M));							\
 		}											\

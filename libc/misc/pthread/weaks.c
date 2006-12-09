@@ -28,7 +28,6 @@
  * if it gets linked in.
  */
 
-static int __pthread_return_0 (void);
 static int __pthread_return_0 (void) { return 0; }
 static void __pthread_return_void (void) { return; }
 
