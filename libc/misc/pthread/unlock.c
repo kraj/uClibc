@@ -18,9 +18,10 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <pthread.h>
+#include <bits/uClibc_mutex.h>
 
 void attribute_hidden __uclibc_mutex_unlock (void *arg)
 {
 	pthread_mutex_t *__mutex = (pthread_mutex_t *)arg;
-	pthread_mutex_unlock(__mutex);
+	__pthread_mutex_unlock(__mutex);
 }
