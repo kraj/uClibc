@@ -16,6 +16,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <endian.h>
 
 extern __typeof(pread) __libc_pread;
 extern __typeof(pwrite) __libc_pwrite;
