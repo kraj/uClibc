@@ -18,7 +18,7 @@ MISC_INTERNALS_OBJ := $(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(CSRC))
 libc-y += $(MISC_INTERNALS_OBJ)
 libc-shared-y += $(MISC_INTERNALS_OUT)/__uClibc_main.oS
 libc-static-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o
-libc-static-$(HAVE_SHARED_FLAT) += \
+libc-static-$(UCLIBC_FORMAT_SHARED_FLAT) += \
   $(MISC_INTERNALS_OUT)/shared_flat_initfini.o \
   $(MISC_INTERNALS_OUT)/shared_flat_add_library.o
 libc-nomulti-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o

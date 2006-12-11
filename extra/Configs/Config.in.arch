@@ -3,6 +3,53 @@
 # see extra/config/Kconfig-language.txt
 #
 
+
+#
+# Binary format
+#
+choice
+	prompt "Target File Format"
+config UCLIBC_FORMAT_ELF
+	bool "ELF"
+	depends on ARCH_USE_MMU
+config UCLIBC_FORMAT_FDPIC_ELF
+	bool "FDPIC ELF"
+	depends on !ARCH_USE_MMU
+config UCLIBC_FORMAT_FLAT
+	bool "STATIC FLAT"
+	depends on !ARCH_USE_MMU
+config UCLIBC_FORMAT_FLAT_SEP_DATA
+	bool "STATIC FLAT (sep-data)"
+	depends on !ARCH_USE_MMU
+config UCLIBC_FORMAT_SHARED_FLAT
+	bool "SHARED FLAT"
+	depends on !ARCH_USE_MMU
+	help
+	  Pick this one if you are using uClinux and wish to build
+	  uClibc as a flat-format shared library.
+endchoice
+
+config UCLIBC_SHARED_FLAT_ID
+	int "Shared library ID"
+	default 1
+	depends on UCLIBC_FORMAT_SHARED_FLAT
+	help
+	  When using flat shared libraries, every library has a unique
+	  system-wide identifier.  Identifier 0 is reserved for
+	  executables and true shared libraries have identifiers
+	  starting at 1.  The maximum shared library identifier is
+	  determined by the kernel and is usually 3.  Shared library
+	  N must be available on the target system as "/lib/libN.so".
+
+	  When a shared C library is used, it usually has identifier 1,
+	  but you can use this option to select a different identifier
+	  if you need to.
+
+
+
+#
+# Endian Format
+#
 config ARCH_ANY_ENDIAN
 	bool
 config ARCH_BIG_ENDIAN

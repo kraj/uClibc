@@ -246,7 +246,7 @@ ifeq ($(DOPIC),y)
 	fi
 endif
 endif
-ifeq ($(HAVE_SHARED_FLAT),y)
+ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
 	for file in lib/lib*.gdb; do \
 		if test -f $$file; then \
 			$(INSTALL) -m 755 $$file $(PREFIX)$(DEVEL_PREFIX)lib; \

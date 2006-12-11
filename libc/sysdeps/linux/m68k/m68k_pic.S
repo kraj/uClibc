@@ -16,7 +16,7 @@
 	 * a text address.  <tmp> is available as a temporary address
 	 * register.  */
 	.macro	DO_TEXT op,target,tmp
-#if defined __HAVE_SHARED_FLAT__
+#if defined __UCLIBC_FORMAT_SHARED_FLAT__
 	.ifne	have_current_got
 	move.l \target@GOT(%a5),\tmp
 	.else
@@ -50,7 +50,7 @@
 
 	/* Initialize the global pointer, if functions need to do that.  */
 	.macro INIT_GP
-#if defined __HAVE_SHARED_FLAT__
+#if defined __UCLIBC_FORMAT_SHARED_FLAT__
 	move.l	%a5,-(%sp)
 	move.l _current_shared_library_a5_offset_(%a5),%a5
 #endif
@@ -58,7 +58,7 @@
 
 	/* Undo the effects of INIT_GP.  */
 	.macro FINI_GP
-#if defined __HAVE_SHARED_FLAT__
+#if defined __UCLIBC_FORMAT_SHARED_FLAT__
 	move.l	(%sp)+,%a5
 #endif
 	.endm

@@ -85,7 +85,7 @@ _start:
 	.equ have_current_got, 1
 #endif
 	
-#ifdef __HAVE_SHARED_FLAT__
+#ifdef __UCLIBC_FORMAT_SHARED_FLAT__
 	CALL __shared_flat_add_library,%a1
 #endif
 
@@ -113,7 +113,7 @@ _start:
 
 	/* Push the address of our own entry points to `.fini' and
 	   `.init'.  */
-#if defined __HAVE_SHARED_FLAT__
+#if defined __UCLIBC_FORMAT_SHARED_FLAT__
 	PEA_TEXT __shared_flat_fini,%a1
 	PEA_TEXT __shared_flat_init,%a1
 #else

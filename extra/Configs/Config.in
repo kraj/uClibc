@@ -196,30 +196,6 @@ config DOPIC
 	  If you wish to build all of uClibc as PIC objects, then answer Y here.
 	  If you are unsure, then you should answer N.
 
-config HAVE_SHARED_FLAT
-	bool "Generate a flat-format shared library"
-	default n
-	depends on !ARCH_USE_MMU
-	help
-	  Answer Y here if you are using uClinux and wish to build uClibc
-	  as a flat-format shared library.
-
-config SHARED_FLAT_ID
-	int "Shared library id"
-	default 1
-	depends on HAVE_SHARED_FLAT
-	help
-	  When using flat shared libraries, every library has a unique
-	  system-wide identifier.  Identifier 0 is reserved for
-	  executables and true shared libraries have identifiers
-	  starting at 1.  The maximum shared library identifier is
-	  determined by the kernel and is usually 3.  Shared library
-	  N must be available on the target system as "/lib/libN.so".
-
-	  When a shared C library is used, it usually has identifier 1,
-	  but you can use this option to select a different identifier
-	  if you need to.
-
 config HAVE_NO_SHARED
 	bool
 	default n
