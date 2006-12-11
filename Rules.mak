@@ -143,7 +143,11 @@ OPTIMIZATION+=$(call check_gcc,-fno-tree-dominator-opts,)
 OPTIMIZATION+=$(call check_gcc,-fno-strength-reduce,)
 endif
 
-PICFLAG:=-fPIC
+ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
+	PICFLAG:=-mfdpic
+else
+	PICFLAG:=-fPIC
+endif
 PIEFLAG_NAME:=-fPIE
 
 # Some nice CPU specific optimizations
@@ -282,13 +286,8 @@ ifeq ($(TARGET_ARCH),powerpc)
 	PIEFLAG_NAME:=-fpie
 endif
 
-ifeq ($(TARGET_ARCH),bfin)
-	PICFLAG:=-mfdpic
-endif
-
 ifeq ($(TARGET_ARCH),frv)
 	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
-	CPU_CFLAGS-$(CONFIG_FRV)+=-mfdpic
 	# Using -pie causes the program to have an interpreter, which is
 	# forbidden, so we must make do with -shared.  Unfortunately,
 	# -shared by itself would get us global function descriptors
