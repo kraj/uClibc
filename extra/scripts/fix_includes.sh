@@ -41,6 +41,8 @@ usage() {
 # Parse our arguments
 #
 HAS_MMU="y"
+KERNEL_SOURCE=""
+TARGET_ARCH=""
 while [ -n "$1" ]; do
 	case $1 in
 		-k ) shift; if [ -n "$1" ]; then KERNEL_SOURCE=$1; shift; else usage; fi; ;;
