@@ -56,10 +56,6 @@ HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_ARCH),$(HEADERS_BITS_COMMON))
 headers: include/bits/uClibc_config.h
 	$(Q)$(MAKE) headers-y
 	$(Q)\
-	$(SHELL) $(top_srcdir)extra/scripts/fix_includes.sh \
-		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
-		$(header_extra_args)
-	$(Q)\
 	set -e; \
 	if [ -f libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h ] ; then \
 		$(LN) -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h include/ ; \
@@ -94,7 +90,7 @@ headers: include/bits/uClibc_config.h
 	cd $(top_builddir); \
 	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null`; \
 	[ -z "$$tmp" ] && tmp='include/bits/sysnum.h.new'; \
-	top_builddir=. CC="$(CC) $(CPU_CFLAGS)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
+	KERNEL_SOURCE="${KERNEL_SOURCE}" top_builddir=. CC="$(CC) $(CPU_CFLAGS)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
 	if cmp include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
 		$(RM) $$tmp; \
 	else \

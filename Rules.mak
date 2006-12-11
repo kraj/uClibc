@@ -471,6 +471,7 @@ else
 	PTNAME :=
 	PTINC  :=
 endif
+CFLAGS += -I$(KERNEL_SOURCE)
 
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
 #CFLAGS+=-iwithprefix include
@@ -478,12 +479,6 @@ CFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
-endif
-
-# moved from ldso/{ldso,libdl}
-# BEWARE!!! At least mips* will die if -O0 is used!!!
-ifeq ($(TARGET_ARCH),mips)
-CFLAGS:=$(CFLAGS:-O0=-O1)
 endif
 
 # Keep the check_as from being needlessly executed
