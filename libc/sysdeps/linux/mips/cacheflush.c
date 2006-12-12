@@ -20,7 +20,11 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
+#ifdef __NR_cacheflush
 _syscall3(int, cacheflush, void *, addr, const int, nbytes, const int, op);
 strong_alias(cacheflush, _flush_cache)
-_syscall3(int, cachectl, void *, addr, const int, nbytes, const int, op);
+#endif
 
+#ifdef __NR_cachectl
+_syscall3(int, cachectl, void *, addr, const int, nbytes, const int, op);
+#endif
