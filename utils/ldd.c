@@ -287,7 +287,7 @@ int map_cache(void)
 
 	if (stat(LDSO_CACHE, &st)
 			|| (fd = open(LDSO_CACHE, O_RDONLY, 0)) < 0) {
-		dprintf(2, "ldd: can't open cache '%s'\n", LDSO_CACHE);
+		fprintf(stderr, "ldd: can't open cache '%s'\n", LDSO_CACHE);
 		cache_addr = (caddr_t) - 1;	/* so we won't try again */
 		return -1;
 	}
@@ -296,7 +296,7 @@ int map_cache(void)
 	cache_addr = (caddr_t) mmap(0, cache_size, PROT_READ, MAP_SHARED, fd, 0);
 	close(fd);
 	if (cache_addr == MAP_FAILED) {
-		dprintf(2, "ldd: can't map cache '%s'\n", LDSO_CACHE);
+		fprintf(stderr, "ldd: can't map cache '%s'\n", LDSO_CACHE);
 		return -1;
 	}
 
@@ -309,7 +309,7 @@ int map_cache(void)
 			(sizeof(header_t) + header->nlibs * sizeof(libentry_t))
 			|| cache_addr[cache_size - 1] != '\0')
 	{
-		dprintf(2, "ldd: cache '%s' is corrupt\n", LDSO_CACHE);
+		fprintf(stderr, "ldd: cache '%s' is corrupt\n", LDSO_CACHE);
 		goto fail;
 	}
 
@@ -321,7 +321,7 @@ int map_cache(void)
 		if (libent[i].sooffset >= strtabsize ||
 				libent[i].liboffset >= strtabsize)
 		{
-			dprintf(2, "ldd: cache '%s' is corrupt\n", LDSO_CACHE);
+			fprintf(stderr, "ldd: cache '%s' is corrupt\n", LDSO_CACHE);
 			goto fail;
 		}
 	}
