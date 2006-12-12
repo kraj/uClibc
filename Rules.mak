@@ -64,8 +64,8 @@ TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/
 TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
-KERNEL_SOURCE:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_SOURCE))))))
-export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_SOURCE
+KERNEL_HEADERS:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_HEADERS))))))
+export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS
 
 
 # Now config hard core
@@ -471,7 +471,7 @@ else
 	PTNAME :=
 	PTINC  :=
 endif
-CFLAGS += -I$(KERNEL_SOURCE)
+CFLAGS += -I$(KERNEL_HEADERS)
 
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
 #CFLAGS+=-iwithprefix include

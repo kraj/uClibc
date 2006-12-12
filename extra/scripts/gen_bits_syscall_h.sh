@@ -14,7 +14,7 @@
 #
 # Warning!!! This does _no_ error checking!!!
 
-INCLUDE_OPTS="-nostdinc -I${KERNEL_SOURCE}"
+INCLUDE_OPTS="-nostdinc -I${KERNEL_HEADERS}"
 
 case $CC in
 *icc*) CC_SYSNUM_ARGS="-dM" ;;
