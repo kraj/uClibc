@@ -36,6 +36,8 @@
 #define __STDIO_THREADUNLOCK_OPENLIST_DEL		\
         __UCLIBC_MUTEX_UNLOCK(_stdio_openlist_del_lock)
 
+
+#ifdef __UCLIBC_HAS_THREADS__
 #define __STDIO_OPENLIST_INC_USE			\
 do {							\
 	__STDIO_THREADLOCK_OPENLIST_DEL;		\
@@ -62,14 +64,25 @@ do { \
 	__STDIO_THREADUNLOCK_OPENLIST_DEL;		\
 } while (0)
 
+#endif /* __UCLIBC_HAS_THREADS__ */
 #endif /* __STDIO_BUFFERS */
 
 #ifndef __STDIO_THREADLOCK_OPENLIST_DEL
 #define	__STDIO_THREADLOCK_OPENLIST_DEL     ((void)0)
+#endif
+#ifndef __STDIO_THREADUNLOCK_OPENLIST_DEL
 #define	__STDIO_THREADUNLOCK_OPENLIST_DEL   ((void)0)
+#endif
+#ifndef __STDIO_OPENLIST_INC_USE
 #define __STDIO_OPENLIST_INC_USE            ((void)0)
+#endif
+#ifndef __STDIO_OPENLIST_DEC_USE
 #define __STDIO_OPENLIST_DEC_USE            ((void)0)
+#endif
+#ifndef __STDIO_OPENLIST_INC_DEL_CNT
 #define __STDIO_OPENLIST_INC_DEL_CNT        ((void)0)
+#endif
+#ifndef __STDIO_OPENLIST_DEC_DEL_CNT
 #define __STDIO_OPENLIST_DEC_DEL_CNT        ((void)0)
 #endif
 
