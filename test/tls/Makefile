@@ -9,6 +9,7 @@ TESTS_DISABLED := tst-tls1-static tst-tls2-static tst-tls9-static
 
 include ../Test.mak
 
+TARGET_ARCH := $(strip $(subst ",, $(strip $(TARGET_ARCH))))
 PTDIR := $(top_builddir)libpthread/nptl
 
 EXTRA_CFLAGS := -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC	\
@@ -93,5 +94,10 @@ tst-tls12: tst-tlsmod11.so tst-tlsmod12.so
 tst-tls13: tst-tlsmod13.so tst-tlsmod13a.so
 tst-tls14: tst-tlsmod14a.so tst-tlsmod14b.so
 tst-tls15: tst-tlsmod15a.so tst-tlsmod15b.so
+
+RET_tst-tls13 := 1
+ifeq ($(TARGET_ARCH),mips)
+RET_tst-tls15 := 1
+endif
 
 WRAPPER := env LD_LIBRARY_PATH="$$PWD:.:$(LD_LIBRARY_PATH)"
