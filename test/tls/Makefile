@@ -9,7 +9,7 @@ TESTS_DISABLED := tst-tls1-static tst-tls2-static tst-tls9-static
 
 include ../Test.mak
 
-PTDIR = $(top_builddir)libpthread/nptl
+PTDIR := $(top_builddir)libpthread/nptl
 
 EXTRA_CFLAGS := -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC	\
 	-std=gnu99 -I. -I$(PTDIR)				\
