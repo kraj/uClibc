@@ -2,7 +2,7 @@
 #include <pthread.h>
 
 
-extern int __pthread_mutex_init (void);
+//extern int __pthread_mutex_init (void);
 
 void __attribute__((constructor)) libtest2_ctor(void)
 {
