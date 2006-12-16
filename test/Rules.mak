@@ -9,10 +9,10 @@
 # Note: This does not read the top level Rules.mak file
 #
 
-top_builddir = ../../
+top_builddir ?= ../
 TESTDIR=$(top_builddir)test/
 
--include $(top_builddir).config
+include $(top_builddir)/Rules.mak
 
 UCLIBC_LDSO ?= $(firstword $(wildcard $(top_builddir)lib/ld*))
 
@@ -69,11 +69,12 @@ OPTIMIZATION   += $(call check_gcc,-Os,-O2)
 endif
 
 XWARNINGS      := $(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
-XARCH_CFLAGS   := $(subst ",, $(strip $(ARCH_CFLAGS)))
+XARCH_CFLAGS   := $(subst ",, $(strip $(ARCH_CFLAGS))) $(CPU_CFLAGS)
 XCOMMON_CFLAGS := -D_GNU_SOURCE -I$(top_builddir)test
-CFLAGS         += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS) -I$(top_builddir)include
+CFLAGS         += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS) -I$(top_builddir)include $(PTINC)
 HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS)
 
+LDFLAGS        := $(CPU_LDFLAGS)
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
 	HOST_CFLAGS   += -g

@@ -6,7 +6,6 @@
 #
 
 top_builddir=../
--include $(top_builddir).config
 include Rules.mak
 
 ALL_SUBDIRS := $(patsubst %/Makefile,%,$(wildcard */Makefile))
