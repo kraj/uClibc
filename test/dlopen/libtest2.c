@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <pthread.h>
 
-
-//extern int __pthread_mutex_init (void);
-
 void __attribute__((constructor)) libtest2_ctor(void)
 {
     printf("libtest2: constructor!\n");
@@ -34,5 +31,3 @@ int libtest2_func(const char *s)
     function2();
     return 0;
 }
-
-
