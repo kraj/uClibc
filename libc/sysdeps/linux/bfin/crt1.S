@@ -34,11 +34,15 @@ Cambridge, MA 02139, USA.  */
 
 #include <features.h>
 
+#ifndef	L_Scrt1
+
 .text
 .align 2
 .global __start;
 .type	__start,STT_FUNC;
-.global ___uClibc_main;
+.weak	__init;
+.weak	__fini;
+.global	___uClibc_main;
 .type	___uClibc_main,STT_FUNC;
 
 /* Stick in a dummy reference to main(), so that if an application
@@ -49,7 +53,7 @@ Cambridge, MA 02139, USA.  */
 
 __start:
 
-#ifdef __BFIN_FDPIC__
+#if defined(__BFIN_FDPIC__) && !defined(__pie__)
 	/* P0 contains a pointer to the program's load map.  */
 	call	.Lcall;
 .Lcall:
@@ -77,7 +81,10 @@ __start:
 	L1 = 0;
 	L2 = 0;
 	L3 = 0;
-	
+
+#ifdef __ID_SHARED_LIB__
+	CALL ___shared_flat_add_library;
+#endif
 /*	Load register R1 (argc) from the stack to its final resting place */
 	P0 = SP;
 	R1 = [P0++];
@@ -92,21 +99,37 @@ __start:
 	R3 += 4;
 	R3 = R2 + R3;
 
-	SP += -24;
+	P2 = SP;
+	SP += -32;
 	[SP + 12] = R3;
+
+#ifndef __BFIN_FDPIC__
+	R7 = 0;
+#endif
+	/* Pass highest stack pointer to the app.  */
+	[SP + 28] = P2;
+	/* Store the pointer to ld.so's fini that we got in P1.  */
+	[SP + 24] = R7;
 
 /*	Ok, now run uClibc's main() -- shouldn't return */
 #if defined L_crt1 && defined __UCLIBC_CTOR_DTOR__
+
 #ifdef __BFIN_FDPIC__
 	R3 = [P3 + __init@FUNCDESC_GOT17M4];
+#elif defined __ID_SHARED_LIB__
+	P5 = [P5 + _current_shared_library_p5_offset_]; 
+	R3 = [P5 + ___shared_flat_init@GOT];
 #else
 	R3.H = __init;
 	R3.L = __init;
 #endif
 	[SP+16] = R3;
+
 #ifdef __BFIN_FDPIC__
 	R3 = [P3 + __fini@FUNCDESC_GOT17M4];
-#else
+#elif defined __ID_SHARED_LIB__
+	R3 = [P5 + ___shared_flat_fini@GOT];
+#else	
 	R3.H = __fini;
 	R3.L = __fini;
 #endif
@@ -119,8 +142,28 @@ __start:
 
 #ifdef __BFIN_FDPIC__
 	R0 = [P3 + _main@FUNCDESC_GOT17M4];
+#elif defined __ID_SHARED_LIB__
+	R0 = [P5 + _main@GOT];
 #else
 	R0.H = _main;
 	R0.L = _main;
 #endif
+#ifdef __ID_SHARED_LIB__
+	P0 = [P5 + ___uClibc_main@GOT];
+	jump (P0)
+#else
 	jump.l	___uClibc_main;
+#endif
+
+#else
+	.text
+	.global lib_main
+	.hidden lib_main
+	.type lib_main,@function
+lib_main:
+	RETS = [SP++];
+	P0 = [P5 + ___shared_flat_add_library@GOT];
+	JUMP (P0);
+
+	.hidden _current_shared_library_p5_offset_
+#endif

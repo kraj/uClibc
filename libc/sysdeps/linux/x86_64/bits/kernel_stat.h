@@ -4,6 +4,10 @@
 #ifndef _ASM_X86_64_STAT_H
 #define _ASM_X86_64_STAT_H
 
+#ifndef _LIBC
+#error bits/kernel_stat.h is for internal uClibc use only!
+#endif
+
 #define STAT_HAVE_NSEC 1
 
 struct kernel_stat {

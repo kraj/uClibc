@@ -190,13 +190,14 @@ struct flock64
 
 __BEGIN_DECLS
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_GNU
 
 /* Provide kernel hint to read ahead.  */
 extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
     __THROW;
 
 
+#if 0
 /* Selective file content synch'ing.  */
 extern int sync_file_range (int __fd, __off64_t __from, __off64_t __to,
 			    unsigned int __flags);
@@ -213,6 +214,7 @@ extern int splice (int __fdin, int __fdout, size_t __len, unsigned int __flags)
 /* In-kernel implementation of tee for pipe buffers.  */
 extern int tee (int __fdin, int __fdout, size_t __len, unsigned int __flags)
     __THROW;
+#endif
 
 #endif
 

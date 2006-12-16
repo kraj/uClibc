@@ -11,11 +11,6 @@ CFLAGS-linuxthreads.old := $(CFLAGS-dir_linuxthreads.old) $(SSP_ALL_CFLAGS)
 
 CFLAGS-libpthread/linuxthreads.old/sysdeps/$(TARGET_ARCH)/ := $(CFLAGS-linuxthreads.old)
 
-# This stuff will not compile without at least -O1
-# psm: can't handle this here, could maybe search for -O0 in CFLAGS
-# and append -O1 if found
-#CFLAGS:=$(CFLAGS:-O0=-O1)
-
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -z defs
 else

@@ -3,6 +3,10 @@
 #ifndef _CRIS_STAT_H
 #define _CRIS_STAT_H
 
+#ifndef _LIBC
+#error bits/kernel_stat.h is for internal uClibc use only!
+#endif
+
 struct __old_kernel_stat {
 	unsigned short st_dev;
 	unsigned short st_ino;

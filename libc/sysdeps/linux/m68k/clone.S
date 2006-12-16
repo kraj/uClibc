@@ -8,6 +8,7 @@
 #include <features.h>
 #include <bits/errno.h>
 #include <sys/syscall.h>
+#include "m68k_pic.S"
 
 /* int _clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
@@ -21,11 +22,11 @@ clone:
 	movel   4(%sp), %d1             /* no NULL function pointers */
 	movel	%d1, %a0
 	tstl    %d1
-	jbeq    __syscall_error
+	beq.w	__syscall_error_trampoline
 	movel   8(%sp), %d1             /* no NULL stack pointers */
 	movel	%d1, %a1
 	tstl    %d1
-	jbeq    __syscall_error
+	beq.w   __syscall_error_trampoline
 
 	/* Allocate space and copy the argument onto the new stack.  */
 	movel   16(%sp), -(%a1)
@@ -50,7 +51,7 @@ clone:
 #endif
 
 	tstl    %d0
-	jbmi    __syscall_error
+	bmi.w   __syscall_error_trampoline
 	beq.w   thread_start
 
 	rts
@@ -62,3 +63,7 @@ thread_start:
 	movel	#__NR_exit, %d0
 	trap	#0
 	/*jsr    exit*/
+
+__syscall_error_trampoline:
+	JUMP	__syscall_error,%a0
+

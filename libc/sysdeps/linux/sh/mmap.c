@@ -26,9 +26,7 @@
 libc_hidden_proto(mmap)
 
 #ifdef HIOS
-# define __SH_SYSCALL6_TRAPA "0x2E"
-#else
-# define __SH_SYSCALL6_TRAPA "0x15"
+# define __SH_SYSCALL6_TRAPA 0x2E
 #endif
 
 #include <sys/syscall.h>

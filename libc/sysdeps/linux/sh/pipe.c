@@ -20,12 +20,13 @@ int pipe(int *fd)
 	__asm__ __volatile__ (
 	"mov	%2,	r3;"
 	"mov	%3,	r4;"
-	"trapa	#0x13;"
+	"trapa	%4;"
 	"mov    r1, %1;"
 	   : "=z" (__res),
 	     "=r" ((long) __res2)
 	   : "r" ((long) __NR_pipe),
-	     "r" ((long) fd)
+	     "r" ((long) fd),
+		 "i" (__SH_SYSCALL_TRAP_BASE + 3)
 	   : "cc", "memory", "r1", "r3", "r4");
 	if ((unsigned long)(__res) >= (unsigned long)(-125)) {
 		int __err = -(__res);

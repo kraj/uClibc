@@ -20,15 +20,21 @@
 #ifndef _UCLIBC_PAGE_H
 #define _UCLIBC_PAGE_H
 
+/*
 #include <linux/config.h>
+*/
 
 /* PAGE_SHIFT determines the page size */
 
+/*
 #ifndef CONFIG_SUN3
+*/
 #define PAGE_SHIFT	(12)
+/*
 #else
 #define PAGE_SHIFT	(13)
 #endif
+*/
 #define PAGE_SIZE	(1UL << PAGE_SHIFT)
 #define PAGE_MASK	(~(PAGE_SIZE-1))
 

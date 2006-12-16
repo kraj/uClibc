@@ -11,7 +11,7 @@ config FORCE_OPTIONS_FOR_ARCH
 	default y
 	select ARCH_LITTLE_ENDIAN
 	select ARCH_HAS_NO_MMU
-	select ARCH_HAS_NO_LDSO
+	select UCLIBC_HAS_LFS
 
 config ARCH_CFLAGS
 	string

@@ -35,7 +35,7 @@
    are occupied by v1-v6, sl, fp, sp, pc, d8-d15, and fpscr.  (Note
    that d8-15 require 17 words, due to the use of fstmx.)  */
 typedef int __jmp_buf[64] __attribute__((aligned (8)));
-#elif defined __MAVERICK__
+#elif defined __MAVERICK__ || defined __IWMMXT__
 typedef int __jmp_buf[34];
 #else
 typedef int __jmp_buf[22];

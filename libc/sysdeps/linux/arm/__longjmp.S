@@ -60,6 +60,16 @@ __longjmp:
 	lfmfd	f4, 4, [ip] !	/* load the floating point regs */
 # endif
 #endif	
+#ifdef __IWMMXT__
+	/* Restore the call-preserved iWMMXt registers.  */
+	/* Following instructions are wldrd wr10, [ip], #8 (etc.)  */
+	ldcl	p1, cr10, [r12], #8
+	ldcl	p1, cr11, [r12], #8
+	ldcl	p1, cr12, [r12], #8
+	ldcl	p1, cr13, [r12], #8
+	ldcl	p1, cr14, [r12], #8
+	ldcl	p1, cr15, [r12], #8
+#endif
 
 #if defined(__USE_BX__)
 	bx	lr

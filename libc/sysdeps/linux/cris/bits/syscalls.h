@@ -5,9 +5,6 @@
 #error "Never use <bits/syscall.h> directly; include <sys/syscall.h> instead."
 #endif
 
-/* Include the __NR_<name> definitions. */
-#include <bits/sysnum.h>
-
 #ifndef __ASSEMBLER__
 
 #include <errno.h>

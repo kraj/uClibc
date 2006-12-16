@@ -10,11 +10,6 @@
 
 #include <features.h>
 
-/* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
- * header files.  It also defines the traditional `SYS_<name>' macros for older
- * programs.  */
-#include <bits/sysnum.h>
-
 /* Include the library _syscallx macros */
 #include <bits/unistd.h>
 

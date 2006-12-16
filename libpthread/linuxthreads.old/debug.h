@@ -29,28 +29,12 @@
 # define DEBUG_PT
 #endif
 
-/* include asserts for now */
-#define DO_ASSERT
-
 /* define the PDEBUG macro here */
 #undef PDEBUG
 #ifdef DEBUG_PT
 #  define PDEBUG(fmt, args...) __pthread_message("%s: " fmt, __FUNCTION__, ## args)
 #else
 #  define PDEBUG(fmt, args...) /* debug switched off */
-#endif
-
-/* nothing; placeholder to disable a PDEBUG message but don't delete it */
-#undef PDEBUGG
-#define PDEBUGG(fmt, args...) 
-
-/* Define ASSERT to stop/warn. Should be void in production code */
-#undef ASSERT
-#ifdef DO_ASSERT
-#  define ASSERT(x) if (!(x)) fprintf(stderr, "pt: assertion failed in %s:%i.\n",\
-                    __FILE__, __LINE__)
-#else
-#  define ASSERT(x)
 #endif
 
 #endif /* _PT_DEBUG_H */
