@@ -7,6 +7,7 @@
 #
 # Binary format
 #
+if !ARCH_USE_MMU
 choice
 	prompt "Target File Format"
 config UCLIBC_FORMAT_ELF
@@ -31,6 +32,10 @@ config UCLIBC_FORMAT_SHARED_FLAT
 	  Pick this one if you are using uClinux and wish to build
 	  uClibc as a flat-format shared library.
 endchoice
+endif
+if ARCH_USE_MMU
+comment "Using ELF file format"
+endif
 
 config UCLIBC_SHARED_FLAT_ID
 	int "Shared library ID"
