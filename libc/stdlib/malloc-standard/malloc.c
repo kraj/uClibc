@@ -349,7 +349,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
     char*           old_end;        /* its end address */
 
     long            size;           /* arg to first MORECORE or mmap call */
-    char*           brk;            /* return value from MORECORE */
+    char*           fst_brk;        /* return value from MORECORE */
 
     long            correction;     /* arg to 2nd MORECORE call */
     char*           snd_brk;        /* 2nd return val */
@@ -453,7 +453,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
     old_size = chunksize(old_top);
     old_end  = (char*)(chunk_at_offset(old_top, old_size));
 
-    brk = snd_brk = (char*)(MORECORE_FAILURE);
+    fst_brk = snd_brk = (char*)(MORECORE_FAILURE);
 
     /* If not the first time through, we require old_size to
      * be at least MINSIZE and to have prev_inuse set.  */
@@ -499,7 +499,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
        */
 
     if (size > 0)
-	brk = (char*)(MORECORE(size));
+	fst_brk = (char*)(MORECORE(size));
 
     /*
        If have mmap, try using it as a backup when MORECORE fails or
@@ -510,7 +510,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
        segregated mmap region.
        */
 
-    if (brk == (char*)(MORECORE_FAILURE)) {
+    if (fst_brk == (char*)(MORECORE_FAILURE)) {
 
 	/* Cannot merge with old top, so add its size back in */
 	if (contiguous(av))
@@ -523,12 +523,12 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	/* Don't try if size wraps around 0 */
 	if ((unsigned long)(size) > (unsigned long)(nb)) {
 
-	    brk = (char*)(MMAP(0, size, PROT_READ|PROT_WRITE));
+	    fst_brk = (char*)(MMAP(0, size, PROT_READ|PROT_WRITE));
 
-	    if (brk != (char*)(MORECORE_FAILURE)) {
+	    if (fst_brk != (char*)(MORECORE_FAILURE)) {
 
 		/* We do not need, and cannot use, another sbrk call to find end */
-		snd_brk = brk + size;
+		snd_brk = fst_brk + size;
 
 		/* Record that we no longer have a contiguous sbrk region.
 		   After the first time mmap is used as backup, we do not
@@ -540,14 +540,14 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	}
     }
 
-    if (brk != (char*)(MORECORE_FAILURE)) {
+    if (fst_brk != (char*)(MORECORE_FAILURE)) {
 	av->sbrked_mem += size;
 
 	/*
 	   If MORECORE extends previous space, we can likewise extend top size.
 	   */
 
-	if (brk == old_end && snd_brk == (char*)(MORECORE_FAILURE)) {
+	if (fst_brk == old_end && snd_brk == (char*)(MORECORE_FAILURE)) {
 	    set_head(old_top, (size + old_size) | PREV_INUSE);
 	}
 
@@ -574,7 +574,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	    front_misalign = 0;
 	    end_misalign = 0;
 	    correction = 0;
-	    aligned_brk = brk;
+	    aligned_brk = fst_brk;
 
 	    /*
 	       If MORECORE returns an address lower than we have seen before,
@@ -584,7 +584,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	       malloc or by other threads.  We cannot guarantee to detect
 	       these in all cases, but cope with the ones we do detect.
 	       */
-	    if (contiguous(av) && old_size != 0 && brk < old_end) {
+	    if (contiguous(av) && old_size != 0 && fst_brk < old_end) {
 		set_noncontiguous(av);
 	    }
 
@@ -595,11 +595,11 @@ static void* __malloc_alloc(size_t nb, mstate av)
 		   to foreign calls) but treat them as part of our space for
 		   stats reporting.  */
 		if (old_size != 0)
-		    av->sbrked_mem += brk - old_end;
+		    av->sbrked_mem += fst_brk - old_end;
 
 		/* Guarantee alignment of first new chunk made from this space */
 
-		front_misalign = (size_t)chunk2mem(brk) & MALLOC_ALIGN_MASK;
+		front_misalign = (size_t)chunk2mem(fst_brk) & MALLOC_ALIGN_MASK;
 		if (front_misalign > 0) {
 
 		    /*
@@ -622,7 +622,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 		correction += old_size;
 
 		/* Extend the end address to hit a page boundary */
-		end_misalign = (size_t)(brk + size + correction);
+		end_misalign = (size_t)(fst_brk + size + correction);
 		correction += ((end_misalign + pagemask) & ~pagemask) - end_misalign;
 
 		assert(correction >= 0);
@@ -636,7 +636,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 		    correction = 0;
 		    snd_brk = (char*)(MORECORE(0));
 		}
-		else if (snd_brk < brk) {
+		else if (snd_brk < fst_brk) {
 		    /*
 		       If the second call gives noncontiguous space even though
 		       it says it won't, the only course of action is to ignore
@@ -649,7 +649,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 		       there is no reliable way to detect a noncontiguity
 		       producing a forward gap for the second call.
 		       */
-		    snd_brk = brk + size;
+		    snd_brk = fst_brk + size;
 		    correction = 0;
 		    set_noncontiguous(av);
 		}
@@ -659,12 +659,12 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	    /* handle non-contiguous cases */
 	    else {
 		/* MORECORE/mmap must correctly align */
-		assert(aligned_OK(chunk2mem(brk)));
+		assert(aligned_OK(chunk2mem(fst_brk)));
 
 		/* Find out current end of memory */
 		if (snd_brk == (char*)(MORECORE_FAILURE)) {
 		    snd_brk = (char*)(MORECORE(0));
-		    av->sbrked_mem += snd_brk - brk - size;
+		    av->sbrked_mem += snd_brk - fst_brk - size;
 		}
 	    }
 
