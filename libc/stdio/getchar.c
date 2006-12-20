@@ -21,6 +21,7 @@ int getchar_unlocked(void)
 
 	return __GETC_UNLOCKED_MACRO(stream);
 }
+libc_hidden_def(getchar_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
 strong_alias(getchar_unlocked,getchar)
