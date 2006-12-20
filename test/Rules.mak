@@ -14,7 +14,13 @@ TESTDIR=$(top_builddir)test/
 
 include $(top_builddir)/Rules.mak
 
-UCLIBC_LDSO ?= $(firstword $(wildcard $(top_builddir)lib/ld*))
+ifdef UCLIBC_LDSO
+ifeq (,$(findstring /,$(UCLIBC_LDSO)))
+UCLIBC_LDSO := $(top_builddir)lib/$(UCLIBC_LDSO)
+endif
+else
+UCLIBC_LDSO := $(firstword $(wildcard $(top_builddir)lib/ld*))
+endif
 
 #--------------------------------------------------------
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
