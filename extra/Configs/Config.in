@@ -945,7 +945,7 @@ config UCLIBC_HAS_STDIO_BUILTIN_BUFFER_8
 endchoice
 
 config UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT
-	bool "Attemt to shutdown stdio subsystem when abort() is called."
+	bool "Attempt to shutdown stdio subsystem when abort() is called."
 	default n
 	help
 	  ANSI/ISO C99 requires abort() to be asyn-signal-safe.  So there was a behavioral
