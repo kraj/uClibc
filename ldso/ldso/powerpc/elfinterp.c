@@ -41,6 +41,12 @@ void _dl_init_got(unsigned long *plt,struct elf_resolve *tpnt)
 	Elf32_Word rel_offset_words;
 	Elf32_Word dlrr = (Elf32_Word) _dl_linux_resolve;
 
+	if (tpnt->dynamic_info[DT_JMPREL] == 0)
+		return;
+	if (tpnt->dynamic_info[DT_PPC_GOT_IDX] != 0) {
+		tpnt->dynamic_info[DT_PPC_GOT_IDX] += tpnt->loadaddr;
+		return;
+	}
 	num_plt_entries = tpnt->dynamic_info[DT_PLTRELSZ] / sizeof(ELF_RELOC);
 	rel_offset_words = PLT_DATA_START_WORDS(num_plt_entries);
 	data_words = (Elf32_Word) (plt + rel_offset_words);
@@ -148,32 +154,35 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	if (_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "%x\n", finaladdr);
 #endif
-	delta = finaladdr - (Elf32_Word)reloc_addr;
-	if (delta<<6>>6 == delta) {
-		*reloc_addr = OPCODE_B(delta);
-	} else if (finaladdr <= 0x01fffffc) {
-		*reloc_addr = OPCODE_BA (finaladdr);
+	if (tpnt->dynamic_info[DT_PPC_GOT_IDX] != 0) {
+		*reloc_addr = finaladdr;
 	} else {
-		/* Warning: we don't handle double-sized PLT entries */
-		Elf32_Word *plt, *data_words, index, offset;
+		delta = finaladdr - (Elf32_Word)reloc_addr;
+		if (delta<<6>>6 == delta) {
+			*reloc_addr = OPCODE_B(delta);
+		} else if (finaladdr <= 0x01fffffc) {
+			*reloc_addr = OPCODE_BA (finaladdr);
+		} else {
+			/* Warning: we don't handle double-sized PLT entries */
+			Elf32_Word *plt, *data_words, index, offset;
 
-		plt = (Elf32_Word *)tpnt->dynamic_info[DT_PLTGOT];
-		offset = reloc_addr - plt;
-		index = (offset - PLT_INITIAL_ENTRY_WORDS)/2;
-		data_words = (Elf32_Word *)tpnt->data_words;
-		reloc_addr += 1;
+			plt = (Elf32_Word *)tpnt->dynamic_info[DT_PLTGOT];
+			offset = reloc_addr - plt;
+			index = (offset - PLT_INITIAL_ENTRY_WORDS)/2;
+			data_words = (Elf32_Word *)tpnt->data_words;
+			reloc_addr += 1;
 
-		data_words[index] = finaladdr;
+			data_words[index] = finaladdr;
+			PPC_SYNC;
+			*reloc_addr =  OPCODE_B ((PLT_LONGBRANCH_ENTRY_WORDS - (offset+1)) * 4);
+		}
+
+		/* instructions were modified */
+		PPC_DCBST(reloc_addr);
 		PPC_SYNC;
-		*reloc_addr =  OPCODE_B ((PLT_LONGBRANCH_ENTRY_WORDS - (offset+1)) * 4);
+		PPC_ICBI(reloc_addr);
+		PPC_ISYNC;
 	}
-
-	/* instructions were modified */
-	PPC_DCBST(reloc_addr);
-	PPC_SYNC;
-	PPC_ICBI(reloc_addr);
-	PPC_ISYNC;
-
 	return finaladdr;
 }
 
@@ -219,28 +228,33 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		goto out_nocode; /* No code code modified */
 	case R_PPC_JMP_SLOT:
 	{
-		Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
-		if (delta<<6>>6 == delta) {
-			*reloc_addr = OPCODE_B(delta);
-		} else if (finaladdr <= 0x01fffffc) {
-			*reloc_addr = OPCODE_BA (finaladdr);
+		if (tpnt->dynamic_info[DT_PPC_GOT_IDX] != 0) {
+			*reloc_addr = finaladdr;
+			goto out_nocode; /* No code code modified */
 		} else {
-			/* Warning: we don't handle double-sized PLT entries */
-			Elf32_Word *plt, *data_words, index, offset;
+			Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
+			if (delta<<6>>6 == delta) {
+				*reloc_addr = OPCODE_B(delta);
+			} else if (finaladdr <= 0x01fffffc) {
+				*reloc_addr = OPCODE_BA (finaladdr);
+			} else {
+				/* Warning: we don't handle double-sized PLT entries */
+				Elf32_Word *plt, *data_words, index, offset;
 
-			plt = (Elf32_Word *)tpnt->dynamic_info[DT_PLTGOT];
-			offset = reloc_addr - plt;
-			index = (offset - PLT_INITIAL_ENTRY_WORDS)/2;
-			data_words = (Elf32_Word *)tpnt->data_words;
+				plt = (Elf32_Word *)tpnt->dynamic_info[DT_PLTGOT];
+				offset = reloc_addr - plt;
+				index = (offset - PLT_INITIAL_ENTRY_WORDS)/2;
+				data_words = (Elf32_Word *)tpnt->data_words;
 
-			data_words[index] = finaladdr;
-			reloc_addr[0] = OPCODE_LI(11,index*4);
-			reloc_addr[1] = OPCODE_B((PLT_LONGBRANCH_ENTRY_WORDS - (offset+1)) * 4);
+				data_words[index] = finaladdr;
+				reloc_addr[0] = OPCODE_LI(11,index*4);
+				reloc_addr[1] = OPCODE_B((PLT_LONGBRANCH_ENTRY_WORDS - (offset+1)) * 4);
 
-			/* instructions were modified */
-			PPC_DCBST(reloc_addr+1);
-			PPC_SYNC;
-			PPC_ICBI(reloc_addr+1);
+				/* instructions were modified */
+				PPC_DCBST(reloc_addr+1);
+				PPC_SYNC;
+				PPC_ICBI(reloc_addr+1);
+			}
 		}
 		break;
 	}
@@ -309,9 +323,22 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	Elf32_Word *plt, offset, i,  num_plt_entries, rel_offset_words;
 
 	num_plt_entries = rel_size / sizeof(ELF_RELOC);
+	plt = (Elf32_Word *)tpnt->dynamic_info[DT_PLTGOT];
+	if (tpnt->dynamic_info[DT_PPC_GOT_IDX] != 0) {
+		/* Secure PLT */
+		Elf32_Addr *got = (Elf32_Addr *)tpnt->dynamic_info[DT_PPC_GOT_IDX];
+		Elf32_Word dlrr = (Elf32_Word) _dl_linux_resolve;
+
+		got[1] = (Elf32_Addr) dlrr;
+		got[2] = (Elf32_Addr) tpnt;
+
+		/* Relocate everything in .plt by the load address offset.  */
+		while (num_plt_entries-- != 0)
+			*plt++ += tpnt->loadaddr;
+		return;
+	}
 
 	rel_offset_words = PLT_DATA_START_WORDS(num_plt_entries);
-	plt = (Elf32_Word *)tpnt->dynamic_info[DT_PLTGOT];
 
 	/* Set up the lazy PLT entries.  */
 	offset = PLT_INITIAL_ENTRY_WORDS;

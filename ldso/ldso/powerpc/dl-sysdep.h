@@ -89,23 +89,38 @@ void _dl_init_got(unsigned long *lpnt,struct elf_resolve *tpnt);
    DT_RELA table.  */
 #define ELF_MACHINE_PLTREL_OVERLAP 1
 
+/* Return the value of the GOT pointer.  */
+static inline Elf32_Addr * __attribute__ ((const))
+ppc_got (void)
+{
+	Elf32_Addr *got;
+#ifdef HAVE_ASM_PPC_REL16
+	asm ("	bcl 20,31,1f\n"
+	     "1:mflr %0\n"
+	     "	addis %0,%0,_GLOBAL_OFFSET_TABLE_-1b@ha\n"
+	     "	addi %0,%0,_GLOBAL_OFFSET_TABLE_-1b@l\n"
+	     : "=b" (got) : : "lr");
+#else
+	asm (" bl _GLOBAL_OFFSET_TABLE_-4@local"
+	     : "=l" (got));
+#endif
+	return got;
+}
+
 /* Return the link-time address of _DYNAMIC, stored as
    the first value in the GOT. */
-static inline Elf32_Addr
+static inline Elf32_Addr __attribute__ ((const))
 elf_machine_dynamic (void)
 {
-  Elf32_Addr *got;
-  asm (" bl _GLOBAL_OFFSET_TABLE_-4@local"
-       : "=l"(got));
-  return *got;
+	return *ppc_got();
 }
 
 /* Return the run-time load address of the shared object.  */
-static inline Elf32_Addr
+static inline Elf32_Addr __attribute__ ((const))
 elf_machine_load_address (void)
 {
-  unsigned int *got;
-  unsigned int *branchaddr;
+  Elf32_Addr *branchaddr;
+  Elf32_Addr runtime_dynamic;
 
   /* This is much harder than you'd expect.  Possibly I'm missing something.
      The 'obvious' way:
@@ -136,19 +151,17 @@ elf_machine_load_address (void)
      the address ourselves. That gives us the following code: */
 
   /* Get address of the 'b _DYNAMIC@local'...  */
-  asm ("bl 0f ;"
+  asm ("bcl 20,31,0f;"
        "b _DYNAMIC@local;"
        "0:"
        : "=l"(branchaddr));
 
-  /* ... and the address of the GOT.  */
-  asm (" bl _GLOBAL_OFFSET_TABLE_-4@local"
-       : "=l"(got));
-
   /* So now work out the difference between where the branch actually points,
      and the offset of that location in memory from the start of the file.  */
-  return ((Elf32_Addr)branchaddr - *got
-	  + ((int)(*branchaddr << 6 & 0xffffff00) >> 6));
+  runtime_dynamic = ((Elf32_Addr) branchaddr
+		     + ((Elf32_Sword) (*branchaddr << 6 & 0xffffff00) >> 6));
+
+  return runtime_dynamic - elf_machine_dynamic ();
 }
 
 static inline void
@@ -163,3 +176,12 @@ elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		*reloc_addr = load_off + rpnt->r_addend;
 	} while (--relative_count);
 }
+
+#define ARCH_NUM 1
+#define DT_PPC_GOT_IDX	(DT_NUM + OS_NUM)
+
+#define ARCH_DYNAMIC_INFO(dpnt,  dynamic, debug_addr) \
+do { \
+if (dpnt->d_tag == DT_PPC_GOT) \
+     dynamic[DT_PPC_GOT_IDX] = dpnt->d_un.d_ptr; \
+} while (0)

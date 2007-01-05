@@ -29,9 +29,7 @@
 
 _setjmp:
 	li r4,0			/* Set second argument to 0.  */
-#ifdef __PIC__
-	b __sigsetjmp@plt
-#else
-	b __sigsetjmp
-#endif
+
+	b __sigsetjmp@local
+
 .size     _setjmp,.-_setjmp

@@ -48,8 +48,15 @@ _start:
 	mr	r9,r1 	/* Save the stack pointer and pass it to __uClibc_main */
 	clrrwi	r1,r1,4	/* Align stack ptr to 16 bytes */
 #ifdef __PIC__
+# ifdef HAVE_ASM_PPC_REL16
+	bcl	20,31,1f
+1:	mflr	r31
+	addis	r31,r31,_GLOBAL_OFFSET_TABLE_-1b@ha
+	addi	r31,r31,_GLOBAL_OFFSET_TABLE_-1b@l
+# else
 	bl	_GLOBAL_OFFSET_TABLE_-4@local
 	mflr	r31
+# endif
 #endif
 	/* Set up an initial stack frame, and clear the LR.  */
 	li	r0,0
