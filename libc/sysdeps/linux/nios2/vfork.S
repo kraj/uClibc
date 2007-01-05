@@ -14,7 +14,7 @@
 
 #define _ERRNO_H
 #include <bits/errno.h>
-#include <sys/syscall.h>
+#include <asm/unistd.h>
 
 #ifndef __NR_vfork
 #define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */

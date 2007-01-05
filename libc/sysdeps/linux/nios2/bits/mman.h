@@ -59,6 +59,15 @@
 # define MAP_NORESERVE	0x4000		/* Don't check for reservations.  */
 #endif
 
+/* Advice to `madvise'.  */
+#ifdef __USE_BSD
+# define MADV_NORMAL	 0	/* No further special treatment.  */
+# define MADV_RANDOM	 1	/* Expect random page references.  */
+# define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
+# define MADV_WILLNEED	 3	/* Will need these pages.  */
+# define MADV_DONTNEED	 4	/* Don't need these pages.  */
+#endif
+
 /* Flags to `msync'.  */
 #define MS_ASYNC	1		/* Sync memory asynchronously.  */
 #define MS_SYNC		4		/* Synchronous memory sync.  */
