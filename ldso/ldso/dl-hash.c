@@ -57,7 +57,7 @@ struct dyn_elf *_dl_handles = NULL;
 /* This is the hash function that is used by the ELF linker to generate the
  * hash table that each executable and library is required to have.  We need
  * it to decode the hash table.  */
-static inline Elf_Symndx _dl_elf_hash(const char *name)
+static inline Elf_Symndx _dl_elf_hash(const unsigned char *name)
 {
 	unsigned long hash=0;
 	unsigned long tmp;
@@ -138,7 +138,7 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 	const ElfW(Sym) *sym;
 	char *weak_result = NULL;
 
-	elf_hash_number = _dl_elf_hash(name);
+	elf_hash_number = _dl_elf_hash((const unsigned char *)name);
 
 	for (; rpnt; rpnt = rpnt->next) {
 		tpnt = rpnt->dyn;
