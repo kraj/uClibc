@@ -399,3 +399,29 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
      */
     exit(main(argc, argv, __environ));
 }
+
+#ifdef __UCLIBC_HAS_THREADS__
+/* Weaks for internal library use only.
+ *
+ * We need to define weaks here to cover all the pthread functions that
+ * libc itself will use so that we aren't forced to link libc against
+ * libpthread.  This file is only used in libc.a and since we have
+ * weaks here, they will be automatically overridden by libpthread.a
+ * if it gets linked in.
+ */
+
+static int __pthread_return_0 (void) { return 0; }
+static void __pthread_return_void (void) { return; }
+
+weak_alias (__pthread_return_0, __pthread_mutex_init)
+weak_alias (__pthread_return_0, __pthread_mutex_lock)
+weak_alias (__pthread_return_0, __pthread_mutex_trylock)
+weak_alias (__pthread_return_0, __pthread_mutex_unlock)
+weak_alias (__pthread_return_void, _pthread_cleanup_push_defer)
+weak_alias (__pthread_return_void, _pthread_cleanup_pop_restore)
+# ifdef __UCLIBC_HAS_THREADS_NATIVE__
+weak_alias (__pthread_return_0, __pthread_mutexattr_init)
+weak_alias (__pthread_return_0, __pthread_mutexattr_destroy)
+weak_alias (__pthread_return_0, __pthread_mutexattr_settype)
+# endif
+#endif
