@@ -83,6 +83,7 @@ __start:
 	L3 = 0;
 
 #ifdef __ID_SHARED_LIB__
+	/* We know we have a local copy, so we can avoid the GOT.  */
 	CALL ___shared_flat_add_library;
 #endif
 /*	Load register R1 (argc) from the stack to its final resting place */
@@ -92,24 +93,15 @@ __start:
 /*	Copy argv pointer into R2 -- which its final resting place */
 	R2 = P0;
 
-/*	Skip to the end of argv and put a pointer to the environment in
-	[SP + 12] */
-	R3 = R1;
-	R3 <<= 2;
-	R3 += 4;
-	R3 = R2 + R3;
-
-	P2 = SP;
-	SP += -32;
-	[SP + 12] = R3;
+	SP += -28;
 
 #ifndef __BFIN_FDPIC__
 	R7 = 0;
 #endif
 	/* Pass highest stack pointer to the app.  */
-	[SP + 28] = P2;
+	[SP + 24] = P2;
 	/* Store the pointer to ld.so's fini that we got in P1.  */
-	[SP + 24] = R7;
+	[SP + 20] = R7;
 
 /*	Ok, now run uClibc's main() -- shouldn't return */
 #if defined L_crt1 && defined __UCLIBC_CTOR_DTOR__
@@ -123,7 +115,8 @@ __start:
 	R3.H = __init;
 	R3.L = __init;
 #endif
-	[SP+16] = R3;
+	[SP+12] = R3;
+
 
 #ifdef __BFIN_FDPIC__
 	R3 = [P3 + __fini@FUNCDESC_GOT17M4];
@@ -133,11 +126,11 @@ __start:
 	R3.H = __fini;
 	R3.L = __fini;
 #endif
-	[SP+20] = R3;
+	[SP+16] = R3;
 #else /* no ctor/dtor handling */
 	R3 = 0;
+	[SP + 12] = R3;
 	[SP + 16] = R3;
-	[SP + 20] = R3;
 #endif
 
 #ifdef __BFIN_FDPIC__
@@ -162,8 +155,8 @@ __start:
 	.type lib_main,@function
 lib_main:
 	RETS = [SP++];
-	P0 = [P5 + ___shared_flat_add_library@GOT];
-	JUMP (P0);
+	/* We know we have a local copy, so we can avoid the GOT.  */
+	JUMP.L ___shared_flat_add_library;
 
 	.hidden _current_shared_library_p5_offset_
 #endif
