@@ -36,100 +36,100 @@ typedef greg_t gregset_t[NGREG];
 /* Number of each register is the `gregset_t' array.  */
 enum
 {
-  R0 = 0,
-#define R0	R0
-  R1 = 1,
-#define R1	R1
-  R2 = 2,
-#define R2	R2
-  R3 = 3,
-#define R3	R3
-  R4 = 4,
-#define R4	R4
-  R5 = 5,
-#define R5	R5
-  R6 = 6,
-#define R6	R6
-  R7 = 7,
-#define R7	R7
-  P0 = 8,
-#define P0	P0
-  P1 = 9,
-#define P1	P1
-  P2 = 10,
-#define P2	P2
-  P3 = 11,
-#define P3	P3
-  P4 = 12,
-#define P4	P4
-  P5 = 13,
-#define P5	P5
-  USP = 14,
-#define USP	USP
-  A0W = 15,
-#define A0W	A0W
-  A1W = 16,
-#define A1W	A1W
-  A0X = 17,
-#define A0X	A0X
-  A1X = 18,
-#define A1X	A1X
-  ASTAT = 19,
-#define ASTAT	ASTAT
-  RETS = 20,
-#define RETS	RETS
-  PC= 21,
-#define PC	PC
-  RETX = 22,
-#define RETX	RETX
-  FP = 23,
-#define FP	FP
-  I0 = 24,
-#define I0	I0
-  I1 = 25,
-#define I1	I1
-  I2 = 26,
-#define I2	I2
-  I3 = 27,
-#define I3	I3
-  M0 = 28,
-#define M0	M0
-  M1 = 29,
-#define M1	M1
-  M2 = 30,
-#define M2	M2
-  M3 = 31,
-#define M3	M3
-  L0 = 32,
-#define L0	L0
-  L1 = 33,
-#define L1	L1
-  L2 = 34,
-#define L2	L2
-  L3 = 35,
-#define L3	L3
-  B_0 = 36,
-#define B_0	B_0
-  B1 = 37,
-#define B1	B1
-  B2 = 38,
-#define B2	B2
-  B3 = 39,
-#define B3	B3
-  LC0 = 40,
-#define LC0	LC0
-  LC1 = 41,
-#define LC1	LC1
-  LT0 = 42,
-#define LT0	LT0
-  LT1 = 43,
-#define LT1	LT1
-  LB0 = 44,
-#define LB0	LB0
-  LB1 = 45,
-#define LB1	LB1
-  SEQSTAT = 46
-#define	SEQSTAT	SEQSTAT
+  REG_R0 = 0,
+#define REG_R0	REG_R0
+  REG_R1 = 1,
+#define REG_R1	REG_R1
+  REG_R2 = 2,
+#define REG_R2	REG_R2
+  REG_R3 = 3,
+#define REG_R3	REG_R3
+  REG_R4 = 4,
+#define REG_R4	REG_R4
+  REG_R5 = 5,
+#define REG_R5	REG_R5
+  REG_R6 = 6,
+#define REG_R6	REG_R6
+  REG_R7 = 7,
+#define REG_R7	REG_R7
+  REG_P0 = 8,
+#define REG_P0	REG_P0
+  REG_P1 = 9,
+#define REG_P1	REG_P1
+  REG_P2 = 10,
+#define REG_P2	REG_P2
+  REG_P3 = 11,
+#define REG_P3	REG_P3
+  REG_P4 = 12,
+#define REG_P4	REG_P4
+  REG_P5 = 13,
+#define REG_P5	REG_P5
+  REG_USP = 14,
+#define REG_USP	REG_USP
+  REG_A0W = 15,
+#define REG_A0W	REG_A0W
+  REG_A1W = 16,
+#define REG_A1W	REG_A1W
+  REG_A0X = 17,
+#define REG_A0X	REG_A0X
+  REG_A1X = 18,
+#define REG_A1X	REG_A1X
+  REG_ASTAT = 19,
+#define REG_ASTAT	REG_ASTAT
+  REG_RETS = 20,
+#define REG_RETS	REG_RETS
+  REG_PC= 21,
+#define REG_PC	REG_PC
+  REG_RETX = 22,
+#define REG_RETX	REG_RETX
+  REG_FP = 23,
+#define REG_FP	REG_FP
+  REG_I0 = 24,
+#define REG_I0	REG_I0
+  REG_I1 = 25,
+#define REG_I1	REG_I1
+  REG_I2 = 26,
+#define REG_I2	REG_I2
+  REG_I3 = 27,
+#define REG_I3	REG_I3
+  REG_M0 = 28,
+#define REG_M0	REG_M0
+  REG_M1 = 29,
+#define REG_M1	REG_M1
+  REG_M2 = 30,
+#define REG_M2	REG_M2
+  REG_M3 = 31,
+#define REG_M3	REG_M3
+  REG_L0 = 32,
+#define REG_L0	REG_L0
+  REG_L1 = 33,
+#define REG_L1	REG_L1
+  REG_L2 = 34,
+#define REG_L2	REG_L2
+  REG_L3 = 35,
+#define REG_L3	REG_L3
+  REG_B_0 = 36,
+#define REG_B_0	REG_B_0
+  REG_B1 = 37,
+#define REG_B1	REG_B1
+  REG_B2 = 38,
+#define REG_B2	REG_B2
+  REG_B3 = 39,
+#define REG_B3	REG_B3
+  REG_LC0 = 40,
+#define REG_LC0	REG_LC0
+  REG_LC1 = 41,
+#define REG_LC1	REG_LC1
+  REG_LT0 = 42,
+#define REG_LT0	REG_LT0
+  REG_LT1 = 43,
+#define REG_LT1	REG_LT1
+  REG_LB0 = 44,
+#define REG_LB0	REG_LB0
+  REG_LB1 = 45,
+#define REG_LB1	REG_LB1
+  REG_SEQSTAT = 46
+#define	REG_SEQSTAT	REG_SEQSTAT
 };
 
 /* Context to describe whole processor state.  */
