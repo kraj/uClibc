@@ -400,7 +400,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
     exit(main(argc, argv, __environ));
 }
 
-#ifdef __UCLIBC_HAS_THREADS__
+#if defined(__UCLIBC_HAS_THREADS__) && !defined(SHARED)
 /* Weaks for internal library use only.
  *
  * We need to define weaks here to cover all the pthread functions that

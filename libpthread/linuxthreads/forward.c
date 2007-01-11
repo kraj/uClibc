@@ -17,11 +17,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <dlfcn.h>
+#include <features.h>
 #include <stdlib.h>
+#include <dlfcn.h>
 
 /* psm: keep this before internals.h */
 libc_hidden_proto(exit)
+
 #include "internals.h"
 
 /* Pointers to the libc functions.  */
@@ -129,7 +131,6 @@ strong_alias(pthread_mutex_trylock, __pthread_mutex_trylock)
 FORWARD (pthread_mutex_unlock, (pthread_mutex_t *mutex), (mutex), 0)
 strong_alias(pthread_mutex_unlock, __pthread_mutex_unlock)
 
-
 FORWARD2 (pthread_self, pthread_t, (void), (), return 0)
 
 
@@ -139,5 +140,7 @@ FORWARD (pthread_setcancelstate, (int state, int *oldstate), (state, oldstate),
 FORWARD (pthread_setcanceltype, (int type, int *oldtype), (type, oldtype), 0)
 
 FORWARD2 (_pthread_cleanup_push, void, (struct _pthread_cleanup_buffer * buffer, void (*routine)(void *), void * arg), (buffer, routine, arg), return)
+FORWARD2 (_pthread_cleanup_push_defer, void, (struct _pthread_cleanup_buffer * buffer, void (*routine)(void *), void * arg), (buffer, routine, arg), return)
 
 FORWARD2 (_pthread_cleanup_pop, void, (struct _pthread_cleanup_buffer * buffer, int execute), (buffer, execute), return)
+FORWARD2 (_pthread_cleanup_pop_restore, void, (struct _pthread_cleanup_buffer * buffer, int execute), (buffer, execute), return)
