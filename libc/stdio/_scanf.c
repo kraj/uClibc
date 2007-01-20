@@ -271,7 +271,7 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 
 	/* Set these last since __bufgetc initialization depends on
 	 * __user_locking and only gets set if user locking is on. */
-	f.__bufstart = 
+	f.__bufstart =
 	f.__bufpos = (unsigned char *) ((void *) sp);
 	f.__bufread =
 	f.__bufend = f.__bufstart + strlen(sp);
@@ -506,7 +506,7 @@ enum {
 	FLAG_THOUSANDS	=	0x20,
 	FLAG_I18N		=	0x40,	/* only works for d, i, u */
 	FLAG_MALLOC     =   0x80,	/* only works for s, S, and [ (and l[)*/
-};	  
+};
 
 
 #define SPEC_RANGES		{ CONV_n, CONV_p, CONV_i, CONV_A, \
@@ -1024,7 +1024,7 @@ static int scan_getwc(register struct scan_cookie *sc)
 		__set_errno(EILSEQ);		/* In case of incomplete conversion. */
 		sc->mb_fail = 1;
 	}
-	
+
  SUCCESS:
 	sc->width = width;			/* Restore width. */
 
@@ -1366,7 +1366,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 			if (psfs.conv_num == CONV_percent) {
 				goto MATCH_CHAR;
- 			}
+			}
 
 			if (psfs.conv_num == CONV_n) {
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -1410,7 +1410,6 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 			{
 				b = (psfs.store ? ((unsigned char *) psfs.cur_ptr) : buf);
 				fail = 1;
-			
 
 				if (psfs.conv_num == CONV_c) {
 					if (sc.width == INT_MAX) {
@@ -1451,7 +1450,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 					if (*++fmt == '^') {
 						++fmt;
 						invert = 1;
- 					}
+					}
 					memset(scanset, invert, sizeof(scanset));
 					invert = 1-invert;
 
@@ -1519,7 +1518,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 				wb = (psfs.store ? ((wchar_t *) psfs.cur_ptr) : wbuf);
 				fail = 1;
-			
+
 				if (psfs.conv_num == CONV_C) {
 					if (sc.width == INT_MAX) {
 						sc.width = 1;
@@ -1796,7 +1795,6 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 	unsigned char usflag, base;
 	unsigned char nonzero = 0;
 	unsigned char seendigit = 0;
-	
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning CONSIDER: What should be returned for an invalid conversion specifier?
@@ -2210,7 +2208,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 		assert(seendigit);
 		seendigit = 0;
 		nonzero = 0;
-		
+
 		if (sc->cc == '0') {
 			seendigit = 1;
 			*b++ = '0';
@@ -2226,7 +2224,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 			}
 			__scan_getc(sc);
 		}
-			
+
 		if (!seendigit) {		/* No digits.  Unrecoverable. */
 			goto DONE_DO_UNGET;
 		}
