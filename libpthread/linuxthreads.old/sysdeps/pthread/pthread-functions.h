@@ -84,9 +84,12 @@ struct pthread_functions
 				       const struct timespec *);
   void (*ptr__pthread_cleanup_push) (struct _pthread_cleanup_buffer * buffer,
 				     void (*routine)(void *), void * arg);
-
+  void (*ptr__pthread_cleanup_push_defer) (struct _pthread_cleanup_buffer * buffer,
+					   void (*routine)(void *), void * arg);
   void (*ptr__pthread_cleanup_pop) (struct _pthread_cleanup_buffer * buffer,
 				    int execute);
+  void (*ptr__pthread_cleanup_pop_restore) (struct _pthread_cleanup_buffer * buffer,
+					    int execute);
 };
 
 /* Variable in libc.so.  */
