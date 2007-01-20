@@ -16,29 +16,31 @@ int got_abort;
 
 void aborthandler(int junk)
 {
-	got_abort=1;
+	got_abort = 1;
 }
 
-int main( int argc, char **argv)
+int main(int argc, char *argv[])
 {
 	signal(SIGABRT, aborthandler);
 
 	init_testsuite("Testing functions defined in assert.h:\n\t");
 
 	got_abort=0;
-	assert(0==0);
+	assert(0 == 0);
 	TEST_NUMERIC(got_abort, 0);
 
-#define  NDEBUG
-	got_abort=0;
+#ifndef NDEBUG
+# define NDEBUG
+#endif
+	got_abort = 0;
 	printf("Don't worry -- This next test is supposed to print an assert message:\n");
 	fprintf(stderr, "\t");
-	assert(0==1);
+	assert(0 == 1);
 	TEST_NUMERIC(got_abort, 0);
 
-#undef  NDEBUG
-	got_abort=0;
-	assert(0==1);
+#undef NDEBUG
+	got_abort = 0;
+	assert(0 == 1);
 	TEST_NUMERIC(got_abort, 1);
 
 	exit(0);

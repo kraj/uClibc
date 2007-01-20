@@ -18,6 +18,7 @@ ifneq ($(filter-out test,$(TESTS)),$(TESTS))
 $(error Sanity check: cannot have a test named "test.c")
 endif
 
+top_builddir = ../../
 include ../Rules.mak
 
 U_TARGETS := $(TESTS)
