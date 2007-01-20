@@ -37,12 +37,14 @@ extern int weak_function __pthread_mutex_lock (pthread_mutex_t *__mutex);
 extern int weak_function __pthread_mutex_unlock (pthread_mutex_t *__mutex);
 extern void __uclibc_mutex_unlock (void *) attribute_hidden;
 extern int weak_function __pthread_mutex_trylock (pthread_mutex_t *__mutex);
+# ifndef __UCLIBC_HAS_THREADS_NATIVE__
 extern void weak_function _pthread_cleanup_push_defer (
 		struct _pthread_cleanup_buffer *__buffer,
 		void (*__routine) (void *), void *__arg);
 extern void weak_function _pthread_cleanup_pop_restore (
 		struct _pthread_cleanup_buffer *__buffer,
 		int __execute);
+# endif
 #endif
 
 #endif
