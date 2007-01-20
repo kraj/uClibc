@@ -50,8 +50,15 @@ brk:
 	lwz     r6,8(r1)
 #ifdef __PIC__
 	mflr    r4
+# ifdef HAVE_ASM_PPC_REL16
+	bcl	20,31,1f
+1:	mflr	r5
+	addis	r5,r5,_GLOBAL_OFFSET_TABLE_-1b@ha
+	addi	r5,r5,_GLOBAL_OFFSET_TABLE_-1b@l
+# else	
 	bl      _GLOBAL_OFFSET_TABLE_@local-4
 	mflr    r5
+# endif
 	lwz     r5,__curbrk@got(r5)
 	mtlr    r4
 	stw     r3,0(r5)

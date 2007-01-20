@@ -16,9 +16,13 @@
 #include <asm/unistd.h>
 
     .global _start
-    .type   __start,@function
+    .type   _start,@function
+    .type	_init,%function
+    .type	_fini,%function
+#ifndef __UCLIBC_CTOR_DTOR__
     .weak   _init
     .weak   _fini
+#endif
     .type   main,@function
     .type   __uClibc_main,@function
     .type   __h_errno_location, @function
