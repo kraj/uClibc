@@ -884,6 +884,7 @@ long int sysconf(int name)
       RETURN_NEG_1;
 #endif
 
+#ifdef __NR_clock_getres
     case _SC_MONOTONIC_CLOCK:
       /* Check using the clock_getres system call.  */
       if (clock_getres(CLOCK_MONOTONIC, NULL) >= 0)
@@ -891,5 +892,6 @@ long int sysconf(int name)
 
       RETURN_NEG_1;
     }
+#endif
 }
 libc_hidden_def(sysconf)
