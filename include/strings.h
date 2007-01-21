@@ -53,8 +53,9 @@ extern char *index (__const char *__s, int __c)
 extern char *rindex (__const char *__s, int __c)
      __THROW __attribute_pure__ __nonnull ((1));
 # else
+#  ifdef __UCLIBC_SUSV3_LEGACY_MACROS__
 /* bcopy/bzero/bcmp/index/rindex are marked LEGACY in SuSv3.
- * They are replaced as proposed by SuSv3. Don't sync this part 
+ * They are replaced as proposed by SuSv3. Don't sync this part
  * with glibc and keep it in sync with string.h.  */
 
 #  define bcopy(src,dest,n) (memmove((dest), (src), (n)), (void) 0)
@@ -62,6 +63,7 @@ extern char *rindex (__const char *__s, int __c)
 #  define bcmp(s1,s2,n) memcmp((s1), (s2), (size_t)(n))
 #  define index(s,c) strchr((s), (c))
 #  define rindex(s,c) strrchr((s), (c))
+#  endif
 # endif
 
 /* Return the position of the first bit set in I, or 0 if none are set.

@@ -5,6 +5,11 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+# check for proper make version
+ifneq ($(findstring 3.7,$(MAKE_VERSION)),)
+$(error Your make is too old $(MAKE_VERSION). Go get at least 3.80)
+endif
+
 #-----------------------------------------------------------
 # This file contains rules which are shared between multiple
 # Makefiles.  All normal configuration options live in the
@@ -59,8 +64,8 @@ TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/
 TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
-KERNEL_SOURCE:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_SOURCE))))))
-export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_SOURCE
+KERNEL_HEADERS:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_HEADERS))))))
+export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS
 
 
 # Now config hard core
@@ -138,7 +143,11 @@ OPTIMIZATION+=$(call check_gcc,-fno-tree-dominator-opts,)
 OPTIMIZATION+=$(call check_gcc,-fno-strength-reduce,)
 endif
 
-PICFLAG:=-fPIC
+ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
+	PICFLAG:=-mfdpic
+else
+	PICFLAG:=-fPIC
+endif
 PIEFLAG_NAME:=-fPIE
 
 # Some nice CPU specific optimizations
@@ -179,16 +188,18 @@ ifeq ($(TARGET_ARCH),arm)
 	CPU_CFLAGS-$(CONFIG_GENERIC_ARM)+=
 	CPU_CFLAGS-$(CONFIG_ARM610)+=-mtune=arm610 -march=armv3
 	CPU_CFLAGS-$(CONFIG_ARM710)+=-mtune=arm710 -march=armv3
-	CPU_CFLAGS-$(CONFIG_ARM7TDMI)+=-mtune=arm7tdmi -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM720T)+=-mtune=arm7tdmi -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM920T)+=-mtune=arm9tdmi -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM922T)+=-mtune=arm9tdmi -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM926T)+=-mtune=arm9tdmi -march=armv5
+	CPU_CFLAGS-$(CONFIG_ARM7TDMI)+=-mtune=arm7tdmi -march=armv4t
+	CPU_CFLAGS-$(CONFIG_ARM720T)+=-mtune=arm7tdmi -march=armv4t
+	CPU_CFLAGS-$(CONFIG_ARM920T)+=-mtune=arm9tdmi -march=armv4t
+	CPU_CFLAGS-$(CONFIG_ARM922T)+=-mtune=arm9tdmi -march=armv4t
+	CPU_CFLAGS-$(CONFIG_ARM926T)+=-mtune=arm9tdmi -march=armv5t
+	CPU_CFLAGS-$(CONFIG_ARM10T)+=-mtune=arm10tdmi -march=armv5t
 	CPU_CFLAGS-$(CONFIG_ARM1136JF_S)+=-mtune=arm1136jf-s -march=armv6
 	CPU_CFLAGS-$(CONFIG_ARM_SA110)+=-mtune=strongarm110 -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM_SA1100)+=-mtune=strongarm1100 -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=$(call check_gcc,-mtune=xscale,-mtune=strongarm110)
-	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=-march=armv4 -Wa,-mcpu=xscale
+	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=-march=armv5te -Wa,-mcpu=xscale
+ 	CPU_CFLAGS-$(CONFIG_ARM_IWMMXT)+=-march=iwmmxt -Wa,-mcpu=iwmmxt -mabi=iwmmxt
 endif
 
 ifeq ($(TARGET_ARCH),mips)
@@ -200,6 +211,17 @@ ifeq ($(TARGET_ARCH),mips)
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_4)+=-mips4 -mtune=mips4
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS32)+=-mips32 -mtune=mips32
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS64)+=-mips64 -mtune=mips32
+	ifeq ($(strip $(ARCH_BIG_ENDIAN)),y)
+		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-melf64btsmip
+		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-melf32btsmip
+	endif
+	ifeq ($(strip $(ARCH_LITTLE_ENDIAN)),y)
+		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-melf64ltsmip
+		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-melf32ltsmip
+	endif
+	CPU_CFLAGS-$(CONFIG_MIPS_N64_ABI)+=-mabi=64
+	CPU_CFLAGS-$(CONFIG_MIPS_O32_ABI)+=-mabi=32
+	CPU_CFLAGS-$(CONFIG_MIPS_N32_ABI)+=-mabi=n32
 endif
 
 ifeq ($(TARGET_ARCH),nios)
@@ -262,15 +284,12 @@ ifeq ($(TARGET_ARCH),powerpc)
 # faster code.
 	PICFLAG:=-fpic
 	PIEFLAG_NAME:=-fpie
-endif
-
-ifeq ($(TARGET_ARCH),bfin)
-	PICFLAG:=-mfdpic
+	PPC_HAS_REL16:=$(shell echo -e "\t.text\n\taddis 11,30,_GLOBAL_OFFSET_TABLE_-.@ha" | $(CC) -c -x assembler -o /dev/null -  2> /dev/null && echo -n y || echo -n n)
+	CPU_CFLAGS-$(PPC_HAS_REL16)+= -DHAVE_ASM_PPC_REL16
 endif
 
 ifeq ($(TARGET_ARCH),frv)
 	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
-	CPU_CFLAGS-$(CONFIG_FRV)+=-mfdpic
 	# Using -pie causes the program to have an interpreter, which is
 	# forbidden, so we must make do with -shared.  Unfortunately,
 	# -shared by itself would get us global function descriptors
@@ -454,6 +473,7 @@ else
 	PTNAME :=
 	PTINC  :=
 endif
+CFLAGS += -I$(KERNEL_HEADERS)
 
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
 #CFLAGS+=-iwithprefix include
@@ -461,12 +481,6 @@ CFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
-endif
-
-# moved from ldso/{ldso,libdl}
-# BEWARE!!! At least mips* will die if -O0 is used!!!
-ifeq ($(TARGET_ARCH),mips)
-CFLAGS:=$(CFLAGS:-O0=-O1)
 endif
 
 # Keep the check_as from being needlessly executed
@@ -487,17 +501,4 @@ LIBGCC_DIR:=$(dir $(LIBGCC))
 ifeq ($(UCLIBC_CTOR_DTOR),y)
 SHARED_START_FILES:=$(top_builddir)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
 SHARED_END_FILES:=$(LIBGCC_DIR)crtendS.o $(top_builddir)lib/crtn.o
-endif
-
-########################################
-#
-# uClinux shared lib support
-#
-
-ifeq ($(CONFIG_BINFMT_SHARED_FLAT),y)
-  # For the shared version of this, we specify no stack and its library ID
-  FLTFLAGS += -s 0
-  LIBID=1
-  export LIBID FLTFLAGS
-  SHARED_TARGET = lib/libc
 endif

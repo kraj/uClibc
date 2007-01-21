@@ -31,7 +31,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <paths.h>
-#ifdef __HAS_SHADOW__
+#ifdef __UCLIBC_HAS_SHADOW__
 #include <shadow.h>
 #endif
 #ifdef __UCLIBC_HAS_THREADS__

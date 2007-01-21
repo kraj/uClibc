@@ -217,7 +217,6 @@ config HAVE_SHARED
 config FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "Only load shared libraries which can share their text segment"
 	depends on HAVE_SHARED
-	select DOPIC
 	default n
 	help
 	  If you answer Y here, the uClibc native shared library loader will
@@ -484,7 +483,15 @@ config UCLIBC_SUSV3_LEGACY
 	  Currently applies to bcopy/bzero/bcmp/index/rindex.
 	  WARNING! ABI incompatibility.
 
-config HAS_SHADOW
+config UCLIBC_SUSV3_LEGACY_MACROS
+	bool "Enable SuSv3 LEGACY macros"
+	default n
+	help
+	  Enable this option if you want to have SuSv3 LEGACY macros.
+	  Currently applies to bcopy/bzero/bcmp/index/rindex et al.
+	  WARNING! ABI incompatibility.
+
+config UCLIBC_HAS_SHADOW
 	bool "Shadow Password Support"
 	default y
 	help
@@ -689,7 +696,7 @@ config UCLIBC_HAS_CTYPE_TABLES
 	help
 	  Answer Y to use table versions of the 'ctype.h' functions.
 	  While the non-table versions are often smaller when building
-	  staticly linked apps, they work only in stub locale mode.
+	  statically linked apps, they work only in stub locale mode.
 
 	  Most people will answer Y.
 
@@ -959,7 +966,7 @@ config UCLIBC_HAS_STDIO_BUILTIN_BUFFER_8
 endchoice
 
 config UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT
-	bool "Attemt to shutdown stdio subsystem when abort() is called."
+	bool "Attempt to shutdown stdio subsystem when abort() is called."
 	default n
 	help
 	  ANSI/ISO C99 requires abort() to be asyn-signal-safe.  So there was a behavioral
@@ -1152,7 +1159,7 @@ config UCLIBC_HAS_REGEX
 	help
 	  POSIX regular expression code is really big -- 53k all by itself.
 	  If you don't use regular expressions, turn this off and save space.
-	  Of course, if you only staticly link, leave this on, since it will
+	  Of course, if you only statically link, leave this on, since it will
 	  only be included in your apps if you use regular expressions.
 
 config UCLIBC_HAS_REGEX_OLD
@@ -1448,7 +1455,7 @@ config DODEBUG
 
 config DODEBUG_PT
 	bool "Build pthread with debugging output"
-	depends on UCLIBC_HAS_THREADS
+	depends on UCLIBC_HAS_THREADS && LINUXTHREADS_OLD
 	default n
 	help
 	  Enable debug output in libpthread.  This is only useful when doing 
@@ -1525,7 +1532,7 @@ config SUPPORT_LD_DEBUG_EARLY
 
 config UCLIBC_MALLOC_DEBUGGING
 	bool "Build malloc with debugging support"
-	depends MALLOC
+	depends MALLOC || MALLOC_STANDARD
 	default n
 	help
 	  Answer Y here to compile extra debugging support code into malloc.

@@ -86,14 +86,6 @@ TODO list for the uClibc 1.0.0 release:
     *) Cleanup/scrub all the Makefile copyright junk
     *) Fix dlopen, for both static and dynamic cases, and make it
 	fully comply with SuSv3
-    *) From the the ELF spec "...All shared object initializations happen
-	before the executable file gains control.  ...  Before the initialization
-	code for any object A is called, the initialization code for any other
-	objects that object A depends on are called.  For these purposes, an object
-	A depends on another object B, if B appears in Ads list of needed objects
-	(recorded in the DT_NEEDED entries of the dynamic structure). The order of
-	initialization for circular dependencies is undefined."  uClibc's shared
-	lib loader should be fixed to run ctors in the specified order.
 
 
 TODO list for AFTER the uClibc 1.0.0 release:

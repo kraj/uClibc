@@ -56,10 +56,6 @@ HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_ARCH),$(HEADERS_BITS_COMMON))
 headers: include/bits/uClibc_config.h
 	$(Q)$(MAKE) headers-y
 	$(Q)\
-	$(SHELL) $(top_srcdir)extra/scripts/fix_includes.sh \
-		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
-		$(header_extra_args)
-	$(Q)\
 	set -e; \
 	if [ -f libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h ] ; then \
 		$(LN) -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h include/ ; \
@@ -94,7 +90,7 @@ headers: include/bits/uClibc_config.h
 	cd $(top_builddir); \
 	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null`; \
 	[ -z "$$tmp" ] && tmp='include/bits/sysnum.h.new'; \
-	top_builddir=. CC="$(CC)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
+	KERNEL_HEADERS="${KERNEL_HEADERS}" top_builddir=. CC="$(CC) $(CPU_CFLAGS)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
 	if cmp include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
 		$(RM) $$tmp; \
 	else \
@@ -122,9 +118,6 @@ RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/rela
 install_headers:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	printf ".svn\n.cvsignore\nCVS\n" > tar_exclude ; \
-	if [ "$(KERNEL_SOURCE)" = "$(PREFIX)$(DEVEL_PREFIX)" ] ; then \
-		ls -1d include/linux include/asm* >> tar_exclude ; \
-	fi ; \
 	$(TAR) -chf - -X tar_exclude include \
 		| $(TAR) -xf - -C $(PREFIX)$(DEVEL_PREFIX)
 	rm -f tar_exclude
@@ -188,7 +181,7 @@ ifneq ($(UCLIBC_HAS_GETOPT_LONG),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/getopt.h
 endif
 endif
-ifneq ($(HAS_SHADOW),y)
+ifneq ($(UCLIBC_HAS_SHADOW),y)
 	# Remove shadow header since shadow password support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/shadow.h
 endif
@@ -252,6 +245,15 @@ ifeq ($(DOPIC),y)
 		done ; \
 	fi
 endif
+endif
+ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
+	for file in lib/lib*.gdb; do \
+		if test -f $$file; then \
+			$(INSTALL) -m 755 $$file $(PREFIX)$(DEVEL_PREFIX)lib; \
+			$(INSTALL) -m 755 `echo $$file | sed 's/\.gdb$$//'` \
+			  $(PREFIX)$(DEVEL_PREFIX)lib; \
+		fi; \
+	done
 endif
 
 # Installs run-time libraries

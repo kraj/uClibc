@@ -14,17 +14,18 @@
 #
 # Warning!!! This does _no_ error checking!!!
 
-UNISTD_H_PATH=$top_builddir/include/asm/unistd.h
-INCLUDE_OPTS="-I$top_builddir/include"
+INCLUDE_OPTS="-nostdinc -I${KERNEL_HEADERS}"
 
 case $CC in
 *icc*) CC_SYSNUM_ARGS="-dM" ;;
 *)     CC_SYSNUM_ARGS="-dN" ;;
 esac
 
-( echo "#include \"$UNISTD_H_PATH\"" ;
-  $CC -E $CC_SYSNUM_ARGS $INCLUDE_OPTS $UNISTD_H_PATH | # needed to strip out any kernel-internal defines
-  sed -ne 's/^[ ]*#define[ ]*__NR_\([A-Za-z0-9_]*\).*/UCLIBC_\1 __NR_\1/gp'
+( echo "#include <asm/unistd.h>";
+  echo "#include <asm/unistd.h>" |
+  $CC -E $CC_SYSNUM_ARGS $INCLUDE_OPTS - |
+  sed -ne 's/^[ ]*#define[ ]*__NR_\([A-Za-z0-9_]*\).*/UCLIBC_\1 __NR_\1/gp' \
+      -e 's/^[ ]*#undef[ ]*__NR_\([A-Za-z0-9_]*\).*/UNDEFUCLIBC_\1 __NR_\1/gp' # needed to strip out any kernel-internal defines
 ) |
 $CC -E $INCLUDE_OPTS - |
 ( echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" ; echo ;
@@ -36,7 +37,8 @@ $CC -E $INCLUDE_OPTS - |
   echo "#endif" ; echo ;
   sed -ne 's/^UCLIBC_\([A-Za-z0-9_]*\) *\(.*\)/#undef __NR_\1\
 #define __NR_\1 \2\
-#define SYS_\1 __NR_\1/gp'
+#define SYS_\1 __NR_\1/gp' \
+     -e 's/^UNDEFUCLIBC_\([A-Za-z0-9_]*\).*/#undef __NR_\1/gp'
   echo ;
   echo "#endif" ;
 )

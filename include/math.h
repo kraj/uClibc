@@ -1,5 +1,6 @@
 /* Declarations for math functions.
-   Copyright (C) 1991,92,93,95,96,97,98,99,2001 Free Software Foundation, Inc.
+   Copyright (C) 1991-1993, 1995-1999, 2001, 2002, 2004, 2006
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -31,14 +32,19 @@ __BEGIN_DECLS
 /* Get machine-dependent HUGE_VAL value (returned on overflow).
    On all IEEE754 machines, this is +Infinity.  */
 #include <bits/huge_val.h>
+#ifdef __USE_ISOC99
+# include <bits/huge_valf.h>
+# include <bits/huge_vall.h>
 
-#ifdef	 __USE_ISOC99
+/* Get machine-dependent INFINITY value.  */
+# include <bits/inf.h>
+
 /* Get machine-dependent NAN value (returned for some domain errors).  */
 # include <bits/nan.h>
-#endif
+#endif /* __USE_ISOC99 */
+
 /* Get general and ISO C99 specific information.  */
 #include <bits/mathdef.h>
-
 
 /* The file <bits/mathcalls.h> contains the prototypes for all the
    actual math functions.  These macros are used for those prototypes,
@@ -60,8 +66,12 @@ __BEGIN_DECLS
 
 #define _Mdouble_ 		double
 #define __MATH_PRECNAME(name,r)	__CONCAT(name,r)
+# define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_STD
+# define _Mdouble_END_NAMESPACE   __END_NAMESPACE_STD
 #include <bits/mathcalls.h>
 #undef	_Mdouble_
+#undef _Mdouble_BEGIN_NAMESPACE
+#undef _Mdouble_END_NAMESPACE
 #undef	__MATH_PRECNAME
 
 #if defined __USE_MISC || defined __USE_ISOC99
@@ -79,13 +89,43 @@ __BEGIN_DECLS
 # else
 #  define __MATH_PRECNAME(name,r) name/**/f/**/r
 # endif
+# define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_C99
+# define _Mdouble_END_NAMESPACE   __END_NAMESPACE_C99
 # include <bits/mathcalls.h>
 # undef	_Mdouble_
+# undef _Mdouble_BEGIN_NAMESPACE
+# undef _Mdouble_END_NAMESPACE
 # undef	__MATH_PRECNAME
 
-# if (__STDC__ - 0 || __GNUC__ - 0) && !defined __NO_LONG_DOUBLE_MATH
+# if (__STDC__ - 0 || __GNUC__ - 0) \
+     && (!defined __NO_LONG_DOUBLE_MATH || defined __LDBL_COMPAT)
+#  ifdef __LDBL_COMPAT
+
+#   ifdef __USE_ISOC99 
+extern float __nldbl_nexttowardf (float __x, long double __y)
+				  __THROW __attribute__ ((__const__));
+#    ifdef __REDIRECT_NTH
+extern float __REDIRECT_NTH (nexttowardf, (float __x, long double __y),
+			     __nldbl_nexttowardf)
+     __attribute__ ((__const__));
+extern double __REDIRECT_NTH (nexttoward, (double __x, long double __y),
+			      nextafter) __attribute__ ((__const__));
+extern long double __REDIRECT_NTH (nexttowardl,
+				   (long double __x, long double __y),
+				   nextafter) __attribute__ ((__const__));
+#    endif
+#   endif
+
 /* Include the file of declarations again, this time using `long double'
    instead of `double' and appending l to each function name.  */
+
+#   undef __MATHDECL_1
+#   define __MATHDECL_2(type, function,suffix, args, alias) \
+  extern type __REDIRECT_NTH(__MATH_PRECNAME(function,suffix), \
+			     args, alias)
+#   define __MATHDECL_1(type, function,suffix, args) \
+  __MATHDECL_2(type, function,suffix, args, __CONCAT(function,suffix))
+#  endif
 
 #  ifndef _Mlong_double_
 #   define _Mlong_double_	long double
@@ -96,8 +136,12 @@ __BEGIN_DECLS
 #  else
 #   define __MATH_PRECNAME(name,r) name/**/l/**/r
 #  endif
+#  define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_C99
+#  define _Mdouble_END_NAMESPACE   __END_NAMESPACE_C99
 #  include <bits/mathcalls.h>
 #  undef _Mdouble_
+# undef _Mdouble_BEGIN_NAMESPACE
+# undef _Mdouble_END_NAMESPACE
 #  undef __MATH_PRECNAME
 
 # endif /* __STDC__ || __GNUC__ */
@@ -345,18 +389,28 @@ extern int matherr (struct exception *__exc);
 # define __NO_MATH_INLINES	1
 #endif
 
+#if defined __USE_ISOC99 && __GNUC_PREREQ(2,97)
+/* ISO C99 defines some macros to compare number while taking care for
+   unordered numbers.  Many FPUs provide special instructions to support
+   these operations.  Generic support in GCC for these as builtins went
+   in before 3.0.0, but not all cpus added their patterns.  We define
+   versions that use the builtins here, and <bits/mathinline.h> will
+   undef/redefine as appropriate for the specific GCC version in use.  */
+# define isgreater(x, y)	__builtin_isgreater(x, y)
+# define isgreaterequal(x, y)	__builtin_isgreaterequal(x, y)
+# define isless(x, y)		__builtin_isless(x, y)
+# define islessequal(x, y)	__builtin_islessequal(x, y)
+# define islessgreater(x, y)	__builtin_islessgreater(x, y)
+# define isunordered(u, v)	__builtin_isunordered(u, v)
+#endif
+
 /* Get machine-dependent inline versions (if there are any).  */
 #ifdef __USE_EXTERN_INLINES
 # include <bits/mathinline.h>
 #endif
 
-
 #ifdef __USE_ISOC99
-/* ISO C99 defines some macros to compare number while taking care for
-   unordered numbers.  Many FPUs provide special instructions to support
-   these operations and these tests are defined in <bits/mathinline.h>,
-   we define the generic macros at this late point and only if they are
-   not defined yet.  */
+/* If we've still got undefined comparison macros, provide defaults.  */
 
 /* Return nonzero value if X is greater than Y.  */
 # ifndef isgreater

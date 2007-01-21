@@ -693,9 +693,11 @@ __END_NAMESPACE_C99
 #endif
 
 
-#if defined __USE_SVID || defined __USE_XOPEN_EXTENDED
+#if defined __USE_SVID || defined __USE_XOPEN_EXTENDED || defined __USE_BSD
 /* Convert floating point numbers to strings.  The returned values are
    valid only until another call to the same function.  */
+
+# ifdef __UCLIBC_SUSV3_LEGACY__
 
 #if 0
 /* Convert VALUE to a string with NDIGIT digits and return a pointer to
@@ -716,7 +718,7 @@ extern char *fcvt (double __value, int __ndigit, int *__restrict __decpt,
    be written to BUF.  */
 extern char *gcvt (double __value, int __ndigit, char *__buf)
      __THROW __nonnull ((3)) __wur;
-
+# endif /* __UCLIBC_SUSV3_LEGACY__ */
 
 # if 0 /*def __USE_MISC*/
 /* Long double versions of above functions.  */

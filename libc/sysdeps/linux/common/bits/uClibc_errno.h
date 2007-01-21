@@ -31,10 +31,12 @@ extern int *__errno_location (void) __THROW __attribute__ ((__const__))
 	attribute_hidden
 # endif
 ;
-#include <tls.h>
-#if USE___THREAD
+# if defined __UCLIBC_HAS_THREADS__
+#  include <tls.h>
+#  if USE___THREAD
 libc_hidden_proto(__errno_location)
-#endif
+#  endif
+# endif
 
 /* We now need a declaration of the `errno' variable.  */
 # ifndef __UCLIBC_HAS_THREADS__

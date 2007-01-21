@@ -7,7 +7,7 @@
 
 CFLAGS-__uClibc_main.c := $(SSP_DISABLE_FLAGS)
 
-CSRC := tempname.c __errno_location.c __h_errno_location.c
+CSRC := tempname.c errno.c __errno_location.c __h_errno_location.c
 
 MISC_INTERNALS_DIR := $(top_srcdir)libc/misc/internals
 MISC_INTERNALS_OUT := $(top_builddir)libc/misc/internals
@@ -16,14 +16,14 @@ MISC_INTERNALS_SRC := $(patsubst %.c,$(MISC_INTERNALS_DIR)/%.c,$(CSRC))
 MISC_INTERNALS_OBJ := $(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_INTERNALS_OBJ)
-libc-shared-y += $(MISC_INTERNALS_OUT)/__uClibc_main.oS	\
-		 $(MISC_INTERNALS_OUT)/errno.oS
-libc-static-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o	\
-		 $(MISC_INTERNALS_OUT)/errno.o
-libc-nomulti-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o	\
-		  $(MISC_INTERNALS_OUT)/errno.o
+libc-shared-y += $(MISC_INTERNALS_OUT)/__uClibc_main.oS
+libc-static-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o
 libc-so-y += $(MISC_INTERNALS_OUT)/__uClibc_main.oS \
 	     $(MISC_INTERNALS_OUT)/errno.oS $(MISC_INTERNALS_OBJ:.o=.oS)
+libc-static-$(UCLIBC_FORMAT_SHARED_FLAT) += \
+  $(MISC_INTERNALS_OUT)/shared_flat_initfini.o \
+  $(MISC_INTERNALS_OUT)/shared_flat_add_library.o
+libc-nomulti-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o
 
 objclean-y += misc_internals_objclean
 

@@ -11,7 +11,7 @@ PWDGRP_OUT := $(top_builddir)libc/pwd_grp
 CSRC := $(notdir $(wildcard $(PWDGRP_DIR)/*.c))
 CSRC := $(filter-out pwd_grp.c pwd_grp_internal.c,$(CSRC))
 
-ifneq ($(HAS_SHADOW),y)
+ifneq ($(UCLIBC_HAS_SHADOW),y)
 SHADOW_CSRC := \
 	fgetspent_r.c fgetspent.c getspent_r.c getspent.c \
 	getspnam_r.c getspnam.c lckpwdf.c putspent.c \
