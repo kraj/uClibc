@@ -891,7 +891,7 @@ long int sysconf(int name)
         return _POSIX_VERSION;
 
       RETURN_NEG_1;
-    }
 #endif
+    }
 }
 libc_hidden_def(sysconf)
