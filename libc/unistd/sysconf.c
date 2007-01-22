@@ -884,14 +884,14 @@ long int sysconf(int name)
       RETURN_NEG_1;
 #endif
 
-#ifdef __NR_clock_getres
     case _SC_MONOTONIC_CLOCK:
+#ifdef __NR_clock_getres
       /* Check using the clock_getres system call.  */
       if (clock_getres(CLOCK_MONOTONIC, NULL) >= 0)
         return _POSIX_VERSION;
+#endif
 
       RETURN_NEG_1;
-#endif
     }
 }
 libc_hidden_def(sysconf)
