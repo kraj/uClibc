@@ -128,10 +128,6 @@ typedef __u_quad_t __ino64_t;
 /* Type of file sizes and offsets.  */
 typedef __loff_t __off64_t;
 
-/* Used in XTI.  */
-typedef long int __t_scalar_t;
-typedef unsigned long int __t_uscalar_t;
-
 /* Duplicates info from stdint.h but this is used in unistd.h.  */
 typedef int __intptr_t;
 
