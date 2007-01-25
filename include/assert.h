@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,1992,1994-1999,2000,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1991,1992,1994-2001,2003,2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -20,42 +20,53 @@
  *	ISO C99 Standard: 7.2 Diagnostics	<assert.h>
  */
 
-#ifndef	__ASSERT_H
-#define	__ASSERT_H
+#ifdef	_ASSERT_H
+
+# undef	_ASSERT_H
+# undef	assert
+# undef __ASSERT_VOID_CAST
+
+#endif /* assert.h	*/
+
+#define	_ASSERT_H	1
 #include <features.h>
 
-/* If NDEBUG is defined, do nothing.
+#if defined __cplusplus && __GNUC_PREREQ (2,95)
+# define __ASSERT_VOID_CAST static_cast<void>
+#else
+# define __ASSERT_VOID_CAST (void)
+#endif
+
+/* void assert (int expression);
+
+   If NDEBUG is defined, do nothing.
    If not, and EXPRESSION is zero, print an error message and abort.  */
 
 #ifdef	NDEBUG
 
-#define	assert(expr)		((void) 0)
+# define assert(expr)		(__ASSERT_VOID_CAST (0))
 
 #else /* Not NDEBUG.  */
 
 __BEGIN_DECLS
+
+/* This prints an "Assertion failed" message and aborts.  */
 extern void __assert __P((const char *, const char *, int, const char *));
+
 __END_DECLS
 
-#define	assert(expr)							      \
-  ((void) ((expr) ||							      \
-	   (__assert (__STRING(expr),				      \
-			   __FILE__, __LINE__, __ASSERT_FUNCTION), 0)))
-
+# define assert(expr) \
+  (__ASSERT_VOID_CAST ((expr) ? 0 :					      \
+		       (__assert (__STRING(expr), __FILE__, __LINE__,    \
+				       __ASSERT_FUNCTION), 0)))
   
 /* Version 2.4 and later of GCC define a magical variable `__PRETTY_FUNCTION__'
    which contains the name of the function currently being defined.
-#  define __ASSERT_FUNCTION	__PRETTY_FUNCTION__
    This is broken in G++ before version 2.6.
    C9x has a similar variable called __func__, but prefer the GCC one since
    it demangles C++ function names.  */
-# ifdef __GNUC__
-#  if __GNUC__ > 2 || (__GNUC__ == 2 \
-		       && __GNUC_MINOR__ >= (defined __cplusplus ? 6 : 4))
+# if defined __cplusplus ? __GNUC_PREREQ (2, 6) : __GNUC_PREREQ (2, 4)
 #   define __ASSERT_FUNCTION	__PRETTY_FUNCTION__
-#  else
-#   define __ASSERT_FUNCTION	((__const char *) 0)
-#  endif
 # else
 #  if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
 #   define __ASSERT_FUNCTION	__func__
@@ -64,7 +75,4 @@ __END_DECLS
 #  endif
 # endif
 
-
 #endif /* NDEBUG.  */
-
-#endif /* __ASSERT_H */
