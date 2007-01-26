@@ -2204,6 +2204,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	struct in6_addr	*in6;
 	struct in6_addr	**addr_list6;
 #endif /* __UCLIBC_HAS_IPV6__ */
+	char **alias;
 	unsigned char *packet;
 	struct resolv_answer a;
 	int i;
@@ -2264,6 +2265,12 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	buf+=sizeof(*addr_list)*2;
 	buflen-=sizeof(*addr_list)*2;
 
+	if (buflen < sizeof(char *)*(ALIAS_DIM))
+		return ERANGE;
+	alias=(char **)buf;
+	buf+=sizeof(*alias)*(ALIAS_DIM);
+	buflen-=sizeof(*alias)*(ALIAS_DIM);
+
 #ifdef __UCLIBC_HAS_IPV6__
 	if (plen < sizeof(*in6))
 		return ERANGE;
@@ -2312,6 +2319,9 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 
 	addr_list[1] = 0;
 
+	alias[0] = buf;
+	alias[1] = 0;
+
 	for (;;) {
 
 	BIGLOCK;
@@ -2358,6 +2368,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
     		}
 
 			result_buf->h_addr_list = (char **) addr_list;
+			result_buf->h_aliases = alias;
 			break;
 		} else {
 			free(packet);

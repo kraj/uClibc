@@ -1,5 +1,5 @@
-/* brk system call for Linux/MIPS.
-   Copyright (C) 2000, 2005, 2006 Free Software Foundation, Inc.
+/* Provide kernel hint to read ahead.
+   Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,33 +18,35 @@
    02111-1307 USA.  */
 
 #include <errno.h>
-#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
 #include <sys/syscall.h>
+#include <bits/wordsize.h>
 
-void *__curbrk = 0;
+#ifdef __NR_readahead
 
-int brk (void *addr)
+# define __NR___readahead __NR_readahead
+
+# if __WORDSIZE == 64
+
+static inline _syscall3(ssize_t, __readahead, int, fd,
+	off_t, offset, size_t, count);
+
+ssize_t readahead(int fd, off_t offset, size_t count)
 {
-  void *newbrk;
-
-  {
-    register long int res __asm__ ("$2");
-
-    asm ("move\t$4,%2\n\t"
-	 "li\t%0,%1\n\t"
-	 "syscall"		/* Perform the system call.  */
-	 : "=r" (res)
-	 : "I" (__NR_brk), "r" (addr)
-	 : "$4", "$7", __SYSCALL_CLOBBERS);
-    newbrk = (void *) res;
-  }
-  __curbrk = newbrk;
-
-  if (newbrk < addr)
-    {
-      __set_errno (ENOMEM);
-      return -1;
-    }
-
-  return 0;
+	return __readahead(fd, offset, count);
 }
+
+# else
+
+static inline _syscall4(ssize_t, __readahead, int, fd,
+	off_t, high_offset, off_t, low_offset, size_t, count);
+
+ssize_t readahead(int fd, off64_t offset, size_t count)
+{
+	return __readahead(fd, (off_t) (offset >> 32), (off_t) (offset & 0xffffffff), count);
+}
+
+# endif
+
+#endif

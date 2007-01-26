@@ -19,9 +19,11 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
+CFLAGS+=$(SSP_ALL_CFLAGS) -B../lib
+# This isnt the correct variable, but hijacking it for now is fine by me as it works
+LDPIEFLAG+=../lib/$(UCLIBC_LDSO)
 
-TARGETS = ldd ldconfig readelf
+TARGETS = ldd ldconfig
 
 ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 TARGET_ICONV = iconv

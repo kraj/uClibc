@@ -48,8 +48,15 @@ _start:
 	mr	r9,r1 	/* Save the stack pointer and pass it to __uClibc_main */
 	clrrwi	r1,r1,4	/* Align stack ptr to 16 bytes */
 #ifdef __PIC__
+# ifdef HAVE_ASM_PPC_REL16
+	bcl	20,31,1f
+1:	mflr	r31
+	addis	r31,r31,_GLOBAL_OFFSET_TABLE_-1b@ha
+	addi	r31,r31,_GLOBAL_OFFSET_TABLE_-1b@l
+# else
 	bl	_GLOBAL_OFFSET_TABLE_-4@local
 	mflr	r31
+# endif
 #endif
 	/* Set up an initial stack frame, and clear the LR.  */
 	li	r0,0
@@ -60,7 +67,8 @@ _start:
 	lwz	r4,0(r9)
 	/* find argv one word offset from the stack pointer */
 	addi	r5,r9,4
-	mr	r8,r7 /* Pass _dl_fini from ldso or NULL if statically linked */
+	mr	r8,r3 /* Pass _dl_fini from ldso or NULL if statically linked
+			Note:	 using r3 instead of r7, since linux 2.6 clobbers r7 */
 	/* Ok, now run uClibc's main() -- shouldn't return */
 #ifdef __PIC__
 	lwz	r6,_init@got(r31)

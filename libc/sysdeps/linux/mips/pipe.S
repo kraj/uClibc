@@ -10,15 +10,28 @@
         .globl  pipe
         .ent    pipe, 0
 pipe:
+        .frame  sp, 24, sp
+#ifdef __PIC__
+        .set    noreorder
+        .cpload $25
+        .set    reorder
         addiu   sp,sp,-24
+        .cprestore     16
+#else
+        addiu   sp,sp,-24
+#endif
         sw      a0,16(sp)
         li      v0,__NR_pipe
         syscall
         beqz    a3, 1f
-        la      t3, errno
-        sw      v0, (t3)
-        li      v0, -1
-        b       2f
+        addiu   sp,sp,24
+        move    a0,v0
+#ifdef __PIC__
+        la      t9, __syscall_error
+        jr      t9
+#else
+        j       __syscall_error
+#endif
 1:
         lw      a0, 16(sp)
         sw      v0, 0(a0)

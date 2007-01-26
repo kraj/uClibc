@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
+#include <sys/param.h>
 #include <sys/syscall.h>
 
 #ifdef __NR_getcwd
@@ -164,7 +165,7 @@ char *getcwd(char *buf, int size)
 	    __set_errno(EINVAL);
 	    return NULL;
 	}
-	alloc_size = PATH_MAX;
+	alloc_size = MAX (PATH_MAX, getpagesize ());
     }
     path=buf;
     if (buf == NULL) {
