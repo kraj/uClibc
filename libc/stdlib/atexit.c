@@ -40,17 +40,9 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include <bits/uClibc_mutex.h>
 
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-extern pthread_mutex_t mylock;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK
-# define UNLOCK
-#endif
-
+__UCLIBC_MUTEX_EXTERN(__atexit_lock);
 
 typedef void (*aefuncp) (void);         /* atexit function pointer */
 typedef void (*oefuncp) (int, void *);  /* on_exit function pointer */
@@ -90,8 +82,9 @@ extern struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT];
 int atexit(aefuncp func)
 {
     struct exit_function *efp;
+    int rv = -1;
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(__atexit_lock);
     if (func) {
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
 	/* If we are out of function table slots, make some more */
@@ -99,18 +92,16 @@ int atexit(aefuncp func)
 	    efp=realloc(__exit_function_table, 
 					(__exit_slots+20)*sizeof(struct exit_function));
 	    if (efp==NULL) {
-		UNLOCK;
 		__set_errno(ENOMEM);
-		return -1;
+		goto DONE;
 	    }
 		__exit_function_table = efp;
 	    __exit_slots+=20;
 	}
 #else
 	if (__exit_count >= __UCLIBC_MAX_ATEXIT) {
-	    UNLOCK;
 	    __set_errno(ENOMEM);
-	    return -1;
+	    goto DONE;
 	}
 #endif
 	__exit_cleanup = __exit_handler; /* enable cleanup */
@@ -118,8 +109,12 @@ int atexit(aefuncp func)
 	efp->type = ef_atexit;
 	efp->funcs.atexit = func;
     }
-    UNLOCK;
-    return 0;
+
+    rv = 0;
+
+ DONE:
+    __UCLIBC_MUTEX_UNLOCK(__atexit_lock);
+    return rv;
 }
 #endif
 
@@ -133,8 +128,9 @@ int atexit(aefuncp func)
 int on_exit(oefuncp func, void *arg)
 {
     struct exit_function *efp;
+    int rv = -1;
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(__atexit_lock);
     if (func) {
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
 	/* If we are out of function table slots, make some more */
@@ -142,18 +138,16 @@ int on_exit(oefuncp func, void *arg)
 	    efp=realloc(__exit_function_table, 
 					(__exit_slots+20)*sizeof(struct exit_function));
 	    if (efp==NULL) {
-		UNLOCK;
 		__set_errno(ENOMEM);
-		return -1;
+		goto DONE;
 	    }
 		__exit_function_table=efp;
 	    __exit_slots+=20;
 	}
 #else
 	if (__exit_count >= __UCLIBC_MAX_ATEXIT) {
-	    UNLOCK;
 	    __set_errno(ENOMEM);
-	    return -1;
+	    goto DONE;
 	}
 #endif
 
@@ -163,8 +157,12 @@ int on_exit(oefuncp func, void *arg)
 	efp->funcs.on_exit.func = func;
 	efp->funcs.on_exit.arg = arg;
     }
-    UNLOCK;
-    return 0;
+
+    rv = 0;
+
+ DONE:
+    __UCLIBC_MUTEX_UNLOCK(__atexit_lock);
+    return rv;
 }
 #endif
 
@@ -214,9 +212,8 @@ void __exit_handler(int status)
 #ifdef L_exit
 extern void weak_function _stdio_term(void);
 void (*__exit_cleanup) (int) = 0;
-#ifdef __UCLIBC_HAS_THREADS__
-pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#endif
+
+__UCLIBC_MUTEX_INIT(__atexit_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 #ifdef __UCLIBC_CTOR_DTOR__
 extern void (*__app_fini)(void);
@@ -234,11 +231,11 @@ extern void (*__dl_fini)(void);
 void exit(int rv)
 {
 	/* Perform exit-specific cleanup (atexit and on_exit) */
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(__atexit_lock);
 	if (__exit_cleanup) {
 		__exit_cleanup(rv);
 	}
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(__atexit_lock);
 
 #ifdef __UCLIBC_CTOR_DTOR__
 	if (__app_fini != NULL)

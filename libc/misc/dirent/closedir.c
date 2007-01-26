@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include "dirstream.h"
 
-
 int closedir(DIR * dir)
 {
 	int fd;
@@ -19,14 +18,10 @@ int closedir(DIR * dir)
 		__set_errno(EBADF);
 		return -1;
 	}
-#ifdef __UCLIBC_HAS_THREADS__
-	__pthread_mutex_lock(&(dir->dd_lock));
-#endif
+	__UCLIBC_MUTEX_LOCK(dir->dd_lock);
 	fd = dir->dd_fd;
 	dir->dd_fd = -1;
-#ifdef __UCLIBC_HAS_THREADS__
-	__pthread_mutex_unlock(&(dir->dd_lock));
-#endif
+	__UCLIBC_MUTEX_UNLOCK(dir->dd_lock);
 	free(dir->dd_buf);
 	free(dir);
 	return close(fd);

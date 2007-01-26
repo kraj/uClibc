@@ -80,17 +80,9 @@
 #include <ctype.h>
 #include <signal.h>
 
+#include <bits/uClibc_mutex.h>
 
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK
-# define UNLOCK
-#endif
-
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 static int	LogFile = -1;		/* fd for log */
 static int	connected;		/* have done connect */
@@ -110,26 +102,26 @@ int setlogmask(int pmask);
 static void 
 closelog_intern(int to_default)
 {
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	if (LogFile != -1) {
 	    (void) close(LogFile);
 	}
 	LogFile = -1;
 	connected = 0;
 	if (to_default)
-	{
-		LogStat = 0;
-		LogTag = "syslog";
-		LogFacility = LOG_USER;
-		LogMask = 0xff;
-	}
-	UNLOCK;
+		{
+			LogStat = 0;
+			LogTag = "syslog";
+			LogFacility = LOG_USER;
+			LogMask = 0xff;
+		}
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 static void
 sigpipe_handler (int sig)
 {
-  closelog_intern (0);
+	closelog_intern (0);
 }
 
 /*
@@ -165,7 +157,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 
 	saved_errno = errno;
 
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 
 	/* See if we should just throw out this message. */
 	if (!(LogMask & LOG_MASK(LOG_PRI(pri))) || (pri &~ (LOG_PRIMASK|LOG_FACMASK)))
@@ -208,7 +200,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	if (p >= end || p < head_end) {	/* Returned -1 in case of error... */
 		static const char truncate_msg[12] = "[truncated] ";
 		memmove(head_end + sizeof(truncate_msg), head_end,
-			end - head_end - sizeof(truncate_msg));
+				end - head_end - sizeof(truncate_msg));
 		memcpy(head_end, truncate_msg, sizeof(truncate_msg));
 		if (p < head_end) {
 			while (p < end && *p) {
@@ -261,11 +253,11 @@ vsyslog( int pri, const char *fmt, va_list ap )
 		(void)close(fd);
 	}
 
-getout:
-	UNLOCK;
+ getout:
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 	if (sigpipe == 0)
 		sigaction (SIGPIPE, &oldaction,
-			(struct sigaction *) NULL);
+				   (struct sigaction *) NULL);
 }
 
 /*
@@ -276,48 +268,48 @@ openlog( const char *ident, int logstat, int logfac )
 {
     int logType = SOCK_DGRAM;
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
 
     if (ident != NULL)
-	LogTag = ident;
+		LogTag = ident;
     LogStat = logstat;
     if (logfac != 0 && (logfac &~ LOG_FACMASK) == 0)
-	LogFacility = logfac;
+		LogFacility = logfac;
     if (LogFile == -1) {
-	SyslogAddr.sa_family = AF_UNIX;
-	(void)strncpy(SyslogAddr.sa_data, _PATH_LOG,
-		      sizeof(SyslogAddr.sa_data));
-retry:
-	if (LogStat & LOG_NDELAY) {
-	    if ((LogFile = socket(AF_UNIX, logType, 0)) == -1){
-		UNLOCK;
-		return;
-	    }
-	    /*			fcntl(LogFile, F_SETFD, 1); */
-	}
+		SyslogAddr.sa_family = AF_UNIX;
+		(void)strncpy(SyslogAddr.sa_data, _PATH_LOG,
+					  sizeof(SyslogAddr.sa_data));
+	retry:
+		if (LogStat & LOG_NDELAY) {
+			if ((LogFile = socket(AF_UNIX, logType, 0)) == -1){
+				goto DONE;
+			}
+			/*			fcntl(LogFile, F_SETFD, 1); */
+		}
     }
 
     if (LogFile != -1 && !connected) {
-	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) - 
-		    sizeof(SyslogAddr.sa_data) + strlen(SyslogAddr.sa_data)) != -1)
-	{
-	    connected = 1;
-	} else if (logType == SOCK_DGRAM) {
-	    logType = SOCK_STREAM;
-	    if (LogFile != -1) {
-		close(LogFile);
-		LogFile = -1;
-	    }
-	    goto retry;
-	} else {
-	    if (LogFile != -1) {
-		close(LogFile);
-		LogFile = -1;
-	    }
-	}
+		if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) - 
+					sizeof(SyslogAddr.sa_data) + strlen(SyslogAddr.sa_data)) != -1)
+			{
+				connected = 1;
+			} else if (logType == SOCK_DGRAM) {
+				logType = SOCK_STREAM;
+				if (LogFile != -1) {
+					close(LogFile);
+					LogFile = -1;
+				}
+				goto retry;
+			} else {
+				if (LogFile != -1) {
+					close(LogFile);
+					LogFile = -1;
+				}
+			}
     }
 
-    UNLOCK;
+ DONE:
+    __UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 /*
@@ -335,10 +327,10 @@ int setlogmask(int pmask)
     int omask;
 
     omask = LogMask;
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     if (pmask != 0)
-	LogMask = pmask;
-    UNLOCK;
+		LogMask = pmask;
+    __UCLIBC_MUTEX_UNLOCK(mylock);
     return (omask);
 }
 

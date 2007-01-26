@@ -47,7 +47,7 @@ size_t __stdio_WRITE(register FILE *stream,
 			return bufsize;
 		}
 		stodo = (todo <= SSIZE_MAX) ? todo : SSIZE_MAX;
-		if ((rv = __WRITE(stream, buf, stodo)) >= 0) {
+		if ((rv = __WRITE(stream, (char *) buf, stodo)) >= 0) {
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Make custom stream write return check optional.
 #endif

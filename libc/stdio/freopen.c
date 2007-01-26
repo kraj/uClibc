@@ -42,6 +42,8 @@ FILE *freopen(const char * __restrict filename, const char * __restrict mode,
 
 	__STDIO_STREAM_VALIDATE(stream);
 
+	__STDIO_OPENLIST_INC_USE;	/* Do not remove the file from the list. */
+
 	/* First, flush and close, but don't deallocate, the stream. */
 	/* This also removes the stream for the open file list. */
 	dynmode = (stream->__modeflags & (__FLAG_FREEBUF|__FLAG_FREEFILE));
@@ -57,8 +59,15 @@ FILE *freopen(const char * __restrict filename, const char * __restrict mode,
 
 	fp = _stdio_fopen(((intptr_t) filename), mode, stream, FILEDES_ARG);
 
+#warning if fp is NULL, then we do not free file (but beware stdin,stdout,stderr)
+	if (fp) {
+		__STDIO_OPENLIST_DEC_DEL_CNT;
+	}
+
 	/* Reset the allocation flags. */
 	stream->__modeflags |= dynmode;
+
+	__STDIO_OPENLIST_DEC_USE;
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 

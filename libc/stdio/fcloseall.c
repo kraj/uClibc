@@ -19,14 +19,34 @@ int fcloseall (void)
 #ifdef __STDIO_HAS_OPENLIST
 
 	int retval = 0;
+	FILE *f;
 
-	__STDIO_THREADLOCK_OPENLIST;
-	while (_stdio_openlist) {
-		if (fclose(_stdio_openlist)) {
+#warning remove dead code
+/* 	__STDIO_THREADLOCK_OPENLIST; */
+/* 	while (_stdio_openlist) { */
+/* 		if (fclose(_stdio_openlist)) { */
+/* 			retval = EOF; */
+/* 		} */
+/* 	} */
+/* 	__STDIO_THREADUNLOCK_OPENLIST; */
+
+	__STDIO_OPENLIST_INC_USE;
+
+#warning should probably have a get_head() operation
+	__STDIO_THREADLOCK_OPENLIST_ADD;
+	f = _stdio_openlist;
+	__STDIO_THREADUNLOCK_OPENLIST_ADD;
+
+	while (f) {
+#warning should probably have a get_next() operation
+		FILE *n = f->__nextopen;
+		if (fclose(f)) {
 			retval = EOF;
 		}
+		f = n;
 	}
-	__STDIO_THREADUNLOCK_OPENLIST;
+
+	__STDIO_OPENLIST_DEC_USE;
 
 	return retval;
 

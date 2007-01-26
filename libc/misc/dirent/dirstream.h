@@ -26,9 +26,8 @@ Cambridge, MA 02139, USA.  */
 
 #include <features.h>
 #include <sys/types.h>
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-#endif
+
+#include <bits/uClibc_mutex.h>
 
 /* For now, syscall readdir () only supports one entry at a time. It
  * will be changed in the future.
@@ -63,11 +62,7 @@ struct __dirstream {
   size_t dd_max;
  
   /* lock */
-#ifdef __UCLIBC_HAS_THREADS__
-  pthread_mutex_t dd_lock;
-#else
-  void *dd_lock;
-#endif
+  __UCLIBC_MUTEX(dd_lock);
 };				/* stream data from opendir() */
 
 

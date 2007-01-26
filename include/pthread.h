@@ -644,7 +644,8 @@ extern void _pthread_cleanup_pop (struct _pthread_cleanup_buffer *__buffer,
 /* Install a cleanup handler as pthread_cleanup_push does, but also
    saves the current cancellation type and set it to deferred cancellation.  */
 
-#ifdef __USE_GNU
+/* #ifdef __USE_GNU */
+#if defined(__USE_GNU) || defined(_LIBC)
 # define pthread_cleanup_push_defer_np(routine,arg) \
   { struct _pthread_cleanup_buffer _buffer;				      \
     _pthread_cleanup_push_defer (&_buffer, (routine), (arg));

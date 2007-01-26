@@ -35,9 +35,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-#endif
 
 static char zapchar;
 static FILE *tf;
@@ -50,8 +47,8 @@ struct ttyent * getttynam(const char *tty)
 
     setttyent();
     while ((t = getttyent()))
-	if (!strcmp(tty, t->ty_name))
-	    break;
+		if (!strcmp(tty, t->ty_name))
+			break;
     endttyent();
     return (t);
 }
@@ -67,27 +64,27 @@ static char * skip(register char *p)
     register int c, q;
 
     for (q = 0, t = p; (c = *p) != '\0'; p++) {
-	if (c == '"') {
-	    q ^= QUOTED;	/* obscure, but nice */
-	    continue;
-	}
-	if (q == QUOTED && *p == '\\' && *(p+1) == '"')
-	    p++;
-	*t++ = *p;
-	if (q == QUOTED)
-	    continue;
-	if (c == '#') {
-	    zapchar = c;
-	    *p = 0;
-	    break;
-	}
-	if (c == '\t' || c == ' ' || c == '\n') {
-	    zapchar = c;
-	    *p++ = 0;
-	    while ((c = *p) == '\t' || c == ' ' || c == '\n')
-		p++;
-	    break;
-	}
+		if (c == '"') {
+			q ^= QUOTED;	/* obscure, but nice */
+			continue;
+		}
+		if (q == QUOTED && *p == '\\' && *(p+1) == '"')
+			p++;
+		*t++ = *p;
+		if (q == QUOTED)
+			continue;
+		if (c == '#') {
+			zapchar = c;
+			*p = 0;
+			break;
+		}
+		if (c == '\t' || c == ' ' || c == '\n') {
+			zapchar = c;
+			*p++ = 0;
+			while ((c = *p) == '\t' || c == ' ' || c == '\n')
+				p++;
+			break;
+		}
     }
     *--t = '\0';
     return (p);
@@ -104,46 +101,46 @@ struct ttyent * getttyent(void)
     register int c;
     register char *p;
     static char *line = NULL;
+    struct ttyent *retval = NULL;
 
     if (!tf && !setttyent())
-	return (NULL);
+		return (NULL);
 
     if (!line) {
-            line = malloc(BUFSIZ);
+		line = malloc(BUFSIZ);
 		if (!line)
 		    abort();
     }
 
-	__STDIO_ALWAYS_THREADLOCK(tf);
+    __STDIO_ALWAYS_THREADLOCK(tf);
 
     for (;;) {
-	if (!fgets_unlocked(p = line, BUFSIZ, tf)) {
-		__STDIO_ALWAYS_THREADUNLOCK(tf);
-	    return (NULL);
-	}
-	/* skip lines that are too big */
-	if (!index(p, '\n')) {
-	    while ((c = getc_unlocked(tf)) != '\n' && c != EOF)
-		;
-	    continue;
-	}
-	while (isspace(*p))
-	    ++p;
-	if (*p && *p != '#')
-	    break;
+		if (!fgets_unlocked(p = line, BUFSIZ, tf)) {
+			goto DONE;
+		}
+		/* skip lines that are too big */
+		if (!index(p, '\n')) {
+			while ((c = getc_unlocked(tf)) != '\n' && c != EOF)
+				;
+			continue;
+		}
+		while (isspace(*p))
+			++p;
+		if (*p && *p != '#')
+			break;
     }
 
     zapchar = 0;
     tty.ty_name = p;
     p = skip(p);
     if (!*(tty.ty_getty = p))
-	tty.ty_getty = tty.ty_type = NULL;
+		tty.ty_getty = tty.ty_type = NULL;
     else {
-	p = skip(p);
-	if (!*(tty.ty_type = p))
-	    tty.ty_type = NULL;
-	else
-	    p = skip(p);
+		p = skip(p);
+		if (!*(tty.ty_type = p))
+			tty.ty_type = NULL;
+		else
+			p = skip(p);
     }
     tty.ty_status = 0;
     tty.ty_window = NULL;
@@ -151,43 +148,45 @@ struct ttyent * getttyent(void)
 #define	scmp(e)	!strncmp(p, e, sizeof(e) - 1) && isspace(p[sizeof(e) - 1])
 #define	vcmp(e)	!strncmp(p, e, sizeof(e) - 1) && p[sizeof(e) - 1] == '='
     for (; *p; p = skip(p)) {
-	if (scmp(_TTYS_OFF))
-	    tty.ty_status &= ~TTY_ON;
-	else if (scmp(_TTYS_ON))
-	    tty.ty_status |= TTY_ON;
-	else if (scmp(_TTYS_SECURE))
-	    tty.ty_status |= TTY_SECURE;
-	else if (vcmp(_TTYS_WINDOW))
-	    tty.ty_window = value(p);
-	else
-	    break;
+		if (scmp(_TTYS_OFF))
+			tty.ty_status &= ~TTY_ON;
+		else if (scmp(_TTYS_ON))
+			tty.ty_status |= TTY_ON;
+		else if (scmp(_TTYS_SECURE))
+			tty.ty_status |= TTY_SECURE;
+		else if (vcmp(_TTYS_WINDOW))
+			tty.ty_window = value(p);
+		else
+			break;
     }
-    /* We can release the lock only here since `zapchar' is global.  */
-	__STDIO_ALWAYS_THREADUNLOCK(tf);
 
     if (zapchar == '#' || *p == '#')
-	while ((c = *++p) == ' ' || c == '\t')
-	    ;
+		while ((c = *++p) == ' ' || c == '\t')
+			;
     tty.ty_comment = p;
     if (*p == 0)
-	tty.ty_comment = 0;
+		tty.ty_comment = 0;
     if ((p = index(p, '\n')))
-	*p = '\0';
-    return (&tty);
+		*p = '\0';
+    retval = &tty;
+
+ DONE:
+    __STDIO_ALWAYS_THREADUNLOCK(tf);
+    return retval;
 }
 
 int setttyent(void)
 {
 
     if (tf) {
-	rewind(tf);
-	return (1);
+		rewind(tf);
+		return (1);
     } else if ((tf = fopen(_PATH_TTYS, "r"))) {
-	/* We do the locking ourselves.  */
+		/* We do the locking ourselves.  */
 #ifdef __UCLIBC_HAS_THREADS__
-	__fsetlocking (tf, FSETLOCKING_BYCALLER);
+		__fsetlocking (tf, FSETLOCKING_BYCALLER);
 #endif
-	return (1);
+		return (1);
     }
     return (0);
 }
@@ -197,9 +196,9 @@ int endttyent(void)
     int rval;
 
     if (tf) {
-	rval = !(fclose(tf) == EOF);
-	tf = NULL;
-	return (rval);
+		rval = !(fclose(tf) == EOF);
+		tf = NULL;
+		return (rval);
     }
     return (1);
 }

@@ -65,20 +65,9 @@
 #include <arpa/inet.h>
 #include <errno.h>
 
+#include <bits/uClibc_mutex.h>
 
-
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK
-# define UNLOCK
-#endif
-
-
-
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 #define	MAXALIASES	35
 #define SBUFSIZE	(BUFSIZ + 1 + (sizeof(char *) * MAXALIASES))
@@ -91,32 +80,32 @@ static int serv_stayopen;
 static void __initbuf(void)
 {
     if (!servbuf) {
-	servbuf = malloc(SBUFSIZE);
-	if (!servbuf)
-	    abort();
+		servbuf = malloc(SBUFSIZE);
+		if (!servbuf)
+			abort();
     }
 }
 
 void setservent(int f)
 {
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     if (servf == NULL)
-	servf = fopen(_PATH_SERVICES, "r" );
+		servf = fopen(_PATH_SERVICES, "r" );
     else
-	rewind(servf);
+		rewind(servf);
     serv_stayopen |= f;
-    UNLOCK;
+    __UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 void endservent(void)
 {
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     if (servf) {
-	fclose(servf);
-	servf = NULL;
+		fclose(servf);
+		servf = NULL;
     }
     serv_stayopen = 0;
-    UNLOCK;
+    __UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 struct servent * getservent(void)
@@ -149,127 +138,129 @@ struct servent * getservbyport(int port, const char *proto)
 }
 
 int getservent_r(struct servent * result_buf,
-		 char * buf, size_t buflen,
-		 struct servent ** result)
+				 char * buf, size_t buflen,
+				 struct servent ** result)
 {
     char *p;
     register char *cp, **q;
     char **serv_aliases;
     char *line;
+	int rv;
 
     *result=NULL;
 
     if (buflen < sizeof(*serv_aliases)*MAXALIASES) {
-	errno=ERANGE;
-	return errno;
+		errno=ERANGE;
+		return errno;
     }
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     serv_aliases=(char **)buf;
     buf+=sizeof(*serv_aliases)*MAXALIASES;
     buflen-=sizeof(*serv_aliases)*MAXALIASES;
 
     if (buflen < BUFSIZ+1) {
-	UNLOCK;
-	errno=ERANGE;
-	return errno;
+		errno=rv=ERANGE;
+		goto DONE;
     }
     line=buf;
     buf+=BUFSIZ+1;
     buflen-=BUFSIZ+1;
 
     if (servf == NULL && (servf = fopen(_PATH_SERVICES, "r" )) == NULL) {
-	UNLOCK;
-	errno=EIO;
-	return errno;
+		errno=rv=EIO;
+		goto DONE;
     }
-again:
+ again:
     if ((p = fgets(line, BUFSIZ, servf)) == NULL) {
-	UNLOCK;
-	errno=EIO;
-	return errno;
+		errno=rv=EIO;
+		goto DONE;
     }
     if (*p == '#')
-	goto again;
+		goto again;
     cp = strpbrk(p, "#\n");
     if (cp == NULL)
-	goto again;
+		goto again;
     *cp = '\0';
     result_buf->s_name = p;
     p = strpbrk(p, " \t");
     if (p == NULL)
-	goto again;
+		goto again;
     *p++ = '\0';
     while (*p == ' ' || *p == '\t')
-	p++;
+		p++;
     cp = strpbrk(p, ",/");
     if (cp == NULL)
-	goto again;
+		goto again;
     *cp++ = '\0';
     result_buf->s_port = htons((u_short)atoi(p));
     result_buf->s_proto = cp;
     q = result_buf->s_aliases = serv_aliases;
     cp = strpbrk(cp, " \t");
     if (cp != NULL)
-	*cp++ = '\0';
+		*cp++ = '\0';
     while (cp && *cp) {
-	if (*cp == ' ' || *cp == '\t') {
-	    cp++;
-	    continue;
-	}
-	if (q < &serv_aliases[MAXALIASES - 1])
-	    *q++ = cp;
-	cp = strpbrk(cp, " \t");
-	if (cp != NULL)
-	    *cp++ = '\0';
+		if (*cp == ' ' || *cp == '\t') {
+			cp++;
+			continue;
+		}
+		if (q < &serv_aliases[MAXALIASES - 1])
+			*q++ = cp;
+		cp = strpbrk(cp, " \t");
+		if (cp != NULL)
+			*cp++ = '\0';
     }
     *q = NULL;
     *result=result_buf;
-    UNLOCK;
-    return 0;
+
+	rv = 0;
+
+ DONE:
+    __UCLIBC_MUTEX_UNLOCK(mylock);
+    return rv;
 }
 
 int getservbyname_r(const char *name, const char *proto,
-	struct servent * result_buf, char * buf, size_t buflen,
-	struct servent ** result)
+					struct servent * result_buf, char * buf, size_t buflen,
+					struct servent ** result)
 {
     register char **cp;
     int ret;
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     setservent(serv_stayopen);
     while (!(ret=getservent_r(result_buf, buf, buflen, result))) {
-	if (strcmp(name, result_buf->s_name) == 0)
-	    goto gotname;
-	for (cp = result_buf->s_aliases; *cp; cp++)
-	    if (strcmp(name, *cp) == 0)
-		goto gotname;
-	continue;
-gotname:
-	if (proto == 0 || strcmp(result_buf->s_proto, proto) == 0)
-	    break;
+		if (strcmp(name, result_buf->s_name) == 0)
+			goto gotname;
+		for (cp = result_buf->s_aliases; *cp; cp++)
+			if (strcmp(name, *cp) == 0)
+				goto gotname;
+		continue;
+	gotname:
+		if (proto == 0 || strcmp(result_buf->s_proto, proto) == 0)
+			break;
     }
     if (!serv_stayopen)
-	endservent();
-    UNLOCK;
+		endservent();
+    __UCLIBC_MUTEX_UNLOCK(mylock);
     return *result?0:ret;
 }
 
 int getservbyport_r(int port, const char *proto,
-	struct servent * result_buf, char * buf,
-	size_t buflen, struct servent ** result)
+					struct servent * result_buf, char * buf,
+					size_t buflen, struct servent ** result)
 {
     int ret;
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     setservent(serv_stayopen);
     while (!(ret=getservent_r(result_buf, buf, buflen, result))) {
-	if (result_buf->s_port != port)
-	    continue;
-	if (proto == 0 || strcmp(result_buf->s_proto, proto) == 0)
-	    break;
+		if (result_buf->s_port != port)
+			continue;
+		if (proto == 0 || strcmp(result_buf->s_proto, proto) == 0)
+			break;
     }
     if (!serv_stayopen)
-	endservent();
-    UNLOCK;
+		endservent();
+    __UCLIBC_MUTEX_UNLOCK(mylock);
     return *result?0:ret;
 }

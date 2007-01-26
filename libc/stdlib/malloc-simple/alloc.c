@@ -108,15 +108,14 @@ void free(void *ptr)
 #endif
 
 #ifdef L_memalign
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-pthread_mutex_t __malloc_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-# define LOCK	__pthread_mutex_lock(&__malloc_lock)
-# define UNLOCK	__pthread_mutex_unlock(&__malloc_lock);
-#else
-# define LOCK
-# define UNLOCK
-#endif
+
+#include <bits/uClibc_mutex.h>
+
+__UCLIBC_MUTEX_EXTERN(__malloc_lock);
+
+#define __MALLOC_LOCK		__UCLIBC_MUTEX_LOCK(__malloc_lock)
+#define __MALLOC_UNLOCK		__UCLIBC_MUTEX_UNLOCK(__malloc_lock)
+
 
 /* List of blocks allocated with memalign or valloc */
 struct alignlist
@@ -135,7 +134,7 @@ int __libc_free_aligned(void *ptr)
 	if (ptr == NULL)
 		return 0;
 
-	LOCK;
+	__MALLOC_LOCK;
 	for (l = _aligned_blocks; l != NULL; l = l->next) {
 		if (l->aligned == ptr) {
 			/* Mark the block as free */
@@ -146,7 +145,7 @@ int __libc_free_aligned(void *ptr)
 			return 1;
 		}
 	}
-	UNLOCK;
+	__MALLOC_UNLOCK;
 	return 0;
 }
 void * memalign (size_t alignment, size_t size)
@@ -159,10 +158,10 @@ void * memalign (size_t alignment, size_t size)
 		return NULL;
 
 	adj = (unsigned long int) ((unsigned long int) ((char *) result -
-	      (char *) NULL)) % alignment;
+													(char *) NULL)) % alignment;
 	if (adj != 0) {
 		struct alignlist *l;
-		LOCK;
+		__MALLOC_LOCK;
 		for (l = _aligned_blocks; l != NULL; l = l->next)
 			if (l->aligned == NULL)
 				/* This slot is free.  Use it.  */
@@ -171,15 +170,16 @@ void * memalign (size_t alignment, size_t size)
 			l = (struct alignlist *) malloc (sizeof (struct alignlist));
 			if (l == NULL) {
 				free(result);
-				UNLOCK;
-				return NULL;
+				result = NULL;
+				goto DONE;
 			}
 			l->next = _aligned_blocks;
 			_aligned_blocks = l;
 		}
 		l->exact = result;
 		result = l->aligned = (char *) result + alignment - adj;
-		UNLOCK;
+	DONE:
+		__MALLOC_UNLOCK;
 	}
 
 	return result;

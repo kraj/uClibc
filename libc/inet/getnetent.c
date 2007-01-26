@@ -22,18 +22,9 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
+#include <bits/uClibc_mutex.h>
 
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK
-# define UNLOCK
-#endif
-
-
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 #define	MAXALIASES	35
 static const char NETDB[] = _PATH_NETWORKS;
@@ -46,25 +37,25 @@ int _net_stayopen;
 
 void setnetent(int f)
 {
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     if (netf == NULL)
-	netf = fopen(NETDB, "r" );
+		netf = fopen(NETDB, "r" );
     else
-	rewind(netf);
+		rewind(netf);
     _net_stayopen |= f;
-    UNLOCK;
+    __UCLIBC_MUTEX_UNLOCK(mylock);
     return;
 }
 
 void endnetent(void)
 {
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     if (netf) {
-	fclose(netf);
-	netf = NULL;
+		fclose(netf);
+		netf = NULL;
     }
     _net_stayopen = 0;
-    UNLOCK;
+    __UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 static char * any(register char *cp, char *match)
@@ -72,10 +63,10 @@ static char * any(register char *cp, char *match)
     register char *mp, c;
 
     while ((c = *cp)) {
-	for (mp = match; *mp; mp++)
-	    if (*mp == c)
-		return (cp);
-	cp++;
+		for (mp = match; *mp; mp++)
+			if (*mp == c)
+				return (cp);
+		cp++;
     }
     return ((char *)0);
 }
@@ -84,59 +75,62 @@ struct netent * getnetent(void)
 {
     char *p;
     register char *cp, **q;
+	struct netent *rv = NULL;
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     if (netf == NULL && (netf = fopen(NETDB, "r" )) == NULL) {
-	UNLOCK;
-	return (NULL);
+		goto DONE;
     }
-again:
+ again:
 
     if (!line) {
-	line = malloc(BUFSIZ + 1);
-	if (!line)
-	    abort();
+		line = malloc(BUFSIZ + 1);
+		if (!line)
+			abort();
     }
 
     p = fgets(line, BUFSIZ, netf);
     if (p == NULL) {
-	UNLOCK;
-	return (NULL);
+		goto DONE;
     }
     if (*p == '#')
-	goto again;
+		goto again;
     cp = any(p, "#\n");
     if (cp == NULL)
-	goto again;
+		goto again;
     *cp = '\0';
     net.n_name = p;
     cp = any(p, " \t");
     if (cp == NULL)
-	goto again;
+		goto again;
     *cp++ = '\0';
     while (*cp == ' ' || *cp == '\t')
-	cp++;
+		cp++;
     p = any(cp, " \t");
     if (p != NULL)
-	*p++ = '\0';
+		*p++ = '\0';
     net.n_net = inet_network(cp);
     net.n_addrtype = AF_INET;
     q = net.n_aliases = net_aliases;
     if (p != NULL)
-	cp = p;
+		cp = p;
     while (cp && *cp) {
-	if (*cp == ' ' || *cp == '\t') {
-	    cp++;
-	    continue;
-	}
-	if (q < &net_aliases[MAXALIASES - 1])
-	    *q++ = cp;
-	cp = any(cp, " \t");
-	if (cp != NULL)
-	    *cp++ = '\0';
+		if (*cp == ' ' || *cp == '\t') {
+			cp++;
+			continue;
+		}
+		if (q < &net_aliases[MAXALIASES - 1])
+			*q++ = cp;
+		cp = any(cp, " \t");
+		if (cp != NULL)
+			*cp++ = '\0';
     }
     *q = NULL;
-    UNLOCK;
-    return (&net);
+
+	rv = &net;
+
+ DONE:
+    __UCLIBC_MUTEX_UNLOCK(mylock);
+    return rv;
 }
 

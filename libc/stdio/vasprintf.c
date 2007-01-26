@@ -63,6 +63,8 @@ int vasprintf(char **__restrict buf, const char * __restrict format,
 				free(*buf);
 				*buf = NULL;
 			}
+		} else {
+			rv = -1;
 		}
 	}
 

@@ -12,30 +12,34 @@ int fclose(register FILE *stream)
 	int rv = 0;
 	__STDIO_AUTO_THREADLOCK_VAR;
 
-	/* First, remove the file from the open file list. */
-#ifdef __STDIO_HAS_OPENLIST
-	{
-		register FILE *ptr;
+#warning dead code... but may want to simply check and not remove
+/* #ifdef __STDIO_HAS_OPENLIST */
+/* #if !defined(__UCLIBC_HAS_THREADS__) || !defined(__STDIO_BUFFERS) */
+/* 	/\* First, remove the file from the open file list. *\/ */
+/* 	{ */
+/* 		register FILE *ptr; */
 
-		__STDIO_THREADLOCK_OPENLIST;
-		if ((ptr = _stdio_openlist) == stream) {
-			_stdio_openlist = stream->__nextopen;
-		} else {
-			while (ptr) {
-				if (ptr->__nextopen == stream) {
-					ptr->__nextopen = stream->__nextopen;
-					break;
-				}
-				ptr = ptr->__nextopen;
-			}
-		}
-		__STDIO_THREADUNLOCK_OPENLIST;
+/* 		__STDIO_THREADLOCK_OPENLIST; */
+/* 		if ((ptr = _stdio_openlist) == stream) { */
+/* #warning does a mod!!! */
+/* 			_stdio_openlist = stream->__nextopen; */
+/* 		} else { */
+/* 			while (ptr) { */
+/* 				if (ptr->__nextopen == stream) { */
+/* 					ptr->__nextopen = stream->__nextopen; */
+/* 					break; */
+/* 				} */
+/* 				ptr = ptr->__nextopen; */
+/* 			} */
+/* 		} */
+/* 		__STDIO_THREADUNLOCK_OPENLIST; */
 
-		if (!ptr) {	  /* Did not find stream in the open file list! */
-			return EOF;
-		}
-	}
-#endif
+/* 		if (!ptr) {	  /\* Did not find stream in the open file list! *\/ */
+/* 			return EOF; */
+/* 		} */
+/* 	} */
+/* #endif */
+/* #endif */
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
@@ -80,7 +84,15 @@ int fclose(register FILE *stream)
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	__STDIO_STREAM_FREE_BUFFER(stream);
+#warning... inefficient - locks and unlocks twice and walks whole list
+#if defined(__UCLIBC_HAS_THREADS__) && defined(__STDIO_BUFFERS)
+	/* inefficient - locks/unlocks twice and walks whole list */
+	__STDIO_OPENLIST_INC_USE;
+	__STDIO_OPENLIST_INC_DEL_CNT;
+	__STDIO_OPENLIST_DEC_USE;	/* This with free the file if necessary. */
+#else
 	__STDIO_STREAM_FREE_FILE(stream);
+#endif
 
 	return rv;
 }

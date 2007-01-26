@@ -151,8 +151,12 @@ FILE *__stdout = _stdio_streams + 1; /* For putchar() macro. */
 FILE *_stdio_openlist = _stdio_streams;
 
 # ifdef __UCLIBC_HAS_THREADS__
-pthread_mutex_t _stdio_openlist_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-int _stdio_openlist_delflag = 0;
+__UCLIBC_MUTEX_INIT(_stdio_openlist_add_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
+#ifdef __STDIO_BUFFERS
+__UCLIBC_MUTEX_INIT(_stdio_openlist_del_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
+volatile int _stdio_openlist_use_count = 0;
+int _stdio_openlist_del_count = 0;
+#endif
 # endif
 
 #endif
@@ -162,10 +166,10 @@ int _stdio_openlist_delflag = 0;
 /* 2 if threading not initialized and 0 otherwise; */
 int _stdio_user_locking = 2;
 
-void __stdio_init_mutex(pthread_mutex_t *m)
+void __stdio_init_mutex(__UCLIBC_MUTEX_TYPE *m)
 {
-	static const pthread_mutex_t __stdio_mutex_initializer
-		= PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+	const __UCLIBC_MUTEX_STATIC(__stdio_mutex_initializer,
+								PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 	memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
 }
@@ -184,7 +188,11 @@ void _stdio_term(void)
 	 * locked, then I suppose there is a chance that a pointer in the
 	 * chain might be corrupt due to a partial store.
 	 */ 
-	__stdio_init_mutex(&_stdio_openlist_lock);
+	__stdio_init_mutex(&_stdio_openlist_add_lock);
+#warning check
+#ifdef __STDIO_BUFFERS
+	__stdio_init_mutex(&_stdio_openlist_del_lock);
+#endif
 
 	/* Next we need to worry about the streams themselves.  If a stream
 	 * is currently locked, then it may be in an invalid state.  So we
@@ -192,7 +200,7 @@ void _stdio_term(void)
 	 * Then we reinitialize the locks.
 	 */
 	for (ptr = _stdio_openlist ; ptr ; ptr = ptr->__nextopen ) {
-		if (__STDIO_ALWAYS_THREADTRYLOCK(ptr)) {
+		if (__STDIO_ALWAYS_THREADTRYLOCK_CANCEL_UNSAFE(ptr)) {
 			/* The stream is already locked, so we don't want to touch it.
 			 * However, if we have custom streams, we can't just close it
 			 * or leave it locked since a custom stream may be stacked
@@ -256,10 +264,6 @@ void _stdio_init(void)
 
 #if !(__MASK_READING & __FLAG_UNGOT)
 #error Assumption violated about __MASK_READING and __FLAG_UNGOT
-#endif
-
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
 #endif
 
 #ifndef NDEBUG

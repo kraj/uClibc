@@ -26,6 +26,15 @@
 #include "pthread.h"
 #include "internals.h"
 
+#warning hack alert... should be sufficent for system(), but what about other libc mutexes?
+#include <bits/uClibc_mutex.h>
+
+__UCLIBC_MUTEX_EXTERN(__malloc_lock);
+
+#define __MALLOC_LOCK		__UCLIBC_MUTEX_LOCK(__malloc_lock)
+#define __MALLOC_UNLOCK		__UCLIBC_MUTEX_UNLOCK(__malloc_lock)
+#warning hack alert block end
+
 struct handler_list {
   void (*handler)(void);
   struct handler_list * next;
@@ -91,9 +100,18 @@ pid_t __fork(void)
   parent = pthread_atfork_parent;
   pthread_mutex_unlock(&pthread_atfork_lock);
   pthread_call_handlers(prepare);
+
+#warning hack alert
+  __MALLOC_LOCK;
+
   pid = __libc_fork();
+
+#warning hack alert
+  __MALLOC_UNLOCK;
+
   if (pid == 0) {
     __pthread_reset_main_thread();
+#warning need to reconsider __fresetlockfiles!
     __fresetlockfiles();
     pthread_call_handlers(child);
   } else {

@@ -22,23 +22,57 @@
 #include <wchar.h>
 #endif
 
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+#include <bits/uClibc_mutex.h>
 
-#define __STDIO_THREADLOCK_OPENLIST \
-	__pthread_mutex_lock(&_stdio_openlist_lock)
+#define __STDIO_THREADLOCK_OPENLIST_ADD										\
+        __UCLIBC_MUTEX_LOCK(_stdio_openlist_add_lock)
 
-#define __STDIO_THREADUNLOCK_OPENLIST \
-	__pthread_mutex_unlock(&_stdio_openlist_lock)
+#define __STDIO_THREADUNLOCK_OPENLIST_ADD									\
+        __UCLIBC_MUTEX_UNLOCK(_stdio_openlist_add_lock)
 
-#define __STDIO_THREADTRYLOCK_OPENLIST \
-	__pthread_mutex_trylock(&_stdio_openlist_lock)
+#ifdef __STDIO_BUFFERS
 
-#else
+#define __STDIO_THREADLOCK_OPENLIST_DEL										\
+        __UCLIBC_MUTEX_LOCK(_stdio_openlist_del_lock)
 
-#define	__STDIO_THREADLOCK_OPENLIST     ((void)0)
-#define	__STDIO_THREADUNLOCK_OPENLIST   ((void)0)
+#define __STDIO_THREADUNLOCK_OPENLIST_DEL									\
+        __UCLIBC_MUTEX_UNLOCK(_stdio_openlist_del_lock)
 
+#define __STDIO_OPENLIST_INC_USE \
+do { \
+	__STDIO_THREADLOCK_OPENLIST_DEL; \
+	++_stdio_openlist_use_count; \
+	__STDIO_THREADUNLOCK_OPENLIST_DEL; \
+} while (0)
+
+extern void _stdio_openlist_dec_use(void);
+
+#define __STDIO_OPENLIST_DEC_USE \
+	_stdio_openlist_dec_use()
+
+#define __STDIO_OPENLIST_INC_DEL_CNT \
+do { \
+	__STDIO_THREADLOCK_OPENLIST_DEL; \
+	++_stdio_openlist_del_count; \
+	__STDIO_THREADUNLOCK_OPENLIST_DEL; \
+} while (0)
+
+#define __STDIO_OPENLIST_DEC_DEL_CNT \
+do { \
+	__STDIO_THREADLOCK_OPENLIST_DEL; \
+	--_stdio_openlist_del_count; \
+	__STDIO_THREADUNLOCK_OPENLIST_DEL; \
+} while (0)
+
+#endif /* __STDIO_BUFFERS */
+
+#ifndef __STDIO_THREADLOCK_OPENLIST_DEL
+#define	__STDIO_THREADLOCK_OPENLIST_DEL     ((void)0)
+#define	__STDIO_THREADUNLOCK_OPENLIST_DEL   ((void)0)
+#define __STDIO_OPENLIST_INC_USE            ((void)0)
+#define __STDIO_OPENLIST_DEC_USE            ((void)0)
+#define __STDIO_OPENLIST_INC_DEL_CNT        ((void)0)
+#define __STDIO_OPENLIST_DEC_DEL_CNT        ((void)0)
 #endif
 
 #define __UNDEFINED_OR_NONPORTABLE ((void)0)

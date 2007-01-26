@@ -75,8 +75,8 @@ int setvbuf(register FILE * __restrict stream, register char * __restrict buf,
 	}
 
 	stream->__modeflags |= alloc_flag;
-	stream->__bufstart = buf;
-	stream->__bufend = buf + size;
+	stream->__bufstart = (unsigned char *) buf;
+	stream->__bufend = (unsigned char *) buf + size;
 	__STDIO_STREAM_INIT_BUFREAD_BUFPOS(stream);
 	__STDIO_STREAM_DISABLE_GETC(stream);
 	__STDIO_STREAM_DISABLE_PUTC(stream);

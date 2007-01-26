@@ -22,16 +22,12 @@
 #include <malloc.h>
 #include <stdlib.h>
 
+#include <bits/uClibc_mutex.h>
 
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-extern pthread_mutex_t __malloc_lock;
-# define LOCK	__pthread_mutex_lock(&__malloc_lock)
-# define UNLOCK	__pthread_mutex_unlock(&__malloc_lock);
-#else
-# define LOCK
-# define UNLOCK
-#endif
+__UCLIBC_MUTEX_EXTERN(__malloc_lock);
+
+#define __MALLOC_LOCK		__UCLIBC_MUTEX_LOCK(__malloc_lock)
+#define __MALLOC_UNLOCK		__UCLIBC_MUTEX_UNLOCK(__malloc_lock)
 
 
 

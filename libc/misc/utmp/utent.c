@@ -20,19 +20,9 @@
 #include <string.h>
 #include <utmp.h>
 
+#include <bits/uClibc_mutex.h>
 
-
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-static pthread_mutex_t utmplock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	__pthread_mutex_lock(&utmplock)
-# define UNLOCK	__pthread_mutex_unlock(&utmplock)
-#else
-# define LOCK
-# define UNLOCK
-#endif
-
-
+__UCLIBC_MUTEX_STATIC(utmplock, PTHREAD_MUTEX_INITIALIZER);
 
 /* Some global crap */
 static int static_fd = -1;
@@ -46,19 +36,19 @@ static struct utmp *__getutent(int utmp_fd)
 
 {
     if (utmp_fd == -1) {
-	setutent();
+		setutent();
     }
     if (utmp_fd == -1) {
-	return NULL;
+		return NULL;
     }
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(utmplock);
     if (read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) != sizeof(struct utmp)) 
-    {
-	return NULL;
-    }
+		{
+			return NULL;
+		}
 
-    UNLOCK;
+    __UCLIBC_MUTEX_UNLOCK(utmplock);
     return &static_utmp;
 }
 
@@ -66,39 +56,39 @@ void setutent(void)
 {
     int ret;
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(utmplock);
     if (static_fd == -1) {
-	if ((static_fd = open(static_ut_name, O_RDWR)) < 0) {
-	    if ((static_fd = open(static_ut_name, O_RDONLY)) < 0) {
-		goto bummer;
-	    }
-	}
-	/* Make sure the file will be closed on exec()  */
-	ret = fcntl(static_fd, F_GETFD, 0);
-	if (ret >= 0) {
-	    ret = fcntl(static_fd, F_GETFD, 0);
-	}
-	if (ret < 0) {
-bummer:
-	    UNLOCK;
-	    static_fd = -1;
-	    close(static_fd);
-	    return;
-	}
+		if ((static_fd = open(static_ut_name, O_RDWR)) < 0) {
+			if ((static_fd = open(static_ut_name, O_RDONLY)) < 0) {
+				goto bummer;
+			}
+		}
+		/* Make sure the file will be closed on exec()  */
+		ret = fcntl(static_fd, F_GETFD, 0);
+		if (ret >= 0) {
+			ret = fcntl(static_fd, F_GETFD, 0);
+		}
+		if (ret < 0) {
+		bummer:
+			close(static_fd);
+			static_fd = -1;
+			goto DONE;
+		}
     }
     lseek(static_fd, 0, SEEK_SET);
-    UNLOCK;
+ DONE:
+    __UCLIBC_MUTEX_UNLOCK(utmplock);
     return;
 }
 
 void endutent(void)
 {
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(utmplock);
     if (static_fd != -1) {
-	close(static_fd);
+		close(static_fd);
     }
     static_fd = -1;
-    UNLOCK;
+    __UCLIBC_MUTEX_UNLOCK(utmplock);
 }
 
 /* Locking is done in __getutent */
@@ -113,22 +103,22 @@ struct utmp *getutid (const struct utmp *utmp_entry)
     struct utmp *lutmp;
 
     while ((lutmp = __getutent(static_fd)) != NULL) {
-	if (	(utmp_entry->ut_type == RUN_LVL ||
-		 utmp_entry->ut_type == BOOT_TIME ||
-		 utmp_entry->ut_type == NEW_TIME ||
-		 utmp_entry->ut_type == OLD_TIME) &&
-		lutmp->ut_type == utmp_entry->ut_type)  
-	{
-	    return lutmp;
-	}
-	if (	(utmp_entry->ut_type == INIT_PROCESS ||
-		 utmp_entry->ut_type == DEAD_PROCESS ||
-		 utmp_entry->ut_type == LOGIN_PROCESS ||
-		 utmp_entry->ut_type == USER_PROCESS) &&
-		!strncmp(lutmp->ut_id, utmp_entry->ut_id, sizeof(lutmp->ut_id))) 
-	{
-	    return lutmp;
-	}
+		if (	(utmp_entry->ut_type == RUN_LVL ||
+				 utmp_entry->ut_type == BOOT_TIME ||
+				 utmp_entry->ut_type == NEW_TIME ||
+				 utmp_entry->ut_type == OLD_TIME) &&
+				lutmp->ut_type == utmp_entry->ut_type)  
+			{
+				return lutmp;
+			}
+		if (	(utmp_entry->ut_type == INIT_PROCESS ||
+				 utmp_entry->ut_type == DEAD_PROCESS ||
+				 utmp_entry->ut_type == LOGIN_PROCESS ||
+				 utmp_entry->ut_type == USER_PROCESS) &&
+				!strncmp(lutmp->ut_id, utmp_entry->ut_id, sizeof(lutmp->ut_id))) 
+			{
+				return lutmp;
+			}
     }
 
     return NULL;
@@ -140,11 +130,11 @@ struct utmp *getutline(const struct utmp *utmp_entry)
     struct utmp *lutmp;
 
     while ((lutmp = __getutent(static_fd)) != NULL) {
-	if ((lutmp->ut_type == USER_PROCESS || lutmp->ut_type == LOGIN_PROCESS) &&
-		!strcmp(lutmp->ut_line, utmp_entry->ut_line))
-	{
-	    return lutmp;
-	}
+		if ((lutmp->ut_type == USER_PROCESS || lutmp->ut_type == LOGIN_PROCESS) &&
+			!strcmp(lutmp->ut_line, utmp_entry->ut_line))
+			{
+				return lutmp;
+			}
     }
 
     return NULL;
@@ -152,42 +142,42 @@ struct utmp *getutline(const struct utmp *utmp_entry)
 
 struct utmp *pututline (const struct utmp *utmp_entry)
 {
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(utmplock);
     /* Ignore the return value.  That way, if they've already positioned
        the file pointer where they want it, everything will work out. */
     lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
 
     if (getutid(utmp_entry) != NULL) {
-	lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
-	if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
-	    return NULL;
+		lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
+		if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
+			return NULL;
     } else {
-	lseek(static_fd, (off_t) 0, SEEK_END);
-	if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
-	    return NULL;
+		lseek(static_fd, (off_t) 0, SEEK_END);
+		if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
+			return NULL;
     }
 
-    UNLOCK;
+    __UCLIBC_MUTEX_UNLOCK(utmplock);
     return (struct utmp *)utmp_entry;
 }
 
 int utmpname (const char *new_ut_name)
 {
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(utmplock);
     if (new_ut_name != NULL) {
-	if (static_ut_name != default_file_name)
-	    free((char *)static_ut_name);
-	static_ut_name = strdup(new_ut_name);
-	if (static_ut_name == NULL) {
-	    /* We should probably whine about out-of-memory 
-	     * errors here...  Instead just reset to the default */
-	    static_ut_name = default_file_name;
-	}
+		if (static_ut_name != default_file_name)
+			free((char *)static_ut_name);
+		static_ut_name = strdup(new_ut_name);
+		if (static_ut_name == NULL) {
+			/* We should probably whine about out-of-memory 
+			 * errors here...  Instead just reset to the default */
+			static_ut_name = default_file_name;
+		}
     }
 
     if (static_fd != -1)
-	close(static_fd);
-    UNLOCK;
+		close(static_fd);
+    __UCLIBC_MUTEX_UNLOCK(utmplock);
     return 0;
 }
 

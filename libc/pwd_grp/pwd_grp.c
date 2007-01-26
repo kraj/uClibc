@@ -42,9 +42,8 @@
 #include <pwd.h>
 #include <grp.h>
 #include <shadow.h>
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-#endif
+
+#include <bits/uClibc_mutex.h>
 
 /**********************************************************************/
 /* Sizes for staticly allocated buffers. */
@@ -445,34 +444,27 @@ int getpw(uid_t uid, char *buf)
 /**********************************************************************/
 #ifdef L_getpwent_r
 
-#ifdef __UCLIBC_HAS_THREADS__
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK		__pthread_mutex_lock(&mylock)
-# define UNLOCK		__pthread_mutex_unlock(&mylock);
-#else       
-# define LOCK		((void) 0)
-# define UNLOCK		((void) 0)
-#endif      
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 static FILE *pwf /*= NULL*/;
 
 void setpwent(void)
 {
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	if (pwf) {
 		rewind(pwf);
 	}
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 void endpwent(void)
 {
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	if (pwf) {
 		fclose(pwf);
 		pwf = NULL;
 	}
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 
@@ -482,7 +474,7 @@ int getpwent_r(struct passwd *__restrict resultbuf,
 {
 	int rv;
 
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 
 	*result = NULL;				/* In case of error... */
 
@@ -500,7 +492,7 @@ int getpwent_r(struct passwd *__restrict resultbuf,
 	}
 
  ERR:
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 
 	return rv;
 }
@@ -509,34 +501,27 @@ int getpwent_r(struct passwd *__restrict resultbuf,
 /**********************************************************************/
 #ifdef L_getgrent_r
 
-#ifdef __UCLIBC_HAS_THREADS__
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK		__pthread_mutex_lock(&mylock)
-# define UNLOCK		__pthread_mutex_unlock(&mylock);
-#else       
-# define LOCK		((void) 0)
-# define UNLOCK		((void) 0)
-#endif      
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 static FILE *grf /*= NULL*/;
 
 void setgrent(void)
 {
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	if (grf) {
 		rewind(grf);
 	}
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 void endgrent(void)
 {
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	if (grf) {
 		fclose(grf);
 		grf = NULL;
 	}
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 int getgrent_r(struct group *__restrict resultbuf,
@@ -545,7 +530,7 @@ int getgrent_r(struct group *__restrict resultbuf,
 {
 	int rv;
 
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 
 	*result = NULL;				/* In case of error... */
 
@@ -563,7 +548,7 @@ int getgrent_r(struct group *__restrict resultbuf,
 	}
 
  ERR:
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 
 	return rv;
 }
@@ -572,34 +557,27 @@ int getgrent_r(struct group *__restrict resultbuf,
 /**********************************************************************/
 #ifdef L_getspent_r
 
-#ifdef __UCLIBC_HAS_THREADS__
-static pthread_mutex_t mylock =  PTHREAD_MUTEX_INITIALIZER;
-# define LOCK		__pthread_mutex_lock(&mylock)
-# define UNLOCK		__pthread_mutex_unlock(&mylock);
-#else       
-# define LOCK		((void) 0)
-# define UNLOCK		((void) 0)
-#endif      
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 static FILE *spf /*= NULL*/;
 
 void setspent(void)
 {
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	if (spf) {
 		rewind(spf);
 	}
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 void endspent(void)
 {
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	if (spf) {
 		fclose(spf);
 		spf = NULL;
 	}
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 int getspent_r(struct spwd *resultbuf, char *buffer, 
@@ -607,7 +585,7 @@ int getspent_r(struct spwd *resultbuf, char *buffer,
 {
 	int rv;
 
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 
 	*result = NULL;				/* In case of error... */
 
@@ -625,7 +603,7 @@ int getspent_r(struct spwd *resultbuf, char *buffer,
 	}
 
  ERR:
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 
 	return rv;
 }

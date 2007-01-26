@@ -8,7 +8,7 @@
   VERSION 2.7.2 Sat Aug 17 09:07:30 2002  Doug Lea  (dl at gee)
 
   Note: There may be an updated version of this malloc obtainable at
-           ftp://gee.cs.oswego.edu/pub/misc/malloc.c
+  ftp://gee.cs.oswego.edu/pub/misc/malloc.c
   Check before installing!
 
   Hacked up for uClibc by Erik Andersen <andersen@codepoet.org>
@@ -35,6 +35,7 @@ void* memalign(size_t alignment, size_t bytes)
     mchunkptr       remainder;      /* spare room at end to split off */
     unsigned long    remainder_size; /* its size */
     size_t size;
+	void *retval;
 
     /* If need less alignment than we give anyway, just relay to malloc */
 
@@ -46,12 +47,12 @@ void* memalign(size_t alignment, size_t bytes)
 
     /* Make sure alignment is power of 2 (in case MINSIZE is not).  */
     if ((alignment & (alignment - 1)) != 0) {
-	size_t a = MALLOC_ALIGNMENT * 2;
-	while ((unsigned long)a < (unsigned long)alignment) a <<= 1;
-	alignment = a;
+		size_t a = MALLOC_ALIGNMENT * 2;
+		while ((unsigned long)a < (unsigned long)alignment) a <<= 1;
+		alignment = a;
     }
 
-    LOCK;
+    __MALLOC_LOCK;
     checked_request2size(bytes, nb);
 
     /* Strategy: find a spot within that chunk that meets the alignment
@@ -63,64 +64,67 @@ void* memalign(size_t alignment, size_t bytes)
     m  = (char*)(malloc(nb + alignment + MINSIZE));
 
     if (m == 0) {
-	UNLOCK;
-	return 0; /* propagate failure */
+		retval = 0; /* propagate failure */
+		goto DONE;
     }
 
     p = mem2chunk(m);
 
     if ((((unsigned long)(m)) % alignment) != 0) { /* misaligned */
 
-	/*
-	   Find an aligned spot inside chunk.  Since we need to give back
-	   leading space in a chunk of at least MINSIZE, if the first
-	   calculation places us at a spot with less than MINSIZE leader,
-	   we can move to the next aligned spot -- we've allocated enough
-	   total room so that this is always possible.
-	   */
+		/*
+		  Find an aligned spot inside chunk.  Since we need to give back
+		  leading space in a chunk of at least MINSIZE, if the first
+		  calculation places us at a spot with less than MINSIZE leader,
+		  we can move to the next aligned spot -- we've allocated enough
+		  total room so that this is always possible.
+		*/
 
-	brk = (char*)mem2chunk((unsigned long)(((unsigned long)(m + alignment - 1)) &
-		    -((signed long) alignment)));
-	if ((unsigned long)(brk - (char*)(p)) < MINSIZE)
-	    brk += alignment;
+		brk = (char*)mem2chunk((unsigned long)(((unsigned long)(m + alignment - 1)) &
+											   -((signed long) alignment)));
+		if ((unsigned long)(brk - (char*)(p)) < MINSIZE)
+			brk += alignment;
 
-	newp = (mchunkptr)brk;
-	leadsize = brk - (char*)(p);
-	newsize = chunksize(p) - leadsize;
+		newp = (mchunkptr)brk;
+		leadsize = brk - (char*)(p);
+		newsize = chunksize(p) - leadsize;
 
-	/* For mmapped chunks, just adjust offset */
-	if (chunk_is_mmapped(p)) {
-	    newp->prev_size = p->prev_size + leadsize;
-	    set_head(newp, newsize|IS_MMAPPED);
-	    UNLOCK;
-	    return chunk2mem(newp);
-	}
+		/* For mmapped chunks, just adjust offset */
+		if (chunk_is_mmapped(p)) {
+			newp->prev_size = p->prev_size + leadsize;
+			set_head(newp, newsize|IS_MMAPPED);
+			retval = chunk2mem(newp);
+			goto DONE;
+		}
 
-	/* Otherwise, give back leader, use the rest */
-	set_head(newp, newsize | PREV_INUSE);
-	set_inuse_bit_at_offset(newp, newsize);
-	set_head_size(p, leadsize);
-	free(chunk2mem(p));
-	p = newp;
+		/* Otherwise, give back leader, use the rest */
+		set_head(newp, newsize | PREV_INUSE);
+		set_inuse_bit_at_offset(newp, newsize);
+		set_head_size(p, leadsize);
+		free(chunk2mem(p));
+		p = newp;
 
-	assert (newsize >= nb &&
-		(((unsigned long)(chunk2mem(p))) % alignment) == 0);
+		assert (newsize >= nb &&
+				(((unsigned long)(chunk2mem(p))) % alignment) == 0);
     }
 
     /* Also give back spare room at the end */
     if (!chunk_is_mmapped(p)) {
-	size = chunksize(p);
-	if ((unsigned long)(size) > (unsigned long)(nb + MINSIZE)) {
-	    remainder_size = size - nb;
-	    remainder = chunk_at_offset(p, nb);
-	    set_head(remainder, remainder_size | PREV_INUSE);
-	    set_head_size(p, nb);
-	    free(chunk2mem(remainder));
-	}
+		size = chunksize(p);
+		if ((unsigned long)(size) > (unsigned long)(nb + MINSIZE)) {
+			remainder_size = size - nb;
+			remainder = chunk_at_offset(p, nb);
+			set_head(remainder, remainder_size | PREV_INUSE);
+			set_head_size(p, nb);
+			free(chunk2mem(remainder));
+		}
     }
 
     check_inuse_chunk(p);
-    UNLOCK;
-    return chunk2mem(p);
+    retval = chunk2mem(p);
+
+ DONE:
+    __MALLOC_UNLOCK;
+	return retval;
 }
 

@@ -27,15 +27,9 @@
 #include <sys/file.h>
 #include <paths.h>
 
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK   __pthread_mutex_lock(&mylock)
-# define UNLOCK __pthread_mutex_unlock(&mylock);
-#else       
-# define LOCK
-# define UNLOCK
-#endif      
+#include <bits/uClibc_mutex.h>
+
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 /* How long to wait for getting the lock before returning with an
    error.  */
@@ -57,18 +51,18 @@ int lckpwdf (void)
 	struct sigaction new_act;   /* New signal action.  */
 	struct flock fl;            /* Information struct for locking.  */
 	int result;
+	int rv = -1;
 
 	if (lock_fd != -1)
 		/* Still locked by own process.  */
 		return -1;
 
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 
 	lock_fd = open (_PATH_PASSWD, O_WRONLY);
 	if (lock_fd == -1) {
 		/* Cannot create lock file.  */
-		UNLOCK;
-		return -1;
+		goto DONE;
 	}
 
 	/* Make sure file gets correctly closed when process finished.  */
@@ -77,16 +71,14 @@ int lckpwdf (void)
 		/* Cannot get file flags.  */
 		close(lock_fd);
 		lock_fd = -1;
-		UNLOCK;
-		return -1;
+		goto DONE;
 	}
 	flags |= FD_CLOEXEC;		/* Close on exit.  */
 	if (fcntl (lock_fd, F_SETFD, flags) < 0) {
 		/* Cannot set new flags.  */
 		close(lock_fd);
 		lock_fd = -1;
-		UNLOCK;
-		return -1;
+		goto DONE;
 	}
 
 	/* Now we have to get exclusive write access.  Since multiple
@@ -107,8 +99,7 @@ int lckpwdf (void)
 		/* Cannot install signal handler.  */
 		close(lock_fd);
 		lock_fd = -1;
-		UNLOCK;
-		return -1;
+		goto DONE;
 	}
 
 	/* Now make sure the alarm signal is not blocked.  */
@@ -118,8 +109,7 @@ int lckpwdf (void)
 		sigaction (SIGALRM, &saved_act, NULL);
 		close(lock_fd);
 		lock_fd = -1;
-		UNLOCK;
-		return -1;
+		goto DONE;
 	}
 
 	/* Start timer.  If we cannot get the lock in the specified time we
@@ -146,12 +136,14 @@ int lckpwdf (void)
 	if (result < 0) {
 		close(lock_fd);
 		lock_fd = -1;
-		UNLOCK;
-		return -1;
+		goto DONE;
 	}
 
-	UNLOCK;
-	return 0;
+	rv = 0;
+
+ DONE:
+	__UCLIBC_MUTEX_UNLOCK(mylock);
+	return rv;
 }
 
 
@@ -164,11 +156,11 @@ int ulckpwdf (void)
 		result = -1;
 	}
 	else {
-		LOCK;
+		__UCLIBC_MUTEX_LOCK(mylock);
 		result = close (lock_fd);
 		/* Mark descriptor as unused.  */
 		lock_fd = -1;
-		UNLOCK;
+		__UCLIBC_MUTEX_UNLOCK(mylock);
 	}
 
 	return result;

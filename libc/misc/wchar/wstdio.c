@@ -82,9 +82,6 @@ strong_alias(NAME,NAME##_unlocked) \
 void NAME PARAMS
 #endif
 
-#define __STDIO_THREADLOCK_OPENLIST
-#define __STDIO_THREADUNLOCK_OPENLIST
-
 #else  /* __UCLIBC_HAS_THREADS__ */
 
 #include <pthread.h>
@@ -111,15 +108,6 @@ void NAME PARAMS \
 	__STDIO_THREADUNLOCK(stream); \
 } \
 void NAME##_unlocked PARAMS
-
-#define __STDIO_THREADLOCK_OPENLIST \
-	__pthread_mutex_lock(&_stdio_openlist_lock)
-
-#define __STDIO_THREADUNLOCK_OPENLIST \
-	__pthread_mutex_unlock(&_stdio_openlist_lock)
-
-#define __STDIO_THREADTRYLOCK_OPENLIST \
-	__pthread_mutex_trylock(&_stdio_openlist_lock)
 
 #endif /* __UCLIBC_HAS_THREADS__ */
 

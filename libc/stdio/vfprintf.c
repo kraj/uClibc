@@ -569,7 +569,7 @@ int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 		ppfs->fmtpos = fmt0;		/* rewind */
 	}
 
-#ifdef NL_MAX_ARG
+#ifdef NL_ARGMAX
 	/* If we have positional args, make sure we know all the types. */
 	{
 		register int *p = ppfs->argtype;
@@ -581,7 +581,7 @@ int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 			++p;
 		}
 	}
-#endif /* NL_MAX_ARG */
+#endif /* NL_ARGMAX */
 
 	return 0;
 }
@@ -1214,7 +1214,7 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 		}
 		len = buflen;
 	}
-	return r + OUTNSTR(fp, (const char *) buf, len);
+	return r + OUTNSTR(fp, (const unsigned char *) buf, len);
 }
 
 #endif /* __STDIO_PRINTF_FLOAT */

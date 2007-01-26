@@ -15,8 +15,8 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 #ifdef __STDIO_BUFFERS
 	char buf[64];				/* TODO: provide _optional_ buffering? */
 
-	f.__bufend = buf + sizeof(buf);
-	f.__bufstart = buf;
+	f.__bufend = (unsigned char *) buf + sizeof(buf);
+	f.__bufstart = (unsigned char *) buf;
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
 	__STDIO_STREAM_INIT_BUFREAD_BUFPOS(&f);

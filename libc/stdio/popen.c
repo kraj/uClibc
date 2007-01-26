@@ -14,12 +14,15 @@
  *   Fix failure exit code for failed execve().
  */
 
+#warning hmm... susv3 says "Pipe streams are byte-oriented."
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/wait.h>
+
+#include <bits/uClibc_mutex.h>
 
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
 #include <sys/syscall.h>
@@ -29,19 +32,11 @@
 # define VFORK_UNLOCK	((void) 0)
 #endif
 
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK			__pthread_mutex_lock(&mylock)
-# define UNLOCK			__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK			((void) 0)
-# define UNLOCK			((void) 0)
-#endif      
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 #ifndef VFORK_LOCK
-# define VFORK_LOCK		LOCK
-# define VFORK_UNLOCK	UNLOCK
+# define VFORK_LOCK		__UCLIBC_MUTEX_LOCK(mylock)
+# define VFORK_UNLOCK	__UCLIBC_MUTEX_UNLOCK(mylock)
 #endif
 
 struct popen_list_item {
@@ -118,10 +113,10 @@ FILE *popen(const char *command, const char *modes)
 	if (pid > 0) {				/* Parent of vfork... */
 		pi->pid = pid;
 		pi->f = fp;
-		LOCK;
+		__UCLIBC_MUTEX_LOCK(mylock);
 		pi->next = popen_list;
 		popen_list = pi;
-		UNLOCK;
+		__UCLIBC_MUTEX_UNLOCK(mylock);
 		
 		return fp;
 	}
@@ -136,6 +131,8 @@ FILE *popen(const char *command, const char *modes)
 	return NULL;
 }
 
+#warning is pclose correct wrt the new mutex semantics?
+
 int pclose(FILE *stream)
 {
 	struct popen_list_item *p;
@@ -144,7 +141,7 @@ int pclose(FILE *stream)
 
 	/* First, find the list entry corresponding to stream and remove it
 	 * from the list.  Set p to the list item (NULL if not found). */
-	LOCK;
+	__UCLIBC_MUTEX_LOCK(mylock);
 	if ((p = popen_list) != NULL) {
 		if (p->f == stream) {
 			popen_list = p->next;
@@ -163,7 +160,7 @@ int pclose(FILE *stream)
 			} while (1);
 		}
 	}
-	UNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 
 	if (p) {
 		pid = p->pid;			/* Save the pid we need */

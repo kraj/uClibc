@@ -5,7 +5,6 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-
 int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 {
 	int ret;
@@ -18,21 +17,19 @@ int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 	}
 	de = NULL;
 
-#ifdef __UCLIBC_HAS_THREADS__
-	__pthread_mutex_lock(&(dir->dd_lock));
-#endif
+	__UCLIBC_MUTEX_LOCK(dir->dd_lock);
 
 	do {
 	    if (dir->dd_size <= dir->dd_nextloc) {
-		/* read dir->dd_max bytes of directory entries. */
-		bytes = __getdents(dir->dd_fd, dir->dd_buf, dir->dd_max);
-		if (bytes <= 0) {
-		    *result = NULL;
-		    ret = errno;
-		    goto all_done;
-		}
-		dir->dd_size = bytes;
-		dir->dd_nextloc = 0;
+			/* read dir->dd_max bytes of directory entries. */
+			bytes = __getdents(dir->dd_fd, dir->dd_buf, dir->dd_max);
+			if (bytes <= 0) {
+				*result = NULL;
+				ret = errno;
+				goto all_done;
+			}
+			dir->dd_size = bytes;
+			dir->dd_nextloc = 0;
 	    }
 
 	    de = (struct dirent *) (((char *) dir->dd_buf) + dir->dd_nextloc);
@@ -52,10 +49,8 @@ int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 	}
 	ret = 0;
 
-all_done:
+ all_done:
 
-#ifdef __UCLIBC_HAS_THREADS__
-	__pthread_mutex_unlock(&(dir->dd_lock));
-#endif
-        return((de != NULL)? 0 : ret);
+	__UCLIBC_MUTEX_UNLOCK(dir->dd_lock);
+	return((de != NULL)? 0 : ret);
 }

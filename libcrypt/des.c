@@ -504,7 +504,7 @@ do_des(	u_int32_t l_in, u_int32_t r_in, u_int32_t *l_out, u_int32_t *r_out, int 
 		kl = kl1;
 		kr = kr1;
 		round = 16;
-		while (round--) {
+		do {
 			/*
 			 * Expand R to 48 bits (simulate the E-box).
 			 */
@@ -540,7 +540,7 @@ do_des(	u_int32_t l_in, u_int32_t r_in, u_int32_t *l_out, u_int32_t *r_out, int 
 			f ^= l;
 			l = r;
 			r = f;
-		}
+		} while (--round);
 		r = l;
 		l = f;
 	}
