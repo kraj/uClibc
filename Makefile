@@ -367,16 +367,11 @@ distclean: clean
 	$(RM) .config .config.old .config.cmd
 	$(MAKE) -C extra clean
 
-release: distclean
-	cd ..;					\
-	$(RM) -r uClibc-$(VERSION);		\
-	cp -dRf uClibc uClibc-$(VERSION);	\
-	find uClibc-$(VERSION)/ -type f		\
-	    -name .\#* -exec $(RM) -r {} \; ;	\
-	find uClibc-$(VERSION)/ -type d		\
-	    -name .svn -exec $(RM) -r {} \; ;	\
-						\
-	tar -cvzf uClibc-$(VERSION).tar.gz uClibc-$(VERSION)/;
+dist release:
+	$(RM) -r ../uClibc-$(VERSION) ../uClibc-$(VERSION).tar.gz
+	svn -q export . ../uClibc-$(VERSION)
+	tar czf ../uClibc-$(VERSION).tar.gz -C .. uClibc-$(VERSION)
+	du -b ../uClibc-$(VERSION).tar.gz
 
 endif # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
