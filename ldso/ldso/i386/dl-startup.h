@@ -3,7 +3,7 @@
  * Architecture specific code used by dl-startup.c
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
-asm(
+__asm__ (
     "	.text\n"
     "	.align 16\n"
     "	.globl	_start\n"
@@ -41,9 +41,9 @@ asm(
 #define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long*) & ARGS)+1)
 
 /* Handle relocation of the symbols in the dynamic loader. */
-static inline
+static __always_inline
 void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
-	unsigned long symbol_addr, unsigned long load_addr, Elf32_Sym *symtab)
+	unsigned long symbol_addr, unsigned long load_addr, attribute_unused Elf32_Sym *symtab)
 {
 	switch (ELF32_R_TYPE(rpnt->r_info))
 	{
@@ -64,8 +64,3 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 			_dl_exit(1);
 	}
 }
-
-/* Transfer control to the user's application, once the dynamic loader is
- * done.  This routine has to exit the current function, then call the
- * _dl_elf_main function.  */
-#define START() return _dl_elf_main

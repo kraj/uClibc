@@ -70,10 +70,11 @@
 *******************************************************************************/
 
 #include <stdint.h>
+#include <endian.h>
 
 typedef struct                   /*      Hex representation of a double.      */
       {
-#if defined(__BIG_ENDIAN__)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
       uint32_t high;
       uint32_t low;
 #else

@@ -65,8 +65,6 @@ struct funcdesc_value
 
 extern int _dl_linux_resolve(void) __attribute__((__visibility__("hidden")));
 
-#define do_rem(result, n, base) ((result) = (n) % (base))
-
 /* 16KiB page alignment.  Should perhaps be made dynamic using
    getpagesize(), based on AT_PAGESZ from auxvt?  */
 #define PAGE_ALIGN 0xffffc000

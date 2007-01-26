@@ -1,7 +1,14 @@
+/* vi: set sw=4 ts=4: */
+/*
+ * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ *
+ * GNU Lesser General Public License version 2.1 or later.
+ */
+
 #ifndef _LINUX_STRING_H_
 #define _LINUX_STRING_H_
 
-#include <dl-sysdep.h> // for do_rem
+#include <dl-sysdep.h> /* for do_rem */
 #include <features.h>
 
 /* provide some sane defaults */
@@ -34,8 +41,8 @@ static char *_dl_simple_ltoahex(char * local, unsigned long i);
 static __always_inline size_t _dl_strlen(const char * str)
 {
 	register const char *ptr = (char *) str-1;
-
-	while (*++ptr);
+	while (*++ptr)
+		;/* empty */
 	return (ptr - str);
 }
 
@@ -57,7 +64,8 @@ static __always_inline char * _dl_strcpy(char * dst,const char *src)
 	register char *ptr = dst;
 
 	dst--;src--;
-	while ((*++dst = *++src) != 0);
+	while ((*++dst = *++src) != 0)
+		;/* empty */
 
 	return ptr;
 }
@@ -71,8 +79,7 @@ static __always_inline int _dl_strcmp(const char * s1,const char * s2)
 		c2 = (unsigned char) *++s2;
 		if (c1 == '\0')
 			return c1 - c2;
-	}
-	while (c1 == c2);
+	} while (c1 == c2);
 
 	return c1 - c2;
 }
@@ -106,43 +113,41 @@ static __always_inline char * _dl_strchr(const char * str,int c)
 	return 0;
 }
 
-static inline char * _dl_strrchr(const char *str, int c)
+static __always_inline char * _dl_strrchr(const char *str, int c)
 {
-    register char *prev = 0;
-    register char *ptr = (char *) str-1;
+	register char *prev = 0;
+	register char *ptr = (char *) str-1;
 
-    while (*++ptr != '\0') {
-	if (*ptr == c)
-	    prev = ptr;
-    }
-    if (c == '\0')
-	return(ptr);
-    return(prev);
+	while (*++ptr != '\0') {
+		if (*ptr == c)
+			prev = ptr;
+	}
+	if (c == '\0')
+		return(ptr);
+	return(prev);
 }
 
-static inline char * _dl_strstr(const char *s1, const char *s2)
+static __always_inline char * _dl_strstr(const char *s1, const char *s2)
 {
-    register const char *s = s1;
-    register const char *p = s2;
+	register const char *s = s1;
+	register const char *p = s2;
 
-    do {
-        if (!*p) {
-	    return (char *) s1;;
-	}
-	if (*p == *s) {
-	    ++p;
-	    ++s;
-	} else {
-	    p = s2;
-	    if (!*s) {
-	      return NULL;
-	    }
-	    s = ++s1;
-	}
-    } while (1);
+	do {
+		if (!*p)
+			return (char *) s1;;
+		if (*p == *s) {
+			++p;
+			++s;
+		} else {
+			p = s2;
+			if (!*s)
+				return NULL;
+			s = ++s1;
+		}
+	} while (1);
 }
 
-static inline void * _dl_memcpy(void * dst, const void * src, size_t len)
+static __always_inline void * _dl_memcpy(void * dst, const void * src, size_t len)
 {
 	register char *a = dst-1;
 	register const char *b = src-1;
@@ -171,27 +176,28 @@ static __always_inline int _dl_memcmp(const void * s1,const void * s2,size_t len
 /* Will generate smaller and faster code due to loop unrolling.*/
 static __always_inline void * _dl_memset(void *to, int c, size_t n)
 {
-        unsigned long chunks;
-        unsigned long *tmp_to;
+	unsigned long chunks;
+	unsigned long *tmp_to;
 	unsigned char *tmp_char;
 
-        chunks = n / 4;
-        tmp_to = to + n;
-        c = c << 8 | c;
-        c = c << 16 | c;
-        if (!chunks)
-                goto lessthan4;
-        do {
-                *--tmp_to = c;
-        } while (--chunks);
- lessthan4:
-        n = n % 4;
-        if (!n ) return to;
-        tmp_char = (unsigned char *)tmp_to;
-        do {
-                *--tmp_char = c;
-        } while (--n);
-        return to;
+	chunks = n / 4;
+	tmp_to = to + n;
+	c = c << 8 | c;
+	c = c << 16 | c;
+	if (!chunks)
+		goto lessthan4;
+	do {
+		*--tmp_to = c;
+	} while (--chunks);
+lessthan4:
+	n = n % 4;
+	if (!n)
+		return to;
+	tmp_char = (unsigned char *)tmp_to;
+	do {
+		*--tmp_char = c;
+	} while (--n);
+	return to;
 }
 #else
 static __always_inline void * _dl_memset(void * str,int c,size_t len)
@@ -250,9 +256,9 @@ static __always_inline char * _dl_simple_ltoahex(char * local, unsigned long i)
 	do {
 		char temp = i & 0xf;
 		if (temp <= 0x09)
-		    *--p = '0' + temp;
+			*--p = '0' + temp;
 		else
-		    *--p = 'a' - 0x0a + temp;
+			*--p = 'a' - 0x0a + temp;
 		i >>= 4;
 	} while (i > 0);
 	*--p = 'x';
@@ -278,8 +284,8 @@ static __always_inline char * _dl_simple_ltoahex(char * local, unsigned long i)
 
 /* On some arches constant strings are referenced through the GOT.
  * This requires that load_addr must already be defined... */
-#if defined(mc68000) || defined(__arm__) || defined(__mips__)	\
-                     || defined(__sh__) ||  defined(__powerpc__)
+#if defined(mc68000)  || defined(__arm__) || defined(__thumb__) || \
+    defined(__mips__) || defined(__sh__)  || defined(__powerpc__)
 # define CONSTANT_STRING_GOT_FIXUP(X) \
 	if ((X) < (const char *) load_addr) (X) += load_addr
 # define NO_EARLY_SEND_STDERR

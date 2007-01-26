@@ -142,6 +142,7 @@ typedef struct
 #define ELFOSABI_HPUX		1	/* HP-UX */
 #define ELFOSABI_NETBSD		2	/* NetBSD.  */
 #define ELFOSABI_LINUX		3	/* Linux.  */
+#define ELFOSABI_HURD		4	/* GNU/Hurd */
 #define ELFOSABI_SOLARIS	6	/* Sun Solaris.  */
 #define ELFOSABI_AIX		7	/* IBM AIX.  */
 #define ELFOSABI_IRIX		8	/* SGI Irix.  */
@@ -149,6 +150,9 @@ typedef struct
 #define ELFOSABI_TRU64		10	/* Compaq TRU64 UNIX.  */
 #define ELFOSABI_MODESTO	11	/* Novell Modesto.  */
 #define ELFOSABI_OPENBSD	12	/* OpenBSD.  */
+#define ELFOSABI_OPENVMS	13	/* OpenVMS */
+#define ELFOSABI_NSK		14	/* Hewlett-Packard Non-Stop Kernel */
+#define ELFOSABI_AROS		15	/* Amiga Research OS */
 #define ELFOSABI_ARM		97	/* ARM */
 #define ELFOSABI_STANDALONE	255	/* Standalone (embedded) application */
 
@@ -177,6 +181,7 @@ typedef struct
 #define EM_386		 3		/* Intel 80386 */
 #define EM_68K		 4		/* Motorola m68k family */
 #define EM_88K		 5		/* Motorola m88k family */
+#define EM_486		 6		/* Intel 80486 *//* Reserved for future use */
 #define EM_860		 7		/* Intel 80860 */
 #define EM_MIPS		 8		/* MIPS R3000 big-endian */
 #define EM_S370		 9		/* IBM System/370 */
@@ -193,7 +198,8 @@ typedef struct
 #define EM_V800		36		/* NEC V800 series */
 #define EM_FR20		37		/* Fujitsu FR20 */
 #define EM_RH32		38		/* TRW RH-32 */
-#define EM_RCE		39		/* Motorola RCE */
+#define EM_MCORE	39		/* Motorola M*Core */ /* May also be taken by Fujitsu MMA */
+#define EM_RCE		39		/* Old name for MCore */
 #define EM_ARM		40		/* ARM */
 #define EM_FAKE_ALPHA	41		/* Digital Alpha */
 #define EM_SH		42		/* Renesas SH */
@@ -248,18 +254,105 @@ typedef struct
 #define EM_OPENRISC	92		/* OpenRISC 32-bit embedded processor */
 #define EM_ARC_A5	93		/* ARC Cores Tangent-A5 */
 #define EM_XTENSA	94		/* Tensilica Xtensa Architecture */
+#define EM_IP2K		101		/* Ubicom IP2022 micro controller */
+#define EM_CR		103		/* National Semiconductor CompactRISC */
+#define EM_MSP430	105		/* TI msp430 micro controller */
+#define EM_BLACKFIN	106		/* Analog Devices Blackfin */
+#define EM_ALTERA_NIOS2	113	/* Altera Nios II soft-core processor */
+#define EM_CRX		114		/* National Semiconductor CRX */
 #define EM_NUM		95
 
-/* If it is necessary to assign new unofficial EM_* values, please
-   pick large random numbers (0x8523, 0xa7f2, etc.) to minimize the
-   chances of collision with official or non-GNU unofficial values.  */
+/* If it is necessary to assign new unofficial EM_* values, please pick large
+   random numbers (0x8523, 0xa7f2, etc.) to minimize the chances of collision
+   with official or non-GNU unofficial values.
 
-/* Fujitsu FR-V.  */
+   NOTE: Do not just increment the most recent number by one.
+   Somebody else somewhere will do exactly the same thing, and you
+   will have a collision.  Instead, pick a random number.
+
+   Normally, each entity or maintainer responsible for a machine with an
+   unofficial e_machine number should eventually ask registry@caldera.com for
+   an officially blessed number to be added to the list above.  */
+
+/* picoJava */
+#define EM_PJ_OLD	99
+
+/* Cygnus PowerPC ELF backend.  Written in the absence of an ABI.  */
+#define EM_CYGNUS_POWERPC 0x9025
+
+/* Old version of Sparc v9, from before the ABI; this should be
+   removed shortly.  */
+#define EM_OLD_SPARCV9	11
+
+/* Old version of PowerPC, this should be removed shortly. */
+#define EM_PPC_OLD	17
+
+/* (Deprecated) Temporary number for the OpenRISC processor.  */
+#define EM_OR32		0x8472
+
+/* Renesas M32C and M16C.  */
+#define EM_M32C			0xFEB0
+
+/* Cygnus M32R ELF backend.  Written in the absence of an ABI.  */
+#define EM_CYGNUS_M32R	0x9041
+
+/* old S/390 backend magic number. Written in the absence of an ABI.  */
+#define EM_S390_OLD	0xa390
+
+/* D10V backend magic number.  Written in the absence of an ABI.  */
+#define EM_CYGNUS_D10V	0x7650
+
+/* D30V backend magic number.  Written in the absence of an ABI.  */
+#define EM_CYGNUS_D30V	0x7676
+
+/* V850 backend magic number.  Written in the absense of an ABI.  */
+#define EM_CYGNUS_V850	0x9080
+
+/* mn10200 and mn10300 backend magic numbers.
+   Written in the absense of an ABI.  */
+#define EM_CYGNUS_MN10200	0xdead
+#define EM_CYGNUS_MN10300	0xbeef
+
+/* FR30 magic number - no EABI available.  */
+#define EM_CYGNUS_FR30		0x3330
+
+/* AVR magic number
+   Written in the absense of an ABI.  */
+#define EM_AVR_OLD		0x1057
+
+/* OpenRISC magic number
+   Written in the absense of an ABI.  */
+#define EM_OPENRISC_OLD		0x3426
+
+/* DLX magic number
+   Written in the absense of an ABI.  */
+#define EM_DLX			0x5aa5
+
+#define EM_XSTORMY16		0xad45
+
+/* FRV magic number - no EABI available??.  */
 #define EM_CYGNUS_FRV	0x5441
 
+/* Ubicom IP2xxx; no ABI */
+#define EM_IP2K_OLD		0x8217
+
+#define EM_MT                   0x2530  /* Morpho MT; no ABI */
+
+/* MSP430 magic number
+      Written in the absense everything.  */
+#define EM_MSP430_OLD		0x1059
+
+/* Vitesse IQ2000.  */
+#define EM_IQ2000		0xFEBA
+
+/* Old, unofficial value for Xtensa.  */
+#define EM_XTENSA_OLD		0xabc7
+
+/* Alpha backend magic number.  Written in the absence of an ABI.  */
 #define EM_ALPHA	0x9026
-#define EM_NIOS32	0xfebb		/* Altera Nios 32 */
-#define EM_ALTERA_NIOS2  0x9ee5	/* Altera Nios II */
+
+/* NIOS magic number - no EABI available.  */
+#define EM_NIOS32	0xFEBB
 
 /* V850 backend magic number.  Written in the absense of an ABI.  */
 #define EM_CYGNUS_V850 0x9080
@@ -2498,6 +2591,12 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_390_NUM		61
 
 
+/* CRIS flags.  */
+#define EF_CRIS_VARIANT_MASK           0x0000000e
+#define EF_CRIS_VARIANT_ANY_V0_V10     0x00000000
+#define EF_CRIS_VARIANT_V32            0x00000002
+#define EF_CRIS_VARIANT_COMMON_V10_V32 0x00000004
+
 /* CRIS relocations.  */
 #define R_CRIS_NONE		0
 #define R_CRIS_8		1
@@ -2688,6 +2787,7 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_V850_NUM		25
 
 
+/* Renesas H8/300 Relocations */
 #define R_H8_NONE       0
 #define R_H8_DIR32      1
 #define R_H8_DIR32_28   2
@@ -2731,8 +2831,7 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_H8_DIR32A16  63
 #define R_H8_ABS32     65
 #define R_H8_ABS32A16 127
-
-/* Altera NIOS specific definitions.  */
+#define R_H8_NUM      128
 
 /* NIOS relocations. */
 #define R_NIOS_NONE				0

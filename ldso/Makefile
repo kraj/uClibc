@@ -37,15 +37,12 @@ endif
 
 LN_HEADERS      := $(patsubst %, include/%, elf.h)
 LN_ARCH_HEADERS := $(patsubst %, include/%, dl-startup.h dl-syscalls.h dl-sysdep.h dl-debug.h)
-HEADERS         := $(LN_HEADERS) $(LN_ARCH_HEADERS) include/dl-progname.h
+HEADERS         := $(LN_HEADERS) $(LN_ARCH_HEADERS)
 headers: $(HEADERS)
 $(LN_HEADERS):
 	$(LN) -fs $(TOPDIR)../$@ $@
 $(LN_ARCH_HEADERS):
 	$(LN) -fs ../ldso/$(TARGET_ARCH)/$(patsubst include/%,%,$@) $@
-include/dl-progname.h:
-	echo '#include "$(TARGET_ARCH)/elfinterp.c"' \
-		> include/dl-progname.h
 
 clean:
 	set -e ; for d in $(DIRS) ; do $(MAKE) -C $$d $@ ; done

@@ -42,7 +42,9 @@ XXFLAGS+=$(OPTIMIZATION)
 endif
 XXFLAGS+= -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
+	-fno-builtin -nostdinc -D_LIBC \
+	-DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\" \
+	-I$(TOPDIR)ldso/ldso/$(TARGET_ARCH) -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I$(TOPDIR)include
 XXFLAGS += -D_GNU_SOURCE
 
 # BEWARE!!! At least mips* will die if -O0 is used!!!

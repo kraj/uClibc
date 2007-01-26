@@ -155,6 +155,20 @@
 #define TZNAME_MAX _POSIX_TZNAME_MAX
 #endif
 
+#if defined (L_tzset) || defined (L_localtime_r) || defined(L_strftime) || \
+    defined(L__time_mktime) || defined(L__time_mktime_tzi)
+
+void _time_tzset (int);
+
+#ifndef L__time_mktime
+
+ /* Jan 1, 2007 Z - tm = 0,0,0,1,0,107,1,0,0 */
+
+const static time_t new_rule_starts = 1167609600;
+
+#endif
+#endif
+
 /**********************************************************************/
 /* The era code is currently unfinished. */
 /*  #define ENABLE_ERA_CODE */
@@ -542,13 +556,13 @@ struct tm *localtime(const time_t *timer)
 struct tm *localtime_r(register const time_t *__restrict timer,
 					   register struct tm *__restrict result)
 {
-	TZLOCK;
+	__UCLIBC_MUTEX_LOCK(_time_tzlock);
 
-	tzset();
+	_time_tzset(*timer < new_rule_starts);
 
 	__time_localtime_tzi(timer, result, _time_tzinfo);
 
-	TZUNLOCK;
+	__UCLIBC_MUTEX_UNLOCK(_time_tzlock);
 
 	return result;
 }
@@ -968,7 +982,8 @@ size_t __XL(strftime)(char *__restrict s, size_t maxsize,
 	unsigned char mod;
 	unsigned char code;
 
-	tzset();					/* We'll, let's get this out of the way. */
+	/* We'll, let's get this out of the way. */
+	_time_tzset(_time_mktime((struct tm *) timeptr, 0) < new_rule_starts);
 
 	lvl = 0;
 	p = format;
@@ -1650,7 +1665,9 @@ static const char vals[] = {
 	6,  0,  0,					/* Note: overloaded for non-M non-J case... */
 	0, 1, 0,					/* J */
 	',', 'M',      '4', '.', '1', '.', '0',
-	',', 'M', '1', '0', '.', '5', '.', '0', 0
+	',', 'M', '1', '0', '.', '5', '.', '0', 0,
+	',', 'M',      '3', '.', '2', '.', '0',
+	',', 'M', '1', '1', '.', '1', '.', '0', 0
 };
 
 #define TZ    vals
@@ -1658,6 +1675,7 @@ static const char vals[] = {
 #define RANGE (vals + 7)
 #define RULE  (vals + 11 - 1)
 #define DEFAULT_RULES (vals + 22)
+#define DEFAULT_2007_RULES (vals + 38)
 
 /* Initialize to UTC. */
 int daylight = 0;
@@ -1782,6 +1800,11 @@ static char *read_TZ_file(char *buf)
 
 void tzset(void)
 {
+    _time_tzset((time(NULL)) < new_rule_starts);
+}
+
+void _time_tzset(int use_old_rules)
+{
 	register const char *e;
 	register char *s;
 	long off;
@@ -1904,7 +1927,15 @@ void tzset(void)
 	} else {					/* OK, we have dst, so get some rules. */
 		count = 0;
 		if (!*e) {				/* No rules so default to US rules. */
-			e = DEFAULT_RULES;
+		        e = use_old_rules ? DEFAULT_RULES : DEFAULT_2007_RULES;
+#ifdef DEBUG_TZSET			
+			if (e == DEFAULT_RULES)
+			    printf("tzset: Using old rules.\n");
+			else if (e == DEFAULT_2007_RULES)
+			    printf("tzset: Using new rules\n");
+			else
+			    printf("tzset: Using undefined rules\n");
+#endif /* DEBUG_TZSET */
 		}
 
 		do {
@@ -2237,6 +2268,8 @@ time_t _time_mktime_tzi(struct tm *timeptr, int store_on_success,
 		++s;
 		--d;
 	}
+
+	_time_tzset (x.tm_year < 2007);	/* tm_year was expanded above */
 
 #ifdef __BCC__
 	d = p[5] - 1;

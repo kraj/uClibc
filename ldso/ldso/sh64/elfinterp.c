@@ -41,6 +41,8 @@
    a more than adequate job of explaining everything required to get this
    working. */
 
+#include "ldso.h"
+
 extern int _dl_linux_resolve(void);
 
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)

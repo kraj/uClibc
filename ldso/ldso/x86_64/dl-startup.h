@@ -6,7 +6,7 @@
  *
  * Parts taken from glibc/sysdeps/x86_64/dl-machine.h
  */
-asm(
+__asm__ (
 	"	.text\n"
 	"	.align 16\n"
 	"	.global _start\n"
@@ -42,10 +42,10 @@ asm(
 
 /* Handle relocation of the symbols in the dynamic loader. */
 static __always_inline
-void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
-	unsigned long symbol_addr, unsigned long load_addr, Elf64_Sym *sym)
+void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, ElfW(Addr) *reloc_addr,
+	ElfW(Addr) symbol_addr, ElfW(Addr) load_addr, ElfW(Sym) *sym)
 {
-	switch (ELF64_R_TYPE(rpnt->r_info)) {
+	switch (ELF_R_TYPE(rpnt->r_info)) {
 		case R_X86_64_GLOB_DAT:
 		case R_X86_64_JUMP_SLOT:
 			*reloc_addr = symbol_addr + rpnt->r_addend;
@@ -63,8 +63,3 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 			_dl_exit(1);
 	}
 }
-
-/* Transfer control to the user's application, once the dynamic loader is
- * done.  This routine has to exit the current function, then call the
- * _dl_elf_main function.  */
-#define START() return _dl_elf_main

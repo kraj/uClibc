@@ -18,8 +18,6 @@
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry);
 
-#define do_rem(result, n, base) ((result) = (n) % (base))
-
 /* 8192 bytes alignment */
 #define PAGE_ALIGN 0xffffe000
 #define ADDR_ALIGN 0x1fff
@@ -68,8 +66,32 @@ elf_machine_load_address(void)
 {
 	Elf32_Addr gotaddr_diff;
 
+#ifdef __arch_v32
+	extern char ___CRISv32_dummy[] __asm__ ("_dl_start");
+
+	__asm__ ("addo.w _dl_start:GOT16,$r0,$acr\n\t"
+	         "lapc _dl_start,%0\n\t"
+	         "sub.d [$acr],%0"
+	         /* For v32, we need to force GCC to have R0 loaded with
+	            _GLOBAL_OFFSET_TABLE_ at this point, which might not
+	            otherwise have happened in the caller.  (For v10, it's
+	            loaded for non-global variables too, so we don't need
+	            anything special there.)  We accomplish this by faking the
+	            address of a global variable (as seen by GCC) as input to
+	            the asm; that address calculation goes through the GOT.
+	            Use of this function happens before we've filled in the
+	            GOT, so the address itself will not be correctly
+	            calculated, therefore we don't use any symbol whose
+	            address may be re-used later on.  Let's just reuse the
+	            _dl_start symbol, faking it as a global by renaming it as
+	            another variable through an asm.  */
+	         : "=r" (gotaddr_diff)
+	         : "g" (___CRISv32_dummy)
+	         : "acr");
+#else
 	__asm__ ("sub.d [$r0+_dl_start:GOT16],$r0,%0\n\t"
 	         "add.d _dl_start:GOTOFF,%0" : "=r" (gotaddr_diff));
+#endif
 	return gotaddr_diff;
 }
 

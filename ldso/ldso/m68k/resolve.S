@@ -8,14 +8,16 @@
 .globl _dl_linux_resolve
 	.type	_dl_linux_resolve,@function
 _dl_linux_resolve:
-	moveml	%a0/%a1,%sp@-
-#ifdef __PIC__
-	bsrl	_dl_linux_resolver@PLTPC
-#else
-	jbsr	_dl_linux_resolver
-#endif
-	moveml	%sp@+,%a0/%a1
-	addql 	#8,%sp
-	jmp	@(%d0)
-.LFE2:
-	.size _dl_linux_resolve,.LFE2-_dl_linux_resolve
+	# Save %a0 (struct return address) and %a1.
+	move.l %a0, -(%sp)
+	move.l %a1, -(%sp)
+	# Call the real address resolver.
+	jbsr _dl_linux_resolver
+	# Restore register %a0 and %a1.
+	move.l (%sp)+, %a1
+	move.l (%sp)+, %a0
+	# Pop parameters
+	addq.l #8, %sp
+	# Call real function.
+	jmp (%d0)
+.size _dl_linux_resolve,.-_dl_linux_resolve

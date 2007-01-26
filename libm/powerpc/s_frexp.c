@@ -21,13 +21,14 @@
 
 #include <limits.h>
 #include <math.h>
+#include <endian.h>
 
 static const double two54 =  1.80143985094819840000e+16; /* 0x43500000, 0x00000000 */
 
 typedef union
       {
       struct {
-#if defined(__BIG_ENDIAN__)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
         unsigned long int hi;
         unsigned long int lo;
 #else

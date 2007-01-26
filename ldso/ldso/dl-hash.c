@@ -57,7 +57,7 @@ struct dyn_elf *_dl_handles = NULL;
 /* This is the hash function that is used by the ELF linker to generate the
  * hash table that each executable and library is required to have.  We need
  * it to decode the hash table.  */
-static inline Elf32_Word _dl_elf_hash(const char *name)
+static inline Elf_Symndx _dl_elf_hash(const char *name)
 {
 	unsigned long hash=0;
 	unsigned long tmp;
@@ -77,21 +77,6 @@ static inline Elf32_Word _dl_elf_hash(const char *name)
 	return hash;
 }
 
-/* Check to see if a library has already been added to the hash chain.  */
-struct elf_resolve *_dl_check_hashed_files(const char *libname)
-{
-	struct elf_resolve *tpnt;
-	int len = _dl_strlen(libname);
-
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		if (_dl_strncmp(tpnt->libname, libname, len) == 0 &&
-		    (tpnt->libname[len] == '\0' || tpnt->libname[len] == '.'))
-			return tpnt;
-	}
-
-	return NULL;
-}
-
 /*
  * We call this function when we have just read an ELF library or executable.
  * We add the relevant info to the symbol chain, so that we can resolve all
@@ -99,9 +84,10 @@ struct elf_resolve *_dl_check_hashed_files(const char *libname)
  */
 struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
+	//attribute_unused
 	unsigned long dynamic_size)
 {
-	Elf32_Word *hash_addr;
+	Elf_Symndx *hash_addr;
 	struct elf_resolve *tpnt;
 	int i;
 
@@ -125,7 +111,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	tpnt->libtype = loaded_file;
 
 	if (dynamic_info[DT_HASH] != 0) {
-		hash_addr = (Elf32_Word*)dynamic_info[DT_HASH];
+		hash_addr = (Elf_Symndx*)dynamic_info[DT_HASH];
 		tpnt->nbucket = *hash_addr++;
 		tpnt->nchain = *hash_addr++;
 		tpnt->elf_buckets = hash_addr;

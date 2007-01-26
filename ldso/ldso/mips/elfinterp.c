@@ -27,6 +27,8 @@
  * SUCH DAMAGE.
  */
 
+#include "ldso.h"
+
 extern int _dl_runtime_resolve(void);
 
 #define OFFSET_GP_GOT 0x7ff0
@@ -146,7 +148,6 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 			break;
 		default:
 			{
-				int reloc_type = ELF32_R_TYPE(rpnt->r_info);
 				_dl_dprintf(2, "\n%s: ",_dl_progname);
 
 				if (symtab_index)

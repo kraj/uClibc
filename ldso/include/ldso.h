@@ -1,3 +1,10 @@
+/* vi: set sw=4 ts=4: */
+/*
+ * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ *
+ * GNU Lesser General Public License version 2.1 or later.
+ */
+
 #ifndef _LDSO_H_
 #define _LDSO_H_
 
@@ -20,13 +27,15 @@
 /* Pull in compiler and arch stuff */
 #include <stdlib.h>
 #include <stdarg.h>
+#include <bits/wordsize.h>
 /* Pull in the arch specific type information */
 #include <sys/types.h>
+/* Pull in the arch specific page size */
+#include <bits/uClibc_page.h>
+#define attribute_unused __attribute__ ((unused))
 /* Pull in the ldso syscalls and string functions */
 #include <dl-syscall.h>
 #include <dl-string.h>
-/* Pull in the arch specific page size */
-#include <bits/uClibc_page.h>
 /* Now the ldso specific headers */
 #include <dl-elf.h>
 #include <dl-hash.h>

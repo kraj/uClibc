@@ -1,3 +1,10 @@
+/* vi: set sw=4 ts=4: */
+/*
+ * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ *
+ * GNU Lesser General Public License version 2.1 or later.
+ */
+
 #ifndef _LD_HASH_H_
 #define _LD_HASH_H_
 
@@ -32,15 +39,15 @@ struct elf_resolve{
   unsigned short usage_count;
   unsigned short int init_flag;
   unsigned long rtld_flags; /* RTLD_GLOBAL, RTLD_NOW etc. */
-  Elf32_Word nbucket;
-  Elf32_Word *elf_buckets;
+  Elf_Symndx nbucket;
+  Elf_Symndx *elf_buckets;
   struct init_fini_list *init_fini;
   struct init_fini_list *rtld_local; /* keep tack of RTLD_LOCAL libs in same group */
   /*
    * These are only used with ELF style shared libraries
    */
-  Elf32_Word nchain;
-  Elf32_Word *chains;
+  Elf_Symndx nchain;
+  Elf_Symndx *chains;
   unsigned long dynamic_info[DYNAMIC_SIZE];
 
   unsigned long n_phent;
@@ -48,6 +55,9 @@ struct elf_resolve{
 
   ElfW(Addr) relro_addr;
   size_t relro_size;
+
+  dev_t st_dev;      /* device */
+  ino_t st_ino;      /* inode */
 
 #ifdef __powerpc__
   /* this is used to store the address of relocation data words, so
@@ -66,7 +76,6 @@ extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;
 extern struct dyn_elf 	  * _dl_handles;
 
-extern struct elf_resolve * _dl_check_hashed_files(const char * libname);
 extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname, 
 	char * loadaddr, unsigned long * dynamic_info, 
 	unsigned long dynamic_addr, unsigned long dynamic_size);

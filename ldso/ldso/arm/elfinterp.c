@@ -38,6 +38,8 @@
    a more than adequate job of explaining everything required to get this
    working. */
 
+#include "ldso.h"
+
 extern int _dl_linux_resolve(void);
 
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
@@ -62,7 +64,6 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + symtab[symtab_index].st_name;
-
 
 	if (unlikely(reloc_type != R_ARM_JUMP_SLOT)) {
 		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",

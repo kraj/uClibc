@@ -41,8 +41,6 @@ do {														\
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
-#define do_rem(result, n, base) ((result) = (n) % (base))
-
 /* 4096 bytes alignment */
 #define PAGE_ALIGN 0xfffff000
 #define ADDR_ALIGN 0xfff
@@ -90,7 +88,7 @@ elf_machine_load_address (void)
      and compare it with the current value that we can get via
      an RIP relative addressing mode.  */
 
-  asm ("movq 1f(%%rip), %1\n"
+  __asm__ ("movq 1f(%%rip), %1\n"
        "0:\tleaq _dl_start(%%rip), %0\n\t"
        "subq %1, %0\n\t"
        ".section\t.data\n"

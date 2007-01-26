@@ -98,7 +98,7 @@
 int (*_dl_elf_main) (int, char **, char **);
 
 static void* __rtld_stack_end; /* Points to argc on stack, e.g *((long *)__rtld_stackend) == argc */
-strong_alias(__rtld_stack_end, __libc_stack_end); /* Exported version of __rtld_stack_end */
+strong_alias(__rtld_stack_end, __libc_stack_end) /* Exported version of __rtld_stack_end */
 
 /* When we enter this piece of code, the program stack looks like this:
 	argc            argument counter (integer)
@@ -307,5 +307,11 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	SEND_STDERR_DEBUG("transfering control to application @ ");
 	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_val;
 	SEND_ADDRESS_STDERR_DEBUG(_dl_elf_main, 1);
+
+#ifndef START
+	return _dl_elf_main;
+#else
+#warning You need to update your arch ldso code
 	START();
+#endif
 }

@@ -9,7 +9,9 @@
 ! Copyright 2002 SuperH Ltd.
 !
 
-#ifdef __LITTLE_ENDIAN__
+#include <endian.h>
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 #define SHHI shlld
 #define SHLO shlrd
 #else

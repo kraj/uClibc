@@ -29,12 +29,14 @@ XXFLAGS+=$(OPTIMIZATION)
 endif
 XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I. -I$(TOPDIR)include
+	-fno-builtin -nostdinc -D_LIBC \
+	-DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\" \
+	-I$(TOPDIR)ldso/ldso/$(TARGET_ARCH) -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I$(TOPDIR)include
 
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 XXFLAGS_NOPIC:=$(XXFLAGS)
 ifeq ($(DOPIC),y)
-    XXFLAGS += $(PICFLAG) -D__LIBDL_SHARED__
+    XXFLAGS += $(PICFLAG) -DSHARED
 endif
 ifeq ($(strip $(SUPPORT_LD_DEBUG)),y)
 XXFLAGS+=-D__SUPPORT_LD_DEBUG__

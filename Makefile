@@ -158,7 +158,7 @@ install_dev:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
-	if [ "$(KERNEL_SOURCE)" == "$(DEVEL_PREFIX)" ] ; then \
+	if [ "$(KERNEL_SOURCE)" = "$(DEVEL_PREFIX)" ] ; then \
 		extra_exclude="--exclude include/linux --exclude include/asm'*'" ; \
 	else \
 		extra_exclude="" ; \
