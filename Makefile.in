@@ -340,7 +340,6 @@ distclean: clean
 	$(MAKE) -C extra/config config_clean
 
 dist release:
-	$(MAKE) -s distclean
 	$(RM) -r ../uClibc-$(VERSION) ../uClibc-$(VERSION).tar.gz
 	svn -q export . ../uClibc-$(VERSION)
 	$(TAR) czf ../uClibc-$(VERSION).tar.gz -C .. uClibc-$(VERSION)
