@@ -192,6 +192,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	unsigned long *_dl_envp;		/* The environment address */
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
+	struct stat st;
 
 	/* Wahoo!!! We managed to make a function call!  Get malloc
 	 * setup so we can use _dl_dprintf() to print debug noise
@@ -725,6 +726,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 					      (unsigned long)tpnt->dynamic_addr,
 					      0);
 
+		if (_dl_stat(tpnt->libname, &st) >= 0) {
+			tpnt->st_dev = st.st_dev;
+			tpnt->st_ino = st.st_ino;
+		} 
 		tpnt->n_phent = epnt->e_phnum;
 		tpnt->ppnt = myppnt;
 		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {

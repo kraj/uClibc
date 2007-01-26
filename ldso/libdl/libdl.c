@@ -246,35 +246,30 @@ void *dlopen(const char *libname, int flag)
 
 				tpnt1->rtld_flags |= (flag & RTLD_GLOBAL);
 
-				if (tpnt1->usage_count == 1) {
-					tpnt1->init_flag |= DL_OPENED;
-					/* This list is for dlsym() and relocation */
-					dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
-					_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
-					dyn_ptr = dyn_ptr->next;
-					dyn_ptr->dyn = tpnt1;
-				}
-				if (tpnt1->init_flag & DL_OPENED) {
-					/* Used to record RTLD_LOCAL scope */
-					tmp = alloca(sizeof(struct init_fini_list));
-					tmp->tpnt = tpnt1;
-					tmp->next = runp->tpnt->init_fini;
-					runp->tpnt->init_fini = tmp;
+				/* This list is for dlsym() and relocation */
+				dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
+				_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
+				dyn_ptr = dyn_ptr->next;
+				dyn_ptr->dyn = tpnt1;
+				/* Used to record RTLD_LOCAL scope */
+				tmp = alloca(sizeof(struct init_fini_list));
+				tmp->tpnt = tpnt1;
+				tmp->next = runp->tpnt->init_fini;
+				runp->tpnt->init_fini = tmp;
 
-					for (tmp=dep_list; tmp; tmp = tmp->next) {
-						if (tpnt1 == tmp->tpnt) { /* if match => cirular dependency, drop it */
-							_dl_if_debug_print("Circular dependency, skipping '%s',\n",
-									tmp->tpnt->libname);
-							tpnt1->usage_count--;
-							break;
-						}
+				for (tmp=dep_list; tmp; tmp = tmp->next) {
+					if (tpnt1 == tmp->tpnt) { /* if match => cirular dependency, drop it */
+						_dl_if_debug_print("Circular dependency, skipping '%s',\n",
+								   tmp->tpnt->libname);
+						tpnt1->usage_count--;
+						break;
 					}
-					if (!tmp) { /* Don't add if circular dependency detected */
-						runp2->next = alloca(sizeof(*runp));
-						runp2 = runp2->next;
-						runp2->tpnt = tpnt1;
-						runp2->next = NULL;
-					}
+				}
+				if (!tmp) { /* Don't add if circular dependency detected */
+					runp2->next = alloca(sizeof(*runp));
+					runp2 = runp2->next;
+					runp2->tpnt = tpnt1;
+					runp2->next = NULL;
 				}
 			}
 		}
@@ -441,8 +436,10 @@ void *dlsym(void *vhandle, const char *name)
 			}
 		}
 	}
-
-	ret = _dl_find_hash((char*)name, handle, NULL, 0);
+	tpnt = NULL;
+	if (handle == _dl_symbol_tables)
+	   tpnt = handle->dyn; /* Only search RTLD_GLOBAL objs if global object */
+	ret = _dl_find_hash((char*)name, handle, tpnt, 0);
 
 	/*
 	 * Nothing found.
