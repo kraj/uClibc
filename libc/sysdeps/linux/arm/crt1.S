@@ -119,9 +119,10 @@ _start:
 	 * uClinux/arm stacks look a little different from normal
 	 * MMU-full Linux/arm stacks (for no good reason)
 	 */
-	/* pull argc and argv off the stack */
-	ldr a2, [sp, #0]
-	ldr a3, [sp, #4]
+	/* pull argc and argv off the stack.  We are going to push 3
+	 * arguments, so pop one here to maintain doubleword alignment.  */
+	ldr a2, [sp], #4
+	ldr a3, [sp]
 #endif
 
 	/* Push stack limit */
