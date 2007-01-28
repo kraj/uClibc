@@ -15,8 +15,8 @@
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, write to the Free
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA. 
-   
+   02111-1307 USA.
+
    Modified for uClibc by Erik Andersen <andersen@codepoet.org>
    */
 
@@ -24,9 +24,12 @@
 #include <sys/stat.h>
 #include "xstatconv.h"
 
+libc_hidden_proto(memset)
+
 void attribute_hidden __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 {
 	/* Convert to current kernel version of `struct stat'. */
+	memset(buf, 0x00, sizeof(*buf));
 	buf->st_dev = kbuf->st_dev;
 	buf->st_ino = kbuf->st_ino;
 	buf->st_mode = kbuf->st_mode;
@@ -52,6 +55,7 @@ void attribute_hidden __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 void attribute_hidden __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 {
 	/* Convert to current kernel version of `struct stat64'. */
+	memset(buf, 0x00, sizeof(*buf));
 	buf->st_dev = kbuf->st_dev;
 	buf->st_ino = kbuf->st_ino;
 # ifdef _HAVE_STAT64___ST_INO
