@@ -559,7 +559,7 @@ extern long int pathconf (__const char *__path, int __name)
 extern long int fpathconf (int __fd, int __name) __THROW;
 
 /* Get the value of the system variable NAME.  */
-extern long int sysconf (int __name) __THROW __attribute__ ((__const__));
+extern long int sysconf (int __name) __THROW;
 
 #ifdef	__USE_POSIX2
 /* Get the value of the string-valued system variable NAME.  */
@@ -760,7 +760,8 @@ extern int link (__const char *__from, __const char *__to)
 /* Like link but relative paths in TO and FROM are interpreted relative
    to FROMFD and TOFD respectively.  */
 extern int linkat (int __fromfd, __const char *__from, int __tofd,
-		   __const char *__to) __THROW __nonnull ((2, 4)) __wur;
+		   __const char *__to, int __flags)
+     __THROW __nonnull ((2, 4)) __wur;
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K
@@ -771,8 +772,9 @@ extern int symlink (__const char *__from, __const char *__to)
 /* Read the contents of the symbolic link PATH into no more than
    LEN bytes of BUF.  The contents are not null-terminated.
    Returns the number of characters read, or -1 for errors.  */
-extern int readlink (__const char *__restrict __path, char *__restrict __buf,
-		     size_t __len) __THROW __nonnull ((1, 2)) __wur;
+extern ssize_t readlink (__const char *__restrict __path,
+			 char *__restrict __buf, size_t __len)
+     __THROW __nonnull ((1, 2)) __wur;
 #endif /* Use BSD.  */
 
 #ifdef __USE_ATFILE
@@ -781,8 +783,8 @@ extern int symlinkat (__const char *__from, int __tofd,
 		      __const char *__to) __THROW __nonnull ((1, 3)) __wur;
 
 /* Like readlink but a relative PATH is interpreted relative to FD.  */
-extern int readlinkat (int __fd, __const char *__restrict __path,
-		       char *__restrict __buf, size_t __len)
+extern ssize_t readlinkat (int __fd, __const char *__restrict __path,
+			   char *__restrict __buf, size_t __len)
      __THROW __nonnull ((2, 3)) __wur;
 #endif
 
@@ -811,7 +813,7 @@ extern int tcsetpgrp (int __fd, __pid_t __pgrp_id) __THROW;
    This function is a possible cancellation points and therefore not
    marked with __THROW.  */
 extern char *getlogin (void);
-#if defined __USE_REENTRANT || defined __USE_UNIX98
+#if defined __USE_REENTRANT || defined __USE_POSIX199506
 /* Return at most NAME_LEN characters of the login name of the user in NAME.
    If it cannot be determined or some other error occurred, return the error
    code.  Otherwise return 0.
