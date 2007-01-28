@@ -119,17 +119,6 @@ static inline _syscall0(gid_t, _dl_getpid);
 static inline _syscall3(int, _dl_readlink, const char *, path, char *, buf,
                         size_t, bufsiz);
 
-#ifdef __UCLIBC_HAS_SSP__
-# include <sys/time.h>
-# define __NR__dl_gettimeofday __NR_gettimeofday
-static inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv,
-# ifdef __USE_BSD
-                        struct timezone *, tz);
-# else
-                        void *, tz);
-# endif
-#endif
-
 
 /* handle all the fun mmap intricacies */
 #if (defined(__UCLIBC_MMAP_HAS_6_ARGS__) && defined(__NR_mmap)) || !defined(__NR_mmap2)

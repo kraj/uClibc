@@ -86,24 +86,6 @@ static struct elf_resolve **init_fini_list;
 static unsigned int nlist; /* # items in init_fini_list */
 extern void _start(void);
 
-#ifdef __UCLIBC_HAS_SSP__
-#ifndef __UCLIBC_HAS_SSP_COMPAT__
-#define __UCLIBC_HAS_SSP_COMPAT__ 1
-#endif
-# include <dl-osinfo.h>
-uintptr_t stack_chk_guard;
-# ifndef THREAD_SET_STACK_GUARD
-/* Only exported for architectures that don't store the stack guard canary
- * in local thread area.  */
-uintptr_t __stack_chk_guard attribute_relro;
-#  ifdef __UCLIBC_HAS_SSP_COMPAT__
-strong_alias(__stack_chk_guard,__guard)
-#  endif
-# elif __UCLIBC_HAS_SSP_COMPAT__
-uintptr_t __guard attribute_relro;
-# endif
-#endif
-
 static void _dl_run_array_forward(unsigned long array, unsigned long size,
 				  ElfW(Addr) loadaddr)
 {
@@ -268,20 +250,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		/* SUID binaries can be exploited if they do LAZY relocation. */
 		unlazy = RTLD_NOW;
 	}
-
-	/* sjhill: your TLS init should go before this */
-#ifdef __UCLIBC_HAS_SSP__
-	/* Set up the stack checker's canary.  */
-	stack_chk_guard = _dl_setup_stack_chk_guard ();
-# ifdef THREAD_SET_STACK_GUARD
-	THREAD_SET_STACK_GUARD (stack_chk_guard);
-#  ifdef __UCLIBC_HAS_SSP_COMPAT__
-	__guard = stack_chk_guard;
-#  endif
-# else
-	__stack_chk_guard = stack_chk_guard;
-# endif
-#endif
 
 	/* At this point we are now free to examine the user application,
 	 * and figure out which libraries are supposed to be called.  Until
