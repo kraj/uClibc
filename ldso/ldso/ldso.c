@@ -494,7 +494,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 					else
 #endif
 					{
-						_dl_dprintf(_dl_debug_file, "%s: can't load " "library '%s'\n", _dl_progname, str);
+						_dl_dprintf(2, "%s: can't load " "library '%s'\n", _dl_progname, str);
 						_dl_exit(15);
 					}
 				} else {
@@ -537,7 +537,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		}
 
 		if ((fd = _dl_open(LDSO_PRELOAD, O_RDONLY, 0)) < 0) {
-			_dl_dprintf(_dl_debug_file, "%s: can't open file '%s'\n",
+			_dl_dprintf(2, "%s: can't open file '%s'\n",
 				    _dl_progname, LDSO_PRELOAD);
 			break;
 		}
@@ -546,7 +546,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 					     PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 		_dl_close(fd);
 		if (preload == (caddr_t) -1) {
-			_dl_dprintf(_dl_debug_file, "%s:%i: can't map '%s'\n",
+			_dl_dprintf(2, "%s:%i: can't map '%s'\n",
 				    _dl_progname, __LINE__, LDSO_PRELOAD);
 			break;
 		}
@@ -585,7 +585,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 				else
 #endif
 				{
-					_dl_dprintf(_dl_debug_file, "%s: can't load library '%s'\n", _dl_progname, cp2);
+					_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, cp2);
 					_dl_exit(15);
 				}
 			} else {
@@ -638,7 +638,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 					} else
 #endif
 					{
-						_dl_dprintf(_dl_debug_file, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
+						_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
 						_dl_exit(16);
 					}
 				}
@@ -937,7 +937,7 @@ void *_dl_malloc(int size)
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size,
 				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
-			_dl_dprintf(_dl_debug_file, "%s: mmap of a spare page failed!\n", _dl_progname);
+			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
 			_dl_exit(20);
 		}
 	}
