@@ -368,10 +368,10 @@ distclean: clean
 	$(MAKE) -C extra clean
 
 dist release:
-	$(RM) -r ../uClibc-$(VERSION) ../uClibc-$(VERSION).tar.gz
+	$(RM) -r ../uClibc-$(VERSION) ../uClibc-$(VERSION).tar.bz2
 	svn -q export . ../uClibc-$(VERSION)
-	tar czf ../uClibc-$(VERSION).tar.gz -C .. uClibc-$(VERSION)
-	du -b ../uClibc-$(VERSION).tar.gz
+	tar cjf ../uClibc-$(VERSION).tar.bz2 -C .. uClibc-$(VERSION)
+	du -b ../uClibc-$(VERSION).tar.bz2
 
 endif # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
