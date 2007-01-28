@@ -2,7 +2,7 @@
 #define	_BSWAP_H 1
 
 #if !defined(__BYTE_ORDER) && defined(BYTE_ORDER)
-#  define __BYTE_ORDER = BYTE_ORDER
+# define __BYTE_ORDER BYTE_ORDER
 #endif
 
 #ifndef __BYTE_ORDER
