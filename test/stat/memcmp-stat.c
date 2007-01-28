@@ -72,6 +72,9 @@ int main()
 	int fd;
 	struct stat fst, st;
 
+	memset(&fst, 0xAA, sizeof(fst));
+	memset(&st, 0x55, sizeof(st));
+
 	unlink(".testfile");
 	fd = open(".testfile", O_WRONLY | O_CREAT | O_EXCL, 0);
 	if (fd < 0) {
