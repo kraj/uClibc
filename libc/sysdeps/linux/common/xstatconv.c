@@ -30,11 +30,13 @@
 # undef __USE_FILE_OFFSET64
 #endif
 #include <sys/stat.h>
+#include <string.h>
 #include "xstatconv.h"
 
 void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 {
 	/* Convert to current kernel version of `struct stat'. */
+	memset(buf, 0x00, sizeof(*buf));
 	buf->st_dev = kbuf->st_dev;
 	buf->st_ino = kbuf->st_ino;
 	buf->st_mode = kbuf->st_mode;
@@ -60,6 +62,7 @@ void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 {
 	/* Convert to current kernel version of `struct stat64'. */
+	memset(buf, 0x00, sizeof(*buf));
 	buf->st_dev = kbuf->st_dev;
 	buf->st_ino = kbuf->st_ino;
 #ifdef _HAVE_STAT64___ST_INO
