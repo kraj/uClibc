@@ -635,8 +635,9 @@ extern char *canonicalize_file_name (__const char *__name)
    name is PATH_MAX chars or more, returns null with `errno' set to
    ENAMETOOLONG; if the name fits in fewer than PATH_MAX chars, returns the
    name in RESOLVED.  */
+/* we choose to handle __resolved==NULL as crash :) */
 extern char *realpath (__const char *__restrict __name,
-		       char *__restrict __resolved) __THROW __wur;
+		       char *__restrict __resolved) __THROW __wur _nonnull((2));
 #endif
 
 
