@@ -75,8 +75,13 @@ static int _dl_suid_ok(void);
  * address mapping is changed in some way.
  */
 void _dl_debug_state(void);
-void _dl_debug_state()
+rtld_hidden_proto(_dl_debug_state, noinline);
+void _dl_debug_state(void)
 {
+	/* Make sure GCC doesn't recognize this function as pure, to avoid
+	 * having the calls optimized away.
+	 */
+	__asm__("");
 }
 
 static unsigned char *_dl_malloc_addr = 0;	/* Lets _dl_malloc use the already allocated memory page */
