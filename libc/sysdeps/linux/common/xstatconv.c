@@ -22,6 +22,7 @@
 
 #include <sys/syscall.h>
 #include <sys/stat.h>
+#include <string.h>
 #include "xstatconv.h"
 
 libc_hidden_proto(memset)
