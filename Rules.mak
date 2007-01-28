@@ -332,6 +332,7 @@ XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -fno-strict-alia
 ifeq ($(EXTRA_WARNINGS),y)
 XWARNINGS+=-Wnested-externs -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wformat=2
 XWARNINGS+=-Wmissing-prototypes -Wmissing-declarations
+XWARNINGS+=-Wnonnull -Wundef
 # works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
 #XWARNINGS+=-Wdeclaration-after-statement
 endif
