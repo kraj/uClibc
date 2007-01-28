@@ -384,7 +384,8 @@ extern void __stdio_init_mutex(__UCLIBC_MUTEX_TYPE *m) attribute_hidden;
 extern int __fgetc_unlocked(FILE *__stream);
 extern int __fputc_unlocked(int __c, FILE *__stream);
 
-/* First define the default definitions.  They overriden below as necessary. */
+/* First define the default definitions.
+   They are overridden below as necessary. */
 #define __FGETC_UNLOCKED(__stream)		(__fgetc_unlocked)((__stream))
 #define __FGETC(__stream)			(fgetc)((__stream))
 #define __GETC_UNLOCKED_MACRO(__stream)		(__fgetc_unlocked)((__stream))
