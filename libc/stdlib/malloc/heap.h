@@ -25,7 +25,7 @@
 /* The heap allocates in multiples of, and aligned to, HEAP_GRANULARITY.
    HEAP_GRANULARITY must be a power of 2.  Malloc depends on this being the
    same as MALLOC_ALIGNMENT.  */
-#define HEAP_GRANULARITY_TYPE	double
+#define HEAP_GRANULARITY_TYPE	double __attribute_aligned__ (sizeof (size_t))
 #define HEAP_GRANULARITY	(__alignof__ (HEAP_GRANULARITY_TYPE))
 
 

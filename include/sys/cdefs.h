@@ -189,6 +189,14 @@
 # define __attribute__(xyz)	/* Ignore */
 #endif
 
+/* We make this a no-op unless it can be used as both a variable and
+   a type attribute.  gcc 2.8 is known to support both.  */
+#if __GNUC_PREREQ (2,8)
+# define __attribute_aligned__(size) __attribute__ ((__aligned__ (size)))
+#else
+# define __attribute_aligned__(size) /* Ignore */
+#endif
+
 /* At some point during the gcc 2.96 development the `malloc' attribute
    for functions was introduced.  We don't want to use it unconditionally
    (although this would be possible) since it generates warnings.  */
