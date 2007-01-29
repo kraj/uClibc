@@ -163,7 +163,9 @@ typedef unsigned int uint;
 typedef	char int8_t;
 typedef	short int int16_t;
 typedef	int int32_t;
-#  ifdef __GNUC__
+#  if __WORDSIZE == 64
+typedef long int int64_t;
+#  elif defined __GNUC__ || defined __ICC
 __extension__ typedef long long int int64_t;
 #  endif
 # endif
@@ -172,7 +174,9 @@ __extension__ typedef long long int int64_t;
 typedef	unsigned char u_int8_t;
 typedef	unsigned short int u_int16_t;
 typedef	unsigned int u_int32_t;
-# ifdef __GNUC__
+# if __WORDSIZE == 64
+typedef unsigned long int u_int64_t;
+# elif defined __GNUC__ || defined __ICC
 __extension__ typedef unsigned long long int u_int64_t;
 # endif
 
