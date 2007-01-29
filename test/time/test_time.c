@@ -37,15 +37,15 @@ main (int argc, char **argv)
       char buf[BUFSIZ];
       if (argc > 0)
 	{
-	  static char buf[BUFSIZ];
-	  sprintf(buf, "TZ=%s", *argv);
-	  if (putenv(buf))
+	  static char tzenvbuf[BUFSIZ];
+	  sprintf(tzenvbuf, "TZ=%s", *argv);
+	  if (putenv(tzenvbuf))
 	    {
 	      puts("putenv failed.");
 	      lose = 1;
 	    }
 	  else
-	    puts (buf);
+	    puts (tzenvbuf);
 	}
       tzset();
       tbuf.tm_year = 72;

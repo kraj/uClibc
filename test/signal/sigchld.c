@@ -19,12 +19,12 @@ int main(void)
 {
     pid_t mypid;
     struct sigaction siga;
-    static sigset_t sigset;
+    static sigset_t set;
 
     /* Set up sighandling */
-    sigfillset(&sigset);
+    sigfillset(&set);
     siga.sa_handler = test_handler;
-    siga.sa_mask = sigset;
+    siga.sa_mask = set;
     siga.sa_flags = 0;
     if (sigaction(SIGCHLD, &siga, (struct sigaction *)NULL) != 0) {
 	fprintf(stderr, "sigaction choked: %s!", strerror(errno));
