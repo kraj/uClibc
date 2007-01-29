@@ -23,6 +23,7 @@
 static jmp_buf env;
 static int last_value = -1, lose = 0;
 
+__attribute__ ((__noreturn__))
 static void
 jump (int val)
 {

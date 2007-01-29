@@ -14,31 +14,38 @@ typedef void (*efuncp) (int, void *);
  * exit() without screwing everything up. The value passed in through arg gets
  * used as the next exit status.
  */
-static void exitfunc0(int status, void *arg) { printf("Executing exitfunc0 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc1(int status, void *arg) { printf("Executing exitfunc1 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc2(int status, void *arg) { printf("Executing exitfunc2 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc3(int status, void *arg) { printf("Executing exitfunc3 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc4(int status, void *arg) { printf("Executing exitfunc4 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc5(int status, void *arg) { printf("Executing exitfunc5 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc6(int status, void *arg) { printf("Executing exitfunc6 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc7(int status, void *arg) { printf("Executing exitfunc7 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc8(int status, void *arg) { printf("Executing exitfunc8 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc9(int status, void *arg) { printf("Executing exitfunc9 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc10(int status, void *arg) { printf("Executing exitfunc10 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc11(int status, void *arg) { printf("Executing exitfunc11 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc12(int status, void *arg) { printf("Executing exitfunc12 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc13(int status, void *arg) { printf("Executing exitfunc13 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc14(int status, void *arg) { printf("Executing exitfunc14 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc15(int status, void *arg) { printf("Executing exitfunc15 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc16(int status, void *arg) { printf("Executing exitfunc16 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc17(int status, void *arg) { printf("Executing exitfunc17 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc18(int status, void *arg) { printf("Executing exitfunc18 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc19(int status, void *arg) { printf("Executing exitfunc19 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc20(int status, void *arg) { printf("Executing exitfunc20 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc21(int status, void *arg) { printf("Executing exitfunc21 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc22(int status, void *arg) { printf("Executing exitfunc22 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc23(int status, void *arg) { printf("Executing exitfunc23 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
-static void exitfunc24(int status, void *arg) { printf("Executing exitfunc24 (status=%d, arg=%lu)\n", status, (unsigned long)arg); exit((unsigned long)arg);}
+#define make_exitfunc(num) \
+__attribute__ ((__noreturn__)) static \
+void exitfunc##num(int status, void *arg) \
+{ \
+	printf("Executing exitfunc"#num" (status=%d, arg=%lu)\n", status, (unsigned long)arg); \
+	exit((unsigned long)arg); \
+}
+make_exitfunc(0)
+make_exitfunc(1)
+make_exitfunc(2)
+make_exitfunc(3)
+make_exitfunc(4)
+make_exitfunc(5)
+make_exitfunc(6)
+make_exitfunc(7)
+make_exitfunc(8)
+make_exitfunc(9)
+make_exitfunc(10)
+make_exitfunc(11)
+make_exitfunc(12)
+make_exitfunc(13)
+make_exitfunc(14)
+make_exitfunc(15)
+make_exitfunc(16)
+make_exitfunc(17)
+make_exitfunc(18)
+make_exitfunc(19)
+make_exitfunc(20)
+make_exitfunc(21)
+make_exitfunc(22)
+make_exitfunc(23)
+make_exitfunc(24)
 
 static efuncp func_table[] =
 	{

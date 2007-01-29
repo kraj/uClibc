@@ -7,6 +7,7 @@
 int ret;
 int verbose;
 
+__attribute__ ((__noreturn__))
 static void
 sub5 (jmp_buf buf)
 {

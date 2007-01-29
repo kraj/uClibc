@@ -13,31 +13,38 @@ typedef void (*vfuncp) (void);
 /* All functions call exit(), in order to test that exit functions can call
  * exit() without screwing everything up. :)
  */
-static void exitfunc0(void) { printf("Executing exitfunc0.\n"); exit(0);}
-static void exitfunc1(void) { printf("Executing exitfunc1.\n"); exit(0);}
-static void exitfunc2(void) { printf("Executing exitfunc2.\n"); exit(0);}
-static void exitfunc3(void) { printf("Executing exitfunc3.\n"); exit(0);}
-static void exitfunc4(void) { printf("Executing exitfunc4.\n"); exit(0);}
-static void exitfunc5(void) { printf("Executing exitfunc5.\n"); exit(0);}
-static void exitfunc6(void) { printf("Executing exitfunc6.\n"); exit(0);}
-static void exitfunc7(void) { printf("Executing exitfunc7.\n"); exit(0);}
-static void exitfunc8(void) { printf("Executing exitfunc8.\n"); exit(0);}
-static void exitfunc9(void) { printf("Executing exitfunc9.\n"); exit(0);}
-static void exitfunc10(void) { printf("Executing exitfunc10.\n"); exit(0);}
-static void exitfunc11(void) { printf("Executing exitfunc11.\n"); exit(0);}
-static void exitfunc12(void) { printf("Executing exitfunc12.\n"); exit(0);}
-static void exitfunc13(void) { printf("Executing exitfunc13.\n"); exit(0);}
-static void exitfunc14(void) { printf("Executing exitfunc14.\n"); exit(0);}
-static void exitfunc15(void) { printf("Executing exitfunc15.\n"); exit(0);}
-static void exitfunc16(void) { printf("Executing exitfunc16.\n"); exit(0);}
-static void exitfunc17(void) { printf("Executing exitfunc17.\n"); exit(0);}
-static void exitfunc18(void) { printf("Executing exitfunc18.\n"); exit(0);}
-static void exitfunc19(void) { printf("Executing exitfunc19.\n"); exit(0);}
-static void exitfunc20(void) { printf("Executing exitfunc20.\n"); exit(0);}
-static void exitfunc21(void) { printf("Executing exitfunc21.\n"); exit(0);}
-static void exitfunc22(void) { printf("Executing exitfunc22.\n"); exit(0);}
-static void exitfunc23(void) { printf("Executing exitfunc23.\n"); exit(0);}
-static void exitfunc24(void) { printf("Executing exitfunc24.\n"); exit(0);}
+#define make_exitfunc(num) \
+__attribute__ ((__noreturn__)) static \
+void exitfunc##num(void) \
+{ \
+	printf("Executing exitfunc"#num".\n"); \
+	exit(0); \
+}
+make_exitfunc(0)
+make_exitfunc(1)
+make_exitfunc(2)
+make_exitfunc(3)
+make_exitfunc(4)
+make_exitfunc(5)
+make_exitfunc(6)
+make_exitfunc(7)
+make_exitfunc(8)
+make_exitfunc(9)
+make_exitfunc(10)
+make_exitfunc(11)
+make_exitfunc(12)
+make_exitfunc(13)
+make_exitfunc(14)
+make_exitfunc(15)
+make_exitfunc(16)
+make_exitfunc(17)
+make_exitfunc(18)
+make_exitfunc(19)
+make_exitfunc(20)
+make_exitfunc(21)
+make_exitfunc(22)
+make_exitfunc(23)
+make_exitfunc(24)
 
 static vfuncp func_table[] =
 	{
@@ -72,4 +79,3 @@ main ( void )
 
 	return 0;
 }
-
