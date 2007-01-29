@@ -87,7 +87,7 @@ rexec_af(char **ahost, int rport, const char *name, const char *pass, const char
 	snprintf(servbuff, sizeof(servbuff), "%d", ntohs(rport));
 	servbuff[sizeof(servbuff) - 1] = '\0';
 
-	memset(&hints, 0, sizeof(hints));
+	memset(&hints, '\0', sizeof(hints));
 	hints.ai_family = af;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_CANONNAME;
@@ -104,6 +104,8 @@ rexec_af(char **ahost, int rport, const char *name, const char *pass, const char
 	}
 	else{
 		*ahost = NULL;
+		__set_errno (ENOENT);
+		return -1;
 	}
 	ruserpass(res0->ai_canonname, &name, &pass);
 retry:
@@ -127,7 +129,8 @@ retry:
 		port = 0;
 	} else {
 		char num[32];
-		int s2, sa2len;
+		int s2;
+		socklen_t sa2len;
 
 		s2 = socket(res0->ai_family, res0->ai_socktype, 0);
 		if (s2 < 0) {
@@ -153,7 +156,8 @@ retry:
 		(void) sprintf(num, "%u", port);
 		(void) write(s, num, strlen(num)+1);
 		{ socklen_t len = sizeof (from);
-		  s3 = accept(s2, (struct sockaddr *)&from, &len);
+		  s3 = TEMP_FAILURE_RETRY (accept(s2, (struct sockaddr *)&from,
+						  &len));
 		  close(s2);
 		  if (s3 < 0) {
 			perror("accept");
