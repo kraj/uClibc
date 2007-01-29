@@ -35,7 +35,7 @@ void _store_inttype(register void *dest, int desttype, uintmax_t val)
 		*((unsigned char *) dest) = val;
 		return;
 	}
-#if defined(LLONG_MAX) && (LONG_MAX != LLONG_MAX)
+#if defined(LLONG_MAX) && (INT_MAX != LLONG_MAX)
 	if (desttype == PA_FLAG_LONG_LONG) {
 		*((unsigned long long int *) dest) = val;
 		return;
