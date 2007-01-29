@@ -14,7 +14,7 @@
 
 #if 0
 
-char * str_accumulate(char * s)
+static char * str_accumulate(char * s)
 {
   static char accu[1024] = { 0 };
   strcat(accu, s);
@@ -40,7 +40,7 @@ static void str_alloc_destroy_accu(void * accu);
 
 /* Thread-safe version of str_accumulate */
 
-char * str_accumulate(const char * s)
+static char * str_accumulate(const char * s)
 {
   char * accu;
 
@@ -81,7 +81,7 @@ static void str_alloc_destroy_accu(void * accu)
 
 /* Test program */
 
-void * process(void * arg)
+static void * process(void * arg)
 {
   char * res;
   res = str_accumulate("Result of ");

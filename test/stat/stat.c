@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-void print_struct_stat(char *msg, struct stat *s)
+static void print_struct_stat(char *msg, struct stat *s)
 {
     printf("%s\n", msg);
     /* The casts are because glibc thinks it's cool */

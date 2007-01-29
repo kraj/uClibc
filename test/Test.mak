@@ -36,6 +36,7 @@ endif
 CLEAN_TARGETS := $(U_TARGETS) $(G_TARGETS)
 
 test check all: $(TARGETS)
+	@true
 
 $(TARGETS): Makefile $(TESTDIR)Makefile $(TESTDIR)Rules.mak $(TESTDIR)Test.mak
 $(U_TARGETS): $(patsubst %,%.c,$(U_TARGETS))

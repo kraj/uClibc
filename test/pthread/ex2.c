@@ -20,7 +20,7 @@ struct prodcons {
 
 /* Initialize a buffer */
 
-void init(struct prodcons * b)
+static void init(struct prodcons * b)
 {
   pthread_mutex_init(&b->lock, NULL);
   pthread_cond_init(&b->notempty, NULL);
@@ -31,7 +31,7 @@ void init(struct prodcons * b)
 
 /* Store an integer in the buffer */
 
-void put(struct prodcons * b, int data)
+static void put(struct prodcons * b, int data)
 {
   pthread_mutex_lock(&b->lock);
   /* Wait until buffer is not full */
@@ -50,7 +50,7 @@ void put(struct prodcons * b, int data)
 
 /* Read and remove an integer from the buffer */
 
-int get(struct prodcons * b)
+static int get(struct prodcons * b)
 {
   int data;
   pthread_mutex_lock(&b->lock);
@@ -75,7 +75,7 @@ int get(struct prodcons * b)
 
 struct prodcons buffer;
 
-void * producer(void * data)
+static void * producer(void * data)
 {
   int n;
   for (n = 0; n < 10000; n++) {
@@ -86,7 +86,7 @@ void * producer(void * data)
   return NULL;
 }
 
-void * consumer(void * data)
+static void * consumer(void * data)
 {
   int d;
   while (1) {

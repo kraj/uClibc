@@ -11,7 +11,7 @@
 
 static char ifname[IF_NAMESIZE];
 
-void test_if_nameindex(void)
+static void test_if_nameindex(void)
 {
 	size_t i;
 	struct if_nameindex *ret;
@@ -30,7 +30,7 @@ void test_if_nameindex(void)
 	if_freenameindex(ret);
 }
 
-void test_if_indextoname(void)
+static void test_if_indextoname(void)
 {
 	if (if_indextoname(1, ifname) == NULL) {
 		perror("if_nameindex()");
@@ -40,7 +40,7 @@ void test_if_indextoname(void)
 	printf("if_indextoname(1) = %s\n", ifname);
 }
 
-void test_if_nametoindex(void)
+static void test_if_nametoindex(void)
 {
 	int ifindex = if_nametoindex(ifname);
 

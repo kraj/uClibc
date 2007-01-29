@@ -19,12 +19,12 @@
 #define GOT3     (1 << 3)
 #define ALLGOT   (GOT1|GOT2|GOT3)
 
-void child_handler(int sig)
+static void child_handler(int sig)
 {
 	printf("I got a SIGCHLD\n");
 }
 
-int clone_main(void *arg)
+static int clone_main(void *arg)
 {
 	unsigned long input = (unsigned long)arg;
 	int secs = (input / 10) * 4;

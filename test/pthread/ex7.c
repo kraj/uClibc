@@ -22,7 +22,7 @@ typedef struct {
 event_t main_event;
 
 
-void *
+static void *
 test_thread (void *ms_param)
 {
     unsigned long status = 0;

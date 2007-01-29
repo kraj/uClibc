@@ -16,7 +16,7 @@
 
 int verbose = 0;
 
-int execute_child(const char *prog)
+static int execute_child(const char *prog)
 {
 	int status;
 	pid_t child;
@@ -33,7 +33,7 @@ int execute_child(const char *prog)
 
 sigset_t orig_mask;
 
-int check_sig_mask(void)
+static int check_sig_mask(void)
 {
 	int status;
 	pid_t child;

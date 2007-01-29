@@ -264,7 +264,7 @@ init_glob_altdirfuncs (glob_t *pglob)
 }
 
 
-int
+static int
 do_test (void)
 {
   glob_t gl;
@@ -295,7 +295,7 @@ do_test (void)
   return 0;
 }
 #else
-int do_test (void) { return 0; }
+static int do_test (void) { return 0; }
 #endif
 
 #define TEST_FUNCTION do_test ()

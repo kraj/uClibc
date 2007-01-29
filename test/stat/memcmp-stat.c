@@ -18,7 +18,7 @@
 #include <assert.h>
 #include <time.h>
 
-void show_stat(struct stat *st)
+static void show_stat(struct stat *st)
 {
 	printf(
 		"------------------\n"
@@ -66,7 +66,7 @@ void show_stat(struct stat *st)
 	);
 }
 
-int main()
+int main(void)
 {
 	int ret;
 	int fd;

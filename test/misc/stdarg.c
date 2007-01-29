@@ -5,7 +5,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <stdarg.h>
-int foo(const char *format, ...)
+static int foo(const char *format, ...)
 {
 	va_list ap;
 	size_t len;

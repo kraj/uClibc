@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include "pthread.h"
 
-void *process(void * arg)
+static void *process(void * arg)
 {
 	int i;
 	printf("Starting process %s\n", (char *)arg);

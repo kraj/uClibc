@@ -26,7 +26,7 @@
 
 volatile int count;
 
-void
+static void
 sh (int sig)
 {
   ++count;
