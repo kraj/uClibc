@@ -1566,7 +1566,7 @@ static int _do_one_spec(FILE * __restrict stream,
 #endif /* __UCLIBC_MJN3_ONLY__ */
 			s = _uintmaxtostr(buf + sizeof(buf) - 1,
 							  (uintmax_t)
-							  _load_inttype(*argtype & __PA_INTMASK,
+							  _load_inttype(ppfs->conv_num == CONV_p ? PA_FLAG_LONG : *argtype & __PA_INTMASK,
 											*argptr, base), base, alphacase);
 			if (ppfs->conv_num > CONV_u) { /* signed int */
 				if (*s == '-') {
