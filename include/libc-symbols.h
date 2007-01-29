@@ -54,7 +54,7 @@
 #define _GNU_SOURCE	1
 
 /* Prepare for the case that `__builtin_expect' is not available.  */
-#if __GNUC__ == 2 && __GNUC_MINOR__ < 96
+#if defined __GNUC__ && __GNUC__ == 2 && __GNUC_MINOR__ < 96
 # define __builtin_expect(x, expected_value) (x)
 #endif
 #ifndef likely
@@ -72,7 +72,7 @@
 
 #define attribute_unused __attribute__ ((unused))
 
-#ifdef __GNUC__
+#if defined __GNUC__ || defined __ICC
 # define attribute_noreturn __attribute__ ((__noreturn__))
 #else
 # define attribute_noreturn
@@ -409,8 +409,9 @@
  * d. hidden_def() in asm is _hidden_strong_alias (not strong_alias) */
 
 /* Arrange to hide uClibc internals */
-#if defined __GNUC__ && defined __GNUC_MINOR__ && \
-  ( __GNUC__ >= 3 && __GNUC_MINOR__ >= 3 ) || __GNUC__ >= 4
+#if (defined __GNUC__ && \
+  (defined __GNUC_MINOR__ && ( __GNUC__ >= 3 && __GNUC_MINOR__ >= 3 ) \
+   || __GNUC__ >= 4)) || defined __ICC
 # define attribute_hidden __attribute__ ((visibility ("hidden")))
 # define __hidden_proto_hiddenattr(attrs...) __attribute__ ((visibility ("hidden"), ##attrs))
 #else
