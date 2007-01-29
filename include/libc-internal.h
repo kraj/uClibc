@@ -67,7 +67,7 @@ extern const char *__uclibc_progname attribute_hidden;
 
 /* #include <alloca.h> */
 #include <bits/stackinfo.h>
-#if _STACK_GROWS_DOWN
+#if defined(_STACK_GROWS_DOWN)
 # define extend_alloca(buf, len, newlen) \
   (__typeof (buf)) ({ size_t __newlen = (newlen);			      \
 		      char *__newbuf = alloca (__newlen);		      \
@@ -76,7 +76,7 @@ extern const char *__uclibc_progname attribute_hidden;
 		      else						      \
 			len = __newlen;					      \
 		      __newbuf; })
-#elif _STACK_GROWS_UP
+#elif defined(_STACK_GROWS_UP)
 # define extend_alloca(buf, len, newlen) \
   (__typeof (buf)) ({ size_t __newlen = (newlen);			      \
 		      char *__newbuf = alloca (__newlen);		      \
