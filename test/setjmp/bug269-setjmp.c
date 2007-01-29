@@ -29,7 +29,7 @@ int n_x = 6;
 
 static int g_counter = 0;
 
-int
+static int
 f (void) 
 {
   static int counter = 0;
