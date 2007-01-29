@@ -66,8 +66,9 @@ define exec_test
 		test -z "$$expected_ret" && export expected_ret=0 ; \
 	if ! test $$ret -eq $$expected_ret ; then \
 		$(RM) $@ ; \
+		echo "ret == $$ret ; expected_ret == $$expected_ret" ; \
 		cat "$@.out" ; \
-		exec false ; \
+		exit 1 ; \
 	fi
 	$(SCAT) "$@.out"
 endef
