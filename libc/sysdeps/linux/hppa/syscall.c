@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <sys/syscall.h>
+#include <unistd.h>
 
 /* HPPA implements syscall() in 'C'; the assembler version would
    typically be in syscall.S. Also note that we have INLINE_SYSCALL,
