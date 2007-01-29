@@ -10,15 +10,15 @@
 #define TESTSUITE_H
 
 #ifdef __NO_TESTCODE__
-
 extern size_t test_number;
+#endif
 
 extern void init_testsuite(const char* testname);
 extern void done_testing(void) __attribute__((noreturn));
 extern void success_msg(int result, const char* command);
 extern void error_msg(int result, int line, const char* file, const char* command);
 
-#else
+#ifndef __NO_TESTCODE__
 
 size_t test_number = 0;
 static int failures = 0;
