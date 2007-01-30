@@ -361,7 +361,7 @@ static int glob_in_dir (const char *pattern, const char *directory, int flags,
 		{
 		  const char *name;
 		  size_t len;
-#if defined COMPILE_GLOB64
+#if defined __UCLIBC_HAS_LFS__ && !defined COMPILE_GLOB64
 		  struct dirent64 *d;
 		  union
 		    {
