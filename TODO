@@ -90,6 +90,8 @@ TODO list for the uClibc 1.0.0 release:
 
 TODO list for AFTER the uClibc 1.0.0 release:
 -------------------------------------------------
+    *) Add support for 64bit time (to deal withhttp://2038bug.com/):
+	date -s 011903142038 sets epoch to roll over in a few seconds (2^31)
     *) Add support for Linux 2.6.x fast vsyscalls
     *) Enable pristine source tree builds
     *) Fix regex so it isn't so stinking big
