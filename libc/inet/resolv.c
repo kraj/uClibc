@@ -753,11 +753,11 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		++local_id;
 		local_id &= 0xffff;
 		h.id = local_id;
-		__UCLIBC_MUTEX_LOCK(mylock);
+		__UCLIBC_MUTEX_LOCK(__resolv_lock);
 		/* this is really __nameserver[] which is a global that
-		   needs a lock!! */
+		   needs to hold __resolv_lock before access!! */
 		dns = nsip[local_ns];
-		__UCLIBC_MUTEX_UNLOCK(mylock);
+		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 
 		h.qdcount = 1;
 		h.rd = 1;
@@ -792,11 +792,11 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 				retries+1, NAMESERVER_PORT, dns);
 
 #ifdef __UCLIBC_HAS_IPV6__
-		__UCLIBC_MUTEX_LOCK(mylock);
+		__UCLIBC_MUTEX_LOCK(__resolv_lock);
 		/* 'dns' is really __nameserver[] which is a global that
-		   needs a lock!! */
+		   needs to hold __resolv_lock before access!! */
 		v6 = inet_pton(AF_INET6, dns, &sa6.sin6_addr) > 0;
-		__UCLIBC_MUTEX_UNLOCK(mylock);
+		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 		fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #else
 		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -817,11 +817,11 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 #endif
 		    sa.sin_family = AF_INET;
 		    sa.sin_port = htons(NAMESERVER_PORT);
-		    __UCLIBC_MUTEX_LOCK(mylock);
+		    __UCLIBC_MUTEX_LOCK(__resolv_lock);
 		    /* 'dns' is really __nameserver[] which is a global that
-		       needs a lock!! */
+		       needs to hold __resolv_lock before access!! */
 		    sa.sin_addr.s_addr = inet_addr(dns);
-		    __UCLIBC_MUTEX_UNLOCK(mylock);
+		    __UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 		    rc = connect(fd, (struct sockaddr *) &sa, sizeof(sa));
 #ifdef __UCLIBC_HAS_IPV6__
 		}
