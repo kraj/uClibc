@@ -52,6 +52,10 @@ struct in_addr *addrptr;
 	int value;
 	int part;
 
+	if (cp == NULL) {	/* check for NULL arg */
+	    return 0;
+	}
+
 	addr = 0;
 	for (part = 1; part <= 4; part++) {
 
