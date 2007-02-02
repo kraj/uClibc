@@ -1018,12 +1018,14 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 #ifdef L_opennameservers
 
+/* We use __resolv_lock to guard access to the
+ * '__nameservers' and __searchdomains globals */
 int __nameservers;
 char * __nameserver[MAX_SERVERS];
 int __searchdomains;
 char * __searchdomain[MAX_SEARCH];
 
-__UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_MUTEX_INITIALIZER);
+__UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 /*
  *	we currently read formats not quite the same as that on normal
@@ -1155,12 +1157,14 @@ struct hostent *gethostbyname2(const char *name, int family)
 
 
 #ifdef L_res_init
+/* We use __resolv_lock to guard access to global '_res' */
 struct __res_state _res;
 
 int res_init(void)
 {
 	struct __res_state *rp = &(_res);
 
+	__UCLIBC_MUTEX_LOCK(__resolv_lock);	/* must be a recursive lock! */
 	__close_nameservers();
 	__open_nameservers();
 	rp->retrans = RES_TIMEOUT;
@@ -1178,7 +1182,6 @@ int res_init(void)
 	/** rp->rhook = NULL; **/
 	/** rp->_u._ext.nsinit = 0; **/
 
-	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	if(__searchdomains) {
 		int i;
 		for(i=0; i<__searchdomains; i++) {
@@ -1278,8 +1281,14 @@ int res_search(name, class, type, answer, anslen)
 	u_int dots;
 	int trailing_dot, ret, saved_herrno;
 	int got_nodata = 0, got_servfail = 0, tried_as_is = 0;
+	u_long _res_options;
+	unsigned _res_ndots;
+	char **_res_dnsrch;
 
-	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && res_init() == -1)) {
+	__UCLIBC_MUTEX_LOCK(__resolv_lock);
+	_res_options = _res.options;
+	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+	if ((!name || !answer) || ((_res_options & RES_INIT) == 0 && res_init() == -1)) {
 		h_errno = NETDB_INTERNAL;
 		return (-1);
 	}
@@ -1298,7 +1307,10 @@ int res_search(name, class, type, answer, anslen)
 	 * 'as is'.  The threshold can be set with the "ndots" option.
 	 */
 	saved_herrno = -1;
-	if (dots >= _res.ndots) {
+	__UCLIBC_MUTEX_LOCK(__resolv_lock);
+	_res_ndots = _res.ndots;
+	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+	if (dots >= _res_ndots) {
 		ret = res_querydomain(name, NULL, class, type, answer, anslen);
 		if (ret > 0)
 			return (ret);
@@ -1312,11 +1324,15 @@ int res_search(name, class, type, answer, anslen)
 	 *	- there is at least one dot, there is no trailing dot,
 	 *	  and RES_DNSRCH is set.
 	 */
-	if ((!dots && (_res.options & RES_DEFNAMES)) ||
-	    (dots && !trailing_dot && (_res.options & RES_DNSRCH))) {
+	__UCLIBC_MUTEX_LOCK(__resolv_lock);
+	_res_options = _res.options;
+	_res_dnsrch = _res.dnsrch;
+	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+	if ((!dots && (_res_options & RES_DEFNAMES)) ||
+	    (dots && !trailing_dot && (_res_options & RES_DNSRCH))) {
 		int done = 0;
 
-		for (domain = (const char * const *)_res.dnsrch;
+		for (domain = (const char * const *)_res_dnsrch;
 			 *domain && !done;
 			 domain++) {
 
@@ -1365,7 +1381,10 @@ int res_search(name, class, type, answer, anslen)
 			 * if we got here for some reason other than DNSRCH,
 			 * we only wanted one iteration of the loop, so stop.
 			 */
-			if (!(_res.options & RES_DNSRCH))
+			__UCLIBC_MUTEX_LOCK(__resolv_lock);
+			_res_options = _res.options;
+			__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+			if (!(_res_options & RES_DNSRCH))
 				done++;
 		}
 	}
@@ -1411,14 +1430,21 @@ int res_querydomain(name, domain, class, type, answer, anslen)
 	char nbuf[MAXDNAME];
 	const char *longname = nbuf;
 	size_t n, d;
+	u_long _res_options;
 
-	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && res_init() == -1)) {
+	__UCLIBC_MUTEX_LOCK(__resolv_lock);
+	_res_options = _res.options;
+	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+	if ((!name || !answer) || ((_res_options & RES_INIT) == 0 && res_init() == -1)) {
 		h_errno = NETDB_INTERNAL;
 		return (-1);
 	}
 
 #ifdef DEBUG
-	if (_res.options & RES_DEBUG)
+	__UCLIBC_MUTEX_LOCK(__resolv_lock);
+	_res_options = _res.options;
+	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+	if (_res_options & RES_DEBUG)
 		printf(";; res_querydomain(%s, %s, %d, %d)\n",
 			   name, domain?domain:"<Nil>", class, type);
 #endif
