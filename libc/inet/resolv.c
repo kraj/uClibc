@@ -695,7 +695,11 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		++local_id;
 		local_id &= 0xffff;
 		h.id = local_id;
+		BIGLOCK;
+		/* this is really __nameserver[] which is a global that
+		   needs a lock!! */
 		dns = nsip[local_ns];
+		BIGUNLOCK;
 
 		h.qdcount = 1;
 		h.rd = 1;
@@ -730,7 +734,11 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 				retries+1, NAMESERVER_PORT, dns);
 
 #ifdef __UCLIBC_HAS_IPV6__
+		BIGLOCK;
+		/* 'dns' is really __nameserver[] which is a global that
+		   needs a lock!! */
 		v6 = inet_pton(AF_INET6, dns, &sa6.sin6_addr) > 0;
+		BIGUNLOCK;
 		fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #else
 		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -751,7 +759,11 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 #endif
 		    sa.sin_family = AF_INET;
 		    sa.sin_port = htons(NAMESERVER_PORT);
+		    BIGLOCK;
+		    /* 'dns' is really __nameserver[] which is a global that
+		       needs a lock!! */
 		    sa.sin_addr.s_addr = inet_addr(dns);
+		    BIGUNLOCK;
 		    rc = connect(fd, (struct sockaddr *) &sa, sizeof(sa));
 #ifdef __UCLIBC_HAS_IPV6__
 		}
