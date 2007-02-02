@@ -165,6 +165,8 @@ install_dev:
 	fi ; \
 	tar -chf - include --exclude .svn --exclude CVS $$extra_exclude \
 		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
+	echo '/* Dont use _syscall#() macros; use the syscall() function */' > \
+		$(PREFIX)$(DEVEL_PREFIX)include/bits/syscalls.h
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
