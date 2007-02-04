@@ -11,4 +11,37 @@ SSRC := \
 	__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S brk.S \
 	clone.S __uClibc_syscall.S syscall.S vfork.S
 
+ARCH_FPU_HEADERS := fpu_control.h
+ARCH_DIR := libc/sysdeps/linux/powerpc
+
+arch_fpu_headers:
+ifeq ($(CONFIG_E500),y)
+	$(LN) -fs e500/fpu_control.h $(ARCH_DIR)
+	$(LN) -fs e500/setjmp.S $(ARCH_DIR)
+	$(LN) -fs e500/__longjmp.S $(ARCH_DIR)
+	$(LN) -fs e500/fenv.h $(ARCH_DIR)/bits
+	$(LN) -fs e500/fenvinline.h $(ARCH_DIR)/bits
+	$(LN) -fs e500/mathinline.h $(ARCH_DIR)/bits
+	$(LN) -fs e500/mathdef.h $(ARCH_DIR)/bits
+	$(LN) -fs ../$(ARCH_DIR)/e500/fenv_top.h $(top_builddir)include/fenv.h
+else
+	$(LN) -fs classic/fpu_control.h $(ARCH_DIR)
+	$(LN) -fs classic/setjmp.S $(ARCH_DIR)
+	$(LN) -fs classic/__longjmp.S $(ARCH_DIR)
+	$(LN) -fs classic/fenv.h $(ARCH_DIR)/bits
+	$(LN) -fs classic/fenvinline.h $(ARCH_DIR)/bits
+	$(LN) -fs classic/mathinline.h $(ARCH_DIR)/bits
+	$(LN) -fs classic/mathdef.h $(ARCH_DIR)/bits
+endif
+
+arch_fpu_headers_clean:
+	$(RM) $(ARCH_DIR)/fpu_control.h
+	$(RM) $(ARCH_DIR)/setjmp.S
+	$(RM) $(ARCH_DIR)/__longjmp.S
+	$(RM) $(ARCH_DIR)/bits/fenv.h
+	$(RM) $(ARCH_DIR)/bits/fenvinline.h
+	$(RM) $(ARCH_DIR)/bits/mathinline.h
+	$(RM) $(ARCH_DIR)/bits/mathdef.h
+	$(RM) include/fenv.h
+
 include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

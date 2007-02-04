@@ -1411,6 +1411,12 @@ config CROSS_COMPILER_PREFIX
 	  example, if you run 'arm-linux-uclibc-gcc' to compile something, 
 	  then enter 'arm-linux-uclibc-' here.
 
+config UCLIBC_EXTRA_CFLAGS
+	string "Enter any extra CFLAGS to use to build uClibc"
+	default ""
+	help
+	  Add any additional CFLAGS to be used to build uClibc.
+
 config DODEBUG
 	bool "Build uClibc with debugging symbols"
 	default n

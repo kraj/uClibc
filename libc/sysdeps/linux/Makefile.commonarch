@@ -23,6 +23,11 @@ objclean-y     += arch_objclean
 arch_objclean:
 	$(RM) $(ARCH_OUT)/*.{o,os} $(CTOR_TARGETS) $(CRTS)
 
+ifneq ($(ARCH_FPU_HEADERS),)
+headers-y += arch_fpu_headers
+headers_clean-y += arch_fpu_headers_clean
+endif
+
 ifneq ($(ARCH_HEADERS),)
 
 ARCH_HEADERS_IN  := $(patsubst %,../libc/sysdeps/linux/$(TARGET_ARCH)/%,$(ARCH_HEADERS))

@@ -57,7 +57,7 @@ headers: include/bits/uClibc_config.h
 	$(Q)$(MAKE) headers-y
 	$(Q)\
 	set -e; \
-	if [ -f libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h ] ; then \
+	if [ -e libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h ] ; then \
 		$(LN) -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h include/ ; \
 	else \
 		$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h include/ ; \
