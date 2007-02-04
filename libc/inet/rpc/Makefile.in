@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+CFLAGS-rpc := -fno-strict-aliasing
+
 ifneq ($(UCLIBC_HAS_FULL_RPC),y)
 # For now, only compile the stuff needed to do an NFS mount....
 CSRC:=	authunix_prot.c auth_none.c auth_unix.c bindresvport.c \
