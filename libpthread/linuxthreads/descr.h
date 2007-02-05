@@ -130,7 +130,7 @@ struct _pthread_descr_struct
     void *__padding[16];
   } p_header;
 # define p_multiple_threads p_header.data.multiple_threads
-#elif TLS_MULTIPLE_THREADS_IN_TCB
+#elif defined TLS_MULTIPLE_THREADS_IN_TCB && TLS_MULTIPLE_THREADS_IN_TCB
   int p_multiple_threads;
 #endif
 
