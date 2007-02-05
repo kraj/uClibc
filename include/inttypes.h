@@ -27,7 +27,7 @@
 /* Get the type definitions.  */
 #include <stdint.h>
 
-#if defined __UCLIBC_HAS_WCHAR__ && __UCLIBC_HAS_WCHAR__
+#ifdef __UCLIBC_HAS_WCHAR__
 /* Get a definition for wchar_t.  But we must not define wchar_t itself.  */
 #ifndef ____gwchar_t_defined
 # ifdef __cplusplus
