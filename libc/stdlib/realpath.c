@@ -58,6 +58,14 @@ char resolved_path[];
 	int readlinks = 0;
 	int n;
 
+	if (path == NULL) {
+		__set_errno(EINVAL);
+		return NULL;
+	}
+	if (*path == '\0') {
+		__set_errno(ENOENT);
+		return NULL;
+	}
 	/* Make a copy of the source path since we may need to modify it. */
 	if (strlen(path) >= PATH_MAX - 2) {
 		__set_errno(ENAMETOOLONG);
