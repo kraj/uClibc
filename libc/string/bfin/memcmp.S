@@ -17,6 +17,8 @@
  * Favours word aligned data.
  */
 
+#include <features.h>
+
 .text
 
 .align 2

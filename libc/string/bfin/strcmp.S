@@ -17,6 +17,8 @@
  * loop to check more carefully (same as the unaligned case).
  */
 
+#include <features.h>
+
 .text
 
 .align 2
