@@ -637,7 +637,7 @@ extern char *canonicalize_file_name (__const char *__name)
    name in RESOLVED.  */
 /* we choose to handle __resolved==NULL as crash :) */
 extern char *realpath (__const char *__restrict __name,
-		       char *__restrict __resolved) __THROW __wur __nonnull((2));
+		       char *__restrict __resolved) __THROW __wur __nonnull((1,2));
 #endif
 
 
