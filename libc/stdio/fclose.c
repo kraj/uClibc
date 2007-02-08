@@ -16,36 +16,31 @@ int fclose(register FILE *stream)
 	int rv = 0;
 	__STDIO_AUTO_THREADLOCK_VAR;
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: dead code... but may want to simply check and not remove
+#ifdef __STDIO_HAS_OPENLIST
+#if !defined(__UCLIBC_HAS_THREADS__) || !defined(__STDIO_BUFFERS)
+	/* First, remove the file from the open file list. */
+	{
+		FILE *ptr;
+
+		__STDIO_THREADLOCK_OPENLIST_DEL;
+		__STDIO_THREADLOCK_OPENLIST_ADD;
+		ptr = _stdio_openlist;
+		if ((ptr = _stdio_openlist) == stream) {
+			_stdio_openlist = stream->__nextopen;
+		} else {
+			while (ptr) {
+				if (ptr->__nextopen == stream) {
+					ptr->__nextopen = stream->__nextopen;
+					break;
+				}
+				ptr = ptr->__nextopen;
+			}
+		}
+		__STDIO_THREADUNLOCK_OPENLIST_ADD;
+		__STDIO_THREADUNLOCK_OPENLIST_DEL;
+	}
 #endif
-/* #ifdef __STDIO_HAS_OPENLIST */
-/* #if !defined(__UCLIBC_HAS_THREADS__) || !defined(__STDIO_BUFFERS) */
-/* 	/\* First, remove the file from the open file list. *\/ */
-/* 	{ */
-/* 		register FILE *ptr; */
-
-/* 		__STDIO_THREADLOCK_OPENLIST; */
-/* 		if ((ptr = _stdio_openlist) == stream) { */
-/* #warning does a mod!!! */
-/* 			_stdio_openlist = stream->__nextopen; */
-/* 		} else { */
-/* 			while (ptr) { */
-/* 				if (ptr->__nextopen == stream) { */
-/* 					ptr->__nextopen = stream->__nextopen; */
-/* 					break; */
-/* 				} */
-/* 				ptr = ptr->__nextopen; */
-/* 			} */
-/* 		} */
-/* 		__STDIO_THREADUNLOCK_OPENLIST; */
-
-/* 		if (!ptr) {	  /\* Did not find stream in the open file list! *\/ */
-/* 			return EOF; */
-/* 		} */
-/* 	} */
-/* #endif */
-/* #endif */
+#endif
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
