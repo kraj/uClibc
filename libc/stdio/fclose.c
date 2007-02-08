@@ -7,39 +7,37 @@
 
 #include "_stdio.h"
 
+
 int fclose(register FILE *stream)
 {
 	int rv = 0;
 	__STDIO_AUTO_THREADLOCK_VAR;
 
-#warning dead code... but may want to simply check and not remove
-/* #ifdef __STDIO_HAS_OPENLIST */
-/* #if !defined(__UCLIBC_HAS_THREADS__) || !defined(__STDIO_BUFFERS) */
-/* 	/\* First, remove the file from the open file list. *\/ */
-/* 	{ */
-/* 		register FILE *ptr; */
+#ifdef __STDIO_HAS_OPENLIST
+#if !defined(__UCLIBC_HAS_THREADS__) || !defined(__STDIO_BUFFERS)
+	/* First, remove the file from the open file list. */
+	{
+		FILE *ptr;
 
-/* 		__STDIO_THREADLOCK_OPENLIST; */
-/* 		if ((ptr = _stdio_openlist) == stream) { */
-/* #warning does a mod!!! */
-/* 			_stdio_openlist = stream->__nextopen; */
-/* 		} else { */
-/* 			while (ptr) { */
-/* 				if (ptr->__nextopen == stream) { */
-/* 					ptr->__nextopen = stream->__nextopen; */
-/* 					break; */
-/* 				} */
-/* 				ptr = ptr->__nextopen; */
-/* 			} */
-/* 		} */
-/* 		__STDIO_THREADUNLOCK_OPENLIST; */
-
-/* 		if (!ptr) {	  /\* Did not find stream in the open file list! *\/ */
-/* 			return EOF; */
-/* 		} */
-/* 	} */
-/* #endif */
-/* #endif */
+		__STDIO_THREADLOCK_OPENLIST_DEL;
+		__STDIO_THREADLOCK_OPENLIST_ADD;
+		ptr = _stdio_openlist;
+		if ((ptr = _stdio_openlist) == stream) {
+			_stdio_openlist = stream->__nextopen;
+		} else {
+			while (ptr) {
+				if (ptr->__nextopen == stream) {
+					ptr->__nextopen = stream->__nextopen;
+					break;
+				}
+				ptr = ptr->__nextopen;
+			}
+		}
+		__STDIO_THREADUNLOCK_OPENLIST_ADD;
+		__STDIO_THREADUNLOCK_OPENLIST_DEL;
+	}
+#endif
+#endif
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
@@ -48,7 +46,7 @@ int fclose(register FILE *stream)
 #ifdef __STDIO_BUFFERS
 	/* Write any pending buffered chars. */
 	if (__STDIO_STREAM_IS_WRITING(stream)) {
-		rv = __fflush_unlocked(stream);
+		rv = fflush_unlocked(stream);
 	}
 #endif
 
@@ -62,6 +60,11 @@ int fclose(register FILE *stream)
 	 * Since a file can't be both readonly and writeonly, that makes
 	 * an effective signal.  It also has the benefit of disabling
 	 * transitions to either reading or writing. */
+#if defined(__UCLIBC_HAS_THREADS__) && defined(__STDIO_BUFFERS)
+	/* Before we mark the file as closed, make sure we increment the openlist use count
+	 * so it isn't freed under us while still cleaning up. */
+	__STDIO_OPENLIST_INC_USE;
+#endif
 	stream->__modeflags &= (__FLAG_FREEBUF|__FLAG_FREEFILE);
 	stream->__modeflags |= (__FLAG_READONLY|__FLAG_WRITEONLY);
 
@@ -84,10 +87,11 @@ int fclose(register FILE *stream)
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	__STDIO_STREAM_FREE_BUFFER(stream);
-#warning... inefficient - locks and unlocks twice and walks whole list
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: inefficient - locks and unlocks twice and walks whole list
+#endif
 #if defined(__UCLIBC_HAS_THREADS__) && defined(__STDIO_BUFFERS)
 	/* inefficient - locks/unlocks twice and walks whole list */
-	__STDIO_OPENLIST_INC_USE;
 	__STDIO_OPENLIST_INC_DEL_CNT;
 	__STDIO_OPENLIST_DEC_USE;	/* This with free the file if necessary. */
 #else
@@ -96,3 +100,4 @@ int fclose(register FILE *stream)
 
 	return rv;
 }
+libc_hidden_def(fclose)
