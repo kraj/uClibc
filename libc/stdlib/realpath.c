@@ -133,7 +133,7 @@ char resolved_path[];
 				/* Make sure it's null terminated. */
 				*new_path = '\0';
 				strcpy(resolved_path, got_path);
-				return resolved_path;
+				return NULL;
 			}
 		} else {
 			/* Note: readlink doesn't add the null byte. */
