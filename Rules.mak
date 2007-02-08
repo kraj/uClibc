@@ -382,8 +382,7 @@ ifneq ($(HAVE_SHARED),y)
 CFLAGS += -DSTATIC
 endif
 
-# only i386 is known to work if compile.S gets -D__ASSEMBLER__
-#CFLAGS += $(call check_gcc,-std=c99,)
+CFLAGS += $(call check_gcc,-std=gnu99,)
 
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 # binutils-2.16.1 warns about ignored sections, 2.16.91.0.3 and newer are ok
