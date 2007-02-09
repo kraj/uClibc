@@ -15,24 +15,25 @@ static inline _syscall1(int, __syscall_mq_unlink, const char *, name);
 /* Remove message queue */
 int mq_unlink(const char *name)
 {
-    int ret;
-    if (name[0] != '/') {
-	__set_errno(EINVAL);
-	return -1;
-    }
+	int ret;
 
-    ret = __syscall_mq_unlink(name + 1);
+	if (name[0] != '/') {
+		__set_errno(EINVAL);
+		return -1;
+	}
 
-    /* While unlink can return either EPERM or EACCES, mq_unlink should return just EACCES.  */
-    if (ret < 0) {
-	ret = errno;
-	if (ret == EPERM)
-	    ret = EACCES;
-	__set_errno(ret);
-	ret = -1;
-    }
+	ret = __syscall_mq_unlink(name + 1);
 
-    return ret;
+	/* While unlink can return either EPERM or EACCES, mq_unlink should return just EACCES.  */
+	if (ret < 0) {
+		ret = errno;
+		if (ret == EPERM)
+			ret = EACCES;
+		__set_errno(ret);
+		ret = -1;
+	}
+
+	return ret;
 }
 
 #endif

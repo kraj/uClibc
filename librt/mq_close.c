@@ -16,7 +16,7 @@
  */
 int mq_close(mqd_t mqdes)
 {
-    return close(mqdes);
+	return close(mqdes);
 }
 
 #endif

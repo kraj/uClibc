@@ -13,7 +13,7 @@
 
 #define __NR___syscall_mq_open __NR_mq_open
 static inline _syscall4(int, __syscall_mq_open, const char *, name,
-	int, oflag, __kernel_mode_t, mode, void *, attr);
+			int, oflag, __kernel_mode_t, mode, void *, attr);
 /*
  * Establish connection between a process and a message queue and
  * return message queue descriptor or (mqd_t) -1 on error.
@@ -25,28 +25,28 @@ static inline _syscall4(int, __syscall_mq_open, const char *, name,
  */
 mqd_t mq_open(const char *name, int oflag, ...)
 {
-    mode_t mode;
-    struct mq_attr *attr;
+	mode_t mode;
+	struct mq_attr *attr;
 
-    if (name[0] != '/') {
-	__set_errno(EINVAL);
-	return -1;
-    }
+	if (name[0] != '/') {
+		__set_errno(EINVAL);
+		return -1;
+	}
 
-    mode = 0;
-    attr = NULL;
+	mode = 0;
+	attr = NULL;
 
-    if (oflag & O_CREAT) {
-	va_list ap;
+	if (oflag & O_CREAT) {
+		va_list ap;
 
-	va_start(ap, oflag);
-	mode = va_arg(ap, mode_t);
-	attr = va_arg(ap, struct mq_attr *);
+		va_start(ap, oflag);
+		mode = va_arg(ap, mode_t);
+		attr = va_arg(ap, struct mq_attr *);
 
-	va_end(ap);
-    }
+		va_end(ap);
+	}
 
-    return __syscall_mq_open(name + 1, oflag, mode, attr);
+	return __syscall_mq_open(name + 1, oflag, mode, attr);
 }
 
 #endif
