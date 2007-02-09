@@ -25,11 +25,11 @@ struct kernel_stat {
 	unsigned int	st_pad2[3];
 	__kernel_off_t	st_size;
 	unsigned int	st_atime;
-	unsigned int	reserved0;
+	unsigned int	st_atime_nsec;
 	unsigned int	st_mtime;
-	unsigned int	reserved1;
+	unsigned int	st_mtime_nsec;
 	unsigned int	st_ctime;
-	unsigned int	reserved2;
+	unsigned int	st_ctime_nsec;
 	unsigned int	st_blksize;
 	unsigned int	reserved3;
 	unsigned long	st_blocks;
@@ -49,11 +49,11 @@ struct kernel_stat {
 	unsigned int	st_pad2[3];
 	unsigned long long	st_size;
 	unsigned int	st_atime;
-	unsigned int	reserved0;
+	unsigned int	st_atime_nsec;
 	unsigned int	st_mtime;
-	unsigned int	reserved1;
+	unsigned int	st_mtime_nsec;
 	unsigned int	st_ctime;
-	unsigned int	reserved2;
+	unsigned int	st_ctime_nsec;
 	unsigned int	st_blksize;
 	unsigned int	reserved3;
 	unsigned long long	st_blocks;
@@ -73,11 +73,11 @@ struct kernel_stat {
 	__kernel_off_t	st_size;
 	long		st_pad3;
 	time_t		st_atime;
-	long		reserved0;
+	long		st_atime_nsec;
 	time_t		st_mtime;
-	long		reserved1;
+	long		st_mtime_nsec;
 	time_t		st_ctime;
-	long		reserved2;
+	long		st_ctime_nsec;
 	long		st_blksize;
 	long		st_blocks;
 	long		st_pad4[14];
@@ -95,16 +95,18 @@ struct kernel_stat64 {
 	unsigned long	st_pad1[3];	/* Reserved for st_rdev expansion  */
 	long long	st_size;
 	time_t		st_atime;
-	unsigned long	reserved0;	/* Reserved for st_atime expansion  */
+	unsigned long	st_atime_nsec;
 	time_t		st_mtime;
-	unsigned long	reserved1;	/* Reserved for st_mtime expansion  */
+	unsigned long	st_mtime_nsec;
 	time_t		st_ctime;
-	unsigned long	reserved2;	/* Reserved for st_ctime expansion  */
+	unsigned long	st_ctime_nsec;
 	unsigned long	st_blksize;
 	unsigned long	st_pad2;
 	long long	st_blocks;
 };
 #endif	/* O32 */
+
+#define STAT_HAVE_NSEC 1
 
 #endif	/*  _BITS_STAT_STRUCT_H */
 

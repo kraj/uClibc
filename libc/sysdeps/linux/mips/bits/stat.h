@@ -98,11 +98,11 @@ struct stat {
      * st_ctime but we don't have it under Linux.
      */
     int st_atime;
-    int reserved0;	/* Reserved for st_atime expansion  */
+    int st_atimensec;
     int st_mtime;
-    int reserved1;	/* Reserved for st_mtime expansion  */
+    int st_mtimensec;
     int st_ctime;
-    int reserved2;	/* Reserved for st_ctime expansion  */
+    int st_ctimensec;
     int st_blksize;	/* Optimal block size for I/O.  */
     int st_pad3;
     __blkcnt_t st_blocks;	/* Number of 512-byte blocks allocated.  */
@@ -129,11 +129,11 @@ struct stat64
      * st_ctime but we don't have it under Linux.
      */
     __time_t st_atime;		/* Time of last access.  */
-    long int __reserved0;
+    unsigned long int st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;		/* Time of last modification.  */
-    long int __reserved1;
+    unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;		/* Time of last status change.  */
-    long int __reserved2;
+    unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
     __blksize_t st_blksize;	/* Optimal block size for I/O.  */
     long int st_pad3;
     __blkcnt64_t st_blocks;	/* Number of 512-byte blocks allocated.  */
@@ -157,11 +157,11 @@ struct stat64 {
      * st_ctime but we don't have it under Linux.
      */
     int st_atime;
-    int reserved0;	/* Reserved for st_atime expansion  */
+    int st_atimensec;
     int st_mtime;
-    int reserved1;	/* Reserved for st_mtime expansion  */
+    int st_mtimensec;
     int st_ctime;
-    int reserved2;	/* Reserved for st_ctime expansion  */
+    int st_ctimensec;
     int st_blksize;	/* Optimal block size for I/O.  */
     int st_pad3;
     __blkcnt_t st_blocks;	/* Number of 512-byte blocks allocated.  */
