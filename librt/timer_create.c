@@ -26,8 +26,18 @@ int timer_create(clockid_t clock_id, struct sigevent *evp, timer_t * timerid)
 {
 	int retval;
 	kernel_timer_t ktimerid;
-	struct sigevent local_evp;
+	struct sigevent default_evp;
 	struct timer *newp;
+
+	if (evp == NULL) {
+		/*
+		 * The kernel has to pass up the timer ID which is a userlevel object.
+		 * Therefore we cannot leave it up to the kernel to determine it.
+		 */
+		default_evp.sigev_notify = SIGEV_SIGNAL;
+		default_evp.sigev_signo = SIGALRM;
+		evp = &default_evp;
+	}
 
 	/* Notification via a thread is not supported yet */
 	if (__builtin_expect(evp->sigev_notify == SIGEV_THREAD, 1))
@@ -38,25 +48,14 @@ int timer_create(clockid_t clock_id, struct sigevent *evp, timer_t * timerid)
 	 * struct timer as a derived class with the first two elements
 	 * being in the superclass. We only need these two elements here.
 	 */
-	newp = (struct timer *)malloc(offsetof(struct timer, thrfunc));
+	newp = malloc(offsetof(struct timer, thrfunc));
 	if (newp == NULL)
 		return -1;	/* No memory */
-
-	if (evp == NULL) {
-		/*
-		 * The kernel has to pass up the timer ID which is a userlevel object.
-		 * Therefore we cannot leave it up to the kernel to determine it.
-		 */
-		local_evp.sigev_notify = SIGEV_SIGNAL;
-		local_evp.sigev_signo = SIGALRM;
-		local_evp.sigev_value.sival_ptr = newp;
-
-		evp = &local_evp;
-	}
+	default_evp.sigev_value.sival_ptr = newp;
 
 	retval = __syscall_timer_create(clock_id, evp, &ktimerid);
 	if (retval != -1) {
-		newp->sigev_notify = (evp != NULL ? evp->sigev_notify : SIGEV_SIGNAL);
+		newp->sigev_notify = evp->sigev_notify;
 		newp->ktimerid = ktimerid;
 
 		*timerid = (timer_t) newp;
