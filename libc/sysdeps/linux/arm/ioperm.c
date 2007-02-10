@@ -43,10 +43,7 @@
 
 #include <sys/types.h>
 #include <sys/mman.h>
-
-#include <asm/page.h>
 #include <sys/sysctl.h>
-
 #include <sys/io.h>
 
 libc_hidden_proto(ioperm)
