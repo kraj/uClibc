@@ -20,3 +20,5 @@ _fini:
 	stwu 1,-32(1)
 	mflr 0
 	stw 0,36(1)
+
+	.align 2
