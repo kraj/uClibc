@@ -52,7 +52,8 @@ export header_extra_args = -n
 endif
 HEADERS_BITS_COMMON := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/common/bits/*.h))
 HEADERS_BITS_ARCH   := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/*.h))
-HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_ARCH),$(HEADERS_BITS_COMMON))
+HEADERS_BITS_SUBARCH   := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/*.h))
+HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_ARCH) $(HEADERS_BITS_SUBARCH),$(HEADERS_BITS_COMMON))
 headers: include/bits/uClibc_config.h
 	$(Q)$(MAKE) headers-y
 	$(Q)\
@@ -73,7 +74,12 @@ headers: include/bits/uClibc_config.h
 	done; \
 	for i in $(HEADERS_BITS_ARCH) ; do \
 		$(LN) -fs ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$$i .; \
-	done
+	done; \
+	if [ -n $(HEADERS_BITS_SUBARCH) ] ; then \
+		for i in $(HEADERS_BITS_SUBARCH) ; do \
+			$(LN) -fs ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/$$i .; \
+		done; \
+	fi
 	$(Q)\
 	cd include/sys; \
 	set -e; \

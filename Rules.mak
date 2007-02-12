@@ -62,6 +62,8 @@ endif
 # Make certain these contain a final "/", but no "//"s.
 TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
 TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
+TARGET_SUBARCH:=$(shell grep -s '^TARGET_SUBARCH' $(top_builddir)/.config | sed -e 's/^TARGET_SUBARCH=//' -e 's/"//g')
+TARGET_SUBARCH:=$(strip $(subst ",, $(strip $(TARGET_SUBARCH))))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
 KERNEL_HEADERS:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_HEADERS))))))

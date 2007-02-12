@@ -177,6 +177,11 @@ if TARGET_x86_64
 source "extra/Configs/Config.x86_64"
 endif
 
+config TARGET_SUBARCH
+	string
+	default "e500" if CONFIG_E500
+	default "classic" if CONFIG_CLASSIC
+	default ""
 
 source "extra/Configs/Config.in.arch"
 
