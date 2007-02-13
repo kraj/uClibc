@@ -20,11 +20,6 @@
 
 #include <features.h>
 
-/*
- * Disable for e500, uses library functions instead of in lines.
- */
-#ifndef __CONFIG_E500__
-
 #ifndef _MATH_H
 # error "Never use <bits/mathinline.h> directly; include <math.h> instead."
 #endif
@@ -187,6 +182,4 @@ __NTH (__ieee754_sqrtf (float __x))
 }
 #endif /* __LIBC_INTERNAL_MATH_INLINES */
 #endif /* __GNUC__ && !_SOFT_FLOAT */
-
-#endif /* __CONFIG_E500__ */
 

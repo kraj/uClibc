@@ -20,11 +20,6 @@
 
 #include <features.h>
 
-/*
- * Disable for e500, uses library functions instead of in lines.
- */
-#ifndef __CONFIG_E500__
-
 #if defined __GNUC__ && !defined _SOFT_FLOAT && !defined __NO_MATH_INLINES
 
 /* Inline definition for fegetround.  */
@@ -66,6 +61,4 @@
    : (feclearexcept) (__excepts))
 
 #endif /* __GNUC__ && !_SOFT_FLOAT */
-
-#endif /* __CONFIG_E500__ */
 
