@@ -75,11 +75,9 @@ headers: include/bits/uClibc_config.h
 	for i in $(HEADERS_BITS_ARCH) ; do \
 		$(LN) -fs ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$$i .; \
 	done; \
-	if [ -n $(HEADERS_BITS_SUBARCH) ] ; then \
-		for i in $(HEADERS_BITS_SUBARCH) ; do \
-			$(LN) -fs ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/$$i .; \
-		done; \
-	fi
+	for i in $(HEADERS_BITS_SUBARCH) ; do \
+		$(LN) -fs ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/$$i .; \
+	done
 	$(Q)\
 	cd include/sys; \
 	set -e; \
