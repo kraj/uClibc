@@ -8,7 +8,7 @@
 #--------------------------------------------------------------
 # You shouldn't need to mess with anything beyond this point...
 #--------------------------------------------------------------
-noconfig_targets := menuconfig config oldconfig randconfig \
+noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
 	release dist tags
 
@@ -300,6 +300,9 @@ config: extra/config/conf
 
 oldconfig: extra/config/conf
 	$(Q)./extra/config/conf -o extra/Configs/Config.in
+
+silentoldconfig: extra/config/conf
+	$(Q)./extra/config/conf -s extra/Configs/Config.in
 
 randconfig: extra/config/conf
 	$(Q)./extra/config/conf -r extra/Configs/Config.in
