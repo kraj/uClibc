@@ -7,7 +7,6 @@ mainmenu "uClibc C Library Configuration"
 
 choice
 	prompt "Target Architecture"
-	default TARGET_i386
 	help
 	  Stuff
 
