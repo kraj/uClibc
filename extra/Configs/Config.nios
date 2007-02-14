@@ -4,6 +4,7 @@
 #
 
 config TARGET_ARCH
+	string
 	default "nios"
 
 config FORCE_OPTIONS_FOR_ARCH

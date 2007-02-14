@@ -4,6 +4,7 @@
 #
 
 config TARGET_ARCH
+	string
 	default "sh"
 
 config FORCE_OPTIONS_FOR_ARCH

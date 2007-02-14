@@ -4,6 +4,7 @@
 #
 
 config TARGET_ARCH
+	string
 	default "bfin"
 
 config FORCE_OPTIONS_FOR_ARCH
