@@ -109,16 +109,20 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 #define INTERNAL_SYSCALL_NCS(number, err, nr, args...) \
 	internal_syscall##nr (= number, , "r" (__v0), err, args)
 
-#if _MIPS_SIM == _ABIO32
+#if _MIPS_SIM == _ABIO32 || _MIPS_SIM == _ABI64
+# define ARG_TYPE long
+#else
+# define ARG_TYPE long long
+#endif
 
 #define internal_syscall0(ncs_init, cs_init, input, err, dummy...)	\
 ({									\
 	long _sys_result;						\
 									\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a3 asm("$7");					\
-	__asm__ volatile (						\
+	register ARG_TYPE __v0 __asm__("$2") ncs_init;			\
+	register ARG_TYPE __a3 __asm__("$7");				\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
@@ -137,10 +141,10 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 	long _sys_result;						\
 									\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a3 asm("$7");					\
-	__asm__ volatile (						\
+	register ARG_TYPE __v0 __asm__("$2") ncs_init;			\
+	register ARG_TYPE __a0 __asm__("$4") = (ARG_TYPE) arg1;		\
+	register ARG_TYPE __a3 __asm__("$7");				\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
@@ -159,11 +163,11 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 	long _sys_result;						\
 									\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a3 asm("$7");					\
-	__asm__ volatile (						\
+	register ARG_TYPE __v0 __asm__("$2") ncs_init;			\
+	register ARG_TYPE __a0 __asm__("$4") = (ARG_TYPE) arg1;		\
+	register ARG_TYPE __a1 __asm__("$5") = (ARG_TYPE) arg2;		\
+	register ARG_TYPE __a3 __asm__("$7");				\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
@@ -182,12 +186,12 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 	long _sys_result;						\
 									\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a2 asm("$6") = (long) arg3;			\
-	register long __a3 asm("$7");					\
-	__asm__ volatile (						\
+	register ARG_TYPE __v0 __asm__("$2") ncs_init;			\
+	register ARG_TYPE __a0 __asm__("$4") = (ARG_TYPE) arg1;		\
+	register ARG_TYPE __a1 __asm__("$5") = (ARG_TYPE) arg2;		\
+	register ARG_TYPE __a2 __asm__("$6") = (ARG_TYPE) arg3;		\
+	register ARG_TYPE __a3 __asm__("$7");				\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
@@ -206,12 +210,12 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 	long _sys_result;						\
 									\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a2 asm("$6") = (long) arg3;			\
-	register long __a3 asm("$7") = (long) arg4;			\
-	__asm__ volatile (						\
+	register ARG_TYPE __v0 __asm__("$2") ncs_init;			\
+	register ARG_TYPE __a0 __asm__("$4") = (ARG_TYPE) arg1;		\
+	register ARG_TYPE __a1 __asm__("$5") = (ARG_TYPE) arg2;		\
+	register ARG_TYPE __a2 __asm__("$6") = (ARG_TYPE) arg3;		\
+	register ARG_TYPE __a3 __asm__("$7") = (ARG_TYPE) arg4;		\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
@@ -225,15 +229,13 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 	_sys_result;							\
 })
 
-#ifdef __UCLIBC__
-#define FORCE_FRAME_POINTER
-#else
+#if _MIPS_SIM == _ABIO32
+#include <alloca.h>
 /* We need to use a frame pointer for the functions in which we
    adjust $sp around the syscall, or debug information and unwind
    information will be $sp relative and thus wrong during the syscall.  As
    of GCC 3.4.3, this is sufficient.  */
 #define FORCE_FRAME_POINTER alloca (4)
-#endif
 
 #define internal_syscall5(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4, arg5)\
 ({									\
@@ -241,12 +243,12 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 									\
 	FORCE_FRAME_POINTER;						\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a2 asm("$6") = (long) arg3;			\
-	register long __a3 asm("$7") = (long) arg4;			\
-	__asm__ volatile (						\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1;			\
+	register long __a1 __asm__("$5") = (long) arg2;			\
+	register long __a2 __asm__("$6") = (long) arg3;			\
+	register long __a3 __asm__("$7") = (long) arg4;			\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	"subu\t$29, 32\n\t"						\
 	"sw\t%6, 16($29)\n\t"						\
@@ -270,12 +272,12 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 									\
 	FORCE_FRAME_POINTER;						\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a2 asm("$6") = (long) arg3;			\
-	register long __a3 asm("$7") = (long) arg4;			\
-	__asm__ volatile (						\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1;			\
+	register long __a1 __asm__("$5") = (long) arg2;			\
+	register long __a2 __asm__("$6") = (long) arg3;			\
+	register long __a3 __asm__("$7") = (long) arg4;			\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	"subu\t$29, 32\n\t"						\
 	"sw\t%6, 16($29)\n\t"						\
@@ -300,12 +302,12 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 									\
 	FORCE_FRAME_POINTER;						\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a2 asm("$6") = (long) arg3;			\
-	register long __a3 asm("$7") = (long) arg4;			\
-	__asm__ volatile (						\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1;			\
+	register long __a1 __asm__("$5") = (long) arg2;			\
+	register long __a2 __asm__("$6") = (long) arg3;			\
+	register long __a3 __asm__("$7") = (long) arg4;			\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	"subu\t$29, 32\n\t"						\
 	"sw\t%6, 16($29)\n\t"						\
@@ -328,134 +330,20 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 #define __SYSCALL_CLOBBERS "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13", \
 	"$14", "$15", "$24", "$25", "memory"
 
-#elif _MIPS_SIM == _ABIN32
-
-#define internal_syscall0(ncs_init, cs_init, input, err, dummy...)	\
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long long __v0 asm("$2") ncs_init;			\
-	register long long __a3 asm("$7");				\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set reorder" 							\
-	: "=r" (__v0), "=r" (__a3) 					\
-	: input								\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define internal_syscall1(ncs_init, cs_init, input, err, arg1)		\
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long long __v0 asm("$2") ncs_init;			\
-	register long long __a0 asm("$4") = (long long) arg1; 		\
-	register long long __a3 asm("$7"); 				\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set reorder" 							\
-	: "=r" (__v0), "=r" (__a3) 					\
-	: input, "r" (__a0)		 				\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define internal_syscall2(ncs_init, cs_init, input, err, arg1, arg2)	\
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long long __v0 asm("$2") ncs_init;			\
-	register long long __a0 asm("$4") = (long long) arg1; 		\
-	register long long __a1 asm("$5") = (long long) arg2; 		\
-	register long long __a3 asm("$7"); 				\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set\treorder" 						\
-	: "=r" (__v0), "=r" (__a3) 					\
-	: input, "r" (__a0), "r" (__a1)					\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define internal_syscall3(ncs_init, cs_init, input, err, arg1, arg2, arg3) \
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long long __v0 asm("$2") ncs_init;			\
-	register long long __a0 asm("$4") = (long long) arg1; 		\
-	register long long __a1 asm("$5") = (long long) arg2; 		\
-	register long long __a2 asm("$6") = (long long) arg3; 		\
-	register long long __a3 asm("$7"); 				\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set\treorder" 						\
-	: "=r" (__v0), "=r" (__a3) 					\
-	: input, "r" (__a0), "r" (__a1), "r" (__a2)			\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define internal_syscall4(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4) \
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long long __v0 asm("$2") ncs_init;			\
-	register long long __a0 asm("$4") = (long long) arg1; 		\
-	register long long __a1 asm("$5") = (long long) arg2; 		\
-	register long long __a2 asm("$6") = (long long) arg3; 		\
-	register long long __a3 asm("$7") = (long long) arg4; 		\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set\treorder" 						\
-	: "=r" (__v0), "+r" (__a3) 					\
-	: input, "r" (__a0), "r" (__a1), "r" (__a2)		 	\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
+#else /* N32 || N64 */
 
 #define internal_syscall5(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4, arg5) \
 ({ 									\
 	long _sys_result;						\
 									\
 	{								\
-	register long long __v0 asm("$2") ncs_init;			\
-	register long long __a0 asm("$4") = (long long) arg1; 		\
-	register long long __a1 asm("$5") = (long long) arg2; 		\
-	register long long __a2 asm("$6") = (long long) arg3; 		\
-	register long long __a3 asm("$7") = (long long) arg4; 		\
-	register long long __a4 asm("$8") = (long long) arg5; 		\
-	__asm__ volatile ( 						\
+	register ARG_TYPE __v0 __asm__("$2") ncs_init;			\
+	register ARG_TYPE __a0 __asm__("$4") = (ARG_TYPE) arg1; 	\
+	register ARG_TYPE __a1 __asm__("$5") = (ARG_TYPE) arg2; 	\
+	register ARG_TYPE __a2 __asm__("$6") = (ARG_TYPE) arg3; 	\
+	register ARG_TYPE __a3 __asm__("$7") = (ARG_TYPE) arg4; 	\
+	register ARG_TYPE __a4 __asm__("$8") = (ARG_TYPE) arg5; 	\
+	__asm__ __volatile__ ( 						\
 	".set\tnoreorder\n\t" 						\
 	cs_init								\
 	"syscall\n\t" 							\
@@ -474,185 +362,14 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 	long _sys_result;						\
 									\
 	{								\
-	register long long __v0 asm("$2") ncs_init;			\
-	register long long __a0 asm("$4") = (long long) arg1; 		\
-	register long long __a1 asm("$5") = (long long) arg2; 		\
-	register long long __a2 asm("$6") = (long long) arg3; 		\
-	register long long __a3 asm("$7") = (long long) arg4; 		\
-	register long long __a4 asm("$8") = (long long) arg5; 		\
-	register long long __a5 asm("$9") = (long long) arg6; 		\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set\treorder" 						\
-	: "=r" (__v0), "+r" (__a3) 					\
-	: input, "r" (__a0), "r" (__a1), "r" (__a2), "r" (__a4),	\
-	  "r" (__a5)							\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define __SYSCALL_CLOBBERS "$1", "$3", "$10", "$11", "$12", "$13", \
-	"$14", "$15", "$24", "$25", "memory"
-
-#else /* _MIPS_SIM == _ABI64 */
-
-#define internal_syscall0(ncs_init, cs_init, input, err, dummy...)	\
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a3 asm("$7");					\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set reorder" 							\
-	: "=r" (__v0), "=r" (__a3) 					\
-	: input								\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define internal_syscall1(ncs_init, cs_init, input, err, arg1)		\
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1; 			\
-	register long __a3 asm("$7"); 					\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set reorder" 							\
-	: "=r" (__v0), "=r" (__a3) 					\
-	: input, "r" (__a0)		 				\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define internal_syscall2(ncs_init, cs_init, input, err, arg1, arg2)	\
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1; 			\
-	register long __a1 asm("$5") = (long) arg2; 			\
-	register long __a3 asm("$7"); 					\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set\treorder" 						\
-	: "=r" (__v0), "=r" (__a3) 					\
-	: input, "r" (__a0), "r" (__a1)					\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define internal_syscall3(ncs_init, cs_init, input, err, arg1, arg2, arg3) \
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1; 			\
-	register long __a1 asm("$5") = (long) arg2; 			\
-	register long __a2 asm("$6") = (long) arg3; 			\
-	register long __a3 asm("$7"); 					\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set\treorder" 						\
-	: "=r" (__v0), "=r" (__a3) 					\
-	: input, "r" (__a0), "r" (__a1), "r" (__a2)			\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define internal_syscall4(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4) \
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1; 			\
-	register long __a1 asm("$5") = (long) arg2; 			\
-	register long __a2 asm("$6") = (long) arg3; 			\
-	register long __a3 asm("$7") = (long) arg4; 			\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set\treorder" 						\
-	: "=r" (__v0), "+r" (__a3) 					\
-	: input, "r" (__a0), "r" (__a1), "r" (__a2)		 	\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define internal_syscall5(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4, arg5) \
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1; 			\
-	register long __a1 asm("$5") = (long) arg2; 			\
-	register long __a2 asm("$6") = (long) arg3; 			\
-	register long __a3 asm("$7") = (long) arg4; 			\
-	register long __a4 asm("$8") = (long) arg5; 			\
-	__asm__ volatile ( 						\
-	".set\tnoreorder\n\t" 						\
-	cs_init								\
-	"syscall\n\t" 							\
-	".set\treorder" 						\
-	: "=r" (__v0), "+r" (__a3) 					\
-	: input, "r" (__a0), "r" (__a1), "r" (__a2), "r" (__a4)		\
-	: __SYSCALL_CLOBBERS); 						\
-	err = __a3;							\
-	_sys_result = __v0;						\
-	}								\
-	_sys_result;							\
-})
-
-#define internal_syscall6(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4, arg5, arg6) \
-({ 									\
-	long _sys_result;						\
-									\
-	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1; 			\
-	register long __a1 asm("$5") = (long) arg2; 			\
-	register long __a2 asm("$6") = (long) arg3; 			\
-	register long __a3 asm("$7") = (long) arg4; 			\
-	register long __a4 asm("$8") = (long) arg5; 			\
-	register long __a5 asm("$9") = (long) arg6; 			\
-	__asm__ volatile ( 						\
+	register ARG_TYPE __v0 __asm__("$2") ncs_init;			\
+	register ARG_TYPE __a0 __asm__("$4") = (ARG_TYPE) arg1; 	\
+	register ARG_TYPE __a1 __asm__("$5") = (ARG_TYPE) arg2; 	\
+	register ARG_TYPE __a2 __asm__("$6") = (ARG_TYPE) arg3; 	\
+	register ARG_TYPE __a3 __asm__("$7") = (ARG_TYPE) arg4; 	\
+	register ARG_TYPE __a4 __asm__("$8") = (ARG_TYPE) arg5; 	\
+	register ARG_TYPE __a5 __asm__("$9") = (ARG_TYPE) arg6; 	\
+	__asm__ __volatile__ ( 						\
 	".set\tnoreorder\n\t" 						\
 	cs_init								\
 	"syscall\n\t" 							\
