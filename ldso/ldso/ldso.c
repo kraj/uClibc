@@ -950,10 +950,11 @@ void *_dl_malloc(int size)
 	_dl_malloc_addr += size;
 
 	/*
-	 * Align memory to 4 byte boundary.  Some platforms require this,
-	 * others simply get better performance.
+	 * Align memory to DL_MALLOC_ALIGN byte boundary.  Some
+	 * platforms require this, others simply get better
+	 * performance.
 	 */
-	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr + 3) & ~(3));
+	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr + DL_MALLOC_ALIGN - 1) & ~(DL_MALLOC_ALIGN - 1));
 	return retval;
 }
 

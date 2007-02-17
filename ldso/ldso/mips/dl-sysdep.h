@@ -214,3 +214,7 @@ elf_machine_relative (ElfW(Addr) load_off, const ElfW(Addr) rel_addr,
 {
 	/* No RELATIVE relocs in MIPS? */
 }
+
+#ifdef __mips64
+#define DL_MALLOC_ALIGN 8	/* N64/N32 needs 8 byte alignment */
+#endif
