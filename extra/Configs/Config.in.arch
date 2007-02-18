@@ -161,7 +161,7 @@ config DO_C99_MATH
 
 config KERNEL_HEADERS
 	string "Linux kernel header location"
-	default "/usr/src/linux/include"
+	default "/usr/include"
 	help
 	  The kernel source you use to compile with should be the same as the
 	  Linux kernel you run your apps on.  uClibc doesn't even try to achieve binary
