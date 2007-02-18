@@ -49,7 +49,7 @@ HOSTCC     = gcc
 BUILD_CFLAGS = -O2 -Wall
 export ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 				  -e s/arm.*/arm/ -e s/sa110/arm/ \
-				  -e s/s390x/s390/ -e s/parisc64/parisc/ \
+				  -e s/s390x/s390/ -e s/parisc.*/hppa/ \
 				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ )
 
 
