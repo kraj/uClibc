@@ -26,32 +26,25 @@
 #endif
 
 extern long int testandset (int *spinlock);
-extern int __compare_and_swap (long *, long , long);
 
+#include <asm/unistd.h>
 /* Spinlock implementation; required.  */
+/* The semantics of the TESTSET instruction cannot be guaranteed. We cannot
+   easily move all locks used by linux kernel to non-cacheable memory.
+   EXCPT 0x4 is used to trap into kernel to do the atomic testandset.
+   It's ugly. But it's the only thing we can do now.
+   The handler of EXCPT 0x4 expects the address of the lock is passed through
+   R0. And the result is returned by R0.  */
 PT_EI long int
 testandset (int *spinlock)
 {
-	if (*spinlock)
-		return 1;
-	else
-	{
-		*spinlock=1;
-		return 0;
-	}
-}
-
-#define HAS_COMPARE_AND_SWAP
-
-PT_EI int
-__compare_and_swap (long int *p, long int oldval, long int newval)
-{
-  if((*p ^ oldval) == 0) {
-	*p = newval;
-	return 1;
-  }
-  else
-	return 0;
+  long int res;
+  asm volatile ("R0 = %2; P0 = %4; EXCPT 0; %0 = R0;"
+                : "=d" (res), "=m" (*spinlock)
+                : "d" (spinlock), "m" (*spinlock),
+		  "ida" (__NR_bfin_spinlock)
+                :"R0", "P0", "cc");
+  return res;
 }
 
 #endif /* pt-machine.h */
