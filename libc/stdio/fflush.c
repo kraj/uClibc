@@ -20,16 +20,17 @@ weak_alias(__fflush_unlocked,fflush_unlocked);
 weak_alias(__fflush_unlocked,fflush);
 #endif
 
+
 /* Even if the stream is set to user-locking, we still need to lock
  * when all (lbf) writing streams are flushed. */
 
-#define __MY_STDIO_THREADLOCK(__stream)										\
-        __UCLIBC_MUTEX_CONDITIONAL_LOCK((__stream)->__lock,					\
-										(_stdio_user_locking != 2))
+#define __MY_STDIO_THREADLOCK(__stream)					\
+        __UCLIBC_MUTEX_CONDITIONAL_LOCK((__stream)->__lock,		\
+	(_stdio_user_locking != 2))
 
-#define __MY_STDIO_THREADUNLOCK(__stream)									\
-        __UCLIBC_MUTEX_CONDITIONAL_UNLOCK((__stream)->__lock,				\
-										  (_stdio_user_locking != 2))
+#define __MY_STDIO_THREADUNLOCK(__stream)				\
+        __UCLIBC_MUTEX_CONDITIONAL_UNLOCK((__stream)->__lock,		\
+	(_stdio_user_locking != 2))
 
 #if defined(__UCLIBC_HAS_THREADS__) && defined(__STDIO_BUFFERS)
 void _stdio_openlist_dec_use(void)
@@ -40,14 +41,19 @@ void _stdio_openlist_dec_use(void)
 		FILE *n;
 		FILE *stream;
 
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: As an optimization, we could unlock after we move past the head.
+#endif
+		/* Grab the openlist add lock since we might change the head of the list. */
 		__STDIO_THREADLOCK_OPENLIST_ADD;
 		for (stream = _stdio_openlist; stream; stream = n) {
-#warning walk the list and clear out all fclosed()d files
 			n = stream->__nextopen;
-#warning fix for nonatomic
-			if ((stream->__modeflags & (__FLAG_READONLY|__FLAG_WRITEONLY))
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: fix for nonatomic
+#endif
+			if ((stream->__modeflags & (__FLAG_READONLY|__FLAG_WRITEONLY|__FLAG_FAILED_FREOPEN))
 				== (__FLAG_READONLY|__FLAG_WRITEONLY)
-				) {		 /* The file was closed so remove from the list. */
+				) {		 /* The file was closed and should be removed from the list. */
 				if (!p) {
 					_stdio_openlist = n;
 				} else {
@@ -58,7 +64,8 @@ void _stdio_openlist_dec_use(void)
 				p = stream;
 			}
 		}
-		__STDIO_THREADUNLOCK_OPENLIST_DEL;
+		__STDIO_THREADUNLOCK_OPENLIST_ADD;
+		_stdio_openlist_del_count = 0; /* Should be clean now. */
 	}
 	--_stdio_openlist_use_count;
 	__STDIO_THREADUNLOCK_OPENLIST_DEL;
