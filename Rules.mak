@@ -62,7 +62,7 @@ HOSTCFLAGS = -O2 -Wall
 MAJOR_VERSION := 0
 MINOR_VERSION := 9
 SUBLEVEL      := 28
-EXTRAVERSION  := 1
+EXTRAVERSION  := 2
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).$(EXTRAVERSION)
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
 LC_ALL := C
