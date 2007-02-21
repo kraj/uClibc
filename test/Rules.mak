@@ -84,11 +84,11 @@ LDFLAGS        := $(CPU_LDFLAGS)
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
 	HOST_CFLAGS   += -g
-	LDFLAGS       += -g -Wl,-warn-common
-	HOST_LDFLAGS  += -g -Wl,-warn-common
+	LDFLAGS       += -g
+	HOST_LDFLAGS  += -g
 else
-	LDFLAGS       += -s -Wl,-warn-common
-	HOST_LDFLAGS  += -s -Wl,-warn-common
+	LDFLAGS       += -s
+	HOST_LDFLAGS  += -s
 endif
 
 ifneq ($(strip $(HAVE_SHARED)),y)
