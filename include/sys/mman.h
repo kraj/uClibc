@@ -81,6 +81,8 @@ extern int munmap (void *__addr, size_t __len) __THROW;
    (and sets errno).  */
 extern int mprotect (void *__addr, size_t __len, int __prot) __THROW;
 
+#ifdef __ARCH_USE_MMU__
+
 /* Synchronize the region starting at ADDR and extending LEN bytes with the
    file it maps.  Filesystem operations on a file being mapped are
    unpredictable before this is done.  Flags are from the MS_* set.
@@ -88,6 +90,13 @@ extern int mprotect (void *__addr, size_t __len, int __prot) __THROW;
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int msync (void *__addr, size_t __len, int __flags);
+
+#else
+
+/* On no-mmu systems you can't have real private mappings.  */
+static inline int msync (void *__addr, size_t __len, int __flags) { return 0; }
+
+#endif
 
 #ifdef __USE_BSD
 /* Advise the system about particular usage patterns the program follows
@@ -120,8 +129,7 @@ extern int munlockall (void) __THROW;
 #else
 
 /* On no-mmu systems, memory cannot be swapped out, so
- * these functions will always succeed.
- */
+ * these functions will always succeed.  */
 static inline int mlock (__const void *__addr, size_t __len) { return 0; }
 static inline int munlock (__const void *__addr, size_t __len) { return 0; }
 static inline int mlockall (int __flags) { return 0; }
