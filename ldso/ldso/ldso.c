@@ -83,6 +83,7 @@ void _dl_debug_state(void)
 	 */
 	__asm__("");
 }
+rtld_hidden_def(_dl_debug_state);
 
 static unsigned char *_dl_malloc_addr = 0;	/* Lets _dl_malloc use the already allocated memory page */
 static unsigned char *_dl_mmap_zero   = 0;	/* Also used by _dl_malloc */
