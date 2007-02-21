@@ -37,8 +37,8 @@ include $(top_srcdir)extra/locale/Makefile.in
 include $(top_srcdir)libc/Makefile.in
 
 include/bits/uClibc_config.h: extra/config/conf .config
-	$(INSTALL) -d $(dir $@)
-	@$< -o $(top_srcdir)extra/Configs/Config.in
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)@$< -o $(top_srcdir)extra/Configs/Config.in
 
 # For the moment, we have to keep re-running this target
 # because the fix includes scripts rely on pre-processers
@@ -293,7 +293,7 @@ include/bits:
 # configuration
 # ---------------------------------------------------------------------------
 extra/config/conf extra/config/mconf: include/bits
-	$(MAKE) -C extra/config $(notdir $@)
+	$(Q)$(MAKE) -C extra/config $(notdir $@)
 
 menuconfig: extra/config/mconf include/bits
 	$(Q)./extra/config/mconf extra/Configs/Config.in

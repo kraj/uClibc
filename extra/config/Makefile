@@ -13,13 +13,13 @@ host-cmulti := $(foreach m,$(__hostprogs),\
            $(if $($(m)-cxxobjs),,$(if $($(m)-objs),$(m))))
 host-cobjs  := $(sort $(foreach m,$(__hostprogs),$($(m)-objs)))
 
-$(host-csingle): %: %.c FORCE
+$(host-csingle): %: %.c
 	$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS_$@) $(HOST_LOADLIBES) $< -o $@
 
-$(host-cmulti): %: $(host-cobjs) $(host-cshlib) FORCE
+$(host-cmulti): %: $(host-cobjs) $(host-cshlib)
 	$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS_$@) $(HOST_LOADLIBES) $($@-objs) -o $@
 
-$(host-cobjs): %.o: %.c FORCE
+$(host-cobjs): %.o: %.c
 	$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS_$@) -c $< -o $@
 
 $(obj)/%:: $(src)/%_shipped
