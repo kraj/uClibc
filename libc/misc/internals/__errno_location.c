@@ -4,10 +4,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <errno.h>
-#undef errno
-extern int errno;
-libc_hidden_proto(errno)
+#include "internal_errno.h"
 
 /* psm: moved to bits/errno.h: libc_hidden_proto(__errno_location) */
 libc_hidden_proto(__errno_location)

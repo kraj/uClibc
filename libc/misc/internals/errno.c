@@ -1,22 +1,15 @@
-#include <features.h>
-#undef errno
+#include "internal_errno.h"
 
-extern int errno;
-extern int h_errno;
-
+#ifdef __UCLIBC_HAS_THREADS__
 libc_hidden_proto(errno)
 libc_hidden_proto(h_errno)
-
-#if 0
-/* Unfortunately, this doesn't work... */
-int h_errno __attribute__ ((section  (".bss"))) = 0;
-int errno __attribute__ ((section  (".bss"))) = 0;
-#else
-int _errno = 0;
-int _h_errno = 0;
 #endif
+int errno = 0;
+int h_errno = 0;
 
-weak_alias(_errno,errno)
+#ifdef __UCLIBC_HAS_THREADS__
+//weak_alias(_errno, errno)
 libc_hidden_def(errno)
-weak_alias(_h_errno,h_errno)
+//weak_alias(_h_errno, h_errno)
 libc_hidden_def(h_errno)
+#endif
