@@ -100,4 +100,3 @@ int fclose(register FILE *stream)
 
 	return rv;
 }
-libc_hidden_def(fclose)
