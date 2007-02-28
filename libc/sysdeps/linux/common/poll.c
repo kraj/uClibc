@@ -23,10 +23,27 @@
 extern __typeof(poll) __libc_poll;
 
 #ifdef __NR_poll
+
 # define __NR___libc_poll __NR_poll
 _syscall3(int, __libc_poll, struct pollfd *, fds,
 	unsigned long int, nfds, int, timeout);
+
+#elif defined(__NR_ppoll)
+
+libc_hidden_proto(ppoll)
+int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
+{
+	struct timespec *ts = NULL, tval;
+	if (timeout > 0) {
+		tval.tv_sec = timeout / 1000;
+		tval.tv_nsec = (timeout % 1000) *1000;
+		ts = &tval;
+	}
+	return ppoll(fds, nfds, ts, NULL);
+}
+
 #else
+/* ugh, this arch lacks poll, so we need to emulate this crap ... */
 
 #include <alloca.h>
 #include <sys/types.h>
