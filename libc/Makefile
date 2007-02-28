@@ -70,7 +70,6 @@ $(LIBNAME) shared_$(LIBNAME) ar-target: subdirs
 		$(AR) $(ARFLAGS) $(LIBNAME) $$objs || exit 1 ; \
 	done
 	cp $(LIBNAME) shared_$(LIBNAME)
-	$(AR) $(ARFLAGS) $(LIBNAME) misc/internals/static.o
 	$(RANLIB) $(LIBNAME)
 
 $(LIBNAME_TARGET): $(LIBNAME)

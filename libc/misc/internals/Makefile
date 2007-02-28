@@ -31,7 +31,7 @@ OBJS=$(COBJS)
 
 OBJ_LIST=../../obj.misc.internals
 
-all: $(OBJ_LIST) interp.o static.o
+all: $(OBJ_LIST) interp.o
 
 $(OBJ_LIST): $(OBJS)
 	echo $(patsubst %, misc/internals/%, $(OBJS)) > $(OBJ_LIST)
@@ -44,7 +44,7 @@ interp.c: Makefile
 		"(\".interp\"))) =\""$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)"\";" >> interp.c
 	echo "#endif" >> interp.c
 
-$(COBJS) interp.o static.o: %.o : %.c
+$(COBJS) interp.o: %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 

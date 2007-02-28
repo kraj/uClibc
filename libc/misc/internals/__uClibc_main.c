@@ -32,7 +32,7 @@ extern void __guard_setup(void);
 /*
  * Prototypes.
  */
-extern void *__libc_stack_end;
+void *__libc_stack_end;
 extern void weak_function _stdio_init(void);
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
