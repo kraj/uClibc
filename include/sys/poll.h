@@ -30,6 +30,8 @@
 /* Get the timespec definition.  */
 # define __need_timespec
 # include <time.h>
+/* get NULL definition. */
+# include <stddef.h>
 #endif
 
 
