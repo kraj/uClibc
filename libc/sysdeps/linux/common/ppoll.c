@@ -26,11 +26,11 @@
 static inline
 _syscall4(int, __libc_ppoll, struct pollfd *, fds,
 	nfds_t, nfds, const struct timespec *, timeout,
-	const sigset_t *, sigmask);
+	const __sigset_t *, sigmask);
 
 int
 ppoll (struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
-       const sigset_t *sigmask)
+       const __sigset_t *sigmask)
 {
   /* The Linux kernel can in some situations update the timeout value.
      We do not want that so use a local variable.  */
