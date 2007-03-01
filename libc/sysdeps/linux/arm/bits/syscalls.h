@@ -94,13 +94,13 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 
 #undef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...)				\
-  ({ unsigned int __sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
-     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (__sys_result, ), 0))	\
+  ({ unsigned int _inline_sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
+     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_inline_sys_result, ), 0))	\
        {								\
-	 __set_errno (INTERNAL_SYSCALL_ERRNO (__sys_result, ));		\
-	 __sys_result = (unsigned int) -1;				\
+	 __set_errno (INTERNAL_SYSCALL_ERRNO (_inline_sys_result, ));		\
+	 _inline_sys_result = (unsigned int) -1;				\
        }								\
-     (int) __sys_result; })
+     (int) _inline_sys_result; })
 
 #undef INTERNAL_SYSCALL_DECL
 #define INTERNAL_SYSCALL_DECL(err) do { } while (0)
@@ -109,7 +109,7 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 #if defined(__ARM_EABI__)
 #if !defined(__thumb__)
 #define INTERNAL_SYSCALL(name, err, nr, args...)			\
-  ({unsigned int _sys_result;						\
+  ({unsigned int __sys_result;						\
      {									\
        register int _a1 __asm__ ("r0"), _nr __asm__ ("r7");			\
        LOAD_ARGS_##nr (args)						\
@@ -118,16 +118,16 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 		     : "=r" (_a1)					\
 		     : "r" (_nr) ASM_ARGS_##nr				\
 		     : "memory");					\
-       _sys_result = _a1;						\
+       __sys_result = _a1;						\
      }									\
-     (int) _sys_result; })
+     (int) __sys_result; })
 #else /* !defined(__thumb__) */
 /* So hide the use of r7 from the compiler, this would be a lot
  * easier but for the fact that the syscalls can exceed 255.
  * For the moment the LOAD_ARG_7 is sacrificed.
  */
 #define INTERNAL_SYSCALL(name, err, nr, args...)                \
-  ({ unsigned int _sys_result;                                  \
+  ({ unsigned int __sys_result;                                  \
     {                                                           \
       register int _a1 asm ("a1");                              \
       LOAD_ARGS_##nr (args)                                     \
@@ -139,14 +139,14 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
                    : "=r" (_a1)                                 \
                     : "r" (_v3) ASM_ARGS_##nr                   \
                     : "memory");                                \
-      _sys_result = _a1;                                        \
+      __sys_result = _a1;                                        \
     }                                                           \
-    (int) _sys_result; })
+    (int) __sys_result; })
 #endif /*!defined(__thumb__)*/
 #else /* !defined(__ARM_EABI__) */ 
 #if !defined(__thumb__)
 #define INTERNAL_SYSCALL(name, err, nr, args...)		\
-  ({ unsigned int _sys_result;					\
+  ({ unsigned int __sys_result;					\
      {								\
        register int _a1 __asm__ ("a1");				\
        LOAD_ARGS_##nr (args)					\
@@ -154,9 +154,9 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 		     : "=r" (_a1)				\
 		     : "i" (SYS_ify(name)) ASM_ARGS_##nr	\
 		     : "memory");				\
-       _sys_result = _a1;					\
+       __sys_result = _a1;					\
      }								\
-     (int) _sys_result; })
+     (int) __sys_result; })
 #else
 #if 0
 /* This doesn't work because GCC uses r7 as a frame pointer in
@@ -164,7 +164,7 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
  * it, resulting in mysterious crashes after the SWI.
  */
 #define INTERNAL_SYSCALL(name, err, nr, args...)		\
-  ({ unsigned int _sys_result;					\
+  ({ unsigned int __sys_result;					\
      {								\
        register int _a1 __asm__ ("a1");				\
        LOAD_ARGS_##nr (args)					\
@@ -173,16 +173,16 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 		     : "=r" (_a1)				\
 		     : "r" (_r7) ASM_ARGS_##nr			\
 		     : "memory");				\
-       _sys_result = _a1;					\
+       __sys_result = _a1;					\
      }								\
-     (int) _sys_result; })
+     (int) __sys_result; })
 #else
 /* So hide the use of r7 from the compiler, this would be a lot
  * easier but for the fact that the syscalls can exceed 255.
  * For the moment the LOAD_ARG_7 is sacrificed.
  */
 #define INTERNAL_SYSCALL(name, err, nr, args...)		\
-  ({ unsigned int _sys_result;					\
+  ({ unsigned int __sys_result;					\
      {								\
        register int _a1 __asm__ ("a1");				\
        LOAD_ARGS_##nr (args)					\
@@ -194,9 +194,9 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 		     : "=r" (_a1)				\
 		     : "r" (_v3) ASM_ARGS_##nr			\
 		     : "memory");				\
-       _sys_result = _a1;					\
+       __sys_result = _a1;					\
      }								\
-     (int) _sys_result; })
+     (int) __sys_result; })
 #endif
 #endif
 #endif /* !defined(__ARM_EABI__) */
