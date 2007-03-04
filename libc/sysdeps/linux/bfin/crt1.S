@@ -109,7 +109,7 @@ __start:
 	[SP + 20] = R7;
 
 /*	Ok, now run uClibc's main() -- shouldn't return */
-#if defined L_crt1 && defined __UCLIBC_CTOR_DTOR__
+#if (defined L_crt1 || defined L_Scrt1) && defined __UCLIBC_CTOR_DTOR__
 
 #ifdef __BFIN_FDPIC__
 	R3 = [P3 + __init@FUNCDESC_GOT17M4];
