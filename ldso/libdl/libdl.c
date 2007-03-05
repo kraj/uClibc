@@ -139,6 +139,7 @@ static const char *dl_error_names[] = {
 	"Not an ELF shared library",
 	"Unable to mmap file",
 	"No dynamic section",
+	"Library contains unsupported TLS",
 #ifdef ELF_USES_RELOCA
 	"Unable to process REL relocs",
 #else
