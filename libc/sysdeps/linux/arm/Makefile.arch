@@ -5,7 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := brk.c ioperm.c iopl.c mmap.c sigaction.c __syscall_error.c
+CSRC := brk.c ioperm.c iopl.c mmap.c posix_fadvise.c posix_fadvise64.c \
+	sigaction.c __syscall_error.c
 
 SSRC := \
 	__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \

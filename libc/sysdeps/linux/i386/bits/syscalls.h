@@ -15,6 +15,13 @@
 
 #define SYS_ify(syscall_name)  (__NR_##syscall_name)
 
+#define INTERNAL_SYSCALL_DECL(err) do { } while (0)
+
+#define INTERNAL_SYSCALL_ERROR_P(val, err) \
+  ((unsigned int) (val) >= 0xfffff001u)
+
+#define INTERNAL_SYSCALL_ERRNO(val, err)        (-(val))
+
 /* We need some help from the assembler to generate optimal code.  We
    define some macros here which later will be used.  */
 
@@ -145,23 +152,28 @@ type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5, type6 arg6) \
 { \
 return (type) (INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6)); \
 }
-
 #define INLINE_SYSCALL(name, nr, args...) \
-  ({									      \
-    unsigned int resultvar;						      \
-    __asm__ __volatile__ (							      \
-    LOADARGS_##nr							      \
-    "movl %1, %%eax\n\t"						      \
-    "int $0x80\n\t"							      \
-    RESTOREARGS_##nr							      \
-    : "=a" (resultvar)							      \
-    : "i" (__NR_##name) ASMFMT_##nr(args) : "memory", "cc");		      \
-    if (resultvar >= 0xfffff001)					      \
-      {									      \
-	__set_errno (-resultvar);					      \
-	resultvar = 0xffffffff;						      \
-      }									      \
+  ({                                                                          \
+    unsigned int result = INTERNAL_SYSCALL (name, , nr, args);                \
+    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (result, ), 0))            \
+      {                                                                       \
+        __set_errno (INTERNAL_SYSCALL_ERRNO (result, ));                      \
+        result = 0xffffffff;                                                  \
+      }                                                                       \
+    (int) result; })
+
+#define INTERNAL_SYSCALL(name, err, nr, args...) \
+  ({                                                                          \
+    unsigned int resultvar;                                                   \
+    __asm__ __volatile__ (                                                    \
+    LOADARGS_##nr                                                             \
+    "movl %1, %%eax\n\t"                                                      \
+    "int $0x80\n\t"                                                           \
+    RESTOREARGS_##nr                                                          \
+    : "=a" (resultvar)                                                        \
+    : "i" (__NR_##name) ASMFMT_##nr(args) : "memory", "cc");                  \
     (int) resultvar; })
+
 
 #define LOADARGS_0
 #define LOADARGS_1 \
