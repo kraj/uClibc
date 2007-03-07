@@ -27,7 +27,7 @@
 
 
 #ifdef __HAVE_SHARED__ 
-#define PLTJMP(_x)	_x##@PLT
+#define PLTJMP(_x)	_x@PLT
 #else
 #define PLTJMP(_x)	_x
 #endif
