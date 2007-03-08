@@ -38,11 +38,6 @@ libc_hidden_proto(__errno_location)
 #  endif
 # endif
 
-/* We now need a declaration of the `errno' variable.  */
-# ifndef __UCLIBC_HAS_THREADS__
-/*extern int errno;*/
-libc_hidden_proto(errno)
-# endif
 #endif /* !__ASSEMBLER__ */
 
 #endif
