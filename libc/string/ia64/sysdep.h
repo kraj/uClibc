@@ -34,7 +34,7 @@
 #define ASM_UNW_PRLG_GRSAVE(ninputs)	(32+(ninputs))
 
 #ifdef	__STDC__
-#define C_LABEL(name)		name##:
+#define C_LABEL(name)		name :
 #else
 #define C_LABEL(name)		name/**/:
 #endif

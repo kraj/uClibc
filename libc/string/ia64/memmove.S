@@ -64,7 +64,7 @@
 
 #define LOOP(shift)							\
 		ALIGN(32);						\
-.loop##shift##:								\
+.loop##shift :								\
 (p[0])		ld8	r[0] = [asrc], 8 ;	/* w1 */		\
 (p[MEMLAT+1])	st8	[dest] = value, 8 ;				\
 (p[MEMLAT])	shrp	value = r[MEMLAT], r[MEMLAT+1], shift ;		\
