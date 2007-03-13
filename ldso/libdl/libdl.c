@@ -71,7 +71,16 @@ extern char *_dl_debug;
  * the symbols that otherwise would have been loaded in from ldso... */
 
 #ifdef __SUPPORT_LD_DEBUG__
+/* Needed for 'strstr' prototype' */
+#include <string.h>
 char *_dl_debug  = 0;
+char *_dl_debug_symbols   = 0;
+char *_dl_debug_move      = 0;
+char *_dl_debug_reloc     = 0;
+char *_dl_debug_detail    = 0;
+char *_dl_debug_nofixups  = 0;
+char *_dl_debug_bindings  = 0;
+int   _dl_debug_file      = 2;
 #endif
 const char *_dl_progname       = "";        /* Program name */
 char *_dl_library_path         = 0;         /* Where we look for libraries */
@@ -160,6 +169,25 @@ void *dlopen(const char *libname, int flag)
 	if (!libname)
 		return _dl_symbol_tables;
 
+#ifndef SHARED
+# ifdef __SUPPORT_LD_DEBUG__
+	_dl_debug = getenv("LD_DEBUG");
+	if (_dl_debug) {
+		if (_dl_strstr(_dl_debug, "all")) {
+			_dl_debug_detail = _dl_debug_move = _dl_debug_symbols
+				= _dl_debug_reloc = _dl_debug_bindings = _dl_debug_nofixups = (void*)1;
+		} else {
+			_dl_debug_detail   = strstr(_dl_debug, "detail");
+			_dl_debug_move     = strstr(_dl_debug, "move");
+			_dl_debug_symbols  = strstr(_dl_debug, "sym");
+			_dl_debug_reloc    = strstr(_dl_debug, "reloc");
+			_dl_debug_nofixups = strstr(_dl_debug, "nofix");
+			_dl_debug_bindings = strstr(_dl_debug, "bind");
+		}
+	}
+# endif	
+#endif
+
 	_dl_map_cache();
 
 	/*
@@ -186,6 +214,11 @@ void *dlopen(const char *libname, int flag)
 	if (getenv("LD_BIND_NOW"))
 		now_flag = RTLD_NOW;
 
+#ifndef SHARED
+	/* When statically linked, the _dl_library_path is not yet initialized */
+	_dl_library_path = getenv("LD_LIBRARY_PATH");
+#endif	
+	
 	/* Try to load the specified library */
 	_dl_if_debug_print("Trying to dlopen '%s', RTLD_GLOBAL:%d RTLD_NOW:%d\n",
 			(char*)libname, (flag & RTLD_GLOBAL ? 1:0), (now_flag & RTLD_NOW ? 1:0));
