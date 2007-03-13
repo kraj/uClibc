@@ -152,28 +152,27 @@ type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5, type6 arg6) \
 { \
 return (type) (INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6)); \
 }
-#define INLINE_SYSCALL(name, nr, args...) \
+ #define INLINE_SYSCALL(name, nr, args...) \
   ({                                                                          \
-    unsigned int result = INTERNAL_SYSCALL (name, , nr, args);                \
-    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (result, ), 0))            \
+    unsigned int _resultvar = INTERNAL_SYSCALL (name, , nr, args);            \
+    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_resultvar, ), 0))        \
       {                                                                       \
-        __set_errno (INTERNAL_SYSCALL_ERRNO (result, ));                      \
-        result = 0xffffffff;                                                  \
+        __set_errno (INTERNAL_SYSCALL_ERRNO (_resultvar, ));                  \
+        _resultvar = 0xffffffff;                                              \
       }                                                                       \
-    (int) result; })
+    (int) _resultvar; })
 
 #define INTERNAL_SYSCALL(name, err, nr, args...) \
   ({                                                                          \
-    unsigned int resultvar;                                                   \
-    __asm__ __volatile__ (                                                    \
+    register unsigned int resultvar;                                          \
+    asm volatile (                                                            \
     LOADARGS_##nr                                                             \
     "movl %1, %%eax\n\t"                                                      \
     "int $0x80\n\t"                                                           \
     RESTOREARGS_##nr                                                          \
     : "=a" (resultvar)                                                        \
     : "i" (__NR_##name) ASMFMT_##nr(args) : "memory", "cc");                  \
-    (int) resultvar; })
-
+     (int) resultvar; })
 
 #define LOADARGS_0
 #define LOADARGS_1 \
