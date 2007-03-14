@@ -8,6 +8,12 @@
 
 #if !defined(__BYTE_ORDER) && defined(BYTE_ORDER)
 # define __BYTE_ORDER BYTE_ORDER
+# if !defined(__BIG_ENDIAN) && defined(BIG_ENDIAN)
+#  define __BIG_ENDIAN BIG_ENDIAN
+# endif
+# if !defined(__LITTLE_ENDIAN) && defined(LITTLE_ENDIAN)
+#  define __LITTLE_ENDIAN LITTLE_ENDIAN
+# endif
 #endif
 
 #ifndef __BYTE_ORDER
@@ -18,11 +24,11 @@
 #  define __BIG_ENDIAN    4321	/* most-significant byte first (IBM, net) */
 #  define __PDP_ENDIAN    3412	/* LSB first in word, MSW first in long (pdp) */
 
-#  if defined(sun386) || defined(i386)
+#  if defined(sun386) || defined(i386) || defined(__LITTLE_ENDIAN__)
 #   define __BYTE_ORDER __LITTLE_ENDIAN
 #  endif
 
-#  if defined(sparc)
+#  if defined(sparc) || defined(__BIG_ENDIAN__)
 #   define __BYTE_ORDER __BIG_ENDIAN
 #  endif
 
