@@ -18,8 +18,5 @@ config FORCE_OPTIONS_FOR_ARCH
 config ARCH_CFLAGS
 	string
 
-config LIBGCC_CFLAGS
-	string
-
 config CROSS
 	string

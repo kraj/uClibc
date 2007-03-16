@@ -15,6 +15,3 @@ config FORCE_OPTIONS_FOR_ARCH
 config ARCH_CFLAGS
 	string
 	default "-Wa,--bitwise-or"
-
-config LIBGCC_CFLAGS
-	string

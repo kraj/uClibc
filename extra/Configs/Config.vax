@@ -19,9 +19,6 @@ config ARCH_CFLAGS
 config ARCH_LDFLAGS
 	string
 
-config LIBGCC_CFLAGS
-	string
-
 config CROSS
 	string
 	default "vax-linux-uclibc-"

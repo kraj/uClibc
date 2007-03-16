@@ -21,6 +21,3 @@ config ARCH_E1
 config ARCH_CFLAGS
 	string
 	default "-mgnu-param"
-
-config LIBGCC_CFLAGS
-	string

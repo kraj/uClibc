@@ -15,9 +15,6 @@ config FORCE_OPTIONS_FOR_ARCH
 config ARCH_CFLAGS
 	string
 
-config LIBGCC_CFLAGS
-	string
-
 choice
 	prompt "Target Processor Type"
 	default CONFIG_SH4

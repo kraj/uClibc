@@ -19,8 +19,5 @@ config ARCH_CFLAGS
 	string
 	default "-funaligned-struct-hack"
 
-config LIBGCC_CFLAGS
-	string
-
 config CROSS
 	string

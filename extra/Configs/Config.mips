@@ -16,9 +16,6 @@ config ARCH_CFLAGS
 	string
 	default "-mno-split-addresses"
 
-config LIBGCC_CFLAGS
-	string
-
 choice
 	prompt "Target ABI"
 	default CONFIG_MIPS_O32_ABI
