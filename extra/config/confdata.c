@@ -649,7 +649,7 @@ int conf_write_autoconf(void)
 	time_t now;
 	int i, l;
 
-	return system("./extra/config/conf-header.sh .config > include/bits/uClibc_config.h");
+	return 0;
 
 	sym_clear_all_valid();
 

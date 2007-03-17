@@ -39,6 +39,8 @@ include $(top_srcdir)libc/Makefile.in
 include/bits/uClibc_config.h: extra/config/conf .config
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)@$< -o $(top_srcdir)extra/Configs/Config.in
+	$(top_srcdir)extra/scripts/conf-header.sh .config > include/bits/uClibc_config.h
+
 
 # For the moment, we have to keep re-running this target
 # because the fix includes scripts rely on pre-processers

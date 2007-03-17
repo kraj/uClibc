@@ -6,7 +6,7 @@ To update:
 	cp /usr/src/linux/Documentation/kbuild/kconfig-language.txt .
 	mv Makefile Makefile.kconfig
 	patch -p1 < ../config/kconfig-to-uclibc.patch
-	cp ../config/conf-header.sh ../config/README.uClibc .
+	cp ../config/README.uClibc .
 	cd ..
 	rm -rf config
 	mv config.new config
