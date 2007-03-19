@@ -27,7 +27,7 @@ LDFLAGS-libm.so := $(LDFLAGS)
 
 LIBS-libm.so := $(LIBS)
 
-libm_FULL_NAME := libm-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libm_FULL_NAME := libm-$(VERSION).so
 
 libm_ARCH_DIR:=$(top_srcdir)libm/$(TARGET_ARCH)
 libm_ARCH_OUT:=$(top_builddir)libm/$(TARGET_ARCH)

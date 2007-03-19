@@ -11,7 +11,7 @@ LDFLAGS-librt.so := $(LDFLAGS)
 
 LIBS-librt.so := $(LIBS)
 
-librt_FULL_NAME := librt-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+librt_FULL_NAME := librt-$(VERSION).so
 
 librt_DIR := $(top_srcdir)librt
 librt_OUT := $(top_builddir)librt

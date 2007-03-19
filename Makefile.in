@@ -261,13 +261,13 @@ endif
 install_runtime:
 ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
-	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	$(INSTALL) -m 644 lib/lib*-$(VERSION).so \
 		$(PREFIX)$(RUNTIME_PREFIX)lib
 	cd lib && $(TAR) -cf - *.so.* | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
-	@if [ -x lib/$(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
+	@if [ -x lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so ] ; then \
 		set -e; \
 		$(SHELL_SET_X); \
-		$(INSTALL) -m 755 lib/$(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+		$(INSTALL) -m 755 lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so \
 			$(PREFIX)$(RUNTIME_PREFIX)lib; \
 	fi
 endif

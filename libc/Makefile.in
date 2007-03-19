@@ -20,7 +20,7 @@ LDFLAGS-libc.so := $(LDFLAGS) $(VERSION_SCRIPT) -init __uClibc_init
 LIBS-libc.so := $(interp) $(ldso) $(top_builddir)lib/$(NONSHARED_LIBNAME)
 
 # we have SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION) defined in Rules.mak
-libc_FULL_NAME := libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libc_FULL_NAME := libuClibc-$(VERSION).so
 
 # this comes first, so duplicate removal works correctly
 include $(libc_DIR)/sysdeps/Makefile.in

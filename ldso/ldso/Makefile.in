@@ -24,7 +24,7 @@ LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS_NOSTRIP) -z defs
 endif
 LDFLAGS-$(UCLIBC_LDSO_NAME).so += -e _start -z now -Bsymbolic --export-dynamic --sort-common --discard-locals --discard-all --no-undefined
 
-ldso_FULL_NAME := $(UCLIBC_LDSO_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+ldso_FULL_NAME := $(UCLIBC_LDSO_NAME)-$(VERSION).so
 
 $(UCLIBC_LDSO_NAME)_DIR := $(top_srcdir)ldso/ldso
 $(UCLIBC_LDSO_NAME)_OUT := $(top_builddir)ldso/ldso

@@ -15,7 +15,7 @@ endif
 
 LIBS-libthread_db.so := $(LIBS)
 
-libthread_db_FULL_NAME := libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libthread_db_FULL_NAME := libthread_db-$(VERSION).so
 
 libthread_db_DIR := $(top_srcdir)libpthread/linuxthreads.old_db
 libthread_db_OUT := $(top_builddir)libpthread/linuxthreads.old_db

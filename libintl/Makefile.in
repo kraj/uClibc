@@ -11,7 +11,7 @@ LDFLAGS-libintl.so := $(LDFLAGS)
 
 LIBS-libintl.so := $(LIBS)
 
-libintl_FULL_NAME := libintl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libintl_FULL_NAME := libintl-$(VERSION).so
 
 MOBJ := \
 	gettext.o ngettext.o  dgettext.o dcgettext.o dngettext.o dcngettext.o \

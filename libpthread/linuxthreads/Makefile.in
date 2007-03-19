@@ -29,7 +29,7 @@ LIBS-libpthread.so := $(LIBS) $(ldso)
 START_FILE-libpthread.so := $(SHARED_START_FILES)
 END_FILE-libpthread.so := $(SHARED_END_FILES)
 
-libpthread_FULL_NAME := libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libpthread_FULL_NAME := libpthread-$(VERSION).so
 
 libpthread_DIR := $(top_srcdir)libpthread/linuxthreads
 libpthread_OUT := $(top_builddir)libpthread/linuxthreads

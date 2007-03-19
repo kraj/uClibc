@@ -11,7 +11,7 @@ LDFLAGS-libutil.so := $(LDFLAGS)
 
 LIBS-libutil.so := $(LIBS)
 
-libutil_FULL_NAME := libutil-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libutil_FULL_NAME := libutil-$(VERSION).so
 
 libutil_DIR := $(top_srcdir)libutil
 libutil_OUT := $(top_builddir)libutil
