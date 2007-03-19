@@ -58,6 +58,13 @@ _start:
 	mflr	r31
 # endif
 #endif
+	/* Set up the small data pointer in r13.  */
+#ifdef __PIC__
+	lwz	r13,_SDA_BASE_@got(r31)
+#else
+	lis	r13,_SDA_BASE_@ha
+	addi	r13,r13,_SDA_BASE_@l
+#endif
 	/* Set up an initial stack frame, and clear the LR.  */
 	li	r0,0
 	stwu	r1,-16(r1)
