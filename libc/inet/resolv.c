@@ -1696,6 +1696,7 @@ int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
 	__open_etc_hosts(&__gethostent_fp);
 	if (__gethostent_fp == NULL) {
 	    *result=NULL;
+	    ret=TRY_AGAIN;
 	    goto DONE;
 	}
     }
