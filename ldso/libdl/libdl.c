@@ -90,6 +90,7 @@ size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later
 /* This global variable is also to communicate with debuggers such as gdb. */
 struct r_debug *_dl_debug_addr = NULL;
 #define _dl_malloc malloc
+#include "../ldso/dl-array.c"
 #include "../ldso/dl-debug.c"
 #include LDSO_ELFINTERP
 #include "../ldso/dl-hash.c"
@@ -395,7 +396,6 @@ void *dlopen(const char *libname, int flag)
 		}
 	}
 
-#ifdef SHARED
 	/* Run the ctors and setup the dtors */
 	for (i = nlist; i; --i) {
 		tpnt = init_fini_list[i-1];
@@ -415,7 +415,6 @@ void *dlopen(const char *libname, int flag)
 
 		_dl_run_init_array(tpnt);
 	}
-#endif /* SHARED */
 
 	_dl_unmap_cache();
 	return (void *) dyn_chain;
@@ -535,9 +534,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 			    && need_fini &&
 			    !(tpnt->init_flag & FINI_FUNCS_CALLED)) {
 				tpnt->init_flag |= FINI_FUNCS_CALLED;
-#ifdef SHARED
 				_dl_run_fini_array(tpnt);
-#endif
 
 				if (tpnt->dynamic_info[DT_FINI]) {
 					dl_elf_fini = (int (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_FINI]);
