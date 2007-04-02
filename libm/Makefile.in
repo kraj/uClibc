@@ -72,7 +72,7 @@ libm_CSRC := \
 	w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c w_gamma_r.c \
 	w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c \
 	w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c \
-	w_sqrt.c fpmacros.c nan.c
+	w_sqrt.c fpmacros.c nan.c carg.c
 FL_MOBJ := \
 	acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
 	ceilf.o copysignf.o cosf.o coshf.o erfcf.o erff.o exp2f.o expf.o \
@@ -81,7 +81,7 @@ FL_MOBJ := \
 	log1pf.o log2f.o logbf.o logf.o lrintf.o lroundf.o modff.o nearbyintf.o \
 	nextafterf.o powf.o remainderf.o remquof.o rintf.o roundf.o \
 	scalblnf.o scalbnf.o sinf.o sinhf.o sqrtf.o tanf.o tanhf.o \
-	tgammaf.o truncf.o
+	tgammaf.o truncf.o cargf.o
 else
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
 libm_CSRC := \

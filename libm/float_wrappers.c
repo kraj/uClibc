@@ -10,7 +10,8 @@
  * GNU Lesser General Public License version 2.1 or later.
  */
 
-#include "math.h"
+#include <math.h>
+#include <complex.h>
 
 /* For the time being, do _NOT_ implement these functions
  * that are defined by SuSv3 */
@@ -134,6 +135,15 @@ libm_hidden_proto(atanh)
 float atanhf (float x)
 {
 	return (float) atanh( (double)x );
+}
+#endif
+
+
+#ifdef L_cargf
+libm_hidden_proto(carg)
+float cargf (float complex x)
+{
+	return (float) carg( (double)x );
 }
 #endif
 
