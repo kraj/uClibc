@@ -29,9 +29,18 @@
 #include <sys/types.h>
 #include <sys/ucontext.h>
 #include <sys/user.h>
-#include <asm/elf.h>
 
 __BEGIN_DECLS
+
+/*
+ * ELF register definitions...
+ */
+typedef unsigned long elf_greg_t;
+
+#define ELF_NGREG (sizeof (struct pt_regs) / sizeof(elf_greg_t))
+typedef elf_greg_t elf_gregset_t[ELF_NGREG];
+
+typedef struct user_fpu_struct elf_fpregset_t;
 
 struct elf_siginfo
   {
