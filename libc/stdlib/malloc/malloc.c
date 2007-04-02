@@ -200,7 +200,7 @@ malloc (size_t size)
 #else
   /* Some programs will call malloc (0).  Lets be strict and return NULL */
   if (unlikely (size == 0))
-    return 0;
+    goto oom;
 #endif
 
   /* Check if they are doing something dumb like malloc(-1) */

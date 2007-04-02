@@ -32,7 +32,8 @@ void *malloc(size_t size)
 		size++;
 #else
 		/* Some programs will call malloc (0).  Lets be strict and return NULL */
-		return 0;
+		__set_errno(ENOMEM);
+		return NULL;
 #endif
 	}
 

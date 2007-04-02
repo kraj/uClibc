@@ -826,7 +826,10 @@ void* malloc(size_t bytes)
     void *          retval;
 
 #if !defined(__MALLOC_GLIBC_COMPAT__)
-    if (!bytes) return NULL;
+    if (!bytes) {
+        __set_errno(ENOMEM);
+        return NULL;
+    }
 #endif
 
     __MALLOC_LOCK;
