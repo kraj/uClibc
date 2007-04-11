@@ -91,7 +91,8 @@ void *realloc(void *ptr, size_t size)
 
 	newptr = malloc(size);
 	if (newptr) {
-		memcpy(newptr, ptr, *((size_t *) (ptr - sizeof(size_t))));
+		size_t old_size = *((size_t *) (ptr - sizeof(size_t)));
+		memcpy(newptr, ptr, (old_size < size ? old_size : size));
 		free(ptr);
 	}
 	return newptr;
