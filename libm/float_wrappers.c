@@ -20,7 +20,6 @@
 #undef L_fmaf          /*float       fmaf(float, float, float);*/
 #undef L_fmaxf         /*float       fmaxf(float, float);*/
 #undef L_fminf         /*float       fminf(float, float);*/
-#undef L_llrintf       /*long long   llrintf(float);*/
 #undef L_log2f         /*float       log2f(float);*/
 #undef L_nearbyintf    /*float       nearbyintf(float);*/
 #undef L_nexttowardf   /*float       nexttowardf(float, long double);*/

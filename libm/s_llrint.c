@@ -29,9 +29,10 @@ static const double two52[2] =
  -4.50359962737049600000e+15, /* 0xC3300000, 0x00000000 */
 };
 
+libm_hidden_proto(llrint)
 
 long long int
-__llrint (double x)
+llrint (double x)
 {
   int32_t j0;
   u_int32_t i1, i0;
@@ -86,8 +87,4 @@ __llrint (double x)
   return sx ? -result : result;
 }
 
-weak_alias (__llrint, llrint)
-#ifdef NO_LONG_DOUBLE
-strong_alias (__llrint, __llrintl)
-weak_alias (__llrint, llrintl)
-#endif
+libm_hidden_def(llrint)

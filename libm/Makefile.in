@@ -81,7 +81,7 @@ FL_MOBJ := \
 	log1pf.o log2f.o logbf.o logf.o lrintf.o lroundf.o modff.o nearbyintf.o \
 	nextafterf.o powf.o remainderf.o remquof.o rintf.o roundf.o \
 	scalblnf.o scalbnf.o sinf.o sinhf.o sqrtf.o tanf.o tanhf.o \
-	tgammaf.o truncf.o cargf.o
+	tgammaf.o truncf.o cargf.o llrintf.o
 else
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
 libm_CSRC := \
