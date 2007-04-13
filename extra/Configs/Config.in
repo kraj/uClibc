@@ -596,6 +596,30 @@ config UCLIBC_TZ_FILE_PATH
 
 endmenu
 
+menu "Advanced Library Settings"
+
+config UCLIBC_PWD_BUFFER_SIZE
+	int "Buffer size for getpwnam() and friends"
+	default 256
+	range 256 1024
+	help
+	  This sets the value of the buffer size for getpwnam() and friends.
+	  By default, this is 256. (For reference, glibc uses 1024).
+	  The value can be found using sysconf() with the _SC_GETPW_R_SIZE_MAX
+	  parameter.
+
+config UCLIBC_GRP_BUFFER_SIZE
+	int "Buffer size for getgrnam() and friends"
+	default 256
+	range 256 1024
+	help
+	  This sets the value of the buffer size for getgrnam() and friends.
+	  By default, this is 256. (For reference, glibc uses 1024).
+	  The value can be found using sysconf() with the _SC_GETGR_R_SIZE_MAX
+	  parameter.
+
+endmenu
+
 menu "Networking Support"
 
 config UCLIBC_HAS_IPV6

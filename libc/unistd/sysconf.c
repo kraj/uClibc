@@ -568,13 +568,11 @@ long int sysconf(int name)
 #endif
 
 /* If you change these, also change libc/pwd_grp/pwd_grp.c to match */
-#define PWD_BUFFER_SIZE 256
-#define GRP_BUFFER_SIZE 256
     case _SC_GETGR_R_SIZE_MAX:
-      return GRP_BUFFER_SIZE;
+      return __UCLIBC_GRP_BUFFER_SIZE__;
 
     case _SC_GETPW_R_SIZE_MAX:
-      return PWD_BUFFER_SIZE;
+      return __UCLIBC_PWD_BUFFER_SIZE__;
 
 /* getlogin() is a worthless interface.  In uClibc we let the user specify
  * whatever they want via the LOGNAME environment variable, or we return NULL
