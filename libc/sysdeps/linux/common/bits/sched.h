@@ -29,7 +29,7 @@
 #define SCHED_OTHER	0
 #define SCHED_FIFO	1
 #define SCHED_RR	2
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_GNU
 # define SCHED_BATCH	3
 #endif
 
@@ -40,7 +40,6 @@
 # define CLONE_FS      0x00000200 /* Set if fs info shared between processes.  */
 # define CLONE_FILES   0x00000400 /* Set if open files shared between processes.  */
 # define CLONE_SIGHAND 0x00000800 /* Set if signal handlers shared.  */
-# define CLONE_PID     0x00001000 /* Set if pid shared.  */
 # define CLONE_PTRACE  0x00002000 /* Set if tracing continues on the child.  */
 # define CLONE_VFORK   0x00004000 /* Set if the parent wants the child to
 				     wake it up on mm_release.  */
@@ -70,10 +69,15 @@ struct sched_param
 
 __BEGIN_DECLS
 
-/* Clone current process.  */
 #ifdef __USE_MISC
+/* Clone current process.  */
 extern int clone (int (*__fn) (void *__arg), void *__child_stack,
-		  int __flags, void *__arg) __THROW;
+		  int __flags, void *__arg, ...) __THROW;
+
+#if 0
+/* Unshare the specified resources.  */
+extern int unshare (int __flags) __THROW;
+#endif
 #endif
 
 __END_DECLS
@@ -90,6 +94,7 @@ struct __sched_param
   };
 # undef __need_schedparam
 #endif
+
 
 #if defined _SCHED_H && !defined __cpu_set_t_defined
 # define __cpu_set_t_defined
@@ -114,8 +119,8 @@ typedef struct
 # define __CPU_ZERO(cpusetp) \
   do {									      \
     unsigned int __i;							      \
-    cpu_set *__arr = (cpusetp);						      \
-    for (__i = 0; __i < sizeof (cpu_set) / sizeof (__cpu_mask); ++__i)	      \
+    cpu_set_t *__arr = (cpusetp);					      \
+    for (__i = 0; __i < sizeof (cpu_set_t) / sizeof (__cpu_mask); ++__i)      \
       __arr->__bits[__i] = 0;						      \
   } while (0)
 # define __CPU_SET(cpu, cpusetp) \
