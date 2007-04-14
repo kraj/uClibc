@@ -15,10 +15,8 @@
  * avoided in the static library case.
  */
 
-#include <features.h>
-#ifndef __UCLIBC_HAS_THREADS_NATIVE__
 #define	_ERRNO_H
-#endif
+#include <features.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,7 +30,6 @@
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <errno.h>
 #include <pthread-functions.h>
 #include <not-cancel.h>
 #endif
