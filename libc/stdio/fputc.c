@@ -72,9 +72,11 @@ int __fputc_unlocked(int c, register FILE *stream)
 }
 libc_hidden_def(__fputc_unlocked)
 
-libc_hidden_proto(fputc_unlocked)
+/* exposing these would be fundamentally *wrong*! fix you, instead! */
+/* libc_hidden_proto(fputc_unlocked) */
 strong_alias(__fputc_unlocked,fputc_unlocked)
-libc_hidden_def(fputc_unlocked)
+/* exposing these would be fundamentally *wrong*! fix you, instead! */
+/* libc_hidden_def(fputc_unlocked) */
 
 libc_hidden_proto(putc_unlocked)
 strong_alias(__fputc_unlocked,putc_unlocked)
