@@ -7,6 +7,10 @@ include $(top_builddir)Rules.mak
 
 include Makefile.kconfig
 
+-include .depend
+.depend: $(wildcard *.h *.c)
+	$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) -MM *.c > .depend 2>/dev/null || :
+
 __hostprogs := $(sort $(hostprogs-y) $(hostprogs-m))
 host-csingle    := $(foreach m,$(__hostprogs),$(if $($(m)-objs),,$(m)))
 host-cmulti := $(foreach m,$(__hostprogs),\
