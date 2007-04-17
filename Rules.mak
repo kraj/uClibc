@@ -388,9 +388,6 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 endif
 
-# Make sure "char" behavior is the same everywhere
-CFLAGS += -fsigned-char
-
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
 CFLAGS += -DSTATIC
