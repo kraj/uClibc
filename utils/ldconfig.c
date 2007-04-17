@@ -918,6 +918,7 @@ int main(int argc, char **argv)
 		if (chroot(chroot_dir) < 0) {
 			if (chdir(chroot_dir) < 0)
 				err(EXIT_FATAL, "couldn't chroot to %s (%s)", chroot_dir, strerror(errno));
+			chroot_dir = ".";
 		} else {
 			if (chdir("/") < 0)
 				err(EXIT_FATAL, "couldn't chdir to / (%s)", strerror(errno));
