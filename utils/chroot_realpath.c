@@ -29,14 +29,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
-#include <limits.h>				/* for PATH_MAX */
-#include <sys/param.h>			/* for MAXPATHLEN */
+#include <limits.h>		/* for PATH_MAX */
+#include <sys/param.h>		/* for MAXPATHLEN */
 #include <errno.h>
 #ifndef __set_errno
 #define __set_errno(val) ((errno) = (val))
 #endif
 
-#include <sys/stat.h>			/* for S_IFLNK */
+#include <sys/stat.h>		/* for S_IFLNK */
 
 #ifndef PATH_MAX
 #define PATH_MAX _POSIX_PATH_MAX
@@ -44,7 +44,8 @@
 
 #define MAX_READLINKS 32
 
-char *chroot_realpath(const char *chroot, const char *path, char resolved_path[])
+char *chroot_realpath(const char *chroot, const char *path,
+		      char resolved_path[])
 {
 	char copy_path[PATH_MAX];
 	char link_path[PATH_MAX];
@@ -103,7 +104,7 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 					if (new_path == got_path_root + 1)
 						continue;
 					/* Handle ".." by backing up. */
-					while ((--new_path)[-1] != '/');
+					while ((--new_path)[-1] != '/') ;
 					continue;
 				}
 			}
@@ -144,7 +145,7 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 				new_path = got_path_root;
 			else
 				/* Otherwise back up over this component. */
-				while (*(--new_path) != '/');
+				while (*(--new_path) != '/') ;
 			/* Safe sex check. */
 			if (strlen(path) + n >= PATH_MAX - 2) {
 				__set_errno(ENAMETOOLONG);
@@ -155,7 +156,7 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 			strcpy(copy_path, link_path);
 			path = copy_path;
 		}
-#endif							/* S_IFLNK */
+#endif				/* S_IFLNK */
 		*new_path++ = '/';
 	}
 	/* Delete trailing slash but don't whomp a lone slash. */

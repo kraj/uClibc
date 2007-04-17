@@ -151,49 +151,50 @@ char not_found[] = "not found";
 char *interp_name = NULL;
 char *interp_dir = NULL;
 int byteswap;
-static int interpreter_already_found=0;
+static int interpreter_already_found = 0;
 
 inline uint32_t byteswap32_to_host(uint32_t value)
 {
-	if (byteswap==1) {
-		return(bswap_32(value));
+	if (byteswap == 1) {
+		return (bswap_32(value));
 	} else {
-		return(value);
+		return (value);
 	}
 }
 inline uint64_t byteswap64_to_host(uint64_t value)
 {
-	if (byteswap==1) {
-		return(bswap_64(value));
+	if (byteswap == 1) {
+		return (bswap_64(value));
 	} else {
-		return(value);
+		return (value);
 	}
 }
+
 #if ELFCLASSM == ELFCLASS32
 # define byteswap_to_host(x) byteswap32_to_host(x)
 #else
 # define byteswap_to_host(x) byteswap64_to_host(x)
 #endif
 
-ElfW(Shdr) * elf_find_section_type( uint32_t key, ElfW(Ehdr) *ehdr)
+ElfW(Shdr) *elf_find_section_type(uint32_t key, ElfW(Ehdr) *ehdr)
 {
 	int j;
 	ElfW(Shdr) *shdr;
-	shdr = (ElfW(Shdr) *)(ehdr->e_shoff + (char *)ehdr);
-	for (j = ehdr->e_shnum; --j>=0; ++shdr) {
-		if (key==byteswap32_to_host(shdr->sh_type)) {
+	shdr = (ElfW(Shdr) *) (ehdr->e_shoff + (char *)ehdr);
+	for (j = ehdr->e_shnum; --j >= 0; ++shdr) {
+		if (key == byteswap32_to_host(shdr->sh_type)) {
 			return shdr;
 		}
 	}
 	return NULL;
 }
 
-ElfW(Phdr) * elf_find_phdr_type( uint32_t type, ElfW(Ehdr) *ehdr)
+ElfW(Phdr) *elf_find_phdr_type(uint32_t type, ElfW(Ehdr) *ehdr)
 {
 	int j;
-	ElfW(Phdr) *phdr = (ElfW(Phdr) *)(ehdr->e_phoff + (char *)ehdr);
-	for (j = ehdr->e_phnum; --j>=0; ++phdr) {
-		if (type==byteswap32_to_host(phdr->p_type)) {
+	ElfW(Phdr) *phdr = (ElfW(Phdr) *) (ehdr->e_phoff + (char *)ehdr);
+	for (j = ehdr->e_phnum; --j >= 0; ++phdr) {
+		if (type == byteswap32_to_host(phdr->p_type)) {
 			return phdr;
 		}
 	}
@@ -201,31 +202,31 @@ ElfW(Phdr) * elf_find_phdr_type( uint32_t type, ElfW(Ehdr) *ehdr)
 }
 
 /* Returns value if return_val==1, ptr otherwise */
-void * elf_find_dynamic( int64_t const key, ElfW(Dyn) *dynp,
-	ElfW(Ehdr) *ehdr, int return_val)
+void *elf_find_dynamic(int64_t const key, ElfW(Dyn) *dynp,
+		       ElfW(Ehdr) *ehdr, int return_val)
 {
 	ElfW(Phdr) *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
 	unsigned tx_reloc = byteswap_to_host(pt_text->p_vaddr) - byteswap_to_host(pt_text->p_offset);
-	for (; DT_NULL!=byteswap_to_host(dynp->d_tag); ++dynp) {
+	for (; DT_NULL != byteswap_to_host(dynp->d_tag); ++dynp) {
 		if (key == byteswap_to_host(dynp->d_tag)) {
 			if (return_val == 1)
 				return (void *)byteswap_to_host(dynp->d_un.d_val);
 			else
-				return (void *)(byteswap_to_host(dynp->d_un.d_val) - tx_reloc + (char *)ehdr );
+				return (void *)(byteswap_to_host(dynp->d_un.d_val) - tx_reloc + (char *)ehdr);
 		}
 	}
 	return NULL;
 }
 
-static char * elf_find_rpath(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic)
+static char *elf_find_rpath(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic)
 {
-	ElfW(Dyn)  *dyns;
+	ElfW(Dyn) *dyns;
 
-	for (dyns=dynamic; byteswap_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
+	for (dyns = dynamic; byteswap_to_host(dyns->d_tag) != DT_NULL; ++dyns) {
 		if (DT_RPATH == byteswap_to_host(dyns->d_tag)) {
 			char *strtab;
 			strtab = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
-			return ((char*)strtab + byteswap_to_host(dyns->d_un.d_val));
+			return ((char *)strtab + byteswap_to_host(dyns->d_un.d_val));
 		}
 	}
 	return NULL;
@@ -233,9 +234,9 @@ static char * elf_find_rpath(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic)
 
 int check_elf_header(ElfW(Ehdr) *const ehdr)
 {
-	if (! ehdr || strncmp((char *)ehdr, ELFMAG, SELFMAG) != 0 ||
-			ehdr->e_ident[EI_CLASS] != ELFCLASSM ||
-			ehdr->e_ident[EI_VERSION] != EV_CURRENT)
+	if (!ehdr || strncmp((char *)ehdr, ELFMAG, SELFMAG) != 0 ||
+	    ehdr->e_ident[EI_CLASS] != ELFCLASSM ||
+	    ehdr->e_ident[EI_VERSION] != EV_CURRENT)
 	{
 		return 1;
 	}
@@ -257,7 +258,7 @@ int check_elf_header(ElfW(Ehdr) *const ehdr)
 #endif
 
 	/* Be vary lazy, and only byteswap the stuff we use */
-	if (byteswap==1) {
+	if (byteswap == 1) {
 		ehdr->e_type = bswap_16(ehdr->e_type);
 		ehdr->e_phoff = byteswap_to_host(ehdr->e_phoff);
 		ehdr->e_shoff = byteswap_to_host(ehdr->e_shoff);
@@ -285,15 +286,14 @@ int map_cache(void)
 	else if (cache_addr != NULL)
 		return 0;
 
-	if (stat(LDSO_CACHE, &st)
-			|| (fd = open(LDSO_CACHE, O_RDONLY, 0)) < 0) {
+	if (stat(LDSO_CACHE, &st) || (fd = open(LDSO_CACHE, O_RDONLY, 0)) < 0) {
 		fprintf(stderr, "ldd: can't open cache '%s'\n", LDSO_CACHE);
 		cache_addr = (caddr_t) - 1;	/* so we won't try again */
 		return -1;
 	}
 
 	cache_size = st.st_size;
-	cache_addr = (caddr_t) mmap(0, cache_size, PROT_READ, MAP_SHARED, fd, 0);
+	cache_addr = mmap(0, cache_size, PROT_READ, MAP_SHARED, fd, 0);
 	close(fd);
 	if (cache_addr == MAP_FAILED) {
 		fprintf(stderr, "ldd: can't map cache '%s'\n", LDSO_CACHE);
@@ -302,25 +302,21 @@ int map_cache(void)
 
 	header = (header_t *) cache_addr;
 
-	if (cache_size < sizeof(header_t) ||
-			memcmp(header->magic, LDSO_CACHE_MAGIC, LDSO_CACHE_MAGIC_LEN)
-			|| memcmp(header->version, LDSO_CACHE_VER, LDSO_CACHE_VER_LEN)
-			|| cache_size <
-			(sizeof(header_t) + header->nlibs * sizeof(libentry_t))
-			|| cache_addr[cache_size - 1] != '\0')
+	if (cache_size < sizeof(header_t)
+	    || memcmp(header->magic, LDSO_CACHE_MAGIC, LDSO_CACHE_MAGIC_LEN)
+	    || memcmp(header->version, LDSO_CACHE_VER, LDSO_CACHE_VER_LEN)
+	    || cache_size < (sizeof(header_t) + header->nlibs * sizeof(libentry_t))
+	    || cache_addr[cache_size - 1] != '\0')
 	{
 		fprintf(stderr, "ldd: cache '%s' is corrupt\n", LDSO_CACHE);
 		goto fail;
 	}
 
-	strtabsize = cache_size - sizeof(header_t) -
-		header->nlibs * sizeof(libentry_t);
+	strtabsize = cache_size - sizeof(header_t) - header->nlibs * sizeof(libentry_t);
 	libent = (libentry_t *) & header[1];
 
 	for (i = 0; i < header->nlibs; i++) {
-		if (libent[i].sooffset >= strtabsize ||
-				libent[i].liboffset >= strtabsize)
-		{
+		if (libent[i].sooffset >= strtabsize || libent[i].liboffset >= strtabsize) {
 			fprintf(stderr, "ldd: cache '%s' is corrupt\n", LDSO_CACHE);
 			goto fail;
 		}
@@ -347,13 +343,18 @@ int unmap_cache(void)
 	return 0;
 }
 #else
-static inline void map_cache(void) { }
-static inline void unmap_cache(void) { }
+static inline void map_cache(void)
+{
+}
+static inline void unmap_cache(void)
+{
+}
 #endif
 
 /* This function's behavior must exactly match that
  * in uClibc/ldso/ldso/dl-elf.c */
-static void search_for_named_library(char *name, char *result, const char *path_list)
+static void search_for_named_library(char *name, char *result,
+				     const char *path_list)
 {
 	int i, count = 1;
 	char *path, *path_n;
@@ -366,17 +367,17 @@ static void search_for_named_library(char *name, char *result, const char *path_
 		exit(EXIT_FAILURE);
 	}
 	/* Eliminate all double //s */
-	path_n=path;
-	while((path_n=strstr(path_n, "//"))) {
+	path_n = path;
+	while ((path_n = strstr(path_n, "//"))) {
 		i = strlen(path_n);
-		memmove(path_n, path_n+1, i-1);
-		*(path_n + i - 1)='\0';
+		memmove(path_n, path_n + 1, i - 1);
+		*(path_n + i - 1) = '\0';
 	}
 
 	/* Replace colons with zeros in path_list and count them */
-	for(i=strlen(path); i > 0; i--) {
-		if (path[i]==':') {
-			path[i]=0;
+	for (i = strlen(path); i > 0; i--) {
+		if (path[i] == ':') {
+			path[i] = 0;
 			count++;
 		}
 	}
@@ -385,7 +386,7 @@ static void search_for_named_library(char *name, char *result, const char *path_
 		strcpy(result, path_n);
 		strcat(result, "/");
 		strcat(result, name);
-		if (stat (result, &filestat) == 0 && filestat.st_mode & S_IRUSR) {
+		if (stat(result, &filestat) == 0 && filestat.st_mode & S_IRUSR) {
 			free(path);
 			return;
 		}
@@ -395,19 +396,20 @@ static void search_for_named_library(char *name, char *result, const char *path_
 	*result = '\0';
 }
 
-void locate_library_file(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_suid, struct library *lib)
+void locate_library_file(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic, int is_suid,
+			 struct library *lib)
 {
 	char *buf;
 	char *path;
 	struct stat filestat;
 
 	/* If this is a fully resolved name, our job is easy */
-	if (stat (lib->name, &filestat) == 0) {
+	if (stat(lib->name, &filestat) == 0) {
 		lib->path = strdup(lib->name);
 		return;
 	}
 
-	/* We need some elbow room here.  Make some room...*/
+	/* We need some elbow room here.  Make some room... */
 	buf = malloc(1024);
 	if (!buf) {
 		fprintf(stderr, "Out of memory!\n");
@@ -430,7 +432,7 @@ void locate_library_file(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_suid, stru
 	/* Next check LD_{ELF_}LIBRARY_PATH if specified and allowed.
 	 * Since this app doesn't actually run an executable I will skip
 	 * the suid check, and just use LD_{ELF_}LIBRARY_PATH if set */
-	if (is_suid==1)
+	if (is_suid == 1)
 		path = NULL;
 	else
 		path = getenv("LD_LIBRARY_PATH");
@@ -441,26 +443,25 @@ void locate_library_file(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_suid, stru
 			return;
 		}
 	}
-
 #ifdef __LDSO_CACHE_SUPPORT__
 	if (cache_addr != NULL && cache_addr != (caddr_t) - 1) {
 		int i;
 		header_t *header = (header_t *) cache_addr;
 		libentry_t *libent = (libentry_t *) & header[1];
-		char *strs = (char *) &libent[header->nlibs];
+		char *strs = (char *)&libent[header->nlibs];
 
 		for (i = 0; i < header->nlibs; i++) {
 			if ((libent[i].flags == LIB_ELF ||
-			    libent[i].flags == LIB_ELF_LIBC0 ||
-			    libent[i].flags == LIB_ELF_LIBC5) &&
-			    strcmp(lib->name, strs + libent[i].sooffset) == 0) {
+			     libent[i].flags == LIB_ELF_LIBC0 ||
+			     libent[i].flags == LIB_ELF_LIBC5) &&
+			    strcmp(lib->name, strs + libent[i].sooffset) == 0)
+			{
 				lib->path = strdup(strs + libent[i].liboffset);
 				return;
 			}
 		}
 	}
 #endif
-
 
 	/* Next look for libraries wherever the shared library
 	 * loader was installed -- this is usually where we
@@ -475,12 +476,11 @@ void locate_library_file(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_suid, stru
 
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/ldso/dl-elf.c */
-	path =	UCLIBC_RUNTIME_PREFIX "lib:"
-		UCLIBC_RUNTIME_PREFIX "usr/lib"
+	path = UCLIBC_RUNTIME_PREFIX "lib:" UCLIBC_RUNTIME_PREFIX "usr/lib"
 #ifndef __LDSO_CACHE_SUPPORT__
-		":" UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib"
+	    ":" UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib"
 #endif
-		;
+	    ;
 	search_for_named_library(lib->name, buf, path);
 	if (*buf != '\0') {
 		lib->path = buf;
@@ -490,10 +490,10 @@ void locate_library_file(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_suid, stru
 	}
 }
 
-static int add_library(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_setuid, char *s)
+static int add_library(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic, int is_setuid, char *s)
 {
 	char *tmp, *tmp1, *tmp2;
-	struct library *cur, *newlib=lib_list;
+	struct library *cur, *newlib = lib_list;
 
 	if (!s || !strlen(s))
 		return 1;
@@ -506,14 +506,13 @@ static int add_library(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_setuid, char
 	}
 
 	/* We add ldso elsewhere */
-	if (interpreter_already_found && (tmp=strrchr(interp_name, '/')) != NULL)
-	{
+	if (interpreter_already_found && (tmp = strrchr(interp_name, '/')) != NULL) {
 		int len = strlen(interp_dir);
-		if (strcmp(s, interp_name+1+len)==0)
+		if (strcmp(s, interp_name + 1 + len) == 0)
 			return 1;
 	}
 
-	for (cur = lib_list; cur; cur=cur->next) {
+	for (cur = lib_list; cur; cur = cur->next) {
 		/* Check if this library is already in the list */
 		tmp1 = tmp2 = cur->name;
 		while (*tmp1) {
@@ -521,7 +520,7 @@ static int add_library(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_setuid, char
 				tmp2 = tmp1 + 1;
 			tmp1++;
 		}
-		if(strcmp(tmp2, s)==0) {
+		if (strcmp(tmp2, s) == 0) {
 			//printf("find_elf_interpreter is skipping '%s' (already in list)\n", cur->name);
 			return 0;
 		}
@@ -531,7 +530,7 @@ static int add_library(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_setuid, char
 	newlib = malloc(sizeof(struct library));
 	if (!newlib)
 		return 1;
-	newlib->name = malloc(strlen(s)+1);
+	newlib->name = malloc(strlen(s) + 1);
 	strcpy(newlib->name, s);
 	newlib->resolved = 0;
 	newlib->path = NULL;
@@ -544,28 +543,26 @@ static int add_library(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_setuid, char
 	if (!lib_list) {
 		lib_list = newlib;
 	} else {
-		for (cur = lib_list;  cur->next; cur=cur->next); /* nothing */
+		for (cur = lib_list; cur->next; cur = cur->next) ;	/* nothing */
 		cur->next = newlib;
 	}
 	return 0;
 }
 
-static void find_needed_libraries(ElfW(Ehdr)* ehdr,
-		ElfW(Dyn)* dynamic, int is_setuid)
+static void find_needed_libraries(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic, int is_setuid)
 {
-	ElfW(Dyn)  *dyns;
+	ElfW(Dyn) *dyns;
 
-	for (dyns=dynamic; byteswap_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
+	for (dyns = dynamic; byteswap_to_host(dyns->d_tag) != DT_NULL; ++dyns) {
 		if (DT_NEEDED == byteswap_to_host(dyns->d_tag)) {
 			char *strtab;
 			strtab = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
-			add_library(ehdr, dynamic, is_setuid,
-					(char*)strtab + byteswap_to_host(dyns->d_un.d_val));
+			add_library(ehdr, dynamic, is_setuid, (char *)strtab + byteswap_to_host(dyns->d_un.d_val));
 		}
 	}
 }
 
-static struct library * find_elf_interpreter(ElfW(Ehdr)* ehdr)
+static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 {
 	ElfW(Phdr) *phdr;
 
@@ -573,8 +570,8 @@ static struct library * find_elf_interpreter(ElfW(Ehdr)* ehdr)
 		return NULL;
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
-		struct library *cur, *newlib=NULL;
-		char *s = (char*)ehdr + byteswap_to_host(phdr->p_offset);
+		struct library *cur, *newlib = NULL;
+		char *s = (char *)ehdr + byteswap_to_host(phdr->p_offset);
 
 		char *tmp, *tmp1;
 		interp_name = strdup(s);
@@ -592,9 +589,9 @@ static struct library * find_elf_interpreter(ElfW(Ehdr)* ehdr)
 				tmp1 = tmp + 1;
 			tmp++;
 		}
-		for (cur = lib_list; cur; cur=cur->next) {
+		for (cur = lib_list; cur; cur = cur->next) {
 			/* Check if this library is already in the list */
-			if(strcmp(cur->name, tmp1)==0) {
+			if (strcmp(cur->name, tmp1) == 0) {
 				//printf("find_elf_interpreter is replacing '%s' (already in list)\n", cur->name);
 				newlib = cur;
 				free(newlib->name);
@@ -610,7 +607,7 @@ static struct library * find_elf_interpreter(ElfW(Ehdr)* ehdr)
 			newlib = malloc(sizeof(struct library));
 		if (!newlib)
 			return NULL;
-		newlib->name = malloc(strlen(s)+1);
+		newlib->name = malloc(strlen(s) + 1);
 		strcpy(newlib->name, s);
 		newlib->path = strdup(newlib->name);
 		newlib->resolved = 1;
@@ -621,7 +618,7 @@ static struct library * find_elf_interpreter(ElfW(Ehdr)* ehdr)
 		if (!lib_list) {
 			lib_list = newlib;
 		} else {
-			for (cur = lib_list;  cur->next; cur=cur->next); /* nothing */
+			for (cur = lib_list; cur->next; cur = cur->next) ;	/* nothing */
 			cur->next = newlib;
 		}
 #endif
@@ -635,7 +632,7 @@ static struct library * find_elf_interpreter(ElfW(Ehdr)* ehdr)
 /*
 #warning "There may be two warnings here about vfork() clobbering, ignore them"
 */
-int find_dependancies(char* filename)
+int find_dependancies(char *filename)
 {
 	int is_suid = 0;
 	FILE *thefile;
@@ -662,15 +659,14 @@ int find_dependancies(char* filename)
 		return -1;
 	}
 
-	if ((size_t)statbuf.st_size < sizeof(ElfW(Ehdr)))
+	if ((size_t) statbuf.st_size < sizeof(ElfW(Ehdr)))
 		goto foo;
 
 	if (!S_ISREG(statbuf.st_mode))
 		goto foo;
 
 	/* mmap the file to make reading stuff from it effortless */
-	ehdr = (ElfW(Ehdr) *)mmap(0, statbuf.st_size,
-			PROT_READ|PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
+	ehdr = mmap(0, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
 	if (ehdr == MAP_FAILED) {
 		fclose(thefile);
 		fprintf(stderr, "Out of memory!\n");
@@ -704,16 +700,18 @@ foo:
 	interp = find_elf_interpreter(ehdr);
 
 #ifdef __LDSO_LDD_SUPPORT__
-	if (interp && \
-	    (ehdr->e_type == ET_EXEC || ehdr->e_type == ET_DYN) && \
-	    ehdr->e_ident[EI_CLASS] == ELFCLASSM && ehdr->e_ident[EI_DATA] == ELFDATAM && \
-	    ehdr->e_ident[EI_VERSION] == EV_CURRENT && MATCH_MACHINE(ehdr->e_machine))
+	if (interp
+	    && (ehdr->e_type == ET_EXEC || ehdr->e_type == ET_DYN)
+	    && ehdr->e_ident[EI_CLASS] == ELFCLASSM
+	    && ehdr->e_ident[EI_DATA] == ELFDATAM
+	    && ehdr->e_ident[EI_VERSION] == EV_CURRENT
+	    && MATCH_MACHINE(ehdr->e_machine))
 	{
 		struct stat statbuf;
 		if (stat(interp->path, &statbuf) == 0 && S_ISREG(statbuf.st_mode)) {
 			pid_t pid;
 			int status;
-			static const char * const environment[] = {
+			static const char *const environment[] = {
 				"PATH=/usr/bin:/bin:/usr/sbin:/sbin",
 				"SHELL=/bin/sh",
 				"LD_TRACE_LOADED_OBJECTS=1",
@@ -729,7 +727,7 @@ foo:
 
 			/* Wait till it returns */
 			waitpid(pid, &status, 0);
-			if (WIFEXITED(status) && WEXITSTATUS(status)==0) {
+			if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
 				return 1;
 			}
 
@@ -742,14 +740,14 @@ foo:
 
 	dynsec = elf_find_section_type(SHT_DYNAMIC, ehdr);
 	if (dynsec) {
-		dynamic = (ElfW(Dyn)*)(byteswap_to_host(dynsec->sh_offset) + (char *)ehdr);
+		dynamic = (ElfW(Dyn) *) (byteswap_to_host(dynsec->sh_offset) + (char *)ehdr);
 		find_needed_libraries(ehdr, dynamic, is_suid);
 	}
 
 	return 0;
 }
 
-int main( int argc, char** argv)
+int main(int argc, char **argv)
 {
 	int multi = 0;
 	int got_em_all = 1;
@@ -767,7 +765,7 @@ int main( int argc, char** argv)
 	while (--argc > 0) {
 		++argv;
 
-		if(strcmp(*argv, "--")==0) {
+		if (strcmp(*argv, "--") == 0) {
 			/* Ignore "--" */
 			continue;
 		}
@@ -790,13 +788,13 @@ int main( int argc, char** argv)
 
 		map_cache();
 
-		if (find_dependancies(filename)!=0)
+		if (find_dependancies(filename) != 0)
 			continue;
 
 		while (got_em_all) {
 			got_em_all = 0;
 			/* Keep walking the list till everybody is resolved */
-			for (cur = lib_list; cur; cur=cur->next) {
+			for (cur = lib_list; cur; cur = cur->next) {
 				if (cur->resolved == 0 && cur->path) {
 					got_em_all = 1;
 					printf("checking sub-depends for '%s'\n", cur->path);
@@ -810,16 +808,16 @@ int main( int argc, char** argv)
 
 		/* Print the list */
 		got_em_all = 0;
-		for (cur = lib_list; cur; cur=cur->next) {
+		for (cur = lib_list; cur; cur = cur->next) {
 			got_em_all = 1;
 			printf("\t%s => %s (0x00000000)\n", cur->name, cur->path);
 		}
-		if (interp_name && interpreter_already_found==1)
+		if (interp_name && interpreter_already_found == 1)
 			printf("\t%s => %s (0x00000000)\n", interp_name, interp_name);
 		else
 			printf("\tnot a dynamic executable\n");
 
-		for (cur = lib_list; cur; cur=cur->next) {
+		for (cur = lib_list; cur; cur = cur->next) {
 			free(cur->name);
 			cur->name = NULL;
 			if (cur->path && cur->path != not_found) {
