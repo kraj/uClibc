@@ -81,7 +81,7 @@ SUBLEVEL      := 29
 EXTRAVERSION  :=
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 ifneq ($(EXTRAVERSION),)
-VERSION       := $(VERSION).$(EXTRAVERSION)
+VERSION       := $(VERSION)$(EXTRAVERSION)
 endif
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
 LC_ALL := C
