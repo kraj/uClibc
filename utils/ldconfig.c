@@ -813,7 +813,7 @@ void cache_print(void)
 
     if (stat(realcachefile, &st) || (fd = open(realcachefile, O_RDONLY))<0)
 	err(EXIT_FATAL,"can't read %s (%s)", cachefile, strerror(errno));
-    if ((c = mmap(0,st.st_size, PROT_READ, MAP_SHARED ,fd, 0)) == (caddr_t)-1)
+    if ((c = mmap(0,st.st_size, PROT_READ, LDSO_CACHE_MMAP_FLAGS, fd, 0)) == (caddr_t)-1)
 	err(EXIT_FATAL,"can't map %s (%s)", cachefile, strerror(errno));
     close(fd);
 

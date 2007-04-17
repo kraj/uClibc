@@ -57,7 +57,7 @@ int _dl_map_cache(void)
 	}
 
 	_dl_cache_size = st.st_size;
-	_dl_cache_addr = (caddr_t) _dl_mmap(0, _dl_cache_size, PROT_READ, MAP_SHARED, fd, 0);
+	_dl_cache_addr = _dl_mmap(0, _dl_cache_size, PROT_READ, LDSO_CACHE_MMAP_FLAGS, fd, 0);
 	_dl_close(fd);
 	if (_dl_mmap_check_error(_dl_cache_addr)) {
 		_dl_dprintf(2, "%s:%i: can't map '%s'\n",

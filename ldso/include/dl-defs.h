@@ -62,6 +62,12 @@ typedef struct {
 	int sooffset;
 	int liboffset;
 } libentry_t;
+
+#ifdef __ARCH_USE_MMU__
+#define LDSO_CACHE_MMAP_FLAGS (MAP_SHARED)
+#else
+#define LDSO_CACHE_MMAP_FLAGS (MAP_PRIVATE)
+#endif
 #endif	/* __LDSO_CACHE_SUPPORT__ */
 
 #endif
