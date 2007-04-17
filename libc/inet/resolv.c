@@ -265,7 +265,7 @@ struct resolv_answer {
 	int aclass;
 	int ttl;
 	int rdlength;
-	unsigned char * rdata;
+	const unsigned char * rdata;
 	int rdoffset;
 	char* buf;
 	size_t buflen;
@@ -300,21 +300,21 @@ extern int __dns_lookup(const char * name, int type, int nscount,
 	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a) attribute_hidden;
 
 extern int __encode_dotted(const char * dotted, unsigned char * dest, int maxlen) attribute_hidden;
-extern int __decode_dotted(const unsigned char * message, int offset,
+extern int __decode_dotted(const unsigned char * const message, int offset,
 	char * dest, int maxlen) attribute_hidden;
-extern int __length_dotted(const unsigned char * message, int offset) attribute_hidden;
+extern int __length_dotted(const unsigned char * const message, int offset) attribute_hidden;
 extern int __encode_header(struct resolv_header * h, unsigned char * dest, int maxlen) attribute_hidden;
 extern int __decode_header(unsigned char * data, struct resolv_header * h) attribute_hidden;
-extern int __encode_question(struct resolv_question * q,
+extern int __encode_question(const struct resolv_question * const q,
 	unsigned char * dest, int maxlen) attribute_hidden;
-extern int __decode_question(unsigned char * message, int offset,
+extern int __decode_question(const unsigned char * const message, int offset,
 	struct resolv_question * q) attribute_hidden;
 extern int __encode_answer(struct resolv_answer * a,
 	unsigned char * dest, int maxlen) attribute_hidden;
-extern int __decode_answer(unsigned char * message, int offset,
+extern int __decode_answer(const unsigned char * message, int offset,
 	struct resolv_answer * a) attribute_hidden;
-extern int __length_question(unsigned char * message, int offset) attribute_hidden;
-extern int __open_nameservers(void) attribute_hidden;
+extern int __length_question(const unsigned char * const message, int offset) attribute_hidden;
+extern void __open_nameservers(void) attribute_hidden;
 extern void __close_nameservers(void) attribute_hidden;
 extern int __dn_expand(const u_char *, const u_char *, const u_char *,
 	char *, int);
@@ -373,7 +373,7 @@ int attribute_hidden __decode_header(unsigned char *data, struct resolv_header *
 
 int attribute_hidden __encode_dotted(const char *dotted, unsigned char *dest, int maxlen)
 {
-	int used = 0;
+	unsigned used = 0;
 
 	while (dotted && *dotted) {
 		char *c = strchr(dotted, '.');
@@ -405,13 +405,13 @@ int attribute_hidden __encode_dotted(const char *dotted, unsigned char *dest, in
 /* Decode a dotted string from nameserver transport-level encoding.
    This routine understands compressed data. */
 
-int attribute_hidden __decode_dotted(const unsigned char *data, int offset,
+int attribute_hidden __decode_dotted(const unsigned char * const data, int offset,
 				  char *dest, int maxlen)
 {
 	int l;
-	int measure = 1;
-	int total = 0;
-	int used = 0;
+	bool measure = 1;
+	unsigned total = 0;
+	unsigned used = 0;
 
 	if (!data)
 		return -1;
@@ -455,7 +455,7 @@ int attribute_hidden __decode_dotted(const unsigned char *data, int offset,
 #endif
 
 #ifdef L_lengthd
-int attribute_hidden __length_dotted(const unsigned char *data, int offset)
+int attribute_hidden __length_dotted(const unsigned char * const data, int offset)
 {
 	int orig_offset = offset;
 	int l;
@@ -478,7 +478,7 @@ int attribute_hidden __length_dotted(const unsigned char *data, int offset)
 #endif
 
 #ifdef L_encodeq
-int attribute_hidden __encode_question(struct resolv_question *q,
+int attribute_hidden __encode_question(const struct resolv_question * const q,
 					unsigned char *dest, int maxlen)
 {
 	int i;
@@ -503,7 +503,7 @@ int attribute_hidden __encode_question(struct resolv_question *q,
 #endif
 
 #ifdef L_decodeq
-int attribute_hidden __decode_question(unsigned char *message, int offset,
+int attribute_hidden __decode_question(const unsigned char * const message, int offset,
 					struct resolv_question *q)
 {
 	char temp[256];
@@ -524,7 +524,7 @@ int attribute_hidden __decode_question(unsigned char *message, int offset,
 #endif
 
 #ifdef L_lengthq
-int attribute_hidden __length_question(unsigned char *message, int offset)
+int attribute_hidden __length_question(const unsigned char * const message, int offset)
 {
 	int i;
 
@@ -568,7 +568,7 @@ int attribute_hidden __encode_answer(struct resolv_answer *a, unsigned char *des
 #endif
 
 #ifdef L_decodea
-int attribute_hidden __decode_answer(unsigned char *message, int offset,
+int attribute_hidden __decode_answer(const unsigned char *message, int offset,
 				  struct resolv_answer *a)
 {
 	char temp[256];
@@ -614,7 +614,7 @@ int __encode_packet(struct resolv_header *h,
 					unsigned char *dest, int maxlen)
 {
 	int i, total = 0;
-	int j;
+	unsigned j;
 
 	i = __encode_header(h, dest, maxlen);
 	if (i < 0)
@@ -717,15 +717,15 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 	struct resolv_header h;
 	struct resolv_question q;
 	struct resolv_answer ma;
-	int first_answer = 1;
-	int retries = 0;
+	bool first_answer = 1;
+	unsigned retries = 0;
 	unsigned char * packet = malloc(PACKETSZ);
 	char *dns, *lookup = malloc(MAXDNAME);
 	int variant = -1;
 	struct sockaddr_in sa;
 	int local_ns = -1, local_id = -1;
 #ifdef __UCLIBC_HAS_IPV6__
-	int v6;
+	bool v6;
 	struct sockaddr_in6 sa6;
 #endif
 
@@ -1032,14 +1032,14 @@ __UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
  *	unix systems, we can have a list of nameservers after the keyword.
  */
 
-int attribute_hidden __open_nameservers()
+void attribute_hidden __open_nameservers()
 {
 	FILE *fp;
 	int i;
 #define RESOLV_ARGS 5
 	char szBuffer[128], *p, *argv[RESOLV_ARGS];
 	int argc;
-	int rv = 0;
+	/* int rv = 0; */
 
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	if (__nameservers > 0) {
@@ -1091,11 +1091,11 @@ int attribute_hidden __open_nameservers()
 	DPRINTF("failed to open %s\n", "resolv.conf");
 	h_errno = NO_RECOVERY;
 
-	rv = -1;
+	/* rv = -1; */
 
  DONE:
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-	return rv;
+	/* return rv; */
 }
 #endif
 
@@ -1207,10 +1207,13 @@ int res_init(void)
 }
 libc_hidden_def(res_init)
 
+#ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
 void res_close( void )
 {
-	return;
+	__close_nameservers();
+	memset(&_res, 0, sizeof(_res));
 }
+#endif
 
 #endif
 
@@ -1270,6 +1273,10 @@ libc_hidden_def(res_query)
  * If enabled, implement search rules until answer or unrecoverable failure
  * is detected.  Error code, if any, is left in h_errno.
  */
+#define __TRAILING_DOT	(1<<0)
+#define __GOT_NODATA	(1<<1)
+#define __GOT_SERVFAIL	(1<<2)
+#define __TRIED_AS_IS	(1<<3)
 int res_search(name, class, type, answer, anslen)
 	 const char *name;	/* domain name */
 	 int class, type;	/* class and type of query */
@@ -1279,8 +1286,8 @@ int res_search(name, class, type, answer, anslen)
 	const char *cp, * const *domain;
 	HEADER *hp = (HEADER *)(void *)answer;
 	u_int dots;
-	int trailing_dot, ret, saved_herrno;
-	int got_nodata = 0, got_servfail = 0, tried_as_is = 0;
+	unsigned _state = 0;
+	int ret, saved_herrno;
 	u_long _res_options;
 	unsigned _res_ndots;
 	char **_res_dnsrch;
@@ -1298,9 +1305,9 @@ int res_search(name, class, type, answer, anslen)
 	dots = 0;
 	for (cp = name; *cp; cp++)
 		dots += (*cp == '.');
-	trailing_dot = 0;
+
 	if (cp > name && *--cp == '.')
-		trailing_dot++;
+		_state |= __TRAILING_DOT;
 
 	/*
 	 * If there are dots in the name already, let's just give it a try
@@ -1315,7 +1322,7 @@ int res_search(name, class, type, answer, anslen)
 		if (ret > 0)
 			return (ret);
 		saved_herrno = h_errno;
-		tried_as_is++;
+		_state |= __TRIED_AS_IS;
 	}
 
 	/*
@@ -1329,8 +1336,8 @@ int res_search(name, class, type, answer, anslen)
 	_res_dnsrch = _res.dnsrch;
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 	if ((!dots && (_res_options & RES_DEFNAMES)) ||
-	    (dots && !trailing_dot && (_res_options & RES_DNSRCH))) {
-		int done = 0;
+	    (dots && !(_state & __TRAILING_DOT) && (_res_options & RES_DNSRCH))) {
+		bool done = 0;
 
 		for (domain = (const char * const *)_res_dnsrch;
 			 *domain && !done;
@@ -1361,7 +1368,7 @@ int res_search(name, class, type, answer, anslen)
 
 			switch (h_errno) {
 				case NO_DATA:
-					got_nodata++;
+					_state |= __GOT_NODATA;
 					/* FALLTHROUGH */
 				case HOST_NOT_FOUND:
 					/* keep trying */
@@ -1369,13 +1376,13 @@ int res_search(name, class, type, answer, anslen)
 				case TRY_AGAIN:
 					if (hp->rcode == SERVFAIL) {
 						/* try next search element, if any */
-						got_servfail++;
+						_state |= __GOT_SERVFAIL;
 						break;
 					}
 					/* FALLTHROUGH */
 				default:
 					/* anything else implies that we're done */
-					done++;
+					done = 1;
 			}
 			/*
 			 * if we got here for some reason other than DNSRCH,
@@ -1385,7 +1392,7 @@ int res_search(name, class, type, answer, anslen)
 			_res_options = _res.options;
 			__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 			if (!(_res_options & RES_DNSRCH))
-				done++;
+				done = 1;
 		}
 	}
 
@@ -1394,7 +1401,7 @@ int res_search(name, class, type, answer, anslen)
 	 * note that we do this regardless of how many dots were in the
 	 * name or whether it ends with a dot.
 	 */
-	if (!tried_as_is) {
+	if (!(_state & __TRIED_AS_IS)) {
 		ret = res_querydomain(name, NULL, class, type, answer, anslen);
 		if (ret > 0)
 			return (ret);
@@ -1410,13 +1417,16 @@ int res_search(name, class, type, answer, anslen)
 	 */
 	if (saved_herrno != -1)
 		h_errno = saved_herrno;
-	else if (got_nodata)
+	else if (_state & __GOT_NODATA)
 		h_errno = NO_DATA;
-	else if (got_servfail)
+	else if (_state & __GOT_SERVFAIL)
 		h_errno = TRY_AGAIN;
 	return (-1);
 }
-
+#undef __TRAILING_DOT
+#undef __GOT_NODATA
+#undef __GOT_SERVFAIL
+#undef __TRIED_AS_IS
 /*
  * Perform a call on res_query on the concatenation of name and domain,
  * removing a trailing dot from name if domain is NULL.
@@ -1695,15 +1705,15 @@ int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
     if (__gethostent_fp == NULL) {
 	__open_etc_hosts(&__gethostent_fp);
 	if (__gethostent_fp == NULL) {
-	    *result=NULL;
-	    ret=TRY_AGAIN;
+	    *result = NULL;
+	    ret = TRY_AGAIN;
 	    goto DONE;
 	}
     }
 
     ret = __read_etc_hosts_r(__gethostent_fp, NULL, AF_INET, GETHOSTENT,
 		   result_buf, buf, buflen, result, h_errnop);
-    if (__stay_open==0) {
+    if (__stay_open == 0) {
 	fclose(__gethostent_fp);
     }
 DONE:
@@ -1793,7 +1803,7 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 				 unsigned int flags)
 {
 	int serrno = errno;
-	int ok = 0;
+	unsigned ok;
 	struct hostent *h = NULL;
 	char domain[256];
 
@@ -1801,25 +1811,23 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 		return EAI_BADFLAGS;
 
 	if (sa == NULL || addrlen < sizeof (sa_family_t))
-		return EAI_FAMILY;
+		goto BAD_FAM;
 
-	switch (sa->sa_family) {
-	case AF_LOCAL:
-		break;
-	case AF_INET:
+	ok = sa->sa_family;
+	if (ok == AF_LOCAL) /* valid */;
+	else if (ok == AF_INET) {
 		if (addrlen < sizeof (struct sockaddr_in))
-			return EAI_FAMILY;
-		break;
+			goto BAD_FAM;
 #ifdef __UCLIBC_HAS_IPV6__
-	case AF_INET6:
+	} else if (ok == AF_INET6) {
 		if (addrlen < sizeof (struct sockaddr_in6))
-			return EAI_FAMILY;
-		break;
+			goto BAD_FAM;
 #endif /* __UCLIBC_HAS_IPV6__ */
-	default:
+	} else
+BAD_FAM:
 		return EAI_FAMILY;
-	}
 
+	ok = 0;
 	if (host != NULL && hostlen > 0)
 		switch (sa->sa_family) {
 		case AF_INET:
@@ -1939,34 +1947,29 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 			strncpy (host, "localhost", hostlen);
 			break;
 
-		default:
+/*Already checked above		default:
 			return EAI_FAMILY;
+*/
 	}
 
 	if (serv && (servlen > 0)) {
-		switch (sa->sa_family) {
-		case AF_INET:
-#ifdef __UCLIBC_HAS_IPV6__
-		case AF_INET6:
-#endif /* __UCLIBC_HAS_IPV6__ */
+		if (sa->sa_family == AF_LOCAL) {
+			strncpy (serv, ((const struct sockaddr_un *) sa)->sun_path, servlen);
+		} else { /* AF_INET || AF_INET6 */
 			if (!(flags & NI_NUMERICSERV)) {
 				struct servent *s;
 				s = getservbyport (((const struct sockaddr_in *) sa)->sin_port,
 				      ((flags & NI_DGRAM) ? "udp" : "tcp"));
 				if (s) {
 					strncpy (serv, s->s_name, servlen);
-					break;
+					goto DONE;
 				}
 			}
 			snprintf (serv, servlen, "%d",
 				ntohs (((const struct sockaddr_in *) sa)->sin_port));
-			break;
-
-		case AF_LOCAL:
-			strncpy (serv, ((const struct sockaddr_un *) sa)->sun_path, servlen);
-			break;
 		}
 	}
+DONE:
 	if (host && (hostlen > 0))
 		host[hostlen-1] = 0;
 	if (serv && (servlen > 0))
@@ -2399,8 +2402,8 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 		for (i = len - 1; i >= 0; i--) {
 			qp += sprintf(qp, "%x.%x.", in6->s6_addr[i] & 0xf,
 						  (in6->s6_addr[i] >> 4) & 0xf);
-	}
-	strcpy(qp, "ip6.int");
+		}
+		strcpy(qp, "ip6.int");
 #endif /* __UCLIBC_HAS_IPV6__ */
 	}
 
@@ -2452,7 +2455,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 			} else {
 				result_buf->h_length = sizeof(*in6);
 #endif /* __UCLIBC_HAS_IPV6__ */
-    		}
+			}
 
 			result_buf->h_addr_list = (char **) addr_list;
 			result_buf->h_aliases = alias;

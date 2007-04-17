@@ -274,7 +274,9 @@ void		fp_nquery (const u_char *, int, FILE *) __THROW;
 void		fp_query (const u_char *, FILE *) __THROW;
 const char *	hostalias (const char *) __THROW;
 void		p_query (const u_char *) __THROW;
+#ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
 void		res_close (void) __THROW;
+#endif
 int		res_init (void) __THROW;
 int		res_isourserver (const struct sockaddr_in *) __THROW;
 int		res_mkquery (int, const char *, int, int, const u_char *,

@@ -17,13 +17,16 @@ CSRC +=	inet_aton.c inet_addr.c inet_ntoa.c inet_makeaddr.c inet_lnaof.c \
 
 # multi source resolv.c
 CSRC +=	encodeh.c decodeh.c encoded.c decoded.c lengthd.c encodeq.c \
-	decodeq.c lengthq.c encodea.c decodea.c encodep.c decodep.c \
-	formquery.c dnslookup.c resolveaddress.c opennameservers.c \
+	decodeq.c lengthq.c encodea.c decodea.c \
+	dnslookup.c resolveaddress.c opennameservers.c \
 	closenameservers.c resolvename.c gethostbyname.c res_init.c \
 	res_query.c gethostbyaddr.c read_etc_hosts_r.c get_hosts_byname_r.c \
 	get_hosts_byaddr_r.c gethostbyname2.c getnameinfo.c gethostent.c \
 	gethostbyname_r.c gethostbyname2_r.c gethostbyaddr_r.c \
 	res_comp.c ns_name.c
+
+# unused ATM
+CSRC += encodep.c decodep.c formquery.c
 
 # multi source socketcalls.c
 CSRC +=	accept.c bind.c connect.c getpeername.c getsockname.c getsockopt.c \

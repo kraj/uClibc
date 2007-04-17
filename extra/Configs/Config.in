@@ -672,6 +672,15 @@ config UCLIBC_USE_NETLINK
 
 	  Most people can safely answer N.
 
+config UCLIBC_HAS_BSD_RES_CLOSE
+	bool "Support res_close() (bsd-compat)"
+	default n
+	help
+	  Answer Y if you desperately want to support BSD compatibility in
+	  the network code.
+
+	  Most people will say N.
+
 endmenu
 
 
