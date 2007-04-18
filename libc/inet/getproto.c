@@ -195,7 +195,7 @@ again:
     rv = 0;
 DONE:
     __UCLIBC_MUTEX_UNLOCK(mylock);
-    return 0;
+    return rv;
 }
 libc_hidden_def(getprotoent_r)
 
