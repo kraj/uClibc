@@ -150,6 +150,7 @@
 #include <resolv.h>
 #include <netdb.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include <arpa/nameser.h>
 #include <sys/utsname.h>
 #include <sys/un.h>
