@@ -4,3 +4,5 @@
 include ../Test.mak
 
 EXTRA_LDFLAGS := -lpthread
+
+LDFLAGS_cancellation-points := -lrt
