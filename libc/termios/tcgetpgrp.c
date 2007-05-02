@@ -27,10 +27,10 @@ libc_hidden_proto(ioctl)
 /* Return the foreground process group ID of FD.  */
 pid_t tcgetpgrp (int fd)
 {
-  int pgrp;
+  pid_t pgrp;
 
   if (ioctl (fd, TIOCGPGRP, &pgrp) < 0)
-    return (pid_t) -1;
-  return (pid_t) pgrp;
+    return -1;
+  return pgrp;
 }
 libc_hidden_def (tcgetpgrp)
