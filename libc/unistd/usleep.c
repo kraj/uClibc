@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-libc_hidden_proto(nanosleep)
+/*libc_hidden_proto(nanosleep) need the reloc for cancellation*/
 
 int usleep (__useconds_t usec)
 {
