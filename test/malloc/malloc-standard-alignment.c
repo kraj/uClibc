@@ -23,7 +23,7 @@ struct llist_s {
 	struct llist_s *link;
 } *phead;
 
-int main()
+int main(int argc, char *argv[])
 {
 	char *line, *reg;
 

@@ -4,7 +4,7 @@
 
 #define LARGE_BUFFER (1 << 20) /* idea is to span a lot of pages */
 
-int main()
+int main(int argc, char *argv[])
 {
 	int count = 20;
 	char *ptr = NULL;
