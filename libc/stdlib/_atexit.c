@@ -112,7 +112,7 @@ int old_atexit(aefuncp func)
 {
     /*
      * glibc casts aefuncp to cxaefuncp.
-     * This seems dodgy, but I guess callling a function with more
+     * This seems dodgy, but I guess calling a function with more
      * parameters than it needs will work everywhere?
      */
     return __cxa_atexit((cxaefuncp)func, NULL,
