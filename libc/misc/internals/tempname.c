@@ -206,18 +206,17 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind)
 	return -1;
     }
 
-    /* Get some random data.  */
-    if (fillrand(randomness, sizeof(randomness)) != sizeof(randomness)) {
-	/* if random device nodes failed us, lets use the braindamaged ver */
-	brain_damaged_fillrand(randomness, sizeof(randomness));
-    }
-
-    for (i = 0; i < sizeof(randomness); ++i)
-	XXXXXX[i] = letters[(randomness[i]) % NUM_LETTERS];
-
     for (i = 0; i < TMP_MAX; ++i) {
+	int j;
+	/* Get some random data.  */
+	if (fillrand(randomness, sizeof(randomness)) != sizeof(randomness)) {
+	    /* if random device nodes failed us, lets use the braindamaged ver */
+	    brain_damaged_fillrand(randomness, sizeof(randomness));
+	}
+	for (j = 0; j < sizeof(randomness); ++j)
+	    XXXXXX[j] = letters[randomness[j] % NUM_LETTERS];
 
-	switch(kind) {
+	switch (kind) {
 	    case __GT_NOCREATE:
 		{
 		    struct stat st;
