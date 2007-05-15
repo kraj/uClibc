@@ -63,7 +63,7 @@ __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t 
                          fd,((__u_quad_t)offset >> MMAP2_PAGE_SHIFT));
 #else
    return __syscall_mmap2(addr, len, prot, flags,
-                          fd,((__ulong_t)offset >> MMAP2_PAGE_SHIFT));
+                          fd,((__u_long)offset >> MMAP2_PAGE_SHIFT));
 #endif
 }
 
