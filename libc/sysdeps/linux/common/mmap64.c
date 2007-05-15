@@ -58,13 +58,14 @@ __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t 
 		__set_errno(EINVAL);
 		return MAP_FAILED;
 	}
-#ifdef __USE_FILE_OFFSET64
-  return __syscall_mmap2(addr, len, prot, flags,
-                         fd,((__u_quad_t)offset >> MMAP2_PAGE_SHIFT));
-#else
-   return __syscall_mmap2(addr, len, prot, flags,
-                          fd,((__u_long)offset >> MMAP2_PAGE_SHIFT));
-#endif
+
+#  ifdef __USE_FILE_OFFSET64
+	return __syscall_mmap2(addr, len, prot, flags,
+	                       fd, ((__u_quad_t) offset >> MMAP2_PAGE_SHIFT));
+#  else
+	return __syscall_mmap2(addr, len, prot, flags,
+	                       fd, ((__u_long) offset >> MMAP2_PAGE_SHIFT));
+#  endif
 }
 
 # endif

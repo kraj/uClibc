@@ -27,6 +27,7 @@ __ptr_t mmap(__ptr_t addr, size_t len, int prot,
 
 #elif defined  (__NR_mmap2)
 #define __NR__mmap __NR_mmap2
+
 #ifndef MMAP2_PAGE_SHIFT
 # define MMAP2_PAGE_SHIFT 12
 #endif
@@ -43,11 +44,11 @@ __ptr_t mmap(__ptr_t addr, size_t len, int prot,
         return MAP_FAILED;
     }
 #ifdef __USE_FILE_OFFSET64
-  return (__ptr_t) _mmap (addr, len, prot, flags,
-						  fd,((__u_quad_t) offset >> MMAP2_PAGE_SHIFT));
+    return (__ptr_t) _mmap (addr, len, prot, flags,
+                            fd, ((__u_quad_t) offset >> MMAP2_PAGE_SHIFT));
 #else
-  return (__ptr_t) _mmap (addr, len, prot, flags,
-                          fd,((__u_long) offset >> MMAP2_PAGE_SHIFT));
+    return (__ptr_t) _mmap (addr, len, prot, flags,
+                            fd, ((__u_long) offset >> MMAP2_PAGE_SHIFT));
 #endif
 }
 #elif defined (__NR_mmap)
