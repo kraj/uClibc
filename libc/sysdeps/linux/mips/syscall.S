@@ -60,6 +60,16 @@ syscall:
 #else
 	addiu	sp,sp,32
 #endif
+	bnez	a3, 1f
      	j ra			/* Return to caller.  */
+1:
+	move		a0,v0		/* Pass return val to C function. */
+
+#ifdef __PIC__
+	PTR_LA	t9, __syscall_error
+	jr	t9
+#else
+	j	__syscall_error
+#endif
 .end    syscall
 .size   syscall,.-syscall
