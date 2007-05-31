@@ -355,6 +355,13 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
       guardaddr = NULL;
       guardsize = 0;
       __pthread_nonstandard_stacks = 1;
+#ifndef __ARCH_USE_MMU__
+      /* check the initial thread stack boundaries so they don't overlap */
+      NOMMU_INITIAL_THREAD_BOUNDS((char *) new_thread, (char *) new_thread_bottom);
+
+      PDEBUG("initial stack: bos=%p, tos=%p\n", __pthread_initial_thread_bos,
+            __pthread_initial_thread_tos);
+#endif
     }
   else
     {
