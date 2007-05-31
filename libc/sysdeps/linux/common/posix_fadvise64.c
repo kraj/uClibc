@@ -74,8 +74,7 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
  */
 int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 {
-	__set_errno(ENOSYS);
-	return -1;
+	return ENOSYS;
 }
 #endif /* __NR_fadvise64_64 */
 #endif /* __UCLIBC_HAS_LFS__ */

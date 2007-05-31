@@ -40,8 +40,7 @@ weak_alias(__libc_posix_fadvise64, posix_fadvise64);
 #else
 int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advise)
 {
-        __set_errno(ENOSYS);
-        return -1;
+	return ENOSYS;
 }
 #endif
 #endif
