@@ -153,11 +153,11 @@ OPTIMIZATION+=$(call check_gcc,-fno-tree-dominator-opts,)
 OPTIMIZATION+=$(call check_gcc,-fno-strength-reduce,)
 endif
 
-ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
-	PICFLAG:=-mfdpic
-else
-	PICFLAG:=-fPIC
-endif
+CPU_CFLAGS-$(UCLIBC_FORMAT_SHARED_FLAT) += -mid-shared-library
+CPU_CFLAGS-$(UCLIBC_FORMAT_FLAT_SEP_DATA) += -msep-data
+
+PICFLAG-y := -fPIC
+PICFLAG-$(UCLIBC_FORMAT_FDPIC_ELF) := -mfdpic
 PIEFLAG_NAME:=-fPIE
 
 # Some nice CPU specific optimizations
