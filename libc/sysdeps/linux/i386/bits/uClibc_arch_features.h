@@ -42,6 +42,8 @@
 /* define if target supports IEEE signed zero floats */
 #define __UCLIBC_HAVE_SIGNED_ZERO__
 
+#if defined _LIBC
 #define internal_function __attribute__ ((regparm (3), stdcall))
+#endif
 
 #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */
