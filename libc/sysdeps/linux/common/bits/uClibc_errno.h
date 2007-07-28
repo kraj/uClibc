@@ -19,7 +19,7 @@ extern int _dl_errno; // attribute_hidden;
 #  else
 #   define errno errno
 #  endif
-extern __thread int errno __attribute_tls_model_ie;
+extern __thread int errno attribute_tls_model_ie;
 # endif /* USE___THREAD */
 #endif /* IS_IN_rtld */
 
