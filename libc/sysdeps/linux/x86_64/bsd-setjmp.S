@@ -23,7 +23,6 @@
 
 .global setjmp
 .type   setjmp,%function
-.align  16
 setjmp:
 	movq $1, %rsi
 	jmp __sigsetjmp@PLT

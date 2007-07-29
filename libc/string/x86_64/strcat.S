@@ -21,6 +21,7 @@
 
 #include "_glibc_inc.h"
 
+/* Seems to be unrolled too much */
 
 	.text
 ENTRY (BP_SYM (strcat))

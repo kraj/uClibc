@@ -20,6 +20,8 @@
 
 #include "_glibc_inc.h"
 
+/* Seems to be unrolled too much */
+
 #ifndef USE_AS_STPCPY
 # define STRCPY strcpy
 #endif

@@ -32,7 +32,6 @@
 .global __vfork
 .hidden __vfork
 .type	__vfork,%function
-.align 16
 
 __vfork:
 

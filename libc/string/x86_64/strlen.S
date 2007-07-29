@@ -20,6 +20,7 @@
 
 #include "_glibc_inc.h"
 
+/* Seems to be unrolled too much */
 
 	.text
 ENTRY (strlen)

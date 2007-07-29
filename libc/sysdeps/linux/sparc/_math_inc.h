@@ -9,6 +9,8 @@
 #define __ASSEMBLY__
 #include <asm/traps.h>
 
+/* Is alignment really needed? */
+
 #if __WORDSIZE == 32
 # define ENTRY_ALIGN 4
 #else

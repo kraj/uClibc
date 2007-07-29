@@ -26,7 +26,6 @@
 
 .global _dl_linux_resolve
 .type   _dl_linux_resolve,%function
-.align 16
 
 _dl_linux_resolve:
 	subq $56,%rsp

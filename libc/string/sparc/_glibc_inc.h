@@ -6,6 +6,8 @@
 #include <features.h>
 #include <bits/wordsize.h>
 
+/* Is alignment really needed? */
+
 #if __WORDSIZE == 32
 # define ENTRY_ALIGN 4
 #else

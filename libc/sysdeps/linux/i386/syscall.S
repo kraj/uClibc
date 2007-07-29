@@ -23,7 +23,6 @@
 .text
 .global syscall
 .type   syscall,%function
-.align 4
 syscall:
 	pushl %ebp
 	pushl %edi

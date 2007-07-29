@@ -25,6 +25,9 @@
 
 #include "_glibc_inc.h"
 
+/* Seems to be unrolled too much */
+/* (and why testb $0xff, %cl, not testb %cl, %cl?) */
+
 /* BEWARE: `#ifdef strcspn' means that strcspn is redefined as `strpbrk' */
 #define STRPBRK_P (defined strcspn)
 

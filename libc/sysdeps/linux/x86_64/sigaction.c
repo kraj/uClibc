@@ -138,7 +138,6 @@ libc_hidden_weak(sigaction)
 asm						\
   (						\
    ".text\n" \
-   ".align 16\n"				\
    "__" #name ":\n"				\
    "	movq $" #syscall ", %rax\n"		\
    "	syscall\n"				\

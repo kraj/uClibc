@@ -145,7 +145,6 @@ libc_hidden_weak(sigaction)
 __asm__						\
   (						\
    ".text\n"					\
-   "	.align 16\n"				\
    "__" #name ":\n"				\
    "	movl $" #syscall ", %eax\n"		\
    "	int  $0x80"				\
@@ -163,7 +162,6 @@ RESTORE (restore_rt, __NR_rt_sigreturn)
 __asm__						\
   (						\
    ".text\n"					\
-   "	.align 8\n"				\
    "__" #name ":\n"				\
    "	popl %eax\n"				\
    "	movl $" #syscall ", %eax\n"		\

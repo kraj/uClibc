@@ -40,7 +40,6 @@
 .text
 .global mmap64
 .type   mmap64,%function
-.align 1<<4
 
 mmap64:
 	/* Save registers.  */

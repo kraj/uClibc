@@ -71,7 +71,7 @@ ENTRY (memset)
 	jae	11f
 
 	.p2align 4
-3:	/* Copy 64 bytes.  */
+3:	/* Fill 64 bytes.  */
 	mov	%r8,(%rcx)
 	mov	%r8,0x8(%rcx)
 	mov	%r8,0x10(%rcx)
@@ -84,7 +84,7 @@ ENTRY (memset)
 	dec	%rax
 	jne	3b
 
-4:	/* Copy final bytes.  */
+4:	/* Fill final bytes.  */
 	and	$0x3f,%edx
 	mov	%rdx,%rax
 	shr	$0x3,%rax
@@ -107,7 +107,7 @@ ENTRY (memset)
 	jne	8b
 9:
 #if BZERO_P
-	nop
+	nop	/* huh?? */
 #else
 	/* Load result (only if used as memset).  */
 	mov	%rdi,%rax	/* start address of destination is result */
@@ -115,7 +115,7 @@ ENTRY (memset)
 	retq
 
 	.p2align 4
-11:	/* Copy 64 bytes without polluting the cache.  */
+11:	/* Fill 64 bytes without polluting the cache.  */
 	/* We could use	movntdq    %xmm0,(%rcx) here to further
 	   speed up for large cases but let's not use XMM registers.  */
 	movnti	%r8,(%rcx)
