@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <malloc.h>
 #include <stdio.h>
 
 libc_hidden_proto(memset)
@@ -306,7 +307,7 @@ extern char *re_syntax_table;
 
 #  else /* not SYNTAX_TABLE */
 
-static char re_syntax_table[CHAR_SET_SIZE];
+static char *re_syntax_table; /* [CHAR_SET_SIZE] */
 
 static void init_syntax_once PARAMS ((void));
 
@@ -314,11 +315,13 @@ static void
 init_syntax_once ()
 {
    register int c;
-   static int done = 0;
+   static char done;
 
    if (done)
      return;
-   bzero (re_syntax_table, sizeof re_syntax_table);
+
+   re_syntax_table = __uc_malloc(CHAR_SET_SIZE);
+   bzero (re_syntax_table, CHAR_SET_SIZE);
 
    for (c = 0; c < CHAR_SET_SIZE; ++c)
      if (ISALNUM (c))

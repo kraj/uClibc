@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <malloc.h>
 #include <mntent.h>
 #include <bits/uClibc_mutex.h>
 
@@ -84,9 +85,7 @@ struct mntent *getmntent(FILE * filep)
     __UCLIBC_MUTEX_LOCK(mylock);
     
     if (!buff) {
-            buff = malloc(BUFSIZ);
-		if (!buff)
-		    abort();
+            buff = __uc_malloc(BUFSIZ);
     }
     
     tmp = getmntent_r(filep, &mnt, buff, BUFSIZ);

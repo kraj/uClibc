@@ -111,9 +111,7 @@ struct netent *getnetent(void)
 again:
 
     if (!line) {
-	line = malloc(BUFSIZ + 1);
-	if (!line)
-	    abort();
+	line = __uc_malloc(BUFSIZ + 1);
     }
 
     p = fgets(line, BUFSIZ, netf);

@@ -59,6 +59,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <malloc.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
@@ -89,9 +90,7 @@ static int serv_stayopen;
 static void __initbuf(void)
 {
     if (!servbuf) {
-	servbuf = malloc(SBUFSIZE);
-	if (!servbuf)
-	    abort();
+	servbuf = __uc_malloc(SBUFSIZE);
     }
 }
 

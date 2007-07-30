@@ -34,6 +34,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <malloc.h>
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 #endif
@@ -132,9 +133,7 @@ struct ttyent * getttyent(void)
 	return (NULL);
 
     if (!line) {
-            line = malloc(BUFSIZ);
-		if (!line)
-		    abort();
+            line = __uc_malloc(BUFSIZ);
     }
 
 	__STDIO_ALWAYS_THREADLOCK(tf);

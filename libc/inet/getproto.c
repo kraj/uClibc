@@ -59,6 +59,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <malloc.h>
 #include <errno.h>
 
 libc_hidden_proto(fopen)
@@ -86,9 +87,7 @@ static int proto_stayopen;
 static void __initbuf(void)
 {
     if (!static_aliases) {
-	static_aliases = malloc(SBUFSIZE);
-	if (!static_aliases)
-	    abort();
+	static_aliases = __uc_malloc(SBUFSIZE);
     }
 }
 
