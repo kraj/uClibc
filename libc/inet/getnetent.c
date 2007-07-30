@@ -19,6 +19,7 @@
 #include <features.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <malloc.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 
@@ -32,14 +33,9 @@ libc_hidden_proto(abort)
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
-
-
-#define	MAXALIASES	35
 static const char NETDB[] = _PATH_NETWORKS;
+
 static FILE *netf = NULL;
-static char *line = NULL;
-static struct netent net;
-static char *net_aliases[MAXALIASES];
 
 int _net_stayopen attribute_hidden;
 
@@ -83,12 +79,30 @@ static char * any(register char *cp, char *match)
     return ((char *)0);
 }
 
+#define	MAXALIASES	35
+static struct {
+	char *line;
+	struct netent net;
+	char *net_aliases[MAXALIASES];
+} *sp;
+#define line        (sp->line)
+#define net         (sp->net)
+#define net_aliases (sp->net_aliases)
+#define INIT_SP() { \
+    if (!sp) { \
+	sp = __uc_malloc(sizeof(*sp)); \
+	line = NULL; \
+    } \
+}
+
 libc_hidden_proto(getnetent)
 struct netent *getnetent(void)
 {
     char *p;
     register char *cp, **q;
     struct netent *rv = NULL;
+
+    INIT_SP();
 
     __UCLIBC_MUTEX_LOCK(mylock);
     if (netf == NULL && (netf = fopen(NETDB, "r" )) == NULL) {
