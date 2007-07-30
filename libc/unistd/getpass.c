@@ -20,7 +20,7 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
-#include <string.h>
+#include <malloc.h>
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 
@@ -52,11 +52,15 @@ char *
 getpass (prompt)
      const char *prompt;
 {
+  static char *buf;
+
   FILE *in, *out;
   struct termios s, t;
   int tty_changed;
-  static char buf[PWD_BUFFER_SIZE];
   int nread;
+
+  free(buf);
+  buf = __uc_malloc(PWD_BUFFER_SIZE);
 
   /* Try to write to and read from the terminal if we can.
      If we can't open the terminal, use stderr and stdin.  */
