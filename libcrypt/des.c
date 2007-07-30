@@ -697,6 +697,7 @@ char *__des_crypt(const unsigned char *key, const unsigned char *setting)
 #define output __des_crypt_out
 
 	if (!__uc_des_data) {
+		/* If malloc returns NULL, we just segfault. Other ideas? */
 		__uc_des_data = memset(__uc_malloc(sizeof(D)), 0, sizeof(D));
 	}
 
