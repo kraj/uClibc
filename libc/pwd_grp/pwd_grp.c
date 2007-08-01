@@ -729,6 +729,8 @@ struct spwd *sgetspent(const char *string)
 	} *sp;
 	struct spwd *result;
 
+	free(sp);
+	sp = __uc_malloc(sizeof(*sp));
 	sgetspent_r(string, &sp->spwd, sp->line_buff, sizeof(sp->line_buff), &result);
 	return result;
 }
