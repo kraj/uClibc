@@ -37,7 +37,7 @@ int readdir64_r(DIR *dir, struct dirent64 *entry, struct dirent64 **result)
 		bytes = __getdents64(dir->dd_fd, dir->dd_buf, dir->dd_max);
 		if (bytes <= 0) {
 		    *result = NULL;
-		    ret = errno;
+		    ret = (bytes==0)? 0 : errno;
 		    goto all_done;
 		}
 		dir->dd_size = bytes;
