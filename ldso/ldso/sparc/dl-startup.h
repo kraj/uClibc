@@ -9,6 +9,7 @@ asm ("\
 	.global _start\n\
 	.type   _start,%function\n\
 	.align 32\n\
+	.register %g2, #scratch\n\
 _start:\n\
 	/* Allocate space for functions to drop their arguments. */\n\
 	sub	%sp, 6*4, %sp\n\

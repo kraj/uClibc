@@ -7,7 +7,9 @@
 #include <bits/wordsize.h>
 
 #define __ASSEMBLY__
+#ifndef __sparc_v9__
 #include <asm/traps.h>
+#endif
 
 /* Is alignment really needed? */
 

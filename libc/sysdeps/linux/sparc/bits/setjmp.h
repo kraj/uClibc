@@ -25,7 +25,7 @@
 
 #include <bits/wordsize.h>
 
-#if __WORDSIZE == 64
+#if 0 /*__WORDSIZE == 64*/
 
 #ifndef _ASM
 typedef struct __sparc64_jmp_buf
