@@ -25,6 +25,7 @@ Cambridge, MA 02139, USA.
 #include <malloc.h>
 
 void (*__uc_malloc_failed)(size_t size);
+libc_hidden_data_def(__uc_malloc_failed);
 
 void *__uc_malloc(size_t size)
 {
@@ -39,3 +40,4 @@ void *__uc_malloc(size_t size)
 		__uc_malloc_failed(size);
 	}
 }
+libc_hidden_def(__uc_malloc);
