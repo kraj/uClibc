@@ -1,5 +1,5 @@
 /* memchr.S
- * Copyright (C) 2003, 2005, 2006 Analog Devices Inc., All Rights Reserved.
+ * Copyright (C) 2003-2007 Analog Devices Inc., All Rights Reserved.
  *
  * This file is subject to the terms and conditions of the GNU Library General
  * Public License. See the file "COPYING.LIB" in the main directory of this
@@ -8,6 +8,8 @@
  * Non-LGPL License also available as part of VisualDSP++
  * http://www.analog.com/processors/resources/crosscore/visualDspDevSoftware.html
  */
+
+#include <sysdep.h>
 
 /* void *memchr(const void *s, int c, size_t n);
  * R0 = address (s)
@@ -21,30 +23,28 @@
 
 .align 2
 
-.global _memchr
-.type _memchr, STT_FUNC
-_memchr:
+ENTRY(_memchr)
 	P0 = R0;             // P0 = address
 	P2 = R2;             // P2 = count
 	R1 = R1.B(Z);
 	CC = R2 == 0;
-	IF CC JUMP failed;
+	IF CC JUMP .Lfailed;
 
-bytes:
-	LSETUP (byte_loop_s , byte_loop_e) LC0=P2;
+.Lbytes:
+	LSETUP (.Lbyte_loop_s, .Lbyte_loop_e) LC0=P2;
 
-byte_loop_s:
+.Lbyte_loop_s:
 	R3 = B[P0++](Z);
 	CC = R3 == R1;
-	IF CC JUMP found;
-byte_loop_e:
+	IF CC JUMP .Lfound;
+.Lbyte_loop_e:
 	NOP;
 
-failed:
+.Lfailed:
 	R0=0;
 	RTS;
 
-found:
+.Lfound:
 	R0 = P0;
 	R0 += -1;
 	RTS;
