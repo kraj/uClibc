@@ -104,14 +104,14 @@ extern void (*__fini_array_end []) (void) attribute_hidden;
 # endif
 #endif
 
-attribute_hidden const char *__uclibc_progname = NULL;
-#ifdef __UCLIBC_HAS___PROGNAME__
-strong_alias (__uclibc_progname, __progname)
-#endif
+attribute_hidden const char *__uclibc_progname = "";
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-attribute_hidden const char *__progname_full = NULL;
-strong_alias (__uclibc_progname, program_invocation_short_name)
-strong_alias (__progname_full, program_invocation_name)
+const char *program_invocation_short_name = "";
+const char *program_invocation_name = "";
+#endif
+#ifdef __UCLIBC_HAS___PROGNAME__
+weak_alias (program_invocation_short_name, __progname)
+weak_alias (program_invocation_name, __progname_full)
 #endif
 
 /*
@@ -337,15 +337,14 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
     }
 #endif
 
-#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-    __progname_full = *argv;
-    __progname = strrchr(*argv, '/');
-    if (__progname != NULL)
-	++__progname;
-    else
-	__progname = __progname_full;
-#else
     __uclibc_progname = *argv;
+#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+    program_invocation_name = *argv;
+    program_invocation_short_name = strrchr(*argv, '/');
+    if (program_invocation_short_name != NULL)
+	++program_invocation_short_name;
+    else
+	program_invocation_short_name = program_invocation_name;
 #endif
 
 #ifdef __UCLIBC_CTOR_DTOR__
