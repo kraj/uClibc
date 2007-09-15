@@ -39,12 +39,10 @@ do { \
 type name(void) {							\
 	long __res;							\
 	__asm__ __volatile__ (						\
-		"p0 = %1;\n\t"						\
 		"excpt 0;\n\t"						\
-		"%0=r0;\n\t"						\
-		: "=da" (__res)						\
-		: "i" (__NR_##name)					\
-		: "memory","CC","R0","P0");				\
+		: "=q0" (__res)						\
+		: "qA" (__NR_##name)					\
+		: "memory","CC");					\
 	__syscall_return(type,__res);					\
 }
 
@@ -52,14 +50,11 @@ type name(void) {							\
 type name(type1 arg1) {							\
 	long __res;							\
 	__asm__ __volatile__ (						\
-		"r0=%2;\n\t"						\
-		"p0=%1;\n\t"						\
 		"excpt 0;\n\t"						\
-		"%0=r0;\n\t"						\
-		: "=da" (__res)						\
-		: "i" (__NR_##name),					\
-		  "rm" ((long)(arg1))					\
-		: "memory","CC","R0","P0");				\
+		: "=q0" (__res)						\
+		: "qA" (__NR_##name),					\
+		  "q0" ((long)(arg1))					\
+		: "memory","CC");					\
 	__syscall_return(type,__res);					\
 }
 
@@ -67,16 +62,13 @@ type name(type1 arg1) {							\
 type name(type1 arg1,type2 arg2) {					\
 	long __res;							\
 	__asm__ __volatile__ (						\
-		"r1=%3;\n\t"						\
-		"r0=%2;\n\t"						\
-		"p0=%1;\n\t"						\
 		"excpt 0;\n\t"						\
 		"%0=r0;\n\t"						\
-		: "=da" (__res)						\
-		: "i" (__NR_##name),					\
-		  "rm" ((long)(arg1)),					\
-		  "rm" ((long)(arg2))					\
-		: "memory","CC","R0","R1","P0");			\
+		: "=q0" (__res)						\
+		: "qA" (__NR_##name),					\
+		  "q0" ((long)(arg1)),					\
+		  "q1" ((long)(arg2))					\
+		: "memory","CC");					\
 	__syscall_return(type,__res);					\
 }
 
@@ -84,18 +76,13 @@ type name(type1 arg1,type2 arg2) {					\
 type name(type1 arg1,type2 arg2,type3 arg3) {				\
 	long __res;							\
 	__asm__ __volatile__ (						\
-		"r2=%4;\n\t"						\
-		"r1=%3;\n\t"						\
-		"r0=%2;\n\t"						\
-		"p0=%1;\n\t"						\
 		"excpt 0;\n\t"						\
-		"%0=r0;\n\t"						\
-		: "=da" (__res)						\
-		: "i"   (__NR_##name),					\
-		  "rm"   ((long)(arg1)),				\
-		  "rm"   ((long)(arg2)),				\
-		  "rm"   ((long)(arg3))					\
-		: "memory","CC","R0","R1","R2","P0");			\
+		: "=q0" (__res)						\
+		: "qA"   (__NR_##name),					\
+		  "q0"   ((long)(arg1)),				\
+		  "q1"   ((long)(arg2)),				\
+		  "q2"   ((long)(arg3))					\
+		: "memory","CC");					\
 	__syscall_return(type,__res);					\
 }
 
@@ -103,20 +90,14 @@ type name(type1 arg1,type2 arg2,type3 arg3) {				\
 type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4) {		\
 	long __res;							\
 	__asm__ __volatile__ (						\
-		"r3=%5;\n\t"						\
-		"r2=%4;\n\t"						\
-		"r1=%3;\n\t"						\
-		"r0=%2;\n\t"						\
-		"p0=%1;\n\t"						\
 		"excpt 0;\n\t"						\
-		"%0=r0;\n\t"						\
-		: "=da" (__res)						\
-		: "i"  (__NR_##name),					\
-		  "rm"  ((long)(arg1)),					\
-		  "rm"  ((long)(arg2)),					\
-		  "rm"  ((long)(arg3)),					\
-		  "rm"  ((long)(arg4))					\
-		: "memory","CC","R0","R1","R2","R3","P0");		\
+		: "=q0" (__res)						\
+		: "qA"  (__NR_##name),					\
+		  "q0"  ((long)(arg1)),					\
+		  "q1"  ((long)(arg2)),					\
+		  "q2"  ((long)(arg3)),					\
+		  "q3"  ((long)(arg4))					\
+		: "memory","CC");					\
 	__syscall_return(type,__res);					\
 }
 
@@ -124,22 +105,15 @@ type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4) {		\
 type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5) {	\
 	long __res;							\
 	__asm__ __volatile__ (						\
-		"r4=%6;\n\t"						\
-		"r3=%5;\n\t"						\
-		"r2=%4;\n\t"						\
-		"r1=%3;\n\t"						\
-		"r0=%2;\n\t"						\
-		"P0=%1;\n\t"						\
 		"excpt 0;\n\t"						\
-		"%0=r0;\n\t"						\
-		: "=da" (__res)						\
-		: "i"  (__NR_##name),					\
-		  "rm"  ((long)(arg1)),					\
-		  "rm"  ((long)(arg2)),					\
-		  "rm"  ((long)(arg3)),					\
-		  "rm"  ((long)(arg4)),					\
-		  "rm"  ((long)(arg5))					\
-		: "memory","CC","R0","R1","R2","R3","R4","P0");		\
+		: "=q0" (__res)						\
+		: "qA"  (__NR_##name),					\
+		  "q0"  ((long)(arg1)),					\
+		  "q1"  ((long)(arg2)),					\
+		  "q2"  ((long)(arg3)),					\
+		  "q3"  ((long)(arg4)),					\
+		  "q4"  ((long)(arg5))					\
+		: "memory","CC");					\
 	__syscall_return(type,__res);					\
 }
 
@@ -147,24 +121,16 @@ type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5) {	\
 type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6) { \
 	long __res;							\
 	__asm__ __volatile__ (						\
-		"r5=%7;\n\t"						\
-		"r4=%6;\n\t"						\
-		"r3=%5;\n\t"						\
-		"r2=%4;\n\t"						\
-		"r1=%3;\n\t"						\
-		"r0=%2;\n\t"						\
-		"P0=%1;\n\t"						\
 		"excpt 0;\n\t"						\
-		"%0=r0;\n\t"						\
-		: "=da" (__res)						\
-		: "i"  (__NR_##name),					\
-		  "rm"  ((long)(arg1)),					\
-		  "rm"  ((long)(arg2)),					\
-		  "rm"  ((long)(arg3)),					\
-		  "rm"  ((long)(arg4)),					\
-		  "rm"  ((long)(arg5)),					\
-		  "rm"  ((long)(arg6))					\
-		: "memory","CC","R0","R1","R2","R3","R4","R5","P0");	\
+		: "=q0" (__res)						\
+		: "qA"  (__NR_##name),					\
+		  "q0"  ((long)(arg1)),					\
+		  "q1"  ((long)(arg2)),					\
+		  "q2"  ((long)(arg3)),					\
+		  "q3"  ((long)(arg4)),					\
+		  "q4"  ((long)(arg5)),					\
+		  "q5"  ((long)(arg6))					\
+		: "memory","CC");					\
 	__syscall_return(type,__res);					\
 }
 
