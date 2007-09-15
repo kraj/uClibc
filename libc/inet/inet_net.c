@@ -37,6 +37,7 @@
 #include <ctype.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
 #elif __UCLIBC_HAS_CTYPE_TABLES__
@@ -52,57 +53,54 @@ libc_hidden_proto(inet_network)
 in_addr_t
 inet_network(const char *cp)
 {
-	register in_addr_t val, base, n;
-	register char c;
-	in_addr_t parts[4], *pp = parts;
-	register unsigned int i;
+	u_char c;
+	int got_data;
+	u_int base, dots;
+	in_addr_t res, val;
 
-again:
-	/*
-	 * Collect number up to ``.''.
-	 * Values are specified as for C:
-	 * 0x=hex, 0=octal, other=decimal.
-	 */
-	val = 0; base = 10;
-	/*
-	 * The 4.4BSD version of this file also accepts 'x__' as a hexa
-	 * number.  I don't think this is correct.  -- Uli
-	 */
+	res = 0;
+	dots = 0;
+ again:
+	val = 0;
+	got_data = 0;
 	if (*cp == '0') {
-		if (*++cp == 'x' || *cp == 'X')
-			base = 16, cp++;
-		else
+		cp++;
+		if (*cp == 'x' || *cp == 'X') {
+			cp++;
+			base = 16;
+		} else {
 			base = 8;
-	}
-	while ((c = *cp)) {
+			got_data = 1;
+		}
+	} else
+		base = 10;
+	while ((c = *cp) != '\0') {
 		if (isdigit(c)) {
-			val = (val * base) + (c - '0');
-			cp++;
-			continue;
-		}
-		if (base == 16 && isxdigit(c)) {
-			val = (val << 4) + (c + 10 - (islower(c) ? 'a' : 'A'));
-			cp++;
-			continue;
-		}
-		break;
-	}
-	if (*cp == '.') {
-		if (pp >= parts + 4)
+			if (base == 8 && c > '7')
+				return (INADDR_NONE);
+				val = val * base + c - '0';
+		} else if (base == 16 && isxdigit(c))
+			val = (val << 4) + 10 - (islower(c) ? 'a' : 'A');
+		else
+			break;
+		if (val > 0xff)
 			return (INADDR_NONE);
-		*pp++ = val, cp++;
+		cp++;
+		got_data = 1;
+	}
+	if (!got_data)
+		return (INADDR_NONE);
+	if (dots != 0)
+		res <<= 8;
+	res |= val;
+	if (c == '.') {
+		if (++dots == 4)
+			return (INADDR_NONE);
+		cp++;
 		goto again;
 	}
-	if (*cp && !isspace(*cp))
+	if (c != '\0')
 		return (INADDR_NONE);
-	*pp++ = val;
-	n = pp - parts;
-	if (n > 4)
-		return (INADDR_NONE);
-	for (val = 0, i = 0; i < n; i++) {
-		val <<= 8;
-		val |= parts[i] & 0xff;
-	}
-	return (val);
+	return (res);
 }
 libc_hidden_def(inet_network)
