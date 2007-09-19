@@ -1,11 +1,10 @@
 /* vi: set sw=4 ts=4: */
 /* uClibc internal malloc.
-   Copyright (C) 1991, 1992 Free Software Foundation, Inc.
+   Copyright (C) 2007 Denys Vlasenko
 
 This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Library General Public License as
-published by the Free Software Foundation; either version 2 of the
-License, or (at your option) any later version.
+modify it under the terms of the GNU Library General Public License
+version 2 as published by the Free Software Foundation.
 
 This library is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,8 +16,7 @@ License along with this library; see the file COPYING.LIB.  If
 not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.
 
-   The author may be reached (Email) at the address mike@@ai.mit.edu,
-   or (US mail) as Mike Haertel c/o Free Software Foundation.  */
+*/
 
 #include <stdlib.h>
 #include <unistd.h>
