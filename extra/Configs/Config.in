@@ -423,7 +423,7 @@ config MALLOC_GLIBC_COMPAT
 	help
 	  The behavior of malloc(0) is listed as implementation-defined by
 	  SuSv3.  Glibc returns a valid pointer to something, while uClibc
-	  normally return a NULL.  I personally feel glibc's behavior is
+	  normally returns NULL.  I personally feel glibc's behavior is
 	  not particularly safe, and allows buggy applications to hide very
 	  serious problems.
 
@@ -431,7 +431,7 @@ config MALLOC_GLIBC_COMPAT
 	  return a live pointer when someone calls malloc(0).  This pointer
 	  provides a malloc'ed area with a size of 1 byte.  This feature is
 	  mostly useful when dealing with applications using autoconf's broken
-	  AC_FUNC_MALLOC macro (which  redefines malloc as rpl_malloc if it
+	  AC_FUNC_MALLOC macro (which redefines malloc as rpl_malloc if it
 	  does not detect glibc style returning-a-valid-pointer-for-malloc(0)
 	  behavior).  Most people can safely answer N.
 
