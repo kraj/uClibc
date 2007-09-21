@@ -309,9 +309,7 @@ ifeq ($(UCLIBC_BUILD_NOW),y)
 LDFLAGS+=-z now
 endif
 
-# Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
-#CFLAGS+=-iwithprefix include
-CFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
+CFLAGS += -iwithprefix include-fixed -iwithprefix include
 
 ifneq ($(DOASSERTS),y)
     CFLAGS += -DNDEBUG
