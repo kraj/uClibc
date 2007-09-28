@@ -989,10 +989,8 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
  fail:
 	if (fd != -1)
 		close(fd);
-	if (lookup)
-		free(lookup);
-	if (packet)
-		free(packet);
+	free(lookup);
+	free(packet);
 	h_errno = NETDB_INTERNAL;
 	/* Mess with globals while under lock */
 	if (local_ns != -1) {
@@ -1252,12 +1250,10 @@ int res_query(const char *dname, int class, int type,
 	if (a.atype == type) { /* CNAME*/
 		int len = MIN(anslen, i);
 		memcpy(answer, packet, len);
-		if (packet)
-			free(packet);
+		free(packet);
 		return(len);
 	}
-	if (packet)
-		free(packet);
+	free(packet);
 	return i;
 }
 libc_hidden_def(res_query)
