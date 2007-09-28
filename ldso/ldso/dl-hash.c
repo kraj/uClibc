@@ -161,6 +161,10 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 		if ((type_class &  ELF_RTYPE_CLASS_COPY) && tpnt->libtype == elf_executable)
 			continue;
 
+		/* If the hash table is empty there is nothing to do here.  */
+		if (tpnt->nbucket == 0)
+			continue;
+
 		/* Avoid calling .urem here. */
 		do_rem(hn, elf_hash_number, tpnt->nbucket);
 		symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
