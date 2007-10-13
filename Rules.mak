@@ -117,6 +117,9 @@ interp :=
 ldso :=
 endif
 
+comma:=,
+space:= #
+
 ifndef CROSS
 CROSS=$(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
 endif
@@ -192,8 +195,8 @@ endif
 
 ifeq ($(TARGET_ARCH),arm)
 	OPTIMIZATION+=-fstrict-aliasing
-	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
-	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-EB
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-Wl,-EL
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-Wl,-EB
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-mlittle-endian
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mbig-endian
 	CPU_CFLAGS-$(CONFIG_GENERIC_ARM)+=
@@ -216,8 +219,8 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 
 ifeq ($(TARGET_ARCH),mips)
-	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
-	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-EB
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-Wl,-EL
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-Wl,-EB
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_1)+=-mips1
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_2)+=-mips2 -mtune=mips2
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_3)+=-mips3 -mtune=mips3
@@ -225,12 +228,12 @@ ifeq ($(TARGET_ARCH),mips)
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS32)+=-mips32 -mtune=mips32
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS64)+=-mips64 -mtune=mips32
 	ifeq ($(strip $(ARCH_BIG_ENDIAN)),y)
-		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-melf64btsmip
-		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-melf32btsmip
+		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-Wl,-melf64btsmip
+		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-Wl,-melf32btsmip
 	endif
 	ifeq ($(strip $(ARCH_LITTLE_ENDIAN)),y)
-		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-melf64ltsmip
-		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-melf32ltsmip
+		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-Wl,-melf64ltsmip
+		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-Wl,-melf32ltsmip
 	endif
 	CPU_CFLAGS-$(CONFIG_MIPS_N64_ABI)+=-mabi=64
 	CPU_CFLAGS-$(CONFIG_MIPS_O32_ABI)+=-mabi=32
@@ -238,15 +241,15 @@ ifeq ($(TARGET_ARCH),mips)
 endif
 
 ifeq ($(TARGET_ARCH),nios)
-	CPU_LDFLAGS-y+=-m32
-	CPU_CFLAGS-y+=-m32
+	CPU_LDFLAGS-y+=-Wl,-m32
+	CPU_CFLAGS-y+=-Wl,-m32
 endif
 
 ifeq ($(TARGET_ARCH),sh)
 	OPTIMIZATION+=-fstrict-aliasing
 	OPTIMIZATION+= $(call check_gcc,-mprefergot,)
-	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
-	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-EB
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-Wl,-EL
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-Wl,-EB
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-ml
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mb
 	CPU_CFLAGS-$(CONFIG_SH2)+=-m2
@@ -262,23 +265,23 @@ endif
 
 ifeq ($(TARGET_ARCH),sh64)
 	OPTIMIZATION+=-fstrict-aliasing
-	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN):=-EL
-	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN):=-EB
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN):=-Wl,-EL
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN):=-Wl,-EB
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):=-ml
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):=-mb
 	CPU_CFLAGS-$(CONFIG_SH5)+=-m5-32media
 endif
 
 ifeq ($(TARGET_ARCH),h8300)
-	CPU_LDFLAGS-$(CONFIG_H8300H)+= -ms8300h
-	CPU_LDFLAGS-$(CONFIG_H8S)   += -ms8300s
+	CPU_LDFLAGS-$(CONFIG_H8300H)+= -Wl,-ms8300h
+	CPU_LDFLAGS-$(CONFIG_H8S)   += -Wl,-ms8300s
 	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32
 	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32
 endif
 
 ifeq ($(TARGET_ARCH),cris)
-	CPU_LDFLAGS-$(CONFIG_CRIS)+=-mcrislinux
-	CPU_LDFLAGS-$(CONFIG_CRISV32)+=-mcrislinux
+	CPU_LDFLAGS-$(CONFIG_CRIS)+=-Wl,-mcrislinux
+	CPU_LDFLAGS-$(CONFIG_CRISV32)+=-Wl,-mcrislinux
 	CPU_CFLAGS-$(CONFIG_CRIS)+=-mlinux
 	PICFLAG:=-fpic
 	PIEFLAG_NAME:=-fpie
@@ -304,13 +307,13 @@ ifeq ($(TARGET_ARCH),powerpc)
 endif
 
 ifeq ($(TARGET_ARCH),frv)
-	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
+	CPU_LDFLAGS-$(CONFIG_FRV)+=-Wl,-melf32frvfd
 	# Using -pie causes the program to have an interpreter, which is
 	# forbidden, so we must make do with -shared.  Unfortunately,
 	# -shared by itself would get us global function descriptors
 	# and calls through PLTs, dynamic resolution of symbols, etc,
 	# which would break as well, but -Bsymbolic comes to the rescue.
-	export LDPIEFLAG:=-shared -Bsymbolic
+	export LDPIEFLAG:=-Wl,-shared -Wl,-Bsymbolic
 	UCLIBC_LDSO=ld.so.1
 endif
 
@@ -396,19 +399,20 @@ endif
 
 CFLAGS += $(call check_gcc,-std=gnu99,)
 
-LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
+LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -Wl,-shared \
+	-Wl,--warn-common -Wl,--warn-once -Wl,-z,combreloc
 # binutils-2.16.1 warns about ignored sections, 2.16.91.0.3 and newer are ok
 #LDFLAGS_NOSTRIP+=$(call check_ld,--gc-sections)
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)
-LDFLAGS_NOSTRIP+=-z relro
+LDFLAGS_NOSTRIP+=-Wl,-z,relro
 endif
 
 ifeq ($(UCLIBC_BUILD_NOW),y)
-LDFLAGS_NOSTRIP+=-z now
+LDFLAGS_NOSTRIP+=-Wl,-z,now
 endif
 
-LDFLAGS:=$(LDFLAGS_NOSTRIP) -z defs
+LDFLAGS:=$(LDFLAGS_NOSTRIP) -Wl,-z,defs
 ifeq ($(DODEBUG),y)
 #CFLAGS += -g3
 CFLAGS += -O0 -g3
@@ -416,7 +420,7 @@ else
 CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
 endif
 ifeq ($(DOSTRIP),y)
-LDFLAGS += -s
+LDFLAGS += -Wl,-s
 else
 STRIPTOOL := true -Stripping_disabled
 endif

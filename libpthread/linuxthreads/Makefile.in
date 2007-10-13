@@ -19,7 +19,7 @@ CFLAGS-libpthread/linuxthreads/sysdeps/pthread/         := $(CFLAGS-linuxthreads
 #CFLAGS:=$(CFLAGS:-O0=-O1)
 
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -z defs
+LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
 else
 LDFLAGS-libpthread.so := $(LDFLAGS)
 endif

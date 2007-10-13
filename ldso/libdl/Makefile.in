@@ -17,7 +17,7 @@ endif
 
 CFLAGS-libdl.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
 
-LDFLAGS-libdl.so := $(LDFLAGS) -fini dl_cleanup
+LDFLAGS-libdl.so := $(LDFLAGS) -Wl,-fini,dl_cleanup
 
 LIBS-libdl.so := $(LIBS) $(ldso)
 

@@ -39,8 +39,6 @@ TODO list for the uClibc 0.9.29 release:
     *) Should integrate test subdir better ... need to propagate CPU
 	CFLAGS/LDFLAGS to the build/link for target binaries so that when we have
 	a multilib toolchain, the proper ABI is selected.
-    *) LD/LDFLAGS handling is broken ... stop invoking the linker directly and
-	have everything go through the compiler driver
 
 
 TODO list for the uClibc 1.0.0 release:
