@@ -186,7 +186,7 @@ extern int mallopt __MALLOC_P ((int __param, int __val));
 /* uClibc may use malloc internally in situations where user can not be
  * notified about out-of-memory condition. In this situation uClibc will
  * call __uc_malloc_failed if it is non-NULL, and retry allocation
- * if it returns. If __uc_malloc_failed is NULL, uclubc will _exit(1).
+ * if it returns. If __uc_malloc_failed is NULL, uclibc will _exit(1).
  * NB: do not use stdio in __uc_malloc_failed handler! */
 extern void *__uc_malloc(size_t size);
 extern void (*__uc_malloc_failed)(size_t size);
