@@ -38,6 +38,10 @@ int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
 		tval.tv_sec = timeout / 1000;
 		tval.tv_nsec = (timeout % 1000) * 1000000;
 		ts = &tval;
+	} else if (timeout == 0) {
+		tval.tv_sec = 0;
+		tval.tv_nsec = 0;
+		ts = &tval;
 	}
 	return ppoll(fds, nfds, ts, NULL);
 }
