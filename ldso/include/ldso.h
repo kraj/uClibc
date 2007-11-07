@@ -66,9 +66,17 @@ extern int   _dl_debug_file;
 	_dl_dprintf(_dl_debug_file, "%s:%i: " fmt, __FUNCTION__, __LINE__, ## args);
 # define _dl_if_debug_dprint(fmt, args...) \
 	do { if (_dl_debug) __dl_debug_dprint(fmt, ## args); } while (0)
+# define _dl_assert(expr)						\
+	do {								\
+		if (!(expr)) {						\
+			__dl_debug_dprint("assert(%s)\n", #expr);	\
+			_dl_exit(45);					\
+		}							\
+	} while (0)
 #else
-# define _dl_debug_dprint(fmt, args...)
+# define __dl_debug_dprint(fmt, args...)
 # define _dl_if_debug_dprint(fmt, args...)
+# define _dl_assert(expr)
 # define _dl_debug_file 2
 #endif /* __SUPPORT_LD_DEBUG__ */
 

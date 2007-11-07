@@ -408,6 +408,16 @@ ifeq ($(UCLIBC_BUILD_NOW),y)
 LDFLAGS_NOSTRIP+=-Wl,-z,now
 endif
 
+ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
+# Be sure that binutils support it
+LDFLAGS_GNUHASH :=$(call check_ld,--hash-style=gnu)
+ifeq ($(LDFLAGS_GNUHASH),)
+$(error Your binutils don't support --hash-style option, while you want to use it)
+else
+LDFLAGS_NOSTRIP += -Wl,$(LDFLAGS_GNUHASH)
+endif
+endif
+
 LDFLAGS:=$(LDFLAGS_NOSTRIP) -Wl,-z,defs
 ifeq ($(DODEBUG),y)
 #CFLAGS += -g3

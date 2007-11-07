@@ -107,6 +107,11 @@ ifeq ($(findstring -static,$(LDFLAGS)),)
 	LDFLAGS += -Wl,--dynamic-linker,$(UCLIBC_LDSO_ABSPATH)/$(UCLIBC_LDSO)
 endif
 
+ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
+# Check for binutils support is done on root Rules.mak
+LDFLAGS += -Wl,${LDFLAGS_GNUHASH}
+endif
+
 
 # Filter output
 MAKEFLAGS += --no-print-directory

@@ -40,14 +40,39 @@ struct elf_resolve {
   unsigned short int init_flag;
   unsigned long rtld_flags; /* RTLD_GLOBAL, RTLD_NOW etc. */
   Elf_Symndx nbucket;
+  
+#ifdef __LDSO_GNU_HASH_SUPPORT__
+  /* Data needed to support GNU hash style */
+  Elf32_Word l_gnu_bitmask_idxbits;
+  Elf32_Word l_gnu_shift;
+  const ElfW(Addr) *l_gnu_bitmask;
+
+  union
+  {
+    const Elf32_Word *l_gnu_chain_zero;
+    const Elf_Symndx *elf_buckets;
+  };
+#else
   Elf_Symndx *elf_buckets;
+#endif
+  
   struct init_fini_list *init_fini;
   struct init_fini_list *rtld_local; /* keep tack of RTLD_LOCAL libs in same group */
   /*
    * These are only used with ELF style shared libraries
    */
   Elf_Symndx nchain;
+
+#ifdef __LDSO_GNU_HASH_SUPPORT__
+  union
+  {
+    const Elf32_Word *l_gnu_buckets;
+    const Elf_Symndx *chains;
+  };
+#else	
   Elf_Symndx *chains;
+#endif  
+  
   unsigned long dynamic_info[DYNAMIC_SIZE];
 
   unsigned long n_phent;
