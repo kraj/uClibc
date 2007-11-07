@@ -410,7 +410,7 @@ endif
 
 ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
 # Be sure that binutils support it
-LDFLAGS_GNUHASH :=$(call check_ld,--hash-style=gnu)
+LDFLAGS_GNUHASH:=$(call check_ld,--hash-style=gnu)
 ifeq ($(LDFLAGS_GNUHASH),)
 $(error Your binutils don't support --hash-style option, while you want to use it)
 else
