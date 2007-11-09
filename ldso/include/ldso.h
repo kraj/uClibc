@@ -65,20 +65,29 @@ extern int   _dl_debug_file;
 # define __dl_debug_dprint(fmt, args...) \
 	_dl_dprintf(_dl_debug_file, "%s:%i: " fmt, __FUNCTION__, __LINE__, ## args);
 # define _dl_if_debug_dprint(fmt, args...) \
-	do { if (_dl_debug) __dl_debug_dprint(fmt, ## args); } while (0)
-# define _dl_assert(expr)						\
+	do { if (_dl_debug) __dl_debug_dprint(fmt, ## args); } while (0)	
+#else
+# define __dl_debug_dprint(fmt, args...)
+# define _dl_if_debug_dprint(fmt, args...)
+# define _dl_debug_file 2
+#endif /* __SUPPORT_LD_DEBUG__ */
+
+#ifdef IS_IN_rtld
+# ifdef __SUPPORT_LD_DEBUG__
+#  define _dl_assert(expr)						\
 	do {								\
 		if (!(expr)) {						\
 			__dl_debug_dprint("assert(%s)\n", #expr);	\
 			_dl_exit(45);					\
 		}							\
 	} while (0)
+# else
+#  define _dl_assert(expr) ((void)0)
+# endif
 #else
-# define __dl_debug_dprint(fmt, args...)
-# define _dl_if_debug_dprint(fmt, args...)
-# define _dl_assert(expr)
-# define _dl_debug_file 2
-#endif /* __SUPPORT_LD_DEBUG__ */
+# include <assert.h>
+# define _dl_assert(expr) assert(expr)
+#endif
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 # define _dl_debug_early(fmt, args...) __dl_debug_dprint(fmt, ## args)
