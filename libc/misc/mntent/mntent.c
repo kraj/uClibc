@@ -98,11 +98,8 @@ int addmntent(FILE * filep, const struct mntent *mnt)
 	if (fseek(filep, 0, SEEK_END) < 0)
 		return 1;
 
-	if (fprintf (filep, "%s %s %s %s %d %d\n", mnt->mnt_fsname, mnt->mnt_dir,
-		 mnt->mnt_type, mnt->mnt_opts, mnt->mnt_freq, mnt->mnt_passno) < 1)
-		return 1;
-
-	return 0;
+	return (fprintf (filep, "%s %s %s %s %d %d\n", mnt->mnt_fsname, mnt->mnt_dir,
+		 mnt->mnt_type, mnt->mnt_opts, mnt->mnt_freq, mnt->mnt_passno) < 0 ? 1 : 0);
 }
 
 char *hasmntopt(const struct mntent *mnt, const char *opt)
