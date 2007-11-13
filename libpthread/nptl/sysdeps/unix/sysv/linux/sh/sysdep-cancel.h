@@ -16,10 +16,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sysdep.h>
 #include <tls.h>
+#include <sysdep.h>
 #ifndef __ASSEMBLER__
-# include <nptl/pthreadP.h>
+# include <pthreadP.h>
 #endif
 
 #if !defined NOT_IN_libc || defined IS_IN_libpthread || defined IS_IN_librt

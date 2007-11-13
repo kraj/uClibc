@@ -50,10 +50,9 @@ typedef struct
 
 
 /* We require TLS support in the tools.  */
-#ifndef HAVE_TLS_SUPPORT
-# error "TLS support is required."
-#endif
-
+#define HAVE_TLS_SUPPORT
+#define HAVE___THREAD   1
+#define HAVE_TLS_MODEL_ATTRIBUTE	1
 /* Signal that TLS support is available.  */
 # define USE_TLS	1
 
@@ -81,7 +80,7 @@ typedef struct
 # define TLS_DTV_AT_TP	1
 
 /* Get the thread descriptor definition.  */
-# include <nptl/descr.h>
+# include <descr.h>
 
 /* Install the dtv pointer.  The pointer passed is to the element with
    index -1 which contain the length.  */

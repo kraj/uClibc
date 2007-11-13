@@ -17,14 +17,12 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
-#include <shlib-compat.h>
 #include <pthread-errnos.h>
 #include <tcb-offsets.h>
 #include "lowlevel-atomic.h"
 
 
 #define SYS_gettimeofday	__NR_gettimeofday
-#define SYS_futex		240
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 
@@ -118,7 +116,7 @@ sem_timedwait:
 5:
 	cmp/pz	r2
 	bf/s	6f		/* Time is already up.  */
-	 mov	#ETIMEDOUT, r0
+	mov	#ETIMEDOUT, r0
 
 	/* Store relative timeout.  */
 	mov.l	r2, @r15
@@ -179,15 +177,19 @@ sem_timedwait:
 	mov.l	.Lerrno2, r0
 	stc	gbr, r1
 	mov.l	@(r0, r12), r0
+	bra .Lexit
 	add	r1, r0
-	mov.l	r8, @r0
+	.align 2
+.Lerrno2:
+	.long	errno@GOTTPOFF
+.Lexit:
 #else
 	mov.l	.Lerrloc2, r1
 	bsrf	r1
 	 nop
 .Lerrloc2b:
-	mov.l	r8, @r0
 #endif
+	mov.l	r8, @r0
 	add	#8, r15
 	lds.l	@r15+, pr
 	mov.l	@r15+, r12
@@ -225,10 +227,7 @@ sem_timedwait:
 	.long	1000000000
 .Lgot2:
 	.long	_GLOBAL_OFFSET_TABLE_
-#if USE___THREAD
-.Lerrno2:
-	.long	errno@GOTTPOFF
-#else
+#if !USE___THREAD
 .Lerrloc2:
 	.long	__errno_location@PLT-(.Lerrloc2b-.)
 #endif

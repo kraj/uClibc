@@ -19,11 +19,11 @@
 #ifndef _LOWLEVELLOCK_H
 #define _LOWLEVELLOCK_H	1
 
+#include <syscall.h>
 #include <time.h>
 #include <sys/param.h>
 #include <bits/pthreadtypes.h>
 
-#define SYS_futex		240
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 
@@ -194,6 +194,22 @@ typedef int lll_lock_t;
 			"r" (__r6), "r" (__r7)				      \
 		      : "memory", "t");					      \
   } while (0)
+
+#define lll_futex_timed_wait(futex, val, timeout) \
+  ({									      \
+    int __status;							      \
+    register unsigned long __r3 asm ("r3") = SYS_futex;			      \
+    register unsigned long __r4 asm ("r4") = (unsigned long) (futex);	      \
+    register unsigned long __r5 asm ("r5") = FUTEX_WAIT;		      \
+    register unsigned long __r6 asm ("r6") = (unsigned long) (val);	      \
+    register unsigned long __r7 asm ("r7") = (timeout);			      \
+    __asm __volatile (SYSCALL_WITH_INST_PAD				      \
+		      : "=z" (__status)					      \
+		      : "r" (__r3), "r" (__r4), "r" (__r5),		      \
+			"r" (__r6), "r" (__r7)				      \
+		      : "memory", "t");					      \
+    __status;								      \
+  })
 
 
 #define lll_futex_wake(futex, nr) \

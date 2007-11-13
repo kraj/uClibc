@@ -17,11 +17,9 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
-#include <shlib-compat.h>
 #include <lowlevelcond.h>
 #include "lowlevel-atomic.h"
 
-#define SYS_futex		240
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 
@@ -348,8 +346,7 @@ __pthread_cond_wait:
 .Lmwake2:
 	.long	__lll_mutex_unlock_wake-.Lmwake2b
 	.size	__pthread_cond_wait, .-__pthread_cond_wait
-versioned_symbol (libpthread, __pthread_cond_wait, pthread_cond_wait,
-		  GLIBC_2_3_2)
+weak_alias (__pthread_cond_wait, pthread_cond_wait)
 
 
 	.type	__condvar_w_cleanup, @function

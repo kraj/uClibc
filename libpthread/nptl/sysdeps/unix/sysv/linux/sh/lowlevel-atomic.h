@@ -44,14 +44,16 @@
 	mov.l	reg, mem; \
 99:	mov	r1, r15
 
-#define	XADD(reg, mem, old) \
+#define	XADD(reg, mem, new, old) \
 	.align	2; \
 	mova	99f, r0; \
+	nop; \
 	mov	r15, r1; \
-	mov	_IMM6, r15; \
+	mov	_IMM4, r15; \
 98:	mov.l	mem, old; \
-	add	old, reg; \
-	mov.l	reg, mem; \
+	mov	old, new; \
+	add	reg, new; \
+	mov.l	new, mem; \
 99:	mov	r1, r15
 
 #define	XCHG(reg, mem, old) \

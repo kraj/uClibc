@@ -1,2 +1,2 @@
 #define RESET_PID
-#include <sysdeps/unix/sysv/linux/sh/clone.S>
+#include <libc/sysdeps/linux/sh/clone.S>

@@ -66,6 +66,6 @@ ENTRY (__vfork)
 	.word	PID - TLS_PRE_TCB_SIZE
 	.align	2
 PSEUDO_END (__vfork)
-hidden_def (__vfork)
+hidden_def (vfork)
 
 weak_alias (__vfork, vfork)

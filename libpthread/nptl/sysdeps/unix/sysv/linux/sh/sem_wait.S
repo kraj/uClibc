@@ -17,14 +17,12 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
-#include <shlib-compat.h>
 #include <pthread-errnos.h>
 #include <tcb-offsets.h>
 #include "lowlevel-atomic.h"
 
 
 #define SYS_gettimeofday	__NR_gettimeofday
-#define SYS_futex		240
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 
@@ -109,15 +107,19 @@ __new_sem_wait:
 	mov.l	.Lerrno0, r0
 	stc	gbr, r1
 	mov.l	@(r0, r12), r0
+	bra .Lexit
 	add	r1, r0
-	mov.l	r8, @r0
+	.align 2
+.Lerrno0:
+	.long	errno@GOTTPOFF
+.Lexit:
 #else
 	mov.l	.Lerrloc0, r1
 	bsrf	r1
 	 nop
 .Lerrloc0b:
-	mov.l	r8, @r0
 #endif
+	mov.l	r8, @r0
 	mov	#-1, r0
 9:
 	lds.l	@r15+, pr
@@ -150,10 +152,7 @@ __new_sem_wait:
 	.align	2
 .Lgot0:
 	.long	_GLOBAL_OFFSET_TABLE_
-#if USE___THREAD
-.Lerrno0:
-	.long	errno@GOTTPOFF
-#else
+#if !USE___THREAD
 .Lerrloc0:
 	.long	__errno_location@PLT-(.Lerrloc0b-.)
 #endif
@@ -164,4 +163,4 @@ __new_sem_wait:
 .Lunwind:
 	.long	HIDDEN_JUMPTARGET (__pthread_unwind)-.Lunwindb
 	.size	__new_sem_wait,.-__new_sem_wait
-	versioned_symbol(libpthread, __new_sem_wait, sem_wait, GLIBC_2_1)
+	weak_alias(__new_sem_wait, sem_wait)

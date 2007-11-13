@@ -23,7 +23,7 @@
 	.text
 
 #define SYS_gettimeofday	__NR_gettimeofday
-#define SYS_futex		240
+
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 
@@ -32,33 +32,29 @@
 	.type	__lll_mutex_lock_wait,@function
 	.hidden	__lll_mutex_lock_wait
 	.align	5
+	/* void __lll_mutex_lock_wait (int val, int *__futex) */
 __lll_mutex_lock_wait:
-	mov.l	r8, @-r15
-	mov	r4, r6
-	mov	r5, r8
+	mov	#2, r6
+	cmp/eq	r4, r6
+	mov	r5, r4
 	mov	#0, r7		/* No timeout.  */
 	mov	#FUTEX_WAIT, r5
 
-	mov	#2, r4
-	cmp/eq	r4, r6
 	bf	2f
 
 1:
-	mov	r8, r4
 	mov	#SYS_futex, r3
 	extu.b	r3, r3
 	trapa	#0x14
 	SYSCALL_INST_PAD
 
 2:
-	mov	#2, r4
-	XCHG (r4, @r8, r2)
+	XCHG (r6, @r4, r2)
 	tst	r2, r2
 	bf	1b
 
-	mov.l	@r15+, r8
 	ret
-	 mov	r2, r0
+	nop
 	.size	__lll_mutex_lock_wait,.-__lll_mutex_lock_wait
 
 
@@ -67,6 +63,8 @@ __lll_mutex_lock_wait:
 	.type	__lll_mutex_timedlock_wait,@function
 	.hidden	__lll_mutex_timedlock_wait
 	.align	5
+	/* int __lll_mutex_timedlock_wait (int val, int *__futex,
+				       const struct timespec *abstime) */
 __lll_mutex_timedlock_wait:
 	/* Check for a valid timeout value.  */
 	mov.l	@(4,r6), r1
@@ -74,10 +72,8 @@ __lll_mutex_timedlock_wait:
 	cmp/hs	r0, r1
 	bt	3f
 
-	mov.l	r10, @-r15
 	mov.l	r9, @-r15
 	mov.l	r8, @-r15
-	mov	r4, r10
 	mov	r6, r9
 	mov	r5, r8
 
@@ -115,34 +111,31 @@ __lll_mutex_timedlock_wait:
 	mov.l	r3, @(4,r15)
 
 	mov	#1, r3
-	mov	#2, r4
-	CMPXCHG (r3, @r8, r4, r2)
+	mov	#2, r6
+	CMPXCHG (r3, @r8, r6, r2)
 	tst	r2, r2
 	bt	8f
 
 	mov	r8, r4
 	mov	#FUTEX_WAIT, r5
-	mov	r10, r6
 	mov	r15, r7
 	mov	#SYS_futex, r3
 	extu.b	r3, r3
 	trapa	#0x14
 	SYSCALL_INST_PAD
-	mov	r0, r5
+	mov	r0, r4
 
 8:
 	mov	#0, r3
-	mov	#2, r4
-	CMPXCHG (r3, @r8, r4, r2)
+	CMPXCHG (r3, @r8, r6, r2)
 	bf/s	7f
-	 mov	#0, r0
+	mov	#0, r0
 
 6:
 	add	#8, r15
 	mov.l	@r15+, r8
-	mov.l	@r15+, r9
 	rts
-	 mov.l	@r15+, r10
+	mov.l	@r15+, r9
 7:
 	/* Check whether the time expired.  */
 	mov	#-ETIMEDOUT, r1
@@ -153,15 +146,15 @@ __lll_mutex_timedlock_wait:
 	XCHG (r2, @r8, r3)
 	tst	r3, r3
 	bt/s	6b
-	 mov	#0, r0
+	mov	#0, r0
 	bra	1b
-	 nop
+	nop
 3:
 	rts
-	 mov	#EINVAL, r0
+	mov	#EINVAL, r0
 5:
 	bra	6b
-	 mov	#ETIMEDOUT, r0
+	mov	#ETIMEDOUT, r0
 
 .L1k:
 	.word	1000
@@ -194,7 +187,7 @@ lll_unlock_wake_cb:
 
 1:	
 	rts
-	 nop
+	nop
 	.size	lll_unlock_wake_cb,.-lll_unlock_wake_cb
 #endif
 
@@ -203,6 +196,7 @@ lll_unlock_wake_cb:
 	.type	__lll_mutex_unlock_wake,@function
 	.hidden	__lll_mutex_unlock_wake
 	.align	5
+	/* void __lll_mutex_unlock_wake(int *__futex) */
 __lll_mutex_unlock_wake:
 	mov	#FUTEX_WAKE, r5
 	mov	#1, r6		/* Wake one thread.  */
@@ -213,7 +207,7 @@ __lll_mutex_unlock_wake:
 	trapa	#0x14
 	SYSCALL_INST_PAD
 	rts
-	 nop
+	nop
 	.size	__lll_mutex_unlock_wake,.-__lll_mutex_unlock_wake
 
 
@@ -283,7 +277,7 @@ __lll_timedwait_tid:
 	add	#8, r15
 	mov.l	@r15+, r8
 	rts
-	 mov.l	@r15+, r9
+	mov.l	@r15+, r9
 1:
 	/* Check whether the time expired.  */
 	mov	#-ETIMEDOUT, r1
@@ -291,7 +285,7 @@ __lll_timedwait_tid:
 	bf	2b
 6:
 	bra	3b
-	 mov	#ETIMEDOUT, r0
+	mov	#ETIMEDOUT, r0
 
 .L1k2:
 	.word	1000

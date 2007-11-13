@@ -17,7 +17,6 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
-#include <shlib-compat.h>
 #include <pthread-errnos.h>
 #include "lowlevel-atomic.h"
 
@@ -60,15 +59,19 @@ __new_sem_trywait:
 	mov.l	.Lerrno1, r0
 	stc	gbr, r1
 	mov.l	@(r0, r12), r0
+	bra .Lexit
 	add	r1, r0
-	mov.l	r8, @r0
+	.align 2
+.Lerrno1:
+	.long	errno@GOTTPOFF
+.Lexit:
 #else
 	mov.l	.Lerrloc1, r1
 	bsrf	r1
 	 nop
 .Lerrloc1b:
-	mov.l	r8, @r0
 #endif
+	mov.l	r8, @r0
 	lds.l	@r15+, pr
 	mov.l	@r15+, r8
 	mov.l	@r15+, r12
@@ -78,12 +81,9 @@ __new_sem_trywait:
 	.align	2
 .Lgot1:
 	.long	_GLOBAL_OFFSET_TABLE_
-#if USE___THREAD
-.Lerrno1:
-	.long	errno@GOTTPOFF
-#else
+#if !USE___THREAD
 .Lerrloc1:
 	.long	__errno_location@PLT-(.Lerrloc1b-.)
 #endif
 	.size	__new_sem_trywait,.-__new_sem_trywait
-	versioned_symbol(libpthread, __new_sem_trywait, sem_trywait, GLIBC_2_1)
+	weak_alias(__new_sem_trywait, sem_trywait)

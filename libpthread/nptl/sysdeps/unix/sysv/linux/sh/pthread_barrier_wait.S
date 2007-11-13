@@ -20,7 +20,6 @@
 #include <lowlevelbarrier.h>
 #include "lowlevel-atomic.h"
 
-#define SYS_futex	240
 #define FUTEX_WAIT	0
 #define FUTEX_WAKE	1
 
@@ -82,10 +81,8 @@ pthread_barrier_wait:
 
 	/* Increment LEFT.  If this brings the count back to the
 	   initial count unlock the object.  */
-	mov	#1, r3
+	INC	(@(LEFT,r8), r2)
 	mov.l	@(INIT_COUNT,r8), r4
-	XADD	(r3, @(LEFT,r8), r2)
-	add	#-1, r4
 	cmp/eq	r2, r4
 	bf	10f
 
@@ -125,10 +122,8 @@ pthread_barrier_wait:
 
 	/* Increment LEFT.  If this brings the count back to the
 	   initial count unlock the object.  */
-	mov	#1, r3
+	INC	(@(LEFT,r8), r2)
 	mov.l	@(INIT_COUNT,r8), r4
-	XADD	(r3, @(LEFT,r8), r2)
-	add	#-1, r4
 	cmp/eq	r2, r4
 	bf	5f
 
