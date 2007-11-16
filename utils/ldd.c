@@ -44,6 +44,11 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
+#if defined(__avr32__)
+#define MATCH_MACHINE(x) (x == EM_AVR32)
+#define ELFCLASSM      ELFCLASS32
+#endif
+
 #if defined(__s390__)
 #define MATCH_MACHINE(x) (x == EM_S390)
 #define ELFCLASSM	ELFCLASS32

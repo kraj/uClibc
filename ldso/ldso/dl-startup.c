@@ -217,7 +217,9 @@ DL_START(unsigned long args)
 	/* some arches (like MIPS) we have to tweak the GOT before relocations */
 	PERFORM_BOOTSTRAP_GOT(tpnt);
 
-#else
+#endif
+
+#if !defined(PERFORM_BOOTSTRAP_GOT) || defined(__avr32__)
 
 	/* OK, now do the relocations.  We do not do a lazy binding here, so
 	   that once we are done, we have considerably more flexibility. */

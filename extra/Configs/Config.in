@@ -16,6 +16,9 @@ config TARGET_alpha
 config TARGET_arm
 	bool "arm"
 
+config TARGET_avr32
+       bool "avr32"
+
 config TARGET_bfin
 	bool "bfin"
 
@@ -90,6 +93,10 @@ endif
 
 if TARGET_arm
 source "extra/Configs/Config.arm"
+endif
+
+if TARGET_avr32
+source "extra/Configs/Config.avr32"
 endif
 
 if TARGET_bfin
