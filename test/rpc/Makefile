@@ -5,4 +5,8 @@ TESTS := getrpcent
 
 include ../Test.mak
 
+ifeq ($(UCLIBC_HAS_REENTRANT_RPC),y)
+TESTS += getrpcent_r
+endif
+
 DODIFF_getrpcent := 1

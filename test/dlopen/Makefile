@@ -6,6 +6,11 @@ export UCLIBC_ONLY := 1
 
 TESTS := dltest dltest2 test1 test2 test3
 
+ifeq ($(UCLIBC_STATIC),y)
+TESTS_DISABLED := test3
+LDFLAGS_libtest.so := -lpthread
+endif
+
 include ../Test.mak
 
 CFLAGS_dltest   := -DLIBNAME="\"./libtest.so\""

@@ -55,6 +55,7 @@ export TARGET_ARCH
 
 CROSS      = $(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
 CC         = $(CROSS)gcc
+STRIPTOOL  = $(CROSS)strip
 RM         = rm -f
 
 # Select the compiler needed to build binaries for your development system
@@ -77,7 +78,8 @@ endif
 XWARNINGS      := $(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
 XARCH_CFLAGS   := $(subst ",, $(strip $(ARCH_CFLAGS))) $(CPU_CFLAGS)
 XCOMMON_CFLAGS := -D_GNU_SOURCE -I$(top_builddir)test
-CFLAGS         += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS) -I$(top_builddir)include $(PTINC)
+CFLAGS         += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS) -I$(top_builddir) -I$(top_builddir)include $(PTINC)
+CFLAGS         += -I$(top_builddir)/$(KERNEL_HEADERS)
 HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS)
 
 LDFLAGS        := $(CPU_LDFLAGS)
@@ -91,13 +93,18 @@ else
 	HOST_LDFLAGS  += -s -Wl,-warn-common
 endif
 
-ifneq ($(strip $(HAVE_SHARED)),y)
-	LDFLAGS       += -static
-	HOST_LDFLAGS  += -static
+ifeq ($(strip $(UCLIBC_STATIC)),y)
+	STATIC_LDFLAGS	:= -static
+	HOST_LDFLAGS  	+= -static
 endif
 LDFLAGS += -B$(top_builddir)lib -Wl,-rpath,$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib
-ifeq ($(findstring -static,$(LDFLAGS)),)
+ifeq ($(findstring -static,$(STATIC_LDFLAGS)),)
 LDFLAGS += -Wl,--dynamic-linker,$(UCLIBC_LDSO)
+endif
+
+ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
+# Check for binutils support is done on root Rules.mak
+LDFLAGS += -Wl,${LDFLAGS_GNUHASH}
 endif
 
 

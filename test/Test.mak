@@ -76,7 +76,7 @@ $(U_TARGETS):
 ifeq ($(CHECK_ONLY),)
 	$(showlink)
 	$(Q)$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$@) -c $@.c -o $@.o
-	$(Q)$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LDFLAGS) $(LDFLAGS_$@)
+	$(Q)$(CC) $(STATIC_LDFLAGS) $(LDFLAGS) $@.o -o $@ $(LDFLAGS_$@) $(EXTRA_LDFLAGS)
 endif
 ifeq ($(COMPILE_ONLY),)
 	$(exec_test)

@@ -29,8 +29,6 @@ endif
 ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	DIRS += $(filter-out tls nptl,$(DIRS))
 endif
-DIRS := $(filter-out math,$(DIRS))
-
 
 test check all: subdirs
 
