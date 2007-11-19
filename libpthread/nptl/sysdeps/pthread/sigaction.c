@@ -31,6 +31,9 @@
 # include <sigaction.c>
 
 int
+sigaction (int sig, const struct sigaction *act, struct sigaction *oact);
+
+int
 __sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
   if (__builtin_expect (sig == SIGCANCEL || sig == SIGSETXID, 0))
@@ -41,9 +44,9 @@ __sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 
   return __libc_sigaction (sig, act, oact);
 }
-libc_hidden_weak (__sigaction)
+libc_hidden_proto(sigaction)
 weak_alias (__sigaction, sigaction)
-
+libc_hidden_weak(sigaction)
 #else
 
 # include_next <sigaction.c>

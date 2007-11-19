@@ -17,6 +17,25 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#ifndef C_LABEL
+
+/* Define a macro we can use to construct the asm name for a C symbol.  */
+#ifdef	NO_UNDERSCORES
+#ifdef	__STDC__
+#define C_LABEL(name)		name##:
+#else
+#define C_LABEL(name)		name/**/:
+#endif
+#else
+#ifdef	__STDC__
+#define C_LABEL(name)		_##name##:
+#else
+#define C_LABEL(name)		_/**/name/**/:
+#endif
+#endif
+
+#endif
+
 #ifdef __ASSEMBLER__
 /* Mark the end of function named SYM.  This is used on some platforms
    to generate correct debugging information.  */
@@ -41,6 +60,7 @@
 #  define cfi_register(r1, r2)		.cfi_register r1, r2
 #  define cfi_return_column(reg)	.cfi_return_column reg
 #  define cfi_restore(reg)		.cfi_restore reg
+#  define cfi_same_value(reg)		.cfi_same_value reg
 #  define cfi_undefined(reg)		.cfi_undefined reg
 #  define cfi_remember_state		.cfi_remember_state
 #  define cfi_restore_state		.cfi_restore_state
@@ -57,6 +77,7 @@
 #  define cfi_register(r1, r2)
 #  define cfi_return_column(reg)
 #  define cfi_restore(reg)
+#  define cfi_same_value(reg)
 #  define cfi_undefined(reg)
 #  define cfi_remember_state
 #  define cfi_restore_state

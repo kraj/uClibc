@@ -17,8 +17,9 @@
    02111-1307 USA.  */
 
 #include <features.h>
-#include <resolv.h>
+
 #include <tls.h>
+#include <resolv.h>
 
 struct __res_state *
 __res_state (void)

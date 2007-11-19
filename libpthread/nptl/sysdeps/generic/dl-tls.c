@@ -24,6 +24,8 @@
 #include <tls.h>
 #include <dl-tls.h>
 #include <ldsodefs.h>
+#include <dl-elf.h>
+#include <dl-hash.h>
 
 #include <assert.h>
 #include <link.h>
@@ -64,6 +66,86 @@ oom (void)
 void *_dl_memalign(size_t alignment, size_t bytes)
 {
 	return _dl_malloc(bytes);
+}
+
+
+/*
+ * We are trying to perform a static TLS relocation in MAP, but it was
+ * dynamically loaded.  This can only work if there is enough surplus in
+ * the static TLS area already allocated for each running thread.  If this
+ * object's TLS segment is too big to fit, we fail.  If it fits,
+ * we set MAP->l_tls_offset and return.
+ * This function intentionally does not return any value but signals error
+ * directly, as static TLS should be rare and code handling it should
+ * not be inlined as much as possible.
+ */
+
+ 
+void
+internal_function __attribute_noinline__
+_dl_allocate_static_tls (struct link_map *map)
+{
+	/* If the alignment requirements are too high fail.  */
+	if (map->l_tls_align > _dl_tls_static_align)
+	{
+fail:
+		_dl_dprintf(_dl_debug_file, "cannot allocate memory in static TLS block");
+		_dl_exit(30);
+	}
+
+# if TLS_TCB_AT_TP
+	size_t freebytes;
+	size_t n;
+	size_t blsize;
+
+	freebytes = _dl_tls_static_size - _dl_tls_static_used - TLS_TCB_SIZE;
+
+	blsize = map->l_tls_blocksize + map->l_tls_firstbyte_offset;
+	if (freebytes < blsize)
+		goto fail;
+
+	n = (freebytes - blsize) / map->l_tls_align;
+
+	size_t offset = _dl_tls_static_used + (freebytes - n * map->l_tls_align
+		- map->l_tls_firstbyte_offset);
+
+	map->l_tls_offset = _dl_tls_static_used = offset;
+# elif TLS_DTV_AT_TP
+	size_t used;
+	size_t check;
+
+	size_t offset = roundup (_dl_tls_static_used, map->l_tls_align);
+	used = offset + map->l_tls_blocksize;
+	check = used;
+
+	/* dl_tls_static_used includes the TCB at the beginning. */
+	if (check > _dl_tls_static_size)
+		goto fail;
+
+	map->l_tls_offset = offset;
+	_dl_tls_static_used = used;
+# else
+#  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
+# endif
+
+	/*
+	 * If the object is not yet relocated we cannot initialize the
+	 * static TLS region.  Delay it.
+	 */
+	if (((struct elf_resolve *) map)->init_flag & RELOCS_DONE)
+    {
+#ifdef SHARED
+		/*
+		 * Update the slot information data for at least the generation of
+		 * the DSO we are allocating data for.
+		 */
+		if (__builtin_expect (THREAD_DTV()[0].counter != _dl_tls_generation, 0))
+			(void) _dl_update_slotinfo (map->l_tls_modid);
+#endif
+		_dl_init_static_tls (map);
+	}
+	else
+		map->l_need_tls_init = 1;
 }
 
 size_t

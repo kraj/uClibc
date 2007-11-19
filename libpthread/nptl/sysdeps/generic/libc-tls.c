@@ -26,13 +26,14 @@
 #include <elf.h>
 #include <link.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 #ifdef SHARED
  #error makefile bug, this file is for static only
 #endif
 
-#ifdef USE_TLS
+#if USE_TLS
 extern ElfW(Phdr) *_dl_phdr;
 extern size_t _dl_phnum;
 
@@ -191,7 +192,7 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
   const char *lossage = TLS_INIT_TP ((char *) tlsblock + tcb_offset, 0);
 # elif TLS_DTV_AT_TP
   INSTALL_DTV (tlsblock, static_dtv);
-  const char *lossage = TLS_INIT_TP (tlsblock, 0);
+  const char *lossage = (char *)TLS_INIT_TP (tlsblock, 0);
 # else
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
 # endif

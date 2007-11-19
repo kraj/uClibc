@@ -26,7 +26,7 @@
 #define __need_sigset_t
 #include <signal.h>
 #include <bits/pthreadtypes.h>
-#include <setjmp.h>
+#include <bits/setjmp.h>
 #include <bits/wordsize.h>
 #if defined _LIBC && ( defined IS_IN_libc || defined NOT_IN_libc )
 #include <bits/uClibc_pthread.h>
@@ -535,6 +535,9 @@ class __pthread_cleanup_class
    function the compiler is free to decide inlining the change when
    needed or fall back on the copy which must exist somewhere
    else.  */
+extern __inline void
+__pthread_cleanup_routine (struct __pthread_cleanup_frame *__frame);
+
 extern __inline void
 __pthread_cleanup_routine (struct __pthread_cleanup_frame *__frame)
 {

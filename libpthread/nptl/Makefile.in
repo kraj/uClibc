@@ -150,7 +150,7 @@ CFLAGS-msgrcv.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-msgsnd.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-tcdrain.c = -fexceptions -fasynchronous-unwind-tables
 
-CFLAGS-pt-system.c = -fexceptions
+CFLAGS-pt-system.c = -fexceptions -I./libc/stdlib
 
 #
 # The rest of this file is uClibc specific.
@@ -235,7 +235,7 @@ libpthread_so_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,		\
 	       $(libpthread-misc-routines), $(libpthread-routines)))
 
 libc-static-y += $(patsubst %.c, $(PTHREAD_OUT)/%.o, alloca_cutoff.c	\
-	    forward.c libc-cancellation.c)
+	    libc-cancellation.c)
 libc-shared-y += $(patsubst %.c, $(PTHREAD_OUT)/%.oS, forward.c		\
 	    libc-cancellation.c)
 libpthread-nonshared-y += $(patsubst %,$(PTHREAD_OUT)/%.oS,$(libpthread_static_SRC))
@@ -272,7 +272,7 @@ endif
 	$(do_ar)
 
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/libpthread.a: $(libpthread-a-y:.o=.oS)
+$(top_builddir)lib/libpthread.a: $(libpthread-a-y:.o=.os)
 else
 $(top_builddir)lib/libpthread.a: $(libpthread-a-y)
 endif
@@ -295,7 +295,7 @@ $(PTHREAD_OUT)/pthread-errnos.s: $(PTHREAD_OUT)/pthread-errnos.c
 $(PTHREAD_OUT)/pthread-errnos.h: $(PTHREAD_OUT)/pthread-errnos.s
 	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $(PTHREAD_OUT)/pthread-errnos.h
 
-nptl_headers:
+nptl_headers_bootstrap:
 	@sed 's/\(.*\)/"\1\\n"/' $(PTDIR)/Banner > $(PTDIR)/banner.h
 	@echo "#define VERSION \""$(VERSION)"\"" > $(PTDIR)/version.h
 	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/pthread.h $(top_builddir)include/
@@ -305,6 +305,8 @@ nptl_headers:
 	$(LN) -sf ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(top_builddir)include/bits/
 	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/libc-lock.h $(top_builddir)include/bits/
 	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/stdio-lock.h $(top_builddir)include/bits/
+
+nptl_headers:
 ifeq ($(shell $(CC) --help >& /dev/null && echo yes),yes)
 	$(MAKE) $(PTHREAD_OUT)/pthread-errnos.h
 endif
@@ -315,4 +317,4 @@ nptl_headers_clean:
 	      $(PTHREAD_OUT)/pthread-errnos.{c,h,s}
 
 libpthread_clean:
-	$(RM) $(PTHREAD_OUT)/*.{o,os,oS}
+	$(RM) $(PTHREAD_OUT)/*.{o,os,oS,a}

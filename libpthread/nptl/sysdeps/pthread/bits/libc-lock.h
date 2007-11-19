@@ -409,6 +409,9 @@ extern void _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *buffer
 
 /* Normal cleanup handling, based on C cleanup attribute.  */
 extern __inline void
+__libc_cleanup_routine (struct __pthread_cleanup_frame *f);
+
+extern __inline void
 __libc_cleanup_routine (struct __pthread_cleanup_frame *f)
 {
   if (f->__do_it)
@@ -528,10 +531,11 @@ weak_extern (__pthread_key_create)
 weak_extern (__pthread_setspecific)
 weak_extern (__pthread_getspecific)
 weak_extern (__pthread_once)
-weak_extern (__pthread_initialize)
 weak_extern (__pthread_atfork)
+#ifdef SHARED
 weak_extern (_pthread_cleanup_push_defer)
 weak_extern (_pthread_cleanup_pop_restore)
+#endif
 weak_extern (pthread_setcancelstate)
 # else
 #  pragma weak __pthread_mutex_init
@@ -552,7 +556,6 @@ weak_extern (pthread_setcancelstate)
 #  pragma weak __pthread_setspecific
 #  pragma weak __pthread_getspecific
 #  pragma weak __pthread_once
-#  pragma weak __pthread_initialize
 #  pragma weak __pthread_atfork
 #  pragma weak _pthread_cleanup_push_defer
 #  pragma weak _pthread_cleanup_pop_restore

@@ -27,13 +27,16 @@ static _Unwind_Reason_Code (*libgcc_s_personality)
   (int, _Unwind_Action, _Unwind_Exception_Class, struct _Unwind_Exception *,
    struct _Unwind_Context *);
 
+extern
+void abort(void);
+
 static void
 init (void)
 {
   void *resume = NULL;
   void *personality = NULL;
   void *handle;
-
+  resume = personality = NULL; /* make gcc silent */
   handle = dlopen ("libgcc_s.so.1", (RTLD_LOCAL | RTLD_LAZY));
 
   if (handle == NULL

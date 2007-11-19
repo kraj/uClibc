@@ -35,16 +35,11 @@ void
 internal_function
 _dl_aux_init (ElfW(auxv_t) *av)
 {
-  for (; av->a_type != AT_NULL; ++av)
-    switch (av->a_type)
-      {
-      case AT_PHDR:
-	GL(dl_phdr) = (void *) av->a_un.a_val;
-	break;
-      case AT_PHNUM:
-	GL(dl_phnum) = av->a_un.a_val;
-	break;
-      }
+   /* Get the program headers base address from the aux vect */
+   GL(dl_phdr) = (ElfW(Phdr) *) av[AT_PHDR].a_un.a_val;
+
+   /* Get the number of program headers from the aux vect */
+   GL(dl_phnum) = (size_t) av[AT_PHNUM].a_un.a_val;
 }
 
 /* Initialize static TLS area and DTV for current (only) thread.

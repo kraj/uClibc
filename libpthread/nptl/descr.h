@@ -96,7 +96,7 @@ struct pthread_unwind_buf
 struct xid_command
 {
   int syscall_no;
-  long id[3];
+  long int id[3];
   volatile int cntr;
 };
 
@@ -160,8 +160,11 @@ struct pthread
   /* Bit set if thread terminated and TCB is freed.  */
 #define TERMINATED_BIT		5
 #define TERMINATED_BITMASK	0x20
+  /* Bit set if thread is supposed to change XID.  */
+#define SETXID_BIT		6
+#define SETXID_BITMASK		0x40
   /* Mask for the rest.  Helps the compiler to optimize.  */
-#define CANCEL_RESTMASK		0xffffffc0
+#define CANCEL_RESTMASK		0xffffff80
 
 #define CANCEL_ENABLED_AND_CANCELED(value) \
   (((value) & (CANCELSTATE_BITMASK | CANCELED_BITMASK | EXITING_BITMASK	      \
@@ -201,6 +204,9 @@ struct pthread
 
   /* Lock to synchronize access to the descriptor.  */
   lll_lock_t lock;
+
+  /* Lock for synchronizing setxid calls.  */
+  lll_lock_t setxid_futex;
 
 #if HP_TIMING_AVAIL
   /* Offset of the CPU clock at start thread start time.  */
@@ -254,12 +260,11 @@ struct pthread
   /* Resolver state.  */
   struct __res_state res;
 
-  /* If you add fields after the res field above, please adjust
-     the following macro.  */
-#define PTHREAD_STRUCT_END_PADDING \
-  (sizeof (struct pthread) - offsetof (struct pthread, res) \
-   - sizeof (((struct pthread *) 0)->res))
+  /* This member must be last.  */
+  char end_padding[];
 
+#define PTHREAD_STRUCT_END_PADDING \
+  (sizeof (struct pthread) - offsetof (struct pthread, end_padding))
 } __attribute ((aligned (TCB_ALIGNMENT)));
 
 

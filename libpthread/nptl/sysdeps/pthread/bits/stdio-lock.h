@@ -20,6 +20,7 @@
 #ifndef _BITS_STDIO_LOCK_H
 #define _BITS_STDIO_LOCK_H 1
 
+#include <bits/libc-lock.h>
 #include <lowlevellock.h>
 
 

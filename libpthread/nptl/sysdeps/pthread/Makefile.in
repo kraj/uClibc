@@ -17,15 +17,25 @@ libpthread_CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c	\
 		  pthread_rwlock_timedwrlock.c pthread_rwlock_unlock.c	\
 		  pthread_rwlock_wrlock.c pthread_sigmask.c		\
 		  pthread_spin_destroy.c pthread_spin_init.c		\
-		  pthread_spin_unlock.c pt-sigaction.c pt-sigfillset.c	\
-		  pt-sigprocmask.c unwind-forcedunwind.c pt-longjmp.c
+		  pthread_spin_unlock.c pt-sigfillset.c	\
+		  unwind-forcedunwind.c pt-longjmp.c
 
 ifeq ($(TARGET_ARCH),i386)
 libpthread_CSRC += pthread_once.c
 endif
+
 ifeq ($(TARGET_ARCH),sh)
-libpthread_CSRC += pthread_once.c
+SH_PTHREAD_EXCLUDE_LIST = pthread_spin_unlock.c pthread_spin_init.c \
+		pthread_rwlock_wrlock.c pthread_rwlock_rdlock.c \
+		pthread_rwlock_unlock.c pt-longjmp.c \
+		pthread_barrier_wait.c pthread_cond_broadcast.c	\
+		pthread_cond_signal.c \
+		pthread_rwlock_timedrdlock.c \
+		pthread_rwlock_timedwrlock.c
+
+libpthread_CSRC := $(filter-out $(SH_PTHREAD_EXCLUDE_LIST),$(libpthread_CSRC))
 endif
+
 ifeq ($(TARGET_ARCH),x86_64)
 libpthread_CSRC += pthread_once.c
 endif
@@ -74,6 +84,10 @@ pthread_OBJ = $(patsubst %.c, $(pthread_OUT)/%.o, $(libpthread_CSRC))
 
 libpthread-a-y += $(pthread_OBJ)
 libpthread-so-y += $(pthread_OBJ:.o=.oS)
+libpthread-so-y += $(pthread_OUT)/pt-sigaction.oS $(pthread_OUT)/pt-sigprocmask.oS
+
+CFLAGS-sigaction.c = -I$(top_srcdir)libc/signal
+libc-y += $(pthread_OUT)/sigaction.o
 
 librt-a-y += $(pthread_OUT)/librt-cancellation.o
 librt-so-y += $(pthread_OUT)/librt-cancellation.oS		\

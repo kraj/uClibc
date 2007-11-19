@@ -32,7 +32,6 @@ __pthread_enable_asynccancel (void)
   struct pthread *self = THREAD_SELF;
   int oldval = THREAD_GETMEM (self, cancelhandling);
 
-//printf("%s\n", __FUNCTION__);
   while (1)
     {
       int newval = oldval | CANCELTYPE_BITMASK;
@@ -65,7 +64,6 @@ void
 internal_function attribute_hidden
 __pthread_disable_asynccancel (int oldtype)
 {
-//printf("%s\n", __FUNCTION__);
   /* If asynchronous cancellation was enabled before we do not have
      anything to do.  */
   if (oldtype & CANCELTYPE_BITMASK)
