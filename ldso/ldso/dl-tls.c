@@ -53,7 +53,7 @@ _dl_calloc (size_t __nmemb, size_t __size)
 			_dl_exit(1);
 	}
 	
-	if ((result = _dl_malloc(__size)) != NULL) {
+	if ((result = _dl_malloc(size)) != NULL) {
 		_dl_memset(result, 0, size);
 	}
 
@@ -107,13 +107,6 @@ _dl_free (void *__ptr)
 
 /* Value used for dtv entries for which the allocation is delayed. */
 #define TLS_DTV_UNALLOCATED	((void *) -1l)
-
-/* Taken from glibc/elf/dl-reloc.c */
-#define CHECK_STATIC_TLS(sym_map)											\
-	do {																	\
-		if (__builtin_expect ((sym_map)->l_tls_offset == NO_TLS_OFFSET, 0))	\
-			_dl_allocate_static_tls (sym_map);								\
-	} while (0)
 
 /*
  * We are trying to perform a static TLS relocation in MAP, but it was
@@ -386,7 +379,8 @@ _dl_determine_tlsoffset (void)
   size_t offset = TLS_TCB_SIZE;
   size_t cnt;
 
-  for (cnt = 0; slotinfo[cnt].map != NULL; ++cnt)
+  /* The first slot is never used */
+  for (cnt = 1; slotinfo[cnt].map != NULL; ++cnt)
     {
       _dl_assert (cnt < _dl_tls_dtv_slotinfo_list->len);
 
@@ -1001,9 +995,9 @@ init_tls (void)
 		{
 			/* This is a module with TLS data.  Store the map reference.
 			   The generation counter is zero.  */
-			slotinfo[i].map = l;
-			/* slotinfo[i].gen = 0; */
-		++i;
+
+			/* Skeep slot[0]: it will be never used */			
+			slotinfo[++i].map = l;
 		}
 	_dl_assert (i == _dl_tls_max_dtv_idx);
 
@@ -1027,7 +1021,7 @@ init_tls (void)
 
 	/* And finally install it for the main thread.  If ld.so itself uses
 	   TLS we know the thread pointer was initialized earlier.  */
-	const char *lossage = TLS_INIT_TP (tcbp, USE___THREAD);
+	const char *lossage = (char *) TLS_INIT_TP (tcbp, USE___THREAD);
 	if(__builtin_expect (lossage != NULL, 0)) {
 		_dl_debug_early("cannot set up thread-local storage: %s\n", lossage);
 		_dl_exit(30);

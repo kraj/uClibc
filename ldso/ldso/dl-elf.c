@@ -136,26 +136,13 @@ static struct elf_resolve *
 search_for_named_library(const char *name, int secure, const char *path_list,
 	struct dyn_elf **rpnt)
 {
-#ifdef USE_TLS
-	char *path, *path_n;
-	char mylibname[2050];
-#else
 	char *path, *path_n, *mylibname;
-#endif
 	struct elf_resolve *tpnt;
 	int done;
 
 	if (path_list==NULL)
 		return NULL;
 
-#ifdef USE_TLS
-	/* We need a writable copy of this string */
-	path = _dl_strdup(path_list);
-	if (!path) {
-		_dl_dprintf(2, "Out of memory!\n");
-		_dl_exit(0);
-	}
-#else
 	/* We need a writable copy of this string, but we don't
 	 * need this allocated permanently since we don't want
 	 * to leak memory, so use alloca to put path on the stack */
@@ -166,7 +153,6 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 	mylibname = alloca(2050);
 
 	_dl_memcpy(path, path_list, done+1);
-#endif
 
 	/* Unlike ldd.c, don't bother to eliminate double //s */
 
@@ -347,6 +333,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	ElfW(Dyn) *dpnt;
 	struct elf_resolve *tpnt;
 	ElfW(Phdr) *ppnt;
+#if USE_TLS
+	ElfW(Phdr) *tlsppnt = NULL;
+#endif
 	char *status, *header;
 	unsigned long dynamic_info[DYNAMIC_SIZE];
 	unsigned long *lpnt;
@@ -449,6 +438,29 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			if (((unsigned long) ppnt->p_vaddr + ppnt->p_memsz) > maxvma) {
 				maxvma = ppnt->p_vaddr + ppnt->p_memsz;
 			}
+		}
+		if (ppnt->p_type == PT_TLS)
+		{
+#if USE_TLS
+			if (ppnt->p_memsz == 0)
+				/* Nothing to do for an empty segment.  */
+				continue;
+			else
+				/* Save for after 'tpnt' is actually allocated. */
+				tlsppnt = ppnt;
+#else
+			/*
+			 * Yup, the user was an idiot and tried to sneak in a library with
+			 * TLS in it and we don't support it. Let's fall on our own sword
+			 * and scream at the luser while we die.
+			 */
+			_dl_dprintf(2, "%s: '%s' library contains unsupported TLS\n",
+				_dl_progname, libname);
+			_dl_internal_error_number = LD_ERROR_TLS_FAILED;
+			_dl_close(infile);
+			_dl_munmap(header, _dl_pagesize);
+			return NULL;
+#endif
 		}
 		ppnt++;
 	}
@@ -602,39 +614,33 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	tpnt->n_phent = epnt->e_phnum;
 
 #if USE_TLS
-	for (i = 0, ppnt = tpnt->ppnt; i < tpnt->n_phent; i++) {
-		if (ppnt->p_type == PT_TLS)
-		{
-			if(ppnt->p_memsz == 0)
-				break;
+	if (tlsppnt)
+	{
 		_dl_debug_early("Found TLS header for %s\n", libname);
 #if NO_TLS_OFFSET != 0
 		tpnt->l_tls_offset = NO_TLS_OFFSET;
 #endif
-		tpnt->l_tls_blocksize = ppnt->p_memsz;
-		tpnt->l_tls_align = ppnt->p_align;
-		if (ppnt->p_align == 0)
+		tpnt->l_tls_blocksize = tlsppnt->p_memsz;
+		tpnt->l_tls_align = tlsppnt->p_align;
+		if (tlsppnt->p_align == 0)
 			tpnt->l_tls_firstbyte_offset = 0;
 		else
-			tpnt->l_tls_firstbyte_offset = ppnt->p_vaddr &
-				(ppnt->p_align - 1);
-		tpnt->l_tls_initimage_size = ppnt->p_filesz;
-		tpnt->l_tls_initimage = (void *) ppnt->p_vaddr;
-	
+			tpnt->l_tls_firstbyte_offset = tlsppnt->p_vaddr &
+				(tlsppnt->p_align - 1);
+		tpnt->l_tls_initimage_size = tlsppnt->p_filesz;
+		tpnt->l_tls_initimage = (void *) tlsppnt->p_vaddr;
+
 		/* Assign the next available module ID.  */
 		tpnt->l_tls_modid = _dl_next_tls_modid ();
-		
+
 		/* We know the load address, so add it to the offset. */
 		if (tpnt->l_tls_initimage != NULL)
 		{
 			unsigned int tmp = (unsigned int) tpnt->l_tls_initimage;
-			tpnt->l_tls_initimage = (char *) ppnt->p_vaddr + tpnt->loadaddr;
+			tpnt->l_tls_initimage = (char *) tlsppnt->p_vaddr + tpnt->loadaddr;
 			_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n", tmp, tpnt->l_tls_initimage, tpnt->l_tls_initimage_size);
 			tmp = 0;
 		}
-		break;
-		}
-		ppnt++;
 	}
 #endif
 
@@ -646,9 +652,19 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_memset((*rpnt)->next, 0, sizeof(struct dyn_elf));
 		(*rpnt)->next->prev = (*rpnt);
 		*rpnt = (*rpnt)->next;
-		(*rpnt)->dyn = tpnt;
-		tpnt->symbol_scope = _dl_symbol_tables;
 	}
+#ifndef SHARED
+	/* When statically linked, the first time we dlopen a DSO
+	 * the *rpnt is NULL, so we need to allocate memory for it,
+	 * and initialize the _dl_symbol_table.
+	 */ 
+	else {
+		*rpnt = _dl_symbol_tables = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+		_dl_memset(*rpnt, 0, sizeof(struct dyn_elf));
+	}
+#endif
+	(*rpnt)->dyn = tpnt;
+	tpnt->symbol_scope = _dl_symbol_tables;
 	tpnt->usage_count++;
 	tpnt->libtype = elf_lib;
 
@@ -737,12 +753,15 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		tpnt->init_flag |= JMP_RELOCS_DONE;
 	}
 
+#if 0
+/* _dl_add_to_slotinfo is called by init_tls() for initial DSO 
+   or by dlopen() for dynamically loaded DSO. */
 #if USE_TLS
 	/* Add object to slot information data if necessasy. */
 	if (tpnt->l_tls_blocksize != 0 && tls_init_tp_called)
 		_dl_add_to_slotinfo ((struct link_map *) tpnt);
 #endif
-
+#endif
 	return goof;
 }
 

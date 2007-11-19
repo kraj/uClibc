@@ -166,6 +166,7 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 		if (tpnt->init_flag & FINI_FUNCS_CALLED)
 			continue;
 		tpnt->init_flag |= FINI_FUNCS_CALLED;
+		_dl_run_fini_array(tpnt);
 		if (tpnt->dynamic_info[DT_FINI]) {
 			void (*dl_elf_func) (void);
 
@@ -872,7 +873,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * ld.so.1, so we have to look up each symbol individually.
 	 */
 
-	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash("__environ", _dl_symbol_tables, NULL, 0);
+	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash("__environ", _dl_symbol_tables, NULL, 0, NULL);	
 	if (_dl_envp)
 		*_dl_envp = (unsigned long) envp;
 
@@ -898,6 +899,14 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	/* Notify the debugger we have added some objects. */
 	_dl_debug_addr->r_state = RT_ADD;
 	_dl_debug_state();
+
+	/* Run pre-initialization functions for the executable.  */
+	_dl_run_array_forward(_dl_loaded_modules->dynamic_info[DT_PREINIT_ARRAY],
+			      _dl_loaded_modules->dynamic_info[DT_PREINIT_ARRAYSZ],
+			      _dl_loaded_modules->loadaddr);
+
+	/* Run initialization functions for loaded objects.  For the
+	   main executable, they will be run from __uClibc_main.  */
 	for (i = nlist; i; --i) {
 		tpnt = init_fini_list[i-1];
 		tpnt->init_fini = NULL; /* Clear, since alloca was used */
@@ -919,20 +928,23 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	}
 
 	/* Find the real malloc function and make ldso functions use that from now on */
-	 _dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash("malloc",
-			 _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+	 _dl_malloc_function = (void* (*)(size_t)) (intptr_t) 
+	 	_dl_find_hash("malloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 #if USE_TLS
 	/* Find the real functions and make ldso functions use them from now on */
 	_dl_calloc_function = (void* (*)(size_t, size_t)) (intptr_t)
-		_dl_find_hash("calloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+		_dl_find_hash("calloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+					
 	_dl_realloc_function = (void* (*)(void *, size_t)) (intptr_t)
-		_dl_find_hash("recalloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+		_dl_find_hash("realloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+										
 	_dl_free_function = (void (*)(void *)) (intptr_t)
-		_dl_find_hash("free", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+		_dl_find_hash("free", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+					
 	_dl_memalign_function = (void* (*)(size_t, size_t)) (intptr_t)
-		_dl_find_hash("memalign", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
-
+		_dl_find_hash("memalign", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+			
 	if (!was_tls_init_tp_called && _dl_tls_max_dtv_idx > 0)
 		++_dl_tls_generation;
 
@@ -947,7 +959,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	   TLS we know the thread pointer was initialized earlier.  */
 	if (! tls_init_tp_called)
 	{
-		const char *lossage = TLS_INIT_TP (tcbp, USE___THREAD);
+		const char *lossage = (char *) TLS_INIT_TP (tcbp, USE___THREAD);
 		if (__builtin_expect (lossage != NULL, 0))
 		{
 			_dl_debug_early("cannot set up thread-local storage: %s\n", lossage);

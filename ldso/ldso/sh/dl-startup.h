@@ -3,6 +3,7 @@
  * needed for this architecture.  */
 
 asm(
+    "	.text\n"
     "	.globl	_start\n"
     "	.type	_start,@function\n"
     "_start:\n"

@@ -65,14 +65,39 @@ struct elf_resolve {
   unsigned short int init_flag;
   unsigned long rtld_flags; /* RTLD_GLOBAL, RTLD_NOW etc. */
   Elf_Symndx nbucket;
+  
+#ifdef __LDSO_GNU_HASH_SUPPORT__
+  /* Data needed to support GNU hash style */
+  Elf32_Word l_gnu_bitmask_idxbits;
+  Elf32_Word l_gnu_shift;
+  const ElfW(Addr) *l_gnu_bitmask;
+
+  union
+  {
+    const Elf32_Word *l_gnu_chain_zero;
+    const Elf_Symndx *elf_buckets;
+  };
+#else
   Elf_Symndx *elf_buckets;
+#endif
+  
   struct init_fini_list *init_fini;
   struct init_fini_list *rtld_local; /* keep tack of RTLD_LOCAL libs in same group */
   /*
    * These are only used with ELF style shared libraries
    */
   Elf_Symndx nchain;
+
+#ifdef __LDSO_GNU_HASH_SUPPORT__
+  union
+  {
+    const Elf32_Word *l_gnu_buckets;
+    const Elf_Symndx *chains;
+  };
+#else	
   Elf_Symndx *chains;
+#endif  
+  
   unsigned long dynamic_info[DYNAMIC_SIZE];
 
   unsigned long n_phent;
@@ -105,11 +130,23 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 	char * loadaddr, unsigned long * dynamic_info, 
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
-extern char * _dl_find_hash(const char * name, struct dyn_elf * rpnt1, 
-			    struct elf_resolve *mytpnt, int type_class);
+extern char * _dl_lookup_hash(const char * name, struct dyn_elf * rpnt1, 
+			    struct elf_resolve *mytpnt, int type_class
+			#if USE_TLS
+				,struct elf_resolve **tls_tpnt
+			#endif			    
+			    );
+				
+static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt,
+                                                       int type_class, struct elf_resolve **tls_tpnt)
+{
+#ifdef USE_TLS
+        return _dl_lookup_hash(name, rpnt, mytpnt, type_class, tls_tpnt);
+#else
+        return _dl_lookup_hash(name, rpnt, mytpnt, type_class);
+#endif
+}
 
-extern char * _dl_find_hash2(const char * name, struct dyn_elf * rpnt1, 
-			    struct elf_resolve *mytpnt, int type_class, ElfW(Sym) **sym_tls, struct elf_resolve **tpnt_tls);
 
 extern int _dl_linux_dynamic_link(void);
 
