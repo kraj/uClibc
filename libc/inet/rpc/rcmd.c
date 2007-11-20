@@ -368,7 +368,11 @@ int rresvport(int *alport)
 }
 libc_hidden_def(rresvport)
 
-static int  __check_rhosts_file = 1;
+/* This needs to be exported ... while it is not a documented interface
+ * for rcp related apps, it's a required one that is used to control the
+ * rhost behavior.  Legacy sucks.
+ */
+int  __check_rhosts_file = 1;
 
 int ruserok(rhost, superuser, ruser, luser)
 	const char *rhost, *ruser, *luser;

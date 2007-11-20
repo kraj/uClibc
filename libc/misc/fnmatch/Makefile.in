@@ -18,8 +18,6 @@ MISC_FNMATCH_SRC := $(patsubst %.c,$(MISC_FNMATCH_DIR)/%.c,$(CSRC))
 MISC_FNMATCH_OBJ := $(patsubst %.c,$(MISC_FNMATCH_OUT)/%.o,$(CSRC))
 
 libc-$(UCLIBC_HAS_FNMATCH) += $(MISC_FNMATCH_OBJ)
-libc-a-$(UCLIBC_HAS_FNMATCH) += $(MISC_FNMATCH_OBJ)
-libc-so-$(UCLIBC_HAS_FNMATCH) += $(MISC_FNMATCH_OBJ:.o=.os)
 
 objclean-y += misc_fnmatch_objclean
 

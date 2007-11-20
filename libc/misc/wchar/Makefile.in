@@ -32,8 +32,6 @@ MISC_WCHAR_SRC := $(patsubst %.c,$(MISC_WCHAR_DIR)/%.c,$(CSRC))
 MISC_WCHAR_OBJ := $(patsubst %.c,$(MISC_WCHAR_OUT)/%.o,$(CSRC))
 
 libc-$(UCLIBC_HAS_WCHAR) += $(MISC_WCHAR_OBJ)
-libc-a-$(UCLIBC_HAS_WCHAR) += $(MISC_WCHAR_OBJ)
-libc-so-$(UCLIBC_HAS_WCHAR) += $(MISC_WCHAR_OBJ:.o=.os)
 
 objclean-y += misc_wchar_objclean
 

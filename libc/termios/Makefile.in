@@ -12,8 +12,6 @@ TERMIOS_SRC := $(wildcard $(TERMIOS_DIR)/*.c)
 TERMIOS_OBJ := $(patsubst $(TERMIOS_DIR)/%.c,$(TERMIOS_OUT)/%.o,$(TERMIOS_SRC))
 
 libc-y += $(TERMIOS_OBJ)
-libc-a-y += $(TERMIOS_OBJ)
-libc-so-y += $(TERMIOS_OBJ:.o=.os)
 
 objclean-y += termios_objclean
 

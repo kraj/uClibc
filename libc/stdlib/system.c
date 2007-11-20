@@ -15,8 +15,8 @@
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sched.h>
 #include <errno.h>
-#include <sysdep-cancel.h>
 #include <bits/libc-lock.h>
+#include <sysdep-cancel.h>
 #endif
 
 libc_hidden_proto(_exit)
@@ -85,6 +85,10 @@ int __libc_system(const char *command)
    return.  It might still be in the kernel when the cancellation
    request comes.  Therefore we have to use the clone() calls ability
    to have the kernel write the PID into the user-level variable.  */
+
+libc_hidden_proto(sigaction)
+libc_hidden_proto(waitpid)
+      
 #if defined __ia64__
 # define FORK() \
   INLINE_SYSCALL (clone2, 6, CLONE_PARENT_SETTID | SIGCHLD, NULL, 0, \
@@ -264,4 +268,6 @@ cancel_handler (void *arg)
   DO_UNLOCK ();
 }
 #endif
+#ifdef IS_IN_libc
 weak_alias(__libc_system,system)
+#endif

@@ -26,8 +26,6 @@ SIGNAL_SRC := $(patsubst %.c,$(SIGNAL_DIR)/%.c,$(CSRC))
 SIGNAL_OBJ := $(patsubst %.c,$(SIGNAL_OUT)/%.o,$(CSRC))
 
 libc-y += $(SIGNAL_OBJ)
-libc-a-y += $(SIGNAL_OBJ)
-libc-so-y += $(SIGNAL_OBJ:.o=.os)
 
 objclean-y += signal_objclean
 

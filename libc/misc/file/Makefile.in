@@ -15,8 +15,6 @@ endif
 MISC_FILE_OBJ := $(patsubst $(MISC_FILE_DIR)/%.c,$(MISC_FILE_OUT)/%.o,$(MISC_FILE_SRC))
 
 libc-y += $(MISC_FILE_OBJ)
-libc-a-y += $(MISC_FILE_OBJ)
-libc-so-y += $(MISC_FILE_OBJ:.o=.os)
 
 libc-nomulti-$(UCLIBC_HAS_LFS) += $(MISC_FILE_OUT)/lockf64.o
 

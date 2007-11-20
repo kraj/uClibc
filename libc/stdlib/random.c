@@ -34,6 +34,7 @@ libc_hidden_proto(initstate_r)
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
+# include <pthreadP.h>
 /* POSIX.1c requires that there is mutual exclusion for the `rand' and
    `srand' functions to prevent concurrent calls from modifying common
    data.  */

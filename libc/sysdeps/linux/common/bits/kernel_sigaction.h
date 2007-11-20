@@ -63,6 +63,6 @@ extern int __syscall_sigaction (int, const struct old_kernel_sigaction *__unboun
 #endif
 
 extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
-	struct kernel_sigaction *__unbounded, size_t) attribute_hidden;
+	struct kernel_sigaction *__unbounded, size_t);
 
 #endif /* _BITS_SIGACTION_STRUCT_H */

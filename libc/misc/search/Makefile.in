@@ -26,8 +26,6 @@ MISC_SEARCH_SRC := $(patsubst %.c,$(MISC_SEARCH_DIR)/%.c,$(CSRC))
 MISC_SEARCH_OBJ := $(patsubst %.c,$(MISC_SEARCH_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_SEARCH_OBJ)
-libc-a-y += $(MISC_SEARCH_OBJ)
-libc-so-y += $(MISC_SEARCH_OBJ:.o=.os)
 
 objclean-y += misc_search_objclean
 

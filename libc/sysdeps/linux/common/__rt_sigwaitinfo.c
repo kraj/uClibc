@@ -16,6 +16,8 @@ libc_hidden_proto(memcpy)
 
 #ifdef __NR_rt_sigtimedwait
 
+#include <string.h>
+
 # ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #  include <sysdep-cancel.h>
 
@@ -95,4 +97,7 @@ int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
 	return -1;
 }
 #endif
-weak_alias(__sigwaitinfo,sigwaitinfo)
+libc_hidden_proto(sigwaitinfo)
+weak_alias (__sigwaitinfo, sigwaitinfo)
+libc_hidden_weak(sigwaitinfo)
+

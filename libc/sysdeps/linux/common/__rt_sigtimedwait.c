@@ -15,6 +15,8 @@
 libc_hidden_proto(memcpy)
 
 #ifdef __NR_rt_sigtimedwait
+#include <string.h>
+libc_hidden_proto(memcpy)
 
 # ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #  include <sysdep-cancel.h>
@@ -87,7 +89,7 @@ int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
 {
 	return __rt_sigtimedwait(set, info, timeout, _NSIG / 8);
 }
-# endif
+# endif /* !__UCLIBC_HAS_THREADS_NATIVE__ */
 #else
 int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
 									const struct timespec *timeout)

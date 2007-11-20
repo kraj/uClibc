@@ -24,8 +24,6 @@ MISC_SYSVIPC_SRC := $(patsubst %.c,$(MISC_SYSVIPC_DIR)/%.c,$(CSRC))
 MISC_SYSVIPC_OBJ := $(patsubst %.c,$(MISC_SYSVIPC_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_SYSVIPC_OBJ)
-libc-a-y += $(MISC_SYSVIPC_OBJ)
-libc-so-y += $(MISC_SYSVIPC_OBJ:.o=.os)
 
 objclean-y += misc_sysvipc_objclean
 

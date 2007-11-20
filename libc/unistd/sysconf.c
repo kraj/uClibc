@@ -908,7 +908,7 @@ long int sysconf(int name)
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
     case _SC_THREAD_CPUTIME:
-# ifdef _POSIX_THREAD_CPUTIME > 0
+# if _POSIX_THREAD_CPUTIME > 0
       return _POSIX_THREAD_CPUTIME;
 # else
       RETURN_NEG_1;

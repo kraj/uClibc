@@ -49,7 +49,8 @@ static int lock_fd = -1;
 
 /* Prevent problems in multithreaded program by using mutex.  */
 #ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
+#include <pthread.h>
+#include <pthreadP.h>
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 #define LOCK   __pthread_mutex_lock(&mylock)

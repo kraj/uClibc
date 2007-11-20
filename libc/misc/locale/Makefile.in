@@ -21,8 +21,6 @@ MISC_LOCALE_SRC := $(patsubst %.c,$(MISC_LOCALE_DIR)/%.c,$(CSRC))
 MISC_LOCALE_OBJ := $(patsubst %.c,$(MISC_LOCALE_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_LOCALE_OBJ)
-libc-a-y += $(MISC_LOCALE_OBJ)
-libc-so-y += $(MISC_LOCALE_OBJ:.o=.os)
 
 objclean-y += misc_locale_objclean
 

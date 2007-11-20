@@ -17,8 +17,6 @@ MISC_STATFS_SRC := $(patsubst %.c,$(MISC_STATFS_DIR)/%.c,$(CSRC))
 MISC_STATFS_OBJ := $(patsubst %.c,$(MISC_STATFS_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_STATFS_OBJ)
-libc-a-y += $(MISC_STATFS_OBJ)
-libc-so-y += $(MISC_STATFS_OBJ:.o=.os)
 
 libc-nomulti-$(UCLIBC_HAS_LFS) += $(MISC_STATFS_OUT)/statvfs64.o $(MISC_STATFS_OUT)/fstatvfs64.o
 

@@ -17,8 +17,6 @@ MISC_FTW_SRC := $(patsubst %.c,$(MISC_FTW_DIR)/%.c,$(CSRC))
 MISC_FTW_OBJ := $(patsubst %.c,$(MISC_FTW_OUT)/%.o,$(CSRC))
 
 libc-$(UCLIBC_HAS_FTW) += $(MISC_FTW_OBJ)
-libc-a-$(UCLIBC_HAS_FTW) += $(MISC_FTW_OBJ)
-libc-so-$(UCLIBC_HAS_FTW) += $(MISC_FTW_OBJ:.o=.os)
 
 objclean-y += misc_ftw_objclean
 

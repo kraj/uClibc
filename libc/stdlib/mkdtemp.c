@@ -30,9 +30,8 @@
 char * mkdtemp (char *template)
 {
     if (__gen_tempname (template, __GT_DIR))
-	/* We return the null string if we can't find a unique file name.  */
-	template[0] = '\0';
-
+    return NULL;
+  else
     return template;
 }
 #endif

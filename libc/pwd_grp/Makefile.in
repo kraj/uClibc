@@ -24,8 +24,6 @@ PWDGRP_SRC := $(patsubst %.c,$(PWDGRP_DIR)/%.c,$(CSRC))
 PWDGRP_OBJ := $(patsubst %.c,$(PWDGRP_OUT)/%.o,$(CSRC))
 
 libc-y += $(PWDGRP_OBJ)
-libc-a-y += $(PWDGRP_OBJ)
-libc-so-y += $(PWDGRP_OBJ:.o=.os)
 
 objclean-y += pwdgrp_objclean
 

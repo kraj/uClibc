@@ -62,6 +62,8 @@ endif
 # Make certain these contain a final "/", but no "//"s.
 TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
 TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
+TARGET_SUBARCH:=$(shell grep -s '^TARGET_SUBARCH' $(top_builddir)/.config | sed -e 's/^TARGET_SUBARCH=//' -e 's/"//g')
+TARGET_SUBARCH:=$(strip $(subst ",, $(strip $(TARGET_SUBARCH))))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
 KERNEL_HEADERS:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_HEADERS))))))
@@ -72,7 +74,11 @@ export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS
 MAJOR_VERSION := 0
 MINOR_VERSION := 9
 SUBLEVEL      := 29
+EXTRAVERSION  :=
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
+ifneq ($(EXTRAVERSION),)
+VERSION       := $(VERSION)$(EXTRAVERSION)
+endif
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
 LC_ALL := C
 export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
@@ -146,7 +152,7 @@ endif
 ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
 	PICFLAG:=-mfdpic
 else
-	PICFLAG:=-fPIC
+	PICFLAG:=-fPIC -DPIC
 endif
 PIEFLAG_NAME:=-fPIE
 
@@ -318,6 +324,14 @@ export LDPIEFLAG:=$(shell $(LD) --help 2>/dev/null | grep -q -- -pie && echo "-W
 endif
 endif
 
+# For NPTL we need to add the dynamic linker into the
+# libc.so linker script. Required to provide __tls_get_addr
+# symbol when usign TLS dynamic access model
+
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+ASNEEDED:=AS_NEEDED ( $(UCLIBC_LDSO) )
+endif
+
 # Check for AS_NEEDED support in linker script (binutils>=2.16.1 has it)
 ifndef ASNEEDED
 ifneq ($(UCLIBC_HAS_SSP),y)
@@ -332,6 +346,7 @@ XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -fno-strict-alia
 ifeq ($(EXTRA_WARNINGS),y)
 XWARNINGS+=-Wnested-externs -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wformat=2
 XWARNINGS+=-Wmissing-prototypes -Wmissing-declarations
+XWARNINGS+=-Wnonnull -Wundef
 # works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
 #XWARNINGS+=-Wdeclaration-after-statement
 endif
@@ -352,6 +367,10 @@ CFLAGS := -include $(top_builddir)include/libc-symbols.h \
 	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
 	-fno-builtin -nostdinc -I$(top_builddir)include -I.
 
+ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
+CFLAGS += $(subst ",, $(UCLIBC_EXTRA_CFLAGS))
+endif
+
 LDADD_LIBFLOAT=
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 # If -msoft-float isn't supported, we want an error anyway.
@@ -368,9 +387,6 @@ ifeq ($(TARGET_ARCH),arm)
 #    LDADD_LIBFLOAT=-lfloat
 endif
 endif
-
-# Make sure "char" behavior is the same everywhere
-CFLAGS += -fsigned-char
 
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
@@ -392,12 +408,23 @@ ifeq ($(UCLIBC_BUILD_NOW),y)
 LDFLAGS_NOSTRIP+=-z now
 endif
 
+ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
+# Be sure that binutils support it
+LDFLAGS_GNUHASH:=$(call check_ld,--hash-style=gnu)
+ifeq ($(LDFLAGS_GNUHASH),)
+$(error Your binutils don't support --hash-style option, while you want to use it)
+else
+LDFLAGS_NOSTRIP += $(LDFLAGS_GNUHASH)
+endif
+endif
+
 LDFLAGS:=$(LDFLAGS_NOSTRIP) -z defs
+
 ifeq ($(DODEBUG),y)
 #CFLAGS += -g3
-CFLAGS += -O0 -g3
+CFLAGS += -O0 -g3 -DDEBUG
 else
-CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
+CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS) -DNDEBUG
 endif
 ifeq ($(DOSTRIP),y)
 LDFLAGS += -s
@@ -431,9 +458,11 @@ else
 endif
 endif
 PTDIR := $(top_builddir)libpthread/$(PTNAME)
+
 # set up system dependencies include dirs (NOTE: order matters!)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 PTINC:=	-I$(PTDIR)						\
+	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/$(TARGET_SUBARCH)	\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux			\

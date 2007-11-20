@@ -30,7 +30,7 @@ libc_hidden_proto(sigprocmask)
 //libc_hidden_proto(__sigaddset)
 //libc_hidden_proto(__sigemptyset)
 //libc_hidden_proto(__sigismember)
-libc_hidden_proto(nanosleep)
+/*libc_hidden_proto(nanosleep) need the reloc for cancellation*/
 
 #if 0
 /* This is a quick and dirty, but not 100% compliant with

@@ -32,7 +32,8 @@ void *malloc(size_t size)
 		size++;
 #else
 		/* Some programs will call malloc (0).  Lets be strict and return NULL */
-		return 0;
+		__set_errno(ENOMEM);
+		return NULL;
 #endif
 	}
 
@@ -90,7 +91,8 @@ void *realloc(void *ptr, size_t size)
 
 	newptr = malloc(size);
 	if (newptr) {
-		memcpy(newptr, ptr, *((size_t *) (ptr - sizeof(size_t))));
+		size_t old_size = *((size_t *) (ptr - sizeof(size_t)));
+		memcpy(newptr, ptr, (old_size < size ? old_size : size));
 		free(ptr);
 	}
 	return newptr;

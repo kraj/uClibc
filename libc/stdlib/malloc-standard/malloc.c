@@ -827,7 +827,10 @@ void* malloc(size_t bytes)
     void *          sysmem;
 
 #if !defined(__MALLOC_GLIBC_COMPAT__)
-    if (!bytes) return NULL;
+    if (!bytes) {
+        __set_errno(ENOMEM);
+        return NULL;
+    }
 #endif
 
     LOCK;
@@ -902,7 +905,7 @@ void* malloc(size_t bytes)
 
     else {
 	idx = __malloc_largebin_index(nb);
-	if (have_fastchunks(av)) 
+	if (have_fastchunks(av))
 	    __malloc_consolidate(av);
     }
 

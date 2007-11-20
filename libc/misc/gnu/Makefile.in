@@ -14,8 +14,6 @@ MISC_GNU_SRC := $(MISC_GNU_DIR)/obstack.c
 MISC_GNU_OBJ := $(MISC_GNU_OUT)/obstack.o
 
 libc-y += $(MISC_GNU_OBJ)
-libc-a-y += $(MISC_GNU_OBJ)
-libc-so-y += $(MISC_GNU_OBJ:.o=.os)
 
 objclean-y += misc_gnu_objclean
 

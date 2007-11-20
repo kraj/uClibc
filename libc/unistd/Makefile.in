@@ -41,8 +41,6 @@ UNISTD_SRC := $(patsubst %.c,$(UNISTD_DIR)/%.c,$(CSRC))
 UNISTD_OBJ := $(patsubst %.c,$(UNISTD_OUT)/%.o,$(CSRC))
 
 libc-y += $(UNISTD_OBJ)
-libc-a-y += $(UNISTD_OBJ)
-libc-so-y += $(UNISTD_OBJ:.o=.os)
 
 objclean-y += unistd_objclean
 

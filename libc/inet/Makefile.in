@@ -42,8 +42,6 @@ INET_SRC := $(patsubst %.c,$(INET_DIR)/%.c,$(CSRC))
 INET_OBJ := $(patsubst %.c,$(INET_OUT)/%.o,$(CSRC))
 
 libc-y += $(INET_OBJ)
-libc-a-y += $(INET_OBJ)
-libc-so-y += $(INET_OBJ:.o=.os)
 
 objclean-y += inet_objclean
 

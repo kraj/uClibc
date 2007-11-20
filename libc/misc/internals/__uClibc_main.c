@@ -15,8 +15,10 @@
  * avoided in the static library case.
  */
 
-#define	_ERRNO_H
 #include <features.h>
+#ifndef __UCLIBC_HAS_THREADS_NATIVE__
+#define	_ERRNO_H
+#endif
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +32,7 @@
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <errno.h>
 #include <pthread-functions.h>
 #include <not-cancel.h>
 #endif
@@ -53,6 +56,8 @@ libc_hidden_proto(__libc_open)
 extern __typeof(fcntl) __libc_fcntl;
 libc_hidden_proto(__libc_fcntl)
 #endif
+
+#include <pthreadP.h>
 
 #ifndef SHARED
 void *__libc_stack_end=NULL;
@@ -79,6 +84,11 @@ uintptr_t __guard attribute_relro;
 #  endif
 # endif
 
+/*
+ * Needed to initialize _dl_phdr when statically linked;
+ */
+ 
+void internal_function _dl_aux_init (ElfW(auxv_t) *av);
 #endif /* !SHARED */
 
 /*
@@ -91,7 +101,11 @@ extern int *weak_const_function __h_errno_location(void);
 extern void weak_function _locale_init(void) attribute_hidden;
 #endif
 #ifdef __UCLIBC_HAS_THREADS__
+#if !defined (__UCLIBC_HAS_THREADS_NATIVE__) || defined (SHARED)
 extern void weak_function __pthread_initialize_minimal(void);
+#else
+extern void __pthread_initialize_minimal(void);
+#endif
 #endif
 
 #ifdef __UCLIBC_CTOR_DTOR__
@@ -119,12 +133,12 @@ strong_alias (__progname_full, program_invocation_name)
 #endif
 
 /*
- * Declare the __environ global variable and create a strong alias environ.
- * Note: Apparently we must initialize __environ to ensure that the strong
- * environ symbol is also included.
+ * Declare the __environ global variable and create a weak alias environ.
+ * This must be initialized; we cannot have a weak alias into bss.
  */
+
 char **__environ = 0;
-strong_alias(__environ,environ)
+weak_alias(__environ,environ)
 
 /* TODO: don't export __pagesize; we cant now because libpthread uses it */
 size_t __pagesize = 0;
@@ -209,7 +223,9 @@ void __uClibc_init(void)
      * __pthread_initialize_minimal so we can use pthread_locks
      * whenever they are needed.
      */
+#if !defined (__UCLIBC_HAS_THREADS_NATIVE__) || defined (SHARED)
     if (likely(__pthread_initialize_minimal!=NULL))
+#endif
 	__pthread_initialize_minimal();
 #endif
 
@@ -324,6 +340,12 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 	}
 	aux_dat += 2;
     }
+#ifndef SHARED
+    /* Get the program headers (_dl_phdr) from the aux vector
+       It will be used into __libc_setup_tls. */
+
+    _dl_aux_init (auxvt);
+#endif
 #endif
 
     /* We need to initialize uClibc.  If we are dynamically linked this
@@ -444,7 +466,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 
 		if (! atomic_decrement_and_test (ptr))
 			/* Not much left to do but to exit the thread, not the process.  */
-			__exit_thread (0);
+			__exit_thread_inline (0);
 	}
 
 	exit (result);

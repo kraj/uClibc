@@ -7,7 +7,7 @@
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
  * directory of this archive for more details.
- * 
+ *
  * Written by Miles Bader <miles@gnu.org>
  */
 
@@ -15,9 +15,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <unistd.h>
 
 libc_hidden_proto(vfprintf)
 libc_hidden_proto(fprintf)
+libc_hidden_proto(_exit)
 
 #include "malloc.h"
 #include "heap.h"
@@ -66,7 +68,7 @@ __heap_dump (struct heap *heap, const char *str)
 
 /* Output an error message to stderr, and exit.  STR is printed with the
    failure message.  */
-static void
+static void attribute_noreturn
 __heap_check_failure (struct heap *heap, struct heap_free_area *fa,
 		      const char *str, char *fmt, ...)
 {
@@ -81,13 +83,13 @@ __heap_check_failure (struct heap *heap, struct heap_free_area *fa,
   vfprintf (stderr, fmt, val);
   va_end (val);
 
-  __putc ('\n', stderr);
+  fprintf (stderr, "\n");
 
   __malloc_debug_set_indent (0);
   __malloc_debug_printf (1, "heap dump:");
   __heap_dump_freelist (heap);
 
-  __exit (22);
+  _exit (22);
 }
 
 /* Do some consistency checks on HEAP.  If they fail, output an error
