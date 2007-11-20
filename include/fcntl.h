@@ -75,6 +75,10 @@ extern int fcntl (int __fd, int __cmd, ...);
 extern int __fcntl_nocancel (int fd, int cmd, ...);
 #endif
 
+#ifdef __USE_LARGEFILE64
+extern int fcntl64 (int __fd, int __cmd, ...);
+#endif
+
 /* Open FILE and return a new file descriptor for it, or -1 on error.
    OFLAG determines the type of access used.  If O_CREAT is on OFLAG,
    the third argument is taken as a `mode_t', the mode of the created file.

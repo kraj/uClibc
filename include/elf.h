@@ -431,6 +431,7 @@ typedef struct
 #define SHT_SYMTAB_SHNDX  18		/* Extended section indeces */
 #define	SHT_NUM		  19		/* Number of defined types.  */
 #define SHT_LOOS	  0x60000000	/* Start OS-specific */
+#define SHT_GNU_HASH	  0x6ffffff6	/* GNU-style hash table.  */
 #define SHT_GNU_LIBLIST	  0x6ffffff7	/* Prelink library list */
 #define SHT_CHECKSUM	  0x6ffffff8	/* Checksum for DSO content.  */
 #define SHT_LOSUNW	  0x6ffffffa	/* Sun-specific low bound.  */
@@ -813,6 +814,7 @@ typedef struct
    If any adjustment is made to the ELF object after it has been
    built these entries will need to be adjusted.  */
 #define DT_ADDRRNGLO	0x6ffffe00
+#define DT_GNU_HASH	0x6ffffef5	/* GNU-style hash table.  */
 #define DT_GNU_CONFLICT	0x6ffffef8	/* Start of conflict section */
 #define DT_GNU_LIBLIST	0x6ffffef9	/* Library list */
 #define DT_CONFIG	0x6ffffefa	/* Configuration information.  */

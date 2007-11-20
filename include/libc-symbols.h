@@ -233,6 +233,19 @@
 
 #  else /* ! HAVE_ASM_WEAKEXT_DIRECTIVE */
 
+#   ifdef HAVE_ASM_SET_DIRECTIVE
+#    ifdef HAVE_ASM_GLOBAL_DOT_NAME
+#     define weak_alias(original, alias)				\
+  .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
+  .set C_SYMBOL_NAME (alias), C_SYMBOL_NAME (original) ASM_LINE_SEP	\
+  .weak C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP				\
+  .set C_SYMBOL_DOT_NAME (alias), C_SYMBOL_DOT_NAME (original)
+#    else
+#     define weak_alias(original, alias)				\
+  .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
+  .set C_SYMBOL_NAME (alias), C_SYMBOL_NAME (original)
+#    endif
+#   else /* ! HAVE_ASM_SET_DIRECTIVE */
 #   ifdef HAVE_ASM_GLOBAL_DOT_NAME
 #    define weak_alias(original, alias)					\
   .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
@@ -244,7 +257,7 @@
   .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
   C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original)
 #   endif
-
+#   endif
 #   define weak_extern(symbol)						\
   .weak C_SYMBOL_NAME (symbol)
 
@@ -412,31 +425,63 @@
 
 #if !defined STATIC && !defined __BCC__
 # ifndef __ASSEMBLER__
-#  define hidden_proto(name, attrs...)
-#  define hidden_def(name)
-#  define hidden_data_def(name)
-#  define hidden_weak(name)
-#  define hidden_data_weak(name)
+#  define hidden_proto(name, attrs...) __hidden_proto (name, __GI_##name, ##attrs)
+#  define __hidden_proto(name, internal, attrs...) \
+   extern __typeof (name) name __asm__ (__hidden_asmname (#internal)) \
+   __hidden_proto_hiddenattr (attrs);
+#  define __hidden_asmname(name) __hidden_asmname1 (__USER_LABEL_PREFIX__, name)
+#  define __hidden_asmname1(prefix, name) __hidden_asmname2(prefix, name)
+#  define __hidden_asmname2(prefix, name) #prefix name
+#  define __hidden_ver1(local, internal, name) \
+   extern __typeof (name) __EI_##name __asm__(__hidden_asmname (#internal)); \
+   extern __typeof (name) __EI_##name __attribute__((alias (__hidden_asmname1 (,#local))))
+#  define hidden_def(name)		__hidden_ver1(__GI_##name, name, name);
+#  define hidden_data_def(name)		hidden_def(name)
+#  define hidden_weak(name)		__hidden_ver1(__GI_##name, name, name) __attribute__((weak));
+#  define hidden_data_weak(name)	hidden_weak(name)
 
 # else /* __ASSEMBLER__ */
 # ifdef HAVE_ASM_SET_DIRECTIVE
 #  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define _hidden_strong_alias(original, alias)
+#   define _hidden_strong_alias(original, alias)				\
+  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
+  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
+  .set C_SYMBOL_NAME (alias),C_SYMBOL_NAME (original) ASM_LINE_SEP	\
+  ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP		\
+  .hidden C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP			\
+  .set C_SYMBOL_DOT_NAME (alias),C_SYMBOL_DOT_NAME (original)
 #  else
-#   define _hidden_strong_alias(original, alias)
+#   define _hidden_strong_alias(original, alias)				\
+  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
+  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
+  .set C_SYMBOL_NAME (alias),C_SYMBOL_NAME (original)
 #  endif
 # else
 #  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define _hidden_strong_alias(original, alias)
+#   define _hidden_strong_alias(original, alias)				\
+  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
+  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
+  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original) ASM_LINE_SEP		\
+  ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP		\
+  .hidden C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP			\
+  C_SYMBOL_DOT_NAME (alias) = C_SYMBOL_DOT_NAME (original)
 #  else
-#   define _hidden_strong_alias(original, alias)
+#   define _hidden_strong_alias(original, alias)				\
+  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
+  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
+  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original)
 #  endif
 # endif
 
 #  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define _hidden_weak_alias(original, alias)
+#   define _hidden_weak_alias(original, alias)				\
+     .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
+     .hidden C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP			\
+     weak_alias(original, alias)
 #  else
-#   define _hidden_weak_alias(original, alias)
+#   define _hidden_weak_alias(original, alias)				\
+     .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
+     weak_alias(original, alias)
 #  endif
 
 /* For assembly, we need to do the opposite of what we do in C:
@@ -448,11 +493,11 @@
    but we provide it for consistency with the C usage.
    hidden_proto doesn't make sense for assembly but the equivalent
    is to call via the HIDDEN_JUMPTARGET macro instead of JUMPTARGET.  */
-#  define hidden_def(name)
-#  define hidden_data_def(name)
-#  define hidden_weak(name)
-#  define hidden_data_weak(name)
-#  define HIDDEN_JUMPTARGET(name)
+#  define hidden_def(name)	_hidden_strong_alias (name, __GI_##name)
+#  define hidden_data_def(name)	_hidden_strong_alias (name, __GI_##name)
+#  define hidden_weak(name)	_hidden_weak_alias (name, __GI_##name)
+#  define hidden_data_weak(name)	_hidden_weak_alias (name, __GI_##name)
+#  define HIDDEN_JUMPTARGET(name) __GI_##name
 # endif /* __ASSEMBLER__ */
 #else /* SHARED */
 # ifndef __ASSEMBLER__

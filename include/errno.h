@@ -70,7 +70,9 @@ extern __thread int errno attribute_tls_model_ie;
 # endif
 #endif
 
+#ifndef __set_errno
 #define __set_errno(val) (errno = (val))
+#endif
 
 #ifndef __ASSEMBLER__
 extern int *__errno_location (void) __THROW __attribute__ ((__const__));
