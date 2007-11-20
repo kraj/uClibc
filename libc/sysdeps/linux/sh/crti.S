@@ -1,3 +1,4 @@
+#include <features.h>
 	.file	"crti.S"
 	.text
 	

@@ -29,9 +29,18 @@
 #include <sys/types.h>
 #include <sys/ucontext.h>
 #include <sys/user.h>
-#include <asm/elf.h>
 
 __BEGIN_DECLS
+
+/*
+ * ELF register definitions...
+ */
+typedef unsigned long elf_greg_t;
+
+#define ELF_NGREG (sizeof (struct pt_regs) / sizeof(elf_greg_t))
+typedef elf_greg_t elf_gregset_t[ELF_NGREG];
+
+typedef struct user_fpu_struct elf_fpregset_t;
 
 struct elf_siginfo
   {
@@ -88,8 +97,8 @@ struct elf_prpsinfo
     char pr_zomb;			/* Zombie.  */
     char pr_nice;			/* Nice val.  */
     unsigned long int pr_flag;		/* Flags.  */
-    long pr_uid;
-    long pr_gid;
+    unsigned short int pr_uid;
+    unsigned short int pr_gid;
     int pr_pid, pr_ppid, pr_pgrp, pr_sid;
     /* Lots missing */
     char pr_fname[16];			/* Filename of executable.  */
@@ -101,8 +110,8 @@ struct elf_prpsinfo
 typedef void *psaddr_t;
 
 /* Register sets.  Linux has different names.  */
-typedef gregset_t prgregset_t;
-typedef fpregset_t prfpregset_t;
+typedef elf_gregset_t prgregset_t;
+typedef elf_fpregset_t prfpregset_t;
 
 /* We don't have any differences between processes and threads,
    therefore habe only ine PID type.  */

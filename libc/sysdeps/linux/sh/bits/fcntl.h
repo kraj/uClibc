@@ -24,7 +24,7 @@
 
 #include <sys/types.h>
 #ifdef __USE_GNU
-# include <bits/uio.h>
+# include <sys/uio.h>
 #endif
 
 
