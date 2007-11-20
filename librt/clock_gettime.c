@@ -252,7 +252,7 @@ realtime_gettime (struct timespec *tp)
   return retval;
 }
 
-
+librt_hidden_proto (clock_gettime)
 /* Get current value of CLOCK and store it in TP.  */
 int
 clock_gettime (clockid_t clock_id, struct timespec *tp)

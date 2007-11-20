@@ -34,6 +34,9 @@ librt_SRC := $(filter-out clock_nanosleep.c clock_getcpuclockid.c,	\
 librt_OBJ := $(patsubst $(librt_DIR)/%.c,$(librt_OUT)/%.o,$(librt_SRC))
 endif
 
+ASFLAGS-mq_timedreceive.S = -D_LIBC_REENTRANT
+ASFLAGS-mq_timedsend.S = -D_LIBC_REENTRANT
+
 ifeq ($(DOPIC),y)
 librt-a-y += $(librt_OBJ:.o=.os)
 else
