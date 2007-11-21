@@ -22,7 +22,7 @@ libc_hidden_proto(__rpc_thread_svc_max_pollfd)
 
 /* Variable used in non-threaded applications or for the first thread.  */
 static struct rpc_thread_variables __libc_tsd_RPC_VARS_mem;
-__libc_tsd_define (static, RPC_VARS)
+__libc_tsd_define (, RPC_VARS)
 
 /*
  * Task-variable destructor
