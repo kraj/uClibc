@@ -48,5 +48,9 @@ config CONFIG_SH3
 config CONFIG_SH4
 	select FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "SH4"
-
 endchoice
+
+config ARCH_HAS_BWD_MEMCPY
+       bool
+       default y
+       depends CONFIG_SH4
