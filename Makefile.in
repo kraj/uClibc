@@ -53,7 +53,22 @@ endif
 HEADERS_BITS_COMMON := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/common/bits/*.h))
 HEADERS_BITS_ARCH   := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/*.h))
 HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_ARCH),$(HEADERS_BITS_COMMON))
-headers: include/bits/uClibc_config.h
+
+headers_sysnum:
+	$(Q)\
+	set -e; \
+	cd $(top_builddir); \
+	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null`; \
+	[ -z "$$tmp" ] && tmp='include/bits/sysnum.h.new'; \
+	KERNEL_HEADERS="${KERNEL_HEADERS}" top_builddir=. CC="$(CC) $(CPU_CFLAGS)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
+	if cmp include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
+		$(RM) $$tmp; \
+	else \
+	mv -f $$tmp include/bits/sysnum.h; \
+	fi
+
+# Make bootstrap only header files: not requiring any cross-compilation
+headers_bootstrap: include/bits/uClibc_config.h
 	$(Q)$(MAKE) headers-y
 	$(Q)\
 	set -e; \
@@ -85,29 +100,27 @@ headers: include/bits/uClibc_config.h
 			$(LN) -fs $$i .; \
 		done; \
 	fi
-	$(Q)\
-	set -e; \
-	cd $(top_builddir); \
-	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null`; \
-	[ -z "$$tmp" ] && tmp='include/bits/sysnum.h.new'; \
-	KERNEL_HEADERS="${KERNEL_HEADERS}" top_builddir=. CC="$(CC) $(CPU_CFLAGS)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
-	if cmp include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
-		$(RM) $$tmp; \
-	else \
-		mv -f $$tmp include/bits/sysnum.h; \
-	fi
-ifeq ($(UCLIBC_HAS_LOCALE),y)
-	$(MAKE) locale_headers
-endif
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-	$(MAKE) nptl_headers
- ifeq ($(shell $(CC) --help >& /dev/null && echo yes),yes)
-	$(MAKE) nptl_arch_headers
-	$(MAKE) nptl_linux_headers
- endif
-endif
+	    $(MAKE) nptl_headers_bootstrap
+	    $(MAKE) nptl_linux_headers_bootstrap
+endif		
+
+
+headers_extra:
+    ifeq ($(UCLIBC_HAS_LOCALE),y)
+	    $(MAKE) -C extra/locale locale_headers
+    endif
+    ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+		$(MAKE) nptl_headers
+        ifeq ($(shell $(CC) --help >& /dev/null && echo yes),yes)
+		    $(MAKE) nptl_arch_headers
+		    $(MAKE) nptl_linux_headers
+        endif
+    endif
 
 pregen: headers
+# Make all headers
+headers: headers_bootstrap headers_sysnum headers_extra
 
 install: install_runtime install_dev
 
