@@ -167,9 +167,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 #if defined (__SUPPORT_LD_DEBUG__)
 	unsigned long old_val;
 #endif
-#if USE_TLS
+
 struct elf_resolve *tls_tpnt = NULL;
-#endif
 
 
 	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);

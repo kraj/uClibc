@@ -606,10 +606,7 @@ void *dlsym(void *vhandle, const char *name)
 	struct dyn_elf *rpnt;
 	void *ret;
 
-#if defined USE_TLS
-struct elf_resolve *tls_tpnt = NULL;
-#endif
-
+	struct elf_resolve *tls_tpnt = NULL;
 
 	handle = (struct dyn_elf *) vhandle;
 
