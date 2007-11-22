@@ -122,14 +122,14 @@ extern void (*__fini_array_end []) (void) attribute_hidden;
 # endif
 #endif
 
-attribute_hidden const char *__uclibc_progname = NULL;
-#ifdef __UCLIBC_HAS___PROGNAME__
-strong_alias (__uclibc_progname, __progname)
-#endif
+attribute_hidden const char *__uclibc_progname = "";
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-attribute_hidden const char *__progname_full = NULL;
-strong_alias (__uclibc_progname, program_invocation_short_name)
-strong_alias (__progname_full, program_invocation_name)
+const char *program_invocation_short_name = "";
+const char *program_invocation_name = "";
+#endif
+#ifdef __UCLIBC_HAS___PROGNAME__
+weak_alias (program_invocation_short_name, __progname)
+weak_alias (program_invocation_name, __progname_full)
 #endif
 
 /*
@@ -138,7 +138,7 @@ strong_alias (__progname_full, program_invocation_name)
  */
 
 char **__environ = 0;
-weak_alias(__environ,environ)
+weak_alias(__environ, environ)
 
 /* TODO: don't export __pagesize; we cant now because libpthread uses it */
 size_t __pagesize = 0;
