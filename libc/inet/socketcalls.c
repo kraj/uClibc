@@ -33,6 +33,12 @@ extern int __socketcall(int call, unsigned long *args) attribute_hidden;
 #define SYS_RECVMSG     17
 #endif
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__ 
+#include <sysdep-cancel.h>
+#include <pthreadP.h>
+#else
+#define SINGLE_THREAD_P 1
+#endif
 
 #ifdef L_accept
 extern __typeof(accept) __libc_accept;
@@ -47,7 +53,17 @@ int __libc_accept(int s, struct sockaddr *addr, socklen_t * addrlen)
 	args[0] = s;
 	args[1] = (unsigned long) addr;
 	args[2] = (unsigned long) addrlen;
-	return __socketcall(SYS_ACCEPT, args);
+	
+	if (SINGLE_THREAD_P)
+		return __socketcall(SYS_ACCEPT, args);
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __socketcall(SYS_ACCEPT, args);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+#endif		
+		
 }
 #endif
 libc_hidden_proto(accept)
@@ -86,7 +102,16 @@ int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 	args[0] = sockfd;
 	args[1] = (unsigned long) saddr;
 	args[2] = addrlen;
+
+if (SINGLE_THREAD_P)
 	return __socketcall(SYS_CONNECT, args);
+		
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __socketcall(SYS_CONNECT, args);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+#endif		
 }
 #endif
 libc_hidden_proto(connect)
@@ -179,7 +204,16 @@ ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 	args[1] = (unsigned long) buffer;
 	args[2] = len;
 	args[3] = flags;
-	return (__socketcall(SYS_RECV, args));
+	
+	if (SINGLE_THREAD_P)
+		return (__socketcall(SYS_RECV, args));
+	
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __socketcall(SYS_RECV, args);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+#endif		
 }
 #elif defined(__NR_recvfrom)
 libc_hidden_proto(recvfrom)
@@ -212,7 +246,16 @@ ssize_t __libc_recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
 	args[3] = flags;
 	args[4] = (unsigned long) to;
 	args[5] = (unsigned long) tolen;
+
+if (SINGLE_THREAD_P)
 	return (__socketcall(SYS_RECVFROM, args));
+	
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __socketcall(SYS_RECVFROM, args);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+#endif		
 }
 #endif
 libc_hidden_proto(recvfrom)
@@ -233,7 +276,16 @@ ssize_t __libc_recvmsg(int sockfd, struct msghdr *msg, int flags)
 	args[0] = sockfd;
 	args[1] = (unsigned long) msg;
 	args[2] = flags;
-	return (__socketcall(SYS_RECVMSG, args));
+	
+if (SINGLE_THREAD_P)
+	return (__socketcall(SYS_RECVMSG, args));	
+	
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __socketcall(SYS_RECVMSG, args);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+#endif		
 }
 #endif
 libc_hidden_proto(recvmsg)
@@ -256,7 +308,16 @@ ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 	args[1] = (unsigned long) buffer;
 	args[2] = len;
 	args[3] = flags;
+	
+if (SINGLE_THREAD_P)
 	return (__socketcall(SYS_SEND, args));
+		
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __socketcall(SYS_SEND, args);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+#endif		
 }
 #elif defined(__NR_sendto)
 libc_hidden_proto(sendto)
@@ -283,7 +344,16 @@ ssize_t __libc_sendmsg(int sockfd, const struct msghdr *msg, int flags)
 	args[0] = sockfd;
 	args[1] = (unsigned long) msg;
 	args[2] = flags;
+	
+if (SINGLE_THREAD_P)
 	return (__socketcall(SYS_SENDMSG, args));
+	
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __socketcall(SYS_SENDMSG, args);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+#endif		
 }
 #endif
 libc_hidden_proto(sendmsg)
@@ -310,7 +380,16 @@ ssize_t __libc_sendto(int sockfd, const void *buffer, size_t len, int flags,
 	args[3] = flags;
 	args[4] = (unsigned long) to;
 	args[5] = tolen;
+	
+if (SINGLE_THREAD_P)
 	return (__socketcall(SYS_SENDTO, args));
+	
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __socketcall(SYS_SENDTO, args);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+#endif		
 }
 #endif
 libc_hidden_proto(sendto)

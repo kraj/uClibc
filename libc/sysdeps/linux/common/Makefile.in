@@ -25,9 +25,12 @@ CSRC := $(filter-out ssp.c,$(CSRC))
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC := $(filter-out fork.c getpid.c raise.c pause.c open.c close.c	\
-	  read.c write.c nanosleep.c __syscall_rt_sigaction.c msync.c	\
-	  lseek.c __syscall_fcntl64.c, $(CSRC))
+CSRC := $(filter-out fork.c getpid.c raise.c open.c close.c read.c write.c waitpid.c, $(CSRC))
+
+endif
+
+ifeq ($(TARGET_ARCH),sh)
+CSRC := $(filter-out longjmp.c vfork.c,$(CSRC))
 endif
 
 

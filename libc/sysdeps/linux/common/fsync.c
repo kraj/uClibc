@@ -9,27 +9,29 @@
 
 #include "syscalls.h"
 #include <unistd.h>
-#ifdef __UCLIBC__HAS_THREADS__
-# include <sysdep-cancel.h>
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include "sysdep-cancel.h"
+#else
+#define SINGLE_THREAD_P 1
 #endif
+
+#define __NR___syscall_fsync __NR_fsync
+static inline _syscall1(int, __syscall_fsync, int, fd);
 
 extern __typeof(fsync) __libc_fsync;
-#ifdef __UCLIBC__HAS_THREADS__
-int __libc_fsync (int fd)
+
+int __libc_fsync(int fd)
 {
 	if (SINGLE_THREAD_P)
-		return INLINE_SYSCALL (fsync, 1, fd);
+		return __syscall_fsync(fd);
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	int oldtype = LIBC_CANCEL_ASYNC ();
-
-	int result = INLINE_SYSCALL (fsync, 1, fd);
-
+	int result = __syscall_fsync(fd);
 	LIBC_CANCEL_RESET (oldtype);
-
 	return result;
-}
-#else
-# define __NR___libc_fsync __NR_fsync
-_syscall1(int, __libc_fsync, int, fd);
 #endif
+}
+
 weak_alias(__libc_fsync, fsync)

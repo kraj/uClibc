@@ -11,6 +11,12 @@
 #include <stdarg.h>
 #include <sys/ioctl.h>
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep-cancel.h>
+#else
+#define SINGLE_THREAD_P 1
+#endif
+
 libc_hidden_proto(ioctl)
 
 #define __NR___syscall_ioctl __NR_ioctl
@@ -19,13 +25,22 @@ _syscall3(int, __syscall_ioctl, int, fd, unsigned long int, request, void *, arg
 
 int ioctl(int fd, unsigned long int request, ...)
 {
-    void *arg;
-    va_list list;
+	void *arg;
+	va_list list;
 
-    va_start(list, request);
-    arg = va_arg(list, void *);
+	va_start(list, request);
+	arg = va_arg(list, void *);
 
-    va_end(list);
-    return __syscall_ioctl(fd, request, arg);
+	va_end(list);
+
+	if (SINGLE_THREAD_P)
+		return __syscall_ioctl(fd, request, arg);
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __syscall_ioctl(fd, request, arg);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+#endif
 }
 libc_hidden_def(ioctl)

@@ -20,31 +20,33 @@
 #include "syscalls.h"
 #include <sys/poll.h>
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep-cancel.h>
+#else
+#define SINGLE_THREAD_P 1
+#endif 
+
 libc_hidden_proto(poll)
 
 #ifdef __NR_poll
-# ifdef __UCLIBC__HAS_THREADS__
-# include <sysdep-cancel.h>
 
-/* The real implementation.  */
-int poll (struct pollfd *fds, nfsd_t nfds, int timeout)
+#define __NR___syscall_poll __NR_poll
+static inline _syscall3(int, __syscall_poll, struct pollfd *, fds,
+			unsigned long int, nfds, int, timeout);
+
+int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
-	if (SINGLE_THREAD_P)
-		return INLINE_SYSCALL (poll, 3, fds, nfds, timeout);
+    if (SINGLE_THREAD_P)
+	return __syscall_poll(fds, nfds, timeout);
 
-	int oldtype = LIBC_CANCEL_ASYNC ();
-
-	int result = INLINE_SYSCALL (poll, 3, fds, nfds, timeout);
-
-	LIBC_CANCEL_RESET (oldtype);
-
-	return result;
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+    int oldtype = LIBC_CANCEL_ASYNC ();
+    int result = __syscall_poll(fds, nfds, timeout);
+    LIBC_CANCEL_RESET (oldtype);
+    return result;
+#endif
 }
-# else
-_syscall3(int, poll, struct pollfd *, fds,
-	unsigned long int, nfds, int, timeout);
-# endif
-#else
+#else /* !__NR_poll */
 
 #include <alloca.h>
 #include <sys/types.h>

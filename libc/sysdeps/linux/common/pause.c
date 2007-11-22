@@ -7,22 +7,25 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define __UCLIBC_HIDE_DEPRECATED__
-#include "syscalls.h"
-#include <unistd.h>
-
-extern __typeof(pause) __libc_pause;
-#ifdef __NR_pause
-#define __NR___libc_pause __NR_pause
-_syscall0(int, __libc_pause);
-#else
 #include <signal.h>
-libc_hidden_proto(__sigpause)
-libc_hidden_proto(sigblock)
+#include <unistd.h>
+#include <sysdep-cancel.h>
 
-int __libc_pause(void)
+/* Suspend the process until a signal arrives.
+   This always returns -1 and sets errno to EINTR.  */
+int
+__libc_pause (void)
 {
-	return (__sigpause(sigblock(0), 0));
+  sigset_t set;
+
+  __sigemptyset (&set);
+  sigprocmask (SIG_BLOCK, NULL, &set);
+
+  /* pause is a cancellation point, but so is sigsuspend.
+     So no need for anything special here.  */
+
+  return sigsuspend (&set);
 }
-#endif
-weak_alias(__libc_pause,pause)
+weak_alias (__libc_pause, pause)
+
+LIBC_CANCEL_HANDLED ();		/* sigsuspend handles our cancellation.  */
