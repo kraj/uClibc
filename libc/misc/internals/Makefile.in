@@ -22,6 +22,9 @@ else
 libc-shared-y += $(MISC_INTERNALS_OUT)/__uClibc_main.os
 endif
 libc-static-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o
+libc-static-$(UCLIBC_FORMAT_FLAT_SEP_DATA) += \
+  $(MISC_INTERNALS_OUT)/shared_flat_initfini.o \
+  $(MISC_INTERNALS_OUT)/shared_flat_add_library.o
 libc-static-$(UCLIBC_FORMAT_SHARED_FLAT) += \
   $(MISC_INTERNALS_OUT)/shared_flat_initfini.o \
   $(MISC_INTERNALS_OUT)/shared_flat_add_library.o
