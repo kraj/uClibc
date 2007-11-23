@@ -25,9 +25,10 @@
 	 if (__builtin_constant_p (__x))				      \
 	   __v = __bswap_constant_16 (__x);				      \
 	 else								      \
-	   __asm__ ("%0 <<= 8;"						      \
-		    "%1.L = %0.L + %0.H (NS);"				      \
-		    : "+d" (__x), "=d" (__v));				      \
+	   __asm__ ("%0 = PACK (%1.L, %1.L);"				      \
+		    "%0 >>= 8;"						      \
+		    : "=d" (__v)					      \
+		    : "d" (__x));					      \
 	 __v; }))
 #else
 static __inline unsigned short int
