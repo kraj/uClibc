@@ -346,7 +346,7 @@ _dl_parse_copy_information
   return 0;
 }
 
-#ifndef LIBDL
+#ifndef IS_IN_libdl
 # include "../../libc/sysdeps/linux/bfin/crtreloc.c"
 #endif
 
