@@ -109,7 +109,7 @@ enum
   REG_L3 = 35,
 #define REG_L3	REG_L3
   REG_B_0 = 36,
-#define REG_B_0	REG_B_0
+#define REG_B0	REG_B0
   REG_B1 = 37,
 #define REG_B1	REG_B1
   REG_B2 = 38,
@@ -135,7 +135,6 @@ enum
 /* Context to describe whole processor state.  */
 typedef struct
 {
-  int version;
   gregset_t gregs;
 } mcontext_t;
 
