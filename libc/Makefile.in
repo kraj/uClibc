@@ -93,8 +93,11 @@ $(top_builddir)lib/libc.a: $(libc-a-y) | $(crt-y)
 	$(do_strip)
 	$(do_ar)
 
-$(top_builddir)lib/libc.gdb: $(top_builddir)lib/libc.a $(LINK_FLAT_CRTS)
-	$(call link-flat.so,$(@:.gdb=),$(SHARED_FLAT_ID))
+# We use libc_so.a so that we can compile the shared library with special
+# flags - i.e. -mleaf-id-shared-library.  The static libc.a needs to be
+# compiled without it.
+$(top_builddir)lib/libc.gdb: $(libc_OUT)/libc_so.a $(LINK_FLAT_CRTS)
+	$(call link-flat.so,$(@:.gdb=),$(UCLIBC_SHARED_FLAT_ID))
 
 libc_clean:
 	$(RM) $(libc_OUT)/*.{o,os,oS,a}

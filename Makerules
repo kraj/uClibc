@@ -146,14 +146,17 @@ LINK_FLAT_CRTS := $(top_builddir)lib/Scrt1.o $(top_builddir)lib/crti.o \
 # Argument 1 is the shared library file -- i.e. $(@:.gdb=) -- and argument 2
 # is the shared library identifier.  If it wasn't for $(disp_ld), we could
 # avoid passing $(@:.gdb=) as an argument and use $(@:.gdb=) instead of $(1).
+#
+# This is so far only used for libc, for which we want to link the entire
+# libgcc into the shared object.
 define link-flat.so
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $(1) $@
 	@$(disp_ld)
 	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) -nostdlib -o $(1) \
-		-Wl,-elf2flt -Wl,-shared-lib-id $(2) $(top_builddir)lib/Scrt1.o \
+		-Wl,-elf2flt -Wl,-shared-lib-id,$(2) $(top_builddir)lib/Scrt1.o \
 		$(top_builddir)/lib/crti.o -Wl,--whole-archive $(firstword $^) \
-		-Wl,--no-whole-archive $(LIBS-$(notdir $@)) $(LIBGCC) \
+		$(LIBGCC) -Wl,--no-whole-archive $(LIBS-$(notdir $@)) $(LIBGCC) \
 		$(top_builddir)/lib/crtn.o
 endef
 
