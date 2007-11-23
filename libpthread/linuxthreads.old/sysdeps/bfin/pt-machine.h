@@ -22,12 +22,15 @@
 #define _PT_MACHINE_H   1
 
 #ifndef PT_EI
-# define PT_EI extern inline
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#  define PT_EI static inline __attribute__((always_inline))
+# else
+#  define PT_EI extern inline __attribute__((always_inline))
+# endif
 #endif
 
-extern long int testandset (int *spinlock);
+#include <asm/fixed_code.h>
 
-#include <asm/unistd.h>
 /* Spinlock implementation; required.  */
 /* The semantics of the TESTSET instruction cannot be guaranteed. We cannot
    easily move all locks used by linux kernel to non-cacheable memory.
@@ -38,13 +41,38 @@ extern long int testandset (int *spinlock);
 PT_EI long int
 testandset (int *spinlock)
 {
-  long int res;
-  asm volatile ("R0 = %2; P0 = %4; EXCPT 0; %0 = R0;"
-                : "=d" (res), "=m" (*spinlock)
-                : "d" (spinlock), "m" (*spinlock),
-		  "ida" (__NR_bfin_spinlock)
-                :"R0", "P0", "cc");
-  return res;
+    long int res;
+
+    __asm__ __volatile__ (
+		"CALL (%4);"
+		: "=q0" (res), "=m" (*spinlock)
+		: "qA" (spinlock), "m" (*spinlock), "a" (ATOMIC_XCHG32), "q1" (1)
+		: "RETS", "cc", "memory");
+
+    return res;
 }
+
+#define HAS_COMPARE_AND_SWAP
+PT_EI int
+__compare_and_swap (long int *p, long int oldval, long int newval)
+{
+    long int readval;
+    __asm__ __volatile__ (
+		"CALL (%5);"
+		: "=q0" (readval), "=m" (*p)
+		: "qA" (p),
+		  "q1" (oldval),
+		  "q2" (newval),
+		  "a" (ATOMIC_CAS32),
+		  "m" (*p)
+		: "RETS", "memory", "cc");
+    return readval == oldval;
+}
+
+#ifdef SHARED
+# define PTHREAD_STATIC_FN_REQUIRE(name)
+#else
+# define PTHREAD_STATIC_FN_REQUIRE(name) __asm (".globl " "_"#name);
+#endif
 
 #endif /* pt-machine.h */
