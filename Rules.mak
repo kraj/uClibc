@@ -306,6 +306,18 @@ ifeq ($(TARGET_ARCH),powerpc)
 
 endif
 
+ifeq ($(TARGET_ARCH),bfin)
+ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
+	CPU_CFLAGS-y:=-mfdpic
+	CPU_LDFLAGS-y += -Wl,-melf32bfinfd
+	PICFLAG:=-fpic
+	PIEFLAG_NAME:=-fpie
+endif
+ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
+	PICFLAG := -mleaf-id-shared-library
+endif
+endif
+
 ifeq ($(TARGET_ARCH),frv)
 	CPU_LDFLAGS-$(CONFIG_FRV)+=-Wl,-melf32frvfd
 	# Using -pie causes the program to have an interpreter, which is
