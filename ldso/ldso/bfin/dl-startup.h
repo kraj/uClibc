@@ -86,7 +86,8 @@ __asm__(
     "	.size	__dl_boot,.-__dl_boot\n"
 );
 
-#define DL_BOOT(X)   \
+#undef DL_START
+#define DL_START(X)   \
 static void  __attribute__ ((used)) \
 _dl_start (Elf32_Addr dl_boot_got_pointer, \
 	   struct elf32_fdpic_loadmap *dl_boot_progmap, \
