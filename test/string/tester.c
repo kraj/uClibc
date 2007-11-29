@@ -1,5 +1,5 @@
 /* Tester for string functions.
-   Copyright (C) 1995-2001, 2003, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1995-2000, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -33,18 +33,6 @@
 #include <string.h>
 #include <strings.h>
 #include <fcntl.h>
-
-#ifdef __UCLIBC__
-# define __TEST_BSD_FUNCS__
-#else
-# undef __TEST_BSD_FUNCS__
-#endif
-
-#if defined(__UCLIBC_SUSV3_LEGACY__) || defined(__UCLIBC_SUSV3_LEGACY_MACROS__)
-# define __TEST_SUSV3_LEGACY__
-#else
-# undef __TEST_SUSV3_LEGACY__
-#endif
 
 #define	STREQ(a, b)	(strcmp((a), (b)) == 0)
 
@@ -96,8 +84,8 @@ test_strcmp (void)
 	  int k;
 	  for (k = 0; k < 0x3f; k++)
 	    {
-	      buf1[k] = '0' ^ (k & 4);
-	      buf2[k] = '4' ^ (k & 4);
+	      buf1[j] = '0' ^ (k & 4);
+	      buf2[j] = '4' ^ (k & 4);
 	    }
 	  buf1[i] = buf1[0x3f] = 0;
 	  buf2[j] = buf2[0x3f] = 0;
@@ -180,12 +168,6 @@ test_strcpy (void)
   SIMPLE_COPY(strcpy, 14, "44444444444444", 55);
   SIMPLE_COPY(strcpy, 15, "555555555555555", 56);
   SIMPLE_COPY(strcpy, 16, "6666666666666666", 57);
-
-  /* Simple test using implicitly coerced `void *' arguments.  */
-  const void *src = "frobozz";
-  void *dst = one;
-  check (strcpy (dst, src) == dst, 1);
-  equal (dst, "frobozz", 2);
 }
 
 static void
@@ -361,53 +343,6 @@ test_strncat (void)
 }
 
 static void
-test_strlcat (void)
-{
-#ifdef __TEST_BSD_FUNCS__
-  /* First test it as strcat, with big counts, then test the count
-     mechanism.  */
-  it = "strlcat";
-  (void) strcpy (one, "ijk");
-  check (strlcat (one, "lmn", 99) == 6, 1);	/* Returned value. */
-  equal (one, "ijklmn", 2);		/* Basic test. */
-
-  (void) strcpy (one, "x");
-  (void) strlcat (one, "yz", 99);
-  equal (one, "xyz", 3);		/* Writeover. */
-  equal (one+4, "mn", 4);		/* Wrote too much? */
-
-  (void) strcpy (one, "gh");
-  (void) strcpy (two, "ef");
-  (void) strlcat (one, two, 99);
-  equal (one, "ghef", 5);			/* Basic test encore. */
-  equal (two, "ef", 6);			/* Stomped on source? */
-
-  (void) strcpy (one, "");
-  (void) strlcat (one, "", 99);
-  equal (one, "", 7);			/* Boundary conditions. */
-  (void) strcpy (one, "ab");
-  (void) strlcat (one, "", 99);
-  equal (one, "ab", 8);
-  (void) strcpy (one, "");
-  (void) strlcat (one, "cd", 99);
-  equal (one, "cd", 9);
-
-  (void) strcpy (one, "ab");
-  (void) strlcat (one, "cdef", 2);
-  equal (one, "ab", 10);			/* Count-limited. */
-
-  (void) strlcat (one, "gh", 0);
-  equal (one, "ab", 11);			/* Zero count. */
-
-  (void) strlcat (one, "gh", 4);
-  equal (one, "abg", 12);		/* Count and length equal. */
-
-  (void) strlcat (one, "ij", (size_t)-1);	/* set sign bit in count */
-  equal (one, "abgij", 13);
-#endif
-}
-
-static void
 test_strncmp (void)
 {
   /* First test as strcmp with big counts, then test count code.  */
@@ -425,7 +360,7 @@ test_strncmp (void)
   check (strncmp ("abce", "abc", 3) == 0, 11);	/* Count == length. */
   check (strncmp ("abcd", "abce", 4) < 0, 12);	/* Nudging limit. */
   check (strncmp ("abc", "def", 0) == 0, 13);	/* Zero count. */
-  check (strncmp ("abc", "", (size_t)-1) > 0, 14);	/* set sign bit in count */
+  check (strncmp ("abc", "", (size_t)-1) > 0, 14); /* set sign bit in count */
   check (strncmp ("abc", "abc", (size_t)-2) == 0, 15);
 }
 
@@ -472,50 +407,6 @@ test_strncpy (void)
 }
 
 static void
-test_strlcpy (void)
-{
-#ifdef __TEST_BSD_FUNCS__
-  /* Testing is a bit different because of odd semantics.  */
-  it = "strlcpy";
-  check (strlcpy (one, "abc", sizeof(one)) == 3, 1);	/* Returned value. */
-  equal (one, "abc", 2);			/* Did the copy go right? */
-
-  (void) strcpy (one, "abcdefgh");
-  (void) strlcpy (one, "xyz", 2);
-  equal (one, "x\0cdefgh", 3);			/* Copy cut by count. */
-
-  (void) strcpy (one, "abcdefgh");
-  (void) strlcpy (one, "xyz", 3);		/* Copy cut just before NUL. */
-  equal (one, "xy\0defgh", 4);
-
-  (void) strcpy (one, "abcdefgh");
-  (void) strlcpy (one, "xyz", 4);		/* Copy just includes NUL. */
-  equal (one, "xyz", 5);
-  equal (one+4, "efgh", 6);			/* Wrote too much? */
-
-  (void) strcpy (one, "abcdefgh");
-  (void) strlcpy (one, "xyz", 5);		/* Copy includes padding. */
-  equal (one, "xyz", 7);
-  equal (one+3, "", 8);
-  equal (one+4, "efgh", 9);
-
-  (void) strcpy (one, "abc");
-  (void) strlcpy (one, "xyz", 0);		/* Zero-length copy. */
-  equal (one, "abc", 10);
-
-  (void) strlcpy (one, "", 2);		/* Zero-length source. */
-  equal (one, "", 11);
-  equal (one+1, "bc", 12);
-  equal (one+2, "c", 13);
-
-  (void) strcpy (one, "hi there");
-  (void) strlcpy (two, one, 9);
-  equal (two, "hi there", 14);		/* Just paranoia. */
-  equal (one, "hi there", 15);		/* Stomped on source? */
-#endif
-}
-
-static void
 test_strlen (void)
 {
   it = "strlen";
@@ -542,7 +433,7 @@ test_strnlen (void)
   it = "strnlen";
   check (strnlen ("", 10) == 0, 1);		/* Empty. */
   check (strnlen ("a", 10) == 1, 2);		/* Single char. */
-  check (strnlen ("abcd", 10) == 4, 3);		/* Multiple chars. */
+  check (strnlen ("abcd", 10) == 4, 3);	/* Multiple chars. */
   check (strnlen ("foo", (size_t)-1) == 3, 4);	/* limits of n. */
 
   {
@@ -652,7 +543,6 @@ test_rawmemchr (void)
 static void
 test_index (void)
 {
-#ifdef __TEST_SUSV3_LEGACY__
   it = "index";
   check (index ("abcd", 'z') == NULL, 1);	/* Not found. */
   (void) strcpy (one, "abcd");
@@ -665,7 +555,6 @@ test_index (void)
   (void) strcpy (one, "");
   check (index (one, 'b') == NULL, 7);	/* Empty string. */
   check (index (one, '\0') == one, 8);	/* NUL in empty string. */
-#endif
 }
 
 static void
@@ -746,7 +635,6 @@ test_memrchr (void)
 static void
 test_rindex (void)
 {
-#ifdef __TEST_SUSV3_LEGACY__
   it = "rindex";
   check (rindex ("abcd", 'z') == NULL, 1);	/* Not found. */
   (void) strcpy (one, "abcd");
@@ -759,7 +647,6 @@ test_rindex (void)
   (void) strcpy (one, "");
   check (rindex (one, 'b') == NULL, 7);	/* Empty string. */
   check (rindex (one, '\0') == one, 8);	/* NUL in empty string. */
-#endif
 }
 
 static void
@@ -1356,7 +1243,6 @@ test_memset (void)
 static void
 test_bcopy (void)
 {
-#ifdef __TEST_SUSV3_LEGACY__
   /* Much like memcpy.  Berklix manual is silent about overlap, so
      don't test it.  */
   it = "bcopy";
@@ -1376,13 +1262,11 @@ test_bcopy (void)
   (void) bcopy(one, two, 9);
   equal(two, "hi there", 4);		/* Just paranoia. */
   equal(one, "hi there", 5);		/* Stomped on source? */
-#endif
 }
 
 static void
 test_bzero (void)
 {
-#ifdef __TEST_SUSV3_LEGACY__
   it = "bzero";
   (void) strcpy(one, "abcdef");
   bzero(one+2, 2);
@@ -1393,7 +1277,6 @@ test_bzero (void)
   (void) strcpy(one, "abcdef");
   bzero(one+2, 0);
   equal(one, "abcdef", 4);		/* Zero-length copy. */
-#endif
 }
 
 static void
@@ -1423,7 +1306,6 @@ test_strndup (void)
 static void
 test_bcmp (void)
 {
-#ifdef __TEST_SUSV3_LEGACY__
   it = "bcmp";
   check(bcmp("a", "a", 1) == 0, 1);	/* Identity. */
   check(bcmp("abc", "abc", 3) == 0, 2);	/* Multicharacter. */
@@ -1432,7 +1314,6 @@ test_bcmp (void)
   check(bcmp("alph", "beta", 4) != 0, 5);
   check(bcmp("abce", "abcd", 3) == 0, 6);	/* Count limited. */
   check(bcmp("abc", "def", 0) == 0, 8);	/* Zero count. */
-#endif
 }
 
 static void
@@ -1442,52 +1323,6 @@ test_strerror (void)
   check(strerror(EDOM) != 0, 1);
   check(strerror(ERANGE) != 0, 2);
   check(strerror(ENOENT) != 0, 3);
-}
-
-static void
-test_strcasecmp (void)
-{
-  it = "strcasecmp";
-  /* Note that the locale is "C".  */
-  check(strcasecmp("a", "a") == 0, 1);
-  check(strcasecmp("a", "A") == 0, 2);
-  check(strcasecmp("A", "a") == 0, 3);
-  check(strcasecmp("a", "b") < 0, 4);
-  check(strcasecmp("c", "b") > 0, 5);
-  check(strcasecmp("abc", "AbC") == 0, 6);
-  check(strcasecmp("0123456789", "0123456789") == 0, 7);
-  check(strcasecmp("", "0123456789") < 0, 8);
-  check(strcasecmp("AbC", "") > 0, 9);
-  check(strcasecmp("AbC", "A") > 0, 10);
-  check(strcasecmp("AbC", "Ab") > 0, 11);
-  check(strcasecmp("AbC", "ab") > 0, 12);
-}
-
-static void
-test_strncasecmp (void)
-{
-  it = "strncasecmp";
-  /* Note that the locale is "C".  */
-  check(strncasecmp("a", "a", 5) == 0, 1);
-  check(strncasecmp("a", "A", 5) == 0, 2);
-  check(strncasecmp("A", "a", 5) == 0, 3);
-  check(strncasecmp("a", "b", 5) < 0, 4);
-  check(strncasecmp("c", "b", 5) > 0, 5);
-  check(strncasecmp("abc", "AbC", 5) == 0, 6);
-  check(strncasecmp("0123456789", "0123456789", 10) == 0, 7);
-  check(strncasecmp("", "0123456789", 10) < 0, 8);
-  check(strncasecmp("AbC", "", 5) > 0, 9);
-  check(strncasecmp("AbC", "A", 5) > 0, 10);
-  check(strncasecmp("AbC", "Ab", 5) > 0, 11);
-  check(strncasecmp("AbC", "ab", 5) > 0, 12);
-  check(strncasecmp("0123456789", "AbC", 0) == 0, 13);
-  check(strncasecmp("AbC", "abc", 1) == 0, 14);
-  check(strncasecmp("AbC", "abc", 2) == 0, 15);
-  check(strncasecmp("AbC", "abc", 3) == 0, 16);
-  check(strncasecmp("AbC", "abcd", 3) == 0, 17);
-  check(strncasecmp("AbC", "abcd", 4) < 0, 18);
-  check(strncasecmp("ADC", "abcd", 1) == 0, 19);
-  check(strncasecmp("ADC", "abcd", 2) > 0, 20);
 }
 
 int
@@ -1513,17 +1348,11 @@ main (void)
   /* strncat.  */
   test_strncat ();
 
-  /* strlcat.  */
-  test_strlcat ();
-
   /* strncmp.  */
   test_strncmp ();
 
   /* strncpy.  */
   test_strncpy ();
-
-  /* strlcpy.  */
-  test_strlcpy ();
 
   /* strlen.  */
   test_strlen ();
@@ -1609,11 +1438,6 @@ main (void)
   /* strerror - VERY system-dependent.  */
   test_strerror ();
 
-  /* strcasecmp.  Without locale dependencies.  */
-  test_strcasecmp ();
-
-  /* strncasecmp.  Without locale dependencies.  */
-  test_strncasecmp ();
 
   if (errors == 0)
     {
@@ -1623,7 +1447,7 @@ main (void)
   else
     {
       status = EXIT_FAILURE;
-      printf("%Zd errors.\n", errors);
+      printf("%lu errors.\n", (unsigned long)errors);
     }
 
   return status;
