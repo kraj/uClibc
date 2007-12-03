@@ -192,8 +192,11 @@ DL_START(unsigned long args)
 	 * we can take advantage of the magic offset register, if we
 	 * happen to know what that is for this architecture.  If not,
 	 * we can always read stuff out of the ELF file to find it... */
-	got = elf_machine_dynamic();
-	dpnt = (ElfW(Dyn) *) DL_RELOC_ADDR(load_addr, got);
+	DL_BOOT_COMPUTE_GOT(got);
+
+	/* Now, finally, fix up the location of the dynamic stuff */
+	DL_BOOT_COMPUTE_DYN (dpnt, got, load_addr);
+
 	SEND_EARLY_STDERR_DEBUG("First Dynamic section entry=");
 	SEND_ADDRESS_STDERR_DEBUG(dpnt, 1);
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
@@ -304,7 +307,8 @@ DL_START(unsigned long args)
 
 	__rtld_stack_end = (void *)(argv - 1);
 
-	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp, argv);
+	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp, argv
+			     DL_GET_READY_TO_RUN_EXTRA_ARGS);
 
 
 	/* Transfer control to the application.  */

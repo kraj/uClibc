@@ -131,8 +131,9 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 }
 
 void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
-                          ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp,
-                          char **argv)
+			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp,
+			  char **argv
+			  DL_GET_READY_TO_RUN_EXTRA_PARMS)
 {
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
@@ -313,7 +314,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			/* OK, we have what we need - slip this one into the list. */
 			app_tpnt = _dl_add_elf_hash_table(_dl_progname, app_tpnt->loadaddr,
 					app_tpnt->dynamic_info,
-					DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr),
+					(unsigned long) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr),
 					ppnt->p_filesz);
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
@@ -345,7 +346,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			if (ptmp != _dl_ldsopath)
 				*ptmp = '\0';
 
-			_dl_debug_early("Lib Loader: (%x) %s\n", DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
+			_dl_debug_early("Lib Loader: (%x) %s\n", (unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
 		}
 	}
 	app_tpnt->relro_addr = relro_addr;
