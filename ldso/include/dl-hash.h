@@ -89,6 +89,13 @@ struct elf_resolve {
    * we don't have to calculate it every time, which requires a divide */
   unsigned long data_words;
 #endif
+
+#ifdef __FDPIC__
+  /* Every loaded module holds a hashtable of function descriptors of
+     functions defined in it, such that it's easy to release the
+     memory when the module is dlclose()d.  */
+  struct funcdesc_ht *funcdesc_ht;
+#endif
 };
 
 #define RELOCS_DONE	    0x000001
