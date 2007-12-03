@@ -343,7 +343,7 @@ char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt,
 				if (tpntp)
 					*tpntp = tpnt;
 #endif
-				return DL_FIND_HASH_VALUE (tpnt, type_class, sym);
+				return (char *) DL_FIND_HASH_VALUE (tpnt, type_class, sym);
 			default:	/* Local symbols not handled here */
 				break;
 		}
@@ -353,7 +353,7 @@ char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt,
 		if (tpntp)
 			*tpntp = weak_tpnt;
 #endif
-		return DL_FIND_HASH_VALUE (weak_tpnt, type_class, weak_sym);
+		return (char *) DL_FIND_HASH_VALUE (weak_tpnt, type_class, weak_sym);
 	}
 #ifdef __FDPIC__
 	if (tpntp)

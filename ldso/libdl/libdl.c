@@ -447,8 +447,8 @@ void *dlsym(void *vhandle, const char *name)
 	struct dyn_elf *rpnt;
 	void *ret;
 	/* Nastiness to support underscore prefixes.  */
-	char tmp_buf[80];
 #ifndef __UCLIBC_NO_UNDERSCORES__
+	char tmp_buf[80];
 	char *name2 = tmp_buf;
 	size_t nlen = strlen (name) + 1;
 	if (nlen + 1 > sizeof (tmp_buf))
