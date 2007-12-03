@@ -183,6 +183,11 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
 #endif
 #define ELF_RTYPE_CLASS_PLT	(0x1)
 
+/* dlsym() calls _dl_find_hash with this value, that enables
+   DL_FIND_HASH_VALUE to return something different than the symbol
+   itself, e.g., a function descriptor.  */
+#define ELF_RTYPE_CLASS_DLSYM 0x80000000
+
 
 /* Convert between the Linux flags for page protections and the
    ones specified in the ELF standard. */

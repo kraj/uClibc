@@ -181,4 +181,11 @@ typedef struct {
 #define __C_SYMBOL_PREFIX__ "_"
 #endif
 
+/* Define this if you want to modify the VALUE returned by
+   _dl_find_hash for this reloc TYPE.  TPNT is the module in which the
+   matching SYM was found.  */
+#ifndef DL_FIND_HASH_VALUE
+# define DL_FIND_HASH_VALUE(TPNT, TYPE, SYM) (DL_RELOC_ADDR ((SYM)->st_value, (TPNT)->loadaddr))
+#endif
+
 #endif	/* _LD_DEFS_H */

@@ -105,8 +105,22 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 	DL_LOADADDR_TYPE loadaddr, unsigned long * dynamic_info,
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
-extern char * _dl_find_hash(const char * name, struct dyn_elf * rpnt1,
-			    struct elf_resolve *mytpnt, int type_class);
+extern char * _dl_lookup_hash(const char * name, struct dyn_elf * rpnt,
+			      struct elf_resolve *mytpnt, int type_class
+#ifdef __FDPIC__
+			      , struct elf_resolve **tpntp
+#endif
+			      );
+
+static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
+					   struct elf_resolve *mytpnt, int type_class)
+{
+#ifdef __FDPIC__
+	return _dl_lookup_hash(name, rpnt, mytpnt, type_class, NULL);
+#else
+	return _dl_lookup_hash(name, rpnt, mytpnt, type_class);
+#endif
+}
 
 extern int _dl_linux_dynamic_link(void);
 

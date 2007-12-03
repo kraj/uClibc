@@ -72,11 +72,9 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	got_entry = (struct funcdesc_value *) DL_RELOC_ADDR(tpnt->loadaddr, this_reloc->r_offset);
 
 	/* Get the address to be used to fill in the GOT entry.  */
-	new_addr = _dl_find_hash_mod(symname, tpnt->symbol_scope, NULL, 0,
-				     &new_tpnt);
+	new_addr = _dl_lookup_hash(symname, tpnt->symbol_scope, NULL, 0, &new_tpnt);
 	if (!new_addr) {
-		new_addr = _dl_find_hash_mod(symname, NULL, NULL, 0,
-					     &new_tpnt);
+		new_addr = _dl_lookup_hash(symname, NULL, NULL, 0, &new_tpnt);
 		if (!new_addr) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 				    _dl_progname, symname);
@@ -188,7 +186,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	} else {
 
 		symbol_addr = (unsigned long)
-		  _dl_find_hash_mod(symname, scope, NULL, 0, &symbol_tpnt);
+		  _dl_lookup_hash(symname, scope, NULL, 0, &symbol_tpnt);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might

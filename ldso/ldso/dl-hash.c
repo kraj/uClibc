@@ -257,7 +257,12 @@ _dl_lookup_sysv_hash(struct elf_resolve *tpnt, ElfW(Sym) *symtab, unsigned long 
  * This function resolves externals, and this is either called when we process
  * relocations or when we call an entry in the PLT table for the first time.
  */
-char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt, int type_class)
+char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt,
+		      struct elf_resolve *mytpnt, int type_class
+#ifdef __FDPIC__
+		      , struct elf_resolve **tpntp
+#endif
+		      )
 {
 	struct elf_resolve *tpnt = NULL;
 	ElfW(Sym) *symtab;
@@ -265,7 +270,8 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 	unsigned long elf_hash_number = 0xffffffff;
 	const ElfW(Sym) *sym = NULL;
 
-	char *weak_result = NULL;
+	const ElfW(Sym) *weak_sym = 0;
+	struct elf_resolve *weak_tpnt = 0;
 
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 	unsigned long gnu_hash_number = _dl_gnu_hash((const unsigned char *)name);
@@ -326,15 +332,32 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 #if 0
 /* Perhaps we should support old style weak symbol handling
  * per what glibc does when you export LD_DYNAMIC_WEAK */
-				if (!weak_result)
-					weak_result = (char *) DL_RELOC_ADDR(tpnt->loadaddr, sym->st_value);
+				if (!weak_sym) {
+					weak_tpnt = tpnt;
+					weak_sym = sym;
+				}
 				break;
 #endif
 			case STB_GLOBAL:
-				return (char*) DL_RELOC_ADDR(tpnt->loadaddr, sym->st_value);
+#ifdef __FDPIC__
+				if (tpntp)
+					*tpntp = tpnt;
+#endif
+				return DL_FIND_HASH_VALUE (tpnt, type_class, sym);
 			default:	/* Local symbols not handled here */
 				break;
 		}
 	}
-	return weak_result;
+	if (weak_sym) {
+#ifdef __FDPIC__
+		if (tpntp)
+			*tpntp = weak_tpnt;
+#endif
+		return DL_FIND_HASH_VALUE (weak_tpnt, type_class, weak_sym);
+	}
+#ifdef __FDPIC__
+	if (tpntp)
+		*tpntp = NULL;
+#endif
+	return NULL;
 }
