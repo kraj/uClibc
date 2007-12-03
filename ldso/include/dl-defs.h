@@ -175,4 +175,10 @@ typedef struct {
 # define DL_MALLOC_ALIGN (__WORDSIZE / 8)
 #endif
 
+#ifdef __UCLIBC_NO_UNDERSCORES__
+#define __C_SYMBOL_PREFIX__ ""
+#else
+#define __C_SYMBOL_PREFIX__ "_"
+#endif
+
 #endif	/* _LD_DEFS_H */

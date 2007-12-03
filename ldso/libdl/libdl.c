@@ -446,7 +446,22 @@ void *dlsym(void *vhandle, const char *name)
 	ElfW(Addr) from;
 	struct dyn_elf *rpnt;
 	void *ret;
-
+	/* Nastiness to support underscore prefixes.  */
+	char tmp_buf[80];
+#ifndef __UCLIBC_NO_UNDERSCORES__
+	char *name2 = tmp_buf;
+	size_t nlen = strlen (name) + 1;
+	if (nlen + 1 > sizeof (tmp_buf))
+	    name2 = malloc (nlen + 1);
+	if (name2 == 0) {
+	    _dl_error_number = LD_ERROR_MMAP_FAILED;
+	    return 0;
+	}
+	name2[0] = '_';
+	memcpy (name2 + 1, name, nlen);
+#else
+	const char *name2 = name;
+#endif
 	handle = (struct dyn_elf *) vhandle;
 
 	/* First of all verify that we have a real handle
@@ -460,7 +475,8 @@ void *dlsym(void *vhandle, const char *name)
 				break;
 		if (!rpnt) {
 			_dl_error_number = LD_BAD_HANDLE;
-			return NULL;
+			ret = NULL;
+			goto out;
 		}
 	} else if (handle == RTLD_NEXT) {
 		/*
@@ -484,13 +500,18 @@ void *dlsym(void *vhandle, const char *name)
 	tpnt = NULL;
 	if (handle == _dl_symbol_tables)
 	   tpnt = handle->dyn; /* Only search RTLD_GLOBAL objs if global object */
-	ret = _dl_find_hash((char*)name, handle, tpnt, 0);
+	ret = _dl_find_hash(name2, handle, tpnt, 0);
 
 	/*
 	 * Nothing found.
 	 */
 	if (!ret)
 		_dl_error_number = LD_NO_SYMBOL;
+out:
+#ifndef __UCLIBC_NO_UNDERSCORES__
+	if (name2 != tmp_buf)
+		free (name2);
+#endif
 	return ret;
 }
 
