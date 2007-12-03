@@ -50,6 +50,7 @@ int _dl_errno                  = 0;	/* We can't use the real errno in ldso */
 size_t _dl_pagesize            = 0;	/* Store the page size for use later */
 struct r_debug *_dl_debug_addr = NULL;	/* Used to communicate with the gdb debugger */
 void *(*_dl_malloc_function) (size_t size) = NULL;
+void (*_dl_free_function) (void *p) = NULL;
 
 #ifdef __SUPPORT_LD_DEBUG__
 char *_dl_debug           = 0;
@@ -884,7 +885,7 @@ static int _dl_suid_ok(void)
 	return 0;
 }
 
-void *_dl_malloc(int size)
+void *_dl_malloc(size_t size)
 {
 	void *retval;
 
@@ -895,9 +896,26 @@ void *_dl_malloc(int size)
 	if (_dl_malloc_function)
 		return (*_dl_malloc_function) (size);
 
-	if (_dl_malloc_addr - _dl_mmap_zero + (unsigned)size > _dl_pagesize) {
+	if (_dl_malloc_addr - _dl_mmap_zero + size > _dl_pagesize) {
+		size_t rounded_size;
+
+		/* Since the above assumes we get a full page even if
+		   we request less than that, make sure we request a
+		   full page, since uClinux may give us less than than
+		   a full page.  We might round even
+		   larger-than-a-page sizes, but we end up never
+		   reusing _dl_mmap_zero/_dl_malloc_addr in that case,
+		   so we don't do it.
+
+		   The actual page size doesn't really matter; as long
+		   as we're self-consistent here, we're safe.  */
+		if (size < _dl_pagesize)
+			rounded_size = (size + _dl_pagesize - 1) & _dl_pagesize;
+		else
+			rounded_size = size;
+
 		_dl_debug_early("mmapping more memory\n");
-		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size,
+		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, rounded_size,
 				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
 			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
@@ -914,6 +932,12 @@ void *_dl_malloc(int size)
 	 */
 	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr + DL_MALLOC_ALIGN - 1) & ~(DL_MALLOC_ALIGN - 1));
 	return retval;
+}
+
+void _dl_free (void *p)
+{
+	if (_dl_free_function)
+		(*_dl_free_function) (p);
 }
 
 #include "dl-hash.c"

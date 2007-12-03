@@ -32,6 +32,7 @@
 
 #include <ldso.h>
 #include <stdio.h>
+#include <string.h>
 
 
 #ifdef SHARED
@@ -51,6 +52,7 @@ extern struct elf_resolve *_dl_loaded_modules;
 extern struct r_debug *_dl_debug_addr;
 extern unsigned long _dl_error_number;
 extern void *(*_dl_malloc_function)(size_t);
+extern void (*_dl_free_function) (void *p);
 extern void _dl_run_init_array(struct elf_resolve *);
 extern void _dl_run_fini_array(struct elf_resolve *);
 #ifdef __LDSO_CACHE_SUPPORT__
@@ -66,6 +68,9 @@ extern char *_dl_debug;
 
 
 #else /* SHARED */
+
+#define _dl_malloc malloc
+#define _dl_free free
 
 /* When libdl is linked as a static library, we need to replace all
  * the symbols that otherwise would have been loaded in from ldso... */
@@ -83,13 +88,15 @@ char *_dl_debug_bindings  = 0;
 int   _dl_debug_file      = 2;
 #endif
 const char *_dl_progname       = "";        /* Program name */
+void *(*_dl_malloc_function)(size_t);
+void (*_dl_free_function) (void *p);
 char *_dl_library_path         = 0;         /* Where we look for libraries */
 char *_dl_ldsopath             = 0;         /* Location of the shared lib loader */
 int _dl_errno                  = 0;         /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later */
 /* This global variable is also to communicate with debuggers such as gdb. */
 struct r_debug *_dl_debug_addr = NULL;
-#define _dl_malloc malloc
+
 #include "../ldso/dl-array.c"
 #include "../ldso/dl-debug.c"
 #include LDSO_ELFINTERP
@@ -157,6 +164,7 @@ void *dlopen(const char *libname, int flag)
 	struct init_fini_list *tmp, *runp, *runp2, *dep_list;
 	unsigned int nlist, i;
 	struct elf_resolve **init_fini_list;
+	static int _dl_init = 0;
 
 	/* A bit of sanity checking... */
 	if (!(flag & (RTLD_LAZY|RTLD_NOW))) {
@@ -166,6 +174,11 @@ void *dlopen(const char *libname, int flag)
 
 	from = (ElfW(Addr)) __builtin_return_address(0);
 
+	if (!_dl_init) {
+		_dl_init++;
+		_dl_malloc_function = malloc;
+		_dl_free_function = free;
+	}
 	/* Cover the trivial case first */
 	if (!libname)
 		return _dl_symbol_tables;
