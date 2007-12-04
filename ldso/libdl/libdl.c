@@ -587,7 +587,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 				if (end < ppnt->p_vaddr + ppnt->p_memsz)
 					end = ppnt->p_vaddr + ppnt->p_memsz;
 			}
-			_dl_munmap((void*)tpnt->loadaddr, end);
+			DL_LIB_UNMAP (tpnt, end);
 			/* Free elements in RTLD_LOCAL scope list */ 
 			for (runp = tpnt->rtld_local; runp; runp = tmp) {
 				tmp = runp->next;
@@ -712,6 +712,8 @@ int dladdr(const void *__address, Dl_info * __info)
 	pelf = NULL;
 
 	_dl_if_debug_print("__address: %p  __info: %p\n", __address, __info);
+
+	__address = DL_LOOKUP_ADDRESS (__address);
 
 	for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next) {
 		struct elf_resolve *tpnt;

@@ -110,7 +110,7 @@ typedef struct {
 #endif
 
 /* Initialize a LOADADDR representing the loader itself.  It's only
- * called from DL_BOOT, so additional arguments passed to it may be
+ * called from DL_START, so additional arguments passed to it may be
  * referenced.
  */
 #ifndef DL_INIT_LOADADDR_BOOT
@@ -144,6 +144,12 @@ typedef struct {
 	((LOADADDR) = (DL_LOADADDR_TYPE)(BASEADDR))
 #endif
 
+/* Update LOADADDR with information about PHDR, just mapped to the
+   given ADDR.  */
+#ifndef DL_INIT_LOADADDR_HDR
+# define DL_INIT_LOADADDR_HDR(LOADADDR, ADDR, PHDR) /* Do nothing.  */
+#endif
+
 /* Convert a DL_LOADADDR_TYPE to an identifying pointer.  Used mostly
  * for debugging.
  */
@@ -164,6 +170,13 @@ typedef struct {
 # define DL_ADDR_IN_LOADADDR(ADDR, TPNT, TFROM) \
 	((void*)(TPNT)->loadaddr < (void*)(ADDR) \
 	 && (!(TFROM) || (TFROM)->loadaddr < (TPNT)->loadaddr))
+#endif
+
+/* This is called from dladdr() to give targets that use function descriptors
+ * a chance to map a function descriptor's address to the function's entry
+ * point before trying to find in which library it's defined.  */
+#ifndef DL_LOOKUP_ADDRESS
+#define DL_LOOKUP_ADDRESS(ADDRESS) (ADDRESS)
 #endif
 
 /* Use this macro to convert a pointer to a function's entry point to
@@ -200,6 +213,42 @@ typedef struct {
    matching SYM was found.  */
 #ifndef DL_FIND_HASH_VALUE
 # define DL_FIND_HASH_VALUE(TPNT, TYPE, SYM) (DL_RELOC_ADDR ((SYM)->st_value, (TPNT)->loadaddr))
+#endif
+
+/* Unmap all previously-mapped segments accumulated in LOADADDR.
+   Generally used when an error occurs during loading.  */
+#ifndef DL_LOADADDR_UNMAP
+# define DL_LOADADDR_UNMAP(LOADADDR, LEN) \
+  _dl_munmap((char *) (LOADADDR), (LEN))
+#endif
+
+/* Similar to DL_LOADADDR_UNMAP, but used for libraries that have been
+   dlopen()ed successfully, when they're dlclose()d.  */
+#ifndef DL_LIB_UNMAP
+# define DL_LIB_UNMAP(LIB, LEN) (DL_LOADADDR_UNMAP ((LIB)->loadaddr, (LEN)))
+#endif
+
+/* Define this to verify that a library named LIBNAME, whose ELF
+   headers are pointed to by EPNT, is suitable for dynamic linking.
+   If it is not, print an error message (optional) and return NULL.
+   If the library can have its segments relocated independently,
+   arrange for PICLIB to be set to 2.  If all segments have to be
+   relocated by the same amount, set it to 1.  If it has to be loaded
+   at physical addresses as specified in the program headers, set it
+   to 0.  A reasonable (?) guess for PICLIB will already be in place,
+   so it is safe to do nothing here.  */
+#ifndef DL_CHECK_LIB_TYPE
+# define DL_CHECK_LIB_TYPE(EPNT, PICLIB, PROGNAME, LIBNAME) (void)0
+#endif
+
+/* Define this if you have special segment.  */
+#ifndef DL_IS_SPECIAL_SEGMENT
+# define DL_IS_SPECIAL_SEGMENT(EPNT, PPNT) 0
+#endif
+
+/* Define this if you want to use special method to map the segment.  */
+#ifndef DL_MAP_SEGMENT
+# define DL_MAP_SEGMENT(EPNT, PPNT, INFILE, FLAGS) 0
 #endif
 
 #endif	/* _LD_DEFS_H */
