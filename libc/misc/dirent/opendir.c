@@ -64,6 +64,7 @@ close_and_ret:
 	if (!(ptr = malloc(sizeof(*ptr))))
 		goto nomem_close_and_ret;
 
+	memset(ptr, '\0', sizeof(DIR));
 	ptr->dd_fd = fd;
 	ptr->dd_nextloc = ptr->dd_size = ptr->dd_nextoff = 0;
 
