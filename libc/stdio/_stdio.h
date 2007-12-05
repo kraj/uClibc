@@ -23,7 +23,7 @@
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 
-#ifdef __USE_STDIO_FUTEXES___
+#ifdef __USE_STDIO_FUTEXES__
 #define __STDIO_THREADLOCK_OPENLIST \
 	_IO_lock_lock(_stdio_openlist_lock)
 
