@@ -30,7 +30,7 @@ int __libc_sigaction(int signum, const struct sigaction *act,
                kact.k_sa_handler = act->sa_handler;
                memcpy(&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
                kact.sa_flags = act->sa_flags;
-               if (kact.sa_flags & (SA_RESTORER | SA_ONSTACK))
+               if (kact.sa_flags & SA_RESTORER)
                        kact.sa_restorer = act->sa_restorer;
                else
                        kact.sa_restorer = __default_rt_sa_restorer;
