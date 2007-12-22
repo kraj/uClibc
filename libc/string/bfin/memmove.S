@@ -23,12 +23,8 @@
 
 .align 2
 
-	/* We have to bypass the libc-symbols.h machinery to make sure we get
-	   a weak symbol for memcpy (some crummy gcc tests want to redefine
-	   it).  */
-.global ___GI_memmove
-.type ___GI_memmove, STT_FUNC
-___GI_memmove:
+.weak _memmove
+ENTRY(_memmove)
 	I1 = P3;
 	P0 = R0;                  /* P0 = To address */
 	P3 = R1;                  /* P3 = From Address */
@@ -99,8 +95,6 @@ ___GI_memmove:
 	P3 = I1;
 	RTS;
 
-.size ___GI_memmove,.-___GI_memmove
+.size _memmove,.-_memmove
 
-.hidden ___GI_memmove
-.weak _memmove
-.set _memmove,___GI_memmove
+libc_hidden_def (memmove)

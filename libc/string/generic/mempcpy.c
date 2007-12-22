@@ -16,5 +16,5 @@ void *mempcpy (void *dstpp, const void *srcpp, size_t len)
   memcpy(dstpp, srcpp, len);
   return (void *)(((char *)dstpp) + len);
 }
-libc_hidden_def(mempcpy)
+libc_hidden_weak(mempcpy)
 #endif

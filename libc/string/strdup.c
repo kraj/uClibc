@@ -33,5 +33,5 @@ Wchar *Wstrdup(register const Wchar *s1)
 }
 
 #ifndef WANT_WIDE
-libc_hidden_def(strdup)
+libc_hidden_weak(strdup)
 #endif

@@ -330,7 +330,7 @@ memcmp (const __ptr_t s1, const __ptr_t s2, size_t len)
 
   return 0;
 }
-libc_hidden_def(memcmp)
+libc_hidden_weak(memcmp)
 #ifdef __UCLIBC_SUSV3_LEGACY__
 strong_alias(memcmp,bcmp)
 #endif

@@ -23,6 +23,7 @@
 
 .align 2
 
+.weak _strcmp
 ENTRY(_strcmp)
 	[--sp] = (R7:4);
 	p1 = r0;
@@ -116,6 +117,6 @@ ENTRY(_strcmp)
 libc_hidden_def (strcmp)
 
 #ifndef __UCLIBC_HAS_LOCALE__
-strong_alias (strcmp,strcoll)
+weak_alias (strcmp,strcoll)
 libc_hidden_def (strcoll)
 #endif

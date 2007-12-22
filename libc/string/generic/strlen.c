@@ -149,4 +149,4 @@ size_t strlen (const char *str)
 	}
     }
 }
-libc_hidden_def(strlen)
+libc_hidden_weak(strlen)

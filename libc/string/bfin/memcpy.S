@@ -23,12 +23,8 @@
 
 .align 2
 
-/* We have to bypass the libc-symbols.h machinery to make sure we get
- * a weak symbol for memcpy (some crummy gcc tests want to redefine it).
- */
-.global ___GI_memcpy
-.type ___GI_memcpy, STT_FUNC
-___GI_memcpy:
+.weak _memcpy
+ENTRY(_memcpy)
 	[--SP] = P3;
 	P0 = R0;              /* P0 = To address */
 	P3 = R1;              /* P3 = From Address */
@@ -75,8 +71,7 @@ ___GI_memcpy:
 	P3 = [SP++];
 
 	RTS;
-.size ___GI_memcpy,.-___GI_memcpy
 
-.hidden ___GI_memcpy
-.weak _memcpy
-.set _memcpy,___GI_memcpy
+.size _memcpy,.-_memcpy
+
+libc_hidden_def (memcpy)

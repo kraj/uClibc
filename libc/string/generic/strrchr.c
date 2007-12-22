@@ -42,7 +42,7 @@ char *strrchr (const char *s, int c)
 
   return (char *) found;
 }
-libc_hidden_def(strrchr)
+libc_hidden_weak(strrchr)
 #ifdef __UCLIBC_SUSV3_LEGACY__
-strong_alias(strrchr,rindex)
+weak_alias(strrchr,rindex)
 #endif

@@ -244,4 +244,4 @@ void *memcpy (void *dstpp, const void *srcpp, size_t len)
 
   return dstpp;
 }
-libc_hidden_def(memcpy)
+libc_hidden_weak(memcpy)

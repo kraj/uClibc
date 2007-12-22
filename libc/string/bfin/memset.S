@@ -23,12 +23,8 @@
 
 .align 2
 
-/* We have to bypass the libc-symbols.h machinery to make sure we get
- * a weak symbol for memcpy (some crummy gcc tests want to redefine it).
- */
-.global ___GI_memset
-.type ___GI_memset, STT_FUNC
-___GI_memset:
+.weak _memset
+ENTRY(_memset)
 	P0 = R0 ;              /* P0 = address */
 	P2 = R2 ;              /* P2 = count   */
 	R3 = R0 + R2;          /* end          */
@@ -89,8 +85,6 @@ ___GI_memset:
 	B[P0++] = R1;
 	JUMP .Laligned;
 
-.size ___GI_memset,.-___GI_memset
+.size _memset,.-_memset
 
-.hidden ___GI_memset
-.weak _memset
-.set _memset,___GI_memset
+libc_hidden_def (memset)

@@ -279,4 +279,4 @@ void *memmove (void *dest, const void *src, size_t len)
 
   return (dest);
 }
-libc_hidden_def(memmove)
+libc_hidden_weak(memmove)

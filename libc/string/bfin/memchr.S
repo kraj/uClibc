@@ -23,6 +23,7 @@
 
 .align 2
 
+.weak _memchr
 ENTRY(_memchr)
 	P0 = R0;             // P0 = address
 	P2 = R2;             // P2 = count

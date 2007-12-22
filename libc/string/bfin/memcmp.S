@@ -23,6 +23,7 @@
 
 .align 2
 
+.weak _memcmp
 ENTRY(_memcmp)
 	I1 = P3;
 	P0 = R0;			/* P0 = s1 address */
@@ -99,5 +100,5 @@ ENTRY(_memcmp)
 libc_hidden_def (memcmp)
 
 #ifdef __UCLIBC_SUSV3_LEGACY__
-strong_alias (memcmp,bcmp)
+weak_alias (memcmp,bcmp)
 #endif

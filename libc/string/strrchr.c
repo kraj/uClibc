@@ -28,8 +28,8 @@ Wchar *Wstrrchr(register const  Wchar *s, Wint c)
 	return (Wchar *) p;			/* silence the warning */
 }
 #ifndef WANT_WIDE
-libc_hidden_def(strrchr)
+libc_hidden_weak(strrchr)
 # ifdef __UCLIBC_SUSV3_LEGACY__
-strong_alias(strrchr,rindex)
+weak_alias(strrchr,rindex)
 # endif
 #endif

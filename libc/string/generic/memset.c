@@ -83,4 +83,4 @@ void *memset (void *dstpp, int c, size_t len)
 
   return dstpp;
 }
-libc_hidden_def(memset)
+libc_hidden_weak(memset)
