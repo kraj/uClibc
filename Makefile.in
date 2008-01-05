@@ -196,6 +196,11 @@ ifneq ($(UCLIBC_HAS_THREADS),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/semaphore.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/*thread*.h
 endif
+ifneq ($(HAVE_SHARED),y)
+	# Remove dlfcn header if we don't have shared libraries.
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dlfcn.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/dlfcn.h
+endif
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	# Remove this as it is only used internally.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tls.h
