@@ -1427,7 +1427,7 @@ static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad)
 	FMT_TYPE pad[1];
 
 	*pad = padchar;
-	while (todo && (OUTNSTR(stream, pad, 1) == 1)) {
+	while (todo && (OUTNSTR(stream, (const unsigned char *) pad, 1) == 1)) {
 		--todo;
 	}
 
@@ -1831,7 +1831,7 @@ static int _do_one_spec(FILE * __restrict stream,
 			}
 		}
 #else  /* __UCLIBC_HAS_WCHAR__ */
-		if (_outnstr(stream, s, slen) != slen) {
+		if (_outnstr(stream, (const unsigned char *) s, slen) != slen) {
 			return -1;
 		}
 #endif /* __UCLIBC_HAS_WCHAR__ */
@@ -1886,7 +1886,7 @@ int VFPRINTF (FILE * __restrict stream,
 	{
 		count = -1;
 	} else if (_PPFS_init(&ppfs, format) < 0) {	/* Bad format string. */
-		OUTNSTR(stream, (const FMT_TYPE *) ppfs.fmtpos,
+		OUTNSTR(stream, (const unsigned char *) ppfs.fmtpos,
 				STRLEN((const FMT_TYPE *)(ppfs.fmtpos)));
 #if defined(L_vfprintf) && !defined(NDEBUG)
 		fprintf(stderr,"\nIMbS: \"%s\"\n\n", format);
@@ -1901,7 +1901,7 @@ int VFPRINTF (FILE * __restrict stream,
 			}
 
 			if (format-s) {		/* output any literal text in format string */
-				if ( (r = OUTNSTR(stream, s, format-s)) != (format-s)) {
+				if ( (r = OUTNSTR(stream, (const unsigned char *) s, format-s)) != (format-s)) {
 					count = -1;
 					break;
 				}

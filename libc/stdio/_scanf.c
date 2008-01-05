@@ -731,7 +731,7 @@ void attribute_hidden __init_scan_cookie(register struct scan_cookie *sc,
 	sc->decpt = __UCLIBC_CURLOCALE_DATA.decimal_point;
 	sc->decpt_len = __UCLIBC_CURLOCALE_DATA.decimal_point_len;
 #else  /* __UCLIBC_HAS_LOCALE__ */
-	sc->fake_decpt = sc->decpt = decpt_str;
+	sc->fake_decpt = sc->decpt = (unsigned char *) decpt_str;
 	sc->decpt_len = 1;
 #endif /* __UCLIBC_HAS_LOCALE__ */
 #ifdef __UCLIBC_HAS_WCHAR__
@@ -2087,7 +2087,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 			}
 			++psfs->cnt;
 			_store_inttype(psfs->cur_ptr, psfs->dataargtype,
-						   (uintmax_t) STRTOUIM(buf, NULL, base, 1-usflag));
+						   (uintmax_t) STRTOUIM((char *) buf, NULL, base, 1-usflag));
 		}
 		return 0;
 	}
@@ -2101,7 +2101,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 	p = sc->fake_decpt;
 	do {
 		if (!*p) {
-			strcpy(b, sc->decpt);
+			strcpy((char *) b, (char *) sc->decpt);
 			b += sc->decpt_len;
 			break;
 		}
@@ -2236,7 +2236,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 	{
 		__fpmax_t x;
 		char *e;
-		x = __strtofpmax(buf, &e, exp_adjust);
+		x = __strtofpmax((char *) buf, &e, exp_adjust);
 		assert(!*e);
 		if (psfs->store) {
 			if (psfs->dataargtype & PA_FLAG_LONG_LONG) {
