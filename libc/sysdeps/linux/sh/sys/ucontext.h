@@ -87,13 +87,25 @@ typedef freg_t fpregset_t[NFPREG];
 /* Context to describe whole processor state.  */
 typedef struct
   {
+    unsigned int oldmask;
+	
+    /* CPU registers */
     gregset_t gregs;
+    unsigned int pc;
+    unsigned int pr;
+    unsigned int sr;
+    unsigned int gbr;
+    unsigned int mach;
+    unsigned int macl;
+
+#ifdef __CONFIG_SH4__
+    /* FPU registers */
     fpregset_t fpregs;
     fpregset_t xfpregs;
     unsigned int fpscr;
     unsigned int fpul;
-    unsigned int macl;
-    unsigned int mach;
+    unsigned int ownedfp;
+#endif	
   } mcontext_t;
 
 /* Userlevel context.  */
