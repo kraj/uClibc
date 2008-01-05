@@ -54,7 +54,7 @@ lib-gdb-y += $(top_builddir)lib/libc.gdb
 lib-so-y += $(libc)
 objclean-y += libc_clean
 
-OUTPUT_FORMAT = $(CC) $(CFLAGS) $(LDFLAGS) -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\([^"]*\)",.*/\1/p'
+OUTPUT_FORMAT = $(CC) $(CFLAGS) -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\([^"]*\)",.*/\1/p'
 
 ifeq ($(DOMULTI),n)
 $(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
