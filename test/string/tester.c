@@ -126,6 +126,7 @@ test_strcmp (void)
 #define SIMPLE_COPY(fn, n, str, ntest) \
   do {									      \
     int __n;								      \
+    char *cp;								      \
     for (__n = 0; __n < (int) sizeof (one); ++__n)			      \
       one[__n] = 'Z';							      \
     fn (one, str);							      \
