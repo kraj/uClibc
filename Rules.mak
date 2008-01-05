@@ -391,6 +391,7 @@ CFLAGS += -DSTATIC
 endif
 
 CFLAGS += $(call check_gcc,-std=gnu99,)
+CFLAGS += $(call check_gcc,-fgnu89-inline,)
 
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 # binutils-2.16.1 warns about ignored sections, 2.16.91.0.3 and newer are ok
