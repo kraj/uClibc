@@ -44,6 +44,7 @@ struct
   {"1.1410", INADDR_NONE},
   {"141.76.1111", INADDR_NONE},
   {"141.76.1111.", INADDR_NONE},
+  {"1.1.1.257", INADDR_NONE},
   /* Now some from BSD */
   {"0x12", 0x00000012},
   {"127.1", 0x00007f01},
