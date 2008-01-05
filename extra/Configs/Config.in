@@ -1115,6 +1115,8 @@ config UCLIBC_HAS_SYS_ERRLIST
 
 	  Most people will answer N.
 
+	  Application writers: use the strerror(3) function.
+
 config UCLIBC_HAS_SIGNUM_MESSAGES
 	bool "Include the signum message text in the library"
 	default y
