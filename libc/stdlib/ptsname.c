@@ -129,7 +129,7 @@ int ptsname_r (int fd, char *buf, size_t buflen)
       return ENOTTY;
     }
 #else
-# if !defined TIOCGPTN
+# if defined TIOCGPTN
   else if (errno == EINVAL)
 # endif
     {
