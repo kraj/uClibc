@@ -368,6 +368,10 @@ ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
 CFLAGS += $(subst ",, $(UCLIBC_EXTRA_CFLAGS))
 endif
 
+ifneq ($(strip $(UCLIBC_EXTRA_LDFLAGS)),"")
+LDFLAGS += $(subst ",, $(UCLIBC_EXTRA_LDFLAGS))
+endif
+
 LDADD_LIBFLOAT=
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 # If -msoft-float isn't supported, we want an error anyway.
