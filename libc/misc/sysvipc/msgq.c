@@ -15,7 +15,7 @@ int msgctl(int msqid, int cmd, struct msqid_ds *buf)
 #ifdef __NR_msgctl
 	return __libc_msgctl(msqid, cmd | __IPC_64, buf);
 #else
-    return __syscall_ipc(IPCOP_msgctl, msqid, cmd | __IPC_64, 0, buf);
+    return __syscall_ipc(IPCOP_msgctl, msqid, cmd | __IPC_64, 0, buf, 0);
 #endif
 }
 #endif
@@ -28,7 +28,7 @@ _syscall2(int, msgget, key_t, key, int, msgflg)
 /* Get messages queue.  */
 int msgget (key_t key, int msgflg)
 {
-    return __syscall_ipc(IPCOP_msgget ,key ,msgflg ,0 ,0);
+    return __syscall_ipc(IPCOP_msgget ,key ,msgflg ,0 ,0, 0);
 }
 #endif
 #endif
@@ -52,7 +52,7 @@ int msgrcv (int msqid, void *msgp, size_t msgsz,
 
     temp.r_msgtyp = msgtyp;
     temp.oldmsg = msgp;
-    return __syscall_ipc(IPCOP_msgrcv ,msqid ,msgsz ,msgflg ,&temp);
+    return __syscall_ipc(IPCOP_msgrcv ,msqid ,msgsz ,msgflg ,&temp, 0);
 }
 #endif
 #endif
@@ -66,7 +66,7 @@ _syscall4(int, msgsnd, int, msqid, const void *, msgp, size_t, msgsz, int, msgfl
 /* Send message to message queue.  */
 int msgsnd (int msqid, const void *msgp, size_t msgsz, int msgflg)
 {
-    return __syscall_ipc(IPCOP_msgsnd, msqid, msgsz, msgflg, (void *)msgp);
+    return __syscall_ipc(IPCOP_msgsnd, msqid, msgsz, msgflg, (void *)msgp, 0);
 }
 #endif
 #endif

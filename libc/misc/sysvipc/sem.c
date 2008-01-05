@@ -53,7 +53,7 @@ int semctl(int semid, int semnum, int cmd, ...)
 #ifdef __NR_semctl
     return __semctl(semid, semnum, cmd | __IPC_64, arg.__pad);
 #else
-    return __syscall_ipc(IPCOP_semctl, semid, semnum, cmd | __IPC_64, &arg);
+    return __syscall_ipc(IPCOP_semctl, semid, semnum, cmd | __IPC_64, &arg, 0);
 #endif
 }
 #endif
@@ -70,7 +70,7 @@ _syscall3(int, semget, key_t, key, int, nsems, int, semflg);
  * with KEY.  */
 int semget (key_t key, int nsems, int semflg)
 {
-    return __syscall_ipc(IPCOP_semget, key, nsems, semflg, NULL);
+    return __syscall_ipc(IPCOP_semget, key, nsems, semflg, NULL, 0);
 }
 #endif
 #endif
@@ -84,7 +84,22 @@ _syscall3(int, semop, int, semid, struct sembuf *, sops, size_t, nsops);
 /* Perform user-defined atomical operation of array of semaphores.  */
 int semop (int semid, struct sembuf *sops, size_t nsops)
 {
-    return __syscall_ipc(IPCOP_semop, semid, (int) nsops, 0, sops);
+    return __syscall_ipc(IPCOP_semop, semid, (int) nsops, 0, sops, 0);
+}
+#endif
+#endif
+
+#ifdef L_semtimedop
+
+#ifdef __NR_semtimedop
+_syscall6(int, semtimedop, int, semid, struct sembuf *, sops, size_t, nsops, const struct timespec *, timeout);
+
+#else
+
+int semtimedop(int semid, struct sembuf *sops, size_t nsops,
+	       const struct timespec *timeout)
+{
+    return __syscall_ipc(IPCOP_semtimedop, semid, nsops, 0, sops, timeout);
 }
 #endif
 #endif

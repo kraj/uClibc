@@ -5,10 +5,10 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := ftok.c
+CSRC := ftok.c __syscall_ipc.c
 
 # multi source sem.c
-CSRC += semget.c semctl.c semop.c
+CSRC += semget.c semctl.c semop.c semtimedop.c
 
 # multi source shm.c
 CSRC += shmat.c shmctl.c shmdt.c shmget.c

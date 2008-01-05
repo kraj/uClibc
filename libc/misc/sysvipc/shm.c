@@ -45,7 +45,7 @@ void * shmat (int shmid, const void *shmaddr, int shmflg)
     int retval;
     unsigned long raddr;
 
-    retval = __syscall_ipc(IPCOP_shmat, shmid, shmflg, (int) &raddr, (void *) shmaddr);
+    retval = __syscall_ipc(IPCOP_shmat, shmid, shmflg, (int) &raddr, (void *) shmaddr, 0);
     return ((unsigned long int) retval > -(unsigned long int) SHMLBA
 	    ? (void *) retval : (void *) raddr);
 }
@@ -63,7 +63,7 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf)
 #ifdef __NR_shmctl
 	return __libc_shmctl(shmid, cmd | __IPC_64, buf);
 #else
-    return __syscall_ipc(IPCOP_shmctl, shmid, cmd | __IPC_64, 0, buf);
+    return __syscall_ipc(IPCOP_shmctl, shmid, cmd | __IPC_64, 0, buf, 0);
 #endif
 }
 #endif
@@ -77,7 +77,7 @@ _syscall1(int, shmdt, const void *, shmaddr);
 #else
 int shmdt (const void *shmaddr)
 {
-    return __syscall_ipc(IPCOP_shmdt, 0, 0, 0, (void *) shmaddr);
+    return __syscall_ipc(IPCOP_shmdt, 0, 0, 0, (void *) shmaddr, 0);
 }
 #endif
 #endif
@@ -90,7 +90,7 @@ _syscall3(int, shmget, key_t, key, size_t, size, int, shmflg);
 #else
 int shmget (key_t key, size_t size, int shmflg)
 {
-    return __syscall_ipc(IPCOP_shmget, key, size, shmflg, NULL);
+    return __syscall_ipc(IPCOP_shmget, key, size, shmflg, NULL, 0);
 }
 #endif
 #endif

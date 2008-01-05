@@ -11,7 +11,7 @@
 
 #ifdef __NR_ipc
 #define __NR___syscall_ipc __NR_ipc
-#include "../../../misc/sysvipc/ipc.h"
-_syscall5(int, __syscall_ipc, unsigned int, call, int, first, int, second, int,
-		  third, void *, ptr);
+#include "ipc.h"
+_syscall6(int, __syscall_ipc, unsigned int, call, long, first, long, second, long,
+		  third, void *, ptr, void *, fifth);
 #endif
