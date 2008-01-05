@@ -29,6 +29,8 @@
 .type   syscall,@function
 .ent    syscall
 syscall:
+	.set noreorder
+	.cpload t9;
 	move	v0, a0		/* Load system call number from first arg.  */
 	move	a0, a1		/* Move the next three args up a register.  */
 	move	a1, a2
@@ -55,15 +57,15 @@ syscall:
 	lw	v0,7*4(sp)	/* for system call restarts */
 #endif
 	syscall			/* Do the system call.  */
+	bnez	a3, 1f
 #ifdef __mips64
 	daddiu	sp,sp,16
 #else
 	addiu	sp,sp,32
 #endif
-	bnez	a3, 1f
      	j ra			/* Return to caller.  */
 1:
-	move		a0,v0		/* Pass return val to C function. */
+	move	a0,v0		/* Pass return val to C function. */
 
 #ifdef __PIC__
 	PTR_LA	t9, __syscall_error
