@@ -235,11 +235,11 @@ int execvp(const char *path, char *const argv[])
 
 	if (strchr(path, '/')) {
 		execve(path, argv, __environ);
-	CHECK_ENOEXEC:
 		if (errno == ENOEXEC) {
 			char **nargv;
 			EXEC_ALLOC_SIZE(size2) /* Do NOT add a semicolon! */
 			size_t n;
+	RUN_BIN_SH:
 			/* Need the dimension - 1.  We omit counting the trailing
 			 * NULL but we actually omit the first entry. */
 			for (n=0 ; argv[n] ; n++) {}
@@ -292,9 +292,9 @@ int execvp(const char *path, char *const argv[])
 
 				seen_small = 1;
 
-				if (errno != ENOENT) {
+				if (errno == ENOEXEC) {
 					path = s;
-					goto CHECK_ENOEXEC;
+					goto RUN_BIN_SH;
 				}
 
 			NEXT:
