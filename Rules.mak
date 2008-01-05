@@ -158,6 +158,7 @@ CPU_CFLAGS-$(UCLIBC_FORMAT_FLAT_SEP_DATA) += -msep-data
 
 PICFLAG-y := -fPIC
 PICFLAG-$(UCLIBC_FORMAT_FDPIC_ELF) := -mfdpic
+PICFLAG := $(PICFLAG-y)
 PIEFLAG_NAME:=-fPIE
 
 # Some nice CPU specific optimizations
