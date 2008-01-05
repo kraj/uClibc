@@ -284,6 +284,41 @@ int __libc_allocate_rtsig (int high)
 
 static void pthread_initialize(void) __attribute__((constructor));
 
+libpthread_hidden_proto(pthread_attr_destroy)
+libpthread_hidden_proto(pthread_attr_init)
+libpthread_hidden_proto(pthread_attr_getdetachstate)
+libpthread_hidden_proto(pthread_attr_setdetachstate)
+libpthread_hidden_proto(pthread_attr_getinheritsched)
+libpthread_hidden_proto(pthread_attr_setinheritsched)
+libpthread_hidden_proto(pthread_attr_setschedparam)
+libpthread_hidden_proto(pthread_attr_getschedparam)
+libpthread_hidden_proto(pthread_attr_getschedpolicy)
+libpthread_hidden_proto(pthread_attr_setschedpolicy)
+libpthread_hidden_proto(pthread_attr_getscope)
+libpthread_hidden_proto(pthread_attr_setscope)
+
+libpthread_hidden_proto(pthread_exit)
+
+libpthread_hidden_proto(pthread_equal)
+libpthread_hidden_proto(pthread_self)
+libpthread_hidden_proto(pthread_getschedparam)
+libpthread_hidden_proto(pthread_setschedparam)
+
+libpthread_hidden_proto(pthread_setcancelstate)
+libpthread_hidden_proto(pthread_setcanceltype)
+libpthread_hidden_proto(_pthread_cleanup_push_defer)
+libpthread_hidden_proto(_pthread_cleanup_pop_restore)
+
+libpthread_hidden_proto(pthread_cond_broadcast)
+libpthread_hidden_proto(pthread_cond_destroy)
+libpthread_hidden_proto(pthread_cond_init)
+libpthread_hidden_proto(pthread_cond_signal)
+libpthread_hidden_proto(pthread_cond_wait)
+libpthread_hidden_proto(pthread_cond_timedwait)
+
+libpthread_hidden_proto(pthread_condattr_destroy)
+libpthread_hidden_proto(pthread_condattr_init)
+
 struct pthread_functions __pthread_functions =
   {
 #if !(USE_TLS && HAVE___THREAD)
@@ -638,11 +673,13 @@ pthread_t pthread_self(void)
   pthread_descr self = thread_self();
   return THREAD_GETMEM(self, p_tid);
 }
-
+libpthread_hidden_def (pthread_self)
+    
 int pthread_equal(pthread_t thread1, pthread_t thread2)
 {
   return thread1 == thread2;
 }
+libpthread_hidden_def (pthread_equal)
 
 /* Helper function for thread_self in the case of user-provided stacks */
 
@@ -714,6 +751,7 @@ int pthread_setschedparam(pthread_t thread, int policy,
     __pthread_manager_adjust_prio(th->p_priority);
   return 0;
 }
+libpthread_hidden_def(pthread_setschedparam)
 
 int pthread_getschedparam(pthread_t thread, int *policy,
                           struct sched_param *param)
@@ -734,6 +772,7 @@ int pthread_getschedparam(pthread_t thread, int *policy,
   *policy = pol;
   return 0;
 }
+libpthread_hidden_def(pthread_getschedparam)
 
 /* Process-wide exit() request */
 
