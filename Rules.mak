@@ -168,6 +168,8 @@ PIEFLAG_NAME:=-fPIE
 ifeq ($(TARGET_ARCH),i386)
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
 	OPTIMIZATION+=$(call check_gcc,-falign-jumps=0 -falign-loops=0,-malign-jumps=0 -malign-loops=0)
+	CPU_LDFLAGS-y+=-m32
+	CPU_CFLAGS-y+=-m32
 	CPU_CFLAGS-$(CONFIG_386)+=-march=i386
 	CPU_CFLAGS-$(CONFIG_486)+=-march=i486
 	CPU_CFLAGS-$(CONFIG_ELAN)+=-march=i486
