@@ -23,8 +23,6 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-#ifdef INTERNAL_SYSCALL /* remove this when all archs has this #defined */
-
 #include <string.h>
 #include <sys/param.h>
 #include <sys/types.h>
@@ -48,5 +46,5 @@ int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)
 	}
 	return res;
 }
-#endif
+
 #endif
