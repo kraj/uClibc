@@ -354,6 +354,7 @@ typedef struct
 /* NIOS magic number - no EABI available.  */
 #define EM_NIOS32	0xFEBB
 
+/* AVR32 magic number from ATMEL */
 #define EM_AVR32       0x18ad
 
 /* V850 backend magic number.  Written in the absense of an ABI.  */
