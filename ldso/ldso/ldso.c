@@ -286,6 +286,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_debug_early("calling mprotect on the application program\n");
 			/* Now cover the application program. */
 			if (app_tpnt->dynamic_info[DT_TEXTREL]) {
+				ElfW(Phdr) *ppnt_outer = ppnt;
 				ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
 				for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 					if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
@@ -294,6 +295,12 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 							     (unsigned long) ppnt->p_filesz,
 							     PROT_READ | PROT_WRITE | PROT_EXEC);
 				}
+				ppnt = ppnt_outer;
+			}
+#else
+			if (app_tpnt->dynamic_info[DT_TEXTREL]) {
+				_dl_dprintf(_dl_debug_file, "Can't modify application's text section; use the GCC option -fPIE for position-independent executables.\n");
+				_dl_exit(1);
 			}
 #endif
 
