@@ -22,17 +22,20 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-#ifdef __NR_readahead
+#ifdef __UCLIBC_HAS_LFS__
+#include <_lfs_64.h>
+# ifdef __NR_readahead
 
 ssize_t readahead(int fd, off64_t offset, size_t count)
 {
-# if _MIPS_SIM == _ABIO32
+#  if _MIPS_SIM == _ABIO32
 	return INLINE_SYSCALL (readahead, 5, fd, 0,
 		__LONG_LONG_PAIR ((off_t) (offset >> 32), (off_t) offset),
 		count);
-# else /* N32 || N64 */
+#  else /* N32 || N64 */
 	return INLINE_SYSCALL (readahead, 3, fd, offset, count);
-# endif
+#  endif
 }
 
+# endif
 #endif
