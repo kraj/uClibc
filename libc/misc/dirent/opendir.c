@@ -65,7 +65,6 @@ close_and_ret:
 		goto nomem_close_and_ret;
 
 	ptr->dd_fd = fd;
-	ptr->dd_nextloc = ptr->dd_size = ptr->dd_nextoff = 0;
 
 	ptr->dd_max = statbuf.st_blksize;
 	if (ptr->dd_max < 512)
