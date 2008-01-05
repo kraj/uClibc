@@ -17,7 +17,8 @@
    02111-1307 USA.  */
 
 #include <sys/syscall.h>
-
+#include <linux/version.h>
+	
 /* If no SA_RESTORER function was specified by the application we use
    one of these.  This avoids the need for the kernel to synthesise a return
    instruction on the stack, which would involve expensive cache flushes.
@@ -29,7 +30,9 @@
 
    Start the unwind tables at least one instruction before the signal
    trampoline, because the unwinder will assume we are returning after
-   a call site.  */
+   a call site.
+
+   The signal frame layout changed in 2.6.18.  */
 
 .global __default_sa_restorer
 .type __default_sa_restorer,%function
@@ -37,7 +40,11 @@
 #ifdef __ARM_EABI__
 	.fnstart
 	.save {r0-r15}
+#if LINUX_VERSION_CODE >= 0x020612
+	.pad #32
+#else
 	.pad #12
+#endif
 	nop
 __default_sa_restorer:
 	mov	r7, $SYS_ify(sigreturn)
@@ -57,7 +64,11 @@ __default_sa_restorer:
 #ifdef __ARM_EABI__
 	.fnstart
 	.save {r0-r15}
+#if LINUX_VERSION_CODE >= 0x020612
+	.pad #160
+#else
 	.pad #168
+#endif
 	nop
 __default_rt_sa_restorer:
 	mov	r7, $SYS_ify(rt_sigreturn)
