@@ -22,6 +22,16 @@
 #ifndef _LIBC_SYMBOLS_H
 #define _LIBC_SYMBOLS_H	1
 
+/* This is defined for the compilation of all C library code.  features.h
+   tests this to avoid inclusion of stubs.h while compiling the library,
+   before stubs.h has been generated.  Some library code that is shared
+   with other packages also tests this symbol to see if it is being
+   compiled as part of the C library.  We must define this before including
+   config.h, because it makes some definitions conditional on whether libc
+   itself is being compiled, or just some generator program.  */
+#define _LIBC	1
+
+
 /* This file's macros are included implicitly in the compilation of every
    file in the C library by -imacros.
 
@@ -39,16 +49,6 @@
    */
 
 #include <bits/uClibc_arch_features.h>
-
-
-/* This is defined for the compilation of all C library code.  features.h
-   tests this to avoid inclusion of stubs.h while compiling the library,
-   before stubs.h has been generated.  Some library code that is shared
-   with other packages also tests this symbol to see if it is being
-   compiled as part of the C library.  We must define this before including
-   config.h, because it makes some definitions conditional on whether libc
-   itself is being compiled, or just some generator program.  */
-#define _LIBC	1
 
 /* Enable declarations of GNU extensions, since we are compiling them.  */
 #define _GNU_SOURCE	1
