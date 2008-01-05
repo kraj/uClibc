@@ -177,7 +177,12 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 				continue;
 			if (sym->st_value == 0)
 				continue;
-			if (ELF_ST_TYPE(sym->st_info) > STT_FUNC)
+			if (ELF_ST_TYPE(sym->st_info) > STT_FUNC
+			&& ELF_ST_TYPE(sym->st_info) != STT_COMMON)
+			/* Ignore all but STT_NOTYPE, STT_OBJECT, STT_FUNC
+		 	 * and STT_COMMON entries since these are no
+			 * code/data definitions
+			 */
 				continue;
 			if (_dl_strcmp(strtab + sym->st_name, name) != 0)
 				continue;
