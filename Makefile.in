@@ -103,7 +103,7 @@ headers: include/bits/uClibc_config.h
 		mv -f $$tmp include/bits/sysnum.h; \
 	fi
 ifeq ($(UCLIBC_HAS_LOCALE),y)
-	$(MAKE) locale_headers
+	$(MAKE) -C extra/locale locale_headers
 endif
 
 pregen: headers
