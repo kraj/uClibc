@@ -21,6 +21,8 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
+#include <features.h>
+
 #ifndef PT_EI
 # if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
 #  define PT_EI static inline __attribute__((always_inline))

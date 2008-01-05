@@ -26,6 +26,14 @@
 
 #include <features.h>
 
+#ifndef PT_EI
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#  define PT_EI static inline __attribute__((always_inline))
+# else
+#  define PT_EI extern inline __attribute__((always_inline))
+# endif
+#endif
+
 /* Copyright (C) 2000, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Maciej W. Rozycki <macro@ds2.pg.gda.pl>, 2000.  */
@@ -53,14 +61,6 @@ __NTH (_test_and_set (int *p, int v))
 
   return r;
 }
-
-
-#ifndef PT_EI
-# define PT_EI extern inline __attribute__ ((always_inline))
-#endif
-
-extern long int testandset (int *spinlock);
-extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 
 
 /* Spinlock implementation; required.  */

@@ -21,11 +21,15 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
-#ifndef PT_EI
-# define PT_EI extern inline
-#endif
+#include <features.h>
 
-extern long int testandset (int *spinlock);
+#ifndef PT_EI
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#  define PT_EI static inline __attribute__((always_inline))
+# else
+#  define PT_EI extern inline __attribute__((always_inline))
+# endif
+#endif
 
 /* Spinlock implementation; required.  */
 PT_EI long int

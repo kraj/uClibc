@@ -11,6 +11,14 @@
 
 #include <features.h>
 
+#ifndef PT_EI
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#  define PT_EI static inline __attribute__((always_inline))
+# else
+#  define PT_EI extern inline __attribute__((always_inline))
+# endif
+#endif
+
 static inline int
 _test_and_set (int *p, int v) __THROW
 {
@@ -25,10 +33,6 @@ _test_and_set (int *p, int v) __THROW
 
        return result;
 }
-
-#ifndef PT_EI
-# define PT_EI extern inline
-#endif
 
 extern long int testandset (int *spinlock);
 extern int __compare_and_swap (long int *p, long int oldval, long int newval);

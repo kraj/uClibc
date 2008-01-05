@@ -24,12 +24,15 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
-#ifndef PT_EI
-# define PT_EI extern inline
-#endif
+#include <features.h>
 
-extern long int testandset (int *spinlock);
-extern int __compare_and_swap (long int *p, long int oldval, long int newval);
+#ifndef PT_EI
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#  define PT_EI static inline __attribute__((always_inline))
+# else
+#  define PT_EI extern inline __attribute__((always_inline))
+# endif
+#endif
 
 /* For multiprocessor systems, we want to ensure all memory accesses
    are completed before we reset a lock.  On other systems, we still

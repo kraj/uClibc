@@ -22,15 +22,22 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#ifndef _PT_MACHINE_H
+#define _PT_MACHINE_H   1
+
+#include <features.h>
+
 #ifndef PT_EI
-# define PT_EI extern inline
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#  define PT_EI static inline __attribute__((always_inline))
+# else
+#  define PT_EI extern inline __attribute__((always_inline))
+# endif
 #endif
-
-/* Spinlock implementation; required.  */
-extern long int testandset (int *spinlock);
-
 
 /* Get some notion of the current stack.  Need not be exactly the top
    of the stack, just something somewhere in the current frame.  */
 #define CURRENT_STACK_FRAME  stack_pointer
 register char * stack_pointer __asm__ ("r15");
+
+#endif /* pt-machine.h */

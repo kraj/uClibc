@@ -22,10 +22,16 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
+#include <features.h>
+
 #ifndef __ASSEMBLER__
 
 #ifndef PT_EI
-# define PT_EI extern inline __attribute__ ((always_inline))
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#  define PT_EI static inline __attribute__((always_inline))
+# else
+#  define PT_EI extern inline __attribute__((always_inline))
+# endif
 #endif
 
 /* Spinlock implementation; required.  */

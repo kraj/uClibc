@@ -22,11 +22,16 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
+#include <features.h>
+
 #ifndef PT_EI
-# define PT_EI extern inline
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#  define PT_EI static inline __attribute__((always_inline))
+# else
+#  define PT_EI extern inline __attribute__((always_inline))
+# endif
 #endif
 
-extern long int testandset (int *spinlock);
 /* Spinlock implementation; required.  */
 /* it is weird and dangerous to disable interrupt in userspace, but for nios
    what else we can do before we have a swap like instruction?  This is better

@@ -11,8 +11,17 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
+#ifndef _PT_MACHINE_H
+#define _PT_MACHINE_H   1
+
+#include <features.h>
+
 #ifndef PT_EI
-# define PT_EI extern inline
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#  define PT_EI static inline __attribute__((always_inline))
+# else
+#  define PT_EI extern inline __attribute__((always_inline))
+# endif
 #endif
 
 /* Get some notion of the current stack.  Need not be exactly the top
@@ -44,3 +53,4 @@ __compare_and_swap (long *ptr, long old, long new)
       return 0;
     }
 }
+#endif /* pt-machine.h */
