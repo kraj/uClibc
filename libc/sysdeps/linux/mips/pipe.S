@@ -14,7 +14,11 @@
 
 	.globl	pipe
 	.ent	pipe, 0
+	.type pipe,@function
 pipe:
+#ifdef __PIC__
+	SETUP_GP
+#endif
 	li	v0,__NR_pipe
 	syscall
 	bnez	a3, 1f
@@ -28,7 +32,9 @@ pipe:
 	/* uClibc change -- stop */
 
 #ifdef __PIC__
+	SETUP_GP64(v0, pipe)
 	PTR_LA	t9, __syscall_error
+	RESTORE_GP64
 	jr	t9
 #else
 	j	__syscall_error

@@ -29,8 +29,10 @@
 .type   syscall,@function
 .ent    syscall
 syscall:
+#ifdef __PIC__
+	SETUP_GP
+#endif
 	.set noreorder
-	.cpload t9;
 	move	v0, a0		/* Load system call number from first arg.  */
 	move	a0, a1		/* Move the next three args up a register.  */
 	move	a1, a2
@@ -68,7 +70,9 @@ syscall:
 	move	a0,v0		/* Pass return val to C function. */
 
 #ifdef __PIC__
+	SETUP_GP64(v0, syscall)
 	PTR_LA	t9, __syscall_error
+	RESTORE_GP64
 	jr	t9
 #else
 	j	__syscall_error
