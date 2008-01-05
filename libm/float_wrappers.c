@@ -26,7 +26,6 @@
 #undef L_remquof       /*float       remquof(float, float, int *);*/
 #undef L_scalblnf      /*float       scalblnf(float, long);*/
 #undef L_tgammaf       /*float       tgammaf(float);*/
-#undef L_truncf        /*float       truncf(float);*/
 
 /* Implement the following, as defined by SuSv3 */
 #if 0
