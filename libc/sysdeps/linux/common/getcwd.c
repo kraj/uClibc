@@ -165,7 +165,7 @@ int __syscall_getcwd(char * buf, unsigned long size)
 
     cwd = recurser(buf, size, st.st_dev, st.st_ino);
     if (cwd) {
-	len = strlen(buf);
+	len = strlen(buf) + 1;
 	__set_errno(olderrno);
     }
     return len;
