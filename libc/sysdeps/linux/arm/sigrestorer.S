@@ -18,7 +18,7 @@
 
 #include <sys/syscall.h>
 #include <linux/version.h>
-	
+
 /* If no SA_RESTORER function was specified by the application we use
    one of these.  This avoids the need for the kernel to synthesise a return
    instruction on the stack, which would involve expensive cache flushes.

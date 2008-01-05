@@ -28,8 +28,8 @@
  * edited for clarity and style only.
  *
  * ----------------------------------------------------------------------------
- * The md5_crypt() function was taken from freeBSD's libcrypt and contains 
- * this license: 
+ * The md5_crypt() function was taken from freeBSD's libcrypt and contains
+ * this license:
  *    "THE BEER-WARE LICENSE" (Revision 42):
  *     <phk@login.dknet.dk> wrote this file.  As long as you retain this notice you
  *     can do whatever you want with this stuff. If we meet some day, and you think
@@ -38,7 +38,7 @@
  * $FreeBSD: src/lib/libcrypt/crypt.c,v 1.7.2.1 1999/08/29 14:56:33 peter Exp $
  *
  * ----------------------------------------------------------------------------
- * On April 19th, 2001 md5_crypt() was modified to make it reentrant 
+ * On April 19th, 2001 md5_crypt() was modified to make it reentrant
  * by Erik Andersen <andersen@uclibc.org>
  *
  *
@@ -99,7 +99,7 @@ static void __md5_Transform __P((u_int32_t [4], const unsigned char [64]));
 #define MD5_MAGIC_STR "$1$"
 #define MD5_MAGIC_LEN (sizeof(MD5_MAGIC_STR) - 1)
 static const unsigned char __md5__magic[] = MD5_MAGIC_STR;
-						/* This string is magic for this algorithm.  Having 
+						/* This string is magic for this algorithm.  Having
 						   it this way, we can get better later on */
 static const unsigned char __md5_itoa64[] =		/* 0 ... 63 => ascii - 64 */
 	"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -333,7 +333,7 @@ __md5_Transform (state, block)
 
 	__md5_Decode (x, block, 64);
 
-	a = state[0]; b = state[1]; c = state[2]; d = state[3]; 
+	a = state[0]; b = state[1]; c = state[2]; d = state[3];
 
 #if MD5_SIZE_OVER_SPEED > 2
 	pc = C; pp = P; ps = S - 4;
