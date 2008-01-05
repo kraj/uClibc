@@ -165,7 +165,7 @@ retry:
 	    if ((LogFile = socket(AF_UNIX, logType, 0)) == -1) {
 		goto DONE;
 	    }
-	    /*			fcntl(LogFile, F_SETFD, 1); */
+	    fcntl(LogFile, F_SETFD, 1);
 	}
     }
 
