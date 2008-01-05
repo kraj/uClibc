@@ -82,6 +82,9 @@ config TARGET_vax
 config TARGET_x86_64
 	bool "x86_64"
 
+config TARGET_xtensa
+	bool "xtensa"
+
 endchoice
 
 
@@ -181,6 +184,10 @@ endif
 
 if TARGET_x86_64
 source "extra/Configs/Config.x86_64"
+endif
+
+if TARGET_xtensa
+source "extra/Configs/Config.xtensa"
 endif
 
 config TARGET_SUBARCH

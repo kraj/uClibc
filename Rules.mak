@@ -50,7 +50,8 @@ BUILD_CFLAGS = -O2 -Wall
 export ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun.*/sparc/ -e s/sparc.*/sparc/ \
 				  -e s/arm.*/arm/ -e s/sa110/arm/ -e s/sh.*/sh/ \
 				  -e s/s390x/s390/ -e s/parisc.*/hppa/ \
-				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ )
+				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
+				  -e s/xtensa.*/xtensa/ )
 
 
 #---------------------------------------------------------
