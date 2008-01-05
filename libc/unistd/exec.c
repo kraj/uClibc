@@ -56,7 +56,9 @@ libc_hidden_proto(getenv)
 /* We do not have an MMU, so using alloca() is not an option.
  * Less obviously, using malloc() is not an option either since
  * malloc()ed memory can leak in a vfork() and exec*() situation.
- * Therefore, we must use mmap() and unmap() directly.
+ * Therefore, we must use mmap() and unmap() directly, caching
+ * the result as we go.  This way we minimize the leak to 1
+ * allocation.
  */
 
 # define EXEC_ALLOC_SIZE(VAR)	size_t VAR;	/* Semicolon included! */
@@ -68,20 +70,26 @@ extern void __exec_free(void *ptr, size_t size) attribute_hidden;
 
 # ifdef L___exec_alloc
 
+void attribute_hidden __exec_free(void *ptr, size_t size)
+{
+	if (ptr)
+		munmap(ptr, size);
+}
+
 void attribute_hidden *__exec_alloc(size_t size)
 {
-	void *p;
+	static void *p;
+	static size_t old_size;
 
+	if (old_size >= size)
+		return p;
+	else
+		__exec_free(p, old_size);
+
+	old_size = size;
 	p = mmap(0, size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 
 	return (p != MAP_FAILED) ? p : NULL;
-}
-
-void attribute_hidden __exec_free(void *ptr, size_t size)
-{
-	if (ptr) {
-		munmap(ptr, size);
-	}
 }
 
 # endif
