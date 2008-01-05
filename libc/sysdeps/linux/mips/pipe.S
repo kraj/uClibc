@@ -17,7 +17,16 @@
 pipe:
 	li	v0,__NR_pipe
 	syscall
-	beqz	a3, 1f
+	bnez	a3, 1f
+	sw	v0, 0(a0)
+	sw	v1, 4(a0)
+	li	v0, 0
+	j	ra
+1:
+	/* uClibc change -- start */
+	move		a0,v0		/* Pass return val to C function. */
+	/* uClibc change -- stop */
+
 #ifdef __PIC__
 	PTR_LA	t9, __syscall_error
 	jr	t9
@@ -25,10 +34,6 @@ pipe:
 	j	__syscall_error
 #endif
 1:
-	sw	v0, 0(a0)
-	sw	v1, 4(a0)
-	li	v0, 0
-	j	ra
 	.end	pipe
 	.size	pipe,.-pipe
 libc_hidden_def(pipe)
