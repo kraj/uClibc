@@ -25,11 +25,7 @@
 #include <features.h>
 
 #ifndef PT_EI
-# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
-#  define PT_EI static inline __attribute__((always_inline))
-# else
-#  define PT_EI extern inline __attribute__((always_inline))
-# endif
+# define PT_EI __extern_always_inline
 #endif
 
 /* This will not work on ARM1 or ARM2 because SWP is lacking on those

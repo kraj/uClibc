@@ -26,7 +26,7 @@
 #include <asm/unistd.h>
 
 #ifndef PT_EI
-# define PT_EI extern inline
+# define PT_EI __extern_always_inline
 #endif
 
 /* Memory barrier.  */
