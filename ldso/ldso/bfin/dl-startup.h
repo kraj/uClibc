@@ -106,17 +106,6 @@ struct elf32_fdpic_loadmap;
 #define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long*) ARGS) + 1)
 
 /*
- * Compute the GOT address.  On several platforms, we use assembly
- * here.  on FR-V FDPIC, there's no way to compute the GOT address,
- * since the offset between text and data is not fixed, so we arrange
- * for the assembly _dl_boot to pass this value as an argument to
- * _dl_boot.  */
-#define DL_BOOT_COMPUTE_GOT(got) ((got) = dl_boot_got_pointer)
-
-#define DL_BOOT_COMPUTE_DYN(dpnt, got, load_addr) \
-  ((dpnt) = dl_boot_ldso_dyn_pointer)
-
-/*
  * Here is a macro to perform a relocation.  This is only used when
  * bootstrapping the dynamic loader.  RELP is the relocation that we
  * are performing, REL is the pointer to the address we are relocating.

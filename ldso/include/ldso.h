@@ -117,4 +117,8 @@ extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load
 		ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
 		DL_GET_READY_TO_RUN_EXTRA_PARMS);
 
+#ifdef HAVE_DL_INLINES_H
+#include <dl-inlines.h>
+#endif
+
 #endif /* _LDSO_H_ */
