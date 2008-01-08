@@ -90,7 +90,7 @@ export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
 
 LIBC := libc
 SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
-ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 mips64 powerpc64 s390x sh64 sparc64 x86_64 ),)
+ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 mips64 powerpc64 s390x sparc64 x86_64 ),)
 UCLIBC_LDSO_NAME := ld64-uClibc
 else
 UCLIBC_LDSO_NAME := ld-uClibc
