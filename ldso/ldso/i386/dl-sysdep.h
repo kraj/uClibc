@@ -59,7 +59,6 @@ elf_machine_load_address (void)
 	/* It doesn't matter what variable this is, the reference never makes
 	   it to assembly.  We need a dummy reference to some global variable
 	   via the GOT to make sure the compiler initialized %ebx in time.  */
-	extern int _dl_errno;
 	Elf32_Addr addr;
 	__asm__ ("leal _dl_start@GOTOFF(%%ebx), %0\n"
 	     "subl _dl_start@GOT(%%ebx), %0"
