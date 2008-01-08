@@ -1,4 +1,4 @@
-/* longjmp for SH-5.
+/* __longjmp for SH-5.
    Copyright (C) 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -27,17 +27,17 @@
 #define	DOUBLE(reg,offset)	fld.d	r2, offset*8, reg
 
 
-	.file	"longjmp.S"
+	.file	"__longjmp.S"
 
 	.section .text64,"xa"
 	.align 2
 
-	.global	longjmp	
-	.type	longjmp,@function
+	.global	__longjmp	
+	.type	__longjmp,@function
 
-longjmp:
+__longjmp:
 	/*
-	 *	extern void longjmp(jmp_buf env, int val);
+	 *	extern void __longjmp(jmp_buf env, int val);
 	 *
 	 *	r2 == env
 	 *	r3 == val
@@ -124,12 +124,12 @@ longjmp:
 	#error	__SETJMP_NUM_TRG does agree with expected value
 	#endif
 
-			/* restore Linkage Register (LR) for longjmp return */
+			/* restore Linkage Register (LR) for __longjmp return */
 	INTEGER(r18, __SETJMP_LR)
 	ptabs/l	r18, tr0
 
 			/*
-			 *	must ensure longjmp() never returns 0.
+			 *	must ensure __longjmp() never returns 0.
 			 *	if 'val' == 0, then return 1.
 			 */
 	cmpeq	r3, r63, r2	/* r2 = (r3==0) ? 1 : 0; */
@@ -138,3 +138,4 @@ longjmp:
 			/* return to caller */
 	blink	tr0, r63
 
+libc_hidden_def(__longjmp)
