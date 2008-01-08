@@ -63,18 +63,11 @@ libc_hidden_proto(getenv)
 
 # define EXEC_ALLOC_SIZE(VAR)	size_t VAR;	/* Semicolon included! */
 # define EXEC_ALLOC(SIZE,VAR)	__exec_alloc((VAR = (SIZE)))
-# define EXEC_FREE(PTR,VAR)		__exec_free((PTR),(VAR))
+# define EXEC_FREE(PTR,VAR)		((void)0)
 
 extern void *__exec_alloc(size_t size) attribute_hidden;
-extern void __exec_free(void *ptr, size_t size) attribute_hidden;
 
 # ifdef L___exec_alloc
-
-void attribute_hidden __exec_free(void *ptr, size_t size)
-{
-	if (ptr)
-		munmap(ptr, size);
-}
 
 void attribute_hidden *__exec_alloc(size_t size)
 {
@@ -83,8 +76,8 @@ void attribute_hidden *__exec_alloc(size_t size)
 
 	if (old_size >= size)
 		return p;
-	else
-		__exec_free(p, old_size);
+	else if (p)
+		munmap(p, old_size);
 
 	old_size = size;
 	p = mmap(0, size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
