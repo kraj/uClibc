@@ -202,10 +202,10 @@ typedef struct {
 # define DL_MALLOC_ALIGN (__WORDSIZE / 8)
 #endif
 
-#ifdef __UCLIBC_NO_UNDERSCORES__
-#define __C_SYMBOL_PREFIX__ ""
+#ifdef __UCLIBC_UNDERSCORES__
+# define __C_SYMBOL_PREFIX__ "_"
 #else
-#define __C_SYMBOL_PREFIX__ "_"
+# define __C_SYMBOL_PREFIX__ ""
 #endif
 
 /* Define this if you want to modify the VALUE returned by

@@ -25,7 +25,7 @@
 #define __UCLIBC_HANDLE_OLDER_RLIMIT__
 
 /* does your target prefix all symbols with an _ ? */
-#define __UCLIBC_NO_UNDERSCORES__
+#undef __UCLIBC_UNDERSCORES__
 
 /* does your target have an asm .set ? */
 #define __UCLIBC_HAVE_ASM_SET_DIRECTIVE__

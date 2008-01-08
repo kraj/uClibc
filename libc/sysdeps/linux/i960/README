@@ -16,7 +16,7 @@ prepended underscore
 --------------------
 
 As the i960 compiler prepends an underscore to symbols, it is critical that
-bits/uClibc_arch_features.h undefines __UCLIBC_NO_UNDERSCORES__
+bits/uClibc_arch_features.h defines __UCLIBC_UNDERSCORES__
 to make sure that underscores are applied to symbol names when needed.
 
 

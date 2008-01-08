@@ -19,7 +19,7 @@
 #undef __UCLIBC_BROKEN_CREATE_MODULE__
 
 /* does your target prefix all symbols with an _ ? */
-#undef __UCLIBC_NO_UNDERSCORES__
+#define __UCLIBC_UNDERSCORES__
 
 /* does your target have an asm .set ? */
 #define __UCLIBC_HAVE_ASM_SET_DIRECTIVE__

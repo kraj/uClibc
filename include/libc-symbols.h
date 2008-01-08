@@ -82,12 +82,6 @@
 # define IS_IN_libc 1
 #endif
 
-#ifdef __UCLIBC_NO_UNDERSCORES__
-# define NO_UNDERSCORES
-#else
-# undef NO_UNDERSCORES
-#endif
-
 #ifdef __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
 # define HAVE_ASM_SET_DIRECTIVE
 #else
@@ -124,7 +118,7 @@
 
 #undef C_SYMBOL_NAME
 #ifndef C_SYMBOL_NAME
-# ifdef NO_UNDERSCORES
+# ifndef __UCLIBC_UNDERSCORES__
 #  define C_SYMBOL_NAME(name) name
 # else
 #  define C_SYMBOL_NAME(name) _##name
