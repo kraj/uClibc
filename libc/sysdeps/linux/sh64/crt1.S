@@ -34,47 +34,45 @@
 					NULL
 */
 
-	.file	"crt0.S"
+	.file	"crt1.S"
 
-	.globl _start
-	.globl __main
-
-	.type	__uClibc_start_main,@function
+	.globl	_start
+	.type	_start,%function
+	.type	main,%function
 
 	.section .text64,"xa"
 	.align 2	/* 2^2 = 4 */
 
 _start:
-	/* Clear the frame pointer since this is the outermost frame.  */
-###	mov #0, r14	# qqq
+	/* __uClibc_main (main, argc, argv, init, fini) */
+	movi	__main, r18
+	or	r2, r63, r18	
 
 	/* Pop argc off the stack and save a pointer to argv */
-	ld.l	r15, 0, r2	/* argc */
-	addi	r15, 4, r3	/* argv */
+	ld.l	r15, 0, r3	/* argc */
+	addi	r15, 4, r4	/* argv */
 
-	/* set up the value for the environment pointer r4 = (argc+1)*4+argv */
-	addi	r2, 1, r4	/* envp = argc + 1 */
-	shlli	r4, 2, r4	/* envp = envp * 4 */
-	add	r3, r4, r4	/* envp = envp + argv */
+	movi	_init, r5
+	movi	_fini, r6
 
 	/* call main() */
-	movi	__uClibc_start_main,r17
-	ptabs/l	r17,tr0
-	blink	tr0,r18
+	movi	__uClibc_main, r17
+	ptabs/l	r17, tr0
+	blink	tr0, r18
 
 	/* should never get here....*/
-###	movi	abort@lh,r17
-###	shori	abort@ll,r17
-	ptabs/l	r17,tr0
-	blink	tr0,r63	/* call abort() => (r63) do not come back ... */
+	movi	abort, r17
+	ptabs/l	r17, tr0
+	blink	tr0, r63	/* call abort() => (r63) do not come back ... */
 
-	/*
-	 *	The following is a stub to stop the GNU toolchain
-	 *	from calling its C-RTL initialization routines.
-	 */
+/*
+ *	The following is a stub to stop the GNU toolchain
+ *	from calling its C-RTL initialization routines.
+ */
 __main:
-	ptabs/l	r18,tr0
-	blink	tr0,r63
+	movi	main, r18
+	ptabs/l	r18, tr0
+	blink	tr0, r63
 
 /* Define a symbol for the first piece of initialized data.  */
 	.data
@@ -83,4 +81,3 @@ __data_start:
 	.long 0
 	.weak data_start
 	data_start = __data_start
-
