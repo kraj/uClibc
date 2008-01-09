@@ -63,7 +63,6 @@ define exec_test
 		expected_ret="$(RET_$(patsubst %_glibc,%,$(binary_name)))" ; \
 		test -z "$$expected_ret" && export expected_ret=0 ; \
 	if ! test $$ret -eq $$expected_ret ; then \
-		$(RM) $(binary_name) ; \
 		echo "ret == $$ret ; expected_ret == $$expected_ret" ; \
 		cat "$(binary_name).out" ; \
 		exit 1 ; \
