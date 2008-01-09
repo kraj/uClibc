@@ -234,6 +234,14 @@ libc_hidden_proto(__ctype_b)
 #define DPRINTF(X,args...)
 #endif /* DEBUG */
 
+/* Make sure the incoming char * buffer is aligned enough to handle our random
+ * structures.  This define is the same as we use for malloc alignment (which
+ * has same requirements).  The offset is the number of bytes we need to adjust
+ * in order to attain desired alignment.
+ */
+#define ALIGN_ATTR __alignof__(double __attribute_aligned__ (sizeof(size_t)))
+#define ALIGN_BUFFER_OFFSET(buf) ((ALIGN_ATTR - ((size_t)buf % ALIGN_ATTR)) % ALIGN_ATTR)
+
 
 /* Global stuff (stuff needing to be locked to be thread safe)... */
 extern int __nameservers attribute_hidden;
@@ -1534,6 +1542,15 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 	char *cp, **alias;
 	int aliases, i, ret = HOST_NOT_FOUND;
 
+	/* make sure user char * is aligned */
+	i = ALIGN_BUFFER_OFFSET(buf);
+	if (unlikely(i)) {
+		if (buflen < i)
+			return ERANGE;
+		buf += i;
+		buflen -= i;
+	}
+
 	if (buflen < sizeof(char *)*(ALIAS_DIM))
 		return ERANGE;
 	alias = (char **)buf;
@@ -2028,6 +2045,15 @@ int gethostbyname_r(const char * name,
 	}
 
 	DPRINTF("Nothing found in /etc/hosts\n");
+
+	/* make sure user char * is aligned */
+	i = ALIGN_BUFFER_OFFSET(buf);
+	if (unlikely(i)) {
+		if (buflen < i)
+			return ERANGE;
+		buf += i;
+		buflen -= i;
+	}
 
 	*h_errnop = NETDB_INTERNAL;
 	if (buflen < sizeof(*in))
