@@ -92,7 +92,7 @@ int semop (int semid, struct sembuf *sops, size_t nsops)
 #ifdef L_semtimedop
 
 #ifdef __NR_semtimedop
-_syscall6(int, semtimedop, int, semid, struct sembuf *, sops, size_t, nsops, const struct timespec *, timeout);
+_syscall4(int, semtimedop, int, semid, struct sembuf *, sops, size_t, nsops, const struct timespec *, timeout);
 
 #else
 
