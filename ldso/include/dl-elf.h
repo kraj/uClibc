@@ -141,10 +141,10 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
 			if (dpnt->d_tag == DT_FLAGS_1 &&
 			    (dpnt->d_un.d_val & DF_1_NOW))
 				dynamic_info[DT_BIND_NOW] = 1;
-#ifdef __LDSO_GNU_HASH_SUPPORT__				
+#ifdef __LDSO_GNU_HASH_SUPPORT__
 			if (dpnt->d_tag == DT_GNU_HASH)
 				dynamic_info[DT_GNU_HASH_IDX] = dpnt->d_un.d_ptr;
-#endif				
+#endif
 		}
 #ifdef ARCH_DYNAMIC_INFO
 		else {
@@ -156,7 +156,7 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
 	do { \
 		if (dynamic_info[tag]) \
 			dynamic_info[tag] = (unsigned long) DL_RELOC_ADDR(load_off, dynamic_info[tag]); \
-	} while(0)
+	} while (0)
 	ADJUST_DYN_INFO(DT_HASH, load_off);
 	ADJUST_DYN_INFO(DT_PLTGOT, load_off);
 	ADJUST_DYN_INFO(DT_STRTAB, load_off);
@@ -165,7 +165,7 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
 	ADJUST_DYN_INFO(DT_JMPREL, load_off);
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 	ADJUST_DYN_INFO(DT_GNU_HASH_IDX, load_off);
-#endif	
+#endif
 #undef ADJUST_DYN_INFO
 }
 

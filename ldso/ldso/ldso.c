@@ -694,7 +694,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		if (_dl_stat(tpnt->libname, &st) >= 0) {
 			tpnt->st_dev = st.st_dev;
 			tpnt->st_ino = st.st_ino;
-		} 
+		}
 		tpnt->n_phent = epnt->e_phnum;
 		tpnt->ppnt = myppnt;
 		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
