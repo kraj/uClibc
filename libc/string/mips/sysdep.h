@@ -29,7 +29,7 @@
   .globl name;                                                                \
   .align 2;                                                                   \
   .ent name,0;                                                                \
-  name##:
+  name/* use a comment rather than ## to workaround bug in gcc-3.4.x */:
 
 #undef END
 #define END(function)                                   \
