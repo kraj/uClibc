@@ -140,6 +140,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <errno.h>
+#include <sys/poll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -156,6 +157,14 @@
 #include <sys/utsname.h>
 #include <sys/un.h>
 #include <bits/uClibc_mutex.h>
+
+/* poll() is not supported in kernel <= 2.0, therefore if __NR_poll is
+ * not available, we assume an old Linux kernel is in use and we will
+ * use select() instead. */
+#include <sys/syscall.h>
+#ifndef __NR_poll
+# define USE_SELECT
+#endif
 
 __UCLIBC_MUTEX_EXTERN(__resolv_lock);
 
@@ -185,6 +194,7 @@ libc_hidden_proto(inet_aton)
 libc_hidden_proto(inet_pton)
 libc_hidden_proto(inet_ntop)
 libc_hidden_proto(connect)
+libc_hidden_proto(poll)
 libc_hidden_proto(select)
 libc_hidden_proto(recv)
 libc_hidden_proto(send)
@@ -721,8 +731,12 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 			   unsigned char **outpacket, struct resolv_answer *a)
 {
 	int i, j, len, fd, pos, rc;
+#ifdef USE_SELECT
 	struct timeval tv;
 	fd_set fds;
+#else
+	struct pollfd fds;
+#endif
 	struct resolv_header h;
 	struct resolv_question q;
 	struct resolv_answer ma;
@@ -851,6 +865,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 		send(fd, packet, len, 0);
 
+#ifdef USE_SELECT
 		FD_ZERO(&fds);
 		FD_SET(fd, &fds);
 		tv.tv_sec = REPLY_TIMEOUT;
@@ -862,6 +877,17 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 			 * to next nameserver on queue */
 			goto tryall;
 		}
+#else
+		fds.fd = fd;
+		fds.events = POLLIN;
+		if (poll(&fds, 1, REPLY_TIMEOUT * 1000) <= 0) {
+			DPRINTF("Timeout\n");
+
+			/* timed out, so retry send and receive,
+			 * to next nameserver on queue */
+			goto tryall;
+		}
+#endif
 
 		len = recv(fd, packet, 512, 0);
 		if (len < HFIXEDSZ) {
