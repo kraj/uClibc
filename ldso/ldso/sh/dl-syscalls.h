@@ -4,3 +4,8 @@
 extern int _dl_errno;
 #undef __set_errno
 #define __set_errno(X) {(_dl_errno) = (X);}
+#warning !!! __always_inline redefined waiting for the fixed gcc
+#ifdef __always_inline
+#undef __always_inline
+#define __always_inline inline
+#endif
