@@ -383,6 +383,7 @@ else
 SSP_CFLAGS := $(SSP_DISABLE_FLAGS)
 endif
 
+NOSTDLIB_CFLAGS:=$(call check_gcc,-nostdlib,)
 # Some nice CFLAGS to work with
 CFLAGS := -include $(top_builddir)include/libc-symbols.h \
 	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
