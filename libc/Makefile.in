@@ -15,7 +15,7 @@ ifneq ($(VERSION_SCRIPT),)
 VERSION_SCRIPT := -Wl,--version-script,$(VERSION_SCRIPT)
 endif
 
-LDFLAGS-libc.so := $(LDFLAGS) $(VERSION_SCRIPT) -init $(SYMBOL_PREFIX)__uClibc_init
+LDFLAGS-libc.so := $(LDFLAGS) $(VERSION_SCRIPT) -Wl,-init,$(SYMBOL_PREFIX)__uClibc_init
 
 LIBS-libc.so := $(interp) $(ldso) $(top_builddir)lib/$(NONSHARED_LIBNAME)
 
