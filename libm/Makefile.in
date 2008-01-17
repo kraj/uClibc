@@ -29,20 +29,22 @@ LIBS-libm.so := $(LIBS)
 
 libm_FULL_NAME := libm-$(VERSION).so
 
+libm_DIR:=$(top_srcdir)libm
+libm_OUT:=$(top_builddir)libm
 
 # Fix builds for powerpc as there are different cores in this 
 # section now.`
 ifeq ($(TARGET_ARCH),powerpc)
 ifeq ($(CONFIG_E500),y)
-libm_ARCH_DIR:=$(top_srcdir)libm/$(TARGET_ARCH)/e500
-libm_ARCH_OUT:=$(top_builddir)libm/$(TARGET_ARCH)/e500
+libm_ARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)/e500
+libm_ARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)/e500
 else
-libm_ARCH_DIR:=$(top_srcdir)libm/$(TARGET_ARCH)/classic
-libm_ARCH_OUT:=$(top_builddir)libm/$(TARGET_ARCH)/classic
+libm_ARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)/classic
+libm_ARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)/classic
 endif
 else
-libm_ARCH_DIR:=$(top_srcdir)libm/$(TARGET_ARCH)
-libm_ARCH_OUT:=$(top_builddir)libm/$(TARGET_ARCH)
+libm_ARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)
+libm_ARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)
 endif
 
 libm_ARCH_fpu_DIR:=$(libm_ARCH_DIR)/fpu
@@ -96,9 +98,6 @@ libm_CSRC := \
 # We'll add sqrtf to avoid problems with libstdc++
 FL_MOBJ := sqrtf.o
 endif
-
-libm_DIR := $(top_srcdir)libm
-libm_OUT := $(top_builddir)libm
 
 # assume that arch specific versions are provided as single sources/objects
 ifeq ($(UCLIBC_HAS_FPU),y)
