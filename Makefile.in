@@ -91,6 +91,12 @@ headers: include/bits/uClibc_config.h
 			$(LN) -fs $$i .; \
 		done; \
 	fi
+ifeq ($(UCLIBC_HAS_LOCALE),y)
+	$(MAKE) -C extra/locale locale_headers
+endif
+
+
+pregen: headers
 	$(Q)\
 	set -e; \
 	cd $(top_builddir); \
@@ -102,11 +108,7 @@ headers: include/bits/uClibc_config.h
 	else \
 		mv -f $$tmp include/bits/sysnum.h; \
 	fi
-ifeq ($(UCLIBC_HAS_LOCALE),y)
-	$(MAKE) -C extra/locale locale_headers
-endif
 
-pregen: headers
 
 install: install_runtime install_dev
 
@@ -114,7 +116,7 @@ install: install_runtime install_dev
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
 
 # Installs header files.
-install_headers:
+install_headers: headers
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	printf ".svn\n.cvsignore\nCVS\n" > tar_exclude ; \
 	$(TAR) -chf - -X tar_exclude include \
