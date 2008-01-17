@@ -276,6 +276,7 @@ ifeq ($(TARGET_ARCH),sh64)
 endif
 
 ifeq ($(TARGET_ARCH),h8300)
+	SYMBOL_PREFIX=_
 	CPU_LDFLAGS-$(CONFIG_H8300H)+= -Wl,-ms8300h
 	CPU_LDFLAGS-$(CONFIG_H8S)   += -Wl,-ms8300s
 	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32
@@ -310,6 +311,7 @@ ifeq ($(TARGET_ARCH),powerpc)
 endif
 
 ifeq ($(TARGET_ARCH),bfin)
+	SYMBOL_PREFIX=_
 ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
 	CPU_CFLAGS-y:=-mfdpic
 	CPU_LDFLAGS-y += -Wl,-melf32bfinfd
@@ -336,6 +338,18 @@ ifeq ($(strip $(TARGET_ARCH)),avr32)
        CPU_CFLAGS-$(CONFIG_AVR32_AP7)  += -march=ap
        CPU_CFLAGS-$(CONFIG_LINKRELAX)  += -mrelax
        CPU_LDFLAGS-$(CONFIG_LINKRELAX) += --relax
+endif
+
+ifeq ($(TARGET_ARCH),i960)
+      SYMBOL_PREFIX=_
+endif
+
+ifeq ($(TARGET_ARCH),microblaze)
+      SYMBOL_PREFIX=_
+endif
+
+ifeq ($(TARGET_ARCH),v850)
+      SYMBOL_PREFIX=_
 endif
 
 # Keep the check_gcc from being needlessly executed
@@ -531,6 +545,10 @@ CFLAGS += -iwithprefix include-fixed -iwithprefix include
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
+endif
+
+ifeq ($(SYMBOL_PREFIX),_)
+CFLAGS+=-D__UCLIBC_UNDERSCORES__
 endif
 
 # Keep the check_as from being needlessly executed
