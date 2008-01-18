@@ -229,6 +229,13 @@ else
 CTOR_TARGETS:=
 endif
 
+ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
+CRTRELOC=$(top_builddir)lib/crtreloc.o
+$(CRTRELOC): $(top_builddir)lib/%.o : $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/%.c
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(compile.c)
+endif
+
 ifneq ($(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/initfini.c),)
 CFLAGS-initfini.s := -S -g0 $(PICFLAG) -fno-inline-functions -finhibit-size-directive
 $(top_builddir)lib/initfini.s: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/initfini.c
@@ -266,8 +273,8 @@ endif
 CRTS_COMPAT :=
 #endif
 
-$(crt-y): $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT)
-$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT): | headers
+$(crt-y): $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC)
+$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | headers
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)
