@@ -401,7 +401,8 @@ NOSTDLIB_CFLAGS:=$(call check_gcc,-nostdlib,)
 # Some nice CFLAGS to work with
 CFLAGS := -include $(top_builddir)include/libc-symbols.h \
 	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-fno-builtin -nostdinc -I$(top_builddir)include -I.
+	-fno-builtin -nostdinc -I$(top_builddir)include -I. \
+	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
 
 ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
 CFLAGS += $(subst ",, $(UCLIBC_EXTRA_CFLAGS))
