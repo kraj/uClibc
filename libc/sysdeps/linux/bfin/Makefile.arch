@@ -5,8 +5,11 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := brk.c bsdsetjmp.c clone.c syscall.c
+CSRC := brk.c bsdsetjmp.c clone.c syscall.c mmap.c \
+	sram-alloc.c sram-free.c dma-memcpy.c
 
 SSRC := __longjmp.S setjmp.S bsd-_setjmp.S vfork.S
+
+ARCH_HEADERS := bfin_l1layout.h bfin_sram.h
 
 include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch
