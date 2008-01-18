@@ -995,20 +995,18 @@ int dladdr(const void *__address, Dl_info * __info)
 	 */
 	pelf = NULL;
 
-#if 0
-	fprintf(stderr, "dladdr( %p, %p )\n", __address, __info);
-#endif
+	_dl_if_debug_print("dladdr( %p, %p )\n", __address, __info);
 
 	for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next) {
 		struct elf_resolve *tpnt;
 
 		tpnt = rpnt;
-#if 0
-		fprintf(stderr, "Module \"%s\" at %p\n",
+
+		_dl_if_debug_print("Module \"%s\" at %p\n",
 				tpnt->libname, tpnt->loadaddr);
-#endif
-		if (tpnt->loadaddr < (ElfW(Addr)) __address
-				&& (pelf == NULL || pelf->loadaddr < tpnt->loadaddr)) {
+
+		if (tpnt->mapaddr < (ElfW(Addr)) __address
+				&& (pelf == NULL || pelf->mapaddr < tpnt->mapaddr)) {
 			pelf = tpnt;
 		}
 	}
@@ -1025,13 +1023,41 @@ int dladdr(const void *__address, Dl_info * __info)
 		char *strtab;
 		ElfW(Sym) *symtab;
 		unsigned int hn, si, sn, sf;
-		ElfW(Addr) sa;
+		ElfW(Addr) sa = 0;
 
-		sa = 0;
+		/* Set the info for the object the address lies in */
+		__info->dli_fname = pelf->libname;
+		__info->dli_fbase = (void *)(pelf->mapaddr);
+
 		symtab = (ElfW(Sym) *) (pelf->dynamic_info[DT_SYMTAB]);
 		strtab = (char *) (pelf->dynamic_info[DT_STRTAB]);
 
 		sf = sn = 0;
+#ifdef __LDSO_GNU_HASH_SUPPORT__
+		if (pelf->l_gnu_bitmask) {
+			for (hn = 0; hn < pelf->nbucket; hn++) {
+				si = pelf->l_gnu_buckets[hn];
+				if (!si)
+					continue;
+
+				const Elf32_Word *hasharr = &pelf->l_gnu_chain_zero[si];
+				do {
+					ElfW(Addr) symbol_addr;
+
+					symbol_addr = (ElfW(Addr)) pelf->loadaddr + symtab[si].st_value;
+					if (symbol_addr <= (ElfW(Addr))__address && (!sf || sa < symbol_addr)) {
+						sa = symbol_addr;
+						sn = si;
+						sf = 1;
+					}
+
+					_dl_if_debug_print("Symbol \"%s\" at %p\n",
+									strtab + symtab[si].st_name, symbol_addr);
+					++si;
+				} while ((*hasharr++ & 1u) == 0);
+			}
+		} else
+#endif
 		for (hn = 0; hn < pelf->nbucket; hn++) {
 			for (si = pelf->elf_buckets[hn]; si; si = pelf->chains[si]) {
 				ElfW(Addr) symbol_addr;
@@ -1042,18 +1068,21 @@ int dladdr(const void *__address, Dl_info * __info)
 					sn = si;
 					sf = 1;
 				}
-#if 0
-				fprintf(stderr, "Symbol \"%s\" at %p\n",
+
+				_dl_if_debug_print("Symbol \"%s\" at %p\n",
 						strtab + symtab[si].st_name, symbol_addr);
-#endif
 			}
 		}
 
 		if (sf) {
-			__info->dli_fname = pelf->libname;
-			__info->dli_fbase = (void *)pelf->loadaddr;
+			/* A nearest symbol has been found; fill the entries */
 			__info->dli_sname = strtab + symtab[sn].st_name;
 			__info->dli_saddr = (void *)sa;
+		} else {
+			/* No symbol found, fill entries with NULL value,
+			only the containing object will be returned. */
+			__info->dli_sname = NULL;
+			__info->dli_saddr = NULL;
 		}
 		return 1;
 	}

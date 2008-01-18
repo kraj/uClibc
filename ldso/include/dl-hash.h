@@ -59,6 +59,7 @@ struct elf_resolve {
   unsigned int l_need_tls_init:1;
 #endif
 
+  ElfW(Addr) mapaddr;
   enum {elf_lib, elf_executable,program_interpreter, loaded_file} libtype;
   struct dyn_elf * symbol_scope;
   unsigned short usage_count;
