@@ -168,8 +168,8 @@ typedef struct {
  */
 #ifndef DL_ADDR_IN_LOADADDR
 # define DL_ADDR_IN_LOADADDR(ADDR, TPNT, TFROM) \
-	((void*)(TPNT)->loadaddr < (void*)(ADDR) \
-	 && (!(TFROM) || (TFROM)->loadaddr < (TPNT)->loadaddr))
+	((void*)(TPNT)->mapaddr < (void*)(ADDR) \
+	 && (!(TFROM) || (TFROM)->mapaddr < (TPNT)->mapaddr))
 #endif
 
 /* This is called from dladdr() to give targets that use function descriptors
