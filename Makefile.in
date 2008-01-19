@@ -140,6 +140,11 @@ ifneq ($(UCLIBC_HAS_FLOATS),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tgmath.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_fpmax.h
 endif
+ifneq ($(UCLIBC_HAS_FENV),y)
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/fenv.h \
+		$(PREFIX)$(DEVEL_PREFIX)include/bits/fenv.h \
+		$(PREFIX)$(DEVEL_PREFIX)include/bits/fenvinline.h
+endif
 ifneq ($(UCLIBC_HAS_WCHAR),y)
 	# Remove wide char headers since wide char support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/wctype.h

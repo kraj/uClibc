@@ -159,6 +159,15 @@ config DO_C99_MATH
 	  If your applications require the newer C99 math library functions, 
 	  then answer Y.
 
+config UCLIBC_HAS_FENV
+	bool "Enable C99 Floating-point environment"
+	depends on UCLIBC_HAS_FLOATS
+	default n
+	help
+	  If you want the uClibc math library to contain the C99 floating
+	  point environment, rounding and exception handling functions then
+	  say Y here.
+
 config KERNEL_HEADERS
 	string "Linux kernel header location"
 	default "/usr/include"
