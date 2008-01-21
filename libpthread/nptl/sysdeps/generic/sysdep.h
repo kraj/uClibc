@@ -17,6 +17,25 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#ifndef C_LABEL
+
+/* Define a macro we can use to construct the asm name for a C symbol.  */
+#ifdef	NO_UNDERSCORES
+#ifdef	__STDC__
+#define C_LABEL(name)		name##:
+#else
+#define C_LABEL(name)		name/**/:
+#endif
+#else
+#ifdef	__STDC__
+#define C_LABEL(name)		_##name##:
+#else
+#define C_LABEL(name)		_/**/name/**/:
+#endif
+#endif
+
+#endif
+
 #ifdef __ASSEMBLER__
 /* Mark the end of function named SYM.  This is used on some platforms
    to generate correct debugging information.  */
