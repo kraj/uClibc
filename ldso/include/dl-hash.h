@@ -34,6 +34,7 @@ struct elf_resolve {
   struct elf_resolve * next;
   struct elf_resolve * prev;
   /* Nothing after this address is used by gdb. */
+  DL_LOADADDR_TYPE mapaddr;    /* Address at which ELF segments (either main app and DSO) are mapped into */
   enum {elf_lib, elf_executable,program_interpreter, loaded_file} libtype;
   struct dyn_elf * symbol_scope;
   unsigned short usage_count;
@@ -90,7 +91,7 @@ extern char * _dl_not_lazy;
 
 static inline int _dl_symbol(char * name)
 {
-  if(name[0] != '_' || name[1] != 'd' || name[2] != 'l' || name[3] != '_')
+  if (name[0] != '_' || name[1] != 'd' || name[2] != 'l' || name[3] != '_')
     return 0;
   return 1;
 }

@@ -186,7 +186,7 @@ void *dlopen(const char *libname, int flag)
 			_dl_debug_bindings = strstr(_dl_debug, "bind");
 		}
 	}
-# endif	
+# endif
 #endif
 
 	_dl_map_cache();
@@ -208,7 +208,7 @@ void *dlopen(const char *libname, int flag)
 				tfrom = tpnt;
 		}
 	}
-	for(rpnt = _dl_symbol_tables; rpnt && rpnt->next; rpnt=rpnt->next);
+	for (rpnt = _dl_symbol_tables; rpnt && rpnt->next; rpnt=rpnt->next);
 
 	relro_ptr = rpnt;
 	now_flag = (flag & RTLD_NOW) ? RTLD_NOW : 0;
@@ -218,8 +218,8 @@ void *dlopen(const char *libname, int flag)
 #ifndef SHARED
 	/* When statically linked, the _dl_library_path is not yet initialized */
 	_dl_library_path = getenv("LD_LIBRARY_PATH");
-#endif	
-	
+#endif
+
 	/* Try to load the specified library */
 	_dl_if_debug_print("Trying to dlopen '%s', RTLD_GLOBAL:%d RTLD_NOW:%d\n",
 			(char*)libname, (flag & RTLD_GLOBAL ? 1:0), (now_flag & RTLD_NOW ? 1:0));
@@ -244,7 +244,7 @@ void *dlopen(const char *libname, int flag)
 			if (handle->dyn == tpnt) {
 				dyn_chain->init_fini.init_fini = handle->init_fini.init_fini;
 				dyn_chain->init_fini.nlist = handle->init_fini.nlist;
-				for(i=0; i < dyn_chain->init_fini.nlist; i++)
+				for (i = 0; i < dyn_chain->init_fini.nlist; i++)
 					dyn_chain->init_fini.init_fini[i]->rtld_flags |= (flag & RTLD_GLOBAL);
 				dyn_chain->next = handle->next;
 				break;
@@ -314,7 +314,7 @@ void *dlopen(const char *libname, int flag)
 	i = 0;
 	for (runp2 = dep_list; runp2; runp2 = runp2->next) {
 		init_fini_list[i++] = runp2->tpnt;
-		for(runp = runp2->tpnt->init_fini; runp; runp = runp->next){
+		for (runp = runp2->tpnt->init_fini; runp; runp = runp->next) {
 			if (!(runp->tpnt->rtld_flags & RTLD_GLOBAL)) {
 				tmp = malloc(sizeof(struct init_fini_list));
 				tmp->tpnt = runp->tpnt;
@@ -346,9 +346,9 @@ void *dlopen(const char *libname, int flag)
 		}
 	}
 #ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug) {
+	if (_dl_debug) {
 		fprintf(stderr, "\nINIT/FINI order and dependencies:\n");
-		for (i=0;i < nlist;i++) {
+		for (i = 0; i < nlist; i++) {
 			fprintf(stderr, "lib: %s has deps:\n", init_fini_list[i]->libname);
 			runp = init_fini_list[i]->init_fini;
 			for (; runp; runp = runp->next)
@@ -703,9 +703,12 @@ int dladdr(const void *__address, Dl_info * __info)
 		char *strtab;
 		ElfW(Sym) *symtab;
 		unsigned int hn, si, sn, sf;
-		ElfW(Addr) sa;
+		ElfW(Addr) sa = 0;
 
-		sa = 0;
+		/* Set the info for the object the address lies in */
+		__info->dli_fname = pelf->libname;
+		__info->dli_fbase = (void *) DL_LOADADDR_BASE(pelf->mapaddr);
+
 		symtab = (ElfW(Sym) *) (pelf->dynamic_info[DT_SYMTAB]);
 		strtab = (char *) (pelf->dynamic_info[DT_STRTAB]);
 
@@ -727,10 +730,14 @@ int dladdr(const void *__address, Dl_info * __info)
 		}
 
 		if (sf) {
-			__info->dli_fname = pelf->libname;
-			__info->dli_fbase = (void *) DL_LOADADDR_BASE(pelf->loadaddr);
+			/* A nearest symbol has been found; fill the entries */
 			__info->dli_sname = strtab + symtab[sn].st_name;
 			__info->dli_saddr = (void *)sa;
+		} else {
+			/* No symbol found, fill entries with NULL value,
+			only the containing object will be returned. */
+			__info->dli_sname = NULL;
+			__info->dli_saddr = NULL;
 		}
 		return 1;
 	}

@@ -133,6 +133,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
                           ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp,
                           char **argv)
 {
+	DL_LOADADDR_TYPE app_loadaddr = NULL;
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
 	char *lpntstr;
@@ -274,6 +275,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			relro_addr = ppnt->p_vaddr;
 			relro_size = ppnt->p_memsz;
 		}
+		if (!app_loadaddr && (ppnt->p_type == PT_LOAD)) {
+			app_loadaddr = ppnt->p_vaddr;
+		}
 		if (ppnt->p_type == PT_DYNAMIC) {
 			dpnt = (ElfW(Dyn) *) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr);
 			_dl_parse_dynamic_info(dpnt, app_tpnt->dynamic_info, debug_addr, app_tpnt->loadaddr);
@@ -312,7 +316,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			/* OK, we have what we need - slip this one into the list. */
 			app_tpnt = _dl_add_elf_hash_table(_dl_progname, app_tpnt->loadaddr,
 					app_tpnt->dynamic_info,
-					DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr),
+					(unsigned long) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr),
 					ppnt->p_filesz);
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
@@ -320,6 +324,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 			rpnt->dyn = _dl_loaded_modules;
+			app_tpnt->mapaddr = app_loadaddr;
 			app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
 			app_tpnt->usage_count++;
 			app_tpnt->symbol_scope = _dl_symbol_tables;
@@ -344,7 +349,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			if (ptmp != _dl_ldsopath)
 				*ptmp = '\0';
 
-			_dl_debug_early("Lib Loader: (%x) %s\n", DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
+			_dl_debug_early("Lib Loader: (%x) %s\n", (unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
 		}
 	}
 	app_tpnt->relro_addr = relro_addr;
@@ -692,7 +697,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		if (_dl_stat(tpnt->libname, &st) >= 0) {
 			tpnt->st_dev = st.st_dev;
 			tpnt->st_ino = st.st_ino;
-		} 
+		}
 		tpnt->n_phent = epnt->e_phnum;
 		tpnt->ppnt = myppnt;
 		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
