@@ -281,6 +281,9 @@ typedef struct
    unofficial e_machine number should eventually ask registry@caldera.com for
    an officially blessed number to be added to the list above.  */
 
+/* Imagination Technologies Meta */
+#define EM_METAG        174
+
 /* picoJava */
 #define EM_PJ_OLD	99
 
@@ -3139,6 +3142,47 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_MICROBLAZE_GOTOFF_32 20  /* offset relative to GOT */
 #define R_MICROBLAZE_COPY 21  /* runtime copy */
 #define R_MICROBLAZE_NUM 22
+
+/* Meta relocations */
+#define R_METAG_HIADDR16                 0
+#define R_METAG_LOADDR16                 1
+#define R_METAG_ADDR32                   2
+#define R_METAG_NONE                     3
+#define R_METAG_RELBRANCH                4
+#define R_METAG_GETSETOFF                5
+
+/* Backward compatability */
+#define R_METAG_REG32OP1                 6
+#define R_METAG_REG32OP2                 7
+#define R_METAG_REG32OP3                 8
+#define R_METAG_REG16OP1                 9
+#define R_METAG_REG16OP2                10
+#define R_METAG_REG16OP3                11
+#define R_METAG_REG32OP4                12
+
+#define R_METAG_HIOG                    13
+#define R_METAG_LOOG                    14
+
+/* GNU */
+#define R_METAG_GNU_VTINHERIT           30
+#define R_METAG_GNU_VTENTRY             31
+
+/* PIC relocations */
+#define R_METAG_HI16_GOTOFF             32
+#define R_METAG_LO16_GOTOFF             33
+#define R_METAG_GETSET_GOTOFF           34
+#define R_METAG_GETSET_GOT              35
+#define R_METAG_HI16_GOTPC              36
+#define R_METAG_LO16_GOTPC              37
+#define R_METAG_HI16_PLT                38
+#define R_METAG_LO16_PLT                39
+#define R_METAG_RELBRANCH_PLT           40
+#define R_METAG_GOTOFF                  41
+#define R_METAG_PLT                     42
+#define R_METAG_COPY                    43
+#define R_METAG_JMP_SLOT                44
+#define R_METAG_RELATIVE                45
+#define R_METAG_GLOB_DAT                46
 
 #ifdef	__cplusplus
 }
