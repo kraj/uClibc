@@ -132,3 +132,10 @@ S:	Unmaintained
 X86_64
 S:	Unmaintained
 
+
+XTENSA
+P:	Chris Zankel
+E:	chris@zankel.net
+W:	http://linux-xtensa.org/
+S:	Maintained
+
