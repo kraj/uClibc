@@ -24,6 +24,7 @@ choice
 	default TARGET_i960 if DESIRED_TARGET_ARCH = "i960"
 	default TARGET_ia64 if DESIRED_TARGET_ARCH = "ia64"
 	default TARGET_m68k if DESIRED_TARGET_ARCH = "m68k"
+	default TARGET_metag if DESIRED_TARGET_ARCH = "metag"
 	default TARGET_microblaze if DESIRED_TARGET_ARCH = "microblaze"
 	default TARGET_mips if DESIRED_TARGET_ARCH = "mips"
 	default TARGET_nios if DESIRED_TARGET_ARCH = "nios"
@@ -80,6 +81,9 @@ config TARGET_ia64
 
 config TARGET_m68k
 	bool "m68k"
+
+config TARGET_metag
+	bool "metag"
 
 config TARGET_microblaze
 	bool "microblaze"
@@ -172,6 +176,10 @@ endif
 
 if TARGET_m68k
 source "extra/Configs/Config.m68k"
+endif
+
+if TARGET_metag
+source "extra/Configs/Config.metag"
 endif
 
 if TARGET_nios
@@ -1491,7 +1499,7 @@ config UCLIBC_BUILD_MINIMAL_LOCALE
 
 config UCLIBC_PREGENERATED_LOCALE_DATA
 	bool "Use Pre-generated Locale Data"
-	depends on UCLIBC_HAS_LOCALE
+	depends on UCLIBC_HAS_LOCALE && !TARGET_metag
 	help
 	  Use pre-built locale data.
 

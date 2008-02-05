@@ -405,6 +405,12 @@ ifeq ($(TARGET_ARCH),arm)
 	CPU_CFLAGS-$(COMPILE_IN_THUMB_MODE)+=-mthumb
 endif
 
+ifeq ($(TARGET_ARCH),metag)
+        SYMBOL_PREFIX=_
+        CPU_CFLAGS-$(CONFIG_META_1_2)+=
+        CPU_CFLAGS-$(CONFIG_META_2_1)+=-Wa,-mcpu=metac21
+endif
+
 ifeq ($(TARGET_ARCH),mips)
 	OPTIMIZATION+=-mno-split-addresses
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_1)+=-mips1
