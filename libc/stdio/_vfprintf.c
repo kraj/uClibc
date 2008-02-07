@@ -898,7 +898,7 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 				) {
 				return -1;
 			}
-		} while (buf[i++]);
+		} while (buf[i++] && (i < sizeof(buf)));
 		buf[sizeof(buf)-1] = 0;
 	}
 #else  /* __UCLIBC_HAS_WCHAR__ */
