@@ -823,7 +823,7 @@ getaddrinfo (const char *name, const char *service,
 	hints = &default_hints;
 
     if (hints->ai_flags & ~(AI_PASSIVE|AI_CANONNAME|AI_NUMERICHOST|
-			    AI_ADDRCONFIG|AI_V4MAPPED|AI_ALL))
+			    AI_ADDRCONFIG|AI_V4MAPPED|AI_NUMERICSERV|AI_ALL))
 	return EAI_BADFLAGS;
 
     if ((hints->ai_flags & AI_CANONNAME) && name == NULL)
@@ -834,8 +834,12 @@ getaddrinfo (const char *name, const char *service,
 	char *c;
 	gaih_service.name = service;
 	gaih_service.num = strtoul (gaih_service.name, &c, 10);
-	if (*c)
+	if (*c != '\0') {
+		if (hints->ai_flags & AI_NUMERICSERV)
+			return EAI_NONAME;
+
 	    gaih_service.num = -1;
+	}
 	else
 	    /*
 	     * Can't specify a numerical socket unless a protocol
