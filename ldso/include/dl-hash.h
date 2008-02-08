@@ -34,7 +34,7 @@ struct elf_resolve {
   struct elf_resolve * next;
   struct elf_resolve * prev;
   /* Nothing after this address is used by gdb. */
-  DL_LOADADDR_TYPE mapaddr;    /* Address at which ELF segments (either main app and DSO) are mapped into */
+  ElfW(Addr) mapaddr;    /* Address at which ELF segments (either main app and DSO) are mapped into */
   enum {elf_lib, elf_executable,program_interpreter, loaded_file} libtype;
   struct dyn_elf * symbol_scope;
   unsigned short usage_count;

@@ -135,7 +135,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			  char **argv
 			  DL_GET_READY_TO_RUN_EXTRA_PARMS)
 {
-	DL_LOADADDR_TYPE app_loadaddr = NULL;
+	ElfW(Addr) app_mapaddr = 0;
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
 	char *lpntstr;
@@ -277,8 +277,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			relro_addr = ppnt->p_vaddr;
 			relro_size = ppnt->p_memsz;
 		}
-		if (!app_loadaddr && (ppnt->p_type == PT_LOAD)) {
-			app_loadaddr = ppnt->p_vaddr;
+		if (!app_mapaddr && (ppnt->p_type == PT_LOAD)) {
+			app_mapaddr = DL_RELOC_ADDR (app_tpnt->loadaddr, ppnt->p_vaddr);
 		}
 		if (ppnt->p_type == PT_DYNAMIC) {
 			dpnt = (ElfW(Dyn) *) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr);
@@ -326,7 +326,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 			rpnt->dyn = _dl_loaded_modules;
-			app_tpnt->mapaddr = app_loadaddr;
+			app_tpnt->mapaddr = app_mapaddr;
 			app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
 			app_tpnt->usage_count++;
 			app_tpnt->symbol_scope = _dl_symbol_tables;

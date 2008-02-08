@@ -152,7 +152,8 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 		hash_addr += tpnt->nbucket;
 		tpnt->chains = hash_addr;
 	}
-	tpnt->loadaddr = tpnt->mapaddr = loadaddr;
+	tpnt->loadaddr = loadaddr;
+	tpnt->mapaddr = DL_RELOC_ADDR(loadaddr, 0);
 	for (i = 0; i < DYNAMIC_SIZE; i++)
 		tpnt->dynamic_info[i] = dynamic_info[i];
 	return tpnt;

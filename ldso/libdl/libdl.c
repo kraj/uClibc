@@ -743,7 +743,7 @@ int dladdr(const void *__address, Dl_info * __info)
 
 		/* Set the info for the object the address lies in */
 		__info->dli_fname = pelf->libname;
-		__info->dli_fbase = (void *) DL_LOADADDR_BASE(pelf->mapaddr);
+		__info->dli_fbase = pelf->mapaddr;
 
 		symtab = (ElfW(Sym) *) (pelf->dynamic_info[DT_SYMTAB]);
 		strtab = (char *) (pelf->dynamic_info[DT_STRTAB]);
