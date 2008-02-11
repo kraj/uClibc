@@ -54,7 +54,7 @@ lib-gdb-y += $(top_builddir)lib/libc.gdb
 lib-so-y += $(libc)
 objclean-y += libc_clean
 
-OUTPUT_FORMAT = $(CC) $(CFLAGS) -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\([^"]*\)",.*/\1/p'
+OUTPUT_FORMAT = $(CC) $(CFLAGS) -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\([^"]*\)",.*/OUTPUT_FORMAT ( \1 )/p'
 
 ifeq ($(DOMULTI),n)
 $(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
@@ -66,7 +66,7 @@ $(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc.oS $(libc-nomulti-y:.o=.oS) | $(LIB
 endif
 	$(Q)$(RM) $@
 	$(Q)cp $(top_srcdir)extra/scripts/format.lds $@
-	$(Q)echo "OUTPUT_FORMAT ( $(shell $(OUTPUT_FORMAT)) )" >> $@
+	$(Q)echo "$(shell $(OUTPUT_FORMAT))" >> $@
 ifeq ($(COMPAT_ATEXIT),y)
 	$(Q)echo "GROUP ( $(NONSHARED_LIBNAME) $(SHARED_MAJORNAME) $(ASNEEDED) )" >> $@
 else
