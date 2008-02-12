@@ -761,7 +761,7 @@ int dladdr(const void *__address, Dl_info * __info)
 				do {
 					ElfW(Addr) symbol_addr;
 
-					symbol_addr = (ElfW(Addr)) pelf->loadaddr + symtab[si].st_value;
+					symbol_addr = (ElfW(Addr)) DL_RELOC_ADDR(pelf->loadaddr, symtab[si].st_value);
 					if (symbol_addr <= (ElfW(Addr))__address && (!sf || sa < symbol_addr)) {
 						sa = symbol_addr;
 						sn = si;
