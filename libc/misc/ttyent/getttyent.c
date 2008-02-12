@@ -55,6 +55,7 @@ libc_hidden_proto(__ctype_b_loc)
 #elif __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
+libc_hidden_proto(__uc_malloc)
 
 static char zapchar;
 static FILE *tf;

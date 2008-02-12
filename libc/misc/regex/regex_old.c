@@ -48,6 +48,7 @@ libc_hidden_proto(abort)
 #ifdef __USE_GNU
 libc_hidden_proto(mempcpy)
 #endif
+libc_hidden_proto(__uc_malloc)
 
 /* AIX requires this to be the first thing in the file. */
 #if defined _AIX && !defined REGEX_MALLOC

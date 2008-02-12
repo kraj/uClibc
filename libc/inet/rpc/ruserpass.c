@@ -65,6 +65,7 @@ libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
 libc_hidden_proto(getc_unlocked)
 libc_hidden_proto(__fgetc_unlocked)
+libc_hidden_proto(__uc_malloc)
 
 #define _(X)  (X)
 /* #include "ftp_var.h" */

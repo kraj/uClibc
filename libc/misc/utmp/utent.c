@@ -30,6 +30,7 @@ libc_hidden_proto(open)
 libc_hidden_proto(fcntl)
 libc_hidden_proto(close)
 libc_hidden_proto(lseek)
+libc_hidden_proto(__uc_malloc)
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(utmplock, PTHREAD_MUTEX_INITIALIZER);

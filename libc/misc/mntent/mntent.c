@@ -26,6 +26,7 @@ libc_hidden_proto(fseek)
 libc_hidden_proto(fgets)
 libc_hidden_proto(abort)
 libc_hidden_proto(fprintf)
+libc_hidden_proto(__uc_malloc)
 
 /* Reentrant version of getmntent.  */
 struct mntent *getmntent_r (FILE *filep, 
