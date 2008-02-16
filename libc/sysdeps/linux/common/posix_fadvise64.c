@@ -34,7 +34,7 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
     int ret = INTERNAL_SYSCALL (posix_fadvise64, err, 6, fd,
                                __LONG_LONG_PAIR ((long) (offset >> 32),
                                                  (long) offset),
-                               (off_t) len, advise);
+                               (off_t) len, advice);
   if (!INTERNAL_SYSCALL_ERROR_P (ret, err))
     return 0;
   return INTERNAL_SYSCALL_ERRNO (ret, err);
