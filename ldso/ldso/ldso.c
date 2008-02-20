@@ -427,9 +427,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	debug_addr->r_brk = (unsigned long) &_dl_debug_state;
 	_dl_debug_addr = debug_addr;
 
-	/* Notify the debugger we are in a consistant state */
-	_dl_debug_addr->r_state = RT_CONSISTENT;
-	_dl_debug_state();
+	/* Do notify the debugger untile the interpreter is in the list */
 
 	/* OK, we now have the application in the list, and we have some
 	 * basic stuff in place.  Now search through the list for other shared
