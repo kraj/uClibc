@@ -38,7 +38,7 @@ __BEGIN_DECLS
 /* Type for a general-purpose register.  */
 typedef unsigned long elf_greg_t;
 
-#define ELF_NGREG 32
+#define ELF_NGREG 128
 typedef elf_greg_t elf_gregset_t[ELF_NGREG];
 
 /* Register set for the floating-point registers.  */
