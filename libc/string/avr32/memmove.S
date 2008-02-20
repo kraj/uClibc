@@ -15,7 +15,7 @@
        .type   memmove, @function
 memmove:
        cp.w    src, dst
-       brge    __GI_memcpy
+       brge    HIDDEN_JUMPTARGET(memcpy)
 
        add     dst, len
        add     src, len

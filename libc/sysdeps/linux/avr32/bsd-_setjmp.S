@@ -12,5 +12,5 @@
        .align  1
 _setjmp:
        mov     r11, 0
-       bral    __GI___sigsetjmp
+       bral    HIDDEN_JUMPTARGET(__sigsetjmp)
        .size   _setjmp, . - _setjmp

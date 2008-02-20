@@ -19,7 +19,7 @@ bcopy:
        eor     r11, r12
        eor     r12, r11
        eor     r11, r12
-       rjmp    __GI_memmove
+       rjmp    HIDDEN_JUMPTARGET(memmove)
 
        .size   bcopy, . - bcopy
 
