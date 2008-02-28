@@ -23,7 +23,7 @@ CSRC +=	encodeh.c decodeh.c encoded.c decoded.c lengthd.c encodeq.c \
 	res_query.c gethostbyaddr.c read_etc_hosts_r.c get_hosts_byname_r.c \
 	get_hosts_byaddr_r.c gethostbyname2.c getnameinfo.c gethostent.c \
 	gethostbyname_r.c gethostbyname2_r.c gethostbyaddr_r.c \
-	res_comp.c ns_name.c
+	res_comp.c ns_name.c ethers.c
 
 # unused ATM
 CSRC += encodep.c decodep.c formquery.c
