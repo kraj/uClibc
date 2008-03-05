@@ -34,6 +34,8 @@ USA.  */
 
 #define DL_NO_COPY_RELOCS
 
+#define HAVE_DL_INLINES_H
+
 /*
  * Initialization sequence for a GOT.  Copy the resolver function
  * descriptor and the pointer to the elf_resolve/link_map data
@@ -93,7 +95,7 @@ struct funcdesc_ht;
 #define DL_LOADADDR_TYPE struct elf32_fdpic_loadaddr
 
 #define DL_RELOC_ADDR(LOADADDR, ADDR) \
-  (__reloc_pointer ((void*)(ADDR), (LOADADDR).map))
+    ((ElfW(Addr))__reloc_pointer ((void*)(ADDR), (LOADADDR).map))
 
 #define DL_ADDR_TO_FUNC_PTR(ADDR, LOADADDR) \
   ((void(*)(void)) _dl_funcdesc_for ((void*)(ADDR), (LOADADDR).got_value))
@@ -136,6 +138,17 @@ struct funcdesc_ht;
 #define DL_ADDR_IN_LOADADDR(ADDR, TPNT, TFROM) \
   (! (TFROM) && __dl_addr_in_loadaddr ((void*)(ADDR), (TPNT)->loadaddr))
 
+/*
+ * Compute the GOT address.  On several platforms, we use assembly
+ * here.  on FR-V FDPIC, there's no way to compute the GOT address,
+ * since the offset between text and data is not fixed, so we arrange
+ * for the assembly _dl_boot to pass this value as an argument to
+ * _dl_boot.  */
+#define DL_BOOT_COMPUTE_GOT(got) ((got) = dl_boot_got_pointer)
+
+#define DL_BOOT_COMPUTE_DYN(dpnt, got, load_addr) \
+  ((dpnt) = dl_boot_ldso_dyn_pointer)
+
 /* We only support loading FDPIC independently-relocatable shared
    libraries.  It probably wouldn't be too hard to support loading
    shared libraries that require relocation by the same amount, but we
@@ -176,7 +189,7 @@ while (0)
 #define DL_FIND_HASH_VALUE(TPNT, TYPE_CLASS, SYM) \
   (((TYPE_CLASS) & ELF_RTYPE_CLASS_DLSYM) \
    && ELF32_ST_TYPE((SYM)->st_info) == STT_FUNC \
-   ? _dl_funcdesc_for (DL_RELOC_ADDR ((TPNT)->loadaddr, (SYM)->st_value),    \
+   ? _dl_funcdesc_for ((void *)DL_RELOC_ADDR ((TPNT)->loadaddr, (SYM)->st_value), \
  		       (TPNT)->loadaddr.got_value)			     \
    : DL_RELOC_ADDR ((TPNT)->loadaddr, (SYM)->st_value))
 

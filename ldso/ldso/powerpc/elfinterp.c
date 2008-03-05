@@ -213,7 +213,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		 * here, so all bases should be covered.
 		 */
 		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
-			return -1;
+			return 1;
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
 	old_val = *reloc_addr;

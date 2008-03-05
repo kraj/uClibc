@@ -8,7 +8,6 @@
  */
 __asm__ (
 	"	.text\n"
-	"	.align 16\n"
 	"	.global _start\n"
 	"	.type   _start,%function\n"
 	"_start:\n"

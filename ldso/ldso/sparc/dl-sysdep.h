@@ -83,10 +83,16 @@ sparc_mod(unsigned long m, unsigned long p)
 #endif
 
 /* 4096 bytes alignment */
+#if defined(__sparc_v9__)
 /* ...but 8192 is required for mmap() on sparc64 kernel */
 #define PAGE_ALIGN 0xffffe000
 #define ADDR_ALIGN 0x1fff
 #define OFFS_ALIGN 0x7fffe000
+#elif defined(__sparc_v8__)
+#define PAGE_ALIGN 0xfffff000
+#define ADDR_ALIGN 0xfff
+#define OFFS_ALIGN 0x7ffff000
+#endif
 
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry, so
    PLT entries should not be allowed to define the value.

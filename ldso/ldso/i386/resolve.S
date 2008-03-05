@@ -21,7 +21,6 @@
  */
 
 .text
-.align 4
 
 .globl _dl_linux_resolve
 .type	_dl_linux_resolve,@function
