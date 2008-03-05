@@ -343,8 +343,7 @@ clean:
 	$(Q)$(RM) -r lib include/bits
 	$(RM) lib*/*.a ldso/*/*.a libpthread/*/*.a
 	$(RM) include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
-	$(MAKE) -C extra/locale locale_clean
-	$(MAKE) headers_clean-y
+	$(MAKE) objclean-y headers_clean-y
 	$(MAKE) -s -C test clean
 	$(MAKE) -C utils utils_clean
 	@set -e; \
@@ -357,7 +356,6 @@ clean:
 		done; \
 	fi
 	@$(RM) include/linux include/asm*
-	-find . \( -name \*.o -o -name \*.os -o -name \*.oS \) -exec $(RM) {} \;
 
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ \) -exec $(RM) {} \;
