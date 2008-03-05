@@ -66,7 +66,7 @@ struct elf_resolve {
   unsigned short int init_flag;
   unsigned long rtld_flags; /* RTLD_GLOBAL, RTLD_NOW etc. */
   Elf_Symndx nbucket;
-  
+
 #ifdef __LDSO_GNU_HASH_SUPPORT__
   /* Data needed to support GNU hash style */
   Elf32_Word l_gnu_bitmask_idxbits;
@@ -81,7 +81,7 @@ struct elf_resolve {
 #else
   Elf_Symndx *elf_buckets;
 #endif
-  
+
   struct init_fini_list *init_fini;
   struct init_fini_list *rtld_local; /* keep tack of RTLD_LOCAL libs in same group */
   /*
@@ -95,10 +95,9 @@ struct elf_resolve {
     const Elf32_Word *l_gnu_buckets;
     const Elf_Symndx *chains;
   };
-#else	
+#else
   Elf_Symndx *chains;
-#endif  
-  
+#endif
   unsigned long dynamic_info[DYNAMIC_SIZE];
 
   unsigned long n_phent;
@@ -148,7 +147,6 @@ static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpn
 #endif
 }
 
-
 extern int _dl_linux_dynamic_link(void);
 
 extern char * _dl_library_path;
@@ -156,11 +154,10 @@ extern char * _dl_not_lazy;
 
 static inline int _dl_symbol(char * name)
 {
-  if(name[0] != '_' || name[1] != 'd' || name[2] != 'l' || name[3] != '_')
+  if (name[0] != '_' || name[1] != 'd' || name[2] != 'l' || name[3] != '_')
     return 0;
   return 1;
 }
-
 
 #define LD_ERROR_NOFILE 1
 #define LD_ERROR_NOZERO 2
@@ -177,5 +174,3 @@ static inline int _dl_symbol(char * name)
 
 
 #endif /* _LD_HASH_H_ */
-
-

@@ -5,7 +5,7 @@
  * GNU Lesser General Public License version 2.1 or later.
  */
 
-/* 
+/*
  * Environment variable to be removed for SUID programs.  The names are all
  * stuffed in a single string which means they have to be terminated with a
  * '\0' explicitly.
@@ -19,7 +19,7 @@
 	"LD_TRACE_LOADED_OBJECTS\0" \
 	"TMPDIR\0"
 
-/* 
+/*
  * LD_TRACE_LOADED_OBJECTS is not in glibc-2.3.5's unsecvars.h
  * though used by ldd
  *

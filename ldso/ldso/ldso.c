@@ -4,7 +4,7 @@
  * after resolving ELF shared library symbols
  *
  * Copyright (C) 2005 by Joakim Tjernlund
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@codepoet.org>
  * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
  *
@@ -54,6 +54,7 @@ int _dl_errno                  = 0;	/* We can't use the real errno in ldso */
 size_t _dl_pagesize            = 0;	/* Store the page size for use later */
 struct r_debug *_dl_debug_addr = NULL;	/* Used to communicate with the gdb debugger */
 void *(*_dl_malloc_function) (size_t size) = NULL;
+void (*_dl_free_function) (void *p) = NULL;
 
 #ifdef __SUPPORT_LD_DEBUG__
 char *_dl_debug           = 0;
@@ -79,9 +80,15 @@ static int _dl_suid_ok(void);
  * address mapping is changed in some way.
  */
 void _dl_debug_state(void);
-void _dl_debug_state()
+rtld_hidden_proto(_dl_debug_state, noinline);
+void _dl_debug_state(void)
 {
+	/* Make sure GCC doesn't recognize this function as pure, to avoid
+	 * having the calls optimized away.
+	 */
+	__asm__("");
 }
+rtld_hidden_def(_dl_debug_state);
 
 static unsigned char *_dl_malloc_addr = 0;	/* Lets _dl_malloc use the already allocated memory page */
 static unsigned char *_dl_mmap_zero   = 0;	/* Also used by _dl_malloc */
@@ -181,7 +188,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp,
 			  char **argv)
 {
-	ElfW(Addr) app_loadaddr = NULL;
+	ElfW(Addr) app_mapaddr = 0;
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
 	char *lpntstr;
@@ -197,6 +204,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	unsigned long *_dl_envp;		/* The environment address */
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
+	struct stat st;
 #if USE_TLS
 	void *tcbp = NULL;
 #endif
@@ -330,8 +338,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			relro_addr = ppnt->p_vaddr;
 			relro_size = ppnt->p_memsz;
 		}
-		if (!app_loadaddr && (ppnt->p_type == PT_LOAD)) {
-			app_loadaddr = ppnt->p_vaddr;
+		if (!app_mapaddr && (ppnt->p_type == PT_LOAD)) {
+			app_mapaddr = ppnt->p_vaddr;
 		}
 		if (ppnt->p_type == PT_DYNAMIC) {
 			dpnt = (ElfW(Dyn) *) (ppnt->p_vaddr + app_tpnt->loadaddr);
@@ -345,6 +353,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			_dl_debug_early("calling mprotect on the application program\n");
 			/* Now cover the application program. */
 			if (app_tpnt->dynamic_info[DT_TEXTREL]) {
+				ElfW(Phdr) *ppnt_outer = ppnt;
 				ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
 				for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 					if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
@@ -353,6 +362,12 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 							     (unsigned long) ppnt->p_filesz,
 							     PROT_READ | PROT_WRITE | PROT_EXEC);
 				}
+				ppnt = ppnt_outer;
+			}
+#else
+			if (app_tpnt->dynamic_info[DT_TEXTREL]) {
+				_dl_dprintf(_dl_debug_file, "Can't modify application's text section; use the GCC option -fPIE for position-independent executables.\n");
+				_dl_exit(1);
 			}
 #endif
 
@@ -370,7 +385,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 			rpnt->dyn = _dl_loaded_modules;
-			app_tpnt->mapaddr = app_loadaddr;
+			app_tpnt->mapaddr = app_mapaddr;
 			app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
 			app_tpnt->usage_count++;
 			app_tpnt->symbol_scope = _dl_symbol_tables;
@@ -514,9 +529,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	debug_addr->r_brk = (unsigned long) &_dl_debug_state;
 	_dl_debug_addr = debug_addr;
 
-	/* Notify the debugger we are in a consistant state */
-	_dl_debug_addr->r_state = RT_CONSISTENT;
-	_dl_debug_state();
+	/* Do not notify the debugger until the interpreter is in the list */
 
 	/* OK, we now have the application in the list, and we have some
 	 * basic stuff in place.  Now search through the list for other shared
@@ -783,6 +796,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 					      (unsigned long)tpnt->dynamic_addr,
 					      0);
 
+		if (_dl_stat(tpnt->libname, &st) >= 0) {
+			tpnt->st_dev = st.st_dev;
+			tpnt->st_ino = st.st_ino;
+		}
 		tpnt->n_phent = epnt->e_phnum;
 		tpnt->ppnt = myppnt;
 		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {

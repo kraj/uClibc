@@ -33,7 +33,7 @@
 void *(*_dl_calloc_function) (size_t __nmemb, size_t __size) = NULL;
 void *(*_dl_realloc_function) (void *__ptr, size_t __size) = NULL;
 void *(*_dl_memalign_function) (size_t __boundary, size_t __size) = NULL;
-void (*_dl_free_function) (void *__ptr) = NULL;
+extern void (*_dl_free_function) (void *__ptr);
 
 void *_dl_memalign (size_t __boundary, size_t __size);
 struct link_map *_dl_update_slotinfo (unsigned long int req_modid);
