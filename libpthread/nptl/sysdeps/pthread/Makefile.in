@@ -76,8 +76,8 @@ CFLAGS-rt-unwind-resume.c = -DIS_IN_librt=1 $(CFLAGS-pt-common)		\
 
 #CFLAGS:=$(CFLAGS:-O1=-O2)
 
-pthread_DIR := $(top_srcdir)/libpthread/nptl/sysdeps/pthread
-pthread_OUT := $(top_builddir)/libpthread/nptl/sysdeps/pthread
+pthread_DIR := $(top_srcdir)libpthread/nptl/sysdeps/pthread
+pthread_OUT := $(top_builddir)libpthread/nptl/sysdeps/pthread
 
 pthread_SRC = $(patsubst %.c, $(pthread_DIR)/%.c, $(libpthread_CSRC))
 pthread_OBJ = $(patsubst %.c, $(pthread_OUT)/%.o, $(libpthread_CSRC))

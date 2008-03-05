@@ -12,7 +12,7 @@ LOCALE_DATA_FILENAME := uClibc-locale-030818.tgz
 
 BUILD_CFLAGS-locale-common := \
 	-D__UCLIBC_GEN_LOCALE \
-	-DUCLIBC_CTYPE_HEADER='"$(top_builddir)/include/bits/uClibc_ctype.h"'
+	-DUCLIBC_CTYPE_HEADER='"$(top_builddir)include/bits/uClibc_ctype.h"'
 
 BUILD_CFLAGS-gen_wc8bit := $(BUILD_CFLAGS-locale-common) -DCTYPE_PACKED=1
 

@@ -97,8 +97,8 @@ CFLAGS-OMIT-timer_gettime.c = -DIS_IN_libpthread=1
 CFLAGS-OMIT-timer_routines.c = -DIS_IN_libpthread=1
 CFLAGS-OMIT-timer_settime.c = -DIS_IN_libpthread=1
 
-PTHREAD_LINUX_DIR := $(top_srcdir)/libpthread/nptl/sysdeps/unix/sysv/linux
-PTHREAD_LINUX_OUT := $(top_builddir)/libpthread/nptl/sysdeps/unix/sysv/linux
+PTHREAD_LINUX_DIR := $(top_srcdir)libpthread/nptl/sysdeps/unix/sysv/linux
+PTHREAD_LINUX_OUT := $(top_builddir)libpthread/nptl/sysdeps/unix/sysv/linux
 
 PTHREAD_LINUX_OBJ := $(patsubst %.c,$(PTHREAD_LINUX_OUT)/%.o,$(libpthread_CSRC))
 PTHREAD_LINUX_OBJ += $(patsubst %.S,$(PTHREAD_LINUX_OUT)/%.o,$(libpthread_SSRC))
