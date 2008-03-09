@@ -204,11 +204,12 @@ _dl_lookup_gnu_hash(struct elf_resolve *tpnt, ElfW(Sym) *symtab, unsigned long h
 
 	unsigned int hashbit1 = hash & (__ELF_NATIVE_CLASS - 1);
 	unsigned int hashbit2 = ((hash >> tpnt->l_gnu_shift) & (__ELF_NATIVE_CLASS - 1));
-
+	unsigned long rem;
+	do_rem (rem, hash, tpnt->nbucket);
 	_dl_assert (bitmask != NULL);
 
 	if (unlikely((bitmask_word >> hashbit1) & (bitmask_word >> hashbit2) & 1)) {
-		Elf32_Word bucket = tpnt->l_gnu_buckets[hash % tpnt->nbucket];
+		Elf32_Word bucket = tpnt->l_gnu_buckets[rem];
 
 		if (bucket != 0) {
 			const Elf32_Word *hasharr = &tpnt->l_gnu_chain_zero[bucket];
