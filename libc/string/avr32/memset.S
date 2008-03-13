@@ -16,13 +16,8 @@
        .global memset
        .type   memset, @function
 
-       .global __memset
-       .hidden __memset
-       .type   __memset, @function
-
        .align  1
 memset:
-__memset:
        cp.w    n, 32
        mov     r9, s
        brge    .Llarge_memset

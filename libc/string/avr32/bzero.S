@@ -17,7 +17,7 @@
 bzero:
        mov     r10, r11
        mov     r11, 0
-       rjmp    __memset
+       rjmp    HIDDEN_JUMPTARGET(memset)
 
        .size   bzero, . - bzero
 
