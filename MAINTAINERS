@@ -35,6 +35,8 @@ S:	Maintained
 AVR32
 N:	Hans-Christian Egtvedt
 E:	hcegtvedt@atmel.com
+N:	Haavard Skinnemoen
+E:	haavard.skinnemoen@atmel.com
 W:	http://avr32linux.org/
 S:	Maintained
 
