@@ -6,6 +6,8 @@
  * archive for more details.
  */
 
+#include <features.h>
+
 #ifdef __UCLIBC_SUSV3_LEGACY__
 
        .text
