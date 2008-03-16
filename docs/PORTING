@@ -65,6 +65,11 @@ TODO: nptl / linuxthreads / linuxthreads.old
 ====================
 === ldso sysdeps ===
 ====================
+- elf.h - presumably you've already taught binutils all about the random ELF
+  relocations your arch needs, so now you need to make sure the defines exist
+  for uClibc.  make sure the EM_### define exists and all of the R_###_###
+  reloc defines.
+
 - enable ldso/shared options in your extra/Configs/Config.ARCH file
 - you will need to create the following files in ldso/ldso/ARCH/
   dl-debug.h  dl-startup.h  dl-syscalls.h  dl-sysdep.h  elfinterp.c  resolve.S
@@ -115,3 +120,19 @@ TODO: nptl / linuxthreads / linuxthreads.old
   - clean up after call
   - jump to function address now stored in PLT
   glibc stores this function in libc/sysdeps/ARCH/dl-trampoline.S
+
+- utils/ldd.c - if you want support for ldso cache files (spoiler: you do),
+  then you'll need to teach ldd a little.  generally, the fallback code
+  should be smart and "just work", but you should be explicit.  just pop
+  it open and add an appropriate ifdef for your arch and set MATCH_MACHINE()
+  and ELFCLASSM.  there are plenty examples and you're (hopefully) smart.
+
+====================
+===  Misc Cruft  ===
+====================
+- utils/readelf.c - not really needed generally speaking, but might as well
+  add your arch to the giant EM_* list (describe_elf_hdr)
+
+- MAINTAINERS - presumably you're going to submit this code back to mainline
+  and since you're the only one who cares about this arch (right now), you
+  should add yourself to the toplevel MAINTAINERS file.  do it.
