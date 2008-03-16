@@ -1,0 +1,14 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2007, 2008 Tensilica Inc.
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+CSRC := brk.c fork.c posix_fadvise.c posix_fadvise64.c pread_write.c \
+     	sigaction.c __syscall_error.c
+
+SSRC := bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S \
+	sigrestorer.S syscall.S mmap.S windowspill.S __longjmp.S vfork.S
+
+include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch
