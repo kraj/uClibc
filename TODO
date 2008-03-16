@@ -90,6 +90,8 @@ TODO list for the uClibc 1.0.0 release:
 
 TODO list for AFTER the uClibc 1.0.0 release:
 -------------------------------------------------
+    *) Add support for 64bit time (to deal withhttp://2038bug.com/):
+	date -s 011903142038 sets epoch to roll over in a few seconds (2^31)
     *) Add support for Linux 2.6.x fast vsyscalls
     *) Enable pristine source tree builds
     *) Fix regex so it isn't so stinking big
@@ -107,6 +109,9 @@ Arch specific TODO:
   arm:
     update crt1 code again for nommu (http://bugs.uclibc.org/view.php?id=538)
     recruit jbowler and integrate thumb support
+  frv:
+    needs to be updated for the new ldso changes and unification of the
+    uClibc_main funcs (__uClibc_start_main doesnt exist anymore)
   hppa:
     errno.c test segfaults causes segfault in clone.S (seems to be in glibc too)
   i386:
@@ -115,16 +120,15 @@ Arch specific TODO:
     ldso is not implemented
   m68k:
     ldso lazy relocation doesnt work
+  sh64:
+    ldso is reasonably broken, presently requiring additional
+    coaxing/threatening.
   sparc:
     need a sigaction.c since common one doesnt work (signal tests)
     ldso needs to be updated since it's totally broken atm
   vax:
     pthread support, linktime warning support (implies GAS patches),
     general touchups, testing, ldso.
-  frv sh64:
-    need to be updated to new ldso changes and unification of the
-     two uClibc_main funcs (__uClibc_start_main doesnt exist anymore)
-
 
 
 -----------------------------------------------------------------------------

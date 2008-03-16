@@ -32,10 +32,19 @@ W:	http://www.arm.linux.org.uk/
 S:	Maintained
 
 
+AVR32
+N:	Hans-Christian Egtvedt
+E:	hcegtvedt@atmel.com
+N:	Haavard Skinnemoen
+E:	haavard.skinnemoen@atmel.com
+W:	http://avr32linux.org/
+S:	Maintained
+
+
 BFIN
 N:	Mike Frysinger
-E:	michael.frysinger@analog.com
-W:	http://blackfin.uclinux.org
+E:	vapier.adi@gmail.com
+W:	http://blackfin.uclinux.org/
 S:	Maintained
 
 
@@ -109,6 +118,13 @@ W:	http://www.linux-sh.org
 S:	Maintained
 
 
+SH4 (NPTL/TLS)
+P:	Carmelo Amoroso
+E:	carmelo.amoroso@st.com
+W:	http://www.stlinux.com
+S:	Supported
+
+
 SPARC
 S:	Unmaintained
 
@@ -124,4 +140,11 @@ S:	Unmaintained
 
 X86_64
 S:	Unmaintained
+
+
+XTENSA
+P:	Chris Zankel
+E:	chris@zankel.net
+W:	http://linux-xtensa.org/
+S:	Maintained
 
