@@ -16,6 +16,9 @@ config TARGET_alpha
 config TARGET_arm
 	bool "arm"
 
+config TARGET_avr32
+       bool "avr32"
+
 config TARGET_bfin
 	bool "bfin"
 
@@ -79,6 +82,9 @@ config TARGET_vax
 config TARGET_x86_64
 	bool "x86_64"
 
+config TARGET_xtensa
+	bool "xtensa"
+
 endchoice
 
 
@@ -90,6 +96,10 @@ endif
 
 if TARGET_arm
 source "extra/Configs/Config.arm"
+endif
+
+if TARGET_avr32
+source "extra/Configs/Config.avr32"
 endif
 
 if TARGET_bfin
@@ -174,6 +184,10 @@ endif
 
 if TARGET_x86_64
 source "extra/Configs/Config.x86_64"
+endif
+
+if TARGET_xtensa
+source "extra/Configs/Config.xtensa"
 endif
 
 config TARGET_SUBARCH
@@ -460,7 +474,7 @@ config MALLOC_GLIBC_COMPAT
 	help
 	  The behavior of malloc(0) is listed as implementation-defined by
 	  SuSv3.  Glibc returns a valid pointer to something, while uClibc
-	  normally return a NULL.  I personally feel glibc's behavior is
+	  normally returns NULL.  I personally feel glibc's behavior is
 	  not particularly safe, and allows buggy applications to hide very
 	  serious problems.
 
@@ -468,7 +482,7 @@ config MALLOC_GLIBC_COMPAT
 	  return a live pointer when someone calls malloc(0).  This pointer
 	  provides a malloc'ed area with a size of 1 byte.  This feature is
 	  mostly useful when dealing with applications using autoconf's broken
-	  AC_FUNC_MALLOC macro (which  redefines malloc as rpl_malloc if it
+	  AC_FUNC_MALLOC macro (which redefines malloc as rpl_malloc if it
 	  does not detect glibc style returning-a-valid-pointer-for-malloc(0)
 	  behavior).  Most people can safely answer N.
 
@@ -634,6 +648,30 @@ config UCLIBC_TZ_FILE_PATH
 
 endmenu
 
+menu "Advanced Library Settings"
+
+config UCLIBC_PWD_BUFFER_SIZE
+	int "Buffer size for getpwnam() and friends"
+	default 256
+	range 12 1024
+	help
+	  This sets the value of the buffer size for getpwnam() and friends.
+	  By default, this is 256. (For reference, glibc uses 1024).
+	  The value can be found using sysconf() with the _SC_GETPW_R_SIZE_MAX
+	  parameter.
+
+config UCLIBC_GRP_BUFFER_SIZE
+	int "Buffer size for getgrnam() and friends"
+	default 256
+	range 256 1024
+	help
+	  This sets the value of the buffer size for getgrnam() and friends.
+	  By default, this is 256. (For reference, glibc uses 1024).
+	  The value can be found using sysconf() with the _SC_GETGR_R_SIZE_MAX
+	  parameter.
+
+endmenu
+
 menu "Networking Support"
 
 config UCLIBC_HAS_IPV6
@@ -685,6 +723,15 @@ config UCLIBC_USE_NETLINK
 	  have to use the netlink implementation.
 
 	  Most people can safely answer N.
+
+config UCLIBC_HAS_BSD_RES_CLOSE
+	bool "Support res_close() (bsd-compat)"
+	default n
+	help
+	  Answer Y if you desperately want to support BSD compatibility in
+	  the network code.
+
+	  Most people will say N.
 
 endmenu
 
@@ -1096,6 +1143,8 @@ config UCLIBC_HAS_SYS_ERRLIST
 	  in at least some configurations.  In fact, it may be removed altogether.
 
 	  Most people will answer N.
+
+	  Application writers: use the strerror(3) function.
 
 config UCLIBC_HAS_SIGNUM_MESSAGES
 	bool "Include the signum message text in the library"

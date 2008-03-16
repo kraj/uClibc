@@ -4,6 +4,7 @@
 #
 
 config TARGET_ARCH
+	string
 	default "sh64"
 
 config FORCE_OPTIONS_FOR_ARCH
@@ -12,9 +13,6 @@ config FORCE_OPTIONS_FOR_ARCH
 	select ARCH_ANY_ENDIAN
 
 config ARCH_CFLAGS
-	string
-
-config LIBGCC_CFLAGS
 	string
 
 choice

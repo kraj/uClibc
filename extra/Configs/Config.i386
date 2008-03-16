@@ -4,6 +4,7 @@
 #
 
 config TARGET_ARCH
+	string
 	default "i386"
 
 config FORCE_OPTIONS_FOR_ARCH
@@ -11,12 +12,6 @@ config FORCE_OPTIONS_FOR_ARCH
 	default y
 	select ARCH_LITTLE_ENDIAN
 	select ARCH_HAS_MMU
-
-config ARCH_CFLAGS
-	string
-
-config LIBGCC_CFLAGS
-	string
 
 choice
 	prompt "Target x86 Processor Family"

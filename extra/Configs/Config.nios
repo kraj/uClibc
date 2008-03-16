@@ -4,6 +4,7 @@
 #
 
 config TARGET_ARCH
+	string
 	default "nios"
 
 config FORCE_OPTIONS_FOR_ARCH
@@ -17,9 +18,6 @@ config FORCE_OPTIONS_FOR_ARCH
 config ARCH_CFLAGS
 	string
 	default "-funaligned-struct-hack"
-
-config LIBGCC_CFLAGS
-	string
 
 config CROSS
 	string

@@ -4,6 +4,7 @@
 #
 
 config TARGET_ARCH
+	string
 	default "frv"
 
 config FORCE_OPTIONS_FOR_ARCH
@@ -14,7 +15,4 @@ config FORCE_OPTIONS_FOR_ARCH
 	select ARCH_HAS_NO_MMU
 
 config ARCH_CFLAGS
-	string
-
-config LIBGCC_CFLAGS
 	string

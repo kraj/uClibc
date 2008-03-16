@@ -4,6 +4,7 @@
 #
 
 config TARGET_ARCH
+	string
 	default "powerpc"
 
 config FORCE_OPTIONS_FOR_ARCH
@@ -15,5 +16,23 @@ config FORCE_OPTIONS_FOR_ARCH
 config ARCH_CFLAGS
 	string
 
-config LIBGCC_CFLAGS
-	string
+choice
+	prompt "Target Processor Type"
+	default CONFIG_CLASSIC
+	help
+	  This is the processor core of your CPU. This information is used for
+	  determining the correct assembler instructions to use for the core.
+
+	  The default is to build for a classic powerpc.
+
+config CONFIG_CLASSIC
+	bool "CLASSIC"
+	help
+	  Classic powerpc architecture.
+
+config CONFIG_E500
+	bool "E500"
+	help
+	  e500 v1 and v2 core.
+
+endchoice

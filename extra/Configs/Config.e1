@@ -4,6 +4,7 @@
 #
 
 config TARGET_ARCH
+	string
 	default "e1"
 
 config FORCE_OPTIONS_FOR_ARCH
@@ -20,6 +21,3 @@ config ARCH_E1
 config ARCH_CFLAGS
 	string
 	default "-mgnu-param"
-
-config LIBGCC_CFLAGS
-	string

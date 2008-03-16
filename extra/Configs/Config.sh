@@ -4,6 +4,7 @@
 #
 
 config TARGET_ARCH
+	string
 	default "sh"
 
 config FORCE_OPTIONS_FOR_ARCH
@@ -12,9 +13,6 @@ config FORCE_OPTIONS_FOR_ARCH
 	select ARCH_ANY_ENDIAN
 
 config ARCH_CFLAGS
-	string
-
-config LIBGCC_CFLAGS
 	string
 
 choice
@@ -48,6 +46,7 @@ config CONFIG_SH3
 config CONFIG_SH4
 	select FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "SH4"
+
 endchoice
 
 config ARCH_HAS_BWD_MEMCPY
