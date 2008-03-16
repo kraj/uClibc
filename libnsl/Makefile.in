@@ -11,7 +11,7 @@ LDFLAGS-libnsl.so := $(LDFLAGS)
 
 LIBS-libnsl.so := $(LIBS)
 
-libnsl_FULL_NAME := libnsl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libnsl_FULL_NAME := libnsl-$(VERSION).so
 
 libnsl_DIR := $(top_srcdir)libnsl
 libnsl_OUT := $(top_builddir)libnsl

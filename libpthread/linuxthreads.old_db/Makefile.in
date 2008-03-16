@@ -8,14 +8,14 @@
 # Get the thread include dependencies and shared object name
 CFLAGS-linuxthreads.old_db := -DNOT_IN_libc -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
-LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) $(call check_ld,--warn-unresolved-symbols)
+LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) $(if $(call check_ld,--warn-unresolved-symbols),-Wl$(comma)--warn-unresolved-symbols)
 ifeq ($(DOSTRIP),y)
-LDFLAGS-libthread_db.so += -s
+LDFLAGS-libthread_db.so += -Wl,-s
 endif
 
 LIBS-libthread_db.so := $(LIBS)
 
-libthread_db_FULL_NAME := libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libthread_db_FULL_NAME := libthread_db-$(VERSION).so
 
 libthread_db_DIR := $(top_srcdir)libpthread/linuxthreads.old_db
 libthread_db_OUT := $(top_builddir)libpthread/linuxthreads.old_db

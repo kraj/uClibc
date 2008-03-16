@@ -13,11 +13,11 @@ CFLAGS-libdl += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\"
 
 CFLAGS-libdl.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
 
-LDFLAGS-libdl.so := $(LDFLAGS) -fini dl_cleanup
+LDFLAGS-libdl.so := $(LDFLAGS) -Wl,-fini,dl_cleanup
 
 LIBS-libdl.so := $(LIBS) $(ldso)
 
-libdl_FULL_NAME := libdl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libdl_FULL_NAME := libdl-$(VERSION).so
 
 libdl_DIR := $(top_srcdir)ldso/libdl
 libdl_OUT := $(top_builddir)ldso/libdl

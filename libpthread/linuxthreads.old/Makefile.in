@@ -12,7 +12,7 @@ CFLAGS-linuxthreads.old := $(CFLAGS-dir_linuxthreads.old) $(SSP_ALL_CFLAGS)
 CFLAGS-libpthread/linuxthreads.old/sysdeps/$(TARGET_ARCH)/ := $(CFLAGS-linuxthreads.old)
 
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -z defs
+LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
 else
 LDFLAGS-libpthread.so := $(LDFLAGS)
 endif
@@ -22,7 +22,7 @@ LIBS-libpthread.so := $(LIBS) $(ldso)
 START_FILE-libpthread.so := $(SHARED_START_FILES)
 END_FILE-libpthread.so := $(SHARED_END_FILES)
 
-libpthread_FULL_NAME := libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libpthread_FULL_NAME := libpthread-$(VERSION).so
 
 libpthread_DIR := $(top_srcdir)libpthread/linuxthreads.old
 libpthread_OUT := $(top_builddir)libpthread/linuxthreads.old

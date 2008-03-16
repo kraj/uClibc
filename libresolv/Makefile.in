@@ -11,7 +11,7 @@ LDFLAGS-libresolv.so := $(LDFLAGS)
 
 LIBS-libresolv.so := $(LIBS)
 
-libresolv_FULL_NAME := libresolv-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libresolv_FULL_NAME := libresolv-$(VERSION).so
 
 libresolv_DIR := $(top_srcdir)libresolv
 libresolv_OUT := $(top_builddir)libresolv
