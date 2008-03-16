@@ -118,6 +118,13 @@ W:	http://www.linux-sh.org
 S:	Maintained
 
 
+SH4 (NPTL/TLS)
+P:	Carmelo Amoroso
+E:	carmelo.amoroso@st.com
+W:	http://www.stlinux.com
+S:	Supported
+
+
 SPARC
 S:	Unmaintained
 
