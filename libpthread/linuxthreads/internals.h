@@ -531,9 +531,9 @@ weak_extern (__pthread_thread_self)
 # define __manager_thread __pthread_manager_threadp
 #endif
 
-extern __always_inline pthread_descr
+static __always_inline pthread_descr
 check_thread_self (void);
-extern __always_inline pthread_descr
+static __always_inline pthread_descr
 check_thread_self (void)
 {
   pthread_descr self = thread_self ();

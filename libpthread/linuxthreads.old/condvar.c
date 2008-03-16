@@ -25,6 +25,16 @@
 #include "queue.h"
 #include "restart.h"
 
+libpthread_hidden_proto(pthread_cond_broadcast)
+libpthread_hidden_proto(pthread_cond_destroy)
+libpthread_hidden_proto(pthread_cond_init)
+libpthread_hidden_proto(pthread_cond_signal)
+libpthread_hidden_proto(pthread_cond_wait)
+libpthread_hidden_proto(pthread_cond_timedwait)
+
+libpthread_hidden_proto(pthread_condattr_destroy)
+libpthread_hidden_proto(pthread_condattr_init)
+
 int pthread_cond_init(pthread_cond_t *cond,
                       const pthread_condattr_t *cond_attr attribute_unused)
 {
@@ -32,12 +42,14 @@ int pthread_cond_init(pthread_cond_t *cond,
   cond->__c_waiting = NULL;
   return 0;
 }
+libpthread_hidden_def(pthread_cond_init)
 
 int pthread_cond_destroy(pthread_cond_t *cond)
 {
   if (cond->__c_waiting != NULL) return EBUSY;
   return 0;
 }
+libpthread_hidden_def(pthread_cond_destroy)
 
 /* Function called by pthread_cancel to remove the thread from
    waiting on a condition variable queue. */
@@ -132,6 +144,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
   __pthread_mutex_lock(mutex);
   return 0;
 }
+libpthread_hidden_def(pthread_cond_wait)
 
 static int
 pthread_cond_timedwait_relative(pthread_cond_t *cond,
@@ -233,6 +246,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
   /* Indirect call through pointer! */
   return pthread_cond_timedwait_relative(cond, mutex, abstime);
 }
+libpthread_hidden_def(pthread_cond_timedwait)
 
 int pthread_cond_signal(pthread_cond_t *cond)
 {
@@ -248,6 +262,7 @@ int pthread_cond_signal(pthread_cond_t *cond)
   }
   return 0;
 }
+libpthread_hidden_def(pthread_cond_signal)
 
 int pthread_cond_broadcast(pthread_cond_t *cond)
 {
@@ -266,16 +281,19 @@ int pthread_cond_broadcast(pthread_cond_t *cond)
   }
   return 0;
 }
+libpthread_hidden_def(pthread_cond_broadcast)
 
 int pthread_condattr_init(pthread_condattr_t *attr attribute_unused)
 {
   return 0;
 }
+libpthread_hidden_def(pthread_condattr_init)
 
 int pthread_condattr_destroy(pthread_condattr_t *attr attribute_unused)
 {
   return 0;
 }
+libpthread_hidden_def(pthread_condattr_destroy)
 
 int pthread_condattr_getpshared (const pthread_condattr_t *attr attribute_unused, int *pshared)
 {

@@ -21,11 +21,11 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
-#ifndef PT_EI
-# define PT_EI extern inline
-#endif
+#include <features.h>
 
-extern long int testandset (int *spinlock);
+#ifndef PT_EI
+# define PT_EI __extern_always_inline
+#endif
 
 /* Spinlock implementation; required.  */
 PT_EI long int

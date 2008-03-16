@@ -22,12 +22,11 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
-#ifndef PT_EI
-# define PT_EI extern inline __attribute__ ((always_inline))
-#endif
+#include <features.h>
 
-extern long int testandset (int *spinlock);
-extern int __compare_and_swap (long int *p, long int oldval, long int newval);
+#ifndef PT_EI
+# define PT_EI __extern_always_inline
+#endif
 
 /* This will not work on ARM1 or ARM2 because SWP is lacking on those
    machines.  Unfortunately we have no way to detect this at compile

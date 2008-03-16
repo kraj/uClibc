@@ -21,6 +21,7 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
+#include <features.h>
 #include <ia64intrin.h>
 
 #include <sys/types.h>
@@ -28,11 +29,8 @@ extern int __clone2 (int (*__fn) (void *__arg), void *__child_stack_base,
                      size_t __child_stack_size, int __flags, void *__arg, ...);
 
 #ifndef PT_EI
-# define PT_EI extern inline __attribute__ ((always_inline))
+# define PT_EI __extern_always_inline
 #endif
-
-extern long int testandset (int *spinlock);
-extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 
 /* Make sure gcc doesn't try to be clever and move things around on
    us. We need to use _exactly_ the address the user gave us, not some

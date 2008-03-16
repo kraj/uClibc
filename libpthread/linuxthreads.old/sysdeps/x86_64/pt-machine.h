@@ -21,6 +21,8 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
+#include <features.h>
+
 #ifndef __ASSEMBLER__
 # include <stddef.h>	/* For offsetof.  */
 # include <stdlib.h>	/* For abort().  */
@@ -28,11 +30,8 @@
 
 
 # ifndef PT_EI
-#  define PT_EI extern inline __attribute__ ((always_inline))
+#  define PT_EI __extern_always_inline
 # endif
-
-extern long int testandset (int *spinlock);
-extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 
 /* Get some notion of the current stack.  Need not be exactly the top
    of the stack, just something somewhere in the current frame.  */
@@ -42,14 +41,14 @@ register char * stack_pointer __asm__ ("%rsp") __attribute_used__;
 
 /* Spinlock implementation; required.  */
 PT_EI long int
-testandset (int *spinlock)
+testandset (int *__spinlock)
 {
   long int ret;
 
   __asm__ __volatile__ (
 	"xchgl %k0, %1"
-	: "=r"(ret), "=m"(*spinlock)
-	: "0"(1), "m"(*spinlock)
+	: "=r"(ret), "=m"(*__spinlock)
+	: "0"(1), "m"(*__spinlock)
 	: "memory");
 
   return ret;
@@ -60,14 +59,14 @@ testandset (int *spinlock)
 # define HAS_COMPARE_AND_SWAP
 
 PT_EI int
-__compare_and_swap (long int *p, long int oldval, long int newval)
+__compare_and_swap (long int *__p, long int __oldval, long int __newval)
 {
   char ret;
   long int readval;
 
   __asm__ __volatile__ ("lock; cmpxchgq %3, %1; sete %0"
-			: "=q" (ret), "=m" (*p), "=a" (readval)
-			: "r" (newval), "m" (*p), "a" (oldval)
+			: "=q" (ret), "=m" (*__p), "=a" (readval)
+			: "r" (__newval), "m" (*__p), "a" (__oldval)
 			: "memory");
   return ret;
 }

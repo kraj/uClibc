@@ -17,9 +17,13 @@
    License along with the GNU C Library; see the file COPYING.LIB.  If not,
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
+#ifndef _PT_MACHINE_H
+#define _PT_MACHINE_H   1
+
+#include <features.h>
 
 #ifndef PT_EI
-# define PT_EI extern inline __attribute__ ((always_inline))
+# define PT_EI __extern_always_inline
 #endif
 
 PT_EI long int
@@ -62,3 +66,5 @@ testandset (int *spinlock)
    I don't trust register variables, so let's do this the safe way.  */
 #define CURRENT_STACK_FRAME \
  ({ char *sp; __asm__ ("move.d $sp,%0" : "=rm" (sp)); sp; })
+
+#endif /* pt-machine.h */
