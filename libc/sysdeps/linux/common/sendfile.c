@@ -17,9 +17,13 @@
 
 #undef sendfile64
 
+#ifdef __NR_sendfile
+
 _syscall4(ssize_t, sendfile, int, out_fd, int, in_fd, __off_t *, offset,
 		  size_t, count);
 
 #if ! defined __NR_sendfile64 && defined __UCLIBC_HAS_LFS__
 strong_alias(sendfile,sendfile64)
 #endif
+
+#endif /* __NR_sendfile */
