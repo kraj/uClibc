@@ -27,8 +27,8 @@
 #include "link.h"
 /* makefile will include elf.h for us */
 
-int byteswap;
-inline uint32_t byteswap32_to_host(uint32_t value)
+static int byteswap;
+static inline uint32_t byteswap32_to_host(uint32_t value)
 {
 	if (byteswap==1) {
 		return(bswap_32(value));
@@ -36,7 +36,7 @@ inline uint32_t byteswap32_to_host(uint32_t value)
 		return(value);
 	}
 }
-inline uint64_t byteswap64_to_host(uint64_t value)
+static inline uint64_t byteswap64_to_host(uint64_t value)
 {
 	if (byteswap==1) {
 		return(bswap_64(value));
@@ -50,7 +50,7 @@ inline uint64_t byteswap64_to_host(uint64_t value)
 # define byteswap_to_host(x) byteswap32_to_host(x)
 #endif
 
-ElfW(Shdr) * elf_find_section_type( uint32_t key, ElfW(Ehdr) *ehdr)
+static ElfW(Shdr) * elf_find_section_type( uint32_t key, ElfW(Ehdr) *ehdr)
 {
 	int j;
 	ElfW(Shdr) *shdr = (ElfW(Shdr) *)(ehdr->e_shoff + (char *)ehdr);
@@ -62,7 +62,7 @@ ElfW(Shdr) * elf_find_section_type( uint32_t key, ElfW(Ehdr) *ehdr)
 	return NULL;
 }
 
-ElfW(Phdr) * elf_find_phdr_type( uint32_t type, ElfW(Ehdr) *ehdr)
+static ElfW(Phdr) * elf_find_phdr_type( uint32_t type, ElfW(Ehdr) *ehdr)
 {
 	int j;
 	ElfW(Phdr) *phdr = (ElfW(Phdr) *)(ehdr->e_phoff + (char *)ehdr);
@@ -75,7 +75,7 @@ ElfW(Phdr) * elf_find_phdr_type( uint32_t type, ElfW(Ehdr) *ehdr)
 }
 
 /* Returns value if return_val==1, ptr otherwise */ 
-void * elf_find_dynamic( int64_t const key, ElfW(Dyn) *dynp, 
+static void * elf_find_dynamic( int64_t const key, ElfW(Dyn) *dynp,
 	ElfW(Ehdr) *ehdr, int return_val)
 {
 	ElfW(Phdr) *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
@@ -91,7 +91,7 @@ void * elf_find_dynamic( int64_t const key, ElfW(Dyn) *dynp,
 	return NULL;
 }
 
-int check_elf_header(ElfW(Ehdr) *const ehdr)
+static int check_elf_header(ElfW(Ehdr) *const ehdr)
 {
 	if (! ehdr || strncmp((void *)ehdr, ELFMAG, SELFMAG) != 0 ||  
 			(ehdr->e_ident[EI_CLASS] != ELFCLASS32 &&

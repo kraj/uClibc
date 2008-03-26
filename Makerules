@@ -120,8 +120,7 @@ do_ar     = @$(disp_ar)        ; $(cmd_ar)
 
 define compile.u
 	@$(disp_compile.u) ; $(cmd_compile.u)
-	@$(disp_strip)
-	$(Q)$(STRIPTOOL) $(STRIP_FLAGS) $@
+	@$(disp_t_strip)
 endef
 hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
 hcompile.o = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
