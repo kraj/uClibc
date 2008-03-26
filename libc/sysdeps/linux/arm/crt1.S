@@ -94,6 +94,7 @@ ARM register quick reference:
 */
 
 #include <features.h>
+#include <bits/arm_asm.h>
 
 .text
 	.globl	_start
@@ -105,6 +106,73 @@ ARM register quick reference:
 	.weak	_fini
 #endif
 
+#if defined(THUMB1_ONLY)
+.thumb_func
+_start:
+	/* Clear the frame pointer since this is the outermost frame.  */
+	mov r3, #0
+	mov fp, r3
+
+#ifdef __ARCH_USE_MMU__
+	/* Pop argc off the stack and save a pointer to argv */
+	pop {a2}
+	mov a3, sp
+#else
+	/*
+	 * uClinux/arm stacks look a little different from normal
+	 * MMU-full Linux/arm stacks (for no good reason)
+	 */
+	/* pull argc and argv off the stack.  We are going to push 3
+	 * arguments, so pop one here to maintain doubleword alignment.  */
+	pop {a2}
+	ldr a3, [sp]
+#endif
+
+	/* Push stack limit and rtld_fini */
+	push {a1, a3}
+
+#ifdef __PIC__
+	ldr r4, .L_GOT
+.L_GOT_OFF:
+	adr r5, .L_GOT
+	add r4, r5, r4
+
+	ldr r5, .L_GOT+4	/* _fini */
+	ldr a1, [r4, r5]
+	push {a1}		/* Push _fini */
+
+	ldr r5, .L_GOT+8	/* _init */
+	ldr a4, [r4, r5]
+	
+	ldr r5, .L_GOT+12	/* main */
+	ldr a1, [r4, r5]
+
+#else
+	/* Fetch address of fini */
+	ldr r4, =_fini
+	/* Push fini */
+	push {r4}
+
+	/* Set up the other arguments in registers */
+	ldr a1, =main
+	ldr a4, =_init
+#endif
+	/* __uClibc_main (main, argc, argv, init, fini, rtld_fini, stack_end) */
+	/* Let the libc call main and exit with its return code.  */
+	bl __uClibc_main
+
+	/* should never get here....*/
+	bl abort
+.pool
+
+#ifdef __PIC__
+.L_GOT:
+	.word	_GLOBAL_OFFSET_TABLE_-.L_GOT
+	.word _fini(GOT)
+	.word _init(GOT)
+	.word main(GOT)
+#endif
+#else /* !THUMB1_ONLY */
 _start:
 	/* Clear the frame pointer and link register since this is the outermost frame.  */
 	mov fp, #0
@@ -174,6 +242,7 @@ _start:
 	.word _fini(GOT)
 	.word _init(GOT)
 	.word main(GOT)
+#endif
 #endif
 
 /* Define a symbol for the first piece of initialized data.  */

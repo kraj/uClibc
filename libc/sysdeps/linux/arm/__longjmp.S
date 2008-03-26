@@ -18,6 +18,7 @@
    02111-1307 USA.  */
 
 #include <features.h>
+#include <bits/arm_asm.h>
 #define _SETJMP_H
 #define _ASM
 #include <bits/setjmp.h>
@@ -26,13 +27,44 @@
 .global __longjmp
 .type __longjmp,%function
 .align 2
+#if defined(THUMB1_ONLY)
+.thumb_func
+__longjmp:
+	mov	r2, r0
+	movs	r0, r1
+	/* can't let setjmp() return zero! */
+	bne	1f
+	mov	r0, #1
+1:
+	mov	r1, r2
+	/* Restore registers, shuffling them through low regs.  */
+	add	r2, #(4 * 4)
+	ldmia	r2!, {r4, r5, r6, r7}
+	mov	r8, r4
+	mov	r9, r5
+	mov	sl, r6
+	mov	fp, r7
+	ldmia	r2!, {r4, r5}
+	mov	sp, r4
+	mov	lr, r5
+	ldmia	r1!, {r4, r5, r6, r7}
+	bx	lr
+#else
 __longjmp:
 	mov	ip, r0		/* save jmp_buf pointer */
 	
 	movs	r0, r1		/* get the return value in place */
+	IT(t, eq)
 	moveq	r0, #1		/* can't let setjmp() return zero! */
 
+#if defined(__thumb2__)
+	/* Thumb-2 does not allow loading sp with ldm.  */
+	ldmia     ip!,  {v1-v6, sl, fp}
+	ldr	  sp, [ip], #4
+	ldr	  lr, [ip], #4
+#else
 	ldmia     ip!,  {v1-v6, sl, fp, sp, lr}
+#endif
 
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
 #ifdef __VFP_FP__
@@ -75,6 +107,7 @@ __longjmp:
 	bx	lr
 #else
 	mov pc, lr
+#endif
 #endif
 
 .size __longjmp,.-__longjmp

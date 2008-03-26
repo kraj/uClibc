@@ -39,7 +39,9 @@
 
 #include <features.h>
 #include <endian.h>
+#include <bits/arm_asm.h>
 
+#if !defined(THUMB1_ONLY)
 /*
  * This is one fun bit of code ...
  * Some easy listening music is suggested while trying to understand this
@@ -77,11 +79,36 @@
 .type _memcpy,%function
 .align 4
 
+/* XXX: The Thumb-2 conditionals can be removed if/when we require an
+   assembler that supports unified syntax.  */
+.macro copy regs
+#if defined(__thumb2__)
+	ittt	ge
+	ldmiage	r1!, \regs
+	stmiage	r0!, \regs
+#else
+	ldmgeia	r1!, \regs
+	stmgeia	r0!, \regs
+#endif
+.endm
+
+.macro copydb regs
+#if defined(__thumb2__)
+	ittt	ge
+	ldmdbge	r1!, \regs
+	stmdbge	r0!, \regs
+#else
+	ldmgedb	r1!, \regs
+	stmgedb	r0!, \regs
+#endif
+.endm
+
 _memcpy:
 	/* Determine copy direction */
 	cmp	r1, r0
 	bcc	.Lmemcpy_backwards
 
+	IT(tt, eq)
 	moveq	r0, #0			/* Quick abort for len=0 */
 #if defined(__USE_BX__)
         bxeq    lr
@@ -102,7 +129,7 @@ _memcpy:
 	blt	.Lmemcpy_fl12		/* less than 12 bytes (4 from above) */
 	subs	r2, r2, #0x14         
 	blt	.Lmemcpy_fl32		/* less than 32 bytes (12 from above) */
-	stmdb	sp!, {r4}		/* borrow r4 */
+	str	r4, [sp, #-4]!		/* borrow r4 */
 
 	/* blat 32 bytes at a time */
 	/* XXX for really big copies perhaps we should use more registers */
@@ -115,19 +142,22 @@ _memcpy:
 	bge	.Lmemcpy_floop32
 
 	cmn	r2, #0x10
-	ldmgeia	r1!, {r3, r4, r12, lr}	/* blat a remaining 16 bytes */
-	stmgeia	r0!, {r3, r4, r12, lr}
+	/* blat a remaining 16 bytes */
+	copy	"{r3, r4, r12, lr}"
 	subge	r2, r2, #0x10         
-	ldmia	sp!, {r4}		/* return r4 */
+	ldr	r4, [sp], #4		/* restore r4 */
 
 .Lmemcpy_fl32:
 	adds	r2, r2, #0x14         
 
 	/* blat 12 bytes at a time */
 .Lmemcpy_floop12:
-	ldmgeia	r1!, {r3, r12, lr}
-	stmgeia	r0!, {r3, r12, lr}
+	copy	"{r3, r12, lr}"
+#if defined(__thumb2__)
+	subsge	r2, r2, #0x0c         
+#else
 	subges	r2, r2, #0x0c         
+#endif
 	bge	.Lmemcpy_floop12
 
 .Lmemcpy_fl12:
@@ -135,26 +165,48 @@ _memcpy:
 	blt	.Lmemcpy_fl4
 
 	subs	r2, r2, #4
+	IT(tt, lt)
 	ldrlt	r3, [r1], #4
 	strlt	r3, [r0], #4
-	ldmgeia	r1!, {r3, r12}
-	stmgeia	r0!, {r3, r12}
+	copy	"{r3, r12}"
 	subge	r2, r2, #4
 
 .Lmemcpy_fl4:
 	/* less than 4 bytes to go */
 	adds	r2, r2, #4
+#if defined(__thumb2__)
+	it	eq
+	popeq	{r0, pc}		/* done */
+#elif defined(__ARM_ARCH_4T__)
+	ldmeqia	sp!, {r0, r3}		/* done */
+	bxeq	r3
+#else
 	ldmeqia	sp!, {r0, pc}		/* done */
+#endif
 
 	/* copy the crud byte at a time */
 	cmp	r2, #2
 	ldrb	r3, [r1], #1
 	strb	r3, [r0], #1
+#if defined(__thumb2__)
+	itt	ge
+	ldrbge	r3, [r1], #1
+	strbge	r3, [r0], #1
+	itt	gt
+	ldrbgt	r3, [r1], #1
+	strbgt	r3, [r0], #1
+#else
 	ldrgeb	r3, [r1], #1
 	strgeb	r3, [r0], #1
 	ldrgtb	r3, [r1], #1
 	strgtb	r3, [r0], #1
+#endif
+#if defined(__ARM_ARCH_4T__)
+	ldmia	sp!, {r0, r3}
+	bx	r3
+#else
 	ldmia	sp!, {r0, pc}
+#endif
 
 	/* erg - unaligned destination */
 .Lmemcpy_fdestul:
@@ -164,10 +216,19 @@ _memcpy:
 	/* align destination with byte copies */
 	ldrb	r3, [r1], #1
 	strb	r3, [r0], #1
+#if defined(__thumb2__)
+	itt	ge
+	ldrbge	r3, [r1], #1
+	strbge	r3, [r0], #1
+	itt	gt
+	ldrbgt	r3, [r1], #1
+	strbgt	r3, [r0], #1
+#else
 	ldrgeb	r3, [r1], #1
 	strgeb	r3, [r0], #1
 	ldrgtb	r3, [r1], #1
 	strgtb	r3, [r0], #1
+#endif
 	subs	r2, r2, r12
 	blt	.Lmemcpy_fl4		/* less the 4 bytes */
 
@@ -370,12 +431,12 @@ _memcpy:
 
 .Lmemcpy_bl32:
 	cmn	r2, #0x10            
-	ldmgedb	r1!, {r3, r4, r12, lr}	/* blat a remaining 16 bytes */
-	stmgedb	r0!, {r3, r4, r12, lr}
+	/* blat a remaining 16 bytes */
+	copydb	"{r3, r4, r12, lr}"
 	subge	r2, r2, #0x10         
 	adds	r2, r2, #0x14         
-	ldmgedb	r1!, {r3, r12, lr}	/* blat a remaining 12 bytes */
-	stmgedb	r0!, {r3, r12, lr}
+	/* blat a remaining 12 bytes */
+	copydb	"{r3, r12, lr}"
 	subge	r2, r2, #0x0c         
 	ldmia	sp!, {r4, lr}
 
@@ -383,15 +444,16 @@ _memcpy:
 	adds	r2, r2, #8
 	blt	.Lmemcpy_bl4
 	subs	r2, r2, #4
+	IT(tt, lt)
 	ldrlt	r3, [r1, #-4]!
 	strlt	r3, [r0, #-4]!
-	ldmgedb	r1!, {r3, r12}
-	stmgedb	r0!, {r3, r12}
+	copydb	"{r3, r12}"
 	subge	r2, r2, #4
 
 .Lmemcpy_bl4:
 	/* less than 4 bytes to go */
 	adds	r2, r2, #4
+	IT(t, eq)
 #if defined(__USE_BX__)
         bxeq    lr
 #else
@@ -401,10 +463,19 @@ _memcpy:
 	cmp	r2, #2
 	ldrb	r3, [r1, #-1]!
 	strb	r3, [r0, #-1]!
+#ifdef __thumb2__
+	itt	ge
+	ldrbge	r3, [r1, #-1]!
+	strbge	r3, [r0, #-1]!
+	itt	gt
+	ldrbgt	r3, [r1, #-1]!
+	strbgt	r3, [r0, #-1]!
+#else
 	ldrgeb	r3, [r1, #-1]!
 	strgeb	r3, [r0, #-1]!
 	ldrgtb	r3, [r1, #-1]!
 	strgtb	r3, [r0, #-1]!
+#endif
 #if defined(__USE_BX__)
         bx      lr
 #else
@@ -417,10 +488,19 @@ _memcpy:
 	/* align destination with byte copies */
 	ldrb	r3, [r1, #-1]!
 	strb	r3, [r0, #-1]!
+#ifdef __thumb2__
+	itt	ge
+	ldrbge	r3, [r1, #-1]!
+	strbge	r3, [r0, #-1]!
+	itt	gt
+	ldrbgt	r3, [r1, #-1]!
+	strbgt	r3, [r0, #-1]!
+#else
 	ldrgeb	r3, [r1, #-1]!
 	strgeb	r3, [r0, #-1]!
 	ldrgtb	r3, [r1, #-1]!
 	strgtb	r3, [r0, #-1]!
+#endif
 	subs	r2, r2, r12
 	blt	.Lmemcpy_bl4		/* less than 4 bytes to go */
 	ands	r12, r1, #3
@@ -591,3 +671,77 @@ _memcpy:
 .Lmemcpy_bsrcul1l4:
 	add	r1, r1, #1
 	b	.Lmemcpy_bl4
+
+#else /* THUMB1_ONLY */
+
+/* This is a fairly dumb implementation for when we can't use the 32-bit code
+   above.  */
+.text
+.global _memcpy
+.hidden _memcpy
+.type _memcpy,%function
+.align 4
+.thumb
+_memcpy:
+	push	{r0, r4}
+	cmp	r2, #0
+	beq	.Lmemcpy_exit
+	@ See if we have overlapping regions, and need to reverse the
+	@ direction of the copy
+	cmp	r0, r1
+	bls	.Lmemcpy_forwards
+	add	r4, r1, r2
+	cmp	r0, r4
+	bcc	.Lmemcpy_backwards
+.Lmemcpy_forwards:
+	/* Forwards.  */
+	mov	r3, r0
+	eor	r3, r1
+	mov	r4, #3
+	tst	r3, r4
+	bne	.Lmemcpy_funaligned
+	cmp	r2, #8
+	bcc	.Lmemcpy_funaligned
+1:	@ copy up to the first word boundary.
+	tst	r0, r4
+	beq	1f
+	ldrb	r3, [r1]
+	add	r1, r1, #1
+	strb	r3, [r0]
+	add	r0, r0, #1
+	sub	r2, r2, #1
+	b	1b
+1:	@ Copy aligned words
+	ldr	r3, [r1]
+	add	r1, r1, #4
+	str	r3, [r0]
+	add	r0, r0, #4
+	sub	r2, r2, #4
+	cmp	r2, #4
+	bcs	1b
+	cmp	r2, #0
+	beq	.Lmemcpy_exit
+.Lmemcpy_funaligned:
+1:
+	ldrb	r3, [r1]
+	add	r1, r1, #1
+	strb	r3, [r0]
+	add	r0, r0, #1
+	sub	r2, r2, #1
+	bne	1b
+.Lmemcpy_exit:
+	pop	{r0, r4}
+	bx	lr
+
+.Lmemcpy_backwards:
+	add	r0, r0, r2
+	add	r1, r1, r2
+1:
+	sub	r0, r0, #1
+	sub	r1, r1, #1
+	ldrb	r3, [r1]
+	strb	r3, [r0]
+	sub	r2, r2, #1
+	bne	1b
+	b	.Lmemcpy_exit
+#endif

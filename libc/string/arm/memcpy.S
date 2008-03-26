@@ -38,16 +38,23 @@
  */
 
 #include <features.h>
+#include <bits/arm_asm.h>
 
 .text
 .global memcpy
 .type memcpy,%function
 .align 4
 
+#if defined(__thumb__) && !defined(__thumb2__)
+.thumb_func
 memcpy:
-	stmfd	sp!, {r0, lr}
+	push	{r0, lr}
 	bl	_memcpy
-	ldmfd	sp!, {r0, pc}
+	POP_RET
+#else
+memcpy:
+	b	_memcpy
+#endif
 
 .size memcpy,.-memcpy
 

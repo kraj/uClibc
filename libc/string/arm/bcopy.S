@@ -40,6 +40,7 @@
 /* bcopy = memcpy/memmove with arguments reversed. */
 
 #include <features.h>
+#include <bits/arm_asm.h>
 
 #ifdef __UCLIBC_SUSV3_LEGACY__
 
@@ -48,12 +49,23 @@
 .type bcopy,%function
 .align 4
 
+#if defined(__thumb__) && !defined(__thumb2__)
+.thumb_func
+bcopy:
+	push	{r2, lr}
+	mov	ip, r0
+	mov	r0, r1
+	mov	r1, ip
+	bl	_memcpy
+	POP_RET
+#else
 bcopy:
 	/* switch the source and destination registers */
 	eor     r0, r1, r0 
 	eor     r1, r0, r1 
 	eor     r0, r1, r0 
 	b	_memcpy /* (PLT) */
+#endif
 	
 .size bcopy,.-bcopy
 

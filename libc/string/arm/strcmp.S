@@ -30,17 +30,35 @@
  */
 
 #include <features.h>
+#include <bits/arm_asm.h>
 
 .text
 .global strcmp
 .type strcmp,%function
 .align 4
 
+#if defined(__thumb__) && !defined(__thumb2__)
+.thumb_func
+strcmp:
+1:
+	ldrb	r2, [r0]
+	add	r0, r0, #1
+	ldrb	r3, [r1]
+	add	r1, r1, #1
+	cmp	r2, #0
+	beq	2f
+	cmp	r2, r3
+	beq	1b
+2:
+	sub	r0, r2, r3
+	bx      lr
+#else
 strcmp:
 1:
 	ldrb	r2, [r0], #1
 	ldrb	r3, [r1], #1
 	cmp	r2, #1
+	IT(t, cs)
 	cmpcs	r2, r3
 	beq	1b
 	sub	r0, r2, r3
@@ -48,6 +66,7 @@ strcmp:
         bx      lr
 #else
   	mov	pc, lr
+#endif
 #endif
 
 .size strcmp,.-strcmp

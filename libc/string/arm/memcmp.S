@@ -30,15 +30,41 @@
  */
 
 #include <features.h>
+#include <bits/arm_asm.h>
 
 .text
 .global memcmp
 .type memcmp,%function
 .align 4
 
+#if defined(THUMB1_ONLY)
+.thumb_func
+memcmp:
+	cmp	r2, #0
+	bne	1f
+	mov	r0, #0
+	bx	lr
+1:
+	push	{r4}
+	add	r4, r0, r2
+2:
+	ldrb	r2, [r0]
+	add	r0, r0, #1
+	ldrb	r3, [r1]
+	add	r1, r1, #1
+	cmp	r4, r0
+	beq	3f
+	cmp	r2, r3
+	beq	2b
+3:
+	sub	r0, r2, r3
+        pop	{r4}
+	bx	lr
+#else
 memcmp:
 	/* if ((len - 1) < 0) return 0 */
 	subs	r2, r2, #1
+	IT(tt, mi)
 	movmi	r0, #0
 #if defined(__USE_BX__)
         bxmi    lr
@@ -51,6 +77,7 @@ memcmp:
 	ldrb	r2, [r0], #1
 	ldrb	r3, [r1], #1
 	cmp	ip, r0
+	IT(t, cs)
 	cmpcs	r2, r3
 	beq	1b
 	sub	r0, r2, r3
@@ -58,6 +85,7 @@ memcmp:
         bx      lr
 #else
  	mov	pc, lr
+#endif
 #endif
 
 .size memcmp,.-memcmp

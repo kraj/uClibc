@@ -38,6 +38,7 @@
  */
 
 #include <features.h>
+#include <bits/arm_asm.h>
 
 #ifdef __UCLIBC_SUSV3_LEGACY__
 
@@ -46,10 +47,21 @@
 .type bzero,%function
 .align 4
 
+#if defined(__thumb__) && !defined(__thumb2__)
+.thumb_func
+bzero:
+	push	{r2, lr}
+	mov	r2, r1
+	mov	r1, #0
+	bl	HIDDEN_JUMPTARGET(memset)
+	POP_RET
+#else
+
 bzero:
 	mov	r2, r1
 	mov	r1, #0
 	b	HIDDEN_JUMPTARGET(memset)
+#endif
 
 .size bzero,.-bzero
 
