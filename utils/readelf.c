@@ -74,7 +74,7 @@ static ElfW(Phdr) * elf_find_phdr_type( uint32_t type, ElfW(Ehdr) *ehdr)
 	return NULL;
 }
 
-/* Returns value if return_val==1, ptr otherwise */ 
+/* Returns value if return_val==1, ptr otherwise */
 static void * elf_find_dynamic( int64_t const key, ElfW(Dyn) *dynp,
 	ElfW(Ehdr) *ehdr, int return_val)
 {
@@ -93,10 +93,10 @@ static void * elf_find_dynamic( int64_t const key, ElfW(Dyn) *dynp,
 
 static int check_elf_header(ElfW(Ehdr) *const ehdr)
 {
-	if (! ehdr || strncmp((void *)ehdr, ELFMAG, SELFMAG) != 0 ||  
+	if (! ehdr || strncmp((void *)ehdr, ELFMAG, SELFMAG) != 0 ||
 			(ehdr->e_ident[EI_CLASS] != ELFCLASS32 &&
 			 ehdr->e_ident[EI_CLASS] != ELFCLASS64) ||
-			ehdr->e_ident[EI_VERSION] != EV_CURRENT) 
+			ehdr->e_ident[EI_VERSION] != EV_CURRENT)
 	{
 		return 1;
 	}
@@ -196,7 +196,7 @@ static void describe_elf_hdr(ElfW(Ehdr)* ehdr)
 		case EM_CYGNUS_FR30:
 		case EM_FR30:		tmp="Fujitsu FR30"; break;
 		case EM_CYGNUS_FRV:
-		case EM_PJ_OLD:		
+		case EM_PJ_OLD:
 		case EM_PJ:			tmp="picoJava"; break;
 		case EM_MMA:		tmp="Fujitsu MMA Multimedia Accelerator"; break;
 		case EM_PCP:		tmp="Siemens PCP"; break;
@@ -247,7 +247,7 @@ static void describe_elf_hdr(ElfW(Ehdr)* ehdr)
 		case EM_PDSP:		tmp="Sony DSP Processor"; break;
 		default:			tmp="unknown";
 	}
-	printf( "Machine:\t%s\n", tmp);	
+	printf( "Machine:\t%s\n", tmp);
 
 	switch (ehdr->e_ident[EI_CLASS]) {
 		case ELFCLASSNONE: tmp = "Invalid class";  break;
@@ -266,7 +266,7 @@ static void describe_elf_hdr(ElfW(Ehdr)* ehdr)
 	printf( "Data:\t\t%s\n", tmp);
 
 	printf( "Version:\t%d %s\n", ehdr->e_ident[EI_VERSION],
-			(ehdr->e_ident[EI_VERSION]==EV_CURRENT)? 
+			(ehdr->e_ident[EI_VERSION]==EV_CURRENT)?
 			"(current)" : "(unknown: %lx)");
 
 	switch (ehdr->e_ident[EI_OSABI]) {
@@ -302,7 +302,7 @@ static void list_needed_libraries(ElfW(Dyn)* dynamic, char *strtab)
 		}
 	}
 }
-    
+
 static void describe_elf_interpreter(ElfW(Ehdr)* ehdr)
 {
 	ElfW(Phdr) *phdr;
@@ -340,7 +340,7 @@ int main( int argc, char** argv)
 		goto foo;
 
 	/* mmap the file to make reading stuff from it effortless */
-	ehdr = (ElfW(Ehdr) *)mmap(0, statbuf.st_size, 
+	ehdr = (ElfW(Ehdr) *)mmap(0, statbuf.st_size,
 			PROT_READ|PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
 
 foo:
