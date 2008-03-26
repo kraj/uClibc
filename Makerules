@@ -60,6 +60,7 @@ endif
 show_objs = $(subst ../,,$@)
 
 pur_disp_compile.c = echo "  "CC $(show_objs)
+pur_disp_compile.u = echo "  "CC $(show_objs)
 pur_disp_compile.S = echo "  "AS $(show_objs)
 pur_disp_compile.m = $(pur_disp_compile.c)
 pur_disp_compile-m = echo "  "CC-m $(show_objs)
@@ -69,6 +70,7 @@ pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
 pur_disp_ld        = echo "  "LD $(1)
 
 sil_disp_compile.c = true
+sil_disp_compile.u = true
 sil_disp_compile.S = true
 sil_disp_compile.m = true
 sil_disp_compile-m = true
@@ -78,6 +80,7 @@ sil_disp_ar        = true
 sil_disp_ld        = true
 
 ver_disp_compile.c = echo $(cmd_compile.c)
+ver_disp_compile.u = echo $(cmd_compile.u)
 ver_disp_compile.S = echo $(cmd_compile.S)
 ver_disp_compile.m = echo $(cmd_compile.m)
 ver_disp_compile-m = echo $(cmd_compile-m)
@@ -87,6 +90,7 @@ ver_disp_ar        = echo $(cmd_ar)
 ver_disp_ld        = 
 
 disp_compile.c = $($(DISP)_disp_compile.c)
+disp_compile.u = $($(DISP)_disp_compile.u)
 disp_compile.S = $($(DISP)_disp_compile.S)
 disp_compile.m = $($(DISP)_disp_compile.m)
 disp_compile-m = $($(DISP)_disp_compile-m)
@@ -96,6 +100,7 @@ disp_ar        = $($(DISP)_disp_ar)
 disp_ld        = $($(DISP)_disp_ld)
 
 cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))
+cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@))
 cmd_compile.S = $(filter-out -std=gnu99, $(cmd_compile.c)) -D__ASSEMBLER__ $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
 cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
 cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@))
@@ -114,8 +119,7 @@ do_t_strip= @$(disp_t_strip)   ; $(cmd_t_strip)
 do_ar     = @$(disp_ar)        ; $(cmd_ar)
 
 define compile.u
-	@$(disp_compile.c)
-	$(Q)$(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@))
+	@$(disp_compile.u) ; $(cmd_compile.u)
 	@$(disp_strip)
 	$(Q)$(STRIPTOOL) $(STRIP_FLAGS) $@
 endef
