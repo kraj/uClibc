@@ -134,10 +134,19 @@ static inline int mlock (__const void *__addr, size_t __len) { return 0; }
 static inline int munlock (__const void *__addr, size_t __len) { return 0; }
 static inline int mlockall (int __flags) { return 0; }
 static inline int munlockall (void) { return 0; }
-
 #endif
 
 #ifdef __USE_MISC
+/* mincore returns the memory residency status of the pages in the
+   current process's address space specified by [start, start + len).
+   The status is returned in a vector of bytes.  The least significant
+   bit of each byte is 1 if the referenced page is in memory, otherwise
+   it is zero.  */
+extern int mincore (void *__start, size_t __len, unsigned char *__vec)
+     __THROW;
+#endif
+
+#ifdef __USE_GNU
 /* Remap pages mapped by the range [ADDR,ADDR+OLD_LEN) to new length
    NEW_LEN.  If MREMAP_MAYMOVE is set in FLAGS the returned address
    may differ from ADDR.  If MREMAP_FIXED is set in FLAGS the function
@@ -146,20 +155,10 @@ static inline int munlockall (void) { return 0; }
 extern void *mremap (void *__addr, size_t __old_len, size_t __new_len,
 		     int __flags, ...) __THROW;
 
-/* mincore returns the memory residency status of the pages in the
-   current process's address space specified by [start, start + len).
-   The status is returned in a vector of bytes.  The least significant
-   bit of each byte is 1 if the referenced page is in memory, otherwise
-   it is zero.  */
-extern int mincore (void *__start, size_t __len, unsigned char *__vec)
-     __THROW;
-
-#if 0
 /* Remap arbitrary pages of a shared backing store within an existing
    VMA.  */
 extern int remap_file_pages (void *__start, size_t __size, int __prot,
 			     size_t __pgoff, int __flags) __THROW;
-#endif
 #endif
 
 
