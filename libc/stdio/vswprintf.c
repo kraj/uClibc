@@ -38,10 +38,6 @@ int vswprintf(wchar_t *__restrict buf, size_t size,
 	__INIT_MBSTATE(&(f.__state));
 #endif /* __STDIO_MBSTATE */
 
-#ifdef __UCLIBC_HAS_THREADS__
-	f.__user_locking = 1;		/* Set user locking. */
-	__stdio_init_mutex(&f.__lock);
-#endif
 	f.__nextopen = NULL;
 
 	if (size > ((SIZE_MAX - (size_t) buf)/sizeof(wchar_t))) {

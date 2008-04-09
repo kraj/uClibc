@@ -41,16 +41,13 @@ int vsnprintf(char *__restrict buf, size_t size,
 	__INIT_MBSTATE(&(f.__state));
 #endif /* __STDIO_MBSTATE */
 
-#ifdef __UCLIBC_HAS_THREADS__
-	f.__user_locking = 1;		/* Set user locking. */
-	__stdio_init_mutex(&f.__lock);
-#endif
 	f.__nextopen = NULL;
 
 	if (size > SIZE_MAX - (size_t) buf) {
 		size = SIZE_MAX - (size_t) buf;
 	}
 
+/* TODO: this comment seems to be wrong */
 	/* Set these last since __bufputc initialization depends on
 	 * __user_locking and only gets set if user locking is on. */
 	f.__bufstart = (unsigned char *) buf;
@@ -195,10 +192,6 @@ int vsnprintf(char *__restrict buf, size_t size,
 	__INIT_MBSTATE(&(f.__state));
 #endif /* __STDIO_MBSTATE */
 
-#ifdef __UCLIBC_HAS_THREADS__
-	f.__user_locking = 1;		/* Set user locking. */
-	__stdio_init_mutex(&f.__lock);
-#endif
 	f.__nextopen = NULL;
 
 	rv = _vfprintf_internal(&f, format, arg);

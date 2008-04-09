@@ -47,6 +47,8 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 	__INIT_MBSTATE(&(f.__state));
 #endif /* __STDIO_MBSTATE */
 
+/* _vfprintf_internal doesn't do any locking, locking init is here
+ * only because of fflush_unlocked. TODO? */
 #ifdef __UCLIBC_HAS_THREADS__
 	f.__user_locking = 1;		/* Set user locking. */
 	__stdio_init_mutex(&f.__lock);
