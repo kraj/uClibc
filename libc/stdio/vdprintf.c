@@ -68,4 +68,5 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 
 	return rv;
 }
+libc_hidden_def(vdprintf)
 #endif
