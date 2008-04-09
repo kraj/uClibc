@@ -11,6 +11,10 @@
 
 libc_hidden_proto(vswprintf)
 
+#ifdef __USE_OLD_VFPRINTF__
+libc_hidden_proto(vfwprintf)
+#endif
+
 #ifndef __STDIO_BUFFERS
 #warning Skipping vswprintf since no buffering!
 #else  /* __STDIO_BUFFERS */
@@ -38,6 +42,10 @@ int vswprintf(wchar_t *__restrict buf, size_t size,
 	__INIT_MBSTATE(&(f.__state));
 #endif /* __STDIO_MBSTATE */
 
+#if defined(__USE_OLD_VFPRINTF__) && defined(__UCLIBC_HAS_THREADS__)
+	f.__user_locking = 1;		/* Set user locking. */
+	__stdio_init_mutex(&f.__lock);
+#endif
 	f.__nextopen = NULL;
 
 	if (size > ((SIZE_MAX - (size_t) buf)/sizeof(wchar_t))) {
@@ -50,7 +58,11 @@ int vswprintf(wchar_t *__restrict buf, size_t size,
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
 
+#ifdef __USE_OLD_VFPRINTF__
+	rv = vfwprintf(&f, format, arg);
+#else
 	rv = _vfwprintf_internal(&f, format, arg);
+#endif
 
 	/* NOTE: Return behaviour differs from snprintf... */
 	if (f.__bufpos == f.__bufend) {

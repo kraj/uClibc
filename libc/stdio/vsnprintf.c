@@ -10,11 +10,17 @@
 
 libc_hidden_proto(vsnprintf)
 
+#ifdef __USE_OLD_VFPRINTF__
+libc_hidden_proto(vfprintf)
+#endif
+
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning WISHLIST: Implement vsnprintf for non-buffered and no custom stream case.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __STDIO_BUFFERS
+
+/* NB: __USE_OLD_VFPRINTF__ is not defined in this case */
 
 int vsnprintf(char *__restrict buf, size_t size,
 			  const char * __restrict format, va_list arg)
