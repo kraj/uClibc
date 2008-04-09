@@ -59,6 +59,7 @@ CUSRC := \
 ifneq ($(USE_OLD_VFPRINTF),y)
 VF_CSRC := \
 	vfprintf.c \
+	_vfprintf_internal.c \
 	_ppfs_init.c _ppfs_prepargs.c _ppfs_setargs.c _ppfs_parsespec.c \
 	register_printf_function.c parse_printf_format.c
 CSRC += $(VF_CSRC)
@@ -77,7 +78,7 @@ CSRC += _wfwrite.c fwprintf.c swprintf.c vswprintf.c vwprintf.c wprintf.c \
 CUSRC += fgetwc.c getwchar.c fgetws.c fputwc.c putwchar.c fputws.c
 # getwc (fgetwc alias) getwc_unlocked (fgetwc_unlocked alias)
 # putwc (fputwc alias) putwc_unlocked (fputwc_unlocked alias)
-CSRC += vfwprintf.c
+CSRC += vfwprintf.c _vfwprintf_internal.c
 CSRC += wscanf.c swscanf.c fwscanf.c vwscanf.c vswscanf.c vfwscanf.c
 endif
 

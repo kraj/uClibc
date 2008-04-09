@@ -57,7 +57,7 @@ int vasprintf(char **__restrict buf, const char * __restrict format,
 
 #else  /* __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
 
-	/* This implementation actually calls the printf machinery twice, but only
+	/* This implementation actually calls the printf machinery twice, but
 	 * only does one malloc.  This can be a problem though when custom printf
 	 * specs or the %m specifier are involved because the results of the
 	 * second call might be different from the first. */

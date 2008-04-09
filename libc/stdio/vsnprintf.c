@@ -10,8 +10,6 @@
 
 libc_hidden_proto(vsnprintf)
 
-libc_hidden_proto(vfprintf)
-
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning WISHLIST: Implement vsnprintf for non-buffered and no custom stream case.
 #endif /* __UCLIBC_MJN3_ONLY__ */
@@ -61,7 +59,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_ENABLE_PUTC(&f);
 
-	rv = vfprintf(&f, format, arg);
+	rv = _vfprintf_internal(&f, format, arg);
 	if (size) {
 		if (f.__bufpos == f.__bufend) {
 			--f.__bufpos;
@@ -203,7 +201,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 #endif
 	f.__nextopen = NULL;
 
-	rv = vfprintf(&f, format, arg);
+	rv = _vfprintf_internal(&f, format, arg);
 
 	return rv;
 }

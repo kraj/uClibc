@@ -11,7 +11,6 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-libc_hidden_proto(vfprintf)
 libc_hidden_proto(fflush_unlocked)
 
 libc_hidden_proto(vdprintf)
@@ -54,7 +53,7 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 #endif
 	f.__nextopen = NULL;
 
-	rv = vfprintf(&f, format, arg);
+	rv = _vfprintf_internal(&f, format, arg);
 
 #ifdef __STDIO_BUFFERS
 	/* If not buffering, then fflush is unnecessary. */
@@ -67,5 +66,4 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 
 	return rv;
 }
-libc_hidden_def(vdprintf)
 #endif

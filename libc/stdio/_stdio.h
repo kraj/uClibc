@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <unistd.h>
 #ifdef __UCLIBC_HAS_WCHAR__
 #include <wchar.h>
@@ -428,6 +429,18 @@ extern FILE *_stdio_fopen(intptr_t fname_or_mode, const char *__restrict mode,
 #ifdef __UCLIBC_HAS_WCHAR__
 extern size_t _wstdio_fwrite(const wchar_t *__restrict ws,
 		size_t n, FILE *__restrict stream) attribute_hidden;
+#endif
+
+/**********************************************************************/
+
+extern int _vfprintf_internal (FILE * __restrict stream,
+			register const char * __restrict format,
+			va_list arg) attribute_hidden;
+
+#ifdef __UCLIBC_HAS_WCHAR__
+extern int _vfwprintf_internal (FILE * __restrict stream,
+			register const wchar_t * __restrict format,
+			va_list arg) attribute_hidden;
 #endif
 
 /**********************************************************************/
