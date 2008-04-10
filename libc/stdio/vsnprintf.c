@@ -19,8 +19,7 @@ libc_hidden_proto(vfprintf)
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __STDIO_BUFFERS
-
-/* NB: __USE_OLD_VFPRINTF__ is not defined in this case */
+/* NB: we can still have __USE_OLD_VFPRINTF__ defined in this case! */
 
 int vsnprintf(char *__restrict buf, size_t size,
 			  const char * __restrict format, va_list arg)
@@ -47,6 +46,10 @@ int vsnprintf(char *__restrict buf, size_t size,
 	__INIT_MBSTATE(&(f.__state));
 #endif /* __STDIO_MBSTATE */
 
+#if defined(__USE_OLD_VFPRINTF__) && defined(__UCLIBC_HAS_THREADS__)
+	f.__user_locking = 1;		/* Set user locking. */
+	__stdio_init_mutex(&f.__lock);
+#endif
 	f.__nextopen = NULL;
 
 	if (size > SIZE_MAX - (size_t) buf) {
@@ -62,7 +65,11 @@ int vsnprintf(char *__restrict buf, size_t size,
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_ENABLE_PUTC(&f);
 
+#ifdef __USE_OLD_VFPRINTF__
+	rv = vfprintf(&f, format, arg);
+#else
 	rv = _vfprintf_internal(&f, format, arg);
+#endif
 	if (size) {
 		if (f.__bufpos == f.__bufend) {
 			--f.__bufpos;

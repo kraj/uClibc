@@ -1866,7 +1866,7 @@ static int _do_one_spec(FILE * __restrict stream,
 libc_hidden_proto(fprintf)
 
 int VFPRINTF_internal (FILE * __restrict stream,
-			  register const FMT_TYPE * __restrict format,
+			  const FMT_TYPE * __restrict format,
 			  va_list arg)
 {
 	ppfs_t ppfs;
@@ -1954,7 +1954,7 @@ int VFPRINTF_internal (FILE * __restrict stream,
 
 libc_hidden_proto(VFPRINTF)
 int VFPRINTF (FILE * __restrict stream,
-			  register const FMT_TYPE * __restrict format,
+			  const FMT_TYPE * __restrict format,
 			  va_list arg)
 {
 	int count;
