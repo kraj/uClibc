@@ -434,12 +434,12 @@ extern size_t _wstdio_fwrite(const wchar_t *__restrict ws,
 /**********************************************************************/
 
 extern int _vfprintf_internal (FILE * __restrict stream,
-			register const char * __restrict format,
+			const char * __restrict format,
 			va_list arg) attribute_hidden;
 
 #ifdef __UCLIBC_HAS_WCHAR__
 extern int _vfwprintf_internal (FILE * __restrict stream,
-			register const wchar_t * __restrict format,
+			const wchar_t * __restrict format,
 			va_list arg) attribute_hidden;
 #endif
 
