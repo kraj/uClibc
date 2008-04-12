@@ -89,7 +89,6 @@ xdr_des_block (XDR *xdrs, des_block *blkp)
 /*
  * XDR the MSG_ACCEPTED part of a reply message union
  */
-extern bool_t xdr_accepted_reply (XDR *xdrs, struct accepted_reply *ar);
 libc_hidden_proto(xdr_accepted_reply)
 bool_t
 xdr_accepted_reply (XDR *xdrs, struct accepted_reply *ar)
@@ -117,7 +116,6 @@ libc_hidden_def(xdr_accepted_reply)
 /*
  * XDR the MSG_DENIED part of a reply message union
  */
-extern bool_t xdr_rejected_reply (XDR *xdrs, struct rejected_reply *rr);
 libc_hidden_proto(xdr_rejected_reply)
 bool_t
 xdr_rejected_reply (XDR *xdrs, struct rejected_reply *rr)

@@ -115,8 +115,8 @@ static const struct toktab {
 };
 
 
-
-extern int ruserpass(const char *host, const char **aname, const char **apass);
+/* ruserpass - remote password check.
+   This function also exists in glibc but is undocumented */
 libc_hidden_proto(ruserpass)
 int ruserpass(const char *host, const char **aname, const char **apass)
 {

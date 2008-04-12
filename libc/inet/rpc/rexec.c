@@ -61,14 +61,13 @@ libc_hidden_proto(atoi)
 libc_hidden_proto(connect)
 libc_hidden_proto(accept)
 libc_hidden_proto(listen)
+libc_hidden_proto(ruserpass)
 
 #define SA_LEN(_x)      __libc_sa_len((_x)->sa_family)
 extern int __libc_sa_len (sa_family_t __af) __THROW attribute_hidden;
 
 int	rexecoptions;
 char	ahostbuf[NI_MAXHOST] attribute_hidden;
-extern int ruserpass(const char *host, const char **aname, const char **apass) attribute_hidden;
-libc_hidden_proto(ruserpass)
 
 libc_hidden_proto(rexec_af)
 int

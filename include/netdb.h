@@ -444,6 +444,11 @@ extern int getnetgrent_r (char **__restrict __hostp,
 #endif	/* misc */
 
 
+/* ruserpass - remote password check.
+   This function also exists in glibc but is undocumented */
+extern int ruserpass(const char *host, const char **aname, const char **apass);
+
+
 #ifdef __USE_BSD
 /* Call `rshd' at port RPORT on remote machine *AHOST to execute CMD.
    The local user is LOCUSER, on the remote machine the command is

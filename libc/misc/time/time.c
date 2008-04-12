@@ -202,8 +202,7 @@ libc_hidden_proto(__ctype_b)
     ((defined(L_strftime) || defined(L_strftime_l)) && \
     defined(__UCLIBC_HAS_XLOCALE__))
 
-void _time_tzset(int use_old_rules);
-libc_hidden_proto(_time_tzset)
+void _time_tzset(int use_old_rules) attribute_hidden;
 
 #ifndef L__time_mktime
 
