@@ -57,19 +57,19 @@ L(2):	movb (%rax), %cl	/* get byte from stopset */
 	movb %cl, (%rsp,%rcx)	/* set corresponding byte in stopset table */
 
 	movb 1(%rax), %cl	/* get byte from stopset */
-	testb $0xff, %cl	/* is NUL char? */
+	testb %cl, %cl		/* is NUL char? */
 	jz L(1)			/* yes => start compare loop */
 	movb %cl, (%rsp,%rcx)	/* set corresponding byte in stopset table */
 
 	movb 2(%rax), %cl	/* get byte from stopset */
-	testb $0xff, %cl	/* is NUL char? */
+	testb %cl, %cl		/* is NUL char? */
 	jz L(1)			/* yes => start compare loop */
 	movb %cl, (%rsp,%rcx)	/* set corresponding byte in stopset table */
 
 	movb 3(%rax), %cl	/* get byte from stopset */
 	addq $4, %rax		/* increment stopset pointer */
 	movb %cl, (%rsp,%rcx)	/* set corresponding byte in stopset table */
-	testb $0xff, %cl	/* is NUL char? */
+	testb %cl, %cl		/* is NUL char? */
 	jnz L(2)		/* no => process next dword from stopset */
 
 L(1):	leaq -4(%rdx), %rax	/* prepare loop */

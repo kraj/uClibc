@@ -26,7 +26,6 @@
 #include "_glibc_inc.h"
 
 /* Seems to be unrolled too much */
-/* (and why testb $0xff, %cl, not testb %cl, %cl?) */
 
 /* BEWARE: `#ifdef strcspn' means that strcspn is redefined as `strpbrk' */
 #define STRPBRK_P (defined strcspn)
@@ -63,19 +62,19 @@ L(2):	movb (%rax), %cl	/* get byte from skipset */
 	movb %cl, (%rsp,%rcx)	/* set corresponding byte in skipset table */
 
 	movb 1(%rax), %cl	/* get byte from skipset */
-	testb $0xff, %cl	/* is NUL char? */
+	testb %cl, %cl		/* is NUL char? */
 	jz L(1)			/* yes => start compare loop */
 	movb %cl, (%rsp,%rcx)	/* set corresponding byte in skipset table */
 
 	movb 2(%rax), %cl	/* get byte from skipset */
-	testb $0xff, %cl	/* is NUL char? */
+	testb %cl, %cl		/* is NUL char? */
 	jz L(1)			/* yes => start compare loop */
 	movb %cl, (%rsp,%rcx)	/* set corresponding byte in skipset table */
 
 	movb 3(%rax), %cl	/* get byte from skipset */
 	addq $4, %rax		/* increment skipset pointer */
 	movb %cl, (%rsp,%rcx)	/* set corresponding byte in skipset table */
-	testb $0xff, %cl	/* is NUL char? */
+	testb %cl, %cl		/* is NUL char? */
 	jnz L(2)		/* no => process next dword from skipset */
 
 L(1):	leaq -4(%rdx), %rax	/* prepare loop */

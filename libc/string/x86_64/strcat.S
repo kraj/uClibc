@@ -103,7 +103,7 @@ ENTRY (BP_SYM (strcat))
 				   the addition will not result in 0.  */
 	jz 4b			/* no NUL found => continue loop */
 
-	.p2align 4		/* Align, it's a jump target.  */
+	.p2align 4		/* Align, it is a jump target.  */
 3:	subq $8,%rax		/* correct pointer increment.  */
 
 	testb %cl, %cl		/* is first byte NUL? */

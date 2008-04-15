@@ -53,15 +53,15 @@ ENTRY (memset)
 	imul	%rax,%r8
 #endif
 	test	$0x7,%edi	/* Check for alignment.  */
-	je	2f
+	jz	2f
 
 	.p2align 4
 1:	/* Align ptr to 8 byte.  */
 	mov	%sil,(%rcx)
 	dec	%rdx
 	inc	%rcx
-	test	$0x7,%ecx
-	jne	1b
+	test	$0x7,%cl
+	jnz	1b
 
 2:	/* Check for really large regions.  */
 	mov	%rdx,%rax
@@ -107,7 +107,7 @@ ENTRY (memset)
 	jne	8b
 9:
 #if BZERO_P
-	nop	/* huh?? */
+	/* nothing */
 #else
 	/* Load result (only if used as memset).  */
 	mov	%rdi,%rax	/* start address of destination is result */
