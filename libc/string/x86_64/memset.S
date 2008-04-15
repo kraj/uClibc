@@ -55,8 +55,10 @@ ENTRY (memset)
 	test	$0x7,%edi	/* Check for alignment.  */
 	jz	2f
 
-	.p2align 4
-1:	/* Align ptr to 8 byte.  */
+	/* Next 3 insns are 9 bytes total, make sure we decode them in one go */
+	.p2align 4,,9
+1:
+	/* Align ptr to 8 byte.  */
 	mov	%sil,(%rcx)
 	dec	%rdx
 	inc	%rcx
@@ -70,8 +72,10 @@ ENTRY (memset)
 	cmp	LARGE, %rdx
 	jae	11f
 
-	.p2align 4
-3:	/* Fill 64 bytes.  */
+	/* Next 3 insns are 11 bytes total, make sure we decode them in one go */
+	.p2align 4,,11
+3:
+	/* Fill 64 bytes.  */
 	mov	%r8,(%rcx)
 	mov	%r8,0x8(%rcx)
 	mov	%r8,0x10(%rcx)
@@ -114,9 +118,11 @@ ENTRY (memset)
 #endif
 	retq
 
-	.p2align 4
-11:	/* Fill 64 bytes without polluting the cache.  */
-	/* We could use	movntdq    %xmm0,(%rcx) here to further
+	/* Next 3 insns are 14 bytes total, make sure we decode them in one go */
+	.p2align 4,,14
+11:
+	/* Fill 64 bytes without polluting the cache.  */
+	/* We could use	movntdq %xmm0,(%rcx) here to further
 	   speed up for large cases but let's not use XMM registers.  */
 	movnti	%r8,(%rcx)
 	movnti  %r8,0x8(%rcx)

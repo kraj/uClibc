@@ -59,9 +59,9 @@ ENTRY (BP_SYM (memcpy))
 	subq	$32, %rcx
 	js	2f
 
-	.p2align 4
+	/* Next 3 insns are 11 bytes total, make sure we decode them in one go */
+	.p2align 4,,11
 3:
-
 	/* Now correct the loop counter.  Please note that in the following
 	   code the flags are not changed anymore.  */
 	subq	$32, %rcx

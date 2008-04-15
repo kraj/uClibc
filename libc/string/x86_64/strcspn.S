@@ -55,7 +55,9 @@ ENTRY (strcspn)
    Although all the following instruction only modify %cl we always
    have a correct zero-extended 64-bit value in %rcx.  */
 
-	.p2align 4
+	/* Next 3 insns are 6 bytes total, make sure we decode them in one go */
+	.p2align 3,,6
+
 L(2):	movb (%rax), %cl	/* get byte from skipset */
 	testb %cl, %cl		/* is NUL char? */
 	jz L(1)			/* yes => start compare loop */
@@ -88,7 +90,13 @@ L(1):	leaq -4(%rdx), %rax	/* prepare loop */
 	   value in the table.  But the value of NUL is NUL so the loop
 	   terminates for NUL in every case.  */
 
-	.p2align 4
+	/* Next 3 insns are 9 bytes total. */
+	/* .p2align 4,,9 would make sure we decode them in one go, */
+	/* but it will also align entire function to 16 bytes, */
+	/* potentially creating largish padding at link time. */
+	/* We are aligning to 8 bytes instead: */
+	.p2align 3,,8
+
 L(3):	addq $4, %rax		/* adjust pointer for full loop round */
 
 	movb (%rax), %cl	/* get byte from string */
