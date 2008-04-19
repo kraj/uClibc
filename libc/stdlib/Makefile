@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -86,7 +86,7 @@ CSRC =	abort.c getenv.c mkdtemp.c mktemp.c realpath.c mkstemp.c mkstemp64.c \
 	getpt.c ptsname.c grantpt.c unlockpt.c gcvt.c drand48-iter.c jrand48.c \
 	jrand48_r.c lrand48.c lrand48_r.c mrand48.c mrand48_r.c nrand48.c \
 	nrand48_r.c rand_r.c srand48.c srand48_r.c seed48.c seed48_r.c \
-	valloc.c
+	valloc.c posix_memalign.c
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 	CSRC += drand48.c drand48_r.c erand48.c erand48_r.c
 endif
