@@ -104,6 +104,7 @@ mmap64:
 	b	__syscall_error
 #endif
 #else /* !__ARM_EABI__ */
+mmap64:
 	stmfd	sp!, {r4, r5, lr}
 	ldr	r5, [sp, $16]
 	ldr	r4, [sp, $12]
