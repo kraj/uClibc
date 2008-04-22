@@ -77,7 +77,7 @@ libpthread-a-y  += $(libpthread_OBJ:.o=.os) $(libpthread-static-y:.o=.os)
 else
 libpthread-a-y  += $(libpthread_OBJ) $(libpthread-static-y)
 endif
-libpthread-so-y += $(libpthread_OBJ:.o=.os)
+libpthread-so-y += $(libpthread_OBJ:.o=.oS)
 
 lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
