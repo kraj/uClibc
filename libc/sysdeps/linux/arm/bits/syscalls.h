@@ -106,100 +106,55 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 #define INTERNAL_SYSCALL_DECL(err) do { } while (0)
 
 #undef INTERNAL_SYSCALL
-#if defined(__ARM_EABI__)
 #if !defined(__thumb__)
+#if defined(__ARM_EABI__)
 #define INTERNAL_SYSCALL(name, err, nr, args...)			\
   ({unsigned int __sys_result;						\
      {									\
-       register int _a1 __asm__ ("r0"), _nr __asm__ ("r7");			\
+       register int _a1 __asm__ ("r0"), _nr __asm__ ("r7");		\
        LOAD_ARGS_##nr (args)						\
        _nr = SYS_ify(name);						\
-       __asm__ volatile ("swi	0x0	@ syscall " #name		\
+       __asm__ __volatile__ ("swi	0x0	@ syscall " #name	\
+			     : "=r" (_a1)				\
+			     : "r" (_nr) ASM_ARGS_##nr			\
+			     : "memory");				\
+	       __sys_result = _a1;					\
+     }									\
+     (int) __sys_result; })
+#else /* defined(__ARM_EABI__) */
+
+#define INTERNAL_SYSCALL(name, err, nr, args...)			\
+  ({ unsigned int __sys_result;						\
+     {									\
+       register int _a1 __asm__ ("a1");					\
+       LOAD_ARGS_##nr (args)						\
+       __asm__ __volatile__ ("swi	%1	@ syscall " #name	\
 		     : "=r" (_a1)					\
-		     : "r" (_nr) ASM_ARGS_##nr				\
+		     : "i" (SYS_ify(name)) ASM_ARGS_##nr		\
 		     : "memory");					\
        __sys_result = _a1;						\
      }									\
      (int) __sys_result; })
+#endif
 #else /* !defined(__thumb__) */
-/* So hide the use of r7 from the compiler, this would be a lot
- * easier but for the fact that the syscalls can exceed 255.
- * For the moment the LOAD_ARG_7 is sacrificed.
- */
-#define INTERNAL_SYSCALL(name, err, nr, args...)                \
-  ({ unsigned int __sys_result;                                  \
-    {                                                           \
-      register int _a1 asm ("a1");                              \
-      LOAD_ARGS_##nr (args)                                     \
-        register int _v3 asm ("v3") = (int) (SYS_ify(name));    \
-      asm volatile ("push       {r7}\n"                         \
-                    "\tmov      r7, v3\n"                       \
-                    "\tswi      0       @ syscall " #name "\n"  \
-                    "\tpop      {r7}"                           \
-                   : "=r" (_a1)                                 \
-                    : "r" (_v3) ASM_ARGS_##nr                   \
-                    : "memory");                                \
-      __sys_result = _a1;                                        \
-    }                                                           \
+
+#define INTERNAL_SYSCALL(name, err, nr, args...)			\
+  ({ unsigned int __sys_result;						\
+    {									\
+      register int _a1 __asm__ ("a1");					\
+      LOAD_ARGS_##nr (args)						\
+      register int _v3 __asm__ ("v3") = (int) (SYS_ify(name));		\
+      __asm__ __volatile__ ("push       {r7}\n"				\
+			    "\tmov      r7, v3\n"			\
+			    "\tswi      0       @ syscall " #name "\n"	\
+			    "\tpop      {r7}"				\
+		    : "=r" (_a1)					\
+		    : "r" (_v3) ASM_ARGS_##nr				\
+                    : "memory");					\
+	__sys_result = _a1;						\
+    }									\
     (int) __sys_result; })
 #endif /*!defined(__thumb__)*/
-#else /* !defined(__ARM_EABI__) */ 
-#if !defined(__thumb__)
-#define INTERNAL_SYSCALL(name, err, nr, args...)		\
-  ({ unsigned int __sys_result;					\
-     {								\
-       register int _a1 __asm__ ("a1");				\
-       LOAD_ARGS_##nr (args)					\
-       __asm__ volatile ("swi	%1	@ syscall " #name	\
-		     : "=r" (_a1)				\
-		     : "i" (SYS_ify(name)) ASM_ARGS_##nr	\
-		     : "memory");				\
-       __sys_result = _a1;					\
-     }								\
-     (int) __sys_result; })
-#else
-#if 0
-/* This doesn't work because GCC uses r7 as a frame pointer in
- * some cases and doesn't notice that the _r7 value changes
- * it, resulting in mysterious crashes after the SWI.
- */
-#define INTERNAL_SYSCALL(name, err, nr, args...)		\
-  ({ unsigned int __sys_result;					\
-     {								\
-       register int _a1 __asm__ ("a1");				\
-       LOAD_ARGS_##nr (args)					\
-       register int _r7 __asm__ ("r7") = (int) (SYS_ify(name));	\
-       __asm__ volatile ("swi	0	@ syscall " #name	\
-		     : "=r" (_a1)				\
-		     : "r" (_r7) ASM_ARGS_##nr			\
-		     : "memory");				\
-       __sys_result = _a1;					\
-     }								\
-     (int) __sys_result; })
-#else
-/* So hide the use of r7 from the compiler, this would be a lot
- * easier but for the fact that the syscalls can exceed 255.
- * For the moment the LOAD_ARG_7 is sacrificed.
- */
-#define INTERNAL_SYSCALL(name, err, nr, args...)		\
-  ({ unsigned int __sys_result;					\
-     {								\
-       register int _a1 __asm__ ("a1");				\
-       LOAD_ARGS_##nr (args)					\
-       register int _v3 __asm__ ("v3") = (int) (SYS_ify(name));	\
-       __asm__ volatile ("push	{r7}\n"				\
-	       	     "\tmov	r7, v3\n"			\
-	       	     "\tswi	0	@ syscall " #name "\n"	\
-		     "\tpop	{r7}"				\
-		     : "=r" (_a1)				\
-		     : "r" (_v3) ASM_ARGS_##nr			\
-		     : "memory");				\
-       __sys_result = _a1;					\
-     }								\
-     (int) __sys_result; })
-#endif
-#endif
-#endif /* !defined(__ARM_EABI__) */
 
 #undef INTERNAL_SYSCALL_ERROR_P
 #define INTERNAL_SYSCALL_ERROR_P(val, err) \
