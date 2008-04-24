@@ -1,1 +1,1 @@
-#define __WORDSIZE     32
+#define __WORDSIZE	32

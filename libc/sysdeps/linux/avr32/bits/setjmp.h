@@ -6,7 +6,7 @@
  * archive for more details.
  */
 #ifndef _BITS_SETJMP_H
-#define _BITS_SETJMP_H 1
+#define _BITS_SETJMP_H	1
 
 #if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
@@ -20,7 +20,7 @@
 typedef int __jmp_buf[11];
 #endif
 
-#define __JMP_BUF_SP   4
+#define __JMP_BUF_SP	4
 
 /* Test if longjmp to JMPBUF would unwind the frame containing a local
    variable at ADDRESS.  */
