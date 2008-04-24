@@ -31,7 +31,7 @@ int brk (void *addr)
   {
     register long int res __asm__ ("$2");
 
-    asm ("move\t$4,%2\n\t"
+    __asm__ ("move\t$4,%2\n\t"
 	 "li\t%0,%1\n\t"
 	 "syscall"		/* Perform the system call.  */
 	 : "=r" (res)

@@ -109,8 +109,8 @@ sparc_mod(unsigned long m, unsigned long p)
    invoked from functions that have no GOT references, and thus the compiler
    has no obligation to load the PIC register.  */
 #define LOAD_PIC_REG(PIC_REG)   \
-do {    register Elf32_Addr pc __asm("o7"); \
-        __asm("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t" \
+do {    register Elf32_Addr pc __asm__("o7"); \
+        __asm__("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t" \
               "call 1f\n\t" \
               "add %1, %%lo(_GLOBAL_OFFSET_TABLE_+4), %1\n" \
               "1:\tadd %1, %0, %1" \
@@ -123,7 +123,7 @@ do {    register Elf32_Addr pc __asm("o7"); \
 static inline Elf32_Addr
 elf_machine_dynamic (void)
 {
-	register Elf32_Addr *got asm ("%l7");
+	register Elf32_Addr *got __asm__ ("%l7");
 	
 	LOAD_PIC_REG (got);
 	
@@ -134,9 +134,9 @@ elf_machine_dynamic (void)
 static inline Elf32_Addr
 elf_machine_load_address (void)
 {
-	register Elf32_Addr *pc __asm ("%o7"), *got __asm ("%l7");
+	register Elf32_Addr *pc __asm__ ("%o7"), *got __asm ("%l7");
 	
-	__asm ("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t"
+	__asm__ ("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t"
 	       "call 1f\n\t"
 	       " add %1, %%lo(_GLOBAL_OFFSET_TABLE_+4), %1\n\t"
 	       "call _DYNAMIC\n\t"

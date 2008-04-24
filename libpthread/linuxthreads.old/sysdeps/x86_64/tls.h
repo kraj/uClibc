@@ -108,7 +108,7 @@ typedef struct
     /* For now the thread descriptor is at the same address.  */	      \
     head->self = _descr;						      \
 									      \
-    asm volatile ("syscall"						      \
+    __asm__ __volatile__ ("syscall"						      \
 		  : "=a" (_result)					      \
 		  : "0" ((unsigned long int) __NR_arch_prctl),		      \
 		    "D" ((unsigned long int) ARCH_SET_FS),		      \

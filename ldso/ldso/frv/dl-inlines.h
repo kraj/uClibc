@@ -406,7 +406,7 @@ _dl_lookup_address (void const *address)
   struct funcdesc_value const *fd;
 
   /* Make sure we don't make assumptions about its alignment.  */
-  asm ("" : "+r" (address));
+  __asm__ ("" : "+r" (address));
 
   if ((Elf32_Addr)address & 7)
     /* It's not a function descriptor.  */

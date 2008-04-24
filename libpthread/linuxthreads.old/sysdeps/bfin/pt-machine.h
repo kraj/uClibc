@@ -70,7 +70,7 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
 #ifdef SHARED
 # define PTHREAD_STATIC_FN_REQUIRE(name)
 #else
-# define PTHREAD_STATIC_FN_REQUIRE(name) __asm (".globl " "_"#name);
+# define PTHREAD_STATIC_FN_REQUIRE(name) __asm__ (".globl " "_"#name);
 #endif
 
 #endif /* pt-machine.h */

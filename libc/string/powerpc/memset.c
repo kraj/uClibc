@@ -28,7 +28,7 @@ static inline int expand_byte_word(int c){
 	   c = c << 8 | c;
 	   c = c << 16 | c ;
 	*/
-	asm("rlwimi	%0,%0,8,16,23\n"
+	__asm__("rlwimi	%0,%0,8,16,23\n"
 	    "\trlwimi	%0,%0,16,0,15\n"
 	    : "=r" (c) : "0" (c));
 	return c;

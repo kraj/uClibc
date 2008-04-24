@@ -51,7 +51,7 @@ double round ( double x )
 *     Is |x| < 1.0?                                                           *
 *******************************************************************************/
                   {
-			asm ("mffs %0" : "=f" (OldEnvironment.dbl));	// get environment
+			__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));	// get environment
                   if ( xHead < 0x3fe00000ul )
 /*******************************************************************************
 *     Is |x| < 0.5?                                                           *
@@ -59,7 +59,7 @@ double round ( double x )
                         {
                         if ( ( xHead | argument.words.lo ) != 0ul )
                               OldEnvironment.words.lo |= 0x02000000ul;
-				asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+				__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
                         if ( target )
                               return ( 0.0 );
                         else
@@ -69,7 +69,7 @@ double round ( double x )
 *     Is 0.5 ² |x| < 1.0?                                                      *
 *******************************************************************************/
                   OldEnvironment.words.lo |= 0x02000000ul;
-			asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+			__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
                   if ( target )
                         return ( 1.0 );
                   else

@@ -80,7 +80,7 @@ struct funcdesc_ht;
     do {								\
 	static const char __attribute__((section(".text"))) __s[] = (S); \
       const char *__p, *__scratch;					\
-      asm ("call 1f;\n1:\n\t"						\
+      __asm__ ("call 1f;\n1:\n\t"						\
 	   "%1 = RETS;\n\t"						\
 	   "%0 = [%3 + 1b@GOT17M4];\n\t"				\
 	   "%1 = %1 - %0;\n\t"						\
@@ -89,7 +89,7 @@ struct funcdesc_ht;
 	   : "d" (__s), "a" (dl_boot_got_pointer) : "RETS");				\
       SEND_STDERR (__p);						\
       {	int __t;							\
-	  for (__t = 0; __t < 0x1000000; __t++) asm volatile ("");	} \
+	  for (__t = 0; __t < 0x1000000; __t++) __asm__ __volatile__ ("");	} \
   } while (0)
 
 #define DL_LOADADDR_TYPE struct elf32_fdpic_loadaddr
@@ -101,7 +101,7 @@ struct funcdesc_ht;
   ((void(*)(void)) _dl_funcdesc_for ((void*)(ADDR), (LOADADDR).got_value))
 
 #define _dl_stabilize_funcdesc(val) \
-  ({ asm ("" : "+m" (*(val))); (val); })
+  ({ __asm__ ("" : "+m" (*(val))); (val); })
 
 #define DL_CALL_FUNC_AT_ADDR(ADDR, LOADADDR, SIGNATURE, ...) \
   ({ struct funcdesc_value fd = { (void*)(ADDR), (LOADADDR).got_value }; \

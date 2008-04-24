@@ -38,8 +38,8 @@ extern __typeof(sigaction) __libc_sigaction;
 #ifdef __NR_rt_sigaction
 /* Using the hidden attribute here does not change the code but it
    helps to avoid warnings.  */
-extern void restore_rt (void) asm ("__restore_rt") attribute_hidden;
-extern void restore (void) asm ("__restore") attribute_hidden;
+extern void restore_rt (void) __asm__ ("__restore_rt") attribute_hidden;
+extern void restore (void) __asm__ ("__restore") attribute_hidden;
 
 libc_hidden_proto(memcpy)
 
@@ -74,7 +74,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 }
 #else
 
-extern void restore (void) asm ("__restore") attribute_hidden;
+extern void restore (void) __asm__ ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -98,7 +98,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 		kact.sa_restorer = &restore;
 	}
 
-	asm volatile ("syscall\n"
+	__asm__ __volatile__ ("syscall\n"
 	              : "=a" (result)
 	              : "0" (__NR_sigaction), "mr" (sig),
 	                "c" (act ? __ptrvalue (&kact) : 0),

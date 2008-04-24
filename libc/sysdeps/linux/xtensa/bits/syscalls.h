@@ -53,7 +53,7 @@
 #include <errno.h>
 
 #define STR(s) #s
-#define LD_ARG(n,ar)	register int _a##n asm (STR(a##n)) = (int) (ar)
+#define LD_ARG(n,ar)	register int _a##n __asm__ (STR(a##n)) = (int) (ar)
 
 #define LD_ARGS_0()
 #define LD_ARGS_1(a0)			LD_ARG(6,a0)
@@ -90,7 +90,7 @@
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			      \
   ({ LD_ARG(2, name);							      \
      LD_ARGS_##nr(args);						      \
-     asm volatile ("syscall\n" 						      \
+     __asm__ __volatile__ ("syscall\n" 						      \
 	 	   : "=a" (_a2)						      \
 	 	   : ASM_ARGS_##nr					      \
 	 	   : "memory");						      \

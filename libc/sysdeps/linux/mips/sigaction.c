@@ -36,10 +36,10 @@ libc_hidden_proto(memcpy)
 #if _MIPS_SIM != _ABIO32
 
 # ifdef __NR_rt_sigreturn
-static void restore_rt (void) asm ("__restore_rt");
+static void restore_rt (void) __asm__ ("__restore_rt");
 # endif
 # ifdef __NR_sigreturn
-static void restore (void) asm ("__restore");
+static void restore (void) __asm__ ("__restore");
 # endif
 #endif
 
@@ -81,7 +81,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
 
 #else
-extern void restore (void) asm ("__restore") attribute_hidden;
+extern void restore (void) __asm__ ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */

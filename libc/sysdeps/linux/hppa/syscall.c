@@ -45,9 +45,9 @@ syscall (long int __sysno, ...)
   va_end (args);
   
   {
-    register unsigned long int __res asm("r28");
+    register unsigned long int __res __asm__("r28");
     K_LOAD_ARGS_6 (arg0, arg1, arg2, arg3, arg4, arg5)
-    asm volatile (K_STW_ASM_PIC
+    __asm__ __volatile__ (K_STW_ASM_PIC
 		  "	ble  0x100(%%sr2, %%r0)	\n"
 		  "	copy %1, %%r20		\n"
 		  K_LDW_ASM_PIC

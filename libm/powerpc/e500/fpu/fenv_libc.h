@@ -28,11 +28,11 @@ extern int __feraiseexcept_internal (int __excepts);
 /* Equivalent to fegetenv, but returns a fenv_t instead of taking a
    pointer.  */
 #define fegetenv_register() \
-        ({ unsigned fscr; asm volatile ("mfspefscr %0" : "=r" (fscr)); fscr; })
+        ({ unsigned fscr; __asm__ __volatile__ ("mfspefscr %0" : "=r" (fscr)); fscr; })
 
 /* Equivalent to fesetenv, but takes a fenv_t instead of a pointer.  */
 #define fesetenv_register(fscr) \
-	({ asm volatile ("mtspefscr %0" : : "r" (fscr)); })
+	({ __asm__ __volatile__ ("mtspefscr %0" : : "r" (fscr)); })
 
 typedef union
 {

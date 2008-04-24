@@ -165,7 +165,7 @@ return (type) (INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6)); \
 #define INTERNAL_SYSCALL(name, err, nr, args...) \
   ({                                                                          \
     register unsigned int resultvar;                                          \
-    asm volatile (                                                            \
+    __asm__ __volatile__ (                                                            \
     LOADARGS_##nr                                                             \
     "movl %1, %%eax\n\t"                                                      \
     "int $0x80\n\t"                                                           \

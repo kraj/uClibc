@@ -66,11 +66,11 @@ return (type) (INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6)); \
 #define INLINE_SYSCALL(name, nr, args...)	\
   ({						\
      unsigned long __sys_res;			\
-     register unsigned long __res asm ("r10");	\
+     register unsigned long __res __asm__ ("r10");	\
      LOAD_ARGS_c_##nr (args)			\
-     register unsigned long __callno asm ("r9")	\
+     register unsigned long __callno __asm__ ("r9")	\
        = SYS_ify (name);			\
-     asm volatile (LOAD_ARGS_asm_##nr (args)	\
+     __asm__ __volatile__ (LOAD_ARGS_asm_##nr (args)	\
 		   CHECK_ARGS_asm_##nr		\
 		   "break 13"			\
 		   : "=r" (__res)		\

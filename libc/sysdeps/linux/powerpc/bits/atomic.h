@@ -235,7 +235,7 @@
 /*
  * All powerpc64 processors support the new "light weight"  sync (lwsync).
  */
-# define atomic_read_barrier()	__asm ("lwsync" ::: "memory")
+# define atomic_read_barrier()	__asm__ ("lwsync" ::: "memory")
 /*
  * "light weight" sync can also be used for the release barrier.
  */
@@ -340,7 +340,7 @@
  * sync (lwsync).  So the only safe option is to use normal sync
  * for all powerpc32 applications.
  */
-# define atomic_read_barrier()	__asm ("sync" ::: "memory")
+# define atomic_read_barrier()	__asm__ ("sync" ::: "memory")
 
 #endif
 
@@ -387,8 +387,8 @@ typedef uintmax_t uatomic_max_t;
 # endif
 #endif
 
-#define atomic_full_barrier()	__asm ("sync" ::: "memory")
-#define atomic_write_barrier()	__asm ("eieio" ::: "memory")
+#define atomic_full_barrier()	__asm__ ("sync" ::: "memory")
+#define atomic_write_barrier()	__asm__ ("eieio" ::: "memory")
 
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval)	      \
   ({									      \

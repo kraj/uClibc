@@ -13,7 +13,7 @@
 int __syscall_error(void) attribute_hidden;
 int __syscall_error(void)
 {
-	register int err_no asm("%r8");
+	register int err_no __asm__("%r8");
 	__set_errno(err_no);
 	return -1;
 }

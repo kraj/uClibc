@@ -57,11 +57,11 @@ typedef unsigned int fpu_control_t __attribute__ ((__mode__ (__SI__)));
 /* Macros for accessing the hardware control word.  */
 #define _FPU_GETCW(__cw) ({ \
   unsigned int env; \
-  asm volatile ("mfspefscr %0" : "=r" (env)); \
+  __asm__ __volatile__ ("mfspefscr %0" : "=r" (env)); \
   (__cw) = env; })
 #define _FPU_SETCW(__cw) ({ \
   unsigned int env = __cw; \
-  asm volatile ("mtspefscr %0" : : "r" (env)); })
+  __asm__ __volatile__ ("mtspefscr %0" : : "r" (env)); })
 #else
 #define _FPU_RESERVED 0xffffff00 /* These bits are reserved are not changed. */
 /* IEEE:  same as above, but (some) exceptions;

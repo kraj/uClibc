@@ -198,7 +198,7 @@ __MATH_INLINE double
 __NTH (sqrt (double __x))
 {
   register double __r;
-  __asm ("fsqrtd %1,%0" : "=f" (__r) : "f" (__x));
+  __asm__ ("fsqrtd %1,%0" : "=f" (__r) : "f" (__x));
   return __r;
 }
 
@@ -206,7 +206,7 @@ __MATH_INLINE float
 __NTH (sqrtf (float __x))
 {
   register float __r;
-  __asm ("fsqrts %1,%0" : "=f" (__r) : "f" (__x));
+  __asm__ ("fsqrts %1,%0" : "=f" (__r) : "f" (__x));
   return __r;
 }
 
@@ -236,7 +236,7 @@ __MATH_INLINE double
 __ieee754_sqrt (double __x)
 {
   register double __r;
-  __asm ("fsqrtd %1,%0" : "=f" (__r) : "f" (__x));
+  __asm__ ("fsqrtd %1,%0" : "=f" (__r) : "f" (__x));
   return __r;
 }
 
@@ -244,7 +244,7 @@ __MATH_INLINE float
 __ieee754_sqrtf (float __x)
 {
   register float __r;
-  __asm ("fsqrts %1,%0" : "=f" (__r) : "f" (__x));
+  __asm__ ("fsqrts %1,%0" : "=f" (__r) : "f" (__x));
   return __r;
 }
 

@@ -75,9 +75,9 @@ double ceil ( double x )
 				return ( x );
 			else
 				{			                // inexact case
-				asm ("mffs %0" : "=f" (OldEnvironment.dbl));
+				__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));
 				OldEnvironment.words.lo |= 0x02000000ul;
-				asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+				__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
 				if ( target )
 					return ( 1.0 );
 				else

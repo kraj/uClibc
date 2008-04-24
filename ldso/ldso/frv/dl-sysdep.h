@@ -76,7 +76,7 @@ struct funcdesc_ht;
   ((void(*)(void)) _dl_funcdesc_for ((void*)(ADDR), (LOADADDR).got_value))
 
 #define _dl_stabilize_funcdesc(val) \
-  ({ asm ("" : "+m" (*(val))); (val); })
+  ({ __asm__ ("" : "+m" (*(val))); (val); })
 
 #define DL_CALL_FUNC_AT_ADDR(ADDR, LOADADDR, SIGNATURE, ...) \
   ({ struct funcdesc_value fd = { (void*)(ADDR), (LOADADDR).got_value }; \

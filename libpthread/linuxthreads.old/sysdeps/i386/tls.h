@@ -104,7 +104,7 @@ typedef struct
     { nr, (unsigned long int) (descr), 0xfffff /* 4GB in pages */,	      \
       1, 0, 0, 1, 0, 1, 0 };						      \
   int result;								      \
-  asm volatile (TLS_LOAD_EBX						      \
+  __asm__ __volatile__ (TLS_LOAD_EBX						      \
 		"int $0x80\n\t"						      \
 		TLS_LOAD_EBX						      \
 		: "=a" (result)						      \
@@ -125,9 +125,9 @@ typedef struct
   int result;								      \
   if (secondcall)							      \
     ldt_entry.entry_number = ({ int _gs;				      \
-				asm ("movw %%gs, %w0" : "=q" (_gs));	      \
+				__asm__ ("movw %%gs, %w0" : "=q" (_gs));	      \
 				(_gs & 0xffff) >> 3; });		      \
-  asm volatile (TLS_LOAD_EBX						      \
+  __asm__ __volatile__ (TLS_LOAD_EBX						      \
 		"int $0x80\n\t"						      \
 		TLS_LOAD_EBX						      \
 		: "=a" (result), "=m" (ldt_entry.entry_number)		      \
@@ -167,7 +167,7 @@ typedef struct
     __gs = TLS_SETUP_GS_SEGMENT (_descr, secondcall);			      \
     if (__builtin_expect (__gs, 7) != -1)				      \
       {									      \
-	asm ("movw %w0, %%gs" : : "q" (__gs));				      \
+	__asm__ ("movw %w0, %%gs" : : "q" (__gs));				      \
 	__gs = 0;							      \
       }									      \
     __gs;								      \

@@ -27,7 +27,7 @@ void longjmp(jmp_buf state, int value )
 	e1newSP(state->__jmpbuf->SavedSP);
 
 #define _state_ ((struct __jmp_buf_tag*)jmpbuf_ptr)
-	asm volatile("mov L0, %0\n\t"
+	__asm__ __volatile__("mov L0, %0\n\t"
 		     "mov L1, %1\n\t"
 		     "mov L2, %2\n\t"
 		     "mov G3, %3\n\t"
@@ -60,7 +60,7 @@ void siglongjmp(sigjmp_buf state, int value )
 	
 
 #define _state_ ((struct __jmp_buf_tag*)jmpbuf_ptr)
-	asm volatile("mov L0, %0\n\t"
+	__asm__ __volatile__("mov L0, %0\n\t"
 		     "mov L1, %1\n\t"
 		     "mov L2, %2\n\t"
 		     "mov G3, %3\n\t"

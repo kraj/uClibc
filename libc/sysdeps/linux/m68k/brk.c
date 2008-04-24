@@ -18,7 +18,7 @@ int brk (void *addr)
 {
     void *newbrk;
 
-	__asm__ volatile ("movel %2,%/d1\n\t"
+	__asm__ __volatile__ ("movel %2,%/d1\n\t"
 			  "moveq %1,%/d0\n\t"
 			  "trap  #0\n\t"
 			  "movel %/d0,%0"

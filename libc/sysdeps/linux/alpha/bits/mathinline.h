@@ -38,7 +38,7 @@
 # define isunordered(u, v)				\
   (__extension__					\
    ({ double __r, __u = (u), __v = (v);			\
-      __asm ("cmptun/su %1,%2,%0\n\ttrapb"		\
+      __asm__ ("cmptun/su %1,%2,%0\n\ttrapb"		\
 	     : "=&f" (__r) : "f" (__u), "f"(__v));	\
       __r != 0; }))
 #endif /* ISO C99 */
@@ -52,7 +52,7 @@ __MATH_INLINE TYPE							\
 __NTH (NAME (TYPE __x, TYPE __y))					\
 {									\
   TYPE __z;								\
-  __asm ("cpys %1, %2, %0" : "=f" (__z) : "f" (__y), "f" (__x));	\
+  __asm__ ("cpys %1, %2, %0" : "=f" (__z) : "f" (__y), "f" (__x));	\
   return __z;								\
 }
 
@@ -71,7 +71,7 @@ __MATH_INLINE TYPE					\
 __NTH (NAME (TYPE __x))					\
 {							\
   TYPE __z;						\
-  __asm ("cpys $f31, %1, %0" : "=f" (__z) : "f" (__x));	\
+  __asm__ ("cpys $f31, %1, %0" : "=f" (__z) : "f" (__x));	\
   return __z;						\
 }
 
@@ -101,7 +101,7 @@ __NTH (__floorf (float __x))
 
       float __tmp1, __tmp2;
 
-      __asm ("cvtst/s %3,%2\n\t"
+      __asm__ ("cvtst/s %3,%2\n\t"
 #ifdef _IEEE_FP_INEXACT
 	     "cvttq/svim %2,%1\n\t"
 #else
@@ -120,7 +120,7 @@ __NTH (__floor (double __x))
   if (__x != 0 && fabs (__x) < 9007199254740992.0)  /* 1 << DBL_MANT_DIG */
     {
       double __tmp1;
-      __asm (
+      __asm__ (
 #ifdef _IEEE_FP_INEXACT
 	     "cvttq/svim %2,%1\n\t"
 #else

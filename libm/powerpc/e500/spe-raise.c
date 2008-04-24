@@ -33,33 +33,33 @@ __FERAISEEXCEPT_INTERNAL (int excepts)
     {
       /* ?? Does not set sticky bit ?? */
       /* 0 / 0 */
-      asm volatile ("efsdiv %0,%0,%1" : : "r" (0), "r" (0));
+      __asm__ __volatile__ ("efsdiv %0,%0,%1" : : "r" (0), "r" (0));
     }
 
   if ((FE_DIVBYZERO & excepts) != 0)
     {
       /* 1.0 / 0.0 */
-      asm volatile ("efsdiv %0,%0,%1" : : "r" (1.0F), "r" (0));
+      __asm__ __volatile__ ("efsdiv %0,%0,%1" : : "r" (1.0F), "r" (0));
     }
 
   if ((FE_OVERFLOW & excepts) != 0)
     {
       /* ?? Does not set sticky bit ?? */
       /* Largest normalized number plus itself.  */
-      asm volatile ("efsadd %0,%0,%1" : : "r" (0x7f7fffff), "r" (0x7f7fffff));
+      __asm__ __volatile__ ("efsadd %0,%0,%1" : : "r" (0x7f7fffff), "r" (0x7f7fffff));
     }
 
   if ((FE_UNDERFLOW & excepts) != 0)
     {
       /* ?? Does not set sticky bit ?? */
       /* Smallest normalized number times itself.  */
-      asm volatile ("efsmul %0,%0,%1" : : "r" (0x800000), "r" (0x800000));
+      __asm__ __volatile__ ("efsmul %0,%0,%1" : : "r" (0x800000), "r" (0x800000));
     }
 
   if ((FE_INEXACT & excepts) != 0)
     {
       /* Smallest normalized minus 1.0 raises the inexact flag.  */
-      asm volatile ("efssub %0,%0,%1" : : "r" (0x00800000), "r" (1.0F));
+      __asm__ __volatile__ ("efssub %0,%0,%1" : : "r" (0x00800000), "r" (1.0F));
     }
 
   /* Success.  */

@@ -17,19 +17,19 @@
 int
 clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg)
 {
-  register unsigned long rval asm (SYSCALL_RET) = -EINVAL;
+  register unsigned long rval __asm__ (SYSCALL_RET) = -EINVAL;
 
   if (fn && child_stack)
     {
-      register unsigned long syscall asm (SYSCALL_NUM);
-      register unsigned long arg0 asm (SYSCALL_ARG0);
-      register unsigned long arg1 asm (SYSCALL_ARG1);
+      register unsigned long syscall __asm__ (SYSCALL_NUM);
+      register unsigned long arg0 __asm__ (SYSCALL_ARG0);
+      register unsigned long arg1 __asm__ (SYSCALL_ARG1);
 
       /* Clone this thread.  */
       arg0 = flags;
       arg1 = (unsigned long)child_stack;
       syscall = __NR_clone;
-      asm volatile ("trap " SYSCALL_SHORT_TRAP
+      __asm__ __volatile__ ("trap " SYSCALL_SHORT_TRAP
 		    : "=r" (rval), "=r" (syscall)
 		    : "1" (syscall), "r" (arg0), "r" (arg1)
 		    : SYSCALL_SHORT_CLOBBERS);
@@ -39,7 +39,7 @@ clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg)
 	{
 	  arg0 = (*fn) (arg);
 	  syscall = __NR_exit;
-	  asm volatile ("trap " SYSCALL_SHORT_TRAP
+	  __asm__ __volatile__ ("trap " SYSCALL_SHORT_TRAP
 			: "=r" (rval), "=r" (syscall)
 			: "1" (syscall), "r" (arg0)
 			: SYSCALL_SHORT_CLOBBERS);

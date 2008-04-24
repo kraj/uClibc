@@ -28,10 +28,10 @@ libc_hidden_proto(brk)
 int brk (void *addr)
 {
     void *newbrk;
-    register int g1 asm("%g1") = __NR_brk;
-    register void *o0 asm("%o0") = addr;
+    register int g1 __asm__("%g1") = __NR_brk;
+    register void *o0 __asm__("%o0") = addr;
 
-    asm volatile ("trap 63\n\t" : "=r"(newbrk) : "0"(o0), "r"(g1));
+    __asm__ __volatile__ ("trap 63\n\t" : "=r"(newbrk) : "0"(o0), "r"(g1));
 
     __curbrk = newbrk;
 

@@ -19,19 +19,19 @@
 
 int clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg, ...)
 {
-  register unsigned long rval asm ("r2") = -EINVAL;
+  register unsigned long rval __asm__ ("r2") = -EINVAL;
 
   if (fn && child_stack) {
-      register unsigned long syscall asm ("r3");
-      register unsigned long arg0 asm ("r4");
-      register unsigned long arg1 asm ("r5");
+      register unsigned long syscall __asm__ ("r3");
+      register unsigned long arg0 __asm__ ("r4");
+      register unsigned long arg1 __asm__ ("r5");
 
       /* Clone this thread.  */
       rval = TRAP_ID_SYSCALL;
       syscall = __NR_clone;
       arg0 = flags;
       arg1 = (unsigned long)child_stack;
-      asm volatile ("trap "
+      __asm__ __volatile__ ("trap "
          : "=r" (rval), "=r" (syscall)
          : "0" (rval),"1" (syscall), "r" (arg0), "r" (arg1)
          );
@@ -40,7 +40,7 @@ int clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg, ...)
          /* In child thread, call fn and exit.  */
          arg0 = (*fn) (arg);
          syscall = __NR_exit;
-         asm volatile ("trap "
+         __asm__ __volatile__ ("trap "
           : "=r" (rval), "=r" (syscall)
           : "1" (syscall), "r" (arg0));
       }

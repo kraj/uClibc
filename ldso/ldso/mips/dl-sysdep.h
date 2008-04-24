@@ -196,7 +196,7 @@ static inline ElfW(Addr)
 elf_machine_load_address (void)
 {
 	ElfW(Addr) addr;
-	asm ("        .set noreorder\n"
+	__asm__ ("        .set noreorder\n"
 	     "        " STRINGXP (PTR_LA) " %0, 0f\n"
 	     "        bltzal $0, 0f\n"
 	     "        nop\n"

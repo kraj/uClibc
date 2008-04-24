@@ -124,7 +124,7 @@ void *memset(void *pdst,
      here (beware: they may be moved to temporary registers).
       This way, we do not have to save/move the registers around into
      temporaries; we can safely use them straight away.  */
-    __asm__ volatile ("								\n\
+    __asm__ __volatile__ ("								\n\
 	.syntax no_register_prefix						\n\
 										\n\
         ;; Check that the register asm declaration got right.			\n\

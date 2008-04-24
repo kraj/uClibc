@@ -26,16 +26,16 @@
 
 long syscall(long sysnum, long a, long b, long c, long d, long e, long f)
 {
-    register long _r2 asm("r2")=(long)TRAP_ID_SYSCALL;
-    register long _r3 asm("r3")=(long)sysnum;
+    register long _r2 __asm__("r2")=(long)TRAP_ID_SYSCALL;
+    register long _r3 __asm__("r3")=(long)sysnum;
    
-    register long _r4 asm("r4")=(long)(a);
-    register long _r5 asm("r5")=(long)(b);
-    register long _r6 asm("r6")=(long)(c);
-    register long _r7 asm("r7")=(long)(d);
-    register long _r8 asm("r8")=(long)(e);
-    register long _r9 asm("r9")=(long)(f);
-    asm volatile(
+    register long _r4 __asm__("r4")=(long)(a);
+    register long _r5 __asm__("r5")=(long)(b);
+    register long _r6 __asm__("r6")=(long)(c);
+    register long _r7 __asm__("r7")=(long)(d);
+    register long _r8 __asm__("r8")=(long)(e);
+    register long _r9 __asm__("r9")=(long)(f);
+    __asm__ __volatile__(
 	    "trap "
 	    : "=r"(_r2), "=r"(_r3)
 	    : "0"(_r2), "1"(_r3),

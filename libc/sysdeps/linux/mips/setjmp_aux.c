@@ -39,29 +39,29 @@ __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
   /* Store the floating point callee-saved registers...  */
 #if _MIPS_SIM == _MIPS_SIM_ABI64
-  asm volatile ("s.d $f24, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[0]));
-  asm volatile ("s.d $f25, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[1]));
-  asm volatile ("s.d $f26, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[2]));
-  asm volatile ("s.d $f27, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[3]));
-  asm volatile ("s.d $f28, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[4]));
-  asm volatile ("s.d $f29, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[5]));
-  asm volatile ("s.d $f30, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[6]));
-  asm volatile ("s.d $f31, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[7]));
+  __asm__ __volatile__ ("s.d $f24, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[0]));
+  __asm__ __volatile__ ("s.d $f25, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[1]));
+  __asm__ __volatile__ ("s.d $f26, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[2]));
+  __asm__ __volatile__ ("s.d $f27, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[3]));
+  __asm__ __volatile__ ("s.d $f28, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[4]));
+  __asm__ __volatile__ ("s.d $f29, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[5]));
+  __asm__ __volatile__ ("s.d $f30, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[6]));
+  __asm__ __volatile__ ("s.d $f31, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[7]));
 #else /* O32 || N32 */
-  asm volatile ("s.d $f20, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[0]));
-  asm volatile ("s.d $f22, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[1]));
-  asm volatile ("s.d $f24, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[2]));
-  asm volatile ("s.d $f26, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[3]));
-  asm volatile ("s.d $f28, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[4]));
-  asm volatile ("s.d $f30, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[5]));
+  __asm__ __volatile__ ("s.d $f20, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[0]));
+  __asm__ __volatile__ ("s.d $f22, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[1]));
+  __asm__ __volatile__ ("s.d $f24, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[2]));
+  __asm__ __volatile__ ("s.d $f26, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[3]));
+  __asm__ __volatile__ ("s.d $f28, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[4]));
+  __asm__ __volatile__ ("s.d $f30, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[5]));
 #endif /* O32 || N32 */
 #endif
 
   /* .. and the PC;  */
 #if _MIPS_SIM == _MIPS_SIM_ABI64
-  asm volatile ("sd $31, %0" : : "m" (env[0].__jmpbuf[0].__pc));
+  __asm__ __volatile__ ("sd $31, %0" : : "m" (env[0].__jmpbuf[0].__pc));
 #else
-  asm volatile ("sw $31, %0" : : "m" (env[0].__jmpbuf[0].__pc));
+  __asm__ __volatile__ ("sw $31, %0" : : "m" (env[0].__jmpbuf[0].__pc));
 #endif
 
   /* .. and the stack pointer;  */
@@ -72,35 +72,35 @@ __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
 
   /* .. and the GP; */
 #if _MIPS_SIM == _MIPS_SIM_ABI64
-  asm volatile ("sd $gp, %0" : : "m" (env[0].__jmpbuf[0].__gp));
+  __asm__ __volatile__ ("sd $gp, %0" : : "m" (env[0].__jmpbuf[0].__gp));
 #else
-  asm volatile ("sw $gp, %0" : : "m" (env[0].__jmpbuf[0].__gp));
+  __asm__ __volatile__ ("sw $gp, %0" : : "m" (env[0].__jmpbuf[0].__gp));
 #endif
 
   /* .. and the callee-saved registers; */
 #if (_MIPS_SIM == _MIPS_SIM_ABI32)
-  asm volatile ("sw $16, %0" : : "m" (env[0].__jmpbuf[0].__regs[0]));
-  asm volatile ("sw $17, %0" : : "m" (env[0].__jmpbuf[0].__regs[1]));
-  asm volatile ("sw $18, %0" : : "m" (env[0].__jmpbuf[0].__regs[2]));
-  asm volatile ("sw $19, %0" : : "m" (env[0].__jmpbuf[0].__regs[3]));
-  asm volatile ("sw $20, %0" : : "m" (env[0].__jmpbuf[0].__regs[4]));
-  asm volatile ("sw $21, %0" : : "m" (env[0].__jmpbuf[0].__regs[5]));
-  asm volatile ("sw $22, %0" : : "m" (env[0].__jmpbuf[0].__regs[6]));
-  asm volatile ("sw $23, %0" : : "m" (env[0].__jmpbuf[0].__regs[7]));
+  __asm__ __volatile__ ("sw $16, %0" : : "m" (env[0].__jmpbuf[0].__regs[0]));
+  __asm__ __volatile__ ("sw $17, %0" : : "m" (env[0].__jmpbuf[0].__regs[1]));
+  __asm__ __volatile__ ("sw $18, %0" : : "m" (env[0].__jmpbuf[0].__regs[2]));
+  __asm__ __volatile__ ("sw $19, %0" : : "m" (env[0].__jmpbuf[0].__regs[3]));
+  __asm__ __volatile__ ("sw $20, %0" : : "m" (env[0].__jmpbuf[0].__regs[4]));
+  __asm__ __volatile__ ("sw $21, %0" : : "m" (env[0].__jmpbuf[0].__regs[5]));
+  __asm__ __volatile__ ("sw $22, %0" : : "m" (env[0].__jmpbuf[0].__regs[6]));
+  __asm__ __volatile__ ("sw $23, %0" : : "m" (env[0].__jmpbuf[0].__regs[7]));
 #else	/* N32 || N64 */
-  asm volatile ("sd $16, %0" : : "m" (env[0].__jmpbuf[0].__regs[0]));
-  asm volatile ("sd $17, %0" : : "m" (env[0].__jmpbuf[0].__regs[1]));
-  asm volatile ("sd $18, %0" : : "m" (env[0].__jmpbuf[0].__regs[2]));
-  asm volatile ("sd $19, %0" : : "m" (env[0].__jmpbuf[0].__regs[3]));
-  asm volatile ("sd $20, %0" : : "m" (env[0].__jmpbuf[0].__regs[4]));
-  asm volatile ("sd $21, %0" : : "m" (env[0].__jmpbuf[0].__regs[5]));
-  asm volatile ("sd $22, %0" : : "m" (env[0].__jmpbuf[0].__regs[6]));
-  asm volatile ("sd $23, %0" : : "m" (env[0].__jmpbuf[0].__regs[7]));
+  __asm__ __volatile__ ("sd $16, %0" : : "m" (env[0].__jmpbuf[0].__regs[0]));
+  __asm__ __volatile__ ("sd $17, %0" : : "m" (env[0].__jmpbuf[0].__regs[1]));
+  __asm__ __volatile__ ("sd $18, %0" : : "m" (env[0].__jmpbuf[0].__regs[2]));
+  __asm__ __volatile__ ("sd $19, %0" : : "m" (env[0].__jmpbuf[0].__regs[3]));
+  __asm__ __volatile__ ("sd $20, %0" : : "m" (env[0].__jmpbuf[0].__regs[4]));
+  __asm__ __volatile__ ("sd $21, %0" : : "m" (env[0].__jmpbuf[0].__regs[5]));
+  __asm__ __volatile__ ("sd $22, %0" : : "m" (env[0].__jmpbuf[0].__regs[6]));
+  __asm__ __volatile__ ("sd $23, %0" : : "m" (env[0].__jmpbuf[0].__regs[7]));
 #endif	/* N32 || N64 */
 
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
   /* .. and finally get and reconstruct the floating point csr.  */
-  asm ("cfc1 %0, $31" : "=r" (env[0].__jmpbuf[0].__fpc_csr));
+  __asm__ ("cfc1 %0, $31" : "=r" (env[0].__jmpbuf[0].__fpc_csr));
 #endif
 
   /* Save the signal mask if requested.  */

@@ -366,4 +366,4 @@ typedef uintmax_t uatomic_max_t;
      __result; })
 
 
-#define atomic_delay() asm ("rep; nop")
+#define atomic_delay() __asm__ ("rep; nop")
