@@ -39,7 +39,7 @@ memmove:
 .Lmore_than_31:
 	pushm	r0-r7, lr
 
-/* Check alignment */
+	/* Check alignment */
 	mov	r8, src
 	andl	r8, 31, COH
 	brne	.Lunaligned_src
