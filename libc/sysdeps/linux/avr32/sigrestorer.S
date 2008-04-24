@@ -7,9 +7,9 @@
  */
 #include <sys/syscall.h>
 
-       .global __default_rt_sa_restorer
-       .type   __default_rt_sa_restorer,"function"
-       .align  1
+	.global	__default_rt_sa_restorer
+	.type	__default_rt_sa_restorer,"function"
+	.align	1
 __default_rt_sa_restorer:
-       mov     r8, __NR_rt_sigreturn
-       scall
+	mov	r8, __NR_rt_sigreturn
+	scall

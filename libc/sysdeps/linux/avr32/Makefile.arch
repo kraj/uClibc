@@ -5,9 +5,9 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC   := brk.c clone.c mmap.c sigaction.c
+CSRC	:= brk.c clone.c mmap.c sigaction.c
 
-SSRC   := __longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S      \
-               sigrestorer.S syscall.S vfork.S
+SSRC	:= __longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S	\
+		sigrestorer.S syscall.S vfork.S
 
 include $(top_srcdir)/libc/sysdeps/linux/Makefile.commonarch

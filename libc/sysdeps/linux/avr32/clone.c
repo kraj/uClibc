@@ -16,26 +16,26 @@
  */
 int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg)
 {
-       register int (*_fn)(void *arg) = fn;
-       register void *_arg = arg;
-       int err;
+	register int (*_fn)(void *arg) = fn;
+	register void *_arg = arg;
+	int err;
 
-       /* Sanity check the arguments */
-       err = -EINVAL;
-       if (!fn)
-               goto syscall_error;
-       if (!child_stack)
-               goto syscall_error;
+	/* Sanity check the arguments */
+	err = -EINVAL;
+	if (!fn)
+		goto syscall_error;
+	if (!child_stack)
+		goto syscall_error;
 
-       err = INLINE_SYSCALL(clone, 2, flags, child_stack);
-       if (err < 0)
-               goto syscall_error;
-       else if (err != 0)
-               return err;
+	err = INLINE_SYSCALL(clone, 2, flags, child_stack);
+	if (err < 0)
+		goto syscall_error;
+	else if (err != 0)
+		return err;
 
-       _exit(_fn(_arg));
+	_exit(_fn(_arg));
 
 syscall_error:
-       __set_errno (-err);
-       return -1;
+	__set_errno (-err);
+	return -1;
 }

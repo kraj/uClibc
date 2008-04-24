@@ -15,17 +15,17 @@ void *__curbrk attribute_hidden = 0;
 
 int brk (void *addr)
 {
-       void *newbrk;
+	void *newbrk;
 
-       newbrk = (void *)INLINE_SYSCALL(brk, 1, addr);
+	newbrk = (void *)INLINE_SYSCALL(brk, 1, addr);
 
-       __curbrk = newbrk;
+	__curbrk = newbrk;
 
-       if (newbrk < addr) {
-               __set_errno (ENOMEM);
-               return -1;
-       }
+	if (newbrk < addr) {
+		__set_errno (ENOMEM);
+		return -1;
+	}
 
-       return 0;
+	return 0;
 }
 libc_hidden_def(brk)

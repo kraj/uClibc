@@ -9,21 +9,21 @@
 #define _ASM
 #include <bits/setjmp.h>
 
-       .text
+	.text
 
-       .global __sigsetjmp
-       .type   __sigsetjmp,"function"
+	.global	__sigsetjmp
+	.type	__sigsetjmp,"function"
 
-       .align  1
+	.align	1
 __sigsetjmp:
-       mustr   r8
-       stm     r12, r0,r1,r2,r3,r4,r5,r6,r7,r8,sp,lr
+	mustr	r8
+	stm	r12, r0,r1,r2,r3,r4,r5,r6,r7,r8,sp,lr
 
-       /*
-        * Make a tail call to __sigjmp_save; it takes the same args
-        * and is hidden so we don't need to mess around with the GOT.
-        */
-       rjmp    __sigjmp_save
-       .size   __sigsetjmp, . - __sigsetjmp
+	/*
+	 * Make a tail call to __sigjmp_save; it takes the same args
+	 * and is hidden so we don't need to mess around with the GOT.
+	 */
+	rjmp	__sigjmp_save
+	.size	__sigsetjmp, . - __sigsetjmp
 
 libc_hidden_def(__sigsetjmp)

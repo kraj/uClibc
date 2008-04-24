@@ -14,20 +14,20 @@
 libc_hidden_proto(mmap)
 
 static _syscall6(__ptr_t, mmap2, __ptr_t, addr, size_t, len, int, prot,
-                int, flags, int, fd, __off_t, pgoff);
+		 int, flags, int, fd, __off_t, pgoff);
 
 __ptr_t mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
 {
-       unsigned long page_size = sysconf(_SC_PAGESIZE);
-       unsigned long pgoff;
+	unsigned long page_size = sysconf(_SC_PAGESIZE);
+	unsigned long pgoff;
 
-       if (offset & (page_size - 1)) {
-               __set_errno(EINVAL);
-               return MAP_FAILED;
-       }
+	if (offset & (page_size - 1)) {
+		__set_errno(EINVAL);
+		return MAP_FAILED;
+	}
 
-       pgoff = (unsigned long)offset >> (31 - __builtin_clz(page_size));
+	pgoff = (unsigned long)offset >> (31 - __builtin_clz(page_size));
 
-       return mmap2(addr, len, prot, flags, fd, pgoff);
+	return mmap2(addr, len, prot, flags, fd, pgoff);
 }
 libc_hidden_def(mmap)
