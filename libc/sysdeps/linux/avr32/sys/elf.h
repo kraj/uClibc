@@ -17,10 +17,10 @@
    02111-1307 USA.  */
 
 #ifndef _SYS_ELF_H
-#define _SYS_ELF_H     1
+#define _SYS_ELF_H	1
 
 #warning "This header is obsolete; use <sys/procfs.h> instead."
 
 #include <sys/procfs.h>
 
-#endif /* sys/elf.h */
+#endif	/* sys/elf.h */
