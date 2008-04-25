@@ -10,6 +10,11 @@ include ../Test.mak
 
 DODIFF_rint     := 1
 
+# NOTE: For basic-test we must disable the floating point optimization.
+#       Only for sh architecture because in the other architecture are disabled.
+ifeq ($(TARGET_ARCH),sh)
+CFLAGS_basic-test := -mieee
+endif
 EXTRA_CFLAGS    := -DNO_LONG_DOUBLE -fno-builtin
 EXTRA_LDFLAGS   := -lm
 

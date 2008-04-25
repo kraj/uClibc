@@ -194,6 +194,7 @@ config TARGET_SUBARCH
 	string
 	default "e500" if CONFIG_E500
 	default "classic" if CONFIG_CLASSIC
+	default "sh4" if CONFIG_SH4
 	default ""
 
 source "extra/Configs/Config.in.arch"
