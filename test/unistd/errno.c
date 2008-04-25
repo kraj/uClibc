@@ -6,7 +6,8 @@
 #include <sched.h>
 #include "clone_cruft.h"
 
-int child_fn(void *arg)
+__attribute__ ((__noreturn__))
+static int child_fn(void *arg)
 {
 	fprintf(stderr, "in child_fn\n");
 	exit(1);

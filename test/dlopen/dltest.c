@@ -4,11 +4,7 @@
 #include <dlfcn.h>
 #include <stdint.h>
 
-#ifdef __UCLIBC__
-extern void _dlinfo(void);
-#endif
-
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
 	int ret = EXIT_SUCCESS;
 	void *handle;
@@ -18,7 +14,7 @@ int main(int argc, char **argv)
 
 	handle = dlopen (LIBNAME, RTLD_LAZY);
 	if (!handle) {
-		fprintf(stderr, "Could not open ./libtest.so: %s\n", dlerror());
+		fprintf(stderr, "Could not open ./%s: %s\n", LIBNAME, dlerror());
 		exit(1);
 	}
 

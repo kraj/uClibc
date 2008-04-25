@@ -24,7 +24,7 @@
 const char *it = "<UNSET>";		/* Routine name for message routines. */
 size_t errors = 0;
 
-void check(int thing, int number)
+static void check(int thing, int number)
 {
 	if (!thing) {
 		printf("%s: flunked test %d\n", it, number);
@@ -32,10 +32,12 @@ void check(int thing, int number)
 	}
 }
 
-void equal(const char *a, const char *b, int number)
+#if 0
+static void equal(const char *a, const char *b, int number)
 {
 	check(a != NULL && b != NULL && (strcmp(a, b) == 0), number);
 }
+#endif
 
 
 /* -------------------------------------------------*/
@@ -44,14 +46,14 @@ void equal(const char *a, const char *b, int number)
 
 int global_int = 0;
 
-void set_global_int_to_one(int signum)
+static void set_global_int_to_one(int signum)
 {
 	printf ("Received signal %d (%s).\n", signum, strsignal(signum));
 	global_int = 1;
 	return;
 }
 
-void signal_test_1(void)
+static void signal_test_1(void)
 {
 	global_int = 0;
 

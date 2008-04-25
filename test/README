@@ -1,14 +1,29 @@
 -----------
  For: User
 -----------
+Following make targets are avaialable
+
+make compile
+
+This will compile and link the tests
+
+make run
+
+This will check for binaries if they are not there it
+will call 'compile' target then it will execute all the
+tests.
+
+make check
+make all
+
+This will build and run tests.
 
 The following make variables may help you in testing:
  - UCLIBC_ONLY  - only run tests against uClibc
  - GLIBC_ONLY   - only run tests against glibc
- - COMPILE_ONLY - just build the tests, don't run them
- - CHECK_ONLY   - only run the tests, don't compile or link them
  - V / VERBOSE  - run tests with a lot of output
-
+ - TEST_INSTALLED_UCLIBC - Test installed libraries 
+                           under /lib and /usr/lib.
 So, to just run the uClibc tests, try this:
 make check UCLIBC_ONLY=1
 

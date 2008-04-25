@@ -43,7 +43,38 @@ struct
   {"1.1410.", INADDR_NONE},
   {"1.1410", INADDR_NONE},
   {"141.76.1111", INADDR_NONE},
-  {"141.76.1111.", INADDR_NONE}
+  {"141.76.1111.", INADDR_NONE},
+  {"1.1.1.257", INADDR_NONE},
+  /* Now some from BSD */
+  {"0x12", 0x00000012},
+  {"127.1", 0x00007f01},
+  {"127.1.2.3", 0x7f010203},
+  {"0x123456", INADDR_NONE},
+  {"0x12.0x34", 0x00001234},
+  {"0x12.0x345", INADDR_NONE},
+  {"1.2.3.4.5", INADDR_NONE},
+  {"1..3.4", INADDR_NONE},
+  {".", INADDR_NONE},
+  {"1.", INADDR_NONE},
+  {".1", INADDR_NONE},
+  {"x", INADDR_NONE},
+  {"0x", INADDR_NONE},
+  {"0", 0x00000000},
+  {"0x0", 0x00000000},
+  {"01.02.07.077", 0x0102073f},
+  {"0x1.23.045.0", 0x01172500},
+  {"", INADDR_NONE},
+  {" ", INADDR_NONE},
+  {"bar", INADDR_NONE},
+  {"1.2bar", INADDR_NONE},
+  {"1.", INADDR_NONE},
+  {"йцукен", INADDR_NONE},
+  {"255.255.255.255", INADDR_NONE},
+  {"x", INADDR_NONE},
+  {"0X12", 0x00000012},
+  {"078", INADDR_NONE},
+  {"1 bar", INADDR_NONE},
+  {"127.0xfff", INADDR_NONE},
 };
 
 
@@ -61,6 +92,7 @@ main (void)
 
       if (res != tests[i].number)
 	{
+	  ++errors;
 	  printf ("Test failed for inet_network (\"%s\"):\n",
 		  tests[i].network);
 	  printf ("Expected return value %u (0x%x) but got %u (0x%x).\n",

@@ -19,7 +19,7 @@ struct prodcons {
 
 /* Initialize a buffer */
 
-void init(struct prodcons * b)
+static void init(struct prodcons * b)
 {
   sem_init(&b->sem_write, 0, BUFFER_SIZE - 1);
   sem_init(&b->sem_read, 0, 0);
@@ -29,7 +29,7 @@ void init(struct prodcons * b)
 
 /* Store an integer in the buffer */
 
-void put(struct prodcons * b, int data)
+static void put(struct prodcons * b, int data)
 {
   /* Wait until buffer is not full */
   sem_wait(&b->sem_write);
@@ -43,7 +43,7 @@ void put(struct prodcons * b, int data)
 
 /* Read and remove an integer from the buffer */
 
-int get(struct prodcons * b)
+static int get(struct prodcons * b)
 {
   int data;
   /* Wait until buffer is not empty */
@@ -64,7 +64,7 @@ int get(struct prodcons * b)
 
 struct prodcons buffer;
 
-void * producer(void * data)
+static void * producer(void * data)
 {
   int n;
   for (n = 0; n < 10000; n++) {
@@ -75,7 +75,7 @@ void * producer(void * data)
   return NULL;
 }
 
-void * consumer(void * data)
+static void * consumer(void * data)
 {
   int d;
   while (1) {

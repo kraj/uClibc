@@ -23,6 +23,7 @@ int main(void)
 	off_t ret;
 	int i, fd;
 	FILE *fp;
+	int tmp;
 
 	fd = open("lseek.out", O_RDWR|O_CREAT, 0600);
 	if (fd == -1) {
@@ -44,11 +45,10 @@ int main(void)
 		return 1;
 	}
 
-	ret = fseeko(fp, 1024, SEEK_SET);
-	assert(ret == 0);
-	ret = fseeko(fp, (off_t)-16, SEEK_CUR);
-	assert(ret == 0);
-	
+	tmp = fseeko(fp, 1024, SEEK_SET);
+	assert(tmp == 0);
+	tmp = fseeko(fp, (off_t)-16, SEEK_CUR);
+	assert(tmp == 0);
 	ret = ftell(fp);
 	if (ret != (1024-16)) {
 		fprintf(stderr, "ftell() failed, we wanted pos %i but got %li: ", (1024-16), (long)ret);

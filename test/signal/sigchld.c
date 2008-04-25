@@ -7,31 +7,29 @@
 #include <unistd.h>
 
 
-void test_handler(int signo) 
+#ifdef __ARCH_USE_MMU__
+
+static void test_handler(int signo)
 {
     write(1, "caught SIGCHLD\n", 15);
     return;
 }
 
-
-#ifdef __ARCH_USE_MMU__
-
-int main(void) 
+int main(void)
 {
     pid_t mypid;
     struct sigaction siga;
-    static sigset_t sigset;
+    static sigset_t set;
 
     /* Set up sighandling */
-    sigfillset(&sigset);
+    sigfillset(&set);
     siga.sa_handler = test_handler;
-    siga.sa_mask = sigset;
+    siga.sa_mask = set;
     siga.sa_flags = 0;
     if (sigaction(SIGCHLD, &siga, (struct sigaction *)NULL) != 0) {
 	fprintf(stderr, "sigaction choked: %s!", strerror(errno));
 	exit(EXIT_FAILURE);
     }
-    
 
     /* Setup a child process to exercise the sig handling for us */
     mypid = getpid();
@@ -52,7 +50,7 @@ int main(void)
 	sleep(10);
 	if (waitpid(-1, NULL, WNOHANG | WUNTRACED) > 0)
 	    break;
-	write(1, "after sleep\n", 12); 
+	write(1, "after sleep\n", 12);
     }
 
     printf("Bye-bye!  All done!\n");

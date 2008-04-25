@@ -18,7 +18,7 @@
 
 #ifdef __ARCH_USE_MMU__
 
-void child_handler(int sig)
+static void child_handler(int sig)
 {
 	fprintf(stderr, "I got a SIGCHLD\n");
 }

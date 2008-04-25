@@ -7,7 +7,7 @@
 volatile int gotit = 0;
 
 static void
-alarm_handler (int signal)
+alarm_handler (int signum)
 {
     gotit = 1;
 }

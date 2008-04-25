@@ -13,8 +13,7 @@ main (int argc, char *argv[])
   int i = 0;
   int result = 0;
   struct dirent *dp;
-  long int save0;
-  long int rewind;
+  off_t save0, rewind_ret;
 
   dirp = opendir (".");
   if (dirp == NULL)
@@ -63,13 +62,13 @@ main (int argc, char *argv[])
 
   /* Check rewinddir */
   rewinddir (dirp);
-  rewind = telldir (dirp);
-  if (rewind == -1)
+  rewind_ret = telldir (dirp);
+  if (rewind_ret == -1)
     {
       printf ("telldir failed: %s\n", strerror(errno));
       result = 1;
     }
-  else if (save0 != rewind)
+  else if (save0 != rewind_ret)
     {
       printf ("rewinddir didn't reset directory stream\n");
       result = 1;

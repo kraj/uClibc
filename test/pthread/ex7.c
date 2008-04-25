@@ -22,12 +22,12 @@ typedef struct {
 event_t main_event;
 
 
-void *
+static void *
 test_thread (void *ms_param)
 {
     unsigned long status = 0;
     event_t foo;
-    struct timespec time;
+    struct timespec timeout;
     struct timeval  now;
     long ms = (long) ms_param;
 
@@ -39,13 +39,13 @@ test_thread (void *ms_param)
     /* set the time out value */
     printf("waiting %ld ms ...\n", ms);
     gettimeofday(&now, NULL);
-    time.tv_sec  = now.tv_sec + ms/1000 + (now.tv_usec + (ms%1000)*1000)/1000000;
-    time.tv_nsec = ((now.tv_usec + (ms%1000)*1000) % 1000000) * 1000;
+    timeout.tv_sec  = now.tv_sec + ms/1000 + (now.tv_usec + (ms%1000)*1000)/1000000;
+    timeout.tv_nsec = ((now.tv_usec + (ms%1000)*1000) % 1000000) * 1000;
 
     /* Just use this to test the time out. The cond var is never signaled. */
     pthread_mutex_lock(&foo.mutex);
     while (foo.flag == 0 && status != ETIMEDOUT) {
-	status = pthread_cond_timedwait(&foo.cond, &foo.mutex, &time);
+	status = pthread_cond_timedwait(&foo.cond, &foo.mutex, &timeout);
     }
     pthread_mutex_unlock(&foo.mutex);
     

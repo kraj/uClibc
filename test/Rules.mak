@@ -10,10 +10,11 @@
 #
 
 top_builddir ?= ../
+
 TESTDIR=$(top_builddir)test/
 
 include $(top_builddir)/Rules.mak
-
+ifndef TEST_INSTALLED_UCLIBC
 ifdef UCLIBC_LDSO
 ifeq (,$(findstring /,$(UCLIBC_LDSO)))
 UCLIBC_LDSO := $(top_builddir)lib/$(UCLIBC_LDSO)
@@ -21,7 +22,7 @@ endif
 else
 UCLIBC_LDSO := $(firstword $(wildcard $(top_builddir)lib/ld*))
 endif
-
+endif
 #--------------------------------------------------------
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
 LC_ALL:= C
@@ -38,6 +39,7 @@ TARGET_ARCH:=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 	-e 's/sh[234]/sh/' \
 	-e 's/mips.*/mips/' \
 	-e 's/cris.*/cris/' \
+	-e 's/xtensa.*/xtensa/' \
 	)
 endif
 export TARGET_ARCH
@@ -85,11 +87,11 @@ LDFLAGS        := $(CPU_LDFLAGS)
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
 	HOST_CFLAGS   += -g
-	LDFLAGS       += -g -Wl,-warn-common
-	HOST_LDFLAGS  += -g -Wl,-warn-common
+	LDFLAGS       += -g
+	HOST_LDFLAGS  += -g
 else
-	LDFLAGS       += -s -Wl,-warn-common
-	HOST_LDFLAGS  += -s -Wl,-warn-common
+	LDFLAGS       += -s
+	HOST_LDFLAGS  += -s
 endif
 
 ifeq ($(strip $(UCLIBC_STATIC)),y)
@@ -97,8 +99,14 @@ ifeq ($(strip $(UCLIBC_STATIC)),y)
 	HOST_LDFLAGS  	+= -static
 endif
 LDFLAGS += -B$(top_builddir)lib -Wl,-rpath,$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib
+UCLIBC_LDSO_ABSPATH=$(shell pwd)
+ifdef TEST_INSTALLED_UCLIBC
+LDFLAGS += -Wl,-rpath,./
+UCLIBC_LDSO_ABSPATH=/lib
+endif
+
 ifeq ($(findstring -static,$(STATIC_LDFLAGS)),)
-LDFLAGS += -Wl,--dynamic-linker,$(UCLIBC_LDSO)
+	LDFLAGS += -Wl,--dynamic-linker,$(UCLIBC_LDSO_ABSPATH)/$(UCLIBC_LDSO)
 endif
 
 ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
@@ -129,7 +137,7 @@ banner := ---------------------------------
 pur_showclean = echo "  "CLEAN $(notdir $(CURDIR))
 pur_showdiff  = echo "  "TEST_DIFF $(notdir $(CURDIR))/
 pur_showlink  = echo "  "TEST_LINK $(notdir $(CURDIR))/ $@
-pur_showtest  = echo "  "TEST_EXEC $(notdir $(CURDIR))/ $@
+pur_showtest  = echo "  "TEST_EXEC $(notdir $(CURDIR))/ $(patsubst %.exe,%,$@)
 sil_showclean =
 sil_showdiff  = true
 sil_showlink  = true
@@ -137,7 +145,7 @@ sil_showtest  = true
 ver_showclean =
 ver_showdiff  = true echo
 ver_showlink  = true echo
-ver_showtest  = printf "\n$(banner)\nTEST $(notdir $(PWD))/ $@\n$(banner)\n"
+ver_showtest  = printf "\n$(banner)\nTEST $(notdir $(PWD))/ $(patsubst %.exe,%,$@)\n$(banner)\n"
 do_showclean  = $($(DISP)_showclean)
 do_showdiff   = $($(DISP)_showdiff)
 do_showlink   = $($(DISP)_showlink)

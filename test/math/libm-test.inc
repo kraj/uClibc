@@ -310,7 +310,7 @@ fpstack_test (const char *test_name)
   static int old_stack;
   int sw;
 
-  asm ("fnstsw" : "=a" (sw));
+  __asm__ ("fnstsw" : "=a" (sw));
   sw >>= 11;
   sw &= 7;
 

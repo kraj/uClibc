@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <features.h>
-#if defined __UCLIBC_HAS_WCHAR__ && defined __UCLIBC_HAS_LOCALE__
+#ifdef __UCLIBC_HAS_XLOCALE__
 #include <locale.h>
 #include <wchar.h>
 
