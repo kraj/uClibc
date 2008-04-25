@@ -17,17 +17,17 @@ static inline _syscall1(int, __syscall_timer_delete, kernel_timer_t, ktimerid);
 /* Delete a per-process timer */
 int timer_delete(timer_t timerid)
 {
-    int res;
-    struct timer *kt = (struct timer *) timerid;
+	int res;
+	struct timer *kt = (struct timer *)timerid;
 
-    /* Delete the kernel timer object */
-    res = __syscall_timer_delete(kt->ktimerid);
-    if (res == 0) {
-	free(kt);	/* Free the memory */
-	return 0;
-    }
+	/* Delete the kernel timer object */
+	res = __syscall_timer_delete(kt->ktimerid);
+	if (res == 0) {
+		free(kt);	/* Free the memory */
+		return 0;
+	}
 
-    return -1;
+	return -1;
 }
 
 #endif
