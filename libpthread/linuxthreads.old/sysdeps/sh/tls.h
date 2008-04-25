@@ -100,7 +100,7 @@ typedef struct
     /* For now the thread descriptor is at the same address.  */	      \
     head->self = _descr;						      \
 									      \
-    asm ("ldc %0,gbr" : : "r" (_descr));				      \
+    __asm__ ("ldc %0,gbr" : : "r" (_descr));				      \
 									      \
     0;									      \
   })

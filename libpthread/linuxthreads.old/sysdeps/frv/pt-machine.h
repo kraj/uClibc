@@ -35,7 +35,7 @@ PT_EI long int
 testandset (int *spinlock)
 {
   int i = 1;
-  asm ("swap%I0 %M0, %1" : "+m"(*(volatile int *)spinlock), "+r"(i));
+  __asm__ ("swap%I0 %M0, %1" : "+m"(*(volatile int *)spinlock), "+r"(i));
   return i;
 }
 
@@ -53,7 +53,7 @@ extern char __stacksize;
 #define WRITE_MEMORY_BARRIER() __asm__ __volatile__("membar" : : : "memory")
 
 /* Return the thread descriptor for the current thread.  */
-register struct _pthread_descr_struct *THREAD_SELF asm ("gr29");
+register struct _pthread_descr_struct *THREAD_SELF __asm__ ("gr29");
 #define THREAD_SELF THREAD_SELF
 
 /* Initialize the thread-unique value.  */
