@@ -122,7 +122,8 @@ libc_hidden_def(inet_addr)
 
 #define INET_NTOA_MAX_LEN	16	/* max 12 digits + 3 '.'s + 1 nul */
 
-static char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
+libc_hidden_proto(inet_ntoa_r)
+char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 {
 	in_addr_t addr = ntohl(in.s_addr);
 	int i;
@@ -141,6 +142,7 @@ static char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 
 	return p+1;
 }
+libc_hidden_def(inet_ntoa_r)
 
 libc_hidden_proto(inet_ntoa)
 char *inet_ntoa(struct in_addr in)
