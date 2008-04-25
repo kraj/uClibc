@@ -1,73 +1,43 @@
 #!/bin/sh
+# $Header: /var/cvs/uClibc/extra/scripts/getent,v 1.2 2005/02/02 14:18:01 solar Exp $
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Closely (not perfectly) emulate the behavior of glibc's getent utility
 #
-# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
-#
+#passwd|shadow|group|aliases|hosts|networks|ethers|netgroup|protocols|services|rpc
+# only returns the first match (by design)
+# dns based search is not supported (hosts,networks)
+# case-insensitive matches not supported (ethers; others?)
+# may return false-positives (hosts,protocols,rpc,services,ethers)
 
-# Script to replicate the `getent` binary that comes with glibc
-
-search_entry() {
-  if [ -e "$1" ] ; then
-    /bin/egrep -v "^#" $1 | /bin/sed 's/#.*$//' | /bin/egrep "${string}" | /bin/sed -n 1p
-    retval=$?
-    [ "$retval" = 0 ] || retval=2
-  else
-    retval=2
-  fi
-}
-
-if [ -z "$1" ] ; then
-  echo "getent: wrong number of arguments" 1>&2
-  exit 1
-fi
+export PATH="${PATH}:/bin:/usr/bin"
 
 file="/etc/$1"
-string="dummy"
-
-if [ ! -f "$file" ] ; then
-  echo "Unknown database: $1" 1>&2
-  exit 1
-fi
-
-#aliases|ethers|group|hosts|netgroup|networks|passwd|protocols|rpc|services|shadow)
-# dns based search is not supported for hosts|networks
-# ethers|netgroup (not done, needed)?
-# it returns only the first match
 case $1 in
-  passwd)
-    string="(^\<$2\>:|^.*:.*:\<$2\>:.*:.*:.*:.*)"
-    ;;
-  group)
-    string="(^|:)\<$2\>:"
-    ;;
-  shadow)
-    string="^\<$2\>:"
-    ;;
-  aliases)
-    if [ -f /etc/postfix/aliases ] ; then
-      file="/etc/postfix/aliases"
-    elif [ -f /etc/mail/aliases ] ; then
-      file="/etc/mail/aliases"
-    fi
-    string="^\<$2\>:"
-    ;;
-  networks)
-    string="^\<$2\>"
-    ;;
-  hosts|protocols|rpc|services)
-    string="\<$2\>"
-    ;;
-  *)
-    echo "Unknown database: $1"
-    exit 1
-    ;;
+	passwd|group)
+		match="^$2:\|^[^:]*:[^:]*:$2:" ;;
+	shadow)
+		match="^$2:" ;;
+	networks|netgroup)
+		match="^[[:space:]]*$2\>" ;;
+	hosts|protocols|rpc|services|ethers)
+		match="\<$2\>" ;;
+	aliases)
+		match="^[[:space:]]*$2[[:space:]]*:" ;;
+	""|-h|--help)
+		echo "USAGE: $0 database [key]"
+		exit 0 ;;
+	*)
+		echo "$0: Unknown database: $1" 1>&2
+		exit 1 ;;
 esac
 
-if [ -z "$2" ] ; then
-  exec cat $file
-else
-  search_entry "$file" "$2"
+if [ ! -f "$file" ] ; then
+	echo "$0: Could not find database file for $1" 1>&2
+	exit 1
 fi
 
-exit $retval
+if [ $# -eq 1 ] ; then
+	exec cat "$file"
+else
+	sed "s/#.*//; /$match/q; d" "$file" | grep . || exit 2
+fi

@@ -4,28 +4,28 @@
 #
 
 config TARGET_ARCH
-       string
-       default "avr32"
+	string
+	default "avr32"
 
 config FORCE_OPTIONS_FOR_ARCH
-       bool
-       default y
-       select ARCH_BIG_ENDIAN
-       select FORCE_SHAREABLE_TEXT_SEGMENTS
+	bool
+	default y
+	select ARCH_BIG_ENDIAN
+	select FORCE_SHAREABLE_TEXT_SEGMENTS
 
 config ARCH_CFLAGS
-       string
+	string
 
 choice
-       prompt "Target CPU Type"
-       default CONFIG_AVR32_AP7
+	prompt "Target CPU Type"
+	default CONFIG_AVR32_AP7
 
 config CONFIG_AVR32_AP7
-       bool "AVR32 AP7"
-       select ARCH_HAS_MMU
+	bool "AVR32 AP7"
+	select ARCH_HAS_MMU
 
 endchoice
 
 config LINKRELAX
-       bool "Enable linker optimizations"
-       default y
+	bool "Enable linker optimizations"
+	default y
