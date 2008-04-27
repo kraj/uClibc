@@ -115,13 +115,14 @@ install: install_runtime install_dev
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
 
+$(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
+	$(hcompile.u)
+
 # Installs header files.
-install_headers: headers
+install_headers: headers $(top_builddir)extra/scripts/unifdef
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
-	printf ".svn\n.cvsignore\nCVS\n" > tar_exclude ; \
-	$(TAR) -chf - -X tar_exclude include \
-		| $(TAR) -xf - -C $(PREFIX)$(DEVEL_PREFIX)
-	rm -f tar_exclude
+	top_builddir=$(top_builddir) \
+	$(top_srcdir)extra/scripts/install_headers.sh include $(PREFIX)$(DEVEL_PREFIX)include
 	printf '#ifndef _LIBC_INTERNAL_H\n#define _LIBC_INTERNAL_H 1\n#endif\n' > \
 		$(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
 	echo '/* Dont use _syscall#() macros; use the syscall() function */' > \
@@ -212,10 +213,6 @@ ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	# Remove this as it is only used internally.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tls.h
 endif
-	-@for i in `find $(PREFIX)$(DEVEL_PREFIX)include -type d` ; do \
-	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
-	done
-	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1:\2/'` $(PREFIX)$(DEVEL_PREFIX)include
 
 # Installs development library links.
 install_dev: install_headers
