@@ -102,7 +102,7 @@ libc_hidden_proto(sigemptyset)
 libc_hidden_proto(connect)
 libc_hidden_proto(sprintf)
 libc_hidden_proto(vsnprintf)
-libc_hidden_proto(time)
+/* Experimentally off - libc_hidden_proto(time) */
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);

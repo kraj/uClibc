@@ -430,6 +430,13 @@ extern int getdate_r (__const char *__restrict __string,
 
 __END_DECLS
 
+
+#ifdef UCLIBC_INTERNAL
+/* Experiment. Grep for 'libc_hidden_proto(time)' if need to revert */
+libc_hidden_proto(time)
+#endif
+
+
 #endif /* <time.h> included.  */
 
 #endif /* <time.h> not already included.  */

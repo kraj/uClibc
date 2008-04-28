@@ -41,7 +41,7 @@
 
 libc_hidden_proto(socket)
 libc_hidden_proto(close)
-libc_hidden_proto(time)
+/* Experimentally off - libc_hidden_proto(time) */
 libc_hidden_proto(sendto)
 libc_hidden_proto(recvmsg)
 libc_hidden_proto(bind)

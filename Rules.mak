@@ -427,6 +427,9 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 endif
 
+# Please let us see private headers' parts
+CFLAGS += -DUCLIBC_INTERNAL
+
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
 CFLAGS += -DSTATIC
