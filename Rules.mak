@@ -138,6 +138,7 @@ check_ld=$(shell \
 
 ARFLAGS:=cr
 
+# Flags in OPTIMIZATION are used only for non-debug builds
 OPTIMIZATION:=
 # Use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
@@ -167,8 +168,53 @@ PIEFLAG_NAME:=-fPIE
 
 # Some nice CPU specific optimizations
 ifeq ($(TARGET_ARCH),i386)
+	OPTIMIZATION+=$(call check_gcc,-fomit-frame-pointer,)
+
+	# NB: this may make SSE insns segfault!
+	# -O1 -march=pentium3, -Os -msse etc are known to be affected.
+	# TODO: conditionally bump to 4
+	# (see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13685)
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
-	OPTIMIZATION+=$(call check_gcc,-falign-jumps=0 -falign-loops=0,-malign-jumps=0 -malign-loops=0)
+
+	# Choice of alignment (please document why!)
+	#  -falign-labels: in-line labels
+	#  (reachable by normal code flow, aligning will insert nops
+	#  which will be executed - may even make things slower)
+	#  -falign-jumps: reachable only by a jump
+	# Generic: no alignment at all (smallest code)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=1 -falign-jumps=1 -falign-labels=1 -falign-loops=1,-malign-jumps=1 -malign-loops=1)
+ifeq ($(CONFIG_K7),y)
+	# Align functions to four bytes, use default for labels and loops (why?)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=4 -falign-jumps=1,-malign-functions=4 -falign-jumps=1)
+endif
+ifeq ($(CONFIG_CRUSOE),y)
+	# Use compiler's default for functions, labels and loops (why?)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=0 -falign-jumps=1,-malign-functions=0 -falign-jumps=1)
+endif
+ifeq ($(CONFIG_CYRIXIII),y)
+	# Use compiler's default for functions, labels and loops (why?)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=0 -falign-jumps=1,-malign-functions=0 -falign-jumps=1)
+endif
+	OPTIMIZATION+=$(GCC_FALIGN)
+
+	# Putting each function and data object into its own section
+	# allows for kbytes of less text if users link against static uclibc
+	# using ld --gc-sections.
+	# ld 2.18 can't do that (yet?) for shared libraries, so we itself
+	# do not use --gc-sections at shared lib link time.
+	# However, in combination with sections being sorted by alignment
+	# it does result in much reduced padding:
+	#   text    data     bss     dec     hex
+	# 235319    1472    5992  242783   3b45f old.so
+	# 234104    1472    5980  241556   3af94 new.so
+	# Without -ffunction-sections, all functions will get aligned
+	# to 4 byte boundary by as/ld. This is arguably a bug in as.
+	# It specifies 4 byte align for .text even if not told to do so:
+	# Idx Name          Size      VMA       LMA       File off  Algn
+	#   0 .text         xxxxxxxx  00000000  00000000  xxxxxxxx  2**2 <===!
+	CPU_CFLAGS-y  += $(call check_gcc,-ffunction-sections -fdata-sections,)
+	CPU_LDFLAGS-y += -Wl,--sort-common -Wl,--sort-section -Wl,alignment
+
 	CPU_LDFLAGS-y+=-m32
 	CPU_CFLAGS-y+=-m32
 	CPU_CFLAGS-$(CONFIG_386)+=-march=i386
@@ -181,11 +227,11 @@ ifeq ($(TARGET_ARCH),i386)
 	CPU_CFLAGS-$(CONFIG_PENTIUMIII)+=$(call check_gcc,-march=pentium3,-march=i686)
 	CPU_CFLAGS-$(CONFIG_PENTIUM4)+=$(call check_gcc,-march=pentium4,-march=i686)
 	CPU_CFLAGS-$(CONFIG_K6)+=$(call check_gcc,-march=k6,-march=i586)
-	CPU_CFLAGS-$(CONFIG_K7)+=$(call check_gcc,-march=athlon,-march=i686) $(call check_gcc,-falign-functions=4,-malign-functions=4)
-	CPU_CFLAGS-$(CONFIG_CRUSOE)+=-march=i686 $(call check_gcc,-falign-functions=0,-malign-functions=0)
+	CPU_CFLAGS-$(CONFIG_K7)+=$(call check_gcc,-march=athlon,-march=i686)
+	CPU_CFLAGS-$(CONFIG_CRUSOE)+=-march=i686
 	CPU_CFLAGS-$(CONFIG_WINCHIPC6)+=$(call check_gcc,-march=winchip-c6,-march=i586)
 	CPU_CFLAGS-$(CONFIG_WINCHIP2)+=$(call check_gcc,-march=winchip2,-march=i586)
-	CPU_CFLAGS-$(CONFIG_CYRIXIII)+=$(call check_gcc,-march=c3,-march=i486) $(call check_gcc,-falign-functions=0,-malign-functions=0)
+	CPU_CFLAGS-$(CONFIG_CYRIXIII)+=$(call check_gcc,-march=c3,-march=i486)
 	CPU_CFLAGS-$(CONFIG_NEHEMIAH)+=$(call check_gcc,-march=c3-2,-march=i686)
 endif
 
