@@ -184,16 +184,16 @@ ifeq ($(TARGET_ARCH),i386)
 	# Generic: no alignment at all (smallest code)
 	GCC_FALIGN=$(call check_gcc,-falign-functions=1 -falign-jumps=1 -falign-labels=1 -falign-loops=1,-malign-jumps=1 -malign-loops=1)
 ifeq ($(CONFIG_K7),y)
-	# Align functions to four bytes, use default for labels and loops (why?)
-	GCC_FALIGN=$(call check_gcc,-falign-functions=4 -falign-jumps=1,-malign-functions=4 -falign-jumps=1)
+	# Align functions to four bytes, use default for jumps and loops (why?)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=4 -falign-labels=1,-malign-functions=4)
 endif
 ifeq ($(CONFIG_CRUSOE),y)
-	# Use compiler's default for functions, labels and loops (why?)
-	GCC_FALIGN=$(call check_gcc,-falign-functions=0 -falign-jumps=1,-malign-functions=0 -falign-jumps=1)
+	# Use compiler's default for functions, jumps and loops (why?)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=0 -falign-labels=1,-malign-functions=0)
 endif
 ifeq ($(CONFIG_CYRIXIII),y)
-	# Use compiler's default for functions, labels and loops (why?)
-	GCC_FALIGN=$(call check_gcc,-falign-functions=0 -falign-jumps=1,-malign-functions=0 -falign-jumps=1)
+	# Use compiler's default for functions, jumps and loops (why?)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=0 -falign-labels=1,-malign-functions=0)
 endif
 	OPTIMIZATION+=$(GCC_FALIGN)
 
