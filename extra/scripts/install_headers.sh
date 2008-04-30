@@ -59,10 +59,11 @@ if ! test "$KERNEL_HEADERS" \
 	echo "Check KERNEL_HEADERS= in your .config file."
 	exit 1
 fi
-# Do the copying only if src and dst dirs are not the same
+# Do the copying only if src and dst dirs are not the same.
 # Be thorough: do not settle just for textual compare,
-# and guard against "pwd" being handled as shell builtin
-if test `(cd "$KERNEL_HEADERS"; env pwd)` != `(cd "$2"; env pwd)`; then
+# and guard against "pwd" being handled as shell builtin.
+# Double quoting looks weird, but it works (even bbox ash too).
+if test "`(cd "$KERNEL_HEADERS"; env pwd)`" != "`(cd "$2"; env pwd)`"; then
 	# NB: source or target files and directories may be symlinks,
 	# and for all we know, good reasons.
 	# We must work correctly in these cases. This includes "do not replace
