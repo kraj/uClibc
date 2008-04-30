@@ -213,7 +213,12 @@ endif
 	# Idx Name          Size      VMA       LMA       File off  Algn
 	#   0 .text         xxxxxxxx  00000000  00000000  xxxxxxxx  2**2 <===!
 	CPU_CFLAGS-y  += $(call check_gcc,-ffunction-sections -fdata-sections,)
-	CPU_LDFLAGS-y += -Wl,--sort-common -Wl,--sort-section -Wl,alignment
+ifneq ($(call check_ld,--sort-common,),)
+	CPU_LDFLAGS-y += -Wl,--sort-common
+endif
+ifneq ($(call check_ld,--sort-section alignment),)
+	CPU_LDFLAGS-y += -Wl,--sort-section,alignment
+endif
 
 	CPU_LDFLAGS-y+=-m32
 	CPU_CFLAGS-y+=-m32
