@@ -50,7 +50,8 @@ done
 
 # Just copy (no sanitization) some kernel headers.
 eval `grep ^KERNEL_HEADERS "$top_builddir/.config"`
-if ! test -d "$KERNEL_HEADERS/asm" \
+if ! test "$KERNEL_HEADERS" \
+|| ! test -d "$KERNEL_HEADERS/asm" \
 || ! test -d "$KERNEL_HEADERS/asm-generic" \
 || ! test -d "$KERNEL_HEADERS/linux" \
 ; then
@@ -58,25 +59,30 @@ if ! test -d "$KERNEL_HEADERS/asm" \
 	echo "Check KERNEL_HEADERS= in your .config file."
 	exit 1
 fi
-# NB: source or target files and directories may be symlinks,
-# and for all we know, good reasons.
-# We must work correctly in these cases. This includes "do not replace
-# target symlink with real directory" rule. So, no rm -rf here please.
-mkdir -p "$2/asm"         2>/dev/null
-mkdir -p "$2/asm-generic" 2>/dev/null
-mkdir -p "$2/linux"       2>/dev/null
-# Exists, but is not a dir? That's bad, bail out
-die_if_not_dir "$2/asm" "$2/asm-generic" "$2/linux"
-# cp -HL creates regular destination files even if sources are symlinks.
-# This is intended.
-# (NB: you need busybox 1.11.x for this. earlier ones are slightly buggy)
-cp -RHL "$KERNEL_HEADERS/asm"/*         "$2/asm"         || exit 1
-cp -RHL "$KERNEL_HEADERS/asm-generic"/* "$2/asm-generic" || exit 1
-cp -RHL "$KERNEL_HEADERS/linux"/*       "$2/linux"       || exit 1
-if ! test -f "$2/linux/version.h"; then
-	echo "Warning: '$KERNEL_HEADERS/linux/version.h' is not found"
-	echo "in kernel headers directory specified in .config."
-	echo "Some programs won't like that. Consider fixing it by hand."
+# Do the copying only if src and dst dirs are not the same
+# Be thorough: do not settle just for textual compare,
+# and guard against "pwd" being handled as shell builtin
+if test `(cd "$KERNEL_HEADERS"; env pwd)` != `(cd "$2"; env pwd)`; then
+	# NB: source or target files and directories may be symlinks,
+	# and for all we know, good reasons.
+	# We must work correctly in these cases. This includes "do not replace
+	# target symlink with real directory" rule. So, no rm -rf here please.
+	mkdir -p "$2/asm"         2>/dev/null
+	mkdir -p "$2/asm-generic" 2>/dev/null
+	mkdir -p "$2/linux"       2>/dev/null
+	# Exists, but is not a dir? That's bad, bail out
+	die_if_not_dir "$2/asm" "$2/asm-generic" "$2/linux"
+	# cp -HL creates regular destination files even if sources are symlinks.
+	# This is intended.
+	# (NB: you need busybox 1.11.x for this. earlier ones are slightly buggy)
+	cp -RHL "$KERNEL_HEADERS/asm"/*         "$2/asm"         || exit 1
+	cp -RHL "$KERNEL_HEADERS/asm-generic"/* "$2/asm-generic" || exit 1
+	cp -RHL "$KERNEL_HEADERS/linux"/*       "$2/linux"       || exit 1
+	if ! test -f "$2/linux/version.h"; then
+		echo "Warning: '$KERNEL_HEADERS/linux/version.h' is not found"
+		echo "in kernel headers directory specified in .config."
+		echo "Some programs won't like that. Consider fixing it by hand."
+	fi
 fi
 
 
