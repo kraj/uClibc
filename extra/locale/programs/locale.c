@@ -18,7 +18,7 @@
 
 typedef struct {
 	unsigned char idx_name;
-	char dot_cs;				/* 0 if no codeset specified */
+	char dot_cs;		/* 0 if no codeset specified */
 	char cs;
 	unsigned char lc_ctype_row;
 	unsigned char lc_numeric_row;
@@ -36,7 +36,7 @@ typedef struct {
 #include <locale.h>
 #define LOCALE_NAMES			(__locale_mmap->locale_names5)
 #define LOCALES					(__locale_mmap->locales)
-#define LOCALE_AT_MODIFIERS 	(__locale_mmap->locale_at_modifiers)
+#define LOCALE_AT_MODIFIERS	(__locale_mmap->locale_at_modifiers)
 #define CATEGORY_NAMES			(__locale_mmap->lc_names)
 
 #define GET_CODESET_NAME(N)  (CODESET_LIST + *(CODESET_LIST + N - 3))
@@ -65,37 +65,34 @@ static int do_charmaps = 0;
 static int remaining = 0;
 
 /* We can map the types of the entries into a few categories.  */
-enum value_type
-{
-  none,
-  string,
-  stringarray,
-  byte,
-  bytearray,
-  word,
-  stringlist,
-  wordarray,
-  wstring,
-  wstringarray,
-  wstringlist
+enum value_type {
+	none,
+	string,
+	stringarray,
+	byte,
+	bytearray,
+	word,
+	stringlist,
+	wordarray,
+	wstring,
+	wstringarray,
+	wstringlist
 };
 
 /* Definition of the data structure which represents a category and its
    items.  */
-struct category
-{
-  int cat_id;
-  const char *name;
-  size_t number;
-  struct cat_item
-  {
-    int item_id;
-    const char *name;
-    enum { std, opt } status;
-    enum value_type value_type;
-    int min;
-    int max;
-  } *item_desc;
+struct category {
+	int cat_id;
+	const char *name;
+	size_t number;
+	struct cat_item {
+		int item_id;
+		const char *name;
+		enum { std, opt } status;
+		enum value_type value_type;
+		int min;
+		int max;
+	} *item_desc;
 };
 
 /* Simple helper macro.  */
@@ -116,14 +113,14 @@ struct category
 #include "categories.def"
 #undef DEFINE_CATEGORY
 
-static struct category category[] =
-  {
+static struct category category[] = {
 #define DEFINE_CATEGORY(category, name, items, postload) \
     [category] = { _NL_NUM_##category, name, NELEMS (category##_desc),	      \
 		   category##_desc },
 #include "categories.def"
 #undef DEFINE_CATEGORY
-  };
+};
+
 #define NCATEGORIES NELEMS (category)
 
 static void usage(const char *name);
@@ -134,51 +131,50 @@ static void usage(const char *name)
 	s = basename(name);
 	fprintf(stderr,
 			"Usage: %s [-ck] [--category-name] [--keyword-name] [--help] NAME\n"
-			  "or:  %s [OPTION...] [-a|-m] [--all-locales] [--charmaps] \n", s, s);
+			"or:  %s [OPTION...] [-a|-m] [--all-locales] [--charmaps] \n", s,
+			s);
 }
 
 static int argp_parse(int argc, char *argv[]);
 static int argp_parse(int argc, char *argv[])
 {
-	static const struct option long_options[] =
-	{
-		{"all-locales",   no_argument, NULL, 'a'},
-		{"charmaps",      no_argument, NULL, 'm'},
+	static const struct option long_options[] = {
+		{"all-locales", no_argument, NULL, 'a'},
+		{"charmaps", no_argument, NULL, 'm'},
 		{"category-name", no_argument, NULL, 'c'},
-		{"keyword-name",  no_argument, NULL, 'k'},
-		{"help",          no_argument, NULL, 'h'},
-		{NULL,            0,           NULL,  0 }
+		{"keyword-name", no_argument, NULL, 'k'},
+		{"help", no_argument, NULL, 'h'},
+		{NULL, 0, NULL, 0}
 	};
 	int c;
-    char *progname;
+	char *progname;
 
- 	progname = *argv;
-	while ((c = getopt_long (argc, argv, "amckh", long_options, NULL)) >= 0)
-		switch (c)
-		{
-			case 'a':
-				do_all = 1;
-				break;
-			case 'c':
-				show_category_name = 1;
-				break;
-			case 'm':
-				do_charmaps = 1;
-				break;
-			case 'k':
-				show_keyword_name = 1;
-				break;
-			case 'h':
-				show_usage = 1;
-				break;
-			case '?':
-				fprintf (stderr, "Unknown option.\n");
-				usage(progname);
-				return 1;
-				
-			default:
-				fprintf (stderr, "This should never happen!\n");
-				return 1;
+	progname = *argv;
+	while ((c = getopt_long(argc, argv, "amckh", long_options, NULL)) >= 0)
+		switch (c) {
+		case 'a':
+			do_all = 1;
+			break;
+		case 'c':
+			show_category_name = 1;
+			break;
+		case 'm':
+			do_charmaps = 1;
+			break;
+		case 'k':
+			show_keyword_name = 1;
+			break;
+		case 'h':
+			show_usage = 1;
+			break;
+		case '?':
+			fprintf(stderr, "Unknown option.\n");
+			usage(progname);
+			return 1;
+
+		default:
+			fprintf(stderr, "This should never happen!\n");
+			return 1;
 		}
 
 	remaining = optind;
@@ -186,15 +182,15 @@ static int argp_parse(int argc, char *argv[])
 	return 0;
 }
 
-static unsigned const char * find_at(char c);
-static unsigned const char * find_at(char c)
+static unsigned const char *find_at(char c);
+static unsigned const char *find_at(char c)
 {
 	const unsigned char *q;
 
 	q = LOCALE_AT_MODIFIERS;
 	do {
 		if (q[1] == c) {
-			return (unsigned const char *)q+2;
+			return (unsigned const char *) q + 2;
 		}
 		q += 2 + *q;
 	} while (*q);
@@ -202,31 +198,32 @@ static unsigned const char * find_at(char c)
 	return NULL;
 }
 
-static void find_locale_string(locale_entry *loc_rec, char *loc)
+static void find_locale_string(locale_entry * loc_rec, char *loc)
 {
 	char at = 0;
 	unsigned char idx;
 	uint16_t dotcs, cs;
-	
+
 	idx = loc_rec->idx_name;
 	if (!idx) {
-		*loc++ = 'C';          /* jump the first locale (C) */
+		*loc++ = 'C';	/* jump the first locale (C) */
 		*loc = '\0';
-	}
-	else {
+	} else {
 		dotcs = (uint16_t) loc_rec->dot_cs;
 		cs = (uint16_t) loc_rec->cs;;
 		loc = strncpy(loc, GET_LOCALE_NAME(idx), 5);
 
 		if (loc[2] == '_') {
-			sprintf(loc, "%5.5s%c%s\0", loc, (dotcs != 0) ? '.' : ' ', 
-										(cs ==  1) ? ascii : ((cs == 2) ? utf8 : GET_CODESET_NAME(cs)));
+			sprintf(loc, "%5.5s%c%s\0", loc, (dotcs != 0) ? '.' : ' ',
+					(cs ==
+					 1) ? ascii : ((cs == 2) ? utf8 : GET_CODESET_NAME(cs)));
 		} else {
 			at = loc[2];
 			loc[2] = '_';
-			sprintf(loc, "%5.5s%c%s@%s\0", loc, (dotcs != 0) ? '.' : ' ', 
-										(cs ==  1) ? ascii : ((cs == 2) ? utf8 : GET_CODESET_NAME(cs)),
-										find_at(at));
+			sprintf(loc, "%5.5s%c%s@%s\0", loc, (dotcs != 0) ? '.' : ' ',
+					(cs ==
+					 1) ? ascii : ((cs == 2) ? utf8 : GET_CODESET_NAME(cs)),
+					find_at(at));
 		}
 	}
 }
@@ -236,7 +233,7 @@ static void list_locale()
 {
 	char loc[40];
 	uint16_t n = 0;
-	locale_entry *locales = (locale_entry *)LOCALES;
+	locale_entry *locales = (locale_entry *) LOCALES;
 
 	do {
 		find_locale_string(locales, loc);
@@ -250,123 +247,123 @@ static void list_charmaps(void);
 static void list_charmaps()
 {
 	unsigned const char *cl;
-	
+
 	cl = CODESET_LIST;
 	do {
 		printf("%s\n", CODESET_LIST + *cl);
 	} while (*++cl);
-	
+
 }
 
-static void print_item (struct cat_item *item);
-static void print_item (struct cat_item *item)
+static void print_item(struct cat_item *item);
+static void print_item(struct cat_item *item)
 {
-	switch (item->value_type)
-	{
+	switch (item->value_type) {
 	case string:
-	if (show_keyword_name)
-		printf ("%s=\"", item->name);
-	fputs (nl_langinfo (item->item_id) ? : "", stdout);
-	if (show_keyword_name)
-		putchar ('"');
-	putchar ('\n');
-	break;
+		if (show_keyword_name)
+			printf("%s=\"", item->name);
+		fputs(nl_langinfo(item->item_id) ? : "", stdout);
+		if (show_keyword_name)
+			putchar('"');
+		putchar('\n');
+		break;
 	case stringarray:
 	{
 		int cnt;
 		const char *val;
 
 		if (show_keyword_name)
-			printf ("%s=\"", item->name);
+			printf("%s=\"", item->name);
 
-		for (cnt = 0; cnt < item->max - 1; ++cnt)
-		{
-			val = nl_langinfo (item->item_id + cnt);
+		for (cnt = 0; cnt < item->max - 1; ++cnt) {
+			val = nl_langinfo(item->item_id + cnt);
 			if (val != NULL)
-				fputs (val, stdout);
-			putchar (';');
+				fputs(val, stdout);
+			putchar(';');
 		}
 
-		val = nl_langinfo (item->item_id + cnt);
+		val = nl_langinfo(item->item_id + cnt);
 		if (val != NULL)
-			fputs (val, stdout);
+			fputs(val, stdout);
 
 		if (show_keyword_name)
-			putchar ('"');
-		putchar ('\n');
+			putchar('"');
+		putchar('\n');
 	}
-	break;
+		break;
 	case stringlist:
 	{
 		int first = 1;
-		const char *val = nl_langinfo (item->item_id) ? : "";
+		const char *val = nl_langinfo(item->item_id) ? : "";
 		int cnt;
 
 		if (show_keyword_name)
-			printf ("%s=", item->name);
+			printf("%s=", item->name);
 
-		for (cnt = 0; cnt < item->max && *val != '\0'; ++cnt)
-		{
-			printf ("%s%s%s%s", first ? "" : ";",
-				show_keyword_name ? "\"" : "", val,
-				show_keyword_name ? "\"" : "");
-			val = strchr (val, '\0') + 1;
+		for (cnt = 0; cnt < item->max && *val != '\0'; ++cnt) {
+			printf("%s%s%s%s", first ? "" : ";",
+				   show_keyword_name ? "\"" : "", val,
+				   show_keyword_name ? "\"" : "");
+			val = strchr(val, '\0') + 1;
 			first = 0;
 		}
-		putchar ('\n');
+		putchar('\n');
 	}
-	break;
+		break;
 	case byte:
 	{
-		const char *val = nl_langinfo (item->item_id);
+		const char *val = nl_langinfo(item->item_id);
 
 		if (show_keyword_name)
-			printf ("%s=", item->name);
+			printf("%s=", item->name);
 
 		if (val != NULL)
-			printf ("%d", *val == '\177' ? -1 : *val);
-		putchar ('\n');
+			printf("%d", *val == '\177' ? -1 : *val);
+		putchar('\n');
 	}
-	break;
+		break;
 	case bytearray:
 	{
-		const char *val = nl_langinfo (item->item_id);
-		int cnt = val ? strlen (val) : 0;
+		const char *val = nl_langinfo(item->item_id);
+		int cnt = val ? strlen(val) : 0;
 
 		if (show_keyword_name)
-			printf ("%s=", item->name);
+			printf("%s=", item->name);
 
-		while (cnt > 1)
-		{
-			printf ("%d;", *val == '\177' ? -1 : *val);
+		while (cnt > 1) {
+			printf("%d;", *val == '\177' ? -1 : *val);
 			--cnt;
 			++val;
 		}
 
-		printf ("%d\n", cnt == 0 || *val == '\177' ? -1 : *val);
+		printf("%d\n", cnt == 0 || *val == '\177' ? -1 : *val);
 	}
-	break;
+		break;
 	case word:
 	{
-		union { unsigned int word; char *string; } val;
-		val.string = nl_langinfo (item->item_id);
-		if (show_keyword_name)
-			printf ("%s=", item->name);
+		union {
+			unsigned int word;
+			char *string;
+		} val;
 
-		printf ("%d\n", val.word);
+		val.string = nl_langinfo(item->item_id);
+		if (show_keyword_name)
+			printf("%s=", item->name);
+
+		printf("%d\n", val.word);
 	}
-	break;
+		break;
 	case wstring:
 	case wstringarray:
 	case wstringlist:
-	/* We don't print wide character information since the same
-		information is available in a multibyte string.  */
+		/* We don't print wide character information since the same
+		   information is available in a multibyte string.  */
 	default:
-	break;
+		break;
 
 	}
 }
-	
+
 /* Show the information request for NAME.  */
 static void show_info(const char *name);
 static void show_info(const char *name)
@@ -377,22 +374,22 @@ static void show_info(const char *name)
 	/* Now all categories in an unspecified order.  */
 	for (cat_no = 0; cat_no < __LC_ALL; ++cat_no) {
 		cat_name = GET_CATEGORY_NAME(cat_no);
-		if (strcmp (name, (const char *)cat_name) == 0) {
+		if (strcmp(name, (const char *) cat_name) == 0) {
 			if (show_category_name)
 				printf("%s\n", name);
-				
+
 			for (item_no = 0; item_no < category[cat_no].number; ++item_no)
-				print_item (&category[cat_no].item_desc[item_no]);
+				print_item(&category[cat_no].item_desc[item_no]);
 
 			return;
 		}
-		
+
 		for (item_no = 0; item_no < category[cat_no].number; ++item_no)
-			if (strcmp (name, category[cat_no].item_desc[item_no].name) == 0) {
+			if (strcmp(name, category[cat_no].item_desc[item_no].name) == 0) {
 				if (show_category_name != 0)
-					puts (category[cat_no].name);
-					
-				print_item (&category[cat_no].item_desc[item_no]);
+					puts(category[cat_no].name);
+
+				print_item(&category[cat_no].item_desc[item_no]);
 				return;
 			}
 	}
@@ -402,65 +399,64 @@ static void show_locale_vars(void);
 static void show_locale_vars()
 {
 	size_t cat_no;
-	int row;					/* locale row */
-	const char *lcall = getenv ("LC_ALL");
-	const char *lang = getenv ("LANG") ? : "";
+	int row;			/* locale row */
+	const char *lcall = getenv("LC_ALL");
+	const char *lang = getenv("LANG") ? : "";
 	unsigned char *cur_loc = __global_locale->cur_locale + 1;
 	char loc_name[40];
 	locale_entry *locales;
 
 	/* LANG has to be the first value.  */
-	printf ("LANG=%s\n", lang);
+	printf("LANG=%s\n", lang);
 
 	/* Now all categories in an unspecified order.  */
 	for (cat_no = 0; cat_no < __LC_ALL; ++cat_no) {
-		row  = (((int)(*cur_loc & 0x7f)) << 7) + (cur_loc[1] & 0x7f);
+		row = (((int) (*cur_loc & 0x7f)) << 7) + (cur_loc[1] & 0x7f);
 /*		assert(row < __LOCALE_DATA_NUM_LOCALES); */
 
 		locales = GET_LOCALE_ENTRY(row);
 		find_locale_string(locales, loc_name);
 		printf("%s=%s\n", GET_CATEGORY_NAME(cat_no), loc_name);
-		
+
 		cur_loc += 2;
 	}
 
 	/* The last is the LC_ALL value.  */
-	printf ("LC_ALL=%s\n", lcall ? : "");
+	printf("LC_ALL=%s\n", lcall ? : "");
 }
 
-int
-main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    /* Parse and process arguments.  */
+	/* Parse and process arguments.  */
 	if (argp_parse(argc, argv))
 		return 1;
-	
+
 	if (do_all) {
 		list_locale();
-		exit (EXIT_SUCCESS);
-    }
-		
+		exit(EXIT_SUCCESS);
+	}
+
 	if (do_charmaps) {
 		list_charmaps();
-		exit (EXIT_SUCCESS);
-    }
-		
+		exit(EXIT_SUCCESS);
+	}
+
 	if (show_usage) {
 		usage(*argv);
-		exit (EXIT_SUCCESS);
-    }
+		exit(EXIT_SUCCESS);
+	}
 
-  /* If no real argument is given we have to print the contents of the
-     current locale definition variables.  These are LANG and the LC_*.  */
-  if (remaining == argc && show_category_name == 0 && show_keyword_name == 0) {
-      show_locale_vars ();
-      exit (EXIT_SUCCESS);
-    }
+	/* If no real argument is given we have to print the contents of the
+	   current locale definition variables. These are LANG and the LC_*.  */
+	if (remaining == argc && show_category_name == 0
+		&& show_keyword_name == 0) {
+		show_locale_vars();
+		exit(EXIT_SUCCESS);
+	}
 
-  /* Process all given names.  */
-  while (remaining <  argc)
-    show_info (argv[remaining++]);
+	/* Process all given names.  */
+	while (remaining < argc)
+		show_info(argv[remaining++]);
 
-  exit (EXIT_SUCCESS);
-	
+	exit(EXIT_SUCCESS);
 }
