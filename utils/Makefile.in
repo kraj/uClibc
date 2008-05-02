@@ -25,6 +25,8 @@ CFLAGS-iconv := $(CFLAGS-utils) $(CFLAGS-utils-shared) -DL_iconv_main
 
 CFLAGS-readelf := $(CFLAGS-utils-shared)
 
+CFLAGS-locale := $(CFLAGS-utils)
+
 BUILD_CFLAGS-utils := -include $(top_srcdir)include/elf.h
 
 BUILD_CFLAGS-utils-common := $(CFLAGS-utils-common)
@@ -51,15 +53,17 @@ utils_OBJ += ldconfig ldd
 endif
 
 utils_ICONV_OBJ =
+utils_LOCALE_OBJ =
 ifeq ($(UCLIBC_HAS_LOCALE),y)
 utils_ICONV_OBJ := $(utils_OUT)/iconv
+utils_LOCALE_OBJ := $(utils_OUT)/locale
 endif
 
 utils_OBJ := $(patsubst %,$(utils_OUT)/%,$(utils_OBJ))
 
 hostutils_OBJ := $(patsubst %,%.host,$(utils_OBJ))
 
-utils: $(utils_OBJ) $(utils_ICONV_OBJ)
+utils: $(utils_OBJ) $(utils_ICONV_OBJ) $(utils_LOCALE_OBJ)
 
 # NOTE: We build the utils AFTER we have a uClibc-targeted toolchain.
 
@@ -67,6 +71,9 @@ $(utils_OBJ): $(utils_OUT)/% : $(utils_DIR)/%.c | $(libc)
 	$(compile.u)
 
 $(utils_OUT)/iconv: $(top_srcdir)libc/misc/wchar/wchar.c | $(libc)
+	$(compile.u)
+
+$(utils_OUT)/locale: $(top_srcdir)extra/locale/programs/locale.c | $(libc)
 	$(compile.u)
 
 hostutils: $(hostutils_OBJ)
@@ -86,9 +93,10 @@ ifeq ($(HAVE_SHARED),y)
 endif
 ifeq ($(UCLIBC_HAS_LOCALE),y)
 	$(INSTALL) -m 755 $(utils_OUT)/iconv $(PREFIX)$(RUNTIME_PREFIX)usr/bin/iconv
+	$(INSTALL) -m 755 $(utils_OUT)/locale $(PREFIX)$(RUNTIME_PREFIX)usr/bin/locale
 endif
 
 objclean-y += utils_clean
 
 utils_clean:
-	$(RM) $(utils_OUT)/{ldconfig,ldd,readelf,iconv,*.host}
+	$(RM) $(utils_OUT)/{ldconfig,ldd,readelf,iconv,locale,*.host}
