@@ -26,13 +26,11 @@
 
 #ifndef __ASSEMBLER__
 #ifndef PT_EI
-# define PT_EI __extern_always_inline
+# define PT_EI __extern_always_inline __attribute__((visibility("hidden")))
 #endif
 
-/*
 extern long int testandset (int *spinlock);
 extern int __compare_and_swap (long int *p, long int oldval, long int newval);
-*/
 
 /* Get some notion of the current stack.  Need not be exactly the top
    of the stack, just something somewhere in the current frame.  */
@@ -85,7 +83,7 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
 
 #else /* Generic i386 implementation */
 
-
+extern int compare_and_swap_is_available (void);
 
 /* Spinlock implementation; required.  */
 PT_EI long int
@@ -123,8 +121,8 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
   return ret;
 }
 
-
-PT_EI int
+#if 00
+static __always_inline int
 get_eflags (void)
 {
   int res;
@@ -132,25 +130,28 @@ get_eflags (void)
   return res;
 }
 
-
-PT_EI void
+static __always_inline void
 set_eflags (int newflags)
 {
   __asm__ __volatile__ ("pushl %0; popfl" : : "r" (newflags) : "cc");
 }
-
+#endif
 
 PT_EI int
 compare_and_swap_is_available (void)
 {
-  int oldflags = get_eflags ();
   int changed;
+  int oldflags;
+  /* get EFLAGS */
+  __asm__ __volatile__ ("pushfl; popl %0" : "=r" (oldflags) : );
   /* Flip AC bit in EFLAGS.  */
-  set_eflags (oldflags ^ 0x40000);
+  __asm__ __volatile__ ("pushl %0; popfl" : : "r" (oldflags ^ 0x40000) : "cc");
+  /* reread EFLAGS */
+  __asm__ __volatile__ ("pushfl; popl %0" : "=r" (changed) : );
   /* See if bit changed.  */
-  changed = (get_eflags () ^ oldflags) & 0x40000;
+  changed = (changed ^ oldflags) & 0x40000;
   /* Restore EFLAGS.  */
-  set_eflags (oldflags);
+  __asm__ __volatile__ ("pushl %0; popfl" : : "r" (oldflags) : "cc");
   /* If the AC flag did not change, it's a 386 and it lacks cmpxchg.
      Otherwise, it's a 486 or above and it has cmpxchg.  */
   return changed != 0;
