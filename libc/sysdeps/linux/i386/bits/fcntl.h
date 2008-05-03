@@ -50,7 +50,9 @@
 # define O_DIRECTORY	0200000	/* Must be a directory.	 */
 # define O_NOFOLLOW	0400000	/* Do not follow links.	 */
 # define O_NOATIME     01000000 /* Do not set atime.  */
+# if 0
 # define O_CLOEXEC     02000000 /* Set close_on_exec.  */
+# endif
 #endif
 
 /* For now Linux has synchronisity options for data and read operations.
@@ -99,7 +101,7 @@
 # define F_GETLEASE	1025	/* Enquire what lease is active.  */
 # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
 # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
-				   close-on-exit set.  */
+				   close-on-exit set on new fd.  */
 #endif
 
 /* For F_[GET|SET]FD.  */
@@ -188,6 +190,7 @@ struct flock64
 
 
 #ifdef __USE_GNU
+#if 0
 /* Flags for SYNC_FILE_RANGE.  */
 # define SYNC_FILE_RANGE_WAIT_BEFORE	1 /* Wait upon writeout of all pages
 					     in the range before performing the
@@ -198,6 +201,7 @@ struct flock64
 # define SYNC_FILE_RANGE_WAIT_AFTER	4 /* Wait upon writeout of all pages in
 					     the range after performing the
 					     write.  */
+#endif
 
 /* Flags for SPLICE and VMSPLICE.  */
 # define SPLICE_F_MOVE		1	/* Move pages instead of copying.  */
@@ -239,3 +243,4 @@ extern ssize_t tee (int __fdin, int __fdout, size_t __len,
 #endif
 
 __END_DECLS
+
