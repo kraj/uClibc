@@ -241,6 +241,5 @@ extern ssize_t tee (int __fdin, int __fdout, size_t __len,
 		    unsigned int __flags);
 
 #endif
-
 __END_DECLS
 

@@ -260,5 +260,6 @@ extern ssize_t splice (int __fdin, __off64_t *__offin, int __fdout,
 extern ssize_t tee (int __fdin, int __fdout, size_t __len,
 		    unsigned int __flags);
 
+#endif
 __END_DECLS
 
