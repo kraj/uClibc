@@ -118,6 +118,11 @@ RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/rela
 $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
 	$(hcompile.u)
 
+# Installs kernel header files (linux/*, asm/*, asm-generic/*).
+install_kernel_headers: headers
+	top_builddir=$(top_builddir) \
+	$(top_srcdir)extra/scripts/install_kernel_headers.sh include $(PREFIX)$(DEVEL_PREFIX)include
+
 # Installs header files.
 install_headers: headers $(top_builddir)extra/scripts/unifdef
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
