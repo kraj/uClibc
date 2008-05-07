@@ -353,6 +353,7 @@ clean:
 		done; \
 	fi
 	@$(RM) include/linux include/asm*
+	$(RM) $(top_builddir)extra/scripts/unifdef
 
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ \) -exec $(RM) {} \;
