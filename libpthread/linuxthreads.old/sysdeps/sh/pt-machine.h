@@ -29,6 +29,8 @@
 # define PT_EI __extern_always_inline
 #endif
 
+extern long int testandset (int *spinlock);
+
 /* Spinlock implementation; required.  */
 PT_EI long int
 testandset (int *spinlock)
