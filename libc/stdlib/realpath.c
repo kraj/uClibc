@@ -133,29 +133,33 @@ char got_path[];
 		path_len = strlen(path);
 		/* See if last (so far) pathname component is a symlink. */
 		*new_path = '\0';
-		link_len = readlink(got_path, copy_path, PATH_MAX - 1);
-		if (link_len < 0) {
-			/* EINVAL means the file exists but isn't a symlink. */
-			if (errno != EINVAL) {
-				return NULL;
+		{
+			int sv_errno = errno;
+			link_len = readlink(got_path, copy_path, PATH_MAX - 1);
+			if (link_len < 0) {
+				/* EINVAL means the file exists but isn't a symlink. */
+				if (errno != EINVAL) {
+					return NULL;
+				}
+			} else {
+				/* Safe sex check. */
+				if (path_len + link_len >= PATH_MAX - 2) {
+					__set_errno(ENAMETOOLONG);
+					return NULL;
+				}
+				/* Note: readlink doesn't add the null byte. */
+				/* copy_path[link_len] = '\0'; - we don't need it too */
+				if (*copy_path == '/')
+					/* Start over for an absolute symlink. */
+					new_path = got_path;
+				else
+					/* Otherwise back up over this component. */
+					while (*(--new_path) != '/');
+				/* Prepend symlink contents to path. */
+				memmove(copy_path + (PATH_MAX-1) - link_len - path_len, copy_path, link_len);
+				path = copy_path + (PATH_MAX-1) - link_len - path_len;
 			}
-		} else {
-			/* Safe sex check. */
-			if (path_len + link_len >= PATH_MAX - 2) {
-				__set_errno(ENAMETOOLONG);
-				return NULL;
-			}
-			/* Note: readlink doesn't add the null byte. */
-			/* copy_path[link_len] = '\0'; - we don't need it too */
-			if (*copy_path == '/')
-				/* Start over for an absolute symlink. */
-				new_path = got_path;
-			else
-				/* Otherwise back up over this component. */
-				while (*(--new_path) != '/');
-			/* Prepend symlink contents to path. */
-			memmove(copy_path + (PATH_MAX-1) - link_len - path_len, copy_path, link_len);
-			path = copy_path + (PATH_MAX-1) - link_len - path_len;
+			__set_errno(sv_errno);
 		}
 #endif							/* S_IFLNK */
 		*new_path++ = '/';
