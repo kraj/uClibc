@@ -188,8 +188,7 @@ do_test (int argc, char ** argv)
 	  continue;
 	}
 
-      if ((tests[i].retval || tests[i].retbuf)
-       && !check_path (buf, tests[i].retval ? tests[i].retval : tests[i].retbuf))
+      if (result && !check_path (buf, tests[i].retval ? tests[i].retval : tests[i].retbuf))
 	{
 	  printf ("%s: flunked test %d (expected resolved `%s', got `%s')\n",
 		  argv[0], i, tests[i].retval ? tests[i].retval : tests[i].retbuf,
