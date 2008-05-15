@@ -192,4 +192,4 @@ nptl_linux_headers_clean:
 	$(RM) $(PTHREAD_LINUX_OUT)/unwindbuf.{c,h,s}
 
 nptl_linux_objclean:
-	$(RM) $(PTHREAD_LINUX_OUT)/*.{o,os,oS}
+	$(RM) $(PTHREAD_LINUX_OUT)/*.{o,os,oS} $(PTHREAD_LINUX_DIR)/pt-sleep.c
