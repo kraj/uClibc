@@ -189,7 +189,7 @@ int main(int argc, char **argv)
 			} else {
 				++s0;
 			}
-			s1 = strchr(s0, '.');
+			s1 = strrchr(s0, '.');
 			if (!s1) {
 				n = strlen(s0);
 			} else {

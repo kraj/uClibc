@@ -1142,7 +1142,7 @@ static int find_locale(int category_mask, const char *p,
 		/* TODO: maybe CODESET_LIST + *s ??? */
 		/* 7bit is 1, UTF-8 is 2, 8-bit is >= 3 */
 		codeset = 2;
-		if (strcmp(utf8,p+6) != 0) {/* TODO - fix! */
+		if (strcasecmp(utf8,p+6) != 0) {/* TODO - fix! */
 			s = CODESET_LIST;
 			do {
 				++codeset;		/* Increment codeset first. */

@@ -316,6 +316,7 @@ int tolower_l(int c, __locale_t l)
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_tolower[c] : c;
 }
 libc_hidden_def(tolower_l)
+weak_alias (tolower_l, __tolower_l)
 
 #endif
 /**********************************************************************/
@@ -362,6 +363,7 @@ int toupper_l(int c, __locale_t l)
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_toupper[c] : c;
 }
 libc_hidden_def(toupper_l)
+weak_alias (toupper_l, __toupper_l)
 
 #endif
 /**********************************************************************/
