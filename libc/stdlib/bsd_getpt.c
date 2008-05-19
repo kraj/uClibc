@@ -23,7 +23,7 @@
 #include <unistd.h>
 
 libc_hidden_proto(open)
-libc_hidden_proto(mempcpy)
+/* Experimentally off - libc_hidden_proto(mempcpy) */
 
 /* Prefix for master pseudo terminal nodes.  */
 #define _PATH_PTY "/dev/pty"

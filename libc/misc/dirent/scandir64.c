@@ -30,7 +30,7 @@
 #include <sys/types.h>
 #include "dirstream.h"
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(opendir)
 libc_hidden_proto(closedir)
 libc_hidden_proto(qsort)

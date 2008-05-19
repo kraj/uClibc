@@ -56,7 +56,7 @@ static char sccsid[] = "@(#)xdr.c 1.35 87/08/12";
 libc_hidden_proto(fwprintf)
 #endif
 
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(fputs)
 
 /*

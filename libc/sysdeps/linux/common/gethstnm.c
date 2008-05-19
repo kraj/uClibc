@@ -11,8 +11,8 @@
 
 libc_hidden_proto(gethostname)
 
-libc_hidden_proto(strlen)
-libc_hidden_proto(strcpy)
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
 libc_hidden_proto(uname)
 
 int

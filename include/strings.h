@@ -90,6 +90,28 @@ extern int strncasecmp (__const char *__s1, __const char *__s2, size_t __n)
 
 __END_DECLS
 
+
+#ifdef UCLIBC_INTERNAL
+/* In the same order and with the same defines */
+# ifdef __UCLIBC_SUSV3_LEGACY__
+libc_hidden_proto(bcopy)
+libc_hidden_proto(bzero)
+libc_hidden_proto(bcmp)
+libc_hidden_proto(index)
+libc_hidden_proto(rindex)
+# endif
+libc_hidden_proto(ffs)
+# if 0 /*def	__USE_GNU*/
+libc_hidden_proto(ffsl)
+#  ifdef __GNUC__
+libc_hidden_proto(ffsll)
+#  endif
+# endif
+libc_hidden_proto(strcasecmp)
+libc_hidden_proto(strncasecmp)
+#endif
+
+
 #endif	/* string.h  */
 
 #endif	/* strings.h  */

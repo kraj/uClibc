@@ -34,7 +34,7 @@ libc_hidden_def(lfind)
 
 #ifdef L_lsearch
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 void *lsearch(const void *key, void *base, size_t *nmemb, 
 	size_t size, int (*compar)(const void *, const void *))

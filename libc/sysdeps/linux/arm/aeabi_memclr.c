@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 
 /* Clear memory.  Can't alias to bzero because it's not defined in the
    same translation unit.  */

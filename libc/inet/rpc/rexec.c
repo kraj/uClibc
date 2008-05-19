@@ -42,9 +42,9 @@
 #include <string.h>
 #include <unistd.h>
 
-libc_hidden_proto(memset)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncpy)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strncpy) */
 libc_hidden_proto(read)
 libc_hidden_proto(write)
 libc_hidden_proto(close)

@@ -41,7 +41,7 @@ extern __typeof(sigaction) __libc_sigaction;
 extern void restore_rt (void) __asm__ ("__restore_rt") attribute_hidden;
 extern void restore (void) __asm__ ("__restore") attribute_hidden;
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */

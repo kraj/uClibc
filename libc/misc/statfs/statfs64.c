@@ -24,7 +24,7 @@
 #include <sys/statfs.h>
 
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(statfs)
 
 /* Return information about the filesystem on which FILE resides.  */

@@ -29,9 +29,9 @@
 #include <unistd.h>
 #include <bits/uClibc_uintmaxtostr.h>
 
-libc_hidden_proto(strcat)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strcat) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(isatty)
 libc_hidden_proto(ioctl)
 libc_hidden_proto(fstat)

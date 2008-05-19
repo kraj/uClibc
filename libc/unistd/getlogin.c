@@ -10,8 +10,8 @@
 #include <unistd.h>
 #include <stdio.h>
 
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strncpy)
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strncpy) */
 libc_hidden_proto(getenv)
 
 /* uClibc makes it policy to not mess with the utmp file whenever

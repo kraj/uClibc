@@ -8,7 +8,7 @@
 #include <string.h>
 #include "dirstream.h"
 
-libc_hidden_proto(strcmp)
+/* Experimentally off - libc_hidden_proto(strcmp) */
 
 int alphasort(const void * a, const void * b)
 {

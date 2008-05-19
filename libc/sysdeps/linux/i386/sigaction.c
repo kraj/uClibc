@@ -30,7 +30,7 @@
 extern __typeof(sigaction) __libc_sigaction;
 
 #if defined __NR_rt_sigaction
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 extern void restore_rt (void) __asm__ ("__restore_rt") attribute_hidden;
 extern void restore (void) __asm__ ("__restore") attribute_hidden;

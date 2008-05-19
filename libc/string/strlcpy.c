@@ -11,7 +11,7 @@
 # define Wstrlcpy __wcslcpy
 # define Wstrxfrm wcsxfrm
 #else
-libc_hidden_proto(strlcpy)
+/* Experimentally off - libc_hidden_proto(strlcpy) */
 # define Wstrlcpy strlcpy
 # define Wstrxfrm strxfrm
 #endif
@@ -52,7 +52,7 @@ size_t Wstrlcpy(register Wchar *__restrict dst,
 #ifndef WANT_WIDE
 libc_hidden_def(strlcpy)
 #ifndef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(strxfrm)
+/* Experimentally off - libc_hidden_proto(strxfrm) */
 strong_alias(strlcpy,strxfrm)
 libc_hidden_def(strxfrm)
 #endif

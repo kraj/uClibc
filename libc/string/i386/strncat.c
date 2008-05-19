@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(strncat)
+/* Experimentally off - libc_hidden_proto(strncat) */
 char *strncat(char * dest, 
 	const char * src, size_t count)
 {

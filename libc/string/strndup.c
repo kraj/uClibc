@@ -8,9 +8,9 @@
 #include "_string.h"
 #include <stdlib.h>
 
-libc_hidden_proto(strndup)
-libc_hidden_proto(strnlen)
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(strndup) */
+/* Experimentally off - libc_hidden_proto(strnlen) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 char *strndup(register const char *s1, size_t n)
 {

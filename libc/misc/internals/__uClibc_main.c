@@ -31,10 +31,10 @@
 libc_hidden_proto(exit)
 
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-libc_hidden_proto(strrchr)
+/* Experimentally off - libc_hidden_proto(strrchr) */
 #endif
 #ifndef __ARCH_HAS_NO_LDSO__
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(getgid)
 libc_hidden_proto(getuid)
 libc_hidden_proto(getegid)

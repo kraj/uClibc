@@ -14,7 +14,7 @@
 #define SA_RESTORER	0x04000000
 extern void __default_rt_sa_restorer(void);
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 /*
  * If act is not NULL, change the action for sig to *act.

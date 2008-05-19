@@ -58,14 +58,14 @@
 #include <ctype.h>
 #include <stdio.h>
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memset)
-libc_hidden_proto(strtok_r)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strncmp)
-libc_hidden_proto(strchr)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strtok_r) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strncmp) */
+/* Experimentally off - libc_hidden_proto(strchr) */
 libc_hidden_proto(getenv)
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__C_ctype_toupper)
@@ -193,7 +193,7 @@ static const char utf8[] = "UTF-8";
  */
 static char hr_locale[(MAX_LOCALE_CATEGORY_STR * LC_ALL) + MAX_LOCALE_STR];
 
-libc_hidden_proto(stpcpy)
+/* Experimentally off - libc_hidden_proto(stpcpy) */
 libc_hidden_proto(newlocale)
 
 static void update_hr_locale(const unsigned char *spec)
@@ -1084,7 +1084,7 @@ libc_hidden_def(__XL_NPP(nl_langinfo))
 /**********************************************************************/
 #ifdef L_newlocale
 
-libc_hidden_proto(stpcpy)
+/* Experimentally off - libc_hidden_proto(stpcpy) */
 libc_hidden_proto(newlocale)
 
 #ifdef __UCLIBC_MJN3_ONLY__

@@ -87,14 +87,14 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #endif
 #include <sys/uio.h>
 
-libc_hidden_proto(memcmp)
-libc_hidden_proto(strcat)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncmp)
-libc_hidden_proto(memmove)
+/* Experimentally off - libc_hidden_proto(memcmp) */
+/* Experimentally off - libc_hidden_proto(strcat) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strncmp) */
+/* Experimentally off - libc_hidden_proto(memmove) */
 libc_hidden_proto(getpid)
 libc_hidden_proto(socket)
 libc_hidden_proto(close)

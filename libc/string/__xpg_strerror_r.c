@@ -16,8 +16,8 @@
 #undef strerror_r
 
 libc_hidden_proto(__xpg_strerror_r)
-libc_hidden_proto(memcpy)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 
 #ifdef __UCLIBC_HAS_ERRNO_MESSAGES__
 

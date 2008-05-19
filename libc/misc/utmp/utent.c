@@ -21,9 +21,9 @@
 #include <string.h>
 #include <utmp.h>
 
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strdup)
-libc_hidden_proto(strncmp)
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strdup) */
+/* Experimentally off - libc_hidden_proto(strncmp) */
 libc_hidden_proto(read)
 libc_hidden_proto(write)
 libc_hidden_proto(open)

@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(strchr)
+/* Experimentally off - libc_hidden_proto(strchr) */
 char *strchr(const char *s, int c)
 {
     int d0;

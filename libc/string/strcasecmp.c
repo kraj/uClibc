@@ -35,9 +35,9 @@ libc_hidden_proto(tolower)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-libc_hidden_proto(strcasecmp_l)
+/* Experimentally off - libc_hidden_proto(strcasecmp_l) */
 
-libc_hidden_proto(strcasecmp)
+/* Experimentally off - libc_hidden_proto(strcasecmp) */
 int strcasecmp(register const Wchar *s1, register const Wchar *s2)
 {
 	return strcasecmp_l(s1, s2, __UCLIBC_CURLOCALE);

@@ -434,4 +434,125 @@ extern size_t strlcpy(char *__restrict dst, const char *__restrict src,
 
 __END_DECLS
 
+
+#ifdef UCLIBC_INTERNAL
+/* In the same order and with the same defines */
+libc_hidden_proto(memcpy)
+libc_hidden_proto(memmove)
+#if defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN
+libc_hidden_proto(memccpy)
+#endif /* SVID.  */
+libc_hidden_proto(memset)
+libc_hidden_proto(memcmp)
+libc_hidden_proto(memchr)
+#ifdef	__USE_GNU
+libc_hidden_proto(rawmemchr)
+libc_hidden_proto(memrchr)
+#endif
+libc_hidden_proto(strcpy)
+libc_hidden_proto(strncpy)
+libc_hidden_proto(strcat)
+libc_hidden_proto(strncat)
+libc_hidden_proto(strcmp)
+libc_hidden_proto(strncmp)
+libc_hidden_proto(strcoll)
+libc_hidden_proto(strxfrm)
+#if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(strcoll_l)
+libc_hidden_proto(strxfrm_l)
+#endif
+#if defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+libc_hidden_proto(strdup)
+#endif
+#if defined __USE_GNU
+libc_hidden_proto(strndup)
+#endif
+libc_hidden_proto(strchr)
+libc_hidden_proto(strrchr)
+#ifdef	__USE_GNU
+libc_hidden_proto(strchrnul)
+#endif
+libc_hidden_proto(strcspn)
+libc_hidden_proto(strspn)
+libc_hidden_proto(strpbrk)
+libc_hidden_proto(strstr)
+libc_hidden_proto(strtok)
+#if 0 /* uClibc: disabled */
+libc_hidden_proto(__strtok_r)
+#endif
+#if defined __USE_POSIX || defined __USE_MISC
+libc_hidden_proto(strtok_r)
+#endif
+#ifdef	__USE_GNU
+libc_hidden_proto(strcasestr)
+#endif
+#ifdef	__USE_GNU
+libc_hidden_proto(memmem)
+#if 0 /* uClibc: disabled */
+libc_hidden_proto(__mempcpy)
+#endif
+libc_hidden_proto(mempcpy)
+#endif
+libc_hidden_proto(strlen)
+#ifdef	__USE_GNU
+libc_hidden_proto(strnlen)
+#endif
+libc_hidden_proto(strerror)
+/* TODO: insert strerror_r mess here */
+#if 0 /* uClibc: disabled */
+libc_hidden_proto(__bzero)
+#endif
+#ifdef	__USE_BSD
+# ifdef __UCLIBC_SUSV3_LEGACY__
+libc_hidden_proto(bcopy)
+libc_hidden_proto(bzero)
+libc_hidden_proto(bcmp)
+libc_hidden_proto(index)
+libc_hidden_proto(rindex)
+# endif
+libc_hidden_proto(ffs)
+#if 0 /*def	__USE_GNU*/
+libc_hidden_proto(ffsl)
+#  ifdef __GNUC__
+libc_hidden_proto(ffsll)
+#  endif
+# endif
+libc_hidden_proto(strcasecmp)
+libc_hidden_proto(strncasecmp)
+#endif /* Use BSD.  */
+#if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
+libc_hidden_proto(strcasecmp_l)
+libc_hidden_proto(strncasecmp_l)
+#endif
+#ifdef	__USE_BSD
+libc_hidden_proto(strsep)
+#endif
+#ifdef	__USE_GNU
+#if 0
+libc_hidden_proto(strverscmp)
+#endif
+libc_hidden_proto(strsignal)
+#if 0 /* uClibc: disabled */
+libc_hidden_proto(__stpcpy)
+#endif
+libc_hidden_proto(stpcpy)
+#if 0 /* uClibc: disabled */
+libc_hidden_proto(__stpncpy)
+#endif
+libc_hidden_proto(stpncpy)
+#if 0 /* uClibc does not support strfry or memfrob. */
+libc_hidden_proto(strfry)
+libc_hidden_proto(memfrob)
+#endif
+# ifndef basename
+libc_hidden_proto(basename)
+# endif
+#endif
+#ifdef	__USE_BSD
+libc_hidden_proto(strlcat)
+libc_hidden_proto(strlcpy)
+#endif
+#endif
+
+
 #endif /* string.h  */

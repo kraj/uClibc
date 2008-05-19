@@ -117,10 +117,10 @@
 #include <bits/uClibc_uintmaxtostr.h>
 #include <bits/uClibc_va_copy.h>
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memset)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strnlen)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strnlen) */
 libc_hidden_proto(__glibc_strerror_r)
 libc_hidden_proto(fputs_unlocked)
 libc_hidden_proto(abort)

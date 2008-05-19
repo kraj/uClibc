@@ -135,8 +135,8 @@ libc_hidden_def(hdestroy_r)
    equality of the stored and the parameter value. This helps to prevent
    unnecessary expensive calls of strcmp.  */
 
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 
 libc_hidden_proto(hsearch_r)
 int hsearch_r (ENTRY item, ACTION action, ENTRY **retval,

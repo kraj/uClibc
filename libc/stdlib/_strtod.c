@@ -215,7 +215,7 @@ __fpmax_t attribute_hidden __strtofpmax(const Wchar *str, Wchar **endptr, int ex
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-libc_hidden_proto(memcmp)
+/* Experimentally off - libc_hidden_proto(memcmp) */
 
 __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_power
 								 __LOCALE_PARAM )

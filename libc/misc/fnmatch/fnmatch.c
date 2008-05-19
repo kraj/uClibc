@@ -54,15 +54,15 @@
 
 #ifdef __UCLIBC__
 #define __memset memset
-libc_hidden_proto(memchr)
-libc_hidden_proto(memset)
-libc_hidden_proto(mempcpy)
-libc_hidden_proto(strcat)
-libc_hidden_proto(strcmp)
+/* Experimentally off - libc_hidden_proto(memchr) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(mempcpy) */
+/* Experimentally off - libc_hidden_proto(strcat) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
 /*libc_hidden_proto(strchr)*/
 /*libc_hidden_proto(strchrnul)*/
-libc_hidden_proto(strlen)
-libc_hidden_proto(strcoll)
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strcoll) */
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
 libc_hidden_proto(__ctype_tolower_loc)

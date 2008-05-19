@@ -10,7 +10,7 @@
 #ifdef WANT_WIDE
 # define Wstrncat wcsncat
 #else
-libc_hidden_proto(strncat)
+/* Experimentally off - libc_hidden_proto(strncat) */
 # define Wstrncat strncat
 #endif
 

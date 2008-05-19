@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(strncpy)
+/* Experimentally off - libc_hidden_proto(strncpy) */
 char *strncpy(char * dest, const char * src, size_t count)
 {
     int d0, d1, d2, d3;

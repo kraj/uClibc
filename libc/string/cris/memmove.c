@@ -27,7 +27,7 @@
 #include "memcopy.h"
 #include "../generic/pagecopy.h"
 
-libc_hidden_proto(memmove)
+/* Experimentally off - libc_hidden_proto(memmove) */
 void *memmove (void *dest, const void *src, size_t len)
 {
   unsigned long int dstp = (long int) dest;

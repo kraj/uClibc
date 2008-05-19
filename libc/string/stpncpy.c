@@ -10,7 +10,7 @@
 #ifdef WANT_WIDE
 # define Wstpncpy wcpncpy
 #else
-libc_hidden_proto(stpncpy)
+/* Experimentally off - libc_hidden_proto(stpncpy) */
 # define Wstpncpy stpncpy
 #endif
 

@@ -24,7 +24,7 @@
 #include "internals.h"
 #include "sysdeps/pthread/pthread-functions.h"
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 #if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(uselocale)

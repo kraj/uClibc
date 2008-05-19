@@ -77,10 +77,10 @@
 #include <bits/uClibc_fpmax.h>
 #endif /* __UCLIBC_HAS_FLOATS__ */
 
-libc_hidden_proto(memcmp)
-libc_hidden_proto(memset)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(memcmp) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(ungetc)
 libc_hidden_proto(vfscanf)
 libc_hidden_proto(vsscanf)

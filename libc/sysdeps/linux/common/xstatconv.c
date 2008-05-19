@@ -25,7 +25,7 @@
 #include <string.h>
 #include "xstatconv.h"
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 
 void attribute_hidden __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 {

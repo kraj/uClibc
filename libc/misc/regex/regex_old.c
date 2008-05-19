@@ -38,15 +38,15 @@
 #include <malloc.h>
 #include <stdio.h>
 
-libc_hidden_proto(memset)
-libc_hidden_proto(memcmp)
-libc_hidden_proto(memcpy)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(memcmp) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(printf)
 libc_hidden_proto(abort)
 #ifdef __USE_GNU
-libc_hidden_proto(mempcpy)
+/* Experimentally off - libc_hidden_proto(mempcpy) */
 #endif
 libc_hidden_proto(__uc_malloc)
 

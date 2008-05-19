@@ -15,7 +15,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(open)
 libc_hidden_proto(close)
 libc_hidden_proto(read)

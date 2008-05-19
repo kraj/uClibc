@@ -23,7 +23,7 @@
 #include <sys/types.h>
 
 libc_hidden_proto(tcsetattr)
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(ioctl)
 
 /* The difference here is that the termios structure used in the

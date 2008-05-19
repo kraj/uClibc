@@ -13,12 +13,12 @@ libc_hidden_proto(wcslen)
 # define Wstrdup wcsdup
 # define Wstrlen wcslen
 #else
-libc_hidden_proto(strdup)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strdup) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 # define Wstrdup strdup
 # define Wstrlen strlen
 #endif
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 Wchar *Wstrdup(register const Wchar *s1)
 {

@@ -59,7 +59,7 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 #include <arpa/inet.h>
 #define MAX_BROADCAST_SIZE 1400
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(ioctl)
 libc_hidden_proto(perror)
 libc_hidden_proto(socket)

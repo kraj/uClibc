@@ -19,7 +19,7 @@
 #include <string.h>
 #include "memcopy.h"
 
-libc_hidden_proto(strncmp)
+/* Experimentally off - libc_hidden_proto(strncmp) */
 /* Compare no more than N characters of S1 and S2,
    returning less than, equal to or greater than zero
    if S1 is lexicographically less than, equal to or

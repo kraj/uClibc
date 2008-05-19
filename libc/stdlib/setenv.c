@@ -25,11 +25,11 @@
 #include <string.h>
 #include <unistd.h>
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncmp)
-libc_hidden_proto(strndup)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strncmp) */
+/* Experimentally off - libc_hidden_proto(strndup) */
 libc_hidden_proto(unsetenv)
 
 #include <bits/uClibc_mutex.h>

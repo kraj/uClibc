@@ -27,9 +27,9 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 
-libc_hidden_proto(memset)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strsep)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strsep) */
 libc_hidden_proto(setmntent)
 libc_hidden_proto(getmntent_r)
 libc_hidden_proto(endmntent)

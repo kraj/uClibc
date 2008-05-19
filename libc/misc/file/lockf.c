@@ -26,7 +26,7 @@
 
 libc_hidden_proto(lockf)
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(fcntl)
 libc_hidden_proto(getpid)
 

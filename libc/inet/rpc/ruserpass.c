@@ -44,13 +44,13 @@
 #include <strings.h>
 #include <unistd.h>
 
-libc_hidden_proto(strcat)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strcasecmp)
-libc_hidden_proto(strncasecmp)
+/* Experimentally off - libc_hidden_proto(strcat) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strcasecmp) */
+/* Experimentally off - libc_hidden_proto(strncasecmp) */
 libc_hidden_proto(getenv)
 libc_hidden_proto(printf)
 libc_hidden_proto(fstat)

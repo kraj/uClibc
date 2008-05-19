@@ -21,7 +21,7 @@
 #include <string.h>
 #include "memcopy.h"
 
-libc_hidden_proto(memcmp)
+/* Experimentally off - libc_hidden_proto(memcmp) */
 
 #include <endian.h>
 

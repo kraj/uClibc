@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(abort)
 
 /* Return the length of the null-terminated string STR.  Scan for

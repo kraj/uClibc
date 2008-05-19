@@ -33,17 +33,17 @@
 
 libc_hidden_proto(closedir)
 libc_hidden_proto(fnmatch)
-libc_hidden_proto(memcpy)
-libc_hidden_proto(mempcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(mempcpy) */
 libc_hidden_proto(opendir)
 libc_hidden_proto(qsort)
 libc_hidden_proto(readdir)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcoll)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strdup)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strrchr)
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcoll) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strdup) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strrchr) */
 
 
 #ifdef ENABLE_GLOB_TILDE_EXPANSION

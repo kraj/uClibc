@@ -25,7 +25,7 @@
 
 libc_hidden_proto(getpid)
 libc_hidden_proto(getuid)
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 
 #ifdef __NR_rt_sigqueueinfo
 

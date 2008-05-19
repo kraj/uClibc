@@ -29,7 +29,7 @@ Cambridge, MA 02139, USA.  */
 
 libc_hidden_proto(abort)
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(sigaction)
 libc_hidden_proto(sigprocmask)
 libc_hidden_proto(raise)

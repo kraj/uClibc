@@ -168,19 +168,19 @@
 
 __UCLIBC_MUTEX_EXTERN(__resolv_lock);
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memset)
-libc_hidden_proto(memmove)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strdup)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncat)
-libc_hidden_proto(strncpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(memmove) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strdup) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strncat) */
+/* Experimentally off - libc_hidden_proto(strncpy) */
 /* libc_hidden_proto(strnlen) */
-libc_hidden_proto(strstr)
-libc_hidden_proto(strcasecmp)
+/* Experimentally off - libc_hidden_proto(strstr) */
+/* Experimentally off - libc_hidden_proto(strcasecmp) */
 libc_hidden_proto(socket)
 libc_hidden_proto(close)
 libc_hidden_proto(fopen)

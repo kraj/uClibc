@@ -37,10 +37,10 @@
 #endif
 #include <bits/uClibc_mutex.h>
 
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(strtoul)
 libc_hidden_proto(rewind)
 libc_hidden_proto(fgets_unlocked)

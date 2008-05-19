@@ -161,12 +161,12 @@ libc_hidden_proto(ctime)
 libc_hidden_proto(localtime)
 libc_hidden_proto(localtime_r)
 
-libc_hidden_proto(memset)
-libc_hidden_proto(memcpy)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncpy)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strncpy) */
 /* libc_hidden_proto(sprintf) */
 libc_hidden_proto(open)
 libc_hidden_proto(read)
@@ -174,13 +174,13 @@ libc_hidden_proto(close)
 libc_hidden_proto(getenv)
 libc_hidden_proto(tzset)
 libc_hidden_proto(gettimeofday)
-libc_hidden_proto(strncasecmp)
+/* Experimentally off - libc_hidden_proto(strncasecmp) */
 libc_hidden_proto(strtol)
 libc_hidden_proto(strtoul)
 libc_hidden_proto(nl_langinfo)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(strncasecmp_l)
+/* Experimentally off - libc_hidden_proto(strncasecmp_l) */
 libc_hidden_proto(strtol_l)
 libc_hidden_proto(strtoul_l)
 libc_hidden_proto(nl_langinfo_l)
@@ -619,7 +619,7 @@ libc_hidden_def(localtime_r)
 
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 
-libc_hidden_proto(strnlen)
+/* Experimentally off - libc_hidden_proto(strnlen) */
 
 struct ll_tzname_item;
 

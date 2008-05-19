@@ -20,7 +20,7 @@
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(lseek64)
 
 # ifndef offsetof

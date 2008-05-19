@@ -66,7 +66,7 @@
 
 void *memcpy(void *, const void *, unsigned int);
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 void *memcpy(void *pdst,
              const void *psrc,
              unsigned int pn)

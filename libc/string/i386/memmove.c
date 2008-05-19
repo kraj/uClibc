@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(memmove)
+/* Experimentally off - libc_hidden_proto(memmove) */
 void *memmove(void *dest, const void *src, size_t n)
 {
     int d0, d1, d2;

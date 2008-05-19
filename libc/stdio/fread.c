@@ -11,7 +11,7 @@ libc_hidden_proto(fread_unlocked)
 
 #ifdef __DO_UNLOCKED
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(fflush_unlocked)
 
 size_t fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,

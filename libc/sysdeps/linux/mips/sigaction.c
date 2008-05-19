@@ -31,7 +31,7 @@ extern __typeof(sigaction) __libc_sigaction;
 
 #ifdef __NR_rt_sigaction
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 #if _MIPS_SIM != _ABIO32
 

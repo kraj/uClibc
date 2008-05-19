@@ -41,7 +41,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes) attribute_hidden;
 
 #if ! defined __UCLIBC_HAS_LFS__ || ! defined __NR_getdents64
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(lseek)
 
 #define __NR___syscall_getdents __NR_getdents
@@ -108,7 +108,7 @@ attribute_hidden strong_alias(__getdents,__getdents64)
 
 #elif __WORDSIZE == 32
 
-libc_hidden_proto(memmove)
+/* Experimentally off - libc_hidden_proto(memmove) */
 
 extern __typeof(__getdents) __getdents64 attribute_hidden;
 ssize_t __getdents (int fd, char *buf, size_t nbytes)

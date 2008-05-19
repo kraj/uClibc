@@ -9,7 +9,7 @@
 
 #ifdef __UCLIBC_SUSV3_LEGACY__
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 
 void bzero(void *s, size_t n)
 {

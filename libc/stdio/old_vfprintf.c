@@ -145,9 +145,9 @@
 #include <pthread.h>
 #endif /* __UCLIBC_HAS_THREADS__ */
 
-libc_hidden_proto(strlen)
-libc_hidden_proto(strnlen)
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strnlen) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(putc_unlocked)
 libc_hidden_proto(__fputc_unlocked)
 libc_hidden_proto(__glibc_strerror_r)

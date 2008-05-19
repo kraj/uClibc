@@ -39,9 +39,9 @@
 #include <pthread.h>
 #endif
 
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strncmp)
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strncmp) */
 libc_hidden_proto(__fsetlocking)
 libc_hidden_proto(rewind)
 libc_hidden_proto(fgets_unlocked)

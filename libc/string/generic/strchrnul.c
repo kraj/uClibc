@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #ifdef __USE_GNU
-libc_hidden_proto(strchrnul)
+/* Experimentally off - libc_hidden_proto(strchrnul) */
 libc_hidden_proto(abort)
 
 #include "memcopy.h"

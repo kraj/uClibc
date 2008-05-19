@@ -17,7 +17,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 /*libc_hidden_proto(memset)*/
 libc_hidden_proto(mmap)
 libc_hidden_proto(munmap)

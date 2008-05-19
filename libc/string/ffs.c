@@ -10,7 +10,7 @@
 #include "_string.h"
 #include <strings.h>
 
-libc_hidden_proto(ffs)
+/* Experimentally off - libc_hidden_proto(ffs) */
 
 int ffs(int i)
 {

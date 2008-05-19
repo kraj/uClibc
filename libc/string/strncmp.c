@@ -10,7 +10,7 @@
 #ifdef WANT_WIDE
 # define Wstrncmp wcsncmp
 #else
-libc_hidden_proto(strncmp)
+/* Experimentally off - libc_hidden_proto(strncmp) */
 # define Wstrncmp strncmp
 #endif
 

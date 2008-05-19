@@ -18,10 +18,10 @@
 libc_hidden_proto(getcwd)
 libc_hidden_proto(getpagesize)
 
-libc_hidden_proto(strcat)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strncpy)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strcat) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strncpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(opendir)
 libc_hidden_proto(readdir)
 libc_hidden_proto(closedir)

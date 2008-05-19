@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(strspn)
+/* Experimentally off - libc_hidden_proto(strspn) */
 /* Return the length of the maximum initial segment
    of S which contains only characters in ACCEPT.  */
 size_t strspn (const char *s, const char *accept)

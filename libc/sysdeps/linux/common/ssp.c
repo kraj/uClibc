@@ -31,8 +31,8 @@
 #include <signal.h>
 #include <sys/syslog.h>
 
-libc_hidden_proto(memset)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(sigaction)
 libc_hidden_proto(sigfillset)
 libc_hidden_proto(sigdelset)

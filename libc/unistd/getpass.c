@@ -24,7 +24,7 @@
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(tcsetattr)
 libc_hidden_proto(tcgetattr)
 libc_hidden_proto(setvbuf)

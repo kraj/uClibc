@@ -15,8 +15,8 @@
 #include <sys/file.h>
 
 #if 0
-libc_hidden_proto(memset)
-libc_hidden_proto(strncpy)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strncpy) */
 libc_hidden_proto(updwtmp)
 #endif
 libc_hidden_proto(open)

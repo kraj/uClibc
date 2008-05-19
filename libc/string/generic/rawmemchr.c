@@ -26,7 +26,7 @@
 #include <limits.h>
 
 #ifdef __USE_GNU
-libc_hidden_proto(rawmemchr)
+/* Experimentally off - libc_hidden_proto(rawmemchr) */
 libc_hidden_proto(abort)
 
 #include "memcopy.h"

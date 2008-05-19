@@ -35,15 +35,15 @@
 #include <glob.h>
 #include <wordexp.h>
 
-libc_hidden_proto(mempcpy)
-libc_hidden_proto(stpcpy)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strdup)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strndup)
-libc_hidden_proto(strspn)
-libc_hidden_proto(strcspn)
+/* Experimentally off - libc_hidden_proto(mempcpy) */
+/* Experimentally off - libc_hidden_proto(stpcpy) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strdup) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strndup) */
+/* Experimentally off - libc_hidden_proto(strspn) */
+/* Experimentally off - libc_hidden_proto(strcspn) */
 libc_hidden_proto(setenv)
 libc_hidden_proto(unsetenv)
 libc_hidden_proto(waitpid)

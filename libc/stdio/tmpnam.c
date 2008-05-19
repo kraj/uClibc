@@ -20,7 +20,7 @@
 #include <string.h>
 #include "../misc/internals/tempname.h"
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 static char tmpnam_buffer[L_tmpnam];
 

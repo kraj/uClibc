@@ -19,15 +19,15 @@
 
 #include <string.h>
 
-libc_hidden_proto(strtok_r)
-libc_hidden_proto(strspn)
-libc_hidden_proto(strpbrk)
+/* Experimentally off - libc_hidden_proto(strtok_r) */
+/* Experimentally off - libc_hidden_proto(strspn) */
+/* Experimentally off - libc_hidden_proto(strpbrk) */
 #ifdef __USE_GNU
 # define __rawmemchr rawmemchr
-libc_hidden_proto(rawmemchr)
+/* Experimentally off - libc_hidden_proto(rawmemchr) */
 #else
 # define __rawmemchr strchr
-libc_hidden_proto(strchr)
+/* Experimentally off - libc_hidden_proto(strchr) */
 #endif
 
 /* Parse S into tokens separated by characters in DELIM.

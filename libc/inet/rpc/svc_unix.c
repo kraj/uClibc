@@ -55,9 +55,9 @@
 # include <wchar.h>
 #endif
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memset)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(socket)
 libc_hidden_proto(close)
 libc_hidden_proto(perror)

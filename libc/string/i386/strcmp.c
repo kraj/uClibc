@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(strcmp)
+/* Experimentally off - libc_hidden_proto(strcmp) */
 int strcmp(const char *cs, const char *ct)
 {
     int d0, d1;
@@ -55,7 +55,7 @@ int strcmp(const char *cs, const char *ct)
 libc_hidden_def(strcmp)
 
 #ifndef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(strcoll)
+/* Experimentally off - libc_hidden_proto(strcoll) */
 strong_alias(strcmp,strcoll)
 libc_hidden_def(strcoll)
 #endif

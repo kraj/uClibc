@@ -15,7 +15,7 @@
 #include <string.h>
 #include <errno.h>
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 #include "malloc.h"
 #include "heap.h"

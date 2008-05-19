@@ -12,8 +12,8 @@
 #include <sys/utsname.h>
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strcpy)
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
 libc_hidden_proto(uname)
 
 libc_hidden_proto(getdomainname)

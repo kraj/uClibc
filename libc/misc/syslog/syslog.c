@@ -84,12 +84,12 @@ libc_hidden_proto(syslog)
 libc_hidden_proto(vsyslog)
 libc_hidden_proto(closelog)
 
-libc_hidden_proto(memset)
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memmove)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncpy)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memmove) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strncpy) */
 libc_hidden_proto(open)
 libc_hidden_proto(fcntl)
 libc_hidden_proto(socket)

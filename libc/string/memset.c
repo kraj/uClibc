@@ -10,7 +10,7 @@
 #ifdef WANT_WIDE
 # define Wmemset wmemset
 #else
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 # define Wmemset memset
 #endif
 

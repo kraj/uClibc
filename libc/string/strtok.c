@@ -15,10 +15,11 @@
 # define Wstrtok_r strtok_r
 #endif
 
-libc_hidden_proto(Wstrtok_r)
+/* Experimentally off - libc_hidden_proto(Wstrtok_r) */
 
 Wchar *Wstrtok(Wchar * __restrict s1, const Wchar * __restrict s2)
 {
 	static Wchar *next_start;	/* Initialized to 0 since in bss. */
 	return Wstrtok_r(s1, s2, &next_start);
 }
+libc_hidden_def(Wstrtok)

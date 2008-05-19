@@ -156,7 +156,7 @@ libc_hidden_def(inet_ntoa)
 #ifdef L_inet_makeaddr
 
 /* for some reason it does not remove the jump relocation */
-libc_hidden_proto(memmove)
+/* Experimentally off - libc_hidden_proto(memmove) */
 
 /*
  * Formulate an Internet address from network + host.  Used in

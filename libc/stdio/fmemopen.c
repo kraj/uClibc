@@ -10,7 +10,7 @@
 #ifdef __USE_GNU
 #include "_stdio.h"
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(fopencookie)
 
 #ifndef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__

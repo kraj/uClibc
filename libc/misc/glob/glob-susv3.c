@@ -23,12 +23,12 @@
 #include <unistd.h>
 #include <stdio.h>
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(strcat)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(strcat) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(opendir)
 libc_hidden_proto(closedir)
 libc_hidden_proto(qsort)

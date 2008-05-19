@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(memmove)
+/* Experimentally off - libc_hidden_proto(memmove) */
 
 /* Copy memory like memmove, but no return value required.  Can't
    alias to memmove because it's not defined in the same translation
