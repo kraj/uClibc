@@ -482,8 +482,7 @@ static int glob_in_dir (const char *pattern, const char *directory, int flags,
   }
   while (names != NULL)
     {
-      if (names->name != NULL)
-	free (names->name);
+      free (names->name);
       names = names->next;
     }
   return GLOB_NOSPACE;

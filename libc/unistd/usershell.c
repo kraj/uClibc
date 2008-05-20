@@ -80,13 +80,9 @@ char * getusershell(void)
 
 static void __free_initshell_memory(void)
 {
-    if (shells != NULL) {
-	free(shells);
-    }
+    free(shells);
     shells = NULL;
-    if (strings != NULL) {
-	free(strings);
-    }
+    free(strings);
     strings = NULL;
 }
 
@@ -98,7 +94,6 @@ void endusershell(void)
 
 void setusershell(void)
 {
-
     curshell = initshells();
 }
 

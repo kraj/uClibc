@@ -93,10 +93,8 @@ void endrpcent(void)
 		return;
 	if (d->stayopen)
 		return;
-	if (d->current) {
-		free(d->current);
-		d->current = NULL;
-	}
+	free(d->current);
+	d->current = NULL;
 	if (d->rpcf) {
 		fclose(d->rpcf);
 		d->rpcf = NULL;
@@ -115,8 +113,7 @@ void setrpcent(int f)
 		d->rpcf = fopen(RPCDB, "r");
 	else
 		rewind(d->rpcf);
-	if (d->current)
-		free(d->current);
+	free(d->current);
 	d->current = NULL;
 	d->stayopen |= f;
 }

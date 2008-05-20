@@ -53,8 +53,7 @@ ret_error:
 			}
 		}
 
-		if (kernel_groups)
-			free(kernel_groups);
+		free(kernel_groups);
 		return ngids;
 	}
 }

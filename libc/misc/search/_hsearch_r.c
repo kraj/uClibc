@@ -110,9 +110,8 @@ void hdestroy_r (struct hsearch_data *htab)
       return;
     }
 
-  if (htab->table != NULL)
-    /* free used memory */
-    free (htab->table);
+  /* free used memory */
+  free (htab->table);
 
   /* the sign for an existing table is an value != NULL in htable */
   htab->table = NULL;

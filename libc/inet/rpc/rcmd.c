@@ -197,9 +197,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 #ifdef __ARCH_USE_MMU__
 		tmphstbuf = alloca (hstbuflen);
 #else
-		if (tmphstbuf) {
-		    free(tmphstbuf);
-		}
+		free(tmphstbuf);
 		tmphstbuf = malloc (hstbuflen);
 #endif
 	    }
@@ -411,9 +409,7 @@ int ruserok(rhost, superuser, ruser, luser)
 #ifdef __ARCH_USE_MMU__
 		buffer = alloca (buflen);
 #else
-		if (buffer) {
-		    free(buffer);
-		}
+		free(buffer);
 		buffer = malloc (buflen);
 #endif
 	    }
@@ -780,8 +776,7 @@ __ivaliduser2(hostf, raddr, luser, ruser, rhost)
 	}
     }
 
-    if (buf != NULL)
-      free (buf);
+    free (buf);
 
     return retval;
 }

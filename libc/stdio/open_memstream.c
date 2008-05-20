@@ -160,9 +160,7 @@ FILE *open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
 		}
 	}
 
-	if (cookie->buf != NULL) {
-		free(cookie->buf);
-	}
+	free(cookie->buf);
  EXIT_cookie:
 	free(cookie);
 

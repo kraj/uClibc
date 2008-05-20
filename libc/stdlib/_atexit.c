@@ -298,8 +298,7 @@ void __exit_handler(int status)
 	}
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
 	/* Free up memory used by the __exit_function_table structure */
-	if (__exit_function_table)
-	    free(__exit_function_table);
+	free(__exit_function_table);
 #endif
 }
 #endif
