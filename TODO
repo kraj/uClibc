@@ -143,6 +143,7 @@ Manuel's todo:
   d) Implement glibc 'a' flag for scanf string conversions.
   e) Allow use of the older non-table-based ctype functions when using
      stub locale support. (smaller)
+  f) __drand48_iterate should be void
 
   2) Additional str{f|p}time issues.
   ----------------------------------
