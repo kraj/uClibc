@@ -73,8 +73,8 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
   return ret;
 }
 
-#if __ASSUME_LDT_WORKS > 0
-#include "../useldt.h"
+#if defined(__ASSUME_LDT_WORKS) && __ASSUME_LDT_WORKS > 0
+#include "useldt.h"
 #endif
 
 /* The P4 and above really want some help to prevent overheating.  */
@@ -120,22 +120,6 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
 			: "memory");
   return ret;
 }
-
-#if 00
-static __always_inline int
-get_eflags (void)
-{
-  int res;
-  __asm__ __volatile__ ("pushfl; popl %0" : "=r" (res) : );
-  return res;
-}
-
-static __always_inline void
-set_eflags (int newflags)
-{
-  __asm__ __volatile__ ("pushl %0; popfl" : : "r" (newflags) : "cc");
-}
-#endif
 
 PT_EI int
 compare_and_swap_is_available (void)
