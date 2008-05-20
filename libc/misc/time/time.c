@@ -1879,7 +1879,7 @@ void _time_tzset(int use_old_rules)
 {
 	register const char *e;
 	register char *s;
-	long off;
+	long off = 0;
 	short *p;
 	rule_struct new_rules[2];
 	int n, count, f;
