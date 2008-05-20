@@ -32,8 +32,9 @@ will not warn:
     //libc_hidden_proto(foo)
 but adding after will! Which is extremely strange -
 weak_extern expands into just "#pragma weak __pthread_initialize".
-TODO: determine whether it is a gcc bug or what...
-for now, just include all headers before internals.h
+TODO: determine whether it is a gcc bug or what
+(see gcc.gnu.org/bugzilla/show_bug.cgi?id=36282).
+For now, just include all headers before internals.h
 (they are again included in internals.h - maybe remove them there later)
 */
 #include <string.h>
