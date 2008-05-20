@@ -162,10 +162,6 @@ int opterr = 1;
 
 int optopt = '?';
 
-/* Keep a global copy of all internal members of getopt_data.  */
-
-static struct _getopt_data getopt_data;
-
 
 #ifndef __GNU_LIBRARY__
 
@@ -1158,7 +1154,9 @@ _getopt_internal (int argc, char *const *argv, const char *optstring,
 		  const struct option *longopts, int *longind, int long_only)
 {
   int result;
+  struct _getopt_data getopt_data;
 
+  memset(&getopt_data, 0, sizeof(getopt_data));
   getopt_data.optind = optind;
   getopt_data.opterr = opterr;
 
