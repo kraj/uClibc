@@ -132,7 +132,7 @@ extern struct lconv *localeconv (void) __THROW;
 __END_NAMESPACE_STD
 
 
-#if defined(__USE_GNU)
+#if defined(__USE_GNU) && defined(__UCLIBC_HAS_LOCALE__)
 /* The concept of one static locale per category is not very well
    thought out.  Many applications will need to process its data using
    information from several different locales.  Another application is
