@@ -21,8 +21,7 @@
 
 libc_hidden_proto(gettimeofday)
 
-int ftime(timebuf)
-struct timeb *timebuf;
+int ftime(struct timeb *timebuf)
 {
 	struct timeval tv;
 	struct timezone tz;

@@ -29,12 +29,8 @@ static const CHAR *END (const CHAR *patternp) internal_function;
 
 static int
 internal_function
-FCT (pattern, string, string_end, no_leading_period, flags)
-     const CHAR *pattern;
-     const CHAR *string;
-     const CHAR *string_end;
-     int no_leading_period;
-     int flags;
+FCT (const CHAR *pattern, const CHAR *string, const CHAR *string_end,
+     int no_leading_period, int flags)
 {
   register const CHAR *p = pattern, *n = string;
   register UCHAR c;

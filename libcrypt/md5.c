@@ -275,13 +275,9 @@ static void __md5_Final ( unsigned char digest[16], struct MD5Context *context)
 
 /* MD5 basic transformation. Transforms state based on block. */
 
-static void
-__md5_Transform (state, block)
-	u_int32_t state[4];
-	const unsigned char block[64];
+static void __md5_Transform (u_int32_t state[4], const unsigned char block[64])
 {
 	u_int32_t a, b, c, d, x[16];
-
 #if MD5_SIZE_OVER_SPEED > 1
 	u_int32_t temp;
 	const char *ps;

@@ -32,9 +32,7 @@ static const char conv_table[64] =
   's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
 };
 
-char *
-l64a (n)
-     long int n;
+char * l64a (long int n)
 {
   unsigned long int m = (unsigned long int) n;
   static char result[7];

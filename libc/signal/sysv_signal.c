@@ -35,10 +35,7 @@ libc_hidden_proto(sigaction)
 
 /* Set the handler for the signal SIG to HANDLER,
    returning the old handler, or SIG_ERR on error.  */
-__sighandler_t
-__sysv_signal (sig, handler)
-     int sig;
-     __sighandler_t handler;
+__sighandler_t __sysv_signal (int sig, __sighandler_t handler)
 {
   struct sigaction act, oact;
 

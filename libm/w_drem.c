@@ -9,9 +9,7 @@
 
 libm_hidden_proto(remainder)
 
-double
-drem(x, y)
-	double x, y;
+double drem(double x, double y)
 {
 	return remainder(x, y);
 }

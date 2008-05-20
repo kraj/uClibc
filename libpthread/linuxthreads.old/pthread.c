@@ -685,7 +685,7 @@ libpthread_hidden_def (pthread_equal)
 
 #ifndef THREAD_SELF
 
-pthread_descr __pthread_find_self()
+pthread_descr __pthread_find_self(void)
 {
   char * sp = CURRENT_STACK_FRAME;
   pthread_handle h;
@@ -890,7 +890,7 @@ static void pthread_handle_sigdebug(int sig attribute_unused)
    Notice that we can't free the stack segments, as the forked thread
    may hold pointers into them. */
 
-void __pthread_reset_main_thread()
+void __pthread_reset_main_thread(void)
 {
   pthread_descr self = thread_self();
 

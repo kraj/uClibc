@@ -24,9 +24,7 @@
 
 /* Clear all signals from SET.  */
 libc_hidden_proto(sigemptyset)
-int
-sigemptyset (set)
-     sigset_t *set;
+int sigemptyset (sigset_t *set)
 {
   if (set == NULL)
     {

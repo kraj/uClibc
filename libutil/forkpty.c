@@ -27,11 +27,7 @@ libutil_hidden_proto(openpty)
 libutil_hidden_proto(login_tty)
 
 int
-forkpty (amaster, name, termp, winp)
-     int *amaster;
-     char *name;
-     struct termios *termp;
-     struct winsize *winp;
+forkpty (int *amaster, char *name, struct termios *termp, struct winsize *winp)
 {
   int master, slave, pid;
 

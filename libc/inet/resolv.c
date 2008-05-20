@@ -1054,7 +1054,7 @@ __UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
  *	unix systems, we can have a list of nameservers after the keyword.
  */
 
-void attribute_hidden __open_nameservers()
+void attribute_hidden __open_nameservers(void)
 {
 	FILE *fp;
 	int i;
@@ -1303,11 +1303,8 @@ libc_hidden_def(res_query)
 #define __GOT_NODATA	(1<<1)
 #define __GOT_SERVFAIL	(1<<2)
 #define __TRIED_AS_IS	(1<<3)
-int res_search(name, class, type, answer, anslen)
-	 const char *name;	/* domain name */
-	 int class, type;	/* class and type of query */
-	 u_char *answer;		/* buffer to put answer */
-	 int anslen;		/* size of answer */
+int res_search(const char *name, int class, int type, u_char *answer,
+		int anslen)
 {
 	const char *cp, * const *domain;
 	HEADER *hp = (HEADER *)(void *)answer;
@@ -1457,11 +1454,8 @@ int res_search(name, class, type, answer, anslen)
  * Perform a call on res_query on the concatenation of name and domain,
  * removing a trailing dot from name if domain is NULL.
  */
-int res_querydomain(name, domain, class, type, answer, anslen)
-	 const char *name, *domain;
-	 int class, type;	/* class and type of query */
-	 u_char *answer;		/* buffer to put answer */
-	 int anslen;		/* size of answer */
+int res_querydomain(const char *name, const char *domain, int class, int type,
+			u_char * answer, int anslen)
 {
 	char nbuf[MAXDNAME];
 	const char *longname = nbuf;

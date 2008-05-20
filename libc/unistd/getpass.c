@@ -49,9 +49,7 @@ libc_hidden_proto(__uc_malloc)
 #endif
 #define PWD_BUFFER_SIZE 256
 
-char *
-getpass (prompt)
-     const char *prompt;
+char * getpass (const char *prompt)
 {
   static char *buf;
 

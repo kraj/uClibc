@@ -28,8 +28,7 @@ libc_hidden_proto(tcgetpgrp)
 
 /* Return the session ID of FD.  */
 pid_t
-tcgetsid (fd)
-     int fd;
+tcgetsid (int fd)
 {
   pid_t pgrp;
   pid_t sid;
