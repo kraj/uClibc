@@ -798,7 +798,7 @@ PREFIX(extract_number_and_incr) (destination, source)
 /* It is useful to test things that ``must'' be true when debugging.  */
 #   include <assert.h>
 
-static int debug;
+static smallint debug;
 
 #   define DEBUG_STATEMENT(e) e
 #   define DEBUG_PRINT1(x) if (debug) printf (x)

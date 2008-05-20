@@ -17,3 +17,11 @@
    02111-1307 USA.  */
 
 #define __WORDSIZE	32
+
+#ifdef UCLIBC_INTERNAL
+#ifndef smallint
+typedef signed char smallint;
+typedef unsigned char smalluint;
+#define smallint smallint
+#endif
+#endif

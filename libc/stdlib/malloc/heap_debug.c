@@ -49,7 +49,7 @@ __heap_dump_freelist (struct heap *heap)
 void
 __heap_dump (struct heap *heap, const char *str)
 {
-  static int recursed = 0;
+  static smallint recursed;
 
   if (! recursed)
     {

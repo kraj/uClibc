@@ -22,7 +22,6 @@
 #include <link.h>
 #include <bits/uClibc_page.h>
 #include <paths.h>
-#include <unistd.h>
 #include <asm/errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -183,7 +182,7 @@ extern void __uClibc_init(void);
 libc_hidden_proto(__uClibc_init)
 void __uClibc_init(void)
 {
-    static int been_there_done_that = 0;
+    static smallint been_there_done_that;
 
     if (been_there_done_that)
 	return;

@@ -25,7 +25,7 @@ static void dummy_init(void) __attribute__((section(".trash")));
 void
 dummy_init(void)
 {
-	static int initialized = 0;
+	static smallint initialized;
 	static void (*volatile call__ctors)(void) = __do_global_ctors_aux;
 	/*
 	 * Call global constructors.

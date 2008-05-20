@@ -1107,4 +1107,14 @@ extern char *ctermid (char *__s) __THROW;
 
 __END_DECLS
 
+
+#ifdef UCLIBC_INTERNAL
+#ifndef smallint /* if arch didn't override it in bits/wordsize.h */
+typedef int smallint;
+typedef unsigned smalluint;
+#define smallint smallint
+#endif
+#endif
+
+
 #endif /* unistd.h  */

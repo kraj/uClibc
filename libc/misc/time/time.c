@@ -1825,7 +1825,7 @@ static const char *getnumber(register const char *e, int *pn)
 #ifdef __UCLIBC_HAS_TZ_FILE__
 
 #ifndef __UCLIBC_HAS_TZ_FILE_READ_MANY__
-static int TZ_file_read;		/* Let BSS initialization set this to 0. */
+static smallint TZ_file_read;		/* Let BSS initialization set this to 0. */
 #endif /* __UCLIBC_HAS_TZ_FILE_READ_MANY__ */
 
 static char *read_TZ_file(char *buf)
@@ -1853,7 +1853,7 @@ static char *read_TZ_file(char *buf)
 			p[-1] = 0;
 			p = buf;
 #ifndef __UCLIBC_HAS_TZ_FILE_READ_MANY__
-			++TZ_file_read;
+			TZ_file_read = 1;
 #endif /* __UCLIBC_HAS_TZ_FILE_READ_MANY__ */
 		} else {
 ERROR:
@@ -1901,7 +1901,7 @@ void _time_tzset(int use_old_rules)
 
 	if (e != NULL) {
 		TZ_file_read = 0;		/* Reset if the TZ env var is set. */
-	} else if (TZ_file_read > 0) {
+	} else if (TZ_file_read) {
 		goto FAST_DONE;
 	}
 #endif /* defined(__UCLIBC_HAS_TZ_FILE__) && !defined(__UCLIBC_HAS_TZ_FILE_READ_MANY__) */

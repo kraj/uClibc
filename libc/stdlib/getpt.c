@@ -50,7 +50,7 @@ int
 getpt (void)
 {
 #if !defined __UNIX98PTY_ONLY__
-  static int have_no_dev_ptmx;
+  static smallint have_no_dev_ptmx;
 #endif
   int fd;
 
@@ -65,7 +65,7 @@ getpt (void)
 	  return fd;
 #else
 	  struct statfs fsbuf;
-	  static int devpts_mounted;
+	  static smallint devpts_mounted;
 
 	  /* Check that the /dev/pts filesystem is mounted
 	     or if /dev is a devfs filesystem (this implies /dev/pts).  */

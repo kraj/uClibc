@@ -46,7 +46,7 @@ libc_hidden_proto(_exit)
 #ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__
 extern void weak_function _stdio_term(void) attribute_hidden;
 #endif
-static int been_there_done_that = 0;
+static smallint been_there_done_that = 0;
 
 /* Be prepared in case multiple threads try to abort() */
 #include <bits/uClibc_mutex.h>

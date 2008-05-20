@@ -33,7 +33,7 @@ tcgetsid (int fd)
   pid_t pgrp;
   pid_t sid;
 #ifdef TIOCGSID
-  static int tiocgsid_does_not_work;
+  static smallint tiocgsid_does_not_work;
 
   if (! tiocgsid_does_not_work)
     {

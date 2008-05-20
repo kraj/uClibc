@@ -211,7 +211,7 @@ extern int errno;
 # endif
 
 /* Global variable.  */
-static int posixly_correct;
+static smallint posixly_correct;
 
 /* This function doesn't exist on most systems.  */
 
