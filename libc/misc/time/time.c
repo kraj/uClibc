@@ -208,7 +208,7 @@ void _time_tzset(int use_old_rules) attribute_hidden;
 
  /* Jan 1, 2007 Z - tm = 0,0,0,1,0,107,1,0,0 */
 
-const static time_t new_rule_starts = 1167609600;
+static const time_t new_rule_starts = 1167609600;
 
 #endif
 #endif
