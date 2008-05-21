@@ -24,6 +24,11 @@ ifneq ($(UCLIBC_HAS_SSP),y)
 CSRC := $(filter-out ssp.c,$(CSRC))
 endif
 
+ifneq ($(UCLIBC_LINUX_MODULE_24),y)
+CSRC := $(filter-out create_module.c delete_module.c init_module.c \
+		query_module.c,$(CSRC))
+endif
+
 # fails for some reason
 ifneq ($(strip $(ARCH_OBJS)),)
 CSRC := $(filter-out $(notdir $(ARCH_OBJS:.o=.c)),$(CSRC))

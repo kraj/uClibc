@@ -649,6 +649,15 @@ config UCLIBC_GRP_BUFFER_SIZE
 	  The value can be found using sysconf() with the _SC_GETGR_R_SIZE_MAX
 	  parameter.
 
+config UCLIBC_LINUX_MODULE_24
+	bool "linux <= 2.4 kernel module functions"
+	default n
+	help
+	  init_module, create_module, query_module, delete_module
+	  are used in linux prior to 2.6 for loadable kernel modules.
+
+	  Say N unless you are using an old kernel and require module support.
+
 endmenu
 
 menu "Networking Support"
