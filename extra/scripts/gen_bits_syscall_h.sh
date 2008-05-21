@@ -8,9 +8,10 @@
 
 # June 27, 2001         Manuel Novoa III
 #
-# This script expects top_builddir and CC (as used in the Makefiles) to be set in
-# the environment, and outputs the appropriate $top_builddir/include/bits/sysnum.h
-# corresponding to $top_builddir/include/asm/unistd.h to stdout.
+# This script expects top_builddir and CC (as used in the Makefiles) to be set
+# in the environment, and outputs the appropriate
+# $top_builddir/include/bits/sysnum.h # corresponding to
+# $top_builddir/include/asm/unistd.h to stdout.
 #
 # Warning!!! This does _no_ error checking!!!
 
@@ -28,7 +29,8 @@ esac
       -e 's/^[ ]*#undef[ ]*__NR_\([A-Za-z0-9_]*\).*/UNDEFUCLIBC_\1 __NR_\1/gp' # needed to strip out any kernel-internal defines
 ) |
 $CC -E $INCLUDE_OPTS - |
-( echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" ; echo ;
+( echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" ;
+  echo ;
   echo "#ifndef _BITS_SYSNUM_H" ;
   echo "#define _BITS_SYSNUM_H" ;
   echo ;
