@@ -196,7 +196,7 @@ init_mq_netlink (void)
 
       if (err == 0)
 	{
-	  static int added_atfork;
+	  static smallint added_atfork;
 
 	  if (added_atfork == 0
 	      && pthread_atfork (NULL, NULL, reset_once) != 0)
