@@ -82,7 +82,9 @@ libc_hidden_proto(putc_unlocked)
 strong_alias(__fputc_unlocked,putc_unlocked)
 libc_hidden_def(putc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
+libc_hidden_proto(fputc)
 strong_alias(__fputc_unlocked,fputc)
+libc_hidden_def(fputc)
 
 libc_hidden_proto(putc)
 strong_alias(__fputc_unlocked,putc)
