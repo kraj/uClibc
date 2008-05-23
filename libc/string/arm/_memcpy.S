@@ -108,8 +108,7 @@ _memcpy:
 	cmp	r1, r0
 	bcc	.Lmemcpy_backwards
 
-	IT(tt, eq)
-	moveq	r0, #0			/* Quick abort for len=0 */
+	IT(tt, eq)			/* Quick abort for src=dst */
 #if defined(__USE_BX__)
         bxeq    lr
 #else
