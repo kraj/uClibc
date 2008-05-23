@@ -33,6 +33,7 @@
 #include <ldso.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 
 #ifdef SHARED
@@ -164,7 +165,7 @@ void *dlopen(const char *libname, int flag)
 	struct init_fini_list *tmp, *runp, *runp2, *dep_list;
 	unsigned int nlist, i;
 	struct elf_resolve **init_fini_list;
-	static smallint _dl_init;
+	static bool _dl_init;
 
 	/* A bit of sanity checking... */
 	if (!(flag & (RTLD_LAZY|RTLD_NOW))) {
@@ -175,7 +176,7 @@ void *dlopen(const char *libname, int flag)
 	from = (ElfW(Addr)) __builtin_return_address(0);
 
 	if (!_dl_init) {
-		_dl_init++;
+		_dl_init = true;
 		_dl_malloc_function = malloc;
 		_dl_free_function = free;
 	}
