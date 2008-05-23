@@ -598,7 +598,9 @@ else
 endif
 CFLAGS += -I$(KERNEL_HEADERS)
 
-CFLAGS += -iwithprefix include-fixed -iwithprefix include
+#CFLAGS += -iwithprefix include-fixed -iwithprefix include
+CC_IPREFIX:=$(shell $(CC) --print-file-name=include)
+CFLAGS += -I$(dir $(CC_IPREFIX))/include-fixed -I$(CC_IPREFIX)
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
