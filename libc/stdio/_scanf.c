@@ -1826,7 +1826,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 				if (psfs->store) {
 					++psfs->cnt;
 					_store_inttype(psfs->cur_ptr, psfs->dataargtype,
-								   (uintmax_t) NULL);
+								   (uintmax_t)0);
 				}
 				return 0;
 			}
