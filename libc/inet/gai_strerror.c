@@ -24,7 +24,7 @@
 
 #define N_(x) x
 #define _(x) x
-static struct
+static const struct
   {
     int code;
     const char *msg;

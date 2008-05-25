@@ -86,7 +86,7 @@ __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 static FILE *servf = NULL;
 static struct servent serv;
 static char *servbuf = NULL;
-static int serv_stayopen;
+static smallint serv_stayopen;
 
 static void __initbuf(void)
 {
@@ -103,7 +103,7 @@ void setservent(int f)
 	servf = fopen(_PATH_SERVICES, "r" );
     else
 	rewind(servf);
-    serv_stayopen |= f;
+    if (f) serv_stayopen = 1;
     __UCLIBC_MUTEX_UNLOCK(mylock);
 }
 libc_hidden_def(setservent)

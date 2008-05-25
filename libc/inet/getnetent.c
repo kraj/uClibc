@@ -39,7 +39,7 @@ static const char NETDB[] = _PATH_NETWORKS;
 
 static FILE *netf = NULL;
 
-int _net_stayopen attribute_hidden;
+smallint _net_stayopen attribute_hidden;
 
 libc_hidden_proto(setnetent)
 void setnetent(int f)
@@ -49,7 +49,7 @@ void setnetent(int f)
 	netf = fopen(NETDB, "r" );
     else
 	rewind(netf);
-    _net_stayopen |= f;
+    if (f) _net_stayopen = 1;
     __UCLIBC_MUTEX_UNLOCK(mylock);
     return;
 }
