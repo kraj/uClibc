@@ -132,16 +132,14 @@ size_t __pagesize = 0;
 static void __check_one_fd(int fd, int mode)
 {
     /* Check if the specified fd is already open */
-    if (unlikely(__libc_fcntl(fd, F_GETFD)==-1 && *(__errno_location())==EBADF))
+    if (__libc_fcntl(fd, F_GETFD) == -1)
     {
 	/* The descriptor is probably not open, so try to use /dev/null */
-	struct stat st;
 	int nullfd = __libc_open(_PATH_DEVNULL, mode);
 	/* /dev/null is major=1 minor=3.  Make absolutely certain
 	 * that is in fact the device that we have opened and not
 	 * some other wierd file... */
-	if ( (nullfd!=fd) || fstat(fd, &st) || !S_ISCHR(st.st_mode) ||
-		(st.st_rdev != makedev(1, 3)))
+	if (nullfd!=fd)
 	{
 		abort();
 	}
@@ -155,13 +153,13 @@ static int __check_suid(void)
 
     uid  = getuid();
     euid = geteuid();
+    if (uid != euid)
+	return 1;
     gid  = getgid();
     egid = getegid();
-
-    if(uid == euid && gid == egid) {
-	return 0;
-    }
-    return 1;
+    if (gid != egid)
+	return 1;
+    return 0; /* we are not suid */
 }
 #endif
 
