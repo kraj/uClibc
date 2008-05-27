@@ -61,6 +61,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <errno.h>
+#include <unistd.h>
 
 libc_hidden_proto(fopen)
 /* Experimentally off - libc_hidden_proto(strcmp) */

@@ -19,6 +19,7 @@
 #include <features.h>
 #include <netdb.h>
 #include <string.h>
+#include <unistd.h>
 
 /* Experimentally off - libc_hidden_proto(strcmp) */
 libc_hidden_proto(setnetent)

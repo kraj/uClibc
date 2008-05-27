@@ -18,6 +18,7 @@
 #define __FORCE_GLIBC
 #include <features.h>
 #include <netdb.h>
+#include <unistd.h>
 
 libc_hidden_proto(setnetent)
 libc_hidden_proto(getnetent)

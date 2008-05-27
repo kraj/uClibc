@@ -1061,7 +1061,6 @@ void attribute_hidden __open_nameservers(void)
 #define RESOLV_ARGS 5
 	char szBuffer[128], *p, *argv[RESOLV_ARGS];
 	int argc;
-	/* int rv = 0; */
 
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	if (__nameservers > 0)

@@ -22,6 +22,7 @@
 #include <malloc.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
