@@ -37,13 +37,6 @@ endif
 CFLAGS-ssp.c := $(SSP_DISABLE_FLAGS)
 CFLAGS-ssp-local.c := $(SSP_DISABLE_FLAGS)
 
-ifneq ($(findstring mremap.c,$(CSRC)),)
-# for -combine, make sure that we don't pollute our non-varargs mremap decl
-# with some vararg decl from later in the TU by putting ours after anybody
-# else who is picking up mman.h.
-# This is admittedly a small work-around..
-CSRC := $(filter-out mremap.c,$(CSRC)) mremap.c
-endif
 COMMON_SRC := $(patsubst %.c,$(COMMON_DIR)/%.c,$(CSRC))
 COMMON_OBJ := $(patsubst %.c,$(COMMON_OUT)/%.o,$(CSRC))
 
@@ -51,7 +44,10 @@ libc-y += $(COMMON_OBJ)
 libc-static-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp-local.o
 libc-nonshared-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp-local.os
 
-libc-nomulti-y += $(COMMON_OUT)/__syscall_rt_sigaction.o $(COMMON_OUT)/__syscall_sigaction.o
+libc-nomulti-y += $(COMMON_OUT)/__syscall_rt_sigaction.o \
+	$(COMMON_OUT)/__syscall_sigaction.o \
+	$(COMMON_OUT)/mremap.o \
+	$(COMMON_OUT)/stat.o
 libc-nomulti-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp.o
 
 objclean-y += common_objclean

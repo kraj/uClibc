@@ -106,6 +106,7 @@ STRING_COBJ := $(patsubst $(STRING_DIR)/%.c,$(STRING_OUT)/%.o,$(STRING_CSRC))
 libc-y += $(STRING_COBJ)
 
 libc-nomulti-$(UCLIBC_HAS_XLOCALE) += $(STRING_OUT)/wcsxfrm_l.o
+libc-nomulti-y += $(STRING_OUT)/__xpg_strerror_r.o
 
 objclean-y += string_objclean
 

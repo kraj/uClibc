@@ -6,7 +6,7 @@
  */
 
 /* Make sure we get proper strerror_r() prototype */
-#define strerror_r __moo
+#define strerror_r _hidestrerror_r
 
 #include <features.h>
 #include <errno.h>
