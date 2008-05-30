@@ -67,8 +67,8 @@ extern int   _dl_debug_file;
 # define _dl_if_debug_dprint(fmt, args...) \
 	do { if (_dl_debug) __dl_debug_dprint(fmt, ## args); } while (0)
 #else
-# define __dl_debug_dprint(fmt, args...)
-# define _dl_if_debug_dprint(fmt, args...)
+# define __dl_debug_dprint(fmt, args...) do {} while (0)
+# define _dl_if_debug_dprint(fmt, args...) do {} while (0)
 # define _dl_debug_file 2
 #endif /* __SUPPORT_LD_DEBUG__ */
 
@@ -92,7 +92,7 @@ extern int   _dl_debug_file;
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 # define _dl_debug_early(fmt, args...) __dl_debug_dprint(fmt, ## args)
 #else
-# define _dl_debug_early(fmt, args...)
+# define _dl_debug_early(fmt, args...) do {} while (0)
 #endif /* __SUPPORT_LD_DEBUG_EARLY__ */
 
 #ifndef NULL
