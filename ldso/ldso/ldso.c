@@ -111,7 +111,7 @@ uintptr_t __guard attribute_relro;
 
 static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 {
-	int i;
+	unsigned int i;
 	struct elf_resolve * tpnt;
 
 	for (i = 0; i < nlist; ++i) {
@@ -643,7 +643,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 	/* Sort the INIT/FINI list in dependency order. */
 	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
-		int j, k;
+		unsigned int j, k;
 
 		for (j = 0; init_fini_list[j] != tcurr; ++j)
 			/* Empty */;
