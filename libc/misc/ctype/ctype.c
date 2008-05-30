@@ -37,7 +37,7 @@
 #include <locale.h>
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 
@@ -278,7 +278,7 @@ IS_FUNC_BODY(xdigit);
 #undef tolower
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_tolower_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_tolower)
 #endif
 libc_hidden_proto(tolower)
@@ -325,7 +325,7 @@ weak_alias (tolower_l, __tolower_l)
 #undef toupper
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_toupper_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_toupper)
 #endif
 libc_hidden_proto(toupper)

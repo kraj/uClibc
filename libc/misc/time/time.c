@@ -185,7 +185,7 @@ libc_hidden_proto(strtol_l)
 libc_hidden_proto(strtoul_l)
 libc_hidden_proto(nl_langinfo_l)
 libc_hidden_proto(__ctype_b_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 

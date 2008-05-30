@@ -55,7 +55,7 @@ libc_hidden_proto(towlower_l)
 libc_hidden_proto(towupper_l)
 libc_hidden_proto(towctrans_l)
 libc_hidden_proto(iswctype_l)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
