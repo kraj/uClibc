@@ -15,7 +15,7 @@ CFLAGS-ldso += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(U
 
 CFLAGS-ldso/ldso/$(TARGET_ARCH)/ := $(CFLAGS-ldso)
 
-CFLAGS-ldso.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
+CFLAGS-ldso.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\" $(CFLAGS-ldso)
 
 ifneq ($(SUPPORT_LD_DEBUG),y)
 LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS)
@@ -30,6 +30,13 @@ $(UCLIBC_LDSO_NAME)_DIR := $(top_srcdir)ldso/ldso
 $(UCLIBC_LDSO_NAME)_OUT := $(top_builddir)ldso/ldso
 
 $(UCLIBC_LDSO_NAME)_CSRC := $($(UCLIBC_LDSO_NAME)_DIR)/ldso.c
+# prerequesites
+$($(UCLIBC_LDSO_NAME)_OUT)/ldso.o $($(UCLIBC_LDSO_NAME)_OUT)/ldso.oS: \
+	$($(UCLIBC_LDSO_NAME)_DIR)/dl-debug.c \
+	$($(UCLIBC_LDSO_NAME)_DIR)/dl-startup.c \
+	$($(UCLIBC_LDSO_NAME)_DIR)/dl-array.c \
+	$($(UCLIBC_LDSO_NAME)_DIR)/dl-hash.c \
+	$($(UCLIBC_LDSO_NAME)_DIR)/dl-elf.c
 $(UCLIBC_LDSO_NAME)_COBJ := $(patsubst $($(UCLIBC_LDSO_NAME)_DIR)/%.c,$($(UCLIBC_LDSO_NAME)_OUT)/%.o,$($(UCLIBC_LDSO_NAME)_CSRC))
 
 $(UCLIBC_LDSO_NAME)_SSRC := $(wildcard $($(UCLIBC_LDSO_NAME)_DIR)/$(TARGET_ARCH)/*.S)
