@@ -109,7 +109,7 @@ __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 
 static int	LogFile = -1;		/* fd for log */
-static int	connected;		/* have done connect */
+static smalluint connected;		/* have done connect */
 static int	LogStat = 0;		/* status bits, set by openlog() */
 static const char *LogTag = "syslog";	/* string to tag the entry with */
 static int	LogFacility = LOG_USER;	/* default facility code */
@@ -117,7 +117,7 @@ static int	LogMask = 0xff;		/* mask of priorities to be logged */
 static struct sockaddr SyslogAddr;	/* AF_UNIX address of local logger */
 
 static void
-closelog_intern(int to_default)
+closelog_intern(const smalluint to_default)
 {
 	__UCLIBC_MUTEX_LOCK(mylock);
 	if (LogFile != -1) {
@@ -174,17 +174,14 @@ retry:
 		    sizeof(SyslogAddr.sa_data) + strlen(SyslogAddr.sa_data)) != -1)
 	{
 	    connected = 1;
-	} else if (logType == SOCK_DGRAM) {
-	    logType = SOCK_STREAM;
-	    if (LogFile != -1) {
-		close(LogFile);
-		LogFile = -1;
-	    }
-	    goto retry;
 	} else {
 	    if (LogFile != -1) {
 		close(LogFile);
 		LogFile = -1;
+	    }
+	    if (logType == SOCK_DGRAM) {
+		logType = SOCK_STREAM;
+		goto retry;
 	    }
 	}
     }
@@ -206,10 +203,10 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	time_t now;
 	int fd, saved_errno;
 	int rc;
-	char tbuf[1024];	/* syslogd is unable to handle longer messages */
-
+	char tbuf[1024]; /* syslogd is unable to handle longer messages */
 	struct sigaction action, oldaction;
 	int sigpipe;
+
 	memset (&action, 0, sizeof (action));
 	action.sa_handler = sigpipe_handler;
 	sigemptyset (&action.sa_mask);
@@ -316,8 +313,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 getout:
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 	if (sigpipe == 0)
-		sigaction (SIGPIPE, &oldaction,
-				   (struct sigaction *) NULL);
+		sigaction (SIGPIPE, &oldaction, (struct sigaction *) NULL);
 }
 libc_hidden_def(vsyslog)
 
@@ -350,7 +346,7 @@ int setlogmask(int pmask)
     omask = LogMask;
     __UCLIBC_MUTEX_LOCK(mylock);
     if (pmask != 0)
-		LogMask = pmask;
+	LogMask = pmask;
     __UCLIBC_MUTEX_UNLOCK(mylock);
     return (omask);
 }
