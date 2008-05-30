@@ -587,11 +587,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					return NULL;
 				}
 
-				if (! piclib2map)
+				if (! piclib2map) {
 				  DL_INIT_LOADADDR_HDR
 				    (lib_loadaddr, status
 				     + (ppnt->p_vaddr & ADDR_ALIGN), ppnt);
-
+				}
 				/* Now we want to allocate and
 				   zero-out any data from the end of
 				   the region we mapped in from the
@@ -780,9 +780,9 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		return goof;
 	tpnt = rpnt->dyn;
 
-	if (!(tpnt->init_flag & RELOCS_DONE))
+	if (!(tpnt->init_flag & RELOCS_DONE)) {
 		_dl_if_debug_dprint("relocation processing: %s\n", tpnt->libname);
-
+	}
 	if (unlikely(tpnt->dynamic_info[UNSUPPORTED_RELOC_TYPE])) {
 		_dl_if_debug_dprint("%s: can't handle %s relocation records\n",
 				_dl_progname, UNSUPPORTED_RELOC_STR);
