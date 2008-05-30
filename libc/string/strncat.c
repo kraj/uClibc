@@ -21,7 +21,7 @@ Wchar *Wstrncat(Wchar * __restrict s1, register const Wchar * __restrict s2,
 
 	while (*s++);
 	--s;
-#if __BCC__
+#ifdef __BCC__
 	while (n-- && ((*s = *s2++) != 0)) ++s;
 #else
 	while (n && ((*s = *s2++) != 0)) {
