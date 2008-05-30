@@ -34,6 +34,7 @@
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #include <limits.h>
+#include <stdint.h>
 /* Work around gcc's refusal to create aliases. 
  * TODO: Add in a define to disable the aliases? */
 
