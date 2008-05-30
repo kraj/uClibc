@@ -259,9 +259,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 				break;
 			}
 
-		if (DL_LOADADDR_BASE(app_tpnt->loadaddr))
+		if (DL_LOADADDR_BASE(app_tpnt->loadaddr)) {
 			_dl_debug_early("Position Independent Executable: "
 					"app_tpnt->loadaddr=%x\n", DL_LOADADDR_BASE(app_tpnt->loadaddr));
+		}
 	}
 
 	/*
