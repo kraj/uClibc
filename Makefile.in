@@ -309,6 +309,10 @@ include/bits:
 # configuration
 # ---------------------------------------------------------------------------
 extra/config/conf extra/config/mconf: include/bits
+# TODO: this results in "make[1]: `conf' is up to date" printed
+# on every rebuild, because extra/config/conf is already built
+# on previous make run. Make it "test -x $@ || ..." (simple & a bit wrong)
+# or "make -q -C extra/config $(notdir $@) || ..." (less readable)?
 	$(Q)$(MAKE) -C extra/config $(notdir $@)
 
 menuconfig: extra/config/mconf include/bits

@@ -24,9 +24,9 @@ silentoldconfig: $(obj)/conf
 
 update-po-config: $(obj)/kxgettext
 	xgettext --default-domain=linux \
-          --add-comments --keyword=_ --keyword=N_ \
-          --files-from=scripts/kconfig/POTFILES.in \
-          --output scripts/kconfig/config.pot
+	  --add-comments --keyword=_ --keyword=N_ \
+	  --files-from=scripts/kconfig/POTFILES.in \
+	  --output scripts/kconfig/config.pot
 	$(Q)ln -fs Kconfig_i386 arch/um/Kconfig_arch
 	$(Q)for i in `ls arch/`; \
 	do \
