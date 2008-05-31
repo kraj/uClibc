@@ -208,7 +208,7 @@ $(ldso):
 $(libc):
 	@cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(MAJOR_VERSION),%,$(notdir $@))
 
-$(headers_dep):
+$(headers_dep): $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 	$(Q)cd $(top_builddir); $(MAKE) pregen
 
 CRT := crt1
