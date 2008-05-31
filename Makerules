@@ -50,7 +50,7 @@ SECHO := @echo
 ifneq ($(V)$(VERBOSE),)
 SHELL_SET_X := set -x
 DISP := ver
-Q := 
+Q :=
 else
 DISP := pur
 Q := @
@@ -87,7 +87,7 @@ ver_disp_compile-m = echo $(cmd_compile-m)
 ver_disp_strip     = echo $(cmd_strip)
 ver_disp_t_strip   = echo $(cmd_t_strip)
 ver_disp_ar        = echo $(cmd_ar)
-ver_disp_ld        = 
+ver_disp_ld        =
 
 disp_compile.c = $($(DISP)_disp_compile.c)
 disp_compile.u = $($(DISP)_disp_compile.u)
@@ -168,7 +168,8 @@ define linkm.so
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
 	@$(disp_ld)
 	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) -Wl,-soname=$(notdir $@).$(2) \
-		$(NOSTDLIB_CFLAGS) -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) $^ \
+		$(NOSTDLIB_CFLAGS) -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
+		$^ \
 		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
 	$(Q)$(LN) -sf $(1) $@.$(2)
 	$(Q)$(LN) -sf $(1) $@
@@ -251,13 +252,13 @@ $(top_builddir)lib/defs.h: $(top_builddir)lib/initfini.s
 
 $(top_builddir)lib/crti.S: $(top_builddir)lib/initfini.s $(top_builddir)lib/defs.h
 	$(Q)sed -n -e '1,/@HEADER_ENDS/p' \
-	       -e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
-	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
+		-e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
+		-e '/@TRAILER_BEGINS/,$$p' $< > $@
 
 $(top_builddir)lib/crtn.S: $(top_builddir)lib/initfini.s
 	$(Q)sed -n -e '1,/@HEADER_ENDS/p' \
-	       -e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
-	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
+		-e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
+		-e '/@TRAILER_BEGINS/,$$p' $< > $@
 
 $(CTOR_TARGETS): $(top_builddir)lib/%.o : $(top_builddir)lib/%.S
 	$(Q)$(INSTALL) -d $(dir $@)
