@@ -51,7 +51,7 @@ endif
 
 lib-a-y += $(top_builddir)lib/libc.a
 lib-gdb-y += $(top_builddir)lib/libc.gdb
-lib-so-y += $(libc)
+lib-so-y += $(libc:.$(MAJOR_VERSION)=)
 objclean-y += libc_clean
 
 OUTPUT_FORMAT = $(CC) $(CFLAGS) -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\([^"]*\)",.*/OUTPUT_FORMAT ( \1 )/p'
