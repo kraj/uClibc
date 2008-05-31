@@ -17,9 +17,6 @@ CSRC :=	getservice.c getproto.c hostid.c getnetent.c getnetbynm.c getnetbyad.c \
 # multi source addr.c
 addr_CSRC :=	inet_aton.c inet_addr.c inet_ntoa.c inet_makeaddr.c \
 	inet_lnaof.c inet_netof.c
-$(patsubst %.c,$(INET_DIR)/%.o,$(addr_CSRC)): $(INET_DIR)/addr.c
-$(patsubst %.c,$(INET_DIR)/%.os,$(addr_CSRC)): $(INET_DIR)/addr.c
-$(patsubst %.c,$(INET_DIR)/%.oS,$(addr_CSRC)): $(INET_DIR)/addr.c
 CSRC += $(addr_CSRC)
 
 # multi source resolv.c
@@ -31,9 +28,6 @@ resolv_CSRC +=	encodeh.c decodeh.c encoded.c decoded.c lengthd.c encodeq.c \
 	get_hosts_byaddr_r.c gethostbyname2.c getnameinfo.c gethostent.c \
 	gethostbyname_r.c gethostbyname2_r.c gethostbyaddr_r.c \
 	res_comp.c ns_name.c ethers.c
-$(patsubst %.c,$(INET_DIR)/%.o,$(resolv_CSRC)): $(INET_DIR)/resolv.c
-$(patsubst %.c,$(INET_DIR)/%.os,$(resolv_CSRC)): $(INET_DIR)/resolv.c
-$(patsubst %.c,$(INET_DIR)/%.oS,$(resolv_CSRC)): $(INET_DIR)/resolv.c
 CSRC += $(resolv_CSRC)
 
 # unused ATM
@@ -43,9 +37,6 @@ CSRC += encodep.c decodep.c formquery.c
 socketcalls_CSRC +=	accept.c bind.c connect.c getpeername.c getsockname.c \
 	getsockopt.c listen.c recv.c recvfrom.c recvmsg.c send.c sendmsg.c \
 	sendto.c setsockopt.c shutdown.c socket.c socketpair.c
-$(patsubst %.c,$(INET_DIR)/%.o,$(socketcalls_CSRC)): $(INET_DIR)/socketcalls.c
-$(patsubst %.c,$(INET_DIR)/%.os,$(socketcalls_CSRC)): $(INET_DIR)/socketcalls.c
-$(patsubst %.c,$(INET_DIR)/%.oS,$(socketcalls_CSRC)): $(INET_DIR)/socketcalls.c
 CSRC += $(socketcalls_CSRC)
 
 INET_SRC := $(patsubst %.c,$(INET_DIR)/%.c,$(CSRC))

@@ -99,8 +99,10 @@ disp_t_strip   = $($(DISP)_disp_t_strip)
 disp_ar        = $($(DISP)_disp_ar)
 disp_ld        = $($(DISP)_disp_ld)
 
-cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))
-cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@))
+cmd_gen.dep = -MT $@ -MD -MF $(@D)/$(@F).dep
+
+cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))  $(cmd_gen.dep)
+cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@)) $(cmd_gen.dep)
 cmd_compile.S = $(filter-out -std=gnu99, $(cmd_compile.c)) -D__ASSEMBLER__ $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
 cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
 cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@))
@@ -292,13 +294,24 @@ $(top_builddir)lib/libpthread_nonshared.a: $(libpthread-nonshared-y)
 	$(do_strip)
 	$(do_ar)
 
+.depends.dep := \
+	$(patsubst %.o,%.o.dep,$(filter %.o,$(libc-a-y) $(libc-so-y))) \
+	$(patsubst %.os,%.os.dep,$(filter %.os,$(libc-a-y) $(libc-so-y))) \
+	$(patsubst %.oS,%.oS.dep,$(filter %.oS,$(libc-a-y) $(libc-so-y)))
+
+ifdef .depends.dep
+-include $(.depends.dep)
+endif
+
 .PHONY: dummy create
 clean: objclean-y headers_clean-y
+realclean: clean
+	$(Q)$(RM) $(.depends.dep)
 
 objclean-y: $(objclean-y)
 headers_clean-y: $(headers_clean-y)
 
 .PHONY: \
-	all check clean distclean test \
+	all check clean realclean distclean test \
 	config dist menuconfig oldconfig release \
 	subdirs utils
