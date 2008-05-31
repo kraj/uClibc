@@ -99,7 +99,7 @@ disp_t_strip   = $($(DISP)_disp_t_strip)
 disp_ar        = $($(DISP)_disp_ar)
 disp_ld        = $($(DISP)_disp_ld)
 
-cmd_gen.dep = -MT $@ -MD -MF $(@D)/$(@F).dep
+cmd_gen.dep = -MT $@ -MD -MF $(dir $@).$(notdir $@).dep
 
 cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))  $(cmd_gen.dep)
 cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@)) $(cmd_gen.dep)
@@ -298,6 +298,9 @@ $(top_builddir)lib/libpthread_nonshared.a: $(libpthread-nonshared-y)
 	$(patsubst %.o,%.o.dep,$(filter %.o,$(libc-a-y) $(libc-so-y))) \
 	$(patsubst %.os,%.os.dep,$(filter %.os,$(libc-a-y) $(libc-so-y))) \
 	$(patsubst %.oS,%.oS.dep,$(filter %.oS,$(libc-a-y) $(libc-so-y)))
+# Oh, and prepend a dot to the basename so i don't have to change my habit of
+# calling 'size thefile.o*'
+.depends.dep := $(foreach f,$(.depends.dep),$(dir $(f)).$(notdir $(f)))
 
 ifdef .depends.dep
 -include $(.depends.dep)
