@@ -21,6 +21,7 @@
 
 #include <features.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <sys/types.h>
 
 #define _LINUX_TYPES_H

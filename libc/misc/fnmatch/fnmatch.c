@@ -41,6 +41,7 @@
 #include <errno.h>
 #include <fnmatch.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #if HAVE_STRING_H || defined _LIBC
 # include <string.h>

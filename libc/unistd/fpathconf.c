@@ -23,7 +23,6 @@
 #include <sys/statfs.h>
 #include <errno.h>
 #include <stddef.h>
-#include <unistd.h>
 #include <limits.h>
 #include <fcntl.h>
 #include <sys/stat.h>
