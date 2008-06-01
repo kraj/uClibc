@@ -11,6 +11,7 @@
 #include <locale.h>
 
 #ifdef WANT_WIDE
+# include <wchar.h>
 # define strcasecmp wcscasecmp
 # define strcasecmp_l wcscasecmp_l
 libc_hidden_proto(wcscasecmp)
