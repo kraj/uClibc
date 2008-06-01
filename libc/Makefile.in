@@ -51,16 +51,16 @@ endif
 
 lib-a-y += $(top_builddir)lib/libc.a
 lib-gdb-y += $(top_builddir)lib/libc.gdb
-lib-so-y += $(libc:.$(MAJOR_VERSION)=)
+lib-so-y += $(libc.depend)
 objclean-y += libc_clean
 
 OUTPUT_FORMAT = $(CC) $(CFLAGS) -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\([^"]*\)",.*/OUTPUT_FORMAT ( \1 )/p'
 
 ifeq ($(DOMULTI),n)
-$(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
+$(libc.depend): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
 	$(call link.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
 else
-$(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc.oS $(libc-nomulti-y:.o=.oS) | $(LIBS-libc.so)
+$(libc.depend): $(libc_OUT)/libc.oS $(libc-nomulti-y:.o=.oS) | $(LIBS-libc.so)
 	$(do_strip)
 	$(call linkm.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
 endif

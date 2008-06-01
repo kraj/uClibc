@@ -152,13 +152,13 @@ objclean-y += libm_clean
 
 ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/libm.so: $(top_builddir)lib/libm.a $(libc)
+$(top_builddir)lib/libm.so: $(top_builddir)lib/libm.a $(libc.depend)
 else
-$(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a $(libc)
+$(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a $(libc.depend)
 endif
 	$(call link.so,$(libm_FULL_NAME),$(MAJOR_VERSION))
 else
-$(top_builddir)lib/libm.so: $(libm_OUT)/libm.oS | $(libc)
+$(top_builddir)lib/libm.so: $(libm_OUT)/libm.oS | $(libc.depend)
 	$(call linkm.so,$(libm_FULL_NAME),$(MAJOR_VERSION))
 endif
 

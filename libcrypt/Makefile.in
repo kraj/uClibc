@@ -32,13 +32,13 @@ objclean-y += libcrypt_clean
 
 ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/libcrypt.so: $(top_builddir)lib/libcrypt.a $(libc)
+$(top_builddir)lib/libcrypt.so: $(top_builddir)lib/libcrypt.a $(libc.depend)
 else
-$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc)
+$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc.depend)
 endif
 	$(call link.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
 else
-$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt.oS | $(libc)
+$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt.oS | $(libc.depend)
 	$(call linkm.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
 endif
 

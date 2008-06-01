@@ -35,13 +35,13 @@ objclean-y += libutil_clean
 
 ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/libutil.so: $(top_builddir)lib/libutil.a $(libc)
+$(top_builddir)lib/libutil.so: $(top_builddir)lib/libutil.a $(libc.depend)
 else
-$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil_so.a $(libc)
+$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil_so.a $(libc.depend)
 endif
 	$(call link.so,$(libutil_FULL_NAME),$(MAJOR_VERSION))
 else
-$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil.oS | $(libc)
+$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil.oS | $(libc.depend)
 	$(call linkm.so,$(libutil_FULL_NAME),$(MAJOR_VERSION))
 endif
 

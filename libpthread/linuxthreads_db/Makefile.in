@@ -39,13 +39,13 @@ headers_clean-y += linuxthreads_db_headers_clean
 
 #ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/libthread_db.so: $(top_builddir)lib/libthread_db.a $(libc)
+$(top_builddir)lib/libthread_db.so: $(top_builddir)lib/libthread_db.a $(libc.depend)
 else
-$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a $(libc)
+$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a $(libc.depend)
 endif
 	$(call link.so,$(libthread_db_FULL_NAME),1)
 #else
-#$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db.oS | $(libc)
+#$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db.oS | $(libc.depend)
 #	$(call linkm.so,$(libthread_db_FULL_NAME),1)
 #endif
 

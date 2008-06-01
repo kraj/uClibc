@@ -31,9 +31,9 @@ lib-so-y += $(top_builddir)lib/libresolv.so
 objclean-y += libresolv_clean
 
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/libresolv.so: $(top_builddir)lib/libresolv.a $(libc)
+$(top_builddir)lib/libresolv.so: $(top_builddir)lib/libresolv.a $(libc.depend)
 else
-$(top_builddir)lib/libresolv.so: $(libresolv_OUT)/libresolv_so.a $(libc)
+$(top_builddir)lib/libresolv.so: $(libresolv_OUT)/libresolv_so.a $(libc.depend)
 endif
 	$(call link.so,$(libresolv_FULL_NAME),$(MAJOR_VERSION))
 

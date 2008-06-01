@@ -86,10 +86,10 @@ headers-$(UCLIBC_HAS_THREADS) += linuxthreads_headers
 headers_clean-y += linuxthreads_headers_clean
 
 #ifeq ($(DOMULTI),n)
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc) $(top_builddir)lib/libpthread_nonshared.a
+$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
 	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 #else
-#$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS | $(libc) $(top_builddir)lib/libpthread_nonshared.a
+#$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS | $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
 #	$(call linkm.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 #endif
 	$(Q)$(RM) $@

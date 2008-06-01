@@ -31,9 +31,9 @@ lib-so-y += $(top_builddir)lib/librt.so
 objclean-y += librt_clean
 
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(libc)
+$(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(libc.depend)
 else
-$(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(libc)
+$(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(libc.depend)
 endif
 	$(call link.so,$(librt_FULL_NAME),$(MAJOR_VERSION))
 

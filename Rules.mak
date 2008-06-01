@@ -98,6 +98,7 @@ endif
 UCLIBC_LDSO := $(UCLIBC_LDSO_NAME).so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
 libc := $(top_builddir)lib/$(SHARED_MAJORNAME)
+libc.depend := $(top_builddir)lib/$(SHARED_MAJORNAME:.$(MAJOR_VERSION)=)
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
 headers_dep := $(top_builddir)include/bits/sysnum.h
