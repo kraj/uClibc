@@ -126,6 +126,8 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 		words[i / 2] = (src[i] << 8) | src[i + 1];
 	best.base = -1;
 	cur.base = -1;
+	best.len = best.len; /* shutting up compiler warning */
+	cur.len = cur.len;   /* shutting up compiler warning */
 	for (i = 0; i < 8; i++) {
 		if (words[i] == 0) {
 			if (cur.base == -1)

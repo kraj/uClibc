@@ -673,7 +673,7 @@ static int tm_isdst(register const struct tm *__restrict ptm,
 {
 	long sec;
 	int i, isdst, isleap, day, day0, monlen, mday;
-	int oday;					/* Note: oday can be uninitialized. */
+	int oday = oday; /* ok to be uninitialized, shutting up compiler warning */
 
 	isdst = 0;
 	if (r[1].tzname[0] != 0) {
@@ -2133,7 +2133,7 @@ struct tm attribute_hidden *_time_t2tm(const time_t *__restrict timer,
 {
 	register int *p;
 	time_t t1, t, v;
-	int wday;					/* Note: wday can be uninitialized. */
+	int wday = wday; /* ok to be uninitialized, shutting up warning */
 
 	{
 		register const uint16_t *vp;

@@ -359,13 +359,13 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 		int i;
 	} intarg;
 	int i, cnt, dataargtype, len;
-	const void *argptr;			/* This does not need to be initialized. */
+	const void *argptr = argptr; /* ok to be initialized. */
 	register char *p;
 	const char *fmt0;
 	int preci, width;
 #define upcase i
 	int radix, dpoint /*, upcase*/;
-	char tmp[65];				/* TODO - determing needed size from headers */
+	char tmp[65];		/* TODO - determine needed size from headers */
 	char flag[sizeof(spec)];
 	__STDIO_AUTO_THREADLOCK_VAR;
 
