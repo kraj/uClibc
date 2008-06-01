@@ -60,6 +60,8 @@ endif
 show_objs = $(subst ../,,$@)
 
 pur_disp_compile.c = echo "  "CC $(show_objs)
+pur_disp_compile.i = echo "  "CPP $(show_objs)
+pur_disp_compile.s = echo "  "CC-S $(show_objs)
 pur_disp_compile.u = echo "  "CC $(show_objs)
 pur_disp_compile.S = echo "  "AS $(show_objs)
 pur_disp_compile.m = $(pur_disp_compile.c)
@@ -70,6 +72,8 @@ pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
 pur_disp_ld        = echo "  "LD $(1)
 
 sil_disp_compile.c = true
+sil_disp_compile.i = true
+sil_disp_compile.s = true
 sil_disp_compile.u = true
 sil_disp_compile.S = true
 sil_disp_compile.m = true
@@ -80,6 +84,8 @@ sil_disp_ar        = true
 sil_disp_ld        = true
 
 ver_disp_compile.c = echo $(cmd_compile.c)
+ver_disp_compile.i = echo $(cmd_compile.i)
+ver_disp_compile.s = echo $(cmd_compile.s)
 ver_disp_compile.u = echo $(cmd_compile.u)
 ver_disp_compile.S = echo $(cmd_compile.S)
 ver_disp_compile.m = echo $(cmd_compile.m)
@@ -90,6 +96,8 @@ ver_disp_ar        = echo $(cmd_ar)
 ver_disp_ld        =
 
 disp_compile.c = $($(DISP)_disp_compile.c)
+disp_compile.i = $($(DISP)_disp_compile.i)
+disp_compile.s = $($(DISP)_disp_compile.s)
 disp_compile.u = $($(DISP)_disp_compile.u)
 disp_compile.S = $($(DISP)_disp_compile.S)
 disp_compile.m = $($(DISP)_disp_compile.m)
@@ -99,22 +107,38 @@ disp_t_strip   = $($(DISP)_disp_t_strip)
 disp_ar        = $($(DISP)_disp_ar)
 disp_ld        = $($(DISP)_disp_ld)
 
-cmd_gen.dep = -MT $@ -MD -MF $(dir $@).$(notdir $@).dep
+CFLAGS_gen.dep = -MT $@ -MD -MF $(dir $@).$(notdir $@).dep
 
-cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))  $(cmd_gen.dep)
-cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@)) $(cmd_gen.dep)
+# True if not identical. Neither order nor whitespace nor identical flags
+# matter.
+compare_flags = $(strip $(filter-out $(cmd_$(1)), $(cmd_$(@))) \
+			$(filter-out $(cmd_$(@)), $(cmd_$(1))))
+
+# Rebuild if the used CC or flags changed.
+# Previously used flags are stored in the corresponding .%.dep files
+maybe_exec = $(if $(strip $(compare_flags)), \
+		@set -e; \
+		$(disp_$(1)); \
+		$(cmd_$(1)); \
+		echo 'cmd_$@ := $(cmd_$1)' >> $(dir $@).$(notdir $@).dep)
+
+cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))  $(CFLAGS_gen.dep)
+cmd_compile.i = $(cmd_compile.c:-c=-E -dD)
+cmd_compile.s = $(cmd_compile.c:-c=-S)
+cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@)) $(CFLAGS_gen.dep)
 cmd_compile.S = $(filter-out -std=gnu99, $(cmd_compile.c)) -D__ASSEMBLER__ $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
 cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
+
 cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@))
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_t_strip   = $(STRIPTOOL) $(STRIP_FLAGS) $@
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
 
-compile.c = @$(disp_compile.c) ; $(cmd_compile.c)
-compile.i = $(cmd_compile.c:-c=-E -dD)
-compile.s = $(cmd_compile.c:-c=-S)
-compile.S = @$(disp_compile.S) ; $(cmd_compile.S)
-compile.m = @$(disp_compile.m) ; $(cmd_compile.m)
+compile.c = @$(call maybe_exec,compile.c)
+compile.i =  $(call maybe_exec,compile.i)
+compile.s =  $(call maybe_exec,compile.s)
+compile.S = @$(call maybe_exec,compile.S)
+compile.m = @$(call maybe_exec,compile.m)
 compile-m = @$(disp_compile-m) ; $(cmd_compile-m)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
 do_t_strip= @$(disp_t_strip)   ; $(cmd_t_strip)
@@ -180,19 +204,19 @@ endef
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
 
-%.o:  %.c ; $(compile.c)
-%.os: %.c ; $(compile.c)
-%.oS: %.c ; $(compile.c)
-%.o:  %.S ; $(compile.S)
-%.os: %.S ; $(compile.S)
-%.oS: %.S ; $(compile.S)
-%.o:  %.s ; $(compile.S)
-%.os: %.s ; $(compile.S)
-%.oS: %.s ; $(compile.S)
-%.i:  %.c ; $(compile.i)
-%.i:  %.S ; $(compile.i)
-%.s:  %.c ; $(compile.s)
-%.s:  %.S ; $(compile.s)
+%.o:  %.c FORCE ; $(compile.c)
+%.os: %.c FORCE ; $(compile.c)
+%.oS: %.c FORCE ; $(compile.c)
+%.o:  %.S FORCE ; $(compile.S)
+%.os: %.S FORCE ; $(compile.S)
+%.oS: %.S FORCE ; $(compile.S)
+%.o:  %.s FORCE ; $(compile.S)
+%.os: %.s FORCE ; $(compile.S)
+%.oS: %.s FORCE ; $(compile.S)
+%.i:  %.c FORCE ; $(compile.i)
+%.i:  %.S FORCE ; $(compile.i)
+%.s:  %.c FORCE ; $(compile.s)
+%.s:  %.S FORCE ; $(compile.s)
 
 $(top_builddir)lib/interp.c: | $(sub_headers)
 	$(Q)$(INSTALL) -d $(dir $@)
@@ -306,7 +330,9 @@ ifdef .depends.dep
 -include $(.depends.dep)
 endif
 
-.PHONY: dummy create
+.PHONY: dummy FORCE
+FORCE:
+
 clean: objclean-y headers_clean-y
 realclean: clean
 	$(Q)$(RM) $(.depends.dep)
