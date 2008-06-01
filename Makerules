@@ -107,20 +107,22 @@ disp_t_strip   = $($(DISP)_disp_t_strip)
 disp_ar        = $($(DISP)_disp_ar)
 disp_ld        = $($(DISP)_disp_ld)
 
-CFLAGS_gen.dep = -MT $@ -MD -MF $(dir $@).$(notdir $@).dep
+any-prereq = $(filter-out FORCE,$?) $(filter-out FORCE $(wildcard $^),$^)
 
 # True if not identical. Neither order nor whitespace nor identical flags
 # matter.
 compare_flags = $(strip $(filter-out $(cmd_$(1)), $(cmd_$(@))) \
 			$(filter-out $(cmd_$(@)), $(cmd_$(1))))
 
-# Rebuild if the used CC or flags changed.
+# Rebuild if any prerequisite, the used CC or flags changed.
 # Previously used flags are stored in the corresponding .%.dep files
-maybe_exec = $(if $(strip $(compare_flags)), \
+maybe_exec = $(if $(strip $(compare_flags) $(any-prereq)), \
 		@set -e; \
 		$(disp_$(1)); \
 		$(cmd_$(1)); \
 		echo 'cmd_$@ := $(cmd_$1)' >> $(dir $@).$(notdir $@).dep)
+
+CFLAGS_gen.dep = -MT $@ -MD -MF $(dir $@).$(notdir $@).dep
 
 cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))  $(CFLAGS_gen.dep)
 cmd_compile.i = $(cmd_compile.c:-c=-E -dD)
