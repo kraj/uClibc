@@ -124,7 +124,7 @@ maybe_exec = $(if $(strip $(compare_flags) $(any-prereq)), \
 
 CFLAGS_gen.dep = -MT $@ -MD -MF $(dir $@).$(notdir $@).dep
 
-cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(^D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))  $(CFLAGS_gen.dep)
+cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(<D)))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))  $(CFLAGS_gen.dep)
 cmd_compile.i = $(cmd_compile.c:-c=-E -dD)
 cmd_compile.s = $(cmd_compile.c:-c=-S)
 cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@)) $(CFLAGS_gen.dep)
@@ -320,10 +320,15 @@ $(top_builddir)lib/libpthread_nonshared.a: $(libpthread-nonshared-y)
 	$(do_strip)
 	$(do_ar)
 
+files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) $(libm-a-y) $(libm-so-y)
+files.dep += $(libpthread-a-y) $(libpthread-so-y) $(libutil-a-y) $(libutil-so-y)
+files.dep += $(librt-a-y) $(librt-so-y)  $(libresolv-a-y) $(libresolv-so-y)
+files.dep += $(libcrypt-a-y) $(libcrypt-so-y) $(libdl-a-y) $(libdl-so-y)
+files.dep += $(libnsl-a-y) $(libnsl-so-y) $(ldso-y)
 .depends.dep := \
-	$(patsubst %.o,%.o.dep,$(filter %.o,$(libc-a-y) $(libc-so-y))) \
-	$(patsubst %.os,%.os.dep,$(filter %.os,$(libc-a-y) $(libc-so-y))) \
-	$(patsubst %.oS,%.oS.dep,$(filter %.oS,$(libc-a-y) $(libc-so-y)))
+	$(patsubst %.o,%.o.dep,$(filter %.o,$(files.dep))) \
+	$(patsubst %.os,%.os.dep,$(filter %.os,$(files.dep))) \
+	$(patsubst %.oS,%.oS.dep,$(filter %.oS,$(files.dep)))
 # Oh, and prepend a dot to the basename so i don't have to change my habit of
 # calling 'size thefile.o*'
 .depends.dep := $(foreach f,$(.depends.dep),$(dir $(f)).$(notdir $(f)))
