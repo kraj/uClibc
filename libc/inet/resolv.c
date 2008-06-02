@@ -262,8 +262,6 @@ extern char * __searchdomain[MAX_SEARCH] attribute_hidden;
 
 
 
-
-
 /* Structs */
 struct resolv_header {
 	int id;
@@ -439,7 +437,7 @@ int attribute_hidden __decode_dotted(const unsigned char * const data, int offse
 
 	while ((l = data[offset++])) {
 		if (measure)
-		    total++;
+			total++;
 		if ((l & 0xc0) == (0xc0)) {
 			if (measure)
 				total++;
@@ -466,7 +464,7 @@ int attribute_hidden __decode_dotted(const unsigned char * const data, int offse
 
 	/* The null byte must be counted too */
 	if (measure)
-	    total++;
+		total++;
 
 	DPRINTF("Total decode len = %d\n", total);
 
@@ -535,7 +533,7 @@ int attribute_hidden __decode_question(const unsigned char * const message, int 
 
 	offset += i;
 
-	q->dotted = strdup(temp);
+	q->dotted = strdup(temp); /* TODO: what if this fails? */
 	q->qtype = (message[offset + 0] << 8) | message[offset + 1];
 	q->qclass = (message[offset + 2] << 8) | message[offset + 3];
 
@@ -568,7 +566,7 @@ int attribute_hidden __encode_answer(struct resolv_answer *a, unsigned char *des
 	dest += i;
 	maxlen -= i;
 
-	if (maxlen < (RRFIXEDSZ+a->rdlength))
+	if (maxlen < (RRFIXEDSZ + a->rdlength))
 		return -1;
 
 	*dest++ = (a->atype & 0xff00) >> 8;
@@ -600,7 +598,7 @@ int attribute_hidden __decode_answer(const unsigned char *message, int offset,
 
 	message += offset + i;
 
-	a->dotted = strdup(temp);
+	a->dotted = strdup(temp); /* TODO: what if this fails? */
 	a->atype = (message[0] << 8) | message[1];
 	message += 2;
 	a->aclass = (message[0] << 8) | message[1];
@@ -726,7 +724,10 @@ __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
  * is pretty lame.  I think these two variables can probably be de-global-ized,
  * which should eliminate the need for doing locking here...  Needs a closer
  * look anyways. */
-static int ns = 0, id = 1;
+static int static_ns = 0;
+/* uint16: minimizing rw data size, even if code grows a tiny bit.
+ * rw data costs more. */
+static uint16_t static_id = 1;
 
 int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char **nsip,
 			   unsigned char **outpacket, struct resolv_answer *a)
@@ -762,8 +763,8 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 	/* Mess with globals while under lock */
 	__UCLIBC_MUTEX_LOCK(mylock);
-	local_ns = ns % nscount;
-	local_id = id;
+	local_ns = static_ns % nscount;
+	local_id = static_id;
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 
 	while (retries < MAX_RETRIES) {
@@ -792,12 +793,12 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		if (i < 0)
 			goto fail;
 
-		strncpy(lookup,name,MAXDNAME);
+		strncpy(lookup, name, MAXDNAME);
 		if (variant >= 0) {
 			__UCLIBC_MUTEX_LOCK(__resolv_lock);
 			if (variant < __searchdomains) {
-				strncat(lookup,".", MAXDNAME);
-				strncat(lookup,__searchdomain[variant], MAXDNAME);
+				strncat(lookup, ".", MAXDNAME);
+				strncat(lookup, __searchdomain[variant], MAXDNAME);
 			}
 			__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 		}
@@ -854,10 +855,9 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 			if (errno == ENETUNREACH) {
 				/* routing error, presume not transient */
 				goto tryall;
-			} else {
-				/* retry */
-				retries++;
 			}
+			/* retry */
+			retries++;
 			continue;
 		}
 
@@ -890,7 +890,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		}
 #endif
 
-		len = recv(fd, packet, 512, 0);
+		len = recv(fd, packet, PACKETSZ, 0);
 		if (len < HFIXEDSZ) {
 			/* too short ! */
 			goto again;
@@ -981,11 +981,11 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 		/* Mess with globals while under lock */
 		__UCLIBC_MUTEX_LOCK(mylock);
-		ns = local_ns;
-		id = local_id;
+		static_ns = local_ns;
+		static_id = local_id;
 		__UCLIBC_MUTEX_UNLOCK(mylock);
 
-		return (len);				/* success! */
+		return len;				/* success! */
 
 	tryall:
 		/* if there are other nameservers, give them a go,
@@ -1030,8 +1030,8 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 	/* Mess with globals while under lock */
 	if (local_ns != -1) {
 		__UCLIBC_MUTEX_LOCK(mylock);
-		ns = local_ns;
-		id = local_id;
+		static_ns = local_ns;
+		static_id = local_id;
 		__UCLIBC_MUTEX_UNLOCK(mylock);
 	}
 	return -1;
@@ -1087,7 +1087,7 @@ void attribute_hidden __open_nameservers(void)
 
 			if (strcmp(argv[0], "nameserver") == 0) {
 				for (i = 1; i < argc && __nameservers < MAX_SERVERS; i++) {
-					__nameserver[__nameservers++] = strdup(argv[i]);
+					__nameserver[__nameservers++] = strdup(argv[i]); /* TODO: what if this fails? */
 					DPRINTF("adding nameserver %s\n", argv[i]);
 				}
 			}
@@ -1099,7 +1099,7 @@ void attribute_hidden __open_nameservers(void)
 					__searchdomain[__searchdomains] = NULL;
 				}
 				for (i = 1; i < argc && __searchdomains < MAX_SEARCH; i++) {
-					__searchdomain[__searchdomains++] = strdup(argv[i]);
+					__searchdomain[__searchdomains++] = strdup(argv[i]); /* TODO: what if this fails? */
 					DPRINTF("adding search %s\n", argv[i]);
 				}
 			}
@@ -1235,7 +1235,7 @@ int res_init(void)
 libc_hidden_def(res_init)
 
 #ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
-void res_close( void )
+void res_close(void)
 {
 	__close_nameservers();
 	memset(&_res, 0, sizeof(_res));
@@ -1319,7 +1319,7 @@ int res_search(const char *name, int class, int type, u_char *answer,
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 	if ((!name || !answer) || ((_res_options & RES_INIT) == 0 && res_init() == -1)) {
 		h_errno = NETDB_INTERNAL;
-		return (-1);
+		return -1;
 	}
 
 	errno = 0;
@@ -1342,7 +1342,7 @@ int res_search(const char *name, int class, int type, u_char *answer,
 	if (dots >= _res_ndots) {
 		ret = res_querydomain(name, NULL, class, type, answer, anslen);
 		if (ret > 0)
-			return (ret);
+			return ret;
 		saved_herrno = h_errno;
 		_state |= __TRIED_AS_IS;
 	}
@@ -1368,7 +1368,7 @@ int res_search(const char *name, int class, int type, u_char *answer,
 			ret = res_querydomain(name, *domain, class, type,
 								  answer, anslen);
 			if (ret > 0)
-				return (ret);
+				return ret;
 
 			/*
 			 * If no server present, give up.
@@ -1385,7 +1385,7 @@ int res_search(const char *name, int class, int type, u_char *answer,
 			 */
 			if (errno == ECONNREFUSED) {
 				h_errno = TRY_AGAIN;
-				return (-1);
+				return -1;
 			}
 
 			switch (h_errno) {
@@ -1426,7 +1426,7 @@ int res_search(const char *name, int class, int type, u_char *answer,
 	if (!(_state & __TRIED_AS_IS)) {
 		ret = res_querydomain(name, NULL, class, type, answer, anslen);
 		if (ret > 0)
-			return (ret);
+			return ret;
 	}
 
 	/*
@@ -1443,7 +1443,7 @@ int res_search(const char *name, int class, int type, u_char *answer,
 		h_errno = NO_DATA;
 	else if (_state & __GOT_SERVFAIL)
 		h_errno = TRY_AGAIN;
-	return (-1);
+	return -1;
 }
 #undef __TRAILING_DOT
 #undef __GOT_NODATA
@@ -1466,7 +1466,7 @@ int res_querydomain(const char *name, const char *domain, int class, int type,
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 	if ((!name || !answer) || ((_res_options & RES_INIT) == 0 && res_init() == -1)) {
 		h_errno = NETDB_INTERNAL;
-		return (-1);
+		return -1;
 	}
 
 #ifdef DEBUG
@@ -1485,7 +1485,7 @@ int res_querydomain(const char *name, const char *domain, int class, int type,
 		n = strlen(name);
 		if (n + 1 > sizeof(nbuf)) {
 			h_errno = NO_RECOVERY;
-			return (-1);
+			return -1;
 		}
 		if (n > 0 && name[--n] == '.') {
 			strncpy(nbuf, name, n);
@@ -1497,11 +1497,11 @@ int res_querydomain(const char *name, const char *domain, int class, int type,
 		d = strlen(domain);
 		if (n + 1 + d + 1 > sizeof(nbuf)) {
 			h_errno = NO_RECOVERY;
-			return (-1);
+			return -1;
 		}
 		snprintf(nbuf, sizeof(nbuf), "%s.%s", name, domain);
 	}
-	return (res_query(longname, class, type, answer, anslen));
+	return res_query(longname, class, type, answer, anslen);
 }
 libc_hidden_def(res_querydomain)
 
@@ -1518,11 +1518,11 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 		struct hostent h;
 		char buf[
 #ifndef __UCLIBC_HAS_IPV6__
-					sizeof(struct in_addr) + sizeof(struct in_addr *)*2 +
+			sizeof(struct in_addr) + sizeof(struct in_addr *)*2 +
 #else
-					sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
+			sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
 #endif /* __UCLIBC_HAS_IPV6__ */
-					sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
+			sizeof(char *)*(ALIAS_DIM) + 384 /*namebuffer*/ + 32 /* margin */];
 	} *sp;
 	struct hostent *hp;
 
@@ -1715,7 +1715,7 @@ __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 static int __stay_open;
 static FILE * __gethostent_fp;
 
-void endhostent (void)
+void endhostent(void)
 {
 	__UCLIBC_MUTEX_LOCK(mylock);
 	__stay_open = 0;
@@ -1724,7 +1724,7 @@ void endhostent (void)
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
-void sethostent (int stay_open)
+void sethostent(int stay_open)
 {
 	__UCLIBC_MUTEX_LOCK(mylock);
 	__stay_open = stay_open;
@@ -1756,18 +1756,18 @@ DONE:
 }
 libc_hidden_def(gethostent_r)
 
-struct hostent *gethostent (void)
+struct hostent *gethostent(void)
 {
 	static struct {
 		struct hostent h;
 		char buf[
 #ifndef __UCLIBC_HAS_IPV6__
-					sizeof(struct in_addr) + sizeof(struct in_addr *)*2 +
+			sizeof(struct in_addr) + sizeof(struct in_addr *)*2 +
 #else
-					sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
+			sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
 #endif /* __UCLIBC_HAS_IPV6__ */
-					sizeof(char *)*(ALIAS_DIM) +
-					80/*namebuffer*/ + 2/* margin */];
+			sizeof(char *)*(ALIAS_DIM) +
+			80 /*namebuffer*/ + 2 /* margin */];
 	} *sp;
 	struct hostent *host;
 
@@ -1824,8 +1824,8 @@ int attribute_hidden __get_hosts_byaddr_r(const char * addr, int len, int type,
 
 	inet_ntop(type, addr, ipaddr, sizeof(ipaddr));
 
-	return(__read_etc_hosts_r(NULL, ipaddr, type, GET_HOSTS_BYADDR,
-							  result_buf, buf, buflen, result, h_errnop));
+	return __read_etc_hosts_r(NULL, ipaddr, type, GET_HOSTS_BYADDR,
+							  result_buf, buf, buflen, result, h_errnop);
 }
 #endif
 
@@ -1836,7 +1836,7 @@ int attribute_hidden __get_hosts_byaddr_r(const char * addr, int len, int type,
 #endif /* min */
 
 libc_hidden_proto(getnameinfo)
-int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
+int getnameinfo(const struct sockaddr *sa, socklen_t addrlen, char *host,
 				 socklen_t hostlen, char *serv, socklen_t servlen,
 				 unsigned int flags)
 {
@@ -2188,8 +2188,9 @@ int gethostbyname2_r(const char *name, int family,
 					 int * h_errnop)
 {
 #ifndef __UCLIBC_HAS_IPV6__
-	return family == (AF_INET)? gethostbyname_r(name, result_buf,
-												buf, buflen, result, h_errnop) : HOST_NOT_FOUND;
+	return family == (AF_INET)
+		? gethostbyname_r(name, result_buf, buf, buflen, result, h_errnop)
+		: HOST_NOT_FOUND;
 #else /* __UCLIBC_HAS_IPV6__ */
 	struct in6_addr *in;
 	struct in6_addr **addr_list;
@@ -2323,7 +2324,7 @@ libc_hidden_def(gethostbyname2_r)
 #endif
 
 #ifdef L_gethostbyaddr_r
-int gethostbyaddr_r (const void *addr, socklen_t len, int type,
+int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 					 struct hostent * result_buf,
 					 char * buf, size_t buflen,
 					 struct hostent ** result,
@@ -2447,7 +2448,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 			qp += sprintf(qp, "%x.%x.", in6->s6_addr[i] & 0xf,
 						  (in6->s6_addr[i] >> 4) & 0xf);
 		}
-		strcpy(qp, "ip6.int");
+		strcpy(qp, "ip6.arpa");
 #endif /* __UCLIBC_HAS_IPV6__ */
 	}
 
@@ -2533,7 +2534,7 @@ int __dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
 
 	if (n > 0 && dst[0] == '.')
 		dst[0] = '\0';
-	return (n);
+	return n;
 }
 #endif /* L_res_comp */
 
@@ -2567,9 +2568,9 @@ static int special(int ch)
 			/* Special modifiers in zone files. */
 		case 0x40: /* '@' */
 		case 0x24: /* '$' */
-			return (1);
+			return 1;
 		default:
-			return (0);
+			return 0;
 	}
 }
 
@@ -2588,10 +2589,10 @@ int ns_name_uncompress(const u_char *msg, const u_char *eom,
 	int n;
 
 	if ((n = ns_name_unpack(msg, eom, src, tmp, sizeof tmp)) == -1)
-		return (-1);
+		return -1;
 	if (ns_name_ntop(tmp, dst, dstsiz) == -1)
-		return (-1);
-	return (n);
+		return -1;
+	return n;
 }
 libc_hidden_def(ns_name_uncompress)
 
@@ -2619,33 +2620,33 @@ int ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
 	while ((n = *cp++) != 0) {
 		if ((n & NS_CMPRSFLGS) != 0) {
 			/* Some kind of compression pointer. */
-			__set_errno (EMSGSIZE);
-			return (-1);
+			__set_errno(EMSGSIZE);
+			return -1;
 		}
 		if (dn != dst) {
 			if (dn >= eom) {
-				__set_errno (EMSGSIZE);
-				return (-1);
+				__set_errno(EMSGSIZE);
+				return -1;
 			}
 			*dn++ = '.';
 		}
 		if (dn + n >= eom) {
-			__set_errno (EMSGSIZE);
-			return (-1);
+			__set_errno(EMSGSIZE);
+			return -1;
 		}
 		for ((void)NULL; n > 0; n--) {
 			c = *cp++;
 			if (special(c)) {
 				if (dn + 1 >= eom) {
-					__set_errno (EMSGSIZE);
-					return (-1);
+					__set_errno(EMSGSIZE);
+					return -1;
 				}
 				*dn++ = '\\';
 				*dn++ = (char)c;
 			} else if (!printable(c)) {
 				if (dn + 3 >= eom) {
-					__set_errno (EMSGSIZE);
-					return (-1);
+					__set_errno(EMSGSIZE);
+					return -1;
 				}
 				*dn++ = '\\';
 				*dn++ = digits[c / 100];
@@ -2653,8 +2654,8 @@ int ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
 				*dn++ = digits[c % 10];
 			} else {
 				if (dn >= eom) {
-					__set_errno (EMSGSIZE);
-					return (-1);
+					__set_errno(EMSGSIZE);
+					return -1;
 				}
 				*dn++ = (char)c;
 			}
@@ -2662,14 +2663,14 @@ int ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
 	}
 	if (dn == dst) {
 		if (dn >= eom) {
-			__set_errno (EMSGSIZE);
-			return (-1);
+			__set_errno(EMSGSIZE);
+			return -1;
 		}
 		*dn++ = '.';
 	}
 	if (dn >= eom) {
-		__set_errno (EMSGSIZE);
-		return (-1);
+		__set_errno(EMSGSIZE);
+		return -1;
 	}
 	*dn++ = '\0';
 	return (dn - dst);
@@ -2695,8 +2696,8 @@ int ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
 	srcp = src;
 	dstlim = dst + dstsiz;
 	if (srcp < msg || srcp >= eom) {
-		__set_errno (EMSGSIZE);
-		return (-1);
+		__set_errno(EMSGSIZE);
+		return -1;
 	}
 	/* Fetch next label in domain name. */
 	while ((n = *srcp++) != 0) {
@@ -2705,8 +2706,8 @@ int ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
 			case 0:
 				/* Limit checks. */
 				if (dstp + n + 1 >= dstlim || srcp + n >= eom) {
-					__set_errno (EMSGSIZE);
-					return (-1);
+					__set_errno(EMSGSIZE);
+					return -1;
 				}
 				checked += n + 1;
 				*dstp++ = n;
@@ -2717,15 +2718,15 @@ int ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
 
 			case NS_CMPRSFLGS:
 				if (srcp >= eom) {
-					__set_errno (EMSGSIZE);
-					return (-1);
+					__set_errno(EMSGSIZE);
+					return -1;
 				}
 				if (len < 0)
 					len = srcp - src + 1;
 				srcp = msg + (((n & 0x3f) << 8) | (*srcp & 0xff));
 				if (srcp < msg || srcp >= eom) {  /* Out of range. */
-					__set_errno (EMSGSIZE);
-					return (-1);
+					__set_errno(EMSGSIZE);
+					return -1;
 				}
 				checked += 2;
 				/*
@@ -2734,20 +2735,20 @@ int ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
 				 * there must be a loop.
 				 */
 				if (checked >= eom - msg) {
-					__set_errno (EMSGSIZE);
-					return (-1);
+					__set_errno(EMSGSIZE);
+					return -1;
 				}
 				break;
 
 			default:
-				__set_errno (EMSGSIZE);
-				return (-1);                    /* flag error */
+				__set_errno(EMSGSIZE);
+				return -1;                    /* flag error */
 		}
 	}
 	*dstp = '\0';
 	if (len < 0)
 		len = srcp - src;
-	return (len);
+	return len;
 }
 libc_hidden_def(ns_name_unpack)
 #endif /* L_ns_name */
