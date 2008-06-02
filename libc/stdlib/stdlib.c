@@ -328,9 +328,9 @@ long long atoll(const char *nptr)
 
 libc_hidden_proto(__XL_NPP(strtol))
 long __XL_NPP(strtol)(const char * __restrict str, char ** __restrict endptr,
-				  int base   __LOCALE_PARAM )
+				  int base __LOCALE_PARAM)
 {
-    return __XL_NPP(_stdlib_strto_l)(str, endptr, base, 1   __LOCALE_ARG );
+	return __XL_NPP(_stdlib_strto_l)(str, endptr, base, 1 __LOCALE_ARG);
 }
 libc_hidden_def(__XL_NPP(strtol))
 
@@ -359,10 +359,9 @@ libc_hidden_def(__XL_NPP(strtoll))
 libc_hidden_proto(__XL_NPP(strtoll))
 long long __XL_NPP(strtoll)(const char * __restrict str,
 						char ** __restrict endptr, int base
-						__LOCALE_PARAM )
+						__LOCALE_PARAM)
 {
-    return (long long) __XL_NPP(_stdlib_strto_ll)(str, endptr, base, 1
-												  __LOCALE_ARG );
+	return (long long) __XL_NPP(_stdlib_strto_ll)(str, endptr, base, 1 __LOCALE_ARG);
 }
 libc_hidden_def(__XL_NPP(strtoll))
 
@@ -382,9 +381,9 @@ strong_alias(strtoll,strtoq)
 libc_hidden_proto(__XL_NPP(strtoul))
 unsigned long __XL_NPP(strtoul)(const char * __restrict str,
 							char ** __restrict endptr, int base
-							__LOCALE_PARAM )
+							__LOCALE_PARAM)
 {
-    return __XL_NPP(_stdlib_strto_l)(str, endptr, base, 0   __LOCALE_ARG );
+	return __XL_NPP(_stdlib_strto_l)(str, endptr, base, 0 __LOCALE_ARG);
 }
 libc_hidden_def(__XL_NPP(strtoul))
 
@@ -414,9 +413,9 @@ libc_hidden_def(__XL_NPP(strtoull))
 libc_hidden_proto(__XL_NPP(strtoull))
 unsigned long long __XL_NPP(strtoull)(const char * __restrict str,
 								  char ** __restrict endptr, int base
-								  __LOCALE_PARAM )
+								  __LOCALE_PARAM)
 {
-    return __XL_NPP(_stdlib_strto_ll)(str, endptr, base, 0   __LOCALE_ARG );
+	return __XL_NPP(_stdlib_strto_ll)(str, endptr, base, 0 __LOCALE_ARG);
 }
 libc_hidden_def(__XL_NPP(strtoull))
 
@@ -511,31 +510,31 @@ unsigned long attribute_hidden __XL_NPP(_stdlib_strto_l)(register const Wchar * 
 										Wchar ** __restrict endptr, int base,
 										int sflag __LOCALE_PARAM)
 {
-    unsigned long number, cutoff;
+	unsigned long number, cutoff;
 #if _STRTO_ENDPTR
-    const Wchar *fail_char;
-#define SET_FAIL(X)       fail_char = (X)
+	const Wchar *fail_char;
+#define SET_FAIL(X) fail_char = (X)
 #else
-#define SET_FAIL(X)       ((void)(X)) /* Keep side effects. */
+#define SET_FAIL(X) ((void)(X)) /* Keep side effects. */
 #endif
-    unsigned char negative, digit, cutoff_digit;
+	unsigned char negative, digit, cutoff_digit;
 
 	assert(((unsigned int)sflag) <= 1);
 
 	SET_FAIL(str);
 
-    while (ISSPACE(*str)) { /* Skip leading whitespace. */
+	while (ISSPACE(*str)) { /* Skip leading whitespace. */
 		++str;
-    }
+	}
 
-    /* Handle optional sign. */
-    negative = 0;
-    switch (*str) {
+	/* Handle optional sign. */
+	negative = 0;
+	switch (*str) {
 		case '-': negative = 1;	/* Fall through to increment str. */
 		case '+': ++str;
-    }
+	}
 
-    if (!(base & ~0x10)) {		/* Either dynamic (base = 0) or base 16. */
+	if (!(base & ~0x10)) {		/* Either dynamic (base = 0) or base 16. */
 		base += 10;				/* Default is 10 (26). */
 		if (*str == '0') {
 			SET_FAIL(++str);
@@ -549,11 +548,11 @@ unsigned long attribute_hidden __XL_NPP(_stdlib_strto_l)(register const Wchar * 
 		if (base > 16) {		/* Adjust in case base wasn't dynamic. */
 			base = 16;
 		}
-    }
+	}
 
 	number = 0;
 
-    if (((unsigned)(base - 2)) < 35) { /* Legal base. */
+	if (((unsigned)(base - 2)) < 35) { /* Legal base. */
 		cutoff_digit = ULONG_MAX % base;
 		cutoff = ULONG_MAX / base;
 		do {
@@ -581,13 +580,13 @@ unsigned long attribute_hidden __XL_NPP(_stdlib_strto_l)(register const Wchar * 
 	}
 
 #if _STRTO_ENDPTR
-    if (endptr) {
+	if (endptr) {
 		*endptr = (Wchar *) fail_char;
-    }
+	}
 #endif
 
 	{
-		unsigned long tmp = ((negative)
+		unsigned long tmp = (negative
 							 ? ((unsigned long)(-(1+LONG_MIN)))+1
 							 : LONG_MAX);
 		if (sflag && (number > tmp)) {
@@ -661,34 +660,34 @@ libc_hidden_proto(__ctype_b)
 
 unsigned long long attribute_hidden __XL_NPP(_stdlib_strto_ll)(register const Wchar * __restrict str,
 											  Wchar ** __restrict endptr, int base,
-											  int sflag   __LOCALE_PARAM )
+											  int sflag __LOCALE_PARAM)
 {
-    unsigned long long number;
+	unsigned long long number;
 #if _STRTO_ENDPTR
-    const Wchar *fail_char;
-#define SET_FAIL(X)       fail_char = (X)
+	const Wchar *fail_char;
+#define SET_FAIL(X) fail_char = (X)
 #else
-#define SET_FAIL(X)       ((void)(X)) /* Keep side effects. */
+#define SET_FAIL(X) ((void)(X)) /* Keep side effects. */
 #endif
 	unsigned int n1;
-    unsigned char negative, digit;
+	unsigned char negative, digit;
 
 	assert(((unsigned int)sflag) <= 1);
 
 	SET_FAIL(str);
 
-    while (ISSPACE(*str)) {		/* Skip leading whitespace. */
+	while (ISSPACE(*str)) {		/* Skip leading whitespace. */
 		++str;
-    }
+	}
 
-    /* Handle optional sign. */
-    negative = 0;
-    switch (*str) {
+	/* Handle optional sign. */
+	negative = 0;
+	switch (*str) {
 		case '-': negative = 1;	/* Fall through to increment str. */
 		case '+': ++str;
-    }
+	}
 
-    if (!(base & ~0x10)) {		/* Either dynamic (base = 0) or base 16. */
+	if (!(base & ~0x10)) {		/* Either dynamic (base = 0) or base 16. */
 		base += 10;				/* Default is 10 (26). */
 		if (*str == '0') {
 			SET_FAIL(++str);
@@ -702,11 +701,11 @@ unsigned long long attribute_hidden __XL_NPP(_stdlib_strto_ll)(register const Wc
 		if (base > 16) {		/* Adjust in case base wasn't dynamic. */
 			base = 16;
 		}
-    }
+	}
 
 	number = 0;
 
-    if (((unsigned)(base - 2)) < 35) { /* Legal base. */
+	if (((unsigned)(base - 2)) < 35) { /* Legal base. */
 		do {
 			digit = ((Wuchar)(*str - '0') <= 9)
 				? /* 0..9 */ (*str - '0')
@@ -743,9 +742,9 @@ unsigned long long attribute_hidden __XL_NPP(_stdlib_strto_ll)(register const Wc
 	}
 
 #if _STRTO_ENDPTR
-    if (endptr) {
+	if (endptr) {
 		*endptr = (Wchar *) fail_char;
-    }
+	}
 #endif
 
 	{
@@ -818,16 +817,16 @@ void *bsearch(const void *key, const void *base, size_t /* nmemb */ high,
  * bcc and gcc. */
 
 libc_hidden_proto(qsort)
-void qsort (void  *base,
-            size_t nel,
-            size_t width,
-            int (*comp)(const void *, const void *))
+void qsort(void  *base,
+           size_t nel,
+           size_t width,
+           int (*comp)(const void *, const void *))
 {
 	size_t wgap, i, j, k;
 	char tmp;
 
 	if ((nel > 1) && (width > 0)) {
-		assert( nel <= ((size_t)(-1)) / width ); /* check for overflow */
+		assert(nel <= ((size_t)(-1)) / width); /* check for overflow */
 		wgap = 0;
 		do {
 			wgap = 3 * wgap + 1;
@@ -847,7 +846,7 @@ void qsort (void  *base,
 					j -= wgap;
 					a = j + ((char *)base);
 					b = a + wgap;
-					if ( (*comp)(a, b) <= 0 ) {
+					if ((*comp)(a, b) <= 0) {
 						break;
 					}
 					k = width;
@@ -855,7 +854,7 @@ void qsort (void  *base,
 						tmp = *a;
 						*a++ = *b;
 						*b++ = tmp;
-					} while ( --k );
+					} while (--k);
 				} while (j >= wgap);
 				i += width;
 			} while (i < nel);
@@ -876,40 +875,36 @@ libc_hidden_def(qsort)
 
 #include <stddef.h>
 
-void ssort (void  *base,
-            size_t nel,
-            size_t width,
-            int (*comp)(const void *, const void *))
+void ssort(void  *base,
+           size_t nel,
+           size_t width,
+           int (*comp)(const void *, const void *))
 {
-      size_t wnel, gap, wgap, i, j, k;
-      char *a, *b, tmp;
+	size_t wnel, gap, wgap, i, j, k;
+	char *a, *b, tmp;
 
-      wnel = width * nel;
-      for (gap = 0; ++gap < nel;)
-            gap *= 3;
-      while ( gap /= 3 )
-      {
-            wgap = width * gap;
-            for (i = wgap; i < wnel; i += width)
-            {
-                  for (j = i - wgap; ;j -= wgap)
-                  {
-                        a = j + (char *)base;
-                        b = a + wgap;
-                        if ( (*comp)(a, b) <= 0 )
-                              break;
-                        k = width;
-                        do
-                        {
-                              tmp = *a;
-                              *a++ = *b;
-                              *b++ = tmp;
-                        } while ( --k );
-                        if (j < wgap)
-                              break;
-                  }
-            }
-      }
+	wnel = width * nel;
+	for (gap = 0; ++gap < nel;)
+		gap *= 3;
+	while ((gap /= 3) != 0) {
+		wgap = width * gap;
+		for (i = wgap; i < wnel; i += width) {
+			for (j = i - wgap; ;j -= wgap) {
+				a = j + (char *)base;
+				b = a + wgap;
+				if ((*comp)(a, b) <= 0)
+					break;
+				k = width;
+				do {
+					tmp = *a;
+					*a++ = *b;
+					*b++ = tmp;
+				} while (--k);
+				if (j < wgap)
+					break;
+			}
+		}
+	}
 }
 #endif
 
@@ -1045,9 +1040,9 @@ size_t wcstombs(char * __restrict s, const wchar_t * __restrict pwcs, size_t n)
 
 libc_hidden_proto(__XL_NPP(wcstol))
 long __XL_NPP(wcstol)(const wchar_t * __restrict str,
-				  wchar_t ** __restrict endptr, int base   __LOCALE_PARAM )
+				  wchar_t ** __restrict endptr, int base __LOCALE_PARAM)
 {
-    return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 1   __LOCALE_ARG );
+	return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 1 __LOCALE_ARG);
 }
 libc_hidden_def(__XL_NPP(wcstol))
 
@@ -1076,10 +1071,9 @@ libc_hidden_def(__XL_NPP(wcstoll))
 libc_hidden_proto(__XL_NPP(wcstoll))
 long long __XL_NPP(wcstoll)(const wchar_t * __restrict str,
 						wchar_t ** __restrict endptr, int base
-						__LOCALE_PARAM )
+						__LOCALE_PARAM)
 {
-    return (long long) __XL_NPP(_stdlib_wcsto_ll)(str, endptr, base, 1
-												  __LOCALE_ARG );
+	return (long long) __XL_NPP(_stdlib_wcsto_ll)(str, endptr, base, 1 __LOCALE_ARG);
 }
 libc_hidden_def(__XL_NPP(wcstoll))
 
@@ -1099,9 +1093,9 @@ strong_alias(wcstoll,wcstoq)
 libc_hidden_proto(__XL_NPP(wcstoul))
 unsigned long __XL_NPP(wcstoul)(const wchar_t * __restrict str,
 							wchar_t ** __restrict endptr, int base
-							__LOCALE_PARAM )
+							__LOCALE_PARAM)
 {
-    return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 0   __LOCALE_ARG );
+	return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 0 __LOCALE_ARG);
 }
 libc_hidden_def(__XL_NPP(wcstoul))
 
@@ -1130,9 +1124,9 @@ libc_hidden_def(__XL_NPP(wcstoull))
 libc_hidden_proto(__XL_NPP(wcstoull))
 unsigned long long __XL_NPP(wcstoull)(const wchar_t * __restrict str,
 								  wchar_t ** __restrict endptr, int base
-								  __LOCALE_PARAM )
+								  __LOCALE_PARAM)
 {
-    return __XL_NPP(_stdlib_wcsto_ll)(str, endptr, base, 0   __LOCALE_ARG );
+	return __XL_NPP(_stdlib_wcsto_ll)(str, endptr, base, 0 __LOCALE_ARG);
 }
 libc_hidden_def(__XL_NPP(wcstoull))
 
