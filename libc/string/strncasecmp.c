@@ -14,7 +14,9 @@
 # define strncasecmp wcsncasecmp
 # define strncasecmp_l wcsncasecmp_l
 libc_hidden_proto(wcsncasecmp)
+# if defined(__USE_GNU) && defined(__UCLIBC_HAS_XLOCALE__)
 libc_hidden_proto(wcsncasecmp_l)
+# endif
 # ifdef __UCLIBC_DO_XLOCALE
 libc_hidden_proto(towlower_l)
 #  define TOLOWER(C) towlower_l((C), locale_arg)

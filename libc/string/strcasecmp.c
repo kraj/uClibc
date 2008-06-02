@@ -11,11 +11,12 @@
 #include <locale.h>
 
 #ifdef WANT_WIDE
-# include <wchar.h>
 # define strcasecmp wcscasecmp
 # define strcasecmp_l wcscasecmp_l
 libc_hidden_proto(wcscasecmp)
+# if defined(__USE_GNU) && defined(__UCLIBC_HAS_XLOCALE__)
 libc_hidden_proto(wcscasecmp_l)
+# endif
 # ifdef __UCLIBC_DO_XLOCALE
 libc_hidden_proto(towlower_l)
 #  define TOLOWER(C) towlower_l((C), locale_arg)
