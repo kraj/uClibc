@@ -23,7 +23,7 @@
 
 #include <features.h>
 #include <elf.h>
-#ifndef __HAVE_NO_SHARED__
+#ifdef __HAVE_SHARED__
 #include <dlfcn.h>
 #endif
 #include <sys/types.h>
