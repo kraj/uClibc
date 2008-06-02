@@ -55,8 +55,8 @@ int inet_aton(const char *cp, struct in_addr *addrptr)
 	int value;
 	int part;
 
-	if (cp == NULL) {	/* check for NULL arg */
-	    return 0;
+	if (cp == NULL) {
+		return 0;
 	}
 
 	addr = 0;
@@ -79,7 +79,7 @@ int inet_aton(const char *cp, struct in_addr *addrptr)
 		} else {
 			char c = *cp++;
 			if (c != '\0' && !isspace(c))
-			return 0;
+				return 0;
 		}
 
 		addr <<= 8;
@@ -131,7 +131,7 @@ char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 
 	q = 0;
 	p = buf + INET_NTOA_MAX_LEN - 1; /* cannot use sizeof(buf) here */
-	for (i=0 ; i < 4 ; i++ ) {
+	for (i = 0; i < 4; i++ ) {
 		p = _int10tostr(p, addr & 0xff) - 1;
 		addr >>= 8;
 		if (q) {
@@ -148,7 +148,7 @@ libc_hidden_proto(inet_ntoa)
 char *inet_ntoa(struct in_addr in)
 {
 	static char buf[INET_NTOA_MAX_LEN];
-	return(inet_ntoa_r(in, buf));
+	return inet_ntoa_r(in, buf);
 }
 libc_hidden_def(inet_ntoa)
 #endif
@@ -176,7 +176,7 @@ struct in_addr inet_makeaddr(in_addr_t net, in_addr_t host)
 	else
 		addr = net | host;
 	addr = htonl(addr);
-	return (*(struct in_addr *)&addr);
+	return *(struct in_addr *)&addr;
 }
 libc_hidden_def(inet_makeaddr)
 #endif
@@ -192,11 +192,11 @@ in_addr_t inet_lnaof(struct in_addr in)
 	in_addr_t i = ntohl(in.s_addr);
 
 	if (IN_CLASSA(i))
-		return ((i)&IN_CLASSA_HOST);
+		return (i & IN_CLASSA_HOST);
 	else if (IN_CLASSB(i))
-		return ((i)&IN_CLASSB_HOST);
+		return (i & IN_CLASSB_HOST);
 	else
-		return ((i)&IN_CLASSC_HOST);
+		return (i & IN_CLASSC_HOST);
 }
 #endif
 
@@ -213,11 +213,11 @@ inet_netof(struct in_addr in)
 	in_addr_t i = ntohl(in.s_addr);
 
 	if (IN_CLASSA(i))
-		return (((i)&IN_CLASSA_NET) >> IN_CLASSA_NSHIFT);
+		return ((i & IN_CLASSA_NET) >> IN_CLASSA_NSHIFT);
 	else if (IN_CLASSB(i))
-		return (((i)&IN_CLASSB_NET) >> IN_CLASSB_NSHIFT);
+		return ((i & IN_CLASSB_NET) >> IN_CLASSB_NSHIFT);
 	else
-	return (((i)&IN_CLASSC_NET) >> IN_CLASSC_NSHIFT);
+		return ((i & IN_CLASSC_NET) >> IN_CLASSC_NSHIFT);
 }
 libc_hidden_def(inet_netof)
 #endif
