@@ -509,7 +509,7 @@ libc_hidden_proto(__ctype_b)
 
 unsigned long attribute_hidden __XL_NPP(_stdlib_strto_l)(register const Wchar * __restrict str,
 										Wchar ** __restrict endptr, int base,
-										int sflag   __LOCALE_PARAM )
+										int sflag __LOCALE_PARAM)
 {
     unsigned long number, cutoff;
 #if _STRTO_ENDPTR
@@ -530,7 +530,7 @@ unsigned long attribute_hidden __XL_NPP(_stdlib_strto_l)(register const Wchar * 
 
     /* Handle optional sign. */
     negative = 0;
-    switch(*str) {
+    switch (*str) {
 		case '-': negative = 1;	/* Fall through to increment str. */
 		case '+': ++str;
     }
@@ -557,11 +557,11 @@ unsigned long attribute_hidden __XL_NPP(_stdlib_strto_l)(register const Wchar * 
 		cutoff_digit = ULONG_MAX % base;
 		cutoff = ULONG_MAX / base;
 		do {
-			digit = (((Wuchar)(*str - '0')) <= 9)
-				? (*str - '0')
-				: ((*str >= 'A')
-				   ? (((0x20|(*str)) - 'a' + 10)) /* WARNING: assumes ascii. */
-					  : 40);
+			digit = ((Wuchar)(*str - '0') <= 9)
+				? /* 0..9 */ (*str - '0')
+				: /* else */ (((Wuchar)(0x20 | *str) >= 'a') /* WARNING: assumes ascii. */
+				   ? /* >= A/a */ ((Wuchar)(0x20 | *str) - ('a' - 10))
+				   : /* else   */ 40 /* bad value */);
 
 			if (digit >= base) {
 				break;
@@ -683,7 +683,7 @@ unsigned long long attribute_hidden __XL_NPP(_stdlib_strto_ll)(register const Wc
 
     /* Handle optional sign. */
     negative = 0;
-    switch(*str) {
+    switch (*str) {
 		case '-': negative = 1;	/* Fall through to increment str. */
 		case '+': ++str;
     }
@@ -708,11 +708,11 @@ unsigned long long attribute_hidden __XL_NPP(_stdlib_strto_ll)(register const Wc
 
     if (((unsigned)(base - 2)) < 35) { /* Legal base. */
 		do {
-			digit = (((Wuchar)(*str - '0')) <= 9)
-				? (*str - '0')
-				: ((*str >= 'A')
-				   ? (((0x20|(*str)) - 'a' + 10)) /* WARNING: assumes ascii. */
-					  : 40);
+			digit = ((Wuchar)(*str - '0') <= 9)
+				? /* 0..9 */ (*str - '0')
+				: /* else */ (((Wuchar)(0x20 | *str) >= 'a') /* WARNING: assumes ascii. */
+				   ? /* >= A/a */ ((Wuchar)(0x20 | *str) - ('a' - 10))
+				   : /* else   */ 40 /* bad value */);
 
 			if (digit >= base) {
 				break;
