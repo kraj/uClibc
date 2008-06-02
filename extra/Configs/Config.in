@@ -215,18 +215,18 @@ config DOPIC
 	  If you wish to build all of uClibc as PIC objects, then answer Y here.
 	  If you are unsure, then you should answer N.
 
-config HAVE_NO_SHARED
+config ARCH_HAS_NO_SHARED
 	bool
 	default n
 
 config ARCH_HAS_NO_LDSO
 	bool
-	select HAVE_NO_SHARED
+	select ARCH_HAS_NO_SHARED
 	default n
 
 config HAVE_SHARED
 	bool "Enable support for shared libraries"
-	depends on !HAVE_NO_SHARED
+	depends on !ARCH_HAS_NO_SHARED
 	default y
 	help
 	  If you wish to build uClibc with support for shared libraries then
