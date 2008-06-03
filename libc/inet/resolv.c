@@ -398,6 +398,10 @@ int attribute_hidden __encode_dotted(const char *dotted, unsigned char *dest, in
 		char *c = strchr(dotted, '.');
 		int l = c ? c - dotted : strlen(dotted);
 
+		/* two consecutive dots are not valid */
+		if (l == 0)
+			return -1;
+
 		if (l >= (maxlen - used - 1))
 			return -1;
 
@@ -746,8 +750,9 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 	unsigned retries = 0;
 	unsigned char * packet = malloc(PACKETSZ);
 	char *dns, *lookup = malloc(MAXDNAME);
-	int variant = -1;
+	int variant = -1;  /* search domain to append, -1 - none */
 	int local_ns = -1, local_id = -1;
+	bool ends_with_dot;
 #ifdef __UCLIBC_HAS_IPV6__
 	bool v6;
 	struct sockaddr_in6 sa6;
@@ -758,10 +763,12 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 	fd = -1;
 
-	if (!packet || !lookup || !nscount)
+	if (!packet || !lookup || !nscount || !name[0])
 		goto fail;
 
 	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
+
+	ends_with_dot = (name[strlen(name) - 1] == '.');
 
 	/* Mess with globals while under lock */
 	__UCLIBC_MUTEX_LOCK(mylock);
@@ -780,12 +787,6 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		++local_id;
 		local_id &= 0xffff;
 		h.id = local_id;
-		__UCLIBC_MUTEX_LOCK(__resolv_lock);
-		/* this is really __nameserver[] which is a global that
-		   needs to hold __resolv_lock before access!! */
-		dns = nsip[local_ns];
-		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-
 		h.qdcount = 1;
 		h.rd = 1;
 
@@ -796,14 +797,23 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 			goto fail;
 
 		strncpy(lookup, name, MAXDNAME);
+		__UCLIBC_MUTEX_LOCK(__resolv_lock);
+		/* nsip is really __nameserver[] which is a global that
+		   needs to hold __resolv_lock before access!! */
+		dns = nsip[local_ns];
+/* TODO: all future accesses to 'dns' are guarded by __resolv_lock too.
+ * Why? We already fetched nsip[local_ns] here,
+ * future changes to nsip[] by other threads cannot affect us.
+ * We can use 'dns' without locking. If I'm wrong,
+ * please explain in comments why locking is needed. */
 		if (variant >= 0) {
-			__UCLIBC_MUTEX_LOCK(__resolv_lock);
 			if (variant < __searchdomains) {
 				strncat(lookup, ".", MAXDNAME);
 				strncat(lookup, __searchdomain[variant], MAXDNAME);
 			}
-			__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 		}
+		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+
 		DPRINTF("lookup name: %s\n", lookup);
 		q.dotted = (char *)lookup;
 		q.qtype = type;
@@ -994,19 +1004,18 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 	tryall:
 		/* if there are other nameservers, give them a go,
 		   otherwise return with error */
-		{
-			variant = -1;
-			local_ns = (local_ns + 1) % nscount;
-			if (local_ns == 0)
-				retries++;
+		variant = -1;
+		local_ns = (local_ns + 1) % nscount;
+		if (local_ns == 0)
+			retries++;
 
-			continue;
-		}
+		continue;
 
 	again:
 		/* if there are searchdomains, try them or fallback as passed */
-		{
+		if (!ends_with_dot) {
 			int sdomains;
+
 			__UCLIBC_MUTEX_LOCK(__resolv_lock);
 			sdomains = __searchdomains;
 			__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
@@ -1014,15 +1023,14 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 			if (variant < sdomains - 1) {
 				/* next search */
 				variant++;
-			} else {
-				/* next server, first search */
-				local_ns = (local_ns + 1) % nscount;
-				if (local_ns == 0)
-					retries++;
-
-				variant = -1;
+				continue;
 			}
 		}
+		/* next server, first search */
+		local_ns = (local_ns + 1) % nscount;
+		if (local_ns == 0)
+			retries++;
+		variant = -1;
 	}
 
  fail:
@@ -1267,10 +1275,10 @@ int res_query(const char *dname, int class, int type,
 	__open_nameservers();
 	if (!dname || class != 1 /* CLASS_IN */) {
 		h_errno = NO_RECOVERY;
-		return(-1);
+		return -1;
 	}
 
-	memset((char *) &a, '\0', sizeof(a));
+	memset(&a, '\0', sizeof(a));
 
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	__nameserversXX = __nameservers;
@@ -1280,16 +1288,14 @@ int res_query(const char *dname, int class, int type,
 
 	if (i < 0) {
 		h_errno = TRY_AGAIN;
-		return(-1);
+		return -1;
 	}
 
 	free(a.dotted);
 
-	if (a.atype == type) { /* CNAME*/
-		int len = MIN(anslen, i);
-		memcpy(answer, packet, len);
-		free(packet);
-		return(len);
+	if (a.atype == type) { /* CNAME */
+		i = MIN(anslen, i);
+		memcpy(answer, packet, i);
 	}
 	free(packet);
 	return i;
