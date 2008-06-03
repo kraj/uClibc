@@ -148,46 +148,46 @@ closelog_intern(int sig)
  * OPENLOG -- open system log
  */
 void
-openlog( const char *ident, int logstat, int logfac )
+openlog(const char *ident, int logstat, int logfac)
 {
-    int logType = SOCK_DGRAM;
+	int logType = SOCK_DGRAM;
 
-    __UCLIBC_MUTEX_LOCK(mylock);
+	__UCLIBC_MUTEX_LOCK(mylock);
 
-    if (ident != NULL)
-	LogTag = ident;
-    LogStat = logstat;
-    if (logfac != 0 && (logfac &~ LOG_FACMASK) == 0)
-	LogFacility = logfac;
-    if (LogFile == -1) {
+	if (ident != NULL)
+		LogTag = ident;
+	LogStat = logstat;
+	if (logfac != 0 && (logfac &~ LOG_FACMASK) == 0)
+		LogFacility = logfac;
+	if (LogFile == -1) {
 retry:
-	if (LogStat & LOG_NDELAY) {
-	    if ((LogFile = socket(AF_UNIX, logType, 0)) == -1) {
-		goto DONE;
-	    }
-	    fcntl(LogFile, F_SETFD, 1); /* 1 == FD_CLOEXEC */
-	    /* We don't want to block if e.g. syslogd is SIGSTOPed */
-	    fcntl(LogFile, F_SETFL, O_NONBLOCK | fcntl(LogFile, F_GETFL));
+		if (LogStat & LOG_NDELAY) {
+			if ((LogFile = socket(AF_UNIX, logType, 0)) == -1) {
+				goto DONE;
+			}
+			fcntl(LogFile, F_SETFD, 1); /* 1 == FD_CLOEXEC */
+			/* We don't want to block if e.g. syslogd is SIGSTOPed */
+			fcntl(LogFile, F_SETFL, O_NONBLOCK | fcntl(LogFile, F_GETFL));
+		}
 	}
-    }
 
-    if (LogFile != -1 && !connected) {
-	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr)) != -1) {
-	    connected = 1;
-	} else {
-	    if (LogFile != -1) {
-		close(LogFile);
-		LogFile = -1;
-	    }
-	    if (logType == SOCK_DGRAM) {
-		logType = SOCK_STREAM;
-		goto retry;
-	    }
+	if (LogFile != -1 && !connected) {
+		if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr)) != -1) {
+			connected = 1;
+		} else {
+			if (LogFile != -1) {
+				close(LogFile);
+				LogFile = -1;
+			}
+			if (logType == SOCK_DGRAM) {
+				logType = SOCK_STREAM;
+				goto retry;
+			}
+		}
 	}
-    }
 
 DONE:
-    __UCLIBC_MUTEX_UNLOCK(mylock);
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 libc_hidden_def(openlog)
 
@@ -196,7 +196,7 @@ libc_hidden_def(openlog)
  *     print message on log file; output is intended for syslogd(8).
  */
 void
-vsyslog( int pri, const char *fmt, va_list ap )
+vsyslog(int pri, const char *fmt, va_list ap)
 {
 	register char *p;
 	char *last_chr, *head_end, *end, *stdp;
@@ -207,10 +207,10 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	struct sigaction action, oldaction;
 	int sigpipe;
 
-	memset (&action, 0, sizeof (action));
+	memset(&action, 0, sizeof(action));
 	action.sa_handler = closelog_intern;
-	sigemptyset (&action.sa_mask);
-	sigpipe = sigaction (SIGPIPE, &action, &oldaction);
+	sigemptyset(&action.sa_mask); /* TODO: memset already zeroed it out! */
+	sigpipe = sigaction(SIGPIPE, &action, &oldaction);
 
 	saved_errno = errno;
 
@@ -317,7 +317,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 getout:
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 	if (sigpipe == 0)
-		sigaction (SIGPIPE, &oldaction, (struct sigaction *) NULL);
+		sigaction(SIGPIPE, &oldaction, (struct sigaction *) NULL);
 }
 libc_hidden_def(vsyslog)
 
@@ -336,7 +336,7 @@ libc_hidden_def(syslog)
  * CLOSELOG -- close the system log
  */
 void
-closelog( void )
+closelog(void)
 {
 	closelog_intern(0); /* 0: do not reset LogXXX globals to default */
 }
@@ -345,13 +345,12 @@ libc_hidden_def(closelog)
 /* setlogmask -- set the log mask level */
 int setlogmask(int pmask)
 {
-    int omask;
+	int omask;
 
-    omask = LogMask;
-    __UCLIBC_MUTEX_LOCK(mylock);
-    if (pmask != 0)
-	LogMask = pmask;
-    __UCLIBC_MUTEX_UNLOCK(mylock);
-    return (omask);
+	omask = LogMask;
+	__UCLIBC_MUTEX_LOCK(mylock);
+	if (pmask != 0)
+		LogMask = pmask;
+	__UCLIBC_MUTEX_UNLOCK(mylock);
+	return omask;
 }
-
