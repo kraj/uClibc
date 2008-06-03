@@ -123,7 +123,7 @@ maybe_exec = $(if $(strip $(compare_flags) $(any-prereq)), \
 		$(cmd_$(1)); \
 		echo 'cmd_$@ := $(cmd_$1)' >> $(dir $@).$(notdir $@).dep)
 
-CFLAGS_gen.dep = -MT $@ -MD -MF $(dir $@).$(notdir $@).dep
+CFLAGS_gen.dep = -MT $@ -MD -MP -MF $(dir $@).$(notdir $@).dep
 
 cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) \
 	$(CFLAGS-$(suffix $@)) \
