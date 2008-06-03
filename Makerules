@@ -327,11 +327,13 @@ $(top_builddir)lib/libpthread_nonshared.a: $(libpthread-nonshared-y)
 	$(do_strip)
 	$(do_ar)
 
-files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) $(libm-a-y) $(libm-so-y)
-files.dep += $(libpthread-a-y) $(libpthread-so-y) $(libthread_db-a-y) $(libthread_db-so-y)
-files.dep += $(librt-a-y) $(librt-so-y)  $(libresolv-a-y) $(libresolv-so-y)
-files.dep += $(libcrypt-a-y) $(libcrypt-so-y) $(libutil-a-y) $(libutil-so-y)
-files.dep += $(libnsl-a-y) $(libnsl-so-y) $(ldso-y) $(libdl-a-y) $(libdl-so-y)
+files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) \
+	$(libm-a-y) $(libm-so-y) \
+	$(libpthread-a-y) $(libpthread-so-y) $(libpthread-nonshared-y) \
+	$(libthread_db-a-y) $(libthread_db-so-y) \
+	$(librt-a-y) $(librt-so-y)  $(libresolv-a-y) $(libresolv-so-y) \
+	$(libcrypt-a-y) $(libcrypt-so-y) $(libutil-a-y) $(libutil-so-y) \
+	$(libnsl-a-y) $(libnsl-so-y) $(ldso-y) $(libdl-a-y) $(libdl-so-y)
 .depends.dep := \
 	$(patsubst %.o,%.o.dep,$(filter %.o,$(files.dep))) \
 	$(patsubst %.os,%.os.dep,$(filter %.os,$(files.dep))) \
