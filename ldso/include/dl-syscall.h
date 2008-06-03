@@ -59,11 +59,7 @@
    dynamic linking at all, so we cannot return any error codes.
    We just punt if there is an error. */
 #define __NR__dl_exit __NR_exit
-static __always_inline attribute_noreturn void _dl_exit(int status)
-{
-	while (1)
-		INLINE_SYSCALL(exit, 1, status);
-}
+static __always_inline _syscall1(void, _dl_exit, int, status);
 
 #define __NR__dl_close __NR_close
 static __always_inline _syscall1(int, _dl_close, int, fd);
