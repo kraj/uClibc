@@ -135,7 +135,7 @@ closelog_intern(int sig)
 	}
 	LogFile = -1;
 	connected = 0;
-	if (sig != 0) {
+	if (sig == 0) { /* called from closelog()? - reset to defaults */
 		LogStat = 0;
 		LogTag = "syslog";
 		LogFacility = LOG_USER;
@@ -287,7 +287,7 @@ vsyslog(int pri, const char *fmt, va_list ap)
 				/* I don't think looping forever on EAGAIN is a good idea.
 				 * Imagine that syslogd is SIGSTOPed... */
 				if (/* (errno != EAGAIN) && */ (errno != EINTR)) {
-					closelog_intern(1); /* 1: reset LogXXX globals to default */
+					closelog_intern(1); /* 1: do not reset LogXXX globals to default */
 					goto write_err;
 				}
 				rc = 0;
@@ -338,7 +338,7 @@ libc_hidden_def(syslog)
 void
 closelog(void)
 {
-	closelog_intern(0); /* 0: do not reset LogXXX globals to default */
+	closelog_intern(0); /* 0: reset LogXXX globals to default */
 }
 libc_hidden_def(closelog)
 
