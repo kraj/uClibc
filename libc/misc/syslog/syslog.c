@@ -108,37 +108,40 @@ libc_hidden_proto(vsnprintf)
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 
-static int	LogFile = -1;		/* fd for log */
-static smalluint connected;		/* have done connect */
-static int	LogStat = 0;		/* status bits, set by openlog() */
-static const char *LogTag = "syslog";	/* string to tag the entry with */
-static int	LogFacility = LOG_USER;	/* default facility code */
-static int	LogMask = 0xff;		/* mask of priorities to be logged */
-static struct sockaddr SyslogAddr;	/* AF_UNIX address of local logger */
+static int       LogFile = -1;          /* fd for log */
+static smalluint connected;             /* have done connect */
+/* all bits in option argument for openlog() fit in 8 bits */
+static smalluint LogStat = 0;           /* status bits, set by openlog() */
+static const char *LogTag = "syslog";   /* string to tag the entry with */
+/* this fits in 8 bits too (LOG_LOCAL7 = 23<<3 = 184),
+ * but NB: LOG_FACMASK is bigger (= 0x03f8 = 127<<3) for some strange reason.
+ * Oh well. */
+static int       LogFacility = LOG_USER;/* default facility code */
+/* bits mask of priorities (eight prios - 8 bits is enough) */
+static smalluint LogMask = 0xff;        /* mask of priorities to be logged */
+/* AF_UNIX address of local logger (we use struct sockaddr
+ * instead of struct sockaddr_un since "/dev/log" is small enough) */
+static const struct sockaddr SyslogAddr = {
+	.sa_family = AF_UNIX, /* sa_family_t (usually a short) */
+	.sa_data = _PATH_LOG  /* char [14] */
+};
 
 static void
-closelog_intern(const smalluint to_default)
+closelog_intern(int sig)
 {
 	__UCLIBC_MUTEX_LOCK(mylock);
 	if (LogFile != -1) {
-	    (void) close(LogFile);
+		(void) close(LogFile);
 	}
 	LogFile = -1;
 	connected = 0;
-	if (to_default)
-	{
+	if (sig != 0) {
 		LogStat = 0;
 		LogTag = "syslog";
 		LogFacility = LOG_USER;
 		LogMask = 0xff;
 	}
 	__UCLIBC_MUTEX_UNLOCK(mylock);
-}
-
-static void
-sigpipe_handler (attribute_unused int sig)
-{
-  closelog_intern (0);
 }
 
 /*
@@ -157,22 +160,19 @@ openlog( const char *ident, int logstat, int logfac )
     if (logfac != 0 && (logfac &~ LOG_FACMASK) == 0)
 	LogFacility = logfac;
     if (LogFile == -1) {
-	SyslogAddr.sa_family = AF_UNIX;
-	(void)strncpy(SyslogAddr.sa_data, _PATH_LOG,
-		      sizeof(SyslogAddr.sa_data));
 retry:
 	if (LogStat & LOG_NDELAY) {
 	    if ((LogFile = socket(AF_UNIX, logType, 0)) == -1) {
 		goto DONE;
 	    }
-	    fcntl(LogFile, F_SETFD, 1);
+	    fcntl(LogFile, F_SETFD, 1); /* 1 == FD_CLOEXEC */
+	    /* We don't want to block if e.g. syslogd is SIGSTOPed */
+	    fcntl(LogFile, F_SETFL, O_NONBLOCK | fcntl(LogFile, F_GETFL));
 	}
     }
 
     if (LogFile != -1 && !connected) {
-	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) -
-		    sizeof(SyslogAddr.sa_data) + strlen(SyslogAddr.sa_data)) != -1)
-	{
+	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr)) != -1) {
 	    connected = 1;
 	} else {
 	    if (LogFile != -1) {
@@ -208,7 +208,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	int sigpipe;
 
 	memset (&action, 0, sizeof (action));
-	action.sa_handler = sigpipe_handler;
+	action.sa_handler = closelog_intern;
 	sigemptyset (&action.sa_mask);
 	sigpipe = sigaction (SIGPIPE, &action, &oldaction);
 
@@ -255,7 +255,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	__set_errno(saved_errno);
 	p += vsnprintf(p, end - p, fmt, ap);
 	if (p >= end || p < head_end) {	/* Returned -1 in case of error... */
-		static const char truncate_msg[12] = "[truncated] ";
+		static const char truncate_msg[12] = "[truncated] "; /* no NUL! */
 		memmove(head_end + sizeof(truncate_msg), head_end,
 				end - head_end - sizeof(truncate_msg));
 		memcpy(head_end, truncate_msg, sizeof(truncate_msg));
@@ -280,29 +280,33 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	/* Output the message to the local logger using NUL as a message delimiter. */
 	p = tbuf;
 	*last_chr = 0;
-	do {
-		rc = write(LogFile, p, last_chr + 1 - p);
-		if (rc < 0) {
-			if ((errno==EAGAIN) || (errno==EINTR))
-				rc=0;
-			else {
-				closelog_intern(0);
-				break;
+	if (LogFile >= 0) {
+		do {
+			rc = write(LogFile, p, last_chr + 1 - p);
+			if (rc < 0) {
+				/* I don't think looping forever on EAGAIN is a good idea.
+				 * Imagine that syslogd is SIGSTOPed... */
+				if (/* (errno != EAGAIN) && */ (errno != EINTR)) {
+					closelog_intern(1); /* 1: reset LogXXX globals to default */
+					goto write_err;
+				}
+				rc = 0;
 			}
-		}
-		p+=rc;
-	} while (p <= last_chr);
-	if (rc >= 0)
+			p += rc;
+		} while (p <= last_chr);
 		goto getout;
+	}
 
+ write_err:
 	/*
 	 * Output the message to the console; don't worry about blocking,
 	 * if console blocks everything will.  Make sure the error reported
 	 * is the one from the syslogd failure.
 	 */
-	/* should mode be `O_WRONLY | O_NOCTTY' ? -- Uli */
-	if (LogStat & LOG_CONS &&
-	    (fd = open(_PATH_CONSOLE, O_WRONLY, 0)) >= 0) {
+	/* should mode be O_WRONLY | O_NOCTTY? -- Uli */
+	/* yes, but in Linux "/dev/console" never becomes ctty anyway -- vda */
+	if ((LogStat & LOG_CONS) &&
+	    (fd = open(_PATH_CONSOLE, O_WRONLY)) >= 0) {
 		p = strchr(tbuf, '>') + 1;
 		last_chr[0] = '\r';
 		last_chr[1] = '\n';
@@ -334,7 +338,7 @@ libc_hidden_def(syslog)
 void
 closelog( void )
 {
-	closelog_intern(1);
+	closelog_intern(0); /* 0: do not reset LogXXX globals to default */
 }
 libc_hidden_def(closelog)
 
