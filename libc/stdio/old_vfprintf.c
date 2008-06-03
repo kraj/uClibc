@@ -137,8 +137,6 @@
 #include <errno.h>
 #include <ctype.h>
 #include <bits/uClibc_uintmaxtostr.h>
-
-#define __PRINTF_INFO_NO_BITFIELD
 #include <printf.h>
 
 #ifdef __UCLIBC_HAS_THREADS__

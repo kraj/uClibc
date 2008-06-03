@@ -101,8 +101,6 @@
 #include <stdint.h>
 #include <errno.h>
 #include <locale.h>
-
-#define __PRINTF_INFO_NO_BITFIELD
 #include <printf.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
