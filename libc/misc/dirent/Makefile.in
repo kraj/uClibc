@@ -5,8 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC :=	alphasort.c closedir.c dirfd.c opendir.c readdir.c rewinddir.c scandir.c \
-	seekdir.c telldir.c readdir_r.c
+CSRC :=	alphasort.c closedir.c dirfd.c opendir.c readdir.c rewinddir.c \
+	scandir.c seekdir.c telldir.c readdir_r.c
 
 ifeq ($(UCLIBC_HAS_LFS),y)
 CSRC +=	readdir64.c alphasort64.c scandir64.c readdir64_r.c

@@ -287,14 +287,6 @@ if_nameindex (void)
 #endif
 libc_hidden_def(if_nameindex)
 
-#if 0
-struct if_nameindex *
-if_nameindex (void)
-{
-  return (if_nameindex_netlink () != NULL ? : if_nameindex_ioctl ());
-}
-#endif
-
 char *
 if_indextoname (unsigned int ifindex, char *ifname)
 {

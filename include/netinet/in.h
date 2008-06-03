@@ -216,6 +216,7 @@ extern const struct in6_addr in6addr_loopback;   /* ::1 */
 #include <bits/socket.h>
 
 
+#if 1 /* defined __UCLIBC_HAS_IPV4__ */
 /* Structure describing an Internet socket address.  */
 struct sockaddr_in
   {
@@ -229,6 +230,7 @@ struct sockaddr_in
 			   sizeof (in_port_t) -
 			   sizeof (struct in_addr)];
   };
+#endif
 
 /* Ditto, for IPv6.  */
 struct sockaddr_in6

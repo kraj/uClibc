@@ -16,8 +16,13 @@
 /* Experimentally off - libc_hidden_proto(strcpy) */
 libc_hidden_proto(uname)
 
-libc_hidden_proto(getdomainname)
-int getdomainname(char *name, size_t len)
+#if !defined __UCLIBC_BSD_SPECIFIC__
+extern int getdomainname (char *__name, size_t __len)
+	__THROW __nonnull ((1)) __wur;
+#endif
+extern __typeof(getdomainname) __libc_getdomainname;
+libc_hidden_proto(__libc_getdomainname)
+int __libc_getdomainname(char *name, size_t len)
 {
   struct utsname uts;
 
@@ -43,5 +48,10 @@ int getdomainname(char *name, size_t len)
 #endif
   return 0;
 }
-libc_hidden_def(getdomainname)
+libc_hidden_def(__libc_getdomainname)
+#if defined __UCLIBC_BSD_SPECIFIC__
+libc_hidden_proto(getdomainname)
+weak_alias(__libc_getdomainname,getdomainname)
+libc_hidden_weak(getdomainname)
+#endif /* __UCLIBC_BSD_SPECIFIC__ */
 #endif

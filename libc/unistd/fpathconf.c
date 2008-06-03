@@ -32,7 +32,21 @@
 //#include "linux_fsinfo.h"
 
 libc_hidden_proto(fstat)
-libc_hidden_proto(fstatfs)
+#if !defined __UCLIBC_LINUX_SPECIFIC__
+#ifndef __USE_FILE_OFFSET64
+extern int fstatfs (int __fildes, struct statfs *__buf)
+     __THROW __nonnull ((2));
+#else
+# ifdef __REDIRECT_NTH
+	 extern int __REDIRECT_NTH (fstatfs, (int __fildes, struct statfs *__buf),
+	                            fstatfs64) __nonnull ((2));
+# else
+#  define fstatfs fstatfs64
+# endif
+#endif
+#endif
+extern __typeof(fstatfs) __libc_fstatfs;
+libc_hidden_proto(__libc_fstatfs)
 
 /* The Linux kernel headers mention this as a kind of generic value.  */
 #define LINUX_LINK_MAX	127
@@ -54,7 +68,7 @@ long int fpathconf(int fd, int name)
 	struct statfs fsbuf;
 
 	/* Determine the filesystem type.  */
-	if (fstatfs (fd, &fsbuf) < 0)
+	if (__libc_fstatfs (fd, &fsbuf) < 0)
 	{
 	    if (errno == ENOSYS)
 		/* not possible, return the default value.  */
@@ -128,7 +142,7 @@ long int fpathconf(int fd, int name)
 		struct statfs buf;
 		int save_errno = errno;
 
-		if (fstatfs (fd, &buf) < 0)
+		if (__libc_fstatfs (fd, &buf) < 0)
 		{
 		    if (errno == ENOSYS)
 		    {

@@ -21,7 +21,7 @@ void * sbrk (intptr_t increment)
     void *oldbrk;
 
     if (__curbrk == NULL)
-	if (brk (0) < 0)		/* Initialize the break.  */
+	if (brk (NULL) < 0)	/* Initialize the break.  */
 	    return (void *) -1;
 
     if (increment == 0)

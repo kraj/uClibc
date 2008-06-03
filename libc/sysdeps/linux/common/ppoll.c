@@ -20,7 +20,7 @@
 #include <sys/syscall.h>
 #include <sys/poll.h>
 
-#ifdef __NR_ppoll
+#if defined __NR_ppoll && defined __UCLIBC_LINUX_SPECIFIC__
 
 libc_hidden_proto(ppoll)
 

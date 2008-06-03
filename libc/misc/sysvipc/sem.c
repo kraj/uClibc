@@ -19,6 +19,7 @@
 
 #include <errno.h>
 #include <sys/sem.h>
+#include <stddef.h>
 #include "ipc.h"
 
 
@@ -26,6 +27,7 @@
 /* Return identifier for array of NSEMS semaphores associated with
    KEY.  */
 #include <stdarg.h>
+#include <stdlib.h>
 /* arg for semctl system calls. */
 union semun {
     int val;			/* value for SETVAL */
@@ -53,7 +55,7 @@ int semctl(int semid, int semnum, int cmd, ...)
 #ifdef __NR_semctl
     return __semctl(semid, semnum, cmd | __IPC_64, arg.__pad);
 #else
-    return __syscall_ipc(IPCOP_semctl, semid, semnum, cmd | __IPC_64, &arg, 0);
+    return __syscall_ipc(IPCOP_semctl, semid, semnum, cmd|__IPC_64, &arg, NULL);
 #endif
 }
 #endif
@@ -84,7 +86,7 @@ _syscall3(int, semop, int, semid, struct sembuf *, sops, size_t, nsops);
 /* Perform user-defined atomical operation of array of semaphores.  */
 int semop (int semid, struct sembuf *sops, size_t nsops)
 {
-    return __syscall_ipc(IPCOP_semop, semid, (int) nsops, 0, sops, 0);
+    return __syscall_ipc(IPCOP_semop, semid, (int) nsops, 0, sops, NULL);
 }
 #endif
 #endif

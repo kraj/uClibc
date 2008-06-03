@@ -14,4 +14,6 @@ libc_hidden_proto(adjtimex)
 
 _syscall1(int, adjtimex, struct timex *, buf);
 libc_hidden_def(adjtimex)
+#if defined __UCLIBC_NTP_LEGACY__
 strong_alias(adjtimex,ntp_adjtime)
+#endif

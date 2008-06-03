@@ -20,6 +20,10 @@ libutil_SRC := $(wildcard $(libutil_DIR)/*.c)
 ifneq ($(ARCH_USE_MMU),y)
 libutil_SRC := $(filter-out $(libutil_DIR)/forkpty.c,$(libutil_SRC))
 endif
+ifneq ($(UCLIBC_HAS_PTY),y)
+libutil_SRC := $(filter-out $(libutil_DIR)/openpty.c $(libutil_DIR)/forkpty.c \
+		,$(libutil_SRC))
+endif
 libutil_OBJ := $(patsubst $(libutil_DIR)/%.c,$(libutil_OUT)/%.o,$(libutil_SRC))
 
 ifeq ($(DOPIC),y)

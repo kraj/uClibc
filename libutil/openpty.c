@@ -106,7 +106,7 @@ openpty (int *amaster, int *aslave, char *name, struct termios *termp,
 #endif
   int master, slave;
 
-  master = getpt ();
+  master = posix_openpt (O_RDWR);
   if (master == -1)
     return -1;
 

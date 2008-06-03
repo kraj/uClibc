@@ -8,7 +8,9 @@
  */
 
 #include <sys/syscall.h>
+
+#if defined __NR_munlockall && defined __ARCH_USE_MMU__
 #include <sys/mman.h>
-#if defined __ARCH_USE_MMU__
+
 _syscall0(int, munlockall);
 #endif

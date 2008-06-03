@@ -168,7 +168,8 @@ libc_hidden_def(listen)
 extern __typeof(recv) __libc_recv;
 #ifdef __NR_recv
 #define __NR___libc_recv __NR_recv
-_syscall4(ssize_t, __libc_recv, int, sockfd, __ptr_t, buffer, size_t, len, int, flags);
+_syscall4(ssize_t, __libc_recv, int, sockfd, __ptr_t, buffer, size_t, len,
+	int, flags);
 #elif defined(__NR_socketcall)
 /* recv, recvfrom added by bir7@leland.stanford.edu */
 ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
@@ -197,8 +198,8 @@ libc_hidden_weak(recv)
 extern __typeof(recvfrom) __libc_recvfrom;
 #ifdef __NR_recvfrom
 #define __NR___libc_recvfrom __NR_recvfrom
-_syscall6(ssize_t, __libc_recvfrom, int, sockfd, __ptr_t, buffer, size_t, len, int, flags, 
-	struct sockaddr *, to, socklen_t *, tolen);
+_syscall6(ssize_t, __libc_recvfrom, int, sockfd, __ptr_t, buffer, size_t, len,
+	int, flags, struct sockaddr *, to, socklen_t *, tolen);
 #elif defined(__NR_socketcall)
 /* recv, recvfrom added by bir7@leland.stanford.edu */
 ssize_t __libc_recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
@@ -295,8 +296,8 @@ libc_hidden_weak(sendmsg)
 extern __typeof(sendto) __libc_sendto;
 #ifdef __NR_sendto
 #define __NR___libc_sendto  __NR_sendto
-_syscall6(ssize_t, __libc_sendto, int, sockfd, const void *, buffer, size_t, len, 
-	int, flags, const struct sockaddr *, to, socklen_t, tolen);
+_syscall6(ssize_t, __libc_sendto, int, sockfd, const void *, buffer,
+	size_t, len, int, flags, const struct sockaddr *, to, socklen_t, tolen);
 #elif defined(__NR_socketcall)
 /* send, sendto added by bir7@leland.stanford.edu */
 ssize_t __libc_sendto(int sockfd, const void *buffer, size_t len, int flags,

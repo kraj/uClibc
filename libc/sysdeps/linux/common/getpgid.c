@@ -8,6 +8,8 @@
  */
 
 #include <sys/syscall.h>
+
+#if defined __USE_UNIX98
 #include <unistd.h>
 
 #define __NR___syscall_getpgid __NR_getpgid
@@ -17,3 +19,4 @@ pid_t getpgid(pid_t pid)
 {
 	return (__syscall_getpgid(pid));
 }
+#endif

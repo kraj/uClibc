@@ -9,8 +9,9 @@
 
 /* libc isn't really supposed to export this */
 #if 0
-
 #include <sys/syscall.h>
-_syscall3(int, sysfs, int, option, unsigned int, index, char, addr);
 
+#if defined __USE_SVID
+_syscall3(int, sysfs, int, option, unsigned int, index, char, addr);
+#endif
 #endif

@@ -10,6 +10,8 @@
 #include <sys/syscall.h>
 #include <time.h>
 
+#if defined __USE_POSIX199309 && defined __NR_nanosleep
+
 extern __typeof(nanosleep) __libc_nanosleep;
 #define __NR___libc_nanosleep __NR_nanosleep
 _syscall2(int, __libc_nanosleep, const struct timespec *, req,
@@ -17,3 +19,4 @@ _syscall2(int, __libc_nanosleep, const struct timespec *, req,
 libc_hidden_proto(nanosleep)
 weak_alias(__libc_nanosleep,nanosleep)
 libc_hidden_weak(nanosleep)
+#endif

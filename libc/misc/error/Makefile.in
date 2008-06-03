@@ -5,7 +5,13 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := error.c err.c
+CSRC :=
+ifeq ($(UCLIBC_HAS_BSD_ERR),y)
+CSRC += err.c
+endif
+ifeq ($(UCLIBC_HAS_GNU_ERROR),y)
+CSRC += error.c
+endif
 
 MISC_ERROR_DIR := $(top_srcdir)libc/misc/error
 MISC_ERROR_OUT := $(top_builddir)libc/misc/error

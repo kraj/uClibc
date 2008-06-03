@@ -489,7 +489,7 @@ extern void cfree (void *__ptr) __THROW;
 extern void *valloc (size_t __size) __THROW __attribute_malloc__ __wur;
 #endif
 
-#ifdef __USE_XOPEN2K
+#if defined __USE_XOPEN2K && defined __UCLIBC_HAS_ADVANCED_REALTIME__
 /* Allocate memory of SIZE bytes with an alignment of ALIGNMENT.  */
 extern int posix_memalign (void **__memptr, size_t __alignment, size_t __size)
      __THROW __nonnull ((1)) __wur;
@@ -817,7 +817,7 @@ extern int posix_openpt (int __oflag) __wur;
 #ifdef __USE_XOPEN
 /* The next four functions all take a master pseudo-tty fd and
    perform an operation on the associated slave:  */
-
+#ifdef __UCLIBC_HAS_PTY__
 /* Chown the slave to the calling user.  */
 extern int grantpt (int __fd) __THROW;
 
@@ -829,6 +829,7 @@ extern int unlockpt (int __fd) __THROW;
    the master FD is open on, or NULL on errors.
    The returned storage is good until the next call to this function.  */
 extern char *ptsname (int __fd) __THROW __wur;
+#endif /* __UCLIBC_HAS_PTY__ */
 #endif
 
 #ifdef __USE_GNU

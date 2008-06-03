@@ -10,17 +10,13 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#ifdef __NR_msync
+#if defined __NR_msync && defined __ARCH_USE_MMU__
 
 #include <sys/mman.h>
-
-#ifdef __ARCH_USE_MMU__
 
 extern __typeof(msync) __libc_msync;
 #define __NR___libc_msync __NR_msync
 _syscall3(int, __libc_msync, void *, addr, size_t, length, int, flags);
 weak_alias(__libc_msync,msync)
-
-#endif
 
 #endif

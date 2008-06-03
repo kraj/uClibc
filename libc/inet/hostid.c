@@ -47,7 +47,7 @@ long int gethostid(void)
 	char host[MAXHOSTNAMELEN + 1];
 	int fd, id;
 
-	/* If hostid was already set the we can return that value.
+	/* If hostid was already set then we can return that value.
 	 * It is not an error if we cannot read this file. It is not even an
 	 * error if we cannot read all the bytes, we just carry on trying...
 	 */

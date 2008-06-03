@@ -16,6 +16,7 @@ librt_FULL_NAME := librt-$(VERSION).so
 librt_DIR := $(top_srcdir)librt
 librt_OUT := $(top_builddir)librt
 
+ifeq ($(UCLIBC_HAS_REALTIME),y)
 librt_SRC := $(wildcard $(librt_DIR)/*.c)
 librt_OBJ := $(patsubst $(librt_DIR)/%.c,$(librt_OUT)/%.o,$(librt_SRC))
 
@@ -28,7 +29,7 @@ librt-so-y += $(librt_OBJ:.o=.os)
 
 lib-a-y += $(top_builddir)lib/librt.a
 lib-so-y += $(top_builddir)lib/librt.so
-objclean-y += librt_clean
+endif
 
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(libc.depend)
@@ -47,6 +48,8 @@ $(top_builddir)lib/librt.a: $(librt-a-y)
 	$(Q)$(RM) $@
 	$(do_strip)
 	$(do_ar)
+
+objclean-y += librt_clean
 
 librt_clean:
 	$(RM) $(librt_OUT)/*.{o,os,a}

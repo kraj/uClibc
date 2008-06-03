@@ -6,10 +6,11 @@
  */
 
 #include <sys/syscall.h>
+
+#if defined __USE_SVID || defined __USE_XOPEN
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#ifdef __NR_waitid
 _syscall4(int, waitid, idtype_t, idtype, id_t, id, siginfo_t*, infop, int, options);
 #endif

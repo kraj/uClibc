@@ -357,7 +357,7 @@ config HAS_NO_THREADS
 	default n
 
 config UCLIBC_HAS_THREADS
-	bool "POSIX Threading Support"
+	bool "POSIX Threading support"
 	depends on !HAS_NO_THREADS
 	default y
 	help
@@ -398,6 +398,15 @@ config LINUXTHREADS_OLD
 	  which glibc does not support (like bfin/frv/etc...), but is based on
 	  the latest code from glibc, so it may be the only choice for the
 	  newer ports (like alpha/amd64/64bit arches and hppa).
+
+config UCLIBC_HAS_SYSLOG
+	bool "Syslog support"
+	default y
+	depends on UCLIBC_HAS_NETWORK_SUPPORT
+	select UCLIBC_HAS_SOCKET
+	help
+	  Support sending messages to the system logger.
+	  This requires socket-support.
 
 config UCLIBC_HAS_LFS
 	bool "Large File Support"
@@ -493,7 +502,7 @@ config UCLIBC_SUSV3_LEGACY
 	help
 	  Enable this option if you want to have SuSv3 LEGACY functions
 	  in the library, else they are replaced by SuSv3 proposed macros.
-	  Currently applies to bcopy/bzero/bcmp/index/rindex.
+	  Currently applies to bcopy/bzero/bcmp/index/rindex/ftime.
 	  WARNING! ABI incompatibility.
 
 config UCLIBC_SUSV3_LEGACY_MACROS
@@ -538,17 +547,40 @@ config UCLIBC_HAS___PROGNAME
 
 	  If unsure, just answer N.
 
+config UCLIBC_HAS_PTY
+	bool "Support for pseudo-terminals"
+	default y
+	help
+	  This enables support for pseudo-terminals (see man 4 pts
+	  and man 7 pty).
+
+	  If unsure, just answer Y.
+
 config UNIX98PTY_ONLY
 	bool "Support only Unix 98 PTYs"
 	default y
+	depends on UCLIBC_HAS_PTY
 	help
 	  If you want to support only Unix 98 PTYs enable this.  Some older
 	  applications may need this disabled.  For most current programs,
 	  you can generally answer Y.
 
+config UCLIBC_HAS_GETPT
+	bool "Support getpt() (glibc-compat)"
+	default n
+	depends on UCLIBC_HAS_PTY
+	help
+	  Some packages may need getpt().
+	  All of those are non-standard and can be considered
+	  GNU/libc compatibility.
+	  Either use posix_openpt() or just open /dev/ptmx yourself.
+
+	  If unsure, just say N.
+
 config ASSUME_DEVPTS
 	bool "Assume that /dev/pts is a devpts or devfs file system"
 	default y
+	depends on UCLIBC_HAS_PTY
 	help
 	  Enable this if /dev/pts is on a devpts or devfs filesystem.  Both
 	  these filesystems automatically manage permissions on the /dev/pts
@@ -649,6 +681,8 @@ config UCLIBC_GRP_BUFFER_SIZE
 	  The value can be found using sysconf() with the _SC_GETGR_R_SIZE_MAX
 	  parameter.
 
+comment "Support various families of functions"
+
 config UCLIBC_LINUX_MODULE_24
 	bool "Linux kernel module functions"
 	default y
@@ -659,13 +693,250 @@ config UCLIBC_LINUX_MODULE_24
 
 	  Say N if you do not use kernel modules.
 
+config UCLIBC_LINUX_SPECIFIC
+	bool "Linux specific functions"
+	default y
+	help
+	  fstatfs(), inotify_*(), ioperm(), iopl(), madvise(), modify_ldt(),
+	  personality(), ppoll(), setresuid()
+
+config UCLIBC_HAS_GNU_ERROR
+	bool "Support GNU extensions for error-reporting"
+	default y
+	help
+	  Support for the GNU-specific error(), error_at_line(),
+	  void (* error_print_progname)(), error_message_count
+	  functions and variables.  Some GNU packages
+	  utilize these for extra useful output, but in general
+	  are not required.
+
+	  If unsure, just answer N.
+
+config UCLIBC_BSD_SPECIFIC
+	bool "BSD specific functions"
+	default y
+	help
+	  mincore(), getdomainname(), setdomainname()
+
+	  If unsure, say N.
+
+config UCLIBC_HAS_BSD_ERR
+	bool "BSD err functions"
+	default y
+	help
+	  These functions are non-standard BSD extensions.
+	  err(), errx(), warn(), warnx(), verr(), verrx(), vwarn(), vwarnx()
+
+	  If unsure, say N.
+
+config UCLIBC_HAS_OBSOLETE_BSD_SIGNAL
+	bool "BSD obsolete signal functions"
+	default n
+	help
+	  These  functions are provided as a compatibility interface for
+	  programs that make use of the historical System V signal API.
+	  This API is obsolete:
+	  new applications should use the POSIX signal API (sigaction(2),
+	  sigprocmask(2), etc.).
+	  Affected functions:
+
+	  sigset(), sighold(), sigrelse(), sigignore()
+
+	  If unsure, say N.
+
+config UCLIBC_HAS_OBSOLETE_SYSV_SIGNAL
+	bool "SYSV obsolete signal functions"
+	default n
+	help
+	  Use of sysv_signal() should be avoided; use sigaction(2) instead.
+
+	  If unsure, say N.
+
+config UCLIBC_NTP_LEGACY
+	bool "ntp_*() aliases"
+	default n
+	help
+	  Provide legacy aliases for ntp functions:
+	  ntp_adjtime(), ntp_gettime()
+
+	  It is safe to say N here.
+
+config UCLIBC_SV4_DEPRECATED
+	bool "Enable SVr4 deprecated functions"
+	default n
+	help
+	  These functions are DEPRECATED in System V release 4.
+	  Say N unless you desparately need one of the functions below:
+
+	  ustat() [use statfs(2) in your code instead]
+
+config UCLIBC_HAS_REALTIME
+	bool "Realtime-related family of SUSv functions"
+	default y
+	# glitch in mq_{send,receive} currently forces this on
+	select UCLIBC_HAS_ADVANCED_REALTIME
+	help
+	  These functions are part of the Timers option and need not
+	  be available on all implementations.
+	  Includes AIO, message-queue, scheduler, semaphore functions:
+
+	  aio.h
+	  mqueue.h
+	  sched.h
+	  semaphore.h
+
+	  aio_cancel()
+	  aio_error()
+	  aio_fsync()
+	  aio_read()
+	  lio_listio()
+	  aio_return()
+	  aio_suspend()
+	  aio_write()
+	  clock_getres(), clock_gettime(), clock_settime()
+	  fdatasync()
+	  mlockall(), munlockall()
+	  mlock(), munlock()
+	  mq_close()
+	  mq_getattr()
+	  mq_notify()
+	  mq_open()
+	  mq_receive()
+	  mq_send()
+	  mq_setattr()
+	  mq_unlink()
+	  nanosleep()
+	  sched_getparam()
+	  sched_get_priority_max(), sched_get_priority_min()
+	  sched_getscheduler()
+	  sched_rr_get_interval()
+	  sched_setparam()
+	  sched_setscheduler()
+	  sem_close()
+	  sem_destroy()
+	  sem_getvalue()
+	  sem_init()
+	  sem_open()
+	  sem_post()
+	  sem_trywait(), sem_wait()
+	  sem_unlink()
+	  sigqueue()
+	  sigtimedwait(), sigwaitinfo()
+	  timer_create()
+	  timer_delete()
+	  timer_getoverrun(), timer_gettime(), timer_settime()
+
+config UCLIBC_HAS_ADVANCED_REALTIME
+	bool "Advanced realtime-related family of SUSv functions"
+	default y
+	depends on UCLIBC_HAS_REALTIME
+	help
+	  These functions are part of the Timers option and need not
+	  be available on all implementations.
+
+	  clock_getcpuclockid()
+	  clock_nanosleep()
+	  mq_timedreceive()
+	  mq_timedsend()
+	  posix_fadvise()
+	  posix_fallocate()
+	  posix_madvise()
+	  posix_memalign()
+	  posix_mem_offset()
+	  posix_spawnattr_destroy(), posix_spawnattr_init()
+	  posix_spawnattr_getflags(), posix_spawnattr_setflags()
+	  posix_spawnattr_getpgroup(), posix_spawnattr_setpgroup()
+	  posix_spawnattr_getschedparam(), posix_spawnattr_setschedparam()
+	  posix_spawnattr_getschedpolicy(), posix_spawnattr_setschedpolicy()
+	  posix_spawnattr_getsigdefault(), posix_spawnattr_setsigdefault()
+	  posix_spawnattr_getsigmask(), posix_spawnattr_setsigmask()
+	  posix_spawn_file_actions_addclose()
+	  posix_spawn_file_actions_adddup2()
+	  posix_spawn_file_actions_addopen()
+	  posix_spawn_file_actions_destroy()
+	  posix_spawn_file_actions_init()
+	  posix_spawn()
+	  posix_spawnp()
+	  posix_typed_mem_get_info()
+	  pthread_mutex_timedlock()
+	  sem_timedwait()
+
+#config UCLIBC_HAS_TERMIOS
+#	bool "termios functions"
+#	default y
+#	help
+#	  Get and set terminal attributes, line control, get and set baud
+#	  rate.
+#	  termios(), tcgetattr(), tcsetattr(), tcsendbreak(), tcdrain(),
+#	  tcflush(), tcflow(), cfmakeraw(), cfgetospeed(), cfgetispeed(),
+#	  cfsetispeed(), cfsetospeed(), cfsetspeed()
+#
+#	  If unsure, say Y.
+
+config UCLIBC_HAS_EPOLL
+	bool "epoll"
+	default y
+	help
+	  epoll_create(), epoll_ctl(), epoll_wait() functions.
+
+config UCLIBC_HAS_XATTR
+	bool "Extended Attributes"
+	default y
+	help
+	  Extended Attributes support.
+
+	  setxattr()
+	  lsetxattr()
+	  fsetxattr()
+	  getxattr()
+	  lgetxattr()
+	  fgetxattr()
+	  listxattr()
+	  llistxattr()
+	  flistxattr()
+	  removexattr()
+	  lremovexattr()
+	  fremovexattr()
+
+	  Say N unless you need support for extended attributes and the
+	  filesystems do actually support them.
+
+config UCLIBC_HAS_PROFILING
+	bool "Profiling support"
+	default y
+	help
+	  gcc's -finstrument-functions needs these.
+
+	  Most people can safely answer N.
 endmenu
 
-menu "Networking Support"
+menuconfig UCLIBC_HAS_NETWORK_SUPPORT
+	bool "Networking Support"
+	default y
+	help
+	  Say N here if you do not need network support.
+
+if UCLIBC_HAS_NETWORK_SUPPORT
+config UCLIBC_HAS_SOCKET
+	bool "Socket support"
+	default y
+	help
+	  If you want to include support for sockets then answer Y.
+
+config UCLIBC_HAS_IPV4
+	bool "IP version 4 support"
+	default y
+	select UCLIBC_HAS_SOCKET
+	help
+	  If you want to include support for the Internet Protocol
+	  (IP version 4) then answer Y.
+
+	  Most people will say Y.
 
 config UCLIBC_HAS_IPV6
-	bool "IP version 6 Support"
+	bool "IP version 6 support"
 	default n
+	select UCLIBC_HAS_SOCKET
 	help
 	  If you want to include support for the next version of the Internet
 	  Protocol (IP version 6) then answer Y.
@@ -703,6 +974,7 @@ config UCLIBC_HAS_REENTRANT_RPC
 config UCLIBC_USE_NETLINK
 	bool "Use netlink to query interfaces"
 	default n
+	depends on UCLIBC_HAS_SOCKET
 	help
 	  In newer versions of Linux (2.4.17+), support was added for querying
 	  network device information via netlink rather than the old style
@@ -722,7 +994,7 @@ config UCLIBC_HAS_BSD_RES_CLOSE
 
 	  Most people will say N.
 
-endmenu
+endif
 
 
 menu "String and Stdio Support"

@@ -20,8 +20,13 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <paths.h>
+#include <sys/statfs.h>
+
+extern __typeof(statfs) __libc_statfs;
+libc_hidden_proto(__libc_statfs)
 
 libc_hidden_proto(open)
 libc_hidden_proto(close)
@@ -47,36 +52,37 @@ extern int __bsd_getpt (void) attribute_hidden;
 
 /* Open a master pseudo terminal and return its file descriptor.  */
 int
-getpt (void)
+posix_openpt (int flags)
 {
+#define have_no_dev_ptmx (1<<0)
+#define devpts_mounted   (1<<1)
 #if !defined __UNIX98PTY_ONLY__
-  static smallint have_no_dev_ptmx;
+  static smallint _state;
 #endif
   int fd;
 
 #if !defined __UNIX98PTY_ONLY__
-  if (!have_no_dev_ptmx)
+  if (!(_state & have_no_dev_ptmx))
 #endif
     {
-      fd = open (_PATH_DEVPTMX, O_RDWR);
+      fd = open (_PATH_DEVPTMX, flags);
       if (fd != -1)
 	{
 #if defined __ASSUME_DEVPTS__
 	  return fd;
 #else
 	  struct statfs fsbuf;
-	  static smallint devpts_mounted;
 
 	  /* Check that the /dev/pts filesystem is mounted
 	     or if /dev is a devfs filesystem (this implies /dev/pts).  */
-	  if (devpts_mounted
-	      || (statfs (_PATH_DEVPTS, &fsbuf) == 0
+	  if ((_state & devpts_mounted)
+	      || (__libc_statfs (_PATH_DEVPTS, &fsbuf) == 0
 		  && fsbuf.f_type == DEVPTS_SUPER_MAGIC)
-	      || (statfs (_PATH_DEV, &fsbuf) == 0	
+	      || (__libc_statfs (_PATH_DEV, &fsbuf) == 0
 		  && fsbuf.f_type == DEVFS_SUPER_MAGIC))
 	    {
 	      /* Everything is ok.  */
-	      devpts_mounted = 1;
+	      _state |= devpts_mounted;
 	      return fd;
 	    }
 
@@ -84,7 +90,7 @@ getpt (void)
              are not usable.  */
 	  close (fd);
 #if !defined __UNIX98PTY_ONLY__
-	  have_no_dev_ptmx = 1;
+	  _state |= have_no_dev_ptmx;
 #endif
 #endif
 	}
@@ -92,16 +98,25 @@ getpt (void)
 	{
 #if !defined __UNIX98PTY_ONLY__
 	  if (errno == ENOENT || errno == ENODEV)
-	    have_no_dev_ptmx = 1;
+	    _state |= have_no_dev_ptmx;
 	  else
 #endif
 	    return -1;
 	}
     }
+  return -1;
+}
 
+#if defined __USE_GNU && defined __UCLIBC_HAS_GETPT__
+int
+getpt (void)
+{
+	int fd = posix_openpt(O_RDWR);
 #if !defined __UNIX98PTY_ONLY__
-  return __bsd_getpt ();
+	if (fd == -1)
+		fd = __bsd_getpt();
 #endif
+	return fd;
 }
 
 #if !defined __UNIX98PTY_ONLY__
@@ -111,3 +126,4 @@ getpt (void)
 # define __getpt __bsd_getpt
 # include "bsd_getpt.c"
 #endif
+#endif /* GNU && __UCLIBC_HAS_GETPT__ */

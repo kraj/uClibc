@@ -501,7 +501,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		return -EAI_FAMILY;
 	}
 
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
 	if (at->family == AF_UNSPEC)
 	{
 	    char *namebuf = strdupa (name);
@@ -558,7 +558,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	     * IPv6 addresses.
 	     */
 
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
 	    if (req->ai_family == AF_UNSPEC || req->ai_family == AF_INET6)
 		gethosts (AF_INET6, struct in6_addr);
 #endif
@@ -598,7 +598,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	    memset (at->next, '\0', sizeof (struct gaih_addrtuple));
 	}
 
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
 	if (req->ai_family == 0 || req->ai_family == AF_INET6)
 	{
 	    at->family = AF_INET6;
@@ -680,19 +680,22 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	    else
 		namelen = 0;
 
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
 	    if (at2->family == AF_INET6 || v4mapped)
 	    {
 		family = AF_INET6;
 		socklen = sizeof (struct sockaddr_in6);
 	    }
+#endif
+#if defined __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__
 	    else
 #endif
+#if defined __UCLIBC_HAS_IPV4__
 	    {
 		family = AF_INET;
 		socklen = sizeof (struct sockaddr_in);
 	    }
-
+#endif
 	    for (st2 = st; st2 != NULL; st2 = st2->next)
 	    {
 		*pai = malloc (sizeof (struct addrinfo) + socklen + namelen);
@@ -710,7 +713,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 #endif /* SALEN */
 		(*pai)->ai_addr->sa_family = family;
 
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
 		if (family == AF_INET6)
 		{
 		    struct sockaddr_in6 *sin6p =
@@ -733,8 +736,11 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		    sin6p->sin6_port = st2->port;
 		    sin6p->sin6_scope_id = at2->scopeid;
 		}
+#endif
+#if defined __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__
 		else
 #endif
+#if defined __UCLIBC_HAS_IPV4__
 		{
 		    struct sockaddr_in *sinp =
 			(struct sockaddr_in *) (*pai)->ai_addr;
@@ -744,7 +750,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		    sinp->sin_port = st2->port;
 		    memset (sinp->sin_zero, '\0', sizeof (sinp->sin_zero));
 		}
-
+#endif
 		if (c)
 		{
 		    (*pai)->ai_canonname = ((void *) (*pai) +
@@ -766,7 +772,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 
 static struct gaih gaih[] =
 {
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
     { PF_INET6, gaih_inet },
 #endif
     { PF_INET, gaih_inet },

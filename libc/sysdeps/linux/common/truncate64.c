@@ -57,7 +57,7 @@ int truncate64 (const char * path, __off64_t length)
 }
 
 #else /* __WORDSIZE */
-#error Your machine is not 64 bit or 32 bit, I am dazed and confused.
+#error Your machine is not 64 bit nor 32 bit, I am dazed and confused.
 #endif /* __WORDSIZE */
 
 #else  /* __NR_truncate64 */

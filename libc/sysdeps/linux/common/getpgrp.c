@@ -11,5 +11,6 @@
 #include <unistd.h>
 
 #ifdef __NR_getpgrp
+/* According to the manpage the POSIX.1 version is favoured */
 _syscall0(pid_t, getpgrp);
 #endif

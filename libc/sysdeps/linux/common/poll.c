@@ -28,7 +28,7 @@ extern __typeof(poll) __libc_poll;
 _syscall3(int, __libc_poll, struct pollfd *, fds,
 	unsigned long int, nfds, int, timeout);
 
-#elif defined(__NR_ppoll)
+#elif defined(__NR_ppoll) && defined __UCLIBC_LINUX_SPECIFIC__
 
 libc_hidden_proto(ppoll)
 int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)

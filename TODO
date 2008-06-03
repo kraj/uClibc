@@ -144,6 +144,10 @@ Manuel's todo:
   e) Allow use of the older non-table-based ctype functions when using
      stub locale support. (smaller)
   f) __drand48_iterate should be void
+  g) alphasort vs. versionsort. The former seems to be SVID, the latter GNU
+     i.e. reverse to what we currently do. The latter is unimplemented.
+  h) ponder removal/configs to turn off: __xpg_*, bsd_signal, dysize,
+     getw/putw, utimes,
 
   2) Additional str{f|p}time issues.
   ----------------------------------

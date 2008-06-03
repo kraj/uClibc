@@ -703,10 +703,12 @@ extern int getresuid (__uid_t *__ruid, __uid_t *__euid, __uid_t *__suid)
 extern int getresgid (__gid_t *__rgid, __gid_t *__egid, __gid_t *__sgid)
      __THROW;
 
+#if defined __UCLIBC_LINUX_SPECIFIC__
 /* Set the real user ID, effective user ID, and saved-set user ID,
    of the calling process to RUID, EUID, and SUID, respectively.  */
 extern int setresuid (__uid_t __ruid, __uid_t __euid, __uid_t __suid)
      __THROW;
+#endif
 
 /* Set the real group ID, effective group ID, and saved-set group ID,
    of the calling process to RGID, EGID, and SGID, respectively.  */
@@ -857,7 +859,7 @@ extern int sethostname (__const char *__name, size_t __len)
    This call is restricted to the super-user.  */
 extern int sethostid (long int __id) __THROW __wur;
 
-
+#if defined __UCLIBC_BSD_SPECIFIC__
 /* Get and set the NIS (aka YP) domain name, if any.
    Called just like `gethostname' and `sethostname'.
    The NIS domain name is usually the empty string when not using NIS.  */
@@ -865,7 +867,7 @@ extern int getdomainname (char *__name, size_t __len)
      __THROW __nonnull ((1)) __wur;
 extern int setdomainname (__const char *__name, size_t __len)
      __THROW __nonnull ((1)) __wur;
-
+#endif
 
 /* Revoke access permissions to all processes currently communicating
    with the control terminal, and then send a SIGHUP signal to the process
@@ -1064,7 +1066,8 @@ extern int lockf64 (int __fd, int __cmd, __off64_t __len) __wur;
        __result; }))
 #endif
 
-#if defined __USE_POSIX199309 || defined __USE_UNIX98
+#if (defined __USE_POSIX199309 || defined __USE_UNIX98) \
+	&& defined __UCLIBC_HAS_REALTIME__
 /* Synchronize at least the data part of a file with the underlying
    media.  */
 extern int fdatasync (int __fildes) __THROW;

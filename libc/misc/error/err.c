@@ -19,6 +19,8 @@
 #warning REMINDER: Deal with wide oriented stderr case.
 #endif
 
+#if defined __USE_BSD
+
 libc_hidden_proto(vwarn)
 libc_hidden_proto(vwarnx)
 libc_hidden_proto(verr)
@@ -124,3 +126,4 @@ void attribute_noreturn errx(int status, const char *format, ...)
 	while(1)
 		va_end(args);
 }
+#endif

@@ -8,7 +8,7 @@
  */
 
 #include <sys/syscall.h>
-#ifdef __USE_GNU
+#if defined __USE_GNU && defined __UCLIBC_LINUX_SPECIFIC__
 #include <unistd.h>
 
 #if defined(__NR_setresuid32)

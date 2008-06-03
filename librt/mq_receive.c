@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <sys/syscall.h>
 #include <mqueue.h>
+#warning FIXME: hard dependency on ADVANCED REALTIME feature
 
 librt_hidden_proto(mq_timedreceive)
 #ifdef __NR_mq_timedreceive

@@ -74,6 +74,7 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
  */
 int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 {
+#warning This is not correct as far as SUSv3 is concerned.
 	return ENOSYS;
 }
 #endif /* __NR_fadvise64_64 */

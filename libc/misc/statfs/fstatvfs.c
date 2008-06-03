@@ -34,7 +34,21 @@ libc_hidden_proto(setmntent)
 libc_hidden_proto(getmntent_r)
 libc_hidden_proto(endmntent)
 
-libc_hidden_proto(fstatfs)
+#if !defined __UCLIBC_LINUX_SPECIFIC__
+#ifndef __USE_FILE_OFFSET64
+extern int fstatfs (int __fildes, struct statfs *__buf)
+     __THROW __nonnull ((2));
+#else
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (fstatfs, (int __fildes, struct statfs *__buf),
+			   fstatfs64) __nonnull ((2));
+# else
+#  define fstatfs fstatfs64
+# endif
+#endif
+#endif
+extern __typeof(fstatfs) __libc_fstatfs;
+libc_hidden_proto(__libc_fstatfs)
 libc_hidden_proto(fstat)
 libc_hidden_proto(stat)
 
@@ -44,7 +58,7 @@ int fstatvfs (int fd, struct statvfs *buf)
     struct stat st;
 
     /* Get as much information as possible from the system.  */
-    if (fstatfs (fd, &fsbuf) < 0)
+    if (__libc_fstatfs (fd, &fsbuf) < 0)
 	return -1;
 
 #define STAT(st) fstat (fd, st)

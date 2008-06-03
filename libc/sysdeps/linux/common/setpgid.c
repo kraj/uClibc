@@ -8,6 +8,8 @@
  */
 
 #include <sys/syscall.h>
+
+#if defined __USE_UNIX98 || defined __USE_SVID
 #include <unistd.h>
 
 libc_hidden_proto(setpgid)
@@ -21,3 +23,4 @@ int setpgid(pid_t pid, pid_t pgid)
 	return (__syscall_setpgid(pid, pgid));
 }
 libc_hidden_def(setpgid)
+#endif

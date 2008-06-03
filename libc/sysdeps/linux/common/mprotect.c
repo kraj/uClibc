@@ -10,6 +10,6 @@
 #include <sys/syscall.h>
 #include <sys/mman.h>
 
-#ifdef __NR_mprotect
+#if defined __ARCH_USE_MMU__ && defined __NR_mprotect
 _syscall3(int, mprotect, void *, addr, size_t, len, int, prot);
 #endif

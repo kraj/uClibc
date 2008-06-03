@@ -27,6 +27,9 @@ libc_hidden_proto(sleep)
 
 libc_hidden_proto(sigaction)
 libc_hidden_proto(sigprocmask)
+
+/* version perusing nanosleep */
+#if defined __UCLIBC_HAS_REALTIME__
 //libc_hidden_proto(__sigaddset)
 //libc_hidden_proto(__sigemptyset)
 //libc_hidden_proto(__sigismember)
@@ -114,4 +117,56 @@ unsigned int sleep (unsigned int seconds)
     return result;
 }
 #endif
+#else /* __UCLIBC_HAS_REALTIME__ */
+libc_hidden_proto(sigaction)
+/* no nanosleep, use signals and alarm() */
+static void sleep_alarm_handler(int attribute_unused sig)
+{
+}
+unsigned int sleep (unsigned int seconds)
+{
+    struct sigaction act, oact;
+    sigset_t set, oset;
+    unsigned int result, remaining;
+    time_t before, after;
+    int old_errno = errno;
+
+    /* This is not necessary but some buggy programs depend on this.  */
+    if (seconds == 0)
+	return 0;
+
+    /* block SIGALRM */
+    if (__sigemptyset (&set) < 0
+	    || __sigaddset (&set, SIGALRM) < 0
+	    || sigprocmask (SIG_BLOCK, &set, &oset))
+	return seconds;
+
+    act.sa_handler = sleep_alarm_handler;
+    act.sa_flags = 0;
+    act.sa_mask = oset;
+    if (sigaction(SIGALRM, &act, &oact) < 0)
+    	return seconds;
+
+    before = time(NULL);
+    remaining = alarm(seconds);
+    if (remaining && remaining > seconds) {
+    	/* restore user's alarm */
+	(void) sigaction(SIGALRM, &oact, (struct sigaction *) NULL);
+	alarm(remaining); /* restore old alarm */
+	sigsuspend(&oset);
+	after = time(NULL);
+    } else {
+	sigsuspend (&oset);
+	after = time(NULL);
+	(void) sigaction (SIGALRM, &oact, NULL);
+    }
+    result = after - before;
+    alarm(remaining > result ? remaining - result : 0);
+    sigprocmask (SIG_SETMASK, &oset, NULL);
+
+    __set_errno(old_errno);
+
+    return result > seconds ? 0 : seconds - result;
+}
+#endif /* __UCLIBC_HAS_REALTIME__ */
 libc_hidden_def(sleep)

@@ -98,17 +98,18 @@ static inline int msync (void *__addr, size_t __len, int __flags) { return 0; }
 
 #endif
 
-#ifdef __USE_BSD
+#if defined __USE_BSD && defined __UCLIBC_LINUX_SPECIFIC__
 /* Advise the system about particular usage patterns the program follows
    for the region starting at ADDR and extending LEN bytes.  */
 extern int madvise (void *__addr, size_t __len, int __advice) __THROW;
 #endif
-#ifdef __USE_XOPEN2K
+#if defined __USE_XOPEN2K && defined __UCLIBC_HAS_ADVANCED_REALTIME__
 /* This is the POSIX name for this function.  */
 extern int posix_madvise (void *__addr, size_t __len, int __advice) __THROW;
 #endif
 
-#ifdef __ARCH_USE_MMU__
+#if defined __UCLIBC_HAS_REALTIME__
+# ifdef __ARCH_USE_MMU__
 
 /* Guarantee all whole pages mapped by the range [ADDR,ADDR+LEN) to
    be memory resident.  */
@@ -135,8 +136,9 @@ static inline int munlock (__const void *__addr, size_t __len) { return 0; }
 static inline int mlockall (int __flags) { return 0; }
 static inline int munlockall (void) { return 0; }
 #endif
+#endif /* __UCLIBC_HAS_REALTIME__ */
 
-#ifdef __USE_MISC
+#if defined __USE_MISC && defined __UCLIBC_BSD_SPECIFIC__
 /* mincore returns the memory residency status of the pages in the
    current process's address space specified by [start, start + len).
    The status is returned in a vector of bytes.  The least significant

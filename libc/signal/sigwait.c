@@ -22,6 +22,7 @@
 #include <signal.h>
 #include <string.h>
 
+#if defined __UCLIBC_HAS_REALTIME__
 libc_hidden_proto(sigwaitinfo)
 
 int __sigwait (const sigset_t *set, int *sig) attribute_hidden;
@@ -34,6 +35,67 @@ int __sigwait (const sigset_t *set, int *sig)
 	}
 	return 1;
 }
+#else /* __UCLIBC_HAS_REALTIME__ */
+/* variant without REALTIME extensions */
+libc_hidden_proto(sigfillset)
+libc_hidden_proto(sigaction)
+libc_hidden_proto(sigsuspend)
+
+static int was_sig; /* obviously not thread-safe */
+static void ignore_signal(int sig)
+{
+	was_sig = sig;
+}
+int __sigwait (const sigset_t *set, int *sig) attribute_hidden;
+int __sigwait (const sigset_t *set, int *sig)
+{
+  sigset_t tmp_mask;
+  struct sigaction saved[NSIG];
+  struct sigaction action;
+  int save_errno;
+  int this;
+
+  /* Prepare set.  */
+  sigfillset (&tmp_mask);
+
+  /* Unblock all signals in the SET and register our nice handler.  */
+  action.sa_handler = ignore_signal;
+  action.sa_flags = 0;
+  sigfillset (&action.sa_mask);       /* Block all signals for handler.  */
+
+  /* Make sure we recognize error conditions by setting WAS_SIG to a
+     value which does not describe a legal signal number.  */
+  was_sig = -1;
+
+  for (this = 1; this < NSIG; ++this)
+    if (__sigismember (set, this))
+      {
+        /* Unblock this signal.  */
+        __sigdelset (&tmp_mask, this);
+
+        /* Register temporary action handler.  */
+        if (sigaction (this, &action, &saved[this]) != 0)
+          goto restore_handler;
+      }
+
+  /* Now we can wait for signals.  */
+  sigsuspend (&tmp_mask);
+
+ restore_handler:
+  save_errno = errno;
+
+  while (--this >= 1)
+    if (__sigismember (set, this))
+      /* We ignore errors here since we must restore all handlers.  */
+      sigaction (this, &saved[this], NULL);
+
+  __set_errno (save_errno);
+
+  /* Store the result and return.  */
+  *sig = was_sig;
+  return was_sig == -1 ? -1 : 0;
+}
+#endif /* __UCLIBC_HAS_REALTIME__ */
 libc_hidden_proto(sigwait)
 weak_alias(__sigwait,sigwait)
 libc_hidden_def(sigwait)

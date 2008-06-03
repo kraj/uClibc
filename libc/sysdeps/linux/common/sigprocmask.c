@@ -8,6 +8,8 @@
  */
 
 #include <sys/syscall.h>
+
+#if defined __USE_POSIX
 #include <signal.h>
 
 #undef sigprocmask
@@ -68,3 +70,4 @@ int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 }
 #endif
 libc_hidden_def(sigprocmask)
+#endif

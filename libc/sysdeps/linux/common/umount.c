@@ -8,6 +8,8 @@
  */
 
 #include <sys/syscall.h>
+
+#if defined __USE_GNU
 #include <sys/mount.h>
 
 /* arch provides umount() syscall */
@@ -35,4 +37,5 @@ int umount(const char *special_file)
 	return -1;
 }
 
+#endif
 #endif

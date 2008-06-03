@@ -26,7 +26,54 @@ endif
 
 ifneq ($(UCLIBC_LINUX_MODULE_24),y)
 CSRC := $(filter-out create_module.c delete_module.c init_module.c \
-		query_module.c,$(CSRC))
+		query_module.c get_kernel_syms.c,$(CSRC))
+endif
+
+ifneq ($(UCLIBC_LINUX_SPECIFIC),y)
+# we need these internally: fstatfs.c statfs.c
+CSRC := $(filter-out inotify.c ioperm.c iopl.c madvise.c \
+	modify_ldt.c personality.c prctl.c readahead.c reboot.c \
+	remap_file_pages.c sched_getaffinity.c sched_setaffinity.c \
+	sendfile64.c sendfile.c setfsgid.c setfsuid.c setresuid.c \
+	splice.c vmsplice.c tee.c swapoff.c swapon.c sysctl.c sysinfo.c \
+	uselib.c vhangup.c,$(CSRC))
+endif
+
+ifneq ($(UCLIBC_BSD_SPECIFIC),y)
+# we need these internally: getdomainname.c
+CSRC := $(filter-out mincore.c setdomainname.c,$(CSRC))
+endif
+
+ifneq ($(UCLIBC_NTP_LEGACY),y)
+CSRC := $(filter-out ntp_gettime.c,$(CSRC))
+endif
+
+
+ifneq ($(UCLIBC_HAS_REALTIME),y)
+# aio_cancel|aio_error|aio_fsync|aio_read|aio_return|aio_suspend|aio_write|clock_getres|clock_gettime|clock_settime|clock_settime|fdatasync|lio_listio|mlockall|munlockall|mlock|munlock|mq_close|mq_getattr|mq_notify|mq_open|mq_receive|mq_timedreceive|mq_send|mq_timedsend|mq_setattr|mq_unlink|nanosleep|sched_getparam|sched_get_priority_max|sched_get_priority_min|sched_getscheduler|sched_rr_get_interval|sched_setparam|sched_setscheduler|sem_close|sem_destroy|sem_getvalue|sem_init|sem_open|sem_post|sem_trywait|sem_wait|sem_unlink|sem_wait|shm_open|shm_unlink|sigqueue|sigtimedwait|sigwaitinfo|sigwaitinfo|timer_create|timer_delete|timer_getoverrun|timer_gettime|timer_settime
+CSRC := $(filter-out clock_getres.c clock_gettime.c clock_settime.c fdatasync.c Makefile.in mlockall.c mlock.c munlockall.c munlock.c nanosleep.c __rt_sigtimedwait.c sched_getparam.c sched_get_priority_max.c sched_get_priority_min.c sched_getscheduler.c sched_rr_get_interval.c sched_setparam.c sched_setscheduler.c sigqueue.c,$(CSRC))
+endif
+
+
+ifneq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
+# clock_getcpuclockid|clock_nanosleep|mq_timedreceive|mq_timedsend|posix_fadvise|posix_fallocate|posix_madvise|posix_memalign|posix_mem_offset|posix_spawnattr_destroy|posix_spawnattr_init|posix_spawnattr_getflags|posix_spawnattr_setflags|posix_spawnattr_getpgroup|posix_spawnattr_setpgroup|posix_spawnattr_getschedparam|posix_spawnattr_setschedparam|posix_spawnattr_getschedpolicy|posix_spawnattr_setschedpolicy|posix_spawnattr_getsigdefault|posix_spawnattr_setsigdefault|posix_spawnattr_getsigmask|posix_spawnattr_setsigmask|posix_spawnattr_init|posix_spawnattr_setflags|posix_spawnattr_setpgroup|posix_spawnattr_setschedparam|posix_spawnattr_setschedpolicy|posix_spawnattr_setsigdefault|posix_spawnattr_setsigmask|posix_spawn_file_actions_addclose|posix_spawn_file_actions_addopen|posix_spawn_file_actions_adddup2|posix_spawn_file_actions_addopen|posix_spawn_file_actions_destroy|posix_spawn_file_actions_init|posix_spawn_file_actions_init|posix_spawn|posix_spawnp|posix_spawnp|posix_typed_mem_get_info|pthread_mutex_timedlock|sem_timedwait
+CSRC := $(filter-out posix_fadvise64.c posix_fadvise.c,$(CSRC))
+endif
+
+ifneq ($(UCLIBC_HAS_EPOLL),y)
+CSRC := $(filter-out epoll.c,$(CSRC))
+endif
+
+ifneq ($(UCLIBC_HAS_XATTR),y)
+CSRC := $(filter-out xattr.c,$(CSRC))
+endif
+
+ifneq ($(UCLIBC_HAS_PROFILING),y)
+CSRC := $(filter-out noophooks.c pcprofile.c,$(CSRC))
+endif
+
+ifneq ($(UCLIBC_SV4_DEPRECATED),y)
+CSRC := $(filter-out ustat.c,$(CSRC))
 endif
 
 # fails for some reason

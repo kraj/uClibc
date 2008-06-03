@@ -8,6 +8,8 @@
  */
 
 #include <sys/syscall.h>
+
+#if defined __USE_POSIX
 #include <signal.h>
 #undef sigpending
 
@@ -21,4 +23,5 @@ int sigpending(sigset_t * set)
 }
 #else
 _syscall1(int, sigpending, sigset_t *, set);
+#endif
 #endif

@@ -107,6 +107,7 @@ extern void *__dso_handle __attribute__ ((__weak__));
 #ifdef L_atexit
 int attribute_hidden atexit(aefuncp func)
 #else
+int old_atexit(aefuncp func);
 int old_atexit(aefuncp func)
 #endif
 {

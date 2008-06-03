@@ -8,6 +8,8 @@
  */
 
 #include <sys/syscall.h>
+
+#if defined __USE_POSIX
 #include <signal.h>
 
 extern __typeof(sigsuspend) __libc_sigsuspend;
@@ -33,3 +35,4 @@ int __libc_sigsuspend(const sigset_t * set)
 libc_hidden_proto(sigsuspend)
 weak_alias(__libc_sigsuspend,sigsuspend)
 libc_hidden_weak(sigsuspend)
+#endif

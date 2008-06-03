@@ -7,10 +7,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <features.h>
-#include <errno.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
+# if defined __USE_BSD || defined __USE_UNIX98
+#include <sys/types.h>
 #include <unistd.h>
 
 #ifndef INLINE_SYSCALL
@@ -23,4 +22,4 @@ void sync(void)
 {
 	INLINE_SYSCALL(sync, 0);
 }
-
+#endif
