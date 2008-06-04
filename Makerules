@@ -341,8 +341,9 @@ files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) \
 # Oh, and prepend a dot to the basename so i don't have to change my habit of
 # calling 'size thefile.o*'
 .depends.dep := $(foreach f,$(.depends.dep),$(dir $(f)).$(notdir $(f)))
+.depends.dep := $(wildcard $(.depends.dep))
 
-ifdef .depends.dep
+ifneq ($(strip $(.depends.dep)),)
 -include $(.depends.dep)
 endif
 
