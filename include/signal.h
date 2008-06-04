@@ -89,7 +89,7 @@ extern __sighandler_t sysv_signal (int __sig, __sighandler_t __handler)
    handler, or SIG_ERR on error.
    By default `signal' has the BSD semantic.  */
 __BEGIN_NAMESPACE_STD
-#ifdef __USE_BSD
+#if defined __USE_BSD || !defined __UCLIBC_HAS_OBSOLETE_SYSV_SIGNAL__
 extern __sighandler_t signal (int __sig, __sighandler_t __handler)
      __THROW;
 #else
