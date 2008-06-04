@@ -25,4 +25,4 @@ libc-y += $(MISC_LOCALE_OBJ)
 objclean-y += misc_locale_objclean
 
 misc_locale_objclean:
-	$(RM) $(MISC_LOCALE_OUT)/{*.{o,os}}
+	$(RM) $(MISC_LOCALE_OUT)/*.{o,os}
