@@ -51,8 +51,8 @@ endif
 
 $(libutil_OUT)/libutil_so.a: $(libutil-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(libutil_OUT)/libutil.oS: $(libutil_SRC)
 	$(Q)$(RM) $@
@@ -62,8 +62,8 @@ $(libutil_OUT)/libutil.oS: $(libutil_SRC)
 $(top_builddir)lib/libutil.a: $(libutil-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 libutil_clean:
 	$(RM) $(libutil_OUT)/*.{o,os,oS,a}

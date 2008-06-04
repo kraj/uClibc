@@ -44,8 +44,8 @@ endif
 
 $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(libcrypt_OUT)/libcrypt.oS: $(libcrypt_SRC)
 	$(Q)$(RM) $@
@@ -55,8 +55,8 @@ $(libcrypt_OUT)/libcrypt.oS: $(libcrypt_SRC)
 $(top_builddir)lib/libcrypt.a: $(libcrypt-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 libcrypt_clean:
 	$(RM) $(libcrypt_OUT)/*.{o,os,oS,a}

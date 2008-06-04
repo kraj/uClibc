@@ -39,14 +39,14 @@ endif
 
 $(libnsl_OUT)/libnsl_so.a: $(libnsl-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(top_builddir)lib/libnsl.a: $(libnsl-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 libnsl_clean:
 	$(RM) $(libnsl_OUT)/*.{o,os,a}

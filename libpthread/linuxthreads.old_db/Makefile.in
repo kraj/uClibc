@@ -51,8 +51,8 @@ endif
 
 $(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(libthread_db_OUT)/libthread_db.oS: $(libthread_db_SRC)
 	$(Q)$(RM) $@
@@ -62,8 +62,8 @@ $(libthread_db_OUT)/libthread_db.oS: $(libthread_db_SRC)
 $(top_builddir)lib/libthread_db.a: $(libthread_db-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 linuxthreads_db_headers:
 	$(Q)$(LN) -sf ../$(PTDIR)_db/thread_db.h $(top_builddir)include/

@@ -40,14 +40,14 @@ endif
 
 $(librt_OUT)/librt_so.a: $(librt-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(top_builddir)lib/librt.a: $(librt-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 objclean-y += librt_clean
 

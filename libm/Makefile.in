@@ -164,8 +164,8 @@ endif
 
 $(libm_OUT)/libm_so.a: $(libm-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(libm_OUT)/libm.oS: $(libm_SRC) $(libm_MSRC) $(libm_ARCH_SRC)
 	$(Q)$(RM) $@
@@ -175,8 +175,8 @@ $(libm_OUT)/libm.oS: $(libm_SRC) $(libm_MSRC) $(libm_ARCH_SRC)
 $(top_builddir)lib/libm.a: $(libm-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(libm_MOBJ): $(libm_MSRC)
 	$(compile.m)

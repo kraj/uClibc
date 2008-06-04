@@ -90,8 +90,8 @@ $(libc_OUT)/libc.oS: $(libc-multi-y) | $(top_builddir)lib/libc.a $(top_builddir)
 $(top_builddir)lib/libc.a: $(libc-a-y) | $(crt-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 # We use libc_so.a so that we can compile the shared library with special
 # flags - i.e. -mleaf-id-shared-library.  The static libc.a needs to be

@@ -53,8 +53,8 @@ endif
 
 $(libintl_OUT)/libintl_so.a: $(libintl-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(libintl_OUT)/libintl.oS: $(libintl_MSRC)
 	$(Q)$(RM) $@
@@ -64,8 +64,8 @@ $(libintl_OUT)/libintl.oS: $(libintl_MSRC)
 $(top_builddir)lib/libintl.a: $(libintl-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(libintl_MOBJ): $(libintl_MSRC)
 	$(compile.m)

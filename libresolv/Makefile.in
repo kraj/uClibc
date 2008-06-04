@@ -39,14 +39,14 @@ endif
 
 $(libresolv_OUT)/libresolv_so.a: $(libresolv-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(top_builddir)lib/libresolv.a: $(libresolv-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 libresolv_clean:
 	$(RM) $(libresolv_OUT)/*.{o,os,a}

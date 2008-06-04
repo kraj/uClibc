@@ -55,8 +55,8 @@ $(ldso:.$(MAJOR_VERSION)=): $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a
 
 $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a: $(ldso-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(UCLIBC_LDSO_NAME)_clean:
 	$(RM) $($(UCLIBC_LDSO_NAME)_OUT)/*.{o,os,oS,a} $($(UCLIBC_LDSO_NAME)_OUT)/*/*.{o,os,oS}

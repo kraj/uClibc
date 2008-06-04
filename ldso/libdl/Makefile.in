@@ -46,14 +46,14 @@ $(top_builddir)lib/libdl.so: $(libdl_OUT)/libdl_so.a $(libc.depend)
 
 $(libdl_OUT)/libdl_so.a: $(libdl-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(top_builddir)lib/libdl.a: $(libdl-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 libdl_clean:
 	$(RM) $(libdl_OUT)/*.{o,os,a,oS}

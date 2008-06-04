@@ -83,33 +83,30 @@ $(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depen
 #	$(call linkm.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 #endif
 
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+$(libpthread_OUT)/libpthread_so.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
+endif
 $(libpthread_OUT)/libpthread_so.a: $(libpthread-so-y)
 	$(Q)$(RM) $@
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-	$(do_strip:-x=-X --strip-debug)
-else
-	$(do_strip)
-endif
 	$(do_ar)
+	$(do_t_strip)
 
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+$(libpthread_OUT)/libpthread.oS: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
+endif
 $(libpthread_OUT)/libpthread.oS: $(libpthread_SRC) $(libpthread_SPEC_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-	$(do_t_strip:-x=-X --strip-debug)
-else
 	$(do_t_strip)
-endif
 
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+$(top_builddir)lib/libpthread.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
+endif
 $(top_builddir)lib/libpthread.a: $(libpthread-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-	$(do_strip:-x=-X --strip-debug)
-else
-	$(do_strip)
-endif
 	$(do_ar)
+	$(do_t_strip)
 
 linuxthreads_headers:
 	$(Q)$(LN) -sf ../$(PTDIR)/sysdeps/pthread/pthread.h $(top_builddir)include/

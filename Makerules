@@ -318,14 +318,14 @@ $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | headers
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 $(top_builddir)lib/libpthread_nonshared.a: $(libpthread-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+	$(do_t_strip)
 
 files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) \
 	$(libm-a-y) $(libm-so-y) \
