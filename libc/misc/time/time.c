@@ -133,7 +133,6 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-#include <strings.h>
 #include <time.h>
 #include <sys/time.h>
 #include <limits.h>

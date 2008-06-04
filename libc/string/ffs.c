@@ -8,7 +8,6 @@
 /* ffsl,ffsll */
 
 #include "_string.h"
-#include <strings.h>
 
 /* Experimentally off - libc_hidden_proto(ffs) */
 

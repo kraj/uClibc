@@ -14,7 +14,6 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
-#include <strings.h>
 #include <limits.h>				/* for PATH_MAX */
 #include <sys/param.h>			/* for MAXPATHLEN */
 #include <errno.h>

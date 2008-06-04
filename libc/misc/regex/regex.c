@@ -36,7 +36,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include <strings.h>
 #include <stdlib.h>
 #ifdef __UCLIBC_HAS_WCHAR__
 #define RE_ENABLE_I18N

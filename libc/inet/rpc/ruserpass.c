@@ -41,7 +41,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
-#include <strings.h>
 #include <unistd.h>
 
 /* Experimentally off - libc_hidden_proto(strcat) */

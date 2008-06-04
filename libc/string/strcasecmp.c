@@ -6,7 +6,6 @@
  */
 
 #include "_string.h"
-#include <strings.h>
 #include <ctype.h>
 #include <locale.h>
 

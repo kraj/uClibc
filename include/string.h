@@ -503,13 +503,8 @@ libc_hidden_proto(strerror)
 libc_hidden_proto(__bzero)
 #endif
 #ifdef	__USE_BSD
-# ifdef __UCLIBC_SUSV3_LEGACY__
-libc_hidden_proto(bcopy)
-libc_hidden_proto(bzero)
-libc_hidden_proto(bcmp)
-libc_hidden_proto(index)
-libc_hidden_proto(rindex)
-# endif
+/* No libc_hidden_proto for bcopy etc., since uClibc doesn't itself use the
+   legacy functions.  */
 libc_hidden_proto(ffs)
 #if 0 /*def	__USE_GNU*/
 libc_hidden_proto(ffsl)
