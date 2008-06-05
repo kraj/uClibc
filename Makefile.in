@@ -403,7 +403,8 @@ allnoconfig: extra/config/conf include/bits
 	$(Q)./extra/config/conf -n extra/Configs/Config.in
 
 defconfig: extra/config/conf include/bits
-	$(Q)./extra/config/conf -d extra/Configs/Config.in
+	$(Q)./extra/config/conf -d extra/Configs/Config.in \
+		-D extra/Configs/defconfigs/$(ARCH)
 
 clean:
 	$(Q)$(RM) -r lib include/bits
