@@ -408,10 +408,15 @@ defconfig: extra/config/conf include/bits
 
 clean:
 	$(Q)$(RM) -r lib include/bits
-	$(RM) ldso/*/*.a libpthread/*/*.a libc/*.a libcrypt/*.a libintl/*.a \
-		libm/*.a libnsl/*.a libpthread/*.a libresolv/*.a librt/*.a \
-		libutil/*.a lib/*.a \
-		include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
+	$(Q)$(RM) $(foreach ext,a o os oS,ldso/*/*.$(ext) \
+		libc/*.$(ext) libcrypt/*.$(ext) libintl/*.$(ext) libm/*.$(ext) \
+		libnsl/*.$(ext) libpthread/*.$(ext) libresolv/*.$(ext) \
+		librt/*.$(ext) libutil/*.$(ext) lib/*.$(ext) \
+		libpthread/*/*.$(ext) libpthread/*/*/*.$(ext) \
+		libpthread/*/*/*/*.$(ext) libpthread/*/*/*/*/*.$(ext) \
+		libpthread/*/*/*/*/*/*.$(ext) libpthread/*/*/*/*/*/*/*.$(ext) \
+		libpthread/*/*/*/*/*/*/*/*.$(ext))
+	$(Q)$(RM) include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
 	$(MAKE) objclean-y headers_clean-y
 	$(MAKE) -s -C test clean
 	$(MAKE) -C utils utils_clean
