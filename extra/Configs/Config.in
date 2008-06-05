@@ -210,7 +210,7 @@ config HAVE_NO_PIC
 config DOPIC
 	bool "Generate only Position Independent Code (PIC)"
 	default y
-	depends !HAVE_NO_PIC
+	depends on !HAVE_NO_PIC
 	help
 	  If you wish to build all of uClibc as PIC objects, then answer Y here.
 	  If you are unsure, then you should answer N.
@@ -1033,7 +1033,7 @@ config UCLIBC_HAS_CTYPE_TABLES
 
 config UCLIBC_HAS_CTYPE_SIGNED
 	bool "Support Signed Characters In 'ctype.h' Functions."
-	depends UCLIBC_HAS_CTYPE_TABLES
+	depends on UCLIBC_HAS_CTYPE_TABLES
 	default y
 	help
 	  Answer Y to enable support for passing signed char values to
@@ -1046,7 +1046,7 @@ config UCLIBC_HAS_CTYPE_SIGNED
 
 choice
 	prompt "ctype argument checking"
-	depends UCLIBC_HAS_CTYPE_TABLES
+	depends on UCLIBC_HAS_CTYPE_TABLES
 	default UCLIBC_HAS_CTYPE_UNSAFE
 	help
 	  Please select the invalid arg behavior you want for the 'ctype' functions.
@@ -1142,7 +1142,7 @@ config UCLIBC_HAS_XLOCALE
 
 config UCLIBC_HAS_HEXADECIMAL_FLOATS
 	bool "Support hexadecimal float notation"
-	depends UCLIBC_HAS_CTYPE_TABLES
+	depends on UCLIBC_HAS_CTYPE_TABLES
 	depends on UCLIBC_HAS_FLOATS
 	default n
 	help
@@ -1245,7 +1245,7 @@ choice
 
 config UCLIBC_HAS_STDIO_BUFSIZ_NONE
 	bool "none (WARNING - BUFSIZ will be 256 in stdio.h)"
-	depends !UCLIBC_HAS_WCHAR
+	depends on !UCLIBC_HAS_WCHAR
 
 config UCLIBC_HAS_STDIO_BUFSIZ_256
 	bool "256 (minimum ANSI/ISO C99 value)"
@@ -1271,7 +1271,7 @@ endchoice
 
 choice
 	prompt "Stdio builtin buffer size (uClibc-specific)"
-	depends !UCLIBC_HAS_STDIO_BUFSIZ_NONE
+	depends on !UCLIBC_HAS_STDIO_BUFSIZ_NONE
 	default UCLIBC_HAS_STDIO_BUILTIN_BUFFER_NONE
 	help
 	  When a FILE is created with fopen(), an attempt is made to allocate
@@ -1308,7 +1308,7 @@ config UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT
 
 config UCLIBC_HAS_STDIO_GETC_MACRO
 	bool "Provide a macro version of getc()"
-	depends !UCLIBC_HAS_STDIO_BUFSIZ_NONE
+	depends on !UCLIBC_HAS_STDIO_BUFSIZ_NONE
 	default y
 	help
 	  Provide a macro version of getc().
@@ -1317,7 +1317,7 @@ config UCLIBC_HAS_STDIO_GETC_MACRO
 
 config UCLIBC_HAS_STDIO_PUTC_MACRO
 	bool "Provide a macro version of putc()"
-	depends !UCLIBC_HAS_STDIO_BUFSIZ_NONE
+	depends on !UCLIBC_HAS_STDIO_BUFSIZ_NONE
 	default y
 	help
 	  Provide a macro version of putc().
@@ -1457,7 +1457,7 @@ config UCLIBC_HAS_GNU_GETOPT
 
 config UCLIBC_HAS_GETOPT_LONG
 	bool "Support getopt_long/getopt_long_only"
-	depends !UCLIBC_HAS_GNU_GETOPT
+	depends on !UCLIBC_HAS_GNU_GETOPT
 	default y
 	help
 	  Answer Y if you want to include getopt_long[_only() used by many
@@ -1863,7 +1863,7 @@ config SUPPORT_LD_DEBUG_EARLY
 
 config UCLIBC_MALLOC_DEBUGGING
 	bool "Build malloc with debugging support"
-	depends MALLOC || MALLOC_STANDARD
+	depends on MALLOC || MALLOC_STANDARD
 	default n
 	help
 	  Answer Y here to compile extra debugging support code into malloc.
