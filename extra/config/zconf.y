@@ -64,7 +64,6 @@ static struct menu *current_menu, *current_entry;
 %token <id>T_IF
 %token <id>T_ENDIF
 %token <id>T_DEPENDS
-%token <id>T_REQUIRES
 %token <id>T_OPTIONAL
 %token <id>T_PROMPT
 %token <id>T_TYPE
@@ -402,7 +401,7 @@ help_start: T_HELP T_EOL
 
 help: help_start T_HELPTEXT
 {
-	current_entry->sym->help = $2;
+	current_entry->help = $2;
 };
 
 /* depends option */
@@ -418,16 +417,6 @@ depends: T_DEPENDS T_ON expr T_EOL
 {
 	menu_add_dep($3);
 	printd(DEBUG_PARSE, "%s:%d:depends on\n", zconf_curname(), zconf_lineno());
-}
-	| T_DEPENDS expr T_EOL
-{
-	menu_add_dep($2);
-	printd(DEBUG_PARSE, "%s:%d:depends\n", zconf_curname(), zconf_lineno());
-}
-	| T_REQUIRES expr T_EOL
-{
-	menu_add_dep($2);
-	printd(DEBUG_PARSE, "%s:%d:requires\n", zconf_curname(), zconf_lineno());
 };
 
 /* prompt statement */
@@ -501,9 +490,11 @@ void conf_parse(const char *name)
 	}
 	menu_finalize(&rootmenu);
 	for_all_symbols(i, sym) {
-		sym_check_deps(sym);
+		if (sym_check_deps(sym))
+			zconfnerrs++;
         }
-
+	if (zconfnerrs)
+		exit(1);
 	sym_set_change_count(1);
 }
 
@@ -647,11 +638,11 @@ void print_symbol(FILE *out, struct menu *menu)
 			break;
 		}
 	}
-	if (sym->help) {
-		int len = strlen(sym->help);
-		while (sym->help[--len] == '\n')
-			sym->help[len] = 0;
-		fprintf(out, "  help\n%s\n", sym->help);
+	if (menu->help) {
+		int len = strlen(menu->help);
+		while (menu->help[--len] == '\n')
+			menu->help[len] = 0;
+		fprintf(out, "  help\n%s\n", menu->help);
 	}
 	fputc('\n', out);
 }
