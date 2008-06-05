@@ -360,6 +360,8 @@ config UCLIBC_HAS_THREADS
 	bool "POSIX Threading support"
 	depends on !HAS_NO_THREADS
 	default y
+	# linuxthreads and linuxthreads.old need nanosleep()
+	select UCLIBC_HAS_REALTIME
 	help
 	  If you want to compile uClibc with pthread support, then answer Y.
 	  This will increase the size of uClibc by adding a bunch of locking
