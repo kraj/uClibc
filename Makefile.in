@@ -278,6 +278,10 @@ ifneq ($(UCLIBC_HAS_SOCKET),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/socket.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/socketvar.h
 endif
+ifneq ($(UCLIBC_HAS_CRYPT),y)
+	# Remove crypt.h since libcrypt was disabled upon request
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/crypt.h
+endif
 
 # Installs development library links.
 install_dev: install_headers

@@ -910,6 +910,26 @@ config UCLIBC_HAS_PROFILING
 	  gcc's -finstrument-functions needs these.
 
 	  Most people can safely answer N.
+
+config UCLIBC_HAS_CRYPT_IMPL
+	bool "libcrypt support"
+	default y
+	help
+	  libcrypt contains crypt(), setkey() and encrypt()
+
+config UCLIBC_HAS_CRYPT_STUB
+	bool "libcrypt stubs"
+	default y
+	depends on !UCLIBC_HAS_CRYPT_IMPL
+	help
+	  Standards mandate that crypt(3) provides a stub if it is unavailable.
+	  If you enable this option then stubs for
+	    crypt(), setkey() and encrypt()
+	  will be provided in a small libcrypt.
+
+config UCLIBC_HAS_CRYPT
+	def_bool y
+	depends on UCLIBC_HAS_CRYPT_IMPL || UCLIBC_HAS_CRYPT_STUB
 endmenu
 
 menuconfig UCLIBC_HAS_NETWORK_SUPPORT

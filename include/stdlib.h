@@ -802,8 +802,10 @@ extern int getsubopt (char **__restrict __optionp,
 
 
 #ifdef __USE_XOPEN
+# if defined __UCLIBC_HAS_CRYPT__
 /* Setup DES tables according KEY.  */
 extern void setkey (__const char *__key) __THROW __nonnull ((1));
+# endif /* __UCLIBC_HAS_CRYPT__ */
 #endif
 
 

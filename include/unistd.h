@@ -1077,6 +1077,7 @@ extern int fdatasync (int __fildes) __THROW;
 /* XPG4.2 specifies that prototypes for the encryption functions must
    be defined here.  */
 #ifdef	__USE_XOPEN
+# if defined __UCLIBC_HAS_CRYPT__
 /* Encrypt at most 8 characters from KEY using salt to perturb DES.  */
 extern char *crypt (__const char *__key, __const char *__salt)
      __THROW __nonnull ((1, 2));
@@ -1084,6 +1085,7 @@ extern char *crypt (__const char *__key, __const char *__salt)
 /* Encrypt data in BLOCK in place if EDFLAG is zero; otherwise decrypt
    block in place.  */
 extern void encrypt (char *__block, int __edflag) __THROW __nonnull ((1));
+# endif /* __UCLIBC_HAS_CRYPT__ */
 
 
 /* Swab pairs bytes in the first N bytes of the area pointed to by
