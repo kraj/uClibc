@@ -1545,7 +1545,7 @@ libc_hidden_def(gethostbyaddr)
 
 #ifdef L_read_etc_hosts_r
 
-FILE * attribute_hidden __open_etc_hosts(void)
+FILE * __open_etc_hosts(void)
 {
 	FILE * fp;
 	if ((fp = fopen("/etc/hosts", "r")) == NULL) {
