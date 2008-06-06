@@ -30,7 +30,13 @@ extern int _getopt_internal (int ___argc, char *const *___argv,
 /* Reentrant versions which can handle parsing multiple argument
    vectors at the same time.  */
 
+/* For __ordering member */
+enum {
+	REQUIRE_ORDER, PERMUTE, RETURN_IN_ORDER
+};
+
 /* Data type for reentrant functions.  */
+
 struct _getopt_data
 {
   /* These have exactly the same meaning as the corresponding global
@@ -38,21 +44,13 @@ struct _getopt_data
      versions of getopt.  */
   int optind;
   int opterr;
-  int optopt;
   char *optarg;
+  smalluint optopt; /* we store characters here, a byte is enough */
 
   /* Internal members.  */
 
   /* True if the internal members have been initialized.  */
-  int __initialized;
-
-  /* The next char to be scanned in the option-element
-     in which the last option character we returned was found.
-     This allows us to pick up the scan where we left off.
-
-     If this is zero, or a null string, it means resume the scan
-     by advancing to the next ARGV-element.  */
-  char *__nextchar;
+  smallint __initialized;
 
   /* Describe how to deal with options that follow non-option ARGV-elements.
 
@@ -82,14 +80,18 @@ struct _getopt_data
      The special argument `--' forces an end of option-scanning regardless
      of the value of `ordering'.  In the case of RETURN_IN_ORDER, only
      `--' can cause `getopt' to return -1 with `optind' != ARGC.  */
-
-  enum
-    {
-      REQUIRE_ORDER, PERMUTE, RETURN_IN_ORDER
-    } __ordering;
+  smallint __ordering;
 
   /* If the POSIXLY_CORRECT environment variable is set.  */
-  int __posixly_correct;
+  smallint __posixly_correct;
+
+  /* The next char to be scanned in the option-element
+     in which the last option character we returned was found.
+     This allows us to pick up the scan where we left off.
+
+     If this is zero, or a null string, it means resume the scan
+     by advancing to the next ARGV-element.  */
+  char *__nextchar;
 
 
   /* Handle permutation of arguments.  */
