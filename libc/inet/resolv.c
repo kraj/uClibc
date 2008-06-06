@@ -307,7 +307,7 @@ extern int __get_hosts_byaddr_r(const char * addr, int len, int type,
 			      char * buf, size_t buflen,
 			      struct hostent ** result,
 			      int * h_errnop) attribute_hidden;
-extern void __open_etc_hosts(FILE **fp) attribute_hidden;
+extern FILE * __open_etc_hosts(void) attribute_hidden;
 extern int __read_etc_hosts_r(FILE *fp, const char * name, int type,
 			    enum etc_hosts_action action,
 			    struct hostent * result_buf,
@@ -1080,9 +1080,7 @@ void attribute_hidden __open_nameservers(void)
 	if ((fp = fopen("/etc/resolv.conf", "r")) ||
 		(fp = fopen("/etc/config/resolv.conf", "r")))
 	{
-
 		while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
-
 			for (p = szBuffer; *p && isspace(*p); p++)
 				/* skip white space */;
 			if (*p == '\0' || *p == '\n' || *p == '#') /* skip comments etc */
@@ -1156,7 +1154,7 @@ struct hostent *gethostbyname(const char *name)
 		struct hostent h;
 		char buf[sizeof(struct in_addr) +
 					sizeof(struct in_addr *)*2 +
-					sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
+					sizeof(char *)*ALIAS_DIM + 384/*namebuffer*/ + 32/* margin */];
 	} *sp;
 	struct hostent *hp;
 
@@ -1180,7 +1178,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 		struct hostent h;
 		char buf[sizeof(struct in6_addr) +
 					sizeof(struct in6_addr *)*2 +
-					sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
+					sizeof(char *)*ALIAS_DIM + 384/*namebuffer*/ + 32/* margin */];
 	} *sp;
 	struct hostent *hp;
 
@@ -1531,7 +1529,7 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 #else
 			sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
 #endif /* __UCLIBC_HAS_IPV6__ */
-			sizeof(char *)*(ALIAS_DIM) + 384 /*namebuffer*/ + 32 /* margin */];
+			sizeof(char *)*ALIAS_DIM + 384 /*namebuffer*/ + 32 /* margin */];
 	} *sp;
 	struct hostent *hp;
 
@@ -1547,12 +1545,13 @@ libc_hidden_def(gethostbyaddr)
 
 #ifdef L_read_etc_hosts_r
 
-void attribute_hidden __open_etc_hosts(FILE **fp)
+FILE * attribute_hidden __open_etc_hosts(void)
 {
-	if ((*fp = fopen("/etc/hosts", "r")) == NULL) {
-		*fp = fopen("/etc/config/hosts", "r");
+	FILE * fp;
+	if ((fp = fopen("/etc/hosts", "r")) == NULL) {
+		fp = fopen("/etc/config/hosts", "r");
 	}
-	return;
+	return fp;
 }
 
 int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
@@ -1580,11 +1579,11 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 		buflen -= i;
 	}
 
-	if (buflen < sizeof(char *)*(ALIAS_DIM))
+	if (buflen < sizeof(char *)*ALIAS_DIM)
 		return ERANGE;
 	alias = (char **)buf;
-	buf += sizeof(char **)*(ALIAS_DIM);
-	buflen -= sizeof(char **)*(ALIAS_DIM);
+	buf += sizeof(char **)*ALIAS_DIM;
+	buflen -= sizeof(char **)*ALIAS_DIM;
 
 	if (action != GETHOSTENT) {
 #ifdef __UCLIBC_HAS_IPV6__
@@ -1626,7 +1625,7 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 		if (buflen < 80)
 			return ERANGE;
 
-		__open_etc_hosts(&fp);
+		fp = __open_etc_hosts();
 		if (fp == NULL) {
 			result = NULL;
 			return errno;
@@ -1749,7 +1748,7 @@ int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
 
 	__UCLIBC_MUTEX_LOCK(mylock);
 	if (__gethostent_fp == NULL) {
-		__open_etc_hosts(&__gethostent_fp);
+		__gethostent_fp = __open_etc_hosts();
 		if (__gethostent_fp == NULL) {
 			*result = NULL;
 			ret = TRY_AGAIN;
@@ -1779,7 +1778,7 @@ struct hostent *gethostent(void)
 #else
 			sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
 #endif /* __UCLIBC_HAS_IPV6__ */
-			sizeof(char *)*(ALIAS_DIM) +
+			sizeof(char *)*ALIAS_DIM +
 			80 /*namebuffer*/ + 2 /* margin */];
 	} *sp;
 	struct hostent *host;
@@ -2117,11 +2116,11 @@ int gethostbyname_r(const char * name,
 	addr_list[0] = in;
 	addr_list[1] = 0;
 
-	if (buflen < sizeof(char *)*(ALIAS_DIM))
+	if (buflen < sizeof(char *)*ALIAS_DIM)
 		return ERANGE;
 	alias = (char **)buf;
-	buf += sizeof(char **)*(ALIAS_DIM);
-	buflen -= sizeof(char **)*(ALIAS_DIM);
+	buf += sizeof(char **)*ALIAS_DIM;
+	buflen -= sizeof(char **)*ALIAS_DIM;
 
 	if (buflen < 256)
 		return ERANGE;
@@ -2143,7 +2142,6 @@ int gethostbyname_r(const char * name,
 	}
 
 	for (;;) {
-
 		__UCLIBC_MUTEX_LOCK(__resolv_lock);
 		__nameserversXX = __nameservers;
 		__nameserverXX = __nameserver;
@@ -2426,11 +2424,11 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 	buf += sizeof(*addr_list)*2;
 	buflen -= sizeof(*addr_list)*2;
 
-	if (buflen < sizeof(char *)*(ALIAS_DIM))
+	if (buflen < sizeof(char *)*ALIAS_DIM)
 		return ERANGE;
 	alias = (char **)buf;
-	buf += sizeof(*alias)*(ALIAS_DIM);
-	buflen -= sizeof(*alias)*(ALIAS_DIM);
+	buf += sizeof(*alias)*ALIAS_DIM;
+	buflen -= sizeof(*alias)*ALIAS_DIM;
 
 #ifdef __UCLIBC_HAS_IPV6__
 	if (plen < sizeof(*in6))
@@ -2484,7 +2482,6 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 	alias[1] = 0;
 
 	for (;;) {
-
 		__UCLIBC_MUTEX_LOCK(__resolv_lock);
 		__nameserversXX = __nameservers;
 		__nameserverXX = __nameserver;
