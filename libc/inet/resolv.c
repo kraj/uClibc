@@ -1721,22 +1721,24 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 #ifdef L_gethostent
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
-static int __stay_open;
+static smallint __stay_open;
 static FILE * __gethostent_fp;
 
 void endhostent(void)
 {
 	__UCLIBC_MUTEX_LOCK(mylock);
 	__stay_open = 0;
-	if (__gethostent_fp)
+	if (__gethostent_fp) {
 		fclose(__gethostent_fp);
+		__gethostent_fp = NULL;
+	}
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 void sethostent(int stay_open)
 {
 	__UCLIBC_MUTEX_LOCK(mylock);
-	__stay_open = stay_open;
+	__stay_open = (stay_open != 0);
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
@@ -1757,8 +1759,10 @@ int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
 
 	ret = __read_etc_hosts_r(__gethostent_fp, NULL, AF_INET, GETHOSTENT,
 		   result_buf, buf, buflen, result, h_errnop);
-	if (__stay_open == 0)
+	if (__stay_open == 0) {
 		fclose(__gethostent_fp);
+		__gethostent_fp = NULL;
+	}
 DONE:
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 	return ret;
