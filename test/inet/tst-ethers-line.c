@@ -13,6 +13,10 @@
 
 #define ETHER_LINE_LEN 256
 
+/* This test requires /etc/ethers to exist
+ * and to have nonzero length
+ */
+
 int main(void)
 {
 	struct ether_addr addr;
