@@ -129,7 +129,7 @@ static const struct sockaddr SyslogAddr = {
 static void
 closelog_intern(int sig)
 {
-	__UCLIBC_MUTEX_LOCK(mylock);
+	/* mylock must be held by the caller */
 	if (LogFile != -1) {
 		(void) close(LogFile);
 	}
@@ -141,7 +141,6 @@ closelog_intern(int sig)
 		LogFacility = LOG_USER;
 		LogMask = 0xff;
 	}
-	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
 /*
@@ -205,12 +204,14 @@ vsyslog(int pri, const char *fmt, va_list ap)
 	int rc;
 	char tbuf[1024]; /* syslogd is unable to handle longer messages */
 	struct sigaction action, oldaction;
-	int sigpipe;
 
 	memset(&action, 0, sizeof(action));
 	action.sa_handler = closelog_intern;
 	sigemptyset(&action.sa_mask); /* TODO: memset already zeroed it out! */
-	sigpipe = sigaction(SIGPIPE, &action, &oldaction);
+	/* Only two errors are possible for sigaction:
+	 * EFAULT (bad address of &oldaction) and EINVAL (invalid signo)
+	 * none of which can happen here. */
+	/*int sigpipe =*/ sigaction(SIGPIPE, &action, &oldaction);
 
 	saved_errno = errno;
 
@@ -306,7 +307,7 @@ vsyslog(int pri, const char *fmt, va_list ap)
 	/* should mode be O_WRONLY | O_NOCTTY? -- Uli */
 	/* yes, but in Linux "/dev/console" never becomes ctty anyway -- vda */
 	if ((LogStat & LOG_CONS) &&
-	    (fd = open(_PATH_CONSOLE, O_WRONLY)) >= 0) {
+	    (fd = open(_PATH_CONSOLE, O_WRONLY | O_NOCTTY)) >= 0) {
 		p = strchr(tbuf, '>') + 1;
 		last_chr[0] = '\r';
 		last_chr[1] = '\n';
@@ -316,7 +317,7 @@ vsyslog(int pri, const char *fmt, va_list ap)
 
 getout:
 	__UCLIBC_MUTEX_UNLOCK(mylock);
-	if (sigpipe == 0)
+	/*if (sigpipe == 0)*/
 		sigaction(SIGPIPE, &oldaction, (struct sigaction *) NULL);
 }
 libc_hidden_def(vsyslog)
@@ -338,7 +339,9 @@ libc_hidden_def(syslog)
 void
 closelog(void)
 {
+	__UCLIBC_MUTEX_LOCK(mylock);
 	closelog_intern(0); /* 0: reset LogXXX globals to default */
+	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 libc_hidden_def(closelog)
 
@@ -348,9 +351,10 @@ int setlogmask(int pmask)
 	int omask;
 
 	omask = LogMask;
-	__UCLIBC_MUTEX_LOCK(mylock);
-	if (pmask != 0)
+	if (pmask != 0) {
+		__UCLIBC_MUTEX_LOCK(mylock);
 		LogMask = pmask;
-	__UCLIBC_MUTEX_UNLOCK(mylock);
+		__UCLIBC_MUTEX_UNLOCK(mylock);
+	}
 	return omask;
 }
