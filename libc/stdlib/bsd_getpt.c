@@ -22,7 +22,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#if defined __USE_BSD
 libc_hidden_proto(open)
 /* Experimentally off - libc_hidden_proto(mempcpy) */
 
@@ -77,4 +76,3 @@ __getpt (void)
   __set_errno (ENOENT);
   return -1;
 }
-#endif
