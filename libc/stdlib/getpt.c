@@ -45,7 +45,7 @@ libc_hidden_proto(close)
 /* Directory containing the UNIX98 pseudo terminals.  */
 #define _PATH_DEVPTS _PATH_DEV "pts"
 
-#if !defined __UNIX98PTY_ONLY__
+#if !defined __UNIX98PTY_ONLY__ && defined __UCLIBC_HAS_GETPT__
 /* Prototype for function that opens BSD-style master pseudo-terminals.  */
 extern int __bsd_getpt (void) attribute_hidden;
 #endif
@@ -106,6 +106,8 @@ posix_openpt (int flags)
     }
   return -1;
 }
+#undef have_no_dev_ptmx
+#undef devpts_mounted
 
 #if defined __USE_GNU && defined __UCLIBC_HAS_GETPT__
 int

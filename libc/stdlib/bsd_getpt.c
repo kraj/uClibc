@@ -22,12 +22,12 @@
 #include <string.h>
 #include <unistd.h>
 
+#if defined __USE_BSD
 libc_hidden_proto(open)
 /* Experimentally off - libc_hidden_proto(mempcpy) */
 
 /* Prefix for master pseudo terminal nodes.  */
 #define _PATH_PTY "/dev/pty"
-
 
 /* Letters indicating a series of pseudo terminals.  */
 #ifndef PTYNAME1
@@ -40,7 +40,6 @@ const char __libc_ptyname1[] attribute_hidden = PTYNAME1;
 #define PTYNAME2 "0123456789abcdefghijklmnopqrstuv";
 #endif
 const char __libc_ptyname2[] attribute_hidden = PTYNAME2;
-
 
 /* Open a master pseudo terminal and return its file descriptor.  */
 int
@@ -76,3 +75,4 @@ __getpt (void)
   __set_errno (ENOENT);
   return -1;
 }
+#endif /* __USE_BSD */
