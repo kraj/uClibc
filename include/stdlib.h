@@ -835,14 +835,17 @@ extern char *ptsname (int __fd) __THROW __wur;
 #endif
 
 #ifdef __USE_GNU
+# if defined __UCLIBC_HAS_PTY__
 /* Store at most BUFLEN characters of the pathname of the slave pseudo
    terminal associated with the master FD is open on in BUF.
    Return 0 on success, otherwise an error number.  */
 extern int ptsname_r (int __fd, char *__buf, size_t __buflen)
      __THROW __nonnull ((2));
-
+# endif
+# if defined __UCLIBC_HAS_GETPT__
 /* Open a master pseudo terminal and return its file descriptor.  */
 extern int getpt (void);
+# endif
 #endif
 
 #if 0 /* def __USE_BSD */
