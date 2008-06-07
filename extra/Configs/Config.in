@@ -558,27 +558,6 @@ config UCLIBC_HAS_PTY
 
 	  If unsure, just answer Y.
 
-config UNIX98PTY_ONLY
-	bool "Support only Unix 98 PTYs"
-	default y
-	depends on UCLIBC_HAS_PTY
-	help
-	  If you want to support only Unix 98 PTYs enable this.  Some older
-	  applications may need this disabled.  For most current programs,
-	  you can generally answer Y.
-
-config UCLIBC_HAS_GETPT
-	bool "Support getpt() (glibc-compat)"
-	default n
-	depends on UCLIBC_HAS_PTY
-	help
-	  Some packages may need getpt().
-	  All of those are non-standard and can be considered
-	  GNU/libc compatibility.
-	  Either use posix_openpt() or just open /dev/ptmx yourself.
-
-	  If unsure, just say N.
-
 config ASSUME_DEVPTS
 	bool "Assume that /dev/pts is a devpts or devfs file system"
 	default y
@@ -590,6 +569,38 @@ config ASSUME_DEVPTS
 	  /dev/pts for this to work.
 
 	  Most people should answer Y.
+
+config UNIX98PTY_ONLY
+	bool "Support only Unix 98 PTYs"
+	default y
+	depends on UCLIBC_HAS_PTY
+	help
+	  If you want to support only Unix 98 PTYs enable this.  Some older
+	  applications may need this disabled and will thus use legacy BSD
+	  style PTY handling which is more complex and also bigger than
+	  Unix 98 PTY handling.
+
+	  For most current programs, you can generally answer Y.
+
+if UNIX98PTY_ONLY
+config UCLIBC_HAS_GETPT
+	bool "Support getpt() (glibc-compat)"
+	default n
+	depends on UCLIBC_HAS_PTY
+	help
+	  Some packages may need getpt().
+	  All of those are non-standard and can be considered
+	  GNU/libc compatibility.
+	  Either use posix_openpt() or just open /dev/ptmx yourself.
+
+	  If unsure, just say N.
+endif
+
+if !UNIX98PTY_ONLY
+# Have to use __libc_ptyname{1,2}[] and related bloat
+config UCLIBC_HAS_GETPT
+	def_bool y
+endif
 
 config UCLIBC_HAS_TM_EXTENSIONS
 	bool "Support 'struct tm' timezone extension fields"
