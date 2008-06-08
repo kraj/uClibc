@@ -45,7 +45,8 @@ while read -r filename; do
 		# NB: unifdef exits with 1 if output is not
 		# exactly the same as input. That's ok.
 		# Do not abort the script if unifdef "fails"!
-		"$top_builddir/extra/scripts/unifdef" -UUCLIBC_INTERNAL "$1/$filename" >"$2/$filename"
+		"$top_builddir/extra/scripts/unifdef" -UUCLIBC_INTERNAL "$1/$filename" \
+		    | grep -v '^libc_hidden_proto[ 	]*([a-zA-Z0-9_]*)$' >"$2/$filename"
 	fi
 done
 )
