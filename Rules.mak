@@ -44,6 +44,8 @@ TAR        = tar
 
 STRIP_FLAGS ?= -x -R .note -R .comment
 
+UNIFDEF := $(top_builddir)extra/scripts/unifdef -UUCLIBC_INTERNAL
+
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
 BUILD_CFLAGS = -O2 -Wall
@@ -175,7 +177,7 @@ ifeq ($(TARGET_ARCH),i386)
 	# -O1 -march=pentium3, -Os -msse etc are known to be affected.
 	# TODO: conditionally bump to 4
 	# (see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13685)
-	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
+	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=4,)
 
 	# Choice of alignment (please document why!)
 	#  -falign-labels: in-line labels

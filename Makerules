@@ -71,6 +71,10 @@ pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_t_strip   = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
 pur_disp_ld        = echo "  "LD $(1)
+pur_disp_ln        = echo "  "LN $@
+pur_disp_mkdir     = echo "  "MKDIR $@
+pur_disp_gen       = echo "  "GEN $@
+pur_disp_unifdef   = echo "  "UNIFDEF $@
 
 sil_disp_compile.c = true
 sil_disp_compile.i = true
@@ -83,6 +87,10 @@ sil_disp_strip     = true
 sil_disp_t_strip   = true
 sil_disp_ar        = true
 sil_disp_ld        = true
+sil_disp_ln        = true
+sil_disp_mkdir     = true
+sil_disp_gen       = true
+sil_disp_unifdef   = true
 
 ver_disp_compile.c = echo $(cmd_compile.c)
 ver_disp_compile.i = echo $(cmd_compile.i)
@@ -95,6 +103,10 @@ ver_disp_strip     = echo $(cmd_strip)
 ver_disp_t_strip   = echo $(cmd_t_strip)
 ver_disp_ar        = echo $(cmd_ar)
 ver_disp_ld        =
+ver_disp_ln        =
+ver_disp_mkdir     =
+ver_disp_gen       =
+ver_disp_unifdef   = echo $(cmd_unifdef)
 
 disp_compile.c = $($(DISP)_disp_compile.c)
 disp_compile.i = $($(DISP)_disp_compile.i)
@@ -107,6 +119,10 @@ disp_strip     = $($(DISP)_disp_strip)
 disp_t_strip   = $($(DISP)_disp_t_strip)
 disp_ar        = $($(DISP)_disp_ar)
 disp_ld        = $($(DISP)_disp_ld)
+disp_ln        = $($(DISP)_disp_ln)
+disp_mkdir     = $($(DISP)_disp_mkdir)
+disp_gen       = $($(DISP)_disp_gen)
+disp_unifdef   = $($(DISP)_disp_unifdef)
 
 any-prereq = $(filter-out $(PHONY),$?) $(filter-out $(PHONY) $(wildcard $^),$^)
 
@@ -143,6 +159,13 @@ cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_t_strip   = $(STRIPTOOL) $(STRIP_FLAGS) $@
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
 
+# special suckage alert. We try to avoid --check-symlink-times thus we touch
+# the link-target.
+define do_ln
+	@$(disp_ln)
+	$(Q)$(LN) -fs
+endef
+
 compile.c = @$(call maybe_exec,compile.c)
 compile.i =  $(call maybe_exec,compile.i)
 compile.s =  $(call maybe_exec,compile.s)
@@ -152,6 +175,7 @@ compile-m = @$(disp_compile-m) ; $(cmd_compile-m)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
 do_t_strip= @$(disp_t_strip)   ; $(cmd_t_strip)
 do_ar     = @$(disp_ar)        ; $(cmd_ar)
+do_unifdef= @$(disp_unifdef)   ; $(cmd_unifdef)
 
 define compile.u
 	@$(disp_compile.u) ; $(cmd_compile.u)
@@ -243,9 +267,6 @@ $(ldso):
 
 $(libc):
 	@cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(MAJOR_VERSION),%,$(notdir $@))
-
-$(headers_dep): $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
-	$(Q)cd $(top_builddir); $(MAKE) pregen
 
 CRT := crt1
 

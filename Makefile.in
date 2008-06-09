@@ -15,6 +15,8 @@ noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
 include $(top_builddir)Rules.mak
 sub_headers := headers
 
+#suspicious_dependency:=include/bits
+
 ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: pregen libs
@@ -36,11 +38,17 @@ include $(top_srcdir)extra/locale/Makefile.in
 # last included to catch all the objects added by others (locales/threads)
 include $(top_srcdir)libc/Makefile.in
 
-include/bits/uClibc_config.h: extra/config/conf .config
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(Q)@$< -o $(top_srcdir)extra/Configs/Config.in
-	$(top_srcdir)extra/scripts/conf-header.sh .config > include/bits/uClibc_config.h
-
+# If the .config changes then we have to make sure that our includes are
+# updated properly. This would normally work by saying that the headers
+# have uClibc_config.h as prerequisite but since we _symlink_ the headers
+# and do not (?) want to rely on 'make -L' we better update them right here,
+# on spot to save us from alot of hazzle.
+include/bits/uClibc_config.h: extra/config/conf .config $(top_srcdir)extra/scripts/conf-header.sh | include/bits
+	@$(disp_gen)
+	@#superfluous: $(Q)$(INSTALL) -d $(dir $@)
+	$(Q)@$< -s $(top_srcdir)extra/Configs/Config.in
+	$(Q)$(top_srcdir)extra/scripts/conf-header.sh .config > $@
+	$(Q)$(MAKE) headers-y
 
 # For the moment, we have to keep re-running this target
 # because the fix includes scripts rely on pre-processers
@@ -59,49 +67,81 @@ ifneq ($(TARGET_SUBARCH),)
 HEADERS_BITS_SUBARCH := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/*.h))
 endif
 HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_ARCH) $(HEADERS_BITS_SUBARCH),$(HEADERS_BITS_COMMON))
-headers: include/bits/uClibc_config.h
-	$(Q)$(MAKE) headers-y
-	$(Q)\
-	set -e; \
-	if [ -e libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h ] ; then \
-		$(LN) -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h include/ ; \
-	else \
-		$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h include/ ; \
-	fi; \
-	for f in dl-osinfo.h hp-timing.h ; do \
-		$(LN) -fs ../libc/sysdeps/linux/common/$$f include/ ; \
-	done
-	$(Q)\
-	cd include/bits; \
-	set -e; \
-	for i in $(HEADERS_BITS_COMMON) ; do \
-		$(LN) -fs ../../libc/sysdeps/linux/common/bits/$$i .; \
-	done; \
-	for i in $(HEADERS_BITS_ARCH) ; do \
-		$(LN) -fs ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$$i .; \
-	done; \
-	for i in $(HEADERS_BITS_SUBARCH) ; do \
-		$(LN) -fs ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/$$i .; \
-	done
-	$(Q)\
-	cd include/sys; \
-	set -e; \
-	for i in `ls ../../libc/sysdeps/linux/common/sys/*.h` ; do \
-		$(LN) -fs $$i .; \
-	done; \
-	if [ -d ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys ] ; then \
-		for i in `ls ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys/*.h` ; do \
-			$(LN) -fs $$i .; \
-		done; \
-	fi
-ifeq ($(UCLIBC_HAS_LOCALE),y)
-	$(MAKE) -C extra/locale locale_headers
+
+HEADERS_SYS_COMMON := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/common/sys/*.h))
+HEADERS_SYS_ARCH := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/sys/*.h))
+HEADERS_SYS_COMMON := $(filter-out $(HEADERS_SYS_ARCH),$(HEADERS_SYS_COMMON))
+
+ALL_HEADERS_COMMON       := include/fpu_control.h include/dl-osinfo.h \
+				include/hp-timing.h
+ALL_HEADERS_BITS_COMMON  := $(addprefix include/bits/,$(HEADERS_BITS_COMMON))
+ALL_HEADERS_BITS_ARCH    := $(addprefix include/bits/,$(HEADERS_BITS_ARCH))
+ifneq ($(TARGET_SUBARCH),)
+ALL_HEADERS_BITS_SUBARCH := $(addprefix include/bits/,$(HEADERS_BITS_SUBARCH))
+else
+ALL_HEADERS_BITS_SUBARCH :=
+endif
+ALL_HEADERS_SYS_COMMON   := $(addprefix include/sys/,$(HEADERS_SYS_COMMON))
+ALL_HEADERS_SYS_ARCH     := $(addprefix include/sys/,$(HEADERS_SYS_ARCH))
+
+target-headers-sysdep := \
+	$(ALL_HEADERS_COMMON) \
+	$(ALL_HEADERS_BITS_COMMON) \
+	$(ALL_HEADERS_BITS_ARCH) \
+	$(ALL_HEADERS_BITS_SUBARCH) \
+	$(ALL_HEADERS_SYS_COMMON) \
+	$(ALL_HEADERS_SYS_ARCH)
+
+include/fpu_control.h:
+	@$(disp_ln)
+	$(Q)[ -r libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) ] && \
+		$(LN) -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) $@ || \
+		$(LN) -fs ../libc/sysdeps/linux/common/$(@F) $@
+
+include/dl-osinfo.h include/hp-timing.h:
+	$(do_ln) ../libc/sysdeps/linux/common/$(@F) $@
+
+$(ALL_HEADERS_BITS_COMMON):
+	$(do_ln) ../../libc/sysdeps/linux/common/bits/$(@F) $@
+
+$(ALL_HEADERS_BITS_ARCH):
+	$(do_ln) ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(@F) $@
+
+ifneq ($(TARGET_SUBARCH),)
+$(ALL_HEADERS_BITS_SUBARCH):
+	$(do_ln) ../../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/$(@F) $@
 endif
 
+ifneq ($(strip $(ALL_HEADERS_SYS_COMMON)),)
+$(ALL_HEADERS_SYS_COMMON):
+	$(do_ln) ../../libc/sysdeps/linux/common/sys/$(@F) $@
+endif
 
-pregen: headers
-	$(Q)\
-	set -e; \
+ifneq ($(strip $(ALL_HEADERS_SYS_ARCH)),)
+$(ALL_HEADERS_SYS_ARCH):
+	$(do_ln) ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys/$(@F) $@
+endif
+
+$(target-headers-sysdep): | include/bits
+
+sysdep_common_headers-clean:
+	$(RM) $(ALL_HEADERS_COMMON)
+headers_clean-y += sysdep_common_headers-clean
+
+# The headers. Arch specific headers are specified via ARCH_HEADERS in
+# libc/sysdeps/linux/$(TARGET_ARCH)/Makefile.arch which appends those via
+# libc/sysdeps/linux/Makefile.commonarch to headers-y
+headers-y += $(target-headers-sysdep)
+
+headers: include/bits/uClibc_config.h
+	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
+
+pregen: include/bits/sysnum.h headers
+
+include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
+	$(Q)$(INSTALL) -d $(@D)
+	@$(disp_gen)
+	$(Q)set -e; \
 	cd $(top_builddir); \
 	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null`; \
 	[ -z "$$tmp" ] && tmp='include/bits/sysnum.h.new'; \
@@ -368,33 +408,30 @@ headers:
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 include/bits:
-	$(INSTALL) -d include/bits
+	@$(disp_mkdir)
+	$(Q)$(INSTALL) -d $@
 
 # configuration
 # ---------------------------------------------------------------------------
-extra/config/conf extra/config/mconf: include/bits
-# TODO: this results in "make[1]: `conf' is up to date" printed
-# on every rebuild, because extra/config/conf is already built
-# on previous make run. Make it "test -x $@ || ..." (simple & a bit wrong)
-# or "make -q -C extra/config $(notdir $@) || ..." (less readable)?
+extra/config/conf extra/config/mconf: $(suspicious_dependency)
 	$(Q)$(MAKE) -C extra/config $(notdir $@)
 
-menuconfig: extra/config/mconf include/bits
+menuconfig: extra/config/mconf $(suspicious_dependency)
 	$(Q)./extra/config/mconf extra/Configs/Config.in
 
-config: extra/config/conf include/bits
+config: extra/config/conf $(suspicious_dependency)
 	$(Q)./extra/config/conf extra/Configs/Config.in
 
-oldconfig: extra/config/conf include/bits
+oldconfig: extra/config/conf $(suspicious_dependency)
 	$(Q)./extra/config/conf -o extra/Configs/Config.in
 
-silentoldconfig: extra/config/conf include/bits
+silentoldconfig: extra/config/conf $(suspicious_dependency)
 	$(Q)./extra/config/conf -s extra/Configs/Config.in
 
-randconfig: extra/config/conf include/bits
+randconfig: extra/config/conf $(suspicious_dependency)
 	$(Q)./extra/config/conf -r extra/Configs/Config.in
 
-allyesconfig: extra/config/conf include/bits
+allyesconfig: extra/config/conf $(suspicious_dependency)
 	$(Q)./extra/config/conf -y extra/Configs/Config.in
 	sed -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" .config
 	sed -i -e "s/^DOASSERTS=.*/# DOASSERTS is not set/" .config
@@ -403,10 +440,10 @@ allyesconfig: extra/config/conf include/bits
 	sed -i -e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" .config
 	$(Q)./extra/config/conf -o extra/Configs/Config.in
 
-allnoconfig: extra/config/conf include/bits
+allnoconfig: extra/config/conf $(suspicious_dependency)
 	$(Q)./extra/config/conf -n extra/Configs/Config.in
 
-defconfig: extra/config/conf include/bits
+defconfig: extra/config/conf $(suspicious_dependency)
 	$(Q)./extra/config/conf -d extra/Configs/Config.in \
 		-D extra/Configs/defconfigs/$(ARCH)
 
@@ -414,8 +451,7 @@ clean:
 	$(Q)$(RM) -r lib include/bits
 	$(RM) ldso/*/*.a libpthread/*/*.a libc/*.a libcrypt/*.a libintl/*.a \
 		libm/*.a libnsl/*.a libpthread/*.a libresolv/*.a librt/*.a \
-		libutil/*.a lib/*.a \
-		include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
+		libutil/*.a lib/*.a
 	$(MAKE) objclean-y headers_clean-y
 	$(MAKE) -s -C test clean
 	$(MAKE) -C utils utils_clean
