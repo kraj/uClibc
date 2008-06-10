@@ -64,67 +64,32 @@
 #include <pwd.h>
 #include <string.h>
 #include <crypt.h>
-#include <stdlib.h>
-#include <malloc.h>
 #include "libcrypt.h"
 
-/* We allocate memory for tables on first use, instead of using
- * static buffers - ~70k of statics is not NOMMU-friendly. */
+/* Re-entrantify me -- all this junk needs to be in
+ * struct crypt_data to make this really reentrant... */
+static u_char	inv_key_perm[64];
+static u_char	inv_comp_perm[56];
+static u_char	un_pbox[32];
+static u_int32_t en_keysl[16], en_keysr[16];
+static u_int32_t de_keysl[16], de_keysr[16];
+static u_int32_t ip_maskl[8][256], ip_maskr[8][256];
+static u_int32_t fp_maskl[8][256], fp_maskr[8][256];
+static u_int32_t key_perm_maskl[8][128], key_perm_maskr[8][128];
+static u_int32_t comp_maskl[8][128], comp_maskr[8][128];
+static u_int32_t saltbits;
+static u_int32_t old_salt;
+static u_int32_t old_rawkey0, old_rawkey1;
 
-struct crypt_data {
-	u_int32_t saltbits; /* referenced 5 times */
-	u_int32_t old_salt; /* 3 times */
-	u_int32_t old_rawkey0, old_rawkey1; /* 3 times each */
-	u_char	un_pbox[32]; /* 2 times */
-	u_char	inv_comp_perm[56]; /* 3 times */
-	u_char	inv_key_perm[64]; /* 3 times */
-	char	des_initialised; /* 2 times */
-	char	__des_crypt_out[21]; /* private buffer for __des_crypt() */
-	u_int32_t en_keysl[16], en_keysr[16]; /* 2 times each */
-	u_int32_t de_keysl[16], de_keysr[16]; /* 2 times each */
-	u_int32_t ip_maskl[8][256], ip_maskr[8][256]; /* 9 times each */
-	u_int32_t fp_maskl[8][256], fp_maskr[8][256]; /* 9 times each */
-	u_int32_t key_perm_maskl[8][128], key_perm_maskr[8][128]; /* 9 times */
-	u_int32_t comp_maskl[8][128], comp_maskr[8][128]; /* 9 times each */
-};
-static struct crypt_data *__uc_des_data;
-#define D (*__uc_des_data)
-#define saltbits        (D.saltbits       )
-#define old_salt        (D.old_salt       )
-#define old_rawkey0     (D.old_rawkey0    )
-#define old_rawkey1     (D.old_rawkey1    )
-#define un_pbox         (D.un_pbox        )
-#define inv_comp_perm   (D.inv_comp_perm  )
-#define inv_key_perm    (D.inv_key_perm   )
-#define des_initialised (D.des_initialised)
-#define __des_crypt_out (D.__des_crypt_out)
-#define en_keysl        (D.en_keysl       )
-#define en_keysr        (D.en_keysr       )
-#define de_keysl        (D.de_keysl       )
-#define de_keysr        (D.de_keysr       )
-#define ip_maskl        (D.ip_maskl       )
-#define ip_maskr        (D.ip_maskr       )
-#define fp_maskl        (D.fp_maskl       )
-#define fp_maskr        (D.fp_maskr       )
-#define key_perm_maskl  (D.key_perm_maskl )
-#define key_perm_maskr  (D.key_perm_maskr )
-#define comp_maskl      (D.comp_maskl     )
-#define comp_maskr      (D.comp_maskr     )
 
 /* Static stuff that stays resident and doesn't change after 
  * being initialized, and therefore doesn't need to be made 
  * reentrant. */
-struct const_crypt_data {
-	u_char	init_perm[64], final_perm[64]; /* referenced 2 times each */
-	u_char	m_sbox[4][4096]; /* 5 times */
-	u_int32_t psbox[4][256]; /* 5 times */
-};
-static struct const_crypt_data *__uc_des_C_ptr;
-#define C (*__uc_des_C_ptr)
-#define init_perm  (C.init_perm )
-#define final_perm (C.final_perm)
-#define m_sbox     (C.m_sbox    )
-#define psbox      (C.psbox     )
+static u_char	init_perm[64], final_perm[64];
+static u_char	m_sbox[4][4096];
+static u_int32_t psbox[4][256];
+
+
 
 
 /* A pile of data */
@@ -251,18 +216,15 @@ ascii_to_bin(char ch)
 static void
 des_init(void)
 {
+	static int des_initialised = 0;
+
 	int	i, j, b, k, inbit, obit;
 	u_int32_t	*p, *il, *ir, *fl, *fr;
 	const u_int32_t *bits28, *bits24;
 	u_char	u_sbox[8][64];
 
-	if (des_initialised)
+	if (des_initialised==1)
 		return;
-
-	if (!__uc_des_C_ptr) {
-		/* No need to zero it out, it is fully initialized below */
-		__uc_des_C_ptr = __uc_malloc(sizeof(C));
-	}
 
 	old_rawkey0 = old_rawkey1 = 0L;
 	saltbits = 0L;
@@ -497,8 +459,7 @@ do_des(	u_int32_t l_in, u_int32_t r_in, u_int32_t *l_out, u_int32_t *r_out, int 
 	 *	l_in, r_in, l_out, and r_out are in pseudo-"big-endian" format.
 	 */
 	u_int32_t	l, r, *kl, *kr, *kl1, *kr1;
-	u_int32_t	f = f; /* silence gcc */
-	u_int32_t	r48l, r48r;
+	u_int32_t	f, r48l, r48r;
 	int		round;
 
 	if (count == 0) {
@@ -644,9 +605,6 @@ setkey(const char *key)
 	u_int32_t	packed_keys[2];
 	u_char	*p;
 
-	if (!__uc_des_data)
-		__uc_des_data = memset(__uc_malloc(sizeof(D)), 0, sizeof(D));
-
 	p = (u_char *) packed_keys;
 
 	for (i = 0; i < 8; i++) {
@@ -666,9 +624,6 @@ encrypt(char *block, int flag)
 	u_char	*p;
 	int	i, j;
 
-        /* if user didn't call setkey() before and __uc_des_data
-         * is NULL, it's user's own fault. */
-
 	des_init();
 
 	setup_salt(0L);
@@ -685,21 +640,11 @@ encrypt(char *block, int flag)
 			block[(i << 5) | j] = (io[i] & bits32[j]) ? 1 : 0;
 }
 
-
 char *__des_crypt(const unsigned char *key, const unsigned char *setting)
 {
 	u_int32_t	count, salt, l, r0, r1, keybuf[2];
 	u_char		*p, *q;
-
-/* Used to have static char output[21] here, but since we already
- * allocate ~70k for des tables, we can carve out 21 bytes
- * from that memory instead */
-#define output __des_crypt_out
-
-	if (!__uc_des_data) {
-		/* If malloc returns NULL, we just segfault. Other ideas? */
-		__uc_des_data = memset(__uc_malloc(sizeof(D)), 0, sizeof(D));
-	}
+	static char	output[21];
 
 	des_init();
 
