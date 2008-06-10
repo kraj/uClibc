@@ -364,10 +364,6 @@ files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) \
 .depends.dep := $(foreach f,$(.depends.dep),$(dir $(f)).$(notdir $(f)))
 .depends.dep := $(wildcard $(.depends.dep))
 
-ifneq ($(strip $(.depends.dep)),)
--include $(.depends.dep)
-endif
-
 .PHONY: dummy $(PHONY)
 FORCE:
 
@@ -382,3 +378,11 @@ headers_clean-y: $(headers_clean-y)
 	all check clean realclean distclean test \
 	config dist menuconfig oldconfig release \
 	subdirs utils
+
+ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+ifneq ($(strip $(.depends.dep)),)
+.NOEXPORT:
+-include $(.depends.dep)
+endif
+endif
+
