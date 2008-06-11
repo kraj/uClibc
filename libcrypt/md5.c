@@ -95,8 +95,11 @@ static void   __md5_Final (unsigned char [16], struct MD5Context *);
 static void __md5_Transform __P((u_int32_t [4], const unsigned char [64]));
 
 
-static const unsigned char __md5__magic[] = "$1$";	/* This string is magic for this algorithm.  Having
-						   it this way, we can get better later on */
+#define MD5_MAGIC_STR "$1$"
+#define MD5_MAGIC_LEN (sizeof(MD5_MAGIC_STR) - 1)
+static const unsigned char __md5__magic[] = MD5_MAGIC_STR;
+/* This string is magic for this algorithm.  Having
+ * it this way, we can get better later on */
 static const unsigned char __md5_itoa64[] =		/* 0 ... 63 => ascii - 64 */
 	"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -530,11 +533,12 @@ static void __md5_to64( char *s, unsigned long v, int n)
 char *__md5_crypt(const unsigned char *pw, const unsigned char *salt)
 {
 	/* Static stuff */
-	static const unsigned char *sp, *ep;
-	static char passwd[120], *p;
+	static char passwd[120];
 
+	const unsigned char *sp, *ep;
+	char *p;
 	unsigned char	final[17];	/* final[16] exists only to aid in looping */
-	int sl,pl,i,__md5__magic_len,pw_len;
+	int sl,pl,i,pw_len;
 	struct MD5Context ctx,ctx1;
 	unsigned long l;
 
@@ -542,9 +546,8 @@ char *__md5_crypt(const unsigned char *pw, const unsigned char *salt)
 	sp = salt;
 
 	/* If it starts with the magic string, then skip that */
-	__md5__magic_len = strlen(__md5__magic);
-	if(!strncmp(sp,__md5__magic,__md5__magic_len))
-		sp += __md5__magic_len;
+	if(!strncmp(sp,__md5__magic,MD5_MAGIC_LEN))
+		sp += MD5_MAGIC_LEN;
 
 	/* It stops at the first '$', max 8 chars */
 	for(ep=sp;*ep && *ep != '$' && ep < (sp+8);ep++)
@@ -560,7 +563,7 @@ char *__md5_crypt(const unsigned char *pw, const unsigned char *salt)
 	__md5_Update(&ctx,pw,pw_len);
 
 	/* Then our magic string */
-	__md5_Update(&ctx,__md5__magic,__md5__magic_len);
+	__md5_Update(&ctx,__md5__magic,MD5_MAGIC_LEN);
 
 	/* Then the raw salt */
 	__md5_Update(&ctx,sp,sl);
