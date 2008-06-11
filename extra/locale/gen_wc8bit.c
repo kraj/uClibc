@@ -464,7 +464,7 @@ int main(int argc, char **argv)
 #if 1
 				wrow[i & (C2WC_ROW_LEN-1)] = csd[numsets].c2w[i];
 				if ((i & (C2WC_ROW_LEN-1)) == (C2WC_ROW_LEN-1)) {
-					p = (char *) c2wc_tbl;
+					p = (unsigned char *) c2wc_tbl;
 					for (j=0 ; j < n_c2wc_rows ; j++) {
 						if (!memcmp(p, (char *) wrow, 2*C2WC_ROW_LEN)) {
 							break;
@@ -615,7 +615,7 @@ int main(int argc, char **argv)
 
 	fprintf(out, "\nstatic const unsigned short __LOCALE_DATA_Cc2wc_data[%d] = {\n",
 			n_c2wc_rows * C2WC_ROW_LEN);
-	p = (char *) c2wc_tbl;
+	p = (unsigned char *) c2wc_tbl;
 	for (j=0 ; j < n_c2wc_rows ; j++) {
 		fprintf(out, "\t");
 		for (i=0 ; i < C2WC_ROW_LEN ; i++) {
