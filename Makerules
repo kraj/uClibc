@@ -5,6 +5,12 @@
 .SUFFIXES: .c .S .o .os .oS .so .a .s .i
 
 PHONY := FORCE
+
+.PHONY: dummy $(PHONY) \
+	all check clean realclean distclean test \
+	config dist menuconfig oldconfig release \
+	subdirs utils
+
 # order is important, the stripping uses STRIP_FLAGS for lib-so, but not for lib-a
 ifeq ($(HAVE_SHARED),y)
 .LIBPATTERNS: "lib%.so"
@@ -126,18 +132,28 @@ disp_unifdef   = $($(DISP)_disp_unifdef)
 
 any-prereq = $(filter-out $(PHONY),$?) $(filter-out $(PHONY) $(wildcard $^),$^)
 
+# ../foo/bar/baz.ext -> foo_bar_baz.ext
+variablify = $(subst /,_,$(subst $(top_builddir),,$(1)))
+# strip the top_builddir off everything to make the *string* idempotent for -C
+dirify = $(subst $(top_builddir),,$(patsubst -L$(top_builddir)%,-L%,$(patsubst -I$(top_builddir)%,-I%,$(1))))
+
 # True if not identical. Neither order nor whitespace nor identical flags
 # matter.
-compare_flags = $(strip $(filter-out $(cmd_$(1)), $(cmd_$(@))) \
-			$(filter-out $(cmd_$(@)), $(cmd_$(1))))
+compare_flags = \
+	$(strip $(filter-out $(call dirify,$(cmd_$(call variablify,$(1)))), \
+				$(call dirify,$(cmd_$(call variablify,$(@))))) \
+		$(filter-out $(call dirify,$(cmd_$(call variablify,$(@)))), \
+				$(call dirify,$(cmd_$(call variablify,$(1))))))
 
 # Rebuild if any prerequisite, the used CC or flags changed.
 # Previously used flags are stored in the corresponding .%.dep files
-maybe_exec = $(if $(strip $(compare_flags) $(any-prereq)), \
+maybe_exec = \
+		$(if $(strip $(compare_flags) $(any-prereq)), \
 		@set -e; \
 		$(disp_$(1)); \
 		$(cmd_$(1)); \
-		echo 'cmd_$@ := $(cmd_$1)' >> $(dir $@).$(notdir $@).dep)
+		echo 'cmd_$(call variablify,$@) := $(call dirify,$(cmd_$(call variablify,$1)))' >> $(dir $@).$(notdir $@).dep)
+
 
 CFLAGS_gen.dep = -MT $@ -MD -MP -MF $(dir $@).$(notdir $@).dep
 
@@ -364,7 +380,6 @@ files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) \
 .depends.dep := $(foreach f,$(.depends.dep),$(dir $(f)).$(notdir $(f)))
 .depends.dep := $(wildcard $(.depends.dep))
 
-.PHONY: dummy $(PHONY)
 FORCE:
 
 clean: objclean-y headers_clean-y
@@ -373,11 +388,6 @@ realclean: clean
 
 objclean-y: $(objclean-y)
 headers_clean-y: $(headers_clean-y)
-
-.PHONY: \
-	all check clean realclean distclean test \
-	config dist menuconfig oldconfig release \
-	subdirs utils
 
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 ifneq ($(strip $(.depends.dep)),)
