@@ -44,3 +44,4 @@ size_t strlcat(register char *__restrict dst,
 
 	return len;
 }
+libc_hidden_def(strlcat)
