@@ -42,6 +42,7 @@ __window_spill:
 	mov	a8, a0
 	retw
 #else
+	mov	a12, a0
 	_entry	a1, 48			// touch NUM_REGS-36 (x/x/28)
 	mov	a12, a0
 	_entry	a1, 48			// touch NUM_REGS-48 (x/x/16)
