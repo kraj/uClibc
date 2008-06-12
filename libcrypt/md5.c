@@ -98,8 +98,6 @@ static void __md5_Transform __P((u_int32_t [4], const unsigned char [64]));
 #define MD5_MAGIC_STR "$1$"
 #define MD5_MAGIC_LEN (sizeof(MD5_MAGIC_STR) - 1)
 static const unsigned char __md5__magic[] = MD5_MAGIC_STR;
-/* This string is magic for this algorithm.  Having
- * it this way, we can get better later on */
 static const unsigned char __md5_itoa64[] =		/* 0 ... 63 => ascii - 64 */
 	"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
