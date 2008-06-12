@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <malloc.h>
 #include <string.h>
 #include <stddef.h>
 #include <errno.h>
@@ -54,7 +53,6 @@ libc_hidden_proto(__ctype_b_loc)
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
-libc_hidden_proto(__uc_malloc)
 
 /**********************************************************************/
 /* Prototypes for internal functions. */
@@ -159,15 +157,11 @@ libc_hidden_proto(fgetpwent_r)
 
 struct passwd *fgetpwent(FILE *stream)
 {
-	static struct {
-		char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
-		struct passwd resultbuf;
-	} *sp;
+	static char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
+	static struct passwd resultbuf;
 	struct passwd *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	fgetpwent_r(stream, &sp->resultbuf, sp->buffer, sizeof(sp->buffer), &result);
+	fgetpwent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 #endif
@@ -181,15 +175,11 @@ libc_hidden_proto(fgetgrent_r)
 
 struct group *fgetgrent(FILE *stream)
 {
-	static struct {
-		char buffer[__UCLIBC_GRP_BUFFER_SIZE__];
-		struct group resultbuf;
-	} *sp;
+	static char buffer[__UCLIBC_GRP_BUFFER_SIZE__];
+	static struct group resultbuf;
 	struct group *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	fgetgrent_r(stream, &sp->resultbuf, sp->buffer, sizeof(sp->buffer), &result);
+	fgetgrent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 #endif
@@ -202,15 +192,11 @@ libc_hidden_proto(fgetspent_r)
 
 struct spwd *fgetspent(FILE *stream)
 {
-	static struct {
-		char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
-		struct spwd resultbuf;
-	} *sp;
+	static char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
+	static struct spwd resultbuf;
 	struct spwd *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	fgetspent_r(stream, &sp->resultbuf, sp->buffer, sizeof(sp->buffer), &result);
+	fgetspent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -312,15 +298,11 @@ libc_hidden_proto(getpwuid_r)
 
 struct passwd *getpwuid(uid_t uid)
 {
-	static struct {
-		char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
-		struct passwd resultbuf;
-	} *sp;
+	static char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
+	static struct passwd resultbuf;
 	struct passwd *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	getpwuid_r(uid, &sp->resultbuf, sp->buffer, sizeof(sp->buffer), &result);
+	getpwuid_r(uid, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -332,15 +314,11 @@ libc_hidden_proto(getgrgid_r)
 
 struct group *getgrgid(gid_t gid)
 {
-	static struct {
-		char buffer[__UCLIBC_GRP_BUFFER_SIZE__];
-		struct group resultbuf;
-	} *sp;
+	static char buffer[__UCLIBC_GRP_BUFFER_SIZE__];
+	static struct group resultbuf;
 	struct group *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	getgrgid_r(gid, &sp->resultbuf, sp->buffer, sizeof(sp->buffer), &result);
+	getgrgid_r(gid, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -383,15 +361,11 @@ libc_hidden_proto(getspuid_r)
 
 struct spwd *getspuid(uid_t uid)
 {
-	static struct {
-		char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
-		struct spwd resultbuf;
-	} *sp;
+	static char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
+	static struct spwd resultbuf;
 	struct spwd *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	getspuid_r(uid, &sp->resultbuf, sp->buffer, sizeof(sp->buffer), &result);
+	getspuid_r(uid, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -403,15 +377,11 @@ libc_hidden_proto(getpwnam_r)
 
 struct passwd *getpwnam(const char *name)
 {
-	static struct {
-		char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
-		struct passwd resultbuf;
-	} *sp;
+	static char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
+	static struct passwd resultbuf;
 	struct passwd *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	getpwnam_r(name, &sp->resultbuf, sp->buffer, sizeof(sp->buffer), &result);
+	getpwnam_r(name, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -423,15 +393,11 @@ libc_hidden_proto(getgrnam_r)
 
 struct group *getgrnam(const char *name)
 {
-	static struct {
-		char buffer[__UCLIBC_GRP_BUFFER_SIZE__];
-		struct group resultbuf;
-	} *sp;
+	static char buffer[__UCLIBC_GRP_BUFFER_SIZE__];
+	static struct group resultbuf;
 	struct group *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	getgrnam_r(name, &sp->resultbuf, sp->buffer, sizeof(sp->buffer), &result);
+	getgrnam_r(name, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -443,15 +409,11 @@ libc_hidden_proto(getspnam_r)
 
 struct spwd *getspnam(const char *name)
 {
-	static struct {
-		char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
-		struct spwd resultbuf;
-	} *sp;
+	static char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
+	static struct spwd resultbuf;
 	struct spwd *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	getspnam_r(name, &sp->resultbuf, sp->buffer, sizeof(sp->buffer), &result);
+	getspnam_r(name, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -664,15 +626,11 @@ libc_hidden_proto(getpwent_r)
 
 struct passwd *getpwent(void)
 {
-	static struct {
-		char line_buff[__UCLIBC_PWD_BUFFER_SIZE__];
-		struct passwd pwd;
-	} *sp;
+	static char line_buff[__UCLIBC_PWD_BUFFER_SIZE__];
+	static struct passwd pwd;
 	struct passwd *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	getpwent_r(&sp->pwd, sp->line_buff, sizeof(sp->line_buff), &result);
+	getpwent_r(&pwd, line_buff, sizeof(line_buff), &result);
 	return result;
 }
 
@@ -684,15 +642,11 @@ libc_hidden_proto(getgrent_r)
 
 struct group *getgrent(void)
 {
-	static struct {
-		char line_buff[__UCLIBC_GRP_BUFFER_SIZE__];
-		struct group gr;
-	} *sp;
+	static char line_buff[__UCLIBC_GRP_BUFFER_SIZE__];
+	static struct group gr;
 	struct group *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	getgrent_r(&sp->gr, sp->line_buff, sizeof(sp->line_buff), &result);
+	getgrent_r(&gr, line_buff, sizeof(line_buff), &result);
 	return result;
 }
 
@@ -704,15 +658,11 @@ libc_hidden_proto(getspent_r)
 
 struct spwd *getspent(void)
 {
-	static struct {
-		char line_buff[__UCLIBC_PWD_BUFFER_SIZE__];
-		struct spwd spwd;
-	} *sp;
+	static char line_buff[__UCLIBC_PWD_BUFFER_SIZE__];
+	static struct spwd spwd;
 	struct spwd *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	getspent_r(&sp->spwd, sp->line_buff, sizeof(sp->line_buff), &result);
+	getspent_r(&spwd, line_buff, sizeof(line_buff), &result);
 	return result;
 }
 
@@ -724,15 +674,11 @@ libc_hidden_proto(sgetspent_r)
 
 struct spwd *sgetspent(const char *string)
 {
-	static struct {
-		char line_buff[__UCLIBC_PWD_BUFFER_SIZE__];
-		struct spwd spwd;
-	} *sp;
+	static char line_buff[__UCLIBC_PWD_BUFFER_SIZE__];
+	static struct spwd spwd;
 	struct spwd *result;
 
-	free(sp);
-	sp = __uc_malloc(sizeof(*sp));
-	sgetspent_r(string, &sp->spwd, sp->line_buff, sizeof(sp->line_buff), &result);
+	sgetspent_r(string, &spwd, line_buff, sizeof(line_buff), &result);
 	return result;
 }
 
