@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <malloc.h>
 #include <fcntl.h>
 #include <paths.h>
 #include <errno.h>
@@ -30,7 +29,6 @@ libc_hidden_proto(open)
 libc_hidden_proto(fcntl)
 libc_hidden_proto(close)
 libc_hidden_proto(lseek)
-libc_hidden_proto(__uc_malloc)
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(utmplock, PTHREAD_MUTEX_INITIALIZER);
@@ -38,10 +36,9 @@ __UCLIBC_MUTEX_STATIC(utmplock, PTHREAD_MUTEX_INITIALIZER);
 
 
 /* Some global crap */
-static const char default_file_name[] = _PATH_UTMP;
-
 static int static_fd = -1;
-static struct utmp *static_utmp;
+static struct utmp static_utmp;
+static const char default_file_name[] = _PATH_UTMP;
 static const char *static_ut_name = (const char *) default_file_name;
 
 /* This function must be called with the LOCK held */
@@ -92,11 +89,9 @@ static struct utmp *__getutent(int utmp_fd)
 	return NULL;
     }
 
-    free(static_utmp);
-    static_utmp = __uc_malloc(sizeof(*static_utmp));
-    if (read(utmp_fd, (char *) static_utmp, sizeof(*static_utmp)) == sizeof(*static_utmp))
+    if (read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) == sizeof(struct utmp))
     {
-	ret = static_utmp;
+	ret = &static_utmp;
     }
 
     return ret;

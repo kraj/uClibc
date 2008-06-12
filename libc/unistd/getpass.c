@@ -20,7 +20,7 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
-#include <malloc.h>
+#include <string.h>
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 
@@ -37,7 +37,6 @@ libc_hidden_proto(fputs)
 libc_hidden_proto(fputc)
 libc_hidden_proto(putc)
 libc_hidden_proto(__fputc_unlocked)
-libc_hidden_proto(__uc_malloc)
 
 /* It is desirable to use this bit on systems that have it.
    The only bit of terminal state we want to twiddle is echoing, which is
@@ -51,15 +50,11 @@ libc_hidden_proto(__uc_malloc)
 
 char * getpass (const char *prompt)
 {
-  static char *buf;
-
   FILE *in, *out;
   struct termios s, t;
   int tty_changed;
+  static char buf[PWD_BUFFER_SIZE];
   int nread;
-
-  free(buf);
-  buf = __uc_malloc(PWD_BUFFER_SIZE);
 
   /* Try to write to and read from the terminal if we can.
      If we can't open the terminal, use stderr and stdin.  */
