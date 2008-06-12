@@ -59,7 +59,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <malloc.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
@@ -73,7 +72,6 @@ libc_hidden_proto(atoi)
 libc_hidden_proto(rewind)
 libc_hidden_proto(fgets)
 libc_hidden_proto(abort)
-libc_hidden_proto(__uc_malloc)
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
@@ -92,7 +90,9 @@ static smallint serv_stayopen;
 static void __initbuf(void)
 {
     if (!servbuf) {
-	servbuf = __uc_malloc(SBUFSIZE);
+	servbuf = malloc(SBUFSIZE);
+	if (!servbuf)
+	    abort();
     }
 }
 

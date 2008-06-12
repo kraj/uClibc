@@ -19,7 +19,6 @@
 #include <features.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -30,8 +29,6 @@ libc_hidden_proto(inet_network)
 libc_hidden_proto(rewind)
 libc_hidden_proto(fgets)
 libc_hidden_proto(abort)
-libc_hidden_proto(__uc_malloc)
-
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
@@ -101,7 +98,9 @@ struct netent *getnetent(void)
 again:
 
     if (!line) {
-	line = __uc_malloc(BUFSIZ + 1);
+	line = malloc(BUFSIZ + 1);
+	if (!line)
+	    abort();
     }
 
     p = fgets(line, BUFSIZ, netf);

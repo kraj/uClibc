@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include <mntent.h>
 #include <bits/uClibc_mutex.h>
 
@@ -26,7 +25,6 @@ libc_hidden_proto(fseek)
 libc_hidden_proto(fgets)
 libc_hidden_proto(abort)
 libc_hidden_proto(fprintf)
-libc_hidden_proto(__uc_malloc)
 
 /* Reentrant version of getmntent.  */
 struct mntent *getmntent_r (FILE *filep, 
@@ -86,7 +84,9 @@ struct mntent *getmntent(FILE * filep)
     __UCLIBC_MUTEX_LOCK(mylock);
     
     if (!buff) {
-            buff = __uc_malloc(BUFSIZ);
+            buff = malloc(BUFSIZ);
+		if (!buff)
+		    abort();
     }
     
     tmp = getmntent_r(filep, &mnt, buff, BUFSIZ);

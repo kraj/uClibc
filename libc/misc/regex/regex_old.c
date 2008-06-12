@@ -36,7 +36,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include <malloc.h>
 #include <stdio.h>
 
 /* Experimentally off - libc_hidden_proto(memset) */
@@ -49,7 +48,6 @@ libc_hidden_proto(abort)
 #ifdef __USE_GNU
 /* Experimentally off - libc_hidden_proto(mempcpy) */
 #endif
-libc_hidden_proto(__uc_malloc)
 
 /* AIX requires this to be the first thing in the file. */
 #if defined _AIX && !defined REGEX_MALLOC
@@ -309,7 +307,7 @@ extern char *re_syntax_table;
 
 #  else /* not SYNTAX_TABLE */
 
-static char *re_syntax_table; /* [CHAR_SET_SIZE] */
+static char re_syntax_table[CHAR_SET_SIZE];
 
 static void init_syntax_once PARAMS ((void));
 
@@ -317,13 +315,11 @@ static void
 init_syntax_once ()
 {
    register int c;
-   static char done;
+   static int done = 0;
 
    if (done)
      return;
-
-   re_syntax_table = __uc_malloc(CHAR_SET_SIZE);
-   bzero (re_syntax_table, CHAR_SET_SIZE);
+   bzero (re_syntax_table, sizeof re_syntax_table);
 
    for (c = 0; c < CHAR_SET_SIZE; ++c)
      if (ISALNUM (c))

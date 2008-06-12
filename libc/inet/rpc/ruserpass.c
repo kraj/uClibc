@@ -40,7 +40,6 @@
 #include <stdio_ext.h>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include <unistd.h>
 
 /* Experimentally off - libc_hidden_proto(strcat) */
@@ -64,7 +63,6 @@ libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
 libc_hidden_proto(getc_unlocked)
 libc_hidden_proto(__fgetc_unlocked)
-libc_hidden_proto(__uc_malloc)
 
 #define _(X)  (X)
 /* #include "ftp_var.h" */
@@ -80,7 +78,7 @@ static	FILE *cfile;
 #define	ID	10
 #define	MACHINE	11
 
-static char *tokval; /* [100] */
+static char tokval[100];
 
 static const char tokstr[] =
 {
@@ -153,9 +151,6 @@ int ruserpass(const char *host, const char **aname, const char **apass)
 	if (mydomain==NULL) {
 	    mydomain=myname + strlen(myname);
 	}
-
-	if (!tokval)
-		tokval = __uc_malloc(100);
 next:
 	while ((t = token())) switch(t) {
 

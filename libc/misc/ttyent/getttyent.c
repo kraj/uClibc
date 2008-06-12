@@ -34,7 +34,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include <malloc.h>
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 #endif
@@ -55,7 +54,6 @@ libc_hidden_proto(__ctype_b_loc)
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
-libc_hidden_proto(__uc_malloc)
 
 static char zapchar;
 static FILE *tf;
@@ -134,7 +132,9 @@ struct ttyent * getttyent(void)
 	return (NULL);
 
     if (!line) {
-            line = __uc_malloc(BUFSIZ);
+            line = malloc(BUFSIZ);
+		if (!line)
+		    abort();
     }
 
 	__STDIO_ALWAYS_THREADLOCK(tf);

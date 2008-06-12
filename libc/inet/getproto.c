@@ -59,7 +59,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include <errno.h>
 #include <unistd.h>
 
@@ -71,7 +70,6 @@ libc_hidden_proto(rewind)
 libc_hidden_proto(fgets)
 libc_hidden_proto(fclose)
 libc_hidden_proto(abort)
-libc_hidden_proto(__uc_malloc)
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
@@ -89,7 +87,9 @@ static smallint proto_stayopen;
 static void __initbuf(void)
 {
     if (!static_aliases) {
-	static_aliases = __uc_malloc(SBUFSIZE);
+	static_aliases = malloc(SBUFSIZE);
+	if (!static_aliases)
+	    abort();
     }
 }
 
