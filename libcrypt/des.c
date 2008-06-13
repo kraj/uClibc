@@ -372,7 +372,7 @@ setup_salt(u_int32_t salt)
 }
 
 
-static int
+static void
 des_setkey(const char *key)
 {
 	u_int32_t	k0, k1, rawkey0, rawkey1;
@@ -392,7 +392,7 @@ des_setkey(const char *key)
 		 * has bad parity anyway) in order to simplify the starting
 		 * conditions.
 		 */
-		return(0);
+		return;
 	}
 	old_rawkey0 = rawkey0;
 	old_rawkey1 = rawkey1;
@@ -448,7 +448,6 @@ des_setkey(const char *key)
 				| comp_maskr[6][(t1 >> 7) & 0x7f]
 				| comp_maskr[7][t1 & 0x7f];
 	}
-	return(0);
 }
 
 
@@ -658,8 +657,7 @@ char *__des_crypt(const unsigned char *key, const unsigned char *setting)
 		if (*(q - 1))
 			key++;
 	}
-	if (des_setkey((char *)keybuf))
-		return(NULL);
+	des_setkey((char *)keybuf);
 
 #if 0
 	if (*setting == _PASSWORD_EFMT1) {
@@ -688,8 +686,7 @@ char *__des_crypt(const unsigned char *key, const unsigned char *setting)
 			while (q - (u_char *)keybuf - 8 && *key)
 				*q++ ^= *key++ << 1;
 
-			if (des_setkey((char *)keybuf))
-				return(NULL);
+			des_setkey((char *)keybuf);
 		}
 		strncpy(output, setting, 9);
 
