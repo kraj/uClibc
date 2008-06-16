@@ -175,8 +175,6 @@ cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_t_strip   = $(STRIPTOOL) $(STRIP_FLAGS) $@
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
 
-# special suckage alert. We try to avoid --check-symlink-times thus we touch
-# the link-target.
 define do_ln
 	@$(disp_ln)
 	$(Q)$(LN) -fs
