@@ -25,14 +25,22 @@ libs: $(lib-a-y)
 endif
 objs: all_objs
 
-shared_objs =  $(ldso-y) $(libc-y:.o=.os) $(libc-shared-y) $(libc-nonshared-y) $(libdl-so-y)
-shared_objs += $(libcrypt-so-y) $(libintl-so-y) $(libm-so-y) $(libnsl-so-y) $(libpthread-so-y) $(libpthread-nonshared-y)
-shared_objs += $(libthread_db-so-y) $(libresolv-so-y) $(librt-so-y) $(libutil-so-y)
-ar_objs =  $(libc-y) $(libc-static-y) $(libdl-a-y) $(libcrypt-a-y) $(libintl-a-y) $(libm-a-y) $(libnsl-a-y)
-ar_objs += $(libpthread-a-y) $(libthread_db-a-y) $(libresolv-a-y) $(librt-a-y) $(libutil-a-y)
+shared_objs = $(libc-y:.o=.os) $(libc-shared-y) $(libc-nonshared-y) \
+	$(libcrypt-so-y) $(libdl-so-y) \
+	$(libintl-so-y) $(libm-so-y) $(libnsl-so-y) \
+	$(libpthread-so-y) $(libpthread-nonshared-y) $(libthread_db-so-y) \
+	$(libresolv-so-y) $(librt-so-y) \
+	$(ldso-y) \
+	$(libutil-so-y)
+
+ar_objs =  $(libc-y) $(libc-static-y) $(libcrypt-a-y) \
+	$(libdl-a-y) $(libintl-a-y) $(libm-a-y) $(libnsl-a-y) \
+	$(libpthread-a-y) $(libthread_db-a-y) \
+	$(libresolv-a-y) $(librt-a-y) $(libutil-a-y)
 ifeq ($(DOPIC),y)
 ar_objs := $(ar_objs:.o=.os)
 endif
+flat_objs = $(lib-gdb-y)
 
 ifeq ($(HAVE_SHARED),y)
 all_objs: $(sort $(shared_objs) $(ar_objs))
@@ -185,12 +193,15 @@ compile.i =  $(call maybe_exec,compile.i)
 compile.s =  $(call maybe_exec,compile.s)
 compile.S = @$(call maybe_exec,compile.S)
 compile.m = @$(call maybe_exec,compile.m)
-compile-m = @$(disp_compile-m) ; $(cmd_compile-m)
+compile-m = @$(disp_compile-m) ; $(cmd_compile-m) ; $(do_t_strip)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
 do_t_strip= @$(disp_t_strip)   ; $(cmd_t_strip)
-do_ar     = @$(disp_ar)        ; $(cmd_ar)
 do_unifdef= @$(disp_unifdef)   ; $(cmd_unifdef)
 
+define do_ar
+	$(do_strip)
+	@$(disp_ar) ; $(cmd_ar)
+endef
 define compile.u
 	@$(disp_compile.u) ; $(cmd_compile.u)
 	@$(disp_t_strip)
@@ -239,6 +250,7 @@ endef
 define linkm.so
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
+	$(do_strip)
 	@$(disp_ld)
 	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) -Wl,-soname=$(notdir $@).$(2) \
 		$(NOSTDLIB_CFLAGS) -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
@@ -348,19 +360,17 @@ CRTS_COMPAT :=
 #endif
 
 $(crt-y): $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC)
-$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | headers
+$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | $(headers-y)
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
 	$(do_ar)
-	$(do_t_strip)
 
 $(top_builddir)lib/libpthread_nonshared.a: $(libpthread-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
 	$(do_ar)
-	$(do_t_strip)
 
 files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) \
 	$(libm-a-y) $(libm-so-y) \
