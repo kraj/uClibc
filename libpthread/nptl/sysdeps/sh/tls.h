@@ -115,9 +115,9 @@ typedef struct
         struct pthread *self = thread_self();
    do not get optimized away.  */
 # define THREAD_SELF \
-  ({ struct pthread *__self;						      \
-     __asm ("stc gbr,%0" : "=r" (__self));				      \
-     __self - 1;})
+  ({ struct pthread *__thread_self;						      \
+     __asm ("stc gbr,%0" : "=r" (__thread_self));				      \
+     __thread_self - 1;})
 
 /* Magic for libthread_db to know how to do THREAD_SELF.  */
 # define DB_THREAD_SELF \
