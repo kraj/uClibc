@@ -15,7 +15,6 @@
 .global __vfork
 .hidden __vfork
 .type   __vfork,%function
-.align 1<<4
 
 __vfork:
 	popl %ecx

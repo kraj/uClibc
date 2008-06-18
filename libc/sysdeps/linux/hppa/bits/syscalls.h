@@ -48,10 +48,10 @@
 #define K_INLINE_SYSCALL(name, nr, args...)	({			\
 	long __sys_res;							\
 	{								\
-		register unsigned long __res asm("r28");		\
+		register unsigned long __res __asm__("r28");		\
 		K_LOAD_ARGS_##nr(args)					\
 		/* FIXME: HACK stw/ldw r19 around syscall */		\
-		asm volatile(						\
+		__asm__ __volatile__(						\
 			K_STW_ASM_PIC					\
 			"	ble  0x100(%%sr2, %%r0)\n"		\
 			"	ldi %1, %%r20\n"			\

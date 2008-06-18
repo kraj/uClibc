@@ -27,7 +27,6 @@
 
 .global _setjmp
 .type   _setjmp,%function
-.align 4
 _setjmp:
 	xorl %eax, %eax
 	movl 4   (%esp), %edx

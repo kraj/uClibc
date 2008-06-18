@@ -6,11 +6,11 @@
  * archive for more details.
  */
 
-       /* This just does a tail-call to __sigsetjmp(env, 0) */
-       .global _setjmp
-       .type   _setjmp,"function"
-       .align  1
+	/* This just does a tail-call to __sigsetjmp(env, 0) */
+	.global	_setjmp
+	.type	_setjmp,"function"
+	.align	1
 _setjmp:
-       mov     r11, 0
-       bral    HIDDEN_JUMPTARGET(__sigsetjmp)
-       .size   _setjmp, . - _setjmp
+	mov	r11, 0
+	bral	HIDDEN_JUMPTARGET(__sigsetjmp)
+	.size	_setjmp, . - _setjmp

@@ -30,7 +30,7 @@
 extern __typeof(sigaction) __libc_sigaction;
 
 #if defined __NR_rt_sigaction
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 extern void restore_rt (void) __asm__ ("__restore_rt") attribute_hidden;
 extern void restore (void) __asm__ ("__restore") attribute_hidden;
@@ -145,7 +145,6 @@ libc_hidden_weak(sigaction)
 __asm__						\
   (						\
    ".text\n"					\
-   "	.align 16\n"				\
    "__" #name ":\n"				\
    "	movl $" #syscall ", %eax\n"		\
    "	int  $0x80"				\
@@ -163,7 +162,6 @@ RESTORE (restore_rt, __NR_rt_sigreturn)
 __asm__						\
   (						\
    ".text\n"					\
-   "	.align 8\n"				\
    "__" #name ":\n"				\
    "	popl %eax\n"				\
    "	movl $" #syscall ", %eax\n"		\

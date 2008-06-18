@@ -21,9 +21,6 @@
 /* this is only an issue on i386 where linux < 2.3.25, so we just assume it works ... */
 #undef __UCLIBC_HANDLE_OLDER_RLIMIT__
 
-/* does your target prefix all symbols with an _ ? */
-#define __UCLIBC_NO_UNDERSCORES__
-
 /* does your target have an asm .set ? */
 #define __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
 
@@ -42,6 +39,8 @@
 /* define if target supports IEEE signed zero floats */
 #define __UCLIBC_HAVE_SIGNED_ZERO__
 
+#if defined _LIBC
 #define internal_function __attribute__ ((regparm (3), stdcall))
+#endif
 
 #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */

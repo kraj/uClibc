@@ -23,7 +23,6 @@
 
 .global __sigsetjmp
 .type   __sigsetjmp,%function
-.align 4
 __sigsetjmp:
 	/* Save registers.  */
 	movq %rbx, (JB_RBX*8)(%rdi)

@@ -23,7 +23,6 @@
 
 .global setjmp
 .type   setjmp,%function
-.align 4
 setjmp:
 	movl 4   (%esp), %eax
 	/* Save registers.  */

@@ -17,3 +17,9 @@
    02111-1307 USA.  */
 
 #define __WORDSIZE	32
+
+#ifdef UCLIBC_INTERNAL
+#ifndef smallint_type
+#define smallint_type char
+#endif
+#endif

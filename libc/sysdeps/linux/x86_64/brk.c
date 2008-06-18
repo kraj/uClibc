@@ -29,7 +29,7 @@ int brk (void *addr)
 {
 	void *__unbounded newbrk;
 
-	asm ("syscall\n"
+	__asm__ ("syscall\n"
 	     : "=a" (newbrk)
 	     : "0" (__NR_brk), "D" (__ptrvalue (addr))
 	     : "r11","rcx","memory");

@@ -53,7 +53,6 @@
 .text
 .global clone
 .type   clone,%function
-.align 4
 clone:
 	/* Sanity check arguments.  */
 	movq	$-EINVAL,%rax

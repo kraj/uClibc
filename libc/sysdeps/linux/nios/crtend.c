@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 /*
 static void (*__CTOR_END__[1]) __P((void))
     __attribute__((section(".ctors"))) = { (void *)-1 };
@@ -25,7 +26,7 @@ static void dummy_init(void) __attribute__((section(".trash")));
 void
 dummy_init(void)
 {
-	static int initialized = 0;
+	static smallint initialized;
 	static void (*volatile call__ctors)(void) = __do_global_ctors_aux;
 	/*
 	 * Call global constructors.

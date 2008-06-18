@@ -24,7 +24,6 @@
 
 .global __sigsetjmp
 .type   __sigsetjmp,%function
-.align 4
 
 __sigsetjmp:
         movl 4   (%esp), %eax

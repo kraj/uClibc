@@ -23,7 +23,6 @@
 
 .global _setjmp
 .type   _setjmp,%function
-.align  16
 _setjmp:
 	xorq %rsi, %rsi
 	jmp __sigsetjmp@PLT

@@ -69,7 +69,7 @@
 #define F_SETFL		4	/* Set file status flags.  */
 #ifndef __USE_FILE_OFFSET64
 # define F_GETLK	5	/* Get record locking info.  */
-# define F_SETLK	6    	/* Set record locking info (non-blocking).  */
+# define F_SETLK	6	/* Set record locking info (non-blocking).  */
 # define F_SETLKW	7	/* Set record locking info (blocking).  */
 #else
 # define F_GETLK	F_GETLK64 /* Get record locking info.  */
@@ -94,6 +94,8 @@
 # define F_SETLEASE     1024    /* Set a lease.  */
 # define F_GETLEASE     1025    /* Enquire what lease is active.  */
 # define F_NOTIFY       1026    /* Request notfications on a directory.  */
+# define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+				   close-on-exit set on new fd.  */
 #endif
 
 /* for F_[GET|SET]FL */
@@ -173,7 +175,10 @@ struct flock64
 # define POSIX_FADV_NOREUSE	5 /* Data will be accessed once.  */
 #endif
 
+
 #ifdef __USE_GNU
+#if 0
+/* Flags for SYNC_FILE_RANGE.  */
 # define SYNC_FILE_RANGE_WAIT_BEFORE	1 /* Wait upon writeout of all pages
 					     in the range before performing the
 					     write.  */
@@ -183,6 +188,7 @@ struct flock64
 # define SYNC_FILE_RANGE_WAIT_AFTER	4 /* Wait upon writeout of all pages in
 					     the range after performing the
 					     write.  */
+#endif
 
 /* Flags for SPLICE and VMSPLICE.  */
 # define SPLICE_F_MOVE		1	/* Move pages instead of copying.  */
@@ -201,24 +207,26 @@ __BEGIN_DECLS
 extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
     __THROW;
 
+
 #if 0
 /* Selective file content synch'ing.  */
 extern int sync_file_range (int __fd, __off64_t __from, __off64_t __to,
 			    unsigned int __flags);
+#endif
 
 /* Splice address range into a pipe.  */
-extern int vmsplice (int __fdout, const struct iovec *__iov, size_t __count,
-		     unsigned int __flags);
+extern ssize_t vmsplice (int __fdout, const struct iovec *__iov,
+			 size_t __count, unsigned int __flags);
 
 /* Splice two files together.  */
-extern int splice (int __fdin, int __fdout, size_t __len, unsigned int __flags)
-    __THROW;
+extern ssize_t splice (int __fdin, __off64_t *__offin, int __fdout,
+		       __off64_t *__offout, size_t __len,
+		       unsigned int __flags);
 
 /* In-kernel implementation of tee for pipe buffers.  */
-extern int tee (int __fdin, int __fdout, size_t __len, unsigned int __flags)
-    __THROW;
+extern ssize_t tee (int __fdin, int __fdout, size_t __len,
+		    unsigned int __flags);
+
 #endif
-    
-#endif
-    
 __END_DECLS
+

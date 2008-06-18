@@ -17,7 +17,7 @@
 
 extern void __default_sa_restorer (void);
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 int __libc_sigaction (int signum, const struct sigaction *act, 
 					  struct sigaction *oldact)

@@ -40,9 +40,9 @@
 
 #define _DO_SYSCALL(name, nr, args...) \
     LOAD_ARGS_##nr (args) \
-    register long _r8 asm ("r8"); \
-    register long _r10 asm ("r10"); \
-    register long _r15 asm ("r15") = SYS_ify(name); \
+    register long _r8 __asm__ ("r8"); \
+    register long _r10 __asm__ ("r10"); \
+    register long _r15 __asm__ ("r15") = SYS_ify(name); \
     long _retval; \
     LOAD_REGS_##nr \
     __asm __volatile ("break " ___IA64_BREAK_SYSCALL ";;\n\t" \
@@ -61,37 +61,37 @@
   long _arg1 = (long) (a1);				\
   LOAD_ARGS_0 ()
 #define LOAD_REGS_1					\
-  register long _out0 asm ("out0") = _arg1;		\
+  register long _out0 __asm__ ("out0") = _arg1;		\
   LOAD_REGS_0
 #define LOAD_ARGS_2(a1, a2)				\
   long _arg2 = (long) (a2);				\
   LOAD_ARGS_1 (a1)
 #define LOAD_REGS_2					\
-  register long _out1 asm ("out1") = _arg2;		\
+  register long _out1 __asm__ ("out1") = _arg2;		\
   LOAD_REGS_1
 #define LOAD_ARGS_3(a1, a2, a3)				\
   long _arg3 = (long) (a3);				\
   LOAD_ARGS_2 (a1, a2)
 #define LOAD_REGS_3					\
-  register long _out2 asm ("out2") = _arg3;		\
+  register long _out2 __asm__ ("out2") = _arg3;		\
   LOAD_REGS_2
 #define LOAD_ARGS_4(a1, a2, a3, a4)			\
   long _arg4 = (long) (a4);				\
   LOAD_ARGS_3 (a1, a2, a3)
 #define LOAD_REGS_4					\
-  register long _out3 asm ("out3") = _arg4;		\
+  register long _out3 __asm__ ("out3") = _arg4;		\
   LOAD_REGS_3
 #define LOAD_ARGS_5(a1, a2, a3, a4, a5)			\
   long _arg5 = (long) (a5);				\
   LOAD_ARGS_4 (a1, a2, a3, a4)
 #define LOAD_REGS_5					\
-  register long _out4 asm ("out4") = _arg5;		\
+  register long _out4 __asm__ ("out4") = _arg5;		\
   LOAD_REGS_4
 #define LOAD_ARGS_6(a1, a2, a3, a4, a5, a6)		\
   long _arg6 = (long) (a6);	    			\
   LOAD_ARGS_5 (a1, a2, a3, a4, a5)
 #define LOAD_REGS_6					\
-  register long _out5 asm ("out5") = _arg6;		\
+  register long _out5 __asm__ ("out5") = _arg6;		\
   LOAD_REGS_5
 
 #define ASM_OUTARGS_0

@@ -26,7 +26,6 @@
    void __longjmp (__jmp_buf env, int val).  */
 .global __longjmp
 .type   __longjmp,%function
-.align 16
 __longjmp:
 	/* Restore registers.  */
 	movq (JB_RBX*8)(%rdi),%rbx
