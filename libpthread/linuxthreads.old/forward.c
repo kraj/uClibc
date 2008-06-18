@@ -23,6 +23,27 @@
 
 /* psm: keep this before internals.h */
 libc_hidden_proto(exit)
+/* vda: here's why:
+In libpthread/linuxthreads.old/sysdeps/pthread/bits/libc-lock.h
+adding libc_hidden_proto(foo) just before weak_extern (__pthread_initialize)
+will not warn:
+    //libc_hidden_proto(foo)
+    weak_extern (__pthread_initialize)
+    //libc_hidden_proto(foo)
+but adding after will! Which is extremely strange -
+weak_extern expands into just "#pragma weak __pthread_initialize".
+TODO: determine whether it is a gcc bug or what
+(see gcc.gnu.org/bugzilla/show_bug.cgi?id=36282).
+For now, just include all headers before internals.h
+(they are again included in internals.h - maybe remove them there later)
+*/
+#include <string.h>
+#include <limits.h>
+#include <setjmp.h>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "internals.h"
 
