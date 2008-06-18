@@ -85,7 +85,7 @@ extern int __lll_mutex_unlock_wake (int *__futex) attribute_hidden;
      __result; })
 
 #define lll_mutex_lock(futex) \
-  (void) ({ int __result, val, *__futex = &(futex); \
+  (void) ({ int __result, *__futex = &(futex); \
 	    __asm __volatile ("\
 		.align 2\n\
 		mova 1f,r0\n\
@@ -105,7 +105,7 @@ extern int __lll_mutex_unlock_wake (int *__futex) attribute_hidden;
 /* Special version of lll_mutex_lock which causes the unlock function to
    always wakeup waiters.  */
 #define lll_mutex_cond_lock(futex) \
-  (void) ({ int __result, val, *__futex = &(futex); \
+  (void) ({ int __result, *__futex = &(futex); \
 	    __asm __volatile ("\
 		.align 2\n\
 		mova 1f,r0\n\
@@ -123,7 +123,7 @@ extern int __lll_mutex_unlock_wake (int *__futex) attribute_hidden;
 	      __lll_mutex_lock_wait (__result, __futex); })
 
 #define lll_mutex_timedlock(futex, timeout) \
-  ({ int __result, val, *__futex = &(futex); \
+  ({ int __result, *__futex = &(futex); \
      __asm __volatile ("\
 	.align 2\n\
 	mova 1f,r0\n\
