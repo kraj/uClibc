@@ -47,32 +47,35 @@ reloc_range_indirect (void ***p, void ***e,
 {
   while (p < e)
     {
-      void *ptr = __reloc_pointer (*p, map);
-      if (ptr)
+      if (*p != (void **)-1)
 	{
-	  void *pt;
-	  if ((long)ptr & 3)
+	  void *ptr = __reloc_pointer (*p, map);
+	  if (ptr != (void *)-1)
 	    {
-	      unsigned char *c = ptr;
-	      int i;
-	      unsigned long v = 0;
-	      for (i = 0; i < 4; i++)
-		v |= c[i] << 8 * i;
-	      pt = (void *)v;
+	      void *pt;
+	      if ((long)ptr & 3)
+		{
+		  unsigned char *c = ptr;
+		  int i;
+		  unsigned long v = 0;
+		  for (i = 0; i < 4; i++)
+		    v |= c[i] << 8 * i;
+		  pt = (void *)v;
+		}
+	      else
+		pt = *(void**)ptr;
+	      pt = __reloc_pointer (pt, map);
+	      if ((long)ptr & 3)
+		{
+		  unsigned char *c = ptr;
+		  int i;
+		  unsigned long v = (unsigned long)pt;
+		  for (i = 0; i < 4; i++, v >>= 8)
+		    c[i] = v;
+		}
+	      else
+		*(void**)ptr = pt;
 	    }
-	  else
-	    pt = *(void**)ptr;
-	  pt = __reloc_pointer (pt, map);
-	  if ((long)ptr & 3)
-	    {
-	      unsigned char *c = ptr;
-	      int i;
-	      unsigned long v = (unsigned long)pt;
-	      for (i = 0; i < 4; i++, v >>= 8)
-		c[i] = v;
-	    }
-	  else
-	    *(void**)ptr = pt;
 	}
       p++;
     }

@@ -90,7 +90,8 @@ __setjmp:
 	R0 = RETS;
 	[P0 + 0x9C] = R0;
 
-	R0 = 0;
+	R0 = [P0 + 0x20];
+	R1 = 0;
+	JUMP.L ___sigjmp_save;
 
-	RTS;
 .size __setjmp,.-__setjmp

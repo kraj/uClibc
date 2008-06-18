@@ -34,7 +34,12 @@ Cambridge, MA 02139, USA.  */
 
 #include <features.h>
 
-#ifndef	L_Scrt1
+#undef USE_GOT
+#if defined (__UCLIBC_FORMAT_SHARED_FLAT__) || defined (__UCLIBC_FORMAT_FLAT_SEP_DATA__)
+#define USE_GOT
+#endif
+
+#if !(defined L_Scrt1 && defined __UCLIBC_FORMAT_SHARED_FLAT__)
 
 .text
 .align 2
@@ -53,7 +58,7 @@ Cambridge, MA 02139, USA.  */
 
 __start:
 
-#if defined(__BFIN_FDPIC__) && !defined(__pie__)
+#if defined(__BFIN_FDPIC__) && !defined(L_Scrt1)
 	/* P0 contains a pointer to the program's load map.  */
 	call	.Lcall;
 .Lcall:
@@ -108,7 +113,7 @@ __start:
 
 #ifdef __BFIN_FDPIC__
 	R3 = [P3 + __init@FUNCDESC_GOT17M4];
-#elif defined __ID_SHARED_LIB__
+#elif defined USE_GOT
 	P5 = [P5 + _current_shared_library_p5_offset_]; 
 	R3 = [P5 + ___shared_flat_init@GOT];
 #else
@@ -120,7 +125,7 @@ __start:
 
 #ifdef __BFIN_FDPIC__
 	R3 = [P3 + __fini@FUNCDESC_GOT17M4];
-#elif defined __ID_SHARED_LIB__
+#elif defined USE_GOT
 	R3 = [P5 + ___shared_flat_fini@GOT];
 #else	
 	R3.H = __fini;
@@ -135,13 +140,13 @@ __start:
 
 #ifdef __BFIN_FDPIC__
 	R0 = [P3 + _main@FUNCDESC_GOT17M4];
-#elif defined __ID_SHARED_LIB__
+#elif defined USE_GOT
 	R0 = [P5 + _main@GOT];
 #else
 	R0.H = _main;
 	R0.L = _main;
 #endif
-#ifdef __ID_SHARED_LIB__
+#ifdef USE_GOT
 	P0 = [P5 + ___uClibc_main@GOT];
 	jump (P0)
 #else

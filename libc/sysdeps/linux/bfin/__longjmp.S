@@ -98,9 +98,9 @@ ___longjmp:
 	P0 = [SP++];
 
 	CC = R0 == 0;
-	IF !CC JUMP finished;
+	IF !CC JUMP .Lfinished;
 	R0 = 1;
-finished:
+.Lfinished:
 	RTS;
 .size ___longjmp,.-___longjmp
 

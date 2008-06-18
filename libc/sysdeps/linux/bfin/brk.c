@@ -19,11 +19,9 @@ int brk (void *addr)
 
 	__asm__ __volatile__(
 		"P0 = %2;\n\t"
-		"R0 = %1;\n\t"
 		"excpt 0;\n\t"
-		"%0 = R0;\n\t"
-		: "=r"(newbrk)
-		: "r"(addr), "i" (__NR_brk): "P0" );
+		: "=q0" (newbrk)
+		: "q0" (addr), "i" (__NR_brk): "P0" );
 
     __curbrk = newbrk;
 
