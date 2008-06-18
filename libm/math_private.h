@@ -35,13 +35,14 @@
    ints.  */
 
 /*
- * Math on arm is special:
+ * Math on arm is special (read: stupid):
  * For FPA, float words are always big-endian.
- * For VFP, floats words follow the memory system mode.
+ * For VFP, float words follow the memory system mode.
+ * For Maverick, float words are always little-endian.
  */
 
-#if (__BYTE_ORDER == __BIG_ENDIAN) || \
-    (!defined(__VFP_FP__) && (defined(__arm__) || defined(__thumb__)))
+#if !defined(__MAVERICK__) && ((__BYTE_ORDER == __BIG_ENDIAN) || \
+    (!defined(__VFP_FP__) && (defined(__arm__) || defined(__thumb__))))
 
 typedef union
 {

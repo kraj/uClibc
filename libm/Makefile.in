@@ -29,8 +29,23 @@ LIBS-libm.so := $(LIBS)
 
 libm_FULL_NAME := libm-$(VERSION).so
 
-libm_ARCH_DIR:=$(top_srcdir)libm/$(TARGET_ARCH)
-libm_ARCH_OUT:=$(top_builddir)libm/$(TARGET_ARCH)
+libm_DIR:=$(top_srcdir)libm
+libm_OUT:=$(top_builddir)libm
+
+# Fix builds for powerpc as there are different cores in this 
+# section now.`
+ifeq ($(TARGET_ARCH),powerpc)
+ifeq ($(CONFIG_E500),y)
+libm_ARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)/e500
+libm_ARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)/e500
+else
+libm_ARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)/classic
+libm_ARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)/classic
+endif
+else
+libm_ARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)
+libm_ARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)
+endif
 
 libm_ARCH_fpu_DIR:=$(libm_ARCH_DIR)/fpu
 libm_ARCH_fpu_OUT:=$(libm_ARCH_OUT)/fpu
@@ -56,11 +71,11 @@ libm_CSRC := \
 	s_ilogb.c s_ldexp.c s_lib_version.c s_lrint.c s_lround.c s_llround.c \
 	s_log1p.c s_logb.c s_matherr.c s_modf.c s_nextafter.c s_round.c \
 	s_rint.c s_scalbn.c s_signgam.c s_significand.c s_sin.c s_tan.c \
-	s_tanh.c w_acos.c w_acosh.c w_asin.c w_atan2.c w_atanh.c w_cabs.c \
-	w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c w_gamma_r.c \
+	s_tanh.c s_trunc.c w_acos.c w_acosh.c w_asin.c w_atan2.c w_atanh.c \
+	w_cabs.c w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c w_gamma_r.c \
 	w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c \
 	w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c \
-	w_sqrt.c fpmacros.c nan.c
+	w_sqrt.c fpmacros.c nan.c carg.c s_llrint.c
 FL_MOBJ := \
 	acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
 	ceilf.o copysignf.o cosf.o coshf.o erfcf.o erff.o exp2f.o expf.o \
@@ -69,7 +84,7 @@ FL_MOBJ := \
 	log1pf.o log2f.o logbf.o logf.o lrintf.o lroundf.o modff.o nearbyintf.o \
 	nextafterf.o powf.o remainderf.o remquof.o rintf.o roundf.o \
 	scalblnf.o scalbnf.o sinf.o sinhf.o sqrtf.o tanf.o tanhf.o \
-	tgammaf.o truncf.o
+	tgammaf.o truncf.o cargf.o llrintf.o
 else
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
 libm_CSRC := \
@@ -85,14 +100,19 @@ libm_CSRC := \
 FL_MOBJ := sqrtf.o
 endif
 
-libm_DIR := $(top_srcdir)libm
-libm_OUT := $(top_builddir)libm
-
 # assume that arch specific versions are provided as single sources/objects
 ifeq ($(UCLIBC_HAS_FPU),y)
 ifeq ($(DO_C99_MATH),y)
 ifneq ($(strip $(libm_ARCH_OBJS)),)
+ifeq ($(TARGET_ARCH),powerpc)
+ifeq ($(CONFIG_E500),y)
+CFLAGS-libm/$(TARGET_ARCH)/e500/ := $(CFLAGS-libm)
+else
+CFLAGS-libm/$(TARGET_ARCH)/classic/ := $(CFLAGS-libm)
+endif
+else
 CFLAGS-libm/$(TARGET_ARCH)/ := $(CFLAGS-libm)
+endif
 
 # remove generic sources, if arch specific version is present
 ifneq ($(strip $(libm_ARCH_SRC)),)
@@ -133,30 +153,27 @@ objclean-y += libm_clean
 
 ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/libm.so: $(top_builddir)lib/libm.a $(libc)
+$(top_builddir)lib/libm.so: $(top_builddir)lib/libm.a $(libc.depend)
 else
-$(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a $(libc)
+$(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a $(libc.depend)
 endif
 	$(call link.so,$(libm_FULL_NAME),$(MAJOR_VERSION))
 else
-$(top_builddir)lib/libm.so: $(libm_OUT)/libm.oS | $(libc)
+$(top_builddir)lib/libm.so: $(libm_OUT)/libm.oS | $(libc.depend)
 	$(call linkm.so,$(libm_FULL_NAME),$(MAJOR_VERSION))
 endif
 
 $(libm_OUT)/libm_so.a: $(libm-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
 
 $(libm_OUT)/libm.oS: $(libm_SRC) $(libm_MSRC) $(libm_ARCH_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
-	$(do_t_strip)
 
 $(top_builddir)lib/libm.a: $(libm-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
 
 $(libm_MOBJ): $(libm_MSRC)

@@ -10,7 +10,8 @@
  * GNU Lesser General Public License version 2.1 or later.
  */
 
-#include "math.h"
+#include <math.h>
+#include <complex.h>
 
 /* For the time being, do _NOT_ implement these functions
  * that are defined by SuSv3 */
@@ -19,14 +20,12 @@
 #undef L_fmaf          /*float       fmaf(float, float, float);*/
 #undef L_fmaxf         /*float       fmaxf(float, float);*/
 #undef L_fminf         /*float       fminf(float, float);*/
-#undef L_llrintf       /*long long   llrintf(float);*/
 #undef L_log2f         /*float       log2f(float);*/
 #undef L_nearbyintf    /*float       nearbyintf(float);*/
 #undef L_nexttowardf   /*float       nexttowardf(float, long double);*/
 #undef L_remquof       /*float       remquof(float, float, int *);*/
 #undef L_scalblnf      /*float       scalblnf(float, long);*/
 #undef L_tgammaf       /*float       tgammaf(float);*/
-#undef L_truncf        /*float       truncf(float);*/
 
 /* Implement the following, as defined by SuSv3 */
 #if 0
@@ -134,6 +133,15 @@ libm_hidden_proto(atanh)
 float atanhf (float x)
 {
 	return (float) atanh( (double)x );
+}
+#endif
+
+
+#ifdef L_cargf
+libm_hidden_proto(carg)
+float cargf (float complex x)
+{
+	return (float) carg( (double)x );
 }
 #endif
 
