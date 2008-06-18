@@ -57,7 +57,7 @@
 #define fegetround()                     \
 ({                                       \
 	unsigned int tmp;                \
-	asm volatile("mov %0, SR"        \
+	__asm__ __volatile__("mov %0, SR"        \
 			:"=l"(tmp)       \
 			:/*no input*/);  \
 	tmp &= (3<<13);                  \
@@ -70,7 +70,7 @@
 	unsigned int tmp = (3 << 13);    \
 	while(1) {                       \
 	/* Clear SR.FRM field */         \
-	asm volatile("andn SR, %0"       \
+	__asm__ __volatile__("andn SR, %0"       \
 			:/*no output*/   \
 			:"l"(tmp) );     \
 	tmp &= round;                    \
@@ -80,7 +80,7 @@
 		break;                   \
 	}                                \
                                          \
-	asm volatile("or SR, %0"         \
+	__asm__ __volatile__("or SR, %0"         \
 			:/*no input*/    \
 			:"l"(round) );   \
 	tmp = 0;                         \
@@ -100,7 +100,7 @@ static inline feclearexcept(int __excepts)
 	if( __excepts & (~0x1F00) )
 		return -1;
 
-	asm volatile("mov %0, SR"
+	__asm__ __volatile__("mov %0, SR"
 		     :"=l"(enabled_excepts)
 		     :/*no input*/ ); 
 
@@ -112,7 +112,7 @@ static inline feclearexcept(int __excepts)
 	disabled_excepts &= __excepts;
 
 	/* Clear accrued exceptions */
-	asm volatile("andn G2, %0\n\t"
+	__asm__ __volatile__("andn G2, %0\n\t"
 		     "andn G2, %1\n\t"
 			:/*no output*/
 			:"l"(enabled_excepts),
@@ -133,7 +133,7 @@ inline int fetestexcept(int __excepts)
 	if( __excepts & (~0x1F00) )
 		return -1;
 
-	asm volatile("mov %0, SR"
+	__asm__ __volatile__("mov %0, SR"
 		     :"=l"(enabled_excepts)
 		     :/*no input*/ ); 
 
@@ -141,7 +141,7 @@ inline int fetestexcept(int __excepts)
 	disabled_excepts = ~enabled_excepts;
 	disabled_excepts &= 0x1F00;
 
- 	asm volatile("mov %0, G2"
+ 	__asm__ __volatile__("mov %0, G2"
 		    :"=l"(G2)
 		    :/*no input*/ );
 
@@ -154,7 +154,7 @@ inline int fetestexcept(int __excepts)
 
 static inline int feraiseexcept(int __excepts)
 {
-	asm volatile("or G2, %0"
+	__asm__ __volatile__("or G2, %0"
 			:/*no output*/
 			:"l"( __excepts >> 8  ) );
 	return 0;
@@ -169,7 +169,7 @@ static inline int feraiseexcept(int __excepts)
 	int __tmpexcepts = __excepts;      \
                                            \
 	while(1) {                         \
-	    asm volatile("mov %0, SR"      \
+	    __asm__ __volatile__("mov %0, SR"      \
 		     :"=l"(__pexcepts)     \
 		     :/*no input*/ );      \
 	    __pexcepts &= 0x1F00;          \
@@ -181,7 +181,7 @@ static inline int feraiseexcept(int __excepts)
 	        break;                     \
 	    }                              \
 	                                   \
-	    asm volatile("or SR, %0"       \
+	    __asm__ __volatile__("or SR, %0"       \
 			:/*no output*/     \
 			:"l"(__tmpexcepts) ); \
 	    __retval = __pexcepts;         \
@@ -197,7 +197,7 @@ static inline int feraiseexcept(int __excepts)
 	int __tmpexcepts = __excepts;      \
 	                                   \
 	while(1) {                         \
-	    asm volatile("mov %0, SR"      \
+	    __asm__ __volatile__("mov %0, SR"      \
 		     :"=l"(__pexcepts)     \
 		     :/*no input*/ );      \
 	    __pexcepts &= 0x1F00;          \
@@ -209,7 +209,7 @@ static inline int feraiseexcept(int __excepts)
 	        break;                     \
 	    }                              \
 	                                   \
-	    asm volatile("andn SR, %0"     \
+	    __asm__ __volatile__("andn SR, %0"     \
 			:/*no output*/     \
 			:"l"(__tmpexcepts) ); \
 	    __retval = __pexcepts;         \
@@ -221,7 +221,7 @@ static inline int feraiseexcept(int __excepts)
 static inline int fegetexcept(int excepts)
 {
 	unsigned int tmp;
-	asm volatile("mov %0, SR"
+	__asm__ __volatile__("mov %0, SR"
 		    :"=l"(tmp)
 		    :/*no input*/ );
 	tmp &= 0x1F00;
@@ -230,7 +230,7 @@ static inline int fegetexcept(int excepts)
 
 static inline int fegetenv(fenv_t *envp)
 {
-	asm volatile("mov %0, SR\n\t
+	__asm__ __volatile__("mov %0, SR\n\t
 		      mov %1, SR\n\t
 		      mov %2, G2\n\t
 		      mov %3, G2\n\t"
@@ -258,14 +258,14 @@ static inline int fegetenv(fenv_t *envp)
 ({                                                  \
 	/* Clear FRM & FTE field of SR */           \
 	unsigned long clearSR = ( 127<<8 );         \
-	asm volatile("andn SR, %0\n\t"              \
+	__asm__ __volatile__("andn SR, %0\n\t"              \
 		     "or   SR, %1\n\t"              \
 		     "or   SR, %2\n\t"              \
 		     :/*no output*/                 \
 		     :"l"(clearSR),                 \
 		      "l"(envp->round_mode),        \
 		      "l"(envp->trap_enabled) );    \
-	asm volatile("andn G2, 0x1F1F\n\t"          \
+	__asm__ __volatile__("andn G2, 0x1F1F\n\t"          \
 		     "or   G2, %0\n\t"              \
 		     "or   G2, %1\n\t"              \
 		     :/*no output*/                 \
@@ -277,14 +277,14 @@ static inline int fegetenv(fenv_t *envp)
 #define feupdateenv(envp)                           \
 ({                                                  \
 	/* Clear FRM & FTE field of SR */           \
-	asm volatile(/* We dont clear the prev SR*/ \
+	__asm__ __volatile__(/* We dont clear the prev SR*/ \
 		     "or   SR, %1\n\t"              \
 		     "or   SR, %2\n\t"              \
 		     :/*no output*/                 \
 		     :"l"(clearSR),                 \
 		      "l"(envp->round_mode),        \
 		      "l"(envp->accrued_except) );  \
-	asm volatile(/* We dont clear the prev SR*/ \
+	__asm__ __volatile__(/* We dont clear the prev SR*/ \
 		     "or   G2, %0\n\t"              \
 		     "or   G2, %1\n\t"              \
 		     :/*no output*/                 \

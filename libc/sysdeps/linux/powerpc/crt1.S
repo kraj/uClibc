@@ -58,6 +58,13 @@ _start:
 	mflr	r31
 # endif
 #endif
+	/* Set up the small data pointer in r13.  */
+#ifdef __PIC__
+	lwz	r13,_SDA_BASE_@got(r31)
+#else
+	lis	r13,_SDA_BASE_@ha
+	addi	r13,r13,_SDA_BASE_@l
+#endif
 	/* Set up an initial stack frame, and clear the LR.  */
 	li	r0,0
 	stwu	r1,-16(r1)
@@ -67,8 +74,11 @@ _start:
 	lwz	r4,0(r9)
 	/* find argv one word offset from the stack pointer */
 	addi	r5,r9,4
-	mr	r8,r3 /* Pass _dl_fini from ldso or NULL if statically linked
-			Note:	 using r3 instead of r7, since linux 2.6 clobbers r7 */
+	mr	r8,r3 /* Pass _dl_fini from ldso or NULL if statically linked */
+		      /* Note: PPC depends on the kernel to zero r3 before */
+		      /* handing over to user space, otherwise static apps */
+		      /* will SEGV during exit() */
+
 	/* Ok, now run uClibc's main() -- shouldn't return */
 #ifdef __PIC__
 	lwz	r6,_init@got(r31)

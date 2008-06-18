@@ -24,17 +24,66 @@
 #include <features.h>
 #include <bits/errno.h>
 #include <sys/syscall.h>
+#include <bits/arm_asm.h>
 
-#ifdef __NR_clone
+#if defined(__NR_clone)
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
 .text
 .global clone
 .type clone,%function
 .align 2
+#if defined(THUMB1_ONLY)
+.thumb_func
 clone:
 	@ sanity check args
 	cmp	r0, #0
+	beq	__einval
+	cmp	r1, #0
+	beq	__einval
+
+	@ insert the args onto the new stack
+	sub	r1, r1, #8
+	str	r3, [r1, #4]
+	@ save the function pointer as the 0th element
+	str	r0, [r1]
+
+	@ do the system call
+	@ get flags
+	mov	r0, r2
+	@ new sp is already in r1
+	DO_CALL (clone)
+	movs	a1, a1
+	blt	__error
+	beq	1f
+	bx	lr
+1:
+
+	@ pick the function arg and call address off the stack and execute
+	ldr	r0, [sp, #4]
+	ldr	r1, [sp]
+	bl	2f	@ blx r1
+
+	@ and we are done, passing the return value through r0
+	bl	HIDDEN_JUMPTARGET(_exit)
+	@ Should never return
+	b	.
+
+2:
+	bx	r1
+
+__einval:
+	ldr	r0, =-EINVAL
+__error:
+	push	{r3, lr}
+	bl	__syscall_error
+	POP_RET
+.pool
+#else
+clone:
+	@ sanity check args
+	cmp	r0, #0
+	IT(te, ne)
 	cmpne	r1, #0
 	moveq	r0, #-EINVAL
 	beq	__error
@@ -52,6 +101,7 @@ clone:
 	DO_CALL (clone)
 	movs	a1, a1
 	blt	__error
+	IT(t, ne)
 #if defined(__USE_BX__)
 	bxne	lr
 #else
@@ -68,6 +118,7 @@ clone:
 
 __error:
 	b	__syscall_error
+#endif
 
 .size clone,.-clone
 

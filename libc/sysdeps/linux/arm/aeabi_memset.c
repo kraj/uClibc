@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 
 /* Set memory like memset, but different argument order and no return
    value required.  */

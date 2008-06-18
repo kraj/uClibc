@@ -43,10 +43,7 @@
 
 #include <sys/types.h>
 #include <sys/mman.h>
-
-#include <asm/page.h>
 #include <sys/sysctl.h>
-
 #include <sys/io.h>
 
 libc_hidden_proto(ioperm)
@@ -59,7 +56,7 @@ libc_hidden_proto(fprintf)
 libc_hidden_proto(fgets)
 libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
-libc_hidden_proto(strcmp)
+/* Experimentally off - libc_hidden_proto(strcmp) */
 libc_hidden_proto(open)
 libc_hidden_proto(close)
 

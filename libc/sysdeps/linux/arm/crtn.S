@@ -1,5 +1,6 @@
 	.file	"initfini.c"
 	
+#include <bits/arm_asm.h>
 	.section .init
 	.global	_init
 	.type	_init, %function

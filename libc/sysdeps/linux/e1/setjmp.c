@@ -11,14 +11,14 @@ libc_hidden_proto(sigprocmask)
 
 int setjmp( jmp_buf state)
 {
-	asm volatile(	"mov %0, G3\n\t"           
+	__asm__ __volatile__(	"mov %0, G3\n\t"           
 			"mov %1, G4\n\t" 
 			:"=l"(state->__jmpbuf->G3), 
 			 "=l"(state->__jmpbuf->G4) 
 			:/*no input*/ 
 			:"%G3", "%G4" );
 
-	asm volatile(   "setadr  %0\n\t"
+	__asm__ __volatile__(   "setadr  %0\n\t"
 			"mov %1, L1\n\t"
 			"mov %2, L2\n\t"
 			:"=l"(state->__jmpbuf->SavedSP),
@@ -38,14 +38,14 @@ int sigsetjmp( sigjmp_buf state , int savesigs)
 	} else
 		state->__mask_was_saved = 0;
 
-	asm volatile(	"mov %0, G3\n\t"           
+	__asm__ __volatile__(	"mov %0, G3\n\t"           
 			"mov %1, G4\n\t" 
 			:"=l"(state->__jmpbuf->G3), 
 			 "=l"(state->__jmpbuf->G4) 
 			:/*no input*/ 
 			:"%G3", "%G4" );
 
-	asm volatile(   "setadr  %0\n\t"
+	__asm__ __volatile__(   "setadr  %0\n\t"
 			"mov %1, L2\n\t"
 			"mov %2, L3\n\t"
 			:"=l"(state->__jmpbuf->SavedSP),

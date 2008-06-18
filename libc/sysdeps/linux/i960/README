@@ -16,8 +16,9 @@ prepended underscore
 --------------------
 
 As the i960 compiler prepends an underscore to symbols, it is critical that
-bits/uClibc_arch_features.h undefines __UCLIBC_NO_UNDERSCORES__
-to make sure that underscores are applied to symbol names when needed.
+Rules.mak defines SYMBOL_PREFIX as _, such that -D__UCLIBC_UNDERSCORES__
+is added to CFLAGS to make sure that underscores are applied to symbol
+names when needed.
 
 
 __va_copy in va-i960.h

@@ -17,6 +17,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
+
 #if !defined _MATH_H && !defined _COMPLEX_H
 # error "Never use <bits/mathdef.h> directly; include <math.h> instead"
 #endif
@@ -71,5 +73,5 @@ typedef double double_t;
 #  define __NO_LONG_DOUBLE_MATH	1
 # elif !defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
 #  define __NO_LONG_DOUBLE_MATH	1
-# endif
-#endif
+# endif  /* __WORDSIZE == 32 */
+#endif  /* __NO_LONG_DOUBLE_MATH */

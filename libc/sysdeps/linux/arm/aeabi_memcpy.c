@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 /* Copy memory like memcpy, but no return value required.  Can't alias
    to memcpy because it's not defined in the same translation

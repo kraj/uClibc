@@ -363,7 +363,7 @@ typedef uintmax_t uatomic_max_t;
 */
 
 #ifndef UP
-# define atomic_full_barrier()	__asm ("mb" : : : "memory");
-# define atomic_read_barrier()	__asm ("mb" : : : "memory");
-# define atomic_write_barrier()	__asm ("wmb" : : : "memory");
+# define atomic_full_barrier()	__asm__ ("mb" : : : "memory");
+# define atomic_read_barrier()	__asm__ ("mb" : : : "memory");
+# define atomic_write_barrier()	__asm__ ("wmb" : : : "memory");
 #endif

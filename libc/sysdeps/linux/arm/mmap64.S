@@ -20,6 +20,7 @@
 #define _ERRNO_H
 #include <bits/errno.h>
 #include <sys/syscall.h>
+#include <bits/arm_asm.h>
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_mmap2
 
@@ -28,9 +29,46 @@
 .global mmap64
 .type mmap64,%function
 .align 2
-mmap64:
 
 #ifdef __ARM_EABI__
+#if defined(THUMB1_ONLY)
+.thumb_func
+mmap64:
+#ifdef __ARMEB__
+/* Offsets are after pushing 3 words.  */
+# define LOW_OFFSET  12 + 8 + 4
+# define HIGH_OFFSET 12 + 8 + 0
+#else
+# define LOW_OFFSET  12 + 8 + 0
+# define HIGH_OFFSET 12 + 8 + 4
+#endif
+	push	{r4, r5, r6}
+	ldr	r6, [sp, $LOW_OFFSET]
+	ldr	r5, [sp, $HIGH_OFFSET]
+	lsl	r4, r6, #20		@ check that offset is page-aligned
+	bne	.Linval
+	lsr	r4, r5, #12		@ check for overflow
+	bne	.Linval
+	@ compose page offset
+	lsr	r6, r6, #12
+	lsl	r5, r5, #20
+	orr	r5, r5, r6
+	ldr	r4, [sp, #8]		@ load fd
+	DO_CALL (mmap2)
+	ldr	r1, =0xfffff000
+	cmp	r0, r1
+	bcs	.Lerror
+	bx	lr
+.Linval:
+	ldr	r0, =-EINVAL
+	pop	{r4, r5, r6}
+.Lerror:
+	push	{r3, lr}
+	bl	__syscall_error
+	POP_RET
+.pool
+#else /* !THUMB1_ONLY */
+mmap64:
 #ifdef __ARMEB__
 # define LOW_OFFSET      8 + 4
 /* The initial + 4 is for the stack postdecrement.  */
@@ -45,6 +83,7 @@ mmap64:
 	str	r4, [sp, #-4]!
 	movs	r4, ip, lsl $20		@ check that offset is page-aligned
 	mov	ip, ip, lsr $12
+	IT(t, eq)
 	moveqs	r4, r5, lsr $12		@ check for overflow
 	bne	.Linval
 	ldr	r4, [sp, $8]		@ load fd
@@ -52,6 +91,7 @@ mmap64:
 	DO_CALL (mmap2)
 	cmn	r0, $4096
 	ldmfd	sp!, {r4, r5}
+	IT(t, cc)
 #if defined(__USE_BX__)
 	bxcc	lr
 #else
@@ -62,7 +102,9 @@ mmap64:
 	mov	r0, $-EINVAL
 	ldmfd	sp!, {r4, r5}
 	b	__syscall_error
-#else
+#endif
+#else /* !__ARM_EABI__ */
+mmap64:
 	stmfd	sp!, {r4, r5, lr}
 	ldr	r5, [sp, $16]
 	ldr	r4, [sp, $12]

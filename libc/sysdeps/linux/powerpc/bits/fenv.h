@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998, 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1998, 1999, 2004, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -20,6 +20,27 @@
 # error "Never use <bits/fenv.h> directly; include <fenv.h> instead."
 #endif
 
+#include <features.h>
+
+#ifdef __CONFIG_E500__
+
+/* Define bits representing the exception.  We use the bit positions of
+   the appropriate bits in the SPEFSCR...  */
+enum
+  {
+    FE_INEXACT = 1 << (63 - 42),
+#define FE_INEXACT	FE_INEXACT
+    FE_INVALID = 1 << (63 - 43),
+#define FE_INVALID	FE_INVALID
+    FE_DIVBYZERO = 1 << (63 - 44),
+#define FE_DIVBYZERO	FE_DIVBYZERO
+    FE_UNDERFLOW = 1 << (63 - 45),
+#define FE_UNDERFLOW	FE_UNDERFLOW
+    FE_OVERFLOW = 1 << (63 - 46)
+#define FE_OVERFLOW	FE_OVERFLOW
+  };
+
+#else /* PowerPC 6xx floating-point.  */
 
 /* Define bits representing the exception.  We use the bit positions of
    the appropriate bits in the FPSCR...  */
@@ -93,8 +114,10 @@ enum
         (FE_INVALID_SNAN | FE_INVALID_ISI | FE_INVALID_IDI | FE_INVALID_ZDZ \
 	 | FE_INVALID_IMZ | FE_INVALID_COMPARE | FE_INVALID_SOFTWARE \
 	 | FE_INVALID_SQRT | FE_INVALID_INTEGER_CONVERSION)
-#endif
+#endif /* __USE_GNU */
   };
+
+#endif /* __CONFIG_E500__ */
 
 #define FE_ALL_EXCEPT \
 	(FE_INEXACT | FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW | FE_INVALID)
@@ -142,4 +165,4 @@ extern const fenv_t __fe_nonieee_env;
    performance penalty (but have no other visible effect).  */
 extern const fenv_t *__fe_nomask_env (void);
 # define FE_NOMASK_ENV	(__fe_nomask_env ())
-#endif
+#endif /* __USE_GNU */

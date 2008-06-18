@@ -18,15 +18,41 @@
    02111-1307 USA.  */
 
 #include <features.h>
+#include <bits/arm_asm.h>
 
 .global __sigsetjmp
 .type __sigsetjmp,%function
 .align 2
+#if defined(THUMB1_ONLY)
+.thumb_func
 __sigsetjmp:
+	push	{r3, r4, r5, r6, r7, lr}
 	mov	ip, r0
+	stmia	r0!, {r4, r5, r6, r7}
+	mov	r2, r8
+	mov	r3, r9
+	mov	r4, sl
+	mov	r5, fp
+	add	r6, sp, #(6 * 4)
+	mov	r7, lr
+	stmia	r0!, {r2, r3, r4, r5, r6, r7}
 
+	mov	r0, ip
+	bl	__sigjmp_save
+	pop	{r3, r4, r5, r6, r7, pc}
+
+#else
+__sigsetjmp:
+	/* Save registers */
+	mov	ip, r0
+#if defined(__thumb2__)
+	stmia	ip!, {v1-v6, sl, fp}
+	movs	r2, sp
+	stmia	ip!, {r2, lr}
+#else
 	/* Save registers */
 	stmia	ip!, {v1-v6, sl, fp, sp, lr}
+#endif
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
 # ifdef __VFP_FP__
 	/* Store the VFP registers.  */
@@ -69,6 +95,7 @@ __sigsetjmp:
 	B	__sigjmp_save(PLT)
 #else
 	B	__sigjmp_save
+#endif
 #endif
 
 .size __sigsetjmp,.-__sigsetjmp

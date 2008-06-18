@@ -18,6 +18,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
+
 #ifndef _MATH_H
 # error "Never use <bits/mathinline.h> directly; include <math.h> instead."
 #endif
@@ -180,3 +182,4 @@ __NTH (__ieee754_sqrtf (float __x))
 }
 #endif /* __LIBC_INTERNAL_MATH_INLINES */
 #endif /* __GNUC__ && !_SOFT_FLOAT */
+
