@@ -104,12 +104,12 @@ long int rinttol ( double x )
                   return ( ( long ) argument.words.lo );
                   }
 
-		asm ("mffs %0" : "=f" (OldEnvironment.dbl));	// get environment
+		__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));	// get environment
 
             if ( xHead > 0x41dffffful )
                   {                                    // x is safely out of long range
                   OldEnvironment.words.lo |= SET_INVALID;
-			asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+			__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
                   return ( LONG_MAX );
                   }
 
@@ -121,7 +121,7 @@ long int rinttol ( double x )
             if ( y > ( double ) LONG_MAX )
                   {                                    // out of range of long
                   OldEnvironment.words.lo |= SET_INVALID;
-			asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+			__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
                   return ( LONG_MAX );
                   }
             argument.dbl = y + doubleToLong;           // in range
@@ -138,12 +138,12 @@ long int rinttol ( double x )
             return ( ( long ) argument.words.lo );
             }
 
-	asm ("mffs %0" : "=f" (OldEnvironment.dbl));	// get environment
+	__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));	// get environment
 
       if ( xHead > 0x41e00000ul )
             {                                          // x is safely out of long range
             OldEnvironment.words.lo |= SET_INVALID;
-		asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+		__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
             return ( LONG_MIN );
             }
 
@@ -155,7 +155,7 @@ long int rinttol ( double x )
       if ( y < ( double ) LONG_MIN )
             {                                          // out of range of long
             OldEnvironment.words.lo |= SET_INVALID;
-		asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+		__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
             return ( LONG_MIN );
             }
       argument.dbl = y + doubleToLong;                       // in range
@@ -193,9 +193,9 @@ long int roundtol ( double x )
 *     Is x is out of long range or NaN?                                        *
 *******************************************************************************/
 		{
-		asm ("mffs %0" : "=f" (OldEnvironment.dbl));	// get environment
+		__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));	// get environment
 		OldEnvironment.words.lo |= SET_INVALID;
-		asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+		__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
 		if ( target )			              	// pin result
 			return ( LONG_MAX );
 		else
@@ -215,11 +215,11 @@ long int roundtol ( double x )
 			y = ( x + doubleToLong ) - doubleToLong; 	// round at binary point
 			if ( y != x )
 				{		                    	// inexact case
-				asm ("mffs %0" : "=f" (OldEnvironment.dbl));	// save environment
-				asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( kTZ.dbl )); // truncate rounding
+				__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));	// save environment
+				__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( kTZ.dbl )); // truncate rounding
 				z = x + 0.5;		        	// truncate x + 0.5
 				argument.dbl = z + doubleToLong;
-				asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+				__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
 				return ( ( long ) argument.words.lo );
 				}
 
@@ -229,9 +229,9 @@ long int roundtol ( double x )
 /*******************************************************************************
 *     Rounded positive x is out of the range of a long.                        *
 *******************************************************************************/
-		asm ("mffs %0" : "=f" (OldEnvironment.dbl));
+		__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));
 		OldEnvironment.words.lo |= SET_INVALID;
-		asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+		__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
 		return ( LONG_MAX );		              	// return pinned result
 		}
 /*******************************************************************************
@@ -245,11 +245,11 @@ long int roundtol ( double x )
 		y = ( x + doubleToLong ) - doubleToLong;	  	// round at binary point
 		if ( y != x )
 			{			                    	// inexact case
-			asm ("mffs %0" : "=f" (OldEnvironment.dbl));	// save environment
-			asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( kUP.dbl )); // round up
+			__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));	// save environment
+			__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( kUP.dbl )); // round up
 			z = x - 0.5;		              	// truncate x - 0.5
 			argument.dbl = z + doubleToLong;
-			asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+			__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
 			return ( ( long ) argument.words.lo );
 			}
 
@@ -259,9 +259,9 @@ long int roundtol ( double x )
 /*******************************************************************************
 *     Rounded negative x is out of the range of a long.                        *
 *******************************************************************************/
-	asm ("mffs %0" : "=f" (OldEnvironment.dbl));
+	__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));
 	OldEnvironment.words.lo |= SET_INVALID;
-	asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+	__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
 	return ( LONG_MIN );			              	// return pinned result
 	}
 
@@ -311,15 +311,15 @@ double modf ( double x, double *iptr )
 /*******************************************************************************
 *     Is 1.0 < |x| < 2.0^52?                                                   *
 *******************************************************************************/
-			asm ("mffs %0" : "=f" (OldEnvironment));	// save environment
+			__asm__ ("mffs %0" : "=f" (OldEnvironment));	// save environment
 			// round toward zero
-			asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( TOWARDZERO.dbl ));
+			__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( TOWARDZERO.dbl ));
             if ( signBit == 0ul )                         // truncate to integer
                   xtrunc = ( x + twoTo52 ) - twoTo52;
             else
                   xtrunc = ( x - twoTo52 ) + twoTo52;
 		// restore caller's env
-		asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment ));
+		__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment ));
             *iptr = xtrunc;                               // store integral part
             if ( x != xtrunc )                            // nonzero fraction
                   return ( x - xtrunc );

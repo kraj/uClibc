@@ -23,7 +23,7 @@ double nearbyint ( double x )
 
 	y = twoTo52;
 
-	asm ("mffs %0" : "=f" (OldEnvironment));	/* get the environement */
+	__asm__ ("mffs %0" : "=f" (OldEnvironment));	/* get the environement */
 
       if ( fabs ( x ) >= y )                          /* huge case is exact */
             return x;
@@ -32,7 +32,7 @@ double nearbyint ( double x )
       if ( y == 0.0 )                        /* zero results mirror sign of x */
             y = copysign ( y, x );
 //	restore old flags
-	asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment ));
+	__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment ));
       return ( y );
 	}
 libm_hidden_def(nearbyint)

@@ -51,9 +51,9 @@ double trunc ( double x )
 			{
 			if ( ( xhi | argument.words.lo ) != 0ul )
 				{                             	// raise deserved INEXACT
-				asm ("mffs %0" : "=f" (OldEnvironment.dbl));
+				__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));
 				OldEnvironment.words.lo |= 0x02000000ul;
-				asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+				__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
 				}
 			if ( target )	                  	// return properly signed zero
 				return ( 0.0 );

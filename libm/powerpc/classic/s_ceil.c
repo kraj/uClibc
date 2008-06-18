@@ -46,16 +46,16 @@ typedef union
 *******************************************************************************/
 
 /*******************************************************************************
-*      Floor(x) returns the largest integer not greater than x.                *
+*      Ceil(x) returns the smallest integer not less than x.                   *
 *******************************************************************************/
 
-libm_hidden_proto(floor)
-double floor ( double x )
+libm_hidden_proto(ceil)
+double ceil ( double x )
 	{
 	DblInHex xInHex,OldEnvironment;
 	register double y;
 	register unsigned long int xhi;
-	register long int target;
+	register int target;
 
 	xInHex.dbl = x;
 	xhi = xInHex.words.hi & 0x7fffffffUL;	  // xhi is the high half of |x|
@@ -75,13 +75,13 @@ double floor ( double x )
 				return ( x );
 			else
 				{			                // inexact case
-				asm ("mffs %0" : "=f" (OldEnvironment.dbl));
+				__asm__ ("mffs %0" : "=f" (OldEnvironment.dbl));
 				OldEnvironment.words.lo |= 0x02000000ul;
-				asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
+				__asm__ ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
 				if ( target )
-					return ( 0.0 );
+					return ( 1.0 );
 				else
-					return ( -1.0 );
+					return ( -0.0 );
 				}
 			}
 /*******************************************************************************
@@ -90,8 +90,8 @@ double floor ( double x )
 		if ( target )
 			{
 			y = ( x + twoTo52 ) - twoTo52;          // round at binary pt.
-			if ( y > x )
-				return ( y - 1.0 );
+			if ( y < x )
+				return ( y + 1.0 );
 			else
 				return ( y );
 			}
@@ -99,8 +99,8 @@ double floor ( double x )
 		else
 			{
 			y = ( x - twoTo52 ) + twoTo52;          // round at binary pt.
-			if ( y > x )
-				return ( y - 1.0 );
+			if ( y < x )
+				return ( y + 1.0 );
 			else
 				return ( y );
 			}
@@ -110,4 +110,4 @@ double floor ( double x )
 *******************************************************************************/
 	return ( x );
 	}
-libm_hidden_def(floor)
+libm_hidden_def(ceil)
