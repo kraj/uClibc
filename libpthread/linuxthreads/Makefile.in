@@ -86,52 +86,50 @@ headers-$(UCLIBC_HAS_THREADS) += linuxthreads_headers
 headers_clean-y += linuxthreads_headers_clean
 
 #ifeq ($(DOMULTI),n)
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc) $(top_builddir)lib/libpthread_nonshared.a
+$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
 	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 #else
-#$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS | $(libc) $(top_builddir)lib/libpthread_nonshared.a
+#$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS | $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
 #	$(call linkm.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 #endif
 	$(Q)$(RM) $@
 	$(Q)cp $(top_srcdir)extra/scripts/format.lds $@
 	$(Q)echo "GROUP ( $(notdir $@).$(MAJOR_VERSION) libpthread_nonshared.a )" >> $@
 
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+$(libpthread_OUT)/libpthread_so.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
+endif
 $(libpthread_OUT)/libpthread_so.a: $(libpthread-so-y)
 	$(Q)$(RM) $@
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-	$(do_strip:-x=-X --strip-debug)
-else
-	$(do_strip)
-endif
 	$(do_ar)
 
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+$(libpthread_OUT)/libpthread.oS: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
+endif
 $(libpthread_OUT)/libpthread.oS: $(libpthread_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-	$(do_t_strip:-x=-X --strip-debug)
-else
-	$(do_t_strip)
-endif
 
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+$(top_builddir)lib/libpthread.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
+endif
 $(top_builddir)lib/libpthread.a: $(libpthread-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-	$(do_strip:-x=-X --strip-debug)
-else
-	$(do_strip)
-endif
 	$(do_ar)
 
-linuxthreads_headers:
-	$(Q)$(LN) -sf ../$(PTDIR)/sysdeps/pthread/pthread.h $(top_builddir)include/
-	$(Q)$(LN) -sf ../$(PTDIR)/semaphore.h $(top_builddir)include/
-	$(Q)$(INSTALL) -d $(top_builddir)include/bits
-	$(Q)$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/pthreadtypes.h $(top_builddir)include/bits/
+include/pthread.h:
+	$(do_ln) ../$(PTDIR)/sysdeps/pthread/$(@F) $(top_builddir)$@
+include/semaphore.h:
+	$(do_ln) ../$(PTDIR)/$(@F) $(top_builddir)$@
+include/bits/pthreadtypes.h: | include/bits
+	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
+linuxthreads_headers: include/pthread.h include/semaphore.h \
+			include/bits/pthreadtypes.h
 
 linuxthreads_headers_clean:
-	$(RM) $(top_builddir)include/pthread.h $(top_builddir)include/semaphore.h \
+	$(RM) $(top_builddir)include/pthread.h \
+		$(top_builddir)include/semaphore.h \
 		$(top_builddir)include/bits/pthreadtypes.h
 
 libpthread_clean:

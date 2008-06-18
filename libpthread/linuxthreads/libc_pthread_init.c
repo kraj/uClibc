@@ -26,7 +26,7 @@
 #include "internals.h"
 
 #ifdef SHARED
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 #endif
 
 #if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
