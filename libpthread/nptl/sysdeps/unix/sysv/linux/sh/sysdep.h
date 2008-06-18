@@ -320,13 +320,13 @@
 #undef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) \
   ({                                                                          \
-    unsigned int resultvar = INTERNAL_SYSCALL (name, , nr, args);             \
-    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (resultvar, ), 0))         \
+    unsigned int __resultvar = INTERNAL_SYSCALL (name, , nr, args);             \
+    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (__resultvar, ), 0))         \
       {                                                                       \
-        __set_errno (INTERNAL_SYSCALL_ERRNO (resultvar, ));                   \
-        resultvar = 0xffffffff;                                               \
+        __set_errno (INTERNAL_SYSCALL_ERRNO (__resultvar, ));                   \
+        __resultvar = 0xffffffff;                                               \
       }                                                                       \
-    (int) resultvar; })
+    (int) __resultvar; })
 
 #undef INTERNAL_SYSCALL
 #define INTERNAL_SYSCALL(name, err, nr, args...) \
