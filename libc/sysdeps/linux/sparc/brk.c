@@ -33,7 +33,7 @@ int brk (void *addr)
     {
 	register void *o0 __asm__("%o0") = addr;
 	register int g1 __asm__("%g1") = 17 ;
-	__asm ("t 0x10" : "=r"(o0) : "r"(g1), "0"(o0) : "cc");
+	__asm__ ("t 0x10" : "=r"(o0) : "r"(g1), "0"(o0) : "cc");
 	newbrk = o0;
     }
 

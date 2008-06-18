@@ -30,7 +30,8 @@
 .type   __longjmp,%function
 .align 4
 __longjmp:
-
+	.register %g2, #scratch
+	.register %g3, #scratch
 	/* Store our arguments in global registers so we can still
 	 * use them while unwinding frames and their register windows.  */
 
