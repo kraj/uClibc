@@ -1,5 +1,6 @@
 /* siginfo_t, sigevent and constants.  Linux/MIPS version.
-   Copyright (C) 1997, 1998, 2000, 2001 Free Software Foundation, Inc.
+   Copyright (C) 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005
+	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -22,6 +23,8 @@
 # error "Never include this file directly.  Use <signal.h> instead"
 #endif
 
+#include <bits/wordsize.h>
+
 #if (!defined __have_sigval_t \
      && (defined _SIGNAL_H || defined __need_siginfo_t \
 	 || defined __need_sigevent_t))
@@ -39,8 +42,13 @@ typedef union sigval
      && (defined _SIGNAL_H || defined __need_siginfo_t))
 # define __have_siginfo_t	1
 
-# define __SI_MAX_SIZE     128
-# define __SI_PAD_SIZE     ((__SI_MAX_SIZE / sizeof (int)) - 3)
+# define __SI_MAX_SIZE		128
+# if __WORDSIZE == 64
+#  define __SI_PAD_SIZE		((__SI_MAX_SIZE / sizeof (int)) - 4)
+# else
+#  define __SI_PAD_SIZE		((__SI_MAX_SIZE / sizeof (int)) - 3)
+# endif
+
 
 typedef struct siginfo
   {
@@ -48,6 +56,8 @@ typedef struct siginfo
     int si_code;		/* Signal code.  */
     int si_errno;		/* If non-zero, an errno value associated with
 				   this signal, as defined in <errno.h>.  */
+    int __pad0[__SI_MAX_SIZE / sizeof (int) - __SI_PAD_SIZE - 3];
+				/* Explicit padding.  */
 
     union
       {
@@ -149,7 +159,7 @@ enum
 # define ILL_ILLOPN	ILL_ILLOPN
   ILL_ILLADR,			/* Illegal addressing mode.  */
 # define ILL_ILLADR	ILL_ILLADR
-  ILL_ILLTRP,			/* Illegal trap. */
+  ILL_ILLTRP,			/* Illegal trap.  */
 # define ILL_ILLTRP	ILL_ILLTRP
   ILL_PRVOPC,			/* Privileged opcode.  */
 # define ILL_PRVOPC	ILL_PRVOPC
@@ -255,7 +265,8 @@ enum
 
 /* Structure to transport application-defined values with signals.  */
 # define __SIGEV_MAX_SIZE	64
-# define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE / sizeof (int)) - 3)
+# define __SIGEV_HEAD_SIZE	(sizeof(long) + 2*sizeof(int))
+# define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE - __SIGEV_HEAD_SIZE) / sizeof (int))
 
 /* Forward declaration of the `pthread_attr_t' type.  */
 struct __pthread_attr_s;
@@ -273,8 +284,8 @@ typedef struct sigevent
 
 	struct
 	  {
-	    void (*_function) (sigval_t);	  /* Function to start.  */
-	    struct __pthread_attr_s *_attribute;  /* Really pthread_attr_t.  */
+	    void (*_function) (sigval_t);	/* Function to start.  */
+	    void *_attribute;			/* Really pthread_attr_t.  */
 	  } _sigev_thread;
       } _sigev_un;
   } sigevent_t;
@@ -294,7 +305,7 @@ enum
 # define SIGEV_THREAD	SIGEV_THREAD
 
   SIGEV_THREAD_ID = 4		/* Send signal to specific thread.  */
-#define SIGEV_THREAD_ID SIGEV_THREAD_ID
+#define SIGEV_THREAD_ID	SIGEV_THREAD_ID
 };
 
 #endif	/* have _SIGNAL_H.  */

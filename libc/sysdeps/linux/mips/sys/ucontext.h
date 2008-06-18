@@ -1,5 +1,5 @@
-/* Copyright (C) 1998, 1999, 2002, 2003 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
+/* Copyright (C) 1997, 1998, 2000, 2003, 2004, 2006 Free Software
+   Foundation, Inc.  This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,143 +16,102 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-/* System V/mips ABI compliant context switching support.  */
-
+/* Don't rely on this, the interface is currently messed up and may need to
+   be broken to be fixed.  */
 #ifndef _SYS_UCONTEXT_H
 #define _SYS_UCONTEXT_H	1
 
 #include <features.h>
+#include <sgidefs.h>
 #include <signal.h>
 
-/* Type for general register.  */
-#if _MIPS_SIM == _MIPS_SIM_ABI32
-typedef __uint32_t greg_t;
-#else
-typedef __uint64_t greg_t;
-#endif
+/* We need the signal context definitions even if they are not used
+   included in <signal.h>.  */
+#include <bits/sigcontext.h>
+
+/* Type for general register.  Even in o32 we assume 64-bit registers,
+   like the kernel.  */
+__extension__ typedef unsigned long long int greg_t;
 
 /* Number of general registers.  */
-#define NGREG	36
+#define NGREG	32
+#define NFPREG	32
 
 /* Container for all general registers.  */
 typedef greg_t gregset_t[NGREG];
 
-/* Number of each register is the `gregset_t' array.  */
-enum
-{
-  CTX_R0 = 0,
-#define CTX_R0	CTX_R0
-  CTX_AT = 1,
-#define CTX_AT	CTX_AT
-  CTX_V0 = 2,
-#define CTX_V0	CTX_V0
-  CTX_V1 = 3,
-#define CTX_V1	CTX_V1
-  CTX_A0 = 4,
-#define CTX_A0	CTX_A0
-  CTX_A1 = 5,
-#define CTX_A1	CTX_A1
-  CTX_A2 = 6,
-#define CTX_A2	CTX_A2
-  CTX_A3 = 7,
-#define CTX_A3	CTX_A3
-  CTX_T0 = 8,
-#define CTX_T0	CTX_T0
-  CTX_T1 = 9,
-#define CTX_T1	CTX_T1
-  CTX_T2 = 10,
-#define CTX_T2	CTX_T2
-  CTX_T3 = 11,
-#define CTX_T3	CTX_T3
-  CTX_T4 = 12,
-#define CTX_T4	CTX_T4
-  CTX_T5 = 13,
-#define CTX_T5	CTX_T5
-  CTX_T6 = 14,
-#define CTX_T6	CTX_T6
-  CTX_T7 = 15,
-#define CTX_T7	CTX_T7
-  CTX_S0 = 16,
-#define CTX_S0	CTX_S0
-  CTX_S1 = 17,
-#define CTX_S1	CTX_S1
-  CTX_S2 = 18,
-#define CTX_S2	CTX_S2
-  CTX_S3 = 19,
-#define CTX_S3	CTX_S3
-  CTX_S4 = 20,
-#define CTX_S4	CTX_S4
-  CTX_S5 = 21,
-#define CTX_S5	CTX_S5
-  CTX_S6 = 22,
-#define CTX_S6	CTX_S6
-  CTX_S7 = 23,
-#define CTX_S7	CTX_S7
-  CTX_T8 = 24,
-#define CTX_T8	CTX_T8
-  CTX_T9 = 25,
-#define CTX_T9	CTX_T9
-  CTX_K0 = 26,
-#define CTX_K0	CTX_K0
-  CTX_K1 = 27,
-#define CTX_K1	CTX_K1
-  CTX_GP = 28,
-#define CTX_GP	CTX_GP
-  CTX_SP = 29,
-#define CTX_SP	CTX_SP
-  CTX_S8 = 30,
-#define CTX_S8	CTX_S8
-  CTX_RA = 31,
-#define CTX_RA	CTX_RA
-  CTX_MDLO = 32,
-#define CTX_MDLO	CTX_MDLO
-  CTX_MDHI = 33,
-#define CTX_MDHI	CTX_MDHI
-  CTX_CAUSE = 34,
-#define CTX_CAUSE	CTX_CAUSE
-  CTX_EPC = 35,
-#define CTX_EPC	CTX_EPC
-};
-
-/* Structure to describe FPU registers.  */
-typedef struct fpregset
-{
-  union
-  {
-#if _MIPS_SIM == _MIPS_SIM_ABI32
-    double fp_dregs[16];
-    float fp_fregs[32];
-    unsigned int fp_regs[32];
-#else
-    double fp_dregs[32];
-    /* float fp_fregs[32]; */
-    __uint64_t fp_regs[32];
-#endif
-  } fp_r;
-  unsigned int fp_csr;
-  unsigned int fp_pad;
+/* Container for all FPU registers.  */
+typedef struct fpregset {
+	union {
+		double	fp_dregs[NFPREG];
+		struct {
+			float		_fp_fregs;
+			unsigned int	_fp_pad;
+		} fp_fregs[NFPREG];
+	} fp_r;
 } fpregset_t;
 
+
 /* Context to describe whole processor state.  */
+#if _MIPS_SIM == _ABIO32
+/* Earlier versions of glibc for mips had an entirely different
+   definition of mcontext_t, that didn't even resemble the
+   corresponding kernel data structure.  Since all legitimate uses of
+   ucontext_t in glibc mustn't have accessed anything beyond
+   uc_mcontext and, even then, taking a pointer to it, casting it to
+   sigcontext_t, and accessing it as such, which is what it has always
+   been, this can still be rectified.  Fortunately, makecontext,
+   [gs]etcontext et all have never been implemented.  */
 typedef struct
-{
-  gregset_t gpregs;
-  fpregset_t fpregs;
-} mcontext_t;
+  {
+    unsigned int regmask;
+    unsigned int status;
+    greg_t pc;
+    gregset_t gregs;
+    fpregset_t fpregs;
+    unsigned int fp_owned;
+    unsigned int fpc_csr;
+    unsigned int fpc_eir;
+    unsigned int used_math;
+    unsigned int dsp;
+    greg_t mdhi;
+    greg_t mdlo;
+    unsigned long hi1;
+    unsigned long lo1;
+    unsigned long hi2;
+    unsigned long lo2;
+    unsigned long hi3;
+    unsigned long lo3;
+  } mcontext_t;
+#else
+typedef struct
+  {
+    gregset_t gregs;
+    fpregset_t fpregs;
+    greg_t mdhi;
+    greg_t hi1;
+    greg_t hi2;
+    greg_t hi3;
+    greg_t mdlo;
+    greg_t lo1;
+    greg_t lo2;
+    greg_t lo3;
+    greg_t pc;
+    unsigned int fpc_csr;
+    unsigned int used_math;
+    unsigned int dsp;
+    unsigned int reserved;
+  } mcontext_t;
+#endif
 
 /* Userlevel context.  */
 typedef struct ucontext
-{
-#if _MIPS_SIM == _MIPS_SIM_ABI32
-  unsigned long int uc_flags;
-#else
-  __uint64_t uc_flags;
-#endif
-  struct ucontext *uc_link;
-  __sigset_t uc_sigmask;
-  stack_t uc_stack;
-  mcontext_t uc_mcontext;
-  int uc_filler[48];
-} ucontext_t;
+  {
+    unsigned long int uc_flags;
+    struct ucontext *uc_link;
+    stack_t uc_stack;
+    mcontext_t uc_mcontext;
+    __sigset_t uc_sigmask;
+  } ucontext_t;
 
 #endif /* sys/ucontext.h */

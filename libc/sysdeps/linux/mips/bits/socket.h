@@ -1,5 +1,6 @@
 /* System-specific socket constants and types.  Linux/MIPS version.
-   Copyright (C) 1991,92,1994-1999,2000,2001 Free Software Foundation, Inc.
+   Copyright (C) 1991, 92, 1994-1999, 2000, 2001, 2004, 2005, 2006
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -212,16 +213,29 @@ enum
 
 /* Structure describing messages sent by
    `sendmsg' and received by `recvmsg'.  */
+/* Note: do not change these members to match glibc; these match the
+   SuSv3 spec already (e.g. msg_iovlen/msg_controllen).
+   http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/socket.h.html */
+/* Note: linux kernel uses __kernel_size_t (which is 8bytes on 64bit
+   platforms, and 4bytes on 32bit platforms) for msg_iovlen/msg_controllen */
 struct msghdr
   {
     void *msg_name;		/* Address to send to/receive from.  */
     socklen_t msg_namelen;	/* Length of address data.  */
 
     struct iovec *msg_iov;	/* Vector of data to send/receive into.  */
+#if __WORDSIZE == 32
     int msg_iovlen;		/* Number of elements in the vector.  */
+#else
+    size_t msg_iovlen;		/* Number of elements in the vector.  */
+#endif
 
     void *msg_control;		/* Ancillary data (eg BSD filedesc passing). */
+#if __WORDSIZE == 32
     socklen_t msg_controllen;	/* Ancillary data buffer length.  */
+#else
+    size_t msg_controllen;	/* Ancillary data buffer length.  */
+#endif
 
     int msg_flags;		/* Flags on received message.  */
   };
@@ -254,14 +268,14 @@ struct cmsghdr
 			 + CMSG_ALIGN (sizeof (struct cmsghdr)))
 #define CMSG_LEN(len)   (CMSG_ALIGN (sizeof (struct cmsghdr)) + (len))
 
-extern struct cmsghdr *__cmsg_nxthdr (struct msghdr *__mhdr,
-				      struct cmsghdr *__cmsg) __THROW;
+extern struct cmsghdr * __NTH (__cmsg_nxthdr (struct msghdr *__mhdr,
+				      struct cmsghdr *__cmsg)) __THROW;
 #ifdef __USE_EXTERN_INLINES
 # ifndef _EXTERN_INLINE
 #  define _EXTERN_INLINE extern __inline
 # endif
 _EXTERN_INLINE struct cmsghdr *
-__cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg) __THROW
+__NTH (__cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg))
 {
   if ((size_t) __cmsg->cmsg_len < sizeof (struct cmsghdr))
     /* The kernel header does this so there may be a reason.  */
@@ -269,8 +283,8 @@ __cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg) __THROW
 
   __cmsg = (struct cmsghdr *) ((unsigned char *) __cmsg
 			       + CMSG_ALIGN (__cmsg->cmsg_len));
-  if ((unsigned char *) (__cmsg + 1) >= ((unsigned char *) __mhdr->msg_control
-					 + __mhdr->msg_controllen)
+  if ((unsigned char *) (__cmsg + 1) > ((unsigned char *) __mhdr->msg_control
+					+ __mhdr->msg_controllen)
       || ((unsigned char *) __cmsg + CMSG_ALIGN (__cmsg->cmsg_len)
 	  > ((unsigned char *) __mhdr->msg_control + __mhdr->msg_controllen)))
     /* No more entries.  */
@@ -283,13 +297,12 @@ __cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg) __THROW
    <linux/socket.h>.  */
 enum
   {
-    SCM_RIGHTS = 0x01,		/* Transfer file descriptors.  */
+    SCM_RIGHTS = 0x01		/* Transfer file descriptors.  */
 #define SCM_RIGHTS SCM_RIGHTS
 #ifdef __USE_BSD
-    SCM_CREDENTIALS = 0x02,     /* Credentials passing.  */
+    , SCM_CREDENTIALS = 0x02	/* Credentials passing.  */
 # define SCM_CREDENTIALS SCM_CREDENTIALS
 #endif
-    __SCM_CONNECT = 0x03	/* Data array is `struct scm_connect'.  */
   };
 
 /* User visible structure for SCM_CREDENTIALS message */

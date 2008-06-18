@@ -1,4 +1,5 @@
-/* Copyright (C) 1996, 1997, 2000 Free Software Foundation, Inc.
+/* Provide kernel hint to read ahead.
+   Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,46 +17,25 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sys/regdef.h>
-#include <sys/asm.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/syscall.h>
 
-/* The function __sigsetjmp_aux saves all the registers, but it can't
-   reliably access the stack or frame pointers, so we pass them in as
-   extra arguments.  */
-#ifdef __PIC__
-	.option pic2
-#endif
+#ifdef __UCLIBC_HAS_LFS__
+#include <_lfs_64.h>
+# ifdef __NR_readahead
 
+ssize_t readahead(int fd, off64_t offset, size_t count)
+{
+#  if _MIPS_SIM == _ABIO32
+	return INLINE_SYSCALL (readahead, 5, fd, 0,
+		__LONG_LONG_PAIR ((off_t) (offset >> 32), (off_t) offset),
+		count);
+#  else /* N32 || N64 */
+	return INLINE_SYSCALL (readahead, 3, fd, offset, count);
+#  endif
+}
 
-.text
-.global __sigsetjmp
-.align 2;
-.ent __sigsetjmp,0;
-.type __sigsetjmp,@function
-
-__sigsetjmp:
-#ifdef __PIC__
-	.set	noreorder
-#if _MIPS_SIM == _MIPS_SIM_ABI32
-	.cpload	t9
-#else
-	.cpsetup t9, v0, __sigsetjmp
+# endif
 #endif
-	.set	reorder
-#endif
-	move	a2, sp
-#ifdef fp
-	move	a3, fp
-#else
-	move	a3, $fp
-#endif
-#ifdef __PIC__
-	PTR_LA	t9, __sigsetjmp_aux
-#if _MIPS_SIM != _MIPS_SIM_ABI32
-	.cpreturn
-#endif
-	jr	t9
-#else
-	j	__sigsetjmp_aux
-#endif
-	.end __sigsetjmp

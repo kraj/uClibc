@@ -24,6 +24,8 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
+#include <sgidefs.h>
+
 typedef struct
   {
     /* Program counter.  */
@@ -33,7 +35,11 @@ typedef struct
     void * __sp;
 
     /* Callee-saved registers s0 through s7.  */
+#if _MIPS_SIM == _MIPS_SIM_ABI32
     int __regs[8];
+#else
+    long long __regs[8];
+#endif
 
     /* The frame pointer.  */
     void * __fp;
@@ -45,7 +51,11 @@ typedef struct
     int __fpc_csr;
 
     /* Callee-saved floating point registers.  */
+#if _MIPS_SIM == _MIPS_SIM_ABI64
+    double __fpregs[8];
+#else /* N32 || O32 */
     double __fpregs[6];
+#endif /* N32 || O32 */
   } __jmp_buf[1];
 
 #ifdef __USE_MISC

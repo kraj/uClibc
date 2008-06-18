@@ -37,6 +37,7 @@
 
 
 #include <sys/regdef.h>
+#include <sys/asm.h>
 #include <features.h>
 
 
@@ -83,6 +84,7 @@
 
 __start:
 #ifdef __PIC__
+#if _MIPS_SIM == _MIPS_SIM_ABI32
         .set noreorder
 	move $0, $31		/* Save old ra.  */
 	bal 10f			/* Find addr of cpload.  */
@@ -92,18 +94,29 @@ __start:
 	move $31, $0
 	.set reorder
 #else
+	move $0, $31; /* Save old ra.  */
+	.set noreorder
+	bal 10f /* Find addr of .cpsetup.  */
+	nop
+10:
+	.set reorder
+	.cpsetup $31, $25, 10b
+	move $31, $0
+#endif
+#else
 	la $28, _gp             /* Setup GP correctly if we're non-PIC.  */
 	move $31, $0
 #endif
 
 
-	la $4, main		/* main */
-	lw $5, 0($29)		/* argc */
-	addiu $6, $29, 4	/* argv  */
+	PTR_LA $4, main		/* main */
+	PTR_L $5, 0($29)		/* argc */
+	PTR_ADDIU $6, $29, PTRSIZE	/* argv  */
 
 	/* Allocate space on the stack for seven arguments and
 	 * make sure the stack is aligned to double words (8 bytes) */
 
+#if _MIPS_SIM == _MIPS_SIM_ABI32
 	and $29, -2 * 4
 	subu $29, 32
 	la $7, _init		/* init */
@@ -111,6 +124,13 @@ __start:
 	sw $8, 16($29)		/* fini */
 	sw $2, 20($29)		/* rtld_fini */
 	sw $29, 24($29)		/* stack_end */
+#else
+	and $29, -2 * PTRSIZE
+	PTR_LA $7, _init		/* init */
+	PTR_LA $8, _fini		/* fini */
+	move $9, $2		/* rtld_fini */
+	move $10, $29		/* stack_end */
+#endif
 	jal __uClibc_main
 hlt:
 	/* Crash if somehow `__uClibc_main' returns anyway.  */
