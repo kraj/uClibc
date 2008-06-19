@@ -34,6 +34,7 @@ STRING_ARCH_SSRC := $(filter-out $(patsubst %.o,$(STRING_ARCH_DIR)/%.S,$(notdir 
 endif
 
 STRING_ARCH_SOBJ := $(patsubst $(STRING_ARCH_DIR)/%.S,$(STRING_ARCH_OUT)/%.o,$(STRING_ARCH_SSRC))
+
 STRING_ARCH_OBJS := $(STRING_ARCH_OBJ) $(STRING_ARCH_SOBJ)
 
 libc-$(UCLIBC_HAS_STRING_ARCH_OPT) += $(STRING_ARCH_OBJS) $(STRING_SUBARCH_OBJS)
@@ -47,6 +48,7 @@ STRING_GENERIC_DIR := $(top_srcdir)libc/string/generic
 STRING_GENERIC_OUT := $(top_builddir)libc/string/generic
 
 STRING_GENERIC_SRC := $(wildcard $(STRING_GENERIC_DIR)/*.c)
+STRING_GENERIC_SRC := $(filter-out $(STRING_GENERIC_DIR)/_memcpy_fwd.c, $(STRING_GENERIC_SRC)) 
 
 ifeq ($(UCLIBC_HAS_STRING_ARCH_OPT),y)
 ifneq ($(strip $(STRING_ARCH_OBJS)),)
@@ -129,8 +131,9 @@ STRING_COBJ := $(patsubst $(STRING_DIR)/%.c,$(STRING_OUT)/%.o,$(STRING_CSRC))
 libc-y += $(STRING_COBJ)
 
 libc-nomulti-$(UCLIBC_HAS_XLOCALE) += $(STRING_OUT)/wcsxfrm_l.o
+libc-nomulti-y += $(STRING_OUT)/__xpg_strerror_r.o
 
 objclean-y += string_objclean
 
 string_objclean:
-	$(RM) $(STRING_OUT)/{,*/}*.{o,os}
+	$(RM) $(STRING_OUT)/{,*/}{,*/}*.{o,os,oS}
