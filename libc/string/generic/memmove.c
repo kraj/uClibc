@@ -24,8 +24,13 @@
 #include "memcopy.h"
 #include "pagecopy.h"
 
-libc_hidden_proto(memmove)
-libc_hidden_proto(memcpy)
+#ifdef __ARCH_HAS_BWD_MEMCPY__
+/* generic-opt memmove assumes memcpy does forward copying! */
+#include "_memcpy_fwd.c"
+#endif
+
+/* Experimentally off - libc_hidden_proto(memmove) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 static void _wordcopy_bwd_aligned (long int dstp, long int srcp, size_t len)
 {
@@ -223,7 +228,7 @@ void *memmove (void *dest, const void *src, size_t len)
   if (dstp - srcp >= len)	/* *Unsigned* compare!  */
     {
 #ifndef __ARCH_HAS_BWD_MEMCPY__
-      /* generic-opt memmove assumes memcpy does forward copying! */
+      /* Backward memcpy implementation cannot be used */
       memcpy(dest, src, len);
 #else
       /* Copy from the beginning to the end.  */
@@ -283,4 +288,4 @@ void *memmove (void *dest, const void *src, size_t len)
 
   return (dest);
 }
-libc_hidden_def(memmove)
+libc_hidden_weak(memmove)
