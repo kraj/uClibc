@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
-libc_hidden_proto(memchr)
+/* Experimentally off - libc_hidden_proto(memchr) */
 libc_hidden_proto(abort)
 
 #include "memcopy.h"
@@ -174,4 +174,4 @@ void *memchr (const void * s, int c_in, size_t n)
 
   return 0;
 }
-libc_hidden_def(memchr)
+libc_hidden_weak(memchr)

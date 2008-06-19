@@ -14,9 +14,9 @@ libc_hidden_proto(wcspbrk)
 # define Wstrspn wcsspn
 # define Wstrpbrk wcspbrk
 #else
-libc_hidden_proto(strtok_r)
-libc_hidden_proto(strspn)
-libc_hidden_proto(strpbrk)
+/* Experimentally off - libc_hidden_proto(strtok_r) */
+/* Experimentally off - libc_hidden_proto(strspn) */
+/* Experimentally off - libc_hidden_proto(strpbrk) */
 # define Wstrtok_r strtok_r
 # define Wstrspn strspn
 # define Wstrpbrk strpbrk

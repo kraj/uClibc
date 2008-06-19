@@ -20,10 +20,10 @@
 
 #ifdef __USE_BSD
 
-libc_hidden_proto(strchr)
-libc_hidden_proto(strpbrk)
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strpbrk) */
 
-libc_hidden_proto(strsep)
+/* Experimentally off - libc_hidden_proto(strsep) */
 char *strsep (char **stringp, const char *delim)
 {
   char *begin, *end;

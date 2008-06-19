@@ -18,8 +18,8 @@
 #include <bits/uClibc_uintmaxtostr.h>
 #include <signal.h>
 
-libc_hidden_proto(strsignal)
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(strsignal) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 #define _SYS_NSIG			32
 

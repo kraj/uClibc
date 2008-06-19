@@ -8,13 +8,13 @@
 #include <string.h>
 
 #ifdef __USE_GNU
-libc_hidden_proto(mempcpy)
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(mempcpy) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 void *mempcpy (void *dstpp, const void *srcpp, size_t len)
 {
   memcpy(dstpp, srcpp, len);
   return (void *)(((char *)dstpp) + len);
 }
-libc_hidden_def(mempcpy)
+libc_hidden_weak(mempcpy)
 #endif

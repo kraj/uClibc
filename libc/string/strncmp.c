@@ -10,7 +10,7 @@
 #ifdef WANT_WIDE
 # define Wstrncmp wcsncmp
 #else
-libc_hidden_proto(strncmp)
+/* Experimentally off - libc_hidden_proto(strncmp) */
 # define Wstrncmp strncmp
 #endif
 
@@ -25,7 +25,7 @@ int Wstrncmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 		--n;
 	}
 
-	return (n == 0) ? 0 : ((*((Wuchar *)s1) < *((Wuchar *)s2)) ? -1 : 1);
+	return (n == 0) ? 0 : (*((Wuchar *)s1) - *((Wuchar *)s2));
 #else
 	int r = 0;
 

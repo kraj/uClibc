@@ -24,7 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-libc_hidden_proto(strchr)
+/* Experimentally off - libc_hidden_proto(strchr) */
 libc_hidden_proto(abort)
 
 #include "memcopy.h"
@@ -181,7 +181,7 @@ char *strchr (const char *s, int c_in)
 
   return NULL;
 }
-libc_hidden_def(strchr)
+libc_hidden_weak(strchr)
 #ifdef __UCLIBC_SUSV3_LEGACY__
-strong_alias(strchr,index)
+weak_alias(strchr,index)
 #endif

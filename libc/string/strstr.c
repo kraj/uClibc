@@ -10,7 +10,7 @@
 #ifdef WANT_WIDE
 # define Wstrstr wcsstr
 #else
-libc_hidden_proto(strstr)
+/* Experimentally off - libc_hidden_proto(strstr) */
 # define Wstrstr strstr
 #endif
 

@@ -19,10 +19,10 @@
 #include <errno.h>
 #include <assert.h>
 
-libc_hidden_proto(memset)
-libc_hidden_proto(memcpy)
-libc_hidden_proto(strlcpy)
-libc_hidden_proto(strcmp)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(strlcpy) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
 #ifdef WANT_WIDE
 libc_hidden_proto(wcsxfrm)
 libc_hidden_proto(wcscmp)

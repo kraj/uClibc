@@ -21,7 +21,7 @@
 #include <string.h>
 #include "memcopy.h"
 
-libc_hidden_proto(memcmp)
+/* Experimentally off - libc_hidden_proto(memcmp) */
 
 #include <endian.h>
 
@@ -59,8 +59,7 @@ static int memcmp_bytes __P((op_t, op_t));
 __inline
 # endif
 static int
-memcmp_bytes (a, b)
-     op_t a, b;
+memcmp_bytes (op_t a, op_t b)
 {
   long int srcp1 = (long int) &a;
   long int srcp2 = (long int) &b;
@@ -84,10 +83,7 @@ static int memcmp_common_alignment __P((long, long, size_t));
    objects (not LEN bytes!).  Both SRCP1 and SRCP2 should be aligned for
    memory operations on `op_t's.  */
 static int
-memcmp_common_alignment (srcp1, srcp2, len)
-     long int srcp1;
-     long int srcp2;
-     size_t len;
+memcmp_common_alignment (long int srcp1, long int srcp2, size_t len)
 {
   op_t a0, a1;
   op_t b0, b1;
@@ -171,10 +167,7 @@ static int memcmp_not_common_alignment __P((long, long, size_t));
    `op_t' objects (not LEN bytes!).  SRCP2 should be aligned for memory
    operations on `op_t', but SRCP1 *should be unaligned*.  */
 static int
-memcmp_not_common_alignment (srcp1, srcp2, len)
-     long int srcp1;
-     long int srcp2;
-     size_t len;
+memcmp_not_common_alignment (long int srcp1, long int srcp2, size_t len)
 {
   op_t a0, a1, a2, a3;
   op_t b0, b1, b2, b3;
@@ -330,7 +323,7 @@ memcmp (const __ptr_t s1, const __ptr_t s2, size_t len)
 
   return 0;
 }
-libc_hidden_def(memcmp)
+libc_hidden_weak(memcmp)
 #ifdef __UCLIBC_SUSV3_LEGACY__
 strong_alias(memcmp,bcmp)
 #endif

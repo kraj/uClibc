@@ -18,8 +18,8 @@
 
 #include <string.h>
 
-libc_hidden_proto(strrchr)
-libc_hidden_proto(strchr)
+/* Experimentally off - libc_hidden_proto(strrchr) */
+/* Experimentally off - libc_hidden_proto(strchr) */
 
 /* Find the last occurrence of C in S.  */
 char *strrchr (const char *s, int c)
@@ -42,7 +42,7 @@ char *strrchr (const char *s, int c)
 
   return (char *) found;
 }
-libc_hidden_def(strrchr)
+libc_hidden_weak(strrchr)
 #ifdef __UCLIBC_SUSV3_LEGACY__
-strong_alias(strrchr,rindex)
+weak_alias(strrchr,rindex)
 #endif

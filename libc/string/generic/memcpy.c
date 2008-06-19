@@ -23,7 +23,7 @@
 #include "memcopy.h"
 #include "pagecopy.h"
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 void *memcpy (void *dstpp, const void *srcpp, size_t len)
 {
@@ -58,4 +58,4 @@ void *memcpy (void *dstpp, const void *srcpp, size_t len)
 
   return dstpp;
 }
-libc_hidden_def(memcpy)
+libc_hidden_weak(memcpy)

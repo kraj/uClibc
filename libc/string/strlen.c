@@ -23,4 +23,4 @@ size_t Wstrlen(const Wchar *s)
 
 	return p - s;
 }
-libc_hidden_def(Wstrlen)
+libc_hidden_weak(Wstrlen)

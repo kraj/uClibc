@@ -22,7 +22,7 @@
 #include "memcopy.h"
 #include "bp-checks.h"
 
-libc_hidden_proto(strcpy)
+/* Experimentally off - libc_hidden_proto(strcpy) */
 /* Copy SRC to DEST.  */
 char *strcpy (char *dest, const char *src)
 {
