@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strlen) */
 size_t strlen(const char *s)
 {
     int d0;

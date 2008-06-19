@@ -115,7 +115,7 @@
 #if defined(USE_LFETCH)
 #define LOOP(shift)						\
 		ALIGN(32);					\
-.loop##shift##:							\
+.loop##shift :							\
 { .mmb								\
 (p[0])	ld8.nt1	r[0] = [asrc], 8 ;				\
 (p[0])	lfetch.nt1 [ptr1], 16 ;					\
@@ -139,7 +139,7 @@
 #else
 #define LOOP(shift)						\
 		ALIGN(32);					\
-.loop##shift##:							\
+.loop##shift :							\
 { .mmb								\
 (p[0])	ld8.nt1	r[0] = [asrc], 8 ;				\
 	nop.b 0 ;						\

@@ -20,6 +20,7 @@
 
 #include "_glibc_inc.h"
 
+/* Seems to be unrolled too much */
 
 	.text
 ENTRY (strlen)
@@ -39,8 +40,11 @@ ENTRY (strlen)
 
 1:	movq $0xfefefefefefefeff,%r8 /* Save magic.  */
 
-	.p2align 4		/* Align loop.  */
-4:	/* Main Loop is unrolled 4 times.  */
+	/* Align loop.  */
+	/* Next 3 insns are 10 bytes total, make sure we decode them in one go */
+	.p2align 4,,10
+4:
+	/* Main Loop is unrolled 4 times.  */
 	/* First unroll.  */
 	movq (%rax), %rcx	/* get double word (= 8 bytes) in question */
 	addq $8,%rax		/* adjust pointer for next word */
@@ -97,8 +101,11 @@ ENTRY (strlen)
 				   the addition will not result in 0.  */
 	jz 4b			/* no NUL found => continue loop */
 
-	.p2align 4		/* Align, it's a jump target.  */
-3:	subq $8,%rax		/* correct pointer increment.  */
+	/* Align, it is a jump target.  */
+	/* Next 3 insns are 8 bytes total, make sure we decode them in one go */
+	.p2align 3,,8
+3:
+	subq $8,%rax		/* correct pointer increment.  */
 
 	testb %cl, %cl		/* is first byte NUL? */
 	jz 2f			/* yes => return */

@@ -6,15 +6,8 @@
 #include <features.h>
 #include <bits/wordsize.h>
 
-#if __WORDSIZE == 32
-# define ENTRY_ALIGN 4
-#else
-# define ENTRY_ALIGN 2
-#endif
-
 #define ENTRY(sym) \
 	.global sym; \
-	.align  ENTRY_ALIGN; \
 	.type   sym,%function; \
 	sym:
 

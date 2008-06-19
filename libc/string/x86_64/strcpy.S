@@ -20,6 +20,8 @@
 
 #include "_glibc_inc.h"
 
+/* Seems to be unrolled too much */
+
 #ifndef USE_AS_STPCPY
 # define STRCPY strcpy
 #endif
@@ -51,7 +53,9 @@ ENTRY (BP_SYM (STRCPY))
 	/* Now the sources is aligned.  Unfortunatly we cannot force
 	   to have both source and destination aligned, so ignore the
 	   alignment of the destination.  */
-	.p2align 4
+
+	/* Next 3 insns are 10 bytes total, make sure we decode them in one go */
+	.p2align 4,,10
 1:
 	/* 1st unroll.  */
 	movq	(%rsi), %rax	/* Read double word (8 bytes).  */
@@ -128,7 +132,9 @@ ENTRY (BP_SYM (STRCPY))
 
 	/* Do the last few bytes. %rax contains the value to write.
 	   The loop is unrolled twice.  */
-	.p2align 4
+
+	/* Next 3 insns are 6 bytes total, make sure we decode them in one go */
+	.p2align 3,,6
 3:
 	/* Note that stpcpy needs to return with the value of the NUL
 	   byte.  */

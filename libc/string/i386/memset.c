@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 void *memset(void *s, int c, size_t count)
 {
     int d0, d1;

@@ -155,4 +155,4 @@ memset:
 	bralr
 	.size		memset, .-memset
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */

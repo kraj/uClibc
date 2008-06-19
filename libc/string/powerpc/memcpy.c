@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 void *memcpy(void *to, const void *from, size_t n)
 /* PPC can do pre increment and load/store, but not post increment and load/store.
    Therefore use *++ptr instead of *ptr++. */

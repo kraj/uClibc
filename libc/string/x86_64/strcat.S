@@ -21,6 +21,7 @@
 
 #include "_glibc_inc.h"
 
+/* Seems to be unrolled too much */
 
 	.text
 ENTRY (BP_SYM (strcat))
@@ -44,7 +45,9 @@ ENTRY (BP_SYM (strcat))
 
 
 	/* Now the source is aligned.  Scan for NUL byte.  */
-	.p2align 4
+
+	/* Next 3 insns are 10 bytes total, make sure we decode them in one go */
+	.p2align 4,,10
 4:
 	/* First unroll.  */
 	movq (%rax), %rcx	/* get double word (= 8 bytes) in question */
@@ -102,8 +105,11 @@ ENTRY (BP_SYM (strcat))
 				   the addition will not result in 0.  */
 	jz 4b			/* no NUL found => continue loop */
 
-	.p2align 4		/* Align, it's a jump target.  */
-3:	subq $8,%rax		/* correct pointer increment.  */
+	/* Align, it is a jump target.  */
+	/* Next 3 insns are 8 bytes total, make sure we decode them in one go */
+	.p2align 3,,8
+3:
+	subq $8,%rax		/* correct pointer increment.  */
 
 	testb %cl, %cl		/* is first byte NUL? */
 	jz 2f			/* yes => return */
@@ -159,7 +165,9 @@ ENTRY (BP_SYM (strcat))
 	/* Now the sources is aligned.  Unfortunatly we cannot force
 	   to have both source and destination aligned, so ignore the
 	   alignment of the destination.  */
-	.p2align 4
+
+	/* Next 3 insns are 10 bytes total, make sure we decode them in one go */
+	.p2align 4,,10
 22:
 	/* 1st unroll.  */
 	movq	(%rsi), %rax	/* Read double word (8 bytes).  */
@@ -236,7 +244,9 @@ ENTRY (BP_SYM (strcat))
 
 	/* Do the last few bytes. %rax contains the value to write.
 	   The loop is unrolled twice.  */
-	.p2align 4
+
+	/* Next 3 insns are 6 bytes total, make sure we decode them in one go */
+	.p2align 3,,6
 23:
 	movb	%al, (%rdx)	/* 1st byte.  */
 	testb	%al, %al	/* Is it NUL.  */

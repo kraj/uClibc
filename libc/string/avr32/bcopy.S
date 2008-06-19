@@ -10,17 +10,17 @@
 
 #ifdef __UCLIBC_SUSV3_LEGACY__
 
-       .text
-       .global bcopy
-       .type   bcopy, @function
-       .align  1
+	.text
+	.global bcopy
+	.type	bcopy, @function
+	.align	1
 bcopy:
-       /* Swap the first two arguments */
-       eor     r11, r12
-       eor     r12, r11
-       eor     r11, r12
-       rjmp    HIDDEN_JUMPTARGET(memmove)
+	/* Swap the first two arguments */
+	eor	r11, r12
+	eor	r12, r11
+	eor	r11, r12
+	rjmp	HIDDEN_JUMPTARGET(memmove)
 
-       .size   bcopy, . - bcopy
+	.size	bcopy, . - bcopy
 
 #endif /* __UCLIBC_SUSV3_LEGACY__ */

@@ -10,15 +10,15 @@
 
 #ifdef __UCLIBC_SUSV3_LEGACY__
 
-       .text
-       .global bzero
-       .type   bzero, @function
-       .align  1
+	.text
+	.global bzero
+	.type	bzero, @function
+	.align	1
 bzero:
-       mov     r10, r11
-       mov     r11, 0
-       rjmp    HIDDEN_JUMPTARGET(memset)
+	mov	r10, r11
+	mov	r11, 0
+	rjmp	HIDDEN_JUMPTARGET(memset)
 
-       .size   bzero, . - bzero
+	.size	bzero, . - bzero
 
 #endif /* __UCLIBC_SUSV3_LEGACY__ */

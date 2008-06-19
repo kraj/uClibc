@@ -30,15 +30,46 @@
  */
 
 #include <features.h>
+#include <bits/arm_asm.h>
 
 .text
 .global strncmp
 .type strncmp,%function
 .align 4
 
+#if defined(THUMB1_ONLY)
+.thumb_func
 strncmp:
 	/* if (len == 0) return 0 */
 	cmp	r2, #0
+	bne	1f
+	mov	r0, #0
+	bx	lr
+1:
+	push	{r4}
+
+	/* ip == last src address to compare */
+	add	r4, r0, r2
+2:
+	cmp	r4, r0
+	beq	3f
+	ldrb	r2, [r0]
+	add	r0, r0, #1
+	ldrb	r3, [r1]
+	add	r1, r1, #1
+	cmp	r2, #0
+	beq	3f
+	cmp	r2, r3
+	beq	2b
+3:
+	sub	r0, r2, r3
+	pop	{r4}
+	bx	lr
+#else
+strncmp:
+	/* if (len == 0) return 0 */
+	cmp	r2, #0
+	IT(tt, eq)
 	moveq	r0, #0
 #if defined(__USE_BX__)
         bxeq    lr
@@ -53,6 +84,7 @@ strncmp:
 	ldrb	r2, [r0], #1
 	ldrb	r3, [r1], #1
 	cmp	ip, r0
+	IT(tt, cs)
 	cmpcs	r2, #1
 	cmpcs	r2, r3
 	beq	1b
@@ -61,6 +93,7 @@ strncmp:
         bx      lr
 #else
   	mov	pc, lr
+#endif
 #endif
 
 .size strncmp,.-strncmp

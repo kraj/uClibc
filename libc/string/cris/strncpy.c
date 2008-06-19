@@ -6,9 +6,9 @@
 
 #include <string.h>
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 
-libc_hidden_proto(strncpy)
+/* Experimentally off - libc_hidden_proto(strncpy) */
 char *strncpy(char *dest, const char *src, size_t count)
 {
   char *ret = dest;

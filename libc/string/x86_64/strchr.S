@@ -20,6 +20,7 @@
 
 #include "_glibc_inc.h"
 
+/* Seems to be unrolled too much */
 
 	.text
 ENTRY (BP_SYM (strchr))
@@ -91,7 +92,8 @@ ENTRY (BP_SYM (strchr))
 	 each of whose bytes is C.  This turns each byte that is C
 	 into a zero.  */
 
-	.p2align 4
+	/* Next 3 insns are 10 bytes total, make sure we decode them in one go */
+	.p2align 4,,10
 4:
 	/* Main Loop is unrolled 4 times.  */
 	/* First unroll.  */
@@ -229,8 +231,11 @@ ENTRY (BP_SYM (strchr))
 	   reversed.  */
 
 
-	.p2align 4		/* Align, it's a jump target.  */
-3:	movq	%r9,%rdx	/* move to %rdx so that we can access bytes */
+	/* Align, it's a jump target.  */
+	/* Next 3 insns are 9 bytes total, make sure we decode them in one go */
+	.p2align 4,,9
+3:
+	movq	%r9,%rdx	/* move to %rdx so that we can access bytes */
 	subq	$8,%rax		/* correct pointer increment.  */
 	testb %cl, %cl		/* is first byte C? */
 	jz 6f			/* yes => return pointer */
@@ -280,7 +285,7 @@ ENTRY (BP_SYM (strchr))
 	incq %rax
 
 6:
-	nop
+	/* nop - huh?? */
 	retq
 END (BP_SYM (strchr))
 

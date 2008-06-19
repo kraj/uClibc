@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-libc_hidden_proto(memchr)
+/* Experimentally off - libc_hidden_proto(memchr) */
 void *memchr(const void *cs, int c, size_t count)
 {
     int d0;

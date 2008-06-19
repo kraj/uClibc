@@ -33,7 +33,7 @@
 #include <string.h>
 
 #ifdef __USE_GNU
-libc_hidden_proto(strnlen)
+/* Experimentally off - libc_hidden_proto(strnlen) */
 size_t strnlen(const char *s, size_t count)
 {
     int d0;
