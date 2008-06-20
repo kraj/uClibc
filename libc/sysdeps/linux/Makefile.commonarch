@@ -20,6 +20,9 @@ libc-y         += $(ARCH_OBJS)
 libc-nomulti-y += $(ARCH_SOBJ)
 objclean-y     += arch_objclean
 
+CFLAGS-crti.S+=$(PICFLAG)
+CFLAGS-crtn.S+=$(PICFLAG)
+
 arch_objclean:
 	$(RM) $(ARCH_OUT)/*.{o,os} $(CTOR_TARGETS) $(CRTS)
 
