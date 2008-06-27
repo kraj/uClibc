@@ -336,12 +336,14 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 
     __uclibc_progname = *argv;
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-    program_invocation_name = *argv;
-    program_invocation_short_name = strrchr(*argv, '/');
-    if (program_invocation_short_name != NULL)
-	++program_invocation_short_name;
-    else
-	program_invocation_short_name = program_invocation_name;
+    if (*argv != NULL) {
+	program_invocation_name = *argv;
+	program_invocation_short_name = strrchr(*argv, '/');
+	if (program_invocation_short_name != NULL)
+	    ++program_invocation_short_name;
+	else
+	    program_invocation_short_name = program_invocation_name;
+    }
 #endif
 
 #ifdef __UCLIBC_CTOR_DTOR__
