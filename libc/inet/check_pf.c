@@ -18,7 +18,7 @@
    02111-1307 USA.  */
 
 #include <features.h>
-#include <ifaddrs.h>
+#include "ifaddrs.h"
 #include <netdb.h>
 
 
@@ -28,7 +28,7 @@ __check_pf (bool *seen_ipv4, bool *seen_ipv6)
 {
   *seen_ipv4 = false;
   *seen_ipv6 = false;
-#if __UCLIBC_SUPPORT_AI_ADDRCONFIG__
+#if defined __UCLIBC_SUPPORT_AI_ADDRCONFIG__
   {
     /* Get the interface list via getifaddrs.  */
     struct ifaddrs *ifa = NULL;
@@ -37,18 +37,25 @@ __check_pf (bool *seen_ipv4, bool *seen_ipv6)
     {
       /* We cannot determine what interfaces are available.  Be
       optimistic.  */
+#if defined __UCLIBC_HAS_IPV4__
       *seen_ipv4 = true;
-#if __UCLIBC_HAS_IPV6__
+#endif /* __UCLIBC_HAS_IPV4__ */
+#if defined __UCLIBC_HAS_IPV6__
       *seen_ipv6 = true;
 #endif /* __UCLIBC_HAS_IPV6__ */
       return;
     }
 
     for (runp = ifa; runp != NULL; runp = runp->ifa_next)
+#if defined __UCLIBC_HAS_IPV4__
       if (runp->ifa_addr->sa_family == PF_INET)
         *seen_ipv4 = true;
-#if __UCLIBC_HAS_IPV6__
-      else if (runp->ifa_addr->sa_family == PF_INET6)
+#endif /* __UCLIBC_HAS_IPV4__ */
+#if defined __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__
+      else /* can't be both at once */
+#endif /* __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__ */
+#if defined __UCLIBC_HAS_IPV6__
+      if (runp->ifa_addr->sa_family == PF_INET6)
         *seen_ipv6 = true;
 #endif /* __UCLIBC_HAS_IPV6__ */
 
@@ -56,8 +63,10 @@ __check_pf (bool *seen_ipv4, bool *seen_ipv6)
   }
 #else
   /* AI_ADDRCONFIG is disabled, assume both ipv4 and ipv6 available. */
+#if defined __UCLIBC_HAS_IPV4__
   *seen_ipv4 = true;
-#if __UCLIBC_HAS_IPV6__
+#endif /* __UCLIBC_HAS_IPV4__ */
+#if defined __UCLIBC_HAS_IPV6__
   *seen_ipv6 = true;
 #endif /* __UCLIBC_HAS_IPV6__ */
 
