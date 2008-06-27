@@ -1018,6 +1018,18 @@ config UCLIBC_USE_NETLINK
 
 	  Most people can safely answer N.
 
+config UCLIBC_SUPPORT_AI_ADDRCONFIG
+	bool "Support the AI_ADDRCONFIG flag"
+	depends on UCLIBC_USE_NETLINK
+	default n
+	help
+	  The implementation of AI_ADDRCONFIG is aligned with the glibc
+	  implementation using netlink to query interfaces to find both
+	  ipv4 and ipv6 support. This is only needed if an application uses
+	  the AI_ADDRCONFIG flag.
+
+	  Most people can safely answer N.
+
 config UCLIBC_HAS_BSD_RES_CLOSE
 	bool "Support res_close() (bsd-compat)"
 	default n

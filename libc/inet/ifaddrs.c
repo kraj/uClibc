@@ -22,7 +22,7 @@
 #include <alloca.h>
 #include <assert.h>
 #include <errno.h>
-/*#include <ifaddrs.h>*/
+#include <ifaddrs.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <netpacket/packet.h>
@@ -57,7 +57,7 @@ libc_hidden_proto(abort)
 
 
 #if __ASSUME_NETLINK_SUPPORT
-#if 0 /* unused code */
+#ifdef __UCLIBC_SUPPORT_AI_ADDRCONFIG__
 /* struct to hold the data for one ifaddrs entry, so we can allocate
    everything at once.  */
 struct ifaddrs_storage
@@ -74,7 +74,7 @@ struct ifaddrs_storage
   } addr, netmask, broadaddr;
   char name[IF_NAMESIZE + 1];
 };
-#endif /* unused code */
+#endif /* __UCLIBC_SUPPORT_AI_ADDRCONFIG__ */
 
 
 void
@@ -324,7 +324,7 @@ __netlink_open (struct netlink_handle *h)
 }
 
 
-#if 0 /* unused code */
+#ifdef __UCLIBC_SUPPORT_AI_ADDRCONFIG__
 /* We know the number of RTM_NEWLINK entries, so we reserve the first
    # of entries for this type. All RTM_NEWADDR entries have an index
    pointer to the RTM_NEWLINK entry.  To find the entry, create
@@ -562,7 +562,7 @@ getifaddrs (struct ifaddrs **ifap)
 		      if ((rta_payload + 1) <= sizeof (ifas[ifa_index].name))
 			{
 			  ifas[ifa_index].ifa.ifa_name = ifas[ifa_index].name;
-			  *(char *) __mempcpy (ifas[ifa_index].name, rta_data,
+			  *(char *) mempcpy (ifas[ifa_index].name, rta_data,
 					       rta_payload) = '\0';
 			}
 		      break;
@@ -761,7 +761,7 @@ getifaddrs (struct ifaddrs **ifap)
 		      if (rta_payload + 1 <= sizeof (ifas[ifa_index].name))
 			{
 			  ifas[ifa_index].ifa.ifa_name = ifas[ifa_index].name;
-			  *(char *) __mempcpy (ifas[ifa_index].name, rta_data,
+			  *(char *) mempcpy (ifas[ifa_index].name, rta_data,
 					       rta_payload) = '\0';
 			}
 		      else
@@ -872,6 +872,6 @@ freeifaddrs (struct ifaddrs *ifa)
 }
 #endif
 
-#endif /* unused code */
+#endif /* __UCLIBC_SUPPORT_AI_ADDRCONFIG__ */
 
 #endif /* __ASSUME_NETLINK_SUPPORT */

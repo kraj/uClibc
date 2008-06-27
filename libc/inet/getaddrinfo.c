@@ -66,6 +66,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/un.h>
 #include <sys/utsname.h>
 #include <net/if.h>
+#include <ifaddrs.h>
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* Experimentally off - libc_hidden_proto(memset) */
@@ -156,19 +157,29 @@ static const struct addrinfo default_hints =
 { 0, PF_UNSPEC, 0, 0, 0, NULL, NULL, NULL };
 #endif
 
-
 static int addrconfig (sa_family_t af)
 {
     int s;
     int ret;
     int saved_errno = errno;
-    s = socket(af, SOCK_DGRAM, 0);
-    if (s < 0)
-	ret = (errno == EMFILE) ? 1 : 0;
+    bool seen_ipv4;
+    bool seen_ipv6;
+
+    __check_pf(&seen_ipv4, &seen_ipv6);
+    if (af == AF_INET)
+	ret = (int)seen_ipv4;
+    else if (af == AF_INET6)
+	ret = (int)seen_ipv6;
     else
     {
-	close(s);
-	ret = 1;
+	s = socket(af, SOCK_DGRAM, 0);
+	if (s < 0)
+	    ret = (errno == EMFILE) ? 1 : 0;
+	else
+	{
+	    close(s);
+	    ret = 1;
+	}
     }
     __set_errno (saved_errno);
     return ret;
@@ -373,6 +384,9 @@ gaih_inet (const char *name, const struct gaih_service *service,
     int rc;
     int v4mapped = (req->ai_family == PF_UNSPEC || req->ai_family == PF_INET6) &&
 	(req->ai_flags & AI_V4MAPPED);
+    bool seen_ipv4;
+    bool seen_ipv6;
+    __check_pf(&seen_ipv4, &seen_ipv6);
 
     if (req->ai_protocol || req->ai_socktype)
     {
@@ -560,14 +574,16 @@ gaih_inet (const char *name, const struct gaih_service *service,
 
 #if defined __UCLIBC_HAS_IPV6__
 	    if (req->ai_family == AF_UNSPEC || req->ai_family == AF_INET6)
-		gethosts (AF_INET6, struct in6_addr);
+		if (!(req->ai_flags & AI_ADDRCONFIG) || seen_ipv6)
+		    gethosts (AF_INET6, struct in6_addr);
 #endif
 	    no_inet6_data = no_data;
 
 	    if (req->ai_family == AF_INET ||
 		(!v4mapped && req->ai_family == AF_UNSPEC) ||
 		(v4mapped && (no_inet6_data != 0 || (req->ai_flags & AI_ALL))))
-		gethosts (AF_INET, struct in_addr);
+		if (!(req->ai_flags & AI_ADDRCONFIG) || seen_ipv4)
+		    gethosts (AF_INET, struct in_addr);
 
 	    if (no_data != 0 && no_inet6_data != 0)
 	    {
@@ -698,6 +714,14 @@ gaih_inet (const char *name, const struct gaih_service *service,
 #endif
 	    for (st2 = st; st2 != NULL; st2 = st2->next)
 	    {
+		if (req->ai_flags & AI_ADDRCONFIG) {
+		    if (family == AF_INET && !seen_ipv4)
+			break;
+#if defined __UCLIBC_HAS_IPV6__
+		    else if (family == AF_INET6 && !seen_ipv6)
+			break;
+#endif
+		}
 		*pai = malloc (sizeof (struct addrinfo) + socklen + namelen);
 		if (*pai == NULL)
 		    return -EAI_MEMORY;
@@ -859,7 +883,10 @@ getaddrinfo (const char *name, const char *service,
 	if (hints->ai_family == g->family || hints->ai_family == AF_UNSPEC)
 	{
 	    if ((hints->ai_flags & AI_ADDRCONFIG) && !addrconfig(g->family))
+	    {
+		++g;
 		continue;
+	    }
 	    j++;
 	    if (pg == NULL || pg->gaih != g->gaih)
 	    {

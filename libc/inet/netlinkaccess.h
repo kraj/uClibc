@@ -62,13 +62,13 @@ struct netlink_handle
 };
 
 
-#if 0 /* unused code */
+#ifdef __UCLIBC_SUPPORT_AI_ADDRCONFIG__
 #if __ASSUME_NETLINK_SUPPORT == 0
 extern smallint __no_netlink_support attribute_hidden;
 #else
 # define __no_netlink_support 0
 #endif
-#endif /* unused code */
+#endif /* __UCLIBC_SUPPORT_AI_ADDRCONFIG__ */
 
 
 extern int __netlink_open (struct netlink_handle *h) attribute_hidden;
