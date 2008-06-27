@@ -45,8 +45,8 @@
 #include <sys/time.h>
 #include "tempname.h"
 
-libc_hidden_proto(strlen)
-libc_hidden_proto(strcmp)
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
 libc_hidden_proto(sprintf)
 libc_hidden_proto(mkdir)
 libc_hidden_proto(open)

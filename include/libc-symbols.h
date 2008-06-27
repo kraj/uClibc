@@ -22,6 +22,16 @@
 #ifndef _LIBC_SYMBOLS_H
 #define _LIBC_SYMBOLS_H	1
 
+/* This is defined for the compilation of all C library code.  features.h
+   tests this to avoid inclusion of stubs.h while compiling the library,
+   before stubs.h has been generated.  Some library code that is shared
+   with other packages also tests this symbol to see if it is being
+   compiled as part of the C library.  We must define this before including
+   config.h, because it makes some definitions conditional on whether libc
+   itself is being compiled, or just some generator program.  */
+#define _LIBC	1
+
+
 /* This file's macros are included implicitly in the compilation of every
    file in the C library by -imacros.
 
@@ -40,21 +50,11 @@
 
 #include <bits/uClibc_arch_features.h>
 
-
-/* This is defined for the compilation of all C library code.  features.h
-   tests this to avoid inclusion of stubs.h while compiling the library,
-   before stubs.h has been generated.  Some library code that is shared
-   with other packages also tests this symbol to see if it is being
-   compiled as part of the C library.  We must define this before including
-   config.h, because it makes some definitions conditional on whether libc
-   itself is being compiled, or just some generator program.  */
-#define _LIBC	1
-
 /* Enable declarations of GNU extensions, since we are compiling them.  */
 #define _GNU_SOURCE	1
 
 /* Prepare for the case that `__builtin_expect' is not available.  */
-#if __GNUC__ == 2 && __GNUC_MINOR__ < 96
+#if defined __GNUC__ && __GNUC__ == 2 && __GNUC_MINOR__ < 96
 # define __builtin_expect(x, expected_value) (x)
 #endif
 #ifndef likely
@@ -72,7 +72,7 @@
 
 #define attribute_unused __attribute__ ((unused))
 
-#ifdef __GNUC__
+#if defined __GNUC__ || defined __ICC
 # define attribute_noreturn __attribute__ ((__noreturn__))
 #else
 # define attribute_noreturn
@@ -80,12 +80,6 @@
 
 #ifndef NOT_IN_libc
 # define IS_IN_libc 1
-#endif
-
-#ifdef __UCLIBC_NO_UNDERSCORES__
-# define NO_UNDERSCORES
-#else
-# undef NO_UNDERSCORES
 #endif
 
 #ifdef __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
@@ -124,14 +118,16 @@
 
 #undef C_SYMBOL_NAME
 #ifndef C_SYMBOL_NAME
-# ifdef NO_UNDERSCORES
+# ifndef __UCLIBC_UNDERSCORES__
 #  define C_SYMBOL_NAME(name) name
 # else
 #  define C_SYMBOL_NAME(name) _##name
 # endif
 #endif
 
-#ifndef ASM_LINE_SEP
+#ifdef __UCLIBC_ASM_LINE_SEP__
+# define ASM_LINE_SEP __UCLIBC_ASM_LINE_SEP__
+#else
 # define ASM_LINE_SEP ;
 #endif
 
@@ -173,9 +169,6 @@
 #  define _weak_extern(expr) _Pragma (#expr)
 
 # else
-
-# define weak_function /* empty */
-# define weak_const_function /* empty */
 
 #  define weak_alias(name, aliasname) strong_alias(name, aliasname)
 #  define weak_extern(symbol) /* Nothing. */
@@ -246,17 +239,17 @@
   .set C_SYMBOL_NAME (alias), C_SYMBOL_NAME (original)
 #    endif
 #   else /* ! HAVE_ASM_SET_DIRECTIVE */
-#   ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#    define weak_alias(original, alias)					\
+#    ifdef HAVE_ASM_GLOBAL_DOT_NAME
+#     define weak_alias(original, alias)				\
   .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
   C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original) ASM_LINE_SEP		\
   .weak C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP				\
   C_SYMBOL_DOT_NAME (alias) = C_SYMBOL_DOT_NAME (original)
-#   else
-#    define weak_alias(original, alias)					\
+#    else
+#     define weak_alias(original, alias)				\
   .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
   C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original)
-#   endif
+#    endif
 #   endif
 #   define weak_extern(symbol)						\
   .weak C_SYMBOL_NAME (symbol)
@@ -282,25 +275,21 @@
 #define __make_section_unallocated(section_string)	\
   __asm__ (".section " section_string "\n\t.previous");
 
-/* Tacking on "\n\t#" to the section name makes gcc put it's bogus
+/* Tacking on "\n#APP\n\t#" to the section name makes gcc put it's bogus
    section attributes on what looks like a comment to the assembler.  */
 #ifdef __sparc__ //HAVE_SECTION_QUOTES
-# define __sec_comment "\"\n\t#\""
+# define __sec_comment "\"\n#APP\n\t#\""
 #else
-# define __sec_comment "\n\t#"
+# define __sec_comment "\n#APP\n\t#"
 #endif
 
 /* When a reference to SYMBOL is encountered, the linker will emit a
    warning message MSG.  */
-#if defined(__cris__) || defined(__vax__)
-# define link_warning(symbol, msg)
-#else
-# define link_warning(symbol, msg) \
+#define link_warning(symbol, msg) \
   __make_section_unallocated (".gnu.warning." #symbol) \
   static const char __evoke_link_warning_##symbol[]	\
     __attribute__ ((used, section (".gnu.warning." #symbol __sec_comment))) \
     = msg;
-#endif
 
 /* Handling on non-exported internal names.  We have to do this only
    for shared code.  */
@@ -414,8 +403,9 @@
  * d. hidden_def() in asm is _hidden_strong_alias (not strong_alias) */
 
 /* Arrange to hide uClibc internals */
-#if defined __GNUC__ && defined __GNUC_MINOR__ && \
-  ( __GNUC__ >= 3 && __GNUC_MINOR__ >= 3 ) || __GNUC__ >= 4
+#if (defined __GNUC__ && \
+  (defined __GNUC_MINOR__ && ( __GNUC__ >= 3 && __GNUC_MINOR__ >= 3 ) \
+   || __GNUC__ >= 4)) || defined __ICC
 # define attribute_hidden __attribute__ ((visibility ("hidden")))
 # define __hidden_proto_hiddenattr(attrs...) __attribute__ ((visibility ("hidden"), ##attrs))
 #else
@@ -423,7 +413,7 @@
 # define __hidden_proto_hiddenattr(attrs...)
 #endif
 
-#if !defined STATIC && !defined __BCC__
+#if /*!defined STATIC &&*/ !defined __BCC__
 # ifndef __ASSEMBLER__
 #  define hidden_proto(name, attrs...) __hidden_proto (name, __GI_##name, ##attrs)
 #  define __hidden_proto(name, internal, attrs...) \
@@ -435,9 +425,12 @@
 #  define __hidden_ver1(local, internal, name) \
    extern __typeof (name) __EI_##name __asm__(__hidden_asmname (#internal)); \
    extern __typeof (name) __EI_##name __attribute__((alias (__hidden_asmname1 (,#local))))
+#  define hidden_ver(local, name)	__hidden_ver1(local, __GI_##name, name);
+#  define hidden_data_ver(local, name)	hidden_ver(local, name)
 #  define hidden_def(name)		__hidden_ver1(__GI_##name, name, name);
 #  define hidden_data_def(name)		hidden_def(name)
-#  define hidden_weak(name)		__hidden_ver1(__GI_##name, name, name) __attribute__((weak));
+#  define hidden_weak(name)	\
+	__hidden_ver1(__GI_##name, name, name) __attribute__((weak));
 #  define hidden_data_weak(name)	hidden_weak(name)
 
 # else /* __ASSEMBLER__ */
@@ -494,26 +487,36 @@
    hidden_proto doesn't make sense for assembly but the equivalent
    is to call via the HIDDEN_JUMPTARGET macro instead of JUMPTARGET.  */
 #  define hidden_def(name)	_hidden_strong_alias (name, __GI_##name)
-#  define hidden_data_def(name)	_hidden_strong_alias (name, __GI_##name)
 #  define hidden_weak(name)	_hidden_weak_alias (name, __GI_##name)
+#  define hidden_ver(local, name) strong_alias (local, __GI_##name)
+#  define hidden_data_def(name)	_hidden_strong_alias (name, __GI_##name)
 #  define hidden_data_weak(name)	_hidden_weak_alias (name, __GI_##name)
-#  define HIDDEN_JUMPTARGET(name) __GI_##name
+#  define hidden_data_ver(local, name) strong_data_alias (local, __GI_##name)
+#  ifdef HAVE_ASM_GLOBAL_DOT_NAME
+#   define HIDDEN_JUMPTARGET(name) .__GI_##name
+#  else
+#   define HIDDEN_JUMPTARGET(name) __GI_##name
+#  endif
 # endif /* __ASSEMBLER__ */
 #else /* SHARED */
 # ifndef __ASSEMBLER__
 #  define hidden_proto(name, attrs...)
 # else
 #  define HIDDEN_JUMPTARGET(name) name
-# endif
-# define hidden_def(name)
-# define hidden_data_def(name)
+# endif /* Not  __ASSEMBLER__ */
 # define hidden_weak(name)
+# define hidden_def(name)
+# define hidden_ver(local, name)
 # define hidden_data_weak(name)
+# define hidden_data_def(name)
+# define hidden_data_ver(local, name)
 #endif /* SHARED */
 
 /* uClibc does not support versioning yet. */
 #define versioned_symbol(lib, local, symbol, version) /* weak_alias(local, symbol) */
+#undef hidden_ver
 #define hidden_ver(local, name) /* strong_alias(local, __GI_##name) */
+#undef hidden_data_ver
 #define hidden_data_ver(local, name) /* strong_alias(local,__GI_##name) */
 
 #if !defined NOT_IN_libc

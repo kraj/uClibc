@@ -126,9 +126,9 @@ define link.so
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
 	@$(disp_ld)
-	$(Q)$(LD) $(LDFLAGS-$(notdir $@)) -soname=$(notdir $@).$(2) \
-		-o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
-		--whole-archive $(firstword $^) --no-whole-archive \
+	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) -Wl,-soname=$(notdir $@).$(2) \
+		-nostdlib -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
+		-Wl,--whole-archive $(firstword $^) -Wl,--no-whole-archive \
 		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
 	$(Q)$(LN) -sf $(1) $@.$(2)
 	$(Q)$(LN) -sf $(1) $@
@@ -150,10 +150,10 @@ define link-flat.so
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $(1) $@
 	@$(disp_ld)
-	$(Q)$(LD) $(LDFLAGS-$(notdir $@)) -o $(1) \
-		-elf2flt -shared-lib-id $(2) $(top_builddir)lib/Scrt1.o \
-		$(top_builddir)/lib/crti.o --whole-archive $(firstword $^) \
-		--no-whole-archive $(LIBS-$(notdir $@)) $(LIBGCC) \
+	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) -nostdlib -o $(1) \
+		-Wl,-elf2flt -Wl,-shared-lib-id $(2) $(top_builddir)lib/Scrt1.o \
+		$(top_builddir)/lib/crti.o -Wl,--whole-archive $(firstword $^) \
+		-Wl,--no-whole-archive $(LIBS-$(notdir $@)) $(LIBGCC) \
 		$(top_builddir)/lib/crtn.o
 endef
 
@@ -161,8 +161,8 @@ define linkm.so
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
 	@$(disp_ld)
-	$(Q)$(LD) $(LDFLAGS-$(notdir $@)) -soname=$(notdir $@).$(2) \
-		-o $(dir $@)$(1) $(START_FILE-$(notdir $@)) $^ \
+	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) -Wl,-soname=$(notdir $@).$(2) \
+		-nostdlib -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) $^ \
 		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
 	$(Q)$(LN) -sf $(1) $@.$(2)
 	$(Q)$(LN) -sf $(1) $@

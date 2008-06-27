@@ -75,7 +75,7 @@
 #undef INTERNAL_SYSCALL_NCS
 #define INTERNAL_SYSCALL_NCS(number, err, nr, args...) \
 	internal_syscall##nr (= number, , "r" (__v0), err, args)
-
+#undef internal_syscall0
 #define internal_syscall0(ncs_init, cs_init, input, err, dummy...)	\
 ({									\
 	long _sys_result;						\
@@ -97,6 +97,7 @@
 	_sys_result;							\
 })
 
+#undef internal_syscall1
 #define internal_syscall1(ncs_init, cs_init, input, err, arg1)		\
 ({									\
 	long _sys_result;						\
@@ -119,6 +120,7 @@
 	_sys_result;							\
 })
 
+#undef internal_syscall2
 #define internal_syscall2(ncs_init, cs_init, input, err, arg1, arg2)	\
 ({									\
 	long _sys_result;						\
@@ -142,6 +144,7 @@
 	_sys_result;							\
 })
 
+#undef internal_syscall3
 #define internal_syscall3(ncs_init, cs_init, input, err, arg1, arg2, arg3)\
 ({									\
 	long _sys_result;						\
@@ -166,6 +169,7 @@
 	_sys_result;							\
 })
 
+#undef internal_syscall4
 #define internal_syscall4(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4)\
 ({									\
 	long _sys_result;						\
@@ -196,6 +200,7 @@
    of GCC 3.4.3, this is sufficient.  */
 #define FORCE_FRAME_POINTER alloca (4)
 
+#undef internal_syscall5
 #define internal_syscall5(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4, arg5)\
 ({									\
 	long _sys_result;						\
@@ -225,6 +230,7 @@
 	_sys_result;							\
 })
 
+#undef internal_syscall6
 #define internal_syscall6(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4, arg5, arg6)\
 ({									\
 	long _sys_result;						\
@@ -255,6 +261,7 @@
 	_sys_result;							\
 })
 
+#undef internal_syscall7
 #define internal_syscall7(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4, arg5, arg6, arg7)\
 ({									\
 	long _sys_result;						\

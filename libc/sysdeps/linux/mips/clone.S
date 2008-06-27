@@ -125,3 +125,4 @@ __thread_start:
 	move		a0,v0
 	jal		HIDDEN_JUMPTARGET(_exit)
 	.end  __thread_start
+weak_alias(clone, __clone)

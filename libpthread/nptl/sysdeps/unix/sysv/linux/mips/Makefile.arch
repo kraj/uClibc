@@ -5,7 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-libpthread_SSRC = pt-clone.S pt-vfork.S
+libpthread_SSRC = pt-vfork.S
 libpthread_CSRC = pthread_once.c
 
 libc_a_CSRC = fork.c

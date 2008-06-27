@@ -20,21 +20,20 @@
 /* This is tricky.  GCC doesn't like #include_next in the primary
    source file and even if it did, the first #include_next is this
    exact file anyway.  */
-#ifndef LIBC_SIGACTION
-
 #include <pthreadP.h>
+#include <features.h>
+#include <errno.h>
+#include <signal.h>
 
+extern __typeof(sigaction) __libc_sigaction;
+extern __typeof(sigaction) __sigaction;
 /* We use the libc implementation but we tell it to not allow
    SIGCANCEL or SIGTIMER to be handled.  */
-# define LIBC_SIGACTION	1
-
-# include <sigaction.c>
-
 int
-sigaction (int sig, const struct sigaction *act, struct sigaction *oact);
-
-int
-__sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+__sigaction (sig, act, oact)
+     int sig;
+     const struct sigaction *act;
+     struct sigaction *oact;
 {
   if (__builtin_expect (sig == SIGCANCEL || sig == SIGSETXID, 0))
     {
@@ -47,8 +46,3 @@ __sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 libc_hidden_proto(sigaction)
 weak_alias (__sigaction, sigaction)
 libc_hidden_weak(sigaction)
-#else
-
-# include_next <sigaction.c>
-
-#endif /* LIBC_SIGACTION */
