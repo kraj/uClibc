@@ -22,6 +22,8 @@
 
 #include <features.h>
 #include <sys/socket.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 __BEGIN_DECLS
 
@@ -70,5 +72,18 @@ extern int getifaddrs (struct ifaddrs **__ifap) __THROW;
 extern void freeifaddrs (struct ifaddrs *__ifa)  __THROW;
 
 __END_DECLS
+
+struct in6addrinfo
+{
+  enum {
+    in6ai_deprecated = 1,
+    in6ai_temporary = 2,
+    in6ai_homeaddress = 4
+  } flags;
+  uint32_t addr[4];
+};
+
+extern void __check_pf (bool *seen_ipv4, bool *seen_ipv6)
+  attribute_hidden;
 
 #endif /* ifaddrs.h */
