@@ -22,7 +22,7 @@
 #include <alloca.h>
 #include <assert.h>
 #include <errno.h>
-#include <ifaddrs.h>
+#include "ifaddrs.h"
 #include <net/if.h>
 #include <netinet/in.h>
 #include <netpacket/packet.h>
