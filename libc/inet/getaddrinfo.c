@@ -1,6 +1,8 @@
 /*
  * Copyright 1996 by Craig Metz 
  * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ * Portions from the GNU C library,
+ * Copyright (C) 2003, 2006 Free Software Foundation, Inc.
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
@@ -157,29 +159,85 @@ static const struct addrinfo default_hints =
 { 0, PF_UNSPEC, 0, 0, 0, NULL, NULL, NULL };
 #endif
 
+#define SEEN_IPV4 1
+#define SEEN_IPV6 2
+
+static unsigned __check_pf (void)
+{
+  unsigned seen = 0;
+#if defined __UCLIBC_SUPPORT_AI_ADDRCONFIG__
+  {
+    /* Get the interface list via getifaddrs.  */
+    struct ifaddrs *ifa = NULL;
+    struct ifaddrs *runp;
+    if (getifaddrs (&ifa) != 0)
+    {
+      /* We cannot determine what interfaces are available.  Be
+      optimistic.  */
+#if defined __UCLIBC_HAS_IPV4__
+      seen |= SEEN_IPV4;
+#endif /* __UCLIBC_HAS_IPV4__ */
+#if defined __UCLIBC_HAS_IPV6__
+      seen |= SEEN_IPV6;
+#endif /* __UCLIBC_HAS_IPV6__ */
+      return seen;
+    }
+
+    for (runp = ifa; runp != NULL; runp = runp->ifa_next)
+#if defined __UCLIBC_HAS_IPV4__
+      if (runp->ifa_addr->sa_family == PF_INET)
+        seen |= SEEN_IPV4;
+#endif /* __UCLIBC_HAS_IPV4__ */
+#if defined __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__
+      else /* can't be both at once */
+#endif /* __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__ */
+#if defined __UCLIBC_HAS_IPV6__
+      if (runp->ifa_addr->sa_family == PF_INET6)
+        seen |= SEEN_IPV6;
+#endif /* __UCLIBC_HAS_IPV6__ */
+
+    (void) freeifaddrs (ifa);
+  }
+#else
+  /* AI_ADDRCONFIG is disabled, assume both ipv4 and ipv6 available. */
+#if defined __UCLIBC_HAS_IPV4__
+  seen |= SEEN_IPV4;
+#endif /* __UCLIBC_HAS_IPV4__ */
+#if defined __UCLIBC_HAS_IPV6__
+  seen |= SEEN_IPV6;
+#endif /* __UCLIBC_HAS_IPV6__ */
+
+#endif /* __UCLIBC_SUPPORT_AI_ADDRCONFIG__ */
+  return seen;
+}
+
 static int addrconfig (sa_family_t af)
 {
     int s;
     int ret;
     int saved_errno = errno;
-    bool seen_ipv4;
-    bool seen_ipv6;
+    unsigned seen;
 
-    __check_pf(&seen_ipv4, &seen_ipv6);
+    seen = __check_pf();
+#if defined __UCLIBC_HAS_IPV4__
     if (af == AF_INET)
-	ret = (int)seen_ipv4;
-    else if (af == AF_INET6)
-	ret = (int)seen_ipv6;
+	ret = seen & SEEN_IPV4;
     else
+#endif
+#if defined __UCLIBC_HAS_IPV6__
+    if (af == AF_INET6)
+	ret = seen & SEEN_IPV6;
+    else
+#endif
     {
 	s = socket(af, SOCK_DGRAM, 0);
-	if (s < 0)
-	    ret = (errno == EMFILE) ? 1 : 0;
-	else
-	{
-	    close(s);
-	    ret = 1;
+	ret = 1; /* Assume PF_UNIX. */
+	if (s < 0) {
+	    if (errno != EMFILE)
+	        ret = 0;
 	}
+	else
+	    close(s);
     }
     __set_errno (saved_errno);
     return ret;
@@ -384,9 +442,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
     int rc;
     int v4mapped = (req->ai_family == PF_UNSPEC || req->ai_family == PF_INET6) &&
 	(req->ai_flags & AI_V4MAPPED);
-    bool seen_ipv4;
-    bool seen_ipv6;
-    __check_pf(&seen_ipv4, &seen_ipv6);
+    unsigned seen = __check_pf();
 
     if (req->ai_protocol || req->ai_socktype)
     {
@@ -574,7 +630,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 
 #if defined __UCLIBC_HAS_IPV6__
 	    if (req->ai_family == AF_UNSPEC || req->ai_family == AF_INET6)
-		if (!(req->ai_flags & AI_ADDRCONFIG) || seen_ipv6)
+		if (!(req->ai_flags & AI_ADDRCONFIG) || (seen & SEEN_IPV6))
 		    gethosts (AF_INET6, struct in6_addr);
 #endif
 	    no_inet6_data = no_data;
@@ -582,7 +638,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	    if (req->ai_family == AF_INET ||
 		(!v4mapped && req->ai_family == AF_UNSPEC) ||
 		(v4mapped && (no_inet6_data != 0 || (req->ai_flags & AI_ALL))))
-		if (!(req->ai_flags & AI_ADDRCONFIG) || seen_ipv4)
+		if (!(req->ai_flags & AI_ADDRCONFIG) || (seen & SEEN_IPV4))
 		    gethosts (AF_INET, struct in_addr);
 
 	    if (no_data != 0 && no_inet6_data != 0)
@@ -715,10 +771,10 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	    for (st2 = st; st2 != NULL; st2 = st2->next)
 	    {
 		if (req->ai_flags & AI_ADDRCONFIG) {
-		    if (family == AF_INET && !seen_ipv4)
+		    if (family == AF_INET && !(seen & SEEN_IPV4))
 			break;
 #if defined __UCLIBC_HAS_IPV6__
-		    else if (family == AF_INET6 && !seen_ipv6)
+		    else if (family == AF_INET6 && !(seen & SEEN_IPV6))
 			break;
 #endif
 		}

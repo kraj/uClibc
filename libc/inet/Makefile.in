@@ -14,7 +14,7 @@ CSRC :=
 ifneq ($(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6),)
 CSRC +=	getservice.c getproto.c hostid.c getnetent.c getnetbynm.c getnetbyad.c \
 	inet_net.c herror.c if_index.c gai_strerror.c getaddrinfo.c \
-	ether_addr.c ntohl.c ifaddrs.c ntop.c check_pf.c
+	ether_addr.c ntohl.c ifaddrs.c ntop.c
 endif
 ifeq ($(UCLIBC_HAS_IPV6),y)
 CSRC += in6_addr.c
