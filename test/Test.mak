@@ -32,8 +32,8 @@ TARGETS   += $(G_TARGETS)
 endif
 CLEAN_TARGETS := $(U_TARGETS) $(G_TARGETS)
 COMPILE_TARGETS :=  $(TARGETS)
-TARGETS += $(SHELL_TESTS)
 RUN_TARGETS := $(patsubst %,%.exe,$(TARGETS))
+TARGETS += $(SHELL_TESTS)
 
 define binary_name
 $(patsubst %.exe,%,$@)
@@ -73,12 +73,10 @@ endef
 test check all: run
 run: $(RUN_TARGETS) compile
 $(RUN_TARGETS): $(TARGETS)
-ifeq ($(shell echo "$(SHELL_TESTS)"|grep "$(binary_name)"),)
 	$(exec_test)
 	$(diff_test)
 ifeq ($(UCLIBC_ONLY),)
 	$(uclibc_glibc_diff_test)
-endif
 endif
 
 compile: $(COMPILE_TARGETS)
