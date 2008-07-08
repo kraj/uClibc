@@ -66,7 +66,7 @@ HEADERS_BITS_SUBARCH :=
 ifneq ($(TARGET_SUBARCH),)
 HEADERS_BITS_SUBARCH := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/*.h))
 endif
-HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_ARCH) $(HEADERS_BITS_SUBARCH),$(HEADERS_BITS_COMMON))
+HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_ARCH) $(HEADERS_BITS_SUBARCH) $(HEADERS_BITS_PTHREAD),$(HEADERS_BITS_COMMON))
 
 HEADERS_SYS_COMMON := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/common/sys/*.h))
 HEADERS_SYS_ARCH := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/sys/*.h))
@@ -152,6 +152,15 @@ include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 		mv -f $$tmp include/bits/sysnum.h; \
 	fi
 
+$(LOCAL_INSTALL_PATH):
+	$(Q)$(MAKE) PREFIX=$(shell pwd)/ RUNTIME_PREFIX=./ \
+	DEVEL_PREFIX=$(LOCAL_INSTALL_PATH)/usr/ \
+	HOSTCC="$(HOSTCC)" \
+	install_kernel_headers
+	$(Q)$(MAKE) PREFIX=$(shell pwd)/ RUNTIME_PREFIX=./ \
+	DEVEL_PREFIX=$(LOCAL_INSTALL_PATH)/usr/ \
+	HOSTCC="$(HOSTCC)" \
+	install_dev
 
 install: install_runtime install_dev
 
@@ -451,7 +460,8 @@ clean:
 	$(Q)$(RM) -r lib include/bits
 	$(RM) ldso/*/*.a libpthread/*/*.a libc/*.a libcrypt/*.a libintl/*.a \
 		libm/*.a libnsl/*.a libpthread/*.a libresolv/*.a librt/*.a \
-		libutil/*.a lib/*.a
+		libutil/*.a lib/*.a \
+		include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
 	$(MAKE) objclean-y headers_clean-y
 	$(MAKE) -s -C test clean
 	$(MAKE) -C utils utils_clean
@@ -466,6 +476,7 @@ clean:
 	fi
 	@$(RM) include/linux include/asm*
 	$(RM) $(top_builddir)extra/scripts/unifdef
+	$(RM) -r $(LOCAL_INSTALL_PATH)
 
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ -o -name .\*.dep \) -exec $(RM) {} \;
@@ -481,3 +492,6 @@ dist release:
 
 test check:
 	$(Q)$(MAKE) -C test
+
+test_compile: $(LOCAL_INSTALL_PATH)
+	$(Q)$(MAKE) -C test compile

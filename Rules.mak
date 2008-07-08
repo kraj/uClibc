@@ -632,3 +632,5 @@ ifeq ($(UCLIBC_CTOR_DTOR),y)
 SHARED_START_FILES:=$(top_builddir)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
 SHARED_END_FILES:=$(LIBGCC_DIR)crtendS.o $(top_builddir)lib/crtn.o
 endif
+
+LOCAL_INSTALL_PATH := install_dir
