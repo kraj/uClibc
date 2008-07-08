@@ -717,7 +717,7 @@ extern int setresgid (__gid_t __rgid, __gid_t __egid, __gid_t __sgid)
 #endif
 
 
-#ifdef __ARCH_USE_MMU__
+#if defined __UCLIBC_HAS_STUBS__ || defined __ARCH_USE_MMU__
 /* Clone the calling process, creating an exact copy.
    Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
