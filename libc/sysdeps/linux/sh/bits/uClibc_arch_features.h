@@ -22,7 +22,7 @@
 #undef __UCLIBC_BROKEN_CREATE_MODULE__
 
 /* does your target have to worry about older [gs]etrlimit() ? */
-#define __UCLIBC_HANDLE_OLDER_RLIMIT__
+#undef __UCLIBC_HANDLE_OLDER_RLIMIT__
 
 /* does your target have an asm .set ? */
 #define __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
