@@ -6,7 +6,7 @@
 #
 
 libpthread_SSRC = pt-vfork.S
-libpthread_CSRC = pthread_once.c
+libpthread_CSRC = pthread_once.c pt-__syscall_rt_sigaction.c
 
 libc_a_CSRC = fork.c
 
