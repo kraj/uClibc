@@ -7,6 +7,10 @@ include $(top_builddir)Rules.mak
 
 include Makefile.kconfig
 
+ifeq ($(findstring mconf,$(MAKECMDGOALS)),mconf)
+hostprogs-y += mconf
+endif
+
 -include .depend
 .depend: $(wildcard *.h *.c)
 	$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) -MM *.c > .depend 2>/dev/null || :
@@ -30,7 +34,7 @@ $(obj)/%:: $(src)/%_shipped
 	$(Q)cat $< > $@
 
 clean:
-	$(Q)rm -f $(clean-files)
+	$(Q)rm -f $(clean-files) conf
 distclean: clean
 	$(Q)rm -f $(lxdialog) $(conf-objs) $(mconf-objs) $(kxgettext-objs) \
 		$(hostprogs-y) $(qconf-cxxobjs) $(qconf-objs) $(gconf-objs)
