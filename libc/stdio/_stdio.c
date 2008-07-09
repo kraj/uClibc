@@ -7,7 +7,11 @@
 
 #include "_stdio.h"
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
+#if defined (__UCLIBC_HAS_THREADS__) && defined (__USE_STDIO_FUTEXES__)
+#include <bits/stdio-lock.h>
+#endif
+
+libc_hidden_proto(memcpy)
 libc_hidden_proto(isatty)
 
 /* This is pretty much straight from uClibc, but with one important
@@ -160,18 +164,21 @@ FILE *_stdio_openlist = _stdio_streams;
 
 # ifdef __UCLIBC_HAS_THREADS__
 #  ifdef __USE_STDIO_FUTEXES__
-#  define __UCLIBC_IO_MUTEX_INITIALIZER _IO_lock_initializer
+_IO_lock_t _stdio_openlist_add_lock = _IO_lock_initializer;
 #  else
-#  define __UCLIBC_IO_MUTEX_INITIALIZER PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+__UCLIBC_MUTEX_INIT(_stdio_openlist_add_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 #  endif
-
-__UCLIBC_IO_MUTEX_INIT(_stdio_openlist_add_lock, __UCLIBC_IO_MUTEX_INITIALIZER);
-#  ifdef __STDIO_BUFFERS
-__UCLIBC_IO_MUTEX_INIT(_stdio_openlist_del_lock, __UCLIBC_IO_MUTEX_INITIALIZER);
+#ifdef __STDIO_BUFFERS
+#  ifdef __USE_STDIO_FUTEXES__
+_IO_lock_t _stdio_openlist_del_lock = _IO_lock_initializer;
+#  else
+__UCLIBC_MUTEX_INIT(_stdio_openlist_del_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
+#  endif
 volatile int _stdio_openlist_use_count = 0;
 int _stdio_openlist_del_count = 0;
-#  endif
+#endif
 # endif
+
 #endif
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_THREADS__
@@ -179,6 +186,7 @@ int _stdio_openlist_del_count = 0;
 /* 2 if threading not initialized and 0 otherwise; */
 int _stdio_user_locking = 2;
 
+#ifndef __USE_STDIO_FUTEXES__
 void attribute_hidden __stdio_init_mutex(__UCLIBC_MUTEX_TYPE *m)
 {
 	const __UCLIBC_MUTEX_STATIC(__stdio_mutex_initializer,
@@ -186,6 +194,7 @@ void attribute_hidden __stdio_init_mutex(__UCLIBC_MUTEX_TYPE *m)
 
 	memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
 }
+#endif
 
 #endif
 /**********************************************************************/
@@ -204,7 +213,7 @@ void attribute_hidden _stdio_term(void)
 	STDIO_INIT_MUTEX(_stdio_openlist_add_lock);
 #warning check
 #ifdef __STDIO_BUFFERS
-	STDIO_INIT_MUTEX(_stdio_openlist_del_lock);
+	STDIO_INIT_MUTEX(ptr->__lock); /* Shouldn't be necessary, but... */
 #endif
 
 	/* Next we need to worry about the streams themselves.  If a stream
@@ -226,7 +235,11 @@ void attribute_hidden _stdio_term(void)
 		}
 
 		ptr->__user_locking = 1; /* Set locking mode to "by caller". */
-		STDIO_INIT_MUTEX(ptr->__lock); /* Shouldn't be necessary, but... */
+#ifdef __USE_STDIO_FUTEXES__
+		_IO_lock_init (ptr->_lock);
+#else
+		__stdio_init_mutex(&ptr->__lock); /* Shouldn't be necessary, but... */
+#endif
 	}
 #endif
 

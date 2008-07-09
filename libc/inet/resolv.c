@@ -155,6 +155,7 @@
 #include <sys/utsname.h>
 #include <sys/un.h>
 #include <bits/uClibc_mutex.h>
+#include <tls.h>
 
 /* poll() is not supported in kernel <= 2.0, therefore if __NR_poll is
  * not available, we assume an old Linux kernel is in use and we will

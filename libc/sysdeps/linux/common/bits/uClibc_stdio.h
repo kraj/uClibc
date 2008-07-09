@@ -117,6 +117,9 @@
 
 /**********************************************************************/
 #include <bits/uClibc_mutex.h>
+#ifdef __USE_STDIO_FUTEXES__
+#include <bits/stdio-lock.h>
+#endif
 
 /* user_locking
  * 0 : do auto locking/unlocking
@@ -132,28 +135,64 @@
 
 #define __STDIO_AUTO_THREADLOCK_VAR						\
         __UCLIBC_MUTEX_AUTO_LOCK_VAR(__infunc_user_locking)
+#ifdef __USE_STDIO_FUTEXES__
+
+#define __STDIO_SET_USER_LOCKING(__stream)	((__stream)->__user_locking = 1)
+
+#define __STDIO_AUTO_THREADLOCK(__stream)                               \
+  if ((__infunc_user_locking = (__stream)->__user_locking) == 0) {	\
+    _IO_lock_lock((__stream)->_lock);                                   \
+  }
+
+#define __STDIO_AUTO_THREADUNLOCK(__stream)				\
+  if (__infunc_user_locking == 0) {					\
+    _IO_lock_unlock((__stream)->_lock);                                 \
+  }
+
+#define __STDIO_ALWAYS_THREADLOCK(__stream)     \
+  _IO_lock_lock((__stream)->_lock)
+
+#define __STDIO_ALWAYS_THREADTRYLOCK(__stream)  \
+  _IO_lock_trylock((__stream)->_lock)
+
+#define __STDIO_ALWAYS_THREADUNLOCK(__stream)   \
+  _IO_lock_unlock((__stream)->_lock)
+
+#define __STDIO_ALWAYS_THREADLOCK_CANCEL_UNSAFE(__stream)       \
+  _IO_lock_lock_cancel_unsafe((__stream)->__lock)
+
+#define __STDIO_ALWAYS_THREADTRYLOCK_CANCEL_UNSAFE(__stream)    \
+  _IO_lock_trylock_cancel_unsafe((__stream)->__lock)
+
+#define __STDIO_ALWAYS_THREADUNLOCK_CANCEL_UNSAFE(__stream)     \
+  _IO_lock_unlock_cancel_unsafe((__stream)->__lock)
+
+#else /* __USE_STDIO_FUTEXES__ */
+
 
 #define __STDIO_AUTO_THREADLOCK(__stream)					\
-        __UCLIBC_IO_MUTEX_AUTO_LOCK((__stream)->__lock, __infunc_user_locking,	\
+        __UCLIBC_MUTEX_AUTO_LOCK((__stream)->__lock, __infunc_user_locking,	\
 	(__stream)->__user_locking)
 
 #define __STDIO_AUTO_THREADUNLOCK(__stream)					\
-        __UCLIBC_IO_MUTEX_AUTO_UNLOCK((__stream)->__lock, __infunc_user_locking)
+        __UCLIBC_MUTEX_AUTO_UNLOCK((__stream)->__lock, __infunc_user_locking)
 
 #define __STDIO_ALWAYS_THREADLOCK(__stream)					\
-        __UCLIBC_IO_MUTEX_LOCK((__stream)->__lock)
+        __UCLIBC_MUTEX_LOCK((__stream)->__lock)
 
 #define __STDIO_ALWAYS_THREADUNLOCK(__stream)					\
-        __UCLIBC_IO_MUTEX_UNLOCK((__stream)->__lock)
+        __UCLIBC_MUTEX_UNLOCK((__stream)->__lock)
 
 #define __STDIO_ALWAYS_THREADLOCK_CANCEL_UNSAFE(__stream)			\
-        __UCLIBC_IO_MUTEX_LOCK_CANCEL_UNSAFE((__stream)->__lock)
+        __UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE((__stream)->__lock)
 
 #define __STDIO_ALWAYS_THREADTRYLOCK_CANCEL_UNSAFE(__stream)			\
-        __UCLIBC_IO_MUTEX_TRYLOCK_CANCEL_UNSAFE((__stream)->__lock)
+        __UCLIBC_MUTEX_TRYLOCK_CANCEL_UNSAFE((__stream)->__lock)
 
 #define __STDIO_ALWAYS_THREADUNLOCK_CANCEL_UNSAFE(__stream)			\
-        __UCLIBC_IO_MUTEX_UNLOCK_CANCEL_UNSAFE((__stream)->__lock)
+        __UCLIBC_MUTEX_UNLOCK_CANCEL_UNSAFE((__stream)->__lock)
+
+#endif
 
 #ifdef __UCLIBC_HAS_THREADS__
 #define __STDIO_SET_USER_LOCKING(__stream)	((__stream)->__user_locking = 1)
@@ -161,12 +200,10 @@
 #define __STDIO_SET_USER_LOCKING(__stream)		((void)0)
 #endif
 
-#ifdef __UCLIBC_HAS_THREADS__
 #ifdef __USE_STDIO_FUTEXES__
 #define STDIO_INIT_MUTEX(M) _IO_lock_init(M)
 #else
 #define STDIO_INIT_MUTEX(M) __stdio_init_mutex(& M)
-#endif
 #endif
 
 /**********************************************************************/
@@ -283,7 +320,11 @@ struct __STDIO_FILE_STRUCT {
 #endif
 #ifdef __UCLIBC_HAS_THREADS__
 	int __user_locking;
-	__UCLIBC_IO_MUTEX(__lock);
+#ifdef __USE_STDIO_FUTEXES__
+	_IO_lock_t _lock;
+#else
+	__UCLIBC_MUTEX(__lock);
+#endif
 #endif
 /* Everything after this is unimplemented... and may be trashed. */
 #if __STDIO_BUILTIN_BUF_SIZE > 0
@@ -359,9 +400,17 @@ extern void _stdio_term(void) attribute_hidden;
 extern struct __STDIO_FILE_STRUCT *_stdio_openlist;
 
 #ifdef __UCLIBC_HAS_THREADS__
-__UCLIBC_IO_MUTEX_EXTERN(_stdio_openlist_add_lock);
+#ifdef __USE_STDIO_FUTEXES__
+extern _IO_lock_t _stdio_openlist_add_lock;
+#else
+__UCLIBC_MUTEX_EXTERN(_stdio_openlist_add_lock);
+#endif
 #ifdef __STDIO_BUFFERS
-__UCLIBC_IO_MUTEX_EXTERN(_stdio_openlist_del_lock);
+#ifdef __USE_STDIO_FUTEXES__
+extern _IO_lock_t _stdio_openlist_del_lock;
+#else
+__UCLIBC_MUTEX_EXTERN(_stdio_openlist_del_lock);
+#endif
 extern volatile int _stdio_openlist_use_count; /* _stdio_openlist_del_lock */
 extern int _stdio_openlist_del_count; /* _stdio_openlist_del_lock */
 #endif
