@@ -44,7 +44,7 @@ libc_hidden_proto(__assert)
 
 #define ASSERT_SHOW_PROGNAME 1
 
-static int in_assert;			/* bss inits to 0. */
+static smallint in_assert;			/* bss inits to 0. */
 
 void attribute_noreturn __assert(const char *assertion, const char * filename,
 			  int linenumber, register const char * function)

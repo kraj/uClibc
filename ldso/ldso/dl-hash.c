@@ -32,14 +32,6 @@
 
 
 /* Various symbol table handling functions, including symbol lookup */
-
-/*
- * This is the start of the linked list that describes all of the files present
- * in the system with pointers to all of the symbol, string, and hash tables,
- * as well as all of the other good stuff in the binary.
- */
-struct elf_resolve *_dl_loaded_modules = NULL;
-
 /*
  * This is the list of modules that are loaded when the image is first
  * started.  As we add more via dlopen, they get added into other
@@ -96,7 +88,7 @@ static inline Elf_Symndx _dl_elf_hash(const unsigned char *name)
  * externals properly.
  */
 struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
-	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
+	DL_LOADADDR_TYPE loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
 	attribute_unused unsigned long dynamic_size)
 {
 	Elf_Symndx *hash_addr;
@@ -152,7 +144,8 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 		hash_addr += tpnt->nbucket;
 		tpnt->chains = hash_addr;
 	}
-	tpnt->loadaddr = tpnt->mapaddr = (ElfW(Addr))loadaddr;
+	tpnt->loadaddr = loadaddr;
+	tpnt->mapaddr = DL_RELOC_ADDR(loadaddr, 0);
 	for (i = 0; i < DYNAMIC_SIZE; i++)
 		tpnt->dynamic_info[i] = dynamic_info[i];
 	return tpnt;
@@ -219,11 +212,14 @@ _dl_lookup_gnu_hash(struct elf_resolve *tpnt, ElfW(Sym) *symtab, unsigned long h
 
 	unsigned int hashbit1 = hash & (__ELF_NATIVE_CLASS - 1);
 	unsigned int hashbit2 = ((hash >> tpnt->l_gnu_shift) & (__ELF_NATIVE_CLASS - 1));
-
 	_dl_assert (bitmask != NULL);
 
 	if (unlikely((bitmask_word >> hashbit1) & (bitmask_word >> hashbit2) & 1)) {
-		Elf32_Word bucket = tpnt->l_gnu_buckets[hash % tpnt->nbucket];
+		unsigned long rem;
+		Elf32_Word bucket;
+
+		do_rem (rem, hash, tpnt->nbucket);
+		bucket = tpnt->l_gnu_buckets[rem];
 
 		if (bucket != 0) {
 			const Elf32_Word *hasharr = &tpnt->l_gnu_chain_zero[bucket];

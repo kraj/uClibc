@@ -11,5 +11,5 @@ void funlockfile(FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
-	__STDIO_ALWAYS_THREADUNLOCK(stream);
+	__STDIO_ALWAYS_THREADUNLOCK_CANCEL_UNSAFE(stream);
 }

@@ -29,10 +29,7 @@ libc_hidden_proto(sigaction)
 extern sigset_t _sigintr attribute_hidden;	/* Defined in signal.c.  */
 #endif
 
-int
-siginterrupt (sig, interrupt)
-     int sig;
-     int interrupt;
+int siginterrupt (int sig, int interrupt)
 {
 #ifdef	SA_RESTART
   struct sigaction action;

@@ -31,7 +31,8 @@
 #include <sys/statfs.h>
 //#include <sys/statvfs.h>
 
-libc_hidden_proto(statfs)
+extern __typeof(statfs) __libc_statfs;
+libc_hidden_proto(__libc_statfs)
 libc_hidden_proto(stat)
 
 
@@ -83,7 +84,7 @@ pathconf (const char *path, int name)
 	struct statfs buf;
 	int save_errno = errno;
 
-	if (statfs (path, &buf) < 0)
+	if (__libc_statfs (path, &buf) < 0)
 	  {
 	    if (errno == ENOSYS)
 	      {

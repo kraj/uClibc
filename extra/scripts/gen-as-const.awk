@@ -13,6 +13,7 @@ BEGIN { started = 0 }
 /^#/ { print; next }
 
 NF >= 1 && !started {
+  printf "void dummy(void);\n";
   print "void dummy(void) {";
   started = 1;
 }

@@ -55,7 +55,7 @@ static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
 libc_hidden_proto(fwprintf)
 #endif
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(xdr_bool)
 libc_hidden_proto(fputs)
 

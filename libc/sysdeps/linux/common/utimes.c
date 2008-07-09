@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <utime.h>
 #include <sys/time.h>
 
@@ -35,4 +35,5 @@ int utimes(const char *file, const struct timeval tvp[2])
 	return utime(file, times);
 }
 #endif
+link_warning(utimes, "the use of LEGACY `utimes' is discouraged, use `utime'")
 libc_hidden_def(utimes)

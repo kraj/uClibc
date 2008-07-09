@@ -9,6 +9,8 @@
 #include <sys/resource.h>
 #include <limits.h>
 
+/* XXX: _BSD || _XOPEN_SOURCE >= 500 */
+#if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 libc_hidden_proto(getdtablesize)
 
 libc_hidden_proto(getrlimit)
@@ -27,3 +29,4 @@ int getdtablesize (void)
   return getrlimit (RLIMIT_NOFILE, &ru) < 0 ? __LOCAL_OPEN_MAX : ru.rlim_cur;
 }
 libc_hidden_def(getdtablesize)
+#endif

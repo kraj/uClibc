@@ -88,7 +88,7 @@ typedef freg_t fpregset_t[NFPREG];
 typedef struct
   {
     unsigned int oldmask;
-	
+
     /* CPU registers */
     gregset_t gregs;
     unsigned int pc;
@@ -105,7 +105,7 @@ typedef struct
     unsigned int fpscr;
     unsigned int fpul;
     unsigned int ownedfp;
-#endif	
+#endif
   } mcontext_t;
 
 /* Userlevel context.  */

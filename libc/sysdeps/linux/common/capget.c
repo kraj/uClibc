@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 int capget(void *header, void *data);
 #ifdef __NR_capget
 _syscall2(int, capget, void *, header, void *, data);

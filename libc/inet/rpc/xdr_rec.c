@@ -60,7 +60,7 @@
 libc_hidden_proto(fwprintf)
 #endif
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(fputs)
 libc_hidden_proto(lseek)
 

@@ -30,11 +30,11 @@
 #include <string.h>
 #include <ctype.h>
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memset)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(sprintf)
 libc_hidden_proto(tolower)
 
@@ -126,6 +126,8 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 		words[i / 2] = (src[i] << 8) | src[i + 1];
 	best.base = -1;
 	cur.base = -1;
+	best.len = best.len; /* shutting up compiler warning */
+	cur.len = cur.len;   /* shutting up compiler warning */
 	for (i = 0; i < 8; i++) {
 		if (words[i] == 0) {
 			if (cur.base == -1)

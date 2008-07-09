@@ -12,6 +12,7 @@ include $(top_srcdir)libc/misc/assert/Makefile.in
 include $(top_srcdir)libc/misc/ctype/Makefile.in
 include $(top_srcdir)libc/misc/dirent/Makefile.in
 include $(top_srcdir)libc/misc/error/Makefile.in
+include $(top_srcdir)libc/misc/elf/Makefile.in
 include $(top_srcdir)libc/misc/file/Makefile.in
 include $(top_srcdir)libc/misc/fnmatch/Makefile.in
 include $(top_srcdir)libc/misc/ftw/Makefile.in

@@ -2,13 +2,14 @@
 /*
  * sigsuspend() for uClibc
  *
- * Copyright (C) 2006 by Steven J. Hill <sjhill@realitydiluted.com>
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
+
+#if defined __USE_POSIX
 #include <signal.h>
 #undef sigsuspend
 
@@ -55,3 +56,4 @@ int sigsuspend(const sigset_t * set)
 }
 #endif
 libc_hidden_def(sigsuspend)
+#endif

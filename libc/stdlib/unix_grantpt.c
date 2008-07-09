@@ -30,7 +30,7 @@
 #include <unistd.h>
 #include "pty-private.h"
 
-libc_hidden_proto(memchr)
+/* Experimentally off - libc_hidden_proto(memchr) */
 libc_hidden_proto(getgid)
 libc_hidden_proto(getuid)
 libc_hidden_proto(setrlimit)

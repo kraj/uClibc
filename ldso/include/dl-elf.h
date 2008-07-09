@@ -104,10 +104,12 @@ extern void _dl_protect_relro (struct elf_resolve *l);
 # define DT_GNU_HASH_IDX (DT_RELCONT_IDX + 1)
 #endif
 
-extern void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void *debug_addr, ElfW(Addr) load_off);
+extern void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
+                                   void *debug_addr, DL_LOADADDR_TYPE load_off);
 
 static __always_inline
-void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void *debug_addr, ElfW(Addr) load_off)
+void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
+                             void *debug_addr, DL_LOADADDR_TYPE load_off)
 {
 	for (; dpnt->d_tag; dpnt++) {
 		if (dpnt->d_tag < DT_NUM) {
@@ -139,10 +141,10 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void
 			if (dpnt->d_tag == DT_FLAGS_1 &&
 			    (dpnt->d_un.d_val & DF_1_NOW))
 				dynamic_info[DT_BIND_NOW] = 1;
-#ifdef __LDSO_GNU_HASH_SUPPORT__				
+#ifdef __LDSO_GNU_HASH_SUPPORT__
 			if (dpnt->d_tag == DT_GNU_HASH)
 				dynamic_info[DT_GNU_HASH_IDX] = dpnt->d_un.d_ptr;
-#endif				
+#endif
 		}
 #ifdef ARCH_DYNAMIC_INFO
 		else {
@@ -153,8 +155,8 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void
 #define ADJUST_DYN_INFO(tag, load_off) \
 	do { \
 		if (dynamic_info[tag]) \
-			dynamic_info[tag] += load_off; \
-	} while(0)
+			dynamic_info[tag] = (unsigned long) DL_RELOC_ADDR(load_off, dynamic_info[tag]); \
+	} while (0)
 	ADJUST_DYN_INFO(DT_HASH, load_off);
 	ADJUST_DYN_INFO(DT_PLTGOT, load_off);
 	ADJUST_DYN_INFO(DT_STRTAB, load_off);
@@ -163,7 +165,7 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void
 	ADJUST_DYN_INFO(DT_JMPREL, load_off);
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 	ADJUST_DYN_INFO(DT_GNU_HASH_IDX, load_off);
-#endif	
+#endif
 #undef ADJUST_DYN_INFO
 }
 
@@ -180,6 +182,11 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void
 # define ELF_RTYPE_CLASS_COPY	(0x2)
 #endif
 #define ELF_RTYPE_CLASS_PLT	(0x1)
+
+/* dlsym() calls _dl_find_hash with this value, that enables
+   DL_FIND_HASH_VALUE to return something different than the symbol
+   itself, e.g., a function descriptor.  */
+#define ELF_RTYPE_CLASS_DLSYM 0x80000000
 
 
 /* Convert between the Linux flags for page protections and the

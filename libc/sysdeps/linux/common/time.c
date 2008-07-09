@@ -7,11 +7,11 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <time.h>
 #include <sys/time.h>
 
-libc_hidden_proto(time)
+/* Experimentally off - libc_hidden_proto(time) */
 
 #ifdef __NR_time
 _syscall1(time_t, time, time_t *, t);

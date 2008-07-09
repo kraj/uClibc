@@ -26,8 +26,8 @@
 #include <string.h>
 #include <error.h>
 
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strerror)
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strerror) */
 libc_hidden_proto(fprintf)
 libc_hidden_proto(exit)
 libc_hidden_proto(putc)
@@ -44,7 +44,7 @@ int error_one_per_line;
 /* If NULL, error will flush stdout, then print on stderr the program
    name, a colon and a space.  Otherwise, error will call this
    function without parameters instead.  */
-/* void (*error_print_progname) (void) = NULL; */
+void (*error_print_progname) (void) = NULL;
 
 extern __typeof(error) __error attribute_hidden;
 void __error (int status, int errnum, const char *message, ...)
@@ -52,6 +52,11 @@ void __error (int status, int errnum, const char *message, ...)
     va_list args;
 
     fflush (stdout);
+
+    if (error_print_progname)
+	(*error_print_progname) ();
+    else
+	fprintf (stderr, "%s: ", __uclibc_progname);
 
     va_start (args, message);
     vfprintf (stderr, message, args);
@@ -86,6 +91,11 @@ void __error_at_line (int status, int errnum, const char *file_name,
     }
 
     fflush (stdout);
+
+    if (error_print_progname)
+	(*error_print_progname) ();
+    else
+	fprintf (stderr, "%s:", __uclibc_progname);
 
     if (file_name != NULL)
 	fprintf (stderr, "%s:%d: ", file_name, line_number);

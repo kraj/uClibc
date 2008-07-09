@@ -24,8 +24,7 @@ libc_hidden_proto(erand48_r)
 /* Global state for non-reentrant functions.  Defined in drand48-iter.c.  */
 extern struct drand48_data __libc_drand48_data attribute_hidden;
 
-double
-drand48 ()
+double drand48 (void)
 {
   double result;
 

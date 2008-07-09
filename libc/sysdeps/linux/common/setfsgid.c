@@ -7,10 +7,21 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <sys/fsuid.h>
+#include <bits/wordsize.h>
 
-#define __NR___syscall_setfsgid __NR_setfsgid
+#if (__WORDSIZE == 32 && defined(__NR_setfsgid32)) || __WORDSIZE == 64
+# ifdef __NR_setfsgid32
+#  undef __NR_setfsgid
+#  define __NR_setfsgid __NR_setfsgid32
+# endif
+
+_syscall1(int, setfsgid, gid_t, gid);
+
+#else
+
+# define __NR___syscall_setfsgid __NR_setfsgid
 static inline _syscall1(int, __syscall_setfsgid, __kernel_gid_t, gid);
 
 int setfsgid(gid_t gid)
@@ -21,3 +32,4 @@ int setfsgid(gid_t gid)
 	}
 	return (__syscall_setfsgid(gid));
 }
+#endif

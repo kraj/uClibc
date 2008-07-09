@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
@@ -29,12 +30,8 @@ libc_hidden_proto(rewind)
 libc_hidden_proto(fgets)
 libc_hidden_proto(abort)
 
-#ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-#endif
-#define LOCK	__pthread_mutex_lock(&mylock)
-#define UNLOCK	__pthread_mutex_unlock(&mylock)
+#include <bits/uClibc_mutex.h>
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 
 
@@ -45,18 +42,18 @@ static char *line = NULL;
 static struct netent net;
 static char *net_aliases[MAXALIASES];
 
-int _net_stayopen attribute_hidden;
+smallint _net_stayopen attribute_hidden;
 
 libc_hidden_proto(setnetent)
 void setnetent(int f)
 {
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     if (netf == NULL)
 	netf = fopen(NETDB, "r" );
     else
 	rewind(netf);
-    _net_stayopen |= f;
-    UNLOCK;
+    if (f) _net_stayopen = 1;
+    __UCLIBC_MUTEX_UNLOCK(mylock);
     return;
 }
 libc_hidden_def(setnetent)
@@ -64,13 +61,13 @@ libc_hidden_def(setnetent)
 libc_hidden_proto(endnetent)
 void endnetent(void)
 {
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     if (netf) {
 	fclose(netf);
 	netf = NULL;
     }
     _net_stayopen = 0;
-    UNLOCK;
+    __UCLIBC_MUTEX_UNLOCK(mylock);
 }
 libc_hidden_def(endnetent)
 
@@ -92,11 +89,11 @@ struct netent *getnetent(void)
 {
     char *p;
     register char *cp, **q;
+    struct netent *rv = NULL;
 
-    LOCK;
+    __UCLIBC_MUTEX_LOCK(mylock);
     if (netf == NULL && (netf = fopen(NETDB, "r" )) == NULL) {
-	UNLOCK;
-	return (NULL);
+	goto DONE;
     }
 again:
 
@@ -108,8 +105,7 @@ again:
 
     p = fgets(line, BUFSIZ, netf);
     if (p == NULL) {
-	UNLOCK;
-	return (NULL);
+	goto DONE;
     }
     if (*p == '#')
 	goto again;
@@ -144,7 +140,9 @@ again:
 	    *cp++ = '\0';
     }
     *q = NULL;
-    UNLOCK;
-    return (&net);
+    rv = &net;
+DONE:
+    __UCLIBC_MUTEX_UNLOCK(mylock);
+    return rv;
 }
 libc_hidden_def(getnetent)

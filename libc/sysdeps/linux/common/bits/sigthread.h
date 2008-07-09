@@ -1,11 +1,11 @@
-/* Signal handling function for threaded programs.  Generic version.
-   Copyright (C) 2000 Free Software Foundation, Inc.
+/* Signal handling function for threaded programs.
+   Copyright (C) 1998, 1999, 2000, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,9 +13,9 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
 
 #ifndef _BITS_SIGTHREAD_H
 #define _BITS_SIGTHREAD_H	1
@@ -24,15 +24,15 @@
 # error "Never include this file directly.  Use <pthread.h> instead"
 #endif
 
-/* Modify the signal mask for the calling thread.  The arguments have the
-   same meaning as for sigprocmask; in fact, this and sigprocmask might be
-   the same function.  We declare this the same on all platforms, since it
-   doesn't use any thread-related types.  */
+/* Functions for handling signals. */
+
+/* Modify the signal mask for the calling thread.  The arguments have
+   the same meaning as for sigprocmask(2). */
 extern int pthread_sigmask (int __how,
 			    __const __sigset_t *__restrict __newmask,
 			    __sigset_t *__restrict __oldmask)__THROW;
 
 /* Send signal SIGNO to the given thread. */
-extern int pthread_kill (pthread_t __thread_id, int __signo) __THROW;
+extern int pthread_kill (pthread_t __threadid, int __signo) __THROW;
 
 #endif	/* bits/sigthread.h */

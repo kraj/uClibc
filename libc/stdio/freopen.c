@@ -37,6 +37,8 @@ FILE *freopen(const char * __restrict filename, const char * __restrict mode,
 
 	__STDIO_STREAM_VALIDATE(stream);
 
+	__STDIO_OPENLIST_INC_USE;	/* Do not remove the file from the list. */
+
 	/* First, flush and close, but don't deallocate, the stream. */
 	/* This also removes the stream for the open file list. */
 	dynmode = (stream->__modeflags & (__FLAG_FREEBUF|__FLAG_FREEFILE));
@@ -48,12 +50,25 @@ FILE *freopen(const char * __restrict filename, const char * __restrict mode,
 		!= (__FLAG_READONLY|__FLAG_WRITEONLY)
 		) {
 		fclose(stream);			/* Failures are ignored. */
+		/* NOTE: fclose always does __STDIO_OPENLIST_INC_DEL_CNT.  But we don't
+		 * want to remove this FILE from the open list, even if the freopen fails.
+		 * Consider the case of a failed freopen() on stdin.  You probably still
+		 * want to be able to call freopen() again.  Similarly for other "malloc'd"
+		 * streams. */
+		__STDIO_OPENLIST_DEC_DEL_CNT;
 	}
 
 	fp = _stdio_fopen(((intptr_t) filename), mode, stream, FILEDES_ARG);
+	if (!fp) {
+		/* Don't remove stream from the open file list and (potentially) free it.
+		 * See _stdio_openlist_dec_use() in fflush.c. */
+		stream->__modeflags = __FLAG_READONLY|__FLAG_WRITEONLY|__FLAG_FAILED_FREOPEN;
+	}
 
 	/* Reset the allocation flags. */
 	stream->__modeflags |= dynmode;
+
+	__STDIO_OPENLIST_DEC_USE;
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 

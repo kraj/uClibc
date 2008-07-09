@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <grp.h>
@@ -56,8 +56,7 @@ ret_error:
 		}
 
 		i = __syscall_setgroups(size, kernel_groups);
-		if (kernel_groups)
-			free(kernel_groups);
+		free(kernel_groups);
 		return i;
 	}
 }

@@ -35,6 +35,7 @@ void* memalign(size_t alignment, size_t bytes)
     mchunkptr       remainder;      /* spare room at end to split off */
     unsigned long    remainder_size; /* its size */
     size_t size;
+    void *retval;
 
     /* If need less alignment than we give anyway, just relay to malloc */
 
@@ -51,7 +52,7 @@ void* memalign(size_t alignment, size_t bytes)
 	alignment = a;
     }
 
-    LOCK;
+    __MALLOC_LOCK;
     checked_request2size(bytes, nb);
 
     /* Strategy: find a spot within that chunk that meets the alignment
@@ -63,8 +64,8 @@ void* memalign(size_t alignment, size_t bytes)
     m  = (char*)(malloc(nb + alignment + MINSIZE));
 
     if (m == 0) {
-	UNLOCK;
-	return 0; /* propagate failure */
+	retval = 0; /* propagate failure */
+	goto DONE;
     }
 
     p = mem2chunk(m);
@@ -92,8 +93,8 @@ void* memalign(size_t alignment, size_t bytes)
 	if (chunk_is_mmapped(p)) {
 	    newp->prev_size = p->prev_size + leadsize;
 	    set_head(newp, newsize|IS_MMAPPED);
-	    UNLOCK;
-	    return chunk2mem(newp);
+	    retval = chunk2mem(newp);
+	    goto DONE;
 	}
 
 	/* Otherwise, give back leader, use the rest */
@@ -120,7 +121,10 @@ void* memalign(size_t alignment, size_t bytes)
     }
 
     check_inuse_chunk(p);
-    UNLOCK;
-    return chunk2mem(p);
+    retval = chunk2mem(p);
+
+ DONE:
+    __MALLOC_UNLOCK;
+	return retval;
 }
 

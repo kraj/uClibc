@@ -18,7 +18,7 @@
 #include <not-cancel.h>
 #endif
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(open)
 libc_hidden_proto(close)
 libc_hidden_proto(read)
@@ -57,7 +57,7 @@ long int gethostid(void)
 	char host[MAXHOSTNAMELEN + 1];
 	int fd, id;
 
-	/* If hostid was already set the we can return that value.
+	/* If hostid was already set then we can return that value.
 	 * It is not an error if we cannot read this file. It is not even an
 	 * error if we cannot read all the bytes, we just carry on trying...
 	 */
@@ -92,8 +92,19 @@ long int gethostid(void)
 	if (gethostname(host,MAXHOSTNAMELEN)>=0 && *host) {
 		struct hostent *hp;
 		struct in_addr in;
+		struct hostent ghbn_h;
+		char ghbn_buf[sizeof(struct in_addr) +
+			sizeof(struct in_addr *)*2 +
+			sizeof(char *)*((2 + 5/*MAX_ALIASES*/ +
+						1)/*ALIAS_DIM*/) +
+			256/*namebuffer*/ + 32/* margin */];
+		int ghbn_errno;
 
-		if ((hp = gethostbyname(host)) == (struct hostent *)NULL)
+		/* replace gethostbyname() with gethostbyname_r() - ron@zing.net */
+		/*if ((hp = gethostbyname(host)) == (struct hostent *)NULL)*/
+		gethostbyname_r(host, &ghbn_h, ghbn_buf, sizeof(ghbn_buf), &hp, &ghbn_errno);
+
+		if (hp == (struct hostent *)NULL)
 
 		/* This is not a error if we get here, as all it means is that
 		 * this host is not on a network and/or they have not

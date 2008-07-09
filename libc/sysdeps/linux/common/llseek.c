@@ -7,8 +7,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/syscall.h>
 
 extern __typeof(lseek64) __libc_lseek64;
 
@@ -39,3 +40,4 @@ loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 libc_hidden_proto(lseek64)
 weak_alias(__libc_lseek64,lseek64)
 libc_hidden_weak(lseek64)
+//strong_alias(__libc_lseek64,_llseek)

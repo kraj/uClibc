@@ -110,9 +110,8 @@ void hdestroy_r (struct hsearch_data *htab)
       return;
     }
 
-  if (htab->table != NULL)
-    /* free used memory */
-    free (htab->table);
+  /* free used memory */
+  free (htab->table);
 
   /* the sign for an existing table is an value != NULL in htable */
   htab->table = NULL;
@@ -135,8 +134,8 @@ libc_hidden_def(hdestroy_r)
    equality of the stored and the parameter value. This helps to prevent
    unnecessary expensive calls of strcmp.  */
 
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 
 libc_hidden_proto(hsearch_r)
 int hsearch_r (ENTRY item, ACTION action, ENTRY **retval,

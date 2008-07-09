@@ -7,10 +7,21 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <sys/fsuid.h>
+#include <bits/wordsize.h>
 
-#define __NR___syscall_setfsuid __NR_setfsuid
+#if (__WORDSIZE == 32 && defined(__NR_setfsuid32)) || __WORDSIZE == 64
+# ifdef __NR_setfsuid32
+#  undef __NR_setfsuid
+#  define __NR_setfsuid __NR_setfsuid32
+# endif
+
+_syscall1(int, setfsuid, uid_t, uid);
+
+#else
+
+# define __NR___syscall_setfsuid __NR_setfsuid
 static inline _syscall1(int, __syscall_setfsuid, __kernel_uid_t, uid);
 
 int setfsuid(uid_t uid)
@@ -21,3 +32,4 @@ int setfsuid(uid_t uid)
 	}
 	return (__syscall_setfsuid(uid));
 }
+#endif

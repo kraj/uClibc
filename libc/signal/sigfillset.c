@@ -20,7 +20,7 @@
 #include <signal.h>
 #include <string.h>
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 
 /* Set all signals in SET.  */
 libc_hidden_proto(sigfillset)

@@ -8,7 +8,7 @@
  */
 
 #define getrlimit64 __hide_getrlimit64
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/resource.h>
 #undef getrlimit64
@@ -17,7 +17,7 @@ libc_hidden_proto(getrlimit)
 
 /* Only wrap getrlimit if the new ugetrlimit is not present and getrlimit sucks */
 
-#if defined(__NR_ugetrlimit)
+#if defined __NR_ugetrlimit
 
 /* just call ugetrlimit() */
 # define __NR___syscall_ugetrlimit __NR_ugetrlimit

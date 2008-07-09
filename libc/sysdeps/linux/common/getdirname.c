@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-libc_hidden_proto(strdup)
+/* Experimentally off - libc_hidden_proto(strdup) */
 libc_hidden_proto(getcwd)
 libc_hidden_proto(getenv)
 #ifdef __UCLIBC_HAS_LFS__

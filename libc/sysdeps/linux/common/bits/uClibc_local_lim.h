@@ -11,12 +11,13 @@
 #define	_BITS_UCLIBC_LOCAL_LIM_H	1
 
 /* This file works correctly only if local_lim.h is the NPTL version */
-#if !defined PTHREAD_KEYS_MAX || defined TIMER_MAX 
+#if !defined PTHREAD_KEYS_MAX || defined TIMER_MAX
 # error local_lim.h was incorrectly updated, use the NPTL version from glibc
 #endif
 
-#if defined __UCLIBC_HAS_THREADS__
-# define PTHREAD_THREADS_MAX	16384
+/* This should really be moved to thread specific directories */
+#if defined __UCLIBC_HAS_THREADS__ && !defined __UCLIBC_HAS_THREADS_NATIVE__
+# define PTHREAD_THREADS_MAX	1024
 # define TIMER_MAX		256
 #endif
 

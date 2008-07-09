@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-libc_hidden_proto(strchr)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncmp)
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strncmp) */
 
 int getsubopt(char **opt, char *const *keys, char **val)
 {

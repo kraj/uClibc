@@ -12,8 +12,7 @@
 
 #ifdef __UCLIBC_HAS_THREADS__
 
-#include <pthread.h>
-#include <bits/uClibc_pthread.h>
+#include <bits/pthreadtypes.h>
 
 #define __UCLIBC_MUTEX_TYPE				pthread_mutex_t
 
@@ -36,7 +35,7 @@
 		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;				\
 		if (C) {										\
 			_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,			\
-										__uclibc_mutex_unlock,	\
+					   (void (*) (void *))__pthread_mutex_unlock,			\
 										&(M));			\
 			__pthread_mutex_lock(&(M));							\
 		}											\
@@ -62,6 +61,53 @@
 #define __UCLIBC_MUTEX_UNLOCK(M)									\
         __UCLIBC_MUTEX_CONDITIONAL_UNLOCK(M, 1)
 
+#ifdef __USE_STDIO_FUTEXES__
+
+#include <bits/stdio-lock.h>
+
+#define __UCLIBC_IO_MUTEX(M)			_IO_lock_t M
+#define __UCLIBC_IO_MUTEX_LOCK(M) 		_IO_lock_lock(M)
+#define __UCLIBC_IO_MUTEX_UNLOCK(M) 	_IO_lock_unlock(M)
+#define __UCLIBC_IO_MUTEX_TRYLOCK(M) 	_IO_lock_trylock(M)
+#define __UCLIBC_IO_MUTEX_INIT(M,I) 	_IO_lock_t M = I
+#define __UCLIBC_IO_MUTEX_EXTERN(M)		extern _IO_lock_t M
+
+#define __UCLIBC_IO_MUTEX_CONDITIONAL_LOCK(M,C)		\
+	if (C) {										\
+		_IO_lock_lock(M);							\
+	}
+
+#define __UCLIBC_IO_MUTEX_CONDITIONAL_UNLOCK(M,C)	\
+	if (C) {										\
+		_IO_lock_unlock(M);							\
+	}
+
+#define __UCLIBC_IO_MUTEX_AUTO_LOCK(M,A,V)			\
+		__UCLIBC_IO_MUTEX_CONDITIONAL_LOCK(M,((A=(V))) == 0)
+
+#define __UCLIBC_IO_MUTEX_AUTO_UNLOCK(M,A)			\
+		__UCLIBC_IO_MUTEX_CONDITIONAL_UNLOCK(M,((A) ==0))
+
+#define __UCLIBC_IO_MUTEX_LOCK_CANCEL_UNSAFE(M)		\
+		__UCLIBC_IO_MUTEX_LOCK(M)
+#define __UCLIBC_IO_MUTEX_UNLOCK_CANCEL_UNSAFE(M) 	\
+		__UCLIBC_IO_MUTEX_UNLOCK(M)
+#define __UCLIBC_IO_MUTEX_TRYLOCK_CANCEL_UNSAFE(M)	\
+		__UCLIBC_IO_MUTEX_TRYLOCK(M)
+
+#else
+#define __UCLIBC_IO_MUTEX(M)				__UCLIBC_MUTEX(M)
+#define __UCLIBC_IO_MUTEX_LOCK(M) 			__UCLIBC_MUTEX_CONDITIONAL_LOCK(M, 1)
+#define __UCLIBC_IO_MUTEX_UNLOCK(M) 		__UCLIBC_MUTEX_CONDITIONAL_UNLOCK(M, 1)
+#define __UCLIBC_IO_MUTEX_TRYLOCK(M) 		__UCLIBC_MUTEX_TRYLOCK_CANCEL_UNSAFE
+#define __UCLIBC_IO_MUTEX_INIT(M,I) 		__UCLIBC_MUTEX_INIT(M,I)
+#define __UCLIBC_IO_MUTEX_EXTERN(M)			__UCLIBC_MUTEX_EXTERN(M)
+
+#define __UCLIBC_IO_MUTEX_AUTO_LOCK(M,A,V)	__UCLIBC_MUTEX_AUTO_LOCK(M,A,V)
+#define __UCLIBC_IO_MUTEX_AUTO_UNLOCK(M,A)		__UCLIBC_MUTEX_AUTO_UNLOCK(M,A)
+
+#endif
+
 #else
 
 #define __UCLIBC_MUTEX(M)				void *__UCLIBC_MUTEX_DUMMY_ ## M
@@ -83,6 +129,12 @@
 #define __UCLIBC_MUTEX_LOCK(M)				((void)0)
 #define __UCLIBC_MUTEX_UNLOCK(M)			((void)0)
 
+#define __UCLIBC_IO_MUTEX_LOCK(M) 				((void)0)
+#define __UCLIBC_IO_MUTEX_UNLOCK(M)				((void)0)
+#define __UCLIBC_IO_MUTEX_TRYLOCK(M)				((void)0)
+#define __UCLIBC_IO_MUTEX_INIT(M,I)			extern void *__UCLIBC_MUTEX_DUMMY_ ## M
+#define __UCLIBC_IO_MUTEX_EXTERN(M)			extern void *__UCLIBC_MUTEX_DUMMY_ ## M
 #endif
+
 
 #endif /* _UCLIBC_MUTEX_H */

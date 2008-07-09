@@ -151,6 +151,7 @@
 
 /* Get the implementation-specific values for the above.  */
 #include <bits/local_lim.h>
+#include <bits/uClibc_local_lim.h>
 
 
 #ifndef	SSIZE_MAX

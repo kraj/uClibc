@@ -69,7 +69,7 @@ libc_hidden_proto(wctype)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
 libc_hidden_proto(__ctype_toupper_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 libc_hidden_proto(__ctype_toupper)
 #else
@@ -77,19 +77,19 @@ libc_hidden_proto(isascii)
 #endif
 libc_hidden_proto(toupper)
 libc_hidden_proto(tolower)
-libc_hidden_proto(memcmp)
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memmove)
-libc_hidden_proto(memset)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncpy)
+/* Experimentally off - libc_hidden_proto(memcmp) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memmove) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strncpy) */
 libc_hidden_proto(getenv)
-libc_hidden_proto(strcasecmp)
+/* Experimentally off - libc_hidden_proto(strcasecmp) */
 libc_hidden_proto(abort)
 #ifdef __USE_GNU
-libc_hidden_proto(mempcpy)
+/* Experimentally off - libc_hidden_proto(mempcpy) */
 #endif
 
 #endif

@@ -12,7 +12,7 @@ TESTS := bug-iconv-trans bug-usesetlocale collate-test dump-ctype \
 
 
 # NOTE: For now disabled some tests that are known not build
-TESTS_DISABLED := tst-ctype tst-fmon tst-leaks tst-rpmatch tst-strfmon1 
+TESTS_DISABLED := tst-ctype tst-fmon tst-leaks tst-rpmatch tst-strfmon1
 
 ifneq ($(UCLIBC_HAS_XLOCALE),y)
 TESTS_DISABLED += bug-usesetlocale tst-xlocale1 tst-xlocale2 xfrm-test tst-C-locale

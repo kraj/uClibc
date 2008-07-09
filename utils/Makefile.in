@@ -53,7 +53,9 @@ utils_OUT := $(top_builddir)utils
 DEPS-ldconfig := $(utils_DIR)/chroot_realpath.c
 DEPS-ldconfig.host := $(DEPS-ldconfig)
 
-utils_OBJ := readelf
+# Note: readelf util is provided by binutils
+# utils_OBJ := readelf
+
 ifeq ($(HAVE_SHARED),y)
 utils_OBJ += ldconfig ldd
 endif

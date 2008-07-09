@@ -14,7 +14,7 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 
 libc_hidden_proto(readdir64_r)
 int readdir64_r(DIR *dir, struct dirent64 *entry, struct dirent64 **result)
@@ -29,7 +29,7 @@ int readdir64_r(DIR *dir, struct dirent64 *entry, struct dirent64 **result)
 	}
 	de = NULL;
 
-	__pthread_mutex_lock(&(dir->dd_lock));
+	__UCLIBC_MUTEX_LOCK(dir->dd_lock);
 
 	do {
 	    if (dir->dd_size <= dir->dd_nextloc) {
@@ -37,7 +37,7 @@ int readdir64_r(DIR *dir, struct dirent64 *entry, struct dirent64 **result)
 		bytes = __getdents64(dir->dd_fd, dir->dd_buf, dir->dd_max);
 		if (bytes <= 0) {
 		    *result = NULL;
-		    ret = errno;
+		    ret = (bytes==0)? 0 : errno;
 		    goto all_done;
 		}
 		dir->dd_size = bytes;
@@ -63,7 +63,7 @@ int readdir64_r(DIR *dir, struct dirent64 *entry, struct dirent64 **result)
 
 all_done:
 
-	__pthread_mutex_unlock(&(dir->dd_lock));
+	__UCLIBC_MUTEX_UNLOCK(dir->dd_lock);
         return((de != NULL)? 0 : ret);
 }
 libc_hidden_def(readdir64_r)

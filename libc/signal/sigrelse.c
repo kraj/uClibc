@@ -25,9 +25,7 @@
 libc_hidden_proto(sigprocmask)
 libc_hidden_proto(sigdelset)
 
-int
-sigrelse (sig)
-     int sig;
+int sigrelse (int sig)
 {
   sigset_t set;
 

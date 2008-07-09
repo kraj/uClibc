@@ -46,7 +46,7 @@
 #include <rpc/pmap_clnt.h>
 #include <sys/poll.h>
 
-libc_hidden_proto(ffs)
+/* Experimentally off - libc_hidden_proto(ffs) */
 libc_hidden_proto(pmap_set)
 libc_hidden_proto(pmap_unset)
 libc_hidden_proto(_authenticate)

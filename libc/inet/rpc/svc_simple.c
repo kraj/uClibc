@@ -55,8 +55,8 @@ static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
 # define fputs(s, f) _IO_fputs (s, f)
 #endif
 
-libc_hidden_proto(strdup)
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(strdup) */
+/* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(asprintf)
 libc_hidden_proto(fputs)
 libc_hidden_proto(write)

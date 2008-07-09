@@ -184,7 +184,7 @@ malloc (size_t size)
 {
   void *mem;
 #ifdef MALLOC_DEBUGGING
-  static int debugging_initialized = 0;
+  static smallint debugging_initialized;
   if (! debugging_initialized)
     {
       debugging_initialized = 1;

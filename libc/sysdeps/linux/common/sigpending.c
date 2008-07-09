@@ -7,7 +7,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
+
+#if defined __USE_POSIX
 #include <signal.h>
 #undef sigpending
 
@@ -21,4 +23,5 @@ int sigpending(sigset_t * set)
 }
 #else
 _syscall1(int, sigpending, sigset_t *, set);
+#endif
 #endif

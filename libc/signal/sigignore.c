@@ -26,9 +26,7 @@
 
 libc_hidden_proto(sigaction)
 
-int
-sigignore (sig)
-     int sig;
+int sigignore (int sig)
 {
   struct sigaction act;
 

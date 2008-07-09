@@ -146,4 +146,4 @@ RET_tst-cputimer1 := 1
 RET_tst-cputimer2 := 1
 RET_tst-cputimer3 := 1
 
-WRAPPER := env LD_LIBRARY_PATH="$$PWD:.:$(LD_LIBRARY_PATH)"
+WRAPPER := env LD_LIBRARY_PATH="$$PWD:.:$(LD_LIBRARY_PATH)" TIMEOUTFACTOR=100

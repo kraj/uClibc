@@ -7,14 +7,14 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 
 #ifdef __NR_rt_sigaction
 #include <signal.h>
+#include <bits/kernel_sigaction.h>
 
-int __syscall_rt_sigaction (int __signum, const struct sigaction *__act, struct sigaction *__oldact, size_t __size);
 #define __NR___syscall_rt_sigaction __NR_rt_sigaction
 _syscall4(int, __syscall_rt_sigaction, int, signum,
-		  const struct sigaction *, act, struct sigaction *, oldact,
+		  const struct kernel_sigaction *, act, struct kernel_sigaction *, oldact,
 		  size_t, size);
 #endif

@@ -50,11 +50,11 @@
 #define OPCODE_SLWI(ra,rs,sh) OPCODE_RLWINM(ra,rs,sh,0,31-sh)
 
 
-#define PPC_DCBST(where) asm volatile ("dcbst 0,%0" : : "r"(where) : "memory")
-#define PPC_SYNC asm volatile ("sync" : : : "memory")
-#define PPC_ISYNC asm volatile ("sync; isync" : : : "memory")
-#define PPC_ICBI(where) asm volatile ("icbi 0,%0" : : "r"(where) : "memory")
-#define PPC_DIE asm volatile ("tweq 0,0")
+#define PPC_DCBST(where) __asm__ __volatile__ ("dcbst 0,%0" : : "r"(where) : "memory")
+#define PPC_SYNC __asm__ __volatile__ ("sync" : : : "memory")
+#define PPC_ISYNC __asm__ __volatile__ ("sync; isync" : : : "memory")
+#define PPC_ICBI(where) __asm__ __volatile__ ("icbi 0,%0" : : "r"(where) : "memory")
+#define PPC_DIE __asm__ __volatile__ ("tweq 0,0")
 
 /* Here we define the magic numbers that this dynamic loader should accept */
 
@@ -95,13 +95,13 @@ ppc_got (void)
 {
 	Elf32_Addr *got;
 #ifdef HAVE_ASM_PPC_REL16
-	asm ("	bcl 20,31,1f\n"
+	__asm__ ("	bcl 20,31,1f\n"
 	     "1:mflr %0\n"
 	     "	addis %0,%0,_GLOBAL_OFFSET_TABLE_-1b@ha\n"
 	     "	addi %0,%0,_GLOBAL_OFFSET_TABLE_-1b@l\n"
 	     : "=b" (got) : : "lr");
 #else
-	asm (" bl _GLOBAL_OFFSET_TABLE_-4@local"
+	__asm__ (" bl _GLOBAL_OFFSET_TABLE_-4@local"
 	     : "=l" (got));
 #endif
 	return got;
@@ -130,7 +130,7 @@ elf_machine_load_address (void)
        I think this is so that machines that do bl/blr pairing don't
        get confused.
 
-     asm ("bcl 20,31,0f ;"
+     __asm__ ("bcl 20,31,0f ;"
 	  "0: mflr 0 ;"
 	  "lis %0,0b@ha;"
 	  "addi %0,%0,0b@l;"
@@ -151,7 +151,7 @@ elf_machine_load_address (void)
      the address ourselves. That gives us the following code: */
 
   /* Get address of the 'b _DYNAMIC@local'...  */
-  asm ("bcl 20,31,0f;"
+  __asm__ ("bcl 20,31,0f;"
        "b _DYNAMIC@local;"
        "0:"
        : "=l"(branchaddr));

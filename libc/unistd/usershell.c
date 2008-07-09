@@ -50,7 +50,7 @@ libc_hidden_proto(fileno)
 libc_hidden_proto(fgets_unlocked)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 
@@ -80,13 +80,9 @@ char * getusershell(void)
 
 static void __free_initshell_memory(void)
 {
-    if (shells != NULL) {
-	free(shells);
-    }
+    free(shells);
     shells = NULL;
-    if (strings != NULL) {
-	free(strings);
-    }
+    free(strings);
     strings = NULL;
 }
 
@@ -98,7 +94,6 @@ void endusershell(void)
 
 void setusershell(void)
 {
-
     curshell = initshells();
 }
 

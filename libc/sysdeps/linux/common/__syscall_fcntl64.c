@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <stdarg.h>
 #include <fcntl.h>
 
@@ -24,8 +24,8 @@ int __libc_fcntl64(int fd, int cmd, ...)
 
 	va_start(list, cmd);
 	arg = va_arg(list, long);
-
 	va_end(list);
+
 	return (__syscall_fcntl64(fd, cmd, arg));
 }
 libc_hidden_def(__libc_fcntl64)

@@ -17,9 +17,7 @@
 #include "malloc.h"
 
 
-#ifdef __UCLIBC_HAS_THREADS__
-pthread_mutex_t __malloc_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#endif
+__UCLIBC_MUTEX_INIT(__malloc_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 /*
    There is exactly one instance of this struct in this malloc.
@@ -33,7 +31,7 @@ struct malloc_state __malloc_state;  /* never directly referenced */
 /* forward declaration */
 static int __malloc_largebin_index(unsigned int sz);
 
-#ifdef __MALLOC_DEBUGGING
+#ifdef __UCLIBC_MALLOC_DEBUGGING__
 
 /*
   Debugging support
@@ -43,21 +41,21 @@ static int __malloc_largebin_index(unsigned int sz);
   programs.  This can be very effective (albeit in an annoying way)
   in helping track down dangling pointers.
 
-  If you compile with -D__MALLOC_DEBUGGING, a number of assertion checks are
+  If you compile with __UCLIBC_MALLOC_DEBUGGING__, a number of assertion checks are
   enabled that will catch more memory errors. You probably won't be
   able to make much sense of the actual assertion errors, but they
   should help you locate incorrectly overwritten memory.  The
   checking is fairly extensive, and will slow down execution
-  noticeably. Calling malloc_stats or mallinfo with __MALLOC_DEBUGGING set will
+  noticeably. Calling malloc_stats or mallinfo with __UCLIBC_MALLOC_DEBUGGING__ set will
   attempt to check every non-mmapped allocated and free chunk in the
   course of computing the summmaries. (By nature, mmapped regions
   cannot be checked very much automatically.)
 
-  Setting __MALLOC_DEBUGGING may also be helpful if you are trying to modify
+  Setting __UCLIBC_MALLOC_DEBUGGING__ may also be helpful if you are trying to modify
   this code. The assertions in the check routines spell out in more
   detail the assumptions and invariants underlying the algorithms.
 
-  Setting __MALLOC_DEBUGGING does NOT provide an automated mechanism for checking
+  Setting __UCLIBC_MALLOC_DEBUGGING__ does NOT provide an automated mechanism for checking
   that all accesses to malloced memory stay within their
   bounds. However, there are several add-ons and adaptations of this
   or other mallocs available that do this.
@@ -351,7 +349,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
     char*           old_end;        /* its end address */
 
     long            size;           /* arg to first MORECORE or mmap call */
-    char*           brk;            /* return value from MORECORE */
+    char*           fst_brk;        /* return value from MORECORE */
 
     long            correction;     /* arg to 2nd MORECORE call */
     char*           snd_brk;        /* 2nd return val */
@@ -455,7 +453,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
     old_size = chunksize(old_top);
     old_end  = (char*)(chunk_at_offset(old_top, old_size));
 
-    brk = snd_brk = (char*)(MORECORE_FAILURE);
+    fst_brk = snd_brk = (char*)(MORECORE_FAILURE);
 
     /* If not the first time through, we require old_size to
      * be at least MINSIZE and to have prev_inuse set.  */
@@ -501,7 +499,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
        */
 
     if (size > 0)
-	brk = (char*)(MORECORE(size));
+	fst_brk = (char*)(MORECORE(size));
 
     /*
        If have mmap, try using it as a backup when MORECORE fails or
@@ -512,7 +510,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
        segregated mmap region.
        */
 
-    if (brk == (char*)(MORECORE_FAILURE)) {
+    if (fst_brk == (char*)(MORECORE_FAILURE)) {
 
 	/* Cannot merge with old top, so add its size back in */
 	if (contiguous(av))
@@ -525,12 +523,12 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	/* Don't try if size wraps around 0 */
 	if ((unsigned long)(size) > (unsigned long)(nb)) {
 
-	    brk = (char*)(MMAP(0, size, PROT_READ|PROT_WRITE));
+	    fst_brk = (char*)(MMAP(0, size, PROT_READ|PROT_WRITE));
 
-	    if (brk != (char*)(MORECORE_FAILURE)) {
+	    if (fst_brk != (char*)(MORECORE_FAILURE)) {
 
 		/* We do not need, and cannot use, another sbrk call to find end */
-		snd_brk = brk + size;
+		snd_brk = fst_brk + size;
 
 		/* Record that we no longer have a contiguous sbrk region.
 		   After the first time mmap is used as backup, we do not
@@ -542,14 +540,14 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	}
     }
 
-    if (brk != (char*)(MORECORE_FAILURE)) {
+    if (fst_brk != (char*)(MORECORE_FAILURE)) {
 	av->sbrked_mem += size;
 
 	/*
 	   If MORECORE extends previous space, we can likewise extend top size.
 	   */
 
-	if (brk == old_end && snd_brk == (char*)(MORECORE_FAILURE)) {
+	if (fst_brk == old_end && snd_brk == (char*)(MORECORE_FAILURE)) {
 	    set_head(old_top, (size + old_size) | PREV_INUSE);
 	}
 
@@ -576,7 +574,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	    front_misalign = 0;
 	    end_misalign = 0;
 	    correction = 0;
-	    aligned_brk = brk;
+	    aligned_brk = fst_brk;
 
 	    /*
 	       If MORECORE returns an address lower than we have seen before,
@@ -586,7 +584,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	       malloc or by other threads.  We cannot guarantee to detect
 	       these in all cases, but cope with the ones we do detect.
 	       */
-	    if (contiguous(av) && old_size != 0 && brk < old_end) {
+	    if (contiguous(av) && old_size != 0 && fst_brk < old_end) {
 		set_noncontiguous(av);
 	    }
 
@@ -597,11 +595,11 @@ static void* __malloc_alloc(size_t nb, mstate av)
 		   to foreign calls) but treat them as part of our space for
 		   stats reporting.  */
 		if (old_size != 0)
-		    av->sbrked_mem += brk - old_end;
+		    av->sbrked_mem += fst_brk - old_end;
 
 		/* Guarantee alignment of first new chunk made from this space */
 
-		front_misalign = (size_t)chunk2mem(brk) & MALLOC_ALIGN_MASK;
+		front_misalign = (size_t)chunk2mem(fst_brk) & MALLOC_ALIGN_MASK;
 		if (front_misalign > 0) {
 
 		    /*
@@ -624,7 +622,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 		correction += old_size;
 
 		/* Extend the end address to hit a page boundary */
-		end_misalign = (size_t)(brk + size + correction);
+		end_misalign = (size_t)(fst_brk + size + correction);
 		correction += ((end_misalign + pagemask) & ~pagemask) - end_misalign;
 
 		assert(correction >= 0);
@@ -638,7 +636,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 		    correction = 0;
 		    snd_brk = (char*)(MORECORE(0));
 		}
-		else if (snd_brk < brk) {
+		else if (snd_brk < fst_brk) {
 		    /*
 		       If the second call gives noncontiguous space even though
 		       it says it won't, the only course of action is to ignore
@@ -651,7 +649,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 		       there is no reliable way to detect a noncontiguity
 		       producing a forward gap for the second call.
 		       */
-		    snd_brk = brk + size;
+		    snd_brk = fst_brk + size;
 		    correction = 0;
 		    set_noncontiguous(av);
 		}
@@ -661,12 +659,12 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	    /* handle non-contiguous cases */
 	    else {
 		/* MORECORE/mmap must correctly align */
-		assert(aligned_OK(chunk2mem(brk)));
+		assert(aligned_OK(chunk2mem(fst_brk)));
 
 		/* Find out current end of memory */
 		if (snd_brk == (char*)(MORECORE_FAILURE)) {
 		    snd_brk = (char*)(MORECORE(0));
-		    av->sbrked_mem += snd_brk - brk - size;
+		    av->sbrked_mem += snd_brk - fst_brk - size;
 		}
 	    }
 
@@ -825,6 +823,7 @@ void* malloc(size_t bytes)
     mchunkptr       fwd;              /* misc temp for linking */
     mchunkptr       bck;              /* misc temp for linking */
     void *          sysmem;
+    void *          retval;
 
 #if !defined(__MALLOC_GLIBC_COMPAT__)
     if (!bytes) {
@@ -833,7 +832,7 @@ void* malloc(size_t bytes)
     }
 #endif
 
-    LOCK;
+    __MALLOC_LOCK;
     av = get_malloc_state();
     /*
        Convert request size to internal form by adding (sizeof(size_t)) bytes
@@ -864,8 +863,8 @@ void* malloc(size_t bytes)
 	if ( (victim = *fb) != 0) {
 	    *fb = victim->fd;
 	    check_remalloced_chunk(victim, nb);
-	    UNLOCK;
-	    return chunk2mem(victim);
+	    retval = chunk2mem(victim);
+	    goto DONE;
 	}
     }
 
@@ -888,8 +887,8 @@ void* malloc(size_t bytes)
 	    bck->fd = bin;
 
 	    check_malloced_chunk(victim, nb);
-	    UNLOCK;
-	    return chunk2mem(victim);
+	    retval = chunk2mem(victim);
+	    goto DONE;
 	}
     }
 
@@ -945,8 +944,8 @@ void* malloc(size_t bytes)
 	    set_foot(remainder, remainder_size);
 
 	    check_malloced_chunk(victim, nb);
-	    UNLOCK;
-	    return chunk2mem(victim);
+	    retval = chunk2mem(victim);
+	    goto DONE;
 	}
 
 	/* remove from unsorted list */
@@ -958,8 +957,8 @@ void* malloc(size_t bytes)
 	if (size == nb) {
 	    set_inuse_bit_at_offset(victim, size);
 	    check_malloced_chunk(victim, nb);
-	    UNLOCK;
-	    return chunk2mem(victim);
+	    retval = chunk2mem(victim);
+	    goto DONE;
 	}
 
 	/* place chunk in bin */
@@ -1022,8 +1021,8 @@ void* malloc(size_t bytes)
 		if (remainder_size < MINSIZE)  {
 		    set_inuse_bit_at_offset(victim, size);
 		    check_malloced_chunk(victim, nb);
-		    UNLOCK;
-		    return chunk2mem(victim);
+		    retval = chunk2mem(victim);
+		    goto DONE;
 		}
 		/* Split */
 		else {
@@ -1034,8 +1033,8 @@ void* malloc(size_t bytes)
 		    set_head(remainder, remainder_size | PREV_INUSE);
 		    set_foot(remainder, remainder_size);
 		    check_malloced_chunk(victim, nb);
-		    UNLOCK;
-		    return chunk2mem(victim);
+		    retval = chunk2mem(victim);
+		    goto DONE;
 		}
 	    }
 	}
@@ -1103,8 +1102,8 @@ void* malloc(size_t bytes)
 	    if (remainder_size < MINSIZE) {
 		set_inuse_bit_at_offset(victim, size);
 		check_malloced_chunk(victim, nb);
-		UNLOCK;
-		return chunk2mem(victim);
+		retval = chunk2mem(victim);
+		goto DONE;
 	    }
 
 	    /* Split */
@@ -1121,8 +1120,8 @@ void* malloc(size_t bytes)
 		set_head(remainder, remainder_size | PREV_INUSE);
 		set_foot(remainder, remainder_size);
 		check_malloced_chunk(victim, nb);
-		UNLOCK;
-		return chunk2mem(victim);
+		retval = chunk2mem(victim);
+		goto DONE;
 	    }
 	}
     }
@@ -1154,13 +1153,15 @@ use_top:
 	set_head(remainder, remainder_size | PREV_INUSE);
 
 	check_malloced_chunk(victim, nb);
-	UNLOCK;
-	return chunk2mem(victim);
+	retval = chunk2mem(victim);
+	goto DONE;
     }
 
     /* If no space in top, relay to handle system-dependent cases */
     sysmem = __malloc_alloc(nb, av);
-    UNLOCK;
-    return sysmem;
+    retval = sysmem;
+DONE:
+    __MALLOC_UNLOCK;
+    return retval;
 }
 

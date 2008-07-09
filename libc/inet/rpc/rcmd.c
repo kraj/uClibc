@@ -87,14 +87,14 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #endif
 #include <sys/uio.h>
 
-libc_hidden_proto(memcmp)
-libc_hidden_proto(strcat)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncmp)
-libc_hidden_proto(memmove)
+/* Experimentally off - libc_hidden_proto(memcmp) */
+/* Experimentally off - libc_hidden_proto(strcat) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strncmp) */
+/* Experimentally off - libc_hidden_proto(memmove) */
 libc_hidden_proto(getpid)
 libc_hidden_proto(socket)
 libc_hidden_proto(close)
@@ -134,7 +134,7 @@ libc_hidden_proto(__h_errno_location)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
 libc_hidden_proto(__ctype_tolower_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 libc_hidden_proto(__ctype_tolower)
 #endif
@@ -197,9 +197,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 #ifdef __ARCH_USE_MMU__
 		tmphstbuf = alloca (hstbuflen);
 #else
-		if (tmphstbuf) {
-		    free(tmphstbuf);
-		}
+		free(tmphstbuf);
 		tmphstbuf = malloc (hstbuflen);
 #endif
 	    }
@@ -411,9 +409,7 @@ int ruserok(rhost, superuser, ruser, luser)
 #ifdef __ARCH_USE_MMU__
 		buffer = alloca (buflen);
 #else
-		if (buffer) {
-		    free(buffer);
-		}
+		free(buffer);
 		buffer = malloc (buflen);
 #endif
 	    }
@@ -780,8 +776,7 @@ __ivaliduser2(hostf, raddr, luser, ruser, rhost)
 	}
     }
 
-    if (buf != NULL)
-      free (buf);
+    free (buf);
 
     return retval;
 }

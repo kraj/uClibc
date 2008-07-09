@@ -10,8 +10,8 @@
 #ifdef __USE_GNU
 #include "_stdio.h"
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(fopencookie)
 
 #ifndef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
@@ -160,9 +160,7 @@ FILE *open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
 		}
 	}
 
-	if (cookie->buf != NULL) {
-		free(cookie->buf);
-	}
+	free(cookie->buf);
  EXIT_cookie:
 	free(cookie);
 

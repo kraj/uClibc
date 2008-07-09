@@ -37,9 +37,10 @@
 #include <ctype.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 
@@ -50,55 +51,56 @@ libc_hidden_proto(__ctype_b)
  */
 libc_hidden_proto(inet_network)
 in_addr_t
-inet_network(cp)
-	register const char *cp;
+inet_network(const char *cp)
 {
-	register u_int32_t val, base, n, i;
-	register char c;
-	u_int32_t parts[4], *pp = parts;
-	int digit;
+	u_char c;
+	int got_data;
+	u_int base, dots;
+	in_addr_t res, val;
 
-again:
-	val = 0; base = 10; digit = 0;
-	if (*cp == '0')
-		digit = 1, base = 8, cp++;
-	if (*cp == 'x' || *cp == 'X')
-		base = 16, cp++;
-	while ((c = *cp) != 0) {
+	res = 0;
+	dots = 0;
+ again:
+	val = 0;
+	got_data = 0;
+	if (*cp == '0') {
+		cp++;
+		if (*cp == 'x' || *cp == 'X') {
+			cp++;
+			base = 16;
+		} else {
+			base = 8;
+			got_data = 1;
+		}
+	} else
+		base = 10;
+	while ((c = *cp) != '\0') {
 		if (isdigit(c)) {
-			if (base == 8 && (c == '8' || c == '9'))
+			if (base == 8 && c > '7')
 				return (INADDR_NONE);
-			val = (val * base) + (c - '0');
-			cp++;
-			digit = 1;
-			continue;
-		}
-		if (base == 16 && isxdigit(c)) {
-			val = (val << 4) + (tolower (c) + 10 - 'a');
-			cp++;
-			digit = 1;
-			continue;
-		}
-		break;
+				val = val * base + c - '0';
+		} else if (base == 16 && isxdigit(c))
+			val = (val << 4) + 10 - (islower(c) ? 'a' : 'A');
+		else
+			break;
+		if (val > 0xff)
+			return (INADDR_NONE);
+		cp++;
+		got_data = 1;
 	}
-	if (!digit)
+	if (!got_data)
 		return (INADDR_NONE);
-	if (pp >= parts + 4 || val > 0xff)
-		return (INADDR_NONE);
-	if (*cp == '.') {
-		*pp++ = val, cp++;
+	if (dots != 0)
+		res <<= 8;
+	res |= val;
+	if (c == '.') {
+		if (++dots == 4)
+			return (INADDR_NONE);
+		cp++;
 		goto again;
 	}
-	if (*cp && !isspace(*cp))
+	if (c != '\0')
 		return (INADDR_NONE);
-	if (pp >= parts + 4 || val > 0xff)
-		return (INADDR_NONE);
-	*pp++ = val;
-	n = pp - parts;
-	for (val = 0, i = 0; i < n; i++) {
-		val <<= 8;
-		val |= parts[i] & 0xff;
-	}
-	return (val);
+	return (res);
 }
 libc_hidden_def(inet_network)

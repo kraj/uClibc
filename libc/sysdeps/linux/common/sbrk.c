@@ -7,22 +7,21 @@
 #include <unistd.h>
 #include <errno.h>
 
-libc_hidden_proto(sbrk)
-
 libc_hidden_proto(brk)
 
 /* Defined in brk.c.  */
-extern void *__curbrk;
+extern void *__curbrk attribute_hidden;
 
 /* Extend the process's data space by INCREMENT.
    If INCREMENT is negative, shrink data space by - INCREMENT.
    Return start of new space allocated, or -1 for errors.  */
+libc_hidden_proto(sbrk)
 void * sbrk (intptr_t increment)
 {
     void *oldbrk;
 
     if (__curbrk == NULL)
-	if (brk (0) < 0)		/* Initialize the break.  */
+	if (brk (NULL) < 0)	/* Initialize the break.  */
 	    return (void *) -1;
 
     if (increment == 0)

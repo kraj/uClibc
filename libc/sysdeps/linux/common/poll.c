@@ -17,7 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <sys/poll.h>
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
@@ -56,8 +56,8 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 #include <sys/param.h>
 #include <unistd.h>
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(getdtablesize)
 libc_hidden_proto(select)
 

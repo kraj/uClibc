@@ -42,9 +42,9 @@
 #include <string.h>
 #include <unistd.h>
 
-libc_hidden_proto(memset)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strncpy)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strncpy) */
 libc_hidden_proto(read)
 libc_hidden_proto(write)
 libc_hidden_proto(close)
@@ -61,14 +61,13 @@ libc_hidden_proto(atoi)
 libc_hidden_proto(connect)
 libc_hidden_proto(accept)
 libc_hidden_proto(listen)
+libc_hidden_proto(ruserpass)
 
 #define SA_LEN(_x)      __libc_sa_len((_x)->sa_family)
 extern int __libc_sa_len (sa_family_t __af) __THROW attribute_hidden;
 
 int	rexecoptions;
 char	ahostbuf[NI_MAXHOST] attribute_hidden;
-extern int ruserpass(const char *host, const char **aname, const char **apass) attribute_hidden;
-libc_hidden_proto(ruserpass)
 
 libc_hidden_proto(rexec_af)
 int
@@ -87,7 +86,7 @@ rexec_af(char **ahost, int rport, const char *name, const char *pass, const char
 	snprintf(servbuff, sizeof(servbuff), "%d", ntohs(rport));
 	servbuff[sizeof(servbuff) - 1] = '\0';
 
-	memset(&hints, 0, sizeof(hints));
+	memset(&hints, '\0', sizeof(hints));
 	hints.ai_family = af;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_CANONNAME;
@@ -104,6 +103,8 @@ rexec_af(char **ahost, int rport, const char *name, const char *pass, const char
 	}
 	else{
 		*ahost = NULL;
+		__set_errno (ENOENT);
+		return -1;
 	}
 	ruserpass(res0->ai_canonname, &name, &pass);
 retry:
@@ -127,7 +128,8 @@ retry:
 		port = 0;
 	} else {
 		char num[32];
-		int s2, sa2len;
+		int s2;
+		socklen_t sa2len;
 
 		s2 = socket(res0->ai_family, res0->ai_socktype, 0);
 		if (s2 < 0) {
@@ -153,7 +155,8 @@ retry:
 		(void) sprintf(num, "%u", port);
 		(void) write(s, num, strlen(num)+1);
 		{ socklen_t len = sizeof (from);
-		  s3 = accept(s2, (struct sockaddr *)&from, &len);
+		  s3 = TEMP_FAILURE_RETRY (accept(s2, (struct sockaddr *)&from,
+						  &len));
 		  close(s2);
 		  if (s3 < 0) {
 			perror("accept");

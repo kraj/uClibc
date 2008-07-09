@@ -22,10 +22,11 @@
 #include <string.h>
 
 #include <sys/syscall.h>
+#if defined __USE_POSIX199309
 
 libc_hidden_proto(getpid)
 libc_hidden_proto(getuid)
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 
 #ifdef __NR_rt_sigqueueinfo
 
@@ -50,4 +51,5 @@ int sigqueue (pid_t pid, int sig, const union sigval val)
   return __libc_rt_sigqueueinfo(pid, sig, __ptrvalue (&info));
 }
 
+#endif
 #endif

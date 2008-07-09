@@ -25,7 +25,7 @@
 #include <sys/statvfs.h>
 #include <stddef.h>
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(fstatfs)
 
 /* Return information about the filesystem on which FD resides.  */

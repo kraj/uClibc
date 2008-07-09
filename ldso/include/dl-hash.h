@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2006 by Erik Andersen <andersen@codepoet.org>
  *
  * GNU Lesser General Public License version 2.1 or later.
  */
@@ -26,9 +26,9 @@ struct dyn_elf {
 };
 
 struct elf_resolve {
-  /* These entries must be in this order to be compatible with the interface
-   * used by gdb to obtain the list of symbols. */
-  ElfW(Addr) loadaddr;		/* Base address shared object is loaded at.  */
+  /* These entries must be in this order to be compatible with the interface used
+     by gdb to obtain the list of symbols. */
+  DL_LOADADDR_TYPE loadaddr;	/* Base address shared object is loaded at.  */
   char *libname;		/* Absolute file name object was found in.  */
   ElfW(Dyn) *dynamic_addr;	/* Dynamic section of the shared object.  */
   struct elf_resolve * next;
@@ -114,6 +114,13 @@ struct elf_resolve {
    * we don't have to calculate it every time, which requires a divide */
   unsigned long data_words;
 #endif
+
+#ifdef __FDPIC__
+  /* Every loaded module holds a hashtable of function descriptors of
+     functions defined in it, such that it's easy to release the
+     memory when the module is dlclose()d.  */
+  struct funcdesc_ht *funcdesc_ht;
+#endif
 };
 
 #define RELOCS_DONE	    0x000001
@@ -126,22 +133,27 @@ extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;
 extern struct dyn_elf 	  * _dl_handles;
 
-extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname, 
-	char * loadaddr, unsigned long * dynamic_info, 
+extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
+	DL_LOADADDR_TYPE loadaddr, unsigned long * dynamic_info,
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
-extern char * _dl_lookup_hash(const char * name, struct dyn_elf * rpnt1, 
-			    struct elf_resolve *mytpnt, int type_class
-			#if USE_TLS
-				,struct elf_resolve **tls_tpnt
-			#endif			    
-			    );
+#if USE_TLS || defined __FDPIC__
+#define _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
+#define _DL_LOOKUP_HASH_EXTRA_TPNT 	,struct elf_resolve **tpntp
+#else
+#undef _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
+#define _DL_LOOKUP_HASH_EXTRA_TPNT
+#endif
+
+extern char * _dl_lookup_hash(const char * name, struct dyn_elf * rpnt, 
+			    struct elf_resolve *mytpnt, int type_class _DL_LOOKUP_HASH_EXTRA_TPNT);
 				
-static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt,
-                                                       int type_class, struct elf_resolve **tls_tpnt)
+static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
+					struct elf_resolve *mytpnt, int type_class,
+					struct elf_resolve **tpntp)
 {
-#ifdef USE_TLS
-        return _dl_lookup_hash(name, rpnt, mytpnt, type_class, tls_tpnt);
+#ifdef _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
+        return _dl_lookup_hash(name, rpnt, mytpnt, type_class, tpntp);
 #else
         return _dl_lookup_hash(name, rpnt, mytpnt, type_class);
 #endif

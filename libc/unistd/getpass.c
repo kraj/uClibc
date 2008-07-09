@@ -24,7 +24,7 @@
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(tcsetattr)
 libc_hidden_proto(tcgetattr)
 libc_hidden_proto(setvbuf)
@@ -48,9 +48,7 @@ libc_hidden_proto(__fputc_unlocked)
 #endif
 #define PWD_BUFFER_SIZE 256
 
-char *
-getpass (prompt)
-     const char *prompt;
+char * getpass (const char *prompt)
 {
   FILE *in, *out;
   struct termios s, t;

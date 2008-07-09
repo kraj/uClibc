@@ -13,29 +13,29 @@
 #include <elf.h>
 
 #define ARCH_NUM 1
-#define DT_AVR32_GOTSZ_IDX     (DT_NUM + OS_NUM)
+#define DT_AVR32_GOTSZ_IDX	(DT_NUM + OS_NUM)
 
-#define ARCH_DYNAMIC_INFO(dpnt, dynamic, debug_addr)                   \
-       do {                                                            \
-               if (dpnt->d_tag == DT_AVR32_GOTSZ)                      \
-                       dynamic[DT_AVR32_GOTSZ_IDX] = dpnt->d_un.d_val; \
-       } while (0)
+#define ARCH_DYNAMIC_INFO(dpnt, dynamic, debug_addr)			\
+	do {								\
+		if (dpnt->d_tag == DT_AVR32_GOTSZ)			\
+			dynamic[DT_AVR32_GOTSZ_IDX] = dpnt->d_un.d_val;	\
+	} while (0)
 
 /* Initialization sequence for the application/library GOT. */
-#define INIT_GOT(GOT_BASE,MODULE)                                      \
-       do {                                                            \
-               unsigned long i, nr_got;                                \
-                                                                       \
-               GOT_BASE[0] = (unsigned long) _dl_linux_resolve;        \
-               GOT_BASE[1] = (unsigned long) MODULE;                   \
-                                                                       \
-               /* Add load address displacement to all GOT entries */  \
-               nr_got = MODULE->dynamic_info[DT_AVR32_GOTSZ_IDX] / 4;  \
-               for (i = 2; i < nr_got; i++)                            \
-                       GOT_BASE[i] += (unsigned long)MODULE->loadaddr; \
-       } while (0)
+#define INIT_GOT(GOT_BASE,MODULE)					\
+	do {								\
+		unsigned long i, nr_got;				\
+									\
+		GOT_BASE[0] = (unsigned long) _dl_linux_resolve;	\
+		GOT_BASE[1] = (unsigned long) MODULE;			\
+									\
+		/* Add load address displacement to all GOT entries */	\
+		nr_got = MODULE->dynamic_info[DT_AVR32_GOTSZ_IDX] / 4;	\
+		for (i = 2; i < nr_got; i++)				\
+			GOT_BASE[i] += (unsigned long)MODULE->loadaddr;	\
+	} while (0)
 
-#define do_rem(result, n, base)        ((result) = (n) % (base))
+#define do_rem(result, n, base)	((result) = (n) % (base))
 
 /* Here we define the magic numbers that this dynamic loader should accept */
 #define MAGIC1 EM_AVR32
@@ -51,8 +51,8 @@ unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got);
 #define ADDR_ALIGN 0xfff
 #define OFFS_ALIGN 0x7ffff000
 
-#define elf_machine_type_class(type)                           \
-       ((type == R_AVR32_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)
+#define elf_machine_type_class(type)				\
+	((type == R_AVR32_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)
 
 /* AVR32 doesn't need any COPY relocs */
 #define DL_NO_COPY_RELOCS
@@ -63,27 +63,27 @@ unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got);
 static inline Elf32_Addr
 elf_machine_dynamic (void)
 {
-       register Elf32_Addr *got asm ("r6");
-       return *got;
+	register Elf32_Addr *got asm ("r6");
+	return *got;
 }
 
 /* Return the run-time load address of the shared object.  */
 static inline Elf32_Addr
 elf_machine_load_address (void)
 {
-       extern void __dl_start asm("_dl_start");
-       Elf32_Addr got_addr = (Elf32_Addr) &__dl_start;
-       Elf32_Addr pcrel_addr;
+	extern void __dl_start asm("_dl_start");
+	Elf32_Addr got_addr = (Elf32_Addr) &__dl_start;
+	Elf32_Addr pcrel_addr;
 
-       asm   ("        lddpc   %0, 2f\n"
-              "1:      add     %0, pc\n"
-              "        rjmp    3f\n"
-              "        .align  2\n"
-              "2:      .long   _dl_start - 1b\n"
-              "3:\n"
-              : "=r"(pcrel_addr) : : "cc");
+	asm   ("	lddpc	%0, 2f\n"
+	       "1:	add	%0, pc\n"
+	       "	rjmp	3f\n"
+	       "	.align	2\n"
+	       "2:	.long	_dl_start - 1b\n"
+	       "3:\n"
+	       : "=r"(pcrel_addr) : : "cc");
 
-       return pcrel_addr - got_addr;
+	return pcrel_addr - got_addr;
 }
 
 /*
@@ -93,13 +93,13 @@ elf_machine_load_address (void)
  */
 static inline void
 elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
-                     Elf32_Word relative_count)
+		      Elf32_Word relative_count)
 {
-       Elf32_Rela *rpnt = (void *)rel_addr;
+	Elf32_Rela *rpnt = (void *)rel_addr;
 
-       do {
-               Elf32_Addr *reloc_addr;
-               reloc_addr = (void *)(load_off + (rpnt++)->r_offset);
-               *reloc_addr = load_off + rpnt->r_addend;
-       } while (--relative_count);
+	do {
+		Elf32_Addr *reloc_addr;
+		reloc_addr = (void *)(load_off + (rpnt++)->r_offset);
+		*reloc_addr = load_off + rpnt->r_addend;
+	} while (--relative_count);
 }

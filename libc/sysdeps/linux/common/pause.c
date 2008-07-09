@@ -7,7 +7,8 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <signal.h>
+#define __UCLIBC_HIDE_DEPRECATED__
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <sysdep-cancel.h>
 

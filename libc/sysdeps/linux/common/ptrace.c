@@ -4,15 +4,15 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <errno.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/ptrace.h>
-#include <sys/syscall.h>
 #include <stdarg.h>
 
+#if defined __NR_ptrace && defined __USE_BSD && defined __USE_MISC
 #define __NR___syscall_ptrace __NR_ptrace
 
-static inline _syscall4(long, __syscall_ptrace, enum __ptrace_request, request, 
+static inline _syscall4(long, __syscall_ptrace, enum __ptrace_request, request,
 		__kernel_pid_t, pid, void*, addr, void*, data);
 
 long int
@@ -40,3 +40,4 @@ ptrace (enum __ptrace_request request, ...)
 
   return res;
 }
+#endif

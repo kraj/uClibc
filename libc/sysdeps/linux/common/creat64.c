@@ -22,11 +22,14 @@
 #include <fcntl.h>
 #include <sys/types.h>
 
-libc_hidden_proto(open64)
+extern __typeof(open64) __libc_open64;
+libc_hidden_proto(__libc_open64)
+extern __typeof(creat64) __libc_creat64;
 
 /* Create FILE with protections MODE.  */
-int creat64 (const char *file, mode_t mode)
+int __libc_creat64 (const char *file, mode_t mode)
 {
-    return open64 (file, O_WRONLY|O_CREAT|O_TRUNC, mode);
+    return __libc_open64 (file, O_WRONLY|O_CREAT|O_TRUNC, mode);
 }
+weak_alias(__libc_creat64,creat64)
 #endif /* __UCLIBC_HAS_LFS__ */

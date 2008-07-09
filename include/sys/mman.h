@@ -81,6 +81,8 @@ extern int munmap (void *__addr, size_t __len) __THROW;
    (and sets errno).  */
 extern int mprotect (void *__addr, size_t __len, int __prot) __THROW;
 
+#ifdef __ARCH_USE_MMU__
+
 /* Synchronize the region starting at ADDR and extending LEN bytes with the
    file it maps.  Filesystem operations on a file being mapped are
    unpredictable before this is done.  Flags are from the MS_* set.
@@ -89,17 +91,25 @@ extern int mprotect (void *__addr, size_t __len, int __prot) __THROW;
    __THROW.  */
 extern int msync (void *__addr, size_t __len, int __flags);
 
-#ifdef __USE_BSD
+#else
+
+/* On no-mmu systems you can't have real private mappings.  */
+static inline int msync (void *__addr, size_t __len, int __flags) { return 0; }
+
+#endif
+
+#if defined __USE_BSD && defined __UCLIBC_LINUX_SPECIFIC__
 /* Advise the system about particular usage patterns the program follows
    for the region starting at ADDR and extending LEN bytes.  */
 extern int madvise (void *__addr, size_t __len, int __advice) __THROW;
 #endif
-#ifdef __USE_XOPEN2K
+#if defined __USE_XOPEN2K && defined __UCLIBC_HAS_ADVANCED_REALTIME__
 /* This is the POSIX name for this function.  */
 extern int posix_madvise (void *__addr, size_t __len, int __advice) __THROW;
 #endif
 
-#ifdef __ARCH_USE_MMU__
+#if defined __UCLIBC_HAS_REALTIME__
+# ifdef __ARCH_USE_MMU__
 
 /* Guarantee all whole pages mapped by the range [ADDR,ADDR+LEN) to
    be memory resident.  */
@@ -120,16 +130,25 @@ extern int munlockall (void) __THROW;
 #else
 
 /* On no-mmu systems, memory cannot be swapped out, so
- * these functions will always succeed.
- */
+ * these functions will always succeed.  */
 static inline int mlock (__const void *__addr, size_t __len) { return 0; }
 static inline int munlock (__const void *__addr, size_t __len) { return 0; }
 static inline int mlockall (int __flags) { return 0; }
 static inline int munlockall (void) { return 0; }
+#endif
+#endif /* __UCLIBC_HAS_REALTIME__ */
 
+#if defined __USE_MISC && defined __UCLIBC_BSD_SPECIFIC__
+/* mincore returns the memory residency status of the pages in the
+   current process's address space specified by [start, start + len).
+   The status is returned in a vector of bytes.  The least significant
+   bit of each byte is 1 if the referenced page is in memory, otherwise
+   it is zero.  */
+extern int mincore (void *__start, size_t __len, unsigned char *__vec)
+     __THROW;
 #endif
 
-#ifdef __USE_MISC
+#ifdef __USE_GNU
 /* Remap pages mapped by the range [ADDR,ADDR+OLD_LEN) to new length
    NEW_LEN.  If MREMAP_MAYMOVE is set in FLAGS the returned address
    may differ from ADDR.  If MREMAP_FIXED is set in FLAGS the function
@@ -138,20 +157,10 @@ static inline int munlockall (void) { return 0; }
 extern void *mremap (void *__addr, size_t __old_len, size_t __new_len,
 		     int __flags, ...) __THROW;
 
-/* mincore returns the memory residency status of the pages in the
-   current process's address space specified by [start, start + len).
-   The status is returned in a vector of bytes.  The least significant
-   bit of each byte is 1 if the referenced page is in memory, otherwise
-   it is zero.  */
-extern int mincore (void *__start, size_t __len, unsigned char *__vec)
-     __THROW;
-
-#if 0
 /* Remap arbitrary pages of a shared backing store within an existing
    VMA.  */
 extern int remap_file_pages (void *__start, size_t __size, int __prot,
 			     size_t __pgoff, int __flags) __THROW;
-#endif
 #endif
 
 

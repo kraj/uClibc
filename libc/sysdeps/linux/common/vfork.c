@@ -9,6 +9,8 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
+#ifdef __ARCH_USE_MMU__
+
 #ifdef __NR_fork
 libc_hidden_proto(fork)
 
@@ -20,4 +22,6 @@ pid_t __vfork(void)
 libc_hidden_proto(vfork)
 weak_alias(__vfork,vfork)
 libc_hidden_weak(vfork)
+#endif
+
 #endif

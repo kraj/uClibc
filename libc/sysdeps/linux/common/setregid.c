@@ -7,12 +7,23 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
+#include <bits/wordsize.h>
 
 libc_hidden_proto(setregid)
 
-#define __NR___syscall_setregid __NR_setregid
+#if (__WORDSIZE == 32 && defined(__NR_setregid32)) || __WORDSIZE == 64
+# ifdef __NR_setregid32
+#  undef __NR_setregid
+#  define __NR_setregid __NR_setregid32
+# endif
+
+_syscall2(int, setregid, gid_t, rgid, gid_t, egid);
+
+#else
+
+# define __NR___syscall_setregid __NR_setregid
 static inline _syscall2(int, __syscall_setregid,
 		__kernel_gid_t, rgid, __kernel_gid_t, egid);
 
@@ -25,4 +36,6 @@ int setregid(gid_t rgid, gid_t egid)
 	}
 	return (__syscall_setregid(rgid, egid));
 }
+#endif
+
 libc_hidden_def(setregid)

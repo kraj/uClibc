@@ -23,16 +23,12 @@
 
 #include <features.h>
 #include <elf.h>
+#ifdef __HAVE_SHARED__
 #include <dlfcn.h>
+#endif
 #include <sys/types.h>
 #if defined _LIBC && defined __UCLIBC_HAS_THREADS_NATIVE__
 #include <tls.h>
-#endif
-
-#if defined __FRV_FDPIC__ || defined __BFIN_FDPIC__
-# define ___LINK_H_FDPIC___
-#else
-# undef ___LINK_H_FDPIC___
 #endif
 
 /* We use this macro to refer to ELF types independent of the native wordsize.
@@ -84,7 +80,7 @@ extern struct r_debug _r_debug;
    */
 extern ElfW(Dyn) _DYNAMIC[];
 
-#ifdef ___LINK_H_FDPIC___
+#ifdef __FDPIC__
 # include <bits/elf-fdpic.h>
 #endif
 
@@ -99,7 +95,7 @@ struct link_map
     /* These first few members are part of the protocol with the debugger.
        This is the same format used in SVR4.  */
 
-#ifdef ___LINK_H_FDPIC___
+#ifdef __FDPIC__
     struct elf32_fdpic_loadaddr l_addr;
 #else
     ElfW(Addr) l_addr;		/* Base address shared object is loaded at.  */
@@ -179,7 +175,7 @@ enum
 
 struct dl_phdr_info
   {
-#ifdef ___LINK_H_FDPIC___
+#ifdef __FDPIC__
     struct elf32_fdpic_loadaddr dlpi_addr;
 #else
     ElfW(Addr) dlpi_addr;
@@ -240,7 +236,5 @@ extern unsigned int la_objclose (uintptr_t *__cookie);
 __END_DECLS
 
 #endif
-
-#undef ___LINK_H_FDPIC___
 
 #endif /* link.h */

@@ -7,9 +7,10 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <bits/uClibc_page.h>
 
 #ifdef __NR_mmap
 
@@ -41,4 +42,32 @@ __ptr_t mmap(__ptr_t addr, size_t len, int prot,
 #endif
 
 libc_hidden_def(mmap)
+
+#elif defined(__NR_mmap2)
+
+libc_hidden_proto(mmap)
+
+#define __NR___syscall_mmap2 __NR_mmap2
+static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
+	size_t, len, int, prot, int, flags, int, fd, off_t, offset);
+
+/* Some architectures always use 12 as page shift for mmap2() eventhough the
+ * real PAGE_SHIFT != 12.  Other architectures use the same value as
+ * PAGE_SHIFT...
+ */
+# ifndef MMAP2_PAGE_SHIFT
+#  define MMAP2_PAGE_SHIFT 12
+# endif
+
+__ptr_t mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
+{
+	if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1)) {
+		__set_errno(EINVAL);
+		return MAP_FAILED;
+	}
+	return __syscall_mmap2(addr, len, prot, flags, fd, offset >> MMAP2_PAGE_SHIFT);
+}
+
+libc_hidden_def(mmap)
+
 #endif

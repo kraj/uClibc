@@ -24,9 +24,9 @@
 #include <sys/types.h>
 
 libc_hidden_proto(ioctl)
-libc_hidden_proto(memset)
-libc_hidden_proto(memcpy)
-libc_hidden_proto(mempcpy)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(mempcpy) */
 libc_hidden_proto(tcgetattr)
 
 /* The difference here is that the termios structure used in the

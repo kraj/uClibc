@@ -4,8 +4,6 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
-#include <bits/sysnum.h>
-
 /* The Linux kernel uses different trap numbers on sh-2.  */
 #ifdef __CONFIG_SH2__
 # define __SH_SYSCALL_TRAP_BASE 0x20

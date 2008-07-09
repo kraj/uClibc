@@ -7,7 +7,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
+
+#if defined __USE_GNU
 #include <sys/mount.h>
 
 /* arch provides umount() syscall */
@@ -35,4 +37,5 @@ int umount(const char *special_file)
 	return -1;
 }
 
+#endif
 #endif

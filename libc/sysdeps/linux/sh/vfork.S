@@ -21,9 +21,8 @@
 */
 
 #include <features.h>
-#define _SYSCALL_H
-#include <bits/sysnum.h>
-#define _ERRNO_H	1
+#include <sys/syscall.h>
+#define _ERRNO_H
 #include <bits/errno.h>
 #include <bits/sysnum.h>
 

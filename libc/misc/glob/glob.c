@@ -33,17 +33,17 @@
 
 libc_hidden_proto(closedir)
 libc_hidden_proto(fnmatch)
-libc_hidden_proto(memcpy)
-libc_hidden_proto(mempcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(mempcpy) */
 libc_hidden_proto(opendir)
 libc_hidden_proto(qsort)
 libc_hidden_proto(readdir)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcoll)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strdup)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strrchr)
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcoll) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strdup) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strrchr) */
 
 
 #ifdef ENABLE_GLOB_TILDE_EXPANSION
@@ -361,7 +361,7 @@ static int glob_in_dir (const char *pattern, const char *directory, int flags,
 		{
 		  const char *name;
 		  size_t len;
-#if !defined COMPILE_GLOB64
+#if defined __UCLIBC_HAS_LFS__ && !defined COMPILE_GLOB64
 		  struct dirent64 *d;
 		  union
 		    {
@@ -482,8 +482,7 @@ static int glob_in_dir (const char *pattern, const char *directory, int flags,
   }
   while (names != NULL)
     {
-      if (names->name != NULL)
-	free (names->name);
+      free (names->name);
       names = names->next;
     }
   return GLOB_NOSPACE;

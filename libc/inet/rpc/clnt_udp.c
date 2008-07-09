@@ -62,7 +62,7 @@ libc_hidden_proto(fwprintf)
 #include <sys/uio.h>
 #endif
 
-libc_hidden_proto(memcmp)
+/* Experimentally off - libc_hidden_proto(memcmp) */
 libc_hidden_proto(ioctl)
 libc_hidden_proto(socket)
 libc_hidden_proto(close)

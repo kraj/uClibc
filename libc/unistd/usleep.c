@@ -9,6 +9,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#if defined __USE_BSD || defined __USE_POSIX98
+#if defined __UCLIBC_HAS_REALTIME__
 /*libc_hidden_proto(nanosleep) need the reloc for cancellation*/
 
 int usleep (__useconds_t usec)
@@ -19,3 +21,15 @@ int usleep (__useconds_t usec)
     };
     return(nanosleep(&ts, NULL));
 }
+#else /* __UCLIBC_HAS_REALTIME__ */
+libc_hidden_proto(select)
+int usleep (__useconds_t usec)
+{
+	struct timeval tv;
+
+	tv.tv_sec = 0;
+	tv.tv_usec = usec;
+	return select(0, NULL, NULL, NULL, &tv);
+}
+#endif /* __UCLIBC_HAS_REALTIME__ */
+#endif

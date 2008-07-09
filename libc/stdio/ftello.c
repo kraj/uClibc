@@ -39,7 +39,10 @@ OFFSET_TYPE FTELL(register FILE *stream)
 
 	__STDIO_STREAM_VALIDATE(stream);
 
-	if ((__SEEK(stream, &pos, SEEK_CUR) < 0)
+	if ((__SEEK(stream, &pos,
+				((__STDIO_STREAM_IS_WRITING(stream)
+				  && (stream->__modeflags & __FLAG_APPEND))
+				 ? SEEK_END : SEEK_CUR)) < 0)
 		|| (__stdio_adjust_position(stream, &pos) < 0)) {
 		pos = -1;
 	}

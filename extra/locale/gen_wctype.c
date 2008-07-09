@@ -767,7 +767,7 @@ int main(int argc, char **argv)
 
 size_t newopt(unsigned char *ut, size_t usize, int shift, table_data *tbl)
 {
-	static int recurse = 0;
+	static int recurse;
 	unsigned char *ti[RANGE+1];	/* table index */
 	size_t numblocks;
 	size_t blocksize;

@@ -172,7 +172,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 	reloc_addr   = (unsigned long *)(intptr_t)
 	  DL_RELOC_ADDR (rpnt->r_offset, tpnt->loadaddr);
-	asm ("" : "=r" (reloc_addr_packed) : "0" (reloc_addr));
+	__asm__ ("" : "=r" (reloc_addr_packed) : "0" (reloc_addr));
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr  = 0;
@@ -238,7 +238,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				= symbol_tpnt->loadaddr.got_value;
 		else
 			funcval.got_value = 0;
-		asm ("std%I0\t%1, %M0"
+		__asm__ ("std%I0\t%1, %M0"
 		     : "=m" (*(struct funcdesc_value *)reloc_addr)
 		     : "e" (funcval));
 		break;

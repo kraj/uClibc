@@ -27,14 +27,15 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 
-libc_hidden_proto(memset)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strsep)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strsep) */
 libc_hidden_proto(setmntent)
 libc_hidden_proto(getmntent_r)
 libc_hidden_proto(endmntent)
 
-libc_hidden_proto(statfs)
+extern __typeof(statfs) __libc_statfs;
+libc_hidden_proto(__libc_statfs)
 libc_hidden_proto(stat)
 
 int statvfs (const char *file, struct statvfs *buf)
@@ -43,7 +44,7 @@ int statvfs (const char *file, struct statvfs *buf)
     struct stat st;
 
     /* Get as much information as possible from the system.  */
-    if (statfs (file, &fsbuf) < 0)
+    if (__libc_statfs (file, &fsbuf) < 0)
 	return -1;
 
 #define STAT(st) stat (file, st)

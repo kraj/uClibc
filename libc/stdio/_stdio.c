@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(isatty)
 
 /* This is pretty much straight from uClibc, but with one important
@@ -160,14 +160,18 @@ FILE *_stdio_openlist = _stdio_streams;
 
 # ifdef __UCLIBC_HAS_THREADS__
 #  ifdef __USE_STDIO_FUTEXES__
-#   include <bits/stdio-lock.h>
-_IO_lock_t _stdio_openlist_lock = _IO_lock_initializer;
+#  define __UCLIBC_IO_MUTEX_INITIALIZER _IO_lock_initializer
 #  else
-pthread_mutex_t _stdio_openlist_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#  define __UCLIBC_IO_MUTEX_INITIALIZER PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 #  endif
-int _stdio_openlist_delflag = 0;
-# endif
 
+__UCLIBC_IO_MUTEX_INIT(_stdio_openlist_add_lock, __UCLIBC_IO_MUTEX_INITIALIZER);
+#  ifdef __STDIO_BUFFERS
+__UCLIBC_IO_MUTEX_INIT(_stdio_openlist_del_lock, __UCLIBC_IO_MUTEX_INITIALIZER);
+volatile int _stdio_openlist_use_count = 0;
+int _stdio_openlist_del_count = 0;
+#  endif
+# endif
 #endif
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_THREADS__
@@ -175,15 +179,13 @@ int _stdio_openlist_delflag = 0;
 /* 2 if threading not initialized and 0 otherwise; */
 int _stdio_user_locking = 2;
 
-#ifndef __USE_STDIO_FUTEXES__
-void attribute_hidden __stdio_init_mutex(pthread_mutex_t *m)
+void attribute_hidden __stdio_init_mutex(__UCLIBC_MUTEX_TYPE *m)
 {
-	static const pthread_mutex_t __stdio_mutex_initializer
-		= PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+	const __UCLIBC_MUTEX_STATIC(__stdio_mutex_initializer,
+		PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 	memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
 }
-#endif
 
 #endif
 /**********************************************************************/
@@ -198,11 +200,11 @@ void attribute_hidden _stdio_term(void)
 	/* First, make sure the open file list is unlocked.  If it was
 	 * locked, then I suppose there is a chance that a pointer in the
 	 * chain might be corrupt due to a partial store.
-	 */ 
-#ifdef __USE_STDIO_FUTEXES__
-	_IO_lock_init (_stdio_openlist_lock);
-#else
-	__stdio_init_mutex(&_stdio_openlist_lock);
+	 */
+	STDIO_INIT_MUTEX(_stdio_openlist_add_lock);
+#warning check
+#ifdef __STDIO_BUFFERS
+	STDIO_INIT_MUTEX(_stdio_openlist_del_lock);
 #endif
 
 	/* Next we need to worry about the streams themselves.  If a stream
@@ -211,7 +213,7 @@ void attribute_hidden _stdio_term(void)
 	 * Then we reinitialize the locks.
 	 */
 	for (ptr = _stdio_openlist ; ptr ; ptr = ptr->__nextopen ) {
-		if (__STDIO_ALWAYS_THREADTRYLOCK(ptr)) {
+		if (__STDIO_ALWAYS_THREADTRYLOCK_CANCEL_UNSAFE(ptr)) {
 			/* The stream is already locked, so we don't want to touch it.
 			 * However, if we have custom streams, we can't just close it
 			 * or leave it locked since a custom stream may be stacked
@@ -222,13 +224,9 @@ void attribute_hidden _stdio_term(void)
 			__STDIO_STREAM_DISABLE_PUTC(ptr);
 			__STDIO_STREAM_INIT_BUFREAD_BUFPOS(ptr);
 		}
-		
+
 		ptr->__user_locking = 1; /* Set locking mode to "by caller". */
-#ifdef __USE_STDIO_FUTEXES__
-		_IO_lock_init (ptr->_lock);
-#else
-		__stdio_init_mutex(&ptr->__lock); /* Shouldn't be necessary, but... */
-#endif
+		STDIO_INIT_MUTEX(ptr->__lock); /* Shouldn't be necessary, but... */
 	}
 #endif
 

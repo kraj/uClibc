@@ -44,7 +44,7 @@ extern unsigned long _dl_linux_resolver (struct elf_resolve *, int);
 static inline Elf32_Addr
 elf_machine_dynamic (void)
 {
-	register Elf32_Addr *got asm ("%a5");
+	register Elf32_Addr *got __asm__ ("%a5");
 	return *got;
 }
 
@@ -54,7 +54,7 @@ static inline Elf32_Addr
 elf_machine_load_address (void)
 {
 	Elf32_Addr addr;
-	asm ("lea _dl_start(%%pc), %0\n\t"
+	__asm__ ("lea _dl_start(%%pc), %0\n\t"
 	     "sub.l _dl_start@GOT.w(%%a5), %0"
 	     : "=a" (addr));
 	return addr;

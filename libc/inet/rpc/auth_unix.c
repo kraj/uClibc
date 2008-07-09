@@ -56,7 +56,7 @@
 # include <wchar.h>
 #endif
 
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(sysconf)
 libc_hidden_proto(getegid)
 libc_hidden_proto(geteuid)
@@ -212,8 +212,7 @@ authunix_create_default (void)
      list of groups to NGRPS members since the code in
      authuxprot.c transforms a fixed array.  Grrr.  */
   ret_auth = authunix_create (machname, uid, gid, MIN (NGRPS, len), gids);
-  if (gids)
-    free (gids);
+  free (gids);
   return ret_auth;
 }
 libc_hidden_def(authunix_create_default)

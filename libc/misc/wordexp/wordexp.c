@@ -35,15 +35,15 @@
 #include <glob.h>
 #include <wordexp.h>
 
-libc_hidden_proto(mempcpy)
-libc_hidden_proto(stpcpy)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strdup)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strndup)
-libc_hidden_proto(strspn)
-libc_hidden_proto(strcspn)
+/* Experimentally off - libc_hidden_proto(mempcpy) */
+/* Experimentally off - libc_hidden_proto(stpcpy) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strdup) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strndup) */
+/* Experimentally off - libc_hidden_proto(strspn) */
+/* Experimentally off - libc_hidden_proto(strcspn) */
 libc_hidden_proto(setenv)
 libc_hidden_proto(unsetenv)
 libc_hidden_proto(waitpid)
@@ -70,7 +70,7 @@ libc_hidden_proto(globfree)
 libc_hidden_proto(wordfree)
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 
@@ -1076,8 +1076,7 @@ parse_comm(char **word, size_t * word_length, size_t * max_length,
 	}
 
 	/* Premature end */
-	if (comm)
-		free(comm);
+	free(comm);
 
 	return WRDE_SYNTAX;
 }
@@ -1370,8 +1369,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 							   &buffer[20]);
 			*word = w_addstr(*word, word_length, max_length, value);
 			free(env);
-			if (pattern)
-				free(pattern);
+			free(pattern);
 			return *word ? 0 : WRDE_NOSPACE;
 		}
 		/* Is it `$*' or `$@' (unquoted) ? */
@@ -1530,8 +1528,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 						if (free_value)
 							free(value);
 
-						if (expanded)
-							free(expanded);
+						free(expanded);
 
 						goto do_error;
 					}
@@ -1550,8 +1547,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 						if (free_value)
 							free(value);
 
-						if (expanded)
-							free(expanded);
+						free(expanded);
 
 						goto do_error;
 					}
@@ -1573,8 +1569,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 					goto no_space;
 			}
 
-			if (pattern)
-				free(pattern);
+			free(pattern);
 
 			pattern = expanded;
 		}
@@ -1723,7 +1718,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 				/* Substitute parameter */
 				break;
 
-			if (free_value && value)
+			if (free_value)
 				free(value);
 
 			if (!colon_seen && value)
@@ -1740,7 +1735,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 
 		case ACT_NONNULL_SUBST:
 			if (value && (*value || !colon_seen)) {
-				if (free_value && value)
+				if (free_value)
 					free(value);
 
 				value = pattern ? strdup(pattern) : pattern;
@@ -1769,7 +1764,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 				goto success;
 			}
 
-			if (free_value && value)
+			if (free_value)
 				free(value);
 
 			value = pattern ? strdup(pattern) : pattern;
@@ -1895,11 +1890,9 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 	error = WRDE_SYNTAX;
 
   do_error:
-	if (env)
-		free(env);
+	free(env);
 
-	if (pattern)
-		free(pattern);
+	free(pattern);
 
 	return error;
 }
@@ -2269,8 +2262,7 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 	 *  set we members back to what they were.
 	 */
 
-	if (word != NULL)
-		free(word);
+	free(word);
 
 	if (error == WRDE_NOSPACE)
 		return WRDE_NOSPACE;

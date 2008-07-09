@@ -8,7 +8,7 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <signal.h>
 #include <string.h>
 

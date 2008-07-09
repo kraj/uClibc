@@ -137,17 +137,15 @@
 #include <errno.h>
 #include <ctype.h>
 #include <bits/uClibc_uintmaxtostr.h>
-
-#define __PRINTF_INFO_NO_BITFIELD
 #include <printf.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 #endif /* __UCLIBC_HAS_THREADS__ */
 
-libc_hidden_proto(strlen)
-libc_hidden_proto(strnlen)
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strnlen) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(putc_unlocked)
 libc_hidden_proto(__fputc_unlocked)
 libc_hidden_proto(__glibc_strerror_r)
@@ -359,13 +357,13 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 		int i;
 	} intarg;
 	int i, cnt, dataargtype, len;
-	const void *argptr;			/* This does not need to be initialized. */
+	const void *argptr = argptr; /* ok to be initialized. */
 	register char *p;
 	const char *fmt0;
 	int preci, width;
 #define upcase i
 	int radix, dpoint /*, upcase*/;
-	char tmp[65];				/* TODO - determing needed size from headers */
+	char tmp[65];		/* TODO - determine needed size from headers */
 	char flag[sizeof(spec)];
 	__STDIO_AUTO_THREADLOCK_VAR;
 

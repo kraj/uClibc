@@ -25,7 +25,7 @@ struct dirent *readdir(DIR * dir)
 		return NULL;
 	}
 
-	__pthread_mutex_lock(&(dir->dd_lock));
+	__UCLIBC_MUTEX_LOCK(dir->dd_lock);
 
 	do {
 	    if (dir->dd_size <= dir->dd_nextloc) {
@@ -51,7 +51,7 @@ struct dirent *readdir(DIR * dir)
 	} while (de->d_ino == 0);
 
 all_done:
-	__pthread_mutex_unlock(&(dir->dd_lock));
+	__UCLIBC_MUTEX_UNLOCK(dir->dd_lock);
 	return de;
 }
 libc_hidden_def(readdir)

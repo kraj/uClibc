@@ -354,6 +354,9 @@ typedef struct
 /* NIOS magic number - no EABI available.  */
 #define EM_NIOS32	0xFEBB
 
+/* AVR32 magic number from ATMEL */
+#define EM_AVR32       0x18ad
+
 /* V850 backend magic number.  Written in the absense of an ABI.  */
 #define EM_CYGNUS_V850 0x9080
 
@@ -2830,6 +2833,55 @@ typedef Elf32_Addr Elf32_Conflict;
 /* Keep this the last entry.  */
 #define R_V850_NUM		25
 
+/* Atmel AVR32 relocations.  */
+#define R_AVR32_NONE           0
+#define R_AVR32_32             1
+#define R_AVR32_16             2
+#define R_AVR32_8              3
+#define R_AVR32_32_PCREL       4
+#define R_AVR32_16_PCREL       5
+#define R_AVR32_8_PCREL                6
+#define R_AVR32_DIFF32         7
+#define R_AVR32_DIFF16         8
+#define R_AVR32_DIFF8          9
+#define R_AVR32_GOT32          10
+#define R_AVR32_GOT16          11
+#define R_AVR32_GOT8           12
+#define R_AVR32_21S            13
+#define R_AVR32_16U            14
+#define R_AVR32_16S            15
+#define R_AVR32_8S             16
+#define R_AVR32_8S_EXT         17
+#define R_AVR32_22H_PCREL      18
+#define R_AVR32_18W_PCREL      19
+#define R_AVR32_16B_PCREL      20
+#define R_AVR32_16N_PCREL      21
+#define R_AVR32_14UW_PCREL     22
+#define R_AVR32_11H_PCREL      23
+#define R_AVR32_10UW_PCREL     24
+#define R_AVR32_9H_PCREL       25
+#define R_AVR32_9UW_PCREL      26
+#define R_AVR32_HI16           27
+#define R_AVR32_LO16           28
+#define R_AVR32_GOTPC          29
+#define R_AVR32_GOTCALL                30
+#define R_AVR32_LDA_GOT                31
+#define R_AVR32_GOT21S         32
+#define R_AVR32_GOT18SW                33
+#define R_AVR32_GOT16S         34
+#define R_AVR32_GOT7UW         35
+#define R_AVR32_32_CPENT       36
+#define R_AVR32_CPCALL         37
+#define R_AVR32_16_CP          38
+#define R_AVR32_9W_CP          39
+#define R_AVR32_RELATIVE       40
+#define R_AVR32_GLOB_DAT       41
+#define R_AVR32_JMP_SLOT       42
+#define R_AVR32_ALIGN          43
+#define R_AVR32_NUM            44
+
+/* AVR32 dynamic tags */
+#define DT_AVR32_GOTSZ         0x70000001 /* Total size of GOT in bytes */
 
 /* Renesas H8/300 Relocations */
 #define R_H8_NONE       0
@@ -2924,6 +2976,64 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_NIOS2_ALIGN			21
 /* Keep this the last entry.  */
 #define R_NIOS2_NUM				22
+
+/* Xtensa-specific declarations */
+
+/* Xtensa values for the Dyn d_tag field.  */
+#define DT_XTENSA_GOT_LOC_OFF	(DT_LOPROC + 0)
+#define DT_XTENSA_GOT_LOC_SZ	(DT_LOPROC + 1)
+#define DT_XTENSA_NUM		2
+
+/* Xtensa relocations.  */
+#define R_XTENSA_NONE		0
+#define R_XTENSA_32		1
+#define R_XTENSA_RTLD		2
+#define R_XTENSA_GLOB_DAT	3
+#define R_XTENSA_JMP_SLOT	4
+#define R_XTENSA_RELATIVE	5
+#define R_XTENSA_PLT		6
+#define R_XTENSA_OP0		8
+#define R_XTENSA_OP1		9
+#define R_XTENSA_OP2		10
+#define R_XTENSA_ASM_EXPAND	11
+#define R_XTENSA_ASM_SIMPLIFY	12
+#define R_XTENSA_GNU_VTINHERIT	15
+#define R_XTENSA_GNU_VTENTRY	16
+#define R_XTENSA_DIFF8		17
+#define R_XTENSA_DIFF16		18
+#define R_XTENSA_DIFF32		19
+#define R_XTENSA_SLOT0_OP	20
+#define R_XTENSA_SLOT1_OP	21
+#define R_XTENSA_SLOT2_OP	22
+#define R_XTENSA_SLOT3_OP	23
+#define R_XTENSA_SLOT4_OP	24
+#define R_XTENSA_SLOT5_OP	25
+#define R_XTENSA_SLOT6_OP	26
+#define R_XTENSA_SLOT7_OP	27
+#define R_XTENSA_SLOT8_OP	28
+#define R_XTENSA_SLOT9_OP	29
+#define R_XTENSA_SLOT10_OP	30
+#define R_XTENSA_SLOT11_OP	31
+#define R_XTENSA_SLOT12_OP	32
+#define R_XTENSA_SLOT13_OP	33
+#define R_XTENSA_SLOT14_OP	34
+#define R_XTENSA_SLOT0_ALT	35
+#define R_XTENSA_SLOT1_ALT	36
+#define R_XTENSA_SLOT2_ALT	37
+#define R_XTENSA_SLOT3_ALT	38
+#define R_XTENSA_SLOT4_ALT	39
+#define R_XTENSA_SLOT5_ALT	40
+#define R_XTENSA_SLOT6_ALT	41
+#define R_XTENSA_SLOT7_ALT	42
+#define R_XTENSA_SLOT8_ALT	43
+#define R_XTENSA_SLOT9_ALT	44
+#define R_XTENSA_SLOT10_ALT	45
+#define R_XTENSA_SLOT11_ALT	46
+#define R_XTENSA_SLOT12_ALT	47
+#define R_XTENSA_SLOT13_ALT	48
+#define R_XTENSA_SLOT14_ALT	49
+/* Keep this the last entry.  */
+#define R_XTENSA_NUM		50
 
 __END_DECLS
 

@@ -29,7 +29,7 @@ Cambridge, MA 02139, USA.  */
 
 libc_hidden_proto(abort)
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(sigaction)
 libc_hidden_proto(sigprocmask)
 libc_hidden_proto(raise)
@@ -46,15 +46,11 @@ libc_hidden_proto(_exit)
 #ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__
 extern void weak_function _stdio_term(void) attribute_hidden;
 #endif
-static int been_there_done_that = 0;
+static smallint been_there_done_that = 0;
 
 /* Be prepared in case multiple threads try to abort() */
-#ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#endif
-#define LOCK	__pthread_mutex_lock(&mylock)
-#define UNLOCK	__pthread_mutex_unlock(&mylock)
+#include <bits/uClibc_mutex.h>
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 /* Cause an abnormal program termination with core-dump */
 void abort(void)
@@ -62,7 +58,7 @@ void abort(void)
 	sigset_t sigs;
 
 	/* Make sure we acquire the lock before proceeding */
-	LOCK;
+	__UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE(mylock);
 
 	/* Unmask SIGABRT to be sure we can get it */
 	if (__sigemptyset(&sigs) == 0 && __sigaddset(&sigs, SIGABRT) == 0) {
@@ -85,9 +81,9 @@ void abort(void)
 #endif
 
 abort_it:
-			UNLOCK;
+			__UCLIBC_MUTEX_UNLOCK_CANCEL_UNSAFE(mylock);
 			raise(SIGABRT);
-			LOCK;
+			__UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE(mylock);
 		}
 
 		/* Still here?  Try to remove any signal handlers */

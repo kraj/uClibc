@@ -91,12 +91,13 @@
  */
 
 #include <sys/syscall.h>
+#include <bits/arm_asm.h>
 
 #include <features.h>
 
  .text
  .align 4      @ 16 byte boundary and there are 32 bytes below (arm case)
- #if !defined(__thumb__)
+ #if !defined(__thumb__) || defined(__thumb2__)
  .arm
  .globl _dl_linux_resolve
  .type _dl_linux_resolve,%function

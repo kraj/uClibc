@@ -19,13 +19,14 @@
 #include <features.h>
 #include <netdb.h>
 #include <string.h>
+#include <unistd.h>
 
-libc_hidden_proto(strcmp)
+/* Experimentally off - libc_hidden_proto(strcmp) */
 libc_hidden_proto(setnetent)
 libc_hidden_proto(getnetent)
 libc_hidden_proto(endnetent)
 
-extern int _net_stayopen attribute_hidden;
+extern smallint _net_stayopen attribute_hidden;
 
 struct netent *
 getnetbyname(const char *name)

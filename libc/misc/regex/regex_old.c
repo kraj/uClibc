@@ -35,17 +35,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
 #include <stdio.h>
 
-libc_hidden_proto(memset)
-libc_hidden_proto(memcmp)
-libc_hidden_proto(memcpy)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(memcmp) */
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(printf)
 libc_hidden_proto(abort)
 #ifdef __USE_GNU
-libc_hidden_proto(mempcpy)
+/* Experimentally off - libc_hidden_proto(mempcpy) */
 #endif
 
 /* AIX requires this to be the first thing in the file. */
@@ -794,7 +795,7 @@ PREFIX(extract_number_and_incr) (destination, source)
 /* It is useful to test things that ``must'' be true when debugging.  */
 #   include <assert.h>
 
-static int debug;
+static smallint debug;
 
 #   define DEBUG_STATEMENT(e) e
 #   define DEBUG_PRINT1(x) if (debug) printf (x)
@@ -5128,7 +5129,7 @@ strong_alias(__re_search_2, re_search_2)
 #ifdef MATCH_MAY_ALLOCATE
 # define FREE_VAR(var) if (var) REGEX_FREE (var); var = NULL
 #else
-# define FREE_VAR(var) if (var) free (var); var = NULL
+# define FREE_VAR(var) free (var); var = NULL
 #endif
 
 #ifdef WCHAR
@@ -8309,20 +8310,17 @@ void
 regfree (preg)
     regex_t *preg;
 {
-  if (preg->buffer != NULL)
-    free (preg->buffer);
+  free (preg->buffer);
   preg->buffer = NULL;
 
   preg->allocated = 0;
   preg->used = 0;
 
-  if (preg->fastmap != NULL)
-    free (preg->fastmap);
+  free (preg->fastmap);
   preg->fastmap = NULL;
   preg->fastmap_accurate = 0;
 
-  if (preg->translate != NULL)
-    free (preg->translate);
+  free (preg->translate);
   preg->translate = NULL;
 }
 #if defined _LIBC || defined __UCLIBC__

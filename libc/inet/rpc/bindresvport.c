@@ -40,7 +40,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(bind)
 libc_hidden_proto(getpid)
 

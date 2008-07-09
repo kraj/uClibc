@@ -41,6 +41,7 @@
 #include <errno.h>
 #include <fnmatch.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #if HAVE_STRING_H || defined _LIBC
 # include <string.h>
@@ -54,19 +55,19 @@
 
 #ifdef __UCLIBC__
 #define __memset memset
-libc_hidden_proto(memchr)
-libc_hidden_proto(memset)
-libc_hidden_proto(mempcpy)
-libc_hidden_proto(strcat)
-libc_hidden_proto(strcmp)
+/* Experimentally off - libc_hidden_proto(memchr) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(mempcpy) */
+/* Experimentally off - libc_hidden_proto(strcat) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
 /*libc_hidden_proto(strchr)*/
 /*libc_hidden_proto(strchrnul)*/
-libc_hidden_proto(strlen)
-libc_hidden_proto(strcoll)
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strcoll) */
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
 libc_hidden_proto(__ctype_tolower_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 libc_hidden_proto(__ctype_tolower)
 #endif
@@ -211,7 +212,7 @@ extern int errno;
 # endif
 
 /* Global variable.  */
-static int posixly_correct;
+static smallint posixly_correct;
 
 /* This function doesn't exist on most systems.  */
 

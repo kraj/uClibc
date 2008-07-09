@@ -1,6 +1,7 @@
 # uClibc pthread tests
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
+TESTS_DISABLED += cancellation-points
 include ../Test.mak
 
 EXTRA_LDFLAGS := -lpthread

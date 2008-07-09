@@ -34,8 +34,8 @@
 libc_hidden_proto(ttyname_r)
 libc_hidden_proto(fstat)
 libc_hidden_proto(lstat)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(opendir)
 libc_hidden_proto(closedir)
 libc_hidden_proto(readdir)

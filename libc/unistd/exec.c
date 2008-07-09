@@ -29,57 +29,79 @@
 
 libc_hidden_proto(execl)
 libc_hidden_proto(execle)
+libc_hidden_proto(execlp)
+libc_hidden_proto(execv)
 libc_hidden_proto(execvp)
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(strchr)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(execve)
 libc_hidden_proto(mmap)
 libc_hidden_proto(munmap)
 libc_hidden_proto(getenv)
 
 /**********************************************************************/
-#if defined(__ARCH_USE_MMU__) || defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
+#define EXEC_FUNC_COMMON 0
+#define EXEC_FUNC_EXECVP 1
+#if defined(__ARCH_USE_MMU__)
 
-/* We have an MMU, so use alloca() to grab space for buffers and
- * arg lists.  Also fall back to alloca() if munmap() is broken. */
+/* We have an MMU, so use alloca() to grab space for buffers and arg lists. */
 
-# define EXEC_ALLOC_SIZE(VAR)	/* nothing to do */
-# define EXEC_ALLOC(SIZE,VAR)	alloca((SIZE))
-# define EXEC_FREE(PTR,VAR)		((void)0)
+# define EXEC_ALLOC_SIZE(VAR)      /* nothing to do */
+# define EXEC_ALLOC(SIZE,VAR,FUNC) alloca((SIZE))
+# define EXEC_FREE(PTR,VAR)        ((void)0)
 
 #else
 
-/* We do not have an MMU, so using alloca() is not an option.
- * Less obviously, using malloc() is not an option either since
- * malloc()ed memory can leak in a vfork() and exec*() situation.
- * Therefore, we must use mmap() and unmap() directly.
+/* We do not have an MMU, so using alloca() is not an option (as this will
+ * easily overflow the stack in most setups).  Less obviously, using malloc()
+ * is not an option either since malloc()ed memory can leak in from a vfork()ed
+ * child into the parent as no one is around after the child calls exec*() to
+ * free() the memory.  Therefore, we must use mmap() and unmap() directly,
+ * caching the result as we go.  This way we minimize the leak by reusing the
+ * memory with every call to an exec*().
+ *
+ * To prevent recursive use of the same cached memory, we have to give execvp()
+ * its own cache.  Here are the nested exec calls (a/-: alloc/no-alloc):
+ *  execve(-) -> calls straight to kernel
+ *  execl(a)  -> execve(-)
+ *  execlp(a) -> execvp(a)	!! recursive usage !!
+ *  execle(a) -> execve(-)
+ *  execv(-)  -> execve(-)
+ *  execvp(a) -> execve(-)
  */
 
-# define EXEC_ALLOC_SIZE(VAR)	size_t VAR;	/* Semicolon included! */
-# define EXEC_ALLOC(SIZE,VAR)	__exec_alloc((VAR = (SIZE)))
-# define EXEC_FREE(PTR,VAR)		__exec_free((PTR),(VAR))
+# define EXEC_ALLOC_SIZE(VAR)      /* nothing to do */
+# define EXEC_ALLOC(SIZE,VAR,FUNC) __exec_alloc((SIZE), FUNC)
+# define EXEC_FREE(PTR,VAR)        ((void)0)
 
-extern void *__exec_alloc(size_t size) attribute_hidden;
-extern void __exec_free(void *ptr, size_t size) attribute_hidden;
+extern void *__exec_alloc(size_t size, int func) attribute_hidden;
 
 # ifdef L___exec_alloc
 
-void attribute_hidden *__exec_alloc(size_t size)
+void attribute_hidden *__exec_alloc(size_t size, int func)
 {
-	void *p;
+	static void *common_cache, *execvp_cache;
+	static size_t common_size, execvp_size;
 
-	p = mmap(0, size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	void **cache = (func ? &execvp_cache : &common_cache);
+	size_t *cache_size = (func ? &execvp_size : &common_size);
 
-	return (p != MAP_FAILED) ? p : NULL;
-}
+	if (*cache_size >= size)
+		return *cache;
+	else if (*cache)
+		munmap(*cache, *cache_size);
 
-void attribute_hidden __exec_free(void *ptr, size_t size)
-{
-	if (ptr) {
-		munmap(ptr, size);
-	}
+	*cache_size = size;
+	return *cache = mmap(0, size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+
+	/* We don't actually handle OOM in the exec funcs ...
+	if (*cache != MAP_FAILED)
+		return *cache;
+	else
+		return (*cache = NULL);
+	*/
 }
 
 # endif
@@ -95,7 +117,7 @@ int execl(const char *path, const char *arg, ...)
 	char **argv;
 	char **p;
 	va_list args;
-	
+
 	n = 0;
 	va_start(args, arg);
 	do {
@@ -103,7 +125,7 @@ int execl(const char *path, const char *arg, ...)
 	} while (va_arg(args, char *));
 	va_end(args);
 
-	p = argv = (char **) EXEC_ALLOC((n+1) * sizeof(char *), size);
+	p = argv = (char **) EXEC_ALLOC((n+1) * sizeof(char *), size, EXEC_FUNC_COMMON);
 
 	p[0] = (char *)arg;
 
@@ -129,6 +151,7 @@ int execv(__const char *path, char *__const argv[])
 {
 	return execve(path, argv, __environ);
 }
+libc_hidden_def(execv)
 
 #endif
 /**********************************************************************/
@@ -142,7 +165,7 @@ int execle(const char *path, const char *arg, ...)
 	char **p;
 	char *const *envp;
 	va_list args;
-	
+
 	n = 0;
 	va_start(args, arg);
 	do {
@@ -151,7 +174,7 @@ int execle(const char *path, const char *arg, ...)
 	envp = va_arg(args, char *const *);	/* Varies from execl and execlp. */
 	va_end(args);
 
-	p = argv = (char **) EXEC_ALLOC((n+1) * sizeof(char *), size);
+	p = argv = (char **) EXEC_ALLOC((n+1) * sizeof(char *), size, EXEC_FUNC_COMMON);
 
 	p[0] = (char *)arg;
 
@@ -180,7 +203,7 @@ int execlp(const char *file, const char *arg, ...)
 	char **argv;
 	char **p;
 	va_list args;
-	
+
 	n = 0;
 	va_start(args, arg);
 	do {
@@ -188,7 +211,7 @@ int execlp(const char *file, const char *arg, ...)
 	} while (va_arg(args, char *));
 	va_end(args);
 
-	p = argv = (char **) EXEC_ALLOC((n+1) * sizeof(char *), size);
+	p = argv = (char **) EXEC_ALLOC((n+1) * sizeof(char *), size, EXEC_FUNC_COMMON);
 
 	p[0] = (char *)arg;
 
@@ -204,12 +227,13 @@ int execlp(const char *file, const char *arg, ...)
 
 	return n;
 }
+libc_hidden_def(execlp)
 
 #endif
 /**********************************************************************/
 #ifdef L_execvp
 
-libc_hidden_proto(strchrnul)
+/* Experimentally off - libc_hidden_proto(strchrnul) */
 
 /* Use a default path that matches glibc behavior, since SUSv3 says
  * this is implementation-defined.  The default is current working dir,
@@ -235,15 +259,15 @@ int execvp(const char *path, char *const argv[])
 
 	if (strchr(path, '/')) {
 		execve(path, argv, __environ);
-	CHECK_ENOEXEC:
 		if (errno == ENOEXEC) {
 			char **nargv;
 			EXEC_ALLOC_SIZE(size2) /* Do NOT add a semicolon! */
 			size_t n;
+	RUN_BIN_SH:
 			/* Need the dimension - 1.  We omit counting the trailing
 			 * NULL but we actually omit the first entry. */
 			for (n=0 ; argv[n] ; n++) {}
-			nargv = (char **) EXEC_ALLOC((n+2) * sizeof(char *), size2);
+			nargv = (char **) EXEC_ALLOC((n+2) * sizeof(char *), size2, EXEC_FUNC_EXECVP);
 			nargv[0] = argv[0];
 			nargv[1] = (char *)path;
 			memcpy(nargv+2, argv+1, n*sizeof(char *));
@@ -267,7 +291,8 @@ int execvp(const char *path, char *const argv[])
 		}
 		len = (FILENAME_MAX - 1) - plen;
 
-		if ((buf = EXEC_ALLOC(FILENAME_MAX, size)) != NULL) {
+		buf = EXEC_ALLOC(FILENAME_MAX, size, EXEC_FUNC_EXECVP);
+		{
 			int seen_small = 0;
 			s0 = buf + len;
 			memcpy(s0, path, plen+1);
@@ -292,9 +317,9 @@ int execvp(const char *path, char *const argv[])
 
 				seen_small = 1;
 
-				if (errno != ENOENT) {
+				if (errno == ENOEXEC) {
 					path = s;
-					goto CHECK_ENOEXEC;
+					goto RUN_BIN_SH;
 				}
 
 			NEXT:

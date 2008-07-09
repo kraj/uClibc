@@ -177,7 +177,7 @@ extern void __fp_range_check(__fpmax_t y, __fpmax_t x) attribute_hidden;
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 libc_hidden_proto(__ctype_tolower)
 #endif
@@ -215,7 +215,7 @@ __fpmax_t attribute_hidden __strtofpmax(const Wchar *str, Wchar **endptr, int ex
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-libc_hidden_proto(memcmp)
+/* Experimentally off - libc_hidden_proto(memcmp) */
 
 __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_power
 								 __LOCALE_PARAM )
@@ -234,7 +234,7 @@ __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endp
 #endif
 #ifdef __UCLIBC_HAS_LOCALE__
 #if defined(L___wcstofpmax) || defined(L___wcstofpmax_l)
-	wchar_t decpt_wc = __LOCALE_PTR->decimal_point;
+	wchar_t decpt_wc = __LOCALE_PTR->decimal_point_wc;
 #else
 	const char *decpt = __LOCALE_PTR->decimal_point;
 	int decpt_len = __LOCALE_PTR->decimal_point_len;

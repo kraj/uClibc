@@ -72,13 +72,19 @@ int __fputc_unlocked(int c, register FILE *stream)
 }
 libc_hidden_def(__fputc_unlocked)
 
+/* exposing these would be fundamentally *wrong*! fix you, instead! */
+/* libc_hidden_proto(fputc_unlocked) */
 strong_alias(__fputc_unlocked,fputc_unlocked)
+/* exposing these would be fundamentally *wrong*! fix you, instead! */
+/* libc_hidden_def(fputc_unlocked) */
 
 libc_hidden_proto(putc_unlocked)
 strong_alias(__fputc_unlocked,putc_unlocked)
 libc_hidden_def(putc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
+libc_hidden_proto(fputc)
 strong_alias(__fputc_unlocked,fputc)
+libc_hidden_def(fputc)
 
 libc_hidden_proto(putc)
 strong_alias(__fputc_unlocked,putc)

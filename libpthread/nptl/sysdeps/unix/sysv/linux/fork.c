@@ -30,7 +30,6 @@
 #include <atomic.h>
 #include <errno.h>
 
-
 unsigned long int *__fork_generation_pointer;
 
 
@@ -45,7 +44,7 @@ fresetlockfiles (void)
   FILE *fp;
 #ifdef __USE_STDIO_FUTEXES__
   for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen)
-    _IO_lock_init(fp->_lock);
+    STDIO_INIT_MUTEX(fp->__lock);
 #else
   pthread_mutexattr_t attr;
 
@@ -121,11 +120,7 @@ pid_t __libc_fork (void)
       break;
     }
 
-#ifdef __USE_STDIO_FUTEXES__
-  _IO_lock_lock (_stdio_openlist_lock);
-#else
-  __pthread_mutex_lock(&_stdio_openlist_lock);
-#endif
+  __UCLIBC_IO_MUTEX_LOCK(_stdio_openlist_add_lock);
 
 #ifndef NDEBUG
   pid_t ppid = THREAD_GETMEM (THREAD_SELF, tid);
@@ -169,11 +164,7 @@ pid_t __libc_fork (void)
       fresetlockfiles ();
 
       /* Reset locks in the I/O code.  */
-#ifdef __USE_STDIO_FUTEXES__
-      _IO_lock_init (_stdio_openlist_lock);
-#else
-      __stdio_init_mutex(&_stdio_openlist_lock);
-#endif
+      STDIO_INIT_MUTEX(_stdio_openlist_add_lock);
 
       /* Run the handlers registered for the child.  */
       while (allp != NULL)
@@ -205,11 +196,7 @@ pid_t __libc_fork (void)
       THREAD_SETMEM (THREAD_SELF, pid, parentpid);
 
       /* We execute this even if the 'fork' call failed.  */
-#ifdef __USE_STDIO_FUTEXES__
-      _IO_lock_unlock(_stdio_openlist_lock);
-#else
-      __pthread_mutex_unlock(&_stdio_openlist_lock);
-#endif
+      __UCLIBC_IO_MUTEX_UNLOCK(_stdio_openlist_add_lock);
 
       /* Run the handlers registered for the parent.  */
       while (allp != NULL)

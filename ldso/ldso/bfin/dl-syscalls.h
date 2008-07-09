@@ -67,7 +67,7 @@ _dl_mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
       if (! _dl_mmap_base)
 	{
 	  void *stack;
-	  asm ("mov sp, %0" : "=r" (stack));
+	  __asm__ ("mov sp, %0" : "=r" (stack));
 	  _dl_mmap_base = (void *)(((long)stack + 2 * PAGE_SIZE) & -PAGE_SIZE);
 	retry:
 	  if (((void **)_dl_mmap_base)[0] == _dl_mmap_base

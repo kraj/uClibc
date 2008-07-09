@@ -103,13 +103,28 @@ extern int   _dl_debug_file;
 #define NULL ((void *) 0)
 #endif
 
-extern void *_dl_malloc(int size);
+extern void *_dl_malloc(size_t size);
+extern void * _dl_calloc(size_t __nmemb, size_t __size);
+extern void * _dl_realloc(void * __ptr, size_t __size);
+extern void _dl_free(void *);
 extern char *_dl_getenv(const char *symbol, char **envp);
 extern void _dl_unsetenv(const char *symbol, char **envp);
 extern char *_dl_strdup(const char *string);
 extern void _dl_dprintf(int, const char *, ...);
 
-extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
-		ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv);
+#ifndef DL_GET_READY_TO_RUN_EXTRA_PARMS
+# define DL_GET_READY_TO_RUN_EXTRA_PARMS
+#endif
+#ifndef DL_GET_READY_TO_RUN_EXTRA_ARGS
+# define DL_GET_READY_TO_RUN_EXTRA_ARGS
+#endif
+
+extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
+		ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
+		DL_GET_READY_TO_RUN_EXTRA_PARMS);
+
+#ifdef HAVE_DL_INLINES_H
+#include <dl-inlines.h>
+#endif
 
 #endif /* _LDSO_H_ */

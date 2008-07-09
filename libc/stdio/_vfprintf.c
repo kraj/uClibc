@@ -101,8 +101,6 @@
 #include <stdint.h>
 #include <errno.h>
 #include <locale.h>
-
-#define __PRINTF_INFO_NO_BITFIELD
 #include <printf.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -117,10 +115,10 @@
 #include <bits/uClibc_uintmaxtostr.h>
 #include <bits/uClibc_va_copy.h>
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memset)
-libc_hidden_proto(strlen)
-libc_hidden_proto(strnlen)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strlen) */
+/* Experimentally off - libc_hidden_proto(strnlen) */
 libc_hidden_proto(__glibc_strerror_r)
 libc_hidden_proto(fputs_unlocked)
 libc_hidden_proto(abort)
@@ -732,7 +730,7 @@ void attribute_hidden _ppfs_setargs(register ppfs_t *ppfs)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_proto(__ctype_b_loc)
-#elif __UCLIBC_HAS_CTYPE_TABLES__
+#elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_b)
 #endif
 
@@ -898,7 +896,7 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 				) {
 				return -1;
 			}
-		} while (buf[i++]);
+		} while (buf[i++] && (i < sizeof(buf)));
 		buf[sizeof(buf)-1] = 0;
 	}
 #else  /* __UCLIBC_HAS_WCHAR__ */
@@ -1198,7 +1196,7 @@ int register_printf_function(int spec, printf_function handler,
 
 #endif
 /**********************************************************************/
-#if defined(L_vfprintf) || defined(L_vfwprintf)
+#if defined(L__vfprintf_internal) || defined(L__vfwprintf_internal)
 
 /* We only support ascii digits (or their USC equivalent codes) in
  * precision and width settings in *printf (wide) format strings.
@@ -1207,14 +1205,15 @@ int register_printf_function(int spec, printf_function handler,
 
 static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad);
 
-#ifdef L_vfprintf
+#ifdef L__vfprintf_internal
 
-#define VFPRINTF vfprintf
+#define VFPRINTF_internal _vfprintf_internal
 #define FMT_TYPE char
 #define OUTNSTR _outnstr
 #define STRLEN  strlen
 #define _PPFS_init _ppfs_init
-#define OUTPUT(F,S)			fputs_unlocked(S,F)
+/* Pulls in fseek: #define OUTPUT(F,S)	fputs_unlocked(S,F) */
+#define OUTPUT(F,S)			__stdio_fwrite((const unsigned char *)(S),strlen(S),(F))
 /* #define _outnstr(stream, string, len)	__stdio_fwrite(string, len, stream) */
 #define _outnstr(stream, string, len)	((len > 0) ? __stdio_fwrite(string, len, stream) : 0)
 #define FP_OUT _fp_out_narrow
@@ -1234,19 +1233,21 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 		}
 		len = buflen;
 	}
-	return r + OUTNSTR(fp, (const char *) buf, len);
+	return r + OUTNSTR(fp, (const unsigned char *) buf, len);
 }
 
 #endif /* __STDIO_PRINTF_FLOAT */
 
-#else  /* L_vfprintf */
+#else  /* L__vfprintf_internal */
 
-#define VFPRINTF vfwprintf
+#define VFPRINTF_internal _vfwprintf_internal
 #define FMT_TYPE wchar_t
 #define OUTNSTR _outnwcs
 #define STRLEN  wcslen
 #define _PPFS_init _ppwfs_init
+/* Pulls in fseek: */
 #define OUTPUT(F,S)			fputws(S,F)
+/* TODO: #define OUTPUT(F,S)		_wstdio_fwrite((S),wcslen(S),(F)) */
 #define _outnwcs(stream, wstring, len)	_wstdio_fwrite(wstring, len, stream)
 #define FP_OUT _fp_out_wide
 
@@ -1417,7 +1418,8 @@ static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 	return 0;
 }
 
-#endif /* L_vfprintf */
+#endif /* L__vfprintf_internal */
+
 
 static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad)
 {
@@ -1427,7 +1429,7 @@ static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad)
 	FMT_TYPE pad[1];
 
 	*pad = padchar;
-	while (todo && (OUTNSTR(stream, pad, 1) == 1)) {
+	while (todo && (OUTNSTR(stream, (const unsigned char *) pad, 1) == 1)) {
 		--todo;
 	}
 
@@ -1439,12 +1441,12 @@ static int _do_one_spec(FILE * __restrict stream,
 						 register ppfs_t *ppfs, int *count)
 {
 	static const char spec_base[] = SPEC_BASE;
-#ifdef L_vfprintf
+#ifdef L__vfprintf_internal
 	static const char prefix[] = "+\0-\0 \0000x\0000X";
 	/*                            0  2  4  6   9 11*/
-#else  /* L_vfprintf */
+#else  /* L__vfprintf_internal */
 	static const wchar_t prefix[] = L"+\0-\0 \0000x\0000X";
-#endif /* L_vfprintf */
+#endif /* L__vfprintf_internal */
 	enum {
 		PREFIX_PLUS = 0,
 		PREFIX_MINUS = 2,
@@ -1465,7 +1467,7 @@ static int _do_one_spec(FILE * __restrict stream,
 	mbstate_t mbstate;
 #endif /* __UCLIBC_HAS_WCHAR__ */
 	size_t slen;
-#ifdef L_vfprintf
+#ifdef L__vfprintf_internal
 #define SLEN slen
 #else
 	size_t SLEN;
@@ -1532,7 +1534,7 @@ static int _do_one_spec(FILE * __restrict stream,
 			alphacase = __UIM_LOWER;
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_vfprintf
+#ifdef L__vfprintf_internal
 #warning CONSIDER: Should we ignore these flags if stub locale?  What about custom specs?
 #endif
 #endif /* __UCLIBC_MJN3_ONLY__ */
@@ -1560,13 +1562,13 @@ static int _do_one_spec(FILE * __restrict stream,
 				padchar = ppfs->info.pad;
 			}
 #ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_vfprintf
+#ifdef L__vfprintf_internal
 #warning CONSIDER: If using outdigits and/or grouping, how should we interpret precision?
 #endif
 #endif /* __UCLIBC_MJN3_ONLY__ */
 			s = _uintmaxtostr(buf + sizeof(buf) - 1,
 							  (uintmax_t)
-							  _load_inttype(*argtype & __PA_INTMASK,
+							  _load_inttype(ppfs->conv_num == CONV_p ? PA_FLAG_LONG : *argtype & __PA_INTMASK,
 											*argptr, base), base, alphacase);
 			if (ppfs->conv_num > CONV_u) { /* signed int */
 				if (*s == '-') {
@@ -1580,7 +1582,7 @@ static int _do_one_spec(FILE * __restrict stream,
 				}
 			}
 			slen = (char *)(buf + sizeof(buf) - 1) - s;
-#ifdef L_vfwprintf
+#ifdef L__vfwprintf_internal
 			{
 				const char *q = s;
 				mbstate.__mask = 0; /* Initialize the mbstate. */
@@ -1605,13 +1607,13 @@ static int _do_one_spec(FILE * __restrict stream,
 				}
 				if (ppfs->conv_num == CONV_p) {/* null pointer */
 					s = "(nil)";
-#ifdef L_vfwprintf
+#ifdef L__vfwprintf_internal
 					SLEN =
 #endif
 					slen = 5;
 					numfill = 0;
 				} else if (numfill == 0) {	/* if precision 0, no output */
-#ifdef L_vfwprintf
+#ifdef L__vfwprintf_internal
 					SLEN =
 #endif
 					slen = 0;
@@ -1637,7 +1639,7 @@ static int _do_one_spec(FILE * __restrict stream,
 			return -1;			/* TODO -- try to continue? */
 #endif /* __STDIO_PRINTF_FLOAT */
 		} else if (ppfs->conv_num <= CONV_S) {	/* wide char or string */
-#ifdef L_vfprintf
+#ifdef L__vfprintf_internal
 
 #ifdef __UCLIBC_HAS_WCHAR__
 			mbstate.__mask = 0;	/* Initialize the mbstate. */
@@ -1692,7 +1694,7 @@ static int _do_one_spec(FILE * __restrict stream,
 				slen = 1;
 			}
 
-#else  /* L_vfprintf */
+#else  /* L__vfprintf_internal */
 
 			if (ppfs->conv_num == CONV_S) { /* wide string */
 				ws = *((wchar_t **) (*argptr));
@@ -1713,7 +1715,7 @@ static int _do_one_spec(FILE * __restrict stream,
 
 			if (ppfs->conv_num == CONV_s) { /* string */
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Fix %s for vfwprintf... output upto illegal sequence?
+#warning TODO: Fix %s for _vfwprintf_internal... output upto illegal sequence?
 #endif /* __UCLIBC_MJN3_ONLY__ */
 				s = *((char **) (*argptr));
 				if (s) {
@@ -1746,7 +1748,7 @@ static int _do_one_spec(FILE * __restrict stream,
 				goto CHAR_CASE;
 			}
 
-#endif /* L_vfprintf */
+#endif /* L__vfprintf_internal */
 
 #ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
 		} else if (ppfs->conv_num == CONV_m) {
@@ -1778,7 +1780,7 @@ static int _do_one_spec(FILE * __restrict stream,
 		}
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_vfprintf
+#ifdef L__vfprintf_internal
 #warning CONSIDER: If using outdigits and/or grouping, how should we pad?
 #endif
 #endif /* __UCLIBC_MJN3_ONLY__ */
@@ -1805,11 +1807,12 @@ static int _do_one_spec(FILE * __restrict stream,
 			numpad = 0;
 		}
 		OUTPUT(stream, prefix + prefix_num);
+
 		if (_charpad(stream, '0', numfill) != numfill) {
 			return -1;
 		}
 
-#ifdef L_vfprintf
+#ifdef L__vfprintf_internal
 
 #ifdef __UCLIBC_HAS_WCHAR__
 		if (!ws) {
@@ -1831,12 +1834,12 @@ static int _do_one_spec(FILE * __restrict stream,
 			}
 		}
 #else  /* __UCLIBC_HAS_WCHAR__ */
-		if (_outnstr(stream, s, slen) != slen) {
+		if (_outnstr(stream, (const unsigned char *) s, slen) != slen) {
 			return -1;
 		}
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
-#else  /* L_vfprintf */
+#else  /* L__vfprintf_internal */
 
 		if (!ws) {
 			assert(s);
@@ -1849,7 +1852,7 @@ static int _do_one_spec(FILE * __restrict stream,
 			}
 		}
 
-#endif /* L_vfprintf */
+#endif /* L__vfprintf_internal */
 		if (_charpad(stream, ' ', numpad) != numpad) {
 			return -1;
 		}
@@ -1860,35 +1863,21 @@ static int _do_one_spec(FILE * __restrict stream,
 
 libc_hidden_proto(fprintf)
 
-libc_hidden_proto(VFPRINTF)
-int VFPRINTF (FILE * __restrict stream,
-			  register const FMT_TYPE * __restrict format,
+int VFPRINTF_internal (FILE * __restrict stream,
+			  const FMT_TYPE * __restrict format,
 			  va_list arg)
 {
 	ppfs_t ppfs;
 	int count, r;
 	register const FMT_TYPE *s;
-	__STDIO_AUTO_THREADLOCK_VAR;
-
-	__STDIO_AUTO_THREADLOCK(stream);
 
 	count = 0;
 	s = format;
 
-	if 
-#ifdef L_vfprintf
-	(!__STDIO_STREAM_IS_NARROW_WRITING(stream)
-	 && __STDIO_STREAM_TRANS_TO_WRITE(stream, __FLAG_NARROW))
-#else
-	(!__STDIO_STREAM_IS_WIDE_WRITING(stream)
-	 && __STDIO_STREAM_TRANS_TO_WRITE(stream, __FLAG_WIDE))
-#endif
-	{
-		count = -1;
-	} else if (_PPFS_init(&ppfs, format) < 0) {	/* Bad format string. */
-		OUTNSTR(stream, (const FMT_TYPE *) ppfs.fmtpos,
+	if (_PPFS_init(&ppfs, format) < 0) {	/* Bad format string. */
+		OUTNSTR(stream, (const unsigned char *) ppfs.fmtpos,
 				STRLEN((const FMT_TYPE *)(ppfs.fmtpos)));
-#if defined(L_vfprintf) && !defined(NDEBUG)
+#if defined(L__vfprintf_internal) && !defined(NDEBUG)
 		fprintf(stderr,"\nIMbS: \"%s\"\n\n", format);
 #endif
 		count = -1;
@@ -1901,7 +1890,7 @@ int VFPRINTF (FILE * __restrict stream,
 			}
 
 			if (format-s) {		/* output any literal text in format string */
-				if ( (r = OUTNSTR(stream, s, format-s)) != (format-s)) {
+				if ( (r = OUTNSTR(stream, (const unsigned char *) s, format-s)) != (format-s)) {
 					count = -1;
 					break;
 				}
@@ -1930,14 +1919,66 @@ int VFPRINTF (FILE * __restrict stream,
 		va_end(ppfs.arg);		/* Need to clean up after va_copy! */
 	}
 
-/* #if defined(L_vfprintf) && defined(__UCLIBC_HAS_WCHAR__) */
+/* #if defined(L__vfprintf_internal) && defined(__UCLIBC_HAS_WCHAR__) */
 /*  DONE: */
 /* #endif */
+
+	return count;
+}
+#endif /* defined(L__vfprintf_internal) || defined(L__vfwprintf_internal) */
+
+
+/**********************************************************************/
+#if defined(L_vfprintf) || defined(L_vfwprintf)
+
+/* This is just a wrapper around VFPRINTF_internal.
+ * Factoring out vfprintf internals allows:
+ * (1) vdprintf and vsnprintf don't need to setup fake locking,
+ * (2) __STDIO_STREAM_TRANS_TO_WRITE is not used in vfprintf internals,
+ * and thus fseek etc is not pulled in by vdprintf and vsnprintf.
+ *
+ * In order to not pull in fseek through fputs, OUTPUT() macro
+ * is using __stdio_fwrite (TODO: do the same for wide functions).
+ */
+#ifdef L_vfprintf
+#define VFPRINTF vfprintf
+#define VFPRINTF_internal _vfprintf_internal
+#define FMT_TYPE char
+#else
+#define VFPRINTF vfwprintf
+#define VFPRINTF_internal _vfwprintf_internal
+#define FMT_TYPE wchar_t
+#endif
+
+libc_hidden_proto(VFPRINTF)
+int VFPRINTF (FILE * __restrict stream,
+			  const FMT_TYPE * __restrict format,
+			  va_list arg)
+{
+	int count;
+	__STDIO_AUTO_THREADLOCK_VAR;
+
+	__STDIO_AUTO_THREADLOCK(stream);
+
+	if 
+#ifdef L_vfprintf
+	(!__STDIO_STREAM_IS_NARROW_WRITING(stream)
+	 && __STDIO_STREAM_TRANS_TO_WRITE(stream, __FLAG_NARROW))
+#else
+	(!__STDIO_STREAM_IS_WIDE_WRITING(stream)
+	 && __STDIO_STREAM_TRANS_TO_WRITE(stream, __FLAG_WIDE))
+#endif
+	{
+		count = -1;
+	} else {
+		count = VFPRINTF_internal(stream, format, arg);
+	}
 
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	return count;
 }
 libc_hidden_def(VFPRINTF)
-#endif
+#endif /* defined(L_vfprintf) || defined(L_vfwprintf) */
+
 /**********************************************************************/

@@ -154,6 +154,7 @@ struct termios
 #ifdef __USE_MISC
 # define CBAUDEX 0010000
 #endif
+#define  BOTHER   0010000
 #define  B57600   0010001
 #define  B115200  0010002
 #define  B230400  0010003

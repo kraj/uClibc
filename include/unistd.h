@@ -349,18 +349,16 @@ extern ssize_t pread (int __fd, void *__buf, size_t __nbytes,
 extern ssize_t pwrite (int __fd, __const void *__buf, size_t __n,
 		       __off_t __offset) __wur;
 # else
-#  ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#   ifdef __REDIRECT
+#  ifdef __REDIRECT
 extern ssize_t __REDIRECT (pread, (int __fd, void *__buf, size_t __nbytes,
 				   __off64_t __offset),
 			   pread64) __wur;
 extern ssize_t __REDIRECT (pwrite, (int __fd, __const void *__buf,
 				    size_t __nbytes, __off64_t __offset),
 			   pwrite64) __wur;
-#   else
-#    define pread pread64
-#    define pwrite pwrite64
-#   endif
+#  else
+#   define pread pread64
+#   define pwrite pwrite64
 #  endif
 # endif
 
@@ -705,10 +703,12 @@ extern int getresuid (__uid_t *__ruid, __uid_t *__euid, __uid_t *__suid)
 extern int getresgid (__gid_t *__rgid, __gid_t *__egid, __gid_t *__sgid)
      __THROW;
 
+#if defined __UCLIBC_LINUX_SPECIFIC__
 /* Set the real user ID, effective user ID, and saved-set user ID,
    of the calling process to RUID, EUID, and SUID, respectively.  */
 extern int setresuid (__uid_t __ruid, __uid_t __euid, __uid_t __suid)
      __THROW;
+#endif
 
 /* Set the real group ID, effective group ID, and saved-set group ID,
    of the calling process to RGID, EGID, and SGID, respectively.  */
@@ -717,7 +717,7 @@ extern int setresgid (__gid_t __rgid, __gid_t __egid, __gid_t __sgid)
 #endif
 
 
-#ifdef __ARCH_USE_MMU__
+#if defined __UCLIBC_HAS_STUBS__ || defined __ARCH_USE_MMU__
 /* Clone the calling process, creating an exact copy.
    Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
@@ -765,7 +765,8 @@ extern int link (__const char *__from, __const char *__to)
 /* Like link but relative paths in TO and FROM are interpreted relative
    to FROMFD and TOFD respectively.  */
 extern int linkat (int __fromfd, __const char *__from, int __tofd,
-		   __const char *__to) __THROW __nonnull ((2, 4)) __wur;
+		   __const char *__to, int __flags)
+     __THROW __nonnull ((2, 4)) __wur;
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K
@@ -776,8 +777,9 @@ extern int symlink (__const char *__from, __const char *__to)
 /* Read the contents of the symbolic link PATH into no more than
    LEN bytes of BUF.  The contents are not null-terminated.
    Returns the number of characters read, or -1 for errors.  */
-extern int readlink (__const char *__restrict __path, char *__restrict __buf,
-		     size_t __len) __THROW __nonnull ((1, 2)) __wur;
+extern ssize_t readlink (__const char *__restrict __path,
+			 char *__restrict __buf, size_t __len)
+     __THROW __nonnull ((1, 2)) __wur;
 #endif /* Use BSD.  */
 
 #ifdef __USE_ATFILE
@@ -786,8 +788,8 @@ extern int symlinkat (__const char *__from, int __tofd,
 		      __const char *__to) __THROW __nonnull ((1, 3)) __wur;
 
 /* Like readlink but a relative PATH is interpreted relative to FD.  */
-extern int readlinkat (int __fd, __const char *__restrict __path,
-		       char *__restrict __buf, size_t __len)
+extern ssize_t readlinkat (int __fd, __const char *__restrict __path,
+			   char *__restrict __buf, size_t __len)
      __THROW __nonnull ((2, 3)) __wur;
 #endif
 
@@ -816,7 +818,7 @@ extern int tcsetpgrp (int __fd, __pid_t __pgrp_id) __THROW;
    This function is a possible cancellation points and therefore not
    marked with __THROW.  */
 extern char *getlogin (void);
-#if defined __USE_REENTRANT || defined __USE_UNIX98
+#if defined __USE_REENTRANT || defined __USE_POSIX199506
 /* Return at most NAME_LEN characters of the login name of the user in NAME.
    If it cannot be determined or some other error occurred, return the error
    code.  Otherwise return 0.
@@ -860,7 +862,7 @@ extern int sethostname (__const char *__name, size_t __len)
    This call is restricted to the super-user.  */
 extern int sethostid (long int __id) __THROW __wur;
 
-
+#if defined __UCLIBC_BSD_SPECIFIC__
 /* Get and set the NIS (aka YP) domain name, if any.
    Called just like `gethostname' and `sethostname'.
    The NIS domain name is usually the empty string when not using NIS.  */
@@ -868,7 +870,7 @@ extern int getdomainname (char *__name, size_t __len)
      __THROW __nonnull ((1)) __wur;
 extern int setdomainname (__const char *__name, size_t __len)
      __THROW __nonnull ((1)) __wur;
-
+#endif
 
 /* Revoke access permissions to all processes currently communicating
    with the control terminal, and then send a SIGHUP signal to the process
@@ -1067,7 +1069,8 @@ extern int lockf64 (int __fd, int __cmd, __off64_t __len) __wur;
        __result; }))
 #endif
 
-#if defined __USE_POSIX199309 || defined __USE_UNIX98
+#if (defined __USE_POSIX199309 || defined __USE_UNIX98) \
+	&& defined __UCLIBC_HAS_REALTIME__
 /* Synchronize at least the data part of a file with the underlying
    media.  */
 extern int fdatasync (int __fildes) __THROW;
@@ -1077,6 +1080,7 @@ extern int fdatasync (int __fildes) __THROW;
 /* XPG4.2 specifies that prototypes for the encryption functions must
    be defined here.  */
 #ifdef	__USE_XOPEN
+# if defined __UCLIBC_HAS_CRYPT__
 /* Encrypt at most 8 characters from KEY using salt to perturb DES.  */
 extern char *crypt (__const char *__key, __const char *__salt)
      __THROW __nonnull ((1, 2));
@@ -1084,6 +1088,7 @@ extern char *crypt (__const char *__key, __const char *__salt)
 /* Encrypt data in BLOCK in place if EDFLAG is zero; otherwise decrypt
    block in place.  */
 extern void encrypt (char *__block, int __edflag) __THROW __nonnull ((1));
+# endif /* __UCLIBC_HAS_CRYPT__ */
 
 
 /* Swab pairs bytes in the first N bytes of the area pointed to by
@@ -1109,5 +1114,15 @@ extern char *ctermid (char *__s) __THROW;
 #endif
 
 __END_DECLS
+
+
+#ifdef UCLIBC_INTERNAL
+#ifndef smallint_type /* if arch didn't override it in bits/wordsize.h */
+#define smallint_type int
+#endif
+typedef signed smallint_type smallint;
+typedef unsigned smallint_type smalluint;
+#endif
+
 
 #endif /* unistd.h  */

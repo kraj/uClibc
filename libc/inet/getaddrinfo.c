@@ -1,6 +1,8 @@
 /*
  * Copyright 1996 by Craig Metz 
  * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ * Portions from the GNU C library,
+ * Copyright (C) 2003, 2006 Free Software Foundation, Inc.
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
@@ -55,8 +57,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
-#include <resolv.h>
 #include <stdlib.h>
+#include <resolv.h>
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -66,14 +68,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/un.h>
 #include <sys/utsname.h>
 #include <net/if.h>
+#include "ifaddrs.h"
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memset)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memset) */
 /* libc_hidden_proto(strcmp) */
 /* libc_hidden_proto(stpcpy) */
-libc_hidden_proto(strchr)
-libc_hidden_proto(strcpy)
-libc_hidden_proto(strlen)
+/* Experimentally off - libc_hidden_proto(strchr) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
+/* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(socket)
 libc_hidden_proto(close)
 libc_hidden_proto(getservbyname_r)
@@ -156,19 +159,85 @@ static const struct addrinfo default_hints =
 { 0, PF_UNSPEC, 0, 0, 0, NULL, NULL, NULL };
 #endif
 
+#define SEEN_IPV4 1
+#define SEEN_IPV6 2
+
+static unsigned __check_pf (void)
+{
+  unsigned seen = 0;
+#if defined __UCLIBC_SUPPORT_AI_ADDRCONFIG__
+  {
+    /* Get the interface list via getifaddrs.  */
+    struct ifaddrs *ifa = NULL;
+    struct ifaddrs *runp;
+    if (getifaddrs (&ifa) != 0)
+    {
+      /* We cannot determine what interfaces are available.  Be
+      optimistic.  */
+#if defined __UCLIBC_HAS_IPV4__
+      seen |= SEEN_IPV4;
+#endif /* __UCLIBC_HAS_IPV4__ */
+#if defined __UCLIBC_HAS_IPV6__
+      seen |= SEEN_IPV6;
+#endif /* __UCLIBC_HAS_IPV6__ */
+      return seen;
+    }
+
+    for (runp = ifa; runp != NULL; runp = runp->ifa_next)
+#if defined __UCLIBC_HAS_IPV4__
+      if (runp->ifa_addr->sa_family == PF_INET)
+        seen |= SEEN_IPV4;
+#endif /* __UCLIBC_HAS_IPV4__ */
+#if defined __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__
+      else /* can't be both at once */
+#endif /* __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__ */
+#if defined __UCLIBC_HAS_IPV6__
+      if (runp->ifa_addr->sa_family == PF_INET6)
+        seen |= SEEN_IPV6;
+#endif /* __UCLIBC_HAS_IPV6__ */
+
+    (void) freeifaddrs (ifa);
+  }
+#else
+  /* AI_ADDRCONFIG is disabled, assume both ipv4 and ipv6 available. */
+#if defined __UCLIBC_HAS_IPV4__
+  seen |= SEEN_IPV4;
+#endif /* __UCLIBC_HAS_IPV4__ */
+#if defined __UCLIBC_HAS_IPV6__
+  seen |= SEEN_IPV6;
+#endif /* __UCLIBC_HAS_IPV6__ */
+
+#endif /* __UCLIBC_SUPPORT_AI_ADDRCONFIG__ */
+  return seen;
+}
 
 static int addrconfig (sa_family_t af)
 {
     int s;
     int ret;
     int saved_errno = errno;
-    s = socket(af, SOCK_DGRAM, 0);
-    if (s < 0)
-	ret = (errno == EMFILE) ? 1 : 0;
+    unsigned seen;
+
+    seen = __check_pf();
+#if defined __UCLIBC_HAS_IPV4__
+    if (af == AF_INET)
+	ret = seen & SEEN_IPV4;
     else
+#endif
+#if defined __UCLIBC_HAS_IPV6__
+    if (af == AF_INET6)
+	ret = seen & SEEN_IPV6;
+    else
+#endif
     {
-	close(s);
-	ret = 1;
+	s = socket(af, SOCK_DGRAM, 0);
+	ret = 1; /* Assume PF_UNIX. */
+	if (s < 0) {
+	    if (errno != EMFILE)
+	        ret = 0;
+	}
+	else
+	    close(s);
     }
     __set_errno (saved_errno);
     return ret;
@@ -373,6 +442,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
     int rc;
     int v4mapped = (req->ai_family == PF_UNSPEC || req->ai_family == PF_INET6) &&
 	(req->ai_flags & AI_V4MAPPED);
+    unsigned seen = __check_pf();
 
     if (req->ai_protocol || req->ai_socktype)
     {
@@ -501,7 +571,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		return -EAI_FAMILY;
 	}
 
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
 	if (at->family == AF_UNSPEC)
 	{
 	    char *namebuf = strdupa (name);
@@ -558,16 +628,18 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	     * IPv6 addresses.
 	     */
 
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
 	    if (req->ai_family == AF_UNSPEC || req->ai_family == AF_INET6)
-		gethosts (AF_INET6, struct in6_addr);
+		if (!(req->ai_flags & AI_ADDRCONFIG) || (seen & SEEN_IPV6))
+		    gethosts (AF_INET6, struct in6_addr);
 #endif
 	    no_inet6_data = no_data;
 
 	    if (req->ai_family == AF_INET ||
 		(!v4mapped && req->ai_family == AF_UNSPEC) ||
 		(v4mapped && (no_inet6_data != 0 || (req->ai_flags & AI_ALL))))
-		gethosts (AF_INET, struct in_addr);
+		if (!(req->ai_flags & AI_ADDRCONFIG) || (seen & SEEN_IPV4))
+		    gethosts (AF_INET, struct in_addr);
 
 	    if (no_data != 0 && no_inet6_data != 0)
 	    {
@@ -598,7 +670,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	    memset (at->next, '\0', sizeof (struct gaih_addrtuple));
 	}
 
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
 	if (req->ai_family == 0 || req->ai_family == AF_INET6)
 	{
 	    at->family = AF_INET6;
@@ -680,21 +752,32 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	    else
 		namelen = 0;
 
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
 	    if (at2->family == AF_INET6 || v4mapped)
 	    {
 		family = AF_INET6;
 		socklen = sizeof (struct sockaddr_in6);
 	    }
+#endif
+#if defined __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__
 	    else
 #endif
+#if defined __UCLIBC_HAS_IPV4__
 	    {
 		family = AF_INET;
 		socklen = sizeof (struct sockaddr_in);
 	    }
-
+#endif
 	    for (st2 = st; st2 != NULL; st2 = st2->next)
 	    {
+		if (req->ai_flags & AI_ADDRCONFIG) {
+		    if (family == AF_INET && !(seen & SEEN_IPV4))
+			break;
+#if defined __UCLIBC_HAS_IPV6__
+		    else if (family == AF_INET6 && !(seen & SEEN_IPV6))
+			break;
+#endif
+		}
 		*pai = malloc (sizeof (struct addrinfo) + socklen + namelen);
 		if (*pai == NULL)
 		    return -EAI_MEMORY;
@@ -710,7 +793,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 #endif /* SALEN */
 		(*pai)->ai_addr->sa_family = family;
 
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
 		if (family == AF_INET6)
 		{
 		    struct sockaddr_in6 *sin6p =
@@ -733,8 +816,11 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		    sin6p->sin6_port = st2->port;
 		    sin6p->sin6_scope_id = at2->scopeid;
 		}
+#endif
+#if defined __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__
 		else
 #endif
+#if defined __UCLIBC_HAS_IPV4__
 		{
 		    struct sockaddr_in *sinp =
 			(struct sockaddr_in *) (*pai)->ai_addr;
@@ -744,7 +830,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		    sinp->sin_port = st2->port;
 		    memset (sinp->sin_zero, '\0', sizeof (sinp->sin_zero));
 		}
-
+#endif
 		if (c)
 		{
 		    (*pai)->ai_canonname = ((void *) (*pai) +
@@ -766,7 +852,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 
 static struct gaih gaih[] =
 {
-#if __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_IPV6__
     { PF_INET6, gaih_inet },
 #endif
     { PF_INET, gaih_inet },
@@ -853,7 +939,10 @@ getaddrinfo (const char *name, const char *service,
 	if (hints->ai_family == g->family || hints->ai_family == AF_UNSPEC)
 	{
 	    if ((hints->ai_flags & AI_ADDRCONFIG) && !addrconfig(g->family))
+	    {
+		++g;
 		continue;
+	    }
 	    j++;
 	    if (pg == NULL || pg->gaih != g->gaih)
 	    {

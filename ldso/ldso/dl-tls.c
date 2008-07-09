@@ -130,7 +130,7 @@ fail:
 		_dl_exit(30);
 	}
 
-# if TLS_TCB_AT_TP
+# ifdef TLS_TCB_AT_TP
 	size_t freebytes;
 	size_t n;
 	size_t blsize;
@@ -192,7 +192,7 @@ void
 internal_function __attribute_noinline__
 _dl_nothread_init_static_tls (struct link_map *map)
 {
-# if TLS_TCB_AT_TP
+# ifdef TLS_TCB_AT_TP
 	void *dest = (char *) THREAD_SELF - map->l_tls_offset;
 # elif TLS_DTV_AT_TP
 	void *dest = (char *) THREAD_SELF + map->l_tls_offset + TLS_PRE_TCB_SIZE;
@@ -327,7 +327,7 @@ _dl_determine_tlsoffset (void)
      memory requirement for the next TLS block is smaller than the
      gap.  */
 
-# if TLS_TCB_AT_TP
+# ifdef TLS_TCB_AT_TP
   /* We simply start with zero.  */
   size_t offset = 0;
 
@@ -519,7 +519,7 @@ _dl_allocate_tls_storage (void)
       /* Allocate the DTV.  */
       void *allocated = result;
 
-# if TLS_TCB_AT_TP
+# ifdef TLS_TCB_AT_TP
       /* The TCB follows the TLS blocks.  */
       result = (char *) result + size - TLS_TCB_SIZE;
 
@@ -594,7 +594,7 @@ _dl_allocate_tls_init (void *result)
 
 	  _dl_assert (map->l_tls_modid == cnt);
 	  _dl_assert (map->l_tls_blocksize >= map->l_tls_initimage_size);
-# if TLS_TCB_AT_TP
+# ifdef TLS_TCB_AT_TP
 	  _dl_assert ((size_t) map->l_tls_offset >= map->l_tls_blocksize);
 	  dest = (char *) result - map->l_tls_offset;
 # elif TLS_DTV_AT_TP
@@ -654,7 +654,7 @@ _dl_deallocate_tls (void *tcb, bool dealloc_tcb)
 
   if (dealloc_tcb)
     {
-# if TLS_TCB_AT_TP
+# ifdef TLS_TCB_AT_TP
       /* The TCB follows the TLS blocks.  Back up to free the whole block.  */
       tcb -= _dl_tls_static_size - TLS_TCB_SIZE;
 # elif TLS_DTV_AT_TP

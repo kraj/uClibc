@@ -3,8 +3,6 @@
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-#define	SHELL_PATH	"/bin/sh"	/* Path of the shell.  */
-#define	SHELL_NAME	"sh"		/* Name to give it.  */
 
 #include <stdio.h>
 #include <stddef.h>
@@ -57,7 +55,7 @@ int __libc_system(const char *command)
 		signal(SIGINT, SIG_DFL);
 		signal(SIGCHLD, SIG_DFL);
 
-		execl(SHELL_PATH, SHELL_NAME, "-c", command, (char *) 0);
+		execl("/bin/sh", "sh", "-c", command, (char *) 0);
 		_exit(127);
 	}
 	/* Signals are not absolutly guarenteed with vfork */
@@ -180,7 +178,7 @@ do_system (const char *line)
     {
       /* Child side.  */
       const char *new_argv[4];
-      new_argv[0] = SHELL_NAME;
+      new_argv[0] = "/bin/sh";
       new_argv[1] = "-c";
       new_argv[2] = line;
       new_argv[3] = NULL;
@@ -192,7 +190,7 @@ do_system (const char *line)
       INIT_LOCK ();
 
       /* Exec the shell.  */
-      (void) execve (SHELL_PATH, (char *const *) new_argv, __environ);
+      (void) execve ("/bin/sh", (char *const *) new_argv, __environ);
       _exit (127);
     }
   else if (pid < (pid_t) 0)

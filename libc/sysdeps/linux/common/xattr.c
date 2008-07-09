@@ -21,7 +21,7 @@
  * filesystem, or are disabled, errno is set to ENOSYS.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/xattr.h>
 

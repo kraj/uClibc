@@ -21,9 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-libc_hidden_proto(memchr)
-libc_hidden_proto(strncmp)
-libc_hidden_proto(strchrnul)
+/* Experimentally off - libc_hidden_proto(memchr) */
+/* Experimentally off - libc_hidden_proto(strncmp) */
+/* Experimentally off - libc_hidden_proto(strchrnul) */
 
 /* Parse comma separated suboption from *OPTIONP and match against
    strings in TOKENS.  If found return index and set *VALUEP to

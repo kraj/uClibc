@@ -10,13 +10,16 @@
 
 libc_hidden_proto(vsnprintf)
 
+#ifdef __USE_OLD_VFPRINTF__
 libc_hidden_proto(vfprintf)
+#endif
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning WISHLIST: Implement vsnprintf for non-buffered and no custom stream case.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __STDIO_BUFFERS
+/* NB: we can still have __USE_OLD_VFPRINTF__ defined in this case! */
 
 int vsnprintf(char *__restrict buf, size_t size,
 			  const char * __restrict format, va_list arg)
@@ -43,13 +46,9 @@ int vsnprintf(char *__restrict buf, size_t size,
 	__INIT_MBSTATE(&(f.__state));
 #endif /* __STDIO_MBSTATE */
 
-#ifdef __UCLIBC_HAS_THREADS__
+#if defined(__USE_OLD_VFPRINTF__) && defined(__UCLIBC_HAS_THREADS__)
 	f.__user_locking = 1;		/* Set user locking. */
-#ifdef __USE_STDIO_FUTEXES__
-	_IO_lock_init (f._lock);
-#else
-	__stdio_init_mutex(&f.__lock);
-#endif
+	STDIO_INIT_MUTEX(f.__lock);
 #endif
 	f.__nextopen = NULL;
 
@@ -57,15 +56,20 @@ int vsnprintf(char *__restrict buf, size_t size,
 		size = SIZE_MAX - (size_t) buf;
 	}
 
+/* TODO: this comment seems to be wrong */
 	/* Set these last since __bufputc initialization depends on
 	 * __user_locking and only gets set if user locking is on. */
-	f.__bufstart = buf;
-	f.__bufend = buf + size;
+	f.__bufstart = (unsigned char *) buf;
+	f.__bufend = (unsigned char *) buf + size;
 	__STDIO_STREAM_INIT_BUFREAD_BUFPOS(&f);
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_ENABLE_PUTC(&f);
 
+#ifdef __USE_OLD_VFPRINTF__
 	rv = vfprintf(&f, format, arg);
+#else
+	rv = _vfprintf_internal(&f, format, arg);
+#endif
 	if (size) {
 		if (f.__bufpos == f.__bufend) {
 			--f.__bufpos;
@@ -118,11 +122,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 
 #ifdef __UCLIBC_HAS_THREADS__
 	f.f.__user_locking = 1;		/* Set user locking. */
-#ifdef __USE_STDIO_FUTEXES__
-	_IO_lock_init (f.f._lock);
-#else
-	__stdio_init_mutex(&f.f.__lock);
-#endif
+	STDIO_INIT_MUTEX(f.f.__lock);
 #endif
 	f.f.__nextopen = NULL;
 
@@ -205,17 +205,9 @@ int vsnprintf(char *__restrict buf, size_t size,
 	__INIT_MBSTATE(&(f.__state));
 #endif /* __STDIO_MBSTATE */
 
-#ifdef __UCLIBC_HAS_THREADS__
-	f.__user_locking = 1;		/* Set user locking. */
-#ifdef __USE_STDIO_FUTEXES__
-	_IO_lock_init (f._lock);
-#else
-	__stdio_init_mutex(&f.__lock);
-#endif
-#endif
 	f.__nextopen = NULL;
 
-	rv = vfprintf(&f, format, arg);
+	rv = _vfprintf_internal(&f, format, arg);
 
 	return rv;
 }

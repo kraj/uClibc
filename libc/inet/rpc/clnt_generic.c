@@ -40,10 +40,10 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-libc_hidden_proto(memcpy)
-libc_hidden_proto(memset)
-libc_hidden_proto(strcmp)
-libc_hidden_proto(strcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
+/* Experimentally off - libc_hidden_proto(memset) */
+/* Experimentally off - libc_hidden_proto(strcmp) */
+/* Experimentally off - libc_hidden_proto(strcpy) */
 libc_hidden_proto(clnttcp_create)
 libc_hidden_proto(clntudp_create)
 libc_hidden_proto(clntunix_create)

@@ -3482,7 +3482,7 @@ int nu_memcmp(const void *a, const void *b)
 
 size_t newopt(tbl_item *ut, size_t usize, int shift, table_data *tbl)
 {
-	static int recurse = 0;
+	static int recurse;
 	tbl_item *ti[RANGE];	/* table index */
 	size_t numblocks;
 	size_t blocksize;

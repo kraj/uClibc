@@ -7,7 +7,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "syscalls.h"
+#include <sys/syscall.h>
 #include <time.h>
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__ 
