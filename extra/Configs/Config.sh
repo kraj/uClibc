@@ -52,4 +52,4 @@ endchoice
 config ARCH_HAS_BWD_MEMCPY
        bool
        default y
-       depends CONFIG_SH4
+       depends on CONFIG_SH4

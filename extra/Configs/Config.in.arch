@@ -94,7 +94,7 @@ endif
 
 config ARCH_HAS_MMU
 	bool "Target CPU has a memory management unit (MMU)"
-	depends !ARCH_HAS_NO_MMU
+	depends on !ARCH_HAS_NO_MMU
 	default y
 	help
 	  If your target CPU does not have a memory management unit (MMU), 

@@ -26,7 +26,7 @@ choice
 	  SPARC v7 will give you only static support.
 
 config CONFIG_SPARC_V7
-	select HAVE_NO_SHARED
+	select ARCH_HAS_NO_SHARED
 	bool "SPARC v7"
 
 config CONFIG_SPARC_V8
