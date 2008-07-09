@@ -42,12 +42,16 @@ TESTS += tst-clock tst-clock_nanosleep tst-cpuclock1 tst-cpuclock2	\
 	tst-mqueue7 tst-mqueue8 tst-mqueue9 tst-timer2 tst-timer3	\
 	tst-timer4 tst-timer5
 
+ifeq ($(UCLIBC_HAS_OBSOLETE_BSD_SIGNAL),)
+TESTS_DISABLED := tst-exec2 tst-exec3 tst-exec4
+endif
+
 include ../Test.mak
 
 TARGET_ARCH := $(strip $(subst ",, $(strip $(TARGET_ARCH))))
 PTDIR := $(top_builddir)libpthread/nptl
 
-EXTRA_CFLAGS := -DNOT_IN_libc=1 -D_LIBC -D__USE_GNU -std=gnu99 -I.	\
+EXTRA_CFLAGS := -DNOT_IN_libc=1 -D_LIBC -D__USE_GNU -std=gnu99 \
 	-I$(PTDIR) -I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)				\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux				\
@@ -80,7 +84,7 @@ CFLAGS_tst-tls5modd.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 CFLAGS_tst-tls5mode.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 CFLAGS_tst-tls5modf.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 
-EXTRA_LDFLAGS := -L$(top_builddir)lib -lpthread
+EXTRA_LDFLAGS := -lpthread
 
 LDFLAGS_tst-cleanup4 := tst-cleanup4aux.o
 LDFLAGS_tst-clock2 := -lrt
@@ -134,6 +138,7 @@ tst-tls5: tst-tls5mod.so tst-tls5moda.so tst-tls5modb.so	\
 	  tst-tls5modc.so tst-tls5modd.so tst-tls5mode.so tst-tls5modf.so
 
 OPTS_tst-cancel7 = --command ./tst-cancel7
+OPTS_tst-mqueue7 = -- ./tst-mqueue7
 OPTS_tst-exec4 = ./tst-exec4
 
 RET_tst-clock2 := 1

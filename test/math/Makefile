@@ -22,5 +22,5 @@ PERL := /usr/bin/perl
 ulps-file := $(firstword $(wildcard $(config-sysdirs:%=$(..)%/libm-test-ulps)))
 libm-test.c: $(ulps-file) libm-test.inc gen-libm-test.pl
 	$(Q)$(PERL) ./gen-libm-test.pl -u $< ./libm-test.inc -o "." 2>&1 > /dev/null
-EXTRA_CLEAN := libm-test.c
+EXTRA_CLEAN := libm-test.c libm-test-ulps.h
 $(TARGETS): libm-test.c

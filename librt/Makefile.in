@@ -46,25 +46,25 @@ librt-so-y += $(librt_OBJ:.o=.oS)
 
 lib-a-y += $(top_builddir)lib/librt.a
 lib-so-y += $(top_builddir)lib/librt.so
-objclean-y += librt_clean
+
 
 ifeq ($(DOPIC)$(UCLIBC_HAS_THREADS_NATIVE),yn)
-$(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(libc)
+$(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(libc.dpend)
 else
-$(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(libc)
+$(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(libc.depend)
 endif
 	$(call link.so,$(librt_FULL_NAME),$(MAJOR_VERSION))
 
 $(librt_OUT)/librt_so.a: $(librt-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
 
 $(top_builddir)lib/librt.a: $(librt-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
+
+objclean-y += librt_clean
 
 librt_clean:
 	$(RM) $(librt_OUT)/*.{o,os,oS,a}

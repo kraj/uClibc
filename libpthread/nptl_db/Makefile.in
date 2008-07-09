@@ -14,7 +14,7 @@ LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) -s --warn-unresolved-symbols
 
 LIBS-libthread_db.so := $(LIBS)
 
-libthread_db_FULL_NAME := libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libthread_db_FULL_NAME := libthread_db-$(VERSION).so
 
 libthread_db_DIR := $(top_srcdir)libpthread/nptl_db
 libthread_db_OUT := $(top_builddir)libpthread/nptl_db
@@ -57,8 +57,10 @@ $(top_builddir)lib/libthread_db.a: $(libthread_db-a-y)
 	$(do_strip)
 	$(do_ar)
 
-nptl_db_headers:
-	$(LN) -sf ../$(PTDIR)_db/thread_db.h $(top_builddir)include/
+include/thread_db.h:
+	$(do_ln) ../$(PTDIR)_db/$(@F) $(top_builddir)$@
+
+nptl_db_headers: include/thread_db.h
 
 nptl_db_headers_clean:
 	$(RM) $(top_builddir)include/thread_db.h

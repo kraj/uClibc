@@ -33,9 +33,9 @@ endif
 
 test check all: run
 
-run: compile subdirs_run
+run: subdirs_run
 
-compile:subdirs_compile
+compile: subdirs_compile
 
 tags:
 	ctags -R

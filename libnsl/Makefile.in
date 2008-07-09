@@ -31,21 +31,19 @@ lib-so-y += $(top_builddir)lib/libnsl.so
 objclean-y += libnsl_clean
 
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/libnsl.so: $(top_builddir)lib/libnsl.a $(libc)
+$(top_builddir)lib/libnsl.so: $(top_builddir)lib/libnsl.a $(libc.depend)
 else
-$(top_builddir)lib/libnsl.so: $(libnsl_OUT)/libnsl_so.a $(libc)
+$(top_builddir)lib/libnsl.so: $(libnsl_OUT)/libnsl_so.a $(libc.depend)
 endif
 	$(call link.so,$(libnsl_FULL_NAME),$(MAJOR_VERSION))
 
 $(libnsl_OUT)/libnsl_so.a: $(libnsl-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
 
 $(top_builddir)lib/libnsl.a: $(libnsl-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
 
 libnsl_clean:

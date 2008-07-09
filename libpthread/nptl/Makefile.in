@@ -209,7 +209,7 @@ else
 LDFLAGS-libpthread.so := $(LDFLAGS)
 endif
 
-LDFLAGS-libpthread.so += $(top_builddir)lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so $(top_builddir)lib/libdl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LDFLAGS-libpthread.so += $(top_builddir)lib/ld-uClibc-$(VERSION).so $(top_builddir)lib/libdl-$(VERSION).so
 
 LIBS-libpthread.so := $(LIBS)
 
@@ -218,7 +218,7 @@ START_FILE-libpthread.so := $(top_builddir)/libpthread/nptl/sysdeps/pthread/crti
 END_FILE-libpthread.so := $(SHARED_END_FILES) $(top_builddir)/libpthread/nptl/sysdeps/pthread/crtn.o
 endif
 
-libpthread_FULL_NAME := libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+libpthread_FULL_NAME := libpthread-$(VERSION).so
 
 PTHREAD_DIR := $(top_srcdir)libpthread/nptl
 PTHREAD_OUT := $(top_builddir)libpthread/nptl
@@ -287,29 +287,39 @@ endif
 CFLAGS-pthread-errnos.c = -S
 
 $(PTHREAD_OUT)/pthread-errnos.c: $(PTHREAD_DIR)/pthread-errnos.sym
-	awk -f $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
 $(PTHREAD_OUT)/pthread-errnos.s: $(PTHREAD_OUT)/pthread-errnos.c
 	$(compile.c)
 
 $(PTHREAD_OUT)/pthread-errnos.h: $(PTHREAD_OUT)/pthread-errnos.s
-	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $(PTHREAD_OUT)/pthread-errnos.h
+	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
-nptl_headers_bootstrap:
+
+headers-$(UCLIBC_HAS_THREADS_NATIVE) += nptl_headers_bootstrap
+
+include/pthread.h:
+	$(do_ln) ../$(PTDIR)/sysdeps/pthread/$(@F) $(top_builddir)$@
+include/semaphore.h:
+	$(do_ln) ../$(PTDIR)/$(@F) $(top_builddir)$@
+include/bits/semaphore.h: | include/bits
+	$(do_ln) ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/$(@F) $(top_builddir)$@
+include/bits/pthreadtypes.h: | include/bits
+	$(do_ln) ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/$(@F) $(top_builddir)$@
+include/bits/libc-lock.h: | include/bits
+	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
+include/bits/stdio-lock.h: | include/bits
+	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
+$(PTDIR)/banner.h:
 	@sed 's/\(.*\)/"\1\\n"/' $(PTDIR)/Banner > $(PTDIR)/banner.h
+$(PTDIR)/version.h:
 	@echo "#define VERSION \""$(VERSION)"\"" > $(PTDIR)/version.h
-	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/pthread.h $(top_builddir)include/
-	$(LN) -sf ../$(PTDIR)/semaphore.h $(top_builddir)include/
-	$(INSTALL) -d $(top_builddir)include/bits
-	$(LN) -sf ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/semaphore.h $(top_builddir)include/bits/
-	$(LN) -sf ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(top_builddir)include/bits/
-	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/libc-lock.h $(top_builddir)include/bits/
-	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/stdio-lock.h $(top_builddir)include/bits/
 
-nptl_headers:
-ifeq ($(shell $(CC) --help >& /dev/null && echo yes),yes)
-	$(MAKE) $(PTHREAD_OUT)/pthread-errnos.h
-endif
+nptl_headers_bootstrap: include/pthread.h include/semaphore.h include/bits/semaphore.h include/bits/pthreadtypes.h \
+						include/bits/libc-lock.h include/bits/stdio-lock.h \
+						$(PTDIR)/banner.h $(PTDIR)/version.h
+
+nptl_headers: $(PTHREAD_OUT)/pthread-errnos.h
 
 nptl_headers_clean:
 	$(RM) $(PTDIR)/banner.h $(top_builddir)include/pthread.h	\

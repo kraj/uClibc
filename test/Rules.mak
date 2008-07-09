@@ -57,7 +57,6 @@ export TARGET_ARCH
 
 CROSS      = $(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
 CC         = $(CROSS)gcc
-STRIPTOOL  = $(CROSS)strip
 RM         = rm -f
 
 # Select the compiler needed to build binaries for your development system
@@ -80,7 +79,11 @@ endif
 XWARNINGS      := $(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
 XARCH_CFLAGS   := $(subst ",, $(strip $(ARCH_CFLAGS))) $(CPU_CFLAGS)
 XCOMMON_CFLAGS := -D_GNU_SOURCE -I$(top_builddir)test
-CFLAGS         += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS) -I$(top_builddir)include $(PTINC)
+CFLAGS         := $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS) -nostdinc -I$(top_builddir)$(LOCAL_INSTALL_PATH)/usr/include
+
+CC_IPREFIX:=$(shell $(CC) --print-file-name=include)
+CFLAGS += -I$(CC_IPREFIX)
+
 HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS)
 
 LDFLAGS        := $(CPU_LDFLAGS)
@@ -98,14 +101,15 @@ ifeq ($(strip $(UCLIBC_STATIC)),y)
 	STATIC_LDFLAGS	:= -static
 	HOST_LDFLAGS  	+= -static
 endif
+
 LDFLAGS += -B$(top_builddir)lib -Wl,-rpath,$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib
 UCLIBC_LDSO_ABSPATH=$(shell pwd)
 ifdef TEST_INSTALLED_UCLIBC
 LDFLAGS += -Wl,-rpath,./
-UCLIBC_LDSO_ABSPATH=/lib
+UCLIBC_LDSO_ABSPATH=$(SHARED_LIB_LOADER_PREFIX)
 endif
 
-ifeq ($(findstring -static,$(STATIC_LDFLAGS)),)
+ifeq ($(findstring -static,$(LDFLAGS)),)
 	LDFLAGS += -Wl,--dynamic-linker,$(UCLIBC_LDSO_ABSPATH)/$(UCLIBC_LDSO)
 endif
 

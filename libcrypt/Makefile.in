@@ -16,7 +16,14 @@ libcrypt_FULL_NAME := libcrypt-$(VERSION).so
 libcrypt_DIR := $(top_srcdir)libcrypt
 libcrypt_OUT := $(top_builddir)libcrypt
 
-libcrypt_SRC := $(wildcard $(libcrypt_DIR)/*.c)
+ifeq ($(UCLIBC_HAS_CRYPT_IMPL),y)
+CSRC := crypt.c des.c md5.c
+endif
+ifeq ($(UCLIBC_HAS_CRYPT_STUB),y)
+CSRC := crypt_stub.c
+endif
+
+libcrypt_SRC := $(addprefix $(libcrypt_DIR)/,$(CSRC))
 libcrypt_OBJ := $(patsubst $(libcrypt_DIR)/%.c,$(libcrypt_OUT)/%.o,$(libcrypt_SRC))
 
 ifeq ($(DOPIC),y)
@@ -26,36 +33,35 @@ libcrypt-a-y := $(libcrypt_OBJ)
 endif
 libcrypt-so-y := $(libcrypt_OBJ:.o=.os)
 
+ifeq ($(UCLIBC_HAS_CRYPT),y)
 lib-a-y += $(top_builddir)lib/libcrypt.a
 lib-so-y += $(top_builddir)lib/libcrypt.so
+endif
 objclean-y += libcrypt_clean
 
 ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/libcrypt.so: $(top_builddir)lib/libcrypt.a $(libc)
+$(top_builddir)lib/libcrypt.so: $(top_builddir)lib/libcrypt.a $(libc.depend)
 else
-$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc)
+$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc.depend)
 endif
 	$(call link.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
 else
-$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt.oS | $(libc)
+$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt.oS | $(libc.depend)
 	$(call linkm.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
 endif
 
 $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
 
 $(libcrypt_OUT)/libcrypt.oS: $(libcrypt_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
-	$(do_t_strip)
 
 $(top_builddir)lib/libcrypt.a: $(libcrypt-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
 
 libcrypt_clean:

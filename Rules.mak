@@ -41,12 +41,20 @@ INSTALL    = install
 LN         = ln
 RM         = rm -f
 TAR        = tar
+AWK        = awk
 
 STRIP_FLAGS ?= -x -R .note -R .comment
+
+UNIFDEF := $(top_builddir)extra/scripts/unifdef -UUCLIBC_INTERNAL
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
 BUILD_CFLAGS = -O2 -Wall
+export ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun.*/sparc/ -e s/sparc.*/sparc/ \
+				  -e s/arm.*/arm/ -e s/sa110/arm/ -e s/sh.*/sh/ \
+				  -e s/s390x/s390/ -e s/parisc.*/hppa/ \
+				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
+				  -e s/xtensa.*/xtensa/ )
 
 
 #---------------------------------------------------------
@@ -85,7 +93,7 @@ export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
 
 LIBC := libc
 SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
-ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 mips64 powerpc64 s390x sh64 sparc64 x86_64 ),)
+ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 mips64 powerpc64 s390x sparc64 x86_64 ),)
 UCLIBC_LDSO_NAME := ld64-uClibc
 else
 UCLIBC_LDSO_NAME := ld-uClibc
@@ -93,6 +101,7 @@ endif
 UCLIBC_LDSO := $(UCLIBC_LDSO_NAME).so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
 libc := $(top_builddir)lib/$(SHARED_MAJORNAME)
+libc.depend := $(top_builddir)lib/$(SHARED_MAJORNAME:.$(MAJOR_VERSION)=)
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
 headers_dep := $(top_builddir)include/bits/sysnum.h
@@ -133,6 +142,7 @@ check_ld=$(shell \
 
 ARFLAGS:=cr
 
+# Flags in OPTIMIZATION are used only for non-debug builds
 OPTIMIZATION:=
 # Use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
@@ -152,17 +162,70 @@ OPTIMIZATION+=$(call check_gcc,-fno-tree-dominator-opts,)
 OPTIMIZATION+=$(call check_gcc,-fno-strength-reduce,)
 endif
 
-ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
-	PICFLAG:=-mfdpic
-else
-	PICFLAG:=-fPIC -DPIC
-endif
+CPU_CFLAGS-$(UCLIBC_FORMAT_SHARED_FLAT) += -mid-shared-library
+CPU_CFLAGS-$(UCLIBC_FORMAT_FLAT_SEP_DATA) += -msep-data
+
+PICFLAG-y := -fPIC -DPIC
+PICFLAG-$(UCLIBC_FORMAT_FDPIC_ELF) := -mfdpic
+PICFLAG := $(PICFLAG-y)
 PIEFLAG_NAME:=-fPIE
 
 # Some nice CPU specific optimizations
 ifeq ($(TARGET_ARCH),i386)
-	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
-	OPTIMIZATION+=$(call check_gcc,-falign-jumps=0 -falign-loops=0,-malign-jumps=0 -malign-loops=0)
+	OPTIMIZATION+=$(call check_gcc,-fomit-frame-pointer,)
+
+	# NB: this may make SSE insns segfault!
+	# -O1 -march=pentium3, -Os -msse etc are known to be affected.
+	# TODO: conditionally bump to 4
+	# (see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13685)
+	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=4,)
+
+	# Choice of alignment (please document why!)
+	#  -falign-labels: in-line labels
+	#  (reachable by normal code flow, aligning will insert nops
+	#  which will be executed - may even make things slower)
+	#  -falign-jumps: reachable only by a jump
+	# Generic: no alignment at all (smallest code)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=1 -falign-jumps=1 -falign-labels=1 -falign-loops=1,-malign-jumps=1 -malign-loops=1)
+ifeq ($(CONFIG_K7),y)
+	# Align functions to four bytes, use default for jumps and loops (why?)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=4 -falign-labels=1,-malign-functions=4)
+endif
+ifeq ($(CONFIG_CRUSOE),y)
+	# Use compiler's default for functions, jumps and loops (why?)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=0 -falign-labels=1,-malign-functions=0)
+endif
+ifeq ($(CONFIG_CYRIXIII),y)
+	# Use compiler's default for functions, jumps and loops (why?)
+	GCC_FALIGN=$(call check_gcc,-falign-functions=0 -falign-labels=1,-malign-functions=0)
+endif
+	OPTIMIZATION+=$(GCC_FALIGN)
+
+	# Putting each function and data object into its own section
+	# allows for kbytes of less text if users link against static uclibc
+	# using ld --gc-sections.
+	# ld 2.18 can't do that (yet?) for shared libraries, so we itself
+	# do not use --gc-sections at shared lib link time.
+	# However, in combination with sections being sorted by alignment
+	# it does result in much reduced padding:
+	#   text    data     bss     dec     hex
+	# 235319    1472    5992  242783   3b45f old.so
+	# 234104    1472    5980  241556   3af94 new.so
+	# Without -ffunction-sections, all functions will get aligned
+	# to 4 byte boundary by as/ld. This is arguably a bug in as.
+	# It specifies 4 byte align for .text even if not told to do so:
+	# Idx Name          Size      VMA       LMA       File off  Algn
+	#   0 .text         xxxxxxxx  00000000  00000000  xxxxxxxx  2**2 <===!
+	CPU_CFLAGS-y  += $(call check_gcc,-ffunction-sections -fdata-sections,)
+ifneq ($(call check_ld,--sort-common,),)
+	CPU_LDFLAGS-y += -Wl,--sort-common
+endif
+ifneq ($(call check_ld,--sort-section alignment),)
+	CPU_LDFLAGS-y += -Wl,--sort-section,alignment
+endif
+
+	CPU_LDFLAGS-y+=-m32
+	CPU_CFLAGS-y+=-m32
 	CPU_CFLAGS-$(CONFIG_386)+=-march=i386
 	CPU_CFLAGS-$(CONFIG_486)+=-march=i486
 	CPU_CFLAGS-$(CONFIG_ELAN)+=-march=i486
@@ -173,11 +236,11 @@ ifeq ($(TARGET_ARCH),i386)
 	CPU_CFLAGS-$(CONFIG_PENTIUMIII)+=$(call check_gcc,-march=pentium3,-march=i686)
 	CPU_CFLAGS-$(CONFIG_PENTIUM4)+=$(call check_gcc,-march=pentium4,-march=i686)
 	CPU_CFLAGS-$(CONFIG_K6)+=$(call check_gcc,-march=k6,-march=i586)
-	CPU_CFLAGS-$(CONFIG_K7)+=$(call check_gcc,-march=athlon,-march=i686) $(call check_gcc,-falign-functions=4,-malign-functions=4)
-	CPU_CFLAGS-$(CONFIG_CRUSOE)+=-march=i686 $(call check_gcc,-falign-functions=0,-malign-functions=0)
+	CPU_CFLAGS-$(CONFIG_K7)+=$(call check_gcc,-march=athlon,-march=i686)
+	CPU_CFLAGS-$(CONFIG_CRUSOE)+=-march=i686
 	CPU_CFLAGS-$(CONFIG_WINCHIPC6)+=$(call check_gcc,-march=winchip-c6,-march=i586)
 	CPU_CFLAGS-$(CONFIG_WINCHIP2)+=$(call check_gcc,-march=winchip2,-march=i586)
-	CPU_CFLAGS-$(CONFIG_CYRIXIII)+=$(call check_gcc,-march=c3,-march=i486) $(call check_gcc,-falign-functions=0,-malign-functions=0)
+	CPU_CFLAGS-$(CONFIG_CYRIXIII)+=$(call check_gcc,-march=c3,-march=i486)
 	CPU_CFLAGS-$(CONFIG_NEHEMIAH)+=$(call check_gcc,-march=c3-2,-march=i686)
 endif
 
@@ -204,11 +267,15 @@ ifeq ($(TARGET_ARCH),arm)
 	CPU_CFLAGS-$(CONFIG_ARM926T)+=-mtune=arm9tdmi -march=armv5t
 	CPU_CFLAGS-$(CONFIG_ARM10T)+=-mtune=arm10tdmi -march=armv5t
 	CPU_CFLAGS-$(CONFIG_ARM1136JF_S)+=-mtune=arm1136jf-s -march=armv6
+	CPU_CFLAGS-$(CONFIG_ARM1176JZ_S)+=-mtune=arm1176jz-s -march=armv6
+	CPU_CFLAGS-$(CONFIG_ARM1176JZF_S)+=-mtune=arm1176jzf-s -march=armv6
 	CPU_CFLAGS-$(CONFIG_ARM_SA110)+=-mtune=strongarm110 -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM_SA1100)+=-mtune=strongarm1100 -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=$(call check_gcc,-mtune=xscale,-mtune=strongarm110)
 	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=-march=armv5te -Wa,-mcpu=xscale
  	CPU_CFLAGS-$(CONFIG_ARM_IWMMXT)+=-march=iwmmxt -Wa,-mcpu=iwmmxt -mabi=iwmmxt
+ 	CPU_CFLAGS-$(CONFIG_ARM_CORTEX_M3)+=-mcpu=cortex-m3 -mthumb
+ 	CPU_CFLAGS-$(CONFIG_ARM_CORTEX_M1)+=-mcpu=cortex-m1 -mthumb
 endif
 
 ifeq ($(TARGET_ARCH),mips)
@@ -266,6 +333,7 @@ ifeq ($(TARGET_ARCH),sh64)
 endif
 
 ifeq ($(TARGET_ARCH),h8300)
+	SYMBOL_PREFIX=_
 	CPU_LDFLAGS-$(CONFIG_H8300H)+= -Wl,-ms8300h
 	CPU_LDFLAGS-$(CONFIG_H8S)   += -Wl,-ms8300s
 	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32
@@ -295,6 +363,21 @@ ifeq ($(TARGET_ARCH),powerpc)
 	PIEFLAG_NAME:=-fpie
 	PPC_HAS_REL16:=$(shell echo -e "\t.text\n\taddis 11,30,_GLOBAL_OFFSET_TABLE_-.@ha" | $(CC) -c -x assembler -o /dev/null -  2> /dev/null && echo -n y || echo -n n)
 	CPU_CFLAGS-$(PPC_HAS_REL16)+= -DHAVE_ASM_PPC_REL16
+	CPU_CFLAGS-$(CONFIG_E500) += "-D__NO_MATH_INLINES -D__NO_LONG_DOUBLE_MATH"
+
+endif
+
+ifeq ($(TARGET_ARCH),bfin)
+	SYMBOL_PREFIX=_
+ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
+	CPU_CFLAGS-y:=-mfdpic
+	CPU_LDFLAGS-y += -Wl,-melf32bfinfd
+	PICFLAG:=-fpic
+	PIEFLAG_NAME:=-fpie
+endif
+ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
+	PICFLAG := -mleaf-id-shared-library
+endif
 endif
 
 ifeq ($(TARGET_ARCH),frv)
@@ -306,6 +389,24 @@ ifeq ($(TARGET_ARCH),frv)
 	# which would break as well, but -Bsymbolic comes to the rescue.
 	export LDPIEFLAG:=-Wl,-shared -Wl,-Bsymbolic
 	UCLIBC_LDSO=ld.so.1
+endif
+
+ifeq ($(strip $(TARGET_ARCH)),avr32)
+       CPU_CFLAGS-$(CONFIG_AVR32_AP7)  += -march=ap
+       CPU_CFLAGS-$(CONFIG_LINKRELAX)  += -mrelax
+       CPU_LDFLAGS-$(CONFIG_LINKRELAX) += --relax
+endif
+
+ifeq ($(TARGET_ARCH),i960)
+      SYMBOL_PREFIX=_
+endif
+
+ifeq ($(TARGET_ARCH),microblaze)
+      SYMBOL_PREFIX=_
+endif
+
+ifeq ($(TARGET_ARCH),v850)
+      SYMBOL_PREFIX=_
 endif
 
 # Keep the check_gcc from being needlessly executed
@@ -327,21 +428,9 @@ export LDPIEFLAG:=$(shell $(LD) --help 2>/dev/null | grep -q -- -pie && echo "-W
 endif
 endif
 
-# For NPTL we need to add the dynamic linker into the
-# libc.so linker script. Required to provide __tls_get_addr
-# symbol when usign TLS dynamic access model
-
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-ASNEEDED:=AS_NEEDED ( $(UCLIBC_LDSO) )
-endif
-
 # Check for AS_NEEDED support in linker script (binutils>=2.16.1 has it)
 ifndef ASNEEDED
-ifneq ($(UCLIBC_HAS_SSP),y)
-export ASNEEDED:=
-else
-export ASNEEDED:=$(shell (LD_TMP=$(mktemp LD_XXXXXX) ; echo "GROUP ( AS_NEEDED ( /usr/lib/libc.so ) )" > $LD_TMP && if $(LD) -T $LD_TMP -o /dev/null > /dev/null 2>&1; then echo "AS_NEEDED ( $(UCLIBC_LDSO) )"; else echo "$(UCLIBC_LDSO)"; fi; rm -f $LD_TMP ) )
-endif
+export ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && echo "AS_NEEDED ( $(UCLIBC_LDSO) )" || echo "$(UCLIBC_LDSO)")
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
@@ -365,10 +454,12 @@ else
 SSP_CFLAGS := $(SSP_DISABLE_FLAGS)
 endif
 
+NOSTDLIB_CFLAGS:=$(call check_gcc,-nostdlib,)
 # Some nice CFLAGS to work with
 CFLAGS := -include $(top_builddir)include/libc-symbols.h \
 	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-fno-builtin -nostdinc -I$(top_builddir)include -I.
+	-fno-builtin -nostdinc -I$(top_builddir)include -I. \
+	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
 
 ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
 CFLAGS += $(subst ",, $(UCLIBC_EXTRA_CFLAGS))
@@ -391,13 +482,15 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 endif
 
+# Please let us see private headers' parts
+CFLAGS += -DUCLIBC_INTERNAL
+
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
 CFLAGS += -DSTATIC
 endif
 
-# only i386 is known to work if compile.S gets -D__ASSEMBLER__
-#CFLAGS += $(call check_gcc,-std=c99,)
+CFLAGS += $(call check_gcc,-std=gnu99,)
 
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -Wl,-shared \
 	-Wl,--warn-common -Wl,--warn-once -Wl,-z,combreloc
@@ -418,12 +511,11 @@ LDFLAGS_GNUHASH:=$(call check_ld,--hash-style=gnu)
 ifeq ($(LDFLAGS_GNUHASH),)
 $(error Your binutils don't support --hash-style option, while you want to use it)
 else
-LDFLAGS_NOSTRIP += $(LDFLAGS_GNUHASH)
+LDFLAGS_NOSTRIP += -Wl,$(LDFLAGS_GNUHASH)
 endif
 endif
 
 LDFLAGS:=$(LDFLAGS_NOSTRIP) -Wl,-z,defs
-
 ifeq ($(DODEBUG),y)
 #CFLAGS += -g3
 CFLAGS += -O0 -g3 -DDEBUG
@@ -451,6 +543,10 @@ else
 DOMULTI:=n
 endif
 
+ifneq ($(strip $(UCLIBC_EXTRA_LDFLAGS)),"")
+LDFLAGS += $(subst ",, $(UCLIBC_EXTRA_LDFLAGS))
+endif
+
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	PTNAME := nptl
@@ -462,7 +558,6 @@ else
 endif
 endif
 PTDIR := $(top_builddir)libpthread/$(PTNAME)
-
 # set up system dependencies include dirs (NOTE: order matters!)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 PTINC:=	-I$(PTDIR)						\
@@ -508,12 +603,16 @@ else
 endif
 CFLAGS += -I$(KERNEL_HEADERS)
 
-# Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
-#CFLAGS+=-iwithprefix include
-CFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
+#CFLAGS += -iwithprefix include-fixed -iwithprefix include
+CC_IPREFIX:=$(shell $(CC) --print-file-name=include)
+CFLAGS += -I$(dir $(CC_IPREFIX))/include-fixed -I$(CC_IPREFIX)
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
+endif
+
+ifeq ($(SYMBOL_PREFIX),_)
+CFLAGS+=-D__UCLIBC_UNDERSCORES__
 endif
 
 # Keep the check_as from being needlessly executed
@@ -535,3 +634,5 @@ ifeq ($(UCLIBC_CTOR_DTOR),y)
 SHARED_START_FILES:=$(top_builddir)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
 SHARED_END_FILES:=$(LIBGCC_DIR)crtendS.o $(top_builddir)lib/crtn.o
 endif
+
+LOCAL_INSTALL_PATH := install_dir

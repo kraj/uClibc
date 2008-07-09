@@ -5,8 +5,10 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := adjtime.c ftime.c
-
+CSRC := adjtime.c
+ifeq ($(UCLIBC_SUSV3_LEGACY),y)
+CSRC += ftime.c
+endif
 # multi source time.c
 CSRC +=	asctime.c asctime_r.c clock.c ctime.c ctime_r.c gmtime.c gmtime_r.c \
 	localtime.c localtime_r.c mktime.c strftime.c strptime.c tzset.c \

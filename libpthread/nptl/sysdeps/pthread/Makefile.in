@@ -18,7 +18,8 @@ libpthread_CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c	\
 		  pthread_rwlock_wrlock.c pthread_sigmask.c		\
 		  pthread_spin_destroy.c pthread_spin_init.c		\
 		  pthread_spin_unlock.c pt-sigfillset.c	\
-		  unwind-forcedunwind.c pt-longjmp.c
+		  pt-longjmp.c
+
 
 ifeq ($(TARGET_ARCH),i386)
 libpthread_CSRC += pthread_once.c
@@ -68,7 +69,7 @@ CFLAGS-pt-sigfillset.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1	\
 		      -I$(top_srcdir)libc/signal
 CFLAGS-pt-sigprocmask.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1	\
 		       -I$(top_srcdir)libc/sysdeps/linux/common
-CFLAGS-unwind-forcedunwind.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-unwind-forcedunwind.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1 -fexceptions -fasynchronous-unwind-tables
 CFLAGS-librt-cancellation.c = -DIS_IN_librt=1 $(CFLAGS-pt-common)	\
 			      -fexceptions -fasynchronous-unwind-tables
 CFLAGS-rt-unwind-resume.c = -DIS_IN_librt=1 $(CFLAGS-pt-common)		\
@@ -84,7 +85,8 @@ pthread_OBJ = $(patsubst %.c, $(pthread_OUT)/%.o, $(libpthread_CSRC))
 
 libpthread-a-y += $(pthread_OBJ)
 libpthread-so-y += $(pthread_OBJ:.o=.oS)
-libpthread-so-y += $(pthread_OUT)/pt-sigaction.oS $(pthread_OUT)/pt-sigprocmask.oS
+libpthread-so-y += $(pthread_OUT)/pt-sigaction.oS $(pthread_OUT)/pt-sigprocmask.oS \
+					$(pthread_OUT)/unwind-forcedunwind.oS
 
 CFLAGS-sigaction.c = -I$(top_srcdir)libc/signal
 libc-y += $(pthread_OUT)/sigaction.o

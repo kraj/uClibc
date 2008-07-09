@@ -5,14 +5,19 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC :=	allocrtsig.c killpg.c raise.c sigaddset.c sigandset.c \
-	sigblock.c sigdelset.c sigempty.c sigfillset.c siggetmask.c sighold.c \
-	sigignore.c sigintr.c sigisempty.c sigismem.c sigjmp.c signal.c \
-	sigorset.c sigpause.c sigrelse.c sigset.c sigsetmask.c sigsetops.c \
-	sysv_signal.c sigwait.c
+CSRC :=	allocrtsig.c killpg.c raise.c sigaction.c sigaddset.c sigandset.c \
+	sigblock.c sigdelset.c sigempty.c sigfillset.c siggetmask.c \
+	sigintr.c sigisempty.c sigismem.c sigjmp.c signal.c \
+	sigorset.c sigpause.c sigsetmask.c sigsetops.c sigwait.c
+ifeq ($(UCLIBC_HAS_OBSOLETE_BSD_SIGNAL),y)
+CSRC += sighold.c sigignore.c sigrelse.c sigset.c
+endif
+ifeq ($(UCLIBC_HAS_OBSOLETE_SYSV_SIGNAL),y)
+CSRC += sysv_signal.c
+endif
 
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC:=$(filter-out raise.c,$(CSRC))
+CSRC:=$(filter-out raise.c sigaction.c,$(CSRC))
 endif
 
 ifneq ($(strip $(ARCH_OBJS)),)

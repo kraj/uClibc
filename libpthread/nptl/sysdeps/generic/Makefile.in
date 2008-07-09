@@ -10,9 +10,8 @@
 #       their architecture specific directory which will override
 #       the one here.
 #
-libc_a_CSRC = dl-support.c dl-tls.c libc-tls.c
+libc_a_CSRC = dl-tls.c libc-tls.c
 
-CFLAGS-dl-support.c = -D_GNU_SOURCE
 
 CFLAGS-generic = $(SSP_ALL_CFLAGS)
 #CFLAGS:=$(CFLAGS:-O1=-O2)

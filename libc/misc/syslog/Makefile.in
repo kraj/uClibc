@@ -13,7 +13,9 @@ MISC_SYSLOG_OUT := $(top_builddir)libc/misc/syslog
 MISC_SYSLOG_SRC := $(patsubst %.c,$(MISC_SYSLOG_DIR)/%.c,$(CSRC))
 MISC_SYSLOG_OBJ := $(patsubst %.c,$(MISC_SYSLOG_OUT)/%.o,$(CSRC))
 
+ifeq ($(UCLIBC_HAS_SYSLOG),y)
 libc-y += $(MISC_SYSLOG_OBJ)
+endif
 
 objclean-y += misc_syslog_objclean
 
