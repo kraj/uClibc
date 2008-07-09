@@ -6,7 +6,16 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
+/* glibc 2.4 has no ETHER_FILE_NAME, host compile fails without this */
+#ifndef ETHER_FILE_NAME
+#define ETHER_FILE_NAME "/etc/ethers"
+#endif
+
 #define ETHER_LINE_LEN 256
+
+/* This test requires /etc/ethers to exist
+ * and to have nonzero length
+ */
 
 int main(void)
 {

@@ -1,4 +1,4 @@
-#include <tst-tls5.h>
+#include "tst-tls5.h"
 
 #ifdef TLS_REGISTER
 /* Ensure tls_registry is exported from the binary.  */

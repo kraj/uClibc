@@ -3,6 +3,11 @@
 
 #define ETHER_LINE_LEN 256
 
+/* This test requires /etc/ethers to exist
+ * and to have host "teeth". For example:
+ * 00:11:22:33:44:55 teeth
+ */
+
 int main(void)
 {
 	struct ether_addr addr;

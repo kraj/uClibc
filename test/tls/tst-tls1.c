@@ -1,4 +1,5 @@
 /* glibc test for TLS in ld.so.  */
+#undef _LIBC
 #include <stdio.h>
 
 #include <tls.h>

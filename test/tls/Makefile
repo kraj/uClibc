@@ -12,7 +12,7 @@ include ../Test.mak
 TARGET_ARCH := $(strip $(subst ",, $(strip $(TARGET_ARCH))))
 PTDIR := $(top_builddir)libpthread/nptl
 
-EXTRA_CFLAGS := -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC	\
+EXTRA_CFLAGS := -DNOT_IN_libc=1 \
 	-std=gnu99 -I. -I$(PTDIR)				\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\

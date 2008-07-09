@@ -52,8 +52,12 @@ struct {
 };
 
 struct {
-  const char * in, * out, * resolved;
-  int error;
+  const char * in;
+  const char * retval; /* what realpath should return */
+  const char * retbuf; /* what realpath should store in buf */
+  /* if both of the above are NULL, we won't check for result,
+   * it's undefined */
+  int error; /* expected errno value */
 } tests[] = {
   /*  0 */
   {"/",					"/"},
@@ -72,17 +76,9 @@ struct {
   {"foobar",				0, "./foobar", ENOENT},
   {".",					"."},
   {"./foobar",				0, "./foobar", ENOENT},
-#ifdef __UCLIBC__
-  /* we differ from glibc here, but POSIX allows it as it says that if we did
-   * not successfuly complete, the value of resolved_path is undefined */
-  {"SYMLINK_LOOP",			0, "", ELOOP},
+  {"SYMLINK_LOOP",			0, 0, ELOOP},
   /* 15 */
-  {"./SYMLINK_LOOP",			0, "", ELOOP},
-#else
-  {"SYMLINK_LOOP",			0, "./SYMLINK_LOOP", ELOOP},
-  /* 15 */
-  {"./SYMLINK_LOOP",			0, "./SYMLINK_LOOP", ELOOP},
-#endif
+  {"./SYMLINK_LOOP",			0, 0, ELOOP},
   {"SYMLINK_1",				"."},
   {"SYMLINK_1/foobar",			0, "./foobar", ENOENT},
   {"SYMLINK_2",				"/etc"},
@@ -180,27 +176,28 @@ do_test (int argc, char ** argv)
   for (i = 0; i < (int) (sizeof (tests) / sizeof (tests[0])); ++i)
     {
       buf[0] = '\0';
+      errno = 0;
       result = realpath (tests[i].in, buf);
 
-      if (!check_path (result, tests[i].out))
+      if (!check_path (result, tests[i].retval))
 	{
 	  printf ("%s: flunked test %d (expected `%s', got `%s')\n",
-		  argv[0], i, tests[i].out ? tests[i].out : "NULL",
+		  argv[0], i, tests[i].retval ? tests[i].retval : "NULL",
 		  result ? result : "NULL");
 	  ++errors;
 	  continue;
 	}
 
-      if (!check_path (buf, tests[i].out ? tests[i].out : tests[i].resolved))
+      if (result && !check_path (buf, tests[i].retval ? tests[i].retval : tests[i].retbuf))
 	{
 	  printf ("%s: flunked test %d (expected resolved `%s', got `%s')\n",
-		  argv[0], i, tests[i].out ? tests[i].out : tests[i].resolved,
+		  argv[0], i, tests[i].retval ? tests[i].retval : tests[i].retbuf,
 		  buf);
 	  ++errors;
 	  continue;
 	}
 
-      if (!tests[i].out && errno != tests[i].error)
+      if (errno != tests[i].error)
 	{
 	  printf ("%s: flunked test %d (expected errno %d, got %d)\n",
 		  argv[0], i, tests[i].error, errno);

@@ -1,4 +1,4 @@
-#include <tst-tls5.h>
+#include "tst-tls5.h"
 
 #ifdef TLS_REGISTER
 char tst_tls5modf[60] attribute_hidden = { 26 };

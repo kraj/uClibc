@@ -135,7 +135,7 @@ static void
 __attribute__ ((noreturn))
 timeout_handler (int sig __attribute__ ((unused)))
 {
-  int killed;
+  int killed = 0;
   int status;
 
   /* Send signal.  */

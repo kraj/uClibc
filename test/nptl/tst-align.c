@@ -21,7 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <tst-stack-align.h>
+#include "tst-stack-align.h"
 
 static void *
 tf (void *arg)

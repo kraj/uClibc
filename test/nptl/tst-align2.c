@@ -23,7 +23,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <tst-stack-align.h>
+#include "tst-stack-align.h"
 
 static int
 f (void *arg)
