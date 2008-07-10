@@ -95,6 +95,10 @@
 
 #include <features.h>
 
+#define sl r10
+#define fp r11
+#define ip r12
+
  .text
  .align 4      @ 16 byte boundary and there are 32 bytes below (arm case)
  #if !defined(__thumb__) || defined(__thumb2__)

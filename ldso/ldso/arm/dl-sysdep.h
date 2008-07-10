@@ -5,6 +5,9 @@
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
 
+#ifndef _ARCH_DL_SYSDEP
+#define _ARCH_DL_SYSDEP
+
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
 #include <elf.h>
@@ -60,12 +63,16 @@ unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 #define ADDR_ALIGN 0xfff
 #define OFFS_ALIGN 0x7ffff000
 
-/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry, so
-   PLT entries should not be allowed to define the value.
+/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
+   TLS variable, so undefined references should not be allowed to
+   define the value.
+
    ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
    of the main executable's symbols, as for a COPY reloc.  */
-#define elf_machine_type_class(type) \
-  ((((type) == R_ARM_JUMP_SLOT) * ELF_RTYPE_CLASS_PLT)	\
+#define elf_machine_type_class(type)									\
+  ((((type) == R_ARM_JUMP_SLOT || (type) == R_ARM_TLS_DTPMOD32			\
+     || (type) == R_ARM_TLS_DTPOFF32 || (type) == R_ARM_TLS_TPOFF32)	\
+    * ELF_RTYPE_CLASS_PLT)												\
    | (((type) == R_ARM_COPY) * ELF_RTYPE_CLASS_COPY))
 
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
@@ -140,3 +147,4 @@ elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		*reloc_addr += load_off;
 	} while (--relative_count);
 }
+#endif /* !_ARCH_DL_SYSDEP */
