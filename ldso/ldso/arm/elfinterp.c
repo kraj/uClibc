@@ -51,7 +51,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	Elf32_Sym *symtab;
 	ELF_RELOC *rel_addr;
 	int symtab_index;
-	char *new_addr;
+	unsigned long new_addr;
 	char **got_addr;
 	unsigned long instr_addr;
 
@@ -97,13 +97,13 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		}
 	}
 	if (!_dl_debug_nofixups) {
-		*got_addr = new_addr;
+		*got_addr = (char*)new_addr;
 	}
 #else
-	*got_addr = new_addr;
+	*got_addr = (char*)new_addr;
 #endif
 
-	return (unsigned long) new_addr;
+	return new_addr;
 }
 
 static int
@@ -208,19 +208,18 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	symbol_addr = 0;
 
 	if (symtab_index) {
-		def = _dl_find_hash(strtab + symtab[symtab_index].st_name,
+		symbol_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name,
                                 scope, tpnt,
                                 elf_machine_type_class(reloc_type),
                                 &def_mod);
 
-		if (def)
-			symbol_addr = def->st_value + def_mod->loadaddr;
 		/*
 		 * We want to allow undefined references to weak symbols - this might
 		 * have been intentional.  We should not be linking local symbols
 		 * here, so all bases should be covered.
 		 */
-		else if (ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK) {
+		if (!symbol_addr && (ELF_ST_TYPE(symtab[symtab_index].st_info) != STT_TLS)
+			&& (ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
 			/* This may be non-fatal if called from dlopen.  */
 			return 1;
 
@@ -229,7 +228,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
         /* Relocs against STN_UNDEF are usually treated as using a
            symbol value of zero, and using the module containing the
            reloc itself.  */
-		def = &symtab[symtab_index];
+		symbol_addr = symtab[symtab_index].st_value;
 		def_mod = tpnt;
 	}
 
@@ -292,12 +291,12 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				break;
 
 			case R_ARM_TLS_DTPOFF32:
-				*reloc_addr += def->st_value;
+				*reloc_addr += symbol_addr;
 				break;
 
 			case R_ARM_TLS_TPOFF32:
 				CHECK_STATIC_TLS ((struct link_map *) def_mod);
-				*reloc_addr += (def->st_value + def_mod->l_tls_offset);
+				*reloc_addr += (symbol_addr + def_mod->l_tls_offset);
 				break;
 #endif
 			default:
