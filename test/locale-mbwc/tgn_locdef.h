@@ -13,7 +13,7 @@
 #define TST_LOC_en	"en_US.ISO-8859-1"
 #define TST_LOC_enUS	TST_LOC_C
 
-/* NOTE: ja_JP.EUC-JP locale isn't supported into the uClibc! 
+/* NOTE: ja_JP.EUC-JP locale isn't supported into the uClibc!
          UTF-8 is the only multibyte codeset supported. */
 /* Japanese locale with EUC-JP. */
 #if 0

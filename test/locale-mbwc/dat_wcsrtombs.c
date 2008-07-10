@@ -139,7 +139,7 @@ TST_WCSRTOMBS tst_wcsrtombs_loc [] = {
       { .is_last = 1 }
     }
   },
-#if 0  
+#if 0
   {
     { Twcsrtombs, TST_LOC_eucJP },
     {
