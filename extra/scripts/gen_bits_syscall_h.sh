@@ -22,11 +22,16 @@ case $CC in
 *)     CC_SYSNUM_ARGS="-dN" ;;
 esac
 
+# Most syscall numbers have names like '__NR_open', which become names
+# like 'SYS_open'.  Some of the ARM syscalls have names like
+# '__ARM_NR_set_tls', which we transform into names like
+# 'SYS_ARM_set_tls'.
+
 ( echo "#include <asm/unistd.h>";
   echo "#include <asm/unistd.h>" |
   $CC -E $CC_SYSNUM_ARGS $INCLUDE_OPTS - |
-  sed -ne 's/^[ ]*#define[ ]*__NR_\([A-Za-z0-9_]*\).*/UCLIBC_\1 __NR_\1/gp' \
-      -e 's/^[ ]*#undef[ ]*__NR_\([A-Za-z0-9_]*\).*/UNDEFUCLIBC_\1 __NR_\1/gp' # needed to strip out any kernel-internal defines
+  sed -ne 's/^[ ]*#define[ ]*__\([A-Za-z0-9_]*\)NR_\([A-Za-z0-9_]*\).*/UCLIBC_\1NR_\2 __\1NR_\2/gp' \
+      -e 's/^[ ]*#undef[ ]*__\([A-Za-z0-9_]*\)NR_\([A-Za-z0-9_]*\).*/UNDEFUCLIBC_\1NR_\2 __\1NR_\2/gp' # needed to strip out any kernel-internal defines
 ) |
 $CC -E $INCLUDE_OPTS - |
 ( echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" ;
@@ -37,10 +42,10 @@ $CC -E $INCLUDE_OPTS - |
   echo "#ifndef _SYSCALL_H" ;
   echo "# error \"Never use <bits/sysnum.h> directly; include <sys/syscall.h> instead.\"" ;
   echo "#endif" ; echo ;
-  sed -ne 's/^UCLIBC_\([A-Za-z0-9_]*\) *\(.*\)/#undef __NR_\1\
-#define __NR_\1 \2\
-#define SYS_\1 __NR_\1/gp' \
-     -e 's/^UNDEFUCLIBC_\([A-Za-z0-9_]*\).*/#undef __NR_\1/gp'
+  sed -ne 's/^UCLIBC_\([A-Za-z0-9_]*\)NR_\([A-Za-z0-9_]*\) *\(.*\)/#undef __\1NR_\2\
+#define __\1NR_\2 \3\
+#define SYS_\1\2 __\1NR_\2/gp' \
+     -e 's/^UNDEFUCLIBC_\([A-Za-z0-9_]*\)NR_\([A-Za-z0-9_]*\).*/#undef __\1NR_\2/gp'
   echo ;
   echo "#endif" ;
 )
