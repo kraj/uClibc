@@ -40,7 +40,12 @@ CSRC := $(filter-out inotify.c ioperm.c iopl.c madvise.c \
 endif
 	
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC := $(filter-out fork.c getpid.c raise.c open.c close.c read.c write.c waitpid.c, $(CSRC))
+CSRC := $(filter-out fork.c getpid.c raise.c open.c close.c read.c write.c, $(CSRC))
+ifneq ($(TARGET_ARCH),arm)
+CSRC := $(filter-out waitpid.c, $(CSRC))
+else
+CSRC := $(filter-out vfork.c, $(CSRC))
+endif
 endif
 
 ifneq ($(UCLIBC_BSD_SPECIFIC),y)
