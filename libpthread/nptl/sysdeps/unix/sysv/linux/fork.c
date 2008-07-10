@@ -19,7 +19,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <syscall.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sysdep.h>
@@ -58,7 +58,6 @@ fresetlockfiles (void)
 #endif
 }
 
-extern __typeof(fork) __libc_fork;
 pid_t __libc_fork (void)
 {
   pid_t pid;
@@ -120,7 +119,11 @@ pid_t __libc_fork (void)
       break;
     }
 
-  __UCLIBC_IO_MUTEX_LOCK(_stdio_openlist_add_lock);
+#ifdef __USE_STDIO_FUTEXES__
+    _IO_lock_lock (_stdio_openlist_add_lock);
+#else
+    __pthread_mutex_lock(&_stdio_openlist_add_lock);
+#endif
 
 #ifndef NDEBUG
   pid_t ppid = THREAD_GETMEM (THREAD_SELF, tid);
@@ -196,7 +199,11 @@ pid_t __libc_fork (void)
       THREAD_SETMEM (THREAD_SELF, pid, parentpid);
 
       /* We execute this even if the 'fork' call failed.  */
-      __UCLIBC_IO_MUTEX_UNLOCK(_stdio_openlist_add_lock);
+#ifdef __USE_STDIO_FUTEXES__
+      _IO_lock_unlock(_stdio_openlist_add_lock);
+#else
+      __pthread_mutex_unlock(&_stdio_openlist_add_lock);
+#endif
 
       /* Run the handlers registered for the parent.  */
       while (allp != NULL)
