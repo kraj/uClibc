@@ -351,14 +351,14 @@ __inline_functions (long double,l)
 /* Note that there must be no whitespace before the argument passed for
    NAME, to make token pasting work correctly with -traditional.  */
 # define __inline_forward_c(rettype, name, args1, args2)	\
-extern __inline rettype __attribute__((__const__))		\
+__extern_inline rettype __attribute__((__const__))		\
   name args1							\
 {								\
   return __CONCAT(__,name) args2;				\
 }
 
 # define __inline_forward(rettype, name, args1, args2)	\
-extern __inline rettype name args1			\
+__extern_inline rettype name args1			\
 {							\
   return __CONCAT(__,name) args2;			\
 }

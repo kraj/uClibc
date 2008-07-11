@@ -14,6 +14,7 @@
 
 #include <pthread.h>
 #include <bits/uClibc_pthread.h>
+#include <bits/libc-lock.h>
 
 #define __UCLIBC_MUTEX_TYPE				pthread_mutex_t
 
