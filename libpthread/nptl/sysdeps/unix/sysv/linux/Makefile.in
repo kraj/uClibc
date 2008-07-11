@@ -177,9 +177,6 @@ $(PTHREAD_LINUX_OUT)/lowlevelrwlock.h: $(PTHREAD_LINUX_OUT)/lowlevelrwlock.s
 $(PTHREAD_LINUX_OUT)/unwindbuf.h: $(PTHREAD_LINUX_OUT)/unwindbuf.s
 	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
-$(PTHREAD_LINUX_DIR)/pt-sleep.c:
-	$(LN) -s sleep.c $@
-
 nptl_linux_headers: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h \
 					$(PTHREAD_LINUX_OUT)/lowlevelcond.h \
 					$(PTHREAD_LINUX_OUT)/lowlevelrwlock.h \
@@ -198,4 +195,4 @@ nptl_linux_headers_clean:
 	$(RM) $(PTHREAD_LINUX_OUT)/unwindbuf.{c,h,s}
 
 nptl_linux_objclean:
-	$(RM) $(PTHREAD_LINUX_OUT)/*.{o,os,oS} $(PTHREAD_LINUX_DIR)/pt-sleep.c
+	$(RM) $(PTHREAD_LINUX_OUT)/*.{o,os,oS}
