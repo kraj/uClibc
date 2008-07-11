@@ -35,6 +35,9 @@ endif
 ifeq ($(UCLIBC_HAS_CRYPT_STUB),y)
 	DIRS := $(filter-out crypt,$(DIRS))
 endif
+ifeq ($(HAS_NO_THREADS),y)
+	DIRS := $(filter-out pthread,$(DIRS))
+endif
 DIRS := $(filter-out math,$(DIRS))
 
 
