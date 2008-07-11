@@ -26,6 +26,12 @@ endif
 ifneq ($(UCLIBC_HAS_REGEX),y)
 	DIRS := $(filter-out regex,$(DIRS))
 endif
+ifneq ($(UCLIBC_HAS_WCHAR),y)
+	DIRS := $(filter-out locale-mbwc,$(DIRS))
+endif
+ifneq ($(UCLIBC_HAS_LOCALE),y)
+	DIRS := $(filter-out locale,$(DIRS))
+endif
 DIRS := $(filter-out math,$(DIRS))
 
 
