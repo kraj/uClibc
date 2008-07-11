@@ -1062,7 +1062,7 @@ void * _dl_memalign (size_t __boundary, size_t __size)
 		rounded = (1 << i++);
 	}
 
-	delta = (((size_t) _dl_malloc_addr + __size) % rounded);
+	delta = (((size_t) _dl_malloc_addr + __size) & (rounded - 1));
 
 	if ((result = _dl_malloc(rounded - delta)) == NULL)
 		return result;
