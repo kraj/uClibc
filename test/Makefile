@@ -32,6 +32,9 @@ endif
 ifneq ($(UCLIBC_HAS_LOCALE),y)
 	DIRS := $(filter-out locale,$(DIRS))
 endif
+ifeq ($(UCLIBC_HAS_CRYPT_STUB),y)
+	DIRS := $(filter-out crypt,$(DIRS))
+endif
 DIRS := $(filter-out math,$(DIRS))
 
 
