@@ -13,6 +13,8 @@ top_builddir ?= ../
 
 TESTDIR=$(top_builddir)test/
 
+COUNTER = $(TESTDIR).errcounter
+
 include $(top_builddir)/Rules.mak
 ifndef TEST_INSTALLED_UCLIBC
 ifdef UCLIBC_LDSO

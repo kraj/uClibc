@@ -30,6 +30,7 @@ endif
 ifeq ($(UCLIBC_ONLY),)
 TARGETS   += $(G_TARGETS)
 endif
+
 CLEAN_TARGETS := $(U_TARGETS) $(G_TARGETS)
 COMPILE_TARGETS :=  $(TARGETS)
 RUN_TARGETS := $(patsubst %,%.exe,$(TARGETS))
@@ -65,13 +66,18 @@ define exec_test
 	if ! test $$ret -eq $$expected_ret ; then \
 		echo "ret == $$ret ; expected_ret == $$expected_ret" ; \
 		cat "$(binary_name).out" ; \
-		exit 1 ; \
+		numerr="`cat $(COUNTER)`" ; \
+		expr $$numerr + 1 > $(COUNTER) ; \
 	fi
 	$(SCAT) "$(binary_name).out"
 endef
 
 test check all: run
 run: $(RUN_TARGETS) compile
+	@numerr="`cat $(COUNTER)`" ; \
+	echo "Encountered $$numerr errors" ; \
+	test $$numerr -eq 0 || exit 1
+
 $(RUN_TARGETS): $(TARGETS)
 	$(exec_test)
 	$(diff_test)

@@ -40,17 +40,18 @@ ifeq ($(HAS_NO_THREADS),y)
 endif
 DIRS := $(filter-out math,$(DIRS))
 
-
 test check all: run
 
 run: compile subdirs_run
 
 compile:subdirs_compile
+	@echo 0 > $(COUNTER)
 
 tags:
 	ctags -R
 
 clean: subdirs_clean
+	@rm -f $(COUNTER)
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_compile: $(patsubst %, _dircompile_%, $(DIRS))
