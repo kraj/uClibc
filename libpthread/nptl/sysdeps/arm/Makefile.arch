@@ -27,23 +27,17 @@ PTHREAD_ARCH_DIR := $(top_srcdir)libpthread/nptl/sysdeps/arm
 PTHREAD_ARCH_OUT := $(top_builddir)libpthread/nptl/sysdeps/arm
 PTHREAD_ARCH_OBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_SSRC))
 PTHREAD_ARCH_OBJ += $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_CSRC))
+LIBRT_ARCH_OBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(librt_SSRC))
+LIBRT_ARCH_OBJ += $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(librt_CSRC))
+
 
 libpthread-a-y += $(PTHREAD_ARCH_OBJ)
 libpthread-so-y += $(PTHREAD_ARCH_OBJ:.o=.oS)
 
+librt-a-y += $(LIBRT_ARCH_OBJ)
+librt-so-y += $(LIBRT_ARCH_OBJ:.o=.oS)
+
 libpthread-nomulti-y += $(PTHREAD_ARCH_OBJ)
-
-LIBC_ARCH_OBJ := $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libc_a_CSRC))
-
-libc-a-y += $(LIBC_ARCH_OBJ)
-
-libc-nomulti-y += $(LIBC_ARCH_OBJ)
-
-RT_ARCH_OBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(librt_SSRC))
-RT_ARCH_OBJ += $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(librt_CSRC))
-
-librt-a-y  += $(RT_ARCH_OBJ)
-librt-so-y += $(RT_ARCH_OBJ:.o=.oS)
 
 objclean-y += nptl_arch_objclean
 headers_clean-y += nptl_arch_headers_clean
@@ -54,7 +48,7 @@ headers_clean-y += nptl_arch_headers_clean
 CFLAGS-tcb-offsets.c = -S
 
 $(PTHREAD_ARCH_OUT)/tcb-offsets.c: $(PTHREAD_ARCH_DIR)/tcb-offsets.sym
-	awk -f $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
 $(PTHREAD_ARCH_OUT)/tcb-offsets.s: $(PTHREAD_ARCH_OUT)/tcb-offsets.c
 	$(compile.c)
@@ -69,4 +63,3 @@ nptl_arch_headers_clean:
 
 nptl_arch_objclean:
 	$(RM) $(PTHREAD_ARCH_OUT)/*.{o,os,oS}
-

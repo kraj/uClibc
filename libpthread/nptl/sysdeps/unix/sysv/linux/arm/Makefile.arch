@@ -34,11 +34,11 @@ libpthread-so-y += $(LINUX_ARCH_OBJ:.o=.oS)
 
 libpthread-nomulti-y+=$(LINUX_ARCH_OBJ)
 
-LIBC_LINUX_ARCH_OBJ:=$(patsubst %.S,$(LINUX_ARCH_OUT)/%.o,$(libc_a_SSRC))
-LIBC_LINUX_ARCH_OBJ+=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libc_a_CSRC))
+LIBC_LINUX_ARCH_OBJ:=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libc_a_CSRC))
+LIBC_LINUX_ARCH_OBJ+=$(patsubst %.S,$(LINUX_ARCH_OUT)/%.o,$(libc_a_SSRC))
 
-libc-a-y+=$(LIBC_LINUX_ARCH_OBJ)
-libc-so-y+=$(LIBC_LINUX_ARCH_OBJ:.o=.oS)
+libc-static-y+=$(LIBC_LINUX_ARCH_OBJ)
+libc-shared-y+=$(LIBC_LINUX_ARCH_OBJ:.o=.oS)
 
 libc-nomulti-y+=$(LIBC_LINUX_ARCH_OBJ)
 
@@ -46,4 +46,3 @@ objclean-y+=pthread_linux_arch_objclean
 
 pthread_linux_arch_objclean:
 	$(RM) $(LINUX_ARCH_OUT)/*.{o,os,oS}
-
