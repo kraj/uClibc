@@ -2,6 +2,8 @@
 #include <pthread.h>
 #include <stdint.h>
 
+extern int __pthread_once(void);
+
 void dltest(uint32_t **value1, uint32_t **value2);
 void dltest(uint32_t **value1, uint32_t **value2)
 {
