@@ -65,18 +65,13 @@ define exec_test
 		test -z "$$expected_ret" && export expected_ret=0 ; \
 	if ! test $$ret -eq $$expected_ret ; then \
 		echo "ret == $$ret ; expected_ret == $$expected_ret" ; \
-		cat "$(binary_name).out" ; \
-		numerr="`cat $(COUNTER)`" ; \
-		expr $$numerr + 1 > $(COUNTER) ; \
+		exit 1 ; \
 	fi
 	$(SCAT) "$(binary_name).out"
 endef
 
 test check all: run
 run: $(RUN_TARGETS) compile
-	@numerr="`cat $(COUNTER)`" ; \
-	echo "Encountered $$numerr errors" ; \
-	test $$numerr -eq 0 || exit 1
 
 $(RUN_TARGETS): $(TARGETS)
 	$(exec_test)
