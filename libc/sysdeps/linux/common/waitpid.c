@@ -10,43 +10,28 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/resource.h>
+
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <errno.h>
-#include <sysdep-cancel.h>
+#include "sysdep-cancel.h"
 #else
+#define SINGLE_THREAD_P 1
+#endif
 
 libc_hidden_proto(wait4)
-#endif
 
 extern __typeof(waitpid) __libc_waitpid;
 __pid_t __libc_waitpid(__pid_t pid, int *wait_stat, int options)
 {
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	if (SINGLE_THREAD_P)
-	{
-#ifdef __NR_waitpid
-		return INLINE_SYSCALL (waitpid, 3, pid, wait_stat, options);
-#else
-		return INLINE_SYSCALL (wait4, 4, pid, wait_stat, options, NULL);
-#endif
-	}
+		return wait4(pid, wait_stat, options, NULL);
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	int oldtype = LIBC_CANCEL_ASYNC ();
-
-#ifdef __NR_waitpid
-	int result = INLINE_SYSCALL (waitpid, 3, pid, wait_stat, options);
-#else
-	int result = INLINE_SYSCALL (wait4, 4, pid, wait_stat, options, NULL);
-#endif
-
+	int result = wait4(pid, wait_stat, options, NULL);
 	LIBC_CANCEL_RESET (oldtype);
-
 	return result;
-}
-#else
-	return wait4(pid, wait_stat, options, NULL);
-}
 #endif
+}
 libc_hidden_proto(waitpid)
 weak_alias(__libc_waitpid,waitpid)
 libc_hidden_weak(waitpid)
