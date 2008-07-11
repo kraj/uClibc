@@ -490,7 +490,7 @@ dist release:
 	$(TAR) cjf ../uClibc-$(VERSION).tar.bz2 -C .. uClibc-$(VERSION)
 	du -b ../uClibc-$(VERSION).tar.bz2
 
-test check:
+test check: test_compile
 	$(Q)$(MAKE) -C test
 
 test_compile: $(LOCAL_INSTALL_PATH)
