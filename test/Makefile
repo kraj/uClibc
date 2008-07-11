@@ -29,11 +29,21 @@ endif
 ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	DIRS += $(filter-out tls nptl,$(DIRS))
 endif
+ifneq ($(UCLIBC_HAS_WCHAR),y)
+	DIRS := $(filter-out locale-mbwc,$(DIRS))
+endif
+ifneq ($(UCLIBC_HAS_LOCALE),y)
+	DIRS := $(filter-out locale,$(DIRS))
+endif
+ifeq ($(UCLIBC_HAS_CRYPT_STUB),y)
+	DIRS := $(filter-out crypt,$(DIRS))
+endif
+DIRS := $(filter-out math,$(DIRS))
 
 
 test check all: run
 
-run: subdirs_run
+run: compile subdirs_run
 
 compile: subdirs_compile
 
