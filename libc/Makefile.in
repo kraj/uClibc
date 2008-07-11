@@ -38,17 +38,17 @@ include $(libc_DIR)/stdlib/Makefile.in
 include $(libc_DIR)/unistd/Makefile.in
 
 ifeq ($(DOPIC),y)
-libc-a-y = $(libc-y:.o=.os) $(libc-static-y:.o=.os)
+libc-a-y += $(libc-y:.o=.os) $(libc-static-y:.o=.os)
 else
-libc-a-y = $(libc-y) $(libc-static-y)
+libc-a-y += $(libc-y) $(libc-static-y)
 endif
 
 ifeq ($(DOMULTI),n)
-libc-so-y = $(libc-y:.o=.os) $(libc-shared-y)
+libc-so-y += $(libc-y:.o=.os) $(libc-shared-y)
 else
 all_sources = $(libc-y:.o=.c)
 all_sources += $(libc-shared-y:.oS=.c)
-libc-multi-y = $(filter-out $(libc-nomulti-y:.o=.c),$(all_sources))
+libc-multi-y += $(filter-out $(libc-nomulti-y:.o=.c),$(all_sources))
 endif
 
 lib-a-y += $(top_builddir)lib/libc.a
