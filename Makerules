@@ -15,7 +15,7 @@ PHONY := FORCE
 ifeq ($(HAVE_SHARED),y)
 .LIBPATTERNS: "lib%.so"
 libs: $(lib-so-y) $(lib-a-y)
-$(lib-so-y): $(interp)
+$(lib-so-y): | $(interp)
 else
 .LIBPATTERNS: "lib%.a"
 ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
@@ -404,3 +404,4 @@ ifneq ($(strip $(.depends.dep)),)
 endif
 endif
 
+# vi: ft=make :
