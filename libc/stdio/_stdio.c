@@ -7,11 +7,7 @@
 
 #include "_stdio.h"
 
-#if defined (__UCLIBC_HAS_THREADS__) && defined (__USE_STDIO_FUTEXES__)
-#include <bits/stdio-lock.h>
-#endif
-
-libc_hidden_proto(memcpy)
+/* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(isatty)
 
 /* This is pretty much straight from uClibc, but with one important
@@ -163,22 +159,13 @@ FILE *__stdout = _stdio_streams + 1; /* For putchar() macro. */
 FILE *_stdio_openlist = _stdio_streams;
 
 # ifdef __UCLIBC_HAS_THREADS__
-#  ifdef __USE_STDIO_FUTEXES__
-_IO_lock_t _stdio_openlist_add_lock = _IO_lock_initializer;
-#  else
-__UCLIBC_MUTEX_INIT(_stdio_openlist_add_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
-#  endif
-#ifdef __STDIO_BUFFERS
-#  ifdef __USE_STDIO_FUTEXES__
-_IO_lock_t _stdio_openlist_del_lock = _IO_lock_initializer;
-#  else
-__UCLIBC_MUTEX_INIT(_stdio_openlist_del_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
-#  endif
+__UCLIBC_IO_MUTEX_INIT(_stdio_openlist_add_lock);
+#  ifdef __STDIO_BUFFERS
+__UCLIBC_IO_MUTEX_INIT(_stdio_openlist_del_lock);
 volatile int _stdio_openlist_use_count = 0;
 int _stdio_openlist_del_count = 0;
-#endif
+#  endif
 # endif
-
 #endif
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_THREADS__
@@ -213,7 +200,7 @@ void attribute_hidden _stdio_term(void)
 	STDIO_INIT_MUTEX(_stdio_openlist_add_lock);
 #warning check
 #ifdef __STDIO_BUFFERS
-	STDIO_INIT_MUTEX(ptr->__lock); /* Shouldn't be necessary, but... */
+	STDIO_INIT_MUTEX(_stdio_openlist_del_lock);
 #endif
 
 	/* Next we need to worry about the streams themselves.  If a stream
@@ -235,11 +222,7 @@ void attribute_hidden _stdio_term(void)
 		}
 
 		ptr->__user_locking = 1; /* Set locking mode to "by caller". */
-#ifdef __USE_STDIO_FUTEXES__
-		_IO_lock_init (ptr->_lock);
-#else
-		__stdio_init_mutex(&ptr->__lock); /* Shouldn't be necessary, but... */
-#endif
+		STDIO_INIT_MUTEX(ptr->__lock); /* Shouldn't be necessary, but... */
 	}
 #endif
 

@@ -58,6 +58,7 @@ fresetlockfiles (void)
 #endif
 }
 
+extern __typeof(fork) __libc_fork;
 pid_t __libc_fork (void)
 {
   pid_t pid;
@@ -119,11 +120,7 @@ pid_t __libc_fork (void)
       break;
     }
 
-#ifdef __USE_STDIO_FUTEXES__
-    _IO_lock_lock (_stdio_openlist_add_lock);
-#else
-    __pthread_mutex_lock(&_stdio_openlist_add_lock);
-#endif
+  __UCLIBC_IO_MUTEX_LOCK_CANCEL_UNSAFE(_stdio_openlist_add_lock);
 
 #ifndef NDEBUG
   pid_t ppid = THREAD_GETMEM (THREAD_SELF, tid);
@@ -199,11 +196,7 @@ pid_t __libc_fork (void)
       THREAD_SETMEM (THREAD_SELF, pid, parentpid);
 
       /* We execute this even if the 'fork' call failed.  */
-#ifdef __USE_STDIO_FUTEXES__
-      _IO_lock_unlock(_stdio_openlist_add_lock);
-#else
-      __pthread_mutex_unlock(&_stdio_openlist_add_lock);
-#endif
+      __UCLIBC_IO_MUTEX_UNLOCK_CANCEL_UNSAFE(_stdio_openlist_add_lock);
 
       /* Run the handlers registered for the parent.  */
       while (allp != NULL)
