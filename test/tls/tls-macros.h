@@ -20,6 +20,14 @@
 #include <tls-macros-mips.h>
 #endif
 
+#ifdef __arm__
+#ifdef __thumb__
+#include <tls-macros-thumb.h>
+#else
+#include <tls-macros-arm.h>
+#endif
+#endif
+
   /* XXX Each architecture must have its own asm for now.  */
 #ifdef __i386__
 # define TLS_LE(x) \
