@@ -32,7 +32,7 @@
 //#include "linux_fsinfo.h"
 
 libc_hidden_proto(fstat)
-#if !defined __UCLIBC_LINUX_SPECIFIC__
+
 #ifndef __USE_FILE_OFFSET64
 extern int fstatfs (int __fildes, struct statfs *__buf)
      __THROW __nonnull ((2));
@@ -44,7 +44,7 @@ extern int fstatfs (int __fildes, struct statfs *__buf)
 #  define fstatfs fstatfs64
 # endif
 #endif
-#endif
+
 extern __typeof(fstatfs) __libc_fstatfs;
 libc_hidden_proto(__libc_fstatfs)
 
