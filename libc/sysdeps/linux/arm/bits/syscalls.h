@@ -4,6 +4,24 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
+/* EABI kernels don't implement some redundant syscalls.  Undefine them
+   here so that fallback implementations will be used.  */
+
+#if defined(__ARM_EABI__)
+#undef __NR_time
+#undef __NR_umount
+#undef __NR_stime
+#undef __NR_alarm
+#undef __NR_utime
+#undef __NR_getrlimit
+#undef __NR_select
+#undef __NR_readdir
+#undef __NR_mmap
+#undef __NR_socketcall
+#undef __NR_syscall
+#undef __NR_ipc
+#endif
+
 /*
    Some of the sneaky macros in the code were taken from 
    glibc-2.3.2/sysdeps/unix/sysv/linux/arm/sysdep.h
