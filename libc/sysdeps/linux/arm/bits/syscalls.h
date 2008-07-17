@@ -137,17 +137,21 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
      (int) __sys_result; })
 #endif
 #else /* !defined(__thumb__) */
-
+/* We can't use push/pop inside the asm because that breaks
+   unwinding (ie. thread cancellation).
+ */
 #define INTERNAL_SYSCALL(name, err, nr, args...)			\
   ({ unsigned int __sys_result;						\
     {									\
+      int _sys_buf[2];							\
       register int _a1 __asm__ ("a1");					\
+      register int *_v3 __asm__ ("v3") = _sys_buf;			\
+      *_v3 = (int) (SYS_ify(name));					\
       LOAD_ARGS_##nr (args)						\
-      register int _v3 __asm__ ("v3") = (int) (SYS_ify(name));		\
-      __asm__ __volatile__ ("push       {r7}\n"				\
-			    "\tmov      r7, v3\n"			\
-			    "\tswi      0       @ syscall " #name "\n"	\
-			    "\tpop      {r7}"				\
+      __asm__ __volatile__ ("str	r7, [v3, #4]\n"			\
+		    "\tldr	r7, [v3]\n"				\
+		    "\tswi	0	@ syscall " #name "\n"		\
+		    "\tldr	r7, [v3, #4]"				\
 		    : "=r" (_a1)					\
 		    : "r" (_v3) ASM_ARGS_##nr				\
                     : "memory");					\
