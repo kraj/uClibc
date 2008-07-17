@@ -460,6 +460,9 @@ CFLAGS := -include $(top_builddir)include/libc-symbols.h \
 	-fno-builtin -nostdinc -I$(top_builddir)include -I. \
 	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
 
+# Make sure that we can be built with non-C99 compilers, too.
+# Use __\1__ instead.
+CFLAGS += $(call check_gcc,-fno-asm,)
 ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
 CFLAGS += $(subst ",, $(UCLIBC_EXTRA_CFLAGS))
 endif
