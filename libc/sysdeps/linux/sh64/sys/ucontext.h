@@ -189,7 +189,7 @@ typedef struct
     unsigned long long sc_pc;
     unsigned long long sc_sr;
     unsigned long long sc_fpscr;
-    
+
   } mcontext_t;
 
 /* Userlevel context.  */

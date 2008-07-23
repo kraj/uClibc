@@ -55,7 +55,7 @@ libc_hidden_proto(stat)
    terminal devices.  As of Linux 2.1.115 these are no longer
    supported.  They have been replaced by major numbers 2 (masters)
    and 3 (slaves).  */
-     
+
 /* The are declared in getpt.c.  */
 extern const char __libc_ptyname1[] attribute_hidden;
 extern const char __libc_ptyname2[] attribute_hidden;

@@ -109,7 +109,7 @@ Summary:
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+
 /* We use subtraction of (char *) 0 instead of casting to int
    because on word-addressable machines a simple cast to int
    may ignore the byte-within-word field of the pointer.  */
@@ -206,7 +206,7 @@ extern int _obstack_begin ();
 extern int _obstack_begin_1 ();
 extern int _obstack_memory_used ();
 #endif
-
+
 #if defined __STDC__ && __STDC__
 
 /* Do the function-declarations after the structs
@@ -264,7 +264,7 @@ extern void (*obstack_alloc_failed_handler) ();
 
 /* Exit value used when `print_and_abort' is used.  */
 extern int obstack_exit_failure;
-
+
 /* Pointer to beginning of object being allocated or to be allocated next.
    Note that this might not be the final address of the object
    because a new chunk might be needed to hold the final size.  */
@@ -348,7 +348,7 @@ extern int obstack_exit_failure;
 #define obstack_blank_fast(h,n) ((h)->next_free += (n))
 
 #define obstack_memory_used(h) _obstack_memory_used (h)
-
+
 #if defined __GNUC__ && defined __STDC__ && __STDC__
 /* NextStep 2.0 cc is really gcc 1.93 but it defines __GNUC__ = 2 and
    does not implement __extension__.  But that compiler doesn't define
@@ -492,7 +492,7 @@ __extension__								\
    if (__obj > (void *)__o->chunk && __obj < (void *)__o->chunk_limit)  \
      __o->next_free = __o->object_base = (char *)__obj;			\
    else (obstack_free) (__o, __obj); })
-
+
 #else /* not __GNUC__ or not __STDC__ */
 
 # define obstack_object_size(h) \

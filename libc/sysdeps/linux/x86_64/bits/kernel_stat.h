@@ -1,4 +1,4 @@
-/* Ripped from linux/include/asm-x86_64/stat.h 
+/* Ripped from linux/include/asm-x86_64/stat.h
  * and renamed 'struct stat' to 'struct kernel_stat' */
 
 #ifndef _ASM_X86_64_STAT_H

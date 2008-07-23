@@ -152,7 +152,7 @@ do \
       _dl_close(infile); \
     } \
 } \
-while (0)  
+while (0)
 
 /* We want want to apply all relocations in the interpreter during
    bootstrap.  Because of this, we have to skip the interpreter
@@ -179,7 +179,7 @@ while (0)
 #define DL_GET_READY_TO_RUN_EXTRA_ARGS \
   , dl_boot_progmap
 
-	  
+
 
 
 #ifdef __USE_GNU

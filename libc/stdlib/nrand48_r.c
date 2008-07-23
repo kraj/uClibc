@@ -19,7 +19,7 @@
 
 #include <stdlib.h>
 
-extern int __drand48_iterate(unsigned short xsubi[3], 
+extern int __drand48_iterate(unsigned short xsubi[3],
 	struct drand48_data *buffer) attribute_hidden;
 
 libc_hidden_proto(nrand48_r)

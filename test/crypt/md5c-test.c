@@ -10,7 +10,7 @@ main (int argc, char *argv[])
   char *cp;
 
   cp = crypt ("Hello world!", salt);
-  if (strcmp ("$1$saltstri$YMyguxXMBpd2TEZ.vS/3q1", cp)) { 
+  if (strcmp ("$1$saltstri$YMyguxXMBpd2TEZ.vS/3q1", cp)) {
       fprintf(stderr, "Failed md5 crypt test!\n");
       return EXIT_FAILURE;
   }

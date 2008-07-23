@@ -62,7 +62,7 @@ void *memmove(void *to, const void *from, size_t n)
 	do {
 		*--tmp_to = *--tmp_from;
 	} while (--n);
-	
+
 	return to;
  align:
 	rem = 4 - rem;

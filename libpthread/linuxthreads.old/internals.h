@@ -34,7 +34,7 @@
 #include <bits/uClibc_locale.h>
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
-/* Use a funky version in a probably vein attempt at preventing gdb 
+/* Use a funky version in a probably vein attempt at preventing gdb
  * from dlopen()'ing glibc's libthread_db library... */
 #define STRINGIFY(s) STRINGIFY2 (s)
 #define STRINGIFY2(s) #s

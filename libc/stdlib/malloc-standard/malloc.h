@@ -628,7 +628,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     as a malloc_chunk. This avoids special-casing for headers.
     But to conserve space and improve locality, we allocate
     only the fd/bk pointers of bins, and then use repositioning tricks
-    to treat these as the fields of a malloc_chunk*.  
+    to treat these as the fields of a malloc_chunk*.
 */
 
 typedef struct malloc_chunk* mbinptr;

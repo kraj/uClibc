@@ -709,7 +709,7 @@ int main(int argc, char **argv)
 				printf("%#8x : towupper glibc %#4x != %#4x mine\n",
 					   c, towupper(c), upper);
 			}
-				
+
 			if (towlower(c) != lower) {
 				printf("%#8x : towlower glibc %#4x != %#4x mine   i0 = %d\n",
 					   c, towlower(c), lower, i0);
@@ -739,7 +739,7 @@ int main(int argc, char **argv)
 				(unsigned long) RANGE);
 		output_table(fp, "ctype", &cttable);
 		output_table(fp, "uplow", &ultable);
-	
+
 
 #warning fix the upper bound on the upper/lower tables... save 200 bytes or so
 		fprintf(fp, "#define __LOCALE_DATA_WCuplow_diffs  %7u\n", ul_count);
@@ -794,7 +794,7 @@ size_t newopt(unsigned char *ut, size_t usize, int shift, table_data *tbl)
 	/* sort */
 	nu_val = blocksize;
 	qsort(ti, numblocks, sizeof(unsigned char *), nu_memcmp);
-	
+
 	uniq = 1;
 	uit[(ti[0]-ut)/blocksize] = 0;
 	for (i=1 ; i < numblocks ; i++) {

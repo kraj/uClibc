@@ -1,4 +1,4 @@
-/* Ripped from linux/include/asm-parisc/stat.h 
+/* Ripped from linux/include/asm-parisc/stat.h
  * and renamed 'struct stat' to 'struct kernel_stat' */
 
 #ifndef _PARISC_STAT_H

@@ -24,7 +24,7 @@
 /* Experimentally off - libc_hidden_proto(memset) */
 
 static __inline__ int expand_byte_word(int c){
-	/* this does: 
+	/* this does:
 	   c = c << 8 | c;
 	   c = c << 16 | c ;
 	*/
@@ -66,7 +66,7 @@ void *memset(void *to, int c, size_t n)
 	do {
 		*++tmp_to = c;
 	} while (--n);
-	
+
 	return to;
  align:
 	rem = 4 - rem;

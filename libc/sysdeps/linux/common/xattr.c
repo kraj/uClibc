@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2004 <solar@gentoo.org>
  * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *

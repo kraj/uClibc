@@ -27,7 +27,7 @@ libc_hidden_proto(abort)
 libc_hidden_proto(fprintf)
 
 /* Reentrant version of getmntent.  */
-struct mntent *getmntent_r (FILE *filep, 
+struct mntent *getmntent_r (FILE *filep,
 	struct mntent *mnt, char *buff, int bufsize)
 {
 	char *cp, *ptrptr;
@@ -82,13 +82,13 @@ struct mntent *getmntent(FILE * filep)
     static char *buff = NULL;
     static struct mntent mnt;
     __UCLIBC_MUTEX_LOCK(mylock);
-    
+
     if (!buff) {
             buff = malloc(BUFSIZ);
 		if (!buff)
 		    abort();
     }
-    
+
     tmp = getmntent_r(filep, &mnt, buff, BUFSIZ);
     __UCLIBC_MUTEX_UNLOCK(mylock);
     return(tmp);

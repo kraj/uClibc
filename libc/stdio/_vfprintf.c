@@ -35,7 +35,7 @@
 /* April 1, 2002
  * Initialize thread locks for fake files in vsnprintf and vdprintf.
  *    reported by Erik Andersen (andersen@codepoet.com)
- * Fix an arg promotion handling bug in _do_one_spec for %c. 
+ * Fix an arg promotion handling bug in _do_one_spec for %c.
  *    reported by Ilguiz Latypov <ilatypov@superbt.com>
  *
  * May 10, 2002
@@ -241,7 +241,7 @@ enum {
 	FLAG_THOUSANDS	=	0x20,
 	FLAG_I18N		=	0x40,	/* only works for d, i, u */
 	FLAG_WIDESTREAM =   0x80
-};	  
+};
 
 /**********************************************************************/
 
@@ -544,7 +544,7 @@ int attribute_hidden _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 #if 1
 		/* TODO - use memset here since already "paid for"? */
 		register int *p = ppfs->argtype;
-		
+
 		r = MAX_ARGS;
 		do {
 			*p++ = __PA_NOARG;
@@ -637,7 +637,7 @@ void attribute_hidden _ppfs_setargs(register ppfs_t *ppfs)
 				*(int *)
 #endif
 				GET_VA_ARG(p,u,unsigned int,ppfs->arg);
-		} 
+		}
 		if (ppfs->info.prec == INT_MIN) {
 			ppfs->info.prec =
 #ifdef __va_arg_ptr
@@ -690,7 +690,7 @@ void attribute_hidden _ppfs_setargs(register ppfs_t *ppfs)
 				case PA_STRING:
 				case PA_WSTRING:
 					GET_VA_ARG(p,p,void *,ppfs->arg);
-					break;				
+					break;
 				case __PA_NOARG:
 					continue;
 			}
@@ -701,7 +701,7 @@ void attribute_hidden _ppfs_setargs(register ppfs_t *ppfs)
 		if (ppfs->info.width == INT_MIN) {
 			ppfs->info.width
 				= (int) GET_ARG_VALUE(p + ppfs->argnumber[0] - 1,u,unsigned int);
-		} 
+		}
 		if (ppfs->info.prec == INT_MIN) {
 			ppfs->info.prec
 				= (int) GET_ARG_VALUE(p + ppfs->argnumber[1] - 1,u,unsigned int);
@@ -750,7 +750,7 @@ libc_hidden_proto(__ctype_b)
 
 /* TODO -- rethink this -- perhaps we should set to largest type??? */
 
-#ifdef _OVERLAPPING_DIFFERENT_ARGS 
+#ifdef _OVERLAPPING_DIFFERENT_ARGS
 
 #define PROMOTED_SIZE_OF(X)		((sizeof(X) + sizeof(int) - 1) / sizeof(X))
 
@@ -974,7 +974,7 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 	restart_flags:		/* Process flags. */
 		i = 1;
 		p = spec_flags;
-	
+
 		do {
 			if (*fmt == *p++) {
 				++fmt;
@@ -1100,7 +1100,7 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 		/* Otherwise error. */
 		return -1;
 	}
-		
+
 #if defined(__UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__) || defined(__UCLIBC_HAS_PRINTF_M_SPEC__)
  DONE:
 #endif
@@ -1260,7 +1260,7 @@ static size_t _outnstr(FILE *stream, const char *s, size_t wclen)
 
 	mbstate.__mask = 0;
 	todo = wclen;
-	
+
 	while (todo) {
 		r = mbsrtowcs(wbuf, &s,
 					  ((todo <= sizeof(wbuf)/sizeof(wbuf[0]))
@@ -1364,7 +1364,7 @@ static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 #if 1
 		/* TODO - use memset here since already "paid for"? */
 		register int *p = ppfs->argtype;
-		
+
 		r = MAX_ARGS;
 		do {
 			*p++ = __PA_NOARG;
@@ -1900,7 +1900,7 @@ int VFPRINTF_internal (FILE * __restrict stream,
 			if (!*format) {			/* we're done */
 				break;
 			}
-		
+
 			if (format[1] != '%') {	/* if we get here, *format == '%' */
 				/* TODO: _do_one_spec needs to know what the output funcs are!!! */
 				ppfs.fmtpos = (const char *)(++format);
@@ -1960,7 +1960,7 @@ int VFPRINTF (FILE * __restrict stream,
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	if 
+	if
 #ifdef L_vfprintf
 	(!__STDIO_STREAM_IS_NARROW_WRITING(stream)
 	 && __STDIO_STREAM_TRANS_TO_WRITE(stream, __FLAG_NARROW))

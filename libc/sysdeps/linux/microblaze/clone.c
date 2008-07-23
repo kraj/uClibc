@@ -31,7 +31,7 @@ clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg)
       arg0 = flags;
       arg1 = (unsigned long)child_stack;
       syscall = __NR_clone;
-      __asm__ __volatile__ ("bralid r17, trap;nop;" 
+      __asm__ __volatile__ ("bralid r17, trap;nop;"
 		    : "=r" (rval), "=r" (syscall)
 		    : "1" (syscall), "r" (arg0), "r" (arg1)
 		    : SYSCALL_CLOBBERS);
@@ -41,7 +41,7 @@ clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg)
 	{
 	  arg0 = (*fn) (arg);
 	  syscall = __NR_exit;
-	  __asm__ __volatile__ ("bralid r17, trap;nop;" 
+	  __asm__ __volatile__ ("bralid r17, trap;nop;"
 			: "=r" (rval), "=r" (syscall)
 			: "1" (syscall), "r" (arg0)
 			: SYSCALL_CLOBBERS);

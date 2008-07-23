@@ -1,7 +1,7 @@
 /*
  * This file based on printf.c from 'Dlibs' on the atari ST  (RdeBath)
  *
- * 
+ *
  *    Dale Schumacher                         399 Beacon Ave.
  *    (alias: Dalnefre')                      St. Paul, MN  55104
  *    dal@syntel.UUCP                         United States of America
@@ -72,7 +72,7 @@
  * Fixed precision bug -- when negative set to default.
  * Added function fnprintf to support __dtostr.
  * Added floating point support for doubles.  Yeah!
- * 
+ *
  *
  * May 2001     Fixes from Johan Adolfsson (johan.adolfsson@axis.com)
  *    1) printf("%c",0) returned 0 instead of 1.
@@ -401,7 +401,7 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 					p++;
 				}
 			}
-			
+
 			if (!flag[FLAG_PLUS]) {
 				flag[FLAG_PLUS] = flag[FLAG_SPACE];
 			}
@@ -584,14 +584,14 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 						PRINT_INFO_SET_FLAG(&info,left);
 					}
 #if 1
-					cnt += _fpmaxtostr(op, 
+					cnt += _fpmaxtostr(op,
 									   (__fpmax_t)
 									   ((dataargtype == (8 << 8))
 										? va_arg(ap, long double)
 										: (long double) va_arg(ap, double)),
 									   &info, _fp_out_narrow);
 #else
-					cnt += _fpmaxtostr(op, 
+					cnt += _fpmaxtostr(op,
 									   (__fpmax_t)
 									   ((lval > 1)
 										? va_arg(ap, long double)
@@ -658,7 +658,7 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 						preci = 0;
 						if (!flag[FLAG_MINUS_LJUSTIFY]
 							/* && flag[FLAG_PLUS] */
-							&& (flag[FLAG_0_PAD] == '0')) { 
+							&& (flag[FLAG_0_PAD] == '0')) {
 							preci = width;
 							width = 0;
 						}

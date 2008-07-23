@@ -325,8 +325,8 @@ parse_tilde(char **word, size_t * word_length, size_t * max_length,
 			uid = getuid();
 			buffer = alloca(buflen);
 
-			while ((result = getpwuid_r(uid, &pwd, buffer, buflen, &tpwd)) 
-					!= 0 && errno == ERANGE) 
+			while ((result = getpwuid_r(uid, &pwd, buffer, buflen, &tpwd))
+					!= 0 && errno == ERANGE)
 			{
 				buflen += 1000;
 				buffer = alloca(buflen);

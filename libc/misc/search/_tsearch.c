@@ -177,7 +177,7 @@ static void trecurse(__const void *vroot, __action_fn_t action, int level)
     }
 }
 
-/* void twalk(root, action)		Walk the nodes of a tree 
+/* void twalk(root, action)		Walk the nodes of a tree
 node	*root;			Root of the tree to be walked
 void	(*action)();		Function to be called at each node
 PTR

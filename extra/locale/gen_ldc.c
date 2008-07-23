@@ -238,7 +238,7 @@ int main(void)
 	/* collate should be last*/
 	assert(sizeof(__locale_collate_tbl)/sizeof(__locale_collate_tbl[0]) == __lc_collate_data_LEN) ;
 	out_u16(lso, __locale_collate_tbl, __lc_collate_data_LEN, "collate_data");
-	
+
 
 	{
 		unsigned char co_buf[__LOCALE_DATA_CATEGORIES] = {
@@ -251,7 +251,7 @@ int main(void)
 		};
 		out_uc(lso, co_buf, __LOCALE_DATA_CATEGORIES, "lc_common_item_offsets_LEN");
 	}
-	
+
 	out_size_t(lso, common_tbl_offsets, __LOCALE_DATA_CATEGORIES * 4, "lc_common_tbl_offsets");
 	/* offsets from start of locale_mmap_t */
 	/* rows, item_offsets, item_idx, data */

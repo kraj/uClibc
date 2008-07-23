@@ -27,7 +27,7 @@ libc_hidden_proto(lseek64)
 #  define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 # endif
 
-struct kernel_dirent64 
+struct kernel_dirent64
 {
     uint64_t		d_ino;
     int64_t		d_off;
@@ -51,8 +51,8 @@ ssize_t __getdents64 (int fd, char *buf, size_t nbytes)
     const size_t size_diff = (offsetof (struct dirent64, d_name)
 	    - offsetof (struct kernel_dirent64, d_name));
 
-    red_nbytes = MIN (nbytes - ((nbytes / 
-		    (offsetof (struct dirent64, d_name) + 14)) * size_diff), 
+    red_nbytes = MIN (nbytes - ((nbytes /
+		    (offsetof (struct dirent64, d_name) + 14)) * size_diff),
 	    nbytes - size_diff);
 
     dp = (struct dirent64 *) buf;

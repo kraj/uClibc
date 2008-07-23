@@ -88,8 +88,8 @@ void *memcpy(void *pdst,
   register char *dst __asm__ ("r13") = pdst;
   register char *src __asm__ ("r11") = (char *) psrc;
   register int n __asm__ ("r12") = pn;
-  
- 
+
+
   /* When src is aligned but not dst, this makes a few extra needless
      cycles.  I believe it would take as many to check that the
      re-alignment was unnecessary.  */
@@ -162,12 +162,12 @@ void *memcpy(void *pdst,
 	;; Restore registers from stack					\n\
         movem [sp+],r10"
 
-     /* Outputs */ : "=r" (dst), "=r" (src), "=r" (n) 
+     /* Outputs */ : "=r" (dst), "=r" (src), "=r" (n)
      /* Inputs */ : "0" (dst), "1" (src), "2" (n));
   }
 
   /* Either we directly starts copying, using dword copying
-     in a loop, or we copy as much as possible with 'movem' 
+     in a loop, or we copy as much as possible with 'movem'
      and then the last block (<44 bytes) is copied here.
      This will work since 'movem' will have updated src,dst,n. */
 

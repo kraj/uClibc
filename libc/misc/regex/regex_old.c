@@ -223,7 +223,7 @@ char *realloc ();
 # ifndef MB_LEN_MAX
 #  define MB_LEN_MAX 1
 # endif
-
+
 /* Get the interface, including the syntax bits.  */
 # ifdef __UCLIBC__
 #  include "_regex.h"
@@ -296,7 +296,7 @@ char *realloc ();
 /* As in Harbison and Steele.  */
 #  define SIGN_EXTEND_CHAR(c) ((((unsigned char) (c)) ^ 128) - 128)
 # endif
-
+
 # ifndef emacs
 /* How many characters in the character set.  */
 #  define CHAR_SET_SIZE 256
@@ -335,7 +335,7 @@ init_syntax_once ()
 #  define SYNTAX(c) re_syntax_table[(unsigned char) (c)]
 
 # endif /* emacs */
-
+
 /* Integer type for pointers.  */
 # if !defined _LIBC && !defined __intptr_t_defined
 typedef unsigned long int uintptr_t;
@@ -482,7 +482,7 @@ static int wcs_re_search_2 PARAMS ((struct re_pattern_buffer *bufp,
 				    struct re_registers *regs, int stop));
 static int wcs_re_compile_fastmap PARAMS ((struct re_pattern_buffer *bufp));
 #endif
-
+
 /* These are the command codes that appear in compiled regular
    expressions.  Some opcodes are followed by argument bytes.  A
    command code can specify any interpretation whatsoever for its
@@ -641,7 +641,7 @@ typedef enum
 # endif /* emacs */
 } re_opcode_t;
 #endif /* not INSIDE_RECURSION */
-
+
 
 #ifdef BYTE
 # define CHAR_T char
@@ -777,7 +777,7 @@ PREFIX(extract_number_and_incr) (destination, source)
 
 # endif /* DEBUG */
 
-
+
 
 /* If DEBUG is defined, Regex prints many voluminous messages about what
    it is doing (if the variable `debug' is nonzero).  If linked with the
@@ -1277,7 +1277,7 @@ printchar (c)
 
 # endif /* not DEBUG */
 
-
+
 
 # ifdef WCHAR
 /* This  convert a multibyte string to a wide character string.
@@ -1394,7 +1394,7 @@ re_set_syntax (syntax)
 # if defined _LIBC || defined __UCLIBC__
 strong_alias(__re_set_syntax, re_set_syntax)
 # endif
-
+
 /* This table gives an error message for each of the error codes listed
    in regex.h.  Obviously the order here has to be same as there.
    POSIX doesn't require that we do anything for REG_NOERROR,
@@ -1474,7 +1474,7 @@ static const size_t re_error_msgid_idx[] =
     REG_ESIZE_IDX,
     REG_ERPAREN_IDX
   };
-
+
 #endif /* INSIDE_RECURSION */
 
 #ifndef DEFINED_ONCE
@@ -1515,7 +1515,7 @@ static const size_t re_error_msgid_idx[] =
 #  undef MATCH_MAY_ALLOCATE
 # endif
 #endif /* not DEFINED_ONCE */
-
+
 #ifdef INSIDE_RECURSION
 /* Failure stack declarations and macros; both re_compile_fastmap and
    re_match_2 use a failure stack.  These have to be macros because of
@@ -1887,7 +1887,7 @@ typedef struct
   set_regs_matched_done = 0;						\
   DEBUG_STATEMENT (nfailure_points_popped++);				\
 } /* POP_FAILURE_POINT */
-
+
 /* Structure for per-register (a.k.a. per-group) information.
    Other register information, such as the
    starting and ending positions (which are addresses), and the list of
@@ -2306,7 +2306,7 @@ typedef struct
     || STREQ (string, "cntrl") || STREQ (string, "blank"))
 #  endif
 # endif /* DEFINED_ONCE */
-
+
 # ifndef MATCH_MAY_ALLOCATE
 
 /* If we cannot allocate large objects within re_match_2_internal,
@@ -2357,7 +2357,7 @@ PREFIX(regex_grow_registers) (num_regs)
 }
 
 # endif /* not MATCH_MAY_ALLOCATE */
-
+
 # ifndef DEFINED_ONCE
 static boolean group_in_compile_stack _RE_ARGS ((compile_stack_type
 						 compile_stack,
@@ -4648,7 +4648,7 @@ byte_compile_range (range_start_char, p_ptr, pend, translate, syntax, b)
   return ret;
 }
 #endif /* WCHAR */
-
+
 /* re_compile_fastmap computes a ``fastmap'' for the compiled pattern in
    BUFP.  A fastmap records which of the (1 << BYTEWIDTH) possible
    characters can start a string that matches the pattern.  This fastmap
@@ -5018,7 +5018,7 @@ re_compile_fastmap (bufp)
 #if defined _LIBC || defined __UCLIBC__
 strong_alias(__re_compile_fastmap, re_compile_fastmap)
 #endif
-
+
 
 /* Set REGS to hold NUM_REGS registers, storing them in STARTS and
    ENDS.  Subsequent matches using PATTERN_BUFFER and REGS will use
@@ -5057,7 +5057,7 @@ re_set_registers (bufp, regs, num_regs, starts, ends)
 #if defined _LIBC || defined __UCLIBC__
 strong_alias(__re_set_registers, re_set_registers)
 #endif
-
+
 /* Searching routines.  */
 
 /* Like re_search_2, below, but only one string is specified, and
@@ -5546,7 +5546,7 @@ PREFIX(re_search_2) (bufp, string1, size1, string2, size2, startpos, range,
    to actually save any registers when none are active.  */
 #define NO_HIGHEST_ACTIVE_REG (1 << BYTEWIDTH)
 #define NO_LOWEST_ACTIVE_REG (NO_HIGHEST_ACTIVE_REG + 1)
-
+
 #else /* not INSIDE_RECURSION */
 /* Matching routines.  */
 
@@ -7659,7 +7659,7 @@ byte_re_match_2_internal (bufp, string1, size1,string2, size2, pos,
 
   return -1;         			/* Failure to match.  */
 } /* re_match_2 */
-
+
 /* Subroutine definitions for re_match_2.  */
 
 
@@ -7931,7 +7931,7 @@ PREFIX(bcmp_translate) (s1, s2, len, translate)
     }
   return 0;
 }
-
+
 
 #else /* not INSIDE_RECURSION */
 
@@ -7980,7 +7980,7 @@ re_compile_pattern (pattern, length, bufp)
 #if defined _LIBC || defined __UCLIBC__
 strong_alias(__re_compile_pattern, re_compile_pattern)
 #endif
-
+
 /* Entry points compatible with 4.2 BSD regex library.  We don't define
    them unless specifically requested.  */
 
@@ -8056,7 +8056,7 @@ re_exec (s)
 }
 
 #endif /* _REGEX_RE_COMP */
-
+
 /* POSIX.2 functions.  Don't define these for Emacs.  */
 
 #ifndef emacs
@@ -8331,7 +8331,7 @@ strong_alias(__regfree, regfree)
 
 #endif /* not INSIDE_RECURSION */
 
-
+
 #undef STORE_NUMBER
 #undef STORE_NUMBER_AND_INCR
 #undef EXTRACT_NUMBER

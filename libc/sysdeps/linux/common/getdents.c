@@ -57,8 +57,8 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
     const size_t size_diff = (offsetof (struct dirent, d_name)
 	    - offsetof (struct kernel_dirent, d_name));
 
-    red_nbytes = MIN (nbytes - ((nbytes / 
-		    (offsetof (struct dirent, d_name) + 14)) * size_diff), 
+    red_nbytes = MIN (nbytes - ((nbytes /
+		    (offsetof (struct dirent, d_name) + 14)) * size_diff),
 	    nbytes - size_diff);
 
     dp = (struct dirent *) buf;

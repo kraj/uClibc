@@ -20,7 +20,7 @@ void *memrchr(const void *s, int c, size_t n)
 #else
 #define np n
 #endif
-	
+
 	r = ((unsigned char *)s) + ((size_t) np);
 
 	while (np) {

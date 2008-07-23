@@ -32,7 +32,7 @@ __heap_alloc_at (struct heap *heap, void *mem, size_t size)
   for (fa = heap->free_areas; fa; fa = fa->next)
     {
       void *fa_mem = HEAP_FREE_AREA_START (fa);
-      if (fa_mem <= mem) 
+      if (fa_mem <= mem)
 	{
 	  if (fa_mem == mem && fa->size >= size)
 	    /* FA has the right addr, and is big enough! */

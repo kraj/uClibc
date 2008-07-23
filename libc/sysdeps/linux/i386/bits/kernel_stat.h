@@ -5,8 +5,8 @@
 #error bits/kernel_stat.h is for internal uClibc use only!
 #endif
 
-/* This file provides whatever this particular arch's kernel thinks 
- * struct stat should look like...  It turns out each arch has a 
+/* This file provides whatever this particular arch's kernel thinks
+ * struct stat should look like...  It turns out each arch has a
  * different opinion on the subject... */
 
 struct kernel_stat {

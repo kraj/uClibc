@@ -34,7 +34,7 @@ dummy_init(void)
 	 */
 	/* prevent function pointer constant propagation */
 	__asm__ __volatile__ (".section .init");
-	
+
 	if (!initialized) {
 		initialized = 1;
 		(*call__ctors)();

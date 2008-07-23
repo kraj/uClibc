@@ -1,11 +1,11 @@
-#ifndef __TEMPNAME_H__ 
+#ifndef __TEMPNAME_H__
 #define __TEMPNAME_H__
 
 #define	__need_size_t
 #include <stddef.h>
 
 /* Disable support for $TMPDIR */
-extern int ___path_search (char *tmpl, size_t tmpl_len, const char *dir, 
+extern int ___path_search (char *tmpl, size_t tmpl_len, const char *dir,
 	        const char *pfx /*, int try_tmpdir */) attribute_hidden;
 #define __path_search(tmpl, tmpl_len, dir, pfx, try_tmpdir) ___path_search(tmpl, tmpl_len, dir, pfx)
 

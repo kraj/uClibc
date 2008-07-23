@@ -25,7 +25,7 @@ static __inline__ _syscall5(int, __syscall_llseek, int, fd, off_t, offset_hi,
 loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 {
 	loff_t result;
-	return(loff_t)(INLINE_SYSCALL (_llseek, 5, fd, (off_t) (offset >> 32), 
+	return(loff_t)(INLINE_SYSCALL (_llseek, 5, fd, (off_t) (offset >> 32),
 				(off_t) (offset & 0xffffffff), &result, whence) ?: result);
 }
 #else

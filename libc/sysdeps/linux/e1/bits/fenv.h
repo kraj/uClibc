@@ -36,7 +36,7 @@ enum
 #define FE_OVERFLOW	FE_OVERFLOW
     FE_DIVBYZERO = (1 << 11),
 #define FE_DIVBYZERO	FE_DIVBYZERO
-    FE_INVALID = (1 << 12) 
+    FE_INVALID = (1 << 12)
 #define FE_INVALID	FE_INVALID
   };
 

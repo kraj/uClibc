@@ -33,7 +33,7 @@ int Wstrcmp(register const Wchar *s1, register const Wchar *s2)
 
 	while (((r = ((int)(*((Wuchar *)s1))) - *((Wuchar *)s2++))
 			== 0) && *s1++);
-	
+
 	return r;
 #endif
 }

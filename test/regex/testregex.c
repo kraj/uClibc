@@ -1950,7 +1950,7 @@ main(int argc, char** argv)
 			else
 #endif
 				fun = "regexec";
-			
+
 			for (i = 0; i < elementsof(match); i++)
 				match[i] = state.NOMATCH;
 

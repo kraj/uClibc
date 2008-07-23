@@ -188,7 +188,7 @@ static const char utf8[] = "UTF-8";
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Fix dimensions of hr_locale.
 #endif
-/* Individual category strings start at hr_locale + category * MAX_LOCALE_CATEGORY. 
+/* Individual category strings start at hr_locale + category * MAX_LOCALE_CATEGORY.
  * This holds for LC_ALL as well.
  */
 static char hr_locale[(MAX_LOCALE_CATEGORY_STR * LC_ALL) + MAX_LOCALE_STR];
@@ -638,7 +638,7 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 
 				x = (const char **)(((char *) base)
                                     + base->category_offsets[i]);
- 
+
 				stp = __locale_mmap->lc_common_tbl_offsets + 4*i;
 				r = (const unsigned char *)( ((char *)__locale_mmap) + *stp );
 				io = (const uint16_t *)( ((char *)__locale_mmap) + *++stp );
@@ -750,7 +750,7 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 									[ ((int)(c8b->idx8uplow
 											 [u >> __LOCALE_DATA_Cuplow_IDX_SHIFT])
 									   << __LOCALE_DATA_Cuplow_IDX_SHIFT)
-									  + ((128 + u) 
+									  + ((128 + u)
 										 & ((1 << __LOCALE_DATA_Cuplow_IDX_SHIFT)
 											- 1)) ];
 								if (m & _ISlower) {
@@ -835,7 +835,7 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 					assert(base->thousands_sep_len > 0);
 					assert(base->thousands_sep[base->thousands_sep_len] == 0);
 #endif
-				}					
+				}
 
 /* 			} else if (i == LC_COLLATE) { */
 /* 				init_cur_collate(__locale_mmap->locales[ __LOCALE_DATA_WIDTH_LOCALES */
@@ -967,63 +967,63 @@ void _locale_init(void)
 
 static const unsigned char nl_data[C_LC_ALL + 1 + 90 + 320] = {
 /* static const char cat_start[LC_ALL + 1] = { */
-        '\x00', '\x0b', '\x0e', '\x24', '\x56', '\x56', '\x5a', 
+        '\x00', '\x0b', '\x0e', '\x24', '\x56', '\x56', '\x5a',
 /* }; */
 /* static const char item_offset[90] = { */
-	'\x00', '\x02', '\x04', '\x06', '\x08', '\x0a', '\x0c', '\x0e', 
-	'\x10', '\x12', '\x14', '\x1a', '\x1b', '\x1b', '\x1b', '\x1b', 
-	'\x1b', '\x1b', '\x1b', '\x1b', '\x1b', '\x1c', '\x1c', '\x1c', 
-	'\x1c', '\x1c', '\x1c', '\x1c', '\x1c', '\x1c', '\x1c', '\x1c', 
-	'\x1c', '\x1c', '\x1c', '\x1e', '\x20', '\x24', '\x28', '\x2c', 
-	'\x30', '\x34', '\x38', '\x3c', '\x43', '\x4a', '\x52', '\x5c', 
-	'\x65', '\x6c', '\x75', '\x79', '\x7d', '\x81', '\x85', '\x89', 
-	'\x8d', '\x91', '\x95', '\x99', '\x9d', '\xa1', '\xa5', '\xad', 
-	'\x36', '\x3c', '\x42', '\x46', '\x4b', '\x50', '\x57', '\x61', 
-	'\x69', '\x72', '\x7b', '\x7e', '\x81', '\x96', '\x9f', '\xa8', 
-	'\xb3', '\xb3', '\xb3', '\xb3', '\xb3', '\xb3', '\xb4', '\xba', 
-	'\xbf', '\xbf', 
+	'\x00', '\x02', '\x04', '\x06', '\x08', '\x0a', '\x0c', '\x0e',
+	'\x10', '\x12', '\x14', '\x1a', '\x1b', '\x1b', '\x1b', '\x1b',
+	'\x1b', '\x1b', '\x1b', '\x1b', '\x1b', '\x1c', '\x1c', '\x1c',
+	'\x1c', '\x1c', '\x1c', '\x1c', '\x1c', '\x1c', '\x1c', '\x1c',
+	'\x1c', '\x1c', '\x1c', '\x1e', '\x20', '\x24', '\x28', '\x2c',
+	'\x30', '\x34', '\x38', '\x3c', '\x43', '\x4a', '\x52', '\x5c',
+	'\x65', '\x6c', '\x75', '\x79', '\x7d', '\x81', '\x85', '\x89',
+	'\x8d', '\x91', '\x95', '\x99', '\x9d', '\xa1', '\xa5', '\xad',
+	'\x36', '\x3c', '\x42', '\x46', '\x4b', '\x50', '\x57', '\x61',
+	'\x69', '\x72', '\x7b', '\x7e', '\x81', '\x96', '\x9f', '\xa8',
+	'\xb3', '\xb3', '\xb3', '\xb3', '\xb3', '\xb3', '\xb4', '\xba',
+	'\xbf', '\xbf',
 /* }; */
 /* static const char C_locale_data[320] = { */
-	   '0', '\x00',    '1', '\x00',    '2', '\x00',    '3', '\x00', 
-	   '4', '\x00',    '5', '\x00',    '6', '\x00',    '7', '\x00', 
-	   '8', '\x00',    '9', '\x00',    'A',    'S',    'C',    'I', 
-	   'I', '\x00',    '.', '\x00', '\x7f', '\x00',    '-', '\x00', 
-	   'S',    'u',    'n', '\x00',    'M',    'o',    'n', '\x00', 
-	   'T',    'u',    'e', '\x00',    'W',    'e',    'd', '\x00', 
-	   'T',    'h',    'u', '\x00',    'F',    'r',    'i', '\x00', 
-	   'S',    'a',    't', '\x00',    'S',    'u',    'n',    'd', 
-	   'a',    'y', '\x00',    'M',    'o',    'n',    'd',    'a', 
-	   'y', '\x00',    'T',    'u',    'e',    's',    'd',    'a', 
-	   'y', '\x00',    'W',    'e',    'd',    'n',    'e',    's', 
-	   'd',    'a',    'y', '\x00',    'T',    'h',    'u',    'r', 
-	   's',    'd',    'a',    'y', '\x00',    'F',    'r',    'i', 
-	   'd',    'a',    'y', '\x00',    'S',    'a',    't',    'u', 
-	   'r',    'd',    'a',    'y', '\x00',    'J',    'a',    'n', 
-	'\x00',    'F',    'e',    'b', '\x00',    'M',    'a',    'r', 
-	'\x00',    'A',    'p',    'r', '\x00',    'M',    'a',    'y', 
-	'\x00',    'J',    'u',    'n', '\x00',    'J',    'u',    'l', 
-	'\x00',    'A',    'u',    'g', '\x00',    'S',    'e',    'p', 
-	'\x00',    'O',    'c',    't', '\x00',    'N',    'o',    'v', 
-	'\x00',    'D',    'e',    'c', '\x00',    'J',    'a',    'n', 
-	   'u',    'a',    'r',    'y', '\x00',    'F',    'e',    'b', 
-	   'r',    'u',    'a',    'r',    'y', '\x00',    'M',    'a', 
-	   'r',    'c',    'h', '\x00',    'A',    'p',    'r',    'i', 
-	   'l', '\x00',    'M',    'a',    'y', '\x00',    'J',    'u', 
-	   'n',    'e', '\x00',    'J',    'u',    'l',    'y', '\x00', 
-	   'A',    'u',    'g',    'u',    's',    't', '\x00',    'S', 
-	   'e',    'p',    't',    'e',    'm',    'b',    'e',    'r', 
-	'\x00',    'O',    'c',    't',    'o',    'b',    'e',    'r', 
-	'\x00',    'N',    'o',    'v',    'e',    'm',    'b',    'e', 
-	   'r', '\x00',    'D',    'e',    'c',    'e',    'm',    'b', 
-	   'e',    'r', '\x00',    'A',    'M', '\x00',    'P',    'M', 
-	'\x00',    '%',    'a',    ' ',    '%',    'b',    ' ',    '%', 
-	   'e',    ' ',    '%',    'H',    ':',    '%',    'M',    ':', 
-	   '%',    'S',    ' ',    '%',    'Y', '\x00',    '%',    'm', 
-	   '/',    '%',    'd',    '/',    '%',    'y', '\x00',    '%', 
-	   'H',    ':',    '%',    'M',    ':',    '%',    'S', '\x00', 
-	   '%',    'I',    ':',    '%',    'M',    ':',    '%',    'S', 
-	   ' ',    '%',    'p', '\x00',    '^',    '[',    'y',    'Y', 
-	   ']', '\x00',    '^',    '[',    'n',    'N',    ']', '\x00', 
+	   '0', '\x00',    '1', '\x00',    '2', '\x00',    '3', '\x00',
+	   '4', '\x00',    '5', '\x00',    '6', '\x00',    '7', '\x00',
+	   '8', '\x00',    '9', '\x00',    'A',    'S',    'C',    'I',
+	   'I', '\x00',    '.', '\x00', '\x7f', '\x00',    '-', '\x00',
+	   'S',    'u',    'n', '\x00',    'M',    'o',    'n', '\x00',
+	   'T',    'u',    'e', '\x00',    'W',    'e',    'd', '\x00',
+	   'T',    'h',    'u', '\x00',    'F',    'r',    'i', '\x00',
+	   'S',    'a',    't', '\x00',    'S',    'u',    'n',    'd',
+	   'a',    'y', '\x00',    'M',    'o',    'n',    'd',    'a',
+	   'y', '\x00',    'T',    'u',    'e',    's',    'd',    'a',
+	   'y', '\x00',    'W',    'e',    'd',    'n',    'e',    's',
+	   'd',    'a',    'y', '\x00',    'T',    'h',    'u',    'r',
+	   's',    'd',    'a',    'y', '\x00',    'F',    'r',    'i',
+	   'd',    'a',    'y', '\x00',    'S',    'a',    't',    'u',
+	   'r',    'd',    'a',    'y', '\x00',    'J',    'a',    'n',
+	'\x00',    'F',    'e',    'b', '\x00',    'M',    'a',    'r',
+	'\x00',    'A',    'p',    'r', '\x00',    'M',    'a',    'y',
+	'\x00',    'J',    'u',    'n', '\x00',    'J',    'u',    'l',
+	'\x00',    'A',    'u',    'g', '\x00',    'S',    'e',    'p',
+	'\x00',    'O',    'c',    't', '\x00',    'N',    'o',    'v',
+	'\x00',    'D',    'e',    'c', '\x00',    'J',    'a',    'n',
+	   'u',    'a',    'r',    'y', '\x00',    'F',    'e',    'b',
+	   'r',    'u',    'a',    'r',    'y', '\x00',    'M',    'a',
+	   'r',    'c',    'h', '\x00',    'A',    'p',    'r',    'i',
+	   'l', '\x00',    'M',    'a',    'y', '\x00',    'J',    'u',
+	   'n',    'e', '\x00',    'J',    'u',    'l',    'y', '\x00',
+	   'A',    'u',    'g',    'u',    's',    't', '\x00',    'S',
+	   'e',    'p',    't',    'e',    'm',    'b',    'e',    'r',
+	'\x00',    'O',    'c',    't',    'o',    'b',    'e',    'r',
+	'\x00',    'N',    'o',    'v',    'e',    'm',    'b',    'e',
+	   'r', '\x00',    'D',    'e',    'c',    'e',    'm',    'b',
+	   'e',    'r', '\x00',    'A',    'M', '\x00',    'P',    'M',
+	'\x00',    '%',    'a',    ' ',    '%',    'b',    ' ',    '%',
+	   'e',    ' ',    '%',    'H',    ':',    '%',    'M',    ':',
+	   '%',    'S',    ' ',    '%',    'Y', '\x00',    '%',    'm',
+	   '/',    '%',    'd',    '/',    '%',    'y', '\x00',    '%',
+	   'H',    ':',    '%',    'M',    ':',    '%',    'S', '\x00',
+	   '%',    'I',    ':',    '%',    'M',    ':',    '%',    'S',
+	   ' ',    '%',    'p', '\x00',    '^',    '[',    'y',    'Y',
+	   ']', '\x00',    '^',    '[',    'n',    'N',    ']', '\x00',
 };
 
 libc_hidden_proto(nl_langinfo)

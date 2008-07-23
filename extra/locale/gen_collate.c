@@ -62,7 +62,7 @@ typedef struct {
 	int base_idx;				/*  */
 
 	int undefined_idx;			/*  */
-	
+
 	int overrides_offset;		/*  */
 	int multistart_offset;		/*  */
 } der_locale_t;
@@ -1094,7 +1094,7 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	init_locale_list();	
+	init_locale_list();
 
 	while (--argc) {
 		p = (const deps_t *) bsearch(*++argv, deps, sizeof(deps)/sizeof(deps[0]), sizeof(deps[0]), dep_cmp);
@@ -1107,7 +1107,7 @@ int main(int argc, char **argv)
 				return EXIT_FAILURE;
 			}
 		}
-	
+
 		i = p->base_locale;
 		++der_count[i];
 
@@ -1115,7 +1115,7 @@ int main(int argc, char **argv)
 			/* same name as base, so skip after count incremented */
 			continue;
 		}
-		
+
 		/* add it to the list.  the main body will catch duplicates */
 		lli = (ll_item_t *) xmalloc(sizeof(ll_item_t));
 		lli->prev = lli->next = NULL;
@@ -1202,7 +1202,7 @@ static int old_main(int argc, char **argv)
 		processfile();			/* this does a popfile */
 
 /* 		twalk(cur_col->root_colitem, print_colnode); */
-		
+
 		if (next_is_base == 1) {
 			next_is_base = 0;
 		}
@@ -1264,7 +1264,7 @@ static int old_main(int argc, char **argv)
     return EXIT_SUCCESS;
 }
 
-static void error_msg(const char *fmt, ...) 
+static void error_msg(const char *fmt, ...)
 {
 	va_list arg;
 
@@ -1289,7 +1289,7 @@ static void pushfile(char *filename)
 	if (fno >= MAX_FNO) {
 		error_msg("file stack size exceeded");
 	}
-					  
+
 	if (!(fstack[++fno] = fopen(fbuf, "r"))) {
 		--fno;					/* oops */
 		error_msg("cannot open file %s", fbuf);
@@ -1645,7 +1645,7 @@ static int colelement_cmp(const void *n1, const void *n2)
 			r = 0;				/* both null */
 		} else {
 			r = (((colitem_t *)n1)->element == NULL) ? -1 : 1;
-		} 
+		}
     }
     return r;
 }
@@ -1733,7 +1733,7 @@ static void add_script(const char *s)
 	if (find_section_list_item(s, cur_col)) {
 		error_msg("attempt to readd script %s", s);
 	}
-	
+
 	l = find_ll_last(cur_col->section_list);
 	insque(new_ll_item(DT_SECTION, new_section(s)), l);
 }
@@ -2674,7 +2674,7 @@ static void finalize_base(void)
 				index2weight_buffer[index2weight_len] = lli->idx = i++;
 				index2weight_len += index2weight_len_inc;
 				add_final_col_index(w->symbol);
-				
+
 			} else {
 				assert(lli->data_type & DT_REORDER);
 				r = ll_len( ((section_t *)(lli->data))->itm_list );
@@ -2975,7 +2975,7 @@ static void finalize_base(void)
 					continue;
 				}
 				if (index2weight_len_inc) {
-					index2ruleidx_buffer[index2ruleidx_len++] = 
+					index2ruleidx_buffer[index2ruleidx_len++] =
 						add_rule((weighted_item_t *)(lli->data));
 				}
 /* 				fprintf(stdout, "%11s: w %6d %6d %s\n", */
@@ -3001,7 +3001,7 @@ static void finalize_base(void)
 				w = (weighted_item_t *)(lli->data);
 				if (find_wi_index_reordered(w->symbol)) { /* reordered symbol so skip on first pass */
 					if (index2weight_len_inc) {
-						index2ruleidx_buffer[index2ruleidx_len++] = 
+						index2ruleidx_buffer[index2ruleidx_len++] =
 							add_rule((weighted_item_t *)(lli->data));
 					}
 /* 					fprintf(stdout, "%11s: r %6d %6d %s\n", */
@@ -3050,7 +3050,7 @@ static void finalize_base(void)
 
 		der_locale_array[der_locale_len].name = cur_base->name;
 		der_locale_array[der_locale_len].base_idx = base_locale_len;
-		
+
 		u16_buf[0] = 1;
 		u16_buf[1] = 0;
 		u16_buf_len = 2;
@@ -3511,7 +3511,7 @@ size_t newopt(tbl_item *ut, size_t usize, int shift, table_data *tbl)
 	/* sort */
 	nu_val = blocksize;
 	qsort(ti, numblocks, sizeof(unsigned char *), nu_memcmp);
-	
+
 	uniq = 1;
 	uit[(ti[0]-ut)/blocksize] = 0;
 	for (i=1 ; i < numblocks ; i++) {
@@ -3687,7 +3687,7 @@ static unsigned int add_rule(weighted_item_t *wi)
 			assert(r < (1 << 14));
 			rbuf[i] = r | rule2val[(int)(w->rule[i])];
 		} else {				/* item */
-			r = final_index_val_x(w->colitem[i], wi->symbol); 
+			r = final_index_val_x(w->colitem[i], wi->symbol);
 			rbuf[i] = r | rule2val[(int)(w->rule[i])];
 		}
 	}
@@ -3831,7 +3831,7 @@ static void dump_der_locale(int n)
 	DUMPn(base_idx);
 
 	DUMPn(undefined_idx);
-	
+
 	DUMPn(overrides_offset);
 	DUMPn(multistart_offset);
 
@@ -3856,7 +3856,7 @@ static void dump_u16_array(FILE *fp, uint16_t *u, int len, const char *name)
 	collate_pos += len;
 }
 
-#define OUT_U16C(X,N) fprintf(fp,"\t%10d, /* %8lu %s */\n", X, collate_pos++, N); 
+#define OUT_U16C(X,N) fprintf(fp,"\t%10d, /* %8lu %s */\n", X, collate_pos++, N);
 
 static void dump_collate(FILE *fp)
 {
@@ -3901,7 +3901,7 @@ static void dump_collate(FILE *fp)
 		DUMPn(wcs2colidt_offset_low);
 		DUMPn(wcs2colidt_offset_hi);
 	}
-#undef DUMPn		
+#undef DUMPn
 
 
 	fprintf(fp, "#define COL_IDX_C     %5d\n", 0);

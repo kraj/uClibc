@@ -20,7 +20,7 @@ libc_hidden_proto(vfork)
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
 #include <sys/syscall.h>
 #ifndef __NR_vfork
-# define vfork fork	
+# define vfork fork
 libc_hidden_proto(fork)
 #endif
 

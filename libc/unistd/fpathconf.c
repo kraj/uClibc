@@ -54,12 +54,12 @@ libc_hidden_proto(__libc_fstatfs)
 
 /* Get file-specific information about descriptor FD.  */
 long int fpathconf(int fd, int name)
-{     
+{
     if (fd < 0)
     {
 	__set_errno (EBADF);
 	return -1;
-    }   
+    }
 
     if (name == _PC_LINK_MAX)
     {
@@ -211,7 +211,7 @@ long int fpathconf(int fd, int name)
 #endif
 
 	case _PC_ASYNC_IO:
-#if defined _POSIX_ASYNC_IO && defined __UCLIBC_HAS_LFS__ 
+#if defined _POSIX_ASYNC_IO && defined __UCLIBC_HAS_LFS__
 	    {
 		/* AIO is only allowed on regular files and block devices.  */
 		struct stat st;

@@ -48,13 +48,13 @@ test_thread (void *ms_param)
 	status = pthread_cond_timedwait(&foo.cond, &foo.mutex, &timeout);
     }
     pthread_mutex_unlock(&foo.mutex);
-    
+
     /* post the main event */
     pthread_mutex_lock(&main_event.mutex);
     main_event.flag = 1;
     pthread_cond_signal(&main_event.cond);
     pthread_mutex_unlock(&main_event.mutex);
-    
+
     /* that's it, bye */
     return (void*) status;
 }
@@ -95,7 +95,7 @@ main (void)
 
 	  printf ("count = %lu\n", count);
       }
-      
+
       usleep (10);
   }
 

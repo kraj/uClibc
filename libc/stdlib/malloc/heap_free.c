@@ -72,7 +72,7 @@ __heap_free (struct heap *heap, void *mem, size_t size)
 	      /* The new descriptor is at the end of the extended block,
 		 SIZE bytes later than the old descriptor.  */
 	      fa = (struct heap_free_area *)((char *)fa + size);
-	      /* Update links with the neighbors in the list.  */ 
+	      /* Update links with the neighbors in the list.  */
 	      __heap_link_free_area (heap, fa, prev_fa, next_fa);
 	    }
 	}

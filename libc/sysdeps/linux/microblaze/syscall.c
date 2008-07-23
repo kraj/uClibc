@@ -8,7 +8,7 @@
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
  * directory of this archive for more details.
- * 
+ *
  * Written by Miles Bader <miles@gnu.org>
  */
 
@@ -37,11 +37,11 @@ syscall (long num, arg_t a1, arg_t a2, arg_t a3, arg_t a4, arg_t a5, arg_t a6)
 	unsigned long ret_sav;
 
   *((unsigned long *)0xFFFF4004) = (unsigned int)('+');
-  __asm__ ("brlid r17, 08x; nop;" 
+  __asm__ ("brlid r17, 08x; nop;"
        : "=r" (ret)
        : "r" (syscall), "r" (a), "r" (b), "r" (c), "r" (d), "r" (e), "r" (f)
        : SYSCALL_CLOBBERS);
-	
+
   ret_sav=ret;
   *((unsigned long *)0xFFFF4004) = (unsigned int)('-');
 

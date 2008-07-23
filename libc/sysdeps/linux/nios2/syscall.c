@@ -1,4 +1,4 @@
-/* 
+/*
  * libc/sysdeps/linux/nios2/syscall.c -- generic syscall function for linux/nios2
  *
  * Copyright (C) 2004 Microtronix Datacom Ltd.
@@ -28,7 +28,7 @@ long syscall(long sysnum, long a, long b, long c, long d, long e, long f)
 {
     register long _r2 __asm__("r2")=(long)TRAP_ID_SYSCALL;
     register long _r3 __asm__("r3")=(long)sysnum;
-   
+
     register long _r4 __asm__("r4")=(long)(a);
     register long _r5 __asm__("r5")=(long)(b);
     register long _r6 __asm__("r6")=(long)(c);

@@ -12,9 +12,9 @@ void login (const struct utmp *entry)
 
     utmpname(_PATH_UTMP);
     setutent();
-#if _HAVE_UT_TYPE - 0 
+#if _HAVE_UT_TYPE - 0
     copy.ut_type = USER_PROCESS;
-#endif  
+#endif
 #if _HAVE_UT_PID - 0
     copy.ut_pid = getpid();
 #endif

@@ -25,7 +25,7 @@
  * Modified for uClibc by Manuel Novoa III on 1/5/01.
  * Modified once again for uClibc by Erik Andersen 8/7/02
  */
-
+
 /* This tells Alpha OSF/1 not to define a getopt prototype in <stdio.h>.
    Ditto for AIX 3.2 and <stdlib.h>.  */
 #ifndef _NO_PROTO
@@ -166,7 +166,7 @@ int optopt = '?';
 
 static struct _getopt_data getopt_data;
 
-
+
 #ifndef __GNU_LIBRARY__
 
 /* Avoid depending on library functions or files
@@ -177,7 +177,7 @@ extern char *getenv ();
 #endif
 
 #endif /* not __GNU_LIBRARY__ */
-
+
 #ifdef _LIBC
 /* Stored original parameters.
    XXX This is no good solution.  We should rather copy the args so
@@ -359,7 +359,7 @@ _getopt_initialize (attribute_unused int argc, attribute_unused char *const *arg
 
   return optstring;
 }
-
+
 /* Scan elements of ARGV (whose length is ARGC) for option characters
    given in OPTSTRING.
 

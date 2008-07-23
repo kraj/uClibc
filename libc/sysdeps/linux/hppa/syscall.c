@@ -26,8 +26,8 @@
    INTERNAL_SYSCALL, and all the generated pure assembly syscall wrappers.
    How often the function is used is unknown. */
 
-long int 
-syscall (long int __sysno, ...) 
+long int
+syscall (long int __sysno, ...)
 {
   /* FIXME: Keep this matching INLINE_SYSCALL for hppa */
   va_list args;
@@ -43,7 +43,7 @@ syscall (long int __sysno, ...)
   arg4 = va_arg (args, long int);
   arg5 = va_arg (args, long int);
   va_end (args);
-  
+
   {
     register unsigned long int __res __asm__("r28");
     K_LOAD_ARGS_6 (arg0, arg1, arg2, arg3, arg4, arg5)

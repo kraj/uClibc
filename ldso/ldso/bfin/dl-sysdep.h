@@ -171,7 +171,7 @@ do \
     } \
 \
 } \
-while (0)  
+while (0)
 
 /* We want want to apply all relocations in the interpreter during
    bootstrap.  Because of this, we have to skip the interpreter

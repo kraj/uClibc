@@ -27,7 +27,7 @@
  * SUCH DAMAGE.
  *
  * This version has been hevily modified for use with uClibc
- * November 2002, Erik Andersen <andersen@codepoet.org> 
+ * November 2002, Erik Andersen <andersen@codepoet.org>
  */
 
 #include <sys/param.h>

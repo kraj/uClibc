@@ -1089,7 +1089,7 @@ test_memcmp (void)
 {
   int i, cnt = 1;
   char one[21], two[21];
-  
+
   it = "memcmp";
   check(memcmp("a", "a", 1) == 0, cnt++);	/* Identity. */
   check(memcmp("abc", "abc", 3) == 0, cnt++);	/* Multicharacter. */

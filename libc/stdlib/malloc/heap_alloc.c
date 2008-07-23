@@ -27,7 +27,7 @@ __heap_alloc (struct heap *heap, size_t *size)
   void *mem = 0;
 
   _size = HEAP_ADJUST_SIZE (_size);
-  
+
   if (_size < sizeof (struct heap_free_area))
     /* Because we sometimes must use a freed block to hold a free-area node,
        we must make sure that every allocated block can hold one.  */

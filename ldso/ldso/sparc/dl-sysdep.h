@@ -131,9 +131,9 @@ static __inline__ Elf32_Addr
 elf_machine_dynamic (void)
 {
 	register Elf32_Addr *got __asm__ ("%l7");
-	
+
 	LOAD_PIC_REG (got);
-	
+
 	return *got;
 }
 
@@ -142,14 +142,14 @@ static __inline__ Elf32_Addr
 elf_machine_load_address (void)
 {
 	register Elf32_Addr *pc __asm__ ("%o7"), *got __asm ("%l7");
-	
+
 	__asm__ ("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t"
 	       "call 1f\n\t"
 	       " add %1, %%lo(_GLOBAL_OFFSET_TABLE_+4), %1\n\t"
 	       "call _DYNAMIC\n\t"
 	       "call _GLOBAL_OFFSET_TABLE_\n"
 	       "1:\tadd %1, %0, %1\n\t" : "=r" (pc), "=r" (got));
-	
+
 	/* got is now l_addr + _GLOBAL_OFFSET_TABLE_
 	 *got is _DYNAMIC
 	 pc[2]*4 is l_addr + _DYNAMIC - (long)pc - 8

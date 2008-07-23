@@ -182,7 +182,7 @@ int main(int argc, char **argv)
 			char *s0;
 			char *s1;
 			int n;
-			
+
 			s0 = strrchr(*argv, '/');
 			if (!s0) {
 				s0 = *argv;
@@ -379,7 +379,7 @@ int main(int argc, char **argv)
 				if ((c != 0) || 1) {
 					u = towupper(c);
 					l = towlower(c);
-					
+
 					if (u >= 0x80) u = csd[numsets].w2c[u];
 					if (l >= 0x80) l = csd[numsets].w2c[l];
 

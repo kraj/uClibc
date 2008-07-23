@@ -117,7 +117,7 @@ init_iosys (void)
 {
     char systype[256];
     int i, n;
-    
+
 #if LINUX_VERSION_CODE < 132119
     static int iobase_name[] = { CTL_BUS, BUS_ISA, BUS_ISA_PORT_BASE };
     static int ioshift_name[] = { CTL_BUS, BUS_ISA, BUS_ISA_PORT_SHIFT };

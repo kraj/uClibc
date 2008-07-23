@@ -254,7 +254,7 @@ inet_pton4(const char *src, u_char *dst)
 #ifdef __UCLIBC_HAS_IPV6__
 
 /* We cannot use the macro version of tolower() or very bad
- * things happen when '*src++' gets evaluated multiple times.  
+ * things happen when '*src++' gets evaluated multiple times.
  * So undef it here so we get the function version of tolower
  * instead.
  */

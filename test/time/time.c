@@ -4,7 +4,7 @@
 
 /* We use this instead of memcmp because some broken C libraries
  * add additional nonstandard fields to struct tm... */
- 
+
 int tm_cmp(struct tm tm1, struct tm tm2)
 {
 	return  tm1.tm_sec  != tm2.tm_sec  ||

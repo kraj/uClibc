@@ -35,7 +35,7 @@
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #include <limits.h>
 #include <stdint.h>
-/* Work around gcc's refusal to create aliases. 
+/* Work around gcc's refusal to create aliases.
  * TODO: Add in a define to disable the aliases? */
 
 #if UINT_MAX == ULONG_MAX
@@ -267,7 +267,7 @@ strong_alias(llabs,imaxabs)
 /**********************************************************************/
 #ifdef L_atoi
 
-#if INT_MAX < LONG_MAX 
+#if INT_MAX < LONG_MAX
 
 libc_hidden_proto(strtol)
 

@@ -87,7 +87,7 @@ void *memset(void *pdst,
 
   {
     register char *dst __asm__ ("r13") = pdst;
- 
+
   if (((unsigned long) pdst & 3) != 0
      /* Oops! n=0 must be a legal call, regardless of alignment. */
       && n >= 3)
@@ -165,15 +165,15 @@ void *memset(void *pdst,
         addq   12*4,r12  ;; compensate for last loop underflowing n		\n\
 										\n\
 	;; Restore registers from stack						\n\
-        movem [sp+],r10" 
+        movem [sp+],r10"
 
      /* Outputs */ : "=r" (dst), "=r" (n)
      /* Inputs */ : "0" (dst), "1" (n), "r" (lc));
-    
+
   }
 
     /* Either we directly starts copying, using dword copying
-       in a loop, or we copy as much as possible with 'movem' 
+       in a loop, or we copy as much as possible with 'movem'
        and then the last block (<44 bytes) is copied here.
        This will work since 'movem' will have updated src,dst,n. */
 

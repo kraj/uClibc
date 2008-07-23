@@ -17,7 +17,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with uClibc; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
 USA.  */
-	
+
 /* Any assembly language/system dependent hacks needed to setup
  * boot1.c so it will work as expected and cope with whatever platform
  * specific wierdness is needed for this architecture.

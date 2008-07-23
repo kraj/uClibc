@@ -149,7 +149,7 @@ static const unsigned char estridx[] = {
 	EISNAM,
 	EREMOTEIO,
 #if EDQUOT > 200			/* mips has an outrageous value for this... */
-	0,							
+	0,
 #else
 	EDQUOT,
 #endif

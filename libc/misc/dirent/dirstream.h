@@ -60,7 +60,7 @@ struct __dirstream {
 
   /* total size of buffer */
   size_t dd_max;
- 
+
   /* lock */
   __UCLIBC_MUTEX(dd_lock);
 };				/* stream data from opendir() */

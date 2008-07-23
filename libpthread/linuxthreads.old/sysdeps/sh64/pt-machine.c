@@ -26,7 +26,7 @@
 
 /* Spinlock implementation; required.  */
 
-/* The SH5 does not have a suitable test-and-set instruction (SWAP only 
+/* The SH5 does not have a suitable test-and-set instruction (SWAP only
    operates on an aligned quad word). So we use the SH4 version instead.
    This must be seperately compiled in SHcompact mode, so it cannot be
    inline. */

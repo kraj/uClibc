@@ -16,7 +16,7 @@ libc_hidden_proto(unlink)
 /* SUSv3 states:
  *   If path does not name a directory, remove(path) shall be equivalent
  *   to unlink(path).  If path names a directory, remove(path) shall be
- *   equivalent to rmdir(path). 
+ *   equivalent to rmdir(path).
  */
 
 libc_hidden_proto(remove)

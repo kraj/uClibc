@@ -5,7 +5,7 @@
  * Copyright (C) 2007, 2008 Tensilica Inc.
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
- */ 
+ */
 
 #include <errno.h>
 #include <signal.h>
@@ -13,13 +13,13 @@
 #include <string.h>
 #include <bits/kernel_sigaction.h>
 
-#define SA_RESTORER	0x04000000	
+#define SA_RESTORER	0x04000000
 
 extern void __default_sa_restorer (void);
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 
-int __libc_sigaction (int signum, const struct sigaction *act, 
+int __libc_sigaction (int signum, const struct sigaction *act,
 					  struct sigaction *oldact)
 {
 	struct kernel_sigaction kact, koldact;

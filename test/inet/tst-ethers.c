@@ -14,7 +14,7 @@ int main(void)
 	char host[ETHER_LINE_LEN];
 	int i;
 	int res = ether_hostton("teeth", &addr);
-	
+
 	if (res)
 		return 1;
 

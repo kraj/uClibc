@@ -115,7 +115,7 @@ void internal_function __pthread_lock(struct _pthread_fastlock * lock,
 
     lock->__spinlock += (spin_count - lock->__spinlock) / 8;
   }
-#endif	
+#endif
 
 again:
 

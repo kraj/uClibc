@@ -1,4 +1,4 @@
-/* Taken from generic/memmove.c; trivially modified to work with 
+/* Taken from generic/memmove.c; trivially modified to work with
    arch-specific memcopy.h for Cris.
 
    Copy memory to memory until the specified number of bytes

@@ -23,7 +23,7 @@ void longjmp(jmp_buf state, int value )
 	else
 		state->__jmpbuf->ReturnValue = value;
 
-	jmpbuf_ptr = (unsigned long)state; 
+	jmpbuf_ptr = (unsigned long)state;
 	e1newSP(state->__jmpbuf->SavedSP);
 
 #define _state_ ((struct __jmp_buf_tag*)jmpbuf_ptr)
@@ -55,9 +55,9 @@ void siglongjmp(sigjmp_buf state, int value )
 	else
 		state->__jmpbuf->ReturnValue = value;
 
-	jmpbuf_ptr = (unsigned long)state; 
+	jmpbuf_ptr = (unsigned long)state;
 	e1newSP(state->__jmpbuf->SavedSP);
-	
+
 
 #define _state_ ((struct __jmp_buf_tag*)jmpbuf_ptr)
 	__asm__ __volatile__("mov L0, %0\n\t"
