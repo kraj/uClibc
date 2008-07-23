@@ -18,7 +18,7 @@
 # define __bswap_16(x) (__extension__ __builtin_bswap_16(x))
 #else
 /* This is better than nothing.  */
-static __inline unsigned short int
+static __inline__ unsigned short int
 __bswap_16 (unsigned short int __bsx)
 {
 	return ((((__bsx) >> 8) & 0xff) | (((__bsx) & 0xff) << 8));
@@ -29,7 +29,7 @@ __bswap_16 (unsigned short int __bsx)
 #if defined __GNUC__
 # define __bswap_32(x) (__extension__ __builtin_bswap_32(x))
 #else
-static __inline unsigned int
+static __inline__ unsigned int
 __bswap_32 (unsigned int __bsx)
 {
   return ((((__bsx) & 0xff000000) >> 24) | (((__bsx) & 0x00ff0000) >>  8) |
