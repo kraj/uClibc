@@ -11,7 +11,7 @@
 librt_hidden_proto(mq_timedsend)
 #ifdef __NR_mq_timedsend
 #define __NR___syscall_mq_timedsend __NR_mq_timedsend
-static inline _syscall5(int, __syscall_mq_timedsend, int, mqdes,
+static __inline__ _syscall5(int, __syscall_mq_timedsend, int, mqdes,
 			const char *, msg_ptr, size_t, msg_len, unsigned int,
 			msg_prio, const void *, abs_timeout);
 #endif

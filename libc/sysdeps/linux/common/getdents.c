@@ -45,7 +45,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes) attribute_hidden;
 libc_hidden_proto(lseek)
 
 #define __NR___syscall_getdents __NR_getdents
-static inline _syscall3(int, __syscall_getdents, int, fd, unsigned char *, kdirp, size_t, count);
+static __inline__ _syscall3(int, __syscall_getdents, int, fd, unsigned char *, kdirp, size_t, count);
 
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {

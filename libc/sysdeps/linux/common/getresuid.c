@@ -18,7 +18,7 @@ _syscall3(int, getresuid, uid_t *, ruid, uid_t *, euid, uid_t *, suid)
 
 #elif defined(__NR_getresuid)
 # define __NR___syscall_getresuid __NR_getresuid
-static inline _syscall3(int, __syscall_getresuid, __kernel_uid_t *, ruid,
+static __inline__ _syscall3(int, __syscall_getresuid, __kernel_uid_t *, ruid,
 		  __kernel_uid_t *, euid, __kernel_uid_t *, suid);
 
 int getresuid(uid_t * ruid, uid_t * euid, uid_t * suid)

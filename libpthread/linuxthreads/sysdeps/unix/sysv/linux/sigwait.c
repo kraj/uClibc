@@ -31,7 +31,7 @@ extern int __syscall_rt_sigtimedwait (const sigset_t *__unbounded, siginfo_t *__
 
 
 /* Return any pending signal or wait for one for the given time.  */
-static inline int
+static __inline__ int
 do_sigwait (const sigset_t *set, int *sig)
 {
   int ret;

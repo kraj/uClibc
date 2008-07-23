@@ -11,7 +11,7 @@
 #ifdef __NR_mq_notify
 
 #define __NR___syscall_mq_notify __NR_mq_notify
-static inline _syscall2(int, __syscall_mq_notify, int, mqdes,
+static __inline__ _syscall2(int, __syscall_mq_notify, int, mqdes,
 			const void *, notification);
 
 /* Register notification upon message arrival to an empty message queue */

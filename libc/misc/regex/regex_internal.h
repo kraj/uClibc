@@ -682,7 +682,7 @@ typedef struct
 
 
 /* Inline functions for bitset operation.  */
-static inline void
+static __inline__ void
 bitset_not (bitset_t set)
 {
   int bitset_i;
@@ -690,7 +690,7 @@ bitset_not (bitset_t set)
     set[bitset_i] = ~set[bitset_i];
 }
 
-static inline void
+static __inline__ void
 bitset_merge (bitset_t dest, const bitset_t src)
 {
   int bitset_i;
@@ -698,7 +698,7 @@ bitset_merge (bitset_t dest, const bitset_t src)
     dest[bitset_i] |= src[bitset_i];
 }
 
-static inline void
+static __inline__ void
 bitset_mask (bitset_t dest, const bitset_t src)
 {
   int bitset_i;
@@ -708,7 +708,7 @@ bitset_mask (bitset_t dest, const bitset_t src)
 
 #ifdef RE_ENABLE_I18N
 /* Inline functions for re_string.  */
-static inline int
+static __inline__ int
 internal_function __attribute ((pure))
 re_string_char_size_at (const re_string_t *pstr, int idx)
 {
@@ -721,7 +721,7 @@ re_string_char_size_at (const re_string_t *pstr, int idx)
   return byte_idx;
 }
 
-static inline wint_t
+static __inline__ wint_t
 internal_function __attribute ((pure))
 re_string_wchar_at (const re_string_t *pstr, int idx)
 {

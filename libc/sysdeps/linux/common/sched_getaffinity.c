@@ -30,7 +30,7 @@
 /* Experimentally off - libc_hidden_proto(memset) */
 
 #define __NR___syscall_sched_getaffinity __NR_sched_getaffinity
-static inline _syscall3(int, __syscall_sched_getaffinity, __kernel_pid_t, pid,
+static __inline__ _syscall3(int, __syscall_sched_getaffinity, __kernel_pid_t, pid,
 			size_t, cpusetsize, cpu_set_t *, cpuset);
 
 int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)

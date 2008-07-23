@@ -28,7 +28,7 @@
 /* makefile will include elf.h for us */
 
 static int byteswap;
-static inline uint32_t byteswap32_to_host(uint32_t value)
+static __inline__ uint32_t byteswap32_to_host(uint32_t value)
 {
 	if (byteswap==1) {
 		return(bswap_32(value));
@@ -36,7 +36,7 @@ static inline uint32_t byteswap32_to_host(uint32_t value)
 		return(value);
 	}
 }
-static inline uint64_t byteswap64_to_host(uint64_t value)
+static __inline__ uint64_t byteswap64_to_host(uint64_t value)
 {
 	if (byteswap==1) {
 		return(bswap_64(value));

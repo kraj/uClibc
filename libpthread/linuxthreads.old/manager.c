@@ -76,7 +76,7 @@ volatile pthread_descr __pthread_last_event;
 /* Stack segment numbers are also indices into the __pthread_handles array. */
 /* Stack segment number 0 is reserved for the initial thread. */
 
-static inline pthread_descr thread_segment(int seg)
+static __inline__ pthread_descr thread_segment(int seg)
 {
   return (pthread_descr)(THREAD_STACK_START_ADDRESS - (seg - 1) * STACK_SIZE)
          - 1;

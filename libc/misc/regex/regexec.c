@@ -1027,7 +1027,7 @@ prune_impossible_nodes (mctx)
    We must select appropriate initial state depending on the context,
    since initial states may have constraints like "\<", "^", etc..  */
 
-static inline re_dfastate_t *
+static __inline__ re_dfastate_t *
 __attribute ((always_inline)) internal_function
 acquire_init_state_context (reg_errcode_t *err, const re_match_context_t *mctx,
 			    int idx)

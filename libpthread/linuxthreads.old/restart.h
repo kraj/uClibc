@@ -18,7 +18,7 @@
 
 /* Primitives for controlling thread execution */
 
-static inline void restart(pthread_descr th)
+static __inline__ void restart(pthread_descr th)
 {
   /* See pthread.c */
 #if __ASSUME_REALTIME_SIGNALS
@@ -28,7 +28,7 @@ static inline void restart(pthread_descr th)
 #endif
 }
 
-static inline void suspend(pthread_descr self)
+static __inline__ void suspend(pthread_descr self)
 {
   /* See pthread.c */
 #if __ASSUME_REALTIME_SIGNALS
@@ -38,7 +38,7 @@ static inline void suspend(pthread_descr self)
 #endif
 }
 
-static inline int timedsuspend(pthread_descr self,
+static __inline__ int timedsuspend(pthread_descr self,
 		const struct timespec *abstime)
 {
   /* See pthread.c */

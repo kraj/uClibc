@@ -110,14 +110,14 @@ static int parse_dquote(char **word, size_t * word_length,
 #define W_CHUNK	(100)
 
 /* Result of w_newword will be ignored if it's the last word. */
-static inline char *w_newword(size_t * actlen, size_t * maxlen)
+static __inline__ char *w_newword(size_t * actlen, size_t * maxlen)
 {
 	*actlen = *maxlen = 0;
 	return NULL;
 }
 
 /* Add a character to the buffer, allocating room for it if needed.  */
-static inline char *w_addchar(char *buffer, size_t * actlen,
+static __inline__ char *w_addchar(char *buffer, size_t * actlen,
 							  size_t * maxlen, char ch)
 	 /* (lengths exclude trailing zero) */
 {
@@ -1897,7 +1897,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 	return error;
 }
 #else
-static inline int
+static __inline__ int
 parse_backtick(char **word, size_t * word_length, size_t * max_length,
 			   const char *words, size_t * offset, int flags,
 			   wordexp_t * pwordexp, const char *ifs,

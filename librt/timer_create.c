@@ -18,7 +18,7 @@
 #endif
 
 #define __NR___syscall_timer_create __NR_timer_create
-static inline _syscall3(int, __syscall_timer_create, clockid_t, clock_id,
+static __inline__ _syscall3(int, __syscall_timer_create, clockid_t, clock_id,
 			struct sigevent *, evp, kernel_timer_t *, ktimerid);
 
 /* Create a per-process timer */

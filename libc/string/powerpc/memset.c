@@ -23,7 +23,7 @@
 
 /* Experimentally off - libc_hidden_proto(memset) */
 
-static inline int expand_byte_word(int c){
+static __inline__ int expand_byte_word(int c){
 	/* this does: 
 	   c = c << 8 | c;
 	   c = c << 16 | c ;

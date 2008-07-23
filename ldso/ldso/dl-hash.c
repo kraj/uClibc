@@ -57,7 +57,7 @@ struct dyn_elf *_dl_handles = NULL;
 /* This is the new hash function that is used by the ELF linker to generate the
  * GNU hash table that each executable and library will have if --hash-style=[gnu,both]
  * is passed to the linker. We need it to decode the GNU hash table.  */
-static inline Elf_Symndx _dl_gnu_hash (const unsigned char *name)
+static __inline__ Elf_Symndx _dl_gnu_hash (const unsigned char *name)
 {
   unsigned long h = 5381;
   unsigned char c;
@@ -70,7 +70,7 @@ static inline Elf_Symndx _dl_gnu_hash (const unsigned char *name)
 /* This is the hash function that is used by the ELF linker to generate the
  * hash table that each executable and library is required to have.  We need
  * it to decode the hash table.  */
-static inline Elf_Symndx _dl_elf_hash(const unsigned char *name)
+static __inline__ Elf_Symndx _dl_elf_hash(const unsigned char *name)
 {
 	unsigned long hash=0;
 	unsigned long tmp;

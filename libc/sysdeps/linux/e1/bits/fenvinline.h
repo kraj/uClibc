@@ -92,7 +92,7 @@
 /* The following functions test for accrued exceptions.
  * No trap is generated on an FP exception.
  */
-static inline feclearexcept(int __excepts)
+static __inline__ feclearexcept(int __excepts)
 {
 	unsigned int enabled_excepts, disabled_excepts;
 
@@ -152,7 +152,7 @@ inline int fetestexcept(int __excepts)
 	return ( G2en | (G2dis << 8) );
 }
 
-static inline int feraiseexcept(int __excepts)
+static __inline__ int feraiseexcept(int __excepts)
 {
 	__asm__ __volatile__("or G2, %0"
 			:/*no output*/
@@ -218,7 +218,7 @@ static inline int feraiseexcept(int __excepts)
 	(__retval);                        \
 })
 
-static inline int fegetexcept(int excepts)
+static __inline__ int fegetexcept(int excepts)
 {
 	unsigned int tmp;
 	__asm__ __volatile__("mov %0, SR"
@@ -228,7 +228,7 @@ static inline int fegetexcept(int excepts)
 	return tmp;
 }
 
-static inline int fegetenv(fenv_t *envp)
+static __inline__ int fegetenv(fenv_t *envp)
 {
 	__asm__ __volatile__("mov %0, SR\n\t
 		      mov %1, SR\n\t

@@ -12,7 +12,7 @@
 #include <signal.h>
 
 #define __NR_e1newSP  224
-static inline _syscall1(int, e1newSP, unsigned long, SavedSP )
+static __inline__ _syscall1(int, e1newSP, unsigned long, SavedSP )
 
 unsigned long jmpbuf_ptr;
 

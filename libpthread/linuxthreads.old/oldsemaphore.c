@@ -35,7 +35,7 @@ typedef struct {
 /* Maximum value the semaphore can have.  */
 #define SEM_VALUE_MAX   ((int) ((~0u) >> 1))
 
-static inline int sem_compare_and_swap(old_sem_t *sem, long oldval, long newval)
+static __inline__ int sem_compare_and_swap(old_sem_t *sem, long oldval, long newval)
 {
     return compare_and_swap(&sem->sem_status, oldval, newval, &sem->sem_spinlock);
 }

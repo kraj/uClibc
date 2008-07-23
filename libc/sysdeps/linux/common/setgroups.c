@@ -29,7 +29,7 @@ _syscall2(int, setgroups, size_t, size, const gid_t *, list);
 libc_hidden_proto(sysconf)
 
 #define __NR___syscall_setgroups __NR_setgroups
-static inline _syscall2(int, __syscall_setgroups,
+static __inline__ _syscall2(int, __syscall_setgroups,
 		size_t, size, const __kernel_gid_t *, list);
 
 int setgroups(size_t size, const gid_t *groups)

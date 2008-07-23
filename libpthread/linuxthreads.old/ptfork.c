@@ -73,7 +73,7 @@ int pthread_atfork(void (*prepare)(void),
 }
 //strong_alias (__pthread_atfork, pthread_atfork)
 
-static inline void pthread_call_handlers(struct handler_list * list)
+static __inline__ void pthread_call_handlers(struct handler_list * list)
 {
   for (/*nothing*/; list != NULL; list = list->next) (list->handler)();
 }

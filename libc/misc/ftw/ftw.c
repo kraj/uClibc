@@ -279,7 +279,7 @@ object_compare (const void *p1, const void *p2)
 }
 
 
-static inline int
+static __inline__ int
 add_object (struct ftw_data *data, struct STAT *st)
 {
   struct known_object *newp = malloc (sizeof (struct known_object));
@@ -291,7 +291,7 @@ add_object (struct ftw_data *data, struct STAT *st)
 }
 
 
-static inline int
+static __inline__ int
 find_object (struct ftw_data *data, struct STAT *st)
 {
   struct known_object obj;
@@ -301,7 +301,7 @@ find_object (struct ftw_data *data, struct STAT *st)
 }
 
 
-static inline int
+static __inline__ int
 __attribute ((always_inline))
 open_dir_stream (struct ftw_data *data, struct dir_data *dirp)
 {

@@ -174,19 +174,19 @@ extern int __pthread_smp_kernel;
 
 /* Return the handle corresponding to a thread id */
 
-static inline pthread_handle thread_handle(pthread_t id)
+static __inline__ pthread_handle thread_handle(pthread_t id)
 {
   return &__pthread_handles[id % PTHREAD_THREADS_MAX];
 }
 
 /* Validate a thread handle. Must have acquired h->h_spinlock before. */
 
-static inline int invalid_handle(pthread_handle h, pthread_t id)
+static __inline__ int invalid_handle(pthread_handle h, pthread_t id)
 {
   return h->h_descr == NULL || h->h_descr->p_tid != id || h->h_descr->p_terminated;
 }
 
-static inline int nonexisting_handle(pthread_handle h, pthread_t id)
+static __inline__ int nonexisting_handle(pthread_handle h, pthread_t id)
 {
   return h->h_descr == NULL || h->h_descr->p_tid != id;
 }

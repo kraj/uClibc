@@ -88,7 +88,7 @@ extern struct thread_node __timer_signal_thread_rclk;
 
 
 /* Return pointer to timer structure corresponding to ID.  */
-static inline struct timer_node *
+static __inline__ struct timer_node *
 timer_id2ptr (timer_t timerid)
 {
   if (timerid >= 0 && timerid < TIMER_MAX)
@@ -98,14 +98,14 @@ timer_id2ptr (timer_t timerid)
 }
 
 /* Return ID of TIMER.  */
-static inline int
+static __inline__ int
 timer_ptr2id (struct timer_node *timer)
 {
   return timer - __timer_array;
 }
 
 /* Check whether timer is valid; global mutex must be held. */
-static inline int
+static __inline__ int
 timer_valid (struct timer_node *timer)
 {
   return timer && timer->inuse == TIMER_INUSE;
@@ -114,13 +114,13 @@ timer_valid (struct timer_node *timer)
 /* Timer refcount functions; need global mutex. */
 extern void __timer_dealloc (struct timer_node *timer);
 
-static inline void
+static __inline__ void
 timer_addref (struct timer_node *timer)
 {
   timer->refcount++;
 }
 
-static inline void
+static __inline__ void
 timer_delref (struct timer_node *timer)
 {
   if (--timer->refcount == 0)
@@ -128,7 +128,7 @@ timer_delref (struct timer_node *timer)
 }
 
 /* Timespec helper routines.  */
-static inline int
+static __inline__ int
 timespec_compare (const struct timespec *left, const struct timespec *right)
 {
   if (left->tv_sec < right->tv_sec)
@@ -144,7 +144,7 @@ timespec_compare (const struct timespec *left, const struct timespec *right)
   return 0;
 }
 
-static inline void
+static __inline__ void
 timespec_add (struct timespec *sum, const struct timespec *left,
 	      const struct timespec *right)
 {
@@ -158,7 +158,7 @@ timespec_add (struct timespec *sum, const struct timespec *left,
     }
 }
 
-static inline void
+static __inline__ void
 timespec_sub (struct timespec *diff, const struct timespec *left,
 	      const struct timespec *right)
 {
@@ -174,7 +174,7 @@ timespec_sub (struct timespec *diff, const struct timespec *left,
 
 
 /* We need one of the list functions in the other modules.  */
-static inline void
+static __inline__ void
 list_unlink_ip (struct list_links *list)
 {
   struct list_links *lnext = list->next, *lprev = list->prev;

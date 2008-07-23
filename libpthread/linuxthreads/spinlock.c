@@ -26,7 +26,7 @@
 
 static void __pthread_acquire(int * spinlock);
 
-static inline void __pthread_release(int * spinlock)
+static __inline__ void __pthread_release(int * spinlock)
 {
   WRITE_MEMORY_BARRIER();
   *spinlock = __LT_SPINLOCK_INIT;

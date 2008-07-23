@@ -286,7 +286,7 @@ re_compile_fastmap (bufp)
 strong_alias(__re_compile_fastmap, re_compile_fastmap)
 #endif
 
-static inline void
+static __inline__ void
 __attribute ((always_inline))
 re_set_fastmap (char *fastmap, int icase, int ch)
 {
@@ -2721,7 +2721,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
      Seek the collating symbol entry correspondings to NAME.
      Return the index of the symbol in the SYMB_TABLE.  */
 
-  auto inline int32_t
+  auto __inline__ int32_t
   __attribute ((always_inline))
   seek_collating_symbol_entry (name, name_len)
 	 const unsigned char *name;
@@ -2759,7 +2759,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
      Look up the collation sequence value of BR_ELEM.
      Return the value if succeeded, UINT_MAX otherwise.  */
 
-  auto inline unsigned int
+  auto __inline__ unsigned int
   __attribute ((always_inline))
   lookup_collation_sequence_value (br_elem)
 	 bracket_elem_t *br_elem;
@@ -2827,7 +2827,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
      mbcset->range_ends, is a pointer argument sinse we may
      update it.  */
 
-  auto inline reg_errcode_t
+  auto __inline__ reg_errcode_t
   __attribute ((always_inline))
   build_range_exp (sbcset, mbcset, range_alloc, start_elem, end_elem)
 	 re_charset_t *mbcset;
@@ -2910,7 +2910,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
      COLL_SYM_ALLOC is the allocated size of mbcset->coll_sym, is a
      pointer argument sinse we may update it.  */
 
-  auto inline reg_errcode_t
+  auto __inline__ reg_errcode_t
   __attribute ((always_inline))
   build_collating_symbol (sbcset, mbcset, coll_sym_alloc, name)
 	 re_charset_t *mbcset;

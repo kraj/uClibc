@@ -12,7 +12,7 @@
 #ifdef __NR_mq_open
 
 #define __NR___syscall_mq_open __NR_mq_open
-static inline _syscall4(int, __syscall_mq_open, const char *, name,
+static __inline__ _syscall4(int, __syscall_mq_open, const char *, name,
 			int, oflag, __kernel_mode_t, mode, void *, attr);
 /*
  * Establish connection between a process and a message queue and

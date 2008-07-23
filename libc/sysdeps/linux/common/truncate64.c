@@ -33,10 +33,10 @@ _syscall2(int, truncate64, const char *, path, __off64_t, length);
 #define INLINE_SYSCALL(name, nr, args...) __syscall_truncate64 (args)
 #define __NR___syscall_truncate64 __NR_truncate64
 #if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
-static inline _syscall4(int, __syscall_truncate64, const char *, path,
+static __inline__ _syscall4(int, __syscall_truncate64, const char *, path,
 	uint32_t, pad, unsigned long, high_length, unsigned long, low_length);
 #else
-static inline _syscall3(int, __syscall_truncate64, const char *, path,
+static __inline__ _syscall3(int, __syscall_truncate64, const char *, path,
 	unsigned long, high_length, unsigned long, low_length);
 #endif
 #endif

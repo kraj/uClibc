@@ -39,7 +39,7 @@ extern int __pthread_has_cas;
 extern int __pthread_compare_and_swap(long * ptr, long oldval, long newval,
                                       int * spinlock);
 
-static inline int compare_and_swap(long * ptr, long oldval, long newval,
+static __inline__ int compare_and_swap(long * ptr, long oldval, long newval,
                                    int * spinlock)
 {
   if (__builtin_expect (__pthread_has_cas, 1))
@@ -56,7 +56,7 @@ static inline int compare_and_swap(long * ptr, long oldval, long newval,
 
 #ifdef HAS_COMPARE_AND_SWAP_WITH_RELEASE_SEMANTICS
 
-static inline int
+static __inline__ int
 compare_and_swap_with_release_semantics (long * ptr, long oldval,
 					 long newval, int * spinlock)
 {
@@ -66,7 +66,7 @@ compare_and_swap_with_release_semantics (long * ptr, long oldval,
 
 #endif
 
-static inline int compare_and_swap(long * ptr, long oldval, long newval,
+static __inline__ int compare_and_swap(long * ptr, long oldval, long newval,
                                    int * spinlock)
 {
   return __compare_and_swap(ptr, oldval, newval);
@@ -77,7 +77,7 @@ static inline int compare_and_swap(long * ptr, long oldval, long newval,
 extern int __pthread_compare_and_swap(long * ptr, long oldval, long newval,
                                       int * spinlock);
 
-static inline int compare_and_swap(long * ptr, long oldval, long newval,
+static __inline__ int compare_and_swap(long * ptr, long oldval, long newval,
                                    int * spinlock)
 {
   return __pthread_compare_and_swap(ptr, oldval, newval, spinlock);
@@ -96,13 +96,13 @@ extern void internal_function __pthread_lock(struct _pthread_fastlock * lock,
 					     pthread_descr self);
 extern int __pthread_unlock(struct _pthread_fastlock *lock);
 
-static inline void __pthread_init_lock(struct _pthread_fastlock * lock)
+static __inline__ void __pthread_init_lock(struct _pthread_fastlock * lock)
 {
   lock->__status = 0;
   lock->__spinlock = __LT_SPINLOCK_INIT;
 }
 
-static inline int __pthread_trylock (struct _pthread_fastlock * lock)
+static __inline__ int __pthread_trylock (struct _pthread_fastlock * lock)
 {
 #if defined TEST_FOR_COMPARE_AND_SWAP
   if (!__pthread_has_cas)
@@ -133,13 +133,13 @@ extern int __pthread_alt_timedlock(struct _pthread_fastlock * lock,
 
 extern void __pthread_alt_unlock(struct _pthread_fastlock *lock);
 
-static inline void __pthread_alt_init_lock(struct _pthread_fastlock * lock)
+static __inline__ void __pthread_alt_init_lock(struct _pthread_fastlock * lock)
 {
   lock->__status = 0;
   lock->__spinlock = __LT_SPINLOCK_INIT;
 }
 
-static inline int __pthread_alt_trylock (struct _pthread_fastlock * lock)
+static __inline__ int __pthread_alt_trylock (struct _pthread_fastlock * lock)
 {
 #if defined TEST_FOR_COMPARE_AND_SWAP
   if (!__pthread_has_cas)
@@ -172,7 +172,7 @@ static inline int __pthread_alt_trylock (struct _pthread_fastlock * lock)
 
 /* Operations on pthread_atomic, which is defined in internals.h */
 
-static inline long atomic_increment(struct pthread_atomic *pa)
+static __inline__ long atomic_increment(struct pthread_atomic *pa)
 {
     long oldval;
 
@@ -184,7 +184,7 @@ static inline long atomic_increment(struct pthread_atomic *pa)
 }
 
 
-static inline long atomic_decrement(struct pthread_atomic *pa)
+static __inline__ long atomic_decrement(struct pthread_atomic *pa)
 {
     long oldval;
 
@@ -196,7 +196,7 @@ static inline long atomic_decrement(struct pthread_atomic *pa)
 }
 
 
-static inline void
+static __inline__ void
 __pthread_set_own_extricate_if (pthread_descr self, pthread_extricate_if *peif)
 {
   /* Only store a non-null peif if the thread has cancellation enabled.

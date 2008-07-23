@@ -11,7 +11,7 @@
 #ifdef __NR_timer_getoverrun
 
 #define __NR___syscall_timer_getoverrun __NR_timer_getoverrun
-static inline _syscall1(int, __syscall_timer_getoverrun, kernel_timer_t,
+static __inline__ _syscall1(int, __syscall_timer_getoverrun, kernel_timer_t,
 			ktimerid);
 
 /* Get the timer overrun count */

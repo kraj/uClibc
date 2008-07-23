@@ -18,7 +18,7 @@ extern __typeof(lseek64) __libc_lseek64;
 # ifndef INLINE_SYSCALL
 #  define INLINE_SYSCALL(name, nr, args...) __syscall_llseek (args)
 #  define __NR___syscall_llseek __NR__llseek
-static inline _syscall5(int, __syscall_llseek, int, fd, off_t, offset_hi, 
+static __inline__ _syscall5(int, __syscall_llseek, int, fd, off_t, offset_hi,
 		off_t, offset_lo, loff_t *, result, int, whence);
 # endif
 

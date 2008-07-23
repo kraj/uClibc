@@ -186,7 +186,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	return finaladdr;
 }
 
-static inline int
+static __inline__ int
 _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	      ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
 {
@@ -368,7 +368,7 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	PPC_ISYNC;
 }
 
-static inline int
+static __inline__ int
 _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  unsigned long rel_addr, unsigned long rel_size,
 	  int (*reloc_fnc) (struct elf_resolve *tpnt, struct dyn_elf *scope,

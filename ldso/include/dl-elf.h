@@ -21,8 +21,8 @@ struct elf_resolve;
 extern int _dl_map_cache(void);
 extern int _dl_unmap_cache(void);
 #else
-static inline void _dl_map_cache(void) { }
-static inline void _dl_unmap_cache(void) { }
+static __inline__ void _dl_map_cache(void) { }
+static __inline__ void _dl_unmap_cache(void) { }
 #endif
 
 

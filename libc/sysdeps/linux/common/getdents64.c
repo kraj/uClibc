@@ -38,7 +38,7 @@ struct kernel_dirent64
 
 
 # define __NR___syscall_getdents64 __NR_getdents64
-static inline _syscall3(int, __syscall_getdents64, int, fd, unsigned char *, dirp, size_t, count);
+static __inline__ _syscall3(int, __syscall_getdents64, int, fd, unsigned char *, dirp, size_t, count);
 
 ssize_t __getdents64 (int fd, char *buf, size_t nbytes) attribute_hidden;
 ssize_t __getdents64 (int fd, char *buf, size_t nbytes)

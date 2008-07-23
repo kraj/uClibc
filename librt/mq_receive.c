@@ -11,7 +11,7 @@
 librt_hidden_proto(mq_timedreceive)
 #ifdef __NR_mq_timedreceive
 #define __NR___syscall_mq_timedreceive __NR_mq_timedreceive
-static inline _syscall5(int, __syscall_mq_timedreceive, int, mqdes,
+static __inline__ _syscall5(int, __syscall_mq_timedreceive, int, mqdes,
 			char *, msg_ptr, size_t, msg_len, unsigned int *,
 			msg_prio, const void *, abs_timeout);
 #endif

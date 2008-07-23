@@ -1366,7 +1366,7 @@ re_dfa_add_node (re_dfa_t *dfa, re_token_t token)
   return dfa->nodes_len++;
 }
 
-static inline unsigned int
+static __inline__ unsigned int
 internal_function
 calc_state_hash (const re_node_set *nodes, unsigned int context)
 {

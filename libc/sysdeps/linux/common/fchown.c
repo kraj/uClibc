@@ -22,7 +22,7 @@ _syscall3(int, fchown, int, fd, uid_t, owner, gid_t, group);
 #else
 
 # define __NR___syscall_fchown __NR_fchown
-static inline _syscall3(int, __syscall_fchown, int, fd,
+static __inline__ _syscall3(int, __syscall_fchown, int, fd,
 		__kernel_uid_t, owner, __kernel_gid_t, group);
 
 int fchown(int fd, uid_t owner, gid_t group)
