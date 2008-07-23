@@ -4,7 +4,7 @@
  * can be done.
  */
 
-asm ("\
+__asm__ ("\
 	.text\n\
 	.global _start\n\
 	.type   _start,%function\n\

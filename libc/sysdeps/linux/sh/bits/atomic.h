@@ -67,7 +67,7 @@ typedef uintmax_t uatomic_max_t;
 
 #define __arch_compare_and_exchange_val_8_acq(mem, newval, oldval) \
   ({ __typeof (*(mem)) __result; \
-     __asm __volatile ("\
+     __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
 	nop\n\
@@ -84,7 +84,7 @@ typedef uintmax_t uatomic_max_t;
 
 #define __arch_compare_and_exchange_val_16_acq(mem, newval, oldval) \
   ({ __typeof (*(mem)) __result; \
-     __asm __volatile ("\
+     __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
 	nop\n\
@@ -101,7 +101,7 @@ typedef uintmax_t uatomic_max_t;
 
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval) \
   ({ __typeof (*(mem)) __result; \
-     __asm __volatile ("\
+     __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
 	nop\n\
@@ -127,7 +127,7 @@ typedef uintmax_t uatomic_max_t;
 #define atomic_exchange_and_add(mem, value) \
   ({ __typeof (*(mem)) __result, __tmp, __value = (value); \
      if (sizeof (*(mem)) == 1) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
@@ -139,7 +139,7 @@ typedef uintmax_t uatomic_max_t;
 	: "=&r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
 	: "r0", "r1", "memory"); \
      else if (sizeof (*(mem)) == 2) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
@@ -151,7 +151,7 @@ typedef uintmax_t uatomic_max_t;
 	: "=&r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
 	: "r0", "r1", "memory"); \
      else if (sizeof (*(mem)) == 4) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
@@ -176,7 +176,7 @@ typedef uintmax_t uatomic_max_t;
 #define atomic_add(mem, value) \
   (void) ({ __typeof (*(mem)) __tmp, __value = (value); \
 	    if (sizeof (*(mem)) == 1) \
-	      __asm __volatile ("\
+	      __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
@@ -188,7 +188,7 @@ typedef uintmax_t uatomic_max_t;
 		: "=&r" (__tmp) : "r" (mem), "0" (__value) \
 		: "r0", "r1", "r2", "memory"); \
 	    else if (sizeof (*(mem)) == 2) \
-	      __asm __volatile ("\
+	      __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
@@ -200,7 +200,7 @@ typedef uintmax_t uatomic_max_t;
 		: "=&r" (__tmp) : "r" (mem), "0" (__value) \
 		: "r0", "r1", "r2", "memory"); \
 	    else if (sizeof (*(mem)) == 4) \
-	      __asm __volatile ("\
+	      __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
@@ -227,7 +227,7 @@ typedef uintmax_t uatomic_max_t;
   ({ unsigned char __result; \
      __typeof (*(mem)) __tmp, __value = (value); \
      if (sizeof (*(mem)) == 1) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
@@ -241,7 +241,7 @@ typedef uintmax_t uatomic_max_t;
 	: "=r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
 	: "r0", "r1", "r2", "t", "memory"); \
      else if (sizeof (*(mem)) == 2) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
@@ -255,7 +255,7 @@ typedef uintmax_t uatomic_max_t;
 	: "=r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
 	: "r0", "r1", "r2", "t", "memory"); \
      else if (sizeof (*(mem)) == 4) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
@@ -276,7 +276,7 @@ typedef uintmax_t uatomic_max_t;
   ({ unsigned char __result; \
      __typeof (*(mem)) __tmp, __value = (value); \
      if (sizeof (*(mem)) == 1) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
@@ -290,7 +290,7 @@ typedef uintmax_t uatomic_max_t;
 	: "=r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
 	: "r0", "r1", "r2", "t", "memory"); \
      else if (sizeof (*(mem)) == 2) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
@@ -304,7 +304,7 @@ typedef uintmax_t uatomic_max_t;
 	: "=r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
 	: "r0", "r1", "r2", "t", "memory"); \
      else if (sizeof (*(mem)) == 4) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
@@ -327,7 +327,7 @@ typedef uintmax_t uatomic_max_t;
 #define atomic_bit_set(mem, bit) \
   (void) ({ unsigned int __mask = 1 << (bit); \
 	    if (sizeof (*(mem)) == 1) \
-	      __asm __volatile ("\
+	      __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
@@ -339,7 +339,7 @@ typedef uintmax_t uatomic_max_t;
 		: : "r" (mem), "r" (__mask) \
 		: "r0", "r1", "r2", "memory"); \
 	    else if (sizeof (*(mem)) == 2) \
-	      __asm __volatile ("\
+	      __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
@@ -351,7 +351,7 @@ typedef uintmax_t uatomic_max_t;
 		: : "r" (mem), "r" (__mask) \
 		: "r0", "r1", "r2", "memory"); \
 	    else if (sizeof (*(mem)) == 4) \
-	      __asm __volatile ("\
+	      __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
@@ -370,7 +370,7 @@ typedef uintmax_t uatomic_max_t;
   ({ unsigned int __mask = 1 << (bit); \
      unsigned int __result = __mask; \
      if (sizeof (*(mem)) == 1) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  nop\n\
@@ -385,7 +385,7 @@ typedef uintmax_t uatomic_max_t;
 	: "r" (mem), "0" (__result), "1" (__mask) \
 	: "r0", "r1", "r2", "memory"); \
      else if (sizeof (*(mem)) == 2) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  nop\n\
@@ -400,7 +400,7 @@ typedef uintmax_t uatomic_max_t;
 	: "r" (mem), "0" (__result), "1" (__mask) \
 	: "r0", "r1", "r2", "memory"); \
      else if (sizeof (*(mem)) == 4) \
-       __asm __volatile ("\
+       __asm__ __volatile__ ("\
 	  .align 2\n\
 	  mova 1f,r0\n\
 	  nop\n\

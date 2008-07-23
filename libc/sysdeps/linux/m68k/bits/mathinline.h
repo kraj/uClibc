@@ -179,14 +179,14 @@ __m81_defun (float_type, __CONCAT(__floor,s), (float_type __x))	  \
 {									  \
   float_type __result;							  \
   unsigned long int __ctrl_reg;						  \
-  __asm __volatile__ ("fmove%.l %!, %0" : "=dm" (__ctrl_reg));		  \
+  __asm__ __volatile__ ("fmove%.l %!, %0" : "=dm" (__ctrl_reg));		  \
   /* Set rounding towards negative infinity.  */			  \
-  __asm __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
+  __asm__ __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
 		      : "dmi" ((__ctrl_reg & ~0x10) | 0x20));		  \
   /* Convert X to an integer, using -Inf rounding.  */			  \
-  __asm __volatile__ ("fint%.x %1, %0" : "=f" (__result) : "f" (__x));	  \
+  __asm__ __volatile__ ("fint%.x %1, %0" : "=f" (__result) : "f" (__x));	  \
   /* Restore the previous rounding mode.  */				  \
-  __asm __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
+  __asm__ __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
 		      : "dmi" (__ctrl_reg));				  \
   return __result;							  \
 }									  \
@@ -195,14 +195,14 @@ __m81_defun (float_type, __CONCAT(__ceil,s), (float_type __x))	  	  \
 {									  \
   float_type __result;							  \
   unsigned long int __ctrl_reg;						  \
-  __asm __volatile__ ("fmove%.l %!, %0" : "=dm" (__ctrl_reg));		  \
+  __asm__ __volatile__ ("fmove%.l %!, %0" : "=dm" (__ctrl_reg));		  \
   /* Set rounding towards positive infinity.  */			  \
-  __asm __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
+  __asm__ __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
 		      : "dmi" (__ctrl_reg | 0x30));			  \
   /* Convert X to an integer, using +Inf rounding.  */			  \
-  __asm __volatile__ ("fint%.x %1, %0" : "=f" (__result) : "f" (__x));	  \
+  __asm__ __volatile__ ("fint%.x %1, %0" : "=f" (__result) : "f" (__x));	  \
   /* Restore the previous rounding mode.  */				  \
-  __asm __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
+  __asm__ __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
 		      : "dmi" (__ctrl_reg));				  \
   return __result;							  \
 }
@@ -295,12 +295,12 @@ __m81_defun (float_type, __CONCAT(__nearbyint,s), (float_type __x))	  \
 {									  \
   float_type __result;							  \
   unsigned long int __ctrl_reg;						  \
-  __asm __volatile__ ("fmove%.l %!, %0" : "=dm" (__ctrl_reg));		  \
+  __asm__ __volatile__ ("fmove%.l %!, %0" : "=dm" (__ctrl_reg));		  \
   /* Temporarily disable the inexact exception.  */			  \
-  __asm __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
+  __asm__ __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
 		      : "dmi" (__ctrl_reg & ~0x200));			  \
-  __asm __volatile__ ("fint%.x %1, %0" : "=f" (__result) : "f" (__x));	  \
-  __asm __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
+  __asm__ __volatile__ ("fint%.x %1, %0" : "=f" (__result) : "f" (__x));	  \
+  __asm__ __volatile__ ("fmove%.l %0, %!" : /* No outputs.  */		  \
 		      : "dmi" (__ctrl_reg));				  \
   return __result;							  \
 }									  \

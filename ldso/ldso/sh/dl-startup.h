@@ -2,7 +2,7 @@
  * will work as expected and cope with whatever platform specific wierdness is
  * needed for this architecture.  */
 
-asm(
+__asm__(
     "	.text\n"
     "	.globl	_start\n"
     "	.type	_start,@function\n"

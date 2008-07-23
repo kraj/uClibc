@@ -206,7 +206,7 @@ __NTH (__signbitl (long double __x))
   __MATH_INLINE float_type __NTH (func (float_type __x))		      \
   {									      \
     register float_type __result;					      \
-    __asm __volatile__ (op : "=t" (__result) : params);			      \
+    __asm__ __volatile__ (op : "=t" (__result) : params);			      \
     return __result;							      \
   }
 
@@ -531,22 +531,22 @@ __inline_mathcodeNP (floor, __x, \
   register long double __value;						      \
   __volatile unsigned short int __cw;					      \
   __volatile unsigned short int __cwtmp;				      \
-  __asm __volatile ("fnstcw %0" : "=m" (__cw));				      \
+  __asm__ __volatile__ ("fnstcw %0" : "=m" (__cw));				      \
   __cwtmp = (__cw & 0xf3ff) | 0x0400; /* rounding down */		      \
-  __asm __volatile ("fldcw %0" : : "m" (__cwtmp));			      \
-  __asm __volatile ("frndint" : "=t" (__value) : "0" (__x));		      \
-  __asm __volatile ("fldcw %0" : : "m" (__cw));				      \
+  __asm__ __volatile__ ("fldcw %0" : : "m" (__cwtmp));			      \
+  __asm__ __volatile__ ("frndint" : "=t" (__value) : "0" (__x));		      \
+  __asm__ __volatile__ ("fldcw %0" : : "m" (__cw));				      \
   return __value)
 
 __inline_mathcodeNP (ceil, __x, \
   register long double __value;						      \
   __volatile unsigned short int __cw;					      \
   __volatile unsigned short int __cwtmp;				      \
-  __asm __volatile ("fnstcw %0" : "=m" (__cw));				      \
+  __asm__ __volatile__ ("fnstcw %0" : "=m" (__cw));				      \
   __cwtmp = (__cw & 0xf3ff) | 0x0800; /* rounding up */			      \
-  __asm __volatile ("fldcw %0" : : "m" (__cwtmp));			      \
-  __asm __volatile ("frndint" : "=t" (__value) : "0" (__x));		      \
-  __asm __volatile ("fldcw %0" : : "m" (__cw));				      \
+  __asm__ __volatile__ ("fldcw %0" : : "m" (__cwtmp));			      \
+  __asm__ __volatile__ ("frndint" : "=t" (__value) : "0" (__x));		      \
+  __asm__ __volatile__ ("fldcw %0" : : "m" (__cw));				      \
   return __value)
 
 #ifdef __FAST_MATH__
@@ -746,7 +746,7 @@ __inline_mathcode (__acosh1p, __x, \
 __inline_mathop (__ieee754_sqrt, "fsqrt")
 __inline_mathcode2 (__ieee754_atan2, __y, __x,
 		    register long double __value;
-		    __asm __volatile__ ("fpatan\n\t"
+		    __asm__ __volatile__ ("fpatan\n\t"
 					: "=t" (__value)
 					: "0" (__x), "u" (__y) : "st(1)");
 		    return __value;)

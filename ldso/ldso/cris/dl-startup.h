@@ -6,7 +6,7 @@
  * can find argc, argv and auxvt (Auxillary Vector Table).  */
 #ifdef __arch_v32
 
-asm(""					\
+__asm__(""					\
 "	.text\n"			\
 "	.globl _start\n"		\
 "	.type _start,@function\n"	\
@@ -24,7 +24,7 @@ asm(""					\
 
 #else
 
-asm(""					\
+__asm__(""					\
 "	.text\n"			\
 "	.globl _start\n"		\
 "	.type _start,@function\n"	\
