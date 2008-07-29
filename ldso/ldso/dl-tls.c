@@ -431,7 +431,7 @@ _dl_determine_tlsoffset (void)
 /* This is called only when the data structure setup was skipped at startup,
    when there was no need for it then.  Now we have dynamically loaded
    something needing TLS, or libpthread needs it.  */
-hidden_proto(_dl_tls_setup)
+rtld_hidden_proto(_dl_tls_setup)
 int
 internal_function
 _dl_tls_setup (void)
@@ -458,7 +458,7 @@ _dl_tls_setup (void)
 
   return 0;
 }
-hidden_def (_dl_tls_setup)
+rtld_hidden_def (_dl_tls_setup)
 
 static void *
 internal_function
@@ -966,7 +966,7 @@ _dl_initial_error_catch_tsd (void)
 
 #ifdef SHARED
 void *init_tls (void);
-hidden_proto(init_tls)
+rtld_hidden_proto(init_tls)
 void *
 internal_function
 init_tls (void)
@@ -1041,6 +1041,6 @@ init_tls (void)
 
 	return tcbp;
 }
-hidden_def (init_tls)
+rtld_hidden_def (init_tls)
 #endif
 
