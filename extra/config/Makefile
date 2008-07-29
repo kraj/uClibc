@@ -37,7 +37,7 @@ clean:
 	$(Q)rm -f $(clean-files) conf
 distclean: clean
 	$(Q)rm -f $(lxdialog) $(conf-objs) $(mconf-objs) $(kxgettext-objs) \
-		$(hostprogs-y) $(qconf-cxxobjs) $(qconf-objs) $(gconf-objs)
+		$(hostprogs-y) $(qconf-cxxobjs) $(qconf-objs) $(gconf-objs) .depend
 
 FORCE:
 .PHONY: FORCE clean distclean
