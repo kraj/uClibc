@@ -26,7 +26,7 @@ NF == 1 { sub(/^.*$/, "& &"); }
 NF > 1 {
   name = $1;
   sub(/^[^ 	]+[ 	]+/, "");
-  printf "asm (\"@@@name@@@%s@@@value@@@%%0@@@end@@@\" : : \"i\" (%s));\n",
+  printf "__asm__ (\"@@@name@@@%s@@@value@@@%%0@@@end@@@\" : : \"i\" (%s));\n",
     name, $0;
 }
 

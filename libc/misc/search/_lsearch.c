@@ -1,7 +1,7 @@
 /*
  * This file lifted in toto from 'Dlibs' on the atari ST  (RdeBath)
  *
- * 
+ *
  *    Dale Schumacher                         399 Beacon Ave.
  *    (alias: Dalnefre')                      St. Paul, MN  55104
  *    dal@syntel.UUCP                         United States of America
@@ -36,7 +36,7 @@ libc_hidden_def(lfind)
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 
-void *lsearch(const void *key, void *base, size_t *nmemb, 
+void *lsearch(const void *key, void *base, size_t *nmemb,
 	size_t size, int (*compar)(const void *, const void *))
 {
 	register char *p;

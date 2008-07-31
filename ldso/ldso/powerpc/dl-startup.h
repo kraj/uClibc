@@ -4,7 +4,7 @@
  * Copyright (C) 2005 by Joakim Tjernlund
  */
 
-asm(
+__asm__(
     "	.text\n"
     "	.globl	_start\n"
     "	.type	_start,@function\n"

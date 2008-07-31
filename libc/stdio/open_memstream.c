@@ -144,7 +144,7 @@ FILE *open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
 		*cookie->buf = 0;		/* Set nul terminator for buffer. */
 		*(cookie->bufloc = bufloc) = cookie->buf;
 		*(cookie->sizeloc = sizeloc) = cookie->eof = cookie->pos = 0;
-		
+
 #ifndef __BCC__
 		fp = fopencookie(cookie, "w", _oms_io_funcs);
 #else

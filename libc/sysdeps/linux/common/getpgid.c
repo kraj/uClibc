@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 #define __NR___syscall_getpgid __NR_getpgid
-static inline _syscall1(__kernel_pid_t, __syscall_getpgid, __kernel_pid_t, pid);
+static __inline__ _syscall1(__kernel_pid_t, __syscall_getpgid, __kernel_pid_t, pid);
 
 pid_t getpgid(pid_t pid)
 {

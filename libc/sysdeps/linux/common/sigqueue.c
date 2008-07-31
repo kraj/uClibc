@@ -31,7 +31,7 @@ libc_hidden_proto(getuid)
 #ifdef __NR_rt_sigqueueinfo
 
 # define __NR___libc_rt_sigqueueinfo __NR_rt_sigqueueinfo
-static inline _syscall3(int, __libc_rt_sigqueueinfo, pid_t, pid, int, sig, void*, value);
+static __inline__ _syscall3(int, __libc_rt_sigqueueinfo, pid_t, pid, int, sig, void*, value);
 
 /* Return any pending signal or wait for one for the given time.  */
 int sigqueue (pid_t pid, int sig, const union sigval val)

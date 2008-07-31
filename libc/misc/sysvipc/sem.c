@@ -40,7 +40,7 @@ union semun {
 
 #ifdef __NR_semctl
 #define __NR___semctl __NR_semctl
-static inline _syscall4(int, __semctl, int, semid, int, semnum, int, cmd, void *, arg);
+static __inline__ _syscall4(int, __semctl, int, semid, int, semnum, int, cmd, void *, arg);
 #endif
 
 int semctl(int semid, int semnum, int cmd, ...)

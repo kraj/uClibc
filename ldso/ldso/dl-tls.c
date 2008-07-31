@@ -985,7 +985,7 @@ init_tls (void)
 	size_t nelem = _dl_tls_max_dtv_idx + 1 + TLS_SLOTINFO_SURPLUS;
 
 	/* Allocate.  */
-    _dl_assert (_dl_tls_dtv_slotinfo_list == NULL);
+	_dl_assert (_dl_tls_dtv_slotinfo_list == NULL);
 	_dl_tls_dtv_slotinfo_list = (struct dtv_slotinfo_list *)
 		_dl_calloc (sizeof (struct dtv_slotinfo_list)
 			+ nelem * sizeof (struct dtv_slotinfo), 1);

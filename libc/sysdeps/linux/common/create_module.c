@@ -19,7 +19,7 @@ unsigned long create_module(const char *name, size_t size);
 
 #if defined(__UCLIBC_BROKEN_CREATE_MODULE__)
 # define __NR___create_module  __NR_create_module
-static inline _syscall2(long, __create_module, const char *, name, size_t, size);
+static __inline__ _syscall2(long, __create_module, const char *, name, size_t, size);
 /* By checking the value of errno, we know if we have been fooled
  * by the syscall2 macro making a very high address look like a
  * negative, so we we fix it up here.  */
@@ -38,7 +38,7 @@ unsigned long create_module(const char *name, size_t size)
 # define __NR___create_module  __NR_create_module
 /* Alpha doesn't have the same problem, exactly, but a bug in older
    kernels fails to clear the error flag.  Clear it here explicitly.  */
-static inline _syscall4(unsigned long, __create_module, const char *, name,
+static __inline__ _syscall4(unsigned long, __create_module, const char *, name,
 			size_t, size, size_t, dummy, size_t, err);
 unsigned long create_module(const char *name, size_t size)
 {

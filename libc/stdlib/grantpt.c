@@ -58,7 +58,7 @@ grantpt (attribute_unused int fd)
 
   if (pts_name (fd, &buf, sizeof (_buf)))
     return -1;
-  
+
   if (statfs (buf, &fsbuf) < 0)
     return -1;
 

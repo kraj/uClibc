@@ -34,7 +34,7 @@
 libc_hidden_proto(getpid)
 
 #define __NR___syscall_sched_setaffinity __NR_sched_setaffinity
-static inline _syscall3(int, __syscall_sched_setaffinity, __kernel_pid_t, pid,
+static __inline__ _syscall3(int, __syscall_sched_setaffinity, __kernel_pid_t, pid,
 			size_t, cpusetsize, cpu_set_t *, cpuset);
 
 static size_t __kernel_cpumask_size;

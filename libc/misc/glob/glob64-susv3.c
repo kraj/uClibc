@@ -16,5 +16,5 @@
 #define globfree(pglob) globfree64 (pglob)
 
 #define __GLOB64    1
-    
+
 #include "glob-susv3.c"

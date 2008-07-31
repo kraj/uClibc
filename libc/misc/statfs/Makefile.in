@@ -7,7 +7,10 @@
 
 CSRC := statvfs.c fstatvfs.c
 ifeq ($(UCLIBC_HAS_LFS),y)
-CSRC += fstatfs64.c statfs64.c statvfs64.c fstatvfs64.c
+ifeq ($(UCLIBC_LINUX_SPECIFIC),y)
+CSRC += fstatfs64.c statfs64.c
+endif
+CSRC += statvfs64.c fstatvfs64.c
 endif
 
 MISC_STATFS_DIR := $(top_srcdir)libc/misc/statfs

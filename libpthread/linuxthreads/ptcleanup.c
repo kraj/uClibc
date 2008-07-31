@@ -28,7 +28,7 @@
 #endif
 
 #ifndef NO_PTR_DEMANGLE
-static inline uintptr_t
+static __inline__ uintptr_t
 demangle_ptr (uintptr_t x)
 {
 #ifdef PTR_DEMANGLE

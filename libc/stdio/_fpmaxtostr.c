@@ -19,7 +19,7 @@ typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
 
 /* Copyright (C) 2000, 2001, 2003      Manuel Novoa III
  *
- * Function: 
+ * Function:
  *
  *     ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
  *                         __fp_outfunc_t fp_outfunc);
@@ -185,7 +185,7 @@ static const __fpmax_t exp16_table[] = {
 #if FPMAX_MAX_EXP >= 16384
 	0x1.0p16384L
 #endif
-#if FPMAX_MAX_EXP >= 32768 
+#if FPMAX_MAX_EXP >= 32768
 #error unsupported FPMAX_MAX_EXP.  please increase table
 #endif
 };
@@ -410,7 +410,7 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 	if (mode < 'a') {
 		*exp_buf -= ('a' - 'A'); /* e->E and p->P */
 		mode += ('a' - 'A');
-	} 
+	}
 
 	o_mode = mode;
 	if ((mode == 'g') && (preci > 0)){
@@ -450,7 +450,7 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
 	if ((mode|0x20) == 'a') {
 		char *q;
-			
+
 		for (q = e ; *q ; --q) {
 			if (*q > '9') {
 				*q += (*exp_buf - ('p' - 'a') - '9' - 1);

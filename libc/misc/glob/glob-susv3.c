@@ -235,7 +235,7 @@ int glob(const char *pat, int flags, int (*errfunc)(const char *path, int err), 
 	size_t cnt, i;
 	size_t offs = (flags & GLOB_DOOFFS) ? g->gl_offs : 0;
 	int error = 0;
-	
+
 	if (*p == '/') {
 		for (; *p == '/'; p++);
 		d = "/";
@@ -256,7 +256,7 @@ int glob(const char *pat, int flags, int (*errfunc)(const char *path, int err), 
 		__glob_freelist(&head);
 		return error;
 	}
-	
+
 	for (cnt=0, tail=head.next; tail; tail=tail->next, cnt++);
 	if (!cnt) {
 		if (flags & GLOB_NOCHECK) {
@@ -292,7 +292,7 @@ int glob(const char *pat, int flags, int (*errfunc)(const char *path, int err), 
 
 	if (!(flags & GLOB_NOSORT))
 		qsort(g->gl_pathv+offs, cnt, sizeof(char *), __glob_sort);
-	
+
 	return error;
 }
 #ifdef __GLOB64

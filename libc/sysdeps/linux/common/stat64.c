@@ -18,7 +18,7 @@ libc_hidden_proto(stat64)
 # include <sys/stat.h>
 # include "xstatconv.h"
 
-static inline _syscall2(int, __syscall_stat64,
+static __inline__ _syscall2(int, __syscall_stat64,
 		const char *, file_name, struct kernel_stat64 *, buf);
 
 int stat64(const char *file_name, struct stat64 *buf)

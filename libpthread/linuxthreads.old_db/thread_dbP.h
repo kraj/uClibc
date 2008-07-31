@@ -89,7 +89,7 @@ struct agent_list
 extern struct agent_list *__td_agent_list attribute_hidden;
 
 /* Function used to test for correct thread agent pointer.  */
-static inline int
+static __inline__ int
 ta_ok (const td_thragent_t *ta)
 {
   struct agent_list *runp = __td_agent_list;

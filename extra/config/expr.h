@@ -184,12 +184,12 @@ void expr_fprint(struct expr *e, FILE *out);
 struct gstr; /* forward */
 void expr_gstr_print(struct expr *e, struct gstr *gs);
 
-static inline int expr_is_yes(struct expr *e)
+static __inline__ int expr_is_yes(struct expr *e)
 {
 	return !e || (e->type == E_SYMBOL && e->left.sym == &symbol_yes);
 }
 
-static inline int expr_is_no(struct expr *e)
+static __inline__ int expr_is_no(struct expr *e)
 {
 	return e && (e->type == E_SYMBOL && e->left.sym == &symbol_no);
 }

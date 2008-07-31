@@ -171,7 +171,7 @@ do \
     } \
 \
 } \
-while (0)  
+while (0)
 
 /* We want want to apply all relocations in the interpreter during
    bootstrap.  Because of this, we have to skip the interpreter
@@ -213,7 +213,7 @@ while (0)
 #endif
 
 #include <elf.h>
-static inline void
+static __inline__ void
 elf_machine_relative (DL_LOADADDR_TYPE load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
 {

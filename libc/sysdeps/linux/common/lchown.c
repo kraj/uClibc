@@ -22,7 +22,7 @@ _syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group);
 #else
 
 # define __NR___syscall_lchown __NR_lchown
-static inline _syscall3(int, __syscall_lchown, const char *, path,
+static __inline__ _syscall3(int, __syscall_lchown, const char *, path,
 		__kernel_uid_t, owner, __kernel_gid_t, group);
 
 int lchown(const char *path, uid_t owner, gid_t group)

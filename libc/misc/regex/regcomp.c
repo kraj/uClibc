@@ -120,7 +120,7 @@ static bin_tree_t *duplicate_tree (const bin_tree_t *src, re_dfa_t *dfa);
 static void free_token (re_token_t *node);
 static reg_errcode_t free_tree (void *extra, bin_tree_t *node);
 static reg_errcode_t mark_opt_subexp (void *extra, bin_tree_t *node);
-
+
 /* This table gives an error message for each of the error codes listed
    in regex.h.  Obviously the order here has to be same as there.
    POSIX doesn't require that we do anything for REG_NOERROR,
@@ -200,7 +200,7 @@ const size_t __re_error_msgid_idx[] attribute_hidden =
     REG_ESIZE_IDX,
     REG_ERPAREN_IDX
   };
-
+
 /* Entry points for GNU code.  */
 
 /* re_compile_pattern is the GNU regular expression compiler: it
@@ -286,7 +286,7 @@ re_compile_fastmap (bufp)
 strong_alias(__re_compile_fastmap, re_compile_fastmap)
 #endif
 
-static inline void
+static __inline__ void
 __attribute ((always_inline))
 re_set_fastmap (char *fastmap, int icase, int ch)
 {
@@ -406,7 +406,7 @@ re_compile_fastmap_iter (regex_t *bufp, const re_dfastate_t *init_state,
 	}
     }
 }
-
+
 /* Entry point for POSIX code.  */
 /* regcomp takes a regular expression as a string and compiles it.
 
@@ -632,7 +632,7 @@ regfree (preg)
 #if defined _LIBC || defined __UCLIBC__
 strong_alias(__regfree, regfree)
 #endif
-
+
 /* Entry points compatible with 4.2 BSD regex library.  We don't define
    them unless specifically requested.  */
 
@@ -701,7 +701,7 @@ libc_freeres_fn (free_mem)
 #endif
 
 #endif /* _REGEX_RE_COMP */
-
+
 /* Internal entry point.
    Compile the regular expression PATTERN, whose length is LENGTH.
    SYNTAX indicate regular expression's syntax.  */
@@ -1019,7 +1019,7 @@ create_initial_state (re_dfa_t *dfa)
   re_node_set_free (&init_nodes);
   return REG_NOERROR;
 }
-
+
 #ifdef RE_ENABLE_I18N
 /* If it is possible to do searching in single byte encoding instead of UTF-8
    to speed things up, set dfa->mb_cur_max to 1, clear is_utf8 and change
@@ -1089,7 +1089,7 @@ optimize_utf8 (re_dfa_t *dfa)
   dfa->has_mb_node = dfa->nbackref > 0 || has_period;
 }
 #endif
-
+
 /* Analyze the structure tree, and calculate "first", "next", "edest",
    "eclosure", and "inveclosure".  */
 
@@ -1700,7 +1700,7 @@ calc_eclosure_iter (re_node_set *new_set, re_dfa_t *dfa, int node, int root)
   *new_set = eclosure;
   return REG_NOERROR;
 }
-
+
 /* Functions for token which are used in the parser.  */
 
 /* Fetch a token from INPUT.
@@ -2037,7 +2037,7 @@ peek_token_bracket (re_token_t *token, re_string_t *input, reg_syntax_t syntax)
     }
   return 1;
 }
-
+
 /* Functions for parser.  */
 
 /* Entry point of the parser.
@@ -2721,7 +2721,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
      Seek the collating symbol entry correspondings to NAME.
      Return the index of the symbol in the SYMB_TABLE.  */
 
-  auto inline int32_t
+  auto __inline__ int32_t
   __attribute ((always_inline))
   seek_collating_symbol_entry (name, name_len)
 	 const unsigned char *name;
@@ -2759,7 +2759,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
      Look up the collation sequence value of BR_ELEM.
      Return the value if succeeded, UINT_MAX otherwise.  */
 
-  auto inline unsigned int
+  auto __inline__ unsigned int
   __attribute ((always_inline))
   lookup_collation_sequence_value (br_elem)
 	 bracket_elem_t *br_elem;
@@ -2827,7 +2827,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
      mbcset->range_ends, is a pointer argument sinse we may
      update it.  */
 
-  auto inline reg_errcode_t
+  auto __inline__ reg_errcode_t
   __attribute ((always_inline))
   build_range_exp (sbcset, mbcset, range_alloc, start_elem, end_elem)
 	 re_charset_t *mbcset;
@@ -2910,7 +2910,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
      COLL_SYM_ALLOC is the allocated size of mbcset->coll_sym, is a
      pointer argument sinse we may update it.  */
 
-  auto inline reg_errcode_t
+  auto __inline__ reg_errcode_t
   __attribute ((always_inline))
   build_collating_symbol (sbcset, mbcset, coll_sym_alloc, name)
 	 re_charset_t *mbcset;
@@ -3660,7 +3660,7 @@ fetch_number (re_string_t *input, re_token_t *token, reg_syntax_t syntax)
     }
   return num;
 }
-
+
 #ifdef RE_ENABLE_I18N
 static void
 free_charset (re_charset_t *cset)
@@ -3676,7 +3676,7 @@ free_charset (re_charset_t *cset)
   re_free (cset);
 }
 #endif /* RE_ENABLE_I18N */
-
+
 /* Functions for binary tree operation.  */
 
 /* Create a tree node.  */

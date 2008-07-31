@@ -116,38 +116,38 @@ struct property *prop_alloc(enum prop_type type, struct symbol *sym);
 struct symbol *prop_get_symbol(struct property *prop);
 struct property *sym_get_env_prop(struct symbol *sym);
 
-static inline tristate sym_get_tristate_value(struct symbol *sym)
+static __inline__ tristate sym_get_tristate_value(struct symbol *sym)
 {
 	return sym->curr.tri;
 }
 
 
-static inline struct symbol *sym_get_choice_value(struct symbol *sym)
+static __inline__ struct symbol *sym_get_choice_value(struct symbol *sym)
 {
 	return (struct symbol *)sym->curr.val;
 }
 
-static inline bool sym_set_choice_value(struct symbol *ch, struct symbol *chval)
+static __inline__ bool sym_set_choice_value(struct symbol *ch, struct symbol *chval)
 {
 	return sym_set_tristate_value(chval, yes);
 }
 
-static inline bool sym_is_choice(struct symbol *sym)
+static __inline__ bool sym_is_choice(struct symbol *sym)
 {
 	return sym->flags & SYMBOL_CHOICE ? true : false;
 }
 
-static inline bool sym_is_choice_value(struct symbol *sym)
+static __inline__ bool sym_is_choice_value(struct symbol *sym)
 {
 	return sym->flags & SYMBOL_CHOICEVAL ? true : false;
 }
 
-static inline bool sym_is_optional(struct symbol *sym)
+static __inline__ bool sym_is_optional(struct symbol *sym)
 {
 	return sym->flags & SYMBOL_OPTIONAL ? true : false;
 }
 
-static inline bool sym_has_value(struct symbol *sym)
+static __inline__ bool sym_has_value(struct symbol *sym)
 {
 	return sym->flags & SYMBOL_DEF_USER ? true : false;
 }

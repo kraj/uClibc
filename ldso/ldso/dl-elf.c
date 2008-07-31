@@ -603,11 +603,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					return NULL;
 				}
 
-				if (! piclib2map)
+				if (! piclib2map) {
 				  DL_INIT_LOADADDR_HDR
 				    (lib_loadaddr, status
 				     + (ppnt->p_vaddr & ADDR_ALIGN), ppnt);
-
+				}
 				/* Now we want to allocate and
 				   zero-out any data from the end of
 				   the region we mapped in from the

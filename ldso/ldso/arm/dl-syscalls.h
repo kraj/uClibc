@@ -9,7 +9,7 @@ extern int _dl_errno;
  * provides them, so define them here (only required for thumb).
  */
 #if defined(__thumb__)
-asm(
+__asm__(
 	".macro call_via register\n"
 	"	.global	_call_via_\\register\n"
 	"	.hidden	_call_via_\\register\n"

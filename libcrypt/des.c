@@ -82,8 +82,8 @@ static u_int32_t old_salt;
 static u_int32_t old_rawkey0, old_rawkey1;
 
 
-/* Static stuff that stays resident and doesn't change after 
- * being initialized, and therefore doesn't need to be made 
+/* Static stuff that stays resident and doesn't change after
+ * being initialized, and therefore doesn't need to be made
  * reentrant. */
 static u_char	init_perm[64], final_perm[64];
 static u_char	m_sbox[4][4096];
@@ -195,7 +195,7 @@ static const u_int32_t bits32[32] =
 static const u_char	bits8[8] = { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
 
 
-static int 
+static int
 ascii_to_bin(char ch)
 {
 	if (ch > 'z')
@@ -699,7 +699,7 @@ char *__des_crypt(const unsigned char *key, const unsigned char *setting)
 		 */
 		output[9] = '\0';
 		p = (u_char *)output + strlen(output);
-	} else 
+	} else
 #endif
 	{
 		/*

@@ -67,7 +67,7 @@ int test2(void)
 	} else {
 		free(ptr);
 	}
-	
+
 	ptr = malloc(100);
 	ptr = realloc(ptr, 0);
 	if (ptr) {

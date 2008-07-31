@@ -12,7 +12,7 @@
 #ifdef __NR_timer_gettime
 
 #define __NR___syscall_timer_gettime __NR_timer_gettime
-static inline _syscall2(int, __syscall_timer_gettime, kernel_timer_t, ktimerid,
+static __inline__ _syscall2(int, __syscall_timer_gettime, kernel_timer_t, ktimerid,
 			void *, value);
 
 /* Get the amount of time left on a timer */

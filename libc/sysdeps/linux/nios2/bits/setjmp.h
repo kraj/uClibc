@@ -45,7 +45,7 @@ typedef struct
 	/* floating point regs, if any */
 #if defined __HAVE_FPU__
     unsigned long __fpregs[64];
-#endif	
+#endif
 } __jmp_buf[1];
 
 #endif

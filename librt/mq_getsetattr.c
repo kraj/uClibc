@@ -12,7 +12,7 @@
 
 librt_hidden_proto(mq_setattr)
 #define __NR___syscall_mq_getsetattr __NR_mq_getsetattr
-static inline _syscall3(int, __syscall_mq_getsetattr, int, mqdes,
+static __inline__ _syscall3(int, __syscall_mq_getsetattr, int, mqdes,
 			const void *, mqstat, void *, omqstat);
 
 /*

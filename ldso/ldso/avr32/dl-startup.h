@@ -9,7 +9,7 @@
 /* This is the library loader's main entry point. Let _dl_boot2 do its
  * initializations and jump to the application's entry point
  * afterwards. */
-asm(	"	.text\n"
+__asm__("	.text\n"
 	"	.global	_start\n"
 	"	.type	_start,@function\n"
 	"_start:\n"

@@ -76,7 +76,7 @@ volatile pthread_descr __pthread_last_event;
 /* Stack segment numbers are also indices into the __pthread_handles array. */
 /* Stack segment number 0 is reserved for the initial thread. */
 
-static inline pthread_descr thread_segment(int seg)
+static __inline__ pthread_descr thread_segment(int seg)
 {
   return (pthread_descr)(THREAD_STACK_START_ADDRESS - (seg - 1) * STACK_SIZE)
          - 1;
@@ -206,7 +206,7 @@ int attribute_noreturn __pthread_manager(void *arg)
         pthread_handle_free(request.req_args.free.thread_id);
         break;
       case REQ_PROCESS_EXIT:
-        PDEBUG("got REQ_PROCESS_EXIT from %d, exit code = %d\n", 
+        PDEBUG("got REQ_PROCESS_EXIT from %d, exit code = %d\n",
         request.req_thread, request.req_args.exit.code);
         pthread_handle_exit(request.req_thread,
                             request.req_args.exit.code);
@@ -414,7 +414,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 	{
 	  stacksize = attr->__stacksize;
 	}
-      
+
       /* malloc a stack - memory from the bottom up */
       if ((new_thread_bottom = malloc(stacksize)) == NULL)
 	{
@@ -430,7 +430,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
        *
        *               ^ +------------------------+
        *               | |  pthread_descr struct  |
-       *               | +------------------------+  <- new_thread 
+       *               | +------------------------+  <- new_thread
        * malloc block  | |                        |
        *               | |  thread stack          |
        *               | |                        |
@@ -443,18 +443,18 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
       new_thread = ((pthread_descr) ((int)(new_thread_bottom + stacksize) & -sizeof(void*))) - 1;
       guardaddr = NULL;
       guardsize = 0;
-      
+
       PDEBUG("thread stack: bos=%p, tos=%p\n", new_thread_bottom, new_thread);
-      
+
       /* check the initial thread stack boundaries so they don't overlap */
       NOMMU_INITIAL_THREAD_BOUNDS((char *) new_thread, (char *) new_thread_bottom);
-      
-      PDEBUG("initial stack: bos=%p, tos=%p\n", __pthread_initial_thread_bos, 
+
+      PDEBUG("initial stack: bos=%p, tos=%p\n", __pthread_initial_thread_bos,
 	     __pthread_initial_thread_tos);
-      
+
       /* on non-MMU systems we always have non-standard stack frames */
       __pthread_nonstandard_stacks = 1;
-      
+
 #endif /* __ARCH_USE_MMU__ */
     }
 
@@ -567,7 +567,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   /* ******************************************************** */
   /*  This code was moved from below to cope with running threads
    *  on uClinux systems.  See comment below...
-   * Insert new thread in doubly linked list of active threads */ 
+   * Insert new thread in doubly linked list of active threads */
   new_thread->p_prevlive = __pthread_main_thread;
   new_thread->p_nextlive = __pthread_main_thread->p_nextlive;
   __pthread_main_thread->p_nextlive->p_prevlive = new_thread;
@@ -640,9 +640,9 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
     }
   /* Check if cloning succeeded */
   if (pid == -1) {
-    /******************************************************** 
+    /********************************************************
      * Code inserted to remove the thread from our list of active
-     * threads in case of failure (needed to cope with uClinux), 
+     * threads in case of failure (needed to cope with uClinux),
      * See comment below. */
     new_thread->p_nextlive->p_prevlive = new_thread->p_prevlive;
     new_thread->p_prevlive->p_nextlive = new_thread->p_nextlive;

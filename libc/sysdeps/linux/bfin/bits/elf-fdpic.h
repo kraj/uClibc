@@ -103,7 +103,7 @@ __reloc_pointer (void *p,
 	  || (offset == map->segs[c].p_memsz && c + 1 == map->nsegs))
 	return (char*)map->segs[c].addr + offset;
     }
-	     
+
   /* We might want to crash instead.  */
   return (void*)-1;
 }

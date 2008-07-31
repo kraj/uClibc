@@ -95,10 +95,10 @@
 #undef INTERNAL_SYSCALL
 #define INTERNAL_SYSCALL(name, err, nr, args...)			\
 	({								\
-		register int _a1 asm ("r12");				\
-		register int _scno asm("r8") = SYS_ify(name);		\
+		register int _a1 __asm__("r12");			\
+		register int _scno __asm__("r8") = SYS_ify(name);	\
 		LOAD_ARGS_##nr (args);					\
-		asm volatile ("scall	/* syscall " #name " */"	\
+		__asm__ __volatile__("scall	/* syscall " #name " */" \
 			      : "=r" (_a1)				\
 			      : "r"(_scno) ASM_ARGS_##nr		\
 			      : "cc", "memory");			\
@@ -119,23 +119,23 @@
 	LOAD_ARGS_0()
 #define ASM_ARGS_1	ASM_ARGS_0, "r"(_a1)
 #define LOAD_ARGS_2(a1, a2)				\
-	register int _a2 asm("r11") = (int)(a2);	\
+	register int _a2 __asm__("r11") = (int)(a2);	\
 	LOAD_ARGS_1(a1)
 #define ASM_ARGS_2	ASM_ARGS_1, "r"(_a2)
 #define LOAD_ARGS_3(a1, a2, a3)				\
-	register int _a3 asm("r10") = (int)(a3);	\
+	register int _a3 __asm__("r10") = (int)(a3);	\
 	LOAD_ARGS_2(a1, a2)
 #define ASM_ARGS_3	ASM_ARGS_2, "r"(_a3)
 #define LOAD_ARGS_4(a1, a2, a3, a4)			\
-	register int _a4 asm("r9") = (int)(a4);		\
+	register int _a4 __asm__("r9") = (int)(a4);	\
 	LOAD_ARGS_3(a1, a2, a3)
 #define ASM_ARGS_4	ASM_ARGS_3, "r"(_a4)
 #define LOAD_ARGS_5(a1, a2, a3, a4, a5)			\
-	register int _a5 asm("r5") = (int)(a5);		\
+	register int _a5 __asm__("r5") = (int)(a5);	\
 	LOAD_ARGS_4(a1, a2, a3, a4)
 #define ASM_ARGS_5	ASM_ARGS_4, "r"(_a5)
 #define LOAD_ARGS_6(a1, a2, a3, a4, a5, a6)		\
-	register int _a6 asm("r3") = (int)(a6);		\
+	register int _a6 __asm__("r3") = (int)(a6);	\
 	LOAD_ARGS_5(a1, a2, a3, a4, a5)
 #define ASM_ARGS_6	ASM_ARGS_5, "r"(_a6)
 

@@ -121,7 +121,7 @@ static const struct random_poly_info random_poly_info =
 
 
 
-
+
 /* If we are using the trivial TYPE_0 R.N.G., just do the old linear
    congruential bit.  Otherwise, we do our fancy trinomial stuff, which is the
    same in all the other cases due to all the global variables that have been

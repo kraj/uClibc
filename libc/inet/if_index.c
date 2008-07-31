@@ -50,7 +50,7 @@ extern int __opensock(void) attribute_hidden;
 
 libc_hidden_proto(if_nametoindex)
 unsigned int
-if_nametoindex(const char* ifname) 
+if_nametoindex(const char* ifname)
 {
 #ifndef SIOCGIFINDEX
   __set_errno (ENOSYS);

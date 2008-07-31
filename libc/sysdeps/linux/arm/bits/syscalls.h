@@ -5,7 +5,7 @@
 #endif
 
 /*
-   Some of the sneaky macros in the code were taken from 
+   Some of the sneaky macros in the code were taken from
    glibc-2.3.2/sysdeps/unix/sysv/linux/arm/sysdep.h
 */
 
@@ -65,7 +65,7 @@ return (type) (INLINE_SYSCALL(name, 3, arg1, arg2, arg3)); \
 type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
 { \
 return (type) (INLINE_SYSCALL(name, 4, arg1, arg2, arg3, arg4)); \
-} 
+}
 
 #undef _syscall5
 #define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
@@ -145,13 +145,13 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
     {									\
       int _sys_buf[2];							\
       register int _a1 __asm__ ("a1");					\
-      register int *_v3 asm ("v3") = _sys_buf;				\
+      register int *_v3 __asm__ ("v3") = _sys_buf;			\
       *_v3 = (int) (SYS_ify(name));					\
       LOAD_ARGS_##nr (args)						\
-      asm volatile ("str	r7, [v3, #4]\n"				\
-		    "\tldr      r7, [v3]\n"                     	\
-		    "\tswi      0       @ syscall " #name "\n"		\
-		    "\tldr      r7, [v3, #4]"                   	\
+      __asm__ __volatile__ ("str	r7, [v3, #4]\n"			\
+		    "\tldr	r7, [v3]\n"				\
+		    "\tswi	0	@ syscall " #name "\n"		\
+		    "\tldr	r7, [v3, #4]"				\
 		    : "=r" (_a1)					\
 		    : "r" (_v3) ASM_ARGS_##nr				\
                     : "memory");					\

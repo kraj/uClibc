@@ -25,7 +25,7 @@
 /* When there is kernel support for more than 64 signals, we'll have to
    switch to a new system call convention here.  */
 
-static inline _syscall2(int, osf_sigprocmask, int, how, unsigned long int, setval);
+static __inline__ _syscall2(int, osf_sigprocmask, int, how, unsigned long int, setval);
 
 libc_hidden_proto(sigprocmask)
 int

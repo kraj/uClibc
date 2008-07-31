@@ -101,7 +101,7 @@ __BEGIN_DECLS
      && (!defined __NO_LONG_DOUBLE_MATH || defined __LDBL_COMPAT)
 #  ifdef __LDBL_COMPAT
 
-#   ifdef __USE_ISOC99 
+#   ifdef __USE_ISOC99
 extern float __nldbl_nexttowardf (float __x, long double __y)
 				  __THROW __attribute__ ((__const__));
 #    ifdef __REDIRECT_NTH

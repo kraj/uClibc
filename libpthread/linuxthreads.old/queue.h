@@ -18,7 +18,7 @@
    linked through their p_nextwaiting field.  The lists are kept
    sorted by decreasing priority, and then decreasing waiting time. */
 
-static inline void enqueue(pthread_descr * q, pthread_descr th)
+static __inline__ void enqueue(pthread_descr * q, pthread_descr th)
 {
   int prio = th->p_priority;
   for (; *q != NULL; q = &((*q)->p_nextwaiting)) {
@@ -31,7 +31,7 @@ static inline void enqueue(pthread_descr * q, pthread_descr th)
   *q = th;
 }
 
-static inline pthread_descr dequeue(pthread_descr * q)
+static __inline__ pthread_descr dequeue(pthread_descr * q)
 {
   pthread_descr th;
   th = *q;
@@ -42,7 +42,7 @@ static inline pthread_descr dequeue(pthread_descr * q)
   return th;
 }
 
-static inline int remove_from_queue(pthread_descr * q, pthread_descr th)
+static __inline__ int remove_from_queue(pthread_descr * q, pthread_descr th)
 {
   for (; *q != NULL; q = &((*q)->p_nextwaiting)) {
     if (*q == th) {
@@ -54,7 +54,7 @@ static inline int remove_from_queue(pthread_descr * q, pthread_descr th)
   return 0;
 }
 
-static inline int queue_is_empty(pthread_descr * q)
+static __inline__ int queue_is_empty(pthread_descr * q)
 {
     return *q == NULL;
 }

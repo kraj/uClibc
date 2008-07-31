@@ -5,7 +5,7 @@
 #endif
 
 /*
-   Some of the sneaky macros in the code were taken from 
+   Some of the sneaky macros in the code were taken from
    glibc .../sysdeps/unix/sysv/linux/xtensa/sysdep.h
 */
 
@@ -123,7 +123,7 @@
 #define C_DECL_ARGS_5(t, v, args...)	t v, C_DECL_ARGS_4(args)
 #define C_DECL_ARGS_6(t, v, args...)	t v, C_DECL_ARGS_5(args)
 
-#define C_ARGS_0()	
+#define C_ARGS_0()
 #define C_ARGS_1(t, v)			v
 #define C_ARGS_2(t, v, args...)		v, C_ARGS_1 (args)
 #define C_ARGS_3(t, v, args...)		v, C_ARGS_2 (args)

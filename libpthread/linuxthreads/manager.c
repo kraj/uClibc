@@ -68,7 +68,7 @@ static pthread_descr manager_thread;
 #if FLOATING_STACKS
 # define thread_segment(seq) NULL
 #else
-static inline pthread_descr thread_segment(int seg)
+static __inline__ pthread_descr thread_segment(int seg)
 {
 # ifdef _STACK_GROWS_UP
   return (pthread_descr)(THREAD_STACK_START_ADDRESS + (seg - 1) * STACK_SIZE)

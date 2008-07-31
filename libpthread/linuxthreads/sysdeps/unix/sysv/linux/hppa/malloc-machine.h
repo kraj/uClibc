@@ -1,9 +1,9 @@
-/* HP-PARISC macro definitions for mutexes, thread-specific data 
+/* HP-PARISC macro definitions for mutexes, thread-specific data
    and parameters for malloc.
    Copyright (C) 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Carlos O'Donell <carlos@baldric.uwo.ca>, 2003.
-   
+
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
@@ -43,7 +43,7 @@ __libc_lock_define (typedef, mutex_t)
 #  define mutex_unlock(m)	\
 	__libc_maybe_call (__pthread_mutex_unlock, (m), \
 			(((m)->__m_lock.__spinlock = __LT_SPINLOCK_INIT), (*(int *)(m))) )
-	
+
 /* This is defined by newer gcc version unique for each module.  */
 extern void *__dso_handle __attribute__ ((__weak__));
 

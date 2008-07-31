@@ -33,7 +33,7 @@
 /* Copyright (C) 2000, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Maciej W. Rozycki <macro@ds2.pg.gda.pl>, 2000.  */
-static inline int
+static __inline__ int
 __NTH (_test_and_set (int *p, int v))
 {
   int r, t;

@@ -7,7 +7,7 @@
 
 
 #include <sgidefs.h>
-asm(""
+__asm__(""
     "	.text\n"
     "	.globl	_start\n"
     "	.ent	_start\n"

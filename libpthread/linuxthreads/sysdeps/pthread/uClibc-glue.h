@@ -40,7 +40,7 @@ extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 # define __uselocale(x) ((void)0)
 #endif
 
-/* Use a funky version in a probably vein attempt at preventing gdb 
+/* Use a funky version in a probably vein attempt at preventing gdb
  * from dlopen()'ing glibc's libthread_db library... */
 #define STRINGIFY(s) STRINGIFY2 (s)
 #define STRINGIFY2(s) #s

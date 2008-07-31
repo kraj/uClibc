@@ -84,7 +84,7 @@ int getopt(int argc, char * const argv[], const char *optstring)
 		retval = '?';
 		goto BAD;
 	}
-	
+
 	if (s[1] == ':') {			/* Option takes an arg? */
 		if (o[1]) {					/* No space between option and arg? */
 			optarg = (char *)(o + 1);

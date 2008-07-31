@@ -14,7 +14,7 @@
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, write to the Free
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  
+   02111-1307 USA.
    */
 
 /* Modified for uClibc by Erik Andersen
@@ -36,7 +36,7 @@ libc_hidden_proto(closedir)
 libc_hidden_proto(qsort)
 libc_hidden_proto(readdir64)
 
-int scandir64(const char *dir, struct dirent64 ***namelist, 
+int scandir64(const char *dir, struct dirent64 ***namelist,
 	int (*selector) (const struct dirent64 *),
 	int (*compar) (const void *, const void *))
 {

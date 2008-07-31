@@ -61,9 +61,9 @@ int tcgetattr (int fd, struct termios *termios_p)
 	memset (mempcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
 		    __KERNEL_NCCS * sizeof (cc_t)),
 		_POSIX_VDISABLE, (NCCS - __KERNEL_NCCS) * sizeof (cc_t));
-#if 0	
+#if 0
 	memset ( (memcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
-			__KERNEL_NCCS * sizeof (cc_t)) + (__KERNEL_NCCS * sizeof (cc_t))) , 
+			__KERNEL_NCCS * sizeof (cc_t)) + (__KERNEL_NCCS * sizeof (cc_t))) ,
 		_POSIX_VDISABLE, (NCCS - __KERNEL_NCCS) * sizeof (cc_t));
 #endif
     } else {

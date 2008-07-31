@@ -12,7 +12,7 @@
 #ifdef __NR_timer_settime
 
 #define __NR___syscall_timer_settime __NR_timer_settime
-static inline _syscall4(int, __syscall_timer_settime, kernel_timer_t, ktimerid,
+static __inline__ _syscall4(int, __syscall_timer_settime, kernel_timer_t, ktimerid,
 			int, flags, const void *, value, void *, ovalue);
 
 /* Set the expiration time for a timer */

@@ -30,6 +30,7 @@ endif
 ifeq ($(UCLIBC_ONLY),)
 TARGETS   += $(G_TARGETS)
 endif
+
 CLEAN_TARGETS := $(U_TARGETS) $(G_TARGETS)
 COMPILE_TARGETS :=  $(TARGETS)
 RUN_TARGETS := $(patsubst %,%.exe,$(TARGETS))
@@ -64,7 +65,6 @@ define exec_test
 		test -z "$$expected_ret" && export expected_ret=0 ; \
 	if ! test $$ret -eq $$expected_ret ; then \
 		echo "ret == $$ret ; expected_ret == $$expected_ret" ; \
-		cat "$(binary_name).out" ; \
 		exit 1 ; \
 	fi
 	$(SCAT) "$(binary_name).out"

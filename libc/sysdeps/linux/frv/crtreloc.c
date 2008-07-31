@@ -70,7 +70,7 @@ __self_reloc (const struct elf32_fdpic_loadmap *map,
 
   if (p >= e)
     return (void*)-1;
-  
+
   return __reloc_pointer (*p, map);
 }
 

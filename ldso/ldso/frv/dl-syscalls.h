@@ -16,7 +16,7 @@ extern int _dl_errno;
 
 #if DYNAMIC_LOADER_IN_SIMULATOR
 #define __NR___syscall_mmap2	    __NR_mmap2
-static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr, 
+static __inline__ _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
 	size_t, len, int, prot, int, flags, int, fd, off_t, offset);
 
 /* Make sure we don't get another definition of _dl_mmap from the

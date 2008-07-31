@@ -15,7 +15,7 @@ FILE *fdopen(int filedes, const char *mode)
 	intptr_t cur_mode;
 
 	return (((cur_mode = fcntl(filedes, F_GETFL))) != -1)
-		? _stdio_fopen(cur_mode, mode, NULL, filedes) 
+		? _stdio_fopen(cur_mode, mode, NULL, filedes)
 		: NULL;
 }
 libc_hidden_def(fdopen)

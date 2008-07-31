@@ -65,13 +65,13 @@ extern int __syscall_rt_sigqueueinfo (int, int, siginfo_t *);
 
 
 /* List handling functions.  */
-static inline void
+static __inline__ void
 list_init (struct list_links *list)
 {
   list->next = list->prev = list;
 }
 
-static inline void
+static __inline__ void
 list_append (struct list_links *list, struct list_links *newp)
 {
   newp->prev = list->prev;
@@ -80,7 +80,7 @@ list_append (struct list_links *list, struct list_links *newp)
   list->prev = newp;
 }
 
-static inline void
+static __inline__ void
 list_insbefore (struct list_links *list, struct list_links *newp)
 {
   list_append (list, newp);
@@ -91,7 +91,7 @@ list_insbefore (struct list_links *list, struct list_links *newp)
  * is already unlinked is disastrous rather than a noop.
  */
 
-static inline void
+static __inline__ void
 list_unlink (struct list_links *list)
 {
   struct list_links *lnext = list->next, *lprev = list->prev;
@@ -100,25 +100,25 @@ list_unlink (struct list_links *list)
   lprev->next = lnext;
 }
 
-static inline struct list_links *
+static __inline__ struct list_links *
 list_first (struct list_links *list)
 {
   return list->next;
 }
 
-static inline struct list_links *
+static __inline__ struct list_links *
 list_null (struct list_links *list)
 {
   return list;
 }
 
-static inline struct list_links *
+static __inline__ struct list_links *
 list_next (struct list_links *list)
 {
   return list->next;
 }
 
-static inline int
+static __inline__ int
 list_isempty (struct list_links *list)
 {
   return list->next == list;
@@ -126,14 +126,14 @@ list_isempty (struct list_links *list)
 
 
 /* Functions build on top of the list functions.  */
-static inline struct thread_node *
+static __inline__ struct thread_node *
 thread_links2ptr (struct list_links *list)
 {
   return (struct thread_node *) ((char *) list
 				 - offsetof (struct thread_node, links));
 }
 
-static inline struct timer_node *
+static __inline__ struct timer_node *
 timer_links2ptr (struct list_links *list)
 {
   return (struct timer_node *) ((char *) list

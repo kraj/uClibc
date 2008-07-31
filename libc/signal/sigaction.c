@@ -52,7 +52,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 		kact.sa_restorer = act->sa_restorer;
 # endif
 	}
-	
+
 	/* XXX The size argument hopefully will have to be changed to the
 	   real size of the user-level sigset_t.  */
 	result = __syscall_rt_sigaction(sig,

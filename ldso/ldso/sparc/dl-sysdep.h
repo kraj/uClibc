@@ -49,7 +49,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
 #ifndef COMPILE_ASM
 /* Cheap modulo implementation, taken from arm/ld_sysdep.h. */
-static inline unsigned long
+static __inline__ unsigned long
 sparc_mod(unsigned long m, unsigned long p)
 {
 	unsigned long i, t, inc;
@@ -127,29 +127,29 @@ do {    register Elf32_Addr pc __asm__("o7"); \
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
    first element of the GOT.  This must be inlined in a function which
    uses global data.  */
-static inline Elf32_Addr
+static __inline__ Elf32_Addr
 elf_machine_dynamic (void)
 {
 	register Elf32_Addr *got __asm__ ("%l7");
-	
+
 	LOAD_PIC_REG (got);
-	
+
 	return *got;
 }
 
 /* Return the run-time load address of the shared object.  */
-static inline Elf32_Addr
+static __inline__ Elf32_Addr
 elf_machine_load_address (void)
 {
 	register Elf32_Addr *pc __asm__ ("%o7"), *got __asm ("%l7");
-	
+
 	__asm__ ("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t"
 	       "call 1f\n\t"
 	       " add %1, %%lo(_GLOBAL_OFFSET_TABLE_+4), %1\n\t"
 	       "call _DYNAMIC\n\t"
 	       "call _GLOBAL_OFFSET_TABLE_\n"
 	       "1:\tadd %1, %0, %1\n\t" : "=r" (pc), "=r" (got));
-	
+
 	/* got is now l_addr + _GLOBAL_OFFSET_TABLE_
 	 *got is _DYNAMIC
 	 pc[2]*4 is l_addr + _DYNAMIC - (long)pc - 8
@@ -157,7 +157,7 @@ elf_machine_load_address (void)
 	return (Elf32_Addr) got - *got + (pc[2] - pc[3]) * 4 - 4;
 }
 
-static inline void
+static __inline__ void
 elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
 {

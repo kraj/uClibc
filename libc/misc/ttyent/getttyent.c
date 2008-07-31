@@ -60,7 +60,7 @@ static FILE *tf;
 static struct ttyent tty;
 
 
-/* Skip over the current field, removing quotes, and return 
+/* Skip over the current field, removing quotes, and return
  * a pointer to the next field.
  */
 #define	QUOTED	1

@@ -27,7 +27,7 @@ int main(void)
 	free(y);
 	printf("about to free(0)\n");
 	free(0);
-	
+
 	x=malloc(13);
 	printf("x = %p\n", x);
 	memcpy(x, "Small string", 13);
@@ -37,8 +37,8 @@ int main(void)
 	memcpy(y, "********** Larger string **********", 36);
 	printf("0x%p test string2: %s\n", y, (char *)y);
 	free(y);
-	
-	
+
+
 	printf("Allocate 100 nodes 500 bytes each\n");
 	save = 0;
 	for (i=0; i<100; i++) {
@@ -50,14 +50,14 @@ int main(void)
 		lp->next = save;
 		save = lp;
 	}
-	
+
 	printf("freeing 100 nodes\n");
 	while (save) {
 		lp = save;
 		save = save->next;
 		free(lp);
 	}
-	
+
 	printf("try realloc 100 times \n");
 	lp = 0;
 	for (i=1; i<=100; i++) {
@@ -71,7 +71,7 @@ int main(void)
 	void *unused_ret = realloc(lp, 0);
 	(void) unused_ret;
 	}
-	
+
 	printf("Allocate another 100 nodes 600 bytes each\n");
 	save = 0;
 	for (i=0; i<100; i++) {
@@ -83,14 +83,14 @@ int main(void)
 		lp->next = save;
 		save = lp;
 	}
-	
+
 	printf("freeing 100 nodes\n");
 	while (save) {
 		lp = save;
 		save = save->next;
 		free(lp);
 	}
-	
+
 
 	printf("alloc test PASSED\n");
 	exit(0);

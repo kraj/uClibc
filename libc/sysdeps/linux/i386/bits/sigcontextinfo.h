@@ -25,7 +25,7 @@
 #define CALL_SIGHANDLER(handler, signo, ctx) \
 do {									      \
   int __tmp1, __tmp2, __tmp3, __tmp4;					      \
-  __asm __volatile ("movl\t%%esp, %%edi\n\t"				      \
+  __asm__ __volatile__ ("movl\t%%esp, %%edi\n\t"				      \
 		    "andl\t$-16, %%esp\n\t"				      \
 		    "subl\t%8, %%esp\n\t"				      \
 		    "movl\t%%edi, %c8-4(%%esp)\n\t"			      \

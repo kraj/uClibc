@@ -110,7 +110,7 @@ __asm__ __volatile__ (__SYSCALL_STRING \
 		      : "1" (__o0), "r" (__o1), "r" (__o2), "r" (__o3), "r" (__g1) \
 		      : "cc"); \
 __SYSCALL_RETURN(type) \
-} 
+}
 
 #undef _syscall5
 #define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \

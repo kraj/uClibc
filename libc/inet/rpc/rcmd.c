@@ -53,7 +53,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- */ 
+ */
 
 #if 0
 static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
@@ -144,7 +144,7 @@ libc_hidden_proto(rresvport)
 /* some forward declarations */
 static int __ivaliduser2(FILE *hostf, u_int32_t raddr,
 			 const char *luser, const char *ruser, const char *rhost);
-static int iruserok2 (u_int32_t raddr, int superuser, const char *ruser, 
+static int iruserok2 (u_int32_t raddr, int superuser, const char *ruser,
 		      const char *luser, const char *rhost);
 
 
@@ -178,7 +178,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	tmphstbuf = malloc (hstbuflen);
 #endif
 
-	while (gethostbyname_r (*ahost, &hostbuf, tmphstbuf, 
+	while (gethostbyname_r (*ahost, &hostbuf, tmphstbuf,
 		    hstbuflen, &hp, &herr) != 0 || hp == NULL)
 	{
 	    if (herr != NETDB_INTERNAL || errno != ERANGE)
@@ -212,7 +212,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 #endif
 	pfd[0].events = POLLIN;
 	pfd[1].events = POLLIN;
-	
+
         *ahost = hp->h_name;
         oldmask = sigblock(sigmask(SIGURG)); /* __sigblock */
 	for (timo = 1, lport = IPPORT_RESERVED - 1;;) {
@@ -361,7 +361,7 @@ int rresvport(int *alport)
 	    return -1;
 	}
     }
-    
+
     return -1;
 }
 libc_hidden_def(rresvport)
@@ -394,8 +394,8 @@ int ruserok(rhost, superuser, ruser, luser)
 	buffer = malloc (buflen);
 #endif
 
-	while (gethostbyname_r (rhost, &hostbuf, buffer, 
-		    buflen, &hp, &herr) != 0 || hp == NULL) 
+	while (gethostbyname_r (rhost, &hostbuf, buffer,
+		    buflen, &hp, &herr) != 0 || hp == NULL)
 	{
 	    if (herr != NETDB_INTERNAL || errno != ERANGE) {
 #ifndef __ARCH_USE_MMU__
@@ -493,7 +493,7 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 
 	if (!superuser)
 		hostf = iruserfopen (_PATH_HEQUIV, 0);
-	
+
 	if (hostf) {
 		isbad = __ivaliduser2 (hostf, raddr, luser, ruser, rhost);
 		fclose (hostf);
@@ -517,7 +517,7 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 		char *buffer = malloc (buflen);
 #endif
 
-		if (getpwnam_r (luser, &pwdbuf, buffer, 
+		if (getpwnam_r (luser, &pwdbuf, buffer,
 			    buflen, &pwd) != 0 || pwd == NULL)
 		{
 #ifndef __ARCH_USE_MMU__
@@ -545,12 +545,12 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 		seteuid (pwd->pw_uid);
 		hostf = iruserfopen (pbuf, pwd->pw_uid);
 		free(pbuf);
-		
+
 		if (hostf != NULL) {
 			isbad = __ivaliduser2 (hostf, raddr, luser, ruser, rhost);
 			fclose (hostf);
 		}
-		
+
 		seteuid (uid);
 		return isbad;
 	}

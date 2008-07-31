@@ -13,7 +13,7 @@
 libc_hidden_proto(chmod)
 
 #define __NR___syscall_chmod __NR_chmod
-static inline _syscall2(int, __syscall_chmod, const char *, path, __kernel_mode_t, mode);
+static __inline__ _syscall2(int, __syscall_chmod, const char *, path, __kernel_mode_t, mode);
 
 int chmod(const char *path, mode_t mode)
 {

@@ -22,7 +22,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
- 
+
 /* Only enable rt signals when it is supported at compile time */
 #ifndef __NR_rt_sigaction
 /* In these variables we keep track of the used variables.  If the

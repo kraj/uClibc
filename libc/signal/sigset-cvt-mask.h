@@ -19,7 +19,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-static inline int __attribute__ ((unused))
+static __inline__ int __attribute__ ((unused))
 sigset_set_old_mask (sigset_t *set, int mask)
 {
   unsigned long int *ptr;
@@ -37,7 +37,7 @@ sigset_set_old_mask (sigset_t *set, int mask)
   return 0;
 }
 
-static inline int __attribute__ ((unused))
+static __inline__ int __attribute__ ((unused))
 sigset_get_old_mask (const sigset_t *set)
 {
   return (unsigned int) set->__val[0];

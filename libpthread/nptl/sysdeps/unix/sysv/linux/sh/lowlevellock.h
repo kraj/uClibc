@@ -183,11 +183,11 @@ typedef int lll_lock_t;
 #define lll_futex_wait(futex, val) \
   do {									      \
     int __ignore;							      \
-    register unsigned long __r3 asm ("r3") = SYS_futex;			      \
-    register unsigned long __r4 asm ("r4") = (unsigned long) (futex);	      \
-    register unsigned long __r5 asm ("r5") = FUTEX_WAIT;		      \
-    register unsigned long __r6 asm ("r6") = (unsigned long) (val);	      \
-    register unsigned long __r7 asm ("r7") = 0;				      \
+    register unsigned long __r3 __asm ("r3") = SYS_futex;			      \
+    register unsigned long __r4 __asm ("r4") = (unsigned long) (futex);	      \
+    register unsigned long __r5 __asm ("r5") = FUTEX_WAIT;		      \
+    register unsigned long __r6 __asm ("r6") = (unsigned long) (val);	      \
+    register unsigned long __r7 __asm ("r7") = 0;				      \
     __asm __volatile (SYSCALL_WITH_INST_PAD				      \
 		      : "=z" (__ignore)					      \
 		      : "r" (__r3), "r" (__r4), "r" (__r5),		      \
@@ -198,11 +198,11 @@ typedef int lll_lock_t;
 #define lll_futex_timed_wait(futex, val, timeout) \
   ({									      \
     int __status;							      \
-    register unsigned long __r3 asm ("r3") = SYS_futex;			      \
-    register unsigned long __r4 asm ("r4") = (unsigned long) (futex);	      \
-    register unsigned long __r5 asm ("r5") = FUTEX_WAIT;		      \
-    register unsigned long __r6 asm ("r6") = (unsigned long) (val);	      \
-    register unsigned long __r7 asm ("r7") = (timeout);			      \
+    register unsigned long __r3 __asm ("r3") = SYS_futex;			      \
+    register unsigned long __r4 __asm ("r4") = (unsigned long) (futex);	      \
+    register unsigned long __r5 __asm ("r5") = FUTEX_WAIT;		      \
+    register unsigned long __r6 __asm ("r6") = (unsigned long) (val);	      \
+    register unsigned long __r7 __asm ("r7") = (timeout);			      \
     __asm __volatile (SYSCALL_WITH_INST_PAD				      \
 		      : "=z" (__status)					      \
 		      : "r" (__r3), "r" (__r4), "r" (__r5),		      \
@@ -215,11 +215,11 @@ typedef int lll_lock_t;
 #define lll_futex_wake(futex, nr) \
   do {									      \
     int __ignore;							      \
-    register unsigned long __r3 asm ("r3") = SYS_futex;			      \
-    register unsigned long __r4 asm ("r4") = (unsigned long) (futex);	      \
-    register unsigned long __r5 asm ("r5") = FUTEX_WAKE;		      \
-    register unsigned long __r6 asm ("r6") = (unsigned long) (nr);	      \
-    register unsigned long __r7 asm ("r7") = 0;				      \
+    register unsigned long __r3 __asm ("r3") = SYS_futex;			      \
+    register unsigned long __r4 __asm ("r4") = (unsigned long) (futex);	      \
+    register unsigned long __r5 __asm ("r5") = FUTEX_WAKE;		      \
+    register unsigned long __r6 __asm ("r6") = (unsigned long) (nr);	      \
+    register unsigned long __r7 __asm ("r7") = 0;				      \
     __asm __volatile (SYSCALL_WITH_INST_PAD				      \
 		      : "=z" (__ignore)					      \
 		      : "r" (__r3), "r" (__r4), "r" (__r5),		      \

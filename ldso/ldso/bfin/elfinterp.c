@@ -63,7 +63,7 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	symname= strtab + symtab[symtab_index].st_name;
 
 	if (reloc_type != R_BFIN_FUNCDESC_VALUE) {
-		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n", 
+		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",
 			    _dl_progname);
 		_dl_exit(1);
 	}
@@ -89,7 +89,7 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	if (_dl_debug_bindings) {
 		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
 		if (_dl_debug_detail)
-			_dl_dprintf(_dl_debug_file, 
+			_dl_dprintf(_dl_debug_file,
 				    "\n\tpatched (%x,%x) ==> (%x,%x) @ %x\n",
 				    got_entry->entry_point, got_entry->got_value,
 				    funcval.entry_point, funcval.got_value,
@@ -126,7 +126,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 	        int res;
-	    
+
 		symtab_index = ELF_R_SYM(rpnt->r_info);
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
@@ -136,17 +136,17 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		if (res==0) continue;
 
 		_dl_dprintf(2, "\n%s: ",_dl_progname);
-		
+
 		if (symtab_index)
 			_dl_dprintf(2, "symbol '%s': ", strtab + symtab[symtab_index].st_name);
-		  
+
 		if (res <0) {
 		        int reloc_type = ELF_R_TYPE(rpnt->r_info);
 #if defined (__SUPPORT_LD_DEBUG__)
 			_dl_dprintf(2, "can't handle reloc type %s\n ", _dl_reltypes(reloc_type));
 #else
 			_dl_dprintf(2, "can't handle reloc type %x\n", reloc_type);
-#endif			
+#endif
 			_dl_exit(-res);
 		} else if (res >0) {
 			_dl_dprintf(2, "can't resolve symbol\n");

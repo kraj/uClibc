@@ -1,7 +1,7 @@
 #ifndef _BITS_SIGACTION_STRUCT_H
 #define _BITS_SIGACTION_STRUCT_H
 
-/* This file provides whatever this particular arch's kernel thinks 
+/* This file provides whatever this particular arch's kernel thinks
  * the sigaction struct should look like... */
 
 #undef NO_OLD_SIGACTION

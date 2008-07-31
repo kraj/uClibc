@@ -28,7 +28,7 @@ libc_hidden_proto(sysconf)
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 #define __NR___syscall_getgroups __NR_getgroups
-static inline _syscall2(int, __syscall_getgroups,
+static __inline__ _syscall2(int, __syscall_getgroups,
 		int, size, __kernel_gid_t *, list);
 
 int getgroups(int size, gid_t groups[])

@@ -255,39 +255,39 @@
 #define SUBSTITUTE_ARGS_0()
 #define SUBSTITUTE_ARGS_1(arg1) \
 	long int _arg1 = (long int) (arg1);				      \
-	register long int r4 asm ("%r4") = (long int) (_arg1)
+	register long int r4 __asm__ ("%r4") = (long int) (_arg1)
 #define SUBSTITUTE_ARGS_2(arg1, arg2) \
 	long int _arg1 = (long int) (arg1);				      \
 	long int _arg2 = (long int) (arg2);				      \
-	register long int r4 asm ("%r4") = (long int) (_arg1);		      \
-	register long int r5 asm ("%r5") = (long int) (_arg2)
+	register long int r4 __asm__ ("%r4") = (long int) (_arg1);		      \
+	register long int r5 __asm__ ("%r5") = (long int) (_arg2)
 #define SUBSTITUTE_ARGS_3(arg1, arg2, arg3) \
 	long int _arg1 = (long int) (arg1);				      \
 	long int _arg2 = (long int) (arg2);				      \
 	long int _arg3 = (long int) (arg3);				      \
-	register long int r4 asm ("%r4") = (long int) (_arg1);		      \
-	register long int r5 asm ("%r5") = (long int) (_arg2);		      \
-	register long int r6 asm ("%r6") = (long int) (_arg3)
+	register long int r4 __asm__ ("%r4") = (long int) (_arg1);		      \
+	register long int r5 __asm__ ("%r5") = (long int) (_arg2);		      \
+	register long int r6 __asm__ ("%r6") = (long int) (_arg3)
 #define SUBSTITUTE_ARGS_4(arg1, arg2, arg3, arg4) \
 	long int _arg1 = (long int) (arg1);				      \
 	long int _arg2 = (long int) (arg2);				      \
 	long int _arg3 = (long int) (arg3);				      \
 	long int _arg4 = (long int) (arg4);				      \
-	register long int r4 asm ("%r4") = (long int) (_arg1);		      \
-	register long int r5 asm ("%r5") = (long int) (_arg2);		      \
-	register long int r6 asm ("%r6") = (long int) (_arg3);		      \
-	register long int r7 asm ("%r7") = (long int) (_arg4)
+	register long int r4 __asm__ ("%r4") = (long int) (_arg1);		      \
+	register long int r5 __asm__ ("%r5") = (long int) (_arg2);		      \
+	register long int r6 __asm__ ("%r6") = (long int) (_arg3);		      \
+	register long int r7 __asm__ ("%r7") = (long int) (_arg4)
 #define SUBSTITUTE_ARGS_5(arg1, arg2, arg3, arg4, arg5) \
 	long int _arg1 = (long int) (arg1);				      \
 	long int _arg2 = (long int) (arg2);				      \
 	long int _arg3 = (long int) (arg3);				      \
 	long int _arg4 = (long int) (arg4);				      \
 	long int _arg5 = (long int) (arg5);				      \
-	register long int r4 asm ("%r4") = (long int) (_arg1);		      \
-	register long int r5 asm ("%r5") = (long int) (_arg2);		      \
-	register long int r6 asm ("%r6") = (long int) (_arg3);		      \
-	register long int r7 asm ("%r7") = (long int) (_arg4);		      \
-	register long int r0 asm ("%r0") = (long int) (_arg5)
+	register long int r4 __asm__ ("%r4") = (long int) (_arg1);		      \
+	register long int r5 __asm__ ("%r5") = (long int) (_arg2);		      \
+	register long int r6 __asm__ ("%r6") = (long int) (_arg3);		      \
+	register long int r7 __asm__ ("%r7") = (long int) (_arg4);		      \
+	register long int r0 __asm__ ("%r0") = (long int) (_arg5)
 #define SUBSTITUTE_ARGS_6(arg1, arg2, arg3, arg4, arg5, arg6) \
 	long int _arg1 = (long int) (arg1);				      \
 	long int _arg2 = (long int) (arg2);				      \
@@ -295,12 +295,12 @@
 	long int _arg4 = (long int) (arg4);				      \
 	long int _arg5 = (long int) (arg5);				      \
 	long int _arg6 = (long int) (arg6);				      \
-	register long int r4 asm ("%r4") = (long int)(_arg1);		      \
-	register long int r5 asm ("%r5") = (long int) (_arg2);		      \
-	register long int r6 asm ("%r6") = (long int) (_arg3);		      \
-	register long int r7 asm ("%r7") = (long int) (_arg4);		      \
-	register long int r0 asm ("%r0") = (long int) (_arg5);		      \
-	register long int r1 asm ("%r1") = (long int) (_arg6)
+	register long int r4 __asm__ ("%r4") = (long int)(_arg1);		      \
+	register long int r5 __asm__ ("%r5") = (long int) (_arg2);		      \
+	register long int r6 __asm__ ("%r6") = (long int) (_arg3);		      \
+	register long int r7 __asm__ ("%r7") = (long int) (_arg4);		      \
+	register long int r0 __asm__ ("%r0") = (long int) (_arg5);		      \
+	register long int r1 __asm__ ("%r1") = (long int) (_arg6)
 #define SUBSTITUTE_ARGS_7(arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
 	long int _arg1 = (long int) (arg1);				      \
 	long int _arg2 = (long int) (arg2);				      \
@@ -309,13 +309,13 @@
 	long int _arg5 = (long int) (arg5);				      \
 	long int _arg6 = (long int) (arg6);				      \
 	long int _arg7 = (long int) (arg7);				      \
-	register long int r4 asm ("%r4") = (long int) (_arg1);		      \
-	register long int r5 asm ("%r5") = (long int) (_arg2);		      \
-	register long int r6 asm ("%r6") = (long int) (_arg3);		      \
-	register long int r7 asm ("%r7") = (long int) (_arg4);		      \
-	register long int r0 asm ("%r0") = (long int) (_arg5);		      \
-	register long int r1 asm ("%r1") = (long int) (_arg6);		      \
-	register long int r2 asm ("%r2") = (long int) (_arg7)
+	register long int r4 __asm__ ("%r4") = (long int) (_arg1);		      \
+	register long int r5 __asm__ ("%r5") = (long int) (_arg2);		      \
+	register long int r6 __asm__ ("%r6") = (long int) (_arg3);		      \
+	register long int r7 __asm__ ("%r7") = (long int) (_arg4);		      \
+	register long int r0 __asm__ ("%r0") = (long int) (_arg5);		      \
+	register long int r1 __asm__ ("%r1") = (long int) (_arg6);		      \
+	register long int r2 __asm__ ("%r2") = (long int) (_arg7)
 
 #undef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) \
@@ -332,10 +332,10 @@
 #define INTERNAL_SYSCALL(name, err, nr, args...) \
   ({									      \
     unsigned long int resultvar;					      \
-    register long int r3 asm ("%r3") = SYS_ify (name);			      \
+    register long int r3 __asm__ ("%r3") = SYS_ify (name);			      \
     SUBSTITUTE_ARGS_##nr(args);						      \
 									      \
-    asm volatile (SYSCALL_INST_STR##nr SYSCALL_INST_PAD			      \
+    __asm__ volatile (SYSCALL_INST_STR##nr SYSCALL_INST_PAD			      \
 		  : "=z" (resultvar)					      \
 		  : "r" (r3) ASMFMT_##nr				      \
 		  : "memory");						      \
@@ -346,10 +346,10 @@
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...) \
   ({									      \
     unsigned long int resultvar;					      \
-    register long int r3 asm ("%r3") = (name);			 	      \
+    register long int r3 __asm__ ("%r3") = (name);			 	      \
     SUBSTITUTE_ARGS_##nr(args);						      \
 									      \
-    asm volatile (SYSCALL_INST_STR##nr SYSCALL_INST_PAD			      \
+    __asm__ volatile (SYSCALL_INST_STR##nr SYSCALL_INST_PAD			      \
 		  : "=z" (resultvar)					      \
 		  : "r" (r3) ASMFMT_##nr				      \
 		  : "memory");						      \

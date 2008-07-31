@@ -5,7 +5,7 @@
  * Copyright (C) 2007 Tensilica Inc.
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
- * Parts taken from glibc/sysdeps/xtensa/dl-machine.h. 
+ * Parts taken from glibc/sysdeps/xtensa/dl-machine.h.
  */
 
 __asm__ (

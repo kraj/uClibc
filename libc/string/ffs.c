@@ -48,7 +48,7 @@ int ffs(int i)
 	for (n = 0 ; i ; ++n) {
 		i >>= 1;
 	}
-	
+
 	return n;
 #endif
 }

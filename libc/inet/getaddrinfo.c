@@ -1,5 +1,5 @@
 /*
- * Copyright 1996 by Craig Metz 
+ * Copyright 1996 by Craig Metz
  * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  * Portions from the GNU C library,
  * Copyright (C) 2003, 2006 Free Software Foundation, Inc.
@@ -535,7 +535,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
     }
     else
     {
-	/* 
+	/*
 	 * Neither socket type nor protocol is set.  Return all socket types
 	 * we know about.
 	 */
@@ -810,7 +810,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 			sin6p->sin6_addr.s6_addr32[0] = 0;
 			sin6p->sin6_addr.s6_addr32[1] = 0;
 			sin6p->sin6_addr.s6_addr32[2] = htonl(0x0000ffff);
-			memcpy(&sin6p->sin6_addr.s6_addr32[3], 
+			memcpy(&sin6p->sin6_addr.s6_addr32[3],
 			       at2->addr, sizeof (sin6p->sin6_addr.s6_addr32[3]));
 		    }
 		    sin6p->sin6_port = st2->port;

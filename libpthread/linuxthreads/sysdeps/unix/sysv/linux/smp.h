@@ -22,7 +22,7 @@
 /* Test whether the machine has more than one processor.  This is not the
    best test but good enough.  More complicated tests would require `malloc'
    which is not available at that time.  */
-static inline int
+static __inline__ int
 is_smp_system (void)
 {
   static const int sysctl_args[] = { CTL_KERN, KERN_VERSION };

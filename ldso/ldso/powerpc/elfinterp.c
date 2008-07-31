@@ -186,7 +186,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	return finaladdr;
 }
 
-static inline int
+static __inline__ int
 _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	      ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
 {
@@ -202,7 +202,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 #endif
 	reloc_addr   = (Elf32_Addr *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
-	symbol_addr  = tpnt->loadaddr; /* For R_PPC_RELATIVE */ 
+	symbol_addr  = tpnt->loadaddr; /* For R_PPC_RELATIVE */
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symname      = strtab + symtab[symtab_index].st_name;
 	if (symtab_index) {
@@ -368,7 +368,7 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	PPC_ISYNC;
 }
 
-static inline int
+static __inline__ int
 _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  unsigned long rel_addr, unsigned long rel_size,
 	  int (*reloc_fnc) (struct elf_resolve *tpnt, struct dyn_elf *scope,
@@ -386,7 +386,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	symtab = (Elf32_Sym *)(intptr_t)tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
-	
+
 	  for (i = 0; i < rel_size; i++, rpnt++) {
 	        int res;
 

@@ -148,7 +148,7 @@ __NTH (__ieee754_sqrt (double __x))
   {
     /* Volatile is required to prevent the compiler from moving the
        fsqrt instruction above the branch.  */
-     __asm __volatile (
+     __asm__ __volatile__ (
 	"	fsqrt	%0,%1\n"
 		: "=f" (__z)
 		: "f" (__x));
@@ -170,7 +170,7 @@ __NTH (__ieee754_sqrtf (float __x))
   {
     /* Volatile is required to prevent the compiler from moving the
        fsqrts instruction above the branch.  */
-     __asm __volatile (
+     __asm__ __volatile__ (
 	"	fsqrts	%0,%1\n"
 		: "=f" (__z)
 		: "f" (__x));

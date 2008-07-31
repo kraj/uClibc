@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 #define __NR___syscall_rename __NR_rename
-static inline _syscall2(int, __syscall_rename, const char *, oldpath,
+static __inline__ _syscall2(int, __syscall_rename, const char *, oldpath,
 		const char *, newpath);
 
 int rename(const char * oldpath, const char * newpath)

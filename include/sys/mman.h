@@ -94,7 +94,7 @@ extern int msync (void *__addr, size_t __len, int __flags);
 #else
 
 /* On no-mmu systems you can't have real private mappings.  */
-static inline int msync (void *__addr, size_t __len, int __flags) { return 0; }
+static __inline__ int msync (void *__addr, size_t __len, int __flags) { return 0; }
 
 #endif
 
@@ -131,10 +131,10 @@ extern int munlockall (void) __THROW;
 
 /* On no-mmu systems, memory cannot be swapped out, so
  * these functions will always succeed.  */
-static inline int mlock (__const void *__addr, size_t __len) { return 0; }
-static inline int munlock (__const void *__addr, size_t __len) { return 0; }
-static inline int mlockall (int __flags) { return 0; }
-static inline int munlockall (void) { return 0; }
+static __inline__ int mlock (__const void *__addr, size_t __len) { return 0; }
+static __inline__ int munlock (__const void *__addr, size_t __len) { return 0; }
+static __inline__ int mlockall (int __flags) { return 0; }
+static __inline__ int munlockall (void) { return 0; }
 #endif
 #endif /* __UCLIBC_HAS_REALTIME__ */
 

@@ -599,7 +599,7 @@ const __ctype_mask_t __C_ctype_b_data[] = {
 	/*   -4  M-|  */ 0,
 	/*   -3  M-}  */ 0,
 	/*   -2  M-~  */ 0,
-#endif /* __UCLIBC_HAS_CTYPE_SIGNED__*/ 
+#endif /* __UCLIBC_HAS_CTYPE_SIGNED__*/
 	/*   -1  M-^? */ 0,
 	/*    0  ^@   */ _IScntrl,
 	/*    1  ^A   */ _IScntrl,
@@ -911,7 +911,7 @@ const __ctype_touplow_t __C_ctype_tolower_data[] = {
 	 -12,          -11,          -10,           -9,
 	  -8,           -7,           -6,           -5,
 	  -4,           -3,           -2,           -1,
-#endif /* __UCLIBC_HAS_CTYPE_SIGNED__*/ 
+#endif /* __UCLIBC_HAS_CTYPE_SIGNED__*/
 	   0,            1,            2,            3,
 	   4,            5,            6,            7,
 	   8,            9,           10,           11,
@@ -1033,7 +1033,7 @@ const __ctype_touplow_t __C_ctype_toupper_data[] = {
 	 -12,          -11,          -10,           -9,
 	  -8,           -7,           -6,           -5,
 	  -4,           -3,           -2,           -1,
-#endif /* __UCLIBC_HAS_CTYPE_SIGNED__*/ 
+#endif /* __UCLIBC_HAS_CTYPE_SIGNED__*/
 	   0,            1,            2,            3,
 	   4,            5,            6,            7,
 	   8,            9,           10,           11,

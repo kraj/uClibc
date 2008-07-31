@@ -12,7 +12,7 @@
 #include <sys/sysmacros.h>
 
 #define __NR___syscall_ustat __NR_ustat
-static inline _syscall2(int, __syscall_ustat,
+static __inline__ _syscall2(int, __syscall_ustat,
 		unsigned short int, kdev_t, struct ustat *, ubuf);
 
 int ustat(dev_t dev, struct ustat *ubuf)

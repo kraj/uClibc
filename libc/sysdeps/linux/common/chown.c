@@ -24,7 +24,7 @@ _syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group);
 #else
 
 # define __NR___syscall_chown __NR_chown
-static inline _syscall3(int, __syscall_chown, const char *, path,
+static __inline__ _syscall3(int, __syscall_chown, const char *, path,
 		__kernel_uid_t, owner, __kernel_gid_t, group);
 
 int chown(const char *path, uid_t owner, gid_t group)

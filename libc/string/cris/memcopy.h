@@ -23,7 +23,7 @@
 
 /* We override the word-copying macros, partly because misalignment in one
    pointer isn't cause for a special function, partly because we want to
-   get rid of all the static functions in generic/memcopy.c; these macros 
+   get rid of all the static functions in generic/memcopy.c; these macros
    are only used in memmove.c since we have arch-specific mempcpy, memcpy and
    memset.  */
 

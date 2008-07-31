@@ -6,7 +6,7 @@
  * arches have broken headers that introduce tons of gratuitous
  * conflicts with uClibc's namespace.   See bits/kernel_types.h
  * for i386, arm, etc for examples... */
-#warning You really should include a proper bits/kernel_types.h for your architecture 
+#warning You really should include a proper bits/kernel_types.h for your architecture
 
 #ifndef __GLIBC__
 #define __GLIBC__ 2

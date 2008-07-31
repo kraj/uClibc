@@ -1,4 +1,4 @@
-/* 
+/*
    Inline floating-point environment handling functions for Hyperstone e1-32X.
    Copyright (C) 2002-2003,    George Thanos <george.thanos@gdt.gr>
                                Yannis Mitsos <yannis.mitsos@gdt.gr>
@@ -22,9 +22,9 @@
 
 #if defined __GNUC__ && !defined _SOFT_FLOAT && !defined __NO_MATH_INLINES
 
-/********************************************************** 
+/**********************************************************
  *  --- A small description of the E1-16/32X FP unit. ---
- * FP exceptions can be enabled and disabled through 
+ * FP exceptions can be enabled and disabled through
  * <feenableexcept>, <fedisableexcept>.
  *
  * - When an enabled exception takes place a SIGFPE signal
@@ -37,7 +37,7 @@
  * a trap. The user can check if any exception took place after
  * an FP instruction by issuing an <fetestexcept> command.
  * User should first clear the G2 register by issuing an
- * <feclearexcept> function. 
+ * <feclearexcept> function.
  * The following program is a typical example of how the user
  * should check for exceptions that did not generate a SIGFPE
  * signal :
@@ -49,7 +49,7 @@
  *   raised = fetestexcept (FE_OVERFLOW | FE_INVALID);
  *   if (raised & FE_OVERFLOW) {  ...  }
  *   if (raised & FE_INVALID) {  ...  }
- *    ... 
+ *    ...
  * }
  ***********************************************************/
 
@@ -92,7 +92,7 @@
 /* The following functions test for accrued exceptions.
  * No trap is generated on an FP exception.
  */
-static inline feclearexcept(int __excepts)
+static __inline__ feclearexcept(int __excepts)
 {
 	unsigned int enabled_excepts, disabled_excepts;
 
@@ -102,7 +102,7 @@ static inline feclearexcept(int __excepts)
 
 	__asm__ __volatile__("mov %0, SR"
 		     :"=l"(enabled_excepts)
-		     :/*no input*/ ); 
+		     :/*no input*/ );
 
 	enabled_excepts  &= 0x1F00;
 	disabled_excepts = ~enabled_excepts;
@@ -123,9 +123,9 @@ static inline feclearexcept(int __excepts)
 /* fetestexcepts tests both for actual and accrued
  * excepts. You can test for an exception either after
  * an FP instruction or within a SIGFPE handler
- */ 
+ */
 inline int fetestexcept(int __excepts)
-{	
+{
 	unsigned int G2, G2en, G2dis;
 	unsigned int enabled_excepts, disabled_excepts;
 
@@ -135,7 +135,7 @@ inline int fetestexcept(int __excepts)
 
 	__asm__ __volatile__("mov %0, SR"
 		     :"=l"(enabled_excepts)
-		     :/*no input*/ ); 
+		     :/*no input*/ );
 
 	enabled_excepts &= 0x1F00;
 	disabled_excepts = ~enabled_excepts;
@@ -152,7 +152,7 @@ inline int fetestexcept(int __excepts)
 	return ( G2en | (G2dis << 8) );
 }
 
-static inline int feraiseexcept(int __excepts)
+static __inline__ int feraiseexcept(int __excepts)
 {
 	__asm__ __volatile__("or G2, %0"
 			:/*no output*/
@@ -218,7 +218,7 @@ static inline int feraiseexcept(int __excepts)
 	(__retval);                        \
 })
 
-static inline int fegetexcept(int excepts)
+static __inline__ int fegetexcept(int excepts)
 {
 	unsigned int tmp;
 	__asm__ __volatile__("mov %0, SR"
@@ -228,7 +228,7 @@ static inline int fegetexcept(int excepts)
 	return tmp;
 }
 
-static inline int fegetenv(fenv_t *envp)
+static __inline__ int fegetenv(fenv_t *envp)
 {
 	__asm__ __volatile__("mov %0, SR\n\t
 		      mov %1, SR\n\t
@@ -273,7 +273,7 @@ static inline int fegetenv(fenv_t *envp)
 		     :"l"( envp->actual_except ) ); \
 	(0); /* return 0 */                         \
 })
-		     
+
 #define feupdateenv(envp)                           \
 ({                                                  \
 	/* Clear FRM & FTE field of SR */           \
@@ -292,7 +292,7 @@ static inline int fegetenv(fenv_t *envp)
 		     :"l"( envp->actual_except ) ); \
 	(0); /* return 0 */                         \
 })
-		     
+
 
 #endif /* __GNUC__ && !_SOFT_FLOAT */
 

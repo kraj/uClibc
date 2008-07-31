@@ -43,7 +43,7 @@ typedef struct list_head
 
 
 /* Add new element at the head of the list.  */
-static inline void
+static __inline__ void
 list_add (list_t *newp, list_t *head)
 {
   head->next->prev = newp;
@@ -54,7 +54,7 @@ list_add (list_t *newp, list_t *head)
 
 
 /* Add new element at the tail of the list.  */
-static inline void
+static __inline__ void
 list_add_tail (list_t *newp, list_t *head)
 {
   head->prev->next = newp;
@@ -65,7 +65,7 @@ list_add_tail (list_t *newp, list_t *head)
 
 
 /* Remove element from list.  */
-static inline void
+static __inline__ void
 list_del (list_t *elem)
 {
   elem->next->prev = elem->prev;
@@ -74,7 +74,7 @@ list_del (list_t *elem)
 
 
 /* Join two lists.  */
-static inline void
+static __inline__ void
 list_splice (list_t *add, list_t *head)
 {
   /* Do nothing if the list which gets added is empty.  */

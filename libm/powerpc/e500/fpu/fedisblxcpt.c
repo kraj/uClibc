@@ -31,15 +31,15 @@ fedisableexcept (int excepts)
   INTERNAL_SYSCALL (prctl, err, 2, PR_GET_FPEXC, &pflags);
 
   /* Save old enable bits.  */
-  if (pflags & PR_FP_EXC_OVF) 
+  if (pflags & PR_FP_EXC_OVF)
     result |= FE_OVERFLOW;
-  if (pflags & PR_FP_EXC_UND) 
+  if (pflags & PR_FP_EXC_UND)
     result |= FE_UNDERFLOW;
-  if (pflags & PR_FP_EXC_INV) 
+  if (pflags & PR_FP_EXC_INV)
     result |= FE_INVALID;
-  if (pflags & PR_FP_EXC_DIV) 
+  if (pflags & PR_FP_EXC_DIV)
     result |= FE_DIVBYZERO;
-  if (pflags & PR_FP_EXC_RES) 
+  if (pflags & PR_FP_EXC_RES)
     result |= FE_INEXACT;
 
   if (excepts & FE_INEXACT)

@@ -54,7 +54,7 @@ static __always_inline uintptr_t _dl_setup_stack_chk_guard(void)
 	/* Start with the "terminator canary". */
 	ret = 0xFF0A0D00UL;
 
-	/* Everything failed? Or we are using a weakened model of the 
+	/* Everything failed? Or we are using a weakened model of the
 	 * terminator canary */
 	{
 		struct timeval tv;

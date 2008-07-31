@@ -56,7 +56,7 @@ void * shmat (int shmid, const void *shmaddr, int shmflg)
 /* Provide operations to control over shared memory segments.  */
 #ifdef __NR_shmctl
 #define __NR___libc_shmctl __NR_shmctl
-static inline _syscall3(int, __libc_shmctl, int, shmid, int, cmd, struct shmid_ds *, buf);
+static __inline__ _syscall3(int, __libc_shmctl, int, shmid, int, cmd, struct shmid_ds *, buf);
 #endif
 int shmctl(int shmid, int cmd, struct shmid_ds *buf)
 {

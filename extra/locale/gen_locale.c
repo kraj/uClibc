@@ -281,12 +281,12 @@ static void read_at_mappings(void)
 #if 0
 	{
 		p = at_strings;
-		
+
 		if (!*p) {
 			printf("no @ strings\n");
 			return;
 		}
-		
+
 		do {
 			printf("%s\n", p+1);
 			p += 1 + (unsigned char) *p;
@@ -469,7 +469,7 @@ static void read_locale_list(void)
 			printf("ignoring UTF-8 locale %s\n", ln);
 			*line_buf = 0;
 			continue;
-		} else if ((i > 2) && !default_8bit) {	
+		} else if ((i > 2) && !default_8bit) {
 			printf("ignoring 8-bit codeset locale %s\n", ln);
 			*line_buf = 0;
 			continue;
@@ -503,7 +503,7 @@ static void read_locale_list(void)
 				printf("ignoring UTF-8 locale %s\n", ln);
 				*line_buf = 0;
 				continue;
-			} else if ((i > 2) && !default_8bit) {	
+			} else if ((i > 2) && !default_8bit) {
 				printf("ignoring 8-bit codeset locale %s\n", ln);
 				*line_buf = 0;
 				continue;

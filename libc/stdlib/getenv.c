@@ -12,7 +12,7 @@ libc_hidden_proto(getenv)
 /* Experimentally off - libc_hidden_proto(memcmp) */
 /* Experimentally off - libc_hidden_proto(strlen) */
 
-/* IEEE Std 1003.1-2001 says getenv need not be thread safe, so 
+/* IEEE Std 1003.1-2001 says getenv need not be thread safe, so
  * don't bother locking access to __environ */
 char *getenv(const char *var)
 {

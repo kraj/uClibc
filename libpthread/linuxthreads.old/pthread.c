@@ -386,7 +386,7 @@ static int *__libc_multiple_threads_ptr;
     startup of the C library.  */
 void __pthread_initialize_minimal(void)
 {
-    /* If we have special thread_self processing, initialize 
+    /* If we have special thread_self processing, initialize
      * that for the main thread now.  */
 #ifdef INIT_THREAD_SELF
     INIT_THREAD_SELF(&__pthread_initial_thread, 0);
@@ -434,7 +434,7 @@ static void pthread_initialize(void)
 
  {			   /* uClibc-specific stdio initialization for threads. */
 	 FILE *fp;
-	 
+
 	 _stdio_user_locking = 0;	/* 2 if threading not initialized */
 	 for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen) {
 		 if (fp->__user_locking != 1) {
@@ -458,7 +458,7 @@ static void pthread_initialize(void)
   }
 #else
   /* For non-MMU assume __pthread_initial_thread_tos at upper page boundary, and
-   * __pthread_initial_thread_bos at address 0. These bounds are refined as we 
+   * __pthread_initial_thread_bos at address 0. These bounds are refined as we
    * malloc other stack frames such that they don't overlap. -StS
    */
   __pthread_initial_thread_tos =
@@ -674,7 +674,7 @@ pthread_t pthread_self(void)
   return THREAD_GETMEM(self, p_tid);
 }
 libpthread_hidden_def (pthread_self)
-    
+
 int pthread_equal(pthread_t thread1, pthread_t thread2)
 {
   return thread1 == thread2;
@@ -820,7 +820,7 @@ static void pthread_handle_sigcancel(int sig)
 {
   pthread_descr self = thread_self();
   sigjmp_buf * jmpbuf;
-  
+
 
   if (self == &__pthread_manager_thread)
     {

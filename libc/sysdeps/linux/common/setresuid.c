@@ -22,7 +22,7 @@ libc_hidden_def(setresuid)
 #elif defined(__NR_setresuid)
 
 # define __NR___syscall_setresuid __NR_setresuid
-static inline _syscall3(int, __syscall_setresuid,
+static __inline__ _syscall3(int, __syscall_setresuid,
 		__kernel_uid_t, rgid, __kernel_uid_t, egid, __kernel_uid_t, sgid);
 
 libc_hidden_proto(setresuid)

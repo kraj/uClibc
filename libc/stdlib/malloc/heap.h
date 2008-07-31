@@ -141,7 +141,7 @@ extern void __heap_check (struct heap *heap, const char *str);
 
 
 /* Delete the free-area FA from HEAP.  */
-static inline void
+static __inline__ void
 __heap_delete (struct heap *heap, struct heap_free_area *fa)
 {
   if (fa->next)
@@ -156,7 +156,7 @@ __heap_delete (struct heap *heap, struct heap_free_area *fa)
 /* Link the free-area FA between the existing free-area's PREV and NEXT in
    HEAP.  PREV and NEXT may be 0; if PREV is 0, FA is installed as the
    first free-area.  */
-static inline void
+static __inline__ void
 __heap_link_free_area (struct heap *heap, struct heap_free_area *fa,
 		       struct heap_free_area *prev,
 		       struct heap_free_area *next)
@@ -175,7 +175,7 @@ __heap_link_free_area (struct heap *heap, struct heap_free_area *fa,
 /* Update the mutual links between the free-areas PREV and FA in HEAP.
    PREV may be 0, in which case FA is installed as the first free-area (but
    FA may not be 0).  */
-static inline void
+static __inline__ void
 __heap_link_free_area_after (struct heap *heap,
 			     struct heap_free_area *fa,
 			     struct heap_free_area *prev)
@@ -191,7 +191,7 @@ __heap_link_free_area_after (struct heap *heap,
    free-area's PREV and NEXT in HEAP, and return a pointer to its header.
    PREV and NEXT may be 0; if PREV is 0, MEM is installed as the first
    free-area.  */
-static inline struct heap_free_area *
+static __inline__ struct heap_free_area *
 __heap_add_free_area (struct heap *heap, void *mem, size_t size,
 		      struct heap_free_area *prev,
 		      struct heap_free_area *next)
@@ -209,7 +209,7 @@ __heap_add_free_area (struct heap *heap, void *mem, size_t size,
 
 /* Allocate SIZE bytes from the front of the free-area FA in HEAP, and
    return the amount actually allocated (which may be more than SIZE).  */
-static inline size_t
+static __inline__ size_t
 __heap_free_area_alloc (struct heap *heap,
 			struct heap_free_area *fa, size_t size)
 {

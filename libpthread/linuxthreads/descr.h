@@ -244,8 +244,8 @@ extern int __pthread_nonstandard_stacks;
 
 extern pthread_descr __pthread_find_self (void) __attribute__ ((pure));
 
-static inline pthread_descr thread_self (void) __attribute__ ((pure));
-static inline pthread_descr thread_self (void)
+static __inline__ pthread_descr thread_self (void) __attribute__ ((pure));
+static __inline__ pthread_descr thread_self (void)
 {
 #ifdef THREAD_SELF
   return THREAD_SELF;

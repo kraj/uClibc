@@ -5,7 +5,7 @@
  * Copyright (C) 2007 Tensilica Inc.
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
- */ 
+ */
 
 #include <unistd.h>
 #include <sys/syscall.h>

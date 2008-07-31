@@ -25,7 +25,7 @@ pthread_spin_lock (lock)
   unsigned int val;
 
   do
-    asm volatile ("tas.b @%1; movt %0"
+    __asm__ volatile ("tas.b @%1; movt %0"
 		  : "=&r" (val)
 		  : "r" (lock)
 		  : "memory");

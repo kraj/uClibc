@@ -50,7 +50,7 @@
 # define __arch_compare_and_exchange_bool_32_acq(mem, newval, oldval) \
 ({									      \
   unsigned int __tmp, __tmp2;						      \
-  __asm __volatile ("   clrldi  %1,%1,32\n"				      \
+  __asm__ __volatile__ ("   clrldi  %1,%1,32\n"				      \
 		    "1:	lwarx	%0,0,%2\n"				      \
 		    "	subf.	%0,%1,%0\n"				      \
 		    "	bne	2f\n"					      \
@@ -66,7 +66,7 @@
 # define __arch_compare_and_exchange_bool_32_rel(mem, newval, oldval) \
 ({									      \
   unsigned int __tmp, __tmp2;						      \
-  __asm __volatile (__ARCH_REL_INSTR "\n"				      \
+  __asm__ __volatile__ (__ARCH_REL_INSTR "\n"				      \
 		    "   clrldi  %1,%1,32\n"				      \
 		    "1:	lwarx	%0,0,%2\n"				      \
 		    "	subf.	%0,%1,%0\n"				      \
@@ -88,7 +88,7 @@
 # define __arch_compare_and_exchange_bool_64_acq(mem, newval, oldval) \
 ({									      \
   unsigned long	__tmp;							      \
-  __asm __volatile (							      \
+  __asm__ __volatile__ (							      \
 		    "1:	ldarx	%0,0,%1\n"				      \
 		    "	subf.	%0,%2,%0\n"				      \
 		    "	bne	2f\n"					      \
@@ -104,7 +104,7 @@
 # define __arch_compare_and_exchange_bool_64_rel(mem, newval, oldval) \
 ({									      \
   unsigned long	__tmp;							      \
-  __asm __volatile (__ARCH_REL_INSTR "\n"				      \
+  __asm__ __volatile__ (__ARCH_REL_INSTR "\n"				      \
 		    "1:	ldarx	%0,0,%1\n"				      \
 		    "	subf.	%0,%2,%0\n"				      \
 		    "	bne	2f\n"					      \
@@ -121,7 +121,7 @@
   ({									      \
       __typeof (*(mem)) __tmp;						      \
       __typeof (mem)  __memp = (mem);					      \
-      __asm __volatile (						      \
+      __asm__ __volatile__ (						      \
 		        "1:	ldarx	%0,0,%1\n"			      \
 		        "	cmpd	%0,%2\n"			      \
 		        "	bne	2f\n"				      \
@@ -138,7 +138,7 @@
   ({									      \
       __typeof (*(mem)) __tmp;						      \
       __typeof (mem)  __memp = (mem);					      \
-      __asm __volatile (__ARCH_REL_INSTR "\n"				      \
+      __asm__ __volatile__ (__ARCH_REL_INSTR "\n"				      \
 		        "1:	ldarx	%0,0,%1\n"			      \
 		        "	cmpd	%0,%2\n"			      \
 		        "	bne	2f\n"				      \
@@ -154,7 +154,7 @@
 # define __arch_atomic_exchange_64_acq(mem, value) \
     ({									      \
       __typeof (*mem) __val;						      \
-      __asm __volatile (__ARCH_REL_INSTR "\n"				      \
+      __asm__ __volatile__ (__ARCH_REL_INSTR "\n"				      \
 			"1:	ldarx	%0,0,%2\n"			      \
 			"	stdcx.	%3,0,%2\n"			      \
 			"	bne-	1b\n"				      \
@@ -168,7 +168,7 @@
 # define __arch_atomic_exchange_64_rel(mem, value) \
     ({									      \
       __typeof (*mem) __val;						      \
-      __asm __volatile (__ARCH_REL_INSTR "\n"				      \
+      __asm__ __volatile__ (__ARCH_REL_INSTR "\n"				      \
 			"1:	ldarx	%0,0,%2\n"			      \
 			"	stdcx.	%3,0,%2\n"			      \
 			"	bne-	1b"				      \
@@ -181,7 +181,7 @@
 # define __arch_atomic_exchange_and_add_64(mem, value) \
     ({									      \
       __typeof (*mem) __val, __tmp;					      \
-      __asm __volatile ("1:	ldarx	%0,0,%3\n"			      \
+      __asm__ __volatile__ ("1:	ldarx	%0,0,%3\n"			      \
 			"	add	%1,%0,%4\n"			      \
 			"	stdcx.	%1,0,%3\n"			      \
 			"	bne-	1b"				      \
@@ -194,7 +194,7 @@
 # define __arch_atomic_increment_val_64(mem) \
     ({									      \
       __typeof (*(mem)) __val;						      \
-      __asm __volatile ("1:	ldarx	%0,0,%2\n"			      \
+      __asm__ __volatile__ ("1:	ldarx	%0,0,%2\n"			      \
 			"	addi	%0,%0,1\n"			      \
 			"	stdcx.	%0,0,%2\n"			      \
 			"	bne-	1b"				      \
@@ -207,7 +207,7 @@
 # define __arch_atomic_decrement_val_64(mem) \
     ({									      \
       __typeof (*(mem)) __val;						      \
-      __asm __volatile ("1:	ldarx	%0,0,%2\n"			      \
+      __asm__ __volatile__ ("1:	ldarx	%0,0,%2\n"			      \
 			"	subi	%0,%0,1\n"			      \
 			"	stdcx.	%0,0,%2\n"			      \
 			"	bne-	1b"				      \
@@ -219,7 +219,7 @@
 
 # define __arch_atomic_decrement_if_positive_64(mem) \
   ({ int __val, __tmp;							      \
-     __asm __volatile ("1:	ldarx	%0,0,%3\n"			      \
+     __asm__ __volatile__ ("1:	ldarx	%0,0,%3\n"			      \
 		       "	cmpdi	0,%0,0\n"			      \
 		       "	addi	%1,%0,-1\n"			      \
 		       "	ble	2f\n"				      \
@@ -273,7 +273,7 @@
 # define __arch_compare_and_exchange_bool_32_acq(mem, newval, oldval)         \
 ({									      \
   unsigned int __tmp;							      \
-  __asm __volatile (							      \
+  __asm__ __volatile__ (							      \
 		    "1:	lwarx	%0,0,%1\n"				      \
 		    "	subf.	%0,%2,%0\n"				      \
 		    "	bne	2f\n"					      \
@@ -289,7 +289,7 @@
 # define __arch_compare_and_exchange_bool_32_rel(mem, newval, oldval)	      \
 ({									      \
   unsigned int __tmp;							      \
-  __asm __volatile (__ARCH_REL_INSTR "\n"				      \
+  __asm__ __volatile__ (__ARCH_REL_INSTR "\n"				      \
 		    "1:	lwarx	%0,0,%1\n"				      \
 		    "	subf.	%0,%2,%0\n"				      \
 		    "	bne	2f\n"					      \
@@ -394,7 +394,7 @@ typedef uintmax_t uatomic_max_t;
   ({									      \
       __typeof (*(mem)) __tmp;						      \
       __typeof (mem)  __memp = (mem);					      \
-      __asm __volatile (						      \
+      __asm__ __volatile__ (						      \
 		        "1:	lwarx	%0,0,%1\n"			      \
 		        "	cmpw	%0,%2\n"			      \
 		        "	bne	2f\n"				      \
@@ -411,7 +411,7 @@ typedef uintmax_t uatomic_max_t;
   ({									      \
       __typeof (*(mem)) __tmp;						      \
       __typeof (mem)  __memp = (mem);					      \
-      __asm __volatile (__ARCH_REL_INSTR "\n"				      \
+      __asm__ __volatile__ (__ARCH_REL_INSTR "\n"				      \
 		        "1:	lwarx	%0,0,%1\n"			      \
 		        "	cmpw	%0,%2\n"			      \
 		        "	bne	2f\n"				      \
@@ -427,7 +427,7 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_atomic_exchange_32_acq(mem, value)			      \
   ({									      \
     __typeof (*mem) __val;						      \
-    __asm __volatile (							      \
+    __asm__ __volatile__ (							      \
 		      "1:	lwarx	%0,0,%2\n"			      \
 		      "		stwcx.	%3,0,%2\n"			      \
 		      "		bne-	1b\n"				      \
@@ -441,7 +441,7 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_atomic_exchange_32_rel(mem, value) \
   ({									      \
     __typeof (*mem) __val;						      \
-    __asm __volatile (__ARCH_REL_INSTR "\n"				      \
+    __asm__ __volatile__ (__ARCH_REL_INSTR "\n"				      \
 		      "1:	lwarx	%0,0,%2\n"			      \
 		      "		stwcx.	%3,0,%2\n"			      \
 		      "		bne-	1b"				      \
@@ -454,7 +454,7 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_atomic_exchange_and_add_32(mem, value) \
   ({									      \
     __typeof (*mem) __val, __tmp;					      \
-    __asm __volatile ("1:	lwarx	%0,0,%3\n"			      \
+    __asm__ __volatile__ ("1:	lwarx	%0,0,%3\n"			      \
 		      "		add	%1,%0,%4\n"			      \
 		      "		stwcx.	%1,0,%3\n"			      \
 		      "		bne-	1b"				      \
@@ -467,7 +467,7 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_atomic_increment_val_32(mem) \
   ({									      \
     __typeof (*(mem)) __val;						      \
-    __asm __volatile ("1:	lwarx	%0,0,%2\n"			      \
+    __asm__ __volatile__ ("1:	lwarx	%0,0,%2\n"			      \
 		      "		addi	%0,%0,1\n"			      \
 		      "		stwcx.	%0,0,%2\n"			      \
 		      "		bne-	1b"				      \
@@ -480,7 +480,7 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_atomic_decrement_val_32(mem) \
   ({									      \
     __typeof (*(mem)) __val;						      \
-    __asm __volatile ("1:	lwarx	%0,0,%2\n"			      \
+    __asm__ __volatile__ ("1:	lwarx	%0,0,%2\n"			      \
 		      "		subi	%0,%0,1\n"			      \
 		      "		stwcx.	%0,0,%2\n"			      \
 		      "		bne-	1b"				      \
@@ -492,7 +492,7 @@ typedef uintmax_t uatomic_max_t;
 
 #define __arch_atomic_decrement_if_positive_32(mem) \
   ({ int __val, __tmp;							      \
-     __asm __volatile ("1:	lwarx	%0,0,%3\n"			      \
+     __asm__ __volatile__ ("1:	lwarx	%0,0,%3\n"			      \
 		       "	cmpwi	0,%0,0\n"			      \
 		       "	addi	%1,%0,-1\n"			      \
 		       "	ble	2f\n"				      \

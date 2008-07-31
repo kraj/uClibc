@@ -126,7 +126,7 @@ type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4)		 \
 		_sc_ret = _sc_0, _sc_err = _sc_19;			\
 	}								\
 	_syscall_return(type);						\
-} 
+}
 
 #define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
 	  type5,arg5)							 \

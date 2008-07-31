@@ -33,5 +33,5 @@ dummy_fini(void)
 	__asm__ __volatile__ (".section .fini");
 	(*call__dtors)();
 	__asm__ __volatile__ (".section .trash");
-	
+
 }

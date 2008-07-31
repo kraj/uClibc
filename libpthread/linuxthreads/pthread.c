@@ -468,7 +468,7 @@ __libc_dl_error_tsd (void)
 #endif
 
 #ifdef USE_TLS
-static inline void __attribute__((always_inline))
+static __inline__ void __attribute__((always_inline))
 init_one_static_tls (pthread_descr descr, struct link_map *map)
 {
 # if TLS_TCB_AT_TP

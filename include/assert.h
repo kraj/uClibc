@@ -59,7 +59,7 @@ __END_DECLS
   (__ASSERT_VOID_CAST ((expr) ? 0 :					      \
 		       (__assert (__STRING(expr), __FILE__, __LINE__,    \
 				       __ASSERT_FUNCTION), 0)))
-  
+
 /* Version 2.4 and later of GCC define a magical variable `__PRETTY_FUNCTION__'
    which contains the name of the function currently being defined.
    This is broken in G++ before version 2.6.

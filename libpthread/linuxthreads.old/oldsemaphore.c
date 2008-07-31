@@ -35,7 +35,7 @@ typedef struct {
 /* Maximum value the semaphore can have.  */
 #define SEM_VALUE_MAX   ((int) ((~0u) >> 1))
 
-static inline int sem_compare_and_swap(old_sem_t *sem, long oldval, long newval)
+static __inline__ int sem_compare_and_swap(old_sem_t *sem, long oldval, long newval)
 {
     return compare_and_swap(&sem->sem_status, oldval, newval, &sem->sem_spinlock);
 }
@@ -92,7 +92,7 @@ int __old_sem_wait(old_sem_t * sem)
 
     while (1) {
 	/* Register extrication interface */
-	__pthread_set_own_extricate_if(self, &extr); 
+	__pthread_set_own_extricate_if(self, &extr);
 	do {
             oldstatus = sem->sem_status;
             if ((oldstatus & 1) && (oldstatus != 1))
@@ -105,12 +105,12 @@ int __old_sem_wait(old_sem_t * sem)
 	while (! sem_compare_and_swap(sem, oldstatus, newstatus));
 	if (newstatus & 1) {
 	    /* We got the semaphore. */
-	  __pthread_set_own_extricate_if(self, 0); 
+	  __pthread_set_own_extricate_if(self, 0);
 	    return 0;
 	}
 	/* Wait for sem_post or cancellation */
 	suspend(self);
-	__pthread_set_own_extricate_if(self, 0); 
+	__pthread_set_own_extricate_if(self, 0);
 
 	/* This is a cancellation point */
 	if (self->p_canceled && self->p_cancelstate == PTHREAD_CANCEL_ENABLE) {

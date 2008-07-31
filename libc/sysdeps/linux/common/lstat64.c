@@ -17,7 +17,7 @@
 libc_hidden_proto(lstat64)
 
 # define __NR___syscall_lstat64 __NR_lstat64
-static inline _syscall2(int, __syscall_lstat64, const char *, file_name,
+static __inline__ _syscall2(int, __syscall_lstat64, const char *, file_name,
 		  struct kernel_stat64 *, buf);
 
 int lstat64(const char *file_name, struct stat64 *buf)

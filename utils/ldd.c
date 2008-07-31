@@ -158,7 +158,7 @@ char *interp_dir = NULL;
 static int byteswap;
 static int interpreter_already_found = 0;
 
-static inline uint32_t byteswap32_to_host(uint32_t value)
+static __inline__ uint32_t byteswap32_to_host(uint32_t value)
 {
 	if (byteswap == 1) {
 		return (bswap_32(value));
@@ -166,7 +166,7 @@ static inline uint32_t byteswap32_to_host(uint32_t value)
 		return (value);
 	}
 }
-static inline uint64_t byteswap64_to_host(uint64_t value)
+static __inline__ uint64_t byteswap64_to_host(uint64_t value)
 {
 	if (byteswap == 1) {
 		return (bswap_64(value));
@@ -348,10 +348,10 @@ int unmap_cache(void)
 	return 0;
 }
 #else
-static inline void map_cache(void)
+static __inline__ void map_cache(void)
 {
 }
-static inline void unmap_cache(void)
+static __inline__ void unmap_cache(void)
 {
 }
 #endif

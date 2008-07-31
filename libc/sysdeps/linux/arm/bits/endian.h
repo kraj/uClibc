@@ -13,7 +13,7 @@
    CPU endianness.  VFP floating point units use the same endianness
    as the rest of the system.  */
 #if defined __VFP_FP__ || defined __MAVERICK__
-# define __FLOAT_WORD_ORDER __BYTE_ORDER 
+# define __FLOAT_WORD_ORDER __BYTE_ORDER
 #else
 # define __FLOAT_WORD_ORDER __BIG_ENDIAN
 #endif

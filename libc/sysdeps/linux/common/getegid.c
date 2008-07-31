@@ -19,7 +19,7 @@ _syscall0(gid_t, getegid);
 
 #elif defined(__NR_getegid)
 # define __NR___syscall_getegid __NR_getegid
-static inline _syscall0(int, __syscall_getegid);
+static __inline__ _syscall0(int, __syscall_getegid);
 gid_t getegid(void)
 {
 	return (__syscall_getegid());

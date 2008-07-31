@@ -184,7 +184,7 @@ struct funcdesc_ht
 
   /* Current number of elements.  */
   size_t n_elements;
-};  
+};
 
 inline static int
 hash_pointer (const void *p)
@@ -203,11 +203,11 @@ htab_create (void)
   ht->entries = _dl_malloc (sizeof (struct funcdesc_ht_value *) * ht->size);
   if (! ht->entries)
     return NULL;
-  
+
   ht->n_elements = 0;
 
   _dl_memset (ht->entries, 0, sizeof (struct funcdesc_ht_value *) * ht->size);
-  
+
   return ht;
 }
 
@@ -345,14 +345,14 @@ htab_find_slot (struct funcdesc_ht *htab, void *ptr, int insert)
     goto empty_entry;
   else if ((*entry)->entry_point == ptr)
     return entry;
-      
+
   hash2 = 1 + hash % (size - 2);
   for (;;)
     {
       index += hash2;
       if (index >= size)
 	index -= size;
-      
+
       entry = &htab->entries[index];
       if (!*entry)
 	goto empty_entry;
@@ -411,7 +411,7 @@ _dl_lookup_address (void const *address)
   if ((Elf32_Addr)address & 7)
     /* It's not a function descriptor.  */
     return address;
-  
+
   fd = (struct funcdesc_value const *)address;
 
   for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next)
@@ -432,7 +432,7 @@ _dl_lookup_address (void const *address)
       else
 	address = fd;
     }
-  
+
   return address;
 }
 

@@ -129,7 +129,7 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
 			digit = low % base;
 			low /= base;
 		}
-		
+
 #ifndef __LOCALE_C_ONLY
 		if (unlikely(outdigit)) {
 			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];

@@ -18,7 +18,7 @@ libc_hidden_proto(opendir)
 libc_hidden_proto(closedir)
 libc_hidden_proto(qsort)
 
-int scandir(const char *dir, struct dirent ***namelist, 
+int scandir(const char *dir, struct dirent ***namelist,
 	int (*selector) (const struct dirent *),
 	int (*compar) (const void *, const void *))
 {

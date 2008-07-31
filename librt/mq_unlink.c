@@ -10,7 +10,7 @@
 #ifdef __NR_mq_unlink
 
 #define __NR___syscall_mq_unlink __NR_mq_unlink
-static inline _syscall1(int, __syscall_mq_unlink, const char *, name);
+static __inline__ _syscall1(int, __syscall_mq_unlink, const char *, name);
 
 /* Remove message queue */
 int mq_unlink(const char *name)

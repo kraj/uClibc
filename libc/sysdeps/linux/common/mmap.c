@@ -24,7 +24,7 @@ _syscall6(void *, mmap, void *, start, size_t, length,
 #else
 
 # define __NR__mmap __NR_mmap
-static inline _syscall1(__ptr_t, _mmap, unsigned long *, buffer);
+static __inline__ _syscall1(__ptr_t, _mmap, unsigned long *, buffer);
 __ptr_t mmap(__ptr_t addr, size_t len, int prot,
 			 int flags, int fd, __off_t offset)
 {
@@ -48,7 +48,7 @@ libc_hidden_def(mmap)
 libc_hidden_proto(mmap)
 
 #define __NR___syscall_mmap2 __NR_mmap2
-static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
+static __inline__ _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
 	size_t, len, int, prot, int, flags, int, fd, off_t, offset);
 
 /* Some architectures always use 12 as page shift for mmap2() eventhough the
