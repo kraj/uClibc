@@ -1186,7 +1186,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 
 #ifdef L_res_init
 /* We use __resolv_lock to guard access to global '_res' */
-#ifdef USE___THREAD && USE___THREAD
+#if defined USE___THREAD && USE___THREAD
 __thread
 #endif
 struct __res_state _res;
