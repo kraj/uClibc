@@ -998,19 +998,18 @@ init_tls (void)
 
 	/* Fill in the information from the loaded modules.  No namespace
 	   but the base one can be filled at this time.  */
-	int i = 1;                  /* The first module ID is 1. */
-	struct elf_resolve *l;
-	for (l =  _dl_loaded_modules; l != NULL; l = l->next)
+	int i = 0;
+	struct link_map *l;
+	for (l =  (struct link_map *) _dl_loaded_modules; l != NULL; l = l->l_next)
 		if (l->l_tls_blocksize != 0)
 		{
 			/* This is a module with TLS data.  Store the map reference.
 			   The generation counter is zero.  */
-			_dl_assert (i == l->l_tls_modid);
-			slotinfo[i].map = (struct link_map *) l;
-			/* slotinfo[i].gen = 0; */
-			i++;
+
+			/* Skeep slot[0]: it will be never used */			
+			slotinfo[++i].map = l;
 		}
-	_dl_assert (i == _dl_tls_max_dtv_idx + 1);
+	_dl_assert (i == _dl_tls_max_dtv_idx);
 
 	/* Compute the TLS offsets for the various blocks.  */
 	_dl_determine_tlsoffset ();
