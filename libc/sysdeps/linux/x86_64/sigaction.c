@@ -135,9 +135,8 @@ libc_hidden_weak(sigaction)
 
 #define RESTORE(name, syscall) RESTORE2 (name, syscall)
 # define RESTORE2(name, syscall) \
-asm						\
-  (						\
-   ".text\n" \
+__asm__ (					\
+   ".text\n"					\
    "__" #name ":\n"				\
    "	movq $" #syscall ", %rax\n"		\
    "	syscall\n"				\
