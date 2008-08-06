@@ -140,8 +140,7 @@ libc_hidden_weak(sigaction)
 
 #define RESTORE(name, syscall) RESTORE2 (name, syscall)
 #define RESTORE2(name, syscall) \
-asm						\
-  (						\
+__asm__ (					\
    ".align 4\n"					\
    "__" #name ":\n"				\
    "	li $2, " #syscall "\n"			\

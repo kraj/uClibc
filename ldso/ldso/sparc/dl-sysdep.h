@@ -141,7 +141,7 @@ elf_machine_dynamic (void)
 static __inline__ Elf32_Addr
 elf_machine_load_address (void)
 {
-	register Elf32_Addr *pc __asm__ ("%o7"), *got __asm ("%l7");
+	register Elf32_Addr *pc __asm__ ("%o7"), *got __asm__ ("%l7");
 
 	__asm__ ("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t"
 	       "call 1f\n\t"
