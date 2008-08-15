@@ -107,7 +107,7 @@ __lll_mutex_trylock (int *futex)
   else if (old > 1)
     flag = atomic_exchange_acq (futex, old);
 #else
-  asm volatile (
+  __asm__ __volatile__ (
     "\tswp	%[old], %[flag], [%[futex]]	@ try to take the lock\n"
     "\tcmp	%[old], #1			@ check old lock value\n"
     "\tmovlo	%[flag], #0			@ if we got it, return 0\n"
@@ -134,7 +134,7 @@ __lll_mutex_cond_trylock (int *futex)
   else if (old > 1)
     flag = atomic_exchange_acq (futex, old);
 #else
-  asm volatile (
+  __asm__ __volatile__ (
     "\tswp	%[old], %[flag], [%[futex]]	@ try to take the lock\n"
     "\tcmp	%[old], #1			@ check old lock value\n"
     "\tmovlo	%[flag], #0			@ if we got it, return 0\n"
