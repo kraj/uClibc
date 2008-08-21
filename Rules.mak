@@ -474,7 +474,9 @@ ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 # soft float encodings.
 ifneq ($(TARGET_ARCH),nios)
 ifneq ($(TARGET_ARCH),nios2)
+ifneq ($(TARGET_ARCH),sh)
 CFLAGS += -msoft-float
+endif
 endif
 endif
 ifeq ($(TARGET_ARCH),arm)
