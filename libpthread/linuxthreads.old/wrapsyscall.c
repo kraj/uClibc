@@ -96,7 +96,8 @@ CANCELABLE_SYSCALL (off64_t, lseek64, (int fd, off64_t offset, int whence),
 		    (fd, offset, whence))
 #endif
 
-#ifdef __NR_msync
+#if defined(__NR_msync) && defined(__ARCH_USE_MMU__)
+
 /* msync(2).  */
 CANCELABLE_SYSCALL (int, msync, (void *addr, size_t length, int flags),
 		    (addr, length, flags))
