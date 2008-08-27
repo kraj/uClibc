@@ -2088,7 +2088,6 @@ libc_hidden_def(tzset)
 #endif
 
 #include <utime.h>
-#include <sys/time.h>
 
 int utimes(const char *filename, register const struct timeval *tvp)
 {

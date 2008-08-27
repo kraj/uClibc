@@ -25,7 +25,6 @@
 
 #include <string.h>
 #include <sys/param.h>
-#include <sys/types.h>
 
 /* Experimentally off - libc_hidden_proto(memset) */
 

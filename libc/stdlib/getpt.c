@@ -32,7 +32,6 @@ libc_hidden_proto(open)
 libc_hidden_proto(close)
 
 #if !defined __ASSUME_DEVPTS__
-# include <sys/statfs.h>
 
 /* Constant that identifies the `devpts' filesystem.  */
 # define DEVPTS_SUPER_MAGIC	0x1cd1

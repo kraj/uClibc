@@ -19,7 +19,6 @@ Cambridge, MA 02139, USA.  */
 /* Hacked up for uClibc by Erik Andersen */
 
 #include <features.h>
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

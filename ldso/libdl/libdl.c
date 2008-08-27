@@ -32,7 +32,7 @@
 
 #include <ldso.h>
 #include <stdio.h>
-#include <string.h>
+#include <string.h> /* Needed for 'strstr' prototype' */
 #include <stdbool.h>
 
 
@@ -77,8 +77,6 @@ extern char *_dl_debug;
  * the symbols that otherwise would have been loaded in from ldso... */
 
 #ifdef __SUPPORT_LD_DEBUG__
-/* Needed for 'strstr' prototype' */
-#include <string.h>
 char *_dl_debug  = 0;
 char *_dl_debug_symbols   = 0;
 char *_dl_debug_move      = 0;

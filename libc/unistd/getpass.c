@@ -20,7 +20,6 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
-#include <string.h>
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 

@@ -1564,10 +1564,7 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 /**********************************************************************/
 #ifdef L_iconv_main
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
 #include <iconv.h>
 #include <stdarg.h>
 #include <libgen.h>

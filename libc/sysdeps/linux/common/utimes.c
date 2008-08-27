@@ -17,7 +17,6 @@ libc_hidden_proto(utimes)
 _syscall2(int, utimes, const char *, file, const struct timeval *, tvp);
 #else
 #include <stdlib.h>
-#include <sys/time.h>
 
 libc_hidden_proto(utime)
 

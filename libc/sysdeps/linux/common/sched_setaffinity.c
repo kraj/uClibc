@@ -28,7 +28,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/param.h>
-#include <sys/types.h>
 #include <alloca.h>
 
 libc_hidden_proto(getpid)

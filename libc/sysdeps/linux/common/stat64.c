@@ -15,7 +15,6 @@ libc_hidden_proto(stat64)
 
 # define __NR___syscall_stat64 __NR_stat64
 # include <unistd.h>
-# include <sys/stat.h>
 # include "xstatconv.h"
 
 static __inline__ _syscall2(int, __syscall_stat64,
