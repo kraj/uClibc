@@ -477,3 +477,8 @@ PTHREAD_STATIC_FN_REQUIRE (pthread_cancel)
 PTHREAD_STATIC_FN_REQUIRE (pthread_key_create)
 PTHREAD_STATIC_FN_REQUIRE (pthread_setspecific)
 PTHREAD_STATIC_FN_REQUIRE (pthread_getspecific)
+
+/* UCLIBC_MUTEX_xxx macros expects to have these as well */
+PTHREAD_STATIC_FN_REQUIRE (pthread_mutex_init)
+PTHREAD_STATIC_FN_REQUIRE (_pthread_cleanup_push_defer)
+PTHREAD_STATIC_FN_REQUIRE (_pthread_cleanup_pop_restore)
