@@ -12,7 +12,7 @@ _init:
 	sts.l	pr,@-r15
 	mov	r15,r14
 	bra	1f
-	nop
+	 nop
 	.align 2
 1:
 	
@@ -27,6 +27,6 @@ _fini:
 	sts.l	pr,@-r15
 	mov	r15,r14
 	bra	1f
-	nop
+	 nop
 	.align 2
 1:
