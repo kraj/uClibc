@@ -1,3 +1,10 @@
+/* vi: set sw=4 ts=4: */
+/*
+ * Copyright (C) 2002 by Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 /***********************************************************************
     nan, nanf, nanl - return quiet NaN
 
@@ -17,32 +24,32 @@
 
 double nan (const char *tagp)
 {
-    if (tagp[0] != '\0') {
-	char buf[6 + strlen (tagp)];
-	sprintf (buf, "NAN(%s)", tagp);
-	return strtod (buf, NULL);
-    }
-    return NAN;
+	if (tagp[0] != '\0') {
+		char buf[6 + strlen (tagp)];
+		sprintf (buf, "NAN(%s)", tagp);
+		return strtod (buf, NULL);
+	}
+	return NAN;
 }
 
 float nanf (const char *tagp)
 {
-    if (tagp[0] != '\0') {
-	char buf[6 + strlen (tagp)];
-	sprintf (buf, "NAN(%s)", tagp);
-	return strtof (buf, NULL);
-    }
-    return NAN;
+	if (tagp[0] != '\0') {
+		char buf[6 + strlen (tagp)];
+		sprintf (buf, "NAN(%s)", tagp);
+		return strtof (buf, NULL);
+	}
+	return NAN;
 }
 
 #if 0
 long double nanl (const char *tagp)
 {
-    if (tagp[0] != '\0') {
-	char buf[6 + strlen (tagp)];
-	sprintf (buf, "NAN(%s)", tagp);
-	return strtold (buf, NULL);
-    }
-    return NAN;
+	if (tagp[0] != '\0') {
+		char buf[6 + strlen (tagp)];
+		sprintf (buf, "NAN(%s)", tagp);
+		return strtold (buf, NULL);
+	}
+	return NAN;
 }
 #endif
