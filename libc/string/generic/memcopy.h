@@ -107,6 +107,7 @@ typedef unsigned char byte;
 	}								      \
     } while (0)
 
+#ifdef __ARCH_HAS_BWD_MEMCPY__
 /* Copy *up to* NBYTES bytes from SRC_BP to DST_BP, with
    the assumption that DST_BP is aligned on an OPSIZ multiple.  If
    not all bytes could be easily copied, store remaining number of bytes
@@ -124,6 +125,8 @@ typedef unsigned char byte;
       dst_bp += (nbytes) & -OPSIZ;					      \
       (nbytes_left) = (nbytes) % OPSIZ;					      \
     } while (0)
+
+#endif
 
 /* Copy *up to* NBYTES_TO_COPY bytes from SRC_END_PTR to DST_END_PTR,
    beginning at the words (of type op_t) right before the pointers and

@@ -48,3 +48,8 @@ config CONFIG_SH4
 	bool "SH4"
 
 endchoice
+
+config ARCH_HAS_BWD_MEMCPY
+       bool
+       default y
+       depends on CONFIG_SH4

@@ -8,6 +8,18 @@
 #
 # Arch specific fun
 #
+# Collect the subarch specific implementation (asm files)
+ifneq ($(strip $(TARGET_SUBARCH)),)
+STRING_SUBARCH_DIR := $(top_srcdir)libc/string/$(TARGET_ARCH)/$(TARGET_SUBARCH)
+STRING_SUBARCH_OUT := $(top_builddir)libc/string/$(TARGET_ARCH)/$(TARGET_SUBARCH)
+
+STRING_SUBARCH_SSRC := $(wildcard $(STRING_SUBARCH_OUT)/*.S)
+STRING_SUBARCH_SOBJ := $(patsubst $(STRING_SUBARCH_DIR)/%.S,$(STRING_SUBARCH_OUT)/%.o,$(STRING_SUBARCH_SSRC))
+
+STRING_SUBARCH_OBJS := $(STRING_SUBARCH_SOBJ)
+endif
+
+# Collect the arch specific implementation (asm, c files)
 STRING_ARCH_DIR := $(top_srcdir)libc/string/$(TARGET_ARCH)
 STRING_ARCH_OUT := $(top_builddir)libc/string/$(TARGET_ARCH)
 
@@ -15,13 +27,19 @@ STRING_ARCH_SRC := $(wildcard $(STRING_ARCH_DIR)/*.c)
 STRING_ARCH_OBJ := $(patsubst $(STRING_ARCH_DIR)/%.c,$(STRING_ARCH_OUT)/%.o,$(STRING_ARCH_SRC))
 
 STRING_ARCH_SSRC := $(wildcard $(STRING_ARCH_DIR)/*.S)
+
+# Exclude the subarch implementation from the arch ones
+ifneq ($(strip $(STRING_SUBARCH_OBJS)),)
+STRING_ARCH_SSRC := $(filter-out $(patsubst %.o,$(STRING_ARCH_DIR)/%.S,$(notdir $(STRING_SUBARCH_OBJS))),$(STRING_ARCH_SSRC))
+endif
+
 STRING_ARCH_SOBJ := $(patsubst $(STRING_ARCH_DIR)/%.S,$(STRING_ARCH_OUT)/%.o,$(STRING_ARCH_SSRC))
 
 STRING_ARCH_OBJS := $(STRING_ARCH_OBJ) $(STRING_ARCH_SOBJ)
 
-libc-$(UCLIBC_HAS_STRING_ARCH_OPT) += $(STRING_ARCH_OBJS)
+libc-$(UCLIBC_HAS_STRING_ARCH_OPT) += $(STRING_ARCH_OBJS) $(STRING_SUBARCH_OBJS)
 
-libc-nomulti-$(UCLIBC_HAS_STRING_ARCH_OPT) += $(STRING_ARCH_SOBJ)
+libc-nomulti-$(UCLIBC_HAS_STRING_ARCH_OPT) += $(STRING_ARCH_SOBJ) $(STRING_SUBARCH_OBJS)
 
 #
 # Generic stuff
@@ -30,10 +48,14 @@ STRING_GENERIC_DIR := $(top_srcdir)libc/string/generic
 STRING_GENERIC_OUT := $(top_builddir)libc/string/generic
 
 STRING_GENERIC_SRC := $(wildcard $(STRING_GENERIC_DIR)/*.c)
+STRING_GENERIC_SRC := $(filter-out $(STRING_GENERIC_DIR)/_memcpy_fwd.c, $(STRING_GENERIC_SRC))
 
 ifeq ($(UCLIBC_HAS_STRING_ARCH_OPT),y)
 ifneq ($(strip $(STRING_ARCH_OBJS)),)
 STRING_GENERIC_SRC := $(filter-out $(patsubst %.o,$(STRING_GENERIC_DIR)/%.c,$(notdir $(STRING_ARCH_OBJS))),$(STRING_GENERIC_SRC))
+endif
+ifneq ($(strip $(STRING_SUBARCH_OBJS)),)
+STRING_GENERIC_SRC := $(filter-out $(patsubst %.o,$(STRING_GENERIC_DIR)/%.c,$(notdir $(STRING_SUBARCH_OBJS))),$(STRING_GENERIC_SRC))
 endif
 endif
 
@@ -93,6 +115,9 @@ ifeq ($(UCLIBC_HAS_STRING_ARCH_OPT),y)
 ifneq ($(strip $(STRING_ARCH_OBJS)),)
 STRING_CSRC := $(filter-out $(patsubst %.o,$(STRING_DIR)/%.c,$(notdir $(STRING_ARCH_OBJS))),$(STRING_CSRC))
 endif
+ifneq ($(strip $(STRING_SUBARCH_OBJS)),)
+STRING_CSRC := $(filter-out $(patsubst %.o,$(STRING_DIR)/%.c,$(notdir $(STRING_SUBARCH_OBJS))),$(STRING_CSRC))
+endif
 endif
 
 ifeq ($(UCLIBC_HAS_STRING_GENERIC_OPT),y)
@@ -111,4 +136,4 @@ libc-nomulti-y += $(STRING_OUT)/__xpg_strerror_r.o
 objclean-y += string_objclean
 
 string_objclean:
-	$(RM) $(STRING_OUT)/{,*/}*.{o,os}
+	$(RM) $(STRING_OUT)/{,*/}{,*/}*.{o,os,oS}
