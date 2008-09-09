@@ -1068,9 +1068,6 @@ static int sc_getc(register struct scan_cookie *sc)
 		wc = '.';
 	} else
 #endif /* __UCLIBC_HAS_FLOATS__ */
-	if (!__isascii(wc)) {
-		wc = '?';
-	}
 	sc->wc = sc->ungot_char = wc;
 
 	return (int) wc;

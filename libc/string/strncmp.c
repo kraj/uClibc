@@ -25,7 +25,7 @@ int Wstrncmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 		--n;
 	}
 
-	return (n == 0) ? 0 : ((*((Wuchar *)s1) < *((Wuchar *)s2)) ? -1 : 1);
+	return (n == 0) ? 0 : (*((Wuchar *)s1) - *((Wuchar *)s2));
 #else
 	int r = 0;
 

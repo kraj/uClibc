@@ -234,7 +234,7 @@ __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endp
 #endif
 #ifdef __UCLIBC_HAS_LOCALE__
 #if defined(L___wcstofpmax) || defined(L___wcstofpmax_l)
-	wchar_t decpt_wc = __LOCALE_PTR->decimal_point;
+	wchar_t decpt_wc = __LOCALE_PTR->decimal_point_wc;
 #else
 	const char *decpt = __LOCALE_PTR->decimal_point;
 	int decpt_len = __LOCALE_PTR->decimal_point_len;

@@ -929,6 +929,30 @@ size_t _stdlib_mb_cur_max(void)
 libc_hidden_def(_stdlib_mb_cur_max)
 
 #endif
+
+#ifdef __UCLIBC_HAS_LOCALE__
+/*
+ * The following function return 1 if the encoding is stateful, 0 if stateless.
+ * To note, until now all the supported encoding are stateless.
+ */
+
+static inline int is_stateful(unsigned char encoding)
+{
+	switch (encoding)
+	{
+		case __ctype_encoding_7_bit:
+		case __ctype_encoding_utf8:
+		case __ctype_encoding_8_bit:
+			return 0;
+		default:
+			assert(0);
+			return -1;
+	}
+}
+#else
+#define is_stateful(encoding) 0
+#endif
+
 /**********************************************************************/
 #ifdef L_mblen
 
@@ -941,12 +965,16 @@ int mblen(register const char *s, size_t n)
 
 	if (!s) {
 		state.__mask = 0;
-#ifdef __CTYPE_HAS_UTF_8_LOCALES
-		return ENCODING == __ctype_encoding_utf8;
-#else
-		return 0;
-#endif
+		/*
+			In this case we have to return 0 because the only multibyte supported encoding
+			is utf-8, that is a stateless encoding. See mblen() documentation.
+		*/
+		return is_stateful(ENCODING);
 	}
+
+	if (*s == '\0')
+		/* According to the ISO C 89 standard this is the expected behaviour.  */
+		return 0;
 
 	if ((r = mbrlen(s, n, &state)) == (size_t) -2) {
 		/* TODO: Should we set an error state? */
@@ -969,12 +997,17 @@ int mbtowc(wchar_t *__restrict pwc, register const char *__restrict s, size_t n)
 
 	if (!s) {
 		state.__mask = 0;
-#ifdef __CTYPE_HAS_UTF_8_LOCALES
-		return ENCODING == __ctype_encoding_utf8;
-#else
-		return 0;
-#endif
+		/*
+			In this case we have to return 0 because the only multibyte supported encoding
+			is utf-8, that is a stateless encoding. See mbtowc() documentation.
+		*/
+
+		return is_stateful(ENCODING);
 	}
+
+	if (*s == '\0')
+		/* According to the ISO C 89 standard this is the expected behaviour.  */
+		return 0;
 
 	if ((r = mbrtowc(pwc, s, n, &state)) == (size_t) -2) {
 		/* TODO: Should we set an error state? */
@@ -996,11 +1029,12 @@ int wctomb(register char *__restrict s, wchar_t swc)
 {
 	return (!s)
 		?
-#ifdef __CTYPE_HAS_UTF_8_LOCALES
-		(ENCODING == __ctype_encoding_utf8)
-#else
-		0						/* Encoding is stateless. */
-#endif
+		/*
+			In this case we have to return 0 because the only multibyte supported encoding
+			is utf-8, that is a stateless encoding. See wctomb() documentation.
+		*/
+
+		is_stateful(ENCODING)
 		: ((ssize_t) wcrtomb(s, swc, NULL));
 }
 

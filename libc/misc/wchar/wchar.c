@@ -293,10 +293,17 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 		empty_string[0] = 0;	/* Init the empty string when necessary. */
 		s = empty_string;
 		n = 1;
+	} else if (*s == '\0') {
+    /* According to the ISO C 89 standard this is the expected behaviour.  */
+		return 0;
 	} else if (!n) {
 		/* TODO: change error code? */
+#if 0
 		return (ps->__mask && (ps->__wc == 0xffffU))
 			? ((size_t) -1) : ((size_t) -2);
+#else
+		return 0;
+#endif
 	}
 
 	p = s;
@@ -865,7 +872,6 @@ size_t wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 									+ (wc & ((1 << Cwc2c_TT_SHIFT)-1))];
 				}
 
-#define __WCHAR_REPLACEMENT_CHAR '?'
 #ifdef __WCHAR_REPLACEMENT_CHAR
 				*dst = (unsigned char) ( u ? u : __WCHAR_REPLACEMENT_CHAR );
 #else  /* __WCHAR_REPLACEMENT_CHAR */
@@ -1045,7 +1051,7 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 		size_t i;
 
 		for (i = 0 ; (i < n) && pwcs[i] ; i++) {
-			if (pwcs[i] != ((unsigned char)(pwcs[i]))) {
+			if (pwcs[i] != (pwcs[i] & 0x7f)) {
 				return -1;
 			}
 		}
