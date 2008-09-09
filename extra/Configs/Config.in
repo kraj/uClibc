@@ -704,7 +704,7 @@ config UCLIBC_PWD_BUFFER_SIZE
 config UCLIBC_GRP_BUFFER_SIZE
 	int "Buffer size for getgrnam() and friends"
 	default 256
-	range 256 1024
+	range 12 1024
 	help
 	  This sets the value of the buffer size for getgrnam() and friends.
 	  By default, this is 256. (For reference, glibc uses 1024).
