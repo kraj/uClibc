@@ -1212,8 +1212,7 @@ static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad);
 #define OUTNSTR _outnstr
 #define STRLEN  strlen
 #define _PPFS_init _ppfs_init
-/* Pulls in fseek: #define OUTPUT(F,S)	fputs_unlocked(S,F) */
-#define OUTPUT(F,S)			__stdio_fwrite((const unsigned char *)(S),strlen(S),(F))
+#define OUTPUT(F,S)			fputs_unlocked(S,F)
 /* #define _outnstr(stream, string, len)	__stdio_fwrite(string, len, stream) */
 #define _outnstr(stream, string, len)	((len > 0) ? __stdio_fwrite(string, len, stream) : 0)
 #define FP_OUT _fp_out_narrow
