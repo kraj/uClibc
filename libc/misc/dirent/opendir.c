@@ -64,9 +64,8 @@ close_and_ret:
 	if (!(ptr = malloc(sizeof(*ptr))))
 		goto nomem_close_and_ret;
 
-	memset(ptr, '\0', sizeof(DIR));
 	ptr->dd_fd = fd;
-
+	ptr->dd_nextloc = ptr->dd_size = ptr->dd_nextoff = 0;
 	ptr->dd_max = statbuf.st_blksize;
 	if (ptr->dd_max < 512)
 		ptr->dd_max = 512;
