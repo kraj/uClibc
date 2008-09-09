@@ -18,8 +18,7 @@
 #include <bits/kernel_types.h>
 
 /* With newer versions of linux, the getdents syscall returns d_type
- * information after the name field.  Someday, we should add support for
- * that instead of always calling getdents64 ...
+ * information after the name field.
  *
  * See __ASSUME_GETDENTS32_D_TYPE in glibc's kernel-features.h for specific
  * version / arch details.
@@ -39,13 +38,41 @@ struct kernel_dirent
 
 ssize_t __getdents (int fd, char *buf, size_t nbytes) attribute_hidden;
 
-#if ! defined __UCLIBC_HAS_LFS__ || ! defined __NR_getdents64
+#define __NR___syscall_getdents __NR_getdents
+static inline _syscall3(int, __syscall_getdents, int, fd, unsigned char *, kdirp, size_t, count);
+
+#ifdef __ASSUME_GETDENTS32_D_TYPE
+ssize_t __getdents (int fd, char *buf, size_t nbytes)
+{
+	ssize_t retval;
+
+	retval = __syscall_getdents(fd, (unsigned char *)buf, nbytes);
+
+	/* The kernel added the d_type value after the name.  Change
+	this now.  */
+	if (retval != -1) {
+		union {
+			struct kernel_dirent k;
+			struct dirent u;
+		} *kbuf = (void *) buf;
+
+		while ((char *) kbuf < buf + retval) {
+			char d_type = *((char *) kbuf + kbuf->k.d_reclen - 1);
+			memmove (kbuf->u.d_name, kbuf->k.d_name,
+			strlen (kbuf->k.d_name) + 1);
+			kbuf->u.d_type = d_type;
+
+			kbuf = (void *) ((char *) kbuf + kbuf->k.d_reclen);
+		}
+	}
+
+	return retval;
+}
+
+#elif ! defined __UCLIBC_HAS_LFS__ || ! defined __NR_getdents64
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(lseek)
-
-#define __NR___syscall_getdents __NR_getdents
-static __inline__ _syscall3(int, __syscall_getdents, int, fd, unsigned char *, kdirp, size_t, count);
 
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {

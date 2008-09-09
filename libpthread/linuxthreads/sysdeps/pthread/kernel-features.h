@@ -62,6 +62,14 @@
 # define __ASSUME_VFORK_SYSCALL		1
 #endif
 
+/* Starting with version 2.6.4-rc1 the getdents syscall returns d_type
+ *    information as well and in between 2.6.5 and 2.6.8 most compat wrappers
+ *       were fixed too.  Except s390{,x} which was fixed in 2.6.11.  */
+#if (__LINUX_KERNEL_VERSION >= 0x020608 && !defined __s390__) \
+    || (__LINUX_KERNEL_VERSION >= 0x02060b && defined __s390__)
+# define __ASSUME_GETDENTS32_D_TYPE 1
+#endif
+
 /* These features were surely available with 2.4.12.  */
 #if __LINUX_KERNEL_VERSION >= 132108 && defined __mc68000__
 # define __ASSUME_MMAP2_SYSCALL		1
