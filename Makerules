@@ -9,7 +9,7 @@ PHONY := FORCE
 .PHONY: dummy $(PHONY) \
 	all check clean realclean distclean test \
 	config dist menuconfig oldconfig release \
-	subdirs utils
+	subdirs utils help
 
 # order is important, the stripping uses STRIP_FLAGS for lib-so, but not for lib-a
 ifeq ($(HAVE_SHARED),y)

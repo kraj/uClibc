@@ -10,7 +10,7 @@
 #--------------------------------------------------------------
 noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
-	release dist tags
+	release dist tags help
 
 include $(top_builddir)Rules.mak
 sub_headers := headers
