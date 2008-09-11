@@ -105,6 +105,7 @@ posix_openpt (int flags)
     }
   return -1;
 }
+libc_hidden_def(posix_openpt)
 #undef have_no_dev_ptmx
 #undef devpts_mounted
 
