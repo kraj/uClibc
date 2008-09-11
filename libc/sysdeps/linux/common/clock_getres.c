@@ -40,4 +40,5 @@ int clock_getres(clockid_t clock_id, struct timespec* res)
 
 	return retval;
 }
+libc_hidden_def(clock_getres)
 #endif
