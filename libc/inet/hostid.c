@@ -22,7 +22,7 @@ libc_hidden_proto(read)
 libc_hidden_proto(write)
 libc_hidden_proto(getuid)
 libc_hidden_proto(geteuid)
-libc_hidden_proto(gethostbyname)
+libc_hidden_proto(gethostbyname_r)
 libc_hidden_proto(gethostname)
 
 #define HOSTID "/etc/hostid"
