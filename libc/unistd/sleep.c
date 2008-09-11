@@ -145,12 +145,12 @@ unsigned int sleep (unsigned int seconds)
     act.sa_flags = 0;
     act.sa_mask = oset;
     if (sigaction(SIGALRM, &act, &oact) < 0)
-    	return seconds;
+	return seconds;
 
     before = time(NULL);
     remaining = alarm(seconds);
     if (remaining && remaining > seconds) {
-    	/* restore user's alarm */
+	/* restore user's alarm */
 	(void) sigaction(SIGALRM, &oact, (struct sigaction *) NULL);
 	alarm(remaining); /* restore old alarm */
 	sigsuspend(&oset);
