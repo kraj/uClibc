@@ -172,7 +172,7 @@ cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) \
 	$(CFLAGS-$(notdir $<)) \
 	$(CFLAGS-$(notdir $@)) \
 	$(CFLAGS_gen.dep)
-cmd_compile.i = $(cmd_compile.c:-c=-E -dD)
+cmd_compile.i = $(cmd_compile.c:-c=-E -dD $(EXTRA_CPPFLAGS))
 cmd_compile.s = $(cmd_compile.c:-c=-S)
 cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@)) $(CFLAGS_gen.dep)
 cmd_compile.S = $(filter-out -std=gnu99, $(cmd_compile.c)) -D__ASSEMBLER__ $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
