@@ -32,15 +32,11 @@
 	.type	_dl_linux_resolve, @function
 _dl_linux_resolve:
 	/* Fix up the high 2 bits of the return address.  */
-	mov	a14, a0		// save a0 temporarily
-	_call0	0f
-	.align	4
-0:	extui	a13, a0, 30, 2
-	slli	a13, a13, 30
-	mov	a0, a14		// restore a0
+	movi	a13, 0f
 	slli	a12, a0, 2
-	srli	a12, a12, 2
-	or	a12, a12, a13
+0:	extui	a13, a13, 30, 2
+	ssai	2
+	src	a12, a13, a12
 
 	/* Call the fixup function.  */
 	movi	a8, _dl_linux_resolver
