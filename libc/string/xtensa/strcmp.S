@@ -19,6 +19,7 @@
 
 #include "../../sysdeps/linux/xtensa/sysdep.h"
 #include <bits/xtensa-config.h>
+#include <features.h>
 
 #ifdef __XTENSA_EB__
 #define	MASK0 0xff000000
