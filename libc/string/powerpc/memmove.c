@@ -7,7 +7,7 @@
 
 /* These are carefully optimized mem*() functions for PPC written in C.
  * Don't muck around with these function without checking the generated
- * assmbler code.
+ * assembler code.
  * It is possible to optimize these significantly more by using specific
  * data cache instructions(mainly dcbz). However that requires knownledge
  * about the CPU's cache line size.
