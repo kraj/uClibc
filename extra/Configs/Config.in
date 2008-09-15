@@ -1062,24 +1062,29 @@ endif
 menu "String and Stdio Support"
 
 config UCLIBC_HAS_STRING_GENERIC_OPT
-	bool "Use glibc generic string functions"
+	bool "Use faster (but larger) generic string functions"
 	default y
 	help
 	  Answer Y to use the (tweaked) glibc generic string functions.
+
 	  In general, they are faster (but 3-5K larger) than the base
 	  uClibc string functions which are optimized solely for size.
 
 	  Many people will answer Y.
 
 config UCLIBC_HAS_STRING_ARCH_OPT
-	bool "Use arch-specific string functions"
+	bool "Use arch-specific assembly string functions (where available)"
 	default y
 	help
-	  Answer Y to use the arch-specific string functions instead of the
-	  base uClibc versions, which are optimized exclusively for size.
+	  Answer Y to use any archtecture-specific assembly language string
+	  functions available for this target plaform.
 
-	  Most people will answer Y, as this has been default behavior
-	  for some time.
+	  Note that assembly implementations are not available for all string
+	  functions, so some generic (written in C) string functions may
+	  still be used.
+
+	  These are small and fast, the only reason _not_ to say Y here is
+	  for debugging purposes.
 
 config UCLIBC_HAS_CTYPE_TABLES
 	bool "Use Table Versions Of 'ctype.h' Functions."
@@ -1727,14 +1732,24 @@ config HAVE_NO_SSP
 	default n
 
 config UCLIBC_HAS_SSP
-	bool "Support for propolice smashing stack protector"
+	bool "Support for GCC stack smashing protector"
 	depends on !HAVE_NO_SSP
 	default n
 	help
-	  Add propolice smashing stack protector to the library.
-	  This requires GCC 4.1, supporting the -fstack-protector[-all]
-	  options. GCC does not have to provide libssp, the needed
-	  functions are added to ldso/libc instead.
+	  Add code to support GCC's -fstack-protector[-all] option to uClibc.
+	  This requires GCC 4.1 or newer.  GCC does not have to provide libssp,
+	  the needed functions are added to ldso/libc instead.
+
+	  GCC's stack protector is a reimplementation of IBM's propolice.
+	  See http://www.trl.ibm.com/projects/security/ssp/ and
+	  http://www.linuxfromscratch.org/hints/downloads/files/ssp.txt
+	  for details.
+
+	  Note that NOEXECSTACK on a kernel with address space randomization
+	  is generally sufficient to prevent most buffer overflow exploits
+	  without increasing code size.  This option essentially adds debugging
+	  code to catch them.
+
 	  Most people will answer N.
 
 config UCLIBC_HAS_SSP_COMPAT
@@ -1743,12 +1758,15 @@ config UCLIBC_HAS_SSP_COMPAT
 	default n
 	help
 	  Add gcc-3.x propolice smashing stack protector to the library.
+
 	  This requires a patched version of GCC, supporting the
 	  -fstack-protector[-all] options, with the __guard and
 	  __stack_smash_handler functions removed from libgcc.
 	  These functions are added to ldso/libc instead.
+
 	  More information at:
 	  <http://www.research.ibm.com/trl/projects/security/ssp/>
+
 	  Most people will answer N.
 
 config SSP_QUICK_CANARY
@@ -1785,33 +1803,74 @@ config PROPOLICE_BLOCK_SEGV
 endchoice
 
 config UCLIBC_BUILD_SSP
-	bool "Build uClibc with propolice protection"
+	bool "Build uClibc with -fstack-protector"
 	depends on UCLIBC_HAS_SSP
 	default n
 	help
-	  Build all libraries and executables with propolice protection enabled.
+	  Build all uClibc libraries and executables with -fstack-protector,
+	  adding extra stack overflow checking to most uClibc functions.
 
 config UCLIBC_BUILD_RELRO
-	bool "Build uClibc with RELRO"
+	bool "Build uClibc with linker option -z RELRO"
 	depends on HAVE_SHARED
 	default y
 	help
-	  Build all libraries and executables with -z relro.
+	  Build all libraries and executables with "ld -z relro".
+
+	  This tells the linker to mark chunks of an executable or shared
+	  library read-only after applying dynamic relocations.  (This comes
+	  up when a global const variable is initialized to the address of a
+	  function or the value of another global variable.)
+
+	  This is a fairly obscure option the ld man page doesn't even bother
+	  to document properly.  It's a security paranoia issue that's more
+	  likely to consume memory (by allocating an extra page) rather than
+	  save it.
+
+	  This is explained in more depth at
+	  http://www.airs.com/blog/archives/189
+
+	  Nobody is likely to care whether you say Y or N here.
 
 config UCLIBC_BUILD_NOW
-	bool "Build uClibc with NOW"
+	bool "Build uClibc with linker option -z NOW"
 	depends on HAVE_SHARED
 	default n
 	help
-	  Build all libraries and executables with -z now.
+	  Build all libraries and executables with "ld -z now".
+
+	  This tells the linker to resolve all symbols when the library is
+	  first loaded, rather than when each function is first called.  This
+	  increases start-up latency by a few microseconds and may do
+	  unnecessary work (resolving symbols that are never used), but the
+	  realtime people like it for making microbenchmark timings slightly
+	  more predictable and in some cases it can be slightly faster due to
+	  CPU cache behavior (not having to fault the linker back in to do
+	  lazy symbol resolution).
+
+	  Most people can't tell the difference between selecting Y or N here.
 
 config UCLIBC_BUILD_NOEXECSTACK
 	bool "Build uClibc with noexecstack marking"
 	default y
 	help
-	  Mark all assembler files as noexecstack. This will result in marking
-	  all libraries and executables built against uClibc not requiring
-	  executable stack.
+	  Mark all assembler files as noexecstack, which will mark uClibc
+	  as not requiring an executable stack.  (This doesn't prevent other
+	  files you link against from claiming to need an executable stack, it
+	  just won't cause uClibc to request it unnecessarily.)
+
+	  This is a security thing to make buffer overflows harder to exploit.
+	  By itself, it's kind of useless, as Linus Torvalds explained in 1998:
+	  http://old.lwn.net/1998/0806/a/linus-noexec.html
+
+	  It only actually provides any security when combined with address
+	  space randomization, explained here: http://lwn.net/Articles/121845/
+
+	  Address space randomization is on by default in current linux
+	  kernels (although it can be disabled using the option
+	  CONFIG_COMPAT_BRK).
+
+	  You should probably say Y.
 
 endmenu
 
