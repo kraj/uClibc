@@ -7,7 +7,7 @@
 PHONY := FORCE
 
 .PHONY: dummy $(PHONY) \
-	all check clean realclean distclean test \
+	all check test $(clean_targets) \
 	config dist menuconfig oldconfig release \
 	subdirs utils help
 

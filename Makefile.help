@@ -7,7 +7,8 @@
 
 help:
 	@echo 'Cleaning:'
-	@echo '  clean			- delete temporary files created by build'
+	@echo '  clean			- delete temporary object files'
+	@echo '  realclean		- delete temporary object file, including dependencies'
 	@echo '  distclean		- delete all non-source files (including .config)'
 	@echo
 	@echo 'Build:'

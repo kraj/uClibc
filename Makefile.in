@@ -8,8 +8,10 @@
 #--------------------------------------------------------------
 # You shouldn't need to mess with anything beyond this point...
 #--------------------------------------------------------------
+clean_targets := clean realclean distclean \
+	objclean-y headers_clean-y utils_clean
 noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
-	defconfig allyesconfig allnoconfig clean distclean \
+	defconfig allyesconfig allnoconfig \
 	release dist tags help
 
 include $(top_builddir)Rules.mak
@@ -23,6 +25,16 @@ all: pregen libs
 
 # In this section, we need .config
 -include .config.cmd
+
+else # ifeq ($(HAVE_DOT_CONFIG),y)
+
+all: menuconfig
+
+headers:
+	@echo "Need to make a config file first, run: make menuconfig"
+	@false
+
+endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 include $(top_srcdir)ldso/Makefile.in
 include $(top_srcdir)libcrypt/Makefile.in
@@ -38,6 +50,7 @@ include $(top_srcdir)extra/locale/Makefile.in
 # last included to catch all the objects added by others (locales/threads)
 include $(top_srcdir)libc/Makefile.in
 
+ifeq ($(HAVE_DOT_CONFIG),y)
 # If the .config changes then we have to make sure that our includes are
 # updated properly. This would normally work by saying that the headers
 # have uClibc_config.h as prerequisite but since we _symlink_ the headers
@@ -410,14 +423,6 @@ utils:
 install_utils: utils
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install
 
-else # ifeq ($(HAVE_DOT_CONFIG),y)
-
-all: menuconfig
-
-headers:
-	@echo "Need to make a config file first, run: make menuconfig"
-	@false
-
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 include/bits:
@@ -466,9 +471,8 @@ clean:
 		libm/*.a libnsl/*.a libpthread/*.a libresolv/*.a librt/*.a \
 		libutil/*.a lib/*.a \
 		include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
-	$(MAKE) objclean-y headers_clean-y
-	$(MAKE) -s -C test clean
-	$(MAKE) -C utils utils_clean
+	+$(MAKE) -s -C test clean
+	+$(MAKE) -C utils utils_clean
 	@set -e; \
 	for i in `(cd libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \
