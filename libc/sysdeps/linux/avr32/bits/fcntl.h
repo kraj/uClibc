@@ -169,6 +169,17 @@ struct flock64 {
 
 #ifdef __USE_GNU
 
+/* Flags for SYNC_FILE_RANGE.  */
+# define SYNC_FILE_RANGE_WAIT_BEFORE	1 /* Wait upon writeout of all pages
+					     in the range before performing
+					     the write */
+# define SYNC_FILE_RANGE_WRITE		2 /* Initiate writeout of all those
+					     dirty pages in the range which are
+					     not presently under writeback */
+# define SYNC_FILE_RANGE_WAIT_AFTER	4 /* Wait upon writeout of all pages
+					     in the range after performing the
+					     write */
+
 /* Flags for splice() and vmsplice() */
 # define SPLICE_F_MOVE		1	/* Move pages instead of copying */
 # define SPLICE_F_NONBLOCK	2	/* Don't block on the pipe splicing
@@ -178,6 +189,10 @@ struct flock64 {
 # define SPLICE_F_GIFT		8	/* Pages passed in are a gift */
 
 __BEGIN_DECLS
+
+/* Selective file content synch'ing */
+extern int sync_file_range (int __fd, __off64_t __from, __off64_t __to,
+			    unsigned int __flags);
 
 /* Splice address range into a pipe */
 extern ssize_t vmsplice (int __fdout, const struct iovec *__iov,
