@@ -141,7 +141,7 @@ pregen: include/bits/sysnum.h headers
 	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 		$(Q)$(MAKE) nptl_headers
-ifeq ($(shell $(CC) --help >& /dev/null && echo yes),yes)
+ifeq ($(shell $(CC) --help 2>&1 > /dev/null && echo yes),yes)
 		$(Q)$(MAKE) nptl_arch_headers
 		$(Q)$(MAKE) nptl_linux_headers
 endif
