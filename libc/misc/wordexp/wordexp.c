@@ -784,7 +784,7 @@ parse_arith(char **word, size_t * word_length, size_t * max_length,
 }
 
 /* Function called by child process in exec_comm() */
-static void
+static void attribute_noreturn
 exec_comm_child(char *comm, int *fildes, int showerr, int noexec)
 {
 	const char *args[4] = { _PATH_BSHELL, "-c", comm, NULL };
