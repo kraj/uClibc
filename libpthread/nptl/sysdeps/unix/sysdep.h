@@ -58,4 +58,6 @@
 
 /* Wrappers around system calls should normally inline the system call code.
    But sometimes it is not possible or implemented and we use this code.  */
+#ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_##name (args)
+#endif
