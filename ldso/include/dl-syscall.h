@@ -127,7 +127,7 @@ static __always_inline _syscall3(int, _dl_readlink, const char *, path, char *, 
 #ifdef __UCLIBC_HAS_SSP__
 # include <sys/time.h>
 # define __NR__dl_gettimeofday __NR_gettimeofday
-static __inline__ _syscall2(int, _dl_gettimeofday, struct timeval *, tv,
+static __always_inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv,
 # ifdef __USE_BSD
                         struct timezone *, tz);
 # else
