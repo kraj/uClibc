@@ -40,14 +40,35 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
   return INTERNAL_SYSCALL_ERRNO (ret, err);
 }
 #else
-_syscall4(int, posix_fadvise64, int, fd, __off64_t, offset,
+static __inline__ int syscall_posix_fadvise(int fd, off_t offset1, off_t offset2, off_t len, int advice);
+#define __NR_syscall_posix_fadvise64 __NR_posix_fadvise64
+_syscall4(int, syscall_posix_fadvise64, int, fd, __off64_t, offset,
           __off64_t, len, int, advice);
+int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
+{
+	int ret = syscall_posix_fadvise64(fd, offset, len, advice);
+	if (ret == -1)
+		return errno;
+	return ret;
+}
 #endif
 
 /* 32 bit implementation is kind of a pita */
 #elif __WORDSIZE == 32
 
-#ifdef _syscall6 /* workaround until everyone has _syscall6() */
+#ifdef INTERNAL_SYSCALL
+int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
+{
+	INTERNAL_SYSCALL_DECL (err);
+	int ret = INTERNAL_SYSCALL (fadvise64_64, err, 6, fd,
+								__LONG_LONG_PAIR(offset >> 32, offset &  0xffffffff),
+								__LONG_LONG_PAIR(len >> 32, len & 0xffffffff),
+								advice);
+	if (!INTERNAL_SYSCALL_ERROR_P (ret, err))
+		return 0;
+	return INTERNAL_SYSCALL_ERRNO (ret, err);
+}
+#elif defined _syscall6 /* workaround until everyone has _syscall6() */
 #define __NR___syscall_fadvise64_64 __NR_fadvise64_64
 static __inline__ _syscall6(int, __syscall_fadvise64_64, int, fd,
           unsigned long, high_offset, unsigned long, low_offset,
@@ -55,14 +76,17 @@ static __inline__ _syscall6(int, __syscall_fadvise64_64, int, fd,
           int, advice);
 int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 {
-	return (__syscall_fadvise64_64(fd,
+	int ret = __syscall_fadvise64_64(fd,
 	        __LONG_LONG_PAIR(offset >> 32, offset &  0xffffffff),
 	        __LONG_LONG_PAIR(len >> 32, len & 0xffffffff),
-	        advice));
+	        advice);
+	if (ret == -1)
+		return errno;
+	return ret;
 }
 #else
-#warning _syscall6 has not been defined for your machine :(
-#endif /* _syscall6 */
+#warning neither INTERNAL_SYSCALL nor _syscall6 has been defined for your machine :(
+#endif /* INTERNAL_SYSCALL */
 
 #else
 #error your machine is neither 32 bit or 64 bit ... it must be magical
