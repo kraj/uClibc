@@ -1198,8 +1198,8 @@ void
 PREFIX(print_double_string) (
     const CHAR_T *where,
     const CHAR_T *string1,
-    const CHAR_T *string2,
     int size1,
+    const CHAR_T *string2,
     int size2)
 {
   int this_char;
@@ -4472,9 +4472,9 @@ static reg_errcode_t
 wcs_compile_range (
      CHAR_T range_start_char,
      const CHAR_T **p_ptr, const CHAR_T *pend,
-     CHAR_T *char_set, CHAR_T *b,
      RE_TRANSLATE_TYPE translate,
-     reg_syntax_t syntax)
+     reg_syntax_t syntax,
+     CHAR_T *b, CHAR_T *char_set)
 {
   const CHAR_T *p = *p_ptr;
   CHAR_T range_start, range_end;
@@ -5666,17 +5666,17 @@ count_mbs_length(
 static int
 wcs_re_match_2_internal (
      struct re_pattern_buffer *bufp,
-     const char *cstring1, const char *cstring2,
-     int csize1, int csize2,
+     const char *cstring1, int csize1,
+     const char *cstring2, int csize2,
      int pos,
      struct re_registers *regs,
      int stop,
      /* string1 == string2 == NULL means string1/2, size1/2 and
 	mbs_offset1/2 need seting up in this function.  */
      /* We need wchar_t* buffers correspond to cstring1, cstring2.  */
-     wchar_t *string1, wchar_t *string2,
      /* We need the size of wchar_t buffers correspond to csize1, csize2.  */
-     int size1, int size2,
+     wchar_t *string1, int size1,
+     wchar_t *string2, int size2,
      /* offset buffer for optimization. See convert_mbs_to_wc.  */
      int *mbs_offset1, int *mbs_offset2)
 #else /* BYTE */
