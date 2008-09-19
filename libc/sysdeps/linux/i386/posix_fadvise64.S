@@ -26,15 +26,14 @@
 .global posix_fadvise64
 .type   posix_fadvise64,%function
 posix_fadvise64:
-#ifdef __NR_posix_fadvise64_64
-
+#if defined __NR_fadvise64_64 && defined __UCLIBC_HAS_LFS__
 	/* Save regs  */
 	pushl	%ebp
 	pushl	%ebx
 	pushl	%esi
 	pushl	%edi
 
-	movl $__NR_posix_fadvise64_64, %eax	/* Syscall number in %eax.  */
+	movl $__NR_fadvise64_64, %eax	/* Syscall number in %eax.  */
 
 	movl	24(%esp), %ebx
 	movl	28(%esp), %ecx
@@ -55,7 +54,38 @@ posix_fadvise64:
 	/* If 0 > %eax > -4096 there was an error.  */
 	cmpl $-4096, %eax
 	ja __syscall_error
-#else
+#elif defined __NR_fadvise64
+	/* Save regs  */
+	pushl	%ebx
+	pushl	%esi
+	pushl	%edi
+
+	/* does len overflow long?  */
+	cmpl	$0, 40(%esp)
+	movl	$-EOVERFLOW, %eax
+	ja	overflow
+
+	movl $__NR_fadvise64, %eax	/* Syscall number in %eax.  */
+
+	movl	24(%esp), %ebx
+	movl	28(%esp), %ecx
+	movl	32(%esp), %edx
+	movl	36(%esp), %esi
+	movl	44(%esp), %edi
+
+	/* Do the system call trap.  */
+	int $0x80
+overflow:
+	/* Restore regs  */
+	popl	%edi
+	popl	%esi
+	popl	%ebx
+
+	/* If 0 > %eax > -4096 there was an error.  */
+	cmpl $-4096, %eax
+	ja __syscall_error
+
+#elif defined __UCLIBC_HAS_STUBS__
 	movl	$-ENOSYS, %eax
 	jmp __syscall_error
 #endif
