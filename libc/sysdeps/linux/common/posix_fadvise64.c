@@ -25,7 +25,7 @@
 
 #define __NR_posix_fadvise64 __NR_fadvise64_64
 
-#ifdef INTERNAL_SYSCALL
+#if defined INTERNAL_SYSCALL && ! defined __TARGET_powerpc__
 int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 {
   if (len != (off_t) len)
@@ -56,7 +56,7 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 /* 32 bit implementation is kind of a pita */
 #elif __WORDSIZE == 32
 
-#ifdef INTERNAL_SYSCALL
+#if defined INTERNAL_SYSCALL && ! defined __TARGET_powerpc__
 int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 {
 	INTERNAL_SYSCALL_DECL (err);
