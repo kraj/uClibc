@@ -151,16 +151,6 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 	/* another bit of local storage */
 	mylibname = alloca(2050);
 
-	/* gcc inlines alloca using a single instruction adjusting
-	 * the stack pointer and no stack overflow check and thus
-	 * no NULL error return.  No point leaving in dead code... */
-#if 0
-	if (!path || !mylibname) {
-		_dl_dprintf(2, "Out of memory!\n");
-		_dl_exit(0);
-	}
-#endif
-
 	_dl_memcpy(path, path_list, done+1);
 
 	/* Unlike ldd.c, don't bother to eliminate double //s */
