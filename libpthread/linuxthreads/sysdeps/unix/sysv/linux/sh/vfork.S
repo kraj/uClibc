@@ -19,6 +19,7 @@
 #include <sysdep-cancel.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
+#include <sys/syscall.h>
 
 /* Clone the calling process, but without copying the whole address space.
    The calling process is suspended until the new process exits or is
@@ -39,7 +40,7 @@ ENTRY (__vfork)
 	bf	.Lhidden_fork
 
 	mov.w	.L1, r3
-	trapa	#0x10
+	trapa	#__SH_SYSCALL_TRAP_BASE
 	mov     r0, r1
 	mov	#-12, r2
 	shad	r2, r1
