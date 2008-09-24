@@ -25,6 +25,7 @@ BUILD_CFLAGS-gen_ldc += -D__WCHAR_ENABLED=1
 endif
 
 BUILD_CFLAGS-gen_locale := -D_GNU_SOURCE
+BUILD_CFLAGS-gen_collate := -D_GNU_SOURCE
 
 DEPH-locale := $(top_builddir)include/bits/sysnum.h
 DEPH-gen_locale := c8tables.h

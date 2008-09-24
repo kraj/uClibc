@@ -130,7 +130,7 @@ enum {
 
 #define mywalnum(x)		__CTYPE_isalnum(d)
 #define mywalpha(x)		__CTYPE_isalpha(d)
-#define mywblank(x) 	__CTYPE_isblank(d)
+#define mywblank(x)		__CTYPE_isblank(d)
 #define mywcntrl(x)		__CTYPE_iscntrl(d)
 #define mywdigit(x)		__CTYPE_isdigit(d)
 #define mywgraph(x)		__CTYPE_isgraph(d)
@@ -231,10 +231,11 @@ int main(int argc, char **argv)
 	uldiff_entry uldiff[MAXTO];
 	table_data cttable;
 	table_data ultable;
+#if 0
 	table_data combtable;
 	table_data widthtable;
 	long int last_comb = 0;
-
+#endif
 	unsigned char wct[(RANGE/2)+1];	/* wctype table (nibble per wchar) */
 	unsigned char ult[RANGE+1];	/* upper/lower table */
 	unsigned char combt[(RANGE/4)+1];	/* combining */
@@ -269,6 +270,12 @@ int main(int argc, char **argv)
 	INIT_TYPENAME(cntrl_space_blank);
 	INIT_TYPENAME(cntrl_nonspace);
 
+	memset(&cttable, 0, sizeof(table_data));
+	memset(&ultable, 0, sizeof(table_data));
+#if 0
+	memset(combtable, 0, sizeof table_data);
+	memset(widthtable, 0, sizeof table_data);
+#endif
 	setvbuf(stdout, NULL, _IONBF, 0);
 
 	while (--argc) {
@@ -594,7 +601,9 @@ int main(int argc, char **argv)
 
 		dump_table_data(&cttable);
 		dump_table_data(&ultable);
+#if 0
 		dump_table_data(&combtable);
+#endif
 		}
 
 		printf("verifying for %s...\n", *argv);
@@ -756,8 +765,8 @@ int main(int argc, char **argv)
 		fprintf(fp, "#endif /* WANT_WCuplow_diff_data */\n\n");
 
 
-/* 		output_table(fp, "comb", &combtable); */
-/* 		output_table(fp, "width", &widthtable); */
+/*		output_table(fp, "comb", &combtable); */
+/*		output_table(fp, "width", &widthtable); */
 
 		fclose(fp);
 	}
@@ -874,3 +883,4 @@ size_t newopt(unsigned char *ut, size_t usize, int shift, table_data *tbl)
 	}
 	return smallest;
 }
+/* vi: set sw=4 ts=4: */
