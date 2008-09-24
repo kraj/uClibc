@@ -22,7 +22,7 @@ void *lfind(const void *key, const void *base, size_t *nmemb,
 	register int n = *nmemb;
 
 	while (n--) {
-		if ((*compar) (base, key) == 0)
+		if ((*compar) (key, base) == 0)
 			return ((void*)base);
 		base += size;
 	}
