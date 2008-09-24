@@ -24,7 +24,7 @@ esac
 
 ( echo "#include <asm/unistd.h>";
   echo "#include <asm/unistd.h>" |
-  $CC -E $CC_SYSNUM_ARGS $INCLUDE_OPTS - | tee /tmp/bar |
+  $CC -E $CC_SYSNUM_ARGS $INCLUDE_OPTS - |
   sed -ne 's/^[ ]*#define[ ]*\(__ARM_NR_\|__NR_\)\([A-Za-z0-9_]*\).*/UCLIBC\1\2 \1\2/gp' \
       -e 's/^[ ]*#undef[ ]*\(__ARM_NR_\|__NR_\)\([A-Za-z0-9_]*\).*/UNDEFUCLIBC\1\2 \1\2/gp' # needed to strip out any kernel-internal defines
 ) |
