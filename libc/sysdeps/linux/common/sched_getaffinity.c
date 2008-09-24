@@ -26,8 +26,7 @@
 #include <string.h>
 #include <sys/param.h>
 
-/* Experimentally off - libc_hidden_proto(memset) */
-
+#if defined __NR_sched_getaffinity
 #define __NR___syscall_sched_getaffinity __NR_sched_getaffinity
 static __inline__ _syscall3(int, __syscall_sched_getaffinity, __kernel_pid_t, pid,
 			size_t, cpusetsize, cpu_set_t *, cpuset);
@@ -45,5 +44,11 @@ int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)
 	}
 	return res;
 }
-
+#elif defined __UCLIBC_HAS_STUBS__
+int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)
+{
+    __set_errno(ENOSYS);
+    return -1;
+}
+#endif
 #endif
