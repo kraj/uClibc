@@ -995,6 +995,8 @@ config UCLIBC_HAS_IPV6
 config UCLIBC_HAS_RPC
 	bool "Remote Procedure Call (RPC) support"
 	default n
+	# RPC+socket-ipvX doesn't currently work.
+	depends on UCLIBC_HAS_IPV4 || UCLIBC_HAS_IPV6
 	help
 	  If you want to include RPC support, enable this.  RPC is rarely used
 	  for anything except for the NFS filesystem.  Unless you plan to use NFS,
