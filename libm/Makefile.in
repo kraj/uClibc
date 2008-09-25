@@ -71,7 +71,9 @@ libm_CSRC := \
 	w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c \
 	w_sqrt.c nan.c carg.c s_llrint.c \
 	s_fpclassify.c s_fpclassifyf.c s_signbit.c s_signbitf.c \
-	s_isnan.c s_isnanf.c s_isinf.c s_isinff.c
+	s_isnan.c s_isnanf.c s_isinf.c s_isinff.c \
+	s_fdim.c s_fma.c s_fmax.c s_fmin.c s_nearbyint.c \
+	s_remquo.c s_scalbln.c w_exp2.c w_tgamma.c
 FL_MOBJ := \
 	acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
 	ceilf.o copysignf.o cosf.o coshf.o erfcf.o erff.o exp2f.o expf.o \
