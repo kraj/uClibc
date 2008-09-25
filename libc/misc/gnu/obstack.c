@@ -474,11 +474,11 @@ _obstack_memory_used (
 
 /* Define the error handler.  */
 # ifndef _
-/* #  if (HAVE_LIBINTL_H && ENABLE_NLS) || defined _LIBC */
-#  ifdef __UCLIBC_HAS_GETTEXT_AWARENESS__
+#  if ((HAVE_LIBINTL_H && ENABLE_NLS) || defined _LIBC) && \
+      defined __UCLIBC_HAS_GETTEXT_AWARENESS__ && 00
 #   include <libintl.h>
 #   ifndef _
-#    define _(Str) __dcgettext (NULL, Str, LC_MESSAGES)
+#    define _(Str) INTUSE(__dcgettext) (NULL, Str, LC_MESSAGES)
 #   endif
 #  else
 #   define _(Str) (Str)
