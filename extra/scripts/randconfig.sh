@@ -1,9 +1,16 @@
 #!/bin/sh
 
+# build random configurations
+# Usage:
+# ARCH=i386 nohup ./extra/scripts/randconfig.sh & sleep 1800 && touch STOP
+#
+# The above builds random i386 configs and automatically stops after 30 minutes
+
 test "x$ARCH" = "x" && ARCH=`uname -m`
 KCONFIG_ALLCONFIG=.config.allconfig
 (echo TARGET_$ARCH=y
  echo '# UCLIBC_PREGENERATED_LOCALE_DATA is not set'
+ echo '# DOMULTI is not set'
  echo '# UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA is not set'
 ) > $KCONFIG_ALLCONFIG
 export KCONFIG_ALLCONFIG
@@ -24,3 +31,4 @@ do
   fi
   make distclean > /dev/null || true
 done
+rm -f STOP
