@@ -42,8 +42,6 @@ extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 
 /* Use a funky version in a probably vein attempt at preventing gdb
  * from dlopen()'ing glibc's libthread_db library... */
-#define STRINGIFY(s) STRINGIFY2 (s)
-#define STRINGIFY2(s) #s
-#define VERSION STRINGIFY(__UCLIBC_MAJOR__) "." STRINGIFY(__UCLIBC_MINOR__) "." STRINGIFY(__UCLIBC_SUBLEVEL__)
+#define VERSION __stringify(__UCLIBC_MAJOR__) "." __stringify(__UCLIBC_MINOR__) "." __stringify(__UCLIBC_SUBLEVEL__)
 
 #endif

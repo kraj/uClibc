@@ -82,6 +82,12 @@
 # define IS_IN_libc 1
 #endif
 
+/* Indirect stringification.  Doing two levels allows
+ * the parameter to be a macro itself.
+ */
+#define __stringify_1(x)    #x
+#define __stringify(x)      __stringify_1(x)
+
 #ifdef __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
 # define HAVE_ASM_SET_DIRECTIVE
 #else
