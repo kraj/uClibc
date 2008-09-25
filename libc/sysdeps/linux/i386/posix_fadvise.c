@@ -13,11 +13,13 @@
 
 
 #if defined __NR_fadvise64_64 || defined __NR_fadvise64
-libc_hidden_proto(posix_fadvise64)
+extern int __libc_posix_fadvise64 (int, __off64_t, __off64_t, int ) __THROW;
+
+libc_hidden_proto(__libc_posix_fadvise64)
 libc_hidden_proto(posix_fadvise)
 int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 {
-	if (posix_fadvise64(fd, offset, len, advice) != 0)
+	if (__libc_posix_fadvise64(fd, offset, len, advice) != 0)
 		return errno;
 	return 0;
 }

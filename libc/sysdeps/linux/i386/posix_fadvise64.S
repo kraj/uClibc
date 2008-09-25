@@ -23,9 +23,9 @@
 #include <sys/syscall.h>
 
 .text
-.global posix_fadvise64
-.type   posix_fadvise64,%function
-posix_fadvise64:
+.global __libc_posix_fadvise64
+.type   __libc_posix_fadvise64,%function
+__libc_posix_fadvise64:
 #if defined __NR_fadvise64_64 && defined __UCLIBC_HAS_LFS__
 	/* Save regs  */
 	pushl	%ebp
@@ -92,7 +92,10 @@ overflow:
 	/* Successful; return the syscall's value.  */
 	ret
 
-.size posix_fadvise64,.-posix_fadvise64
+.size __libc_posix_fadvise64,.-__libc_posix_fadvise64
 
-libc_hidden_def(posix_fadvise64)
+libc_hidden_def(__libc_posix_fadvise64)
+#if defined __UCLIBC_HAS_LFS__
+weak_alias(__libc_posix_fadvise64,posix_fadvise64)
+#endif
 
