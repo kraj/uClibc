@@ -285,6 +285,7 @@ ifeq ($(TARGET_ARCH),mips)
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_3)+=-mips3 -mtune=mips3
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_4)+=-mips4 -mtune=mips4
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS32)+=-mips32 -mtune=mips32
+	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS32R2)+=-march=mips32r2 -mtune=mips32r2
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS64)+=-mips64 -mtune=mips32
 	ifeq ($(strip $(ARCH_BIG_ENDIAN)),y)
 		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-Wl,-melf64btsmip
