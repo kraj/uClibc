@@ -127,7 +127,8 @@ $(locale_OUT)/c8tables.h: $(locale_OUT)/gen_wc8bit $(locale_OUT)/codesets.txt
 
 # Warning! Beware tr_TR toupper/tolower exceptions!
 $(locale_OUT)/wctables.h: $(locale_OUT)/gen_wctype
-	$< en_US
+	$< en_US || $< en_US.UTF-8 || $< en_US.iso8859-1 \
+	|| $< en_GB || $< en_GB.UTF-8
 
 $(locale_OUT)/locale_tables.h: $(locale_OUT)/gen_locale $(locale_OUT)/locales.txt
 	$< $(word 2,$^)
@@ -159,7 +160,7 @@ $(locale_OUT)/uClibc_locale_data.h: $(locale_SRC)
 
 else
 
-$(locale_SRC): $(locale_OUT)/gen_ldc
+$(locale_SRC): $(locale_OUT)/gen_ldc $(locale_OUT)/lt_defines.h
 	$<
 
 $(locale_OUT)/uClibc_locale_data.h: $(locale_OUT)/lt_defines.h $(locale_OUT)/c8tables.h $(locale_OUT)/wctables.h $(locale_DIR)/locale_mmap.h | $(locale_SRC)

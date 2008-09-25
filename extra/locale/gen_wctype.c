@@ -736,7 +736,7 @@ int main(int argc, char **argv)
 		printf("done\n");
 	}
 
-	if (1) {
+	if (built) {
 		FILE *fp;
 
 		if (!(fp = fopen("wctables.h", "w"))) {
@@ -771,7 +771,7 @@ int main(int argc, char **argv)
 		fclose(fp);
 	}
 
-	return EXIT_SUCCESS;
+	return !built;
 }
 
 size_t newopt(unsigned char *ut, size_t usize, int shift, table_data *tbl)
