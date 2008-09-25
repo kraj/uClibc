@@ -12,7 +12,11 @@
 #undef __UCLIBC_MMAP_HAS_6_ARGS__
 
 /* does your target use syscall4() for truncate64 ? (32bit arches only) */
+#ifdef __ARM_EABI__
+#define __UCLIBC_TRUNCATE64_HAS_4_ARGS__
+#else
 #undef __UCLIBC_TRUNCATE64_HAS_4_ARGS__
+#endif
 
 /* does your target have a broken create_module() ? */
 #define __UCLIBC_BROKEN_CREATE_MODULE__
