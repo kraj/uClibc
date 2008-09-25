@@ -140,3 +140,7 @@ elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		*reloc_addr += load_off;
 	} while (--relative_count);
 }
+
+#ifdef __ARM_EABI__
+#define DL_MALLOC_ALIGN 8	/* EABI needs 8 byte alignment for STRD LDRD */
+#endif
