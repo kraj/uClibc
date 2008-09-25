@@ -717,9 +717,8 @@ config UCLIBC_LINUX_MODULE_24
 	bool "Linux kernel module functions"
 	default y
 	help
-	  init_module, create_module, query_module, delete_module
-	  are used in linux (allegedly prior to 2.6) for loadable
-	  kernel modules.
+	  create_module, query_module
+	  are used in linux (prior to 2.6) for loadable kernel modules.
 
 	  Say N if you do not use kernel modules.
 
