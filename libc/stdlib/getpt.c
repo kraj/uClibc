@@ -74,14 +74,19 @@ posix_openpt (int flags)
 
 	  /* Check that the /dev/pts filesystem is mounted
 	     or if /dev is a devfs filesystem (this implies /dev/pts).  */
-	  if ((_state & devpts_mounted)
-	      || (__libc_statfs (_PATH_DEVPTS, &fsbuf) == 0
+	  if (
+#if !defined __UNIX98PTY_ONLY__
+	      (_state & devpts_mounted) ||
+#endif
+	      (__libc_statfs (_PATH_DEVPTS, &fsbuf) == 0
 		  && fsbuf.f_type == DEVPTS_SUPER_MAGIC)
 	      || (__libc_statfs (_PATH_DEV, &fsbuf) == 0
 		  && fsbuf.f_type == DEVFS_SUPER_MAGIC))
 	    {
 	      /* Everything is ok.  */
+#if !defined __UNIX98PTY_ONLY__
 	      _state |= devpts_mounted;
+#endif
 	      return fd;
 	    }
 
