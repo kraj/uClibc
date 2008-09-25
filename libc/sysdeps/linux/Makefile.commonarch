@@ -24,7 +24,7 @@ CFLAGS-crti.S+=$(PICFLAG)
 CFLAGS-crtn.S+=$(PICFLAG)
 
 arch_objclean:
-	$(RM) $(ARCH_OUT)/*.{o,os} $(CTOR_TARGETS) $(CRTS)
+	$(RM) $(ARCH_OUT)/*.{o,os,oS} $(CTOR_TARGETS) $(CRTS)
 
 ifneq ($(ARCH_HEADERS),)
 
