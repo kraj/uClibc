@@ -45,11 +45,12 @@ extern __typeof(sigaction) __libc_sigaction;
 extern int _errno;
 extern int _h_errno;
 
+# if defined __UCLIBC_HAS_IPv4__ || defined __UCLIBC_HAS_IPV6__
 /* We need the global/static resolver state here.  */
 # include <resolv.h>
 # undef _res
-
 extern struct __res_state _res;
+# endif
 #endif
 
 #ifdef USE_TLS
@@ -72,7 +73,9 @@ struct _pthread_descr_struct __pthread_initial_thread = {
 #if !(USE_TLS && HAVE___THREAD)
   .p_errnop = &_errno,
   .p_h_errnop = &_h_errno,
+# if defined __UCLIBC_HAS_IPv4__ || defined __UCLIBC_HAS_IPV6__
   .p_resp = &_res,
+# endif
 #endif
   .p_userstack = 1,
   .p_resume_count = __ATOMIC_INITIALIZER,
@@ -539,15 +542,17 @@ static void pthread_initialize(void)
 #ifdef USE_TLS
   /* Update the descriptor for the initial thread. */
   THREAD_SETMEM (((pthread_descr) NULL), p_pid, __getpid());
-# ifndef HAVE___THREAD
+# if !defined HAVE___THREAD && (defined __UCLIBC_HAS_IPv4__ || defined __UCLIBC_HAS_IPV6__)
   /* Likewise for the resolver state _res.  */
   THREAD_SETMEM (((pthread_descr) NULL), p_resp, &_res);
 # endif
 #else
   /* Update the descriptor for the initial thread. */
   __pthread_initial_thread.p_pid = __getpid();
+# if defined __UCLIBC_HAS_IPv4__ || defined __UCLIBC_HAS_IPV6__
   /* Likewise for the resolver state _res.  */
   __pthread_initial_thread.p_resp = &_res;
+# endif
 #endif
 #if !__ASSUME_REALTIME_SIGNALS
   /* Initialize real-time signals. */
@@ -1112,7 +1117,9 @@ void __pthread_reset_main_thread(void)
   /* Now this thread modifies the global variables.  */
   THREAD_SETMEM(self, p_errnop, &_errno);
   THREAD_SETMEM(self, p_h_errnop, &_h_errno);
+# if defined __UCLIBC_HAS_IPv4__ || defined __UCLIBC_HAS_IPV6__
   THREAD_SETMEM(self, p_resp, &_res);
+# endif
 #endif
 
 #ifndef FLOATING_STACKS
