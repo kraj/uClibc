@@ -10,8 +10,12 @@ _init:
 	move	$srp,$r1
 	subq	4,$sp
 	move.d	$r0,[$sp]
+#ifdef __arch_v32
+	lapc	_GLOBAL_OFFSET_TABLE_,$r0
+#else
 	move.d	$pc,$r0
 	sub.d	.:GOTOFF,$r0
+#endif
 	.align	1
 
 	.section	.fini
@@ -24,6 +28,10 @@ _fini:
 	move	$srp,$r1
 	subq	4,$sp
 	move.d	$r0,[$sp]
+#ifdef __arch_v32
+	lapc	_GLOBAL_OFFSET_TABLE_,$r0
+#else
 	move.d	$pc,$r0
 	sub.d	.:GOTOFF,$r0
+#endif
 	.align	1
