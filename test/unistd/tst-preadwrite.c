@@ -30,6 +30,9 @@
 # define PWRITE pwrite
 #endif
 
+#define STRINGIFY(s) STRINGIFY2 (s)
+#define STRINGIFY2(s) #s
+
 /* Prototype for our test function.  */
 extern void do_prepare (int argc, char *argv[]);
 extern int do_test (int argc, char *argv[]);
@@ -53,7 +56,7 @@ do_prepare (int argc, char *argv[])
    char name_len;
 
 #define FNAME FNAME2(TRUNCATE)
-#define FNAME2(s) "/" __stringify(s) "XXXXXX"
+#define FNAME2(s) "/" STRINGIFY(s) "XXXXXX"
 
    name_len = strlen (test_dir);
    name = malloc (name_len + sizeof (FNAME));
@@ -85,15 +88,15 @@ do_test (int argc, char *argv[])
   for (i = 100; i < 200; ++i)
     buf[i] = i;
   if (PWRITE (fd, buf + 100, 100, 100) != 100)
-    error (EXIT_FAILURE, errno, "during %s", __stringify (PWRITE));
+    error (EXIT_FAILURE, errno, "during %s", STRINGIFY (PWRITE));
 
   for (i = 450; i < 600; ++i)
     buf[i] = i;
   if (PWRITE (fd, buf + 450, 150, 450) != 150)
-    error (EXIT_FAILURE, errno, "during %s", __stringify (PWRITE));
+    error (EXIT_FAILURE, errno, "during %s", STRINGIFY (PWRITE));
 
   if (PREAD (fd, res, sizeof (buf) - 50, 50) != sizeof (buf) - 50)
-    error (EXIT_FAILURE, errno, "during %s", __stringify (PREAD));
+    error (EXIT_FAILURE, errno, "during %s", STRINGIFY (PREAD));
 
   close (fd);
   unlink (name);
