@@ -46,7 +46,7 @@ while read -r filename; do
 		# exactly the same as input. That's ok.
 		# Do not abort the script if unifdef "fails"!
 		"$top_builddir/extra/scripts/unifdef" -UUCLIBC_INTERNAL "$1/$filename" \
-		    | grep -v '^libc_hidden_proto[ 	]*([a-zA-Z0-9_]*)$' >"$2/$filename"
+		    | sed -e '/^\(rtld\|lib\(c\|m\|resolv\|dl\|intl\|rt\|nsl\|util\|crypt\|pthread\)\)_hidden_proto[ 	]*([a-zA-Z0-9_]*)$/d' >"$2/$filename"
 	fi
 done
 )
