@@ -23,6 +23,7 @@ static char rcsid[] = "$NetBSD: w_gamma_r.c,v 1.7 1995/11/20 22:06:45 jtc Exp $"
 
 
 double gamma_r(double x, int *signgamp);
+libm_hidden_proto(gamma_r)
 #ifdef __STDC__
 	double gamma_r(double x, int *signgamp) /* wrapper lgamma_r */
 #else
@@ -45,3 +46,4 @@ double gamma_r(double x, int *signgamp);
             return y;
 #endif
 }
+libm_hidden_def(gamma_r)

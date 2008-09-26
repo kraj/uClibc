@@ -32,7 +32,6 @@ static const double huge = 1.0e300;
 static double huge = 1.0e300;
 #endif
 
-libm_hidden_proto(floor)
 #ifdef __STDC__
 	double floor(double x)
 #else

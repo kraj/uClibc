@@ -21,7 +21,6 @@ static char rcsid[] = "$NetBSD: s_fabs.c,v 1.7 1995/05/10 20:47:13 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(fabs)
 #ifdef __STDC__
 	double fabs(double x)
 #else

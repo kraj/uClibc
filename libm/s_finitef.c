@@ -1,3 +1,7 @@
+/* s_finitef.c -- float version of s_finite.c.
+ * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
+ */
+
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,16 +13,20 @@
  * ====================================================
  */
 
+/*
+ * finitef(x) returns 1 is x is finite, else 0;
+ * no branching!
+ */
+
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double nearbyint(double x)
-#else
-	double nearbyint(x)
-	double x;
-#endif
+libm_hidden_proto(__finitef)
+int __finitef(float x)
 {
-  return rint(x);
+	int32_t ix;
+	GET_FLOAT_WORD(ix,x);
+	return (int)((u_int32_t)((ix&0x7fffffff)-0x7f800000)>>31);
 }
-libm_hidden_def(nearbyint)
+libm_hidden_def(__finitef)
+strong_alias(__finitef,finitef)

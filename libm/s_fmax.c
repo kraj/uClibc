@@ -7,7 +7,6 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(fmax)
 #ifdef __STDC__
 	double fmax(double x, double y)
 #else

@@ -19,9 +19,7 @@
    02111-1307 USA.  */
 
 #include <math.h>
-
 #include "math_private.h"
-
 
 libm_hidden_proto (__fpclassifyf)
 int

@@ -104,7 +104,6 @@ static const double zero = 0.0;
 static double zero = 0.0;
 #endif
 
-libm_hidden_proto(log1p)
 #ifdef __STDC__
 	double log1p(double x)
 #else

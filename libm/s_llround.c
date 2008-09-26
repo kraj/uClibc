@@ -22,7 +22,6 @@
 
 #include "math_private.h"
 
-libm_hidden_proto(llround)
 long long int
 llround (double x)
 {

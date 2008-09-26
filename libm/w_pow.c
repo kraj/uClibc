@@ -19,7 +19,6 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(pow)
 #ifdef __STDC__
 	double pow(double x, double y)	/* wrapper pow */
 #else

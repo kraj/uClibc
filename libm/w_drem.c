@@ -7,9 +7,9 @@
 
 #include <math.h>
 
-libm_hidden_proto(remainder)
 
 double drem(double x, double y)
 {
 	return remainder(x, y);
 }
+libm_hidden_def(drem)

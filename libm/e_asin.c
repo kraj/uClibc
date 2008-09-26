@@ -48,7 +48,6 @@ static char rcsid[] = "$NetBSD: e_asin.c,v 1.9 1995/05/12 04:57:22 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(fabs)
 
 #ifdef __STDC__
 static const double

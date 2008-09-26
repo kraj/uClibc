@@ -7,7 +7,6 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(fmin)
 #ifdef __STDC__
 	double fmin(double x, double y)
 #else

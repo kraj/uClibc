@@ -10,10 +10,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_isnan.c,v 1.8 1995/05/10 20:47:36 jtc Exp $";
-#endif
-
 /*
  * isnan(x) returns 1 is x is nan, else 0;
  * no branching!
@@ -22,7 +18,6 @@ static char rcsid[] = "$NetBSD: s_isnan.c,v 1.8 1995/05/10 20:47:36 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto (__isnan)
 #ifdef __STDC__
 	int __isnan(double x)
 #else
@@ -37,9 +32,6 @@ libm_hidden_proto (__isnan)
 	hx = 0x7ff00000 - hx;
 	return (int)(((u_int32_t)hx)>>31);
 }
-libm_hidden_def (__isnan)
-weak_alias (__isnan, isnan)
-#ifdef NO_LONG_DOUBLE
-strong_alias (__isnan, __isnanl)
-weak_alias (__isnan, isnanl)
-#endif
+libm_hidden_def(__isnan)
+weak_alias(__isnan,isnan)
+libm_hidden_weak(isnan)

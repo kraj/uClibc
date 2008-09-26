@@ -14,7 +14,6 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(exp2)
 #ifdef __STDC__
 	double exp2(double x)
 #else

@@ -13,10 +13,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_isnanf.c,v 1.4 1995/05/10 20:47:38 jtc Exp $";
-#endif
-
 /*
  * isnanf(x) returns 1 is x is nan, else 0;
  * no branching!
@@ -26,12 +22,7 @@ static char rcsid[] = "$NetBSD: s_isnanf.c,v 1.4 1995/05/10 20:47:38 jtc Exp $";
 #include "math_private.h"
 
 libm_hidden_proto (__isnanf)
-#ifdef __STDC__
-	int __isnanf(float x)
-#else
-	int __isnanf(x)
-	float x;
-#endif
+int __isnanf(float x)
 {
 	int32_t ix;
 	GET_FLOAT_WORD(ix,x);

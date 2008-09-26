@@ -3,10 +3,6 @@
  * Public domain.
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_isinff.c,v 1.3 1995/05/11 23:20:21 jtc Exp $";
-#endif
-
 /*
  * isinff(x) returns 1 if x is inf, -1 if x is -inf, else 0;
  * no branching!
@@ -26,5 +22,5 @@ __isinff (float x)
 	t |= -t;
 	return ~(t >> 31) & (ix >> 30);
 }
-libm_hidden_def (__isinff)
-weak_alias (__isinff, isinff)
+libm_hidden_def(__isinff)
+strong_alias (__isinff, isinff)

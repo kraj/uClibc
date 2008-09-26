@@ -31,7 +31,9 @@ double nan (const char *tagp)
 	}
 	return NAN;
 }
+libm_hidden_def(nan)
 
+libm_hidden_proto(nanf)
 float nanf (const char *tagp)
 {
 	if (tagp[0] != '\0') {
@@ -41,8 +43,9 @@ float nanf (const char *tagp)
 	}
 	return NAN;
 }
+libm_hidden_def(nanf)
 
-#if 0
+#if defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
 long double nanl (const char *tagp)
 {
 	if (tagp[0] != '\0') {
@@ -52,4 +55,5 @@ long double nanl (const char *tagp)
 	}
 	return NAN;
 }
+libm_hidden_def(nanl)
 #endif

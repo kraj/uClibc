@@ -7,7 +7,6 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(fdim)
 #ifdef __STDC__
 	double fdim(double x, double y)
 #else

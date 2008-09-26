@@ -4,10 +4,6 @@
  * Public domain.
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_isinf.c,v 1.3 1995/05/11 23:20:14 jtc Exp $";
-#endif
-
 /*
  * isinf(x) returns 1 is x is inf, -1 if x is -inf, else 0;
  * no branching!
@@ -16,7 +12,6 @@ static char rcsid[] = "$NetBSD: s_isinf.c,v 1.3 1995/05/11 23:20:14 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(__isinf)
 int
 __isinf (double x)
 {
@@ -26,9 +21,6 @@ __isinf (double x)
 	lx |= -lx;
 	return ~(lx >> 31) & (hx >> 30);
 }
-libm_hidden_def (__isinf)
+libm_hidden_def(__isinf)
 weak_alias (__isinf, isinf)
-#ifdef NO_LONG_DOUBLE
-strong_alias (__isinf, __isinfl)
-weak_alias (__isinf, isinfl)
-#endif
+libm_hidden_weak(isinf)

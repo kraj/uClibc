@@ -21,7 +21,6 @@ static char rcsid[] = "$NetBSD: w_cosh.c,v 1.6 1995/05/10 20:48:47 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(cosh)
 #ifdef __STDC__
 	double cosh(double x)		/* wrapper cosh */
 #else

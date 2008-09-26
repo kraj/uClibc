@@ -20,7 +20,6 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(scalbln)
 #ifdef __STDC__
 static const double
 #else

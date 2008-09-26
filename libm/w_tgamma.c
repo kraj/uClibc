@@ -18,7 +18,7 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(tgamma)
+libm_hidden_proto(signgam)
 #ifdef __STDC__
 	double tgamma(double x)
 #else

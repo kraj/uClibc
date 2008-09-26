@@ -7,7 +7,6 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(remquo)
 #ifdef __STDC__
 	double remquo(double x, double y, int *quo)	/* wrapper remquo */
 #else
