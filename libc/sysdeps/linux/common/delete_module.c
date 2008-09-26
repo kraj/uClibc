@@ -10,7 +10,7 @@
 int delete_module(const char *name);
 #ifdef __NR_delete_module
 _syscall1(int, delete_module, const char *, name);
-#else
+#elif defined __UCLIBC_HAS_STUBS__
 int delete_module(const char *name)
 {
 	__set_errno(ENOSYS);
