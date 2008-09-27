@@ -64,6 +64,8 @@ extern int __parsespent(void *sp, char *line) attribute_hidden;
 extern int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
 			   char *__restrict line_buff, size_t buflen, FILE *f) attribute_hidden;
 
+extern gid_t* __getgrouplist_internal(const char *user, gid_t gid, int *ngroups) attribute_hidden;
+
 /**********************************************************************/
 /* For the various fget??ent_r funcs, return
  *
@@ -684,62 +686,105 @@ struct spwd *sgetspent(const char *string)
 
 #endif
 /**********************************************************************/
+#ifdef L___getgrouplist_internal
+
+gid_t attribute_hidden *__getgrouplist_internal(const char *user, gid_t gid, int *ngroups)
+{
+	FILE *grfile;
+	gid_t *group_list;
+	int num_groups;
+	struct group group;
+	char buff[__UCLIBC_PWD_BUFFER_SIZE__];
+
+	*ngroups = num_groups = 1;
+
+	/* We alloc space for 8 gids at a time. */
+	group_list = malloc(8 * sizeof(group_list[0]));
+	if (!group_list)
+		return NULL;
+
+	group_list[0] = gid;
+	grfile = fopen(_PATH_GROUP, "r");
+	/* If /etc/group doesn't exist, we still return 1-element vector */
+	if (!grfile)
+		return group_list;
+
+	__STDIO_SET_USER_LOCKING(grfile);
+
+	while (!__pgsreader(__parsegrent, &group, buff, sizeof(buff), grfile)) {
+		char **m;
+
+		assert(group.gr_mem); /* Must have at least a NULL terminator. */
+		if (group.gr_gid == gid)
+			continue;
+		for (m = group.gr_mem; *m; m++) {
+			if (strcmp(*m, user) != 0)
+				continue;
+			if (!(num_groups & 7)) {
+				gid_t *tmp = realloc(group_list, (num_groups+8) * sizeof(group_list[0]));
+				if (!tmp)
+					goto DO_CLOSE;
+				group_list = tmp;
+			}
+			group_list[num_groups++] = group.gr_gid;
+			break;
+		}
+	}
+
+ DO_CLOSE:
+	fclose(grfile);
+	*ngroups = num_groups;
+	return group_list;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_getgrouplist
+
+#if defined __USE_BSD || defined __USE_GNU
+int getgrouplist(const char *user, gid_t gid, gid_t *groups, int *ngroups)
+{
+	int sz = *ngroups;
+	gid_t *group_list = __getgrouplist_internal(user, gid, ngroups);
+
+	if (!group_list) {
+		/* malloc failure - what shall we do?
+		 * fail with ENOMEM? I bet users never check for that */
+		/* *ngroups = 1; - already done by __getgrouplist_internal */
+		if (sz) {
+			groups[0] = gid;
+			return 1;
+		}
+		return -1;
+	}
+	/* *ngroups is non-zero here */
+
+	if (sz > *ngroups)
+		sz = *ngroups;
+	if (sz)
+		memcpy(groups, group_list, sz * sizeof(group_list[0]));
+	free(group_list);
+	if (sz < *ngroups)
+		return -1;
+	return sz;
+}
+#endif
+
+#endif
+/**********************************************************************/
 #ifdef L_initgroups
 
 #ifdef __USE_BSD
-
 libc_hidden_proto(setgroups)
 
 int initgroups(const char *user, gid_t gid)
 {
-	FILE *grfile;
-	gid_t *group_list;
-	int num_groups, rv;
-	char **m;
-	struct group group;
-	char buff[__UCLIBC_PWD_BUFFER_SIZE__];
-
-	rv = -1;
-
-	/* We alloc space for 8 gids at a time. */
-	if (((group_list = (gid_t *) malloc(8*sizeof(gid_t *))) != NULL)
-		&& ((grfile = fopen(_PATH_GROUP, "r")) != NULL)
-		) {
-
-		__STDIO_SET_USER_LOCKING(grfile);
-
-		*group_list = gid;
-		num_groups = 1;
-
-		while (!__pgsreader(__parsegrent, &group, buff, sizeof(buff), grfile)) {
-			assert(group.gr_mem); /* Must have at least a NULL terminator. */
-			if (group.gr_gid != gid) {
-				for (m=group.gr_mem ; *m ; m++) {
-					if (!strcmp(*m, user)) {
-						if (!(num_groups & 7)) {
-							gid_t *tmp = (gid_t *)
-								realloc(group_list,
-										(num_groups+8) * sizeof(gid_t *));
-							if (!tmp) {
-								rv = -1;
-								goto DO_CLOSE;
-							}
-							group_list = tmp;
-						}
-						group_list[num_groups++] = group.gr_gid;
-						break;
-					}
-				}
-			}
-		}
-
-		rv = setgroups(num_groups, group_list);
-	DO_CLOSE:
-		fclose(grfile);
-	}
-
-	/* group_list will be NULL if initial malloc failed, which may trigger
-	 * warnings from various malloc debuggers. */
+	int rv;
+	int num_groups = ((unsigned)~0) >> 1; /* INT_MAX */
+	gid_t *group_list = __getgrouplist_internal(user, gid, &num_groups);
+	if (!group_list)
+		return -1;
+	rv = setgroups(num_groups, group_list);
 	free(group_list);
 	return rv;
 }
