@@ -190,7 +190,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			 * The caller should handle the error: undefined reference to weak symbols
 			 * are not fatal.
 			 */
-			return 1
+			return 1;
 		}
 	}
 
