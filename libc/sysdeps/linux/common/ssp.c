@@ -29,18 +29,19 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#if defined __UCLIBC_HAS_SYSLOG__
 #include <sys/syslog.h>
 
-/* Experimentally off - libc_hidden_proto(memset) */
-/* Experimentally off - libc_hidden_proto(strlen) */
+libc_hidden_proto(openlog)
+libc_hidden_proto(syslog)
+libc_hidden_proto(closelog)
+#endif
+
 libc_hidden_proto(sigaction)
 libc_hidden_proto(sigfillset)
 libc_hidden_proto(sigdelset)
 libc_hidden_proto(sigprocmask)
 libc_hidden_proto(write)
-libc_hidden_proto(openlog)
-libc_hidden_proto(syslog)
-libc_hidden_proto(closelog)
 libc_hidden_proto(kill)
 libc_hidden_proto(getpid)
 libc_hidden_proto(_exit)
@@ -69,9 +70,11 @@ static void ssp_write(int fd, const char *msg1, const char *msg2, const char *ms
 	write(fd, msg2, strlen(msg2));
 	write(fd, msg3, strlen(msg3));
 	write(fd, "()\n", 3);
+#if defined __UCLIBC_HAS_SYSLOG__
 	openlog("ssp", LOG_CONS | LOG_PID, LOG_USER);
 	syslog(LOG_INFO, "%s%s%s()", msg1, msg2, msg3);
 	closelog();
+#endif
 }
 
 static attribute_noreturn void terminate(void)
