@@ -186,8 +186,11 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 			            _dl_progname, strtab + symtab[symtab_index].st_name);
 
-			/* Let the caller to handle the error: it may be non fatal if called from dlopen */
-			return 1;
+			/*
+			 * The caller should handle the error: undefined reference to weak symbols
+			 * are not fatal.
+			 */
+			return 1
 		}
 	}
 
