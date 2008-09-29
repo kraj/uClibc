@@ -185,7 +185,9 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 			            _dl_progname, strtab + symtab[symtab_index].st_name);
-			_dl_exit (1);
+
+			/* Let the caller to handle the error: it may be non fatal if called from dlopen */
+			return 1;
 		}
 	}
 
@@ -219,7 +221,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			*reloc_addr = (unsigned long) tpnt->loadaddr + rpnt->r_addend;
 			break;
 		default:
-			return -1; /*call _dl_exit(1) */
+
+			return -1;
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
 	    if (_dl_debug_reloc && _dl_debug_detail)
@@ -256,7 +259,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 			*reloc_addr += (unsigned long) tpnt->loadaddr;
 			break;
 		default:
-			return -1; /*call _dl_exit(1) */
+			return -1;
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_reloc && _dl_debug_detail)
