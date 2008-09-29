@@ -179,22 +179,22 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_compare_and_exchange_val_8_int(mem, new, old, mb1, mb2)	\
 ({ unsigned long __prev; int __cmp;					\
    __arch_compare_and_exchange_xxx_8_int(mem, new, old, mb1, mb2);	\
-   (typeof (*mem))__prev; })
+   (__typeof (*mem))__prev; })
 
 #define __arch_compare_and_exchange_val_16_int(mem, new, old, mb1, mb2) \
 ({ unsigned long __prev; int __cmp;					\
    __arch_compare_and_exchange_xxx_16_int(mem, new, old, mb1, mb2);	\
-   (typeof (*mem))__prev; })
+   (__typeof (*mem))__prev; })
 
 #define __arch_compare_and_exchange_val_32_int(mem, new, old, mb1, mb2) \
 ({ unsigned long __prev; int __cmp;					\
    __arch_compare_and_exchange_xxx_32_int(mem, new, old, mb1, mb2);	\
-   (typeof (*mem))__prev; })
+   (__typeof (*mem))__prev; })
 
 #define __arch_compare_and_exchange_val_64_int(mem, new, old, mb1, mb2) \
 ({ unsigned long __prev; int __cmp;					\
    __arch_compare_and_exchange_xxx_64_int(mem, new, old, mb1, mb2);	\
-   (typeof (*mem))__prev; })
+   (__typeof (*mem))__prev; })
 
 /* Compare and exchange with "acquire" semantics, ie barrier after.  */
 
