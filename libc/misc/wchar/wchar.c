@@ -488,7 +488,8 @@ size_t attribute_hidden _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Fix range for 16 bit wchar_t case.
 #endif
-			if ( ((unsigned char)(s[-1] - 0xc0)) < (0xfe - 0xc0) ) {
+			if (( ((unsigned char)(s[-1] - 0xc0)) < (0xfe - 0xc0) ) &&
+			(((unsigned char)s[-1] != 0xc0 ) && ((unsigned char)s[-1] != 0xc1 ))) {
 				goto START;
 			}
 		BAD:
