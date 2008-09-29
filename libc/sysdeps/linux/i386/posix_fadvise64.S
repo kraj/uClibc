@@ -26,7 +26,7 @@
 .global __libc_posix_fadvise64
 .type   __libc_posix_fadvise64,%function
 __libc_posix_fadvise64:
-#if defined __NR_fadvise64_64 && defined __UCLIBC_HAS_LFS__
+#if defined __NR_fadvise64_64
 	/* Save regs  */
 	pushl	%ebp
 	pushl	%ebx
@@ -35,12 +35,12 @@ __libc_posix_fadvise64:
 
 	movl $__NR_fadvise64_64, %eax	/* Syscall number in %eax.  */
 
-	movl	24(%esp), %ebx
-	movl	28(%esp), %ecx
-	movl	32(%esp), %edx
-	movl	36(%esp), %esi
-	movl	40(%esp), %edi
-	movl	44(%esp), %ebp
+	movl	20(%esp), %ebx
+	movl	24(%esp), %ecx
+	movl	28(%esp), %edx
+	movl	32(%esp), %esi
+	movl	36(%esp), %edi
+	movl	40(%esp), %ebp
 
 	/* Do the system call trap.  */
 	int $0x80
@@ -51,27 +51,27 @@ __libc_posix_fadvise64:
 	popl	%ebx
 	popl	%ebp
 
-	/* If 0 > %eax > -4096 there was an error.  */
-	cmpl $-4096, %eax
-	ja __syscall_error
+	/* Returns 0 on success, else an error code.  */
+	negl	%eax
+
 #elif defined __NR_fadvise64
 	/* Save regs  */
 	pushl	%ebx
 	pushl	%esi
 	pushl	%edi
-
+#if 0
 	/* does len overflow long?  */
-	cmpl	$0, 40(%esp)
+	cmpl	$0, 28(%esp)
 	movl	$-EOVERFLOW, %eax
-	ja	overflow
-
+	jne	overflow
+#endif
 	movl $__NR_fadvise64, %eax	/* Syscall number in %eax.  */
 
-	movl	24(%esp), %ebx
-	movl	28(%esp), %ecx
-	movl	32(%esp), %edx
-	movl	36(%esp), %esi
-	movl	44(%esp), %edi
+	movl	16(%esp), %ebx
+	movl	20(%esp), %ecx
+	movl	24(%esp), %edx
+	movl	28(%esp), %esi
+	movl	32(%esp), %edi
 
 	/* Do the system call trap.  */
 	int $0x80
@@ -81,9 +81,8 @@ overflow:
 	popl	%esi
 	popl	%ebx
 
-	/* If 0 > %eax > -4096 there was an error.  */
-	cmpl $-4096, %eax
-	ja __syscall_error
+	/* Returns 0 on success, else an error code.  */
+	negl	%eax
 
 #elif defined __UCLIBC_HAS_STUBS__
 	movl	$-ENOSYS, %eax
@@ -95,7 +94,7 @@ overflow:
 .size __libc_posix_fadvise64,.-__libc_posix_fadvise64
 
 libc_hidden_def(__libc_posix_fadvise64)
-#if defined __UCLIBC_HAS_LFS__
+#if defined __UCLIBC_HAS_LFS__ && defined __UCLIBC_HAS_ADVANCED_REALTIME__
 weak_alias(__libc_posix_fadvise64,posix_fadvise64)
 #endif
 
