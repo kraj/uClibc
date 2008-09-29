@@ -364,8 +364,8 @@ void *dlopen(const char *libname, int flag)
 			fprintf(stderr, "lib: %s has deps:\n", init_fini_list[i]->libname);
 			runp = init_fini_list[i]->init_fini;
 			for (; runp; runp = runp->next)
-				printf(" %s ", runp->tpnt->libname);
-			printf("\n");
+				fprintf(stderr, " %s ", runp->tpnt->libname);
+			fprintf(stderr, "\n");
 		}
 	}
 #endif
