@@ -13,7 +13,7 @@ help:
 	@echo
 	@echo 'Build:'
 	@echo '  all			- libraries and generated headers'
-	@echo '  pregen		- generated headers'
+	@echo '  pregen		- generate headers'
 	@echo
 	@echo 'Configuration:'
 	@echo '  allnoconfig		- disable all symbols in .config'
@@ -29,7 +29,7 @@ help:
 	@echo '  install		- install both the runtime and the headers'
 	@echo '  install_runtime	- install the libraries'
 	@echo '  install_dev		- install all headers and static libs'
-	@echo '  install_headers	- install headers'
+	@echo '  install_headers	- install headers excluding generated ones'
 	@echo
 	@echo 'Development:'
 	@echo '  check			- run testsuite'
