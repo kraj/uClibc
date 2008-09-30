@@ -20,6 +20,8 @@
 #include <errno.h>
 #include <sys/sem.h>
 #include <stddef.h>
+#include <stdlib.h> /* for NULL */
+
 #include "ipc.h"
 
 
@@ -27,7 +29,6 @@
 /* Return identifier for array of NSEMS semaphores associated with
    KEY.  */
 #include <stdarg.h>
-#include <stdlib.h>
 /* arg for semctl system calls. */
 union semun {
     int val;			/* value for SETVAL */
@@ -61,9 +62,6 @@ int semctl(int semid, int semnum, int cmd, ...)
 #endif
 
 #ifdef L_semget
-/* for definition of NULL */
-#include <stdlib.h>
-
 #ifdef __NR_semget
 _syscall3(int, semget, key_t, key, int, nsems, int, semflg);
 
