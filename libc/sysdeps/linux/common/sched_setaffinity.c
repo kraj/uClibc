@@ -82,7 +82,7 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *cpuset)
 #endif
 
 #if defined ___HAVE_NO_sched_setaffinity && defined __UCLIBC_HAS_STUBS__
-int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)
+int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *cpuset)
 {
     __set_errno(ENOSYS);
     return -1;
