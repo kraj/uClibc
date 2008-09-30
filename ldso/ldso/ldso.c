@@ -495,7 +495,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 #ifdef __LDSO_PRELOAD_FILE_SUPPORT__
 	do {
-		struct stat st;
 		char *preload;
 		int fd;
 		char c, *cp, *cp2;
