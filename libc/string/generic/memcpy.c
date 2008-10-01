@@ -22,6 +22,7 @@
 #include <string.h>
 #include "memcopy.h"
 #include "pagecopy.h"
+#include "_memcpy_fwd.c"
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 
