@@ -21,6 +21,11 @@ sub_headers := headers
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 
+# To be able to build the libs rule, we must first have the generated headers.
+# This is needed when locale support is enabled, but also ensures that the
+# build process is parallel safe.
+libs: pregen
+
 all: pregen libs
 
 # In this section, we need .config
