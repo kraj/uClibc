@@ -59,7 +59,7 @@ define exec_test
 	$(showtest)
 	$(Q)\
 	$(WRAPPER) $(WRAPPER_$(patsubst %_glibc,%,$(binary_name))) \
-	./$(binary_name) $(OPTS) $(OPTS_$(patsubst %_glibc,%,$(binary_name))) > "$(binary_name).out" 2>> "$(binary_name).out" ; \
+	./$(binary_name) $(OPTS) $(OPTS_$(patsubst %_glibc,%,$(binary_name))) > "$(binary_name).out" 2>&1 ; \
 		ret=$$? ; \
 		expected_ret="$(RET_$(patsubst %_glibc,%,$(binary_name)))" ; \
 		test -z "$$expected_ret" && export expected_ret=0 ; \
