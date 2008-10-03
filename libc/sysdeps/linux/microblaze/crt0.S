@@ -20,22 +20,22 @@
 
 	.text
 C_ENTRY(_start):
-	lw	r5, r0, r1		// Arg 0: argc
+	lw	r5, r0, r1	/* Arg 0: argc */
 
-	addi	r6, r1, 4		// Arg 1: argv
+	addi	r6, r1, 4	/* Arg 1: argv */
 
-					// Arg 2: envp
-	addi	r3, r5, 1		// skip argc elements to get envp start
-					// ...plus the NULL at the end of argv
-	add	r3, r3, r3		// Make word offset
+				/* Arg 2: envp */
+	addi	r3, r5, 1	/* skip argc elements to get envp start */
+				/* ...plus the NULL at the end of argv */
+	add	r3, r3, r3	/* Make word offset */
 	add	r3, r3, r3
-	add	r7, r6, r3		// add to argv to get offset
+	add	r7, r6, r3	/* add to argv to get offset */
 
-	// Load SDAs
+	/* Load SDAs */
 	la	r2, r0, C_SYMBOL_NAME(_SDA_BASE_)
 	la	r13, r0, C_SYMBOL_NAME(_SDA2_BASE_)
 
-	// tail-call uclibc's startup routine
+	/* tail-call uclibc's startup routine */
 	brid	C_SYMBOL_NAME(__uClibc_main)
 	nop
 

@@ -95,15 +95,15 @@ ENTRY(__sigsetjmp)
 	mov r2=in0
 	add r3=8,in0
 	;;
-.mem.offset 8,0;	st8.spill.nta [r2]=sp,16	// r12 (sp)
-.mem.offset 0,0;	st8.spill.nta [r3]=gp,16	// r1 (gp)
+.mem.offset 8,0;	st8.spill.nta [r2]=sp,16	/* r12 (sp) */
+.mem.offset 0,0;	st8.spill.nta [r3]=gp,16	/* r1 (gp) */
 	;;
-	st8.nta [r2]=loc2,16		// save caller's unat
-	st8.nta [r3]=r17,16		// save fpsr
+	st8.nta [r2]=loc2,16		/* save caller's unat */
+	st8.nta [r3]=r17,16		/* save fpsr */
 	add r8=0xa0,in0
 	;;
-.mem.offset 8,0;	st8.spill.nta [r2]=r4,16	// r4
-.mem.offset 0,0;	st8.spill.nta [r3]=r5,16	// r5
+.mem.offset 8,0;	st8.spill.nta [r2]=r4,16	/* r4 */
+.mem.offset 0,0;	st8.spill.nta [r3]=r5,16	/* r5 */
 	add r9=0xb0,in0
 	;;
 	stf.spill.nta [r8]=f2,32
@@ -145,39 +145,39 @@ ENTRY(__sigsetjmp)
 	stf.spill.nta [r8]=f30
 	stf.spill.nta [r9]=f31
 
-.mem.offset 8,0;	st8.spill.nta [r2]=r6,16	// r6
-.mem.offset 0,0;	st8.spill.nta [r3]=r7,16	// r7
+.mem.offset 8,0;	st8.spill.nta [r2]=r6,16	/* r6 */
+.mem.offset 0,0;	st8.spill.nta [r3]=r7,16	/* r7 */
 	;;
 	mov r23=ar.bsp
 	mov r25=ar.unat
 	mov out0=in0
 
-	st8.nta [r2]=loc0,16		// b0
-	st8.nta [r3]=r17,16		// b1
+	st8.nta [r2]=loc0,16		/* b0 */
+	st8.nta [r3]=r17,16		/* b1 */
 	mov out1=in1
 	;;
-	st8.nta [r2]=r18,16		// b2
-	st8.nta [r3]=r19,16		// b3
+	st8.nta [r2]=r18,16		/* b2 */
+	st8.nta [r3]=r19,16		/* b3 */
 	;;
-	st8.nta [r2]=r20,16		// b4
-	st8.nta [r3]=r21,16		// b5
+	st8.nta [r2]=r20,16		/* b4 */
+	st8.nta [r3]=r21,16		/* b5 */
 	;;
-	st8.nta [r2]=loc1,16		// ar.pfs
-	st8.nta [r3]=r22,16		// ar.lc
+	st8.nta [r2]=loc1,16		/* ar.pfs */
+	st8.nta [r3]=r22,16		/* ar.lc */
 	;;
-	st8.nta [r2]=r24,16		// pr
-	st8.nta [r3]=r23,16		// ar.bsp
+	st8.nta [r2]=r24,16		/* pr */
+	st8.nta [r3]=r23,16		/* ar.bsp */
 	;;
-	st8.nta [r2]=r25		// ar.unat
-	st8.nta [r3]=in0		// &__jmp_buf
+	st8.nta [r2]=r25		/* ar.unat */
+	st8.nta [r3]=in0		/* &__jmp_buf */
 #if defined NOT_IN_libc && defined IS_IN_rtld
 	/* In ld.so we never save the signal mask.  */
 	;;
 #else
 	br.call.dpnt.few rp=__sigjmp_save
 #endif
-.ret0:					// force a new bundle ::q
-	mov.m ar.unat=loc2		// restore caller's unat
+.ret0:					/* force a new bundle ::q */
+	mov.m ar.unat=loc2		/* restore caller's unat */
 	mov rp=loc0
 	mov ar.pfs=loc1
 	mov r8=0

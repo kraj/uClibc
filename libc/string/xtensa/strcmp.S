@@ -45,35 +45,35 @@
 ENTRY (strcmp)
 	/* a2 = s1, a3 = s2 */
 
-	l8ui	a8, a2, 0	// byte 0 from s1
-	l8ui	a9, a3, 0	// byte 0 from s2
-	movi	a10, 3		// mask
+	l8ui	a8, a2, 0	/* byte 0 from s1 */
+	l8ui	a9, a3, 0	/* byte 0 from s2 */
+	movi	a10, 3		/* mask */
 	bne	a8, a9, .Lretdiff
 
 	or	a11, a2, a3
 	bnone	a11, a10, .Laligned
 
-	xor	a11, a2, a3	// compare low two bits of s1 and s2
-	bany	a11, a10, .Lunaligned	// if they have different alignment
+	xor	a11, a2, a3	/* compare low two bits of s1 and s2 */
+	bany	a11, a10, .Lunaligned	/* if they have different alignment */
 
 	/* s1/s2 are not word-aligned.  */
-	addi	a2, a2, 1	// advance s1
-	beqz	a8, .Leq	// bytes equal, if zero, strings are equal
-	addi	a3, a3, 1	// advance s2
-	bnone	a2, a10, .Laligned // if s1/s2 now aligned
-	l8ui	a8, a2, 0	// byte 1 from s1
-	l8ui	a9, a3, 0	// byte 1 from s2
-	addi	a2, a2, 1	// advance s1
-	bne	a8, a9, .Lretdiff // if different, return difference
-	beqz	a8, .Leq	// bytes equal, if zero, strings are equal
-	addi	a3, a3, 1	// advance s2
-	bnone	a2, a10, .Laligned // if s1/s2 now aligned
-	l8ui	a8, a2, 0	// byte 2 from s1
-	l8ui	a9, a3, 0	// byte 2 from s2
-	addi	a2, a2, 1	// advance s1
-	bne	a8, a9, .Lretdiff // if different, return difference
-	beqz	a8, .Leq	// bytes equal, if zero, strings are equal
-	addi	a3, a3, 1	// advance s2
+	addi	a2, a2, 1	/* advance s1 */
+	beqz	a8, .Leq	/* bytes equal, if zero, strings are equal */
+	addi	a3, a3, 1	/* advance s2 */
+	bnone	a2, a10, .Laligned /* if s1/s2 now aligned */
+	l8ui	a8, a2, 0	/* byte 1 from s1 */
+	l8ui	a9, a3, 0	/* byte 1 from s2 */
+	addi	a2, a2, 1	/* advance s1 */
+	bne	a8, a9, .Lretdiff /* if different, return difference */
+	beqz	a8, .Leq	/* bytes equal, if zero, strings are equal */
+	addi	a3, a3, 1	/* advance s2 */
+	bnone	a2, a10, .Laligned /* if s1/s2 now aligned */
+	l8ui	a8, a2, 0	/* byte 2 from s1 */
+	l8ui	a9, a3, 0	/* byte 2 from s2 */
+	addi	a2, a2, 1	/* advance s1 */
+	bne	a8, a9, .Lretdiff /* if different, return difference */
+	beqz	a8, .Leq	/* bytes equal, if zero, strings are equal */
+	addi	a3, a3, 1	/* advance s2 */
 	j	.Laligned
 
 /* s1 and s2 have different alignment.
@@ -92,8 +92,8 @@ ENTRY (strcmp)
 	/* (2 mod 4) alignment for loop instruction */
 .Lunaligned:
 #if XCHAL_HAVE_LOOPS
-	_movi.n	a8, 0		// set up for the maximum loop count
-	loop	a8, .Lretdiff	// loop forever (almost anyway)
+	_movi.n	a8, 0		/* set up for the maximum loop count */
+	loop	a8, .Lretdiff	/* loop forever (almost anyway) */
 #endif
 .Lnextbyte:
 	l8ui	a8, a2, 0
@@ -131,32 +131,32 @@ ENTRY (strcmp)
 #if XCHAL_HAVE_LOOPS
 .Laligned:
 	.begin	no-transform
-	l32r	a4, .Lmask0	// mask for byte 0
+	l32r	a4, .Lmask0	/* mask for byte 0 */
 	l32r	a7, .Lmask4
 	/* Loop forever.  (a4 is more than than the maximum number
 	   of iterations) */
 	loop	a4, .Laligned_done
 
 	/* First unrolled loop body.  */
-	l32i	a8, a2, 0	// get word from s1
-	l32i	a9, a3, 0	// get word from s2
+	l32i	a8, a2, 0	/* get word from s1 */
+	l32i	a9, a3, 0	/* get word from s2 */
 	slli	a5, a8, 1
 	bne	a8, a9, .Lwne2
 	or	a9, a8, a5
 	bnall	a9, a7, .Lprobeq
 
 	/* Second unrolled loop body.  */
-	l32i	a8, a2, 4	// get word from s1+4
-	l32i	a9, a3, 4	// get word from s2+4
+	l32i	a8, a2, 4	/* get word from s1+4 */
+	l32i	a9, a3, 4	/* get word from s2+4 */
 	slli	a5, a8, 1
 	bne	a8, a9, .Lwne2
 	or	a9, a8, a5
 	bnall	a9, a7, .Lprobeq2
 
-	addi	a2, a2, 8	// advance s1 pointer
-	addi	a3, a3, 8	// advance s2 pointer
+	addi	a2, a2, 8	/* advance s1 pointer */
+	addi	a3, a3, 8	/* advance s2 pointer */
 .Laligned_done:
-	or	a1, a1, a1	// nop
+	or	a1, a1, a1	/* nop */
 
 .Lprobeq2:
 	/* Adjust pointers to account for the loop unrolling.  */
@@ -166,15 +166,15 @@ ENTRY (strcmp)
 #else /* !XCHAL_HAVE_LOOPS */
 
 .Laligned:
-	movi	a4, MASK0	// mask for byte 0
+	movi	a4, MASK0	/* mask for byte 0 */
 	movi	a7, MASK4
 	j	.Lfirstword
 .Lnextword:
-	addi	a2, a2, 4	// advance s1 pointer
-	addi	a3, a3, 4	// advance s2 pointer
+	addi	a2, a2, 4	/* advance s1 pointer */
+	addi	a3, a3, 4	/* advance s2 pointer */
 .Lfirstword:
-	l32i	a8, a2, 0	// get word from s1
-	l32i	a9, a3, 0	// get word from s2
+	l32i	a8, a2, 0	/* get word from s1 */
+	l32i	a9, a3, 0	/* get word from s2 */
 	slli	a5, a8, 1
 	bne	a8, a9, .Lwne2
 	or	a9, a8, a5
@@ -186,49 +186,49 @@ ENTRY (strcmp)
 	/* Words are probably equal, but check for sure.
 	   If not, loop over the rest of string using normal algorithm.  */
 
-	bnone	a8, a4, .Leq	// if byte 0 is zero
-	l32r	a5, .Lmask1	// mask for byte 1
-	l32r	a6, .Lmask2	// mask for byte 2
-	bnone	a8, a5, .Leq	// if byte 1 is zero
-	l32r	a7, .Lmask3	// mask for byte 3
-	bnone	a8, a6, .Leq	// if byte 2 is zero
-	bnone	a8, a7, .Leq	// if byte 3 is zero
-	addi.n	a2, a2, 4	// advance s1 pointer
-	addi.n	a3, a3, 4	// advance s2 pointer
+	bnone	a8, a4, .Leq	/* if byte 0 is zero */
+	l32r	a5, .Lmask1	/* mask for byte 1 */
+	l32r	a6, .Lmask2	/* mask for byte 2 */
+	bnone	a8, a5, .Leq	/* if byte 1 is zero */
+	l32r	a7, .Lmask3	/* mask for byte 3 */
+	bnone	a8, a6, .Leq	/* if byte 2 is zero */
+	bnone	a8, a7, .Leq	/* if byte 3 is zero */
+	addi.n	a2, a2, 4	/* advance s1 pointer */
+	addi.n	a3, a3, 4	/* advance s2 pointer */
 #if XCHAL_HAVE_LOOPS
 
 	/* align (1 mod 4) */
-	loop	a4, .Leq	// loop forever (a4 is bigger than max iters)
+	loop	a4, .Leq	/* loop forever (a4 is bigger than max iters) */
 	.end	no-transform
 
-	l32i	a8, a2, 0	// get word from s1
-	l32i	a9, a3, 0	// get word from s2
-	addi	a2, a2, 4	// advance s1 pointer
+	l32i	a8, a2, 0	/* get word from s1 */
+	l32i	a9, a3, 0	/* get word from s2 */
+	addi	a2, a2, 4	/* advance s1 pointer */
 	bne	a8, a9, .Lwne
-	bnone	a8, a4, .Leq	// if byte 0 is zero
-	bnone	a8, a5, .Leq	// if byte 1 is zero
-	bnone	a8, a6, .Leq	// if byte 2 is zero
-	bnone	a8, a7, .Leq	// if byte 3 is zero
-	addi	a3, a3, 4	// advance s2 pointer
+	bnone	a8, a4, .Leq	/* if byte 0 is zero */
+	bnone	a8, a5, .Leq	/* if byte 1 is zero */
+	bnone	a8, a6, .Leq	/* if byte 2 is zero */
+	bnone	a8, a7, .Leq	/* if byte 3 is zero */
+	addi	a3, a3, 4	/* advance s2 pointer */
 
 #else /* !XCHAL_HAVE_LOOPS */
 
 	j	.Lfirstword2
 .Lnextword2:
-	addi	a3, a3, 4	// advance s2 pointer
+	addi	a3, a3, 4	/* advance s2 pointer */
 .Lfirstword2:
-	l32i	a8, a2, 0	// get word from s1
-	l32i	a9, a3, 0	// get word from s2
-	addi	a2, a2, 4	// advance s1 pointer
+	l32i	a8, a2, 0	/* get word from s1 */
+	l32i	a9, a3, 0	/* get word from s2 */
+	addi	a2, a2, 4	/* advance s1 pointer */
 	bne	a8, a9, .Lwne
-	bnone	a8, a4, .Leq	// if byte 0 is zero
-	bnone	a8, a5, .Leq	// if byte 1 is zero
-	bnone	a8, a6, .Leq	// if byte 2 is zero
-	bany	a8, a7, .Lnextword2	// if byte 3 is zero
+	bnone	a8, a4, .Leq	/* if byte 0 is zero */
+	bnone	a8, a5, .Leq	/* if byte 1 is zero */
+	bnone	a8, a6, .Leq	/* if byte 2 is zero */
+	bany	a8, a7, .Lnextword2	/* if byte 3 is zero */
 #endif /* !XCHAL_HAVE_LOOPS */
 
 	/* Words are equal; some byte is zero.  */
-.Leq:	movi	a2, 0		// return equal
+.Leq:	movi	a2, 0		/* return equal */
 	retw
 
 .Lwne2:	/* Words are not equal.  On big-endian processors, if none of the
@@ -243,18 +243,18 @@ ENTRY (strcmp)
 .Lposreturn:
 	movi	a2, 1
 	retw
-.Lsomezero:	// There is probably some zero byte.
+.Lsomezero:	/* There is probably some zero byte. */
 #endif /* __XTENSA_EB__ */
 .Lwne:	/* Words are not equal.  */
-	xor	a2, a8, a9	// get word with nonzero in byte that differs
-	bany	a2, a4, .Ldiff0	// if byte 0 differs
-	movi	a5, MASK1	// mask for byte 1
-	bnone	a8, a4, .Leq	// if byte 0 is zero
-	bany	a2, a5, .Ldiff1	// if byte 1 differs
-	movi	a6, MASK2	// mask for byte 2
-	bnone	a8, a5, .Leq	// if byte 1 is zero
-	bany	a2, a6, .Ldiff2	// if byte 2 differs
-	bnone	a8, a6, .Leq	// if byte 2 is zero
+	xor	a2, a8, a9	/* get word with nonzero in byte that differs */
+	bany	a2, a4, .Ldiff0	/* if byte 0 differs */
+	movi	a5, MASK1	/* mask for byte 1 */
+	bnone	a8, a4, .Leq	/* if byte 0 is zero */
+	bany	a2, a5, .Ldiff1	/* if byte 1 differs */
+	movi	a6, MASK2	/* mask for byte 2 */
+	bnone	a8, a5, .Leq	/* if byte 1 is zero */
+	bany	a2, a6, .Ldiff2	/* if byte 2 differs */
+	bnone	a8, a6, .Leq	/* if byte 2 is zero */
 #ifdef __XTENSA_EB__
 .Ldiff3:
 .Ldiff2:

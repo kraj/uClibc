@@ -35,13 +35,13 @@ Cambridge, MA 02139, USA.  */
 
 	.text
 
-_start: 
+_start:
 	nop
 	nop
 
 	MOVIA	%o0, main@h
-	lds	%o1,[%sp, (REGWIN_SZ / 4) + 0]	// main's argc
-	lds	%o2,[%sp, (REGWIN_SZ / 4) + 1]	// main's argv
+	lds	%o1,[%sp, (REGWIN_SZ / 4) + 0]	/* main's argc */
+	lds	%o2,[%sp, (REGWIN_SZ / 4) + 1]	/* main's argv */
 
 	MOVIA	%o3, _init@h
 	MOVIA	%o4, _fini@h

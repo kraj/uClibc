@@ -62,18 +62,18 @@ ENTRY(__memchr)
 	.rotr	value[MEMLAT+1], addr[MEMLAT+3], aux[2], poschr[2]
 	.rotp	p[MEMLAT+3]
 	.save ar.lc, saved_lc
-        mov 	saved_lc = ar.lc 	// save the loop counter
+        mov 	saved_lc = ar.lc 	/* save the loop counter */
 	.save pr, saved_pr
-	mov	saved_pr = pr		// save the predicates
+	mov	saved_pr = pr		/* save the predicates */
 	.body
 	mov 	ret0 = str
-	and 	tmp = 7, str		// tmp = str % 8
-	cmp.ne	p7, p0 = r0, r0		// clear p7
-	extr.u	chr = in1, 0, 8		// chr = (unsigned char) in1
+	and 	tmp = 7, str		/* tmp = str % 8 */
+	cmp.ne	p7, p0 = r0, r0		/* clear p7 */
+	extr.u	chr = in1, 0, 8		/* chr = (unsigned char) in1 */
 	mov	len = in2
-	cmp.gtu	p6, p0 = 16, in2	// use a simple loop for short
-(p6)	br.cond.spnt .srchfew ;;	// searches
-	sub	loopcnt = 8, tmp	// loopcnt = 8 - tmp
+	cmp.gtu	p6, p0 = 16, in2	/* use a simple loop for short */
+(p6)	br.cond.spnt .srchfew ;;	/* searches */
+	sub	loopcnt = 8, tmp	/* loopcnt = 8 - tmp */
 	cmp.eq	p6, p0 = tmp, r0
 (p6)	br.cond.sptk	.str_aligned;;
 	sub	len = len, loopcnt
@@ -86,12 +86,12 @@ ENTRY(__memchr)
 (p6)	br.cond.spnt	.foundit
 	br.cloop.sptk	.l1 ;;
 .str_aligned:
-	cmp.ne	p6, p0 = r0, r0		// clear p6
-	shr.u	loopcnt = len, 3	// loopcnt = len / 8
-	and 	len = 7, len ;;		// remaining len = len & 7
+	cmp.ne	p6, p0 = r0, r0		/* clear p6 */
+	shr.u	loopcnt = len, 3	/* loopcnt = len / 8 */
+	and 	len = 7, len ;;		/* remaining len = len & 7 */
 	adds	loopcnt = -1, loopcnt
 	mov	ar.ec = MEMLAT + 3
-	mux1	chrx8 = chr, @brcst ;;	// get a word full of chr
+	mux1	chrx8 = chr, @brcst ;;	/* get a word full of chr */
 	mov	ar.lc = loopcnt
 	mov	pr.rot = 1 << 16 ;;
 .l2:
@@ -114,12 +114,12 @@ ENTRY(__memchr)
 (p6)	br.cond.dpnt	.foundit
 	br.cloop.sptk	.l3 ;;
 .notfound:
-	cmp.ne	p6, p0 = r0, r0	// clear p6 (p7 was already 0 when we got here)
-	mov	ret0 = r0 ;;	// return NULL
+	cmp.ne	p6, p0 = r0, r0	/* clear p6 (p7 was already 0 when we got here) */
+	mov	ret0 = r0 ;;	/* return NULL */
 .foundit:
 	.pred.rel "mutex" p6, p7
-(p6)	adds	ret0 = -1, ret0 		   // if we got here from l1 or l3
-(p7)	add	ret0 = addr[MEMLAT+2], poschr[1]   // if we got here from l2
+(p6)	adds	ret0 = -1, ret0 		   /* if we got here from l1 or l3 */
+(p7)	add	ret0 = addr[MEMLAT+2], poschr[1]   /* if we got here from l2 */
 	mov	pr = saved_pr, -1
 	mov	ar.lc = saved_lc
 	br.ret.sptk.many b0

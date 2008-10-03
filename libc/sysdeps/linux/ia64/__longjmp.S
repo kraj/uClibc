@@ -44,18 +44,18 @@
 LEAF(__longjmp)
 	alloc r8=ar.pfs,2,1,0,0
 	mov r27=ar.rsc
-	add r2=0x98,in0		// r2 <- &jmpbuf.orig_jmp_buf_addr
+	add r2=0x98,in0		/* r2 <- &jmpbuf.orig_jmp_buf_addr */
 	;;
-	ld8 r8=[r2],-16		// r8 <- orig_jmp_buf_addr
+	ld8 r8=[r2],-16		/* r8 <- orig_jmp_buf_addr */
 	mov r10=ar.bsp
-	and r11=~0x3,r27	// clear ar.rsc.mode
+	and r11=~0x3,r27	/* clear ar.rsc.mode */
 	;;
-	flushrs			// flush dirty regs to backing store (must be first in insn grp)
-	ld8 r23=[r2],8		// r23 <- jmpbuf.ar_bsp
-	sub r8=r8,in0		// r8 <- &orig_jmpbuf - &jmpbuf
+	flushrs			/* flush dirty regs to backing store (must be first in insn grp) */
+	ld8 r23=[r2],8		/* r23 <- jmpbuf.ar_bsp */
+	sub r8=r8,in0		/* r8 <- &orig_jmpbuf - &jmpbuf */
 	;;
-	ld8 r25=[r2]		// r25 <- jmpbuf.ar_unat
-	extr.u r8=r8,3,6	// r8 <- (&orig_jmpbuf - &jmpbuf)/8 & 0x3f
+	ld8 r25=[r2]		/* r25 <- jmpbuf.ar_unat */
+	extr.u r8=r8,3,6	/* r8 <- (&orig_jmpbuf - &jmpbuf)/8 & 0x3f */
 	;;
 	cmp.lt pNeg,pPos=r8,r0
 	mov r2=in0
@@ -65,49 +65,49 @@ LEAF(__longjmp)
 (pPos)	sub r17=64,r8
 (pNeg)	sub r17=r0,r8
 	;;
-	mov ar.rsc=r11		// put RSE in enforced lazy mode
+	mov ar.rsc=r11		/* put RSE in enforced lazy mode */
 	shr.u r8=r25,r16
-	add r3=8,in0		// r3 <- &jmpbuf.r1
+	add r3=8,in0		/* r3 <- &jmpbuf.r1 */
 	shl r9=r25,r17
 	;;
 	or r25=r8,r9
 	;;
 	mov r26=ar.rnat
-	mov ar.unat=r25		// setup ar.unat (NaT bits for r1, r4-r7, and r12)
+	mov ar.unat=r25		/* setup ar.unat (NaT bits for r1, r4-r7, and r12) */
 	;;
-	ld8.fill.nta sp=[r2],16	// r12 (sp)
-	ld8.fill.nta gp=[r3],16		// r1 (gp)
-	dep r11=-1,r23,3,6	// r11 <- ia64_rse_rnat_addr(jmpbuf.ar_bsp)
+	ld8.fill.nta sp=[r2],16	/* r12 (sp) */
+	ld8.fill.nta gp=[r3],16		/* r1 (gp) */
+	dep r11=-1,r23,3,6	/* r11 <- ia64_rse_rnat_addr(jmpbuf.ar_bsp) */
 	;;
-	ld8.nta r16=[r2],16		// caller's unat
-	ld8.nta r17=[r3],16		// fpsr
+	ld8.nta r16=[r2],16		/* caller's unat */
+	ld8.nta r17=[r3],16		/* fpsr */
 	;;
-	ld8.fill.nta r4=[r2],16	// r4
-	ld8.fill.nta r5=[r3],16		// r5 (gp)
-	cmp.geu p8,p0=r10,r11	// p8 <- (ar.bsp >= jmpbuf.ar_bsp)
+	ld8.fill.nta r4=[r2],16	/* r4 */
+	ld8.fill.nta r5=[r3],16		/* r5 (gp) */
+	cmp.geu p8,p0=r10,r11	/* p8 <- (ar.bsp >= jmpbuf.ar_bsp) */
 	;;
-	ld8.fill.nta r6=[r2],16	// r6
-	ld8.fill.nta r7=[r3],16		// r7
+	ld8.fill.nta r6=[r2],16	/* r6 */
+	ld8.fill.nta r7=[r3],16		/* r7 */
 	;;
-	mov ar.unat=r16			// restore caller's unat
-	mov ar.fpsr=r17			// restore fpsr
+	mov ar.unat=r16			/* restore caller's unat */
+	mov ar.fpsr=r17			/* restore fpsr */
 	;;
-	ld8.nta r16=[r2],16		// b0
-	ld8.nta r17=[r3],16		// b1
+	ld8.nta r16=[r2],16		/* b0 */
+	ld8.nta r17=[r3],16		/* b1 */
 	;;
-(p8)	ld8 r26=[r11]		// r26 <- *ia64_rse_rnat_addr(jmpbuf.ar_bsp)
-	mov ar.bspstore=r23	// restore ar.bspstore
+(p8)	ld8 r26=[r11]		/* r26 <- *ia64_rse_rnat_addr(jmpbuf.ar_bsp) */
+	mov ar.bspstore=r23	/* restore ar.bspstore */
 	;;
-	ld8.nta r18=[r2],16		// b2
-	ld8.nta r19=[r3],16		// b3
+	ld8.nta r18=[r2],16		/* b2 */
+	ld8.nta r19=[r3],16		/* b3 */
 	;;
-	ld8.nta r20=[r2],16		// b4
-	ld8.nta r21=[r3],16		// b5
+	ld8.nta r20=[r2],16		/* b4 */
+	ld8.nta r21=[r3],16		/* b5 */
 	;;
-	ld8.nta r11=[r2],16		// ar.pfs
-	ld8.nta r22=[r3],56		// ar.lc
+	ld8.nta r11=[r2],16		/* ar.pfs */
+	ld8.nta r22=[r3],56		/* ar.lc */
 	;;
-	ld8.nta r24=[r2],32		// pr
+	ld8.nta r24=[r2],32		/* pr */
 	mov b0=r16
 	;;
 	ldf.fill.nta f2=[r2],32
@@ -149,12 +149,12 @@ LEAF(__longjmp)
 	ldf.fill.nta f31=[r3]
 (p8)	mov r8=1
 
-	mov ar.rnat=r26		// restore ar.rnat
+	mov ar.rnat=r26		/* restore ar.rnat */
 	;;
-	mov ar.rsc=r27		// restore ar.rsc
+	mov ar.rsc=r27		/* restore ar.rsc */
 (p9)	mov r8=in1
 
-	invala			// virt. -> phys. regnum mapping may change
+	invala			/* virt. -> phys. regnum mapping may change */
 	mov pr=r24,-1
 	ret
 END(__longjmp)

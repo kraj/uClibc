@@ -44,8 +44,8 @@ ENTRY (__vfork)
 	mov     r0, r1
 	mov	#-12, r2
 	shad	r2, r1
-	not	r1, r1			// r1=0 means r0 = -1 to -4095
-	tst	r1, r1			// i.e. error in linux
+	not	r1, r1			/* r1=0 means r0 = -1 to -4095 */
+	tst	r1, r1			/* i.e. error in linux */
 	bf	.Lpseudo_end
 	SYSCALL_ERROR_HANDLER
 .Lpseudo_end:
@@ -64,7 +64,7 @@ ENTRY (__vfork)
 	.long	pthread_create
 #endif
 
-.Lhidden_fork:	
+.Lhidden_fork:
 	mov.l	.L2, r1
 	braf	r1
 	 nop

@@ -42,7 +42,7 @@ __vfork:
 	trapa	#__SH_SYSCALL_TRAP_BASE
 	mov     r0, r1
 #ifdef __CONFIG_SH2__
-// 12 arithmetic shifts for the crappy sh2, because shad doesn't exist!	
+/* 12 arithmetic shifts for the crappy sh2, because shad doesn't exist!	 */
 	shar	r1
 	shar	r1
 	shar	r1
@@ -55,13 +55,13 @@ __vfork:
 	shar	r1
 	shar	r1
 	shar	r1
-#else		
+#else
 	mov	#-12, r2
 	shad	r2, r1
 #endif
 
-	not	r1, r1			// r1=0 means r0 = -1 to -4095
-	tst	r1, r1			// i.e. error in linux
+	not	r1, r1			/* r1=0 means r0 = -1 to -4095 */
+	tst	r1, r1			/* i.e. error in linux */
 	bf	2f
 	mov.w	.L1, r1
 	cmp/eq	r1, r0
@@ -73,7 +73,7 @@ __vfork:
 	trapa	#__SH_SYSCALL_TRAP_BASE
 	mov     r0, r1
 #ifdef __CONFIG_SH2__
-// 12 arithmetic shifts for the crappy sh2, because shad doesn't exist!	
+/* 12 arithmetic shifts for the crappy sh2, because shad doesn't exist!	 */
 	shar	r1
 	shar	r1
 	shar	r1
@@ -86,13 +86,13 @@ __vfork:
 	shar	r1
 	shar	r1
 	shar	r1
-#else		
+#else
 	mov	#-12, r2
 	shad	r2, r1
 #endif
 
-	not	r1, r1			// r1=0 means r0 = -1 to -4095
-	tst	r1, r1			// i.e. error in linux
+	not	r1, r1			/* r1=0 means r0 = -1 to -4095 */
+	tst	r1, r1			/* i.e. error in linux */
 	bt/s	__syscall_error
 	 mov	r0, r4
 2:

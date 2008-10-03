@@ -4,5 +4,5 @@
 # error "Never use <bits/endian.h> directly; include <endian.h> instead."
 #endif
 
-//mle
+/*mle */
 #define __BYTE_ORDER __LITTLE_ENDIAN

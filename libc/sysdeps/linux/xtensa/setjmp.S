@@ -61,13 +61,13 @@ END (setjmp)
 		    a3 = int savemask)  */
 
 ENTRY (__sigsetjmp)
-1:	
+1:
 	/* Flush registers.  */
 	movi	a4, __window_spill
 	callx4	a4
 
 	/* Preserve the second argument (savemask) in a15.  The selection
- 	   of a15 is arbitrary, except it's otherwise unused.  There is no
+	   of a15 is arbitrary, except it's otherwise unused.  There is no
 	   risk of triggering a window overflow since we just returned
 	   from __window_spill().  */
 	mov	a15, a3
@@ -90,7 +90,7 @@ ENTRY (__sigsetjmp)
 	slli	a4, a3, 4
 	sub	a5, a7, a4
 	addi	a6, a2, 16
-	addi	a7, a7, -16		// a7 = end of register overflow area
+	addi	a7, a7, -16		/* a7 = end of register overflow area */
 .Lsjloop:
 	l32i	a3, a5, 0
 	l32i	a4, a5, 4

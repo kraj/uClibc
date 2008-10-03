@@ -23,7 +23,7 @@
    Inputs:
         in0:    s1
         in1:    s2
-  	in2:	n
+	in2:	n
 
    Unlike memcmp(), this function is optimized for mismatches within the
    first few characters.  */
@@ -42,13 +42,13 @@
 ENTRY(strncmp)
 	alloc	r2 = ar.pfs, 3, 0, 0, 0
 	mov	ret0 = r0
-	cmp.eq  p6, p0 = r0, r0		// set p6
-	cmp.eq	p7, p0 = n, r0		// return immediately if n == 0
+	cmp.eq  p6, p0 = r0, r0		/* set p6 */
+	cmp.eq	p7, p0 = n, r0		/* return immediately if n == 0 */
 (p7)	br.cond.spnt .restore_and_exit ;;
 .loop:
 	ld1	val1 = [s1], 1
 	ld1	val2 = [s2], 1
-	adds	n = -1, n		// n--
+	adds	n = -1, n		/* n-- */
 	;;
 	cmp.ne.and p6, p0 = val1, r0
 	cmp.ne.and p6, p0 = val2, r0
@@ -58,5 +58,5 @@ ENTRY(strncmp)
 	sub	ret0 = val1, val2
 .restore_and_exit:
 	br.ret.sptk.many b0
-END(strncmp)	
+END(strncmp)
 libc_hidden_weak (strncmp)

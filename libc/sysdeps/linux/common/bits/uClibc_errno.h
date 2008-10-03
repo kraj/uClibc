@@ -9,7 +9,7 @@
 #ifdef IS_IN_rtld
 # undef errno
 # define errno _dl_errno
-extern int _dl_errno; // attribute_hidden;
+extern int _dl_errno; /* attribute_hidden; */
 #elif defined __UCLIBC_HAS_THREADS__
 # include <tls.h>
 # if defined USE___THREAD && USE___THREAD

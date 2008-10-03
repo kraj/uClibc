@@ -34,7 +34,7 @@ __rpc_thread_destroy (void)
 	if (tvp != NULL && tvp != &__libc_tsd_RPC_VARS_mem) {
 		__rpc_thread_svc_cleanup ();
 		__rpc_thread_clnt_cleanup ();
-		//__rpc_thread_key_cleanup ();
+		/*__rpc_thread_key_cleanup (); */
 		free (tvp->authnone_private_s);
 		free (tvp->clnt_perr_buf_s);
 		free (tvp->clntraw_private_s);

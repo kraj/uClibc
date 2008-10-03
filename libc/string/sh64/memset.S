@@ -32,12 +32,12 @@ memset:
 	ptabs r18, tr2
 	mshflo.b r3,r3,r3
 	add r4, r22, r23
-	mperm.w r3, r63, r3	// Fill pattern now in every byte of r3
+	mperm.w r3, r63, r3	/* Fill pattern now in every byte of r3 */
 
 	movi 8, r9
-	bgtu/u r23, r9, tr0 // multiquad
+	bgtu/u r23, r9, tr0 /* multiquad */
 
-	beqi/u r4, 0, tr2       // Return with size 0 - ensures no mem accesses
+	beqi/u r4, 0, tr2       /* Return with size 0 - ensures no mem accesses */
 	ldlo.q r2, 0, r7
 	shlli r4, 2, r4
 	movi -1, r8
@@ -52,20 +52,21 @@ multiquad:
 	stlo.q r2, 0, r3
 	shlri r23, 3, r24
 	add r2, r4, r5
-	beqi/u r24, 1, tr0 // lastquad
+	beqi/u r24, 1, tr0 /* lastquad */
 	pta/l loop, tr1
 	sub r2, r22, r25
-	andi r5, -8, r20   // calculate end address and
-	addi r20, -7*8, r8 // loop end address; This might overflow, so we need
-	                   // to use a different test before we start the loop
-	bge/u r24, r9, tr1 // loop
+	andi r5, -8, r20   /* calculate end address and */
+	addi r20, -7*8, r8 /* loop end address; This might overflow, so we need
+	                      to use a different test before we start the loop
+	                    */
+	bge/u r24, r9, tr1 /* loop */
 	st.q r25, 8, r3
 	st.q r20, -8, r3
 	shlri r24, 1, r24
-	beqi/u r24, 1, tr0 // lastquad
+	beqi/u r24, 1, tr0 /* lastquad */
 	st.q r25, 16, r3
 	st.q r20, -16, r3
-	beqi/u r24, 2, tr0 // lastquad
+	beqi/u r24, 2, tr0 /* lastquad */
 	st.q r25, 24, r3
 	st.q r20, -24, r3
 lastquad:
@@ -73,15 +74,15 @@ lastquad:
 	blink tr2,r63
 
 loop:
-!!!	alloco r25, 32	// QQQ comment out for short-term fix to SHUK #3895.
-			// QQQ commenting out is locically correct, but sub-optimal
-			// QQQ Sean McGoogan - 4th April 2003.
+!!!	alloco r25, 32	/* QQQ comment out for short-term fix to SHUK #3895.
+			   QQQ commenting out is locically correct, but sub-optimal
+			   QQQ Sean McGoogan - 4th April 2003. */
 	st.q r25, 8, r3
 	st.q r25, 16, r3
 	st.q r25, 24, r3
 	st.q r25, 32, r3
 	addi r25, 32, r25
-	bgeu/l r8, r25, tr1 // loop
+	bgeu/l r8, r25, tr1 /* loop */
 
 	st.q r20, -40, r3
 	st.q r20, -32, r3

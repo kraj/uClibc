@@ -567,12 +567,12 @@ static void pthread_initialize(void)
   __libc_sigaction(__pthread_sig_restart, &sa, NULL);
   sa.sa_handler = pthread_handle_sigcancel;
   sigaddset(&sa.sa_mask, __pthread_sig_restart);
-  // sa.sa_flags = 0;
+  /* sa.sa_flags = 0; */
   __libc_sigaction(__pthread_sig_cancel, &sa, NULL);
   if (__pthread_sig_debug > 0) {
     sa.sa_handler = pthread_handle_sigdebug;
     sigemptyset(&sa.sa_mask);
-    // sa.sa_flags = 0;
+    /* sa.sa_flags = 0; */
     __libc_sigaction(__pthread_sig_debug, &sa, NULL);
   }
   /* Initially, block __pthread_sig_restart. Will be unblocked on demand. */

@@ -283,7 +283,7 @@
 
 /* Tacking on "\n#APP\n\t#" to the section name makes gcc put it's bogus
    section attributes on what looks like a comment to the assembler.  */
-#ifdef __sparc__ //HAVE_SECTION_QUOTES
+#ifdef __sparc__ /* HAVE_SECTION_QUOTES */
 # define __sec_comment "\"\n#APP\n\t#\""
 #else
 # define __sec_comment "\n#APP\n\t#"

@@ -525,7 +525,7 @@ static int add_library(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic, int is_setuid, char
 			tmp1++;
 		}
 		if (strcmp(tmp2, s) == 0) {
-			//printf("find_elf_interpreter is skipping '%s' (already in list)\n", cur->name);
+			/*printf("find_elf_interpreter is skipping '%s' (already in list)\n", cur->name); */
 			return 0;
 		}
 	}
@@ -543,7 +543,7 @@ static int add_library(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic, int is_setuid, char
 	/* Now try and locate where this library might be living... */
 	locate_library_file(ehdr, dynamic, is_setuid, newlib);
 
-	//printf("add_library is adding '%s' to '%s'\n", newlib->name, newlib->path);
+	/*printf("add_library is adding '%s' to '%s'\n", newlib->name, newlib->path); */
 	if (!lib_list) {
 		lib_list = newlib;
 	} else {
@@ -596,7 +596,7 @@ static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 		for (cur = lib_list; cur; cur = cur->next) {
 			/* Check if this library is already in the list */
 			if (strcmp(cur->name, tmp1) == 0) {
-				//printf("find_elf_interpreter is replacing '%s' (already in list)\n", cur->name);
+				/*printf("find_elf_interpreter is replacing '%s' (already in list)\n", cur->name); */
 				newlib = cur;
 				free(newlib->name);
 				if (newlib->path != not_found) {
@@ -618,7 +618,7 @@ static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 		newlib->next = NULL;
 
 #if 0
-		//printf("find_elf_interpreter is adding '%s' to '%s'\n", newlib->name, newlib->path);
+		/*printf("find_elf_interpreter is adding '%s' to '%s'\n", newlib->name, newlib->path); */
 		if (!lib_list) {
 			lib_list = newlib;
 		} else {

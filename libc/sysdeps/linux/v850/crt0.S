@@ -19,25 +19,25 @@
 
 	.text
 C_ENTRY(start):
-	ld.w	0[sp], r6		// Arg 0: argc
+	ld.w	0[sp], r6	/* Arg 0: argc */
 
-	addi	4, sp, r7		// Arg 1: argv
+	addi	4, sp, r7	/* Arg 1: argv */
 
-	mov	r7, r8			// Arg 2: envp
-	mov	r6, r10			// skip argc elements to get envp start
-	add	1, r10			// ...plus the NULL at the end of argv
-	shl	2, r10			// Convert to byte-count to skip
+	mov	r7, r8		/* Arg 2: envp */
+	mov	r6, r10		/* skip argc elements to get envp start */
+	add	1, r10		/* ...plus the NULL at the end of argv */
+	shl	2, r10		/* Convert to byte-count to skip */
 	add	r10, r8
 
-	// Load CTBP register
+	/* Load CTBP register */
 	mov	hilo(C_SYMBOL_NAME(_ctbp)), r19
 	ldsr	r19, ctbp
 
-	// Load GP
+	/* Load GP */
 	mov	hilo(C_SYMBOL_NAME(_gp)), gp
 
-	// tail-call uclibc's startup routine
-	addi	-24, sp, sp		// Stack space reserved for args
+	/* tail-call uclibc's startup routine */
+	addi	-24, sp, sp		/* Stack space reserved for args */
 	jr	C_SYMBOL_NAME(__uClibc_main)
 
 

@@ -22,7 +22,7 @@
 #include "math_private.h"
 
 #ifdef __STDC__
-	//__private_extern__
+	/* __private_extern__ */
 	double attribute_hidden __ieee754_gamma_r(double x, int *signgamp)
 #else
 	double attribute_hidden __ieee754_gamma_r(x,signgamp)

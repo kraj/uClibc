@@ -159,7 +159,7 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 				if (topbits != 0xfe000000 && topbits != 0x00000000)
 				{
 #if 0
-					// Don't bother with this during ldso initilization...
+					/* Don't bother with this during ldso initilization... */
 					newvalue = fix_bad_pc24(reloc_addr, symbol_addr)
 						- (unsigned long)reloc_addr + (addend << 2);
 					topbits = newvalue & 0xfe000000;

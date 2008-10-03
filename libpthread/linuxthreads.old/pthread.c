@@ -477,12 +477,12 @@ static void pthread_initialize(void)
   __libc_sigaction(__pthread_sig_restart, &sa, NULL);
   sa.sa_handler = pthread_handle_sigcancel;
   sigaddset(&sa.sa_mask, __pthread_sig_restart);
-  // sa.sa_flags = 0;
+  /* sa.sa_flags = 0; */
   __libc_sigaction(__pthread_sig_cancel, &sa, NULL);
   if (__pthread_sig_debug > 0) {
       sa.sa_handler = pthread_handle_sigdebug;
       sigemptyset(&sa.sa_mask);
-      // sa.sa_flags = 0;
+      /* sa.sa_flags = 0; */
       __libc_sigaction(__pthread_sig_debug, &sa, NULL);
   }
   /* Initially, block __pthread_sig_restart. Will be unblocked on demand. */
@@ -530,7 +530,7 @@ int __pthread_initialize_manager(void)
 	 __pthread_manager_thread_bos, __pthread_manager_thread_tos);
 #if 0
   PDEBUG("initial stack: estimate bos=%p, tos=%p\n",
-  	 __pthread_initial_thread_bos, __pthread_initial_thread_tos);
+	 __pthread_initial_thread_bos, __pthread_initial_thread_tos);
 #endif
 
   /* Setup pipe to communicate with thread manager */

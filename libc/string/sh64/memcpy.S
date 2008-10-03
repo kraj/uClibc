@@ -151,7 +151,7 @@ Large:
 	add r2, r4, r5
 	ldlo.q r3, 0, r0
 	addi r5, -16, r5
-	movi 64+8, r27 // could subtract r7 from that.
+	movi 64+8, r27 /* could subtract r7 from that. */
 	stlo.q r2, 0, r0
 	sthi.q r2, 7, r0
 	ldx.q r22, r6, r0

@@ -63,7 +63,7 @@ clone:
 	trapa	#(__SH_SYSCALL_TRAP_BASE + 2)
 	mov     r0, r1
 #ifdef __CONFIG_SH2__
-// 12 arithmetic shifts for the crappy sh2, because shad doesn't exist!	
+/* 12 arithmetic shifts for the crappy sh2, because shad doesn't exist!	 */
 	shar	r1
 	shar	r1
 	shar	r1
@@ -80,8 +80,8 @@ clone:
 	mov	#-12, r2
 	shad	r2, r1
 #endif
-	not	r1, r1			// r1=0 means r0 = -1 to -4095
-	tst	r1, r1			// i.e. error in linux
+	not	r1, r1			/* r1=0 means r0 = -1 to -4095 */
+	tst	r1, r1			/* i.e. error in linux */
 	bf/s	2f
 	 tst	r0, r0
         bra __syscall_error
