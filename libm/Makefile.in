@@ -52,6 +52,7 @@ endif
 endif
 
 FL_MSRC := float_wrappers.c
+LD_MSRC := ldouble_wrappers.c
 
 ifeq ($(DO_C99_MATH),y)
 libm_CSRC := \
@@ -84,6 +85,15 @@ FL_MOBJ := \
 	nextafterf.o powf.o remainderf.o remquof.o rintf.o roundf.o \
 	scalblnf.o scalbnf.o sinf.o sinhf.o sqrtf.o tanf.o tanhf.o \
 	tgammaf.o truncf.o cargf.o llrintf.o
+
+LD_MOBJ := acoshl.o acosl.o asinhl.o asinl.o atan2l.o atanhl.o atanl.o cbrtl.o \
+	ceill.o copysignl.o coshl.o cosl.o erfcl.o erfl.o exp2l.o expl.o \
+	expm1l.o fabsl.o fdiml.o floorl.o fmal.o fmaxl.o fminl.o fmodl.o \
+	frexpl.o gammal.o hypotl.o ilogbl.o ldexpl.o lgammal.o llrintl.o \
+	llroundl.o log10l.o log1pl.o XXXlog2l.o logbl.o logl.o lrintl.o lroundl.o \
+	modfl.o nearbyintl.o nextafterl.o XXXnexttowardl.o powl.o remainderl.o \
+	remquol.o rintl.o roundl.o scalblnl.o scalbnl.o sinhl.o sinl.o sqrtl.o \
+	tanhl.o tanl.o tgammal.o truncl.o
 else
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
 libm_CSRC := \
@@ -116,9 +126,11 @@ endif
 
 # remove generic objects built from multi-sources, if arch specific version is present
 FL_MOBJ := $(filter-out $(notdir $(libm_ARCH_OBJS)),$(FL_MOBJ))
+LD_MOBJ := $(filter-out $(notdir $(libm_ARCH_OBJS)),$(LD_MOBJ))
 
 # we also try to remove % if s_% is in arch specific subdir
 FL_MOBJ := $(filter-out $(patsubst s_%.o,%.o,$(notdir $(libm_ARCH_OBJS))),$(FL_MOBJ))
+LD_MOBJ := $(filter-out $(patsubst s_%.o,%.o,$(notdir $(libm_ARCH_OBJS))),$(LD_MOBJ))
 endif
 endif
 endif
@@ -126,14 +138,22 @@ endif
 libm_SRC := $(patsubst %.c,$(libm_DIR)/%.c,$(libm_CSRC))
 libm_OBJ := $(patsubst $(libm_DIR)/%.c,$(libm_OUT)/%.o,$(libm_SRC))
 
+ifeq ($(strip $(UCLIBC_HAS_LONG_DOUBLE_MATH)),y)
+libm_MSRC2 := $(libm_DIR)/$(LD_MSRC)
+libm_MOBJ2 := $(patsubst %.o,$(libm_OUT)/%.o,$(LD_MOBJ))
+endif
 libm_MSRC := $(libm_DIR)/$(FL_MSRC)
 libm_MOBJ := $(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
 
+
 ifneq ($(DOMULTI),n)
 CFLAGS-libm += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
+ifeq ($(strip $(UCLIBC_HAS_LONG_DOUBLE_MATH)),y)
+CFLAGS-libm += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ2))))
+endif
 endif
 
-libm_OBJS := $(libm_OBJ) $(libm_MOBJ)
+libm_OBJS := $(libm_OBJ) $(libm_MOBJ) $(libm_MOBJ2)
 
 ifeq ($(DOPIC),y)
 libm-a-y += $(libm_OBJS:.o=.os)
@@ -162,7 +182,7 @@ $(libm_OUT)/libm_so.a: $(libm-so-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-$(libm_OUT)/libm.oS: $(libm_SRC) $(libm_MSRC) $(libm_ARCH_SRC)
+$(libm_OUT)/libm.oS: $(libm_SRC) $(libm_MSRC) $(libm_MSRC2) $(libm_ARCH_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
 
@@ -174,7 +194,13 @@ $(top_builddir)lib/libm.a: $(libm-a-y)
 $(libm_MOBJ): $(libm_MSRC)
 	$(compile.m)
 
+$(libm_MOBJ2): $(libm_MSRC2)
+	$(compile.m)
+
 $(libm_MOBJ:.o=.os): $(libm_MSRC)
+	$(compile.m)
+
+$(libm_MOBJ2:.o=.os): $(libm_MSRC2)
 	$(compile.m)
 
 libm_clean:

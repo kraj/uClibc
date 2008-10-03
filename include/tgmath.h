@@ -36,7 +36,7 @@
 
 #if __GNUC_PREREQ (2, 7)
 
-# ifdef __NO_LONG_DOUBLE_MATH
+# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
 #  define __tgml(fct) fct
 # else
 #  define __tgml(fct) fct ## l

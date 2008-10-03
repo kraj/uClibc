@@ -1,10 +1,10 @@
 # uClibc math tests
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
-TESTS := basic-test rint tst-definitions test-fpucw
-# test-double test-idouble
-# test-float test-ifloat
-# test-ldouble test-ildouble
+TESTS := basic-test rint tst-definitions test-fpucw test-float test-ifloat test-double test-idouble
+ifeq ($(strip $(UCLIBC_HAS_LONG_DOUBLE_MATH)),y)
+TESTS += test-ldouble test-ildouble
+endif
 
 include ../Test.mak
 
@@ -15,7 +15,7 @@ DODIFF_rint     := 1
 ifeq ($(TARGET_ARCH),sh)
 CFLAGS_basic-test := -mieee
 endif
-EXTRA_CFLAGS    := -DNO_LONG_DOUBLE -fno-builtin
+EXTRA_CFLAGS    := -fno-builtin
 EXTRA_LDFLAGS   := -lm
 
 PERL := /usr/bin/perl

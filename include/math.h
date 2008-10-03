@@ -64,7 +64,7 @@ __BEGIN_DECLS
 #define __MATHDECL_1(type, function,suffix, args) \
   extern type __MATH_PRECNAME(function,suffix) args __THROW
 
-#define _Mdouble_ 		double
+#define _Mdouble_		double
 #define __MATH_PRECNAME(name,r)	__CONCAT(name,r)
 # define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_STD
 # define _Mdouble_END_NAMESPACE   __END_NAMESPACE_STD
@@ -83,7 +83,7 @@ __BEGIN_DECLS
 # ifndef _Mfloat_
 #  define _Mfloat_		float
 # endif
-# define _Mdouble_ 		_Mfloat_
+# define _Mdouble_		_Mfloat_
 # ifdef __STDC__
 #  define __MATH_PRECNAME(name,r) name##f##r
 # else
@@ -98,7 +98,7 @@ __BEGIN_DECLS
 # undef	__MATH_PRECNAME
 
 # if (__STDC__ - 0 || __GNUC__ - 0) \
-     && (!defined __NO_LONG_DOUBLE_MATH || defined __LDBL_COMPAT)
+     && (defined __UCLIBC_HAS_LONG_DOUBLE_MATH__ || defined __LDBL_COMPAT)
 #  ifdef __LDBL_COMPAT
 
 #   ifdef __USE_ISOC99
@@ -130,7 +130,7 @@ extern long double __REDIRECT_NTH (nexttowardl,
 #  ifndef _Mlong_double_
 #   define _Mlong_double_	long double
 #  endif
-#  define _Mdouble_ 		_Mlong_double_
+#  define _Mdouble_		_Mlong_double_
 #  ifdef __STDC__
 #   define __MATH_PRECNAME(name,r) name##l##r
 #  else
@@ -210,7 +210,7 @@ enum
   };
 
 /* Return number of classification appropriate for X.  */
-# ifdef __NO_LONG_DOUBLE_MATH
+# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
 #  define fpclassify(x) \
      (sizeof (x) == sizeof (float) ? __fpclassifyf (x) : __fpclassify (x))
 # else
@@ -222,7 +222,7 @@ enum
 # endif
 
 /* Return nonzero value if sign of X is negative.  */
-# ifdef __NO_LONG_DOUBLE_MATH
+# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
 #  define signbit(x) \
      (sizeof (x) == sizeof (float) ? __signbitf (x) : __signbit (x))
 # else
@@ -234,7 +234,7 @@ enum
 # endif
 
 /* Return nonzero value if X is not +-Inf or NaN.  */
-# ifdef __NO_LONG_DOUBLE_MATH
+# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
 #  define isfinite(x) \
      (sizeof (x) == sizeof (float) ? __finitef (x) : __finite (x))
 # else
@@ -250,7 +250,7 @@ enum
 
 /* Return nonzero value if X is a NaN.  We could use `fpclassify' but
    we already have this functions `__isnan' and it is faster.  */
-# ifdef __NO_LONG_DOUBLE_MATH
+# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
 #  define isnan(x) \
      (sizeof (x) == sizeof (float) ? __isnanf (x) : __isnan (x))
 # else
@@ -262,7 +262,7 @@ enum
 # endif
 
 /* Return nonzero value is X is positive or negative infinity.  */
-# ifdef __NO_LONG_DOUBLE_MATH
+# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
 #  define isinf(x) \
      (sizeof (x) == sizeof (float) ? __isinff (x) : __isinf (x))
 # else
