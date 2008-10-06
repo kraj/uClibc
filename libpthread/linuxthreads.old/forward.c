@@ -24,7 +24,7 @@
 /* psm: keep this before internals.h */
 libc_hidden_proto(exit)
 #if 0
-vda: here's why:
+vda: here is why:
 In libpthread/linuxthreads.old/sysdeps/pthread/bits/libc-lock.h
 adding libc_hidden_proto(foo) just before weak_extern (__pthread_initialize)
 will not warn:
