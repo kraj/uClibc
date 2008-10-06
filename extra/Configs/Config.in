@@ -423,12 +423,18 @@ choice
 	prompt "Malloc Implementation"
 	default MALLOC if ! ARCH_USE_MMU
 	default MALLOC_STANDARD if ARCH_USE_MMU
+
+config MALLOC
+	bool "malloc"
 	help
 	  "malloc" use mmap for all allocations and so works very well on MMU-less
 	  systems that do not support the brk() system call.   It is pretty smart
 	  about reusing already allocated memory, and minimizing memory wastage.
 	  This is the default for uClinux MMU-less systems.
 
+config MALLOC_SIMPLE
+	bool "malloc-simple"
+	help
 	  "malloc-simple" was written from scratch for uClibc, and is the
 	  simplest possible (and therefore smallest) malloc implementation.
 	  This uses only the mmap() system call to allocation memory, and does
@@ -437,6 +443,10 @@ choice
 	  certainly isn't the fastest.  But it is 100% standards compliant,
 	  thread safe, and very small.
 
+config MALLOC_STANDARD
+	bool "malloc-standard"
+	depends on ARCH_USE_MMU
+	help
 	  "malloc-standard" is derived from the public domain dlmalloc
 	  implementation by Doug Lea.  It is quite fast, and is pretty smart
 	  about reusing already allocated memory, and minimizing memory
@@ -445,16 +455,6 @@ choice
 	  for uClibc.
 
 	  If unsure, answer "malloc-standard".
-
-config MALLOC
-	bool "malloc"
-
-config MALLOC_SIMPLE
-	bool "malloc-simple"
-
-config MALLOC_STANDARD
-	bool "malloc-standard"
-	depends on ARCH_USE_MMU
 
 endchoice
 
