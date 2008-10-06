@@ -314,7 +314,13 @@ struct ucred
 };
 
 /* Get socket manipulation related informations from kernel headers.  */
+#ifndef __GLIBC__
+#define __GLIBC__ 2
 #include <asm/socket.h>
+#undef __GLIBC__
+#else
+#include <asm/socket.h>
+#endif
 
 
 /* Structure used to manipulate the SO_LINGER option.  */
