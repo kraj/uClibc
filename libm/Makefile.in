@@ -69,7 +69,7 @@ libm_CSRC := \
 	s_tanh.c s_trunc.c w_acos.c w_acosh.c w_asin.c w_atan2.c w_atanh.c \
 	w_cabs.c w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c \
 	w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c \
-	w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c \
+	w_log.c w_log2.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c \
 	w_sqrt.c nan.c carg.c s_llrint.c \
 	s_fpclassify.c s_fpclassifyf.c s_signbit.c s_signbitf.c \
 	s_isnan.c s_isnanf.c s_isinf.c s_isinff.c s_finitef.c \
