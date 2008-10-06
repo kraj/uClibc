@@ -35,8 +35,21 @@ int scandir(const char *dir, struct dirent ***namelist,
     __set_errno (0);
 
     pos = 0;
-    while ((current = readdir (dp)) != NULL)
-	if (selector == NULL || (*selector) (current))
+    while ((current = readdir (dp)) != NULL) {
+	int use_it = selector == NULL;
+
+	if (! use_it)
+	{
+  		use_it = (*selector) (current);
+  		/*
+		 * The selector function might have changed errno.
+		 * It was zero before and it need to be again to make
+		 * the latter tests work.
+		 */
+ 		if (! use_it)
+			__set_errno (0);
+	}
+	if (use_it)
 	{
 	    struct dirent *vnew;
 	    size_t dsize;
@@ -63,6 +76,7 @@ int scandir(const char *dir, struct dirent ***namelist,
 		break;
 
 	    names[pos++] = (struct dirent *) memcpy (vnew, current, dsize);
+	}
 	}
 
     if (unlikely(errno != 0))
