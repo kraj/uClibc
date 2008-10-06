@@ -802,8 +802,6 @@ config UCLIBC_SV4_DEPRECATED
 config UCLIBC_HAS_REALTIME
 	bool "Realtime-related family of SUSv functions"
 	default y
-	# glitch in mq_{send,receive} currently forces this on
-	select UCLIBC_HAS_ADVANCED_REALTIME
 	help
 	  These functions are part of the Timers option and need not
 	  be available on all implementations.
