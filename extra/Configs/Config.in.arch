@@ -168,6 +168,9 @@ config UCLIBC_HAS_FENV
 	  point environment, rounding and exception handling functions then
 	  say Y here.
 
+	  NOTE: Supported architectures currently include:
+	        i386
+
 config UCLIBC_HAS_LONG_DOUBLE_MATH
 	bool "Enable long double support"
 	depends on DO_C99_MATH
