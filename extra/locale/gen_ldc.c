@@ -148,8 +148,9 @@ void out_size_t(FILE *f, const size_t *p, size_t n, char *comment)
 }
 
 
-int main(void)
+int main(int argc, char **argv)
 {
+	char *output_file = "locale_data.c";
 	FILE *lso;					/* static object */
 	int i;
 #ifdef __LOCALE_DATA_MAGIC_SIZE
@@ -158,8 +159,10 @@ int main(void)
 	memset(magic, 0, __LOCALE_DATA_MAGIC_SIZE);
 #endif /* __LOCALE_DATA_MAGIC_SIZE */
 
-	if (!(lso = fopen("locale_data.c", "w"))) {
-		printf("can't open locale_data.c!\n");
+	if (argc == 2)
+		output_file = argv[1];
+	if (!(lso = fopen(output_file, "w"))) {
+		printf("can't open output file '%s'!\n", output_file);
 		return EXIT_FAILURE;
 	}
 

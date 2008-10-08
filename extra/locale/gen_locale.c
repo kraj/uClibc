@@ -554,7 +554,8 @@ static int le_cmp(const void *a, const void *b)
 
 int main(int argc, char **argv)
 {
-	if ((argc != 2) || (!(fp = fopen(*++argv, "r")))) {
+	char *output_file = "locale_tables.h";
+	if ((argc < 2 || argc > 3) || (!(fp = fopen(*++argv, "r")))) {
 		printf("error: missing filename or file!\n");
 		return EXIT_FAILURE;
 	}
@@ -580,9 +581,11 @@ int main(int argc, char **argv)
 			   );
 	}
 #endif
-
-	if (!(ofp = fopen("locale_tables.h", "w"))) {
-		printf("error: can not open locale_tables.h for writing!\n");
+	if (argc == 3)
+		output_file = *++argv;
+	if (output_file == NULL || !(ofp = fopen(output_file, "w"))) {
+		printf("error: can not open outputfile '%s' for writing!\n",
+			output_file);
 		return EXIT_FAILURE;
 	}
 

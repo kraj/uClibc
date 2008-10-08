@@ -154,7 +154,6 @@ headers-y += $(target-headers-sysdep)
 headers: include/bits/uClibc_config.h
 
 pregen: include/bits/sysnum.h headers
-	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
 
 include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 	$(Q)$(INSTALL) -d $(@D)
