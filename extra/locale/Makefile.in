@@ -64,7 +64,7 @@ $(locale_OUT)/codesets.txt:
 	    echo " "; \
 	    echo "You do not have a codesets.txt file.  Please create this "; \
 	    echo "file in the $(locale_OUT) directory by running something like: "; \
-	    echo "  cd $(locale_DIR) && find ./charmaps -name \"*.pairs\" > \\"; \
+	    echo "  cd $(locale_DIR) && find charmaps -name \"*.pairs\" > \\"; \
 	    echo "        $@"; \
 	    echo "and then edit that file to disable/enable the codesets you wish to support. "; \
 	    echo " "; \
@@ -148,7 +148,7 @@ $(locale_OUT)/lt_defines.h: $(locale_OUT)/locale_tables.h $(locale_OUT)/locale_c
 
 $(locale_OUT)/locale_collate.h: $(locale_OUT)/gen_collate $(locale_OUT)/locale_tables.h
 	grep COL_IDX_ $(word 2,$^) | $(SED) -e "s/^.*COL_IDX_\([^, ]*\).*$$/\1/" | \
-		sort | uniq | (cd $(dir $(<)) && xargs ./$(notdir $(<)))
+		sort | uniq | (cd $(<D) && xargs ./$(<F))
 
 $(locale_OUT)/$(LOCALE_DATA_FILENAME):
 ifeq ($(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA),y)
