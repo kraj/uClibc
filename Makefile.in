@@ -360,13 +360,13 @@ install_dev: install_headers all
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 ifeq ($(HAVE_SHARED),y)
 	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
-	sed -e 's/lib\///'` ; do \
+	$(SED) -e 's/lib\///'` ; do \
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
 	done
 	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
-		sed -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
+		$(SED) -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
 		    -e 's:$(SHARED_MAJORNAME):$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME):' \
 		    -e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO):' \
 		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
@@ -389,9 +389,9 @@ ifeq ($(DOPIC),y)
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	if [ -d lib ] ; then \
-		for i in `find lib/  -type f -name 'lib*.a' | sed -e 's/lib\///'` ; do \
+		for i in `find lib/ -type f -name 'lib*.a' | $(SED) -e 's/lib\///'` ; do \
 			$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
-				| sed -e 's/\.a$$/_pic.a/'`; \
+				| $(SED) -e 's/\.a$$/_pic.a/'`; \
 		done ; \
 	fi
 endif
@@ -400,7 +400,7 @@ ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
 	for file in lib/lib*.gdb; do \
 		if test -f $$file; then \
 			$(INSTALL) -m 755 $$file $(PREFIX)$(DEVEL_PREFIX)lib; \
-			$(INSTALL) -m 755 `echo $$file | sed 's/\.gdb$$//'` \
+			$(INSTALL) -m 755 `echo $$file | $(SED) 's/\.gdb$$//'` \
 			  $(PREFIX)$(DEVEL_PREFIX)lib; \
 		fi; \
 	done
@@ -456,11 +456,11 @@ randconfig: extra/config/conf $(suspicious_dependency)
 
 allyesconfig: extra/config/conf $(suspicious_dependency)
 	$(Q)./extra/config/conf -y extra/Configs/Config.in
-	sed -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" .config
-	sed -i -e "s/^DOASSERTS=.*/# DOASSERTS is not set/" .config
-	sed -i -e "s/^SUPPORT_LD_DEBUG_EARLY=.*/# SUPPORT_LD_DEBUG_EARLY is not set/" .config
-	sed -i -e "s/^SUPPORT_LD_DEBUG=.*/# SUPPORT_LD_DEBUG is not set/" .config
-	sed -i -e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" .config
+	$(SED) -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" .config
+	$(SED) -i -e "s/^DOASSERTS=.*/# DOASSERTS is not set/" .config
+	$(SED) -i -e "s/^SUPPORT_LD_DEBUG_EARLY=.*/# SUPPORT_LD_DEBUG_EARLY is not set/" .config
+	$(SED) -i -e "s/^SUPPORT_LD_DEBUG=.*/# SUPPORT_LD_DEBUG is not set/" .config
+	$(SED) -i -e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" .config
 	$(Q)./extra/config/conf -o extra/Configs/Config.in
 
 allnoconfig: extra/config/conf $(suspicious_dependency)

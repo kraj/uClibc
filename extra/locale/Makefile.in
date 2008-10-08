@@ -138,7 +138,7 @@ $(locale_OUT)/lt_defines.h: $(locale_OUT)/locale_tables.h $(locale_OUT)/locale_c
 	grep "^#define __lc" $(word 2,$^) >> $@
 
 $(locale_OUT)/locale_collate.h: $(locale_OUT)/gen_collate $(locale_OUT)/locale_tables.h
-	grep COL_IDX_ $(word 2,$^) | sed -e "s/^.*COL_IDX_\([^, ]*\).*$$/\1/" | \
+	grep COL_IDX_ $(word 2,$^) | $(SED) -e "s/^.*COL_IDX_\([^, ]*\).*$$/\1/" | \
 		sort | uniq | xargs $<
 
 $(locale_OUT)/$(LOCALE_DATA_FILENAME):
@@ -149,7 +149,7 @@ endif
 ifeq ($(UCLIBC_PREGENERATED_LOCALE_DATA),y)
 
 $(locale_SRC): $(locale_OUT)/$(LOCALE_DATA_FILENAME)
-	zcat $< | tar -xv -C $(dir $@) -f -
+	zcat $< | $(TAR) -xv -C $(dir $@) -f -
 	touch $@
 	# we use the one in locale_DIR
 	#$(RM) $(locale_OUT)/locale_mmap.h
@@ -170,7 +170,7 @@ $(locale_OUT)/uClibc_locale_data.h: $(locale_OUT)/lt_defines.h $(locale_OUT)/c8t
 endif
 
 $(top_builddir)include/bits/uClibc_locale_data.h: $(locale_OUT)/uClibc_locale_data.h | $(top_builddir)include/bits/uClibc_config.h
-	cat $< | awk 'BEGIN{i=1}{ if ( /WANT_/ ) i = /endif/ ; else if (i) print $0 }' > $@
+	cat $< | $(AWK) 'BEGIN{i=1}{ if ( /WANT_/ ) i = /endif/ ; else if (i) print $0 }' > $@
 
 objclean-y += locale_clean
 
