@@ -65,7 +65,7 @@
 #ifdef L_wcstoul
 #define wcstoull __ignore_wcstoull
 #endif
-#ifdef strtol_l
+#ifdef L_strtol_l
 #define strtoll_l __ignore_strtoll_l
 #endif
 #ifdef L_strtoul_l
@@ -344,7 +344,7 @@ strong_alias(strtol,strtoimax)
 #else
 #undef strtoll
 #endif
-extern __typeof(strtol) __XL_NPP(strtoll);
+extern __typeof(__XL_NPP(strtol)) __XL_NPP(strtoll);
 libc_hidden_proto(__XL_NPP(strtoll))
 strong_alias(__XL_NPP(strtol),__XL_NPP(strtoll))
 libc_hidden_def(__XL_NPP(strtoll))
@@ -397,7 +397,7 @@ strong_alias(strtoul,strtoumax)
 #else
 #undef strtoull
 #endif
-extern __typeof(strtoul) __XL_NPP(strtoull);
+extern __typeof(__XL_NPP(strtoul)) __XL_NPP(strtoull);
 libc_hidden_proto(__XL_NPP(strtoull))
 strong_alias(__XL_NPP(strtoul),__XL_NPP(strtoull))
 libc_hidden_def(__XL_NPP(strtoull))
@@ -1090,7 +1090,7 @@ strong_alias(wcstol,wcstoimax)
 #else
 #undef wcstoll
 #endif
-extern __typeof(wcstol) __XL_NPP(wcstoll);
+extern __typeof(__XL_NPP(wcstol)) __XL_NPP(wcstoll);
 libc_hidden_proto(__XL_NPP(wcstoll))
 strong_alias(__XL_NPP(wcstol),__XL_NPP(wcstoll))
 libc_hidden_def(__XL_NPP(wcstoll))
@@ -1143,7 +1143,7 @@ strong_alias(wcstoul,wcstoumax)
 #else
 #undef wcstoull
 #endif
-extern __typeof(wcstoul) __XL_NPP(wcstoull);
+extern __typeof(__XL_NPP(wcstoul)) __XL_NPP(wcstoull);
 libc_hidden_proto(__XL_NPP(wcstoull))
 strong_alias(__XL_NPP(wcstoul),__XL_NPP(wcstoull))
 libc_hidden_def(__XL_NPP(wcstoull))
