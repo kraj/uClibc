@@ -360,7 +360,7 @@ CRTS_COMPAT :=
 #endif
 
 $(crt-y): $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC)
-$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | $(headers-y)
+$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | headers
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)
