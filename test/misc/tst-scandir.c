@@ -3,7 +3,7 @@
 
 int skip_all(const struct dirent *dirbuf)
 {
-	__set_errno(EBADF);
+	errno = EBADF;
 	return 0;
 }
 
