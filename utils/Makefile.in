@@ -84,16 +84,14 @@ $(hostutils_OBJ): $(utils_OUT)/%.host : $(utils_DIR)/%.c
 install-y += utils_install
 
 utils_install: utils
-	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)usr/bin
-	#$(INSTALL) -m 755 $(utils_OUT)/readelf $(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
+	#$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/readelf $(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
 ifeq ($(HAVE_SHARED),y)
-	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)sbin
-	$(INSTALL) -m 755 $(utils_OUT)/ldd $(PREFIX)$(RUNTIME_PREFIX)usr/bin/ldd
-	$(INSTALL) -m 755 $(utils_OUT)/ldconfig $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig
+	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/ldd $(PREFIX)$(RUNTIME_PREFIX)usr/bin/ldd
+	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/ldconfig $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig
 endif
 ifeq ($(UCLIBC_HAS_LOCALE),y)
-	$(INSTALL) -m 755 $(utils_OUT)/iconv $(PREFIX)$(RUNTIME_PREFIX)usr/bin/iconv
-	$(INSTALL) -m 755 $(utils_OUT)/locale $(PREFIX)$(RUNTIME_PREFIX)usr/bin/locale
+	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/iconv $(PREFIX)$(RUNTIME_PREFIX)usr/bin/iconv
+	$(Q)$(INSTALL) -m 755 $(utils_OUT)/locale $(PREFIX)$(RUNTIME_PREFIX)usr/bin/locale
 endif
 
 objclean-y += utils_clean
