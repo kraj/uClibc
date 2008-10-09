@@ -81,6 +81,8 @@ pur_disp_compile.u = echo "  "CC $(show_objs)
 pur_disp_compile.S = echo "  "AS $(show_objs)
 pur_disp_compile.m = $(pur_disp_compile.c)
 pur_disp_compile-m = echo "  "CC-m $(show_objs)
+pur_disp_hcompile.u= echo "  "HOSTCC $(show_objs)
+pur_disp_hcompile.o= echo "  "HOSTCC-o $(show_objs)
 pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_t_strip   = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
@@ -97,6 +99,8 @@ sil_disp_compile.u = true
 sil_disp_compile.S = true
 sil_disp_compile.m = true
 sil_disp_compile-m = true
+sil_disp_hcompile.u= true
+sil_disp_hcompile.o= true
 sil_disp_strip     = true
 sil_disp_t_strip   = true
 sil_disp_ar        = true
@@ -113,6 +117,8 @@ ver_disp_compile.u = echo $(cmd_compile.u)
 ver_disp_compile.S = echo $(cmd_compile.S)
 ver_disp_compile.m = echo $(cmd_compile.m)
 ver_disp_compile-m = echo $(cmd_compile-m)
+ver_disp_hcompile.u= echo $(cmd_hcompile.u)
+ver_disp_hcompile.o= echo $(cmd_hcompile.o)
 ver_disp_strip     = echo $(cmd_strip)
 ver_disp_t_strip   = echo $(cmd_t_strip)
 ver_disp_ar        = echo $(cmd_ar)
@@ -129,6 +135,8 @@ disp_compile.u = $($(DISP)_disp_compile.u)
 disp_compile.S = $($(DISP)_disp_compile.S)
 disp_compile.m = $($(DISP)_disp_compile.m)
 disp_compile-m = $($(DISP)_disp_compile-m)
+disp_hcompile.u= $($(DISP)_disp_hcompile.u)
+disp_hcompile.o= $($(DISP)_disp_hcompile.o)
 disp_strip     = $($(DISP)_disp_strip)
 disp_t_strip   = $($(DISP)_disp_t_strip)
 disp_ar        = $($(DISP)_disp_ar)
@@ -197,6 +205,8 @@ compile-m = @$(disp_compile-m) ; $(cmd_compile-m) ; $(cmd_t_strip)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
 do_t_strip= @$(disp_t_strip)   ; $(cmd_t_strip)
 do_unifdef= @$(disp_unifdef)   ; $(cmd_unifdef)
+hcompile.u= @$(call maybe_exec,hcompile.u)
+hcompile.o= @$(call maybe_exec,hcompile.o)
 
 define do_ar
 	$(do_strip)
@@ -206,8 +216,8 @@ define compile.u
 	@$(disp_compile.u) ; $(cmd_compile.u)
 	@$(disp_t_strip)
 endef
-hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
-hcompile.o = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
+cmd_hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
+cmd_hcompile.o = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
 
 define link.so
 	$(Q)$(INSTALL) -d $(dir $@)
