@@ -209,8 +209,8 @@ hcompile.u= @$(call maybe_exec,hcompile.u)
 hcompile.o= @$(call maybe_exec,hcompile.o)
 
 define do_ar
-	$(do_strip)
 	@$(disp_ar) ; $(cmd_ar)
+	@$(do_t_strip)
 endef
 define compile.u
 	@$(disp_compile.u) ; $(cmd_compile.u)
