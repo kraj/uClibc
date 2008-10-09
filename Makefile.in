@@ -420,6 +420,8 @@ ifeq ($(HAVE_SHARED),y)
 	fi
 endif
 
+hostutils:
+	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" -C utils hostutils
 utils:
 	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils
 
