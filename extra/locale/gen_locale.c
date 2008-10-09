@@ -584,7 +584,7 @@ int main(int argc, char **argv)
 	if (argc == 3)
 		output_file = *++argv;
 	if (output_file == NULL || !(ofp = fopen(output_file, "w"))) {
-		printf("error: can not open outputfile '%s' for writing!\n",
+		printf("cannot open output file '%s'!\n",
 			output_file);
 		return EXIT_FAILURE;
 	}

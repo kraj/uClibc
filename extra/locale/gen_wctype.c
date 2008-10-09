@@ -740,7 +740,7 @@ int main(int argc, char **argv)
 		FILE *fp;
 
 		if (!(fp = fopen("wctables.h", "w"))) {
-			printf("couldn't open wctables.h!\n");
+			printf("cannot open output file 'wctables.h'!\n");
 			return EXIT_FAILURE;
 		}
 

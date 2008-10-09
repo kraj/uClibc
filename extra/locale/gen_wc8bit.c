@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 	}
 
 	if (!(out = fopen("c8tables.h","w"))) {
-		printf("error: couldn't open file \"c8tables.h\"\n");
+		printf("cannot open output file 'c8tables.h'!\n");
 		return EXIT_FAILURE;
 	}
 
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 	codeset_index[0] = 0;
 	while (--argc) {
 		if (!(fp = fopen(*++argv,"r"))) {
-			printf("error: couldn't open file \"%s\"\n", *argv);
+			printf("cannot open file \"%s\"\n", *argv);
 			return EXIT_FAILURE;
 		}
 		printf("processing %s... ", *argv);

@@ -1253,7 +1253,7 @@ static int old_main(int argc, char **argv)
 		FILE *fp = fopen("locale_collate.h", "w");
 
 		if (!fp) {
-			error_msg("couldn't open output file!");
+			error_msg("cannot open output file!");
 		}
 		dump_collate(fp);
 		if (ferror(fp) || fclose(fp)) {

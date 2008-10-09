@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 	if (argc == 2)
 		output_file = argv[1];
 	if (!(lso = fopen(output_file, "w"))) {
-		printf("can't open output file '%s'!\n", output_file);
+		printf("cannot open output file '%s'!\n", output_file);
 		return EXIT_FAILURE;
 	}
 

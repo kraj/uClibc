@@ -14,18 +14,18 @@ int main(void)
 	size_t i;
 
 	if (!(lmm = fopen("locale.mmap", "r"))) {
-		printf("can't open locale.mmap!\n");
+		printf("cannot open locale.mmap!\n");
 		return EXIT_FAILURE;
 	}
 
 	if (fstat(fileno(lmm), &fd_stat)) {
-		printf("can't stat locale.mmap!\n");
+		printf("cannot stat locale.mmap!\n");
 		fclose(lmm);
 		return EXIT_FAILURE;
 	}
 
 	if (!(lso = fopen("locale_data.c", "w"))) {
-		printf("can't open locale_data.c!\n");
+		printf("cannot open locale_data.c!\n");
 		fclose(lmm);
 		return EXIT_FAILURE;
 	}
