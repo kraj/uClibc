@@ -286,6 +286,7 @@ CFLAGS-.oS+=$(PICFLAG) -DSHARED
 %.i:  %.S FORCE ; $(compile.i)
 %.s:  %.c FORCE ; $(compile.s)
 %.s:  %.S FORCE ; $(compile.s)
+%.dep:
 
 $(top_builddir)lib/interp.c: | $(sub_headers)
 	$(Q)$(INSTALL) -d $(dir $@)
