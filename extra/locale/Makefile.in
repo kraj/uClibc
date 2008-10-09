@@ -113,6 +113,10 @@ endif
 
 endif
 
+# FIXME: Perhaps this would work with secondary expansion like approximately
+#$(locale_HOBJ): $(locale_OUT)/% : $(locale_DIR)/%.c | $$(DEPH-%)
+#	$(hcompile.u)
+
 $(locale_OUT)/gen_collate : $(locale_DIR)/gen_collate.c | $(DEPH-gen_collate)
 	$(hcompile.u)
 
