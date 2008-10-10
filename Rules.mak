@@ -6,7 +6,7 @@
 #
 
 # check for proper make version
-ifneq ($(findstring 3.7,$(MAKE_VERSION)),)
+ifneq ($(findstring x3.7,x$(MAKE_VERSION)),)
 $(error Your make is too old $(MAKE_VERSION). Go get at least 3.80)
 endif
 
