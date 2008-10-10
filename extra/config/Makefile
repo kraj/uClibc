@@ -13,7 +13,7 @@ endif
 
 -include .depend
 .depend: $(wildcard *.h *.c)
-	$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) -MM *.c > .depend 2>/dev/null || :
+	$(Q)$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) -MM *.c > .depend 2>/dev/null || :
 
 __hostprogs := $(sort $(hostprogs-y) $(hostprogs-m))
 host-csingle    := $(foreach m,$(__hostprogs),$(if $($(m)-objs),,$(m)))
@@ -37,7 +37,9 @@ clean:
 	$(Q)rm -f $(clean-files) conf
 distclean: clean
 	$(Q)rm -f $(lxdialog) $(conf-objs) $(mconf-objs) $(kxgettext-objs) \
-		$(hostprogs-y) $(qconf-cxxobjs) $(qconf-objs) $(gconf-objs) .depend
+		$(hostprogs-y) $(qconf-cxxobjs) $(qconf-objs) $(gconf-objs) \
+		.depend
+	$(Q)rm -r -f $(top_builddir)include/config
 
 FORCE:
 .PHONY: FORCE clean distclean
