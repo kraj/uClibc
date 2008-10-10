@@ -17,8 +17,6 @@ noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
 include $(top_builddir)Rules.mak
 sub_headers := headers
 
-#suspicious_dependency:=include/bits
-
 ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: pregen libs
@@ -431,31 +429,31 @@ install_utils: utils
 
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
-include/bits:
+include/bits include/config:
 	@$(disp_mkdir)
 	$(Q)$(INSTALL) -d $@
 
 # configuration
 # ---------------------------------------------------------------------------
-extra/config/conf extra/config/mconf: $(suspicious_dependency)
+extra/config/conf extra/config/mconf: | include/config
 	$(Q)$(MAKE) -C extra/config $(notdir $@)
 
-menuconfig: extra/config/mconf $(suspicious_dependency)
+menuconfig: extra/config/mconf
 	$(Q)./extra/config/mconf extra/Configs/Config.in
 
-config: extra/config/conf $(suspicious_dependency)
+config: extra/config/conf
 	$(Q)./extra/config/conf extra/Configs/Config.in
 
-oldconfig: extra/config/conf $(suspicious_dependency)
+oldconfig: extra/config/conf
 	$(Q)./extra/config/conf -o extra/Configs/Config.in
 
-silentoldconfig: extra/config/conf $(suspicious_dependency)
+silentoldconfig: extra/config/conf
 	$(Q)./extra/config/conf -s extra/Configs/Config.in
 
-randconfig: extra/config/conf $(suspicious_dependency)
+randconfig: extra/config/conf
 	$(Q)./extra/config/conf -r extra/Configs/Config.in
 
-allyesconfig: extra/config/conf $(suspicious_dependency)
+allyesconfig: extra/config/conf
 	$(Q)./extra/config/conf -y extra/Configs/Config.in
 	$(SED) -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" .config
 	$(SED) -i -e "s/^DOASSERTS=.*/# DOASSERTS is not set/" .config
@@ -464,10 +462,10 @@ allyesconfig: extra/config/conf $(suspicious_dependency)
 	$(SED) -i -e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" .config
 	$(Q)./extra/config/conf -o extra/Configs/Config.in
 
-allnoconfig: extra/config/conf $(suspicious_dependency)
+allnoconfig: extra/config/conf
 	$(Q)./extra/config/conf -n extra/Configs/Config.in
 
-defconfig: extra/config/conf $(suspicious_dependency)
+defconfig: extra/config/conf
 	$(Q)./extra/config/conf -d extra/Configs/Config.in \
 		-D extra/Configs/defconfigs/$(ARCH)
 
