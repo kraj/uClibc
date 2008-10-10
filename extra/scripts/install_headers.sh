@@ -33,7 +33,8 @@ fi
 (
 # We must cd, or else we'll prepend "$1" to filenames!
 cd "$1" || exit 1
-find ! -name '.' -a ! -path '*/.*' | sed -e 's/^\.\///' -e '/^config\//d'
+find ! -name '.' -a ! -path '*/.*' | sed -e 's/^\.\///' -e '/^config\//d' \
+	-e '/^config$/d'
 ) | \
 (
 IFS=''
