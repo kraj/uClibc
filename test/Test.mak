@@ -112,5 +112,6 @@ shell_%:
 clean:
 	$(showclean)
 	$(Q)$(RM) *.a *.o *.so *~ core *.out *.gdb $(CLEAN_TARGETS) $(EXTRA_CLEAN)
+	$(Q)$(RM_R) $(EXTRA_DIRS)
 
 .PHONY: all check clean test run compile

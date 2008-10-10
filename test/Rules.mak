@@ -58,6 +58,7 @@ export TARGET_ARCH
 CROSS      = $(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
 CC         = $(CROSS)gcc
 RM         = rm -f
+RM_R       = $(RM) -r
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc

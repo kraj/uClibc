@@ -28,4 +28,4 @@ OPTS_dump-ctype = C
 OPTS_tst-ctype = < tst-ctype-de_DE.ISO-8859-1.in
 OPTS_tst-langinfo = < tst-langinfo.input
 
-EXTRA_CLEAN := C
+EXTRA_DIRS := C
