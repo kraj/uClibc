@@ -28,7 +28,7 @@ int signalfd (int fd, const sigset_t *mask, int flags)
 #elif defined __NR___syscall_signalfd
 	if (flags != 0) {
 		__set_errno(EINVAL);
-		return 1;
+		return -1;
 	}
 	return __syscall_signalfd(fd, mask, _NSIG / 8);
 #elif defined __UCLIBC_HAS_STUBS__
