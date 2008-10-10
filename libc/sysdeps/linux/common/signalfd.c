@@ -14,13 +14,15 @@
 #if defined __NR_signalfd4
 #define __NR___syscall_signalfd4 __NR_signalfd4
 static __inline__ _syscall4(int, __syscall_signalfd4, int, fd,
-		const sigset_t *, mask, size_t, sizemask, int, flags);
+		const sigset_t *, mask, size_t, sizemask, int, flags)
 #elif defined __NR_signalfd
-#define __NR___syscall_signalfd __NR_signalfd4
+#define __NR___syscall_signalfd __NR_signalfd
 static __inline__ _syscall3(int, __syscall_signalfd, int, fd,
-		const sigset_t *, mask, size_t, sizemask);
+		const sigset_t *, mask, size_t, sizemask)
 #endif
 
+#if defined __NR_signalfd4 || defined __NR_signalfd \
+	|| defined __UCLIBC_HAS_STUBS__
 int signalfd (int fd, const sigset_t *mask, int flags)
 {
 #if defined __NR___syscall_signalfd4
@@ -36,3 +38,4 @@ int signalfd (int fd, const sigset_t *mask, int flags)
 	return -1;
 #endif
 }
+#endif
