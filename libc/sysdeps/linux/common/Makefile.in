@@ -34,8 +34,8 @@ CSRC := $(filter-out inotify.c ioperm.c iopl.c madvise.c \
 	modify_ldt.c personality.c prctl.c readahead.c reboot.c \
 	remap_file_pages.c sched_getaffinity.c sched_setaffinity.c \
 	sendfile64.c sendfile.c setfsgid.c setfsuid.c setresuid.c \
-	splice.c vmsplice.c tee.c swapoff.c swapon.c sync_file_range.c \
-	sysctl.c sysinfo.c uselib.c vhangup.c,$(CSRC))
+	splice.c vmsplice.c tee.c signalfd.c swapoff.c swapon.c \
+	sync_file_range.c sysctl.c sysinfo.c uselib.c vhangup.c,$(CSRC))
 endif
 
 ifneq ($(UCLIBC_BSD_SPECIFIC),y)
