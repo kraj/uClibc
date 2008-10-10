@@ -1,5 +1,7 @@
 #include <dirent.h>
 #include <errno.h>
+#include <stdio.h> /* perror() */
+#include <stdlib.h>
 
 int skip_all(const struct dirent *dirbuf)
 {
@@ -7,7 +9,7 @@ int skip_all(const struct dirent *dirbuf)
 	return 0;
 }
 
-int main()
+int main(void)
 {
 	struct dirent **namelist;
 	int n;
@@ -15,7 +17,7 @@ int main()
 	n = scandir(".", &namelist, skip_all, 0);
 	if (n < 0) {
 		perror("scandir");
-		return 1;
+		return EXIT_FAILURE;
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
