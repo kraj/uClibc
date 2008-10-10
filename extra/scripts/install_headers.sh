@@ -33,12 +33,11 @@ fi
 (
 # We must cd, or else we'll prepend "$1" to filenames!
 cd "$1" || exit 1
-find ! -name '.' -a ! -path '*/.*'
+find ! -name '.' -a ! -path '*/.*' | sed -e 's/^\.\///' -e '/^config\//d'
 ) | \
 (
 IFS=''
 while read -r filename; do
-	filename="${filename#./}"
 	if test -d "$1/$filename"; then
 		mkdir -p "$2/$filename" 2>/dev/null
 	else
