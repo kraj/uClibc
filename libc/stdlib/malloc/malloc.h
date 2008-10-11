@@ -221,4 +221,8 @@ extern void __malloc_debug_printf (int indent, const char *fmt, ...);
 
 
 /* The malloc heap.  */
-extern struct heap __malloc_heap;
+extern struct heap_free_area *__malloc_heap;
+extern malloc_mutex_t __malloc_heap_lock;
+#ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
+extern malloc_mutex_t __malloc_mmb_heap_lock;
+#endif

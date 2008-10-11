@@ -116,7 +116,7 @@ void free(void *ptr)
 #ifdef L_memalign
 
 #include <bits/uClibc_mutex.h>
-__UCLIBC_MUTEX_STATIC(__malloc_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
+__UCLIBC_MUTEX_INIT(__malloc_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 #define __MALLOC_LOCK		__UCLIBC_MUTEX_LOCK(__malloc_lock)
 #define __MALLOC_UNLOCK		__UCLIBC_MUTEX_UNLOCK(__malloc_lock)
 
