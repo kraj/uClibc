@@ -19,24 +19,24 @@ BUILD_CFLAGS-locale-common := \
 	-DUCLIBC_CTYPE_HEADER='"include/bits/uClibc_ctype.h"'
 
 BUILD_CFLAGS-gen_wc8bit := $(BUILD_CFLAGS-locale-common) -DCTYPE_PACKED=1
-
 BUILD_CFLAGS-gen_wctype := $(BUILD_CFLAGS-locale-common)
-
 BUILD_CFLAGS-gen_ldc :=
 ifeq ($(UCLIBC_HAS_WCHAR),y)
 BUILD_CFLAGS-gen_wc8bit += -DDO_WIDE_CHAR=1
 BUILD_CFLAGS-gen_ldc += -D__WCHAR_ENABLED=1
 endif
-
 BUILD_CFLAGS-gen_locale := -D_GNU_SOURCE -I$(locale_OUT)
 BUILD_CFLAGS-gen_collate := -D_GNU_SOURCE
 
-DEPH-locale := $(top_builddir)include/bits/sysnum.h
-DEPH-gen_locale := $(addprefix $(locale_OUT)/,c8tables.h) $(DEPH-locale)
+locale_headers-$(UCLIBC_HAS_LOCALE) := $(top_builddir)include/bits/uClibc_locale_data.h
+
+#DEPH-locale := $(top_builddir)include/bits/sysnum.h
+DEPH-locale := $(top_builddir)include/bits/uClibc_config.h
+DEPH-gen_collate := $(DEPH-locale)
 DEPH-gen_ldc := $(addprefix $(locale_OUT)/,c8tables.h wctables.h locale_tables.h locale_collate.h) $(DEPH-locale)
+DEPH-gen_locale := $(addprefix $(locale_OUT)/,c8tables.h) $(DEPH-locale)
 DEPH-gen_wc8bit := $(top_builddir)/include/bits/uClibc_ctype.h $(DEPH-locale)
 DEPH-gen_wctype := $(top_builddir)/include/bits/uClibc_ctype.h $(DEPH-locale)
-DEPH-gen_collate := $(DEPH-locale)
 
 locale_HOBJ := gen_collate gen_ldc gen_locale gen_wc8bit gen_wctype
 locale_HOBJ := $(addprefix $(locale_OUT)/,$(locale_HOBJ))
@@ -46,13 +46,14 @@ locale_OBJ := $(locale_OUT)/locale_data.o
 
 CFLAGS-locale_data.c := -D__WCHAR_ENABLED -I$(locale_OUT) -I$(locale_DIR)
 
-headers-$(UCLIBC_HAS_LOCALE) += $(top_builddir)include/bits/uClibc_locale_data.h
+#headers-$(UCLIBC_HAS_LOCALE) += $(locale_headers-y)
+headers: $(locale_headers-y)
 
 libc-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
 
 libc-nomulti-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
 
-locale_headers: $(top_builddir)include/bits/uClibc_locale_data.h
+locale_headers: headers $(top_builddir)include/bits/uClibc_locale_data.h
 
 # make sure that the host system has locales (this check is ok for uClibc/glibc)
 # we do not know though which locales were really enabled for libc at build time
@@ -64,7 +65,7 @@ $(locale_OUT)/codesets.txt:
 	    echo " "; \
 	    echo "You do not have a codesets.txt file.  Please create this "; \
 	    echo "file in the $(locale_OUT) directory by running something like: "; \
-	    echo "  cd $(locale_DIR) && find charmaps -name \"*.pairs\" > \\"; \
+	    echo "  cd $(locale_DIR)/ && find charmaps -name \"*.pairs\" > \\"; \
 	    echo "        $@"; \
 	    echo "and then edit that file to disable/enable the codesets you wish to support. "; \
 	    echo " "; \
@@ -89,70 +90,88 @@ $(locale_OUT)/locales.txt:
 else
 
 $(locale_OUT)/codesets.txt:
+	@$(disp_gen)
 ifeq ($(UCLIBC_BUILD_MINIMAL_LOCALE),y)
-	echo "charmaps/ASCII.pairs" > $@ ; \
-	echo "charmaps/ISO-8859-1.pairs" >> $@
+	$(Q)echo "charmaps/ASCII.pairs" > $@ ; \
+	$(Q)echo "charmaps/ISO-8859-1.pairs" >> $@
 else
-	(cd $(locale_DIR)/ && find charmaps/ -name '*.pairs' | sort ) > $@
+	$(Q)(cd $(locale_DIR)/ && find charmaps/ -name '*.pairs' | sort ) > $@
 endif
 
 # the lines beginning w/ '#-' are mandatory
 # at least one conversion is needed (euro/cyrillic)
 $(locale_OUT)/locales.txt: $(locale_DIR)/LOCALES
+	@$(disp_gen)
 ifeq ($(UCLIBC_BUILD_MINIMAL_LOCALE),y)
-	echo "@euro e" > $@ ; \
-	echo "#-" >> $@ ; \
-	echo "UTF-8 yes" >> $@ ; \
-	echo "8-BIT yes" >> $@ ; \
-	echo "#-" >> $@ ; \
-	echo "en_US.UTF-8 UTF-8" >> $@ ; \
-	echo "en_US ISO-8859-1" >> $@
+	$(Q)echo "@euro e" > $@ ; \
+	$(Q)echo "#-" >> $@ ; \
+	$(Q)echo "UTF-8 yes" >> $@ ; \
+	$(Q)echo "8-BIT yes" >> $@ ; \
+	$(Q)echo "#-" >> $@ ; \
+	$(Q)echo "en_US.UTF-8 UTF-8" >> $@ ; \
+	$(Q)echo "en_US ISO-8859-1" >> $@
 else
-	cp $< $@
+	$(Q)cat $< > $@
 endif
 
 endif
 
-# FIXME: Perhaps this would work with secondary expansion like approximately
-#$(locale_HOBJ): $(locale_OUT)/% : $(locale_DIR)/%.c | $$(DEPH-%)
-#	$(hcompile.u)
-
-$(locale_OUT)/gen_collate : $(locale_DIR)/gen_collate.c | $(DEPH-gen_collate)
+$(locale_DIR)/gen_collate.c: $(DEPH-gen_collate)
+$(locale_OUT)/gen_collate : $(locale_DIR)/gen_collate.c
+	$(hcompile.u)
+$(locale_DIR)/gen_ldc.c: $(DEPH-gen_ldc)
+$(locale_OUT)/gen_ldc : $(locale_DIR)/gen_ldc.c
+	$(hcompile.u)
+$(locale_DIR)/gen_locale.c: $(DEPH-gen_locale)
+$(locale_OUT)/gen_locale : $(locale_DIR)/gen_locale.c
+	$(hcompile.u)
+$(locale_DIR)/gen_wc8bit.c: $(DEPH-gen_wc8bit)
+$(locale_OUT)/gen_wc8bit : $(locale_DIR)/gen_wc8bit.c
+	$(hcompile.u)
+$(locale_DIR)/gen_wctype.c: $(DEPH-gen_wctype)
+$(locale_OUT)/gen_wctype : $(locale_DIR)/gen_wctype.c
 	$(hcompile.u)
 
-$(locale_OUT)/gen_ldc : $(locale_DIR)/gen_ldc.c | $(DEPH-gen_ldc)
-	$(hcompile.u)
-
-$(locale_OUT)/gen_locale : $(locale_DIR)/gen_locale.c | $(DEPH-gen_locale)
-	$(hcompile.u)
-
-$(locale_OUT)/gen_wc8bit : $(locale_DIR)/gen_wc8bit.c | $(DEPH-gen_wc8bit)
-	$(hcompile.u)
-
-$(locale_OUT)/gen_wctype : $(locale_DIR)/gen_wctype.c | $(DEPH-gen_wctype)
-	$(hcompile.u)
+ifneq ($(V),)
+ifeq ($(V),1)
+FLAG-locale-verbose := -v
+endif
+ifeq ($(V),2)
+FLAG-locale-verbose := -v -v
+endif
+endif
 
 # code needs to be modified to support top_builddir in almost all apps that write directly to a file
 # grep fopen *.c
 $(locale_OUT)/c8tables.h: $(locale_OUT)/gen_wc8bit $(locale_OUT)/codesets.txt
-	(cd $(<D) && ./$(<F) `cat $(word 2,$(^F))`)
+	@$(disp_gen)
+	$(Q)(cd $(<D) && ./$(<F) `cat $(word 2,$(^F))`)
 
 # Warning! Beware tr_TR toupper/tolower exceptions!
 $(locale_OUT)/wctables.h: $(locale_OUT)/gen_wctype
-	(cd $(<D) ; ./$(<F) en_US || ./$(<F) en_US.UTF-8 \
-	|| ./$(<F) en_US.iso8859-1 \
-	|| ./$(<F) en_GB || ./$(<F) en_GB.UTF-8)
+	@$(disp_gen)
+	$(Q)(cd $(<D) || exit 1 ; \
+		./$(<F) $(FLAG-locale-verbose) en_US || \
+		./$(<F) $(FLAG-locale-verbose) en_US.UTF-8 || \
+		./$(<F) $(FLAG-locale-verbose) en_US.iso8859-1 || \
+		./$(<F) $(FLAG-locale-verbose) en_GB || \
+		./$(<F) $(FLAG-locale-verbose) en_GB.UTF-8 \
+	)
 
 $(locale_OUT)/locale_tables.h: $(locale_OUT)/gen_locale $(locale_OUT)/locales.txt
-	$< $(word 2,$^) $@
+	@$(disp_gen)
+	$(Q)$< $(FLAG-locale-verbose) -o $@ $(word 2,$^)
 
 $(locale_OUT)/lt_defines.h: $(locale_OUT)/locale_tables.h $(locale_OUT)/locale_collate.h
-	grep "^#define" $< > $@
-	grep "^#define __lc" $(word 2,$^) >> $@
+	@$(disp_gen)
+	$(Q)grep "^#define" $< > $@
+	$(Q)grep "^#define __lc" $(word 2,$^) >> $@
 
 $(locale_OUT)/locale_collate.h: $(locale_OUT)/gen_collate $(locale_OUT)/locale_tables.h
-	grep COL_IDX_ $(word 2,$^) | $(SED) -e "s/^.*COL_IDX_\([^, ]*\).*$$/\1/" | \
-		sort | uniq | (cd $(<D) && xargs ./$(<F))
+	@$(disp_gen)
+	$(Q)grep COL_IDX_ $(word 2,$^) | \
+		$(SED) -e "s/^.*COL_IDX_\([^, ]*\).*$$/\1/" | sort | uniq | \
+		xargs $< $(locale_DIR)/collation $(FLAG-locale-verbose) -o $@
 
 $(locale_OUT)/$(LOCALE_DATA_FILENAME):
 ifeq ($(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA),y)
@@ -167,23 +186,28 @@ $(locale_SRC): $(locale_OUT)/$(LOCALE_DATA_FILENAME)
 	# we use the one in locale_DIR
 	#$(RM) $(locale_OUT)/locale_mmap.h
 
-# for arch specific versions we have to at least overwrite lt_defines.h/locale_data.c/uClibc_locale_data.h
+# for arch specific versions we have to at least overwrite
+# lt_defines.h/locale_data.c/uClibc_locale_data.h
 
 $(locale_OUT)/uClibc_locale_data.h: $(locale_SRC)
 
 else
 
 $(locale_SRC): $(locale_OUT)/gen_ldc $(locale_OUT)/lt_defines.h
-	$< $@
+	@$(disp_gen)
+	$(Q)$< $@
 
 $(locale_OUT)/uClibc_locale_data.h: $(locale_OUT)/lt_defines.h $(locale_OUT)/c8tables.h $(locale_OUT)/wctables.h $(locale_DIR)/locale_mmap.h | $(locale_SRC)
-	grep -v "define __LC" $< > $@
-	cat $(wordlist 2,4,$^) >> $@
+	@$(disp_gen)
+	$(Q)grep -v "define __LC" $< > $@
+	$(Q)cat $(wordlist 2,4,$^) >> $@
 
 endif
 
 $(top_builddir)include/bits/uClibc_locale_data.h: $(locale_OUT)/uClibc_locale_data.h | $(top_builddir)include/bits/uClibc_config.h
-	cat $< | $(AWK) 'BEGIN{i=1}{ if ( /WANT_/ ) i = /endif/ ; else if (i) print $0 }' > $@
+	@$(disp_gen)
+	$(Q)$(AWK) 'BEGIN{i=1}{if (/WANT_/) i=/endif/;else if (i) print $0}' \
+		$< > $@
 
 objclean-y += locale_clean
 

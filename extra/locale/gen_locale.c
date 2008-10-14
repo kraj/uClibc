@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <assert.h>
+#include <stdarg.h>
 #include <locale.h>
 #include <langinfo.h>
 #include <nl_types.h>
@@ -15,7 +16,7 @@
 #define __LOCALE_DATA_CATEGORIES 6
 
 /* must agree with ordering of gen_mmap! */
-static const unsigned char *lc_names[] = {
+static const char *lc_names[] = {
 	"LC_CTYPE",
 	"LC_NUMERIC",
 	"LC_MONETARY",
@@ -89,6 +90,41 @@ static int default_8bit;
 static int total_size;
 static int null_count;
 
+static unsigned verbose = 0;
+enum {
+	VINFO = (1<<0),
+	VDETAIL = (1<<1),
+};
+static int verbose_msg(const unsigned lvl, const char *fmt, ...)
+{
+	va_list arg;
+	int ret = 0;
+
+	if (verbose & lvl) {
+		va_start(arg, fmt);
+		ret = vfprintf(stderr, fmt, arg);
+		va_end(arg);
+	}
+	return ret;
+}
+
+static void error_msg(const char *fmt, ...)  __attribute__ ((noreturn, format (printf, 1, 2)));
+static void error_msg(const char *fmt, ...)
+{
+	va_list arg;
+
+	fprintf(stderr, "Error: ");
+/*	if (fno >= 0) {
+	    fprintf(stderr, "file %s (%d): ", fname[fno], lineno[fno]);
+	} */
+	va_start(arg, fmt);
+	vfprintf(stderr, fmt, arg);
+	va_end(arg);
+	fprintf(stderr, "\n");
+
+	exit(EXIT_FAILURE);
+}
+
 static void do_locale_names(void)
 {
 	/* "C" locale name is handled specially by the setlocale code. */
@@ -96,8 +132,7 @@ static void do_locale_names(void)
 	int i;
 
 	if (num_locales <= 1) {
-/*  		printf("error - only C locale?\n"); */
-/*  		exit(EXIT_FAILURE); */
+/*		error_msg("only C locale?"); */
 		fprintf(ofp, "static const unsigned char __locales[%d];\n", (3 + __LOCALE_DATA_CATEGORIES));
 		fprintf(ofp, "static const unsigned char __locale_names5[5];\n");
 	} else {
@@ -131,8 +166,7 @@ static void do_locale_names(void)
 			} else if (!strcmp(locales[i].glibc_name, "C")) {
 			    fprintf(ofp, "COL_IDX_C    , ");
 			} else {
-			    printf("don't know how to handle COL_IDX_ for %s\n", locales[i].glibc_name);
-			    exit(EXIT_FAILURE);
+			    error_msg("don't know how to handle COL_IDX_ for %s", locales[i].glibc_name);
 			}
 #else
 			fprintf(ofp, "%#4x, ", 0); /* place holder for lc_collate */
@@ -196,8 +230,7 @@ static void do_locale_names(void)
 				}
 			}
 			if (pos[__LOCALE_DATA_CATEGORIES-1] > 255) {
-				printf("error - lc_names is too big (%d)\n", pos[__LOCALE_DATA_CATEGORIES-1]);
-				exit(EXIT_FAILURE);
+				error_msg("lc_names is too big (%d)", pos[__LOCALE_DATA_CATEGORIES-1]);
 			}
 			fprintf(ofp, "#define __LC_ALL\t\t%d\n\n", i);
 
@@ -218,7 +251,7 @@ static void do_locale_names(void)
 			fprintf(ofp, ";\n\n");
 		}
 
-		printf("locale data = %d  name data = %d for %d uniq\n",
+		verbose_msg(VDETAIL,"locale data = %d  name data = %d for %d uniq\n",
 			   num_locales * (3 + __LOCALE_DATA_CATEGORIES), uniq * 5, uniq);
 
 		total_size += num_locales * (3 + __LOCALE_DATA_CATEGORIES) + uniq * 5;
@@ -236,8 +269,7 @@ static void read_at_mappings(void)
 		if (!(p = strtok(line_buf, " \t\n")) || (*p == '#')) {
 			if (!fgets(line_buf, sizeof(line_buf), fp)) {
 				if (ferror(fp)) {
-					printf("error reading file\n");
-					exit(EXIT_FAILURE);
+					error_msg("reading file");
 				}
 				return;			/* EOF */
 			}
@@ -248,17 +280,14 @@ static void read_at_mappings(void)
 		}
 		if (*p == '@') {
 			if (p[1] == 0) {
-				printf("error: missing @modifier name\n");
-				exit(EXIT_FAILURE);
+				error_msg("missing @modifier name");
 			}
 			m = p;				/* save the modifier name */
 			if (!(p = strtok(NULL, " \t\n")) || p[1] || (((unsigned char) *p) > 0x7f)) {
-				printf("error: missing or illegal @modifier mapping char\n");
-				exit(EXIT_FAILURE);
+				error_msg("missing or illegal @modifier mapping char");
 			}
 			if (at_mappings[(int)((unsigned char) *p)]) {
-				printf("error: reused @modifier mapping char\n");
-				exit(EXIT_FAILURE);
+				error_msg("reused @modifier mapping char");
 			}
 			at_mappings[(int)((unsigned char) *p)] = 1;
 			at_mapto[mc] = *p;
@@ -267,10 +296,10 @@ static void read_at_mappings(void)
 			strcpy(++at_strings_end, m+1);
 			at_strings_end += (unsigned char) at_strings_end[-1];
 
-			printf("@mapping: \"%s\" to '%c'\n", m, *p);
+			verbose_msg(VDETAIL,"@mapping: \"%s\" to '%c'\n", m, *p);
 
 			if (((p = strtok(NULL, " \t\n")) != NULL) && (*p != '#')) {
-				printf("ignoring trailing text: %s...\n", p);
+				fprintf(stderr,"ignoring trailing text: %s...\n", p);
 			}
 			*line_buf = 0;
 			continue;
@@ -283,12 +312,12 @@ static void read_at_mappings(void)
 		p = at_strings;
 
 		if (!*p) {
-			printf("no @ strings\n");
+			verbose_msg(VDETAIL,"no @ strings\n");
 			return;
 		}
 
 		do {
-			printf("%s\n", p+1);
+			verbose_msg(VDETAIL,"%s\n", p+1);
 			p += 1 + (unsigned char) *p;
 		} while (*p);
 	}
@@ -303,8 +332,7 @@ static void read_enable_disable(void)
 		if (!(p = strtok(line_buf, " =\t\n")) || (*p == '#')) {
 			if (!fgets(line_buf, sizeof(line_buf), fp)) {
 				if (ferror(fp)) {
-					printf("error reading file\n");
-					exit(EXIT_FAILURE);
+					error_msg("reading file");
 				}
 				return;			/* EOF */
 			}
@@ -316,25 +344,23 @@ static void read_enable_disable(void)
 		if (!strcmp(p, "UTF-8")) {
 			if (!(p = strtok(NULL, " =\t\n"))
 				|| ((toupper(*p) != 'Y') && (toupper(*p) != 'N'))) {
-				printf("error: missing or illegal UTF-8 setting\n");
-				exit(EXIT_FAILURE);
+				error_msg("missing or illegal UTF-8 setting");
 			}
 			default_utf8 = (toupper(*p) == 'Y');
-			printf("UTF-8 locales are %sabled\n", "dis\0en"+ (default_utf8 << 2));
+			verbose_msg(VINFO,"UTF-8 locales are %sabled\n", "dis\0en"+ (default_utf8 << 2));
 		} else if (!strcmp(p, "8-BIT")) {
 			if (!(p = strtok(NULL, " =\t\n"))
 				|| ((toupper(*p) != 'Y') && (toupper(*p) != 'N'))) {
-				printf("error: missing or illegal 8-BIT setting\n");
-				exit(EXIT_FAILURE);
+				error_msg("missing or illegal 8-BIT setting");
 			}
 			default_8bit = (toupper(*p) == 'Y');
-			printf("8-BIT locales are %sabled\n", "dis\0en" + (default_8bit << 2));
+			verbose_msg(VINFO,"8-BIT locales are %sabled\n", "dis\0en" + (default_8bit << 2));
 		} else {
 			break;
 		}
 
 		if (((p = strtok(NULL, " \t\n")) != NULL) && (*p != '#')) {
-			printf("ignoring trailing text: %s...\n", p);
+			fprintf(stderr,"ignoring trailing text: %s...\n", p);
 		}
 		*line_buf = 0;
 		continue;
@@ -354,13 +380,12 @@ static int find_codeset_num(const char *cs)
 	if (strcmp(cs, "UTF-8") != 0) {
 		++r;
 		while (*s && strcmp(__LOCALE_DATA_CODESET_LIST+ ((unsigned char) *s), cs)) {
-/*  			printf("tried %s\n", __LOCALE_DATA_CODESET_LIST + ((unsigned char) *s)); */
+/*  			verbose_msg(VDETAIL,"tried %s\n", __LOCALE_DATA_CODESET_LIST + ((unsigned char) *s)); */
 			++r;
 			++s;
 		}
 		if (!*s) {
-			printf("error: unsupported codeset %s\n", cs);
-			exit(EXIT_FAILURE);
+			error_msg("unsupported codeset %s", cs);
 		}
 	}
 	return r;
@@ -375,8 +400,7 @@ static int find_codeset_num(const char *cs)
 	/* 7-bit is 1, UTF-8 is 2, 8-bits are > 2 */
 
 	if (strcmp(cs, "UTF-8") != 0) {
-		printf("error: unsupported codeset %s\n", cs);
-		exit(EXIT_FAILURE);
+		error_msg("unsupported codeset %s", cs);
 	}
 	return r;
 }
@@ -396,8 +420,7 @@ static int find_at_string_num(const char *as)
 		p += 1 + (unsigned char) *p;
 	}
 
-	printf("error: unmapped @string %s\n", as);
-	exit(EXIT_FAILURE);
+	error_msg("error: unmapped @string %s", as);
 }
 
 static void read_locale_list(void)
@@ -429,8 +452,7 @@ static void read_locale_list(void)
 		if (!(p = strtok(line_buf, " \t\n")) || (*p == '#')) {
 			if (!fgets(line_buf, sizeof(line_buf), fp)) {
 				if (ferror(fp)) {
-					printf("error reading file\n");
-					exit(EXIT_FAILURE);
+					error_msg("reading file");
 				}
 				return;			/* EOF */
 			}
@@ -448,7 +470,7 @@ static void read_locale_list(void)
 			s += 1 + ((unsigned char) *s);
 		}
 		if (i < num_locales) {
-			printf("ignoring dulplicate locale name: %s", p);
+			fprintf(stderr,"ignoring duplicate locale name: %s", p);
 			*line_buf = 0;
 			continue;
 		}
@@ -460,24 +482,23 @@ static void read_locale_list(void)
 		ln = p;					/* save locale name */
 
 		if (!(p = strtok(NULL, " \t\n"))) {
-			printf("error: missing codeset for locale %s\n", ln);
-			exit(EXIT_FAILURE);
+			error_msg("missing codeset for locale %s", ln);
 		}
 		cs = p;
 		i = find_codeset_num(p);
 		if ((i == 2) && !default_utf8) {
-			printf("ignoring UTF-8 locale %s\n", ln);
+			fprintf(stderr,"ignoring UTF-8 locale %s\n", ln);
 			*line_buf = 0;
 			continue;
 		} else if ((i > 2) && !default_8bit) {
-			printf("ignoring 8-bit codeset locale %s\n", ln);
+			fprintf(stderr,"ignoring 8-bit codeset locale %s\n", ln);
 			*line_buf = 0;
 			continue;
 		}
 		locales[num_locales].cs = (char)((unsigned char) i);
 
 		if (((p = strtok(NULL, " \t\n")) != NULL) && (*p != '#')) {
-			printf("ignoring trailing text: %s...\n", p);
+			verbose_msg(VINFO,"ignoring trailing text: %s...\n", p);
 		}
 
 		/* Now go back to locale string for .codeset and @modifier */
@@ -492,19 +513,18 @@ static void read_locale_list(void)
 		ls = ln;
 
 		if ((strlen(ls) != 5) || (ls[2] != '_')) {
-			printf("error: illegal locale name %s\n", ls);
-			exit(EXIT_FAILURE);
+			error_msg("illegal locale name %s", ls);
 		}
 
 		i = 0;					/* value for unspecified codeset */
 		if (ds) {
 			i = find_codeset_num(ds);
 			if ((i == 2) && !default_utf8) {
-				printf("ignoring UTF-8 locale %s\n", ln);
+				fprintf(stderr,"ignoring UTF-8 locale %s\n", ln);
 				*line_buf = 0;
 				continue;
 			} else if ((i > 2) && !default_8bit) {
-				printf("ignoring 8-bit codeset locale %s\n", ln);
+				fprintf(stderr,"ignoring 8-bit codeset locale %s\n", ln);
 				*line_buf = 0;
 				continue;
 			}
@@ -516,7 +536,7 @@ static void read_locale_list(void)
 			ls[2] = at_mapto[i];
 		}
 		memcpy(locales[num_locales].name, ls, 5);
-/*  		printf("locale: %5.5s %2d %2d %s\n", */
+/*  		verbose_msg(VDETAIL,"locale: %5.5s %2d %2d %s\n", */
 /*  			   locales[num_locales].name, */
 /*  			   locales[num_locales].cs, */
 /*  			   locales[num_locales].dot_cs, */
@@ -554,11 +574,24 @@ static int le_cmp(const void *a, const void *b)
 
 int main(int argc, char **argv)
 {
-	char *output_file = "locale_tables.h";
-	if ((argc < 2 || argc > 3) || (!(fp = fopen(*++argv, "r")))) {
-		printf("error: missing filename or file!\n");
-		return EXIT_FAILURE;
+	char *output_file = NULL;
+
+	while (--argc) {
+		++argv;
+		if (!strcmp(*argv, "-o")) {
+			--argc;
+			output_file = strdup(*++argv);
+		} else if (!strcmp(*argv, "-v")) {
+			verbose++;
+		} else if (!(fp = fopen(*argv, "r"))) {
+no_inputfile:
+				error_msg("missing filename or file!");
+		}
 	}
+	if (fp == NULL)
+		goto no_inputfile;
+	if (output_file == NULL)
+		output_file = strdup("locale_tables.h");
 
 	at_strings_end = at_strings;
 
@@ -573,7 +606,7 @@ int main(int argc, char **argv)
 
 #if 0
 	for (i=0 ; i < num_locales ; i++) {
-		printf("locale: %5.5s %2d %2d %s\n",
+		verbose_msg(VDETAIL,"locale: %5.5s %2d %2d %s\n",
 			   locales[i].name,
 			   locales[i].cs,
 			   locales[i].dot_cs,
@@ -584,9 +617,7 @@ int main(int argc, char **argv)
 	if (argc == 3)
 		output_file = *++argv;
 	if (output_file == NULL || !(ofp = fopen(output_file, "w"))) {
-		printf("cannot open output file '%s'!\n",
-			output_file);
-		return EXIT_FAILURE;
+		error_msg("cannot open output file '%s'!", output_file);
 	}
 
 	do_lc_time();
@@ -599,8 +630,8 @@ int main(int argc, char **argv)
 
 	fclose(ofp);
 
-	printf("total data size = %d\n", total_size);
-	printf("null count = %d\n", null_count);
+	verbose_msg(VINFO, "total data size = %d\n", total_size);
+	verbose_msg(VDETAIL, "null count = %d\n", null_count);
 
 	return EXIT_SUCCESS;
 }
@@ -625,12 +656,10 @@ static int addblock(const char *s, size_t n) /* l includes nul terminator */
 		}
 	}
 	if (uniq >= sizeof(idx)) {
-		printf("too many uniq strings!\n");
-		exit(EXIT_FAILURE);
+		error_msg("too many uniq strings!");
 	}
 	if (last + n >= buf + sizeof(buf)) {
-		printf("need to increase size of buf!\n");
-		exit(EXIT_FAILURE);
+		error_msg("need to increase size of buf!");
 	}
 
 	idx[uniq] = last;
@@ -656,13 +685,11 @@ static int addstring(const char *s)
 		}
 	}
 	if (uniq >= sizeof(idx)) {
-		printf("too many uniq strings!\n");
-		exit(EXIT_FAILURE);
+		error_msg("too many uniq strings!");
 	}
 	l = strlen(s) + 1;
 	if (last + l >= buf + sizeof(buf)) {
-		printf("need to increase size of buf!\n");
-		exit(EXIT_FAILURE);
+		error_msg("need to increase size of buf!");
 	}
 
 	idx[uniq] = last;
@@ -673,9 +700,9 @@ static int addstring(const char *s)
 }
 
 #define DO_LC_COMMON(CATEGORY) \
-	printf("buf-size=%d  uniq=%d  rows=%d\n", \
+	verbose_msg(VDETAIL, "buf-size=%d  uniq=%d  rows=%d\n", \
 		   (int)(last - buf), uniq, lc_##CATEGORY##_uniq); \
-	printf("total = %d + %d * %d + %d = %d\n", \
+	verbose_msg(VDETAIL, "total = %d + %d * %d + %d = %d\n", \
 		   num_locales, lc_##CATEGORY##_uniq, NUM_NL_##CATEGORY, (int)(last - buf), \
 		   i = num_locales + lc_##CATEGORY##_uniq*NUM_NL_##CATEGORY + (int)(last - buf)); \
 	total_size += i; \
@@ -704,8 +731,7 @@ static int addstring(const char *s)
 
 #define DL_LC_LOOPTAIL(CATEGORY) \
 		if (k > NUM_NL_##CATEGORY) { \
-			printf("error -- lc_" #CATEGORY " nl_item count > %d!\n", NUM_NL_##CATEGORY); \
-			exit(EXIT_FAILURE); \
+			error_msg("lc_" #CATEGORY " nl_item count > %d!", NUM_NL_##CATEGORY); \
 		} \
 		{ \
 			int r; \
@@ -718,8 +744,7 @@ static int addstring(const char *s)
 			if (r == lc_##CATEGORY##_uniq) { /* new locale row */ \
 				++lc_##CATEGORY##_uniq; \
 				if (lc_##CATEGORY##_uniq > 255) { \
-					printf("too many unique lc_" #CATEGORY " rows!\n"); \
-					exit(EXIT_FAILURE); \
+					error_msg("too many unique lc_" #CATEGORY " rows!"); \
 				} \
 			} \
 			locales[i].lc_##CATEGORY##_row = r; \
@@ -784,8 +809,7 @@ static void dump_table16(const char *name, const int *tbl, int len)
 			fprintf(ofp, "\n\t");
 		}
 		if (tbl[i] != (uint16_t) tbl[i]) {
-			printf("error - falls outside uint16 range!\n");
-			exit(EXIT_FAILURE);
+			error_msg("falls outside uint16 range!");
 		}
 		fprintf(ofp, "%#6x, ", tbl[i]);
 	}
@@ -826,7 +850,7 @@ static void lc_time_S(int X, int k)
 			len = p - s;
 		}
 		j = addblock(s, len);
-/* 		if (len > 1) fprintf(stderr, "alt_digit: called addblock with len %zd\n", len); */
+/* 		if (len > 1) verbose_msg(VDETAIL, "alt_digit: called addblock with len %zd\n", len); */
 	} else if (X == ERA) {
 		if (!s) {
 			s = nulbuf;
@@ -840,7 +864,7 @@ static void lc_time_S(int X, int k)
 		}
 		++p;
 		j = addblock(s, p - s);
-/* 		if (p-s > 1) fprintf(stderr, "era: called addblock with len %d\n", p-s); */
+/* 		if (p-s > 1) verbose_msg(VDETAIL, "era: called addblock with len %d\n", p-s); */
 	} else {
 		j = addstring(s);
 	}
@@ -851,8 +875,7 @@ static void lc_time_S(int X, int k)
 	}
 	if (m == lc_time_count[k]) { /* new for this nl_item */
 		if (m > 255) {
-			printf("too many nl_item %d entries in lc_time\n", k);
-			exit(EXIT_FAILURE);
+			error_msg("too many nl_item %d entries in lc_time", k);
 		}
 		lc_time_item[k][m] = j;
 		++lc_time_count[k];
@@ -873,7 +896,7 @@ static void do_lc_time(void)
 		k = 0;
 
 		if (!setlocale(LC_ALL, locales[i].glibc_name)) {
-			printf("setlocale(LC_ALL,%s) failed!\n",
+			verbose_msg(VDETAIL, "setlocale(LC_ALL,%s) failed!\n",
 				   locales[i].glibc_name);
 		}
 
@@ -976,8 +999,7 @@ static void lc_numeric_S(int X, int k)
 				++e;
 			}
 			if ((e - s) > sizeof(buf)) {
-				printf("grouping specifier too long\n");
-				exit(EXIT_FAILURE);
+				error_msg("grouping specifier too long");
 			}
 			strncpy(buf, s, (e-s));
 			e = buf + (e-s);
@@ -1003,13 +1025,12 @@ static void lc_numeric_S(int X, int k)
 	}
 	if (m == lc_numeric_count[k]) { /* new for this nl_item */
 		if (m > 255) {
-			printf("too many nl_item %d entries in lc_numeric\n", k);
-			exit(EXIT_FAILURE);
+			error_msg("too many nl_item %d entries in lc_numeric", k);
 		}
 		lc_numeric_item[k][m] = j;
 		++lc_numeric_count[k];
 	}
-/*  	printf("\\x%02x", m); */
+/*  	verbose_msg(VDETAIL, "\\x%02x", m); */
 	lc_numeric_uniq_X[lc_numeric_uniq][k] = m;
 }
 
@@ -1026,7 +1047,7 @@ static void do_lc_numeric(void)
 		k = 0;
 
 		if (!setlocale(LC_ALL, locales[i].glibc_name)) {
-			printf("setlocale(LC_ALL,%s) failed!\n",
+			verbose_msg(VDETAIL,"setlocale(LC_ALL,%s) failed!\n",
 				   locales[i].glibc_name);
 		}
 
@@ -1051,7 +1072,7 @@ static int lc_monetary_uniq;
 
 #define DO_NL_S(X)	lc_monetary_S(X, k++)
 
-/*  #define DO_NL_C(X)		printf("%#02x", (int)(unsigned char)(*nl_langinfo(X))); */
+/*  #define DO_NL_C(X)		verbose_msg(VDETAIL,"%#02x", (int)(unsigned char)(*nl_langinfo(X))); */
 #define DO_NL_C(X) lc_monetary_C(X, k++)
 
 static void lc_monetary_C(int X, int k)
@@ -1071,13 +1092,12 @@ static void lc_monetary_C(int X, int k)
 	}
 	if (m == lc_monetary_count[k]) { /* new for this nl_item */
 		if (m > 255) {
-			printf("too many nl_item %d entries in lc_monetary\n", k);
-			exit(EXIT_FAILURE);
+			error_msg("too many nl_item %d entries in lc_monetary", k);
 		}
 		lc_monetary_item[k][m] = j;
 		++lc_monetary_count[k];
 	}
-/*  	printf("\\x%02x", m); */
+/*  	verbose_msg(VDETAIL,"\\x%02x", m); */
 	lc_monetary_uniq_X[lc_monetary_uniq][k] = m;
 }
 
@@ -1107,8 +1127,7 @@ static void lc_monetary_S(int X, int k)
 				++e;
 			}
 			if ((e - s) > sizeof(buf)) {
-				printf("mon_grouping specifier too long\n");
-				exit(EXIT_FAILURE);
+				error_msg("mon_grouping specifier too long");
 			}
 			strncpy(buf, s, (e-s));
 			e = buf + (e-s);
@@ -1134,13 +1153,12 @@ static void lc_monetary_S(int X, int k)
 	}
 	if (m == lc_monetary_count[k]) { /* new for this nl_item */
 		if (m > 255) {
-			printf("too many nl_item %d entries in lc_monetary\n", k);
-			exit(EXIT_FAILURE);
+			error_msg("too many nl_item %d entries in lc_monetary", k);
 		}
 		lc_monetary_item[k][m] = j;
 		++lc_monetary_count[k];
 	}
-/*  	printf("\\x%02x", m); */
+/*  	verbose_msg(VDETAIL,"\\x%02x", m); */
 	lc_monetary_uniq_X[lc_monetary_uniq][k] = m;
 }
 
@@ -1157,7 +1175,7 @@ static void do_lc_monetary(void)
 		k = 0;
 
 		if (!setlocale(LC_ALL, locales[i].glibc_name)) {
-			printf("setlocale(LC_ALL,%s) failed!\n",
+			verbose_msg(VDETAIL,"setlocale(LC_ALL,%s) failed!\n",
 				   locales[i].glibc_name);
 		}
 
@@ -1216,13 +1234,12 @@ static void lc_messages_S(int X, int k)
 	}
 	if (m == lc_messages_count[k]) { /* new for this nl_item */
 		if (m > 255) {
-			printf("too many nl_item %d entries in lc_messages\n", k);
-			exit(EXIT_FAILURE);
+			error_msg("too many nl_item %d entries in lc_messages", k);
 		}
 		lc_messages_item[k][m] = j;
 		++lc_messages_count[k];
 	}
-/*  	printf("\\x%02x", m); */
+/*  	verbose_msg(VDETAIL, "\\x%02x", m); */
 	lc_messages_uniq_X[lc_messages_uniq][k] = m;
 }
 
@@ -1239,7 +1256,7 @@ static void do_lc_messages(void)
 		k = 0;
 
 		if (!setlocale(LC_ALL, locales[i].glibc_name)) {
-			printf("setlocale(LC_ALL,%s) failed!\n",
+			verbose_msg(VDETAIL, "setlocale(LC_ALL,%s) failed!\n",
 				   locales[i].glibc_name);
 		}
 
@@ -1276,13 +1293,12 @@ static void lc_ctype_S(int X, int k)
 	}
 	if (m == lc_ctype_count[k]) { /* new for this nl_item */
 		if (m > 255) {
-			printf("too many nl_item %d entries in lc_ctype\n", k);
-			exit(EXIT_FAILURE);
+			error_msg("too many nl_item %d entries in lc_ctype", k);
 		}
 		lc_ctype_item[k][m] = j;
 		++lc_ctype_count[k];
 	}
-/*  	printf("\\x%02x", m); */
+/*  	verbose_msg(VDETAIL, "\\x%02x", m); */
 	lc_ctype_uniq_X[lc_ctype_uniq][k] = m;
 }
 
@@ -1299,7 +1315,7 @@ static void do_lc_ctype(void)
 		k = 0;
 
 		if (!setlocale(LC_ALL, locales[i].glibc_name)) {
-			printf("setlocale(LC_ALL,%s) failed!\n",
+			verbose_msg(VDETAIL, "setlocale(LC_ALL,%s) failed!\n",
 				   locales[i].glibc_name);
 		}
 

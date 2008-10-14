@@ -91,6 +91,7 @@ pur_disp_ln        = echo "  "LN $@
 pur_disp_mkdir     = echo "  "MKDIR $@
 pur_disp_gen       = echo "  "GEN $@
 pur_disp_unifdef   = echo "  "UNIFDEF $@
+pur_disp_rm        = echo "  "CLEAN $($@)
 
 sil_disp_compile.c = true
 sil_disp_compile.i = true
@@ -109,6 +110,7 @@ sil_disp_ln        = true
 sil_disp_mkdir     = true
 sil_disp_gen       = true
 sil_disp_unifdef   = true
+sil_disp_rm        = true
 
 ver_disp_compile.c = echo $(cmd_compile.c)
 ver_disp_compile.i = echo $(cmd_compile.i)
@@ -127,6 +129,7 @@ ver_disp_ln        =
 ver_disp_mkdir     =
 ver_disp_gen       =
 ver_disp_unifdef   = echo $(cmd_unifdef)
+ver_disp_rm        = echo $(cmd_rm)
 
 disp_compile.c = $($(DISP)_disp_compile.c)
 disp_compile.i = $($(DISP)_disp_compile.i)
@@ -145,6 +148,7 @@ disp_ln        = $($(DISP)_disp_ln)
 disp_mkdir     = $($(DISP)_disp_mkdir)
 disp_gen       = $($(DISP)_disp_gen)
 disp_unifdef   = $($(DISP)_disp_unifdef)
+disp_rm        = $($(DISP)_disp_rm)
 
 any-prereq = $(filter-out $(PHONY),$?) $(filter-out $(PHONY) $(wildcard $^),$^)
 
@@ -196,6 +200,12 @@ define do_ln
 	$(Q)$(LN) -fs
 endef
 
+
+#define RM
+#	@$(disp_rm)
+#	$(RM_COMMAND)
+#endef
+
 compile.c = @$(call maybe_exec,compile.c)
 compile.i =  $(call maybe_exec,compile.i)
 compile.s =  $(call maybe_exec,compile.s)
@@ -205,8 +215,8 @@ compile-m = @$(disp_compile-m) ; $(cmd_compile-m) ; $(cmd_t_strip)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
 do_t_strip= @$(disp_t_strip)   ; $(cmd_t_strip)
 do_unifdef= @$(disp_unifdef)   ; $(cmd_unifdef)
-hcompile.u= @$(call maybe_exec,hcompile.u)
-hcompile.o= @$(call maybe_exec,hcompile.o)
+hcompile.u= @$(disp_hcompile.u); $(cmd_hcompile.u)
+hcompile.o= @$(disp_hcompile.o); $(cmd_hcompile.o)
 
 define do_ar
 	@$(disp_ar) ; $(cmd_ar)

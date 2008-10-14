@@ -1,3 +1,12 @@
+/*
+ * Usage:
+ * gen_collate <INPUTDIR> [-o OUTPUTFILE] LOCALE ...
+ *
+ * Generate collation data from locales LOCALE.
+ * Reads all LOCALE from INPUTDIR and writes collation data to OUTPUTFILE.
+ *
+ * The output file defaults to "locales_collate.h".
+ */
 /* TODO:
  *
  * add UNDEFINED at end if not specified
@@ -24,6 +33,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include <assert.h>
+#include <errno.h>
 #include <search.h>
 
 typedef struct {
@@ -253,6 +263,14 @@ static void *root_sym = NULL;
 static size_t num_sym = 0;
 static size_t mem_sym = 0;
 
+static const char *inputdir;
+static size_t inputdir_len;
+static unsigned verbose = 0;
+enum {
+	VINFO = (1<<0),
+	VDETAIL = (1<<1),
+};
+
 static void error_msg(const char *fmt, ...) __attribute__ ((noreturn, format (printf, 1, 2)));
 static void *xmalloc(size_t n);
 static char *xsymdup(const char *s); /* only allocate once... store in a tree */
@@ -294,6 +312,18 @@ enum {
 	DT_RANGE = 0x10,
 };
 
+static int verbose_msg(const unsigned lvl, const char *fmt, ...)
+{
+	va_list arg;
+	int ret = 0;
+
+	if (verbose & lvl) {
+		va_start(arg, fmt);
+		ret = vfprintf(stderr, fmt, arg);
+		va_end(arg);
+	}
+	return ret;
+}
 static section_t *new_section(const char *name)
 {
 	section_t *p;
@@ -310,7 +340,7 @@ static section_t *new_section(const char *name)
 		++anonsection;
 	}
 #warning devel code
-/* 	fprintf(stderr, "section %s\n", name); */
+/* 	verbose_msg(VDETAIL, "section %s\n", name); */
 	p->name = xsymdup(name);
 	p->itm_list = NULL;
 	p->num_items = 0;
@@ -328,7 +358,7 @@ static section_t *new_section(const char *name)
 		p->rules[3] |= R_POSITION;
 		cur_rule[3] |= R_POSITION;
 	}
-/* 	fprintf(stderr, "new section %s -- cur_num_weights = %d\n", p->name, cur_num_weights); */
+/* 	verbose_msg(VDETAIL, "new section %s -- cur_num_weights = %d\n", p->name, cur_num_weights); */
 
 	return p;
 }
@@ -379,7 +409,7 @@ static void do_unrecognized(void)
 #if 1
     error_msg("warning: unrecognized: %s", pos);
 #else
-/*     fprintf(stderr, "warning: unrecognized initial keyword \"%s\"\n", pos); */
+/*     verbose_msg(VDETAIL, "warning: unrecognized initial keyword \"%s\"\n", pos); */
 	fprintf(stderr, "warning: unrecognized: %s", pos);
 	if (end_of_token) {
 		fprintf(stderr, "%c%s", end_of_token, pos_e+1);
@@ -587,10 +617,10 @@ static void add_superset_weight(char *t)
 			lli = new_ll_item(DT_REORDER, cur_section);
 			lli->prev = lli->next = lli;
 			insque(lli, comm_prev_ptr);
-/* 			fprintf(stderr, "  subsection -----------------------\n"); */
+/* 			verbose_msg(VDETAIL, "  subsection -----------------------\n"); */
 		}
 
-/* 		fprintf(stderr, "     %s   %s\n", t, ((weighted_item_t *)(comm_cur_ptr->data))->symbol); */
+/* 		verbose_msg(VDETAIL, "     %s   %s\n", t, ((weighted_item_t *)(comm_cur_ptr->data))->symbol); */
 		wi = add_weight(t);
 		lli = new_ll_item(DT_WEIGHTED, wi);
 		mark_reordered(wi->symbol);
@@ -745,7 +775,7 @@ static void processfile(void)
 	}
 
 	if (cur_base == cur_col) {
-		fprintf(stderr, "Base: %15s", cur_col->name);
+		verbose_msg(VDETAIL, "Base: %15s", cur_col->name);
 	} else {
 #if 1
 		if (!cur_col->undefined_idx) {
@@ -794,20 +824,21 @@ static void processfile(void)
 		}
 #endif
 
-		fprintf(stderr, " Der: %15s", cur_col->name);
+		verbose_msg(VDETAIL, " Der: %15s", cur_col->name);
 	}
 	{
+#if 0
 		ll_item_t *p = cur_col->section_list;
-
-		fprintf(stderr, "%6u weights", tnumnodes(cur_col->root_wi_index));
+#endif
+		verbose_msg(VDETAIL, "%6u weights", tnumnodes(cur_col->root_wi_index));
 		if (cur_base) {
-			fprintf(stderr, "  %6u der %6u reor %6u starter - %u new stubs",
+			verbose_msg(VDETAIL, "  %6u der %6u reor %6u starter - %u new stubs",
 					tnumnodes(cur_base->root_derived_wi),
 					tnumnodes(cur_base->root_wi_index_reordered),
 					tnumnodes(cur_base->root_starter_char),
 					ll_count(cur_col->section_list, DT_REORDER));
 		}
-		fprintf(stderr, "\n");
+		verbose_msg(VDETAIL, "\n");
 
 #if 0
 		while (p) {
@@ -826,7 +857,7 @@ static void processfile(void)
 				if ((*((section_t *)(p->data))->name != 'a')
 					|| (((section_t *)(p->data))->num_items > 0)
 					) {
-					fprintf(stderr,
+					verbose_msg(VDETAIL,
 /* 							"\t%-15s %zu\n", */
 							"\t%-15s %6u\n",
 							((section_t *)(p->data))->name,
@@ -1089,18 +1120,35 @@ int main(int argc, char **argv)
 	ll_item_t *lli;
 	int i;
 	int total;
+	char *output_file = "locale_collate.h";
+	unsigned verbosity = 0;
 
-	if (argc < 2) {
+	if (argc < 3) {
 		return EXIT_FAILURE;
 	}
-
+	--argc;
+	inputdir = strdup(*++argv);
+	inputdir_len = strlen(inputdir);
 	init_locale_list();
 
 	while (--argc) {
-		p = (const deps_t *) bsearch(*++argv, deps, sizeof(deps)/sizeof(deps[0]), sizeof(deps[0]), dep_cmp);
+		++argv;
+		if (!strcmp(*argv, "-o")) {
+			--argc;
+			if (*++argv == NULL) {
+				printf("-o <outfile> requires an argument\n");
+				return EXIT_FAILURE;
+			}
+			output_file = strdup(*argv);
+			continue;
+		} else if (!strcmp(*argv, "-v")) {
+			verbosity++;
+			continue;
+		}
+		p = (const deps_t *) bsearch(*argv, deps, sizeof(deps)/sizeof(deps[0]), sizeof(deps[0]), dep_cmp);
 		if (!p) {
 			if (!strcmp("C", *argv)) {
-				printf("ignoring C locale\n");
+				printf("ignoring %s locale\n", *argv);
 				continue;
 			} else {
 				printf("%s not found\n", *argv);
@@ -1125,10 +1173,10 @@ int main(int argc, char **argv)
 
 	total = 0;
 	for (i=0 ; i < BASE_MAX ; i++) {
-/* 		printf("der_count[%2d] = %3d\n", i, der_count[i]); */
+/*		printf("der_count[%2d] = %3d\n", i, der_count[i]); */
 		total += der_count[i];
 	}
-/* 	printf("total = %d\n", total); */
+/*	printf("total = %d\n", total); */
 
 	new_args[new_arg_count++] = "dummyprogramname";
 	for (i=0 ; i < BASE_MAX ; i++) {
@@ -1143,11 +1191,16 @@ int main(int argc, char **argv)
 		} while (lli != locale_list[i]);
 		new_args[new_arg_count++] = "-f";
 	}
+	for (i=0; i < verbosity; i++)
+		new_args[new_arg_count++] = "-v";
 
-/* 	for (i=0 ; i < new_arg_count ; i++) { */
-/* 		printf("%3d: %s\n", i, new_args[i]); */
-/* 	} */
-
+	new_args[new_arg_count++] = "-o";
+	new_args[new_arg_count++] = output_file;
+/*
+	for (i=0 ; i < new_arg_count ; i++) {
+		printf("%3d: %s\n", i, new_args[i]);
+	}
+*/
 	return old_main(new_arg_count, (char **) new_args);
 }
 
@@ -1158,6 +1211,7 @@ static int old_main(int argc, char **argv)
 {
 	int next_is_base = 0;
 	int next_is_subset = 0;
+	char *output_file = NULL;
 
 	superset = 0;
 
@@ -1185,6 +1239,11 @@ static int old_main(int argc, char **argv)
 				next_is_subset = 0;
 				next_is_base = 2;
 				superset = 0;
+			} else if (((*argv)[1] == 'o') && !(*argv)[2]) { /* output file */
+				--argc;
+				output_file = *++argv;
+			} else if (((*argv)[1] == 'v') && !(*argv)[2]) { /* verbose */
+				++verbose;
 			} else {
 				error_msg("unrecognized option %s", *argv);
 			}
@@ -1198,7 +1257,7 @@ static int old_main(int argc, char **argv)
 			cur_derived = cur_col;
 		}
 		pushfile(*argv);
-/* 		fprintf(stderr, "processing file %s\n", *argv); */
+/* 		verbose_msg(VDETAIL, "processing file %s\n", *argv); */
 		processfile();			/* this does a popfile */
 
 /* 		twalk(cur_col->root_colitem, print_colnode); */
@@ -1212,17 +1271,17 @@ static int old_main(int argc, char **argv)
 		}
 	}
 
-	fprintf(stderr, "success!\n");
-	fprintf(stderr,
+	verbose_msg(VINFO, "success!\n");
+	verbose_msg(VINFO,
 /* 			"num_sym=%zu mem_sym=%zu  unique_weights=%zu\n", */
 			"num_sym=%u mem_sym=%u  unique_weights=%u\n",
 			num_sym, mem_sym, unique_weights);
 /* 	twalk(root_weight, print_weight_node); */
 
-	fprintf(stderr, "num base locales = %d    num derived locales = %d\n",
+	verbose_msg(VINFO, "num base locales = %d    num derived locales = %d\n",
 			base_locale_len, der_locale_len);
 
-	fprintf(stderr,
+	verbose_msg(VINFO,
 			"override_len = %d      multistart_len = %d    weightstr_len = %d\n"
 			"wcs2colidt_len = %d    index2weight_len = %d  index2ruleidx_len = %d\n"
 			"ruletable_len = %d\n"
@@ -1250,10 +1309,10 @@ static int old_main(int argc, char **argv)
 #endif
 
 	{
-		FILE *fp = fopen("locale_collate.h", "w");
+		FILE *fp = fopen(output_file, "w");
 
 		if (!fp) {
-			error_msg("cannot open output file!");
+			error_msg("cannot open output file '%s'!", output_file);
 		}
 		dump_collate(fp);
 		if (ferror(fp) || fclose(fp)) {
@@ -1282,20 +1341,23 @@ static void error_msg(const char *fmt, ...)
 
 static void pushfile(char *filename)
 {
-	static char fbuf[PATH_MAX];
-
-	snprintf(fbuf, PATH_MAX, "collation/%s", filename);
+	char *inputfile;
+	size_t inputfile_len;
 
 	if (fno >= MAX_FNO) {
 		error_msg("file stack size exceeded");
 	}
 
-	if (!(fstack[++fno] = fopen(fbuf, "r"))) {
+	inputfile_len = inputdir_len + strlen(filename) + 2;
+	inputfile = xmalloc(inputfile_len);
+	memset(inputfile, 0, inputfile_len);
+	sprintf(inputfile, "%s/%s", inputdir, filename);
+	if (!(fstack[++fno] = fopen(inputfile, "r"))) {
 		--fno;					/* oops */
-		error_msg("cannot open file %s", fbuf);
+		error_msg("cannot open file %s: %s", inputfile, strerror(errno));
 	}
 
-	fname[fno] = xsymdup(filename);
+	fname[fno] = xsymdup(inputfile);
 	lineno[fno] = 0;
 }
 
@@ -1452,11 +1514,11 @@ static void do_copy(void)
 			*e = 0;
 			++s;
 			if (cur_base && !strcmp(cur_base->name,s)) {
-/* 				fprintf(stderr, "skipping copy of base file %s\n", s); */
+/* 				verbose_msg(VDETAIL, "skipping copy of base file %s\n", s); */
 #warning need to update last in order and position or check
 				return;
 			}
-/* 			fprintf(stderr, "full copy of %s\n", s); */
+/* 			verbose_msg(VDETAIL, "full copy of %s\n", s); */
 			pushfile(s);
 			return;
 		}
@@ -1541,7 +1603,7 @@ static ll_item_t *find_section_list_item(const char *name, col_locale_t *loc)
 	while (p) {
 #warning devel code
 /* 		if (!((p->data_type == DT_SECTION) || (p->data_type == DT_REORDER))) { */
-/* 			fprintf(stderr, "fsli = %d\n", p->data_type); */
+/* 			verbose_msg(VDETAIL, "fsli = %d\n", p->data_type); */
 /* 		} */
 		assert((p->data_type == DT_SECTION) || (p->data_type == DT_REORDER));
 		if (!strcmp(name, ((section_t *)(p->data))->name)) {
@@ -1685,11 +1747,11 @@ static void add_colitem(char *item, char *def)
 #warning devel code
 	if (superset) {
 		if (tfind(p, &cur_base->root_colitem, colitem_cmp)) {
-/* 			fprintf(stderr, "skipping superset duplicate collating item \"%s\"\n", p->string); */
+/* 			verbose_msg(VDETAIL, "skipping superset duplicate collating item \"%s\"\n", p->string); */
 			del_colitem(p);
 			return;
 /* 		} else { */
-/* 			fprintf(stderr, "superset: new collating item \"%s\" = %s\n", p->string, p->element); */
+/* 			verbose_msg(VDETAIL, "superset: new collating item \"%s\" = %s\n", p->string, p->element); */
 		}
 	}
 
@@ -1850,7 +1912,7 @@ static void do_order_start(void)
 
 	cur_section = sect;
 
-/* 	fprintf(stderr, "setting cur_num_weights to %d for %s\n", sect->num_rules, sect->name); */
+/* 	verbose_msg(VDETAIL, "setting cur_num_weights to %d for %s\n", sect->num_rules, sect->name); */
 	cur_num_weights = sect->num_rules;
 	memcpy(cur_rule, sect->rules, MAX_COLLATION_WEIGHTS);
 }
@@ -1923,7 +1985,7 @@ static void do_reorder_after(void)
 		insque(l1, l2);
 		l3 = find_ll_last(cur_col->section_list);
 
-		fprintf(stderr, "reorder_after %p %p %p %s\n", l1, l2, l3, cur_section->name);
+		verbose_msg(VDETAIL, "reorder_after %p %p %p %s\n", l1, l2, l3, cur_section->name);
 	}
 #else
 	insque(new_ll_item(DT_REORDER, cur_section), find_ll_last(cur_col->section_list));
@@ -1935,7 +1997,7 @@ static void do_reorder_after(void)
 
 
 #warning devel code
-/* 	fprintf(stderr, "reorder -- %s %d\n", ((weighted_item_t *)(lli->data))->symbol, w->num_weights); */
+/* 	verbose_msg(VDETAIL, "reorder -- %s %d\n", ((weighted_item_t *)(lli->data))->symbol, w->num_weights); */
 
 #warning hack to get around hu_HU reorder-after problem
 /* 	if (!w->num_weights) { */
@@ -1945,7 +2007,7 @@ static void do_reorder_after(void)
 /* 		memcpy(cur_rule, w->rule, MAX_COLLATION_WEIGHTS); */
 /* 	}	 */
 
-/* 	fprintf(stderr, "reorder_after succeeded for %s\n", t); */
+/* 	verbose_msg(VDETAIL, "reorder_after succeeded for %s\n", t); */
 }
 
 static void do_reorder_end(void)
@@ -1986,9 +2048,9 @@ static void do_reorder_sections_after(void)
 
 	lli = cur_base->section_list;
 	do {
-/* 		fprintf(stderr, "hmm -- |%s|%d|\n", ((section_t *)(lli->data))->name, lli->data_type); */
+/* 		verbose_msg(VDETAIL, "hmm -- |%s|%d|\n", ((section_t *)(lli->data))->name, lli->data_type); */
 		if (lli->data_type & DT_SECTION) {
-/* 			fprintf(stderr, "checking |%s|%s|\n", ((section_t *)(lli->data))->name, t); */
+/* 			verbose_msg(VDETAIL, "checking |%s|%s|\n", ((section_t *)(lli->data))->name, t); */
 			if (!strcmp(((section_t *)(lli->data))->name, t)) {
 				reorder_section_ptr = lli;
 				return;
@@ -2025,7 +2087,7 @@ static ll_item_t *new_ll_item(int data_type, void *data)
 
 static int sym_cmp(const void *n1, const void *n2)
 {
-/* 	fprintf(stderr, "sym_cmp: |%s| |%s|\n", (const char *)n1, (const char *)n2); */
+/* 	verbose_msg(VDETAIL, "sym_cmp: |%s| |%s|\n", (const char *)n1, (const char *)n2); */
     return strcmp((const char *) n1, (const char *) n2);
 }
 
@@ -2039,9 +2101,9 @@ static char *xsymdup(const char *s)
 		}
 		++num_sym;
 		mem_sym += strlen(s) + 1;
-/* 		fprintf(stderr, "xsymdup: alloc |%s| %p |%s| %p\n", *(char **)p, p, s, s); */
+/* 		verbose_msg(VDETAIL, "xsymdup: alloc |%s| %p |%s| %p\n", *(char **)p, p, s, s); */
 /* 	} else { */
-/* 		fprintf(stderr, "xsymdup: found |%s| %p\n", *(char **)p, p); */
+/* 		verbose_msg(VDETAIL, "xsymdup: found |%s| %p\n", *(char **)p, p); */
 	}
 	return *(char **) p;
 }
@@ -2079,7 +2141,7 @@ static weight_t *register_weight(weight_t *w)
 		}
 		++unique_weights;
 /* 	} else { */
-/* 		fprintf(stderr, "rw: found\n"); */
+/* 		verbose_msg(VDETAIL, "rw: found\n"); */
 	}
 	return *(weight_t **)p;
 }
@@ -2200,7 +2262,7 @@ static void add_final_col_index(const char *s)
 					ci.element = NULL; /* don't care */
 					v = tfind(&ci, &cur_base->root_colitem, colitem_cmp);
 					if (!v) {
-						fprintf(stderr, "%s  NOT DEFINED!!!\n", s);
+						verbose_msg(VDETAIL, "%s  NOT DEFINED!!!\n", s);
 					} else {
 						p = *((colitem_t **) v);
 						if (p->element != NULL) {
@@ -2347,11 +2409,11 @@ static ll_item_t *init_comm_ptr(void)
 #warning devel code
 /* 	{ */
 /* 		ll_item_t *p = comm_cur_ptr; */
-/* 		fprintf(stderr, "init_comm_ptr\n"); */
+/* 		verbose_msg(VDETAIL, "init_comm_ptr\n"); */
 
 /* 		while (p != comm_cur_ptr) { */
 /* 			if (p->data_type & DT_WEIGHTED) { */
-/* 				fprintf(stderr, "%s", ((weighted_item_t *)p)->symbol); */
+/* 				verbose_msg(VDETAIL, "%s", ((weighted_item_t *)p)->symbol); */
 /* 			} */
 /* 			p = p->next; */
 /* 		} */
@@ -2359,7 +2421,7 @@ static ll_item_t *init_comm_ptr(void)
 
 	assert(comm_cur_ptr);
 
-/* 	fprintf(stderr, "init_comm_ptr -- %s %p %p %p %d\n", */
+/* 	verbose_msg(VDETAIL, "init_comm_ptr -- %s %p %p %p %d\n", */
 /* 			((weighted_item_t *)(comm_cur_ptr->data))->symbol, */
 /* 			comm_cur_ptr, comm_cur_ptr->prev, comm_cur_ptr->next, */
 /* 			ll_len(comm_cur_ptr)); */
@@ -2625,7 +2687,7 @@ static void finalize_base(void)
 	for (s = cur_base->section_list ; s ; s = s->next) {
 #if 1
 		if (s->data_type & DT_REORDER) { /* a reordered section */
-			fprintf(stderr, "pass1: reordered section %s - xxx\n", ((section_t *)(s->data))->name);
+			verbose_msg(VDETAIL, "pass1: reordered section %s - xxx\n", ((section_t *)(s->data))->name);
 			lli = ((section_t *)(s->data))->itm_list;
 			r = 0;
 			if (lli) {
@@ -2635,7 +2697,7 @@ static void finalize_base(void)
 			if (r > mr) {
 				mr = r;
 			}
-			fprintf(stderr, "pass1: reordered section %s - %d\n", ((section_t *)(s->data))->name, r);
+			verbose_msg(VDETAIL, "pass1: reordered section %s - %d\n", ((section_t *)(s->data))->name, r);
 			continue;
 		}
 #endif
@@ -2652,11 +2714,11 @@ static void finalize_base(void)
 				lli->idx = i;
 				assert(!rli);
 				rli = lli;
-				fprintf(stderr, "range pre = %d  after = ", i);
+				verbose_msg(VDETAIL, "range pre = %d  after = ", i);
 				i += ((range_item_t *)(lli->data))->length + 1;
 #warning check ko_kR and 9
 /* 				++i; */
-				fprintf(stderr, "%d\n", i);
+				verbose_msg(VDETAIL, "%d\n", i);
 				if (!index2weight_len_inc) { /* ko_KR hack */
 					final_index += ((range_item_t *)(lli->data))->length + 1;
 				}
@@ -2726,7 +2788,7 @@ static void finalize_base(void)
 /* 						cur_base->name, lli->idx, final_index_val(w->symbol), w->symbol); */
 
 			} else {
-/* 				fprintf(stderr, "section: %s  %d  %d\n", ((section_t *)(s->data))->name, */
+/* 				verbose_msg(VDETAIL, "section: %s  %d  %d\n", ((section_t *)(s->data))->name, */
 /* 						s->data_type, lli->data_type); */
 /* 					assert(!(s->data_type & DT_REORDER)); */
 /* 				assert(lli->data_type & DT_REORDER); */
@@ -2772,7 +2834,7 @@ static void finalize_base(void)
 	mr = mi;
 	for (cli = cur_base->derived_list ; cli ; cli = cli->next) {
 		cl = (col_locale_t *)(cli->data);
-/* 		fprintf(stderr, "pass3: %d  %s\n", cli->data_type, cl->name); */
+/* 		verbose_msg(VDETAIL, "pass3: %d  %s\n", cli->data_type, cl->name); */
 
 /* 		fprintf(stdout, "pass3: %d  %s\n", cli->data_type, cl->name); */
 
@@ -2790,7 +2852,7 @@ static void finalize_base(void)
 			do {
 				assert(!(lli->data_type & DT_RANGE));
 				if (lli->data_type & DT_WEIGHTED) {
-/* 					fprintf(stderr, "     %d %d %s\n", lli->data_type, lli->idx, ((weighted_item_t *)(lli->data))->symbol); */
+/* 					verbose_msg(VDETAIL, "     %d %d %s\n", lli->data_type, lli->idx, ((weighted_item_t *)(lli->data))->symbol); */
 					add_final_col_index(((weighted_item_t *)(lli->data))->symbol);
 					if (s->data_type & DT_REORDER) {
 						continue;
@@ -2850,10 +2912,10 @@ static void finalize_base(void)
 				++wcs2index_count;
 				if ((tfind(buf, &cur_base->root_starter_char, sym_cmp)) != NULL) {
 					wcs2index[i] = ++starter_index;
-/* 					fprintf(stderr, "wcs2index[ %#06x ] = %d  (starter)\n", i, wcs2index[i]); */
+/* 					verbose_msg(VDETAIL, "wcs2index[ %#06x ] = %d  (starter)\n", i, wcs2index[i]); */
 				} else {
 					wcs2index[i] = (int)(p->data);
-/* 					fprintf(stderr, "wcs2index[ %#06x ] = %d\n", i, wcs2index[i]); */
+/* 					verbose_msg(VDETAIL, "wcs2index[ %#06x ] = %d\n", i, wcs2index[i]); */
 				}
 			} else {
 				if ((tfind(buf, &cur_base->root_starter_char, sym_cmp)) != NULL) {
@@ -2898,7 +2960,7 @@ static void finalize_base(void)
 			smallest = newopt(wcs2index, RANGE, n, &table);
 			assert(t == smallest);
 			wcs2colidt_len += smallest;
-/* 			fprintf(stderr, "smallest = %d   wcs2colidt_len = %d\n", smallest, wcs2colidt_len); */
+/* 			verbose_msg(VDETAIL, "smallest = %d   wcs2colidt_len = %d\n", smallest, wcs2colidt_len); */
 
 #if 0
 			{
@@ -2919,15 +2981,15 @@ static void finalize_base(void)
 				u >>= __LOCALE_DATA_WCctype_II_SHIFT;
 
 				i0 = tbl->ii[u];
-				fprintf(stderr, "i0 = %d\n", i0);
+				verbose_msg(VDETAIL, "i0 = %d\n", i0);
 				i0 <<= __LOCALE_DATA_WCctype_II_SHIFT;
 				i1 = tbl->ii[__LOCALE_DATA_WCctype_II_LEN + i0 + n];
 				/* 	i1 = tbl->ti[i0 + n]; */
-				fprintf(stderr, "i1 = %d\n", i1);
+				verbose_msg(VDETAIL, "i1 = %d\n", i1);
 				i1 <<= __LOCALE_DATA_WCctype_TI_SHIFT;
 				/* 	return *(uint16_t *)(&(tbl->ii[__LOCALE_DATA_WCctype_II_LEN + __LOCALE_DATA_WCctype_TI_LEN + i1 + sc])); */
-				fprintf(stderr, "i2 = %d\n", __LOCALE_DATA_WCctype_II_LEN + __LOCALE_DATA_WCctype_TI_LEN + i1 + sc);
-				fprintf(stderr, "val = %d\n",  tbl->ii[__LOCALE_DATA_WCctype_II_LEN + __LOCALE_DATA_WCctype_TI_LEN + i1 + sc]);
+				verbose_msg(VDETAIL, "i2 = %d\n", __LOCALE_DATA_WCctype_II_LEN + __LOCALE_DATA_WCctype_TI_LEN + i1 + sc);
+				verbose_msg(VDETAIL, "val = %d\n",  tbl->ii[__LOCALE_DATA_WCctype_II_LEN + __LOCALE_DATA_WCctype_TI_LEN + i1 + sc]);
 				/* 	return tbl->ut[i1 + sc]; */
 
 
@@ -2944,7 +3006,7 @@ static void finalize_base(void)
 		base_locale_array[base_locale_len].max_col_index = final_index;
 		base_locale_array[base_locale_len].max_weight = max_weight;
 
-		fprintf(stderr, "%s: %6u invariant  %6u varying  %6u derived  %6u total  %6u max weight  %6u wcs2\n",
+		verbose_msg(VDETAIL, "%s: %6u invariant  %6u varying  %6u derived  %6u total  %6u max weight  %6u wcs2\n",
 				cur_base->name, num_invariant, num_varying,
 				tnumnodes(cur_base->root_derived_wi), final_index, max_weight,
 				wcs2index_count);
@@ -2960,7 +3022,7 @@ static void finalize_base(void)
 	for (s = cur_base->section_list ; s ; s = s->next) {
 #if 1
 		if (s->data_type & DT_REORDER) {
-			fprintf(stderr, "1: skipping reordered section %s\n", ((section_t *)(s->data))->name);
+			verbose_msg(VDETAIL, "1: skipping reordered section %s\n", ((section_t *)(s->data))->name);
 			continue;
 		}
 #endif
@@ -2988,7 +3050,7 @@ static void finalize_base(void)
 	for (s = cur_base->section_list ; s ; s = s->next) {
 #if 1
 		if (s->data_type & DT_REORDER) {
-			fprintf(stderr, "2: skipping reordered section %s\n", ((section_t *)(s->data))->name);
+			verbose_msg(VDETAIL, "2: skipping reordered section %s\n", ((section_t *)(s->data))->name);
 			continue;
 		}
 #endif
@@ -3015,7 +3077,7 @@ static void finalize_base(void)
 	do_starter_lists(cur_base);
 
 
-/* 	fprintf(stderr,"updated final_index = %d\n", final_index); */
+/* 	verbose_msg(VDETAIL,"updated final_index = %d\n", final_index); */
 
 	if (rli) {
 		base_locale_array[base_locale_len].range_low
@@ -3042,8 +3104,8 @@ static void finalize_base(void)
 		&& isupper(cur_base->name[4])
 		) {
 
-		fprintf(stderr, "adding special derived for %s\n", cur_base->name);
-/* 	fprintf(stderr,"updated final_index = %d\n", final_index); */
+		verbose_msg(VDETAIL, "adding special derived for %s\n", cur_base->name);
+/* 	verbose_msg(VDETAIL,"updated final_index = %d\n", final_index); */
 
 
 		assert(der_locale_len+1 < DER_LOCALE_LEN);
@@ -3080,7 +3142,7 @@ static void finalize_base(void)
 
 		++der_locale_len;
 	} else {
-		fprintf(stderr, "NOT adding special derived for %s\n", cur_base->name);
+		verbose_msg(VDETAIL, "NOT adding special derived for %s\n", cur_base->name);
 	}
 
 	/* now all the derived... */
@@ -3102,7 +3164,7 @@ static void finalize_base(void)
 			}
 			/* we do this in two passes... first all sequences, then all single reorders */
 			for (s = cl->section_list ; s ; s = s->next) {
-/* 				fprintf(stderr, "doing section %s\n", ((section_t *)(s->data))->name); */
+/* 				verbose_msg(VDETAIL, "doing section %s\n", ((section_t *)(s->data))->name); */
 				h = lli = ((section_t *)(s->data))->itm_list;
 				if (!lli) {
 /* 					fprintf(stdout, "EMPTY ITEM LIST IN SECTION %s\n", ((section_t *)(s->data))->name ); */
@@ -3195,7 +3257,7 @@ static void finalize_base(void)
 	++base_locale_len;
 
 /* 	if (tnumnodes(cur_base->root_starter_char)) { */
-/* 		fprintf(stderr, "starter nodes\n"); */
+/* 		verbose_msg(VDETAIL, "starter nodes\n"); */
 /* 		twalk(cur_base->root_starter_char, print_starter_node); */
 /* 	} */
 }
@@ -3287,7 +3349,7 @@ static void process_starter_node(const void *ptr, VISIT order, int level)
 			if (++u16_starter < base_locale_array[base_locale_len].num_starters) {
 				u16_buf[u16_starter] = u16_buf_len;
 			}
-/* 			fprintf(stderr, "ucode - %d %d\n", u16_buf[u16_starter-1], u16_buf_len); */
+/* 			verbose_msg(VDETAIL, "ucode - %d %d\n", u16_buf[u16_starter-1], u16_buf_len); */
 		} else {
 			x.string = w->symbol;
 			x.element = NULL;
@@ -3299,7 +3361,7 @@ static void process_starter_node(const void *ptr, VISIT order, int level)
 			assert(u16_buf[u16_buf_len-1]);
 			assert(*s == '"');
 			n = is_ucode(++s);
-/* 			fprintf(stderr, "s is |%s| with len %d (%d)\n", s, strlen(s), n); */
+/* 			verbose_msg(VDETAIL, "s is |%s| with len %d (%d)\n", s, strlen(s), n); */
 			assert(n);
 			s += n;
 			while (*s != '"') {
@@ -3307,7 +3369,7 @@ static void process_starter_node(const void *ptr, VISIT order, int level)
 				assert(n);
 				strncpy(buf, s, n+1);
 				buf[n] = 0;
-/* 				fprintf(stderr, "buf is |%s| with len %d (%d)\n", buf, strlen(buf), n); */
+/* 				verbose_msg(VDETAIL, "buf is |%s| with len %d (%d)\n", buf, strlen(buf), n); */
 				u16_buf[u16_buf_len++] = final_index_val(buf);
 				assert(u16_buf[u16_buf_len-1]);
 				s += n;
@@ -3331,7 +3393,7 @@ static void complete_starter_node(const void *ptr, VISIT order, int level)
 			p = xmalloc(sizeof(weighted_item_t));
 			p->symbol = w.symbol;
 			p->weight = NULL;
-/* 			fprintf(stderr, "complete_starter_node: %s\n", *(const char **) ptr); */
+/* 			verbose_msg(VDETAIL, "complete_starter_node: %s\n", *(const char **) ptr); */
 			if (!tsearch(p, p_cl_root_starter_all, starter_all_cmp)) {
 				error_msg("OUT OF MEMORY");
 			}
@@ -3377,7 +3439,7 @@ static void do_starter_lists(col_locale_t *cl)
 					x.element = NULL;
 					p = tfind(&x, &cur_base->root_colitem, colitem_cmp);
 					if (!p) {
-/* 						fprintf(stderr, "Whoa... processing starters for %s and couldn't find %s\n", */
+/* 						verbose_msg(VDETAIL, "Whoa... processing starters for %s and couldn't find %s\n", */
 /* 								cl->name, w->symbol); */
 						continue;
 					}
@@ -3426,13 +3488,13 @@ static void do_starter_lists(col_locale_t *cl)
 	u16_starter = 0;
 	u16_buf[0] = u16_buf_len = base_locale_array[base_locale_len].num_starters;
 	twalk(cl->root_starter_all, process_starter_node);
-/* 	fprintf(stderr, "s=%d n=%d\n", u16_starter,  base_locale_array[base_locale_len].num_starters); */
+/* 	verbose_msg(VDETAIL, "s=%d n=%d\n", u16_starter,  base_locale_array[base_locale_len].num_starters); */
 	assert(u16_starter == base_locale_array[base_locale_len].num_starters);
 
 #if 0
 	{ int i;
 	for (i=0 ; i < u16_buf_len ; i++) {
-		fprintf(stderr, "starter %2d: %d - %#06x\n", i, u16_buf[i], u16_buf[i]);
+		verbose_msg(VDETAIL, "starter %2d: %d - %#06x\n", i, u16_buf[i], u16_buf[i]);
 	}}
 #endif
 
@@ -3451,7 +3513,7 @@ static void do_starter_lists(col_locale_t *cl)
 				der_locale_array[der_locale_len].multistart_offset = multistart_len;
 			}
 			multistart_len += u16_buf_len;
-/* 			fprintf(stderr, "%s: multistart_len = %d   u16_buf_len = %d\n", cl->name, multistart_len, u16_buf_len); */
+/* 			verbose_msg(VDETAIL, "%s: multistart_len = %d   u16_buf_len = %d\n", cl->name, multistart_len, u16_buf_len); */
 		} else if (!(u16_buf_len > multistart_len)) {
 			assert(mm);
 			if (cl == cur_base) {
@@ -3459,7 +3521,7 @@ static void do_starter_lists(col_locale_t *cl)
 			} else {
 				der_locale_array[der_locale_len].multistart_offset = ((uint16_t *)(mm)) - multistart_buffer;
 			}
-/* 			fprintf(stderr, "%s: memmem found a match with u16_buf_len = %d\n", cl->name, u16_buf_len); */
+/* 			verbose_msg(VDETAIL, "%s: memmem found a match with u16_buf_len = %d\n", cl->name, u16_buf_len); */
 		}
 	} else {
 		assert(!base_locale_array[base_locale_len].num_starters);

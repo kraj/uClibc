@@ -159,6 +159,8 @@ typedef struct {
 	unsigned char *ut;
 } table_data;
 
+static unsigned verbose;
+#define verbose_msg(msg...) if (verbose) fprintf(stderr, msg)
 
 void output_table(FILE *fp, const char *name, table_data *tbl)
 {
@@ -200,7 +202,7 @@ void output_table(FILE *fp, const char *name, table_data *tbl)
 
 static void dump_table_data(table_data *tbl)
 {
-	printf("ii_shift = %d  ti_shift = %d\n"
+	verbose_msg("ii_shift = %d  ti_shift = %d\n"
 		   "ii_len = %d  ti_len = %d  ut_len = %d\n"
 		   "total = %d\n",
 		   tbl->ii_shift, tbl->ti_shift,
@@ -279,19 +281,23 @@ int main(int argc, char **argv)
 	setvbuf(stdout, NULL, _IONBF, 0);
 
 	while (--argc) {
-		if (!setlocale(LC_CTYPE, *++argv)) {
-			printf("setlocale(LC_CTYPE,%s) failed!  Skipping this locale...\n", *argv);
+		++argv;
+		if (!strcmp(*argv, "-v")) {
+			++verbose;
+			continue;
+		} else if (!setlocale(LC_CTYPE, *argv)) {
+			verbose_msg("setlocale(LC_CTYPE,%s) failed!  Skipping this locale...\n", *argv);
 			continue;
 		}
 
 		if (!(totitle = wctrans("totitle"))) {
-			printf("no totitle transformation.\n");
+			verbose_msg("no totitle transformation.\n");
 		}
 		if (!(is_comb = wctype("combining"))) {
-			printf("no combining wctype.\n");
+			verbose_msg("no combining wctype.\n");
 		}
 		if (!(is_comb3 = wctype("combining_level3"))) {
-			printf("no combining_level3 wctype.\n");
+			verbose_msg("no combining_level3 wctype.\n");
 		}
 
 		if (!built) {
@@ -351,9 +357,9 @@ int main(int argc, char **argv)
 #if 0
 			if (iswspace(c)) {
 				if (iswblank(c)) {
-					printf("%#8x : space  blank\n", c);
+					verbose_msg("%#8x : space  blank\n", c);
 				} else {
-					printf("%#8x : space\n", c);
+					verbose_msg("%#8x : space\n", c);
 				}
 			}
 #endif
@@ -375,7 +381,7 @@ int main(int argc, char **argv)
 				if (isspace(c)) ++glibc; glibc <<= 1;
 				if (isupper(c)) ++glibc; glibc <<= 1;
 				if (isxdigit(c)) ++glibc;
-				printf("%#8x : ctype %#4x\n", c, glibc);
+				verbose_msg("%#8x : ctype %#4x\n", c, glibc);
 			}
 #endif
 
@@ -414,14 +420,14 @@ int main(int argc, char **argv)
 				if (mywxdigit(c)) ++mine;
 
 				if (glibc != mine) {
-					printf("%#8x : glibc %#4x != %#4x mine  %u\n", c, glibc, mine, d);
+					verbose_msg("%#8x : glibc %#4x != %#4x mine  %u\n", c, glibc, mine, d);
 					return EXIT_FAILURE;
 				}
 
 #if 0
 				if (iswctype(c,is_comb) || iswctype(c,is_comb3)) {
 /*  					if (!iswpunct(c)) { */
-						printf("%#8x : %d %d %#4x\n",
+						verbose_msg("%#8x : %d %d %#4x\n",
 							   c, iswctype(c,is_comb),iswctype(c,is_comb3), glibc);
 /*  					} */
 				}
@@ -429,10 +435,10 @@ int main(int argc, char **argv)
 #if 0
 				if (iswctype(c,is_comb) || iswctype(c,is_comb3)) {
 					if (!last_comb) {
-						printf("%#8x - ", c);
+						verbose_msg("%#8x - ", c);
 						last_comb = c;
 					} else if (last_comb + 1 < c) {
-						printf("%#8x\n%#8x - ", last_comb, c);
+						verbose_msg("%#8x\n%#8x - ", last_comb, c);
 						last_comb = c;
 					} else {
 						last_comb = c;
@@ -458,7 +464,7 @@ int main(int argc, char **argv)
 			ult[c] = 0;
 			if (l || u) {
 				if ((l != (short)l) || (u != (short)u)) {
-					printf("range assumption error!  %x  %ld  %ld\n", c, l, u);
+					verbose_msg("range assumption error!  %x  %ld  %ld\n", c, l, u);
 					return EXIT_FAILURE;
 				}
 				for (i=0 ; i < ul_count ; i++) {
@@ -470,7 +476,7 @@ int main(int argc, char **argv)
 				uldiff[ul_count].u = u;
 				++ul_count;
 				if (ul_count > MAXTO) {
-					printf("too many touppers/tolowers!\n");
+					verbose_msg("too many touppers/tolowers!\n");
 					return EXIT_FAILURE;
 				}
 			found:
@@ -479,10 +485,10 @@ int main(int argc, char **argv)
 		}
 
 		for (i = 0 ; i < 16 ; i++) {
-			printf("typecount[%2d] = %8ld  %s\n", i, typecount[i], typename[i]);
+			verbose_msg("typecount[%2d] = %8ld  %s\n", i, typecount[i], typename[i]);
 		}
 
-		printf("optimizing is* table..\n");
+		verbose_msg("optimizing is* table..\n");
 		n = -1;
 		smallest = SIZE_MAX;
 		cttable.ii = NULL;
@@ -495,9 +501,9 @@ int main(int argc, char **argv)
 /*  				break; */
 			}
 		}
-		printf("smallest = %zu\n", smallest);
+		verbose_msg("smallest = %zu\n", smallest);
 		if (!(cttable.ii = malloc(smallest))) {
-			printf("couldn't allocate space!\n");
+			verbose_msg("couldn't allocate space!\n");
 			return EXIT_FAILURE;
 		}
 		smallest = SIZE_MAX;
@@ -506,7 +512,7 @@ int main(int argc, char **argv)
 
 
 
-		printf("optimizing u/l-to table..\n");
+		verbose_msg("optimizing u/l-to table..\n");
 		smallest = SIZE_MAX;
 		ultable.ii = NULL;
 		for (i=0 ; i < 14 ; i++) {
@@ -518,11 +524,11 @@ int main(int argc, char **argv)
 /*  				break; */
 			}
 		}
-		printf("%zu (smallest) + %zu (u/l diffs) = %zu\n",
+		verbose_msg("%zu (smallest) + %zu (u/l diffs) = %zu\n",
 			   smallest, 4 * ul_count, smallest + 4 * ul_count);
-		printf("smallest = %zu\n", smallest);
+		verbose_msg("smallest = %zu\n", smallest);
 		if (!(ultable.ii = malloc(smallest))) {
-			printf("couldn't allocate space!\n");
+			verbose_msg("couldn't allocate space!\n");
 			return EXIT_FAILURE;
 		}
 		smallest = SIZE_MAX;
@@ -530,7 +536,7 @@ int main(int argc, char **argv)
 
 
 #if 0
-		printf("optimizing comb table..\n");
+		verbose_msg("optimizing comb table..\n");
 		smallest = SIZE_MAX;
 		combtable.ii = NULL;
 		for (i=0 ; i < 14 ; i++) {
@@ -542,9 +548,9 @@ int main(int argc, char **argv)
 /*  				break; */
 			}
 		}
-		printf("smallest = %zu\n", smallest);
+		verbose_msg("smallest = %zu\n", smallest);
 		if (!(combtable.ii = malloc(smallest))) {
-			printf("couldn't allocate space!\n");
+			verbose_msg("couldn't allocate space!\n");
 			return EXIT_FAILURE;
 		}
 		smallest = SIZE_MAX;
@@ -554,7 +560,7 @@ int main(int argc, char **argv)
 
 
 #if 0
-		printf("optimizing width table..\n");
+		verbose_msg("optimizing width table..\n");
 		smallest = SIZE_MAX;
 		widthtable.ii = NULL;
 		for (i=0 ; i < 14 ; i++) {
@@ -566,9 +572,9 @@ int main(int argc, char **argv)
 /*  				break; */
 			}
 		}
-		printf("smallest = %zu\n", smallest);
+		verbose_msg("smallest = %zu\n", smallest);
 		if (!(widthtable.ii = malloc(smallest))) {
-			printf("couldn't allocate space!\n");
+			verbose_msg("couldn't allocate space!\n");
 			return EXIT_FAILURE;
 		}
 		smallest = SIZE_MAX;
@@ -577,7 +583,7 @@ int main(int argc, char **argv)
 #endif
 
 #if 0
-		printf("optimizing comb3 table..\n");
+		verbose_msg("optimizing comb3 table..\n");
 		smallest = SIZE_MAX;
 		comb3table.ii = NULL;
 		for (i=0 ; i < 14 ; i++) {
@@ -589,9 +595,9 @@ int main(int argc, char **argv)
 /*  				break; */
 			}
 		}
-		printf("smallest = %zu\n", smallest);
+		verbose_msg("smallest = %zu\n", smallest);
 		if (!(comb3table.ii = malloc(smallest))) {
-			printf("couldn't allocate space!\n");
+			verbose_msg("couldn't allocate space!\n");
 			return EXIT_FAILURE;
 		}
 		smallest = SIZE_MAX;
@@ -606,7 +612,7 @@ int main(int argc, char **argv)
 #endif
 		}
 
-		printf("verifying for %s...\n", *argv);
+		verbose_msg("verifying for %s...\n", *argv);
 #if RANGE == 0xffffU
 		for (c=0 ; c <= 0xffffUL ; c++)
 #else
@@ -692,9 +698,9 @@ int main(int argc, char **argv)
 			if (mywxdigit(c)) ++mine;
 
 			if (glibc != mine) {
-				printf("%#8x : glibc %#4x != %#4x mine %d\n", c, glibc, mine, d);
+				verbose_msg("%#8x : glibc %#4x != %#4x mine %d\n", c, glibc, mine, d);
 				if (c < 0x30000UL) {
-					printf("sc=%#x u=%#x n=%#x i0=%#x i1=%#x\n", sc, u, n, i0, i1);
+					verbose_msg("sc=%#x u=%#x n=%#x i0=%#x i1=%#x\n", sc, u, n, i0, i1);
 				}
 			}
 				upper = lower = u = c;
@@ -715,32 +721,32 @@ int main(int argc, char **argv)
 				}
 
 			if (towupper(c) != upper) {
-				printf("%#8x : towupper glibc %#4x != %#4x mine\n",
+				verbose_msg("%#8x : towupper glibc %#4x != %#4x mine\n",
 					   c, towupper(c), upper);
 			}
 
 			if (towlower(c) != lower) {
-				printf("%#8x : towlower glibc %#4x != %#4x mine   i0 = %d\n",
+				verbose_msg("%#8x : towlower glibc %#4x != %#4x mine   i0 = %d\n",
 					   c, towlower(c), lower, i0);
 			}
 
 			if (totitle && ((tt = towctrans(c, totitle)) != upper)) {
-				printf("%#8x : totitle glibc %#4lx != %#4x mine   i0 = %d\n",
+				verbose_msg("%#8x : totitle glibc %#4lx != %#4x mine   i0 = %d\n",
 					   c, tt, upper, i0);
 			}
 			}
 
 
-			if ((c & 0xfff) == 0xfff) printf(".");
+			if ((c & 0xfff) == 0xfff) verbose_msg(".");
 		}
-		printf("done\n");
+		verbose_msg("done\n");
 	}
 
 	if (built) {
 		FILE *fp;
 
 		if (!(fp = fopen("wctables.h", "w"))) {
-			printf("cannot open output file 'wctables.h'!\n");
+			verbose_msg("cannot open output file 'wctables.h'!\n");
 			return EXIT_FAILURE;
 		}
 
@@ -815,7 +821,7 @@ size_t newopt(unsigned char *ut, size_t usize, int shift, table_data *tbl)
 		}
 #if 1
 		else if (memcmp(ti[i-1], ti[i], blocksize) > 0) {
-			printf("bad sort %i!\n", i);
+			verbose_msg("bad sort %i!\n", i);
 			abort();
 		}
 #endif
@@ -844,7 +850,7 @@ size_t newopt(unsigned char *ut, size_t usize, int shift, table_data *tbl)
 					shift2 = j;
 					smallest = t;
 					if (!tbl->ii) {
-						printf("ishift %zu  tshift %zu  size %zu\n",
+						verbose_msg("ishift %zu  tshift %zu  size %zu\n",
 							   shift2, shift, t);
 					}
 /*  				} else { */
@@ -869,7 +875,7 @@ size_t newopt(unsigned char *ut, size_t usize, int shift, table_data *tbl)
 			}
 		} else {
 			++recurse;
-			printf("setting ishift %zu  tshift %zu\n",
+			verbose_msg("setting ishift %zu  tshift %zu\n",
 							   shift2, shift);
 			newopt(uit, numblocks, shift2, tbl);
 			--recurse;

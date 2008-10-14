@@ -20,10 +20,6 @@ sub_headers := headers
 ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: pregen libs
-
-# To be able to build the libs rule, we must first have the generated headers.
-# This is needed when locale support is enabled, but also ensures that the
-# build process is parallel safe.
 libs: pregen
 
 # In this section, we need .config
@@ -61,7 +57,6 @@ ifeq ($(HAVE_DOT_CONFIG),y)
 # on spot to save us from alot of hazzle.
 include/bits/uClibc_config.h: extra/config/conf .config $(top_srcdir)extra/scripts/conf-header.sh | include/bits
 	@$(disp_gen)
-	@#superfluous: $(Q)$(INSTALL) -d $(dir $@)
 	$(Q)@$< -s $(top_srcdir)extra/Configs/Config.in
 	$(Q)$(top_srcdir)extra/scripts/conf-header.sh .config > $@
 	$(Q)$(MAKE) headers-y

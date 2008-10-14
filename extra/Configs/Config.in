@@ -730,7 +730,7 @@ config UCLIBC_LINUX_SPECIFIC
 	default y
 	help
 	  fstatfs(), inotify_*(), ioperm(), iopl(), madvise(), modify_ldt(),
-	  personality(), ppoll(), setresuid()
+	  personality(), ppoll(), setresuid(), signalfd()
 
 config UCLIBC_HAS_GNU_ERROR
 	bool "Support GNU extensions for error-reporting"
