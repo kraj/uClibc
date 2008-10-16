@@ -19,6 +19,11 @@
 # include <pthread.h>
 # include <bits/uClibc_pthread.h>
 # define HEAP_USE_LOCKING
+# define __heap_do_lock(heap_lock) __pthread_mutex_lock (heap_lock)
+# define __heap_do_unlock(heap_lock) __pthread_mutex_unlock (heap_lock)
+#else
+# define __heap_do_lock(heap_lock)
+# define __heap_do_unlock(heap_lock)
 #endif
 
 

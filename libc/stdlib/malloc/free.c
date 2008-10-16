@@ -22,7 +22,11 @@ libc_hidden_proto(sbrk)
 #include "heap.h"
 
 static void
+#ifdef HEAP_USE_LOCKING
 free_to_heap (void *mem, struct heap_free_area *heap, malloc_mutex_t *heap_lock)
+#else
+free_to_heap (void *mem, struct heap_free_area *heap)
+#endif
 {
   size_t size;
   struct heap_free_area *fa;
@@ -39,7 +43,7 @@ free_to_heap (void *mem, struct heap_free_area *heap, malloc_mutex_t *heap_lock)
   size = MALLOC_SIZE (mem);
   mem = MALLOC_BASE (mem);
 
-  __pthread_mutex_lock (heap_lock);
+  __heap_do_lock (heap_lock);
 
   /* Put MEM back in the heap, and get the free-area it was placed in.  */
   fa = __heap_free (heap, mem, size);
@@ -48,7 +52,7 @@ free_to_heap (void *mem, struct heap_free_area *heap, malloc_mutex_t *heap_lock)
      unmapped.  */
   if (HEAP_FREE_AREA_SIZE (fa) < MALLOC_UNMAP_THRESHOLD)
     /* Nope, nothing left to do, just release the lock.  */
-    __pthread_mutex_unlock (heap_lock);
+    __heap_do_unlock (heap_lock);
   else
     /* Yup, try to unmap FA.  */
     {
@@ -81,7 +85,7 @@ free_to_heap (void *mem, struct heap_free_area *heap, malloc_mutex_t *heap_lock)
 	  MALLOC_DEBUG (-1, "not unmapping: 0x%lx - 0x%lx (%ld bytes)",
 			start, end, end - start);
 	  __malloc_unlock_sbrk ();
-	  __pthread_mutex_unlock (heap_lock);
+	  __heap_do_unlock (heap_lock);
 	  return;
 	}
 #endif
@@ -108,7 +112,7 @@ free_to_heap (void *mem, struct heap_free_area *heap, malloc_mutex_t *heap_lock)
 #ifdef MALLOC_USE_SBRK
 
       /* Release the heap lock; we're still holding the sbrk lock.  */
-      __pthread_mutex_unlock (heap_lock);
+      __heap_do_unlock (heap_lock);
       /* Lower the brk.  */
       sbrk (start - end);
       /* Release the sbrk lock too; now we hold no locks.  */
@@ -172,15 +176,20 @@ free_to_heap (void *mem, struct heap_free_area *heap, malloc_mutex_t *heap_lock)
 	      /* We have to unlock the heap before we recurse to free the mmb
 		 descriptor, because we might be unmapping from the mmb
 		 heap.  */
-              __pthread_mutex_unlock (heap_lock);
+              __heap_do_unlock (heap_lock);
 
+#ifdef HEAP_USE_LOCKING
 	      /* Release the descriptor block we used.  */
 	      free_to_heap (mmb, &__malloc_mmb_heap, &__malloc_mmb_heap_lock);
+#else
+	      /* Release the descriptor block we used.  */
+              free_to_heap (mmb, &__malloc_mmb_heap);
+#endif
 
 	      /* Do the actual munmap.  */
 	      munmap ((void *)mmb_start, mmb_end - mmb_start);
 
-              __pthread_mutex_lock (heap_lock);
+              __heap_do_lock (heap_lock);
 
 #  ifdef __UCLIBC_HAS_THREADS__
 	      /* In a multi-threaded program, it's possible that PREV_MMB has
@@ -213,7 +222,7 @@ free_to_heap (void *mem, struct heap_free_area *heap, malloc_mutex_t *heap_lock)
 	}
 
       /* Finally release the lock for good.  */
-      __pthread_mutex_unlock (heap_lock);
+      __heap_do_unlock (heap_lock);
 
       MALLOC_MMB_DEBUG_INDENT (-1);
 
@@ -243,7 +252,7 @@ free_to_heap (void *mem, struct heap_free_area *heap, malloc_mutex_t *heap_lock)
 	}
 
       /* Release the heap lock before we do the system call.  */
-      __pthread_mutex_unlock (heap_lock);
+      __heap_do_unlock (heap_lock);
 
       if (unmap_end > unmap_start)
 	/* Finally, actually unmap the memory.  */
@@ -260,5 +269,9 @@ free_to_heap (void *mem, struct heap_free_area *heap, malloc_mutex_t *heap_lock)
 void
 free (void *mem)
 {
+#ifdef HEAP_USE_LOCKING
   free_to_heap (mem, __malloc_heap, &__malloc_heap_lock);
+#else
+  free_to_heap (mem, __malloc_heap);
+#endif
 }
