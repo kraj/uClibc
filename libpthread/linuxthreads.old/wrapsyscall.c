@@ -183,7 +183,7 @@ libpthread_hidden_def(waitpid)
 CANCELABLE_SYSCALL (ssize_t, write, (int fd, const void *buf, size_t n),
 		    (fd, buf, n))
 
-
+#if defined __UCLIBC_HAS_SOCKET__
 /* The following system calls are thread cancellation points specified
    in XNS.  */
 
@@ -225,3 +225,4 @@ CANCELABLE_SYSCALL (ssize_t, sendto, (int fd, const __ptr_t buf, size_t n,
 				      int flags, __CONST_SOCKADDR_ARG addr,
 				      socklen_t addr_len),
 		    (fd, buf, n, flags, addr, addr_len))
+#endif /* __UCLIBC_HAS_SOCKET__ */
