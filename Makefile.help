@@ -36,3 +36,7 @@ help:
 	@echo '  test_compile		- compile testsuite binaries'
 	@echo '  release		- create a distribution tarball'
 	@echo
+	@echo 'Environment variables:'
+	@echo '     			- Quiet build'
+	@echo '  V=1			- Verbose build'
+	@echo '  V=2			- Very verbose build'
