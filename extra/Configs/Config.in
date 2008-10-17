@@ -403,6 +403,10 @@ config LINUXTHREADS_OLD
 	  the latest code from glibc, so it may be the only choice for the
 	  newer ports (like alpha/amd64/64bit arches and hppa).
 
+config LINUXTHREADS_NEW
+	def_bool y
+	depends on !LINUXTHREADS_OLD
+
 config UCLIBC_HAS_SYSLOG
 	bool "Syslog support"
 	default y

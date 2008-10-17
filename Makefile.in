@@ -61,6 +61,11 @@ include/bits/uClibc_config.h: extra/config/conf .config $(top_srcdir)extra/scrip
 	$(Q)$(top_srcdir)extra/scripts/conf-header.sh .config > $@
 	$(Q)$(MAKE) headers-y
 
+# The above doesn't work for threads, though. Just using check-symlinks for now.
+# XXX: FIXME: this is ugly
+MAKEFLAGS += -L
+include/config/linuxthreads/old.h include/config/linuxthreads/new.h:
+
 # For the moment, we have to keep re-running this target
 # because the fix includes scripts rely on pre-processers
 # in order to generate the headers correctly :(.  That

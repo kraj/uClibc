@@ -33,9 +33,6 @@ endif
 
 lib-a-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.a
 lib-so-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.so
-objclean-y += libthread_db_clean
-headers-$(PTHREADS_DEBUG_SUPPORT) += linuxthreads_db_headers
-headers_clean-y += linuxthreads_db_headers_clean
 
 #ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
@@ -62,8 +59,16 @@ $(top_builddir)lib/libthread_db.a: $(libthread_db-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-linuxthreads_db_headers:
-	$(Q)$(LN) -sf ../$(PTDIR)_db/thread_db.h $(top_builddir)include/
+include/thread_db.h:
+	$(do_ln) ../$(PTDIR)_db/$(@F) $(top_builddir)$@
+
+linuxthreads_db_headers := include/thread_db.h
+$(linuxthreads_db_headers): include/config/linuxthreads/old.h \
+	    include/config/linuxthreads/new.h
+headers-$(PTHREADS_DEBUG_SUPPORT) += $(linuxthreads_db_headers)
+
+objclean-y += libthread_db_clean
+headers_clean-y += linuxthreads_db_headers_clean
 
 linuxthreads_db_headers_clean:
 	$(RM) $(top_builddir)include/thread_db.h
