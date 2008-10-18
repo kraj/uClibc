@@ -63,8 +63,7 @@ include/thread_db.h:
 	$(do_ln) ../$(PTDIR)_db/$(@F) $(top_builddir)$@
 
 linuxthreads_db_headers := include/thread_db.h
-$(linuxthreads_db_headers): include/config/linuxthreads/old.h \
-	    include/config/linuxthreads/new.h
+$(linuxthreads_db_headers): $(wildcard $(addprefix include/config/linuxthreads/,old.h new.h))
 headers-$(PTHREADS_DEBUG_SUPPORT) += $(linuxthreads_db_headers)
 
 objclean-y += libthread_db_clean

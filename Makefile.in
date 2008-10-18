@@ -65,6 +65,7 @@ include/bits/uClibc_config.h: extra/config/conf .config $(top_srcdir)extra/scrip
 # XXX: FIXME: this is ugly
 MAKEFLAGS += -L
 include/config/linuxthreads/old.h include/config/linuxthreads/new.h:
+	@true
 
 # For the moment, we have to keep re-running this target
 # because the fix includes scripts rely on pre-processers

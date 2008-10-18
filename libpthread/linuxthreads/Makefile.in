@@ -124,8 +124,7 @@ include/bits/pthreadtypes.h: | include/bits
 
 linuxthreads_headers := include/pthread.h include/semaphore.h \
 			include/bits/pthreadtypes.h
-$(linuxthreads_headers): include/config/linuxthreads/old.h \
-	    include/config/linuxthreads/new.h
+$(linuxthreads_headers): $(wildcard $(addprefix include/config/linuxthreads/,old.h new.h))
 headers-$(UCLIBC_HAS_THREADS) += $(linuxthreads_headers)
 
 objclean-y += libpthread_clean
