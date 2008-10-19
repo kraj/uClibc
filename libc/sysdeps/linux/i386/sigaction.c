@@ -99,11 +99,11 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
     }
 
     __asm__ __volatile__ ("pushl %%ebx\n"
-	    "movl %2, %%ebx\n"
+	    "movl %3, %%ebx\n"
 	    "int $0x80\n"
 	    "popl %%ebx"
-	    : "=a" (result)
-	    : "0" (__NR_sigaction), "mr" (sig),
+	    : "=a" (result), "=m" (koact)
+	    : "0" (__NR_sigaction), "r" (sig), "m" (kact),
 	    "c" (act ? __ptrvalue (&kact) : 0),
 	    "d" (oact ? __ptrvalue (&koact) : 0));
 
