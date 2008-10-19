@@ -19,6 +19,8 @@
 #ifndef _NETLINKACCESS_H
 #define _NETLINKACCESS_H 1
 
+#ifdef __UCLIBC_USE_NETLINK__
+
 #include <features.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -32,16 +34,6 @@ typedef uint64_t __u64;
 typedef int32_t __s32;
 #include <linux/rtnetlink.h>
 #include <linux/netlink.h>
-
-/* Should prob be a configure option or something */
-#ifndef __ASSUME_NETLINK_SUPPORT
-#ifdef __UCLIBC_USE_NETLINK__
-# define __ASSUME_NETLINK_SUPPORT 1
-#else
-# define __ASSUME_NETLINK_SUPPORT 0
-#endif
-#endif
-
 
 struct netlink_res
 {
@@ -62,6 +54,10 @@ struct netlink_handle
 };
 
 
+#ifndef __ASSUME_NETLINK_SUPPORT
+#define __ASSUME_NETLINK_SUPPORT 1
+#endif
+
 #ifdef __UCLIBC_SUPPORT_AI_ADDRCONFIG__
 #if __ASSUME_NETLINK_SUPPORT == 0
 extern smallint __no_netlink_support attribute_hidden;
@@ -76,5 +72,8 @@ extern void __netlink_close (struct netlink_handle *h) attribute_hidden;
 extern void __netlink_free_handle (struct netlink_handle *h) attribute_hidden;
 extern int __netlink_request (struct netlink_handle *h, int type) attribute_hidden;
 
+#else /* __UCLIBC_USE_NETLINK__ */
+#define __ASSUME_NETLINK_SUPPORT 0
+#endif
 
-#endif /* netlinkaccess.h */
+#endif /* _NETLINKACCESS_H */
