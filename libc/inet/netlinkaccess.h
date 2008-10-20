@@ -19,13 +19,12 @@
 #ifndef _NETLINKACCESS_H
 #define _NETLINKACCESS_H 1
 
-#ifdef __UCLIBC_USE_NETLINK__
-
 #include <features.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
 
+#if defined __ASSUME_NETLINK_SUPPORT || defined __UCLIBC_USE_NETLINK__
 #define _LINUX_TYPES_H
 typedef uint8_t __u8;
 typedef uint16_t __u16;
@@ -60,6 +59,7 @@ struct netlink_handle
 
 #ifdef __UCLIBC_SUPPORT_AI_ADDRCONFIG__
 #if __ASSUME_NETLINK_SUPPORT == 0
+/* suspicious: This will simply not work.. */
 extern smallint __no_netlink_support attribute_hidden;
 #else
 # define __no_netlink_support 0
@@ -72,7 +72,7 @@ extern void __netlink_close (struct netlink_handle *h) attribute_hidden;
 extern void __netlink_free_handle (struct netlink_handle *h) attribute_hidden;
 extern int __netlink_request (struct netlink_handle *h, int type) attribute_hidden;
 
-#else /* __UCLIBC_USE_NETLINK__ */
+#else
 #define __ASSUME_NETLINK_SUPPORT 0
 #endif
 
