@@ -12,5 +12,5 @@
 
 libc_hidden_proto(uname)
 
-_syscall1(int, uname, struct utsname *, buf);
+_syscall1(int, uname, struct utsname *, buf)
 libc_hidden_def(uname)

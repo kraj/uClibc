@@ -20,5 +20,5 @@
 #include <bits/wordsize.h>
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_sendfile64
-_syscall4(ssize_t,sendfile64, int, out_fd, int, in_fd, __off64_t *, offset, size_t, count);
+_syscall4(ssize_t,sendfile64, int, out_fd, int, in_fd, __off64_t *, offset, size_t, count)
 #endif

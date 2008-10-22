@@ -12,5 +12,5 @@
 
 libc_hidden_proto(truncate)
 
-_syscall2(int, truncate, const char *, path, __off_t, length);
+_syscall2(int, truncate, const char *, path, __off_t, length)
 libc_hidden_def(truncate)

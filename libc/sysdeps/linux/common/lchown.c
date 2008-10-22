@@ -17,7 +17,7 @@
 #  define __NR_lchown __NR_lchown32
 # endif
 
-_syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group);
+_syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group)
 
 #else
 

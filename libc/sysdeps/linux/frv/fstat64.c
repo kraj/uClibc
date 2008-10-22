@@ -15,6 +15,6 @@
 
 #ifdef __UCLIBC_HAS_LFS__
 libc_hidden_proto(fstat64)
-_syscall2(int, fstat64, int, fd, struct stat64 *, buf);
+_syscall2(int, fstat64, int, fd, struct stat64 *, buf)
 libc_hidden_def(fstat64)
 #endif

@@ -12,5 +12,5 @@
 
 libc_hidden_proto(setsid)
 
-_syscall0(pid_t, setsid);
+_syscall0(pid_t, setsid)
 libc_hidden_def(setsid)

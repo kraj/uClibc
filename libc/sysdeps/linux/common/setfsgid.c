@@ -17,7 +17,7 @@
 #  define __NR_setfsgid __NR_setfsgid32
 # endif
 
-_syscall1(int, setfsgid, gid_t, gid);
+_syscall1(int, setfsgid, gid_t, gid)
 
 #else
 

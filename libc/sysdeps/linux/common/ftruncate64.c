@@ -28,7 +28,7 @@ libc_hidden_proto(ftruncate64)
 #  if __WORDSIZE == 64
 
 /* For a 64 bit machine, life is simple... */
-_syscall2(int, ftruncate64, int, fd, __off64_t, length);
+_syscall2(int, ftruncate64, int, fd, __off64_t, length)
 
 #  elif __WORDSIZE == 32
 

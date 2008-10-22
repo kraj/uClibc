@@ -17,7 +17,7 @@
 #  define __NR_setgid __NR_setgid32
 # endif
 
-_syscall1(int, setgid, gid_t, gid);
+_syscall1(int, setgid, gid_t, gid)
 
 #else
 

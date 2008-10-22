@@ -34,7 +34,7 @@
 # define __NR_shmat  __NR_osf_shmat
 #endif
 #ifdef __NR_shmat
-_syscall3(void *, shmat, int, shmid, const void *,shmaddr, int, shmflg);
+_syscall3(void *, shmat, int, shmid, const void *,shmaddr, int, shmflg)
 #else
 /* psm: don't remove this, else mips will fail */
 #include <unistd.h>
@@ -73,7 +73,7 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf)
 /* Detach shared memory segment starting at address specified by SHMADDR
    from the caller's data segment.  */
 #ifdef __NR_shmdt
-_syscall1(int, shmdt, const void *, shmaddr);
+_syscall1(int, shmdt, const void *, shmaddr)
 #else
 int shmdt (const void *shmaddr)
 {
@@ -86,7 +86,7 @@ int shmdt (const void *shmaddr)
 /* Return an identifier for an shared memory segment of at least size SIZE
    which is associated with KEY.  */
 #ifdef __NR_shmget
-_syscall3(int, shmget, key_t, key, size_t, size, int, shmflg);
+_syscall3(int, shmget, key_t, key, size_t, size, int, shmflg)
 #else
 int shmget (key_t key, size_t size, int shmflg)
 {

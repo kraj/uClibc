@@ -22,7 +22,7 @@ libc_hidden_proto(__libc_fcntl64)
 
 #define __NR___syscall_fcntl __NR_fcntl
 static inline
-_syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg);
+_syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg)
 
 int __libc_fcntl(int fd, int cmd, ...)
 {

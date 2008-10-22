@@ -13,7 +13,7 @@
 libc_hidden_proto(utime)
 
 #ifdef __NR_utime
-_syscall2(int, utime, const char *, file, const struct utimbuf *, times);
+_syscall2(int, utime, const char *, file, const struct utimbuf *, times)
 #else
 #include <stdlib.h>
 #include <sys/time.h>

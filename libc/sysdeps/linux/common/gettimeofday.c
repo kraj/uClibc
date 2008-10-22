@@ -12,8 +12,8 @@
 
 libc_hidden_proto(gettimeofday)
 #ifdef __USE_BSD
-_syscall2(int, gettimeofday, struct timeval *, tv, struct timezone *, tz);
+_syscall2(int, gettimeofday, struct timeval *, tv, struct timezone *, tz)
 #else
-_syscall2(int, gettimeofday, struct timeval *, tv, void *, tz);
+_syscall2(int, gettimeofday, struct timeval *, tv, void *, tz)
 #endif
 libc_hidden_def(gettimeofday)

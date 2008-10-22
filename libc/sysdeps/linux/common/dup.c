@@ -8,4 +8,4 @@
 
 #include <sys/syscall.h>
 #include <unistd.h>
-_syscall1(int, dup, int, oldfd);
+_syscall1(int, dup, int, oldfd)

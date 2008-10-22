@@ -17,10 +17,10 @@ libc_hidden_proto(getgroups)
 #if defined(__NR_getgroups32)
 # undef __NR_getgroups
 # define __NR_getgroups __NR_getgroups32
-_syscall2(int, getgroups, int, size, gid_t *, list);
+_syscall2(int, getgroups, int, size, gid_t *, list)
 
 #elif __WORDSIZE == 64
-_syscall2(int, getgroups, int, size, gid_t *, list);
+_syscall2(int, getgroups, int, size, gid_t *, list)
 
 #else
 

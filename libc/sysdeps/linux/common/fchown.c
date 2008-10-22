@@ -17,7 +17,7 @@
 #  define __NR_fchown __NR_fchown32
 # endif
 
-_syscall3(int, fchown, int, fd, uid_t, owner, gid_t, group);
+_syscall3(int, fchown, int, fd, uid_t, owner, gid_t, group)
 
 #else
 

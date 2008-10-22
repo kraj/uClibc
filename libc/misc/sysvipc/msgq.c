@@ -43,7 +43,7 @@ struct new_msg_buf{
 
 #ifdef L_msgrcv
 #ifdef __NR_msgrcv
-_syscall5(int, msgrcv, int, msqid, void *, msgp, size_t, msgsz, long int, msgtyp, int, msgflg);
+_syscall5(int, msgrcv, int, msqid, void *, msgp, size_t, msgsz, long int, msgtyp, int, msgflg)
 #else
 int msgrcv (int msqid, void *msgp, size_t msgsz,
 	long int msgtyp, int msgflg)
@@ -61,7 +61,7 @@ int msgrcv (int msqid, void *msgp, size_t msgsz,
 
 #ifdef L_msgsnd
 #ifdef __NR_msgsnd
-_syscall4(int, msgsnd, int, msqid, const void *, msgp, size_t, msgsz, int, msgflg);
+_syscall4(int, msgsnd, int, msqid, const void *, msgp, size_t, msgsz, int, msgflg)
 #else
 /* Send message to message queue.  */
 int msgsnd (int msqid, const void *msgp, size_t msgsz, int msgflg)

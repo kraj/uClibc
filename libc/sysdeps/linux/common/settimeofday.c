@@ -15,6 +15,6 @@
 libc_hidden_proto(settimeofday)
 
 _syscall2(int, settimeofday, const struct timeval *, tv,
-		  const struct timezone *, tz);
+		  const struct timezone *, tz)
 libc_hidden_def(settimeofday)
 #endif

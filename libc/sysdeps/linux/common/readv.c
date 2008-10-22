@@ -14,5 +14,5 @@ extern __typeof(readv) __libc_readv;
 
 #define __NR___libc_readv __NR_readv
 _syscall3(ssize_t, __libc_readv, int, filedes, const struct iovec *, vector,
-		  int, count);
+		  int, count)
 weak_alias(__libc_readv,readv)

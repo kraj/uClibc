@@ -28,7 +28,7 @@
 /* sets */
 #ifdef __NR_setxattr
 _syscall5(int, setxattr, const char *, path, const char *, name,
-	const void *, value, size_t, size, int, flags);
+	const void *, value, size_t, size, int, flags)
 #else
 int setxattr(__const char *__path, __const char *__name,
 	__const void *__value, size_t __size, int __flags)
@@ -40,7 +40,7 @@ int setxattr(__const char *__path, __const char *__name,
 
 #ifdef __NR_lsetxattr
 _syscall5(int, lsetxattr, const char *, path, const char *, name,
-	const void *, value, size_t, size, int, flags);
+	const void *, value, size_t, size, int, flags)
 #else
 int lsetxattr(__const char *__path, __const char *__name,
 	__const void *__value, size_t __size, int __flags)
@@ -52,7 +52,7 @@ int lsetxattr(__const char *__path, __const char *__name,
 
 #ifdef __NR_fsetxattr
 _syscall5(int, fsetxattr, int, filedes, const char *, name, const void *,
-	value, size_t, size, int, flags);
+	value, size_t, size, int, flags)
 #else
 int fsetxattr(int __fd, __const char *__name, __const void *__value,
 	size_t __size, int __flags)
@@ -65,7 +65,7 @@ int fsetxattr(int __fd, __const char *__name, __const void *__value,
 /* gets */
 #ifdef __NR_getxattr
 _syscall4(ssize_t, getxattr, const char *, path, const char *, name,
-	void *, value, size_t, size);
+	void *, value, size_t, size)
 #else
 ssize_t getxattr(__const char *__path, __const char *__name, void *__value,
 	size_t __size)
@@ -77,7 +77,7 @@ ssize_t getxattr(__const char *__path, __const char *__name, void *__value,
 
 #ifdef __NR_lgetxattr
 _syscall4(ssize_t, lgetxattr, const char *, path, const char *, name,
-	void *, value, size_t, size);
+	void *, value, size_t, size)
 #else
 ssize_t lgetxattr(__const char *__path, __const char *__name,
 	void *__value, size_t __size)
@@ -89,7 +89,7 @@ ssize_t lgetxattr(__const char *__path, __const char *__name,
 
 #ifdef __NR_fgetxattr
 _syscall4(ssize_t, fgetxattr, int, filedes, const char *, name, void *,
-	value, size_t, size);
+	value, size_t, size)
 #else
 ssize_t fgetxattr(int __fd, __const char *__name, void *__value,
 	size_t __size)
@@ -102,7 +102,7 @@ ssize_t fgetxattr(int __fd, __const char *__name, void *__value,
 /* list */
 #ifdef __NR_listxattr
 _syscall3(ssize_t, listxattr, const char *, path, char *, list, size_t,
-	size);
+	size)
 #else
 ssize_t listxattr(__const char *__path, char *__list, size_t __size)
 {
@@ -113,7 +113,7 @@ ssize_t listxattr(__const char *__path, char *__list, size_t __size)
 
 #ifdef __NR_llistxattr
 _syscall3(ssize_t, llistxattr, const char *, path, char *, list, size_t,
-	size);
+	size)
 #else
 ssize_t llistxattr(__const char *__path, char *__list, size_t __size)
 {
@@ -123,7 +123,7 @@ ssize_t llistxattr(__const char *__path, char *__list, size_t __size)
 #endif
 
 #ifdef __NR_flistxattr
-_syscall3(ssize_t, flistxattr, int, filedes, char *, list, size_t, size);
+_syscall3(ssize_t, flistxattr, int, filedes, char *, list, size_t, size)
 #else
 ssize_t flistxattr(int __fd, char *__list, size_t __size)
 {
@@ -134,7 +134,7 @@ ssize_t flistxattr(int __fd, char *__list, size_t __size)
 
 /* remove */
 #ifdef __NR_removexattr
-_syscall2(int, removexattr, const char *, path, const char *, name);
+_syscall2(int, removexattr, const char *, path, const char *, name)
 #else
 int removexattr(__const char *__path, __const char *__name)
 {
@@ -144,7 +144,7 @@ int removexattr(__const char *__path, __const char *__name)
 #endif
 
 #ifdef __NR_lremovexattr
-_syscall2(int, lremovexattr, const char *, path, const char *, name);
+_syscall2(int, lremovexattr, const char *, path, const char *, name)
 #else
 int lremovexattr(__const char *__path, __const char *__name)
 {
@@ -154,7 +154,7 @@ int lremovexattr(__const char *__path, __const char *__name)
 #endif
 
 #ifdef __NR_fremovexattr
-_syscall2(int, fremovexattr, int, filedes, const char *, name);
+_syscall2(int, fremovexattr, int, filedes, const char *, name)
 #else
 int fremovexattr(int __fd, __const char *__name)
 {

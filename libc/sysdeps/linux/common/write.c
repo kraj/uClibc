@@ -12,7 +12,7 @@
 
 extern __typeof(write) __libc_write;
 #define __NR___libc_write __NR_write
-_syscall3(ssize_t, __libc_write, int, fd, const __ptr_t, buf, size_t, count);
+_syscall3(ssize_t, __libc_write, int, fd, const __ptr_t, buf, size_t, count)
 libc_hidden_proto(write)
 weak_alias(__libc_write,write)
 libc_hidden_weak(write)

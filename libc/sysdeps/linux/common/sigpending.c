@@ -22,6 +22,6 @@ int sigpending(sigset_t * set)
 	return __rt_sigpending(set, _NSIG / 8);
 }
 #else
-_syscall1(int, sigpending, sigset_t *, set);
+_syscall1(int, sigpending, sigset_t *, set)
 #endif
 #endif

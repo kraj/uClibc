@@ -25,7 +25,7 @@ struct __sysctl_args {
 };
 
 static inline
-_syscall1(int, _sysctl, struct __sysctl_args *, args);
+_syscall1(int, _sysctl, struct __sysctl_args *, args)
 
 int sysctl(int *name, int nlen, void *oldval, size_t * oldlenp,
 		   void *newval, size_t newlen)

@@ -19,7 +19,7 @@ libc_hidden_proto(setregid)
 #  define __NR_setregid __NR_setregid32
 # endif
 
-_syscall2(int, setregid, gid_t, rgid, gid_t, egid);
+_syscall2(int, setregid, gid_t, rgid, gid_t, egid)
 
 #else
 

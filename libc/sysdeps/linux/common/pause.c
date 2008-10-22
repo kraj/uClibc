@@ -14,7 +14,7 @@
 extern __typeof(pause) __libc_pause;
 #ifdef __NR_pause
 #define __NR___libc_pause __NR_pause
-_syscall0(int, __libc_pause);
+_syscall0(int, __libc_pause)
 #else
 #include <signal.h>
 libc_hidden_proto(__sigpause)

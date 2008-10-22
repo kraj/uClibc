@@ -28,7 +28,7 @@ libc_hidden_proto(ppoll)
 static inline
 _syscall4(int, __libc_ppoll, struct pollfd *, fds,
 	nfds_t, nfds, const struct timespec *, timeout,
-	const __sigset_t *, sigmask);
+	const __sigset_t *, sigmask)
 
 int
 ppoll (struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,

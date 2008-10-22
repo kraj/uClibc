@@ -14,7 +14,7 @@ int init_module(void *first, void *second, void *third, void *fourth, void *fift
  * (for 2.2 and 2.4 kernels).  Use the greatest common denominator,
  * and let the kernel cope with whatever it gets.  It's good at that. */
 _syscall5(int, init_module, void *, first, void *, second, void *, third,
-		  void *, fourth, void *, fifth);
+		  void *, fourth, void *, fifth)
 #else
 int init_module(void *first, void *second, void *third, void *fourth, void *fifth)
 {

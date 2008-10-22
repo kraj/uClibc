@@ -11,7 +11,7 @@
 
 int pivot_root(const char *new_root, const char *put_old);
 #ifdef __NR_pivot_root
-_syscall2(int, pivot_root, const char *, new_root, const char *, put_old);
+_syscall2(int, pivot_root, const char *, new_root, const char *, put_old)
 #else
 int pivot_root(const char *new_root, const char *put_old)
 {

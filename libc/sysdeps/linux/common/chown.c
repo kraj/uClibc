@@ -19,7 +19,7 @@ libc_hidden_proto(chown)
 #  define __NR_chown __NR_chown32
 # endif
 
-_syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group);
+_syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group)
 
 #else
 

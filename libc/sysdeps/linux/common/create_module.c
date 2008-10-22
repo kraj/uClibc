@@ -46,7 +46,7 @@ unsigned long create_module(const char *name, size_t size)
 }
 #else
 /* Sparc, MIPS, etc don't mistake return values for errors. */
-_syscall2(unsigned long, create_module, const char *, name, size_t, size);
+_syscall2(unsigned long, create_module, const char *, name, size_t, size)
 #endif
 
 #else /* !__NR_create_module */

@@ -9,4 +9,4 @@
 
 #include <sys/syscall.h>
 #include <unistd.h>
-_syscall2(int, access, const char *, pathname, int, mode);
+_syscall2(int, access, const char *, pathname, int, mode)

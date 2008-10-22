@@ -11,5 +11,5 @@
 
 #ifdef __NR_arch_prctl
 extern int arch_prctl(int code, unsigned long addr);
-_syscall2(int, arch_prctl, int, code, unsigned long, addr);
+_syscall2(int, arch_prctl, int, code, unsigned long, addr)
 #endif

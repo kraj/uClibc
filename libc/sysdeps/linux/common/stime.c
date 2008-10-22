@@ -13,7 +13,7 @@
 
 #ifdef __USE_SVID
 #ifdef __NR_stime
-_syscall1(int, stime, const time_t *, t);
+_syscall1(int, stime, const time_t *, t)
 #else
 libc_hidden_proto(settimeofday)
 

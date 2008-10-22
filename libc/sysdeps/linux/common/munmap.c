@@ -13,5 +13,5 @@
 
 libc_hidden_proto(munmap)
 
-_syscall2(int, munmap, void *, start, size_t, length);
+_syscall2(int, munmap, void *, start, size_t, length)
 libc_hidden_def(munmap)

@@ -12,5 +12,5 @@
 #if defined __NR_munlockall && defined __ARCH_USE_MMU__
 #include <sys/mman.h>
 
-_syscall0(int, munlockall);
+_syscall0(int, munlockall)
 #endif

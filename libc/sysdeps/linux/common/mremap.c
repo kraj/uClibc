@@ -20,7 +20,7 @@ void *mremap(void *, size_t, size_t, int, void *);
 
 libc_hidden_proto(mremap)
 _syscall5(void *, mremap, void *, old_address, size_t, old_size, size_t,
-		  new_size, int, may_move, void *, new_address);
+		  new_size, int, may_move, void *, new_address)
 libc_hidden_def(mremap)
 
 #endif

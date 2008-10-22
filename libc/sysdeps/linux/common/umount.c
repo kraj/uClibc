@@ -15,7 +15,7 @@
 /* arch provides umount() syscall */
 #ifdef __NR_umount
 
-_syscall1(int, umount, const char *, specialfile);
+_syscall1(int, umount, const char *, specialfile)
 
 /* arch provides umount2() syscall */
 #elif defined __NR_umount2

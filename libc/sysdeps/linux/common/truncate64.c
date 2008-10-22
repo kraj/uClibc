@@ -25,7 +25,7 @@
 #if __WORDSIZE == 64
 
 /* For a 64 bit machine, life is simple... */
-_syscall2(int, truncate64, const char *, path, __off64_t, length);
+_syscall2(int, truncate64, const char *, path, __off64_t, length)
 
 #elif __WORDSIZE == 32
 

@@ -16,5 +16,5 @@ int __syscall_rt_sigaction (int __signum, const struct sigaction *__act, struct 
 #define __NR___syscall_rt_sigaction __NR_rt_sigaction
 _syscall4(int, __syscall_rt_sigaction, int, signum,
 		  const struct sigaction *, act, struct sigaction *, oldact,
-		  size_t, size);
+		  size_t, size)
 #endif

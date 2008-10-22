@@ -11,6 +11,6 @@
 #ifdef __NR_remap_file_pages
 
 _syscall5(int, remap_file_pages, void *, __start, size_t, __size,
-			int, __prot, size_t, __pgoff, int, __flags);
+			int, __prot, size_t, __pgoff, int, __flags)
 
 #endif

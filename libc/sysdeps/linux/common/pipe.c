@@ -12,5 +12,5 @@
 
 libc_hidden_proto(pipe)
 
-_syscall1(int, pipe, int *, filedes);
+_syscall1(int, pipe, int *, filedes)
 libc_hidden_def(pipe)

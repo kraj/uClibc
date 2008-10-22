@@ -63,7 +63,7 @@ int semctl(int semid, int semnum, int cmd, ...)
 
 #ifdef L_semget
 #ifdef __NR_semget
-_syscall3(int, semget, key_t, key, int, nsems, int, semflg);
+_syscall3(int, semget, key_t, key, int, nsems, int, semflg)
 
 #else
 /* Return identifier for array of NSEMS semaphores associated
@@ -78,7 +78,7 @@ int semget (key_t key, int nsems, int semflg)
 #ifdef L_semop
 
 #ifdef __NR_semop
-_syscall3(int, semop, int, semid, struct sembuf *, sops, size_t, nsops);
+_syscall3(int, semop, int, semid, struct sembuf *, sops, size_t, nsops)
 
 #else
 /* Perform user-defined atomical operation of array of semaphores.  */
@@ -92,7 +92,7 @@ int semop (int semid, struct sembuf *sops, size_t nsops)
 #ifdef L_semtimedop
 
 #ifdef __NR_semtimedop
-_syscall4(int, semtimedop, int, semid, struct sembuf *, sops, size_t, nsops, const struct timespec *, timeout);
+_syscall4(int, semtimedop, int, semid, struct sembuf *, sops, size_t, nsops, const struct timespec *, timeout)
 
 #else
 

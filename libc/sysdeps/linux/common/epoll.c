@@ -14,7 +14,7 @@
  * epoll_create()
  */
 #ifdef __NR_epoll_create
-_syscall1(int, epoll_create, int, size);
+_syscall1(int, epoll_create, int, size)
 #else
 int epoll_create(int size)
 {
@@ -27,7 +27,7 @@ int epoll_create(int size)
  * epoll_ctl()
  */
 #ifdef __NR_epoll_ctl
-_syscall4(int,epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event *, event);
+_syscall4(int,epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event *, event)
 #else
 int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)
 {
@@ -40,7 +40,7 @@ int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)
  * epoll_wait()
  */
 #ifdef __NR_epoll_wait
-_syscall4(int, epoll_wait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout);
+_syscall4(int, epoll_wait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout)
 #else
 int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 {

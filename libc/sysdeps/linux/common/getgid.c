@@ -20,5 +20,5 @@
 #endif
 
 libc_hidden_proto(getgid)
-_syscall0(gid_t, getgid);
+_syscall0(gid_t, getgid)
 libc_hidden_def(getgid)

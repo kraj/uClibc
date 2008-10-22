@@ -31,7 +31,7 @@ libc_hidden_proto(stat)
 
 # define __NR___syscall_getcwd __NR_getcwd
 static inline
-_syscall2(int, __syscall_getcwd, char *, buf, unsigned long, size);
+_syscall2(int, __syscall_getcwd, char *, buf, unsigned long, size)
 
 #else
 

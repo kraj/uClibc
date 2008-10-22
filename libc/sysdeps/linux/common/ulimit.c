@@ -10,7 +10,7 @@
 #ifdef __NR_ulimit
 
 extern long int ulimit(int cmd, long arg);
-_syscall2(long, ulimit, int, cmd, long, arg);
+_syscall2(long, ulimit, int, cmd, long, arg)
 
 #else
 

@@ -12,5 +12,5 @@
 
 libc_hidden_proto(fchdir)
 
-_syscall1(int, fchdir, int, fd);
+_syscall1(int, fchdir, int, fd)
 libc_hidden_def(fchdir)

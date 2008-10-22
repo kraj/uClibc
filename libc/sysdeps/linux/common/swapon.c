@@ -12,6 +12,6 @@
 #ifdef __NR_swapon
 
 #include <sys/swap.h>
-_syscall2(int, swapon, const char *, path, int, swapflags);
+_syscall2(int, swapon, const char *, path, int, swapflags)
 
 #endif

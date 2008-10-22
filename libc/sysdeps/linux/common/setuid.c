@@ -17,7 +17,7 @@
 #  define __NR_setuid __NR_setuid32
 # endif
 
-_syscall1(int, setuid, uid_t, uid);
+_syscall1(int, setuid, uid_t, uid)
 
 #else
 

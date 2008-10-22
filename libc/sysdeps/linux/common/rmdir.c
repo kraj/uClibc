@@ -12,5 +12,5 @@
 
 libc_hidden_proto(rmdir)
 
-_syscall1(int, rmdir, const char *, pathname);
+_syscall1(int, rmdir, const char *, pathname)
 libc_hidden_def(rmdir)

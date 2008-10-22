@@ -12,5 +12,5 @@
 
 libc_hidden_proto(setpriority)
 
-_syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio);
+_syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio)
 libc_hidden_def(setpriority)

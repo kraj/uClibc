@@ -26,7 +26,7 @@ extern __typeof(poll) __libc_poll;
 
 # define __NR___libc_poll __NR_poll
 _syscall3(int, __libc_poll, struct pollfd *, fds,
-	unsigned long int, nfds, int, timeout);
+	unsigned long int, nfds, int, timeout)
 
 #elif defined(__NR_ppoll) && defined __UCLIBC_LINUX_SPECIFIC__
 

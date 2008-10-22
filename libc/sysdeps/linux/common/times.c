@@ -12,5 +12,5 @@
 
 libc_hidden_proto(times)
 
-_syscall1(clock_t, times, struct tms *, buf);
+_syscall1(clock_t, times, struct tms *, buf)
 libc_hidden_def(times)

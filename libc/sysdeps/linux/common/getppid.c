@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #ifdef	__NR_getppid
-_syscall0(pid_t, getppid);
+_syscall0(pid_t, getppid)
 #else
 libc_hidden_proto(getpid)
 pid_t getppid(void)
