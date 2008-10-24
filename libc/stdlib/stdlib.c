@@ -936,7 +936,7 @@ libc_hidden_def(_stdlib_mb_cur_max)
  * To note, until now all the supported encoding are stateless.
  */
 
-static inline int is_stateful(unsigned char encoding)
+static __always_inline int is_stateful(unsigned char encoding)
 {
 	switch (encoding)
 	{

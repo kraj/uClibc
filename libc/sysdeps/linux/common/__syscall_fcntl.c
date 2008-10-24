@@ -21,7 +21,7 @@ libc_hidden_proto(__libc_fcntl64)
 #endif
 
 #define __NR___syscall_fcntl __NR_fcntl
-static inline
+static __always_inline
 _syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg)
 
 int __libc_fcntl(int fd, int cmd, ...)

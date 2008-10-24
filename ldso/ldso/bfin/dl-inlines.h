@@ -26,7 +26,7 @@ USA.  */
 
 /* Initialize a DL_LOADADDR_TYPE given a got pointer and a complete
    load map.  */
-inline static void
+static __always_inline void
 __dl_init_loadaddr_map (struct elf32_fdpic_loadaddr *loadaddr, Elf32_Addr dl_boot_got_pointer,
 			struct elf32_fdpic_loadmap *map)
 {
@@ -47,7 +47,7 @@ __dl_init_loadaddr_map (struct elf32_fdpic_loadaddr *loadaddr, Elf32_Addr dl_boo
 /* Figure out how many LOAD segments there are in the given headers,
    and allocate a block for the load map big enough for them.
    got_value will be properly initialized later on, with INIT_GOT.  */
-inline static int
+static __always_inline int
 __dl_init_loadaddr (struct elf32_fdpic_loadaddr *loadaddr, Elf32_Phdr *ppnt,
 		    int pcnt)
 {
@@ -73,7 +73,7 @@ __dl_init_loadaddr (struct elf32_fdpic_loadaddr *loadaddr, Elf32_Phdr *ppnt,
 }
 
 /* Incrementally initialize a load map.  */
-inline static void
+static __always_inline void
 __dl_init_loadaddr_hdr (struct elf32_fdpic_loadaddr loadaddr, void *addr,
 			Elf32_Phdr *phdr, int maxsegs)
 {
@@ -99,12 +99,12 @@ __dl_init_loadaddr_hdr (struct elf32_fdpic_loadaddr loadaddr, void *addr,
 #endif
 }
 
-inline static void __dl_loadaddr_unmap
+static __always_inline void __dl_loadaddr_unmap
 (struct elf32_fdpic_loadaddr loadaddr, struct funcdesc_ht *funcdesc_ht);
 
 /* Figure out whether the given address is in one of the mapped
    segments.  */
-inline static int
+static __always_inline int
 __dl_addr_in_loadaddr (void *p, struct elf32_fdpic_loadaddr loadaddr)
 {
   struct elf32_fdpic_loadmap *map = loadaddr.map;
@@ -118,7 +118,7 @@ __dl_addr_in_loadaddr (void *p, struct elf32_fdpic_loadaddr loadaddr)
   return 0;
 }
 
-inline static void * _dl_funcdesc_for (void *entry_point, void *got_value);
+static __always_inline void * _dl_funcdesc_for (void *entry_point, void *got_value);
 
 /* The hashcode handling code below is heavily inspired in libiberty's
    hashtab code, but with most adaptation points and support for
@@ -127,7 +127,7 @@ inline static void * _dl_funcdesc_for (void *entry_point, void *got_value);
    Copyright (C) 1999, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
    Contributed by Vladimir Makarov (vmakarov@cygnus.com).  */
 
-inline static unsigned long
+static __always_inline unsigned long
 higher_prime_number (unsigned long n)
 {
   /* These are primes that are near, but slightly smaller than, a
@@ -202,13 +202,13 @@ struct funcdesc_ht
   size_t n_elements;
 };
 
-inline static int
+static __always_inline int
 hash_pointer (const void *p)
 {
   return (int) ((long)p >> 3);
 }
 
-inline static struct funcdesc_ht *
+static __always_inline struct funcdesc_ht *
 htab_create (void)
 {
   struct funcdesc_ht *ht = _dl_malloc (sizeof (struct funcdesc_ht));
@@ -229,7 +229,7 @@ htab_create (void)
 
 /* This is only called from _dl_loadaddr_unmap, so it's safe to call
    _dl_free().  See the discussion below.  */
-inline static void
+static __always_inline void
 htab_delete (struct funcdesc_ht *htab)
 {
   int i;
@@ -249,7 +249,7 @@ htab_delete (struct funcdesc_ht *htab)
    This function also assumes there are no deleted entries in the table.
    HASH is the hash value for the element to be inserted.  */
 
-inline static struct funcdesc_value **
+static __always_inline struct funcdesc_value **
 find_empty_slot_for_expand (struct funcdesc_ht *htab, int hash)
 {
   size_t size = htab->size;
@@ -281,7 +281,7 @@ find_empty_slot_for_expand (struct funcdesc_ht *htab, int hash)
    this function will return zero, indicating that the table could not be
    expanded.  If all goes well, it will return a non-zero value.  */
 
-inline static int
+static __always_inline int
 htab_expand (struct funcdesc_ht *htab)
 {
   struct funcdesc_value **oentries;
@@ -339,7 +339,7 @@ htab_expand (struct funcdesc_ht *htab)
    When inserting an entry, NULL may be returned if memory allocation
    fails.  */
 
-inline static struct funcdesc_value **
+static __always_inline struct funcdesc_value **
 htab_find_slot (struct funcdesc_ht *htab, void *ptr, int insert)
 {
   unsigned int index;
@@ -415,7 +415,7 @@ _dl_funcdesc_for (void *entry_point, void *got_value)
   return _dl_stabilize_funcdesc (*entry);
 }
 
-inline static void const *
+static __always_inline void const *
 _dl_lookup_address (void const *address)
 {
   struct elf_resolve *rpnt;
@@ -487,7 +487,7 @@ __dl_loadaddr_unmap (struct elf32_fdpic_loadaddr loadaddr,
     htab_delete (funcdesc_ht);
 }
 
-inline static int
+static __always_inline int
 __dl_is_special_segment (Elf32_Ehdr *epnt,
 			 Elf32_Phdr *ppnt)
 {
@@ -515,7 +515,7 @@ __dl_is_special_segment (Elf32_Ehdr *epnt,
   return 0;
 }
 
-inline static char *
+static __always_inline char *
 __dl_map_segment (Elf32_Ehdr *epnt,
 		  Elf32_Phdr *ppnt,
 		  int infile,

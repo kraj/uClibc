@@ -25,7 +25,7 @@
 libc_hidden_proto(ppoll)
 
 # define __NR___libc_ppoll __NR_ppoll
-static inline
+static __always_inline
 _syscall4(int, __libc_ppoll, struct pollfd *, fds,
 	nfds_t, nfds, const struct timespec *, timeout,
 	const __sigset_t *, sigmask)

@@ -44,8 +44,8 @@ static __inline__ _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
 # endif
 
 #include <bits/uClibc_page.h> /* for PAGE_SIZE */
-inline static void *_dl_memset(void*,int,size_t);
-inline static ssize_t _dl_pread(int fd, void *buf, size_t count, off_t offset);
+static __always_inline void *_dl_memset(void*,int,size_t);
+static __always_inline ssize_t _dl_pread(int fd, void *buf, size_t count, off_t offset);
 
 static __ptr_t
 _dl_mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
@@ -152,11 +152,11 @@ _dl_mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
 #include <unistd.h>
 
 #define __NR___syscall_lseek __NR_lseek
-inline static unsigned long _dl_read(int fd, const void *buf, unsigned long count);
+static __always_inline unsigned long _dl_read(int fd, const void *buf, unsigned long count);
 
-inline static _syscall3(__off_t, __syscall_lseek, int, fd, __off_t, offset,
+static __always_inline _syscall3(__off_t, __syscall_lseek, int, fd, __off_t, offset,
 			int, whence);
-inline static ssize_t
+static __always_inline ssize_t
 _dl_pread(int fd, void *buf, size_t count, off_t offset)
 {
   __off_t orig = __syscall_lseek (fd, 0, SEEK_CUR);
@@ -177,10 +177,10 @@ _dl_pread(int fd, void *buf, size_t count, off_t offset)
 }
 #else
 #define __NR___syscall_pread __NR_pread
-inline static _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
+static __always_inline _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
 			size_t, count, off_t, offset_hi, off_t, offset_lo);
 
-inline static ssize_t
+static __always_inline ssize_t
 _dl_pread(int fd, void *buf, size_t count, off_t offset)
 {
   return(__syscall_pread(fd,buf,count,__LONG_LONG_PAIR (offset >> 31, offset)));
@@ -190,18 +190,18 @@ _dl_pread(int fd, void *buf, size_t count, off_t offset)
 
 #ifdef __NR_sram_alloc
 #define __NR__dl_sram_alloc __NR_sram_alloc
-inline static _syscall2(__ptr_t, _dl_sram_alloc,
+static __always_inline _syscall2(__ptr_t, _dl_sram_alloc,
 			size_t, len, unsigned long, flags);
 #endif
 
 #ifdef __NR_sram_free
 #define __NR__dl_sram_free __NR_sram_free
-inline static _syscall1(int, _dl_sram_free, __ptr_t, addr);
+static __always_inline _syscall1(int, _dl_sram_free, __ptr_t, addr);
 #endif
 
 #ifdef __NR_dma_memcpy
 #define __NR__dl_dma_memcpy __NR_dma_memcpy
-inline static _syscall3(__ptr_t, _dl_dma_memcpy,
+static __always_inline _syscall3(__ptr_t, _dl_dma_memcpy,
 			__ptr_t, dest, __ptr_t, src, size_t, len);
 #endif
 

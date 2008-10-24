@@ -21,7 +21,7 @@ libc_hidden_proto(getrlimit)
 
 /* just call ugetrlimit() */
 # define __NR___syscall_ugetrlimit __NR_ugetrlimit
-static inline
+static __always_inline
 _syscall2(int, __syscall_ugetrlimit, enum __rlimit_resource, resource,
           struct rlimit *, rlim)
 int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
@@ -39,7 +39,7 @@ _syscall2(int, getrlimit, __rlimit_resource_t, resource,
 
 /* we have to handle old style getrlimit() */
 # define __NR___syscall_getrlimit __NR_getrlimit
-static inline
+static __always_inline
 _syscall2(int, __syscall_getrlimit, int, resource, struct rlimit *, rlim)
 
 int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)

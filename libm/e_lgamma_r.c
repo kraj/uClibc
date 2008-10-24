@@ -164,7 +164,7 @@ static double zero=  0.00000000000000000000e+00;
 
 static
 #ifdef __GNUC__
-inline
+__inline__
 #endif
 #ifdef __STDC__
 	double sin_pi(double x)

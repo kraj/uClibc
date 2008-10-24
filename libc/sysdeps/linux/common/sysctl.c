@@ -24,7 +24,7 @@ struct __sysctl_args {
 	unsigned long __unused[4];
 };
 
-static inline
+static __always_inline
 _syscall1(int, _sysctl, struct __sysctl_args *, args)
 
 int sysctl(int *name, int nlen, void *oldval, size_t * oldlenp,
