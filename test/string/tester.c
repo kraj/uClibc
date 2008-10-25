@@ -427,6 +427,7 @@ test_strncmp (void)
   check (strncmp ("abc", "def", 0) == 0, 13);	/* Zero count. */
   check (strncmp ("abc", "", (size_t)-1) > 0, 14);	/* set sign bit in count */
   check (strncmp ("abc", "abc", (size_t)-2) == 0, 15);
+  check (strncmp ("aa", "ab", (size_t)-1) < 0, 16);
 }
 
 static void
