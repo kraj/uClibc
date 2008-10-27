@@ -913,7 +913,7 @@ getaddrinfo (const char *name, const char *service,
     {
 	memset(&default_hints, 0, sizeof(default_hints));
 	if (AF_UNSPEC)
-	    default_hints->ai_family = AF_UNSPEC;
+	    default_hints.ai_family = AF_UNSPEC;
 	hints = &default_hints;
     }
 
