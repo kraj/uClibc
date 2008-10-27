@@ -442,13 +442,16 @@ config MALLOC
 config MALLOC_SIMPLE
 	bool "malloc-simple"
 	help
-	  "malloc-simple" was written from scratch for uClibc, and is the
-	  simplest possible (and therefore smallest) malloc implementation.
-	  This uses only the mmap() system call to allocation memory, and does
-	  not use the brk() system call at all, making it a fine choice for
-	  MMU-less systems with very limited memory.  It is rather dumb, and
-	  certainly isn't the fastest.  But it is 100% standards compliant,
-	  thread safe, and very small.
+	  "malloc-simple" is trivially simple and slow as molasses.  It
+	  was written from scratch for uClibc, and is the simplest possible
+	  (and therefore smallest) malloc implementation.
+
+	  This uses only the mmap() system call to allocate and free memory,
+	  and does not use the brk() system call at all, making it a fine
+	  choice for MMU-less systems with very limited memory.  It's 100%
+	  standards compliant, thread safe, very small, and releases freed
+	  memory back to the OS immediately rather than keeping it in the
+	  process's heap for reallocation.  It is also VERY SLOW.
 
 config MALLOC_STANDARD
 	bool "malloc-standard"
