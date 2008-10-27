@@ -8,7 +8,7 @@ mainmenu "uClibc C Library Configuration"
 choice
 	prompt "Target Architecture"
 	help
-	  Stuff
+	  The architecture of your target.
 
 config TARGET_alpha
 	bool "alpha"
