@@ -99,6 +99,27 @@ libc_hidden_proto(in6addr_loopback)
 #define UNIX_PATH_MAX  108
 #endif
 
+/* Useful for having small structure members/global variables */
+typedef int8_t socktype_t;
+typedef int8_t family_t;
+typedef int8_t protocol_t;
+struct BUG_too_small {
+	char BUG_socktype_t_too_small[(0
+			| SOCK_STREAM
+			| SOCK_DGRAM
+			| SOCK_RAW
+			) <= 127 ? 1 : -1];
+	char BUG_family_t_too_small[(0
+			| AF_UNSPEC
+			| AF_INET
+			| AF_INET6
+			) <= 127 ? 1 : -1];
+	char BUG_protocol_t_too_small[(0
+			| IPPROTO_TCP
+			| IPPROTO_UDP
+			) <= 127 ? 1 : -1];
+};
+
 struct gaih_service
 {
     const char *name;
@@ -113,8 +134,6 @@ struct gaih_servtuple
     int port;
 };
 
-static const struct gaih_servtuple nullserv;
-
 struct gaih_addrtuple
 {
     struct gaih_addrtuple *next;
@@ -125,23 +144,22 @@ struct gaih_addrtuple
 
 struct gaih_typeproto
 {
-    int socktype;
-    int protocol;
+    socktype_t socktype;
+    protocol_t protocol;
+    int8_t protoflag;
     char name[4];
-    int protoflag;
 };
-
 /* Values for `protoflag'.  */
 #define GAI_PROTO_NOSERVICE	1
 #define GAI_PROTO_PROTOANY	2
 
 static const struct gaih_typeproto gaih_inet_typeproto[] =
 {
-    { 0, 0, "", 0 },
-    { SOCK_STREAM, IPPROTO_TCP, "tcp", 0 },
-    { SOCK_DGRAM, IPPROTO_UDP, "udp", 0 },
-    { SOCK_RAW, 0, "raw", GAI_PROTO_PROTOANY|GAI_PROTO_NOSERVICE },
-    { 0, 0, "", 0 }
+    { 0          , 0          , 0                                     , ""    },
+    { SOCK_STREAM, IPPROTO_TCP, 0                                     , "tcp" },
+    { SOCK_DGRAM , IPPROTO_UDP, 0                                     , "udp" },
+    { SOCK_RAW   , 0          , GAI_PROTO_PROTOANY|GAI_PROTO_NOSERVICE, "raw" },
+    { 0          , 0          , 0                                     , ""    },
 };
 
 struct gaih
@@ -150,13 +168,6 @@ struct gaih
     int (*gaih)(const char *name, const struct gaih_service *service,
 		const struct addrinfo *req, struct addrinfo **pai);
 };
-
-#if PF_UNSPEC == 0
-static const struct addrinfo default_hints;
-#else
-static const struct addrinfo default_hints =
-{ 0, PF_UNSPEC, 0, 0, 0, NULL, NULL, NULL };
-#endif
 
 #define SEEN_IPV4 1
 #define SEEN_IPV6 2
@@ -282,8 +293,7 @@ gaih_local (const char *name, const struct gaih_service *service,
 	{
 	    if (req->ai_socktype)
 		return (GAIH_OKIFUNSPEC | -EAI_SOCKTYPE);
-	    else
-		return (GAIH_OKIFUNSPEC | -EAI_SERVICE);
+	    return (GAIH_OKIFUNSPEC | -EAI_SERVICE);
 	}
     }
 
@@ -435,13 +445,17 @@ static int
 gaih_inet (const char *name, const struct gaih_service *service,
 	   const struct addrinfo *req, struct addrinfo **pai)
 {
+    struct gaih_servtuple nullserv;
+
     const struct gaih_typeproto *tp = gaih_inet_typeproto;
-    struct gaih_servtuple *st = (struct gaih_servtuple *) &nullserv;
+    struct gaih_servtuple *st = &nullserv;
     struct gaih_addrtuple *at = NULL;
     int rc;
     int v4mapped = (req->ai_family == PF_UNSPEC || req->ai_family == PF_INET6) &&
 	(req->ai_flags & AI_V4MAPPED);
     unsigned seen = __check_pf();
+
+    memset(&nullserv, 0, sizeof(nullserv));
 
     if (req->ai_protocol || req->ai_socktype)
     {
@@ -458,8 +472,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	{
 	    if (req->ai_socktype)
 		return (GAIH_OKIFUNSPEC | -EAI_SOCKTYPE);
-	    else
-		return (GAIH_OKIFUNSPEC | -EAI_SERVICE);
+	    return (GAIH_OKIFUNSPEC | -EAI_SERVICE);
 	}
     }
 
@@ -509,7 +522,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		    *pst = newp;
 		    pst = &(newp->next);
 		}
-		if (st == (struct gaih_servtuple *) &nullserv)
+		if (st == &nullserv)
 		    return (GAIH_OKIFUNSPEC | -EAI_SERVICE);
 	    }
 	}
@@ -849,7 +862,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
     return 0;
 }
 
-static struct gaih gaih[] =
+static const struct gaih gaih[] =
 {
 #if defined __UCLIBC_HAS_IPV6__
     { PF_INET6, gaih_inet },
@@ -883,8 +896,9 @@ getaddrinfo (const char *name, const char *service,
 {
     int i = 0, j = 0, last_i = 0;
     struct addrinfo *p = NULL, **end;
-    struct gaih *g = gaih, *pg = NULL;
+    const struct gaih *g = gaih, *pg = NULL;
     struct gaih_service gaih_service, *pservice;
+    struct addrinfo default_hints;
 
     if (name != NULL && name[0] == '*' && name[1] == 0)
 	name = NULL;
@@ -896,7 +910,12 @@ getaddrinfo (const char *name, const char *service,
 	return EAI_NONAME;
 
     if (hints == NULL)
+    {
+	memset(&default_hints, 0, sizeof(default_hints));
+	if (AF_UNSPEC)
+	    default_hints->ai_family = AF_UNSPEC;
 	hints = &default_hints;
+    }
 
     if (hints->ai_flags & ~(AI_PASSIVE|AI_CANONNAME|AI_NUMERICHOST|
 			    AI_ADDRCONFIG|AI_V4MAPPED|AI_NUMERICSERV|AI_ALL))
