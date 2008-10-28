@@ -20,7 +20,7 @@
    *SIZE is adjusted to reflect the actual amount allocated (which may be
    greater than requested).  */
 void *
-__heap_alloc (struct heap_free_area *heap, size_t *size)
+__heap_alloc (struct heap_free_area **heap, size_t *size)
 {
   struct heap_free_area *fa;
   size_t _size = *size;
@@ -33,10 +33,10 @@ __heap_alloc (struct heap_free_area *heap, size_t *size)
        we must make sure that every allocated block can hold one.  */
     _size = HEAP_ADJUST_SIZE (sizeof (struct heap_free_area));
 
-  HEAP_DEBUG (heap, "before __heap_alloc");
+  HEAP_DEBUG (*heap, "before __heap_alloc");
 
   /* Look for a free area that can contain _SIZE bytes.  */
-  for (fa = heap; fa; fa = fa->next)
+  for (fa = *heap; fa; fa = fa->next)
     if (fa->size >= _size)
       {
 	/* Found one!  */
@@ -45,7 +45,7 @@ __heap_alloc (struct heap_free_area *heap, size_t *size)
 	break;
       }
 
-  HEAP_DEBUG (heap, "after __heap_alloc");
+  HEAP_DEBUG (*heap, "after __heap_alloc");
 
   return mem;
 }

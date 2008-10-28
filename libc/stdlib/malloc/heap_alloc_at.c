@@ -19,17 +19,17 @@
 /* Allocate SIZE bytes at address MEM in HEAP.  Return the actual size
    allocated, or 0 if we failed.  */
 size_t
-__heap_alloc_at (struct heap_free_area *heap, void *mem, size_t size)
+__heap_alloc_at (struct heap_free_area **heap, void *mem, size_t size)
 {
   struct heap_free_area *fa;
   size_t alloced = 0;
 
   size = HEAP_ADJUST_SIZE (size);
 
-  HEAP_DEBUG (heap, "before __heap_alloc_at");
+  HEAP_DEBUG (*heap, "before __heap_alloc_at");
 
   /* Look for a free area that can contain SIZE bytes.  */
-  for (fa = heap; fa; fa = fa->next)
+  for (fa = *heap; fa; fa = fa->next)
     {
       void *fa_mem = HEAP_FREE_AREA_START (fa);
       if (fa_mem <= mem)
@@ -41,7 +41,7 @@ __heap_alloc_at (struct heap_free_area *heap, void *mem, size_t size)
 	}
     }
 
-  HEAP_DEBUG (heap, "after __heap_alloc_at");
+  HEAP_DEBUG (*heap, "after __heap_alloc_at");
 
   return alloced;
 }

@@ -18,12 +18,12 @@
 
 /* Return the block of memory at MEM, of size SIZE, to HEAP.  */
 struct heap_free_area *
-__heap_free (struct heap_free_area *heap, void *mem, size_t size)
+__heap_free (struct heap_free_area **heap, void *mem, size_t size)
 {
   struct heap_free_area *fa, *prev_fa;
   void *end = (char *)mem + size;
 
-  HEAP_DEBUG (heap, "before __heap_free");
+  HEAP_DEBUG (*heap, "before __heap_free");
 
   /* Find the right position in the free-list entry to place the new block.
      This is the most speed critical loop in this malloc implementation:
@@ -32,7 +32,7 @@ __heap_free (struct heap_free_area *heap, void *mem, size_t size)
      in the free-list when it becomes fragmented and long.  [A better
      implemention would use a balanced tree or something for the free-list,
      though that bloats the code-size and complexity quite a bit.]  */
-  for (prev_fa = 0, fa = heap; fa; prev_fa = fa, fa = fa->next)
+  for (prev_fa = 0, fa = *heap; fa; prev_fa = fa, fa = fa->next)
     if (unlikely (HEAP_FREE_AREA_END (fa) >= mem))
       break;
 
@@ -83,7 +83,7 @@ __heap_free (struct heap_free_area *heap, void *mem, size_t size)
     /* Make the new block into a separate free-list entry.  */
     fa = __heap_add_free_area (heap, mem, size, prev_fa, fa);
 
-  HEAP_DEBUG (heap, "after __heap_free");
+  HEAP_DEBUG (*heap, "after __heap_free");
 
   return fa;
 }

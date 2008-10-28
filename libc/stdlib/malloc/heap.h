@@ -19,11 +19,11 @@
 # include <pthread.h>
 # include <bits/uClibc_pthread.h>
 # define HEAP_USE_LOCKING
-# define __heap_do_lock(heap_lock) __pthread_mutex_lock (heap_lock)
-# define __heap_do_unlock(heap_lock) __pthread_mutex_unlock (heap_lock)
+# define __heap_lock(heap_lock) __pthread_mutex_lock (heap_lock)
+# define __heap_unlock(heap_lock) __pthread_mutex_unlock (heap_lock)
 #else
-# define __heap_do_lock(heap_lock)
-# define __heap_do_unlock(heap_lock)
+# define __heap_lock(heap_lock)
+# define __heap_unlock(heap_lock)
 #endif
 
 
@@ -123,14 +123,14 @@ extern void __heap_check (struct heap_free_area *heap, const char *str);
 
 /* Delete the free-area FA from HEAP.  */
 static __inline__ void
-__heap_delete (struct heap_free_area *heap, struct heap_free_area *fa)
+__heap_delete (struct heap_free_area **heap, struct heap_free_area *fa)
 {
   if (fa->next)
     fa->next->prev = fa->prev;
   if (fa->prev)
     fa->prev->next = fa->next;
   else
-    heap = fa->next;
+    *heap = fa->next;
 }
 
 
@@ -138,7 +138,7 @@ __heap_delete (struct heap_free_area *heap, struct heap_free_area *fa)
    HEAP.  PREV and NEXT may be 0; if PREV is 0, FA is installed as the
    first free-area.  */
 static __inline__ void
-__heap_link_free_area (struct heap_free_area *heap, struct heap_free_area *fa,
+__heap_link_free_area (struct heap_free_area **heap, struct heap_free_area *fa,
 		       struct heap_free_area *prev,
 		       struct heap_free_area *next)
 {
@@ -148,7 +148,7 @@ __heap_link_free_area (struct heap_free_area *heap, struct heap_free_area *fa,
   if (prev)
     prev->next = fa;
   else
-    heap = fa;
+    *heap = fa;
   if (next)
     next->prev = fa;
 }
@@ -157,14 +157,14 @@ __heap_link_free_area (struct heap_free_area *heap, struct heap_free_area *fa,
    PREV may be 0, in which case FA is installed as the first free-area (but
    FA may not be 0).  */
 static __inline__ void
-__heap_link_free_area_after (struct heap_free_area *heap,
+__heap_link_free_area_after (struct heap_free_area **heap,
 			     struct heap_free_area *fa,
 			     struct heap_free_area *prev)
 {
   if (prev)
     prev->next = fa;
   else
-    heap = fa;
+    *heap = fa;
   fa->prev = prev;
 }
 
@@ -173,7 +173,7 @@ __heap_link_free_area_after (struct heap_free_area *heap,
    PREV and NEXT may be 0; if PREV is 0, MEM is installed as the first
    free-area.  */
 static __inline__ struct heap_free_area *
-__heap_add_free_area (struct heap_free_area *heap, void *mem, size_t size,
+__heap_add_free_area (struct heap_free_area **heap, void *mem, size_t size,
 		      struct heap_free_area *prev,
 		      struct heap_free_area *next)
 {
@@ -191,7 +191,7 @@ __heap_add_free_area (struct heap_free_area *heap, void *mem, size_t size,
 /* Allocate SIZE bytes from the front of the free-area FA in HEAP, and
    return the amount actually allocated (which may be more than SIZE).  */
 static __inline__ size_t
-__heap_free_area_alloc (struct heap_free_area *heap,
+__heap_free_area_alloc (struct heap_free_area **heap,
 			struct heap_free_area *fa, size_t size)
 {
   size_t fa_size = fa->size;
@@ -215,15 +215,15 @@ __heap_free_area_alloc (struct heap_free_area *heap,
 /* Allocate and return a block at least *SIZE bytes long from HEAP.
    *SIZE is adjusted to reflect the actual amount allocated (which may be
    greater than requested).  */
-extern void *__heap_alloc (struct heap_free_area *heap, size_t *size);
+extern void *__heap_alloc (struct heap_free_area **heap, size_t *size);
 
 /* Allocate SIZE bytes at address MEM in HEAP.  Return the actual size
    allocated, or 0 if we failed.  */
-extern size_t __heap_alloc_at (struct heap_free_area *heap, void *mem, size_t size);
+extern size_t __heap_alloc_at (struct heap_free_area **heap, void *mem, size_t size);
 
 /* Return the memory area MEM of size SIZE to HEAP.
    Returns the heap free area into which the memory was placed.  */
-extern struct heap_free_area *__heap_free (struct heap_free_area *heap,
+extern struct heap_free_area *__heap_free (struct heap_free_area **heap,
 					   void *mem, size_t size);
 
 /* Return true if HEAP contains absolutely no memory.  */
