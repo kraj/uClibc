@@ -191,9 +191,6 @@ static unsigned __check_pf(void)
 			if (runp->ifa_addr->sa_family == PF_INET)
 				seen |= SEEN_IPV4;
 #endif /* __UCLIBC_HAS_IPV4__ */
-#if defined __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__
-			else /* can't be both at once */
-#endif /* __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__ */
 #if defined __UCLIBC_HAS_IPV6__
 			if (runp->ifa_addr->sa_family == PF_INET6)
 				seen |= SEEN_IPV6;
@@ -249,12 +246,13 @@ static int addrconfig(sa_family_t af)
 /* Using Unix sockets this way is a security risk.  */
 static int
 gaih_local(const char *name, const struct gaih_service *service,
-	    const struct addrinfo *req, struct addrinfo **pai)
+		const struct addrinfo *req, struct addrinfo **pai)
 {
 	struct utsname utsname;
+	struct addrinfo *ai = *pai;
 
 	if ((name != NULL) && (req->ai_flags & AI_NUMERICHOST))
-		return GAIH_OKIFUNSPEC | -EAI_NONAME;
+		return (GAIH_OKIFUNSPEC | -EAI_NONAME);
 
 	if ((name != NULL) || (req->ai_flags & AI_CANONNAME))
 		if (uname(&utsname) < 0)
@@ -285,29 +283,28 @@ gaih_local(const char *name, const struct gaih_service *service,
 			}
 		}
 
-		*pai = malloc(sizeof(struct addrinfo) + sizeof(struct sockaddr_un)
-			+ ((req->ai_flags & AI_CANONNAME)
-			    ? (strlen(utsname.nodename) + 1): 0));
-		if (*pai == NULL)
+		*pai = ai = malloc(sizeof(struct addrinfo) + sizeof(struct sockaddr_un)
+				+ ((req->ai_flags & AI_CANONNAME)
+				? (strlen(utsname.nodename) + 1) : 0));
+		if (ai == NULL)
 			return -EAI_MEMORY;
 
-		(*pai)->ai_next = NULL;
-		(*pai)->ai_flags = req->ai_flags;
-		(*pai)->ai_family = AF_LOCAL;
-		(*pai)->ai_socktype = req->ai_socktype ? req->ai_socktype : SOCK_STREAM;
-		(*pai)->ai_protocol = req->ai_protocol;
-		(*pai)->ai_addrlen = sizeof(struct sockaddr_un);
-		(*pai)->ai_addr = (void *)(*pai) + sizeof(struct addrinfo);
-
+		ai->ai_next = NULL;
+		ai->ai_flags = req->ai_flags;
+		ai->ai_family = AF_LOCAL;
+		ai->ai_socktype = req->ai_socktype ? req->ai_socktype : SOCK_STREAM;
+		ai->ai_protocol = req->ai_protocol;
+		ai->ai_addrlen = sizeof(struct sockaddr_un);
+		ai->ai_addr = (void *)ai + sizeof(struct addrinfo);
 #if SALEN
-		((struct sockaddr_un *)(*pai)->ai_addr)->sun_len = sizeof(struct sockaddr_un);
+		((struct sockaddr_un *)ai->ai_addr)->sun_len = sizeof(struct sockaddr_un);
 #endif /* SALEN */
 
-		((struct sockaddr_un *)(*pai)->ai_addr)->sun_family = AF_LOCAL;
-		memset(((struct sockaddr_un *)(*pai)->ai_addr)->sun_path, 0, UNIX_PATH_MAX);
+		((struct sockaddr_un *)ai->ai_addr)->sun_family = AF_LOCAL;
+		memset(((struct sockaddr_un *)ai->ai_addr)->sun_path, 0, UNIX_PATH_MAX);
 
 		if (service) {
-			struct sockaddr_un *sunp = (struct sockaddr_un *)(*pai)->ai_addr;
+			struct sockaddr_un *sunp = (struct sockaddr_un *)ai->ai_addr;
 
 			if (strchr(service->name, '/') != NULL) {
 				if (strlen(service->name) >= sizeof(sunp->sun_path))
@@ -324,7 +321,7 @@ gaih_local(const char *name, const struct gaih_service *service,
 		   window between the test for the file and the actual creation
 		   (done by the caller) in which a file with the same name could
 		   be created.  */
-		char *buf = ((struct sockaddr_un *)(*pai)->ai_addr)->sun_path;
+		char *buf = ((struct sockaddr_un *)ai->ai_addr)->sun_path;
 
 		if (__path_search(buf, L_tmpnam, NULL, NULL, 0) != 0
 		 || __gen_tempname(buf, __GT_NOCREATE) != 0
@@ -333,11 +330,10 @@ gaih_local(const char *name, const struct gaih_service *service,
 		}
 	}
 
+	ai->ai_canonname = NULL;
 	if (req->ai_flags & AI_CANONNAME)
-		(*pai)->ai_canonname = strcpy((char *) *pai + sizeof(struct addrinfo) + sizeof(struct sockaddr_un),
+		ai->ai_canonname = strcpy((char *)(ai + 1) + sizeof(struct sockaddr_un),
 				utsname.nodename);
-	else
-		(*pai)->ai_canonname = NULL;
 	return 0;
 }
 #endif	/* 0 */
@@ -798,7 +794,7 @@ int
 getaddrinfo(const char *name, const char *service,
 	     const struct addrinfo *hints, struct addrinfo **pai)
 {
-	int i = 0, j = 0, last_i = 0;
+	int i = 0, j, last_i = 0;
 	struct addrinfo *p = NULL, **end;
 	const struct gaih *g = gaih, *pg = NULL;
 	struct gaih_service gaih_service, *pservice;
@@ -847,11 +843,11 @@ getaddrinfo(const char *name, const char *service,
 	} else
 		pservice = NULL;
 
+	end = NULL;
 	if (pai)
 		end = &p;
-	else
-		end = NULL;
 
+	j = 0;
 	while (g->gaih) {
 		if (hints->ai_family == g->family || hints->ai_family == AF_UNSPEC) {
 			if ((hints->ai_flags & AI_ADDRCONFIG) && !addrconfig(g->family)) {
@@ -889,8 +885,8 @@ getaddrinfo(const char *name, const char *service,
 	if (pai == NULL && last_i == 0)
 		return 0;
 
-	if (p)
-		freeaddrinfo(p);
+	/* if (p) - never happens, see above */
+	/*	freeaddrinfo(p); */
 
 	return last_i ? -(last_i & GAIH_EAI) : EAI_NONAME;
 }
