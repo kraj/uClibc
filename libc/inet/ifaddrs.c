@@ -308,9 +308,6 @@ __netlink_open (struct netlink_handle *h)
     close_and_out:
       __netlink_close (h);
     out:
-#if __ASSUME_NETLINK_SUPPORT == 0
-      __no_netlink_support = 1;
-#endif
       return -1;
     }
   /* Determine the ID the kernel assigned for this netlink connection.
@@ -374,17 +371,10 @@ getifaddrs (struct ifaddrs **ifap)
   if (ifap)
     *ifap = NULL;
 
-  if (! __no_netlink_support && __netlink_open (&nh) < 0)
+  if (__netlink_open (&nh) < 0)
     {
-#if __ASSUME_NETLINK_SUPPORT != 0
       return -1;
-#endif
     }
-
-#if __ASSUME_NETLINK_SUPPORT == 0
-  if (__no_netlink_support)
-    return fallback_getifaddrs (ifap);
-#endif
 
   /* Tell the kernel that we wish to get a list of all
      active interfaces, collect all data for every interface.  */
@@ -864,13 +854,11 @@ getifaddrs (struct ifaddrs **ifap)
 }
 
 
-#if __ASSUME_NETLINK_SUPPORT != 0
 void
 freeifaddrs (struct ifaddrs *ifa)
 {
   free (ifa);
 }
-#endif
 
 #endif /* __UCLIBC_SUPPORT_AI_ADDRCONFIG__ */
 
