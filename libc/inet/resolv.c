@@ -1551,7 +1551,7 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 	struct in_addr **addr_list = NULL;
 #ifdef __UCLIBC_HAS_IPV6__
 	struct in6_addr *in6 = NULL;
-	struct in6_addr **addr_list6 =NULL;
+	struct in6_addr **addr_list6 = NULL;
 #endif /* __UCLIBC_HAS_IPV6__ */
 	char *cp, **alias;
 	int aliases, i, ret = HOST_NOT_FOUND;
@@ -1613,14 +1613,15 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 
 		fp = __open_etc_hosts();
 		if (fp == NULL) {
-			result = NULL;
+			*result = NULL;
 			return errno;
 		}
 	}
 
 	*h_errnop = HOST_NOT_FOUND;
 	while (fgets(buf, buflen, fp)) {
-		if ((cp = strchr(buf, '#')))
+		cp = strchr(buf, '#');
+		if (cp)
 			*cp = '\0';
 		DPRINTF("Looking at: %s\n", buf);
 		aliases = 0;
@@ -1630,7 +1631,7 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 			while (*cp && isspace(*cp))
 				*cp++ = '\0';
 			if (!*cp)
-				continue;
+				break;
 			if (aliases < (2+MAX_ALIASES))
 				alias[aliases++] = cp;
 			while (*cp && !isspace(*cp))
@@ -1644,7 +1645,8 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 		if (action == GETHOSTENT) {
 			/* Return whatever the next entry happens to be. */
 			break;
-		} else if (action == GET_HOSTS_BYADDR) {
+		}
+		if (action == GET_HOSTS_BYADDR) {
 			if (strcmp(name, alias[0]) != 0)
 				continue;
 		} else {
@@ -1688,13 +1690,12 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 			 * If looking for an IPv6 addr, don't bail when we got the IPv4
 			 */
 			DPRINTF("Error: Found host but diff network type\n");
+			/* NB: gethostbyname2_r depends on this feature
+			 * to avoid looking for IPv6 addr of "localhost" etc */
 			ret = TRY_AGAIN;
 			continue;
 		}
-
-		if (action != GETHOSTENT)
-			fclose(fp);
-		return ret;
+		break;
 	}
 	if (action != GETHOSTENT)
 		fclose(fp);
@@ -2206,6 +2207,7 @@ int gethostbyname2_r(const char *name, int family,
 	int nest = 0;
 	int __nameserversXX;
 	char ** __nameserverXX;
+	int wrong_af = 0;
 
 	if (family == AF_INET)
 		return gethostbyname_r(name, result_buf, buf, buflen, result, h_errnop);
@@ -2223,11 +2225,15 @@ int gethostbyname2_r(const char *name, int family,
 		int old_errno = errno;	/* Save the old errno and reset errno */
 		__set_errno(0);			/* to check for missing /etc/hosts. */
 
-		if ((i = __get_hosts_byname_r(name, family, result_buf,
-									  buf, buflen, result, h_errnop)) == 0)
+		i = __get_hosts_byname_r(name, family, result_buf,
+				buf, buflen, result, h_errnop);
+		if (i == NETDB_SUCCESS) {
+//FIXME: restore errno?
 			return i;
+		}
 		switch (*h_errnop) {
 			case HOST_NOT_FOUND:
+				wrong_af = (i == TRY_AGAIN);
 			case NO_ADDRESS:
 				break;
 			case NETDB_INTERNAL:
@@ -2274,7 +2280,15 @@ int gethostbyname2_r(const char *name, int family,
 		return NETDB_SUCCESS;
 	}
 
-	memset((char *) &a, '\0', sizeof(a));
+	/* What if /etc/hosts has it but it's not IPv6?
+	 * F.e. "127.0.0.1 localhost". We don't do DNS query for such hosts -
+	 * "ping localhost" should be fast even if DNS server is down! */
+	if (wrong_af) {
+		*h_errnop = HOST_NOT_FOUND;
+		return TRY_AGAIN;
+	}
+
+	memset(&a, '\0', sizeof(a));
 
 	for (;;) {
 		__UCLIBC_MUTEX_LOCK(__resolv_lock);
@@ -2306,7 +2320,8 @@ int gethostbyname2_r(const char *name, int family,
 				return -1;
 			}
 			continue;
-		} else if (a.atype == T_AAAA) {	/* ADDRESS */
+		}
+		if (a.atype == T_AAAA) {	/* ADDRESS */
 			memcpy(in, a.rdata, sizeof(*in));
 			result_buf->h_name = buf;
 			result_buf->h_addrtype = AF_INET6;
@@ -2314,11 +2329,10 @@ int gethostbyname2_r(const char *name, int family,
 			result_buf->h_addr_list = (char **) addr_list;
 			free(packet);
 			break;
-		} else {
-			free(packet);
-			*h_errnop = HOST_NOT_FOUND;
-			return TRY_AGAIN;
 		}
+		free(packet);
+		*h_errnop = HOST_NOT_FOUND;
+		return TRY_AGAIN;
 	}
 
 	*result = result_buf;
