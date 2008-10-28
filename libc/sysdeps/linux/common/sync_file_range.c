@@ -24,7 +24,7 @@ int sync_file_range(int fd, off64_t offset, off64_t nbytes, unsigned int flags)
 		flags);
 }
 #elif defined __UCLIBC_HAS_STUBS__
-int sync_file_range(int fd, off64_t offset, off64_t nbytes, unsigned int flags)
+int sync_file_range(int fd, __off64_t offset, __off64_t nbytes, unsigned int flags)
 {
 	__set_errno(ENOSYS);
 	return -1;
