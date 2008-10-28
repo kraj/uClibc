@@ -13,7 +13,7 @@
 
 #define __NR___syscall_sched_rr_get_interval __NR_sched_rr_get_interval
 static __inline__ _syscall2(int, __syscall_sched_rr_get_interval,
-		__kernel_pid_t, pid, struct timespec *, tp);
+		__kernel_pid_t, pid, struct timespec *, tp)
 
 int sched_rr_get_interval(pid_t pid, struct timespec *tp)
 {

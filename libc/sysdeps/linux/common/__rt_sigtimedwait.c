@@ -18,7 +18,7 @@ libc_hidden_proto(sigtimedwait)
 #ifdef __NR_rt_sigtimedwait
 #define __NR___rt_sigtimedwait __NR_rt_sigtimedwait
 static _syscall4(int, __rt_sigtimedwait, const sigset_t *, set, siginfo_t *, info,
-		  const struct timespec *, timeout, size_t, setsize);
+		  const struct timespec *, timeout, size_t, setsize)
 
 int sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {

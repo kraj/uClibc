@@ -23,7 +23,7 @@ libc_hidden_def(setresgid)
 
 # define __NR___syscall_setresgid __NR_setresgid
 static __inline__ _syscall3(int, __syscall_setresgid,
-		__kernel_gid_t, rgid, __kernel_gid_t, egid, __kernel_gid_t, sgid);
+		__kernel_gid_t, rgid, __kernel_gid_t, egid, __kernel_gid_t, sgid)
 
 libc_hidden_proto(setresgid)
 int setresgid(gid_t rgid, gid_t egid, gid_t sgid)

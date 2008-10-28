@@ -17,7 +17,7 @@ libc_hidden_proto(getpriority)
 #ifdef __NR_nice
 
 # define __NR___syscall_nice __NR_nice
-static __inline__ _syscall1(int, __syscall_nice, int, incr);
+static __inline__ _syscall1(int, __syscall_nice, int, incr)
 
 #else
 

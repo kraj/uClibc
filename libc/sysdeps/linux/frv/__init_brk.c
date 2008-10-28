@@ -7,7 +7,7 @@
 void * __curbrk attribute_hidden = 0;
 
 #define __NR__brk __NR_brk
-attribute_hidden _syscall1(void *, _brk, void *, ptr);
+attribute_hidden _syscall1(void *, _brk, void *, ptr)
 
 extern int __init_brk(void) attribute_hidden;
 int

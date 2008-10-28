@@ -41,8 +41,9 @@ __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t 
 # else
 
 #  define __NR___syscall_mmap2	    __NR_mmap2
-static __inline__ _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr, size_t, len,
-                        int, prot, int, flags, int, fd, off_t, offset);
+static __inline__ _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
+			size_t, len, int, prot, int, flags, int, fd,
+			off_t, offset)
 
 /* Some architectures always use 12 as page shift for mmap2() eventhough the
  * real PAGE_SHIFT != 12.  Other architectures use the same value as

@@ -50,7 +50,7 @@ weak_alias (__libc_pread64, pread64)
 # else /* O32 || N32 */
 #  define __NR___syscall_pread __NR_pread
 static __inline__ _syscall6(ssize_t, __syscall_pread, int, fd, void *, buf,
-		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo);
+		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo)
 
 ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 {
@@ -94,7 +94,7 @@ weak_alias (__libc_pwrite64, pwrite64)
 # else /* O32 || N32 */
 #  define __NR___syscall_pwrite __NR_pwrite
 static __inline__ _syscall6(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
-		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo);
+		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo)
 
 ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 {

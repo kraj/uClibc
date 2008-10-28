@@ -16,7 +16,7 @@ libc_hidden_proto(setpgid)
 
 #define __NR___syscall_setpgid __NR_setpgid
 static __inline__ _syscall2(int, __syscall_setpgid,
-		__kernel_pid_t, pid, __kernel_pid_t, pgid);
+		__kernel_pid_t, pid, __kernel_pid_t, pgid)
 
 int setpgid(pid_t pid, pid_t pgid)
 {

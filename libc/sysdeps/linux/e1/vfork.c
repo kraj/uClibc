@@ -9,7 +9,7 @@
 #include <errno.h>
 
 #define __NR___vfork __NR_vfork
-attribute_hidden _syscall0(pid_t, __vfork);
+attribute_hidden _syscall0(pid_t, __vfork)
 libc_hidden_proto(vfork)
 weak_alias(__vfork,vfork)
 libc_hidden_weak(vfork)

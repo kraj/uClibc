@@ -15,7 +15,7 @@
 #define __NR___syscall_sync_file_range __NR_sync_file_range
 static __inline__ _syscall6(int, __syscall_sync_file_range, int, fd,
 		off_t, offset_hi, off_t, offset_lo,
-		off_t, nbytes_hi, off_t, nbytes_lo, unsigned int, flags);
+		off_t, nbytes_hi, off_t, nbytes_lo, unsigned int, flags)
 int sync_file_range(int fd, off64_t offset, off64_t nbytes, unsigned int flags)
 {
 	return __syscall_sync_file_range(fd,

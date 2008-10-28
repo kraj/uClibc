@@ -73,7 +73,7 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 static __inline__ _syscall6(int, __syscall_fadvise64_64, int, fd,
           unsigned long, high_offset, unsigned long, low_offset,
           unsigned long, high_len, unsigned long, low_len,
-          int, advice);
+          int, advice)
 int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 {
 	int ret = __syscall_fadvise64_64(fd,

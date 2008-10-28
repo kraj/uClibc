@@ -13,7 +13,7 @@
 
 #define __NR___syscall_sched_getparam __NR_sched_getparam
 static __inline__ _syscall2(int, __syscall_sched_getparam,
-		__kernel_pid_t, pid, struct sched_param *, p);
+		__kernel_pid_t, pid, struct sched_param *, p)
 
 int sched_getparam(pid_t pid, struct sched_param *p)
 {

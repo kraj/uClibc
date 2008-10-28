@@ -13,7 +13,7 @@
 
 #define __NR___syscall_sched_setscheduler __NR_sched_setscheduler
 static __inline__ _syscall3(int, __syscall_sched_setscheduler,
-		__kernel_pid_t, pid, int, policy, const struct sched_param *, p);
+		__kernel_pid_t, pid, int, policy, const struct sched_param *, p)
 
 int sched_setscheduler(pid_t pid, int policy, const struct sched_param *p)
 {

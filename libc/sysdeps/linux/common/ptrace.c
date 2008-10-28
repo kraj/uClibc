@@ -13,7 +13,7 @@
 #define __NR___syscall_ptrace __NR_ptrace
 
 static __inline__ _syscall4(long, __syscall_ptrace, enum __ptrace_request, request,
-		__kernel_pid_t, pid, void*, addr, void*, data);
+		__kernel_pid_t, pid, void*, addr, void*, data)
 
 long int
 ptrace (enum __ptrace_request request, ...)

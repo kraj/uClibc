@@ -29,7 +29,7 @@
 #if defined __NR_sched_getaffinity
 #define __NR___syscall_sched_getaffinity __NR_sched_getaffinity
 static __inline__ _syscall3(int, __syscall_sched_getaffinity, __kernel_pid_t, pid,
-			size_t, cpusetsize, cpu_set_t *, cpuset);
+			size_t, cpusetsize, cpu_set_t *, cpuset)
 
 int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)
 {

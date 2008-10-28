@@ -33,7 +33,7 @@ libc_hidden_proto(mmap)
 
 #define __NR___syscall_mmap2	    __NR_mmap2
 static __inline__ _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
-	size_t, len, int, prot, int, flags, int, fd, off_t, offset);
+	size_t, len, int, prot, int, flags, int, fd, off_t, offset)
 
 /* This is always 12, even on architectures where PAGE_SHIFT != 12.  */
 # ifndef MMAP2_PAGE_SHIFT

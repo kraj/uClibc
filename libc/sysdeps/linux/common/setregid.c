@@ -25,7 +25,7 @@ _syscall2(int, setregid, gid_t, rgid, gid_t, egid)
 
 # define __NR___syscall_setregid __NR_setregid
 static __inline__ _syscall2(int, __syscall_setregid,
-		__kernel_gid_t, rgid, __kernel_gid_t, egid);
+		__kernel_gid_t, rgid, __kernel_gid_t, egid)
 
 int setregid(gid_t rgid, gid_t egid)
 {

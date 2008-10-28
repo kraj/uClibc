@@ -19,7 +19,7 @@ extern __typeof(creat) __libc_creat;
 
 #define __NR___syscall_open __NR_open
 static __inline__ _syscall3(int, __syscall_open, const char *, file,
-		int, flags, __kernel_mode_t, mode);
+		int, flags, __kernel_mode_t, mode)
 
 libc_hidden_proto(__libc_open)
 int __libc_open(const char *file, int oflag, ...)

@@ -16,7 +16,7 @@ extern __typeof(fcntl64) __libc_fcntl64;
 libc_hidden_proto(__libc_fcntl64)
 
 #define __NR___syscall_fcntl64 __NR_fcntl64
-static __inline__ _syscall3(int, __syscall_fcntl64, int, fd, int, cmd, long, arg);
+static __inline__ _syscall3(int, __syscall_fcntl64, int, fd, int, cmd, long, arg)
 int __libc_fcntl64(int fd, int cmd, ...)
 {
 	long arg;

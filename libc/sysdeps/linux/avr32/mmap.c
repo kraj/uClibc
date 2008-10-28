@@ -14,7 +14,7 @@
 libc_hidden_proto(mmap)
 
 static _syscall6(__ptr_t, mmap2, __ptr_t, addr, size_t, len, int, prot,
-		 int, flags, int, fd, __off_t, pgoff);
+		 int, flags, int, fd, __off_t, pgoff)
 
 __ptr_t mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
 {

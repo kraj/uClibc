@@ -15,7 +15,7 @@ libc_hidden_proto(mknod)
 
 #define __NR___syscall_mknod __NR_mknod
 static __inline__ _syscall3(int, __syscall_mknod, const char *, path,
-		__kernel_mode_t, mode, __kernel_dev_t, dev);
+		__kernel_mode_t, mode, __kernel_dev_t, dev)
 
 int mknod(const char *path, mode_t mode, dev_t dev)
 {

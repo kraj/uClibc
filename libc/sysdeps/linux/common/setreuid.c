@@ -25,7 +25,7 @@ _syscall2(int, setreuid, uid_t, ruid, uid_t, euid)
 
 # define __NR___syscall_setreuid __NR_setreuid
 static __inline__ _syscall2(int, __syscall_setreuid,
-		__kernel_uid_t, ruid, __kernel_uid_t, euid);
+		__kernel_uid_t, ruid, __kernel_uid_t, euid)
 
 int setreuid(uid_t ruid, uid_t euid)
 {

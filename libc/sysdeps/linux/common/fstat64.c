@@ -18,7 +18,7 @@ libc_hidden_proto(fstat64)
 
 #define __NR___syscall_fstat64 __NR_fstat64
 static __inline__ _syscall2(int, __syscall_fstat64,
-		int, filedes, struct kernel_stat64 *, buf);
+		int, filedes, struct kernel_stat64 *, buf)
 
 int fstat64(int fd, struct stat64 *buf)
 {
