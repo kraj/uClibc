@@ -38,7 +38,7 @@ malloc_mutex_t __malloc_sbrk_lock;
 
 
 #ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
-/* A list of all malloc_mmb structures describing blocsk that
+/* A list of all malloc_mmb structures describing blocks that
    malloc has mmapped, ordered by the block address.  */
 struct malloc_mmb *__malloc_mmapped_blocks = 0;
 
