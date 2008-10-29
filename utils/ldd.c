@@ -150,10 +150,10 @@ struct library {
 	char *path;
 	struct library *next;
 };
-struct library *lib_list = NULL;
-char not_found[] = "not found";
-char *interp_name = NULL;
-char *interp_dir = NULL;
+static struct library *lib_list = NULL;
+static char not_found[] = "not found";
+static char *interp_name = NULL;
+static char *interp_dir = NULL;
 static int byteswap;
 static int interpreter_already_found = 0;
 
@@ -759,8 +759,8 @@ int main(int argc, char **argv)
 	struct library *cur;
 
 	if (argc < 2) {
-		fprintf(stderr, "ldd: missing file arguments\n");
-		fprintf(stderr, "Try `ldd --help' for more information.\n");
+		fprintf(stderr, "ldd: missing file arguments\n"
+				"Try `ldd --help' for more information.\n");
 		exit(EXIT_FAILURE);
 	}
 	if (argc > 2)
@@ -775,8 +775,8 @@ int main(int argc, char **argv)
 		}
 
 		if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
-			fprintf(stderr, "Usage: ldd [OPTION]... FILE...\n");
-			fprintf(stderr, "\t--help\t\tprint this help and exit\n");
+			fprintf(stderr, "Usage: ldd [OPTION]... FILE...\n"
+					"\t--help\t\tprint this help and exit\n");
 			exit(EXIT_SUCCESS);
 		}
 
