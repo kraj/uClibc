@@ -146,9 +146,11 @@ static const char *dl_error_names[] = {
 void dl_cleanup(void) __attribute__ ((destructor));
 void dl_cleanup(void)
 {
-	struct dyn_elf *d;
-	for (d = _dl_handles; d; d = d->next_handle) {
-		do_dlclose(d, 1);
+	struct dyn_elf *h, *n;
+
+	for (h = _dl_handles; h; h = n) {
+		n = h->next_handle;
+		do_dlclose(h, 1);
 	}
 }
 
