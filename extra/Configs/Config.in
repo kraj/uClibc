@@ -405,7 +405,7 @@ config LINUXTHREADS_OLD
 
 config LINUXTHREADS_NEW
 	def_bool y
-	depends on !LINUXTHREADS_OLD
+	depends on UCLIBC_HAS_THREADS && !LINUXTHREADS_OLD
 
 config UCLIBC_HAS_SYSLOG
 	bool "Syslog support"
