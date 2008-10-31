@@ -108,7 +108,7 @@ libc_hidden_proto(__C_ctype_toupper)
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
 #include <locale.h>
-#else  /* __UCLIBC_HAS_XLOCALE__ */
+#else /* __UCLIBC_HAS_XLOCALE__ */
 /* We need this internally... */
 #define __UCLIBC_HAS_XLOCALE__ 1
 #include <xlocale.h>
@@ -120,14 +120,14 @@ libc_hidden_proto(__C_ctype_toupper)
 
 #define LOCALE_NAMES			(__locale_mmap->locale_names5)
 #define LOCALES					(__locale_mmap->locales)
-#define LOCALE_AT_MODIFIERS 	(__locale_mmap->locale_at_modifiers)
+#define LOCALE_AT_MODIFIERS		(__locale_mmap->locale_at_modifiers)
 #define CATEGORY_NAMES			(__locale_mmap->lc_names)
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning REMINDER: redo the MAX_LOCALE_STR stuff...
 #endif
-#define MAX_LOCALE_STR            256 /* TODO: Only sufficient for current case. */
-#define MAX_LOCALE_CATEGORY_STR    32 /* TODO: Only sufficient for current case. */
+#define MAX_LOCALE_STR			256 /* TODO: Only sufficient for current case. */
+#define MAX_LOCALE_CATEGORY_STR	32 /* TODO: Only sufficient for current case. */
 /* Note: Best if MAX_LOCALE_CATEGORY_STR is a power of 2. */
 
 extern int _locale_set_l(const unsigned char *p, __locale_t base) attribute_hidden;
@@ -169,7 +169,7 @@ char *setlocale(int category, register const char *locale)
 		: NULL;
 }
 
-#else  /* ---------------------------------------------- __LOCALE_C_ONLY */
+#else /* ---------------------------------------------- __LOCALE_C_ONLY */
 
 #ifdef __UCLIBC_HAS_THREADS__
 link_warning(setlocale,"REMINDER: The 'setlocale' function is _not_ threadsafe except for simple queries.")
@@ -267,7 +267,7 @@ static void update_hr_locale(const unsigned char *spec)
 			}
 			s += 2;
 		} while (++i < category);
-		*--n = 0;		  /* Remove trailing ';' and nul-terminate. */
+		*--n = 0;		/* Remove trailing ';' and nul-terminate. */
 
 		++category;
 	} while (!done);
@@ -332,7 +332,7 @@ struct lconv *localeconv(void)
 	return &the_lconv;
 }
 
-#else  /* __LOCALE_C_ONLY */
+#else /* __LOCALE_C_ONLY */
 
 static struct lconv the_lconv;
 
@@ -609,7 +609,7 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 	if ((p[2*LC_COLLATE] != s[2*LC_COLLATE])
 		|| (p[2*LC_COLLATE + 1] != s[2*LC_COLLATE + 1])
 		) {
-		row  = (((int)(*p & 0x7f)) << 7) + (p[1] & 0x7f);
+		row = (((int)(*p & 0x7f)) << 7) + (p[1] & 0x7f);
 		assert(row < __LOCALE_DATA_NUM_LOCALES);
 		if (!init_cur_collate(__locale_mmap->locales[ __LOCALE_DATA_WIDTH_LOCALES
 													  * row + 3 + LC_COLLATE ],
@@ -623,7 +623,7 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 
 	do {
 		if ((*p != *s) || (p[1] != s[1])) {
-			row  = (((int)(*p & 0x7f)) << 7) + (p[1] & 0x7f);
+			row = (((int)(*p & 0x7f)) << 7) + (p[1] & 0x7f);
 			assert(row < __LOCALE_DATA_NUM_LOCALES);
 
 			*s = *p;
@@ -789,7 +789,7 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 						+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
 					base->__ctype_toupper = base->__ctype_toupper_data
 						+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
-#else  /* __UCLIBC_HAS_XLOCALE__ */
+#else /* __UCLIBC_HAS_XLOCALE__ */
 					__ctype_b = base->__ctype_b_data
 						+ __UCLIBC_CTYPE_B_TBL_OFFSET;
 					__ctype_tolower = base->__ctype_tolower_data
@@ -889,7 +889,7 @@ void attribute_hidden _locale_init_l(__locale_t base)
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 	base->tbl8ctype
 		= (const unsigned char *) &__locale_mmap->tbl8ctype;
-    base->tbl8uplow
+	base->tbl8uplow
 		= (const unsigned char *) &__locale_mmap->tbl8uplow;
 #ifdef __UCLIBC_HAS_WCHAR__
 	base->tbl8c2wc
@@ -917,7 +917,7 @@ void attribute_hidden _locale_init_l(__locale_t base)
 	base->__ctype_b = __C_ctype_b;
 	base->__ctype_tolower = __C_ctype_tolower;
 	base->__ctype_toupper = __C_ctype_toupper;
-#else  /* __UCLIBC_HAS_XLOCALE__ */
+#else /* __UCLIBC_HAS_XLOCALE__ */
 	__ctype_b = __C_ctype_b;
 	__ctype_tolower = __C_ctype_tolower;
 	__ctype_toupper = __C_ctype_toupper;
@@ -967,7 +967,7 @@ void _locale_init(void)
 
 static const unsigned char nl_data[C_LC_ALL + 1 + 90 + 320] = {
 /* static const char cat_start[LC_ALL + 1] = { */
-        '\x00', '\x0b', '\x0e', '\x24', '\x56', '\x56', '\x5a',
+	'\x00', '\x0b', '\x0e', '\x24', '\x56', '\x56', '\x5a',
 /* }; */
 /* static const char item_offset[90] = { */
 	'\x00', '\x02', '\x04', '\x06', '\x08', '\x0a', '\x0c', '\x0e',
@@ -1042,7 +1042,7 @@ char *nl_langinfo(nl_item item)
 }
 libc_hidden_def(nl_langinfo)
 
-#else  /* __LOCALE_C_ONLY */
+#else /* __LOCALE_C_ONLY */
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
@@ -1056,13 +1056,13 @@ char *nl_langinfo(nl_item item)
 }
 libc_hidden_def(nl_langinfo)
 
-#else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
+#else /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
 libc_hidden_proto(__XL_NPP(nl_langinfo))
 
 static const char empty[] = "";
 
-char *__XL_NPP(nl_langinfo)(nl_item item   __LOCALE_PARAM )
+char *__XL_NPP(nl_langinfo)(nl_item item __LOCALE_PARAM )
 {
 	unsigned int c = _NL_ITEM_CATEGORY(item);
 	unsigned int i = _NL_ITEM_INDEX(item);
@@ -1253,7 +1253,7 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 	if (!locale || (((unsigned int)(category_mask)) > LC_ALL_MASK)) {
 	INVALID:
 		__set_errno(EINVAL);
-		return NULL;  /* No locale or illegal/unsupported category. */
+		return NULL; /* No locale or illegal/unsupported category. */
 	}
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -1264,7 +1264,7 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 
 	if (!*locale) {			 /* locale == "", so check environment. */
 #ifndef __UCLIBC_HAS_THREADS__
-		static 				/* If no threads, then envstr can be static. */
+		static				/* If no threads, then envstr can be static. */
 #endif /*  __UCLIBC_HAS_THREADS__ */
 			const char *envstr[4] = { "LC_ALL", NULL, "LANG", posix };
 
@@ -1416,7 +1416,7 @@ libc_hidden_def(uselocale)
 
 __locale_t weak_const_function __curlocale(void)
 {
-    return __curlocale_var; /* This is overriden by the thread version. */
+	return __curlocale_var; /* This is overriden by the thread version. */
 }
 
 __locale_t weak_function __curlocale_set(__locale_t newloc)
