@@ -21,16 +21,15 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-void *memcpy(void *to, const void *from, size_t n)
-/* PPC can do pre increment and load/store, but not post increment and load/store.
-   Therefore use *++ptr instead of *ptr++. */
+/* PPC can do pre increment and load/store, but not post increment and
+   load/store.  Therefore use *++ptr instead of *ptr++.  */
+void *memcpy(void *to, const void *from, size_t len)
 {
 	unsigned long rem, chunks, tmp1, tmp2;
 	unsigned char *tmp_to;
 	unsigned char *tmp_from = (unsigned char *)from;
 
-	chunks = n / 8;
+	chunks = len / 8;
 	tmp_from -= 4;
 	tmp_to = to - 4;
 	if (!chunks)
@@ -49,30 +48,33 @@ void *memcpy(void *to, const void *from, size_t n)
 		*(unsigned long *)tmp_to = tmp2;
 	} while (--chunks);
  lessthan8:
-	n = n % 8;
-	if (n >= 4) {
-		*(unsigned long *)(tmp_to+4) = *(unsigned long *)(tmp_from+4);
+	len = len % 8;
+	if (len >= 4) {
 		tmp_from += 4;
 		tmp_to += 4;
-		n = n-4;
+		*(unsigned long *)(tmp_to) = *(unsigned long *)(tmp_from);
+		len -= 4;
 	}
-	if (!n ) return to;
+	if (!len)
+		return to;
 	tmp_from += 3;
 	tmp_to += 3;
 	do {
 		*++tmp_to = *++tmp_from;
-	} while (--n);
+	} while (--len);
 
 	return to;
  align:
+	/* ???: Do we really need to generate the carry flag here? If not, then:
+	rem -= 4; */
 	rem = 4 - rem;
-	n = n - rem;
+	len -= rem;
 	do {
 		*(tmp_to+4) = *(tmp_from+4);
 		++tmp_from;
 		++tmp_to;
 	} while (--rem);
-	chunks = n / 8;
+	chunks = len / 8;
 	if (chunks)
 		goto copy_chunks;
 	goto lessthan8;
