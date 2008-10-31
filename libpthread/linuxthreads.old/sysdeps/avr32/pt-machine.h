@@ -15,7 +15,7 @@
 # define PT_EI __extern_always_inline
 #endif
 
-static inline int
+static __inline__ int
 _test_and_set (int *p, int v)
 {
 	int result;
