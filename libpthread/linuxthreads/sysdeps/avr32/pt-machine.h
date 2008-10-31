@@ -16,7 +16,7 @@
 #endif
 
 static __inline__ int
-_test_and_set (int *p, int v) __THROW
+_test_and_set (int *p, int v)
 {
 	int result;
 
@@ -52,7 +52,7 @@ register char * stack_pointer __asm__ ("sp");
 PT_EI int
 __compare_and_swap(long int *p, long int oldval, long int newval)
 {
-	int result;
+	long int result;
 
 	__asm__ __volatile__(
 		"/* Inline compare and swap */\n"
