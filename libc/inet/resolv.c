@@ -474,6 +474,7 @@ int attribute_hidden __decode_dotted(const unsigned char * const data, int offse
 #endif
 
 #ifdef L_lengthd
+/* Returns -1 only if data == NULL */
 int attribute_hidden __length_dotted(const unsigned char * const data, int offset)
 {
 	int orig_offset = offset;
@@ -533,8 +534,8 @@ int attribute_hidden __decode_question(const unsigned char * const message, int 
 
 	offset += i;
 
+//TODO: what if strdup fails?
 	q->dotted = strdup(temp);
-//TODO: what if this fails?
 	q->qtype = (message[offset + 0] << 8) | message[offset + 1];
 	q->qclass = (message[offset + 2] << 8) | message[offset + 3];
 
@@ -543,10 +544,12 @@ int attribute_hidden __decode_question(const unsigned char * const message, int 
 #endif
 
 #ifdef L_lengthq
+/* Returns -1 only if message == NULL */
 int attribute_hidden __length_question(const unsigned char * const message, int offset)
 {
 	int i;
 
+	/* returns -1 only if message == NULL */
 	i = __length_dotted(message, offset);
 	if (i < 0)
 		return i;
@@ -807,11 +810,15 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		/* nsip is really __nameserver[] which is a global that
 		   needs to hold __resolv_lock before access!! */
 		dns = nsip[local_ns];
-/* TODO: all future accesses to 'dns' are guarded by __resolv_lock too.
+/* TODO: all future accesses to 'dns' were guarded by __resolv_lock too.
  * Why? We already fetched nsip[local_ns] here,
  * future changes to nsip[] by other threads cannot affect us.
  * We can use 'dns' without locking. If I'm wrong,
- * please explain in comments why locking is needed. */
+ * please explain in comments why locking is needed.
+ * One thing that worries me is - what if __close_nameservers() free()s
+ * dns under us? __resolv_lock'ing around accesses to dns won't help either,
+ * as free() might occur between accesses!
+ */
 		if (variant >= 0) {
 			if (variant < __searchdomains) {
 				strncat(lookup, ".", MAXDNAME);
@@ -821,7 +828,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 
 		DPRINTF("lookup name: %s\n", lookup);
-		q.dotted = (char *)lookup;
+		q.dotted = lookup;
 		q.qtype = type;
 		q.qclass = C_IN; /* CLASS_IN */
 
@@ -835,11 +842,11 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 				retries+1, NAMESERVER_PORT, dns);
 
 #ifdef __UCLIBC_HAS_IPV6__
-		__UCLIBC_MUTEX_LOCK(__resolv_lock);
-		/* 'dns' is really __nameserver[] which is a global that
-		   needs to hold __resolv_lock before access!! */
+		//__UCLIBC_MUTEX_LOCK(__resolv_lock);
+		///* 'dns' is really __nameserver[] which is a global that
+		//   needs to hold __resolv_lock before access!! */
 		v6 = inet_pton(AF_INET6, dns, &sa6.sin6_addr) > 0;
-		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+		//__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 		fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #else
 		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -861,11 +868,11 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 #ifdef __UCLIBC_HAS_IPV4__
 			sa.sin_family = AF_INET;
 			sa.sin_port = htons(NAMESERVER_PORT);
-			__UCLIBC_MUTEX_LOCK(__resolv_lock);
-			/* 'dns' is really __nameserver[] which is a global that
-			   needs to hold __resolv_lock before access!! */
+			//__UCLIBC_MUTEX_LOCK(__resolv_lock);
+			///* 'dns' is really __nameserver[] which is a global that
+			//   needs to hold __resolv_lock before access!! */
 			sa.sin_addr.s_addr = inet_addr(dns);
-			__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+			//__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 			rc = connect(fd, (struct sockaddr *) &sa, sizeof(sa));
 #endif
 #ifdef __UCLIBC_HAS_IPV6__
@@ -912,7 +919,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 		len = recv(fd, packet, PACKETSZ, 0);
 		if (len < HFIXEDSZ) {
-			/* too short ! */
+			/* too short! */
 			goto again;
 		}
 
@@ -925,25 +932,36 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 			goto again;
 		}
 
-		DPRINTF("Got response %s\n", "(i think)!");
+		DPRINTF("Got response (i think)!\n");
 		DPRINTF("qrcount=%d,ancount=%d,nscount=%d,arcount=%d\n",
 				h.qdcount, h.ancount, h.nscount, h.arcount);
 		DPRINTF("opcode=%d,aa=%d,tc=%d,rd=%d,ra=%d,rcode=%d\n",
 				h.opcode, h.aa, h.tc, h.rd, h.ra, h.rcode);
 
-		if ((h.rcode) || (h.ancount < 1)) {
-			/* negative result, not present */
+		if (h.rcode == NXDOMAIN) {
+// bug 660 says we treat negative response as an error and retry
+// which is, eh, an error. :) We were incurring long delays because of this.
+			/* this is not an error - don't goto again! */
+			h_errno = HOST_NOT_FOUND;
+			goto fail1;
+		}
+		if (h.rcode != 0) /* error */
 			goto again;
+		/* code below won't work correctly with h.ancount == 0, so... */
+		if (h.ancount < 1) {
+			h_errno = NO_DATA; /* is this correct code? */
+			goto fail1;
 		}
 
 		pos = HFIXEDSZ;
 
 		for (j = 0; j < h.qdcount; j++) {
 			DPRINTF("Skipping question %d at %d\n", j, pos);
+			/* returns -1 only if packet == NULL (can't happen) */
 			i = __length_question(packet, pos);
+			//if (i < 0)
+			//	goto again;
 			DPRINTF("Length of question %d is %d\n", j, i);
-			if (i < 0)
-				goto again;
 			pos += i;
 		}
 		DPRINTF("Decoding answer at pos %d\n", pos);
@@ -1044,11 +1062,12 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 	}
 
  fail:
+	h_errno = NETDB_INTERNAL;
+ fail1:
 	if (fd != -1)
 		close(fd);
 	free(lookup);
 	free(packet);
-	h_errno = NETDB_INTERNAL;
 	/* Mess with globals while under lock */
 	if (local_ns != -1) {
 		__UCLIBC_MUTEX_LOCK(mylock);
@@ -1107,7 +1126,8 @@ void attribute_hidden __open_nameservers(void)
 
 			if (strcmp(argv[0], "nameserver") == 0) {
 				for (i = 1; i < argc && __nameservers < MAX_SERVERS; i++) {
-					__nameserver[__nameservers++] = strdup(argv[i]); /* TODO: what if this fails? */
+// TODO: what if strdup fails?
+					__nameserver[__nameservers++] = strdup(argv[i]);
 					DPRINTF("adding nameserver %s\n", argv[i]);
 				}
 			}
@@ -1119,7 +1139,8 @@ void attribute_hidden __open_nameservers(void)
 					__searchdomain[__searchdomains] = NULL;
 				}
 				for (i = 1; i < argc && __searchdomains < MAX_SEARCH; i++) {
-					__searchdomain[__searchdomains++] = strdup(argv[i]); /* TODO: what if this fails? */
+// TODO: what if strdup fails?
+					__searchdomain[__searchdomains++] = strdup(argv[i]);
 					DPRINTF("adding search %s\n", argv[i]);
 				}
 			}
