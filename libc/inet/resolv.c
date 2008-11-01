@@ -328,7 +328,7 @@ extern int __decode_question(const unsigned char * const message, int offset,
 extern int __encode_answer(struct resolv_answer * a,
 	unsigned char * dest, int maxlen) attribute_hidden;
 extern int __decode_answer(const unsigned char * message, int offset,
-	struct resolv_answer * a) attribute_hidden;
+	int len, struct resolv_answer * a) attribute_hidden;
 extern int __length_question(const unsigned char * const message, int offset) attribute_hidden;
 extern void __open_nameservers(void) attribute_hidden;
 extern void __close_nameservers(void) attribute_hidden;
@@ -588,18 +588,25 @@ int attribute_hidden __encode_answer(struct resolv_answer *a, unsigned char *des
 
 #ifdef L_decodea
 int attribute_hidden __decode_answer(const unsigned char *message, int offset,
-				  struct resolv_answer *a)
+				  int len, struct resolv_answer *a)
 {
 	char temp[256];
 	int i;
 
+	DPRINTF("decode_answer(start): off %d, len %d\n", offset, len);
 	i = __decode_dotted(message, offset, temp, sizeof(temp));
 	if (i < 0)
 		return i;
 
 	message += offset + i;
+	len -= i + RRFIXEDSZ + offset;
+	if (len < 0) {
+		DPRINTF("decode_answer: off %d, len %d, i %d\n", offset, len, i);
+		return len;
+	}
 
-	a->dotted = strdup(temp); /* TODO: what if this fails? */
+// TODO: what if strdup fails?
+	a->dotted = strdup(temp);
 	a->atype = (message[0] << 8) | message[1];
 	message += 2;
 	a->aclass = (message[0] << 8) | message[1];
@@ -614,6 +621,8 @@ int attribute_hidden __decode_answer(const unsigned char *message, int offset,
 
 	DPRINTF("i=%d,rdlength=%d\n", i, a->rdlength);
 
+	if (len < a->rdlength)
+		return -1;
 	return i + RRFIXEDSZ + a->rdlength;
 }
 #endif
@@ -940,11 +949,15 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		DPRINTF("Decoding answer at pos %d\n", pos);
 
 		first_answer = 1;
-		for (j = 0; j < h.ancount; j++, pos += i) {
-			i = __decode_answer(packet, pos, &ma);
+		for (j = 0; j < h.ancount && pos < len; j++, pos += i) {
+			i = __decode_answer(packet, pos, len, &ma);
 
 			if (i < 0) {
 				DPRINTF("failed decode %d\n", i);
+				/* if the message was truncated and we have
+				   decoded some answers, pretend it's OK */
+				if (j && h.tc)
+					break;
 				goto again;
 			}
 
@@ -998,7 +1011,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 		return len;				/* success! */
 
-	tryall:
+ tryall:
 		/* if there are other nameservers, give them a go,
 		   otherwise return with error */
 		variant = -1;
@@ -1008,7 +1021,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 		continue;
 
-	again:
+ again:
 		/* if there are searchdomains, try them or fallback as passed */
 		if (!ends_with_dot) {
 			int sdomains;
