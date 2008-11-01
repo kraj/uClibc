@@ -2625,12 +2625,14 @@ libc_hidden_def(ns_name_uncompress)
  *      The root is returned as "."
  *      All other domains are returned in non absolute form
  */
-int ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
+int ns_name_ntop(const u_char *src, char *dst, size_t dstsiz)
+{
+	static const char digits[] = "0123456789";
+
 	const u_char *cp;
 	char *dn, *eom;
 	u_char c;
 	u_int n;
-	const char digits[] = "0123456789";
 
 	cp = src;
 	dn = dst;
