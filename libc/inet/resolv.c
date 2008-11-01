@@ -742,8 +742,25 @@ static int static_ns = 0;
  * rw data costs more. */
 static uint16_t static_id = 1;
 
-int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char **nsip,
-			   unsigned char **outpacket, struct resolv_answer *a)
+/* On entry:
+ *  a.buf(len) = auxiliary buffer for IP addresses after first one
+ *  a.add_count = how many additional addresses are there already
+ *  outpacket = where to save ptr to raw packet? can be NULL
+ * On exit:
+ *  ret < 0: error, all other data is not valid
+ *  a.add_count & a.buf: updated
+ *  a.rdlength: length of addresses (4 bytes for IPv4)
+ *  *outpacket: updated (packet is malloced, you need to free it)
+ *  a.rdata: points into *outpacket to 1st IP addr
+ *      NB: don't pass outpacket == NULL if you need to use a.rdata!
+ *  a.atype: type of query?
+ *  a.dotted: numeric IP as a string (malloced, may be NULL if strdup failed)
+ *      (which one of potentially many??)
+ */
+int attribute_hidden __dns_lookup(const char *name, int type,
+			int nscount, char **nsip,
+			unsigned char **outpacket,
+			struct resolv_answer *a)
 {
 	int i, j, len, fd, pos, rc;
 #ifdef USE_SELECT
@@ -762,13 +779,15 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 	int variant = -1;  /* search domain to append, -1 - none */
 	int local_ns = -1, local_id = -1;
 	bool ends_with_dot;
-#ifdef __UCLIBC_HAS_IPV6__
-	bool v6;
-	struct sockaddr_in6 sa6;
-#endif
+	union {
+		struct sockaddr sa;
 #ifdef __UCLIBC_HAS_IPV4__
-	struct sockaddr_in sa;
+		struct sockaddr_in sa4;
 #endif
+#ifdef __UCLIBC_HAS_IPV6__
+		struct sockaddr_in6 sa6;
+#endif
+	} sa;
 
 	fd = -1;
 
@@ -841,43 +860,38 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		DPRINTF("On try %d, sending query to port %d of machine %s\n",
 				retries+1, NAMESERVER_PORT, dns);
 
+		sa.sa.sa_family = AF_INET;
 #ifdef __UCLIBC_HAS_IPV6__
 		//__UCLIBC_MUTEX_LOCK(__resolv_lock);
 		///* 'dns' is really __nameserver[] which is a global that
 		//   needs to hold __resolv_lock before access!! */
-		v6 = inet_pton(AF_INET6, dns, &sa6.sin6_addr) > 0;
+		if (inet_pton(AF_INET6, dns, &sa.sa6.sin6_addr) > 0)
+			sa.sa.sa_family = AF_INET6;
 		//__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-		fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-#else
-		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #endif
+		/* Connect to the UDP socket so that asyncronous errors are returned */
+#ifdef __UCLIBC_HAS_IPV6__
+		if (sa.sa.sa_family == AF_INET6) {
+			sa.sa6.sin6_port = htons(NAMESERVER_PORT);
+			/* sa6.sin6_addr is already here */
+		} else
+#endif
+#ifdef __UCLIBC_HAS_IPV4__
+		{
+			sa.sa4.sin_port = htons(NAMESERVER_PORT);
+			//__UCLIBC_MUTEX_LOCK(__resolv_lock);
+			///* 'dns' is really __nameserver[] which is a global that
+			//   needs to hold __resolv_lock before access!! */
+			sa.sa4.sin_addr.s_addr = inet_addr(dns);
+			//__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+		}
+#endif
+		fd = socket(sa.sa.sa_family, SOCK_DGRAM, IPPROTO_UDP);
 		if (fd < 0) {
 			retries++;
 			continue;
 		}
-
-		/* Connect to the UDP socket so that asyncronous errors are returned */
-#ifdef __UCLIBC_HAS_IPV6__
-		if (v6) {
-			sa6.sin6_family = AF_INET6;
-			sa6.sin6_port = htons(NAMESERVER_PORT);
-			/* sa6.sin6_addr is already here */
-			rc = connect(fd, (struct sockaddr *) &sa6, sizeof(sa6));
-		} else {
-#endif
-#ifdef __UCLIBC_HAS_IPV4__
-			sa.sin_family = AF_INET;
-			sa.sin_port = htons(NAMESERVER_PORT);
-			//__UCLIBC_MUTEX_LOCK(__resolv_lock);
-			///* 'dns' is really __nameserver[] which is a global that
-			//   needs to hold __resolv_lock before access!! */
-			sa.sin_addr.s_addr = inet_addr(dns);
-			//__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-			rc = connect(fd, (struct sockaddr *) &sa, sizeof(sa));
-#endif
-#ifdef __UCLIBC_HAS_IPV6__
-		}
-#endif
+		rc = connect(fd, &sa.sa, sizeof(sa));
 		if (rc < 0) {
 			if (errno == ENETUNREACH) {
 				/* routing error, presume not transient */
@@ -900,7 +914,6 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		tv.tv_usec = 0;
 		if (select(fd + 1, &fds, NULL, NULL, &tv) <= 0) {
 			DPRINTF("Timeout\n");
-
 			/* timed out, so retry send and receive,
 			 * to next nameserver on queue */
 			goto tryall;
@@ -910,7 +923,6 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		fds.events = POLLIN;
 		if (poll(&fds, 1, REPLY_TIMEOUT * 1000) <= 0) {
 			DPRINTF("Timeout\n");
-
 			/* timed out, so retry send and receive,
 			 * to next nameserver on queue */
 			goto tryall;
@@ -967,9 +979,8 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		DPRINTF("Decoding answer at pos %d\n", pos);
 
 		first_answer = 1;
-		for (j = 0; j < h.ancount && pos < len; j++, pos += i) {
+		for (j = 0; j < h.ancount && pos < len; j++) {
 			i = __decode_answer(packet, pos, len, &ma);
-
 			if (i < 0) {
 				DPRINTF("failed decode %d\n", i);
 				/* if the message was truncated and we have
@@ -978,13 +989,14 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 					break;
 				goto again;
 			}
+			pos += i;
 
 			if (first_answer) {
 				ma.buf = a->buf;
 				ma.buflen = a->buflen;
 				ma.add_count = a->add_count;
 				memcpy(a, &ma, sizeof(ma));
-				if (a->atype != T_SIG && (0 == a->buf || (type != T_A && type != T_AAAA)))
+				if (a->atype != T_SIG && (NULL == a->buf || (type != T_A && type != T_AAAA)))
 					break;
 				if (a->atype != type) {
 					free(a->dotted);
@@ -1288,7 +1300,7 @@ int res_query(const char *dname, int class, int type,
               unsigned char *answer, int anslen)
 {
 	int i;
-	unsigned char * packet = 0;
+	unsigned char * packet = NULL;
 	struct resolv_answer a;
 	int __nameserversXX;
 	char ** __nameserverXX;
