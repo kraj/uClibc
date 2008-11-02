@@ -754,8 +754,9 @@ static uint16_t static_id = 1;
  *  a.rdata: points into *outpacket to 1st IP addr
  *      NB: don't pass outpacket == NULL if you need to use a.rdata!
  *  a.atype: type of query?
- *  a.dotted: numeric IP as a string (malloced, may be NULL if strdup failed)
- *      (which one of potentially many??)
+ *  a.dotted: which name we _actually_ used. May contain search domains
+ *      appended. (why the filed is called "dotted" I have no idea)
+ *      This is a malloced string. May be NULL because strdup failed.
  */
 int attribute_hidden __dns_lookup(const char *name, int type,
 			int nscount, char **nsip,
@@ -953,6 +954,18 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		if (h.rcode == NXDOMAIN) {
 // bug 660 says we treat negative response as an error and retry
 // which is, eh, an error. :) We were incurring long delays because of this.
+			/* if possible, try next search domain */
+			if (!ends_with_dot) {
+				int sdomains;
+				__UCLIBC_MUTEX_LOCK(__resolv_lock);
+				sdomains = __searchdomains;
+				__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+				if (variant < sdomains - 1) {
+					/* next search */
+					variant++;
+					continue;
+				}
+			}
 			/* this is not an error - don't goto again! */
 			h_errno = HOST_NOT_FOUND;
 			goto fail1;
@@ -1055,11 +1068,9 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		/* if there are searchdomains, try them or fallback as passed */
 		if (!ends_with_dot) {
 			int sdomains;
-
 			__UCLIBC_MUTEX_LOCK(__resolv_lock);
 			sdomains = __searchdomains;
 			__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-
 			if (variant < sdomains - 1) {
 				/* next search */
 				variant++;
