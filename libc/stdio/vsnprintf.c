@@ -46,7 +46,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 	__INIT_MBSTATE(&(f.__state));
 #endif /* __STDIO_MBSTATE */
 
-#if defined(__USE_OLD_VFPRINTF__) && defined(__UCLIBC_HAS_THREADS__)
+#if (defined(__STDIO_BUFFERS) || defined(__USE_OLD_VFPRINTF__)) && defined(__UCLIBC_HAS_THREADS__)
 	f.__user_locking = 1;		/* Set user locking. */
 	__stdio_init_mutex(&f.__lock);
 #endif
