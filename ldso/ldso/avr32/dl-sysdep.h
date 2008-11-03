@@ -24,15 +24,15 @@
 /* Initialization sequence for the application/library GOT. */
 #define INIT_GOT(GOT_BASE,MODULE)					\
 	do {								\
-		unsigned long i, nr_got;				\
+		unsigned long _i, _nr_got;				\
 									\
 		GOT_BASE[0] = (unsigned long) _dl_linux_resolve;	\
 		GOT_BASE[1] = (unsigned long) MODULE;			\
 									\
 		/* Add load address displacement to all GOT entries */	\
-		nr_got = MODULE->dynamic_info[DT_AVR32_GOTSZ_IDX] / 4;	\
-		for (i = 2; i < nr_got; i++)				\
-			GOT_BASE[i] += (unsigned long)MODULE->loadaddr;	\
+		_nr_got = MODULE->dynamic_info[DT_AVR32_GOTSZ_IDX] / 4;	\
+		for (_i = 2; _i < _nr_got; _i++)				\
+			GOT_BASE[_i] += (unsigned long)MODULE->loadaddr;	\
 	} while (0)
 
 #define do_rem(result, n, base)	((result) = (n) % (base))
