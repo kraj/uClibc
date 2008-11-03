@@ -526,7 +526,6 @@ endif
 
 LDFLAGS:=$(LDFLAGS_NOSTRIP) -Wl,-z,defs
 ifeq ($(DODEBUG),y)
-#CFLAGS += -g3
 CFLAGS += -O0 -g3
 else
 CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
