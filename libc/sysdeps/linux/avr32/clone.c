@@ -15,7 +15,7 @@
  * parameters are preserved when returning as the child. If the
  * compiler stores them in registers (r0-r7), they should be.
  */
-int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg)
+int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg, ...)
 {
 	register int (*_fn)(void *arg) = fn;
 	register void *_arg = arg;
