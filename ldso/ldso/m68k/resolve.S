@@ -19,5 +19,10 @@ _dl_linux_resolve:
 	# Pop parameters
 	addq.l #8, %sp
 	# Call real function.
+#if defined __mcoldfire__
+	move.l %d0,-(%sp)
+	rts
+#else
 	jmp (%d0)
+#endif
 .size _dl_linux_resolve,.-_dl_linux_resolve
