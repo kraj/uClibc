@@ -190,6 +190,9 @@ struct flock64 {
 
 __BEGIN_DECLS
 
+/* Provide kernel hint to read ahead. */
+extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count) __THROW;
+
 /* Selective file content synch'ing */
 extern int sync_file_range (int __fd, __off64_t __from, __off64_t __to,
 			    unsigned int __flags);
