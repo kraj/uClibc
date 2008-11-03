@@ -5,6 +5,7 @@
  * Public License.  See the file "COPYING.LIB" in the main directory of this
  * archive for more details.
  */
+#include <sched.h>
 #include <errno.h>
 #include <sys/syscall.h>
 #include <unistd.h>
