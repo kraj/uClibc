@@ -60,7 +60,7 @@ unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got);
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
    first element of the GOT.  This must be inlined in a function which
    uses global data.  */
-static __inline__ Elf32_Addr
+static __always_inline Elf32_Addr
 elf_machine_dynamic (void)
 {
 	register Elf32_Addr *got __asm__("r6");
@@ -68,7 +68,7 @@ elf_machine_dynamic (void)
 }
 
 /* Return the run-time load address of the shared object.  */
-static __inline__ Elf32_Addr
+static __always_inline Elf32_Addr
 elf_machine_load_address (void)
 {
 	extern void __dl_start __asm__("_dl_start");
@@ -91,7 +91,7 @@ elf_machine_load_address (void)
  * Currently, we don't use that tag, but we might in the future as
  * this would reduce the startup time somewhat (although probably not by much).
  */
-static __inline__ void
+static __always_inline void
 elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
 {
