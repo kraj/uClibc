@@ -40,6 +40,6 @@ help:
 	@echo '     			- Quiet build'
 	@echo '  V=1			- Verbose build'
 	@echo '  V=2			- Very verbose build'
-	@echo '  CROSS=			- Override CROSS_COMPILER_PREFIX from .config'
-	@echo '  SHELL=			- Shell to use for make'
+	@echo '  CROSS=		- Override CROSS_COMPILER_PREFIX from .config'
+	@echo '  SHELL=		- Shell to use for make'
 	@echo '  CONFIG_SHELL=		- Shell to use for menuconfig'
