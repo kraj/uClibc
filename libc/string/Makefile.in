@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -133,7 +133,7 @@ libc-y += $(STRING_COBJ)
 libc-nomulti-$(UCLIBC_HAS_XLOCALE) += $(STRING_OUT)/wcsxfrm_l.o
 libc-nomulti-y += $(STRING_OUT)/__xpg_strerror_r.o
 
-objclean-y += string_objclean
+objclean-y += string_clean
 
-string_objclean:
-	$(RM) $(STRING_OUT)/{,*/}{,*/}*.{o,os,oS}
+string_clean:
+	$(do_rm) $(addprefix $(STRING_OUT)/,$(addprefix *., o os oS) $(addprefix */*., o os oS))

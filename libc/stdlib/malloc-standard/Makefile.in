@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -17,7 +17,7 @@ STDLIB_MALLOC_STANDARD_OBJ := $(patsubst %.c,$(STDLIB_MALLOC_STANDARD_OUT)/%.o,$
 
 libc-$(MALLOC_STANDARD) += $(STDLIB_MALLOC_STANDARD_OBJ)
 
-objclean-y += stdlib_malloc_standard_objclean
+objclean-y += stdlib_malloc_standard_clean
 
-stdlib_malloc_standard_objclean:
-	$(RM) $(STDLIB_MALLOC_STANDARD_OUT)/*.{o,os}
+stdlib_malloc_standard_clean:
+	$(do_rm) $(addprefix $(STDLIB_MALLOC_STANDARD_OUT)/*., o os)

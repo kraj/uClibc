@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -70,7 +70,7 @@ objclean-y += libthread_db_clean
 headers_clean-y += linuxthreads_db_headers_clean
 
 linuxthreads_db_headers_clean:
-	$(RM) $(top_builddir)include/thread_db.h
+	$(do_rm) $(top_builddir)include/thread_db.h
 
 libthread_db_clean:
-	$(RM) $(libthread_db_OUT)/*.{o,os,oS,a}
+	$(do_rm) $(addprefix $(libthread_db_OUT)/*., o os oS a)

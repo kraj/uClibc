@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -20,7 +20,7 @@ MISC_DIRENT_OBJ := $(patsubst %.c,$(MISC_DIRENT_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_DIRENT_OBJ)
 
-objclean-y += misc_dirent_objclean
+objclean-y += misc_dirent_clean
 
-misc_dirent_objclean:
-	$(RM) $(MISC_DIRENT_OUT)/*.{o,os}
+misc_dirent_clean:
+	$(do_rm) $(addprefix $(MISC_DIRENT_OUT)/*., o os)

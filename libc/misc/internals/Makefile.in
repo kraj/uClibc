@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -33,7 +33,7 @@ libc-shared-$(UCLIBC_FORMAT_SHARED_FLAT) += \
   $(MISC_INTERNALS_OUT)/shared_flat_add_library.os
 libc-nomulti-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o
 
-objclean-y += misc_internals_objclean
+objclean-y += misc_internals_clean
 
-misc_internals_objclean:
-	$(RM) $(MISC_INTERNALS_OUT)/*.{o,os,oS}
+misc_internals_clean:
+	$(do_rm) $(addprefix $(MISC_INTERNALS_OUT)/*., o os oS)

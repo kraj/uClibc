@@ -1,6 +1,6 @@
 # Rules.make for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -129,7 +129,7 @@ comma:=,
 space:= #
 
 ifndef CROSS
-CROSS=$(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
+CROSS=$(strip $(subst ",, $(CROSS_COMPILER_PREFIX)))
 endif
 
 # A nifty macro to make testing gcc features easier

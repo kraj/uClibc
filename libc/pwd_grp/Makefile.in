@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -25,7 +25,7 @@ PWDGRP_OBJ := $(patsubst %.c,$(PWDGRP_OUT)/%.o,$(CSRC))
 
 libc-y += $(PWDGRP_OBJ)
 
-objclean-y += pwdgrp_objclean
+objclean-y += pwdgrp_clean
 
-pwdgrp_objclean:
-	$(RM) $(PWDGRP_OUT)/*.{o,os}
+pwdgrp_clean:
+	$(do_rm) $(addprefix $(PWDGRP_OUT)/*., o os)

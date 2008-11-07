@@ -91,7 +91,7 @@ pur_disp_ln        = echo "  "LN $@
 pur_disp_mkdir     = echo "  "MKDIR $@
 pur_disp_gen       = echo "  "GEN $@
 pur_disp_unifdef   = echo "  "UNIFDEF $@
-pur_disp_rm        = echo "  "CLEAN $($@)
+pur_disp_rm        = echo "  "CLEAN $(@:_clean=)
 
 sil_disp_compile.c = true
 sil_disp_compile.i = true
@@ -129,7 +129,7 @@ ver_disp_ln        =
 ver_disp_mkdir     =
 ver_disp_gen       =
 ver_disp_unifdef   = echo $(cmd_unifdef)
-ver_disp_rm        = echo $(cmd_rm)
+ver_disp_rm        =
 
 disp_compile.c = $($(DISP)_disp_compile.c)
 disp_compile.i = $($(DISP)_disp_compile.i)
@@ -201,10 +201,10 @@ define do_ln
 endef
 
 
-#define RM
-#	@$(disp_rm)
-#	$(RM_COMMAND)
-#endef
+define do_rm
+	@$(disp_rm)
+	$(Q)$(RM)
+endef
 
 compile.c = @$(call maybe_exec,compile.c)
 compile.i =  $(call maybe_exec,compile.i)

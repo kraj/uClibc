@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -471,14 +471,8 @@ defconfig: extra/config/conf
 	$(Q)./extra/config/conf -d extra/Configs/Config.in \
 		-D extra/Configs/defconfigs/$(ARCH)
 
-clean:
-	$(Q)$(RM) -r lib include/bits
-	$(RM) ldso/*/*.a libpthread/*/*.a libc/*.a libcrypt/*.a libintl/*.a \
-		libm/*.a libnsl/*.a libpthread/*.a libresolv/*.a librt/*.a \
-		libutil/*.a lib/*.a \
-		include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
-	+$(MAKE) -s -C test clean
-	+$(MAKE) -C utils utils_clean
+include_clean:
+	$(Q)$(RM) include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
 	@set -e; \
 	for i in `(cd libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \
@@ -488,9 +482,14 @@ clean:
 			$(RM) include/sys/$$i; \
 		done; \
 	fi
+
+clean: include_clean
+	$(Q)$(RM) -r lib include/bits
+	@$(MAKE) -C utils utils_clean
+	+$(MAKE) -s -C test clean
 	@$(RM) include/linux include/asm*
-	$(RM) $(top_builddir)extra/scripts/unifdef
-	$(RM) -r $(LOCAL_INSTALL_PATH)
+	$(Q)$(RM) $(top_builddir)extra/scripts/unifdef
+	$(Q)$(RM) -r $(LOCAL_INSTALL_PATH)
 
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ -o -name .\*.dep \) -exec $(RM) {} \;

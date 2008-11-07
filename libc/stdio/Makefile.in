@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2004 Manuel Novoa III <mjn3@uclibc.org>
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -101,7 +101,7 @@ ifeq ($(UCLIBC_HAS_WCHAR),y)
 libc-nomulti-y += $(STDIO_OUT)/vfwprintf.o $(STDIO_OUT)/vfwscanf.o
 endif
 
-objclean-y += stdio_objclean
+objclean-y += stdio_clean
 
-stdio_objclean:
-	$(RM) $(STDIO_OUT)/*.{o,os,oS}
+stdio_clean:
+	$(do_rm) $(addprefix $(STDIO_OUT)/*., o os oS)

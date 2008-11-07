@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -97,4 +97,4 @@ $(top_builddir)lib/libc.gdb: $(libc_OUT)/libc_so.a $(LINK_FLAT_CRTS)
 	$(call link-flat.so,$(@:.gdb=),$(UCLIBC_SHARED_FLAT_ID))
 
 libc_clean:
-	$(RM) $(libc_OUT)/*.{o,os,oS,a}
+	$(do_rm) $(addprefix $(libc_OUT)/*., o os oS a)
