@@ -108,6 +108,11 @@ posix_openpt (int flags)
 	    return -1;
 	}
     }
+#if !defined __UNIX98PTY_ONLY__ && defined __UCLIBC_HAS_GETPT__
+  /* If we have no ptmx then ignore flags and use the fallback.  */
+  if (_state & have_no_dev_ptmx)
+    return __bsd_getpt();
+#endif
   return -1;
 }
 libc_hidden_def(posix_openpt)
@@ -115,18 +120,12 @@ libc_hidden_def(posix_openpt)
 #undef devpts_mounted
 
 #if defined __USE_GNU && defined __UCLIBC_HAS_GETPT__
-int
-getpt (void)
+int getpt (void)
 {
-	int fd = posix_openpt(O_RDWR);
-#if !defined __UNIX98PTY_ONLY__
-	if (fd == -1)
-		fd = __bsd_getpt();
-#endif
-	return fd;
+	return posix_openpt(O_RDWR);
 }
 
-#if !defined __UNIX98PTY_ONLY__
+#if !defined __UNIX98PTY_ONLY__ && defined __UCLIBC_HAS_GETPT__
 # define PTYNAME1 "pqrstuvwxyzabcde";
 # define PTYNAME2 "0123456789abcdef";
 
