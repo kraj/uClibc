@@ -98,3 +98,6 @@ objclean-y += utils_clean
 
 utils_clean:
 	$(do_rm) $(addprefix $(utils_OUT)/, ldconfig ldd readelf iconv locale *.host)
+	# This is a hack..
+	$(Q)$(RM) $(utils_OUT)/.*.dep
+
