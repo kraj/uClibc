@@ -1182,14 +1182,16 @@ config UCLIBC_PREGENERATED_LOCALE_DATA
 	default n
 	help
 	  If you are selective and only want locale data for a few particular
-	  locales, or you enjoy pain, or you are a rabid do-it-yourself sort of
-	  person, you can turn this option off and manually walk through the
-	  mostly undocumented procedure needed to generate your own locale
-	  data.
+	  locales, you can turn this option off.
 
 	  Mere mortals will answer Y and use the default set of pregenerated
 	  locale data, which supports 169 UTF-8 locales, and 144 locales for
 	  other codesets (for the complete list see extra/locale/LOCALES).
+
+	  Note that these pregenerated locales are sensitive to your
+	  target architecture (endianess, bitcount).
+
+	  Saying N here is recommended.
 
 config UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA
 	bool "Automagically Download the Pre-generated Locale Data (if necessary)"
@@ -1199,8 +1201,8 @@ config UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA
 	  If you would like the build process to use 'wget' to automatically
 	  download the pregenerated locale data, enable this option.  Otherwise
 	  you will need to obtain the locale data yourself from:
-		http://www.uclibc.org/downloads/uClibc-locale-030818.tgz
-	  and place the uClibc-locale-030818.tgz tarball in the extra/locale/
+		http://www.uclibc.org/downloads/uClibc-locale-*.tgz
+	  and place the uClibc-locale-*.tgz tarball in the extra/locale/
 	  directory.
 
 	  Go ahead and make life easy for yourself... Answer Y.

@@ -11,7 +11,7 @@ locale_OUT := $(top_builddir)extra/locale
 # command used to download source code
 WGET := wget --passive-ftp
 
-LOCALE_DATA_FILENAME := uClibc-locale-030818.tgz
+LOCALE_DATA_FILENAME := uClibc-locale-20081111-$(ARCH_NATIVE_BIT)-$(if $(ARCH_LITTLE_ENDIAN),el,eb).tgz
 
 BUILD_CFLAGS-locale-common := \
 	-D__UCLIBC_GEN_LOCALE \
