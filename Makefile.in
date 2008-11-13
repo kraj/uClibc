@@ -159,7 +159,7 @@ include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 	@$(disp_gen)
 	$(Q)set -e; \
 	cd $(top_builddir); \
-	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null`; \
+	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null || true`; \
 	[ -z "$$tmp" ] && tmp='include/bits/sysnum.h.new'; \
 	KERNEL_HEADERS="${KERNEL_HEADERS}" top_builddir=. CC="$(CC) $(CPU_CFLAGS)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
 	if cmp include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
