@@ -222,16 +222,16 @@ int __libc_getdomainname(char *name, size_t len);
 libc_hidden_proto(__libc_getdomainname)
 
 
-#define MAX_RECURSE 5
+#define MAX_RECURSE    5
 #define REPLY_TIMEOUT 10
-#define MAX_RETRIES 3
-#define MAX_SERVERS 3
-#define MAX_SEARCH 4
+#define MAX_RETRIES    3
+#define MAX_SERVERS    3
+#define MAX_SEARCH     4
 
-#define MAX_ALIASES	5
+#define MAX_ALIASES    5
 
 /* 1:ip + 1:full + MAX_ALIASES:aliases + 1:NULL */
-#define ALIAS_DIM		(2 + MAX_ALIASES + 1)
+#define ALIAS_DIM      (2 + MAX_ALIASES + 1)
 
 #undef DEBUG
 /* #define DEBUG */
@@ -249,14 +249,6 @@ libc_hidden_proto(__libc_getdomainname)
  */
 #define ALIGN_ATTR __alignof__(double __attribute_aligned__ (sizeof(size_t)))
 #define ALIGN_BUFFER_OFFSET(buf) ((ALIGN_ATTR - ((size_t)buf % ALIGN_ATTR)) % ALIGN_ATTR)
-
-
-/* Global stuff (stuff needing to be locked to be thread safe)... */
-extern int __nameservers attribute_hidden;
-extern char * __nameserver[MAX_SERVERS] attribute_hidden;
-extern int __searchdomains attribute_hidden;
-extern char * __searchdomain[MAX_SEARCH] attribute_hidden;
-
 
 
 /* Structs */
@@ -294,6 +286,26 @@ enum etc_hosts_action {
 	GET_HOSTS_BYADDR,
 };
 
+typedef union sockaddr46_t {
+	struct sockaddr sa;
+#ifdef __UCLIBC_HAS_IPV4__
+	struct sockaddr_in sa4;
+#endif
+#ifdef __UCLIBC_HAS_IPV6__
+	struct sockaddr_in6 sa6;
+#endif
+} sockaddr46_t;
+
+
+/* Protected by __resolv_lock */
+extern int __nameservers attribute_hidden;
+extern int __searchdomains attribute_hidden;
+extern sockaddr46_t *__nameserver attribute_hidden;
+extern char **__searchdomain attribute_hidden;
+/* Arbitrary */
+#define MAXLEN_searchdomain 128
+
+
 /* function prototypes */
 extern int __get_hosts_byname_r(const char * name, int type,
 			      struct hostent * result_buf,
@@ -312,8 +324,8 @@ extern int __read_etc_hosts_r(FILE *fp, const char * name, int type,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
 			    int * h_errnop) attribute_hidden;
-extern int __dns_lookup(const char * name, int type, int nscount,
-	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a) attribute_hidden;
+extern int __dns_lookup(const char * name, int type,
+	unsigned char ** outpacket, struct resolv_answer * a) attribute_hidden;
 
 extern int __encode_dotted(const char * dotted, unsigned char * dest, int maxlen) attribute_hidden;
 extern int __decode_dotted(const unsigned char * const message, int offset,
@@ -731,16 +743,10 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 #endif
 
 #ifdef L_dnslookup
-__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
-/* Just for the record, having to lock __dns_lookup() just for these two globals
- * is pretty lame.  I think these two variables can probably be de-global-ized,
- * which should eliminate the need for doing locking here...  Needs a closer
- * look anyways. */
-static int static_ns = 0;
-/* uint16: minimizing rw data size, even if code grows a tiny bit.
- * rw data costs more. */
-static uint16_t static_id = 1;
+/* Protected by __resolv_lock */
+static int last_ns_num = 0;
+static uint16_t last_id = 1;
 
 /* On entry:
  *  a.buf(len) = auxiliary buffer for IP addresses after first one
@@ -759,15 +765,11 @@ static uint16_t static_id = 1;
  *      This is a malloced string. May be NULL because strdup failed.
  */
 int attribute_hidden __dns_lookup(const char *name, int type,
-			int nscount, char **nsip,
 			unsigned char **outpacket,
 			struct resolv_answer *a)
-//FIXME: nscount/nsip are *always* taken from __nameservers and __nameserver[]
-//globals. Locking is busted: __nameserver[] can be freed under us.
-//Fix it by eliminating these params and accessing __nameserver(s)
-//only under lock inside this routine.
 {
 	int i, j, len, fd, pos, rc;
+	int name_len;
 #ifdef USE_SELECT
 	struct timeval tv;
 	fd_set fds;
@@ -780,119 +782,127 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 	bool first_answer = 1;
 	unsigned retries = 0;
 	unsigned char *packet = malloc(PACKETSZ);
-	char *dns, *lookup = malloc(MAXDNAME);
-	int variant = -1;  /* search domain to append, -1 - none */
-	int local_ns = -1, local_id = -1;
+	char *lookup;
+	int variant = -1;  /* search domain to append, -1: none */
+	int local_ns_num = -1; /* Nth server to use */
+	int local_id = local_id; /* for compiler */
+	int sdomains;
 	bool ends_with_dot;
-	union {
-		struct sockaddr sa;
-#ifdef __UCLIBC_HAS_IPV4__
-		struct sockaddr_in sa4;
-#endif
-#ifdef __UCLIBC_HAS_IPV6__
-		struct sockaddr_in6 sa6;
-#endif
-	} sa;
+	sockaddr46_t sa;
 
 	fd = -1;
-
-	if (!packet || !lookup || !nscount || !name[0])
+	lookup = NULL;
+	name_len = strlen(name);
+	if ((unsigned)name_len >= MAXDNAME - MAXLEN_searchdomain - 2)
+		goto fail; /* paranoia */
+	lookup = malloc(name_len + 1/*for '.'*/ + MAXLEN_searchdomain + 1);
+	if (!packet || !lookup || !name[0])
 		goto fail;
-
+	ends_with_dot = (name[name_len - 1] == '.');
 	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
 
-	ends_with_dot = (name[strlen(name) - 1] == '.');
-
-	/* Mess with globals while under lock */
-	__UCLIBC_MUTEX_LOCK(mylock);
-	local_ns = static_ns % nscount;
-	local_id = static_id;
-	__UCLIBC_MUTEX_UNLOCK(mylock);
-
 	while (retries < MAX_RETRIES) {
-		if (fd != -1)
+		if (fd != -1) {
 			close(fd);
+			fd = -1;
+		}
+
+		/* no strcpy! paranoia, user might change name[] under us */
+		memcpy(lookup, name, name_len);
+		lookup[name_len] = '\0';
+
+		/* Mess with globals while under lock */
+		/* NB: even data *pointed to* by globals may vanish
+		 * outside the locks. We should assume any and all
+		 * globals can completely change between locked
+		 * code regions. OTOH, this is rare, so we don't need
+		 * to handle it "nicely" (do not skip servers,
+		 * search domains, etc), we only need to ensure
+		 * we do not SEGV, use freed+overwritten data
+		 * or do other Really Bad Things. */
+		__UCLIBC_MUTEX_LOCK(__resolv_lock);
+		__open_nameservers();
+		sdomains = __searchdomains;
+		if ((unsigned)variant < sdomains) {
+			/* lookup is name_len + 1 + MAXLEN_searchdomain + 1 long */
+			/* __searchdomain[] is not bigger than MAXLEN_searchdomain */
+			lookup[name_len] = '.';
+			strcpy(&lookup[name_len + 1], __searchdomain[variant]);
+		}
+		if (local_ns_num < 0) { /* first time */
+			local_id = last_id;
+//TODO: implement /etc/resolv.conf's "options rotate"
+// (a.k.a. RES_ROTATE bit in _res.options)
+//			local_ns_num = 0;
+//			if (_res.options & RES_ROTATE)
+				local_ns_num = last_ns_num;
+			if (local_ns_num >= __nameservers)
+				local_ns_num = 0;
+		}
+		/* __nameservers == 0 case: act as if we
+		 * have one DNS server configured - on 127.0.0.1 */
+		{
+			int my_nameservers = __nameservers;
+			if (my_nameservers == 0)
+				my_nameservers++;
+			if (local_ns_num >= my_nameservers) {
+				local_ns_num = 0;
+				retries++;
+				/* break if retries >= MAX_RETRIES - *after unlock*! */
+			}
+		}
+		local_id++;
+		local_id &= 0xffff;
+		/* write new values back while still under lock */
+		last_id = local_id;
+		last_ns_num = local_ns_num;
+		if (__nameservers != 0) {
+			/* struct copy */
+			/* can't just take a pointer, __nameserver[]
+			 * is not safe to use outside of locks */
+			sa = __nameserver[local_ns_num];
+		} else {
+			memset(&sa, 0, sizeof(sa));
+#ifdef __UCLIBC_HAS_IPV4__
+			sa.sa4.sin_family = AF_INET;
+			/*sa.sa4.sin_addr = INADDR_ANY; - done by memset */
+			sa.sa4.sin_port = htons(NAMESERVER_PORT);
+#else
+			sa.sa6.sin_family = AF_INET6;
+			sa.sa6.sin6_port = htons(NAMESERVER_PORT);
+#endif
+		}
+		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+		if (retries >= MAX_RETRIES)
+			break;
 
 		memset(packet, 0, PACKETSZ);
-
 		memset(&h, 0, sizeof(h));
 
-		++local_id;
-		local_id &= 0xffff;
+		/* encode header */
 		h.id = local_id;
 		h.qdcount = 1;
 		h.rd = 1;
-
 		DPRINTF("encoding header\n", h.rd);
-
 		i = __encode_header(&h, packet, PACKETSZ);
 		if (i < 0)
 			goto fail;
 
-		strncpy(lookup, name, MAXDNAME);
-		__UCLIBC_MUTEX_LOCK(__resolv_lock);
-		/* nsip is really __nameserver[] which is a global that
-		   needs to hold __resolv_lock before access!! */
-		dns = nsip[local_ns];
-/* TODO: all future accesses to 'dns' were guarded by __resolv_lock too.
- * Why? We already fetched nsip[local_ns] here,
- * future changes to nsip[] by other threads cannot affect us.
- * We can use 'dns' without locking. If I'm wrong,
- * please explain in comments why locking is needed.
- * One thing that worries me is - what if __close_nameservers() free()s
- * dns under us? __resolv_lock'ing around accesses to dns won't help either,
- * as free() might occur between accesses!
- */
-		if (variant >= 0) {
-			if (variant < __searchdomains) {
-				strncat(lookup, ".", MAXDNAME);
-				strncat(lookup, __searchdomain[variant], MAXDNAME);
-			}
-		}
-		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-
+		/* encode question */
 		DPRINTF("lookup name: %s\n", lookup);
 		q.dotted = lookup;
 		q.qtype = type;
 		q.qclass = C_IN; /* CLASS_IN */
-
 		j = __encode_question(&q, packet+i, PACKETSZ-i);
 		if (j < 0)
 			goto fail;
-
 		len = i + j;
 
-		DPRINTF("On try %d, sending query to port %d of machine %s\n",
-				retries+1, NAMESERVER_PORT, dns);
-
-		sa.sa.sa_family = AF_INET;
-#ifdef __UCLIBC_HAS_IPV6__
-		//__UCLIBC_MUTEX_LOCK(__resolv_lock);
-		///* 'dns' is really __nameserver[] which is a global that
-		//   needs to hold __resolv_lock before access!! */
-		if (inet_pton(AF_INET6, dns, &sa.sa6.sin6_addr) > 0)
-			sa.sa.sa_family = AF_INET6;
-		//__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-#endif
-		/* Connect to the UDP socket so that asyncronous errors are returned */
-#ifdef __UCLIBC_HAS_IPV6__
-		if (sa.sa.sa_family == AF_INET6) {
-			sa.sa6.sin6_port = htons(NAMESERVER_PORT);
-			/* sa6.sin6_addr is already here */
-		} else
-#endif
-#ifdef __UCLIBC_HAS_IPV4__
-		{
-			sa.sa4.sin_port = htons(NAMESERVER_PORT);
-			//__UCLIBC_MUTEX_LOCK(__resolv_lock);
-			///* 'dns' is really __nameserver[] which is a global that
-			//   needs to hold __resolv_lock before access!! */
-			sa.sa4.sin_addr.s_addr = inet_addr(dns);
-			//__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-		}
-#endif
+		/* send packet */
+		DPRINTF("On try %d, sending query to port %d\n",
+				retries+1, NAMESERVER_PORT);
 		fd = socket(sa.sa.sa_family, SOCK_DGRAM, IPPROTO_UDP);
-		if (fd < 0) {
+		if (fd < 0) { /* paranoia */
 			retries++;
 			continue;
 		}
@@ -900,16 +910,13 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		if (rc < 0) {
 			if (errno == ENETUNREACH) {
 				/* routing error, presume not transient */
-				goto tryall;
+				goto try_next_server;
 			}
 			/* retry */
 			retries++;
 			continue;
 		}
-
-		DPRINTF("Transmitting packet of length %d, id=%d, qr=%d\n",
-				len, h.id, h.qr);
-
+		DPRINTF("Xmit packet len:%d id:%d qr:%d\n", len, h.id, h.qr);
 		send(fd, packet, len, 0);
 
 #ifdef USE_SELECT
@@ -919,34 +926,35 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		tv.tv_usec = 0;
 		if (select(fd + 1, &fds, NULL, NULL, &tv) <= 0) {
 			DPRINTF("Timeout\n");
-			/* timed out, so retry send and receive,
-			 * to next nameserver on queue */
-			goto tryall;
+			/* timed out, so retry send and receive
+			 * to next nameserver */
+			goto try_next_server;
 		}
 #else
 		fds.fd = fd;
 		fds.events = POLLIN;
 		if (poll(&fds, 1, REPLY_TIMEOUT * 1000) <= 0) {
 			DPRINTF("Timeout\n");
-			/* timed out, so retry send and receive,
-			 * to next nameserver on queue */
-			goto tryall;
+			/* timed out, so retry send and receive
+			 * to next nameserver */
+			goto try_next_server;
 		}
 #endif
-
+//TODO: MSG_DONTWAIT?
 		len = recv(fd, packet, PACKETSZ, 0);
 		if (len < HFIXEDSZ) {
 			/* too short! */
-			goto again;
+//TODO: why next sdomain? it's just a bogus packet from somewhere,
+// we can as well wait more...
+			goto try_next_sdomain;
 		}
 
 		__decode_header(packet, &h);
-
 		DPRINTF("id = %d, qr = %d\n", h.id, h.qr);
-
 		if ((h.id != local_id) || (!h.qr)) {
 			/* unsolicited */
-			goto again;
+//TODO: why next sdomain?...
+			goto try_next_sdomain;
 		}
 
 		DPRINTF("Got response (i think)!\n");
@@ -960,12 +968,9 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 // which is, eh, an error. :) We were incurring long delays because of this.
 			/* if possible, try next search domain */
 			if (!ends_with_dot) {
-				int sdomains;
-				__UCLIBC_MUTEX_LOCK(__resolv_lock);
-				sdomains = __searchdomains;
-				__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+				DPRINTF("variant:%d sdomains:%d\n", variant, sdomains);
 				if (variant < sdomains - 1) {
-					/* next search */
+					/* next search domain */
 					variant++;
 					continue;
 				}
@@ -975,21 +980,20 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			goto fail1;
 		}
 		if (h.rcode != 0) /* error */
-			goto again;
+			goto try_next_sdomain;
 		/* code below won't work correctly with h.ancount == 0, so... */
-		if (h.ancount < 1) {
+		if (h.ancount <= 0) {
 			h_errno = NO_DATA; /* is this correct code? */
 			goto fail1;
 		}
 
 		pos = HFIXEDSZ;
-
 		for (j = 0; j < h.qdcount; j++) {
 			DPRINTF("Skipping question %d at %d\n", j, pos);
 			/* returns -1 only if packet == NULL (can't happen) */
 			i = __length_question(packet, pos);
 			//if (i < 0)
-			//	goto again;
+			//	goto try_next_sdomain;
 			DPRINTF("Length of question %d is %d\n", j, i);
 			pos += i;
 		}
@@ -1001,10 +1005,10 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			if (i < 0) {
 				DPRINTF("failed decode %d\n", i);
 				/* if the message was truncated and we have
-				   decoded some answers, pretend it's OK */
+				 * decoded some answers, pretend it's OK */
 				if (j && h.tc)
 					break;
-				goto again;
+				goto try_next_sdomain;
 			}
 			pos += i;
 
@@ -1032,7 +1036,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 					free(a->dotted);
 					DPRINTF("Answer address len(%u) differs from original(%u)\n",
 							ma.rdlength, a->rdlength);
-					goto again;
+					goto try_next_sdomain;
 				}
 				memcpy(a->buf + (a->add_count * ma.rdlength), ma.rdata, ma.rdlength);
 				++a->add_count;
@@ -1041,52 +1045,29 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 
 		DPRINTF("Answer name = |%s|\n", a->dotted);
 		DPRINTF("Answer type = |%d|\n", a->atype);
-
-		close(fd);
-
+		if (fd != -1)
+			close(fd);
 		if (outpacket)
 			*outpacket = packet;
 		else
 			free(packet);
 		free(lookup);
+		return len; /* success! */
 
-		/* Mess with globals while under lock */
-		__UCLIBC_MUTEX_LOCK(mylock);
-		static_ns = local_ns;
-		static_id = local_id;
-		__UCLIBC_MUTEX_UNLOCK(mylock);
-
-		return len;				/* success! */
-
- tryall:
-		/* if there are other nameservers, give them a go,
-		   otherwise return with error */
-		variant = -1;
-		local_ns = (local_ns + 1) % nscount;
-		if (local_ns == 0)
-			retries++;
-
-		continue;
-
- again:
-		/* if there are searchdomains, try them or fallback as passed */
+ try_next_sdomain:
+		/* if there are searchdomains, try them */
 		if (!ends_with_dot) {
-			int sdomains;
-			__UCLIBC_MUTEX_LOCK(__resolv_lock);
-			sdomains = __searchdomains;
-			__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 			if (variant < sdomains - 1) {
 				/* next search */
 				variant++;
 				continue;
 			}
 		}
-		/* next server, first search */
-		local_ns = (local_ns + 1) % nscount;
-		if (local_ns == 0)
-			retries++;
+ try_next_server:
+		/* if there are other nameservers, try them */
+		local_ns_num++;
 		variant = -1;
-	}
+	} /* while (retries < MAX_RETRIES) */
 
  fail:
 	h_errno = NETDB_INTERNAL;
@@ -1095,115 +1076,160 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		close(fd);
 	free(lookup);
 	free(packet);
-	/* Mess with globals while under lock */
-	if (local_ns != -1) {
-		__UCLIBC_MUTEX_LOCK(mylock);
-		static_ns = local_ns;
-		static_id = local_id;
-		__UCLIBC_MUTEX_UNLOCK(mylock);
-	}
 	return -1;
 }
 #endif
 
 #ifdef L_opennameservers
 
-/* We use __resolv_lock to guard access to the
- * '__nameservers' and __searchdomains globals */
-int __nameservers;
-char * __nameserver[MAX_SERVERS];
-int __searchdomains;
-char * __searchdomain[MAX_SEARCH];
-
+//TODO: need not be recursive
 __UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
-/*
- *	we currently read formats not quite the same as that on normal
- *	unix systems, we can have a list of nameservers after the keyword.
- */
+/* Protected by __resolv_lock */
+int __nameservers;
+int __searchdomains;
+sockaddr46_t *__nameserver;
+char **__searchdomain;
 
+/* Helpers. Both stop on EOL, if it's '\n', it is converted to NUL first */
+static char *skip_nospace(char *p)
+{
+	while (*p != '\0' && !isspace(*p)) {
+		if (*p == '\n') {
+			*p = '\0';
+			break;
+		}
+		p++;
+	}
+	return p;
+}
+static char *skip_and_NUL_space(char *p)
+{
+	/* NB: '\n' is not isspace! */
+	while (1) {
+		char c = *p;
+		if (c == '\0' || !isspace(c))
+			break;
+		*p = '\0';
+		if (c == '\n' || c == '#')
+			break;
+		p++;
+	}
+	return p;
+}
+
+/* Must be called under __resolv_lock. */
 void attribute_hidden __open_nameservers(void)
 {
+	char szBuffer[MAXLEN_searchdomain];
 	FILE *fp;
 	int i;
-#define RESOLV_ARGS 5
-	char szBuffer[128], *p, *argv[RESOLV_ARGS];
-	int argc;
+	sockaddr46_t sa;
 
-	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	if (__nameservers > 0)
-		goto DONE;
+		return;
 
-	if ((fp = fopen("/etc/resolv.conf", "r")) ||
-		(fp = fopen("/etc/config/resolv.conf", "r")))
-	{
-		while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
-			for (p = szBuffer; *p && isspace(*p); p++)
-				/* skip white space */;
-			if (*p == '\0' || *p == '\n' || *p == '#') /* skip comments etc */
-				continue;
-			argc = 0;
-			while (*p && argc < RESOLV_ARGS) {
-				argv[argc++] = p;
-				while (*p && !isspace(*p) && *p != '\n')
-					p++;
-				while (*p && (isspace(*p) || *p == '\n')) /* remove spaces */
-					*p++ = '\0';
-			}
-
-			if (strcmp(argv[0], "nameserver") == 0) {
-				for (i = 1; i < argc && __nameservers < MAX_SERVERS; i++) {
-// TODO: what if strdup fails?
-					__nameserver[__nameservers++] = strdup(argv[i]);
-					DPRINTF("adding nameserver %s\n", argv[i]);
-				}
-			}
-
-			/* domain and search are mutually exclusive, the last one wins */
-			if (strcmp(argv[0],"domain") == 0 || strcmp(argv[0],"search") == 0) {
-				while (__searchdomains > 0) {
-					free(__searchdomain[--__searchdomains]);
-					__searchdomain[__searchdomains] = NULL;
-				}
-				for (i = 1; i < argc && __searchdomains < MAX_SEARCH; i++) {
-// TODO: what if strdup fails?
-					__searchdomain[__searchdomains++] = strdup(argv[i]);
-					DPRINTF("adding search %s\n", argv[i]);
-				}
-			}
+	fp = fopen("/etc/resolv.conf", "r");
+	if (!fp) {
+		fp = fopen("/etc/config/resolv.conf", "r");
+		if (!fp) {
+			DPRINTF("failed to open %s\n", "resolv.conf");
+			h_errno = NO_RECOVERY;
+			return;
 		}
-		fclose(fp);
-		DPRINTF("nameservers = %d\n", __nameservers);
-		goto DONE;
 	}
-	DPRINTF("failed to open %s\n", "resolv.conf");
-	h_errno = NO_RECOVERY;
 
-	/* rv = -1; */
+	while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
+		void *ptr;
+		char *keyword, *p;
 
- DONE:
-	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-	/* return rv; */
+		keyword = p = skip_and_NUL_space(szBuffer);
+		/* skip keyword */
+		p = skip_nospace(p);
+		/* find next word */
+		p = skip_and_NUL_space(p);
+
+		if (strcmp(keyword, "nameserver") == 0) {
+			/* terminate IP addr */
+			*skip_nospace(p) = '\0';
+			memset(&sa, 0, sizeof(sa));
+			if (0) /* nothing */;
+#ifdef __UCLIBC_HAS_IPV6__
+			else if (inet_pton(AF_INET6, p, &sa.sa6.sin6_addr) > 0) {
+				sa.sa6.sin6_family = AF_INET6;
+				sa.sa6.sin6_port = htons(NAMESERVER_PORT);
+			}
+#endif
+#ifdef __UCLIBC_HAS_IPV4__
+			else if (inet_pton(AF_INET, p, &sa.sa4.sin_addr) > 0) {
+				sa.sa4.sin_family = AF_INET;
+				sa.sa4.sin_port = htons(NAMESERVER_PORT);
+			}
+#endif
+			else
+				continue; /* garbage on this line */
+			ptr = realloc(__nameserver, (__nameservers + 1) * sizeof(__nameserver[0]));
+			if (!ptr)
+				continue;
+			__nameserver = ptr;
+			__nameserver[__nameservers++] = sa; /* struct copy */
+			continue;
+		}
+		if (strcmp(keyword, "domain") == 0 || strcmp(keyword, "search") == 0) {
+			char *p1;
+ next_word:
+			/* terminate current word */
+			p1 = skip_nospace(p);
+			/* find next word (maybe) */
+			p1 = skip_and_NUL_space(p1);
+			/* paranoia - done by having szBuffer[MAXLEN_searchdomain] */
+			/*if (strlen(p) > MAXLEN_searchdomain)*/
+			/*	goto skip;*/
+			/* do we have this domain already? */
+			for (i = 0; i < __searchdomains; i++)
+				if (strcmp(p, __searchdomain[i]) == 0)
+					goto skip;
+			/* add it */
+			ptr = realloc(__searchdomain, (__searchdomains + 1) * sizeof(__searchdomain[0]));
+			if (!ptr)
+				continue;
+			__searchdomain = ptr;
+			ptr = strdup(p);
+			if (!ptr)
+				continue;
+			DPRINTF("adding search %s\n", (char*)ptr);
+			__searchdomain[__searchdomains++] = (char*)ptr;
+ skip:
+			p = p1;
+			if (*p)
+				goto next_word;
+			continue;
+		}
+		/* if (strcmp(keyword, "sortlist") == 0)... */
+		/* if (strcmp(keyword, "options") == 0)... */
+	}
+	fclose(fp);
+	DPRINTF("nameservers = %d\n", __nameservers);
 }
 #endif
 
 
 #ifdef L_closenameservers
 
+/* Must be called under __resolv_lock. */
 void attribute_hidden __close_nameservers(void)
 {
-	__UCLIBC_MUTEX_LOCK(__resolv_lock);
-	while (__nameservers > 0) {
-		free(__nameserver[--__nameservers]);
-		__nameserver[__nameservers] = NULL;
-	}
-	while (__searchdomains > 0) {
+	free(__nameserver);
+	__nameserver = NULL;
+	__nameservers = 0;
+	while (__searchdomains)
 		free(__searchdomain[--__searchdomains]);
-		__searchdomain[__searchdomains] = NULL;
-	}
-	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+	free(__searchdomain);
+	__searchdomain = NULL;
+	/*__searchdomains = 0; - already is */
 }
 #endif
+
 
 #ifdef L_gethostbyname
 
@@ -1221,6 +1247,7 @@ struct hostent *gethostbyname(const char *name)
 }
 libc_hidden_def(gethostbyname)
 #endif
+
 
 #ifdef L_gethostbyname2
 
@@ -1240,21 +1267,24 @@ struct hostent *gethostbyname2(const char *name, int family)
 	return hp;
 #endif /* __UCLIBC_HAS_IPV6__ */
 }
+
 #endif
 
 
-
 #ifdef L_res_init
+
 /* We use __resolv_lock to guard access to global '_res' */
 struct __res_state _res;
 
 int res_init(void)
 {
+	int i, n;
 	struct __res_state *rp = &(_res);
 
-	__UCLIBC_MUTEX_LOCK(__resolv_lock);	/* must be a recursive lock! */
+	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	__close_nameservers();
 	__open_nameservers();
+
 	memset(rp, 0, sizeof(*rp));
 	rp->options = RES_INIT;
 #ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
@@ -1276,26 +1306,28 @@ int res_init(void)
 	rp->_vcsock = -1;
 #endif
 
-	if (__searchdomains) {
-		int i;
-		for (i = 0; i < __searchdomains; i++)
-			rp->dnsrch[i] = __searchdomain[i];
+#undef ARRAY_SIZE
+#define ARRAY_SIZE(v) (sizeof(v) / sizeof((v)[0]))
+	n = __searchdomains;
+	if (n > ARRAY_SIZE(rp->dnsrch))
+		n = ARRAY_SIZE(rp->dnsrch);
+	for (i = 0; i < n; i++)
+		rp->dnsrch[i] = __searchdomain[i];
+	i = 0;
+	n = 0;
+	while (n < ARRAY_SIZE(rp->nsaddr_list) && i < __nameservers) {
+		if (__nameserver[i].sa.sa_family != AF_INET)
+			goto next_i;
+		rp->nsaddr_list[n] = __nameserver[i].sa4; /* struct copy */
+		n++;
+ next_i:
+		i++;
 	}
-
-	if (__nameservers) {
-		int i;
-		struct in_addr a;
-		for (i = 0; i < __nameservers; i++) {
-			if (inet_aton(__nameserver[i], &a)) {
-				rp->nsaddr_list[i].sin_addr = a;
-				rp->nsaddr_list[i].sin_family = AF_INET;
-				rp->nsaddr_list[i].sin_port = htons(NAMESERVER_PORT);
-			}
-		}
-		rp->nscount = __nameservers;
-	}
+	if (n)
+		rp->nscount = n;
+	/* else stays 1 */
+#undef ARRAY_SIZE
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-
 	return 0;
 }
 libc_hidden_def(res_init)
@@ -1303,8 +1335,10 @@ libc_hidden_def(res_init)
 #ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
 void res_close(void)
 {
+	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	__close_nameservers();
 	memset(&_res, 0, sizeof(_res));
+	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 }
 #endif
 
@@ -1323,8 +1357,6 @@ int res_query(const char *dname, int class, int type,
 	int i;
 	unsigned char * packet = NULL;
 	struct resolv_answer a;
-	int __nameserversXX;
-	char ** __nameserverXX;
 
 	if (!dname || class != 1 /* CLASS_IN */) {
 		h_errno = NO_RECOVERY;
@@ -1332,13 +1364,7 @@ int res_query(const char *dname, int class, int type,
 	}
 
 	memset(&a, '\0', sizeof(a));
-	__open_nameservers();
-
-	__UCLIBC_MUTEX_LOCK(__resolv_lock);
-	__nameserversXX = __nameservers;
-	__nameserverXX = __nameserver;
-	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-	i = __dns_lookup(dname, type, __nameserversXX, __nameserverXX, &packet, &a);
+	i = __dns_lookup(dname, type, &packet, &a);
 
 	if (i < 0) {
 		h_errno = TRY_AGAIN;
@@ -1381,6 +1407,8 @@ int res_search(const char *name, int class, int type, u_char *answer,
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	_res_options = _res.options;
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+//FIXME: locking is bogus
+//FIXME: our res_init never fails
 	if ((!name || !answer) || ((_res_options & RES_INIT) == 0 && res_init() == -1)) {
 		h_errno = NETDB_INTERNAL;
 		return -1;
@@ -1528,6 +1556,8 @@ int res_querydomain(const char *name, const char *domain, int class, int type,
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	_res_options = _res.options;
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+//FIXME: locking is bogus
+//FIXME: our res_init never fails
 	if ((!name || !answer) || ((_res_options & RES_INIT) == 0 && res_init() == -1)) {
 		h_errno = NETDB_INTERNAL;
 		return -1;
@@ -2214,20 +2244,13 @@ int gethostbyname_r(const char * name,
 	}
 
 	/* talk to DNS servers */
-	__open_nameservers();
 	{
-		int __nameserversXX;
-		char ** __nameserverXX;
-		__UCLIBC_MUTEX_LOCK(__resolv_lock);
-		__nameserversXX = __nameservers;
-		__nameserverXX = __nameserver;
-		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 		a.buf = buf;
 		/* take into account that at least one address will be there,
 		 * we'll need space of one in_addr + two addr_list[] elems */
 		a.buflen = buflen - ((sizeof(addr_list[0]) * 2 + sizeof(struct in_addr)));
 		a.add_count = 0;
-		i = __dns_lookup(name, T_A, __nameserversXX, __nameserverXX, &packet, &a);
+		i = __dns_lookup(name, T_A, &packet, &a);
 		if (i < 0) {
 			*h_errnop = HOST_NOT_FOUND;
 			DPRINTF("__dns_lookup returned < 0\n");
@@ -2319,8 +2342,6 @@ int gethostbyname2_r(const char *name, int family,
 	struct resolv_answer a;
 	int i;
 	int nest = 0;
-	int __nameserversXX;
-	char ** __nameserverXX;
 	int wrong_af = 0;
 
 	if (family == AF_INET)
@@ -2329,7 +2350,6 @@ int gethostbyname2_r(const char *name, int family,
 	if (family != AF_INET6)
 		return EINVAL;
 
-	__open_nameservers();
 	*result = NULL;
 	if (!name)
 		return EINVAL;
@@ -2405,12 +2425,7 @@ int gethostbyname2_r(const char *name, int family,
 	memset(&a, '\0', sizeof(a));
 
 	for (;;) {
-		__UCLIBC_MUTEX_LOCK(__resolv_lock);
-		__nameserversXX = __nameservers;
-		__nameserverXX = __nameserver;
-		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-
-		i = __dns_lookup(buf, T_AAAA, __nameserversXX, __nameserverXX, &packet, &a);
+		i = __dns_lookup(buf, T_AAAA, &packet, &a);
 
 		if (i < 0) {
 			*h_errnop = HOST_NOT_FOUND;
@@ -2478,8 +2493,6 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 	struct resolv_answer a;
 	int i;
 	int nest = 0;
-	int __nameserversXX;
-	char ** __nameserverXX;
 
 	*result = NULL;
 	if (!addr)
@@ -2513,8 +2526,6 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 		default:
 			return i;
 	}
-
-	__open_nameservers();
 
 #ifdef __UCLIBC_HAS_IPV6__
 	qp = buf;
@@ -2592,11 +2603,7 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 	alias[1] = 0;
 
 	for (;;) {
-		__UCLIBC_MUTEX_LOCK(__resolv_lock);
-		__nameserversXX = __nameservers;
-		__nameserverXX = __nameserver;
-		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-		i = __dns_lookup(buf, T_PTR, __nameserversXX, __nameserverXX, &packet, &a);
+		i = __dns_lookup(buf, T_PTR, &packet, &a);
 
 		if (i < 0) {
 			*h_errnop = HOST_NOT_FOUND;
