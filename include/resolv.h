@@ -101,53 +101,64 @@ typedef res_sendhookact (*res_send_rhook) (const struct sockaddr_in *ns,
 # define RES_DFLRETRY		2	/* Default #/tries. */
 # define RES_MAXTIME		65535	/* Infinity, in milliseconds. */
 
+/* _res (an instance of this structure) uses 0.5kb in bss
+ * in "ordinary" libc's (glibc, xBSD). We want to be less wasteful.
+ * We (1) shuffle and shrink some integer fields,
+ * and (2) can switch off stuff we don't support.
+ * Everything inside __UCLIBC_HAS_COMPAT_RES_STATE__
+ * is not actually used by uclibc and can be configured off.
+ * However, this will prevent some programs from building.
+ * Really obscure stuff with no observed users in the wild is under
+ * __UCLIBC_HAS_EXTRA_COMPAT_RES_STATE__.
+ * I guess it's safe to set that to N.
+ */
 struct __res_state {
-	int	retrans;	 	/* retransmition time interval */
+#ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
+	int	retrans;	 	/* retransmission time interval */
 	int	retry;			/* number of times to retransmit */
-	u_long	options;		/* option flags - see below. */
-	int	nscount;		/* number of name servers */
+#endif
+	u_int32_t options;		/* (was: ulong) option flags - see below. */
 	struct sockaddr_in
 		nsaddr_list[MAXNS];	/* address of name server */
-# define nsaddr	nsaddr_list[0]		/* for backward compatibility */
-	u_short	id;			/* current message id */
+#define nsaddr nsaddr_list[0]		/* for backward compatibility */
 	char	*dnsrch[MAXDNSRCH+1];	/* components of domain to search */
+#ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
+	/* googling for "_res.defdname" says it's still sometimes used.
+	 * Pity. It's huge, I want to move it to EXTRA_COMPAT... */
 	char	defdname[256];		/* default domain (deprecated) */
-	u_long	pfcode;			/* RES_PRF_ flags - see below. */
-	unsigned ndots:4;		/* threshold for initial abs. query */
-	unsigned nsort:4;		/* number of elements in sort_list[] */
-	char	unused[3];
+#endif
+	u_int8_t nscount;		/* (was: int) number of name servers */
+	u_int8_t ndots;			/* (was: unsigned:4) threshold for initial abs. query */
+#ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
+	u_int8_t nsort;			/* (was: unsigned:4) number of elements in sort_list[] */
+	u_int16_t pfcode;		/* (was: ulong) RES_PRF_ flags. Used by dig. */
+	unsigned short id;		/* current message id */
+	int	res_h_errno;		/* last one set for this context */
 	struct {
 		struct in_addr	addr;
 		u_int32_t	mask;
 	} sort_list[MAXRESOLVSORT];
-	res_send_qhook qhook;		/* query hook */
-	res_send_rhook rhook;		/* response hook */
-	int	res_h_errno;		/* last one set for this context */
-	int	_vcsock;		/* PRIVATE: for res_send VC i/o */
-	u_int	_flags;			/* PRIVATE: see below */
 	union {
-		char	pad[52];	/* On an i386 this means 512b total. */
 		struct {
 			u_int16_t		nscount;
-#if 0
-			u_int16_t		nsmap[MAXNS];
-#else
 			u_int16_t		nstimes[MAXNS]; /* ms. */
-#endif
 			int			nssocks[MAXNS];
+			/* below: not in xBSD. glibc only? */
 			u_int16_t		nscount6;
 			u_int16_t		nsinit;
 			struct sockaddr_in6	*nsaddrs[MAXNS];
-#if 0
-#ifdef _LIBC
-			unsigned long long int	initstamp
-			  __attribute__((packed));
-#else
-			unsigned int		_initstamp[2];
-#endif
-#endif
 		} _ext;
 	} _u;
+#endif
+#ifdef __UCLIBC_HAS_EXTRA_COMPAT_RES_STATE__
+	/* Truly obscure stuff.
+	 * Googling for "_res.XXX" for these members
+	 * turned up basically empty */
+	res_send_qhook qhook;		/* query hook */
+	res_send_rhook rhook;		/* response hook */
+	int	_vcsock;		/* PRIVATE: for res_send VC i/o */
+	unsigned _flags;		/* PRIVATE: see below */
+#endif
 };
 
 typedef struct __res_state *res_state;
@@ -196,6 +207,7 @@ struct res_sym {
 
 /*
  * Resolver options (keep these in synch with res_debug.c, please)
+ * (which of these do we really implement??)
  */
 #define RES_INIT	0x00000001	/* address initialized */
 #define RES_DEBUG	0x00000002	/* print debug messages */

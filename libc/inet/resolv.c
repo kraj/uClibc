@@ -1255,20 +1255,26 @@ int res_init(void)
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);	/* must be a recursive lock! */
 	__close_nameservers();
 	__open_nameservers();
+	memset(rp, 0, sizeof(*rp));
+	rp->options = RES_INIT;
+#ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
 	rp->retrans = RES_TIMEOUT;
 	rp->retry = 4;
-	rp->options = RES_INIT;
-	rp->id = (u_int) random();
-	rp->nsaddr.sin_addr.s_addr = INADDR_ANY;
-	rp->nsaddr.sin_family = AF_INET;
-	rp->nsaddr.sin_port = htons(NAMESERVER_PORT);
+	rp->id = random();
+#endif
+	/* man resolv.conf says:
+	 * "On a normally configured system this file should not be necessary.
+	 * The only name server to be queried will be on the local machine;
+	 * the domain name is determined from the host name
+	 * and the domain search path is constructed from the domain name" */
+	rp->nscount = 1;
+	rp->nsaddr_list[0].sin_addr.s_addr = INADDR_ANY;
+	rp->nsaddr_list[0].sin_family = AF_INET;
+	rp->nsaddr_list[0].sin_port = htons(NAMESERVER_PORT);
 	rp->ndots = 1;
-	/** rp->pfcode = 0; **/
+#ifdef __UCLIBC_HAS_EXTRA_COMPAT_RES_STATE__
 	rp->_vcsock = -1;
-	/** rp->_flags = 0; **/
-	/** rp->qhook = NULL; **/
-	/** rp->rhook = NULL; **/
-	/** rp->_u._ext.nsinit = 0; **/
+#endif
 
 	if (__searchdomains) {
 		int i;
@@ -1286,8 +1292,8 @@ int res_init(void)
 				rp->nsaddr_list[i].sin_port = htons(NAMESERVER_PORT);
 			}
 		}
+		rp->nscount = __nameservers;
 	}
-	rp->nscount = __nameservers;
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 
 	return 0;

@@ -772,7 +772,7 @@ config UCLIBC_HAS_OBSOLETE_BSD_SIGNAL
 	bool "BSD obsolete signal functions"
 	default n
 	help
-	  These  functions are provided as a compatibility interface for
+	  These functions are provided as a compatibility interface for
 	  programs that make use of the historical System V signal API.
 	  This API is obsolete:
 	  new applications should use the POSIX signal API (sigaction(2),
@@ -1065,6 +1065,23 @@ config UCLIBC_HAS_BSD_RES_CLOSE
 	  the network code.
 
 	  Most people will say N.
+
+config UCLIBC_HAS_COMPAT_RES_STATE
+	bool "Use compatible but bloated _res"
+	default y
+	help
+	  Answer Y if you build network utilities and they muck with resolver
+	  internals a lot (_res global structure). uclibc does not use most
+	  of _res.XXX fields, and with this option OFF they won't even exist.
+	  Which will make e.g. dig build fail.
+	  Answering N saves around 400 bytes in bss.
+
+config UCLIBC_HAS_EXTRA_COMPAT_RES_STATE
+	bool "Use extra compatible but extra bloated _res"
+	default n
+	help
+	  Answer Y if selecting UCLIBC_HAS_COMPAT_RES_STATE is not enough.
+	  As far as I can say, this should never be needed.
 
 endif
 
