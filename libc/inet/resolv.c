@@ -762,6 +762,10 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			int nscount, char **nsip,
 			unsigned char **outpacket,
 			struct resolv_answer *a)
+//FIXME: nscount/nsip are *always* taken from __nameservers and __nameserver[]
+//globals. Locking is busted: __nameserver[] can be freed under us.
+//Fix it by eliminating these params and accessing __nameserver(s)
+//only under lock inside this routine.
 {
 	int i, j, len, fd, pos, rc;
 #ifdef USE_SELECT
@@ -2084,20 +2088,44 @@ libc_hidden_def(getnameinfo)
 
 #ifdef L_gethostbyname_r
 
+/* Bug 671 says:
+ * "uClibc resolver's gethostbyname does not return the requested name
+ * as an alias, but instead returns the canonical name. glibc's
+ * gethostbyname has a similar bug where it returns the requested name
+ * with the search domain name appended (to make a FQDN) as an alias,
+ * but not the original name itself. Both contradict POSIX, which says
+ * that the name argument passed to gethostbyname must be in the alias list"
+ * This is fixed now, and we differ from glibc:
+ *
+ * $ ./gethostbyname_uclibc wer.google.com
+ * h_name:'c13-ss-2-lb.cnet.com'
+ * h_length:4
+ * h_addrtype:2 AF_INET
+ * alias:'wer.google.com' <===
+ * addr: 0x4174efd8 '216.239.116.65'
+ *
+ * $ ./gethostbyname_glibc wer.google.com
+ * h_name:'c13-ss-2-lb.cnet.com'
+ * h_length:4
+ * h_addrtype:2 AF_INET
+ * alias:'wer.google.com.com' <===
+ * addr:'216.239.116.65'
+ *
+ * When examples were run, /etc/resolv.conf contained "search com" line.
+ */
 int gethostbyname_r(const char * name,
-					struct hostent * result_buf,
-					char * buf, size_t buflen,
-					struct hostent ** result,
-					int * h_errnop)
+		struct hostent * result_buf,
+		char * buf,
+		size_t buflen,
+		struct hostent ** result,
+		int * h_errnop)
 {
-	struct in_addr *in;
 	struct in_addr **addr_list;
 	char **alias;
+	char *alias0;
 	unsigned char *packet;
 	struct resolv_answer a;
 	int i;
-	int __nameserversXX;
-	char ** __nameserverXX;
 
 	*result = NULL;
 	if (!name)
@@ -2128,122 +2156,140 @@ int gethostbyname_r(const char * name,
 
 	DPRINTF("Nothing found in /etc/hosts\n");
 
-	/* make sure user char * is aligned */
-	i = ALIGN_BUFFER_OFFSET(buf);
-	if (unlikely(i)) {
-		if (buflen < i)
-			return ERANGE;
-		buf += i;
-		buflen -= i;
-	}
-
 	*h_errnop = NETDB_INTERNAL;
-	if (buflen < sizeof(*in))
-		return ERANGE;
-	in = (struct in_addr*)buf;
-	buf += sizeof(*in);
-	buflen -= sizeof(*in);
 
-	if (buflen < sizeof(*addr_list)*2)
+	/* prepare future h_aliases[0] */
+	i = strlen(name) + 1;
+	if ((ssize_t)buflen <= i)
 		return ERANGE;
-	addr_list = (struct in_addr**)buf;
-	buf += sizeof(*addr_list)*2;
-	buflen -= sizeof(*addr_list)*2;
+	strcpy(buf, name);
+	alias0 = buf;
+	buf += i;
+	buflen -= i;
 
-	addr_list[0] = in;
-	addr_list[1] = 0;
+	/* make sure pointer is aligned */
+	i = ALIGN_BUFFER_OFFSET(buf);
+	buf += i;
+	buflen -= i;
 
-	if (buflen < sizeof(char *)*ALIAS_DIM)
-		return ERANGE;
 	alias = (char **)buf;
-	buf += sizeof(char **)*ALIAS_DIM;
-	buflen -= sizeof(char **)*ALIAS_DIM;
+	buf += sizeof(alias[0]) * 2;
+	buflen -= sizeof(alias[0]) * 2;
 
-	if (buflen < 256)
+	addr_list = (struct in_addr **)buf;
+
+	/* do not use *buf or buflen before this verification! */
+	/* buflen may be < 0, must do signed compare */
+	if ((ssize_t)buflen < 256)
 		return ERANGE;
-	strncpy(buf, name, buflen);
 
-	alias[0] = buf;
+	/* we store only one "alias" - the name itself */
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO -- generate the full list
+#endif
+	alias[0] = alias0;
 	alias[1] = NULL;
 
-	/* First check if this is already an address */
-	if (inet_aton(name, in)) {
-		result_buf->h_name = buf;
-		result_buf->h_addrtype = AF_INET;
-		result_buf->h_length = sizeof(*in);
-		result_buf->h_addr_list = (char **) addr_list;
-		result_buf->h_aliases = alias;
-		*result = result_buf;
-		*h_errnop = NETDB_SUCCESS;
-		return NETDB_SUCCESS;
+	/* maybe it is already an address? */
+	{
+		struct in_addr *in = (struct in_addr *)(buf + sizeof(addr_list[0]) * 2);
+		if (inet_aton(name, in)) {
+			addr_list[0] = in;
+			addr_list[1] = NULL;
+			result_buf->h_name = alias0;
+			result_buf->h_aliases = alias;
+			result_buf->h_addrtype = AF_INET;
+			result_buf->h_length = sizeof(struct in_addr);
+			result_buf->h_addr_list = (char **) addr_list;
+			*result = result_buf;
+			*h_errnop = NETDB_SUCCESS;
+			return NETDB_SUCCESS;
+		}
 	}
 
+	/* talk to DNS servers */
 	__open_nameservers();
-
-	/*for (;;)*/ {
-//FIXME: why was it a loop? It never loops...
+	{
+		int __nameserversXX;
+		char ** __nameserverXX;
 		__UCLIBC_MUTEX_LOCK(__resolv_lock);
 		__nameserversXX = __nameservers;
 		__nameserverXX = __nameserver;
 		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 		a.buf = buf;
-		a.buflen = buflen;
+		/* take into account that at least one address will be there,
+		 * we'll need space of one in_addr + two addr_list[] elems */
+		a.buflen = buflen - ((sizeof(addr_list[0]) * 2 + sizeof(struct in_addr)));
 		a.add_count = 0;
 		i = __dns_lookup(name, T_A, __nameserversXX, __nameserverXX, &packet, &a);
-
 		if (i < 0) {
 			*h_errnop = HOST_NOT_FOUND;
-			DPRINTF("__dns_lookup\n");
+			DPRINTF("__dns_lookup returned < 0\n");
 			return TRY_AGAIN;
 		}
-
-		if ((a.rdlength + sizeof(struct in_addr*)) * a.add_count + 256 > buflen) {
-			free(a.dotted);
-			free(packet);
-			*h_errnop = NETDB_INTERNAL;
-			DPRINTF("buffer too small for all addresses\n");
-			return ERANGE;
-		}
-
-		if (a.add_count > 0) {
-			memmove(buf - sizeof(struct in_addr*)*2, buf, a.add_count * a.rdlength);
-			addr_list = (struct in_addr**)(buf + a.add_count * a.rdlength);
-			addr_list[0] = in;
-			for (i = a.add_count - 1; i >= 0; --i)
-				addr_list[i+1] = (struct in_addr*)(buf - sizeof(struct in_addr*)*2 + a.rdlength * i);
-			addr_list[a.add_count + 1] = 0;
-			buflen -= (((char*)&(addr_list[a.add_count + 2])) - buf);
-			buf = (char*)&addr_list[a.add_count + 2];
-		}
-
-		strncpy(buf, a.dotted, buflen);
-		free(a.dotted);
-
-		if (a.atype == T_A) { /* ADDRESS */
-			memcpy(in, a.rdata, sizeof(*in));
-			result_buf->h_name = buf;
-			result_buf->h_addrtype = AF_INET;
-			result_buf->h_length = sizeof(*in);
-			result_buf->h_addr_list = (char **) addr_list;
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO -- generate the full list
-#endif
-			result_buf->h_aliases = alias; /* TODO: generate the full list */
-			free(packet);
-			/*was: break;*/
-			*result = result_buf;
-			*h_errnop = NETDB_SUCCESS;
-			return NETDB_SUCCESS;
-		}
-		free(packet);
-		*h_errnop = HOST_NOT_FOUND;
-		return TRY_AGAIN;
 	}
-/*
-	*result = result_buf;
-	*h_errnop = NETDB_SUCCESS;
-	return NETDB_SUCCESS;
-*/
+
+	if (a.atype == T_A) { /* ADDRESS */
+		/* we need space for addr_list[] and one IPv4 address */
+		/* + 1 accounting for 1st addr (it's in a.rdata),
+		 * another + 1 for NULL in last addr_list[]: */
+		int need_bytes = sizeof(addr_list[0]) * (a.add_count + 1 + 1)
+				/* for 1st addr (it's in a.rdata): */
+				+ sizeof(struct in_addr);
+		/* how many bytes will 2nd and following addresses take? */
+		int ips_len = a.add_count * a.rdlength;
+
+		buflen -= (need_bytes + ips_len);
+		if ((ssize_t)buflen < 0) {
+			DPRINTF("buffer too small for all addresses\n");
+			/* *h_errnop = NETDB_INTERNAL; - already is */
+			i = ERANGE;
+			goto free_and_ret;
+		}
+
+		/* if there are additional addresses in buf,
+		 * move them forward so that they are not destroyed */
+		DPRINTF("a.add_count:%d a.rdlength:%d a.rdata:%p\n", a.add_count, a.rdlength, a.rdata);
+		memmove(buf + need_bytes, buf, ips_len);
+
+		/* 1st address is in a.rdata, insert it  */
+		buf += need_bytes - sizeof(struct in_addr);
+		memcpy(buf, a.rdata, sizeof(struct in_addr));
+
+		/* fill addr_list[] */
+		for (i = 0; i <= a.add_count; i++) {
+			addr_list[i] = (struct in_addr*)buf;
+			buf += sizeof(struct in_addr);
+		}
+		addr_list[i] = NULL;
+
+		/* if we have enough space, we can report "better" name
+		 * (it may contain search domains attached by __dns_lookup,
+		 * or CNAME of the host if it is different from the name
+		 * we used to find it) */
+		if (a.dotted && buflen > strlen(a.dotted)) {
+			strcpy(buf, a.dotted);
+			alias0 = buf;
+		}
+
+		result_buf->h_name = alias0;
+		result_buf->h_aliases = alias;
+		result_buf->h_addrtype = AF_INET;
+		result_buf->h_length = sizeof(struct in_addr);
+		result_buf->h_addr_list = (char **) addr_list;
+		*result = result_buf;
+		*h_errnop = NETDB_SUCCESS;
+		i = NETDB_SUCCESS;
+		goto free_and_ret;
+	}
+
+	*h_errnop = HOST_NOT_FOUND;
+	i = TRY_AGAIN;
+
+ free_and_ret:
+	free(a.dotted);
+	free(packet);
+	return i;
 }
 libc_hidden_def(gethostbyname_r)
 #endif
