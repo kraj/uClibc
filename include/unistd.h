@@ -869,12 +869,10 @@ extern int setdomainname (__const char *__name, size_t __len)
      __THROW __nonnull ((1)) __wur;
 #endif
 
-#if defined __UCLIBC_LINUX_SPECIFIC__
 /* Revoke access permissions to all processes currently communicating
    with the control terminal, and then send a SIGHUP signal to the process
    group of the control terminal.  */
 extern int vhangup (void) __THROW;
-#endif
 
 #if 0
 /* Revoke the access of all descriptors currently open on FILE.  */
