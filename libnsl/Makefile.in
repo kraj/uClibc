@@ -8,6 +8,11 @@
 CFLAGS-libnsl := -DNOT_IN_libc -DIS_IN_libnsl $(SSP_ALL_CFLAGS)
 
 LDFLAGS-libnsl.so := $(LDFLAGS)
+ifdef ASNEEDED
+ifeq ($(UCLIBC_HAS_SSP),y)
+LDFLAGS-libnsl.so += -Wl,--no-as-needed -lc -Wl,--as-needed
+endif
+endif
 
 LIBS-libnsl.so := $(LIBS)
 
