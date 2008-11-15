@@ -330,7 +330,7 @@ __netlink_open (struct netlink_handle *h)
    that a RTM_NEWADDR index is not known to this map.  */
 static int
 internal_function
-map_newlink (int index, struct ifaddrs_storage *ifas, int *map, int max)
+map_newlink (int idx, struct ifaddrs_storage *ifas, int *map, int max)
 {
   int i;
 
@@ -338,12 +338,12 @@ map_newlink (int index, struct ifaddrs_storage *ifas, int *map, int max)
     {
       if (map[i] == -1)
 	{
-	  map[i] = index;
+	  map[i] = idx;
 	  if (i > 0)
 	    ifas[i - 1].ifa.ifa_next = &ifas[i].ifa;
 	  return i;
 	}
-      else if (map[i] == index)
+      else if (map[i] == idx)
 	return i;
     }
   /* This should never be reached. If this will be reached, we have

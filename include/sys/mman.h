@@ -157,10 +157,12 @@ extern int mincore (void *__start, size_t __len, unsigned char *__vec)
 extern void *mremap (void *__addr, size_t __old_len, size_t __new_len,
 		     int __flags, ...) __THROW;
 
+#ifdef __UCLIBC_LINUX_SPECIFIC__
 /* Remap arbitrary pages of a shared backing store within an existing
    VMA.  */
 extern int remap_file_pages (void *__start, size_t __size, int __prot,
 			     size_t __pgoff, int __flags) __THROW;
+#endif
 #endif
 
 

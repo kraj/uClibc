@@ -315,7 +315,13 @@ ifneq ($(UCLIBC_LINUX_SPECIFIC),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/inotify.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/perm.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/personality.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/prctl.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/reboot.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/sendfile.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/fsuid.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/signalfd.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/swap.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/sysctl.h
 endif
 ifneq ($(UCLIBC_SV4_DEPRECATED),y)
 	# Remove ustat.h since deprecated SV4 support was disabled upon request

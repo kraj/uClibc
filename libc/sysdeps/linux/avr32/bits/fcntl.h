@@ -167,8 +167,8 @@ struct flock64 {
 # define POSIX_FADV_NOREUSE     5 /* Data will be accessed once.  */
 #endif
 
-#ifdef __USE_GNU
 
+#if defined __USE_GNU && defined __UCLIBC_LINUX_SPECIFIC__
 /* Flags for SYNC_FILE_RANGE.  */
 # define SYNC_FILE_RANGE_WAIT_BEFORE	1 /* Wait upon writeout of all pages
 					     in the range before performing
