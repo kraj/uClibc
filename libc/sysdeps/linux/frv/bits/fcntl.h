@@ -164,7 +164,7 @@ struct flock64
 #endif
 
 
-#ifdef __USE_GNU
+#if defined __USE_GNU && defined __UCLIBC_LINUX_SPECIFIC__
 /* Flags for SYNC_FILE_RANGE.  */
 # define SYNC_FILE_RANGE_WAIT_BEFORE	1 /* Wait upon writeout of all pages
 					     in the range before performing the
@@ -213,4 +213,4 @@ extern ssize_t tee (int __fdin, int __fdout, size_t __len,
 
 #endif
 __END_DECLS
-
+#endif /* LINUX_SPECIFIC */
