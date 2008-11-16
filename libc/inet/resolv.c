@@ -183,6 +183,7 @@ libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
 libc_hidden_proto(random)
 libc_hidden_proto(getservbyport)
+libc_hidden_proto(gethostname)
 libc_hidden_proto(uname)
 libc_hidden_proto(inet_addr)
 libc_hidden_proto(inet_aton)
@@ -298,8 +299,10 @@ typedef union sockaddr46_t {
 __UCLIBC_MUTEX_EXTERN(__resolv_lock);
 
 /* Protected by __resolv_lock */
-extern int __nameservers attribute_hidden;
-extern int __searchdomains attribute_hidden;
+extern void (*__res_sync)(void) attribute_hidden;
+//extern uint32_t __resolv_opts attribute_hidden;
+extern unsigned __nameservers attribute_hidden;
+extern unsigned __searchdomains attribute_hidden;
 extern sockaddr46_t *__nameserver attribute_hidden;
 extern char **__searchdomain attribute_hidden;
 /* Arbitrary */
@@ -347,6 +350,90 @@ extern void __open_nameservers(void) attribute_hidden;
 extern void __close_nameservers(void) attribute_hidden;
 extern int __dn_expand(const u_char *, const u_char *, const u_char *,
 			char *, int);
+
+/*
+ * Theory of operation.
+ *
+ * gethostbyname, getaddrinfo and friends end up here, and they sometimes
+ * need to talk to DNS servers. In order to do this, we need to read /etc/resolv.conf
+ * and determine servers' addresses and the like. resolv.conf format:
+ *
+ * nameserver <IP[v6]>
+ *		Address of DNS server. Cumulative.
+ *		If not specified, assumed to be on localhost.
+ * search <domain1>[ <domain2>]...
+ *		Append these domains to unqualified names.
+ *		See ndots:n option.
+ *		$LOCALDOMAIN (space-separated list) overrides this.
+ * domain <domain>
+ *		Effectively same as "search" with one domain.
+ *		If no "domain" line is present, the domain is determined
+ *		from the local host name returned by gethostname();
+ *		the domain part is taken to be everything after the first dot.
+ *		If there are no dots, there will be no "domain".
+ *		The domain and search keywords are mutually exclusive.
+ *		If more than one instance of these keywords is present,
+ *		the last instance wins.
+ * sortlist 130.155.160.0[/255.255.240.0] 130.155.0.0
+ *		Allows addresses returned by gethostbyname to be  sorted.
+ *		Not supported.
+ * options option[ option]...
+ *		(so far we support none)
+ *		$RES_OPTIONS (space-separated list) is to be added to "options"
+ *  debug	sets RES_DEBUG in _res.options
+ *  ndots:n	how many dots there should be so that name will be tried
+ *		first as an absolute name before any search list elements
+ *		are appended to it. Default 1
+ *  timeout:n   how long to wait for response. Default 5
+ *		(sun seems to have retrans:n synonym)
+ *  attempts:n	number of rounds to do before giving up and returning
+ *		an error. Default 2
+ *		(sun seems to have retry:n synonym)
+ *  rotate	sets RES_ROTATE in _res.options, round robin
+ *		selection of nameservers. Otherwise try
+ *		the first listed server first every time
+ *  no-check-names
+ *		sets RES_NOCHECKNAME in _res.options, which disables
+ *		checking of incoming host names for invalid characters
+ *		such as underscore (_), non-ASCII, or control characters
+ *  inet6	sets RES_USE_INET6 in _res.options. Try a AAAA query
+ *		before an A query inside the gethostbyname(), and map
+ *		IPv4 responses in IPv6 "tunnelled form" if no AAAA records
+ *		are found but an A record set exists
+ *  no_tld_query (FreeBSDism?)
+ *		do not attempt to resolve names without dots
+ *
+ * We will read and analyze /etc/resolv.conf as needed before
+ * we do a DNS request. This happens in __dns_lookup.
+ * (TODO: also re-parse it after a timeout, it might get updated).
+ *
+ * BSD has res_init routine which is used to initialize resolver state
+ * which is held in global structure _res.
+ * Generally, programs call res_init, then fiddle with _res.XXX
+ * (_res.options and _res.nscount, _res.nsaddr_list[N]
+ * are popular targets of fiddling) and expect subsequent calls
+ * to gethostbyname, getaddrinfo, etc to use modified information.
+ *
+ * However, historical _res structure is quite awkward.
+ * Using it for storing /etc/resolv.conf info is not desirable,
+ * and __dns_lookup does not use it.
+ *
+ * We would like to avoid using it unless absolutely necessary.
+ * If user doesn't use res_init, we should arrange it so that
+ * _res structure doesn't even *get linked in* into user's application
+ * (imagine static uclibc build here).
+ *
+ * The solution is a __res_sync function pointer, which is normally NULL.
+ * But if res_init is called, it gets set and any subsequent gethostbyname
+ * et al "syncronizes" our internal structures with potentially
+ * modified _res.XXX stuff by calling __res_sync.
+ * The trick here is that if res_init is not used and not linked in,
+ * gethostbyname itself won't reference _res and _res won't be linked in
+ * either. Other possible methods like
+ * if (__res_sync_just_an_int_flag)
+ *	__sync_me_with_res()
+ * would pull in __sync_me_with_res, which pulls in _res. Bad.
+ */
 
 
 #ifdef L_encodeh
@@ -584,7 +671,9 @@ int attribute_hidden __length_question(const unsigned char * const message, int 
 }
 #endif
 
+
 #ifdef L_encodea
+
 int attribute_hidden __encode_answer(struct resolv_answer *a, unsigned char *dest, int maxlen)
 {
 	int i;
@@ -659,6 +748,7 @@ int attribute_hidden __decode_answer(const unsigned char *message, int offset,
 #endif
 
 
+#ifdef CURRENTLY_UNUSED
 #ifdef L_encodep
 
 int __encode_packet(struct resolv_header *h,
@@ -763,6 +853,192 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 	return i + j;
 }
 #endif
+#endif /* CURRENTLY_UNUSED */
+
+
+#ifdef L_opennameservers
+
+__UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_MUTEX_INITIALIZER);
+
+/* Protected by __resolv_lock */
+void (*__res_sync)(void);
+//uint32_t __resolv_opts;
+unsigned __nameservers;
+unsigned __searchdomains;
+sockaddr46_t *__nameserver;
+char **__searchdomain;
+
+/* Helpers. Both stop on EOL, if it's '\n', it is converted to NUL first */
+static char *skip_nospace(char *p)
+{
+	while (*p != '\0' && !isspace(*p)) {
+		if (*p == '\n') {
+			*p = '\0';
+			break;
+		}
+		p++;
+	}
+	return p;
+}
+static char *skip_and_NUL_space(char *p)
+{
+	/* NB: '\n' is not isspace! */
+	while (1) {
+		char c = *p;
+		if (c == '\0' || !isspace(c))
+			break;
+		*p = '\0';
+		if (c == '\n' || c == '#')
+			break;
+		p++;
+	}
+	return p;
+}
+
+/* Must be called under __resolv_lock. */
+void attribute_hidden __open_nameservers(void)
+{
+	char szBuffer[MAXLEN_searchdomain];
+	FILE *fp;
+	int i;
+	sockaddr46_t sa;
+
+	//if (!__res_sync && last_time_was_long_ago)
+	//	__close_nameservers(); /* force config reread */
+
+	if (__nameservers)
+		goto sync;
+
+	fp = fopen("/etc/resolv.conf", "r");
+	if (!fp) {
+// TODO: why? google says nothing about this...
+		fp = fopen("/etc/config/resolv.conf", "r");
+	}
+
+	if (fp) {
+		while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
+			void *ptr;
+			char *keyword, *p;
+
+			keyword = p = skip_and_NUL_space(szBuffer);
+			/* skip keyword */
+			p = skip_nospace(p);
+			/* find next word */
+			p = skip_and_NUL_space(p);
+
+			if (strcmp(keyword, "nameserver") == 0) {
+				/* terminate IP addr */
+				*skip_nospace(p) = '\0';
+				memset(&sa, 0, sizeof(sa));
+				if (0) /* nothing */;
+#ifdef __UCLIBC_HAS_IPV6__
+				else if (inet_pton(AF_INET6, p, &sa.sa6.sin6_addr) > 0) {
+					sa.sa6.sin6_family = AF_INET6;
+					sa.sa6.sin6_port = htons(NAMESERVER_PORT);
+				}
+#endif
+#ifdef __UCLIBC_HAS_IPV4__
+				else if (inet_pton(AF_INET, p, &sa.sa4.sin_addr) > 0) {
+					sa.sa4.sin_family = AF_INET;
+					sa.sa4.sin_port = htons(NAMESERVER_PORT);
+				}
+#endif
+				else
+					continue; /* garbage on this line */
+				ptr = realloc(__nameserver, (__nameservers + 1) * sizeof(__nameserver[0]));
+				if (!ptr)
+					continue;
+				__nameserver = ptr;
+				__nameserver[__nameservers++] = sa; /* struct copy */
+				continue;
+			}
+			if (strcmp(keyword, "domain") == 0 || strcmp(keyword, "search") == 0) {
+				char *p1;
+//TODO: delete old domains...
+ next_word:
+				/* terminate current word */
+				p1 = skip_nospace(p);
+				/* find next word (maybe) */
+				p1 = skip_and_NUL_space(p1);
+				/* paranoia - done by having szBuffer[MAXLEN_searchdomain] */
+				/*if (strlen(p) > MAXLEN_searchdomain)*/
+				/*	goto skip;*/
+				/* do we have this domain already? */
+				for (i = 0; i < __searchdomains; i++)
+					if (strcmp(p, __searchdomain[i]) == 0)
+						goto skip;
+				/* add it */
+				ptr = realloc(__searchdomain, (__searchdomains + 1) * sizeof(__searchdomain[0]));
+				if (!ptr)
+					continue;
+				__searchdomain = ptr;
+				ptr = strdup(p);
+				if (!ptr)
+					continue;
+				DPRINTF("adding search %s\n", (char*)ptr);
+				__searchdomain[__searchdomains++] = (char*)ptr;
+	 skip:
+				p = p1;
+				if (*p)
+					goto next_word;
+				continue;
+			}
+			/* if (strcmp(keyword, "sortlist") == 0)... */
+			/* if (strcmp(keyword, "options") == 0)... */
+		}
+		fclose(fp);
+	}
+	if (__nameservers == 0) {
+		__nameserver = malloc(sizeof(__nameserver[0]));
+//TODO: error check?
+		memset(&__nameserver[0], 0, sizeof(__nameserver[0]));
+#ifdef __UCLIBC_HAS_IPV4__
+		__nameserver[0].sa4.sin_family = AF_INET;
+		/*__nameserver[0].sa4.sin_addr = INADDR_ANY; - done by memset */
+		__nameserver[0].sa4.sin_port = htons(NAMESERVER_PORT);
+#else
+		__nameserver[0].sa6.sin6_family = AF_INET6;
+		__nameserver[0].sa6.sin6_port = htons(NAMESERVER_PORT);
+#endif
+		__nameservers++;
+	}
+	if (__searchdomains == 0) {
+		char buf[256];
+		char *p;
+		i = gethostname(buf, sizeof(buf) - 1);
+		buf[sizeof(buf) - 1] = '\0';
+		if (i == 0 && (p = strchr(buf, '.')) != NULL && p[1]) {
+			p = strdup(p + 1);
+			__searchdomain = malloc(sizeof(__searchdomain[0]));
+//TODO: error check?
+			__searchdomain[0] = p;
+			__searchdomains++;
+		}
+	}
+	DPRINTF("nameservers = %d\n", __nameservers);
+
+ sync:
+	if (__res_sync)
+		__res_sync();
+}
+#endif
+
+
+#ifdef L_closenameservers
+
+/* Must be called under __resolv_lock. */
+void attribute_hidden __close_nameservers(void)
+{
+	free(__nameserver);
+	__nameserver = NULL;
+	__nameservers = 0;
+	while (__searchdomains)
+		free(__searchdomain[--__searchdomains]);
+	free(__searchdomain);
+	__searchdomain = NULL;
+	/*__searchdomains = 0; - already is */
+}
+#endif
 
 
 #ifdef L_dnslookup
@@ -859,43 +1135,23 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 //			local_ns_num = 0;
 //			if (_res.options & RES_ROTATE)
 				local_ns_num = last_ns_num;
-			if (local_ns_num >= __nameservers)
-				local_ns_num = 0;
 		}
-		/* __nameservers == 0 case: act as if
-		 * we have one DNS server configured - on 127.0.0.1 */
-		{
-			int my_nameservers = __nameservers;
-			if (my_nameservers == 0)
-				my_nameservers++;
-			if (local_ns_num >= my_nameservers) {
-				local_ns_num = 0;
-				retries++;
-				/* break if retries >= MAX_RETRIES - *after unlock*! */
-			}
+		if (local_ns_num >= __nameservers) {
+			local_ns_num = 0;
+//TODO: wrong method of retries++!
+// Should be if (local_ns_num == starting_ns_num) retries++;
+			retries++;
+			/* break if retries >= MAX_RETRIES - *after unlock*! */
 		}
 		local_id++;
 		local_id &= 0xffff;
 		/* write new values back while still under lock */
 		last_id = local_id;
 		last_ns_num = local_ns_num;
-		if (__nameservers != 0) {
-			/* struct copy */
-			/* can't just take a pointer, __nameserver[]
-			 * is not safe to use outside of locks */
-			sa = __nameserver[local_ns_num];
-		} else {
-			/* __nameservers == 0 */
-			memset(&sa, 0, sizeof(sa));
-#ifdef __UCLIBC_HAS_IPV4__
-			sa.sa4.sin_family = AF_INET;
-			/*sa.sa4.sin_addr = INADDR_ANY; - done by memset */
-			sa.sa4.sin_port = htons(NAMESERVER_PORT);
-#else
-			sa.sa6.sin_family = AF_INET6;
-			sa.sa6.sin6_port = htons(NAMESERVER_PORT);
-#endif
-		}
+		/* struct copy */
+		/* can't just take a pointer, __nameserver[x]
+		 * is not safe to use outside of locks */
+		sa = __nameserver[local_ns_num];
 		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 		if (retries >= MAX_RETRIES)
 			break;
@@ -964,8 +1220,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			goto try_next_server;
 		}
 #endif
-//TODO: MSG_DONTWAIT?
-		len = recv(fd, packet, PACKETSZ, 0);
+		len = recv(fd, packet, PACKETSZ, MSG_DONTWAIT);
 		if (len < HFIXEDSZ) {
 			/* too short! */
 //TODO: why next sdomain? it's just a bogus packet from somewhere,
@@ -1104,155 +1359,6 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 }
 #endif
 
-#ifdef L_opennameservers
-
-__UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_MUTEX_INITIALIZER);
-
-/* Protected by __resolv_lock */
-int __nameservers;
-int __searchdomains;
-sockaddr46_t *__nameserver;
-char **__searchdomain;
-
-/* Helpers. Both stop on EOL, if it's '\n', it is converted to NUL first */
-static char *skip_nospace(char *p)
-{
-	while (*p != '\0' && !isspace(*p)) {
-		if (*p == '\n') {
-			*p = '\0';
-			break;
-		}
-		p++;
-	}
-	return p;
-}
-static char *skip_and_NUL_space(char *p)
-{
-	/* NB: '\n' is not isspace! */
-	while (1) {
-		char c = *p;
-		if (c == '\0' || !isspace(c))
-			break;
-		*p = '\0';
-		if (c == '\n' || c == '#')
-			break;
-		p++;
-	}
-	return p;
-}
-
-/* Must be called under __resolv_lock. */
-void attribute_hidden __open_nameservers(void)
-{
-	char szBuffer[MAXLEN_searchdomain];
-	FILE *fp;
-	int i;
-	sockaddr46_t sa;
-
-	if (__nameservers > 0)
-		return;
-
-	fp = fopen("/etc/resolv.conf", "r");
-	if (!fp) {
-		fp = fopen("/etc/config/resolv.conf", "r");
-		if (!fp) {
-			DPRINTF("failed to open %s\n", "resolv.conf");
-			h_errno = NO_RECOVERY;
-			return;
-		}
-	}
-
-	while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
-		void *ptr;
-		char *keyword, *p;
-
-		keyword = p = skip_and_NUL_space(szBuffer);
-		/* skip keyword */
-		p = skip_nospace(p);
-		/* find next word */
-		p = skip_and_NUL_space(p);
-
-		if (strcmp(keyword, "nameserver") == 0) {
-			/* terminate IP addr */
-			*skip_nospace(p) = '\0';
-			memset(&sa, 0, sizeof(sa));
-			if (0) /* nothing */;
-#ifdef __UCLIBC_HAS_IPV6__
-			else if (inet_pton(AF_INET6, p, &sa.sa6.sin6_addr) > 0) {
-				sa.sa6.sin6_family = AF_INET6;
-				sa.sa6.sin6_port = htons(NAMESERVER_PORT);
-			}
-#endif
-#ifdef __UCLIBC_HAS_IPV4__
-			else if (inet_pton(AF_INET, p, &sa.sa4.sin_addr) > 0) {
-				sa.sa4.sin_family = AF_INET;
-				sa.sa4.sin_port = htons(NAMESERVER_PORT);
-			}
-#endif
-			else
-				continue; /* garbage on this line */
-			ptr = realloc(__nameserver, (__nameservers + 1) * sizeof(__nameserver[0]));
-			if (!ptr)
-				continue;
-			__nameserver = ptr;
-			__nameserver[__nameservers++] = sa; /* struct copy */
-			continue;
-		}
-		if (strcmp(keyword, "domain") == 0 || strcmp(keyword, "search") == 0) {
-			char *p1;
- next_word:
-			/* terminate current word */
-			p1 = skip_nospace(p);
-			/* find next word (maybe) */
-			p1 = skip_and_NUL_space(p1);
-			/* paranoia - done by having szBuffer[MAXLEN_searchdomain] */
-			/*if (strlen(p) > MAXLEN_searchdomain)*/
-			/*	goto skip;*/
-			/* do we have this domain already? */
-			for (i = 0; i < __searchdomains; i++)
-				if (strcmp(p, __searchdomain[i]) == 0)
-					goto skip;
-			/* add it */
-			ptr = realloc(__searchdomain, (__searchdomains + 1) * sizeof(__searchdomain[0]));
-			if (!ptr)
-				continue;
-			__searchdomain = ptr;
-			ptr = strdup(p);
-			if (!ptr)
-				continue;
-			DPRINTF("adding search %s\n", (char*)ptr);
-			__searchdomain[__searchdomains++] = (char*)ptr;
- skip:
-			p = p1;
-			if (*p)
-				goto next_word;
-			continue;
-		}
-		/* if (strcmp(keyword, "sortlist") == 0)... */
-		/* if (strcmp(keyword, "options") == 0)... */
-	}
-	fclose(fp);
-	DPRINTF("nameservers = %d\n", __nameservers);
-}
-#endif
-
-
-#ifdef L_closenameservers
-
-/* Must be called under __resolv_lock. */
-void attribute_hidden __close_nameservers(void)
-{
-	free(__nameserver);
-	__nameserver = NULL;
-	__nameservers = 0;
-	while (__searchdomains)
-		free(__searchdomain[--__searchdomains]);
-	free(__searchdomain);
-	__searchdomain = NULL;
-	/*__searchdomains = 0; - already is */
-}
-#endif
-
 
 #ifdef L_gethostbyname
 
@@ -1298,6 +1404,38 @@ struct hostent *gethostbyname2(const char *name, int family)
 /* Protected by __resolv_lock */
 struct __res_state _res;
 
+#undef ARRAY_SIZE
+#define ARRAY_SIZE(v) (sizeof(v) / sizeof((v)[0]))
+
+/* Will be called under __resolv_lock. */
+static void res_sync_func(void)
+{
+	struct __res_state *rp = &(_res);
+
+	/* Track .nscount and .nsaddr_list
+	 * (busybox's nslookup uses it).
+	 */
+	if (__nameservers > rp->nscount)
+		__nameservers = rp->nscount;
+	/* TODO:
+	 * if (__nameservers < rp->nscount) - try to grow __nameserver[]?
+	 */
+#ifdef __UCLIBC_HAS_IPV4__
+	{
+		int n = __nameservers;
+		while (--n >= 0) {
+			__nameserver[n].sa.sa_family = AF_INET;
+			__nameserver[n].sa4 = rp->nsaddr_list[n]; /* struct copy */
+		}
+	}
+#endif
+	/* Extend and comment what program is known
+	 * to use which _res.XXX member(s).
+	 */
+	// __resolv_opts = rp->options;
+	// ...
+}
+
 /* Our res_init never fails (always returns 0) */
 int res_init(void)
 {
@@ -1308,6 +1446,8 @@ int res_init(void)
 	__close_nameservers();
 	__open_nameservers();
 
+	__res_sync = res_sync_func;
+
 	memset(rp, 0, sizeof(*rp));
 	rp->options = RES_INIT;
 #ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
@@ -1315,27 +1455,17 @@ int res_init(void)
 	rp->retry = 4;
 	rp->id = random();
 #endif
-	/* man resolv.conf says:
-	 * "On a normally configured system this file should not be necessary.
-	 * The only name server to be queried will be on the local machine;
-	 * the domain name is determined from the host name
-	 * and the domain search path is constructed from the domain name" */
-	rp->nscount = 1;
-	rp->nsaddr_list[0].sin_addr.s_addr = INADDR_ANY;
-	rp->nsaddr_list[0].sin_family = AF_INET;
-	rp->nsaddr_list[0].sin_port = htons(NAMESERVER_PORT);
 	rp->ndots = 1;
 #ifdef __UCLIBC_HAS_EXTRA_COMPAT_RES_STATE__
 	rp->_vcsock = -1;
 #endif
 
-#undef ARRAY_SIZE
-#define ARRAY_SIZE(v) (sizeof(v) / sizeof((v)[0]))
 	n = __searchdomains;
 	if (n > ARRAY_SIZE(rp->dnsrch))
 		n = ARRAY_SIZE(rp->dnsrch);
 	for (i = 0; i < n; i++)
 		rp->dnsrch[i] = __searchdomain[i];
+#ifdef __UCLIBC_HAS_IPV4__
 	i = 0;
 	n = 0;
 	while (n < ARRAY_SIZE(rp->nsaddr_list) && i < __nameservers) {
@@ -1346,13 +1476,12 @@ int res_init(void)
  next_i:
 		i++;
 	}
-	if (n)
-		rp->nscount = n;
-	/* else rp->nscount stays 1 */
-#undef ARRAY_SIZE
+	rp->nscount = n;
+#endif
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 	return 0;
 }
+#undef ARRAY_SIZE
 libc_hidden_def(res_init)
 
 #ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
@@ -1360,11 +1489,13 @@ void res_close(void)
 {
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	__close_nameservers();
+	__res_sync = NULL;
 	memset(&_res, 0, sizeof(_res));
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 }
 #endif
 #endif /* L_res_init */
+
 
 
 #ifdef L_res_query
@@ -1617,15 +1748,16 @@ int res_querydomain(const char *name, const char *domain, int class, int type,
 	return res_query(longname, class, type, answer, anslen);
 }
 libc_hidden_def(res_querydomain)
-
 /* res_mkquery */
 /* res_send */
 /* dn_comp */
 /* dn_expand */
 #endif
 
+
 #ifdef L_gethostbyaddr
-struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
+
+struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type)
 {
 	static struct hostent h;
 	static char buf[
@@ -2023,7 +2155,7 @@ BAD_FAM:
 			}
 
 			if (!ok) {
-				const char *c;
+				const char *c = NULL;
 
 				if (flags & NI_NAMEREQD) {
 					errno = serrno;
@@ -2035,7 +2167,8 @@ BAD_FAM:
 
 					sin6p = (const struct sockaddr_in6 *) sa;
 					c = inet_ntop(AF_INET6,
-						(const void *) &sin6p->sin6_addr, host, hostlen);
+						(const void *) &sin6p->sin6_addr,
+						host, hostlen);
 #if 0
 					/* Does scope id need to be supported? */
 					uint32_t scopeid;

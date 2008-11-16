@@ -43,8 +43,8 @@ resolv_CSRC +=	encodeh.c decodeh.c encoded.c decoded.c lengthd.c encodeq.c \
 ifneq ($(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6),)
 CSRC += $(resolv_CSRC)
 
-# unused ATM
-CSRC += encodep.c decodep.c formquery.c
+## # unused ATM
+## CSRC += encodep.c decodep.c formquery.c
 endif
 
 
