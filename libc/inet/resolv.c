@@ -241,6 +241,9 @@ libc_hidden_proto(__libc_getdomainname)
 #define DPRINTF(X,args...)
 #endif /* DEBUG */
 
+#undef ARRAY_SIZE
+#define ARRAY_SIZE(v) (sizeof(v) / sizeof((v)[0]))
+
 /* Make sure the incoming char * buffer is aligned enough to handle our random
  * structures.  This define is the same as we use for malloc alignment (which
  * has same requirements).  The offset is the number of bytes we need to adjust
@@ -305,6 +308,11 @@ extern unsigned __nameservers attribute_hidden;
 extern unsigned __searchdomains attribute_hidden;
 extern sockaddr46_t *__nameserver attribute_hidden;
 extern char **__searchdomain attribute_hidden;
+#ifdef __UCLIBC_HAS_IPV4__
+extern const struct sockaddr_in __local_nameserver attribute_hidden;
+#else
+extern const struct sockaddr_in6 __local_nameserver attribute_hidden;
+#endif
 /* Arbitrary */
 #define MAXLEN_searchdomain 128
 
@@ -858,6 +866,12 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 
 #ifdef L_opennameservers
 
+# if __BYTE_ORDER == __LITTLE_ENDIAN
+#define NAMESERVER_PORT_N (__bswap_constant_16(NAMESERVER_PORT))
+#else
+#define NAMESERVER_PORT_N NAMESERVER_PORT
+#endif
+
 __UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_MUTEX_INITIALIZER);
 
 /* Protected by __resolv_lock */
@@ -867,6 +881,17 @@ unsigned __nameservers;
 unsigned __searchdomains;
 sockaddr46_t *__nameserver;
 char **__searchdomain;
+#ifdef __UCLIBC_HAS_IPV4__
+const struct sockaddr_in __local_nameserver = {
+	.sin_family = AF_INET,
+	.sin_port = NAMESERVER_PORT_N,
+};
+#else
+const struct sockaddr_in6 __local_nameserver = {
+	.sin6_family = AF_INET6,
+	.sin6_port = NAMESERVER_PORT_N,
+};
+#endif
 
 /* Helpers. Both stop on EOL, if it's '\n', it is converted to NUL first */
 static char *skip_nospace(char *p)
@@ -954,30 +979,28 @@ void attribute_hidden __open_nameservers(void)
 			}
 			if (strcmp(keyword, "domain") == 0 || strcmp(keyword, "search") == 0) {
 				char *p1;
-//TODO: delete old domains...
+
+				/* free old domains ("last 'domain' or 'search' wins" rule) */
+				while (__searchdomains)
+					free(__searchdomain[--__searchdomains]);
+				/*free(__searchdomain);*/
+				/*__searchdomain = NULL; - not necessary */
  next_word:
 				/* terminate current word */
 				p1 = skip_nospace(p);
 				/* find next word (maybe) */
 				p1 = skip_and_NUL_space(p1);
-				/* paranoia - done by having szBuffer[MAXLEN_searchdomain] */
-				/*if (strlen(p) > MAXLEN_searchdomain)*/
-				/*	goto skip;*/
-				/* do we have this domain already? */
-				for (i = 0; i < __searchdomains; i++)
-					if (strcmp(p, __searchdomain[i]) == 0)
-						goto skip;
 				/* add it */
 				ptr = realloc(__searchdomain, (__searchdomains + 1) * sizeof(__searchdomain[0]));
 				if (!ptr)
 					continue;
 				__searchdomain = ptr;
+				/* NB: strlen(p) <= MAXLEN_searchdomain) because szBuffer[] is smaller */
 				ptr = strdup(p);
 				if (!ptr)
 					continue;
 				DPRINTF("adding search %s\n", (char*)ptr);
 				__searchdomain[__searchdomains++] = (char*)ptr;
-	 skip:
 				p = p1;
 				if (*p)
 					goto next_word;
@@ -989,17 +1012,7 @@ void attribute_hidden __open_nameservers(void)
 		fclose(fp);
 	}
 	if (__nameservers == 0) {
-		__nameserver = malloc(sizeof(__nameserver[0]));
-//TODO: error check?
-		memset(&__nameserver[0], 0, sizeof(__nameserver[0]));
-#ifdef __UCLIBC_HAS_IPV4__
-		__nameserver[0].sa4.sin_family = AF_INET;
-		/*__nameserver[0].sa4.sin_addr = INADDR_ANY; - done by memset */
-		__nameserver[0].sa4.sin_port = htons(NAMESERVER_PORT);
-#else
-		__nameserver[0].sa6.sin6_family = AF_INET6;
-		__nameserver[0].sa6.sin6_port = htons(NAMESERVER_PORT);
-#endif
+		__nameserver = (void*) &__local_nameserver;
 		__nameservers++;
 	}
 	if (__searchdomains == 0) {
@@ -1009,10 +1022,16 @@ void attribute_hidden __open_nameservers(void)
 		buf[sizeof(buf) - 1] = '\0';
 		if (i == 0 && (p = strchr(buf, '.')) != NULL && p[1]) {
 			p = strdup(p + 1);
+			if (!p)
+				goto err;
 			__searchdomain = malloc(sizeof(__searchdomain[0]));
-//TODO: error check?
+			if (!__searchdomain) {
+				free(p);
+				goto err;
+			}
 			__searchdomain[0] = p;
 			__searchdomains++;
+ err: ;
 		}
 	}
 	DPRINTF("nameservers = %d\n", __nameservers);
@@ -1029,7 +1048,8 @@ void attribute_hidden __open_nameservers(void)
 /* Must be called under __resolv_lock. */
 void attribute_hidden __close_nameservers(void)
 {
-	free(__nameserver);
+	if (__nameserver != (void*) &__local_nameserver)
+		free(__nameserver);
 	__nameserver = NULL;
 	__nameservers = 0;
 	while (__searchdomains)
@@ -1383,7 +1403,7 @@ libc_hidden_def(gethostbyname)
 struct hostent *gethostbyname2(const char *name, int family)
 {
 #ifndef __UCLIBC_HAS_IPV6__
-	return family == AF_INET ? gethostbyname(name) : (struct hostent*)0;
+	return family == AF_INET ? gethostbyname(name) : (struct hostent*)NULL;
 #else /* __UCLIBC_HAS_IPV6__ */
 	static struct hostent h;
 	static char buf[sizeof(struct in6_addr) +
@@ -1404,30 +1424,27 @@ struct hostent *gethostbyname2(const char *name, int family)
 /* Protected by __resolv_lock */
 struct __res_state _res;
 
-#undef ARRAY_SIZE
-#define ARRAY_SIZE(v) (sizeof(v) / sizeof((v)[0]))
-
 /* Will be called under __resolv_lock. */
 static void res_sync_func(void)
 {
 	struct __res_state *rp = &(_res);
+	int n;
 
-	/* Track .nscount and .nsaddr_list
-	 * (busybox's nslookup uses it).
-	 */
-	if (__nameservers > rp->nscount)
-		__nameservers = rp->nscount;
 	/* TODO:
 	 * if (__nameservers < rp->nscount) - try to grow __nameserver[]?
 	 */
-#ifdef __UCLIBC_HAS_IPV4__
-	{
-		int n = __nameservers;
-		while (--n >= 0) {
-			__nameserver[n].sa.sa_family = AF_INET;
-			__nameserver[n].sa4 = rp->nsaddr_list[n]; /* struct copy */
-		}
-	}
+#ifdef __UCLIBC_HAS_IPV6__
+	if (__nameservers > rp->_u._ext.nscount)
+		__nameservers = rp->_u._ext.nscount;
+	n = __nameservers;
+	while (--n >= 0)
+		__nameserver[n].sa6 = *rp->_u._ext.nsaddrs[n]; /* struct copy */
+#else /* __UCLIBC_HAS_IPV4__ */
+	if (__nameservers > rp->nscount)
+		__nameservers = rp->nscount;
+	n = __nameservers;
+	while (--n >= 0)
+		__nameserver[n].sa4 = rp->nsaddr_list[n]; /* struct copy */
 #endif
 	/* Extend and comment what program is known
 	 * to use which _res.XXX member(s).
@@ -1439,8 +1456,12 @@ static void res_sync_func(void)
 /* Our res_init never fails (always returns 0) */
 int res_init(void)
 {
-	int i, n;
 	struct __res_state *rp = &(_res);
+	int i;
+	int n;
+#ifdef __UCLIBC_HAS_IPV6__
+	int m = 0;
+#endif
 
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	__close_nameservers();
@@ -1465,23 +1486,57 @@ int res_init(void)
 		n = ARRAY_SIZE(rp->dnsrch);
 	for (i = 0; i < n; i++)
 		rp->dnsrch[i] = __searchdomain[i];
-#ifdef __UCLIBC_HAS_IPV4__
+
+	/* copy nameservers' addresses */
 	i = 0;
+#ifdef __UCLIBC_HAS_IPV4__
 	n = 0;
 	while (n < ARRAY_SIZE(rp->nsaddr_list) && i < __nameservers) {
-		if (__nameserver[i].sa.sa_family != AF_INET)
-			goto next_i;
-		rp->nsaddr_list[n] = __nameserver[i].sa4; /* struct copy */
-		n++;
- next_i:
+		if (__nameserver[i].sa.sa_family == AF_INET) {
+			rp->nsaddr_list[n] = __nameserver[i].sa4; /* struct copy */
+#ifdef __UCLIBC_HAS_IPV6__
+			if (m < ARRAY_SIZE(rp->_u._ext.nsaddrs)) {
+				rp->_u._ext.nsaddrs[m] = (void*) &rp->nsaddr_list[n];
+				m++;
+			}
+#endif
+			n++;
+		}
+#ifdef __UCLIBC_HAS_IPV6__
+		if (__nameserver[i].sa.sa_family == AF_INET6
+		 && m < ARRAY_SIZE(rp->_u._ext.nsaddrs)
+		) {
+			struct sockaddr_in6 *sa6 = malloc(sizeof(sa6));
+			if (sa6) {
+				*sa6 = __nameserver[i].sa6; /* struct copy */
+				rp->_u._ext.nsaddrs[m] = sa6;
+				m++;
+			}
+		}
+#endif
 		i++;
 	}
 	rp->nscount = n;
+#ifdef __UCLIBC_HAS_IPV6__
+	rp->_u._ext.nscount = m;
 #endif
+
+#else /* if !__UCLIBC_HAS_IPV4__ (only IPV6) */
+	while (m < ARRAY_SIZE(rp->_u._ext.nsaddrs) && i < __nameservers) {
+		struct sockaddr_in6 *sa6 = malloc(sizeof(sa6));
+		if (sa6) {
+			*sa6 = __nameserver[i].sa6; /* struct copy */
+			rp->_u._ext.nsaddrs[m] = sa6;
+			m++;
+		}
+		i++;
+	}
+	rp->_u._ext.nscount = m;
+#endif /* !__UCLIBC_HAS_IPV4__ (only IPV6) */
+
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 	return 0;
 }
-#undef ARRAY_SIZE
 libc_hidden_def(res_init)
 
 #ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
@@ -1490,12 +1545,23 @@ void res_close(void)
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	__close_nameservers();
 	__res_sync = NULL;
+#ifdef __UCLIBC_HAS_IPV6__
+	{
+		char *p1 = (char*) &(_res.nsaddr_list[0]);
+		int m = 0;
+		/* free nsaddrs[m] if they do not point to nsaddr_list[x] */
+		while (m < ARRAY_SIZE(_res._u._ext.nsaddrs)) {
+			char *p2 = (char*)(_res._u._ext.nsaddrs[m]);
+			if (p2 < p1 || (p2 - p1) > sizeof(_res.nsaddr_list))
+				free(p2);
+		}
+	}
+#endif
 	memset(&_res, 0, sizeof(_res));
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 }
 #endif
 #endif /* L_res_init */
-
 
 
 #ifdef L_res_query

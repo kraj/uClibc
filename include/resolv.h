@@ -118,10 +118,9 @@ struct __res_state {
 	int	retry;			/* number of times to retransmit */
 #endif
 	u_int32_t options;		/* (was: ulong) option flags - see below. */
-	struct sockaddr_in
-		nsaddr_list[MAXNS];	/* address of name server */
+	struct sockaddr_in nsaddr_list[MAXNS]; /* address of name server */
 #define nsaddr nsaddr_list[0]		/* for backward compatibility */
-	char	*dnsrch[MAXDNSRCH+1];	/* components of domain to search */
+	char	*dnsrch[MAXDNSRCH + 1];	/* components of domain to search */
 #ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
 	/* googling for "_res.defdname" says it's still sometimes used.
 	 * Pity. It's huge, I want to move it to EXTRA_COMPAT... */
@@ -138,18 +137,38 @@ struct __res_state {
 		struct in_addr	addr;
 		u_int32_t	mask;
 	} sort_list[MAXRESOLVSORT];
+#endif
+
+#ifdef __UCLIBC_HAS_IPV6__
+	/* I assume that the intention is to store all
+	 * DNS servers' addresses here, and duplicate in nsaddr_list[]
+	 * those which have IPv4 address. In the case of IPv4 address
+	 * _u._ext.nsaddrs[x] will point to some nsaddr_list[y],
+	 * otherwise it will point into malloc'ed sockaddr_in6.
+	 * nscount is the number of IPv4 addresses and _u._ext.nscount
+	 * is the number of addresses of all kinds.
+	 *
+	 * If this differs from established usage and you need
+	 * to change this, please describe how is it supposed to work.
+	 */
 	union {
 		struct {
-			u_int16_t		nscount;
-			u_int16_t		nstimes[MAXNS]; /* ms. */
+			struct sockaddr_in6	*nsaddrs[MAXNS];
+			u_int8_t		nscount; /* (was: u_int16_t) */
+#ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
+			/* rather obscure, and differs in BSD and glibc */
+			u_int16_t		nstimes[MAXNS];
 			int			nssocks[MAXNS];
-			/* below: not in xBSD. glibc only? */
 			u_int16_t		nscount6;
 			u_int16_t		nsinit;
-			struct sockaddr_in6	*nsaddrs[MAXNS];
+			/* glibc also has: */
+			/*u_int16_t		nsmap[MAXNS];*/
+			/*unsigned long long	initstamp;*/
+#endif
 		} _ext;
 	} _u;
 #endif
+
 #ifdef __UCLIBC_HAS_EXTRA_COMPAT_RES_STATE__
 	/* Truly obscure stuff.
 	 * Googling for "_res.XXX" for these members
