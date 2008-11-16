@@ -26,7 +26,8 @@
 #include <stddef.h>
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(fstatfs)
+extern __typeof(fstatfs) __libc_fstatfs;
+libc_hidden_proto(__libc_fstatfs)
 
 /* Return information about the filesystem on which FD resides.  */
 libc_hidden_proto(fstatfs64)
@@ -34,7 +35,7 @@ int fstatfs64 (int fd, struct statfs64 *buf)
 {
     struct statfs buf32;
 
-    if (fstatfs (fd, &buf32) < 0)
+    if (__libc_fstatfs (fd, &buf32) < 0)
 	return -1;
 
     buf->f_type = buf32.f_type;

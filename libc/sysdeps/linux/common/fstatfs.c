@@ -26,10 +26,8 @@ extern __typeof(fstatfs) __libc_fstatfs;
 libc_hidden_proto(__libc_fstatfs)
 #define __NR___libc_fstatfs __NR_fstatfs
 _syscall2(int, __libc_fstatfs, int, fd, struct statfs *, buf)
-libc_hidden_def(__libc_fstatfs)
 
 #if defined __UCLIBC_LINUX_SPECIFIC__
-libc_hidden_proto(fstatfs)
+libc_hidden_def(__libc_fstatfs)
 weak_alias(__libc_fstatfs,fstatfs)
-libc_hidden_weak(fstatfs)
 #endif
