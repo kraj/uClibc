@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -23,7 +23,7 @@ libc-y += $(MISC_STATFS_OBJ)
 
 libc-nomulti-$(UCLIBC_HAS_LFS) += $(MISC_STATFS_OUT)/statvfs64.o $(MISC_STATFS_OUT)/fstatvfs64.o
 
-objclean-y += misc_statfs_objclean
+objclean-y += misc_statfs_clean
 
-misc_statfs_objclean:
-	$(RM) $(MISC_STATFS_OUT)/*.{o,os,oS}
+misc_statfs_clean:
+	$(do_rm) $(addprefix $(MISC_STATFS_OUT)/*., o os oS)

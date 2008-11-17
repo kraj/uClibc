@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2002-2003  NEC Electronics Corporation
 # Copyright (C) 2002-2003  Miles Bader <miles@gnu.org>
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -27,10 +27,10 @@ STDLIB_MALLOC_OBJ := $(patsubst %.c,$(STDLIB_MALLOC_OUT)/%.o,$(CSRC))
 
 libc-$(MALLOC) += $(STDLIB_MALLOC_OBJ)
 
-objclean-y += stdlib_malloc_objclean
+objclean-y += stdlib_malloc_clean
 
-stdlib_malloc_objclean:
-	$(RM) $(STDLIB_MALLOC_OUT)/*.{o,os}
+stdlib_malloc_clean:
+	$(do_rm) $(addprefix $(STDLIB_MALLOC_OUT)/*., o os)
 
 malloc.o free.o realloc.o memalign.o: malloc.h
 # Depend on uClinux_config.h to cache changes in __UCLIBC_MALLOC_DEBUGGING__

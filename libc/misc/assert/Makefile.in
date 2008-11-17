@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -15,7 +15,7 @@ MISC_ASSERT_OBJ := $(MISC_ASSERT_OUT)/__assert.o
 
 libc-y += $(MISC_ASSERT_OBJ)
 
-objclean-y += misc_assert_objclean
+objclean-y += misc_assert_clean
 
-misc_assert_objclean:
-	$(RM) $(MISC_ASSERT_OUT)/*.{o,os}
+misc_assert_clean:
+	$(do_rm) $(addprefix $(MISC_ASSERT_OUT)/*., o os)

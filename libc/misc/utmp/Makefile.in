@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -15,7 +15,7 @@ MISC_UTMP_OBJ := $(patsubst %.c,$(MISC_UTMP_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_UTMP_OBJ)
 
-objclean-y += misc_utmp_objclean
+objclean-y += misc_utmp_clean
 
-misc_utmp_objclean:
-	$(RM) $(MISC_UTMP_OUT)/*.{o,os}
+misc_utmp_clean:
+	$(do_rm) $(addprefix $(MISC_UTMP_OUT)/*., o os)

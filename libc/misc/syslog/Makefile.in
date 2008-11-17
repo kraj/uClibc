@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -17,7 +17,7 @@ ifeq ($(UCLIBC_HAS_SYSLOG),y)
 libc-y += $(MISC_SYSLOG_OBJ)
 endif
 
-objclean-y += misc_syslog_objclean
+objclean-y += misc_syslog_clean
 
-misc_syslog_objclean:
-	$(RM) $(MISC_SYSLOG_OUT)/*.{o,os}
+misc_syslog_clean:
+	$(do_rm) $(addprefix $(MISC_SYSLOG_OUT)/*., o os)

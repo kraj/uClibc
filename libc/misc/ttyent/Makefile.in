@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -15,7 +15,7 @@ MISC_TTYENT_OBJ := $(patsubst %.c,$(MISC_TTYENT_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_TTYENT_OBJ)
 
-objclean-y += misc_ttyent_objclean
+objclean-y += misc_ttyent_clean
 
-misc_ttyent_objclean:
-	$(RM) $(MISC_TTYENT_OUT)/*.{o,os}
+misc_ttyent_clean:
+	$(do_rm) $(addprefix $(MISC_TTYENT_OUT)/*., o os)

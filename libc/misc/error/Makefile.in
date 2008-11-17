@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -21,7 +21,7 @@ MISC_ERROR_OBJ := $(patsubst %.c,$(MISC_ERROR_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_ERROR_OBJ)
 
-objclean-y += misc_error_objclean
+objclean-y += misc_error_clean
 
-misc_error_objclean:
-	$(RM) $(MISC_ERROR_OUT)/*.{o,os}
+misc_error_clean:
+	$(do_rm) $(addprefix $(MISC_ERROR_OUT)/*., o os)
