@@ -70,14 +70,14 @@ struct malloc_mmb
   struct malloc_mmb *next;
 };
 
-/* A list of all malloc_mmb structures describing blocsk that malloc has
+/* A list of all malloc_mmb structures describing blocks that malloc has
    mmapped, ordered by the block address.  */
 extern struct malloc_mmb *__malloc_mmapped_blocks;
 
 /* A heap used for allocating malloc_mmb structures.  We could allocate
    them from the main heap, but that tends to cause heap fragmentation in
    annoying ways.  */
-extern struct heap __malloc_mmb_heap;
+extern struct heap_free_area *__malloc_mmb_heap;
 
 /* Define MALLOC_MMB_DEBUGGING to cause malloc to emit debugging info about
    about mmap block allocation/freeing by the `uclinux broken munmap' code
@@ -221,4 +221,10 @@ extern void __malloc_debug_printf (int indent, const char *fmt, ...);
 
 
 /* The malloc heap.  */
-extern struct heap __malloc_heap;
+extern struct heap_free_area *__malloc_heap;
+#ifdef __UCLIBC_HAS_THREADS__
+extern malloc_mutex_t __malloc_heap_lock;
+#ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
+extern malloc_mutex_t __malloc_mmb_heap_lock;
+#endif
+#endif

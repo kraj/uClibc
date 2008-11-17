@@ -26,7 +26,10 @@ libc_hidden_proto(sbrk)
 /* The malloc heap.  We provide a bit of initial static space so that
    programs can do a little mallocing without mmaping in more space.  */
 HEAP_DECLARE_STATIC_FREE_AREA (initial_fa, 256);
-struct heap __malloc_heap = HEAP_INIT_WITH_FA (initial_fa);
+struct heap_free_area *__malloc_heap = HEAP_INIT_WITH_FA (initial_fa);
+#ifdef HEAP_USE_LOCKING
+malloc_mutex_t __malloc_heap_lock = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 #if defined(MALLOC_USE_LOCKING) && defined(MALLOC_USE_SBRK)
 /* A lock protecting our use of sbrk.  */
@@ -35,7 +38,7 @@ malloc_mutex_t __malloc_sbrk_lock;
 
 
 #ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
-/* A list of all malloc_mmb structures describing blocsk that
+/* A list of all malloc_mmb structures describing blocks that
    malloc has mmapped, ordered by the block address.  */
 struct malloc_mmb *__malloc_mmapped_blocks = 0;
 
@@ -43,12 +46,24 @@ struct malloc_mmb *__malloc_mmapped_blocks = 0;
    them from the main heap, but that tends to cause heap fragmentation in
    annoying ways.  */
 HEAP_DECLARE_STATIC_FREE_AREA (initial_mmb_fa, 48); /* enough for 3 mmbs */
-struct heap __malloc_mmb_heap = HEAP_INIT_WITH_FA (initial_mmb_fa);
+struct heap_free_area *__malloc_mmb_heap = HEAP_INIT_WITH_FA (initial_mmb_fa);
+#ifdef HEAP_USE_LOCKING
+malloc_mutex_t __malloc_mmb_heap_lock = PTHREAD_MUTEX_INITIALIZER;
+#endif
 #endif /* __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
 
 
+#ifdef HEAP_USE_LOCKING
+#define malloc_from_heap(size, heap, lck) __malloc_from_heap(size, heap, lck)
+#else
+#define malloc_from_heap(size, heap, lck) __malloc_from_heap(size, heap)
+#endif
 static void *
-malloc_from_heap (size_t size, struct heap *heap)
+__malloc_from_heap (size_t size, struct heap_free_area **heap
+#ifdef HEAP_USE_LOCKING
+		, malloc_mutex_t *heap_lock
+#endif
+		)
 {
   void *mem;
 
@@ -57,12 +72,12 @@ malloc_from_heap (size_t size, struct heap *heap)
   /* Include extra space to record the size of the allocated block.  */
   size += MALLOC_HEADER_SIZE;
 
-  __heap_lock (heap);
+  __heap_lock (heap_lock);
 
   /* First try to get memory that's already in our heap.  */
   mem = __heap_alloc (heap, &size);
 
-  __heap_unlock (heap);
+  __heap_unlock (heap_lock);
 
   if (unlikely (! mem))
     /* We couldn't allocate from the heap, so grab some more
@@ -122,11 +137,11 @@ malloc_from_heap (size_t size, struct heap *heap)
 	  struct malloc_mmb *mmb, *prev_mmb, *new_mmb;
 #endif
 
-	  MALLOC_DEBUG (1, "adding system memroy to heap: 0x%lx - 0x%lx (%d bytes)",
+	  MALLOC_DEBUG (1, "adding system memory to heap: 0x%lx - 0x%lx (%d bytes)",
 			(long)block, (long)block + block_size, block_size);
 
 	  /* Get back the heap lock.  */
-	  __heap_lock (heap);
+	  __heap_lock (heap_lock);
 
 	  /* Put BLOCK into the heap.  */
 	  __heap_free (heap, block, block_size);
@@ -136,7 +151,7 @@ malloc_from_heap (size_t size, struct heap *heap)
 	  /* Try again to allocate.  */
 	  mem = __heap_alloc (heap, &size);
 
-	  __heap_unlock (heap);
+	  __heap_unlock (heap_lock);
 
 #if !defined(MALLOC_USE_SBRK) && defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
 	  /* Insert a record of BLOCK in sorted order into the
@@ -148,7 +163,7 @@ malloc_from_heap (size_t size, struct heap *heap)
 	    if (block < mmb->mem)
 	      break;
 
-	  new_mmb = malloc_from_heap (sizeof *new_mmb, &__malloc_mmb_heap);
+	  new_mmb = malloc_from_heap (sizeof *new_mmb, &__malloc_mmb_heap, &__malloc_mmb_heap_lock);
 	  new_mmb->next = mmb;
 	  new_mmb->mem = block;
 	  new_mmb->size = block_size;
@@ -191,7 +206,7 @@ malloc (size_t size)
       __malloc_debug_init ();
     }
   if (__malloc_check)
-    __heap_check (&__malloc_heap, "malloc");
+    __heap_check (__malloc_heap, "malloc");
 #endif
 
 #ifdef __MALLOC_GLIBC_COMPAT__
@@ -207,7 +222,7 @@ malloc (size_t size)
   if (unlikely(((unsigned long)size > (unsigned long)(MALLOC_HEADER_SIZE*-2))))
     goto oom;
 
-  mem = malloc_from_heap (size, &__malloc_heap);
+  mem = malloc_from_heap (size, &__malloc_heap, &__malloc_heap_lock);
   if (unlikely (!mem))
     {
     oom:

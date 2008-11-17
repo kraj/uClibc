@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <bits/uClibc_mutex.h>
-#include <bits/libc-lock.h>
 
 libc_hidden_proto(mmap)
 libc_hidden_proto(sysconf)

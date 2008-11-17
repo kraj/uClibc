@@ -38,7 +38,8 @@ int __unix_grantpt (int fd);
 /* Prototype for private function that gets the name of the slave
    pseudo terminal in a safe way.  */
 static int pts_name (int fd, char **pts, size_t buf_len);
-
+extern __typeof(statfs) __libc_statfs;
+libc_hidden_proto(__libc_statfs)
 #endif
 
 /* Change the ownership and access permission of the slave pseudo
@@ -59,7 +60,7 @@ grantpt (attribute_unused int fd)
   if (pts_name (fd, &buf, sizeof (_buf)))
     return -1;
 
-  if (statfs (buf, &fsbuf) < 0)
+  if (__libc_statfs (buf, &fsbuf) < 0)
     return -1;
 
   /* If the slave pseudo terminal lives on a `devpts' filesystem, the

@@ -32,7 +32,6 @@ libc_hidden_proto(open)
 libc_hidden_proto(close)
 
 #if !defined __ASSUME_DEVPTS__
-# include <sys/statfs.h>
 
 /* Constant that identifies the `devpts' filesystem.  */
 # define DEVPTS_SUPER_MAGIC	0x1cd1
@@ -75,14 +74,19 @@ posix_openpt (int flags)
 
 	  /* Check that the /dev/pts filesystem is mounted
 	     or if /dev is a devfs filesystem (this implies /dev/pts).  */
-	  if ((_state & devpts_mounted)
-	      || (__libc_statfs (_PATH_DEVPTS, &fsbuf) == 0
+	  if (
+#if !defined __UNIX98PTY_ONLY__
+	      (_state & devpts_mounted) ||
+#endif
+	      (__libc_statfs (_PATH_DEVPTS, &fsbuf) == 0
 		  && fsbuf.f_type == DEVPTS_SUPER_MAGIC)
 	      || (__libc_statfs (_PATH_DEV, &fsbuf) == 0
 		  && fsbuf.f_type == DEVFS_SUPER_MAGIC))
 	    {
 	      /* Everything is ok.  */
+#if !defined __UNIX98PTY_ONLY__
 	      _state |= devpts_mounted;
+#endif
 	      return fd;
 	    }
 
@@ -104,24 +108,24 @@ posix_openpt (int flags)
 	    return -1;
 	}
     }
+#if !defined __UNIX98PTY_ONLY__ && defined __UCLIBC_HAS_GETPT__
+  /* If we have no ptmx then ignore flags and use the fallback.  */
+  if (_state & have_no_dev_ptmx)
+    return __bsd_getpt();
+#endif
   return -1;
 }
+libc_hidden_def(posix_openpt)
 #undef have_no_dev_ptmx
 #undef devpts_mounted
 
 #if defined __USE_GNU && defined __UCLIBC_HAS_GETPT__
-int
-getpt (void)
+int getpt (void)
 {
-	int fd = posix_openpt(O_RDWR);
-#if !defined __UNIX98PTY_ONLY__
-	if (fd == -1)
-		fd = __bsd_getpt();
-#endif
-	return fd;
+	return posix_openpt(O_RDWR);
 }
 
-#if !defined __UNIX98PTY_ONLY__
+#if !defined __UNIX98PTY_ONLY__ && defined __UCLIBC_HAS_GETPT__
 # define PTYNAME1 "pqrstuvwxyzabcde";
 # define PTYNAME2 "0123456789abcdef";
 
