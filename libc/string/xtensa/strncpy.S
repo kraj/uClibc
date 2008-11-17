@@ -41,29 +41,29 @@
 	.literal_position
 __strncpy_aux:
 
-.Lsrc1mod2: // src address is odd
-	l8ui	a8, a3, 0	// get byte 0
-	addi	a3, a3, 1	// advance src pointer
-	s8i	a8, a10, 0	// store byte 0
-	addi	a4, a4, -1	// decrement n
-	beqz    a4, .Lret       // if n is zero
-	addi	a10, a10, 1	// advance dst pointer
-	beqz	a8, .Lfill	// if byte 0 is zero
-	bbci.l	a3, 1, .Lsrcaligned // if src is now word-aligned
+.Lsrc1mod2: /* src address is odd */
+	l8ui	a8, a3, 0	/* get byte 0 */
+	addi	a3, a3, 1	/* advance src pointer */
+	s8i	a8, a10, 0	/* store byte 0 */
+	addi	a4, a4, -1	/* decrement n */
+	beqz    a4, .Lret       /* if n is zero */
+	addi	a10, a10, 1	/* advance dst pointer */
+	beqz	a8, .Lfill	/* if byte 0 is zero */
+	bbci.l	a3, 1, .Lsrcaligned /* if src is now word-aligned */
 
-.Lsrc2mod4: // src address is 2 mod 4
-	l8ui	a8, a3, 0	// get byte 0
-	addi	a4, a4, -1	// decrement n
-	s8i	a8, a10, 0	// store byte 0
-	beqz    a4, .Lret       // if n is zero
-	addi	a10, a10, 1	// advance dst pointer
-	beqz	a8, .Lfill	// if byte 0 is zero
-	l8ui	a8, a3, 1	// get byte 0
-	addi	a3, a3, 2	// advance src pointer
-	s8i	a8, a10, 0	// store byte 0
-	addi	a4, a4, -1	// decrement n
-	beqz    a4, .Lret       // if n is zero
-	addi	a10, a10, 1	// advance dst pointer
+.Lsrc2mod4: /* src address is 2 mod 4 */
+	l8ui	a8, a3, 0	/* get byte 0 */
+	addi	a4, a4, -1	/* decrement n */
+	s8i	a8, a10, 0	/* store byte 0 */
+	beqz    a4, .Lret       /* if n is zero */
+	addi	a10, a10, 1	/* advance dst pointer */
+	beqz	a8, .Lfill	/* if byte 0 is zero */
+	l8ui	a8, a3, 1	/* get byte 0 */
+	addi	a3, a3, 2	/* advance src pointer */
+	s8i	a8, a10, 0	/* store byte 0 */
+	addi	a4, a4, -1	/* decrement n */
+	beqz    a4, .Lret       /* if n is zero */
+	addi	a10, a10, 1	/* advance dst pointer */
 	bnez	a8, .Lsrcaligned
 	j	.Lfill
 
@@ -74,8 +74,8 @@ __strncpy_aux:
 ENTRY (strncpy)
 	/* a2 = dst, a3 = src */
 
-	mov	a10, a2		// leave dst in return value register
-	beqz    a4, .Lret       // if n is zero
+	mov	a10, a2		/* leave dst in return value register */
+	beqz    a4, .Lret       /* if n is zero */
 
 	movi	a11, MASK0
 	movi	a5, MASK1
@@ -125,28 +125,28 @@ ENTRY (strncpy)
 
 .Lfillcleanup:
 	/* Fill leftover (1 to 3) bytes with zero.  */
-	s8i	a9, a10, 0	// store byte 0
-	addi	a4, a4, -1	// decrement n
+	s8i	a9, a10, 0	/* store byte 0 */
+	addi	a4, a4, -1	/* decrement n */
 	addi	a10, a10, 1
-	bnez    a4, .Lfillcleanup 
+	bnez    a4, .Lfillcleanup
 
 2:	retw
-	
-.Lfill1mod2: // dst address is odd
-	s8i	a9, a10, 0	// store byte 0
-	addi	a4, a4, -1	// decrement n
-	beqz    a4, 2b		// if n is zero
-	addi    a10, a10, 1	// advance dst pointer
-	bbci.l	a10, 1, .Lfillaligned // if dst is now word-aligned
 
-.Lfill2mod4: // dst address is 2 mod 4
-	s8i	a9, a10, 0	// store byte 0
-	addi	a4, a4, -1	// decrement n
-	beqz    a4, 2b		// if n is zero
-	s8i	a9, a10, 1	// store byte 1
-	addi	a4, a4, -1	// decrement n
-	beqz    a4, 2b		// if n is zero
-	addi    a10, a10, 2	// advance dst pointer
+.Lfill1mod2: /* dst address is odd */
+	s8i	a9, a10, 0	/* store byte 0 */
+	addi	a4, a4, -1	/* decrement n */
+	beqz    a4, 2b		/* if n is zero */
+	addi    a10, a10, 1	/* advance dst pointer */
+	bbci.l	a10, 1, .Lfillaligned /* if dst is now word-aligned */
+
+.Lfill2mod4: /* dst address is 2 mod 4 */
+	s8i	a9, a10, 0	/* store byte 0 */
+	addi	a4, a4, -1	/* decrement n */
+	beqz    a4, 2b		/* if n is zero */
+	s8i	a9, a10, 1	/* store byte 1 */
+	addi	a4, a4, -1	/* decrement n */
+	beqz    a4, 2b		/* if n is zero */
+	addi    a10, a10, 2	/* advance dst pointer */
 	j	.Lfillaligned
 
 
@@ -156,32 +156,32 @@ ENTRY (strncpy)
 	/* (2 mod 4) alignment for loop instruction */
 .Laligned:
 #if XCHAL_HAVE_LOOPS
-	_movi.n	a8, 0		// set up for the maximum loop count
-	loop	a8, 1f		// loop forever (almost anyway)
-	blti	a4, 5, .Ldstunaligned // n is near limit; do one at a time
-	l32i	a8, a3, 0	// get word from src
-	addi	a3, a3, 4	// advance src pointer
-	bnone	a8, a11, .Lz0	// if byte 0 is zero
-	bnone	a8, a5, .Lz1	// if byte 1 is zero
-	bnone	a8, a6, .Lz2	// if byte 2 is zero
-	s32i	a8, a10, 0	// store word to dst
-	addi	a4, a4, -4	// decrement n
-	addi	a10, a10, 4	// advance dst pointer
-	bnone	a8, a7, .Lfill	// if byte 3 is zero
-1:	
+	_movi.n	a8, 0		/* set up for the maximum loop count */
+	loop	a8, 1f		/* loop forever (almost anyway) */
+	blti	a4, 5, .Ldstunaligned /* n is near limit; do one at a time */
+	l32i	a8, a3, 0	/* get word from src */
+	addi	a3, a3, 4	/* advance src pointer */
+	bnone	a8, a11, .Lz0	/* if byte 0 is zero */
+	bnone	a8, a5, .Lz1	/* if byte 1 is zero */
+	bnone	a8, a6, .Lz2	/* if byte 2 is zero */
+	s32i	a8, a10, 0	/* store word to dst */
+	addi	a4, a4, -4	/* decrement n */
+	addi	a10, a10, 4	/* advance dst pointer */
+	bnone	a8, a7, .Lfill	/* if byte 3 is zero */
+1:
 
 #else /* !XCHAL_HAVE_LOOPS */
 
-1:	blti	a4, 5, .Ldstunaligned // n is near limit; do one at a time
-	l32i	a8, a3, 0	// get word from src
-	addi	a3, a3, 4	// advance src pointer
-	bnone	a8, a11, .Lz0	// if byte 0 is zero
-	bnone	a8, a5, .Lz1	// if byte 1 is zero
-	bnone	a8, a6, .Lz2	// if byte 2 is zero
-	s32i	a8, a10, 0	// store word to dst
-	addi	a4, a4, -4	// decrement n
-	addi	a10, a10, 4	// advance dst pointer
-	bany	a8, a7, 1b	// no zeroes
+1:	blti	a4, 5, .Ldstunaligned /* n is near limit; do one at a time */
+	l32i	a8, a3, 0	/* get word from src */
+	addi	a3, a3, 4	/* advance src pointer */
+	bnone	a8, a11, .Lz0	/* if byte 0 is zero */
+	bnone	a8, a5, .Lz1	/* if byte 1 is zero */
+	bnone	a8, a6, .Lz2	/* if byte 2 is zero */
+	s32i	a8, a10, 0	/* store word to dst */
+	addi	a4, a4, -4	/* decrement n */
+	addi	a10, a10, 4	/* advance dst pointer */
+	bany	a8, a7, 1b	/* no zeroes */
 #endif /* !XCHAL_HAVE_LOOPS */
 
 	j	.Lfill
@@ -191,8 +191,8 @@ ENTRY (strncpy)
 	movi	a8, 0
 #endif
 	s8i	a8, a10, 0
-	addi	a4, a4, -1	// decrement n
-	addi	a10, a10, 1	// advance dst pointer
+	addi	a4, a4, -1	/* decrement n */
+	addi	a10, a10, 1	/* advance dst pointer */
 	j	.Lfill
 
 .Lz1:	/* Byte 1 is zero.  */
@@ -200,8 +200,8 @@ ENTRY (strncpy)
         extui   a8, a8, 16, 16
 #endif
 	s16i	a8, a10, 0
-	addi	a4, a4, -2	// decrement n
-	addi	a10, a10, 2	// advance dst pointer
+	addi	a4, a4, -2	/* decrement n */
+	addi	a10, a10, 2	/* advance dst pointer */
 	j	.Lfill
 
 .Lz2:	/* Byte 2 is zero.  */
@@ -211,8 +211,8 @@ ENTRY (strncpy)
 	s16i	a8, a10, 0
 	movi	a8, 0
 	s8i	a8, a10, 2
-	addi	a4, a4, -3	// decrement n
-	addi	a10, a10, 3	// advance dst pointer
+	addi	a4, a4, -3	/* decrement n */
+	addi	a10, a10, 3	/* advance dst pointer */
 	j	.Lfill
 
 	.align	4
@@ -220,8 +220,8 @@ ENTRY (strncpy)
 .Ldstunaligned:
 
 #if XCHAL_HAVE_LOOPS
-	_movi.n	a8, 0		// set up for the maximum loop count
-	loop	a8, 2f		// loop forever (almost anyway)
+	_movi.n	a8, 0		/* set up for the maximum loop count */
+	loop	a8, 2f		/* loop forever (almost anyway) */
 #endif
 1:	l8ui	a8, a3, 0
 	addi	a3, a3, 1

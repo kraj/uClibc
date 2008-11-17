@@ -40,7 +40,7 @@
 */
 
 
-#if PAGE_COPY_THRESHOLD
+#if defined PAGE_COPY_THRESHOLD && PAGE_COPY_THRESHOLD
 
 #include <assert.h>
 
@@ -48,7 +48,7 @@
   do									      \
     {									      \
       if ((nbytes) >= PAGE_COPY_THRESHOLD &&				      \
-	  PAGE_OFFSET ((dstp) - (srcp)) == 0) 				      \
+	  PAGE_OFFSET ((dstp) - (srcp)) == 0)				      \
 	{								      \
 	  /* The amount to copy is past the threshold for copying	      \
 	     pages virtually with kernel VM operations, and the		      \

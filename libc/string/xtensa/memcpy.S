@@ -83,7 +83,7 @@ __memcpy_aux:
 	loopnez	a4, 2f
 #else
 	beqz	a4, 2f
-	add	a7, a3, a4	// a7 = end address for source
+	add	a7, a3, a4	/* a7 = end address for source */
 #endif
 1:	l8ui	a6, a3, 0
 	addi	a3, a3, 1
@@ -98,7 +98,7 @@ __memcpy_aux:
 /* Destination is unaligned.  */
 
 	.align	4
-.Ldst1mod2: // dst is only byte aligned
+.Ldst1mod2: /* dst is only byte aligned */
 
 	/* Do short copies byte-by-byte.  */
 	_bltui	a4, 7, .Lbytecopy
@@ -113,7 +113,7 @@ __memcpy_aux:
 	/* Return to main algorithm if dst is now aligned.  */
 	_bbci.l	a5, 1, .Ldstaligned
 
-.Ldst2mod4: // dst has 16-bit alignment
+.Ldst2mod4: /* dst has 16-bit alignment */
 
 	/* Do short copies byte-by-byte.  */
 	_bltui	a4, 6, .Lbytecopy
@@ -134,7 +134,7 @@ __memcpy_aux:
 ENTRY (memcpy)
 	/* a2 = dst, a3 = src, a4 = len */
 
-	mov	a5, a2		// copy dst so that a2 is return value
+	mov	a5, a2		/* copy dst so that a2 is return value */
 	_bbsi.l	a2, 0, .Ldst1mod2
 	_bbsi.l	a2, 1, .Ldst2mod4
 .Ldstaligned:
@@ -152,7 +152,7 @@ ENTRY (memcpy)
 #else
 	beqz	a7, 2f
 	slli	a8, a7, 4
-	add	a8, a8, a3	// a8 = end of last 16B source chunk
+	add	a8, a8, a3	/* a8 = end of last 16B source chunk */
 #endif
 1:	l32i	a6, a3, 0
 	l32i	a7, a3, 4
@@ -218,18 +218,18 @@ ENTRY (memcpy)
 
 	/* Copy 16 bytes per iteration for word-aligned dst and
 	   unaligned src.  */
-	ssa8	a3		// set shift amount from byte offset
+	ssa8	a3		/* set shift amount from byte offset */
 #if UNALIGNED_ADDRESSES_CHECKED
-	and	a11, a3, a8	// save unalignment offset for below
-	sub	a3, a3, a11	// align a3
+	and	a11, a3, a8	/* save unalignment offset for below */
+	sub	a3, a3, a11	/* align a3 */
 #endif
-	l32i	a6, a3, 0	// load first word
+	l32i	a6, a3, 0	/* load first word */
 #if XCHAL_HAVE_LOOPS
 	loopnez	a7, 2f
 #else
 	beqz	a7, 2f
 	slli	a10, a7, 4
-	add	a10, a10, a3	// a10 = end of last 16B source chunk
+	add	a10, a10, a3	/* a10 = end of last 16B source chunk */
 #endif
 1:	l32i	a7, a3, 4
 	l32i	a8, a3, 8
@@ -273,7 +273,7 @@ ENTRY (memcpy)
 	mov	a6, a7
 4:
 #if UNALIGNED_ADDRESSES_CHECKED
-	add	a3, a3, a11	// readjust a3 with correct misalignment
+	add	a3, a3, a11	/* readjust a3 with correct misalignment */
 #endif
 	bbsi.l	a4, 1, 5f
 	bbsi.l	a4, 0, 6f

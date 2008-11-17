@@ -42,7 +42,7 @@ ENTRY(strcmp)
 .loop:
 	ld1	val1 = [s1], 1
 	ld1	val2 = [s2], 1
-	cmp.eq	p6, p0 = r0, r0		// set p6
+	cmp.eq	p6, p0 = r0, r0		/* set p6 */
 	;;
 	cmp.ne.and p6, p0 = val1, r0
 	cmp.ne.and p6, p0 = val2, r0

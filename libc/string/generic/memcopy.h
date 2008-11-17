@@ -107,6 +107,24 @@ typedef unsigned char byte;
 	}								      \
     } while (0)
 
+/* Copy *up to* NBYTES bytes from SRC_BP to DST_BP, with
+   the assumption that DST_BP is aligned on an OPSIZ multiple.  If
+   not all bytes could be easily copied, store remaining number of bytes
+   in NBYTES_LEFT, otherwise store 0.  */
+/* extern void _wordcopy_fwd_aligned __P ((long int, long int, size_t)); */
+/* extern void _wordcopy_fwd_dest_aligned __P ((long int, long int, size_t)); */
+#define WORD_COPY_FWD(dst_bp, src_bp, nbytes_left, nbytes)		      \
+  do									      \
+    {									      \
+      if (src_bp % OPSIZ == 0)						      \
+	_wordcopy_fwd_aligned (dst_bp, src_bp, (nbytes) / OPSIZ);	      \
+      else								      \
+	_wordcopy_fwd_dest_aligned (dst_bp, src_bp, (nbytes) / OPSIZ);	      \
+      src_bp += (nbytes) & -OPSIZ;					      \
+      dst_bp += (nbytes) & -OPSIZ;					      \
+      (nbytes_left) = (nbytes) % OPSIZ;					      \
+    } while (0)
+
 /* Copy *up to* NBYTES_TO_COPY bytes from SRC_END_PTR to DST_END_PTR,
    beginning at the words (of type op_t) right before the pointers and
    continuing towards smaller addresses.  May take advantage of that
@@ -130,26 +148,3 @@ typedef unsigned char byte;
 
 /* Threshold value for when to enter the unrolled loops.  */
 #define	OP_T_THRES	16
-
-#ifdef __ARCH_HAS_BWD_MEMCPY__
-
-/* Copy *up to* NBYTES bytes from SRC_BP to DST_BP, with
-   the assumption that DST_BP is aligned on an OPSIZ multiple.  If
-   not all bytes could be easily copied, store remaining number of bytes
-   in NBYTES_LEFT, otherwise store 0.  */
-/* extern void _wordcopy_fwd_aligned __P ((long int, long int, size_t)); */
-/* extern void _wordcopy_fwd_dest_aligned __P ((long int, long int, size_t)); */
-#define WORD_COPY_FWD(dst_bp, src_bp, nbytes_left, nbytes)		      \
-  do									      \
-    {									      \
-      if (src_bp % OPSIZ == 0)						      \
-	_wordcopy_fwd_aligned (dst_bp, src_bp, (nbytes) / OPSIZ);	      \
-      else								      \
-	_wordcopy_fwd_dest_aligned (dst_bp, src_bp, (nbytes) / OPSIZ);	      \
-      src_bp += (nbytes) & -OPSIZ;					      \
-      dst_bp += (nbytes) & -OPSIZ;					      \
-      (nbytes_left) = (nbytes) % OPSIZ;					      \
-    } while (0)
-
-#endif /* __ARCH_HAS_BWD_MEMCPY__ */
-

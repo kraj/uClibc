@@ -29,7 +29,7 @@
    The algorithm is as follows:
 
    Create a word with c in all byte positions.
-	
+
    If the destination is aligned, set 16B chunks with a loop, and then
    finish up with 8B, 4B, 2B, and 1B stores conditional on the length.
 
@@ -57,7 +57,7 @@ __memset_aux:
 	loopnez	a4, 2f
 #else
 	beqz	a4, 2f
-	add	a6, a5, a4	// a6 = ending address
+	add	a6, a5, a4	/* a6 = ending address */
 #endif
 1:	s8i	a3, a5, 0
 	addi	a5, a5, 1
@@ -71,7 +71,7 @@ __memset_aux:
 
 	.align	4
 
-.Ldst1mod2: // dst is only byte aligned
+.Ldst1mod2: /* dst is only byte aligned */
 
 	/* Do short sizes byte-by-byte.  */
 	bltui	a4, 8, .Lbyteset
@@ -84,7 +84,7 @@ __memset_aux:
 	/* Now retest if dst is aligned.  */
 	_bbci.l	a5, 1, .Ldstaligned
 
-.Ldst2mod4: // dst has 16-bit alignment
+.Ldst2mod4: /* dst has 16-bit alignment */
 
 	/* Do short sizes byte-by-byte.  */
 	bltui	a4, 8, .Lbyteset
@@ -108,7 +108,7 @@ ENTRY (memset)
 	slli	a7, a3, 16
 	or	a3, a3, a7
 
-	mov	a5, a2		// copy dst so that a2 is return value
+	mov	a5, a2		/* copy dst so that a2 is return value */
 
 	/* Check if dst is unaligned.  */
 	_bbsi.l	a2, 0, .Ldst1mod2
@@ -124,7 +124,7 @@ ENTRY (memset)
 #else
 	beqz	a7, 2f
 	slli	a6, a7, 4
-	add	a6, a6, a5	// a6 = end of last 16B chunk
+	add	a6, a6, a5	/* a6 = end of last 16B chunk */
 #endif
 	/* Set 16 bytes per iteration.  */
 1:	s32i	a3, a5, 0

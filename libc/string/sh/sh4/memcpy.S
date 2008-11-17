@@ -21,7 +21,7 @@
 	!
 	!	GHIJ KLMN OPQR -->  ...G HIJK LMNO PQR.
 	!
-	
+
 	! Size is 16 or greater, and may have trailing bytes
 
 	.balign	32
@@ -40,7 +40,7 @@
 	! 6 cycles, 4 bytes per iteration
 3:	mov.l	@(r0,r5),r1	!  21 LS (latency=2)	! NMLK
 	mov	r7, r3		!   5 MT (latency=0)	! RQPO
-	
+
 	cmp/hi	r2,r0		!  57 MT
 	shll16	r3		! 103 EX
 
@@ -49,7 +49,7 @@
 
 	shlr8	r6		! 106 EX		! xNML
 	mov	r1, r7		!   5 MT (latency=0)
-	
+
 	or	r6,r3		!  82 EX		! ONML
 	bt/s	3b		! 109 BR
 
@@ -82,7 +82,7 @@
 
 8:	cmp/hi	r2,r0		!  57 MT
 	mov.b	@(r0,r5),r1	!  20 LS (latency=2)
-	
+
 	bt/s	8b		! 109 BR
 
 	 mov.b	r1,@-r0		!  29 LS
@@ -90,11 +90,11 @@
 9:	rts
 	 nop
 
-	
+
 	!
 	!	GHIJ KLMN OPQR -->  .GHI JKLM NOPQ R...
 	!
-	
+
 	! Size is 16 or greater, and may have trailing bytes
 
 	.balign	32
@@ -113,7 +113,7 @@
 	! 6 cycles, 4 bytes per iteration
 3:	mov.l	@(r0,r5),r1	!  21 LS (latency=2)	! NMLK
 	mov	r7, r3		!   5 MT (latency=0)	! RQPO
-	
+
 	cmp/hi	r2,r0		!  57 MT
 	shll8	r3		! 102 EX		! QPOx
 
@@ -122,7 +122,7 @@
 
 	shlr8	r6		! 106 EX		! xxxN
 	mov	r1, r7		!   5 MT (latency=0)
-	
+
 	or	r6,r3		!  82 EX		! QPON
 	bt/s	3b		! 109 BR
 
@@ -150,14 +150,13 @@
 
 8:	cmp/hi	r2,r0		!  57 MT
 	mov.b	@(r0,r5),r1	!  20 LS (latency=2)
-	
+
 	bt/s	8b		! 109 BR
 
 	 mov.b	r1,@-r0		!  29 LS
 
 9:	rts
 	 nop
-	
 
 ENTRY(memcpy)
 
@@ -170,7 +169,7 @@ ENTRY(memcpy)
 	!      r0   -->  [ ...  ]       r0+r5 --> [ ...  ]
 	!
 	!
-	
+
 	! Short circuit the common case of src, dst and len being 32 bit aligned
 	! and test for zero length move
 
@@ -203,7 +202,7 @@ ENTRY(memcpy)
 	!	36	82		49-50	66-70	80-85
 	! However the penalty for getting it 'wrong' is much higher for long word
 	! aligned data (and this is more common), so use a value of 16.
-	
+
 	cmp/gt	r6,r1		!  56 MT
 
 	add	#-1,r5		!  50 EX
@@ -214,7 +213,7 @@ ENTRY(memcpy)
 
 	mov.b	@(r0,r5),r1	!  20 LS (latency=2)
 	bf/s	4f		! 111 BR
-	
+
 	 add	#-1,r3		!  50 EX
 	tst	r6, r6		!  86 MT
 
@@ -249,7 +248,7 @@ ENTRY(memcpy)
 	bt/s	2f		! 111 BR
 	 and	r0,r3		!  78 EX
 
-	! 3 cycles, 1 byte per iteration	
+	! 3 cycles, 1 byte per iteration
 1:	dt	r3		!  67 EX
 	mov.b	@(r0,r5),r1	!  19 LS (latency=2)
 
@@ -259,10 +258,10 @@ ENTRY(memcpy)
 	 mov.b	r1,@-r0		!  28 LS
 
 2:	add	#1, r5		!  79 EX
-	
+
 	! Now select the appropriate bulk transfer code based on relative
 	! alignment of src and dst.
-	
+
 	mov	r0, r3		!   5 MT (latency=0)
 
 	mov	r5, r0		!   5 MT (latency=0)
@@ -272,7 +271,7 @@ ENTRY(memcpy)
 	 mov	#64, r7		!   6 EX
 
 	! bit 0 clear
-		
+
 	cmp/ge	r7, r6		!  55 MT
 
 	bt/s	2f		! 111 BR
@@ -291,7 +290,7 @@ ENTRY(memcpy)
 
 	bra	.Lcase2b
 	 nop
-	
+
 	! bit 0 set
 1:	tst	#2, r0		! 87 MT
 
@@ -300,7 +299,7 @@ ENTRY(memcpy)
 
 	bra	.Lcase3
 	 nop
-	
+
 
 	!
 	!	GHIJ KLMN OPQR -->  GHIJ KLMN OPQR
@@ -308,7 +307,7 @@ ENTRY(memcpy)
 
 	! src, dst and size are all long word aligned
 	! size is non-zero
-	
+
 	.balign	32
 .Lcase00:
 	mov	#64, r1		!   6 EX
@@ -321,7 +320,7 @@ ENTRY(memcpy)
 	shlr2	r6		! 105 EX
 
 	shlr	r6		! 104 EX
-	mov.l	@(r0, r5), r1	!  21 LS (latency=2)	
+	mov.l	@(r0, r5), r1	!  21 LS (latency=2)
 
 	bf/s	4f		! 111 BR
 	 add	#-8, r3		!  50 EX
@@ -345,7 +344,7 @@ ENTRY(memcpy)
 5:	rts
 	 nop
 
-	
+
 	! Size is 16 or greater and less than 64, but may have trailing bytes
 
 	.balign	32
@@ -353,7 +352,7 @@ ENTRY(memcpy)
 	add	#-4, r5		!  50 EX
 	mov	r4, r7		!   5 MT (latency=0)
 
-	mov.l	@(r0, r5), r1	!  21 LS (latency=2)	
+	mov.l	@(r0, r5), r1	!  21 LS (latency=2)
 	mov	#4, r2		!   6 EX
 
 	add	#11, r7		!  50 EX
@@ -379,7 +378,7 @@ ENTRY(memcpy)
 	! Copy the final 0-3 bytes
 
 	add	#3,r5		!  50 EX
-	
+
 	cmp/eq	r0, r4		!  54 MT
 	add	#-10, r7	!  50 EX
 
@@ -388,7 +387,7 @@ ENTRY(memcpy)
 	! 3 cycles, 1 byte per iteration
 1:	mov.b	@(r0,r5),r1	!  19 LS
 	cmp/hi	r7,r0		!  57 MT
-	
+
 	bt/s	1b		! 111 BR
 	 mov.b	r1,@-r0		!  28 LS
 
@@ -429,10 +428,10 @@ ENTRY(memcpy)
 	 add	#8, r3		!  50 EX
 
 	tst	#0x18, r0	!  87 MT
-	
+
 	bt/s	1f		! 109 BR
 	 mov.l	r1,@-r0		!  30 LS
-	
+
 	! 4 cycles, 2 long words per iteration
 3:	mov.l	@(r0, r5), r1	!  21 LS (latency=2)
 
@@ -452,7 +451,7 @@ ENTRY(memcpy)
 	! We could do this with the four scratch registers, but if src
 	! and dest hit the same cache line, this will thrash, so make
 	! use of additional registers.
-	! 
+	!
 	! We also need r0 as a temporary (for movca), so 'undo' the invariant:
 	!   r5:	 src (was r0+r5)
 	!   r1:	 dest (was r0)
@@ -461,14 +460,14 @@ ENTRY(memcpy)
 	!
 1:	mov.l	r8, @-r15	!  30 LS
 	add	r0, r5		!  49 EX
-	
+
 	mov.l	r9, @-r15	!  30 LS
 	mov	r0, r1		!   5 MT (latency=0)
-	
+
 	mov.l	r10, @-r15	!  30 LS
 	add	#-0x1c, r5	!  50 EX
-	
-	mov.l	r11, @-r15	!  30 LS			
+
+	mov.l	r11, @-r15	!  30 LS
 
 	! 16 cycles, 32 bytes per iteration
 2:	mov.l	@(0x00,r5),r0	! 18 LS (latency=2)
@@ -512,10 +511,10 @@ ENTRY(memcpy)
 	sub	r4, r1		!  75 EX		(len remaining)
 
 	! number of trailing bytes is non-zero
-	!	
+	!
 	! invariants restored (r5 already decremented by 4)
 	! also r1=num bytes remaining
-	
+
 	mov	#4, r2		!   6 EX
 	mov	r4, r7		!   5 MT (latency=0)
 
@@ -525,7 +524,7 @@ ENTRY(memcpy)
 	bf/s	5f		! 108 BR
 	 add	 #11, r7	!  50 EX
 
-	mov.l	@(r0, r5), r6	!  21 LS (latency=2)	
+	mov.l	@(r0, r5), r6	!  21 LS (latency=2)
 	tst	r2, r1		!  86 MT
 
 	mov	r5, r3		!   5 MT (latency=0)
@@ -555,11 +554,11 @@ ENTRY(memcpy)
 
 	bt	9f		! 110 BR
 	add	#3,r5		!  50 EX
-	
+
 	! 3 cycles, 1 byte per iteration
 1:	mov.b	@(r0,r5),r1	!  19 LS
 	cmp/hi	r7,r0		!  57 MT
-	
+
 	bt/s	1b		! 111 BR
 	 mov.b	r1,@-r0		!  28 LS
 
@@ -569,7 +568,7 @@ ENTRY(memcpy)
 	!
 	!	GHIJ KLMN OPQR -->  ..GH IJKL MNOP QR..
 	!
-		
+
 	.balign	32
 .Lcase2:
 	! Size is 16 or greater and less then 64, but may have trailing bytes
@@ -610,21 +609,21 @@ ENTRY(memcpy)
 
 	cmp/eq	r3, r0		!  54 MT
 	add	#0x1f, r2	!  50 EX
-	
+
 	add	#-2, r5		!  50 EX
 	bt/s	1f		! 110 BR
 	 and	r1, r2		!  78 EX
-	
+
 	! Copy a short word one at a time until we are cache line aligned
 	!   Normal values: r0, r2, r3, r4
 	!   Unused: r1, r6, r7
 	!   Mod: r5 (=r5-2)
 	!
 	add	#2, r3		!  50 EX
-	
+
 2:	mov.w	@(r0,r5),r1	!  20 LS (latency=2)
 	cmp/eq	r3,r0		!  54 MT
-		
+
 	bf/s	2b		! 111 BR
 
 	 mov.w	r1,@-r0		!  29 LS
@@ -637,7 +636,7 @@ ENTRY(memcpy)
 	! We could do this with the four scratch registers, but if src
 	! and dest hit the same cache line, this will thrash, so make
 	! use of additional registers.
-	! 
+	!
 	! We also need r0 as a temporary (for movca), so 'undo' the invariant:
 	!   r5:	 src (was r0+r5)
 	!   r1:	 dest (was r0)
@@ -646,16 +645,16 @@ ENTRY(memcpy)
 	!
 1:	mov.l	r8, @-r15	!  30 LS
 	add	r0, r5		!  49 EX
-	
+
 	mov.l	r9, @-r15	!  30 LS
 	mov	r0, r1		!   5 MT (latency=0)
-	
+
 	mov.l	r10, @-r15	!  30 LS
 	add	#-0x1e, r5	!  50 EX
-	
-	mov.l	r11, @-r15	!  30 LS			
-	
-	mov.l	r12, @-r15	!  30 LS			
+
+	mov.l	r11, @-r15	!  30 LS
+
+	mov.l	r12, @-r15	!  30 LS
 
 	! 17 cycles, 32 bytes per iteration
 #ifdef __LITTLE_ENDIAN__
@@ -692,7 +691,7 @@ ENTRY(memcpy)
 	xtrct	r12, r11	!  48 EX
 
 	mov.l	r6, @(0x08,r1)	!  33 LS
-	
+
 	mov.l	r7, @(0x0c,r1)	!  33 LS
 
 	mov.l	r8, @(0x10,r1)	!  33 LS
@@ -741,7 +740,7 @@ ENTRY(memcpy)
 
 	mov.l	r6, @(0x18,r1)	!  33 LS
 	xtrct	r12, r11	!  48 EX
-	
+
 	mov.l	r7, @(0x14,r1)	!  33 LS
 
 	mov.l	r8, @(0x10,r1)	!  33 LS
@@ -772,7 +771,7 @@ ENTRY(memcpy)
 1:	 mov.l	@r15+, r8	!  15 LS
 
 	add	#0x1e, r5	!  50 EX
-	
+
 	! Finish off a short word at a time
 	! r5 must be invariant - 2
 10:	mov	r4,r2		!   5 MT (latency=0)
@@ -782,7 +781,7 @@ ENTRY(memcpy)
 	bf/s	1f		! 109 BR
 
 	 add	#2, r2		!  50 EX
-	
+
 3:	mov.w	@(r0,r5),r1	!  20 LS
 	cmp/hi	r2,r0		!  57 MT
 
@@ -790,7 +789,7 @@ ENTRY(memcpy)
 
 	 mov.w	r1,@-r0		!  29 LS
 1:
-		
+
 	!
 	! Finally, copy the last byte if necessary
 	cmp/eq	r4,r0		!  54 MT

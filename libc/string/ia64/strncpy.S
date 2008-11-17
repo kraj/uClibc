@@ -58,64 +58,64 @@ ENTRY(strncpy)
 	.rotr	r[MEMLAT + 2]
 	.rotp	p[MEMLAT + 1]
 
-	mov	ret0 = in0		// return value = dest
+	mov	ret0 = in0		/* return value = dest */
 	.save pr, saved_pr
-	mov	saved_pr = pr           // save the predicate registers
+	mov	saved_pr = pr           /* save the predicate registers */
 	.save ar.lc, saved_lc
-	mov 	saved_lc = ar.lc	// save the loop counter
-	mov	ar.ec = 0		// ec is not guaranteed to
-					// be zero upon function entry
+	mov 	saved_lc = ar.lc	/* save the loop counter */
+	mov	ar.ec = 0		/* ec is not guaranteed to */
+					/* be zero upon function entry */
 	.body
 	cmp.geu p6, p5 = 24, in2
 (p6)	br.cond.spnt .short_len
-	sub	tmp = r0, in0 ;;	// tmp = -dest
-	mov	len = in2		// len
-	mov 	dest = in0		// dest
-	mov 	src = in1		// src
-	and	tmp = 7, tmp ;;		// loopcnt = -dest % 8
+	sub	tmp = r0, in0 ;;	/* tmp = -dest */
+	mov	len = in2		/* len */
+	mov 	dest = in0		/* dest */
+	mov 	src = in1		/* src */
+	and	tmp = 7, tmp ;;		/* loopcnt = -dest % 8 */
 	cmp.eq	p6, p7 = tmp, r0
-	adds	loopcnt = -1, tmp	// --loopcnt
+	adds	loopcnt = -1, tmp	/* --loopcnt */
 (p6)	br.cond.sptk .dest_aligned ;;
-	sub	len = len, tmp		// len -= -dest % 8
+	sub	len = len, tmp		/* len -= -dest % 8 */
 	mov	ar.lc = loopcnt
-.l1:					// copy -dest % 8 bytes
-(p5)	ld1	c = [src], 1		// c = *src++
+.l1:					/* copy -dest % 8 bytes */
+(p5)	ld1	c = [src], 1		/* c = *src++ */
 	;;
-	st1	[dest] = c, 1		// *dest++ = c
+	st1	[dest] = c, 1		/* *dest++ = c */
 	cmp.ne	p5, p7 = c, r0
 	br.cloop.dptk .l1 ;;
 (p7)	br.cond.dpnt	.found0_align
 
-.dest_aligned:				// p7 should be cleared here
-	shr.u	c = len, 3		// c = len / 8
-	and	sh1 = 7, src 		// sh1 = src % 8
-	and	asrc = -8, src ;;	// asrc = src & -OPSIZ  -- align src
-	adds	c = (MEMLAT-1), c	// c = (len / 8) + MEMLAT - 1
+.dest_aligned:				/* p7 should be cleared here */
+	shr.u	c = len, 3		/* c = len / 8 */
+	and	sh1 = 7, src 		/* sh1 = src % 8 */
+	and	asrc = -8, src ;;	/* asrc = src & -OPSIZ  -- align src */
+	adds	c = (MEMLAT-1), c	/* c = (len / 8) + MEMLAT - 1 */
 	sub	thresh = 8, sh1
-	mov	pr.rot = 1 << 16	// set rotating predicates
-	shl	sh1 = sh1, 3 ;;		// sh1 = 8 * (src % 8)
-	mov	ar.lc = c		// "infinite" loop
-	sub	sh2 = 64, sh1		// sh2 = 64 - sh1
-	cmp.eq  p6, p0 = sh1, r0 	// is the src aligned?
+	mov	pr.rot = 1 << 16	/* set rotating predicates */
+	shl	sh1 = sh1, 3 ;;		/* sh1 = 8 * (src % 8) */
+	mov	ar.lc = c		/* "infinite" loop */
+	sub	sh2 = 64, sh1		/* sh2 = 64 - sh1 */
+	cmp.eq  p6, p0 = sh1, r0 	/* is the src aligned? */
 (p6)    br.cond.sptk .src_aligned
-	adds	c = -(MEMLAT-1), c ;;	// c = (len / 8)
+	adds	c = -(MEMLAT-1), c ;;	/* c = (len / 8) */
 	ld8	r[1] = [asrc],8
 	mov	ar.lc = c ;;
 
 	.align	32
 .l2:
-(p6)	st8	[dest] = value, 8	// store val to dest
+(p6)	st8	[dest] = value, 8	/* store val to dest */
 	ld8.s	r[0] = [asrc], 8
-	shr.u	value = r[1], sh1 ;; 	// value = w0 >> sh1
-	czx1.r	pos = value ;;		// do we have an "early" zero
-	cmp.lt	p7, p0 = pos, thresh	// in w0 >> sh1?
-	adds	len = -8, len		// len -= 8
+	shr.u	value = r[1], sh1 ;; 	/* value = w0 >> sh1 */
+	czx1.r	pos = value ;;		/* do we have an "early" zero */
+	cmp.lt	p7, p0 = pos, thresh	/* in w0 >> sh1? */
+	adds	len = -8, len		/* len -= 8 */
 (p7)	br.cond.dpnt .nonalign_found0
-	chk.s	r[0], .recovery2	// it is safe to do that only
-.back2:					// after the previous test
-	shl	tmp = r[0], sh2  	// tmp = w1 << sh2
+	chk.s	r[0], .recovery2	/* it is safe to do that only */
+.back2:					/* after the previous test */
+	shl	tmp = r[0], sh2  	/* tmp = w1 << sh2 */
 	;;
-	or	value = value, tmp ;;	// value |= tmp
+	or	value = value, tmp ;;	/* value |= tmp */
 	czx1.r	pos = value ;;
 	cmp.ne	p7, p6 = 8, pos
 (p7)	br.cond.dpnt .nonalign_found0
@@ -137,7 +137,7 @@ ENTRY(strncpy)
 (p[MEMLAT])	mov	value = r[MEMLAT]
 (p[MEMLAT])	czx1.r	pos = r[MEMLAT] ;;
 (p[MEMLAT])	cmp.ne	p7, p0 = 8, pos
-(p[MEMLAT])	adds	len = -8, len	// len -= 8
+(p[MEMLAT])	adds	len = -8, len	/* len -= 8 */
 (p7)		br.cond.dpnt .found0
 (p[MEMLAT])	st8	[dest] = r[MEMLAT], 8
 		br.ctop.dptk .l3 ;;
@@ -152,7 +152,7 @@ ENTRY(strncpy)
 (p5)	br.cond.dptk	.restore_and_exit ;;
 	mov	ar.lc = len
 .l4:
-(p6)	extr.u	c = value, 0, 8		// c = value & 0xff
+(p6)	extr.u	c = value, 0, 8		/* c = value & 0xff */
 (p6)	shr.u	value = value, 8 ;;
 	st1	[dest] = c, 1
 	cmp.ne	p6, p0 = c, r0
@@ -165,7 +165,7 @@ ENTRY(strncpy)
 	mov	value = 0 ;;
 .found0:
 	shl	tmp = pos, 3
-	shr.u	loopcnt = len, 4	// loopcnt = len / 16
+	shr.u	loopcnt = len, 4	/* loopcnt = len / 16 */
 	mov	c = -1 ;;
 	cmp.eq	p6, p0 = loopcnt, r0
 	adds	loopcnt = -1, loopcnt
@@ -192,24 +192,24 @@ ENTRY(strncpy)
 	st1	[dest] = r0, 1
 	br.cloop.dptk	.l7 ;;
 .restore_and_exit:
-	mov 	ar.lc = saved_lc	// restore the loop counter
-	mov	pr = saved_pr, -1	// restore the predicate registers
+	mov 	ar.lc = saved_lc	/* restore the loop counter */
+	mov	pr = saved_pr, -1	/* restore the predicate registers */
 	br.ret.sptk.many b0
 
 .short_len:
 	cmp.eq	p5, p0 = in2, r0
 	adds	loopcnt = -1, in2
 (p5)	br.cond.spnt .restore_and_exit ;;
-	mov	ar.lc = loopcnt		// p6 should be set when we get here
+	mov	ar.lc = loopcnt		/* p6 should be set when we get here */
 .l8:
-(p6)	ld1	c = [in1], 1		// c = *src++
+(p6)	ld1	c = [in1], 1		/* c = *src++ */
 	;;
-	st1	[in0] = c, 1		// *dest++ = c
+	st1	[in0] = c, 1		/* *dest++ = c */
 (p6)	cmp.ne	p6, p0 = c, r0
 	br.cloop.dptk .l8
 	;;
-	mov 	ar.lc = saved_lc	// restore the loop counter
-	mov	pr = saved_pr, -1	// restore the predicate registers
+	mov 	ar.lc = saved_lc	/* restore the loop counter */
+	mov	pr = saved_pr, -1	/* restore the predicate registers */
 	br.ret.sptk.many b0
 .recovery2:
 	add	c = 8, len

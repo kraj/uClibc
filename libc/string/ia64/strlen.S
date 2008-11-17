@@ -50,13 +50,13 @@ ENTRY(strlen)
 	.prologue
 	alloc r2 = ar.pfs, 1, 0, 0, 0
 	.save ar.lc, saved_lc
-        mov 	saved_lc = ar.lc 	// save the loop counter
+        mov 	saved_lc = ar.lc 	/* save the loop counter */
 	.body
 	mov 	str = in0	
-	mov 	len = r0		// len = 0
-	and 	tmp = 7, in0		// tmp = str % 8
+	mov 	len = r0		/* len = 0 */
+	and 	tmp = 7, in0		/* tmp = str % 8 */
 	;;
-	sub	loopcnt = 8, tmp	// loopcnt = 8 - tmp
+	sub	loopcnt = 8, tmp	/* loopcnt = 8 - tmp */
 	cmp.eq	p6, p0 = tmp, r0
 (p6)	br.cond.sptk	.str_aligned;;
 	adds	loopcnt = -1, loopcnt;;
@@ -69,11 +69,11 @@ ENTRY(strlen)
 	adds	len = 1, len
 	br.cloop.dptk	.l1
 .str_aligned:
-	mov	origadd = str		// origadd = orig
+	mov	origadd = str		/* origadd = orig */
 	ld8	val1 = [str], 8;;
 	nop.b	0
 	nop.b 	0
-.l2:	ld8.s	val2 = [str], 8		// don't bomb out here
+.l2:	ld8.s	val2 = [str], 8		/* don't bomb out here */
 	czx1.r	pos0 = val1	
 	;;
 	cmp.ne	p6, p0 = 8, pos0
@@ -83,16 +83,16 @@ ENTRY(strlen)
 	mov	val1 = val2	
 	br.cond.dptk	.l2
 .foundit:
-	sub	tmp = str, origadd	// tmp = crt address - orig
+	sub	tmp = str, origadd	/* tmp = crt address - orig */
 	add	len = len, pos0;;
 	add	len = len, tmp;;
 	adds	len = -16, len
 .restore_and_exit:
-	mov ar.lc = saved_lc		// restore the loop counter
+	mov ar.lc = saved_lc		/* restore the loop counter */
 	br.ret.sptk.many b0
 .recovery:
 	adds	str = -8, str;;
-	ld8	val2 = [str], 8		// bomb out here
+	ld8	val2 = [str], 8		/* bomb out here */
 	br.cond.sptk	.back
 END(strlen)
 libc_hidden_def (strlen)
