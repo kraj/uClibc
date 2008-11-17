@@ -12,7 +12,7 @@ INET_OUT := $(top_builddir)libc/inet
 
 CSRC :=
 ifneq ($(UCLIBC_HAS_CRYPT_IMPL)$(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6),)
-# des uses nthol
+# des uses ntohl
 CSRC += ntohl.c
 endif
 ifneq ($(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6),)
@@ -25,21 +25,25 @@ CSRC += in6_addr.c
 endif
 
 # multi source addr.c
-addr_CSRC :=	inet_aton.c inet_addr.c inet_ntoa.c inet_makeaddr.c \
+addr_CSRC := \
+	inet_aton.c inet_addr.c inet_ntoa.c inet_makeaddr.c \
 	inet_lnaof.c inet_netof.c
 ifneq ($(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6),)
 CSRC += $(addr_CSRC)
 endif
 
 # multi source resolv.c
-resolv_CSRC +=	encodeh.c decodeh.c encoded.c decoded.c lengthd.c encodeq.c \
-	decodeq.c lengthq.c encodea.c decodea.c \
-	dnslookup.c resolveaddress.c opennameservers.c \
-	closenameservers.c resolvename.c gethostbyname.c res_init.c \
-	res_query.c gethostbyaddr.c read_etc_hosts_r.c get_hosts_byname_r.c \
-	get_hosts_byaddr_r.c gethostbyname2.c getnameinfo.c gethostent.c \
-	gethostbyname_r.c gethostbyname2_r.c gethostbyaddr_r.c \
-	res_comp.c ns_name.c ethers.c
+resolv_CSRC += \
+	encodeh.c decodeh.c encoded.c decoded.c lengthd.c \
+	encodeq.c decodeq.c lengthq.c encodea.c decodea.c \
+	dnslookup.c opennameservers.c closenameservers.c \
+	read_etc_hosts_r.c get_hosts_byaddr_r.c get_hosts_byname_r.c \
+	getnameinfo.c \
+	gethostbyaddr_r.c gethostbyname_r.c gethostbyname2_r.c gethostent_r.c \
+	gethostbyaddr.c gethostbyname.c gethostbyname2.c gethostent.c \
+	res_init.c res_query.c res_comp.c ns_name.c \
+	ethers.c
+#FIXME! ethers.c is a separate file, not a part of resolv.c - !?
 ifneq ($(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6),)
 CSRC += $(resolv_CSRC)
 
@@ -49,7 +53,8 @@ endif
 
 
 # multi source socketcalls.c
-socketcalls_CSRC +=	accept.c bind.c connect.c getpeername.c getsockname.c \
+socketcalls_CSRC += \
+	accept.c bind.c connect.c getpeername.c getsockname.c \
 	getsockopt.c listen.c recv.c recvfrom.c recvmsg.c send.c sendmsg.c \
 	sendto.c setsockopt.c shutdown.c socket.c socketpair.c
 ifeq ($(UCLIBC_HAS_SOCKET),y)

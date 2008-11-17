@@ -149,7 +149,7 @@ struct __res_state {
 	 * is the number of addresses of all kinds.
 	 *
 	 * If this differs from established usage and you need
-	 * to change this, please describe how is it supposed to work.
+	 * to change this, please describe how it is supposed to work.
 	 */
 	union {
 		struct {

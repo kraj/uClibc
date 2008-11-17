@@ -1563,78 +1563,6 @@ int attribute_hidden __read_etc_hosts_r(
 #endif
 
 
-#ifdef L_gethostent
-
-__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
-
-static smallint __stay_open;
-static FILE * __gethostent_fp;
-
-void endhostent(void)
-{
-	__UCLIBC_MUTEX_LOCK(mylock);
-	__stay_open = 0;
-	if (__gethostent_fp) {
-		fclose(__gethostent_fp);
-		__gethostent_fp = NULL;
-	}
-	__UCLIBC_MUTEX_UNLOCK(mylock);
-}
-
-void sethostent(int stay_open)
-{
-	__UCLIBC_MUTEX_LOCK(mylock);
-	__stay_open = (stay_open != 0);
-	__UCLIBC_MUTEX_UNLOCK(mylock);
-}
-
-int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
-	struct hostent **result, int *h_errnop)
-{
-	int ret;
-
-	__UCLIBC_MUTEX_LOCK(mylock);
-	if (__gethostent_fp == NULL) {
-		__gethostent_fp = __open_etc_hosts();
-		if (__gethostent_fp == NULL) {
-			*result = NULL;
-			ret = TRY_AGAIN;
-			goto DONE;
-		}
-	}
-
-	ret = __read_etc_hosts_r(__gethostent_fp, NULL, AF_INET, GETHOSTENT,
-		   result_buf, buf, buflen, result, h_errnop);
-	if (__stay_open == 0) {
-		fclose(__gethostent_fp);
-		__gethostent_fp = NULL;
-	}
-DONE:
-	__UCLIBC_MUTEX_UNLOCK(mylock);
-	return ret;
-}
-libc_hidden_def(gethostent_r)
-
-//TODO: move into separat .o file!
-struct hostent *gethostent(void)
-{
-	static struct hostent h;
-	static char buf[
-#ifndef __UCLIBC_HAS_IPV6__
-			sizeof(struct in_addr) + sizeof(struct in_addr *) * 2 +
-#else
-			sizeof(struct in6_addr) + sizeof(struct in6_addr *) * 2 +
-#endif /* __UCLIBC_HAS_IPV6__ */
-			sizeof(char *) * ALIAS_DIM +
-			80 /*namebuffer*/ + 2 /* margin */];
-	struct hostent *host;
-
-	gethostent_r(&h, buf, sizeof(buf), &host, &h_errno);
-	return host;
-}
-#endif
-
-
 #ifdef L_get_hosts_byname_r
 
 int attribute_hidden __get_hosts_byname_r(const char * name, int type,
@@ -1681,66 +1609,8 @@ int attribute_hidden __get_hosts_byaddr_r(const char * addr, int len, int type,
 	inet_ntop(type, addr, ipaddr, sizeof(ipaddr));
 
 	return __read_etc_hosts_r(NULL, ipaddr, type, GET_HOSTS_BYADDR,
-							  result_buf, buf, buflen, result, h_errnop);
+				result_buf, buf, buflen, result, h_errnop);
 }
-#endif
-
-
-#ifdef L_gethostbyname
-
-struct hostent *gethostbyname(const char *name)
-{
-	static struct hostent h;
-	static char buf[sizeof(struct in_addr) +
-			sizeof(struct in_addr *) * 2 +
-			sizeof(char *)*ALIAS_DIM + 384/*namebuffer*/ + 32/* margin */];
-	struct hostent *hp;
-
-	gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
-	return hp;
-}
-libc_hidden_def(gethostbyname)
-#endif
-
-
-#ifdef L_gethostbyname2
-
-struct hostent *gethostbyname2(const char *name, int family)
-{
-#ifndef __UCLIBC_HAS_IPV6__
-	return family == AF_INET ? gethostbyname(name) : (struct hostent*)NULL;
-#else
-	static struct hostent h;
-	static char buf[sizeof(struct in6_addr) +
-			sizeof(struct in6_addr *) * 2 +
-			sizeof(char *)*ALIAS_DIM + 384/*namebuffer*/ + 32/* margin */];
-	struct hostent *hp;
-
-	gethostbyname2_r(name, family, &h, buf, sizeof(buf), &hp, &h_errno);
-	return hp;
-#endif
-}
-#endif
-
-
-#ifdef L_gethostbyaddr
-
-struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type)
-{
-	static struct hostent h;
-	static char buf[
-#ifndef __UCLIBC_HAS_IPV6__
-			sizeof(struct in_addr) + sizeof(struct in_addr *)*2 +
-#else
-			sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
-#endif /* __UCLIBC_HAS_IPV6__ */
-			sizeof(char *)*ALIAS_DIM + 384 /*namebuffer*/ + 32 /* margin */];
-	struct hostent *hp;
-
-	gethostbyaddr_r(addr, len, type, &h, buf, sizeof(buf), &hp, &h_errno);
-	return hp;
-}
-libc_hidden_def(gethostbyaddr)
 #endif
 
 
@@ -2485,6 +2355,139 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 	return NETDB_SUCCESS;
 }
 libc_hidden_def(gethostbyaddr_r)
+#endif
+
+
+#ifdef L_gethostent_r
+
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
+
+static smallint __stay_open;
+static FILE * __gethostent_fp;
+
+void endhostent(void)
+{
+	__UCLIBC_MUTEX_LOCK(mylock);
+	__stay_open = 0;
+	if (__gethostent_fp) {
+		fclose(__gethostent_fp);
+		__gethostent_fp = NULL;
+	}
+	__UCLIBC_MUTEX_UNLOCK(mylock);
+}
+
+void sethostent(int stay_open)
+{
+	__UCLIBC_MUTEX_LOCK(mylock);
+	__stay_open = (stay_open != 0);
+	__UCLIBC_MUTEX_UNLOCK(mylock);
+}
+
+int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
+	struct hostent **result, int *h_errnop)
+{
+	int ret;
+
+	__UCLIBC_MUTEX_LOCK(mylock);
+	if (__gethostent_fp == NULL) {
+		__gethostent_fp = __open_etc_hosts();
+		if (__gethostent_fp == NULL) {
+			*result = NULL;
+			ret = TRY_AGAIN;
+			goto DONE;
+		}
+	}
+
+	ret = __read_etc_hosts_r(__gethostent_fp, NULL, AF_INET, GETHOSTENT,
+		   result_buf, buf, buflen, result, h_errnop);
+	if (__stay_open == 0) {
+		fclose(__gethostent_fp);
+		__gethostent_fp = NULL;
+	}
+DONE:
+	__UCLIBC_MUTEX_UNLOCK(mylock);
+	return ret;
+}
+libc_hidden_def(gethostent_r)
+#endif
+
+
+#ifdef L_gethostent
+
+struct hostent *gethostent(void)
+{
+	static struct hostent h;
+	static char buf[
+#ifndef __UCLIBC_HAS_IPV6__
+			sizeof(struct in_addr) + sizeof(struct in_addr *) * 2 +
+#else
+			sizeof(struct in6_addr) + sizeof(struct in6_addr *) * 2 +
+#endif /* __UCLIBC_HAS_IPV6__ */
+			sizeof(char *) * ALIAS_DIM +
+			80 /*namebuffer*/ + 2 /* margin */];
+	struct hostent *host;
+
+	gethostent_r(&h, buf, sizeof(buf), &host, &h_errno);
+	return host;
+}
+#endif
+
+
+#ifdef L_gethostbyname
+
+struct hostent *gethostbyname(const char *name)
+{
+	static struct hostent h;
+	static char buf[sizeof(struct in_addr) +
+			sizeof(struct in_addr *) * 2 +
+			sizeof(char *)*ALIAS_DIM + 384/*namebuffer*/ + 32/* margin */];
+	struct hostent *hp;
+
+	gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
+	return hp;
+}
+libc_hidden_def(gethostbyname)
+#endif
+
+
+#ifdef L_gethostbyname2
+
+struct hostent *gethostbyname2(const char *name, int family)
+{
+#ifndef __UCLIBC_HAS_IPV6__
+	return family == AF_INET ? gethostbyname(name) : (struct hostent*)NULL;
+#else
+	static struct hostent h;
+	static char buf[sizeof(struct in6_addr) +
+			sizeof(struct in6_addr *) * 2 +
+			sizeof(char *)*ALIAS_DIM + 384/*namebuffer*/ + 32/* margin */];
+	struct hostent *hp;
+
+	gethostbyname2_r(name, family, &h, buf, sizeof(buf), &hp, &h_errno);
+	return hp;
+#endif
+}
+#endif
+
+
+#ifdef L_gethostbyaddr
+
+struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type)
+{
+	static struct hostent h;
+	static char buf[
+#ifndef __UCLIBC_HAS_IPV6__
+			sizeof(struct in_addr) + sizeof(struct in_addr *)*2 +
+#else
+			sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
+#endif /* __UCLIBC_HAS_IPV6__ */
+			sizeof(char *)*ALIAS_DIM + 384 /*namebuffer*/ + 32 /* margin */];
+	struct hostent *hp;
+
+	gethostbyaddr_r(addr, len, type, &h, buf, sizeof(buf), &hp, &h_errno);
+	return hp;
+}
+libc_hidden_def(gethostbyaddr)
 #endif
 
 
