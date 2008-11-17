@@ -167,6 +167,15 @@ include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 	else \
 		mv -f $$tmp include/bits/sysnum.h; \
 	fi
+	@# Ugly linux specific hack..
+	$(Q)if grep -q __NR_ $@; then true; else \
+		rm -f $@; \
+		echo "ERROR: Could not generate syscalls."; \
+		echo "Make sure that you have proper kernel headers."; \
+		echo "Your .config in KERNEL_HEADERS=\"\" was set to:"; \
+		echo "${KERNEL_HEADERS}"; \
+		exit 1; \
+	fi
 
 $(LOCAL_INSTALL_PATH):
 	$(Q)$(MAKE) PREFIX=$(shell pwd)/ RUNTIME_PREFIX=./ \
