@@ -30,8 +30,9 @@ libc_hidden_proto(fprintf)
 struct mntent *getmntent_r (FILE *filep,
 	struct mntent *mnt, char *buff, int bufsize)
 {
+	static const char sep[] = " \t\n";
+
 	char *cp, *ptrptr;
-	const char *sep = " \t\n";
 
 	if (!filep || !mnt || !buff)
 	    return NULL;

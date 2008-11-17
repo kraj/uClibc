@@ -37,7 +37,7 @@ libc_hidden_proto(endmntent)
 
 #undef stat
 #define stat stat64
-#if !defined __UCLIBC_LINUX_SPECIFIC__
+#if defined __UCLIBC_LINUX_SPECIFIC__
 libc_hidden_proto(statfs64)
 #else
 libc_hidden_proto(statvfs)

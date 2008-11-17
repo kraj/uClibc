@@ -504,11 +504,11 @@ libc_hidden_proto(globfree)
    If memory cannot be allocated for PGLOB, GLOB_NOSPACE is returned.
    Otherwise, `glob' returns zero.  */
 int
-glob (pattern, flags, errfunc, pglob)
-     const char *pattern;
-     int flags;
-     int (*errfunc) (const char *, int);
-     glob_t *pglob;
+glob (
+     const char *pattern,
+     int flags,
+     int (*errfunc) (const char *, int),
+     glob_t *pglob)
 {
   const char *filename;
   const char *dirname;
@@ -1074,8 +1074,7 @@ libc_hidden_def(glob)
 
 /* Free storage allocated in PGLOB by a previous `glob' call.  */
 void
-globfree (pglob)
-     register glob_t *pglob;
+globfree (register glob_t *pglob)
 {
   if (pglob->gl_pathv != NULL)
     {

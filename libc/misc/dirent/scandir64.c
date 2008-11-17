@@ -53,8 +53,19 @@ int scandir64(const char *dir, struct dirent64 ***namelist,
     __set_errno (0);
 
     pos = 0;
-    while ((current = readdir64 (dp)) != NULL)
-	if (selector == NULL || (*selector) (current))
+    while ((current = readdir64 (dp)) != NULL) {
+	int use_it = selector == NULL;
+
+	if (! use_it)
+	{
+	    use_it = (*selector) (current);
+	    /* The selector function might have changed errno.
+	     * It was zero before and it need to be again to make
+	     * the latter tests work.  */
+	    if (! use_it)
+		__set_errno (0);
+	}
+	if (use_it)
 	{
 	    struct dirent64 *vnew;
 	    size_t dsize;
@@ -69,20 +80,21 @@ int scandir64(const char *dir, struct dirent64 ***namelist,
 		    names_size = 10;
 		else
 		    names_size *= 2;
-		new = (struct dirent64 **) realloc (names, names_size * sizeof (struct dirent64 *));
+		new = (struct dirent64 **) realloc (names,
+				      names_size * sizeof (struct dirent64 *));
 		if (new == NULL)
 		    break;
 		names = new;
 	    }
 
-	    dsize = &current->d_name[_D_ALLOC_NAMLEN (current)] - (char *) current;
+	    dsize = &current->d_name[_D_ALLOC_NAMLEN(current)] - (char*)current;
 	    vnew = (struct dirent64 *) malloc (dsize);
 	    if (vnew == NULL)
 		break;
 
 	    names[pos++] = (struct dirent64 *) memcpy (vnew, current, dsize);
 	}
-
+    }
     if (unlikely(errno != 0))
     {
 	save = errno;

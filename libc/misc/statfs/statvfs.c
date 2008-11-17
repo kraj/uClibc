@@ -38,6 +38,7 @@ extern __typeof(statfs) __libc_statfs;
 libc_hidden_proto(__libc_statfs)
 libc_hidden_proto(stat)
 
+libc_hidden_proto(statvfs)
 int statvfs (const char *file, struct statvfs *buf)
 {
     struct statfs fsbuf;
@@ -53,3 +54,4 @@ int statvfs (const char *file, struct statvfs *buf)
     /* We signal success if the statfs call succeeded.  */
     return 0;
 }
+libc_hidden_def(statvfs)

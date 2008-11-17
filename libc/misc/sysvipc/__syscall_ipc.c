@@ -13,5 +13,5 @@
 #define __NR___syscall_ipc __NR_ipc
 #include "ipc.h"
 _syscall6(int, __syscall_ipc, unsigned int, call, long, first, long, second, long,
-		  third, void *, ptr, void *, fifth);
+		  third, void *, ptr, void *, fifth)
 #endif

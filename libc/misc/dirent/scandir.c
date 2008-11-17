@@ -13,10 +13,10 @@
 #include "dirstream.h"
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(readdir)
 libc_hidden_proto(opendir)
 libc_hidden_proto(closedir)
 libc_hidden_proto(qsort)
+libc_hidden_proto(readdir)
 
 int scandir(const char *dir, struct dirent ***namelist,
 	int (*selector) (const struct dirent *),
@@ -35,8 +35,19 @@ int scandir(const char *dir, struct dirent ***namelist,
     __set_errno (0);
 
     pos = 0;
-    while ((current = readdir (dp)) != NULL)
-	if (selector == NULL || (*selector) (current))
+    while ((current = readdir (dp)) != NULL) {
+	int use_it = selector == NULL;
+
+	if (! use_it)
+	{
+	    use_it = (*selector) (current);
+	    /* The selector function might have changed errno.
+	     * It was zero before and it need to be again to make
+	     * the latter tests work.  */
+	    if (! use_it)
+		__set_errno (0);
+	}
+	if (use_it)
 	{
 	    struct dirent *vnew;
 	    size_t dsize;
@@ -51,19 +62,21 @@ int scandir(const char *dir, struct dirent ***namelist,
 		    names_size = 10;
 		else
 		    names_size *= 2;
-		new = (struct dirent **) realloc (names, names_size * sizeof (struct dirent *));
+		new = (struct dirent **) realloc (names,
+					names_size * sizeof (struct dirent *));
 		if (new == NULL)
 		    break;
 		names = new;
 	    }
 
-	    dsize = &current->d_name[_D_ALLOC_NAMLEN (current)] - (char *) current;
+	    dsize = &current->d_name[_D_ALLOC_NAMLEN(current)] - (char*)current;
 	    vnew = (struct dirent *) malloc (dsize);
 	    if (vnew == NULL)
 		break;
 
 	    names[pos++] = (struct dirent *) memcpy (vnew, current, dsize);
 	}
+    }
 
     if (unlikely(errno != 0))
     {

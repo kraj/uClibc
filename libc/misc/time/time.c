@@ -531,7 +531,7 @@ double difftime(time_t time1, time_t time0)
 #if (LONG_MAX >> DBL_MANT_DIG) == 0
 
 	/* time_t fits in the mantissa of a double. */
-	return ((double) time1) - time0;
+	return (double)time1 - (double)time0;
 
 #elif ((LONG_MAX >> DBL_MANT_DIG) >> DBL_MANT_DIG) == 0
 
@@ -2088,7 +2088,6 @@ libc_hidden_def(tzset)
 #endif
 
 #include <utime.h>
-#include <sys/time.h>
 
 int utimes(const char *filename, register const struct timeval *tvp)
 {

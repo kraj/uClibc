@@ -488,7 +488,8 @@ size_t attribute_hidden _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Fix range for 16 bit wchar_t case.
 #endif
-			if ( ((unsigned char)(s[-1] - 0xc0)) < (0xfe - 0xc0) ) {
+			if (( ((unsigned char)(s[-1] - 0xc0)) < (0xfe - 0xc0) ) &&
+			(((unsigned char)s[-1] != 0xc0 ) && ((unsigned char)s[-1] != 0xc1 ))) {
 				goto START;
 			}
 		BAD:
@@ -1570,10 +1571,7 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 /**********************************************************************/
 #ifdef L_iconv_main
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
 #include <iconv.h>
 #include <stdarg.h>
 #include <libgen.h>

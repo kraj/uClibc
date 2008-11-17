@@ -75,7 +75,7 @@ static int direxists (const char *dir)
 int attribute_hidden ___path_search (char *tmpl, size_t tmpl_len, const char *dir,
 	const char *pfx /*, int try_tmpdir*/)
 {
-    //const char *d;
+    /*const char *d; */
     size_t dlen, plen;
 
     if (!pfx || !pfx[0])
