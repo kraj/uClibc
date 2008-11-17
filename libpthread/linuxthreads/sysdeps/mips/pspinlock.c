@@ -23,8 +23,6 @@
 #include <sys/tas.h>
 #include "internals.h"
 
-#include <sgidefs.h>
-
 /* This implementation is similar to the one used in the Linux kernel.  */
 int
 __pthread_spin_lock (pthread_spinlock_t *lock)

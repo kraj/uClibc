@@ -19,7 +19,7 @@
 
 #include <limits.h>
 
-extern inline int __libc_use_alloca (size_t size)
+__extern_always_inline int __libc_use_alloca (size_t size)
 {
   return (__builtin_expect (size <= PTHREAD_STACK_MIN / 4, 1)
 	  || __libc_alloca_cutoff (size));

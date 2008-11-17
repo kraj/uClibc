@@ -32,10 +32,9 @@
 # define PT_EI __extern_always_inline
 #endif
 
-/*
 extern long int testandset (int *spinlock);
 extern int __compare_and_swap (long int *p, long int oldval, long int newval);
-*/
+
 /* Get some notion of the current stack.  Need not be exactly the top
    of the stack, just something somewhere in the current frame.  */
 #define CURRENT_STACK_FRAME  __builtin_frame_address (0)

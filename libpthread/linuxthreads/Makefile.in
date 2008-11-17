@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2003 Paul Mundt <lethal@linux-sh.org>
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -81,9 +81,6 @@ libpthread-so-y += $(libpthread_OBJ:.o=.oS)
 
 lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
-objclean-y += libpthread_clean
-headers-$(UCLIBC_HAS_THREADS) += linuxthreads_headers
-headers_clean-y += linuxthreads_headers_clean
 
 #ifeq ($(DOMULTI),n)
 $(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
@@ -124,13 +121,16 @@ include/semaphore.h:
 	$(do_ln) ../$(PTDIR)/$(@F) $(top_builddir)$@
 include/bits/pthreadtypes.h: | include/bits
 	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
-linuxthreads_headers: include/pthread.h include/semaphore.h \
-			include/bits/pthreadtypes.h
 
+linuxthreads_headers := include/pthread.h include/semaphore.h \
+			include/bits/pthreadtypes.h
+$(linuxthreads_headers): $(wildcard $(addprefix include/config/linuxthreads/,old.h new.h))
+headers-$(UCLIBC_HAS_THREADS) += $(linuxthreads_headers)
+
+objclean-y += libpthread_clean
+headers_clean-y += linuxthreads_headers_clean
 linuxthreads_headers_clean:
-	$(RM) $(top_builddir)include/pthread.h \
-		$(top_builddir)include/semaphore.h \
-		$(top_builddir)include/bits/pthreadtypes.h
+	$(do_rm) $(addprefix $(top_builddir),$(linuxthreads_headers))
 
 libpthread_clean:
-	$(RM) $(libpthread_OUT)/{,*/,*/*/,*/*/*/,*/*/*/*/}*.{o,os,oS,a}
+	$(do_rm) $(addprefix $(libpthread_OUT)/,$(foreach e, o os oS a,$(foreach d, *. */*. */*/*. */*/*/*.,$(d)$(e))))
