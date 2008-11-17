@@ -4,5 +4,5 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define L_resolvename
-#include "resolv.c"
+#define L_getgrouplist
+#include "pwd_grp.c"

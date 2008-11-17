@@ -44,7 +44,7 @@ extern int __socketcall(int call, unsigned long *args) attribute_hidden;
 extern __typeof(accept) __libc_accept;
 #ifdef __NR_accept
 #define __NR___libc_accept  __NR_accept
-_syscall3(int, __libc_accept, int, call, struct sockaddr *, addr, socklen_t *,addrlen);
+_syscall3(int, __libc_accept, int, call, struct sockaddr *, addr, socklen_t *,addrlen)
 #elif defined(__NR_socketcall)
 int __libc_accept(int s, struct sockaddr *addr, socklen_t * addrlen)
 {
@@ -74,7 +74,7 @@ libc_hidden_weak(accept)
 #ifdef L_bind
 libc_hidden_proto(bind)
 #ifdef __NR_bind
-_syscall3(int, bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen);
+_syscall3(int, bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen)
 #elif defined(__NR_socketcall)
 int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 {
@@ -93,7 +93,7 @@ libc_hidden_def(bind)
 extern __typeof(connect) __libc_connect;
 #ifdef __NR_connect
 #define __NR___libc_connect __NR_connect
-_syscall3(int, __libc_connect, int, sockfd, const struct sockaddr *, saddr, socklen_t, addrlen);
+_syscall3(int, __libc_connect, int, sockfd, const struct sockaddr *, saddr, socklen_t, addrlen)
 #elif defined(__NR_socketcall)
 int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 {
@@ -121,7 +121,7 @@ libc_hidden_weak(connect)
 
 #ifdef L_getpeername
 #ifdef __NR_getpeername
-_syscall3(int, getpeername, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen);
+_syscall3(int, getpeername, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen)
 #elif defined(__NR_socketcall)
 int getpeername(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 {
@@ -138,7 +138,7 @@ int getpeername(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 #ifdef L_getsockname
 libc_hidden_proto(getsockname)
 #ifdef __NR_getsockname
-_syscall3(int, getsockname, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen);
+_syscall3(int, getsockname, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen)
 #elif defined(__NR_socketcall)
 int getsockname(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 {
@@ -155,7 +155,7 @@ libc_hidden_def(getsockname)
 
 #ifdef L_getsockopt
 #ifdef __NR_getsockopt
-_syscall5(int, getsockopt, int, fd, int, level, int, optname, __ptr_t, optval, socklen_t *, optlen);
+_syscall5(int, getsockopt, int, fd, int, level, int, optname, __ptr_t, optval, socklen_t *, optlen)
 #elif defined(__NR_socketcall)
 int getsockopt(int fd, int level, int optname, __ptr_t optval,
 		   socklen_t * optlen)
@@ -175,7 +175,7 @@ int getsockopt(int fd, int level, int optname, __ptr_t optval,
 #ifdef L_listen
 libc_hidden_proto(listen)
 #ifdef __NR_listen
-_syscall2(int, listen, int, sockfd, int, backlog);
+_syscall2(int, listen, int, sockfd, int, backlog)
 #elif defined(__NR_socketcall)
 int listen(int sockfd, int backlog)
 {
@@ -194,7 +194,7 @@ extern __typeof(recv) __libc_recv;
 #ifdef __NR_recv
 #define __NR___libc_recv __NR_recv
 _syscall4(ssize_t, __libc_recv, int, sockfd, __ptr_t, buffer, size_t, len,
-	int, flags);
+	int, flags)
 #elif defined(__NR_socketcall)
 /* recv, recvfrom added by bir7@leland.stanford.edu */
 ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
@@ -233,7 +233,7 @@ extern __typeof(recvfrom) __libc_recvfrom;
 #ifdef __NR_recvfrom
 #define __NR___libc_recvfrom __NR_recvfrom
 _syscall6(ssize_t, __libc_recvfrom, int, sockfd, __ptr_t, buffer, size_t, len,
-	int, flags, struct sockaddr *, to, socklen_t *, tolen);
+	int, flags, struct sockaddr *, to, socklen_t *, tolen)
 #elif defined(__NR_socketcall)
 /* recv, recvfrom added by bir7@leland.stanford.edu */
 ssize_t __libc_recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
@@ -268,7 +268,7 @@ libc_hidden_weak(recvfrom)
 extern __typeof(recvmsg) __libc_recvmsg;
 #ifdef __NR_recvmsg
 #define __NR___libc_recvmsg __NR_recvmsg
-_syscall3(ssize_t, __libc_recvmsg, int, sockfd, struct msghdr *, msg, int, flags);
+_syscall3(ssize_t, __libc_recvmsg, int, sockfd, struct msghdr *, msg, int, flags)
 #elif defined(__NR_socketcall)
 ssize_t __libc_recvmsg(int sockfd, struct msghdr *msg, int flags)
 {
@@ -298,7 +298,7 @@ libc_hidden_weak(recvmsg)
 extern __typeof(send) __libc_send;
 #ifdef __NR_send
 #define __NR___libc_send    __NR_send
-_syscall4(ssize_t, __libc_send, int, sockfd, const void *, buffer, size_t, len, int, flags);
+_syscall4(ssize_t, __libc_send, int, sockfd, const void *, buffer, size_t, len, int, flags)
 #elif defined(__NR_socketcall)
 /* send, sendto added by bir7@leland.stanford.edu */
 ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
@@ -336,7 +336,7 @@ libc_hidden_weak(send)
 extern __typeof(sendmsg) __libc_sendmsg;
 #ifdef __NR_sendmsg
 #define __NR___libc_sendmsg __NR_sendmsg
-_syscall3(ssize_t, __libc_sendmsg, int, sockfd, const struct msghdr *, msg, int, flags);
+_syscall3(ssize_t, __libc_sendmsg, int, sockfd, const struct msghdr *, msg, int, flags)
 #elif defined(__NR_socketcall)
 ssize_t __libc_sendmsg(int sockfd, const struct msghdr *msg, int flags)
 {
@@ -367,7 +367,7 @@ extern __typeof(sendto) __libc_sendto;
 #ifdef __NR_sendto
 #define __NR___libc_sendto  __NR_sendto
 _syscall6(ssize_t, __libc_sendto, int, sockfd, const void *, buffer,
-	size_t, len, int, flags, const struct sockaddr *, to, socklen_t, tolen);
+	size_t, len, int, flags, const struct sockaddr *, to, socklen_t, tolen)
 #elif defined(__NR_socketcall)
 /* send, sendto added by bir7@leland.stanford.edu */
 ssize_t __libc_sendto(int sockfd, const void *buffer, size_t len, int flags,
@@ -401,7 +401,7 @@ libc_hidden_weak(sendto)
 #ifdef L_setsockopt
 libc_hidden_proto(setsockopt)
 #ifdef __NR_setsockopt
-_syscall5(int, setsockopt, int, fd, int, level, int, optname, const void *, optval, socklen_t, optlen);
+_syscall5(int, setsockopt, int, fd, int, level, int, optname, const void *, optval, socklen_t, optlen)
 #elif defined(__NR_socketcall)
 /* [sg]etsockoptions by bir7@leland.stanford.edu */
 int setsockopt(int fd, int level, int optname, const void *optval,
@@ -422,7 +422,7 @@ libc_hidden_def(setsockopt)
 
 #ifdef L_shutdown
 #ifdef __NR_shutdown
-_syscall2(int, shutdown, int, sockfd, int, how);
+_syscall2(int, shutdown, int, sockfd, int, how)
 #elif defined(__NR_socketcall)
 /* shutdown by bir7@leland.stanford.edu */
 int shutdown(int sockfd, int how)
@@ -439,7 +439,7 @@ int shutdown(int sockfd, int how)
 #ifdef L_socket
 libc_hidden_proto(socket)
 #ifdef __NR_socket
-_syscall3(int, socket, int, family, int, type, int, protocol);
+_syscall3(int, socket, int, family, int, type, int, protocol)
 #elif defined(__NR_socketcall)
 int socket(int family, int type, int protocol)
 {
@@ -456,7 +456,7 @@ libc_hidden_def(socket)
 
 #ifdef L_socketpair
 #ifdef __NR_socketpair
-_syscall4(int, socketpair, int, family, int, type, int, protocol, int *, sockvec);
+_syscall4(int, socketpair, int, family, int, type, int, protocol, int *, sockvec)
 #elif defined(__NR_socketcall)
 int socketpair(int family, int type, int protocol, int sockvec[2])
 {

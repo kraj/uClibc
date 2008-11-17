@@ -22,7 +22,7 @@
 #include <alloca.h>
 #include <assert.h>
 #include <errno.h>
-#include "ifaddrs.h"
+#include <ifaddrs.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <netpacket/packet.h>
@@ -308,9 +308,6 @@ __netlink_open (struct netlink_handle *h)
     close_and_out:
       __netlink_close (h);
     out:
-#if __ASSUME_NETLINK_SUPPORT == 0
-      __no_netlink_support = 1;
-#endif
       return -1;
     }
   /* Determine the ID the kernel assigned for this netlink connection.
@@ -333,7 +330,7 @@ __netlink_open (struct netlink_handle *h)
    that a RTM_NEWADDR index is not known to this map.  */
 static int
 internal_function
-map_newlink (int index, struct ifaddrs_storage *ifas, int *map, int max)
+map_newlink (int idx, struct ifaddrs_storage *ifas, int *map, int max)
 {
   int i;
 
@@ -341,12 +338,12 @@ map_newlink (int index, struct ifaddrs_storage *ifas, int *map, int max)
     {
       if (map[i] == -1)
 	{
-	  map[i] = index;
+	  map[i] = idx;
 	  if (i > 0)
 	    ifas[i - 1].ifa.ifa_next = &ifas[i].ifa;
 	  return i;
 	}
-      else if (map[i] == index)
+      else if (map[i] == idx)
 	return i;
     }
   /* This should never be reached. If this will be reached, we have
@@ -374,17 +371,10 @@ getifaddrs (struct ifaddrs **ifap)
   if (ifap)
     *ifap = NULL;
 
-  if (! __no_netlink_support && __netlink_open (&nh) < 0)
+  if (__netlink_open (&nh) < 0)
     {
-#if __ASSUME_NETLINK_SUPPORT != 0
       return -1;
-#endif
     }
-
-#if __ASSUME_NETLINK_SUPPORT == 0
-  if (__no_netlink_support)
-    return fallback_getifaddrs (ifap);
-#endif
 
   /* Tell the kernel that we wish to get a list of all
      active interfaces, collect all data for every interface.  */
@@ -864,13 +854,11 @@ getifaddrs (struct ifaddrs **ifap)
 }
 
 
-#if __ASSUME_NETLINK_SUPPORT != 0
 void
 freeifaddrs (struct ifaddrs *ifa)
 {
   free (ifa);
 }
-#endif
 
 #endif /* __UCLIBC_SUPPORT_AI_ADDRCONFIG__ */
 
