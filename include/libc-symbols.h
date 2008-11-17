@@ -82,6 +82,12 @@
 # define IS_IN_libc 1
 #endif
 
+/* Indirect stringification.  Doing two levels allows
+ * the parameter to be a macro itself.
+ */
+#define __stringify_1(x)    #x
+#define __stringify(x)      __stringify_1(x)
+
 #ifdef __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
 # define HAVE_ASM_SET_DIRECTIVE
 #else
@@ -283,7 +289,7 @@
 
 /* Tacking on "\n#APP\n\t#" to the section name makes gcc put it's bogus
    section attributes on what looks like a comment to the assembler.  */
-#ifdef __sparc__ //HAVE_SECTION_QUOTES
+#ifdef __sparc__ /* HAVE_SECTION_QUOTES */
 # define __sec_comment "\"\n#APP\n\t#\""
 #else
 # define __sec_comment "\n#APP\n\t#"
