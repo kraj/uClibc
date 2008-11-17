@@ -239,7 +239,7 @@ libc_hidden_proto(__libc_getdomainname)
 #define DPRINTF(X,args...) fprintf(stderr, X, ##args)
 #else
 #define DPRINTF(X,args...)
-#endif /* DEBUG */
+#endif
 
 #undef ARRAY_SIZE
 #define ARRAY_SIZE(v) (sizeof(v) / sizeof((v)[0]))
@@ -344,7 +344,7 @@ extern int __decode_dotted(const unsigned char * const message, int offset,
 			char * dest, int maxlen) attribute_hidden;
 extern int __length_dotted(const unsigned char * const message, int offset) attribute_hidden;
 extern int __encode_header(struct resolv_header * h, unsigned char * dest, int maxlen) attribute_hidden;
-extern int __decode_header(unsigned char * data, struct resolv_header * h) attribute_hidden;
+extern void __decode_header(unsigned char * data, struct resolv_header * h) attribute_hidden;
 extern int __encode_question(const struct resolv_question * const q,
 			unsigned char * dest, int maxlen) attribute_hidden;
 extern int __decode_question(const unsigned char * const message, int offset,
@@ -475,7 +475,7 @@ int attribute_hidden __encode_header(struct resolv_header *h, unsigned char *des
 
 #ifdef L_decodeh
 
-int attribute_hidden __decode_header(unsigned char *data, struct resolv_header *h)
+void attribute_hidden __decode_header(unsigned char *data, struct resolv_header *h)
 {
 	h->id = (data[0] << 8) | data[1];
 	h->qr = (data[2] & 0x80) ? 1 : 0;
@@ -489,8 +489,6 @@ int attribute_hidden __decode_header(unsigned char *data, struct resolv_header *
 	h->ancount = (data[6] << 8) | data[7];
 	h->nscount = (data[8] << 8) | data[9];
 	h->arcount = (data[10] << 8) | data[11];
-
-	return HFIXEDSZ;
 }
 #endif
 
@@ -827,7 +825,8 @@ int __encode_packet(struct resolv_header *h,
 int __decode_packet(unsigned char *data, struct resolv_header *h) attribute_hidden;
 int __decode_packet(unsigned char *data, struct resolv_header *h)
 {
-	return __decode_header(data, h);
+	__decode_header(data, h);
+	return HFIXEDSZ;
 }
 #endif
 
@@ -1012,7 +1011,15 @@ void attribute_hidden __open_nameservers(void)
 		fclose(fp);
 	}
 	if (__nameservers == 0) {
-		__nameserver = (void*) &__local_nameserver;
+		/* Have to handle malloc failure! What a mess...
+		 * And it's not only here, we need to be careful
+		 * to never write into __nameserver[0] if it points
+		 * to constant __local_nameserver, or free it. */
+		__nameserver = malloc(sizeof(__nameserver[0]));
+		if (__nameserver)
+			memcpy(__nameserver, &__local_nameserver, sizeof(__local_nameserver));
+		else
+			__nameserver = (void*) &__local_nameserver;
 		__nameservers++;
 	}
 	if (__searchdomains == 0) {
@@ -1063,10 +1070,6 @@ void attribute_hidden __close_nameservers(void)
 
 #ifdef L_dnslookup
 
-/* Protected by __resolv_lock */
-static int last_ns_num = 0;
-static uint16_t last_id = 1;
-
 /* On entry:
  *  a.buf(len) = auxiliary buffer for IP addresses after first one
  *  a.add_count = how many additional addresses are there already
@@ -1087,6 +1090,10 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			unsigned char **outpacket,
 			struct resolv_answer *a)
 {
+	/* Protected by __resolv_lock: */
+	static int last_ns_num = 0;
+	static uint16_t last_id = 1;
+
 	int i, j, len, fd, pos, rc;
 	int name_len;
 #ifdef USE_SELECT
@@ -1099,7 +1106,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 	struct resolv_question q;
 	struct resolv_answer ma;
 	bool first_answer = 1;
-	unsigned retries = 0;
+	int retries_left;
 	unsigned char *packet = malloc(PACKETSZ);
 	char *lookup;
 	int variant = -1;  /* search domain to append, -1: none */
@@ -1118,17 +1125,18 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 	if (!packet || !lookup || !name[0])
 		goto fail;
 	ends_with_dot = (name[name_len - 1] == '.');
-	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
+	/* no strcpy! paranoia, user might change name[] under us */
+	memcpy(lookup, name, name_len);
 
-	while (retries < MAX_RETRIES) {
+	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
+	retries_left = 0; /* for compiler */
+	do {
+		unsigned reply_timeout;
+
 		if (fd != -1) {
 			close(fd);
 			fd = -1;
 		}
-
-		/* no strcpy! paranoia, user might change name[] under us */
-		memcpy(lookup, name, name_len);
-		lookup[name_len] = '\0';
 
 		/* Mess with globals while under lock */
 		/* NB: even data *pointed to* by globals may vanish
@@ -1142,27 +1150,26 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		__UCLIBC_MUTEX_LOCK(__resolv_lock);
 		__open_nameservers();
 		sdomains = __searchdomains;
+		lookup[name_len] = '\0';
 		if ((unsigned)variant < sdomains) {
 			/* lookup is name_len + 1 + MAXLEN_searchdomain + 1 long */
 			/* __searchdomain[] is not bigger than MAXLEN_searchdomain */
 			lookup[name_len] = '.';
 			strcpy(&lookup[name_len + 1], __searchdomain[variant]);
 		}
-		if (local_ns_num < 0) { /* first time */
+		/* first time? pick starting server etc */
+		if (local_ns_num < 0) {
 			local_id = last_id;
 //TODO: implement /etc/resolv.conf's "options rotate"
 // (a.k.a. RES_ROTATE bit in _res.options)
 //			local_ns_num = 0;
 //			if (_res.options & RES_ROTATE)
 				local_ns_num = last_ns_num;
+			retries_left = __nameservers * MAX_RETRIES;
 		}
-		if (local_ns_num >= __nameservers) {
+		retries_left--;
+		if (local_ns_num >= __nameservers)
 			local_ns_num = 0;
-//TODO: wrong method of retries++!
-// Should be if (local_ns_num == starting_ns_num) retries++;
-			retries++;
-			/* break if retries >= MAX_RETRIES - *after unlock*! */
-		}
 		local_id++;
 		local_id &= 0xffff;
 		/* write new values back while still under lock */
@@ -1173,8 +1180,6 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		 * is not safe to use outside of locks */
 		sa = __nameserver[local_ns_num];
 		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
-		if (retries >= MAX_RETRIES)
-			break;
 
 		memset(packet, 0, PACKETSZ);
 		memset(&h, 0, sizeof(h));
@@ -1200,29 +1205,30 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 
 		/* send packet */
 		DPRINTF("On try %d, sending query to port %d\n",
-				retries+1, NAMESERVER_PORT);
+				retries_left, NAMESERVER_PORT);
 		fd = socket(sa.sa.sa_family, SOCK_DGRAM, IPPROTO_UDP);
-		if (fd < 0) { /* paranoia */
-			retries++;
-			continue;
-		}
+		if (fd < 0) /* paranoia */
+			goto try_next_server;
 		rc = connect(fd, &sa.sa, sizeof(sa));
 		if (rc < 0) {
-			if (errno == ENETUNREACH) {
+			//if (errno == ENETUNREACH) {
 				/* routing error, presume not transient */
 				goto try_next_server;
-			}
-			/* retry */
-			retries++;
-			continue;
+			//}
+//For example, what transient error this can be? Can't think of any
+			///* retry */
+			//continue;
 		}
 		DPRINTF("Xmit packet len:%d id:%d qr:%d\n", len, h.id, h.qr);
+		/* no error check - if it fails, we time out on recv */
 		send(fd, packet, len, 0);
 
 #ifdef USE_SELECT
+		reply_timeout = REPLY_TIMEOUT;
+ wait_again:
 		FD_ZERO(&fds);
 		FD_SET(fd, &fds);
-		tv.tv_sec = REPLY_TIMEOUT;
+		tv.tv_sec = reply_timeout;
 		tv.tv_usec = 0;
 		if (select(fd + 1, &fds, NULL, NULL, &tv) <= 0) {
 			DPRINTF("Timeout\n");
@@ -1230,30 +1236,35 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			 * to next nameserver */
 			goto try_next_server;
 		}
+		reply_timeout--;
 #else
+		reply_timeout = REPLY_TIMEOUT * 1000;
+ wait_again:
 		fds.fd = fd;
 		fds.events = POLLIN;
-		if (poll(&fds, 1, REPLY_TIMEOUT * 1000) <= 0) {
+		if (poll(&fds, 1, reply_timeout) <= 0) {
 			DPRINTF("Timeout\n");
 			/* timed out, so retry send and receive
 			 * to next nameserver */
 			goto try_next_server;
 		}
+//TODO: better timeout accounting?
+		reply_timeout -= 1000;
 #endif
 		len = recv(fd, packet, PACKETSZ, MSG_DONTWAIT);
 		if (len < HFIXEDSZ) {
-			/* too short! */
-//TODO: why next sdomain? it's just a bogus packet from somewhere,
-// we can as well wait more...
-			goto try_next_sdomain;
+			/* too short!
+			 * it's just a bogus packet from somewhere */
+ bogus_packet:
+			if (reply_timeout)
+				goto wait_again;
+			goto try_next_server;
 		}
-
 		__decode_header(packet, &h);
 		DPRINTF("id = %d, qr = %d\n", h.id, h.qr);
-		if ((h.id != local_id) || (!h.qr)) {
+		if (h.id != local_id || !h.qr) {
 			/* unsolicited */
-//TODO: why next sdomain?...
-			goto try_next_sdomain;
+			goto bogus_packet;
 		}
 
 		DPRINTF("Got response (i think)!\n");
@@ -1262,9 +1273,10 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		DPRINTF("opcode=%d,aa=%d,tc=%d,rd=%d,ra=%d,rcode=%d\n",
 				h.opcode, h.aa, h.tc, h.rd, h.ra, h.rcode);
 
+		/* bug 660 says we treat negative response as an error
+		 * and retry, which is, eh, an error. :)
+		 * We were incurring long delays because of this. */
 		if (h.rcode == NXDOMAIN) {
-// bug 660 says we treat negative response as an error and retry
-// which is, eh, an error. :) We were incurring long delays because of this.
 			/* if possible, try next search domain */
 			if (!ends_with_dot) {
 				DPRINTF("variant:%d sdomains:%d\n", variant, sdomains);
@@ -1273,8 +1285,9 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 					variant++;
 					continue;
 				}
+				/* no more search domains to try */
 			}
-			/* this is not an error - don't goto again! */
+			/* dont loop, this is "no such host" situation */
 			h_errno = HOST_NOT_FOUND;
 			goto fail1;
 		}
@@ -1291,8 +1304,6 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			DPRINTF("Skipping question %d at %d\n", j, pos);
 			/* returns -1 only if packet == NULL (can't happen) */
 			i = __length_question(packet, pos);
-			//if (i < 0)
-			//	goto try_next_sdomain;
 			DPRINTF("Length of question %d is %d\n", j, i);
 			pos += i;
 		}
@@ -1342,6 +1353,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			}
 		}
 
+		/* success! */
 		DPRINTF("Answer name = |%s|\n", a->dotted);
 		DPRINTF("Answer type = |%d|\n", a->atype);
 		if (fd != -1)
@@ -1351,8 +1363,11 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		else
 			free(packet);
 		free(lookup);
-		return len; /* success! */
+		return len;
 
+//TODO: audit whether *any* "goto try_next_sdomain" is actually correct:
+//trying next search domain makes sense only if we got NXDOMAIN!
+//why we do it in other cases too?
  try_next_sdomain:
 		/* if there are searchdomains, try them */
 		if (!ends_with_dot) {
@@ -1366,7 +1381,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		/* if there are other nameservers, try them */
 		local_ns_num++;
 		variant = -1;
-	} /* while (retries < MAX_RETRIES) */
+	} while (retries_left > 0);
 
  fail:
 	h_errno = NETDB_INTERNAL;
@@ -1386,12 +1401,11 @@ struct hostent *gethostbyname(const char *name)
 {
 	static struct hostent h;
 	static char buf[sizeof(struct in_addr) +
-			sizeof(struct in_addr *)*2 +
+			sizeof(struct in_addr *) * 2 +
 			sizeof(char *)*ALIAS_DIM + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
 	gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
-
 	return hp;
 }
 libc_hidden_def(gethostbyname)
@@ -1404,17 +1418,16 @@ struct hostent *gethostbyname2(const char *name, int family)
 {
 #ifndef __UCLIBC_HAS_IPV6__
 	return family == AF_INET ? gethostbyname(name) : (struct hostent*)NULL;
-#else /* __UCLIBC_HAS_IPV6__ */
+#else
 	static struct hostent h;
 	static char buf[sizeof(struct in6_addr) +
-			sizeof(struct in6_addr *)*2 +
+			sizeof(struct in6_addr *) * 2 +
 			sizeof(char *)*ALIAS_DIM + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
 	gethostbyname2_r(name, family, &h, buf, sizeof(buf), &hp, &h_errno);
-
 	return hp;
-#endif /* __UCLIBC_HAS_IPV6__ */
+#endif
 }
 #endif
 
@@ -1430,22 +1443,25 @@ static void res_sync_func(void)
 	struct __res_state *rp = &(_res);
 	int n;
 
-	/* TODO:
-	 * if (__nameservers < rp->nscount) - try to grow __nameserver[]?
-	 */
+	/* If we didn't get malloc failure earlier... */
+	if (__nameserver != (void*) &__local_nameserver) {
+		/* TODO:
+		 * if (__nameservers < rp->nscount) - try to grow __nameserver[]?
+		 */
 #ifdef __UCLIBC_HAS_IPV6__
-	if (__nameservers > rp->_u._ext.nscount)
-		__nameservers = rp->_u._ext.nscount;
-	n = __nameservers;
-	while (--n >= 0)
-		__nameserver[n].sa6 = *rp->_u._ext.nsaddrs[n]; /* struct copy */
-#else /* __UCLIBC_HAS_IPV4__ */
-	if (__nameservers > rp->nscount)
-		__nameservers = rp->nscount;
-	n = __nameservers;
-	while (--n >= 0)
-		__nameserver[n].sa4 = rp->nsaddr_list[n]; /* struct copy */
+		if (__nameservers > rp->_u._ext.nscount)
+			__nameservers = rp->_u._ext.nscount;
+		n = __nameservers;
+		while (--n >= 0)
+			__nameserver[n].sa6 = *rp->_u._ext.nsaddrs[n]; /* struct copy */
+#else /* IPv4 only */
+		if (__nameservers > rp->nscount)
+			__nameservers = rp->nscount;
+		n = __nameservers;
+		while (--n >= 0)
+			__nameserver[n].sa4 = rp->nsaddr_list[n]; /* struct copy */
 #endif
+	}
 	/* Extend and comment what program is known
 	 * to use which _res.XXX member(s).
 	 */
@@ -1521,7 +1537,7 @@ int res_init(void)
 	rp->_u._ext.nscount = m;
 #endif
 
-#else /* if !__UCLIBC_HAS_IPV4__ (only IPV6) */
+#else /* IPv6 only */
 	while (m < ARRAY_SIZE(rp->_u._ext.nsaddrs) && i < __nameservers) {
 		struct sockaddr_in6 *sa6 = malloc(sizeof(sa6));
 		if (sa6) {
@@ -1532,7 +1548,7 @@ int res_init(void)
 		i++;
 	}
 	rp->_u._ext.nscount = m;
-#endif /* !__UCLIBC_HAS_IPV4__ (only IPV6) */
+#endif
 
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 	return 0;
@@ -1836,7 +1852,6 @@ struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type)
 	struct hostent *hp;
 
 	gethostbyaddr_r(addr, len, type, &h, buf, sizeof(buf), &hp, &h_errno);
-
 	return hp;
 }
 libc_hidden_def(gethostbyaddr)
@@ -1854,12 +1869,15 @@ FILE * __open_etc_hosts(void)
 	return fp;
 }
 
-int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
-		     enum etc_hosts_action action,
-		     struct hostent * result_buf,
-		     char * buf, size_t buflen,
-		     struct hostent ** result,
-		     int * h_errnop)
+int attribute_hidden __read_etc_hosts_r(
+		FILE * fp,
+		const char * name,
+		int type,
+		enum etc_hosts_action action,
+		struct hostent * result_buf,
+		char * buf, size_t buflen,
+		struct hostent ** result,
+		int * h_errnop)
 {
 	struct in_addr *in = NULL;
 	struct in_addr **addr_list = NULL;
@@ -1879,11 +1897,11 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 		buflen -= i;
 	}
 
-	if (buflen < sizeof(char *)*ALIAS_DIM)
+	if (buflen < sizeof(char *) * ALIAS_DIM)
 		return ERANGE;
 	alias = (char **)buf;
-	buf += sizeof(char **)*ALIAS_DIM;
-	buflen -= sizeof(char **)*ALIAS_DIM;
+	buf += sizeof(char **) * ALIAS_DIM;
+	buflen -= sizeof(char **) * ALIAS_DIM;
 
 	if (action != GETHOSTENT) {
 #ifdef __UCLIBC_HAS_IPV6__
@@ -1897,10 +1915,10 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 		buf += sizeof(*in);
 		buflen -= sizeof(*in);
 
-		if (buflen < sizeof(*addr_list)*2)
+		if (buflen < sizeof(*addr_list) * 2)
 			return ERANGE;
 		addr_list = (struct in_addr **)buf;
-		buf += sizeof(*addr_list)*2;
+		buf += sizeof(*addr_list) * 2;
 		buflen -= sizeof(*addr_list)*2;
 
 #ifdef __UCLIBC_HAS_IPV6__
@@ -1910,11 +1928,11 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 		p += sizeof(*in6);
 		len -= sizeof(*in6);
 
-		if (len < sizeof(*addr_list6)*2)
+		if (len < sizeof(*addr_list6) * 2)
 			return ERANGE;
 		addr_list6 = (struct in6_addr**)p;
-		p += sizeof(*addr_list6)*2;
-		len -= sizeof(*addr_list6)*2;
+		p += sizeof(*addr_list6) * 2;
+		len -= sizeof(*addr_list6) * 2;
 
 		if (len < buflen) {
 			buflen = len;
@@ -1951,7 +1969,7 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 			while (*cp && !isspace(*cp))
 				cp++;
 		}
-		alias[aliases] = 0;
+		alias[aliases] = NULL;
 
 		if (aliases < 2)
 			continue; /* syntax error really */
@@ -2075,17 +2093,18 @@ struct hostent *gethostent(void)
 	static struct hostent h;
 	static char buf[
 #ifndef __UCLIBC_HAS_IPV6__
-			sizeof(struct in_addr) + sizeof(struct in_addr *)*2 +
+			sizeof(struct in_addr) + sizeof(struct in_addr *) * 2 +
 #else
-			sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
+			sizeof(struct in6_addr) + sizeof(struct in6_addr *) * 2 +
 #endif /* __UCLIBC_HAS_IPV6__ */
-			sizeof(char *)*ALIAS_DIM +
+			sizeof(char *) * ALIAS_DIM +
 			80 /*namebuffer*/ + 2 /* margin */];
 	struct hostent *host;
 
-	__UCLIBC_MUTEX_LOCK(mylock);
+//BUG: the lock is not recursive!
+//	__UCLIBC_MUTEX_LOCK(mylock);
 	gethostent_r(&h, buf, sizeof(buf), &host, &h_errno);
-	__UCLIBC_MUTEX_UNLOCK(mylock);
+//	__UCLIBC_MUTEX_UNLOCK(mylock);
 	return host;
 }
 #endif
@@ -2184,31 +2203,31 @@ BAD_FAM:
 		case AF_INET:
 #ifdef __UCLIBC_HAS_IPV6__
 		case AF_INET6:
-#endif /* __UCLIBC_HAS_IPV6__ */
+#endif
 			if (!(flags & NI_NUMERICHOST)) {
+				if (0) /* nothing */;
 #ifdef __UCLIBC_HAS_IPV6__
-				if (sa->sa_family == AF_INET6)
+				else if (sa->sa_family == AF_INET6)
 					h = gethostbyaddr((const void *)
 						&(((const struct sockaddr_in6 *) sa)->sin6_addr),
 						sizeof(struct in6_addr), AF_INET6);
-#endif /* __UCLIBC_HAS_IPV6__ */
-#if defined __UCLIBC_HAS_IPV6__ && defined __UCLIBC_HAS_IPV4__
-				else
 #endif
 #ifdef __UCLIBC_HAS_IPV4__
+				else
 					h = gethostbyaddr((const void *)
 						&(((const struct sockaddr_in *)sa)->sin_addr),
 						sizeof(struct in_addr), AF_INET);
-#endif /* __UCLIBC_HAS_IPV4__ */
+#endif
 
 				if (h) {
 					char *c;
 #undef min
 #define min(x,y) (((x) > (y)) ? (y) : (x))
 					if ((flags & NI_NOFQDN)
-					    && (__libc_getdomainname(domain, sizeof(domain)) == 0)
-					    && (c = strstr (h->h_name, domain))
-					    && (c != h->h_name) && (*(--c) == '.')) {
+					 && (__libc_getdomainname(domain, sizeof(domain)) == 0)
+					 && (c = strstr(h->h_name, domain)) != NULL
+					 && (c != h->h_name) && (*(--c) == '.')
+					) {
 						strncpy(host, h->h_name,
 							min(hostlen, (size_t) (c - h->h_name)));
 						host[min(hostlen - 1, (size_t) (c - h->h_name))] = '\0';
@@ -2227,8 +2246,9 @@ BAD_FAM:
 					errno = serrno;
 					return EAI_NONAME;
 				}
+				if (0) /* nothing */;
 #ifdef __UCLIBC_HAS_IPV6__
-				if (sa->sa_family == AF_INET6) {
+				else if (sa->sa_family == AF_INET6) {
 					const struct sockaddr_in6 *sin6p;
 
 					sin6p = (const struct sockaddr_in6 *) sa;
@@ -2275,14 +2295,13 @@ BAD_FAM:
 #endif
 				}
 #endif /* __UCLIBC_HAS_IPV6__ */
-#if defined __UCLIBC_HAS_IPV6__ && defined __UCLIBC_HAS_IPV4__
-				else
-#endif /* __UCLIBC_HAS_IPV6__ && defined __UCLIBC_HAS_IPV4__ */
 #if defined __UCLIBC_HAS_IPV4__
+				else {
 					c = inet_ntop(AF_INET, (const void *)
 						&(((const struct sockaddr_in *) sa)->sin_addr),
 						host, hostlen);
-#endif /* __UCLIBC_HAS_IPV4__ */
+				}
+#endif
 				if (c == NULL) {
 					errno = serrno;
 					return EAI_SYSTEM;
@@ -2383,6 +2402,7 @@ int gethostbyname_r(const char * name,
 	unsigned char *packet;
 	struct resolv_answer a;
 	int i;
+	int wrong_af = 0;
 
 	*result = NULL;
 	if (!name)
@@ -2394,10 +2414,13 @@ int gethostbyname_r(const char * name,
 		__set_errno(0);         /* to check for missing /etc/hosts. */
 		i = __get_hosts_byname_r(name, AF_INET, result_buf,
 				buf, buflen, result, h_errnop);
-		if (i == 0)
+		if (i == NETDB_SUCCESS) {
+			__set_errno(old_errno);
 			return i;
+		}
 		switch (*h_errnop) {
 			case HOST_NOT_FOUND:
+				wrong_af = (i == TRY_AGAIN);
 			case NO_ADDRESS:
 				break;
 			case NETDB_INTERNAL:
@@ -2462,6 +2485,14 @@ int gethostbyname_r(const char * name,
 			*h_errnop = NETDB_SUCCESS;
 			return NETDB_SUCCESS;
 		}
+	}
+
+	/* what if /etc/hosts has it but it's not IPv4?
+	 * F.e. "::1 localhost6". We don't do DNS query for such hosts -
+	 * "ping localhost6" should be fast even if DNS server is down! */
+	if (wrong_af) {
+		*h_errnop = HOST_NOT_FOUND;
+		return TRY_AGAIN;
 	}
 
 	/* talk to DNS servers */
@@ -2547,17 +2578,19 @@ libc_hidden_def(gethostbyname_r)
 
 #ifdef L_gethostbyname2_r
 
-int gethostbyname2_r(const char *name, int family,
-					 struct hostent * result_buf,
-					 char * buf, size_t buflen,
-					 struct hostent ** result,
-					 int * h_errnop)
+int gethostbyname2_r(const char *name,
+		int family,
+		struct hostent * result_buf,
+		char * buf,
+		size_t buflen,
+		struct hostent ** result,
+		int * h_errnop)
 {
 #ifndef __UCLIBC_HAS_IPV6__
 	return family == (AF_INET)
 		? gethostbyname_r(name, result_buf, buf, buflen, result, h_errnop)
 		: HOST_NOT_FOUND;
-#else /* __UCLIBC_HAS_IPV6__ */
+#else
 	struct in6_addr *in;
 	struct in6_addr **addr_list;
 	unsigned char *packet;
@@ -2584,7 +2617,7 @@ int gethostbyname2_r(const char *name, int family,
 		i = __get_hosts_byname_r(name, family, result_buf,
 				buf, buflen, result, h_errnop);
 		if (i == NETDB_SUCCESS) {
-//FIXME: restore errno?
+			__set_errno(old_errno);
 			return i;
 		}
 		switch (*h_errnop) {
@@ -2602,30 +2635,28 @@ int gethostbyname2_r(const char *name, int family,
 		}
 		__set_errno(old_errno);
 	}
-
 	DPRINTF("Nothing found in /etc/hosts\n");
 
 	*h_errnop = NETDB_INTERNAL;
-	if (buflen < sizeof(*in))
-		return ERANGE;
+
+	/* make sure pointer is aligned */
+	i = ALIGN_BUFFER_OFFSET(buf);
+	buf += i;
+	buflen -= i;
+
 	in = (struct in6_addr*)buf;
 	buf += sizeof(*in);
 	buflen -= sizeof(*in);
-
-	if (buflen < sizeof(*addr_list)*2)
-		return ERANGE;
 	addr_list = (struct in6_addr**)buf;
-	buf += sizeof(*addr_list)*2;
-	buflen -= sizeof(*addr_list)*2;
-
-	addr_list[0] = in;
-	addr_list[1] = 0;
-
-	if (buflen < 256)
+	buf += sizeof(*addr_list) * 2;
+	buflen -= sizeof(*addr_list) * 2;
+	if ((ssize_t)buflen < 256)
 		return ERANGE;
+	addr_list[0] = in;
+	addr_list[1] = NULL;
 	strncpy(buf, name, buflen);
 
-	/* First check if this is already an address */
+	/* maybe it is already an address? */
 	if (inet_pton(AF_INET6, name, in)) {
 		result_buf->h_name = buf;
 		result_buf->h_addrtype = AF_INET6;
@@ -2636,7 +2667,7 @@ int gethostbyname2_r(const char *name, int family,
 		return NETDB_SUCCESS;
 	}
 
-	/* What if /etc/hosts has it but it's not IPv6?
+	/* what if /etc/hosts has it but it's not IPv6?
 	 * F.e. "127.0.0.1 localhost". We don't do DNS query for such hosts -
 	 * "ping localhost" should be fast even if DNS server is down! */
 	if (wrong_af) {
@@ -2644,8 +2675,9 @@ int gethostbyname2_r(const char *name, int family,
 		return TRY_AGAIN;
 	}
 
+	/* talk to DNS servers */
+// TODO: why it's so different from gethostbyname_r (IPv4 case)?
 	memset(&a, '\0', sizeof(a));
-
 	for (;;) {
 		i = __dns_lookup(buf, T_AAAA, &packet, &a);
 
@@ -2722,7 +2754,7 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 	if (!addr)
 		return EINVAL;
 
-	memset((char *) &a, '\0', sizeof(a));
+	memset(&a, '\0', sizeof(a));
 
 	switch (type) {
 		case AF_INET:
@@ -2752,49 +2784,42 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 			return i;
 	}
 
+	*h_errnop = NETDB_INTERNAL;
+
+	/* make sure pointer is aligned */
+	i = ALIGN_BUFFER_OFFSET(buf);
+	buf += i;
+	buflen -= i;
+
 #ifdef __UCLIBC_HAS_IPV6__
 	qp = buf;
 	plen = buflen;
-#endif /* __UCLIBC_HAS_IPV6__ */
-
-	*h_errnop = NETDB_INTERNAL;
-	if (buflen < sizeof(*in))
-		return ERANGE;
+#endif
 	in = (struct in_addr*)buf;
 	buf += sizeof(*in);
 	buflen -= sizeof(*in);
-
-	if (buflen < sizeof(*addr_list)*2)
-		return ERANGE;
 	addr_list = (struct in_addr**)buf;
-	buf += sizeof(*addr_list)*2;
-	buflen -= sizeof(*addr_list)*2;
-
-	if (buflen < sizeof(char *)*ALIAS_DIM)
-		return ERANGE;
+	buf += sizeof(*addr_list) * 2;
+	buflen -= sizeof(*addr_list) * 2;
 	alias = (char **)buf;
-	buf += sizeof(*alias)*ALIAS_DIM;
-	buflen -= sizeof(*alias)*ALIAS_DIM;
-
-#ifdef __UCLIBC_HAS_IPV6__
-	if (plen < sizeof(*in6))
+	buf += sizeof(*alias) * ALIAS_DIM;
+	buflen -= sizeof(*alias) * ALIAS_DIM;
+	if ((ssize_t)buflen < 0)
 		return ERANGE;
+#ifdef __UCLIBC_HAS_IPV6__
 	in6 = (struct in6_addr*)qp;
 	qp += sizeof(*in6);
 	plen -= sizeof(*in6);
-
-	if (plen < sizeof(*addr_list6)*2)
-		return ERANGE;
 	addr_list6 = (struct in6_addr**)qp;
-	qp += sizeof(*addr_list6)*2;
-	plen -= sizeof(*addr_list6)*2;
-
+	qp += sizeof(*addr_list6) * 2;
+	plen -= sizeof(*addr_list6) * 2;
+	if ((ssize_t)plen < 0)
+		return ERANGE;
 	if (plen < buflen) {
 		buflen = plen;
 		buf = qp;
 	}
-#endif /* __UCLIBC_HAS_IPV6__ */
-
+#endif
 	if (buflen < 256)
 		return ERANGE;
 
@@ -2802,30 +2827,27 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 		unsigned char *tmp_addr = (unsigned char *)addr;
 
 		memcpy(&in->s_addr, addr, len);
-
 		addr_list[0] = in;
-
 		sprintf(buf, "%u.%u.%u.%u.in-addr.arpa",
 				tmp_addr[3], tmp_addr[2], tmp_addr[1], tmp_addr[0]);
+	}
 #ifdef __UCLIBC_HAS_IPV6__
-	} else {
+	else {
 		memcpy(in6->s6_addr, addr, len);
-
 		addr_list6[0] = in6;
 		qp = buf;
-
 		for (i = len - 1; i >= 0; i--) {
-			qp += sprintf(qp, "%x.%x.", in6->s6_addr[i] & 0xf,
-						  (in6->s6_addr[i] >> 4) & 0xf);
+			qp += sprintf(qp, "%x.%x.",
+					in6->s6_addr[i] & 0xf,
+					(in6->s6_addr[i] >> 4) & 0xf);
 		}
 		strcpy(qp, "ip6.arpa");
-#endif /* __UCLIBC_HAS_IPV6__ */
 	}
-
-	addr_list[1] = 0;
+#endif
+	addr_list[1] = NULL;
 
 	alias[0] = buf;
-	alias[1] = 0;
+	alias[1] = NULL;
 
 	for (;;) {
 		i = __dns_lookup(buf, T_PTR, &packet, &a);
@@ -2838,7 +2860,7 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 		strncpy(buf, a.dotted, buflen);
 		free(a.dotted);
 
-		if (a.atype == T_CNAME) {		/* CNAME */
+		if (a.atype == T_CNAME) { /* CNAME */
 			DPRINTF("Got a CNAME in gethostbyaddr()\n");
 			i = __decode_dotted(packet, a.rdoffset, buf, buflen);
 			free(packet);
@@ -2860,15 +2882,12 @@ int gethostbyaddr_r(const void *addr, socklen_t len, int type,
 
 			result_buf->h_name = buf;
 			result_buf->h_addrtype = type;
-
-			if (type == AF_INET) {
+			if (type == AF_INET)
 				result_buf->h_length = sizeof(*in);
 #ifdef __UCLIBC_HAS_IPV6__
-			} else {
+			else
 				result_buf->h_length = sizeof(*in6);
-#endif /* __UCLIBC_HAS_IPV6__ */
-			}
-
+#endif
 			result_buf->h_addr_list = (char **) addr_list;
 			result_buf->h_aliases = alias;
 			break;
