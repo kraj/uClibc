@@ -62,6 +62,7 @@ static char rcsid[] = "$NetBSD: w_jn.c,v 1.6 1995/05/10 20:49:19 jtc Exp $";
 	    return z;
 #endif
 }
+libm_hidden_def(jn)
 
 #ifdef __STDC__
 	double yn(int n, double x)	/* wrapper yn */
@@ -90,3 +91,4 @@ static char rcsid[] = "$NetBSD: w_jn.c,v 1.6 1995/05/10 20:49:19 jtc Exp $";
 	    return z;
 #endif
 }
+libm_hidden_def(yn)

@@ -8,9 +8,9 @@
 #include <complex.h>
 #include <math.h>
 
-libm_hidden_proto(hypot)
 
 double cabs(double _Complex z)
 {
 	return hypot(__real__ z, __imag__ z);
 }
+libm_hidden_def(cabs)

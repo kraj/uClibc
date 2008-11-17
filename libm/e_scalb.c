@@ -23,10 +23,6 @@ static char rcsid[] = "$NetBSD: e_scalb.c,v 1.6 1995/05/10 20:46:09 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(scalbn)
-libm_hidden_proto(finite)
-libm_hidden_proto(rint)
-libm_hidden_proto(__isnan)
 
 #ifdef _SCALB_INT
 #ifdef __STDC__

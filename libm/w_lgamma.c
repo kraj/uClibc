@@ -24,8 +24,6 @@ static char rcsid[] = "$NetBSD: w_lgamma.c,v 1.6 1995/05/10 20:49:24 jtc Exp $";
 #include "math_private.h"
 
 libm_hidden_proto(signgam)
-
-libm_hidden_proto(lgamma)
 #ifdef __STDC__
 	double lgamma(double x)
 #else

@@ -1,3 +1,10 @@
+/* vi: set sw=4 ts=4: */
+/*
+ * Copyright (C) 2002 by Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 /***********************************************************************
     nan, nanf, nanl - return quiet NaN
 
@@ -17,32 +24,37 @@
 
 double nan (const char *tagp)
 {
-    if (tagp[0] != '\0') {
-	char buf[6 + strlen (tagp)];
-	sprintf (buf, "NAN(%s)", tagp);
-	return strtod (buf, NULL);
-    }
-    return NAN;
+	if (tagp[0] != '\0') {
+		char buf[6 + strlen (tagp)];
+		sprintf (buf, "NAN(%s)", tagp);
+		return strtod (buf, NULL);
+	}
+	return NAN;
 }
+libm_hidden_def(nan)
 
+libm_hidden_proto(nanf)
 float nanf (const char *tagp)
 {
-    if (tagp[0] != '\0') {
-	char buf[6 + strlen (tagp)];
-	sprintf (buf, "NAN(%s)", tagp);
-	return strtof (buf, NULL);
-    }
-    return NAN;
+	if (tagp[0] != '\0') {
+		char buf[6 + strlen (tagp)];
+		sprintf (buf, "NAN(%s)", tagp);
+		return strtof (buf, NULL);
+	}
+	return NAN;
 }
+libm_hidden_def(nanf)
 
-#if 0
+#if defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
+libm_hidden_proto(nanl)
 long double nanl (const char *tagp)
 {
-    if (tagp[0] != '\0') {
-	char buf[6 + strlen (tagp)];
-	sprintf (buf, "NAN(%s)", tagp);
-	return strtold (buf, NULL);
-    }
-    return NAN;
+	if (tagp[0] != '\0') {
+		char buf[6 + strlen (tagp)];
+		sprintf (buf, "NAN(%s)", tagp);
+		return strtold (buf, NULL);
+	}
+	return NAN;
 }
+libm_hidden_def(nanl)
 #endif

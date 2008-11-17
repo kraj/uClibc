@@ -62,10 +62,6 @@ static char rcsid[] = "$NetBSD: e_j1.c,v 1.8 1995/05/10 20:45:27 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(sin)
-libm_hidden_proto(cos)
-libm_hidden_proto(sqrt)
-libm_hidden_proto(fabs)
 
 #ifdef __STDC__
 static double pone(double), qone(double);

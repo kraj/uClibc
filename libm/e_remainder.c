@@ -26,7 +26,6 @@ static char rcsid[] = "$NetBSD: e_remainder.c,v 1.8 1995/05/10 20:46:05 jtc Exp 
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(fabs)
 
 #ifdef __STDC__
 static const double zero = 0.0;

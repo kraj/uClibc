@@ -52,81 +52,104 @@
 
 /* Arc cosine of Z.  */
 __MATHCALL (cacos, (_Mdouble_complex_ __z));
+libm_hidden_proto(cacos)
 /* Arc sine of Z.  */
 __MATHCALL (casin, (_Mdouble_complex_ __z));
+libm_hidden_proto(casin)
 /* Arc tangent of Z.  */
 __MATHCALL (catan, (_Mdouble_complex_ __z));
+libm_hidden_proto(catan)
 
 /* Cosine of Z.  */
 __MATHCALL (ccos, (_Mdouble_complex_ __z));
+libm_hidden_proto(ccos)
 /* Sine of Z.  */
 __MATHCALL (csin, (_Mdouble_complex_ __z));
+libm_hidden_proto(csin)
 /* Tangent of Z.  */
 __MATHCALL (ctan, (_Mdouble_complex_ __z));
+libm_hidden_proto(ctan)
 
 
 /* Hyperbolic functions.  */
 
 /* Hyperbolic arc cosine of Z.  */
 __MATHCALL (cacosh, (_Mdouble_complex_ __z));
+libm_hidden_proto(cacosh)
 /* Hyperbolic arc sine of Z.  */
 __MATHCALL (casinh, (_Mdouble_complex_ __z));
+libm_hidden_proto(casinh)
 /* Hyperbolic arc tangent of Z.  */
 __MATHCALL (catanh, (_Mdouble_complex_ __z));
+libm_hidden_proto(catanh)
 
 /* Hyperbolic cosine of Z.  */
 __MATHCALL (ccosh, (_Mdouble_complex_ __z));
+libm_hidden_proto(ccosh)
 /* Hyperbolic sine of Z.  */
 __MATHCALL (csinh, (_Mdouble_complex_ __z));
+libm_hidden_proto(ccosh)
 /* Hyperbolic tangent of Z.  */
 __MATHCALL (ctanh, (_Mdouble_complex_ __z));
+libm_hidden_proto(ctanh)
 
 
 /* Exponential and logarithmic functions.  */
 
 /* Exponential function of Z.  */
 __MATHCALL (cexp, (_Mdouble_complex_ __z));
+libm_hidden_proto(cexp)
 
 /* Natural logarithm of Z.  */
 __MATHCALL (clog, (_Mdouble_complex_ __z));
+libm_hidden_proto(clog)
 
 #ifdef __USE_GNU
 /* The base 10 logarithm is not defined by the standard but to implement
    the standard C++ library it is handy.  */
 __MATHCALL (clog10, (_Mdouble_complex_ __z));
+libm_hidden_proto(clog10)
 #endif
 
 /* Power functions.  */
 
 /* Return X to the Y power.  */
 __MATHCALL (cpow, (_Mdouble_complex_ __x, _Mdouble_complex_ __y));
+libm_hidden_proto(cpow)
 
 /* Return the square root of Z.  */
 __MATHCALL (csqrt, (_Mdouble_complex_ __z));
+libm_hidden_proto(csqrt)
 
 
 /* Absolute value, conjugates, and projection.  */
 
 /* Absolute value of Z.  */
 __MATHDECL (_Mdouble_,cabs, (_Mdouble_complex_ __z));
+libm_hidden_proto(cabs)
 
 /* Argument value of Z.  */
 __MATHDECL (_Mdouble_,carg, (_Mdouble_complex_ __z));
+libm_hidden_proto(carg)
 
 /* Complex conjugate of Z.  */
 __MATHCALL (conj, (_Mdouble_complex_ __z));
+libm_hidden_proto(conj)
 
 /* Projection of Z onto the Riemann sphere.  */
 __MATHCALL (cproj, (_Mdouble_complex_ __z));
+libm_hidden_proto(cproj)
 
 
 /* Decomposing complex values.  */
 
 /* Imaginary part of Z.  */
 __MATHDECL (_Mdouble_,cimag, (_Mdouble_complex_ __z));
+libm_hidden_proto(cimag)
 
 /* Real part of Z.  */
 __MATHDECL (_Mdouble_,creal, (_Mdouble_complex_ __z));
+libm_hidden_proto(creal)
 
 
 /* Now some optimized versions.  GCC has handy notations for these

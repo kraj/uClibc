@@ -21,7 +21,6 @@ static char rcsid[] = "$NetBSD: w_remainder.c,v 1.6 1995/05/10 20:49:44 jtc Exp 
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(remainder)
 #ifdef __STDC__
 	double remainder(double x, double y)	/* wrapper remainder */
 #else

@@ -35,7 +35,6 @@ static char rcsid[] = "$NetBSD: e_atanh.c,v 1.8 1995/05/10 20:44:55 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(log1p)
 
 #ifdef __STDC__
 static const double one = 1.0, huge = 1e300;

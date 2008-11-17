@@ -158,6 +158,7 @@ extern double __ieee754_sqrt (double) attribute_hidden;
 extern double __ieee754_acos (double) attribute_hidden;
 extern double __ieee754_acosh (double) attribute_hidden;
 extern double __ieee754_log (double) attribute_hidden;
+extern double __ieee754_log2 (double) attribute_hidden;
 extern double __ieee754_atanh (double) attribute_hidden;
 extern double __ieee754_asin (double) attribute_hidden;
 extern double __ieee754_atan2 (double,double) attribute_hidden;

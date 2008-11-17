@@ -34,7 +34,6 @@ static double
 #endif
 two54 =  1.80143985094819840000e+16; /* 0x43500000, 0x00000000 */
 
-libm_hidden_proto(frexp)
 #ifdef __STDC__
 	double frexp(double x, int *eptr)
 #else

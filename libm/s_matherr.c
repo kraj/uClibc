@@ -19,7 +19,6 @@ static char rcsid[] = "$NetBSD: s_matherr.c,v 1.6 1995/05/10 20:47:53 jtc Exp $"
 
 #ifndef _IEEE_LIBM
 
-libm_hidden_proto(matherr)
 #ifdef __STDC__
 	int matherr(struct exception *x)
 #else

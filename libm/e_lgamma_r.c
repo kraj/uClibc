@@ -84,9 +84,6 @@ static char rcsid[] = "$NetBSD: e_lgamma_r.c,v 1.7 1995/05/10 20:45:42 jtc Exp $
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(floor)
-libm_hidden_proto(fabs)
-
 #ifdef __STDC__
 static const double
 #else
@@ -167,7 +164,7 @@ static double zero=  0.00000000000000000000e+00;
 
 static
 #ifdef __GNUC__
-inline
+__inline__
 #endif
 #ifdef __STDC__
 	double sin_pi(double x)

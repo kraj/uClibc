@@ -30,7 +30,6 @@ static const double two52[2] =
 };
 
 
-libm_hidden_proto(lrint)
 long int
 lrint (double x)
 {

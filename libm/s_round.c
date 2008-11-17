@@ -25,7 +25,6 @@
 
 static const double huge = 1.0e300;
 
-libm_hidden_proto(round)
 double
 round (double x)
 {

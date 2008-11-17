@@ -22,9 +22,8 @@
 #include "math_private.h"
 
 libm_hidden_proto(signgam)
-
 #ifdef __STDC__
-	//__private_extern__
+	/* __private_extern__ */
 	double attribute_hidden __ieee754_lgamma(double x)
 #else
 	double attribute_hidden __ieee754_lgamma(x)

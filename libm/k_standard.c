@@ -20,9 +20,6 @@ static char rcsid[] = "$NetBSD: k_standard.c,v 1.6 1995/05/10 20:46:35 jtc Exp $
 
 #ifndef _IEEE_LIBM
 
-libm_hidden_proto(copysign)
-libm_hidden_proto(matherr)
-libm_hidden_proto(rint)
 
 #ifndef _USE_WRITE
 #include <stdio.h>			/* fputs(), stderr */

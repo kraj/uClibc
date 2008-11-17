@@ -47,7 +47,6 @@ static char rcsid[] = "$NetBSD: s_tan.c,v 1.7 1995/05/10 20:48:18 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(tan)
 #ifdef __STDC__
 	double tan(double x)
 #else

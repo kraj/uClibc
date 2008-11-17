@@ -21,13 +21,9 @@
 #include <complex.h>
 #include <math.h>
 
-libm_hidden_proto(atan2)
-libm_hidden_proto(carg)
-
 double
 carg (__complex__ double x)
 {
   return atan2 (__imag__ x, __real__ x);
 }
-
 libm_hidden_def(carg)

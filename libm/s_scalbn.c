@@ -24,7 +24,6 @@ static char rcsid[] = "$NetBSD: s_scalbn.c,v 1.8 1995/05/10 20:48:08 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(copysign)
 
 #ifdef __STDC__
 static const double
@@ -36,7 +35,6 @@ twom54  =  5.55111512312578270212e-17, /* 0x3C900000, 0x00000000 */
 huge   = 1.0e+300,
 tiny   = 1.0e-300;
 
-libm_hidden_proto(scalbn)
 #ifdef __STDC__
 	double scalbn (double x, int n)
 #else
