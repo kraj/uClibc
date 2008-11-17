@@ -842,6 +842,27 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_protect_relro (tpnt);
 	}
 
+	if (!was_tls_init_tp_called && _dl_tls_max_dtv_idx > 0)
+		++_dl_tls_generation;
+
+	_dl_debug_early("Calling _dl_allocate_tls_init()!\n");
+
+	/* Now that we have completed relocation, the initializer data
+	   for the TLS blocks has its final values and we can copy them
+	   into the main thread's TLS area, which we allocated above.  */
+	_dl_allocate_tls_init (tcbp);
+
+	/* And finally install it for the main thread.  If ld.so itself uses
+	   TLS we know the thread pointer was initialized earlier.  */
+	if (! tls_init_tp_called)
+	{
+		const char *lossage = (char *) TLS_INIT_TP (tcbp, USE___THREAD);
+		if (__builtin_expect (lossage != NULL, 0))
+		{
+			_dl_debug_early("cannot set up thread-local storage: %s\n", lossage);
+			_dl_exit(30);
+		}
+	}
 	/* OK, at this point things are pretty much ready to run.  Now we need
 	 * to touch up a few items that are required, and then we can let the
 	 * user application have at it.  Note that the dynamic linker itself
@@ -921,27 +942,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	_dl_memalign_function = (void* (*)(size_t, size_t)) (intptr_t)
 		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 			
-	if (!was_tls_init_tp_called && _dl_tls_max_dtv_idx > 0)
-		++_dl_tls_generation;
-
-	_dl_debug_early("Calling _dl_allocate_tls_init()!\n");
-
-	/* Now that we have completed relocation, the initializer data
-	   for the TLS blocks has its final values and we can copy them
-	   into the main thread's TLS area, which we allocated above.  */
-	_dl_allocate_tls_init (tcbp);
-
-	/* And finally install it for the main thread.  If ld.so itself uses
-	   TLS we know the thread pointer was initialized earlier.  */
-	if (! tls_init_tp_called)
-	{
-		const char *lossage = (char *) TLS_INIT_TP (tcbp, USE___THREAD);
-		if (__builtin_expect (lossage != NULL, 0))
-		{
-			_dl_debug_early("cannot set up thread-local storage: %s\n", lossage);
-			_dl_exit(30);
-		}
-	}
 #endif
 
 	/* Notify the debugger that all objects are now mapped in.  */

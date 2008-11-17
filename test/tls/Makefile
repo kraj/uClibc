@@ -3,7 +3,7 @@
 
 TESTS := tst-tls1 tst-tls2 tst-tls3 tst-tls4 tst-tls5 tst-tls6 tst-tls7	\
 	tst-tls8 tst-tls9 tst-tls10 tst-tls11 tst-tls12 tst-tls13	\
-	tst-tls14 tst-tls15 tst-tls1-static tst-tls2-static		\
+	tst-tls14 tst-tls15 tst-tls16 tst-tls1-static tst-tls2-static \
 	tst-tls9-static
 TESTS_DISABLED := tst-tls1-static tst-tls2-static tst-tls9-static
 
@@ -42,6 +42,7 @@ CFLAGS_tst-tlsmod14a.so := -fPIC -DSHARED -shared
 CFLAGS_tst-tlsmod14b.so := -fPIC -DSHARED -shared
 CFLAGS_tst-tlsmod15a.so := -fPIC -DSHARED -shared
 CFLAGS_tst-tlsmod15b.so := -fPIC -DSHARED -shared
+CFLAGS_tst-tlsmod16.so := -fPIC -DSHARED -shared
 
 LDFLAGS_tst-tlsmod1.so := -shared -static-libgcc -L$(top_builddir)lib
 LDFLAGS_tst-tlsmod2.so := -shared -static-libgcc -L$(top_builddir)lib
@@ -66,6 +67,7 @@ LDFLAGS_tst-tlsmod14a.so := -shared -static-libgcc -L$(top_builddir)lib
 LDFLAGS_tst-tlsmod14b.so := -shared -static-libgcc -L$(top_builddir)lib
 LDFLAGS_tst-tlsmod15a.so := -shared -static-libgcc -L$(top_builddir)lib
 LDFLAGS_tst-tlsmod15b.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod16.so := -shared -static-libgcc -L$(top_builddir)lib
 
 LDFLAGS_tst-tls3 := tst-tlsmod1.so
 LDFLAGS_tst-tls4 := -ldl
@@ -80,6 +82,7 @@ LDFLAGS_tst-tls12 := -Wl,-rpath-link=. tst-tlsmod12.so
 LDFLAGS_tst-tls13 := -ldl -Wl,-rpath-link=.
 LDFLAGS_tst-tls14 := -ldl -Wl,-rpath-link=. tst-tlsmod14a.so
 LDFLAGS_tst-tls15 := -ldl -Wl,-rpath-link=.
+LDFLAGS_tst-tls16 := tst-tlsmod16.so
 
 tst-tls3: tst-tlsmod1.so
 tst-tls4: tst-tlsmod2.so
@@ -94,6 +97,7 @@ tst-tls12: tst-tlsmod11.so tst-tlsmod12.so
 tst-tls13: tst-tlsmod13.so tst-tlsmod13a.so
 tst-tls14: tst-tlsmod14a.so tst-tlsmod14b.so
 tst-tls15: tst-tlsmod15a.so tst-tlsmod15b.so
+tst-tls16: tst-tlsmod16.so
 
 RET_tst-tls13 := 1
 ifeq ($(TARGET_ARCH),mips)
