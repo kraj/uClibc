@@ -98,7 +98,8 @@ typedef res_sendhookact (*res_send_rhook) (const struct sockaddr_in *ns,
 # define RES_MAXNDOTS		15	/* should reflect bit field size */
 # define RES_MAXRETRANS		30	/* only for resolv.conf/RES_OPTIONS */
 # define RES_MAXRETRY		5	/* only for resolv.conf/RES_OPTIONS */
-# define RES_DFLRETRY		2	/* Default #/tries. */
+# define RES_DFLRETRY		3	/* Default #/tries. */
+/* (glibc uses RES_DFLRETRY of 2 but also does _res.retry = 4 sometimes (!) */
 # define RES_MAXTIME		65535	/* Infinity, in milliseconds. */
 
 /* _res (an instance of this structure) uses 0.5kb in bss

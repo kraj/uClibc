@@ -223,11 +223,6 @@ libc_hidden_proto(__libc_getdomainname)
 
 
 #define MAX_RECURSE    5
-#define REPLY_TIMEOUT 10
-#define MAX_RETRIES    3
-#define MAX_SERVERS    3
-#define MAX_SEARCH     4
-
 #define MAX_ALIASES    5
 
 /* 1:ip + 1:full + MAX_ALIASES:aliases + 1:NULL */
@@ -384,7 +379,7 @@ extern int __dn_expand(const u_char *, const u_char *, const u_char *,
  *		If more than one instance of these keywords is present,
  *		the last instance wins.
  * sortlist 130.155.160.0[/255.255.240.0] 130.155.0.0
- *		Allows addresses returned by gethostbyname to be  sorted.
+ *		Allows addresses returned by gethostbyname to be sorted.
  *		Not supported.
  * options option[ option]...
  *		(so far we support none)
@@ -414,7 +409,7 @@ extern int __dn_expand(const u_char *, const u_char *, const u_char *,
  *
  * We will read and analyze /etc/resolv.conf as needed before
  * we do a DNS request. This happens in __dns_lookup.
- * (TODO: also re-parse it after a timeout, it might get updated).
+ * (TODO: also re-parse it after a timeout, to catch updates).
  *
  * BSD has res_init routine which is used to initialize resolver state
  * which is held in global structure _res.
@@ -1166,7 +1161,8 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 //			local_ns_num = 0;
 //			if (_res.options & RES_ROTATE)
 				local_ns_num = last_ns_num;
-			retries_left = __nameservers * MAX_RETRIES;
+//TODO: use _res.retry
+			retries_left = __nameservers * RES_DFLRETRY;
 		}
 		retries_left--;
 		if (local_ns_num >= __nameservers)
@@ -1225,7 +1221,8 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		send(fd, packet, len, 0);
 
 #ifdef USE_SELECT
-		reply_timeout = REPLY_TIMEOUT;
+//TODO: use _res.retrans
+		reply_timeout = RES_TIMEOUT;
  wait_again:
 		FD_ZERO(&fds);
 		FD_SET(fd, &fds);
@@ -1239,7 +1236,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		}
 		reply_timeout--;
 #else
-		reply_timeout = REPLY_TIMEOUT * 1000;
+		reply_timeout = RES_TIMEOUT * 1000;
  wait_again:
 		fds.fd = fd;
 		fds.events = POLLIN;
