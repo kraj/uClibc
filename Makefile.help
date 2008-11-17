@@ -1,0 +1,45 @@
+# Makefile.help for uClibc
+#
+# Copyright (C) 2008 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+help:
+	@echo 'Cleaning:'
+	@echo '  clean			- delete temporary object files'
+	@echo '  realclean		- delete temporary object file, including dependencies'
+	@echo '  distclean		- delete all non-source files (including .config)'
+	@echo
+	@echo 'Build:'
+	@echo '  all			- libraries and generated headers'
+	@echo '  pregen		- generate headers'
+	@echo
+	@echo 'Configuration:'
+	@echo '  allnoconfig		- disable all symbols in .config'
+	@echo '  allyesconfig		- enable all symbols in .config (see defconfig)'
+	@echo '  config		- text based configurator (of last resort)'
+	@echo '  defconfig		- set .config to arch-specific defaults'
+	@echo '  menuconfig		- interactive curses-based configurator'
+	@echo '  oldconfig		- resolve any unresolved symbols in .config'
+	@echo '  silentoldconfig	- resolve any unresolved symbols in .config, silently'
+	@echo '  randconfig		- generate a random .config'
+	@echo
+	@echo 'Installation:'
+	@echo '  install		- install both the runtime and the headers'
+	@echo '  install_runtime	- install the libraries'
+	@echo '  install_dev		- install all headers and static libs'
+	@echo '  install_headers	- install headers excluding generated ones'
+	@echo
+	@echo 'Development:'
+	@echo '  check			- run testsuite'
+	@echo '  test_compile		- compile testsuite binaries'
+	@echo '  release		- create a distribution tarball'
+	@echo
+	@echo 'Environment variables:'
+	@echo '     			- Quiet build'
+	@echo '  V=1			- Verbose build'
+	@echo '  V=2			- Very verbose build'
+	@echo '  CROSS=		- Override CROSS_COMPILER_PREFIX from .config'
+	@echo '  SHELL=		- Shell to use for make'
+	@echo '  CONFIG_SHELL=		- Shell to use for menuconfig'

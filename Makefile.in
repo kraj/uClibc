@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -8,21 +8,32 @@
 #--------------------------------------------------------------
 # You shouldn't need to mess with anything beyond this point...
 #--------------------------------------------------------------
+clean_targets := clean realclean distclean \
+	objclean-y headers_clean-y utils_clean
 noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
-	defconfig allyesconfig allnoconfig clean distclean \
-	release dist tags
+	defconfig allyesconfig allnoconfig \
+	release dist tags help
 
 include $(top_builddir)Rules.mak
 sub_headers := headers
 
-#suspicious_dependency:=include/bits
-
 ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: pregen libs
+libs: pregen
 
 # In this section, we need .config
 -include .config.cmd
+
+else # ifeq ($(HAVE_DOT_CONFIG),y)
+
+all: menuconfig
+
+headers:
+	@echo "Need to make a config file first, run: make menuconfig"
+	@false
+
+endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 include $(top_srcdir)ldso/Makefile.in
 include $(top_srcdir)libcrypt/Makefile.in
@@ -38,6 +49,7 @@ include $(top_srcdir)extra/locale/Makefile.in
 # last included to catch all the objects added by others (locales/threads)
 include $(top_srcdir)libc/Makefile.in
 
+ifeq ($(HAVE_DOT_CONFIG),y)
 # If the .config changes then we have to make sure that our includes are
 # updated properly. This would normally work by saying that the headers
 # have uClibc_config.h as prerequisite but since we _symlink_ the headers
@@ -45,7 +57,6 @@ include $(top_srcdir)libc/Makefile.in
 # on spot to save us from alot of hazzle.
 include/bits/uClibc_config.h: extra/config/conf .config $(top_srcdir)extra/scripts/conf-header.sh | include/bits
 	@$(disp_gen)
-	@#superfluous: $(Q)$(INSTALL) -d $(dir $@)
 	$(Q)@$< -s $(top_srcdir)extra/Configs/Config.in
 	$(Q)$(top_srcdir)extra/scripts/conf-header.sh .config > $@
 	$(Q)$(MAKE) headers-y
@@ -152,7 +163,7 @@ include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 	@$(disp_gen)
 	$(Q)set -e; \
 	cd $(top_builddir); \
-	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null`; \
+	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null || true`; \
 	[ -z "$$tmp" ] && tmp='include/bits/sysnum.h.new'; \
 	KERNEL_HEADERS="${KERNEL_HEADERS}" top_builddir=. CC="$(CC) $(CPU_CFLAGS)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
 	if cmp include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
@@ -308,6 +319,13 @@ ifneq ($(UCLIBC_LINUX_SPECIFIC),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/inotify.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/perm.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/personality.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/prctl.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/reboot.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/sendfile.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/fsuid.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/signalfd.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/swap.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/sysctl.h
 endif
 ifneq ($(UCLIBC_SV4_DEPRECATED),y)
 	# Remove ustat.h since deprecated SV4 support was disabled upon request
@@ -340,20 +358,24 @@ ifneq ($(UCLIBC_HAS_CRYPT),y)
 	# Remove crypt.h since libcrypt was disabled upon request
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/crypt.h
 endif
+ifneq ($(UCLIBC_SUPPORT_AI_ADDRCONFIG),y)
+	# Remove ifaddrs.h since the corresponding functionality is disabled
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ifaddrs.h
+endif
 
 # Installs development library links.
-install_dev: install_headers
+install_dev: install_headers all
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 ifeq ($(HAVE_SHARED),y)
 	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
-	sed -e 's/lib\///'` ; do \
+	$(SED) -e 's/lib\///'` ; do \
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
 	done
 	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
-		sed -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
+		$(SED) -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
 		    -e 's:$(SHARED_MAJORNAME):$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME):' \
 		    -e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO):' \
 		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
@@ -376,9 +398,9 @@ ifeq ($(DOPIC),y)
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	if [ -d lib ] ; then \
-		for i in `find lib/  -type f -name 'lib*.a' | sed -e 's/lib\///'` ; do \
+		for i in `find lib/ -type f -name 'lib*.a' | $(SED) -e 's/lib\///'` ; do \
 			$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
-				| sed -e 's/\.a$$/_pic.a/'`; \
+				| $(SED) -e 's/\.a$$/_pic.a/'`; \
 		done ; \
 	fi
 endif
@@ -387,14 +409,14 @@ ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
 	for file in lib/lib*.gdb; do \
 		if test -f $$file; then \
 			$(INSTALL) -m 755 $$file $(PREFIX)$(DEVEL_PREFIX)lib; \
-			$(INSTALL) -m 755 `echo $$file | sed 's/\.gdb$$//'` \
+			$(INSTALL) -m 755 `echo $$file | $(SED) 's/\.gdb$$//'` \
 			  $(PREFIX)$(DEVEL_PREFIX)lib; \
 		fi; \
 	done
 endif
 
 # Installs run-time libraries
-install_runtime:
+install_runtime: all
 ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
 	$(INSTALL) -m 644 lib/lib*-$(VERSION).so \
@@ -408,6 +430,8 @@ ifeq ($(HAVE_SHARED),y)
 	fi
 endif
 
+hostutils:
+	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" -C utils hostutils
 
 # Installs only library tests 
 install_test:
@@ -430,65 +454,50 @@ utils:
 install_utils: utils
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install
 
-else # ifeq ($(HAVE_DOT_CONFIG),y)
-
-all: menuconfig
-
-headers:
-	@echo "Need to make a config file first, run: make menuconfig"
-	@false
-
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
-include/bits:
+include/bits include/config:
 	@$(disp_mkdir)
 	$(Q)$(INSTALL) -d $@
 
 # configuration
 # ---------------------------------------------------------------------------
-extra/config/conf extra/config/mconf: $(suspicious_dependency)
+extra/config/conf extra/config/mconf: | include/config
 	$(Q)$(MAKE) -C extra/config $(notdir $@)
 
-menuconfig: extra/config/mconf $(suspicious_dependency)
+menuconfig: extra/config/mconf
 	$(Q)./extra/config/mconf extra/Configs/Config.in
 
-config: extra/config/conf $(suspicious_dependency)
+config: extra/config/conf
 	$(Q)./extra/config/conf extra/Configs/Config.in
 
-oldconfig: extra/config/conf $(suspicious_dependency)
+oldconfig: extra/config/conf
 	$(Q)./extra/config/conf -o extra/Configs/Config.in
 
-silentoldconfig: extra/config/conf $(suspicious_dependency)
+silentoldconfig: extra/config/conf
 	$(Q)./extra/config/conf -s extra/Configs/Config.in
 
-randconfig: extra/config/conf $(suspicious_dependency)
+randconfig: extra/config/conf
 	$(Q)./extra/config/conf -r extra/Configs/Config.in
 
-allyesconfig: extra/config/conf $(suspicious_dependency)
+allyesconfig: extra/config/conf
 	$(Q)./extra/config/conf -y extra/Configs/Config.in
-	sed -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" .config
-	sed -i -e "s/^DOASSERTS=.*/# DOASSERTS is not set/" .config
-	sed -i -e "s/^SUPPORT_LD_DEBUG_EARLY=.*/# SUPPORT_LD_DEBUG_EARLY is not set/" .config
-	sed -i -e "s/^SUPPORT_LD_DEBUG=.*/# SUPPORT_LD_DEBUG is not set/" .config
-	sed -i -e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" .config
+	$(SED) -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" .config
+	$(SED) -i -e "s/^DOASSERTS=.*/# DOASSERTS is not set/" .config
+	$(SED) -i -e "s/^SUPPORT_LD_DEBUG_EARLY=.*/# SUPPORT_LD_DEBUG_EARLY is not set/" .config
+	$(SED) -i -e "s/^SUPPORT_LD_DEBUG=.*/# SUPPORT_LD_DEBUG is not set/" .config
+	$(SED) -i -e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" .config
 	$(Q)./extra/config/conf -o extra/Configs/Config.in
 
-allnoconfig: extra/config/conf $(suspicious_dependency)
+allnoconfig: extra/config/conf
 	$(Q)./extra/config/conf -n extra/Configs/Config.in
 
-defconfig: extra/config/conf $(suspicious_dependency)
+defconfig: extra/config/conf
 	$(Q)./extra/config/conf -d extra/Configs/Config.in \
 		-D extra/Configs/defconfigs/$(ARCH)
 
-clean:
-	$(Q)$(RM) -r lib include/bits
-	$(RM) ldso/*/*.a libpthread/*/*.a libc/*.a libcrypt/*.a libintl/*.a \
-		libm/*.a libnsl/*.a libpthread/*.a libresolv/*.a librt/*.a \
-		libutil/*.a lib/*.a \
-		include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
-	$(MAKE) objclean-y headers_clean-y
-	$(MAKE) -s -C test clean
-	$(MAKE) -C utils utils_clean
+include_clean:
+	$(Q)$(RM) include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
 	@set -e; \
 	for i in `(cd libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \
@@ -498,9 +507,14 @@ clean:
 			$(RM) include/sys/$$i; \
 		done; \
 	fi
+
+clean: include_clean
+	$(Q)$(RM) -r lib include/bits
+	@$(MAKE) -C utils utils_clean
+	+$(MAKE) -s -C test clean
 	@$(RM) include/linux include/asm*
-	$(RM) $(top_builddir)extra/scripts/unifdef
-	$(RM) -r $(LOCAL_INSTALL_PATH)
+	$(Q)$(RM) $(top_builddir)extra/scripts/unifdef
+	$(Q)$(RM) -r $(LOCAL_INSTALL_PATH)
 
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ -o -name .\*.dep \) -exec $(RM) {} \;

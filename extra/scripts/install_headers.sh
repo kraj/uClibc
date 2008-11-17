@@ -33,12 +33,12 @@ fi
 (
 # We must cd, or else we'll prepend "$1" to filenames!
 cd "$1" || exit 1
-find ! -name '.' -a ! -path '*/.*'
+find ! -name '.' -a ! -path '*/.*' | sed -e 's/^\.\///' -e '/^config\//d' \
+	-e '/^config$/d'
 ) | \
 (
 IFS=''
 while read -r filename; do
-	filename="${filename#./}"
 	if test -d "$1/$filename"; then
 		mkdir -p "$2/$filename" 2>/dev/null
 	else
@@ -46,7 +46,7 @@ while read -r filename; do
 		# exactly the same as input. That's ok.
 		# Do not abort the script if unifdef "fails"!
 		"$top_builddir/extra/scripts/unifdef" -UUCLIBC_INTERNAL "$1/$filename" \
-		    | grep -v '^libc_hidden_proto[ 	]*([a-zA-Z0-9_]*)$' >"$2/$filename"
+		    | sed -e '/^\(rtld\|lib\(c\|m\|resolv\|dl\|intl\|rt\|nsl\|util\|crypt\|pthread\)\)_hidden_proto[ 	]*([a-zA-Z0-9_]*)$/d' >"$2/$filename"
 	fi
 done
 )

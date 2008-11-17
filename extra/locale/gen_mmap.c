@@ -127,7 +127,7 @@ int main(void)
 	unsigned char *p;
 
 	if (!(fp = fopen("locale.mmap", "w"))) {
-		printf("error - can't open locale.mmap for writing!");
+		printf("cannot open locale.mmap for writing!");
 		return EXIT_FAILURE;
 	}
 

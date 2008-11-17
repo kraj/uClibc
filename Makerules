@@ -7,9 +7,9 @@
 PHONY := FORCE
 
 .PHONY: dummy $(PHONY) \
-	all check clean realclean distclean test \
+	all check test $(clean_targets) \
 	config dist menuconfig oldconfig release \
-	subdirs utils
+	subdirs utils help
 
 # order is important, the stripping uses STRIP_FLAGS for lib-so, but not for lib-a
 ifeq ($(HAVE_SHARED),y)
@@ -81,6 +81,8 @@ pur_disp_compile.u = echo "  "CC $(show_objs)
 pur_disp_compile.S = echo "  "AS $(show_objs)
 pur_disp_compile.m = $(pur_disp_compile.c)
 pur_disp_compile-m = echo "  "CC-m $(show_objs)
+pur_disp_hcompile.u= echo "  "HOSTCC $(show_objs)
+pur_disp_hcompile.o= echo "  "HOSTCC-o $(show_objs)
 pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_t_strip   = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
@@ -89,6 +91,7 @@ pur_disp_ln        = echo "  "LN $@
 pur_disp_mkdir     = echo "  "MKDIR $@
 pur_disp_gen       = echo "  "GEN $@
 pur_disp_unifdef   = echo "  "UNIFDEF $@
+pur_disp_rm        = echo "  "CLEAN $(@:_clean=)
 
 sil_disp_compile.c = true
 sil_disp_compile.i = true
@@ -97,6 +100,8 @@ sil_disp_compile.u = true
 sil_disp_compile.S = true
 sil_disp_compile.m = true
 sil_disp_compile-m = true
+sil_disp_hcompile.u= true
+sil_disp_hcompile.o= true
 sil_disp_strip     = true
 sil_disp_t_strip   = true
 sil_disp_ar        = true
@@ -105,6 +110,7 @@ sil_disp_ln        = true
 sil_disp_mkdir     = true
 sil_disp_gen       = true
 sil_disp_unifdef   = true
+sil_disp_rm        = true
 
 ver_disp_compile.c = echo $(cmd_compile.c)
 ver_disp_compile.i = echo $(cmd_compile.i)
@@ -113,6 +119,8 @@ ver_disp_compile.u = echo $(cmd_compile.u)
 ver_disp_compile.S = echo $(cmd_compile.S)
 ver_disp_compile.m = echo $(cmd_compile.m)
 ver_disp_compile-m = echo $(cmd_compile-m)
+ver_disp_hcompile.u= echo $(cmd_hcompile.u)
+ver_disp_hcompile.o= echo $(cmd_hcompile.o)
 ver_disp_strip     = echo $(cmd_strip)
 ver_disp_t_strip   = echo $(cmd_t_strip)
 ver_disp_ar        = echo $(cmd_ar)
@@ -121,6 +129,7 @@ ver_disp_ln        =
 ver_disp_mkdir     =
 ver_disp_gen       =
 ver_disp_unifdef   = echo $(cmd_unifdef)
+ver_disp_rm        =
 
 disp_compile.c = $($(DISP)_disp_compile.c)
 disp_compile.i = $($(DISP)_disp_compile.i)
@@ -129,6 +138,8 @@ disp_compile.u = $($(DISP)_disp_compile.u)
 disp_compile.S = $($(DISP)_disp_compile.S)
 disp_compile.m = $($(DISP)_disp_compile.m)
 disp_compile-m = $($(DISP)_disp_compile-m)
+disp_hcompile.u= $($(DISP)_disp_hcompile.u)
+disp_hcompile.o= $($(DISP)_disp_hcompile.o)
 disp_strip     = $($(DISP)_disp_strip)
 disp_t_strip   = $($(DISP)_disp_t_strip)
 disp_ar        = $($(DISP)_disp_ar)
@@ -137,6 +148,7 @@ disp_ln        = $($(DISP)_disp_ln)
 disp_mkdir     = $($(DISP)_disp_mkdir)
 disp_gen       = $($(DISP)_disp_gen)
 disp_unifdef   = $($(DISP)_disp_unifdef)
+disp_rm        = $($(DISP)_disp_rm)
 
 any-prereq = $(filter-out $(PHONY),$?) $(filter-out $(PHONY) $(wildcard $^),$^)
 
@@ -172,7 +184,7 @@ cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) \
 	$(CFLAGS-$(notdir $<)) \
 	$(CFLAGS-$(notdir $@)) \
 	$(CFLAGS_gen.dep)
-cmd_compile.i = $(cmd_compile.c:-c=-E -dD)
+cmd_compile.i = $(cmd_compile.c:-c=-E -dD $(EXTRA_CPPFLAGS))
 cmd_compile.s = $(cmd_compile.c:-c=-S)
 cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@)) $(CFLAGS_gen.dep)
 cmd_compile.S = $(filter-out -std=gnu99, $(cmd_compile.c)) -D__ASSEMBLER__ $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
@@ -188,6 +200,12 @@ define do_ln
 	$(Q)$(LN) -fs
 endef
 
+
+define do_rm
+	@$(disp_rm)
+	$(Q)$(RM)
+endef
+
 define do_awk
 	@$(disp_gen)
 	$(Q)$(AWK) -f
@@ -198,21 +216,23 @@ compile.i =  $(call maybe_exec,compile.i)
 compile.s =  $(call maybe_exec,compile.s)
 compile.S = @$(call maybe_exec,compile.S)
 compile.m = @$(call maybe_exec,compile.m)
-compile-m = @$(disp_compile-m) ; $(cmd_compile-m) ; $(do_t_strip)
+compile-m = @$(disp_compile-m) ; $(cmd_compile-m) ; $(cmd_t_strip)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
 do_t_strip= @$(disp_t_strip)   ; $(cmd_t_strip)
 do_unifdef= @$(disp_unifdef)   ; $(cmd_unifdef)
+hcompile.u= @$(disp_hcompile.u); $(cmd_hcompile.u)
+hcompile.o= @$(disp_hcompile.o); $(cmd_hcompile.o)
 
 define do_ar
-	$(do_strip)
 	@$(disp_ar) ; $(cmd_ar)
+	@$(do_t_strip)
 endef
 define compile.u
 	@$(disp_compile.u) ; $(cmd_compile.u)
 	@$(disp_t_strip)
 endef
-hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
-hcompile.o = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
+cmd_hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
+cmd_hcompile.o = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
 
 define link.so
 	$(Q)$(INSTALL) -d $(dir $@)
@@ -281,6 +301,7 @@ CFLAGS-.oS+=$(PICFLAG) -DSHARED
 %.i:  %.S FORCE ; $(compile.i)
 %.s:  %.c FORCE ; $(compile.s)
 %.s:  %.S FORCE ; $(compile.s)
+%.dep:
 
 $(top_builddir)lib/interp.c: | $(sub_headers)
 	$(Q)$(INSTALL) -d $(dir $@)
@@ -365,7 +386,7 @@ CRTS_COMPAT :=
 #endif
 
 $(crt-y): $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC)
-$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | $(headers-y)
+$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | headers
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)

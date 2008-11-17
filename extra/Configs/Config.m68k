@@ -11,7 +11,3 @@ config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
 	select ARCH_BIG_ENDIAN
-
-config ARCH_CFLAGS
-	string
-	default "-Wa,--bitwise-or"

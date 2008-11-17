@@ -1,12 +1,12 @@
 # Rules.make for uClibc
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
 # check for proper make version
-ifneq ($(findstring 3.7,$(MAKE_VERSION)),)
+ifneq ($(findstring x3.7,x$(MAKE_VERSION)),)
 $(error Your make is too old $(MAKE_VERSION). Go get at least 3.80)
 endif
 
@@ -41,6 +41,7 @@ INSTALL    = install
 LN         = ln
 RM         = rm -f
 TAR        = tar
+SED        = sed
 AWK        = awk
 
 STRIP_FLAGS ?= -x -R .note -R .comment
@@ -50,8 +51,10 @@ UNIFDEF := $(top_builddir)extra/scripts/unifdef -UUCLIBC_INTERNAL
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
 BUILD_CFLAGS = -O2 -Wall
-export ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun.*/sparc/ -e s/sparc.*/sparc/ \
-				  -e s/arm.*/arm/ -e s/sa110/arm/ -e s/sh.*/sh/ \
+export ARCH := $(shell uname -m | $(SED) -e s/i.86/i386/ \
+				  -e s/sun.*/sparc/ -e s/sparc.*/sparc/ \
+				  -e s/arm.*/arm/ -e s/sa110/arm/ \
+				  -e s/sh.*/sh/ \
 				  -e s/s390x/s390/ -e s/parisc.*/hppa/ \
 				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
 				  -e s/xtensa.*/xtensa/ )
@@ -68,9 +71,9 @@ ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 endif
 
 # Make certain these contain a final "/", but no "//"s.
-TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
+TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | $(SED) -e 's/^TARGET_ARCH=//' -e 's/"//g')
 TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
-TARGET_SUBARCH:=$(shell grep -s '^TARGET_SUBARCH' $(top_builddir)/.config | sed -e 's/^TARGET_SUBARCH=//' -e 's/"//g')
+TARGET_SUBARCH:=$(shell grep -s '^TARGET_SUBARCH' $(top_builddir)/.config | $(SED) -e 's/^TARGET_SUBARCH=//' -e 's/"//g')
 TARGET_SUBARCH:=$(strip $(subst ",, $(strip $(TARGET_SUBARCH))))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
@@ -81,8 +84,8 @@ export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS
 # Now config hard core
 MAJOR_VERSION := 0
 MINOR_VERSION := 9
-SUBLEVEL      := 29
-EXTRAVERSION  :=
+SUBLEVEL      := 30
+EXTRAVERSION  :=-svn
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 ifneq ($(EXTRAVERSION),)
 VERSION       := $(VERSION)$(EXTRAVERSION)
@@ -95,8 +98,10 @@ LIBC := libc
 SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
 ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 mips64 powerpc64 s390x sparc64 x86_64 ),)
 UCLIBC_LDSO_NAME := ld64-uClibc
+ARCH_NATIVE_BIT := 64
 else
 UCLIBC_LDSO_NAME := ld-uClibc
+ARCH_NATIVE_BIT := 32
 endif
 UCLIBC_LDSO := $(UCLIBC_LDSO_NAME).so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
@@ -126,7 +131,7 @@ comma:=,
 space:= #
 
 ifndef CROSS
-CROSS=$(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
+CROSS=$(strip $(subst ",, $(CROSS_COMPILER_PREFIX)))
 endif
 
 # A nifty macro to make testing gcc features easier
@@ -286,6 +291,7 @@ ifeq ($(TARGET_ARCH),mips)
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_3)+=-mips3 -mtune=mips3
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_4)+=-mips4 -mtune=mips4
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS32)+=-mips32 -mtune=mips32
+	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS32R2)+=-march=mips32r2 -mtune=mips32r2
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS64)+=-mips64 -mtune=mips32
 	ifeq ($(strip $(ARCH_BIG_ENDIAN)),y)
 		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-Wl,-melf64btsmip
@@ -363,7 +369,7 @@ ifeq ($(TARGET_ARCH),powerpc)
 	PIEFLAG_NAME:=-fpie
 	PPC_HAS_REL16:=$(shell echo -e "\t.text\n\taddis 11,30,_GLOBAL_OFFSET_TABLE_-.@ha" | $(CC) -c -x assembler -o /dev/null -  2> /dev/null && echo -n y || echo -n n)
 	CPU_CFLAGS-$(PPC_HAS_REL16)+= -DHAVE_ASM_PPC_REL16
-	CPU_CFLAGS-$(CONFIG_E500) += "-D__NO_MATH_INLINES -D__NO_LONG_DOUBLE_MATH"
+	CPU_CFLAGS-$(CONFIG_E500) += "-D__NO_MATH_INLINES"
 
 endif
 
@@ -475,7 +481,9 @@ ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 # soft float encodings.
 ifneq ($(TARGET_ARCH),nios)
 ifneq ($(TARGET_ARCH),nios2)
+ifneq ($(TARGET_ARCH),sh)
 CFLAGS += -msoft-float
+endif
 endif
 endif
 ifeq ($(TARGET_ARCH),arm)

@@ -19,10 +19,10 @@ choice
 	prompt "Target Architecture Type"
 	default CONFIG_CRIS
 	help
-		This is the architecture type of your CPU. This information is used for
-		optimizing purposes.
+		This is the architecture type of your CPU. This information
+		is used for optimizing purposes.
 
-		These are the possible settings:
+		Possible settings:
 		- CRIS  Generic support for Axis' CRIS architecture.
 		- CRISv32  Support for Axis' CRISv32 architecture.
 

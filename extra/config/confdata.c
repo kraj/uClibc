@@ -212,7 +212,7 @@ load:
 		sym = NULL;
 		switch (line[0]) {
 		case '#':
-			if (line[1]!=' ')
+			if (line[1] != ' ')
 				continue;
 			p = strchr(line + 2, ' ');
 			if (!p)
@@ -223,7 +223,7 @@ load:
 			if (def == S_DEF_USER) {
 				sym = sym_find(line + 2);
 				if (!sym) {
-					conf_warning("trying to assign nonexistent symbol %s", line + 2);
+					sym_add_change_count(1);
 					break;
 				}
 			} else {
@@ -244,10 +244,12 @@ load:
 				;
 			}
 			break;
-		case 'A' ... 'Z':
+		case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z':
 			p = strchr(line, '=');
-			if (!p)
+			if (!p) {
+				conf_warning("unexpected data '%s'", line);
 				continue;
+			}
 			*p++ = 0;
 			p2 = strchr(p, '\n');
 			if (p2) {
@@ -258,7 +260,7 @@ load:
 			if (def == S_DEF_USER) {
 				sym = sym_find(line);
 				if (!sym) {
-					conf_warning("trying to assign nonexistent symbol %s", line);
+					sym_add_change_count(1);
 					break;
 				}
 			} else {
@@ -441,8 +443,10 @@ int conf_write(const char *name)
 
 	fprintf(out, _("#\n"
 		       "# Automatically generated make config: don't edit\n"
+		       "# Version: %s\n"
 		       "%s%s"
 		       "#\n"),
+		     sym_get_string_value(sym),
 		     use_timestamp ? "# " : "",
 		     use_timestamp ? ctime(&now) : "");
 
@@ -669,8 +673,6 @@ int conf_write_autoconf(void)
 	time_t now;
 	int i, l;
 
-	return 0;
-
 	sym_clear_all_valid();
 
 	file_write_dep("include/config/auto.conf.cmd");
@@ -693,14 +695,17 @@ int conf_write_autoconf(void)
 	time(&now);
 	fprintf(out, "#\n"
 		     "# Automatically generated make config: don't edit\n"
+		     "# Version: %s\n"
 		     "# %s"
 		     "#\n",
-		     ctime(&now));
+		     sym_get_string_value(sym), ctime(&now));
 	fprintf(out_h, "/*\n"
 		       " * Automatically generated C config: don't edit\n"
+		       " * Version: %s\n"
 		       " * %s"
-		       " */\n",
-		       ctime(&now));
+		       " */\n"
+		       "#define AUTOCONF_INCLUDED\n",
+		       sym_get_string_value(sym), ctime(&now));
 
 	for_all_symbols(i, sym) {
 		sym_calc_value(sym);
@@ -713,8 +718,8 @@ int conf_write_autoconf(void)
 			case no:
 				break;
 			case mod:
-				fprintf(out, "%s=m\n", sym->name);
-				fprintf(out_h, "#define %s_MODULE 1\n", sym->name);
+				fprintf(out, "CONFIG_%s=m\n", sym->name);
+				fprintf(out_h, "#define CONFIG_%s_MODULE 1\n", sym->name);
 				break;
 			case yes:
 				fprintf(out, "%s=y\n", sym->name);
@@ -763,7 +768,7 @@ int conf_write_autoconf(void)
 
 	name = getenv("KCONFIG_AUTOHEADER");
 	if (!name)
-		name = "include/linux/autoconf.h";
+		name = "include/config/autoconf.h";
 	if (rename(".tmpconfig.h", name))
 		return 1;
 	name = getenv("KCONFIG_AUTOCONFIG");
@@ -804,4 +809,74 @@ bool conf_get_changed(void)
 void conf_set_changed_callback(void (*fn)(void))
 {
 	conf_changed_callback = fn;
+}
+
+
+void conf_set_all_new_symbols(enum conf_def_mode mode)
+{
+	struct symbol *sym, *csym;
+	struct property *prop;
+	struct expr *e;
+	int i, cnt, def;
+
+	for_all_symbols(i, sym) {
+		if (sym_has_value(sym))
+			continue;
+		switch (sym_get_type(sym)) {
+		case S_BOOLEAN:
+		case S_TRISTATE:
+			switch (mode) {
+			case def_yes:
+				sym->def[S_DEF_USER].tri = yes;
+				break;
+			case def_mod:
+				sym->def[S_DEF_USER].tri = mod;
+				break;
+			case def_no:
+				sym->def[S_DEF_USER].tri = no;
+				break;
+			case def_random:
+				sym->def[S_DEF_USER].tri = (tristate)(rand() % 3);
+				break;
+			default:
+				continue;
+			}
+			if (!sym_is_choice(sym) || mode != def_random)
+				sym->flags |= SYMBOL_DEF_USER;
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	if (modules_sym)
+		sym_calc_value(modules_sym);
+
+	if (mode != def_random)
+		return;
+
+	for_all_symbols(i, csym) {
+		if (sym_has_value(csym) || !sym_is_choice(csym))
+			continue;
+
+		sym_calc_value(csym);
+		prop = sym_get_choice_prop(csym);
+		def = -1;
+		while (1) {
+			cnt = 0;
+			expr_list_for_each_sym(prop->expr, e, sym) {
+				if (sym->visible == no)
+					continue;
+				if (def == cnt++) {
+					csym->def[S_DEF_USER].val = sym;
+					break;
+				}
+			}
+			if (def >= 0 || cnt < 2)
+				break;
+			def = (rand() % cnt) + 1;
+		}
+		csym->flags |= SYMBOL_DEF_USER;
+	}
 }

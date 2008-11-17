@@ -704,9 +704,12 @@ static void show_help(struct menu *menu)
 	{
 		if (sym->name) {
 			str_printf(&help, "%s:\n\n", sym->name);
-			str_append(&help, _(menu_get_help(menu)));
-			str_append(&help, "\n");
 		}
+		str_append(&help, _(menu_get_help(menu)));
+		str_append(&help, "\n");
+	} else if (menu_has_help(sym->prop->menu->parent)) {
+		str_append(&help, _(menu_get_help(sym->prop->menu->parent)));
+		str_append(&help, "\n");
 	} else {
 		str_append(&help, nohelp_text);
 	}
@@ -772,7 +775,7 @@ static void conf_string(struct menu *menu)
 
 	while (1) {
 		int res;
-		char *heading;
+		const char *heading;
 
 		switch (sym_get_type(menu->sym)) {
 		case S_INT:
@@ -924,3 +927,4 @@ int main(int ac, char **av)
 
 	return conf_write_autoconf();
 }
+

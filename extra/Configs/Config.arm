@@ -48,8 +48,8 @@ choice
 	  optimizing purposes.  To build a library that will run on all ARMCPU
 	  types (albeit not optimally fast), you can specify "Generic Arm" here.
 	  If you pick anything other than "Generic Arm", there is no guarantee 
-	  that uClibc will even run on anything other than the selected processor
-	  type.
+	  that uClibc will even run on anything other than the selected
+	  processor type.
 
 	  Here are the settings recommended for greatest speed:
 	  - "Generic Arm" select this if your compiler is already setup to

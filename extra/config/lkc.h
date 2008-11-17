@@ -11,9 +11,9 @@
 #ifndef KBUILD_NO_NLS
 # include <libintl.h>
 #else
-# define gettext(Msgid) ((const char *) (Msgid))
-# define textdomain(Domainname) ((const char *) (Domainname))
-# define bindtextdomain(Domainname, Dirname) ((const char *) (Dirname))
+static inline const char *gettext(const char *txt) { return txt; }
+static inline void textdomain(const char *domainname) {}
+static inline void bindtextdomain(const char *name, const char *dir) {}
 #endif
 
 #ifdef __cplusplus
@@ -42,6 +42,14 @@ extern "C" {
 #define TF_PARAM	0x0002
 #define TF_OPTION	0x0004
 
+enum conf_def_mode {
+	def_default,
+	def_yes,
+	def_mod,
+	def_no,
+	def_random
+};
+
 #define T_OPT_MODULES		1
 #define T_OPT_DEFCONFIG_LIST	2
 #define T_OPT_ENV		3
@@ -69,6 +77,7 @@ const char *conf_get_configname(void);
 char *conf_get_default_confname(void);
 void sym_set_change_count(int count);
 void sym_add_change_count(int count);
+void conf_set_all_new_symbols(enum conf_def_mode mode);
 
 /* kconfig_load.c */
 void kconfig_load(void);
@@ -116,38 +125,38 @@ struct property *prop_alloc(enum prop_type type, struct symbol *sym);
 struct symbol *prop_get_symbol(struct property *prop);
 struct property *sym_get_env_prop(struct symbol *sym);
 
-static __inline__ tristate sym_get_tristate_value(struct symbol *sym)
+static inline tristate sym_get_tristate_value(struct symbol *sym)
 {
 	return sym->curr.tri;
 }
 
 
-static __inline__ struct symbol *sym_get_choice_value(struct symbol *sym)
+static inline struct symbol *sym_get_choice_value(struct symbol *sym)
 {
 	return (struct symbol *)sym->curr.val;
 }
 
-static __inline__ bool sym_set_choice_value(struct symbol *ch, struct symbol *chval)
+static inline bool sym_set_choice_value(struct symbol *ch, struct symbol *chval)
 {
 	return sym_set_tristate_value(chval, yes);
 }
 
-static __inline__ bool sym_is_choice(struct symbol *sym)
+static inline bool sym_is_choice(struct symbol *sym)
 {
 	return sym->flags & SYMBOL_CHOICE ? true : false;
 }
 
-static __inline__ bool sym_is_choice_value(struct symbol *sym)
+static inline bool sym_is_choice_value(struct symbol *sym)
 {
 	return sym->flags & SYMBOL_CHOICEVAL ? true : false;
 }
 
-static __inline__ bool sym_is_optional(struct symbol *sym)
+static inline bool sym_is_optional(struct symbol *sym)
 {
 	return sym->flags & SYMBOL_OPTIONAL ? true : false;
 }
 
-static __inline__ bool sym_has_value(struct symbol *sym)
+static inline bool sym_has_value(struct symbol *sym)
 {
 	return sym->flags & SYMBOL_DEF_USER ? true : false;
 }
