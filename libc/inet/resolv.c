@@ -178,7 +178,7 @@
 /* Experimentally off - libc_hidden_proto(strstr) */
 /* Experimentally off - libc_hidden_proto(strcasecmp) */
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
 libc_hidden_proto(random)

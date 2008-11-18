@@ -26,7 +26,7 @@
 
 #ifdef __USE_GNU
 /* Experimentally off - libc_hidden_proto(strnlen) */
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 
 /* Find the length of S, but scan at most MAXLEN characters.  If no
    '\0' terminator is found in that many characters, return MAXLEN.  */

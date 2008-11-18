@@ -215,6 +215,7 @@ extern void freelocale (__locale_t __dataset) __THROW;
    for all threads and can also be installed any time, meaning
    the thread uses the global settings controlled by `setlocale'.  */
 extern __locale_t uselocale (__locale_t __dataset) __THROW;
+libc_hidden_proto(uselocale)
 
 /* This value can be passed to `uselocale' and may be returned by it.
    Passing this value to any other function has undefined behavior.  */

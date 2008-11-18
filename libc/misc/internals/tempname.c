@@ -54,7 +54,7 @@ libc_hidden_proto(open)
 libc_hidden_proto(open64)
 #endif
 libc_hidden_proto(read)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(getpid)
 libc_hidden_proto(stat)
 libc_hidden_proto(gettimeofday)

@@ -58,7 +58,7 @@ libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
 /* Experimentally off - libc_hidden_proto(strcmp) */
 libc_hidden_proto(open)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 
 #include <linux/version.h>
 

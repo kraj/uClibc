@@ -29,7 +29,7 @@ libc_hidden_proto(verrx)
 libc_hidden_proto(fprintf)
 libc_hidden_proto(vfprintf)
 libc_hidden_proto(__xpg_strerror_r)
-libc_hidden_proto(exit)
+/* libc_hidden_proto(exit) */
 libc_hidden_proto(vfprintf)
 
 static void vwarn_work(const char *format, va_list args, int showerr)

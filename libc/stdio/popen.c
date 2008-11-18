@@ -26,7 +26,7 @@
 #warning "hmm... susv3 says Pipe streams are byte-oriented."
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(_exit)
 libc_hidden_proto(waitpid)
 libc_hidden_proto(execl)

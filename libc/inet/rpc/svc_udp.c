@@ -65,7 +65,7 @@ libc_hidden_proto(fwprintf)
 /* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(perror)
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(xprt_register)
 libc_hidden_proto(xprt_unregister)
 libc_hidden_proto(xdrmem_create)

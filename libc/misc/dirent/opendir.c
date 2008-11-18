@@ -17,7 +17,7 @@
 libc_hidden_proto(opendir)
 libc_hidden_proto(open)
 libc_hidden_proto(fcntl)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(stat)
 libc_hidden_proto(fstat)
 

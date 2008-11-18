@@ -498,6 +498,7 @@ extern int posix_memalign (void **__memptr, size_t __alignment, size_t __size)
 __BEGIN_NAMESPACE_STD
 /* Abort execution and generate a core-dump.  */
 extern void abort (void) __THROW __attribute__ ((__noreturn__));
+libc_hidden_proto(abort)
 
 
 /* Register a function to be called when `exit' is called.  */
@@ -516,6 +517,7 @@ __BEGIN_NAMESPACE_STD
    in the reverse of the order in which they were registered
    perform stdio cleanup, and terminate program execution with STATUS.  */
 extern void exit (int __status) __THROW __attribute__ ((__noreturn__));
+libc_hidden_proto(exit)
 __END_NAMESPACE_STD
 
 #ifdef __USE_ISOC99

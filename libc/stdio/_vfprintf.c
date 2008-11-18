@@ -121,7 +121,7 @@
 /* Experimentally off - libc_hidden_proto(strnlen) */
 libc_hidden_proto(__glibc_strerror_r)
 libc_hidden_proto(fputs_unlocked)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 #ifdef __UCLIBC_HAS_WCHAR__
 libc_hidden_proto(wcslen)
 libc_hidden_proto(wcsnlen)

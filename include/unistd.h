@@ -316,6 +316,7 @@ extern __off64_t lseek64 (int __fd, __off64_t __offset, int __whence)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int close (int __fd);
+libc_hidden_proto(close)
 
 /* Read NBYTES into BUF from FD.  Return the
    number read, -1 for errors or 0 for EOF.

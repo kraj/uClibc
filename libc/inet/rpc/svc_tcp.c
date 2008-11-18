@@ -62,7 +62,7 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
 /* Experimentally off - libc_hidden_proto(memset) */
 /* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(read)
 libc_hidden_proto(write)
 libc_hidden_proto(perror)
@@ -82,7 +82,7 @@ libc_hidden_proto(accept)
 libc_hidden_proto(listen)
 libc_hidden_proto(fputs)
 libc_hidden_proto(fclose)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 
 /*
  * Ops vector for TCP/IP based rpc service handle

@@ -38,7 +38,7 @@
 /* Experimentally off - libc_hidden_proto(strncpy) */
 /* Experimentally off - libc_hidden_proto(strdup) */
 libc_hidden_proto(ioctl)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 #if __ASSUME_NETLINK_SUPPORT
 /* Experimentally off - libc_hidden_proto(strndup) */
 #endif

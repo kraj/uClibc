@@ -17,7 +17,7 @@
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(open)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(read)
 libc_hidden_proto(write)
 libc_hidden_proto(getuid)

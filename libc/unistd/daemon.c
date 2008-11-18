@@ -49,7 +49,7 @@
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
 
 libc_hidden_proto(open)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(_exit)
 libc_hidden_proto(dup2)
 libc_hidden_proto(setsid)

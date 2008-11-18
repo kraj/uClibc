@@ -1382,7 +1382,7 @@ void freelocale(__locale_t dataset)
 /**********************************************************************/
 #ifdef L_uselocale
 
-libc_hidden_proto(uselocale)
+/* libc_hidden_proto(uselocale) */
 __locale_t uselocale(__locale_t dataset)
 {
 	__locale_t old;

@@ -60,7 +60,7 @@ static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 S
 
 libc_hidden_proto(read)
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(connect)
 libc_hidden_proto(recvfrom)
 libc_hidden_proto(sendto)

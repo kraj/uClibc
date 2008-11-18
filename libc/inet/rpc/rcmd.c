@@ -97,7 +97,7 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 /* Experimentally off - libc_hidden_proto(memmove) */
 libc_hidden_proto(getpid)
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(fcntl)
 libc_hidden_proto(read)
 libc_hidden_proto(write)

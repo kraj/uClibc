@@ -187,6 +187,7 @@ extern clock_t clock (void) __THROW;
 
 /* Return the current time and put it in *TIMER if TIMER is not NULL.  */
 extern time_t time (time_t *__timer) __THROW;
+libc_hidden_proto(time)
 
 #ifdef __UCLIBC_HAS_FLOATS__
 /* Return the difference between TIME1 and TIME0.  */
@@ -432,13 +433,6 @@ extern int getdate_r (__const char *__restrict __string,
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 __END_DECLS
-
-
-#ifdef UCLIBC_INTERNAL
-/* Experiment. Grep for 'libc_hidden_proto(time)' if need to revert */
-libc_hidden_proto(time)
-#endif
-
 
 #endif /* <time.h> included.  */
 

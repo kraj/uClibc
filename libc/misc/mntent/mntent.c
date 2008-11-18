@@ -23,7 +23,7 @@ libc_hidden_proto(fopen)
 libc_hidden_proto(fclose)
 libc_hidden_proto(fseek)
 libc_hidden_proto(fgets)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 libc_hidden_proto(fprintf)
 
 /* Reentrant version of getmntent.  */

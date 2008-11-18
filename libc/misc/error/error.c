@@ -29,7 +29,7 @@
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strerror) */
 libc_hidden_proto(fprintf)
-libc_hidden_proto(exit)
+/* libc_hidden_proto(exit) */
 libc_hidden_proto(putc)
 libc_hidden_proto(vfprintf)
 libc_hidden_proto(fflush)

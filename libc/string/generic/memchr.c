@@ -26,7 +26,7 @@
 #include <limits.h>
 
 /* Experimentally off - libc_hidden_proto(memchr) */
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 
 #include "memcopy.h"
 

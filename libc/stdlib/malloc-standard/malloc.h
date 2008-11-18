@@ -27,7 +27,7 @@
 libc_hidden_proto(mmap)
 libc_hidden_proto(sysconf)
 libc_hidden_proto(sbrk)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 
 
 __UCLIBC_MUTEX_EXTERN(__malloc_lock);

@@ -33,7 +33,7 @@
 #include <bits/uClibc_uintmaxtostr.h>
 
 libc_hidden_proto(fprintf)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 
 /* Get the prototype from assert.h as a double-check. */
 #undef NDEBUG

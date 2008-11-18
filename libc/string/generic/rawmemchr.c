@@ -27,7 +27,7 @@
 
 #ifdef __USE_GNU
 /* Experimentally off - libc_hidden_proto(rawmemchr) */
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 
 #include "memcopy.h"
 

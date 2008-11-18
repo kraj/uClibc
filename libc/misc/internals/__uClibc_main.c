@@ -27,7 +27,7 @@
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 
-libc_hidden_proto(exit)
+/* libc_hidden_proto(exit) */
 
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
 /* Experimentally off - libc_hidden_proto(strrchr) */
@@ -39,7 +39,7 @@ libc_hidden_proto(getuid)
 libc_hidden_proto(getegid)
 libc_hidden_proto(geteuid)
 libc_hidden_proto(fstat)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 
 extern __typeof(open) __libc_open;
 libc_hidden_proto(__libc_open)

@@ -169,7 +169,7 @@ libc_hidden_proto(localtime_r)
 /* libc_hidden_proto(sprintf) */
 libc_hidden_proto(open)
 libc_hidden_proto(read)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(getenv)
 libc_hidden_proto(tzset)
 libc_hidden_proto(gettimeofday)

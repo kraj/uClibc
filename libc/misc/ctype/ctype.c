@@ -162,7 +162,7 @@ int CTYPE_NAME(NAME) (int c) \
 #ifdef __UCLIBC_HAS_CTYPE_ENFORCED__
 
 libc_hidden_proto(fprintf)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 
 attribute_hidden void __isctype_assert(int c, int mask)
 {

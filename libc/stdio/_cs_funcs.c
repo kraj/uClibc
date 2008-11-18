@@ -9,7 +9,7 @@
 
 libc_hidden_proto(read)
 libc_hidden_proto(write)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 #ifdef __UCLIBC_HAS_LFS__
 libc_hidden_proto(lseek64)
 #else

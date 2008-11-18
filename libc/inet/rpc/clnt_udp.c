@@ -65,7 +65,7 @@ libc_hidden_proto(fwprintf)
 /* Experimentally off - libc_hidden_proto(memcmp) */
 libc_hidden_proto(ioctl)
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 /* CMSG_NXTHDR is using it */
 libc_hidden_proto(__cmsg_nxthdr)
 

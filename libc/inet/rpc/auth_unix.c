@@ -68,7 +68,7 @@ libc_hidden_proto(xdr_opaque_auth)
 libc_hidden_proto(gettimeofday)
 libc_hidden_proto(fputs)
 libc_hidden_proto(perror)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 #ifdef USE_IN_LIBIO
 libc_hidden_proto(fwprintf)
 #endif

@@ -87,7 +87,7 @@ libc_hidden_proto(tolower)
 /* Experimentally off - libc_hidden_proto(strncpy) */
 libc_hidden_proto(getenv)
 /* Experimentally off - libc_hidden_proto(strcasecmp) */
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 #ifdef __USE_GNU
 /* Experimentally off - libc_hidden_proto(mempcpy) */
 #endif
