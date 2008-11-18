@@ -64,7 +64,7 @@ static void block_signals(void)
 	sigaction(SSP_SIGTYPE, &sa, NULL);
 }
 
-static void ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3)
+static void ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3) __cold
 {
 	write(fd, msg1, strlen(msg1));
 	write(fd, msg2, strlen(msg2));
@@ -83,7 +83,7 @@ static attribute_noreturn void terminate(void)
 	_exit(127);
 }
 
-void __stack_smash_handler(char func[], int damaged __attribute__ ((unused))) attribute_noreturn;
+void __stack_smash_handler(char func[], int damaged __attribute__ ((unused))) attribute_noreturn __cold;
 void __stack_smash_handler(char func[], int damaged)
 {
 	static const char message[] = ": stack smashing attack in function ";
@@ -97,7 +97,7 @@ void __stack_smash_handler(char func[], int damaged)
 		terminate();
 }
 
-void __stack_chk_fail(void) attribute_noreturn;
+void __stack_chk_fail(void) attribute_noreturn __cold;
 void __stack_chk_fail(void)
 {
 	static const char msg1[] = "stack smashing detected: ";
