@@ -169,7 +169,7 @@ libc_hidden_proto(localtime_r)
 /* libc_hidden_proto(sprintf) */
 libc_hidden_proto(open)
 libc_hidden_proto(read)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(getenv)
 libc_hidden_proto(tzset)
 libc_hidden_proto(gettimeofday)
@@ -183,9 +183,9 @@ libc_hidden_proto(nl_langinfo)
 libc_hidden_proto(strtol_l)
 libc_hidden_proto(strtoul_l)
 libc_hidden_proto(nl_langinfo_l)
-libc_hidden_proto(__ctype_b_loc)
+/* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_b)
+/* libc_hidden_proto(__ctype_b) */
 #endif
 
 #ifndef __isleap

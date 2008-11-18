@@ -47,7 +47,7 @@
 /* Experimentally off - libc_hidden_proto(strncpy) */
 libc_hidden_proto(read)
 libc_hidden_proto(write)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(socket)
 libc_hidden_proto(perror)
 libc_hidden_proto(sprintf)

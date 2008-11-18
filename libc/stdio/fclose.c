@@ -6,9 +6,9 @@
  */
 
 #include "_stdio.h"
-libc_hidden_proto(fclose)
+/* libc_hidden_proto(fclose) */
 
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(fflush_unlocked)
 
 int fclose(register FILE *stream)

@@ -68,8 +68,8 @@ libc_hidden_proto(fopen)
 libc_hidden_proto(atoi)
 libc_hidden_proto(rewind)
 libc_hidden_proto(fgets)
-libc_hidden_proto(fclose)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(fclose) */
+/* libc_hidden_proto(abort) */
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);

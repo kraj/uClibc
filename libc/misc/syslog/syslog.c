@@ -93,7 +93,7 @@ libc_hidden_proto(closelog)
 libc_hidden_proto(open)
 libc_hidden_proto(fcntl)
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(write)
 libc_hidden_proto(getpid)
 libc_hidden_proto(ctime)

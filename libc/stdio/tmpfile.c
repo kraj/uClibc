@@ -27,9 +27,7 @@
 
 libc_hidden_proto(fdopen)
 libc_hidden_proto(remove)
-#ifndef __UCLIBC_HAS_THREADS_NATIVE__
-libc_hidden_proto(close)
-#endif
+/* libc_hidden_proto(close) */
 
 /* This returns a new stream opened on a temporary file (generated
    by tmpnam).  The file is opened with mode "w+b" (binary read/write).

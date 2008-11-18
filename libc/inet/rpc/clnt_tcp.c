@@ -68,7 +68,7 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
 libc_hidden_proto(socket)
 libc_hidden_proto(read)
 libc_hidden_proto(write)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(authnone_create)
 libc_hidden_proto(xdrrec_create)
 libc_hidden_proto(xdrrec_endofrecord)

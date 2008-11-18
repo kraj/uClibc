@@ -101,17 +101,23 @@ enum
 
 /* Pointers to the default C-locale data. */
 extern const __ctype_mask_t *__C_ctype_b;
+libc_hidden_proto(__C_ctype_b)
 extern const __ctype_touplow_t *__C_ctype_toupper;
+libc_hidden_proto(__C_ctype_toupper)
 extern const __ctype_touplow_t *__C_ctype_tolower;
+libc_hidden_proto(__C_ctype_tolower)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 
 extern __const __ctype_mask_t **__ctype_b_loc (void)
      __attribute__ ((__const));
+libc_hidden_proto(__ctype_b_loc)
 extern __const __ctype_touplow_t **__ctype_tolower_loc (void)
      __attribute__ ((__const));
+libc_hidden_proto(__ctype_tolower_loc)
 extern __const __ctype_touplow_t **__ctype_toupper_loc (void)
      __attribute__ ((__const));
+libc_hidden_proto(__ctype_toupper_loc)
 
 #define __UCLIBC_CTYPE_B	(*__ctype_b_loc())
 #define __UCLIBC_CTYPE_TOLOWER	(*__ctype_tolower_loc())
@@ -121,8 +127,11 @@ extern __const __ctype_touplow_t **__ctype_toupper_loc (void)
 
 /* Pointers to the current global locale data in use. */
 extern const __ctype_mask_t *__ctype_b;
+libc_hidden_proto(__ctype_b)
 extern const __ctype_touplow_t *__ctype_toupper;
+libc_hidden_proto(__ctype_toupper)
 extern const __ctype_touplow_t *__ctype_tolower;
+libc_hidden_proto(__ctype_tolower)
 
 #define __UCLIBC_CTYPE_B	(__ctype_b)
 #define __UCLIBC_CTYPE_TOLOWER	(__ctype_tolower)

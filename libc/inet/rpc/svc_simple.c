@@ -60,7 +60,7 @@ static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
 libc_hidden_proto(asprintf)
 libc_hidden_proto(fputs)
 libc_hidden_proto(write)
-libc_hidden_proto(exit)
+/* libc_hidden_proto(exit) */
 libc_hidden_proto(svc_sendreply)
 libc_hidden_proto(svc_register)
 libc_hidden_proto(svcerr_decode)

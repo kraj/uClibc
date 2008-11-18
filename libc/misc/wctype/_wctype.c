@@ -56,12 +56,12 @@ libc_hidden_proto(towupper_l)
 libc_hidden_proto(towctrans_l)
 libc_hidden_proto(iswctype_l)
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_b)
+/* libc_hidden_proto(__ctype_b) */
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__C_ctype_tolower)
-libc_hidden_proto(__C_ctype_toupper)
+/* libc_hidden_proto(__C_ctype_tolower) */
+/* libc_hidden_proto(__C_ctype_toupper) */
 #endif
 
 /* We know wide char support is enabled.  We wouldn't be here otherwise. */

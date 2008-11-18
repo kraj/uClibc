@@ -65,7 +65,7 @@ libc_hidden_proto(fwprintf)
 /* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(perror)
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(xprt_register)
 libc_hidden_proto(xprt_unregister)
 libc_hidden_proto(xdrmem_create)
@@ -80,7 +80,7 @@ libc_hidden_proto(sendto)
 libc_hidden_proto(recvmsg)
 libc_hidden_proto(sendmsg)
 libc_hidden_proto(fputs)
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 
 #define rpc_buffer(xprt) ((xprt)->xp_p1)
 #ifndef MAX

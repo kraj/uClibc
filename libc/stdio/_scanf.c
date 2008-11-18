@@ -84,7 +84,7 @@
 libc_hidden_proto(ungetc)
 libc_hidden_proto(vfscanf)
 libc_hidden_proto(vsscanf)
-libc_hidden_proto(fclose)
+/* libc_hidden_proto(fclose) */
 libc_hidden_proto(getc_unlocked)
 libc_hidden_proto(__fgetc_unlocked)
 #ifdef __UCLIBC_HAS_WCHAR__
@@ -99,9 +99,9 @@ libc_hidden_proto(iswspace)
 libc_hidden_proto(fgetwc_unlocked)
 #endif
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__ctype_b_loc)
+/* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_b)
+/* libc_hidden_proto(__ctype_b) */
 #endif
 
 #ifdef __UCLIBC_HAS_SCANF_GLIBC_A_FLAG__

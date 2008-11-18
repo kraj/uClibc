@@ -63,7 +63,7 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 libc_hidden_proto(ioctl)
 libc_hidden_proto(perror)
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(authunix_create_default)
 libc_hidden_proto(xdrmem_create)
 libc_hidden_proto(xdr_callmsg)
@@ -80,7 +80,7 @@ libc_hidden_proto(setsockopt)
 libc_hidden_proto(recvfrom)
 libc_hidden_proto(sendto)
 libc_hidden_proto(poll)
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 
 
 extern u_long _create_xid (void) attribute_hidden;

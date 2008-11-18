@@ -50,9 +50,9 @@
 
 libc_hidden_proto(ioctl)
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(perror)
-libc_hidden_proto(exit)
+/* libc_hidden_proto(exit) */
 libc_hidden_proto(clnt_perror)
 libc_hidden_proto(clntudp_bufcreate)
 libc_hidden_proto(xdr_bool)

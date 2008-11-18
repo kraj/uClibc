@@ -22,7 +22,7 @@
 #include <dlfcn.h>
 
 /* psm: keep this before internals.h */
-libc_hidden_proto(exit)
+/* libc_hidden_proto(exit) */
 
 #include "internals.h"
 

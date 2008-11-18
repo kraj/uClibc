@@ -66,7 +66,7 @@ libc_hidden_proto(fwprintf)
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* Experimentally off - libc_hidden_proto(memcpy) */
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(getpid)
 libc_hidden_proto(authnone_create)
 libc_hidden_proto(xdrrec_create)

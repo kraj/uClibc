@@ -46,12 +46,12 @@ libc_hidden_proto(fgets_unlocked)
 libc_hidden_proto(__fputc_unlocked)
 libc_hidden_proto(sprintf)
 libc_hidden_proto(fopen)
-libc_hidden_proto(fclose)
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fclose) */
+/* libc_hidden_proto(fprintf) */
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__ctype_b_loc)
+/* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_b)
+/* libc_hidden_proto(__ctype_b) */
 #endif
 
 /**********************************************************************/

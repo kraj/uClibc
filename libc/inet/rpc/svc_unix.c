@@ -59,7 +59,7 @@
 /* Experimentally off - libc_hidden_proto(memset) */
 /* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(socket)
-libc_hidden_proto(close)
+/* libc_hidden_proto(close) */
 libc_hidden_proto(perror)
 libc_hidden_proto(getpid)
 libc_hidden_proto(xdrrec_create)
@@ -81,7 +81,7 @@ libc_hidden_proto(poll)
 libc_hidden_proto(accept)
 libc_hidden_proto(listen)
 libc_hidden_proto(fputs)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 
 /*
  * Ops vector for AF_UNIX based rpc service handle

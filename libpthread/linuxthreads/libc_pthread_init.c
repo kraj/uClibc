@@ -30,7 +30,7 @@
 #endif
 
 #if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(uselocale)
+/* libc_hidden_proto(uselocale) */
 #endif
 
 int *

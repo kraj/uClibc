@@ -126,7 +126,7 @@
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* Experimentally off - libc_hidden_proto(strncmp) */
 libc_hidden_proto(getenv)
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,

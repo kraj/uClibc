@@ -60,7 +60,7 @@ libc_hidden_proto(geteuid)
 libc_hidden_proto(gethostname)
 libc_hidden_proto(fileno)
 libc_hidden_proto(fopen)
-libc_hidden_proto(fclose)
+/* libc_hidden_proto(fclose) */
 libc_hidden_proto(getc_unlocked)
 libc_hidden_proto(__fgetc_unlocked)
 

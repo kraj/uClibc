@@ -68,7 +68,7 @@
 /* Experimentally off - libc_hidden_proto(strchr) */
 libc_hidden_proto(getenv)
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__C_ctype_toupper)
+/* libc_hidden_proto(__C_ctype_toupper) */
 #endif
 /*libc_hidden_proto(fflush)*/
 
@@ -364,11 +364,11 @@ libc_hidden_def(localeconv)
 /**********************************************************************/
 #if defined(L__locale_init) && !defined(__LOCALE_C_ONLY)
 
-libc_hidden_proto(__C_ctype_b)
-libc_hidden_proto(__C_ctype_tolower)
+/* libc_hidden_proto(__C_ctype_b) */
+/* libc_hidden_proto(__C_ctype_tolower) */
 #ifndef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__ctype_b)
-libc_hidden_proto(__ctype_tolower)
+/* libc_hidden_proto(__ctype_b) */
+/* libc_hidden_proto(__ctype_tolower) */
 libc_hidden_proto(__ctype_toupper)
 #endif
 
@@ -1382,7 +1382,7 @@ void freelocale(__locale_t dataset)
 /**********************************************************************/
 #ifdef L_uselocale
 
-libc_hidden_proto(uselocale)
+/* libc_hidden_proto(uselocale) */
 __locale_t uselocale(__locale_t dataset)
 {
 	__locale_t old;

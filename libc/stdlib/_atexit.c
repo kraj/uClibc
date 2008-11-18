@@ -46,7 +46,7 @@
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_EXTERN(__atexit_lock);
 
-libc_hidden_proto(exit)
+/* libc_hidden_proto(exit) */
 libc_hidden_proto(_exit)
 
 

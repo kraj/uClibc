@@ -121,7 +121,7 @@
 /* Experimentally off - libc_hidden_proto(strnlen) */
 libc_hidden_proto(__glibc_strerror_r)
 libc_hidden_proto(fputs_unlocked)
-libc_hidden_proto(abort)
+/* libc_hidden_proto(abort) */
 #ifdef __UCLIBC_HAS_WCHAR__
 libc_hidden_proto(wcslen)
 libc_hidden_proto(wcsnlen)
@@ -729,9 +729,9 @@ void attribute_hidden _ppfs_setargs(register ppfs_t *ppfs)
 #ifdef L__ppfs_parsespec
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__ctype_b_loc)
+/* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_b)
+/* libc_hidden_proto(__ctype_b) */
 #endif
 
 /* Notes: argtype differs from glibc for the following:
@@ -1860,7 +1860,7 @@ static int _do_one_spec(FILE * __restrict stream,
 	return 0;
 }
 
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 
 int VFPRINTF_internal (FILE * __restrict stream,
 			  const FMT_TYPE * __restrict format,
