@@ -32,14 +32,6 @@
 
 
 /* Various symbol table handling functions, including symbol lookup */
-
-/*
- * This is the start of the linked list that describes all of the files present
- * in the system with pointers to all of the symbol, string, and hash tables,
- * as well as all of the other good stuff in the binary.
- */
-struct elf_resolve *_dl_loaded_modules = NULL;
-
 /*
  * This is the list of modules that are loaded when the image is first
  * started.  As we add more via dlopen, they get added into other

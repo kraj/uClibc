@@ -72,6 +72,11 @@ uintptr_t __guard attribute_relro;
 #  endif
 # endif
 
+/*
+ * Needed to initialize _dl_phdr when statically linked
+ */
+
+void internal_function _dl_aux_init (ElfW(auxv_t) *av);
 #endif /* !SHARED */
 
 /*
@@ -114,9 +119,8 @@ weak_alias (program_invocation_name, __progname_full)
 #endif
 
 /*
- * Declare the __environ global variable and create a strong alias environ.
- * Note: Apparently we must initialize __environ to ensure that the strong
- * environ symbol is also included.
+ * Declare the __environ global variable and create a weak alias environ.
+ * This must be initialized; we cannot have a weak alias into bss.
  */
 char **__environ = 0;
 weak_alias(__environ, environ)
@@ -310,6 +314,12 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 	}
 	aux_dat += 2;
     }
+#ifndef SHARED
+    /* Get the program headers (_dl_phdr) from the aux vector
+       It will be used into __libc_setup_tls. */
+
+    _dl_aux_init (auxvt);
+#endif
 #endif
 
     /* We need to initialize uClibc.  If we are dynamically linked this

@@ -67,6 +67,7 @@ int   _dl_debug_file      = 2;
 unsigned long attribute_hidden _dl_skip_args = 0;
 const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being run */
 #include "dl-startup.c"
+#include "dl-symbols.c"
 #include "dl-array.c"
 /* Forward function declarations */
 static int _dl_suid_ok(void);
