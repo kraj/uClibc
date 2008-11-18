@@ -1,24 +1,15 @@
-/* Support for dynamic linking code in static libc.
-   Copyright (C) 1996-2002, 2003, 2004, 2005 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
-
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
-
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
-
-/* This file defines some things that for the dynamic linker are defined in
-   rtld.c and dl-sysdep.c in ways appropriate to bootstrap dynamic linking.  */
+/*
+ * Support for dynamic linking code in static libc.
+ * Copyright (C) 1996-2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+ *
+ * Partially based on GNU C Library (file: libc/elf/dl-support.c)
+ *
+ * Copyright (C) 2008 STMicroelectronics Ltd.
+ * Author: Carmelo Amoroso <carmelo.amoroso@st.com>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ *
+ */
 
 #include <link.h>
 #include <elf.h>
