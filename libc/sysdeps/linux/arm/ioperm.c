@@ -52,10 +52,10 @@ libc_hidden_proto(readlink)
 libc_hidden_proto(mmap)
 libc_hidden_proto(sscanf)
 libc_hidden_proto(fscanf)
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 libc_hidden_proto(fgets)
 libc_hidden_proto(fopen)
-libc_hidden_proto(fclose)
+/* libc_hidden_proto(fclose) */
 /* Experimentally off - libc_hidden_proto(strcmp) */
 libc_hidden_proto(open)
 /* libc_hidden_proto(close) */

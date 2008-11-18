@@ -67,10 +67,10 @@ libc_hidden_proto(wctype)
 #endif
 #define __mempcpy mempcpy
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__ctype_b_loc)
-libc_hidden_proto(__ctype_toupper_loc)
+/* libc_hidden_proto(__ctype_b_loc) */
+/* libc_hidden_proto(__ctype_toupper_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_b)
+/* libc_hidden_proto(__ctype_b) */
 libc_hidden_proto(__ctype_toupper)
 #else
 libc_hidden_proto(isascii)

@@ -197,6 +197,7 @@ __BEGIN_NAMESPACE_STD
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int fclose (FILE *__stream);
+libc_hidden_proto(fclose)
 /* Flush STREAM, or all streams if STREAM is NULL.
 
    This function is a possible cancellation point and therefore not
@@ -318,6 +319,7 @@ __BEGIN_NAMESPACE_STD
    marked with __THROW.  */
 extern int fprintf (FILE *__restrict __stream,
 		    __const char *__restrict __format, ...);
+libc_hidden_proto(fprintf)
 /* Write formatted output to stdout.
 
    This function is a possible cancellation point and therefore not

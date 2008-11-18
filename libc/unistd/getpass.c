@@ -28,7 +28,7 @@ libc_hidden_proto(tcsetattr)
 libc_hidden_proto(tcgetattr)
 libc_hidden_proto(setvbuf)
 libc_hidden_proto(fopen)
-libc_hidden_proto(fclose)
+/* libc_hidden_proto(fclose) */
 libc_hidden_proto(fileno)
 libc_hidden_proto(fflush)
 libc_hidden_proto(fgets)

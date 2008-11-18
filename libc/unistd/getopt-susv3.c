@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <getopt.h>
 
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 /* Experimentally off - libc_hidden_proto(strchr) */
 
 #ifdef __UCLIBC_MJN3_ONLY__

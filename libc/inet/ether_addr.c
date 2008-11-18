@@ -34,11 +34,11 @@
 libc_hidden_proto(ether_ntoa_r)
 libc_hidden_proto(sprintf)
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__ctype_b_loc)
-libc_hidden_proto(__ctype_tolower_loc)
+/* libc_hidden_proto(__ctype_b_loc) */
+/* libc_hidden_proto(__ctype_tolower_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_b)
-libc_hidden_proto(__ctype_tolower)
+/* libc_hidden_proto(__ctype_b) */
+/* libc_hidden_proto(__ctype_tolower) */
 #endif
 
 struct ether_addr *ether_aton_r(const char *asc, struct ether_addr *addr)

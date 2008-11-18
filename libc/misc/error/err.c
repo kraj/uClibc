@@ -26,7 +26,7 @@ libc_hidden_proto(vwarnx)
 libc_hidden_proto(verr)
 libc_hidden_proto(verrx)
 
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 libc_hidden_proto(vfprintf)
 libc_hidden_proto(__xpg_strerror_r)
 /* libc_hidden_proto(exit) */

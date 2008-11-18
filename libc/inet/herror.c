@@ -23,7 +23,7 @@
 #include <string.h>
 #include <netdb.h>
 
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 libc_hidden_proto(__h_errno_location)
 
 static const char error_msg[] = "Resolver error";

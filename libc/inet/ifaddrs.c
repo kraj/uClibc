@@ -48,7 +48,7 @@ libc_hidden_proto(bind)
 /* Experimentally off - libc_hidden_proto(memset) */
 /* Experimentally off - libc_hidden_proto(mempcpy) */
 libc_hidden_proto(getsockname)
-libc_hidden_proto(fclose)
+/* libc_hidden_proto(fclose) */
 /* libc_hidden_proto(abort) */
 
 #ifndef __libc_use_alloca

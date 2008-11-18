@@ -180,7 +180,7 @@
 libc_hidden_proto(socket)
 /* libc_hidden_proto(close) */
 libc_hidden_proto(fopen)
-libc_hidden_proto(fclose)
+/* libc_hidden_proto(fclose) */
 libc_hidden_proto(random)
 libc_hidden_proto(getservbyport)
 libc_hidden_proto(gethostname)
@@ -211,12 +211,12 @@ libc_hidden_proto(res_init)
 libc_hidden_proto(res_query)
 libc_hidden_proto(res_querydomain)
 libc_hidden_proto(gethostent_r)
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 libc_hidden_proto(__h_errno_location)
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__ctype_b_loc)
+/* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_b)
+/* libc_hidden_proto(__ctype_b) */
 #endif
 int __libc_getdomainname(char *name, size_t len);
 libc_hidden_proto(__libc_getdomainname)

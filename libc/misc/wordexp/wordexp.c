@@ -63,15 +63,15 @@ libc_hidden_proto(read)
 libc_hidden_proto(getenv)
 libc_hidden_proto(getpid)
 libc_hidden_proto(sprintf)
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 /* libc_hidden_proto(abort) */
 libc_hidden_proto(glob)
 libc_hidden_proto(globfree)
 libc_hidden_proto(wordfree)
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__ctype_b_loc)
+/* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_b)
+/* libc_hidden_proto(__ctype_b) */
 #endif
 
 #define __WORDEXP_FULL

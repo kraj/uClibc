@@ -67,7 +67,7 @@
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strpbrk) */
 libc_hidden_proto(fopen)
-libc_hidden_proto(fclose)
+/* libc_hidden_proto(fclose) */
 libc_hidden_proto(atoi)
 libc_hidden_proto(rewind)
 libc_hidden_proto(fgets)

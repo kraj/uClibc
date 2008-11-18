@@ -80,7 +80,7 @@ libc_hidden_proto(setsockopt)
 libc_hidden_proto(recvfrom)
 libc_hidden_proto(sendto)
 libc_hidden_proto(poll)
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 
 
 extern u_long _create_xid (void) attribute_hidden;

@@ -34,7 +34,7 @@ libc_hidden_proto(dup2)
 libc_hidden_proto(fdopen)
 libc_hidden_proto(pipe)
 libc_hidden_proto(vfork)
-libc_hidden_proto(fclose)
+/* libc_hidden_proto(fclose) */
 
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
 #include <sys/syscall.h>

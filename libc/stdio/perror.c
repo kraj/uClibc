@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fprintf) */
 libc_hidden_proto(__glibc_strerror_r)
 
 #ifdef __UCLIBC_MJN3_ONLY__

@@ -128,15 +128,15 @@ libc_hidden_proto(sigsetmask)
 libc_hidden_proto(getc_unlocked)
 libc_hidden_proto(__fgetc_unlocked)
 libc_hidden_proto(fopen)
-libc_hidden_proto(fclose)
-libc_hidden_proto(fprintf)
+/* libc_hidden_proto(fclose) */
+/* libc_hidden_proto(fprintf) */
 libc_hidden_proto(__h_errno_location)
 #ifdef __UCLIBC_HAS_XLOCALE__
-libc_hidden_proto(__ctype_b_loc)
-libc_hidden_proto(__ctype_tolower_loc)
+/* libc_hidden_proto(__ctype_b_loc) */
+/* libc_hidden_proto(__ctype_tolower_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_b)
-libc_hidden_proto(__ctype_tolower)
+/* libc_hidden_proto(__ctype_b) */
+/* libc_hidden_proto(__ctype_tolower) */
 #endif
 
 libc_hidden_proto(rresvport)
