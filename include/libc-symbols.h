@@ -63,12 +63,19 @@
 #ifndef unlikely
 # define unlikely(x)	__builtin_expect((!!(x)),0)
 #endif
-#if defined __GNUC__ && !(__GNUC__ == 4 && __GNUC_MINOR__ < 3)
+#if defined __GNUC__ && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
 # ifndef __cold
-#   define __cold __attribute__ ((__cold__))
+#  define __cold __attribute__ ((__cold__))
 # endif
 # ifndef __hot
-#   define __hot __attribute__ ((__hot__))
+#  define __hot __attribute__ ((__hot__))
+# endif
+#else
+# ifndef __cold
+#  define __cold
+# endif
+# ifndef __hot
+#  define __hot
 # endif
 #endif
 #ifndef __LINUX_COMPILER_H
