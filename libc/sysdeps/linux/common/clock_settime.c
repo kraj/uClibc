@@ -14,7 +14,7 @@
 #ifdef __NR_clock_settime
 _syscall2(int, clock_settime, clockid_t, clock_id, const struct timespec*, tp)
 #else
-libc_hidden_proto(settimeofday)
+/* libc_hidden_proto(settimeofday) */
 
 int clock_settime(clockid_t clock_id, const struct timespec* tp)
 {

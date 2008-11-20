@@ -13,7 +13,7 @@ link_warning(gets, "the 'gets' function is dangerous and should not be used.")
 
 /* disable macro, force actual function call */
 #undef getchar_unlocked
-libc_hidden_proto(getchar_unlocked)
+/* libc_hidden_proto(getchar_unlocked) */
 
 char *gets(char *s)
 {

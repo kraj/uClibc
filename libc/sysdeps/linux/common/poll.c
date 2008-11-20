@@ -30,7 +30,7 @@ _syscall3(int, __libc_poll, struct pollfd *, fds,
 
 #elif defined(__NR_ppoll) && defined __UCLIBC_LINUX_SPECIFIC__
 
-libc_hidden_proto(ppoll)
+/* libc_hidden_proto(ppoll) */
 int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
 	struct timespec *ts = NULL, tval;
@@ -59,8 +59,8 @@ int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* Experimentally off - libc_hidden_proto(memset) */
-libc_hidden_proto(getdtablesize)
-libc_hidden_proto(select)
+/* libc_hidden_proto(getdtablesize) */
+/* libc_hidden_proto(select) */
 
 /* uClinux 2.0 doesn't have poll, emulate it using select */
 

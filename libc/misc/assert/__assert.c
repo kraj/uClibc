@@ -40,7 +40,7 @@
 #include <assert.h>
 #undef assert
 
-libc_hidden_proto(__assert)
+/* libc_hidden_proto(__assert) */
 
 #define ASSERT_SHOW_PROGNAME 1
 

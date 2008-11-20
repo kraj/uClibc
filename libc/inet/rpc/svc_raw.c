@@ -46,7 +46,7 @@ static char sccsid[] = "@(#)svc_raw.c 1.15 87/08/11 Copyr 1984 Sun Micro";
 #include <rpc/svc.h>
 
 /* libc_hidden_proto(xdrmem_create) */
-libc_hidden_proto(xdr_callmsg)
+/* libc_hidden_proto(xdr_callmsg) */
 /* libc_hidden_proto(xdr_replymsg) */
 
 /*

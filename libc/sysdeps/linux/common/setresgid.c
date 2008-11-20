@@ -15,7 +15,7 @@
 # undef __NR_setresgid
 # define __NR_setresgid __NR_setresgid32
 
-libc_hidden_proto(setresgid)
+/* libc_hidden_proto(setresgid) */
 _syscall3(int, setresgid, gid_t, rgid, gid_t, egid, gid_t, sgid)
 libc_hidden_def(setresgid)
 
@@ -25,7 +25,7 @@ libc_hidden_def(setresgid)
 static __inline__ _syscall3(int, __syscall_setresgid,
 		__kernel_gid_t, rgid, __kernel_gid_t, egid, __kernel_gid_t, sgid)
 
-libc_hidden_proto(setresgid)
+/* libc_hidden_proto(setresgid) */
 int setresgid(gid_t rgid, gid_t egid, gid_t sgid)
 {
 	if (((rgid + 1) > (gid_t) ((__kernel_gid_t) - 1U))

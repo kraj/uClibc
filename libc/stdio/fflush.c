@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fflush_unlocked)
+/* libc_hidden_proto(fflush_unlocked) */
 
 #ifdef __DO_UNLOCKED
 
@@ -179,14 +179,14 @@ int fflush_unlocked(register FILE *stream)
 libc_hidden_def(fflush_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-libc_hidden_proto(fflush)
+/* libc_hidden_proto(fflush) */
 strong_alias(fflush_unlocked,fflush)
 libc_hidden_def(fflush)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-libc_hidden_proto(fflush)
+/* libc_hidden_proto(fflush) */
 int fflush(register FILE *stream)
 {
 	int retval;

@@ -28,7 +28,7 @@ extern __typeof(statfs) __libc_statfs;
 libc_hidden_proto(__libc_statfs)
 
 /* Return information about the filesystem on which FILE resides.  */
-libc_hidden_proto(statfs64)
+/* libc_hidden_proto(statfs64) */
 int statfs64 (const char *file, struct statfs64 *buf)
 {
     struct statfs buf32;

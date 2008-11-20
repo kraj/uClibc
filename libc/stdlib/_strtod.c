@@ -111,12 +111,12 @@
 #include <wchar.h>
 #include <wctype.h>
 #include <bits/uClibc_uwchar.h>
-libc_hidden_proto(iswspace)
+/* libc_hidden_proto(iswspace) */
 #endif
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
-libc_hidden_proto(iswspace_l)
+/* libc_hidden_proto(iswspace_l) */
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
 /* Handle _STRTOD_HEXADECIMAL_FLOATS via uClibc config now. */

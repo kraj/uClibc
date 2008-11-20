@@ -14,6 +14,7 @@
 
 extern __typeof(statfs) __libc_statfs;
 libc_hidden_proto(__libc_statfs)
+
 #define __NR___libc_statfs __NR_statfs
 _syscall2(int, __libc_statfs, const char *, path, struct statfs *, buf)
 

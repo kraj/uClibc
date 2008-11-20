@@ -23,7 +23,7 @@
 #include <string.h>
 
 #if defined __UCLIBC_HAS_REALTIME__
-libc_hidden_proto(sigwaitinfo)
+/* libc_hidden_proto(sigwaitinfo) */
 
 int __sigwait (const sigset_t *set, int *sig) attribute_hidden;
 int __sigwait (const sigset_t *set, int *sig)
@@ -37,9 +37,9 @@ int __sigwait (const sigset_t *set, int *sig)
 }
 #else /* __UCLIBC_HAS_REALTIME__ */
 /* variant without REALTIME extensions */
-libc_hidden_proto(sigfillset)
+/* libc_hidden_proto(sigfillset) */
 /* libc_hidden_proto(sigaction) */
-libc_hidden_proto(sigsuspend)
+/* libc_hidden_proto(sigsuspend) */
 
 static int was_sig; /* obviously not thread-safe */
 static void ignore_signal(int sig)
@@ -96,6 +96,6 @@ int __sigwait (const sigset_t *set, int *sig)
   return was_sig == -1 ? -1 : 0;
 }
 #endif /* __UCLIBC_HAS_REALTIME__ */
-libc_hidden_proto(sigwait)
+/* libc_hidden_proto(sigwait) */
 weak_alias(__sigwait,sigwait)
 libc_hidden_def(sigwait)

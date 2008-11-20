@@ -30,14 +30,14 @@ loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 }
 #else
 extern __typeof(lseek) __libc_lseek;
-libc_hidden_proto(__libc_lseek)
+/* libc_hidden_proto(__libc_lseek) */
 
 loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 {
 	return(loff_t)(__libc_lseek(fd, (off_t) (offset), whence));
 }
 #endif
-libc_hidden_proto(lseek64)
+/* libc_hidden_proto(lseek64) */
 weak_alias(__libc_lseek64,lseek64)
 libc_hidden_weak(lseek64)
 /*strong_alias(__libc_lseek64,_llseek) */

@@ -23,7 +23,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-libc_hidden_proto(sleep)
+/* libc_hidden_proto(sleep) */
 
 /* libc_hidden_proto(sigaction) */
 /* libc_hidden_proto(sigprocmask) */

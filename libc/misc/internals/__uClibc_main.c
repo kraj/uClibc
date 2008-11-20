@@ -34,10 +34,10 @@
 #endif
 #ifndef __ARCH_HAS_NO_LDSO__
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(getgid)
-libc_hidden_proto(getuid)
-libc_hidden_proto(getegid)
-libc_hidden_proto(geteuid)
+/* libc_hidden_proto(getgid) */
+/* libc_hidden_proto(getuid) */
+/* libc_hidden_proto(getegid) */
+/* libc_hidden_proto(geteuid) */
 /* libc_hidden_proto(fstat) */
 /* libc_hidden_proto(abort) */
 

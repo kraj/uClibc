@@ -19,9 +19,9 @@ _syscall2(long, ulimit, int, cmd, long, arg)
 #include <ulimit.h>
 #include <sys/resource.h>
 
-libc_hidden_proto(sysconf)
-libc_hidden_proto(getrlimit)
-libc_hidden_proto(setrlimit)
+/* libc_hidden_proto(sysconf) */
+/* libc_hidden_proto(getrlimit) */
+/* libc_hidden_proto(setrlimit) */
 
 long int ulimit(int cmd, ...)
 {

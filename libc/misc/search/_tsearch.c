@@ -50,7 +50,7 @@ register node	**rootp;	 address of tree root
 int	(*compar)();		 ordering function
 */
 
-libc_hidden_proto(tsearch)
+/* libc_hidden_proto(tsearch) */
 void *tsearch(__const void *key, void **vrootp, __compar_fn_t compar)
 {
     register node *q;
@@ -81,7 +81,7 @@ libc_hidden_def(tsearch)
 #endif
 
 #ifdef L_tfind
-libc_hidden_proto(tfind)
+/* libc_hidden_proto(tfind) */
 void *tfind(__const void *key, void * __const *vrootp, __compar_fn_t compar)
 {
     register node **rootp = (node **) vrootp;
@@ -208,7 +208,7 @@ tdestroy_recurse (node *root, __free_fn_t freefct)
     free (root);
 }
 
-libc_hidden_proto(tdestroy)
+/* libc_hidden_proto(tdestroy) */
 void tdestroy (void *vroot, __free_fn_t freefct)
 {
     node *root = (node *) vroot;

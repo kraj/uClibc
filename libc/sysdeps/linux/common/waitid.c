@@ -15,7 +15,7 @@
 _syscall4(int, waitid, idtype_t, idtype, id_t, id, siginfo_t*, infop, int, options)
 # else
 #  include <string.h>
-libc_hidden_proto(waitpid)
+/* libc_hidden_proto(waitpid) */
 int waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options)
 {
 	switch (idtype) {

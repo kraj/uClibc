@@ -30,15 +30,15 @@
 /* Experimentally off - libc_hidden_proto(memset) */
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strsep) */
-libc_hidden_proto(setmntent)
-libc_hidden_proto(getmntent_r)
-libc_hidden_proto(endmntent)
+/* libc_hidden_proto(setmntent) */
+/* libc_hidden_proto(getmntent_r) */
+/* libc_hidden_proto(endmntent) */
 
 extern __typeof(statfs) __libc_statfs;
 libc_hidden_proto(__libc_statfs)
 /* libc_hidden_proto(stat) */
 
-libc_hidden_proto(statvfs)
+/* libc_hidden_proto(statvfs) */
 int statvfs (const char *file, struct statvfs *buf)
 {
     struct statfs fsbuf;

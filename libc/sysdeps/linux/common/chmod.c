@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 #include <sys/stat.h>
 
-libc_hidden_proto(chmod)
+/* libc_hidden_proto(chmod) */
 
 #define __NR___syscall_chmod __NR_chmod
 static __inline__ _syscall2(int, __syscall_chmod, const char *, path, __kernel_mode_t, mode)

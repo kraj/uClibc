@@ -40,7 +40,7 @@
 #include "rpc_private.h"
 
 /* libc_hidden_proto(xdrmem_create) */
-libc_hidden_proto(xdr_opaque_auth)
+/* libc_hidden_proto(xdr_opaque_auth) */
 
 #define MAX_MARSHAL_SIZE 20
 
@@ -74,7 +74,7 @@ struct authnone_private_s {
 static struct authnone_private_s *authnone_private;
 #endif
 
-libc_hidden_proto(authnone_create)
+/* libc_hidden_proto(authnone_create) */
 AUTH *
 authnone_create (void)
 {

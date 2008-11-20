@@ -16,8 +16,8 @@
 #warning TODO: Fix prototype.
 #endif
 
-libc_hidden_proto(wmemcpy)
-libc_hidden_proto(wcsnrtombs)
+/* libc_hidden_proto(wmemcpy) */
+/* libc_hidden_proto(wcsnrtombs) */
 
 size_t attribute_hidden _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
 					  register FILE *__restrict stream)

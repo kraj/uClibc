@@ -9,7 +9,7 @@
 #include <stdarg.h>
 #include <wchar.h>
 
-libc_hidden_proto(vswprintf)
+/* libc_hidden_proto(vswprintf) */
 
 #ifndef __STDIO_BUFFERS
 #warning Skipping swprintf since no buffering!

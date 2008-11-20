@@ -72,7 +72,7 @@
 /* libc_hidden_proto(__ctype_tolower) */
 #endif
 /* libc_hidden_proto(tolower) */
-libc_hidden_proto(fnmatch)
+/* libc_hidden_proto(fnmatch) */
 /* libc_hidden_proto(getenv) */
 #endif
 
@@ -83,19 +83,19 @@ libc_hidden_proto(fnmatch)
 # include <wchar.h>
 # include <wctype.h>
 # ifdef __UCLIBC__
-libc_hidden_proto(wctype)
-libc_hidden_proto(iswctype)
-libc_hidden_proto(btowc)
+/* libc_hidden_proto(wctype) */
+/* libc_hidden_proto(iswctype) */
+/* libc_hidden_proto(btowc) */
 #  ifdef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(wmemchr)
-libc_hidden_proto(wmempcpy)
-libc_hidden_proto(wcscat)
+/* libc_hidden_proto(wmemchr) */
+/* libc_hidden_proto(wmempcpy) */
+/* libc_hidden_proto(wcscat) */
 /*libc_hidden_proto(wcschr)*/
 /*libc_hidden_proto(wcschrnul)*/
-libc_hidden_proto(wcslen)
-libc_hidden_proto(wcscoll)
-libc_hidden_proto(towlower)
-libc_hidden_proto(mbsrtowcs)
+/* libc_hidden_proto(wcslen) */
+/* libc_hidden_proto(wcscoll) */
+/* libc_hidden_proto(towlower) */
+/* libc_hidden_proto(mbsrtowcs) */
 #  endif
 # endif
 #endif
@@ -369,7 +369,7 @@ is_char_class (const wchar_t *wcs)
 # endif
 
 #ifdef __UCLIBC_HAS_WCHAR__
-libc_hidden_proto(_stdlib_mb_cur_max)
+/* libc_hidden_proto(_stdlib_mb_cur_max) */
 #else
 #undef MB_CUR_MAX
 #define MB_CUR_MAX 1

@@ -13,7 +13,7 @@
 #include <sys/resource.h>
 #undef setrlimit64
 
-libc_hidden_proto(setrlimit)
+/* libc_hidden_proto(setrlimit) */
 
 /* Only wrap setrlimit if the new usetrlimit is not present and setrlimit sucks */
 

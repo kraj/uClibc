@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-libc_hidden_proto(getegid)
+/* libc_hidden_proto(getegid) */
 
 #if defined(__NR_getegid32)
 # undef __NR_getegid
@@ -25,7 +25,7 @@ gid_t getegid(void)
 	return (__syscall_getegid());
 }
 #else
-libc_hidden_proto(getgid)
+/* libc_hidden_proto(getgid) */
 
 gid_t getegid(void)
 {

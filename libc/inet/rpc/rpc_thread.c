@@ -10,10 +10,10 @@
 #include <assert.h>
 #include "rpc_private.h"
 
-libc_hidden_proto(__rpc_thread_svc_fdset)
-libc_hidden_proto(__rpc_thread_createerr)
-libc_hidden_proto(__rpc_thread_svc_pollfd)
-libc_hidden_proto(__rpc_thread_svc_max_pollfd)
+/* libc_hidden_proto(__rpc_thread_svc_fdset) */
+/* libc_hidden_proto(__rpc_thread_createerr) */
+/* libc_hidden_proto(__rpc_thread_svc_pollfd) */
+/* libc_hidden_proto(__rpc_thread_svc_max_pollfd) */
 
 #ifdef __UCLIBC_HAS_THREADS__
 

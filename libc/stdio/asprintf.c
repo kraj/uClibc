@@ -11,9 +11,9 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-libc_hidden_proto(asprintf)
+/* libc_hidden_proto(asprintf) */
 
-libc_hidden_proto(vasprintf)
+/* libc_hidden_proto(vasprintf) */
 
 #ifndef __STDIO_HAS_VSNPRINTF
 #warning Skipping asprintf and __asprintf since no vsnprintf!

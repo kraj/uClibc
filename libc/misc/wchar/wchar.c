@@ -174,9 +174,9 @@ extern size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 /**********************************************************************/
 #ifdef L_btowc
 
-libc_hidden_proto(mbrtowc)
+/* libc_hidden_proto(mbrtowc) */
 
-libc_hidden_proto(btowc)
+/* libc_hidden_proto(btowc) */
 wint_t btowc(int c)
 {
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
@@ -215,7 +215,7 @@ libc_hidden_def(btowc)
 
 /* Note: We completely ignore ps in all currently supported conversions. */
 
-libc_hidden_proto(wcrtomb)
+/* libc_hidden_proto(wcrtomb) */
 
 int wctob(wint_t c)
 {
@@ -246,7 +246,7 @@ int wctob(wint_t c)
 /**********************************************************************/
 #ifdef L_mbsinit
 
-libc_hidden_proto(mbsinit)
+/* libc_hidden_proto(mbsinit) */
 int mbsinit(const mbstate_t *ps)
 {
 	return !ps || !ps->__mask;
@@ -257,9 +257,9 @@ libc_hidden_def(mbsinit)
 /**********************************************************************/
 #ifdef L_mbrlen
 
-libc_hidden_proto(mbrtowc)
+/* libc_hidden_proto(mbrtowc) */
 
-libc_hidden_proto(mbrlen)
+/* libc_hidden_proto(mbrlen) */
 size_t mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
@@ -272,9 +272,9 @@ libc_hidden_def(mbrlen)
 /**********************************************************************/
 #ifdef L_mbrtowc
 
-libc_hidden_proto(mbsnrtowcs)
+/* libc_hidden_proto(mbsnrtowcs) */
 
-libc_hidden_proto(mbrtowc)
+/* libc_hidden_proto(mbrtowc) */
 size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 			   size_t n, mbstate_t *__restrict ps)
 {
@@ -338,12 +338,12 @@ libc_hidden_def(mbrtowc)
 /**********************************************************************/
 #ifdef L_wcrtomb
 
-libc_hidden_proto(wcsnrtombs)
+/* libc_hidden_proto(wcsnrtombs) */
 
 /* Note: We completely ignore ps in all currently supported conversions. */
 /* TODO: Check for valid state anyway? */
 
-libc_hidden_proto(wcrtomb)
+/* libc_hidden_proto(wcrtomb) */
 size_t wcrtomb(register char *__restrict s, wchar_t wc,
 			   mbstate_t *__restrict ps)
 {
@@ -372,9 +372,9 @@ libc_hidden_def(wcrtomb)
 /**********************************************************************/
 #ifdef L_mbsrtowcs
 
-libc_hidden_proto(mbsnrtowcs)
+/* libc_hidden_proto(mbsnrtowcs) */
 
-libc_hidden_proto(mbsrtowcs)
+/* libc_hidden_proto(mbsrtowcs) */
 size_t mbsrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 				 size_t len, mbstate_t *__restrict ps)
 {
@@ -393,9 +393,9 @@ libc_hidden_def(mbsrtowcs)
 
  * TODO: Check for valid state anyway? */
 
-libc_hidden_proto(wcsnrtombs)
+/* libc_hidden_proto(wcsnrtombs) */
 
-libc_hidden_proto(wcsrtombs)
+/* libc_hidden_proto(wcsrtombs) */
 size_t wcsrtombs(char *__restrict dst, const wchar_t **__restrict src,
 				 size_t len, mbstate_t *__restrict ps)
 {
@@ -700,7 +700,7 @@ size_t attribute_hidden _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 
 /* WARNING: We treat len as SIZE_MAX when dst is NULL! */
 
-libc_hidden_proto(mbsnrtowcs)
+/* libc_hidden_proto(mbsnrtowcs) */
 size_t mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 					size_t NMC, size_t len, mbstate_t *__restrict ps)
 {
@@ -810,7 +810,7 @@ libc_hidden_def(mbsnrtowcs)
 /* Note: We completely ignore ps in all currently supported conversions.
  * TODO: Check for valid state anyway? */
 
-libc_hidden_proto(wcsnrtombs)
+/* libc_hidden_proto(wcsnrtombs) */
 size_t wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 					size_t NWC, size_t len, mbstate_t *__restrict ps)
 {
@@ -924,7 +924,7 @@ libc_hidden_def(wcsnrtombs)
 /**********************************************************************/
 #ifdef L_wcswidth
 
-libc_hidden_proto(wcswidth)
+/* libc_hidden_proto(wcswidth) */
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning REMINDER: If we start doing translit, wcwidth and wcswidth will need updating.
@@ -1040,7 +1040,7 @@ static const signed char new_wtbl[] = {
 	0,    2,    1,    2,    1,    0,    1,
 };
 
-libc_hidden_proto(wcsnrtombs)
+/* libc_hidden_proto(wcsnrtombs) */
 
 int wcswidth(const wchar_t *pwcs, size_t n)
 {
@@ -1168,7 +1168,7 @@ libc_hidden_def(wcswidth)
 /**********************************************************************/
 #ifdef L_wcwidth
 
-libc_hidden_proto(wcswidth)
+/* libc_hidden_proto(wcswidth) */
 
 int wcwidth(wchar_t wc)
 {
@@ -1238,8 +1238,10 @@ enum {
  *
  */
 
+//vda:TODO: make hidden
+
 extern const unsigned char __iconv_codesets[];
-libc_hidden_proto(__iconv_codesets)
+/* libc_hidden_proto(__iconv_codesets) */
 const unsigned char __iconv_codesets[] =
 	"\x0a\xe0""WCHAR_T\x00"		/* superset of UCS-4 but platform-endian */
 #if __BYTE_ORDER == __BIG_ENDIAN

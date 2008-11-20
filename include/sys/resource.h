@@ -50,6 +50,7 @@ typedef int __priority_which_t;
 #ifndef __USE_FILE_OFFSET64
 extern int getrlimit (__rlimit_resource_t __resource,
 		      struct rlimit *__rlimits) __THROW;
+libc_hidden_proto(getrlimit)
 #else
 # ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (getrlimit, (__rlimit_resource_t __resource,
@@ -69,6 +70,7 @@ extern int getrlimit64 (__rlimit_resource_t __resource,
 #ifndef __USE_FILE_OFFSET64
 extern int setrlimit (__rlimit_resource_t __resource,
 		      __const struct rlimit *__rlimits) __THROW;
+libc_hidden_proto(setrlimit)
 #else
 # ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (setrlimit, (__rlimit_resource_t __resource,
@@ -92,11 +94,13 @@ extern int getrusage (__rusage_who_t __who, struct rusage *__usage) __THROW;
    (as specified by WHO) is used.  A lower priority number means higher
    priority.  Priorities range from PRIO_MIN to PRIO_MAX (above).  */
 extern int getpriority (__priority_which_t __which, id_t __who) __THROW;
+libc_hidden_proto(getpriority)
 
 /* Set the priority of all processes specified by WHICH and WHO (see above)
    to PRIO.  Returns 0 on success, -1 on errors.  */
 extern int setpriority (__priority_which_t __which, id_t __who, int __prio)
      __THROW;
+libc_hidden_proto(setpriority)
 
 __END_DECLS
 

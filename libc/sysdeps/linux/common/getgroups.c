@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <grp.h>
 
-libc_hidden_proto(getgroups)
+/* libc_hidden_proto(getgroups) */
 
 #if defined(__NR_getgroups32)
 # undef __NR_getgroups
@@ -24,7 +24,7 @@ _syscall2(int, getgroups, int, size, gid_t *, list)
 
 #else
 
-libc_hidden_proto(sysconf)
+/* libc_hidden_proto(sysconf) */
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 #define __NR___syscall_getgroups __NR_getgroups

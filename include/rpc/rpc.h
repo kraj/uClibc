@@ -84,10 +84,12 @@ __BEGIN_DECLS
 
 /* Global variables, protected for multi-threaded applications.  */
 extern fd_set *__rpc_thread_svc_fdset (void) __attribute__ ((__const__));
+libc_hidden_proto(__rpc_thread_svc_fdset)
 #define svc_fdset (*__rpc_thread_svc_fdset ())
 
 extern struct rpc_createerr *__rpc_thread_createerr (void)
      __attribute__ ((__const__));
+libc_hidden_proto(__rpc_thread_createerr)
 #define get_rpc_createerr() (*__rpc_thread_createerr ())
 /* The people who "engineered" RPC should bee punished for naming the
    data structure and the variable the same.  We cannot always define the
@@ -100,13 +102,17 @@ extern struct rpc_createerr *__rpc_thread_createerr (void)
 
 extern struct pollfd **__rpc_thread_svc_pollfd (void)
      __attribute__ ((__const__));
+libc_hidden_proto(__rpc_thread_svc_pollfd)
 #define svc_pollfd (*__rpc_thread_svc_pollfd ())
 
 extern int *__rpc_thread_svc_max_pollfd (void) __attribute__ ((__const__));
+libc_hidden_proto(__rpc_thread_svc_max_pollfd)
 #define svc_max_pollfd (*__rpc_thread_svc_max_pollfd ())
 
 extern bool_t xdr_accepted_reply (XDR *xdrs, struct accepted_reply *ar);
+libc_hidden_proto(xdr_accepted_reply)
 extern bool_t xdr_rejected_reply (XDR *xdrs, struct rejected_reply *rr);
+libc_hidden_proto(xdr_rejected_reply)
 
 __END_DECLS
 

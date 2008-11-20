@@ -40,7 +40,7 @@ libc_hidden_def(stat)
 
 #if ! defined __NR_stat64 && defined __UCLIBC_HAS_LFS__
 extern __typeof(stat) stat64;
-libc_hidden_proto(stat64)
+/* libc_hidden_proto(stat64) */
 strong_alias(stat,stat64)
 libc_hidden_def(stat64)
 #endif

@@ -27,7 +27,7 @@
 /* Experimentally off - libc_hidden_proto(memset) */
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* Experimentally off - libc_hidden_proto(mempcpy) */
-libc_hidden_proto(tcgetattr)
+/* libc_hidden_proto(tcgetattr) */
 
 /* The difference here is that the termios structure used in the
    kernel is not the same as we use in the libc.  Therefore we must

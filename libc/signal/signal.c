@@ -52,6 +52,6 @@ __bsd_signal (int sig, __sighandler_t handler)
   return oact.sa_handler;
 }
 strong_alias(__bsd_signal,bsd_signal)
-libc_hidden_proto(signal)
+/* libc_hidden_proto(signal) */
 strong_alias(__bsd_signal,signal)
 libc_hidden_def(signal)

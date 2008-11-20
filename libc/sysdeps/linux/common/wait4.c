@@ -12,7 +12,7 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 
-libc_hidden_proto(wait4)
+/* libc_hidden_proto(wait4) */
 
 #define __NR___syscall_wait4 __NR_wait4
 static __inline__ _syscall4(int, __syscall_wait4, __kernel_pid_t, pid,

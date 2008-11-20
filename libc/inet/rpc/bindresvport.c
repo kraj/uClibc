@@ -41,13 +41,13 @@
 #include <netinet/in.h>
 
 /* Experimentally off - libc_hidden_proto(memset) */
-libc_hidden_proto(bind)
+/* libc_hidden_proto(bind) */
 /* libc_hidden_proto(getpid) */
 
 /*
  * Bind a socket to a privileged IP port
  */
-libc_hidden_proto(bindresvport)
+/* libc_hidden_proto(bindresvport) */
 int
 bindresvport (int sd, struct sockaddr_in *sin)
 {

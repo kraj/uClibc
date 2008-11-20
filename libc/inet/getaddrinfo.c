@@ -79,17 +79,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* libc_hidden_proto(socket) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(getservbyname_r)
-libc_hidden_proto(gethostbyname2_r)
-libc_hidden_proto(gethostbyaddr_r)
-libc_hidden_proto(inet_pton)
-libc_hidden_proto(inet_ntop)
-libc_hidden_proto(strtoul)
-libc_hidden_proto(if_nametoindex)
-libc_hidden_proto(__h_errno_location)
+/* libc_hidden_proto(getservbyname_r) */
+/* libc_hidden_proto(gethostbyname2_r) */
+/* libc_hidden_proto(gethostbyaddr_r) */
+/* libc_hidden_proto(inet_pton) */
+/* libc_hidden_proto(inet_ntop) */
+/* libc_hidden_proto(strtoul) */
+/* libc_hidden_proto(if_nametoindex) */
+/* libc_hidden_proto(__h_errno_location) */
 /* libc_hidden_proto(uname) */
 #ifdef __UCLIBC_HAS_IPV6__
-libc_hidden_proto(in6addr_loopback)
+/* libc_hidden_proto(in6addr_loopback) */
 #endif
 
 #define GAIH_OKIFUNSPEC 0x0100
@@ -775,7 +775,7 @@ static const struct gaih gaih[] = {
 	{ PF_UNSPEC, NULL }
 };
 
-libc_hidden_proto(freeaddrinfo)
+/* libc_hidden_proto(freeaddrinfo) */
 void
 freeaddrinfo(struct addrinfo *ai)
 {
@@ -789,7 +789,7 @@ freeaddrinfo(struct addrinfo *ai)
 }
 libc_hidden_def(freeaddrinfo)
 
-libc_hidden_proto(getaddrinfo)
+/* libc_hidden_proto(getaddrinfo) */
 int
 getaddrinfo(const char *name, const char *service,
 	     const struct addrinfo *hints, struct addrinfo **pai)

@@ -307,7 +307,7 @@ libc_hidden_def(tolower)
 #ifdef L_tolower_l
 
 #undef tolower_l
-libc_hidden_proto(tolower_l)
+/* libc_hidden_proto(tolower_l) */
 int tolower_l(int c, __locale_t l)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
@@ -326,7 +326,7 @@ weak_alias (tolower_l, __tolower_l)
 #ifdef __UCLIBC_HAS_XLOCALE__
 /* libc_hidden_proto(__ctype_toupper_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(__ctype_toupper)
+/* libc_hidden_proto(__ctype_toupper) */
 #endif
 /* libc_hidden_proto(toupper) */
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
@@ -354,7 +354,7 @@ libc_hidden_def(toupper)
 #ifdef L_toupper_l
 
 #undef toupper_l
-libc_hidden_proto(toupper_l)
+/* libc_hidden_proto(toupper_l) */
 int toupper_l(int c, __locale_t l)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
@@ -379,7 +379,7 @@ int __XL_NPP(isascii)(int c)
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
-libc_hidden_proto(isascii)
+/* libc_hidden_proto(isascii) */
 int isascii(int c)
 {
 	return __isascii(c);		/* locale-independent */
@@ -467,6 +467,8 @@ libc_hidden_def(__ctype_toupper_loc)
 #endif
 /**********************************************************************/
 #ifdef L___C_ctype_b
+
+//vda:TODO:make static
 
 extern const __ctype_mask_t __C_ctype_b_data[];
 libc_hidden_proto(__C_ctype_b_data)
@@ -875,6 +877,8 @@ libc_hidden_data_def(__ctype_b)
 /**********************************************************************/
 #ifdef L___C_ctype_tolower
 
+//vda:TODO: make static
+
 extern const __ctype_touplow_t __C_ctype_tolower_data[];
 libc_hidden_proto(__C_ctype_tolower_data)
 const __ctype_touplow_t __C_ctype_tolower_data[] = {
@@ -980,15 +984,15 @@ const __ctype_touplow_t __C_ctype_tolower_data[] = {
 libc_hidden_data_def(__C_ctype_tolower_data)
 
 /* libc_hidden_proto(__C_ctype_tolower) */
-const __ctype_touplow_t *__C_ctype_tolower = __C_ctype_tolower_data
-											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
+const __ctype_touplow_t *__C_ctype_tolower =
+		__C_ctype_tolower_data + __UCLIBC_CTYPE_TO_TBL_OFFSET;
 libc_hidden_data_def(__C_ctype_tolower)
 
 #ifndef __UCLIBC_HAS_XLOCALE__
 
 /* libc_hidden_proto(__ctype_tolower) */
-const __ctype_touplow_t *__ctype_tolower = __C_ctype_tolower_data
-											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
+const __ctype_touplow_t *__ctype_tolower =
+		__C_ctype_tolower_data + __UCLIBC_CTYPE_TO_TBL_OFFSET;
 libc_hidden_data_def(__ctype_tolower)
 
 #endif
@@ -996,6 +1000,8 @@ libc_hidden_data_def(__ctype_tolower)
 #endif
 /**********************************************************************/
 #ifdef L___C_ctype_toupper
+
+//vda:TODO: make static
 
 extern const __ctype_touplow_t __C_ctype_toupper_data[];
 libc_hidden_proto(__C_ctype_toupper_data)
@@ -1102,15 +1108,15 @@ const __ctype_touplow_t __C_ctype_toupper_data[] = {
 libc_hidden_data_def(__C_ctype_toupper_data)
 
 /* libc_hidden_proto(__C_ctype_toupper) */
-const __ctype_touplow_t *__C_ctype_toupper = __C_ctype_toupper_data
-											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
+const __ctype_touplow_t *__C_ctype_toupper =
+		__C_ctype_toupper_data + __UCLIBC_CTYPE_TO_TBL_OFFSET;
 libc_hidden_data_def(__C_ctype_toupper)
 
 #ifndef __UCLIBC_HAS_XLOCALE__
 
-libc_hidden_proto(__ctype_toupper)
-const __ctype_touplow_t *__ctype_toupper = __C_ctype_toupper_data
-											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
+/* libc_hidden_proto(__ctype_toupper) */
+const __ctype_touplow_t *__ctype_toupper =
+		__C_ctype_toupper_data + __UCLIBC_CTYPE_TO_TBL_OFFSET;
 libc_hidden_data_def(__ctype_toupper)
 
 #endif

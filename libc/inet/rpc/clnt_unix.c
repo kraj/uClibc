@@ -68,25 +68,25 @@
 /* libc_hidden_proto(socket) */
 /* libc_hidden_proto(close) */
 /* libc_hidden_proto(getpid) */
-libc_hidden_proto(authnone_create)
-libc_hidden_proto(xdrrec_create)
-libc_hidden_proto(xdrrec_endofrecord)
-libc_hidden_proto(xdrrec_skiprecord)
-libc_hidden_proto(xdr_callhdr)
+/* libc_hidden_proto(authnone_create) */
+/* libc_hidden_proto(xdrrec_create) */
+/* libc_hidden_proto(xdrrec_endofrecord) */
+/* libc_hidden_proto(xdrrec_skiprecord) */
+/* libc_hidden_proto(xdr_callhdr) */
 /* libc_hidden_proto(xdr_replymsg) */
-libc_hidden_proto(xdr_opaque_auth)
+/* libc_hidden_proto(xdr_opaque_auth) */
 /* libc_hidden_proto(xdrmem_create) */
-libc_hidden_proto(xdr_void)
-libc_hidden_proto(getegid)
-libc_hidden_proto(geteuid)
-libc_hidden_proto(_seterr_reply)
-libc_hidden_proto(setsockopt)
-libc_hidden_proto(connect)
-libc_hidden_proto(recvmsg)
-libc_hidden_proto(sendmsg)
+/* libc_hidden_proto(xdr_void) */
+/* libc_hidden_proto(getegid) */
+/* libc_hidden_proto(geteuid) */
+/* libc_hidden_proto(_seterr_reply) */
+/* libc_hidden_proto(setsockopt) */
+/* libc_hidden_proto(connect) */
+/* libc_hidden_proto(recvmsg) */
+/* libc_hidden_proto(sendmsg) */
 /* libc_hidden_proto(poll) */
 /* libc_hidden_proto(fputs) */
-libc_hidden_proto(__rpc_thread_createerr)
+/* libc_hidden_proto(__rpc_thread_createerr) */
 
 extern u_long _create_xid (void) attribute_hidden;
 
@@ -140,7 +140,7 @@ static struct clnt_ops unix_ops =
  * NB: The rpch->cl_auth is set null authentication.  Caller may wish to set this
  * something more useful.
  */
-libc_hidden_proto(clntunix_create)
+/* libc_hidden_proto(clntunix_create) */
 CLIENT *
 clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
 		 int *sockp, u_int sendsz, u_int recvsz)

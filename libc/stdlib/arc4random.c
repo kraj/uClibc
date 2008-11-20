@@ -168,7 +168,7 @@ arc4_getword(as)
 	return val;
 }
 
-libc_hidden_proto(arc4random_stir)
+/* libc_hidden_proto(arc4random_stir) */
 void
 arc4random_stir(void)
 {

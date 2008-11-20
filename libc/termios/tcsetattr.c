@@ -22,7 +22,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 
-libc_hidden_proto(tcsetattr)
+/* libc_hidden_proto(tcsetattr) */
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* libc_hidden_proto(ioctl) */
 

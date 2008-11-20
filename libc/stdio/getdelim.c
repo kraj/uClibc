@@ -10,9 +10,9 @@
 #ifdef __USE_GNU
 #include "_stdio.h"
 
-libc_hidden_proto(getdelim)
+/* libc_hidden_proto(getdelim) */
 
-libc_hidden_proto(__fgetc_unlocked)
+/* libc_hidden_proto(__fgetc_unlocked) */
 
 /* Note: There is a defect in this function.  (size_t vs ssize_t). */
 

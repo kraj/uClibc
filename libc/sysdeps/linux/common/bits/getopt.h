@@ -153,8 +153,10 @@ struct option
    errors, only prototype getopt for the GNU C library.  */
 extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
        __THROW;
+libc_hidden_proto(getopt)
 #else /* not __GNU_LIBRARY__ */
 extern int getopt ();
+libc_hidden_proto(getopt)
 #endif /* __GNU_LIBRARY__ */
 
 #if defined __UCLIBC_HAS_GNU_GETOPT__ || defined __UCLIBC_HAS_GETOPT_LONG__

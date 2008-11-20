@@ -22,7 +22,7 @@ int usleep (__useconds_t usec)
     return(nanosleep(&ts, NULL));
 }
 #else /* __UCLIBC_HAS_REALTIME__ */
-libc_hidden_proto(select)
+/* libc_hidden_proto(select) */
 int usleep (__useconds_t usec)
 {
 	struct timeval tv;

@@ -117,7 +117,7 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 }
 
 # ifdef __UCLIBC_HAS_LFS__
-libc_hidden_proto(lseek64)
+/* libc_hidden_proto(lseek64) */
 
 static ssize_t __fake_pread_write64(int fd, void *buf,
 		size_t count, off64_t offset, int do_pwrite)

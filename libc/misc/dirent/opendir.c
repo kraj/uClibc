@@ -14,7 +14,7 @@
 #include <sys/stat.h>
 #include "dirstream.h"
 
-libc_hidden_proto(opendir)
+/* libc_hidden_proto(opendir) */
 /* libc_hidden_proto(open) */
 /* libc_hidden_proto(fcntl) */
 /* libc_hidden_proto(close) */

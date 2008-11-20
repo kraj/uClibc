@@ -45,9 +45,9 @@
 /* libc_hidden_proto(fstat) */
 /* libc_hidden_proto(fopen) */
 /* libc_hidden_proto(fclose) */
-libc_hidden_proto(__fsetlocking)
-libc_hidden_proto(fileno)
-libc_hidden_proto(fgets_unlocked)
+/* libc_hidden_proto(__fsetlocking) */
+/* libc_hidden_proto(fileno) */
+/* libc_hidden_proto(fgets_unlocked) */
 #ifdef __UCLIBC_HAS_XLOCALE__
 /* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__

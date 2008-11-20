@@ -51,10 +51,10 @@
 /* libc_hidden_proto(open) */
 /* libc_hidden_proto(close) */
 /* libc_hidden_proto(_exit) */
-libc_hidden_proto(dup2)
-libc_hidden_proto(setsid)
-libc_hidden_proto(chdir)
-libc_hidden_proto(fork)
+/* libc_hidden_proto(dup2) */
+/* libc_hidden_proto(setsid) */
+/* libc_hidden_proto(chdir) */
+/* libc_hidden_proto(fork) */
 
 int daemon( int nochdir, int noclose )
 {

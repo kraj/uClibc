@@ -22,7 +22,7 @@
 
 #if defined __NR_ppoll && defined __UCLIBC_LINUX_SPECIFIC__
 
-libc_hidden_proto(ppoll)
+/* libc_hidden_proto(ppoll) */
 
 # define __NR___libc_ppoll __NR_ppoll
 static __always_inline

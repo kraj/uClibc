@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <sys/param.h>
 
-libc_hidden_proto(chdir)
+/* libc_hidden_proto(chdir) */
 
 #define __NR___syscall_chdir __NR_chdir
 static __inline__ _syscall1(int, __syscall_chdir, const char *, path)

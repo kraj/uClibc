@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
-libc_hidden_proto(srand48_r)
+/* libc_hidden_proto(srand48_r) */
 int srand48_r (long int seedval, struct drand48_data *buffer)
 {
     /* The standards say we only have 32 bits.  */

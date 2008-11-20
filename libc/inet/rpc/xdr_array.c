@@ -56,7 +56,7 @@ static char sccsid[] = "@(#)xdr_array.c 1.10 87/08/11 Copyr 1984 Sun Micro";
 
 /* Experimentally off - libc_hidden_proto(memset) */
 /* libc_hidden_proto(fputs) */
-libc_hidden_proto(xdr_u_int)
+/* libc_hidden_proto(xdr_u_int) */
 
 #define LASTUNSIGNED	((u_int)0-1)
 
@@ -68,7 +68,7 @@ libc_hidden_proto(xdr_u_int)
  * elsize is the size (in bytes) of each element, and elproc is the
  * xdr procedure to call to handle each element of the array.
  */
-libc_hidden_proto(xdr_array)
+/* libc_hidden_proto(xdr_array) */
 bool_t
 xdr_array (XDR *xdrs, caddr_t *addrp, u_int *sizep, u_int maxsize, u_int elsize, xdrproc_t elproc)
 {

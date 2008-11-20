@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fdopen)
+/* libc_hidden_proto(fdopen) */
 /* libc_hidden_proto(fcntl) */
 
 FILE *fdopen(int filedes, const char *mode)

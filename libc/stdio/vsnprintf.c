@@ -8,7 +8,7 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-libc_hidden_proto(vsnprintf)
+/* libc_hidden_proto(vsnprintf) */
 
 #ifdef __USE_OLD_VFPRINTF__
 /* libc_hidden_proto(vfprintf) */

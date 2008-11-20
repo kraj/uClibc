@@ -17,8 +17,8 @@ extern __typeof(pause) __libc_pause;
 _syscall0(int, __libc_pause)
 #else
 #include <signal.h>
-libc_hidden_proto(__sigpause)
-libc_hidden_proto(sigblock)
+/* libc_hidden_proto(__sigpause) */
+/* libc_hidden_proto(sigblock) */
 
 int __libc_pause(void)
 {

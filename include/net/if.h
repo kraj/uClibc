@@ -192,13 +192,16 @@ __BEGIN_DECLS
 
 /* Convert an interface name to an index, and vice versa.  */
 extern unsigned int if_nametoindex (__const char *__ifname) __THROW;
+libc_hidden_proto(if_nametoindex)
 extern char *if_indextoname (unsigned int __ifindex, char *__ifname) __THROW;
 
 /* Return a list of all interfaces and their indices.  */
 extern struct if_nameindex *if_nameindex (void) __THROW;
+libc_hidden_proto(if_nameindex)
 
 /* Free the data returned from if_nameindex.  */
 extern void if_freenameindex (struct if_nameindex *__ptr) __THROW;
+libc_hidden_proto(if_freenameindex)
 
 __END_DECLS
 

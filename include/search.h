@@ -106,8 +106,11 @@ struct hsearch_data
    same time.  */
 extern int hsearch_r (ENTRY __item, ACTION __action, ENTRY **__retval,
 		      struct hsearch_data *__htab) __THROW;
+libc_hidden_proto(hsearch_r)
 extern int hcreate_r (size_t __nel, struct hsearch_data *__htab) __THROW;
+libc_hidden_proto(hcreate_r)
 extern void hdestroy_r (struct hsearch_data *__htab) __THROW;
+libc_hidden_proto(hdestroy_r)
 #endif
 
 
@@ -129,11 +132,13 @@ VISIT;
    by *ROOTP and insert a new element if not found.  */
 extern void *tsearch (__const void *__key, void **__rootp,
 		      __compar_fn_t __compar);
+libc_hidden_proto(tsearch)
 
 /* Search for an entry matching the given KEY in the tree pointed to
    by *ROOTP.  If no matching entry is available return NULL.  */
 extern void *tfind (__const void *__key, void *__const *__rootp,
 		    __compar_fn_t __compar);
+libc_hidden_proto(tfind)
 
 /* Remove the element matching KEY from the tree pointed to by *ROOTP.  */
 extern void *tdelete (__const void *__restrict __key,
@@ -157,6 +162,7 @@ typedef void (*__free_fn_t) (void *__nodep);
 
 /* Destroy the whole tree, call FREEFCT for each node or leaf.  */
 extern void tdestroy (void *__root, __free_fn_t __freefct);
+libc_hidden_proto(tdestroy)
 #endif
 
 
@@ -164,6 +170,7 @@ extern void tdestroy (void *__root, __free_fn_t __freefct);
    [BASE,BASE+NMEMB*SIZE).  */
 extern void *lfind (__const void *__key, __const void *__base,
 		    size_t *__nmemb, size_t __size, __compar_fn_t __compar);
+libc_hidden_proto(lfind)
 
 /* Perform linear search for KEY by comparing by COMPAR function in
    array [BASE,BASE+NMEMB*SIZE) and insert entry if not found.  */

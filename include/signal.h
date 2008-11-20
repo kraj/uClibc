@@ -92,6 +92,7 @@ __BEGIN_NAMESPACE_STD
 #if defined __USE_BSD || !defined __UCLIBC_HAS_OBSOLETE_SYSV_SIGNAL__
 extern __sighandler_t signal (int __sig, __sighandler_t __handler)
      __THROW;
+libc_hidden_proto(signal)
 #else
 /* Make sure the used `signal' implementation is the SVID version. */
 # ifdef __REDIRECT_NTH
@@ -116,6 +117,7 @@ extern __sighandler_t bsd_signal (int __sig, __sighandler_t __handler)
    If PID is < -1, send SIG to all processes in process group - PID.  */
 #ifdef __USE_POSIX
 extern int kill (__pid_t __pid, int __sig) __THROW;
+libc_hidden_proto(kill)
 #endif /* Use POSIX.  */
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
@@ -128,6 +130,7 @@ extern int killpg (__pid_t __pgrp, int __sig) __THROW;
 __BEGIN_NAMESPACE_STD
 /* Raise signal SIG, i.e., send SIG to yourself.  */
 extern int raise (int __sig) __THROW;
+libc_hidden_proto(raise)
 __END_NAMESPACE_STD
 
 #ifdef __USE_SVID
@@ -152,11 +155,13 @@ extern void psignal (int __sig, __const char *__s);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int __sigpause (int __sig_or_mask, int __is_sig);
+libc_hidden_proto(__sigpause)
 
 #ifdef __FAVOR_BSD
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
 extern int sigpause (int __mask) __THROW __attribute_deprecated__;
+libc_hidden_proto(sigpause)
 # define sigpause(mask) __sigpause ((mask), 0)
 #else
 # ifdef __USE_XOPEN
@@ -176,10 +181,14 @@ extern int sigpause (int __mask) __THROW __attribute_deprecated__;
 # define sigmask(sig)	__sigmask(sig)
 
 /* Block signals in MASK, returning the old mask.  */
-extern int sigblock (int __mask) __THROW __attribute_deprecated__;
+extern int sigblock (int __mask) __THROW;
+/* collides with libc_hidden_proto: __attribute_deprecated__; */
+libc_hidden_proto(sigblock)
 
 /* Set the mask of blocked signals to MASK, returning the old mask.  */
-extern int sigsetmask (int __mask) __THROW __attribute_deprecated__;
+extern int sigsetmask (int __mask) __THROW;
+/* collides with libc_hidden_proto: __attribute_deprecated__; */
+libc_hidden_proto(sigsetmask)
 
 /* Return currently selected signal mask.  */
 extern int siggetmask (void) __THROW __attribute_deprecated__;
@@ -212,15 +221,19 @@ typedef __sighandler_t sig_t;
 
 /* Clear all signals from SET.  */
 extern int sigemptyset (sigset_t *__set) __THROW __nonnull ((1));
+libc_hidden_proto(sigemptyset)
 
 /* Set all signals in SET.  */
 extern int sigfillset (sigset_t *__set) __THROW __nonnull ((1));
+libc_hidden_proto(sigfillset)
 
 /* Add SIGNO to SET.  */
 extern int sigaddset (sigset_t *__set, int __signo) __THROW __nonnull ((1));
+libc_hidden_proto(sigaddset)
 
 /* Remove SIGNO from SET.  */
 extern int sigdelset (sigset_t *__set, int __signo) __THROW __nonnull ((1));
+libc_hidden_proto(sigdelset)
 
 /* Return 1 if SIGNO is in SET, 0 if not.  */
 extern int sigismember (__const sigset_t *__set, int __signo)
@@ -254,6 +267,7 @@ libc_hidden_proto(sigprocmask)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int sigsuspend (__const sigset_t *__set) __nonnull ((1));
+libc_hidden_proto(sigsuspend)
 
 /* Get and/or set the action for signal SIG.  */
 extern int sigaction (int __sig, __const struct sigaction *__restrict __act,
@@ -270,6 +284,7 @@ extern int sigpending (sigset_t *__set) __THROW __nonnull ((1));
    __THROW.  */
 extern int sigwait (__const sigset_t *__restrict __set, int *__restrict __sig)
      __nonnull ((1, 2));
+libc_hidden_proto(sigwait)
 
 # if defined __USE_POSIX199309 && defined __UCLIBC_HAS_REALTIME__
 /* Select any of pending signals from SET and place information in INFO.
@@ -278,6 +293,7 @@ extern int sigwait (__const sigset_t *__restrict __set, int *__restrict __sig)
    __THROW.  */
 extern int sigwaitinfo (__const sigset_t *__restrict __set,
 			siginfo_t *__restrict __info) __nonnull ((1));
+libc_hidden_proto(sigwaitinfo)
 
 /* Select any of pending signals from SET and place information in INFO.
    Wait the time specified by TIMEOUT if no signal is pending.
@@ -288,6 +304,7 @@ extern int sigtimedwait (__const sigset_t *__restrict __set,
 			 siginfo_t *__restrict __info,
 			 __const struct timespec *__restrict __timeout)
      __nonnull ((1));
+libc_hidden_proto(sigtimedwait)
 
 /* Send signal SIG to the process PID.  Associate data in VAL with the
    signal.  */

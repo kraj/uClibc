@@ -23,7 +23,7 @@
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 
-libc_hidden_proto(seed48_r)
+/* libc_hidden_proto(seed48_r) */
 int seed48_r (unsigned short int seed16v[3], struct drand48_data *buffer)
 {
     /* Save old value at a private place to be used as return value.  */

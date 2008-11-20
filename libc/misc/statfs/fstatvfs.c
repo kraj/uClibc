@@ -30,9 +30,9 @@
 /* Experimentally off - libc_hidden_proto(memset) */
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strsep) */
-libc_hidden_proto(setmntent)
-libc_hidden_proto(getmntent_r)
-libc_hidden_proto(endmntent)
+/* libc_hidden_proto(setmntent) */
+/* libc_hidden_proto(getmntent_r) */
+/* libc_hidden_proto(endmntent) */
 /* libc_hidden_proto(stat) */
 
 #ifndef __USE_FILE_OFFSET64
@@ -51,7 +51,7 @@ extern __typeof(fstatfs) __libc_fstatfs;
 libc_hidden_proto(__libc_fstatfs)
 /* libc_hidden_proto(fstat) */
 /* libc_hidden_proto(stat) */
-libc_hidden_proto(fstatvfs)
+/* libc_hidden_proto(fstatvfs) */
 
 int fstatvfs (int fd, struct statvfs *buf)
 {

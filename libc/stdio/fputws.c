@@ -7,9 +7,9 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fputws_unlocked)
+/* libc_hidden_proto(fputws_unlocked) */
 
-libc_hidden_proto(wcslen)
+/* libc_hidden_proto(wcslen) */
 
 #ifdef __DO_UNLOCKED
 
@@ -23,14 +23,14 @@ int fputws_unlocked(const wchar_t *__restrict ws,
 libc_hidden_def(fputws_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-libc_hidden_proto(fputws)
+/* libc_hidden_proto(fputws) */
 strong_alias(fputws_unlocked,fputws)
 libc_hidden_def(fputws)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-libc_hidden_proto(fputws)
+/* libc_hidden_proto(fputws) */
 int fputws(const wchar_t *__restrict ws, register FILE *__restrict stream)
 {
 	int retval;

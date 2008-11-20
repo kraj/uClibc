@@ -23,8 +23,8 @@ Cambridge, MA 02139, USA.
 #include <malloc.h>
 
 /* libc_hidden_proto(_exit) */
-libc_hidden_proto(__uc_malloc)
-libc_hidden_proto(__uc_malloc_failed)
+/* libc_hidden_proto(__uc_malloc) */
+/* libc_hidden_proto(__uc_malloc_failed) */
 
 void (*__uc_malloc_failed)(size_t size) = NULL;
 /* Seemingly superfluous assigment of NULL above prevents gas error

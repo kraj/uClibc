@@ -26,7 +26,7 @@
 extern __typeof(pselect) __libc_pselect;
 
 /* libc_hidden_proto(sigprocmask) */
-libc_hidden_proto(select)
+/* libc_hidden_proto(select) */
 
 
 /* Check the first NFDS descriptors each in READFDS (if not NULL) for read

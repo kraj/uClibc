@@ -46,12 +46,12 @@
 #include <sys/sysctl.h>
 #include <sys/io.h>
 
-libc_hidden_proto(ioperm)
+/* libc_hidden_proto(ioperm) */
 
-libc_hidden_proto(readlink)
+/* libc_hidden_proto(readlink) */
 /* libc_hidden_proto(mmap) */
-libc_hidden_proto(sscanf)
-libc_hidden_proto(fscanf)
+/* libc_hidden_proto(sscanf) */
+/* libc_hidden_proto(fscanf) */
 /* libc_hidden_proto(fprintf) */
 /* libc_hidden_proto(fgets) */
 /* libc_hidden_proto(fopen) */

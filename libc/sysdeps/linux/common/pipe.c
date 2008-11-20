@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-libc_hidden_proto(pipe)
+/* libc_hidden_proto(pipe) */
 
 _syscall1(int, pipe, int *, filedes)
 libc_hidden_def(pipe)

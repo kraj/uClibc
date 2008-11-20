@@ -145,6 +145,7 @@ extern size_t __ctype_get_mb_cur_max (void) __THROW __wur;
 #ifdef __UCLIBC_HAS_WCHAR__
 #define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
 extern size_t _stdlib_mb_cur_max (void) __THROW __wur;
+libc_hidden_proto(_stdlib_mb_cur_max)
 #endif
 
 
@@ -157,9 +158,11 @@ extern double atof (__const char *__nptr)
 /* Convert a string to an integer.  */
 extern int atoi (__const char *__nptr)
      __THROW __attribute_pure__ __nonnull ((1)) __wur;
+libc_hidden_proto(atoi)
 /* Convert a string to a long integer.  */
 extern long int atol (__const char *__nptr)
      __THROW __attribute_pure__ __nonnull ((1)) __wur;
+libc_hidden_proto(atol)
 __END_NAMESPACE_STD
 
 #if defined __USE_ISOC99 || defined __USE_MISC
@@ -176,6 +179,7 @@ __BEGIN_NAMESPACE_STD
 extern double strtod (__const char *__restrict __nptr,
 		      char **__restrict __endptr)
      __THROW __nonnull ((1)) __wur;
+libc_hidden_proto(strtod)
 __END_NAMESPACE_STD
 
 #ifdef	__USE_ISOC99
@@ -196,10 +200,12 @@ __BEGIN_NAMESPACE_STD
 extern long int strtol (__const char *__restrict __nptr,
 			char **__restrict __endptr, int __base)
      __THROW __nonnull ((1)) __wur;
+libc_hidden_proto(strtol)
 /* Convert a string to an unsigned long integer.  */
 extern unsigned long int strtoul (__const char *__restrict __nptr,
 				  char **__restrict __endptr, int __base)
      __THROW __nonnull ((1)) __wur;
+libc_hidden_proto(strtoul)
 __END_NAMESPACE_STD
 
 #ifdef __USE_BSD
@@ -222,6 +228,7 @@ __extension__
 extern long long int strtoll (__const char *__restrict __nptr,
 			      char **__restrict __endptr, int __base)
      __THROW __nonnull ((1)) __wur;
+libc_hidden_proto(strtoll)
 /* Convert a string to an unsigned quadword integer.  */
 __extension__
 extern unsigned long long int strtoull (__const char *__restrict __nptr,
@@ -253,11 +260,13 @@ __END_NAMESPACE_C99
 extern long int strtol_l (__const char *__restrict __nptr,
 			  char **__restrict __endptr, int __base,
 			  __locale_t __loc) __THROW __nonnull ((1, 4)) __wur;
+libc_hidden_proto(strtol_l)
 
 extern unsigned long int strtoul_l (__const char *__restrict __nptr,
 				    char **__restrict __endptr,
 				    int __base, __locale_t __loc)
      __THROW __nonnull ((1, 4)) __wur;
+libc_hidden_proto(strtoul_l)
 
 __extension__
 extern long long int strtoll_l (__const char *__restrict __nptr,
@@ -311,6 +320,7 @@ extern long int a64l (__const char *__s)
    We provide both interfaces to the same random number generator.  */
 /* Return a random long integer between 0 and RAND_MAX inclusive.  */
 extern long int random (void) __THROW;
+libc_hidden_proto(random)
 
 /* Seed the random number generator with the given number.  */
 extern void srandom (unsigned int __seed) __THROW;
@@ -345,18 +355,22 @@ struct random_data
 
 extern int random_r (struct random_data *__restrict __buf,
 		     int32_t *__restrict __result) __THROW __nonnull ((1, 2));
+libc_hidden_proto(random_r)
 
 extern int srandom_r (unsigned int __seed, struct random_data *__buf)
      __THROW __nonnull ((2));
+libc_hidden_proto(srandom_r)
 
 extern int initstate_r (unsigned int __seed, char *__restrict __statebuf,
 			size_t __statelen,
 			struct random_data *__restrict __buf)
      __THROW __nonnull ((2, 4));
+libc_hidden_proto(initstate_r)
 
 extern int setstate_r (char *__restrict __statebuf,
 		       struct random_data *__restrict __buf)
      __THROW __nonnull ((1, 2));
+libc_hidden_proto(setstate_r)
 # endif	/* Use misc.  */
 #endif	/* Use SVID || extended X/Open || BSD. */
 
@@ -419,16 +433,19 @@ extern int drand48_r (struct drand48_data *__restrict __buffer,
 extern int erand48_r (unsigned short int __xsubi[3],
 		      struct drand48_data *__restrict __buffer,
 		      double *__restrict __result) __THROW __nonnull ((1, 2));
+libc_hidden_proto(erand48_r)
 #endif /* __UCLIBC_HAS_FLOATS__ */
 
 /* Return non-negative, long integer in [0,2^31).  */
 extern int lrand48_r (struct drand48_data *__restrict __buffer,
 		      long int *__restrict __result)
      __THROW __nonnull ((1, 2));
+libc_hidden_proto(lrand48_r)
 extern int nrand48_r (unsigned short int __xsubi[3],
 		      struct drand48_data *__restrict __buffer,
 		      long int *__restrict __result)
      __THROW __nonnull ((1, 2));
+libc_hidden_proto(nrand48_r)
 
 /* Return signed, long integers in [-2^31,2^31).  */
 extern int mrand48_r (struct drand48_data *__restrict __buffer,
@@ -438,13 +455,16 @@ extern int jrand48_r (unsigned short int __xsubi[3],
 		      struct drand48_data *__restrict __buffer,
 		      long int *__restrict __result)
      __THROW __nonnull ((1, 2));
+libc_hidden_proto(jrand48_r)
 
 /* Seed random number generator.  */
 extern int srand48_r (long int __seedval, struct drand48_data *__buffer)
      __THROW __nonnull ((2));
+libc_hidden_proto(srand48_r)
 
 extern int seed48_r (unsigned short int __seed16v[3],
 		     struct drand48_data *__buffer) __THROW __nonnull ((1, 2));
+libc_hidden_proto(seed48_r)
 
 extern int lcong48_r (unsigned short int __param[7],
 		      struct drand48_data *__buffer)
@@ -552,9 +572,11 @@ extern int putenv (char *__string) __THROW __nonnull ((1));
    If REPLACE is nonzero, overwrite an existing value.  */
 extern int setenv (__const char *__name, __const char *__value, int __replace)
      __THROW __nonnull ((2));
+libc_hidden_proto(setenv)
 
 /* Remove the variable NAME from the environment.  */
 extern int unsetenv (__const char *__name) __THROW;
+libc_hidden_proto(unsetenv)
 #endif
 
 /* The following is used by uClibc in atexit.c and sysconf.c */
@@ -665,6 +687,7 @@ extern void *bsearch (__const void *__key, __const void *__base,
    using COMPAR to perform the comparisons.  */
 extern void qsort (void *__base, size_t __nmemb, size_t __size,
 		   __compar_fn_t __compar) __nonnull ((1, 4));
+libc_hidden_proto(qsort)
 
 
 /* Return the absolute value of X.  */
@@ -845,6 +868,7 @@ extern char *ptsname (int __fd) __THROW __wur;
    Return 0 on success, otherwise an error number.  */
 extern int ptsname_r (int __fd, char *__buf, size_t __buflen)
      __THROW __nonnull ((2));
+libc_hidden_proto(ptsname_r)
 # endif
 # if defined __UCLIBC_HAS_GETPT__
 /* Open a master pseudo terminal and return its file descriptor.  */
@@ -864,6 +888,7 @@ extern int getloadavg (double __loadavg[], int __nelem)
 #include <stdint.h>
 extern uint32_t arc4random(void);
 extern void arc4random_stir(void);
+libc_hidden_proto(arc4random_stir)
 extern void arc4random_addrandom(unsigned char *, int);
 #endif
 

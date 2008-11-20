@@ -310,12 +310,15 @@ void		p_query (const u_char *) __THROW;
 void		res_close (void) __THROW;
 #endif
 int		res_init (void) __THROW;
+libc_hidden_proto(res_init)
 int		res_isourserver (const struct sockaddr_in *) __THROW;
 int		res_mkquery (int, const char *, int, int, const u_char *,
 			     int, const u_char *, u_char *, int) __THROW;
 int		res_query (const char *, int, int, u_char *, int) __THROW;
+libc_hidden_proto(res_query)
 int		res_querydomain (const char *, const char *, int, int,
 				 u_char *, int) __THROW;
+libc_hidden_proto(res_querydomain)
 int		res_search (const char *, int, int, u_char *, int) __THROW;
 int		res_send (const u_char *, int, u_char *, int) __THROW;
 __END_DECLS

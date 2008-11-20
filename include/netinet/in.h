@@ -206,6 +206,7 @@ struct in6_addr
 
 extern const struct in6_addr in6addr_any;        /* :: */
 extern const struct in6_addr in6addr_loopback;   /* ::1 */
+libc_hidden_proto(in6addr_loopback)
 #define IN6ADDR_ANY_INIT { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } }
 #define IN6ADDR_LOOPBACK_INIT { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
 
@@ -429,6 +430,7 @@ extern uint16_t htons (uint16_t __hostshort)
 
 /* Bind socket to a privileged IP port.  */
 extern int bindresvport (int __sockfd, struct sockaddr_in *__sock_in) __THROW;
+libc_hidden_proto(bindresvport)
 
 /* The IPv6 version of this function.  */
 extern int bindresvport6 (int __sockfd, struct sockaddr_in6 *__sock_in)

@@ -7,10 +7,10 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fputs_unlocked)
+/* libc_hidden_proto(fputs_unlocked) */
 
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(fwrite_unlocked)
+/* libc_hidden_proto(fwrite_unlocked) */
 
 /* Note: The standard says fputs returns a nonnegative number on
  * success.  In this implementation, we return the length of the

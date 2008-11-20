@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 
-libc_hidden_proto(mknod)
+/* libc_hidden_proto(mknod) */
 
 #define __NR___syscall_mknod __NR_mknod
 static __inline__ _syscall3(int, __syscall_mknod, const char *, path,

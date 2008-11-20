@@ -7,11 +7,11 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fgets_unlocked)
+/* libc_hidden_proto(fgets_unlocked) */
 
 #ifdef __DO_UNLOCKED
 
-libc_hidden_proto(__fgetc_unlocked)
+/* libc_hidden_proto(__fgetc_unlocked) */
 
 char *fgets_unlocked(char *__restrict s, int n,
 					   register FILE * __restrict stream)

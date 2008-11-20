@@ -128,6 +128,7 @@ extern char *setlocale (int __category, __const char *__locale) __THROW;
 
 /* Return the numeric/monetary information for the current locale.  */
 extern struct lconv *localeconv (void) __THROW;
+libc_hidden_proto(localeconv)
 
 __END_NAMESPACE_STD
 
@@ -157,6 +158,7 @@ typedef __locale_t locale_t;
    made by OR'ing together LC_*_MASK bits above.  */
 extern __locale_t newlocale (int __category_mask, __const char *__locale,
 			     __locale_t __base) __THROW;
+libc_hidden_proto(newlocale)
 
 /* These are the bits that can be set in the CATEGORY_MASK argument to
    `newlocale'.  In the GNU implementation, LC_FOO_MASK has the value
@@ -204,6 +206,7 @@ extern __locale_t newlocale (int __category_mask, __const char *__locale,
 /* Return a duplicate of the set of locale in DATASET.  All usage
    counters are increased if necessary.  */
 extern __locale_t duplocale (__locale_t __dataset) __THROW;
+libc_hidden_proto(duplocale)
 
 /* Free the data associated with a locale dataset previously returned
    by a call to `setlocale_r'.  */

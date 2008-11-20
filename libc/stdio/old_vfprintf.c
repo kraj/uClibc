@@ -146,9 +146,9 @@
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* Experimentally off - libc_hidden_proto(strnlen) */
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(putc_unlocked)
-libc_hidden_proto(__fputc_unlocked)
-libc_hidden_proto(__glibc_strerror_r)
+/* libc_hidden_proto(putc_unlocked) */
+/* libc_hidden_proto(__fputc_unlocked) */
+/* libc_hidden_proto(__glibc_strerror_r) */
 
 /*  #undef __UCLIBC_HAS_FLOATS__ */
 /*  #undef WANT_FLOAT_ERROR */

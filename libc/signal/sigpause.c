@@ -25,14 +25,14 @@
 #include <stddef.h>		/* For NULL.  */
 
 /* libc_hidden_proto(sigprocmask) */
-libc_hidden_proto(sigdelset)
-libc_hidden_proto(sigsuspend)
+/* libc_hidden_proto(sigdelset) */
+/* libc_hidden_proto(sigsuspend) */
 
 #include "sigset-cvt-mask.h"
 
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
-libc_hidden_proto(__sigpause)
+/* libc_hidden_proto(__sigpause) */
 int __sigpause (int sig_or_mask, int is_sig)
 {
   sigset_t set;
@@ -57,7 +57,7 @@ libc_hidden_def(__sigpause)
 /* We have to provide a default version of this function since the
    standards demand it.  The version which is a bit more reasonable is
    the BSD version.  So make this the default.  */
-libc_hidden_proto(sigpause)
+/* libc_hidden_proto(sigpause) */
 int sigpause (int mask)
 {
   return __sigpause (mask, 0);

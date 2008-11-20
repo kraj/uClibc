@@ -30,11 +30,11 @@
 /* Experimentally off - libc_hidden_proto(strerror) */
 /* libc_hidden_proto(fprintf) */
 /* libc_hidden_proto(exit) */
-libc_hidden_proto(putc)
+/* libc_hidden_proto(putc) */
 /* libc_hidden_proto(vfprintf) */
-libc_hidden_proto(fflush)
-libc_hidden_proto(fputc)
-libc_hidden_proto(__fputc_unlocked)
+/* libc_hidden_proto(fflush) */
+/* libc_hidden_proto(fputc) */
+/* libc_hidden_proto(__fputc_unlocked) */
 
 /* This variable is incremented each time `error' is called.  */
 unsigned int error_message_count = 0;

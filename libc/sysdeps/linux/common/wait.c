@@ -10,7 +10,7 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 
-libc_hidden_proto(wait4)
+/* libc_hidden_proto(wait4) */
 
 extern __typeof(wait) __libc_wait;
 

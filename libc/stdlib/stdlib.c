@@ -197,7 +197,7 @@ _stdlib_wcsto_ll(register const wchar_t * __restrict str,
 /**********************************************************************/
 #ifdef L_atof
 
-libc_hidden_proto(strtod)
+/* libc_hidden_proto(strtod) */
 
 double atof(const char *nptr)
 {
@@ -269,9 +269,9 @@ strong_alias(llabs,imaxabs)
 
 #if INT_MAX < LONG_MAX
 
-libc_hidden_proto(strtol)
+/* libc_hidden_proto(strtol) */
 
-libc_hidden_proto(atoi)
+/* libc_hidden_proto(atoi) */
 int atoi(const char *nptr)
 {
 	return (int) strtol(nptr, (char **) NULL, 10);
@@ -284,9 +284,9 @@ libc_hidden_def(atoi)
 /**********************************************************************/
 #ifdef L_atol
 
-libc_hidden_proto(strtol)
+/* libc_hidden_proto(strtol) */
 
-libc_hidden_proto(atol)
+/* libc_hidden_proto(atol) */
 long atol(const char *nptr)
 {
 	return strtol(nptr, (char **) NULL, 10);
@@ -313,7 +313,7 @@ strong_alias(atol,atoll)
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
-libc_hidden_proto(strtoll)
+/* libc_hidden_proto(strtoll) */
 
 long long atoll(const char *nptr)
 {
@@ -465,10 +465,10 @@ strong_alias(strtoull,strtouq)
 #define Wuchar __uwchar_t
 #ifdef __UCLIBC_DO_XLOCALE
 #define ISSPACE(C) iswspace_l((C), locale_arg)
-libc_hidden_proto(iswspace_l)
+/* libc_hidden_proto(iswspace_l) */
 #else
 #define ISSPACE(C) iswspace((C))
-libc_hidden_proto(iswspace)
+/* libc_hidden_proto(iswspace) */
 #endif
 
 #else  /* defined(L__stdlib_wcsto_l) || defined(L__stdlib_wcsto_l_l) */
@@ -477,10 +477,10 @@ libc_hidden_proto(iswspace)
 #define Wuchar unsigned char
 #ifdef __UCLIBC_DO_XLOCALE
 #define ISSPACE(C) isspace_l((C), locale_arg)
-libc_hidden_proto(isspace_l)
+/* libc_hidden_proto(isspace_l) */
 #else
 #define ISSPACE(C) isspace((C))
-libc_hidden_proto(isspace)
+/* libc_hidden_proto(isspace) */
 #endif
 
 #endif /* defined(L__stdlib_wcsto_l) || defined(L__stdlib_wcsto_l_l) */
@@ -620,10 +620,10 @@ unsigned long attribute_hidden __XL_NPP(_stdlib_strto_l)(register const Wchar * 
 #define Wuchar __uwchar_t
 #ifdef __UCLIBC_DO_XLOCALE
 #define ISSPACE(C) iswspace_l((C), locale_arg)
-libc_hidden_proto(iswspace_l)
+/* libc_hidden_proto(iswspace_l) */
 #else
 #define ISSPACE(C) iswspace((C))
-libc_hidden_proto(iswspace)
+/* libc_hidden_proto(iswspace) */
 #endif
 
 #else  /* defined(L__stdlib_wcsto_ll) || defined(L__stdlib_wcsto_ll_l) */
@@ -632,10 +632,10 @@ libc_hidden_proto(iswspace)
 #define Wuchar unsigned char
 #ifdef __UCLIBC_DO_XLOCALE
 #define ISSPACE(C) isspace_l((C), locale_arg)
-libc_hidden_proto(isspace_l)
+/* libc_hidden_proto(isspace_l) */
 #else
 #define ISSPACE(C) isspace((C))
-libc_hidden_proto(isspace)
+/* libc_hidden_proto(isspace) */
 #endif
 
 #endif /* defined(L__stdlib_wcsto_ll) || defined(L__stdlib_wcsto_ll_l) */
@@ -816,7 +816,7 @@ void *bsearch(const void *key, const void *base, size_t /* nmemb */ high,
  * calculation, as well as to reduce the generated code size with
  * bcc and gcc. */
 
-libc_hidden_proto(qsort)
+/* libc_hidden_proto(qsort) */
 void qsort(void  *base,
            size_t nel,
            size_t width,
@@ -912,7 +912,7 @@ void ssort(void  *base,
 /**********************************************************************/
 #ifdef L__stdlib_mb_cur_max
 
-libc_hidden_proto(_stdlib_mb_cur_max)
+/* libc_hidden_proto(_stdlib_mb_cur_max) */
 size_t _stdlib_mb_cur_max(void)
 {
 #ifdef __CTYPE_HAS_UTF_8_LOCALES
@@ -956,7 +956,7 @@ static __always_inline int is_stateful(unsigned char encoding)
 /**********************************************************************/
 #ifdef L_mblen
 
-libc_hidden_proto(mbrlen)
+/* libc_hidden_proto(mbrlen) */
 
 int mblen(register const char *s, size_t n)
 {
@@ -988,7 +988,7 @@ int mblen(register const char *s, size_t n)
 /**********************************************************************/
 #ifdef L_mbtowc
 
-libc_hidden_proto(mbrtowc)
+/* libc_hidden_proto(mbrtowc) */
 
 int mbtowc(wchar_t *__restrict pwc, register const char *__restrict s, size_t n)
 {
@@ -1023,7 +1023,7 @@ int mbtowc(wchar_t *__restrict pwc, register const char *__restrict s, size_t n)
 
 /* Note: We completely ignore state in all currently supported conversions. */
 
-libc_hidden_proto(wcrtomb)
+/* libc_hidden_proto(wcrtomb) */
 
 int wctomb(register char *__restrict s, wchar_t swc)
 {
@@ -1042,7 +1042,7 @@ int wctomb(register char *__restrict s, wchar_t swc)
 /**********************************************************************/
 #ifdef L_mbstowcs
 
-libc_hidden_proto(mbsrtowcs)
+/* libc_hidden_proto(mbsrtowcs) */
 
 size_t mbstowcs(wchar_t * __restrict pwcs, const char * __restrict s, size_t n)
 {
@@ -1059,7 +1059,7 @@ size_t mbstowcs(wchar_t * __restrict pwcs, const char * __restrict s, size_t n)
 
 /* Note: We completely ignore state in all currently supported conversions. */
 
-libc_hidden_proto(wcsrtombs)
+/* libc_hidden_proto(wcsrtombs) */
 
 size_t wcstombs(char * __restrict s, const wchar_t * __restrict pwcs, size_t n)
 {

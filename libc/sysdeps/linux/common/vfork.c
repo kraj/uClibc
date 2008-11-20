@@ -12,14 +12,14 @@
 #ifdef __ARCH_USE_MMU__
 
 #ifdef __NR_fork
-libc_hidden_proto(fork)
+/* libc_hidden_proto(fork) */
 
 extern __typeof(vfork) __vfork attribute_hidden;
 pid_t __vfork(void)
 {
     return fork();
 }
-libc_hidden_proto(vfork)
+/* libc_hidden_proto(vfork) */
 weak_alias(__vfork,vfork)
 libc_hidden_weak(vfork)
 #endif

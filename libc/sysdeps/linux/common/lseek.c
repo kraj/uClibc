@@ -19,6 +19,7 @@ _syscall3(__off_t, __libc_lseek, int, fildes, __off_t, offset, int, whence)
 #else
 extern __typeof(lseek64) __libc_lseek64;
 libc_hidden_proto(__libc_lseek64)
+
 __off_t __libc_lseek(int fildes, __off_t offset, int whence)
 {
 	return __libc_lseek64(fildes, offset, whence);

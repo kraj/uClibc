@@ -46,17 +46,17 @@
 #define __wcrtomb wcrtomb
 #define __btowc btowc
 #define __wctype wctype
-libc_hidden_proto(wcscoll)
-libc_hidden_proto(wcrtomb)
-libc_hidden_proto(mbrtowc)
-libc_hidden_proto(iswctype)
-libc_hidden_proto(iswlower)
-libc_hidden_proto(iswalnum)
-libc_hidden_proto(towlower)
-libc_hidden_proto(towupper)
-libc_hidden_proto(mbsinit)
-libc_hidden_proto(btowc)
-libc_hidden_proto(wctype)
+/* libc_hidden_proto(wcscoll) */
+/* libc_hidden_proto(wcrtomb) */
+/* libc_hidden_proto(mbrtowc) */
+/* libc_hidden_proto(iswctype) */
+/* libc_hidden_proto(iswlower) */
+/* libc_hidden_proto(iswalnum) */
+/* libc_hidden_proto(towlower) */
+/* libc_hidden_proto(towupper) */
+/* libc_hidden_proto(mbsinit) */
+/* libc_hidden_proto(btowc) */
+/* libc_hidden_proto(wctype) */
 
 #endif
 
@@ -71,9 +71,9 @@ libc_hidden_proto(wctype)
 /* libc_hidden_proto(__ctype_toupper_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
 /* libc_hidden_proto(__ctype_b) */
-libc_hidden_proto(__ctype_toupper)
+/* libc_hidden_proto(__ctype_toupper) */
 #else
-libc_hidden_proto(isascii)
+/* libc_hidden_proto(isascii) */
 #endif
 /* libc_hidden_proto(toupper) */
 /* libc_hidden_proto(tolower) */

@@ -56,7 +56,7 @@ static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
 #endif
 
 /* Experimentally off - libc_hidden_proto(memset) */
-libc_hidden_proto(xdr_bool)
+/* libc_hidden_proto(xdr_bool) */
 /* libc_hidden_proto(fputs) */
 
 #define LASTUNSIGNED	((u_int)0-1)
@@ -70,7 +70,7 @@ libc_hidden_proto(xdr_bool)
  * size is the size of the referneced structure.
  * proc is the routine to handle the referenced structure.
  */
-libc_hidden_proto(xdr_reference)
+/* libc_hidden_proto(xdr_reference) */
 bool_t
 xdr_reference (XDR *xdrs, caddr_t *pp, u_int size, xdrproc_t proc)
 {

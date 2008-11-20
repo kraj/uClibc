@@ -46,6 +46,7 @@ struct utimbuf
 extern int utime (__const char *__file,
 		  __const struct utimbuf *__file_times)
      __THROW __nonnull ((1));
+libc_hidden_proto(utime)
 
 __END_DECLS
 

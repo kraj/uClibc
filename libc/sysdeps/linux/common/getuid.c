@@ -19,6 +19,6 @@
 # define __NR_getuid __NR_getuid32
 #endif
 
-libc_hidden_proto(getuid)
+/* libc_hidden_proto(getuid) */
 _syscall0(uid_t, getuid)
 libc_hidden_def(getuid)

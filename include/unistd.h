@@ -310,6 +310,7 @@ extern __off64_t __REDIRECT_NTH (lseek,
 #ifdef __USE_LARGEFILE64
 extern __off64_t lseek64 (int __fd, __off64_t __offset, int __whence)
      __THROW;
+libc_hidden_proto(lseek64)
 #endif
 
 /* Close the file descriptor FD.
@@ -384,6 +385,7 @@ extern ssize_t pwrite64 (int __fd, __const void *__buf, size_t __n,
    bytes written on PIPEDES[1] can be read from PIPEDES[0].
    Returns 0 if successful, -1 if not.  */
 extern int pipe (int __pipedes[2]) __THROW __wur;
+libc_hidden_proto(pipe)
 
 /* Schedule an alarm.  In SECONDS seconds, the process will get a SIGALRM.
    If SECONDS is zero, any currently scheduled alarm will be cancelled.
@@ -393,6 +395,7 @@ extern int pipe (int __pipedes[2]) __THROW __wur;
    to 0 and check its value after calling `alarm', and this might tell you.
    The signal may come late due to processor scheduling.  */
 extern unsigned int alarm (unsigned int __seconds) __THROW;
+libc_hidden_proto(alarm)
 
 /* Make the process sleep for SECONDS seconds, or until a signal arrives
    and is not ignored.  The function returns the number of seconds less
@@ -405,6 +408,7 @@ extern unsigned int alarm (unsigned int __seconds) __THROW;
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern unsigned int sleep (unsigned int __seconds);
+libc_hidden_proto(sleep)
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Set an alarm to go off (generating a SIGALRM signal) in VALUE
@@ -434,6 +438,7 @@ extern int pause (void);
 /* Change the owner and group of FILE.  */
 extern int chown (__const char *__file, __uid_t __owner, __gid_t __group)
      __THROW __nonnull ((1)) __wur;
+libc_hidden_proto(chown)
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Change the owner and group of the file that FD is open on.  */
@@ -457,10 +462,12 @@ extern int fchownat (int __fd, __const char *__file, __uid_t __owner,
 
 /* Change the process's working directory to PATH.  */
 extern int chdir (__const char *__path) __THROW __nonnull ((1)) __wur;
+libc_hidden_proto(chdir)
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Change the process's working directory to the one FD is open on.  */
 extern int fchdir (int __fd) __THROW __wur;
+libc_hidden_proto(fchdir)
 #endif
 
 /* Get the pathname of the current working directory,
@@ -471,6 +478,7 @@ extern int fchdir (int __fd) __THROW __wur;
    bytes long, unless SIZE == 0, in which case it is as
    big as necessary.  */
 extern char *getcwd (char *__buf, size_t __size) __THROW __wur;
+libc_hidden_proto(getcwd)
 
 #ifdef	__USE_GNU
 /* Return a malloc'd string containing the current directory name.
@@ -493,6 +501,7 @@ extern int dup (int __fd) __THROW __wur;
 
 /* Duplicate FD to FD2, closing FD2 and making it open on the same file.  */
 extern int dup2 (int __fd, int __fd2) __THROW;
+libc_hidden_proto(dup2)
 
 /* NULL-terminated array of "NAME=VALUE" environment variables.  */
 extern char **__environ;
@@ -505,6 +514,7 @@ extern char **environ;
    environment ENVP.  ARGV and ENVP are terminated by NULL pointers.  */
 extern int execve (__const char *__path, char *__const __argv[],
 		   char *__const __envp[]) __THROW __nonnull ((1));
+libc_hidden_proto(execve)
 
 #if 0 /*def __USE_GNU*/
 /* Execute the file FD refers to, overlaying the running program image.
@@ -517,27 +527,32 @@ extern int fexecve (int __fd, char *__const __argv[], char *__const __envp[])
 /* Execute PATH with arguments ARGV and environment from `environ'.  */
 extern int execv (__const char *__path, char *__const __argv[])
      __THROW __nonnull ((1));
+libc_hidden_proto(execv)
 
 /* Execute PATH with all arguments after PATH until a NULL pointer,
    and the argument after that for environment.  */
 extern int execle (__const char *__path, __const char *__arg, ...)
      __THROW __nonnull ((1));
+libc_hidden_proto(execle)
 
 /* Execute PATH with all arguments after PATH until
    a NULL pointer and environment from `environ'.  */
 extern int execl (__const char *__path, __const char *__arg, ...)
      __THROW __nonnull ((1));
+libc_hidden_proto(execl)
 
 /* Execute FILE, searching in the `PATH' environment variable if it contains
    no slashes, with arguments ARGV and environment from `environ'.  */
 extern int execvp (__const char *__file, char *__const __argv[])
      __THROW __nonnull ((1));
+libc_hidden_proto(execvp)
 
 /* Execute FILE, searching in the `PATH' environment variable if
    it contains no slashes, with all arguments after FILE until a
    NULL pointer and environment from `environ'.  */
 extern int execlp (__const char *__file, __const char *__arg, ...)
      __THROW __nonnull ((1));
+libc_hidden_proto(execlp)
 
 
 #if defined __USE_MISC || defined __USE_XOPEN
@@ -565,6 +580,7 @@ extern long int fpathconf (int __fd, int __name) __THROW;
 
 /* Get the value of the system variable NAME.  */
 extern long int sysconf (int __name) __THROW;
+libc_hidden_proto(sysconf)
 
 #ifdef	__USE_POSIX2
 /* Get the value of the string-valued system variable NAME.  */
@@ -602,6 +618,7 @@ extern __pid_t getpgid (__pid_t __pid) __THROW;
    If PID is zero, the current process's process group ID is set.
    If PGID is zero, the process ID of the process is used.  */
 extern int setpgid (__pid_t __pid, __pid_t __pgid) __THROW;
+libc_hidden_proto(setpgid)
 
 #if defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Both System V and BSD have `setpgrp' functions, but with different
@@ -636,28 +653,35 @@ extern int __REDIRECT_NTH (setpgrp, (__pid_t __pid, __pid_t __pgrp), setpgid);
    The process group IDs of the session and the calling process
    are set to the process ID of the calling process, which is returned.  */
 extern __pid_t setsid (void) __THROW;
+libc_hidden_proto(setsid)
 
 #ifdef __USE_XOPEN_EXTENDED
 /* Return the session ID of the given process.  */
 extern __pid_t getsid (__pid_t __pid) __THROW;
+libc_hidden_proto(getsid)
 #endif
 
 /* Get the real user ID of the calling process.  */
 extern __uid_t getuid (void) __THROW;
+libc_hidden_proto(getuid)
 
 /* Get the effective user ID of the calling process.  */
 extern __uid_t geteuid (void) __THROW;
+libc_hidden_proto(geteuid)
 
 /* Get the real group ID of the calling process.  */
 extern __gid_t getgid (void) __THROW;
+libc_hidden_proto(getgid)
 
 /* Get the effective group ID of the calling process.  */
 extern __gid_t getegid (void) __THROW;
+libc_hidden_proto(getegid)
 
 /* If SIZE is zero, return the number of supplementary groups
    the calling process is in.  Otherwise, fill in the group IDs
    of its supplementary groups in LIST and return the number written.  */
 extern int getgroups (int __size, __gid_t __list[]) __THROW __wur;
+libc_hidden_proto(getgroups)
 
 #if 0 /*def	__USE_GNU*/
 /* Return nonzero iff the calling process is in group GID.  */
@@ -674,11 +698,13 @@ extern int setuid (__uid_t __uid) __THROW;
 /* Set the real user ID of the calling process to RUID,
    and the effective user ID of the calling process to EUID.  */
 extern int setreuid (__uid_t __ruid, __uid_t __euid) __THROW;
+libc_hidden_proto(setreuid)
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN2K
 /* Set the effective user ID of the calling process to UID.  */
 extern int seteuid (__uid_t __uid) __THROW;
+libc_hidden_proto(seteuid)
 #endif /* Use BSD.  */
 
 /* Set the group ID of the calling process to GID.
@@ -691,6 +717,7 @@ extern int setgid (__gid_t __gid) __THROW;
 /* Set the real group ID of the calling process to RGID,
    and the effective group ID of the calling process to EGID.  */
 extern int setregid (__gid_t __rgid, __gid_t __egid) __THROW;
+libc_hidden_proto(setregid)
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN2K
@@ -714,12 +741,14 @@ extern int getresgid (__gid_t *__rgid, __gid_t *__egid, __gid_t *__sgid)
    of the calling process to RUID, EUID, and SUID, respectively.  */
 extern int setresuid (__uid_t __ruid, __uid_t __euid, __uid_t __suid)
      __THROW;
+libc_hidden_proto(setresuid)
 #endif
 
 /* Set the real group ID, effective group ID, and saved-set group ID,
    of the calling process to RGID, EGID, and SGID, respectively.  */
 extern int setresgid (__gid_t __rgid, __gid_t __egid, __gid_t __sgid)
      __THROW;
+libc_hidden_proto(setresgid)
 #endif
 
 
@@ -728,6 +757,7 @@ extern int setresgid (__gid_t __rgid, __gid_t __egid, __gid_t __sgid)
    Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
 extern __pid_t fork (void) __THROW;
+libc_hidden_proto(fork)
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
@@ -736,6 +766,7 @@ extern __pid_t fork (void) __THROW;
    replaced by a call to `execve'.  Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
 extern __pid_t vfork (void) __THROW;
+libc_hidden_proto(vfork)
 #endif /* Use BSD. */
 
 
@@ -747,10 +778,13 @@ extern char *ttyname (int __fd) __THROW;
    open on in BUF.  Return 0 on success, otherwise an error number.  */
 extern int ttyname_r (int __fd, char *__buf, size_t __buflen)
      __THROW __nonnull ((2)) __wur;
+libc_hidden_proto(ttyname_r)
 
 /* Return 1 if FD is a valid descriptor associated
    with a terminal, zero if not.  */
 extern int isatty (int __fd) __THROW;
+libc_hidden_proto(isatty)
+
 
 #if 0 /*defined __USE_BSD \
     || (defined __USE_XOPEN_EXTENDED && !defined __USE_UNIX98)*/
@@ -783,6 +817,7 @@ extern int symlink (__const char *__from, __const char *__to)
 extern ssize_t readlink (__const char *__restrict __path,
 			 char *__restrict __buf, size_t __len)
      __THROW __nonnull ((1, 2)) __wur;
+libc_hidden_proto(readlink)
 #endif /* Use BSD.  */
 
 #ifdef __USE_ATFILE
@@ -798,6 +833,7 @@ extern ssize_t readlinkat (int __fd, __const char *__restrict __path,
 
 /* Remove the link NAME.  */
 extern int unlink (__const char *__name) __THROW __nonnull ((1));
+libc_hidden_proto(unlink)
 
 #ifdef __USE_ATFILE
 /* Remove the link NAME relative to FD.  */
@@ -807,10 +843,12 @@ extern int unlinkat (int __fd, __const char *__name, int __flag)
 
 /* Remove the directory PATH.  */
 extern int rmdir (__const char *__path) __THROW __nonnull ((1));
+libc_hidden_proto(rmdir)
 
 
 /* Return the foreground process group ID of FD.  */
 extern __pid_t tcgetpgrp (int __fd) __THROW;
+libc_hidden_proto(tcgetpgrp)
 
 /* Set the foreground process group ID of FD set PGRP_ID.  */
 extern int tcsetpgrp (int __fd, __pid_t __pgrp_id) __THROW;
@@ -821,6 +859,7 @@ extern int tcsetpgrp (int __fd, __pid_t __pgrp_id) __THROW;
    This function is a possible cancellation points and therefore not
    marked with __THROW.  */
 extern char *getlogin (void);
+libc_hidden_proto(getlogin)
 #if defined __USE_REENTRANT || defined __USE_POSIX199506
 /* Return at most NAME_LEN characters of the login name of the user in NAME.
    If it cannot be determined or some other error occurred, return the error
@@ -852,6 +891,7 @@ extern int setlogin (__const char *__name) __THROW __nonnull ((1));
    The result is null-terminated if LEN is large enough for the full
    name and the terminator.  */
 extern int gethostname (char *__name, size_t __len) __THROW __nonnull ((1));
+libc_hidden_proto(gethostname)
 #endif
 
 
@@ -871,6 +911,7 @@ extern int sethostid (long int __id) __THROW __wur;
    The NIS domain name is usually the empty string when not using NIS.  */
 extern int getdomainname (char *__name, size_t __len)
      __THROW __nonnull ((1)) __wur;
+libc_hidden_proto(getdomainname)
 extern int setdomainname (__const char *__name, size_t __len)
      __THROW __nonnull ((1)) __wur;
 #endif
@@ -951,17 +992,20 @@ extern void sync (void) __THROW;
 /* Return the number of bytes in a page.  This is the system's page size,
    which is not necessarily the same as the hardware page size.  */
 extern int getpagesize (void)  __THROW __attribute__ ((__const__));
+libc_hidden_proto(getpagesize)
 
 
 /* Return the maximum number of file descriptors
    the current process could possibly have.  */
 extern int getdtablesize (void) __THROW;
+libc_hidden_proto(getdtablesize)
 
 
 /* Truncate FILE to LENGTH bytes.  */
 # ifndef __USE_FILE_OFFSET64
 extern int truncate (__const char *__file, __off_t __length)
      __THROW __nonnull ((1)) __wur;
+libc_hidden_proto(truncate)
 # else
 #  ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (truncate,
@@ -983,6 +1027,7 @@ extern int truncate64 (__const char *__file, __off64_t __length)
 /* Truncate the file FD is open on to LENGTH bytes.  */
 # ifndef __USE_FILE_OFFSET64
 extern int ftruncate (int __fd, __off_t __length) __THROW __wur;
+libc_hidden_proto(ftruncate)
 # else
 #  ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (ftruncate, (int __fd, __off64_t __length),
@@ -993,6 +1038,7 @@ extern int __REDIRECT_NTH (ftruncate, (int __fd, __off64_t __length),
 # endif
 # ifdef __USE_LARGEFILE64
 extern int ftruncate64 (int __fd, __off64_t __length) __THROW __wur;
+libc_hidden_proto(ftruncate64)
 # endif
 
 #endif /* Use BSD || X/Open Unix || POSIX 2003.  */
@@ -1049,6 +1095,7 @@ extern long int syscall (long int __sysno, ...) __THROW;
 
 # ifndef __USE_FILE_OFFSET64
 extern int lockf (int __fd, int __cmd, __off_t __len) __wur;
+libc_hidden_proto(lockf)
 # else
 #  ifdef __REDIRECT
 extern int __REDIRECT (lockf, (int __fd, int __cmd, __off64_t __len),
@@ -1059,6 +1106,7 @@ extern int __REDIRECT (lockf, (int __fd, int __cmd, __off64_t __len),
 # endif
 # ifdef __USE_LARGEFILE64
 extern int lockf64 (int __fd, int __cmd, __off64_t __len) __wur;
+libc_hidden_proto(lockf64)
 # endif
 #endif /* Use misc and F_LOCK not already defined.  */
 

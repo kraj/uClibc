@@ -173,9 +173,11 @@ typedef struct
 extern int glob (__const char *__restrict __pattern, int __flags,
 		 int (*__errfunc) (__const char *, int),
 		 glob_t *__restrict __pglob) __THROW;
+libc_hidden_proto(glob)
 
 /* Free storage allocated in PGLOB by a previous `glob' call.  */
 extern void globfree (glob_t *__pglob) __THROW;
+libc_hidden_proto(globfree)
 #else
 extern int __REDIRECT_NTH (glob, (__const char *__restrict __pattern,
 				  int __flags,
@@ -189,8 +191,10 @@ extern void __REDIRECT_NTH (globfree, (glob_t *__pglob), globfree64);
 extern int glob64 (__const char *__restrict __pattern, int __flags,
 		   int (*__errfunc) (__const char *, int),
 		   glob64_t *__restrict __pglob) __THROW;
+libc_hidden_proto(glob64)
 
 extern void globfree64 (glob64_t *__pglob) __THROW;
+libc_hidden_proto(globfree64)
 #endif
 
 
@@ -201,6 +205,7 @@ extern void globfree64 (glob64_t *__pglob) __THROW;
    This function is not part of the interface specified by POSIX.2
    but several programs want to use it.  */
 extern int glob_pattern_p (__const char *__pattern, int __quote) __THROW;
+libc_hidden_proto(glob_pattern_p)
 #endif
 
 __END_DECLS

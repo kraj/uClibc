@@ -40,11 +40,11 @@
 #include <rpc/rpc.h>
 
 /* libc_hidden_proto(perror) */
-libc_hidden_proto(svc_getreq_poll)
+/* libc_hidden_proto(svc_getreq_poll) */
 /* libc_hidden_proto(poll) */
 /* used by svc_[max_]pollfd */
-libc_hidden_proto(__rpc_thread_svc_pollfd)
-libc_hidden_proto(__rpc_thread_svc_max_pollfd)
+/* libc_hidden_proto(__rpc_thread_svc_pollfd) */
+/* libc_hidden_proto(__rpc_thread_svc_max_pollfd) */
 
 /* This function can be used as a signal handler to terminate the
    server loop.  */

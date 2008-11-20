@@ -27,10 +27,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-libc_hidden_proto(random_r)
-libc_hidden_proto(srandom_r)
-libc_hidden_proto(setstate_r)
-libc_hidden_proto(initstate_r)
+/* libc_hidden_proto(random_r) */
+/* libc_hidden_proto(srandom_r) */
+/* libc_hidden_proto(setstate_r) */
+/* libc_hidden_proto(initstate_r) */
 
 /* POSIX.1c requires that there is mutual exclusion for the `rand' and
    `srand' functions to prevent concurrent calls from modifying common
@@ -244,7 +244,7 @@ char * setstate (char *arg_state)
    rear pointers can't wrap on the same call by not testing the rear
    pointer if the front one has wrapped.  Returns a 31-bit random number.  */
 
-libc_hidden_proto(random)
+/* libc_hidden_proto(random) */
 long int random (void)
 {
   int32_t retval;

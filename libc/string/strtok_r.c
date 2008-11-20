@@ -8,8 +8,8 @@
 #include "_string.h"
 
 #ifdef WANT_WIDE
-libc_hidden_proto(wcsspn)
-libc_hidden_proto(wcspbrk)
+/* libc_hidden_proto(wcsspn) */
+/* libc_hidden_proto(wcspbrk) */
 # define Wstrtok_r wcstok
 # define Wstrspn wcsspn
 # define Wstrpbrk wcspbrk

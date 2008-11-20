@@ -79,10 +79,10 @@
 #include <ctype.h>
 #include <signal.h>
 
-libc_hidden_proto(openlog)
-libc_hidden_proto(syslog)
-libc_hidden_proto(vsyslog)
-libc_hidden_proto(closelog)
+/* libc_hidden_proto(openlog) */
+/* libc_hidden_proto(syslog) */
+/* libc_hidden_proto(vsyslog) */
+/* libc_hidden_proto(closelog) */
 
 /* Experimentally off - libc_hidden_proto(memset) */
 /* Experimentally off - libc_hidden_proto(memcpy) */
@@ -96,12 +96,12 @@ libc_hidden_proto(closelog)
 /* libc_hidden_proto(close) */
 /* libc_hidden_proto(write) */
 /* libc_hidden_proto(getpid) */
-libc_hidden_proto(ctime)
+/* libc_hidden_proto(ctime) */
 /* libc_hidden_proto(sigaction) */
-libc_hidden_proto(sigemptyset)
-libc_hidden_proto(connect)
+/* libc_hidden_proto(sigemptyset) */
+/* libc_hidden_proto(connect) */
 /* libc_hidden_proto(sprintf) */
-libc_hidden_proto(vsnprintf)
+/* libc_hidden_proto(vsnprintf) */
 /* Experimentally off - libc_hidden_proto(time) */
 
 #include <bits/uClibc_mutex.h>

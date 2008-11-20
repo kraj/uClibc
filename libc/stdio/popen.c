@@ -28,12 +28,12 @@
 
 /* libc_hidden_proto(close) */
 /* libc_hidden_proto(_exit) */
-libc_hidden_proto(waitpid)
-libc_hidden_proto(execl)
-libc_hidden_proto(dup2)
-libc_hidden_proto(fdopen)
-libc_hidden_proto(pipe)
-libc_hidden_proto(vfork)
+/* libc_hidden_proto(waitpid) */
+/* libc_hidden_proto(execl) */
+/* libc_hidden_proto(dup2) */
+/* libc_hidden_proto(fdopen) */
+/* libc_hidden_proto(pipe) */
+/* libc_hidden_proto(vfork) */
 /* libc_hidden_proto(fclose) */
 
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
@@ -42,7 +42,7 @@ libc_hidden_proto(vfork)
 # define vfork fork
 # define VFORK_LOCK		((void) 0)
 # define VFORK_UNLOCK		((void) 0)
-libc_hidden_proto(fork)
+/* libc_hidden_proto(fork) */
 #endif
 
 #ifndef VFORK_LOCK

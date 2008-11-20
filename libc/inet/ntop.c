@@ -358,7 +358,7 @@ inet_pton6(const char *src, u_char *dst)
  * author:
  *	Paul Vixie, 1996.
  */
-libc_hidden_proto(inet_ntop)
+/* libc_hidden_proto(inet_ntop) */
 const char *
 inet_ntop(int af, const void *src, char *dst, socklen_t size)
 {
@@ -389,7 +389,7 @@ libc_hidden_def(inet_ntop)
  * author:
  *	Paul Vixie, 1996.
  */
-libc_hidden_proto(inet_pton)
+/* libc_hidden_proto(inet_pton) */
 int
 inet_pton(int af, const char *src, void *dst)
 {

@@ -137,6 +137,7 @@ extern __pid_t wait (__WAIT_STATUS __stat_loc);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
+libc_hidden_proto(waitpid)
 
 #if defined __USE_SVID || defined __USE_XOPEN
 # define __need_siginfo_t
@@ -178,6 +179,7 @@ struct rusage;
 /* PID is like waitpid.  Other args are like wait3.  */
 extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 		      struct rusage *__usage) __THROW;
+libc_hidden_proto(wait4)
 #endif /* Use BSD.  */
 
 

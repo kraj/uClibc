@@ -119,17 +119,17 @@
 /* Experimentally off - libc_hidden_proto(memset) */
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* Experimentally off - libc_hidden_proto(strnlen) */
-libc_hidden_proto(__glibc_strerror_r)
-libc_hidden_proto(fputs_unlocked)
+/* libc_hidden_proto(__glibc_strerror_r) */
+/* libc_hidden_proto(fputs_unlocked) */
 /* libc_hidden_proto(abort) */
 #ifdef __UCLIBC_HAS_WCHAR__
-libc_hidden_proto(wcslen)
-libc_hidden_proto(wcsnlen)
-libc_hidden_proto(mbsrtowcs)
-libc_hidden_proto(wcsrtombs)
-libc_hidden_proto(btowc)
-libc_hidden_proto(wcrtomb)
-libc_hidden_proto(fputws)
+/* libc_hidden_proto(wcslen) */
+/* libc_hidden_proto(wcsnlen) */
+/* libc_hidden_proto(mbsrtowcs) */
+/* libc_hidden_proto(wcsrtombs) */
+/* libc_hidden_proto(btowc) */
+/* libc_hidden_proto(wcrtomb) */
+/* libc_hidden_proto(fputws) */
 #endif
 
 /* Some older or broken gcc toolchains define LONG_LONG_MAX but not

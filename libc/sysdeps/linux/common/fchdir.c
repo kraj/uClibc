@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-libc_hidden_proto(fchdir)
+/* libc_hidden_proto(fchdir) */
 
 _syscall1(int, fchdir, int, fd)
 libc_hidden_def(fchdir)

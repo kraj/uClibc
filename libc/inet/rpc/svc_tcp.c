@@ -66,20 +66,20 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
 /* libc_hidden_proto(read) */
 /* libc_hidden_proto(write) */
 /* libc_hidden_proto(perror) */
-libc_hidden_proto(xdrrec_create)
-libc_hidden_proto(xdrrec_endofrecord)
-libc_hidden_proto(xdrrec_skiprecord)
-libc_hidden_proto(xdrrec_eof)
-libc_hidden_proto(xdr_callmsg)
+/* libc_hidden_proto(xdrrec_create) */
+/* libc_hidden_proto(xdrrec_endofrecord) */
+/* libc_hidden_proto(xdrrec_skiprecord) */
+/* libc_hidden_proto(xdrrec_eof) */
+/* libc_hidden_proto(xdr_callmsg) */
 /* libc_hidden_proto(xdr_replymsg) */
-libc_hidden_proto(xprt_register)
-libc_hidden_proto(xprt_unregister)
-libc_hidden_proto(getsockname)
-libc_hidden_proto(bind)
-libc_hidden_proto(bindresvport)
+/* libc_hidden_proto(xprt_register) */
+/* libc_hidden_proto(xprt_unregister) */
+/* libc_hidden_proto(getsockname) */
+/* libc_hidden_proto(bind) */
+/* libc_hidden_proto(bindresvport) */
 /* libc_hidden_proto(poll) */
-libc_hidden_proto(accept)
-libc_hidden_proto(listen)
+/* libc_hidden_proto(accept) */
+/* libc_hidden_proto(listen) */
 /* libc_hidden_proto(fputs) */
 /* libc_hidden_proto(fclose) */
 /* libc_hidden_proto(abort) */

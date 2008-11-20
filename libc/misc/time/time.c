@@ -154,11 +154,11 @@
 #include <xlocale.h>
 #endif
 
-libc_hidden_proto(asctime)
-libc_hidden_proto(asctime_r)
-libc_hidden_proto(ctime)
-libc_hidden_proto(localtime)
-libc_hidden_proto(localtime_r)
+/* libc_hidden_proto(asctime) */
+/* libc_hidden_proto(asctime_r) */
+/* libc_hidden_proto(ctime) */
+/* libc_hidden_proto(localtime) */
+/* libc_hidden_proto(localtime_r) */
 
 /* Experimentally off - libc_hidden_proto(memset) */
 /* Experimentally off - libc_hidden_proto(memcpy) */
@@ -171,18 +171,18 @@ libc_hidden_proto(localtime_r)
 /* libc_hidden_proto(read) */
 /* libc_hidden_proto(close) */
 /* libc_hidden_proto(getenv) */
-libc_hidden_proto(tzset)
+/* libc_hidden_proto(tzset) */
 /* libc_hidden_proto(gettimeofday) */
 /* Experimentally off - libc_hidden_proto(strncasecmp) */
-libc_hidden_proto(strtol)
-libc_hidden_proto(strtoul)
-libc_hidden_proto(nl_langinfo)
+/* libc_hidden_proto(strtol) */
+/* libc_hidden_proto(strtoul) */
+/* libc_hidden_proto(nl_langinfo) */
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 /* Experimentally off - libc_hidden_proto(strncasecmp_l) */
-libc_hidden_proto(strtol_l)
-libc_hidden_proto(strtoul_l)
-libc_hidden_proto(nl_langinfo_l)
+/* libc_hidden_proto(strtol_l) */
+/* libc_hidden_proto(strtoul_l) */
+/* libc_hidden_proto(nl_langinfo_l) */
 /* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
 /* libc_hidden_proto(__ctype_b) */
@@ -433,7 +433,7 @@ libc_hidden_def(asctime_r)
 
 #include <sys/times.h>
 
-libc_hidden_proto(times)
+/* libc_hidden_proto(times) */
 
 #ifndef __BCC__
 #if CLOCKS_PER_SEC != 1000000L
@@ -809,9 +809,9 @@ time_t timegm(struct tm *timeptr)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-libc_hidden_proto(strftime)
+/* libc_hidden_proto(strftime) */
 
-libc_hidden_proto(strftime_l)
+/* libc_hidden_proto(strftime_l) */
 
 size_t strftime(char *__restrict s, size_t maxsize,
 				const char *__restrict format,
@@ -1330,9 +1330,9 @@ libc_hidden_def(__XL_NPP(strftime))
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-libc_hidden_proto(strptime)
+/* libc_hidden_proto(strptime) */
 
-libc_hidden_proto(strptime_l)
+/* libc_hidden_proto(strptime_l) */
 
 char *strptime(const char *__restrict buf, const char *__restrict format,
 			   struct tm *__restrict tm)
@@ -1866,7 +1866,7 @@ ERROR:
 #endif /* __UCLIBC_HAS_TZ_FILE__ */
 
 #ifndef __UCLIBC_HAS_CTYPE_TABLES__
-libc_hidden_proto(isascii)
+/* libc_hidden_proto(isascii) */
 #endif
 
 void tzset(void)
@@ -2414,9 +2414,9 @@ DONE:
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-libc_hidden_proto(wcsftime)
+/* libc_hidden_proto(wcsftime) */
 
-libc_hidden_proto(wcsftime_l)
+/* libc_hidden_proto(wcsftime_l) */
 
 size_t wcsftime(wchar_t *__restrict s, size_t maxsize,
 				const wchar_t *__restrict format,

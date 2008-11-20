@@ -46,8 +46,10 @@
 /* sources are built w/ _GNU_SOURCE, this gets undefined */
 #ifdef __USE_GNU
 extern int __xpg_strerror_r (int __errnum, char *__buf, size_t __buflen);
+libc_hidden_proto(__xpg_strerror_r)
 #else
 extern char *__glibc_strerror_r (int __errnum, char *__buf, size_t __buflen);
+libc_hidden_proto(__glibc_strerror_r)
 #endif
 
 /* #include <pthread.h> */

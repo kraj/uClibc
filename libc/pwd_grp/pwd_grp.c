@@ -40,10 +40,10 @@
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(strtoul)
-libc_hidden_proto(rewind)
-libc_hidden_proto(fgets_unlocked)
-libc_hidden_proto(__fputc_unlocked)
+/* libc_hidden_proto(strtoul) */
+/* libc_hidden_proto(rewind) */
+/* libc_hidden_proto(fgets_unlocked) */
+/* libc_hidden_proto(__fputc_unlocked) */
 /* libc_hidden_proto(sprintf) */
 /* libc_hidden_proto(fopen) */
 /* libc_hidden_proto(fclose) */
@@ -84,7 +84,7 @@ extern gid_t* __getgrouplist_internal(const char *user, gid_t gid, int *ngroups)
 #ifdef L_fgetpwent_r
 
 #ifdef __USE_SVID
-libc_hidden_proto(fgetpwent_r)
+/* libc_hidden_proto(fgetpwent_r) */
 int fgetpwent_r(FILE *__restrict stream, struct passwd *__restrict resultbuf,
 				char *__restrict buffer, size_t buflen,
 				struct passwd **__restrict result)
@@ -107,7 +107,7 @@ libc_hidden_def(fgetpwent_r)
 #ifdef L_fgetgrent_r
 
 #ifdef __USE_SVID
-libc_hidden_proto(fgetgrent_r)
+/* libc_hidden_proto(fgetgrent_r) */
 int fgetgrent_r(FILE *__restrict stream, struct group *__restrict resultbuf,
 				char *__restrict buffer, size_t buflen,
 				struct group **__restrict result)
@@ -129,7 +129,7 @@ libc_hidden_def(fgetgrent_r)
 /**********************************************************************/
 #ifdef L_fgetspent_r
 
-libc_hidden_proto(fgetspent_r)
+/* libc_hidden_proto(fgetspent_r) */
 int fgetspent_r(FILE *__restrict stream, struct spwd *__restrict resultbuf,
 				char *__restrict buffer, size_t buflen,
 				struct spwd **__restrict result)
@@ -155,7 +155,7 @@ libc_hidden_def(fgetspent_r)
 #ifdef L_fgetpwent
 
 #ifdef __USE_SVID
-libc_hidden_proto(fgetpwent_r)
+/* libc_hidden_proto(fgetpwent_r) */
 
 struct passwd *fgetpwent(FILE *stream)
 {
@@ -173,7 +173,7 @@ struct passwd *fgetpwent(FILE *stream)
 #ifdef L_fgetgrent
 
 #ifdef __USE_SVID
-libc_hidden_proto(fgetgrent_r)
+/* libc_hidden_proto(fgetgrent_r) */
 
 struct group *fgetgrent(FILE *stream)
 {
@@ -190,7 +190,7 @@ struct group *fgetgrent(FILE *stream)
 /**********************************************************************/
 #ifdef L_fgetspent
 
-libc_hidden_proto(fgetspent_r)
+/* libc_hidden_proto(fgetspent_r) */
 
 struct spwd *fgetspent(FILE *stream)
 {
@@ -206,7 +206,7 @@ struct spwd *fgetspent(FILE *stream)
 /**********************************************************************/
 #ifdef L_sgetspent_r
 
-libc_hidden_proto(sgetspent_r)
+/* libc_hidden_proto(sgetspent_r) */
 int sgetspent_r(const char *string, struct spwd *result_buf,
 				char *buffer, size_t buflen, struct spwd **result)
 {
@@ -296,7 +296,7 @@ libc_hidden_def(sgetspent_r)
 /**********************************************************************/
 #ifdef L_getpwuid
 
-libc_hidden_proto(getpwuid_r)
+/* libc_hidden_proto(getpwuid_r) */
 
 struct passwd *getpwuid(uid_t uid)
 {
@@ -312,7 +312,7 @@ struct passwd *getpwuid(uid_t uid)
 /**********************************************************************/
 #ifdef L_getgrgid
 
-libc_hidden_proto(getgrgid_r)
+/* libc_hidden_proto(getgrgid_r) */
 
 struct group *getgrgid(gid_t gid)
 {
@@ -332,8 +332,8 @@ struct group *getgrgid(gid_t gid)
  * to have been created as a reentrant version of the non-standard
  * functions getspuid.  Why getspuid was added, I do not know. */
 
-libc_hidden_proto(getpwuid_r)
-libc_hidden_proto(getspnam_r)
+/* libc_hidden_proto(getpwuid_r) */
+/* libc_hidden_proto(getspnam_r) */
 
 int getspuid_r(uid_t uid, struct spwd *__restrict resultbuf,
 		       char *__restrict buffer, size_t buflen,
@@ -359,8 +359,6 @@ int getspuid_r(uid_t uid, struct spwd *__restrict resultbuf,
 /* This function is non-standard and is currently not built.
  * Why it was added, I do not know. */
 
-libc_hidden_proto(getspuid_r)
-
 struct spwd *getspuid(uid_t uid)
 {
 	static char buffer[__UCLIBC_PWD_BUFFER_SIZE__];
@@ -375,7 +373,7 @@ struct spwd *getspuid(uid_t uid)
 /**********************************************************************/
 #ifdef L_getpwnam
 
-libc_hidden_proto(getpwnam_r)
+/* libc_hidden_proto(getpwnam_r) */
 
 struct passwd *getpwnam(const char *name)
 {
@@ -391,7 +389,7 @@ struct passwd *getpwnam(const char *name)
 /**********************************************************************/
 #ifdef L_getgrnam
 
-libc_hidden_proto(getgrnam_r)
+/* libc_hidden_proto(getgrnam_r) */
 
 struct group *getgrnam(const char *name)
 {
@@ -407,7 +405,7 @@ struct group *getgrnam(const char *name)
 /**********************************************************************/
 #ifdef L_getspnam
 
-libc_hidden_proto(getspnam_r)
+/* libc_hidden_proto(getspnam_r) */
 
 struct spwd *getspnam(const char *name)
 {
@@ -423,7 +421,7 @@ struct spwd *getspnam(const char *name)
 /**********************************************************************/
 #ifdef L_getpw
 
-libc_hidden_proto(getpwuid_r)
+/* libc_hidden_proto(getpwuid_r) */
 
 int getpw(uid_t uid, char *buf)
 {
@@ -476,7 +474,7 @@ void endpwent(void)
 }
 
 
-libc_hidden_proto(getpwent_r)
+/* libc_hidden_proto(getpwent_r) */
 int getpwent_r(struct passwd *__restrict resultbuf,
 			   char *__restrict buffer, size_t buflen,
 			   struct passwd **__restrict result)
@@ -533,7 +531,7 @@ void endgrent(void)
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
-libc_hidden_proto(getgrent_r)
+/* libc_hidden_proto(getgrent_r) */
 int getgrent_r(struct group *__restrict resultbuf,
 			   char *__restrict buffer, size_t buflen,
 			   struct group **__restrict result)
@@ -590,7 +588,7 @@ void endspent(void)
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 
-libc_hidden_proto(getspent_r)
+/* libc_hidden_proto(getspent_r) */
 int getspent_r(struct spwd *resultbuf, char *buffer,
 			   size_t buflen, struct spwd **result)
 {
@@ -624,7 +622,7 @@ libc_hidden_def(getspent_r)
 /**********************************************************************/
 #ifdef L_getpwent
 
-libc_hidden_proto(getpwent_r)
+/* libc_hidden_proto(getpwent_r) */
 
 struct passwd *getpwent(void)
 {
@@ -640,7 +638,7 @@ struct passwd *getpwent(void)
 /**********************************************************************/
 #ifdef L_getgrent
 
-libc_hidden_proto(getgrent_r)
+/* libc_hidden_proto(getgrent_r) */
 
 struct group *getgrent(void)
 {
@@ -656,7 +654,7 @@ struct group *getgrent(void)
 /**********************************************************************/
 #ifdef L_getspent
 
-libc_hidden_proto(getspent_r)
+/* libc_hidden_proto(getspent_r) */
 
 struct spwd *getspent(void)
 {
@@ -672,7 +670,7 @@ struct spwd *getspent(void)
 /**********************************************************************/
 #ifdef L_sgetspent
 
-libc_hidden_proto(sgetspent_r)
+/* libc_hidden_proto(sgetspent_r) */
 
 struct spwd *sgetspent(const char *string)
 {
@@ -775,7 +773,7 @@ int getgrouplist(const char *user, gid_t gid, gid_t *groups, int *ngroups)
 #ifdef L_initgroups
 
 #ifdef __USE_BSD
-libc_hidden_proto(setgroups)
+/* libc_hidden_proto(setgroups) */
 
 int initgroups(const char *user, gid_t gid)
 {

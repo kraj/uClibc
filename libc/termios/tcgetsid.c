@@ -23,8 +23,8 @@
 #include <unistd.h>
 
 /* libc_hidden_proto(ioctl) */
-libc_hidden_proto(getsid)
-libc_hidden_proto(tcgetpgrp)
+/* libc_hidden_proto(getsid) */
+/* libc_hidden_proto(tcgetpgrp) */
 
 /* Return the session ID of FD.  */
 pid_t

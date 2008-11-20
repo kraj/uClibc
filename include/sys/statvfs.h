@@ -52,6 +52,7 @@ __BEGIN_DECLS
 extern int statvfs (__const char *__restrict __file,
 		    struct statvfs *__restrict __buf)
      __THROW __nonnull ((1, 2));
+libc_hidden_proto(statvfs)
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (statvfs,
@@ -73,6 +74,7 @@ extern int statvfs64 (__const char *__restrict __file,
 #ifndef __USE_FILE_OFFSET64
 extern int fstatvfs (int __fildes, struct statvfs *__buf)
      __THROW __nonnull ((2));
+libc_hidden_proto(fstatvfs)
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (fstatvfs, (int __fildes, struct statvfs *__buf),

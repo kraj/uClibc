@@ -44,19 +44,19 @@
 /* Experimentally off - libc_hidden_proto(strndup) */
 /* Experimentally off - libc_hidden_proto(strspn) */
 /* Experimentally off - libc_hidden_proto(strcspn) */
-libc_hidden_proto(setenv)
-libc_hidden_proto(unsetenv)
-libc_hidden_proto(waitpid)
-libc_hidden_proto(kill)
-libc_hidden_proto(getuid)
-libc_hidden_proto(getpwnam_r)
-libc_hidden_proto(getpwuid_r)
-libc_hidden_proto(execve)
-libc_hidden_proto(dup2)
-libc_hidden_proto(atoi)
-libc_hidden_proto(fnmatch)
-libc_hidden_proto(pipe)
-libc_hidden_proto(fork)
+/* libc_hidden_proto(setenv) */
+/* libc_hidden_proto(unsetenv) */
+/* libc_hidden_proto(waitpid) */
+/* libc_hidden_proto(kill) */
+/* libc_hidden_proto(getuid) */
+/* libc_hidden_proto(getpwnam_r) */
+/* libc_hidden_proto(getpwuid_r) */
+/* libc_hidden_proto(execve) */
+/* libc_hidden_proto(dup2) */
+/* libc_hidden_proto(atoi) */
+/* libc_hidden_proto(fnmatch) */
+/* libc_hidden_proto(pipe) */
+/* libc_hidden_proto(fork) */
 /* libc_hidden_proto(open) */
 /* libc_hidden_proto(close) */
 /* libc_hidden_proto(read) */
@@ -65,9 +65,9 @@ libc_hidden_proto(fork)
 /* libc_hidden_proto(sprintf) */
 /* libc_hidden_proto(fprintf) */
 /* libc_hidden_proto(abort) */
-libc_hidden_proto(glob)
-libc_hidden_proto(globfree)
-libc_hidden_proto(wordfree)
+/* libc_hidden_proto(glob) */
+/* libc_hidden_proto(globfree) */
+/* libc_hidden_proto(wordfree) */
 #ifdef __UCLIBC_HAS_XLOCALE__
 /* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__

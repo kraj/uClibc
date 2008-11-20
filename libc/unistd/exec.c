@@ -27,18 +27,18 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-libc_hidden_proto(execl)
-libc_hidden_proto(execle)
-libc_hidden_proto(execlp)
-libc_hidden_proto(execv)
-libc_hidden_proto(execvp)
+/* libc_hidden_proto(execl) */
+/* libc_hidden_proto(execle) */
+/* libc_hidden_proto(execlp) */
+/* libc_hidden_proto(execv) */
+/* libc_hidden_proto(execvp) */
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* Experimentally off - libc_hidden_proto(strchr) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(execve)
+/* libc_hidden_proto(execve) */
 /* libc_hidden_proto(mmap) */
-libc_hidden_proto(munmap)
+/* libc_hidden_proto(munmap) */
 /* libc_hidden_proto(getenv) */
 
 /**********************************************************************/

@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-libc_hidden_proto(geteuid)
+/* libc_hidden_proto(geteuid) */
 
 #if defined(__NR_geteuid32)
 # undef __NR_geteuid
@@ -26,7 +26,7 @@ uid_t geteuid(void)
 }
 
 #else
-libc_hidden_proto(getuid)
+/* libc_hidden_proto(getuid) */
 uid_t geteuid(void)
 {
 	return (getuid());

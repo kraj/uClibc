@@ -52,17 +52,17 @@
 /* libc_hidden_proto(getenv) */
 /* libc_hidden_proto(printf) */
 /* libc_hidden_proto(fstat) */
-libc_hidden_proto(__fsetlocking)
-libc_hidden_proto(getgid)
-libc_hidden_proto(getuid)
-libc_hidden_proto(getegid)
-libc_hidden_proto(geteuid)
-libc_hidden_proto(gethostname)
-libc_hidden_proto(fileno)
+/* libc_hidden_proto(__fsetlocking) */
+/* libc_hidden_proto(getgid) */
+/* libc_hidden_proto(getuid) */
+/* libc_hidden_proto(getegid) */
+/* libc_hidden_proto(geteuid) */
+/* libc_hidden_proto(gethostname) */
+/* libc_hidden_proto(fileno) */
 /* libc_hidden_proto(fopen) */
 /* libc_hidden_proto(fclose) */
-libc_hidden_proto(getc_unlocked)
-libc_hidden_proto(__fgetc_unlocked)
+/* libc_hidden_proto(getc_unlocked) */
+/* libc_hidden_proto(__fgetc_unlocked) */
 
 #define _(X)  (X)
 /* #include "ftp_var.h" */
@@ -114,7 +114,7 @@ static const struct toktab {
 
 /* ruserpass - remote password check.
    This function also exists in glibc but is undocumented */
-libc_hidden_proto(ruserpass)
+/* libc_hidden_proto(ruserpass) */
 int ruserpass(const char *host, const char **aname, const char **apass)
 {
 	char *hdir, *buf, *tmp;

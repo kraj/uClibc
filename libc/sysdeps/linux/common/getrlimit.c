@@ -13,7 +13,7 @@
 #include <sys/resource.h>
 #undef getrlimit64
 
-libc_hidden_proto(getrlimit)
+/* libc_hidden_proto(getrlimit) */
 
 /* Only wrap getrlimit if the new ugetrlimit is not present and getrlimit sucks */
 

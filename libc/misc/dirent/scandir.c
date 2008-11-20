@@ -13,10 +13,10 @@
 #include "dirstream.h"
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(opendir)
-libc_hidden_proto(closedir)
-libc_hidden_proto(qsort)
-libc_hidden_proto(readdir)
+/* libc_hidden_proto(opendir) */
+/* libc_hidden_proto(closedir) */
+/* libc_hidden_proto(qsort) */
+/* libc_hidden_proto(readdir) */
 
 int scandir(const char *dir, struct dirent ***namelist,
 	int (*selector) (const struct dirent *),

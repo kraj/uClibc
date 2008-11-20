@@ -12,7 +12,7 @@
 #warning Skipping vsprintf since no vsnprintf!
 #else
 
-libc_hidden_proto(vsnprintf)
+/* libc_hidden_proto(vsnprintf) */
 
 int vsprintf(char *__restrict buf, const char * __restrict format,
 			 va_list arg)

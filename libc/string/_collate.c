@@ -24,8 +24,8 @@
 /* Experimentally off - libc_hidden_proto(strlcpy) */
 /* Experimentally off - libc_hidden_proto(strcmp) */
 #ifdef WANT_WIDE
-libc_hidden_proto(wcsxfrm)
-libc_hidden_proto(wcscmp)
+/* libc_hidden_proto(wcsxfrm) */
+/* libc_hidden_proto(wcscmp) */
 #endif
 
 #ifdef __UCLIBC_HAS_LOCALE__
@@ -59,18 +59,18 @@ libc_hidden_proto(wcscmp)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-libc_hidden_proto(wcscoll_l)
+/* libc_hidden_proto(wcscoll_l) */
 
-libc_hidden_proto(wcscoll)
+/* libc_hidden_proto(wcscoll) */
 int wcscoll (const Wchar *s0, const Wchar *s1)
 {
 	return wcscoll_l(s0, s1, __UCLIBC_CURLOCALE );
 }
 libc_hidden_def(wcscoll)
 
-libc_hidden_proto(wcsxfrm_l)
+/* libc_hidden_proto(wcsxfrm_l) */
 
-libc_hidden_proto(wcsxfrm)
+/* libc_hidden_proto(wcsxfrm) */
 size_t wcsxfrm(Wchar *__restrict ws1, const Wchar *__restrict ws2, size_t n)
 {
 	return wcsxfrm_l(ws1, ws2, n, __UCLIBC_CURLOCALE );

@@ -24,7 +24,7 @@
 #include <netdb.h>
 
 /* libc_hidden_proto(fprintf) */
-libc_hidden_proto(__h_errno_location)
+/* libc_hidden_proto(__h_errno_location) */
 
 static const char error_msg[] = "Resolver error";
 static const char *const h_errlist[] = {
@@ -39,7 +39,7 @@ static const int h_nerr = { sizeof(h_errlist)/sizeof(h_errlist[0]) };
 /*
  * herror -- print the error indicated by the h_errno value.
  */
-libc_hidden_proto(herror)
+/* libc_hidden_proto(herror) */
 void herror(const char *s)
 {
 	static const char colon_space[] = ": ";

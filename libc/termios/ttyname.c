@@ -31,15 +31,15 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-libc_hidden_proto(ttyname_r)
+/* libc_hidden_proto(ttyname_r) */
 /* libc_hidden_proto(fstat) */
 /* libc_hidden_proto(lstat) */
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(opendir)
-libc_hidden_proto(closedir)
-libc_hidden_proto(readdir)
-libc_hidden_proto(isatty)
+/* libc_hidden_proto(opendir) */
+/* libc_hidden_proto(closedir) */
+/* libc_hidden_proto(readdir) */
+/* libc_hidden_proto(isatty) */
 
 #define TTYNAME_BUFLEN		32
 

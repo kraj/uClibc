@@ -23,7 +23,7 @@
 /* Experimentally off - libc_hidden_proto(memset) */
 
 /* Clear all signals from SET.  */
-libc_hidden_proto(sigemptyset)
+/* libc_hidden_proto(sigemptyset) */
 int sigemptyset (sigset_t *set)
 {
   if (set == NULL)

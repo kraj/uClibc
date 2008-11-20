@@ -51,17 +51,17 @@
 /* libc_hidden_proto(socket) */
 /* libc_hidden_proto(perror) */
 /* libc_hidden_proto(sprintf) */
-libc_hidden_proto(snprintf)
-libc_hidden_proto(getsockname)
-libc_hidden_proto(getnameinfo)
-libc_hidden_proto(getaddrinfo)
-libc_hidden_proto(freeaddrinfo)
-libc_hidden_proto(sleep)
-libc_hidden_proto(atoi)
-libc_hidden_proto(connect)
-libc_hidden_proto(accept)
-libc_hidden_proto(listen)
-libc_hidden_proto(ruserpass)
+/* libc_hidden_proto(snprintf) */
+/* libc_hidden_proto(getsockname) */
+/* libc_hidden_proto(getnameinfo) */
+/* libc_hidden_proto(getaddrinfo) */
+/* libc_hidden_proto(freeaddrinfo) */
+/* libc_hidden_proto(sleep) */
+/* libc_hidden_proto(atoi) */
+/* libc_hidden_proto(connect) */
+/* libc_hidden_proto(accept) */
+/* libc_hidden_proto(listen) */
+/* libc_hidden_proto(ruserpass) */
 
 #define SA_LEN(_x)      __libc_sa_len((_x)->sa_family)
 extern int __libc_sa_len (sa_family_t __af) __THROW attribute_hidden;
@@ -69,7 +69,7 @@ extern int __libc_sa_len (sa_family_t __af) __THROW attribute_hidden;
 int	rexecoptions;
 char	ahostbuf[NI_MAXHOST] attribute_hidden;
 
-libc_hidden_proto(rexec_af)
+/* libc_hidden_proto(rexec_af) */
 int
 rexec_af(char **ahost, int rport, const char *name, const char *pass, const char *cmd, int *fd2p, sa_family_t af)
 {

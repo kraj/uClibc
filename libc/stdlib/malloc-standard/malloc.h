@@ -25,7 +25,7 @@
 #include <bits/uClibc_mutex.h>
 
 /* libc_hidden_proto(mmap) */
-libc_hidden_proto(sysconf)
+/* libc_hidden_proto(sysconf) */
 /* libc_hidden_proto(sbrk) */
 /* libc_hidden_proto(abort) */
 

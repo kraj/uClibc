@@ -25,7 +25,7 @@
 #include "sigset-cvt-mask.h"
 
 /* Block signals in MASK, returning the old mask.  */
-libc_hidden_proto(sigblock)
+/* libc_hidden_proto(sigblock) */
 int sigblock (int mask)
 {
   sigset_t set, oset;

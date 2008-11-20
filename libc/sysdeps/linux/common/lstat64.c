@@ -14,7 +14,7 @@
 # include <sys/stat.h>
 # include "xstatconv.h"
 
-libc_hidden_proto(lstat64)
+/* libc_hidden_proto(lstat64) */
 
 # define __NR___syscall_lstat64 __NR_lstat64
 static __inline__ _syscall2(int, __syscall_lstat64, const char *, file_name,

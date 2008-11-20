@@ -68,7 +68,7 @@ bummer:
     return;
 }
 
-libc_hidden_proto(setutent)
+/* libc_hidden_proto(setutent) */
 void setutent(void)
 {
     __UCLIBC_MUTEX_LOCK(utmplock);
@@ -143,7 +143,7 @@ static struct utmp *__getutid(const struct utmp *utmp_entry)
     return NULL;
 }
 
-libc_hidden_proto(getutid)
+/* libc_hidden_proto(getutid) */
 struct utmp *getutid(const struct utmp *utmp_entry)
 {
     struct utmp *ret = NULL;

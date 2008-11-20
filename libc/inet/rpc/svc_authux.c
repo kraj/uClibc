@@ -49,7 +49,7 @@
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* libc_hidden_proto(printf) */
 /* libc_hidden_proto(xdrmem_create) */
-libc_hidden_proto(xdr_authunix_parms)
+/* libc_hidden_proto(xdr_authunix_parms) */
 
 /*
  * Unix longhand authenticator

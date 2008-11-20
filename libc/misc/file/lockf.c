@@ -24,7 +24,7 @@
 #include <errno.h>
 #include <string.h>
 
-libc_hidden_proto(lockf)
+/* libc_hidden_proto(lockf) */
 
 /* Experimentally off - libc_hidden_proto(memset) */
 /* libc_hidden_proto(fcntl) */

@@ -23,7 +23,7 @@
 #include <sys/types.h>
 
 extern __typeof(open64) __libc_open64;
-libc_hidden_proto(__libc_open64)
+/* libc_hidden_proto(__libc_open64) */
 extern __typeof(creat64) __libc_creat64;
 
 /* Create FILE with protections MODE.  */

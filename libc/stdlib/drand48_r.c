@@ -21,7 +21,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-libc_hidden_proto(erand48_r)
+/* libc_hidden_proto(erand48_r) */
 
 int drand48_r (struct drand48_data *buffer, double *result)
 {

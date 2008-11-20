@@ -9,7 +9,7 @@
 
 #ifdef __DO_UNLOCKED
 
-libc_hidden_proto(fputwc_unlocked)
+/* libc_hidden_proto(fputwc_unlocked) */
 
 wint_t putwchar_unlocked(wchar_t wc)
 {
@@ -22,9 +22,9 @@ strong_alias(putwchar_unlocked,putwchar)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-libc_hidden_proto(__fputc_unlocked)
+/* libc_hidden_proto(__fputc_unlocked) */
 /* psm: should this be fputwc? */
-libc_hidden_proto(fputc)
+/* libc_hidden_proto(fputc) */
 
 wint_t putwchar(wchar_t wc)
 {

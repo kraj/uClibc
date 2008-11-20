@@ -169,6 +169,7 @@ __exctype (isgraph);
 __exctype (isprint);
 __exctype (ispunct);
 __exctype (isspace);
+libc_hidden_proto(isspace)
 __exctype (isupper);
 __exctype (isxdigit);
 
@@ -203,6 +204,7 @@ extern int isctype (int __c, int __mask) __THROW;
 /* Return nonzero iff C is in the ASCII set
    (i.e., is no more than 7 bits wide).  */
 extern int isascii (int __c) __THROW;
+libc_hidden_proto(isascii)
 
 /* Return the part of C that is in the ASCII set
    (i.e., the low-order 7 bits of C).  */
@@ -316,6 +318,7 @@ __exctype_l (isgraph_l);
 __exctype_l (isprint_l);
 __exctype_l (ispunct_l);
 __exctype_l (isspace_l);
+libc_hidden_proto(isspace_l)
 __exctype_l (isupper_l);
 __exctype_l (isxdigit_l);
 
@@ -325,10 +328,12 @@ __exctype_l (isblank_l);
 /* Return the lowercase version of C in locale L.  */
 extern int __tolower_l (int __c, __locale_t __l) __THROW;
 extern int tolower_l (int __c, __locale_t __l) __THROW;
+libc_hidden_proto(tolower_l)
 
 /* Return the uppercase version of C.  */
 extern int __toupper_l (int __c, __locale_t __l) __THROW;
 extern int toupper_l (int __c, __locale_t __l) __THROW;
+libc_hidden_proto(toupper_l)
 
 # if __GNUC__ >= 2 && defined __OPTIMIZE__ && !defined __cplusplus
 #  define __tolower_l(c, locale) \

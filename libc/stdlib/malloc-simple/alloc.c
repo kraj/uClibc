@@ -20,7 +20,7 @@
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /*libc_hidden_proto(memset)*/
 /* libc_hidden_proto(mmap) */
-libc_hidden_proto(munmap)
+/* libc_hidden_proto(munmap) */
 
 #ifdef L_malloc
 void *malloc(size_t size)

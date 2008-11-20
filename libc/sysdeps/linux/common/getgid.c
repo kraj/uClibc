@@ -19,6 +19,6 @@
 # define __NR_getgid __NR_getgid32
 #endif
 
-libc_hidden_proto(getgid)
+/* libc_hidden_proto(getgid) */
 _syscall0(gid_t, getgid)
 libc_hidden_def(getgid)

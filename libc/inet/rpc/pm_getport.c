@@ -44,10 +44,10 @@ static char sccsid[] = "@(#)pmap_getport.c 1.9 87/08/11 Copyr 1984 Sun Micro";
 #include <rpc/pmap_prot.h>
 #include <rpc/pmap_clnt.h>
 
-libc_hidden_proto(clntudp_bufcreate)
-libc_hidden_proto(__rpc_thread_createerr)
-libc_hidden_proto(xdr_u_short)
-libc_hidden_proto(xdr_pmap)
+/* libc_hidden_proto(clntudp_bufcreate) */
+/* libc_hidden_proto(__rpc_thread_createerr) */
+/* libc_hidden_proto(xdr_u_short) */
+/* libc_hidden_proto(xdr_pmap) */
 
 static const struct timeval timeout =
 {5, 0};
@@ -59,7 +59,7 @@ static const struct timeval tottimeout =
  * Calls the pmap service remotely to do the lookup.
  * Returns 0 if no map exists.
  */
-libc_hidden_proto(pmap_getport)
+/* libc_hidden_proto(pmap_getport) */
 u_short
 pmap_getport (address, program, version, protocol)
      struct sockaddr_in *address;

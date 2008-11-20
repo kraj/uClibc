@@ -181,44 +181,45 @@
 /* libc_hidden_proto(close) */
 /* libc_hidden_proto(fopen) */
 /* libc_hidden_proto(fclose) */
-libc_hidden_proto(random)
-libc_hidden_proto(getservbyport)
-libc_hidden_proto(gethostname)
-libc_hidden_proto(uname)
-libc_hidden_proto(inet_addr)
-libc_hidden_proto(inet_aton)
-libc_hidden_proto(inet_pton)
-libc_hidden_proto(inet_ntop)
-libc_hidden_proto(connect)
+/* libc_hidden_proto(random) */
+/* libc_hidden_proto(getservbyport) */
+/* libc_hidden_proto(gethostname) */
+/* libc_hidden_proto(uname) */
+/* libc_hidden_proto(inet_addr) */
+/* libc_hidden_proto(inet_aton) */
+/* libc_hidden_proto(inet_pton) */
+/* libc_hidden_proto(inet_ntop) */
+/* libc_hidden_proto(connect) */
 /* libc_hidden_proto(poll) */
-libc_hidden_proto(select)
-libc_hidden_proto(recv)
-libc_hidden_proto(send)
+/* libc_hidden_proto(select) */
+/* libc_hidden_proto(recv) */
+/* libc_hidden_proto(send) */
 /* libc_hidden_proto(printf) */
 /* libc_hidden_proto(sprintf) */
-libc_hidden_proto(snprintf)
+/* libc_hidden_proto(snprintf) */
 /* libc_hidden_proto(fgets) */
-libc_hidden_proto(getnameinfo)
-libc_hidden_proto(gethostbyname)
-libc_hidden_proto(gethostbyname_r)
-libc_hidden_proto(gethostbyname2_r)
-libc_hidden_proto(gethostbyaddr)
-libc_hidden_proto(gethostbyaddr_r)
-libc_hidden_proto(ns_name_uncompress)
-libc_hidden_proto(ns_name_unpack)
-libc_hidden_proto(ns_name_ntop)
-libc_hidden_proto(res_init)
-libc_hidden_proto(res_query)
-libc_hidden_proto(res_querydomain)
-libc_hidden_proto(gethostent_r)
+/* libc_hidden_proto(getnameinfo) */
+/* libc_hidden_proto(gethostbyname) */
+/* libc_hidden_proto(gethostbyname_r) */
+/* libc_hidden_proto(gethostbyname2_r) */
+/* libc_hidden_proto(gethostbyaddr) */
+/* libc_hidden_proto(gethostbyaddr_r) */
+/* libc_hidden_proto(ns_name_uncompress) */
+/* libc_hidden_proto(ns_name_unpack) */
+/* libc_hidden_proto(ns_name_ntop) */
+/* libc_hidden_proto(res_init) */
+/* libc_hidden_proto(res_query) */
+/* libc_hidden_proto(res_querydomain) */
+/* libc_hidden_proto(gethostent_r) */
 /* libc_hidden_proto(fprintf) */
-libc_hidden_proto(__h_errno_location)
+/* libc_hidden_proto(__h_errno_location) */
 #ifdef __UCLIBC_HAS_XLOCALE__
 /* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
 /* libc_hidden_proto(__ctype_b) */
 #endif
-int __libc_getdomainname(char *name, size_t len);
+
+extern int __libc_getdomainname(char *name, size_t len);
 libc_hidden_proto(__libc_getdomainname)
 
 

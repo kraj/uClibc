@@ -40,10 +40,10 @@
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* libc_hidden_proto(tolower) */
 /* libc_hidden_proto(toupper) */
-libc_hidden_proto(towlower)
-libc_hidden_proto(towupper)
-libc_hidden_proto(towctrans)
-libc_hidden_proto(iswctype)
+/* libc_hidden_proto(towlower) */
+/* libc_hidden_proto(towupper) */
+/* libc_hidden_proto(towctrans) */
+/* libc_hidden_proto(iswctype) */
 
 #if defined(__LOCALE_C_ONLY) && defined(__UCLIBC_DO_XLOCALE)
 #error xlocale functionality is not supported in stub locale mode.
@@ -51,10 +51,10 @@ libc_hidden_proto(iswctype)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
-libc_hidden_proto(towlower_l)
-libc_hidden_proto(towupper_l)
-libc_hidden_proto(towctrans_l)
-libc_hidden_proto(iswctype_l)
+/* libc_hidden_proto(towlower_l) */
+/* libc_hidden_proto(towupper_l) */
+/* libc_hidden_proto(towctrans_l) */
+/* libc_hidden_proto(iswctype_l) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
 /* libc_hidden_proto(__ctype_b) */
 #endif /* __UCLIBC_HAS_XLOCALE__ */
@@ -504,7 +504,7 @@ libc_hidden_def(towupper)
 static const unsigned char typestring[] = __CTYPE_TYPESTRING;
 /*  extern const unsigned char typestring[]; */
 
-libc_hidden_proto(wctype)
+/* libc_hidden_proto(wctype) */
 wctype_t wctype(const char *property)
 {
 	const unsigned char *p;
@@ -533,9 +533,9 @@ libc_hidden_def(wctype)
 #warning REMINDER: Currently wctype_l simply calls wctype.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
-libc_hidden_proto(wctype)
+/* libc_hidden_proto(wctype) */
 
-libc_hidden_proto(wctype_l)
+/* libc_hidden_proto(wctype_l) */
 wctype_t wctype_l (const char *property, __locale_t locale)
 {
 	return wctype(property);
@@ -907,7 +907,7 @@ libc_hidden_def(towctrans)
 
 static const char transstring[] = __CTYPE_TRANSTRING;
 
-libc_hidden_proto(wctrans)
+/* libc_hidden_proto(wctrans) */
 wctrans_t wctrans(const char *property)
 {
 	const unsigned char *p;
@@ -936,7 +936,7 @@ libc_hidden_def(wctrans)
 #warning REMINDER: Currently wctrans_l simply calls wctrans.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
-libc_hidden_proto(wctrans)
+/* libc_hidden_proto(wctrans) */
 
 wctrans_t wctrans_l(const char *property, __locale_t locale)
 {

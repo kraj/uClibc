@@ -110,6 +110,7 @@ extern int select (int __nfds, fd_set *__restrict __readfds,
 		   fd_set *__restrict __writefds,
 		   fd_set *__restrict __exceptfds,
 		   struct timeval *__restrict __timeout);
+libc_hidden_proto(select)
 
 #ifdef __USE_XOPEN2K
 /* Same as above only that the TIMEOUT value is given with higher

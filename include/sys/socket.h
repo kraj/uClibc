@@ -110,10 +110,12 @@ extern int socketpair (int __domain, int __type, int __protocol,
 /* Give the socket FD the local address ADDR (which is LEN bytes long).  */
 extern int bind (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len)
      __THROW;
+libc_hidden_proto(bind)
 
 /* Put the local address of FD into *ADDR and its length in *LEN.  */
 extern int getsockname (int __fd, __SOCKADDR_ARG __addr,
 			socklen_t *__restrict __len) __THROW;
+libc_hidden_proto(getsockname)
 
 /* Open a connection on socket FD to peer at ADDR (which LEN bytes long).
    For connectionless socket types, just set the default address to send to
@@ -123,6 +125,7 @@ extern int getsockname (int __fd, __SOCKADDR_ARG __addr,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int connect (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len);
+libc_hidden_proto(connect)
 
 /* Put the address of the peer connected to socket FD into *ADDR
    (which is *LEN bytes long), and its actual length into *LEN.  */
@@ -135,6 +138,7 @@ extern int getpeername (int __fd, __SOCKADDR_ARG __addr,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t send (int __fd, __const void *__buf, size_t __n, int __flags);
+libc_hidden_proto(send)
 
 /* Read N bytes into BUF from socket FD.
    Returns the number read or -1 for errors.
@@ -142,6 +146,7 @@ extern ssize_t send (int __fd, __const void *__buf, size_t __n, int __flags);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t recv (int __fd, void *__buf, size_t __n, int __flags);
+libc_hidden_proto(recv)
 
 /* Send N bytes of BUF on socket FD to peer at address ADDR (which is
    ADDR_LEN bytes long).  Returns the number sent, or -1 for errors.
@@ -151,6 +156,7 @@ extern ssize_t recv (int __fd, void *__buf, size_t __n, int __flags);
 extern ssize_t sendto (int __fd, __const void *__buf, size_t __n,
 		       int __flags, __CONST_SOCKADDR_ARG __addr,
 		       socklen_t __addr_len);
+libc_hidden_proto(sendto)
 
 /* Read N bytes into BUF through socket FD.
    If ADDR is not NULL, fill in *ADDR_LEN bytes of it with tha address of
@@ -162,6 +168,7 @@ extern ssize_t sendto (int __fd, __const void *__buf, size_t __n,
 extern ssize_t recvfrom (int __fd, void *__restrict __buf, size_t __n,
 			 int __flags, __SOCKADDR_ARG __addr,
 			 socklen_t *__restrict __addr_len);
+libc_hidden_proto(recvfrom)
 
 
 /* Send a message described MESSAGE on socket FD.
@@ -171,6 +178,7 @@ extern ssize_t recvfrom (int __fd, void *__restrict __buf, size_t __n,
    __THROW.  */
 extern ssize_t sendmsg (int __fd, __const struct msghdr *__message,
 			int __flags);
+libc_hidden_proto(sendmsg)
 
 /* Receive a message as described by MESSAGE from socket FD.
    Returns the number of bytes read or -1 for errors.
@@ -178,6 +186,7 @@ extern ssize_t sendmsg (int __fd, __const struct msghdr *__message,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t recvmsg (int __fd, struct msghdr *__message, int __flags);
+libc_hidden_proto(recvmsg)
 
 
 /* Put the current value for socket FD's option OPTNAME at protocol level LEVEL
@@ -192,12 +201,14 @@ extern int getsockopt (int __fd, int __level, int __optname,
    Returns 0 on success, -1 for errors.  */
 extern int setsockopt (int __fd, int __level, int __optname,
 		       __const void *__optval, socklen_t __optlen) __THROW;
+libc_hidden_proto(setsockopt)
 
 
 /* Prepare to accept connections on socket FD.
    N connection requests will be queued before further requests are refused.
    Returns 0 on success, -1 for errors.  */
 extern int listen (int __fd, int __n) __THROW;
+libc_hidden_proto(listen)
 
 /* Await a connection on socket FD.
    When a connection arrives, open a new socket to communicate with it,
@@ -209,6 +220,7 @@ extern int listen (int __fd, int __n) __THROW;
    __THROW.  */
 extern int accept (int __fd, __SOCKADDR_ARG __addr,
 		   socklen_t *__restrict __addr_len);
+libc_hidden_proto(accept)
 
 /* Shut down all or part of the connection open on socket FD.
    HOW determines what to shut down:

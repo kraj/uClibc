@@ -8,7 +8,7 @@
 #include <errno.h>
 #include "dirstream.h"
 
-libc_hidden_proto(dirfd)
+/* libc_hidden_proto(dirfd) */
 
 int dirfd(DIR * dir)
 {

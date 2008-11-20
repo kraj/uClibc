@@ -382,7 +382,9 @@ extern void __stdio_init_mutex(__UCLIBC_MUTEX_TYPE *m) attribute_hidden;
 #endif
 
 extern int __fgetc_unlocked(FILE *__stream);
+libc_hidden_proto(__fgetc_unlocked)
 extern int __fputc_unlocked(int __c, FILE *__stream);
+libc_hidden_proto(__fputc_unlocked)
 
 /* First define the default definitions.
    They are overridden below as necessary. */

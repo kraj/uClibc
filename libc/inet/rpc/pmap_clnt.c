@@ -53,10 +53,10 @@
 /* libc_hidden_proto(close) */
 /* libc_hidden_proto(perror) */
 /* libc_hidden_proto(exit) */
-libc_hidden_proto(clnt_perror)
-libc_hidden_proto(clntudp_bufcreate)
-libc_hidden_proto(xdr_bool)
-libc_hidden_proto(xdr_pmap)
+/* libc_hidden_proto(clnt_perror) */
+/* libc_hidden_proto(clntudp_bufcreate) */
+/* libc_hidden_proto(xdr_bool) */
+/* libc_hidden_proto(xdr_pmap) */
 
 /*
  * Same as get_myaddress, but we try to use the loopback
@@ -122,7 +122,7 @@ static const struct timeval tottimeout = {60, 0};
  * Set a mapping between program,version and port.
  * Calls the pmap service remotely to do the mapping.
  */
-libc_hidden_proto(pmap_set)
+/* libc_hidden_proto(pmap_set) */
 bool_t
 pmap_set (u_long program, u_long version, int protocol, u_short port)
 {
@@ -159,7 +159,7 @@ libc_hidden_def (pmap_set)
  * Remove the mapping between program,version and port.
  * Calls the pmap service remotely to do the un-mapping.
  */
-libc_hidden_proto(pmap_unset)
+/* libc_hidden_proto(pmap_unset) */
 bool_t
 pmap_unset (u_long program, u_long version)
 {

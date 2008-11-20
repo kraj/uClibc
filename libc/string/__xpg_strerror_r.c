@@ -15,7 +15,7 @@
 
 #undef strerror_r
 
-libc_hidden_proto(__xpg_strerror_r)
+/* libc_hidden_proto(__xpg_strerror_r) */
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* Experimentally off - libc_hidden_proto(strlen) */
 

@@ -12,7 +12,7 @@
 #include <string.h>
 #include <sys/param.h>
 
-libc_hidden_proto(execve)
+/* libc_hidden_proto(execve) */
 _syscall3(int, execve, const char *, filename,
 		  char *const *, argv, char *const *, envp)
 libc_hidden_def(execve)

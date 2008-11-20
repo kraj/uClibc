@@ -65,8 +65,8 @@
 /* libc_hidden_proto(fopen) */
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strpbrk) */
-libc_hidden_proto(atoi)
-libc_hidden_proto(rewind)
+/* libc_hidden_proto(atoi) */
+/* libc_hidden_proto(rewind) */
 /* libc_hidden_proto(fgets) */
 /* libc_hidden_proto(fclose) */
 /* libc_hidden_proto(abort) */
@@ -93,7 +93,7 @@ static void __initbuf(void)
     }
 }
 
-libc_hidden_proto(setprotoent)
+/* libc_hidden_proto(setprotoent) */
 void setprotoent(int f)
 {
     __UCLIBC_MUTEX_LOCK(mylock);
@@ -106,7 +106,7 @@ void setprotoent(int f)
 }
 libc_hidden_def(setprotoent)
 
-libc_hidden_proto(endprotoent)
+/* libc_hidden_proto(endprotoent) */
 void endprotoent(void)
 {
     __UCLIBC_MUTEX_LOCK(mylock);
@@ -119,7 +119,7 @@ void endprotoent(void)
 }
 libc_hidden_def(endprotoent)
 
-libc_hidden_proto(getprotoent_r)
+/* libc_hidden_proto(getprotoent_r) */
 int getprotoent_r(struct protoent *result_buf,
 		  char *buf, size_t buflen,
 		  struct protoent **result)
@@ -210,7 +210,7 @@ struct protoent * getprotoent(void)
 }
 
 
-libc_hidden_proto(getprotobyname_r)
+/* libc_hidden_proto(getprotobyname_r) */
 int getprotobyname_r(const char *name,
 		    struct protoent *result_buf,
 		    char *buf, size_t buflen,
@@ -247,7 +247,7 @@ struct protoent * getprotobyname(const char *name)
 }
 
 
-libc_hidden_proto(getprotobynumber_r)
+/* libc_hidden_proto(getprotobynumber_r) */
 int getprotobynumber_r (int proto_num,
 			struct protoent *result_buf,
 			char *buf, size_t buflen,
