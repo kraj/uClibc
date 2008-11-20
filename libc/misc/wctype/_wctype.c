@@ -38,8 +38,8 @@
 #include <bits/uClibc_uwchar.h>
 
 /* Experimentally off - libc_hidden_proto(strcmp) */
-libc_hidden_proto(tolower)
-libc_hidden_proto(toupper)
+/* libc_hidden_proto(tolower) */
+/* libc_hidden_proto(toupper) */
 libc_hidden_proto(towlower)
 libc_hidden_proto(towupper)
 libc_hidden_proto(towctrans)

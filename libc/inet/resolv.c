@@ -177,9 +177,9 @@
 /* libc_hidden_proto(strnlen) */
 /* Experimentally off - libc_hidden_proto(strstr) */
 /* Experimentally off - libc_hidden_proto(strcasecmp) */
-libc_hidden_proto(socket)
+/* libc_hidden_proto(socket) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(fopen)
+/* libc_hidden_proto(fopen) */
 /* libc_hidden_proto(fclose) */
 libc_hidden_proto(random)
 libc_hidden_proto(getservbyport)
@@ -190,14 +190,14 @@ libc_hidden_proto(inet_aton)
 libc_hidden_proto(inet_pton)
 libc_hidden_proto(inet_ntop)
 libc_hidden_proto(connect)
-libc_hidden_proto(poll)
+/* libc_hidden_proto(poll) */
 libc_hidden_proto(select)
 libc_hidden_proto(recv)
 libc_hidden_proto(send)
-libc_hidden_proto(printf)
-libc_hidden_proto(sprintf)
+/* libc_hidden_proto(printf) */
+/* libc_hidden_proto(sprintf) */
 libc_hidden_proto(snprintf)
-libc_hidden_proto(fgets)
+/* libc_hidden_proto(fgets) */
 libc_hidden_proto(getnameinfo)
 libc_hidden_proto(gethostbyname)
 libc_hidden_proto(gethostbyname_r)

@@ -71,6 +71,7 @@ typedef void *__restrict __timezone_ptr_t;
    Use the functions and variables declared in <time.h> instead.  */
 extern int gettimeofday (struct timeval *__restrict __tv,
 			 __timezone_ptr_t __tz) __THROW __nonnull ((1));
+libc_hidden_proto(gettimeofday)
 
 #ifdef __USE_BSD
 /* Set the current time of day and timezone information.

@@ -187,6 +187,7 @@ extern bool_t	xdr_callhdr (XDR *__xdrs, struct rpc_msg *__cmsg) __THROW;
  * 	struct rpc_msg *rmsg;
  */
 extern bool_t	xdr_replymsg (XDR *__xdrs, struct rpc_msg *__rmsg) __THROW;
+libc_hidden_proto(xdr_replymsg)
 
 /*
  * Fills in the error part of a reply message.

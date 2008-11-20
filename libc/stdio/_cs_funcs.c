@@ -7,13 +7,13 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(read)
-libc_hidden_proto(write)
+/* libc_hidden_proto(read) */
+/* libc_hidden_proto(write) */
 /* libc_hidden_proto(close) */
 #ifdef __UCLIBC_HAS_LFS__
 libc_hidden_proto(lseek64)
 #else
-libc_hidden_proto(lseek)
+/* libc_hidden_proto(lseek) */
 #endif
 
 /**********************************************************************/

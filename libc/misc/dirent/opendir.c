@@ -15,11 +15,11 @@
 #include "dirstream.h"
 
 libc_hidden_proto(opendir)
-libc_hidden_proto(open)
-libc_hidden_proto(fcntl)
+/* libc_hidden_proto(open) */
+/* libc_hidden_proto(fcntl) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(stat)
-libc_hidden_proto(fstat)
+/* libc_hidden_proto(stat) */
+/* libc_hidden_proto(fstat) */
 
 /* opendir just makes an open() call - it return NULL if it fails
  * (open sets errno), otherwise it returns a DIR * pointer.

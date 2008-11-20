@@ -13,6 +13,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-libc_hidden_proto(fstat)
+/* libc_hidden_proto(fstat) */
 _syscall2(int, fstat, int, fd, struct stat *, buf)
 libc_hidden_def(fstat)

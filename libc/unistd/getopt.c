@@ -125,7 +125,7 @@
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* Experimentally off - libc_hidden_proto(strncmp) */
-libc_hidden_proto(getenv)
+/* libc_hidden_proto(getenv) */
 /* libc_hidden_proto(fprintf) */
 
 /* For communication from `getopt' to the caller.

@@ -16,6 +16,6 @@ extern __typeof(getpid) __libc_getpid;
 #endif
 #define __NR___libc_getpid __NR_getpid
 _syscall0(pid_t, __libc_getpid)
-libc_hidden_proto(getpid)
+/* libc_hidden_proto(getpid) */
 weak_alias(__libc_getpid, getpid)
 libc_hidden_weak(getpid)

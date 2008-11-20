@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-libc_hidden_proto(getenv)
+/* libc_hidden_proto(getenv) */
 /* Experimentally off - libc_hidden_proto(memcmp) */
 /* Experimentally off - libc_hidden_proto(strlen) */
 

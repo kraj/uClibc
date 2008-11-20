@@ -46,7 +46,7 @@ libc_hidden_proto(rewind)
 libc_hidden_proto(fgets_unlocked)
 libc_hidden_proto(getc_unlocked)
 libc_hidden_proto(__fgetc_unlocked)
-libc_hidden_proto(fopen)
+/* libc_hidden_proto(fopen) */
 /* libc_hidden_proto(fclose) */
 /* libc_hidden_proto(abort) */
 #ifdef __UCLIBC_HAS_XLOCALE__

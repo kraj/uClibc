@@ -18,7 +18,7 @@
 
 #undef lstat64
 
-libc_hidden_proto(lstat)
+/* libc_hidden_proto(lstat) */
 
 #define __NR___syscall_lstat __NR_lstat
 static __inline__ _syscall2(int, __syscall_lstat,

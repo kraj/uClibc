@@ -281,7 +281,7 @@ IS_FUNC_BODY(xdigit);
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
 /* libc_hidden_proto(__ctype_tolower) */
 #endif
-libc_hidden_proto(tolower)
+/* libc_hidden_proto(tolower) */
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 int tolower(int c)
@@ -328,7 +328,7 @@ weak_alias (tolower_l, __tolower_l)
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
 libc_hidden_proto(__ctype_toupper)
 #endif
-libc_hidden_proto(toupper)
+/* libc_hidden_proto(toupper) */
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 int toupper(int c)

@@ -229,6 +229,6 @@ int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
 }
 
 #endif
-libc_hidden_proto(poll)
+/* libc_hidden_proto(poll) */
 weak_alias(__libc_poll,poll)
 libc_hidden_weak(poll)

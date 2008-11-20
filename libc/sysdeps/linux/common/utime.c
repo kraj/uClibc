@@ -19,7 +19,7 @@ _syscall2(int, utime, const char *, file, const struct utimbuf *, times)
 #include <sys/time.h>
 
 libc_hidden_proto(utimes)
-libc_hidden_proto(gettimeofday)
+/* libc_hidden_proto(gettimeofday) */
 
 int utime(const char *file, const struct utimbuf *times)
 {

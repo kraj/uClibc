@@ -31,7 +31,7 @@
 /* libc_hidden_proto(fprintf) */
 /* libc_hidden_proto(exit) */
 libc_hidden_proto(putc)
-libc_hidden_proto(vfprintf)
+/* libc_hidden_proto(vfprintf) */
 libc_hidden_proto(fflush)
 libc_hidden_proto(fputc)
 libc_hidden_proto(__fputc_unlocked)

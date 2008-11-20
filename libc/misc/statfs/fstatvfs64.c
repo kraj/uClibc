@@ -44,7 +44,7 @@ libc_hidden_proto(fstatvfs)
 libc_hidden_proto(fstatfs64)
 #endif
 libc_hidden_proto(fstat64)
-libc_hidden_proto(stat)
+/* libc_hidden_proto(stat) */
 
 int fstatvfs64 (int fd, struct statvfs64 *buf)
 {

@@ -358,7 +358,7 @@ int shutdown(int sockfd, int how)
 #endif
 
 #ifdef L_socket
-libc_hidden_proto(socket)
+/* libc_hidden_proto(socket) */
 #ifdef __NR_socket
 _syscall3(int, socket, int, family, int, type, int, protocol)
 #elif defined(__NR_socketcall)

@@ -98,6 +98,7 @@ typedef union { __SOCKADDR_ALLTYPES
    protocol PROTOCOL.  If PROTOCOL is zero, one is chosen automatically.
    Returns a file descriptor for the new socket, or -1 for errors.  */
 extern int socket (int __domain, int __type, int __protocol) __THROW;
+libc_hidden_proto(socket)
 
 /* Create two new sockets, of type TYPE in domain DOMAIN and using
    protocol PROTOCOL, which are connected to each other, and put file

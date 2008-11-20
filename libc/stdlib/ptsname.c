@@ -33,9 +33,9 @@
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(isatty)
-libc_hidden_proto(ioctl)
-libc_hidden_proto(fstat)
-libc_hidden_proto(stat)
+/* libc_hidden_proto(ioctl) */
+/* libc_hidden_proto(fstat) */
+/* libc_hidden_proto(stat) */
 
 #if !defined __UNIX98PTY_ONLY__
 

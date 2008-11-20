@@ -52,12 +52,12 @@ static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
 # include <wchar.h>
 # include <libio/iolibio.h>
 # define fputs(s, f) _IO_fputs (s, f)
-libc_hidden_proto(fwprintf)
+/* libc_hidden_proto(fwprintf) */
 #endif
 
 /* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(xdr_bool)
-libc_hidden_proto(fputs)
+/* libc_hidden_proto(fputs) */
 
 #define LASTUNSIGNED	((u_int)0-1)
 

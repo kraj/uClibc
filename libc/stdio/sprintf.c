@@ -14,7 +14,7 @@
 
 libc_hidden_proto(vsnprintf)
 
-libc_hidden_proto(sprintf)
+/* libc_hidden_proto(sprintf) */
 int sprintf(char *__restrict buf, const char * __restrict format, ...)
 {
 	va_list arg;

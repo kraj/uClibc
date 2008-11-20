@@ -18,7 +18,7 @@
 
 #undef stat64
 
-libc_hidden_proto(stat)
+/* libc_hidden_proto(stat) */
 
 #define __NR___syscall_stat __NR_stat
 #undef stat

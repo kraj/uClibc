@@ -43,7 +43,7 @@ void longjmp(jmp_buf state, int value )
 #undef _state_
 }
 
-libc_hidden_proto(sigprocmask)
+/* libc_hidden_proto(sigprocmask) */
 
 void siglongjmp(sigjmp_buf state, int value )
 {

@@ -23,11 +23,11 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-libc_hidden_proto(fopen)
+/* libc_hidden_proto(fopen) */
 /* libc_hidden_proto(fclose) */
 libc_hidden_proto(inet_network)
 libc_hidden_proto(rewind)
-libc_hidden_proto(fgets)
+/* libc_hidden_proto(fgets) */
 /* libc_hidden_proto(abort) */
 
 #include <bits/uClibc_mutex.h>

@@ -146,7 +146,7 @@ static const struct xdr_discrim reply_dscrm[3] =
 /*
  * XDR a reply message
  */
-libc_hidden_proto(xdr_replymsg)
+/* libc_hidden_proto(xdr_replymsg) */
 bool_t
 xdr_replymsg (XDR *xdrs, struct rpc_msg *rmsg)
 {

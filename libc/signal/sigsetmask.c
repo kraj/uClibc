@@ -20,7 +20,7 @@
 #include <errno.h>
 #include <signal.h>
 
-libc_hidden_proto(sigprocmask)
+/* libc_hidden_proto(sigprocmask) */
 
 #include "sigset-cvt-mask.h"
 

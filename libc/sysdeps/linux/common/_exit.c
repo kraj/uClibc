@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-libc_hidden_proto(_exit)
+/* libc_hidden_proto(_exit) */
 
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_exit (args)

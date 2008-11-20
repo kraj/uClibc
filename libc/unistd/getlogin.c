@@ -12,7 +12,7 @@
 
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strncpy) */
-libc_hidden_proto(getenv)
+/* libc_hidden_proto(getenv) */
 
 /* uClibc makes it policy to not mess with the utmp file whenever
  * possible, since I consider utmp a complete waste of time.  Since

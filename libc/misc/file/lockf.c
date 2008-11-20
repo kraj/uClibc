@@ -27,8 +27,8 @@
 libc_hidden_proto(lockf)
 
 /* Experimentally off - libc_hidden_proto(memset) */
-libc_hidden_proto(fcntl)
-libc_hidden_proto(getpid)
+/* libc_hidden_proto(fcntl) */
+/* libc_hidden_proto(getpid) */
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */
 

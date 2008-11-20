@@ -532,6 +532,7 @@ __END_NAMESPACE_C99
 __BEGIN_NAMESPACE_STD
 /* Return the value of envariable NAME, or NULL if it doesn't exist.  */
 extern char *getenv (__const char *__name) __THROW __nonnull ((1)) __wur;
+libc_hidden_proto(getenv)
 __END_NAMESPACE_STD
 
 /* This function is similar to the above but returns NULL if the

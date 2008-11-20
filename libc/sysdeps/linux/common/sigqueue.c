@@ -24,7 +24,7 @@
 #include <sys/syscall.h>
 #if defined __USE_POSIX199309
 
-libc_hidden_proto(getpid)
+/* libc_hidden_proto(getpid) */
 libc_hidden_proto(getuid)
 /* Experimentally off - libc_hidden_proto(memset) */
 

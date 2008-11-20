@@ -8,7 +8,7 @@
 #include <sys/types.h>
 
 
-libc_hidden_proto(getpid)
+/* libc_hidden_proto(getpid) */
 libc_hidden_proto(kill)
 
 int __raise (int signo)  attribute_hidden;

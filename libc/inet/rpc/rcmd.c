@@ -95,16 +95,16 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* Experimentally off - libc_hidden_proto(strncmp) */
 /* Experimentally off - libc_hidden_proto(memmove) */
-libc_hidden_proto(getpid)
-libc_hidden_proto(socket)
+/* libc_hidden_proto(getpid) */
+/* libc_hidden_proto(socket) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(fcntl)
-libc_hidden_proto(read)
-libc_hidden_proto(write)
-libc_hidden_proto(perror)
-libc_hidden_proto(lstat)
-libc_hidden_proto(fstat)
-libc_hidden_proto(tolower)
+/* libc_hidden_proto(fcntl) */
+/* libc_hidden_proto(read) */
+/* libc_hidden_proto(write) */
+/* libc_hidden_proto(perror) */
+/* libc_hidden_proto(lstat) */
+/* libc_hidden_proto(fstat) */
+/* libc_hidden_proto(tolower) */
 libc_hidden_proto(sysconf)
 libc_hidden_proto(getline)
 libc_hidden_proto(geteuid)
@@ -121,13 +121,13 @@ libc_hidden_proto(bind)
 libc_hidden_proto(connect)
 libc_hidden_proto(sigblock)
 libc_hidden_proto(snprintf)
-libc_hidden_proto(poll)
+/* libc_hidden_proto(poll) */
 libc_hidden_proto(accept)
 libc_hidden_proto(listen)
 libc_hidden_proto(sigsetmask)
 libc_hidden_proto(getc_unlocked)
 libc_hidden_proto(__fgetc_unlocked)
-libc_hidden_proto(fopen)
+/* libc_hidden_proto(fopen) */
 /* libc_hidden_proto(fclose) */
 /* libc_hidden_proto(fprintf) */
 libc_hidden_proto(__h_errno_location)

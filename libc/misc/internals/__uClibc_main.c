@@ -38,7 +38,7 @@ libc_hidden_proto(getgid)
 libc_hidden_proto(getuid)
 libc_hidden_proto(getegid)
 libc_hidden_proto(geteuid)
-libc_hidden_proto(fstat)
+/* libc_hidden_proto(fstat) */
 /* libc_hidden_proto(abort) */
 
 extern __typeof(open) __libc_open;

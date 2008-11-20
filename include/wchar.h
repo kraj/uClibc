@@ -520,6 +520,7 @@ extern int fwide (__FILE *__fp, int __mode) __THROW;
 extern int fwprintf (__FILE *__restrict __stream,
 		     __const wchar_t *__restrict __format, ...)
      /* __attribute__ ((__format__ (__wprintf__, 2, 3))) */;
+libc_hidden_proto(fwprintf)
 /* Write formatted output to stdout.
 
    This function is a possible cancellation point and therefore not

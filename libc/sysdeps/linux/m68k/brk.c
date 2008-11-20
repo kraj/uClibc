@@ -9,7 +9,7 @@
 #include <sys/syscall.h>
 #include <errno.h>
 
-libc_hidden_proto(brk)
+/* libc_hidden_proto(brk) */
 
 /* This must be initialized data because commons can't have aliases.  */
 void * __curbrk = 0;

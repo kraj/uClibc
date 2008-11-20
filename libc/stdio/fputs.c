@@ -29,14 +29,14 @@ int fputs_unlocked(register const char * __restrict s,
 libc_hidden_def(fputs_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-libc_hidden_proto(fputs)
+/* libc_hidden_proto(fputs) */
 strong_alias(fputs_unlocked,fputs)
 libc_hidden_def(fputs)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-libc_hidden_proto(fputs)
+/* libc_hidden_proto(fputs) */
 int fputs(const char * __restrict s, register FILE * __restrict stream)
 {
 	int retval;

@@ -19,7 +19,7 @@
 #include <sys/timeb.h>
 #include <sys/time.h>
 
-libc_hidden_proto(gettimeofday)
+/* libc_hidden_proto(gettimeofday) */
 
 int ftime(struct timeb *timebuf)
 {

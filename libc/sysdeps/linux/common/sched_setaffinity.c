@@ -31,7 +31,7 @@
 #include <alloca.h>
 
 #if defined __NR_sched_setaffinity
-libc_hidden_proto(getpid)
+/* libc_hidden_proto(getpid) */
 
 #define __NR___syscall_sched_setaffinity __NR_sched_setaffinity
 static __inline__ _syscall3(int, __syscall_sched_setaffinity, __kernel_pid_t, pid,

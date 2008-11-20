@@ -22,7 +22,7 @@
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
 
-libc_hidden_proto(ioctl)
+/* libc_hidden_proto(ioctl) */
 
 libc_hidden_proto(tcsetattr)
 libc_hidden_proto(tcgetattr)

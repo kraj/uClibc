@@ -37,14 +37,14 @@ libc_hidden_proto(syslog)
 libc_hidden_proto(closelog)
 #endif
 
-libc_hidden_proto(sigaction)
+/* libc_hidden_proto(sigaction) */
 libc_hidden_proto(sigfillset)
 libc_hidden_proto(sigdelset)
-libc_hidden_proto(sigprocmask)
-libc_hidden_proto(write)
+/* libc_hidden_proto(sigprocmask) */
+/* libc_hidden_proto(write) */
 libc_hidden_proto(kill)
-libc_hidden_proto(getpid)
-libc_hidden_proto(_exit)
+/* libc_hidden_proto(getpid) */
+/* libc_hidden_proto(_exit) */
 
 static void block_signals(void)
 {

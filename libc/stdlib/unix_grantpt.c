@@ -40,10 +40,10 @@ libc_hidden_proto(chmod)
 libc_hidden_proto(chown)
 libc_hidden_proto(vfork)
 libc_hidden_proto(fork)
-libc_hidden_proto(stat)
+/* libc_hidden_proto(stat) */
 libc_hidden_proto(ptsname_r)
 libc_hidden_proto(execle)
-libc_hidden_proto(_exit)
+/* libc_hidden_proto(_exit) */
 
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
 #include <sys/syscall.h>

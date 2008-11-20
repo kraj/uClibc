@@ -22,8 +22,8 @@
 #include <signal.h>
 #include <string.h>	/* For the real memset prototype.  */
 
-libc_hidden_proto(sigaction)
-libc_hidden_proto(sigprocmask)
+/* libc_hidden_proto(sigaction) */
+/* libc_hidden_proto(sigprocmask) */
 
 /* Set the disposition for SIG.  */
 __sighandler_t sigset (int sig, __sighandler_t disp)

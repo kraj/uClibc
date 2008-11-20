@@ -20,7 +20,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
-libc_hidden_proto(ioctl)
+/* libc_hidden_proto(ioctl) */
 
 extern __typeof(tcdrain) __libc_tcdrain;
 /* Wait for pending output to be written on FD.  */

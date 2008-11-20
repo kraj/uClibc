@@ -17,9 +17,9 @@
 #include <string.h>
 #include <unistd.h>
 
-libc_hidden_proto(vfprintf)
+/* libc_hidden_proto(vfprintf) */
 /* libc_hidden_proto(fprintf) */
-libc_hidden_proto(_exit)
+/* libc_hidden_proto(_exit) */
 
 #include "malloc.h"
 #include "heap.h"

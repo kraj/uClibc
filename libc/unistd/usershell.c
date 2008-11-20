@@ -42,8 +42,8 @@
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
 
-libc_hidden_proto(fstat)
-libc_hidden_proto(fopen)
+/* libc_hidden_proto(fstat) */
+/* libc_hidden_proto(fopen) */
 /* libc_hidden_proto(fclose) */
 libc_hidden_proto(__fsetlocking)
 libc_hidden_proto(fileno)

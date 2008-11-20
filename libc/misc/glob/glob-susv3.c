@@ -58,7 +58,7 @@ libc_hidden_proto(stat64)
 # define struct_stat struct stat64
 #else
 libc_hidden_proto(readdir_r)
-libc_hidden_proto(stat)
+/* libc_hidden_proto(stat) */
 # define struct_stat struct stat
 #endif
 

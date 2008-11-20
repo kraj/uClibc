@@ -35,8 +35,8 @@
 /* Experimentally off - libc_hidden_proto(strchr) */
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(sprintf)
-libc_hidden_proto(tolower)
+/* libc_hidden_proto(sprintf) */
+/* libc_hidden_proto(tolower) */
 
 /*
  * WARNING: Don't even consider trying to compile this on a system where

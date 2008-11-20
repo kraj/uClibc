@@ -57,12 +57,12 @@ libc_hidden_proto(atoi)
 libc_hidden_proto(fnmatch)
 libc_hidden_proto(pipe)
 libc_hidden_proto(fork)
-libc_hidden_proto(open)
+/* libc_hidden_proto(open) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(read)
-libc_hidden_proto(getenv)
-libc_hidden_proto(getpid)
-libc_hidden_proto(sprintf)
+/* libc_hidden_proto(read) */
+/* libc_hidden_proto(getenv) */
+/* libc_hidden_proto(getpid) */
+/* libc_hidden_proto(sprintf) */
 /* libc_hidden_proto(fprintf) */
 /* libc_hidden_proto(abort) */
 libc_hidden_proto(glob)

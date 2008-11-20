@@ -39,7 +39,7 @@
 #include <features.h>
 #include "rpc_private.h"
 
-libc_hidden_proto(xdrmem_create)
+/* libc_hidden_proto(xdrmem_create) */
 libc_hidden_proto(xdr_opaque_auth)
 
 #define MAX_MARSHAL_SIZE 20

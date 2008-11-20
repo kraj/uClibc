@@ -23,12 +23,12 @@
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strdup) */
 /* Experimentally off - libc_hidden_proto(strncmp) */
-libc_hidden_proto(read)
-libc_hidden_proto(write)
-libc_hidden_proto(open)
-libc_hidden_proto(fcntl)
+/* libc_hidden_proto(read) */
+/* libc_hidden_proto(write) */
+/* libc_hidden_proto(open) */
+/* libc_hidden_proto(fcntl) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(lseek)
+/* libc_hidden_proto(lseek) */
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(utmplock, PTHREAD_MUTEX_INITIALIZER);

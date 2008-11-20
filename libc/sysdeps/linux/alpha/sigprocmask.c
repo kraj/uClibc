@@ -27,7 +27,7 @@
 
 static __inline__ _syscall2(int, osf_sigprocmask, int, how, unsigned long int, setval)
 
-libc_hidden_proto(sigprocmask)
+/* libc_hidden_proto(sigprocmask) */
 int
 sigprocmask (int how, const sigset_t *set, sigset_t *oset)
 {

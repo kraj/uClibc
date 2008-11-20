@@ -60,22 +60,22 @@
 #include <rpc/pmap_clnt.h>
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
-libc_hidden_proto(fwprintf)
+/* libc_hidden_proto(fwprintf) */
 #endif
 
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(socket)
+/* libc_hidden_proto(socket) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(getpid)
+/* libc_hidden_proto(getpid) */
 libc_hidden_proto(authnone_create)
 libc_hidden_proto(xdrrec_create)
 libc_hidden_proto(xdrrec_endofrecord)
 libc_hidden_proto(xdrrec_skiprecord)
 libc_hidden_proto(xdr_callhdr)
-libc_hidden_proto(xdr_replymsg)
+/* libc_hidden_proto(xdr_replymsg) */
 libc_hidden_proto(xdr_opaque_auth)
-libc_hidden_proto(xdrmem_create)
+/* libc_hidden_proto(xdrmem_create) */
 libc_hidden_proto(xdr_void)
 libc_hidden_proto(getegid)
 libc_hidden_proto(geteuid)
@@ -84,8 +84,8 @@ libc_hidden_proto(setsockopt)
 libc_hidden_proto(connect)
 libc_hidden_proto(recvmsg)
 libc_hidden_proto(sendmsg)
-libc_hidden_proto(poll)
-libc_hidden_proto(fputs)
+/* libc_hidden_proto(poll) */
+/* libc_hidden_proto(fputs) */
 libc_hidden_proto(__rpc_thread_createerr)
 
 extern u_long _create_xid (void) attribute_hidden;

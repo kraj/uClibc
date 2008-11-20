@@ -18,7 +18,7 @@
 
 #undef fstat64
 
-libc_hidden_proto(fstat)
+/* libc_hidden_proto(fstat) */
 
 #define __NR___syscall_fstat __NR_fstat
 static __inline__ _syscall2(int, __syscall_fstat, int, fd, struct kernel_stat *, buf)

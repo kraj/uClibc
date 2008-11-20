@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(read)
+/* libc_hidden_proto(read) */
 /* libc_hidden_proto(abort) */
 
 /* Given a reading stream without its end-of-file indicator set and

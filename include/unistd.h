@@ -297,6 +297,7 @@ extern int faccessat (int __fd, __const char *__file, int __type, int __flag)
    Return the new file position.  */
 #ifndef __USE_FILE_OFFSET64
 extern __off_t lseek (int __fd, __off_t __offset, int __whence) __THROW;
+libc_hidden_proto(lseek)
 #else
 # ifdef __REDIRECT_NTH
 extern __off64_t __REDIRECT_NTH (lseek,
@@ -324,12 +325,14 @@ libc_hidden_proto(close)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t read (int __fd, void *__buf, size_t __nbytes) __wur;
+libc_hidden_proto(read)
 
 /* Write N bytes of BUF to FD.  Return the number written, or -1.
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t write (int __fd, __const void *__buf, size_t __n) __wur;
+libc_hidden_proto(write)
 
 #ifdef __USE_UNIX98
 # ifndef __USE_FILE_OFFSET64
@@ -545,6 +548,7 @@ extern int nice (int __inc) __THROW __wur;
 
 /* Terminate program execution with the low-order 8 bits of STATUS.  */
 extern void _exit (int __status) __attribute__ ((__noreturn__));
+libc_hidden_proto(_exit)
 
 
 /* Get the `_PC_*' symbols for the NAME argument to `pathconf' and `fpathconf';
@@ -570,6 +574,7 @@ extern size_t confstr (int __name, char *__buf, size_t __len) __THROW;
 
 /* Get the process ID of the calling process.  */
 extern __pid_t getpid (void) __THROW;
+libc_hidden_proto(getpid)
 
 /* Get the process ID of the calling process's parent.  */
 extern __pid_t getppid (void) __THROW;
@@ -998,12 +1003,14 @@ extern int ftruncate64 (int __fd, __off64_t __length) __THROW __wur;
 /* Set the end of accessible data space (aka "the break") to ADDR.
    Returns zero on success and -1 for errors (with errno set).  */
 extern int brk (void *__addr) __THROW __wur;
+libc_hidden_proto(brk)
 
 /* Increase or decrease the end of accessible data space by DELTA bytes.
    If successful, returns the address the previous end of data space
    (i.e. the beginning of the new space, if DELTA > 0);
    returns (void *) -1 for errors (with errno set).  */
 extern void *sbrk (intptr_t __delta) __THROW;
+libc_hidden_proto(sbrk)
 #endif
 
 

@@ -37,9 +37,9 @@ libc_hidden_proto(execvp)
 /* Experimentally off - libc_hidden_proto(strchr) */
 /* Experimentally off - libc_hidden_proto(strlen) */
 libc_hidden_proto(execve)
-libc_hidden_proto(mmap)
+/* libc_hidden_proto(mmap) */
 libc_hidden_proto(munmap)
-libc_hidden_proto(getenv)
+/* libc_hidden_proto(getenv) */
 
 /**********************************************************************/
 #define EXEC_FUNC_COMMON 0

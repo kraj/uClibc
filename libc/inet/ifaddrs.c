@@ -39,7 +39,7 @@
 
 #include "netlinkaccess.h"
 
-libc_hidden_proto(socket)
+/* libc_hidden_proto(socket) */
 /* libc_hidden_proto(close) */
 /* Experimentally off - libc_hidden_proto(time) */
 libc_hidden_proto(sendto)

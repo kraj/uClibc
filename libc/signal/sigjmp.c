@@ -21,7 +21,7 @@
 #include <signal.h>
 #include <libc-internal.h>
 
-libc_hidden_proto(sigprocmask)
+/* libc_hidden_proto(sigprocmask) */
 
 /* This function is called by the `sigsetjmp' macro
    before doing a `__setjmp' on ENV[0].__jmpbuf.

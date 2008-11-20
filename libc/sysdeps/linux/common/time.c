@@ -16,7 +16,7 @@
 #ifdef __NR_time
 _syscall1(time_t, time, time_t *, t)
 #else
-libc_hidden_proto(gettimeofday)
+/* libc_hidden_proto(gettimeofday) */
 
 time_t time(time_t * t)
 {

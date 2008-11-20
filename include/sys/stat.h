@@ -206,10 +206,12 @@ __BEGIN_DECLS
 /* Get file attributes for FILE and put them in BUF.  */
 extern int stat (__const char *__restrict __file,
 		 struct stat *__restrict __buf) __THROW __nonnull ((1, 2));
+libc_hidden_proto(stat)
 
 /* Get file attributes for the file, device, pipe, or socket
    that file descriptor FD is open on and put them in BUF.  */
 extern int fstat (int __fd, struct stat *__buf) __THROW __nonnull ((2));
+libc_hidden_proto(fstat)
 #else
 # ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (stat, (__const char *__restrict __file,
@@ -258,6 +260,7 @@ extern int fstatat64 (int __fd, __const char *__restrict __file,
    If FILE is a symbolic link, do not follow it.  */
 extern int lstat (__const char *__restrict __file,
 		  struct stat *__restrict __buf) __THROW __nonnull ((1, 2));
+libc_hidden_proto(lstat)
 # else
 #  ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (lstat,

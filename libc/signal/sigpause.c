@@ -24,7 +24,7 @@
 #include <signal.h>
 #include <stddef.h>		/* For NULL.  */
 
-libc_hidden_proto(sigprocmask)
+/* libc_hidden_proto(sigprocmask) */
 libc_hidden_proto(sigdelset)
 libc_hidden_proto(sigsuspend)
 

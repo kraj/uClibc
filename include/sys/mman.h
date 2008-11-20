@@ -57,6 +57,7 @@ __BEGIN_DECLS
 #ifndef __USE_FILE_OFFSET64
 extern void *mmap (void *__addr, size_t __len, int __prot,
 		   int __flags, int __fd, __off_t __offset) __THROW;
+libc_hidden_proto(mmap)
 #else
 # ifdef __REDIRECT
 extern void * __REDIRECT (mmap,

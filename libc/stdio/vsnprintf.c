@@ -11,7 +11,7 @@
 libc_hidden_proto(vsnprintf)
 
 #ifdef __USE_OLD_VFPRINTF__
-libc_hidden_proto(vfprintf)
+/* libc_hidden_proto(vfprintf) */
 #endif
 
 #ifdef __UCLIBC_MJN3_ONLY__

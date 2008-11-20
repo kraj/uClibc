@@ -25,7 +25,7 @@
 #include <features.h>
 #include <libc-internal.h>
 
-libc_hidden_proto(socket)
+/* libc_hidden_proto(socket) */
 
 /* Return a socket of any type.  The socket can be used in subsequent
    ioctl calls to talk to the kernel.  */

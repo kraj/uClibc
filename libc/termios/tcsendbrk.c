@@ -22,7 +22,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
-libc_hidden_proto(ioctl)
+/* libc_hidden_proto(ioctl) */
 
 /* Send zero bits on FD.  */
 int

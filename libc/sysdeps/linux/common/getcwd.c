@@ -25,7 +25,7 @@ libc_hidden_proto(getpagesize)
 libc_hidden_proto(opendir)
 libc_hidden_proto(readdir)
 libc_hidden_proto(closedir)
-libc_hidden_proto(stat)
+/* libc_hidden_proto(stat) */
 
 #ifdef __NR_getcwd
 

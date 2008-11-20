@@ -77,7 +77,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Experimentally off - libc_hidden_proto(strchr) */
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(socket)
+/* libc_hidden_proto(socket) */
 /* libc_hidden_proto(close) */
 libc_hidden_proto(getservbyname_r)
 libc_hidden_proto(gethostbyname2_r)

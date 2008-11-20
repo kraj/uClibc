@@ -234,6 +234,7 @@ __BEGIN_NAMESPACE_STD
    marked with __THROW.  */
 extern FILE *fopen (__const char *__restrict __filename,
 		    __const char *__restrict __modes) __wur;
+libc_hidden_proto(fopen)
 /* Open a file, replacing an existing stream with it.
 
    This function is a possible cancellation point and therefore not
@@ -259,6 +260,7 @@ __END_NAMESPACE_STD
 #ifdef __USE_LARGEFILE64
 extern FILE *fopen64 (__const char *__restrict __filename,
 		      __const char *__restrict __modes) __wur;
+libc_hidden_proto(fopen64)
 extern FILE *freopen64 (__const char *__restrict __filename,
 			__const char *__restrict __modes,
 			FILE *__restrict __stream) __wur;
@@ -325,9 +327,11 @@ libc_hidden_proto(fprintf)
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int printf (__const char *__restrict __format, ...);
+libc_hidden_proto(printf)
 /* Write formatted output to S.  */
 extern int sprintf (char *__restrict __s,
 		    __const char *__restrict __format, ...) __THROW;
+libc_hidden_proto(sprintf)
 
 /* Write formatted output to S from argument list ARG.
 
@@ -335,6 +339,7 @@ extern int sprintf (char *__restrict __s,
    marked with __THROW.  */
 extern int vfprintf (FILE *__restrict __s, __const char *__restrict __format,
 		     __gnuc_va_list __arg);
+libc_hidden_proto(vfprintf)
 /* Write formatted output to stdout from argument list ARG.
 
    This function is a possible cancellation point and therefore not
@@ -533,6 +538,7 @@ __BEGIN_NAMESPACE_STD
    marked with __THROW.  */
 extern char *fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
      __wur;
+libc_hidden_proto(fgets)
 
 /* Get a newline-terminated string from stdin, removing the newline.
    DO NOT USE THIS FUNCTION!!  There is no limit on how much it will read.
@@ -592,6 +598,7 @@ __BEGIN_NAMESPACE_STD
    This function is a possible cancellation points and therefore not
    marked with __THROW.  */
 extern int fputs (__const char *__restrict __s, FILE *__restrict __stream);
+libc_hidden_proto(fputs)
 
 /* Write a string, followed by a newline, to stdout.
 
@@ -749,6 +756,7 @@ __BEGIN_NAMESPACE_STD
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern void perror (__const char *__s);
+libc_hidden_proto(perror)
 __END_NAMESPACE_STD
 
 #ifdef __UCLIBC_HAS_SYS_ERRLIST__

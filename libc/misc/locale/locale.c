@@ -66,7 +66,7 @@
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strncmp) */
 /* Experimentally off - libc_hidden_proto(strchr) */
-libc_hidden_proto(getenv)
+/* libc_hidden_proto(getenv) */
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 /* libc_hidden_proto(__C_ctype_toupper) */
 #endif

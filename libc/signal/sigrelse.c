@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <signal.h>
 
-libc_hidden_proto(sigprocmask)
+/* libc_hidden_proto(sigprocmask) */
 libc_hidden_proto(sigdelset)
 
 int sigrelse (int sig)

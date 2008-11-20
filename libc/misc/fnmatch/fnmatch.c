@@ -71,9 +71,9 @@
 /* libc_hidden_proto(__ctype_b) */
 /* libc_hidden_proto(__ctype_tolower) */
 #endif
-libc_hidden_proto(tolower)
+/* libc_hidden_proto(tolower) */
 libc_hidden_proto(fnmatch)
-libc_hidden_proto(getenv)
+/* libc_hidden_proto(getenv) */
 #endif
 
 /* For platform which support the ISO C amendement 1 functionality we

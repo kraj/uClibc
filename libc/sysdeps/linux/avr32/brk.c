@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-libc_hidden_proto(brk)
+/* libc_hidden_proto(brk) */
 
 void *__curbrk attribute_hidden = 0;
 

@@ -65,28 +65,28 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
 # include <wchar.h>
 #endif
 
-libc_hidden_proto(socket)
-libc_hidden_proto(read)
-libc_hidden_proto(write)
+/* libc_hidden_proto(socket) */
+/* libc_hidden_proto(read) */
+/* libc_hidden_proto(write) */
 /* libc_hidden_proto(close) */
 libc_hidden_proto(authnone_create)
 libc_hidden_proto(xdrrec_create)
 libc_hidden_proto(xdrrec_endofrecord)
 libc_hidden_proto(xdrrec_skiprecord)
 libc_hidden_proto(xdr_callhdr)
-libc_hidden_proto(xdr_replymsg)
+/* libc_hidden_proto(xdr_replymsg) */
 libc_hidden_proto(xdr_opaque_auth)
-libc_hidden_proto(xdrmem_create)
+/* libc_hidden_proto(xdrmem_create) */
 libc_hidden_proto(xdr_void)
 libc_hidden_proto(pmap_getport)
 libc_hidden_proto(_seterr_reply)
 libc_hidden_proto(connect)
 libc_hidden_proto(bindresvport)
-libc_hidden_proto(poll)
-libc_hidden_proto(fputs)
+/* libc_hidden_proto(poll) */
+/* libc_hidden_proto(fputs) */
 libc_hidden_proto(__rpc_thread_createerr)
 #ifdef USE_IN_LIBIO
-libc_hidden_proto(fwprintf)
+/* libc_hidden_proto(fwprintf) */
 #endif
 
 extern u_long _create_xid (void) attribute_hidden;

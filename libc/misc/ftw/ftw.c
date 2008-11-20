@@ -102,8 +102,8 @@ libc_hidden_proto(stat64)
 #endif
 libc_hidden_proto(closedir)
 /* Experimentally off - libc_hidden_proto(stpcpy) */
-libc_hidden_proto(lstat)
-libc_hidden_proto(stat)
+/* libc_hidden_proto(lstat) */
+/* libc_hidden_proto(stat) */
 
 #if ! _LIBC && !HAVE_DECL_STPCPY && !defined stpcpy
 char *stpcpy ();

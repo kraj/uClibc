@@ -22,7 +22,7 @@ Cambridge, MA 02139, USA.
 #include <unistd.h>
 #include <malloc.h>
 
-libc_hidden_proto(_exit)
+/* libc_hidden_proto(_exit) */
 libc_hidden_proto(__uc_malloc)
 libc_hidden_proto(__uc_malloc_failed)
 

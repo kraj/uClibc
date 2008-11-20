@@ -72,6 +72,7 @@ __BEGIN_DECLS
    __THROW.  */
 #ifndef __USE_FILE_OFFSET64
 extern int fcntl (int __fd, int __cmd, ...);
+libc_hidden_proto(fcntl)
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...), fcntl64);
@@ -91,6 +92,7 @@ extern int fcntl64 (int __fd, int __cmd, ...);
    __THROW.  */
 #ifndef __USE_FILE_OFFSET64
 extern int open (__const char *__file, int __oflag, ...) __nonnull ((1));
+libc_hidden_proto(open)
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (open, (__const char *__file, int __oflag, ...), open64)

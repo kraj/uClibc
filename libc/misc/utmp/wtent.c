@@ -19,11 +19,11 @@
 /* Experimentally off - libc_hidden_proto(strncpy) */
 libc_hidden_proto(updwtmp)
 #endif
-libc_hidden_proto(open)
-libc_hidden_proto(write)
+/* libc_hidden_proto(open) */
+/* libc_hidden_proto(write) */
 /* libc_hidden_proto(close) */
 libc_hidden_proto(lockf)
-libc_hidden_proto(gettimeofday)
+/* libc_hidden_proto(gettimeofday) */
 
 #if 0
 /* This is enabled in uClibc/libutil/logwtmp.c */

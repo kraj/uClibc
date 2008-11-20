@@ -167,12 +167,12 @@ libc_hidden_proto(localtime_r)
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* Experimentally off - libc_hidden_proto(strncpy) */
 /* libc_hidden_proto(sprintf) */
-libc_hidden_proto(open)
-libc_hidden_proto(read)
+/* libc_hidden_proto(open) */
+/* libc_hidden_proto(read) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(getenv)
+/* libc_hidden_proto(getenv) */
 libc_hidden_proto(tzset)
-libc_hidden_proto(gettimeofday)
+/* libc_hidden_proto(gettimeofday) */
 /* Experimentally off - libc_hidden_proto(strncasecmp) */
 libc_hidden_proto(strtol)
 libc_hidden_proto(strtoul)

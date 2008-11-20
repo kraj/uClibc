@@ -24,7 +24,7 @@
 
 libc_hidden_proto(tcsetattr)
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(ioctl)
+/* libc_hidden_proto(ioctl) */
 
 /* The difference here is that the termios structure used in the
    kernel is not the same as we use in the libc.  Therefore we must

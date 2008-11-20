@@ -48,7 +48,7 @@ int __libc_fcntl(int fd, int cmd, ...)
 }
 libc_hidden_def(__libc_fcntl)
 
-libc_hidden_proto(fcntl)
+/* libc_hidden_proto(fcntl) */
 weak_alias(__libc_fcntl,fcntl)
 libc_hidden_weak(fcntl)
 #if ! defined __NR_fcntl64 && defined __UCLIBC_HAS_LFS__

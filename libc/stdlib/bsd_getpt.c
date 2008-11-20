@@ -23,7 +23,7 @@
 #include <unistd.h>
 
 #if defined __USE_BSD
-libc_hidden_proto(open)
+/* libc_hidden_proto(open) */
 /* Experimentally off - libc_hidden_proto(mempcpy) */
 
 /* Prefix for master pseudo terminal nodes.  */

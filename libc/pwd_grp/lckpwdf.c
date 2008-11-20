@@ -29,12 +29,12 @@
 #include <shadow.h>
 
 /* Experimentally off - libc_hidden_proto(memset) */
-libc_hidden_proto(open)
-libc_hidden_proto(fcntl)
+/* libc_hidden_proto(open) */
+/* libc_hidden_proto(fcntl) */
 /* libc_hidden_proto(close) */
 libc_hidden_proto(sigfillset)
-libc_hidden_proto(sigaction)
-libc_hidden_proto(sigprocmask)
+/* libc_hidden_proto(sigaction) */
+/* libc_hidden_proto(sigprocmask) */
 libc_hidden_proto(sigaddset)
 libc_hidden_proto(sigemptyset)
 libc_hidden_proto(alarm)

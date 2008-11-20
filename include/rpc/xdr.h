@@ -357,6 +357,7 @@ extern bool_t xdr_netobj (XDR *__xdrs, struct netobj *__np) __THROW;
 /* XDR using memory buffers */
 extern void xdrmem_create (XDR *__xdrs, __const caddr_t __addr,
 			   u_int __size, enum xdr_op __xop) __THROW;
+libc_hidden_proto(xdrmem_create)
 
 /* XDR using stdio library */
 extern void xdrstdio_create (XDR *__xdrs, FILE *__file, enum xdr_op __xop)

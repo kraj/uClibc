@@ -26,6 +26,6 @@ __off_t __libc_lseek(int fildes, __off_t offset, int whence)
 #endif
 libc_hidden_def(__libc_lseek)
 
-libc_hidden_proto(lseek)
+/* libc_hidden_proto(lseek) */
 weak_alias(__libc_lseek,lseek)
 libc_hidden_weak(lseek)

@@ -246,6 +246,7 @@ extern int sigorset (sigset_t *__set, __const sigset_t *__left,
 /* Get and/or change the set of blocked signals.  */
 extern int sigprocmask (int __how, __const sigset_t *__restrict __set,
 			sigset_t *__restrict __oset) __THROW;
+libc_hidden_proto(sigprocmask)
 
 /* Change the set of blocked signals to SET,
    wait until a signal arrives, and restore the set of blocked signals.
@@ -257,6 +258,7 @@ extern int sigsuspend (__const sigset_t *__set) __nonnull ((1));
 /* Get and/or set the action for signal SIG.  */
 extern int sigaction (int __sig, __const struct sigaction *__restrict __act,
 		      struct sigaction *__restrict __oact) __THROW;
+libc_hidden_proto(sigaction)
 
 /* Put in SET all signals that are blocked and waiting to be delivered.  */
 extern int sigpending (sigset_t *__set) __THROW __nonnull ((1));

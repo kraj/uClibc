@@ -27,7 +27,7 @@
 
 libc_hidden_proto(lrand48_r)
 libc_hidden_proto(srand48_r)
-libc_hidden_proto(gettimeofday)
+/* libc_hidden_proto(gettimeofday) */
 
 /* The RPC code is not threadsafe, but new code should be threadsafe. */
 

@@ -27,12 +27,12 @@
 libc_hidden_proto(tcsetattr)
 libc_hidden_proto(tcgetattr)
 libc_hidden_proto(setvbuf)
-libc_hidden_proto(fopen)
+/* libc_hidden_proto(fopen) */
 /* libc_hidden_proto(fclose) */
 libc_hidden_proto(fileno)
 libc_hidden_proto(fflush)
-libc_hidden_proto(fgets)
-libc_hidden_proto(fputs)
+/* libc_hidden_proto(fgets) */
+/* libc_hidden_proto(fputs) */
 libc_hidden_proto(fputc)
 libc_hidden_proto(putc)
 libc_hidden_proto(__fputc_unlocked)

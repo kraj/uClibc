@@ -343,7 +343,7 @@ static const char u_spec[] = "%nbopxXudics";
 /* u_radix[i] <-> u_spec[i+2] for unsigned entries only */
 static const char u_radix[] = "\x02\x08\x10\x10\x10\x0a";
 
-libc_hidden_proto(vfprintf)
+/* libc_hidden_proto(vfprintf) */
 int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 			 va_list ap)
 {

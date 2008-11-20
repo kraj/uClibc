@@ -58,6 +58,7 @@ __BEGIN_DECLS
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int poll (struct pollfd *__fds, nfds_t __nfds, int __timeout);
+libc_hidden_proto(poll)
 
 #if defined __USE_GNU && defined __UCLIBC_LINUX_SPECIFIC__
 /* Like poll, but before waiting the threads signal mask is replaced

@@ -57,12 +57,12 @@
 # include <wchar.h>
 # include <libio/iolibio.h>
 # define fputs(s, f) _IO_fputs (s, f)
-libc_hidden_proto(fwprintf)
+/* libc_hidden_proto(fwprintf) */
 #endif
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(fputs)
-libc_hidden_proto(lseek)
+/* libc_hidden_proto(fputs) */
+/* libc_hidden_proto(lseek) */
 
 static bool_t xdrrec_getlong (XDR *, long *);
 static bool_t xdrrec_putlong (XDR *, const long *);

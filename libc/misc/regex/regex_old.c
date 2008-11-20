@@ -43,7 +43,7 @@
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(printf)
+/* libc_hidden_proto(printf) */
 /* libc_hidden_proto(abort) */
 #ifdef __USE_GNU
 /* Experimentally off - libc_hidden_proto(mempcpy) */

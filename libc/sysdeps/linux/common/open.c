@@ -37,7 +37,7 @@ int __libc_open(const char *file, int oflag, ...)
 }
 libc_hidden_def(__libc_open)
 
-libc_hidden_proto(open)
+/* libc_hidden_proto(open) */
 weak_alias(__libc_open,open)
 libc_hidden_weak(open)
 

@@ -23,7 +23,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 
-libc_hidden_proto(mmap)
+/* libc_hidden_proto(mmap) */
 
 #ifdef HIOS
 # define __SH_SYSCALL6_TRAPA 0x2E

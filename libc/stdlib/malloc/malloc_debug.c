@@ -17,9 +17,9 @@
 #include <stdarg.h>
 
 libc_hidden_proto(atoi)
-libc_hidden_proto(vfprintf)
+/* libc_hidden_proto(vfprintf) */
 libc_hidden_proto(putc)
-libc_hidden_proto(getenv)
+/* libc_hidden_proto(getenv) */
 
 #include "malloc.h"
 #include "heap.h"

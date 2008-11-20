@@ -25,8 +25,8 @@
 
 libc_hidden_proto(sleep)
 
-libc_hidden_proto(sigaction)
-libc_hidden_proto(sigprocmask)
+/* libc_hidden_proto(sigaction) */
+/* libc_hidden_proto(sigprocmask) */
 
 /* version perusing nanosleep */
 #if defined __UCLIBC_HAS_REALTIME__
@@ -118,7 +118,7 @@ unsigned int sleep (unsigned int seconds)
 }
 #endif
 #else /* __UCLIBC_HAS_REALTIME__ */
-libc_hidden_proto(sigaction)
+/* libc_hidden_proto(sigaction) */
 /* no nanosleep, use signals and alarm() */
 static void sleep_alarm_handler(int attribute_unused sig)
 {

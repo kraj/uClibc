@@ -32,7 +32,7 @@
 #include <netinet/if_ether.h>
 
 libc_hidden_proto(ether_ntoa_r)
-libc_hidden_proto(sprintf)
+/* libc_hidden_proto(sprintf) */
 #ifdef __UCLIBC_HAS_XLOCALE__
 /* libc_hidden_proto(__ctype_b_loc) */
 /* libc_hidden_proto(__ctype_tolower_loc) */

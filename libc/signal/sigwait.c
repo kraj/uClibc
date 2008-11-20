@@ -38,7 +38,7 @@ int __sigwait (const sigset_t *set, int *sig)
 #else /* __UCLIBC_HAS_REALTIME__ */
 /* variant without REALTIME extensions */
 libc_hidden_proto(sigfillset)
-libc_hidden_proto(sigaction)
+/* libc_hidden_proto(sigaction) */
 libc_hidden_proto(sigsuspend)
 
 static int was_sig; /* obviously not thread-safe */

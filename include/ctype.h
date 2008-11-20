@@ -175,9 +175,11 @@ __exctype (isxdigit);
 
 /* Return the lowercase version of C.  */
 extern int tolower (int __c) __THROW;
+libc_hidden_proto(tolower)
 
 /* Return the uppercase version of C.  */
 extern int toupper (int __c) __THROW;
+libc_hidden_proto(toupper)
 
 __END_NAMESPACE_STD
 

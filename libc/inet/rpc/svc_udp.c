@@ -57,20 +57,20 @@ static char sccsid[] = "@(#)svc_udp.c 1.24 87/08/11 Copyr 1984 Sun Micro";
 # include <wchar.h>
 # include <libio/iolibio.h>
 # define fputs(s, f) _IO_fputs (s, f)
-libc_hidden_proto(fwprintf)
+/* libc_hidden_proto(fwprintf) */
 #endif
 
 /* Experimentally off - libc_hidden_proto(memcmp) */
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* Experimentally off - libc_hidden_proto(memset) */
-libc_hidden_proto(perror)
-libc_hidden_proto(socket)
+/* libc_hidden_proto(perror) */
+/* libc_hidden_proto(socket) */
 /* libc_hidden_proto(close) */
 libc_hidden_proto(xprt_register)
 libc_hidden_proto(xprt_unregister)
-libc_hidden_proto(xdrmem_create)
+/* libc_hidden_proto(xdrmem_create) */
 libc_hidden_proto(xdr_callmsg)
-libc_hidden_proto(xdr_replymsg)
+/* libc_hidden_proto(xdr_replymsg) */
 libc_hidden_proto(getsockname)
 libc_hidden_proto(setsockopt)
 libc_hidden_proto(bind)
@@ -79,7 +79,7 @@ libc_hidden_proto(recvfrom)
 libc_hidden_proto(sendto)
 libc_hidden_proto(recvmsg)
 libc_hidden_proto(sendmsg)
-libc_hidden_proto(fputs)
+/* libc_hidden_proto(fputs) */
 /* libc_hidden_proto(fprintf) */
 
 #define rpc_buffer(xprt) ((xprt)->xp_p1)

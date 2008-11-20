@@ -33,7 +33,7 @@ libc_hidden_proto(tolower_l)
 #if !defined __UCLIBC_HAS_XLOCALE__ && defined __UCLIBC_HAS_CTYPE_TABLES__
 /* libc_hidden_proto(__ctype_tolower) */
 #endif
-libc_hidden_proto(tolower)
+/* libc_hidden_proto(tolower) */
 #  define TOLOWER(C) tolower((C))
 # endif
 #endif

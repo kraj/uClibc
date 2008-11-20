@@ -11,7 +11,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
-libc_hidden_proto(_exit)
+/* libc_hidden_proto(_exit) */
 libc_hidden_proto(wait4)
 libc_hidden_proto(execl)
 libc_hidden_proto(signal)

@@ -22,7 +22,7 @@
 #include <signal.h>
 #include <string.h>	/* For the real memset prototype.  */
 
-libc_hidden_proto(sigaction)
+/* libc_hidden_proto(sigaction) */
 
 sigset_t _sigintr attribute_hidden;		/* Set by siginterrupt.  */
 

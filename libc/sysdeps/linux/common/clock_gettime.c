@@ -15,7 +15,7 @@
 #ifdef __NR_clock_gettime
 _syscall2(int, clock_gettime, clockid_t, clock_id, struct timespec*, tp)
 #else
-libc_hidden_proto(gettimeofday)
+/* libc_hidden_proto(gettimeofday) */
 
 int clock_gettime(clockid_t clock_id, struct timespec* tp)
 {

@@ -53,11 +53,11 @@ static char sccsid[] = "@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
 
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(sprintf)
+/* libc_hidden_proto(sprintf) */
 libc_hidden_proto(__glibc_strerror_r)
-libc_hidden_proto(fputs)
+/* libc_hidden_proto(fputs) */
 #ifdef USE_IN_LIBIO
-libc_hidden_proto(fwprintf)
+/* libc_hidden_proto(fwprintf) */
 #endif
 
 static char *auth_errmsg (enum auth_stat stat) internal_function;

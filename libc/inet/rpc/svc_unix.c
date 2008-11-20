@@ -58,16 +58,16 @@
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* Experimentally off - libc_hidden_proto(memset) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(socket)
+/* libc_hidden_proto(socket) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(perror)
-libc_hidden_proto(getpid)
+/* libc_hidden_proto(perror) */
+/* libc_hidden_proto(getpid) */
 libc_hidden_proto(xdrrec_create)
 libc_hidden_proto(xdrrec_endofrecord)
 libc_hidden_proto(xdrrec_skiprecord)
 libc_hidden_proto(xdrrec_eof)
 libc_hidden_proto(xdr_callmsg)
-libc_hidden_proto(xdr_replymsg)
+/* libc_hidden_proto(xdr_replymsg) */
 libc_hidden_proto(xprt_register)
 libc_hidden_proto(xprt_unregister)
 libc_hidden_proto(getegid)
@@ -77,10 +77,10 @@ libc_hidden_proto(setsockopt)
 libc_hidden_proto(bind)
 libc_hidden_proto(recvmsg)
 libc_hidden_proto(sendmsg)
-libc_hidden_proto(poll)
+/* libc_hidden_proto(poll) */
 libc_hidden_proto(accept)
 libc_hidden_proto(listen)
-libc_hidden_proto(fputs)
+/* libc_hidden_proto(fputs) */
 /* libc_hidden_proto(abort) */
 
 /*

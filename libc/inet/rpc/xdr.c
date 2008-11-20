@@ -53,11 +53,11 @@ static char sccsid[] = "@(#)xdr.c 1.35 87/08/12";
 
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
-libc_hidden_proto(fwprintf)
+/* libc_hidden_proto(fwprintf) */
 #endif
 
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(fputs)
+/* libc_hidden_proto(fputs) */
 
 /*
  * constants specific to the xdr "protocol"

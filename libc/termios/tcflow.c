@@ -21,7 +21,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
-libc_hidden_proto(ioctl)
+/* libc_hidden_proto(ioctl) */
 
 /* Suspend or restart transmission on FD.  */
 int tcflow (int fd, int action)
