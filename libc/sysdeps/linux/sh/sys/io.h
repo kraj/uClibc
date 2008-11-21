@@ -28,6 +28,7 @@ __BEGIN_DECLS
    permission off for that range.  This call requires root privileges.  */
 extern int ioperm (unsigned long int __from, unsigned long int __num,
 		   int __turn_on) __THROW;
+libc_hidden_proto(ioperm)
 
 /* Set the I/O privilege level to LEVEL.  If LEVEL is nonzero,
    permission to access any I/O port is granted.  This call requires

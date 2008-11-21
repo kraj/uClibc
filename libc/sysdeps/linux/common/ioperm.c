@@ -8,8 +8,13 @@
  */
 
 #include <sys/syscall.h>
+
 #if defined __ARCH_USE_MMU__ && defined __NR_ioperm
+
 /* psm: can't #include <sys/io.h>, some archs miss it */
 extern int ioperm(unsigned long __from, unsigned long __num, int __turn_on) __THROW;
+libc_hidden_proto(ioperm)
+
 _syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on)
+
 #endif
