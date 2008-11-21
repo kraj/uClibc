@@ -1248,7 +1248,7 @@ const unsigned char __iconv_codesets[] =
 	"\x08\xec""UCS-4\x00"		/* always BE */
 	"\x0a\xec""UCS-4BE\x00"
 	"\x0a\xed""UCS-4LE\x00"
-	"\x09\fe4""UTF-32\x00"		/* platform endian with BOM */
+	"\x09\xe4""UTF-32\x00"		/* platform endian with BOM */
 	"\x0b\xe4""UTF-32BE\x00"
 	"\x0b\xe5""UTF-32LE\x00"
 	"\x08\xe2""UCS-2\x00"		/* always BE */
