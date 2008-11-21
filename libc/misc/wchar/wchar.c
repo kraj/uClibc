@@ -1238,10 +1238,10 @@ enum {
  *
  */
 
-//vda:TODO: make hidden
-
+/* Used externally only by iconv utility */
 extern const unsigned char __iconv_codesets[];
-/* libc_hidden_proto(__iconv_codesets) */
+libc_hidden_proto(__iconv_codesets)
+
 const unsigned char __iconv_codesets[] =
 	"\x0a\xe0""WCHAR_T\x00"		/* superset of UCS-4 but platform-endian */
 #if __BYTE_ORDER == __BIG_ENDIAN

@@ -468,11 +468,7 @@ libc_hidden_def(__ctype_toupper_loc)
 /**********************************************************************/
 #ifdef L___C_ctype_b
 
-//vda:TODO:make static
-
-extern const __ctype_mask_t __C_ctype_b_data[];
-libc_hidden_proto(__C_ctype_b_data)
-const __ctype_mask_t __C_ctype_b_data[] = {
+static const __ctype_mask_t __C_ctype_b_data[] = {
 #ifdef __UCLIBC_HAS_CTYPE_SIGNED__
 	/* -128  M-^@ */ 0,
 	/* -127  M-^A */ 0,
@@ -860,7 +856,6 @@ const __ctype_mask_t __C_ctype_b_data[] = {
 	/*  254  M-~  */ 0,
 	/*  255  M-^? */ 0
 };
-libc_hidden_data_def(__C_ctype_b_data)
 
 /* libc_hidden_proto(__C_ctype_b) */
 const __ctype_mask_t *__C_ctype_b = __C_ctype_b_data + __UCLIBC_CTYPE_B_TBL_OFFSET;

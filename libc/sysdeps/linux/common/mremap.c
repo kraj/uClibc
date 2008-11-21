@@ -12,7 +12,7 @@
 
 #ifdef __NR_mremap
 
-//vda:TODO: add comment and explain why??
+/* Why do we do this?! */
 
 #define mremap _hidemremap
 #include <sys/mman.h>
