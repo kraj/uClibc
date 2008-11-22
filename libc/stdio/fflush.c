@@ -27,7 +27,7 @@
 	(_stdio_user_locking != 2))
 
 #if defined(__UCLIBC_HAS_THREADS__) && defined(__STDIO_BUFFERS)
-void _stdio_openlist_dec_use(void)
+void attribute_hidden _stdio_openlist_dec_use(void)
 {
 	__STDIO_THREADLOCK_OPENLIST_DEL;
 	if ((_stdio_openlist_use_count == 1) && (_stdio_openlist_del_count > 0)) {
