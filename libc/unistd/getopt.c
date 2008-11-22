@@ -1180,6 +1180,7 @@ getopt (int argc, char *const *argv, const char *optstring)
 			   (int *) 0,
 			   0);
 }
+libc_hidden_def(getopt)
 
 int
 getopt_long (int argc, char *const *argv, const char *options,
