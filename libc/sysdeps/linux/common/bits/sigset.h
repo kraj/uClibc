@@ -101,8 +101,11 @@ typedef struct
    checking is done in the non __ versions.  */
 
 extern int __sigismember (__const __sigset_t *, int);
+libc_hidden_proto(__sigismember)
 extern int __sigaddset (__sigset_t *, int);
+libc_hidden_proto(__sigaddset)
 extern int __sigdelset (__sigset_t *, int);
+libc_hidden_proto(__sigdelset)
 
 # ifdef __USE_EXTERN_INLINES
 #  define __SIGSETFN(NAME, BODY, CONST)					      \

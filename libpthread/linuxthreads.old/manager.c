@@ -236,7 +236,7 @@ int attribute_noreturn __pthread_manager(void *arg)
 	/* Make gdb aware of new thread and gdb will restart the
 	   new thread when it is ready to handle the new thread. */
 	if (__pthread_threads_debug && __pthread_sig_debug > 0) {
-      PDEBUG("about to call raise(__pthread_sig_debug)\n");
+	  PDEBUG("about to call raise(__pthread_sig_debug)\n");
 	  raise(__pthread_sig_debug);
 	}
       case REQ_KICK:
@@ -349,8 +349,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
   if (attr != NULL && attr->__stackaddr_set)
     {
       /* The user provided a stack. */
-      new_thread =
-        (pthread_descr) ((long)(attr->__stackaddr) & -sizeof(void *)) - 1;
+      new_thread = (pthread_descr) ((long)(attr->__stackaddr) & -sizeof(void *)) - 1;
       new_thread_bottom = (char *) attr->__stackaddr - attr->__stacksize;
       guardaddr = NULL;
       guardsize = 0;
@@ -368,7 +367,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 #ifdef __ARCH_USE_MMU__
       stacksize = STACK_SIZE - pagesize;
       if (attr != NULL)
-        stacksize = MIN (stacksize, roundup(attr->__stacksize, pagesize));
+        stacksize = MIN(stacksize, roundup(attr->__stacksize, pagesize));
       /* Allocate space for stack and thread descriptor at default address */
       new_thread = default_new_thread;
       new_thread_bottom = (char *) (new_thread + 1) - stacksize;
@@ -394,7 +393,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
           /* Put a bad page at the bottom of the stack */
           guardsize = attr->__guardsize;
           guardaddr = (void *)new_thread_bottom - guardsize;
-          if (mmap ((caddr_t) guardaddr, guardsize, 0, MAP_FIXED, -1, 0)
+          if (mmap((caddr_t) guardaddr, guardsize, 0, MAP_FIXED, -1, 0)
               == MAP_FAILED)
             {
               /* We don't make this an error.  */
