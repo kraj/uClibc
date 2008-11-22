@@ -200,34 +200,34 @@
 
 # ifdef HAVE_ASM_SET_DIRECTIVE
 #  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .set C_SYMBOL_NAME (alias),C_SYMBOL_NAME (original) ASM_LINE_SEP	\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP		\
-  .set C_SYMBOL_DOT_NAME (alias),C_SYMBOL_DOT_NAME (original)
-#   define strong_data_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .set C_SYMBOL_NAME (alias),C_SYMBOL_NAME (original)
+#   define strong_alias(original, alias) \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)	ASM_LINE_SEP \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME(alias)		ASM_LINE_SEP \
+	.set	C_SYMBOL_DOT_NAME(alias),C_SYMBOL_DOT_NAME(original)
+#   define strong_data_alias(original, alias) \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
 #  else
-#   define strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .set C_SYMBOL_NAME (alias),C_SYMBOL_NAME (original)
+#   define strong_alias(original, alias) \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
 #   define strong_data_alias(original, alias) strong_alias(original, alias)
 #  endif
 # else
 #  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original) ASM_LINE_SEP		\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP		\
-  C_SYMBOL_DOT_NAME (alias) = C_SYMBOL_DOT_NAME (original)
-#   define strong_data_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original)
+#   define strong_alias(original, alias) \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)		ASM_LINE_SEP \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME(alias)		ASM_LINE_SEP \
+	C_SYMBOL_DOT_NAME(alias) = C_SYMBOL_DOT_NAME(original)
+#   define strong_data_alias(original, alias) \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)
 #  else
-#   define strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original)
+#   define strong_alias(original, alias) \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)
 #   define strong_data_alias(original, alias) strong_alias(original, alias)
 #  endif
 # endif
@@ -235,45 +235,45 @@
 # ifdef HAVE_WEAK_SYMBOLS
 #  ifdef HAVE_ASM_WEAKEXT_DIRECTIVE
 #   ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#    define weak_alias(original, alias)					\
-  .weakext C_SYMBOL_NAME (alias), C_SYMBOL_NAME (original) ASM_LINE_SEP \
-  .weakext C_SYMBOL_DOT_NAME (alias), C_SYMBOL_DOT_NAME (original)
+#    define weak_alias(original, alias) \
+	.weakext C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)	ASM_LINE_SEP \
+	.weakext C_SYMBOL_DOT_NAME(alias),C_SYMBOL_DOT_NAME(original)
 #   else
-#    define weak_alias(original, alias)					\
-  .weakext C_SYMBOL_NAME (alias), C_SYMBOL_NAME (original)
+#    define weak_alias(original, alias) \
+	.weakext C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
 #   endif
-#   define weak_extern(symbol)						\
-  .weakext C_SYMBOL_NAME (symbol)
+#   define weak_extern(symbol) \
+	.weakext C_SYMBOL_NAME(symbol)
 
 #  else /* ! HAVE_ASM_WEAKEXT_DIRECTIVE */
 
 #   ifdef HAVE_ASM_SET_DIRECTIVE
 #    ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#     define weak_alias(original, alias)				\
-  .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  .set C_SYMBOL_NAME (alias), C_SYMBOL_NAME (original) ASM_LINE_SEP	\
-  .weak C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP				\
-  .set C_SYMBOL_DOT_NAME (alias), C_SYMBOL_DOT_NAME (original)
+#     define weak_alias(original, alias) \
+	.weak	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
+	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)	ASM_LINE_SEP \
+	.weak	C_SYMBOL_DOT_NAME(alias)			ASM_LINE_SEP \
+	.set	C_SYMBOL_DOT_NAME(alias),C_SYMBOL_DOT_NAME(original)
 #    else
-#     define weak_alias(original, alias)				\
-  .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  .set C_SYMBOL_NAME (alias), C_SYMBOL_NAME (original)
+#     define weak_alias(original, alias) \
+	.weak	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
+	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
 #    endif
 #   else /* ! HAVE_ASM_SET_DIRECTIVE */
 #    ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#     define weak_alias(original, alias)				\
-  .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original) ASM_LINE_SEP		\
-  .weak C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP				\
-  C_SYMBOL_DOT_NAME (alias) = C_SYMBOL_DOT_NAME (original)
+#     define weak_alias(original, alias) \
+	.weak	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
+	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)		ASM_LINE_SEP \
+	.weak	C_SYMBOL_DOT_NAME(alias)			ASM_LINE_SEP \
+	C_SYMBOL_DOT_NAME(alias) = C_SYMBOL_DOT_NAME(original)
 #    else
-#     define weak_alias(original, alias)				\
-  .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original)
+#     define weak_alias(original, alias) \
+	.weak	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
+	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)
 #    endif
 #   endif
-#   define weak_extern(symbol)						\
-  .weak C_SYMBOL_NAME (symbol)
+#   define weak_extern(symbol) \
+	.weak	C_SYMBOL_NAME(symbol)
 
 #  endif /* ! HAVE_ASM_WEAKEXT_DIRECTIVE */
 
@@ -285,6 +285,7 @@
 
 #endif /* __ASSEMBLER__ */
 
+
 /* On some platforms we can make internal function calls (i.e., calls of
    functions not exported) a bit faster by using a different calling
    convention.  */
@@ -292,9 +293,11 @@
 # define internal_function	/* empty */
 #endif
 
+
 /* We want the .gnu.warning.SYMBOL section to be unallocated.  */
 #define __make_section_unallocated(section_string)	\
   __asm__ (".section " section_string "\n\t.previous");
+
 
 /* Tacking on "\n#APP\n\t#" to the section name makes gcc put it's bogus
    section attributes on what looks like a comment to the assembler.  */
@@ -303,6 +306,7 @@
 #else
 # define __sec_comment "\n#APP\n\t#"
 #endif
+
 
 /* When a reference to SYMBOL is encountered, the linker will emit a
    warning message MSG.  */
@@ -317,8 +321,7 @@
 #ifdef SHARED
 # define INTUSE(name) name##_internal
 # define INTDEF(name) strong_alias (name, name##_internal)
-# define INTVARDEF(name) \
-  _INTVARDEF (name, name##_internal)
+# define INTVARDEF(name) _INTVARDEF (name, name##_internal)
 # if defined HAVE_VISIBILITY_ATTRIBUTE
 #  define _INTVARDEF(name, aliasname) \
   extern __typeof (name) aliasname __attribute__ ((alias (#name), \
@@ -337,65 +340,61 @@
 # define INTVARDEF2(name, newname)
 #endif
 
+
 /* The following macros are used for PLT bypassing within libc.so
    (and if needed other libraries similarly).
-   First of all, you need to have the function prototyped somewhere,
-   say in foo/foo.h:
-
-   int foo (int __bar);
 
    If calls to foo within libc.so should always go to foo defined in libc.so,
    then in include/foo.h you add:
 
-   libc_hidden_proto (foo)
+   int foo(int __bar);
+   libc_hidden_proto(foo)
 
    line and after the foo function definition:
 
-   int foo (int __bar)
-   {
+   int foo(int __bar) {
      return __bar;
    }
-   libc_hidden_def (foo)
+   libc_hidden_def(foo)
 
    or
 
-   int foo (int __bar)
-   {
+   int foo(int __bar) {
      return __bar;
    }
-   libc_hidden_weak (foo)
+   libc_hidden_weak(foo)
 
-   Similarly for global data.  If references to foo within libc.so should
-   always go to foo defined in libc.so, then in include/foo.h you add:
+   Similarly for global data: if references to foo within libc.so
+   should always go to foo defined in libc.so, then in include/foo.h:
 
-   libc_hidden_proto (foo)
+   extern int foo;
+   libc_hidden_proto(foo)
 
-   line and after foo's definition:
+   and after foo's definition:
 
    int foo = INITIAL_FOO_VALUE;
-   libc_hidden_data_def (foo)
+   libc_hidden_data_def(foo)
 
    or
 
    int foo = INITIAL_FOO_VALUE;
-   libc_hidden_data_weak (foo)
+   libc_hidden_data_weak(foo)
 
    If foo is normally just an alias (strong or weak) to some other function,
    you should use the normal strong_alias first, then add libc_hidden_def
    or libc_hidden_weak:
 
-   int baz (int __bar)
-   {
+   int baz(int __bar) {
      return __bar;
    }
-   strong_alias (baz, foo)
-   libc_hidden_weak (foo)
+   strong_alias(baz, foo)
+   libc_hidden_weak(foo)
 
    If the function should be internal to multiple objects, say ld.so and
    libc.so, the best way is to use:
 
    #if !defined NOT_IN_libc || defined IS_IN_rtld
-   hidden_proto (foo)
+   hidden_proto(foo)
    #endif
 
    in include/foo.h and the normal macros at all function definitions
@@ -404,29 +403,47 @@
    If versioned_symbol macro is used to define foo,
    libc_hidden_ver macro should be used, as in:
 
-   int __real_foo (int __bar)
-   {
+   int __real_foo(int __bar) {
      return __bar;
    }
-   versioned_symbol (libc, __real_foo, foo, GLIBC_2_1);
-   libc_hidden_ver (__real_foo, foo)  */
+   versioned_symbol(libc, __real_foo, foo, GLIBC_2_1);
+   libc_hidden_ver(__real_foo, foo)
+ */
 
 /* uClibc specific (the above comment was copied from glibc):
- * a. when ppc64 will be supported, we need changes to support:
+ *
+ * when ppc64 will be supported, we need changes to support
  * strong_data_alias (used by asm hidden_data_def)
- * b. libc_hidden_proto(foo) should be added after the header having foo's prototype
- * or after extern foo... to all source files that should use the internal version
- * of foo within libc, even to the file defining foo itself, libc_hidden_def does
- * not hide __GI_foo itself, although the name suggests it (hiding is done exclusively
- * by libc_hidden_proto). The reasoning to have it after the header w/ foo's prototype is
- * to get first the __REDIRECT from original header and then create the __GI_foo alias
- * c. no versioning support, hidden[_data]_ver are noop
- * d. hidden_def() in asm is _hidden_strong_alias (not strong_alias) */
+ *
+ * no versioning support, hidden[_data]_ver are noop
+ *
+ * hidden_def() in asm is _hidden_strong_alias (not strong_alias)
+ *
+ * libc_hidden_proto(foo) should be added after declaration
+ * in the header, or after extern foo... in all source files
+ * (this is discouraged).
+ * libc_hidden_def does not hide __GI_foo itself, although the name
+ * suggests it (hiding is done exclusively by libc_hidden_proto).
 
-/* Arrange to hide uClibc internals */
-#if (defined __GNUC__ && \
-  (defined __GNUC_MINOR__ && ( __GNUC__ >= 3 && __GNUC_MINOR__ >= 3 ) \
-   || __GNUC__ >= 4)) || defined __ICC
+FIXME! - ?
+ * The reasoning to have it after the header w/ foo's prototype is
+ * to get first the __REDIRECT from original header and then create
+ * the __GI_foo alias
+
+ * Hunt for references which still go through PLT (example for x86):
+ * build shared lib, then disassemble it and search for <xxx@plt>:
+ * $ objdump -drx libuClibc-*.so >disasm.txt
+ * $ grep -F '@plt>:' disasm.txt
+ *
+ * In uclibc, malloc/free and related functions should be called
+ * through PLT (making it possible to use alternative malloc),
+ * and possibly some __pthread_xxx functions can be called through PLT
+ * (why?). The rest should not use PLT.
+ */
+
+#if (defined __GNUC__ && defined __GNUC_MINOR__ \
+	&& (( __GNUC__ >= 3 && __GNUC_MINOR__ >= 3) || __GNUC__ >= 4) \
+    ) || defined __ICC
 # define attribute_hidden __attribute__ ((visibility ("hidden")))
 # define __hidden_proto_hiddenattr(attrs...) __attribute__ ((visibility ("hidden"), ##attrs))
 #else
@@ -435,67 +452,69 @@
 #endif
 
 #if /*!defined STATIC &&*/ !defined __BCC__
+
 # ifndef __ASSEMBLER__
 #  define hidden_proto(name, attrs...) __hidden_proto (name, __GI_##name, ##attrs)
 #  define __hidden_proto(name, internal, attrs...) \
-   extern __typeof (name) name __asm__ (__hidden_asmname (#internal)) \
-   __hidden_proto_hiddenattr (attrs);
+	extern __typeof (name) name __asm__ (__hidden_asmname (#internal)) \
+	__hidden_proto_hiddenattr (attrs);
 #  define __hidden_asmname(name) __hidden_asmname1 (__USER_LABEL_PREFIX__, name)
 #  define __hidden_asmname1(prefix, name) __hidden_asmname2(prefix, name)
 #  define __hidden_asmname2(prefix, name) #prefix name
 #  define __hidden_ver1(local, internal, name) \
-   extern __typeof (name) __EI_##name __asm__(__hidden_asmname (#internal)); \
-   extern __typeof (name) __EI_##name __attribute__((alias (__hidden_asmname1 (,#local))))
+	extern __typeof (name) __EI_##name __asm__(__hidden_asmname (#internal)); \
+	extern __typeof (name) __EI_##name __attribute__((alias (__hidden_asmname1 (,#local))))
 #  define hidden_ver(local, name)	__hidden_ver1(local, __GI_##name, name);
 #  define hidden_data_ver(local, name)	hidden_ver(local, name)
 #  define hidden_def(name)		__hidden_ver1(__GI_##name, name, name);
 #  define hidden_data_def(name)		hidden_def(name)
-#  define hidden_weak(name)	\
+#  define hidden_weak(name) \
 	__hidden_ver1(__GI_##name, name, name) __attribute__((weak));
 #  define hidden_data_weak(name)	hidden_weak(name)
 
 # else /* __ASSEMBLER__ */
-# ifdef HAVE_ASM_SET_DIRECTIVE
-#  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define _hidden_strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  .set C_SYMBOL_NAME (alias),C_SYMBOL_NAME (original) ASM_LINE_SEP	\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP			\
-  .set C_SYMBOL_DOT_NAME (alias),C_SYMBOL_DOT_NAME (original)
-#  else
-#   define _hidden_strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  .set C_SYMBOL_NAME (alias),C_SYMBOL_NAME (original)
+
+#  ifdef HAVE_ASM_SET_DIRECTIVE
+#   ifdef HAVE_ASM_GLOBAL_DOT_NAME
+#    define _hidden_strong_alias(original, alias) \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias) 		ASM_LINE_SEP \
+	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
+	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)	ASM_LINE_SEP \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME(alias)		ASM_LINE_SEP \
+	.hidden	C_SYMBOL_DOT_NAME(alias)			ASM_LINE_SEP \
+	.set	C_SYMBOL_DOT_NAME(alias),C_SYMBOL_DOT_NAME(original)
+#   else
+#    define _hidden_strong_alias(original, alias) \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
+	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
+#   endif
+#  else /* dont have .set directive */
+#   ifdef HAVE_ASM_GLOBAL_DOT_NAME
+#    define _hidden_strong_alias(original, alias) \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
+	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)		ASM_LINE_SEP \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME(alias)		ASM_LINE_SEP \
+	.hidden	C_SYMBOL_DOT_NAME(alias)			ASM_LINE_SEP \
+	C_SYMBOL_DOT_NAME(alias) = C_SYMBOL_DOT_NAME(original)
+#   else
+#    define _hidden_strong_alias(original, alias) \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
+	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)
+#   endif
 #  endif
-# else
-#  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define _hidden_strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original) ASM_LINE_SEP		\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP			\
-  C_SYMBOL_DOT_NAME (alias) = C_SYMBOL_DOT_NAME (original)
-#  else
-#   define _hidden_strong_alias(original, alias)				\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (alias) ASM_LINE_SEP		\
-  .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-  C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original)
-#  endif
-# endif
 
 #  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define _hidden_weak_alias(original, alias)				\
-     .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-     .hidden C_SYMBOL_DOT_NAME (alias) ASM_LINE_SEP			\
-     weak_alias(original, alias)
+#   define _hidden_weak_alias(original, alias) \
+	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
+	.hidden	C_SYMBOL_DOT_NAME(alias)			ASM_LINE_SEP \
+	weak_alias(original, alias)
 #  else
-#   define _hidden_weak_alias(original, alias)				\
-     .hidden C_SYMBOL_NAME (alias) ASM_LINE_SEP				\
-     weak_alias(original, alias)
+#   define _hidden_weak_alias(original, alias) \
+	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
+	weak_alias(original, alias)
 #  endif
 
 /* For assembly, we need to do the opposite of what we do in C:
@@ -519,19 +538,23 @@
 #   define HIDDEN_JUMPTARGET(name) __GI_##name
 #  endif
 # endif /* __ASSEMBLER__ */
-#else /* SHARED */
+
+#else /* not SHARED */
+
 # ifndef __ASSEMBLER__
 #  define hidden_proto(name, attrs...)
 # else
 #  define HIDDEN_JUMPTARGET(name) name
-# endif /* Not  __ASSEMBLER__ */
+# endif /* not __ASSEMBLER__ */
 # define hidden_weak(name)
 # define hidden_def(name)
 # define hidden_ver(local, name)
 # define hidden_data_weak(name)
 # define hidden_data_def(name)
 # define hidden_data_ver(local, name)
-#endif /* SHARED */
+
+#endif /* SHARED / not SHARED */
+
 
 /* uClibc does not support versioning yet. */
 #define versioned_symbol(lib, local, symbol, version) /* weak_alias(local, symbol) */
