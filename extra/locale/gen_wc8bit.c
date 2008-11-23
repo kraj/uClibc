@@ -219,8 +219,8 @@ int main(int argc, char **argv)
 			fprintf(out, "\t{ /* %.*s */", n, s0);
 		}
 
-		memset(&csd[numsets],sizeof(charset_data),0);
-		memset(xi, sizeof(xi), 0);
+		memset(&csd[numsets], 0, sizeof(charset_data));
+		memset(xi, 0, sizeof(xi));
 		{
 			unsigned long c, wc;
 			int lines;
