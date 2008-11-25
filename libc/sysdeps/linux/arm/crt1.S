@@ -238,7 +238,11 @@ _start:
 
 #ifdef __PIC__
 .L_GOT:
+#ifdef __thumb__
+	.word	_GLOBAL_OFFSET_TABLE_-(.L_GOT_OFF+4)
+#else /* __thumb2__ */
 	.word	_GLOBAL_OFFSET_TABLE_-(.L_GOT_OFF+8)
+#endif
 	.word _fini(GOT)
 	.word _init(GOT)
 	.word main(GOT)
