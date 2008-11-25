@@ -18,12 +18,12 @@ ARCH_OBJS := $(ARCH_COBJ) $(ARCH_SOBJ)
 crt-y          := FORCE
 libc-y         += $(ARCH_OBJS)
 libc-nomulti-y += $(ARCH_SOBJ)
-objclean-y     += arch_objclean
+objclean-y     += arch_clean
 
 CFLAGS-crti.S+=$(PICFLAG)
 CFLAGS-crtn.S+=$(PICFLAG)
 
-arch_objclean:
+arch_clean:
 	$(do_rm) $(addprefix $(ARCH_OUT)/*., o os oS) $(CTOR_TARGETS) $(CRTS)
 
 ifneq ($(ARCH_HEADERS),)

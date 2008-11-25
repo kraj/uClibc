@@ -14,7 +14,7 @@ MISC_ELF_OBJ:=$(patsubst %.c,$(MISC_ELF_OUT)/%.o,$(libc_a_CSRC))
 libc-static-y += $(MISC_ELF_OBJ)
 libc-shared-y += $(MISC_ELF_OUT)/dl-iterate-phdr.oS
 
-objclean-y+= misc_elf_objclean
+objclean-y+= misc_elf_clean
 
-misc_elf_objclean:
-	$(RM) $(MISC_ELF_OUT)/*.{o,os,oS}
+misc_elf_clean:
+	$(do_rm) $(addprefix $(MISC_ELF_OUT)/*., o os oS)
