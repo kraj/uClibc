@@ -1747,9 +1747,12 @@ static const char vals[] = {
 #define DEFAULT_2007_RULES (vals + 38)
 
 /* Initialize to UTC. */
-int daylight = 0;
-long timezone = 0;
-char *tzname[2] = { (char *) UTC, (char *) (UTC-1) };
+int __daylight attribute_hidden = 0;
+weak_alias(__daylight, daylight)
+long __timezone attribute_hidden =  0;
+weak_alias(__timezone, timezone)
+char *__tzname[2] attribute_hidden = { (char *) UTC, (char *) (UTC-1) };
+weak_alias(__tzname, tzname)
 
 __UCLIBC_MUTEX_INIT(_time_tzlock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
@@ -2059,10 +2062,10 @@ SKIP_OFFSET:
 
 	memcpy(_time_tzinfo, new_rules, sizeof(new_rules));
 DONE:
-	tzname[0] = _time_tzinfo[0].tzname;
-	tzname[1] = _time_tzinfo[1].tzname;
-	daylight = !!_time_tzinfo[1].tzname[0];
-	timezone = _time_tzinfo[0].gmt_offset;
+	__tzname[0] = _time_tzinfo[0].tzname;
+	__tzname[1] = _time_tzinfo[1].tzname;
+	__daylight = !!_time_tzinfo[1].tzname[0];
+	__timezone = _time_tzinfo[0].gmt_offset;
 
 #if defined(__UCLIBC_HAS_TZ_FILE__) || defined(__UCLIBC_HAS_TZ_CACHING__)
 FAST_DONE:

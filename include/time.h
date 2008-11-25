@@ -288,8 +288,7 @@ extern char *ctime_r (__const time_t *__restrict __timer,
 
 
 /* Defined in localtime.c.  */
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning "mjn3 FIXME: __tzname, __daylight, and __timezone have a prototype but are not defined."
+#if 0
 extern char *__tzname[2];	/* Current timezone names.  */
 extern int __daylight;		/* If daylight-saving time is ever in use.  */
 extern long int __timezone;	/* Seconds west of UTC.  */
