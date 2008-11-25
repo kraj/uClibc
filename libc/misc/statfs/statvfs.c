@@ -35,7 +35,6 @@
 /* libc_hidden_proto(endmntent) */
 
 extern __typeof(statfs) __libc_statfs;
-libc_hidden_proto(__libc_statfs)
 /* libc_hidden_proto(stat) */
 
 /* libc_hidden_proto(statvfs) */

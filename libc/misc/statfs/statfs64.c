@@ -25,7 +25,6 @@
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 extern __typeof(statfs) __libc_statfs;
-libc_hidden_proto(__libc_statfs)
 
 /* Return information about the filesystem on which FILE resides.  */
 /* libc_hidden_proto(statfs64) */

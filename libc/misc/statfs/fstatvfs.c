@@ -48,7 +48,6 @@ extern int __REDIRECT_NTH (fstatfs, (int __fildes, struct statfs *__buf),
 #endif
 
 extern __typeof(fstatfs) __libc_fstatfs;
-libc_hidden_proto(__libc_fstatfs)
 /* libc_hidden_proto(fstat) */
 /* libc_hidden_proto(stat) */
 /* libc_hidden_proto(fstatvfs) */

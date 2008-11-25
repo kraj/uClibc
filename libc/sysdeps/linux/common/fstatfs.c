@@ -22,12 +22,10 @@ extern int __REDIRECT_NTH (fstatfs, (int __fildes, struct statfs *__buf),
 # endif
 #endif
 
-extern __typeof(fstatfs) __libc_fstatfs;
-libc_hidden_proto(__libc_fstatfs)
+extern __typeof(fstatfs) __libc_fstatfs attribute_hidden;
 #define __NR___libc_fstatfs __NR_fstatfs
 _syscall2(int, __libc_fstatfs, int, fd, struct statfs *, buf)
 
 #if defined __UCLIBC_LINUX_SPECIFIC__
-libc_hidden_def(__libc_fstatfs)
 weak_alias(__libc_fstatfs,fstatfs)
 #endif

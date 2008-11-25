@@ -32,7 +32,6 @@
 //#include <sys/statvfs.h>
 
 extern __typeof(statfs) __libc_statfs;
-libc_hidden_proto(__libc_statfs)
 /* libc_hidden_proto(stat) */
 
 

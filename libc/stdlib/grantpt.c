@@ -39,7 +39,6 @@ int __unix_grantpt (int fd);
    pseudo terminal in a safe way.  */
 static int pts_name (int fd, char **pts, size_t buf_len);
 extern __typeof(statfs) __libc_statfs;
-libc_hidden_proto(__libc_statfs)
 #endif
 
 /* Change the ownership and access permission of the slave pseudo

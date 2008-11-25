@@ -27,7 +27,6 @@
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 extern __typeof(fstatfs) __libc_fstatfs;
-libc_hidden_proto(__libc_fstatfs)
 
 /* Return information about the filesystem on which FD resides.  */
 /* libc_hidden_proto(fstatfs64) */

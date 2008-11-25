@@ -26,7 +26,6 @@
 #include <sys/statfs.h>
 
 extern __typeof(statfs) __libc_statfs;
-libc_hidden_proto(__libc_statfs)
 
 /* libc_hidden_proto(open) */
 /* libc_hidden_proto(close) */

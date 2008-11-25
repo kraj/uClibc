@@ -43,7 +43,6 @@ extern int fstatfs (int __fildes, struct statfs *__buf)
 #endif
 
 extern __typeof(fstatfs) __libc_fstatfs;
-libc_hidden_proto(__libc_fstatfs)
 
 /* The Linux kernel headers mention this as a kind of generic value.  */
 #define LINUX_LINK_MAX	127
