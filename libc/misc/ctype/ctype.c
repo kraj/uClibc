@@ -89,14 +89,17 @@
 #undef CTYPE_NAME
 #undef ISCTYPE
 #undef CTYPE_ALIAS
+#undef CTYPE_DEF
 #ifdef __UCLIBC_DO_XLOCALE
 #define CTYPE_NAME(X)  __is ## X ## _l
 #define ISCTYPE(C,F)   __isctype_l( C, F, locale_arg)
-#define CTYPE_ALIAS(NAME)    strong_alias( __is ## NAME ## _l , is ## NAME ## _l)
+#define CTYPE_ALIAS(NAME)   strong_alias( __is ## NAME ## _l , is ## NAME ## _l)
+#define CTYPE_DEF(NAME) libc_hidden_def(is ## NAME ## _l)
 #else
 #define CTYPE_NAME(X)  is ## X
 #define ISCTYPE(C,F)   __isctype( C, F )
 #define CTYPE_ALIAS(NAME)
+#define CTYPE_DEF(NAME) libc_hidden_def(is ## NAME)
 #endif
 
 
@@ -142,8 +145,8 @@ int CTYPE_NAME(NAME) (int c  __LOCALE_PARAM ) \
 { \
 	CTYPE_BODY(NAME,c,PASTE2(_IS,NAME)) \
 } \
+CTYPE_DEF(NAME) \
 CTYPE_ALIAS(NAME)
-
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
@@ -220,7 +223,7 @@ int CTYPE_NAME(digit) (int C   __LOCALE_PARAM)
 	return __isdigit_int(C);	/* C could be invalid. */
 #endif
 }
-
+CTYPE_DEF(digit)
 CTYPE_ALIAS(digit)
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
