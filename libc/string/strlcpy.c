@@ -59,5 +59,6 @@ libc_hidden_def(strxfrm)
 #else
 #ifndef __UCLIBC_HAS_LOCALE__
 strong_alias(__wcslcpy,wcsxfrm)
+libc_hidden_def(wcsxfrm)
 #endif
 #endif
