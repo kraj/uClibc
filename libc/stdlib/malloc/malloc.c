@@ -28,12 +28,12 @@
 HEAP_DECLARE_STATIC_FREE_AREA (initial_fa, 256);
 struct heap_free_area *__malloc_heap = HEAP_INIT_WITH_FA (initial_fa);
 #ifdef HEAP_USE_LOCKING
-malloc_mutex_t __malloc_heap_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t __malloc_heap_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #if defined(MALLOC_USE_LOCKING) && defined(MALLOC_USE_SBRK)
 /* A lock protecting our use of sbrk.  */
-malloc_mutex_t __malloc_sbrk_lock;
+pthread_mutex_t __malloc_sbrk_lock;
 #endif /* MALLOC_USE_LOCKING && MALLOC_USE_SBRK */
 
 
@@ -48,7 +48,7 @@ struct malloc_mmb *__malloc_mmapped_blocks = 0;
 HEAP_DECLARE_STATIC_FREE_AREA (initial_mmb_fa, 48); /* enough for 3 mmbs */
 struct heap_free_area *__malloc_mmb_heap = HEAP_INIT_WITH_FA (initial_mmb_fa);
 #ifdef HEAP_USE_LOCKING
-malloc_mutex_t __malloc_mmb_heap_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t __malloc_mmb_heap_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 #endif /* __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
 
@@ -61,7 +61,7 @@ malloc_mutex_t __malloc_mmb_heap_lock = PTHREAD_MUTEX_INITIALIZER;
 static void *
 __malloc_from_heap (size_t size, struct heap_free_area **heap
 #ifdef HEAP_USE_LOCKING
-		, malloc_mutex_t *heap_lock
+		, pthread_mutex_t *heap_lock
 #endif
 		)
 {
