@@ -47,6 +47,7 @@ struct tms
    Return the elapsed real time, or (clock_t) -1 for errors.
    All times are in CLK_TCKths of a second.  */
 extern clock_t times (struct tms *__buffer) __THROW;
+libc_hidden_proto(times)
 
 __END_DECLS
 

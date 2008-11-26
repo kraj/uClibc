@@ -33,6 +33,7 @@ __BEGIN_DECLS
 extern char *ether_ntoa (__const struct ether_addr *__addr) __THROW;
 extern char *ether_ntoa_r (__const struct ether_addr *__addr, char *__buf)
      __THROW;
+libc_hidden_proto(ether_ntoa_r)
 
 /* Convert ASCII string S to 48 bit Ethernet address.  */
 extern struct ether_addr *ether_aton (__const char *__asc) __THROW;

@@ -171,8 +171,11 @@ extern struct opaque_auth _null_auth;
  */
 extern AUTH *authunix_create (char *__machname, __uid_t __uid, __gid_t __gid,
 			      int __len, __gid_t *__aup_gids);
+libc_hidden_proto(authunix_create)
 extern AUTH *authunix_create_default (void);
+libc_hidden_proto(authunix_create_default)
 extern AUTH *authnone_create (void) __THROW;
+libc_hidden_proto(authnone_create)
 extern AUTH *authdes_create (const char *__servername, u_int __window,
 			     struct sockaddr *__syncaddr, des_block *__ckey)
      __THROW;
@@ -218,6 +221,7 @@ extern int key_get_conv (char *, des_block *);
  * XDR an opaque authentication struct.
  */
 extern bool_t xdr_opaque_auth (XDR *, struct opaque_auth *) __THROW;
+libc_hidden_proto(xdr_opaque_auth)
 
 __END_DECLS
 

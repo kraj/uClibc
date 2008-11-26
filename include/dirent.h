@@ -133,6 +133,7 @@ typedef struct __dirstream DIR;
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern DIR *opendir (__const char *__name) __nonnull ((1));
+libc_hidden_proto(opendir)
 
 /* Close the directory stream DIRP.
    Return 0 if successful, -1 if not.
@@ -140,6 +141,7 @@ extern DIR *opendir (__const char *__name) __nonnull ((1));
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int closedir (DIR *__dirp) __nonnull ((1));
+libc_hidden_proto(closedir)
 
 /* Read a directory entry from DIRP.  Return a pointer to a `struct
    dirent' describing the entry, or NULL for EOF or error.  The
@@ -153,6 +155,7 @@ extern int closedir (DIR *__dirp) __nonnull ((1));
    marked with __THROW.  */
 #ifndef __USE_FILE_OFFSET64
 extern struct dirent *readdir (DIR *__dirp) __nonnull ((1));
+libc_hidden_proto(readdir)
 #else
 # ifdef __REDIRECT
 extern struct dirent *__REDIRECT (readdir, (DIR *__dirp), readdir64)
@@ -164,6 +167,7 @@ extern struct dirent *__REDIRECT (readdir, (DIR *__dirp), readdir64)
 
 #ifdef __USE_LARGEFILE64
 extern struct dirent64 *readdir64 (DIR *__dirp) __nonnull ((1));
+libc_hidden_proto(readdir64)
 #endif
 
 #if defined __USE_POSIX || defined __USE_MISC
@@ -177,6 +181,7 @@ extern int readdir_r (DIR *__restrict __dirp,
 		      struct dirent *__restrict __entry,
 		      struct dirent **__restrict __result)
      __nonnull ((1, 2, 3));
+libc_hidden_proto(readdir_r)
 # else
 #  ifdef __REDIRECT
 extern int __REDIRECT (readdir_r,
@@ -194,6 +199,7 @@ extern int readdir64_r (DIR *__restrict __dirp,
 			struct dirent64 *__restrict __entry,
 			struct dirent64 **__restrict __result)
      __nonnull ((1, 2, 3));
+libc_hidden_proto(readdir64_r)
 # endif
 #endif	/* POSIX or misc */
 
@@ -214,6 +220,7 @@ extern long int telldir (DIR *__dirp) __THROW __nonnull ((1));
 
 /* Return the file descriptor used by DIRP.  */
 extern int dirfd (DIR *__dirp) __THROW __nonnull ((1));
+libc_hidden_proto(dirfd)
 
 # if 0 /* defined __OPTIMIZE__ && defined _DIR_dirfd */
 #  define dirfd(dirp)	_DIR_dirfd (dirp)

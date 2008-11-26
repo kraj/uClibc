@@ -64,6 +64,7 @@ extern "C" {
    returning zero if it matches, FNM_NOMATCH if not.  */
 extern int fnmatch (__const char *__pattern, __const char *__name,
 		    int __flags);
+libc_hidden_proto(fnmatch)
 
 #ifdef	__cplusplus
 }

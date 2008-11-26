@@ -307,6 +307,7 @@ __END_NAMESPACE_STD
    ERRNUM.  */
 extern int __xpg_strerror_r (int __errnum, char *__buf, size_t __buflen)
      __THROW __nonnull ((2));
+libc_hidden_proto(__xpg_strerror_r)
 #  ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (strerror_r,
 			   (int __errnum, char *__buf, size_t __buflen),
@@ -319,6 +320,7 @@ extern int __REDIRECT_NTH (strerror_r,
    used.  */
 extern char *__glibc_strerror_r (int __errnum, char *__buf, size_t __buflen)
      __THROW __nonnull ((2));
+libc_hidden_proto(__glibc_strerror_r)
 #  ifdef __REDIRECT_NTH
 extern char * __REDIRECT_NTH (strerror_r,
 			   (int __errnum, char *__buf, size_t __buflen),

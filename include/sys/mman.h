@@ -57,6 +57,7 @@ __BEGIN_DECLS
 #ifndef __USE_FILE_OFFSET64
 extern void *mmap (void *__addr, size_t __len, int __prot,
 		   int __flags, int __fd, __off_t __offset) __THROW;
+libc_hidden_proto(mmap)
 #else
 # ifdef __REDIRECT
 extern void * __REDIRECT (mmap,
@@ -75,6 +76,7 @@ extern void *mmap64 (void *__addr, size_t __len, int __prot,
 /* Deallocate any mapping for the region starting at ADDR and extending LEN
    bytes.  Returns 0 if successful, -1 for errors (and sets errno).  */
 extern int munmap (void *__addr, size_t __len) __THROW;
+libc_hidden_proto(munmap)
 
 /* Change the memory protection of the region starting at ADDR and
    extending LEN bytes to PROT.  Returns 0 if successful, -1 for errors
@@ -156,6 +158,7 @@ extern int mincore (void *__start, size_t __len, unsigned char *__vec)
    resides after a successful call.  */
 extern void *mremap (void *__addr, size_t __old_len, size_t __new_len,
 		     int __flags, ...) __THROW;
+libc_hidden_proto(mremap)
 
 #ifdef __UCLIBC_LINUX_SPECIFIC__
 /* Remap arbitrary pages of a shared backing store within an existing

@@ -51,10 +51,15 @@ struct rpcent
 };
 
 extern void setrpcent (int __stayopen) __THROW;
+libc_hidden_proto(setrpcent)
 extern void endrpcent (void) __THROW;
+libc_hidden_proto(endrpcent)
 extern struct rpcent *getrpcbyname (__const char *__name) __THROW;
+libc_hidden_proto(getrpcbyname)
 extern struct rpcent *getrpcbynumber (int __number) __THROW;
+libc_hidden_proto(getrpcbynumber)
 extern struct rpcent *getrpcent (void) __THROW;
+libc_hidden_proto(getrpcent)
 
 #if defined __USE_MISC && defined __UCLIBC_HAS_REENTRANT_RPC__
 extern int getrpcbyname_r (__const char *__name, struct rpcent *__result_buf,

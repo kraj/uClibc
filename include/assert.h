@@ -52,6 +52,7 @@ __BEGIN_DECLS
 
 /* This prints an "Assertion failed" message and aborts.  */
 extern void __assert __P((const char *, const char *, int, const char *));
+libc_hidden_proto(__assert)
 
 __END_DECLS
 

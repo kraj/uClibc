@@ -40,6 +40,7 @@ __BEGIN_DECLS
    One argument may follow; its presence and type depend on REQUEST.
    Return value depends on REQUEST.  Usually -1 indicates error.  */
 extern int ioctl (int __fd, unsigned long int __request, ...) __THROW;
+libc_hidden_proto(ioctl)
 
 __END_DECLS
 

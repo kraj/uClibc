@@ -171,6 +171,7 @@ struct rpc_msg {
  * 	struct rpc_msg *cmsg;
  */
 extern bool_t	xdr_callmsg (XDR *__xdrs, struct rpc_msg *__cmsg) __THROW;
+libc_hidden_proto(xdr_callmsg)
 
 /*
  * XDR routine to pre-serialize the static part of a rpc message.
@@ -179,6 +180,7 @@ extern bool_t	xdr_callmsg (XDR *__xdrs, struct rpc_msg *__cmsg) __THROW;
  * 	struct rpc_msg *cmsg;
  */
 extern bool_t	xdr_callhdr (XDR *__xdrs, struct rpc_msg *__cmsg) __THROW;
+libc_hidden_proto(xdr_callhdr)
 
 /*
  * XDR routine to handle a rpc reply.
@@ -187,6 +189,7 @@ extern bool_t	xdr_callhdr (XDR *__xdrs, struct rpc_msg *__cmsg) __THROW;
  * 	struct rpc_msg *rmsg;
  */
 extern bool_t	xdr_replymsg (XDR *__xdrs, struct rpc_msg *__rmsg) __THROW;
+libc_hidden_proto(xdr_replymsg)
 
 /*
  * Fills in the error part of a reply message.
@@ -196,6 +199,7 @@ extern bool_t	xdr_replymsg (XDR *__xdrs, struct rpc_msg *__rmsg) __THROW;
  */
 extern void	_seterr_reply (struct rpc_msg *__msg, struct rpc_err *__error)
      __THROW;
+libc_hidden_proto(_seterr_reply)
 
 __END_DECLS
 

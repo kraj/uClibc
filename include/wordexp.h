@@ -65,6 +65,7 @@ extern int wordexp (__const char *__restrict __words,
 
 /* Free the storage allocated by a `wordexp' call.  */
 extern void wordfree (wordexp_t *__wordexp) __THROW;
+libc_hidden_proto(wordfree)
 
 __END_DECLS
 

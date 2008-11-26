@@ -120,18 +120,22 @@ extern int putspent (__const struct spwd *__p, FILE *__stream);
    therefore not marked with __THROW.  */
 extern int getspent_r (struct spwd *__result_buf, char *__buffer,
 		       size_t __buflen, struct spwd **__result);
+libc_hidden_proto(getspent_r)
 
 extern int getspnam_r (__const char *__name, struct spwd *__result_buf,
 		       char *__buffer, size_t __buflen,
 		       struct spwd **__result);
+libc_hidden_proto(getspnam_r)
 
 extern int sgetspent_r (__const char *__string, struct spwd *__result_buf,
 			char *__buffer, size_t __buflen,
 			struct spwd **__result);
+libc_hidden_proto(sgetspent_r)
 
 extern int fgetspent_r (FILE *__stream, struct spwd *__result_buf,
 			char *__buffer, size_t __buflen,
 			struct spwd **__result);
+libc_hidden_proto(fgetspent_r)
 #endif	/* misc */
 
 

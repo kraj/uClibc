@@ -74,6 +74,7 @@ struct authunix_parms
 
 extern bool_t xdr_authunix_parms (XDR *__xdrs, struct authunix_parms *__p)
      __THROW;
+libc_hidden_proto(xdr_authunix_parms)
 
 /*
  * If a response verifier has flavor AUTH_SHORT,

@@ -118,6 +118,7 @@ __BEGIN_DECLS
 
 extern int __adjtimex (struct timex *__ntx) __THROW;
 extern int adjtimex (struct timex *__ntx) __THROW;
+libc_hidden_proto(adjtimex)
 
 #if defined __UCLIBC_NTP_LEGACY__
 extern int ntp_gettime (struct ntptimeval *__ntv) __THROW;

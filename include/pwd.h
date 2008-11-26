@@ -140,17 +140,20 @@ extern struct passwd *getpwnam (__const char *__name);
 extern int getpwent_r (struct passwd *__restrict __resultbuf,
 		       char *__restrict __buffer, size_t __buflen,
 		       struct passwd **__restrict __result);
+libc_hidden_proto(getpwent_r)
 # endif
 
 extern int getpwuid_r (__uid_t __uid,
 		       struct passwd *__restrict __resultbuf,
 		       char *__restrict __buffer, size_t __buflen,
 		       struct passwd **__restrict __result);
+libc_hidden_proto(getpwuid_r)
 
 extern int getpwnam_r (__const char *__restrict __name,
 		       struct passwd *__restrict __resultbuf,
 		       char *__restrict __buffer, size_t __buflen,
 		       struct passwd **__restrict __result);
+libc_hidden_proto(getpwnam_r)
 
 
 # ifdef	__USE_SVID
@@ -165,6 +168,7 @@ extern int fgetpwent_r (FILE *__restrict __stream,
 			struct passwd *__restrict __resultbuf,
 			char *__restrict __buffer, size_t __buflen,
 			struct passwd **__restrict __result);
+libc_hidden_proto(fgetpwent_r)
 # endif
 
 #endif	/* POSIX or reentrant */

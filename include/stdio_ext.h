@@ -81,6 +81,7 @@ extern void _flushlbf (void);
 
 /* Set locking status of stream FP to TYPE.  */
 extern int __fsetlocking (FILE *__fp, int __type) __THROW;
+libc_hidden_proto(__fsetlocking)
 
 __END_DECLS
 

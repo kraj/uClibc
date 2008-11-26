@@ -48,6 +48,7 @@ __BEGIN_DECLS
  */
 extern enum auth_stat _authenticate (struct svc_req *__rqst,
 				     struct rpc_msg *__msg) __THROW;
+libc_hidden_proto(_authenticate)
 
 __END_DECLS
 

@@ -603,6 +603,7 @@ enum
    it is usually in read-only memory and cannot be modified.  */
 
 extern char *nl_langinfo (nl_item __item) __THROW;
+libc_hidden_proto(nl_langinfo)
 
 
 #ifdef __UCLIBC_HAS_XLOCALE__
@@ -615,6 +616,7 @@ extern char *nl_langinfo (nl_item __item) __THROW;
 
 /* Just like nl_langinfo but get the information from the locale object L.  */
 extern char *nl_langinfo_l (nl_item __item, __locale_t l);
+libc_hidden_proto(nl_langinfo_l)
 #endif
 #endif
 

@@ -120,6 +120,7 @@ __BEGIN_NAMESPACE_C99
 /* Test for any wide character for which `iswalpha' or `iswdigit' is
    true.  */
 extern int iswalnum (wint_t __wc) __THROW;
+libc_hidden_proto(iswalnum)
 
 /* Test for any wide character for which `iswupper' or 'iswlower' is
    true, or any wide character that is one of a locale-specific set of
@@ -142,6 +143,7 @@ extern int iswgraph (wint_t __wc) __THROW;
    or is one of a locale-specific set of wide characters for which
    none of `iswcntrl', `iswdigit', `iswpunct', or `iswspace' is true.  */
 extern int iswlower (wint_t __wc) __THROW;
+libc_hidden_proto(iswlower)
 
 /* Test for any printing wide character.  */
 extern int iswprint (wint_t __wc) __THROW;
@@ -160,6 +162,7 @@ extern int iswspace (wint_t __wc) __THROW;
    or is one of a locale-specific set of wide character for which none
    of `iswcntrl', `iswdigit', `iswpunct', or `iswspace' is true.  */
 extern int iswupper (wint_t __wc) __THROW;
+libc_hidden_proto(iswspace)
 
 /* Test for any wide character that corresponds to a hexadecimal-digit
    character equivalent to that performed be the functions described
@@ -180,10 +183,12 @@ extern int iswblank (wint_t __wc) __THROW;
 /* Construct value that describes a class of wide characters identified
    by the string argument PROPERTY.  */
 extern wctype_t wctype (__const char *__property) __THROW;
+libc_hidden_proto(wctype)
 
 /* Determine whether the wide-character WC has the property described by
    DESC.  */
 extern int iswctype (wint_t __wc, wctype_t __desc) __THROW;
+libc_hidden_proto(iswctype)
 __END_NAMESPACE_C99
 
 
@@ -204,9 +209,11 @@ __USING_NAMESPACE_C99(wctrans_t)
 __BEGIN_NAMESPACE_C99
 /* Converts an uppercase letter to the corresponding lowercase letter.  */
 extern wint_t towlower (wint_t __wc) __THROW;
+libc_hidden_proto(towlower)
 
 /* Converts an lowercase letter to the corresponding uppercase letter.  */
 extern wint_t towupper (wint_t __wc) __THROW;
+libc_hidden_proto(towupper)
 __END_NAMESPACE_C99
 
 __END_DECLS
@@ -228,9 +235,11 @@ __BEGIN_NAMESPACE_C99
 /* Construct value that describes a mapping between wide characters
    identified by the string argument PROPERTY.  */
 extern wctrans_t wctrans (__const char *__property) __THROW;
+libc_hidden_proto(wctrans)
 
 /* Map the wide character WC using the mapping described by DESC.  */
 extern wint_t towctrans (wint_t __wc, wctrans_t __desc) __THROW;
+libc_hidden_proto(towctrans)
 __END_NAMESPACE_C99
 
 #if defined(__USE_GNU) && defined(__UCLIBC_HAS_XLOCALE__)
@@ -275,6 +284,7 @@ extern int iswpunct_l (wint_t __wc, __locale_t __locale) __THROW;
    set of wide characters for which none of `iswalnum', `iswgraph', or
    `iswpunct' is true.  */
 extern int iswspace_l (wint_t __wc, __locale_t __locale) __THROW;
+libc_hidden_proto(iswspace_l)
 
 /* Test for any wide character that corresponds to an uppercase letter
    or is one of a locale-specific set of wide character for which none
@@ -295,11 +305,13 @@ extern int iswblank_l (wint_t __wc, __locale_t __locale) __THROW;
    by the string argument PROPERTY.  */
 extern wctype_t wctype_l (__const char *__property, __locale_t __locale)
      __THROW;
+libc_hidden_proto(wctype_l)
 
 /* Determine whether the wide-character WC has the property described by
    DESC.  */
 extern int iswctype_l (wint_t __wc, wctype_t __desc, __locale_t __locale)
      __THROW;
+libc_hidden_proto(iswctype_l)
 
 
 /*
@@ -308,9 +320,11 @@ extern int iswctype_l (wint_t __wc, wctype_t __desc, __locale_t __locale)
 
 /* Converts an uppercase letter to the corresponding lowercase letter.  */
 extern wint_t towlower_l (wint_t __wc, __locale_t __locale) __THROW;
+libc_hidden_proto(towlower_l)
 
 /* Converts an lowercase letter to the corresponding uppercase letter.  */
 extern wint_t towupper_l (wint_t __wc, __locale_t __locale) __THROW;
+libc_hidden_proto(towupper_l)
 
 /* Construct value that describes a mapping between wide characters
    identified by the string argument PROPERTY.  */
@@ -320,6 +334,7 @@ extern wctrans_t wctrans_l (__const char *__property, __locale_t __locale)
 /* Map the wide character WC using the mapping described by DESC.  */
 extern wint_t towctrans_l (wint_t __wc, wctrans_t __desc,
 			   __locale_t __locale) __THROW;
+libc_hidden_proto(towctrans_l)
 
 # endif /* Use GNU.  */
 

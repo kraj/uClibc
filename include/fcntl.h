@@ -72,6 +72,7 @@ __BEGIN_DECLS
    __THROW.  */
 #ifndef __USE_FILE_OFFSET64
 extern int fcntl (int __fd, int __cmd, ...);
+libc_hidden_proto(fcntl)
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...), fcntl64);
@@ -86,6 +87,7 @@ extern int __fcntl_nocancel (int fd, int cmd, ...);
 
 #ifdef __USE_LARGEFILE64
 extern int fcntl64 (int __fd, int __cmd, ...);
+libc_hidden_proto(fcntl64)
 #endif
 
 /* Open FILE and return a new file descriptor for it, or -1 on error.
@@ -96,6 +98,7 @@ extern int fcntl64 (int __fd, int __cmd, ...);
    __THROW.  */
 #ifndef __USE_FILE_OFFSET64
 extern int open (__const char *__file, int __oflag, ...) __nonnull ((1));
+libc_hidden_proto(open)
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (open, (__const char *__file, int __oflag, ...), open64)
@@ -106,6 +109,7 @@ extern int __REDIRECT (open, (__const char *__file, int __oflag, ...), open64)
 #endif
 #ifdef __USE_LARGEFILE64
 extern int open64 (__const char *__file, int __oflag, ...) __nonnull ((1));
+libc_hidden_proto(open64)
 #endif
 
 #if 0 /*def __USE_GNU*/
@@ -170,6 +174,7 @@ extern int creat64 (__const char *__file, __mode_t __mode) __nonnull ((1));
 
 # ifndef __USE_FILE_OFFSET64
 extern int lockf (int __fd, int __cmd, __off_t __len);
+libc_hidden_proto(lockf)
 # else
 # ifdef __REDIRECT
 extern int __REDIRECT (lockf, (int __fd, int __cmd, __off64_t __len), lockf64);
@@ -179,6 +184,7 @@ extern int __REDIRECT (lockf, (int __fd, int __cmd, __off64_t __len), lockf64);
 # endif
 # ifdef __USE_LARGEFILE64
 extern int lockf64 (int __fd, int __cmd, __off64_t __len);
+libc_hidden_proto(lockf64)
 # endif
 #endif
 

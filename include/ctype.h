@@ -161,23 +161,36 @@ __BEGIN_NAMESPACE_STD
    which return nonzero iff C has CHARACTERISTIC.
    For the meaning of the characteristic names, see the `enum' above.  */
 __exctype (isalnum);
+libc_hidden_proto(isalnum)
 __exctype (isalpha);
+libc_hidden_proto(isalpha)
 __exctype (iscntrl);
+libc_hidden_proto(iscntrl)
 __exctype (isdigit);
+libc_hidden_proto(isdigit)
 __exctype (islower);
+libc_hidden_proto(islower)
 __exctype (isgraph);
+libc_hidden_proto(isgraph)
 __exctype (isprint);
+libc_hidden_proto(isprint)
 __exctype (ispunct);
+libc_hidden_proto(ispunct)
 __exctype (isspace);
+libc_hidden_proto(isspace)
 __exctype (isupper);
+libc_hidden_proto(isupper)
 __exctype (isxdigit);
+libc_hidden_proto(isxdigit)
 
 
 /* Return the lowercase version of C.  */
 extern int tolower (int __c) __THROW;
+libc_hidden_proto(tolower)
 
 /* Return the uppercase version of C.  */
 extern int toupper (int __c) __THROW;
+libc_hidden_proto(toupper)
 
 __END_NAMESPACE_STD
 
@@ -187,6 +200,7 @@ __END_NAMESPACE_STD
 __BEGIN_NAMESPACE_C99
 
 __exctype (isblank);
+libc_hidden_proto(isblank)
 
 __END_NAMESPACE_C99
 #endif
@@ -201,6 +215,7 @@ extern int isctype (int __c, int __mask) __THROW;
 /* Return nonzero iff C is in the ASCII set
    (i.e., is no more than 7 bits wide).  */
 extern int isascii (int __c) __THROW;
+libc_hidden_proto(isascii)
 
 /* Return the part of C that is in the ASCII set
    (i.e., the low-order 7 bits of C).  */
@@ -306,27 +321,39 @@ __NTH (toupper (int __c))
    which return nonzero iff C has CHARACTERISTIC.
    For the meaning of the characteristic names, see the `enum' above.  */
 __exctype_l (isalnum_l);
+libc_hidden_proto(isalnum_l)
 __exctype_l (isalpha_l);
+libc_hidden_proto(isalpha_l)
 __exctype_l (iscntrl_l);
+libc_hidden_proto(iscntrl_l)
 __exctype_l (isdigit_l);
+libc_hidden_proto(isdigit_l)
 __exctype_l (islower_l);
+libc_hidden_proto(islower_l)
 __exctype_l (isgraph_l);
+libc_hidden_proto(isgraph_l)
 __exctype_l (isprint_l);
+libc_hidden_proto(isprint_l)
 __exctype_l (ispunct_l);
+libc_hidden_proto(ispunct_l)
 __exctype_l (isspace_l);
+libc_hidden_proto(isspace_l)
 __exctype_l (isupper_l);
+libc_hidden_proto(isupper_l)
 __exctype_l (isxdigit_l);
-
+libc_hidden_proto(isxdigit_l)
 __exctype_l (isblank_l);
-
+libc_hidden_proto(isblank_l)
 
 /* Return the lowercase version of C in locale L.  */
 extern int __tolower_l (int __c, __locale_t __l) __THROW;
 extern int tolower_l (int __c, __locale_t __l) __THROW;
+libc_hidden_proto(tolower_l)
 
 /* Return the uppercase version of C.  */
 extern int __toupper_l (int __c, __locale_t __l) __THROW;
 extern int toupper_l (int __c, __locale_t __l) __THROW;
+libc_hidden_proto(toupper_l)
 
 # if __GNUC__ >= 2 && defined __OPTIMIZE__ && !defined __cplusplus
 #  define __tolower_l(c, locale) \

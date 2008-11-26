@@ -33,6 +33,7 @@ __BEGIN_DECLS
 /* Convert Internet host address from numbers-and-dots notation in CP
    into binary data in network byte order.  */
 extern in_addr_t inet_addr (__const char *__cp) __THROW;
+libc_hidden_proto(inet_addr)
 
 /* Return the local host address part of the Internet address in IN.  */
 extern in_addr_t inet_lnaof (struct in_addr __in) __THROW;
@@ -41,25 +42,31 @@ extern in_addr_t inet_lnaof (struct in_addr __in) __THROW;
    network number NET with the local address HOST.  */
 extern struct in_addr inet_makeaddr (in_addr_t __net, in_addr_t __host)
      __THROW;
+libc_hidden_proto(inet_makeaddr)
 
 /* Return network number part of the Internet address IN.  */
 extern in_addr_t inet_netof (struct in_addr __in) __THROW;
+libc_hidden_proto(inet_netof)
 
 /* Extract the network number in network byte order from the address
    in numbers-and-dots natation starting at CP.  */
 extern in_addr_t inet_network (__const char *__cp) __THROW;
+libc_hidden_proto(inet_network)
 
 /* Convert Internet number in IN to ASCII representation.  The return value
    is a pointer to an internal array containing the string.  */
 extern char *inet_ntoa (struct in_addr __in) __THROW;
+libc_hidden_proto(inet_ntoa)
 /* Recursion-safe flavor */
 extern char *inet_ntoa_r (struct in_addr __in, char *__buf) __THROW;
+libc_hidden_proto(inet_ntoa_r)
 
 /* Convert from presentation format of an Internet number in buffer
    starting at CP to the binary network format and store result for
    interface type AF in buffer starting at BUF.  */
 extern int inet_pton (int __af, __const char *__restrict __cp,
 		      void *__restrict __buf) __THROW;
+libc_hidden_proto(inet_pton)
 
 /* Convert a Internet address in binary network format for interface
    type AF in buffer starting at CP to presentation form and place
@@ -67,6 +74,7 @@ extern int inet_pton (int __af, __const char *__restrict __cp,
 extern __const char *inet_ntop (int __af, __const void *__restrict __cp,
 				char *__restrict __buf, socklen_t __len)
      __THROW;
+libc_hidden_proto(inet_ntop)
 
 
 /* The following functions are not part of XNS 5.2.  */
@@ -74,6 +82,7 @@ extern __const char *inet_ntop (int __af, __const void *__restrict __cp,
 /* Convert Internet host address from numbers-and-dots notation in CP
    into binary data and store the result in the structure INP.  */
 extern int inet_aton (__const char *__cp, struct in_addr *__inp) __THROW;
+libc_hidden_proto(inet_aton)
 
 /* Format a network number NET into presentation format and place result
    in buffer starting at BUF with length of LEN bytes.  */

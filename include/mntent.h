@@ -65,6 +65,7 @@ struct mntent
 /* Prepare to begin reading and/or writing mount table entries from the
    beginning of FILE.  MODE is as for `fopen'.  */
 extern FILE *setmntent (__const char *__file, __const char *__mode) __THROW;
+libc_hidden_proto(setmntent)
 
 /* Read one mount table entry from STREAM.  Returns a pointer to storage
    reused on the next call, or null for EOF or error (use feof/ferror to
@@ -77,6 +78,7 @@ extern struct mntent *getmntent_r (FILE *__restrict __stream,
 				   struct mntent *__restrict __result,
 				   char *__restrict __buffer,
 				   int __bufsize) __THROW;
+libc_hidden_proto(getmntent_r)
 #endif
 
 /* Write the mount table entry described by MNT to STREAM.
@@ -86,6 +88,7 @@ extern int addmntent (FILE *__restrict __stream,
 
 /* Close a stream opened with `setmntent'.  */
 extern int endmntent (FILE *__stream) __THROW;
+libc_hidden_proto(endmntent)
 
 /* Search MNT->mnt_opts for an option matching OPT.
    Returns the address of the substring, or null if none found.  */
