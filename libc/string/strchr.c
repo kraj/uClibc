@@ -13,8 +13,6 @@
 # define Wstrchr strchr
 #endif
 
-libc_hidden_proto(Wstrchr)
-
 Wchar *Wstrchr(register const Wchar *s, Wint c)
 {
 	do {

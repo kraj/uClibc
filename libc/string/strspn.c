@@ -13,8 +13,6 @@
 # define Wstrspn strspn
 #endif
 
-libc_hidden_proto(Wstrspn)
-
 size_t Wstrspn(const Wchar *s1, const Wchar *s2)
 {
 	register const Wchar *s = s1;

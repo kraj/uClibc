@@ -90,8 +90,8 @@
 /* libc_hidden_proto(wmemchr) */
 /* libc_hidden_proto(wmempcpy) */
 /* libc_hidden_proto(wcscat) */
-/*libc_hidden_proto(wcschr)*/
-/*libc_hidden_proto(wcschrnul)*/
+/* libc_hidden_proto(wcschr) */
+/* libc_hidden_proto(wcschrnul) */
 /* libc_hidden_proto(wcslen) */
 /* libc_hidden_proto(wcscoll) */
 /* libc_hidden_proto(towlower) */

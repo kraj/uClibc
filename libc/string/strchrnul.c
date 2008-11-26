@@ -15,8 +15,6 @@
 # define Wstrchrnul strchrnul
 #endif
 
-libc_hidden_proto(Wstrchrnul)
-
 Wchar *Wstrchrnul(register const Wchar *s, Wint c)
 {
 	--s;

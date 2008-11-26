@@ -13,8 +13,6 @@
 # define Wstrpbrk strpbrk
 #endif
 
-libc_hidden_proto(Wstrpbrk)
-
 Wchar *Wstrpbrk(const Wchar *s1, const Wchar *s2)
 {
 	register const Wchar *s;

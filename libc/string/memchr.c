@@ -13,8 +13,6 @@
 # define Wmemchr memchr
 #endif
 
-libc_hidden_proto(Wmemchr)
-
 Wvoid *Wmemchr(const Wvoid *s, Wint c, size_t n)
 {
 	register const Wuchar *r = (const Wuchar *) s;

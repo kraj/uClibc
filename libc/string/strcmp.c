@@ -15,8 +15,6 @@
 # define Wstrcoll strcoll
 #endif
 
-libc_hidden_proto(Wstrcmp)
-
 int Wstrcmp(register const Wchar *s1, register const Wchar *s2)
 {
 #ifdef WANT_WIDE
@@ -40,7 +38,6 @@ int Wstrcmp(register const Wchar *s1, register const Wchar *s2)
 libc_hidden_def(Wstrcmp)
 
 #ifndef __UCLIBC_HAS_LOCALE__
-libc_hidden_proto(Wstrcoll)
 strong_alias(Wstrcmp,Wstrcoll)
 libc_hidden_def(Wstrcoll)
 #endif
