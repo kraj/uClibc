@@ -18,9 +18,9 @@
 #define __UCLIBC_MUTEX_TYPE				pthread_mutex_t
 
 #define __UCLIBC_MUTEX(M)				pthread_mutex_t M
-#define __UCLIBC_MUTEX_INIT(M,I)		pthread_mutex_t M = I
-#define __UCLIBC_MUTEX_STATIC(M,I)		static pthread_mutex_t M = I
-#define __UCLIBC_MUTEX_EXTERN(M)		extern pthread_mutex_t M attribute_hidden
+#define __UCLIBC_MUTEX_INIT(M,I)			pthread_mutex_t M = I
+#define __UCLIBC_MUTEX_STATIC(M,I)			static pthread_mutex_t M = I
+#define __UCLIBC_MUTEX_EXTERN(M)			extern pthread_mutex_t M
 
 #define __UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE(M)								\
 		__pthread_mutex_lock(&(M))

@@ -30,7 +30,7 @@
 static void
 __free_to_heap (void *mem, struct heap_free_area **heap
 #ifdef HEAP_USE_LOCKING
-		, pthread_mutex_t *heap_lock
+		, malloc_mutex_t *heap_lock
 #endif
 	       )
 {
