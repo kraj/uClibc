@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * Various assmbly language/system dependent  hacks that are required
+ * Various assembly language/system dependent hacks that are required
  * so that we can minimize the amount of platform specific code.
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
@@ -148,3 +148,7 @@ elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 	} while (--relative_count);
 }
 #endif /* !_ARCH_DL_SYSDEP */
+
+#ifdef __ARM_EABI__
+#define DL_MALLOC_ALIGN 8	/* EABI needs 8 byte alignment for STRD LDRD */
+#endif

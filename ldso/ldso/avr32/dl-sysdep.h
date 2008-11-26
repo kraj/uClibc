@@ -24,15 +24,15 @@
 /* Initialization sequence for the application/library GOT. */
 #define INIT_GOT(GOT_BASE,MODULE)					\
 	do {								\
-		unsigned long i, nr_got;				\
+		unsigned long _i, _nr_got;				\
 									\
 		GOT_BASE[0] = (unsigned long) _dl_linux_resolve;	\
 		GOT_BASE[1] = (unsigned long) MODULE;			\
 									\
 		/* Add load address displacement to all GOT entries */	\
-		nr_got = MODULE->dynamic_info[DT_AVR32_GOTSZ_IDX] / 4;	\
-		for (i = 2; i < nr_got; i++)				\
-			GOT_BASE[i] += (unsigned long)MODULE->loadaddr;	\
+		_nr_got = MODULE->dynamic_info[DT_AVR32_GOTSZ_IDX] / 4;	\
+		for (_i = 2; _i < _nr_got; _i++)				\
+			GOT_BASE[_i] += (unsigned long)MODULE->loadaddr;	\
 	} while (0)
 
 #define do_rem(result, n, base)	((result) = (n) % (base))
@@ -60,7 +60,7 @@ unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got);
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
    first element of the GOT.  This must be inlined in a function which
    uses global data.  */
-static __inline__ Elf32_Addr
+static __always_inline Elf32_Addr
 elf_machine_dynamic (void)
 {
 	register Elf32_Addr *got __asm__("r6");
@@ -68,7 +68,7 @@ elf_machine_dynamic (void)
 }
 
 /* Return the run-time load address of the shared object.  */
-static __inline__ Elf32_Addr
+static __always_inline Elf32_Addr
 elf_machine_load_address (void)
 {
 	extern void __dl_start __asm__("_dl_start");
@@ -91,7 +91,7 @@ elf_machine_load_address (void)
  * Currently, we don't use that tag, but we might in the future as
  * this would reduce the startup time somewhat (although probably not by much).
  */
-static __inline__ void
+static __always_inline void
 elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
 {
