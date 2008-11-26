@@ -95,6 +95,7 @@ extern int result (FILE * fp, char res, const char *func, const char *loc,
 	for (loc = 0; strcmp (TST_HEAD (o_func).locale, TST_LOC_end); ++loc)
 
 
+#ifdef __UCLIBC_HAS_LOCALE__
 #define TST_HEAD_LOCALE(ofunc, s_func) \
   func_id = TST_HEAD (ofunc).func_id;					      \
   locale  = TST_HEAD (ofunc).locale;					      \
@@ -106,6 +107,29 @@ extern int result (FILE * fp, char res, const char *func, const char *loc,
       ++err_count;							      \
       continue;								      \
     }
+#else
+#define TST_HEAD_LOCALE(ofunc, s_func)					\
+  func_id = TST_HEAD (ofunc).func_id;					\
+  locale  = TST_HEAD (ofunc).locale;					\
+  if (strcmp(locale, "C") == 0)					\
+	{								\
+	if (setlocale (LC_ALL, locale) == NULL)						\
+		{									\
+		fprintf (stderr, "Warning : can't set locale: %s\nskipping ...\n",	\
+			locale);							\
+		result (fp, C_LOCALES, s_func, locale, 0, 0, 0, "can't set locale");	\
+		++err_count;						\
+		continue;						\
+		}							\
+	}								\
+  else									\
+  	{								\
+		fprintf (stderr, "Warning : locale %s unsupported\n\n",		\
+			locale);						\
+		result (fp, C_LOCALES, s_func, locale, 0, 0, 0, "unsupported");	\
+		continue;						      	\
+	}
+#endif
 
 #define TST_DO_REC(ofunc) \
 	for (rec=0; !TST_IS_LAST (ofunc); ++rec)
