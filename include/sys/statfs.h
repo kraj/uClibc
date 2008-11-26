@@ -46,7 +46,6 @@ extern int statfs64 (__const char *__file, struct statfs64 *__buf)
 libc_hidden_proto(statfs64)
 #endif
 
-#if defined __UCLIBC_LINUX_SPECIFIC__
 /* Return information about the filesystem containing the file FILDES
    refers to.  */
 #ifndef __USE_FILE_OFFSET64
@@ -65,7 +64,6 @@ extern int fstatfs64 (int __fildes, struct statfs64 *__buf)
      __THROW __nonnull ((2));
 libc_hidden_proto(fstatfs64)
 #endif
-#endif /* __UCLIBC_LINUX_SPECIFIC__ */
 
 __END_DECLS
 
