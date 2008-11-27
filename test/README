@@ -57,6 +57,7 @@ WRAPPER_foo   := execute stuff just before test
 
 Or to control all tests in a subdir:
 EXTRA_CLEAN   := extra files to remove in the clean target
+EXTRA_DIRS    := extra directories to remove in the clean target
 EXTRA_CFLAGS  := -DFOO
 EXTRA_LDFLAGS := -lpthread
 OPTS          := 
