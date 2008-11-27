@@ -22,7 +22,6 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 
 #include "bswap.h"
@@ -151,10 +150,10 @@ struct library {
 	char *path;
 	struct library *next;
 };
-struct library *lib_list = NULL;
-char not_found[] = "not found";
-char *interp_name = NULL;
-char *interp_dir = NULL;
+static struct library *lib_list = NULL;
+static char not_found[] = "not found";
+static char *interp_name = NULL;
+static char *interp_dir = NULL;
 static int byteswap;
 static int interpreter_already_found = 0;
 
@@ -526,7 +525,7 @@ static int add_library(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic, int is_setuid, char
 			tmp1++;
 		}
 		if (strcmp(tmp2, s) == 0) {
-			//printf("find_elf_interpreter is skipping '%s' (already in list)\n", cur->name);
+			/*printf("find_elf_interpreter is skipping '%s' (already in list)\n", cur->name); */
 			return 0;
 		}
 	}
@@ -544,7 +543,7 @@ static int add_library(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic, int is_setuid, char
 	/* Now try and locate where this library might be living... */
 	locate_library_file(ehdr, dynamic, is_setuid, newlib);
 
-	//printf("add_library is adding '%s' to '%s'\n", newlib->name, newlib->path);
+	/*printf("add_library is adding '%s' to '%s'\n", newlib->name, newlib->path); */
 	if (!lib_list) {
 		lib_list = newlib;
 	} else {
@@ -597,7 +596,7 @@ static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 		for (cur = lib_list; cur; cur = cur->next) {
 			/* Check if this library is already in the list */
 			if (strcmp(cur->name, tmp1) == 0) {
-				//printf("find_elf_interpreter is replacing '%s' (already in list)\n", cur->name);
+				/*printf("find_elf_interpreter is replacing '%s' (already in list)\n", cur->name); */
 				newlib = cur;
 				free(newlib->name);
 				if (newlib->path != not_found) {
@@ -619,7 +618,7 @@ static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 		newlib->next = NULL;
 
 #if 0
-		//printf("find_elf_interpreter is adding '%s' to '%s'\n", newlib->name, newlib->path);
+		/*printf("find_elf_interpreter is adding '%s' to '%s'\n", newlib->name, newlib->path); */
 		if (!lib_list) {
 			lib_list = newlib;
 		} else {
@@ -760,8 +759,8 @@ int main(int argc, char **argv)
 	struct library *cur;
 
 	if (argc < 2) {
-		fprintf(stderr, "ldd: missing file arguments\n");
-		fprintf(stderr, "Try `ldd --help' for more information.\n");
+		fprintf(stderr, "ldd: missing file arguments\n"
+				"Try `ldd --help' for more information.\n");
 		exit(EXIT_FAILURE);
 	}
 	if (argc > 2)
@@ -776,8 +775,8 @@ int main(int argc, char **argv)
 		}
 
 		if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
-			fprintf(stderr, "Usage: ldd [OPTION]... FILE...\n");
-			fprintf(stderr, "\t--help\t\tprint this help and exit\n");
+			fprintf(stderr, "Usage: ldd [OPTION]... FILE...\n"
+					"\t--help\t\tprint this help and exit\n");
 			exit(EXIT_SUCCESS);
 		}
 

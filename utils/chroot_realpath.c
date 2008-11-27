@@ -1,5 +1,5 @@
 /*
- * chroot_realpath.c -- reslove pathname as if inside chroot
+ * chroot_realpath.c -- resolve pathname as if inside chroot
  * Based on realpath.c Copyright (C) 1993 Rick Sladkey <jrs@world.std.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -32,10 +32,6 @@
 #include <limits.h>		/* for PATH_MAX */
 #include <sys/param.h>		/* for MAXPATHLEN */
 #include <errno.h>
-#ifndef __set_errno
-#define __set_errno(val) ((errno) = (val))
-#endif
-
 #include <sys/stat.h>		/* for S_IFLNK */
 
 #ifndef PATH_MAX
@@ -67,7 +63,7 @@ char *chroot_realpath(const char *chroot, const char *path,
 	chroot_len = strlen(chroot);
 
 	if (chroot_len + strlen(path) >= PATH_MAX - 3) {
-		__set_errno(ENAMETOOLONG);
+		errno = ENAMETOOLONG;
 		return NULL;
 	}
 
@@ -112,7 +108,7 @@ char *chroot_realpath(const char *chroot, const char *path,
 		/* Safely copy the next pathname component. */
 		while (*path != '\0' && *path != '/') {
 			if (path > max_path) {
-				__set_errno(ENAMETOOLONG);
+				errno = ENAMETOOLONG;
 				return NULL;
 			}
 			*new_path++ = *path++;
@@ -123,7 +119,7 @@ char *chroot_realpath(const char *chroot, const char *path,
 #ifdef S_IFLNK
 		/* Protect against infinite loops. */
 		if (readlinks++ > MAX_READLINKS) {
-			__set_errno(ELOOP);
+			errno = ELOOP;
 			return NULL;
 		}
 		/* See if latest pathname component is a symlink. */
@@ -148,7 +144,7 @@ char *chroot_realpath(const char *chroot, const char *path,
 				while (*(--new_path) != '/') ;
 			/* Safe sex check. */
 			if (strlen(path) + n >= PATH_MAX - 2) {
-				__set_errno(ENAMETOOLONG);
+				errno = ENAMETOOLONG;
 				return NULL;
 			}
 			/* Insert symlink contents into path. */
