@@ -3,5 +3,5 @@
 #include <sys/sysmips.h>
 
 #ifdef __NR_sysmips
-_syscall4(int, sysmips, const int, cmd, const long, arg1, const int, arg2, const int, arg3);
+_syscall4(int, sysmips, const int, cmd, const long, arg1, const int, arg2, const int, arg3)
 #endif

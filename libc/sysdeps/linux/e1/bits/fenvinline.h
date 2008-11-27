@@ -124,7 +124,7 @@ static __inline__ feclearexcept(int __excepts)
  * excepts. You can test for an exception either after
  * an FP instruction or within a SIGFPE handler
  */
-inline int fetestexcept(int __excepts)
+__inline__ int fetestexcept(int __excepts)
 {
 	unsigned int G2, G2en, G2dis;
 	unsigned int enabled_excepts, disabled_excepts;

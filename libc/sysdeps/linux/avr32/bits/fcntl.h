@@ -167,7 +167,18 @@ struct flock64 {
 # define POSIX_FADV_NOREUSE     5 /* Data will be accessed once.  */
 #endif
 
-#ifdef __USE_GNU
+
+#if defined __USE_GNU && defined __UCLIBC_LINUX_SPECIFIC__
+/* Flags for SYNC_FILE_RANGE.  */
+# define SYNC_FILE_RANGE_WAIT_BEFORE	1 /* Wait upon writeout of all pages
+					     in the range before performing
+					     the write */
+# define SYNC_FILE_RANGE_WRITE		2 /* Initiate writeout of all those
+					     dirty pages in the range which are
+					     not presently under writeback */
+# define SYNC_FILE_RANGE_WAIT_AFTER	4 /* Wait upon writeout of all pages
+					     in the range after performing the
+					     write */
 
 /* Flags for splice() and vmsplice() */
 # define SPLICE_F_MOVE		1	/* Move pages instead of copying */
@@ -178,6 +189,13 @@ struct flock64 {
 # define SPLICE_F_GIFT		8	/* Pages passed in are a gift */
 
 __BEGIN_DECLS
+
+/* Provide kernel hint to read ahead. */
+extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count) __THROW;
+
+/* Selective file content synch'ing */
+extern int sync_file_range (int __fd, __off64_t __from, __off64_t __to,
+			    unsigned int __flags);
 
 /* Splice address range into a pipe */
 extern ssize_t vmsplice (int __fdout, const struct iovec *__iov,

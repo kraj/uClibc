@@ -84,7 +84,7 @@ ENTRY (__longjmp)
 	slli	a4, a7, 4
 	sub	a6, a8, a4
 	addi	a5, a2, 16
-	addi	a8, a8, -16		// a8 = end of register overflow area
+	addi	a8, a8, -16		/* a8 = end of register overflow area */
 .Lljloop:
 	l32i	a7, a5, 0
 	l32i	a4, a5, 4
@@ -105,8 +105,8 @@ ENTRY (__longjmp)
 	   case the contents were moved by an alloca after calling
 	   setjmp.  This is a bit paranoid but it doesn't cost much.  */
 
-	l32i	a7, a2, 4		// load the target stack pointer
-	addi	a7, a7, -16		// find the destination save area
+	l32i	a7, a2, 4		/* load the target stack pointer */
+	addi	a7, a7, -16		/* find the destination save area */
 	l32i	a4, a2, 48
 	l32i	a5, a2, 52
 	s32i	a4, a7, 0

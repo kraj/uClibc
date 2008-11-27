@@ -37,7 +37,7 @@
 
 # if __WORDSIZE == 32
 
-#  ifndef __NO_LONG_DOUBLE_MATH
+#  ifdef __UCLIBC_HAS_LONG_DOUBLE_MATH__
 
 #   define __unordered_cmp(x, y) \
   (__extension__							      \
@@ -94,7 +94,7 @@
 
 #  define __unordered_v9cmp(x, y, op, qop) \
   (__extension__							      \
-   ({ unsigned __r;						      	      \
+   ({ unsigned __r;							      \
       if (sizeof (x) == 4 && sizeof (y) == 4)				      \
 	{								      \
 	  float __x = (x); float __y = (y);				      \
@@ -111,7 +111,7 @@
 	{								      \
 	  long double __x = (x); long double __y = (y);			      \
 	  extern int _Qp_cmp (const long double *a, const long double *b);    \
-	  __r = qop;						      	      \
+	  __r = qop;							      \
 	}								      \
       __r; }))
 
@@ -157,7 +157,7 @@ __NTH (__signbit (double __x))
   return __u.__i[0] < 0;
 }
 
-#    ifndef __NO_LONG_DOUBLE_MATH
+#    ifdef __UCLIBC_HAS_LONG_DOUBLE_MATH__
 __MATH_INLINE int
 __NTH (__signbitl (long double __x))
 {
@@ -219,7 +219,7 @@ __NTH (sqrtl (long double __x))
   _Qp_sqrt (&__r, &__x);
   return __r;
 }
-#   elif !defined __NO_LONG_DOUBLE_MATH
+#   elif defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
 __MATH_INLINE long double
 sqrtl (long double __x) __THROW
 {
@@ -257,7 +257,7 @@ __ieee754_sqrtl (long double __x)
   _Qp_sqrt(&__r, &__x);
   return __r;
 }
-#   elif !defined __NO_LONG_DOUBLE_MATH
+#   elif defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
 __MATH_INLINE long double
 __ieee754_sqrtl (long double __x)
 {

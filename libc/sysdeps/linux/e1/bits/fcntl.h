@@ -182,8 +182,7 @@ struct flock64
 #endif
 
 
-#ifdef __USE_GNU
-#if 0
+#if defined __USE_GNU && defined __UCLIBC_LINUX_SPECIFIC__
 /* Flags for SYNC_FILE_RANGE.  */
 # define SYNC_FILE_RANGE_WAIT_BEFORE	1 /* Wait upon writeout of all pages
 					     in the range before performing the
@@ -194,7 +193,6 @@ struct flock64
 # define SYNC_FILE_RANGE_WAIT_AFTER	4 /* Wait upon writeout of all pages in
 					     the range after performing the
 					     write.  */
-#endif
 
 /* Flags for SPLICE and VMSPLICE.  */
 # define SPLICE_F_MOVE		1	/* Move pages instead of copying.  */
@@ -207,18 +205,16 @@ struct flock64
 
 __BEGIN_DECLS
 
-#ifdef __USE_GNU
+#if defined __USE_GNU && defined __UCLIBC_LINUX_SPECIFIC__
 
 /* Provide kernel hint to read ahead.  */
 extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
     __THROW;
 
 
-#if 0
 /* Selective file content synch'ing.  */
 extern int sync_file_range (int __fd, __off64_t __from, __off64_t __to,
 			    unsigned int __flags);
-#endif
 
 /* Splice address range into a pipe.  */
 extern ssize_t vmsplice (int __fdout, const struct iovec *__iov,
@@ -235,4 +231,4 @@ extern ssize_t tee (int __fdin, int __fdout, size_t __len,
 
 #endif
 __END_DECLS
-
+#endif /* LINUX_SPECIFIC */

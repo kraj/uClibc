@@ -26,7 +26,7 @@
  * is linking when the main() function is in a static library (.a)
  * we can be sure that main() actually gets linked in */
 extern void main(int argc,void *argv,void *envp);
-//void (*mainp)(int argc,void *argv,void *envp) = main;
+/* void (*mainp)(int argc,void *argv,void *envp) = main; */
 
 void __uClibc_main(int argc,void *argv,void *envp);
 

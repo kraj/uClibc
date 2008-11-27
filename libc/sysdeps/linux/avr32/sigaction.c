@@ -16,6 +16,8 @@ extern void __default_rt_sa_restorer(void);
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
 
+extern __typeof(sigaction) __libc_sigaction;
+
 /*
  * If act is not NULL, change the action for sig to *act.
  * If oact is not NULL, put the old action for sig in *oact.
@@ -53,7 +55,7 @@ int __libc_sigaction(int signum, const struct sigaction *act,
 }
 
 #ifndef LIBC_SIGACTION
-libc_hidden_proto(sigaction)
+/* libc_hidden_proto(sigaction) */
 weak_alias(__libc_sigaction, sigaction)
 libc_hidden_weak(sigaction)
 #endif

@@ -7,7 +7,7 @@
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
  * directory of this archive for more details.
- * 
+ *
  * Written by Miles Bader <miles@gnu.org>
  */
 
@@ -35,7 +35,7 @@ C_ENTRY(__longjmp):
 	sld.w	40[ep], r27
 	sld.w	44[ep], r28
 	sld.w	48[ep], r29
-	mov	1, r10			// return val
+	mov	1, r10			/* return val */
 	jmp	[lp]
 C_END(__longjmp)
 libc_hidden_def(__longjmp)

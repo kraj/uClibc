@@ -52,19 +52,19 @@
 ENTRY (__vfork)
 
 	movi	a6, .Ljumptable
-	extui	a2, a0, 30, 2		// call-size: call4/8/12 = 1/2/3
-	addx4	a4, a2, a6		// find return address in jumptable
+	extui	a2, a0, 30, 2		/* call-size: call4/8/12 = 1/2/3 */
+	addx4	a4, a2, a6		/* find return address in jumptable */
 	l32i	a4, a4, 0
 	add	a4, a4, a6
 
 	slli	a2, a2, 30
-	xor	a3, a0, a2		// remove call-size from return address
-	extui	a5, a4, 30, 2		// get high bits of jump target
+	xor	a3, a0, a2		/* remove call-size from return addr */
+	extui	a5, a4, 30, 2		/* get high bits of jump target */
 	slli	a5, a5, 30
-	or	a3, a3, a5		// stuff them into the return address
-	xor	a4, a4, a5		// clear high bits of jump target
-	or	a0, a4, a2		// create temporary return address
-	retw				// "return" to .L4, .L8, or .L12
+	or	a3, a3, a5		/* stuff them into the return address */
+	xor	a4, a4, a5		/* clear high bits of jump target */
+	or	a0, a4, a2		/* create temporary return address */
+	retw				/* "return" to .L4, .L8, or .L12 */
 
 	.align	4
 .Ljumptable:
@@ -81,7 +81,7 @@ ENTRY (__vfork)
 
 	/* Use syscall 'clone'.  Set new stack pointer to the same address.  */
 	movi	a2, SYS_ify (clone)
- 	movi	a3, 0
+	movi	a3, 0
 	movi	a6, CLONE_VM | CLONE_VFORK | SIGCHLD
         syscall
 
@@ -95,7 +95,7 @@ ENTRY (__vfork)
 
 	bgeu	a6, a5, 1f
 	jx	a7
-1:	call4	.Lerr			// returns to original caller
+1:	call4	.Lerr			/* returns to original caller */
 
 
 	/* a11: return address */
@@ -121,7 +121,7 @@ ENTRY (__vfork)
 
 	bgeu	a10, a9, 1f
 	jx	a11
-1:	call8	.Lerr			// returns to original caller
+1:	call8	.Lerr			/* returns to original caller */
 
 
 	/* a15: return address */
@@ -148,18 +148,18 @@ ENTRY (__vfork)
 
 	bgeu	a14, a13, 1f
 	jx	a15
-1:	call12	.Lerr			// returns to original caller
+1:	call12	.Lerr			/* returns to original caller */
 
 
 	.align 4
 .Lerr:	entry	a1, 16
 
 	/* Restore the return address.  */
-	extui	a4, a0, 30, 2		// get the call-size bits
+	extui	a4, a0, 30, 2		/* get the call-size bits */
 	slli	a4, a4, 30
-	slli	a3, a3, 2		// clear high bits of target address
+	slli	a3, a3, 2		/* clear high bits of target address */
 	srli	a3, a3, 2
-	or	a0, a3, a4		// combine them
+	or	a0, a3, a4		/* combine them */
 
 	PSEUDO_END (__vfork)
 .Lpseudo_end:

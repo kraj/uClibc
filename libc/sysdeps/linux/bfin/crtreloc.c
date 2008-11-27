@@ -41,7 +41,7 @@ union word {
 
 /* Compute the runtime address of pointer in the range [p,e), and then
    map the pointer pointed by it.  */
-inline static void ***
+static __always_inline void ***
 reloc_range_indirect (void ***p, void ***e,
 		      const struct elf32_fdpic_loadmap *map)
 {
@@ -102,7 +102,7 @@ __self_reloc (const struct elf32_fdpic_loadmap *map,
    need.  */
 
 /* Remap pointers in [p,e).  */
-inline static void**
+static __always_inline void**
 reloc_range (void **p, void **e,
 	     const struct elf32_fdpic_loadmap *map)
 {

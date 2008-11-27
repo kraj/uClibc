@@ -140,13 +140,14 @@ __asm__ __volatile__ ("trapa	%1" \
 __syscall_return(type,__sc0); \
 }
 
-#define SYSCALL_INST_STR0	"trapa #0x10\n\t"
-#define SYSCALL_INST_STR1	"trapa #0x11\n\t"
-#define SYSCALL_INST_STR2	"trapa #0x12\n\t"
-#define SYSCALL_INST_STR3	"trapa #0x13\n\t"
-#define SYSCALL_INST_STR4	"trapa #0x14\n\t"
-#define SYSCALL_INST_STR5	"trapa #0x15\n\t"
-#define SYSCALL_INST_STR6	"trapa #0x16\n\t"
+#define SYSCALL_INST_STR(x)	"trapa #"__stringify(__SH_SYSCALL_TRAP_BASE + x)"\n\t"
+#define SYSCALL_INST_STR0	SYSCALL_INST_STR(0)
+#define SYSCALL_INST_STR1	SYSCALL_INST_STR(1)
+#define SYSCALL_INST_STR2	SYSCALL_INST_STR(2)
+#define SYSCALL_INST_STR3	SYSCALL_INST_STR(3)
+#define SYSCALL_INST_STR4	SYSCALL_INST_STR(4)
+#define SYSCALL_INST_STR5	SYSCALL_INST_STR(5)
+#define SYSCALL_INST_STR6	SYSCALL_INST_STR(6)
 
 # ifdef NEED_SYSCALL_INST_PAD
 #  define SYSCALL_INST_PAD "\

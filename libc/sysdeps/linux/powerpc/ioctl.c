@@ -22,17 +22,17 @@
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
 
-libc_hidden_proto(ioctl)
+/* libc_hidden_proto(ioctl) */
 
-libc_hidden_proto(tcsetattr)
-libc_hidden_proto(tcgetattr)
+/* libc_hidden_proto(tcsetattr) */
+/* libc_hidden_proto(tcgetattr) */
 
 /* The user-visible size of struct termios has changed.  Catch ioctl calls
    using the new-style struct termios, and translate them to old-style.  */
 
 #define __NR___syscall_ioctl __NR_ioctl
-static inline
-_syscall3(int, __syscall_ioctl, int, fd, unsigned long int, request, void *, arg);
+static __always_inline
+_syscall3(int, __syscall_ioctl, int, fd, unsigned long int, request, void *, arg)
 
 
 int ioctl (int fd, unsigned long int request, ...)

@@ -10,8 +10,8 @@
 #include <sys/mman.h>
 #include <sys/syscall.h>
 
-libc_hidden_proto(mmap)
+/* libc_hidden_proto(mmap) */
 
 _syscall6 (__ptr_t, mmap, __ptr_t, addr, size_t, len, int, prot,
-	   int, flags, int, fd, __off_t, offset);
+	   int, flags, int, fd, __off_t, offset)
 libc_hidden_def(mmap)

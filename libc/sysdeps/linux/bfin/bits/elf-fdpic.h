@@ -64,7 +64,7 @@ struct elf32_fdpic_loadaddr {
 
 /* Map a pointer's VMA to its corresponding address according to the
    load map.  */
-inline static void *
+static __always_inline void *
 __reloc_pointer (void *p,
 		 const struct elf32_fdpic_loadmap *map)
 {

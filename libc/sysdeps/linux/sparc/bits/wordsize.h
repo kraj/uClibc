@@ -6,7 +6,7 @@
 # define __WORDSIZE	32
 #endif
 
-#if 0 /* uClibc: done in mathdefs.h: !defined __NO_LONG_DOUBLE_MATH && !defined __LONG_DOUBLE_MATH_OPTIONAL*/
+#if 0 /* uClibc: done in mathdefs.h: defined __UCLIBC_HAS_LONG_DOUBLE_MATH__ && !defined __LONG_DOUBLE_MATH_OPTIONAL*/
 
 # if __WORDSIZE == 32
 /* Signal that in 32bit ABI we didn't used to have a `long double'.
@@ -14,7 +14,7 @@
    to the double functions.  */
 #  define __LONG_DOUBLE_MATH_OPTIONAL   1
 #  ifndef __LONG_DOUBLE_128__
-#   define __NO_LONG_DOUBLE_MATH        1
+#   undef __UCLIBC_HAS_LONG_DOUBLE_MATH__
 #  endif
 # endif
 #endif

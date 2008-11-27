@@ -8,7 +8,7 @@
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-/* 
+/*
  * Written by Miles Bader <miles@gnu.org>
  * Microblaze port by John Williams
  */
@@ -31,13 +31,13 @@ C_ENTRY (__vfork):
 	addi	r12, r0, SYS_vfork
 	bralid	r17, 0x08;
 	nop
-	addi	r4, r3, 125		// minimum err value
-	blti	r4, 1f			// is r3 < -125?
-	rtsd	r15, 8			// normal return
+	addi	r4, r3, 125		/* minimum err value */
+	blti	r4, 1f			/* is r3 < -125? */
+	rtsd	r15, 8			/* normal return */
 	nop
-1:	sub 	r3, r3, r0		// r3 = -r3
+1:	sub	r3, r3, r0		/* r3 = -r3 */
 	swi	r3, r0, C_SYMBOL_NAME(errno);
-	rtsd	r15, 8			// error return
+	rtsd	r15, 8			/* error return */
 	nop
 C_END(__vfork)
 weak_alias(__vfork,vfork)

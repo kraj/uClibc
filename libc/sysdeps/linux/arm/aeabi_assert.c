@@ -20,7 +20,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-libc_hidden_proto(__assert)
+/* libc_hidden_proto(__assert) */
 
 void
 __aeabi_assert (const char *assertion, const char *file,

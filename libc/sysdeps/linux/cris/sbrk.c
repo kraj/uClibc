@@ -13,7 +13,7 @@
 extern void * __curbrk attribute_hidden;
 extern int __init_brk (void) attribute_hidden;
 
-libc_hidden_proto(sbrk)
+/* libc_hidden_proto(sbrk) */
 void *
 sbrk(intptr_t increment)
 {

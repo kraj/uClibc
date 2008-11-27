@@ -21,7 +21,7 @@
 #include <stdlib.h>
 
 #ifdef __UCLIBC_HAS_WCHAR__
-libc_hidden_proto(_stdlib_mb_cur_max)
+/* libc_hidden_proto(_stdlib_mb_cur_max) */
 #endif
 
 int

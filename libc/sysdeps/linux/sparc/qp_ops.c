@@ -1,4 +1,4 @@
-// XXX add ops from glibc sysdeps/sparc/sparc64/soft-fp
+/* XXX add ops from glibc sysdeps/sparc/sparc64/soft-fp */
 
 #define fakedef(name)                                                   \
     void name(void)                                                     \
