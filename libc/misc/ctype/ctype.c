@@ -382,14 +382,14 @@ int __XL_NPP(isascii)(int c)
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
-/* libc_hidden_proto(isascii) */
 int isascii(int c)
 {
 	return __isascii(c);		/* locale-independent */
 }
-libc_hidden_def(isascii)
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
+CTYPE_DEF(ascii)
+
 
 #endif
 /**********************************************************************/

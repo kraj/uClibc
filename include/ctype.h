@@ -345,6 +345,15 @@ libc_hidden_proto(isxdigit_l)
 __exctype_l (isblank_l);
 libc_hidden_proto(isblank_l)
 
+#if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
+
+/* Return nonzero iff C is in the ASCII set
+   (i.e., is no more than 7 bits wide).  */
+extern int isascii_l (int __c) __THROW;
+libc_hidden_proto(isascii_l)
+
+#endif
+
 /* Return the lowercase version of C in locale L.  */
 extern int __tolower_l (int __c, __locale_t __l) __THROW;
 extern int tolower_l (int __c, __locale_t __l) __THROW;
