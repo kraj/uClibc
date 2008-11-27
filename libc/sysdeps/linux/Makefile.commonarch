@@ -1,6 +1,6 @@
 # Makefile template to be included by sysdeps/linux/<ARCH>/Makefile.arch
 #
-# Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -18,13 +18,13 @@ ARCH_OBJS := $(ARCH_COBJ) $(ARCH_SOBJ)
 crt-y          := FORCE
 libc-y         += $(ARCH_OBJS)
 libc-nomulti-y += $(ARCH_SOBJ)
-objclean-y     += arch_objclean
+objclean-y     += arch_clean
 
 CFLAGS-crti.S+=$(PICFLAG)
 CFLAGS-crtn.S+=$(PICFLAG)
 
-arch_objclean:
-	$(RM) $(ARCH_OUT)/*.{o,os} $(CTOR_TARGETS) $(CRTS)
+arch_clean:
+	$(do_rm) $(addprefix $(ARCH_OUT)/*., o os oS) $(CTOR_TARGETS) $(CRTS)
 
 ifneq ($(ARCH_HEADERS),)
 

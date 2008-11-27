@@ -171,6 +171,15 @@ include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 	else \
 		mv -f $$tmp include/bits/sysnum.h; \
 	fi
+	@# Ugly linux specific hack..
+	$(Q)if grep -q __NR_ $@; then true; else \
+		rm -f $@; \
+		echo "ERROR: Could not generate syscalls."; \
+		echo "Make sure that you have proper kernel headers."; \
+		echo "Your .config in KERNEL_HEADERS=\"\" was set to:"; \
+		echo "${KERNEL_HEADERS}"; \
+		exit 1; \
+	fi
 
 $(LOCAL_INSTALL_PATH):
 	$(Q)$(MAKE) PREFIX=$(shell pwd)/ RUNTIME_PREFIX=./ \
@@ -324,8 +333,11 @@ ifneq ($(UCLIBC_LINUX_SPECIFIC),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/sendfile.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/fsuid.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/signalfd.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/statfs.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/statfs.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/swap.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/sysctl.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/vfs.h
 endif
 ifneq ($(UCLIBC_SV4_DEPRECATED),y)
 	# Remove ustat.h since deprecated SV4 support was disabled upon request
@@ -421,7 +433,7 @@ ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
 	$(INSTALL) -m 644 lib/lib*-$(VERSION).so \
 		$(PREFIX)$(RUNTIME_PREFIX)lib
-	cd lib && $(TAR) -cf - *.so.* | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
+	(cd lib && $(TAR) -cf - *.so.*) | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
 	@if [ -x lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so ] ; then \
 		set -e; \
 		$(SHELL_SET_X); \

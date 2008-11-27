@@ -43,7 +43,6 @@ ifeq ($(HAS_NO_THREADS),y)
 endif
 DIRS := $(filter-out math,$(DIRS))
 
-
 test check all: run
 
 run: compile subdirs_run
