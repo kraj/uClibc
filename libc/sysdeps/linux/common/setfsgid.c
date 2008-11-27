@@ -17,12 +17,12 @@
 #  define __NR_setfsgid __NR_setfsgid32
 # endif
 
-_syscall1(int, setfsgid, gid_t, gid);
+_syscall1(int, setfsgid, gid_t, gid)
 
 #else
 
 # define __NR___syscall_setfsgid __NR_setfsgid
-static __inline__ _syscall1(int, __syscall_setfsgid, __kernel_gid_t, gid);
+static __inline__ _syscall1(int, __syscall_setfsgid, __kernel_gid_t, gid)
 
 int setfsgid(gid_t gid)
 {

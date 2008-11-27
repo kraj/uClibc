@@ -9,4 +9,4 @@
 
 #include <sys/syscall.h>
 #include <sys/time.h>
-_syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value);
+_syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value)

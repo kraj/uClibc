@@ -28,14 +28,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/param.h>
-#include <sys/types.h>
 #include <alloca.h>
 
-libc_hidden_proto(getpid)
+#if defined __NR_sched_setaffinity
+/* libc_hidden_proto(getpid) */
 
 #define __NR___syscall_sched_setaffinity __NR_sched_setaffinity
 static __inline__ _syscall3(int, __syscall_sched_setaffinity, __kernel_pid_t, pid,
-			size_t, cpusetsize, cpu_set_t *, cpuset);
+			size_t, cpusetsize, cpu_set_t *, cpuset)
 
 static size_t __kernel_cpumask_size;
 
@@ -74,5 +74,19 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *cpuset)
 
 	return INLINE_SYSCALL (sched_setaffinity, 3, pid, cpusetsize, cpuset);
 }
+#else
+#define ___HAVE_NO_sched_setaffinity
 #endif
+#else
+#define ___HAVE_NO_sched_setaffinity
 #endif
+
+#if defined ___HAVE_NO_sched_setaffinity && defined __UCLIBC_HAS_STUBS__
+int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *cpuset)
+{
+    __set_errno(ENOSYS);
+    return -1;
+}
+#endif
+
+#endif /* __USE_GNU */

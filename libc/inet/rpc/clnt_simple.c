@@ -54,8 +54,8 @@ static char sccsid[] = "@(#)clnt_simple.c 1.35 87/08/11 Copyr 1984 Sun Micro";
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strncpy) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(clntudp_create)
-libc_hidden_proto(gethostbyname_r)
+/* libc_hidden_proto(clntudp_create) */
+/* libc_hidden_proto(gethostbyname_r) */
 
 struct callrpc_private_s
   {

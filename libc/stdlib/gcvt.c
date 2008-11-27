@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-libc_hidden_proto(sprintf)
+/* libc_hidden_proto(sprintf) */
 
 #ifdef __UCLIBC_HAS_FLOATS__
 #define MAX_NDIGIT 17

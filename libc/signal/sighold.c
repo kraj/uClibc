@@ -22,8 +22,8 @@
 #include <stddef.h>
 #include <signal.h>
 
-libc_hidden_proto(sigprocmask)
-libc_hidden_proto(sigaddset)
+/* libc_hidden_proto(sigprocmask) */
+/* libc_hidden_proto(sigaddset) */
 
 int sighold (int sig)
 {

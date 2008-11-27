@@ -37,10 +37,10 @@
 #include <sysdep.h>
 #endif
 
-libc_hidden_proto(sysconf)
+/* libc_hidden_proto(sysconf) */
 
-libc_hidden_proto(getpagesize)
-libc_hidden_proto(getdtablesize)
+/* libc_hidden_proto(getpagesize) */
+/* libc_hidden_proto(getdtablesize) */
 
 #ifndef __UCLIBC_CLK_TCK_CONST
 #error __UCLIBC_CLK_TCK_CONST not defined!

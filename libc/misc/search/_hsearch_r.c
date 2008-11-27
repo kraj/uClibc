@@ -64,7 +64,7 @@ static int isprime (unsigned int number)
    indexing as explained in the comment for the hsearch function.
    The contents of the table is zeroed, especially the field used
    becomes zero.  */
-libc_hidden_proto(hcreate_r)
+/* libc_hidden_proto(hcreate_r) */
 int hcreate_r (size_t nel, struct hsearch_data *htab)
 {
   /* Test for correct arguments.  */
@@ -100,7 +100,7 @@ libc_hidden_def(hcreate_r)
 #ifdef L_hdestroy_r
 /* After using the hash table it has to be destroyed. The used memory can
    be freed and the local static variable can be marked as not used.  */
-libc_hidden_proto(hdestroy_r)
+/* libc_hidden_proto(hdestroy_r) */
 void hdestroy_r (struct hsearch_data *htab)
 {
   /* Test for correct arguments.  */
@@ -137,7 +137,7 @@ libc_hidden_def(hdestroy_r)
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strlen) */
 
-libc_hidden_proto(hsearch_r)
+/* libc_hidden_proto(hsearch_r) */
 int hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
 	       struct hsearch_data *htab)
 {

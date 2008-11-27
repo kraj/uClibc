@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-libc_hidden_proto(setitimer)
+/* libc_hidden_proto(setitimer) */
 
 useconds_t ualarm(useconds_t value, useconds_t interval)
 {

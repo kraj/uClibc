@@ -34,7 +34,7 @@
 # if __WORDSIZE == 64
 
 static __inline__ _syscall3(ssize_t, __readahead, int, fd,
-	off_t, offset, size_t, count);
+	off_t, offset, size_t, count)
 
 ssize_t readahead(int fd, off_t offset, size_t count)
 {
@@ -44,7 +44,7 @@ ssize_t readahead(int fd, off_t offset, size_t count)
 # else
 
 static __inline__ _syscall4(ssize_t, __readahead, int, fd,
-	off_t, high_offset, off_t, low_offset, size_t, count);
+	off_t, high_offset, off_t, low_offset, size_t, count)
 
 ssize_t readahead(int fd, off64_t offset, size_t count)
 {

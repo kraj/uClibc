@@ -18,11 +18,11 @@
 
 #undef lstat64
 
-libc_hidden_proto(lstat)
+/* libc_hidden_proto(lstat) */
 
 #define __NR___syscall_lstat __NR_lstat
 static __inline__ _syscall2(int, __syscall_lstat,
-		const char *, file_name, struct kernel_stat *, buf);
+		const char *, file_name, struct kernel_stat *, buf)
 
 int lstat(const char *file_name, struct stat *buf)
 {
@@ -39,7 +39,7 @@ libc_hidden_def(lstat)
 
 #if ! defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
 extern __typeof(lstat) lstat64;
-libc_hidden_proto(lstat64)
+/* libc_hidden_proto(lstat64) */
 strong_alias(lstat,lstat64)
 libc_hidden_def(lstat64)
 #endif

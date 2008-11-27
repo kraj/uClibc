@@ -30,7 +30,7 @@
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* Experimentally off - libc_hidden_proto(strncmp) */
 /* Experimentally off - libc_hidden_proto(strndup) */
-libc_hidden_proto(unsetenv)
+/* libc_hidden_proto(unsetenv) */
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
@@ -133,14 +133,14 @@ int __add_to_environ (const char *name, const char *value,
     return rv;
 }
 
-libc_hidden_proto(setenv)
+/* libc_hidden_proto(setenv) */
 int setenv (const char *name, const char *value, int replace)
 {
     return __add_to_environ (name, value, NULL, replace);
 }
 libc_hidden_def(setenv)
 
-libc_hidden_proto(unsetenv)
+/* libc_hidden_proto(unsetenv) */
 int unsetenv (const char *name)
 {
     size_t len;

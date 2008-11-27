@@ -13,5 +13,5 @@
 #if defined __NR_sigaltstack && (defined __USE_BSD || defined __USE_UNIX98)
 
 _syscall2(int, sigaltstack, const struct sigaltstack *, ss,
-		  struct sigaltstack *, oss);
+		  struct sigaltstack *, oss)
 #endif

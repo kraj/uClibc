@@ -49,7 +49,7 @@
  * The library routines call this routine to interpret
  * network numbers.
  */
-libc_hidden_proto(inet_network)
+/* libc_hidden_proto(inet_network) */
 in_addr_t
 inet_network(const char *cp)
 {

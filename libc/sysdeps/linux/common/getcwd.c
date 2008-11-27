@@ -15,23 +15,23 @@
 #include <sys/param.h>
 #include <sys/syscall.h>
 
-libc_hidden_proto(getcwd)
-libc_hidden_proto(getpagesize)
+/* libc_hidden_proto(getcwd) */
+/* libc_hidden_proto(getpagesize) */
 
 /* Experimentally off - libc_hidden_proto(strcat) */
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strncpy) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(opendir)
-libc_hidden_proto(readdir)
-libc_hidden_proto(closedir)
-libc_hidden_proto(stat)
+/* libc_hidden_proto(opendir) */
+/* libc_hidden_proto(readdir) */
+/* libc_hidden_proto(closedir) */
+/* libc_hidden_proto(stat) */
 
 #ifdef __NR_getcwd
 
 # define __NR___syscall_getcwd __NR_getcwd
-static inline
-_syscall2(int, __syscall_getcwd, char *, buf, unsigned long, size);
+static __always_inline
+_syscall2(int, __syscall_getcwd, char *, buf, unsigned long, size)
 
 #else
 
@@ -144,7 +144,7 @@ oops:
 	return 0;
 }
 
-static inline
+static __always_inline
 int __syscall_getcwd(char * buf, unsigned long size)
 {
     int len;

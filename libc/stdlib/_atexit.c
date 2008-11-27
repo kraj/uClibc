@@ -47,7 +47,7 @@
 __UCLIBC_MUTEX_EXTERN(__atexit_lock);
 
 /* libc_hidden_proto(exit) */
-libc_hidden_proto(_exit)
+/* libc_hidden_proto(_exit) */
 
 
 typedef void (*aefuncp) (void);         /* atexit function pointer */

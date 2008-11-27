@@ -10,16 +10,16 @@
 #include <sys/syscall.h>
 #include <utime.h>
 
-libc_hidden_proto(utime)
+/* libc_hidden_proto(utime) */
 
 #ifdef __NR_utime
-_syscall2(int, utime, const char *, file, const struct utimbuf *, times);
+_syscall2(int, utime, const char *, file, const struct utimbuf *, times)
 #else
 #include <stdlib.h>
 #include <sys/time.h>
 
-libc_hidden_proto(utimes)
-libc_hidden_proto(gettimeofday)
+/* libc_hidden_proto(utimes) */
+/* libc_hidden_proto(gettimeofday) */
 
 int utime(const char *file, const struct utimbuf *times)
 {

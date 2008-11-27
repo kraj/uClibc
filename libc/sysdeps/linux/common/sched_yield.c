@@ -9,4 +9,4 @@
 
 #include <sys/syscall.h>
 #include <sched.h>
-_syscall0(int, sched_yield);
+_syscall0(int, sched_yield)

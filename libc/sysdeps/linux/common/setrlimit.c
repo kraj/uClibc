@@ -13,7 +13,7 @@
 #include <sys/resource.h>
 #undef setrlimit64
 
-libc_hidden_proto(setrlimit)
+/* libc_hidden_proto(setrlimit) */
 
 /* Only wrap setrlimit if the new usetrlimit is not present and setrlimit sucks */
 
@@ -21,9 +21,9 @@ libc_hidden_proto(setrlimit)
 
 /* just call usetrlimit() */
 # define __NR___syscall_usetrlimit __NR_usetrlimit
-static inline
+static __always_inline
 _syscall2(int, __syscall_usetrlimit, enum __rlimit_resource, resource,
-          const struct rlimit *, rlim);
+          const struct rlimit *, rlim)
 int setrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {
 	return (__syscall_usetrlimit(resource, rlimits));
@@ -33,14 +33,14 @@ int setrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 
 /* We don't need to wrap setrlimit() */
 _syscall2(int, setrlimit, __rlimit_resource_t, resource,
-		const struct rlimit *, rlim);
+		const struct rlimit *, rlim)
 
 #else
 
 /* we have to handle old style setrlimit() */
 # define __NR___syscall_setrlimit __NR_setrlimit
-static inline
-_syscall2(int, __syscall_setrlimit, int, resource, const struct rlimit *, rlim);
+static __always_inline
+_syscall2(int, __syscall_setrlimit, int, resource, const struct rlimit *, rlim)
 
 int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 {

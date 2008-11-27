@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include "dirstream.h"
 
-libc_hidden_proto(lseek)
+/* libc_hidden_proto(lseek) */
 
 /* rewinddir() just does an lseek(fd,0,0) - see close for comments */
 void rewinddir(DIR * dir)

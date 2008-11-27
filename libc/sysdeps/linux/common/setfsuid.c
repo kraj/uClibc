@@ -17,12 +17,12 @@
 #  define __NR_setfsuid __NR_setfsuid32
 # endif
 
-_syscall1(int, setfsuid, uid_t, uid);
+_syscall1(int, setfsuid, uid_t, uid)
 
 #else
 
 # define __NR___syscall_setfsuid __NR_setfsuid
-static __inline__ _syscall1(int, __syscall_setfsuid, __kernel_uid_t, uid);
+static __inline__ _syscall1(int, __syscall_setfsuid, __kernel_uid_t, uid)
 
 int setfsuid(uid_t uid)
 {

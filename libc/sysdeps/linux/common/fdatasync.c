@@ -14,4 +14,4 @@
 # define __NR_fdatasync __NR_osf_fdatasync
 #endif
 
-_syscall1(int, fdatasync, int, fd);
+_syscall1(int, fdatasync, int, fd)

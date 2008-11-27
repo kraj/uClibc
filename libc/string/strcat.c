@@ -13,8 +13,6 @@
 # define Wstrcat strcat
 #endif
 
-libc_hidden_proto(Wstrcat)
-
 Wchar *Wstrcat(Wchar * __restrict s1, register const Wchar * __restrict s2)
 {
 	register Wchar *s = s1;

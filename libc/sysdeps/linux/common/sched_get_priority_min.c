@@ -9,4 +9,4 @@
 
 #include <sys/syscall.h>
 #include <sched.h>
-_syscall1(int, sched_get_priority_min, int, policy);
+_syscall1(int, sched_get_priority_min, int, policy)

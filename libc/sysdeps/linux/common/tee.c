@@ -12,5 +12,5 @@
 
 #ifdef __NR_tee
 _syscall4(ssize_t, tee, int, __fdin, int, __fdout, size_t, __len,
-	unsigned int, __flags);
+	unsigned int, __flags)
 #endif

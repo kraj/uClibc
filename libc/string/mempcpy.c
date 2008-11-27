@@ -15,8 +15,6 @@
 # define Wmempcpy mempcpy
 #endif
 
-libc_hidden_proto(Wmempcpy)
-
 Wvoid *Wmempcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
 {
 	register Wchar *r1 = s1;

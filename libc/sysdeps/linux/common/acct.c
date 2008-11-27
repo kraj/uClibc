@@ -10,5 +10,5 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
-_syscall1(int, acct, const char *, filename);
+_syscall1(int, acct, const char *, filename)
 #endif

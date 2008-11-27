@@ -49,11 +49,11 @@
 # define fwrite(p, m, n, s) _IO_fwrite (p, m, n, s)
 #endif
 
-libc_hidden_proto(fread)
-libc_hidden_proto(fwrite)
-libc_hidden_proto(fseek)
-libc_hidden_proto(fflush)
-libc_hidden_proto(ftell)
+/* libc_hidden_proto(fread) */
+/* libc_hidden_proto(fwrite) */
+/* libc_hidden_proto(fseek) */
+/* libc_hidden_proto(fflush) */
+/* libc_hidden_proto(ftell) */
 
 static bool_t xdrstdio_getlong (XDR *, long *);
 static bool_t xdrstdio_putlong (XDR *, const long *);

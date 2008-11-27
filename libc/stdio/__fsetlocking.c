@@ -8,7 +8,7 @@
 #include "_stdio.h"
 #include <stdio_ext.h>
 
-libc_hidden_proto(__fsetlocking)
+/* libc_hidden_proto(__fsetlocking) */
 
 /* Not threadsafe. */
 

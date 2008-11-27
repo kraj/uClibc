@@ -9,4 +9,4 @@
 
 #include <sys/syscall.h>
 #include <sys/sysinfo.h>
-_syscall1(int, sysinfo, struct sysinfo *, info);
+_syscall1(int, sysinfo, struct sysinfo *, info)

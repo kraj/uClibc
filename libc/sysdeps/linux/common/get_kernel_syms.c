@@ -12,7 +12,7 @@
 struct kernel_sym;
 int get_kernel_syms(struct kernel_sym *table attribute_unused);
 #ifdef __NR_get_kernel_syms
-_syscall1(int, get_kernel_syms, struct kernel_sym *, table);
+_syscall1(int, get_kernel_syms, struct kernel_sym *, table)
 #else
 int get_kernel_syms(struct kernel_sym *table attribute_unused)
 {

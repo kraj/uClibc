@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fwrite_unlocked)
+/* libc_hidden_proto(fwrite_unlocked) */
 
 #ifdef __DO_UNLOCKED
 
@@ -38,14 +38,14 @@ size_t fwrite_unlocked(const void * __restrict ptr, size_t size,
 libc_hidden_def(fwrite_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-libc_hidden_proto(fwrite)
+/* libc_hidden_proto(fwrite) */
 strong_alias(fwrite_unlocked,fwrite)
 libc_hidden_def(fwrite)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-libc_hidden_proto(fwrite)
+/* libc_hidden_proto(fwrite) */
 size_t fwrite(const void * __restrict ptr, size_t size,
 			  size_t nmemb, register FILE * __restrict stream)
 {

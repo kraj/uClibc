@@ -23,10 +23,10 @@
 #include <signal.h>
 #include <unistd.h>
 
-libc_hidden_proto(sleep)
+/* libc_hidden_proto(sleep) */
 
-libc_hidden_proto(sigaction)
-libc_hidden_proto(sigprocmask)
+/* libc_hidden_proto(sigaction) */
+/* libc_hidden_proto(sigprocmask) */
 
 /* version perusing nanosleep */
 #if defined __UCLIBC_HAS_REALTIME__
@@ -118,7 +118,7 @@ unsigned int sleep (unsigned int seconds)
 }
 #endif
 #else /* __UCLIBC_HAS_REALTIME__ */
-libc_hidden_proto(sigaction)
+/* libc_hidden_proto(sigaction) */
 /* no nanosleep, use signals and alarm() */
 static void sleep_alarm_handler(int attribute_unused sig)
 {
@@ -145,12 +145,12 @@ unsigned int sleep (unsigned int seconds)
     act.sa_flags = 0;
     act.sa_mask = oset;
     if (sigaction(SIGALRM, &act, &oact) < 0)
-    	return seconds;
+	return seconds;
 
     before = time(NULL);
     remaining = alarm(seconds);
     if (remaining && remaining > seconds) {
-    	/* restore user's alarm */
+	/* restore user's alarm */
 	(void) sigaction(SIGALRM, &oact, (struct sigaction *) NULL);
 	alarm(remaining); /* restore old alarm */
 	sigsuspend(&oset);

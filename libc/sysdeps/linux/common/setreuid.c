@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <bits/wordsize.h>
 
-libc_hidden_proto(setreuid)
+/* libc_hidden_proto(setreuid) */
 
 #if (__WORDSIZE == 32 && defined(__NR_setreuid32)) || __WORDSIZE == 64
 # ifdef __NR_setreuid32
@@ -19,13 +19,13 @@ libc_hidden_proto(setreuid)
 #  define __NR_setreuid __NR_setreuid32
 # endif
 
-_syscall2(int, setreuid, uid_t, ruid, uid_t, euid);
+_syscall2(int, setreuid, uid_t, ruid, uid_t, euid)
 
 #else
 
 # define __NR___syscall_setreuid __NR_setreuid
 static __inline__ _syscall2(int, __syscall_setreuid,
-		__kernel_uid_t, ruid, __kernel_uid_t, euid);
+		__kernel_uid_t, ruid, __kernel_uid_t, euid)
 
 int setreuid(uid_t ruid, uid_t euid)
 {

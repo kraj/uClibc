@@ -9,7 +9,7 @@
 #include <stdarg.h>
 #include <wchar.h>
 
-libc_hidden_proto(vswprintf)
+/* libc_hidden_proto(vswprintf) */
 
 /* NB: this file is not used if __USE_OLD_VFPRINTF__ */
 

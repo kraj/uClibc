@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include "dirstream.h"
 
-libc_hidden_proto(lseek)
+/* libc_hidden_proto(lseek) */
 
 void seekdir(DIR * dir, long int offset)
 {

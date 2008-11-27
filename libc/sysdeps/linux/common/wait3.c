@@ -11,7 +11,7 @@
 
 #if defined __USE_BSD
 
-libc_hidden_proto(wait4)
+/* libc_hidden_proto(wait4) */
 
 /* Wait for a child to exit.  When one does, put its status in *STAT_LOC and
  * return its process ID.  For errors return (pid_t) -1.  If USAGE is not nil,

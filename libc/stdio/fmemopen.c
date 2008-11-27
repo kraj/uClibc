@@ -11,7 +11,7 @@
 #include "_stdio.h"
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(fopencookie)
+/* libc_hidden_proto(fopencookie) */
 
 #ifndef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
 #error no custom streams!

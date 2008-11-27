@@ -7,12 +7,12 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fread_unlocked)
+/* libc_hidden_proto(fread_unlocked) */
 
 #ifdef __DO_UNLOCKED
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(fflush_unlocked)
+/* libc_hidden_proto(fflush_unlocked) */
 
 size_t fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
 						FILE * __restrict stream)
@@ -90,14 +90,14 @@ size_t fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
 libc_hidden_def(fread_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-libc_hidden_proto(fread)
+/* libc_hidden_proto(fread) */
 strong_alias(fread_unlocked,fread)
 libc_hidden_def(fread)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-libc_hidden_proto(fread)
+/* libc_hidden_proto(fread) */
 size_t fread(void * __restrict ptr, size_t size, size_t nmemb,
 			 register FILE * __restrict stream)
 {

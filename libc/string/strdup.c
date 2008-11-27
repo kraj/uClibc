@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 #ifdef WANT_WIDE
-libc_hidden_proto(wcslen)
+/* libc_hidden_proto(wcslen) */
 # define Wstrdup wcsdup
 # define Wstrlen wcslen
 #else

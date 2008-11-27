@@ -12,6 +12,6 @@
 #include <sys/syscall.h>
 
 #if defined __USE_SVID
-_syscall3(int, sysfs, int, option, unsigned int, index, char, addr);
+_syscall3(int, sysfs, int, option, unsigned int, index, char, addr)
 #endif
 #endif

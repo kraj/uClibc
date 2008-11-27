@@ -21,14 +21,14 @@
 # include <sys/types.h>
 # include <sys/syscall.h>
 
-libc_hidden_proto(ftruncate64)
+/* libc_hidden_proto(ftruncate64) */
 
 # ifdef __NR_ftruncate64
 
 #  if __WORDSIZE == 64
 
 /* For a 64 bit machine, life is simple... */
-_syscall2(int, ftruncate64, int, fd, __off64_t, length);
+_syscall2(int, ftruncate64, int, fd, __off64_t, length)
 
 #  elif __WORDSIZE == 32
 
@@ -37,10 +37,10 @@ _syscall2(int, ftruncate64, int, fd, __off64_t, length);
 #    define __NR___syscall_ftruncate64 __NR_ftruncate64
 #    if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
 static __inline__ _syscall4(int, __syscall_ftruncate64, int, fd, uint32_t, pad,
-	unsigned long, high_length, unsigned long, low_length);
+	unsigned long, high_length, unsigned long, low_length)
 #    else
 static __inline__ _syscall3(int, __syscall_ftruncate64, int, fd,
-	unsigned long, high_length, unsigned long, low_length);
+	unsigned long, high_length, unsigned long, low_length)
 #    endif
 #   endif
 
@@ -64,7 +64,7 @@ int ftruncate64 (int fd, __off64_t length)
 
 # else  /* __NR_ftruncate64 */
 
-libc_hidden_proto(ftruncate)
+/* libc_hidden_proto(ftruncate) */
 
 int ftruncate64 (int fd, __off64_t length)
 {

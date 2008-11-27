@@ -7,9 +7,9 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(isatty)
-libc_hidden_proto(open)
-libc_hidden_proto(fcntl)
+/* libc_hidden_proto(isatty) */
+/* libc_hidden_proto(open) */
+/* libc_hidden_proto(fcntl) */
 
 /*
  * Cases:

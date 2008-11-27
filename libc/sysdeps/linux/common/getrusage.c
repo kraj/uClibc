@@ -10,4 +10,4 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <wait.h>
-_syscall2(int, getrusage, __rusage_who_t, who, struct rusage *, usage);
+_syscall2(int, getrusage, __rusage_who_t, who, struct rusage *, usage)

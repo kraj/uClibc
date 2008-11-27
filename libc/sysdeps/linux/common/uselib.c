@@ -13,6 +13,6 @@ linux specific and we do not use it in uClibc.
 #include <unistd.h>
 #ifdef __NR_uselib
 int uselib (const char *library);
-_syscall1(int, uselib, const char *, library);
+_syscall1(int, uselib, const char *, library)
 #endif
 #endif

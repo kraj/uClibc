@@ -11,4 +11,4 @@
 #include <sys/mount.h>
 _syscall5(int, mount, const char *, specialfile, const char *, dir,
 		  const char *, filesystemtype, unsigned long, rwflag,
-		  const void *, data);
+		  const void *, data)

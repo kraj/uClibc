@@ -15,8 +15,6 @@
 # define Wstrnlen strnlen
 #endif
 
-libc_hidden_proto(Wstrnlen)
-
 size_t Wstrnlen(const Wchar *s, size_t max)
 {
 	register const Wchar *p = s;

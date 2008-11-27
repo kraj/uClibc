@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fread_unlocked)
+/* libc_hidden_proto(fread_unlocked) */
 
 /* SUSv2 Legacy function -- need not be reentrant. */
 

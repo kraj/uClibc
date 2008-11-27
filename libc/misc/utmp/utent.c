@@ -27,12 +27,12 @@
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strdup) */
 /* Experimentally off - libc_hidden_proto(strncmp) */
-libc_hidden_proto(read)
-libc_hidden_proto(write)
-libc_hidden_proto(open)
-libc_hidden_proto(fcntl)
+/* libc_hidden_proto(read) */
+/* libc_hidden_proto(write) */
+/* libc_hidden_proto(open) */
+/* libc_hidden_proto(fcntl) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(lseek)
+/* libc_hidden_proto(lseek) */
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(utmplock, PTHREAD_MUTEX_INITIALIZER);
@@ -89,7 +89,7 @@ bummer:
     return;
 }
 
-libc_hidden_proto(setutent)
+/* libc_hidden_proto(setutent) */
 void setutent(void)
 {
     __UCLIBC_MUTEX_LOCK(utmplock);
@@ -172,7 +172,7 @@ static struct utmp *__getutid(const struct utmp *utmp_entry)
     return NULL;
 }
 
-libc_hidden_proto(getutid)
+/* libc_hidden_proto(getutid) */
 struct utmp *getutid(const struct utmp *utmp_entry)
 {
     struct utmp *ret = NULL;

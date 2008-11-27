@@ -18,10 +18,10 @@
 
 #undef fstat64
 
-libc_hidden_proto(fstat)
+/* libc_hidden_proto(fstat) */
 
 #define __NR___syscall_fstat __NR_fstat
-static __inline__ _syscall2(int, __syscall_fstat, int, fd, struct kernel_stat *, buf);
+static __inline__ _syscall2(int, __syscall_fstat, int, fd, struct kernel_stat *, buf)
 
 int fstat(int fd, struct stat *buf)
 {
@@ -38,7 +38,7 @@ libc_hidden_def(fstat)
 
 #if ! defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
 extern __typeof(fstat) fstat64;
-libc_hidden_proto(fstat64)
+/* libc_hidden_proto(fstat64) */
 strong_alias(fstat,fstat64)
 libc_hidden_def(fstat64)
 #endif

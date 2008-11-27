@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-libc_hidden_proto(random)
+/* libc_hidden_proto(random) */
 
 int rand (void)
 {

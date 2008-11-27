@@ -9,13 +9,9 @@
 
 #ifdef WANT_WIDE
 # define Wstrlcpy __wcslcpy
-# define Wstrxfrm wcsxfrm
 #else
-/* Experimentally off - libc_hidden_proto(strlcpy) */
 # define Wstrlcpy strlcpy
-# define Wstrxfrm strxfrm
 #endif
-
 
 /* OpenBSD function:
  * Copy at most n-1 chars from src to dst and nul-terminate dst.
@@ -49,16 +45,19 @@ size_t Wstrlcpy(register Wchar *__restrict dst,
 
 	return src - src0;
 }
-#ifndef WANT_WIDE
-libc_hidden_def(strlcpy)
-#ifndef __UCLIBC_HAS_LOCALE__
-/* Experimentally off - libc_hidden_proto(strxfrm) */
-strong_alias(strlcpy,strxfrm)
-libc_hidden_def(strxfrm)
-#endif
-#else
+#ifdef WANT_WIDE
+
 #ifndef __UCLIBC_HAS_LOCALE__
 strong_alias(__wcslcpy,wcsxfrm)
 libc_hidden_def(wcsxfrm)
 #endif
+
+#else
+
+libc_hidden_def(strlcpy)
+#ifndef __UCLIBC_HAS_LOCALE__
+strong_alias(strlcpy,strxfrm)
+libc_hidden_def(strxfrm)
+#endif
+
 #endif

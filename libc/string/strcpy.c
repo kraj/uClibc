@@ -13,8 +13,6 @@
 # define Wstrcpy strcpy
 #endif
 
-libc_hidden_proto(Wstrcpy)
-
 Wchar *Wstrcpy(Wchar * __restrict s1, const Wchar * __restrict s2)
 {
 	register Wchar *s = s1;
@@ -29,4 +27,9 @@ Wchar *Wstrcpy(Wchar * __restrict s1, const Wchar * __restrict s2)
 
 	return s1;
 }
-libc_hidden_def(Wstrcpy)
+
+#ifdef WANT_WIDE
+/* wcscpy does not need libc_hidden_def */
+#else
+libc_hidden_def(strcpy)
+#endif

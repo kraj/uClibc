@@ -7,11 +7,11 @@
  */
 
 #include <sys/syscall.h>
-int delete_module(const char *name);
+int delete_module(const char *name, unsigned int flags);
 #ifdef __NR_delete_module
-_syscall1(int, delete_module, const char *, name);
-#else
-int delete_module(const char *name)
+_syscall2(int, delete_module, const char *, name, unsigned int, flags)
+#elif defined __UCLIBC_HAS_STUBS__
+int delete_module(const char *name, unsigned int flags)
 {
 	__set_errno(ENOSYS);
 	return -1;

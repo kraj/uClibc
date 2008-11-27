@@ -43,7 +43,7 @@
 /* Experimentally off - libc_hidden_proto(memcpy) */
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(printf)
+/* libc_hidden_proto(printf) */
 /* libc_hidden_proto(abort) */
 #ifdef __USE_GNU
 /* Experimentally off - libc_hidden_proto(mempcpy) */
@@ -75,14 +75,14 @@ libc_hidden_proto(printf)
 /* Solaris 2.5 has a bug: <wchar.h> must be included before <wctype.h>.  */
 #  include <wchar.h>
 #  include <wctype.h>
-libc_hidden_proto(wcslen)
-libc_hidden_proto(mbrtowc)
-libc_hidden_proto(wcrtomb)
-libc_hidden_proto(wcscoll)
-libc_hidden_proto(wctype)
-libc_hidden_proto(iswctype)
-libc_hidden_proto(iswalnum)
-libc_hidden_proto(btowc)
+/* libc_hidden_proto(wcslen) */
+/* libc_hidden_proto(mbrtowc) */
+/* libc_hidden_proto(wcrtomb) */
+/* libc_hidden_proto(wcscoll) */
+/* libc_hidden_proto(wctype) */
+/* libc_hidden_proto(iswctype) */
+/* libc_hidden_proto(iswalnum) */
+/* libc_hidden_proto(btowc) */
 
 # endif
 

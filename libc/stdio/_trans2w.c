@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fseek)
+/* libc_hidden_proto(fseek) */
 
 /* Function to handle transition to writing.
  *   Initialize or verify the stream's orientation (even if readonly).

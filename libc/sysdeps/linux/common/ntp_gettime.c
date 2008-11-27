@@ -18,7 +18,7 @@
 
 #include <sys/timex.h>
 
-libc_hidden_proto(adjtimex)
+/* libc_hidden_proto(adjtimex) */
 
 int ntp_gettime(struct ntptimeval *ntv)
 {

@@ -38,10 +38,10 @@
 //libc_hidden_proto(sysctl)
 #endif
 
-libc_hidden_proto(open)
-libc_hidden_proto(read)
+/* libc_hidden_proto(open) */
+/* libc_hidden_proto(read) */
 /* libc_hidden_proto(close) */
-libc_hidden_proto(gettimeofday)
+/* libc_hidden_proto(gettimeofday) */
 
 struct arc4_stream {
 	uint8_t i;
@@ -168,7 +168,7 @@ arc4_getword(as)
 	return val;
 }
 
-libc_hidden_proto(arc4random_stir)
+/* libc_hidden_proto(arc4random_stir) */
 void
 arc4random_stir(void)
 {

@@ -11,5 +11,5 @@
 #if defined __NR_mincore && (defined __USE_BSD || defined __USE_SVID)
 #include <unistd.h>
 #include <sys/mman.h>
-_syscall3(int, mincore, void *, start, size_t, length, unsigned char *, vec);
+_syscall3(int, mincore, void *, start, size_t, length, unsigned char *, vec)
 #endif

@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(__fputc_unlocked)
+/* libc_hidden_proto(__fputc_unlocked) */
 
 #undef putchar
 #ifdef __DO_UNLOCKED

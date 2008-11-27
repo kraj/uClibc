@@ -269,6 +269,7 @@ struct cmsghdr
 
 extern struct cmsghdr *__cmsg_nxthdr (struct msghdr *__mhdr,
 				      struct cmsghdr *__cmsg) __THROW;
+libc_hidden_proto(__cmsg_nxthdr)
 #ifdef __USE_EXTERN_INLINES
 # ifndef _EXTERN_INLINE
 #  define _EXTERN_INLINE extern __inline
@@ -314,7 +315,13 @@ struct ucred
 };
 
 /* Get socket manipulation related informations from kernel headers.  */
+#ifndef __GLIBC__
+#define __GLIBC__ 2
 #include <asm/socket.h>
+#undef __GLIBC__
+#else
+#include <asm/socket.h>
+#endif
 
 
 /* Structure used to manipulate the SO_LINGER option.  */

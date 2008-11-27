@@ -46,7 +46,7 @@ int optind = 1;
 int optopt = 0;
 char *optarg = NULL;
 
-libc_hidden_proto(getopt)
+/* libc_hidden_proto(getopt) */
 int getopt(int argc, char * const argv[], const char *optstring)
 {
 	static const char *o;		/* multi opt position */

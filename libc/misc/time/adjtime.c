@@ -9,7 +9,7 @@
 #include <sys/timex.h>
 #include <errno.h>
 
-libc_hidden_proto(adjtimex)
+/* libc_hidden_proto(adjtimex) */
 
 #define MAX_SEC	(LONG_MAX / 1000000L - 2)
 #define MIN_SEC	(LONG_MIN / 1000000L + 2)

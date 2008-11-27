@@ -17,12 +17,12 @@
 #  define __NR_setgid __NR_setgid32
 # endif
 
-_syscall1(int, setgid, gid_t, gid);
+_syscall1(int, setgid, gid_t, gid)
 
 #else
 
 # define __NR___syscall_setgid __NR_setgid
-static __inline__ _syscall1(int, __syscall_setgid, __kernel_gid_t, gid);
+static __inline__ _syscall1(int, __syscall_setgid, __kernel_gid_t, gid)
 
 int setgid(gid_t gid)
 {

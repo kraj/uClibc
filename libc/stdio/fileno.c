@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fileno_unlocked)
+/* libc_hidden_proto(fileno_unlocked) */
 
 #ifdef __DO_UNLOCKED
 
@@ -25,14 +25,14 @@ int fileno_unlocked(register FILE *stream)
 libc_hidden_def(fileno_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-libc_hidden_proto(fileno)
+/* libc_hidden_proto(fileno) */
 strong_alias(fileno_unlocked,fileno)
 libc_hidden_def(fileno)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-libc_hidden_proto(fileno)
+/* libc_hidden_proto(fileno) */
 int fileno(register FILE *stream)
 {
 	int retval;

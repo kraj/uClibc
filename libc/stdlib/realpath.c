@@ -24,8 +24,8 @@
 /* Experimentally off - libc_hidden_proto(strcat) */
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strlen) */
-libc_hidden_proto(readlink)
-libc_hidden_proto(getcwd)
+/* libc_hidden_proto(readlink) */
+/* libc_hidden_proto(getcwd) */
 
 #ifndef PATH_MAX
 #ifdef _POSIX_VERSION

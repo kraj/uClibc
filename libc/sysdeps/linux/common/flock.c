@@ -11,7 +11,7 @@
 #include <sys/file.h>
 
 #define __NR___syscall_flock __NR_flock
-static __inline__ _syscall2(int, __syscall_flock, int, fd, int, operation);
+static __inline__ _syscall2(int, __syscall_flock, int, fd, int, operation)
 
 int flock(int fd, int operation)
 {

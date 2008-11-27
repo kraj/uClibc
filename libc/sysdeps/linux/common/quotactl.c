@@ -12,5 +12,5 @@
 #if defined __USE_BSD
 #include <sys/quota.h>
 _syscall4(int, quotactl, int, cmd, const char *, special,
-		  int, id, caddr_t, addr);
+		  int, id, caddr_t, addr)
 #endif

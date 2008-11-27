@@ -9,4 +9,4 @@
 
 #include <sys/syscall.h>
 #include <sys/personality.h>
-_syscall1(int, personality, unsigned long int, __persona);
+_syscall1(int, personality, unsigned long int, __persona)

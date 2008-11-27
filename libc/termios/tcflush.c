@@ -21,7 +21,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
-libc_hidden_proto(ioctl)
+/* libc_hidden_proto(ioctl) */
 
 /* Flush pending data on FD.  */
 int

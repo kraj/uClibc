@@ -21,7 +21,7 @@
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(lseek64)
+/* libc_hidden_proto(lseek64) */
 
 # ifndef offsetof
 #  define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
@@ -38,7 +38,7 @@ struct kernel_dirent64
 
 
 # define __NR___syscall_getdents64 __NR_getdents64
-static __inline__ _syscall3(int, __syscall_getdents64, int, fd, unsigned char *, dirp, size_t, count);
+static __inline__ _syscall3(int, __syscall_getdents64, int, fd, unsigned char *, dirp, size_t, count)
 
 ssize_t __getdents64 (int fd, char *buf, size_t nbytes) attribute_hidden;
 ssize_t __getdents64 (int fd, char *buf, size_t nbytes)

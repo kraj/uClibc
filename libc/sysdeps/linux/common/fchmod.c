@@ -12,7 +12,7 @@
 
 #define __NR___syscall_fchmod __NR_fchmod
 static __inline__ _syscall2(int, __syscall_fchmod,
-		int, fildes, __kernel_mode_t, mode);
+		int, fildes, __kernel_mode_t, mode)
 
 int fchmod(int fildes, mode_t mode)
 {

@@ -12,7 +12,7 @@
 
 #ifdef __NR_msgctl
 #define __NR___libc_msgctl __NR_msgctl
-static __inline__ _syscall3(int, __libc_msgctl, int, msqid, int, cmd, struct msqid_ds *, buf);
+static __inline__ _syscall3(int, __libc_msgctl, int, msqid, int, cmd, struct msqid_ds *, buf)
 #endif
 /* Message queue control operation.  */
 int msgctl(int msqid, int cmd, struct msqid_ds *buf)
@@ -50,7 +50,7 @@ struct new_msg_buf{
 #ifdef __NR_msgrcv
 #define __NR___syscall_msgrcv __NR_msgrcv
 static inline _syscall5(int, __syscall_msgrcv, int, msqid, void *, msgp,
-			size_t, msgsz, long int, msgtyp, int, msgflg);
+			size_t, msgsz, long int, msgtyp, int, msgflg)
 #endif
 static inline int do_msgrcv (int msqid, void *msgp, size_t msgsz,
 			    long int msgtyp, int msgflg)
@@ -85,7 +85,7 @@ int msgrcv (int msqid, void *msgp, size_t msgsz,
 #ifdef __NR_msgsnd
 #define __NR___syscall_msgsnd __NR_msgsnd
 static inline _syscall4(int, __syscall_msgsnd, int, msqid, const void *, msgp,
-			size_t, msgsz, int, msgflg);
+			size_t, msgsz, int, msgflg)
 #endif
 /* Send message to message queue.  */
 static inline int do_msgsnd (int msqid, const void *msgp, size_t msgsz,

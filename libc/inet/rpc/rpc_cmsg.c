@@ -46,16 +46,16 @@ static char sccsid[] = "@(#)rpc_callmsg.c 1.4 87/08/11 Copyr 1984 Sun Micro";
 #include <rpc/rpc.h>
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(xdr_enum)
-libc_hidden_proto(xdr_opaque)
-libc_hidden_proto(xdr_u_int)
-libc_hidden_proto(xdr_u_long)
-libc_hidden_proto(xdr_opaque_auth)
+/* libc_hidden_proto(xdr_enum) */
+/* libc_hidden_proto(xdr_opaque) */
+/* libc_hidden_proto(xdr_u_int) */
+/* libc_hidden_proto(xdr_u_long) */
+/* libc_hidden_proto(xdr_opaque_auth) */
 
 /*
  * XDR a call message
  */
-libc_hidden_proto(xdr_callmsg)
+/* libc_hidden_proto(xdr_callmsg) */
 bool_t
 xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 {

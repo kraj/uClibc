@@ -8,7 +8,7 @@
 #include "_stdio.h"
 
 /* Experimentally off - libc_hidden_proto(memcpy) */
-libc_hidden_proto(isatty)
+/* libc_hidden_proto(isatty) */
 
 /* This is pretty much straight from uClibc, but with one important
  * difference.

@@ -11,7 +11,7 @@
 #include <sys/kdaemon.h>
 
 #ifdef __NR_bdflush
-_syscall2(int, bdflush, int, __func, long int, __data);
+_syscall2(int, bdflush, int, __func, long int, __data)
 #else
 int bdflush(int __func, long int __data)
 {

@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 int capget(void *header, void *data);
 #ifdef __NR_capget
-_syscall2(int, capget, void *, header, void *, data);
+_syscall2(int, capget, void *, header, void *, data)
 #else
 int capget(void *header, void *data)
 {

@@ -17,13 +17,13 @@
 #  define __NR_fchown __NR_fchown32
 # endif
 
-_syscall3(int, fchown, int, fd, uid_t, owner, gid_t, group);
+_syscall3(int, fchown, int, fd, uid_t, owner, gid_t, group)
 
 #else
 
 # define __NR___syscall_fchown __NR_fchown
 static __inline__ _syscall3(int, __syscall_fchown, int, fd,
-		__kernel_uid_t, owner, __kernel_gid_t, group);
+		__kernel_uid_t, owner, __kernel_gid_t, group)
 
 int fchown(int fd, uid_t owner, gid_t group)
 {

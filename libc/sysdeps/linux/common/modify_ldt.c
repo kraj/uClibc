@@ -11,5 +11,5 @@
 
 int modify_ldt (int func, void *ptr, unsigned long bytecount);
 #ifdef __NR_modify_ldt
-_syscall3(int, modify_ldt, int, func, void *, ptr, unsigned long, bytecount);
+_syscall3(int, modify_ldt, int, func, void *, ptr, unsigned long, bytecount)
 #endif

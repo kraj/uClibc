@@ -12,7 +12,7 @@
 
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Experimentally off - libc_hidden_proto(strncpy) */
-libc_hidden_proto(getenv)
+/* libc_hidden_proto(getenv) */
 
 /* uClibc makes it policy to not mess with the utmp file whenever
  * possible, since I consider utmp a complete waste of time.  Since
@@ -20,7 +20,7 @@ libc_hidden_proto(getenv)
  * the user specify whatever they want via the LOGNAME environment
  * variable, or we return NULL if getenv() fails to find anything */
 
-libc_hidden_proto(getlogin)
+/* libc_hidden_proto(getlogin) */
 char * getlogin(void)
 {
 	return (getenv("LOGNAME"));

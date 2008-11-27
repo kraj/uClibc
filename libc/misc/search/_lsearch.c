@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <search.h>
 
-libc_hidden_proto(lfind)
+/* libc_hidden_proto(lfind) */
 
 #ifdef L_lfind
 

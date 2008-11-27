@@ -40,7 +40,7 @@
 
 /* Experimentally off - libc_hidden_proto(strncpy) */
 /* Experimentally off - libc_hidden_proto(strdup) */
-libc_hidden_proto(ioctl)
+/* libc_hidden_proto(ioctl) */
 /* libc_hidden_proto(close) */
 #if __ASSUME_NETLINK_SUPPORT
 /* Experimentally off - libc_hidden_proto(strndup) */
@@ -48,7 +48,7 @@ libc_hidden_proto(ioctl)
 
 extern int __opensock(void) attribute_hidden;
 
-libc_hidden_proto(if_nametoindex)
+/* libc_hidden_proto(if_nametoindex) */
 unsigned int
 if_nametoindex(const char* ifname)
 {
@@ -86,7 +86,7 @@ if_nametoindex(const char* ifname)
 }
 libc_hidden_def(if_nametoindex)
 
-libc_hidden_proto(if_freenameindex)
+/* libc_hidden_proto(if_freenameindex) */
 void
 if_freenameindex (struct if_nameindex *ifn)
 {
@@ -100,7 +100,7 @@ if_freenameindex (struct if_nameindex *ifn)
 }
 libc_hidden_def(if_freenameindex)
 
-libc_hidden_proto(if_nameindex)
+/* libc_hidden_proto(if_nameindex) */
 #if !__ASSUME_NETLINK_SUPPORT
 struct if_nameindex *
 if_nameindex (void)

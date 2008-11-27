@@ -46,7 +46,7 @@ do {							\
 	__STDIO_THREADUNLOCK_OPENLIST_DEL;		\
 } while (0)
 
-extern void _stdio_openlist_dec_use(void);
+extern void _stdio_openlist_dec_use(void) attribute_hidden;
 
 #define __STDIO_OPENLIST_DEC_USE			\
 	_stdio_openlist_dec_use()

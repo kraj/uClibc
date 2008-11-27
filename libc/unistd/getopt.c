@@ -125,7 +125,7 @@
 /* Experimentally off - libc_hidden_proto(strcmp) */
 /* Experimentally off - libc_hidden_proto(strlen) */
 /* Experimentally off - libc_hidden_proto(strncmp) */
-libc_hidden_proto(getenv)
+/* libc_hidden_proto(getenv) */
 /* libc_hidden_proto(fprintf) */
 
 /* For communication from `getopt' to the caller.
@@ -1180,6 +1180,7 @@ getopt (int argc, char *const *argv, const char *optstring)
 			   (int *) 0,
 			   0);
 }
+libc_hidden_def(getopt)
 
 int
 getopt_long (int argc, char *const *argv, const char *options,

@@ -7,11 +7,11 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(fgets_unlocked)
+/* libc_hidden_proto(fgets_unlocked) */
 
 #ifdef __DO_UNLOCKED
 
-libc_hidden_proto(__fgetc_unlocked)
+/* libc_hidden_proto(__fgetc_unlocked) */
 
 char *fgets_unlocked(char *__restrict s, int n,
 					   register FILE * __restrict stream)
@@ -64,14 +64,14 @@ char *fgets_unlocked(char *__restrict s, int n,
 libc_hidden_def(fgets_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-libc_hidden_proto(fgets)
+/* libc_hidden_proto(fgets) */
 strong_alias(fgets_unlocked,fgets)
 libc_hidden_def(fgets)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-libc_hidden_proto(fgets)
+/* libc_hidden_proto(fgets) */
 char *fgets(char *__restrict s, int n,
 			register FILE * __restrict stream)
 {

@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-libc_hidden_proto(write)
+/* libc_hidden_proto(write) */
 
 /* Given a writing stream with no buffered output, write the
  * data in 'buf' (which may be the stream's bufstart) of size
