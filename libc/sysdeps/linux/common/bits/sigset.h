@@ -22,9 +22,14 @@
 
 typedef int __sig_atomic_t;
 
-/* A `sigset_t' has a bit for each signal.  */
+/* A 'sigset_t' has a bit for each signal.
+ * Signal 0 does not exist, so we have signals 1..64.
+ * glibc has space for 1024 signals (!), but all arches supported
+ * by Linux have 64 signals only.
+ * See, for example, _NSIG (defined to 65) in signum.h
+ */
 
-# define _SIGSET_NWORDS	(1024 / (8 * sizeof (unsigned long int)))
+# define _SIGSET_NWORDS	(64 / (8 * sizeof (unsigned long int)))
 typedef struct
   {
     unsigned long int __val[_SIGSET_NWORDS];
@@ -47,11 +52,12 @@ typedef struct
 # endif
 
 /* Return a mask that includes the bit for SIG only.  */
+/* Unsigned cast ensures shift/mask insns are used.  */
 # define __sigmask(sig) \
-  (((unsigned long int) 1) << (((sig) - 1) % (8 * sizeof (unsigned long int))))
+  (((unsigned long int) 1) << ((unsigned)((sig) - 1) % (8 * sizeof (unsigned long int))))
 
 /* Return the word index for SIG.  */
-# define __sigword(sig)	(((sig) - 1) / (8 * sizeof (unsigned long int)))
+# define __sigword(sig)	((unsigned)((sig) - 1) / (8 * sizeof (unsigned long int)))
 
 # if defined __GNUC__ && __GNUC__ >= 2
 #  define __sigemptyset(set) \
