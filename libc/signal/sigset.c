@@ -31,17 +31,20 @@ __sighandler_t sigset (int sig, __sighandler_t disp)
   struct sigaction act, oact;
   sigset_t set;
 
+  /* Check signal extents to protect __sigismember.  */
+  if (disp == SIG_ERR || sig < 1 || sig >= NSIG)
+    {
+      __set_errno (EINVAL);
+      return SIG_ERR;
+    }
+
 #ifdef SIG_HOLD
   /* Handle SIG_HOLD first.  */
   if (disp == SIG_HOLD)
     {
       /* Create an empty signal set.  */
-      if (__sigemptyset (&set) < 0)
-	return SIG_ERR;
-
-      /* Add the specified signal.  */
-      if (__sigaddset (&set, sig) < 0)
-	return SIG_ERR;
+      __sigemptyset (&set);
+      __sigaddset (&set, sig);
 
       /* Add the signal set to the current signal mask.  */
       if (sigprocmask (SIG_BLOCK, &set, NULL) < 0)
@@ -51,27 +54,16 @@ __sighandler_t sigset (int sig, __sighandler_t disp)
     }
 #endif	/* SIG_HOLD */
 
-  /* Check signal extents to protect __sigismember.  */
-  if (disp == SIG_ERR || sig < 1 || sig >= NSIG)
-    {
-      __set_errno (EINVAL);
-      return SIG_ERR;
-    }
-
+  memset(&act, 0, sizeof(act));
+  //__sigemptyset (&act.sa_mask);
+  //act.sa_flags = 0;
   act.sa_handler = disp;
-  if (__sigemptyset (&act.sa_mask) < 0)
-    return SIG_ERR;
-  act.sa_flags = 0;
   if (sigaction (sig, &act, &oact) < 0)
     return SIG_ERR;
 
-  /* Create an empty signal set.  */
-  if (__sigemptyset (&set) < 0)
-    return SIG_ERR;
-
-  /* Add the specified signal.  */
-  if (__sigaddset (&set, sig) < 0)
-    return SIG_ERR;
+  /* Create an empty signal set. Add the specified signal.  */
+  __sigemptyset (&set);
+  __sigaddset (&set, sig);
 
   /* Remove the signal set from the current signal mask.  */
   if (sigprocmask (SIG_UNBLOCK, &set, NULL) < 0)

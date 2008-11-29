@@ -60,9 +60,9 @@ void abort(void)
 	__UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE(mylock);
 
 	/* Unmask SIGABRT to be sure we can get it */
-	if (__sigemptyset(&sigs) == 0 && __sigaddset(&sigs, SIGABRT) == 0) {
-		sigprocmask(SIG_UNBLOCK, &sigs, (sigset_t *) NULL);
-	}
+	__sigemptyset(&sigs);
+	__sigaddset(&sigs, SIGABRT);
+	sigprocmask(SIG_UNBLOCK, &sigs, (sigset_t *) NULL);
 
 	while (1) {
 		/* Try to suicide with a SIGABRT */
@@ -91,9 +91,10 @@ abort_it:
 
 			been_there_done_that++;
 			memset(&act, '\0', sizeof(struct sigaction));
-			act.sa_handler = SIG_DFL;
+			if (SIG_DFL) /* if it's constant zero, already done */
+				act.sa_handler = SIG_DFL;
 			__sigfillset(&act.sa_mask);
-			act.sa_flags = 0;
+			/*act.sa_flags = 0; - memset did it */
 			sigaction(SIGABRT, &act, NULL);
 
 			goto abort_it;

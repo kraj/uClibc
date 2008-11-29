@@ -66,9 +66,9 @@ unsigned int sleep (unsigned int seconds)
     /* Linux will wake up the system call, nanosleep, when SIGCHLD
        arrives even if SIGCHLD is ignored.  We have to deal with it
        in libc.  We block SIGCHLD first.  */
-    if (__sigemptyset (&set) < 0
-	    || __sigaddset (&set, SIGCHLD) < 0
-	    || sigprocmask (SIG_BLOCK, &set, &oset))
+    __sigemptyset (&set);
+    __sigaddset (&set, SIGCHLD);
+    if (sigprocmask (SIG_BLOCK, &set, &oset))
 	return -1;
 
     /* If SIGCHLD is already blocked, we don't have to do anything.  */
@@ -77,8 +77,8 @@ unsigned int sleep (unsigned int seconds)
 	int saved_errno;
 	struct sigaction oact;
 
-	if (__sigemptyset (&set) < 0 || __sigaddset (&set, SIGCHLD) < 0)
-	    return -1;
+	__sigemptyset (&set);
+	__sigaddset (&set, SIGCHLD);
 
 	/* We get the signal handler for SIGCHLD.  */
 	if (sigaction (SIGCHLD, (struct sigaction *) NULL, &oact) < 0)
@@ -136,9 +136,9 @@ unsigned int sleep (unsigned int seconds)
 	return 0;
 
     /* block SIGALRM */
-    if (__sigemptyset (&set) < 0
-	    || __sigaddset (&set, SIGALRM) < 0
-	    || sigprocmask (SIG_BLOCK, &set, &oset))
+    __sigemptyset (&set);
+    __sigaddset (&set, SIGALRM);
+    if (sigprocmask (SIG_BLOCK, &set, &oset))
 	return seconds;
 
     act.sa_handler = sleep_alarm_handler;

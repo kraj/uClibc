@@ -19,22 +19,12 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-static __inline__ int __attribute__ ((unused))
+static __inline__ void __attribute__ ((unused))
 sigset_set_old_mask (sigset_t *set, int mask)
 {
-  unsigned long int *ptr;
-  int cnt;
-
-  ptr = &set->__val[0];
-
-  *ptr++ = (unsigned int) mask;
-
-  cnt = _SIGSET_NWORDS - 2;
-  do
-    *ptr++ = 0ul;
-  while (--cnt >= 0);
-
-  return 0;
+  if (_SIGSET_NWORDS > 1)
+    memset(set, 0, sizeof(*set));
+  set->__val[0] = (unsigned int) mask;
 }
 
 static __inline__ int __attribute__ ((unused))

@@ -19,6 +19,7 @@
 #define __UCLIBC_HIDE_DEPRECATED__
 #include <errno.h>
 #include <signal.h>
+#include <string.h>
 
 /* libc_hidden_proto(sigprocmask) */
 
@@ -31,13 +32,9 @@ sigsetmask (int mask)
 {
   sigset_t set, oset;
 
-  if (sigset_set_old_mask (&set, mask) < 0)
-    return -1;
-
+  sigset_set_old_mask (&set, mask);
   if (sigprocmask (SIG_SETMASK, &set, &oset) < 0)
     return -1;
-
-
   return sigset_get_old_mask (&oset);
 }
 libc_hidden_def(sigsetmask)

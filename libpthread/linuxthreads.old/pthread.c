@@ -928,9 +928,11 @@ void __pthread_kill_other_threads_np(void)
   /* Reset the signal handlers behaviour for the signals the
      implementation uses since this would be passed to the new
      process.  */
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = 0;
-  sa.sa_handler = SIG_DFL;
+  memset(&sa, 0, sizeof(sa));
+  /*sigemptyset(&sa.sa_mask);*/
+  /*sa.sa_flags = 0;*/
+  if (SIG_DFL) /* if it's constant zero, it's already done */
+    sa.sa_handler = SIG_DFL;
   __libc_sigaction(__pthread_sig_restart, &sa, NULL);
   __libc_sigaction(__pthread_sig_cancel, &sa, NULL);
   if (__pthread_sig_debug > 0)

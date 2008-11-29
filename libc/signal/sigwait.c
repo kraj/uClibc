@@ -28,8 +28,8 @@
 int __sigwait (const sigset_t *set, int *sig) attribute_hidden;
 int __sigwait (const sigset_t *set, int *sig)
 {
-	int ret = 1;
-	if ((ret = sigwaitinfo(set, NULL)) != -1) {
+	int ret = sigwaitinfo(set, NULL);
+	if (ret != -1) {
 		*sig = ret;
 		return 0;
 	}
@@ -41,7 +41,7 @@ int __sigwait (const sigset_t *set, int *sig)
 /* libc_hidden_proto(sigaction) */
 /* libc_hidden_proto(sigsuspend) */
 
-static int was_sig; /* obviously not thread-safe */
+static smallint was_sig; /* obviously not thread-safe */
 static void ignore_signal(int sig)
 {
 	was_sig = sig;

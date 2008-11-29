@@ -51,10 +51,9 @@ sigprocmask (int how, const sigset_t *set, sigset_t *oset)
 
   if (oset)
     {
+      if (_SIGSET_NWORDS > 1)
+        memset(oset, 0, sizeof(*oset));
       oset->__val[0] = result;
-      result = _SIGSET_NWORDS;
-      while (--result > 0)
-	oset->__val[result] = 0;
     }
   return 0;
 }

@@ -23,6 +23,7 @@
 #define __FAVOR_BSD
 #include <signal.h>
 #include <stddef.h>		/* For NULL.  */
+#include <string.h>
 
 /* libc_hidden_proto(sigprocmask) */
 /* libc_hidden_proto(sigdelset) */
@@ -37,16 +38,18 @@ int __sigpause (int sig_or_mask, int is_sig)
 {
   sigset_t set;
 
-  if (is_sig != 0)
+  if (is_sig)
     {
+//TODO: error check for sig_or_mask = BIGNUM?
+
       /* The modern X/Open implementation is requested.  */
       if (sigprocmask (0, NULL, &set) < 0
 	  /* Yes, we call `sigdelset' and not `__sigdelset'.  */
 	  || sigdelset (&set, sig_or_mask) < 0)
 	return -1;
     }
-  else if (sigset_set_old_mask (&set, sig_or_mask) < 0)
-    return -1;
+  else
+    sigset_set_old_mask (&set, sig_or_mask);
 
   return sigsuspend (&set);
 }
