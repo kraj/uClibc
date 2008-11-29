@@ -875,11 +875,7 @@ libc_hidden_data_def(__ctype_b)
 /**********************************************************************/
 #ifdef L___C_ctype_tolower
 
-//vda:TODO: make static
-
-extern const __ctype_touplow_t __C_ctype_tolower_data[];
-libc_hidden_proto(__C_ctype_tolower_data)
-const __ctype_touplow_t __C_ctype_tolower_data[] = {
+static const __ctype_touplow_t __C_ctype_tolower_data[] = {
 #ifdef __UCLIBC_HAS_CTYPE_SIGNED__
 	-128,         -127,         -126,         -125,
 	-124,         -123,         -122,         -121,
@@ -979,7 +975,6 @@ const __ctype_touplow_t __C_ctype_tolower_data[] = {
 	 248,          249,          250,          251,
 	 252,          253,          254,          255
 };
-libc_hidden_data_def(__C_ctype_tolower_data)
 
 /* libc_hidden_proto(__C_ctype_tolower) */
 const __ctype_touplow_t *__C_ctype_tolower =
@@ -999,11 +994,7 @@ libc_hidden_data_def(__ctype_tolower)
 /**********************************************************************/
 #ifdef L___C_ctype_toupper
 
-//vda:TODO: make static
-
-extern const __ctype_touplow_t __C_ctype_toupper_data[];
-libc_hidden_proto(__C_ctype_toupper_data)
-const __ctype_touplow_t __C_ctype_toupper_data[] = {
+static const __ctype_touplow_t __C_ctype_toupper_data[] = {
 #ifdef __UCLIBC_HAS_CTYPE_SIGNED__
 	-128,         -127,         -126,         -125,
 	-124,         -123,         -122,         -121,
@@ -1103,7 +1094,6 @@ const __ctype_touplow_t __C_ctype_toupper_data[] = {
 	 248,          249,          250,          251,
 	 252,          253,          254,          255
 };
-libc_hidden_data_def(__C_ctype_toupper_data)
 
 /* libc_hidden_proto(__C_ctype_toupper) */
 const __ctype_touplow_t *__C_ctype_toupper =
