@@ -270,6 +270,7 @@ struct cmsghdr
 
 extern struct cmsghdr * __NTH (__cmsg_nxthdr (struct msghdr *__mhdr,
 				      struct cmsghdr *__cmsg)) __THROW;
+libc_hidden_proto(__cmsg_nxthdr)
 #ifdef __USE_EXTERN_INLINES
 # ifndef _EXTERN_INLINE
 #  define _EXTERN_INLINE extern __inline
