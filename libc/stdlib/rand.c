@@ -9,8 +9,7 @@
 
 /* libc_hidden_proto(random) */
 
-int rand (void)
+int rand(void)
 {
-	return((int)random());
+	return (int)random();
 }
-

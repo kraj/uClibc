@@ -99,7 +99,7 @@ _syscall4(int, semtimedop, int, semid, struct sembuf *, sops, size_t, nsops, con
 int semtimedop(int semid, struct sembuf *sops, size_t nsops,
 	       const struct timespec *timeout)
 {
-    return __syscall_ipc(IPCOP_semtimedop, semid, nsops, 0, sops, timeout);
+    return __syscall_ipc(IPCOP_semtimedop, semid, nsops, 0, sops, (void *) timeout);
 }
 #endif
 #endif

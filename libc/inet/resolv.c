@@ -2783,6 +2783,7 @@ int res_init(void)
 #ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
 	rp->retrans = RES_TIMEOUT;
 	rp->retry = 4;
+//TODO: pulls in largish static buffers... use simpler one?
 	rp->id = random();
 #endif
 	rp->ndots = 1;
