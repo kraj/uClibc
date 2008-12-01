@@ -94,7 +94,6 @@ abort_it:
 			if (SIG_DFL) /* if it's constant zero, already done */
 				act.sa_handler = SIG_DFL;
 			__sigfillset(&act.sa_mask);
-			/*act.sa_flags = 0; - memset did it */
 			sigaction(SIGABRT, &act, NULL);
 
 			goto abort_it;

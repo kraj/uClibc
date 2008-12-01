@@ -473,17 +473,13 @@ static void pthread_initialize(void)
      will be inherited by all other threads. */
   memset(&sa, 0, sizeof(sa));
   sa.sa_handler = pthread_handle_sigrestart;
-  /* __sigemptyset(&sa.sa_mask); */
-  /* sa.sa_flags = 0; */
   __libc_sigaction(__pthread_sig_restart, &sa, NULL);
   sa.sa_handler = pthread_handle_sigcancel;
   sigaddset(&sa.sa_mask, __pthread_sig_restart);
-  /* sa.sa_flags = 0; */
   __libc_sigaction(__pthread_sig_cancel, &sa, NULL);
   if (__pthread_sig_debug > 0) {
       sa.sa_handler = pthread_handle_sigdebug;
       __sigemptyset(&sa.sa_mask);
-      /* sa.sa_flags = 0; */
       __libc_sigaction(__pthread_sig_debug, &sa, NULL);
   }
   /* Initially, block __pthread_sig_restart. Will be unblocked on demand. */
@@ -930,8 +926,6 @@ void __pthread_kill_other_threads_np(void)
      implementation uses since this would be passed to the new
      process.  */
   memset(&sa, 0, sizeof(sa));
-  /*__sigemptyset(&sa.sa_mask);*/
-  /*sa.sa_flags = 0;*/
   if (SIG_DFL) /* if it's constant zero, it's already done */
     sa.sa_handler = SIG_DFL;
   __libc_sigaction(__pthread_sig_restart, &sa, NULL);

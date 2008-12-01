@@ -207,10 +207,6 @@ vsyslog(int pri, const char *fmt, va_list ap)
 
 	memset(&action, 0, sizeof(action));
 	action.sa_handler = closelog_intern;
-	/* __sigemptyset(&action.sa_mask); - memset already did it */
-	/* Only two errors are possible for sigaction:
-	 * EFAULT (bad address of &oldaction) and EINVAL (invalid signo)
-	 * none of which can happen here. */
 	sigaction(SIGPIPE, &action, &oldaction);
 
 	saved_errno = errno;

@@ -209,8 +209,6 @@ int sigwait(const sigset_t * set, int * sig)
 	  sighandler[s].old == (arch_sighandler_t) SIG_IGN) {
         memset(&sa, 0, sizeof(sa));
         sa.sa_handler = pthread_null_sighandler;
-        /* __sigemptyset(&sa.sa_mask); */
-        /* sa.sa_flags = 0; */
         sigaction(s, &sa, NULL);
       }
     }

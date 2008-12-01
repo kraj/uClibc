@@ -111,7 +111,6 @@ lckpwdf (void)
   memset (&new_act, '\0', sizeof (struct sigaction));
   new_act.sa_handler = noop_handler;
   __sigfillset (&new_act.sa_mask);
-  /* new_act.sa_flags = 0; */
 
   /* Install new action handler for alarm and save old.  */
   if (sigaction (SIGALRM, &new_act, &saved_act) < 0) {

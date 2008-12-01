@@ -55,8 +55,6 @@ __sighandler_t sigset (int sig, __sighandler_t disp)
 #endif	/* SIG_HOLD */
 
   memset(&act, 0, sizeof(act));
-  //__sigemptyset (&act.sa_mask);
-  //act.sa_flags = 0;
   act.sa_handler = disp;
   if (sigaction (sig, &act, &oact) < 0)
     return SIG_ERR;
