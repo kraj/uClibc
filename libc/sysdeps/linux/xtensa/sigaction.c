@@ -20,14 +20,18 @@ extern void __default_sa_restorer (void);
 /* Experimentally off - libc_hidden_proto(memcpy) */
 
 int __libc_sigaction (int signum, const struct sigaction *act,
-					  struct sigaction *oldact)
+					  struct sigaction *oact)
 {
-	struct kernel_sigaction kact, koldact;
+	struct kernel_sigaction kact, koact;
 	int result;
+	enum {
+		SIGSET_MIN_SIZE = sizeof(kact.sa_mask) < sizeof(act->sa_mask)
+				? sizeof(kact.sa_mask) : sizeof(act->sa_mask)
+	};
 
 	if (act) {
 		kact.k_sa_handler = act->sa_handler;
-		memcpy(&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
+		memcpy(&kact.sa_mask, &act->sa_mask, SIGSET_MIN_SIZE);
 		kact.sa_flags = act->sa_flags;
 
 		if (kact.sa_flags & SA_RESTORER) {
@@ -38,15 +42,18 @@ int __libc_sigaction (int signum, const struct sigaction *act,
 		}
 	}
 
-	result = __syscall_rt_sigaction(signum, act ? __ptrvalue (&kact) : NULL,
-									oldact ? __ptrvalue (&koldact) : NULL,
-									_NSIG / 8);
+	/* NB: kernel (as of 2.6.25) will return EINVAL
+	 * if sizeof(kact.sa_mask) does not match kernel's sizeof(sigset_t) */
+	result = __syscall_rt_sigaction(signum,
+			act ? __ptrvalue (&kact) : NULL,
+			oact ? __ptrvalue (&koact) : NULL,
+			sizeof(kact.sa_mask));
 
-	if (oldact && result >= 0) {
-		oldact->sa_handler = koldact.k_sa_handler;
-		memcpy(&oldact->sa_mask, &koldact.sa_mask, sizeof(oldact->sa_mask));
-		oldact->sa_flags = koldact.sa_flags;
-		oldact->sa_restorer = koldact.sa_restorer;
+	if (oact && result >= 0) {
+		oact->sa_handler = koact.k_sa_handler;
+		memcpy(&oact->sa_mask, &koact.sa_mask, SIGSET_MIN_SIZE);
+		oact->sa_flags = koact.sa_flags;
+		oact->sa_restorer = koact.sa_restorer;
 	}
 
 	return result;

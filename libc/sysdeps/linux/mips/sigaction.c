@@ -47,36 +47,42 @@ static void restore (void) __asm__ ("__restore");
    If OACT is not NULL, put the old action for SIG in *OACT.  */
 int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
-    int result;
-    struct kernel_sigaction kact, koact;
+	int result;
+	struct kernel_sigaction kact, koact;
+	enum {
+		SIGSET_MIN_SIZE = sizeof(kact.sa_mask) < sizeof(act->sa_mask)
+				? sizeof(kact.sa_mask) : sizeof(act->sa_mask)
+	};
 
-    if (act) {
-	kact.k_sa_handler = act->sa_handler;
-	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
-	kact.sa_flags = act->sa_flags;
+	if (act) {
+		kact.k_sa_handler = act->sa_handler;
+		memcpy (&kact.sa_mask, &act->sa_mask, SIGSET_MIN_SIZE);
+		kact.sa_flags = act->sa_flags;
 # ifdef HAVE_SA_RESTORER
 #  if _MIPS_SIM == _ABIO32
-	kact.sa_restorer = act->sa_restorer;
+		kact.sa_restorer = act->sa_restorer;
 #  else
-	kact.sa_restorer = &restore_rt;
+		kact.sa_restorer = &restore_rt;
 #  endif
 # endif
-    }
+	}
 
-    /* XXX The size argument hopefully will have to be changed to the
-       real size of the user-level sigset_t.  */
-    result = __syscall_rt_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
-	    oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
+	/* NB: kernel (as of 2.6.25) will return EINVAL
+	 * if sizeof(kact.sa_mask) does not match kernel's sizeof(sigset_t) */
+	result = __syscall_rt_sigaction(sig,
+			act ? __ptrvalue (&kact) : NULL,
+			oact ? __ptrvalue (&koact) : NULL,
+			sizeof(kact.sa_mask));
 
-    if (oact && result >= 0) {
-	oact->sa_handler = koact.k_sa_handler;
-	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
-	oact->sa_flags = koact.sa_flags;
+	if (oact && result >= 0) {
+		oact->sa_handler = koact.k_sa_handler;
+		memcpy (&oact->sa_mask, &koact.sa_mask, SIGSET_MIN_SIZE);
+		oact->sa_flags = koact.sa_flags;
 # ifdef HAVE_SA_RESTORER
-	oact->sa_restorer = koact.sa_restorer;
+		oact->sa_restorer = koact.sa_restorer;
 # endif
-    }
-    return result;
+	}
+	return result;
 }
 
 

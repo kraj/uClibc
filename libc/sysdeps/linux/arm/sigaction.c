@@ -51,34 +51,41 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 {
     int result;
     struct kernel_sigaction kact, koact;
+	enum {
+		SIGSET_MIN_SIZE = sizeof(kact.sa_mask) < sizeof(act->sa_mask)
+				? sizeof(kact.sa_mask) : sizeof(act->sa_mask)
+	};
 
-    if (act) {
-	kact.k_sa_handler = act->sa_handler;
-	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
-	kact.sa_flags = act->sa_flags;
+	if (act) {
+		kact.k_sa_handler = act->sa_handler;
+		memcpy (&kact.sa_mask, &act->sa_mask, SIGSET_MIN_SIZE);
+		kact.sa_flags = act->sa_flags;
 # ifdef HAVE_SA_RESTORER
-	if (kact.sa_flags & SA_RESTORER) {
-	    kact.sa_restorer = act->sa_restorer;
-	} else {
-	    kact.sa_restorer = choose_restorer (kact.sa_flags);
-	    kact.sa_flags |= SA_RESTORER;
+		if (kact.sa_flags & SA_RESTORER) {
+			kact.sa_restorer = act->sa_restorer;
+		} else {
+			kact.sa_restorer = choose_restorer (kact.sa_flags);
+			kact.sa_flags |= SA_RESTORER;
+		}
+# endif
 	}
-# endif
-    }
 
-    /* XXX The size argument hopefully will have to be changed to the
-       real size of the user-level sigset_t.  */
-    result = __syscall_rt_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
-	    oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
-    if (oact && result >= 0) {
-	oact->sa_handler = koact.k_sa_handler;
-	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
-	oact->sa_flags = koact.sa_flags;
+	/* NB: kernel (as of 2.6.25) will return EINVAL
+	 * if sizeof(kact.sa_mask) does not match kernel's sizeof(sigset_t) */
+	result = __syscall_rt_sigaction(sig,
+			act ? __ptrvalue (&kact) : NULL,
+			oact ? __ptrvalue (&koact) : NULL,
+			sizeof(kact.sa_mask));
+
+	if (oact && result >= 0) {
+		oact->sa_handler = koact.k_sa_handler;
+		memcpy (&oact->sa_mask, &koact.sa_mask, SIGSET_MIN_SIZE);
+		oact->sa_flags = koact.sa_flags;
 # ifdef HAVE_SA_RESTORER
-	oact->sa_restorer = koact.sa_restorer;
+		oact->sa_restorer = koact.sa_restorer;
 # endif
-    }
-    return result;
+	}
+	return result;
 }
 
 

@@ -23,15 +23,24 @@
 typedef int __sig_atomic_t;
 
 /* A 'sigset_t' has a bit for each signal.
- * Signal 0 does not exist, so we have signals 1..64.
- * glibc has space for 1024 signals (!), but all arches supported
- * by Linux have 64 signals only.
- * See, for example, _NSIG (defined to 65) in signum.h
+ * glibc has space for 1024 signals (!), but most arches supported
+ * by Linux have 64 signals, and only MIPS has 128.
+ * There seems to be some historical baggage in sparc[64]
+ * where they might have (or had in the past) 32 signals only,
+ * I hope it's irrelevant now.
+ * Signal 0 does not exist, so we have signals 1..64, not 0..63.
+ * Note that struct sigaction has embedded sigset_t,
+ * and this necessitates translation in sigaction()
+ * to convert it to struct kernel_sigaction.
+ * See libc/.../sigaction.c, libc/.../kernel_sigaction.h
  */
-
-# define _SIGSET_NWORDS	(64 / (8 * sizeof (unsigned long int)))
+#if defined(__mips__)
+# define _SIGSET_NWORDS	(128 / (8 * sizeof (unsigned long)))
+#else
+# define _SIGSET_NWORDS	(64 / (8 * sizeof (unsigned long)))
+#endif
 typedef struct {
-	unsigned long int __val[_SIGSET_NWORDS];
+	unsigned long __val[_SIGSET_NWORDS];
 } __sigset_t;
 
 #endif
@@ -53,10 +62,10 @@ typedef struct {
 /* Return a mask that includes the bit for SIG only.  */
 /* Unsigned cast ensures shift/mask insns are used.  */
 # define __sigmask(sig) \
-  (((unsigned long int) 1) << ((unsigned)((sig) - 1) % (8 * sizeof (unsigned long int))))
+  (((unsigned long) 1) << ((unsigned)((sig) - 1) % (8 * sizeof (unsigned long))))
 
 /* Return the word index for SIG.  */
-# define __sigword(sig)	((unsigned)((sig) - 1) / (8 * sizeof (unsigned long int)))
+# define __sigword(sig)	((unsigned)((sig) - 1) / (8 * sizeof (unsigned long)))
 
 /* gcc 4.3.1 is not clever enough to optimize for _SIGSET_NWORDS == 1 and 2,
  * which are about the only values which can be there */
@@ -161,8 +170,8 @@ libc_hidden_proto(__sigdelset)
 _EXTERN_INLINE int							\
 NAME (CONST __sigset_t *__set, int __sig)				\
 {									\
-	unsigned long int __mask = __sigmask (__sig);			\
-	unsigned long int __word = __sigword (__sig);			\
+	unsigned long __mask = __sigmask (__sig);			\
+	unsigned long __word = __sigword (__sig);			\
 	return BODY;							\
 }
 

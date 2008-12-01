@@ -65,7 +65,7 @@
 #define SIGXFSZ		31	/* File size limit exceeded (4.2 BSD).  */
 
 
-#define _NSIG		128	/* Biggest signal number + 1
+#define _NSIG		129	/* Biggest signal number + 1
 				   (including real-time signals).  */
 
 #define SIGRTMIN	(__libc_current_sigrtmin ())
