@@ -74,6 +74,8 @@ int __sigwait (const sigset_t *set, int *sig)
         __sigdelset (&tmp_mask, this);
 
         /* Register temporary action handler.  */
+        /* In Linux (as of 2.6.25), fails only if sig is SIGKILL or SIGSTOP */
+        /* (so, will it work correctly if set has, say, SIGSTOP?) */
         if (sigaction (this, &action, &saved[this]) != 0)
           goto restore_handler;
       }

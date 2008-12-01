@@ -28,7 +28,7 @@ int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 	if (set &&
 # if (SIG_BLOCK == 0) && (SIG_UNBLOCK == 1) && (SIG_SETMASK == 2)
 		(((unsigned int) how) > 2)
-#elif (SIG_BLOCK == 1) && (SIG_UNBLOCK == 2) && (SIG_SETMASK == 3)
+# elif (SIG_BLOCK == 1) && (SIG_UNBLOCK == 2) && (SIG_SETMASK == 3)
 		(((unsigned int)(how-1)) > 2)
 # else
 #  warning "compile time assumption violated.. slow path..."
@@ -55,7 +55,7 @@ int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 	if (set &&
 # if (SIG_BLOCK == 0) && (SIG_UNBLOCK == 1) && (SIG_SETMASK == 2)
 		(((unsigned int) how) > 2)
-#elif (SIG_BLOCK == 1) && (SIG_UNBLOCK == 2) && (SIG_SETMASK == 3)
+# elif (SIG_BLOCK == 1) && (SIG_UNBLOCK == 2) && (SIG_SETMASK == 3)
 		(((unsigned int)(how-1)) > 2)
 # else
 #  warning "compile time assumption violated.. slow path..."

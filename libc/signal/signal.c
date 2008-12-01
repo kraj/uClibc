@@ -45,6 +45,7 @@ __bsd_signal (int sig, __sighandler_t handler)
   __sigemptyset (&act.sa_mask);
   __sigaddset (&act.sa_mask, sig);
   act.sa_flags = __sigismember (&_sigintr, sig) ? 0 : SA_RESTART;
+  /* In Linux (as of 2.6.25), fails only if sig is SIGKILL or SIGSTOP */
   if (sigaction (sig, &act, &oact) < 0)
     return SIG_ERR;
 

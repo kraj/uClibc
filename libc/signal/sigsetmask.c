@@ -33,8 +33,7 @@ sigsetmask (int mask)
   sigset_t set, oset;
 
   sigset_set_old_mask (&set, mask);
-  if (sigprocmask (SIG_SETMASK, &set, &oset) < 0)
-    return -1;
+  sigprocmask (SIG_SETMASK, &set, &oset); /* can't fail */
   return sigset_get_old_mask (&oset);
 }
 libc_hidden_def(sigsetmask)

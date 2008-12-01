@@ -68,8 +68,7 @@ unsigned int sleep (unsigned int seconds)
        in libc.  We block SIGCHLD first.  */
     __sigemptyset (&set);
     __sigaddset (&set, SIGCHLD);
-    if (sigprocmask (SIG_BLOCK, &set, &oset))
-	return -1;
+    sigprocmask (SIG_BLOCK, &set, &oset); /* can't fail */
 
     /* If SIGCHLD is already blocked, we don't have to do anything.  */
     if (!__sigismember (&oset, SIGCHLD))
@@ -80,15 +79,7 @@ unsigned int sleep (unsigned int seconds)
 	__sigemptyset (&set);
 	__sigaddset (&set, SIGCHLD);
 
-	/* We get the signal handler for SIGCHLD.  */
-	if (sigaction (SIGCHLD, (struct sigaction *) NULL, &oact) < 0)
-	{
-	    saved_errno = errno;
-	    /* Restore the original signal mask.  */
-	    (void) sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
-	    __set_errno (saved_errno);
-	    return -1;
-	}
+	sigaction (SIGCHLD, NULL, &oact); /* never fails */
 
 	if (oact.sa_handler == SIG_IGN)
 	{
@@ -97,13 +88,13 @@ unsigned int sleep (unsigned int seconds)
 
 	    saved_errno = errno;
 	    /* Restore the original signal mask.  */
-	    (void) sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
+	    sigprocmask (SIG_SETMASK, &oset, NULL);
 	    __set_errno (saved_errno);
 	}
 	else
 	{
 	    /* We should unblock SIGCHLD.  Restore the original signal mask.  */
-	    (void) sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
+	    sigprocmask (SIG_SETMASK, &oset, NULL);
 	    result = nanosleep (&ts, &ts);
 	}
     }
@@ -138,27 +129,25 @@ unsigned int sleep (unsigned int seconds)
     /* block SIGALRM */
     __sigemptyset (&set);
     __sigaddset (&set, SIGALRM);
-    if (sigprocmask (SIG_BLOCK, &set, &oset))
-	return seconds;
+    sigprocmask (SIG_BLOCK, &set, &oset); /* can't fail */
 
     act.sa_handler = sleep_alarm_handler;
     act.sa_flags = 0;
     act.sa_mask = oset;
-    if (sigaction(SIGALRM, &act, &oact) < 0)
-	return seconds;
+    sigaction(SIGALRM, &act, &oact); /* never fails */
 
     before = time(NULL);
     remaining = alarm(seconds);
     if (remaining && remaining > seconds) {
 	/* restore user's alarm */
-	(void) sigaction(SIGALRM, &oact, (struct sigaction *) NULL);
+	sigaction(SIGALRM, &oact, NULL);
 	alarm(remaining); /* restore old alarm */
 	sigsuspend(&oset);
 	after = time(NULL);
     } else {
 	sigsuspend (&oset);
 	after = time(NULL);
-	(void) sigaction (SIGALRM, &oact, NULL);
+	sigaction (SIGALRM, &oact, NULL);
     }
     result = after - before;
     alarm(remaining > result ? remaining - result : 0);

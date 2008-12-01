@@ -34,6 +34,7 @@ int siginterrupt (int sig, int interrupt)
 #ifdef	SA_RESTART
   struct sigaction action;
 
+  /* Fails if sig is bad.  */
   if (sigaction (sig, NULL, &action) < 0)
     return -1;
 

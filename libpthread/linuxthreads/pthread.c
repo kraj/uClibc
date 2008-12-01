@@ -831,8 +831,7 @@ int __pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   request.req_args.create.attr = attr;
   request.req_args.create.fn = start_routine;
   request.req_args.create.arg = arg;
-  sigprocmask(SIG_SETMASK, (const sigset_t *) NULL,
-              &request.req_args.create.mask);
+  sigprocmask(SIG_SETMASK, NULL, &request.req_args.create.mask);
   TEMP_FAILURE_RETRY(write_not_cancel(__pthread_manager_request,
 				      (char *) &request, sizeof(request)));
   suspend(self);

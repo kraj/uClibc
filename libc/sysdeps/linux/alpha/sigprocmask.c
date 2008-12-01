@@ -44,7 +44,7 @@ sigprocmask (int how, const sigset_t *set, sigset_t *oset)
 
   result = osf_sigprocmask(how, setval);
   if (result == -1)
-    /* If there are ever more than 63 signals, we need to recode this
+    /* If there are ever more than 64 signals, we need to recode this
        in assembler since we wouldn't be able to distinguish a mask of
        all 1s from -1, but for now, we're doing just fine... */
     return result;

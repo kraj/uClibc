@@ -62,7 +62,7 @@ void abort(void)
 	/* Unmask SIGABRT to be sure we can get it */
 	__sigemptyset(&sigs);
 	__sigaddset(&sigs, SIGABRT);
-	sigprocmask(SIG_UNBLOCK, &sigs, (sigset_t *) NULL);
+	sigprocmask(SIG_UNBLOCK, &sigs, NULL);
 
 	while (1) {
 		/* Try to suicide with a SIGABRT */

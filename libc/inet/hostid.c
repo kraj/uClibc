@@ -33,11 +33,13 @@ int sethostid(long int new_id)
 	int fd;
 	int ret;
 
-	if (geteuid() || getuid()) return __set_errno(EPERM);
-	if ((fd=open(HOSTID,O_CREAT|O_WRONLY,0644))<0) return -1;
-	ret = write(fd,(void *)&new_id,sizeof(new_id)) == sizeof(new_id)
-		? 0 : -1;
-	close (fd);
+	if (geteuid() || getuid())
+		return __set_errno(EPERM);
+	fd = open(HOSTID, O_CREAT|O_WRONLY, 0644);
+	if (fd < 0)
+		return fd;
+	ret = write(fd, &new_id, sizeof(new_id)) == sizeof(new_id) ? 0 : -1;
+	close(fd);
 	return ret;
 }
 #endif
@@ -51,7 +53,8 @@ long int gethostid(void)
 	 * It is not an error if we cannot read this file. It is not even an
 	 * error if we cannot read all the bytes, we just carry on trying...
 	 */
-	if ((fd=open(HOSTID,O_RDONLY))>=0 && read(fd,(void *)&id,sizeof(id)))
+	fd = open(HOSTID, O_RDONLY);
+	if (fd >= 0 && read(fd, &id, sizeof(id)))
 	{
 		close (fd);
 		return id;
@@ -69,7 +72,7 @@ long int gethostid(void)
 	 * setting one anyway.
 	 *						Mitch
 	 */
-	if (gethostname(host,MAXHOSTNAMELEN)>=0 && *host) {
+	if (gethostname(host, MAXHOSTNAMELEN) >= 0 && *host) {
 		struct hostent *hp;
 		struct in_addr in;
 		struct hostent ghbn_h;
@@ -84,21 +87,17 @@ long int gethostid(void)
 		/*if ((hp = gethostbyname(host)) == (struct hostent *)NULL)*/
 		gethostbyname_r(host, &ghbn_h, ghbn_buf, sizeof(ghbn_buf), &hp, &ghbn_errno);
 
-		if (hp == (struct hostent *)NULL)
-
+		if (hp == NULL) {
 		/* This is not a error if we get here, as all it means is that
 		 * this host is not on a network and/or they have not
 		 * configured their network properly. So we return the unset
 		 * hostid which should be 0, meaning that they should set it !!
 		 */
 			return 0;
-		else {
-			memcpy((char *) &in, (char *) hp->h_addr, hp->h_length);
-
-			/* Just so it doesn't look exactly like the IP addr */
-			return(in.s_addr<<16|in.s_addr>>16);
 		}
+		memcpy(&in, hp->h_addr, hp->h_length);
+		/* Just so it doesn't look exactly like the IP addr */
+		return (in.s_addr<<16 | in.s_addr>>16);
 	}
-	else return 0;
-
+	return 0;
 }

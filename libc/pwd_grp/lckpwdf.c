@@ -80,25 +80,8 @@ lckpwdf (void)
 
   /* Make sure file gets correctly closed when process finished.  */
   flags = fcntl (lock_fd, F_GETFD);
-#if 0 /* never fails */
-  if (flags == -1) {
-    /* Cannot get file flags.  */
-    close(lock_fd);
-    lock_fd = -1;
-	goto DONE;
-  }
-#endif
   flags |= FD_CLOEXEC;
-#if 1
   fcntl (lock_fd, F_SETFD, flags);
-#else /* never fails */
-  if (fcntl (lock_fd, F_SETFD, flags) < 0) {
-    /* Cannot set new flags.  */
-    close(lock_fd);
-    lock_fd = -1;
-	goto DONE;
-  }
-#endif
   /* Now we have to get exclusive write access.  Since multiple
      process could try this we won't stop when it first fails.
      Instead we set a timeout for the system call.  Once the timer
@@ -112,27 +95,14 @@ lckpwdf (void)
   new_act.sa_handler = noop_handler;
   __sigfillset (&new_act.sa_mask);
 
-  /* Install new action handler for alarm and save old.  */
-  if (sigaction (SIGALRM, &new_act, &saved_act) < 0) {
-    /* Cannot install signal handler.  */
-    close(lock_fd);
-    lock_fd = -1;
-	goto DONE;
-  }
+  /* Install new action handler for alarm and save old.
+   * This never fails in Linux.  */
+  sigaction (SIGALRM, &new_act, &saved_act);
 
   /* Now make sure the alarm signal is not blocked.  */
   __sigemptyset (&new_set);
   __sigaddset (&new_set, SIGALRM);
-#if 1
   sigprocmask (SIG_UNBLOCK, &new_set, &saved_set);
-#else /* never fails */
-  if (sigprocmask (SIG_UNBLOCK, &new_set, &saved_set) < 0) {
-    sigaction (SIGALRM, &saved_act, NULL);
-    close(lock_fd);
-    lock_fd = -1;
-	goto DONE;
-  }
-#endif
 
   /* Start timer.  If we cannot get the lock in the specified time we
      get a signal.  */

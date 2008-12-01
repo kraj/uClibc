@@ -42,13 +42,11 @@ __sighandler_t sigset (int sig, __sighandler_t disp)
   /* Handle SIG_HOLD first.  */
   if (disp == SIG_HOLD)
     {
-      /* Create an empty signal set.  */
       __sigemptyset (&set);
       __sigaddset (&set, sig);
 
       /* Add the signal set to the current signal mask.  */
-      if (sigprocmask (SIG_BLOCK, &set, NULL) < 0)
-	return SIG_ERR;
+      sigprocmask (SIG_BLOCK, &set, NULL); /* can't fail */
 
       return SIG_HOLD;
     }
@@ -56,6 +54,7 @@ __sighandler_t sigset (int sig, __sighandler_t disp)
 
   memset(&act, 0, sizeof(act));
   act.sa_handler = disp;
+  /* In Linux (as of 2.6.25), fails only if sig is SIGKILL or SIGSTOP */
   if (sigaction (sig, &act, &oact) < 0)
     return SIG_ERR;
 
@@ -64,8 +63,7 @@ __sighandler_t sigset (int sig, __sighandler_t disp)
   __sigaddset (&set, sig);
 
   /* Remove the signal set from the current signal mask.  */
-  if (sigprocmask (SIG_UNBLOCK, &set, NULL) < 0)
-    return SIG_ERR;
+  sigprocmask (SIG_UNBLOCK, &set, NULL); /* can't fail */
 
   return oact.sa_handler;
 }
