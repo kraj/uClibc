@@ -36,21 +36,21 @@ char * l64a (long int n)
 {
   unsigned long int m = (unsigned long int) n;
   static char result[7];
-  int cnt;
+  char *p;
 
   /* The standard says that only 32 bits are used.  */
-  m &= 0xffffffff;
+  if (sizeof(m) != 4)
+    m &= 0xffffffff;
 
-  if (m == 0ul)
-    /* The value for N == 0 is defined to be the empty string. */
-    return (char *) "";
-
-  for (cnt = 0; m > 0ul; ++cnt)
+  /* The value for N == 0 is defined to be the empty string,
+   * this code provides that as well. */
+  p = result;
+  while (m)
     {
-      result[cnt] = conv_table[m & 0x3f];
+      *p++ = conv_table[m & 0x3f];
       m >>= 6;
     }
-  result[cnt] = '\0';
+  *p = '\0';
 
-  return result;
+  return p;
 }
