@@ -30,10 +30,9 @@ int sighold (int sig)
   sigset_t set;
 
   /* Retrieve current signal set.  */
-  if (sigprocmask (SIG_SETMASK, NULL, &set) < 0)
-    return -1;
+  sigprocmask (SIG_SETMASK, NULL, &set); /* can't fail */
 
-  /* Add the specified signal.  */
+  /* Bound-check sig, add it to the set.  */
   if (sigaddset (&set, sig) < 0)
     return -1;
 

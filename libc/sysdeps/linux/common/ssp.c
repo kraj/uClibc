@@ -52,8 +52,7 @@ static void block_signals(void)
 	sigset_t mask;
 
 	__sigfillset(&mask);
-
-	sigdelset(&mask, SSP_SIGTYPE);	/* Block all signal handlers */
+	__sigdelset(&mask, SSP_SIGTYPE);	/* Block all signal handlers */
 	sigprocmask(SIG_BLOCK, &mask, NULL);	/* except SSP_SIGTYPE */
 
 	/* Make the default handler associated with the signal handler */

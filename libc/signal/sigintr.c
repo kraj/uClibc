@@ -34,7 +34,7 @@ int siginterrupt (int sig, int interrupt)
 #ifdef	SA_RESTART
   struct sigaction action;
 
-  if (sigaction (sig, (struct sigaction *) NULL, &action) < 0)
+  if (sigaction (sig, NULL, &action) < 0)
     return -1;
 
   if (interrupt)
@@ -48,10 +48,7 @@ int siginterrupt (int sig, int interrupt)
       action.sa_flags |= SA_RESTART;
     }
 
-  if (sigaction (sig, &action, (struct sigaction *) NULL) < 0)
-    return -1;
-
-  return 0;
+  return sigaction (sig, &action, NULL);
 #else
   __set_errno (ENOSYS);
   return -1;
