@@ -84,7 +84,7 @@ static bool_t clntraw_freeres (CLIENT *, xdrproc_t, caddr_t);
 static bool_t clntraw_control (CLIENT *, int, char *);
 static void clntraw_destroy (CLIENT *);
 
-static struct clnt_ops client_ops =
+static const struct clnt_ops client_ops =
 {
   clntraw_call,
   clntraw_abort,

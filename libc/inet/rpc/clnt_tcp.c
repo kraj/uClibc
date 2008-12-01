@@ -117,7 +117,7 @@ static bool_t clnttcp_freeres (CLIENT *, xdrproc_t, caddr_t);
 static bool_t clnttcp_control (CLIENT *, int, char *);
 static void clnttcp_destroy (CLIENT *);
 
-static struct clnt_ops tcp_ops =
+static const struct clnt_ops tcp_ops =
 {
   clnttcp_call,
   clnttcp_abort,
