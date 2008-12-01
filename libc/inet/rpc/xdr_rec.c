@@ -68,7 +68,7 @@ static bool_t xdrrec_getbytes (XDR *, caddr_t, u_int);
 static bool_t xdrrec_putbytes (XDR *, const char *, u_int);
 static bool_t xdrrec_getint32 (XDR *, int32_t *);
 static bool_t xdrrec_putint32 (XDR *, const int32_t *);
-#if ULONG_MAX != UINT_MAX
+#if ULONG_MAX != 0xffffffff
 static bool_t xdrrec_getlong (XDR *, long *);
 static bool_t xdrrec_putlong (XDR *, const long *);
 #endif
@@ -78,7 +78,7 @@ static int32_t *xdrrec_inline (XDR *, u_int);
 static void xdrrec_destroy (XDR *);
 
 static const struct xdr_ops xdrrec_ops = {
-#if ULONG_MAX == UINT_MAX
+#if ULONG_MAX == 0xffffffff
   (bool_t (*)(XDR *, long *)) xdrrec_getint32,
   (bool_t (*)(XDR *, const long *)) xdrrec_putint32,
 #else
@@ -249,7 +249,7 @@ xdrrec_getint32 (XDR *xdrs, int32_t *ip)
   return TRUE;
 }
 
-#if ULONG_MAX != UINT_MAX
+#if ULONG_MAX != 0xffffffff
 static bool_t
 xdrrec_getlong (XDR *xdrs, long *lp)
 {
@@ -283,7 +283,7 @@ xdrrec_putint32 (XDR *xdrs, const int32_t *ip)
   return TRUE;
 }
 
-#if ULONG_MAX != UINT_MAX
+#if ULONG_MAX != 0xffffffff
 static bool_t
 xdrrec_putlong (XDR *xdrs, const long *lp)
 {
