@@ -132,7 +132,7 @@ __pthread_manager(void *arg)
   self->p_h_errnop = &self->p_h_errno;
 #endif
   /* Block all signals except __pthread_sig_cancel and SIGTRAP */
-  sigfillset(&manager_mask);
+  __sigfillset(&manager_mask);
   sigdelset(&manager_mask, __pthread_sig_cancel); /* for thread termination */
   sigdelset(&manager_mask, SIGTRAP);            /* for debugging purposes */
   if (__pthread_threads_debug && __pthread_sig_debug > 0)

@@ -76,7 +76,7 @@ __attribute__ ((noinline))
 change_sigmask (int how, sigset_t *oss)
 {
   sigset_t ss;
-  sigfillset (&ss);
+  __sigfillset (&ss);
   return pthread_sigmask (how, &ss, oss);
 }
 

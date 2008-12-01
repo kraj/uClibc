@@ -39,10 +39,8 @@
 /* libc_hidden_proto(sigemptyset) */
 /* libc_hidden_proto(alarm) */
 
-/* How long to wait for getting the lock before returning with an
-   error.  */
+/* How long to wait for getting the lock before returning with an error.  */
 #define TIMEOUT 15 /* sec */
-
 
 /* File descriptor for lock file.  */
 static int lock_fd = -1;
@@ -50,7 +48,6 @@ static int lock_fd = -1;
 /* Prevent problems in multithreaded program by using mutex.  */
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
-
 
 /* Prototypes for local functions.  */
 static void noop_handler (int __sig);
@@ -82,33 +79,39 @@ lckpwdf (void)
   }
 
   /* Make sure file gets correctly closed when process finished.  */
-  flags = fcntl (lock_fd, F_GETFD, 0);
+  flags = fcntl (lock_fd, F_GETFD);
+#if 0 /* never fails */
   if (flags == -1) {
     /* Cannot get file flags.  */
     close(lock_fd);
     lock_fd = -1;
 	goto DONE;
   }
-  flags |= FD_CLOEXEC;		/* Close on exit.  */
+#endif
+  flags |= FD_CLOEXEC;
+#if 1
+  fcntl (lock_fd, F_SETFD, flags);
+#else /* never fails */
   if (fcntl (lock_fd, F_SETFD, flags) < 0) {
     /* Cannot set new flags.  */
     close(lock_fd);
     lock_fd = -1;
 	goto DONE;
   }
-
+#endif
   /* Now we have to get exclusive write access.  Since multiple
      process could try this we won't stop when it first fails.
      Instead we set a timeout for the system call.  Once the timer
      expires it is likely that there are some problems which cannot be
-     resolved by waiting.
+     resolved by waiting. (sa_flags have no SA_RESTART. Thus SIGALRM
+     will EINTR fcntl(F_SETLKW)
 
      It is important that we don't change the signal state.  We must
      restore the old signal behaviour.  */
   memset (&new_act, '\0', sizeof (struct sigaction));
   new_act.sa_handler = noop_handler;
-  sigfillset (&new_act.sa_mask);
-  new_act.sa_flags = 0ul;
+  __sigfillset (&new_act.sa_mask);
+  /* new_act.sa_flags = 0; */
 
   /* Install new action handler for alarm and save old.  */
   if (sigaction (SIGALRM, &new_act, &saved_act) < 0) {
@@ -119,34 +122,35 @@ lckpwdf (void)
   }
 
   /* Now make sure the alarm signal is not blocked.  */
-  sigemptyset (&new_set);
+  __sigemptyset (&new_set);
   sigaddset (&new_set, SIGALRM);
+#if 1
+  sigprocmask (SIG_UNBLOCK, &new_set, &saved_set);
+#else /* never fails */
   if (sigprocmask (SIG_UNBLOCK, &new_set, &saved_set) < 0) {
     sigaction (SIGALRM, &saved_act, NULL);
     close(lock_fd);
     lock_fd = -1;
 	goto DONE;
   }
+#endif
 
   /* Start timer.  If we cannot get the lock in the specified time we
      get a signal.  */
   alarm (TIMEOUT);
 
   /* Try to get the lock.  */
-  memset (&fl, '\0', sizeof (struct flock));
-  fl.l_type = F_WRLCK;
-  fl.l_whence = SEEK_SET;
+  memset (&fl, '\0', sizeof (fl));
+  if (F_WRLCK)
+    fl.l_type = F_WRLCK;
+  if (SEEK_SET)
+    fl.l_whence = SEEK_SET;
   result = fcntl (lock_fd, F_SETLKW, &fl);
 
   /* Clear alarm.  */
   alarm (0);
 
-  /* Restore old set of handled signals.  We don't need to know
-     about the current one.*/
   sigprocmask (SIG_SETMASK, &saved_set, NULL);
-
-  /* Restore old action handler for alarm.  We don't need to know
-     about the current one.  */
   sigaction (SIGALRM, &saved_act, NULL);
 
   if (result < 0) {

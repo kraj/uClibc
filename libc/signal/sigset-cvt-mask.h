@@ -22,7 +22,9 @@
 static __inline__ void __attribute__ ((unused))
 sigset_set_old_mask (sigset_t *set, int mask)
 {
-  if (_SIGSET_NWORDS > 1)
+  if (_SIGSET_NWORDS == 2) /* typical */
+    set->__val[1] = 0;
+  if (_SIGSET_NWORDS > 2)
     memset(set, 0, sizeof(*set));
   set->__val[0] = (unsigned int) mask;
 }

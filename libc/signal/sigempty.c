@@ -26,13 +26,15 @@
 /* libc_hidden_proto(sigemptyset) */
 int sigemptyset (sigset_t *set)
 {
+#if 0 /* is it really required by standards?! */
   if (set == NULL)
     {
       __set_errno (EINVAL);
       return -1;
     }
+#endif
 
-  memset (set, 0, sizeof (sigset_t));
+  __sigemptyset (set);
 
   return 0;
 }

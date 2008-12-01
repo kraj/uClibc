@@ -51,14 +51,14 @@ static void block_signals(void)
 	struct sigaction sa;
 	sigset_t mask;
 
-	sigfillset(&mask);
+	__sigfillset(&mask);
 
 	sigdelset(&mask, SSP_SIGTYPE);	/* Block all signal handlers */
 	sigprocmask(SIG_BLOCK, &mask, NULL);	/* except SSP_SIGTYPE */
 
 	/* Make the default handler associated with the signal handler */
 	memset(&sa, 0, sizeof(sa));
-	sigfillset(&sa.sa_mask);	/* Block all signals */
+	__sigfillset(&sa.sa_mask);	/* Block all signals */
 	/* sa.sa_flags = 0; - memset did it */
 	if (SIG_DFL) /* if it's constant zero, it's already done */
 		sa.sa_handler = SIG_DFL;

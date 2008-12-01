@@ -51,7 +51,9 @@ sigprocmask (int how, const sigset_t *set, sigset_t *oset)
 
   if (oset)
     {
-      if (_SIGSET_NWORDS > 1)
+      if (_SIGSET_NWORDS == 2) /* typical */
+        oset->__val[1] = 0;
+      if (_SIGSET_NWORDS > 2)
         memset(oset, 0, sizeof(*oset));
       oset->__val[0] = result;
     }

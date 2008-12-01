@@ -153,7 +153,7 @@ int __pthread_sigwait(const sigset_t * set, int * sig)
      and if not, install our dummy handler.  This is conformant to
      POSIX: "The effect of sigwait() on the signal actions for the
      signals in set is unspecified." */
-  sigfillset(&mask);
+  __sigfillset(&mask);
   sigdelset(&mask, __pthread_sig_cancel);
   for (s = 1; s < NSIG; s++) {
     if (sigismember(set, s) &&
@@ -165,7 +165,7 @@ int __pthread_sigwait(const sigset_t * set, int * sig)
           __sighandler[s].old == (arch_sighandler_t) SIG_DFL ||
           __sighandler[s].old == (arch_sighandler_t) SIG_IGN) {
         sa.sa_handler = __pthread_null_sighandler;
-        sigfillset(&sa.sa_mask);
+        __sigfillset(&sa.sa_mask);
         sa.sa_flags = 0;
         sigaction(s, &sa, NULL);
       }

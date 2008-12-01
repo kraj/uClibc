@@ -207,11 +207,11 @@ vsyslog(int pri, const char *fmt, va_list ap)
 
 	memset(&action, 0, sizeof(action));
 	action.sa_handler = closelog_intern;
-	sigemptyset(&action.sa_mask); /* TODO: memset already zeroed it out! */
+	/* __sigemptyset(&action.sa_mask); - memset already did it */
 	/* Only two errors are possible for sigaction:
 	 * EFAULT (bad address of &oldaction) and EINVAL (invalid signo)
 	 * none of which can happen here. */
-	/*int sigpipe =*/ sigaction(SIGPIPE, &action, &oldaction);
+	sigaction(SIGPIPE, &action, &oldaction);
 
 	saved_errno = errno;
 
@@ -317,8 +317,7 @@ vsyslog(int pri, const char *fmt, va_list ap)
 
 getout:
 	__UCLIBC_MUTEX_UNLOCK(mylock);
-	/*if (sigpipe == 0)*/
-		sigaction(SIGPIPE, &oldaction, (struct sigaction *) NULL);
+	sigaction(SIGPIPE, &oldaction, NULL);
 }
 libc_hidden_def(vsyslog)
 
