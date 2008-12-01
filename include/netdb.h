@@ -159,6 +159,7 @@ libc_hidden_proto(gethostbyname)
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern struct hostent *gethostbyname2 (__const char *__name, int __af);
+libc_hidden_proto(gethostbyname2)
 
 /* Reentrant versions of the functions above.  The additional
    arguments specify a buffer of BUFLEN starting at BUF.  The last

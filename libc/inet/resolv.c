@@ -2052,10 +2052,10 @@ int gethostbyname2_r(const char *name,
 	if (family == AF_INET)
 		return gethostbyname_r(name, result_buf, buf, buflen, result, h_errnop);
 
+	*result = NULL;
 	if (family != AF_INET6)
 		return EINVAL;
 
-	*result = NULL;
 	if (!name)
 		return EINVAL;
 
@@ -2064,7 +2064,7 @@ int gethostbyname2_r(const char *name,
 		int old_errno = errno;	/* Save the old errno and reset errno */
 		__set_errno(0);			/* to check for missing /etc/hosts. */
 
-		i = __get_hosts_byname_r(name, family, result_buf,
+		i = __get_hosts_byname_r(name, AF_INET6 /*family*/, result_buf,
 				buf, buflen, result, h_errnop);
 		if (i == NETDB_SUCCESS) {
 			__set_errno(old_errno);
@@ -2431,23 +2431,6 @@ struct hostent *gethostent(void)
 #endif
 
 
-#ifdef L_gethostbyname
-
-struct hostent *gethostbyname(const char *name)
-{
-	static struct hostent h;
-	static char buf[sizeof(struct in_addr) +
-			sizeof(struct in_addr *) * 2 +
-			sizeof(char *)*ALIAS_DIM + 384/*namebuffer*/ + 32/* margin */];
-	struct hostent *hp;
-
-	gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
-	return hp;
-}
-libc_hidden_def(gethostbyname)
-#endif
-
-
 #ifdef L_gethostbyname2
 
 struct hostent *gethostbyname2(const char *name, int family)
@@ -2465,6 +2448,28 @@ struct hostent *gethostbyname2(const char *name, int family)
 	return hp;
 #endif
 }
+libc_hidden_def(gethostbyname2)
+#endif
+
+
+#ifdef L_gethostbyname
+
+struct hostent *gethostbyname(const char *name)
+{
+#ifndef __UCLIBC_HAS_IPV6__
+	static struct hostent h;
+	static char buf[sizeof(struct in_addr) +
+			sizeof(struct in_addr *) * 2 +
+			sizeof(char *)*ALIAS_DIM + 384/*namebuffer*/ + 32/* margin */];
+	struct hostent *hp;
+
+	gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
+	return hp;
+#else
+	return gethostbyname2(name, AF_INET);
+#endif
+}
+libc_hidden_def(gethostbyname)
 #endif
 
 
