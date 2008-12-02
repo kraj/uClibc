@@ -1143,6 +1143,13 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 {
 	int count;
 	wchar_t wc;
+	size_t i;
+
+	for (i = 0 ; (i < n) && pwcs[i] ; i++) {
+		if (pwcs[i] != (pwcs[i] & 0x7f)) {
+			return -1;
+		}
+	}
 
     for (count = 0 ; n && (wc = *pwcs++) ; n--) {
 		if (wc <= 0xff) {
