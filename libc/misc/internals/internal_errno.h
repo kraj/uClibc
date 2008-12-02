@@ -1,11 +1,12 @@
 /*
  *
  */
-#ifndef __UCLIBC_HAS_THREADS_NATIVE__
 
 #include <features.h>
 #include <errno.h>
 #include <netdb.h>
+
+#ifndef __UCLIBC_HAS_THREADS_NATIVE__
 
 #undef errno
 #undef h_errno
