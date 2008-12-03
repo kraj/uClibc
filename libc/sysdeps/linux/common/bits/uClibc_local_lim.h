@@ -16,7 +16,7 @@
 #endif
 
 /* This should really be moved to thread specific directories */
-#if defined __UCLIBC_HAS_THREADS__
+#if defined __UCLIBC_HAS_THREADS__ && !defined __UCLIBC_HAS_THREADS_NATIVE__
 # define PTHREAD_THREADS_MAX	1024
 # define TIMER_MAX		256
 #endif

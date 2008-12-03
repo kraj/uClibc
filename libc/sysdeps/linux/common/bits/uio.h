@@ -38,6 +38,7 @@
    functionality even if the currently running kernel does not support
    this large value the readv/writev call will not fail because of this.  */
 #define UIO_MAXIOV	1024
+#define UIO_FASTIOV    8
 
 
 /* Structure for scatter/gather I/O.  */
