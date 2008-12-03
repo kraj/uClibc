@@ -914,7 +914,7 @@ void *_dl_malloc(size_t size)
 		   The actual page size doesn't really matter; as long
 		   as we're self-consistent here, we're safe.  */
 		if (size < _dl_pagesize)
-			rounded_size = (size + _dl_pagesize - 1) & _dl_pagesize;
+			rounded_size = (size + ADDR_ALIGN) & _dl_pagesize;
 		else
 			rounded_size = size;
 
