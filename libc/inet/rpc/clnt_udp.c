@@ -98,7 +98,7 @@ static bool_t clntudp_freeres (CLIENT *, xdrproc_t, caddr_t);
 static bool_t clntudp_control (CLIENT *, int, char *);
 static void clntudp_destroy (CLIENT *);
 
-static struct clnt_ops udp_ops =
+static const struct clnt_ops udp_ops =
 {
   clntudp_call,
   clntudp_abort,

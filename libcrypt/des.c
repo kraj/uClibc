@@ -454,33 +454,26 @@ des_setkey(const char *key)
 static int
 do_des(	u_int32_t l_in, u_int32_t r_in, u_int32_t *l_out, u_int32_t *r_out, int count)
 {
-	/*
-	 *	l_in, r_in, l_out, and r_out are in pseudo-"big-endian" format.
-	 */
+	/* l_in, r_in, l_out, and r_out are in pseudo-"big-endian" format. */
 	u_int32_t	l, r, *kl, *kr, *kl1, *kr1;
 	u_int32_t	f, r48l, r48r;
 	int		round;
 
 	if (count == 0) {
-		return(1);
-	} else if (count > 0) {
-		/*
-		 * Encrypting
-		 */
+		return 1;
+	}
+	if (count > 0) {
+		/* Encrypting */
 		kl1 = en_keysl;
 		kr1 = en_keysr;
 	} else {
-		/*
-		 * Decrypting
-		 */
+		/* Decrypting */
 		count = -count;
 		kl1 = de_keysl;
 		kr1 = de_keysr;
 	}
 
-	/*
-	 *	Do initial permutation (IP).
-	 */
+	/* Do initial permutation (IP). */
 	l = ip_maskl[0][l_in >> 24]
 	  | ip_maskl[1][(l_in >> 16) & 0xff]
 	  | ip_maskl[2][(l_in >> 8) & 0xff]
@@ -499,22 +492,17 @@ do_des(	u_int32_t l_in, u_int32_t r_in, u_int32_t *l_out, u_int32_t *r_out, int 
 	  | ip_maskr[7][r_in & 0xff];
 
 	while (count--) {
-		/*
-		 * Do each round.
-		 */
+		/* Do each round. */
 		kl = kl1;
 		kr = kr1;
 		round = 16;
-		while (round--) {
-			/*
-			 * Expand R to 48 bits (simulate the E-box).
-			 */
+		do {
+			/* Expand R to 48 bits (simulate the E-box). */
 			r48l	= ((r & 0x00000001) << 23)
 				| ((r & 0xf8000000) >> 9)
 				| ((r & 0x1f800000) >> 11)
 				| ((r & 0x01f80000) >> 13)
 				| ((r & 0x001f8000) >> 15);
-
 			r48r	= ((r & 0x0001f800) << 7)
 				| ((r & 0x00001f80) << 5)
 				| ((r & 0x000001f8) << 3)
@@ -535,19 +523,15 @@ do_des(	u_int32_t l_in, u_int32_t r_in, u_int32_t *l_out, u_int32_t *r_out, int 
 			  | psbox[1][m_sbox[1][r48l & 0xfff]]
 			  | psbox[2][m_sbox[2][r48r >> 12]]
 			  | psbox[3][m_sbox[3][r48r & 0xfff]];
-			/*
-			 * Now that we've permuted things, complete f().
-			 */
+			/* Now that we've permuted things, complete f(). */
 			f ^= l;
 			l = r;
 			r = f;
-		}
+		} while (--round);
 		r = l;
 		l = f;
 	}
-	/*
-	 * Do final permutation (inverse of IP).
-	 */
+	/* Do final permutation (inverse of IP). */
 	*l_out	= fp_maskl[0][l >> 24]
 		| fp_maskl[1][(l >> 16) & 0xff]
 		| fp_maskl[2][(l >> 8) & 0xff]

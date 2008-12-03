@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <sysdep-cancel.h>
 #include <signal.h>
+/* libc_hidden_proto(__sigpause) */
+/* libc_hidden_proto(sigblock) */
 
 /* Suspend the process until a signal arrives.
    This always returns -1 and sets errno to EINTR.  */

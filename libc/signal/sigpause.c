@@ -40,16 +40,16 @@ int __sigpause (int sig_or_mask, int is_sig)
 {
   sigset_t set;
 
-  if (is_sig != 0)
+  if (is_sig)
     {
       /* The modern X/Open implementation is requested.  */
-      if (sigprocmask (0, NULL, &set) < 0
-	  /* Yes, we call `sigdelset' and not `__sigdelset'.  */
-	  || sigdelset (&set, sig_or_mask) < 0)
+      sigprocmask (SIG_BLOCK, NULL, &set);
+      /* Bound-check sig_or_mask, remove it from the set.  */
+      if (sigdelset (&set, sig_or_mask) < 0)
 	return -1;
     }
-  else if (sigset_set_old_mask (&set, sig_or_mask) < 0)
-    return -1;
+  else
+    sigset_set_old_mask (&set, sig_or_mask);
 
   /* Note the sigpause() is a cancellation point.  But since we call
      sigsuspend() which itself is a cancellation point we do not have

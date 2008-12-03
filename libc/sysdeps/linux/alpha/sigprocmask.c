@@ -44,17 +44,18 @@ sigprocmask (int how, const sigset_t *set, sigset_t *oset)
 
   result = osf_sigprocmask(how, setval);
   if (result == -1)
-    /* If there are ever more than 63 signals, we need to recode this
+    /* If there are ever more than 64 signals, we need to recode this
        in assembler since we wouldn't be able to distinguish a mask of
        all 1s from -1, but for now, we're doing just fine... */
     return result;
 
   if (oset)
     {
+      if (_SIGSET_NWORDS == 2) /* typical */
+        oset->__val[1] = 0;
+      if (_SIGSET_NWORDS > 2)
+        memset(oset, 0, sizeof(*oset));
       oset->__val[0] = result;
-      result = _SIGSET_NWORDS;
-      while (--result > 0)
-	oset->__val[result] = 0;
     }
   return 0;
 }

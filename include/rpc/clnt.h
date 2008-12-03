@@ -132,6 +132,10 @@ struct rpc_err {
 typedef struct CLIENT CLIENT;
 struct CLIENT {
   AUTH	*cl_auth;		 /* authenticator */
+  /* not sure whether non-const-ness is a part of the spec... if it is,
+   * enclose "const" in #ifdef UCLIBC_INTERNAL / #endif
+   * to make it effective only for libc compile */
+  const
   struct clnt_ops {
     enum clnt_stat (*cl_call) (CLIENT *, u_long, xdrproc_t, caddr_t, xdrproc_t,
 			       caddr_t, struct timeval);

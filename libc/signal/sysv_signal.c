@@ -47,10 +47,9 @@ __sighandler_t __sysv_signal (int sig, __sighandler_t handler)
     }
 
   act.sa_handler = handler;
-  if (__sigemptyset (&act.sa_mask) < 0)
-    return SIG_ERR;
-  act.sa_flags = SA_ONESHOT | SA_NOMASK | SA_INTERRUPT;
-  act.sa_flags &= ~SA_RESTART;
+  __sigemptyset (&act.sa_mask);
+  act.sa_flags = (SA_ONESHOT | SA_NOMASK | SA_INTERRUPT) & ~SA_RESTART;
+  /* In Linux (as of 2.6.25), fails only if sig is SIGKILL or SIGSTOP */
   if (sigaction (sig, &act, &oact) < 0)
     return SIG_ERR;
 

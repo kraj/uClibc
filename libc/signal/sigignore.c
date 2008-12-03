@@ -30,10 +30,8 @@ int sigignore (int sig)
 {
   struct sigaction act;
 
+  memset(&act, 0, sizeof(act));
   act.sa_handler = SIG_IGN;
-  if (__sigemptyset (&act.sa_mask) < 0)
-    return -1;
-  act.sa_flags = 0;
 
   return sigaction (sig, &act, NULL);
 }

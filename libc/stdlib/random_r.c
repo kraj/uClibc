@@ -27,8 +27,7 @@
 #include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
-
-
+#include <unistd.h>
 
 /* An improved random number generation package.  In addition to the standard
    rand()/srand() like interface, this package also has a special state info
@@ -109,8 +108,8 @@
 
 struct random_poly_info
 {
-    int seps[MAX_TYPES];
-    int degrees[MAX_TYPES];
+    smallint seps[MAX_TYPES];
+    smallint degrees[MAX_TYPES];
 };
 
 static const struct random_poly_info random_poly_info =
@@ -118,7 +117,6 @@ static const struct random_poly_info random_poly_info =
     { SEP_0, SEP_1, SEP_2, SEP_3, SEP_4 },
     { DEG_0, DEG_1, DEG_2, DEG_3, DEG_4 }
 };
-
 
 
 

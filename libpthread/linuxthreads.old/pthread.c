@@ -471,22 +471,19 @@ static void pthread_initialize(void)
   /* Setup signal handlers for the initial thread.
      Since signal handlers are shared between threads, these settings
      will be inherited by all other threads. */
+  memset(&sa, 0, sizeof(sa));
   sa.sa_handler = pthread_handle_sigrestart;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = 0;
   __libc_sigaction(__pthread_sig_restart, &sa, NULL);
   sa.sa_handler = pthread_handle_sigcancel;
   sigaddset(&sa.sa_mask, __pthread_sig_restart);
-  /* sa.sa_flags = 0; */
   __libc_sigaction(__pthread_sig_cancel, &sa, NULL);
   if (__pthread_sig_debug > 0) {
       sa.sa_handler = pthread_handle_sigdebug;
-      sigemptyset(&sa.sa_mask);
-      /* sa.sa_flags = 0; */
+      __sigemptyset(&sa.sa_mask);
       __libc_sigaction(__pthread_sig_debug, &sa, NULL);
   }
   /* Initially, block __pthread_sig_restart. Will be unblocked on demand. */
-  sigemptyset(&mask);
+  __sigemptyset(&mask);
   sigaddset(&mask, __pthread_sig_restart);
   sigprocmask(SIG_BLOCK, &mask, NULL);
   /* And unblock __pthread_sig_cancel if it has been blocked. */
@@ -653,8 +650,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   request.req_args.create.attr = attr;
   request.req_args.create.fn = start_routine;
   request.req_args.create.arg = arg;
-  sigprocmask(SIG_SETMASK, (const sigset_t *) NULL,
-              &request.req_args.create.mask);
+  sigprocmask(SIG_SETMASK, NULL, &request.req_args.create.mask);
   PDEBUG("write REQ_CREATE to manager thread\n");
   TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
 	      (char *) &request, sizeof(request)));
@@ -928,9 +924,9 @@ void __pthread_kill_other_threads_np(void)
   /* Reset the signal handlers behaviour for the signals the
      implementation uses since this would be passed to the new
      process.  */
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = 0;
-  sa.sa_handler = SIG_DFL;
+  memset(&sa, 0, sizeof(sa));
+  if (SIG_DFL) /* if it's constant zero, it's already done */
+    sa.sa_handler = SIG_DFL;
   __libc_sigaction(__pthread_sig_restart, &sa, NULL);
   __libc_sigaction(__pthread_sig_cancel, &sa, NULL);
   if (__pthread_sig_debug > 0)
@@ -1007,7 +1003,7 @@ __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime)
       THREAD_SETMEM(self, p_signal_jmp, &jmpbuf);
       THREAD_SETMEM(self, p_signal, 0);
       /* Unblock the restart signal */
-      sigemptyset(&unblock);
+      __sigemptyset(&unblock);
       sigaddset(&unblock, __pthread_sig_restart);
       sigprocmask(SIG_UNBLOCK, &unblock, &initial_mask);
 
@@ -1092,7 +1088,7 @@ int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstim
 	THREAD_SETMEM(self, p_signal_jmp, &jmpbuf);
 	THREAD_SETMEM(self, p_signal, 0);
 	/* Unblock the restart signal */
-	sigemptyset(&unblock);
+	__sigemptyset(&unblock);
 	sigaddset(&unblock, __pthread_sig_restart);
 	sigprocmask(SIG_UNBLOCK, &unblock, &initial_mask);
 

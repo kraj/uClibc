@@ -104,7 +104,6 @@ libc_hidden_def(xdr_void)
 bool_t
 xdr_long (XDR *xdrs, long *lp)
 {
-
   if (xdrs->x_op == XDR_ENCODE
       && (sizeof (int32_t) == sizeof (long)
 	  || (int32_t) *lp == *lp))
@@ -237,10 +236,10 @@ xdr_u_int (XDR *xdrs, u_int *up)
     {
     case XDR_ENCODE:
       l = (u_long) * up;
-      return XDR_PUTLONG (xdrs, &l);
+      return XDR_PUTLONG (xdrs, (long *) &l);
 
     case XDR_DECODE:
-      if (!XDR_GETLONG (xdrs, &l))
+      if (!XDR_GETLONG (xdrs, (long *) &l))
 	{
 	  return FALSE;
 	}
@@ -268,19 +267,20 @@ bool_t
 xdr_hyper (XDR *xdrs, quad_t *llp)
 {
   long t1;
-  unsigned long int t2;
+  unsigned long t2;
 
   if (xdrs->x_op == XDR_ENCODE)
     {
       t1 = (long) ((*llp) >> 32);
       t2 = (long) (*llp);
-      return (XDR_PUTLONG(xdrs, &t1) && XDR_PUTLONG(xdrs, &t2));
+      return (XDR_PUTLONG(xdrs, &t1) && XDR_PUTLONG(xdrs, (long *) &t2));
     }
 
   if (xdrs->x_op == XDR_DECODE)
     {
-      if (!XDR_GETLONG(xdrs, &t1) || !XDR_GETLONG(xdrs, &t2))
+      if (!XDR_GETLONG(xdrs, &t1) || !XDR_GETLONG(xdrs, (long *) &t2))
 	return FALSE;
+      /* t2 must be unsigned for this to work */
       *llp = ((quad_t) t1) << 32;
       *llp |= t2;
       return TRUE;
@@ -309,12 +309,12 @@ xdr_u_hyper (XDR *xdrs, u_quad_t *ullp)
     {
       t1 = (unsigned long) ((*ullp) >> 32);
       t2 = (unsigned long) (*ullp);
-      return (XDR_PUTLONG(xdrs, &t1) && XDR_PUTLONG(xdrs, &t2));
+      return (XDR_PUTLONG(xdrs, (long *) &t1) && XDR_PUTLONG(xdrs, (long *) &t2));
     }
 
   if (xdrs->x_op == XDR_DECODE)
     {
-      if (!XDR_GETLONG(xdrs, &t1) || !XDR_GETLONG(xdrs, &t2))
+      if (!XDR_GETLONG(xdrs, (long *) &t1) || !XDR_GETLONG(xdrs, (long *) &t2))
 	return FALSE;
       *ullp = ((u_quad_t) t1) << 32;
       *ullp |= t2;
@@ -353,10 +353,10 @@ xdr_u_short (XDR *xdrs, u_short *usp)
     {
     case XDR_ENCODE:
       l = (u_long) * usp;
-      return XDR_PUTLONG (xdrs, &l);
+      return XDR_PUTLONG (xdrs, (long *) &l);
 
     case XDR_DECODE:
-      if (!XDR_GETLONG (xdrs, &l))
+      if (!XDR_GETLONG (xdrs, (long *) &l))
 	{
 	  return FALSE;
 	}

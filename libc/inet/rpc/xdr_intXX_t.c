@@ -34,9 +34,9 @@ xdr_int64_t (XDR *xdrs, int64_t *ip)
     case XDR_ENCODE:
       t1 = (int32_t) ((*ip) >> 32);
       t2 = (int32_t) (*ip);
-      return (XDR_PUTINT32(xdrs, &t1) && XDR_PUTINT32(xdrs, &t2));
+      return (XDR_PUTINT32(xdrs, &t1) && XDR_PUTINT32(xdrs, (int32_t *) &t2));
     case XDR_DECODE:
-      if (!XDR_GETINT32(xdrs, &t1) || !XDR_GETINT32(xdrs, &t2))
+      if (!XDR_GETINT32(xdrs, &t1) || !XDR_GETINT32(xdrs, (int32_t *) &t2))
         return FALSE;
       *ip = ((int64_t) t1) << 32;
       *ip |= t2;

@@ -116,7 +116,7 @@ static bool_t clntunix_freeres (CLIENT *, xdrproc_t, caddr_t);
 static bool_t clntunix_control (CLIENT *, int, char *);
 static void clntunix_destroy (CLIENT *);
 
-static struct clnt_ops unix_ops =
+static const struct clnt_ops unix_ops =
 {
   clntunix_call,
   clntunix_abort,
@@ -474,7 +474,7 @@ __msgread (int sock, void *data, size_t cnt)
   struct iovec iov;
   struct msghdr msg;
 #ifdef SCM_CREDENTIALS
-  static char cm[CMSG_SPACE(sizeof (struct ucred))];
+  /*static -why??*/ char cm[CMSG_SPACE(sizeof (struct ucred))];
 #endif
   int len;
 
