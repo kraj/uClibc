@@ -119,8 +119,8 @@ void
 _dl_protect_relro (struct elf_resolve *l)
 {
 	ElfW(Addr) base = (ElfW(Addr)) DL_RELOC_ADDR(l->loadaddr, l->relro_addr);
-	ElfW(Addr) start = (base & ~(_dl_pagesize - 1));
-	ElfW(Addr) end = ((base + l->relro_size) & ~(_dl_pagesize - 1));
+	ElfW(Addr) start = (base & PAGE_ALIGN);
+	ElfW(Addr) end = ((base + l->relro_size) & PAGE_ALIGN);
 	_dl_if_debug_dprint("RELRO protecting %s:  start:%x, end:%x\n", l->libname, start, end);
 	if (start != end &&
 	    _dl_mprotect ((void *) start, end - start, PROT_READ) < 0) {
