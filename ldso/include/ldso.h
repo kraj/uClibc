@@ -39,6 +39,19 @@
 #include <dl-elf.h>
 #include <dl-hash.h>
 
+/* common align masks, if not specified by sysdep headers */
+#ifndef ADDR_ALIGN
+#define ADDR_ALIGN (_dl_pagesize - 1)
+#endif
+
+#ifndef PAGE_ALIGN
+#define PAGE_ALIGN (~ADDR_ALIGN)
+#endif
+
+#ifndef OFFS_ALIGN
+#define OFFS_ALIGN (PAGE_ALIGN & ~(1ul << (sizeof(_dl_pagesize) * 8 - 1)))
+#endif
+
 /* For INIT/FINI dependency sorting. */
 struct init_fini_list {
 	struct init_fini_list *next;

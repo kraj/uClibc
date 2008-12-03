@@ -83,11 +83,6 @@ _dl_urem(unsigned int n, unsigned int base)
 
 #define do_rem(result, n, base)     ((result) = _dl_urem((n), (base)))
 
-/* 4096 bytes alignment */
-#define PAGE_ALIGN 0xfffff000
-#define ADDR_ALIGN 0xfff
-#define OFFS_ALIGN 0x7ffff000
-
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
    TLS variable, so undefined references should not be allowed to
    define the value.

@@ -148,13 +148,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 
 /* 4096 bytes alignment */
 #if _MIPS_SIM == _MIPS_SIM_ABI64
-#define PAGE_ALIGN (~0xfffUL)
-#define ADDR_ALIGN 0xfffUL
 #define OFFS_ALIGN (0x10000000000UL-0x1000)
-#else	/* O32 || N32 */
-#define PAGE_ALIGN 0xfffff000
-#define ADDR_ALIGN 0xfff
-#define OFFS_ALIGN 0x7ffff000
 #endif	/* O32 || N32 */
 
 #define elf_machine_type_class(type)		ELF_RTYPE_CLASS_PLT

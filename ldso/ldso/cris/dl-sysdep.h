@@ -18,11 +18,6 @@
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry);
 
-/* 8192 bytes alignment */
-#define PAGE_ALIGN 0xffffe000
-#define ADDR_ALIGN 0x1fff
-#define OFFS_ALIGN 0xffffe000
-
 /* The union of reloc-type-classes where the reloc TYPE is a member.
 
    TYPE is in the class ELF_RTYPE_CLASS_PLT if it can describe a
