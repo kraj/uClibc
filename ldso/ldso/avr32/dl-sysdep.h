@@ -46,11 +46,6 @@
 
 unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got);
 
-/* 4096 bytes alignment */
-#define PAGE_ALIGN 0xfffff000
-#define ADDR_ALIGN 0xfff
-#define OFFS_ALIGN 0x7ffff000
-
 #define elf_machine_type_class(type)				\
 	((type == R_AVR32_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)
 
