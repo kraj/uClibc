@@ -33,14 +33,12 @@ enum
   __LC_MONETARY = 4,
   __LC_MESSAGES = 5,
   __LC_ALL = 6,
-#if 0
   __LC_PAPER = 7,
   __LC_NAME = 8,
   __LC_ADDRESS = 9,
   __LC_TELEPHONE = 10,
   __LC_MEASUREMENT = 11,
   __LC_IDENTIFICATION = 12
-#endif
 };
 
 #endif	/* bits/locale.h */
