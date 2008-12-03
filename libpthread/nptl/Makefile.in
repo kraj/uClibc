@@ -296,7 +296,7 @@ $(PTHREAD_OUT)/pthread-errnos.h: $(PTHREAD_OUT)/pthread-errnos.s
 	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
 
-headers-$(UCLIBC_HAS_THREADS_NATIVE) += nptl_headers_bootstrap
+headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(nptl_headers_bootstrap)
 
 include/pthread.h:
 	$(do_ln) ../$(PTDIR)/sysdeps/pthread/$(@F) $(top_builddir)$@
@@ -315,16 +315,16 @@ $(PTDIR)/banner.h:
 $(PTDIR)/version.h:
 	@echo "#define VERSION \""$(VERSION)"\"" > $(PTDIR)/version.h
 
-nptl_headers_bootstrap: include/pthread.h include/semaphore.h include/bits/semaphore.h include/bits/pthreadtypes.h \
+nptl_headers_bootstrap:= include/pthread.h include/semaphore.h include/bits/semaphore.h include/bits/pthreadtypes.h \
 						include/bits/libc-lock.h include/bits/stdio-lock.h \
 						$(PTDIR)/banner.h $(PTDIR)/version.h
 
 nptl_headers: $(PTHREAD_OUT)/pthread-errnos.h
 
 nptl_headers_clean:
-	$(RM) $(PTDIR)/banner.h $(top_builddir)include/pthread.h	\
-	      $(PTDIR)/version.h $(top_builddir)include/semaphore.h	\
+	$(do_rm) $(addprefix $(top_builddir),$(nptl_headers_bootstrap)) \
 	      $(PTHREAD_OUT)/pthread-errnos.{c,h,s}
 
+
 libpthread_clean:
-	$(RM) $(PTHREAD_OUT)/*.{o,os,oS,a}
+	$(do_rm)  $(addprefix $(PTHREAD_OUT)/*., o os oS a)

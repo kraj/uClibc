@@ -24,7 +24,7 @@ libc-static-y+=$(LIBC_GENERIC_OBJ)
 
 libc-nomulti-y+=$(LIBC_GENERIC_OBJ)
 
-objclean-y+=pthread_generic_objclean
+objclean-y+=nptl_pthread_generic_clean
 
-pthread_generic_objclean:
-	$(RM) $(PTHREAD_GENERIC_OUT)/*.{o,os,oS}
+nptl_pthread_generic_clean:
+	$(do_rm) $(addprefix $(PTHREAD_GENERIC_OUT)/*., o os oS)

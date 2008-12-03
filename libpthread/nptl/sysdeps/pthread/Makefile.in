@@ -128,9 +128,9 @@ $(pthread_DIR)/pt-sigfillset.c:
 $(pthread_DIR)/pt-sigprocmask.c:
 	$(LN) -s sigprocmask.c $@
 
-objclean-y += pthread_objclean
+objclean-y += nptl_pthread_clean
 
-pthread_objclean:
-	$(RM) $(pthread_OUT)/*.{o,os,oS,s,S} $(pthread_OUT)/defs.h \
+nptl_pthread_clean:
+	$(do_rm) $(addprefix $(pthread_OUT)/*., o os oS s S) $(pthread_OUT)/defs.h \
 	      $(pthread_DIR)/pt-sigaction.c $(pthread_DIR)/pt-sigfillset.c \
 	      $(pthread_DIR)/pt-sigprocmask.c

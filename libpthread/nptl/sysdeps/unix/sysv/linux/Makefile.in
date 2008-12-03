@@ -130,7 +130,7 @@ LIBRT_LINUX_OBJ := $(patsubst %.c,$(PTHREAD_LINUX_OUT)/%.o,$(librt_CSRC))
 librt-a-y += $(LIBRT_LINUX_OBJ)
 librt-so-y += $(LIBRT_LINUX_OBJ:.o=.oS)
 
-objclean-y += nptl_linux_objclean
+objclean-y += nptl_linux_clean
 headers_clean-y += nptl_linux_headers_clean
 
 #
@@ -188,11 +188,13 @@ ALL_HEADERS_BITS_PTHREAD := $(addprefix include/bits/,$(HEADERS_BITS_PTHREAD))
 $(ALL_HEADERS_BITS_PTHREAD):
 	$(do_ln) ../../$(PTHREAD_LINUX_DIR)/bits/$(@F) $(top_builddir)$@
 	
-nptl_linux_headers_clean:
-	$(RM) $(PTHREAD_LINUX_OUT)/lowlevelbarrier.{c,h,s}	\
-	$(RM) $(PTHREAD_LINUX_OUT)/lowlevelcond.{c,h,s}		\
-	$(RM) $(PTHREAD_LINUX_OUT)/lowlevelrwlock.{c,h,s}	\
-	$(RM) $(PTHREAD_LINUX_OUT)/unwindbuf.{c,h,s}
+nptl_linux_headers_all:= $(PTHREAD_LINUX_OUT)/lowlevelbarrier.{c,h,s}	\
+	$(PTHREAD_LINUX_OUT)/lowlevelcond.{c,h,s}		\
+	$(PTHREAD_LINUX_OUT)/lowlevelrwlock.{c,h,s}	\
+	$(PTHREAD_LINUX_OUT)/unwindbuf.{c,h,s}
 
-nptl_linux_objclean:
-	$(RM) $(PTHREAD_LINUX_OUT)/*.{o,os,oS}
+nptl_linux_headers_clean:
+	$(do_rm) $(nptl_linux_headers_all)
+
+nptl_linux_clean:
+	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/*., o os oS)

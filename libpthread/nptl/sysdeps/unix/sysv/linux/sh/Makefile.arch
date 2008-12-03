@@ -74,7 +74,7 @@ libc-shared-y+=$(LIBC_LINUX_ARCH_OBJ:.o=.oS)
 
 libc-nomulti-y+=$(LIBC_LINUX_ARCH_OBJ)
 
-objclean-y+=pthread_linux_arch_objclean
+objclean-y+=nptl_linux_arch_clean
 
-pthread_linux_arch_objclean:
-	$(RM) $(LINUX_ARCH_OUT)/*.{o,os,oS}
+nptl_linux_arch_clean:
+	$(do_rm) $(addprefix $(LINUX_ARCH_OUT)/*., o os oS)
