@@ -188,13 +188,12 @@ ALL_HEADERS_BITS_PTHREAD := $(addprefix include/bits/,$(HEADERS_BITS_PTHREAD))
 $(ALL_HEADERS_BITS_PTHREAD):
 	$(do_ln) ../../$(PTHREAD_LINUX_DIR)/bits/$(@F) $(top_builddir)$@
 	
-nptl_linux_headers_all:= $(PTHREAD_LINUX_OUT)/lowlevelbarrier.{c,h,s}	\
-	$(PTHREAD_LINUX_OUT)/lowlevelcond.{c,h,s}		\
-	$(PTHREAD_LINUX_OUT)/lowlevelrwlock.{c,h,s}	\
-	$(PTHREAD_LINUX_OUT)/unwindbuf.{c,h,s}
-
 nptl_linux_headers_clean:
-	$(do_rm) $(nptl_linux_headers_all)
+	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/lowlevelbarrier., c h s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelcond., c h s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelrwlock., c h s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/unwindbuf., c h s)
+
 
 nptl_linux_clean:
 	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/*., o os oS)

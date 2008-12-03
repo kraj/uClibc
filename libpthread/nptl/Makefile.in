@@ -323,8 +323,7 @@ nptl_headers: $(PTHREAD_OUT)/pthread-errnos.h
 
 nptl_headers_clean:
 	$(do_rm) $(addprefix $(top_builddir),$(nptl_headers_bootstrap)) \
-	      $(PTHREAD_OUT)/pthread-errnos.{c,h,s}
-
+	      $(addprefix $(PTHREAD_OUT)/pthread-errnos., c h s)
 
 libpthread_clean:
 	$(do_rm)  $(addprefix $(PTHREAD_OUT)/*., o os oS a)
