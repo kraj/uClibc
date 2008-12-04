@@ -206,6 +206,11 @@ define do_rm
 	$(Q)$(RM)
 endef
 
+define do_awk
+	@$(disp_gen)
+	$(Q)$(AWK) -f
+endef
+
 compile.c = @$(call maybe_exec,compile.c)
 compile.i =  $(call maybe_exec,compile.i)
 compile.s =  $(call maybe_exec,compile.s)
