@@ -268,8 +268,8 @@ struct cmsghdr
 			 + CMSG_ALIGN (sizeof (struct cmsghdr)))
 #define CMSG_LEN(len)   (CMSG_ALIGN (sizeof (struct cmsghdr)) + (len))
 
-extern struct cmsghdr * __NTH (__cmsg_nxthdr (struct msghdr *__mhdr,
-				      struct cmsghdr *__cmsg)) __THROW;
+extern struct cmsghdr *__cmsg_nxthdr (struct msghdr *__mhdr,
+				      struct cmsghdr *__cmsg) __THROW;
 libc_hidden_proto(__cmsg_nxthdr)
 #ifdef __USE_EXTERN_INLINES
 # ifndef _EXTERN_INLINE
