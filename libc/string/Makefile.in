@@ -136,4 +136,4 @@ libc-nomulti-y += $(STRING_OUT)/__xpg_strerror_r.o
 objclean-y += string_clean
 
 string_clean:
-	$(do_rm) $(addprefix $(STRING_OUT)/,$(addprefix *., o os oS) $(addprefix */*., o os oS))
+	$(do_rm) $(addprefix $(STRING_OUT)/,$(addprefix *., o os oS) $(addprefix */*., o os oS) $(addprefix */*/*., o os oS))
