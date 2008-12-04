@@ -50,4 +50,4 @@ $(top_builddir)lib/librt.a: $(librt-a-y)
 objclean-y += librt_clean
 
 librt_clean:
-	$(do_rm) $(addprefix $(librt_OUT)/*., o os a)
+	$(do_rm) $(addprefix $(librt_OUT)/*., o os oS a)
