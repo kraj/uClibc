@@ -76,11 +76,6 @@ typedef struct xtensa_got_location_struct {
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver (struct elf_resolve *, int);
 
-/* 4096 bytes alignment */
-#define PAGE_ALIGN 0xfffff000
-#define ADDR_ALIGN 0xfff
-#define OFFS_ALIGN 0x7ffff000
-
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry, so
    undefined references should not be allowed to define the value.  */
 #define elf_machine_type_class(type) \
