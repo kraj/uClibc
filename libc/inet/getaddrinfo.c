@@ -186,7 +186,7 @@ static unsigned __check_pf(void)
 			return seen;
 		}
 
-		for (runp = ifa; runp != NULL; runp = runp->ifa_next)
+		for (runp = ifa; runp != NULL; runp = runp->ifa_next) {
 #if defined __UCLIBC_HAS_IPV4__
 			if (runp->ifa_addr->sa_family == PF_INET)
 				seen |= SEEN_IPV4;
@@ -195,7 +195,7 @@ static unsigned __check_pf(void)
 			if (runp->ifa_addr->sa_family == PF_INET6)
 				seen |= SEEN_IPV6;
 #endif /* __UCLIBC_HAS_IPV6__ */
-
+		}
 		freeifaddrs(ifa);
 	}
 #else
