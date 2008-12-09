@@ -20,7 +20,7 @@
 
 #include <sys/asm.h>
 #include <sysdep.h>
-#include <bits/errno_values.h>
+#include <bits/errno.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
 

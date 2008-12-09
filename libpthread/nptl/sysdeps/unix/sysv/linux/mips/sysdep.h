@@ -81,8 +81,8 @@
 	long _sys_result;						\
 									\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a3 asm("$7");					\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a3 __asm__("$7");				\
 	__asm__ volatile (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
@@ -103,9 +103,9 @@
 	long _sys_result;						\
 									\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a3 asm("$7");					\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1;			\
+	register long __a3 __asm__("$7");				\
 	__asm__ volatile (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
@@ -126,15 +126,15 @@
 	long _sys_result;						\
 									\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a3 asm("$7");					\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1;			\
+	register long __a1 __asm__("$5") = (long) arg2;			\
+	register long __a3 __asm__("$7");				\
 	__asm__ volatile (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
-	".set\treorder"						\
+	".set\treorder"							\
 	: "=r" (__v0), "=r" (__a3)					\
 	: input, "r" (__a0), "r" (__a1)					\
 	: __SYSCALL_CLOBBERS);						\
@@ -150,16 +150,16 @@
 	long _sys_result;						\
 									\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a2 asm("$6") = (long) arg3;			\
-	register long __a3 asm("$7");					\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1;			\
+	register long __a1 __asm__("$5") = (long) arg2;			\
+	register long __a2 __asm__("$6") = (long) arg3;			\
+	register long __a3 __asm__("$7");				\
 	__asm__ volatile (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
-	".set\treorder"						\
+	".set\treorder"							\
 	: "=r" (__v0), "=r" (__a3)					\
 	: input, "r" (__a0), "r" (__a1), "r" (__a2)			\
 	: __SYSCALL_CLOBBERS);						\
@@ -175,16 +175,16 @@
 	long _sys_result;						\
 									\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a2 asm("$6") = (long) arg3;			\
-	register long __a3 asm("$7") = (long) arg4;			\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1;			\
+	register long __a1 __asm__("$5") = (long) arg2;			\
+	register long __a2 __asm__("$6") = (long) arg3;			\
+	register long __a3 __asm__("$7") = (long) arg4;			\
 	__asm__ volatile (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
-	".set\treorder"						\
+	".set\treorder"							\
 	: "=r" (__v0), "+r" (__a3)					\
 	: input, "r" (__a0), "r" (__a1), "r" (__a2)			\
 	: __SYSCALL_CLOBBERS);						\
@@ -207,11 +207,11 @@
 									\
 	FORCE_FRAME_POINTER;						\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a2 asm("$6") = (long) arg3;			\
-	register long __a3 asm("$7") = (long) arg4;			\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1;			\
+	register long __a1 __asm__("$5") = (long) arg2;			\
+	register long __a2 __asm__("$6") = (long) arg3;			\
+	register long __a3 __asm__("$7") = (long) arg4;			\
 	__asm__ volatile (						\
 	".set\tnoreorder\n\t"						\
 	"subu\t$29, 32\n\t"						\
@@ -219,7 +219,7 @@
 	cs_init								\
 	"syscall\n\t"							\
 	"addiu\t$29, 32\n\t"						\
-	".set\treorder"						\
+	".set\treorder"							\
 	: "=r" (__v0), "+r" (__a3)					\
 	: input, "r" (__a0), "r" (__a1), "r" (__a2),			\
 	  "r" ((long)arg5)						\
@@ -237,11 +237,11 @@
 									\
 	FORCE_FRAME_POINTER;						\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a2 asm("$6") = (long) arg3;			\
-	register long __a3 asm("$7") = (long) arg4;			\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1;			\
+	register long __a1 __asm__("$5") = (long) arg2;			\
+	register long __a2 __asm__("$6") = (long) arg3;			\
+	register long __a3 __asm__("$7") = (long) arg4;			\
 	__asm__ volatile (						\
 	".set\tnoreorder\n\t"						\
 	"subu\t$29, 32\n\t"						\
@@ -250,7 +250,7 @@
 	cs_init								\
 	"syscall\n\t"							\
 	"addiu\t$29, 32\n\t"						\
-	".set\treorder"						\
+	".set\treorder"							\
 	: "=r" (__v0), "+r" (__a3)					\
 	: input, "r" (__a0), "r" (__a1), "r" (__a2),			\
 	  "r" ((long)arg5), "r" ((long)arg6)				\
@@ -268,11 +268,11 @@
 									\
 	FORCE_FRAME_POINTER;						\
 	{								\
-	register long __v0 asm("$2") ncs_init;				\
-	register long __a0 asm("$4") = (long) arg1;			\
-	register long __a1 asm("$5") = (long) arg2;			\
-	register long __a2 asm("$6") = (long) arg3;			\
-	register long __a3 asm("$7") = (long) arg4;			\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1;			\
+	register long __a1 __asm__("$5") = (long) arg2;			\
+	register long __a2 __asm__("$6") = (long) arg3;			\
+	register long __a3 __asm__("$7") = (long) arg4;			\
 	__asm__ volatile (						\
 	".set\tnoreorder\n\t"						\
 	"subu\t$29, 32\n\t"						\
@@ -282,7 +282,7 @@
 	cs_init								\
 	"syscall\n\t"							\
 	"addiu\t$29, 32\n\t"						\
-	".set\treorder"						\
+	".set\treorder"							\
 	: "=r" (__v0), "+r" (__a3)					\
 	: input, "r" (__a0), "r" (__a1), "r" (__a2),			\
 	  "r" ((long)arg5), "r" ((long)arg6), "r" ((long)arg7)		\
