@@ -52,6 +52,8 @@ static int __add_to_environ(const char *name, const char *value,
 {
 	register char **ep;
 	register size_t size;
+	char *var_val;
+	char **new_environ;
 	/* name may come from putenv() and thus may contain "=VAL" part */
 	const size_t namelen = strchrnul(name, '=') - name;
 	int rv = -1;
@@ -64,54 +66,54 @@ static int __add_to_environ(const char *name, const char *value,
 
 	size = 0;
 	if (ep != NULL) {
-		for (; *ep != NULL; ++ep) {
-			if (!strncmp(*ep, name, namelen) && (*ep)[namelen] == '=')
-				break;
+		while (*ep != NULL) {
+			if (!strncmp(*ep, name, namelen) && (*ep)[namelen] == '=') {
+				/* Found */
+				if (!replace)
+					goto DONE_OK;
+				goto REPLACE;
+			}
 			++size;
+			++ep;
 		}
 	}
 
-	if (ep == NULL || *ep == NULL) {
-		/* Not found, add at the end */
-		char **new_environ;
+	/* Not found, add at the end */
 
-		/* We allocated this space; we can extend it.  */
-		new_environ = realloc(last_environ, (size + 2) * sizeof(char *));
-		if (new_environ == NULL) {
+	/* We allocated this space; we can extend it.  */
+	new_environ = realloc(last_environ, (size + 2) * sizeof(char *));
+	if (new_environ == NULL) {
+		__set_errno(ENOMEM);
+		goto DONE;
+	}
+	if (__environ != last_environ) {
+		memcpy(new_environ, __environ, size * sizeof(char *));
+	}
+	last_environ = __environ = new_environ;
+
+	ep = &new_environ[size];
+	/* Ensure env is NULL terminated in case malloc below fails */
+	ep[0] = NULL;
+	ep[1] = NULL;
+
+ REPLACE:
+	var_val = (char*) name;
+	/* Build VAR=VAL if we called by setenv, not putenv.  */
+	if (value != NULL) {
+		const size_t vallen = strlen(value) + 1;
+
+		var_val = malloc(namelen + 1 + vallen);
+		if (var_val == NULL) {
 			__set_errno(ENOMEM);
 			goto DONE;
 		}
-		if (__environ != last_environ) {
-			memcpy(new_environ, __environ, size * sizeof(char *));
-		}
-		last_environ = __environ = new_environ;
-
-		ep = &new_environ[size];
-		/* Ensure env is NULL terminated in case malloc below fails */
-		ep[0] = NULL;
-		ep[1] = NULL;
-		replace = 1;
+		memcpy(var_val, name, namelen);
+		var_val[namelen] = '=';
+		memcpy(&var_val[namelen + 1], value, vallen);
 	}
+	*ep = var_val;
 
-	if (replace) {
-		char *var_val = (char*) name;
-
-		/* Build VAR=VAL if we called by setenv, not putenv.  */
-		if (value != NULL) {
-			const size_t vallen = strlen(value) + 1;
-
-			var_val = malloc(namelen + 1 + vallen);
-			if (var_val == NULL) {
-				__set_errno(ENOMEM);
-				goto DONE;
-			}
-			memcpy(var_val, name, namelen);
-			var_val[namelen] = '=';
-			memcpy(&var_val[namelen + 1], value, vallen);
-		}
-		*ep = var_val;
-	}
-
+ DONE_OK:
 	rv = 0;
 
  DONE:
