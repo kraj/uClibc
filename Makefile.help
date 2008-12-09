@@ -36,8 +36,13 @@ help:
 	@echo '  test_compile		- compile testsuite binaries'
 	@echo '  release		- create a distribution tarball'
 	@echo
+	@echo 'Utilities:'
+	@echo '  utils			- Build readelf, ldd, and ldconfig for target'
+	@echo '  hostutils		- Build readelf, ldd, and ldconfig for host'
+	@echo '  install_utils	- Install utilities'
+	@echo
 	@echo 'Environment variables:'
-	@echo '     			- Quiet build'
+	@echo '  V="" 			- Quiet build (default)'
 	@echo '  V=1			- Verbose build'
 	@echo '  V=2			- Very verbose build'
 	@echo '  CROSS=		- Override CROSS_COMPILER_PREFIX from .config'
