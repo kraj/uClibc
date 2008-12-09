@@ -14,6 +14,9 @@ help:
 	@echo 'Build:'
 	@echo '  all			- libraries and generated headers'
 	@echo '  pregen		- generate headers'
+	@echo '  utils			- build target utilities'
+	@echo '			  (readelf, ldd, ldconfig, locale, iconv)'
+	@echo '  hostutils		- build host utilities (see utils)'
 	@echo
 	@echo 'Configuration:'
 	@echo '  allnoconfig		- disable all symbols in .config'
@@ -30,16 +33,12 @@ help:
 	@echo '  install_runtime	- install the libraries'
 	@echo '  install_dev		- install all headers and static libs'
 	@echo '  install_headers	- install headers excluding generated ones'
+	@echo '  install_utils		- install target utilities'
 	@echo
 	@echo 'Development:'
 	@echo '  check			- run testsuite'
 	@echo '  test_compile		- compile testsuite binaries'
 	@echo '  release		- create a distribution tarball'
-	@echo
-	@echo 'Utilities:'
-	@echo '  utils			- Build readelf, ldd, and ldconfig for target'
-	@echo '  hostutils		- Build readelf, ldd, and ldconfig for host'
-	@echo '  install_utils	- Install utilities'
 	@echo
 	@echo 'Environment variables:'
 	@echo '  V="" 			- Quiet build (default)'
