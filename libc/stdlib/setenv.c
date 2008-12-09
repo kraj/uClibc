@@ -46,17 +46,14 @@ static char **last_environ;
    is then placed in the environment, while the argument of `putenv'
    must be used directly.  This is all complicated by the fact that we try
    to reuse values once generated for a `setenv' call since we can never
-   free the strings.  */
-int __add_to_environ(const char *name, const char *value,
-		char *combined, int replace) attribute_hidden;
-int __add_to_environ(const char *name, const char *value,
-		char *combined, int replace)
+   free the strings. [in uclibc, we do not]  */
+static int __add_to_environ(const char *name, const char *value,
+ 		int replace)
 {
 	register char **ep;
 	register size_t size;
 	/* name may come from putenv() and thus may contain "=VAL" part */
 	const size_t namelen = strchrnul(name, '=') - name;
-	const size_t vallen = value != NULL ? strlen(value) + 1 : 0;
 	int rv = -1;
 
 	__UCLIBC_MUTEX_LOCK(mylock);
@@ -89,38 +86,30 @@ int __add_to_environ(const char *name, const char *value,
 		}
 		last_environ = __environ = new_environ;
 
-		if (combined != NULL) {
-			/* If the whole "VAR=VAL" is given, add it.  */
-			/* We must not add the string to the search tree
-			 * since it belongs to the user.
-			 * [glibc comment, uclibc doesnt track ptrs]  */
-			new_environ[size] = combined;
-		} else {
-			/* Build new "VAR=VAL" string.  */
-			new_environ[size] = malloc(namelen + 1 + vallen);
-			if (new_environ[size] == NULL) {
-				__set_errno(ENOMEM);
-				goto DONE;
-			}
-			memcpy(new_environ[size], name, namelen);
-			new_environ[size][namelen] = '=';
-			memcpy(&new_environ[size][namelen + 1], value, vallen);
-		}
-		new_environ[size + 1] = NULL;
+		ep = &new_environ[size];
+		/* Ensure env is NULL terminated in case malloc below fails */
+		ep[0] = NULL;
+		ep[1] = NULL;
+		replace = 1;
+	}
 
-	} else if (replace) {
-		/* Build the name if needed.  */
-		if (combined == NULL) {
-			combined = malloc(namelen + 1 + vallen);
-			if (combined == NULL) {
+	if (replace) {
+		char *var_val = (char*) name;
+
+		/* Build VAR=VAL if we called by setenv, not putenv.  */
+		if (value != NULL) {
+			const size_t vallen = strlen(value) + 1;
+
+			var_val = malloc(namelen + 1 + vallen);
+			if (var_val == NULL) {
 				__set_errno(ENOMEM);
 				goto DONE;
 			}
-			memcpy(combined, name, namelen);
-			combined[namelen] = '=';
-			memcpy(&combined[namelen + 1], value, vallen);
+			memcpy(var_val, name, namelen);
+			var_val[namelen] = '=';
+			memcpy(&var_val[namelen + 1], value, vallen);
 		}
-		*ep = combined;
+		*ep = var_val;
 	}
 
 	rv = 0;
@@ -133,7 +122,8 @@ int __add_to_environ(const char *name, const char *value,
 /* libc_hidden_proto(setenv) */
 int setenv(const char *name, const char *value, int replace)
 {
-	return __add_to_environ(name, value, NULL, replace);
+	/* NB: setenv("VAR", NULL, 1) inserts "VAR=" string */
+	return __add_to_environ(name, value ? value : "", replace);
 }
 libc_hidden_def(setenv)
 
@@ -183,7 +173,7 @@ int clearenv(void)
 	 * and is safe to free().  */
 	free(last_environ);
 	last_environ = NULL;
-	/* Clear the environment pointer removes the whole environment.  */
+	/* Clearing environ removes the whole environment.  */
 	__environ = NULL;
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 	return 0;
@@ -193,7 +183,7 @@ int clearenv(void)
 int putenv(char *string)
 {
 	if (strchr(string, '=') != NULL) {
-		return __add_to_environ(string, NULL, string, 1);
+		return __add_to_environ(string, NULL, 1);
 	}
 	return unsetenv(string);
 }
