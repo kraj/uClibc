@@ -64,17 +64,21 @@ enum
 };
 
 /* Mutex initializers.  */
-#define PTHREAD_MUTEX_INITIALIZER \
-  { { 0, 0, 0, 0, 0, { 0 } } }
-#ifdef __USE_GNU
-# if __WORDSIZE == 64
+#if __WORDSIZE == 64
+# define PTHREAD_MUTEX_INITIALIZER \
+  { { 0, 0, 0, 0, 0, 0, { 0, 0 } } }
+# ifdef __USE_GNU
 #  define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP \
-  { { 0, 0, 0, 0, PTHREAD_MUTEX_RECURSIVE_NP, { 0 } } }
+  { { 0, 0, 0, 0, PTHREAD_MUTEX_RECURSIVE_NP, 0, { 0, 0 } } }
 #  define PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP \
-  { { 0, 0, 0, 0, PTHREAD_MUTEX_ERRORCHECK_NP, { 0 } } }
+  { { 0, 0, 0, 0, PTHREAD_MUTEX_ERRORCHECK_NP, 0, { 0, 0 } } }
 #  define PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP \
-  { { 0, 0, 0, 0, PTHREAD_MUTEX_ADAPTIVE_NP, { 0 } } }
-# else
+  { { 0, 0, 0, 0, PTHREAD_MUTEX_ADAPTIVE_NP, 0, { 0, 0 } } }
+# endif
+#else
+# define PTHREAD_MUTEX_INITIALIZER \
+  { { 0, 0, 0, 0, 0, { 0 } } }
+# ifdef __USE_GNU
 #  define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP \
   { { 0, 0, 0, PTHREAD_MUTEX_RECURSIVE_NP, 0, { 0 } } }
 #  define PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP \
@@ -83,7 +87,6 @@ enum
   { { 0, 0, 0, PTHREAD_MUTEX_ADAPTIVE_NP, 0, { 0 } } }
 # endif
 #endif
-
 
 /* Read-write lock types.  */
 #if defined __USE_UNIX98 || defined __USE_XOPEN2K
