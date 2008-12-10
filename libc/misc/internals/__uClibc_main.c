@@ -43,8 +43,6 @@
 
 extern __typeof(open) __libc_open;
 libc_hidden_proto(__libc_open)
-extern __typeof(fcntl) __libc_fcntl;
-libc_hidden_proto(__libc_fcntl)
 #endif
 
 #ifndef SHARED
@@ -139,13 +137,13 @@ size_t __pagesize = 0;
 static void __check_one_fd(int fd, int mode)
 {
     /* Check if the specified fd is already open */
-    if (__libc_fcntl(fd, F_GETFD) == -1)
+    if (fcntl(fd, F_GETFD) == -1)
     {
 	/* The descriptor is probably not open, so try to use /dev/null */
 	int nullfd = __libc_open(_PATH_DEVNULL, mode);
 	/* /dev/null is major=1 minor=3.  Make absolutely certain
 	 * that is in fact the device that we have opened and not
-	 * some other wierd file... */
+	 * some other wierd file... [removed in uclibc] */
 	if (nullfd!=fd)
 	{
 		abort();
