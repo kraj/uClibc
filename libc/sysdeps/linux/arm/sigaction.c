@@ -49,8 +49,8 @@ extern __typeof(sigaction) __libc_sigaction;
    If OACT is not NULL, put the old action for SIG in *OACT.  */
 int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
-    int result;
-    struct kernel_sigaction kact, koact;
+	int result;
+	struct kernel_sigaction kact, koact;
 	enum {
 		SIGSET_MIN_SIZE = sizeof(kact.sa_mask) < sizeof(act->sa_mask)
 				? sizeof(kact.sa_mask) : sizeof(act->sa_mask)

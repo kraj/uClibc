@@ -497,14 +497,6 @@ extern void __pthread_wait_for_restart_signal(pthread_descr self);
 extern void (*__pthread_restart)(pthread_descr);
 extern void (*__pthread_suspend)(pthread_descr);
 
-/* Prototypes for the function without cancelation support when the
-   normal version has it.  */
-extern __typeof(close) __libc_close;
-extern __typeof(nanosleep) __libc_nanosleep;
-extern __typeof(read) __libc_read;
-extern __typeof(waitpid) __libc_waitpid;
-extern __typeof(write) __libc_write;
-
 extern __typeof(pthread_mutex_init) __pthread_mutex_init attribute_hidden;
 extern __typeof(pthread_mutex_destroy) __pthread_mutex_destroy attribute_hidden;
 extern __typeof(pthread_mutex_lock) __pthread_mutex_lock attribute_hidden;

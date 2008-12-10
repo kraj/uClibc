@@ -11,18 +11,16 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-extern __typeof(pause) __libc_pause;
 #ifdef __NR_pause
-#define __NR___libc_pause __NR_pause
-_syscall0(int, __libc_pause)
-#else
-#include <signal.h>
-/* libc_hidden_proto(__sigpause) */
-/* libc_hidden_proto(sigblock) */
 
-int __libc_pause(void)
+_syscall0(int, pause)
+
+#else
+
+#include <signal.h>
+int pause(void)
 {
 	return (__sigpause(sigblock(0), 0));
 }
+
 #endif
-weak_alias(__libc_pause,pause)

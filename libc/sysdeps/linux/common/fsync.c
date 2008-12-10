@@ -10,7 +10,4 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-extern __typeof(fsync) __libc_fsync;
-#define __NR___libc_fsync __NR_fsync
-_syscall1(int, __libc_fsync, int, fd)
-weak_alias(__libc_fsync, fsync)
+_syscall1(int, fsync, int, fd)

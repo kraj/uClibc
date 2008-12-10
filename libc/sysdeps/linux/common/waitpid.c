@@ -12,11 +12,8 @@
 
 /* libc_hidden_proto(wait4) */
 
-extern __typeof(waitpid) __libc_waitpid;
-__pid_t __libc_waitpid(__pid_t pid, int *wait_stat, int options)
+__pid_t waitpid(__pid_t pid, int *wait_stat, int options)
 {
 	return wait4(pid, wait_stat, options, NULL);
 }
-/* libc_hidden_proto(waitpid) */
-weak_alias(__libc_waitpid,waitpid)
-libc_hidden_weak(waitpid)
+libc_hidden_def(waitpid)

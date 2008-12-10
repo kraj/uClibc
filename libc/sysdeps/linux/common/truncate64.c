@@ -30,7 +30,7 @@ _syscall2(int, truncate64, const char *, path, __off64_t, length)
 #elif __WORDSIZE == 32
 
 #ifndef INLINE_SYSCALL
-#define INLINE_SYSCALL(name, nr, args...) __syscall_truncate64 (args)
+#define INLINE_SYSCALL(name, nr, args...) __syscall_truncate64(args)
 #define __NR___syscall_truncate64 __NR_truncate64
 #if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
 static __inline__ _syscall4(int, __syscall_truncate64, const char *, path,
@@ -41,18 +41,17 @@ static __inline__ _syscall3(int, __syscall_truncate64, const char *, path,
 #endif
 #endif
 
-
 /* The exported truncate64 function.  */
-int truncate64 (const char * path, __off64_t length)
+int truncate64(const char * path, __off64_t length)
 {
-    uint32_t low = length & 0xffffffff;
-    uint32_t high = length >> 32;
+	uint32_t low = length & 0xffffffff;
+	uint32_t high = length >> 32;
 #if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
-    return INLINE_SYSCALL(truncate64, 4, path, 0,
-	    __LONG_LONG_PAIR (high, low));
+	return INLINE_SYSCALL(truncate64, 4, path, 0,
+			__LONG_LONG_PAIR(high, low));
 #else
-    return INLINE_SYSCALL(truncate64, 3, path,
-	    __LONG_LONG_PAIR (high, low));
+	return INLINE_SYSCALL(truncate64, 3, path,
+			__LONG_LONG_PAIR(high, low));
 #endif
 }
 
@@ -64,7 +63,7 @@ int truncate64 (const char * path, __off64_t length)
 
 /* libc_hidden_proto(truncate) */
 
-int truncate64 (const char * path, __off64_t length)
+int truncate64(const char * path, __off64_t length)
 {
 	__off_t x = (__off_t) length;
 

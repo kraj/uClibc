@@ -416,11 +416,6 @@ extern void (*__pthread_restart)(pthread_descr);
 extern void (*__pthread_suspend)(pthread_descr);
 extern int (*__pthread_timedsuspend)(pthread_descr, const struct timespec *);
 
-/* Prototypes for the function without cancelation support when the
-   normal version has it.  */
-extern int __libc_close (int fd);
-extern int __libc_nanosleep (const struct timespec *requested_time,
-			     struct timespec *remaining);
 /* Prototypes for some of the new semaphore functions.  */
 extern int sem_post (sem_t * sem);
 extern int sem_init (sem_t *__sem, int __pshared, unsigned int __value);

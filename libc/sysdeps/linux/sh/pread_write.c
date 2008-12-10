@@ -41,8 +41,8 @@ weak_alias(__libc_pread,pread)
 extern __typeof(pread64) __libc_pread64;
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 {
-    uint32_t low = offset & 0xffffffff;
-    uint32_t high = offset >> 32;
+	uint32_t low = offset & 0xffffffff;
+	uint32_t high = offset >> 32;
 	return(__syscall_pread(fd, buf, count, 0, __LONG_LONG_PAIR (high, low)));
 }
 weak_alias(__libc_pread64,pread64)
@@ -74,8 +74,8 @@ weak_alias(__libc_pwrite,pwrite)
 extern __typeof(pwrite64) __libc_pwrite64;
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 {
-    uint32_t low = offset & 0xffffffff;
-    uint32_t high = offset >> 32;
+	uint32_t low = offset & 0xffffffff;
+	uint32_t high = offset >> 32;
 	return(__syscall_pwrite(fd, buf, count, 0, __LONG_LONG_PAIR (high, low)));
 }
 weak_alias(__libc_pwrite64,pwrite64)

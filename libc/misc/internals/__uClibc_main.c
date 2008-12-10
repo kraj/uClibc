@@ -41,12 +41,10 @@
 /* libc_hidden_proto(fstat) */
 /* libc_hidden_proto(abort) */
 
-extern __typeof(open) __libc_open;
-libc_hidden_proto(__libc_open)
 #endif
 
 #ifndef SHARED
-void *__libc_stack_end=NULL;
+void *__libc_stack_end = NULL;
 
 # ifdef __UCLIBC_HAS_SSP__
 #  include <dl-osinfo.h>
@@ -140,10 +138,10 @@ static void __check_one_fd(int fd, int mode)
     if (fcntl(fd, F_GETFD) == -1)
     {
 	/* The descriptor is probably not open, so try to use /dev/null */
-	int nullfd = __libc_open(_PATH_DEVNULL, mode);
+	int nullfd = open(_PATH_DEVNULL, mode);
 	/* /dev/null is major=1 minor=3.  Make absolutely certain
 	 * that is in fact the device that we have opened and not
-	 * some other wierd file... [removed in uclibc] */
+	 * some other weird file... [removed in uclibc] */
 	if (nullfd!=fd)
 	{
 		abort();

@@ -22,10 +22,8 @@
 
 /* libc_hidden_proto(ioctl) */
 
-extern __typeof(tcdrain) __libc_tcdrain;
 /* Wait for pending output to be written on FD.  */
-int __libc_tcdrain (int fd)
+int tcdrain(int fd)
 {
       return ioctl(fd, TCSBRK, 1);
 }
-weak_alias(__libc_tcdrain,tcdrain)
