@@ -226,11 +226,6 @@
 #define IF_HAS_BOTH(...)
 #endif
 
-
-extern int __libc_getdomainname(char *name, size_t len);
-libc_hidden_proto(__libc_getdomainname)
-
-
 #define MAX_RECURSE    5
 #define MAX_ALIASES    5
 
@@ -1671,7 +1666,7 @@ int getnameinfo(const struct sockaddr *sa, socklen_t addrlen, char *host,
 #undef min
 #define min(x,y) (((x) > (y)) ? (y) : (x))
 					if ((flags & NI_NOFQDN)
-					 && (__libc_getdomainname(domain, sizeof(domain)) == 0)
+					 && (getdomainname(domain, sizeof(domain)) == 0)
 					 && (c = strstr(h->h_name, domain)) != NULL
 					 && (c != h->h_name) && (*(--c) == '.')
 					) {
