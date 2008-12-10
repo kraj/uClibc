@@ -34,6 +34,7 @@ help:
 	@echo '  install_dev		- install all headers and static libs'
 	@echo '  install_headers	- install headers excluding generated ones'
 	@echo '  install_utils		- install target utilities'
+	@echo '  install_hostutils	- install host utilities'
 	@echo
 	@echo 'Development:'
 	@echo '  check			- run testsuite'
