@@ -48,3 +48,12 @@ help:
 	@echo '  CROSS=		- Override CROSS_COMPILER_PREFIX from .config'
 	@echo '  SHELL=		- Shell to use for make'
 	@echo '  CONFIG_SHELL=		- Shell to use for menuconfig'
+	@echo
+	@echo '  PREFIX=		- Prepended prefix'
+	@echo '  RUNTIME_PREFIX=	- Prefix for the libdir containing shared objects'
+	@echo '			  (usually "/")'
+	@echo '  DEVEL_PREFIX=		- Prefix for the libdir containing static objects'
+	@echo '			  and the include dir (usually "/usr")'
+	@echo '  SHARED_LIB_LOADER_PREFIX=	- Directory where the shared loader resides.'
+	@echo '			  (usually "/lib")'
+
