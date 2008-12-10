@@ -447,6 +447,9 @@ utils:
 install_utils: utils
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install
 
+install_hostutils: hostutils
+	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install DOTHOST=.host
+
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 include/bits include/config:
