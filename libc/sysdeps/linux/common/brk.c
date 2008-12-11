@@ -8,29 +8,25 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-/* libc_hidden_proto(brk) */
+libc_hidden_proto(brk)
+
+#define __NR___syscall_brk __NR_brk
+static inline _syscall1(void *, __syscall_brk, void *, end)
 
 /* This must be initialized data because commons can't have aliases.  */
 void * __curbrk attribute_hidden = 0;
 
-int brk (void *addr)
+int brk(void *addr)
 {
-    void *newbrk;
+	void *newbrk = __syscall_brk(addr);
 
-	__asm__ __volatile__(
-		"P0 = %2;\n\t"
-		"excpt 0;\n\t"
-		: "=q0" (newbrk)
-		: "q0" (addr), "i" (__NR_brk): "P0" );
+	__curbrk = newbrk;
 
-    __curbrk = newbrk;
+	if (newbrk < addr) {
+		__set_errno (ENOMEM);
+		return -1;
+	}
 
-    if (newbrk < addr)
-    {
-	__set_errno (ENOMEM);
-	return -1;
-    }
-
-    return 0;
+	return 0;
 }
 libc_hidden_def(brk)
