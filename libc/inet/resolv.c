@@ -219,8 +219,8 @@ libc_hidden_proto(__h_errno_location)
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
 /* libc_hidden_proto(__ctype_b) */
 #endif
-int __libc_getdomainname(char *name, size_t len);
-libc_hidden_proto(__libc_getdomainname)
+int getdomainname(char *name, size_t len);
+libc_hidden_proto(getdomainname)
 
 
 #define MAX_RECURSE 5
@@ -1940,7 +1940,7 @@ BAD_FAM:
 				if (h) {
 					char *c;
 					if ((flags & NI_NOFQDN)
-					    && (__libc_getdomainname (domain, sizeof(domain)) == 0)
+					    && (getdomainname (domain, sizeof(domain)) == 0)
 					    && (c = strstr (h->h_name, domain))
 					    && (c != h->h_name) && (*(--c) == '.')) {
 						strncpy (host, h->h_name,
