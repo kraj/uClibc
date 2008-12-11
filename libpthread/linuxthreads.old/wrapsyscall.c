@@ -41,35 +41,35 @@ const int __pthread_provide_wrappers = 0;
 #endif
 
 
-#define CANCELABLE_SYSCALL(res_type, name, param_list, params) \
-res_type __libc_##name param_list;					      \
-res_type								      \
-__attribute__ ((weak))							      \
-name param_list								      \
-{									      \
-  res_type result;							      \
-  int oldtype;								      \
-  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype);	      \
-  result = __libc_##name params;					      \
-  pthread_setcanceltype (oldtype, NULL);				      \
-  return result;							      \
+#define CANCELABLE_SYSCALL(res_type, name, param_list, params)			\
+res_type name param_list;							\
+res_type									\
+__attribute__ ((weak))								\
+name param_list									\
+{										\
+  res_type result;								\
+  int oldtype;									\
+  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype);		\
+  result = name params;								\
+  pthread_setcanceltype (oldtype, NULL);					\
+  return result;								\
 }
 
-#define CANCELABLE_SYSCALL_VA(res_type, name, param_list, params, last_arg) \
-res_type __libc_##name param_list;					      \
-res_type								      \
-__attribute__ ((weak))							      \
-name param_list								      \
-{									      \
-  res_type result;							      \
-  int oldtype;								      \
-  va_list ap;								      \
-  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype);	      \
-  va_start (ap, last_arg);						      \
-  result = __libc_##name params;					      \
-  va_end (ap);								      \
-  pthread_setcanceltype (oldtype, NULL);				      \
-  return result;							      \
+#define CANCELABLE_SYSCALL_VA(res_type, name, param_list, params, last_arg)	\
+res_type ##name param_list;							\
+res_type									\
+__attribute__ ((weak))								\
+name param_list									\
+{										\
+  res_type result;								\
+  int oldtype;									\
+  va_list ap;									\
+  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype);		\
+  va_start (ap, last_arg);							\
+  result = name params;								\
+  va_end (ap);									\
+  pthread_setcanceltype (oldtype, NULL);					\
+  return result;								\
 }
 
 

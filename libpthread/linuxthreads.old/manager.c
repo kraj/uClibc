@@ -146,7 +146,7 @@ int attribute_noreturn __pthread_manager(void *arg)
   /* Raise our priority to match that of main thread */
   __pthread_manager_adjust_prio(__pthread_main_thread->p_priority);
   /* Synchronize debugging of the thread manager */
-  n = TEMP_FAILURE_RETRY(__libc_read(reqfd, (char *)&request,
+  n = TEMP_FAILURE_RETRY(read(reqfd, (char *)&request,
 				     sizeof(request)));
 #ifndef USE_SELECT
   ufd.fd = reqfd;
@@ -183,9 +183,9 @@ int attribute_noreturn __pthread_manager(void *arg)
 #endif
     {
 
-      PDEBUG("before __libc_read\n");
-      n = __libc_read(reqfd, (char *)&request, sizeof(request));
-      PDEBUG("after __libc_read, n=%d\n", n);
+      PDEBUG("before read\n");
+      n = read(reqfd, (char *)&request, sizeof(request));
+      PDEBUG("after read, n=%d\n", n);
       switch(request.req_kind) {
       case REQ_CREATE:
         PDEBUG("got REQ_CREATE\n");
@@ -301,7 +301,7 @@ pthread_start_thread(void *arg)
   if (__pthread_threads_debug && __pthread_sig_debug > 0) {
     request.req_thread = self;
     request.req_kind = REQ_DEBUG;
-    TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+    TEMP_FAILURE_RETRY(write(__pthread_manager_request,
 		(char *) &request, sizeof(request)));
     suspend(self);
   }
@@ -807,7 +807,7 @@ static void pthread_reap_children(void)
   int status;
   PDEBUG("\n");
 
-  while ((pid = __libc_waitpid(-1, &status, WNOHANG | __WCLONE)) > 0) {
+  while ((pid = waitpid(-1, &status, WNOHANG | __WCLONE)) > 0) {
     pthread_exited(pid);
     if (WIFSIGNALED(status)) {
       /* If a thread died due to a signal, send the same signal to
@@ -906,7 +906,7 @@ void __pthread_manager_sighandler(int sig attribute_unused)
 	struct pthread_request request;
 	request.req_thread = 0;
 	request.req_kind = REQ_KICK;
-	TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+	TEMP_FAILURE_RETRY(write(__pthread_manager_request,
 		    (char *) &request, sizeof(request)));
     }
 }

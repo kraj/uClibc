@@ -610,8 +610,8 @@ int __pthread_initialize_manager(void)
   }
   if (pid == -1) {
     free(__pthread_manager_thread_bos);
-    __libc_close(manager_pipe[0]);
-    __libc_close(manager_pipe[1]);
+    close(manager_pipe[0]);
+    close(manager_pipe[1]);
     return -1;
   }
   __pthread_manager_request = manager_pipe[1]; /* writing end */
@@ -630,7 +630,7 @@ int __pthread_initialize_manager(void)
   /* Synchronize debugging of the thread manager */
   PDEBUG("send REQ_DEBUG to manager thread\n");
   request.req_kind = REQ_DEBUG;
-  TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+  TEMP_FAILURE_RETRY(write(__pthread_manager_request,
 	      (char *) &request, sizeof(request)));
   return 0;
 }
@@ -652,7 +652,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   request.req_args.create.arg = arg;
   sigprocmask(SIG_SETMASK, NULL, &request.req_args.create.mask);
   PDEBUG("write REQ_CREATE to manager thread\n");
-  TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+  TEMP_FAILURE_RETRY(write(__pthread_manager_request,
 	      (char *) &request, sizeof(request)));
   PDEBUG("before suspend(self)\n");
   suspend(self);
@@ -781,7 +781,7 @@ static void pthread_onexit_process(int retcode, void *arg attribute_unused)
 	request.req_thread = self;
 	request.req_kind = REQ_PROCESS_EXIT;
 	request.req_args.exit.code = retcode;
-	TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+	TEMP_FAILURE_RETRY(write(__pthread_manager_request,
 		    (char *) &request, sizeof(request)));
 	suspend(self);
 	/* Main thread should accumulate times for thread manager and its
@@ -895,8 +895,8 @@ void __pthread_reset_main_thread(void)
     free(__pthread_manager_thread_bos);
     __pthread_manager_thread_bos = __pthread_manager_thread_tos = NULL;
     /* Close the two ends of the pipe */
-    __libc_close(__pthread_manager_request);
-    __libc_close(__pthread_manager_reader);
+    close(__pthread_manager_request);
+    close(__pthread_manager_reader);
     __pthread_manager_request = __pthread_manager_reader = -1;
   }
 
@@ -1022,7 +1022,7 @@ __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime)
 
 	/* Sleep for the required duration. If woken by a signal,
 	   resume waiting as required by Single Unix Specification.  */
-	if (reltime.tv_sec < 0 || __libc_nanosleep(&reltime, NULL) == 0)
+	if (reltime.tv_sec < 0 || nanosleep(&reltime, NULL) == 0)
 	  break;
       }
 
@@ -1107,7 +1107,7 @@ int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstim
 
 	    /* Sleep for the required duration. If woken by a signal,
 	       resume waiting as required by Single Unix Specification.  */
-	    if (reltime.tv_sec < 0 || __libc_nanosleep(&reltime, NULL) == 0)
+	    if (reltime.tv_sec < 0 || nanosleep(&reltime, NULL) == 0)
 		break;
 	}
 
@@ -1147,7 +1147,7 @@ void __pthread_message(char * fmt, ...)
   va_start(args, fmt);
   vsnprintf(buffer + 8, sizeof(buffer) - 8, fmt, args);
   va_end(args);
-  TEMP_FAILURE_RETRY(__libc_write(2, buffer, strlen(buffer)));
+  TEMP_FAILURE_RETRY(write(2, buffer, strlen(buffer)));
 }
 
 #endif
