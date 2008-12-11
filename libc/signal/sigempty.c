@@ -23,18 +23,16 @@
 /* Experimentally off - libc_hidden_proto(memset) */
 
 /* Clear all signals from SET.  */
-/* libc_hidden_proto(sigemptyset) */
+libc_hidden_proto(sigemptyset)
 int sigemptyset (sigset_t *set)
 {
-#if 0 /* is it really required by standards?! */
   if (set == NULL)
     {
       __set_errno (EINVAL);
       return -1;
     }
-#endif
 
-  __sigemptyset (set);
+  memset (set, 0, sizeof (sigset_t));
 
   return 0;
 }
