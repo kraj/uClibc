@@ -14,6 +14,9 @@ help:
 	@echo 'Build:'
 	@echo '  all			- libraries and generated headers'
 	@echo '  pregen		- generate headers'
+	@echo '  utils			- build target utilities'
+	@echo '			  (readelf, ldd, ldconfig, locale, iconv)'
+	@echo '  hostutils		- build host utilities (see utils)'
 	@echo
 	@echo 'Configuration:'
 	@echo '  allnoconfig		- disable all symbols in .config'
@@ -30,6 +33,8 @@ help:
 	@echo '  install_runtime	- install the libraries'
 	@echo '  install_dev		- install all headers and static libs'
 	@echo '  install_headers	- install headers excluding generated ones'
+	@echo '  install_utils		- install target utilities'
+	@echo '  install_hostutils	- install host utilities'
 	@echo
 	@echo 'Development:'
 	@echo '  check			- run testsuite'
@@ -37,9 +42,18 @@ help:
 	@echo '  release		- create a distribution tarball'
 	@echo
 	@echo 'Environment variables:'
-	@echo '     			- Quiet build'
+	@echo '  V="" 			- Quiet build (default)'
 	@echo '  V=1			- Verbose build'
 	@echo '  V=2			- Very verbose build'
 	@echo '  CROSS=		- Override CROSS_COMPILER_PREFIX from .config'
 	@echo '  SHELL=		- Shell to use for make'
 	@echo '  CONFIG_SHELL=		- Shell to use for menuconfig'
+	@echo
+	@echo '  PREFIX=		- Prepended prefix'
+	@echo '  RUNTIME_PREFIX=	- Prefix for the libdir containing shared objects'
+	@echo '			  (usually "/")'
+	@echo '  DEVEL_PREFIX=		- Prefix for the libdir containing static objects'
+	@echo '			  and the include dir (usually "/usr")'
+	@echo '  SHARED_LIB_LOADER_PREFIX=	- Directory where the shared loader resides.'
+	@echo '			  (usually "/lib")'
+
