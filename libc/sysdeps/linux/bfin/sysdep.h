@@ -14,6 +14,7 @@
 #ifdef __ASSEMBLER__
 
 #define ENTRY(sym) .global sym; .type sym, STT_FUNC; sym:
+#define ENDPROC(sym) .size sym, . - sym
 
 #endif
 
