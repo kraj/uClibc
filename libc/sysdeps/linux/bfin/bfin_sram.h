@@ -18,6 +18,7 @@ __BEGIN_DECLS
 #define L1_DATA_A_SRAM          0x00000002
 #define L1_DATA_B_SRAM          0x00000004
 #define L1_DATA_SRAM            0x00000006
+#define L2_SRAM			0x00000008
 
 extern void *sram_alloc(size_t size, unsigned long flags)
 	__attribute_malloc__ __attribute_warn_unused_result__;
