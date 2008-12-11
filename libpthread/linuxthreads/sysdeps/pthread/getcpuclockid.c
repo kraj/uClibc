@@ -23,7 +23,7 @@
 #include <time.h>
 #include <internals.h>
 #include <spinlock.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 #include <kernel-posix-cpu-timers.h>
 
 

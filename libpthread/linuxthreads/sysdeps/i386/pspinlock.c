@@ -20,7 +20,7 @@
 #include <errno.h>
 #include <pthread.h>
 #include "internals.h"
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 
 
 /* This implementation is similar to the one used in the Linux kernel.
