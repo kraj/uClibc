@@ -29,24 +29,16 @@ long syscall(long sysnum, long a, long b, long c, long d, long e, long f)
 	int _r0 = 0;
 
 	__asm__ __volatile__ (
-		"R5 = %7;"
-		"R4 = %6;"
-		"R3 = %5;"
-		"R2 = %4;"
-		"R1 = %3;"
-		"R0 = %2;"
-		"P0 = %1;"
 		"excpt 0;"
-		"%0 = R0;"
-		: "=r" (_r0)
-		: "rm" (sysnum),
-		  "rm" (a),
-		  "rm" (b),
-		  "rm" (c),
-		  "rm" (d),
-		  "rm" (e),
-		  "rm" (f)
-		: "memory","CC","R0","R1","R2","R3","R4","R5","P0");
+		: "=q0" (_r0)
+		: "qA" (sysnum),
+		  "q0" (a),
+		  "q1" (b),
+		  "q2" (c),
+		  "q3" (d),
+		  "q4" (e),
+		  "q5" (f)
+		: "memory", "CC");
 
 	if (_r0 >= (unsigned long) -4095) {
 		(*__errno_location()) = (-_r0);
