@@ -1245,7 +1245,7 @@ __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime)
 
 	/* Sleep for the required duration. If woken by a signal,
 	   resume waiting as required by Single Unix Specification.  */
-	if (reltime.tv_sec < 0 || __libc_nanosleep(&reltime, NULL) == 0)
+	if (reltime.tv_sec < 0 || nanosleep(&reltime, NULL) == 0)
 	  break;
       }
 
@@ -1332,7 +1332,7 @@ __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstime)
 
       /* Sleep for the required duration. If woken by a signal,
 	 resume waiting as required by Single Unix Specification.  */
-      if (reltime.tv_sec < 0 || __libc_nanosleep(&reltime, NULL) == 0)
+      if (reltime.tv_sec < 0 || nanosleep(&reltime, NULL) == 0)
 	break;
     }
 

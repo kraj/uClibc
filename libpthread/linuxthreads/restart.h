@@ -13,7 +13,7 @@
 /* GNU Library General Public License for more details.                 */
 
 #include <signal.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 
 /* Primitives for controlling thread execution */
 

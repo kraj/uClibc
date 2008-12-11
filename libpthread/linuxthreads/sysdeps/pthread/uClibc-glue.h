@@ -6,7 +6,7 @@
 #include <bits/uClibc_page.h>
 
 #ifdef IS_IN_libpthread
-#include "kernel-features.h"
+#include <bits/kernel-features.h>
 
 #ifndef __GLIBC_HAVE_LONG_LONG
 # define __GLIBC_HAVE_LONG_LONG
