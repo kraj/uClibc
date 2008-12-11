@@ -19,7 +19,7 @@
 #include <sysdep-cancel.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 
 /* Clone the calling process, but without copying the whole address space.
    The calling process is suspended until the new process exits or is

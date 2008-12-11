@@ -24,7 +24,7 @@
 #include <sys/syscall.h>
 #include <linuxthreads/internals.h>
 
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 
 void
 __pthread_sigsuspend (const sigset_t *set)
