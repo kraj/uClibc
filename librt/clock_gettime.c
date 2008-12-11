@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <time.h>
 #include "kernel-posix-cpu-timers.h"
-#include "kernel-features.h"
+#include <bits/kernel-features.h>
 
 
 #define SYSCALL_GETTIME \

@@ -18,7 +18,7 @@
 
 #include <sysdep.h>
 #include <lowlevelcond.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 #include "lowlevel-atomic.h"
 
 #define FUTEX_WAIT		0

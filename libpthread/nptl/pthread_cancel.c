@@ -22,7 +22,7 @@
 #include "pthreadP.h"
 #include "atomic.h"
 #include <sysdep.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 
 
 int

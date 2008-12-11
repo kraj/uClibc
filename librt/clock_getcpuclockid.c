@@ -21,7 +21,7 @@
 #include <time.h>
 #include <sysdep.h>
 #include <unistd.h>
-#include "kernel-features.h"
+#include <bits/kernel-features.h>
 #include "kernel-posix-cpu-timers.h"
 
 #ifndef HAS_CPUCLOCK

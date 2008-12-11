@@ -21,7 +21,7 @@
 #include <signal.h>
 #include <sysdep.h>
 #include <tls.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 
 extern __typeof(raise) __raise;
 int __raise (int sig)

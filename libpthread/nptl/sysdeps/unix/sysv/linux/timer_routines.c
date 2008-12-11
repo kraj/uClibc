@@ -22,7 +22,7 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <sysdep.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 #include <pthreadP.h>
 #include "kernel-posix-timers.h"
 

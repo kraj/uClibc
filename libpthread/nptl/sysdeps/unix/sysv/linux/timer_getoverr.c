@@ -20,7 +20,7 @@
 #include <errno.h>
 #include <time.h>
 #include <sysdep.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 #include "kernel-posix-timers.h"
 
 

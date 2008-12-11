@@ -20,7 +20,7 @@
 #include <sysdep.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 #include <tcb-offsets.h>
 
 /* Save the PID value.  */

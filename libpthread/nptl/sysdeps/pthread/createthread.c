@@ -25,7 +25,7 @@
 #include <ldsodefs.h>
 #include <tls.h>
 
-#include "kernel-features.h"
+#include <bits/kernel-features.h>
 
 
 #define CLONE_SIGNAL    	(CLONE_SIGHAND | CLONE_THREAD)

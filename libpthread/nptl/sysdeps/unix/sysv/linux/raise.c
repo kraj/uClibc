@@ -22,7 +22,7 @@
 #include <signal.h>
 #include <sysdep.h>
 #include <pthreadP.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 
 
 extern __typeof(raise) __raise;

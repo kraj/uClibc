@@ -1,7 +1,7 @@
 #ifndef _LDSODEFS_H
 #define _LDSODEFS_H     1
 
-#include "kernel-features.h"
+#include <bits/kernel-features.h>
 
 #include <features.h>
 #include <tls.h>

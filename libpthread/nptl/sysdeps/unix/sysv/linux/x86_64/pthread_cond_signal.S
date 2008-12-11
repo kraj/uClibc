@@ -20,7 +20,7 @@
 #include <sysdep.h>
 #include <shlib-compat.h>
 #include <lowlevelcond.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 
 #ifdef UP
 # define LOCK
