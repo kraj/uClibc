@@ -7,6 +7,10 @@
 #undef NO_OLD_SIGACTION
 
 #if defined(__mips__)
+/* We have libc/sysdeps/linux/mips/bits/kernel_sigaction.h,
+ * so this should never be used. Lets see whether it is true. */
+struct BUG_is_here { char BUG_is_here[-1]; };
+
 #undef HAVE_SA_RESTORER
 /* This is the sigaction structure from the Linux 2.1.24 kernel.  */
 #include <sgidefs.h>
@@ -18,11 +22,9 @@ struct old_kernel_sigaction {
 #define _KERNEL_NSIG           128
 #define _KERNEL_NSIG_BPW       32
 #define _KERNEL_NSIG_WORDS     (_KERNEL_NSIG / _KERNEL_NSIG_BPW)
-
 typedef struct {
     unsigned long sig[_KERNEL_NSIG_WORDS];
 } kernel_sigset_t;
-
 /* This is the sigaction structure from the Linux 2.1.68 kernel.  */
 struct kernel_sigaction {
     unsigned int    sa_flags;
@@ -31,7 +33,9 @@ struct kernel_sigaction {
     void            (*sa_restorer)(void);
     int             s_resv[1]; /* reserved */
 };
+
 #elif defined(__ia64__)
+
 #define NO_OLD_SIGACTION
 #undef HAVE_SA_RESTORER
 struct kernel_sigaction {
@@ -39,7 +43,9 @@ struct kernel_sigaction {
 	unsigned long sa_flags;
 	sigset_t sa_mask;
 };
+
 #else
+
 #define HAVE_SA_RESTORER
 /* This is the sigaction structure from the Linux 2.1.20 kernel.  */
 struct old_kernel_sigaction {
@@ -55,6 +61,7 @@ struct kernel_sigaction {
     void (*sa_restorer) (void);
     sigset_t sa_mask;
 };
+
 #endif
 
 #ifndef NO_OLD_SIGACTION
