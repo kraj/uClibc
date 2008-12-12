@@ -49,52 +49,96 @@ typedef struct
 /* Return a mask that includes the bit for SIG only.  */
 /* Unsigned cast ensures shift/mask insns are used.  */
 # define __sigmask(sig) \
-  (((unsigned long int) 1) << (((sig) - 1) % (8 * sizeof (unsigned long int))))
+  (((unsigned long) 1) << ((unsigned)((sig) - 1) % (8 * sizeof (unsigned long))))
 
 /* Return the word index for SIG.  */
-# define __sigword(sig)	(((sig) - 1) / (8 * sizeof (unsigned long int)))
+# define __sigword(sig)	((unsigned)((sig) - 1) / (8 * sizeof (unsigned long)))
+
+/* gcc 4.3.1 is not clever enough to optimize for _SIGSET_NWORDS == 1 and 2,
+ * which are about the only values which can be there */
 
 # if defined __GNUC__ && __GNUC__ >= 2
 #  define __sigemptyset(set) \
-  (__extension__ ({ int __cnt = _SIGSET_NWORDS;				      \
-		    sigset_t *__set = (set);				      \
-		    while (--__cnt >= 0) __set->__val[__cnt] = 0;	      \
-		    0; }))
+(__extension__ ({ \
+	sigset_t *__set = (set);					\
+	if (_SIGSET_NWORDS <= 2) {					\
+		__set->__val[0] = 0;					\
+		if (_SIGSET_NWORDS == 2)				\
+			__set->__val[1] = 0;				\
+	} else {							\
+		int __cnt = _SIGSET_NWORDS;				\
+		while (--__cnt >= 0) __set->__val[__cnt] = 0;		\
+	}								\
+	0;								\
+}))
 #  define __sigfillset(set) \
-  (__extension__ ({ int __cnt = _SIGSET_NWORDS;				      \
-		    sigset_t *__set = (set);				      \
-		    while (--__cnt >= 0) __set->__val[__cnt] = ~0UL;	      \
-		    0; }))
+(__extension__ ({ \
+	sigset_t *__set = (set);					\
+	if (_SIGSET_NWORDS <= 2) {					\
+		__set->__val[0] = ~0UL;					\
+		if (_SIGSET_NWORDS == 2)				\
+			__set->__val[1] = ~0UL;				\
+	} else {							\
+		int __cnt = _SIGSET_NWORDS;				\
+		while (--__cnt >= 0) __set->__val[__cnt] = ~0UL;	\
+	}								\
+	0;								\
+}))
 
 #  ifdef __USE_GNU
 /* The POSIX does not specify for handling the whole signal set in one
    command.  This is often wanted and so we define three more functions
    here.  */
 #   define __sigisemptyset(set) \
-  (__extension__ ({ int __cnt = _SIGSET_NWORDS;				      \
-		    const sigset_t *__set = (set);			      \
-		    int __ret = __set->__val[--__cnt];			      \
-		    while (!__ret && --__cnt >= 0)			      \
-			__ret = __set->__val[__cnt];			      \
-		    __ret == 0; }))
+(__extension__ ({ \
+	long __ret;							\
+	const sigset_t *__set = (set);					\
+	if (_SIGSET_NWORDS == 1) {					\
+		__ret = __set->__val[0];				\
+	} else if (_SIGSET_NWORDS == 2) {				\
+		__ret = __set->__val[0] | __set->__val[1];		\
+	} else {							\
+		int __cnt = _SIGSET_NWORDS;				\
+		__ret = __set->__val[--__cnt];				\
+		while (!__ret && --__cnt >= 0)				\
+			__ret = __set->__val[__cnt];			\
+	}								\
+	__ret == 0;							\
+}))
 #   define __sigandset(dest, left, right) \
-  (__extension__ ({ int __cnt = _SIGSET_NWORDS;				      \
-		    sigset_t *__dest = (dest);				      \
-		    const sigset_t *__left = (left);			      \
-		    const sigset_t *__right = (right);			      \
-		    while (--__cnt >= 0)				      \
-		      __dest->__val[__cnt] = (__left->__val[__cnt]	      \
-					      & __right->__val[__cnt]);	      \
-		    0; }))
+(__extension__ ({ \
+	sigset_t *__dest = (dest);					\
+	const sigset_t *__left = (left);				\
+	const sigset_t *__right = (right);				\
+	if (_SIGSET_NWORDS <= 2) {					\
+		__dest->__val[0] = __left->__val[0] & __right->__val[0];\
+		if (_SIGSET_NWORDS == 2)				\
+			__dest->__val[1] = __left->__val[1] & __right->__val[1];\
+	} else {							\
+		int __cnt = _SIGSET_NWORDS;				\
+		while (--__cnt >= 0)					\
+			__dest->__val[__cnt] = (__left->__val[__cnt]	\
+					& __right->__val[__cnt]);	\
+	}								\
+	0;								\
+}))
 #   define __sigorset(dest, left, right) \
-  (__extension__ ({ int __cnt = _SIGSET_NWORDS;				      \
-		    sigset_t *__dest = (dest);				      \
-		    const sigset_t *__left = (left);			      \
-		    const sigset_t *__right = (right);			      \
-		    while (--__cnt >= 0)				      \
-		      __dest->__val[__cnt] = (__left->__val[__cnt]	      \
-					      | __right->__val[__cnt]);	      \
-		    0; }))
+(__extension__ ({ \
+	sigset_t *__dest = (dest);					\
+	const sigset_t *__left = (left);				\
+	const sigset_t *__right = (right);				\
+	if (_SIGSET_NWORDS <= 2) {					\
+		__dest->__val[0] = __left->__val[0] | __right->__val[0];\
+		if (_SIGSET_NWORDS == 2)				\
+			__dest->__val[1] = __left->__val[1] | __right->__val[1];\
+	} else {							\
+		int __cnt = _SIGSET_NWORDS;				\
+		while (--__cnt >= 0)					\
+			__dest->__val[__cnt] = (__left->__val[__cnt]	\
+					| __right->__val[__cnt]);	\
+	}								\
+	0;								\
+}))
 #  endif
 # endif
 
@@ -109,14 +153,14 @@ extern int __sigdelset (__sigset_t *, int);
 libc_hidden_proto(__sigdelset)
 
 # ifdef __USE_EXTERN_INLINES
-#  define __SIGSETFN(NAME, BODY, CONST)					      \
-  _EXTERN_INLINE int							      \
-  NAME (CONST __sigset_t *__set, int __sig)				      \
-  {									      \
-    unsigned long int __mask = __sigmask (__sig);			      \
-    unsigned long int __word = __sigword (__sig);			      \
-    return BODY;							      \
-  }
+#  define __SIGSETFN(NAME, BODY, CONST)					\
+_EXTERN_INLINE int							\
+NAME (CONST __sigset_t *__set, int __sig)				\
+{									\
+	unsigned long __mask = __sigmask (__sig);			\
+	unsigned long __word = __sigword (__sig);			\
+	return BODY;							\
+}
 
 __SIGSETFN (__sigismember, (__set->__val[__word] & __mask) ? 1 : 0, __const)
 __SIGSETFN (__sigaddset, ((__set->__val[__word] |= __mask), 0), )

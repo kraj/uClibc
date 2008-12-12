@@ -47,8 +47,8 @@ int sigsuspend(const sigset_t * mask)
 # endif
 #else
 # define __NR___syscall_sigsuspend __NR_sigsuspend
-static inline _syscall3(int, __syscall_sigsuspend, int, a, unsigned long int, b,
-		  unsigned long int, c);
+static __inline__ _syscall3(int, __syscall_sigsuspend, int, a, unsigned long int, b,
+		  unsigned long int, c)
 
 int sigsuspend(const sigset_t * set)
 {
