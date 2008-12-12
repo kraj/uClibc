@@ -27,23 +27,21 @@ void *__curbrk attribute_hidden = 0;
 /* libc_hidden_proto(brk) */
 int brk (void *addr)
 {
-    void *__unbounded newbrk, *__unbounded scratch;
+	void *newbrk, *ebx;
 
-    __asm__ ("movl %%ebx, %1\n"	/* Save %ebx in scratch register.  */
-	    "movl %3, %%ebx\n"	/* Put ADDR in %ebx to be syscall arg.  */
-	    "int $0x80 # %2\n"	/* Perform the system call.  */
-	    "movl %1, %%ebx\n"	/* Restore %ebx from scratch register.  */
-	    : "=a" (newbrk), "=r" (scratch)
-	    : "0" (__NR_brk), "g" (__ptrvalue (addr)));
+	__asm__ (
+		"int $0x80\n"
+		: "=a" (newbrk), "=b" (ebx)
+		: "0" (__NR_brk), "1" (addr)
+	);
 
-    __curbrk = newbrk;
+	__curbrk = newbrk;
 
-    if (newbrk < addr)
-    {
-	__set_errno (ENOMEM);
-	return -1;
-    }
+	if (newbrk < addr) {
+		__set_errno(ENOMEM);
+		return -1;
+	}
 
-    return 0;
+	return 0;
 }
 libc_hidden_def(brk)
