@@ -25,14 +25,19 @@
 void *__curbrk attribute_hidden = 0;
 
 /* libc_hidden_proto(brk) */
-int brk (void *addr)
+int brk(void *addr)
 {
-	void *newbrk, *ebx;
+	void *newbrk;
 
-	__asm__ (
-		"int $0x80\n"
-		: "=a" (newbrk), "=b" (ebx)
-		: "0" (__NR_brk), "1" (addr)
+	/* %ebx is used in PIC code, need to save/restore it manually.
+	 * gcc won't do it for us if we will request it in constraints
+	 */
+	__asm__("pushl	%%ebx\n"
+		"movl	%2, %%ebx\n"
+		"int	$0x80\n"
+		"popl	%%ebx\n"
+		: "=a" (newbrk)
+		: "0" (__NR_brk), "g" (addr)
 	);
 
 	__curbrk = newbrk;
