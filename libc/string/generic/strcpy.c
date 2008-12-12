@@ -24,24 +24,15 @@
 
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Copy SRC to DEST.  */
-char *strcpy (char *dest, const char *src)
+char *strcpy(char *dest, const char *src)
 {
-  reg_char c;
-  char *__unbounded s = (char *__unbounded) CHECK_BOUNDS_LOW (src);
-  const ptrdiff_t off = CHECK_BOUNDS_LOW (dest) - s - 1;
-  size_t n;
+	char *dst = dest;
 
-  do
-    {
-      c = *s++;
-      s[off] = c;
-    }
-  while (c != '\0');
+	while ((*dst = *src) != '\0') {
+		src++;
+		dst++;
+	}
 
-  n = s - src;
-  (void) CHECK_BOUNDS_HIGH (src + n);
-  (void) CHECK_BOUNDS_HIGH (dest + n);
-
-  return dest;
+	return dest;
 }
 libc_hidden_def(strcpy)

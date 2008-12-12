@@ -2091,33 +2091,12 @@ static reg_errcode_t byte_compile_range (unsigned int range_start,
 #   define MAX_BUF_SIZE (1L << 16)
 #   define REALLOC(p,s) realloc ((p), (s))
 #  endif
+# endif /* not DEFINED_ONCE */
 
 /* Extend the buffer by twice its current size via realloc and
    reset the pointers that pointed into the old block to point to the
    correct places in the new one.  If extending the buffer results in it
    being larger than MAX_BUF_SIZE, then flag memory exhausted.  */
-#  if __BOUNDED_POINTERS__
-#   define SET_HIGH_BOUND(P) (__ptrhigh (P) = __ptrlow (P) + bufp->allocated)
-#   define MOVE_BUFFER_POINTER(P) \
-  (__ptrlow (P) += incr, SET_HIGH_BOUND (P), __ptrvalue (P) += incr)
-#   define ELSE_EXTEND_BUFFER_HIGH_BOUND	\
-  else						\
-    {						\
-      SET_HIGH_BOUND (b);			\
-      SET_HIGH_BOUND (begalt);			\
-      if (fixup_alt_jump)			\
-	SET_HIGH_BOUND (fixup_alt_jump);	\
-      if (laststart)				\
-	SET_HIGH_BOUND (laststart);		\
-      if (pending_exact)			\
-	SET_HIGH_BOUND (pending_exact);		\
-    }
-#  else
-#   define MOVE_BUFFER_POINTER(P) (P) += incr
-#   define ELSE_EXTEND_BUFFER_HIGH_BOUND
-#  endif
-# endif /* not DEFINED_ONCE */
-
 # ifdef WCHAR
 #  define EXTEND_BUFFER()						\
   do {									\
@@ -2141,16 +2120,15 @@ static reg_errcode_t byte_compile_range (unsigned int range_start,
     if (old_buffer != COMPILED_BUFFER_VAR)				\
       {									\
 	int incr = COMPILED_BUFFER_VAR - old_buffer;			\
-	MOVE_BUFFER_POINTER (b);					\
-	MOVE_BUFFER_POINTER (begalt);					\
+	b += incr;							\
+	begalt += incr;							\
 	if (fixup_alt_jump)						\
-	  MOVE_BUFFER_POINTER (fixup_alt_jump);				\
+	  fixup_alt_jump += incr;					\
 	if (laststart)							\
-	  MOVE_BUFFER_POINTER (laststart);				\
+	  laststart += incr;						\
 	if (pending_exact)						\
-	  MOVE_BUFFER_POINTER (pending_exact);				\
+	  pending_exact += incr;					\
       }									\
-    ELSE_EXTEND_BUFFER_HIGH_BOUND					\
   } while (0)
 # else /* BYTE */
 #  define EXTEND_BUFFER()						\
@@ -2169,16 +2147,15 @@ static reg_errcode_t byte_compile_range (unsigned int range_start,
     if (old_buffer != COMPILED_BUFFER_VAR)				\
       {									\
 	int incr = COMPILED_BUFFER_VAR - old_buffer;			\
-	MOVE_BUFFER_POINTER (b);					\
-	MOVE_BUFFER_POINTER (begalt);					\
+	b += incr;							\
+	begalt += incr;							\
 	if (fixup_alt_jump)						\
-	  MOVE_BUFFER_POINTER (fixup_alt_jump);				\
+	  fixup_alt_jump += incr;					\
 	if (laststart)							\
-	  MOVE_BUFFER_POINTER (laststart);				\
+	  laststart += incr;						\
 	if (pending_exact)						\
-	  MOVE_BUFFER_POINTER (pending_exact);				\
+	  pending_exact += incr;					\
       }									\
-    ELSE_EXTEND_BUFFER_HIGH_BOUND					\
   } while (0)
 # endif /* WCHAR */
 

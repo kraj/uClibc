@@ -48,7 +48,7 @@ int sigqueue (pid_t pid, int sig, const union sigval val)
   info.si_uid = getuid ();
   info.si_value = val;
 
-  return __libc_rt_sigqueueinfo(pid, sig, __ptrvalue (&info));
+  return __libc_rt_sigqueueinfo(pid, sig, &info);
 }
 
 #endif
