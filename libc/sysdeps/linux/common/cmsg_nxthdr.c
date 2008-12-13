@@ -19,6 +19,8 @@
 
 #define __FORCE_GLIBC
 #include <features.h>
+/* Prevent math.h from defining a colliding inline */
+#undef __USE_EXTERN_INLINES
 #include <sys/socket.h>
 
 /* libc_hidden_proto(__cmsg_nxthdr) */

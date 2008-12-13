@@ -23,6 +23,9 @@ static char rcsid[] = "$NetBSD: s_ceil.c,v 1.8 1995/05/10 20:46:53 jtc Exp $";
  *	Inexact flag raised if x not equal to ceil(x).
  */
 
+#include <features.h>
+/* Prevent math.h from defining a colliding inline */
+#undef __USE_EXTERN_INLINES
 #include "math.h"
 #include "math_private.h"
 

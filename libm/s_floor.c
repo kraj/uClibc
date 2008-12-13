@@ -23,6 +23,9 @@ static char rcsid[] = "$NetBSD: s_floor.c,v 1.8 1995/05/10 20:47:20 jtc Exp $";
  *	Inexact flag raised if x not equal to floor(x).
  */
 
+#include <features.h>
+/* Prevent math.h from defining a colliding inline */
+#undef __USE_EXTERN_INLINES
 #include "math.h"
 #include "math_private.h"
 

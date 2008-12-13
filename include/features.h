@@ -365,9 +365,17 @@
 
 #endif	/* !ASSEMBLER */
 
-/* Decide whether we can define 'extern inline' functions in headers.  */
-#if __GNUC_PREREQ (2, 7) && defined __OPTIMIZE__ \
-    && !defined __OPTIMIZE_SIZE__ && !defined __NO_INLINE__ \
+/* Decide whether we can, and are willing to define extern inline
+ * functions in headers, even if this results in a slightly bigger
+ * code for user programs built against uclibc.
+ * Enabled only in -O2 compiles, not -Os.
+ * uclibc itself is usually built without __USE_EXTERN_INLINES,
+ * remove "&& !defined __OPTIMIZE_SIZE__" part to do otherwise.
+ */
+#if __GNUC_PREREQ (2, 7) \
+    && defined __OPTIMIZE__ \
+    && !defined __OPTIMIZE_SIZE__ \
+    && !defined __NO_INLINE__ \
     && (defined __extern_inline || defined __GNUC_GNU_INLINE__)
 # define __USE_EXTERN_INLINES	1
 #endif

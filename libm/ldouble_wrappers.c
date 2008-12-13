@@ -10,6 +10,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
+#include <features.h>
+/* Prevent math.h from defining colliding inlines */
+#undef __USE_EXTERN_INLINES
 #include "math.h"
 
 /* Implement the following, as defined by SuSv3 */

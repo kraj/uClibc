@@ -18,8 +18,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
+/* Prevent math.h from defining a colliding inline */
+#undef __USE_EXTERN_INLINES
 #include <math.h>
-
 #include "math_private.h"
 
 libm_hidden_proto(__signbitf)

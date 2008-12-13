@@ -15,6 +15,9 @@
  * no branching!
  */
 
+#include <features.h>
+/* Prevent math.h from defining a colliding inline */
+#undef __USE_EXTERN_INLINES
 #include "math.h"
 #include "math_private.h"
 
