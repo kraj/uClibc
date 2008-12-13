@@ -179,11 +179,15 @@ PIEFLAG_NAME:=-fPIE
 ifeq ($(TARGET_ARCH),i386)
 	OPTIMIZATION+=$(call check_gcc,-fomit-frame-pointer,)
 
+ifeq ($(CONFIG_386)$(CONFIG_486)$(CONFIG_586)$(CONFIG_586MMX),y)
+	# Non-SSE capable processor.
 	# NB: this may make SSE insns segfault!
 	# -O1 -march=pentium3, -Os -msse etc are known to be affected.
-	# TODO: conditionally bump to 4
-	# (see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13685)
+	# See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13685
+	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
+else
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=4,)
+endif
 
 	# Choice of alignment (please document why!)
 	#  -falign-labels: in-line labels
