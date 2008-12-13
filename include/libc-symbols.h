@@ -460,7 +460,7 @@ FIXME! - ?
 #if /*!defined STATIC &&*/ !defined __BCC__
 
 # ifndef __ASSEMBLER__
-#  define hidden_proto(name, attrs...) __hidden_proto (name, __GI_##name, ##attrs)
+#  define hidden_proto(name, attrs...) __hidden_proto(name, __GI_##name, ##attrs)
 #  define __hidden_proto(name, internal, attrs...) \
 	extern __typeof (name) name __asm__ (__hidden_asmname (#internal)) \
 	__hidden_proto_hiddenattr (attrs);

@@ -21,7 +21,7 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto (__isnanf)
+libm_hidden_proto(__isnanf)
 int __isnanf(float x)
 {
 	int32_t ix;

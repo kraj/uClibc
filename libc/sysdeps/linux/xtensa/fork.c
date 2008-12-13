@@ -16,10 +16,10 @@
 
 extern __typeof(fork) __libc_fork;
 
-libc_hidden_proto (fork)
-pid_t __libc_fork (void)
+libc_hidden_proto(fork)
+pid_t __libc_fork(void)
 {
-  return (pid_t) INLINE_SYSCALL (clone, 2, SIGCHLD, 0);
+	return (pid_t) INLINE_SYSCALL(clone, 2, SIGCHLD, 0);
 }
-weak_alias (__libc_fork, fork)
-libc_hidden_weak (fork)
+weak_alias(__libc_fork, fork)
+libc_hidden_weak(fork)
