@@ -66,8 +66,8 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 	/* NB: kernel (as of 2.6.25) will return EINVAL
 	 * if sizeof(kact.sa_mask) does not match kernel's sizeof(sigset_t) */
 	result = INLINE_SYSCALL (rt_sigaction, 4, sig,
-	                act ? __ptrvalue (&kact) : NULL,
-	                oact ? __ptrvalue (&koact) : NULL,
+	                act ? &kact : NULL,
+	                oact ? &koact : NULL,
 			sizeof(kact.sa_mask));
 
 	if (oact && result >= 0) {
@@ -107,8 +107,8 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 	__asm__ __volatile__ ("syscall\n"
 	              : "=a" (result)
 	              : "0" (__NR_sigaction), "mr" (sig),
-	                "c" (act ? __ptrvalue (&kact) : 0),
-	                "d" (oact ? __ptrvalue (&koact) : 0));
+	                "c" (act ? &kact : 0),
+	                "d" (oact ? &koact : 0));
 
 	if (result < 0) {
 		__set_errno(-result);

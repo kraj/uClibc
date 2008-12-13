@@ -23,7 +23,6 @@
 
 #include <sysdep-cancel.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 #include <bits/libc-lock.h>
 
 extern int __syscall_rt_sigtimedwait (const sigset_t *, siginfo_t *,
@@ -40,7 +39,7 @@ do_sigwait (const sigset_t *set, int *sig)
      real size of the user-level sigset_t.  */
 #ifdef INTERNAL_SYSCALL
   INTERNAL_SYSCALL_DECL (err);
-  ret = INTERNAL_SYSCALL (rt_sigtimedwait, err, 4, CHECK_SIGSET (set),
+  ret = INTERNAL_SYSCALL (rt_sigtimedwait, err, 4, set,
 			  NULL, NULL, _NSIG / 8);
   if (! INTERNAL_SYSCALL_ERROR_P (ret, err))
     {
@@ -50,7 +49,7 @@ do_sigwait (const sigset_t *set, int *sig)
   else
     ret = INTERNAL_SYSCALL_ERRNO (ret, err);
 #else
-  ret = INLINE_SYSCALL (rt_sigtimedwait, 4, CHECK_SIGSET (set),
+  ret = INLINE_SYSCALL (rt_sigtimedwait, 4, set,
 			NULL, NULL, _NSIG / 8);
   if (ret != -1)
     {

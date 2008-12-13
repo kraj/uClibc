@@ -20,7 +20,6 @@
 #include <stddef.h>
 
 #include "memcopy.h"
-#include "bp-checks.h"
 
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* Copy SRC to DEST.  */

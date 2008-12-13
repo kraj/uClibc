@@ -65,11 +65,11 @@ struct kernel_sigaction {
 #endif
 
 #ifndef NO_OLD_SIGACTION
-extern int __syscall_sigaction (int, const struct old_kernel_sigaction *__unbounded,
-	struct old_kernel_sigaction *__unbounded) attribute_hidden;
+extern int __syscall_sigaction (int, const struct old_kernel_sigaction *,
+	struct old_kernel_sigaction *) attribute_hidden;
 #endif
 
-extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
-	struct kernel_sigaction *__unbounded, size_t) attribute_hidden;
+extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *,
+	struct kernel_sigaction *, size_t) attribute_hidden;
 
 #endif /* _BITS_SIGACTION_STRUCT_H */

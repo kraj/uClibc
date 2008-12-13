@@ -139,6 +139,4 @@ ENTRY(memchr)
 END(memchr)
 libc_hidden_def(memchr)
 
-#if !__BOUNDED_POINTERS__
 weak_alias(memchr,__ubp_memchr)
-#endif

@@ -22,7 +22,6 @@
 #include <sysdep.h>
 #include <alloca.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 
 extern int __syscall_execve(const char *file,
 			char *const *argv,

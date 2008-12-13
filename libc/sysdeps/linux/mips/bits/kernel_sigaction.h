@@ -42,7 +42,7 @@ struct kernel_sigaction {
 	int		s_resv[1]; /* reserved */
 };
 
-extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
-	struct kernel_sigaction *__unbounded, size_t) attribute_hidden;
+extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *,
+	struct kernel_sigaction *, size_t) attribute_hidden;
 
 #endif

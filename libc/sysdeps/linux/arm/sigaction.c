@@ -73,8 +73,8 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	/* NB: kernel (as of 2.6.25) will return EINVAL
 	 * if sizeof(kact.sa_mask) does not match kernel's sizeof(sigset_t) */
 	result = __syscall_rt_sigaction(sig,
-			act ? __ptrvalue (&kact) : NULL,
-			oact ? __ptrvalue (&koact) : NULL,
+			act ? &kact : NULL,
+			oact ? &koact : NULL,
 			sizeof(kact.sa_mask));
 
 	if (oact && result >= 0) {
@@ -111,8 +111,8 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	}
 # endif
     }
-    result = __syscall_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
-	    oact ? __ptrvalue (&koact) : NULL);
+    result = __syscall_sigaction(sig, act ? &kact : NULL,
+	    oact ? &koact : NULL);
     if (oact && result >= 0) {
 	oact->sa_handler = koact.k_sa_handler;
 	oact->sa_mask.__val[0] = koact.sa_mask;

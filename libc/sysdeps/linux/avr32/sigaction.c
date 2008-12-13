@@ -46,8 +46,8 @@ int __libc_sigaction(int signum, const struct sigaction *act,
 	/* NB: kernel (as of 2.6.25) will return EINVAL
 	 * if sizeof(kact.sa_mask) does not match kernel's sizeof(sigset_t) */
 	result = __syscall_rt_sigaction(signum,
-			act ? __ptrvalue(&kact) : NULL,
-			oldact ? __ptrvalue(&koact) : NULL,
+			act ? &kact : NULL,
+			oldact ? &koact : NULL,
 			sizeof(kact.sa_mask));
 
 	if (oldact && result >= 0) {

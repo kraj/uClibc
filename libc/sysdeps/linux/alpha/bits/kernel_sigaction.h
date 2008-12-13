@@ -17,7 +17,7 @@ struct kernel_sigaction {
 	sigset_t sa_mask;
 };
 
-extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
-	struct kernel_sigaction *__unbounded, size_t) attribute_hidden;
+extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *,
+	struct kernel_sigaction *, size_t) attribute_hidden;
 
 #endif
