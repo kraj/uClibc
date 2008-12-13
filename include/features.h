@@ -37,7 +37,13 @@
 #include <bits/uClibc_arch_features.h>
 
 /* For uClibc, always optimize for size -- this should disable
- * a lot of expensive inlining... */
+ * a lot of expensive inlining...
+ * TODO: this is wrong! __OPTIMIZE_SIZE__ is an indicator of
+ * gcc -Os compile. We should not mess with compiler inlines.
+ * We should instead disable __USE_EXTERN_INLINES unconditionally,
+ * or maybe actually audit and test uclibc to work correctly
+ * with __USE_EXTERN_INLINES on.
+ */
 #define __OPTIMIZE_SIZE__   1
 
 /* These are defined by the user (or the compiler)
