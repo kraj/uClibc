@@ -120,7 +120,7 @@
 # endif
 
 /* This is for other GNU distributions with internationalized messages.  */
-# if HAVE_LIBINTL_H || defined _LIBC
+# if defined HAVE_LIBINTL_H || defined _LIBC
 #  include <libintl.h>
 #  ifdef _LIBC
 #   undef gettext
@@ -208,7 +208,7 @@ char *realloc ();
 
 # endif /* not emacs */
 
-# if defined _LIBC || HAVE_LIMITS_H
+# if defined _LIBC || defined HAVE_LIMITS_H
 #  include <limits.h>
 # endif
 
@@ -2230,7 +2230,7 @@ typedef struct
   }
 
 # ifndef DEFINED_ONCE
-#  if defined _LIBC || WIDE_CHAR_SUPPORT
+#  if defined _LIBC || defined WIDE_CHAR_SUPPORT
 /* The GNU C library provides support for user-defined character classes
    and the functions from ISO C amendement 1.  */
 #   ifdef CHARCLASS_NAME_MAX
@@ -3286,7 +3286,7 @@ PREFIX(regex_compile) (
                        the leading `:' and `[' (but set bits for them).  */
                     if (c == ':' && *p == ']')
                       {
-# if defined _LIBC || WIDE_CHAR_SUPPORT
+# if defined _LIBC || defined WIDE_CHAR_SUPPORT
                         boolean is_lower = STREQ (str, "lower");
                         boolean is_upper = STREQ (str, "upper");
 			wctype_t wt;
@@ -4542,7 +4542,7 @@ byte_compile_range (
   unsigned this_char;
   const char *p = *p_ptr;
   reg_errcode_t ret;
-# if _LIBC
+# ifdef _LIBC
   const unsigned char *collseq;
   unsigned int start_colseq;
   unsigned int end_colseq;
@@ -4560,7 +4560,7 @@ byte_compile_range (
   /* Report an error if the range is empty and the syntax prohibits this.  */
   ret = syntax & RE_NO_EMPTY_RANGES ? REG_ERANGE : REG_NOERROR;
 
-# if _LIBC
+# ifdef _LIBC
   collseq = (const unsigned char *) _NL_CURRENT (LC_COLLATE,
 						 _NL_COLLATE_COLLSEQMB);
 

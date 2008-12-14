@@ -61,7 +61,7 @@ int pthread_attr_init(pthread_attr_t *attr)
 libpthread_hidden_def(pthread_attr_init)
 
 /* uClibc: leave out this for now. */
-#if DO_PTHREAD_VERSIONING_WITH_UCLIBC
+#if defined DO_PTHREAD_VERSIONING_WITH_UCLIBC
 #if defined __PIC__ && defined DO_VERSIONING
 default_symbol_version (__pthread_attr_init_2_1, pthread_attr_init, GLIBC_2.1);
 
