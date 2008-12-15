@@ -21,7 +21,7 @@
 #include <math.h>
 #include "math_private.h"
 
-libm_hidden_proto (__fpclassifyf)
+libm_hidden_proto(__fpclassifyf)
 int
 __fpclassifyf (float x)
 {

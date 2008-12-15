@@ -10,6 +10,9 @@
  * GNU Lesser General Public License version 2.1 or later.
  */
 
+#include <features.h>
+/* Prevent math.h from defining colliding inlines */
+#undef __USE_EXTERN_INLINES
 #include <math.h>
 #include <complex.h>
 

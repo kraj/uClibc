@@ -48,7 +48,6 @@ libm_ARCH_fpu_OUT:=$(libm_ARCH_OUT)/fpu
 ifeq ($(UCLIBC_HAS_FPU),y)
 ifeq ($(DO_C99_MATH),y)
 -include $(libm_ARCH_DIR)/Makefile.arch
--include $(libm_ARCH_fpu_DIR)/Makefile.arch
 endif
 endif
 

@@ -18,6 +18,9 @@ static char rcsid[] = "$NetBSD: s_fabs.c,v 1.7 1995/05/10 20:47:13 jtc Exp $";
  * fabs(x) returns the absolute value of x.
  */
 
+#include <features.h>
+/* Prevent math.h from defining a colliding inline */
+#undef __USE_EXTERN_INLINES
 #include "math.h"
 #include "math_private.h"
 
