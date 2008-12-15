@@ -17,6 +17,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+/* Somebody please explain what's going on here.  --vda */
+
 /* This is tricky.  GCC doesn't like #include_next in the primary
    source file and even if it did, the first #include_next is this
    exact file anyway.  */
