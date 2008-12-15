@@ -56,18 +56,31 @@ typedef __sigset_t sigset_t;
 
 #include <bits/types.h>
 #include <bits/signum.h>
-//TODO vda: pull out of bits/signum.h the following,
-//which is the same for all arches:
-//#define SIG_ERR    ((__sighandler_t) -1) /* Error return.  */
-//#define SIG_DFL    ((__sighandler_t) 0)  /* Default action.  */
-//#define SIG_IGN    ((__sighandler_t) 1)  /* Ignore signal.  */
-//#ifdef __USE_UNIX98
-//# define SIG_HOLD  ((__sighandler_t) 2)  /* Add signal to hold mask.  */
-//#endif
-//#define SIGRTMIN   (__libc_current_sigrtmin())
-//#define SIGRTMAX   (__libc_current_sigrtmax())
-//#define __SIGRTMIN -- dont pull, it's arch specific
-//#define __SIGRTMAX (_NSIG - 1)
+
+/* Fake signal functions.  */
+#define SIG_ERR    ((__sighandler_t) -1) /* Error return.  */
+#define SIG_DFL    ((__sighandler_t) 0)  /* Default action.  */
+#define SIG_IGN    ((__sighandler_t) 1)  /* Ignore signal.  */
+#ifdef __USE_UNIX98
+# define SIG_HOLD  ((__sighandler_t) 2)  /* Add signal to hold mask.  */
+#endif
+/* Biggest signal number + 1 (including real-time signals).  */
+#ifndef _NSIG /* if arch has not defined it in bits/signum.h... */
+# define _NSIG 65
+#endif
+#ifdef __USE_MISC
+# define NSIG _NSIG
+#endif
+/* Real-time signal range */
+#define SIGRTMIN   (__libc_current_sigrtmin())
+#define SIGRTMAX   (__libc_current_sigrtmax())
+/* These are the hard limits of the kernel.  These values should not be
+   used directly at user level.  */
+#ifndef __SIGRTMIN /* if arch has not defined it in bits/signum.h... */
+# define __SIGRTMIN 32
+#endif
+#define __SIGRTMAX (_NSIG - 1)
+
 
 #if defined __USE_XOPEN || defined __USE_XOPEN2K
 # ifndef __pid_t_defined
@@ -204,11 +217,6 @@ libc_hidden_proto(sigsetmask)
 extern int siggetmask (void) __THROW __attribute_deprecated__;
 #endif /* Use BSD.  */
 
-
-/* Biggest signal number + 1 (including real-time signals).  */
-#ifdef __USE_MISC
-# define NSIG  _NSIG
-#endif
 
 #ifdef __USE_GNU
 typedef __sighandler_t sighandler_t;
