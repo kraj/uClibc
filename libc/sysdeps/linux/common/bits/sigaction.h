@@ -21,34 +21,26 @@
 # error "Never include <bits/sigaction.h> directly; use <signal.h> instead."
 #endif
 
-/* Structure describing the action to be taken when a signal arrives.  */
-struct sigaction
-  {
-    /* Signal handler.  */
+/* Structure describing the action to be taken when a signal arrives.
+ * In uclibc, it is identical to "new" struct kernel_sigaction
+ * (one from the Linux 2.1.68 kernel).
+ * This minimizes amount of translation in sigaction().
+ */
+struct sigaction {
 #ifdef __USE_POSIX199309
-    union
-      {
-	/* Used if SA_SIGINFO is not set.  */
-	__sighandler_t sa_handler;
-	/* Used if SA_SIGINFO is set.  */
-	void (*sa_sigaction) (int, siginfo_t *, void *);
-      }
-    __sigaction_handler;
-# define sa_handler	__sigaction_handler.sa_handler
-# define sa_sigaction	__sigaction_handler.sa_sigaction
+	union {
+		__sighandler_t sa_handler;
+		void (*sa_sigaction)(int, siginfo_t *, void *);
+	} __sigaction_handler;
+# define sa_handler     __sigaction_handler.sa_handler
+# define sa_sigaction   __sigaction_handler.sa_sigaction
 #else
-    __sighandler_t sa_handler;
+	__sighandler_t  sa_handler;
 #endif
-
-    /* Additional set of signals to be blocked.  */
-    __sigset_t sa_mask;
-
-    /* Special flags.  */
-    int sa_flags;
-
-    /* Restore handler.  */
-    void (*sa_restorer) (void);
-  };
+	unsigned long   sa_flags;
+	void            (*sa_restorer)(void);
+	sigset_t        sa_mask;
+};
 
 /* Bits in `sa_flags'.  */
 #define	SA_NOCLDSTOP  1		 /* Don't send SIGCHLD when children stop.  */

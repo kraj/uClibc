@@ -56,13 +56,23 @@ typedef __sigset_t sigset_t;
 
 #include <bits/types.h>
 #include <bits/signum.h>
+//TODO vda: pull out of bits/signum.h the following,
+//which is the same for all arches:
+//#define SIG_ERR    ((__sighandler_t) -1) /* Error return.  */
+//#define SIG_DFL    ((__sighandler_t) 0)  /* Default action.  */
+//#define SIG_IGN    ((__sighandler_t) 1)  /* Ignore signal.  */
+//#ifdef __USE_UNIX98
+//# define SIG_HOLD  ((__sighandler_t) 2)  /* Add signal to hold mask.  */
+//#endif
+//#define SIGRTMIN   (__libc_current_sigrtmin())
+//#define SIGRTMAX   (__libc_current_sigrtmax())
+//#define __SIGRTMIN -- dont pull, it's arch specific
+//#define __SIGRTMAX (_NSIG - 1)
 
 #if defined __USE_XOPEN || defined __USE_XOPEN2K
 # ifndef __pid_t_defined
 typedef __pid_t pid_t;
 #  define __pid_t_defined
-#endif
-#ifdef __USE_XOPEN
 # endif
 # ifndef __uid_t_defined
 typedef __uid_t uid_t;
@@ -79,10 +89,10 @@ typedef void (*__sighandler_t) (int);
    requested.  */
 extern __sighandler_t __sysv_signal (int __sig, __sighandler_t __handler)
      __THROW;
-#ifdef __USE_GNU
+# ifdef __USE_GNU
 extern __sighandler_t sysv_signal (int __sig, __sighandler_t __handler)
      __THROW;
-#endif
+# endif
 #endif /* __UCLIBC_HAS_OBSOLETE_SYSV_SIGNAL__ */
 
 /* Set the handler for the signal SIG to HANDLER, returning the old
@@ -118,14 +128,14 @@ extern __sighandler_t bsd_signal (int __sig, __sighandler_t __handler)
 #ifdef __USE_POSIX
 extern int kill (__pid_t __pid, int __sig) __THROW;
 libc_hidden_proto(kill)
-#endif /* Use POSIX.  */
+#endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Send SIG to all processes in process group PGRP.
    If PGRP is zero, send SIG to all processes in
    the current process's process group.  */
 extern int killpg (__pid_t __pgrp, int __sig) __THROW;
-#endif /* Use BSD || X/Open Unix.  */
+#endif
 
 __BEGIN_NAMESPACE_STD
 /* Raise signal SIG, i.e., send SIG to yourself.  */
@@ -195,8 +205,9 @@ extern int siggetmask (void) __THROW __attribute_deprecated__;
 #endif /* Use BSD.  */
 
 
+/* Biggest signal number + 1 (including real-time signals).  */
 #ifdef __USE_MISC
-# define NSIG	_NSIG
+# define NSIG  _NSIG
 #endif
 
 #ifdef __USE_GNU
@@ -316,12 +327,12 @@ extern int sigqueue (__pid_t __pid, int __sig, __const union sigval __val)
 
 #ifdef __USE_BSD
 
-#ifdef __UCLIBC_HAS_SYS_SIGLIST__
+# ifdef __UCLIBC_HAS_SYS_SIGLIST__
 /* Names of the signals.  This variable exists only for compatibility.
    Use `strsignal' instead (see <string.h>).  */
-#define _sys_siglist sys_siglist
+#  define _sys_siglist sys_siglist
 extern __const char *__const sys_siglist[_NSIG];
-#endif /* __UCLIBC_HAS_SYS_SIGLIST__ */
+# endif
 
 /* Structure passed to `sigvec'.  */
 struct sigvec
@@ -404,7 +415,7 @@ extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __THROW;
    be defined here.  */
 # include <bits/pthreadtypes.h>
 # include <bits/sigthread.h>
-#endif /* use Unix98 */
+#endif
 
 /* The following functions are used internally in the C library and in
    other code which need deep insights.  */

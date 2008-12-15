@@ -29,112 +29,81 @@
 
 extern __typeof(sigaction) __libc_sigaction;
 
+
 #ifdef __NR_rt_sigaction
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-
-#if _MIPS_SIM != _ABIO32
-
-# ifdef __NR_rt_sigreturn
-static void restore_rt (void) __asm__ ("__restore_rt");
+# if _MIPS_SIM != _ABIO32
+#  ifdef __NR_rt_sigreturn
+static void restore_rt(void) __asm__ ("__restore_rt");
+#  endif
+#  ifdef __NR_sigreturn
+static void restore(void) __asm__ ("__restore");
+#  endif
 # endif
-# ifdef __NR_sigreturn
-static void restore (void) __asm__ ("__restore");
-# endif
-#endif
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
+{
+# if _MIPS_SIM != _ABIO32
+	struct sigaction kact;
+	if (act) {
+		memcpy(&kact, act, sizeof(kact));
+		kact.sa_restorer = &restore_rt;
+		act = &kact;
+	}
+# endif
+
+	/* NB: kernel (as of 2.6.25) will return EINVAL
+	 * if sizeof(act->sa_mask) does not match kernel's sizeof(sigset_t) */
+	return __syscall_rt_sigaction(sig, act, oact, sizeof(act->sa_mask));
+}
+
+#else
+
+extern void restore(void) __asm__ ("__restore") attribute_hidden;
+
+/* If ACT is not NULL, change the action for SIG to *ACT.
+   If OACT is not NULL, put the old action for SIG in *OACT.  */
+int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	int result;
-	struct kernel_sigaction kact, koact;
-	enum {
-		SIGSET_MIN_SIZE = sizeof(kact.sa_mask) < sizeof(act->sa_mask)
-				? sizeof(kact.sa_mask) : sizeof(act->sa_mask)
-	};
+	struct old_kernel_sigaction kact, koact;
 
 	if (act) {
 		kact.k_sa_handler = act->sa_handler;
-		memcpy (&kact.sa_mask, &act->sa_mask, SIGSET_MIN_SIZE);
+		kact.sa_mask = act->sa_mask.__val[0];
 		kact.sa_flags = act->sa_flags;
-# ifdef HAVE_SA_RESTORER
-#  if _MIPS_SIM == _ABIO32
+# if _MIPS_SIM == _ABIO32
 		kact.sa_restorer = act->sa_restorer;
-#  else
+# else
 		kact.sa_restorer = &restore_rt;
-#  endif
 # endif
 	}
-
-	/* NB: kernel (as of 2.6.25) will return EINVAL
-	 * if sizeof(kact.sa_mask) does not match kernel's sizeof(sigset_t) */
-	result = __syscall_rt_sigaction(sig,
+	result = __syscall_sigaction(sig,
 			act ? &kact : NULL,
-			oact ? &koact : NULL,
-			sizeof(kact.sa_mask));
-
-	if (oact && result >= 0) {
+			oact ? &koact : NULL);
+	if (result < 0) {
+		__set_errno(-result);
+		return -1;
+	}
+	if (oact) {
 		oact->sa_handler = koact.k_sa_handler;
-		memcpy (&oact->sa_mask, &koact.sa_mask, SIGSET_MIN_SIZE);
+		oact->sa_mask.__val[0] = koact.sa_mask;
 		oact->sa_flags = koact.sa_flags;
-# ifdef HAVE_SA_RESTORER
 		oact->sa_restorer = koact.sa_restorer;
-# endif
 	}
 	return result;
 }
 
-
-#else
-extern void restore (void) __asm__ ("__restore") attribute_hidden;
-
-/* If ACT is not NULL, change the action for SIG to *ACT.
-   If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
-{
-    int result;
-    struct old_kernel_sigaction kact, koact;
-
-    if (act) {
-	kact.k_sa_handler = act->sa_handler;
-	kact.sa_mask = act->sa_mask.__val[0];
-	kact.sa_flags = act->sa_flags;
-# ifdef HAVE_SA_RESTORER
-#  if _MIPS_SIM == _ABIO32
-	kact.sa_restorer = act->sa_restorer;
-#  else
-	kact.sa_restorer = &restore_rt;
-#  endif
-# endif
-    }
-
-    result = __syscall_sigaction(sig, act ? &kact : NULL,
-	    oact ? &koact : NULL);
-
-    if (result < 0) {
-	__set_errno(-result);
-	return -1;
-    }
-
-    if (oact) {
-	oact->sa_handler = koact.k_sa_handler;
-	oact->sa_mask.__val[0] = koact.sa_mask;
-	oact->sa_flags = koact.sa_flags;
-# ifdef HAVE_SA_RESTORER
-	oact->sa_restorer = koact.sa_restorer;
-# endif
-    }
-    return result;
-}
-
 #endif
 
+
 #ifndef LIBC_SIGACTION
-/* libc_hidden_proto(sigaction) */
 weak_alias(__libc_sigaction,sigaction)
 libc_hidden_weak(sigaction)
 #endif
+
 
 /* NOTE: Please think twice before making any changes to the bits of
    code below.  GDB needs some intimate knowledge about it to
@@ -144,21 +113,21 @@ libc_hidden_weak(sigaction)
    If you ever feel the need to make any changes, please notify the
    appropriate GDB maintainer.  */
 
-#define RESTORE(name, syscall) RESTORE2 (name, syscall)
+#define RESTORE(name, syscall) RESTORE2(name, syscall)
 #define RESTORE2(name, syscall) \
-__asm__ (					\
-   ".align 4\n"					\
-   "__" #name ":\n"				\
-   "	li $2, " #syscall "\n"			\
-   "	syscall\n"				\
-   );
+__asm__ (						\
+	".align 4\n"					\
+	"__" #name ":\n"				\
+	"	li	$2, " #syscall "\n"		\
+	"	syscall\n"				\
+);
 
 /* The return code for realtime-signals.  */
 #if _MIPS_SIM != _ABIO32
 # ifdef __NR_rt_sigreturn
-RESTORE (restore_rt, __NR_rt_sigreturn)
+RESTORE(restore_rt, __NR_rt_sigreturn)
 # endif
 # ifdef __NR_sigreturn
-RESTORE (restore, __NR_sigreturn)
+RESTORE(restore, __NR_sigreturn)
 # endif
 #endif

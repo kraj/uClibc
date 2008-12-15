@@ -242,4 +242,8 @@ To this effect:
 
 * Document discovered arch quirks while debugging this mess.
 
-* Deal with old_kernel_sigaction later.
+* struct old_kernel_sigaction can't be disposed of in a similar way,
+  we need to have userspace struct sigaction unchanged regardless
+  whether we use "old" or "new" kernel sigaction() syscall.
+  It's moot anyway because "old" one is long unused, it's from
+  pre-2.2 kernels.

@@ -25,9 +25,6 @@
 
 #include <sys/syscall.h>
 
-/* The difference here is that the sigaction structure used in the
-   kernel is not the same as we use in the libc.  Therefore we must
-   translate it here.  */
 #include <bits/kernel_sigaction.h>
 
 /* We do not globally define the SA_RESTORER flag so do it here.  */
@@ -35,64 +32,47 @@
 
 extern __typeof(sigaction) __libc_sigaction;
 
+
 #ifdef __NR_rt_sigaction
+
 /* Using the hidden attribute here does not change the code but it
    helps to avoid warnings.  */
-extern void restore_rt (void) __asm__ ("__restore_rt") attribute_hidden;
-extern void restore (void) __asm__ ("__restore") attribute_hidden;
-
-/* Experimentally off - libc_hidden_proto(memcpy) */
+extern void restore_rt(void) __asm__ ("__restore_rt") attribute_hidden;
+extern void restore(void) __asm__ ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
 int
-__libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+__libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
 {
-	int result;
-	struct kernel_sigaction kact, koact;
-	enum {
-		SIGSET_MIN_SIZE = sizeof(kact.sa_mask) < sizeof(act->sa_mask)
-				? sizeof(kact.sa_mask) : sizeof(act->sa_mask)
-	};
+	struct sigaction kact;
 
 	if (act) {
-		kact.k_sa_handler = act->sa_handler;
-		memcpy (&kact.sa_mask, &act->sa_mask, SIGSET_MIN_SIZE);
-		kact.sa_flags = act->sa_flags | SA_RESTORER;
-
+		memcpy(&kact, act, sizeof(kact));
+		kact.sa_flags |= SA_RESTORER;
 		kact.sa_restorer = &restore_rt;
+		act = &kact;
 	}
-
 	/* NB: kernel (as of 2.6.25) will return EINVAL
-	 * if sizeof(kact.sa_mask) does not match kernel's sizeof(sigset_t) */
-	result = INLINE_SYSCALL (rt_sigaction, 4, sig,
-	                act ? &kact : NULL,
-	                oact ? &koact : NULL,
-			sizeof(kact.sa_mask));
-
-	if (oact && result >= 0) {
-		oact->sa_handler = koact.k_sa_handler;
-		memcpy (&oact->sa_mask, &koact.sa_mask, SIGSET_MIN_SIZE);
-		oact->sa_flags = koact.sa_flags;
-		oact->sa_restorer = koact.sa_restorer;
-	}
-	return result;
+	 * if sizeof(act->sa_mask) does not match kernel's sizeof(sigset_t) */
+	return INLINE_SYSCALL(rt_sigaction, 4, sig, act, oact, sizeof(act->sa_mask));
 }
+
 #else
 
-extern void restore (void) __asm__ ("__restore") attribute_hidden;
+extern void restore(void) __asm__ ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
 int
-__libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+__libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	int result;
 	struct old_kernel_sigaction kact, koact;
 
 #ifdef SIGCANCEL
 	if (sig == SIGCANCEL) {
-		__set_errno (EINVAL);
+		__set_errno(EINVAL);
 		return -1;
 	}
 #endif
@@ -103,18 +83,16 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 		kact.sa_flags = act->sa_flags | SA_RESTORER;
 		kact.sa_restorer = &restore;
 	}
-
-	__asm__ __volatile__ ("syscall\n"
-	              : "=a" (result)
-	              : "0" (__NR_sigaction), "mr" (sig),
-	                "c" (act ? &kact : 0),
-	                "d" (oact ? &koact : 0));
-
+	__asm__ __volatile__ (
+		"syscall\n"
+		: "=a" (result)
+		: "0" (__NR_sigaction), "mr" (sig),
+		  "c" (act ? &kact : NULL),
+		  "d" (oact ? &koact : NULL));
 	if (result < 0) {
 		__set_errno(-result);
 		return -1;
 	}
-
 	if (oact) {
 		oact->sa_handler = koact.k_sa_handler;
 		oact->sa_mask.__val[0] = koact.sa_mask;
@@ -123,13 +101,15 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 	}
 	return result;
 }
+
 #endif
 
+
 #ifndef LIBC_SIGACTION
-/* libc_hidden_proto(sigaction) */
 weak_alias(__libc_sigaction,sigaction)
 libc_hidden_weak(sigaction)
 #endif
+
 
 /* NOTE: Please think twice before making any changes to the bits of
    code below.  GDB needs some intimate knowledge about it to
@@ -139,18 +119,19 @@ libc_hidden_weak(sigaction)
    If you ever feel the need to make any changes, please notify the
    appropriate GDB maintainer.  */
 
-#define RESTORE(name, syscall) RESTORE2 (name, syscall)
-# define RESTORE2(name, syscall) \
-__asm__ (					\
-   ".text\n"					\
-   "__" #name ":\n"				\
-   "	movq $" #syscall ", %rax\n"		\
-   "	syscall\n"				\
-   );
+#define RESTORE(name, syscall) RESTORE2(name, syscall)
+#define RESTORE2(name, syscall) \
+__asm__ (						\
+	".text\n"					\
+	"__" #name ":\n"				\
+	"	movq	$" #syscall ", %rax\n"		\
+	"	syscall\n"				\
+);
+
 #ifdef __NR_rt_sigaction
 /* The return code for realtime-signals.  */
-RESTORE (restore_rt, __NR_rt_sigreturn)
+RESTORE(restore_rt, __NR_rt_sigreturn)
 #endif
 #ifdef __NR_sigreturn
-RESTORE (restore, __NR_sigreturn)
+RESTORE(restore, __NR_sigreturn)
 #endif

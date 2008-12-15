@@ -29,10 +29,8 @@ typedef int __sig_atomic_t;
  * where they might have (or had in the past) 32 signals only,
  * I hope it's irrelevant now.
  * Signal 0 does not exist, so we have signals 1..64, not 0..63.
- * Note that struct sigaction has embedded sigset_t,
- * and this necessitates translation in sigaction()
- * to convert it to struct kernel_sigaction.
- * See libc/.../sigaction.c, libc/.../kernel_sigaction.h
+ * In uclibc, kernel and userspace sigset_t is always the same.
+ * BTW, struct sigaction is also the same on kernel and userspace side.
  */
 #if defined(__mips__)
 # define _SIGSET_NWORDS	(128 / (8 * sizeof (unsigned long)))
