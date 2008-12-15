@@ -321,7 +321,7 @@ libpthread_hidden_proto(pthread_condattr_init)
 
 struct pthread_functions __pthread_functions =
   {
-#if !(USE_TLS && HAVE___THREAD)
+#if !(defined USE_TLS && HAVE___THREAD)
     .ptr_pthread_internal_tsd_set = __pthread_internal_tsd_set,
     .ptr_pthread_internal_tsd_get = __pthread_internal_tsd_get,
     .ptr_pthread_internal_tsd_address = __pthread_internal_tsd_address,

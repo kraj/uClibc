@@ -25,7 +25,7 @@
 #include "restart.h"
 #include "debug.h" /* PDEBUG, added by StS */
 
-libpthread_hidden_proto (pthread_exit)
+libpthread_hidden_proto(pthread_exit)
 void pthread_exit(void * retval)
 {
   __pthread_do_exit (retval, CURRENT_STACK_FRAME);
