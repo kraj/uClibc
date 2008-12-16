@@ -184,7 +184,8 @@ ifeq ($(CONFIG_386)$(CONFIG_486)$(CONFIG_586)$(CONFIG_586MMX),y)
 	# NB: this may make SSE insns segfault!
 	# -O1 -march=pentium3, -Os -msse etc are known to be affected.
 	# See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13685
-	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
+	# -m32 is needed if host is 64-bit
+	OPTIMIZATION+=$(call check_gcc,-m32 -mpreferred-stack-boundary=2,)
 else
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=4,)
 endif
