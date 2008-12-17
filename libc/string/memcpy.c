@@ -10,6 +10,7 @@
 #ifdef WANT_WIDE
 # define Wmemcpy wmemcpy
 #else
+# undef memcpy
 # define Wmemcpy memcpy
 #endif
 
