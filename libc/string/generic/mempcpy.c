@@ -8,9 +8,8 @@
 #include <string.h>
 
 #ifdef __USE_GNU
-/* Experimentally off - libc_hidden_proto(mempcpy) */
-/* Experimentally off - libc_hidden_proto(memcpy) */
 
+# undef mempcpy
 void *mempcpy (void *dstpp, const void *srcpp, size_t len)
 {
   memcpy(dstpp, srcpp, len);

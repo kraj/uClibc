@@ -10,6 +10,7 @@
 #ifdef WANT_WIDE
 # define Wmemchr wmemchr
 #else
+# undef memchr
 # define Wmemchr memchr
 #endif
 

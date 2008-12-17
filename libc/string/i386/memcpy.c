@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
+#undef memcpy
 void *memcpy(void * to, const void * from, size_t n)
 {
 	int d0, d1, d2;

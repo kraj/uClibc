@@ -33,6 +33,7 @@
 #include <string.h>
 
 /* Experimentally off - libc_hidden_proto(memset) */
+#undef memset
 void *memset(void *s, int c, size_t count)
 {
     int d0, d1;
