@@ -1,3 +1,5 @@
+#define _GNU_SOURCE 1
+
 #include <fcntl.h>
 #include <locale.h>
 #include <regex.h>
@@ -42,8 +44,8 @@ do_test (void)
       return 1;
     }
 
-  struct stat64 st;
-  if (fstat64 (fd, &st) < 0)
+  struct stat st;
+  if (fstat (fd, &st) < 0)
     {
       printf ("Couldn't fstat ChangeLog.14: %s\n", strerror(errno));
       return 1;
@@ -71,9 +73,10 @@ do_test (void)
 
   char *string = buf;
   size_t len = st.st_size;
+  int testno, i;
 
-  for (int testno = 0; testno < 4; ++testno)
-    for (int i = 0; i < sizeof (pat) / sizeof (pat[0]); ++i)
+  for (testno = 0; testno < 4; ++testno)
+    for (i = 0; i < sizeof (pat) / sizeof (pat[0]); ++i)
       {
 	printf ("test %d pattern %d", testno, i);
 
@@ -142,9 +145,10 @@ do_test (void)
 		  return 1;
 		}
 
+	      int j, k, l;
 	      if (i > 0)
-		for (int j = 0, l = 1; j < 7; ++j)
-		  for (int k = 0; k < (i == 1 ? 1 : 10); ++k, ++l)
+		for (j = 0, l = 1; j < 7; ++j)
+		  for (k = 0; k < (i == 1 ? 1 : 10); ++k, ++l)
 		    if (pmatch[l].rm_so != pmatch[0].rm_so + j
 			|| pmatch[l].rm_eo != pmatch[l].rm_so + 1)
 		      {
@@ -199,9 +203,10 @@ do_test (void)
 		  return 1;
 		}
 
+	      int j, k, l;
 	      if (i > 0)
-		for (int j = 0, l = 1; j < 7; ++j)
-		  for (int k = 0; k < (i == 1 ? 1 : 10); ++k, ++l)
+		for (j = 0, l = 1; j < 7; ++j)
+		  for (k = 0; k < (i == 1 ? 1 : 10); ++k, ++l)
 		    if (regs.start[l] != match + j
 			|| regs.end[l] != regs.start[l] + 1)
 		      {

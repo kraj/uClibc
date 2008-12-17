@@ -1462,9 +1462,9 @@ int attribute_hidden __read_etc_hosts_r(
 			*result = NULL;
 			return errno;
 		}
+		addr_list[0] = in;
+		addr_list[1] = NULL;
 	}
-	addr_list[0] = in;
-	addr_list[1] = NULL;
 
 	*h_errnop = HOST_NOT_FOUND;
 	while (fgets(buf, buflen, fp)) {
