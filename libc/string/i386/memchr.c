@@ -32,20 +32,23 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(memchr) */
-void *memchr(const void *cs, int c, size_t count)
+#undef memchr
+void *memchr(const void *s, int c, size_t count)
 {
-    int d0;
-    register void * __res;
-    if (!count)
-	return NULL;
-    __asm__ __volatile__(
-	    "repne\n\t"
-	    "scasb\n\t"
-	    "je 1f\n\t"
-	    "movl $1,%0\n"
-	    "1:\tdecl %0"
-	    :"=D" (__res), "=&c" (d0) : "a" (c),"0" (cs),"1" (count));
-    return __res;
+	void *edi;
+	int ecx;
+	__asm__ __volatile__(
+		"	jecxz	1f\n"
+		"	repne; scasb\n"
+		"	leal	-1(%%edi), %%edi\n"
+		"	je	2f\n"
+		"1:\n"
+		"	xorl	%%edi, %%edi\n" /* NULL */
+		"2:\n"
+		: "=&D" (edi), "=&c" (ecx)
+		: "a" (c), "0" (s), "1" (count)
+		/* : no clobbers */
+	);
+	return edi;
 }
 libc_hidden_def(memchr)
