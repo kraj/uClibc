@@ -17,6 +17,10 @@ ifeq ($(DODEBUG),y)
 # Not really much point in including debugging info, since gdb
 # can't really debug ldso, since gdb requires help from ldso to
 # debug things....
+# On arm, gcc-4.3.x onwards -Os emits calls to libgcc, which calls _div0,
+# which tries to call raise(). And raise comes from libc so a catch 22.
+# Using -O2 instead. We could have use -fno-early-inlining with -Os too.
+
 CFLAGS-ldso += -O2 -g
 endif
 
