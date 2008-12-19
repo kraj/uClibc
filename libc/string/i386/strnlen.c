@@ -33,24 +33,39 @@
 #include <string.h>
 
 #ifdef __USE_GNU
-/* Experimentally off - libc_hidden_proto(strnlen) */
+
 size_t strnlen(const char *s, size_t count)
 {
-    int d0;
-    register int __res;
-    __asm__ __volatile__(
-	    "movl %2,%0\n\t"
-	    "incl %1\n"
-	    "jmp 2f\n"
-	    "1:\tcmpb $0,(%0)\n\t"
-	    "je 3f\n\t"
-	    "incl %0\n"
-	    "2:\tdecl %1\n\t"
-	    "jne 1b\n"
-	    "3:\tsubl %2,%0"
-	    :"=a" (__res), "=&d" (d0)
-	    :"c" (s),"1" (count));
-    return __res;
+	int edx;
+	int eax;
+	__asm__ __volatile__(
+		"	leal	-1(%%ecx), %%eax\n"
+		"1:	incl	%%eax\n"
+		"	decl	%%edx\n"
+		"	jz	3f\n"
+		"	cmpb	$0, (%%eax)\n"
+		"	jnz	1b\n"
+		"3:	subl	%%ecx, %%eax"
+		: "=a" (eax), "=&d" (edx)
+		: "c" (s), "1" (count + 1)
+	);
+	return eax;
 }
 libc_hidden_def(strnlen)
+
+#if 0
+int main()
+{
+	printf(strnlen2("abc\0def", -2) == 3 ? "ok\n" : "BAD!\n");
+	printf(strnlen2("abc\0def", -1) == 3 ? "ok\n" : "BAD!\n");
+	printf(strnlen2("abc\0def", 0) == 0 ? "ok\n" : "BAD!\n");
+	printf(strnlen2("abc\0def", 1) == 1 ? "ok\n" : "BAD!\n");
+	printf(strnlen2("abc\0def", 2) == 2 ? "ok\n" : "BAD!\n");
+	printf(strnlen2("abc\0def", 3) == 3 ? "ok\n" : "BAD!\n");
+	printf(strnlen2("abc\0def", 4) == 3 ? "ok\n" : "BAD!\n");
+	printf(strnlen2("abc\0def", 5) == 3 ? "ok\n" : "BAD!\n");
+	return 0;
+}
+#endif
+
 #endif
