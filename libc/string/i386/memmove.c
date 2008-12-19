@@ -32,28 +32,40 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(memmove) */
+#undef memmove
+//#define memmove TESTING
 void *memmove(void *dest, const void *src, size_t n)
 {
-    int d0, d1, d2;
-    if (dest<src)
+	int eax, ecx, esi, edi;
 	__asm__ __volatile__(
-		"rep\n\t"
-		"movsb"
-		: "=&c" (d0), "=&S" (d1), "=&D" (d2)
-		:"0" (n),"1" (src),"2" (dest)
-		: "memory");
-    else
-	__asm__ __volatile__(
-		"std\n\t"
-		"rep\n\t"
-		"movsb\n\t"
-		"cld"
-		: "=&c" (d0), "=&S" (d1), "=&D" (d2)
-		:"0" (n),
-		"1" (n-1+(const char *)src),
-		"2" (n-1+(char *)dest)
-		:"memory");
-    return dest;
+		"	movl	%%eax, %%edi\n"
+		"	cmpl	%%esi, %%eax\n"
+		"	je	2f\n" /* (optional) src == dest -> NOP */
+		"	jb	1f\n" /* src > dest -> simple copy */
+		"	leal	-1(%%esi,%%ecx), %%esi\n"
+		"	leal	-1(%%eax,%%ecx), %%edi\n"
+		"	std\n"
+		"1:	rep; movsb\n"
+		"	cld\n"
+		"2:\n"
+		: "=&c" (ecx), "=&S" (esi), "=&a" (eax), "=&D" (edi)
+		: "0" (n), "1" (src), "2" (dest)
+		: "memory"
+	);
+	return (void*)eax;
 }
+#ifndef memmove
 libc_hidden_def(memmove)
+#else
+/* Uncomment TESTING, gcc -D__USE_GNU -m32 -Os memmove.c -o memmove
+ * and run ./memmove
+ */
+int main()
+{
+	static char str[] = "abcdef.123";
+	memmove(str + 1, str, 5);
+	printf(strcmp(str, "aabcde.123") == 0 ? "ok\n" : "BAD!\n");
+	memmove(str, str + 1, 5);
+	printf(strcmp(str, "abcdee.123") == 0 ? "ok\n" : "BAD!\n");
+}
+#endif
