@@ -34,6 +34,8 @@
 
 #ifdef __USE_GNU
 
+#undef strnlen
+//#define strnlen TESTING
 size_t strnlen(const char *s, size_t count)
 {
 	int edx;
@@ -51,20 +53,22 @@ size_t strnlen(const char *s, size_t count)
 	);
 	return eax;
 }
+#ifndef strnlen
 libc_hidden_def(strnlen)
-
-#if 0
+#else
+/* Uncomment TESTING, gcc -D__USE_GNU -m32 -Os strnlen.c -o strnlen
+ * and run ./strnlen
+ */
 int main()
 {
-	printf(strnlen2("abc\0def", -2) == 3 ? "ok\n" : "BAD!\n");
-	printf(strnlen2("abc\0def", -1) == 3 ? "ok\n" : "BAD!\n");
-	printf(strnlen2("abc\0def", 0) == 0 ? "ok\n" : "BAD!\n");
-	printf(strnlen2("abc\0def", 1) == 1 ? "ok\n" : "BAD!\n");
-	printf(strnlen2("abc\0def", 2) == 2 ? "ok\n" : "BAD!\n");
-	printf(strnlen2("abc\0def", 3) == 3 ? "ok\n" : "BAD!\n");
-	printf(strnlen2("abc\0def", 4) == 3 ? "ok\n" : "BAD!\n");
-	printf(strnlen2("abc\0def", 5) == 3 ? "ok\n" : "BAD!\n");
-	return 0;
+	printf(strnlen("abc\0def", -2) == 3 ? "ok\n" : "BAD!\n");
+	printf(strnlen("abc\0def", -1) == 3 ? "ok\n" : "BAD!\n");
+	printf(strnlen("abc\0def", 0) == 0 ? "ok\n" : "BAD!\n");
+	printf(strnlen("abc\0def", 1) == 1 ? "ok\n" : "BAD!\n");
+	printf(strnlen("abc\0def", 2) == 2 ? "ok\n" : "BAD!\n");
+	printf(strnlen("abc\0def", 3) == 3 ? "ok\n" : "BAD!\n");
+	printf(strnlen("abc\0def", 4) == 3 ? "ok\n" : "BAD!\n");
+	printf(strnlen("abc\0def", 5) == 3 ? "ok\n" : "BAD!\n");
 }
 #endif
 

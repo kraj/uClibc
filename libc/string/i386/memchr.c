@@ -33,6 +33,7 @@
 #include <string.h>
 
 #undef memchr
+//#define memchr TESTING
 void *memchr(const void *s, int c, size_t count)
 {
 	void *edi;
@@ -51,4 +52,24 @@ void *memchr(const void *s, int c, size_t count)
 	);
 	return edi;
 }
+#ifndef memchr
 libc_hidden_def(memchr)
+#else
+/* Uncomment TESTING, gcc -D__USE_GNU -m32 -Os memchr.c -o memchr
+ * and run ./memchr
+ */
+int main()
+{
+	static const char str[] = "abc.def";
+	printf((char*)memchr(str, '.',-2) - str == 3 ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.',-1) - str == 3 ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 0) == NULL    ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 1) == NULL    ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 2) == NULL    ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 3) == NULL    ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 4) - str == 3 ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 5) - str == 3 ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str+3, '.', 0) == NULL    ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str+3, '.', 5) - str == 3 ? "ok\n" : "BAD!\n");
+}
+#endif
