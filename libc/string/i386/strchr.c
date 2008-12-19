@@ -32,23 +32,25 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(strchr) */
+#undef strchr
 char *strchr(const char *s, int c)
 {
-    int d0;
-    register char * __res;
-    __asm__ __volatile__(
-	    "movb %%al,%%ah\n"
-	    "1:\tlodsb\n\t"
-	    "cmpb %%ah,%%al\n\t"
-	    "je 2f\n\t"
-	    "testb %%al,%%al\n\t"
-	    "jne 1b\n\t"
-	    "movl $1,%1\n"
-	    "2:\tmovl %1,%0\n\t"
-	    "decl %0"
-	    :"=a" (__res), "=&S" (d0) : "1" (s),"0" (c));
-    return __res;
+	int esi;
+	register char * eax;
+	__asm__ __volatile__(
+		"	movb	%%al, %%ah\n"
+		"1:	lodsb\n"
+		"	cmpb	%%ah, %%al\n"
+		"	je	2f\n"
+		"	testb	%%al, %%al\n"
+		"	jnz	1b\n"
+		"	movl	$1, %%esi\n" /* can use shorter xor + inc */
+		"2:	leal	-1(%%esi), %%eax\n"
+		: "=a" (eax), "=&S" (esi)
+		: "0" (c), "1" (s)
+		/* no clobbers */
+	);
+	return eax;
 }
 libc_hidden_def(strchr)
 #ifdef __UCLIBC_SUSV3_LEGACY__
