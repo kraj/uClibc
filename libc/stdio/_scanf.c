@@ -418,10 +418,8 @@ int vswscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 {
 	FILE f;
 
-	f.__bufstart =
-	f.__bufpos = (char *) str;
-	f.__bufread =
-	f.__bufend = (char *)(str + wcslen(str));
+	f.__bufstart = f.__bufpos = (unsigned char *) str;
+	f.__bufread = f.__bufend = (unsigned char *) (str + wcslen(str));
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
 
@@ -586,8 +584,9 @@ enum {
 #define QUAL_CHARS		{ \
 	/* j:(u)intmax_t z:(s)size_t  t:ptrdiff_t  \0:int  q:long_long */ \
 	'h',   'l',  'L',  'j',  'z',  't',  'q', 0, \
-	 2,     4,    8,  IMS,   SS,  PDS,    8,  0, /* TODO -- fix!!! */\
-     1,     8   }
+	 2,     4,    8,  IMS,   SS,  PDS,    8,  0, /* TODO -- fix!!! */ \
+	 1,     8 \
+}
 
 
 /**********************************************************************/
@@ -1154,21 +1153,11 @@ static __inline void kill_scan_cookie(register struct scan_cookie *sc)
 #endif
 }
 
-#ifdef L_vfwscanf
-#ifdef __UCLIBC_HAS_FLOATS__
-static const char fake_decpt_str[] = ".";
-#endif
-#ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
-static const char fake_thousands_sep_str[] = ",";
-#endif
-#endif /* L_vfwscanf */
-
 
 int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 {
 	const Wuchar *fmt;
 	unsigned char *b;
-
 
 #ifdef L_vfwscanf
 	wchar_t wbuf[1];
@@ -1181,7 +1170,6 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 	struct scan_cookie sc;
 	psfs_t psfs;
-
 	int i;
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -1233,13 +1221,13 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 #ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
 	if (*sc.grouping) {
-		sc.thousands_sep = fake_thousands_sep_str;
+		sc.thousands_sep = (const unsigned char *) ",";
 		sc.tslen = 1;
 	}
 #endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
 
 #ifdef __UCLIBC_HAS_FLOATS__
-	sc.fake_decpt = fake_decpt_str;
+	sc.fake_decpt = (const unsigned char *) ".";
 #endif /* __UCLIBC_HAS_FLOATS__ */
 
 #else  /* L_vfwscanf */
@@ -1607,7 +1595,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 							*wb = sc.wc;
 							wb += psfs.store;
 						} else {
-							i = wcrtomb(b, sc.wc, &mbstate);
+							i = wcrtomb((char*) b, sc.wc, &mbstate);
 							if (i < 0) { /* Conversion failure. */
 								goto DONE_DO_UNGET;
 							}
@@ -1635,7 +1623,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 							*wb = sc.wc;
 							wb += psfs.store;
 						} else {
-							i = wcrtomb(b, sc.wc, &mbstate);
+							i = wcrtomb((char*) b, sc.wc, &mbstate);
 							if (i < 0) { /* Conversion failure. */
 								goto DONE_DO_UNGET;
 							}
@@ -1709,7 +1697,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 							*wb = sc.wc;
 							wb += psfs.store;
 						} else {
-							i = wcrtomb(b, sc.wc, &mbstate);
+							i = wcrtomb((char*) b, sc.wc, &mbstate);
 							if (i < 0) { /* Conversion failure. */
 								goto DONE_DO_UNGET;
 							}
@@ -1882,7 +1870,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 #ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
 
 	if ((psfs->flags & FLAG_THOUSANDS) && (base == 10)
-		&& *(p = sc->grouping)
+		&& *(p = (const unsigned char *) sc->grouping)
 		) {
 
 		int nblk1, nblk2, nbmax, lastblock, pass, i;
@@ -2004,7 +1992,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 								p = sc->fake_decpt + k;
 								do {
 									if (!*++p) {
-										strcpy(b, sc->decpt);
+										strcpy((char*) b, (char*) sc->decpt);
 										b += sc->decpt_len;
 										goto GOT_DECPT;
 									}
