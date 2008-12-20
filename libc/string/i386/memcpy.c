@@ -38,11 +38,11 @@ void *memcpy(void * to, const void * from, size_t n)
 	int d0, d1, d2;
 	__asm__ __volatile__(
 		"	rep; movsl\n"
-		"	movl %4,%%ecx\n"
-		"	andl $3,%%ecx\n"
+		"	movl	%4, %%ecx\n"
+		"	andl	$3, %%ecx\n"
 		/* jz is optional. avoids "rep; movsb" with ecx == 0,
 		 * but adds a branch, which is currently (2008) faster */
-		"	jz 1f\n"
+		"	jz	1f\n"
 		"	rep; movsb\n"
 		"1:\n"
 		: "=&c" (d0), "=&D" (d1), "=&S" (d2)

@@ -56,7 +56,7 @@ size_t strnlen(const char *s, size_t count)
 #ifndef strnlen
 libc_hidden_def(strnlen)
 #else
-/* Uncomment TESTING, gcc -D__USE_GNU -m32 -Os strnlen.c -o strnlen
+/* Uncomment TESTING, gcc -D_GNU_SOURCE -m32 -Os strnlen.c -o strnlen
  * and run ./strnlen
  */
 int main()

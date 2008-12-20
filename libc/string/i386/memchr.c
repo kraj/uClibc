@@ -55,7 +55,7 @@ void *memchr(const void *s, int c, size_t count)
 #ifndef memchr
 libc_hidden_def(memchr)
 #else
-/* Uncomment TESTING, gcc -D__USE_GNU -m32 -Os memchr.c -o memchr
+/* Uncomment TESTING, gcc -D_GNU_SOURCE -m32 -Os memchr.c -o memchr
  * and run ./memchr
  */
 int main()

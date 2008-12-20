@@ -32,25 +32,44 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(strncpy) */
+#undef strncpy
+//#define strncpy TESTING
 char *strncpy(char * dest, const char * src, size_t count)
 {
-    int d0, d1, d2, d3;
-    __asm__ __volatile__(
-	    "incl %2\n"
-	    "1:\n"
-	    "decl %2\n"
-	    "jz 2f\n"
-	    "lodsb\n\t"
-	    "stosb\n\t"
-	    "testb %%al,%%al\n\t"
-	    "jne 1b\n\t"
-	    "decl %2\n"
-	    "rep\n\t"
-	    "stosb\n"
-	    "2:"
-	    : "=&S" (d0), "=&D" (d1), "=&c" (d2), "=&a" (d3)
-	    :"0" (src),"1" (dest),"2" (count) : "memory");
-    return dest;
+	int esi, edi, ecx, eax;
+	__asm__ __volatile__(
+		"1:	subl	$1, %%ecx\n" /* not dec! it doesnt set CF */
+		"	jc	2f\n"
+		"	lodsb\n"
+		"	stosb\n"
+		"	testb	%%al, %%al\n"
+		"	jnz	1b\n"
+		"	rep; stosb\n"
+		"2:\n"
+		: "=&S" (esi), "=&D" (edi), "=&c" (ecx), "=&a" (eax)
+		: "0" (src), "1" (dest), "2" (count)
+		: "memory"
+	);
+	return dest;
 }
+#ifndef strncpy
 libc_hidden_def(strncpy)
+#else
+/* Uncomment TESTING, gcc -D_GNU_SOURCE -m32 -Os strncpy.c -o strncpy
+ * and run ./strncpy
+ */
+int main()
+{
+	static char str[99];
+
+	str[3] = '*'; str[4] = 0; strncpy(str, "abc", 3);
+	printf(strcmp(str, "abc*") == 0 ? "ok\n" : "BAD!\n");
+
+	str[4] = '*'; str[5] = '+'; strncpy(str, "abc", 5);
+	printf(strcmp(str, "abc") == 0 && str[4] == 0 && str[5] == '+' ?
+				"ok\n" : "BAD!\n");
+	strncpy(str, "abc", 0); /* should do nothing */
+	printf(strcmp(str, "abc") == 0 && str[4] == 0 && str[5] == '+' ?
+				"ok\n" : "BAD!\n");
+}
+#endif

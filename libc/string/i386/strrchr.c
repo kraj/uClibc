@@ -35,23 +35,23 @@
 /* Experimentally off - libc_hidden_proto(strrchr) */
 char *strrchr(const char *s, int c)
 {
-	char *retval;
+	char *eax;
 
 	__asm__ __volatile__(
 		"	movb	%%cl, %%ch\n"
 		"1:	movb	(%1), %%cl\n" /* load char */
 		"	cmpb	%%cl, %%ch\n" /* char == c? */
 		"	jne	2f\n"
-		"	movl	%1, %0\n"
+		"	movl	%1, %%eax\n"
 		"2:	incl	%1\n"
 		"	testb	%%cl, %%cl\n" /* char == NUL? */
 		"	jnz	1b\n"
 		/* "=c": use ecx, not ebx (-fpic uses it). */
-		: "=a" (retval), "=r" (s), "=c" (c)
+		: "=a" (eax), "=r" (s), "=c" (c)
 		: "0" (0), "1" (s), "2" (c)
 		/* : no clobbers */
 	);
-	return retval;
+	return eax;
 }
 libc_hidden_def(strrchr)
 #ifdef __UCLIBC_SUSV3_LEGACY__

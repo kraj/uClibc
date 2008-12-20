@@ -57,7 +57,7 @@ void *memmove(void *dest, const void *src, size_t n)
 #ifndef memmove
 libc_hidden_def(memmove)
 #else
-/* Uncomment TESTING, gcc -D__USE_GNU -m32 -Os memmove.c -o memmove
+/* Uncomment TESTING, gcc -D_GNU_SOURCE -m32 -Os memmove.c -o memmove
  * and run ./memmove
  */
 int main()
