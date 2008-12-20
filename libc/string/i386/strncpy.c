@@ -68,7 +68,7 @@ int main()
 	str[4] = '*'; str[5] = '+'; strncpy(str, "abc", 5);
 	printf(strcmp(str, "abc") == 0 && str[4] == 0 && str[5] == '+' ?
 				"ok\n" : "BAD!\n");
-	strncpy(str, "abc", 0); /* should do nothing */
+	strncpy(str, "def", 0); /* should do nothing */
 	printf(strcmp(str, "abc") == 0 && str[4] == 0 && str[5] == '+' ?
 				"ok\n" : "BAD!\n");
 }
