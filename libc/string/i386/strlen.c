@@ -35,14 +35,14 @@
 #undef strlen
 size_t strlen(const char *s)
 {
-    int d0;
-    register int __res;
-    __asm__ __volatile__(
-	    "repne\n\t"
-	    "scasb\n\t"
-	    "notl %0\n\t"
-	    "decl %0"
-	    :"=c" (__res), "=&D" (d0) :"1" (s),"a" (0), "0" (0xffffffff));
-    return __res;
+	int eax, ecx, edi;
+	__asm__ __volatile__(
+		"	repne; scasb\n"
+		"	notl	%%ecx\n"
+		"	leal	-1(%%ecx), %%eax\n"
+		: "=&c" (ecx), "=&D" (edi), "=&a" (eax)
+		: "0" (0xffffffff), "1" (s), "2" (0)
+	);
+	return eax;
 }
 libc_hidden_def(strlen)
