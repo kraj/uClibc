@@ -373,7 +373,7 @@ config UCLIBC_HAS_THREADS
 	  If your applications require pthreads, answer Y.
 
 config UCLIBC_HAS_THREADS_NATIVE
-	bool "Native POSIX Threading (NPTL) Support"
+	bool "Native POSIX Thread Library (NPTL) Support"
 	depends on UCLIBC_HAS_THREADS
 	default n
 	help
