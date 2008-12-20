@@ -35,7 +35,7 @@ typedef struct {
 
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 	const unsigned char tbl8ctype[__LOCALE_DATA_Cctype_TBL_LEN];
-    const unsigned char tbl8uplow[__LOCALE_DATA_Cuplow_TBL_LEN];
+	const unsigned char tbl8uplow[__LOCALE_DATA_Cuplow_TBL_LEN];
 #ifdef __WCHAR_ENABLED
 	const uint16_t tbl8c2wc[__LOCALE_DATA_Cc2wc_TBL_LEN]; /* char > 0x7f to wide char */
 	const unsigned char tbl8wc2c[__LOCALE_DATA_Cwc2c_TBL_LEN];
@@ -72,7 +72,7 @@ typedef struct {
 	const uint16_t collate_data[__lc_collate_data_LEN];
 
 	unsigned char lc_common_item_offsets_LEN[__LOCALE_DATA_CATEGORIES];
-    size_t lc_common_tbl_offsets[__LOCALE_DATA_CATEGORIES * 4];
+	size_t lc_common_tbl_offsets[__LOCALE_DATA_CATEGORIES * 4];
 	/* offsets from start of locale_mmap_t */
 	/* rows, item_offsets, item_idx, data */
 

@@ -230,7 +230,8 @@ static void update_hr_locale(const unsigned char *spec)
 					+ __LOCALE_DATA_WIDTH_LOCALES * ((((int)(*s & 0x7f)) << 7)
 													 + (s[1] & 0x7f));
 				if (category == LC_ALL) {
-					n = stpcpy(n, CATEGORY_NAMES + (int) CATEGORY_NAMES[i]);
+					/* CATEGORY_NAMES is unsigned char* */
+					n = stpcpy(n, (char*) CATEGORY_NAMES + (int) CATEGORY_NAMES[i]);
 					*n++ = '=';
 				}
 				if (*loc == 0) {
@@ -1217,7 +1218,8 @@ static unsigned char *composite_locale(int category_mask, const char *locale,
 	t = strtok_r(buf, "=", &e);	/* This can't fail because of strchr test above. */
 	do {
 		c = 0;
-		while (strcmp(CATEGORY_NAMES + (int) CATEGORY_NAMES[c], t)) {
+		/* CATEGORY_NAMES is unsigned char* */
+		while (strcmp((char*) CATEGORY_NAMES + (int) CATEGORY_NAMES[c], t)) {
 			if (++c == LC_ALL) { /* Unknown category name! */
 				return NULL;
 			}
@@ -1262,11 +1264,13 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 	strcpy((char *) new_selector,
 		   (base ? (char *) base->cur_locale : C_LOCALE_SELECTOR));
 
-	if (!*locale) {			 /* locale == "", so check environment. */
-#ifndef __UCLIBC_HAS_THREADS__
-		static				/* If no threads, then envstr can be static. */
-#endif /*  __UCLIBC_HAS_THREADS__ */
-			const char *envstr[4] = { "LC_ALL", NULL, "LANG", posix };
+	if (!locale[0]) {	/* locale == "", so check environment. */
+		const char *envstr[4];
+
+		envstr[0] = "LC_ALL";
+		envstr[1] = NULL;
+		envstr[2] = "LANG";
+		envstr[3] = posix;
 
 		i = 1;
 		k = 0;
@@ -1275,12 +1279,16 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 				/* Note: SUSv3 doesn't define a fallback mechanism here.
 				 * So, if LC_ALL is invalid, we do _not_ continue trying
 				 * the other environment vars. */
-				envstr[1] = CATEGORY_NAMES + CATEGORY_NAMES[k];
+				envstr[1] = (char*) CATEGORY_NAMES + CATEGORY_NAMES[k];
 				j = 0;
-				do {
+				while (1) {
 					p = envstr[j];
-				} while ((++j < 4) && (!(p = getenv(p)) || !*p));
-
+					if (++j >= 4)
+						break; /* now p == "POSIX" */
+					p = getenv(p);
+					if (p && p[0])
+						break;
+				};
 
 				/* The user set something... is it valid? */
 				/* Note: Since we don't support user-supplied locales and
