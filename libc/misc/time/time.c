@@ -618,43 +618,48 @@ libc_hidden_def(localtime_r)
 
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 
-/* Experimentally off - libc_hidden_proto(strnlen) */
-
 struct ll_tzname_item;
 
 typedef struct ll_tzname_item {
 	struct ll_tzname_item *next;
-	char tzname[TZNAME_MAX+1];
+	char tzname[1];
 } ll_tzname_item_t;
 
-static ll_tzname_item_t ll_tzname[] = {
-	{ ll_tzname + 1, "UTC" },	/* Always 1st. */
-	{ NULL, "???" }		  /* Always 2nd. (invalid or out-of-memory) */
-};
+/* Structures form a list "UTC" -> "???" -> "tzname1" -> "tzname2"... */
+struct {
+	struct ll_tzname_item *next;
+	char tzname[4];
+} ll_tzname_UNKNOWN = { NULL, "???" };
+const struct {
+	struct ll_tzname_item *next;
+	char tzname[4];
+} ll_tzname_UTC = { (void*)&ll_tzname_UNKNOWN, "UTC" };
 
 static const char *lookup_tzname(const char *key)
 {
-	ll_tzname_item_t *p;
+	int len;
+	ll_tzname_item_t *p = (void*) &ll_tzname_UTC;
 
-	for (p=ll_tzname ; p ; p=p->next) {
-		if (!strcmp(p->tzname, key)) {
+	do {
+		if (strcmp(p->tzname, key) == 0)
 			return p->tzname;
-		}
-	}
+		p = p->next;
+	} while (p != NULL);
 
 	/* Hmm... a new name. */
-	if (strnlen(key, TZNAME_MAX+1) < TZNAME_MAX+1) { /* Verify legal length */
-		if ((p = malloc(sizeof(ll_tzname_item_t))) != NULL) {
+	len = strnlen(key, TZNAME_MAX+1);
+	if (len < TZNAME_MAX+1) { /* Verify legal length */
+		p = malloc(sizeof(ll_tzname_item_t) + len);
+		if (p != NULL) {
 			/* Insert as 3rd item in the list. */
-			p->next = ll_tzname[1].next;
-			ll_tzname[1].next = p;
-			strcpy(p->tzname, key);
-			return p->tzname;
+			p->next = ll_tzname_UNKNOWN.next;
+			ll_tzname_UNKNOWN.next = p;
+			return strcpy(p->tzname, key);
 		}
 	}
 
 	/* Either invalid or couldn't alloc. */
-	return ll_tzname[1].tzname;
+	return ll_tzname_UNKNOWN.tzname;
 }
 
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */

@@ -70,7 +70,7 @@ static struct rpcdata {
 	char *domain;
 } *rpcdata;
 
-static char RPCDB[] = "/etc/rpc";
+static const char RPCDB[] = "/etc/rpc";
 
 static struct rpcdata *_rpcdata(void)
 {
