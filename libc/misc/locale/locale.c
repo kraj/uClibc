@@ -249,7 +249,7 @@ static void update_hr_locale(const unsigned char *spec)
 					if (loc[2] == 2) {
 						n = stpcpy(n, utf8);
 					} else if (loc[2] >= 3) {
-						n = stpcpy(n, CODESET_LIST + (int)(CODESET_LIST[loc[2] - 3]));
+						n = stpcpy(n, (char*) CODESET_LIST + (int)(CODESET_LIST[loc[2] - 3]));
 					}
 					if (at) {
 						const char *q;
@@ -645,8 +645,8 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 				io = (const uint16_t *)( ((char *)__locale_mmap) + *++stp );
 				ii = (const uint16_t *)( ((char *)__locale_mmap) + *++stp );
 				d = (const unsigned char *)( ((char *)__locale_mmap) + *++stp );
-				for (c=0 ; c < len ; c++) {
-					*(x + c) = d + ii[ r[crow + c] + io[c] ];
+				for (c = 0; c < len; c++) {
+					x[c] = (char*)(d + ii[r[crow + c] + io[c]]);
 				}
 			}
 			if (i == LC_CTYPE) {
@@ -659,7 +659,7 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 						/* TODO - fix for bcc */
 						base->mb_cur_max = 6;
 					} else {
-						assert(c==1);
+						assert(c == 1);
 						base->codeset = ascii;
 						base->encoding = __ctype_encoding_7_bit;
 						base->mb_cur_max = 1;
@@ -667,7 +667,8 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 				} else {
 					const __codeset_8_bit_t *c8b;
 					r = CODESET_LIST;
-					base->codeset = r + r[c -= 3];
+					c -= 3;
+					base->codeset = (char *) (r + r[c]);
 					base->encoding = __ctype_encoding_8_bit;
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning REMINDER: update 8 bit mb_cur_max when translit implemented!
@@ -906,7 +907,7 @@ void attribute_hidden _locale_init_l(__locale_t base)
 	base->tblwuplow
 		= (const unsigned char *) &__locale_mmap->tblwuplow;
 	base->tblwuplow_diff
-		= (const uint16_t *) &__locale_mmap->tblwuplow_diff;
+		= (const int16_t *) &__locale_mmap->tblwuplow_diff;
 /* 	base->tblwcomb */
 /* 		= (const unsigned char *) &__locale_mmap->tblwcomb; */
 	/* width?? */
@@ -929,8 +930,7 @@ void attribute_hidden _locale_init_l(__locale_t base)
 #endif
 	base->code2flag = __code2flag;
 
-
-	_locale_set_l(C_LOCALE_SELECTOR, base);
+	_locale_set_l((unsigned char*) C_LOCALE_SELECTOR, base);
 }
 
 void _locale_init(void) attribute_hidden;
@@ -1118,7 +1118,7 @@ static int find_locale(int category_mask, const char *p,
 		/* locale name at least 5 chars long and 3rd char is '_' */
 		s = LOCALE_AT_MODIFIERS;
 		do {
-			if (!strcmp(s+2, q+1)) {
+			if (!strcmp((char*) (s + 2), q + 1)) {
 				break;
 			}
 			s += 2 + *s;		/* TODO - fix this throughout */
@@ -1143,11 +1143,11 @@ static int find_locale(int category_mask, const char *p,
 		/* TODO: maybe CODESET_LIST + *s ??? */
 		/* 7bit is 1, UTF-8 is 2, 8-bit is >= 3 */
 		codeset = 2;
-		if (strcasecmp(utf8,p+6) != 0) {/* TODO - fix! */
+		if (strcasecmp(utf8, p + 6) != 0) {/* TODO - fix! */
 			s = CODESET_LIST;
 			do {
 				++codeset;		/* Increment codeset first. */
-				if (!strcmp(CODESET_LIST+*s, p+6)) {
+				if (!strcmp((char*) CODESET_LIST + *s, p + 6)) {
 					goto FIND_LANG_CULT;
 				}
 			} while (*++s);
@@ -1160,7 +1160,7 @@ static int find_locale(int category_mask, const char *p,
 	do {						/* TODO -- do a binary search? */
 		/* TODO -- fix gen_mmap!*/
 		++lang_cult;			/* Increment first since C/POSIX is 0. */
-		if (!strncmp(s,p,5)) { /* Found a matching locale name; */
+		if (!strncmp((char*) s, p, 5)) { /* Found a matching locale name; */
 			goto FIND_LOCALE;
 		}
 		s += 5;
@@ -1244,7 +1244,7 @@ static unsigned char *composite_locale(int category_mask, const char *locale,
 
 __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 {
-	const unsigned char *p;
+	const char *p;
 	int i, j, k;
 	unsigned char new_selector[LOCALE_SELECTOR_SIZE];
 
@@ -1252,8 +1252,8 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 		category_mask = LC_ALL_MASK;
 	}
 
-	if (!locale || (((unsigned int)(category_mask)) > LC_ALL_MASK)) {
-	INVALID:
+	if (!locale || ((unsigned)(category_mask) > LC_ALL_MASK)) {
+ INVALID:
 		__set_errno(EINVAL);
 		return NULL; /* No locale or illegal/unsupported category. */
 	}
@@ -1321,9 +1321,9 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 	}
 #else
 	if (!base) {
-		if ((base = malloc(sizeof(__uclibc_locale_t))) == NULL) {
+		base = malloc(sizeof(__uclibc_locale_t));
+		if (base == NULL)
 			return base;
-		}
 		_locale_init_l(base);
 	}
 
