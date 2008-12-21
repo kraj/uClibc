@@ -254,7 +254,7 @@ static void update_hr_locale(const unsigned char *spec)
 					if (at) {
 						const char *q;
 						*n++ = '@';
-						q = LOCALE_AT_MODIFIERS;
+						q = (char*) LOCALE_AT_MODIFIERS;
 						do {
 							if (q[1] == at) {
 								n = stpcpy(n, q+2);

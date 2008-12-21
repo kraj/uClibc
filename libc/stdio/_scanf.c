@@ -592,6 +592,7 @@ enum {
 /**********************************************************************/
 
 #ifdef L_vfwscanf
+/* FIXME: "warning: the right operand of ">" changes sign when promoted" */
 #if WINT_MIN > EOF
 #error Unfortunately, we currently need wint_t to be able to store EOF.  Sorry.
 #endif
@@ -717,7 +718,7 @@ void attribute_hidden __init_scan_cookie(register struct scan_cookie *sc,
 
 #ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
 	if (*(sc->grouping = __UCLIBC_CURLOCALE_DATA.grouping)) {
-		sc->thousands_sep = __UCLIBC_CURLOCALE_DATA.thousands_sep;
+		sc->thousands_sep = (const unsigned char *) __UCLIBC_CURLOCALE_DATA.thousands_sep;
 		sc->tslen = __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
 #ifdef __UCLIBC_HAS_WCHAR__
 		sc->thousands_sep_wc = __UCLIBC_CURLOCALE_DATA.thousands_sep_wc;
@@ -727,7 +728,7 @@ void attribute_hidden __init_scan_cookie(register struct scan_cookie *sc,
 
 #ifdef __UCLIBC_HAS_FLOATS__
 #ifdef __UCLIBC_HAS_LOCALE__
-	sc->decpt = __UCLIBC_CURLOCALE_DATA.decimal_point;
+	sc->decpt = (const unsigned char *) __UCLIBC_CURLOCALE_DATA.decimal_point;
 	sc->decpt_len = __UCLIBC_CURLOCALE_DATA.decimal_point_len;
 #else  /* __UCLIBC_HAS_LOCALE__ */
 	sc->fake_decpt = sc->decpt = (unsigned char *) decpt_str;
