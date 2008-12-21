@@ -502,7 +502,6 @@ libc_hidden_def(towupper)
 #ifdef L_wctype
 
 static const unsigned char typestring[] = __CTYPE_TYPESTRING;
-/*  extern const unsigned char typestring[]; */
 
 /* libc_hidden_proto(wctype) */
 wctype_t wctype(const char *property)
@@ -513,7 +512,7 @@ wctype_t wctype(const char *property)
 	p = typestring;
 	i = 1;
 	do {
-		if (!strcmp(property, ++p)) {
+		if (!strcmp(property, (const char *) ++p)) {
 			return i;
 		}
 		++i;
@@ -913,10 +912,10 @@ wctrans_t wctrans(const char *property)
 	const unsigned char *p;
 	int i;
 
-	p = transstring;
+	p = (const unsigned char *) transstring;
 	i = 1;
 	do {
-		if (!strcmp(property, ++p)) {
+		if (!strcmp(property, (const char*) ++p)) {
 			return i;
 		}
 		++i;
