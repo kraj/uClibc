@@ -1214,7 +1214,7 @@ static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad);
 #define _PPFS_init _ppfs_init
 #define OUTPUT(F,S)			fputs_unlocked(S,F)
 /* #define _outnstr(stream, string, len)	__stdio_fwrite(string, len, stream) */
-#define _outnstr(stream, string, len)	((len > 0) ? __stdio_fwrite(string, len, stream) : 0)
+#define _outnstr(stream, string, len)	((len > 0) ? __stdio_fwrite((const unsigned char *)(string), len, stream) : 0)
 #define FP_OUT _fp_out_narrow
 
 #ifdef __STDIO_PRINTF_FLOAT
@@ -1232,7 +1232,7 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 		}
 		len = buflen;
 	}
-	return r + OUTNSTR(fp, (const unsigned char *) buf, len);
+	return r + OUTNSTR(fp, (const char *) buf, len);
 }
 
 #endif /* __STDIO_PRINTF_FLOAT */
@@ -1247,7 +1247,7 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 /* Pulls in fseek: */
 #define OUTPUT(F,S)			fputws(S,F)
 /* TODO: #define OUTPUT(F,S)		_wstdio_fwrite((S),wcslen(S),(F)) */
-#define _outnwcs(stream, wstring, len)	_wstdio_fwrite(wstring, len, stream)
+#define _outnwcs(stream, wstring, len)	_wstdio_fwrite((const wchar_t *)(wstring), len, stream)
 #define FP_OUT _fp_out_wide
 
 static size_t _outnstr(FILE *stream, const char *s, size_t wclen)
@@ -1428,7 +1428,7 @@ static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad)
 	FMT_TYPE pad[1];
 
 	*pad = padchar;
-	while (todo && (OUTNSTR(stream, (const unsigned char *) pad, 1) == 1)) {
+	while (todo && (OUTNSTR(stream, (const char *) pad, 1) == 1)) {
 		--todo;
 	}
 
@@ -1874,7 +1874,7 @@ int VFPRINTF_internal (FILE * __restrict stream,
 	s = format;
 
 	if (_PPFS_init(&ppfs, format) < 0) {	/* Bad format string. */
-		OUTNSTR(stream, (const unsigned char *) ppfs.fmtpos,
+		OUTNSTR(stream, (const char *) ppfs.fmtpos,
 				STRLEN((const FMT_TYPE *)(ppfs.fmtpos)));
 #if defined(L__vfprintf_internal) && !defined(NDEBUG)
 		fprintf(stderr,"\nIMbS: \"%s\"\n\n", format);
@@ -1888,8 +1888,9 @@ int VFPRINTF_internal (FILE * __restrict stream,
 				++format;
 			}
 
-			if (format-s) {		/* output any literal text in format string */
-				if ( (r = OUTNSTR(stream, (const unsigned char *) s, format-s)) != (format-s)) {
+			if (format - s) {	/* output any literal text in format string */
+				r = OUTNSTR(stream, (const char *) s, format - s);
+				if (r != (format - s)) {
 					count = -1;
 					break;
 				}
