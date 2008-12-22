@@ -31,57 +31,15 @@
 #error Always include <{w}ctype.h> rather than <bits/uClibc_ctype.h>
 #endif
 
-#ifndef _BITS_CTYPE_H
-#define _BITS_CTYPE_H
+#ifndef _BITS_UCLIBC_CTYPE_H
+#define _BITS_UCLIBC_CTYPE_H
 
 #ifdef __UCLIBC_GEN_LOCALE
+/* We are in extra/locale/gen_XXX tools build */
 
-/* Taking advantage of the C99 mutual-exclusion guarantees for the various
- * (w)ctype classes, including the descriptions of printing and control
- * (w)chars, we can place each in one of the following mutually-exlusive
- * subsets.  Since there are less than 16, we can store the data for
- * each (w)chars in a nibble. In contrast, glibc uses an unsigned int
- * per (w)char, with one bit flag for each is* type.  While this allows
- * a simple '&' operation to determine the type vs. a range test and a
- * little special handling for the "blank" and "xdigit" types in my
- * approach, it also uses 8 times the space for the tables on the typical
- * 32-bit archs we supported.*/
-enum {
-	__CTYPE_unclassified = 0,
-	__CTYPE_alpha_nonupper_nonlower,
-	__CTYPE_alpha_lower,
-	__CTYPE_alpha_upper_lower,
-	__CTYPE_alpha_upper,
-	__CTYPE_digit,
-	__CTYPE_punct,
-	__CTYPE_graph,
-	__CTYPE_print_space_nonblank,
-	__CTYPE_print_space_blank,
-	__CTYPE_space_nonblank_noncntrl,
-	__CTYPE_space_blank_noncntrl,
-	__CTYPE_cntrl_space_nonblank,
-	__CTYPE_cntrl_space_blank,
-	__CTYPE_cntrl_nonspace
-};
+#include "uClibc_charclass.h"
 
-/* Some macros that test for various (w)ctype classes when passed one of the
- * designator values enumerated above. */
-#define __CTYPE_isalnum(D)		((unsigned int)(D-1) <= (__CTYPE_digit-1))
-#define __CTYPE_isalpha(D)		((unsigned int)(D-1) <= (__CTYPE_alpha_upper-1))
-#define __CTYPE_isblank(D) \
-	((((unsigned int)(D - __CTYPE_print_space_nonblank)) <= 5) && (D & 1))
-#define __CTYPE_iscntrl(D)		(((unsigned int)(D - __CTYPE_cntrl_space_nonblank)) <= 2)
-#define __CTYPE_isdigit(D)		(D == __CTYPE_digit)
-#define __CTYPE_isgraph(D)		((unsigned int)(D-1) <= (__CTYPE_graph-1))
-#define __CTYPE_islower(D)		(((unsigned int)(D - __CTYPE_alpha_lower)) <= 1)
-#define __CTYPE_isprint(D)		((unsigned int)(D-1) <= (__CTYPE_print_space_blank-1))
-#define __CTYPE_ispunct(D)		(D == __CTYPE_punct)
-#define __CTYPE_isspace(D)		(((unsigned int)(D - __CTYPE_print_space_nonblank)) <= 5)
-#define __CTYPE_isupper(D)		(((unsigned int)(D - __CTYPE_alpha_upper_lower)) <= 1)
-/*  #define __CTYPE_isxdigit(D) -- isxdigit is untestable this way.
- *  But that's ok as isxdigit() (and isdigit() too) are locale-invariant. */
-
-#else  /* __UCLIBC_GEN_LOCALE *****************************************/
+#else /* !__UCLIBC_GEN_LOCALE */
 
 /* Define some ctype macros valid for the C/POSIX locale. */
 
@@ -238,15 +196,13 @@ __END_DECLS
 #define tolower(c)			__tolower(c)
 #define toupper(c)			__toupper(c)
 
-
 #endif
 
-#else  /* _GNUC__   ***************************************************/
+#else  /* !_GNUC__ */
 
 #if !defined __NO_CTYPE && !defined __cplusplus
 
 /* These macros should be safe from side effects. */
-
 #define isdigit(c)			__C_isdigit(c)
 #define isalpha(c)			__C_isalpha(c)
 #define isprint(c)			__C_isprint(c)
@@ -261,4 +217,4 @@ __END_DECLS
 
 #endif  /* __UCLIBC_GEN_LOCALE */
 
-#endif /* _BITS_CTYPE_H */
+#endif /* _BITS_UCLIBC_CTYPE_H */

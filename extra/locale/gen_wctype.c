@@ -14,13 +14,7 @@
 #include <wchar.h>
 #include <ctype.h>
 
-#ifndef _CTYPE_H
-#define _CTYPE_H
-#endif
-#ifndef _WCTYPE_H
-#define _WCTYPE_H
-#endif
-#include UCLIBC_CTYPE_HEADER
+#include "include/bits/uClibc_charclass.h"
 
 /*       0x9 : space  blank */
 /*       0xa : space */
@@ -62,7 +56,6 @@
 /*  typecount[15] =        0  empty_slot */
 
 
-
 /* Set to #if 0 to restrict wchars to 16 bits. */
 #if 1
 #define RANGE 0x2ffffUL
@@ -72,59 +65,22 @@
 #define RANGE 0xffffUL			/* Restrict for 16-bit wchar_t... */
 #endif
 
-#if 0
-/* Classification codes. */
-
-static const char *typename[] = {
-	"C_unclassified",
-	"C_alpha_nonupper_nonlower",
-	"C_alpha_lower",
-	"C_alpha_upper_lower",
-	"C_alpha_upper",
-	"C_digit",
-	"C_punct",
-	"C_graph",
-	"C_print_space_nonblank",
-	"C_print_space_blank",
-	"C_space_nonblank_noncntrl",
-	"C_space_blank_noncntrl",
-	"C_cntrl_space_nonblank",
-	"C_cntrl_space_blank",
-	"C_cntrl_nonspace",
-	"empty_slot"
-};
-#endif
-
-#if 0
-/* Taking advantage of the C99 mutual-exclusion guarantees for the various
- * (w)ctype classes, including the descriptions of printing and control
- * (w)chars, we can place each in one of the following mutually-exlusive
- * subsets.  Since there are less than 16, we can store the data for
- * each (w)chars in a nibble. In contrast, glibc uses an unsigned int
- * per (w)char, with one bit flag for each is* type.  While this allows
- * a simple '&' operation to determine the type vs. a range test and a
- * little special handling for the "blank" and "xdigit" types in my
- * approach, it also uses 8 times the space for the tables on the typical
- * 32-bit archs we supported.*/
-enum {
-	__CTYPE_unclassified = 0,
-	__CTYPE_alpha_nonupper_nonlower,
-	__CTYPE_alpha_lower,
-	__CTYPE_alpha_upper_lower,
-	__CTYPE_alpha_upper,
-	__CTYPE_digit,
-	__CTYPE_punct,
-	__CTYPE_graph,
-	__CTYPE_print_space_nonblank,
-	__CTYPE_print_space_blank,
-	__CTYPE_space_nonblank_noncntrl,
-	__CTYPE_space_blank_noncntrl,
-	__CTYPE_cntrl_space_nonblank,
-	__CTYPE_cntrl_space_blank,
-	__CTYPE_cntrl_nonspace,
-};
-#endif
-
+/* Some macros that test for various (w)ctype classes when passed one of the
+ * designator values enumerated above. */
+#define __CTYPE_isalnum(D)		((unsigned int)(D-1) <= (__CTYPE_digit-1))
+#define __CTYPE_isalpha(D)		((unsigned int)(D-1) <= (__CTYPE_alpha_upper-1))
+#define __CTYPE_isblank(D) \
+	((((unsigned int)(D - __CTYPE_print_space_nonblank)) <= 5) && (D & 1))
+#define __CTYPE_iscntrl(D)		(((unsigned int)(D - __CTYPE_cntrl_space_nonblank)) <= 2)
+#define __CTYPE_isdigit(D)		(D == __CTYPE_digit)
+#define __CTYPE_isgraph(D)		((unsigned int)(D-1) <= (__CTYPE_graph-1))
+#define __CTYPE_islower(D)		(((unsigned int)(D - __CTYPE_alpha_lower)) <= 1)
+#define __CTYPE_isprint(D)		((unsigned int)(D-1) <= (__CTYPE_print_space_blank-1))
+#define __CTYPE_ispunct(D)		(D == __CTYPE_punct)
+#define __CTYPE_isspace(D)		(((unsigned int)(D - __CTYPE_print_space_nonblank)) <= 5)
+#define __CTYPE_isupper(D)		(((unsigned int)(D - __CTYPE_alpha_upper_lower)) <= 1)
+/*  #define __CTYPE_isxdigit(D) -- isxdigit is untestable this way.
+ *  But that's ok as isxdigit() (and isdigit() too) are locale-invariant. */
 #define __CTYPE_isxdigit(D,X) \
 	(__CTYPE_isdigit(D) || (((unsigned int)(((X)|0x20) - 'a')) <= 5))
 
