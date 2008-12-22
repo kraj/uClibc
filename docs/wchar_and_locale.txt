@@ -1,0 +1,114 @@
+		User-configurable
+
+UCLIBC_HAS_CTYPE_TABLES
+	Make toupper etc work thru translation tables
+	and isalhum etc thru lookup tables. Help says:
+	"While the non-table versions are often smaller when building
+	statically linked apps, they work only in stub locale mode."
+
+	"stub locale mode" is when !UCLIBC_HAS_LOCALE I presume,
+	when we are permanently in POSIX/C locale.
+
+UCLIBC_HAS_CTYPE_SIGNED
+	Handle sign-extended chars. I.e. if you want
+	toupper((char)0xa0) => toupper(0xffffffa0) => still works correctly,
+	as if toupper(0xa0) was called.
+
+UCLIBC_HAS_CTYPE_UNSAFE/CHECKED/ENFORCED
+	Do not check ctype function argument's range/check it and return
+	error/check it and abort(). Help says:
+	NOTE: This only affects the 'ctype' _functions_.  It does not affect
+	the macro implementations. [so what happens to macros?]
+	[examples?]
+
+UCLIBC_HAS_WCHAR
+	Wide character support. I assume all those wchar_t types and functions
+
+UCLIBC_HAS_LOCALE/XLOCALE
+	Support locale / extended locale
+
+UCLIBC_PREGENERATED_LOCALE_DATA
+	Not recommended
+
+
+		uclibc internal machinery
+
+__LOCALE_C_ONLY
+	#defined if !UCLIBC_HAS_LOCALE
+
+__NO_CTYPE
+	#defined only by some .c files. Prevents ctype macros to be #defined
+	(those w/o underscores. __ctype() macros will still be defined).
+	Looks like user is expected to never mess with defining it.
+
+__UCLIBC_DO_XLOCALE
+	#defined only by some .c files. Looks like user is expected to never
+	mess with defining it.
+
+__XL_NPP(N) - "add _l suffix if locale support is on"
+	#defined to N ## _l if __UCLIBC_HAS_XLOCALE__ && __UCLIBC_DO_XLOCALE,
+	else #defined to just N.
+
+__CTYPE_HAS_8_BIT_LOCALES
+__CTYPE_HAS_UTF_8_LOCALES
+	Depends on contents of extra/locale/LOCALES data file. Looks like
+	both will be set if UCLIBC_HAS_LOCALE and extra/locale/LOCALES
+	is not edited.
+
+__WCHAR_ENABLED
+	locale_mmap.h defines it unconditionally, extra/locale/gen_ldc.c
+	defines it too with a warning, and _then_ includes locale_mmap.h.
+	Makefile seems to prevent the warning in gen_ldc.c:
+	ifeq ($(UCLIBC_HAS_WCHAR),y)
+	BUILD_CFLAGS-gen_wc8bit += -DDO_WIDE_CHAR=1
+	BUILD_CFLAGS-gen_ldc += -D__WCHAR_ENABLED=1
+	endif
+	A mess. Why they can't just use __UCLIBC_HAS_WCHAR__?
+
+__WCHAR_REPLACEMENT_CHAR
+	Never defined (dead code???)
+
+
+
+		Actual ctype macros are a bloody mess!
+
+ctype.h
+...
+...
+#define __isctype(c, type) \
+  ((__UCLIBC_CTYPE_B)[(int) (c)] & (__ctype_mask_t) type)
+
+#define __isascii(c)    (((c) & ~0x7f) == 0)    /* If C is a 7 bit value.  */
+#define __toascii(c)    ((c) & 0x7f)            /* Mask off high bits.  */
+#define __isdigit_char(C)    (((unsigned char)((C) - '0')) <= 9)
+#define __isdigit_int(C)     (((unsigned int)((C) - '0')) <= 9)
+
+# define isalnum(c)     __isctype((c), _ISalnum)
+# define isalpha(c)     __isctype((c), _ISalpha)
+
+# if __GNUC__ >= 2 && defined __OPTIMIZE__ && !defined __cplusplus
+#  define tolower(c)    __tobody (c, tolower, __UCLIBC_CTYPE_TOLOWER, (c))
+#  define toupper(c)    __tobody (c, toupper, __UCLIBC_CTYPE_TOUPPER, (c))
+# endif /* Optimizing gcc */
+
+# if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
+#  define isascii(c)    __isascii (c)
+#  define toascii(c)    __toascii (c)
+#  define _tolower(c)   ((int) (__UCLIBC_CTYPE_TOLOWER)[(int) (c)])
+#  define _toupper(c)   ((int) (__UCLIBC_CTYPE_TOUPPER)[(int) (c)])
+# endif
+...
+...
+
+bits/uClibc_ctype.h
+...
+...
+#define __tolower(c)            __body(tolower,c)
+#define __toupper(c)            __body(toupper,c)
+
+#define _toupper(c) ((c) ^ 0x20)
+#define _tolower(c) ((c) | 0x20)
+...
+...
+
+WTF?! We have (at least) TWO DIFFERENT _tolower's?

@@ -40,10 +40,15 @@ __USE_EXTERN_INLINES
     out-of-line version of every inlined function in case user program
     calls it instead of using an inline.
 _EXTERN_INLINE
-    Define it to replace "extern __inline" string in inline definitions
+    If not defined by user prior to #include, will be defined to
+    "extern inline" or equivalent. IOW, if user defines it prior
+    #include, it replaces "extern __inline" string in inline definitions
     (those enabled by __USE_EXTERN_INLINES) with something else.
     A few uclibc .c files use it to create non-inlined functions
     by defining it to "".
+__extern_inline
+    Defined to "extern inline", modulo gcc/C standard deviations.
+    Can't be used by user to play tricks as with _EXTERN_INLINE.
 
 _LIBC
 UCLIBC_INTERNAL
