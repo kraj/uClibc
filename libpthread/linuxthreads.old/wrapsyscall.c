@@ -56,7 +56,7 @@ name param_list									\
 }
 
 #define CANCELABLE_SYSCALL_VA(res_type, name, param_list, params, last_arg)	\
-res_type ##name param_list;							\
+res_type name param_list;							\
 res_type									\
 __attribute__ ((weak))								\
 name param_list									\
