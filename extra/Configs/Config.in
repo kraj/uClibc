@@ -736,8 +736,13 @@ config UCLIBC_LINUX_SPECIFIC
 	bool "Linux specific functions"
 	default y
 	help
-	  fstatfs(), inotify_*(), ioperm(), iopl(), madvise(), modify_ldt(),
-	  personality(), ppoll(), setresuid(), signalfd()
+	  capget(), fstatfs(), inotify_*(), ioperm(), iopl(),
+	  madvise(), modify_ldt(), personality(), prctl()/arch_prctl(),
+	  ppoll(), readahead(), reboot(), remap_file_pages(),
+	  sched_getaffinity(), sched_setaffinity(), sendfile(),
+	  setfsgid(), setfsuid(), setresuid(),
+	  splice(), vmsplice(), tee(), signalfd(), swapoff(), swapon(),
+	  sync_file_range(), sysctl(), sysinfo(), vhangup()
 
 config UCLIBC_HAS_GNU_ERROR
 	bool "Support GNU extensions for error-reporting"
