@@ -67,8 +67,8 @@ inet_ntop4(const u_char *src, char *dst, size_t size)
 
 #if 0	/* since src is unsigned char, it will never be > 255 ... */
 		if (src[octet] > 255) {
-			__set_errno (ENOSPC);
-			return (NULL);
+			__set_errno(ENOSPC);
+			return NULL;
 		}
 #endif
 		tmp[i++] = '0' + src[octet] / 100;
@@ -83,9 +83,9 @@ inet_ntop4(const u_char *src, char *dst, size_t size)
 	}
 	tmp[i - 1] = '\0';
 
-	if (strlen (tmp) > size) {
-		__set_errno (ENOSPC);
-		return (NULL);
+	if (strlen(tmp) > size) {
+		__set_errno(ENOSPC);
+		return NULL;
 	}
 
 	return strcpy(dst, tmp);
@@ -168,7 +168,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 		if (i == 6 && best.base == 0 &&
 		    (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
 			if (!inet_ntop4(src+12, tp, sizeof tmp - (tp - tmp)))
-				return (NULL);
+				return NULL;
 			tp += strlen(tp);
 			break;
 		}
@@ -183,8 +183,8 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 	 * Check for overflow, copy, and we're done.
 	 */
 	if ((size_t)(tp - tmp) > size) {
-		__set_errno (ENOSPC);
-		return (NULL);
+		__set_errno(ENOSPC);
+		return NULL;
 	}
 	return strcpy(dst, tmp);
 }
@@ -216,25 +216,25 @@ inet_pton4(const char *src, u_char *dst)
 			u_int new = *tp * 10 + (ch - '0');
 
 			if (new > 255)
-				return (0);
+				return 0;
 			*tp = new;
 			if (! saw_digit) {
 				if (++octets > 4)
-					return (0);
+					return 0;
 				saw_digit = 1;
 			}
 		} else if (ch == '.' && saw_digit) {
 			if (octets == 4)
-				return (0);
+				return 0;
 			*++tp = 0;
 			saw_digit = 0;
 		} else
-			return (0);
+			return 0;
 	}
 	if (octets < 4)
-		return (0);
+		return 0;
 	memcpy(dst, tmp, 4);
-	return (1);
+	return 1;
 }
 
 /* int
@@ -253,13 +253,6 @@ inet_pton4(const char *src, u_char *dst)
 
 #ifdef __UCLIBC_HAS_IPV6__
 
-/* We cannot use the macro version of tolower() or very bad
- * things happen when '*src++' gets evaluated multiple times.
- * So undef it here so we get the function version of tolower
- * instead.
- */
-#undef tolower
-
 static int
 inet_pton6(const char *src, u_char *dst)
 {
@@ -276,19 +269,20 @@ inet_pton6(const char *src, u_char *dst)
 	/* Leading :: requires some special handling. */
 	if (*src == ':')
 		if (*++src != ':')
-			return (0);
+			return 0;
 	curtok = src;
 	saw_xdigit = 0;
 	val = 0;
-	while ((ch = tolower (*src++)) != '\0') {
+	while ((ch = *src++) != '\0') {
 		const char *pch;
 
-		pch = strchr(xdigits, ch);
+		/* | 0x20 is cheap tolower(), valid for letters/numbers only */
+		pch = strchr(xdigits, (ch | 0x20));
 		if (pch != NULL) {
 			val <<= 4;
 			val |= (pch - xdigits);
 			if (val > 0xffff)
-				return (0);
+				return 0;
 			saw_xdigit = 1;
 			continue;
 		}
@@ -296,16 +290,16 @@ inet_pton6(const char *src, u_char *dst)
 			curtok = src;
 			if (!saw_xdigit) {
 				if (colonp)
-					return (0);
+					return 0;
 				colonp = tp;
 				continue;
-			} else if (*src == '\0') {
-				return (0);
 			}
+			if (*src == '\0')
+				return 0;
 			if (tp + 2 > endp)
-				return (0);
-			*tp++ = (u_char) (val >> 8) & 0xff;
-			*tp++ = (u_char) val & 0xff;
+				return 0;
+			*tp++ = (u_char) (val >> 8);
+			*tp++ = (u_char) val;
 			saw_xdigit = 0;
 			val = 0;
 			continue;
@@ -316,13 +310,13 @@ inet_pton6(const char *src, u_char *dst)
 			saw_xdigit = 0;
 			break;	/* '\0' was seen by inet_pton4(). */
 		}
-		return (0);
+		return 0;
 	}
 	if (saw_xdigit) {
 		if (tp + 2 > endp)
-			return (0);
-		*tp++ = (u_char) (val >> 8) & 0xff;
-		*tp++ = (u_char) val & 0xff;
+			return 0;
+		*tp++ = (u_char) (val >> 8);
+		*tp++ = (u_char) val;
 	}
 	if (colonp != NULL) {
 		/*
@@ -333,7 +327,7 @@ inet_pton6(const char *src, u_char *dst)
 		int i;
 
 		if (tp == endp)
-			return (0);
+			return 0;
 		for (i = 1; i <= n; i++) {
 			endp[- i] = colonp[n - i];
 			colonp[n - i] = 0;
@@ -341,9 +335,9 @@ inet_pton6(const char *src, u_char *dst)
 		tp = endp;
 	}
 	if (tp != endp)
-		return (0);
+		return 0;
 	memcpy(dst, tmp, 16);
-	return (1);
+	return 1;
 }
 
 #endif /* __UCLIBC_HAS_IPV6__ */
@@ -364,14 +358,14 @@ inet_ntop(int af, const void *src, char *dst, socklen_t size)
 {
 	switch (af) {
 	case AF_INET:
-		return (inet_ntop4(src, dst, size));
+		return inet_ntop4(src, dst, size);
 #ifdef __UCLIBC_HAS_IPV6__
 	case AF_INET6:
-		return (inet_ntop6(src, dst, size));
+		return inet_ntop6(src, dst, size);
 #endif
 	default:
-		__set_errno (EAFNOSUPPORT);
-		return (NULL);
+		__set_errno(EAFNOSUPPORT);
+		return NULL;
 	}
 	/* NOTREACHED */
 }
@@ -395,14 +389,14 @@ inet_pton(int af, const char *src, void *dst)
 {
 	switch (af) {
 	case AF_INET:
-		return (inet_pton4(src, dst));
+		return inet_pton4(src, dst);
 #ifdef __UCLIBC_HAS_IPV6__
 	case AF_INET6:
-		return (inet_pton6(src, dst));
+		return inet_pton6(src, dst);
 #endif
 	default:
-		__set_errno (EAFNOSUPPORT);
-		return (-1);
+		__set_errno(EAFNOSUPPORT);
+		return -1;
 	}
 	/* NOTREACHED */
 }
