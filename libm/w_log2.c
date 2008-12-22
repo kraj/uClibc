@@ -11,4 +11,3 @@ double log2 (double d)
 {
 	return __ieee754_log2 (d);
 }
-libm_hidden_def(log2)

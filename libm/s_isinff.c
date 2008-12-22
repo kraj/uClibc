@@ -11,7 +11,6 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(__isinff)
 int
 __isinff (float x)
 {
@@ -23,4 +22,3 @@ __isinff (float x)
 	return ~(t >> 31) & (ix >> 30);
 }
 libm_hidden_def(__isinff)
-strong_alias (__isinff, isinff)

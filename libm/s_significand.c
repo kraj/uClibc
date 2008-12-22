@@ -33,4 +33,3 @@ static char rcsid[] = "$NetBSD: s_significand.c,v 1.6 1995/05/10 20:48:11 jtc Ex
 {
 	return __ieee754_scalb(x,(double) -ilogb(x));
 }
-libm_hidden_def(significand)

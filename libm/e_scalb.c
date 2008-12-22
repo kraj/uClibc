@@ -44,7 +44,7 @@ static char rcsid[] = "$NetBSD: e_scalb.c,v 1.6 1995/05/10 20:46:09 jtc Exp $";
 	return scalbn(x,fn);
 #else
 	if (isnan(x)||isnan(fn)) return x*fn;
-	if (!finite(fn)) {
+	if (!isfinite(fn)) {
 	    if(fn>0.0) return x*fn;
 	    else       return x/(-fn);
 	}

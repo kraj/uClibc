@@ -18,12 +18,7 @@
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	int __isnan(double x)
-#else
-	int __isnan(x)
-	double x;
-#endif
+int __isnan(double x)
 {
 	int32_t hx,lx;
 	EXTRACT_WORDS(hx,lx,x);
@@ -33,5 +28,3 @@
 	return (int)(((u_int32_t)hx)>>31);
 }
 libm_hidden_def(__isnan)
-weak_alias(__isnan,isnan)
-libm_hidden_weak(isnan)

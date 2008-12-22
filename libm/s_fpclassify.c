@@ -40,4 +40,4 @@ __fpclassify (double x)
 
   return retval;
 }
-libm_hidden_def (__fpclassify)
+libm_hidden_def(__fpclassify)

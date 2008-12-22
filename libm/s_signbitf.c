@@ -22,7 +22,6 @@
 
 #include "math_private.h"
 
-libm_hidden_proto(__signbitf)
 int
 __signbitf (float x)
 {

@@ -46,16 +46,15 @@ static char rcsid[] = "$NetBSD: w_scalb.c,v 1.6 1995/05/10 20:49:48 jtc Exp $";
 	double z;
 	z = __ieee754_scalb(x,fn);
 	if(_LIB_VERSION == _IEEE_) return z;
-	if(!(finite(z)||isnan(z))&&finite(x)) {
+	if(!(isfinite(z)||isnan(z))&&isfinite(x)) {
 	    return __kernel_standard(x,(double)fn,32); /* scalb overflow */
 	}
 	if(z==0.0&&z!=x) {
 	    return __kernel_standard(x,(double)fn,33); /* scalb underflow */
 	}
 #ifndef _SCALB_INT
-	if(!finite(fn)) errno = ERANGE;
+	if(!isfinite(fn)) errno = ERANGE;
 #endif
 	return z;
 #endif
 }
-libm_hidden_def(scalb)

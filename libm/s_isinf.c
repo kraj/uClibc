@@ -22,5 +22,3 @@ __isinf (double x)
 	return ~(lx >> 31) & (hx >> 30);
 }
 libm_hidden_def(__isinf)
-weak_alias (__isinf, isinf)
-libm_hidden_weak(isinf)

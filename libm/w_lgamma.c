@@ -37,7 +37,7 @@ libm_hidden_proto(signgam)
         double y;
         y = __ieee754_lgamma_r(x,&signgam);
         if(_LIB_VERSION == _IEEE_) return y;
-        if(!finite(y)&&finite(x)) {
+        if(!isfinite(y)&&isfinite(x)) {
             if(floor(x)==x&&x<=0.0)
                 return __kernel_standard(x,x,15); /* lgamma pole */
             else

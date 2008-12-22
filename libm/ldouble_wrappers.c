@@ -11,6 +11,8 @@
  */
 
 #include "math.h"
+#include <complex.h>
+
 
 /* Implement the following, as defined by SuSv3 */
 #if 0
@@ -21,6 +23,7 @@ long double asinl(long double);
 long double atan2l(long double, long double);
 long double atanhl(long double);
 long double atanl(long double);
+long double cargl(long double complex);
 long double cbrtl(long double);
 long double ceill(long double);
 long double copysignl(long double, long double);
@@ -124,6 +127,14 @@ long double atanhl (long double x)
 long double atanl (long double x)
 {
 	return (long double) atan( (double)x );
+}
+#endif
+
+
+#ifdef L_cargl
+long double cargl (long double complex x)
+{
+	return (long double) carg( (double complex)x );
 }
 #endif
 
@@ -520,4 +531,49 @@ long double truncl (long double x)
 {
 	return (long double) trunc( (double)x );
 }
+#endif
+
+
+#ifdef __DO_C99_MATH__
+
+#ifdef L_fpclassifyl
+int __fpclassifyl (long double x)
+{
+	return __fpclassify ( (double) x );
+}
+libm_hidden_def(__fpclassifyl)
+#endif
+
+#ifdef L_finitel
+int __finitel (long double x)
+{
+	return __finite ( (double)x );
+}
+libm_hidden_def(__finitel)
+#endif
+
+#ifdef L_signbitl
+int __signbitl (long double x)
+{
+	return __signbitl ( (double)x );
+}
+libm_hidden_def(__signbitl)
+#endif
+
+#ifdef L_isnanl
+int __isnanl (long double x)
+{
+	return __isnan ( (double)x );
+}
+libm_hidden_def(__isnanl)
+#endif
+
+#ifdef L_isinfl
+int __isinfl (long double x)
+{
+	return __isinf ( (double)x );
+}
+libm_hidden_def(__isinfl)
+#endif
+
 #endif
