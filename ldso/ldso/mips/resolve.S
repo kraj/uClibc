@@ -112,3 +112,54 @@ _dl_runtime_resolve:
 .end	_dl_runtime_resolve
 .previous
 
+/* Assembler veneer called from the PLT header code when using the
+   non-PIC ABI.
+
+   Code in each PLT entry puts the caller's return address into t7 ($15),
+   the PLT entry index into t8 ($24), the address of _dl_runtime_pltresolve
+   into t9 ($25) and the address of .got.plt into gp ($28).  __dl_runtime_pltresolve
+   needs a0 ($4) to hold the link map and a1 ($5) to hold the index into
+   .rel.plt (== PLT entry index * 4).  */
+
+	.text
+	.align	2
+	.globl	_dl_runtime_pltresolve
+	.type	_dl_runtime_pltresolve,@function
+	.ent	_dl_runtime_pltresolve
+_dl_runtime_pltresolve:
+	.frame	$29, 40, $31
+	.set noreorder
+	# Save arguments and sp value in stack.
+	subu    $29, 40
+	lw      $10, 4($28)
+	# Modify t9 ($25) so as to point .cpload instruction.
+	addiu   $25, 12
+	# Compute GP.
+	.cpload $25
+	.set reorder
+
+	/* Store function arguments from registers to stack */
+	sw	$15, 36($29)
+	sw	$4, 16($29)
+	sw	$5, 20($29)
+	sw	$6, 24($29)
+	sw	$7, 28($29)
+
+	/* Setup functions args and call __dl_runtime_pltresolve.  */
+	move	$4, $10
+	sll     $5, $24, 3
+	jal	__dl_runtime_pltresolve
+
+	/* Restore function arguments from stack to registers */
+	lw	$31, 36($29)
+	lw	$4, 16($29)
+	lw	$5, 20($29)
+	lw	$6, 24($29)
+	lw	$7, 28($29)
+
+	/* Do a tail call to the original function */
+	addiu	$29, 40
+	move	$25, $2
+	jr	$25
+	.end	_dl_runtime_pltresolve
+	.previous
