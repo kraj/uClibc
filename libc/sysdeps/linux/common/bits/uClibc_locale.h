@@ -301,8 +301,6 @@ typedef struct __uclibc_locale_struct {
 	const char *era_d_t_fmt;
 	const char *era_t_fmt;
 
-	/* collate is at the end */
-
 	/* messages */
 	const char *yesexpr;
 	const char *noexpr;
