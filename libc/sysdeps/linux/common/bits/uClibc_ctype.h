@@ -189,21 +189,6 @@ __END_DECLS
 /**********************************************************************/
 #ifdef __GNUC__
 
-#define __isbody_C_macro(f,args)  __C_ ## f args
-
-#define __isbody(f,c) \
-	(__extension__ ({ \
-		int __res; \
-		if (sizeof(c) > sizeof(char)) { \
-			int __c = (c); \
-			__res = __isbody_C_macro(f,(__c)); \
-		} else { \
-			unsigned char __c = (c); \
-			__res = __isbody_C_macro(f,(__c)); \
-		} \
-		__res; \
-	}))
-
 #define __body_C_macro(f,args)  __C_ ## f args
 
 #define __body(f,c) \
