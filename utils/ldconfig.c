@@ -31,7 +31,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
-#include <getopt.h>
 #include <dirent.h>
 #include <unistd.h>
 #include <link.h>

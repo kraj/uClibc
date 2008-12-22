@@ -1,3 +1,4 @@
+/* vi: set sw=4 ts=4: */
 /*
  *
  * Copyright (c) 2008  STMicroelectronics Ltd
@@ -14,7 +15,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <langinfo.h>
+#include <unistd.h>
+#ifdef __UCLIBC_HAS_GETOPT_LONG__
 #include <getopt.h>
+#endif
 
 typedef struct {
 	unsigned char idx_name;
@@ -39,7 +43,7 @@ typedef struct {
 #define LOCALE_AT_MODIFIERS	(__locale_mmap->locale_at_modifiers)
 #define CATEGORY_NAMES			(__locale_mmap->lc_names)
 
-#define GET_CODESET_NAME(N)  (CODESET_LIST + *(CODESET_LIST + N - 3))
+#define GET_CODESET_NAME(N)  (const char *)(CODESET_LIST + *(CODESET_LIST + N - 3))
 #define GET_LOCALE_ENTRY(R)  (locale_entry *)(LOCALES + (__LOCALE_DATA_WIDTH_LOCALES * R))
 #define GET_CATEGORY_NAME(X) (CATEGORY_NAMES + *(CATEGORY_NAMES + X))
 #define GET_LOCALE_NAME(I)   (const char *)(LOCALE_NAMES + 5 * (I - 1))
@@ -129,28 +133,47 @@ static void usage(const char *name)
 	const char *s;
 
 	s = basename(name);
+#ifdef __UCLIBC_HAS_GETOPT_LONG__
 	fprintf(stderr,
-			"Usage: %s [-ck] [--category-name] [--keyword-name] [--help] NAME\n"
-			"or:  %s [OPTION...] [-a|-m] [--all-locales] [--charmaps] \n", s,
-			s);
+			"Usage: %s [-a | -m] [FORMAT] name...\n\n"
+			"\t-a, --all-locales\tWrite names of all available locales\n"
+			"\t-m, --charmaps\tWrite names of available charmaps\n"
+			"\nFORMAT:\n"
+			"\t-c, --category-name\tWrite names of selected categories\n"
+			"\t-k, --keyword-name\tWrite names of selected keywords\n"
+			, s);
+#else
+	fprintf(stderr,
+			"Usage: %s [-a | -m] [FORMAT] name...\n\n"
+			"\t-a\tWrite names of all available locales\n"
+			"\t-m\tWrite names of available charmaps\n"
+			"\nFORMAT:\n"
+			"\t-c\tWrite names of selected categories\n"
+			"\t-k\tWrite names of selected keywords\n"
+			, s);
+#endif
 }
 
 static int argp_parse(int argc, char *argv[]);
 static int argp_parse(int argc, char *argv[])
 {
+	int c;
+	char *progname;
+#ifdef __UCLIBC_HAS_GETOPT_LONG__
 	static const struct option long_options[] = {
 		{"all-locales", no_argument, NULL, 'a'},
 		{"charmaps", no_argument, NULL, 'm'},
 		{"category-name", no_argument, NULL, 'c'},
 		{"keyword-name", no_argument, NULL, 'k'},
 		{"help", no_argument, NULL, 'h'},
-		{NULL, 0, NULL, 0}
-	};
-	int c;
-	char *progname;
-
+		{NULL, 0, NULL, 0}};
+#endif
 	progname = *argv;
+#ifdef __UCLIBC_HAS_GETOPT_LONG__
 	while ((c = getopt_long(argc, argv, "amckh", long_options, NULL)) >= 0)
+#else
+	while ((c = getopt(argc, argv, "amckh")) >= 0)
+#endif
 		switch (c) {
 		case 'a':
 			do_all = 1;
@@ -215,8 +238,10 @@ static void find_locale_string(locale_entry * loc_rec, char *loc)
 
 		if (loc[2] == '_') {
 			sprintf(loc, "%5.5s%c%s\0", loc, (dotcs != 0) ? '.' : ' ',
-					(cs ==
-					 1) ? ascii : ((cs == 2) ? utf8 : GET_CODESET_NAME(cs)));
+					(cs == 1) ? ascii
+							: ((cs == 2) ?
+										utf8
+: GET_CODESET_NAME(cs)));
 		} else {
 			at = loc[2];
 			loc[2] = '_';
