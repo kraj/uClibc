@@ -30,6 +30,7 @@
 #include "ldso.h"
 
 extern int _dl_runtime_resolve(void);
+extern int _dl_runtime_pltresolve(void);
 
 #define OFFSET_GP_GOT 0x7ff0
 
@@ -83,6 +84,61 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	return new_addr;
 }
 
+unsigned long
+__dl_runtime_pltresolve(struct elf_resolve *tpnt, int reloc_entry)
+{
+	int reloc_type;
+	ELF_RELOC *this_reloc;
+	char *strtab;
+	Elf32_Sym *symtab;
+	int symtab_index;
+	char *rel_addr;
+	char *new_addr;
+	char **got_addr;
+	unsigned long instr_addr;
+	char *symname;
+
+	rel_addr = (char *)tpnt->dynamic_info[DT_JMPREL];
+	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
+	reloc_type = ELF32_R_TYPE(this_reloc->r_info);
+	symtab_index = ELF32_R_SYM(this_reloc->r_info);
+
+	symtab = (Elf32_Sym *)(intptr_t)tpnt->dynamic_info[DT_SYMTAB];
+	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
+	symname = strtab + symtab[symtab_index].st_name;
+
+	/* Address of the jump instruction to fix up. */
+	instr_addr = ((unsigned long)this_reloc->r_offset +
+		      (unsigned long)tpnt->loadaddr);
+	got_addr = (char **)instr_addr;
+
+	/* Get the address of the GOT entry. */
+	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
+	if (unlikely(!new_addr)) {
+		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'.\n", _dl_progname, symname, tpnt->libname);
+		_dl_exit(1);
+	}
+
+#if defined (__SUPPORT_LD_DEBUG__)
+	if ((unsigned long)got_addr < 0x40000000) {
+		if (_dl_debug_bindings) {
+			_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
+			if (_dl_debug_detail)
+				_dl_dprintf(_dl_debug_file,
+				            "\n\tpatched: %x ==> %x @ %x",
+				            *got_addr, new_addr, got_addr);
+		}
+	}
+	if (!_dl_debug_nofixups) {
+		*got_addr = new_addr;
+	}
+#else
+	*got_addr = new_addr;
+#endif
+
+	return (unsigned long)new_addr;
+}
+
 void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size)
 {
@@ -115,6 +171,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 	got = (unsigned long *) tpnt->dynamic_info[DT_PLTGOT];
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
+		char *symname = NULL;
 		reloc_addr = (unsigned long *) (tpnt->loadaddr +
 			(unsigned long) rpnt->r_offset);
 		reloc_type = ELF_R_TYPE(rpnt->r_info);
@@ -127,6 +184,16 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 		if (reloc_addr)
 			old_val = *reloc_addr;
 #endif
+
+		if (reloc_type == R_MIPS_JUMP_SLOT || reloc_type == R_MIPS_COPY) {
+			symname = strtab + symtab[symtab_index].st_name;
+			symbol_addr = (unsigned long)_dl_find_hash(symname,
+								   tpnt->symbol_scope,
+								   tpnt,
+								   elf_machine_type_class(reloc_type));
+			if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
+				return 1;
+		}
 
 		switch (reloc_type) {
 #if _MIPS_SIM == _MIPS_SIM_ABI64
@@ -146,6 +213,24 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 			}
 			else {
 				*reloc_addr += (unsigned long) tpnt->loadaddr;
+			}
+			break;
+		case R_MIPS_JUMP_SLOT:
+			*reloc_addr = symbol_addr;
+			break;
+		case R_MIPS_COPY:
+			if (symbol_addr) {
+#if defined (__SUPPORT_LD_DEBUG__)
+				if (_dl_debug_move)
+					_dl_dprintf(_dl_debug_file,
+						    "\n%s move %d bytes from %x to %x",
+						    symname, symtab[symtab_index].st_size,
+						    symbol_addr, reloc_addr);
+#endif
+
+				_dl_memcpy((char *)reloc_addr,
+					   (char *)symbol_addr,
+					   symtab[symtab_index].st_size);
 			}
 			break;
 		case R_MIPS_NONE:

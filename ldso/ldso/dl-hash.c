@@ -160,6 +160,11 @@ check_match (const ElfW(Sym) *sym, char *strtab, const char* undef_name, int typ
 		/* undefined symbol itself */
 		return NULL;
 
+#ifdef __mips__
+    if (sym->st_shndx == SHN_UNDEF && !(sym->st_other & STO_MIPS_PLT))
+        return NULL;
+#endif
+
 	if (sym->st_value == 0)
 		/* No value */
 		return NULL;
