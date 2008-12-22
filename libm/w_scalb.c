@@ -1,4 +1,3 @@
-/* @(#)w_scalb.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_scalb.c,v 1.6 1995/05/10 20:49:48 jtc Exp $";
-#endif
 
 /*
  * wrapper scalb(double x, double fn) is provide for
@@ -25,19 +20,10 @@ static char rcsid[] = "$NetBSD: w_scalb.c,v 1.6 1995/05/10 20:49:48 jtc Exp $";
 
 #include <errno.h>
 
-#ifdef __STDC__
 #ifdef _SCALB_INT
-	double scalb(double x, int fn)		/* wrapper scalb */
+double scalb(double x, int fn)		/* wrapper scalb */
 #else
-	double scalb(double x, double fn)	/* wrapper scalb */
-#endif
-#else
-	double scalb(x,fn)			/* wrapper scalb */
-#ifdef _SCALB_INT
-	double x; int fn;
-#else
-	double x,fn;
-#endif
+double scalb(double x, double fn)	/* wrapper scalb */
 #endif
 {
 #ifdef _IEEE_LIBM

@@ -1,4 +1,3 @@
-/* @(#)s_logb.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_logb.c,v 1.8 1995/05/10 20:47:50 jtc Exp $";
-#endif
-
 /*
  * double logb(x)
  * IEEE 754 logb. Included to pass IEEE test suite. Not recommend.
@@ -23,13 +18,7 @@ static char rcsid[] = "$NetBSD: s_logb.c,v 1.8 1995/05/10 20:47:50 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-
-#ifdef __STDC__
-	double logb(double x)
-#else
-	double logb(x)
-	double x;
-#endif
+double logb(double x)
 {
 	int32_t lx,ix;
 	EXTRACT_WORDS(ix,lx,x);

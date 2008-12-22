@@ -1,4 +1,3 @@
-/* @(#)s_nextafter.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_nextafter.c,v 1.8 1995/05/10 20:47:58 jtc Exp $";
-#endif
-
 /* IEEE functions
  *	nextafter(x,y)
  *	return the next machine floating-point number of x in the
@@ -24,12 +19,7 @@ static char rcsid[] = "$NetBSD: s_nextafter.c,v 1.8 1995/05/10 20:47:58 jtc Exp 
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double nextafter(double x, double y)
-#else
-	double nextafter(x,y)
-	double x,y;
-#endif
+double nextafter(double x, double y)
 {
 	int32_t hx,hy,ix,iy;
 	u_int32_t lx,ly;

@@ -1,4 +1,3 @@
-/* @(#)w_hypot.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_hypot.c,v 1.6 1995/05/10 20:49:07 jtc Exp $";
-#endif
-
 /*
  * wrapper hypot(x,y)
  */
@@ -21,12 +16,7 @@ static char rcsid[] = "$NetBSD: w_hypot.c,v 1.6 1995/05/10 20:49:07 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double hypot(double x, double y)/* wrapper hypot */
-#else
-	double hypot(x,y)		/* wrapper hypot */
-	double x,y;
-#endif
+double hypot(double x, double y)/* wrapper hypot */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_hypot(x,y);

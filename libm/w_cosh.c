@@ -1,4 +1,3 @@
-/* @(#)w_cosh.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_cosh.c,v 1.6 1995/05/10 20:48:47 jtc Exp $";
-#endif
-
 /*
  * wrapper cosh(x)
  */
@@ -21,12 +16,7 @@ static char rcsid[] = "$NetBSD: w_cosh.c,v 1.6 1995/05/10 20:48:47 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double cosh(double x)		/* wrapper cosh */
-#else
-	double cosh(x)			/* wrapper cosh */
-	double x;
-#endif
+double cosh(double x)		/* wrapper cosh */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_cosh(x);

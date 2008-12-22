@@ -1,6 +1,5 @@
 
 
-/* @(#)w_pow.c 5.2 93/10/01 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -19,12 +18,7 @@
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double pow(double x, double y)	/* wrapper pow */
-#else
-	double pow(x,y)			/* wrapper pow */
-	double x,y;
-#endif
+double pow(double x, double y)	/* wrapper pow */
 {
 #ifdef _IEEE_LIBM
 	return  __ieee754_pow(x,y);

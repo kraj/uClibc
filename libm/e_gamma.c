@@ -1,5 +1,4 @@
 
-/* @(#)e_gamma.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -22,13 +21,8 @@
 #include "math_private.h"
 
 libm_hidden_proto(signgam)
-#ifdef __STDC__
-	/* __private_extern__ */
-	double attribute_hidden __ieee754_gamma(double x)
-#else
-	double attribute_hidden __ieee754_gamma(x)
-	double x;
-#endif
+/* __private_extern__ */
+double attribute_hidden __ieee754_gamma(double x)
 {
 	return __ieee754_gamma_r(x,&signgam);
 }

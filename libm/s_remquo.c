@@ -7,13 +7,7 @@
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double remquo(double x, double y, int *quo)	/* wrapper remquo */
-#else
-	double remquo(x,y,quo)			/* wrapper remquo */
-	double x,y;
-        int *quo;
-#endif
+double remquo(double x, double y, int *quo)	/* wrapper remquo */
 {
         int signx, signy, signres;
         int mswx;

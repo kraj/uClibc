@@ -1,4 +1,3 @@
-/* @(#)k_standard.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,16 +9,11 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: k_standard.c,v 1.6 1995/05/10 20:46:35 jtc Exp $";
-#endif
-
 #include <math.h>
 #include "math_private.h"
 #include <errno.h>
 
 #ifndef _IEEE_LIBM
-
 
 #ifndef _USE_WRITE
 #include <stdio.h>			/* fputs(), stderr */
@@ -30,11 +24,7 @@ static char rcsid[] = "$NetBSD: k_standard.c,v 1.6 1995/05/10 20:46:35 jtc Exp $
 #undef fflush
 #endif	/* !defined(_USE_WRITE) */
 
-#ifdef __STDC__
 static const double zero = 0.0;	/* used as const */
-#else
-static double zero = 0.0;	/* used as const */
-#endif
 
 /*
  * Standard conformance (non-IEEE) on exception cases.
@@ -83,13 +73,7 @@ static double zero = 0.0;	/* used as const */
  *	42-- pow(NaN,0.0)
  */
 
-
-#ifdef __STDC__
-	double __kernel_standard(double x, double y, int type)
-#else
-	double __kernel_standard(x,y,type)
-	double x,y; int type;
-#endif
+double __kernel_standard(double x, double y, int type)
 {
 	struct exception exc;
 #ifndef HUGE_VAL	/* this is the only routine that uses HUGE_VAL */

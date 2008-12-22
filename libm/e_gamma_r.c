@@ -1,5 +1,3 @@
-
-/* @(#)e_gamma_r.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -21,13 +19,8 @@
 
 #include "math_private.h"
 
-#ifdef __STDC__
-	/* __private_extern__ */
-	double attribute_hidden __ieee754_gamma_r(double x, int *signgamp)
-#else
-	double attribute_hidden __ieee754_gamma_r(x,signgamp)
-	double x; int *signgamp;
-#endif
+/* __private_extern__ */
+double attribute_hidden __ieee754_gamma_r(double x, int *signgamp)
 {
 	return __ieee754_lgamma_r(x,signgamp);
 }

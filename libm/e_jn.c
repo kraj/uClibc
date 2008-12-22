@@ -1,4 +1,3 @@
-/* @(#)e_jn.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: e_jn.c,v 1.9 1995/05/10 20:45:34 jtc Exp $";
-#endif
 
 /*
  * __ieee754_jn(n, x), __ieee754_yn(n, x)
@@ -43,28 +38,14 @@ static char rcsid[] = "$NetBSD: e_jn.c,v 1.9 1995/05/10 20:45:34 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-
-#ifdef __STDC__
 static const double
-#else
-static double
-#endif
 invsqrtpi=  5.64189583547756279280e-01, /* 0x3FE20DD7, 0x50429B6D */
 two   =  2.00000000000000000000e+00, /* 0x40000000, 0x00000000 */
 one   =  1.00000000000000000000e+00; /* 0x3FF00000, 0x00000000 */
 
-#ifdef __STDC__
 static const double zero  =  0.00000000000000000000e+00;
-#else
-static double zero  =  0.00000000000000000000e+00;
-#endif
 
-#ifdef __STDC__
-	double attribute_hidden __ieee754_jn(int n, double x)
-#else
-	double attribute_hidden __ieee754_jn(n,x)
-	int n; double x;
-#endif
+double attribute_hidden __ieee754_jn(int n, double x)
 {
 	int32_t i,hx,ix,lx, sgn;
 	double a, b, temp=0, di;
@@ -219,12 +200,7 @@ static double zero  =  0.00000000000000000000e+00;
 	if(sgn==1) return -b; else return b;
 }
 
-#ifdef __STDC__
-	double attribute_hidden __ieee754_yn(int n, double x)
-#else
-	double attribute_hidden __ieee754_yn(n,x)
-	int n; double x;
-#endif
+double attribute_hidden __ieee754_yn(int n, double x)
 {
 	int32_t i,hx,ix,lx;
 	int32_t sign;

@@ -1,4 +1,3 @@
-/* @(#)e_scalb.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: e_scalb.c,v 1.6 1995/05/10 20:46:09 jtc Exp $";
-#endif
-
 /*
  * __ieee754_scalb(x, fn) is provide for
  * passing various standard test suite. One
@@ -23,21 +18,10 @@ static char rcsid[] = "$NetBSD: e_scalb.c,v 1.6 1995/05/10 20:46:09 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-
 #ifdef _SCALB_INT
-#ifdef __STDC__
-	double attribute_hidden __ieee754_scalb(double x, int fn)
+double attribute_hidden __ieee754_scalb(double x, int fn)
 #else
-	double attribute_hidden __ieee754_scalb(x,fn)
-	double x; int fn;
-#endif
-#else
-#ifdef __STDC__
-	double attribute_hidden __ieee754_scalb(double x, double fn)
-#else
-	double attribute_hidden __ieee754_scalb(x,fn)
-	double x, fn;
-#endif
+double attribute_hidden __ieee754_scalb(double x, double fn)
 #endif
 {
 #ifdef _SCALB_INT

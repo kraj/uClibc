@@ -1,4 +1,3 @@
-/* @(#)e_pow.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: e_pow.c,v 1.9 1995/05/12 04:57:32 jtc Exp $";
-#endif
 
 /* __ieee754_pow(x,y) return x**y
  *
@@ -62,12 +57,7 @@ static char rcsid[] = "$NetBSD: e_pow.c,v 1.9 1995/05/12 04:57:32 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-
-#ifdef __STDC__
 static const double
-#else
-static double
-#endif
 bp[] = {1.0, 1.5,},
 dp_h[] = { 0.0, 5.84962487220764160156e-01,}, /* 0x3FE2B803, 0x40000000 */
 dp_l[] = { 0.0, 1.35003920212974897128e-08,}, /* 0x3E4CFDEB, 0x43CFD006 */
@@ -100,12 +90,7 @@ ivln2    =  1.44269504088896338700e+00, /* 0x3FF71547, 0x652B82FE =1/ln2 */
 ivln2_h  =  1.44269502162933349609e+00, /* 0x3FF71547, 0x60000000 =24b 1/ln2*/
 ivln2_l  =  1.92596299112661746887e-08; /* 0x3E54AE0B, 0xF85DDF44 =1/ln2 tail*/
 
-#ifdef __STDC__
-	double attribute_hidden __ieee754_pow(double x, double y)
-#else
-	double attribute_hidden __ieee754_pow(x,y)
-	double x, y;
-#endif
+double attribute_hidden __ieee754_pow(double x, double y)
 {
 	double z,ax,z_h,z_l,p_h,p_l;
 	double y1,t1,t2,r,s,t,u,v,w;

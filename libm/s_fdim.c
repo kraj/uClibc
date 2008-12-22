@@ -7,13 +7,7 @@
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double fdim(double x, double y)
-#else
-	double fdim(x,y)
-	double x;
-	double y;
-#endif
+double fdim(double x, double y)
 {
   int c = __fpclassify(x);
   if (c == FP_NAN || c == FP_INFINITE)

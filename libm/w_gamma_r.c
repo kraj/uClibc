@@ -1,4 +1,3 @@
-/* @(#)wr_gamma.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_gamma_r.c,v 1.7 1995/11/20 22:06:45 jtc Exp $";
-#endif
-
 /*
  * wrapper double gamma_r(double x, int *signgamp)
  */
@@ -21,15 +16,10 @@ static char rcsid[] = "$NetBSD: w_gamma_r.c,v 1.7 1995/11/20 22:06:45 jtc Exp $"
 #include "math.h"
 #include "math_private.h"
 
-
 double gamma_r(double x, int *signgamp);
 libm_hidden_proto(gamma_r)
-#ifdef __STDC__
-	double gamma_r(double x, int *signgamp) /* wrapper lgamma_r */
-#else
-	double gamma_r(x,signgamp)              /* wrapper lgamma_r */
-        double x; int *signgamp;
-#endif
+
+double gamma_r(double x, int *signgamp) /* wrapper lgamma_r */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_lgamma_r(x,signgamp);

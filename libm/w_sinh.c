@@ -1,4 +1,3 @@
-/* @(#)w_sinh.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_sinh.c,v 1.6 1995/05/10 20:49:51 jtc Exp $";
-#endif
-
 /*
  * wrapper sinh(x)
  */
@@ -21,12 +16,7 @@ static char rcsid[] = "$NetBSD: w_sinh.c,v 1.6 1995/05/10 20:49:51 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double sinh(double x)		/* wrapper sinh */
-#else
-	double sinh(x)			/* wrapper sinh */
-	double x;
-#endif
+double sinh(double x)		/* wrapper sinh */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_sinh(x);

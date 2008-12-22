@@ -1,4 +1,3 @@
-/* @(#)w_asin.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,25 +9,14 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_asin.c,v 1.6 1995/05/10 20:48:35 jtc Exp $";
-#endif
-
 /*
  * wrapper asin(x)
  */
 
-
 #include "math.h"
 #include "math_private.h"
 
-
-#ifdef __STDC__
-	double asin(double x)		/* wrapper asin */
-#else
-	double asin(x)			/* wrapper asin */
-	double x;
-#endif
+double asin(double x)		/* wrapper asin */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_asin(x);

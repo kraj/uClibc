@@ -1,4 +1,3 @@
-/* @(#)s_lib_ver.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_lib_version.c,v 1.6 1995/05/10 20:47:44 jtc Exp $";
-#endif
 
 /*
  * MACRO for standards

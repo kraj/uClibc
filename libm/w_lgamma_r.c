@@ -1,4 +1,3 @@
-/* @(#)wr_lgamma.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_lgamma_r.c,v 1.6 1995/05/10 20:49:27 jtc Exp $";
-#endif
-
 /*
  * wrapper double lgamma_r(double x, int *signgamp)
  */
@@ -21,12 +16,7 @@ static char rcsid[] = "$NetBSD: w_lgamma_r.c,v 1.6 1995/05/10 20:49:27 jtc Exp $
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double lgamma_r(double x, int *signgamp) /* wrapper lgamma_r */
-#else
-	double lgamma_r(x,signgamp)              /* wrapper lgamma_r */
-        double x; int *signgamp;
-#endif
+double lgamma_r(double x, int *signgamp) /* wrapper lgamma_r */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_lgamma_r(x,signgamp);

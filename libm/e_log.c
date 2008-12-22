@@ -1,4 +1,3 @@
-/* @(#)e_log.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: e_log.c,v 1.8 1995/05/10 20:45:49 jtc Exp $";
-#endif
 
 /* __ieee754_log(x)
  * Return the logrithm of x
@@ -68,11 +63,7 @@ static char rcsid[] = "$NetBSD: e_log.c,v 1.8 1995/05/10 20:45:49 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
 static const double
-#else
-static double
-#endif
 ln2_hi  =  6.93147180369123816490e-01,	/* 3fe62e42 fee00000 */
 ln2_lo  =  1.90821492927058770002e-10,	/* 3dea39ef 35793c76 */
 two54   =  1.80143985094819840000e+16,  /* 43500000 00000000 */
@@ -84,18 +75,9 @@ Lg5 = 1.818357216161805012e-01,  /* 3FC74664 96CB03DE */
 Lg6 = 1.531383769920937332e-01,  /* 3FC39A09 D078C69F */
 Lg7 = 1.479819860511658591e-01;  /* 3FC2F112 DF3E5244 */
 
-#ifdef __STDC__
 static const double zero   =  0.0;
-#else
-static double zero   =  0.0;
-#endif
 
-#ifdef __STDC__
-	double attribute_hidden __ieee754_log(double x)
-#else
-	double attribute_hidden __ieee754_log(x)
-	double x;
-#endif
+double attribute_hidden __ieee754_log(double x)
 {
 	double hfsq,f,s,z,R,w,t1,t2,dk;
 	int32_t k,hx,i,j;

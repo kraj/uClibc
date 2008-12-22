@@ -4,10 +4,11 @@
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
+
 #include <math.h>
 #include "math_private.h"
 
-double log2 (double d)
+double log2(double d)
 {
-	return __ieee754_log2 (d);
+	return __ieee754_log2(d);
 }
