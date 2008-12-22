@@ -26,9 +26,9 @@ static char rcsid[] = "$NetBSD: s_ldexp.c,v 1.6 1995/05/10 20:47:40 jtc Exp $";
 	double value; int exp;
 #endif
 {
-	if(!finite(value)||value==0.0) return value;
+	if(!isfinite(value)||value==0.0) return value;
 	value = scalbn(value,exp);
-	if(!finite(value)||value==0.0) errno = ERANGE;
+	if(!isfinite(value)||value==0.0) errno = ERANGE;
 	return value;
 }
 libm_hidden_def(ldexp)

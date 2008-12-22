@@ -20,11 +20,9 @@
 
 #include <math.h>
 
-libm_hidden_proto(__fma)
 double
-__fma (double x, double y, double z)
+fma (double x, double y, double z)
 {
   return (x * y) + z;
 }
-libm_hidden_def(__fma)
-strong_alias (__fma, fma)
+libm_hidden_def(fma)

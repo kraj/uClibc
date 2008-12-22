@@ -86,13 +86,13 @@ FL_MOBJ := \
 	scalblnf.o scalbnf.o sinf.o sinhf.o sqrtf.o tanf.o tanhf.o \
 	tgammaf.o truncf.o cargf.o llrintf.o
 
-LD_MOBJ := acoshl.o acosl.o asinhl.o asinl.o atan2l.o atanhl.o atanl.o cbrtl.o \
+LD_MOBJ := acoshl.o acosl.o asinhl.o asinl.o atan2l.o atanhl.o atanl.o cargl.o cbrtl.o \
 	ceill.o copysignl.o coshl.o cosl.o erfcl.o erfl.o exp2l.o expl.o \
-	expm1l.o fabsl.o fdiml.o floorl.o fmal.o fmaxl.o fminl.o fmodl.o \
-	frexpl.o gammal.o hypotl.o ilogbl.o ldexpl.o lgammal.o llrintl.o \
+	expm1l.o fabsl.o finitel.o fdiml.o floorl.o fmal.o fmaxl.o fminl.o fmodl.o fpclassifyl.o \
+	frexpl.o gammal.o hypotl.o ilogbl.o isinfl.o isnanl.o ldexpl.o lgammal.o llrintl.o \
 	llroundl.o log10l.o log1pl.o XXXlog2l.o logbl.o logl.o lrintl.o lroundl.o \
 	modfl.o nearbyintl.o nextafterl.o XXXnexttowardl.o powl.o remainderl.o \
-	remquol.o rintl.o roundl.o scalblnl.o scalbnl.o sinhl.o sinl.o sqrtl.o \
+	remquol.o rintl.o roundl.o scalblnl.o scalbnl.o signbitl.o sinhl.o sinl.o sqrtl.o \
 	tanhl.o tanl.o tgammal.o truncl.o
 else
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
@@ -139,21 +139,21 @@ libm_SRC := $(patsubst %.c,$(libm_DIR)/%.c,$(libm_CSRC))
 libm_OBJ := $(patsubst $(libm_DIR)/%.c,$(libm_OUT)/%.o,$(libm_SRC))
 
 ifeq ($(strip $(UCLIBC_HAS_LONG_DOUBLE_MATH)),y)
-libm_MSRC2 := $(libm_DIR)/$(LD_MSRC)
-libm_MOBJ2 := $(patsubst %.o,$(libm_OUT)/%.o,$(LD_MOBJ))
+libm_MSRC_LD := $(libm_DIR)/$(LD_MSRC)
+libm_MOBJ_LD := $(patsubst %.o,$(libm_OUT)/%.o,$(LD_MOBJ))
 endif
-libm_MSRC := $(libm_DIR)/$(FL_MSRC)
-libm_MOBJ := $(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
+libm_MSRC_FL := $(libm_DIR)/$(FL_MSRC)
+libm_MOBJ_FL := $(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
 
 
 ifneq ($(DOMULTI),n)
-CFLAGS-libm += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
+CFLAGS-libm += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ_FL))))
 ifeq ($(strip $(UCLIBC_HAS_LONG_DOUBLE_MATH)),y)
-CFLAGS-libm += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ2))))
+CFLAGS-libm += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ_LD))))
 endif
 endif
 
-libm_OBJS := $(libm_OBJ) $(libm_MOBJ) $(libm_MOBJ2)
+libm_OBJS := $(libm_OBJ) $(libm_MOBJ_FL) $(libm_MOBJ_LD)
 
 ifeq ($(DOPIC),y)
 libm-a-y += $(libm_OBJS:.o=.os)
@@ -182,7 +182,7 @@ $(libm_OUT)/libm_so.a: $(libm-so-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-$(libm_OUT)/libm.oS: $(libm_SRC) $(libm_MSRC) $(libm_MSRC2) $(libm_ARCH_SRC)
+$(libm_OUT)/libm.oS: $(libm_SRC) $(libm_MSRC_FL) $(libm_MSRC_LD) $(libm_ARCH_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
 
@@ -191,17 +191,24 @@ $(top_builddir)lib/libm.a: $(libm-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-$(libm_MOBJ): $(libm_MSRC)
+$(libm_MOBJ_FL): $(libm_MSRC_FL)
 	$(compile.m)
 
-$(libm_MOBJ2): $(libm_MSRC2)
+$(libm_MOBJ_LD): $(libm_MSRC_LD)
 	$(compile.m)
 
-$(libm_MOBJ:.o=.os): $(libm_MSRC)
+$(libm_MOBJ_FL:.o=.os): $(libm_MSRC_FL)
 	$(compile.m)
 
-$(libm_MOBJ2:.o=.os): $(libm_MSRC2)
+$(libm_MOBJ_LD:.o=.os): $(libm_MSRC_LD)
 	$(compile.m)
+
+# spare us from adding a gazillion dummy two-liner files
+$(libm_MOBJ_FL:.o=.i): $(libm_MSRC_FL)
+	$(compile.mi)
+
+$(libm_MOBJ_LD:.o=.i): $(libm_MSRC_LD)
+	$(compile.mi)
 
 libm_clean:
 	$(do_rm) $(addprefix $(libm_OUT)/,$(foreach e, o os oS a,$(foreach d, *. */*. */*/*.,$(d)$(e))))

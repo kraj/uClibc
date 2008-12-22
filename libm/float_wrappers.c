@@ -39,6 +39,7 @@ float       asinhf(float);
 float       atan2f(float, float);
 float       atanf(float);
 float       atanhf(float);
+float       cargf(float complex);
 float       cbrtf(float);
 float       ceilf(float);
 float       copysignf(float, float);
@@ -136,7 +137,7 @@ float atanhf (float x)
 #ifdef L_cargf
 float cargf (float complex x)
 {
-	return (float) carg( (double)x );
+	return (float) carg( (double complex)x );
 }
 #endif
 
@@ -533,5 +534,12 @@ float tgammaf (float x)
 float truncf (float x)
 {
 	return (float) trunc( (double)x );
+}
+#endif
+
+#ifdef L_fmaf
+float fmaf (float x, float y, float z)
+{
+	return (float) fma( (double)x, (double)y, (double)z );
 }
 #endif

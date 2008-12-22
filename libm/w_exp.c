@@ -42,7 +42,7 @@ u_threshold= -7.45133219101941108420e+02;  /* 0xc0874910, 0xD52D3051 */
 	double z;
 	z = __ieee754_exp(x);
 	if(_LIB_VERSION == _IEEE_) return z;
-	if(finite(x)) {
+	if(isfinite(x)) {
 	    if(x>o_threshold)
 	        return __kernel_standard(x,x,6); /* exp overflow */
 	    else if(x<u_threshold)

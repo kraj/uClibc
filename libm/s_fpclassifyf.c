@@ -21,9 +21,7 @@
 #include <math.h>
 #include "math_private.h"
 
-libm_hidden_proto(__fpclassifyf)
-int
-__fpclassifyf (float x)
+int __fpclassifyf (float x)
 {
   u_int32_t wx;
   int retval = FP_NORMAL;
@@ -39,4 +37,4 @@ __fpclassifyf (float x)
 
   return retval;
 }
-libm_hidden_def (__fpclassifyf)
+libm_hidden_def(__fpclassifyf)
