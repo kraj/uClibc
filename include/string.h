@@ -378,7 +378,7 @@ libc_hidden_proto(ffs)
 
 /* The following two functions are non-standard but necessary for non-32 bit
    platforms.  */
-#if 0 /*def	__USE_GNU*/
+# if 0 /*#ifdef __USE_GNU*/
 extern int ffsl (long int __l) __THROW __attribute__ ((__const__));
 #  ifdef __GNUC__
 __extension__ extern int ffsll (long long int __ll)
@@ -422,44 +422,44 @@ libc_hidden_proto(strsep)
 
 #ifdef	__USE_GNU
 /* Compare S1 and S2 as strings holding name & indices/version numbers.  */
-#if 0
+# if 0
 extern int strverscmp (__const char *__s1, __const char *__s2)
      __THROW __attribute_pure__ __nonnull ((1, 2));
 libc_hidden_proto(strverscmp)
-#endif
+# endif
 
 /* Return a string describing the meaning of the signal number in SIG.  */
 extern char *strsignal (int __sig) __THROW;
 libc_hidden_proto(strsignal)
 
 /* Copy SRC to DEST, returning the address of the terminating '\0' in DEST.  */
-#if 0 /* uClibc: disabled */
+# if 0 /* uClibc: disabled */
 extern char *__stpcpy (char *__restrict __dest, __const char *__restrict __src)
      __THROW __nonnull ((1, 2));
-#endif
+# endif
 extern char *stpcpy (char *__restrict __dest, __const char *__restrict __src)
      __THROW __nonnull ((1, 2));
 libc_hidden_proto(stpcpy)
 
 /* Copy no more than N characters of SRC to DEST, returning the address of
    the last character written into DEST.  */
-#if 0 /* uClibc: disabled */
+# if 0 /* uClibc: disabled */
 extern char *__stpncpy (char *__restrict __dest,
 			__const char *__restrict __src, size_t __n)
      __THROW __nonnull ((1, 2));
-#endif
+# endif
 extern char *stpncpy (char *__restrict __dest,
 		      __const char *__restrict __src, size_t __n)
      __THROW __nonnull ((1, 2));
 libc_hidden_proto(stpncpy)
 
-#if 0							/* uClibc does not support strfry or memfrob. */
+# if 0			/* uClibc does not support strfry or memfrob. */
 /* Sautee STRING briskly.  */
 extern char *strfry (char *__string) __THROW __nonnull ((1));
 
 /* Frobnicate N bytes of S.  */
 extern void *memfrob (void *__s, size_t __n) __THROW __nonnull ((1));
-#endif
+# endif
 
 # ifndef basename
 /* Return the file name within directory of FILENAME.  We don't
@@ -469,7 +469,7 @@ extern void *memfrob (void *__s, size_t __n) __THROW __nonnull ((1));
 extern char *basename (__const char *__filename) __THROW __nonnull ((1));
 libc_hidden_proto(basename)
 # endif
-#endif
+#endif /* __USE_GNU */
 
 
 #ifdef	__USE_BSD
@@ -484,4 +484,11 @@ libc_hidden_proto(strlcpy)
 
 __END_DECLS
 
-#endif /* string.h  */
+
+#ifdef UCLIBC_INTERNAL
+# if defined __i386__
+#  include <libc-string_i386.h>
+# endif
+#endif
+
+#endif /* string.h */

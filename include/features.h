@@ -37,7 +37,13 @@
 #include <bits/uClibc_arch_features.h>
 
 /* For uClibc, always optimize for size -- this should disable
- * a lot of expensive inlining... */
+ * a lot of expensive inlining...
+ * TODO: this is wrong! __OPTIMIZE_SIZE__ is an indicator of
+ * gcc -Os compile. We should not mess with compiler inlines.
+ * We should instead disable __USE_EXTERN_INLINES unconditionally,
+ * or maybe actually audit and test uclibc to work correctly
+ * with __USE_EXTERN_INLINES on.
+ */
 #define __OPTIMIZE_SIZE__   1
 
 /* These are defined by the user (or the compiler)
@@ -365,9 +371,17 @@
 
 #endif	/* !ASSEMBLER */
 
-/* Decide whether we can define 'extern inline' functions in headers.  */
-#if __GNUC_PREREQ (2, 7) && defined __OPTIMIZE__ \
-    && !defined __OPTIMIZE_SIZE__ && !defined __NO_INLINE__ \
+/* Decide whether we can, and are willing to define extern inline
+ * functions in headers, even if this results in a slightly bigger
+ * code for user programs built against uclibc.
+ * Enabled only in -O2 compiles, not -Os.
+ * uclibc itself is usually built without __USE_EXTERN_INLINES,
+ * remove "&& !defined __OPTIMIZE_SIZE__" part to do otherwise.
+ */
+#if __GNUC_PREREQ (2, 7) \
+    && defined __OPTIMIZE__ \
+    && !defined __OPTIMIZE_SIZE__ \
+    && !defined __NO_INLINE__ \
     && (defined __extern_inline || defined __GNUC_GNU_INLINE__)
 # define __USE_EXTERN_INLINES	1
 #endif
