@@ -13,7 +13,7 @@
 
 #if defined (__NR_mmap) || defined (__NR_mmap2)
 
-libc_hidden_proto (mmap)
+libc_hidden_proto(mmap)
 #if defined (__UCLIBC_MMAP_HAS_6_ARGS__) && defined (__NR_mmap)
 #define __NR__mmap __NR_mmap
 static __inline__ _syscall6 (__ptr_t, _mmap, __ptr_t, addr, size_t, len,
