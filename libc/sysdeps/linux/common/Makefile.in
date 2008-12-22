@@ -30,7 +30,7 @@ endif
 
 ifneq ($(UCLIBC_LINUX_SPECIFIC),y)
 # we need these internally: fstatfs.c statfs.c
-CSRC := $(filter-out capget.c inotify.c ioperm.c iopl.c madvise.c \
+CSRC := $(filter-out capget.c capset.c inotify.c ioperm.c iopl.c madvise.c \
 	modify_ldt.c personality.c prctl.c readahead.c reboot.c \
 	remap_file_pages.c sched_getaffinity.c sched_setaffinity.c \
 	sendfile64.c sendfile.c setfsgid.c setfsuid.c setresuid.c \
