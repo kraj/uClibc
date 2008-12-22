@@ -1,4 +1,3 @@
-/* @(#)e_exp.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: e_exp.c,v 1.8 1995/05/10 20:45:03 jtc Exp $";
-#endif
 
 /* __ieee754_exp(x)
  * Returns the exponential of x.
@@ -80,11 +75,7 @@ static char rcsid[] = "$NetBSD: e_exp.c,v 1.8 1995/05/10 20:45:03 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
 static const double
-#else
-static double
-#endif
 one	= 1.0,
 halF[2]	= {0.5,-0.5,},
 huge	= 1.0e+300,
@@ -102,13 +93,7 @@ P3   =  6.61375632143793436117e-05, /* 0x3F11566A, 0xAF25DE2C */
 P4   = -1.65339022054652515390e-06, /* 0xBEBBBD41, 0xC5D26BF1 */
 P5   =  4.13813679705723846039e-08; /* 0x3E663769, 0x72BEA4D0 */
 
-
-#ifdef __STDC__
-	double attribute_hidden __ieee754_exp(double x)	/* default IEEE double exp */
-#else
-	double attribute_hidden __ieee754_exp(x)	/* default IEEE double exp */
-	double x;
-#endif
+double attribute_hidden __ieee754_exp(double x)	/* default IEEE double exp */
 {
 	double y;
 	double hi = 0.0;

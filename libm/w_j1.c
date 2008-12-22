@@ -1,4 +1,3 @@
-/* @(#)w_j1.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_j1.c,v 1.6 1995/05/10 20:49:15 jtc Exp $";
-#endif
-
 /*
  * wrapper of j1,y1
  */
@@ -21,12 +16,7 @@ static char rcsid[] = "$NetBSD: w_j1.c,v 1.6 1995/05/10 20:49:15 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double j1(double x)		/* wrapper j1 */
-#else
-	double j1(x)			/* wrapper j1 */
-	double x;
-#endif
+double j1(double x)		/* wrapper j1 */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_j1(x);
@@ -40,14 +30,8 @@ static char rcsid[] = "$NetBSD: w_j1.c,v 1.6 1995/05/10 20:49:15 jtc Exp $";
 	    return z;
 #endif
 }
-libm_hidden_def(j1)
 
-#ifdef __STDC__
-	double y1(double x)		/* wrapper y1 */
-#else
-	double y1(x)			/* wrapper y1 */
-	double x;
-#endif
+double y1(double x)		/* wrapper y1 */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_y1(x);
@@ -69,4 +53,3 @@ libm_hidden_def(j1)
 	    return z;
 #endif
 }
-libm_hidden_def(y1)

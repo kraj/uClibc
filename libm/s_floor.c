@@ -1,4 +1,3 @@
-/* @(#)s_floor.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_floor.c,v 1.8 1995/05/10 20:47:20 jtc Exp $";
-#endif
 
 /*
  * floor(x)
@@ -29,18 +24,9 @@ static char rcsid[] = "$NetBSD: s_floor.c,v 1.8 1995/05/10 20:47:20 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
 static const double huge = 1.0e300;
-#else
-static double huge = 1.0e300;
-#endif
 
-#ifdef __STDC__
-	double floor(double x)
-#else
-	double floor(x)
-	double x;
-#endif
+double floor(double x)
 {
 	int32_t i0,i1,j0;
 	u_int32_t i,j;

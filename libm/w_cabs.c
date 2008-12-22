@@ -8,7 +8,6 @@
 #include <complex.h>
 #include <math.h>
 
-
 double cabs(double _Complex z)
 {
 	return hypot(__real__ z, __imag__ z);

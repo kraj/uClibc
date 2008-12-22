@@ -12,12 +12,7 @@
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double nearbyint(double x)
-#else
-	double nearbyint(x)
-	double x;
-#endif
+double nearbyint(double x)
 {
   return rint(x);
 }

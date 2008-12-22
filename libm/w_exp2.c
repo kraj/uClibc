@@ -1,5 +1,3 @@
-
-/* @(#)w_exp2.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -14,12 +12,7 @@
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double exp2(double x)
-#else
-	double exp2(x)
-	double x;
-#endif
+double exp2(double x)
 {
   return pow(2.0, x);
 }

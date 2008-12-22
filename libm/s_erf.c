@@ -1,4 +1,3 @@
-/* @(#)s_erf.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_erf.c,v 1.8 1995/05/10 20:47:05 jtc Exp $";
-#endif
 
 /* double erf(double x)
  * double erfc(double x)
@@ -108,16 +103,10 @@ static char rcsid[] = "$NetBSD: s_erf.c,v 1.8 1995/05/10 20:47:05 jtc Exp $";
  *	   	erfc/erf(NaN) is NaN
  */
 
-
 #include "math.h"
 #include "math_private.h"
 
-
-#ifdef __STDC__
 static const double
-#else
-static double
-#endif
 tiny	    = 1e-300,
 half=  5.00000000000000000000e-01, /* 0x3FE00000, 0x00000000 */
 one =  1.00000000000000000000e+00, /* 0x3FF00000, 0x00000000 */
@@ -192,12 +181,7 @@ sb5  =  2.55305040643316442583e+03, /* 0x40A3F219, 0xCEDF3BE6 */
 sb6  =  4.74528541206955367215e+02, /* 0x407DA874, 0xE79FE763 */
 sb7  = -2.24409524465858183362e+01; /* 0xC03670E2, 0x42712D62 */
 
-#ifdef __STDC__
-	double erf(double x)
-#else
-	double erf(x)
-	double x;
-#endif
+double erf(double x)
 {
 	int32_t hx,ix,i;
 	double R,S,P,Q,s,y,z,r;
@@ -249,12 +233,7 @@ sb7  = -2.24409524465858183362e+01; /* 0xC03670E2, 0x42712D62 */
 }
 libm_hidden_def(erf)
 
-#ifdef __STDC__
-	double erfc(double x)
-#else
-	double erfc(x)
-	double x;
-#endif
+double erfc(double x)
 {
 	int32_t hx,ix;
 	double R,S,P,Q,s,y,z,r;

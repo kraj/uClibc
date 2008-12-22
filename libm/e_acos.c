@@ -1,4 +1,3 @@
-/* @(#)e_acos.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: e_acos.c,v 1.9 1995/05/12 04:57:13 jtc Exp $";
-#endif
 
 /* __ieee754_acos(x)
  * Method :
@@ -41,11 +36,7 @@ static char rcsid[] = "$NetBSD: e_acos.c,v 1.9 1995/05/12 04:57:13 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
 static const double
-#else
-static double
-#endif
 one=  1.00000000000000000000e+00, /* 0x3FF00000, 0x00000000 */
 pi =  3.14159265358979311600e+00, /* 0x400921FB, 0x54442D18 */
 pio2_hi =  1.57079632679489655800e+00, /* 0x3FF921FB, 0x54442D18 */
@@ -61,12 +52,7 @@ qS2 =  2.02094576023350569471e+00, /* 0x40002AE5, 0x9C598AC8 */
 qS3 = -6.88283971605453293030e-01, /* 0xBFE6066C, 0x1B8D0159 */
 qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
 
-#ifdef __STDC__
-	double attribute_hidden __ieee754_acos(double x)
-#else
-	double attribute_hidden __ieee754_acos(x)
-	double x;
-#endif
+double attribute_hidden __ieee754_acos(double x)
 {
 	double z,p,q,r,w,s,c,df;
 	int32_t hx,ix;

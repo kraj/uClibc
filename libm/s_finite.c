@@ -1,4 +1,3 @@
-/* @(#)s_finite.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -28,5 +27,3 @@ int __finite(double x)
 	return (int)((u_int32_t)((hx&0x7fffffff)-0x7ff00000)>>31);
 }
 libm_hidden_def(__finite)
-weak_alias(__finite,finite)
-libm_hidden_weak(finite)

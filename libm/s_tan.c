@@ -1,4 +1,3 @@
-/* @(#)s_tan.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_tan.c,v 1.7 1995/05/10 20:48:18 jtc Exp $";
-#endif
 
 /* tan(x)
  * Return tangent function of x.
@@ -47,12 +42,7 @@ static char rcsid[] = "$NetBSD: s_tan.c,v 1.7 1995/05/10 20:48:18 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double tan(double x)
-#else
-	double tan(x)
-	double x;
-#endif
+double tan(double x)
 {
 	double y[2],z=0.0;
 	int32_t n, ix;

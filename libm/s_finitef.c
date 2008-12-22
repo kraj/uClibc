@@ -21,7 +21,6 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(__finitef)
 int __finitef(float x)
 {
 	int32_t ix;
@@ -29,4 +28,3 @@ int __finitef(float x)
 	return (int)((u_int32_t)((ix&0x7fffffff)-0x7f800000)>>31);
 }
 libm_hidden_def(__finitef)
-strong_alias(__finitef,finitef)

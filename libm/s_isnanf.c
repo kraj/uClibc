@@ -21,7 +21,6 @@
 #include "math.h"
 #include "math_private.h"
 
-libm_hidden_proto(__isnanf)
 int __isnanf(float x)
 {
 	int32_t ix;
@@ -30,5 +29,4 @@ int __isnanf(float x)
 	ix = 0x7f800000 - ix;
 	return (int)(((u_int32_t)(ix))>>31);
 }
-libm_hidden_def (__isnanf)
-weak_alias (__isnanf, isnanf)
+libm_hidden_def(__isnanf)

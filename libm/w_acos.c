@@ -1,4 +1,3 @@
-/* @(#)w_acos.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_acos.c,v 1.6 1995/05/10 20:48:26 jtc Exp $";
-#endif
-
 /*
  * wrap_acos(x)
  */
@@ -21,12 +16,7 @@ static char rcsid[] = "$NetBSD: w_acos.c,v 1.6 1995/05/10 20:48:26 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double acos(double x)		/* wrapper acos */
-#else
-	double acos(x)			/* wrapper acos */
-	double x;
-#endif
+double acos(double x)		/* wrapper acos */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_acos(x);

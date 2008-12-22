@@ -7,13 +7,7 @@
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double fmin(double x, double y)
-#else
-	double fmin(x,y)
-	double x;
-	double y;
-#endif
+double fmin(double x, double y)
 {
   if (__fpclassify(x) == FP_NAN)
     return x;

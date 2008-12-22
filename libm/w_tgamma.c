@@ -1,4 +1,3 @@
-/* @(#)w_gamma.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -19,12 +18,7 @@
 #include "math_private.h"
 
 libm_hidden_proto(signgam)
-#ifdef __STDC__
-	double tgamma(double x)
-#else
-	double tgamma(x)
-	double x;
-#endif
+double tgamma(double x)
 {
         double y;
 	int local_signgam;
@@ -35,7 +29,7 @@ libm_hidden_proto(signgam)
 #else
 	if(_LIB_VERSION == _IEEE_) return y;
 
-	if(!finite(y)&&finite(x)) {
+	if(!isfinite(y)&&isfinite(x)) {
 	  if(floor(x)==x&&x<=0.0)
 	    return __kernel_standard(x,x,41); /* tgamma pole */
 	  else

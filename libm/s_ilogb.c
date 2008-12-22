@@ -1,4 +1,3 @@
-/* @(#)s_ilogb.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_ilogb.c,v 1.9 1995/05/10 20:47:28 jtc Exp $";
-#endif
-
 /* ilogb(double x)
  * return the binary exponent of non-zero x
  * ilogb(0) = 0x80000001
@@ -23,12 +18,7 @@ static char rcsid[] = "$NetBSD: s_ilogb.c,v 1.9 1995/05/10 20:47:28 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	int ilogb(double x)
-#else
-	int ilogb(x)
-	double x;
-#endif
+int ilogb(double x)
 {
 	int32_t hx,lx,ix;
 

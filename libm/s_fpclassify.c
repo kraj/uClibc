@@ -22,8 +22,7 @@
 
 #include "math_private.h"
 
-int
-__fpclassify (double x)
+int __fpclassify(double x)
 {
   u_int32_t hx, lx;
   int retval = FP_NORMAL;
@@ -40,4 +39,4 @@ __fpclassify (double x)
 
   return retval;
 }
-libm_hidden_def (__fpclassify)
+libm_hidden_def(__fpclassify)

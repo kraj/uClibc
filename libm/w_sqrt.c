@@ -1,4 +1,3 @@
-/* @(#)w_sqrt.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_sqrt.c,v 1.6 1995/05/10 20:49:55 jtc Exp $";
-#endif
-
 /*
  * wrapper sqrt(x)
  */
@@ -21,12 +16,7 @@ static char rcsid[] = "$NetBSD: w_sqrt.c,v 1.6 1995/05/10 20:49:55 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double sqrt(double x)		/* wrapper sqrt */
-#else
-	double sqrt(x)			/* wrapper sqrt */
-	double x;
-#endif
+double sqrt(double x)		/* wrapper sqrt */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_sqrt(x);

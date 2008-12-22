@@ -9,11 +9,6 @@
  * ====================================================
  */
 
-/*
- * from: @(#)fdlibm.h 5.1 93/09/24
- * $Id: math_private.h,v 1.3 2004/02/09 07:10:38 andersen Exp $
- */
-
 #ifndef _MATH_PRIVATE_H_
 #define _MATH_PRIVATE_H_
 

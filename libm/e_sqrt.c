@@ -1,4 +1,3 @@
-/* @(#)e_sqrt.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: e_sqrt.c,v 1.8 1995/05/10 20:46:17 jtc Exp $";
-#endif
 
 /* __ieee754_sqrt(x)
  * Return correctly rounded sqrt.
@@ -87,18 +82,9 @@ static char rcsid[] = "$NetBSD: e_sqrt.c,v 1.8 1995/05/10 20:46:17 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-static	const double	one	= 1.0, tiny=1.0e-300;
-#else
-static	double	one	= 1.0, tiny=1.0e-300;
-#endif
+static const double one = 1.0, tiny = 1.0e-300;
 
-#ifdef __STDC__
-	double attribute_hidden __ieee754_sqrt(double x)
-#else
-	double attribute_hidden __ieee754_sqrt(x)
-	double x;
-#endif
+double attribute_hidden __ieee754_sqrt(double x)
 {
 	double z;
 	int32_t sign = (int)0x80000000;

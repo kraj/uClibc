@@ -1,4 +1,3 @@
-/* @(#)s_sin.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,10 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_sin.c,v 1.7 1995/05/10 20:48:15 jtc Exp $";
-#endif
 
 /* sin(x)
  * Return sine function of x.
@@ -48,12 +43,7 @@ static char rcsid[] = "$NetBSD: s_sin.c,v 1.7 1995/05/10 20:48:15 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double sin(double x)
-#else
-	double sin(x)
-	double x;
-#endif
+double sin(double x)
 {
 	double y[2],z=0.0;
 	int32_t n, ix;

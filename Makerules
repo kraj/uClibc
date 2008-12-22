@@ -80,6 +80,7 @@ pur_disp_compile.s = echo "  "CC-S $(show_objs)
 pur_disp_compile.u = echo "  "CC $(show_objs)
 pur_disp_compile.S = echo "  "AS $(show_objs)
 pur_disp_compile.m = $(pur_disp_compile.c)
+pur_disp_compile.mi= echo "  "CPP-m $(show_objs)
 pur_disp_compile-m = echo "  "CC-m $(show_objs)
 pur_disp_hcompile.u= echo "  "HOSTCC $(show_objs)
 pur_disp_hcompile.o= echo "  "HOSTCC-o $(show_objs)
@@ -99,6 +100,7 @@ sil_disp_compile.s = true
 sil_disp_compile.u = true
 sil_disp_compile.S = true
 sil_disp_compile.m = true
+sil_disp_compile.mi= true
 sil_disp_compile-m = true
 sil_disp_hcompile.u= true
 sil_disp_hcompile.o= true
@@ -118,6 +120,7 @@ ver_disp_compile.s = echo $(cmd_compile.s)
 ver_disp_compile.u = echo $(cmd_compile.u)
 ver_disp_compile.S = echo $(cmd_compile.S)
 ver_disp_compile.m = echo $(cmd_compile.m)
+ver_disp_compile.mi= echo $(cmd_compile.mi)
 ver_disp_compile-m = echo $(cmd_compile-m)
 ver_disp_hcompile.u= echo $(cmd_hcompile.u)
 ver_disp_hcompile.o= echo $(cmd_hcompile.o)
@@ -137,6 +140,7 @@ disp_compile.s = $($(DISP)_disp_compile.s)
 disp_compile.u = $($(DISP)_disp_compile.u)
 disp_compile.S = $($(DISP)_disp_compile.S)
 disp_compile.m = $($(DISP)_disp_compile.m)
+disp_compile.mi= $($(DISP)_disp_compile.mi)
 disp_compile-m = $($(DISP)_disp_compile-m)
 disp_hcompile.u= $($(DISP)_disp_hcompile.u)
 disp_hcompile.o= $($(DISP)_disp_hcompile.o)
@@ -189,6 +193,7 @@ cmd_compile.s = $(cmd_compile.c:-c=-S)
 cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@)) $(CFLAGS_gen.dep)
 cmd_compile.S = $(filter-out -std=gnu99, $(cmd_compile.c)) -D__ASSEMBLER__ $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
 cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
+cmd_compile.mi= $(cmd_compile.m:-c=-E -dD $(EXTRA_CPPFLAGS))
 
 cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@))
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
@@ -216,6 +221,7 @@ compile.i =  $(call maybe_exec,compile.i)
 compile.s =  $(call maybe_exec,compile.s)
 compile.S = @$(call maybe_exec,compile.S)
 compile.m = @$(call maybe_exec,compile.m)
+compile.mi=  $(call maybe_exec,compile.mi)
 compile-m = @$(disp_compile-m) ; $(cmd_compile-m) && $(cmd_t_strip)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
 do_t_strip= @$(disp_t_strip)   ; $(cmd_t_strip)

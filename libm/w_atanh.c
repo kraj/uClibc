@@ -1,4 +1,3 @@
-/* @(#)w_atanh.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_atanh.c,v 1.6 1995/05/10 20:48:43 jtc Exp $";
-#endif
-
 /*
  * wrapper atanh(x)
  */
@@ -21,12 +16,7 @@ static char rcsid[] = "$NetBSD: w_atanh.c,v 1.6 1995/05/10 20:48:43 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double atanh(double x)		/* wrapper atanh */
-#else
-	double atanh(x)			/* wrapper atanh */
-	double x;
-#endif
+double atanh(double x)		/* wrapper atanh */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_atanh(x);

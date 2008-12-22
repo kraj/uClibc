@@ -1,4 +1,3 @@
-/* @(#)w_acosh.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,10 +9,6 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: w_acosh.c,v 1.6 1995/05/10 20:48:31 jtc Exp $";
-#endif
-
 /*
  * wrapper acosh(x)
  */
@@ -21,12 +16,7 @@ static char rcsid[] = "$NetBSD: w_acosh.c,v 1.6 1995/05/10 20:48:31 jtc Exp $";
 #include "math.h"
 #include "math_private.h"
 
-#ifdef __STDC__
-	double acosh(double x)		/* wrapper acosh */
-#else
-	double acosh(x)			/* wrapper acosh */
-	double x;
-#endif
+double acosh(double x)		/* wrapper acosh */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_acosh(x);

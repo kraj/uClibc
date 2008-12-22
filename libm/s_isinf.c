@@ -12,8 +12,7 @@
 #include "math.h"
 #include "math_private.h"
 
-int
-__isinf (double x)
+int __isinf(double x)
 {
 	int32_t hx,lx;
 	EXTRACT_WORDS(hx,lx,x);
@@ -22,5 +21,3 @@ __isinf (double x)
 	return ~(lx >> 31) & (hx >> 30);
 }
 libm_hidden_def(__isinf)
-weak_alias (__isinf, isinf)
-libm_hidden_weak(isinf)
