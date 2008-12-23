@@ -57,9 +57,6 @@
 #define	SIGXFSZ		34	/* File size limit exceeded (4.2 BSD).  */
 #define	SIGSTKFLT	36	/* Stack fault.  */
 
-#define	_NSIG		65	/* Biggest signal number + 1
-				   (including real-time signals).  */
-
 #define __SIGRTMIN	37
 
 #endif	/* <signal.h> included.  */
