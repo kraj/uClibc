@@ -44,7 +44,7 @@ int open64 (const char *file, int oflag, ...)
 
   return result;
 #else
-  return __libc_open(file, oflag | O_LARGEFILE, mode);
+  return open(file, oflag | O_LARGEFILE, mode);
 #endif
 }
 libc_hidden_def(open64)

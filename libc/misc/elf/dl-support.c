@@ -11,13 +11,20 @@
  *
  */
 
+#if USE_TLS
 #include <assert.h>
 #include <tls.h>
-#include <link.h>
 #include <ldsodefs.h>
 #include <string.h>
+#endif
+#include <link.h>
+#include <elf.h>
+
+#if USE_TLS
 
 void (*_dl_init_static_tls) (struct link_map *) = &_dl_nothread_init_static_tls;
+
+#endif
 
 ElfW(Phdr) *_dl_phdr;
 size_t _dl_phnum;
@@ -33,6 +40,7 @@ _dl_aux_init (ElfW(auxv_t) *av)
    _dl_phnum = (size_t) av[AT_PHNUM].a_un.a_val;
 }
 
+#if USE_TLS
 /* Initialize static TLS area and DTV for current (only) thread.
    libpthread implementations should provide their own hook
    to handle all threads.  */
@@ -57,3 +65,6 @@ _dl_nothread_init_static_tls (struct link_map *map)
   memset (mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
 	  '\0', map->l_tls_blocksize - map->l_tls_initimage_size);
 }
+
+#endif
+

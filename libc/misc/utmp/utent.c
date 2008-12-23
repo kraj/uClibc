@@ -210,11 +210,7 @@ struct utmp *pututline (const struct utmp *utmp_entry)
 	lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
     else
 	lseek(static_fd, (off_t) 0, SEEK_END);
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
     if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
-#else
-    if (write_not_cancel(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
-#endif
 	utmp_entry = NULL;
 
     __UCLIBC_MUTEX_UNLOCK(utmplock);

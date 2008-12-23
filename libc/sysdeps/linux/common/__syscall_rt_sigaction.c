@@ -13,8 +13,8 @@
 #include <signal.h>
 #include <bits/kernel_sigaction.h>
 
-#define __NR___rt_sigaction __NR_rt_sigaction
-_syscall4(int, __rt_sigaction, int, signum,
-		  const struct kernel_sigaction *, act, struct kernel_sigaction *, oldact,
+#define __NR___syscall_rt_sigaction __NR_rt_sigaction
+_syscall4(int, __syscall_rt_sigaction, int, signum,
+		  const struct sigaction *, act, struct sigaction *, oldact,
 		  size_t, size)
 #endif

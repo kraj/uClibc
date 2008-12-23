@@ -1254,7 +1254,7 @@ void res_close(void)
    which can have an alias.  */
 struct __res_state _res __attribute__((section (".bss")));
 #else
-struct __res_state _res __attribute__((section (".bss"))) attribute_hidden;
+struct __res_state _res __attribute__((section (".bss"))) ;//attribute_hidden;
 
 # if defined __UCLIBC_HAS_THREADS_NATIVE__
 #  undef __resp
@@ -1275,7 +1275,7 @@ struct __res_state *__resp = &_res;
 #endif
 
 #ifdef L_res_state
-# if defined __UCLIBC_HAS_THREADS__
+# if defined __UCLIBC_HAS_THREADS_NATIVE__
 struct __res_state *
 __res_state (void)
 {
