@@ -19,17 +19,6 @@
 
 #ifdef	_SIGNAL_H
 
-/* Fake signal functions.  */
-#define SIG_ERR	((__sighandler_t) -1)		/* Error return.  */
-#define SIG_DFL	((__sighandler_t) 0)		/* Default action.  */
-#define SIG_IGN	((__sighandler_t) 1)		/* Ignore signal.  */
-
-#ifdef __USE_UNIX98
-# define SIG_HOLD	((__sighandler_t) 2)	/* Add signal to hold mask.  */
-#endif
-
-
-/* Signals.  */
 #define	SIGHUP		1	/* Hangup (POSIX).  */
 #define	SIGINT		2	/* Interrupt (ANSI).  */
 #define	SIGQUIT		3	/* Quit (POSIX).  */
@@ -68,15 +57,6 @@
 #define	SIGXFSZ		34	/* File size limit exceeded (4.2 BSD).  */
 #define	SIGSTKFLT	36	/* Stack fault.  */
 
-#define	_NSIG		65	/* Biggest signal number + 1
-				   (including real-time signals).  */
-
-#define SIGRTMIN        (__libc_current_sigrtmin ())
-#define SIGRTMAX        (__libc_current_sigrtmax ())
-
-/* These are the hard limits of the kernel.  These values should not be
-   used directly at user level.  */
 #define __SIGRTMIN	37
-#define __SIGRTMAX	(_NSIG - 1)
 
 #endif	/* <signal.h> included.  */

@@ -19,15 +19,6 @@
 
 #ifdef	_SIGNAL_H
 
-/* Fake signal functions.  */
-#define SIG_ERR ((__sighandler_t) -1) /* Error return.  */
-#define SIG_DFL ((__sighandler_t) 0) /* Default action.  */
-#define SIG_IGN ((__sighandler_t) 1) /* Ignore signal.  */
-
-#ifdef __USE_UNIX98
-# define SIG_HOLD	((__sighandler_t) 2)	/* Add signal to hold mask.  */
-#endif
-
 /*
  * Linux/SPARC has different signal numbers that Linux/i386: I'm trying
  * to make it OSF/1 binary compatible, at least for normal binaries.
@@ -69,16 +60,5 @@
 #define SIGPWR          SIGLOST
 #define SIGUSR1		30
 #define SIGUSR2		31
-
-#define	_NSIG		65	/* Biggest signal number + 1
-				   (including real-time signals).  */
-
-#define SIGRTMIN        (__libc_current_sigrtmin ())
-#define SIGRTMAX        (__libc_current_sigrtmax ())
-
-/* These are the hard limits of the kernel.  These values should not be
-   used directly at user level.  */
-#define __SIGRTMIN	32
-#define __SIGRTMAX	(_NSIG - 1)
 
 #endif	/* <signal.h> included.  */
