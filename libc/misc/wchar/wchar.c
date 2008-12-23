@@ -188,24 +188,24 @@ wint_t btowc(int c)
 	if (c != EOF) {
 		*buf = (unsigned char) c;
 		mbstate.__mask = 0;		/* Initialize the mbstate. */
-		if (mbrtowc(&wc, buf, 1, &mbstate) <= 1) {
+		if (mbrtowc(&wc, (char*) buf, 1, &mbstate) <= 1) {
 			return wc;
 		}
 	}
 	return WEOF;
 
-#else  /*  __CTYPE_HAS_8_BIT_LOCALES */
+#else  /* !__CTYPE_HAS_8_BIT_LOCALES */
 
 #ifdef __UCLIBC_HAS_LOCALE__
 	assert((ENCODING == __ctype_encoding_7_bit)
 		   || (ENCODING == __ctype_encoding_utf8));
-#endif /* __UCLIBC_HAS_LOCALE__ */
+#endif
 
 	/* If we don't have 8-bit locale support, then this is trivial since
 	 * anything outside of 0-0x7f is illegal in C/POSIX and UTF-8 locales. */
 	return (((unsigned int)c) < 0x80) ? c : WEOF;
 
-#endif /*  __CTYPE_HAS_8_BIT_LOCALES */
+#endif /* !__CTYPE_HAS_8_BIT_LOCALES */
 }
 libc_hidden_def(btowc)
 
@@ -223,7 +223,7 @@ int wctob(wint_t c)
 
 	unsigned char buf[MB_LEN_MAX];
 
-	return (wcrtomb(buf, c, NULL) == 1) ? *buf : EOF;
+	return (wcrtomb((char*) buf, c, NULL) == 1) ? *buf : EOF;
 
 #else  /*  __CTYPE_HAS_8_BIT_LOCALES */
 
@@ -1290,8 +1290,8 @@ static int find_codeset(const char *name)
 	const unsigned char *s;
 	int codeset;
 
-	for (s = __iconv_codesets ; *s ; s += *s) {
-		if (!strcasecmp(s+2, name)) {
+	for (s = __iconv_codesets; *s; s += *s) {
+		if (!strcasecmp((char*) (s + 2), name)) {
 			return s[1];
 		}
 	}
@@ -1301,7 +1301,7 @@ static int find_codeset(const char *name)
 	/* TODO: maybe CODESET_LIST + *s ??? */
 	/* 7bit is 1, UTF-8 is 2, 8-bit is >= 3 */
 	codeset = 2;
-	s = __LOCALE_DATA_CODESET_LIST;
+	s = (const unsigned char *) __LOCALE_DATA_CODESET_LIST;
 	do {
 		++codeset;		/* Increment codeset first. */
 		if (!strcasecmp(__LOCALE_DATA_CODESET_LIST+*s, name)) {
@@ -1590,8 +1590,8 @@ extern const unsigned char __iconv_codesets[];
 #define IBUF BUFSIZ
 #define OBUF BUFSIZ
 
-char *progname;
-int hide_errors;
+static char *progname;
+static int hide_errors;
 
 static void error_msg(const char *fmt, ...)
 	 __attribute__ ((noreturn, format (printf, 1, 2)));

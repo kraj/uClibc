@@ -56,6 +56,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assert.h>
 #include <errno.h>
 #include <netdb.h>
+#include <resolv.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -715,9 +716,9 @@ gaih_inet(const char *name, const struct gaih_service *service,
 				(*pai)->ai_protocol = st2->protocol;
 				(*pai)->ai_addrlen = socklen;
 				(*pai)->ai_addr = (void *) (*pai) + sizeof(struct addrinfo);
-#if SALEN
+#if defined SALEN
 				(*pai)->ai_addr->sa_len = socklen;
-#endif /* SALEN */
+#endif
 				(*pai)->ai_addr->sa_family = family;
 
 #if defined __UCLIBC_HAS_IPV6__

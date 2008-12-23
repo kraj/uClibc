@@ -105,11 +105,11 @@ char *alloca ();
 /* libc_hidden_proto(lstat) */
 /* libc_hidden_proto(stat) */
 
-#if ! _LIBC && !HAVE_DECL_STPCPY && !defined stpcpy
+#if !defined _LIBC && !HAVE_DECL_STPCPY && !defined stpcpy
 char *stpcpy ();
 #endif
 
-#if ! _LIBC && ! defined HAVE_MEMPCPY && ! defined mempcpy
+#if !defined _LIBC && ! defined HAVE_MEMPCPY && ! defined mempcpy
 /* Be CAREFUL that there are no side effects in N.  */
 # define mempcpy(D, S, N) ((void *) ((char *) memcpy (D, S, N) + (N)))
 #endif
@@ -162,7 +162,7 @@ extern char *xgetcwd (void);
 /* Arrange to make lstat calls go through the wrapper function
    on systems with an lstat function that does not dereference symlinks
    that are specified with a trailing slash.  */
-#if ! _LIBC && ! LSTAT_FOLLOWS_SLASHED_SYMLINK && !defined __UCLIBC__
+#if !defined _LIBC && !defined LSTAT_FOLLOWS_SLASHED_SYMLINK && !defined __UCLIBC__
 int rpl_lstat (const char *, struct stat *);
 # undef lstat
 # define lstat(Name, Stat_buf) rpl_lstat(Name, Stat_buf)

@@ -1,7 +1,7 @@
 /*
- * This contains all symbols shared between 
+ * This contains all symbols shared between
  * dynamic linker ld.so and into static libc
-
+ *
  * Copyright (c) 2008  STMicroelectronics Ltd
  * Author: Carmelo Amoroso <carmelo.amoroso@st.com>
  *

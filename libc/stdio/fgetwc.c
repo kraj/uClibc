@@ -58,12 +58,12 @@ wint_t fgetwc_unlocked(register FILE *stream)
 			stream->__ungot_width[0] = 0; /* then reset the width. */
 		}
 
-	LOOP:
+ LOOP:
 		if ((n = __STDIO_STREAM_BUFFER_RAVAIL(stream)) == 0) {
 			goto FILL_BUFFER;
 		}
 
-		r = mbrtowc(wc, stream->__bufpos, n, &stream->__state);
+		r = mbrtowc(wc, (const char*) stream->__bufpos, n, &stream->__state);
 		if (((ssize_t) r) >= 0) { /* Success... */
 			if (r == 0) { /* Nul wide char... means 0 byte for us so */
 				++r;	 /* increment r and handle below as single. */
@@ -78,7 +78,7 @@ wint_t fgetwc_unlocked(register FILE *stream)
 			/* Potentially valid but incomplete and no more buffered. */
 			stream->__bufpos += n; /* Update bufpos for stream. */
 			stream->__ungot_width[0] += n;
-		FILL_BUFFER:
+ FILL_BUFFER:
 			if(__STDIO_FILL_READ_BUFFER(stream)) { /* Refill succeeded? */
 				goto LOOP;
 			}
@@ -98,7 +98,7 @@ wint_t fgetwc_unlocked(register FILE *stream)
 		 * error indicator is set. */
 		stream->__modeflags |= __FLAG_ERROR;
 
-	DONE:
+ DONE:
 		if (stream->__bufstart == sbuf) { /* Need to un-munge the stream. */
 			munge_stream(stream, NULL);
 		}

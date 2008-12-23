@@ -89,7 +89,7 @@ long int gethostid(void)
 	 * setting one anyway.
 	 *						Mitch
 	 */
-	if (gethostname(host,MAXHOSTNAMELEN)>=0 && *host) {
+	if (gethostname(host, MAXHOSTNAMELEN) >= 0 && *host) {
 		struct hostent *hp;
 		struct in_addr in;
 		struct hostent ghbn_h;
@@ -104,21 +104,17 @@ long int gethostid(void)
 		/*if ((hp = gethostbyname(host)) == (struct hostent *)NULL)*/
 		gethostbyname_r(host, &ghbn_h, ghbn_buf, sizeof(ghbn_buf), &hp, &ghbn_errno);
 
-		if (hp == (struct hostent *)NULL)
-
+		if (hp == NULL) {
 		/* This is not a error if we get here, as all it means is that
 		 * this host is not on a network and/or they have not
 		 * configured their network properly. So we return the unset
 		 * hostid which should be 0, meaning that they should set it !!
 		 */
 			return 0;
-		else {
-			memcpy((char *) &in, (char *) hp->h_addr, hp->h_length);
-
-			/* Just so it doesn't look exactly like the IP addr */
-			return(in.s_addr<<16|in.s_addr>>16);
 		}
+		memcpy(&in, hp->h_addr, hp->h_length);
+		/* Just so it doesn't look exactly like the IP addr */
+		return (in.s_addr<<16 | in.s_addr>>16);
 	}
-	else return 0;
-
+	return 0;
 }

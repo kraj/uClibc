@@ -174,7 +174,7 @@ typedef struct __uclibc_locale_struct {
 	const unsigned char *idx8ctype;
 	const unsigned char *tbl8ctype;
 	const unsigned char *idx8uplow;
-    const unsigned char *tbl8uplow;
+	const unsigned char *tbl8uplow;
 #ifdef __UCLIBC_HAS_WCHAR__
 	const unsigned char *idx8c2wc;
 	const uint16_t *tbl8c2wc;	/* char > 0x7f to wide char */
@@ -300,8 +300,6 @@ typedef struct __uclibc_locale_struct {
 	const char *alt_digits;
 	const char *era_d_t_fmt;
 	const char *era_t_fmt;
-
-	/* collate is at the end */
 
 	/* messages */
 	const char *yesexpr;

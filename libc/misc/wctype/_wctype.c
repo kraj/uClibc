@@ -70,43 +70,9 @@
  * towctrans function. */
 /* #define SMALL_UPLOW */
 
-/**********************************************************************/
-#ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_iswspace
-/* generates one warning */
-#warning TODO: Fix the __CTYPE_* codes!
-#endif
-#endif /* __UCLIBC_MJN3_ONLY__ */
 
-#if 1
-/* Taking advantage of the C99 mutual-exclusion guarantees for the various
- * (w)ctype classes, including the descriptions of printing and control
- * (w)chars, we can place each in one of the following mutually-exlusive
- * subsets.  Since there are less than 16, we can store the data for
- * each (w)chars in a nibble. In contrast, glibc uses an unsigned int
- * per (w)char, with one bit flag for each is* type.  While this allows
- * a simple '&' operation to determine the type vs. a range test and a
- * little special handling for the "blank" and "xdigit" types in my
- * approach, it also uses 8 times the space for the tables on the typical
- * 32-bit archs we supported.*/
-enum {
-	__CTYPE_unclassified = 0,
-	__CTYPE_alpha_nonupper_nonlower,
-	__CTYPE_alpha_lower,
-	__CTYPE_alpha_upper_lower,
-	__CTYPE_alpha_upper,
-	__CTYPE_digit,
-	__CTYPE_punct,
-	__CTYPE_graph,
-	__CTYPE_print_space_nonblank,
-	__CTYPE_print_space_blank,
-	__CTYPE_space_nonblank_noncntrl,
-	__CTYPE_space_blank_noncntrl,
-	__CTYPE_cntrl_space_nonblank,
-	__CTYPE_cntrl_space_blank,
-	__CTYPE_cntrl_nonspace
-};
-#endif
+/* Pull in __CTYPE_xxx constants */
+#include <bits/uClibc_charclass.h>
 
 
 /* The following is used to implement wctype(), but it is defined
@@ -502,7 +468,6 @@ libc_hidden_def(towupper)
 #ifdef L_wctype
 
 static const unsigned char typestring[] = __CTYPE_TYPESTRING;
-/*  extern const unsigned char typestring[]; */
 
 /* libc_hidden_proto(wctype) */
 wctype_t wctype(const char *property)
@@ -513,7 +478,7 @@ wctype_t wctype(const char *property)
 	p = typestring;
 	i = 1;
 	do {
-		if (!strcmp(property, ++p)) {
+		if (!strcmp(property, (const char *) ++p)) {
 			return i;
 		}
 		++i;
@@ -913,10 +878,10 @@ wctrans_t wctrans(const char *property)
 	const unsigned char *p;
 	int i;
 
-	p = transstring;
+	p = (const unsigned char *) transstring;
 	i = 1;
 	do {
-		if (!strcmp(property, ++p)) {
+		if (!strcmp(property, (const char*) ++p)) {
 			return i;
 		}
 		++i;

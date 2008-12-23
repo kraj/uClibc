@@ -33,19 +33,43 @@
 #include <string.h>
 
 #undef memchr
-void *memchr(const void *cs, int c, size_t count)
+//#define memchr TESTING
+void *memchr(const void *s, int c, size_t count)
 {
-    int d0;
-    register void * __res;
-    if (!count)
-	return NULL;
-    __asm__ __volatile__(
-	    "repne\n\t"
-	    "scasb\n\t"
-	    "je 1f\n\t"
-	    "movl $1,%0\n"
-	    "1:\tdecl %0"
-	    :"=D" (__res), "=&c" (d0) : "a" (c),"0" (cs),"1" (count));
-    return __res;
+	void *edi;
+	int ecx;
+	__asm__ __volatile__(
+		"	jecxz	1f\n"
+		"	repne; scasb\n"
+		"	leal	-1(%%edi), %%edi\n"
+		"	je	2f\n"
+		"1:\n"
+		"	xorl	%%edi, %%edi\n" /* NULL */
+		"2:\n"
+		: "=&D" (edi), "=&c" (ecx)
+		: "a" (c), "0" (s), "1" (count)
+		/* : no clobbers */
+	);
+	return edi;
 }
+#ifndef memchr
 libc_hidden_def(memchr)
+#else
+/* Uncomment TESTING, gcc -D_GNU_SOURCE -m32 -Os memchr.c -o memchr
+ * and run ./memchr
+ */
+int main()
+{
+	static const char str[] = "abc.def";
+	printf((char*)memchr(str, '.',-2) - str == 3 ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.',-1) - str == 3 ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 0) == NULL    ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 1) == NULL    ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 2) == NULL    ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 3) == NULL    ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 4) - str == 3 ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str, '.', 5) - str == 3 ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str+3, '.', 0) == NULL    ? "ok\n" : "BAD!\n");
+	printf((char*)memchr(str+3, '.', 5) - str == 3 ? "ok\n" : "BAD!\n");
+}
+#endif

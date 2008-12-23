@@ -3993,5 +3993,5 @@ static void dump_collate(FILE *fp)
 
 	fprintf(fp,"}; /* %8lu */\n", collate_pos);
 
-	fprintf(fp,"#define __lc_collate_data_LEN  %d\n\n", collate_pos);
+	fprintf(fp,"#define __lc_collate_data_LEN  %lu\n\n", collate_pos);
 }

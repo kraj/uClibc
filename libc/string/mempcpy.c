@@ -12,6 +12,7 @@
 #ifdef WANT_WIDE
 # define Wmempcpy wmempcpy
 #else
+# undef mempcpy
 # define Wmempcpy mempcpy
 #endif
 

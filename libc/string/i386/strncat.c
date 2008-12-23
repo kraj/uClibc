@@ -32,30 +32,55 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(strncat) */
-char *strncat(char * dest,
-	const char * src, size_t count)
+#undef strncat
+//#define strncat TESTING
+char *strncat(char * dest, const char * src, size_t count)
 {
-    int d0, d1, d2, d3;
-    __asm__ __volatile__(
-	    "repne\n\t"
-	    "scasb\n\t"
-	    "decl %1\n\t"
-	    "movl %8,%3\n"
-	    "incl %3\n"
-	    "1:\tdecl %3\n\t"
-	    "jz 2f\n"
-	    "lodsb\n\t"
-	    "stosb\n\t"
-	    "testb %%al,%%al\n\t"
-	    "jne 1b\n"
-	    "jmp 3f\n"
-	    "2:\txorl %2,%2\n\t"
-	    "stosb\n"
-	    "3:"
-	    : "=&S" (d0), "=&D" (d1), "=&a" (d2), "=&c" (d3)
-	    : "0" (src),"1" (dest),"2" (0),"3" (0xffffffff), "g" (count)
-	    : "memory");
-    return dest;
+	int esi, edi, eax, ecx, edx;
+	__asm__ __volatile__(
+		"	xorl	%%eax, %%eax\n"
+		"	incl	%%edx\n"
+		"	pushl	%%edi\n" /* save dest */
+		"	repne; scasb\n"
+		"	decl	%%edi\n" /* edi => NUL in dest */
+		/* count-- */
+		"1:	decl	%%edx\n"
+		/* if count reached 0, store NUL and bail out */
+		"	movl	%%edx, %%eax\n"
+		"	jz	2f\n"
+		/* else copy a char */
+		"	lodsb\n"
+		"2:	stosb\n"
+		"	testb	%%al, %%al\n"
+		"	jnz	1b\n"
+		/* end of loop */
+		"	popl	%%eax\n" /* restore dest into eax */
+		: "=&S" (esi), "=&D" (edi), "=&a" (eax), "=&c" (ecx), "=&d" (edx)
+		: "0" (src), "1" (dest), "3" (0xffffffff), "4" (count)
+		: "memory"
+	);
+	return (char *)eax;
 }
+#ifndef strncat
 libc_hidden_def(strncat)
+#else
+/* Uncomment TESTING, gcc -m32 -Os strncat.c -o strncat
+ * and run ./strncat
+ */
+int main()
+{
+	char buf[99];
+
+	strcpy(buf, "abc"); buf[4] = '*'; strncat(buf, "def", 0);
+	printf(strcmp(buf, "abc") == 0 && buf[4] == '*' ? "ok\n" : "BAD!\n");
+
+	strcpy(buf, "abc"); buf[6] = 1; buf[7] = '*'; strncat(buf, "def", 50);
+	printf(strcmp(buf, "abcdef") == 0 && buf[7] == '*' ? "ok\n" : "BAD!\n");
+
+	strcpy(buf, "abc"); buf[6] = 1; buf[7] = '*'; strncat(buf, "def", -1);
+	printf(strcmp(buf, "abcdef") == 0 && buf[7] == '*' ? "ok\n" : "BAD!\n");
+
+	strcpy(buf, "abc"); buf[6] = 1; buf[7] = '*'; strncat(buf, "def123", 3);
+	printf(strcmp(buf, "abcdef") == 0 && buf[7] == '*' ? "ok\n" : "BAD!\n");
+}
+#endif

@@ -31,49 +31,45 @@
 #include <netinet/ether.h>
 #include <netinet/if_ether.h>
 
-/* libc_hidden_proto(ether_ntoa_r) */
-/* libc_hidden_proto(sprintf) */
-#ifdef __UCLIBC_HAS_XLOCALE__
-/* libc_hidden_proto(__ctype_b_loc) */
-/* libc_hidden_proto(__ctype_tolower_loc) */
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-/* libc_hidden_proto(__ctype_b) */
-/* libc_hidden_proto(__ctype_tolower) */
-#endif
-
 struct ether_addr *ether_aton_r(const char *asc, struct ether_addr *addr)
 {
-	size_t cnt;
+	/* asc is "X:XX:XX:x:xx:xX" */
+	int cnt;
 
 	for (cnt = 0; cnt < 6; ++cnt) {
-		unsigned int number;
+		unsigned char number;
 		char ch;
 
-		ch = _tolower(*asc++);
+		/* | 0x20 is cheap tolower(), valid for letters/numbers only */
+		ch = (*asc++) | 0x20;
 		if ((ch < '0' || ch > '9') && (ch < 'a' || ch > 'f'))
 			return NULL;
-		number = isdigit(ch) ? (ch - '0') : (ch - 'a' + 10);
+		number = !(ch > '9') ? (ch - '0') : (ch - 'a' + 10);
 
-		ch = _tolower(*asc);
-		if ((cnt < 5 && ch != ':')
-			|| (cnt == 5 && ch != '\0' && !isspace(ch))) {
-			++asc;
+		ch = *asc++;
+		if ((cnt != 5 && ch != ':') /* not last group */
+		/* What standard says ASCII ether address representation
+		 * may also finish with whitespace, not only NUL?
+		 * We can get rid of isspace() otherwise */
+		 || (cnt == 5 && ch != '\0' /*&& !isspace(ch)*/)
+		) {
+			ch |= 0x20; /* cheap tolower() */
 			if ((ch < '0' || ch > '9') && (ch < 'a' || ch > 'f'))
 				return NULL;
-			number <<= 4;
-			number += isdigit(ch) ? (ch - '0') : (ch - 'a' + 10);
+			number = (number << 4) + (!(ch > '9') ? (ch - '0') : (ch - 'a' + 10));
 
-			ch = *asc;
-			if (cnt < 5 && ch != ':')
-				return NULL;
+			if (cnt != 5) {
+				ch = *asc++;
+				if (ch != ':')
+					return NULL;
+			}
 		}
 
 		/* Store result.  */
-		addr->ether_addr_octet[cnt] = (unsigned char) number;
-
-		/* Skip ':'.  */
-		++asc;
+		addr->ether_addr_octet[cnt] = number;
 	}
+	/* Looks like we allow garbage after last group?
+	 * "1:2:3:4:5:66anything_at_all"? */
 
 	return addr;
 }

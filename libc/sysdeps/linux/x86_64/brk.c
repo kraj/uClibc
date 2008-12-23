@@ -25,19 +25,20 @@
 void *__curbrk attribute_hidden = 0;
 
 /* libc_hidden_proto(brk) */
-int brk (void *addr)
+int brk(void *addr)
 {
-	void *__unbounded newbrk;
+	void *newbrk;
 
 	__asm__ ("syscall\n"
-	     : "=a" (newbrk)
-	     : "0" (__NR_brk), "D" (__ptrvalue (addr))
-	     : "r11","rcx","memory");
+		: "=a" (newbrk)
+		: "0" (__NR_brk), "D" (addr)
+		: "r11", "rcx"
+	);
 
 	__curbrk = newbrk;
 
 	if (newbrk < addr) {
-		__set_errno (ENOMEM);
+		__set_errno(ENOMEM);
 		return -1;
 	}
 

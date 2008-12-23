@@ -26,10 +26,6 @@
 #include <endian.h>
 
 #if __BYTE_ORDER == __BIG_ENDIAN
-# define WORDS_BIGENDIAN
-#endif
-
-#ifdef WORDS_BIGENDIAN
 # define CMP_LT_OR_GT(a, b) ((a) > (b) ? 1 : -1)
 #else
 # define CMP_LT_OR_GT(a, b) memcmp_bytes ((a), (b))
@@ -48,17 +44,12 @@
 
    3. Compare the few remaining bytes.  */
 
-#ifndef WORDS_BIGENDIAN
+#if __BYTE_ORDER != __BIG_ENDIAN
 /* memcmp_bytes -- Compare A and B bytewise in the byte order of the machine.
    A and B are known to be different.
    This is needed only on little-endian machines.  */
 
-static int memcmp_bytes __P((op_t, op_t));
-
-# ifdef  __GNUC__
-__inline
-# endif
-static int
+static __inline__ int
 memcmp_bytes (op_t a, op_t b)
 {
   long int srcp1 = (long int) &a;
@@ -76,8 +67,6 @@ memcmp_bytes (op_t a, op_t b)
   return a0 - b0;
 }
 #endif
-
-static int memcmp_common_alignment __P((long, long, size_t));
 
 /* memcmp_common_alignment -- Compare blocks at SRCP1 and SRCP2 with LEN `op_t'
    objects (not LEN bytes!).  Both SRCP1 and SRCP2 should be aligned for
@@ -160,8 +149,6 @@ memcmp_common_alignment (long int srcp1, long int srcp2, size_t len)
     return CMP_LT_OR_GT (a1, b1);
   return 0;
 }
-
-static int memcmp_not_common_alignment __P((long, long, size_t));
 
 /* memcmp_not_common_alignment -- Compare blocks at SRCP1 and SRCP2 with LEN
    `op_t' objects (not LEN bytes!).  SRCP2 should be aligned for memory
