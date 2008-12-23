@@ -77,7 +77,7 @@ int __sigwaitinfo(const sigset_t *set, siginfo_t *info)
 # else
 #  define __need_NULL
 #  include <stddef.h>
-#  define __NR___rt_sigwaitinfo __NR_rt_sigwaitinfo
+#  define __NR___rt_sigwaitinfo __NR_rt_sigtimedwait
 static _syscall4(int, __rt_sigwaitinfo, const sigset_t *, set,
 				 siginfo_t *, info, const struct timespec *, timeout,
 				 size_t, setsize);

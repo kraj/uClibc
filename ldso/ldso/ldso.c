@@ -842,6 +842,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_protect_relro (tpnt);
 	}
 
+#if USE_TLS
 	if (!was_tls_init_tp_called && _dl_tls_max_dtv_idx > 0)
 		++_dl_tls_generation;
 
@@ -863,6 +864,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_exit(30);
 		}
 	}
+#endif /* USE_TLS */
+
 	/* OK, at this point things are pretty much ready to run.  Now we need
 	 * to touch up a few items that are required, and then we can let the
 	 * user application have at it.  Note that the dynamic linker itself

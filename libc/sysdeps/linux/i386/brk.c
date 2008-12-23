@@ -25,25 +25,28 @@
 void *__curbrk attribute_hidden = 0;
 
 /* libc_hidden_proto(brk) */
-int brk (void *addr)
+int brk(void *addr)
 {
-    void *__unbounded newbrk, *__unbounded scratch;
+	void *newbrk;
 
-    __asm__ ("movl %%ebx, %1\n"	/* Save %ebx in scratch register.  */
-	    "movl %3, %%ebx\n"	/* Put ADDR in %ebx to be syscall arg.  */
-	    "int $0x80 # %2\n"	/* Perform the system call.  */
-	    "movl %1, %%ebx\n"	/* Restore %ebx from scratch register.  */
-	    : "=a" (newbrk), "=r" (scratch)
-	    : "0" (__NR_brk), "g" (__ptrvalue (addr)));
+	/* %ebx is used in PIC code, need to save/restore it manually.
+	 * gcc won't do it for us if we will request it in constraints
+	 */
+	__asm__("pushl	%%ebx\n"
+		"movl	%2, %%ebx\n"
+		"int	$0x80\n"
+		"popl	%%ebx\n"
+		: "=a" (newbrk)
+		: "0" (__NR_brk), "g" (addr)
+	);
 
-    __curbrk = newbrk;
+	__curbrk = newbrk;
 
-    if (newbrk < addr)
-    {
-	__set_errno (ENOMEM);
-	return -1;
-    }
+	if (newbrk < addr) {
+		__set_errno(ENOMEM);
+		return -1;
+	}
 
-    return 0;
+	return 0;
 }
 libc_hidden_def(brk)
