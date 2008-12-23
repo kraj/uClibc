@@ -26,7 +26,7 @@ static ssize_t __writev (int fd, const struct iovec *vector, int count)
     return bytes_written;
 
   /* glibc tries again, but we do not. */
-  //return __atomic_writev_replacement (fd, vector, count);
+  /* return __atomic_writev_replacement (fd, vector, count); */
 
   return -1;
 }
@@ -46,5 +46,5 @@ ssize_t writev (int fd, const struct iovec *vector, int count)
 }
 #else
 _syscall3(ssize_t, writev, int, filedes, const struct iovec *, vector,
-		  int, count);
+		  int, count)
 #endif

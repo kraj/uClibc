@@ -19,9 +19,9 @@ libc_hidden_proto(sigprocmask)
 #ifdef __NR_rt_sigprocmask
 
 # define __NR___rt_sigprocmask __NR_rt_sigprocmask
-static inline
+static __always_inline
 _syscall4(int, __rt_sigprocmask, int, how, const sigset_t *, set,
-		  sigset_t *, oldset, size_t, size);
+		  sigset_t *, oldset, size_t, size)
 
 int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 {
@@ -54,9 +54,9 @@ int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 #else
 
 # define __NR___syscall_sigprocmask __NR_sigprocmask
-static inline
+static __always_inline
 _syscall3(int, __syscall_sigprocmask, int, how, const sigset_t *, set,
-		  sigset_t *, oldset);
+		  sigset_t *, oldset)
 
 int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 {

@@ -46,5 +46,5 @@ ssize_t readv (int fd, const struct iovec *vector, int count)
 }
 #else
 _syscall3(ssize_t, readv, int, filedes, const struct iovec *, vector,
-		  int, count);
+		  int, count)
 #endif

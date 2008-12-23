@@ -18,18 +18,22 @@
 #endif
 
 #define __NR___syscall_msync __NR_msync
-static inline _syscall3(int, __syscall_msync, void *, addr, size_t, length,
-						int, flags);
+static __always_inline _syscall3(int, __syscall_msync, void *, addr, size_t, length,
+						int, flags)
 
 extern __typeof(msync) __libc_msync;
 int __libc_msync(void * addr, size_t length, int flags)
 {
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype, result;
+#endif
+
 	if (SINGLE_THREAD_P)
-	return __syscall_msync(addr, length, flags);
+		return __syscall_msync(addr, length, flags);
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __syscall_msync(addr, length, flags);
+	oldtype = LIBC_CANCEL_ASYNC ();
+	result = __syscall_msync(addr, length, flags);
 	LIBC_CANCEL_RESET (oldtype);
 	return result;
 #endif

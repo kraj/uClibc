@@ -20,8 +20,8 @@
 libc_hidden_proto(ioctl)
 
 #define __NR___syscall_ioctl __NR_ioctl
-static inline
-_syscall3(int, __syscall_ioctl, int, fd, unsigned long int, request, void *, arg);
+static __always_inline
+_syscall3(int, __syscall_ioctl, int, fd, unsigned long int, request, void *, arg)
 
 int ioctl(int fd, unsigned long int request, ...)
 {

@@ -12,5 +12,5 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-_syscall4(int, waitid, idtype_t, idtype, id_t, id, siginfo_t*, infop, int, options);
+_syscall4(int, waitid, idtype_t, idtype, id_t, id, siginfo_t*, infop, int, options)
 #endif
