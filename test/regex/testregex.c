@@ -298,7 +298,7 @@ H("</HTML>\n");
 #define streq(a,b)	(*(a)==*(b)&&!strcmp(a,b))
 #endif
 
-#define HUNG		2
+#define HUNG		5
 #define NOTEST		(~0)
 
 #ifndef REG_TEST_DEFAULT
@@ -1111,7 +1111,7 @@ catchfree(regex_t* preg, int flags, int* tabs, char* spec, char* re, char* s, ch
 }
 
 int
-main(int argc, char** argv)
+old_main(int unused_param_argc, char** argv)
 {
 	int		flags;
 	int		cflags;
@@ -2103,7 +2103,7 @@ main(int argc, char** argv)
 				printf(" %-.*s", subunitlen, subunit);
 			printf(", %d test%s", testno, testno == 1 ? "" : "s");
 			if (state.ignored)
-				printf(", %d ignored mismatche%s", state.ignored, state.ignored == 1 ? "" : "s");
+				printf(", %d ignored mismatch%s", state.ignored, state.ignored == 1 ? "" : "es");
 			if (state.warnings)
 				printf(", %d warning%s", state.warnings, state.warnings == 1 ? "" : "s");
 			if (state.unspecified)
@@ -2116,4 +2116,30 @@ main(int argc, char** argv)
 			fclose(fp);
 	}
 	return 0;
+}
+
+int main(int argc, char **argv)
+{
+	static char *param[][4] = {
+		{ NULL,       "basic.dat"         , NULL },
+		{ NULL,       "categorize.dat"    , NULL },
+		{ NULL,       "forcedassoc.dat"   , NULL },
+		{ NULL, "-c", "interpretation.dat", NULL },
+		{ NULL,       "leftassoc.dat"     , NULL },
+		{ NULL, "-c", "nullsubexpr.dat"   , NULL },
+		{ NULL,       "repetition.dat"    , NULL },
+		{ NULL,       "rightassoc.dat"    , NULL },
+	};
+	int r, i;
+
+	if (argv[1])
+		return old_main(argc, argv);
+
+	r = 0;
+	for (i = 0; i < sizeof(param) / sizeof(param[0]); i++) {
+		param[i][0] = argv[0];
+		printf("Testing %s\n", param[i][1][0] != '-' ? param[i][1] : param[i][2]);
+		r |= old_main(3 /* not used */, param[i]);
+	}
+	return r;
 }
