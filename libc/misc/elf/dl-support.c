@@ -11,14 +11,14 @@
  *
  */
 
+#include <link.h>
+#include <elf.h>
 #if USE_TLS
 #include <assert.h>
 #include <tls.h>
 #include <ldsodefs.h>
 #include <string.h>
 #endif
-#include <link.h>
-#include <elf.h>
 
 #if USE_TLS
 
