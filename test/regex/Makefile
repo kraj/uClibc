@@ -5,8 +5,6 @@
 
 include ../Test.mak
 
-CFLAGS_tst-regex2 := -std=c99
-
 OPTS_testregex := < basic.dat
 OPTS_testregexc := < categorize.dat
 OPTS_testregexf := < forcedassoc.dat

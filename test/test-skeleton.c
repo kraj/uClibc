@@ -190,6 +190,16 @@ timeout_handler (int sig __attribute__ ((unused)))
   exit (1);
 }
 
+static void
+__attribute__ ((noreturn))
+handler_killpid(int sig)
+{
+	kill(pid, SIGKILL); /* kill test */
+	signal(sig, SIG_DFL);
+	raise(sig); /* kill ourself */
+	_exit(128 + sig); /* paranoia */
+}
+
 /* We provide the entry point here.  */
 int
 main (int argc, char *argv[])
@@ -331,6 +341,10 @@ main (int argc, char *argv[])
       perror ("Cannot fork test program");
       exit (1);
     }
+
+  signal (SIGTERM, handler_killpid);
+  signal (SIGINT, handler_killpid);
+  signal (SIGQUIT, handler_killpid);
 
   /* Set timeout.  */
 #ifndef TIMEOUT
