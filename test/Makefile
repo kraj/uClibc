@@ -47,7 +47,10 @@ test check all: run
 
 run: compile subdirs_run
 
-compile: subdirs_compile
+compile: $(top_builddir)/$(LOCAL_INSTALL_PATH) subdirs_compile
+
+$(top_builddir)/$(LOCAL_INSTALL_PATH):
+	$(Q)$(MAKE) -C $(top_builddir) $(LOCAL_INSTALL_PATH)
 
 tags:
 	ctags -R
