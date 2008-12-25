@@ -6099,7 +6099,7 @@ byte_re_match_2_internal (
                 { /* No.  So allocate them with malloc.  We need one
                      extra element beyond `num_regs' for the `-1' marker
                      GNU code uses.  */
-                  regs->num_regs = MAX (RE_NREGS, num_regs + 1);
+                  regs->num_regs = MIN (RE_NREGS, num_regs + 1);
                   regs->start = TALLOC (regs->num_regs, regoff_t);
                   regs->end = TALLOC (regs->num_regs, regoff_t);
                   if (regs->start == NULL || regs->end == NULL)
