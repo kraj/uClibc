@@ -19,11 +19,15 @@ make all
 This will build and run tests.
 
 The following make variables may help you in testing:
+
  - UCLIBC_ONLY  - only run tests against uClibc
  - GLIBC_ONLY   - only run tests against glibc
  - V / VERBOSE  - run tests with a lot of output
  - TEST_INSTALLED_UCLIBC - Test installed libraries 
                            under /lib and /usr/lib.
+ - TIMEOUTFACTOR=nn - increase test timeout nn times.
+                  At least REGEX_OLD + regex/tst-regex2 needs it increased.
+
 So, to just run the uClibc tests, try this:
 make check UCLIBC_ONLY=1
 
