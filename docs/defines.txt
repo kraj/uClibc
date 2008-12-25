@@ -49,6 +49,11 @@ _EXTERN_INLINE
 __extern_inline
     Defined to "extern inline", modulo gcc/C standard deviations.
     Can't be used by user to play tricks as with _EXTERN_INLINE.
+internal_function
+    Used to modify function's calling convention, if "standard" one
+    is suboptimal. Examples:
+	int func(params) internal_function;
+	int internal_function func(params) { body }
 
 _LIBC
 UCLIBC_INTERNAL
