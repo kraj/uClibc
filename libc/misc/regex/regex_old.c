@@ -7832,10 +7832,9 @@ PREFIX(bcmp_translate) (
    We call regex_compile to do the actual compilation.  */
 
 const char *
-re_compile_pattern (
-     const char *pattern,
-     size_t length,
-     struct re_pattern_buffer *bufp)
+re_compile_pattern (const char *pattern,
+		size_t length,
+		struct re_pattern_buffer *bufp)
 {
   reg_errcode_t ret;
 
