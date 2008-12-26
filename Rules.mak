@@ -467,9 +467,11 @@ endif
 
 NOSTDLIB_CFLAGS:=$(call check_gcc,-nostdlib,)
 # Some nice CFLAGS to work with
+# Why -funsigned-char: I hunted a bug related to incorrect
+# sign extension of 'char' type for 10 hours straight. Not fun.
 CFLAGS := -include $(top_builddir)include/libc-symbols.h \
 	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-fno-builtin -nostdinc -I$(top_builddir)include -I. \
+	-funsigned-char -fno-builtin -nostdinc -I$(top_builddir)include -I. \
 	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
 
 # Make sure that we can be built with non-C99 compilers, too.
