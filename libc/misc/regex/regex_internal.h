@@ -27,66 +27,36 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined HAVE_LANGINFO_H || defined HAVE_LANGINFO_CODESET || defined _LIBC
+#if defined HAVE_LANGINFO_H || defined HAVE_LANGINFO_CODESET
 # include <langinfo.h>
 #endif
-#if defined HAVE_LOCALE_H || defined _LIBC
+#if defined HAVE_LOCALE_H
 # include <locale.h>
 #endif
-#if defined HAVE_WCHAR_H || defined _LIBC
+#if defined HAVE_WCHAR_H
 # include <wchar.h>
 #endif
-#if defined HAVE_WCTYPE_H || defined _LIBC
+#if defined HAVE_WCTYPE_H
 # include <wctype.h>
 #endif
-#if defined HAVE_STDBOOL_H || defined _LIBC
+#if defined HAVE_STDBOOL_H
 # include <stdbool.h>
 #endif
-#if defined HAVE_STDINT_H || defined _LIBC
+#if defined HAVE_STDINT_H
 # include <stdint.h>
 #endif
-#if defined _LIBC
-# include <bits/libc-lock.h>
-#else
-# define __libc_lock_define(CLASS,NAME)
-# define __libc_lock_init(NAME) do { } while (0)
-# define __libc_lock_lock(NAME) do { } while (0)
-# define __libc_lock_unlock(NAME) do { } while (0)
-#endif
 
-/* In case that the system doesn't have isblank().  */
-#if !defined _LIBC && !defined HAVE_ISBLANK && !defined isblank && !defined __UCLIBC__
-# define isblank(ch) ((ch) == ' ' || (ch) == '\t')
-#endif
+#define __libc_lock_define(CLASS, NAME)
+#define __libc_lock_init(NAME)   do { } while (0)
+#define __libc_lock_lock(NAME)   do { } while (0)
+#define __libc_lock_unlock(NAME) do { } while (0)
 
-#if defined _LIBC && !defined __UCLIBC__
-# ifndef _RE_DEFINE_LOCALE_FUNCTIONS
-#  define _RE_DEFINE_LOCALE_FUNCTIONS 1
-#   include <locale/localeinfo.h>
-#   include <locale/elem-hash.h>
-#   include <locale/coll-lookup.h>
-# endif
-#endif
+#undef gettext
+#undef gettext_noop
+#define gettext(msgid)       (msgid)
+#define gettext_noop(String) String
 
-/* This is for other GNU distributions with internationalized messages.  */
-#if (HAVE_LIBINTL_H && ENABLE_NLS) || defined _LIBC
-# include <libintl.h>
-# ifdef _LIBC
-#  undef gettext
-#  define gettext(msgid) \
-  INTUSE(__dcgettext) (_libc_intl_domainname, msgid, LC_MESSAGES)
-# endif
-#else
-# define gettext(msgid) (msgid)
-#endif
-
-#ifndef gettext_noop
-/* This define is so xgettext can find the internationalizable
-   strings.  */
-# define gettext_noop(String) String
-#endif
-
-#if (defined MB_CUR_MAX && HAVE_LOCALE_H && HAVE_WCTYPE_H && HAVE_WCHAR_H && HAVE_WCRTOMB && HAVE_MBRTOWC && HAVE_WCSCOLL) || _LIBC
+#if (defined MB_CUR_MAX && HAVE_LOCALE_H && HAVE_WCTYPE_H && HAVE_WCHAR_H && HAVE_WCRTOMB && HAVE_MBRTOWC && HAVE_WCSCOLL)
 # define RE_ENABLE_I18N
 #endif
 
@@ -107,15 +77,6 @@
 /* The character which represents newline.  */
 #define NEWLINE_CHAR '\n'
 #define WIDE_NEWLINE_CHAR L'\n'
-
-/* Rename to standard API for using out of glibc.  */
-#if !defined _LIBC && !defined __UCLIBC__
-# define __wctype wctype
-# define __iswctype iswctype
-# define __btowc btowc
-# define __wcrtomb wcrtomb
-# define attribute_hidden
-#endif /* not _LIBC */
 
 #ifdef __GNUC__
 # define __attribute(arg) __attribute__ (arg)
@@ -236,23 +197,23 @@ typedef struct
   wchar_t *mbchars;
 
   /* Collating symbols.  */
-# ifdef _LIBC
+# if 0
   int32_t *coll_syms;
 # endif
 
   /* Equivalence classes. */
-# ifdef _LIBC
+# if 0
   int32_t *equiv_classes;
 # endif
 
   /* Range expressions. */
-# ifdef _LIBC
+# if 0
   uint32_t *range_starts;
   uint32_t *range_ends;
-# else /* not _LIBC */
+# else
   wchar_t *range_starts;
   wchar_t *range_ends;
-# endif /* not _LIBC */
+# endif
 
   /* Character classes. */
   wctype_t *char_classes;
@@ -399,7 +360,7 @@ static unsigned int re_string_context_at (const re_string_t *input, int idx,
 
 #include <alloca.h>
 
-#ifndef _LIBC
+#if 1
 # if HAVE_ALLOCA
 /* The OS usually guarantees only one guard page at the bottom of the stack,
    and a page size can be as small as 4096 bytes.  So we cannot safely
@@ -544,11 +505,7 @@ typedef struct
 {
   /* The string object corresponding to the input string.  */
   re_string_t input;
-#if defined _LIBC || (defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L)
-  const re_dfa_t *const dfa;
-#else
   const re_dfa_t *dfa;
-#endif
   /* EFLAGS of the argument of regexec.  */
   int eflags;
   /* Where the matching ends.  */
@@ -721,7 +678,7 @@ static int
 internal_function __attribute ((pure))
 re_string_elem_size_at (const re_string_t *pstr, int idx)
 {
-# ifdef _LIBC
+# if 0
   const unsigned char *p, *extra;
   const int32_t *table, *indirect;
   int32_t tmp;
@@ -739,7 +696,7 @@ re_string_elem_size_at (const re_string_t *pstr, int idx)
       tmp = findidx (&p);
       return p - pstr->mbs - idx;
     }
-# endif /* _LIBC */
+# endif
   return 1;
 }
 #endif /* RE_ENABLE_I18N */
