@@ -126,7 +126,7 @@ static reg_errcode_t mark_opt_subexp (void *extra, bin_tree_t *node);
    POSIX doesn't require that we do anything for REG_NOERROR,
    but why not be nice?  */
 
-const char __re_error_msgid[] attribute_hidden =
+static const char __re_error_msgid[] =
   {
 #define REG_NOERROR_IDX	0
     gettext_noop ("Success")	/* REG_NOERROR */
@@ -180,7 +180,7 @@ const char __re_error_msgid[] attribute_hidden =
     gettext_noop ("Unmatched ) or \\)") /* REG_ERPAREN */
   };
 
-const size_t __re_error_msgid_idx[] attribute_hidden =
+static const uint16_t __re_error_msgid_idx[] =
   {
     REG_NOERROR_IDX,
     REG_NOMATCH_IDX,
@@ -232,9 +232,6 @@ re_compile_pattern (pattern, length, bufp)
     return NULL;
   return gettext (__re_error_msgid + __re_error_msgid_idx[(int) ret]);
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_compile_pattern, re_compile_pattern)
-#endif
 
 /* Set by `re_set_syntax' to the current regexp syntax to recognize.  Can
    also be assigned to arbitrarily: each pattern buffer stores its own
@@ -260,9 +257,6 @@ re_set_syntax (syntax)
   re_syntax_options = syntax;
   return ret;
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_set_syntax, re_set_syntax)
-#endif
 
 int
 re_compile_fastmap (bufp)
@@ -282,9 +276,7 @@ re_compile_fastmap (bufp)
   bufp->fastmap_accurate = 1;
   return 0;
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_compile_fastmap, re_compile_fastmap)
-#endif
+libc_hidden_def(re_compile_fastmap)
 
 static __inline__ void
 __attribute ((always_inline))
@@ -498,9 +490,6 @@ regcomp (preg, pattern, cflags)
 
   return (int) ret;
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__regcomp, regcomp)
-#endif
 
 /* Returns a message corresponding to an error code, ERRCODE, returned
    from either regcomp or regexec.   We don't use PREG here.  */
@@ -532,12 +521,8 @@ regerror (errcode, preg, errbuf, errbuf_size)
     {
       if (BE (msg_size > errbuf_size, 0))
 	{
-#if (defined HAVE_MEMPCPY || defined _LIBC) && defined __USE_GNU
-	  *((char *) __mempcpy (errbuf, msg, errbuf_size - 1)) = '\0';
-#else
 	  memcpy (errbuf, msg, errbuf_size - 1);
 	  errbuf[errbuf_size - 1] = 0;
-#endif
 	}
       else
 	memcpy (errbuf, msg, msg_size);
@@ -545,9 +530,6 @@ regerror (errcode, preg, errbuf, errbuf_size)
 
   return msg_size;
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__regerror, regerror)
-#endif
 
 
 #ifdef RE_ENABLE_I18N
@@ -629,9 +611,7 @@ regfree (preg)
   re_free (preg->translate);
   preg->translate = NULL;
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__regfree, regfree)
-#endif
+libc_hidden_def(regfree)
 
 /* Entry points compatible with 4.2 BSD regex library.  We don't define
    them unless specifically requested.  */
@@ -665,7 +645,7 @@ re_comp (s)
     {
       fastmap = re_comp_buf.fastmap;
       re_comp_buf.fastmap = NULL;
-      __regfree (&re_comp_buf);
+      regfree (&re_comp_buf);
       memset (&re_comp_buf, '\0', sizeof (re_comp_buf));
       re_comp_buf.fastmap = fastmap;
     }
@@ -696,7 +676,7 @@ re_comp (s)
 #ifdef _LIBC
 libc_freeres_fn (free_mem)
 {
-  __regfree (&re_comp_buf);
+  regfree (&re_comp_buf);
 }
 #endif
 

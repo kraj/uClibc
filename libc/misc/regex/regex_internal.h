@@ -29,23 +29,22 @@
 
 #if defined HAVE_LANGINFO_H || defined HAVE_LANGINFO_CODESET || defined _LIBC
 # include <langinfo.h>
-/* libc_hidden_proto(nl_langinfo) */
 #endif
 #if defined HAVE_LOCALE_H || defined _LIBC
 # include <locale.h>
 #endif
 #if defined HAVE_WCHAR_H || defined _LIBC
 # include <wchar.h>
-#endif /* HAVE_WCHAR_H || _LIBC */
+#endif
 #if defined HAVE_WCTYPE_H || defined _LIBC
 # include <wctype.h>
-#endif /* HAVE_WCTYPE_H || _LIBC */
+#endif
 #if defined HAVE_STDBOOL_H || defined _LIBC
 # include <stdbool.h>
-#endif /* HAVE_STDBOOL_H || _LIBC */
+#endif
 #if defined HAVE_STDINT_H || defined _LIBC
 # include <stdint.h>
-#endif /* HAVE_STDINT_H || _LIBC */
+#endif
 #if defined _LIBC
 # include <bits/libc-lock.h>
 #else
@@ -92,7 +91,9 @@
 #endif
 
 #if __GNUC__ >= 3
-# define BE(expr, val) __builtin_expect (expr, val)
+/* uclibc: lean towards smaller size a bit:
+ * OFF: # define BE(expr, val) __builtin_expect (expr, val) */
+# define BE(expr, val) (expr)
 #else
 # define BE(expr, val) (expr)
 # define inline
@@ -112,9 +113,7 @@
 # define __wctype wctype
 # define __iswctype iswctype
 # define __btowc btowc
-# define __mempcpy mempcpy
 # define __wcrtomb wcrtomb
-# define __regfree regfree
 # define attribute_hidden
 #endif /* not _LIBC */
 
@@ -123,9 +122,6 @@
 #else
 # define __attribute(arg)
 #endif
-
-extern const char __re_error_msgid[] attribute_hidden;
-extern const size_t __re_error_msgid_idx[] attribute_hidden;
 
 /* An integer used to represent a set of bits.  It must be unsigned,
    and must be at least as wide as unsigned int.  */
@@ -369,17 +365,8 @@ struct re_string_t
 };
 typedef struct re_string_t re_string_t;
 
-
 struct re_dfa_t;
 typedef struct re_dfa_t re_dfa_t;
-
-#if !defined _LIBC && !defined __UCLIBC__
-# ifdef __i386__
-#  define internal_function   __attribute ((regparm (3), stdcall))
-# else
-#  define internal_function
-# endif
-#endif
 
 static reg_errcode_t re_string_realloc_buffers (re_string_t *pstr,
 						int new_buf_len)
@@ -752,9 +739,8 @@ re_string_elem_size_at (const re_string_t *pstr, int idx)
       tmp = findidx (&p);
       return p - pstr->mbs - idx;
     }
-  else
 # endif /* _LIBC */
-    return 1;
+  return 1;
 }
 #endif /* RE_ENABLE_I18N */
 
