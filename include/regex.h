@@ -22,12 +22,11 @@
 #ifndef _REGEX_H
 #define _REGEX_H 1
 
+#include <features.h>
+
 #include <sys/types.h>
 
-/* Allow the use in C++ code.  */
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 /* POSIX says that <sys/types.h> must be included (by the caller) before
    <regex.h>.  */
@@ -464,6 +463,7 @@ extern const char *re_compile_pattern (const char *__pattern, size_t __length,
    accelerate searches.  Return 0 if successful and -2 if was an
    internal error.  */
 extern int re_compile_fastmap (struct re_pattern_buffer *__buffer);
+libc_hidden_proto(re_compile_fastmap)
 
 
 /* Search in the string STRING (with length LENGTH) for the pattern
@@ -551,15 +551,15 @@ extern int regexec (const regex_t *__restrict __preg,
 		    const char *__restrict __string, size_t __nmatch,
 		    regmatch_t __pmatch[__restrict_arr],
 		    int __eflags);
+libc_hidden_proto(regexec)
 
 extern size_t regerror (int __errcode, const regex_t *__restrict __preg,
 			char *__restrict __errbuf, size_t __errbuf_size);
 
 extern void regfree (regex_t *__preg);
+libc_hidden_proto(regfree)
 
 
-#ifdef __cplusplus
-}
-#endif	/* C++ */
+__END_DECLS
 
 #endif /* regex.h */

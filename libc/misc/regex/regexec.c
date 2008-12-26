@@ -255,28 +255,7 @@ regexec (preg, string, nmatch, pmatch, eflags)
   __libc_lock_unlock (dfa->lock);
   return err != REG_NOERROR;
 }
-
-#ifdef _LIBC
-# include <shlib-compat.h>
-versioned_symbol (libc, __regexec, regexec, GLIBC_2_3_4);
-
-# if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_3_4)
-__typeof__ (__regexec) __compat_regexec;
-
-int
-attribute_compat_text_section
-__compat_regexec (const regex_t *__restrict preg,
-		  const char *__restrict string, size_t nmatch,
-		  regmatch_t pmatch[], int eflags)
-{
-  return regexec (preg, string, nmatch, pmatch,
-		  eflags & (REG_NOTBOL | REG_NOTEOL));
-}
-compat_symbol (libc, __compat_regexec, regexec, GLIBC_2_0);
-# endif
-#elif defined __UCLIBC__
-strong_alias(__regexec,regexec)
-#endif
+libc_hidden_def(regexec)
 
 /* Entry points for GNU code.  */
 
@@ -316,9 +295,6 @@ re_match (bufp, string, length, start, regs)
 {
   return re_search_stub (bufp, string, length, start, 0, length, regs, 1);
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_match, re_match)
-#endif
 
 int
 re_search (bufp, string, length, start, range, regs)
@@ -329,9 +305,6 @@ re_search (bufp, string, length, start, range, regs)
 {
   return re_search_stub (bufp, string, length, start, range, length, regs, 0);
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_search, re_search)
-#endif
 
 int
 re_match_2 (bufp, string1, length1, string2, length2, start, regs, stop)
@@ -343,9 +316,6 @@ re_match_2 (bufp, string1, length1, string2, length2, start, regs, stop)
   return re_search_2_stub (bufp, string1, length1, string2, length2,
 			   start, 0, regs, stop, 1);
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_match_2, re_match_2)
-#endif
 
 int
 re_search_2 (bufp, string1, length1, string2, length2, start, range, regs, stop)
@@ -357,9 +327,6 @@ re_search_2 (bufp, string1, length1, string2, length2, start, range, regs, stop)
   return re_search_2_stub (bufp, string1, length1, string2, length2,
 			   start, range, regs, stop, 0);
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_search_2, re_search_2)
-#endif
 
 static int
 re_search_2_stub (bufp, string1, length1, string2, length2, start, range, regs,
@@ -385,12 +352,8 @@ re_search_2_stub (bufp, string1, length1, string2, length2, start, range, regs,
 
 	if (BE (s == NULL, 0))
 	  return -2;
-#if (defined _LIBC || defined __UCLIBC__) && defined __USE_GNU
-	memcpy (__mempcpy (s, string1, length1), string2, length2);
-#else
 	memcpy (s, string1, length1);
 	memcpy (s + length1, string2, length2);
-#endif
 	str = s;
 	free_str = 1;
       }
@@ -592,9 +555,6 @@ re_set_registers (bufp, regs, num_regs, starts, ends)
       regs->start = regs->end = (regoff_t *) 0;
     }
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_set_registers, re_set_registers)
-#endif
 
 /* Entry points compatible with 4.2 BSD regex library.  We don't define
    them unless specifically requested.  */

@@ -23,12 +23,10 @@
 /* To exclude some unwanted junk.... */
 #undef emacs
 #include <features.h>
+
 #ifdef __UCLIBC__
 # undef _LIBC
 # define _REGEX_RE_COMP
-# ifdef __USE_GNU
-#  define HAVE_MEMPCPY
-# endif
 # define STDC_HEADERS
 # define RE_TRANSLATE_TYPE char *
 #endif
@@ -38,20 +36,9 @@
 #include <unistd.h>
 #include <stdio.h>
 
-/* Experimentally off - libc_hidden_proto(memset) */
-/* Experimentally off - libc_hidden_proto(memcmp) */
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(strcmp) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* libc_hidden_proto(printf) */
-/* libc_hidden_proto(abort) */
-#ifdef __USE_GNU
-/* Experimentally off - libc_hidden_proto(mempcpy) */
-#endif
-
 /* AIX requires this to be the first thing in the file. */
 #if defined _AIX && !defined REGEX_MALLOC
-  #pragma alloca
+# pragma alloca
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -70,43 +57,15 @@
 
 /* For platform which support the ISO C amendement 1 functionality we
    support user defined character classes.  */
-#if defined __UCLIBC_HAS_WCHAR__
+# if defined __UCLIBC_HAS_WCHAR__
 #  define WIDE_CHAR_SUPPORT 1
 /* Solaris 2.5 has a bug: <wchar.h> must be included before <wctype.h>.  */
 #  include <wchar.h>
 #  include <wctype.h>
-/* libc_hidden_proto(wcslen) */
-/* libc_hidden_proto(mbrtowc) */
-/* libc_hidden_proto(wcrtomb) */
-/* libc_hidden_proto(wcscoll) */
-/* libc_hidden_proto(wctype) */
-/* libc_hidden_proto(iswctype) */
-/* libc_hidden_proto(iswalnum) */
-/* libc_hidden_proto(btowc) */
-
 # endif
 
 # if defined _LIBC || defined __UCLIBC__
 /* We have to keep the namespace clean.  */
-#  define regfree(preg) __regfree (preg)
-#  define regexec(pr, st, nm, pm, ef) __regexec (pr, st, nm, pm, ef)
-#  define regcomp(preg, pattern, cflags) __regcomp (preg, pattern, cflags)
-#  define regerror(errcode, preg, errbuf, errbuf_size) \
-	__regerror(errcode, preg, errbuf, errbuf_size)
-#  define re_set_registers(bu, re, nu, st, en) \
-	__re_set_registers (bu, re, nu, st, en)
-#  define re_match_2(bufp, string1, size1, string2, size2, pos, regs, stop) \
-	__re_match_2 (bufp, string1, size1, string2, size2, pos, regs, stop)
-#  define re_match(bufp, string, size, pos, regs) \
-	__re_match (bufp, string, size, pos, regs)
-#  define re_search(bufp, string, size, startpos, range, regs) \
-	__re_search (bufp, string, size, startpos, range, regs)
-#  define re_compile_pattern(pattern, length, bufp) \
-	__re_compile_pattern (pattern, length, bufp)
-#  define re_set_syntax(syntax) __re_set_syntax (syntax)
-#  define re_search_2(bufp, st1, s1, st2, s2, startpos, range, regs, stop) \
-	__re_search_2 (bufp, st1, s1, st2, s2, startpos, range, regs, stop)
-#  define re_compile_fastmap(bufp) __re_compile_fastmap (bufp)
 
 # ifndef __UCLIBC__
 #  define btowc __btowc
@@ -217,9 +176,6 @@ char *realloc ();
 # endif
 
 /* Get the interface, including the syntax bits.  */
-# ifdef __UCLIBC__
-#  include "_regex.h"
-# endif
 # include <regex.h>
 
 /* isalpha etc. are used for the character classes.  */
@@ -1366,9 +1322,6 @@ re_set_syntax (reg_syntax_t syntax)
 # endif /* DEBUG */
   return ret;
 }
-# if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_set_syntax, re_set_syntax)
-# endif
 
 /* This table gives an error message for each of the error codes listed
    in regex.h.  Obviously the order here has to be same as there.
@@ -1429,7 +1382,7 @@ static const char re_error_msgid[] =
     gettext_noop ("Unmatched ) or \\)") /* REG_ERPAREN */
   };
 
-static const size_t re_error_msgid_idx[] =
+static const uint16_t re_error_msgid_idx[] =
   {
     REG_NOERROR_IDX,
     REG_NOMATCH_IDX,
@@ -4955,13 +4908,10 @@ re_compile_fastmap (struct re_pattern_buffer *bufp)
 # ifdef MBS_SUPPORT
   if (MB_CUR_MAX != 1)
     return wcs_re_compile_fastmap(bufp);
-  else
 # endif
-    return byte_re_compile_fastmap(bufp);
-} /* re_compile_fastmap */
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_compile_fastmap, re_compile_fastmap)
-#endif
+  return byte_re_compile_fastmap(bufp);
+}
+libc_hidden_def(re_compile_fastmap)
 
 
 /* Set REGS to hold NUM_REGS registers, storing them in STARTS and
@@ -4998,9 +4948,6 @@ re_set_registers (
       regs->start = regs->end = (regoff_t *) 0;
     }
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_set_registers, re_set_registers)
-#endif
 
 /* Searching routines.  */
 
@@ -5017,9 +4964,6 @@ re_search (
   return re_search_2 (bufp, NULL, 0, string, size, startpos, range,
 		      regs, size);
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_search, re_search)
-#endif
 
 
 /* Using the compiled pattern in BUFP->buffer, first tries to match the
@@ -5057,14 +5001,10 @@ re_search_2 (
   if (MB_CUR_MAX != 1)
     return wcs_re_search_2 (bufp, string1, size1, string2, size2, startpos,
 			    range, regs, stop);
-  else
 # endif
-    return byte_re_search_2 (bufp, string1, size1, string2, size2, startpos,
-			     range, regs, stop);
-} /* re_search_2 */
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_search_2, re_search_2)
-#endif
+  return byte_re_search_2 (bufp, string1, size1, string2, size2, startpos,
+			   range, regs, stop);
+}
 
 #endif /* not INSIDE_RECURSION */
 
@@ -5520,9 +5460,6 @@ re_match (
 # endif
   return result;
 }
-# if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_match, re_match)
-# endif
 #endif /* not emacs */
 
 #endif /* not INSIDE_RECURSION */
@@ -5581,9 +5518,6 @@ re_match_2 (
 #endif
   return result;
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_match_2, re_match_2)
-#endif
 
 #endif /* not INSIDE_RECURSION */
 
@@ -7928,9 +7862,6 @@ re_compile_pattern (
     return NULL;
   return gettext (re_error_msgid + re_error_msgid_idx[(int) ret]);
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__re_compile_pattern, re_compile_pattern)
-#endif
 
 /* Entry points compatible with 4.2 BSD regex library.  We don't define
    them unless specifically requested.  */
@@ -8122,9 +8053,6 @@ regcomp (
 
   return (int) ret;
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__regcomp, regcomp)
-#endif
 
 
 /* regexec searches for a given pattern, specified by PREG, in the
@@ -8200,9 +8128,7 @@ regexec (
   /* We want zero return to mean success, unlike `re_search'.  */
   return ret >= 0 ? (int) REG_NOERROR : (int) REG_NOMATCH;
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__regexec, regexec)
-#endif
+libc_hidden_def(regexec)
 
 
 /* Returns a message corresponding to an error code, ERRCODE, returned
@@ -8235,12 +8161,8 @@ regerror (
     {
       if (msg_size > errbuf_size)
         {
-#if (defined HAVE_MEMPCPY || defined _LIBC) && defined __USE_GNU
-	  *((char *) mempcpy (errbuf, msg, errbuf_size - 1)) = '\0';
-#else
           memcpy (errbuf, msg, errbuf_size - 1);
           errbuf[errbuf_size - 1] = 0;
-#endif
         }
       else
         memcpy (errbuf, msg, msg_size);
@@ -8248,9 +8170,6 @@ regerror (
 
   return msg_size;
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__regerror, regerror)
-#endif
 
 
 /* Free dynamically allocated space used by PREG.  */
@@ -8271,9 +8190,7 @@ regfree (regex_t *preg)
   free (preg->translate);
   preg->translate = NULL;
 }
-#if defined _LIBC || defined __UCLIBC__
-strong_alias(__regfree, regfree)
-#endif
+libc_hidden_def(regfree)
 
 #endif /* not emacs  */
 
