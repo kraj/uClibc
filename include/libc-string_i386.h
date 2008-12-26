@@ -26,7 +26,9 @@ void *inlined_memset_const_c_count4(void *s, unsigned eax, unsigned count)
 		return s;
 	}
 
-	eax *= 0x01010101; /* done at compile time */
+	/* You wonder why & 0xff is needed? Try memset(p, '\xff', size).
+	 * If char is signed, '\xff' == -1! */
+	eax = (eax & 0xff) * 0x01010101; /* done at compile time */
 
 	if (count == 2) {
 		*(short *)(s + 0) = eax;
