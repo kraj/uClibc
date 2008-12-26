@@ -185,11 +185,6 @@ static int build_trtable (const re_dfa_t *dfa,
 static int check_node_accept_bytes (const re_dfa_t *dfa, int node_idx,
 				    const re_string_t *input, int idx)
      internal_function;
-# ifdef _LIBC
-static unsigned int find_collation_sequence_value (const unsigned char *mbs,
-						   size_t name_len)
-     internal_function;
-# endif
 #endif
 static int group_nodes_into_DFAstates (const re_dfa_t *dfa,
 				       const re_dfastate_t *state,
@@ -559,16 +554,14 @@ re_set_registers (bufp, regs, num_regs, starts, ends)
 /* Entry points compatible with 4.2 BSD regex library.  We don't define
    them unless specifically requested.  */
 
-#if defined _REGEX_RE_COMP || defined _LIBC || defined __UCLIBC__
+#if defined _REGEX_RE_COMP || defined __UCLIBC__
 int
-# if defined _LIBC || defined __UCLIBC__
 weak_function
-# endif
 re_exec (const char *s)
 {
   return 0 == regexec (re_comp_buf, s, 0, NULL, 0);
 }
-#endif /* _REGEX_RE_COMP */
+#endif
 
 /* Internal entry point.  */
 
@@ -596,19 +589,13 @@ re_search_internal (preg, string, length, start, range, stop, nmatch, pmatch,
   int fl_longest_match, match_first, match_kind, match_last = -1;
   int extra_nmatch;
   int sb, ch;
-#if defined _LIBC || (defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L)
-  re_match_context_t mctx = { .dfa = dfa };
-#else
   re_match_context_t mctx;
-#endif
   char *fastmap = (preg->fastmap != NULL && preg->fastmap_accurate
 		   && range && !preg->can_be_null) ? preg->fastmap : NULL;
   RE_TRANSLATE_TYPE t = preg->translate;
 
-#if !(defined _LIBC || (defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L))
   memset (&mctx, '\0', sizeof (re_match_context_t));
   mctx.dfa = dfa;
-#endif
 
   extra_nmatch = (nmatch > preg->re_nsub) ? nmatch - (preg->re_nsub + 1) : 0;
   nmatch -= extra_nmatch;
@@ -3754,12 +3741,12 @@ check_node_accept_bytes (const re_dfa_t *dfa, int node_idx,
   if (node->type == COMPLEX_BRACKET)
     {
       const re_charset_t *cset = node->opr.mbcset;
-# ifdef _LIBC
+# if 0
       const unsigned char *pin
 	= ((const unsigned char *) re_string_get_buffer (input) + str_idx);
       int j;
       uint32_t nrules;
-# endif /* _LIBC */
+# endif
       int match_len = 0;
       wchar_t wc = ((cset->nranges || cset->nchar_classes || cset->nmbchars)
 		    ? re_string_wchar_at (input, str_idx) : 0);
@@ -3782,7 +3769,7 @@ check_node_accept_bytes (const re_dfa_t *dfa, int node_idx,
 	    }
 	}
 
-# ifdef _LIBC
+# if 0
       nrules = _NL_CURRENT_WORD (LC_COLLATE, _NL_COLLATE_NRULES);
       if (nrules != 0)
 	{
@@ -3871,15 +3858,13 @@ check_node_accept_bytes (const re_dfa_t *dfa, int node_idx,
 	    }
 	}
       else
-# endif /* _LIBC */
+# endif
 	{
 	  /* match with range expression?  */
-#if __GNUC__ >= 2
-	  wchar_t cmp_buf[] = {L'\0', L'\0', wc, L'\0', L'\0', L'\0'};
-#else
-	  wchar_t cmp_buf[] = {L'\0', L'\0', L'\0', L'\0', L'\0', L'\0'};
+	  wchar_t cmp_buf[6];
+
+	  memset (cmp_buf, 0, sizeof(cmp_buf));
 	  cmp_buf[2] = wc;
-#endif
 	  for (i = 0; i < cset->nranges; ++i)
 	    {
 	      cmp_buf[0] = cset->range_starts[i];
@@ -3892,21 +3877,18 @@ check_node_accept_bytes (const re_dfa_t *dfa, int node_idx,
 		}
 	    }
 	}
-    check_node_accept_bytes_match:
+
+ check_node_accept_bytes_match:
       if (!cset->non_match)
 	return match_len;
-      else
-	{
-	  if (match_len > 0)
-	    return 0;
-	  else
-	    return (elem_len > char_len) ? elem_len : char_len;
-	}
+      if (match_len > 0)
+	return 0;
+      return (elem_len > char_len) ? elem_len : char_len;
     }
   return 0;
 }
 
-# ifdef _LIBC
+# if 0
 static unsigned int
 internal_function
 find_collation_sequence_value (const unsigned char *mbs, size_t mbs_len)
@@ -3964,7 +3946,7 @@ find_collation_sequence_value (const unsigned char *mbs, size_t mbs_len)
       return UINT_MAX;
     }
 }
-# endif /* _LIBC */
+# endif
 #endif /* RE_ENABLE_I18N */
 
 /* Check whether the node accepts the byte which is IDX-th

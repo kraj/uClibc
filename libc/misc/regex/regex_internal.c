@@ -109,7 +109,7 @@ re_string_construct (re_string_t *pstr, const char *str, int len,
       if (dfa->mb_cur_max > 1)
 	build_wcs_buffer (pstr);
       else
-#endif /* RE_ENABLE_I18N  */
+#endif
 	{
 	  if (trans != NULL)
 	    re_string_translate_buffer (pstr);
@@ -195,7 +195,7 @@ static void
 internal_function
 build_wcs_buffer (re_string_t *pstr)
 {
-#if defined _LIBC || defined __UCLIBC__
+#if defined __UCLIBC__
   unsigned char buf[MB_LEN_MAX];
   assert (MB_LEN_MAX >= pstr->mb_cur_max);
 #else
@@ -266,7 +266,7 @@ build_wcs_upper_buffer (re_string_t *pstr)
   mbstate_t prev_st;
   int src_idx, byte_idx, end_idx, remain_len;
   size_t mbclen;
-#if defined _LIBC || defined __UCLIBC__
+#if defined __UCLIBC__
   char buf[MB_LEN_MAX];
   assert (MB_LEN_MAX >= pstr->mb_cur_max);
 #else
@@ -565,7 +565,7 @@ re_string_reconstruct (re_string_t *pstr, int idx, int eflags)
 #ifdef RE_ENABLE_I18N
       if (pstr->mb_cur_max > 1)
 	memset (&pstr->cur_state, '\0', sizeof (mbstate_t));
-#endif /* RE_ENABLE_I18N */
+#endif
       pstr->len = pstr->raw_len;
       pstr->stop = pstr->raw_stop;
       pstr->valid_len = 0;
@@ -596,7 +596,7 @@ re_string_reconstruct (re_string_t *pstr, int idx, int eflags)
 	  if (pstr->mb_cur_max > 1)
 	    memmove (pstr->wcs, pstr->wcs + offset,
 		     (pstr->valid_len - offset) * sizeof (wint_t));
-#endif /* RE_ENABLE_I18N */
+#endif
 	  if (BE (pstr->mbs_allocated, 0))
 	    memmove (pstr->mbs, pstr->mbs + offset,
 		     pstr->valid_len - offset);
@@ -634,7 +634,7 @@ re_string_reconstruct (re_string_t *pstr, int idx, int eflags)
 		  raw = pstr->raw_mbs + pstr->raw_mbs_idx;
 		  end = raw + (offset - pstr->mb_cur_max);
 		  p = raw + offset - 1;
-#ifdef _LIBC
+#if 0
 		  /* We know the wchar_t encoding is UCS4, so for the simple
 		     case, ASCII characters, skip the conversion step.  */
 		  if (isascii (*p) && BE (pstr->trans == NULL, 1))
@@ -729,7 +729,7 @@ re_string_reconstruct (re_string_t *pstr, int idx, int eflags)
 	build_wcs_buffer (pstr);
     }
   else
-#endif /* RE_ENABLE_I18N */
+#endif
     if (BE (pstr->mbs_allocated, 0))
       {
 	if (pstr->icase)
@@ -864,14 +864,11 @@ re_string_context_at (const re_string_t *input, int idx, int eflags)
       return (IS_WIDE_NEWLINE (wc) && input->newline_anchor
 	      ? CONTEXT_NEWLINE : 0);
     }
-  else
 #endif
-    {
-      c = re_string_byte_at (input, idx);
-      if (bitset_contain (input->word_char, c))
-	return CONTEXT_WORD;
-      return IS_NEWLINE (c) && input->newline_anchor ? CONTEXT_NEWLINE : 0;
-    }
+  c = re_string_byte_at (input, idx);
+  if (bitset_contain (input->word_char, c))
+    return CONTEXT_WORD;
+  return IS_NEWLINE (c) && input->newline_anchor ? CONTEXT_NEWLINE : 0;
 }
 
 /* Functions for set operation.  */
@@ -1068,10 +1065,9 @@ re_node_set_init_union (re_node_set *dest, const re_node_set *src1,
     {
       if (src1 != NULL && src1->nelem > 0)
 	return re_node_set_init_copy (dest, src1);
-      else if (src2 != NULL && src2->nelem > 0)
+      if (src2 != NULL && src2->nelem > 0)
 	return re_node_set_init_copy (dest, src2);
-      else
-	re_node_set_init_empty (dest);
+      re_node_set_init_empty (dest);
       return REG_NOERROR;
     }
   for (i1 = i2 = id = 0 ; i1 < src1->nelem && i2 < src2->nelem ;)
@@ -1197,8 +1193,7 @@ re_node_set_insert (re_node_set *set, int elem)
     {
       if (BE (re_node_set_init_1 (set, elem) == REG_NOERROR, 1))
 	return 1;
-      else
-	return -1;
+      return -1;
     }
 
   if (BE (set->nelem, 0) == 0)
@@ -1544,11 +1539,12 @@ create_ci_newstate (const re_dfa_t *dfa, const re_node_set *nodes,
     {
       re_token_t *node = dfa->nodes + nodes->elems[i];
       re_token_type_t type = node->type;
+
       if (type == CHARACTER && !node->constraint)
 	continue;
 #ifdef RE_ENABLE_I18N
       newstate->accept_mb |= node->accept_mb;
-#endif /* RE_ENABLE_I18N */
+#endif
 
       /* If the state has the halt node, the state is a halt state.  */
       if (type == END_OF_RE)

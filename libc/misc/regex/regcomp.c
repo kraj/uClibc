@@ -344,7 +344,7 @@ re_compile_fastmap_iter (regex_t *bufp, const re_dfastate_t *init_state,
 	  if (cset->non_match || cset->ncoll_syms || cset->nequiv_classes
 	      || cset->nranges || cset->nchar_classes)
 	    {
-# ifdef _LIBC
+# if 0
 	      if (_NL_CURRENT_WORD (LC_COLLATE, _NL_COLLATE_NRULES) != 0)
 		{
 		  /* In this case we want to catch the bytes which are
@@ -364,7 +364,7 @@ re_compile_fastmap_iter (regex_t *bufp, const re_dfastate_t *init_state,
 		for (i = 0; i < SBC_MAX; ++i)
 		  if (__btowc (i) == WEOF)
 		    re_set_fastmap (fastmap, icase, i);
-# endif /* not _LIBC */
+# endif
 	    }
 	  for (i = 0; i < cset->nmbchars; ++i)
 	    {
@@ -610,18 +610,16 @@ libc_hidden_def(regfree)
 /* Entry points compatible with 4.2 BSD regex library.  We don't define
    them unless specifically requested.  */
 
-#if defined _REGEX_RE_COMP || defined _LIBC || defined __UCLIBC__
+#if defined _REGEX_RE_COMP || defined __UCLIBC__
 
 /* BSD has one and only one pattern buffer.  */
 static struct re_pattern_buffer *re_comp_buf;
 
 char *
-# if defined _LIBC || defined __UCLIBC__
-/* Make these definitions weak in libc, so POSIX programs can redefine
+/* Make BCD definitions weak in libc, so POSIX programs can redefine
    these names if they don't use our functions, and still use
    regcomp/regexec above without link errors.  */
 weak_function
-# endif
 re_comp (const char *s)
 {
   reg_errcode_t ret;
@@ -679,7 +677,7 @@ re_comp (const char *s)
   return (char *) gettext (__re_error_msgid + __re_error_msgid_idx[(int) ret]);
 }
 
-#ifdef _LIBC
+#if 0
 libc_freeres_fn (free_mem)
 {
   regfree (re_comp_buf);
@@ -801,7 +799,7 @@ static reg_errcode_t
 init_dfa (re_dfa_t *dfa, size_t pat_len)
 {
   unsigned int table_size;
-#ifndef _LIBC
+#if 1
   char *codeset_name;
 #endif
 
@@ -830,7 +828,7 @@ init_dfa (re_dfa_t *dfa, size_t pat_len)
 #else
   dfa->mb_cur_max = 1;
 #endif
-#ifdef _LIBC
+#if 0
   if (dfa->mb_cur_max == 6
       && strcmp (_NL_CURRENT (LC_CTYPE, _NL_CTYPE_CODESET_NAME), "UTF-8") == 0)
     dfa->is_utf8 = 1;
@@ -880,7 +878,7 @@ init_dfa (re_dfa_t *dfa, size_t pat_len)
 		wint_t wch = __btowc (ch);
 		if (wch != WEOF)
 		  dfa->sb_char[i] |= (bitset_word_t) 1 << j;
-# ifndef _LIBC
+# if 1
 		if (isascii (ch) && wch != ch)
 		  dfa->map_notascii = 1;
 # endif
@@ -2541,8 +2539,8 @@ parse_dup_op (bin_tree_t *elem, re_string_t *regexp, re_dfa_t *dfa,
    I'm not sure, but maybe enough.  */
 #define BRACKET_NAME_BUF_SIZE 32
 
-#ifndef _LIBC
-  /* Local function for parse_bracket_exp only used in case of NOT _LIBC.
+#if 1
+  /* Local function for parse_bracket_exp only used in case of NOT glibc.
      Build the range expression which starts from START_ELEM, and ends
      at END_ELEM.  The result are written to MBCSET and SBCSET.
      RANGE_ALLOC is the allocated size of mbcset->range_starts, and
@@ -2599,7 +2597,7 @@ build_range_exp (bitset_t sbcset, bracket_elem_t *start_elem,
       return REG_ERANGE;
 
     /* Got valid collation sequence values, add them as a new entry.
-       However, for !_LIBC we have no collation elements: if the
+       However, for !glibc we have no collation elements: if the
        character set is single byte, the single byte character set
        that we build below suffices.  parse_bracket_exp passes
        no MBCSET if dfa->mb_cur_max == 1.  */
@@ -2661,10 +2659,10 @@ build_range_exp (bitset_t sbcset, bracket_elem_t *start_elem,
 # endif /* not RE_ENABLE_I18N */
   return REG_NOERROR;
 }
-#endif /* not _LIBC */
+#endif
 
-#ifndef _LIBC
-/* Helper function for parse_bracket_exp only used in case of NOT _LIBC..
+#if 1
+/* Helper function for parse_bracket_exp only used in case of NOT glibc.
    Build the collating element which is represented by NAME.
    The result are written to MBCSET and SBCSET.
    COLL_SYM_ALLOC is the allocated size of mbcset->coll_sym, is a
@@ -2682,13 +2680,10 @@ build_collating_symbol (bitset_t sbcset, const unsigned char *name)
   size_t name_len = strlen ((const char *) name);
   if (BE (name_len != 1, 0))
     return REG_ECOLLATE;
-  else
-    {
-      bitset_set (sbcset, name[0]);
-      return REG_NOERROR;
-    }
+  bitset_set (sbcset, name[0]);
+  return REG_NOERROR;
 }
-#endif /* not _LIBC */
+#endif
 
 /* This function parse bracket expression like "[abc]", "[a-c]",
    "[[.a-a.]]" etc.  */
@@ -2697,7 +2692,7 @@ static bin_tree_t *
 parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
 		   reg_syntax_t syntax, reg_errcode_t *err)
 {
-#ifdef _LIBC
+#if 0
   const unsigned char *collseqmb;
   const char *collseqwc;
   uint32_t nrules;
@@ -2705,15 +2700,13 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
   const int32_t *symb_table;
   const unsigned char *extra;
 
-  /* Local function for parse_bracket_exp used in _LIBC environement.
+  /* Local function for parse_bracket_exp used in glibc.
      Seek the collating symbol entry correspondings to NAME.
      Return the index of the symbol in the SYMB_TABLE.  */
 
   auto __inline__ int32_t
   __attribute ((always_inline))
-  seek_collating_symbol_entry (name, name_len)
-	 const unsigned char *name;
-	 size_t name_len;
+  seek_collating_symbol_entry (const unsigned char *name, size_t name_len)
     {
       int32_t hash = elem_hash ((const char *) name, name_len);
       int32_t elem = hash % table_size;
@@ -2743,14 +2736,13 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
       return elem;
     }
 
-  /* Local function for parse_bracket_exp used in _LIBC environement.
+  /* Local function for parse_bracket_exp used in glibc.
      Look up the collation sequence value of BR_ELEM.
      Return the value if succeeded, UINT_MAX otherwise.  */
 
   auto __inline__ unsigned int
   __attribute ((always_inline))
-  lookup_collation_sequence_value (br_elem)
-	 bracket_elem_t *br_elem;
+  lookup_collation_sequence_value (bracket_elem_t *br_elem)
     {
       if (br_elem->type == SB_CHAR)
 	{
@@ -2808,7 +2800,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
       return UINT_MAX;
     }
 
-  /* Local function for parse_bracket_exp used in _LIBC environement.
+  /* Local function for parse_bracket_exp used in glibc.
      Build the range expression which starts from START_ELEM, and ends
      at END_ELEM.  The result are written to MBCSET and SBCSET.
      RANGE_ALLOC is the allocated size of mbcset->range_starts, and
@@ -2892,7 +2884,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
       return REG_NOERROR;
     }
 
-  /* Local function for parse_bracket_exp used in _LIBC environement.
+  /* Local function for parse_bracket_exp used in glibc.
      Build the collating element which is represented by NAME.
      The result are written to MBCSET and SBCSET.
      COLL_SYM_ALLOC is the allocated size of mbcset->coll_sym, is a
@@ -2900,11 +2892,10 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
 
   auto __inline__ reg_errcode_t
   __attribute ((always_inline))
-  build_collating_symbol (sbcset, mbcset, coll_sym_alloc, name)
-	 re_charset_t *mbcset;
-	 int *coll_sym_alloc;
-	 bitset_t sbcset;
-	 const unsigned char *name;
+  build_collating_symbol (re_charset_t *mbcset,
+		int *coll_sym_alloc,
+		bitset_t sbcset,
+		const unsigned char *name)
     {
       int32_t elem, idx;
       size_t name_len = strlen ((const char *) name);
@@ -2971,7 +2962,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
   bin_tree_t *work_tree;
   int token_len;
   int first_round = 1;
-#ifdef _LIBC
+#if 0
   collseqmb = (const unsigned char *)
     _NL_CURRENT (LC_COLLATE, _NL_COLLATE_COLLSEQMB);
   nrules = _NL_CURRENT_WORD (LC_COLLATE, _NL_COLLATE_NRULES);
@@ -3092,7 +3083,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
 
 	  token_len = peek_token_bracket (token, regexp, syntax);
 
-#ifdef _LIBC
+#if 0
 	  *err = build_range_exp (sbcset, mbcset, &range_alloc,
 				  &start_elem, &end_elem);
 #else
@@ -3345,7 +3336,7 @@ build_equiv_class (bitset_t sbcset, re_charset_t *mbcset,
 build_equiv_class (bitset_t sbcset, const unsigned char *name)
 #endif
 {
-#ifdef _LIBC
+#if 0
   uint32_t nrules = _NL_CURRENT_WORD (LC_COLLATE, _NL_COLLATE_NRULES);
   if (nrules != 0)
     {
@@ -3414,7 +3405,7 @@ build_equiv_class (bitset_t sbcset, const unsigned char *name)
       mbcset->equiv_classes[mbcset->nequiv_classes++] = idx1;
     }
   else
-#endif /* _LIBC */
+#endif
     {
       if (BE (strlen ((const char *) name) != 1, 0))
 	return REG_ECOLLATE;
@@ -3654,7 +3645,7 @@ static void
 free_charset (re_charset_t *cset)
 {
   re_free (cset->mbchars);
-# ifdef _LIBC
+# if 0
   re_free (cset->coll_syms);
   re_free (cset->equiv_classes);
   re_free (cset->range_starts);

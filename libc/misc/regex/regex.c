@@ -21,9 +21,6 @@
 #include <features.h>
 
 #ifdef __UCLIBC__
-/* TODO: having _LIBC *off* is very confusing - the rest of uclibc
- * has it *on*. Fix it. */
-# undef _LIBC
 # define _REGEX_RE_COMP
 # define HAVE_LANGINFO
 # define HAVE_LANGINFO_CODESET
