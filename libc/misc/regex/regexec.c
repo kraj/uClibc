@@ -79,7 +79,7 @@ static int sift_states_iter_mb (const re_match_context_t *mctx,
 				re_sift_context_t *sctx,
 				int node_idx, int str_idx, int max_str_idx)
      internal_function;
-#endif /* RE_ENABLE_I18N */
+#endif
 static reg_errcode_t sift_states_backward (const re_match_context_t *mctx,
 					   re_sift_context_t *sctx)
      internal_function;
@@ -144,7 +144,7 @@ static re_dfastate_t *transit_state_sb (reg_errcode_t *err,
 static reg_errcode_t transit_state_mb (re_match_context_t *mctx,
 				       re_dfastate_t *pstate)
      internal_function;
-#endif /* RE_ENABLE_I18N */
+#endif
 static reg_errcode_t transit_state_bkref (re_match_context_t *mctx,
 					  const re_node_set *nodes)
      internal_function;
@@ -189,8 +189,8 @@ static int check_node_accept_bytes (const re_dfa_t *dfa, int node_idx,
 static unsigned int find_collation_sequence_value (const unsigned char *mbs,
 						   size_t name_len)
      internal_function;
-# endif /* _LIBC */
-#endif /* RE_ENABLE_I18N */
+# endif
+#endif
 static int group_nodes_into_DFAstates (const re_dfa_t *dfa,
 				       const re_dfastate_t *state,
 				       re_node_set *states_node,
@@ -564,10 +564,9 @@ int
 # if defined _LIBC || defined __UCLIBC__
 weak_function
 # endif
-re_exec (s)
-     const char *s;
+re_exec (const char *s)
 {
-  return 0 == regexec (&re_comp_buf, s, 0, NULL, 0);
+  return 0 == regexec (re_comp_buf, s, 0, NULL, 0);
 }
 #endif /* _REGEX_RE_COMP */
 
@@ -3395,8 +3394,7 @@ out_free:
 	 character, or we are in a single-byte character set so we can
 	 discern by looking at the character code: allocate a
 	 256-entry transition table.  */
-      trtable = state->trtable =
-	(re_dfastate_t **) calloc (sizeof (re_dfastate_t *), SBC_MAX);
+      trtable = state->trtable = calloc (sizeof (re_dfastate_t *), SBC_MAX);
       if (BE (trtable == NULL, 0))
 	goto out_free;
 
@@ -3426,8 +3424,7 @@ out_free:
 	 by looking at the character code: build two 256-entry
 	 transition tables, one starting at trtable[0] and one
 	 starting at trtable[SBC_MAX].  */
-      trtable = state->word_trtable =
-	(re_dfastate_t **) calloc (sizeof (re_dfastate_t *), 2 * SBC_MAX);
+      trtable = state->word_trtable = calloc (sizeof (re_dfastate_t *), 2 * SBC_MAX);
       if (BE (trtable == NULL, 0))
 	goto out_free;
 
