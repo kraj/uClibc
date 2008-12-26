@@ -2809,11 +2809,11 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
 
   auto __inline__ reg_errcode_t
   __attribute ((always_inline))
-  build_range_exp (sbcset, mbcset, range_alloc, start_elem, end_elem)
-	 re_charset_t *mbcset;
-	 int *range_alloc;
-	 bitset_t sbcset;
-	 bracket_elem_t *start_elem, *end_elem;
+  build_range_exp (re_charset_t *mbcset,
+		int *range_alloc,
+		bitset_t sbcset,
+		bracket_elem_t *start_elem,
+		bracket_elem_t *end_elem)
     {
       unsigned int ch;
       uint32_t start_collseq;
