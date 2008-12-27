@@ -36,7 +36,7 @@
  */
 
 /**********************************************************************/
-/*							OPTIONS									  */
+/*                      OPTIONS                                       */
 /**********************************************************************/
 
 /* Defined if we want to recognize "nan", "inf", and "infinity". (C99) */
@@ -79,7 +79,7 @@
 #define _STRTOD_ZERO_CHECK	   1
 
 /**********************************************************************/
-/* Don't change anything that follows.									   */
+/* Don't change anything that follows.                                */
 /**********************************************************************/
 
 #ifdef _STRTOD_ERRNO
@@ -107,23 +107,22 @@
 #include <locale.h>
 
 #ifdef __UCLIBC_HAS_WCHAR__
-
-#include <wchar.h>
-#include <wctype.h>
-#include <bits/uClibc_uwchar.h>
+# include <wchar.h>
+# include <wctype.h>
+# include <bits/uClibc_uwchar.h>
 /* libc_hidden_proto(iswspace) */
 #endif
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-#include <xlocale.h>
+# include <xlocale.h>
 /* libc_hidden_proto(iswspace_l) */
-#endif /* __UCLIBC_HAS_XLOCALE__ */
+#endif
 
 /* Handle _STRTOD_HEXADECIMAL_FLOATS via uClibc config now. */
 #undef _STRTOD_HEXADECIMAL_FLOATS
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
-#define _STRTOD_HEXADECIMAL_FLOATS 1
-#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+# define _STRTOD_HEXADECIMAL_FLOATS 1
+#endif
 
 /**********************************************************************/
 
@@ -348,16 +347,11 @@ __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endp
 			static const char nan_inf_str[] = "\05nan\0\012infinity\0\05inf\0";
 			int i = 0;
 
-#ifdef __UCLIBC_HAS_LOCALE__
-			/* Avoid tolower problems for INFINITY in the tr_TR locale. (yuk)*/
-#undef _tolower
-#define _tolower(C)     ((C)|0x20)
-#endif /* __UCLIBC_HAS_LOCALE__ */
-
 			do {
 				/* Unfortunately, we have no memcasecmp(). */
 				int j = 0;
-				while (_tolower(pos[j]) == nan_inf_str[i+1+j]) {
+				/* | 0x20 is a cheap lowercasing (valid for ASCII letters and numbers only) */
+				while (pos[j] | 0x20 == nan_inf_str[i+1+j]) {
 					++j;
 					if (!nan_inf_str[i+1+j]) {
 						number = i / 0.;

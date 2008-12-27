@@ -281,7 +281,7 @@ re_set_fastmap (char *fastmap, int icase, int ch)
 {
   fastmap[ch] = 1;
   if (icase)
-    fastmap[__tolower (ch)] = 1;
+    fastmap[tolower (ch)] = 1;
 }
 
 /* Helper function for re_compile_fastmap.

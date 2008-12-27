@@ -39,7 +39,7 @@
 
 #include "uClibc_charclass.h"
 
-#else /* !__UCLIBC_GEN_LOCALE */
+#else
 
 /* Define some ctype macros valid for the C/POSIX locale. */
 
@@ -86,7 +86,7 @@
 		 : (((unsigned int)((c) - 0x21)) <= (0x7e - 0x21))))
 #define __C_isgraph(c) \
 	((sizeof(c) == sizeof(char)) \
-	 ? (((unsigned int)((c) - 0x21)) <= (0x7e - 0x21)) \
+	 ? (((unsigned char)((c) - 0x21)) <= (0x7e - 0x21)) \
 	 : (((unsigned int)((c) - 0x21)) <= (0x7e - 0x21)))
 
 #define __C_tolower(c) (__C_isupper(c) ? ((c) | 0x20) : (c))
@@ -119,27 +119,18 @@ extern int toascii(int c) __THROW;
 #endif
 
 #if defined _LIBC && (defined NOT_IN_libc || defined IS_IN_libc)
-/* isdigit() is really locale-invariant, so provide some small fast macros.
- * These are uClibc-specific. */
-#define __isdigit_char(C)    (((unsigned char)((C) - '0')) <= 9)
-#define __isdigit_int(C)     (((unsigned int)((C) - '0')) <= 9)
+/* These are uClibc-specific. */
+# define __isdigit_char(c) ((unsigned char)((c) - '0') <= 9)
+# define __isdigit_int(c)  ((unsigned int)((c) - '0') <= 9)
 #endif
-
-/* Next, some ctype macros which are valid for all supported locales. */
-/* WARNING: isspace and isblank need to be reverified if more 8-bit codesets
- * are added!!!  But isdigit and isxdigit are always valid. */
-
-/* #define __isspace(c)	__C_isspace(c) */
-/* #define __isblank(c)	__C_isblank(c) */
-
-/* #define __isdigit(c)	__C_isdigit(c) */
-/* #define __isxdigit(c)	__C_isxdigit(c) */
 
 /* Now some non-ansi/iso c99 macros. */
 
 #define __isascii(c) (((c) & ~0x7f) == 0)
 #define __toascii(c) ((c) & 0x7f)
+/* Works correctly *only* on lowercase letters! */
 #define _toupper(c) ((c) ^ 0x20)
+/* Works correctly *only* on letters (of any case) and numbers */
 #define _tolower(c) ((c) | 0x20)
 
 __END_DECLS
@@ -147,70 +138,73 @@ __END_DECLS
 /**********************************************************************/
 #ifdef __GNUC__
 
-#define __body_C_macro(f,args)  __C_ ## f args
+# define __body_C_macro(f,args)  __C_ ## f args
 
-#define __body(f,c) \
-	(__extension__ ({ \
-		int __res; \
-		if (sizeof(c) > sizeof(char)) { \
-			int __c = (c); \
-			__res = __body_C_macro(f,(__c)); \
-		} else { \
-			unsigned char __c = (c); \
-			__res = __body_C_macro(f,(__c)); \
-		} \
-		__res; \
-	}))
+# define __body(f,c) \
+(__extension__ ({ \
+	int __res; \
+	if (sizeof(c) > sizeof(char)) { \
+		int __c = (c); \
+		__res = __body_C_macro(f,(__c)); \
+	} else { \
+		unsigned char __c = (c); \
+		__res = __body_C_macro(f,(__c)); \
+	} \
+	__res; \
+}))
 
-#define __isspace(c)		__body(isspace,c)
-#define __isblank(c)		__body(isblank,c)
-#define __isdigit(c)		__body(isdigit,c)
-#define __isxdigit(c)		__body(isxdigit,c)
-#define __iscntrl(c)		__body(iscntrl,c)
-#define __isalpha(c)		__body(isalpha,c)
-#define __isalnum(c)		__body(isalnum,c)
-#define __isprint(c)		__body(isprint,c)
-#define __islower(c)		__body(islower,c)
-#define __isupper(c)		__body(isupper,c)
-#define __ispunct(c)		__body(ispunct,c)
-#define __isgraph(c)		__body(isgraph,c)
+# define __isspace(c)   __body(isspace,c)
+# define __isblank(c)   __body(isblank,c)
+# define __isdigit(c)   __body(isdigit,c)
+# define __isxdigit(c)  __body(isxdigit,c)
+# define __iscntrl(c)   __body(iscntrl,c)
+# define __isalpha(c)   __body(isalpha,c)
+# define __isalnum(c)   __body(isalnum,c)
+# define __isprint(c)   __body(isprint,c)
+# define __islower(c)   __body(islower,c)
+# define __isupper(c)   __body(isupper,c)
+# define __ispunct(c)   __body(ispunct,c)
+# define __isgraph(c)   __body(isgraph,c)
 
-#define __tolower(c)		__body(tolower,c)
-#define __toupper(c)		__body(toupper,c)
+//locale-aware ctype.h has no __tolower, why stub locale
+//tries to have it? remove after 0.9.31
+//# define __tolower(c) __body(tolower,c)
+//# define __toupper(c) __body(toupper,c)
 
-#if !defined __NO_CTYPE && !defined __cplusplus
+# if !defined __NO_CTYPE && !defined __cplusplus
 
-#define isspace(c)			__isspace(c)
-#define isblank(c)			__isblank(c)
-#define isdigit(c)			__isdigit(c)
-#define isxdigit(c)			__isxdigit(c)
-#define iscntrl(c)			__iscntrl(c)
-#define isalpha(c)			__isalpha(c)
-#define isalnum(c)			__isalnum(c)
-#define isprint(c)			__isprint(c)
-#define islower(c)			__islower(c)
-#define isupper(c)			__isupper(c)
-#define ispunct(c)			__ispunct(c)
-#define isgraph(c)			__isgraph(c)
+#  define isspace(c)    __isspace(c)
+#  define isblank(c)    __isblank(c)
+#  define isdigit(c)    __isdigit(c)
+#  define isxdigit(c)   __isxdigit(c)
+#  define iscntrl(c)    __iscntrl(c)
+#  define isalpha(c)    __isalpha(c)
+#  define isalnum(c)    __isalnum(c)
+#  define isprint(c)    __isprint(c)
+#  define islower(c)    __islower(c)
+#  define isupper(c)    __isupper(c)
+#  define ispunct(c)    __ispunct(c)
+#  define isgraph(c)    __isgraph(c)
 
-#define tolower(c)			__tolower(c)
-#define toupper(c)			__toupper(c)
+#  define tolower(c)    __body(tolower,c)
+#  define toupper(c)    __body(toupper,c)
 
-#endif
+# endif
 
 #else  /* !_GNUC__ */
 
-#if !defined __NO_CTYPE && !defined __cplusplus
+# if !defined __NO_CTYPE && !defined __cplusplus
 
-/* These macros should be safe from side effects. */
-#define isdigit(c)			__C_isdigit(c)
-#define isalpha(c)			__C_isalpha(c)
-#define isprint(c)			__C_isprint(c)
-#define islower(c)			__C_islower(c)
-#define isupper(c)			__C_isupper(c)
-#define isgraph(c)			__C_isgraph(c)
+/* These macros should be safe from side effects!
+ * (not all __C_xxx macros are) */
+#  define isdigit(c)    __C_isdigit(c)
+#  define isalpha(c)    __C_isalpha(c)
+#  define isprint(c)    __C_isprint(c)
+#  define islower(c)    __C_islower(c)
+#  define isupper(c)    __C_isupper(c)
+#  define isgraph(c)    __C_isgraph(c)
 
-#endif
+# endif
 
 #endif /* __GNUC__ */
 /**********************************************************************/

@@ -334,42 +334,42 @@ extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
 
 extern __locale_t __curlocale_var;
 
-#ifdef __UCLIBC_HAS_THREADS__
+# ifdef __UCLIBC_HAS_THREADS__
 
 extern __locale_t __curlocale(void)  __THROW __attribute__ ((__const__));
 extern __locale_t __curlocale_set(__locale_t newloc);
-#define __UCLIBC_CURLOCALE           (__curlocale())
-#define __UCLIBC_CURLOCALE_DATA      (*__curlocale())
+#  define __UCLIBC_CURLOCALE           (__curlocale())
+#  define __UCLIBC_CURLOCALE_DATA      (*__curlocale())
 
-#else  /* __UCLIBC_HAS_THREADS__ */
+# else
 
-#define __UCLIBC_CURLOCALE           (__curlocale_var)
-#define __UCLIBC_CURLOCALE_DATA      (*__curlocale_var)
+#  define __UCLIBC_CURLOCALE           (__curlocale_var)
+#  define __UCLIBC_CURLOCALE_DATA      (*__curlocale_var)
 
-#endif /* __UCLIBC_HAS_THREADS__ */
+# endif
 
 #elif defined(__UCLIBC_HAS_LOCALE__)
 
-#define __UCLIBC_CURLOCALE           (__global_locale)
-#define __UCLIBC_CURLOCALE_DATA      (*__global_locale)
+# define __UCLIBC_CURLOCALE           (__global_locale)
+# define __UCLIBC_CURLOCALE_DATA      (*__global_locale)
 
 #endif
 /**********************************************************************/
 #if defined(__UCLIBC_HAS_XLOCALE__) && defined(__UCLIBC_DO_XLOCALE)
 
-#define __XL_NPP(N) N ## _l
-#define __LOCALE_PARAM    , __locale_t locale_arg
-#define __LOCALE_ARG      , locale_arg
-#define __LOCALE_PTR      locale_arg
+# define __XL_NPP(N) N ## _l
+# define __LOCALE_PARAM    , __locale_t locale_arg
+# define __LOCALE_ARG      , locale_arg
+# define __LOCALE_PTR      locale_arg
 
-#else  /* defined(__UCLIBC_HAS_XLOCALE__) && defined(__UCLIBC_DO_XLOCALE) */
+#else
 
-#define __XL_NPP(N) N
-#define __LOCALE_PARAM
-#define __LOCALE_ARG
-#define __LOCALE_PTR      __UCLIBC_CURLOCALE
+# define __XL_NPP(N) N
+# define __LOCALE_PARAM
+# define __LOCALE_ARG
+# define __LOCALE_PTR      __UCLIBC_CURLOCALE
 
-#endif /* defined(__UCLIBC_HAS_XLOCALE__) && defined(__UCLIBC_DO_XLOCALE) */
+#endif
 /**********************************************************************/
 
 #endif /* !defined(__LOCALE_C_ONLY) */

@@ -46,7 +46,8 @@ AWK        = awk
 
 STRIP_FLAGS ?= -x -R .note -R .comment
 
-UNIFDEF := $(top_builddir)extra/scripts/unifdef -UUCLIBC_INTERNAL
+## unused? if yes, remove after 0.9.31
+## UNIFDEF := $(top_builddir)extra/scripts/unifdef -UUCLIBC_INTERNAL
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc

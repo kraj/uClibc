@@ -38,10 +38,6 @@
 #  define __wctype wctype
 # endif
 # include <ctype.h>
-# ifdef __UCLIBC_HAS_CTYPE_TABLES__
-#  define __toupper toupper
-#  define __tolower tolower
-# endif
 #endif
 
 /* Make sure noone compiles this code with a C++ compiler.  */

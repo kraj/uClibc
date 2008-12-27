@@ -701,23 +701,20 @@ libc_hidden_def(iswctype)
 
 /* Minimal support for C/POSIX locale. */
 
-#ifndef _tolower
-#warning _tolower is undefined!
-#define _tolower(c)    tolower(c)
-#endif
-#ifndef _toupper
-#warning _toupper is undefined!
-#define _toupper(c)    toupper(c)
-#endif
-
 wint_t towctrans(wint_t wc, wctrans_t desc)
 {
-	if (((unsigned int)(desc - _CTYPE_tolower))
-		<= (_CTYPE_toupper - _CTYPE_tolower)
-		) {
+	if ((unsigned int)(desc - _CTYPE_tolower) <= (_CTYPE_toupper - _CTYPE_tolower)) {
 		/* Transliteration is either tolower or toupper. */
-		if (((__uwchar_t) wc) <= 0x7f) {
-			return (desc == _CTYPE_tolower) ? _tolower(wc) : _toupper(wc);
+// I think it's wrong: _toupper(c) assumes that c is a *lowercase* *letter* -
+// it is defined as ((c) ^ 0x20)!
+//		if ((__uwchar_t) wc <= 0x7f) {
+//			return (desc == _CTYPE_tolower) ? _tolower(wc) : _toupper(wc);
+//		}
+		__uwchar_t c = wc | 0x20; /* lowercase if it's a letter */
+		if (c >= 'a' && c <= 'z') {
+			if (desc == _CTYPE_toupper)
+				c &= ~0x20; /* uppercase */
+			return c;
 		}
 	} else {
 		__set_errno(EINVAL);	/* Invalid transliteration. */
