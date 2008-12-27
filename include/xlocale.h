@@ -25,7 +25,7 @@
 
 #ifndef __UCLIBC_HAS_XLOCALE__
 #error Attempted to include xlocale.h when uClibc built without extended locale support.
-#endif /* __UCLIBC_HAS_XLOCALE__ */
+#endif
 
 #include <bits/uClibc_locale.h>
 /* #include <bits/uClibc_touplow.h> */

@@ -72,43 +72,42 @@ __WCHAR_REPLACEMENT_CHAR
 
 		Actual ctype macros are a bloody mess!
 
-ctype.h
-...
-...
-#define __isctype(c, type) \
-  ((__UCLIBC_CTYPE_B)[(int) (c)] & (__ctype_mask_t) type)
+__C_isspace(c), __C_tolower(c) et al
+	Defined in bits/uClibc_ctype.h. Non-locale-aware, unsafe
+	wrt multiple-evaluation, macros. Return unsigned int.
 
-#define __isascii(c)    (((c) & ~0x7f) == 0)    /* If C is a 7 bit value.  */
-#define __toascii(c)    ((c) & 0x7f)            /* Mask off high bits.  */
-#define __isdigit_char(C)    (((unsigned char)((C) - '0')) <= 9)
-#define __isdigit_int(C)     (((unsigned int)((C) - '0')) <= 9)
+__isspace(c), __tolower(c) et al
+	Defined in bits/uClibc_ctype.h. Non-locale-aware,
+	but safe wrt multiple-evaluation, macros. Return int.
 
-# define isalnum(c)     __isctype((c), _ISalnum)
-# define isalpha(c)     __isctype((c), _ISalpha)
+__isdigit_char, __isdigit_int
+	Visible only to uclibc code. ((unsigned char/int)((c) - '0') <= 9).
 
-# if __GNUC__ >= 2 && defined __OPTIMIZE__ && !defined __cplusplus
-#  define tolower(c)    __tobody (c, tolower, __UCLIBC_CTYPE_TOLOWER, (c))
-#  define toupper(c)    __tobody (c, toupper, __UCLIBC_CTYPE_TOUPPER, (c))
-# endif /* Optimizing gcc */
+_tolower(c), _toupper(c)
+	Even more unsafe versions (they just do | 0x20 or ^ 0x20). Sheesh.
+	They are mandated by POSIX so we must have them defined,
+	but I removed all uses in uclibc code. Half of them were buggy.
 
-# if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
-#  define isascii(c)    __isascii (c)
-#  define toascii(c)    __toascii (c)
-#  define _tolower(c)   ((int) (__UCLIBC_CTYPE_TOLOWER)[(int) (c)])
-#  define _toupper(c)   ((int) (__UCLIBC_CTYPE_TOUPPER)[(int) (c)])
-# endif
-...
-...
+isspace(c), tolower(c) et al
+	Declared as int isXXXX(int c) in bits/uClibc_ctype.h. Then,
+	if not C++ compile, defined as macros to __usXXXX(c)
 
-bits/uClibc_ctype.h
-...
-...
-#define __tolower(c)            __body(tolower,c)
-#define __toupper(c)            __body(toupper,c)
+bits/uClibc_ctype.h is included by ctype.h only if !__UCLIBC_HAS_CTYPE_TABLES__.
 
-#define _toupper(c) ((c) ^ 0x20)
-#define _tolower(c) ((c) | 0x20)
-...
-...
+Otherwise, ctype.h declares int isXXXX(int c) functions,
+then defines macros for isXXXX(c), __isXXX(c), toXXXX(c).
+Surprisingly, there are no __toXXXX(c), but if __USE_EXTERN_INLINES,
+there are inlines (yes, not macros!) for toXXXX(c) functions,
+so those may have both inlines and macros!).
+It also defines "unsafe" _toXXXX macros.
 
-WTF?! We have (at least) TWO DIFFERENT _tolower's?
+All in all, __isXXXX(c) and __toXXXXX(c) seem to be useless,
+they are full equivalents to non-underscored versions.
+Remove?
+
+Macro-ization of isXXX(c) for __UCLIBC_HAS_XLOCALE__ case is problematic:
+it is done by indexing: __UCLIBC_CTYPE_B[c], and in __UCLIBC_HAS_XLOCALE__
+case __UCLIBC_CTYPE_B is doing a __ctype_b_loc() call! We do not save
+function call! Thus, why not have dedicated optimized functions
+for each isXXXX() instead? Looking deeper, __ctype_b_loc() may have
+another lever of function calls inside! What a mess...

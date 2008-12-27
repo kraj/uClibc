@@ -289,7 +289,7 @@ build_wcs_upper_buffer (re_string_t *pstr)
 	    {
 	      /* In case of a singlebyte character.  */
 	      pstr->mbs[byte_idx]
-		= __toupper (pstr->raw_mbs[pstr->raw_mbs_idx + byte_idx]);
+		= toupper (pstr->raw_mbs[pstr->raw_mbs_idx + byte_idx]);
 	      /* The next step uses the assumption that wchar_t is encoded
 		 ASCII-safe: all ASCII values can be converted like this.  */
 	      pstr->wcs[byte_idx] = (wchar_t) pstr->mbs[byte_idx];
@@ -523,7 +523,7 @@ build_upper_buffer (re_string_t *pstr)
       if (BE (pstr->trans != NULL, 0))
 	ch = pstr->trans[ch];
       if (islower (ch))
-	pstr->mbs[char_idx] = __toupper (ch);
+	pstr->mbs[char_idx] = toupper (ch);
       else
 	pstr->mbs[char_idx] = ch;
     }
