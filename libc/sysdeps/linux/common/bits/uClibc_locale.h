@@ -98,7 +98,8 @@ enum {
   * In particular, C/POSIX locale is '#' + "\x80\x01"}*LC_ALL + nul.
   */
 
-#if defined _LIBC && !defined __UCLIBC_GEN_LOCALE /* && (defined IS_IN_libc || defined NOT_IN_libc) */
+#ifdef _LIBC
+#ifndef __UCLIBC_GEN_LOCALE /* && (defined IS_IN_libc || defined NOT_IN_libc) */
 typedef struct {
 	uint16_t num_weights;
 	uint16_t num_starters;
@@ -314,6 +315,7 @@ typedef struct __uclibc_locale_struct {
 
 extern __uclibc_locale_t __global_locale_data;
 extern struct __uclibc_locale_struct * __global_locale;
+#endif /* !__UCLIBC_GEN_LOCALE */
 #endif /* _LIBC */
 
 typedef struct __uclibc_locale_struct *__locale_t;
@@ -321,8 +323,8 @@ typedef struct __uclibc_locale_struct *__locale_t;
 /* if we need to leave only _LIBC, then attribute_hidden is not usable */
 #if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
-							  const char *__restrict src,
-							  __locale_t loc ) attribute_hidden;
+				const char *__restrict src,
+				__locale_t loc) attribute_hidden;
 #endif
 
 #ifdef L_setlocale

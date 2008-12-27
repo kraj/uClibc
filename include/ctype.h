@@ -229,7 +229,9 @@ extern int _tolower(int __c) __THROW;
 }))
 
 #define __isctype(c, type) ((__UCLIBC_CTYPE_B)[(int)(c)] & (__ctype_mask_t)type)
-#if !defined __NO_CTYPE && !defined __cplusplus
+/* Do not combine in one #if - unifdef tool is not that clever */
+#ifndef __NO_CTYPE
+#ifndef __cplusplus
 # define isalnum(c)	__isctype((c), _ISalnum)
 # define isalpha(c)	__isctype((c), _ISalpha)
 # define iscntrl(c)	__isctype((c), _IScntrl)
@@ -270,7 +272,8 @@ __NTH (toupper (int __c))
 #  define _toupper(c)	((int) (__UCLIBC_CTYPE_TOUPPER)[(int) (c)])
 # endif
 
-#endif /* Not __NO_CTYPE.  */
+#endif /* not __cplusplus */
+#endif /* not __NO_CTYPE */
 
 
 #if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__

@@ -171,7 +171,9 @@ __END_DECLS
 //# define __tolower(c) __body(tolower,c)
 //# define __toupper(c) __body(toupper,c)
 
-# if !defined __NO_CTYPE && !defined __cplusplus
+/* Do not combine in one #if - unifdef tool is not that clever */
+# ifndef __NO_CTYPE
+# ifndef __cplusplus
 
 #  define isspace(c)    __isspace(c)
 #  define isblank(c)    __isblank(c)
@@ -190,10 +192,12 @@ __END_DECLS
 #  define toupper(c)    __body(toupper,c)
 
 # endif
+# endif
 
 #else  /* !_GNUC__ */
 
-# if !defined __NO_CTYPE && !defined __cplusplus
+# ifndef __NO_CTYPE
+# ifndef __cplusplus
 
 /* These macros should be safe from side effects!
  * (not all __C_xxx macros are) */
@@ -204,6 +208,7 @@ __END_DECLS
 #  define isupper(c)    __C_isupper(c)
 #  define isgraph(c)    __C_isgraph(c)
 
+# endif
 # endif
 
 #endif /* __GNUC__ */
