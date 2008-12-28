@@ -601,7 +601,7 @@ getline(void)
 				linestate = LS_DIRTY;
 		}
 		/* skipcomment should have changed the state */
-// Hmm, happens sometimes on valid files
+// Hmm hppens sometimes on valid files
 //		if (linestate == LS_HASH) {
 //			debug("bug at line %d", __LINE__);
 //			abort(); /* bug */
@@ -795,6 +795,7 @@ eval_table(const struct ops *ops, int *valp, const char **cpp)
 		cp += strlen(op->str);
 		debug("eval%d '%s'", ops - eval_ops, op->str);
 		right_side = ops->inner(ops+1, &val, &cp);
+		*cpp = cp;
 
 		/* If short_circuit_val is 0 or 1, we can ignore
 		 * right side if left size is known, and its value
@@ -820,7 +821,6 @@ eval_table(const struct ops *ops, int *valp, const char **cpp)
 		left_side = right_side;
 	}
 
-	*cpp = cp;
 	debug("eval%d = %d LT_IF:%d", ops - eval_ops, *valp, (left_side == LT_IF));
 	if (left_side == LT_IF)
 		return (LT_IF);
