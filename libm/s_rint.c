@@ -71,3 +71,6 @@ double rint(double x)
 	return w-TWO52[sx];
 }
 libm_hidden_def(rint)
+
+strong_alias(rint, nearbyint)
+libm_hidden_def(nearbyint)

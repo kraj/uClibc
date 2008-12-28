@@ -115,3 +115,4 @@ double __ieee754_log2(double x)
 	    return dk-((s*(f-R))-f)/ln2;
 	}
 }
+strong_alias(__ieee754_log2,log2)

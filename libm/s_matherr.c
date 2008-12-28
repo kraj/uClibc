@@ -14,7 +14,7 @@
 
 #ifndef _IEEE_LIBM
 
-	int matherr(struct exception *x)
+int matherr(struct exception *x)
 {
 	int n=0;
 	if(x->arg1!=x->arg1) return 0;

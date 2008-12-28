@@ -116,3 +116,21 @@ double attribute_hidden __ieee754_hypot(double x, double y)
 	    return t1*w;
 	} else return w;
 }
+
+/*
+ * wrapper hypot(x,y)
+ */
+#ifndef _IEEE_LIBM
+double hypot(double x, double y)
+{
+	double z = __ieee754_hypot(x, y);
+	if (_LIB_VERSION == _IEEE_)
+		return z;
+	if ((!isfinite(z)) && isfinite(x) && isfinite(y))
+		return __kernel_standard(x, y, 4); /* hypot overflow */
+	return z;
+}
+#else
+strong_alias(__ieee754_hypot, hypot)
+#endif
+libm_hidden_def(hypot)

@@ -63,3 +63,21 @@ double attribute_hidden __ieee754_remainder(double x, double p)
 	SET_HIGH_WORD(x,hx^sx);
 	return x;
 }
+
+/*
+ * wrapper remainder(x,p)
+ */
+#ifndef _IEEE_LIBM
+double remainder(double x, double y)
+{
+	double z = __ieee754_remainder(x, y);
+	if (_LIB_VERSION == _IEEE_ || isnan(y))
+		return z;
+	if (y == 0.0)
+		return __kernel_standard(x, y, 28); /* remainder(x,0) */
+	return z;
+}
+#else
+strong_alias(__ieee754_remainder, remainder)
+#endif
+libm_hidden_def(remainder)

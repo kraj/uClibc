@@ -181,6 +181,25 @@ double attribute_hidden __ieee754_sqrt(double x)
 }
 
 /*
+ * wrapper sqrt(x)
+ */
+#ifndef _IEEE_LIBM
+double sqrt(double x)
+{
+	double z = __ieee754_sqrt(x);
+	if (_LIB_VERSION == _IEEE_ || isnan(x))
+		return z;
+	if (x < 0.0)
+		return __kernel_standard(x, x, 26); /* sqrt(negative) */
+	return z;
+}
+#else
+strong_alias(__ieee754_sqrt, sqrt)
+#endif
+libm_hidden_def(sqrt)
+
+
+/*
 Other methods  (use floating-point arithmetic)
 -------------
 (This is a copy of a drafted paper by Prof W. Kahan
@@ -436,4 +455,3 @@ B.  sqrt(x) by Reciproot Iteration
     (4)	Special cases (see (4) of Section A).
 
  */
-

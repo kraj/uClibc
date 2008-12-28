@@ -14,6 +14,6 @@
 
 double exp2(double x)
 {
-  return pow(2.0, x);
+	return pow(2.0, x);
 }
 libm_hidden_def(exp2)

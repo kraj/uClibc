@@ -20,8 +20,6 @@
 #include <math.h>
 #include "math_private.h"
 
-libm_hidden_proto(signgam)
-/* __private_extern__ */
 double attribute_hidden __ieee754_lgamma(double x)
 {
 	return __ieee754_lgamma_r(x,&signgam);
