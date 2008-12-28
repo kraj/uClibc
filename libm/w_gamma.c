@@ -18,21 +18,19 @@
 #include <math.h>
 #include "math_private.h"
 
-libm_hidden_proto(signgam)
 double gamma(double x)
 {
 #ifdef _IEEE_LIBM
-	return __ieee754_lgamma_r(x,&signgam);
+	return __ieee754_lgamma_r(x, &signgam);
 #else
-        double y;
-        y = __ieee754_lgamma_r(x,&signgam);
-        if(_LIB_VERSION == _IEEE_) return y;
-        if(!isfinite(y)&&isfinite(x)) {
-            if(floor(x)==x&&x<=0.0)
-                return __kernel_standard(x,x,41); /* gamma pole */
-            else
-                return __kernel_standard(x,x,40); /* gamma overflow */
-        } else
-            return y;
+	double y = __ieee754_lgamma_r(x, &signgam);
+	if (_LIB_VERSION == _IEEE_)
+		return y;
+	if (!isfinite(y) && isfinite(x)) {
+		if (floor(x) == x && x <= 0.0)
+			return __kernel_standard(x, x, 41); /* gamma pole */
+		return __kernel_standard(x, x, 40); /* gamma overflow */
+	}
+	return y;
 #endif
 }

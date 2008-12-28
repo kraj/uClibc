@@ -95,3 +95,21 @@ double attribute_hidden __ieee754_acos(double x)
 	    return 2.0*(df+w);
 	}
 }
+
+/*
+ * wrap_acos(x)
+ */
+#ifndef _IEEE_LIBM
+double acos(double x)
+{
+	double z = __ieee754_acos(x);
+	if (_LIB_VERSION == _IEEE_ || isnan(x))
+		return z;
+	if (fabs(x) > 1.0)
+		return __kernel_standard(x, x, 1); /* acos(|x|>1) */
+	return z;
+}
+#else
+strong_alias(__ieee754_acos, acos)
+#endif
+libm_hidden_def(acos)

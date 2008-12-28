@@ -70,3 +70,21 @@ double attribute_hidden __ieee754_sinh(double x)
     /* |x| > overflowthresold, sinh(x) overflow */
 	return x*shuge;
 }
+
+/*
+ * wrapper sinh(x)
+ */
+#ifndef _IEEE_LIBM
+double sinh(double x)
+{
+	double z = __ieee754_sinh(x);
+	if (_LIB_VERSION == _IEEE_)
+		return z;
+	if (!isfinite(z) && isfinite(x))
+		return __kernel_standard(x, x, 25); /* sinh overflow */
+	return z;
+}
+#else
+strong_alias(__ieee754_sinh, sinh)
+#endif
+libm_hidden_def(sinh)

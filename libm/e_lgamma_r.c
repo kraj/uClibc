@@ -291,3 +291,46 @@ double attribute_hidden __ieee754_lgamma_r(double x, int *signgamp)
 	if(hx<0) r = nadj - r;
 	return r;
 }
+
+/*
+ * wrapper double lgamma_r(double x, int *signgamp)
+ */
+#ifndef _IEEE_LIBM
+double lgamma_r(double x, int *signgamp)
+{
+	double y = __ieee754_lgamma_r(x, signgamp);
+	if (_LIB_VERSION == _IEEE_)
+		return y;
+	if (!isfinite(y) && isfinite(x)) {
+		if (floor(x) == x && x <= 0.0)
+			return __kernel_standard(x, x, 15); /* lgamma pole */
+		return __kernel_standard(x, x, 14); /* lgamma overflow */
+	}
+	return y;
+}
+#else
+strong_alias(__ieee754_lgamma_r, lgamma_r)
+#endif
+
+/*
+ * wrapper double gamma_r(double x, int *signgamp)
+ */
+double gamma_r(double x, int *signgamp);
+libm_hidden_proto(gamma_r)
+#ifndef _IEEE_LIBM
+double gamma_r(double x, int *signgamp)
+{
+	double y = __ieee754_lgamma_r(x, signgamp);
+	if (_LIB_VERSION == _IEEE_)
+		return y;
+	if (!isfinite(y) && isfinite(x)) {
+		if (floor(x) == x && x <= 0.0)
+			return __kernel_standard(x, x, 41); /* gamma pole */
+		return __kernel_standard(x, x, 40); /* gamma overflow */
+	}
+	return y;
+}
+#else
+strong_alias(__ieee754_lgamma_r, gamma_r)
+#endif
+libm_hidden_def(gamma_r)
