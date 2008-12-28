@@ -24,6 +24,12 @@ hello world
 #if (1 > 0) && defined A
 hello world
 #endif
+#if defined A && (defined FOO || defined BAR)
+hello world
+#endif
+#if (defined FOO || defined BAR) && defined A
+hello world
+#endif
 
 *** Everything should be visible here, but #if/#endif removed:
 #if defined B || !defined A
