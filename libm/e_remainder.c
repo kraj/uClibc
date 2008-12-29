@@ -77,7 +77,9 @@ double remainder(double x, double y)
 		return __kernel_standard(x, y, 28); /* remainder(x,0) */
 	return z;
 }
+strong_alias(remainder, drem)
 #else
 strong_alias(__ieee754_remainder, remainder)
+strong_alias(__ieee754_remainder, drem)
 #endif
 libm_hidden_def(remainder)

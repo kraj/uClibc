@@ -312,25 +312,77 @@ double lgamma_r(double x, int *signgamp)
 strong_alias(__ieee754_lgamma_r, lgamma_r)
 #endif
 
-/*
- * wrapper double gamma_r(double x, int *signgamp)
+/* __ieee754_lgamma(x)
+ * Return the logarithm of the Gamma function of x.
  */
-double gamma_r(double x, int *signgamp);
-libm_hidden_proto(gamma_r)
-#ifndef _IEEE_LIBM
-double gamma_r(double x, int *signgamp)
+double attribute_hidden __ieee754_lgamma(double x)
 {
-	double y = __ieee754_lgamma_r(x, signgamp);
+	return __ieee754_lgamma_r(x, &signgam);
+}
+
+/*
+ * wrapper double lgamma(double x)
+ */
+#ifndef _IEEE_LIBM
+double lgamma(double x)
+{
+	double y = __ieee754_lgamma_r(x, &signgam);
 	if (_LIB_VERSION == _IEEE_)
 		return y;
 	if (!isfinite(y) && isfinite(x)) {
 		if (floor(x) == x && x <= 0.0)
-			return __kernel_standard(x, x, 41); /* gamma pole */
-		return __kernel_standard(x, x, 40); /* gamma overflow */
+			return __kernel_standard(x, x, 15); /* lgamma pole */
+		return __kernel_standard(x, x, 14); /* lgamma overflow */
 	}
 	return y;
 }
 #else
-strong_alias(__ieee754_lgamma_r, gamma_r)
+strong_alias(__ieee754_lgamma, lgamma);
 #endif
-libm_hidden_def(gamma_r)
+libm_hidden_def(lgamma)
+
+
+
+/* NB: gamma function is an old name for lgamma.
+ * It is deprecated.
+ * Some C math libraries redefine it as a "true gamma", i.e.,
+ * not a ln(|Gamma(x)|) but just Gamma(x), but standards
+ * introduced tgamma name for that.
+ */
+#ifndef _IEEE_LIBM
+strong_alias(lgamma_r, gamma_r)
+strong_alias(lgamma, gamma)
+#else
+strong_alias(__ieee754_lgamma_r, gamma_r)
+strong_alias(__ieee754_lgamma, gamma)
+#endif
+
+
+
+// FIXME! Looks like someone just used __ieee754_gamma_r,
+// believing it's a "true" gamma function, but it was not!
+// Our tgamma is WRONG.
+
+/* double tgamma(double x)
+ * Return the Gamma function of x.
+ */
+double tgamma(double x)
+{
+        double y;
+	int local_signgam;
+
+	y = __ieee754_lgamma_r(x, &local_signgam); // was __ieee754_gamma_r
+	if (local_signgam < 0)
+		y = -y;
+#ifndef _IEEE_LIBM
+	if (_LIB_VERSION == _IEEE_)
+		return y;
+	if (!isfinite(y) && isfinite(x)) {
+		if (floor(x) == x && x <= 0.0)
+			return __kernel_standard(x, x, 41); /* tgamma pole */
+		return __kernel_standard(x, x, 40); /* tgamma overflow */
+	}
+#endif
+	return y;
+}
+libm_hidden_def(tgamma)
