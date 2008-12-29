@@ -162,9 +162,9 @@ extern double __ieee754_cosh (double) attribute_hidden;
 extern double __ieee754_fmod (double,double) attribute_hidden;
 extern double __ieee754_pow (double,double) attribute_hidden;
 extern double __ieee754_lgamma_r (double,int *) attribute_hidden;
-extern double __ieee754_gamma_r (double,int *) attribute_hidden;
+/*extern double __ieee754_gamma_r (double,int *) attribute_hidden;*/
 extern double __ieee754_lgamma (double) attribute_hidden;
-extern double __ieee754_gamma (double) attribute_hidden;
+/*extern double __ieee754_gamma (double) attribute_hidden;*/
 extern double __ieee754_log10 (double) attribute_hidden;
 extern double __ieee754_sinh (double) attribute_hidden;
 extern double __ieee754_hypot (double,double) attribute_hidden;
