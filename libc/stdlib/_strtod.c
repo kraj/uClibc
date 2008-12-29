@@ -351,7 +351,7 @@ __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endp
 				/* Unfortunately, we have no memcasecmp(). */
 				int j = 0;
 				/* | 0x20 is a cheap lowercasing (valid for ASCII letters and numbers only) */
-				while (pos[j] | 0x20 == nan_inf_str[i+1+j]) {
+				while ((pos[j] | 0x20) == nan_inf_str[i+1+j]) {
 					++j;
 					if (!nan_inf_str[i+1+j]) {
 						number = i / 0.;
