@@ -128,7 +128,7 @@ extern __sighandler_t __REDIRECT_NTH (signal,
 #endif
 __END_NAMESPACE_STD
 
-#ifdef __USE_XOPEN
+#if defined __USE_XOPEN && defined __UCLIBC_SUSV3_LEGACY__
 /* The X/Open definition of `signal' conflicts with the BSD version.
    So they defined another function `bsd_signal'.  */
 extern __sighandler_t bsd_signal (int __sig, __sighandler_t __handler)

@@ -275,7 +275,7 @@ extern size_t wcslen (__const wchar_t *__s) __THROW __attribute_pure__;
 libc_hidden_proto(wcslen)
 __END_NAMESPACE_C99
 
-#ifdef __USE_XOPEN
+#if defined __USE_XOPEN && defined __UCLIBC_SUSV3_LEGACY__
 /* Another name for `wcsstr' from XPG4.  */
 extern wchar_t *wcswcs (__const wchar_t *__haystack, __const wchar_t *__needle)
      __THROW __attribute_pure__;

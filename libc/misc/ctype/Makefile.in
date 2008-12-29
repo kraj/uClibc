@@ -7,11 +7,13 @@
 
 # multi source ctype.c
 COM_SRC := \
-	isalnum.c isalpha.c isascii.c iscntrl.c isdigit.c \
+	isalnum.c isalpha.c iscntrl.c isdigit.c \
 	isgraph.c islower.c isprint.c ispunct.c isspace.c \
-	isupper.c isxdigit.c toascii.c tolower.c toupper.c \
+	isupper.c isxdigit.c tolower.c toupper.c \
 	isblank.c
-
+ifeq ($(UCLIBC_SUSV4_LEGACY),y)
+COM_SRC += isascii.c toascii.c
+endif
 CSRC := $(COM_SRC)
 
 ifeq ($(UCLIBC_HAS_CTYPE_TABLES),y)

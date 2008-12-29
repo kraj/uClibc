@@ -39,6 +39,6 @@ Wchar *Wstrstr(const Wchar *s1, const Wchar *s2)
 }
 #ifndef WANT_WIDE
 libc_hidden_def(strstr)
-#else
+#elif defined __UCLIBC_SUSV3_LEGACY__
 strong_alias(wcsstr,wcswcs)
 #endif

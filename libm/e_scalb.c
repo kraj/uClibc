@@ -41,6 +41,7 @@ double attribute_hidden __ieee754_scalb(double x, double fn)
 #endif
 }
 
+#if defined __UCLIBC_SUSV3_LEGACY__
 /*
  * wrapper scalb(double x, double fn) is provide for
  * passing various standard test suite. One
@@ -69,3 +70,5 @@ double scalb(double x, double fn)
 #else
 strong_alias(__ieee754_scalb, scalb)
 #endif
+
+#endif /* UCLIBC_SUSV3_LEGACY */

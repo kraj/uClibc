@@ -209,6 +209,7 @@ int __pthread_attr_setstackaddr(pthread_attr_t *attr, void *stackaddr)
 }
 weak_alias (__pthread_attr_setstackaddr, pthread_attr_setstackaddr)
 
+#if 0 /* uClibc: deprecated stuff disabled */
 int __pthread_attr_getstackaddr(const pthread_attr_t *attr, void **stackaddr)
 {
   /* XXX This function has a stupid definition.  The standard specifies
@@ -229,6 +230,7 @@ int __pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
   return 0;
 }
 weak_alias (__pthread_attr_setstacksize, pthread_attr_setstacksize)
+#endif
 
 int __pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stacksize)
 {

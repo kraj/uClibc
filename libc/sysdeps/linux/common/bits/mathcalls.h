@@ -358,7 +358,8 @@ __MATHCALLI (fma,, (_Mdouble_ __x, _Mdouble_ __y, _Mdouble_ __z));
 __END_NAMESPACE_C99
 #endif
 
-#if defined __USE_MISC || defined __USE_XOPEN_EXTENDED
+#if (defined __USE_MISC || defined __USE_XOPEN_EXTENDED) \
+	&& defined __UCLIBC_SUSV3_LEGACY__
 /* Return X times (2 to the Nth power).  */
 __MATHCALL (scalb,, (_Mdouble_ __x, _Mdouble_ __n));
 #endif
