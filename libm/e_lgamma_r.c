@@ -197,7 +197,6 @@ double sin_pi(double x)
 	return -y;
 }
 
-
 double attribute_hidden __ieee754_lgamma_r(double x, int *signgamp)
 {
 	double t,y,z,nadj=0,p,p1,p2,p3,q,r,w;
@@ -342,7 +341,6 @@ strong_alias(__ieee754_lgamma, lgamma);
 libm_hidden_def(lgamma)
 
 
-
 /* NB: gamma function is an old name for lgamma.
  * It is deprecated.
  * Some C math libraries redefine it as a "true gamma", i.e.,
@@ -358,7 +356,6 @@ strong_alias(__ieee754_lgamma, gamma)
 #endif
 
 
-
 // FIXME! Looks like someone just used __ieee754_gamma_r,
 // believing it's a "true" gamma function, but it was not!
 // Our tgamma is WRONG.
@@ -368,7 +365,7 @@ strong_alias(__ieee754_lgamma, gamma)
  */
 double tgamma(double x)
 {
-        double y;
+	double y;
 	int local_signgam;
 
 	y = __ieee754_lgamma_r(x, &local_signgam); // was __ieee754_gamma_r
