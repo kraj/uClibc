@@ -38,8 +38,8 @@
 	 else								      \
 	   __asm__ ("rorw $8, %w0"					      \
 		    : "=r" (__v)					      \
- 		    : "0" (__x)						      \
- 		    : "cc");						      \
+		    : "0" (__x)						      \
+		    : "cc");						      \
 	 __v; }))
 # else
 /* This is better than nothing.  */

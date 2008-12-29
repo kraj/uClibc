@@ -39,7 +39,7 @@
  */
 
 #define	TSPVERSION	1
-#define ANYADDR 	NULL
+#define ANYADDR		NULL
 
 struct tsp {
 	u_char	tsp_type;

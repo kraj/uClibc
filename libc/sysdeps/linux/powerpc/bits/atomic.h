@@ -512,7 +512,7 @@ typedef uintmax_t uatomic_max_t;
       __result = __arch_compare_and_exchange_val_32_acq(mem, newval, oldval); \
     else if (sizeof (*mem) == 8)					      \
       __result = __arch_compare_and_exchange_val_64_acq(mem, newval, oldval); \
-    else 								      \
+    else								      \
        abort ();							      \
     __result;								      \
   })
@@ -524,7 +524,7 @@ typedef uintmax_t uatomic_max_t;
       __result = __arch_compare_and_exchange_val_32_rel(mem, newval, oldval); \
     else if (sizeof (*mem) == 8)					      \
       __result = __arch_compare_and_exchange_val_64_rel(mem, newval, oldval); \
-    else 								      \
+    else								      \
        abort ();							      \
     __result;								      \
   })
@@ -536,7 +536,7 @@ typedef uintmax_t uatomic_max_t;
       __result = __arch_atomic_exchange_32_acq (mem, value);		      \
     else if (sizeof (*mem) == 8)					      \
       __result = __arch_atomic_exchange_64_acq (mem, value);		      \
-    else 								      \
+    else								      \
        abort ();							      \
     __result;								      \
   })
@@ -548,7 +548,7 @@ typedef uintmax_t uatomic_max_t;
       __result = __arch_atomic_exchange_32_rel (mem, value);		      \
     else if (sizeof (*mem) == 8)					      \
       __result = __arch_atomic_exchange_64_rel (mem, value);		      \
-    else 								      \
+    else								      \
        abort ();							      \
     __result;								      \
   })
@@ -560,7 +560,7 @@ typedef uintmax_t uatomic_max_t;
       __result = __arch_atomic_exchange_and_add_32 (mem, value);	      \
     else if (sizeof (*mem) == 8)					      \
       __result = __arch_atomic_exchange_and_add_64 (mem, value);	      \
-    else 								      \
+    else								      \
        abort ();							      \
     __result;								      \
   })
@@ -572,7 +572,7 @@ typedef uintmax_t uatomic_max_t;
       __result = __arch_atomic_increment_val_32 (mem);			      \
     else if (sizeof (*(mem)) == 8)					      \
       __result = __arch_atomic_increment_val_64 (mem);			      \
-    else 								      \
+    else								      \
        abort ();							      \
     __result;								      \
   })
@@ -586,7 +586,7 @@ typedef uintmax_t uatomic_max_t;
       __result = __arch_atomic_decrement_val_32 (mem);			      \
     else if (sizeof (*(mem)) == 8)					      \
       __result = __arch_atomic_decrement_val_64 (mem);			      \
-    else 								      \
+    else								      \
        abort ();							      \
     __result;								      \
   })

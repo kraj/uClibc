@@ -60,21 +60,21 @@ typedef uintmax_t uatomic_max_t;
 
 #define __arch_compare_and_exchange_val_8_acq(mem, newval, oldval) \
   ({ __typeof (*mem) ret;						      \
-     __asm__ __volatile__ (LOCK_PREFIX "cmpxchgb %b2, %1"			      \
+     __asm__ __volatile__ (LOCK_PREFIX "cmpxchgb %b2, %1"		      \
 		       : "=a" (ret), "=m" (*mem)			      \
 		       : "q" (newval), "m" (*mem), "0" (oldval));	      \
      ret; })
 
 #define __arch_compare_and_exchange_val_16_acq(mem, newval, oldval) \
   ({ __typeof (*mem) ret;						      \
-     __asm__ __volatile__ (LOCK_PREFIX "cmpxchgw %w2, %1"			      \
+     __asm__ __volatile__ (LOCK_PREFIX "cmpxchgw %w2, %1"		      \
 		       : "=a" (ret), "=m" (*mem)			      \
 		       : "r" (newval), "m" (*mem), "0" (oldval));	      \
      ret; })
 
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval) \
   ({ __typeof (*mem) ret;						      \
-     __asm__ __volatile__ (LOCK_PREFIX "cmpxchgl %2, %1"			      \
+     __asm__ __volatile__ (LOCK_PREFIX "cmpxchgl %2, %1"		      \
 		       : "=a" (ret), "=m" (*mem)			      \
 		       : "r" (newval), "m" (*mem), "0" (oldval));	      \
      ret; })
@@ -92,7 +92,7 @@ typedef uintmax_t uatomic_max_t;
 # ifdef __PIC__
 #  define __arch_compare_and_exchange_val_64_acq(mem, newval, oldval) \
   ({ __typeof (*mem) ret;						      \
-     __asm__ __volatile__ ("xchgl %2, %%ebx\n\t"				      \
+     __asm__ __volatile__ ("xchgl %2, %%ebx\n\t"			      \
 		       LOCK_PREFIX "cmpxchg8b %1\n\t"			      \
 		       "xchgl %2, %%ebx"				      \
 		       : "=A" (ret), "=m" (*mem)			      \
@@ -131,7 +131,7 @@ typedef uintmax_t uatomic_max_t;
 			 : "=r" (result), "=m" (*mem)			      \
 			 : "0" (newvalue), "m" (*mem));			      \
      else if (sizeof (*mem) == 4)					      \
-       __asm__ __volatile__ ("xchgl %0, %1"					      \
+       __asm__ __volatile__ ("xchgl %0, %1"				      \
 			 : "=r" (result), "=m" (*mem)			      \
 			 : "0" (newvalue), "m" (*mem));			      \
      else								      \
@@ -146,11 +146,11 @@ typedef uintmax_t uatomic_max_t;
   ({ __typeof (*mem) __result;						      \
      __typeof (value) __addval = (value);				      \
      if (sizeof (*mem) == 1)						      \
-       __asm__ __volatile__ (LOCK_PREFIX "xaddb %b0, %1"			      \
+       __asm__ __volatile__ (LOCK_PREFIX "xaddb %b0, %1"		      \
 			 : "=r" (__result), "=m" (*mem)			      \
 			 : "0" (__addval), "m" (*mem));			      \
      else if (sizeof (*mem) == 2)					      \
-       __asm__ __volatile__ (LOCK_PREFIX "xaddw %w0, %1"			      \
+       __asm__ __volatile__ (LOCK_PREFIX "xaddw %w0, %1"		      \
 			 : "=r" (__result), "=m" (*mem)			      \
 			 : "0" (__addval), "m" (*mem));			      \
      else if (sizeof (*mem) == 4)					      \
@@ -204,11 +204,11 @@ typedef uintmax_t uatomic_max_t;
 #define atomic_add_negative(mem, value) \
   ({ unsigned char __result;						      \
      if (sizeof (*mem) == 1)						      \
-       __asm__ __volatile__ (LOCK_PREFIX "addb %b2, %0; sets %1"		      \
+       __asm__ __volatile__ (LOCK_PREFIX "addb %b2, %0; sets %1"	      \
 			 : "=m" (*mem), "=qm" (__result)		      \
 			 : "iq" (value), "m" (*mem));			      \
      else if (sizeof (*mem) == 2)					      \
-       __asm__ __volatile__ (LOCK_PREFIX "addw %w2, %0; sets %1"		      \
+       __asm__ __volatile__ (LOCK_PREFIX "addw %w2, %0; sets %1"	      \
 			 : "=m" (*mem), "=qm" (__result)		      \
 			 : "ir" (value), "m" (*mem));			      \
      else if (sizeof (*mem) == 4)					      \
@@ -223,11 +223,11 @@ typedef uintmax_t uatomic_max_t;
 #define atomic_add_zero(mem, value) \
   ({ unsigned char __result;						      \
      if (sizeof (*mem) == 1)						      \
-       __asm__ __volatile__ (LOCK_PREFIX "addb %b2, %0; setz %1"		      \
+       __asm__ __volatile__ (LOCK_PREFIX "addb %b2, %0; setz %1"	      \
 			 : "=m" (*mem), "=qm" (__result)		      \
 			 : "ir" (value), "m" (*mem));			      \
      else if (sizeof (*mem) == 2)					      \
-       __asm__ __volatile__ (LOCK_PREFIX "addw %w2, %0; setz %1"		      \
+       __asm__ __volatile__ (LOCK_PREFIX "addw %w2, %0; setz %1"	      \
 			 : "=m" (*mem), "=qm" (__result)		      \
 			 : "ir" (value), "m" (*mem));			      \
      else if (sizeof (*mem) == 4)					      \
@@ -241,15 +241,15 @@ typedef uintmax_t uatomic_max_t;
 
 #define atomic_increment(mem) \
   (void) ({ if (sizeof (*mem) == 1)					      \
-	      __asm__ __volatile__ (LOCK_PREFIX "incb %b0"			      \
+	      __asm__ __volatile__ (LOCK_PREFIX "incb %b0"		      \
 				: "=m" (*mem)				      \
 				: "m" (*mem));				      \
 	    else if (sizeof (*mem) == 2)				      \
-	      __asm__ __volatile__ (LOCK_PREFIX "incw %w0"			      \
+	      __asm__ __volatile__ (LOCK_PREFIX "incw %w0"		      \
 				: "=m" (*mem)				      \
 				: "m" (*mem));				      \
 	    else if (sizeof (*mem) == 4)				      \
-	      __asm__ __volatile__ (LOCK_PREFIX "incl %0"			      \
+	      __asm__ __volatile__ (LOCK_PREFIX "incl %0"		      \
 				: "=m" (*mem)				      \
 				: "m" (*mem));				      \
 	    else							      \
@@ -276,7 +276,7 @@ typedef uintmax_t uatomic_max_t;
 			 : "=m" (*mem), "=qm" (__result)		      \
 			 : "m" (*mem));					      \
      else if (sizeof (*mem) == 4)					      \
-       __asm__ __volatile__ (LOCK_PREFIX "incl %0; sete %1"			      \
+       __asm__ __volatile__ (LOCK_PREFIX "incl %0; sete %1"		      \
 			 : "=m" (*mem), "=qm" (__result)		      \
 			 : "m" (*mem));					      \
      else								      \
@@ -286,15 +286,15 @@ typedef uintmax_t uatomic_max_t;
 
 #define atomic_decrement(mem) \
   (void) ({ if (sizeof (*mem) == 1)					      \
-	      __asm__ __volatile__ (LOCK_PREFIX "decb %b0"			      \
+	      __asm__ __volatile__ (LOCK_PREFIX "decb %b0"		      \
 				: "=m" (*mem)				      \
 				: "m" (*mem));				      \
 	    else if (sizeof (*mem) == 2)				      \
-	      __asm__ __volatile__ (LOCK_PREFIX "decw %w0"			      \
+	      __asm__ __volatile__ (LOCK_PREFIX "decw %w0"		      \
 				: "=m" (*mem)				      \
 				: "m" (*mem));				      \
 	    else if (sizeof (*mem) == 4)				      \
-	      __asm__ __volatile__ (LOCK_PREFIX "decl %0"			      \
+	      __asm__ __volatile__ (LOCK_PREFIX "decl %0"		      \
 				: "=m" (*mem)				      \
 				: "m" (*mem));				      \
 	    else							      \
@@ -305,7 +305,7 @@ typedef uintmax_t uatomic_max_t;
 		do							      \
 		  __tmpval = __oldval;					      \
 		while ((__oldval = __arch_compare_and_exchange_val_64_acq     \
-		       (__memp, __oldval - 1, __oldval)) == __tmpval); 	      \
+		       (__memp, __oldval - 1, __oldval)) == __tmpval);        \
 	      }								      \
 	    })
 
@@ -321,7 +321,7 @@ typedef uintmax_t uatomic_max_t;
 			 : "=m" (*mem), "=qm" (__result)		      \
 			 : "m" (*mem));					      \
      else if (sizeof (*mem) == 4)					      \
-       __asm__ __volatile__ (LOCK_PREFIX "decl %0; sete %1"			      \
+       __asm__ __volatile__ (LOCK_PREFIX "decl %0; sete %1"		      \
 			 : "=m" (*mem), "=qm" (__result)		      \
 			 : "m" (*mem));					      \
      else								      \
@@ -361,7 +361,7 @@ typedef uintmax_t uatomic_max_t;
        __asm__ __volatile__ (LOCK_PREFIX "btsl %3, %1; setc %0"		      \
 			 : "=q" (__result), "=m" (*mem)			      \
 			 : "m" (*mem), "ir" (bit));			      \
-     else							      	      \
+     else								      \
        abort ();							      \
      __result; })
 

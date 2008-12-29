@@ -115,7 +115,7 @@ typedef res_sendhookact (*res_send_rhook) (const struct sockaddr_in *ns,
  */
 struct __res_state {
 #ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
-	int	retrans;	 	/* retransmission time interval */
+	int	retrans;		/* retransmission time interval */
 	int	retry;			/* number of times to retransmit */
 #endif
 	u_int32_t options;		/* (was: ulong) option flags - see below. */

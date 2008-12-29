@@ -70,7 +70,7 @@
 			 __tgmres = Fct (Val);				      \
 		       else if (sizeof (Val) == sizeof (float))		      \
 			 __tgmres = Fct##f (Val);			      \
-		       else 						      \
+		       else						      \
 			 __tgmres = __tgml(Fct) (Val);			      \
 		       __tgmres; }))
 
@@ -81,7 +81,7 @@
 			 __tgmres = Fct (Val1, Val2);			      \
 		       else if (sizeof (Val1) == sizeof (float))	      \
 			 __tgmres = Fct##f (Val1, Val2);		      \
-		       else 						      \
+		       else						      \
 			 __tgmres = __tgml(Fct) (Val1, Val2);		      \
 		       __tgmres; }))
 
@@ -155,7 +155,7 @@
 			   else						      \
 			     __tgmres = Cfct (Val);			      \
 			 }						      \
-		       else 						      \
+		       else						      \
 			 {						      \
 			   if (sizeof (__real__ (Val)) == sizeof (Val))	      \
 			     __tgmres = Fct##f (Val);			      \
@@ -173,7 +173,7 @@
 			 __tgmres = Fct (Val);				      \
 		       else if (sizeof (Val) == sizeof (__complex__ float))   \
 			 __tgmres = Fct##f (Val);			      \
-		       else 						      \
+		       else						      \
 			 __tgmres = __tgml(Fct) (Val);			      \
 		       __tgmres; }))
 
