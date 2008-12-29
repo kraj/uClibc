@@ -121,7 +121,7 @@ double attribute_hidden __ieee754_atan2(double y, double x)
 #ifndef _IEEE_LIBM
 double atan2(double y, double x)
 {
-	double z = __ieee754_atan2(y,x);
+	double z = __ieee754_atan2(y, x);
 	if (_LIB_VERSION == _IEEE_ || isnan(x) || isnan(y))
 		return z;
 	if (x == 0.0 && y == 0.0)

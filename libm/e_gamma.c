@@ -1,4 +1,3 @@
-
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -22,5 +21,5 @@
 
 double attribute_hidden __ieee754_gamma(double x)
 {
-	return __ieee754_gamma_r(x,&signgam);
+	return __ieee754_gamma_r(x, &signgam);
 }
