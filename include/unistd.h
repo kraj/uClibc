@@ -410,7 +410,8 @@ libc_hidden_proto(alarm)
 extern unsigned int sleep (unsigned int __seconds);
 libc_hidden_proto(sleep)
 
-#if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+#if (defined __USE_BSD || defined __USE_XOPEN_EXTENDED) \
+	&& defined __UCLIBC_SUSV3_LEGACY__
 /* Set an alarm to go off (generating a SIGALRM signal) in VALUE
    microseconds.  If INTERVAL is nonzero, when the alarm goes off, the
    timer is reset to go off every INTERVAL microseconds thereafter.

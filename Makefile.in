@@ -306,6 +306,7 @@ endif
 ifneq ($(UCLIBC_SUSV3_LEGACY),y)
 	# Remove timeb.h since the LEGACY ftime() was disabled upon request
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/timeb.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ucontext.h
 endif
 ifneq ($(UCLIBC_HAS_EPOLL),y)
 	# Remove epoll.h since epoll_*() were disabled upon request

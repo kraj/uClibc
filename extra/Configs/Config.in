@@ -511,10 +511,22 @@ config COMPAT_ATEXIT
 config UCLIBC_SUSV3_LEGACY
 	bool "Enable SuSv3 LEGACY functions"
 	default n
+	#vfork,
+	# h_errno
+	# gethostbyaddr
+	# gethostbyname
 	help
 	  Enable this option if you want to have SuSv3 LEGACY functions
 	  in the library, else they are replaced by SuSv3 proposed macros.
-	  Currently applies to bcopy/bzero/bcmp/index/rindex/ftime.
+	  Currently applies to:
+
+	  bcmp, bcopy, bzero, index, rindex, ftime,
+	  bsd_signal, (ecvt), (fcvt), gcvt, (getcontext),
+	  (getwd), (makecontext),
+	  mktemp, (pthread_attr_getstackaddr), (pthread_attr_setstackaddr),
+	  scalb, (setcontext), (swapcontext), ualarm, usleep,
+	  wcswcs.
+
 	  WARNING! ABI incompatibility.
 
 config UCLIBC_SUSV3_LEGACY_MACROS
@@ -523,6 +535,27 @@ config UCLIBC_SUSV3_LEGACY_MACROS
 	help
 	  Enable this option if you want to have SuSv3 LEGACY macros.
 	  Currently applies to bcopy/bzero/bcmp/index/rindex et al.
+	  WARNING! ABI incompatibility.
+
+config UCLIBC_SUSV4_LEGACY
+	bool "Enable SuSv4 LEGACY or obsolescent functions"
+	default n
+	help
+	  Enable this option if you want to have SuSv4 LEGACY functions
+	  and macros in the library.
+	  Currently applies to:
+
+	  - XSI functions:
+	    _longjmp, _setjmp, _tolower, _toupper, ftw, getitimer,
+	    gettimeofday, isascii, pthread_getconcurrency,
+	    pthread_setconcurrency, setitimer, setpgrp, sighold,
+	    sigignore, sigpause, sigrelse, sigset, siginterrupt,
+	    tempnam, toascii, ulimit.
+
+	  - Base functions:
+	    asctime, asctime_r, ctime, ctime_r, gets, rand_r,
+	    tmpnam, utime.
+
 	  WARNING! ABI incompatibility.
 
 config UCLIBC_HAS_STUBS

@@ -376,6 +376,7 @@
 /* Return the remainder of integer divison X / Y with infinite precision.  */
 #define remainder(Val1, Val2) __TGMATH_BINARY_REAL_ONLY (Val1, Val2, remainder)
 
+#if defined __UCLIBC_SUSV3_LEGACY__
 /* Return X times (2 to the Nth power).  */
 #if defined __USE_MISC || defined __USE_XOPEN_EXTENDED
 # define scalb(Val1, Val2) __TGMATH_BINARY_REAL_ONLY (Val1, Val2, scalb)
@@ -387,6 +388,7 @@
 /* Return X times (2 to the Nth power).  */
 #define scalbln(Val1, Val2) \
      __TGMATH_BINARY_FIRST_REAL_ONLY (Val1, Val2, scalbln)
+#endif /* UCLIBC_SUSV3_LEGACY */
 
 /* Return the binary exponent of X, which must be nonzero.  */
 #define ilogb(Val) __TGMATH_UNARY_REAL_ONLY (Val, ilogb)

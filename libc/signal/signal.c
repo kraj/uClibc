@@ -22,15 +22,12 @@
 #include <signal.h>
 #include <string.h>	/* For the real memset prototype.  */
 
-/* libc_hidden_proto(sigaction) */
-
 sigset_t _sigintr attribute_hidden;		/* Set by siginterrupt.  */
 
 /* Set the handler for the signal SIG to HANDLER,
    returning the old handler, or SIG_ERR on error.  */
-extern __typeof(bsd_signal) __bsd_signal;
-attribute_hidden __sighandler_t
-__bsd_signal (int sig, __sighandler_t handler)
+__sighandler_t
+signal (int sig, __sighandler_t handler)
 {
   struct sigaction act, oact;
 
@@ -51,7 +48,7 @@ __bsd_signal (int sig, __sighandler_t handler)
 
   return oact.sa_handler;
 }
-strong_alias(__bsd_signal,bsd_signal)
-/* libc_hidden_proto(signal) */
-strong_alias(__bsd_signal,signal)
 libc_hidden_def(signal)
+#ifdef __UCLIBC_SUSV3_LEGACY__
+strong_alias(signal,bsd_signal)
+#endif
