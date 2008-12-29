@@ -48,7 +48,7 @@ struct ttyent {
 #define	TTY_ON		0x01	/* enable logins (start ty_getty program) */
 #define	TTY_SECURE	0x02	/* allow uid of 0 to login */
 	int	ty_status;	/* status flags */
-	char 	*ty_window;	/* command to start up window manager */
+	char	*ty_window;	/* command to start up window manager */
 	char	*ty_comment;	/* comment field */
 };
 

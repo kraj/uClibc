@@ -483,7 +483,7 @@ FIXME! - ?
 #  ifdef HAVE_ASM_SET_DIRECTIVE
 #   ifdef HAVE_ASM_GLOBAL_DOT_NAME
 #    define _hidden_strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias) 		ASM_LINE_SEP \
+	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
 	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
 	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)	ASM_LINE_SEP \
 	ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME(alias)		ASM_LINE_SEP \

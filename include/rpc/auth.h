@@ -113,7 +113,7 @@ struct AUTH {
     int  (*ah_validate) (AUTH *, struct opaque_auth *);
 						/* validate verifier */
     int  (*ah_refresh) (AUTH *);		/* refresh credentials */
-    void (*ah_destroy) (AUTH *); 	    	/* destroy this structure */
+    void (*ah_destroy) (AUTH *);		/* destroy this structure */
   } *ah_ops;
   caddr_t ah_private;
 };
