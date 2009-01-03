@@ -19,16 +19,9 @@
 #include "math_private.h"
 #include <errno.h>
 
-#ifdef _SCALB_INT
-double attribute_hidden __ieee754_scalb(double x, int fn)
-#else
 double attribute_hidden __ieee754_scalb(double x, double fn)
-#endif
 {
-#ifdef _SCALB_INT
 	return scalbn(x,fn);
-//TODO: just alias it to scalbn?
-#else
 	if (isnan(x)||isnan(fn)) return x*fn;
 	if (!isfinite(fn)) {
 	    if(fn>0.0) return x*fn;
@@ -48,11 +41,7 @@ double attribute_hidden __ieee754_scalb(double x, double fn)
  * should use scalbn() instead.
  */
 #ifndef _IEEE_LIBM
-# ifdef _SCALB_INT
-double scalb(double x, int fn)
-# else
 double scalb(double x, double fn)
-# endif
 {
 	double z = __ieee754_scalb(x, fn);
 	if (_LIB_VERSION == _IEEE_)
@@ -61,10 +50,8 @@ double scalb(double x, double fn)
 		return __kernel_standard(x, (double)fn, 32); /* scalb overflow */
 	if (z == 0.0 && z != x)
 		return __kernel_standard(x, (double)fn, 33); /* scalb underflow */
-# ifndef _SCALB_INT
 	if (!isfinite(fn))
 		errno = ERANGE;
-# endif
 	return z;
 }
 #else
