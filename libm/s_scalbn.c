@@ -10,8 +10,8 @@
  */
 
 /*
- * scalbn (double x, int n)
- * scalbn(x,n) returns x* 2**n computed by exponent
+ * scalbln(double x, long n)
+ * scalbln(x,n) returns x * 2**n computed by exponent
  * manipulation rather than by actually performing an
  * exponentiation or a multiplication.
  */
@@ -25,7 +25,7 @@ twom54 = 5.55111512312578270212e-17, /* 0x3C900000, 0x00000000 */
 huge   = 1.0e+300,
 tiny   = 1.0e-300;
 
-double scalbn(double x, int n)
+double scalbln(double x, long n)
 {
 	int32_t k, hx, lx;
 
@@ -58,19 +58,19 @@ double scalbn(double x, int n)
 	SET_HIGH_WORD(x, (hx & 0x800fffff) | (k << 20));
 	return x * twom54;
 }
-libm_hidden_def(scalbn)
+libm_hidden_def(scalbln)
 
 #if LONG_MAX == INT_MAX
-/* strong_alias(scalbn, scalbln) - "error: conflicting types for 'scalbln'"
- * because it tries to declare "typeof(scalbn) scalbln;"
- * which tries to give "int" parameter to scalbln.
+/* strong_alias(scalbln, scalbn) - "error: conflicting types for 'scalbn'"
+ * because it tries to declare "typeof(scalbln) scalbn;"
+ * which tries to give "long" parameter to scalbn.
  * Doing it by hand:
  */
-__typeof(scalbln) scalbln __attribute__((alias("scalbn")));
+__typeof(scalbn) scalbn __attribute__((alias("scalbln")));
 #else
-double scalbln(double x, long n)
+double scalbn(double x, int n)
 {
 	return scalbn(x, n);
 }
 #endif
-libm_hidden_def(scalbln)
+libm_hidden_def(scalbn)
