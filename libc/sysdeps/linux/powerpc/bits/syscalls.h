@@ -174,7 +174,7 @@
     register long int r10 __asm__ ("r10");				\
     register long int r11 __asm__ ("r11");				\
     register long int r12 __asm__ ("r12");				\
-    LOADARGS_##nr(name, args);					\
+    LOADARGS_##nr(name, args);						\
     __asm__ __volatile__						\
       ("sc   \n\t"							\
        "mfcr %0"							\
@@ -196,47 +196,48 @@
 # undef INTERNAL_SYSCALL_ERRNO
 # define INTERNAL_SYSCALL_ERRNO(val, err)     (val)
 
-# define LOADARGS_0(name, dummy)					      \
+extern void __illegally_sized_syscall_arg1(void);
+extern void __illegally_sized_syscall_arg2(void);
+extern void __illegally_sized_syscall_arg3(void);
+extern void __illegally_sized_syscall_arg4(void);
+extern void __illegally_sized_syscall_arg5(void);
+extern void __illegally_sized_syscall_arg6(void);
+
+# define LOADARGS_0(name, dummy) \
 	r0 = name
 # define LOADARGS_1(name, __arg1) \
-	long int arg1 = (long int) (__arg1);	\
-  LOADARGS_0(name, 0);					   \
-	extern void __illegally_sized_syscall_arg1 (void); \
+	long int arg1 = (long int) (__arg1); \
+	LOADARGS_0(name, 0); \
 	if (__builtin_classify_type (__arg1) != 5 && sizeof (__arg1) > 4) \
 	  __illegally_sized_syscall_arg1 (); \
 	r3 = arg1
 # define LOADARGS_2(name, __arg1, __arg2) \
 	long int arg2 = (long int) (__arg2); \
 	LOADARGS_1(name, __arg1); \
-	extern void __illegally_sized_syscall_arg2 (void); \
 	if (__builtin_classify_type (__arg2) != 5 && sizeof (__arg2) > 4) \
 	  __illegally_sized_syscall_arg2 (); \
 	r4 = arg2
 # define LOADARGS_3(name, __arg1, __arg2, __arg3) \
 	long int arg3 = (long int) (__arg3); \
 	LOADARGS_2(name, __arg1, __arg2); \
-	extern void __illegally_sized_syscall_arg3 (void); \
 	if (__builtin_classify_type (__arg3) != 5 && sizeof (__arg3) > 4) \
 	  __illegally_sized_syscall_arg3 (); \
 	r5 = arg3
 # define LOADARGS_4(name, __arg1, __arg2, __arg3, __arg4) \
 	long int arg4 = (long int) (__arg4); \
 	LOADARGS_3(name, __arg1, __arg2, __arg3); \
-	extern void __illegally_sized_syscall_arg4 (void); \
 	if (__builtin_classify_type (__arg4) != 5 && sizeof (__arg4) > 4) \
 	  __illegally_sized_syscall_arg4 (); \
 	r6 = arg4
 # define LOADARGS_5(name, __arg1, __arg2, __arg3, __arg4, __arg5) \
 	long int arg5 = (long int) (__arg5); \
 	LOADARGS_4(name, __arg1, __arg2, __arg3, __arg4); \
-	extern void __illegally_sized_syscall_arg5 (void); \
 	if (__builtin_classify_type (__arg5) != 5 && sizeof (__arg5) > 4) \
 	  __illegally_sized_syscall_arg5 (); \
 	r7 = arg5
 # define LOADARGS_6(name, __arg1, __arg2, __arg3, __arg4, __arg5, __arg6) \
 	long int arg6 = (long int) (__arg6); \
 	LOADARGS_5(name, __arg1, __arg2, __arg3, __arg4, __arg5); \
-	extern void __illegally_sized_syscall_arg6 (void); \
 	if (__builtin_classify_type (__arg6) != 5 && sizeof (__arg6) > 4) \
 	  __illegally_sized_syscall_arg6 (); \
 	r8 = arg6
@@ -252,43 +253,43 @@
 
 #undef _syscall0
 #define _syscall0(type,name) \
-type name(void){ \
+type name(void) { \
   return (type) INLINE_SYSCALL(name, 0); \
 }
 
 #undef _syscall1
 #define _syscall1(type,name,type1,arg1) \
-type name(type1 arg1){  \
+type name(type1 arg1) { \
   return (type) INLINE_SYSCALL(name, 1, arg1); \
 }
 
 #undef _syscall2
 #define _syscall2(type,name,type1,arg1,type2,arg2) \
-type name(type1 arg1, type2 arg2){      \
+type name(type1 arg1, type2 arg2) { \
   return (type) INLINE_SYSCALL(name, 2, arg1, arg2); \
 }
 
 #undef _syscall3
 #define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
-type name(type1 arg1, type2 arg2, type3 arg3){  \
+type name(type1 arg1, type2 arg2, type3 arg3) { \
   return (type) INLINE_SYSCALL(name, 3, arg1, arg2, arg3); \
 }
 
 #undef _syscall4
 #define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
-type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4){      \
+type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4) { \
   return (type) INLINE_SYSCALL(name, 4, arg1, arg2, arg3, arg4); \
 }
 
 #undef _syscall5
 #define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5) \
-type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5){  \
+type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5) { \
   return (type) INLINE_SYSCALL(name, 5, arg1, arg2, arg3, arg4, arg5); \
 }
 
 #undef _syscall6
 #define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6) \
-type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6){      \
+type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6) { \
   return (type) INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6); \
 }
 
