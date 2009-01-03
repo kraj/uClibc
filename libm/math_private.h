@@ -176,11 +176,7 @@ extern double __ieee754_jn (int,double) attribute_hidden;
 extern double __ieee754_yn (int,double) attribute_hidden;
 extern double __ieee754_remainder (double,double) attribute_hidden;
 extern int    __ieee754_rem_pio2 (double,double*) attribute_hidden;
-#if defined(_SCALB_INT)
-extern double __ieee754_scalb (double,int) attribute_hidden;
-#else
 extern double __ieee754_scalb (double,double) attribute_hidden;
-#endif
 
 /* fdlibm kernel function */
 #ifndef _IEEE_LIBM
