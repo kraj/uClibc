@@ -41,7 +41,7 @@ __asm__("	.text\n"
 	"	.previous\n");
 
 /* Get a pointer to the argv array.  On many platforms this can be just
- * the address if the first argument, on other platforms we need to
+ * the address of the first argument, on other platforms we need to
  * do something a little more subtle here. */
 #define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned long *)ARGS + 1)
 
@@ -101,12 +101,3 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 		_dl_exit(1);
 	}
 }
-
-/* Transfer control to the user's application, once the dynamic loader
- * is done. This routine has to exit the current function, then call
- * the _dl_elf_main function.
- *
- * Since our _dl_boot will simply call whatever is returned by
- * _dl_boot2, we can just return the address we're supposed to
- * call.  */
-#define START()	return _dl_elf_main;

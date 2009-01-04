@@ -95,7 +95,7 @@
 #include "dl-startup.h"
 
 /* Static declarations */
-int (*_dl_elf_main) (int, char **, char **);
+static int (*_dl_elf_main) (int, char **, char **);
 
 static void* __rtld_stack_end; /* Points to argc on stack, e.g *((long *)__rtld_stackend) == argc */
 strong_alias(__rtld_stack_end, __libc_stack_end) /* Exported version of __rtld_stack_end */
@@ -103,8 +103,7 @@ strong_alias(__rtld_stack_end, __libc_stack_end) /* Exported version of __rtld_s
 /* When we enter this piece of code, the program stack looks like this:
 	argc            argument counter (integer)
 	argv[0]         program name (pointer)
-	argv[1...N]     program args (pointers)
-	argv[argc-1]    end of args (integer)
+	argv[1..argc-1] program args (pointers)
 	NULL
 	env[0...N]      environment variables (pointers)
 	NULL
@@ -123,7 +122,7 @@ DL_START(unsigned long args)
 	ElfW(auxv_t) auxvt[AT_EGID + 1];
 	ElfW(Dyn) *dpnt;
 
-	/* WARNING! -- we cannot make _any_ funtion calls until we have
+	/* WARNING! -- we cannot make _any_ function calls until we have
 	 * taken care of fixing up our own relocations.  Making static
 	 * inline calls is ok, but _no_ function calls.  Not yet
 	 * anyways. */
@@ -131,12 +130,12 @@ DL_START(unsigned long args)
 	/* First obtain the information on the stack that tells us more about
 	   what binary is loaded, where it is loaded, etc, etc */
 	GET_ARGV(aux_dat, args);
-	argc = *(aux_dat - 1);
+	argc = aux_dat[-1];
 	argv = (char **) aux_dat;
 	aux_dat += argc;			/* Skip over the argv pointers */
 	aux_dat++;					/* Skip over NULL at end of argv */
 	envp = (char **) aux_dat;
-#ifndef NO_EARLY_SEND_STDERR
+#if !defined(NO_EARLY_SEND_STDERR)
 	SEND_EARLY_STDERR_DEBUG("argc=");
 	SEND_NUMBER_STDERR_DEBUG(argc, 0);
 	SEND_EARLY_STDERR_DEBUG(" argv=");
@@ -195,7 +194,7 @@ DL_START(unsigned long args)
 	DL_BOOT_COMPUTE_GOT(got);
 
 	/* Now, finally, fix up the location of the dynamic stuff */
-	DL_BOOT_COMPUTE_DYN (dpnt, got, load_addr);
+	DL_BOOT_COMPUTE_DYN(dpnt, got, load_addr);
 
 	SEND_EARLY_STDERR_DEBUG("First Dynamic section entry=");
 	SEND_ADDRESS_STDERR_DEBUG(dpnt, 1);
@@ -215,11 +214,9 @@ DL_START(unsigned long args)
 	SEND_EARLY_STDERR_DEBUG("Done scanning DYNAMIC section\n");
 
 #if defined(PERFORM_BOOTSTRAP_GOT)
-
 	SEND_EARLY_STDERR_DEBUG("About to do specific GOT bootstrap\n");
 	/* some arches (like MIPS) we have to tweak the GOT before relocations */
 	PERFORM_BOOTSTRAP_GOT(tpnt);
-
 #endif
 
 #if !defined(PERFORM_BOOTSTRAP_GOT) || defined(__avr32__)
@@ -229,13 +226,12 @@ DL_START(unsigned long args)
 	SEND_EARLY_STDERR_DEBUG("About to do library loader relocations\n");
 
 	{
-		int goof, indx;
-#ifdef  ELF_MACHINE_PLTREL_OVERLAP
+		int indx;
+#if defined(ELF_MACHINE_PLTREL_OVERLAP)
 # define INDX_MAX 1
 #else
 # define INDX_MAX 2
 #endif
-		goof = 0;
 		for (indx = 0; indx < INDX_MAX; indx++) {
 			unsigned int i;
 			unsigned long *reloc_addr;
@@ -278,8 +274,7 @@ DL_START(unsigned long args)
 					strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 					sym = &symtab[symtab_index];
 					symbol_addr = (unsigned long) DL_RELOC_ADDR(load_addr, sym->st_value);
-
-#ifndef EARLY_STDERR_SPECIAL
+#if !defined(EARLY_STDERR_SPECIAL)
 					SEND_STDERR_DEBUG("relocating symbol: ");
 					SEND_STDERR_DEBUG(strtab + sym->st_name);
 					SEND_STDERR_DEBUG("\n");
@@ -291,14 +286,9 @@ DL_START(unsigned long args)
 				PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
 			}
 		}
-
-		if (goof) {
-			_dl_exit(14);
-		}
 	}
 #endif
 
-	/* Wahoo!!! */
 	SEND_STDERR_DEBUG("Done relocating ldso; we can now use globals and make function calls!\n");
 
 	/* Now we have done the mandatory linking of some things.  We are now
@@ -311,13 +301,12 @@ DL_START(unsigned long args)
 	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp, argv
 			     DL_GET_READY_TO_RUN_EXTRA_ARGS);
 
-
 	/* Transfer control to the application.  */
 	SEND_STDERR_DEBUG("transfering control to application @ ");
 	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_val;
 	SEND_ADDRESS_STDERR_DEBUG(_dl_elf_main, 1);
 
-#ifndef START
+#if !defined(START)
 	return _dl_elf_main;
 #else
 	START();
