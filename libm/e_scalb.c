@@ -31,7 +31,6 @@ double attribute_hidden __ieee754_scalb(double x, double fn)
 	if ( fn > 65000.0) return scalbn(x, 65000);
 	if (-fn > 65000.0) return scalbn(x,-65000);
 	return scalbn(x,(int)fn);
-#endif
 }
 
 #if defined __UCLIBC_SUSV3_LEGACY__
