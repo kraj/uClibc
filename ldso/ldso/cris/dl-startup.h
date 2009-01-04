@@ -43,7 +43,7 @@ __asm__(""					\
 #endif /* __arch_v32 */
 
 /* Get a pointer to the argv array.  On many platforms this can be just
- * the address if the first argument, on other platforms we need to
+ * the address of the first argument, on other platforms we need to
  * do something a little more subtle here.  */
 #define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long *) ARGS)+1)
 

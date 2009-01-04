@@ -47,7 +47,7 @@ _dl_start_user:\n\
 
 /*
  * Get a pointer to the argv array.  On many platforms this can be just
- * the address if the first argument, on other platforms we need to
+ * the address of the first argument, on other platforms we need to
  * do something a little more subtle here.  We assume that argc is stored
  * at the word just below the argvp that we return here.
  */
