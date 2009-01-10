@@ -176,11 +176,8 @@ DL_START(unsigned long args)
 			/* Do not use an inline _dl_strncmp here or some arches
 			* will blow chunks, i.e. those that need to relocate all
 			* string constants... */
-			|| header->e_ident[EI_MAG0] != ELFMAG0
-			|| header->e_ident[EI_MAG1] != ELFMAG1
-			|| header->e_ident[EI_MAG2] != ELFMAG2
-			|| header->e_ident[EI_MAG3] != ELFMAG3)
-	{
+			|| *((uint32_t*) &header->e_ident) != ELFMAG_U32
+	) {
 		SEND_EARLY_STDERR("Invalid ELF header\n");
 		_dl_exit(0);
 	}

@@ -272,13 +272,14 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 		_dl_if_debug_dprint("\tsearching cache='%s'\n", LDSO_CACHE);
 		for (i = 0; i < header->nlibs; i++) {
-			if ((libent[i].flags == LIB_ELF ||
-						libent[i].flags == LIB_ELF_LIBC0 ||
-						libent[i].flags == LIB_ELF_LIBC5) &&
-					_dl_strcmp(libname, strs + libent[i].sooffset) == 0 &&
-					(tpnt1 = _dl_load_elf_shared_library(secure,
-														 rpnt, strs + libent[i].liboffset)))
+			if ((libent[i].flags == LIB_ELF
+			     || libent[i].flags == LIB_ELF_LIBC0
+			     ||	libent[i].flags == LIB_ELF_LIBC5)
+			 && _dl_strcmp(libname, strs + libent[i].sooffset) == 0
+			 && (tpnt1 = _dl_load_elf_shared_library(secure, rpnt, strs + libent[i].liboffset))
+			) {
 				return tpnt1;
+			}
 		}
 	}
 #endif
@@ -286,26 +287,22 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	/* Look for libraries wherever the shared library loader
 	 * was installed */
 	_dl_if_debug_dprint("\tsearching ldso dir='%s'\n", _dl_ldsopath);
-	if ((tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath, rpnt)) != NULL)
-	{
+	tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath, rpnt);
+	if (tpnt1 != NULL)
 		return tpnt1;
-	}
-
 
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/util/ldd.c */
 	_dl_if_debug_dprint("\tsearching full lib path list\n");
-	if ((tpnt1 = search_for_named_library(libname, secure,
+	tpnt1 = search_for_named_library(libname, secure,
 					UCLIBC_RUNTIME_PREFIX "lib:"
 					UCLIBC_RUNTIME_PREFIX "usr/lib"
 #ifndef __LDSO_CACHE_SUPPORT__
 					":" UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib"
 #endif
-					, rpnt)
-		) != NULL)
-	{
+					, rpnt);
+	if (tpnt1 != NULL)
 		return tpnt1;
-	}
 
 goof:
 	/* Well, we shot our wad on that one.  All we can do now is punt */
@@ -358,11 +355,12 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 	/* If we are in secure mode (i.e. a setu/gid binary using LD_PRELOAD),
 	   we don't load the library if it isn't setuid. */
-	if (secure)
+	if (secure) {
 		if (!(st.st_mode & S_ISUID)) {
 			_dl_close(infile);
 			return NULL;
 		}
+	}
 
 	/* Check if file is already loaded */
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
@@ -384,11 +382,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	_dl_read(infile, header, _dl_pagesize);
 	epnt = (ElfW(Ehdr) *) (intptr_t) header;
-	if (epnt->e_ident[0] != 0x7f ||
-			epnt->e_ident[1] != 'E' ||
-			epnt->e_ident[2] != 'L' ||
-			epnt->e_ident[3] != 'F')
-	{
+	if (*((uint32_t*) &epnt->e_ident) != ELFMAG_U32) {
 		_dl_dprintf(2, "%s: '%s' is not an ELF file\n", _dl_progname,
 				libname);
 		_dl_internal_error_number = LD_ERROR_NOTELF;
@@ -688,14 +682,17 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 #ifndef __FORCE_SHAREABLE_TEXT_SEGMENTS__
 		ppnt = (ElfW(Phdr) *)(intptr_t) & header[epnt->e_phoff];
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
-			if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
+			if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W)) {
 				_dl_mprotect((void *) ((piclib ? libaddr : 0) +
 							(ppnt->p_vaddr & PAGE_ALIGN)),
 						(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz,
 						PROT_READ | PROT_WRITE | PROT_EXEC);
+			}
 		}
 #else
-		_dl_dprintf(_dl_debug_file, "Can't modify %s's text section. Use GCC option -fPIC for shared objects, please.\n",libname);
+		_dl_dprintf(_dl_debug_file, "Can't modify %s's text section."
+			" Use GCC option -fPIC for shared objects, please.\n",
+			libname);
 		_dl_exit(1);
 #endif
 	}
@@ -713,7 +710,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	 * Add this object into the symbol chain
 	 */
 	if (*rpnt) {
-		(*rpnt)->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+		(*rpnt)->next = _dl_malloc(sizeof(struct dyn_elf));
 		_dl_memset((*rpnt)->next, 0, sizeof(struct dyn_elf));
 		(*rpnt)->next->prev = (*rpnt);
 		*rpnt = (*rpnt)->next;
@@ -724,7 +721,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	 * and initialize the _dl_symbol_table.
 	 */
 	else {
-		*rpnt = _dl_symbol_tables = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+		*rpnt = _dl_symbol_tables = _dl_malloc(sizeof(struct dyn_elf));
 		_dl_memset(*rpnt, 0, sizeof(struct dyn_elf));
 	}
 #endif

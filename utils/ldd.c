@@ -238,31 +238,27 @@ static char *elf_find_rpath(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic)
 
 int check_elf_header(ElfW(Ehdr) *const ehdr)
 {
-	if (!ehdr || strncmp((char *)ehdr, ELFMAG, SELFMAG) != 0 ||
-	    ehdr->e_ident[EI_CLASS] != ELFCLASSM ||
-	    ehdr->e_ident[EI_VERSION] != EV_CURRENT)
-	{
+	if (!ehdr || *(uint32_t*)ehdr != ELFMAG_U32
+	 || ehdr->e_ident[EI_CLASS] != ELFCLASSM
+	 || ehdr->e_ident[EI_VERSION] != EV_CURRENT
+	) {
 		return 1;
 	}
 
 	/* Check if the target endianness matches the host's endianness */
 	byteswap = 0;
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-	if (ehdr->e_ident[5] == ELFDATA2MSB) {
-		/* Ick -- we will have to byte-swap everything */
+	if (ehdr->e_ident[5] == ELFDATA2MSB)
 		byteswap = 1;
-	}
 #elif __BYTE_ORDER == __BIG_ENDIAN
-	if (ehdr->e_ident[5] == ELFDATA2LSB) {
-		/* Ick -- we will have to byte-swap everything */
+	if (ehdr->e_ident[5] == ELFDATA2LSB)
 		byteswap = 1;
-	}
 #else
 #error Unknown host byte order!
 #endif
 
-	/* Be vary lazy, and only byteswap the stuff we use */
-	if (byteswap == 1) {
+	/* Be very lazy, and only byteswap the stuff we use */
+	if (byteswap) {
 		ehdr->e_type = bswap_16(ehdr->e_type);
 		ehdr->e_phoff = byteswap_to_host(ehdr->e_phoff);
 		ehdr->e_shoff = byteswap_to_host(ehdr->e_shoff);

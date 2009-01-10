@@ -67,8 +67,7 @@ extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, in
 extern char *_dl_debug;
 #endif
 
-
-#else /* SHARED */
+#else /* !SHARED */
 
 #define _dl_malloc malloc
 #define _dl_free free
@@ -77,20 +76,20 @@ extern char *_dl_debug;
  * the symbols that otherwise would have been loaded in from ldso... */
 
 #ifdef __SUPPORT_LD_DEBUG__
-char *_dl_debug  = 0;
-char *_dl_debug_symbols   = 0;
-char *_dl_debug_move      = 0;
-char *_dl_debug_reloc     = 0;
-char *_dl_debug_detail    = 0;
-char *_dl_debug_nofixups  = 0;
-char *_dl_debug_bindings  = 0;
-int   _dl_debug_file      = 2;
+char *_dl_debug  = NULL;
+char *_dl_debug_symbols   = NULL;
+char *_dl_debug_move      = NULL;
+char *_dl_debug_reloc     = NULL;
+char *_dl_debug_detail    = NULL;
+char *_dl_debug_nofixups  = NULL;
+char *_dl_debug_bindings  = NULL;
+int   _dl_debug_file      = NULL;
 #endif
 const char *_dl_progname       = "";        /* Program name */
 void *(*_dl_malloc_function)(size_t);
 void (*_dl_free_function) (void *p);
-char *_dl_library_path         = 0;         /* Where we look for libraries */
-char *_dl_ldsopath             = 0;         /* Location of the shared lib loader */
+char *_dl_library_path         = NULL;         /* Where we look for libraries */
+char *_dl_ldsopath             = NULL;         /* Location of the shared lib loader */
 int _dl_errno                  = 0;         /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later */
 /* This global variable is also to communicate with debuggers such as gdb. */
@@ -117,7 +116,7 @@ struct r_debug *_dl_debug_addr = NULL;
 static int do_dlclose(void *, int need_fini);
 
 
-static const char *dl_error_names[] = {
+static const char *const dl_error_names[] = {
 	"",
 	"File not found",
 	"Unable to open /dev/zero",
@@ -222,7 +221,8 @@ void *dlopen(const char *libname, int flag)
 				tfrom = tpnt;
 		}
 	}
-	for (rpnt = _dl_symbol_tables; rpnt && rpnt->next; rpnt=rpnt->next);
+	for (rpnt = _dl_symbol_tables; rpnt && rpnt->next; rpnt = rpnt->next)
+		continue;
 
 	relro_ptr = rpnt;
 	now_flag = (flag & RTLD_NOW) ? RTLD_NOW : 0;
@@ -265,9 +265,9 @@ void *dlopen(const char *libname, int flag)
 			}
 		}
 		return dyn_chain;
-	} else {
-		tpnt->init_flag |= DL_OPENED;
 	}
+
+	tpnt->init_flag |= DL_OPENED;
 
 	_dl_if_debug_print("Looking for needed libraries\n");
 	nlist = 0;
@@ -275,8 +275,7 @@ void *dlopen(const char *libname, int flag)
 	runp->tpnt = tpnt;
 	runp->next = NULL;
 	dep_list = runp2 = runp;
-	for (; runp; runp = runp->next)
-	{
+	for (; runp; runp = runp->next)	{
 		ElfW(Dyn) *dpnt;
 		char *lpntstr;
 
@@ -397,7 +396,6 @@ void *dlopen(const char *libname, int flag)
 	}
 	/* TODO:  Should we set the protections of all pages back to R/O now ? */
 
-
 	/* Notify the debugger we have added some objects. */
 	if (_dl_debug_addr) {
 		dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
@@ -453,10 +451,10 @@ void *dlsym(void *vhandle, const char *name)
 	char *name2 = tmp_buf;
 	size_t nlen = strlen (name) + 1;
 	if (nlen + 1 > sizeof (tmp_buf))
-	    name2 = malloc (nlen + 1);
+		name2 = malloc (nlen + 1);
 	if (name2 == 0) {
-	    _dl_error_number = LD_ERROR_MMAP_FAILED;
-	    return 0;
+		_dl_error_number = LD_ERROR_MMAP_FAILED;
+		return 0;
 	}
 	name2[0] = '_';
 	memcpy (name2 + 1, name, nlen);
@@ -500,7 +498,7 @@ void *dlsym(void *vhandle, const char *name)
 	}
 	tpnt = NULL;
 	if (handle == _dl_symbol_tables)
-	   tpnt = handle->dyn; /* Only search RTLD_GLOBAL objs if global object */
+		tpnt = handle->dyn; /* Only search RTLD_GLOBAL objs if global object */
 	ret = _dl_find_hash(name2, handle, tpnt, ELF_RTYPE_CLASS_DLSYM);
 
 	/*
@@ -566,8 +564,9 @@ static int do_dlclose(void *vhandle, int need_fini)
 		if (--tpnt->usage_count == 0) {
 			if ((tpnt->dynamic_info[DT_FINI]
 			     || tpnt->dynamic_info[DT_FINI_ARRAY])
-			    && need_fini &&
-			    !(tpnt->init_flag & FINI_FUNCS_CALLED)) {
+			 && need_fini
+			 && !(tpnt->init_flag & FINI_FUNCS_CALLED)
+			) {
 				tpnt->init_flag |= FINI_FUNCS_CALLED;
 				_dl_run_fini_array(tpnt);
 
@@ -600,8 +599,8 @@ static int do_dlclose(void *vhandle, int need_fini)
 				_dl_loaded_modules = tpnt->next;
 				if (_dl_loaded_modules)
 					_dl_loaded_modules->prev = 0;
-			} else
-				for (run_tpnt = _dl_loaded_modules; run_tpnt; run_tpnt = run_tpnt->next)
+			} else {
+				for (run_tpnt = _dl_loaded_modules; run_tpnt; run_tpnt = run_tpnt->next) {
 					if (run_tpnt->next == tpnt) {
 						_dl_if_debug_print("removing loaded_modules: %s\n", tpnt->libname);
 						run_tpnt->next = run_tpnt->next->next;
@@ -609,6 +608,8 @@ static int do_dlclose(void *vhandle, int need_fini)
 							run_tpnt->next->prev = run_tpnt;
 						break;
 					}
+				}
+			}
 
 			/* Next, remove tpnt from the global symbol table list */
 			if (_dl_symbol_tables) {
@@ -616,7 +617,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 					_dl_symbol_tables = _dl_symbol_tables->next;
 					if (_dl_symbol_tables)
 						_dl_symbol_tables->prev = 0;
-				} else
+				} else {
 					for (rpnt1 = _dl_symbol_tables; rpnt1->next; rpnt1 = rpnt1->next) {
 						if (rpnt1->next->dyn == tpnt) {
 							_dl_if_debug_print("removing symbol_tables: %s\n", tpnt->libname);
@@ -628,6 +629,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 							break;
 						}
 					}
+				}
 			}
 			free(tpnt->libname);
 			free(tpnt);
@@ -635,7 +637,6 @@ static int do_dlclose(void *vhandle, int need_fini)
 	}
 	free(handle->init_fini.init_fini);
 	free(handle);
-
 
 	if (_dl_debug_addr) {
 		dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
@@ -671,7 +672,7 @@ char *dlerror(void)
  * Dump information to stderr about the current loaded modules
  */
 #ifdef __USE_GNU
-static char *type[] = { "Lib", "Exe", "Int", "Mod" };
+static const char type[][4] = { "Lib", "Exe", "Int", "Mod" };
 
 int dlinfo(void)
 {

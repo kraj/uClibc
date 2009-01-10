@@ -120,6 +120,13 @@ typedef struct
 /* Conglomeration of the identification bytes, for easy testing as a word.  */
 #define	ELFMAG		"\177ELF"
 #define	SELFMAG		4
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+# define ELFMAG_U32 ((uint32_t)(ELFMAG0 + 0x100 * (ELFMAG1 + (0x100 * (ELFMAG2 + 0x100 * ELFMAG3)))))
+#elif __BYTE_ORDER == __BIG_ENDIAN
+# define ELFMAG_U32 ((uint32_t)((((ELFMAG0 * 0x100) + ELFMAG1) * 0x100 + ELFMAG2) * 0x100 + ELFMAG3))
+#else
+# error Unknown host byte order!
+#endif
 
 #define EI_CLASS	4		/* File class byte index */
 #define ELFCLASSNONE	0		/* Invalid class */

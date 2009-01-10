@@ -42,24 +42,25 @@
 #include LDSO_ELFINTERP
 
 /* Global variables used within the shared library loader */
-char *_dl_library_path         = 0;	/* Where we look for libraries */
-char *_dl_preload              = 0;	/* Things to be loaded before the libs */
-char *_dl_ldsopath             = 0;	/* Location of the shared lib loader */
-int _dl_secure                 = 1;	/* Are we dealing with setuid stuff? */
+char *_dl_library_path         = NULL;	/* Where we look for libraries */
+char *_dl_preload              = NULL;	/* Things to be loaded before the libs */
+char *_dl_ldsopath             = NULL;	/* Location of the shared lib loader */
 int _dl_errno                  = 0;	/* We can't use the real errno in ldso */
 size_t _dl_pagesize            = 0;	/* Store the page size for use later */
 struct r_debug *_dl_debug_addr = NULL;	/* Used to communicate with the gdb debugger */
 void *(*_dl_malloc_function) (size_t size) = NULL;
 void (*_dl_free_function) (void *p) = NULL;
 
+static int _dl_secure = 1; /* Are we dealing with setuid stuff? */
+
 #ifdef __SUPPORT_LD_DEBUG__
-char *_dl_debug           = 0;
-char *_dl_debug_symbols   = 0;
-char *_dl_debug_move      = 0;
-char *_dl_debug_reloc     = 0;
-char *_dl_debug_detail    = 0;
-char *_dl_debug_nofixups  = 0;
-char *_dl_debug_bindings  = 0;
+char *_dl_debug           = NULL;
+char *_dl_debug_symbols   = NULL;
+char *_dl_debug_move      = NULL;
+char *_dl_debug_reloc     = NULL;
+char *_dl_debug_detail    = NULL;
+char *_dl_debug_nofixups  = NULL;
+char *_dl_debug_bindings  = NULL;
 int   _dl_debug_file      = 2;
 #endif
 
@@ -69,8 +70,6 @@ const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being
 #include "dl-startup.c"
 #include "dl-symbols.c"
 #include "dl-array.c"
-/* Forward function declarations */
-static int _dl_suid_ok(void);
 
 /*
  * This stub function is used by some debuggers.  The idea is that they
@@ -88,8 +87,8 @@ void _dl_debug_state(void)
 }
 rtld_hidden_def(_dl_debug_state);
 
-static unsigned char *_dl_malloc_addr = 0;	/* Lets _dl_malloc use the already allocated memory page */
-static unsigned char *_dl_mmap_zero   = 0;	/* Also used by _dl_malloc */
+static unsigned char *_dl_malloc_addr = NULL;	/* Lets _dl_malloc use the already allocated memory page */
+static unsigned char *_dl_mmap_zero   = NULL;	/* Also used by _dl_malloc */
 
 static struct elf_resolve **init_fini_list;
 static unsigned int nlist; /* # items in init_fini_list */
@@ -109,6 +108,118 @@ strong_alias(__stack_chk_guard,__guard)
 uintptr_t __guard attribute_relro;
 # endif
 #endif
+
+char *_dl_getenv(const char *symbol, char **envp)
+{
+	char *pnt;
+	const char *pnt1;
+
+	while ((pnt = *envp++)) {
+		pnt1 = symbol;
+		while (*pnt && *pnt == *pnt1)
+			pnt1++, pnt++;
+		if (!*pnt || *pnt != '=' || *pnt1)
+			continue;
+		return pnt + 1;
+	}
+	return 0;
+}
+
+void _dl_unsetenv(const char *symbol, char **envp)
+{
+	char *pnt;
+	const char *pnt1;
+	char **newenvp = envp;
+
+	for (pnt = *envp; pnt; pnt = *++envp) {
+		pnt1 = symbol;
+		while (*pnt && *pnt == *pnt1)
+			pnt1++, pnt++;
+		if (!*pnt || *pnt != '=' || *pnt1)
+			*newenvp++ = *envp;
+	}
+	*newenvp++ = *envp;
+	return;
+}
+
+static int _dl_suid_ok(void)
+{
+	__kernel_uid_t uid, euid;
+	__kernel_gid_t gid, egid;
+
+	uid = _dl_getuid();
+	euid = _dl_geteuid();
+	gid = _dl_getgid();
+	egid = _dl_getegid();
+
+	if (uid == euid && gid == egid) {
+		return 1;
+	}
+	return 0;
+}
+
+void *_dl_malloc(size_t size)
+{
+	void *retval;
+
+#if 0
+	_dl_debug_early("request for %d bytes\n", size);
+#endif
+
+	if (_dl_malloc_function)
+		return (*_dl_malloc_function) (size);
+
+	if (_dl_malloc_addr - _dl_mmap_zero + size > _dl_pagesize) {
+		size_t rounded_size;
+
+		/* Since the above assumes we get a full page even if
+		   we request less than that, make sure we request a
+		   full page, since uClinux may give us less than than
+		   a full page.  We might round even
+		   larger-than-a-page sizes, but we end up never
+		   reusing _dl_mmap_zero/_dl_malloc_addr in that case,
+		   so we don't do it.
+
+		   The actual page size doesn't really matter; as long
+		   as we're self-consistent here, we're safe.  */
+		if (size < _dl_pagesize)
+			rounded_size = (size + ADDR_ALIGN) & _dl_pagesize;
+		else
+			rounded_size = size;
+
+		_dl_debug_early("mmapping more memory\n");
+		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, rounded_size,
+				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (_dl_mmap_check_error(_dl_mmap_zero)) {
+			_dl_dprintf(_dl_debug_file, "%s: mmap of a spare page failed!\n", _dl_progname);
+			_dl_exit(20);
+		}
+	}
+	retval = _dl_malloc_addr;
+	_dl_malloc_addr += size;
+
+	/*
+	 * Align memory to DL_MALLOC_ALIGN byte boundary.  Some
+	 * platforms require this, others simply get better
+	 * performance.
+	 */
+	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr + DL_MALLOC_ALIGN - 1) & ~(DL_MALLOC_ALIGN - 1));
+	return retval;
+}
+
+static void *_dl_zalloc(size_t size)
+{
+	void *p = _dl_malloc(size);
+	if (p)
+		_dl_memset(p, 0, size);
+	return p;
+}
+
+void _dl_free (void *p)
+{
+	if (_dl_free_function)
+		(*_dl_free_function) (p);
+}
 
 static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 {
@@ -158,7 +269,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 * setup so we can use _dl_dprintf() to print debug noise
 	 * instead of the SEND_STDERR macros used in dl-startup.c */
 
-	_dl_memset(app_tpnt, 0x00, sizeof(*app_tpnt));
+	_dl_memset(app_tpnt, 0, sizeof(*app_tpnt));
 
 	/* Store the page size for later use */
 	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
@@ -219,7 +330,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		do {
 			_dl_unsetenv (nextp, envp);
 			/* We could use rawmemchr but this need not be fast.  */
-			nextp = (char *) _dl_strchr(nextp, '\0') + 1;
+			nextp = _dl_strchr(nextp, '\0') + 1;
 		} while (*nextp != '\0');
 		_dl_preload = NULL;
 		_dl_library_path = NULL;
@@ -269,8 +380,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 * This is used by gdb to locate the chain of shared libraries that are
 	 * currently loaded.
 	 */
-	debug_addr = _dl_malloc(sizeof(struct r_debug));
-	_dl_memset(debug_addr, 0, sizeof(struct r_debug));
+	debug_addr = _dl_zalloc(sizeof(struct r_debug));
 
 	ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
 	for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
@@ -324,7 +434,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
 			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
-			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+			_dl_symbol_tables = rpnt = _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 			rpnt->dyn = _dl_loaded_modules;
 			app_tpnt->mapaddr = app_mapaddr;
@@ -389,14 +499,14 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			len1 = _dl_strlen(dl_debug_output);
 			len2 = _dl_strlen(tmp1);
 
-			filename = _dl_malloc(len1+len2+2);
+			filename = _dl_malloc(len1 + len2 + 2);
 
 			if (filename) {
 				_dl_strcpy (filename, dl_debug_output);
 				filename[len1] = '.';
 				_dl_strcpy (&filename[len1+1], tmp1);
 
-				_dl_debug_file= _dl_open(filename, O_WRONLY|O_CREAT, 0644);
+				_dl_debug_file = _dl_open(filename, O_WRONLY|O_CREAT, 0644);
 				if (_dl_debug_file < 0) {
 					_dl_debug_file = 2;
 					_dl_dprintf(_dl_debug_file, "can't open file: '%s'\n",filename);
@@ -711,13 +821,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		tpnt->usage_count++;
 		tpnt->symbol_scope = _dl_symbol_tables;
 		if (rpnt) {
-			rpnt->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
-			_dl_memset(rpnt->next, 0, sizeof(struct dyn_elf));
+			rpnt->next = _dl_zalloc(sizeof(struct dyn_elf));
 			rpnt->next->prev = rpnt;
 			rpnt = rpnt->next;
 		} else {
-			rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
-			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
+			rpnt = _dl_zalloc(sizeof(struct dyn_elf));
 		}
 		rpnt->dyn = tpnt;
 		tpnt->rtld_flags = RTLD_NOW | RTLD_GLOBAL; /* Must not be LAZY */
@@ -838,110 +946,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	/* Notify the debugger that all objects are now mapped in.  */
 	_dl_debug_addr->r_state = RT_CONSISTENT;
 	_dl_debug_state();
-}
-
-char *_dl_getenv(const char *symbol, char **envp)
-{
-	char *pnt;
-	const char *pnt1;
-
-	while ((pnt = *envp++)) {
-		pnt1 = symbol;
-		while (*pnt && *pnt == *pnt1)
-			pnt1++, pnt++;
-		if (!*pnt || *pnt != '=' || *pnt1)
-			continue;
-		return pnt + 1;
-	}
-	return 0;
-}
-
-void _dl_unsetenv(const char *symbol, char **envp)
-{
-	char *pnt;
-	const char *pnt1;
-	char **newenvp = envp;
-
-	for (pnt = *envp; pnt; pnt = *++envp) {
-		pnt1 = symbol;
-		while (*pnt && *pnt == *pnt1)
-			pnt1++, pnt++;
-		if (!*pnt || *pnt != '=' || *pnt1)
-			*newenvp++ = *envp;
-	}
-	*newenvp++ = *envp;
-	return;
-}
-
-static int _dl_suid_ok(void)
-{
-	__kernel_uid_t uid, euid;
-	__kernel_gid_t gid, egid;
-
-	uid = _dl_getuid();
-	euid = _dl_geteuid();
-	gid = _dl_getgid();
-	egid = _dl_getegid();
-
-	if (uid == euid && gid == egid) {
-		return 1;
-	}
-	return 0;
-}
-
-void *_dl_malloc(size_t size)
-{
-	void *retval;
-
-#if 0
-	_dl_debug_early("request for %d bytes\n", size);
-#endif
-
-	if (_dl_malloc_function)
-		return (*_dl_malloc_function) (size);
-
-	if (_dl_malloc_addr - _dl_mmap_zero + size > _dl_pagesize) {
-		size_t rounded_size;
-
-		/* Since the above assumes we get a full page even if
-		   we request less than that, make sure we request a
-		   full page, since uClinux may give us less than than
-		   a full page.  We might round even
-		   larger-than-a-page sizes, but we end up never
-		   reusing _dl_mmap_zero/_dl_malloc_addr in that case,
-		   so we don't do it.
-
-		   The actual page size doesn't really matter; as long
-		   as we're self-consistent here, we're safe.  */
-		if (size < _dl_pagesize)
-			rounded_size = (size + ADDR_ALIGN) & _dl_pagesize;
-		else
-			rounded_size = size;
-
-		_dl_debug_early("mmapping more memory\n");
-		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, rounded_size,
-				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		if (_dl_mmap_check_error(_dl_mmap_zero)) {
-			_dl_dprintf(_dl_debug_file, "%s: mmap of a spare page failed!\n", _dl_progname);
-			_dl_exit(20);
-		}
-	}
-	retval = _dl_malloc_addr;
-	_dl_malloc_addr += size;
-
-	/*
-	 * Align memory to DL_MALLOC_ALIGN byte boundary.  Some
-	 * platforms require this, others simply get better
-	 * performance.
-	 */
-	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr + DL_MALLOC_ALIGN - 1) & ~(DL_MALLOC_ALIGN - 1));
-	return retval;
-}
-
-void _dl_free (void *p)
-{
-	if (_dl_free_function)
-		(*_dl_free_function) (p);
 }
 
 #include "dl-hash.c"
