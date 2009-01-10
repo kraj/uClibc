@@ -41,7 +41,7 @@ __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
 	 * Try to catch this problem at uclibc build time:  */
 	struct BUG_sigset_size {
 		int BUG_sigset_size
-			[sizeof(act->sa_mask) != _NSIG / 8 ? 1 : -1];
+			[sizeof(act->sa_mask) == _NSIG / 8 ? 1 : -1];
 	};
 	return __syscall_rt_sigaction(sig, act, oact, sizeof(act->sa_mask));
 }
