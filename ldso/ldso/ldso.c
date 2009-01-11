@@ -434,8 +434,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
 			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
-			_dl_symbol_tables = rpnt = _dl_malloc(sizeof(struct dyn_elf));
-			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
+			_dl_symbol_tables = rpnt = _dl_zalloc(sizeof(struct dyn_elf));
 			rpnt->dyn = _dl_loaded_modules;
 			app_tpnt->mapaddr = app_mapaddr;
 			app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
