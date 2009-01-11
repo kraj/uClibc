@@ -3,43 +3,57 @@
 # Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
-#
 
-CFLAGS-utils := -DNOT_IN_libc $(SSP_ALL_CFLAGS) -B$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib
 
-CFLAGS-utils-common := -I$(top_srcdir)ldso/include -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=$(UCLIBC_LDSO)
-CFLAGS-utils-shared := $(PIEFLAG) $(LDPIEFLAG)
+# "make utils" flags
 
-CFLAGS-ldconfig := $(CFLAGS-utils-common)
+CFLAGS-utils := -DNOT_IN_libc $(SSP_ALL_CFLAGS) \
+    -B$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib
 
+pie := $(PIEFLAG) $(LDPIEFLAG)
+
+CFLAGS-ldconfig := -I$(top_srcdir)ldso/include \
+    -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=$(UCLIBC_LDSO)
 ifeq ($(UCLIBC_STATIC_LDCONFIG),y)
 CFLAGS-ldconfig += -static
 else
-CFLAGS-ldconfig += $(CFLAGS-utils-shared)
+CFLAGS-ldconfig += $(pie)
 endif
 
-CFLAGS-ldd := $(CFLAGS-utils-common) $(CFLAGS-utils-shared)
+CFLAGS-ldd := -I$(top_srcdir)ldso/include \
+    -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
+    $(pie)
 
-# needs CFLAGS-utils explicitely, because the source file is not located in utils
-CFLAGS-iconv := $(CFLAGS-utils) $(CFLAGS-utils-shared) -DL_iconv_main
+CFLAGS-readelf := $(pie)
 
-CFLAGS-readelf := $(CFLAGS-utils-shared)
-
+# Need CFLAGS-utils explicitly, because the source file is not located in utils
+CFLAGS-iconv := $(CFLAGS-utils) $(pie) -DL_iconv_main
 CFLAGS-locale := $(CFLAGS-utils)
 
-BUILD_CFLAGS-utils := -include $(top_srcdir)include/elf.h
 
-BUILD_CFLAGS-utils-common := $(CFLAGS-utils-common)
+# "make hostutils" flags
 
 ifeq ($(LDSO_CACHE_SUPPORT),y)
-BUILD_CFLAGS-utils-common += -D__LDSO_CACHE_SUPPORT__=1
+LDSO_CACHE_SUPPORT := -D__LDSO_CACHE_SUPPORT__=1
 endif
 
-BUILD_CFLAGS-ldconfig.host := $(BUILD_CFLAGS-utils-common)
+BUILD_CFLAGS-ldconfig.host := -Wl,-s \
+    -include $(top_srcdir)include/elf.h \
+    -I$(top_srcdir)ldso/include \
+    -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
+    $(LDSO_CACHE_SUPPORT) \
 
-BUILD_CFLAGS-ldd.host := $(BUILD_CFLAGS-utils-common)
+BUILD_CFLAGS-ldd.host := -Wl,-s \
+    -include $(top_srcdir)include/elf.h \
+    -I$(top_srcdir)ldso/include \
+    -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
+    $(LDSO_CACHE_SUPPORT) \
 
-BUILD_LDFLAGS-utils := -Wl,-s
+BUILD_CFLAGS-readelf.host := -Wl,-s \
+    -include $(top_srcdir)include/elf.h \
+
+
+# Rules
 
 utils_DIR := $(top_srcdir)utils
 utils_OUT := $(top_builddir)utils
@@ -81,6 +95,7 @@ hostutils: $(hostutils_OBJ)
 $(hostutils_OBJ): $(utils_OUT)/%.host : $(utils_DIR)/%.c
 	$(hcompile.u)
 
+
 install-y += utils_install
 
 # This installs both utils and hostutils, so doesn't depend on either.
@@ -96,10 +111,10 @@ ifeq ($(UCLIBC_HAS_LOCALE),y)
 	$(Q)$(INSTALL) -m 755 $(utils_OUT)/locale$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/locale
 endif
 
+
 objclean-y += utils_clean
 
 utils_clean:
 	$(do_rm) $(addprefix $(utils_OUT)/, ldconfig ldd readelf iconv locale *.host)
 	# This is a hack..
 	$(Q)$(RM) $(utils_OUT)/.*.dep
-
