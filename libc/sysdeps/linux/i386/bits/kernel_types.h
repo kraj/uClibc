@@ -15,6 +15,7 @@
 #define __ARCH_I386_POSIX_TYPES_H
 #define _ASM_X86_POSIX_TYPES_32_H
 #define _ASM_X86_POSIX_TYPES_64_H
+
 typedef unsigned short	__kernel_dev_t;
 typedef unsigned long	__kernel_ino_t;
 typedef unsigned short	__kernel_mode_t;
