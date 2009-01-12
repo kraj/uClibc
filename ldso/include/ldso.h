@@ -63,7 +63,6 @@ extern char *_dl_library_path;         /* Where we look for libraries */
 extern char *_dl_preload;              /* Things to be loaded before the libs */
 extern char *_dl_ldsopath;             /* Where the shared lib loader was found */
 extern const char *_dl_progname;       /* The name of the executable being run */
-//now static: extern int _dl_secure;                 /* Are we dealing with setuid stuff? */
 extern size_t _dl_pagesize;            /* Store the page size for use later */
 
 #ifdef __SUPPORT_LD_DEBUG__
