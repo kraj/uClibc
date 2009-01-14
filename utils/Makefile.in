@@ -10,24 +10,28 @@
 CFLAGS-utils := -DNOT_IN_libc $(SSP_ALL_CFLAGS) \
     -B$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib
 
-pie := $(PIEFLAG) $(LDPIEFLAG)
+ifeq ($(UCLIBC_BUILD_PIE),y)
+CFLAGS-utils-shared := $(PIEFLAG) $(LDPIEFLAG)
+else
+CFLAGS-utils-shared :=
+endif
 
 CFLAGS-ldconfig := -I$(top_srcdir)ldso/include \
     -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=$(UCLIBC_LDSO)
 ifeq ($(UCLIBC_STATIC_LDCONFIG),y)
 CFLAGS-ldconfig += -static
 else
-CFLAGS-ldconfig += $(pie)
+CFLAGS-ldconfig += $(CFLAGS-utils-shared)
 endif
 
 CFLAGS-ldd := -I$(top_srcdir)ldso/include \
     -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
-    $(pie)
+    $(CFLAGS-utils-shared)
 
-CFLAGS-readelf := $(pie)
+CFLAGS-readelf := $(CFLAGS-utils-shared)
 
 # Need CFLAGS-utils explicitly, because the source file is not located in utils
-CFLAGS-iconv := $(CFLAGS-utils) $(pie) -DL_iconv_main
+CFLAGS-iconv := $(CFLAGS-utils) $(CFLAGS-utils-shared) -DL_iconv_main
 CFLAGS-locale := $(CFLAGS-utils)
 
 
