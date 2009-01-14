@@ -423,21 +423,13 @@ endif
 
 # Keep the check_gcc from being needlessly executed
 ifndef PIEFLAG
-ifneq ($(UCLIBC_BUILD_PIE),y)
-export PIEFLAG:=
-else
 export PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),$(PICFLAG))
-endif
 endif
 # We need to keep track of both the CC PIE flag (above) as
 # well as the LD PIE flag (below) because we can't rely on
 # gcc passing -pie if we used -fPIE
 ifndef LDPIEFLAG
-ifneq ($(UCLIBC_BUILD_PIE),y)
-export LDPIEFLAG:=
-else
 export LDPIEFLAG:=$(shell $(LD) --help 2>/dev/null | grep -q -- -pie && echo "-Wl,-pie")
-endif
 endif
 
 # Check for AS_NEEDED support in linker script (binutils>=2.16.1 has it)
