@@ -427,9 +427,10 @@ export PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),$(PICFLAG))
 endif
 # We need to keep track of both the CC PIE flag (above) as
 # well as the LD PIE flag (below) because we can't rely on
-# gcc passing -pie if we used -fPIE
+# gcc passing -pie if we used -fPIE. We need to directly use -pie
+# instead of -Wl,-pie as gcc picks up the wrong startfile/endfile
 ifndef LDPIEFLAG
-export LDPIEFLAG:=$(shell $(LD) --help 2>/dev/null | grep -q -- -pie && echo "-Wl,-pie")
+export LDPIEFLAG:=$(shell $(LD) --help 2>/dev/null | grep -q -- -pie && echo "-pie")
 endif
 
 # Check for AS_NEEDED support in linker script (binutils>=2.16.1 has it)
