@@ -149,6 +149,8 @@ do {										\
 /* Used for error messages */
 #define ELF_TARGET "MIPS"
 
+/* Need bootstrap relocations */
+#define ARCH_NEEDS_BOOTSTRAP_RELOCS
 
 unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	unsigned long old_gpreg);

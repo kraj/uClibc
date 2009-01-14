@@ -40,6 +40,9 @@
 /* Used for error messages */
 #define ELF_TARGET "sparc"
 
+/* Need bootstrap relocations */
+#define ARCH_NEEDS_BOOTSTRAP_RELOCS
+
 struct elf_resolve;
 unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 

@@ -230,12 +230,6 @@ DL_START(unsigned long args)
 # define INDX_MAX 2
 #endif
 		for (indx = 0; indx < INDX_MAX; indx++) {
-			unsigned int i;
-			unsigned long *reloc_addr;
-			unsigned long symbol_addr;
-			int symtab_index;
-			ElfW(Sym) *sym;
-			ELF_RELOC *rpnt;
 			unsigned long rel_addr, rel_size;
 			ElfW(Word) relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
 
@@ -247,41 +241,58 @@ DL_START(unsigned long args)
 			if (!rel_addr)
 				continue;
 
-			/* Now parse the relocation information */
-			/* Since ldso is linked with -Bsymbolic, all relocs will be RELATIVE(for those archs that have
-			   RELATIVE relocs) which means that the for(..) loop below has nothing to do and can be deleted.
-			   Possibly one should add a HAVE_RELATIVE_RELOCS directive and #ifdef away some code. */
 			if (!indx && relative_count) {
 				rel_size -= relative_count * sizeof(ELF_RELOC);
 				elf_machine_relative(load_addr, rel_addr, relative_count);
 				rel_addr += relative_count * sizeof(ELF_RELOC);
 			}
 
-			rpnt = (ELF_RELOC *) rel_addr;
-			for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
-				reloc_addr = (unsigned long *) DL_RELOC_ADDR(load_addr, (unsigned long)rpnt->r_offset);
-				symtab_index = ELF_R_SYM(rpnt->r_info);
-				symbol_addr = 0;
-				sym = NULL;
-				if (symtab_index) {
-					char *strtab;
-					ElfW(Sym) *symtab;
+			/*
+ 			 * Since ldso is linked with -Bsymbolic, all relocs should be RELATIVE.  All archs
+			 * that need bootstrap relocations need to define ARCH_NEEDS_BOOTSTRAP_RELOCS.
+			 */
+#ifdef ARCH_NEEDS_BOOTSTRAP_RELOCS
+			{
+				ELF_RELOC *rpnt;
+				unsigned int i;
+				ElfW(Sym) *sym;
+				unsigned long symbol_addr;
+				int symtab_index;
+				unsigned long *reloc_addr;
 
-					symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
-					strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
-					sym = &symtab[symtab_index];
-					symbol_addr = (unsigned long) DL_RELOC_ADDR(load_addr, sym->st_value);
+				/* Now parse the relocation information */
+				rpnt = (ELF_RELOC *) rel_addr;
+				for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
+					reloc_addr = (unsigned long *) DL_RELOC_ADDR(load_addr, (unsigned long)rpnt->r_offset);
+					symtab_index = ELF_R_SYM(rpnt->r_info);
+					symbol_addr = 0;
+					sym = NULL;
+					if (symtab_index) {
+						char *strtab;
+						ElfW(Sym) *symtab;
+
+						symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
+						strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
+						sym = &symtab[symtab_index];
+						symbol_addr = (unsigned long) DL_RELOC_ADDR(load_addr, sym->st_value);
 #if !defined(EARLY_STDERR_SPECIAL)
-					SEND_STDERR_DEBUG("relocating symbol: ");
-					SEND_STDERR_DEBUG(strtab + sym->st_name);
-					SEND_STDERR_DEBUG("\n");
+						SEND_STDERR_DEBUG("relocating symbol: ");
+						SEND_STDERR_DEBUG(strtab + sym->st_name);
+						SEND_STDERR_DEBUG("\n");
 #endif
-				} else {
-					SEND_STDERR_DEBUG("relocating unknown symbol\n");
+					} else {
+						SEND_STDERR_DEBUG("relocating unknown symbol\n");
+					}
+					/* Use this machine-specific macro to perform the actual relocation.  */
+					PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
 				}
-				/* Use this machine-specific macro to perform the actual relocation.  */
-				PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
 			}
+#else /* ARCH_NEEDS_BOOTSTRAP_RELOCS */
+			if (rel_size) {
+				SEND_EARLY_STDERR("Cannot continue, found non relative relocs during the bootstrap.\n");
+				_dl_exit(14);
+			}
+#endif
 		}
 	}
 #endif
