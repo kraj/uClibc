@@ -33,7 +33,10 @@ case $from in
   ;;
 esac
 
-prefix=`echo $from///$target | sed 's,\(\(/[^/]*\)*\).*///\1.*,\1,'`
+# Without trailing slash, from=/usr/lib and target=/uclibc/lib
+# mistakenly concludes that prefix=/u
+#prefix=`echo $from///$target | sed 's,\(\(/[^/]*\)*\).*///\1.*,\1,'`
+prefix=`echo $from///$target | sed 's,\(\(/[^/]*\)*/\).*///\1.*,\1,'`
 dots=`echo $prefix | sed s,.,.,g`
 from=`echo $from | sed "s,^$dots,,"`
 target=`echo $target | sed "s,^$dots,,"`
