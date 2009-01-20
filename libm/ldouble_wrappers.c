@@ -544,7 +544,6 @@ int __fpclassifyl (long double x)
 {
 	return __fpclassify ( (double) x );
 }
-libm_hidden_def(__fpclassifyl)
 #endif
 
 #ifdef L_finitel
@@ -552,7 +551,6 @@ int __finitel (long double x)
 {
 	return __finite ( (double)x );
 }
-libm_hidden_def(__finitel)
 #endif
 
 #ifdef L_signbitl
@@ -560,7 +558,6 @@ int __signbitl (long double x)
 {
 	return __signbitl ( (double)x );
 }
-libm_hidden_def(__signbitl)
 #endif
 
 #ifdef L_isnanl
@@ -568,7 +565,6 @@ int __isnanl (long double x)
 {
 	return __isnan ( (double)x );
 }
-libm_hidden_def(__isnanl)
 #endif
 
 #ifdef L_isinfl
@@ -576,7 +572,6 @@ int __isinfl (long double x)
 {
 	return __isinf ( (double)x );
 }
-libm_hidden_def(__isinfl)
 #endif
 
 #endif
