@@ -123,12 +123,12 @@ enum {
 #endif
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
-#define ENCODING		((__UCLIBC_CURLOCALE_DATA).encoding)
+#define ENCODING		(__UCLIBC_CURLOCALE->encoding)
 
-#define WCctype			((__UCLIBC_CURLOCALE_DATA).tblwctype)
-#define WCuplow			((__UCLIBC_CURLOCALE_DATA).tblwuplow)
-#define WCcmob			((__UCLIBC_CURLOCALE_DATA).tblwcomb)
-#define WCuplow_diff	((__UCLIBC_CURLOCALE_DATA).tblwuplow_diff)
+#define WCctype			(__UCLIBC_CURLOCALE->tblwctype)
+#define WCuplow			(__UCLIBC_CURLOCALE->tblwuplow)
+#define WCcmob			(__UCLIBC_CURLOCALE->tblwcomb)
+#define WCuplow_diff	(__UCLIBC_CURLOCALE->tblwuplow_diff)
 
 
 #define WC_TABLE_DOMAIN_MAX   __LOCALE_DATA_WC_TABLE_DOMAIN_MAX
@@ -256,9 +256,7 @@ ISW_FUNC_BODY(xdigit);
 #define TOWLOWER(w) towlower(w)
 #else  /* L_towlower */
 #define TOWLOWER(w) towlower_l(w, __locale_t locale)
-#undef __UCLIBC_CURLOCALE_DATA
 #undef __UCLIBC_CURLOCALE
-#define __UCLIBC_CURLOCALE_DATA (*locale)
 #define __UCLIBC_CURLOCALE (locale)
 #endif /* L_towlower */
 
@@ -363,9 +361,7 @@ libc_hidden_def(towlower)
 #define TOWUPPER(w) towupper(w)
 #else  /* L_towupper */
 #define TOWUPPER(w) towupper_l(w, __locale_t locale)
-#undef __UCLIBC_CURLOCALE_DATA
 #undef __UCLIBC_CURLOCALE
-#define __UCLIBC_CURLOCALE_DATA (*locale)
 #define __UCLIBC_CURLOCALE (locale)
 #endif /* L_towupper */
 
@@ -619,9 +615,7 @@ int iswctype(wint_t wc, wctype_t desc)
 #define ISWCTYPE(w,d) iswctype(w,d)
 #else  /* L_iswctype */
 #define ISWCTYPE(w,d) iswctype_l(w,d, __locale_t locale)
-#undef __UCLIBC_CURLOCALE_DATA
 #undef __UCLIBC_CURLOCALE
-#define __UCLIBC_CURLOCALE_DATA (*locale)
 #define __UCLIBC_CURLOCALE (locale)
 #endif /* L_iswctype */
 
@@ -668,7 +662,7 @@ int ISWCTYPE(wint_t wc, wctype_t desc)
 					 <= ctype_range[2*desc + 1] )
 				&& ((desc != _CTYPE_iswblank) || (d & 1));
 #else
-			return (__UCLIBC_CURLOCALE_DATA).code2flag[d] & desc2flag[desc];
+			return __UCLIBC_CURLOCALE->code2flag[d] & desc2flag[desc];
 #endif
 		}
 
@@ -728,9 +722,7 @@ wint_t towctrans(wint_t wc, wctrans_t desc)
 #define TOWCTRANS(w,d) towctrans(w,d)
 #else  /* L_towctrans */
 #define TOWCTRANS(w,d) towctrans_l(w,d, __locale_t locale)
-#undef __UCLIBC_CURLOCALE_DATA
 #undef __UCLIBC_CURLOCALE
-#define __UCLIBC_CURLOCALE_DATA (*locale)
 #define __UCLIBC_CURLOCALE (locale)
 #endif /* L_towctrans */
 

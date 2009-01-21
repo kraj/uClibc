@@ -433,7 +433,7 @@ int isctype(int c, int mask)
 
 const __ctype_mask_t **__ctype_b_loc(void)
 {
-	return &(__UCLIBC_CURLOCALE_DATA).__ctype_b;
+	return &(__UCLIBC_CURLOCALE->__ctype_b);
 }
 
 libc_hidden_def(__ctype_b_loc)
@@ -448,7 +448,7 @@ libc_hidden_def(__ctype_b_loc)
 /* libc_hidden_proto(__ctype_tolower_loc) */
 const __ctype_touplow_t **__ctype_tolower_loc(void)
 {
-	return &(__UCLIBC_CURLOCALE_DATA).__ctype_tolower;
+	return &(__UCLIBC_CURLOCALE->__ctype_tolower);
 }
 libc_hidden_def(__ctype_tolower_loc)
 
@@ -463,7 +463,7 @@ libc_hidden_def(__ctype_tolower_loc)
 /* libc_hidden_proto(__ctype_toupper_loc) */
 const __ctype_touplow_t **__ctype_toupper_loc(void)
 {
-	return &(__UCLIBC_CURLOCALE_DATA).__ctype_toupper;
+	return &(__UCLIBC_CURLOCALE->__ctype_toupper);
 }
 libc_hidden_def(__ctype_toupper_loc)
 

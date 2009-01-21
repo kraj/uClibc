@@ -81,7 +81,7 @@ libc_hidden_def(wcsxfrm)
 
 
 #if 0
-#define CUR_COLLATE (&__UCLIBC_CURLOCALE_DATA.collate)
+#define CUR_COLLATE (&__UCLIBC_CURLOCALE->collate)
 #else
 #define CUR_COLLATE (& __LOCALE_PTR->collate)
 #endif

@@ -717,26 +717,26 @@ void attribute_hidden __init_scan_cookie(register struct scan_cookie *sc,
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
 #ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
-	if (*(sc->grouping = __UCLIBC_CURLOCALE_DATA.grouping)) {
-		sc->thousands_sep = (const unsigned char *) __UCLIBC_CURLOCALE_DATA.thousands_sep;
-		sc->tslen = __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
+	if (*(sc->grouping = __UCLIBC_CURLOCALE->grouping)) {
+		sc->thousands_sep = (const unsigned char *) __UCLIBC_CURLOCALE->thousands_sep;
+		sc->tslen = __UCLIBC_CURLOCALE->thousands_sep_len;
 #ifdef __UCLIBC_HAS_WCHAR__
-		sc->thousands_sep_wc = __UCLIBC_CURLOCALE_DATA.thousands_sep_wc;
+		sc->thousands_sep_wc = __UCLIBC_CURLOCALE->thousands_sep_wc;
 #endif /* __UCLIBC_HAS_WCHAR__ */
 	}
 #endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
 
 #ifdef __UCLIBC_HAS_FLOATS__
 #ifdef __UCLIBC_HAS_LOCALE__
-	sc->decpt = (const unsigned char *) __UCLIBC_CURLOCALE_DATA.decimal_point;
-	sc->decpt_len = __UCLIBC_CURLOCALE_DATA.decimal_point_len;
+	sc->decpt = (const unsigned char *) __UCLIBC_CURLOCALE->decimal_point;
+	sc->decpt_len = __UCLIBC_CURLOCALE->decimal_point_len;
 #else  /* __UCLIBC_HAS_LOCALE__ */
 	sc->fake_decpt = sc->decpt = (unsigned char *) decpt_str;
 	sc->decpt_len = 1;
 #endif /* __UCLIBC_HAS_LOCALE__ */
 #ifdef __UCLIBC_HAS_WCHAR__
 #ifdef __UCLIBC_HAS_LOCALE__
-	sc->decpt_wc = __UCLIBC_CURLOCALE_DATA.decimal_point_wc;
+	sc->decpt_wc = __UCLIBC_CURLOCALE->decimal_point_wc;
 #else
 	sc->decpt_wc = '.';
 #endif
@@ -1193,7 +1193,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 #if defined(__UCLIBC_HAS_LOCALE__) && !defined(L_vfwscanf)
 	/* ANSI/ISO C99 requires format string to be a valid multibyte string
 	 * beginning and ending in its initial shift state. */
-	if (((__UCLIBC_CURLOCALE_DATA).encoding) != __ctype_encoding_7_bit) {
+	if (__UCLIBC_CURLOCALE->encoding != __ctype_encoding_7_bit) {
 		const char *p = format;
 		mbstate.__mask = 0;		/* Initialize the mbstate. */
 		if (mbsrtowcs(NULL, &p, SIZE_MAX, &mbstate) == ((size_t)(-1))) {

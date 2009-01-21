@@ -50,7 +50,7 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
 	alphacase ^= outdigit;
 	if (alphacase == __UIM_GROUP) {
 		assert(base == 10);
-		if (*(g = __UCLIBC_CURLOCALE_DATA.grouping)) {
+		if (*(g = __UCLIBC_CURLOCALE->grouping)) {
 			grouping = *g;
 		}
 	}
@@ -62,9 +62,9 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
     do {
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
-			bufend -= __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
-			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
-				   __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
+			bufend -= __UCLIBC_CURLOCALE->thousands_sep_len;
+			memcpy(bufend, __UCLIBC_CURLOCALE->thousands_sep,
+				   __UCLIBC_CURLOCALE->thousands_sep_len);
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
 				/* Note: g[1] == -1 means no further grouping.  But since
 				 * we'll never wrap around, we can set grouping to -1 without
@@ -80,10 +80,10 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
 
 #ifndef __LOCALE_C_ONLY
 		if (unlikely(outdigit)) {
-			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
+			bufend -= __UCLIBC_CURLOCALE->outdigit_length[digit];
 			memcpy(bufend,
-				   (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
-				   __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
+				   (&__UCLIBC_CURLOCALE->outdigit0_mb)[digit],
+				   __UCLIBC_CURLOCALE->outdigit_length[digit]);
 		} else
 #endif
 		{
@@ -105,9 +105,9 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
     do {
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
-			bufend -= __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
-			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
-				   __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
+			bufend -= __UCLIBC_CURLOCALE->thousands_sep_len;
+			memcpy(bufend, __UCLIBC_CURLOCALE->thousands_sep,
+				   __UCLIBC_CURLOCALE->thousands_sep_len);
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
 				/* Note: g[1] == -1 means no further grouping.  But since
 				 * we'll never wrap around, we can set grouping to -1 without
@@ -132,10 +132,10 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
 
 #ifndef __LOCALE_C_ONLY
 		if (unlikely(outdigit)) {
-			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
+			bufend -= __UCLIBC_CURLOCALE->outdigit_length[digit];
 			memcpy(bufend,
-				   (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
-				   __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
+				   (&__UCLIBC_CURLOCALE->outdigit0_mb)[digit],
+				   __UCLIBC_CURLOCALE->outdigit_length[digit]);
 		} else
 #endif
 		{

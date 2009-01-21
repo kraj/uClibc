@@ -119,7 +119,7 @@
 #endif
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
-#define ENCODING		((__UCLIBC_CURLOCALE_DATA).encoding)
+#define ENCODING		(__UCLIBC_CURLOCALE->encoding)
 
 #define Cc2wc_IDX_SHIFT		__LOCALE_DATA_Cc2wc_IDX_SHIFT
 #define Cc2wc_ROW_LEN		__LOCALE_DATA_Cc2wc_ROW_LEN
@@ -752,8 +752,8 @@ size_t mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 		while (count) {
 			if ((wc = ((unsigned char)(*s))) >= 0x80) {	/* Non-ASCII... */
 				wc -= 0x80;
-				wc = __UCLIBC_CURLOCALE_DATA.tbl8c2wc[
-						  (__UCLIBC_CURLOCALE_DATA.idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
+				wc = __UCLIBC_CURLOCALE->tbl8c2wc[
+						  (__UCLIBC_CURLOCALE->idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
 						   << Cc2wc_IDX_SHIFT) + (wc & (Cc2wc_ROW_LEN - 1))];
 				if (!wc) {
 					goto BAD;
@@ -863,12 +863,12 @@ size_t wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 			} else {
 				u = 0;
 				if (wc <= Cwc2c_DOMAIN_MAX) {
-					u = __UCLIBC_CURLOCALE_DATA.idx8wc2c[wc >> (Cwc2c_TI_SHIFT
+					u = __UCLIBC_CURLOCALE->idx8wc2c[wc >> (Cwc2c_TI_SHIFT
 														+ Cwc2c_TT_SHIFT)];
-					u = __UCLIBC_CURLOCALE_DATA.tbl8wc2c[(u << Cwc2c_TI_SHIFT)
+					u = __UCLIBC_CURLOCALE->tbl8wc2c[(u << Cwc2c_TI_SHIFT)
 									+ ((wc >> Cwc2c_TT_SHIFT)
 									   & ((1 << Cwc2c_TI_SHIFT)-1))];
-					u = __UCLIBC_CURLOCALE_DATA.tbl8wc2c[Cwc2c_TI_LEN
+					u = __UCLIBC_CURLOCALE->tbl8wc2c[Cwc2c_TI_LEN
 									+ (u << Cwc2c_TT_SHIFT)
 									+ (wc & ((1 << Cwc2c_TT_SHIFT)-1))];
 				}
@@ -1468,7 +1468,7 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 				const __codeset_8_bit_t *c8b
 					= __locale_mmap->codeset_8_bit + px->fromcodeset - 3;
 				wc -= 0x80;
-				wc = __UCLIBC_CURLOCALE_DATA.tbl8c2wc[
+				wc = __UCLIBC_CURLOCALE->tbl8c2wc[
 							 (c8b->idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
 							  << Cc2wc_IDX_SHIFT) + (wc & (Cc2wc_ROW_LEN - 1))];
 				if (!wc) {
@@ -1553,10 +1553,10 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 					= __locale_mmap->codeset_8_bit + px->tocodeset - 3;
 				__uwchar_t u;
 				u = c8b->idx8wc2c[wc >> (Cwc2c_TI_SHIFT + Cwc2c_TT_SHIFT)];
-				u = __UCLIBC_CURLOCALE_DATA.tbl8wc2c[(u << Cwc2c_TI_SHIFT)
+				u = __UCLIBC_CURLOCALE->tbl8wc2c[(u << Cwc2c_TI_SHIFT)
 						 + ((wc >> Cwc2c_TT_SHIFT)
 							& ((1 << Cwc2c_TI_SHIFT)-1))];
-				wc = __UCLIBC_CURLOCALE_DATA.tbl8wc2c[Cwc2c_TI_LEN
+				wc = __UCLIBC_CURLOCALE->tbl8wc2c[Cwc2c_TI_LEN
 						 + (u << Cwc2c_TT_SHIFT)
 						 + (wc & ((1 << Cwc2c_TT_SHIFT)-1))];
 				if (wc) {

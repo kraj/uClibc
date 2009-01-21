@@ -501,8 +501,8 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 			const char *p;
 
 			if (PRINT_INFO_FLAG_VAL(info,group)
-				&& *(p = __UCLIBC_CURLOCALE_DATA.grouping)
-				) {
+			 && *(p = __UCLIBC_CURLOCALE->grouping)
+			) {
 				int nblk1;
 
 				nblk2 = nblk1 = *p;
@@ -522,8 +522,8 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 						tslen = 1;
 					} else {
 #endif /* __UCLIBC_HAS_WCHAR__ */
-						ts = __UCLIBC_CURLOCALE_DATA.thousands_sep;
-						tslen = __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
+						ts = __UCLIBC_CURLOCALE->thousands_sep;
+						tslen = __UCLIBC_CURLOCALE->thousands_sep_len;
 #ifdef __UCLIBC_HAS_WCHAR__
 					}
 #endif /* __UCLIBC_HAS_WCHAR__ */
@@ -576,8 +576,8 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 				ppc[2] = (intptr_t)(fmt + DECPT_OFFSET);
 			} else {
 #endif /* __UCLIBC_HAS_WCHAR__ */
-				ppc[1] = __UCLIBC_CURLOCALE_DATA.decimal_point_len;
-				ppc[2] = (intptr_t)(__UCLIBC_CURLOCALE_DATA.decimal_point);
+				ppc[1] = __UCLIBC_CURLOCALE->decimal_point_len;
+				ppc[2] = (intptr_t)(__UCLIBC_CURLOCALE->decimal_point);
 #ifdef __UCLIBC_HAS_WCHAR__
 			}
 #endif /* __UCLIBC_HAS_WCHAR__ */
