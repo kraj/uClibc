@@ -22,6 +22,9 @@ do { \
 /* Used for error messages */
 #define ELF_TARGET "m68k"
 
+/* Need bootstrap relocations */
+#define ARCH_NEEDS_BOOTSTRAP_RELOCS
+
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver (struct elf_resolve *, int);
 

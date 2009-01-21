@@ -44,6 +44,9 @@
 /* Used for error messages */
 #define ELF_TARGET "AVR32"
 
+/* Need bootstrap relocations */
+#define ARCH_NEEDS_BOOTSTRAP_RELOCS
+
 unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got);
 
 #define elf_machine_type_class(type)				\

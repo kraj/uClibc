@@ -15,6 +15,9 @@
 #undef MAGIC2
 #define ELF_TARGET "CRIS"
 
+/* Need bootstrap relocations */
+#define ARCH_NEEDS_BOOTSTRAP_RELOCS
+
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry);
 

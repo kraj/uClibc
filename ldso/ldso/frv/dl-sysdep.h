@@ -40,6 +40,9 @@
 /* Used for error messages */
 #define ELF_TARGET "FR-V"
 
+/* Need bootstrap relocations */
+#define ARCH_NEEDS_BOOTSTRAP_RELOCS
+
 struct elf_resolve;
 
 struct funcdesc_value
