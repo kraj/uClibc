@@ -340,7 +340,7 @@ static struct lconv the_lconv;
 struct lconv *localeconv(void)
 {
 	register char *p = (char *) &the_lconv;
-	register char **q = (char **) &(__UCLIBC_CURLOCALE_DATA).decimal_point;
+	register char **q = (char **) &(__UCLIBC_CURLOCALE->decimal_point);
 
 	do {
 		*((char **)p) = *q;
@@ -373,7 +373,7 @@ libc_hidden_def(localeconv)
 /* libc_hidden_proto(__ctype_toupper) */
 #endif
 
-__uclibc_locale_t __global_locale_data;
+struct __uclibc_locale_struct __global_locale_data;
 
 __locale_t __global_locale = &__global_locale_data;
 
@@ -881,12 +881,12 @@ void attribute_hidden _locale_init_l(__locale_t base)
 		   LC_ALL);
 
 	++base->category_item_count[0]; /* Increment for codeset entry. */
-	base->category_offsets[0] = offsetof(__uclibc_locale_t, outdigit0_mb);
-	base->category_offsets[1] = offsetof(__uclibc_locale_t, decimal_point);
-	base->category_offsets[2] = offsetof(__uclibc_locale_t, int_curr_symbol);
-	base->category_offsets[3] = offsetof(__uclibc_locale_t, abday_1);
-/*  	base->category_offsets[4] = offsetof(__uclibc_locale_t, collate???); */
-	base->category_offsets[5] = offsetof(__uclibc_locale_t, yesexpr);
+	base->category_offsets[0] = offsetof(struct __uclibc_locale_struct, outdigit0_mb);
+	base->category_offsets[1] = offsetof(struct __uclibc_locale_struct, decimal_point);
+	base->category_offsets[2] = offsetof(struct __uclibc_locale_struct, int_curr_symbol);
+	base->category_offsets[3] = offsetof(struct __uclibc_locale_struct, abday_1);
+/*  	base->category_offsets[4] = offsetof(struct __uclibc_locale_struct, collate???); */
+	base->category_offsets[5] = offsetof(struct __uclibc_locale_struct, yesexpr);
 
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 	base->tbl8ctype
@@ -1321,7 +1321,7 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 	}
 #else
 	if (!base) {
-		base = malloc(sizeof(__uclibc_locale_t));
+		base = malloc(sizeof(struct __uclibc_locale_struct));
 		if (base == NULL)
 			return base;
 		_locale_init_l(base);
@@ -1352,12 +1352,12 @@ __locale_t duplocale(__locale_t dataset)
 
 	assert(dataset != LC_GLOBAL_LOCALE);
 
-	if ((r = malloc(sizeof(__uclibc_locale_t))) != NULL) {
-		n = 2*dataset->collate.max_col_index+2;
-		if ((i2w = calloc(n, sizeof(uint16_t)))
-			!= NULL
-			) {
-			memcpy(r, dataset, sizeof(__uclibc_locale_t));
+	r = malloc(sizeof(struct __uclibc_locale_struct));
+	if (r != NULL) {
+		n = 2 * dataset->collate.max_col_index + 2;
+		i2w = calloc(n, sizeof(uint16_t));
+		if (i2w != NULL) {
+			memcpy(r, dataset, sizeof(struct __uclibc_locale_struct));
 			r->collate.index2weight = i2w;
 			memcpy(i2w, dataset->collate.index2weight, n * sizeof(uint16_t));
 		} else {

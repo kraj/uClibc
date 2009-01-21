@@ -525,7 +525,7 @@ int attribute_hidden _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 #endif
 #ifdef __UCLIBC_HAS_LOCALE__
 	/* To support old programs, don't check mb validity if in C locale. */
-	if (((__UCLIBC_CURLOCALE_DATA).encoding) != __ctype_encoding_7_bit) {
+	if (__UCLIBC_CURLOCALE->encoding != __ctype_encoding_7_bit) {
 		/* ANSI/ISO C99 requires format string to be a valid multibyte string
 		 * beginning and ending in its initial shift state. */
 		static const char invalid_mbs[] = "Invalid multibyte format string.";
@@ -1314,11 +1314,11 @@ static size_t _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 
 #ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
 			if (s[i] == ',') {
-				wbuf[i] = __UCLIBC_CURLOCALE_DATA.thousands_sep_wc;
+				wbuf[i] = __UCLIBC_CURLOCALE->thousands_sep_wc;
 			} else
 #endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
 			if (s[i] == '.') {
-				wbuf[i] = __UCLIBC_CURLOCALE_DATA.decimal_point_wc;
+				wbuf[i] = __UCLIBC_CURLOCALE->decimal_point_wc;
 			} else {
 				wbuf[i] = s[i];
 			}

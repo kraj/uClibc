@@ -35,48 +35,37 @@
 
 #ifdef __UCLIBC_HAS_LOCALE__
 
-#undef __LOCALE_C_ONLY
+# undef __LOCALE_C_ONLY
 
-#else  /* __UCLIBC_HAS_LOCALE__ */
+#else
 
-#define __LOCALE_C_ONLY
+# define __LOCALE_C_ONLY
 
-#define __XL_NPP(N) N
-#define __LOCALE_PARAM
-#define __LOCALE_ARG
+# ifdef _LIBC
+#  define __XL_NPP(N) N
+#  define __LOCALE_PARAM
+#  define __LOCALE_ARG
+# endif
 
-#endif /* __UCLIBC_HAS_LOCALE__ */
+#endif
 
 /**********************************************************************/
 
-#define __NL_ITEM_CATEGORY_SHIFT		(8)
-#define __NL_ITEM_INDEX_MASK			(0xff)
+#define __NL_ITEM_CATEGORY_SHIFT        8
+#define __NL_ITEM_INDEX_MASK            0xff
 
 /* TODO: Make sure these agree with the locale mmap file gererator! */
 
-#define __LC_CTYPE			0
-#define __LC_NUMERIC		1
-#define __LC_MONETARY		2
-#define __LC_TIME			3
-#define __LC_COLLATE		4
-#define __LC_MESSAGES		5
-#define __LC_ALL			6
+#define __LC_CTYPE      0
+#define __LC_NUMERIC    1
+#define __LC_MONETARY   2
+#define __LC_TIME       3
+#define __LC_COLLATE    4
+#define __LC_MESSAGES   5
+#define __LC_ALL        6
 
 /**********************************************************************/
 #ifndef __LOCALE_C_ONLY
-
-#if defined _LIBC /* && (defined IS_IN_libc || defined NOT_IN_libc) */
-#include <stddef.h>
-#include <stdint.h>
-#include <bits/uClibc_touplow.h>
-
-#ifndef __UCLIBC_GEN_LOCALE
-#include <bits/uClibc_locale_data.h>
-#endif
-#endif
-
-/* extern void _locale_set(const unsigned char *p); */
-/* extern void _locale_init(void); */
 
 enum {
 	__ctype_encoding_7_bit,		/* C/POSIX */
@@ -98,7 +87,21 @@ enum {
   * In particular, C/POSIX locale is '#' + "\x80\x01"}*LC_ALL + nul.
   */
 
+struct __uclibc_locale_struct;
+typedef struct __uclibc_locale_struct *__locale_t;
+
 #ifdef _LIBC
+
+/* extern void _locale_set(const unsigned char *p); */
+/* extern void _locale_init(void); */
+
+#include <stddef.h>
+#include <stdint.h>
+#include <bits/uClibc_touplow.h>
+#ifndef __UCLIBC_GEN_LOCALE
+# include <bits/uClibc_locale_data.h>
+#endif
+
 #ifndef __UCLIBC_GEN_LOCALE /* && (defined IS_IN_libc || defined NOT_IN_libc) */
 typedef struct {
 	uint16_t num_weights;
@@ -140,10 +143,9 @@ typedef struct {
 	uint16_t MAX_WEIGHTS;
 } __collate_t;
 
-
 /*  static unsigned char cur_locale[LOCALE_STRING_SIZE]; */
 
-typedef struct __uclibc_locale_struct {
+struct __uclibc_locale_struct {
 #ifdef __UCLIBC_HAS_XLOCALE__
 	const __ctype_mask_t *__ctype_b;
 	const __ctype_touplow_t *__ctype_tolower;
@@ -176,13 +178,13 @@ typedef struct __uclibc_locale_struct {
 	const unsigned char *tbl8ctype;
 	const unsigned char *idx8uplow;
 	const unsigned char *tbl8uplow;
-#ifdef __UCLIBC_HAS_WCHAR__
+# ifdef __UCLIBC_HAS_WCHAR__
 	const unsigned char *idx8c2wc;
 	const uint16_t *tbl8c2wc;	/* char > 0x7f to wide char */
 	const unsigned char *idx8wc2c;
 	const unsigned char *tbl8wc2c;
 	/* translit  */
-#endif /* __UCLIBC_HAS_WCHAR__ */
+# endif
 #endif /* __CTYPE_HAS_8_BIT_LOCALES */
 #ifdef __UCLIBC_HAS_WCHAR__
 
@@ -310,19 +312,16 @@ typedef struct __uclibc_locale_struct {
 
 	/* collate is at the end */
 	__collate_t collate;
+};
 
-} __uclibc_locale_t;
-
-extern __uclibc_locale_t __global_locale_data;
+extern struct __uclibc_locale_struct __global_locale_data;
+extern struct __uclibc_locale_struct *__global_locale;
 #endif /* !__UCLIBC_GEN_LOCALE */
-#endif /* _LIBC */
 
-extern struct __uclibc_locale_struct * __global_locale;
-
-typedef struct __uclibc_locale_struct *__locale_t;
-
-/* if we need to leave only _LIBC, then attribute_hidden is not usable */
-#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
+#if defined IS_IN_libc || defined NOT_IN_libc
+/* If you plan to remove xxx_IN_libc guards,
+ * remove attribute_hidden, it won't work.
+ */
 extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
 				const char *__restrict src,
 				__locale_t loc) attribute_hidden;
@@ -332,29 +331,22 @@ extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
 /* so we only get the warning once... */
 #warning need thread version of CUR_LOCALE!
 #endif
+
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_XLOCALE__
 
 extern __locale_t __curlocale_var;
-
 # ifdef __UCLIBC_HAS_THREADS__
-
 extern __locale_t __curlocale(void)  __THROW __attribute__ ((__const__));
 extern __locale_t __curlocale_set(__locale_t newloc);
-#  define __UCLIBC_CURLOCALE           (__curlocale())
-#  define __UCLIBC_CURLOCALE_DATA      (*__curlocale())
-
+#  define __UCLIBC_CURLOCALE  (__curlocale())
 # else
-
-#  define __UCLIBC_CURLOCALE           (__curlocale_var)
-#  define __UCLIBC_CURLOCALE_DATA      (*__curlocale_var)
-
+#  define __UCLIBC_CURLOCALE  (__curlocale_var)
 # endif
 
 #elif defined(__UCLIBC_HAS_LOCALE__)
 
-# define __UCLIBC_CURLOCALE           (__global_locale)
-# define __UCLIBC_CURLOCALE_DATA      (*__global_locale)
+# define __UCLIBC_CURLOCALE   (__global_locale)
 
 #endif
 /**********************************************************************/
@@ -375,7 +367,8 @@ extern __locale_t __curlocale_set(__locale_t newloc);
 #endif
 /**********************************************************************/
 
+#endif /* _LIBC */
+
 #endif /* !defined(__LOCALE_C_ONLY) */
-/**********************************************************************/
 
 #endif /* _UCLIBC_LOCALE_H */

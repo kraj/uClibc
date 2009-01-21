@@ -50,7 +50,7 @@ typedef struct __locale_struct
   const __ctype_touplow_t *__ctype_tolower;
   const __ctype_touplow_t *__ctype_toupper;
 
-  __uclibc_locale_t *__locale_ptr;
+  struct __uclibc_locale_struct *__locale_ptr;
 
 #if 0
   /* Note: LC_ALL is not a valid index into this array.  */

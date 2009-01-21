@@ -114,7 +114,7 @@
 
 #ifdef __UCLIBC_HAS_LOCALE__
 
-#define ENCODING		((__UCLIBC_CURLOCALE_DATA).encoding)
+#define ENCODING		(__UCLIBC_CURLOCALE->encoding)
 #ifndef __CTYPE_HAS_UTF_8_LOCALES
 #ifdef L_mblen
 /* emit only once */
@@ -916,7 +916,7 @@ void ssort(void  *base,
 size_t _stdlib_mb_cur_max(void)
 {
 #ifdef __CTYPE_HAS_UTF_8_LOCALES
-	return __UCLIBC_CURLOCALE_DATA.mb_cur_max;
+	return __UCLIBC_CURLOCALE->mb_cur_max;
 #else
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 #ifdef __UCLIBC_MJN3_ONLY__
