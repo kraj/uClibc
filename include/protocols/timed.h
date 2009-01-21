@@ -32,7 +32,9 @@
 #ifndef	_PROTOCOLS_TIMED_H
 #define	_PROTOCOLS_TIMED_H 1
 
+#ifdef __UCLIBC_HAS_RPC__
 #include <rpc/types.h>
+#endif
 
 /*
  * Time Synchronization Protocol

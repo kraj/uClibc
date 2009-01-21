@@ -34,7 +34,9 @@
 #define __need_uClibc_config_h
 #include <bits/uClibc_config.h>
 #undef __need_uClibc_config_h
+#ifdef UCLIBC_INTERNAL
 #include <bits/uClibc_arch_features.h>
+#endif
 
 /* For uClibc, always optimize for size -- this should disable
  * a lot of expensive inlining...
