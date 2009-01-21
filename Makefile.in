@@ -214,6 +214,13 @@ install_headers: headers $(top_builddir)extra/scripts/unifdef
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_uintmaxtostr.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/kernel_sigaction.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/kernel_stat.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/kernel_types.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/utmpx.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/atomic.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/atomic.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/sigcontextinfo.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/stackinfo.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_arch_features.h
 ifneq ($(UCLIBC_HAS_FLOATS),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
@@ -222,6 +229,7 @@ ifneq ($(UCLIBC_HAS_FLOATS),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/math.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tgmath.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_fpmax.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/math*.h
 endif
 ifneq ($(UCLIBC_HAS_FENV),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/fenv.h \
@@ -285,6 +293,7 @@ ifneq ($(UCLIBC_HAS_THREADS),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/*thread*.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/semaphore.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/*thread*.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/initspin.h
 endif
 ifneq ($(HAVE_SHARED),y)
 	# Remove dlfcn header if we don't have shared libraries.
@@ -307,6 +316,7 @@ ifneq ($(UCLIBC_SUSV3_LEGACY),y)
 	# Remove timeb.h since the LEGACY ftime() was disabled upon request
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/timeb.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ucontext.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/regexp.h
 endif
 ifneq ($(UCLIBC_HAS_EPOLL),y)
 	# Remove epoll.h since epoll_*() were disabled upon request
@@ -335,6 +345,7 @@ ifneq ($(UCLIBC_LINUX_SPECIFIC),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/swap.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/sysctl.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/vfs.h
+	$(RM) ${PREFIX}$(DEVEL_PREFIX)include/sys/sysinfo.h
 endif
 ifneq ($(UCLIBC_SV4_DEPRECATED),y)
 	# Remove ustat.h since deprecated SV4 support was disabled upon request
@@ -342,20 +353,13 @@ ifneq ($(UCLIBC_SV4_DEPRECATED),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/ustat.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/ustat.h
 endif
-ifeq ($(UCLIBC_HAS_REALTIME)$(UCLIBC_HAS_ADVANCED_REALTIME),)
-	# Remove SUSv-realtime related message-queue headers upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/mqueue.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/mqueue.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/mqueue.h
-endif
 ifneq ($(UCLIBC_HAS_REALTIME),y)
 	# Remove SUSv-realtime related headers upon request
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/mqueue.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/mqueue.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sched.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/sched.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/sched.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/semaphore.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/semaphore.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/semaphore.h
 endif
 ifneq ($(UCLIBC_HAS_SOCKET),y)
 	# Remove socket related headers upon request
@@ -370,6 +374,20 @@ endif
 ifneq ($(UCLIBC_SUPPORT_AI_ADDRCONFIG),y)
 	# Remove ifaddrs.h since the corresponding functionality is disabled
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ifaddrs.h
+endif
+ifneq ($(UCLIBC_HAS_SYSLOG),y)
+	# Remove syslog.h since the corresponding functionality is disabled
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/syslog.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/syslog.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/syslog*.h
+endif
+ifneq ($(UCLIBC_HAS_RPC),y)
+	$(RM) -r $(PREFIX)$(DEVEL_PREFIX)include/rpc
+endif
+ifneq ($(UCLIBC_HAS_IPV6),y)
+	# Remove IPv6 headers since the corresponding functionality is disabled
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/netinet/ip6.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/netinet/icmp6.h
 endif
 
 # Installs development library links.
