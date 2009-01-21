@@ -8,7 +8,7 @@ if [ -z "$1" ] ; then
 fi
 
 cat <<EOF
-#if !defined __FEATURES_H && !defined __need_uClibc_config_h
+#if !defined _FEATURES_H && !defined __need_uClibc_config_h
 # error Never include <bits/uClibc_config.h> directly; use <features.h> instead
 #endif
 
