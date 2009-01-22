@@ -22,13 +22,24 @@
 
 typedef int __sig_atomic_t;
 
-/* A `sigset_t' has a bit for each signal.  */
-
-# define _SIGSET_NWORDS	(1024 / (8 * sizeof (unsigned long int)))
-typedef struct
-  {
-    unsigned long int __val[_SIGSET_NWORDS];
-  } __sigset_t;
+/* A 'sigset_t' has a bit for each signal.
+ * glibc has space for 1024 signals (!), but most arches supported
+ * by Linux have 64 signals, and only MIPS has 128.
+ * There seems to be some historical baggage in sparc[64]
+ * where they might have (or had in the past) 32 signals only,
+ * I hope it's irrelevant now.
+ * Signal 0 does not exist, so we have signals 1..64, not 0..63.
+ * In uclibc, kernel and userspace sigset_t is always the same.
+ * BTW, struct sigaction is also the same on kernel and userspace side.
+ */
+#if defined(__mips__)
+# define _SIGSET_NWORDS	(128 / (8 * sizeof (unsigned long)))
+#else
+# define _SIGSET_NWORDS	(64 / (8 * sizeof (unsigned long)))
+#endif
+typedef struct {
+	unsigned long __val[_SIGSET_NWORDS];
+} __sigset_t;
 
 #endif
 

@@ -12,15 +12,12 @@ struct old_kernel_sigaction {
 	unsigned long sa_flags;
 };
 
-/* This is the sigaction structure from the Linux 2.1.68 kernel.  */
+/* In uclibc, userspace struct sigaction is identical to
+ * "new" struct kernel_sigaction (one from the Linux 2.1.68 kernel).
+ * See sigaction.h
+ */
 
-struct kernel_sigaction {
-	__sighandler_t k_sa_handler;
-	unsigned long sa_flags;
-	sigset_t sa_mask;
-};
-
-extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
-	struct kernel_sigaction *__unbounded, size_t) attribute_hidden;
+extern int __syscall_rt_sigaction (int, const struct sigaction *,
+	struct sigaction *, size_t) attribute_hidden;
 
 #endif

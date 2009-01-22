@@ -24,25 +24,12 @@ struct old_kernel_sigaction {
 #endif
 };
 
+/* In uclibc, userspace struct sigaction is identical to
+ * "new" struct kernel_sigaction (one from the Linux 2.1.68 kernel).
+ * See sigaction.h
+ */
 
-#define _KERNEL_NSIG	       128
-#define _KERNEL_NSIG_BPW       _MIPS_SZLONG
-#define _KERNEL_NSIG_WORDS     (_KERNEL_NSIG / _KERNEL_NSIG_BPW)
-
-typedef struct {
-	unsigned long sig[_KERNEL_NSIG_WORDS];
-} kernel_sigset_t;
-
-/* This is the sigaction structure from the Linux 2.1.68 kernel.  */
-struct kernel_sigaction {
-	unsigned int	sa_flags;
-	__sighandler_t	k_sa_handler;
-	kernel_sigset_t	sa_mask;
-	void		(*sa_restorer)(void);
-	int		s_resv[1]; /* reserved */
-};
-
-extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
-	struct kernel_sigaction *__unbounded, size_t) attribute_hidden;
+extern int __syscall_rt_sigaction (int, const struct sigaction *,
+	struct sigaction *, size_t) attribute_hidden;
 
 #endif

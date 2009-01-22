@@ -22,30 +22,21 @@
 #endif
 
 /* Structure describing the action to be taken when a signal arrives.  */
-struct sigaction
-  {
-    /* Signal handler.  */
+struct sigaction {
 #ifdef __USE_POSIX199309
-    union
-      {
-	/* Used if SA_SIGINFO is not set.  */
-	__sighandler_t sa_handler;
-	/* Used if SA_SIGINFO is set.  */
-	void (*sa_sigaction) (int, siginfo_t *, void *);
-      }
-    __sigaction_handler;
-# define sa_handler	__sigaction_handler.sa_handler
-# define sa_sigaction	__sigaction_handler.sa_sigaction
+	union {
+		__sighandler_t sa_handler;
+		void (*sa_sigaction)(int, siginfo_t *, void *);
+	} __sigaction_handler;
+# define sa_handler     __sigaction_handler.sa_handler
+# define sa_sigaction   __sigaction_handler.sa_sigaction
 #else
-    __sighandler_t sa_handler;
+	__sighandler_t  sa_handler;
 #endif
-
-    /* Additional set of signals to be blocked.  */
-    __sigset_t sa_mask;
-
-    /* Special flags.  */
-    unsigned int sa_flags;
-  };
+	unsigned        sa_flags;
+	sigset_t        sa_mask;
+	/* Alpha has no sa_restorer field.  */
+};
 
 /* Bits in `sa_flags'.  */
 #define	SA_NOCLDSTOP  0x00000004 /* Don't send SIGCHLD when children stop.  */

@@ -23,37 +23,22 @@
 #endif
 
 /* Structure describing the action to be taken when a signal arrives.  */
-struct sigaction
-  {
-    /* Special flags.  */
-    unsigned int sa_flags;
-
-    /* Signal handler.  */
+struct sigaction {
+	unsigned        sa_flags;
 #ifdef __USE_POSIX199309
-    union
-      {
-	/* Used if SA_SIGINFO is not set.  */
-	__sighandler_t sa_handler;
-	/* Used if SA_SIGINFO is set.  */
-	void (*sa_sigaction) (int, siginfo_t *, void *);
-      }
-    __sigaction_handler;
-# define sa_handler    __sigaction_handler.sa_handler
-# define sa_sigaction  __sigaction_handler.sa_sigaction
+	union {
+		__sighandler_t sa_handler;
+		void (*sa_sigaction)(int, siginfo_t *, void *);
+	} __sigaction_handler;
+# define sa_handler     __sigaction_handler.sa_handler
+# define sa_sigaction   __sigaction_handler.sa_sigaction
 #else
-    __sighandler_t sa_handler;
+	__sighandler_t  sa_handler;
 #endif
-    /* Additional set of signals to be blocked.  */
-    __sigset_t sa_mask;
-
-    /* The ABI says here are two unused ints following. */
-    /* Restore handler.  */
-    void (*sa_restorer) (void);
-
-#if _MIPS_SZPTR < 64
-    int sa_resv[1];
-#endif
-  };
+	sigset_t        sa_mask;
+	void            (*sa_restorer)(void);
+	/*int           s_resv[1]; - reserved [deleted in uclibc] */
+};
 
 /* Bits in `sa_flags'.  */
 /* Please note that some Linux kernels versions use different values for these
