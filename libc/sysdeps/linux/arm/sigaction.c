@@ -34,93 +34,68 @@ extern __typeof(sigaction) __libc_sigaction;
 /* When RT signals are in use we need to use a different return stub.  */
 #ifdef __NR_rt_sigreturn
 #define choose_restorer(flags)					\
-  (flags & SA_SIGINFO) ? __default_rt_sa_restorer		\
-  : __default_sa_restorer
+	(flags & SA_SIGINFO) ? __default_rt_sa_restorer		\
+	: __default_sa_restorer
 #else
 #define choose_restorer(flags)					\
-  __default_sa_restorer
+	__default_sa_restorer
 #endif
+
 
 #ifdef __NR_rt_sigaction
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
 {
-    int result;
-    struct kernel_sigaction kact, koact;
-
-    if (act) {
-	kact.k_sa_handler = act->sa_handler;
-	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
-	kact.sa_flags = act->sa_flags;
-# ifdef HAVE_SA_RESTORER
-	if (kact.sa_flags & SA_RESTORER) {
-	    kact.sa_restorer = act->sa_restorer;
-	} else {
-	    kact.sa_restorer = choose_restorer (kact.sa_flags);
-	    kact.sa_flags |= SA_RESTORER;
+	struct sigaction kact;
+	if (act && !(act->sa_flags & SA_RESTORER)) {
+		memcpy(&kact, act, sizeof(kact));
+		kact.sa_restorer = choose_restorer(kact.sa_flags);
+		kact.sa_flags |= SA_RESTORER;
+		act = &kact;
 	}
-# endif
-    }
-
-    /* XXX The size argument hopefully will have to be changed to the
-       real size of the user-level sigset_t.  */
-    result = __syscall_rt_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
-	    oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
-    if (oact && result >= 0) {
-	oact->sa_handler = koact.k_sa_handler;
-	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
-	oact->sa_flags = koact.sa_flags;
-# ifdef HAVE_SA_RESTORER
-	oact->sa_restorer = koact.sa_restorer;
-# endif
-    }
-    return result;
+	/* NB: kernel (as of 2.6.25) will return EINVAL
+	 * if sizeof(act->sa_mask) does not match kernel's sizeof(sigset_t) */
+	return __syscall_rt_sigaction(sig, act, oact, sizeof(act->sa_mask));
 }
-
 
 #else
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
 {
-    int result;
-    struct old_kernel_sigaction kact, koact;
+	int result;
+	struct old_kernel_sigaction kact, koact;
 
-    if (act) {
-	kact.k_sa_handler = act->sa_handler;
-	kact.sa_mask = act->sa_mask.__val[0];
-	kact.sa_flags = act->sa_flags;
-# ifdef HAVE_SA_RESTORER
-	if (kact.sa_flags & SA_RESTORER) {
-	    kact.sa_restorer = act->sa_restorer;
-	} else {
-	    kact.sa_restorer = choose_restorer (kact.sa_flags);
-	    kact.sa_flags |= SA_RESTORER;
+	if (act) {
+		kact.k_sa_handler = act->sa_handler;
+		kact.sa_mask = act->sa_mask.__val[0];
+		kact.sa_flags = act->sa_flags;
+		if (kact.sa_flags & SA_RESTORER) {
+			kact.sa_restorer = act->sa_restorer;
+		} else {
+			kact.sa_restorer = choose_restorer(kact.sa_flags);
+			kact.sa_flags |= SA_RESTORER;
+		}
 	}
-# endif
-    }
-    result = __syscall_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
-	    oact ? __ptrvalue (&koact) : NULL);
-    if (oact && result >= 0) {
-	oact->sa_handler = koact.k_sa_handler;
-	oact->sa_mask.__val[0] = koact.sa_mask;
-	oact->sa_flags = koact.sa_flags;
-# ifdef HAVE_SA_RESTORER
-	oact->sa_restorer = koact.sa_restorer;
-# endif
-    }
-    return result;
+	result = __syscall_sigaction(sig,
+			act ? &kact : NULL,
+			oact ? &koact : NULL);
+	if (oact && result >= 0) {
+		oact->sa_handler = koact.k_sa_handler;
+		oact->sa_mask.__val[0] = koact.sa_mask;
+		oact->sa_flags = koact.sa_flags;
+		oact->sa_restorer = koact.sa_restorer;
+	}
+	return result;
 }
 
 #endif
 
+
 #ifndef LIBC_SIGACTION
-/* libc_hidden_proto(sigaction) */
 weak_alias(__libc_sigaction,sigaction)
 libc_hidden_weak(sigaction)
 #endif
