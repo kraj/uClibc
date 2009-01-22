@@ -7,12 +7,7 @@
 
 CFLAGS-libresolv := -DNOT_IN_libc -DIS_IN_libresolv $(SSP_ALL_CFLAGS)
 
-LDFLAGS-libresolv.so := $(LDFLAGS)
-ifdef ASNEEDED
-ifeq ($(UCLIBC_HAS_SSP),y)
-LDFLAGS-libresolv.so += -Wl,--no-as-needed -lc -Wl,--as-needed
-endif
-endif
+LDFLAGS-libresolv.so := $(LDFLAGS) $(call link.asneeded,-lc)
 
 LIBS-libresolv.so := $(LIBS)
 

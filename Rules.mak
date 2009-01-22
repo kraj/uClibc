@@ -433,6 +433,30 @@ ifndef LDPIEFLAG
 export LDPIEFLAG:=$(shell $(LD) --help 2>/dev/null | grep -q -- -pie && echo "-pie")
 endif
 
+# Check for --as-needed support in linker
+ifndef LD_FLAG_ASNEEDED
+_LD_FLAG_ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -- --as-needed)
+ifneq ($(_LD_FLAG_ASNEEDED),)
+export LD_FLAG_ASNEEDED:=--as-needed
+endif
+endif
+ifndef LD_FLAG_NO_ASNEEDED
+ifdef LD_FLAG_ASNEEDED
+export LD_FLAG_NO_ASNEEDED:=--no-as-needed
+endif
+endif
+ifndef CC_FLAG_ASNEEDED
+ifdef LD_FLAG_ASNEEDED
+export CC_FLAG_ASNEEDED:=-Wl,$(LD_FLAG_ASNEEDED)
+endif
+endif
+ifndef CC_FLAG_NO_ASNEEDED
+ifdef LD_FLAG_NO_ASNEEDED
+export CC_FLAG_NO_ASNEEDED:=-Wl,$(LD_FLAG_NO_ASNEEDED)
+endif
+endif
+link.asneeded = $(if $(and $(CC_FLAG_ASNEEDED),$(CC_FLAG_NO_ASNEEDED)),$(CC_FLAG_ASNEEDED) $(1) $(CC_FLAG_NO_ASNEEDED))
+
 # Check for AS_NEEDED support in linker script (binutils>=2.16.1 has it)
 ifndef ASNEEDED
 export ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && echo "AS_NEEDED ( $(UCLIBC_LDSO) )" || echo "$(UCLIBC_LDSO)")

@@ -7,7 +7,7 @@
 
 CFLAGS-librt := -DNOT_IN_libc -DIS_IN_librt $(SSP_ALL_CFLAGS)
 
-LDFLAGS-librt.so := $(LDFLAGS)
+LDFLAGS-librt.so := $(LDFLAGS) $(call link.asneeded,-lc)
 
 LIBS-librt.so := $(LIBS)
 
