@@ -1207,7 +1207,9 @@ int res_init(void)
 	rp->nsaddr.sin_port = htons(NAMESERVER_PORT);
 	rp->ndots = 1;
 	/** rp->pfcode = 0; **/
+#ifdef __UCLIBC_HAS_EXTRA_COMPAT_RES_STATE__
 	rp->_vcsock = -1;
+#endif
 	/** rp->_flags = 0; **/
 	/** rp->qhook = NULL; **/
 	/** rp->rhook = NULL; **/
