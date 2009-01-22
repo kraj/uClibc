@@ -80,11 +80,6 @@ extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...), fcntl64);
 #  define fcntl fcntl64
 # endif
 #endif
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-extern int __fcntl_nocancel (int fd, int cmd, ...);
-#endif
-
 #ifdef __USE_LARGEFILE64
 extern int fcntl64 (int __fd, int __cmd, ...);
 libc_hidden_proto(fcntl64)
@@ -229,6 +224,11 @@ extern int __REDIRECT (posix_fallocate, (int __fd, __off64_t __offset,
 #  define posix_fallocate posix_fallocate64
 # endif
 # endif
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+extern int __fcntl_nocancel (int fd, int cmd, ...);
+#endif
+
 # ifdef __USE_LARGEFILE64
 extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 # endif

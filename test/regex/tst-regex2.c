@@ -27,6 +27,7 @@ do_test(void)
 	struct stat st;
 	unsigned len;
 	int testno;
+	int exitcode = 0;
 
 	int fd = open(fname, O_RDONLY);
 	if (fd < 0) {
@@ -71,14 +72,16 @@ do_test(void)
 				char errstr[300];
 				regerror(err, &rbuf, errstr, sizeof(errstr));
 				puts(errstr);
-				return err;
+				exitcode = 1;
+				goto contin1;
 			}
 
 			regmatch_t pmatch[71];
 			err = regexec(&rbuf, string, 71, pmatch, 0);
 			if (err == REG_NOMATCH) {
 				puts("regexec failed");
-				return 1;
+				exitcode = 1;
+				goto contin1;
 			}
 
 			if (testno == 0) {
@@ -91,7 +94,8 @@ do_test(void)
 				    ) != 0
 				) {
 					puts("regexec without REG_NOSUB did not find the correct match");
-					return 1;
+					exitcode = 1;
+					goto contin1;
 				}
 
 				if (i > 0) {
@@ -102,7 +106,8 @@ do_test(void)
 							|| pmatch[l].rm_eo != pmatch[l].rm_so + 1
 							) {
 								printf("pmatch[%d] incorrect\n", l);
-								return 1;
+								exitcode = 1;
+								goto contin1;
 							}
 						}
 					}
@@ -118,6 +123,7 @@ do_test(void)
 			stop.tv_usec -= start.tv_usec;
 			printf(" %lu.%06lus\n", (unsigned long) stop.tv_sec,
 						(unsigned long) stop.tv_usec);
+ contin1:
 			regfree(&rbuf);
 		}
 	}
@@ -140,22 +146,26 @@ do_test(void)
 			s = re_compile_pattern(pat[i], strlen(pat[i]), &rpbuf);
 			if (s != NULL) {
 				printf("%s\n", s);
-				return 1;
+				exitcode = 1;
+				goto contin2;
 			}
 
 			memset(&regs, 0, sizeof(regs));
 			match = re_search(&rpbuf, string, len, 0, len, &regs);
 			if (match < 0) {
 				printf("re_search failed (err:%d)\n", match);
-				return 1;
+				exitcode = 1;
+				goto contin2;
 			}
 			if (match + 13 > len) {
 				printf("re_search: match+13 > len (%d > %d)\n", match + 13, len);
-				return 1;
+				exitcode = 1;
+				goto contin2;
 			}
 			if (match < len - 100) {
 				printf("re_search: match < len-100 (%d < %d)\n", match, len - 100);
-				return 1;
+				exitcode = 1;
+				goto contin2;
 			}
 			if (strncmp(string + match, " ChangeLog.13 for earlier changes",
 				sizeof(" ChangeLog.13 for earlier changes") - 1
@@ -163,7 +173,8 @@ do_test(void)
 			) {
 				printf("re_search did not find the correct match"
 					"(found '%s' instead)\n", string + match);
-				return 1;
+				exitcode = 1;
+				goto contin2;
 			}
 
 			if (testno == 2) {
@@ -174,7 +185,8 @@ do_test(void)
 					expected = 9;
 				if (regs.num_regs != expected) {
 					printf("incorrect num_regs %d, expected %d\n", regs.num_regs, expected);
-					return 1;
+					exitcode = 1;
+					goto contin2;
 				}
 				if (regs.start[0] != match || regs.end[0] != match + 13) {
 					printf("incorrect regs.{start,end}[0] = { %d, %d },"
@@ -182,7 +194,8 @@ do_test(void)
 						regs.start[0], regs.end[0],
 						match, match + 13
 					);
-					return 1;
+					exitcode = 1;
+					goto contin2;
 				}
 				if (regs.start[regs.num_regs - 1] != -1
 				 || regs.end[regs.num_regs - 1] != -1
@@ -191,7 +204,8 @@ do_test(void)
 						" expected { -1, -1 }\n",
 						regs.start[regs.num_regs - 1], regs.end[regs.num_regs - 1]
 					);
-					return 1;
+					exitcode = 1;
+					goto contin2;
 				}
 
 				if (i > 0) {
@@ -207,7 +221,8 @@ do_test(void)
 									regs.start[l], regs.end[l],
 									match + j, match + j + 1
 								);
-								return 1;
+								exitcode = 1;
+								goto contin2;
 							}
 						}
 					}
@@ -223,10 +238,11 @@ do_test(void)
 			stop.tv_usec -= start.tv_usec;
 			printf(" %lu.%06lus\n", (unsigned long) stop.tv_sec,
 						(unsigned long) stop.tv_usec);
+ contin2:
 			regfree(&rpbuf);
 		}
 	}
-	return 0;
+	return exitcode;
 }
 
 #define TIMEOUT 20

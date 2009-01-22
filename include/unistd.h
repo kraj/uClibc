@@ -773,7 +773,6 @@ libc_hidden_proto(vfork)
 /* Special exit function which only terminates the current thread.  */
 extern void __exit_thread (int val) __attribute__ ((noreturn));
 
-
 /* Return the pathname of the terminal FD is open on, or NULL on errors.
    The returned storage is good only until the next call to this function.  */
 extern char *ttyname (int __fd) __THROW;

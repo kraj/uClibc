@@ -185,7 +185,8 @@ ifeq ($(CONFIG_386)$(CONFIG_486)$(CONFIG_586)$(CONFIG_586MMX),y)
 	# NB: this may make SSE insns segfault!
 	# -O1 -march=pentium3, -Os -msse etc are known to be affected.
 	# See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13685
-	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
+	# -m32 is needed if host is 64-bit
+	OPTIMIZATION+=$(call check_gcc,-m32 -mpreferred-stack-boundary=2,)
 else
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=4,)
 endif
@@ -431,6 +432,30 @@ endif
 ifndef LDPIEFLAG
 export LDPIEFLAG:=$(shell $(LD) --help 2>/dev/null | grep -q -- -pie && echo "-pie")
 endif
+
+# Check for --as-needed support in linker
+ifndef LD_FLAG_ASNEEDED
+_LD_FLAG_ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -- --as-needed)
+ifneq ($(_LD_FLAG_ASNEEDED),)
+export LD_FLAG_ASNEEDED:=--as-needed
+endif
+endif
+ifndef LD_FLAG_NO_ASNEEDED
+ifdef LD_FLAG_ASNEEDED
+export LD_FLAG_NO_ASNEEDED:=--no-as-needed
+endif
+endif
+ifndef CC_FLAG_ASNEEDED
+ifdef LD_FLAG_ASNEEDED
+export CC_FLAG_ASNEEDED:=-Wl,$(LD_FLAG_ASNEEDED)
+endif
+endif
+ifndef CC_FLAG_NO_ASNEEDED
+ifdef LD_FLAG_NO_ASNEEDED
+export CC_FLAG_NO_ASNEEDED:=-Wl,$(LD_FLAG_NO_ASNEEDED)
+endif
+endif
+link.asneeded = $(if $(and $(CC_FLAG_ASNEEDED),$(CC_FLAG_NO_ASNEEDED)),$(CC_FLAG_ASNEEDED) $(1) $(CC_FLAG_NO_ASNEEDED))
 
 # Check for AS_NEEDED support in linker script (binutils>=2.16.1 has it)
 ifndef ASNEEDED

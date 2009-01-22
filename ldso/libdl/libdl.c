@@ -32,7 +32,7 @@
 
 #include <ldso.h>
 #include <stdio.h>
-#include <string.h>
+#include <string.h> /* Needed for 'strstr' prototype' */
 #include <stdbool.h>
 
 #include <tls.h>
@@ -86,9 +86,7 @@ extern char *_dl_debug;
  * the symbols that otherwise would have been loaded in from ldso... */
 
 #ifdef __SUPPORT_LD_DEBUG__
-/* Needed for 'strstr' prototype' */
-#include <string.h>
-char *_dl_debug           = NULL;
+char *_dl_debug  = NULL;
 char *_dl_debug_symbols   = NULL;
 char *_dl_debug_move      = NULL;
 char *_dl_debug_reloc     = NULL;
@@ -100,8 +98,8 @@ int   _dl_debug_file      = 2;
 const char *_dl_progname       = "";        /* Program name */
 void *(*_dl_malloc_function)(size_t);
 void (*_dl_free_function) (void *p);
-char *_dl_library_path         = NULL;      /* Where we look for libraries */
-char *_dl_ldsopath             = NULL;      /* Location of the shared lib loader */
+char *_dl_library_path         = NULL;         /* Where we look for libraries */
+char *_dl_ldsopath             = NULL;         /* Location of the shared lib loader */
 int _dl_errno                  = 0;         /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later */
 /* This global variable is also to communicate with debuggers such as gdb. */
@@ -272,9 +270,11 @@ remove_slotinfo(size_t idx, struct dtv_slotinfo_list *listp, size_t disp,
 void dl_cleanup(void) __attribute__ ((destructor));
 void dl_cleanup(void)
 {
-	struct dyn_elf *d;
-	for (d = _dl_handles; d; d = d->next_handle) {
-		do_dlclose(d, 1);
+	struct dyn_elf *h, *n;
+
+	for (h = _dl_handles; h; h = n) {
+		n = h->next_handle;
+		do_dlclose(h, 1);
 	}
 }
 

@@ -25,5 +25,8 @@
    we need sigcontext.  */
 # define sigcontext_struct sigcontext
 
+# ifndef __user
+# define __user
+# endif
 # include <asm/sigcontext.h>
 #endif

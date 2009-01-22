@@ -24,10 +24,12 @@
 int
 main (int argc, char *argv[])
 {
-#ifdef __UCLIBC_HAS_XLOCALE__
+/* If uclibc has extended locale, or if it's a host build
+ * (assuming host libc always has locale): */
+#if defined __UCLIBC_HAS_XLOCALE__ || !defined __UCLIBC__
   regex_t re;
   regmatch_t mat[1];
-  int res = 1;
+  int exitcode = 1;
 
   if (setlocale (LC_ALL, "de_DE.ISO-8859-1") == NULL)
     puts ("cannot set locale");
@@ -37,11 +39,14 @@ main (int argc, char *argv[])
     puts ("no match");
   else
     {
-      printf ("match from %d to %d\n", mat[0].rm_so, mat[0].rm_eo);
-      res = mat[0].rm_so != 0 || mat[0].rm_eo != 6;
+      exitcode = mat[0].rm_so != 0 || mat[0].rm_eo != 6;
+      printf ("match from %d to %d - %s\n",
+		mat[0].rm_so, mat[0].rm_eo,
+		exitcode ? "WRONG!" : "ok"
+      );
     }
 
-  return res;
+  return exitcode;
 #else
   puts("Test requires locale; skipping");
   return 0;
