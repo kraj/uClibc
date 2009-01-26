@@ -1199,10 +1199,12 @@ int res_init(void)
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);	/* must be a recursive lock! */
 	__close_nameservers();
 	__open_nameservers();
+#ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
 	rp->retrans = RES_TIMEOUT;
 	rp->retry = 4;
-	rp->options = RES_INIT;
 	rp->id = (u_int) random();
+#endif
+	rp->options = RES_INIT;
 	rp->nsaddr.sin_addr.s_addr = INADDR_ANY;
 	rp->nsaddr.sin_family = AF_INET;
 	rp->nsaddr.sin_port = htons(NAMESERVER_PORT);
