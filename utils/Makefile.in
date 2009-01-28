@@ -4,12 +4,15 @@
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
+
 # "make utils" flags
 
-# ldconfig,ldd,readelf had also:
-# -Wl,-rpath,/lib
-# -Wl,--dynamic-linker,/lib/ld-uClibc.so.0
-# -Wl,--hash-style=gnu
+CFLAGS-utils := \
+    $(SSP_ALL_CFLAGS) \
+    -I$(top_srcdir)/$(KERNEL_HEADERS) \
+    -DNOT_IN_libc \
+    -B$(top_builddir)lib \
+    -Wl,-rpath-link,$(top_builddir)lib
 
 ifeq ($(UCLIBC_BUILD_PIE),y)
 CFLAGS-utils-shared := $(PIEFLAG) $(LDPIEFLAG)
@@ -24,53 +27,23 @@ CFLAGS-ldconfig := \
 ifeq ($(UCLIBC_STATIC_LDCONFIG),y)
 CFLAGS-ldconfig += -static
 else
-CFLAGS-ldconfig += \
-    $(CFLAGS-utils-shared) \
-    -Wl,-rpath-link,$(top_builddir)lib
+CFLAGS-ldconfig += $(CFLAGS-utils-shared)
 endif
-# Can't just pull in $(CFLAGS), there are bad include paths.
-# We want to use "sanitized" headers in LOCAL_INSTALL_PATH.
-CFLAGS-ldconfig += \
-    $(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) $(OPTIMIZATION) \
-    -nostdinc \
-    -I $(top_builddir)/$(LOCAL_INSTALL_PATH)/usr/include \
-    $(CC_INC) \
-    -B$(top_builddir)lib \
 
 CFLAGS-ldd := \
-    $(CFLAGS-utils-shared) \
-    $(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) $(OPTIMIZATION) \
-    -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
-    -nostdinc \
     -I$(top_srcdir)ldso/include \
-    -I$(top_builddir)/$(LOCAL_INSTALL_PATH)/usr/include \
-    $(CC_INC) \
-    -B$(top_builddir)lib \
-    -Wl,-rpath-link,$(top_builddir)lib \
+    -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
+    -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
+    $(CFLAGS-utils-shared)
 
-CFLAGS-readelf := \
+CFLAGS-readelf := $(CFLAGS-utils-shared)
+
+# Need CFLAGS-utils explicitly, because the source file is not located in utils
+CFLAGS-iconv := $(CFLAGS-utils) \
     $(CFLAGS-utils-shared) \
-    $(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) $(OPTIMIZATION) \
-    -nostdinc \
-    -I $(top_builddir)/$(LOCAL_INSTALL_PATH)/usr/include \
-    $(CC_INC) \
-    -B$(top_builddir)lib \
-    -Wl,-rpath-link,$(top_builddir)lib \
-
-# iconv and locale use non-sanitized headers by just pulling in $(CFLAGS)
-CFLAGS-iconv := \
-    $(CFLAGS) $(CFLAGS-utils-shared) \
-    -DNOT_IN_libc \
     -DL_iconv_main \
-    -I$(top_srcdir)/$(KERNEL_HEADERS) \
-    -B$(top_builddir)lib \
-    -Wl,-rpath-link,$(top_builddir)lib \
 
-CFLAGS-locale := \
-    $(CFLAGS) $(CFLAGS-utils-shared) \
-    -DNOT_IN_libc \
-    -B$(top_builddir)lib \
-    -Wl,-rpath-link,$(top_builddir)lib \
+CFLAGS-locale := $(CFLAGS-utils)
 
 
 # "make hostutils" flags
@@ -133,14 +106,6 @@ $(utils_OUT)/iconv: $(top_srcdir)libc/misc/wchar/wchar.c | $(libc)
 
 $(utils_OUT)/locale: $(top_srcdir)extra/locale/programs/locale.c | $(libc)
 	$(compile.u)
-
-# Instruct make to install uclibc locally before buiding target utils
-$(utils_OBJ): | $(top_builddir)/$(LOCAL_INSTALL_PATH)
-$(utils_OUT)/iconv: | $(top_builddir)/$(LOCAL_INSTALL_PATH)
-$(utils_OUT)/locale: | $(top_builddir)/$(LOCAL_INSTALL_PATH)
-
-$(top_builddir)/$(LOCAL_INSTALL_PATH):
-	$(Q)$(MAKE) -C $(top_builddir) $(LOCAL_INSTALL_PATH)
 
 hostutils: $(hostutils_OBJ)
 
