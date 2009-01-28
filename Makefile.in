@@ -469,7 +469,7 @@ install_test:
 	mkdir -p  $(PREFIX)
 	$(INSTALL) -m 644  .config Rules.mak $(PREFIX)
 	for i in `find test -type d | grep -v .svn` ; do $(INSTALL) -d $(PREFIX)/$$i ; done
-	for j in `find test -name '*.c' -o -name '*.in' -o -name '*.dat' -o -name '*.input' -o -name .regex.ChangeLog.14` ; \
+	for j in `find test -name '*.c' -o -name '*.in' -o -name '*.dat' -o -name '*.input'` ; \
 		do $(INSTALL) -m 644 $$j $(PREFIX)/$$j; done
 	for j in `find test -name '*.mak' -o -name 'Make*'| grep -v .svn`; \
 		do $(INSTALL) -m 644 $$j $(PREFIX)/$$j; done
