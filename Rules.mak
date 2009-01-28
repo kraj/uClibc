@@ -5,6 +5,17 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+# make nano-doc
+# FOO = bar  -- recursively expanded variable. Value is remebered verbatim.
+#               If it contains references to other variables, these references
+#               are expanded whenever this variable is _substituted_.
+# FOO := bar -- simply expanded variable. Right hand is expanded when
+#               the variable is _defined_. Therefore faster than =.
+# FOO ?= bar -- set a value only if it is not already set
+#               (behaves as =, not :=).
+# FOO += bar -- append; if FOO is not defined, acts like = (not :=).
+
+
 # check for proper make version
 ifneq ($(findstring x3.7,x$(MAKE_VERSION)),)
 $(error Your make is too old $(MAKE_VERSION). Go get at least 3.80)
@@ -65,6 +76,7 @@ export ARCH := $(shell uname -m | $(SED) -e s/i.86/i386/ \
 # Nothing beyond this point should ever be touched by mere
 # mortals.  Unless you hang out with the gods, you should
 # probably leave all this stuff alone.
+
 
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
@@ -148,7 +160,9 @@ check_ld=$(shell \
 
 ARFLAGS:=cr
 
+
 # Flags in OPTIMIZATION are used only for non-debug builds
+
 OPTIMIZATION:=
 # Use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
@@ -167,6 +181,37 @@ OPTIMIZATION+=$(call check_gcc,-fno-tree-dominator-opts,)
 # 0.1%
 OPTIMIZATION+=$(call check_gcc,-fno-strength-reduce,)
 endif
+
+
+# CPU_CFLAGS-y contain options which are not warnings,
+# not include or library paths, and not optimizations.
+
+# Why -funsigned-char: I hunted a bug related to incorrect
+# sign extension of 'char' type for 10 hours straight. Not fun.
+CPU_CFLAGS-y := -funsigned-char -fno-builtin
+
+CPU_CFLAGS-y += $(call check_gcc,-fno-asm,)
+
+LDADD_LIBFLOAT=
+ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
+# If -msoft-float isn't supported, we want an error anyway.
+# Hmm... might need to revisit this for arm since it has 2 different
+# soft float encodings.
+ifneq ($(TARGET_ARCH),nios)
+ifneq ($(TARGET_ARCH),nios2)
+ifneq ($(TARGET_ARCH),sh)
+CPU_CFLAGS-y += -msoft-float
+endif
+endif
+endif
+ifeq ($(TARGET_ARCH),arm)
+# No longer needed with current toolchains, but leave it here for now.
+# If anyone is actually still using gcc 2.95 (say), they can uncomment it.
+#    LDADD_LIBFLOAT=-lfloat
+endif
+endif
+
+CPU_CFLAGS-y += $(call check_gcc,-std=gnu99,)
 
 CPU_CFLAGS-$(UCLIBC_FORMAT_SHARED_FLAT) += -mid-shared-library
 CPU_CFLAGS-$(UCLIBC_FORMAT_FLAT_SEP_DATA) += -msep-data
@@ -468,9 +513,11 @@ ifeq ($(EXTRA_WARNINGS),y)
 XWARNINGS+=-Wnested-externs -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wformat=2
 XWARNINGS+=-Wmissing-prototypes -Wmissing-declarations
 XWARNINGS+=-Wnonnull -Wundef
-# works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
+# Works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
 #XWARNINGS+=-Wdeclaration-after-statement
 endif
+# Seems to be unused (no ARCH_CFLAGS anywhere), delete?
+# if yes, remove after 0.9.31
 XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
 CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
 
@@ -484,49 +531,24 @@ SSP_CFLAGS := $(SSP_DISABLE_FLAGS)
 endif
 
 NOSTDLIB_CFLAGS:=$(call check_gcc,-nostdlib,)
-# Some nice CFLAGS to work with
-# Why -funsigned-char: I hunted a bug related to incorrect
-# sign extension of 'char' type for 10 hours straight. Not fun.
+
+# Collect all CFLAGS components
 CFLAGS := -include $(top_builddir)include/libc-symbols.h \
 	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-funsigned-char -fno-builtin -nostdinc -I$(top_builddir)include -I. \
+	-nostdinc -I$(top_builddir)include -I. \
 	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
-
-# Make sure that we can be built with non-C99 compilers, too.
-# Use __\1__ instead.
-CFLAGS += $(call check_gcc,-fno-asm,)
 ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
 CFLAGS += $(subst ",, $(UCLIBC_EXTRA_CFLAGS))
 endif
 
-LDADD_LIBFLOAT=
-ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
-# If -msoft-float isn't supported, we want an error anyway.
-# Hmm... might need to revisit this for arm since it has 2 different
-# soft float encodings.
-ifneq ($(TARGET_ARCH),nios)
-ifneq ($(TARGET_ARCH),nios2)
-ifneq ($(TARGET_ARCH),sh)
-CFLAGS += -msoft-float
-endif
-endif
-endif
-ifeq ($(TARGET_ARCH),arm)
-# No longer needed with current toolchains, but leave it here for now.
-# If anyone is actually still using gcc 2.95 (say), they can uncomment it.
-#    LDADD_LIBFLOAT=-lfloat
-endif
-endif
-
 # Please let us see private headers' parts
+# Deprecated: _LIBC serves the same purpose
 CFLAGS += -DUCLIBC_INTERNAL
 
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
 CFLAGS += -DSTATIC
 endif
-
-CFLAGS += $(call check_gcc,-std=gnu99,)
 
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -Wl,-shared \
 	-Wl,--warn-common -Wl,--warn-once -Wl,-z,combreloc
@@ -638,8 +660,9 @@ endif
 CFLAGS += -I$(KERNEL_HEADERS)
 
 #CFLAGS += -iwithprefix include-fixed -iwithprefix include
-CC_IPREFIX:=$(shell $(CC) --print-file-name=include)
-CFLAGS += -I$(dir $(CC_IPREFIX))/include-fixed -I$(CC_IPREFIX)
+CC_IPREFIX := $(shell $(CC) --print-file-name=include)
+CC_INC := -I$(dir $(CC_IPREFIX))include-fixed -I$(CC_IPREFIX)
+CFLAGS += $(CC_INC)
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG

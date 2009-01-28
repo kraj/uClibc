@@ -178,14 +178,14 @@ include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 	fi
 
 $(LOCAL_INSTALL_PATH):
-	$(Q)$(MAKE) PREFIX=$(shell pwd)/ RUNTIME_PREFIX=./ \
-	DEVEL_PREFIX=$(LOCAL_INSTALL_PATH)/usr/ \
+	$(Q)$(MAKE) PREFIX=$(shell pwd)/$(LOCAL_INSTALL_PATH) RUNTIME_PREFIX=/ \
+	DEVEL_PREFIX=/usr/ \
 	HOSTCC="$(HOSTCC)" \
 	install_kernel_headers
-	$(Q)$(MAKE) PREFIX=$(shell pwd)/ RUNTIME_PREFIX=./ \
-	DEVEL_PREFIX=$(LOCAL_INSTALL_PATH)/usr/ \
+	$(Q)$(MAKE) PREFIX=$(shell pwd)/$(LOCAL_INSTALL_PATH) RUNTIME_PREFIX=/ \
+	DEVEL_PREFIX=/usr/ \
 	HOSTCC="$(HOSTCC)" \
-	install_dev
+	install
 
 install: install_runtime install_dev
 

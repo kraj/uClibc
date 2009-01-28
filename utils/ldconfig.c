@@ -278,12 +278,12 @@ char *is_shlib(const char *dir, const char *name, int *type,
 				if (fread(&exec, sizeof exec, 1, file) < 1)
 					warnx("can't read header from %s, skipping", buff);
 				else if (N_MAGIC(exec) != ZMAGIC
-					 && N_MAGIC(exec) != QMAGIC
-					 && N_MAGIC_SWAP(exec) != ZMAGIC
-					 && N_MAGIC_SWAP(exec) != QMAGIC) {
+				 && N_MAGIC(exec) != QMAGIC
+				 && N_MAGIC_SWAP(exec) != ZMAGIC
+				 && N_MAGIC_SWAP(exec) != QMAGIC) {
 					elf_hdr = (ElfW(Ehdr) *) & exec;
 					if (elf_hdr->e_ident[0] != 0x7f ||
-					    strncmp(elf_hdr->e_ident+1, "ELF", 3) != 0)
+					    strncmp((char *)elf_hdr->e_ident + 1, "ELF", 3) != 0)
 					{
 						/* silently ignore linker scripts */
 						if (strncmp((char *)&exec, "/* GNU ld", 9) != 0)

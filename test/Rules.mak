@@ -82,8 +82,9 @@ XARCH_CFLAGS   := $(subst ",, $(strip $(ARCH_CFLAGS))) $(CPU_CFLAGS)
 XCOMMON_CFLAGS := -D_GNU_SOURCE -I$(top_builddir)test
 CFLAGS         := $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS) -nostdinc -I$(top_builddir)$(LOCAL_INSTALL_PATH)/usr/include
 
-CC_IPREFIX:=$(shell $(CC) --print-file-name=include)
-CFLAGS += -I$(dir $(CC_IPREFIX))/include-fixed -I$(CC_IPREFIX)
+CC_IPREFIX := $(shell $(CC) --print-file-name=include)
+CC_INC := -I$(dir $(CC_IPREFIX))include-fixed -I$(CC_IPREFIX)
+CFLAGS += $(CC_INC)
 
 HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS)
 
