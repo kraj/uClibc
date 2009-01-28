@@ -44,7 +44,6 @@ extern int _dl_linux_resolve(void);
 
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 {
-	int reloc_type;
 	ELF_RELOC *this_reloc;
 	char *strtab;
 	char *symname;
@@ -58,18 +57,11 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	rel_addr = (ELF_RELOC *) tpnt->dynamic_info[DT_JMPREL];
 
 	this_reloc = rel_addr + reloc_entry;
-	reloc_type = ELF32_R_TYPE(this_reloc->r_info);
 	symtab_index = ELF32_R_SYM(this_reloc->r_info);
 
 	symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + symtab[symtab_index].st_name;
-
-	if (unlikely(reloc_type != R_ARM_JUMP_SLOT)) {
-		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",
-			_dl_progname);
-		_dl_exit(1);
-	}
 
 	/* Address of jump instruction to fix up */
 	instr_addr = ((unsigned long) this_reloc->r_offset +
