@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <link.h>
 #include <tls.h>
+#include <link.h>
 #ifdef __UCLIBC__
 #include "dl-elf.h"
 #include "dl-hash.h"
