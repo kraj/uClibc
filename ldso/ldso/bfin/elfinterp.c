@@ -40,7 +40,6 @@ USA.  */
 struct funcdesc_value volatile *__attribute__((__visibility__("hidden")))
 _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 {
-	int reloc_type;
 	ELF_RELOC *this_reloc;
 	char *strtab;
 	ElfW(Sym) *symtab;
@@ -55,18 +54,11 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	rel_addr = (char *)tpnt->dynamic_info[DT_JMPREL];
 
 	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
-	reloc_type = ELF_R_TYPE(this_reloc->r_info);
 	symtab_index = ELF_R_SYM(this_reloc->r_info);
 
 	symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 	symname= strtab + symtab[symtab_index].st_name;
-
-	if (reloc_type != R_BFIN_FUNCDESC_VALUE) {
-		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",
-			    _dl_progname);
-		_dl_exit(1);
-	}
 
 	/* Address of GOT entry fix up */
 	got_entry = (struct funcdesc_value *) DL_RELOC_ADDR(tpnt->loadaddr, this_reloc->r_offset);
