@@ -23,7 +23,7 @@ do_test(void)
 		"((((((((((.?))))))))))Log\\.13"
 	};
 	char *buf, *string;
-	const char *fname = "tst-regex2.data";
+	const char *fname = "tst-regex2.dat";
 	struct stat st;
 	unsigned len;
 	int testno;
