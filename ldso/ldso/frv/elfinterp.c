@@ -26,7 +26,6 @@
 struct funcdesc_value volatile attribute_hidden *
 _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 {
-	int reloc_type;
 	ELF_RELOC *this_reloc;
 	char *strtab;
 	Elf32_Sym *symtab;
@@ -42,7 +41,6 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 				  tpnt->loadaddr);
 
 	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
-	reloc_type = ELF32_R_TYPE(this_reloc->r_info);
 	symtab_index = ELF32_R_SYM(this_reloc->r_info);
 
 	symtab = (Elf32_Sym *)(intptr_t)
@@ -50,12 +48,6 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 						 tpnt->loadaddr);
 	strtab = DL_RELOC_ADDR (tpnt->dynamic_info[DT_STRTAB], tpnt->loadaddr);
 	symname= strtab + symtab[symtab_index].st_name;
-
-	if (reloc_type != R_FRV_FUNCDESC_VALUE) {
-		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",
-				_dl_progname);
-		_dl_exit(1);
-	}
 
 	/* Address of GOT entry fix up */
 	got_entry = (struct funcdesc_value *)

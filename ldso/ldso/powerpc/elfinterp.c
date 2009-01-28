@@ -127,13 +127,6 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	debug_sym(symtab,strtab,symtab_index);
 	debug_reloc(symtab,strtab,this_reloc);
 
-#if defined (__SUPPORT_LD_DEBUG__)
-	if (unlikely(ELF32_R_TYPE(this_reloc->r_info) != R_PPC_JMP_SLOT)) {
-		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocation\n", _dl_progname);
-		_dl_exit(1);
-	}
-#endif
-
 	/* Address of dump instruction to fix up */
 	reloc_addr = (Elf32_Addr *) (tpnt->loadaddr + this_reloc->r_offset);
 
