@@ -138,7 +138,7 @@ do_test (void)
   memset (&ev, 0xaa, sizeof (ev));
   ev.sigev_notify = SIGEV_THREAD;
   ev.sigev_notify_function = fct;
-  ev.sigev_notify_attributes = (struct __pthread_attr_s *) &nattr;
+  ev.sigev_notify_attributes = &nattr;
   ev.sigev_value.sival_ptr = &q;
   if (mq_notify (q, &ev) != 0)
     {

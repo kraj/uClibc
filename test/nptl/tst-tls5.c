@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <pthreadP.h>
 #include <sys/param.h>
 
 #include "tst-tls5.h"

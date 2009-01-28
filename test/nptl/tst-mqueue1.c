@@ -72,7 +72,7 @@ do_one_test (mqd_t q, const char *name, int nonblock)
 {
   int result = 0;
 
-  unsigned char v []
+  char v []
     = { 0x32, 0x62, 0x22, 0x31, 0x11, 0x73, 0x61, 0x21, 0x72, 0x71, 0x81 };
 
   struct mq_attr attr;
@@ -190,7 +190,7 @@ do_one_test (mqd_t q, const char *name, int nonblock)
       else
 	result |= check_attrs (&attr, nonblock, 10);
 
-      unsigned char vr[11] = { };
+      char vr[11] = { };
       unsigned int prio;
       ssize_t rets;
 

@@ -167,6 +167,7 @@ do_test (void)
   return r != PTHREAD_CANCELED;
 }
 
+#if 0 /* unused */
 static void
 do_cleanup (void)
 {
@@ -191,6 +192,7 @@ do_cleanup (void)
 
   unlink (pidfilename);
 }
+#endif
 
 #define OPT_COMMAND	10000
 #define OPT_PIDFILE	10001

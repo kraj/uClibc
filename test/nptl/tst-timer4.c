@@ -271,7 +271,7 @@ do_test (void)
   memset (&ev, 0x55, sizeof (ev));
   ev.sigev_notify = SIGEV_THREAD;
   ev.sigev_notify_function = thr2;
-  ev.sigev_notify_attributes = (struct __pthread_attr_s *) &nattr;
+  ev.sigev_notify_attributes = &nattr;
   ev.sigev_value.sival_int = 111;
   if (timer_create (TEST_CLOCK, &ev, &timer_thr2) != 0)
     {
