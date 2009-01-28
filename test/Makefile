@@ -27,7 +27,7 @@ ifneq ($(UCLIBC_HAS_REGEX),y)
 	DIRS := $(filter-out regex,$(DIRS))
 endif
 ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-	DIRS += $(filter-out tls nptl,$(DIRS))
+	DIRS := $(filter-out tls nptl,$(DIRS))
 endif
 ifneq ($(UCLIBC_HAS_WCHAR),y)
 	DIRS := $(filter-out locale-mbwc,$(DIRS))
