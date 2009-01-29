@@ -21,7 +21,7 @@ in_dso2 (void)
   int *np;
 
   puts ("foo");			/* Make sure PLT is used before macros.  */
-  asm ("" ::: "memory");
+  __asm__ ("" ::: "memory");
 
   foop = TLS_GD (foo);
   np = TLS_GD (comm_n);

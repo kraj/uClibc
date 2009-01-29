@@ -1,13 +1,13 @@
 /* Macros to support TLS testing in times of missing compiler support.  */
 
 #define COMMON_INT_DEF(x) \
-  asm (".tls_common " #x ",4,4")
+  __asm__ (".tls_common " #x ",4,4")
 /* XXX Until we get compiler support we don't need declarations.  */
 #define COMMON_INT_DECL(x)
 
 /* XXX This definition will probably be machine specific, too.  */
 #define VAR_INT_DEF(x) \
-  asm (".section .tdata\n\t"						      \
+  __asm__ (".section .tdata\n\t"						      \
        ".globl " #x "\n"						      \
        ".balign 4\n"							      \
        #x ":\t.long 0\n\t"						      \
@@ -32,7 +32,7 @@
 #ifdef __i386__
 # define TLS_LE(x) \
   ({ int *__l;								      \
-     asm ("movl %%gs:0,%0\n\t"						      \
+     __asm__ ("movl %%gs:0,%0\n\t"						      \
 	  "subl $" #x "@tpoff,%0"					      \
 	  : "=r" (__l));						      \
      __l; })
@@ -40,14 +40,14 @@
 # ifdef PIC
 #  define TLS_IE(x) \
   ({ int *__l;								      \
-     asm ("movl %%gs:0,%0\n\t"						      \
+     __asm__ ("movl %%gs:0,%0\n\t"						      \
 	  "subl " #x "@gottpoff(%%ebx),%0"				      \
 	  : "=r" (__l));						      \
      __l; })
 # else
 #  define TLS_IE(x) \
   ({ int *__l, __b;							      \
-     asm ("call 1f\n\t"							      \
+     __asm__ ("call 1f\n\t"							      \
 	  ".subsection 1\n"						      \
 	  "1:\tmovl (%%esp), %%ebx\n\t"					      \
 	  "ret\n\t"							      \
@@ -62,7 +62,7 @@
 # ifdef PIC
 #  define TLS_LD(x) \
   ({ int *__l, __c, __d;						      \
-     asm ("leal " #x "@tlsldm(%%ebx),%%eax\n\t"				      \
+     __asm__ ("leal " #x "@tlsldm(%%ebx),%%eax\n\t"				      \
 	  "call ___tls_get_addr@plt\n\t"				      \
 	  "leal " #x "@dtpoff(%%eax), %%eax"				      \
 	  : "=a" (__l), "=&c" (__c), "=&d" (__d));			      \
@@ -70,7 +70,7 @@
 # else
 #  define TLS_LD(x) \
   ({ int *__l, __b, __c, __d;						      \
-     asm ("call 1f\n\t"							      \
+     __asm__ ("call 1f\n\t"							      \
 	  ".subsection 1\n"						      \
 	  "1:\tmovl (%%esp), %%ebx\n\t"					      \
 	  "ret\n\t"							      \
@@ -86,7 +86,7 @@
 # ifdef PIC
 #  define TLS_GD(x) \
   ({ int *__l, __c, __d;						      \
-     asm ("leal " #x "@tlsgd(%%ebx),%%eax\n\t"				      \
+     __asm__ ("leal " #x "@tlsgd(%%ebx),%%eax\n\t"				      \
 	  "call ___tls_get_addr@plt\n\t"				      \
 	  "nop"								      \
 	  : "=a" (__l), "=&c" (__c), "=&d" (__d));			      \
@@ -94,7 +94,7 @@
 # else
 #  define TLS_GD(x) \
   ({ int *__l, __b, __c, __d;						      \
-     asm ("call 1f\n\t"							      \
+     __asm__ ("call 1f\n\t"							      \
 	  ".subsection 1\n"						      \
 	  "1:\tmovl (%%esp), %%ebx\n\t"					      \
 	  "ret\n\t"							      \
@@ -111,21 +111,21 @@
 
 # define TLS_LE(x) \
   ({ int *__l;								      \
-     asm ("movq %%fs:0,%0\n\t"						      \
+     __asm__ ("movq %%fs:0,%0\n\t"						      \
 	  "leaq " #x "@tpoff(%0), %0"					      \
 	  : "=r" (__l));						      \
      __l; })
 
 # define TLS_IE(x) \
   ({ int *__l;								      \
-     asm ("movq %%fs:0,%0\n\t"						      \
+     __asm__ ("movq %%fs:0,%0\n\t"						      \
 	  "addq " #x "@gottpoff(%%rip),%0"				      \
 	  : "=r" (__l));						      \
      __l; })
 
 # define TLS_LD(x) \
   ({ int *__l, __c, __d;						      \
-     asm ("leaq " #x "@tlsld(%%rip),%%rdi\n\t"				      \
+     __asm__ ("leaq " #x "@tlsld(%%rip),%%rdi\n\t"				      \
 	  "call __tls_get_addr@plt\n\t"					      \
 	  "leaq " #x "@dtpoff(%%rax), %%rax"				      \
 	  : "=a" (__l), "=&c" (__c), "=&d" (__d)			      \
@@ -134,7 +134,7 @@
 
 # define TLS_GD(x) \
   ({ int *__l, __c, __d;						      \
-     asm (".byte 0x66\n\t"						      \
+     __asm__ (".byte 0x66\n\t"						      \
 	  "leaq " #x "@tlsgd(%%rip),%%rdi\n\t"				      \
 	  ".word 0x6666\n\t"						      \
 	  "rex64\n\t"							      \
@@ -147,7 +147,7 @@
 
 # define TLS_LE(x) \
   ({ int *__l; void *__tp;						      \
-     asm ("stc gbr,%1\n\t"						      \
+     __asm__ ("stc gbr,%1\n\t"						      \
 	  "mov.l 1f,%0\n\t"						      \
 	  "bra 2f\n\t"							      \
 	  " add %1,%0\n\t"						      \
@@ -161,7 +161,7 @@
 #  define TLS_IE(x) \
   ({ int *__l; void *__tp;						      \
      register void *__gp __asm__("r12");				      \
-     asm ("mov.l 1f,r0\n\t"						      \
+     __asm__ ("mov.l 1f,r0\n\t"						      \
 	  "stc gbr,%1\n\t"						      \
 	  "mov.l @(r0,r12),%0\n\t"					      \
 	  "bra 2f\n\t"							      \
@@ -174,7 +174,7 @@
 # else
 #  define TLS_IE(x) \
   ({ int *__l; void *__tp;						      \
-     asm ("mov.l r12,@-r15\n\t"						      \
+     __asm__ ("mov.l r12,@-r15\n\t"						      \
 	  "mova 0f,r0\n\t"						      \
 	  "mov.l 0f,r12\n\t"						      \
 	  "add r0,r12\n\t"						      \
@@ -195,7 +195,7 @@
 #  define TLS_LD(x) \
   ({ int *__l;								      \
      register void *__gp __asm__("r12");				      \
-     asm ("mov.l 1f,r4\n\t"						      \
+     __asm__ ("mov.l 1f,r4\n\t"						      \
 	  "mova 2f,r0\n\t"						      \
 	  "mov.l 2f,r1\n\t"						      \
 	  "add r0,r1\n\t"						      \
@@ -218,7 +218,7 @@
 # else
 #  define TLS_LD(x) \
   ({ int *__l;								      \
-     asm ("mov.l r12,@-r15\n\t"						      \
+     __asm__ ("mov.l r12,@-r15\n\t"						      \
 	  "mova 0f,r0\n\t"						      \
 	  "mov.l 0f,r12\n\t"						      \
 	  "add r0,r12\n\t"						      \
@@ -249,7 +249,7 @@
 #  define TLS_GD(x) \
   ({ int *__l;								      \
      register void *__gp __asm__("r12");				      \
-     asm ("mov.l 1f,r4\n\t"						      \
+     __asm__ ("mov.l 1f,r4\n\t"						      \
 	  "mova 2f,r0\n\t"						      \
 	  "mov.l 2f,r1\n\t"						      \
 	  "add r0,r1\n\t"						      \
@@ -267,7 +267,7 @@
 # else
 #  define TLS_GD(x) \
   ({ int *__l;								      \
-     asm ("mov.l r12,@-r15\n\t"						      \
+     __asm__ ("mov.l r12,@-r15\n\t"						      \
 	  "mova 0f,r0\n\t"						      \
 	  "mov.l 0f,r12\n\t"						      \
 	  "add r0,r12\n\t"						      \
@@ -295,25 +295,25 @@ register void *__gp __asm__("$29");
 
 # define TLS_LE(x) \
   ({ int *__l;								      \
-     asm ("call_pal 158\n\tlda $0," #x "($0)\t\t!tprel" : "=v"(__l));	      \
+     __asm__ ("call_pal 158\n\tlda $0," #x "($0)\t\t!tprel" : "=v"(__l));	      \
      __l; })
 
 # define TLS_IE(x) \
   ({ char *__tp; unsigned long __o;					      \
-     asm ("call_pal 158\n\tldq %1," #x "($gp)\t\t!gottprel"		      \
+     __asm__ ("call_pal 158\n\tldq %1," #x "($gp)\t\t!gottprel"		      \
 	  : "=v"(__tp), "=r"(__o) : "r"(__gp));				      \
      (int *)(__tp + __o); })
 
 # define TLS_LD(x) \
   ({ extern void *__tls_get_addr(void *); int *__l; void *__i;		      \
-     asm ("lda %0," #x "($gp)\t\t!tlsldm" : "=r" (__i) : "r"(__gp));	      \
+     __asm__ ("lda %0," #x "($gp)\t\t!tlsldm" : "=r" (__i) : "r"(__gp));	      \
      __i = __tls_get_addr(__i);						      \
-     asm ("lda %0, " #x "(%1)\t\t!dtprel" : "=r"(__l) : "r"(__i));	      \
+     __asm__ ("lda %0, " #x "(%1)\t\t!dtprel" : "=r"(__l) : "r"(__i));	      \
      __l; })
 
 # define TLS_GD(x) \
   ({ extern void *__tls_get_addr(void *); void *__i;			      \
-     asm ("lda %0," #x "($gp)\t\t!tlsgd" : "=r" (__i) : "r"(__gp));	      \
+     __asm__ ("lda %0," #x "($gp)\t\t!tlsgd" : "=r" (__i) : "r"(__gp));	      \
      (int *) __tls_get_addr(__i); })
 
 
@@ -321,15 +321,15 @@ register void *__gp __asm__("$29");
 
 # define TLS_LE(x) \
   ({ void *__l;								      \
-     asm ("mov r2=r13\n\t"						      \
+     __asm__ ("mov r2=r13\n\t"						      \
          ";;\n\t"							      \
          "addl %0=@tprel(" #x "),r2\n\t"				      \
          : "=r" (__l) : : "r2"  ); __l; })
 
 # define TLS_IE(x) \
   ({ void *__l;								      \
-     register long __gp asm ("gp");					      \
-     asm (";;\n\t"							      \
+     register long __gp __asm__ ("gp");					      \
+     __asm__ (";;\n\t"							      \
 	 "addl r16=@ltoff(@tprel(" #x ")),gp\n\t"			      \
          ";;\n\t"							      \
          "ld8 r17=[r16]\n\t"						      \
@@ -349,8 +349,8 @@ register void *__gp __asm__("$29");
 
 # define TLS_LD(x) \
   ({ void *__l;								      \
-     register long __gp asm ("gp");					      \
-     asm (";;\n\t"							      \
+     register long __gp __asm__ ("gp");					      \
+     __asm__ (";;\n\t"							      \
 	 "mov loc0=gp\n\t"						      \
          "addl r16=@ltoff(@dtpmod(" #x ")),gp\n\t"			      \
          "addl out1=@dtprel(" #x "),r0\n\t"				      \
@@ -366,8 +366,8 @@ register void *__gp __asm__("$29");
 
 # define TLS_GD(x) \
   ({ void *__l;								      \
-     register long __gp asm ("gp");					      \
-     asm (";;\n\t"							      \
+     register long __gp __asm__ ("gp");					      \
+     __asm__ (";;\n\t"							      \
 	 "mov loc0=gp\n\t"						      \
          "addl r16=@ltoff(@dtpmod(" #x ")),gp\n\t"			      \
          "addl r17=@ltoff(@dtprel(" #x ")),gp\n\t"			      \
@@ -386,16 +386,16 @@ register void *__gp __asm__("$29");
 
 # define TLS_LE(x) \
   ({ int *__l;								      \
-     asm ("sethi %%tle_hix22(" #x "), %0" : "=r" (__l));		      \
-     asm ("xor %1, %%tle_lox10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
-     asm ("add %%g7, %1, %0" : "=r" (__l) : "r" (__l));			      \
+     __asm__ ("sethi %%tle_hix22(" #x "), %0" : "=r" (__l));		      \
+     __asm__ ("xor %1, %%tle_lox10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
+     __asm__ ("add %%g7, %1, %0" : "=r" (__l) : "r" (__l));			      \
      __l; })
 
 # ifdef __PIC__
 #  define TLS_LOAD_PIC \
   ({ register long pc __asm__ ("%o7");					      \
      long got;								      \
-     asm ("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t"			      \
+     __asm__ ("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t"			      \
 	  "call .+8\n\t"						      \
 	  "add %1, %%lo(_GLOBAL_OFFSET_TABLE_+4), %1\n\t"		      \
 	  "add %1, %0, %1\n\t"						      \
@@ -404,7 +404,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_LOAD_PIC \
    ({ long got;								      \
-      asm (".hidden _GLOBAL_OFFSET_TABLE_\n\t"				      \
+      __asm__ (".hidden _GLOBAL_OFFSET_TABLE_\n\t"				      \
 	   "sethi %%hi(_GLOBAL_OFFSET_TABLE_), %0\n\t"			      \
 	   "or %0, %%lo(_GLOBAL_OFFSET_TABLE_), %0"			      \
 	   : "=r" (got));						      \
@@ -413,38 +413,38 @@ register void *__gp __asm__("$29");
 
 # define TLS_IE(x) \
   ({ int *__l;								      \
-     asm ("sethi %%tie_hi22(" #x "), %0" : "=r" (__l));			      \
-     asm ("add %1, %%tie_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
-     asm ("ld [%1 + %2], %0, %%tie_ld(" #x ")"				      \
+     __asm__ ("sethi %%tie_hi22(" #x "), %0" : "=r" (__l));			      \
+     __asm__ ("add %1, %%tie_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
+     __asm__ ("ld [%1 + %2], %0, %%tie_ld(" #x ")"				      \
 	  : "=r" (__l) : "r" (TLS_LOAD_PIC), "r" (__l));		      \
-     asm ("add %%g7, %1, %0, %%tie_add(" #x ")" : "=r" (__l) : "r" (__l));    \
+     __asm__ ("add %%g7, %1, %0, %%tie_add(" #x ")" : "=r" (__l) : "r" (__l));    \
      __l; })
 
 # define TLS_LD(x) \
-  ({ int *__l; register void *__o0 asm ("%o0");				      \
+  ({ int *__l; register void *__o0 __asm__ ("%o0");				      \
      long __o;								      \
-     asm ("sethi %%tldm_hi22(" #x "), %0" : "=r" (__l));		      \
-     asm ("add %1, %%tldm_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
-     asm ("add %1, %2, %0, %%tldm_add(" #x ")"				      \
+     __asm__ ("sethi %%tldm_hi22(" #x "), %0" : "=r" (__l));		      \
+     __asm__ ("add %1, %%tldm_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
+     __asm__ ("add %1, %2, %0, %%tldm_add(" #x ")"				      \
 	  : "=r" (__o0) : "r" (TLS_LOAD_PIC), "r" (__l));		      \
-     asm ("call __tls_get_addr, %%tgd_call(" #x ")\n\t"			      \
+     __asm__ ("call __tls_get_addr, %%tgd_call(" #x ")\n\t"			      \
 	  " nop"							      \
 	  : "=r" (__o0) : "0" (__o0)					      \
 	  : "g1", "g2", "g3", "g4", "g5", "g6", "o1", "o2", "o3", "o4",	      \
 	    "o5", "o7", "cc");						      \
-     asm ("sethi %%tldo_hix22(" #x "), %0" : "=r" (__o));		      \
-     asm ("xor %1, %%tldo_lox10(" #x "), %0" : "=r" (__o) : "r" (__o));	      \
-     asm ("add %1, %2, %0, %%tldo_add(" #x ")" : "=r" (__l)		      \
+     __asm__ ("sethi %%tldo_hix22(" #x "), %0" : "=r" (__o));		      \
+     __asm__ ("xor %1, %%tldo_lox10(" #x "), %0" : "=r" (__o) : "r" (__o));	      \
+     __asm__ ("add %1, %2, %0, %%tldo_add(" #x ")" : "=r" (__l)		      \
 	  : "r" (__o0), "r" (__o));					      \
      __l; })
 
 # define TLS_GD(x) \
-  ({ int *__l; register void *__o0 asm ("%o0");				      \
-     asm ("sethi %%tgd_hi22(" #x "), %0" : "=r" (__l));			      \
-     asm ("add %1, %%tgd_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
-     asm ("add %1, %2, %0, %%tgd_add(" #x ")"				      \
+  ({ int *__l; register void *__o0 __asm__ ("%o0");				      \
+     __asm__ ("sethi %%tgd_hi22(" #x "), %0" : "=r" (__l));			      \
+     __asm__ ("add %1, %%tgd_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
+     __asm__ ("add %1, %2, %0, %%tgd_add(" #x ")"				      \
 	  : "=r" (__o0) : "r" (TLS_LOAD_PIC), "r" (__l));		      \
-     asm ("call __tls_get_addr, %%tgd_call(" #x ")\n\t"			      \
+     __asm__ ("call __tls_get_addr, %%tgd_call(" #x ")\n\t"			      \
 	  " nop"							      \
 	  : "=r" (__o0) : "0" (__o0)					      \
 	  : "g1", "g2", "g3", "g4", "g5", "g6", "o1", "o2", "o3", "o4",	      \
@@ -455,15 +455,15 @@ register void *__gp __asm__("$29");
 
 # define TLS_LE(x) \
   ({ int *__l;								      \
-     asm ("sethi %%tle_hix22(" #x "), %0" : "=r" (__l));		      \
-     asm ("xor %1, %%tle_lox10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
-     asm ("add %%g7, %1, %0" : "=r" (__l) : "r" (__l));			      \
+     __asm__ ("sethi %%tle_hix22(" #x "), %0" : "=r" (__l));		      \
+     __asm__ ("xor %1, %%tle_lox10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
+     __asm__ ("add %%g7, %1, %0" : "=r" (__l) : "r" (__l));			      \
      __l; })
 
 # ifdef __PIC__
 #  define TLS_LOAD_PIC \
   ({ long pc, got;							      \
-     asm ("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t"			      \
+     __asm__ ("sethi %%hi(_GLOBAL_OFFSET_TABLE_-4), %1\n\t"			      \
 	  "rd %%pc, %0\n\t"						      \
 	  "add %1, %%lo(_GLOBAL_OFFSET_TABLE_+4), %1\n\t"		      \
 	  "add %1, %0, %1\n\t"						      \
@@ -472,7 +472,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_LOAD_PIC \
    ({ long got;								      \
-      asm (".hidden _GLOBAL_OFFSET_TABLE_\n\t"				      \
+      __asm__ (".hidden _GLOBAL_OFFSET_TABLE_\n\t"				      \
 	   "sethi %%hi(_GLOBAL_OFFSET_TABLE_), %0\n\t"			      \
 	   "or %0, %%lo(_GLOBAL_OFFSET_TABLE_), %0"			      \
 	   : "=r" (got));						      \
@@ -481,38 +481,38 @@ register void *__gp __asm__("$29");
 
 # define TLS_IE(x) \
   ({ int *__l;								      \
-     asm ("sethi %%tie_hi22(" #x "), %0" : "=r" (__l));			      \
-     asm ("add %1, %%tie_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
-     asm ("ldx [%1 + %2], %0, %%tie_ldx(" #x ")"			      \
+     __asm__ ("sethi %%tie_hi22(" #x "), %0" : "=r" (__l));			      \
+     __asm__ ("add %1, %%tie_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
+     __asm__ ("ldx [%1 + %2], %0, %%tie_ldx(" #x ")"			      \
 	  : "=r" (__l) : "r" (TLS_LOAD_PIC), "r" (__l));		      \
-     asm ("add %%g7, %1, %0, %%tie_add(" #x ")" : "=r" (__l) : "r" (__l));    \
+     __asm__ ("add %%g7, %1, %0, %%tie_add(" #x ")" : "=r" (__l) : "r" (__l));    \
      __l; })
 
 # define TLS_LD(x) \
-  ({ int *__l; register void *__o0 asm ("%o0");				      \
+  ({ int *__l; register void *__o0 __asm__ ("%o0");				      \
      long __o;								      \
-     asm ("sethi %%tldm_hi22(" #x "), %0" : "=r" (__l));		      \
-     asm ("add %1, %%tldm_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
-     asm ("add %1, %2, %0, %%tldm_add(" #x ")"				      \
+     __asm__ ("sethi %%tldm_hi22(" #x "), %0" : "=r" (__l));		      \
+     __asm__ ("add %1, %%tldm_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
+     __asm__ ("add %1, %2, %0, %%tldm_add(" #x ")"				      \
 	  : "=r" (__o0) : "r" (TLS_LOAD_PIC), "r" (__l));		      \
-     asm ("call __tls_get_addr, %%tgd_call(" #x ")\n\t"			      \
+     __asm__ ("call __tls_get_addr, %%tgd_call(" #x ")\n\t"			      \
 	  " nop"							      \
 	  : "=r" (__o0) : "0" (__o0)					      \
 	  : "g1", "g2", "g3", "g4", "g5", "g6", "o1", "o2", "o3", "o4",	      \
 	    "o5", "o7", "cc");						      \
-     asm ("sethi %%tldo_hix22(" #x "), %0" : "=r" (__o));		      \
-     asm ("xor %1, %%tldo_lox10(" #x "), %0" : "=r" (__o) : "r" (__o));	      \
-     asm ("add %1, %2, %0, %%tldo_add(" #x ")" : "=r" (__l)		      \
+     __asm__ ("sethi %%tldo_hix22(" #x "), %0" : "=r" (__o));		      \
+     __asm__ ("xor %1, %%tldo_lox10(" #x "), %0" : "=r" (__o) : "r" (__o));	      \
+     __asm__ ("add %1, %2, %0, %%tldo_add(" #x ")" : "=r" (__l)		      \
 	  : "r" (__o0), "r" (__o));					      \
      __l; })
 
 # define TLS_GD(x) \
-  ({ int *__l; register void *__o0 asm ("%o0");				      \
-     asm ("sethi %%tgd_hi22(" #x "), %0" : "=r" (__l));			      \
-     asm ("add %1, %%tgd_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
-     asm ("add %1, %2, %0, %%tgd_add(" #x ")"				      \
+  ({ int *__l; register void *__o0 __asm__ ("%o0");				      \
+     __asm__ ("sethi %%tgd_hi22(" #x "), %0" : "=r" (__l));			      \
+     __asm__ ("add %1, %%tgd_lo10(" #x "), %0" : "=r" (__l) : "r" (__l));	      \
+     __asm__ ("add %1, %2, %0, %%tgd_add(" #x ")"				      \
 	  : "=r" (__o0) : "r" (TLS_LOAD_PIC), "r" (__l));		      \
-     asm ("call __tls_get_addr, %%tgd_call(" #x ")\n\t"			      \
+     __asm__ ("call __tls_get_addr, %%tgd_call(" #x ")\n\t"			      \
 	  " nop"							      \
 	  : "=r" (__o0) : "0" (__o0)					      \
 	  : "g1", "g2", "g3", "g4", "g5", "g6", "o1", "o2", "o3", "o4",	      \
@@ -523,7 +523,7 @@ register void *__gp __asm__("$29");
 
 # define TLS_LE(x) \
   ({ unsigned long __offset;						      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.quad " #x "@ntpoff\n"					      \
 	  "1:\tlg %0,0(%0)"						      \
 	  : "=a" (__offset) : : "cc" );					      \
@@ -532,7 +532,7 @@ register void *__gp __asm__("$29");
 # ifdef PIC
 #  define TLS_IE(x) \
   ({ unsigned long __offset;						      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.quad " #x "@gotntpoff\n"				      \
 	  "1:\tlg %0,0(%0)\n\t"						      \
 	  "lg %0,0(%0,%%r12):tls_load:" #x				      \
@@ -541,7 +541,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_IE(x) \
   ({ unsigned long  __offset;						      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.quad " #x "@indntpoff\n"				      \
 	  "1:\t lg %0,0(%0)\n\t"					      \
 	  "lg %0,0(%0):tls_load:" #x					      \
@@ -552,7 +552,7 @@ register void *__gp __asm__("$29");
 # ifdef PIC
 #  define TLS_LD(x) \
   ({ unsigned long __offset, __save12;					      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.quad " #x "@tlsldm\n\t"					      \
 	  ".quad " #x "@dtpoff\n"					      \
 	  "1:\tlgr %1,%%r12\n\t"					      \
@@ -568,7 +568,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_LD(x) \
   ({ unsigned long __offset;						      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.quad " #x "@tlsldm\n\t"					      \
 	  ".quad " #x "@dtpoff\n"					      \
 	  "1:\tlarl %%r12,_GLOBAL_OFFSET_TABLE_\n\t"			      \
@@ -584,7 +584,7 @@ register void *__gp __asm__("$29");
 # ifdef PIC
 #  define TLS_GD(x) \
   ({ unsigned long __offset, __save12;					      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.quad " #x "@tlsgd\n"					      \
 	  "1:\tlgr %1,%%r12\n\t"					      \
 	  "larl %%r12,_GLOBAL_OFFSET_TABLE_\n\t"			      \
@@ -598,7 +598,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_GD(x) \
   ({ unsigned long __offset;						      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.quad " #x "@tlsgd\n"					      \
 	  "1:\tlarl %%r12,_GLOBAL_OFFSET_TABLE_\n\t"			      \
 	  "lg %%r2,0(%0)\n\t"						      \
@@ -613,7 +613,7 @@ register void *__gp __asm__("$29");
 
 # define TLS_LE(x) \
   ({ unsigned long __offset;						      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.long " #x "@ntpoff\n"					      \
 	  "1:\tl %0,0(%0)"						      \
 	  : "=a" (__offset) : : "cc" );					      \
@@ -622,7 +622,7 @@ register void *__gp __asm__("$29");
 # ifdef PIC
 #  define TLS_IE(x) \
   ({ unsigned long __offset;						      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.long " #x "@gotntpoff\n"				      \
 	  "1:\tl %0,0(%0)\n\t"						      \
 	  "l %0,0(%0,%%r12):tls_load:" #x				      \
@@ -631,7 +631,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_IE(x) \
   ({ unsigned long  __offset;						      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.long " #x "@indntpoff\n"				      \
 	  "1:\t l %0,0(%0)\n\t"						      \
 	  "l %0,0(%0):tls_load:" #x					      \
@@ -642,7 +642,7 @@ register void *__gp __asm__("$29");
 # ifdef PIC
 #  define TLS_LD(x) \
   ({ unsigned long __offset, __save12;					      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.long _GLOBAL_OFFSET_TABLE_-0b\n\t"			      \
 	  ".long __tls_get_offset@plt-0b\n\t"				      \
 	  ".long " #x "@tlsldm\n\t"					      \
@@ -662,7 +662,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_LD(x) \
   ({ unsigned long __offset;						      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.long _GLOBAL_OFFSET_TABLE_\n\t"				      \
 	  ".long __tls_get_offset@plt\n\t"				      \
 	  ".long " #x "@tlsldm\n\t"					      \
@@ -680,7 +680,7 @@ register void *__gp __asm__("$29");
 # ifdef PIC
 #  define TLS_GD(x) \
   ({ unsigned long __offset, __save12;					      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.long _GLOBAL_OFFSET_TABLE_-0b\n\t"			      \
 	  ".long __tls_get_offset@plt-0b\n\t"				      \
 	  ".long " #x "@tlsgd\n"					      \
@@ -698,7 +698,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_GD(x) \
   ({ unsigned long __offset;						      \
-     asm ("bras %0,1f\n"						      \
+     __asm__ ("bras %0,1f\n"						      \
 	  "0:\t.long _GLOBAL_OFFSET_TABLE_\n\t"				      \
 	  ".long __tls_get_offset@plt\n\t"				      \
 	  ".long " #x "@tlsgd\n"					      \
@@ -722,7 +722,7 @@ register void *__gp __asm__("$29");
 /* PowerPC32 Local Exec TLS access.  */
 # define TLS_LE(x)				\
   ({ int *__result;				\
-     asm ("addi %0,2," #x "@tprel"		\
+     __asm__ ("addi %0,2," #x "@tprel"		\
 	  : "=r" (__result));			\
      __result; })
 
@@ -730,7 +730,7 @@ register void *__gp __asm__("$29");
 # ifdef HAVE_ASM_PPC_REL16
 #  define TLS_IE(x)					\
   ({ int *__result;					\
-     asm ("bcl 20,31,1f\n1:\t"				\
+     __asm__ ("bcl 20,31,1f\n1:\t"				\
 	  "mflr %0\n\t"					\
 	  "addis %0,%0,_GLOBAL_OFFSET_TABLE_-1b@ha\n\t"	\
 	  "addi %0,%0,_GLOBAL_OFFSET_TABLE_-1b@l\n\t"	\
@@ -742,7 +742,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_IE(x)					\
   ({ int *__result;					\
-     asm ("bl _GLOBAL_OFFSET_TABLE_@local-4\n\t"	\
+     __asm__ ("bl _GLOBAL_OFFSET_TABLE_@local-4\n\t"	\
 	  "mflr %0\n\t"					\
 	  "lwz %0," #x "@got@tprel(%0)\n\t"		\
 	  "add %0,%0," #x "@tls"			\
@@ -755,7 +755,7 @@ register void *__gp __asm__("$29");
 # ifdef HAVE_ASM_PPC_REL16
 #  define TLS_LD(x)					\
   ({ int *__result;					\
-     asm ("bcl 20,31,1f\n1:\t"				\
+     __asm__ ("bcl 20,31,1f\n1:\t"				\
 	  "mflr 3\n\t"					\
 	  "addis 3,3,_GLOBAL_OFFSET_TABLE_-1b@ha\n\t"	\
 	  "addi 3,3,_GLOBAL_OFFSET_TABLE_-1b@l\n\t"	\
@@ -768,7 +768,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_LD(x)					\
   ({ int *__result;					\
-     asm ("bl _GLOBAL_OFFSET_TABLE_@local-4\n\t"	\
+     __asm__ ("bl _GLOBAL_OFFSET_TABLE_@local-4\n\t"	\
 	  "mflr 3\n\t"					\
 	  "addi 3,3," #x "@got@tlsld\n\t"		\
 	  "bl __tls_get_addr@plt\n\t"			\
@@ -782,7 +782,7 @@ register void *__gp __asm__("$29");
 # ifdef HAVE_ASM_PPC_REL16
 #  define TLS_GD(x)					\
   ({ register int *__result __asm__ ("r3");		\
-     asm ("bcl 20,31,1f\n1:\t"				\
+     __asm__ ("bcl 20,31,1f\n1:\t"				\
 	  "mflr 3\n\t"					\
 	  "addis 3,3,_GLOBAL_OFFSET_TABLE_-1b@ha\n\t"	\
 	  "addi 3,3,_GLOBAL_OFFSET_TABLE_-1b@l\n\t"	\
@@ -794,7 +794,7 @@ register void *__gp __asm__("$29");
 # else
 #  define TLS_GD(x)					\
   ({ register int *__result __asm__ ("r3");		\
-     asm ("bl _GLOBAL_OFFSET_TABLE_@local-4\n\t"	\
+     __asm__ ("bl _GLOBAL_OFFSET_TABLE_@local-4\n\t"	\
 	  "mflr 3\n\t"					\
 	  "addi 3,3," #x "@got@tlsgd\n\t"		\
 	  "bl __tls_get_addr@plt"			\
@@ -808,7 +808,7 @@ register void *__gp __asm__("$29");
 /* PowerPC64 Local Exec TLS access.  */
 # define TLS_LE(x) \
   ({  int * __result;  \
-      asm ( \
+      __asm__ ( \
         "  addis %0,13," #x "@tprel@ha\n"  \
         "  addi  %0,%0," #x "@tprel@l\n"   \
         : "=b" (__result) );  \
@@ -817,7 +817,7 @@ register void *__gp __asm__("$29");
 /* PowerPC64 Initial Exec TLS access.  */
 #  define TLS_IE(x) \
   ({  int * __result;  \
-      asm (  \
+      __asm__ (  \
         "  ld  %0," #x "@got@tprel(2)\n"  \
         "  add %0,%0," #x "@tls\n"   \
         : "=b" (__result) );  \
@@ -826,7 +826,7 @@ register void *__gp __asm__("$29");
 /* PowerPC64 Local Dynamic TLS access.  */
 #  define TLS_LD(x) \
   ({  int * __result;  \
-      asm (  \
+      __asm__ (  \
         "  addi  3,2," #x "@got@tlsld\n"  \
         "  bl    .__tls_get_addr\n"  \
         "  nop   \n"  \
@@ -842,7 +842,7 @@ register void *__gp __asm__("$29");
 /* PowerPC64 General Dynamic TLS access.  */
 #  define TLS_GD(x) \
   ({  int * __result;  \
-      asm (  \
+      __asm__ (  \
         "  addi  3,2," #x "@got@tlsgd\n"  \
         "  bl    .__tls_get_addr\n"  \
         "  nop   \n"  \

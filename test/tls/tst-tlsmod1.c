@@ -23,7 +23,7 @@ in_dso (void)
 
   /* Get variables using initial exec model.  */
   fputs ("get sum of foo and bar (IE)", stdout);
-  asm ("" ::: "memory");
+  __asm__ ("" ::: "memory");
   ap = TLS_IE (foo);
   bp = TLS_IE (bar);
   printf (" = %d\n", *ap + *bp);
