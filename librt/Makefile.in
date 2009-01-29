@@ -7,11 +7,13 @@
 
 CFLAGS-librt := -DNOT_IN_libc -DIS_IN_librt $(SSP_ALL_CFLAGS)
 
-LDFLAGS-librt.so := $(LDFLAGS)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-LDFLAGS-librt.so += $(LDFLAGS) $(top_builddir)lib/libdl.so \
+LDFLAGS-librt.so := $(LDFLAGS) $(top_builddir)lib/libdl.so	\
 		    $(top_builddir)lib/libpthread.so
+else
+LDFLAGS-librt.so := $(LDFLAGS)
 endif
+
 LIBS-librt.so := $(LIBS)
 
 librt_FULL_NAME := librt-$(VERSION).so
@@ -28,9 +30,8 @@ librt_SSRC := $(wildcard $(librt_DIR)/*.S)
 librt_OBJ := $(patsubst %.c,$(librt_OUT)/%.o,$(librt_CSRC))
 librt_OBJ += $(patsubst $(librt_DIR)/%.S,$(librt_OUT)/%.o,$(librt_SSRC))
 else
-librt_CSRC := $(filter-out clock_nanosleep.c clock_getcpuclockid.c,	\
+librt_SRC := $(filter-out clock_nanosleep.c clock_getcpuclockid.c,	\
 	     $(notdir $(wildcard $(librt_DIR)/*.c)))
-
 librt_OBJ := $(patsubst $(librt_DIR)/%.c,$(librt_OUT)/%.o,$(librt_SRC))
 endif
 
@@ -47,6 +48,7 @@ librt-so-y += $(librt_OBJ:.o=.oS)
 lib-a-y += $(top_builddir)lib/librt.a
 lib-so-y += $(top_builddir)lib/librt.so
 endif
+
 
 ifeq ($(DOPIC)$(UCLIBC_HAS_THREADS_NATIVE),yn)
 $(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(libc.dpend)

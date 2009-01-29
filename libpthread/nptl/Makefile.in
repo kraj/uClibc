@@ -326,4 +326,4 @@ nptl_headers_clean:
 	      $(addprefix $(PTHREAD_OUT)/pthread-errnos., c h s)
 
 libpthread_clean:
-	$(do_rm)  $(addprefix $(PTHREAD_OUT)/*., o os oS a)
+	$(do_rm) $(addprefix $(PTHREAD_OUT)/*., o os oS a)
