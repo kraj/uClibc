@@ -1660,7 +1660,7 @@ int main(int argc, char **argv)
 
 	if (opts[5]) {				/* -l */
 		fprintf(stderr, "Recognized codesets:\n");
-		for (s = __iconv_codesets ; *s ; s += *s) {
+		for (s = (char *)__iconv_codesets ; *s ; s += *s) {
 			fprintf(stderr,"  %s\n", s+2);
 		}
 		s = __LOCALE_DATA_CODESET_LIST;
