@@ -565,6 +565,7 @@ int __isnanl (long double x)
 {
 	return __isnan ( (double)x );
 }
+libm_hidden_def(__isnanl)
 #endif
 
 #ifdef L_isinfl
@@ -572,6 +573,7 @@ int __isinfl (long double x)
 {
 	return __isinf ( (double)x );
 }
+libm_hidden_def(__isinfl)
 #endif
 
 #endif

@@ -85,7 +85,9 @@ CFLAGS         := $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS) $(XARCH_CFLAGS)
 CC_IPREFIX:=$(shell $(CC) --print-file-name=include)
 CFLAGS += -I$(dir $(CC_IPREFIX))/include-fixed -I$(CC_IPREFIX)
 
-HOST_CFLAGS    += $(XWARNINGS) $(OPTIMIZATION) $(XCOMMON_CFLAGS)
+# Can't add $(OPTIMIZATION) here, it may be target-specific.
+# Just adding -Os for now.
+HOST_CFLAGS    += $(XWARNINGS) -Os $(XCOMMON_CFLAGS)
 
 LDFLAGS        := $(CPU_LDFLAGS)
 ifeq ($(DODEBUG),y)
