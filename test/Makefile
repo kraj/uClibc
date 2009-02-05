@@ -38,7 +38,6 @@ endif
 ifeq ($(HAS_NO_THREADS),y)
 	DIRS := $(filter-out pthread,$(DIRS))
 endif
-DIRS := $(filter-out math,$(DIRS))
 
 test check all: run
 

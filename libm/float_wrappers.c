@@ -77,7 +77,6 @@ float       tanf(float);
 float       tanhf(float);
 #endif
 
-
 #ifdef L_acosf
 float acosf (float x)
 {
@@ -541,5 +540,26 @@ float truncf (float x)
 float fmaf (float x, float y, float z)
 {
 	return (float) fma( (double)x, (double)y, (double)z );
+}
+#endif
+
+#ifdef L_scalbf
+float scalbf (float x, float y)
+{
+	return (float) scalb( (double)x, (double)y );
+}
+#endif
+
+#ifdef L_gammaf
+float gammaf (float x)
+{
+	return (float) gamma( (double)x );
+}
+#endif
+
+#ifdef L_significandf
+float significandf (float x)
+{
+	return (float) significand( (double)x );
 }
 #endif

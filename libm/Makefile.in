@@ -78,7 +78,7 @@ FL_MOBJ := \
 	log1pf.o log2f.o logbf.o logf.o lrintf.o lroundf.o modff.o nearbyintf.o \
 	nextafterf.o powf.o remainderf.o remquof.o rintf.o roundf.o \
 	scalblnf.o scalbnf.o sinf.o sinhf.o sqrtf.o tanf.o tanhf.o \
-	tgammaf.o truncf.o cargf.o llrintf.o
+	tgammaf.o truncf.o cargf.o llrintf.o scalbf.o gammaf.o significandf.o
 
 LD_MOBJ := acoshl.o acosl.o asinhl.o asinl.o atan2l.o atanhl.o atanl.o cargl.o cbrtl.o \
 	ceill.o copysignl.o coshl.o cosl.o erfcl.o erfl.o exp2l.o expl.o \
