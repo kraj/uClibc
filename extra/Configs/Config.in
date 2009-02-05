@@ -372,6 +372,16 @@ config UCLIBC_HAS_THREADS
 
 	  If your applications require pthreads, answer Y.
 
+config UCLIBC_HAS_TLS
+	bool "Thread-Local Storage"
+	depends on UCLIBC_HAS_THREADS
+	default n
+	help
+	  If you want to enable TLS support then answer Y.
+	  This is fast an efficient way to store per-thread local data
+	  which is not on stack. It needs __thread support enabled in
+	  gcc.
+
 config PTHREADS_DEBUG_SUPPORT
 	bool "Build pthreads debugging support"
 	default n
@@ -407,6 +417,7 @@ config UCLIBC_HAS_THREADS_NATIVE
 	bool "Native POSIX Threading (NPTL) Support"
 	depends on UCLIBC_HAS_THREADS
 	default n
+	select UCLIBC_HAS_TLS
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.
 
