@@ -64,7 +64,6 @@ float       logbf(float);
 float       logf(float);
 long        lroundf(float);
 float       modff(float, float *);
-float       nextafterf(float, float);
 float       powf(float, float);
 float       remainderf(float, float);
 float       rintf(float);
@@ -405,14 +404,6 @@ float modff (float x, float *iptr)
 float nearbyintf (float x)
 {
 	return (float) nearbyint( (double)x );
-}
-#endif
-
-
-#ifdef L_nextafterf
-float nextafterf (float x, float y)
-{
-	return (float) nextafter( (double)x, (double)y );
 }
 #endif
 
