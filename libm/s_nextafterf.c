@@ -16,11 +16,6 @@
 #include "math.h"
 #include "math_private.h"
 
-#ifndef math_opt_barrier
-# define math_opt_barrier(x) ({ __typeof (x) __x = x; __asm ("" : "+m" (__x)); __x; })
-# define math_force_eval(x)  __asm __volatile ("" : : "m" (x))
-#endif
-
 float nextafterf(float x, float y)
 {
 	int32_t hx, hy, ix, iy;
@@ -38,12 +33,12 @@ float nextafterf(float x, float y)
 		return y;
 
 	if (ix == 0) { /* x == 0? */
-		float u;
+// glibc 2.4 does not seem to set underflow?
+//		float u;
 		/* return +-minsubnormal */
 		SET_FLOAT_WORD(x, (hy & 0x80000000) | 1);
-		u = math_opt_barrier(x);
-		u = u * u;
-		math_force_eval(u); /* raise underflow flag */
+//		u = x * x; /* raise underflow flag */
+//		math_force_eval(u);
 		return x;
 	}
 
@@ -63,8 +58,6 @@ float nextafterf(float x, float y)
 	hy = hx & 0x7f800000;
 	if (hy >= 0x7f800000) {
 		x = x + x; /* overflow */
-//??		if (FLT_EVAL_METHOD != 0)
-//			asm ("" : "+m"(x));
 		return x; /* overflow */
 	}
 	if (hy < 0x00800000) {
