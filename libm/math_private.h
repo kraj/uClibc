@@ -187,4 +187,59 @@ extern double __kernel_cos (double,double) attribute_hidden;
 extern double __kernel_tan (double,double,int) attribute_hidden;
 extern int    __kernel_rem_pio2 (double*,double*,int,int,int,const int*) attribute_hidden;
 
+/*
+ * math_opt_barrier(x): force expression x to be evaluated and put into
+ * a floating point register or memory. This macro returns the value.
+ *
+ * math_force_eval(x): force expression x to be evaluated and put into
+ * a floating point register or memory *of the appropriate size*.
+ * This forces floating point flags to be set correctly
+ * (for example, when float value is overflowing, but FPU registers
+ * are wide enough to "hide" this).
+ */
+#if defined(__i386__)
+#define math_opt_barrier(x) ({ \
+	__typeof(x) __x = (x); \
+	/* "t": load x into top-of-stack fpreg */ \
+	__asm ("" : "=t" (__x) : "0" (__x)); \
+	__x; \
+})
+#define math_force_eval(x) do {	\
+	if (sizeof(x) <= sizeof(double)) \
+		/* "m": store x into a memory location */ \
+		__asm __volatile ("" : : "m" (x)); \
+	else /* long double */ \
+		/* "f": load x into (any) fpreg */ \
+		__asm __volatile ("" : : "f" (x)); \
+} while (0)
+#endif
+
+#if defined(__x86_64__)
+#define math_opt_barrier(x) ({ \
+	__typeof(x) __x = (x); \
+	if (sizeof(x) <= sizeof(double)) \
+		/* "x": load into XMM SSE register */ \
+		__asm ("" : "=x" (__x) : "0" (__x)); \
+	else /* long double */ \
+		/* "t": load x into top-of-stack fpreg */ \
+		__asm ("" : "=t" (__x) : "0" (__x)); \
+	__x; \
+})
+#define math_force_eval(x) do { \
+	if (sizeof(x) <= sizeof(double)) \
+		/* "x": load into XMM SSE register */ \
+		__asm __volatile ("" : : "x" (x)); \
+	else /* long double */ \
+		/* "f": load x into (any) fpreg */ \
+		__asm __volatile ("" : : "f" (x)); \
+} while (0)
+#endif
+
+/* Default implementation forces store to a memory location */
+#ifndef math_opt_barrier
+#define math_opt_barrier(x) ({ __typeof(x) __x = (x); __asm ("" : "+m" (__x)); __x; })
+#define math_force_eval(x)  __asm __volatile ("" : : "m" (x))
+#endif
+
+
 #endif /* _MATH_PRIVATE_H_ */
