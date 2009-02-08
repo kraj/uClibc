@@ -293,6 +293,25 @@ extern int alphasort64 (__const void *__e1, __const void *__e2)
      __THROW __attribute_pure__ __nonnull ((1, 2));
 # endif
 
+/* Function to compare two `struct dirent's alphabetically.  */
+# ifndef __USE_FILE_OFFSET64
+extern int versionsort (__const void *__e1, __const void *__e2)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+# else
+#  ifdef __REDIRECT
+extern int __REDIRECT (versionsort,
+			   (__const void *__e1, __const void *__e2),
+			   versionsort64) __attribute_pure__ __nonnull ((1, 2));
+#  else
+#   define versionsort versionsort64
+#  endif
+# endif
+
+# if defined __USE_GNU && defined __USE_LARGEFILE64
+extern int versionsort64 (__const void *__e1, __const void *__e2)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+# endif
+
 #endif /* Use BSD or misc.  */
 
 __END_DECLS
