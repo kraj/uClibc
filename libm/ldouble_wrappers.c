@@ -16,6 +16,71 @@
 #include "math.h"
 #include <complex.h>
 
+#define STRINGIZE(s) #s
+
+#define WRAPPER1(func) \
+long double func##l(long double x) \
+{ \
+	return (long double) func((double) x); \
+}
+
+#define int_WRAPPER1(func) \
+int func##l(long double x) \
+{ \
+	return func((double) x); \
+}
+
+#if defined __i386__ && defined __OPTIMIZE__
+# undef WRAPPER1
+# undef int_WRAPPER1
+/* gcc 4.3.1 generates really ugly code with redundant pair of store/load:
+ *	sub    $0x10,%esp
+ *	fldt	0x14(%esp)
+ *	fstpl	0x8(%esp)
+ *	fldl	0x8(%esp) <-- ??
+ *	fstpl	(%esp)    <-- ??
+ *	call	function
+ *	add	$0x10,%esp
+ *	ret
+ * I can hope newer gcc will eliminate that. However, I don't think
+ * it will be smart enough to reuse argument stack space and use
+ * jump instead of call. Let's do it by hand.
+ * The asm below loads long double x into st(0), then stores it back
+ * to the same location as a double. At this point, stack looks exactly
+ * as "double func(double)" expects it to be.
+ * The return value is returned in st(0) per ABI in both cases (returning
+ * a long double or returning a double). So we can simply jump to func.
+ * Using __GI_func in jump to make optimized intra-library jump.
+ * gcc will still generate a useless "ret" after asm. Oh well...
+ */
+# define WRAPPER1(func) \
+long double func##l(long double x) \
+{ \
+	long double fp_top; \
+	__asm ( \
+	"	fldt	%1\n" \
+	"	fstpl	%1\n" \
+	"	jmp	" STRINGIZE(__GI_##func) "\n" \
+	: "=t" (fp_top) \
+	: "m" (x) \
+	); \
+	return fp_top; \
+}
+# define int_WRAPPER1(func) \
+int func##l(long double x) \
+{ \
+	int ret; \
+	__asm ( \
+	"	fldt	%1\n" \
+	"	fstpl	%1\n" \
+	"	jmp	" STRINGIZE(__GI_##func) "\n" \
+	: "=a" (ret) \
+	: "m" (x) \
+	); \
+	return ret; \
+}
+#endif /* __i386__ */
+
 
 /* Implement the following, as defined by SuSv3 */
 #if 0
@@ -79,31 +144,19 @@ long double truncl(long double);
 #endif
 
 #ifdef L_acoshl
-long double acoshl (long double x)
-{
-	return (long double) acosh( (double)x );
-}
+WRAPPER1(acosh)
 #endif
 
 #ifdef L_acosl
-long double acosl (long double x)
-{
-	return (long double) acos( (double)x );
-}
+WRAPPER1(acos)
 #endif
 
 #ifdef L_asinhl
-long double asinhl (long double x)
-{
-	return (long double) asinh( (double)x );
-}
+WRAPPER1(asinh)
 #endif
 
 #ifdef L_asinl
-long double asinl (long double x)
-{
-	return (long double) asin( (double)x );
-}
+WRAPPER1(asin)
 #endif
 
 #ifdef L_atan2l
@@ -114,17 +167,11 @@ long double atan2l (long double x, long double y)
 #endif
 
 #ifdef L_atanhl
-long double atanhl (long double x)
-{
-	return (long double) atanh( (double)x );
-}
+WRAPPER1(atanh)
 #endif
 
 #ifdef L_atanl
-long double atanl (long double x)
-{
-	return (long double) atan( (double)x );
-}
+WRAPPER1(atan)
 #endif
 
 #ifdef L_cargl
@@ -135,17 +182,11 @@ long double cargl (long double complex x)
 #endif
 
 #ifdef L_cbrtl
-long double cbrtl (long double x)
-{
-	return (long double) cbrt( (double)x );
-}
+WRAPPER1(cbrt)
 #endif
 
 #ifdef L_ceill
-long double ceill (long double x)
-{
-	return (long double) ceil( (double)x );
-}
+WRAPPER1(ceil)
 #endif
 
 #ifdef L_copysignl
@@ -156,59 +197,35 @@ long double copysignl (long double x, long double y)
 #endif
 
 #ifdef L_coshl
-long double coshl (long double x)
-{
-	return (long double) cosh( (double)x );
-}
+WRAPPER1(cosh)
 #endif
 
 #ifdef L_cosl
-long double cosl (long double x)
-{
-	return (long double) cos( (double)x );
-}
+WRAPPER1(cos)
 #endif
 
 #ifdef L_erfcl
-long double erfcl (long double x)
-{
-	return (long double) erfc( (double)x );
-}
+WRAPPER1(erfc)
 #endif
 
 #ifdef L_erfl
-long double erfl (long double x)
-{
-	return (long double) erf( (double)x );
-}
+WRAPPER1(erf)
 #endif
 
 #ifdef L_exp2l
-long double exp2l (long double x)
-{
-	return (long double) exp2( (double)x );
-}
+WRAPPER1(exp2)
 #endif
 
 #ifdef L_expl
-long double expl (long double x)
-{
-	return (long double) exp( (double)x );
-}
+WRAPPER1(exp)
 #endif
 
 #ifdef L_expm1l
-long double expm1l (long double x)
-{
-	return (long double) expm1( (double)x );
-}
+WRAPPER1(expm1)
 #endif
 
 #ifdef L_fabsl
-long double fabsl (long double x)
-{
-	return (long double) fabs( (double)x );
-}
+WRAPPER1(fabs)
 #endif
 
 #ifdef L_fdiml
@@ -219,10 +236,7 @@ long double fdiml (long double x, long double y)
 #endif
 
 #ifdef L_floorl
-long double floorl (long double x)
-{
-	return (long double) floor( (double)x );
-}
+WRAPPER1(floor)
 #endif
 
 #ifdef L_fmal
@@ -268,10 +282,7 @@ long double hypotl (long double x, long double y)
 #endif
 
 #ifdef L_ilogbl
-int ilogbl (long double x)
-{
-	return (long double) ilogb( (double)x );
-}
+int_WRAPPER1(ilogb)
 #endif
 
 #ifdef L_ldexpl
@@ -282,10 +293,7 @@ long double ldexpl (long double x, int exp)
 #endif
 
 #ifdef L_lgammal
-long double lgammal (long double x)
-{
-	return (long double) lgamma( (double)x );
-}
+WRAPPER1(lgamma)
 #endif
 
 #ifdef L_llrintl
@@ -303,38 +311,23 @@ long long llroundl (long double x)
 #endif
 
 #ifdef L_log10l
-long double log10l (long double x)
-{
-	return (long double) log10( (double)x );
-}
+WRAPPER1(log10)
 #endif
 
 #ifdef L_log1pl
-long double log1pl (long double x)
-{
-	return (long double) log1p( (double)x );
-}
+WRAPPER1(log1p)
 #endif
 
 #ifdef L_log2l
-long double log2l (long double x)
-{
-	return (long double) log2( (double)x );
-}
+WRAPPER1(log2)
 #endif
 
 #ifdef L_logbl
-long double logbl (long double x)
-{
-	return (long double) logb( (double)x );
-}
+WRAPPER1(logb)
 #endif
 
 #ifdef L_logl
-long double logl (long double x)
-{
-	return (long double) log( (double)x );
-}
+WRAPPER1(log)
 #endif
 
 #ifdef L_lrintl
@@ -362,10 +355,7 @@ long double modfl (long double x, long double *iptr)
 #endif
 
 #ifdef L_nearbyintl
-long double nearbyintl (long double x)
-{
-	return (long double) nearbyint( (double)x );
-}
+WRAPPER1(nearbyint)
 #endif
 
 #ifdef L_nextafterl
@@ -404,17 +394,11 @@ long double remquol (long double x, long double y, int *quo)
 #endif
 
 #ifdef L_rintl
-long double rintl (long double x)
-{
-	return (long double) rint( (double)x );
-}
+WRAPPER1(rint)
 #endif
 
 #ifdef L_roundl
-long double roundl (long double x)
-{
-	return (long double) round( (double)x );
-}
+WRAPPER1(round)
 #endif
 
 #ifdef L_scalblnl
@@ -432,90 +416,54 @@ long double scalbnl (long double x, int exp)
 #endif
 
 #ifdef L_sinhl
-long double sinhl (long double x)
-{
-	return (long double) sinh( (double)x );
-}
+WRAPPER1(sinh)
 #endif
 
 #ifdef L_sinl
-long double sinl (long double x)
-{
-	return (long double) sin( (double)x );
-}
+WRAPPER1(sin)
 #endif
 
 #ifdef L_sqrtl
-long double sqrtl (long double x)
-{
-	return (long double) sqrt( (double)x );
-}
+WRAPPER1(sqrt)
 #endif
 
 #ifdef L_tanhl
-long double tanhl (long double x)
-{
-	return (long double) tanh( (double)x );
-}
+WRAPPER1(tanh)
 #endif
 
 #ifdef L_tanl
-long double tanl (long double x)
-{
-	return (long double) tan( (double)x );
-}
+WRAPPER1(tan)
 #endif
 
 #ifdef L_tgammal
-long double tgammal (long double x)
-{
-	return (long double) tgamma( (double)x );
-}
+WRAPPER1(tgamma)
 #endif
 
 #ifdef L_truncl
-long double truncl (long double x)
-{
-	return (long double) trunc( (double)x );
-}
+WRAPPER1(trunc)
 #endif
 
 #ifdef __DO_C99_MATH__
 
 #ifdef L_fpclassifyl
-int __fpclassifyl (long double x)
-{
-	return __fpclassify ( (double) x );
-}
+int_WRAPPER1(__fpclassify);
 #endif
 
 #ifdef L_finitel
-int __finitel (long double x)
-{
-	return __finite ( (double)x );
-}
+int_WRAPPER1(__finite)
 #endif
 
 #ifdef L___signbitl
-int __signbitl (long double x)
-{
-	return __signbit ( (double)x );
-}
+int_WRAPPER1(__signbit)
 #endif
 
 #ifdef L_isnanl
-int __isnanl (long double x)
-{
-	return __isnan ( (double)x );
-}
+int_WRAPPER1(__isnan)
 libm_hidden_def(__isnanl)
 #endif
 
 #ifdef L_isinfl
-int __isinfl (long double x)
-{
-	return __isinf ( (double)x );
-}
+int_WRAPPER1(__isinf)
 libm_hidden_def(__isinfl)
 #endif
 
