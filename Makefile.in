@@ -458,8 +458,6 @@ ifeq ($(HAVE_SHARED),y)
 	fi
 endif
 
-hostutils:
-	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" -C utils hostutils
 utils:
 	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils
 
@@ -467,10 +465,13 @@ utils:
 install_utils: utils
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install
 
+endif # ifeq ($(HAVE_DOT_CONFIG),y)
+
+hostutils:
+	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" -C utils hostutils
+
 install_hostutils: hostutils
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install DOTHOST=.host
-
-endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 include/bits include/config:
 	@$(disp_mkdir)
