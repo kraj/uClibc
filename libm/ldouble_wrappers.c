@@ -23,9 +23,18 @@ long double func##l(long double x) \
 { \
 	return (long double) func((double) x); \
 }
-
 #define int_WRAPPER1(func) \
 int func##l(long double x) \
+{ \
+	return func((double) x); \
+}
+#define long_WRAPPER1(func) \
+long func##l(long double x) \
+{ \
+	return func((double) x); \
+}
+#define long_long_WRAPPER1(func) \
+long long func##l(long double x) \
 { \
 	return func((double) x); \
 }
@@ -33,8 +42,10 @@ int func##l(long double x) \
 #if defined __i386__ && defined __OPTIMIZE__
 # undef WRAPPER1
 # undef int_WRAPPER1
+# undef long_WRAPPER1
+# undef long_long_WRAPPER1
 /* gcc 4.3.1 generates really ugly code with redundant pair of store/load:
- *	sub    $0x10,%esp
+ *	sub	$0x10,%esp
  *	fldt	0x14(%esp)
  *	fstpl	0x8(%esp)
  *	fldl	0x8(%esp) <-- ??
@@ -46,8 +57,8 @@ int func##l(long double x) \
  * it will be smart enough to reuse argument stack space and use
  * jump instead of call. Let's do it by hand.
  * The asm below loads long double x into st(0), then stores it back
- * to the same location as a double. At this point, stack looks exactly
- * as "double func(double)" expects it to be.
+ * to the same location, but as a double. At this point, stack looks
+ * exactly as "double func(double)" expects it to be.
  * The return value is returned in st(0) per ABI in both cases (returning
  * a long double or returning a double). So we can simply jump to func.
  * Using __GI_func in jump to make optimized intra-library jump.
@@ -56,15 +67,15 @@ int func##l(long double x) \
 # define WRAPPER1(func) \
 long double func##l(long double x) \
 { \
-	long double fp_top; \
+	long double st_top; \
 	__asm ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
 	"	jmp	" STRINGIZE(__GI_##func) "\n" \
-	: "=t" (fp_top) \
+	: "=t" (st_top) \
 	: "m" (x) \
 	); \
-	return fp_top; \
+	return st_top; \
 }
 # define int_WRAPPER1(func) \
 int func##l(long double x) \
@@ -79,7 +90,33 @@ int func##l(long double x) \
 	); \
 	return ret; \
 }
-#endif /* __i386__ */
+# define long_WRAPPER1(func) \
+long func##l(long double x) \
+{ \
+	long ret; \
+	__asm ( \
+	"	fldt	%1\n" \
+	"	fstpl	%1\n" \
+	"	jmp	" STRINGIZE(__GI_##func) "\n" \
+	: "=a" (ret) \
+	: "m" (x) \
+	); \
+	return ret; \
+}
+# define long_long_WRAPPER1(func) \
+long long func##l(long double x) \
+{ \
+	long long ret; \
+	__asm ( \
+	"	fldt	%1\n" \
+	"	fstpl	%1\n" \
+	"	jmp	" STRINGIZE(__GI_##func) "\n" \
+	: "=A" (ret) \
+	: "m" (x) \
+	); \
+	return ret; \
+}
+#endif /* __i386__ && __OPTIMIZE__ */
 
 
 /* Implement the following, as defined by SuSv3 */
@@ -297,17 +334,11 @@ WRAPPER1(lgamma)
 #endif
 
 #ifdef L_llrintl
-long long llrintl (long double x)
-{
-	return llrint( (double)x );
-}
+long_long_WRAPPER1(llrint)
 #endif
 
 #ifdef L_llroundl
-long long llroundl (long double x)
-{
-	return llround( (double)x );
-}
+long_long_WRAPPER1(llround)
 #endif
 
 #ifdef L_log10l
@@ -331,17 +362,11 @@ WRAPPER1(log)
 #endif
 
 #ifdef L_lrintl
-long lrintl (long double x)
-{
-	return lrint( (double)x );
-}
+long_WRAPPER1(lrint)
 #endif
 
 #ifdef L_lroundl
-long lroundl (long double x)
-{
-	return lround( (double)x );
-}
+long_WRAPPER1(lround)
 #endif
 
 #ifdef L_modfl
