@@ -9,6 +9,9 @@
 
 CFLAGS-utils := \
     $(SSP_ALL_CFLAGS) \
+    -I$(top_srcdir)ldso/include \
+    -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
+    -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
     -I$(top_srcdir)/$(KERNEL_HEADERS) \
     -DNOT_IN_libc \
     -B$(top_builddir)lib \
@@ -20,21 +23,14 @@ else
 CFLAGS-utils-shared :=
 endif
 
-CFLAGS-ldconfig := \
-    -I$(top_srcdir)ldso/include \
-    -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-    -DUCLIBC_LDSO=$(UCLIBC_LDSO)
+CFLAGS-ldconfig :=
 ifeq ($(UCLIBC_STATIC_LDCONFIG),y)
 CFLAGS-ldconfig += -static
 else
 CFLAGS-ldconfig += $(CFLAGS-utils-shared)
 endif
 
-CFLAGS-ldd := \
-    -I$(top_srcdir)ldso/include \
-    -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-    -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
-    $(CFLAGS-utils-shared)
+CFLAGS-ldd := $(CFLAGS-utils-shared)
 
 CFLAGS-readelf := $(CFLAGS-utils-shared)
 
@@ -52,22 +48,15 @@ ifeq ($(LDSO_CACHE_SUPPORT),y)
 LDSO_CACHE_SUPPORT := -D__LDSO_CACHE_SUPPORT__=1
 endif
 
-BUILD_CFLAGS-ldconfig.host := \
+BUILD_CFLAGS-utils := \
     -include $(top_srcdir)include/elf.h \
     -I$(top_srcdir)ldso/include \
     -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
     -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
-    $(LDSO_CACHE_SUPPORT) \
-
-BUILD_CFLAGS-ldd.host := \
-    -include $(top_srcdir)include/elf.h \
-    -I$(top_srcdir)ldso/include \
-    -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-    -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
-    $(LDSO_CACHE_SUPPORT) \
-
-BUILD_CFLAGS-readelf.host := \
-    -include $(top_srcdir)include/elf.h \
+    $(LDSO_CACHE_SUPPORT)
+BUILD_CFLAGS-ldconfig.host := $(BUILD_CFLAGS-utils)
+BUILD_CFLAGS-ldd.host      := $(BUILD_CFLAGS-utils)
+BUILD_CFLAGS-readelf.host  := $(BUILD_CFLAGS-utils)
 
 
 # Rules

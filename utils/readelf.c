@@ -13,19 +13,7 @@
  * Licensed under GPLv2 or later
  */
 
-
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
-#include "bswap.h"
-#include "link.h"
-/* makefile will include elf.h for us */
+#include "porting.h"
 
 static int byteswap;
 static __inline__ uint32_t byteswap32_to_host(uint32_t value)
@@ -103,15 +91,13 @@ static int check_elf_header(ElfW(Ehdr) *const ehdr)
 
 	/* Check if the target endianness matches the host's endianness */
 	byteswap = 0;
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-	if (ehdr->e_ident[5] == ELFDATA2MSB)
-		byteswap = 1;
-#elif __BYTE_ORDER == __BIG_ENDIAN
-	if (ehdr->e_ident[5] == ELFDATA2LSB)
-		byteswap = 1;
-#else
-#error Unknown host byte order!
-#endif
+	if (UCLIBC_ENDIAN_HOST == UCLIBC_ENDIAN_LITTLE) {
+		if (ehdr->e_ident[5] == ELFDATA2MSB)
+			byteswap = 1;
+	} else if (UCLIBC_ENDIAN_HOST == UCLIBC_ENDIAN_BIG) {
+		if (ehdr->e_ident[5] == ELFDATA2LSB)
+			byteswap = 1;
+	}
 	/* Be very lazy, and only byteswap the stuff we use */
 	if (byteswap) {
 		ehdr->e_type = bswap_16(ehdr->e_type);

@@ -1,0 +1,57 @@
+/* Misc system-specific crap */
+
+#ifndef _PORTING_H_
+#define _PORTING_H_
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <ctype.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <strings.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/param.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#include <link.h>
+#include <sys/mman.h>
+/* makefile will include elf.h for us */
+
+#include "bswap.h"
+#include "dl-defs.h"
+
+#ifdef DMALLOC
+#include <dmalloc.h>
+#endif
+
+/* For SunOS */
+#ifndef PATH_MAX
+#define PATH_MAX _POSIX_PATH_MAX
+#endif
+
+#ifndef UCLIBC_RUNTIME_PREFIX
+# define UCLIBC_RUNTIME_PREFIX "/"
+#endif
+
+#define UCLIBC_ENDIAN_LITTLE 1234
+#define UCLIBC_ENDIAN_BIG    4321
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+# define UCLIBC_ENDIAN_HOST UCLIBC_ENDIAN_LITTLE
+#elif __BYTE_ORDER == __BIG_ENDIAN
+# define UCLIBC_ENDIAN_HOST UCLIBC_ENDIAN_BIG
+#else
+# error "Unknown host byte order!"
+#endif
+
+#endif

@@ -20,23 +20,7 @@
  * 2005/09/12: Dan Howell (modified from realpath.c to emulate chroot)
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
-#include <limits.h>		/* for PATH_MAX */
-#include <sys/param.h>		/* for MAXPATHLEN */
-#include <errno.h>
-#include <sys/stat.h>		/* for S_IFLNK */
-
-#ifndef PATH_MAX
-#define PATH_MAX _POSIX_PATH_MAX
-#endif
+#include "porting.h"
 
 #define MAX_READLINKS 32
 
