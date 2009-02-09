@@ -52,21 +52,21 @@ ifeq ($(LDSO_CACHE_SUPPORT),y)
 LDSO_CACHE_SUPPORT := -D__LDSO_CACHE_SUPPORT__=1
 endif
 
-BUILD_CFLAGS-ldconfig.host := -Wl,-s \
+BUILD_CFLAGS-ldconfig.host := \
     -include $(top_srcdir)include/elf.h \
     -I$(top_srcdir)ldso/include \
     -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
     -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
     $(LDSO_CACHE_SUPPORT) \
 
-BUILD_CFLAGS-ldd.host := -Wl,-s \
+BUILD_CFLAGS-ldd.host := \
     -include $(top_srcdir)include/elf.h \
     -I$(top_srcdir)ldso/include \
     -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
     -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
     $(LDSO_CACHE_SUPPORT) \
 
-BUILD_CFLAGS-readelf.host := -Wl,-s \
+BUILD_CFLAGS-readelf.host := \
     -include $(top_srcdir)include/elf.h \
 
 
