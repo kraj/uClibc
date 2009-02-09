@@ -85,14 +85,12 @@ long double acoshl (long double x)
 }
 #endif
 
-
 #ifdef L_acosl
 long double acosl (long double x)
 {
 	return (long double) acos( (double)x );
 }
 #endif
-
 
 #ifdef L_asinhl
 long double asinhl (long double x)
@@ -101,14 +99,12 @@ long double asinhl (long double x)
 }
 #endif
 
-
 #ifdef L_asinl
 long double asinl (long double x)
 {
 	return (long double) asin( (double)x );
 }
 #endif
-
 
 #ifdef L_atan2l
 long double atan2l (long double x, long double y)
@@ -117,14 +113,12 @@ long double atan2l (long double x, long double y)
 }
 #endif
 
-
 #ifdef L_atanhl
 long double atanhl (long double x)
 {
 	return (long double) atanh( (double)x );
 }
 #endif
-
 
 #ifdef L_atanl
 long double atanl (long double x)
@@ -133,14 +127,12 @@ long double atanl (long double x)
 }
 #endif
 
-
 #ifdef L_cargl
 long double cargl (long double complex x)
 {
 	return (long double) carg( (double complex)x );
 }
 #endif
-
 
 #ifdef L_cbrtl
 long double cbrtl (long double x)
@@ -149,14 +141,12 @@ long double cbrtl (long double x)
 }
 #endif
 
-
 #ifdef L_ceill
 long double ceill (long double x)
 {
 	return (long double) ceil( (double)x );
 }
 #endif
-
 
 #ifdef L_copysignl
 long double copysignl (long double x, long double y)
@@ -165,14 +155,12 @@ long double copysignl (long double x, long double y)
 }
 #endif
 
-
 #ifdef L_coshl
 long double coshl (long double x)
 {
 	return (long double) cosh( (double)x );
 }
 #endif
-
 
 #ifdef L_cosl
 long double cosl (long double x)
@@ -181,14 +169,12 @@ long double cosl (long double x)
 }
 #endif
 
-
 #ifdef L_erfcl
 long double erfcl (long double x)
 {
 	return (long double) erfc( (double)x );
 }
 #endif
-
 
 #ifdef L_erfl
 long double erfl (long double x)
@@ -197,14 +183,12 @@ long double erfl (long double x)
 }
 #endif
 
-
 #ifdef L_exp2l
 long double exp2l (long double x)
 {
 	return (long double) exp2( (double)x );
 }
 #endif
-
 
 #ifdef L_expl
 long double expl (long double x)
@@ -213,14 +197,12 @@ long double expl (long double x)
 }
 #endif
 
-
 #ifdef L_expm1l
 long double expm1l (long double x)
 {
 	return (long double) expm1( (double)x );
 }
 #endif
-
 
 #ifdef L_fabsl
 long double fabsl (long double x)
@@ -229,14 +211,12 @@ long double fabsl (long double x)
 }
 #endif
 
-
 #ifdef L_fdiml
 long double fdiml (long double x, long double y)
 {
 	return (long double) fdim( (double)x, (double)y );
 }
 #endif
-
 
 #ifdef L_floorl
 long double floorl (long double x)
@@ -245,14 +225,12 @@ long double floorl (long double x)
 }
 #endif
 
-
 #ifdef L_fmal
 long double fmal (long double x, long double y, long double z)
 {
 	return (long double) fma( (double)x, (double)y, (double)z );
 }
 #endif
-
 
 #ifdef L_fmaxl
 long double fmaxl (long double x, long double y)
@@ -261,14 +239,12 @@ long double fmaxl (long double x, long double y)
 }
 #endif
 
-
 #ifdef L_fminl
 long double fminl (long double x, long double y)
 {
 	return (long double) fmin( (double)x, (double)y );
 }
 #endif
-
 
 #ifdef L_fmodl
 long double fmodl (long double x, long double y)
@@ -277,14 +253,12 @@ long double fmodl (long double x, long double y)
 }
 #endif
 
-
 #ifdef L_frexpl
 long double frexpl (long double x, int *exp)
 {
 	return (long double) frexp( (double)x, exp );
 }
 #endif
-
 
 #ifdef L_hypotl
 long double hypotl (long double x, long double y)
@@ -293,14 +267,12 @@ long double hypotl (long double x, long double y)
 }
 #endif
 
-
 #ifdef L_ilogbl
 int ilogbl (long double x)
 {
 	return (long double) ilogb( (double)x );
 }
 #endif
-
 
 #ifdef L_ldexpl
 long double ldexpl (long double x, int exp)
@@ -309,7 +281,6 @@ long double ldexpl (long double x, int exp)
 }
 #endif
 
-
 #ifdef L_lgammal
 long double lgammal (long double x)
 {
@@ -317,19 +288,17 @@ long double lgammal (long double x)
 }
 #endif
 
-
 #ifdef L_llrintl
 long long llrintl (long double x)
 {
-	return (long double) llrint( (double)x );
+	return llrint( (double)x );
 }
 #endif
-
 
 #ifdef L_llroundl
 long long llroundl (long double x)
 {
-	return (long double) llround( (double)x );
+	return llround( (double)x );
 }
 #endif
 
@@ -340,14 +309,12 @@ long double log10l (long double x)
 }
 #endif
 
-
 #ifdef L_log1pl
 long double log1pl (long double x)
 {
 	return (long double) log1p( (double)x );
 }
 #endif
-
 
 #ifdef L_log2l
 long double log2l (long double x)
@@ -356,14 +323,12 @@ long double log2l (long double x)
 }
 #endif
 
-
 #ifdef L_logbl
 long double logbl (long double x)
 {
 	return (long double) logb( (double)x );
 }
 #endif
-
 
 #ifdef L_logl
 long double logl (long double x)
@@ -372,22 +337,19 @@ long double logl (long double x)
 }
 #endif
 
-
 #ifdef L_lrintl
 long lrintl (long double x)
 {
-	return (long double) lrint( (double)x );
+	return lrint( (double)x );
 }
 #endif
-
 
 #ifdef L_lroundl
 long lroundl (long double x)
 {
-	return (long double) lround( (double)x );
+	return lround( (double)x );
 }
 #endif
-
 
 #ifdef L_modfl
 long double modfl (long double x, long double *iptr)
@@ -396,10 +358,8 @@ long double modfl (long double x, long double *iptr)
 	result = modf ( x, &y );
 	*iptr = (long double)y;
 	return (long double) result;
-
 }
 #endif
-
 
 #ifdef L_nearbyintl
 long double nearbyintl (long double x)
@@ -408,14 +368,12 @@ long double nearbyintl (long double x)
 }
 #endif
 
-
 #ifdef L_nextafterl
 long double nextafterl (long double x, long double y)
 {
 	return (long double) nextafter( (double)x, (double)y );
 }
 #endif
-
 
 #ifdef L_nexttowardl
 long double nexttowardl (long double x, long double y)
@@ -424,14 +382,12 @@ long double nexttowardl (long double x, long double y)
 }
 #endif
 
-
 #ifdef L_powl
 long double powl (long double x, long double y)
 {
 	return (long double) pow( (double)x, (double)y );
 }
 #endif
-
 
 #ifdef L_remainderl
 long double remainderl (long double x, long double y)
@@ -440,14 +396,12 @@ long double remainderl (long double x, long double y)
 }
 #endif
 
-
 #ifdef L_remquol
 long double remquol (long double x, long double y, int *quo)
 {
 	return (long double) remquo( (double)x, (double)y, quo );
 }
 #endif
-
 
 #ifdef L_rintl
 long double rintl (long double x)
@@ -456,14 +410,12 @@ long double rintl (long double x)
 }
 #endif
 
-
 #ifdef L_roundl
 long double roundl (long double x)
 {
 	return (long double) round( (double)x );
 }
 #endif
-
 
 #ifdef L_scalblnl
 long double scalblnl (long double x, long exp)
@@ -472,14 +424,12 @@ long double scalblnl (long double x, long exp)
 }
 #endif
 
-
 #ifdef L_scalbnl
 long double scalbnl (long double x, int exp)
 {
 	return (long double) scalbn( (double)x, exp );
 }
 #endif
-
 
 #ifdef L_sinhl
 long double sinhl (long double x)
@@ -488,14 +438,12 @@ long double sinhl (long double x)
 }
 #endif
 
-
 #ifdef L_sinl
 long double sinl (long double x)
 {
 	return (long double) sin( (double)x );
 }
 #endif
-
 
 #ifdef L_sqrtl
 long double sqrtl (long double x)
@@ -504,14 +452,12 @@ long double sqrtl (long double x)
 }
 #endif
 
-
 #ifdef L_tanhl
 long double tanhl (long double x)
 {
 	return (long double) tanh( (double)x );
 }
 #endif
-
 
 #ifdef L_tanl
 long double tanl (long double x)
@@ -520,7 +466,6 @@ long double tanl (long double x)
 }
 #endif
 
-
 #ifdef L_tgammal
 long double tgammal (long double x)
 {
@@ -528,14 +473,12 @@ long double tgammal (long double x)
 }
 #endif
 
-
 #ifdef L_truncl
 long double truncl (long double x)
 {
 	return (long double) trunc( (double)x );
 }
 #endif
-
 
 #ifdef __DO_C99_MATH__
 
@@ -553,10 +496,10 @@ int __finitel (long double x)
 }
 #endif
 
-#ifdef L_signbitl
+#ifdef L___signbitl
 int __signbitl (long double x)
 {
-	return __signbitl ( (double)x );
+	return __signbit ( (double)x );
 }
 #endif
 
