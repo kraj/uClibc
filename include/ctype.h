@@ -37,25 +37,31 @@
 
 __BEGIN_DECLS
 
+#ifndef _ISbit
 /* These are all the characteristics of characters.
    If there get to be more than 16 distinct characteristics,
    __ctype_mask_t will need to be adjusted. */
 
+# define _ISbit(bit)	(1 << (bit))
+
 enum
 {
-  _ISupper  = 1 << 0,   /* UPPERCASE.  */
-  _ISlower  = 1 << 1,   /* lowercase.  */
-  _ISalpha  = 1 << 2,   /* Alphabetic.  */
-  _ISdigit  = 1 << 3,   /* Numeric.  */
-  _ISxdigit = 1 << 4,   /* Hexadecimal numeric.  */
-  _ISspace  = 1 << 5,   /* Whitespace.  */
-  _ISprint  = 1 << 6,   /* Printing.  */
-  _ISgraph  = 1 << 7,   /* Graphical.  */
-  _ISblank  = 1 << 8,   /* Blank (usually SPC and TAB).  */
-  _IScntrl  = 1 << 9,   /* Control character.  */
-  _ISpunct  = 1 << 10,  /* Punctuation.  */
-  _ISalnum  = 1 << 11,  /* Alphanumeric.  */
+  _ISupper = _ISbit (0),	/* UPPERCASE.  */
+  _ISlower = _ISbit (1),	/* lowercase.  */
+  _ISalpha = _ISbit (2),	/* Alphabetic.  */
+  _ISdigit = _ISbit (3),	/* Numeric.  */
+  _ISxdigit = _ISbit (4),	/* Hexadecimal numeric.  */
+  _ISspace = _ISbit (5),	/* Whitespace.  */
+  _ISprint = _ISbit (6),	/* Printing.  */
+  _ISgraph = _ISbit (7),	/* Graphical.  */
+  _ISblank = _ISbit (8),	/* Blank (usually SPC and TAB).  */
+  _IScntrl = _ISbit (9),	/* Control character.  */
+  _ISpunct = _ISbit (10),	/* Punctuation.  */
+  _ISalnum = _ISbit (11)	/* Alphanumeric.  */
 };
+#else
+#error _ISbit already defined!
+#endif /* ! _ISbit  */
 
 /* __ctype_XXX_t types and __UCLIBC_CTYPE_x_TBL_OFFSET constants */
 #include <bits/uClibc_touplow.h>
