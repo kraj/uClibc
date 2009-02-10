@@ -22,10 +22,18 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/wait.h>
+
+#ifdef __LDSO_LDD_SUPPORT__
+# include <sys/wait.h>
+#endif
+
+#if defined(_WIN32) || defined(_WINNT)
+# include "mmap-windows.c"
+#else
+# include <sys/mman.h>
+#endif
 
 #include <link.h>
-#include <sys/mman.h>
 /* makefile will include elf.h for us */
 
 #include "bswap.h"
