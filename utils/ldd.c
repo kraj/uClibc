@@ -339,7 +339,7 @@ static void search_for_named_library(char *name, char *result,
 	/* We need a writable copy of this string */
 	path = strdup(path_list);
 	if (!path) {
-		fprintf(stderr, "Out of memory!\n");
+		fprintf(stderr, "%s: Out of memory!\n", __func__);
 		exit(EXIT_FAILURE);
 	}
 	/* Eliminate all double //s */
@@ -388,7 +388,7 @@ void locate_library_file(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic, int is_suid,
 	/* We need some elbow room here.  Make some room... */
 	buf = malloc(1024);
 	if (!buf) {
-		fprintf(stderr, "Out of memory!\n");
+		fprintf(stderr, "%s: Out of memory!\n", __func__);
 		exit(EXIT_FAILURE);
 	}
 
@@ -645,7 +645,7 @@ int find_dependancies(char *filename)
 	ehdr = mmap(0, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
 	if (ehdr == MAP_FAILED) {
 		fclose(thefile);
-		fprintf(stderr, "Out of memory!\n");
+		fprintf(stderr, "mmap(%s) failed: %s\n", filename, strerror(errno));
 		return -1;
 	}
 
