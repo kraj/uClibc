@@ -20,9 +20,10 @@
 #ifndef _ELF_H
 #define	_ELF_H 1
 
-#include <features.h>
-
-__BEGIN_DECLS
+/* Avoid features.h here for portability.  This stuff matches sys/cdefs.h.  */
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 /* Standard ELF types.  */
 
@@ -3061,6 +3062,8 @@ typedef Elf32_Addr Elf32_Conflict;
 /* Keep this the last entry.  */
 #define R_XTENSA_NUM		50
 
-__END_DECLS
+#ifdef	__cplusplus
+}
+#endif
 
 #endif	/* elf.h */
