@@ -713,10 +713,21 @@ __inline_mathcodeNP2 (drem, __x, __y, \
 __MATH_INLINE int
 __NTH (__finite (double __x))
 {
-  return (__extension__
-	  (((((union { double __d; int __i[2]; }) {__d: __x}).__i[1]
-	     | 0x800fffffu) + 1) >> 31));
+  union { double __d; int __i[2]; } u;
+  u.__d = __x;
+  /* Finite numbers have at least one zero bit in exponent. */
+  /* All other numbers will result in 0xffffffff after OR: */
+  return (u.__i[1] | 0x800fffff) != 0xffffffff;
 }
+
+__MATH_INLINE int
+__NTH (__finitef (float __x))
+{
+  union { float __d; int __i; } u;
+  u.__d = __x;
+  return (u.__i | 0x807fffff) != 0xffffffff;
+}
+
 
 /* Miscellaneous functions */
 # ifdef __FAST_MATH__

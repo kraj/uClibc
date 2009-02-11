@@ -23,8 +23,11 @@
 
 int __finitef(float x)
 {
-	int32_t ix;
-	GET_FLOAT_WORD(ix,x);
-	return (int)((u_int32_t)((ix&0x7fffffff)-0x7f800000)>>31);
+	u_int32_t ix;
+
+	GET_FLOAT_WORD(ix, x);
+	/* Finite numbers have at least one zero bit in exponent. */
+	/* All other numbers will result in 0xffffffff after OR: */
+	return (ix | 0x807fffff) != 0xffffffff;
 }
 libm_hidden_def(__finitef)

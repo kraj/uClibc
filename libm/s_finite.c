@@ -22,8 +22,11 @@
 
 int __finite(double x)
 {
-	int32_t hx;
-	GET_HIGH_WORD(hx,x);
-	return (int)((u_int32_t)((hx&0x7fffffff)-0x7ff00000)>>31);
+	u_int32_t hx;
+
+	GET_HIGH_WORD(hx, x);
+	/* Finite numbers have at least one zero bit in exponent. */
+	/* All other numbers will result in 0xffffffff after OR: */
+	return (hx | 0x800fffff) != 0xffffffff;
 }
 libm_hidden_def(__finite)
