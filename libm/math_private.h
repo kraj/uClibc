@@ -188,14 +188,24 @@ extern double __kernel_tan (double,double,int) attribute_hidden;
 extern int    __kernel_rem_pio2 (double*,double*,int,int,int,const int*) attribute_hidden;
 
 /*
- * math_opt_barrier(x): force expression x to be evaluated and put into
- * a floating point register or memory. This macro returns the value.
+ * math_opt_barrier(x): safely load x, even if it was manipulated
+ * by non-floationg point operations. This macro returns the value of x.
+ * This ensures compiler does not (ab)use its knowledge about x value
+ * and don't optimize future operations. Example:
+ * float x;
+ * SET_FLOAT_WORD(x, 0x80000001); // sets a bit pattern
+ * y = math_opt_barrier(x); // "compiler, do not cheat!"
+ * y = y * y; // compiler can't optimize, must use real multiply insn
  *
- * math_force_eval(x): force expression x to be evaluated and put into
+ * math_force_eval(x): force expression x to be evaluated.
+ * Useful if otherwise compiler may eliminate the expression
+ * as unused. This macro returns no value.
+ * Example: "void fn(float f) { f = f * f; }"
+ *   versus "void fn(float f) { f = f * f; math_force_eval(f); }"
+ *
+ * Currently, math_force_eval(x) stores x into
  * a floating point register or memory *of the appropriate size*.
- * This forces floating point flags to be set correctly
- * (for example, when float value is overflowing, but FPU registers
- * are wide enough to "hide" this).
+ * There is no guarantee this will not change.
  */
 #if defined(__i386__)
 #define math_opt_barrier(x) ({ \
@@ -205,19 +215,20 @@ extern int    __kernel_rem_pio2 (double*,double*,int,int,int,const int*) attribu
 	__x; \
 })
 #define math_force_eval(x) do {	\
-	if (sizeof(x) <= sizeof(double)) \
+	__typeof(x) __x = (x); \
+	if (sizeof(__x) <= sizeof(double)) \
 		/* "m": store x into a memory location */ \
-		__asm __volatile ("" : : "m" (x)); \
+		__asm __volatile ("" : : "m" (__x)); \
 	else /* long double */ \
 		/* "f": load x into (any) fpreg */ \
-		__asm __volatile ("" : : "f" (x)); \
+		__asm __volatile ("" : : "f" (__x)); \
 } while (0)
 #endif
 
 #if defined(__x86_64__)
 #define math_opt_barrier(x) ({ \
 	__typeof(x) __x = (x); \
-	if (sizeof(x) <= sizeof(double)) \
+	if (sizeof(__x) <= sizeof(double)) \
 		/* "x": load into XMM SSE register */ \
 		__asm ("" : "=x" (__x) : "0" (__x)); \
 	else /* long double */ \
@@ -226,19 +237,22 @@ extern int    __kernel_rem_pio2 (double*,double*,int,int,int,const int*) attribu
 	__x; \
 })
 #define math_force_eval(x) do { \
-	if (sizeof(x) <= sizeof(double)) \
+	__typeof(x) __x = (x); \
+	if (sizeof(__x) <= sizeof(double)) \
 		/* "x": load into XMM SSE register */ \
-		__asm __volatile ("" : : "x" (x)); \
+		__asm __volatile ("" : : "x" (__x)); \
 	else /* long double */ \
 		/* "f": load x into (any) fpreg */ \
-		__asm __volatile ("" : : "f" (x)); \
+		__asm __volatile ("" : : "f" (__x)); \
 } while (0)
 #endif
 
-/* Default implementation forces store to a memory location */
+/* Default implementations force store to a memory location */
 #ifndef math_opt_barrier
 #define math_opt_barrier(x) ({ __typeof(x) __x = (x); __asm ("" : "+m" (__x)); __x; })
-#define math_force_eval(x)  __asm __volatile ("" : : "m" (x))
+#endif
+#ifndef math_force_eval
+#define math_force_eval(x)  do { __typeof(x) __x = (x); __asm __volatile ("" : : "m" (__x)); } while (0)
 #endif
 
 
