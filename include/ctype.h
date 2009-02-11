@@ -42,6 +42,7 @@ __BEGIN_DECLS
    If there get to be more than 16 distinct characteristics,
    __ctype_mask_t will need to be adjusted. */
 
+/* libstdc++ from gcc toolchain needs this macro. */
 # define _ISbit(bit)	(1 << (bit))
 
 enum
