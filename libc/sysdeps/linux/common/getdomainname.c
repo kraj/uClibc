@@ -42,5 +42,7 @@ int getdomainname(char *name, size_t len)
 #endif
   return 0;
 }
+#ifdef __UCLIBC_BSD_SPECIFIC__
 libc_hidden_def(getdomainname)
+#endif
 #endif

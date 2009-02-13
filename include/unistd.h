@@ -909,11 +909,14 @@ extern int sethostname (__const char *__name, size_t __len)
 extern int sethostid (long int __id) __THROW __wur;
 
 #if defined __UCLIBC_BSD_SPECIFIC__
+# if defined UCLIBC_INTERNAL
+/* separate preprocessor test for unifdef */
 /* Get and set the NIS (aka YP) domain name, if any.
    Called just like `gethostname' and `sethostname'.
    The NIS domain name is usually the empty string when not using NIS.  */
 extern int getdomainname (char *__name, size_t __len)
      __THROW __nonnull ((1)) __wur;
+# endif
 libc_hidden_proto(getdomainname)
 extern int setdomainname (__const char *__name, size_t __len)
      __THROW __nonnull ((1)) __wur;
