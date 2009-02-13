@@ -133,6 +133,14 @@
  *
  */
 
+/* Nota bene:
+   The whole resolver code has several (severe) problems:
+   - it doesn't even build without IPv4, i.e. !UCLIBC_HAS_IPV4 but only IPv6
+   - it is way too big
+
+   Both points above are considered bugs, patches/reimplementations welcome.
+*/
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <string.h>
@@ -303,7 +311,7 @@ __UCLIBC_MUTEX_EXTERN(__resolv_lock);
 
 /* Protected by __resolv_lock */
 extern void (*__res_sync)(void) attribute_hidden;
-//extern uint32_t __resolv_opts attribute_hidden;
+/*extern uint32_t __resolv_opts attribute_hidden; */
 extern unsigned __nameservers attribute_hidden;
 extern unsigned __searchdomains attribute_hidden;
 extern sockaddr46_t *__nameserver attribute_hidden;
@@ -651,7 +659,7 @@ int attribute_hidden __decode_question(const unsigned char * const message, int 
 
 	offset += i;
 
-//TODO: what if strdup fails?
+/*TODO: what if strdup fails? */
 	q->dotted = strdup(temp);
 	q->qtype = (message[offset + 0] << 8) | message[offset + 1];
 	q->qclass = (message[offset + 2] << 8) | message[offset + 3];
@@ -731,7 +739,7 @@ int attribute_hidden __decode_answer(const unsigned char *message, int offset,
 		return len;
 	}
 
-// TODO: what if strdup fails?
+/* TODO: what if strdup fails? */
 	a->dotted = strdup(temp);
 	a->atype = (message[0] << 8) | message[1];
 	message += 2;
@@ -875,7 +883,7 @@ __UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_MUTEX_INITIALIZER);
 
 /* Protected by __resolv_lock */
 void (*__res_sync)(void);
-//uint32_t __resolv_opts;
+/*uint32_t __resolv_opts; */
 unsigned __nameservers;
 unsigned __searchdomains;
 sockaddr46_t *__nameserver;
@@ -944,7 +952,10 @@ void attribute_hidden __open_nameservers(void)
 
 	fp = fopen("/etc/resolv.conf", "r");
 	if (!fp) {
-// TODO: why? google says nothing about this...
+		/* If we do not have a pre-populated /etc/resolv.conf then
+		   try to use the one from /etc/config which exists on numerous
+		   systems ranging from some uClinux to IRIX installations and
+		   may be the only /etc dir that was mounted rw.  */
 		fp = fopen("/etc/config/resolv.conf", "r");
 	}
 
@@ -1169,12 +1180,12 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		/* first time? pick starting server etc */
 		if (local_ns_num < 0) {
 			local_id = last_id;
-//TODO: implement /etc/resolv.conf's "options rotate"
-// (a.k.a. RES_ROTATE bit in _res.options)
-//			local_ns_num = 0;
-//			if (_res.options & RES_ROTATE)
+/*TODO: implement /etc/resolv.conf's "options rotate"
+ (a.k.a. RES_ROTATE bit in _res.options)
+			local_ns_num = 0;
+			if (_res.options & RES_ROTATE) */
 				local_ns_num = last_ns_num;
-//TODO: use _res.retry
+/*TODO: use _res.retry */
 			retries_left = __nameservers * RES_DFLRETRY;
 		}
 		retries_left--;
@@ -1221,20 +1232,20 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			goto try_next_server;
 		rc = connect(fd, &sa.sa, sizeof(sa));
 		if (rc < 0) {
-			//if (errno == ENETUNREACH) {
+			/*if (errno == ENETUNREACH) { */
 				/* routing error, presume not transient */
 				goto try_next_server;
-			//}
-//For example, what transient error this can be? Can't think of any
-			///* retry */
-			//continue;
+			/*} */
+/*For example, what transient error this can be? Can't think of any */
+			/* retry */
+			/*continue; */
 		}
 		DPRINTF("Xmit packet len:%d id:%d qr:%d\n", len, h.id, h.qr);
 		/* no error check - if it fails, we time out on recv */
 		send(fd, packet, len, 0);
 
 #ifdef USE_SELECT
-//TODO: use _res.retrans
+/*TODO: use _res.retrans*/
 		reply_timeout = RES_TIMEOUT;
  wait_again:
 		FD_ZERO(&fds);
@@ -1259,7 +1270,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			 * to next nameserver */
 			goto try_next_server;
 		}
-//TODO: better timeout accounting?
+/*TODO: better timeout accounting?*/
 		reply_timeout -= 1000;
 #endif
 		len = recv(fd, packet, PACKETSZ, MSG_DONTWAIT);
@@ -1805,8 +1816,6 @@ libc_hidden_def(getnameinfo)
 
 
 #ifdef L_gethostbyname_r
-//Does this function assume IPv4? If yes,
-//what happens in IPv6-only build?
 
 /* Bug 671 says:
  * "uClibc resolver's gethostbyname does not return the requested name
@@ -2109,7 +2118,7 @@ int gethostbyname2_r(const char *name,
 		result_buf->h_addrtype = AF_INET6;
 		result_buf->h_length = sizeof(*in);
 		result_buf->h_addr_list = (char **) addr_list;
-		//result_buf->h_aliases = ???
+		/* result_buf->h_aliases = ??? */
 		*result = result_buf;
 		*h_errnop = NETDB_SUCCESS;
 		return NETDB_SUCCESS;
@@ -2124,10 +2133,10 @@ int gethostbyname2_r(const char *name,
 	}
 
 	/* talk to DNS servers */
-// TODO: why it's so different from gethostbyname_r (IPv4 case)?
+/* TODO: why it's so different from gethostbyname_r (IPv4 case)? */
 	memset(&a, '\0', sizeof(a));
 	for (;;) {
-// Hmm why we memset(a) to zeros only once?
+/* Hmm why we memset(a) to zeros only once? */
 		i = __dns_lookup(buf, T_AAAA, &packet, &a);
 		if (i < 0) {
 			*h_errnop = HOST_NOT_FOUND;
@@ -2157,7 +2166,7 @@ int gethostbyname2_r(const char *name,
 		result_buf->h_addrtype = AF_INET6;
 		result_buf->h_length = sizeof(*in);
 		result_buf->h_addr_list = (char **) addr_list;
-		//result_buf->h_aliases = ???
+		/* result_buf->h_aliases = ??? */
 		free(packet);
 		*result = result_buf;
 		*h_errnop = NETDB_SUCCESS;
@@ -2281,7 +2290,7 @@ int gethostbyaddr_r(const void *addr, socklen_t addrlen, int type,
 
 	memset(&a, '\0', sizeof(a));
 	for (;;) {
-// Hmm why we memset(a) to zeros only once?
+/* Hmm why we memset(a) to zeros only once? */
 		i = __dns_lookup(buf, T_PTR, &packet, &a);
 		if (i < 0) {
 			*h_errnop = HOST_NOT_FOUND;
@@ -2730,9 +2739,10 @@ static void res_sync_func(void)
 	}
 	/* Extend and comment what program is known
 	 * to use which _res.XXX member(s).
+
+	   __resolv_opts = rp->options;
+	   ...
 	 */
-	// __resolv_opts = rp->options;
-	// ...
 }
 
 /* Our res_init never fails (always returns 0) */
@@ -2756,7 +2766,7 @@ int res_init(void)
 #ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
 	rp->retrans = RES_TIMEOUT;
 	rp->retry = 4;
-//TODO: pulls in largish static buffers... use simpler one?
+/*TODO: pulls in largish static buffers... use simpler one? */
 	rp->id = random();
 #endif
 	rp->ndots = 1;
