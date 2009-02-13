@@ -16,7 +16,11 @@
 /* Experimentally off - libc_hidden_proto(strcpy) */
 /* libc_hidden_proto(uname) */
 
-int getdomainname(char *name, size_t len)
+int
+#ifndef __UCLIBC_BSD_SPECIFIC__
+attribute_hidden
+#endif
+getdomainname(char *name, size_t len)
 {
   struct utsname uts;
 
@@ -42,7 +46,7 @@ int getdomainname(char *name, size_t len)
 #endif
   return 0;
 }
-#ifdef __UCLIBC_BSD_SPECIFIC__
+# ifdef __UCLIBC_BSD_SPECIFIC__
 libc_hidden_def(getdomainname)
-#endif
+# endif
 #endif
