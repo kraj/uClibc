@@ -16,8 +16,6 @@
 #include "math.h"
 #include <complex.h>
 
-#define STRINGIZE(s) #s
-
 #define WRAPPER1(func) \
 long double func##l(long double x) \
 { \
@@ -71,7 +69,7 @@ long double func##l(long double x) \
 	__asm ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	jmp	" STRINGIZE(__GI_##func) "\n" \
+	"	jmp	" __stringify(__GI_##func) "\n" \
 	: "=t" (st_top) \
 	: "m" (x) \
 	); \
@@ -84,7 +82,7 @@ int func##l(long double x) \
 	__asm ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	jmp	" STRINGIZE(__GI_##func) "\n" \
+	"	jmp	" __stringify(__GI_##func) "\n" \
 	: "=a" (ret) \
 	: "m" (x) \
 	); \
@@ -97,7 +95,7 @@ long func##l(long double x) \
 	__asm ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	jmp	" STRINGIZE(__GI_##func) "\n" \
+	"	jmp	" __stringify(__GI_##func) "\n" \
 	: "=a" (ret) \
 	: "m" (x) \
 	); \
@@ -110,7 +108,7 @@ long long func##l(long double x) \
 	__asm ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	jmp	" STRINGIZE(__GI_##func) "\n" \
+	"	jmp	" __stringify(__GI_##func) "\n" \
 	: "=A" (ret) \
 	: "m" (x) \
 	); \
