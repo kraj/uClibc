@@ -27,6 +27,69 @@
 #include <features.h>
 #include <bits/types.h>
 
+__BEGIN_DECLS
+__BEGIN_NAMESPACE_STD
+
+/* The following names are all functions:
+     int isCHARACTERISTIC(int c);
+   which return nonzero iff C has CHARACTERISTIC.
+   For the meaning of the characteristic names, see the `enum' above.  */
+extern int isalnum(int __c) __THROW;
+libc_hidden_proto(isalnum)
+extern int isalpha(int __c) __THROW;
+libc_hidden_proto(isalpha)
+extern int iscntrl(int __c) __THROW;
+libc_hidden_proto(iscntrl)
+extern int isdigit(int __c) __THROW;
+libc_hidden_proto(isdigit)
+extern int islower(int __c) __THROW;
+libc_hidden_proto(islower)
+extern int isgraph(int __c) __THROW;
+libc_hidden_proto(isgraph)
+extern int isprint(int __c) __THROW;
+libc_hidden_proto(isprint)
+extern int ispunct(int __c) __THROW;
+libc_hidden_proto(ispunct)
+extern int isspace(int __c) __THROW;
+libc_hidden_proto(isspace)
+extern int isupper(int __c) __THROW;
+libc_hidden_proto(isupper)
+extern int isxdigit(int __c) __THROW;
+libc_hidden_proto(isxdigit)
+
+
+/* Return the lowercase version of C.  */
+extern int tolower(int __c) __THROW;
+libc_hidden_proto(tolower)
+
+/* Return the uppercase version of C.  */
+extern int toupper(int __c) __THROW;
+libc_hidden_proto(toupper)
+
+#if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
+/* Return nonzero iff C is in the ASCII set
+   (i.e., is no more than 7 bits wide).  */
+extern int isascii(int __c) __THROW;
+libc_hidden_proto(isascii)
+/* Return the part of C that is in the ASCII set
+   (i.e., the low-order 7 bits of C).  */
+extern int toascii(int __c) __THROW;
+#endif
+
+__END_NAMESPACE_STD
+
+
+/* ISO C99 introduced one new function.  */
+#ifdef	__USE_ISOC99
+__BEGIN_NAMESPACE_C99
+
+extern int isblank(int __c) __THROW;
+libc_hidden_proto(isblank)
+
+__END_NAMESPACE_C99
+#endif
+__END_DECLS
+
 #ifndef __UCLIBC_HAS_CTYPE_TABLES__
 
 /* "Stub locale": we are permanently in C/POSIX locale.
@@ -150,70 +213,12 @@ libc_hidden_proto(__ctype_tolower)
 #define __isdigit_int(C)     (((unsigned int)((C) - '0')) <= 9)
 #endif
 
-__BEGIN_NAMESPACE_STD
-
-/* The following names are all functions:
-     int isCHARACTERISTIC(int c);
-   which return nonzero iff C has CHARACTERISTIC.
-   For the meaning of the characteristic names, see the `enum' above.  */
-extern int isalnum(int __c) __THROW;
-libc_hidden_proto(isalnum)
-extern int isalpha(int __c) __THROW;
-libc_hidden_proto(isalpha)
-extern int iscntrl(int __c) __THROW;
-libc_hidden_proto(iscntrl)
-extern int isdigit(int __c) __THROW;
-libc_hidden_proto(isdigit)
-extern int islower(int __c) __THROW;
-libc_hidden_proto(islower)
-extern int isgraph(int __c) __THROW;
-libc_hidden_proto(isgraph)
-extern int isprint(int __c) __THROW;
-libc_hidden_proto(isprint)
-extern int ispunct(int __c) __THROW;
-libc_hidden_proto(ispunct)
-extern int isspace(int __c) __THROW;
-libc_hidden_proto(isspace)
-extern int isupper(int __c) __THROW;
-libc_hidden_proto(isupper)
-extern int isxdigit(int __c) __THROW;
-libc_hidden_proto(isxdigit)
-
-
-/* Return the lowercase version of C.  */
-extern int tolower(int __c) __THROW;
-libc_hidden_proto(tolower)
-
-/* Return the uppercase version of C.  */
-extern int toupper(int __c) __THROW;
-libc_hidden_proto(toupper)
-
-__END_NAMESPACE_STD
-
-
-/* ISO C99 introduced one new function.  */
-#ifdef	__USE_ISOC99
-__BEGIN_NAMESPACE_C99
-
-extern int isblank(int __c) __THROW;
-libc_hidden_proto(isblank)
-
-__END_NAMESPACE_C99
-#endif
-
 #ifdef __USE_GNU
 /* Test C for a set of character classes according to MASK.  */
 extern int isctype(int __c, int __mask) __THROW;
 #endif
 
 #if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
-/* Return nonzero iff C is in the ASCII set
-   (i.e., is no more than 7 bits wide).  */
-extern int isascii(int __c) __THROW;
-libc_hidden_proto(isascii)
-/* Return the part of C that is in the ASCII set
-   (i.e., the low-order 7 bits of C).  */
-extern int toascii(int __c) __THROW;
 /* These are the same as `toupper' and `tolower' except that they do not
    check the argument for being in the range of a `char'.  */
 extern int _toupper(int __c) __THROW;
