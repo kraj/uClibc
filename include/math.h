@@ -46,9 +46,6 @@ __BEGIN_DECLS
 /* Get general and ISO C99 specific information.  */
 #include <bits/mathdef.h>
 
-#if !(defined _LIBC && (defined NOT_IN_libc && defined IS_IN_libm))
-# define libm_hidden_proto(name, attrs...)
-#endif
 
 /* The file <bits/mathcalls.h> contains the prototypes for all the
    actual math functions.  These macros are used for those prototypes,
@@ -59,13 +56,15 @@ __BEGIN_DECLS
   __MATHDECL (_Mdouble_,function,suffix, args)
 #define __MATHDECL(type, function,suffix, args) \
   __MATHDECL_1(type, function,suffix, args);
+
 #define __MATHCALLX(function,suffix, args, attrib)	\
   __MATHDECLX (_Mdouble_,function,suffix, args, attrib)
+#define __MATHDECL_1(type, function,suffix, args) \
+  extern type __MATH_PRECNAME(function,suffix) args __THROW
 #define __MATHDECLX(type, function,suffix, args, attrib) \
   __MATHDECL_1(type, function,suffix, args) __attribute__ (attrib); \
   __MATHDECLI_MAINVARIANT(function)
-#define __MATHDECL_1(type, function,suffix, args) \
-  extern type __MATH_PRECNAME(function,suffix) args __THROW
+
 /* Decls which are also used internally in libm.
    Only the main variant is used internally, no need to try to avoid relocs
    for the {l,f} variants.  */
@@ -76,16 +75,24 @@ __BEGIN_DECLS
   __MATHDECLI_MAINVARIANT(function)
 /* Private helpers for purely macro impls below.
    Only make __foo{,f,l} visible but not (the macro-only) foo.  */
-#define __MATHDECL_PRIV(type, function,suffix, args, attrib) \
-  __MATHDECL_1(type, __CONCAT(__,function),suffix, args) \
-						__attribute__ (attrib); \
+#if defined _LIBC
+# define __MATHDECL_PRIV(type, function,suffix, args, attrib) \
+  __MATHDECL_1(type, __CONCAT(__,function),suffix, args) __attribute__ (attrib); \
   libm_hidden_proto(__MATH_PRECNAME(__##function,suffix))
+#else
+# define __MATHDECL_PRIV(type, function,suffix, args, attrib) \
+  __MATHDECL_1(type, __CONCAT(__,function),suffix, args) __attribute__ (attrib);
+#endif
 
-#define __MATHDECLI_MAINVARIANT libm_hidden_proto
-#define _Mdouble_		double
-#define __MATH_PRECNAME(name,r)	__CONCAT(name,r)
-# define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_STD
-# define _Mdouble_END_NAMESPACE   __END_NAMESPACE_STD
+#if defined _LIBC
+# define __MATHDECLI_MAINVARIANT(x) libm_hidden_proto(x)
+#else
+# define __MATHDECLI_MAINVARIANT(x)
+#endif
+#define _Mdouble_		 double
+#define __MATH_PRECNAME(name,r)  __CONCAT(name,r)
+#define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_STD
+#define _Mdouble_END_NAMESPACE   __END_NAMESPACE_STD
 #include <bits/mathcalls.h>
 #undef	_Mdouble_
 #undef _Mdouble_BEGIN_NAMESPACE
@@ -94,8 +101,8 @@ __BEGIN_DECLS
 #undef __MATHDECLI_MAINVARIANT
 #define __MATHDECLI_MAINVARIANT(x)
 
-#if defined __USE_MISC || defined __USE_ISOC99
 
+#if defined __USE_MISC || defined __USE_ISOC99
 
 /* Include the file of declarations again, this time using `float'
    instead of `double' and appending f to each function name.  */
@@ -160,8 +167,8 @@ extern long double __REDIRECT_NTH (nexttowardl,
 #  define _Mdouble_END_NAMESPACE   __END_NAMESPACE_C99
 #  include <bits/mathcalls.h>
 #  undef _Mdouble_
-# undef _Mdouble_BEGIN_NAMESPACE
-# undef _Mdouble_END_NAMESPACE
+#  undef _Mdouble_BEGIN_NAMESPACE
+#  undef _Mdouble_END_NAMESPACE
 #  undef __MATH_PRECNAME
 
 # endif /* __STDC__ || __GNUC__ */
