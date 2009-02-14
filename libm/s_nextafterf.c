@@ -33,12 +33,12 @@ float nextafterf(float x, float y)
 		return y;
 
 	if (ix == 0) { /* x == 0? */
-// glibc 2.4 does not seem to set underflow?
-//		float u;
+/* glibc 2.4 does not seem to set underflow? */
+/*		float u; */
 		/* return +-minsubnormal */
 		SET_FLOAT_WORD(x, (hy & 0x80000000) | 1);
-//		u = x * x; /* raise underflow flag */
-//		math_force_eval(u);
+/*		u = x * x;     raise underflow flag */
+/*		math_force_eval(u); */
 		return x;
 	}
 
