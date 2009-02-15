@@ -121,11 +121,11 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 		i = (open_mode & (O_ACCMODE|O_LARGEFILE)) + 1;
 
 		/* NOTE: fopencookie needs changing if the basic check changes! */
-		if (((i & (((int) fname_or_mode) + 1)) != i) /* Basic agreement? */
-			|| (((open_mode & ~((__mode_t) fname_or_mode)) & O_APPEND)
-				&& fcntl(filedes, F_SETFL, O_APPEND))	/* Need O_APPEND. */
-			) {
+		if ((i & ((int)fname_or_mode + 1)) != i) /* Basic agreement? */
 			goto DO_EINVAL;
+		if ((open_mode & ~(__mode_t)fname_or_mode) & O_APPEND) {
+			if (fcntl(filedes, F_SETFL, O_APPEND))	/* Need O_APPEND. */
+				goto DO_EINVAL;
 		}
 		/* For later... to reflect largefile setting in stream flags. */
 		__STDIO_WHEN_LFS( open_mode |= (((__mode_t) fname_or_mode)
@@ -159,9 +159,15 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 		((((open_mode & O_ACCMODE) + 1) ^ 0x03) * __FLAG_WRITEONLY);
 
 #ifdef __STDIO_BUFFERS
-	i = errno;					/* Preserve errno against isatty call. */
-	stream->__modeflags |= (isatty(stream->__filedes) * __FLAG_LBF);
-	__set_errno(i);
+	if (stream->__filedes != INT_MAX) {
+		/* NB: fopencookie uses bogus filedes == INT_MAX,
+		 * avoiding isatty() in that case.
+		 */
+		i = errno; /* preserve errno against isatty call. */
+		if (isatty(stream->__filedes))
+			stream->__modeflags |= __FLAG_LBF;
+		__set_errno(i);
+	}
 
 	if (!stream->__bufstart) {
 		if ((stream->__bufstart = malloc(BUFSIZ)) != NULL) {
