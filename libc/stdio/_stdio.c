@@ -253,8 +253,10 @@ void attribute_hidden _stdio_init(void)
 #ifdef __STDIO_BUFFERS
 	int old_errno = errno;
 	/* stdin and stdout uses line buffering when connected to a tty. */
-	_stdio_streams[0].__modeflags ^= (1-isatty(0)) * __FLAG_LBF;
-	_stdio_streams[1].__modeflags ^= (1-isatty(1)) * __FLAG_LBF;
+	if (!isatty(0))
+		_stdio_streams[0].__modeflags ^= __FLAG_LBF;
+	if (!isatty(1))
+		_stdio_streams[1].__modeflags ^= __FLAG_LBF;
 	__set_errno(old_errno);
 #endif
 #ifndef __UCLIBC__

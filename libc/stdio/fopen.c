@@ -9,9 +9,9 @@
 
 #ifndef __DO_LARGEFILE
 # define FILEDES_ARG    (-1)
-#undef fopen
+# undef fopen
 #else
-#undef fopen64
+# undef fopen64
 #endif
 
 /* libc_hidden_proto(fopen) */
