@@ -52,37 +52,45 @@ __BEGIN_DECLS
    so we can easily declare each function as both `name' and `__name',
    and can declare the float versions `namef' and `__namef'.  */
 
-#define __MATHCALL(function,suffix, args)	\
-  __MATHDECL (_Mdouble_,function,suffix, args)
-#define __MATHDECL(type, function,suffix, args) \
-  __MATHDECL_1(type, function,suffix, args);
-
-#define __MATHCALLX(function,suffix, args, attrib)	\
-  __MATHDECLX (_Mdouble_,function,suffix, args, attrib)
-#define __MATHDECL_1(type, function,suffix, args) \
+#define __MATHDECL_1(type,function,suffix,args) \
   extern type __MATH_PRECNAME(function,suffix) args __THROW
-#define __MATHDECLX(type, function,suffix, args, attrib) \
-  __MATHDECL_1(type, function,suffix, args) __attribute__ (attrib); \
+
+#define __MATHDECL(type,function,suffix,args) \
+  __MATHDECL_1(type,function,suffix,args);
+
+#define __MATHCALL(function,suffix,args)	\
+  __MATHDECL(_Mdouble_,function,suffix,args)
+
+#define __MATHDECLX(type,function,suffix,args,attrib) \
+  __MATHDECL_1(type,function,suffix,args) __attribute__ (attrib); \
   __MATHDECLI_MAINVARIANT(function)
+
+#define __MATHCALLX(function,suffix,args,attrib)	\
+  __MATHDECLX(_Mdouble_,function,suffix,args,attrib)
 
 /* Decls which are also used internally in libm.
    Only the main variant is used internally, no need to try to avoid relocs
    for the {l,f} variants.  */
-#define __MATHCALLI(function,suffix, args)	\
-  __MATHDECLI (_Mdouble_,function,suffix, args)
-#define __MATHDECLI(type, function,suffix, args) \
-  __MATHDECL_1(type, function,suffix, args); \
+#define __MATHDECLI(type,function,suffix,args) \
+  __MATHDECL_1(type,function,suffix,args); \
   __MATHDECLI_MAINVARIANT(function)
+
+#define __MATHCALLI(function,suffix,args)	\
+  __MATHDECLI(_Mdouble_,function,suffix,args)
+
 /* Private helpers for purely macro impls below.
    Only make __foo{,f,l} visible but not (the macro-only) foo.  */
 #if defined _LIBC
-# define __MATHDECL_PRIV(type, function,suffix, args, attrib) \
-  __MATHDECL_1(type, __CONCAT(__,function),suffix, args) __attribute__ (attrib); \
+# define __MATHDECL_PRIV(type,function,suffix,args,attrib) \
+  __MATHDECL_1(type,__CONCAT(__,function),suffix,args) __attribute__ (attrib); \
   libm_hidden_proto(__MATH_PRECNAME(__##function,suffix))
 #else
-# define __MATHDECL_PRIV(type, function,suffix, args, attrib) \
-  __MATHDECL_1(type, __CONCAT(__,function),suffix, args) __attribute__ (attrib);
+# define __MATHDECL_PRIV(type,function,suffix,args,attrib) \
+  __MATHDECL_1(type,__CONCAT(__,function),suffix,args) __attribute__ (attrib);
 #endif
+
+
+/* Include the file of declarations, declaring souble versions */
 
 #if defined _LIBC
 # define __MATHDECLI_MAINVARIANT(x) libm_hidden_proto(x)
@@ -124,7 +132,8 @@ __BEGIN_DECLS
 # undef _Mdouble_END_NAMESPACE
 # undef	__MATH_PRECNAME
 
-# if (__STDC__ - 0 || __GNUC__ - 0) \
+
+# if (defined __STDC__ || defined __GNUC__) \
      && (defined __UCLIBC_HAS_LONG_DOUBLE_MATH__ || defined __LDBL_COMPAT)
 #  ifdef __LDBL_COMPAT
 
@@ -147,11 +156,10 @@ extern long double __REDIRECT_NTH (nexttowardl,
    instead of `double' and appending l to each function name.  */
 
 #   undef __MATHDECL_1
-#   define __MATHDECL_2(type, function,suffix, args, alias) \
-  extern type __REDIRECT_NTH(__MATH_PRECNAME(function,suffix), \
-			     args, alias)
-#   define __MATHDECL_1(type, function,suffix, args) \
-  __MATHDECL_2(type, function,suffix, args, __CONCAT(function,suffix))
+#   define __MATHDECL_2(type,function,suffix,args,alias) \
+  extern type __REDIRECT_NTH(__MATH_PRECNAME(function,suffix),args,alias)
+#   define __MATHDECL_1(type,function,suffix,args) \
+  __MATHDECL_2(type,function,suffix,args,__CONCAT(function,suffix))
 #  endif
 
 #  ifndef _Mlong_double_
