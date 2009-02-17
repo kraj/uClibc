@@ -90,7 +90,7 @@ __BEGIN_DECLS
 #endif
 
 
-/* Include the file of declarations, declaring souble versions */
+/* Include the file of declarations, declaring double versions */
 
 #if defined _LIBC
 # define __MATHDECLI_MAINVARIANT(x) libm_hidden_proto(x)
