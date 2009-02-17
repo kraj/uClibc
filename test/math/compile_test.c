@@ -1,6 +1,71 @@
 #include <math.h>
 
-int testl(long double long_double_x, int int_x, long long_x)
+static int testf(float float_x, long double long_double_x, /*float complex float_complex_x,*/ int int_x, long long_x)
+{
+int r = 0;
+r += acosf(float_x);
+r += acoshf(float_x);
+r += asinf(float_x);
+r += asinhf(float_x);
+r += atan2f(float_x, float_x);
+r += atanf(float_x);
+r += atanhf(float_x);
+/*r += cargf(float_complex_x); - will fight with complex numbers later */
+r += cbrtf(float_x);
+r += ceilf(float_x);
+r += copysignf(float_x, float_x);
+r += cosf(float_x);
+r += coshf(float_x);
+r += erfcf(float_x);
+r += erff(float_x);
+/*r += exp2f(float_x); - uclibc does not have it (yet?) */
+r += expf(float_x);
+r += expm1f(float_x);
+r += fabsf(float_x);
+/*r += fdimf(float_x, float_x); - uclibc does not have it (yet?) */
+r += floorf(float_x);
+/*r += fmaf(float_x, float_x, float_x); - uclibc does not have it (yet?) */
+/*r += fmaxf(float_x, float_x); - uclibc does not have it (yet?) */
+/*r += fminf(float_x, float_x); - uclibc does not have it (yet?) */
+r += fmodf(float_x, float_x);
+r += frexpf(float_x, &int_x);
+r += gammaf(float_x);
+r += hypotf(float_x, float_x);
+r += ilogbf(float_x);
+r += ldexpf(float_x, int_x);
+r += lgammaf(float_x);
+r += llrintf(float_x);
+r += llroundf(float_x);
+r += log10f(float_x);
+r += log1pf(float_x);
+/*r += log2f(float_x); - uclibc does not have it (yet?) */
+r += logbf(float_x);
+r += logf(float_x);
+r += lrintf(float_x);
+r += lroundf(float_x);
+r += modff(float_x, &float_x);
+/*r += nearbyintf(float_x); - uclibc does not have it (yet?) */
+/*r += nexttowardf(float_x, long_double_x); - uclibc does not have it (yet?) */
+r += powf(float_x, float_x);
+r += remainderf(float_x, float_x);
+/*r += remquof(float_x, float_x, &int_x); - uclibc does not have it (yet?) */
+r += rintf(float_x);
+r += roundf(float_x);
+r += scalbf(float_x, float_x);
+/*r += scalblnf(float_x, long_x); - uclibc does not have it (yet?) */
+r += scalbnf(float_x, int_x);
+r += significandf(float_x);
+r += sinf(float_x);
+r += sinhf(float_x);
+r += sqrtf(float_x);
+r += tanf(float_x);
+r += tanhf(float_x);
+/*r += tgammaf(float_x); - uclibc does not have it (yet?) */
+r += truncf(float_x);
+return r;
+}
+
+static int testl(long double long_double_x, int int_x, long long_x)
 {
 int r = 0;
 r += __finitel(long_double_x);
@@ -69,5 +134,5 @@ return r;
 
 int main(int argc, char **argv)
 {
-	return (long) &testl;
+	return (long) &testf + (long) &testl;
 }
