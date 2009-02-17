@@ -71,25 +71,128 @@ libm_CSRC := \
 	s_isnan.c s_isnanf.c s_isinf.c s_isinff.c s_finitef.c \
 	s_fdim.c s_fma.c s_fmax.c s_fmin.c \
 	s_remquo.c w_exp2.c
-FL_MOBJ := \
-	acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
-	ceilf.o copysignf.o cosf.o coshf.o erfcf.o erff.o exp2f.o expf.o \
-	expm1f.o fabsf.o fdimf.o floorf.o fmaf.o fmaxf.o fminf.o fmodf.o \
-	frexpf.o hypotf.o ilogbf.o ldexpf.o lgammaf.o llroundf.o log10f.o \
-	log1pf.o log2f.o logbf.o logf.o lrintf.o lroundf.o modff.o nearbyintf.o \
-	powf.o remainderf.o remquof.o rintf.o roundf.o \
-	scalblnf.o scalbnf.o sinf.o sinhf.o sqrtf.o tanf.o tanhf.o \
-	tgammaf.o truncf.o cargf.o llrintf.o scalbf.o gammaf.o significandf.o
 
-LD_MOBJ := acoshl.o acosl.o asinhl.o asinl.o atan2l.o atanhl.o atanl.o cargl.o cbrtl.o \
-	ceill.o copysignl.o coshl.o cosl.o erfcl.o erfl.o exp2l.o expl.o \
-	expm1l.o fabsl.o finitel.o fdiml.o floorl.o fmal.o fmaxl.o fminl.o fmodl.o fpclassifyl.o \
-	frexpl.o gammal.o hypotl.o ilogbl.o isinfl.o isnanl.o ldexpl.o lgammal.o llrintl.o \
-	llroundl.o log10l.o log1pl.o log2l.o logbl.o logl.o lrintl.o lroundl.o \
-	modfl.o nearbyintl.o nextafterl.o XXXnexttowardl.o powl.o remainderl.o \
-	remquol.o rintl.o roundl.o scalblnl.o scalbnl.o __signbitl.o sinhl.o sinl.o sqrtl.o \
-	tanhl.o tanl.o tgammal.o truncl.o significandl.o
+# Not implemented [yet?], see comment in float_wrappers.c:
+# exp2f.o fdimf.o fmaf.o fmaxf.o fminf.o log2f.o
+# nearbyintf.o remquof.o scalblnf.o tgammaf.o
+FL_MOBJ := \
+	acosf.o \
+	acoshf.o \
+	asinf.o \
+	asinhf.o \
+	atan2f.o \
+	atanf.o \
+	atanhf.o \
+	cargf.o \
+	cbrtf.o \
+	ceilf.o \
+	copysignf.o \
+	cosf.o \
+	coshf.o \
+	erfcf.o \
+	erff.o \
+	expf.o \
+	expm1f.o \
+	fabsf.o \
+	floorf.o \
+	fmodf.o \
+	frexpf.o \
+	gammaf.o \
+	hypotf.o \
+	ilogbf.o \
+	ldexpf.o \
+	lgammaf.o \
+	llrintf.o \
+	llroundf.o \
+	log10f.o \
+	log1pf.o \
+	logbf.o \
+	logf.o \
+	lrintf.o \
+	lroundf.o \
+	modff.o \
+	powf.o \
+	remainderf.o \
+	rintf.o \
+	roundf.o \
+	scalbf.o \
+	scalbnf.o \
+	significandf.o \
+	sinf.o \
+	sinhf.o \
+	sqrtf.o \
+	tanf.o \
+	tanhf.o \
+	truncf.o \
+
+# Not implemented [yet?]: nexttowardl.o
+LD_MOBJ := \
+	__finitel.o \
+	__fpclassifyl.o \
+	__isinfl.o \
+	__isnanl.o \
+	__signbitl.o \
+	acoshl.o \
+	acosl.o \
+	asinhl.o \
+	asinl.o \
+	atan2l.o \
+	atanhl.o \
+	atanl.o \
+	cargl.o \
+	cbrtl.o \
+	ceill.o \
+	copysignl.o \
+	coshl.o \
+	cosl.o \
+	erfcl.o \
+	erfl.o \
+	exp2l.o \
+	expl.o \
+	expm1l.o \
+	fabsl.o \
+	fdiml.o \
+	floorl.o \
+	fmal.o \
+	fmaxl.o \
+	fminl.o \
+	fmodl.o \
+	frexpl.o \
+	gammal.o \
+	hypotl.o \
+	ilogbl.o \
+	ldexpl.o \
+	lgammal.o \
+	llrintl.o \
+	llroundl.o \
+	log10l.o \
+	log1pl.o \
+	log2l.o \
+	logbl.o \
+	logl.o \
+	lrintl.o \
+	lroundl.o \
+	modfl.o \
+	nearbyintl.o \
+	nextafterl.o \
+	powl.o \
+	remainderl.o \
+	remquol.o \
+	rintl.o \
+	roundl.o \
+	scalblnl.o \
+	scalbnl.o \
+	significandl.o \
+	sinhl.o \
+	sinl.o \
+	sqrtl.o \
+	tanhl.o \
+	tanl.o \
+	tgammal.o \
+	truncl.o \
+
 else
+
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
 libm_CSRC := \
 	s_atan.c s_ceil.c s_cos.c \
