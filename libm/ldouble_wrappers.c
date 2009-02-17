@@ -401,11 +401,13 @@ long double nextafterl (long double x, long double y)
 }
 #endif
 
-#ifdef L_nexttowardl
+/* Disabled in Makefile.in */
+#if 0 /* def L_nexttowardl */
 long double nexttowardl (long double x, long double y)
 {
 	return (long double) nexttoward( (double)x, (double)y );
 }
+libm_hidden_def(nexttowardl)
 #endif
 
 #ifdef L_powl
@@ -492,12 +494,12 @@ long double significandl(long double x)
 
 #ifdef __DO_C99_MATH__
 
-#ifdef L_fpclassifyl
+#ifdef L___fpclassifyl
 int_WRAPPER1(__fpclassify)
 libm_hidden_def(__fpclassifyl)
 #endif
 
-#ifdef L_finitel
+#ifdef L___finitel
 int_WRAPPER1(__finite)
 libm_hidden_def(__finitel)
 #endif
@@ -507,12 +509,12 @@ int_WRAPPER1(__signbit)
 libm_hidden_def(__signbitl)
 #endif
 
-#ifdef L_isnanl
+#ifdef L___isnanl
 int_WRAPPER1(__isnan)
 libm_hidden_def(__isnanl)
 #endif
 
-#ifdef L_isinfl
+#ifdef L___isinfl
 int_WRAPPER1(__isinf)
 libm_hidden_def(__isinfl)
 #endif
