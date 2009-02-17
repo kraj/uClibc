@@ -48,6 +48,13 @@
 #endif
 
 
+/* __MATHCALLX includes libm_hidden_def
+ * __MATHCALLI includes libm_hidden_def too
+ * __MATHCALL  does not
+ * __MATHDECL_PRIV includes libm_hidden_def and declared only __foo, not foo
+ */
+
+
 /* Trigonometric functions.  */
 
 _Mdouble_BEGIN_NAMESPACE

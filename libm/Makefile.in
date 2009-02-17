@@ -85,10 +85,10 @@ LD_MOBJ := acoshl.o acosl.o asinhl.o asinl.o atan2l.o atanhl.o atanl.o cargl.o c
 	ceill.o copysignl.o coshl.o cosl.o erfcl.o erfl.o exp2l.o expl.o \
 	expm1l.o fabsl.o finitel.o fdiml.o floorl.o fmal.o fmaxl.o fminl.o fmodl.o fpclassifyl.o \
 	frexpl.o gammal.o hypotl.o ilogbl.o isinfl.o isnanl.o ldexpl.o lgammal.o llrintl.o \
-	llroundl.o log10l.o log1pl.o XXXlog2l.o logbl.o logl.o lrintl.o lroundl.o \
+	llroundl.o log10l.o log1pl.o log2l.o logbl.o logl.o lrintl.o lroundl.o \
 	modfl.o nearbyintl.o nextafterl.o XXXnexttowardl.o powl.o remainderl.o \
 	remquol.o rintl.o roundl.o scalblnl.o scalbnl.o __signbitl.o sinhl.o sinl.o sqrtl.o \
-	tanhl.o tanl.o tgammal.o truncl.o
+	tanhl.o tanl.o tgammal.o truncl.o significandl.o
 else
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
 libm_CSRC := \

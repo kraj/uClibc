@@ -309,6 +309,15 @@ long double frexpl (long double x, int *exp)
 }
 #endif
 
+#ifdef L_gammal
+/* WRAPPER1(gamma) won't work, tries to call __GI_xxx,
+ * and gamma() hasn't got one. */
+long double gammal(long double x)
+{
+	return (long double) gamma((double) x);
+}
+#endif
+
 #ifdef L_hypotl
 long double hypotl (long double x, long double y)
 {
@@ -348,7 +357,11 @@ WRAPPER1(log1p)
 #endif
 
 #ifdef L_log2l
-WRAPPER1(log2)
+/* WRAPPER1(log2) won't work */
+long double log2l(long double x)
+{
+	return (long double) log2((double)x);
+}
 #endif
 
 #ifdef L_logbl
@@ -438,6 +451,8 @@ long double scalbnl (long double x, int exp)
 }
 #endif
 
+/* scalb is an obsolete function */
+
 #ifdef L_sinhl
 WRAPPER1(sinh)
 #endif
@@ -466,18 +481,30 @@ WRAPPER1(tgamma)
 WRAPPER1(trunc)
 #endif
 
+#ifdef L_significandl
+/* WRAPPER1(significand) won't work, tries to call __GI_xxx,
+ * and significand() hasn't got one. */
+long double significandl(long double x)
+{
+	return (long double) significand((double) x);
+}
+#endif
+
 #ifdef __DO_C99_MATH__
 
 #ifdef L_fpclassifyl
-int_WRAPPER1(__fpclassify);
+int_WRAPPER1(__fpclassify)
+libm_hidden_def(__fpclassifyl)
 #endif
 
 #ifdef L_finitel
 int_WRAPPER1(__finite)
+libm_hidden_def(__finitel)
 #endif
 
 #ifdef L___signbitl
 int_WRAPPER1(__signbit)
+libm_hidden_def(__signbitl)
 #endif
 
 #ifdef L_isnanl

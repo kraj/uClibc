@@ -1,9 +1,11 @@
 # uClibc math tests
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
+include ../../.config
+
 TESTS := basic-test rint tst-definitions test-fpucw test-float test-ifloat test-double test-idouble
 ifeq ($(strip $(UCLIBC_HAS_LONG_DOUBLE_MATH)),y)
-TESTS += test-ldouble test-ildouble
+TESTS += test-ldouble test-ildoubl compile_test
 else
 CFLAGS_basic-test := -DNO_LONG_DOUBLE
 endif
