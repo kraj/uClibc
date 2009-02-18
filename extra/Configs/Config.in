@@ -1268,17 +1268,12 @@ config UCLIBC_PREGENERATED_LOCALE_DATA
 	depends on UCLIBC_HAS_LOCALE
 	default n
 	help
-	  If you are selective and only want locale data for a few particular
-	  locales, you can turn this option off.
-
-	  Mere mortals will answer Y and use the default set of pregenerated
-	  locale data, which supports 169 UTF-8 locales, and 144 locales for
-	  other codesets (for the complete list see extra/locale/LOCALES).
+	  Use pre-built locale data.
 
 	  Note that these pregenerated locales are sensitive to your
 	  target architecture (endianess, bitcount).
 
-	  Saying N here is recommended.
+	  Saying N here is highly recommended.
 
 config UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA
 	bool "Automagically Download the Pre-generated Locale Data (if necessary)"
