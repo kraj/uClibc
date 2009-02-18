@@ -388,7 +388,7 @@ float fmaf (float x, float y, float z)
 }
 #endif
 
-#ifdef L_scalbf
+#if defined L_scalbf && defined __UCLIBC_SUSV3_LEGACY__
 float scalbf (float x, float y)
 {
 	return (float) scalb( (double)x, (double)y );

@@ -152,6 +152,7 @@ CTYPE_ALIAS(NAME)
 
 #define C_MACRO(X)		PASTE2(__C_is,X)(c)
 #define CTYPE_NAME(X)  is ## X
+#define CTYPE_DEF(NAME) libc_hidden_def(is ## NAME)
 
 #define IS_FUNC_BODY(NAME) \
 int CTYPE_NAME(NAME) (int c) \

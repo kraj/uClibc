@@ -133,6 +133,14 @@
  *
  */
 
+/* Nota bene:
+   The whole resolver code has several (severe) problems:
+   - it doesn't even build without IPv4, i.e. !UCLIBC_HAS_IPV4 but only IPv6
+   - it is way too big
+
+   Both points above are considered bugs, patches/reimplementations welcome.
+*/
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <string.h>

@@ -95,29 +95,6 @@
 /**********************************************************************/
 __BEGIN_DECLS
 
-extern int isalnum(int c) __THROW;
-extern int isalpha(int c) __THROW;
-#ifdef __USE_ISOC99
-extern int isblank(int c) __THROW;
-#endif
-extern int iscntrl(int c) __THROW;
-extern int isdigit(int c) __THROW;
-extern int isgraph(int c) __THROW;
-extern int islower(int c) __THROW;
-extern int isprint(int c) __THROW;
-extern int ispunct(int c) __THROW;
-extern int isspace(int c) __THROW;
-extern int isupper(int c) __THROW;
-extern int isxdigit(int c) __THROW;
-
-extern int tolower(int c) __THROW;
-extern int toupper(int c) __THROW;
-
-#if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
-extern int isascii(int c) __THROW;
-extern int toascii(int c) __THROW;
-#endif
-
 #if defined _LIBC && (defined NOT_IN_libc || defined IS_IN_libc)
 /* These are uClibc-specific. */
 # define __isdigit_char(c) ((unsigned char)((c) - '0') <= 9)

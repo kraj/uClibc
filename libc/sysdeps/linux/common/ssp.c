@@ -63,7 +63,7 @@ static void block_signals(void)
 	sigaction(SSP_SIGTYPE, &sa, NULL);
 }
 
-static void ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3) __cold
+static void __cold ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3)
 {
 	write(fd, msg1, strlen(msg1));
 	write(fd, msg2, strlen(msg2));
