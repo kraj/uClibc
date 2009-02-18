@@ -63,7 +63,7 @@ __BEGIN_DECLS
 
 #define __MATHDECLX(type,function,suffix,args,attrib) \
   __MATHDECL_1(type,function,suffix,args) __attribute__ (attrib); \
-  __MATHDECLI_MAINVARIANT(function)
+  __MATH_maybe_libm_hidden_proto(function)
 
 #define __MATHCALLX(function,suffix,args,attrib)	\
   __MATHDECLX(_Mdouble_,function,suffix,args,attrib)
@@ -73,7 +73,7 @@ __BEGIN_DECLS
    for the {l,f} variants.  */
 #define __MATHDECLI(type,function,suffix,args) \
   __MATHDECL_1(type,function,suffix,args); \
-  __MATHDECLI_MAINVARIANT(function)
+  __MATH_maybe_libm_hidden_proto(function)
 
 #define __MATHCALLI(function,suffix,args)	\
   __MATHDECLI(_Mdouble_,function,suffix,args)
@@ -93,9 +93,9 @@ __BEGIN_DECLS
 /* Include the file of declarations, declaring double versions */
 
 #if defined _LIBC
-# define __MATHDECLI_MAINVARIANT(x) libm_hidden_proto(x)
+# define __MATH_maybe_libm_hidden_proto(x) libm_hidden_proto(x)
 #else
-# define __MATHDECLI_MAINVARIANT(x)
+# define __MATH_maybe_libm_hidden_proto(x)
 #endif
 #define _Mdouble_		 double
 #define __MATH_PRECNAME(name,r)  __CONCAT(name,r)
@@ -106,8 +106,7 @@ __BEGIN_DECLS
 #undef _Mdouble_BEGIN_NAMESPACE
 #undef _Mdouble_END_NAMESPACE
 #undef __MATH_PRECNAME
-#undef __MATHDECLI_MAINVARIANT
-#define __MATHDECLI_MAINVARIANT(x)
+#undef __MATH_maybe_libm_hidden_proto
 
 
 #if defined __USE_MISC || defined __USE_ISOC99
@@ -115,6 +114,7 @@ __BEGIN_DECLS
 /* Include the file of declarations again, this time using `float'
    instead of `double' and appending f to each function name.  */
 
+# define __MATH_maybe_libm_hidden_proto(x)
 # ifndef _Mfloat_
 #  define _Mfloat_		float
 # endif
@@ -131,6 +131,7 @@ __BEGIN_DECLS
 # undef _Mdouble_BEGIN_NAMESPACE
 # undef _Mdouble_END_NAMESPACE
 # undef	__MATH_PRECNAME
+# undef __MATH_maybe_libm_hidden_proto
 
 
 # if (defined __STDC__ || defined __GNUC__) \
@@ -162,6 +163,7 @@ extern long double __REDIRECT_NTH (nexttowardl,
   __MATHDECL_2(type,function,suffix,args,__CONCAT(function,suffix))
 #  endif
 
+#  define __MATH_maybe_libm_hidden_proto(x)
 #  ifndef _Mlong_double_
 #   define _Mlong_double_	long double
 #  endif
@@ -178,6 +180,7 @@ extern long double __REDIRECT_NTH (nexttowardl,
 #  undef _Mdouble_BEGIN_NAMESPACE
 #  undef _Mdouble_END_NAMESPACE
 #  undef __MATH_PRECNAME
+#  undef __MATH_maybe_libm_hidden_proto
 
 # endif /* __STDC__ || __GNUC__ */
 
