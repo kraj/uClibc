@@ -134,5 +134,6 @@ return r;
 
 int main(int argc, char **argv)
 {
-	return (long) &testf + (long) &testl;
+        /* Always 0 but gcc hopefully won't be able to notice */
+        return 5 & ((long)&testf) & ((long)&testl) & 2;
 }
