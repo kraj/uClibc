@@ -50,4 +50,4 @@ typedef struct {
 #endif
 } __kernel_fsid_t;
 
-#endif /* __ARCH_I386_POSIX_TYPES_H */
+#endif
