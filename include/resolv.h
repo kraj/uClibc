@@ -279,14 +279,10 @@ struct res_sym {
 /*			0x00008000	*/
 
 /* Things involving an internal (static) resolver context. */
-#if 0
 __BEGIN_DECLS
 extern struct __res_state *__res_state(void) __attribute__ ((__const__));
 __END_DECLS
 #define _res (*__res_state())
-#else
-extern struct __res_state _res;
-#endif
 
 #define fp_nquery		__fp_nquery
 #define fp_query		__fp_query
