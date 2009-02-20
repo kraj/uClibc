@@ -27,7 +27,7 @@
 # define attribute_relro
 #endif
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#ifdef __UCLIBC_HAS_TLS__
 # define attribute_tls_model_ie __attribute__ ((tls_model ("initial-exec")))
 #endif
 

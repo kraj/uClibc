@@ -58,7 +58,7 @@ extern const char *program_invocation_name, *program_invocation_short_name;
 
 __END_DECLS
 
-#if defined _LIBC && defined __UCLIBC_HAS_THREADS_NATIVE__
+#if defined _LIBC && defined __UCLIBC_HAS_TLS__
 # if !defined NOT_IN_libc || defined IS_IN_libpthread
 #  undef errno
 #  ifndef NOT_IN_libc

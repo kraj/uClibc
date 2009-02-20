@@ -423,7 +423,7 @@ void		res_nclose (res_state) __THROW;
 __END_DECLS
 # if _LIBC
 #  ifdef __UCLIBC_HAS_THREADS__
-#   if defined __UCLIBC_HAS_THREADS_NATIVE__ \
+#   if defined __UCLIBC_HAS_TLS__ \
 	       && (!defined NOT_IN_libc || defined IS_IN_libpthread)
 #    undef _res
 #    ifndef NOT_IN_libc
@@ -435,7 +435,7 @@ extern __thread struct __res_state *__resp attribute_tls_model_ie;
 #   else
 #    undef _res
 #    define _res (*__resp)
-#   endif /* __UCLIBC_HAS_THREADS_NATIVE__ */
+#   endif /* __UCLIBC_HAS_TLS__ */
 #  endif /* __UCLIBC_HAS_THREADS__ */
 # endif /* _LIBC */
 #endif /* !_RESOLV_H_ */

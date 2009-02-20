@@ -64,7 +64,7 @@ libc_hidden_proto(__h_errno_location)
 /* Macros for accessing h_errno from inside libc.  */
 #ifdef _LIBC
 # ifdef __UCLIBC_HAS_THREADS__
-#  if defined __UCLIBC_HAS_THREADS_NATIVE__ \
+#  if defined __UCLIBC_HAS_TLS__ \
              && (!defined NOT_IN_libc || defined IS_IN_libpthread)
 #   undef h_errno
 #   ifndef NOT_IN_libc
@@ -79,7 +79,7 @@ static inline int __set_h_errno (int __err)
 {
        return *__h_errno_location () = __err;
 }
-#  endif /* __UCLIBC_HAS_THREADS_NATIVE__ */
+#  endif /* __UCLIBC_HAS_TLS__ */
 # else
 #  undef h_errno
 #  define __set_h_errno(x) (h_errno = (x))

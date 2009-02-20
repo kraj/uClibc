@@ -37,7 +37,7 @@
 #include <dl-string.h>
 /* Now the ldso specific headers */
 #include <dl-elf.h>
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#ifdef __UCLIBC_HAS_TLS__
 /* Defines USE_TLS */
 #include <tls.h>
 #endif

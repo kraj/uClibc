@@ -1269,7 +1269,7 @@ struct __res_state _res __attribute__((section (".bss")));
 #else
 struct __res_state _res __attribute__((section (".bss"))) attribute_hidden;
 
-# if defined __UCLIBC_HAS_THREADS_NATIVE__
+# if defined __UCLIBC_HAS_TLS__
 #  undef __resp
 __thread struct __res_state *__resp = &_res; 
 /*
@@ -1288,7 +1288,7 @@ struct __res_state *__resp = &_res;
 #endif
 
 #ifdef L_res_state
-# if defined __UCLIBC_HAS_THREADS_NATIVE__
+# if defined __UCLIBC_HAS_TLS__
 struct __res_state *
 __res_state (void)
 {

@@ -1,6 +1,6 @@
 #include <features.h>
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#ifdef __UCLIBC_HAS_TLS__
 __thread int errno;
 __thread int h_errno;
 
