@@ -374,7 +374,7 @@ config UCLIBC_HAS_THREADS
 
 config UCLIBC_HAS_TLS
 	bool "Thread-Local Storage"
-	depends on UCLIBC_HAS_THREADS
+	depends on UCLIBC_HAS_THREADS && !LINUXTHREADS_OLD
 	default n
 	help
 	  If you want to enable TLS support then answer Y.
@@ -402,7 +402,7 @@ config PTHREADS_DEBUG_SUPPORT
 config LINUXTHREADS_OLD
 	bool "Use the older (stable) version of linuxthreads"
 	default y
-	depends on UCLIBC_HAS_THREADS
+	depends on UCLIBC_HAS_THREADS && !UCLIBC_HAS_THREADS_NATIVE
 	help
 	  There are two versions of linuxthreads.  The older (stable) version
 	  has been in uClibc for quite a long time but hasn't seen too many
