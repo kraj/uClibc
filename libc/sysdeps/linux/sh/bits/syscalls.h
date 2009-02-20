@@ -5,7 +5,7 @@
 #endif
 
 /* The Linux kernel uses different trap numbers on sh-2.  */
-#ifdef __CONFIG_SH2__ || __CONFIG_SH2A__
+#if defined __CONFIG_SH2__ || defined __CONFIG_SH2A__
 # define __SH_SYSCALL_TRAP_BASE 0x20
 #else
 # define __SH_SYSCALL_TRAP_BASE 0x10
