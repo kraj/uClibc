@@ -18,12 +18,12 @@
    02111-1307 USA.  */
 
 #include <errno.h>
-#include <error.h>
 #include <limits.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <stdio.h>
 
+static int errors = 0;
 
 /* Number of samples per size.  */
 #define N 50000
@@ -46,10 +46,11 @@ fixed_test (int size)
 
       for (j = 0; j < size; ++j)
 	{
-	  if (ptrs[i][j] != '\0')
-	    error (EXIT_FAILURE, 0,
-		   "byte not cleared (size %d, element %d, byte %d)",
+	  if (ptrs[i][j] != '\0') {
+	    ++errors;
+	    printf("byte not cleared (size %d, element %d, byte %d)",
 		   size, i, j);
+	  }
 	  ptrs[i][j] = '\xff';
 	}
     }
@@ -79,10 +80,11 @@ random_test (void)
 
       for (j = 0; j < size; ++j)
 	{
-	  if (ptrs[i][j] != '\0')
-	    error (EXIT_FAILURE, 0,
-		   "byte not cleared (size %d, element %d, byte %d)",
+	  if (ptrs[i][j] != '\0') {
+	    ++errors;
+	    printf("byte not cleared (size %d, element %d, byte %d)",
 		   size, i, j);
+	  }
 	  ptrs[i][j] = '\xff';
 	}
     }
@@ -122,5 +124,5 @@ main (void)
 
   null_test ();
 
-  return 0;
+  return errors != 0;
 }
