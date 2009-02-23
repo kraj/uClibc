@@ -567,7 +567,7 @@ ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
 # Be sure that binutils support it
 LDFLAGS_GNUHASH:=$(call check_ld,--hash-style=gnu)
 ifeq ($(LDFLAGS_GNUHASH),)
-ifneq ($(filter-out install_headers,$(MAKECMDGOALS)),)
+ifneq ($(filter-out install_headers headers-y,$(MAKECMDGOALS)),)
 $(error Your binutils don't support --hash-style option, while you want to use it)
 endif
 else
