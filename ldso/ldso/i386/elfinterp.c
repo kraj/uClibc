@@ -164,7 +164,6 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	char *symname;
 	unsigned long *reloc_addr;
 	unsigned long symbol_addr;
-	struct elf_resolve *def_mod = 0;
 #if defined (__SUPPORT_LD_DEBUG__)
 	unsigned long old_val;
 #endif
@@ -177,8 +176,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	if (symtab_index) {
 		symbol_addr = (unsigned long)_dl_find_hash(symname, scope, tpnt,
-							   elf_machine_type_class(reloc_type),
-							   &def_mod);
+							   elf_machine_type_class(reloc_type), NULL);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this
