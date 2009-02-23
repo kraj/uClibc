@@ -4,7 +4,7 @@
 include ../../.config
 
 TESTS := basic-test rint tst-definitions test-fpucw test-float test-ifloat test-double test-idouble
-ifeq ($(strip $(UCLIBC_HAS_LONG_DOUBLE_MATH)),y)
+ifeq ($(UCLIBC_HAS_LONG_DOUBLE_MATH),y)
 TESTS += test-ldouble test-ildoubl compile_test
 else
 CFLAGS_basic-test := -DNO_LONG_DOUBLE
