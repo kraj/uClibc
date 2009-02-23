@@ -21,7 +21,7 @@
 #include <features.h>
 
 .data
-#if defined(__CONFIG_SH4__)
+#ifdef __SH4__
 .global ___fpscr_values
 .type ___fpscr_values,@object
 .size ___fpscr_values,8

@@ -98,7 +98,7 @@ typedef struct
     unsigned int mach;
     unsigned int macl;
 
-#ifdef __CONFIG_SH4__
+#ifdef __SH4__
     /* FPU registers */
     fpregset_t fpregs;
     fpregset_t xfpregs;
