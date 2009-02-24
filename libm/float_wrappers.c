@@ -24,8 +24,6 @@
 #undef L_nearbyintf    /*float       nearbyintf(float);*/
 #undef L_nexttowardf   /*float       nexttowardf(float, long double);*/
 #undef L_remquof       /*float       remquof(float, float, int *);*/
-#undef L_scalblnf      /*float       scalblnf(float, long);*/
-#undef L_tgammaf       /*float       tgammaf(float);*/
 
 /* Implement the following, as defined by SuSv3 */
 #if 0
@@ -36,6 +34,7 @@ float       asinhf(float);
 float       atan2f(float, float);
 float       atanf(float);
 float       atanhf(float);
+float       cabsf(float complex);
 float       cargf(float complex);
 float       cbrtf(float);
 float       ceilf(float);
@@ -66,12 +65,14 @@ float       powf(float, float);
 float       remainderf(float, float);
 float       rintf(float);
 float       roundf(float);
+float       scalblnf(float, long);
 float       scalbnf(float, int);
 float       sinf(float);
 float       sinhf(float);
 float       sqrtf(float);
 float       tanf(float);
 float       tanhf(float);
+float		tgammaf(float);
 #endif
 
 
@@ -127,6 +128,14 @@ float atanf (float x)
 float atanhf (float x)
 {
 	return (float) atanh( (double)x );
+}
+#endif
+
+
+#ifdef L_cabsf
+float cabsf (float complex x)
+{
+	return (float) cabs( (double complex)x );
 }
 #endif
 

@@ -69,12 +69,13 @@ libm_CSRC := \
 	s_tanh.c s_trunc.c w_acos.c w_acosh.c w_asin.c w_atan2.c w_atanh.c \
 	w_cabs.c w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c \
 	w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c \
-	w_log.c w_log2.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c \
+	w_log.c w_log2.c w_log10.c w_pow.c w_remainder.c w_sinh.c \
 	w_sqrt.c nan.c carg.c s_llrint.c \
 	s_fpclassify.c s_fpclassifyf.c s_signbit.c s_signbitf.c \
 	s_isnan.c s_isnanf.c s_isinf.c s_isinff.c s_finitef.c \
 	s_fdim.c s_fma.c s_fmax.c s_fmin.c s_nearbyint.c \
 	s_remquo.c s_scalbln.c w_exp2.c w_tgamma.c
+libm_CSRC += $(if $(UCLIBC_SUSV3_LEGACY),w_scalb.c)
 # REMOVED: w_gamma_r.c
 FL_MOBJ := \
 	acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
@@ -84,9 +85,9 @@ FL_MOBJ := \
 	log1pf.o log2f.o logbf.o logf.o lrintf.o lroundf.o modff.o nearbyintf.o \
 	nextafterf.o powf.o remainderf.o remquof.o rintf.o roundf.o \
 	scalblnf.o scalbnf.o sinf.o sinhf.o sqrtf.o tanf.o tanhf.o \
-	tgammaf.o truncf.o cargf.o llrintf.o
+	tgammaf.o truncf.o cabsf.o cargf.o llrintf.o
 
-LD_MOBJ := acoshl.o acosl.o asinhl.o asinl.o atan2l.o atanhl.o atanl.o cargl.o cbrtl.o \
+LD_MOBJ := acoshl.o acosl.o asinhl.o asinl.o atan2l.o atanhl.o atanl.o cabsl.o cargl.o cbrtl.o \
 	ceill.o copysignl.o coshl.o cosl.o erfcl.o erfl.o exp2l.o expl.o \
 	expm1l.o fabsl.o finitel.o fdiml.o floorl.o fmal.o fmaxl.o fminl.o fmodl.o fpclassifyl.o \
 	frexpl.o gammal.o hypotl.o ilogbl.o isinfl.o isnanl.o ldexpl.o lgammal.o llrintl.o \

@@ -23,6 +23,7 @@ long double asinl(long double);
 long double atan2l(long double, long double);
 long double atanhl(long double);
 long double atanl(long double);
+long double cabsl(long double complex);
 long double cargl(long double complex);
 long double cbrtl(long double);
 long double ceill(long double);
@@ -127,6 +128,14 @@ long double atanhl (long double x)
 long double atanl (long double x)
 {
 	return (long double) atan( (double)x );
+}
+#endif
+
+
+#ifdef L_cabsl
+long double cabsl (long double complex x)
+{
+	return (long double) cabs( (double complex)x );
 }
 #endif
 
@@ -276,9 +285,9 @@ long double fmodl (long double x, long double y)
 
 
 #ifdef L_frexpl
-long double frexpl (long double x, int *exp)
+long double frexpl (long double x, int *exponent)
 {
-	return (long double) frexp( (double)x, exp );
+	return (long double) frexp( (double)x, exponent );
 }
 #endif
 
@@ -300,9 +309,9 @@ int ilogbl (long double x)
 
 
 #ifdef L_ldexpl
-long double ldexpl (long double x, int exp)
+long double ldexpl (long double x, int exponent)
 {
-	return (long double) ldexp( (double)x, exp );
+	return (long double) ldexp( (double)x, exponent );
 }
 #endif
 
@@ -463,17 +472,17 @@ long double roundl (long double x)
 
 
 #ifdef L_scalblnl
-long double scalblnl (long double x, long exp)
+long double scalblnl (long double x, long exponent)
 {
-	return (long double) scalbln( (double)x, exp );
+	return (long double) scalbln( (double)x, exponent );
 }
 #endif
 
 
 #ifdef L_scalbnl
-long double scalbnl (long double x, int exp)
+long double scalbnl (long double x, int exponent)
 {
-	return (long double) scalbn( (double)x, exp );
+	return (long double) scalbn( (double)x, exponent );
 }
 #endif
 
