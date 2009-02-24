@@ -1812,6 +1812,26 @@ config DEVEL_PREFIX
 	  For a typical target system this should be set to "/usr", such that
 	  'make install' will install /usr/include/<header files>.
 
+config HARDWIRED_ABSPATH
+	string "Hardwire absolute paths into linker scripts"
+	default y
+	help
+	  This prepends absolute paths to the libraries mentioned in linker
+	  scripts such as libc.so.
+
+	  This is a build time optimization.  It has no impact on dynamic
+	  linking at runtime, which doesn't use linker scripts.
+
+	  You must disable this to use uClibc with a relocatable toolchain,
+	  such as the prebuilt binary cross compilers at
+	  http://uclibc.org/downloads/binaries which may be installed at an
+	  arbitrary location (such as in a user's home directory).
+
+	  The amount of time saved by this optimization is actually too small to
+	  measure. The linker just had to search the library path to find the
+	  linker script, so the dentries are cache hot if it has to search the
+	  same path again.  But it's what glibc does, so we do it too.
+
 endmenu
 
 
