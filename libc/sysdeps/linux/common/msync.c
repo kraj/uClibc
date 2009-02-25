@@ -14,6 +14,11 @@
 
 #include <sys/mman.h>
 
+#ifdef __LINUXTHREADS_OLD__
+extern __typeof(msync) weak_function msync;
+strong_alias(msync,__libc_msync)
+#endif
+
 _syscall3(int, msync, void *, addr, size_t, length, int, flags)
 
 #endif

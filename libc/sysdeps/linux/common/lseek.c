@@ -19,4 +19,9 @@ __off_t lseek(int fildes, __off_t offset, int whence)
 	return lseek64(fildes, offset, whence);
 }
 #endif
+#ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(lseek)
+#else
+libc_hidden_weak(lseek)
+strong_alias(lseek,__libc_lseek)
+#endif

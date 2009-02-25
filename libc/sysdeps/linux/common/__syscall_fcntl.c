@@ -38,7 +38,12 @@ int fcntl(int fd, int cmd, ...)
 
 	return (__syscall_fcntl(fd, cmd, arg));
 }
+#ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(fcntl)
+#else
+libc_hidden_weak(fcntl)
+strong_alias(fcntl,__libc_fcntl)
+#endif
 
 #if ! defined __NR_fcntl64 && defined __UCLIBC_HAS_LFS__
 strong_alias(fcntl,fcntl64)

@@ -10,10 +10,13 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 
-/* libc_hidden_proto(wait4) */
-
 __pid_t waitpid(__pid_t pid, int *wait_stat, int options)
 {
 	return wait4(pid, wait_stat, options, NULL);
 }
+#ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(waitpid)
+#else
+libc_hidden_weak(waitpid)
+strong_alias(waitpid,__libc_waitpid)
+#endif

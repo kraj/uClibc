@@ -35,9 +35,9 @@ extern int __socketcall(int call, unsigned long *args) attribute_hidden;
 
 
 #ifdef L_accept
-#ifdef __NR_accept
+# ifdef __NR_accept
 _syscall3(int, accept, int, call, struct sockaddr *, addr, socklen_t *,addrlen)
-#elif defined(__NR_socketcall)
+# elif defined(__NR_socketcall)
 int accept(int s, struct sockaddr *addr, socklen_t * addrlen)
 {
 	unsigned long args[3];
@@ -47,8 +47,13 @@ int accept(int s, struct sockaddr *addr, socklen_t * addrlen)
 	args[2] = (unsigned long) addrlen;
 	return __socketcall(SYS_ACCEPT, args);
 }
-#endif
+# endif
+# ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(accept)
+# else
+libc_hidden_weak(accept)
+strong_alias(accept,__libc_accept)
+# endif
 #endif
 
 #ifdef L_bind
@@ -70,9 +75,9 @@ libc_hidden_def(bind)
 #endif
 
 #ifdef L_connect
-#ifdef __NR_connect
+# ifdef __NR_connect
 _syscall3(int, connect, int, sockfd, const struct sockaddr *, saddr, socklen_t, addrlen)
-#elif defined(__NR_socketcall)
+# elif defined(__NR_socketcall)
 int connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 {
 	unsigned long args[3];
@@ -82,8 +87,13 @@ int connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 	args[2] = addrlen;
 	return __socketcall(SYS_CONNECT, args);
 }
-#endif
+# endif
+# ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(connect)
+# else
+libc_hidden_weak(connect)
+strong_alias(connect,__libc_connect)
+# endif
 #endif
 
 #ifdef L_getpeername
@@ -157,10 +167,10 @@ libc_hidden_def(listen)
 #endif
 
 #ifdef L_recv
-#ifdef __NR_recv
+# ifdef __NR_recv
 _syscall4(ssize_t, recv, int, sockfd, __ptr_t, buffer, size_t, len,
 	int, flags)
-#elif defined(__NR_socketcall)
+# elif defined(__NR_socketcall)
 /* recv, recvfrom added by bir7@leland.stanford.edu */
 ssize_t recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 {
@@ -172,21 +182,25 @@ ssize_t recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 	args[3] = flags;
 	return (__socketcall(SYS_RECV, args));
 }
-#elif defined(__NR_recvfrom)
-/* libc_hidden_proto(recvfrom) */
+# elif defined(__NR_recvfrom)
 ssize_t recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 {
 	return (recvfrom(sockfd, buffer, len, flags, NULL, NULL));
 }
-#endif
+# endif
+# ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(recv)
+# else
+libc_hidden_weak(recv)
+strong_alias(recv,__libc_recv)
+# endif
 #endif
 
 #ifdef L_recvfrom
-#ifdef __NR_recvfrom
+# ifdef __NR_recvfrom
 _syscall6(ssize_t, recvfrom, int, sockfd, __ptr_t, buffer, size_t, len,
 	int, flags, struct sockaddr *, to, socklen_t *, tolen)
-#elif defined(__NR_socketcall)
+# elif defined(__NR_socketcall)
 /* recv, recvfrom added by bir7@leland.stanford.edu */
 ssize_t recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
 		 struct sockaddr *to, socklen_t * tolen)
@@ -201,14 +215,19 @@ ssize_t recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
 	args[5] = (unsigned long) tolen;
 	return (__socketcall(SYS_RECVFROM, args));
 }
-#endif
+# endif
+# ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(recvfrom)
+# else
+libc_hidden_weak(recvfrom)
+strong_alias(recvfrom,__libc_recvfrom)
+# endif
 #endif
 
 #ifdef L_recvmsg
-#ifdef __NR_recvmsg
+# ifdef __NR_recvmsg
 _syscall3(ssize_t, recvmsg, int, sockfd, struct msghdr *, msg, int, flags)
-#elif defined(__NR_socketcall)
+# elif defined(__NR_socketcall)
 ssize_t recvmsg(int sockfd, struct msghdr *msg, int flags)
 {
 	unsigned long args[3];
@@ -218,14 +237,19 @@ ssize_t recvmsg(int sockfd, struct msghdr *msg, int flags)
 	args[2] = flags;
 	return (__socketcall(SYS_RECVMSG, args));
 }
-#endif
+# endif
+# ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(recvmsg)
+# else
+libc_hidden_weak(recvmsg)
+strong_alias(recvmsg,__libc_recvmsg)
+# endif
 #endif
 
 #ifdef L_send
-#ifdef __NR_send
+# ifdef __NR_send
 _syscall4(ssize_t, send, int, sockfd, const void *, buffer, size_t, len, int, flags)
-#elif defined(__NR_socketcall)
+# elif defined(__NR_socketcall)
 /* send, sendto added by bir7@leland.stanford.edu */
 ssize_t send(int sockfd, const void *buffer, size_t len, int flags)
 {
@@ -237,21 +261,24 @@ ssize_t send(int sockfd, const void *buffer, size_t len, int flags)
 	args[3] = flags;
 	return (__socketcall(SYS_SEND, args));
 }
-#elif defined(__NR_sendto)
-/* libc_hidden_proto(sendto) */
+# elif defined(__NR_sendto)
 ssize_t send(int sockfd, const void *buffer, size_t len, int flags)
 {
 	return (sendto(sockfd, buffer, len, flags, NULL, 0));
 }
-#endif
-/* libc_hidden_proto(send) */
+# endif
+# ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(send)
+# else
+libc_hidden_weak(send)
+strong_alias(send,__libc_send)
+# endif
 #endif
 
 #ifdef L_sendmsg
-#ifdef __NR_sendmsg
+# ifdef __NR_sendmsg
 _syscall3(ssize_t, sendmsg, int, sockfd, const struct msghdr *, msg, int, flags)
-#elif defined(__NR_socketcall)
+# elif defined(__NR_socketcall)
 ssize_t sendmsg(int sockfd, const struct msghdr *msg, int flags)
 {
 	unsigned long args[3];
@@ -261,15 +288,20 @@ ssize_t sendmsg(int sockfd, const struct msghdr *msg, int flags)
 	args[2] = flags;
 	return (__socketcall(SYS_SENDMSG, args));
 }
-#endif
+# endif
+# ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(sendmsg)
+# else
+libc_hidden_weak(sendmsg)
+strong_alias(sendmsg,__libc_sendmsg)
+# endif
 #endif
 
 #ifdef L_sendto
-#ifdef __NR_sendto
+# ifdef __NR_sendto
 _syscall6(ssize_t, sendto, int, sockfd, const void *, buffer,
 	size_t, len, int, flags, const struct sockaddr *, to, socklen_t, tolen)
-#elif defined(__NR_socketcall)
+# elif defined(__NR_socketcall)
 /* send, sendto added by bir7@leland.stanford.edu */
 ssize_t sendto(int sockfd, const void *buffer, size_t len, int flags,
 	   const struct sockaddr *to, socklen_t tolen)
@@ -284,8 +316,13 @@ ssize_t sendto(int sockfd, const void *buffer, size_t len, int flags,
 	args[5] = tolen;
 	return (__socketcall(SYS_SENDTO, args));
 }
-#endif
+# endif
+# ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(sendto)
+# else
+libc_hidden_weak(sendto)
+strong_alias(sendto,__libc_sendto)
+# endif
 #endif
 
 #ifdef L_setsockopt

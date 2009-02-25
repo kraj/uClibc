@@ -11,4 +11,10 @@
 #include <unistd.h>
 
 _syscall1(int, close, int, fd)
+
+#ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(close)
+#else
+libc_hidden_weak(close)
+strong_alias(close,__libc_close)
+#endif

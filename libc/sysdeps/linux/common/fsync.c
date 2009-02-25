@@ -10,4 +10,9 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#ifdef __LINUXTHREADS_OLD__
+extern __typeof(fsync) weak_function fsync;
+strong_alias(fsync,__libc_fsync)
+#endif
+
 _syscall1(int, fsync, int, fd)

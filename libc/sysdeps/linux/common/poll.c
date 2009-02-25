@@ -20,18 +20,14 @@
 #include <sys/syscall.h>
 #include <sys/poll.h>
 
-extern __typeof(poll) __libc_poll;
-
 #ifdef __NR_poll
 
-# define __NR___libc_poll __NR_poll
-_syscall3(int, __libc_poll, struct pollfd *, fds,
+_syscall3(int, poll, struct pollfd *, fds,
 	unsigned long int, nfds, int, timeout)
 
 #elif defined(__NR_ppoll) && defined __UCLIBC_LINUX_SPECIFIC__
 
-/* libc_hidden_proto(ppoll) */
-int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
+int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
 	struct timespec *ts = NULL, tval;
 	if (timeout > 0) {
@@ -57,11 +53,6 @@ int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
 #include <sys/param.h>
 #include <unistd.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(memset) */
-/* libc_hidden_proto(getdtablesize) */
-/* libc_hidden_proto(select) */
-
 /* uClinux 2.0 doesn't have poll, emulate it using select */
 
 /* Poll the file descriptors described by the NFDS structures starting at
@@ -70,7 +61,7 @@ int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
    Returns the number of file descriptors with events, zero if timed out,
    or -1 for errors.  */
 
-int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
+int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
     static int max_fd_size;
     struct timeval tv;
@@ -229,6 +220,10 @@ int __libc_poll(struct pollfd *fds, nfds_t nfds, int timeout)
 }
 
 #endif
-/* libc_hidden_proto(poll) */
-weak_alias(__libc_poll,poll)
+
+#ifndef __LINUXTHREADS_OLD__
+libc_hidden_def(poll)
+#else
 libc_hidden_weak(poll)
+strong_alias(poll,__libc_poll)
+#endif

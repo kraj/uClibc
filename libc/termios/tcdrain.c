@@ -20,10 +20,13 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
-/* libc_hidden_proto(ioctl) */
+#ifdef __LINUXTHREADS_OLD__
+extern __typeof(tcdrain) weak_function tcdrain;
+strong_alias(tcdrain,__libc_tcdrain)
+#endif
 
 /* Wait for pending output to be written on FD.  */
 int tcdrain(int fd)
 {
-      return ioctl(fd, TCSBRK, 1);
+	return ioctl(fd, TCSBRK, 1);
 }

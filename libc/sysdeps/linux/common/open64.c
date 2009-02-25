@@ -30,6 +30,11 @@ int open64 (const char *file, int oflag, ...)
 
     return open(file, oflag | O_LARGEFILE, mode);
 }
+#ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(open64)
+#else
+libc_hidden_weak(open64)
+strong_alias(open64,__libc_open64)
+#endif
 
 #endif /* __UCLIBC_HAS_LFS__ */

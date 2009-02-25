@@ -10,17 +10,18 @@
 #define __UCLIBC_HIDE_DEPRECATED__
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <signal.h>
+
+#ifdef __LINUXTHREADS_OLD__
+extern __typeof(pause) weak_function pause;
+strong_alias(pause,__libc_pause)
+#endif
 
 #ifdef __NR_pause
-
 _syscall0(int, pause)
-
 #else
-
-#include <signal.h>
 int pause(void)
 {
 	return (__sigpause(sigblock(0), 0));
 }
-
 #endif
