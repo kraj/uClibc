@@ -31,7 +31,12 @@ int open(const char *file, int oflag, ...)
 
 	return __syscall_open(file, oflag, mode);
 }
+#ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(open)
+#else
+libc_hidden_weak(open)
+strong_alias(open,__libc_open)
+#endif
 
 int creat(const char *file, mode_t mode)
 {

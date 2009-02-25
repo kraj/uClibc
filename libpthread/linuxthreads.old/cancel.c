@@ -215,7 +215,7 @@ void __pthread_perform_cleanup(char *currentframe)
 #ifndef __PIC__
 /* We need a hook to force the cancelation wrappers to be linked in when
    static libpthread is used.  */
-extern const int __pthread_provide_wrappers;
-static const int * const __pthread_require_wrappers =
+extern const char __pthread_provide_wrappers;
+static const char *const __pthread_require_wrappers =
   &__pthread_provide_wrappers;
 #endif

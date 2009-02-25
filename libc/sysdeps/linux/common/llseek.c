@@ -36,4 +36,9 @@ loff_t lseek64(int fd, loff_t offset, int whence)
 
 #endif
 
+#ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(lseek64)
+#else
+libc_hidden_weak(lseek64)
+strong_alias(lseek64,__libc_lseek64)
+#endif
