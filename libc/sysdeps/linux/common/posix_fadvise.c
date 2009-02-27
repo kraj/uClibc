@@ -8,14 +8,8 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-/* need to hide the 64bit prototype or the strong_alias()
- * will fail when __NR_fadvise64_64 doesnt exist */
-#define posix_fadvise64 __hideposix_fadvise64
-
 #include <sys/syscall.h>
 #include <fcntl.h>
-
-#undef posix_fadvise64
 
 #ifdef __NR_fadvise64
 #define __NR_posix_fadvise __NR_fadvise64
@@ -49,7 +43,6 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 #endif
 
 #if defined __UCLIBC_HAS_LFS__ && (!defined __NR_fadvise64_64 || !defined _syscall6)
-extern __typeof(posix_fadvise) posix_fadvise64;
 strong_alias(posix_fadvise,posix_fadvise64)
 #endif
 
