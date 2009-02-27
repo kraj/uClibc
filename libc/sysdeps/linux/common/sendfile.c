@@ -7,15 +7,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-/* need to hide the 64bit prototype or the strong_alias()
- * will fail when __NR_sendfile64 doesnt exist */
-#define sendfile64 __hidesendfile64
-
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/sendfile.h>
-
-#undef sendfile64
 
 #ifdef __NR_sendfile
 
