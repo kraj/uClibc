@@ -10,8 +10,7 @@
  * different opinion on the subject... */
 
 struct kernel_stat {
-	unsigned short st_dev;
-	unsigned short __pad1;
+	unsigned long st_dev;
 	unsigned long st_ino;
 	unsigned short st_mode;
 	unsigned short st_nlink;
@@ -33,8 +32,8 @@ struct kernel_stat {
 };
 
 struct kernel_stat64 {
-	unsigned short	st_dev;
-	unsigned char	__pad0[10];
+	unsigned long long st_dev;
+	unsigned char	__pad0[4];
 #define _HAVE_STAT64___ST_INO
 	unsigned long	__st_ino;
 	unsigned int	st_mode;

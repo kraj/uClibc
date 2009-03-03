@@ -12,14 +12,15 @@
 #include <sys/sysmacros.h>
 
 #define __NR___syscall_ustat __NR_ustat
+/* Kernel's fs/super.c defines this:
+ * long sys_ustat(unsigned dev, struct ustat __user * ubuf),
+ * thus we use unsigned, not __kernel_dev_t.
+ */
 static __inline__ _syscall2(int, __syscall_ustat,
-		unsigned short int, kdev_t, struct ustat *, ubuf)
+		unsigned, kdev_t,
+		struct ustat *, ubuf)
 
 int ustat(dev_t dev, struct ustat *ubuf)
 {
-	/* We must convert the dev_t value to a __kernel_dev_t */
-	__kernel_dev_t k_dev;
-
-	k_dev = ((major(dev) & 0xff) << 8) | (minor(dev) & 0xff);
-	return __syscall_ustat(k_dev, ubuf);
+	return __syscall_ustat(dev, ubuf);
 }
