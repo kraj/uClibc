@@ -33,8 +33,7 @@ struct kernel_stat {
 };
 
 struct kernel_stat64 {
-	unsigned char	__pad0[6];
-	unsigned short	st_dev;
+	unsigned long long st_dev;
 	unsigned char	__pad1[2];
 #define _HAVE_STAT64___ST_INO
 	unsigned long	__st_ino;

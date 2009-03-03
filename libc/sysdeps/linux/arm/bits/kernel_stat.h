@@ -18,7 +18,7 @@ struct kernel_stat {
 #else
 	unsigned long  st_dev;
 #endif
-	unsigned long st_ino;
+	unsigned long  st_ino;
 	unsigned short st_mode;
 	unsigned short st_nlink;
 	unsigned short st_uid;
