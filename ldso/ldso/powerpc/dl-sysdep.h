@@ -85,7 +85,7 @@ void _dl_init_got(unsigned long *lpnt,struct elf_resolve *tpnt);
 #define ELF_MACHINE_PLTREL_OVERLAP 1
 
 /* Return the value of the GOT pointer.  */
-static __inline__ Elf32_Addr * __attribute__ ((const))
+static __always_inline Elf32_Addr * __attribute__ ((const))
 ppc_got (void)
 {
 	Elf32_Addr *got;
@@ -104,14 +104,14 @@ ppc_got (void)
 
 /* Return the link-time address of _DYNAMIC, stored as
    the first value in the GOT. */
-static __inline__ Elf32_Addr __attribute__ ((const))
+static __always_inline Elf32_Addr __attribute__ ((const))
 elf_machine_dynamic (void)
 {
 	return *ppc_got();
 }
 
 /* Return the run-time load address of the shared object.  */
-static __inline__ Elf32_Addr __attribute__ ((const))
+static __always_inline Elf32_Addr __attribute__ ((const))
 elf_machine_load_address (void)
 {
   Elf32_Addr *branchaddr;
@@ -159,7 +159,7 @@ elf_machine_load_address (void)
   return runtime_dynamic - elf_machine_dynamic ();
 }
 
-static __inline__ void
+static __always_inline void
 elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
 {

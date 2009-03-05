@@ -85,7 +85,7 @@ extern unsigned long _dl_linux_resolver (struct elf_resolve *, int);
   (((type) == R_XTENSA_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)
 
 /* Return the link-time address of _DYNAMIC.  */
-static __inline__ Elf32_Addr
+static __always_inline Elf32_Addr
 elf_machine_dynamic (void)
 {
   /* This function is only used while bootstrapping the runtime linker.
@@ -95,7 +95,7 @@ elf_machine_dynamic (void)
 }
 
 /* Return the run-time load address of the shared object.  */
-static __inline__ Elf32_Addr
+static __always_inline Elf32_Addr
 elf_machine_load_address (void)
 {
   Elf32_Addr addr, tmp;
@@ -116,7 +116,7 @@ elf_machine_load_address (void)
   return addr - 3;
 }
 
-static __inline__ void
+static __always_inline void
 elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
 {
