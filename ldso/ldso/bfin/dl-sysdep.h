@@ -210,7 +210,7 @@ while (0)
 #endif
 
 #include <elf.h>
-static __inline__ void
+static __always_inline void
 elf_machine_relative (DL_LOADADDR_TYPE load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
 {

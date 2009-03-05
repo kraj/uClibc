@@ -169,7 +169,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 
 #define OFFSET_GP_GOT 0x7ff0
 
-static __inline__ ElfW(Addr) *
+static __always_inline ElfW(Addr) *
 elf_mips_got_from_gpreg (ElfW(Addr) gpreg)
 {
 	/* FIXME: the offset of gp from GOT may be system-dependent. */
@@ -179,7 +179,7 @@ elf_mips_got_from_gpreg (ElfW(Addr) gpreg)
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
    first element of the GOT.  This must be inlined in a function which
    uses global data.  We assume its $gp points to the primary GOT.  */
-static __inline__ ElfW(Addr)
+static __always_inline ElfW(Addr)
 elf_machine_dynamic (void)
 {
 	register ElfW(Addr) gp __asm__ ("$28");
@@ -198,7 +198,7 @@ elf_machine_dynamic (void)
 #endif
 
 /* Return the run-time load address of the shared object.  */
-static __inline__ ElfW(Addr)
+static __always_inline ElfW(Addr)
 elf_machine_load_address (void)
 {
 	ElfW(Addr) addr;
@@ -214,7 +214,7 @@ elf_machine_load_address (void)
 	return addr;
 }
 
-static __inline__ void
+static __always_inline void
 elf_machine_relative (ElfW(Addr) load_off, const ElfW(Addr) rel_addr,
 		      ElfW(Word) relative_count)
 {

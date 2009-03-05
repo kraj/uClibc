@@ -37,7 +37,7 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entr
      || ((type) == R_CRIS_GLOB_DAT)) * ELF_RTYPE_CLASS_PLT)	\
    | (((type) == R_CRIS_COPY) * ELF_RTYPE_CLASS_COPY))
 
-static __inline__ Elf32_Addr
+static __always_inline Elf32_Addr
 elf_machine_dynamic(void)
 {
 	/* Don't just set this to an asm variable "r0" since that's not logical
@@ -59,7 +59,7 @@ elf_machine_dynamic(void)
    there's some other symbol we could use, that we don't *have* to force a
    GOT entry for.  */
 
-static __inline__ Elf32_Addr
+static __always_inline Elf32_Addr
 elf_machine_load_address(void)
 {
 	Elf32_Addr gotaddr_diff;
@@ -93,7 +93,7 @@ elf_machine_load_address(void)
 	return gotaddr_diff;
 }
 
-static __inline__ void
+static __always_inline void
 elf_machine_relative(Elf32_Addr load_off, const Elf32_Addr rel_addr,
                      Elf32_Word relative_count)
 {
