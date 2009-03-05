@@ -37,8 +37,3 @@ libc_hidden_def(open)
 libc_hidden_weak(open)
 strong_alias(open,__libc_open)
 #endif
-
-int creat(const char *file, mode_t mode)
-{
-	return open(file, O_WRONLY | O_CREAT | O_TRUNC, mode);
-}
