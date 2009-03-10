@@ -1,3 +1,4 @@
+/* vi: set sw=4 ts=4: */
 /* resolv.c: DNS Resolver
  *
  * Copyright (C) 1998  Kenneth Albanowski <kjahds@kjahds.com>,
@@ -175,62 +176,6 @@
 
 __UCLIBC_MUTEX_EXTERN(__resolv_lock);
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(memset) */
-/* Experimentally off - libc_hidden_proto(memmove) */
-/* Experimentally off - libc_hidden_proto(strchr) */
-/* Experimentally off - libc_hidden_proto(strcmp) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* Experimentally off - libc_hidden_proto(strdup) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* Experimentally off - libc_hidden_proto(strncat) */
-/* Experimentally off - libc_hidden_proto(strncpy) */
-/* libc_hidden_proto(strnlen) */
-/* Experimentally off - libc_hidden_proto(strstr) */
-/* Experimentally off - libc_hidden_proto(strcasecmp) */
-/* libc_hidden_proto(socket) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(fopen) */
-/* libc_hidden_proto(fclose) */
-/* libc_hidden_proto(random) */
-/* libc_hidden_proto(getservbyport) */
-/* libc_hidden_proto(gethostname) */
-/* libc_hidden_proto(uname) */
-/* libc_hidden_proto(inet_addr) */
-/* libc_hidden_proto(inet_aton) */
-/* libc_hidden_proto(inet_pton) */
-/* libc_hidden_proto(inet_ntop) */
-/* libc_hidden_proto(connect) */
-/* libc_hidden_proto(poll) */
-/* libc_hidden_proto(select) */
-/* libc_hidden_proto(recv) */
-/* libc_hidden_proto(send) */
-/* libc_hidden_proto(printf) */
-/* libc_hidden_proto(sprintf) */
-/* libc_hidden_proto(snprintf) */
-/* libc_hidden_proto(fgets) */
-/* libc_hidden_proto(getnameinfo) */
-/* libc_hidden_proto(gethostbyname) */
-/* libc_hidden_proto(gethostbyname_r) */
-/* libc_hidden_proto(gethostbyname2_r) */
-/* libc_hidden_proto(gethostbyaddr) */
-/* libc_hidden_proto(gethostbyaddr_r) */
-/* libc_hidden_proto(ns_name_uncompress) */
-/* libc_hidden_proto(ns_name_unpack) */
-/* libc_hidden_proto(ns_name_ntop) */
-/* libc_hidden_proto(res_init) */
-/* libc_hidden_proto(res_query) */
-/* libc_hidden_proto(res_querydomain) */
-/* libc_hidden_proto(gethostent_r) */
-/* libc_hidden_proto(fprintf) */
-/* libc_hidden_proto(__h_errno_location) */
-#ifdef __UCLIBC_HAS_XLOCALE__
-/* libc_hidden_proto(__ctype_b_loc) */
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-/* libc_hidden_proto(__ctype_b) */
-#endif
-
-
 #define MAX_RECURSE 5
 #define REPLY_TIMEOUT 10
 #define MAX_RETRIES 3
@@ -341,8 +286,6 @@ extern int __decode_answer(const unsigned char * message, int offset,
 extern int __length_question(const unsigned char * const message, int offset) attribute_hidden;
 extern void __open_nameservers(void) attribute_hidden;
 extern void __close_nameservers(void) attribute_hidden;
-extern int __dn_expand(const u_char *, const u_char *, const u_char *,
-	char *, int);
 
 #ifdef L_encodeh
 int attribute_hidden __encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
@@ -1339,7 +1282,8 @@ int res_query(const char *dname, int class, int type,
 	i = __dns_lookup(dname, type, __nameserversXX, __nameserverXX, &packet, &a);
 
 	if (i < 0) {
-		h_errno = TRY_AGAIN;
+		if (!h_errno) /* TODO: can this ever happen? */
+			h_errno = TRY_AGAIN;
 		return -1;
 	}
 
@@ -1566,12 +1510,13 @@ int res_querydomain(const char *name, const char *domain, int class, int type,
 	return res_query(longname, class, type, answer, anslen);
 }
 libc_hidden_def(res_querydomain)
+#endif
 
+/* Unimplemented: */
 /* res_mkquery */
 /* res_send */
 /* dn_comp */
-/* dn_expand */
-#endif
+
 
 #ifdef L_gethostbyaddr
 struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
@@ -2597,7 +2542,7 @@ libc_hidden_def(gethostbyaddr_r)
  * 'exp_dn' is a pointer to a buffer of size 'length' for the result.
  * Return size of compressed name or -1 if there was an error.
  */
-int __dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
+int dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
 				char *dst, int dstsiz)
 {
 	int n = ns_name_uncompress(msg, eom, src, dst, (size_t)dstsiz);
@@ -2822,4 +2767,3 @@ int ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
 }
 libc_hidden_def(ns_name_unpack)
 #endif /* L_ns_name */
-/* vi: set sw=4 ts=4: */
