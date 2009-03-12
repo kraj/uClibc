@@ -65,11 +65,13 @@ typedef double double_t;
 
 #endif	/* ISO C99 */
 
-#ifdef __UCLIBC_HAS_LONG_DOUBLE_MATH__
+#ifndef __NO_LONG_DOUBLE_MATH
 #include <bits/wordsize.h>
 /* Signal that we do not really have a `long double'.  The disables the
    declaration of all the `long double' function variants.  */
 # if __WORDSIZE == 32
-#  undef __UCLIBC_HAS_LONG_DOUBLE_MATH__
+#  define __NO_LONG_DOUBLE_MATH	1
+# elif !defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
+#  define __NO_LONG_DOUBLE_MATH	1
 # endif  /* __WORDSIZE == 32 */
-#endif  /* __UCLIBC_HAS_LONG_DOUBLE_MATH__ */
+#endif  /* __NO_LONG_DOUBLE_MATH */

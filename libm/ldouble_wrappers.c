@@ -116,6 +116,16 @@ long long func##l(long double x) \
 }
 #endif /* __i386__ && __OPTIMIZE__ */
 
+#if defined __NO_LONG_DOUBLE_MATH
+# define int_WRAPPER_C99(func) /* not needed */
+# else
+# define int_WRAPPER_C99(func) \
+int func##l(long double x) \
+{ \
+    return func((double) x); \
+} \
+libm_hidden_def(func##l)
+#endif
 
 /* Implement the following, as defined by SuSv3 */
 #if 0

@@ -135,7 +135,7 @@ __BEGIN_DECLS
 
 
 # if (defined __STDC__ || defined __GNUC__) \
-     && (defined __UCLIBC_HAS_LONG_DOUBLE_MATH__ || defined __LDBL_COMPAT)
+     && (defined __NO_LONG_DOUBLE_MATH || defined __LDBL_COMPAT)
 #  ifdef __LDBL_COMPAT
 
 #   ifdef __USE_ISOC99
@@ -249,7 +249,7 @@ enum
   };
 
 /* Return number of classification appropriate for X.  */
-# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
+# ifdef __NO_LONG_DOUBLE_MATH
 #  define fpclassify(x) \
      (sizeof (x) == sizeof (float) ? __fpclassifyf (x) : __fpclassify (x))
 # else
@@ -261,7 +261,7 @@ enum
 # endif
 
 /* Return nonzero value if sign of X is negative.  */
-# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
+# ifdef __NO_LONG_DOUBLE_MATH
 #  define signbit(x) \
      (sizeof (x) == sizeof (float) ? __signbitf (x) : __signbit (x))
 # else
@@ -273,7 +273,7 @@ enum
 # endif
 
 /* Return nonzero value if X is not +-Inf or NaN.  */
-# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
+# ifdef __NO_LONG_DOUBLE_MATH
 #  define isfinite(x) \
      (sizeof (x) == sizeof (float) ? __finitef (x) : __finite (x))
 # else
@@ -289,7 +289,7 @@ enum
 
 /* Return nonzero value if X is a NaN.  We could use `fpclassify' but
    we already have this functions `__isnan' and it is faster.  */
-# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
+# ifdef __NO_LONG_DOUBLE_MATH
 #  define isnan(x) \
      (sizeof (x) == sizeof (float) ? __isnanf (x) : __isnan (x))
 # else
@@ -301,7 +301,7 @@ enum
 # endif
 
 /* Return nonzero value is X is positive or negative infinity.  */
-# ifndef __UCLIBC_HAS_LONG_DOUBLE_MATH__
+# ifdef __NO_LONG_DOUBLE_MATH
 #  define isinf(x) \
      (sizeof (x) == sizeof (float) ? __isinff (x) : __isinf (x))
 # else

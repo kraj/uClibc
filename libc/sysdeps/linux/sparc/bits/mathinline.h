@@ -37,7 +37,7 @@
 
 # if __WORDSIZE == 32
 
-#  ifdef __UCLIBC_HAS_LONG_DOUBLE_MATH__
+#  ifndef __NO_LONG_DOUBLE_MATH
 
 #   define __unordered_cmp(x, y) \
   (__extension__							      \
@@ -157,7 +157,7 @@ __NTH (__signbit (double __x))
   return __u.__i[0] < 0;
 }
 
-#    ifdef __UCLIBC_HAS_LONG_DOUBLE_MATH__
+#    ifndef __NO_LONG_DOUBLE_MATH
 __MATH_INLINE int
 __NTH (__signbitl (long double __x))
 {
@@ -219,7 +219,7 @@ __NTH (sqrtl (long double __x))
   _Qp_sqrt (&__r, &__x);
   return __r;
 }
-#   elif defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
+#   elif !defined __NO_LONG_DOUBLE_MATH
 __MATH_INLINE long double
 sqrtl (long double __x) __THROW
 {
@@ -257,7 +257,7 @@ __ieee754_sqrtl (long double __x)
   _Qp_sqrt(&__r, &__x);
   return __r;
 }
-#   elif defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
+#   elif !defined __NO_LONG_DOUBLE_MATH
 __MATH_INLINE long double
 __ieee754_sqrtl (long double __x)
 {
