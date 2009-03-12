@@ -18,13 +18,13 @@
 
 #define __WORDSIZE	64
 
-#if defined __UCLIBC_HAS_LONG_DOUBLE_MATH__ && !defined __LONG_DOUBLE_MATH_OPTIONAL
+#if !defined __NO_LONG_DOUBLE_MATH && !defined __LONG_DOUBLE_MATH_OPTIONAL
 
 /* Signal that we didn't used to have a `long double'. The changes all
    the `long double' function variants to be redirects to the double
    functions.  */
 # define __LONG_DOUBLE_MATH_OPTIONAL	1
 # ifndef __LONG_DOUBLE_128__
-#  undef __UCLIBC_HAS_LONG_DOUBLE_MATH__
+#  define __NO_LONG_DOUBLE_MATH		1
 # endif
 #endif

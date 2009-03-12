@@ -13,6 +13,16 @@
 #include "math.h"
 #include <complex.h>
 
+#if defined __NO_LONG_DOUBLE_MATH
+# define int_WRAPPER_C99(func) /* not needed */
+# else
+# define int_WRAPPER_C99(func) \
+int func##l(long double x) \
+{ \
+    return func((double) x); \
+} \
+libm_hidden_def(func##l)
+#endif
 
 /* Implement the following, as defined by SuSv3 */
 #if 0
@@ -543,46 +553,28 @@ long double truncl (long double x)
 #endif
 
 
-#ifdef __DO_C99_MATH__
+#if defined __DO_C99_MATH__
 
 #ifdef L_fpclassifyl
-int __fpclassifyl (long double x)
-{
-	return __fpclassify ( (double) x );
-}
-libm_hidden_def(__fpclassifyl)
+int_WRAPPER_C99(__fpclassify)
 #endif
 
 #ifdef L_finitel
-int __finitel (long double x)
-{
-	return __finite ( (double)x );
-}
-libm_hidden_def(__finitel)
+int_WRAPPER_C99(__finite)
 #endif
 
 #ifdef L_signbitl
-int __signbitl (long double x)
-{
-	return __signbitl ( (double)x );
-}
-libm_hidden_def(__signbitl)
+int_WRAPPER_C99(__signbit)
 #endif
 
 #ifdef L_isnanl
-int __isnanl (long double x)
-{
-	return __isnan ( (double)x );
-}
-libm_hidden_def(__isnanl)
+int_WRAPPER_C99(__isnan)
 #endif
 
 #ifdef L_isinfl
-int __isinfl (long double x)
-{
-	return __isinf ( (double)x );
-}
-libm_hidden_def(__isinfl)
+int_WRAPPER_C99(__isinf)
 #endif
 
-#endif
+#endif /* DO_C99_MATH */
+
+#undef int_WRAPPER_C99

@@ -35,3 +35,7 @@ typedef double double_t;	/* `double' expressions are evaluated as
 # define FP_ILOGBNAN	2147483647
 
 #endif	/* ISO C99 */
+
+#if !defined __NO_LONG_DOUBLE_MATH && !defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
+# define __NO_LONG_DOUBLE_MATH	1
+#endif

@@ -61,3 +61,9 @@ typedef double double_t;
 # define FP_ILOGBNAN	0x7fffffff
 
 #endif	/* ISO C99 */
+
+#ifndef __NO_LONG_DOUBLE_MATH
+/* Signal that we do not really have a `long double'.  The disables the
+   declaration of all the `long double' function variants.  */
+# define __NO_LONG_DOUBLE_MATH	1
+#endif
