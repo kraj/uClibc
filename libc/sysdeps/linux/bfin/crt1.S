@@ -114,7 +114,6 @@ __start:
 #ifdef __BFIN_FDPIC__
 	R3 = [P3 + __init@FUNCDESC_GOT17M4];
 #elif defined USE_GOT
-	P5 = [P5 + _current_shared_library_p5_offset_]; 
 	R3 = [P5 + ___shared_flat_init@GOT];
 #else
 	R3.H = __init;
