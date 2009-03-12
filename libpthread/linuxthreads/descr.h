@@ -123,9 +123,7 @@ struct _pthread_descr_struct
       union dtv *dtvp;
       pthread_descr self;	/* Pointer to this structure */
       int multiple_threads;
-# ifdef NEED_DL_SYSINFO
       uintptr_t sysinfo;
-# endif
     } data;
     void *__padding[16];
   } p_header;

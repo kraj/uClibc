@@ -742,15 +742,15 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 	  pid = __clone2(pthread_start_thread_event,
   		 (void **)new_thread_bottom,
 			 (char *)stack_addr - new_thread_bottom,
-			 CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+			 CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM |
 			 __pthread_sig_cancel, new_thread);
 #elif _STACK_GROWS_UP
 	  pid = __clone(pthread_start_thread_event, (void *) new_thread_bottom,
-			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM |
 			__pthread_sig_cancel, new_thread);
 #else
 	  pid = __clone(pthread_start_thread_event, stack_addr,
-			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM |
 			__pthread_sig_cancel, new_thread);
 #endif
 	  saved_errno = errno;
@@ -783,15 +783,15 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
       pid = __clone2(pthread_start_thread,
 		     (void **)new_thread_bottom,
                      (char *)stack_addr - new_thread_bottom,
-		     CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+		     CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM |
 		     __pthread_sig_cancel, new_thread);
 #elif _STACK_GROWS_UP
       pid = __clone(pthread_start_thread, (void *) new_thread_bottom,
-		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM |
 		    __pthread_sig_cancel, new_thread);
 #else
       pid = __clone(pthread_start_thread, stack_addr,
-		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM |
 		    __pthread_sig_cancel, new_thread);
 #endif /* !NEED_SEPARATE_REGISTER_STACK */
       saved_errno = errno;
@@ -892,10 +892,11 @@ static void pthread_free(pthread_descr th)
 #ifdef _STACK_GROWS_UP
 # ifdef USE_TLS
       size_t stacksize = guardaddr - th->p_stackaddr;
+      guardaddr = th->p_stackaddr;
 # else
       size_t stacksize = guardaddr - (char *)th;
-# endif
       guardaddr = (char *)th;
+# endif
 #else
       /* Guardaddr is always set, even if guardsize is 0.  This allows
 	 us to compute everything else.  */

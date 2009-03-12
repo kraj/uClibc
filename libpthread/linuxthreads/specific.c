@@ -104,13 +104,14 @@ int pthread_key_delete(pthread_key_t key)
      that if the key is reallocated later by pthread_key_create, its
      associated values will be NULL in all threads.
 
-     If no threads have been created yet, clear it just in the
-     current thread.  */
+     If no threads have been created yet, or if we are exiting, clear
+     it just in the current thread.  */
 
   struct pthread_key_delete_helper_args args;
   args.idx1st = key / PTHREAD_KEY_2NDLEVEL_SIZE;
   args.idx2nd = key % PTHREAD_KEY_2NDLEVEL_SIZE;
-  if (__pthread_manager_request != -1)
+  if (__pthread_manager_request != -1
+      && !(__builtin_expect (__pthread_exit_requested, 0)))
     {
       struct pthread_request request;
 
@@ -203,8 +204,9 @@ void __pthread_destroy_specifics()
   __pthread_lock(THREAD_GETMEM(self, p_lock), self);
   for (i = 0; i < PTHREAD_KEY_1STLEVEL_SIZE; i++) {
     if (THREAD_GETMEM_NC(self, p_specific[i]) != NULL) {
-      free(THREAD_GETMEM_NC(self, p_specific[i]));
+      void *p = THREAD_GETMEM_NC(self, p_specific[i]);
       THREAD_SETMEM_NC(self, p_specific[i], NULL);
+      free(p);
     }
   }
   __pthread_unlock(THREAD_GETMEM(self, p_lock));

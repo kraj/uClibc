@@ -46,9 +46,7 @@ typedef struct
   dtv_t *dtv;
   void *self;		/* Pointer to the thread descriptor.  */
   int multiple_threads;
-#ifdef NEED_DL_SYSINFO
   uintptr_t sysinfo;
-#endif
 } tcbhead_t;
 
 #else /* __ASSEMBLER__ */
