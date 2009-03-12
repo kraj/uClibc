@@ -78,3 +78,7 @@ typedef double double_t;
 
 # endif /* GNUC before 3.4 */
 #endif /* COMPLEX_H */
+
+#if !defined __NO_LONG_DOUBLE_MATH && !defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
+# define __NO_LONG_DOUBLE_MATH	1
+#endif

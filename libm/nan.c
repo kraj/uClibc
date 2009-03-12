@@ -45,7 +45,7 @@ float nanf (const char *tagp)
 }
 libm_hidden_def(nanf)
 
-#if defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
+#if defined __UCLIBC_HAS_LONG_DOUBLE_MATH__ && !defined __NO_LONG_DOUBLE_MATH
 libm_hidden_proto(nanl)
 long double nanl (const char *tagp)
 {
