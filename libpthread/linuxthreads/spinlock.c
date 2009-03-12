@@ -637,8 +637,20 @@ void __pthread_alt_unlock(struct _pthread_fastlock *lock)
 #if defined HAS_COMPARE_AND_SWAP
 	wait_node_dequeue(pp_head, pp_max_prio, p_max_prio);
 #endif
+
+      /* Release the spinlock *before* restarting.  */
+#if defined TEST_FOR_COMPARE_AND_SWAP
+      if (!__pthread_has_cas)
+#endif
+#if !defined HAS_COMPARE_AND_SWAP || defined TEST_FOR_COMPARE_AND_SWAP
+	{
+	  __pthread_release(&lock->__spinlock);
+	}
+#endif
+
       restart(p_max_prio->thr);
-      break;
+
+      return;
     }
   }
 

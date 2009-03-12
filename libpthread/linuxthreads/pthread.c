@@ -740,17 +740,17 @@ int __pthread_initialize_manager(void)
 	  pid = __clone2(__pthread_manager_event,
 			 (void **) __pthread_manager_thread_bos,
 			 THREAD_MANAGER_STACK_SIZE,
-			 CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND,
+			 CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM,
 			 mgr);
 #elif _STACK_GROWS_UP
 	  pid = __clone(__pthread_manager_event,
 			(void **) __pthread_manager_thread_bos,
-			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND,
+			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM,
 			mgr);
 #else
 	  pid = __clone(__pthread_manager_event,
 			(void **) __pthread_manager_thread_tos,
-			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND,
+			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM,
 			mgr);
 #endif
 
@@ -780,13 +780,13 @@ int __pthread_initialize_manager(void)
 #ifdef NEED_SEPARATE_REGISTER_STACK
       pid = __clone2(__pthread_manager, (void **) __pthread_manager_thread_bos,
 		     THREAD_MANAGER_STACK_SIZE,
-		     CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND, mgr);
+		     CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM, mgr);
 #elif _STACK_GROWS_UP
       pid = __clone(__pthread_manager, (void **) __pthread_manager_thread_bos,
-		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND, mgr);
+		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM, mgr);
 #else
       pid = __clone(__pthread_manager, (void **) __pthread_manager_thread_tos,
-		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND, mgr);
+		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM, mgr);
 #endif
     }
   if (__builtin_expect (pid, 0) == -1) {
@@ -971,6 +971,10 @@ static void pthread_onexit_process(int retcode, void *arg)
   if (__builtin_expect (__pthread_manager_request, 0) >= 0) {
     struct pthread_request request;
     pthread_descr self = thread_self();
+
+    /* Make sure we come back here after suspend(), in case we entered
+       from a signal handler.  */
+    THREAD_SETMEM(self, p_signal_jmp, NULL);
 
     request.req_thread = self;
     request.req_kind = REQ_PROCESS_EXIT;
@@ -1201,13 +1205,13 @@ void __pthread_wait_for_restart_signal(pthread_descr self)
 
 void __pthread_restart_old(pthread_descr th)
 {
-  if (atomic_increment(&th->p_resume_count) == -1)
+  if (pthread_atomic_increment(&th->p_resume_count) == -1)
     kill(th->p_pid, __pthread_sig_restart);
 }
 
 void __pthread_suspend_old(pthread_descr self)
 {
-  if (atomic_decrement(&self->p_resume_count) <= 0)
+  if (pthread_atomic_decrement(&self->p_resume_count) <= 0)
     __pthread_wait_for_restart_signal(self);
 }
 
@@ -1218,7 +1222,7 @@ __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime)
   int was_signalled = 0;
   sigjmp_buf jmpbuf;
 
-  if (atomic_decrement(&self->p_resume_count) == 0) {
+  if (pthread_atomic_decrement(&self->p_resume_count) == 0) {
     /* Set up a longjmp handler for the restart signal, unblock
        the signal and sleep. */
 
@@ -1275,9 +1279,9 @@ __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime)
      being delivered. */
 
   if (!was_signalled) {
-    if (atomic_increment(&self->p_resume_count) != -1) {
+    if (pthread_atomic_increment(&self->p_resume_count) != -1) {
       __pthread_wait_for_restart_signal(self);
-      atomic_decrement(&self->p_resume_count); /* should be zero now! */
+      pthread_atomic_decrement(&self->p_resume_count); /* should be zero now! */
       /* woke spontaneously and consumed restart signal */
       return 1;
     }
