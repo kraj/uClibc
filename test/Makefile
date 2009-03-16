@@ -32,7 +32,7 @@ endif
 ifneq ($(UCLIBC_HAS_LOCALE),y)
 	DIRS := $(filter-out locale,$(DIRS))
 endif
-ifeq ($(UCLIBC_HAS_CRYPT_STUB),y)
+ifneq ($(UCLIBC_HAS_CRYPT),y)
 	DIRS := $(filter-out crypt,$(DIRS))
 endif
 ifeq ($(HAS_NO_THREADS),y)
