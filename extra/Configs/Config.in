@@ -790,12 +790,13 @@ comment "Support various families of functions"
 
 config UCLIBC_LINUX_MODULE_24
 	bool "Linux kernel module functions"
-	default y
+	default !(TARGET_bfin)
 	help
 	  create_module, query_module
 	  are used in linux (prior to 2.6) for loadable kernel modules.
 
-	  Say N if you do not use kernel modules.
+	  Say N if you do not use kernel modules, or you only support
+	  Linux 2.6+.
 
 config UCLIBC_LINUX_SPECIFIC
 	bool "Linux specific functions"
