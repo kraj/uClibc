@@ -19,6 +19,7 @@
 
 #include <dlfcn.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unwind.h>
 
 #define __libc_dlopen(x)	dlopen(x, (RTLD_LOCAL | RTLD_LAZY))
@@ -54,6 +55,9 @@ init (void)
    assembly.  */
 
 __asm__ (
+#ifdef __thumb__
+"       .code 32\n"
+#endif
 "	.globl	_Unwind_Resume\n"
 "	.type	_Unwind_Resume, %function\n"
 "_Unwind_Resume:\n"
@@ -74,6 +78,10 @@ __asm__ (
 "1:	.word	_GLOBAL_OFFSET_TABLE_ - 3b - 8\n"
 "2:	.word	libgcc_s_resume(GOTOFF)\n"
 "	.size	_Unwind_Resume, .-_Unwind_Resume\n"
+#ifdef __thumb__
+"       .code 16\n"
+#endif
+
 );
 
 _Unwind_Reason_Code
