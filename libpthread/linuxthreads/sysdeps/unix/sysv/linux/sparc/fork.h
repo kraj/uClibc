@@ -19,16 +19,5 @@
 
 #include <sysdep.h>
 
-#define ARCH_FORK() \
-({									\
-  register long __o0 __asm__ ("o0");					\
-  register long __o1 __asm__ ("o1");					\
-  register long __g1 __asm__ ("g1") = __NR_fork;			\
-  __asm__ __volatile__ (__SYSCALL_STRING					\
-		    : "=r" (__g1), "=r" (__o0), "=r" (__o1)		\
-		    : "0" (__g1)					\
-		    : __SYSCALL_CLOBBERS);				\
-  __o0 == -1 ? __o0 : (__o0 & (__o1 - 1));				\
-})
-
 #include_next <fork.h>
+

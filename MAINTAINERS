@@ -126,7 +126,9 @@ S:	Supported
 
 
 SPARC
-S:	Unmaintained
+P:  Austin Foxley
+E:  austinf@cetoncorp.com
+S:	Maintained
 
 VAX
 P:	Jan-Benedict Glaw
