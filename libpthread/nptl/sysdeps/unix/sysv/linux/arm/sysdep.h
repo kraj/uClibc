@@ -215,11 +215,11 @@ __local_syscall_error:						\
   ({ unsigned int _sys_result;                                  \
     {                                                           \
       int _sys_buf[2];						\
-      register int _a1 asm ("a1");                              \
-      register int *_v3 asm ("v3") = _sys_buf;			\
-      *_v3 = (int) (SYS_ify(name));				\
+      register int _a1 __asm__ ("a1");                          \
+      register int *_v3 __asm__ ("v3") = _sys_buf;		\
       LOAD_ARGS_##nr (args)                                     \
-      asm volatile ("str	r7, [v3, #4]\n"			\
+      *_v3 = (int) (name);					\
+      __asm__ __volatile__ ("str	r7, [v3, #4]\n"		\
                     "\tldr      r7, [v3]\n"                     \
                     "\tswi      0       @ syscall " #name "\n"  \
                     "\tldr      r7, [v3, #4]"                   \
@@ -236,7 +236,7 @@ __local_syscall_error:						\
        register int _a1 __asm__ ("r0"), _nr __asm__ ("r7");	\
        LOAD_ARGS_##nr (args)					\
        _nr = name;						\
-       __asm__ volatile ("swi	0x0	@ syscall " #name	\
+       __asm__ __volatile__ ("swi	0x0 @ syscall " #name	\
 		     : "=r" (_a1)				\
 		     : "r" (_nr) ASM_ARGS_##nr			\
 		     : "memory");				\
@@ -249,7 +249,7 @@ __local_syscall_error:						\
      {								\
        register int _a1 __asm__ ("a1");				\
        LOAD_ARGS_##nr (args)					\
-       __asm__ volatile ("swi	%1	@ syscall " #name	\
+       __asm__ __volatile__ ("swi	%1 @ syscall " #name	\
 		     : "=r" (_a1)				\
 		     : "i" (name) ASM_ARGS_##nr			\
 		     : "memory");				\
