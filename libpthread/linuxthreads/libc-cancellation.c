@@ -31,9 +31,6 @@
 weak_extern (__pthread_do_exit)
 # endif
 
-int __libc_multiple_threads attribute_hidden __attribute__((nocommon));
-strong_alias (__libc_multiple_threads, __librt_multiple_threads)
-
 /* The next two functions are similar to pthread_setcanceltype() but
    more specialized for the use in the cancelable functions like write().
    They do not need to check parameters etc.  */

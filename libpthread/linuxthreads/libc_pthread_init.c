@@ -33,6 +33,10 @@
 /* libc_hidden_proto(uselocale) */
 #endif
 
+int __libc_multiple_threads attribute_hidden __attribute__((nocommon));
+strong_alias (__libc_multiple_threads, __librt_multiple_threads)
+
+
 int *
 __libc_pthread_init (functions)
      const struct pthread_functions *functions;
