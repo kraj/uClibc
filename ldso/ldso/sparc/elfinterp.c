@@ -80,7 +80,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	got_addr = (char **)instr_addr;
 
 	/* Get the address of the GOT entry */
-	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
+	new_addr = _dl_lookup_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: Can't resolve symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
@@ -185,8 +185,8 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	symname = strtab + sym->st_name;
 
 	if (symtab_index) {
-		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, tpnt,
-							    elf_machine_type_class(reloc_type));
+		symbol_addr = (ElfW(Addr))_dl_lookup_hash(symname, scope, tpnt,
+							    elf_machine_type_class(reloc_type), NULL);
 		/*
 		 * We want to allow undefined references to weak symbols - this
 		 * might have been intentional.  We should not be linking local

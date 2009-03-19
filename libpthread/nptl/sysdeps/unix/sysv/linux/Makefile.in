@@ -51,7 +51,7 @@ endif
 ifeq ($(TARGET_ARCH),sparc)
 libpthread_CSRC += lowlevellock.c
 libc_CSRC += libc-lowlevellock.c
-librt_CSRC := mq_notify.c 
+librt_CSRC := mq_notify.c __syscall_error.c
 endif
 
 ifeq ($(TARGET_ARCH),sh)

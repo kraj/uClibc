@@ -54,9 +54,9 @@ typedef struct
 #endif /* __ASSEMBLER__ */
 
 /* We require TLS support in the tools.  */
-#ifndef HAVE_TLS_SUPPORT
-# error "TLS support is required."
-#endif
+#define HAVE_TLS_SUPPORT
+#define HAVE___THREAD 1
+#define HAVE_TLS_MODEL_ATTRIBUTE 1
 
 /* Signal that TLS support is available.  */
 #define USE_TLS	1
@@ -64,9 +64,6 @@ typedef struct
 #ifndef __ASSEMBLER__
 /* Get system call information.  */
 # include <sysdep.h>
-
-/* Get the thread descriptor definition.  */
-# include <nptl/descr.h>
 
 register struct pthread *__thread_self __asm__("%g7");
 
@@ -83,6 +80,9 @@ register struct pthread *__thread_self __asm__("%g7");
 
 /* Alignment requirements for the TCB.  */
 # define TLS_TCB_ALIGN __alignof__ (struct pthread)
+
+/* Get the thread descriptor definition.  */
+# include <descr.h>
 
 /* The TCB can have any size and the memory following the address the
    thread pointer points to is unspecified.  Allocate the TCB there.  */

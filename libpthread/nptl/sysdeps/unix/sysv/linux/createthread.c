@@ -21,4 +21,4 @@
 #define TLS_VALUE pd
 
 /* Get the real implementation.	 */
-#include <nptl/sysdeps/pthread/createthread.c>
+#include <sysdeps/pthread/createthread.c>

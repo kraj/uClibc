@@ -35,4 +35,7 @@
 /* define if target supports IEEE signed zero floats */
 #define __UCLIBC_HAVE_SIGNED_ZERO__
 
+/* define if target supports CFI pseudo ops */
+#define __UCLIBC_HAVE_ASM_CFI_DIRECTIVES__
+
 #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */

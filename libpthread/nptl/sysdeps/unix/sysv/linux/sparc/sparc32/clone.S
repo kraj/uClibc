@@ -1,2 +1,2 @@
 #define RESET_PID
-#include <sysdeps/unix/sysv/linux/sparc/sparc32/clone.S>
+#include <libc/sysdeps/linux/sparc/clone.S>
