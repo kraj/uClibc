@@ -233,18 +233,20 @@ volatile unsigned char __sparc32_atomic_locks[64]
 
 #else
 
-/* In libc.a/libpthread.a etc. we don't know if we'll be run on
+
+
+/*
+   Here's what we'd like to do:
+
+   In libc.a/libpthread.a etc. we don't know if we'll be run on
    pre-v9 or v9 CPU.  To be interoperable with dynamically linked
    apps on v9 CPUs e.g. with process shared primitives, use cas insn
-   on v9 CPUs and ldstub on pre-v9.  */
+   on v9 CPUs and ldstub on pre-v9.
 
-/* Avoid <ldsodefs.h> include here.  */
-extern uint64_t _dl_hwcap __attribute__((weak));
-# define __ATOMIC_HWCAP_SPARC_V9	16
-# define __atomic_is_v9 \
-  (__builtin_expect (&_dl_hwcap != 0, 1) \
-   && __builtin_expect (_dl_hwcap & __ATOMIC_HWCAP_SPARC_V9, \
-			__ATOMIC_HWCAP_SPARC_V9))
+   However, we have no good way to test at run time that I know of,
+   so resort to the lowest common denominator (v7 ops) -austinf
+ */
+#define __atomic_is_v9 0
 
 # define atomic_compare_and_exchange_val_acq(mem, newval, oldval) \
   ({								      \
