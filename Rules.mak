@@ -393,7 +393,7 @@ ifeq ($(TARGET_ARCH),frv)
 	# -shared by itself would get us global function descriptors
 	# and calls through PLTs, dynamic resolution of symbols, etc,
 	# which would break as well, but -Bsymbolic comes to the rescue.
-	export LDPIEFLAG:=-Wl,-shared -Wl,-Bsymbolic
+	export LDPIEFLAG:=-shared -Wl,-Bsymbolic
 	UCLIBC_LDSO=ld.so.1
 endif
 
@@ -520,7 +520,7 @@ endif
 
 CFLAGS += $(call check_gcc,-std=gnu99,)
 
-LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -Wl,-shared \
+LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared \
 	-Wl,--warn-common -Wl,--warn-once -Wl,-z,combreloc
 # binutils-2.16.1 warns about ignored sections, 2.16.91.0.3 and newer are ok
 #LDFLAGS_NOSTRIP+=$(call check_ld,--gc-sections)
