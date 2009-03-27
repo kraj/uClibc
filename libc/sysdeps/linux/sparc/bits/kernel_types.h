@@ -4,9 +4,10 @@
  * our private content, and not the kernel header, will win.
  *  -Erik
  */
-#if ! defined __ARCH_SPARC_POSIX_TYPES_H && ! defined __ARCH_SPARC64_POSIX_TYPES_H
+#if ! defined __ARCH_SPARC_POSIX_TYPES_H && ! defined __ARCH_SPARC64_POSIX_TYPES_H && !defined __SPARC_POSIX_TYPES_H
 #define __ARCH_SPARC_POSIX_TYPES_H
 #define __ARCH_SPARC64_POSIX_TYPES_H
+#define __SPARC_POSIX_TYPES_H
 
 # if __WORDSIZE == 64
 typedef unsigned long          __kernel_size_t;
