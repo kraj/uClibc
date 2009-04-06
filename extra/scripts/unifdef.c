@@ -206,7 +206,7 @@ static void             done(void);
 static void             error(const char *);
 static int              findsym(const char *);
 static void             flushline(bool);
-static Linetype         getline(void);
+static Linetype         get_line(void);
 static Linetype         ifeval(const char **);
 static void             ignoreoff(void);
 static void             ignoreon(void);
@@ -517,7 +517,7 @@ process(void)
 
 	for (;;) {
 		linenum++;
-		lineval = getline();
+		lineval = get_line();
 		trans_table[ifstate[depth]][lineval]();
 		debug("process %s -> %s depth %d",
 		    linetype_name[lineval],
@@ -531,7 +531,7 @@ process(void)
  * help from skipcomment().
  */
 static Linetype
-getline(void)
+get_line(void)
 {
 	const char *cp;
 	int cursym;
@@ -889,9 +889,8 @@ skipcomment(const char *cp)
 				cp += 1;
 			} else if (strchr(" \t", *cp) != NULL) {
 				cp += 1;
-			} else {
+			} else
 				return (cp);
-			}
 			continue;
 		case CXX_COMMENT:
 			if (strncmp(cp, "\n", 1) == 0) {
