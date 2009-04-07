@@ -56,26 +56,39 @@
 /* libc_hidden_proto(chdir) */
 /* libc_hidden_proto(fork) */
 
+#ifndef __ARCH_USE_MMU__
+#include <sys/syscall.h>
+/* use clone() to get fork() like behavior here -- we just want to disassociate
+ * from the controlling terminal
+ */
+static inline pid_t fork_parent(void)
+{
+	register unsigned long ret = INTERNAL_SYSCALL(clone, wtf, 2, CLONE_VM, 0);
+	if (ret != -1 && ret != 0)
+		/* parent needs to die now w/out touching stack */
+		INTERNAL_SYSCALL(exit, wtf, 0);
+	return ret;
+}
+#else
+static inline pid_t fork_parent(void)
+{
+	switch (fork()) {
+		case -1: return -1;
+		case 0:  return 0;
+		default: _exit(0);
+	}
+}
+#endif
+
 int daemon( int nochdir, int noclose )
 {
 	int fd;
 
-	switch (fork()) {
-		case -1:
-			return(-1);
-		case 0:
-			break;
-		default:
-			_exit(0);
-	}
+	if (fork_parent() == -1)
+		return -1;
 
 	if (setsid() == -1)
 		return(-1);
-
-	/* Make certain we are not a session leader, or else we
-	 * might reacquire a controlling terminal */
-	if (fork())
-		_exit(0);
 
 	if (!nochdir)
 		chdir("/");
