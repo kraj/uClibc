@@ -4,6 +4,17 @@
  * Copyright (C) 2005 by Erik Andersen <andersen@codepoet.org>
  */
 
+/* Perform operation OP with PC-relative SRC as the first operand and
+ * DST as the second.  TMP is available as a temporary if needed.  */
+
+#ifdef __mcoldfire__
+#define PCREL_OP(OP, SRC, DST, TMP, PC) \
+  "move.l #" SRC " - ., " TMP "\n\t" OP " (-8, " PC ", " TMP "), " DST
+#else
+#define PCREL_OP(OP, SRC, DST, TMP, PC) \
+  OP " " SRC "(" PC "), " DST
+#endif
+
 __asm__ ("\
 	.text\n\
 	.globl _start\n\
@@ -21,7 +32,7 @@ _dl_start_user:\n\
 	move.l %d0, %a4\n\
 	# See if we were run as a command with the executable file\n\
 	# name as an extra leading argument.\n\
-	move.l _dl_skip_args(%pc), %d0\n\
+	" PCREL_OP ("move.l", "_dl_skip_args", "%d0", "%d0", "%pc") "\n\
 	# Pop the original argument count\n\
 	move.l (%sp)+, %d1\n\
 	# Subtract _dl_skip_args from it.\n\
@@ -31,7 +42,7 @@ _dl_start_user:\n\
 	# Push back the modified argument count.\n\
 	move.l %d1, -(%sp)\n\
 	# Pass our finalizer function to the user in %a1.\n\
-	lea _dl_fini(%pc), %a1\n\
+	" PCREL_OP ("lea", "_dl_fini", "%a1", "%a1", "%pc") "\n\
 	# Initialize %fp with the stack pointer.\n\
 	move.l %sp, %fp\n\
 	# Jump to the user's entry point.\n\
