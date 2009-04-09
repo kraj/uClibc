@@ -152,7 +152,7 @@ static __always_inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv,
 # define __NR__dl_mmap __NR_mmap
 static __always_inline _syscall6(void *, _dl_mmap, void *, start, size_t, length,
                         int, prot, int, flags, int, fd, off_t, offset);
-
+#if !defined (__mcoldfire__) // Might be a kernel problem. failed on 2.6.25
 /* then try mmap2() */
 #elif defined(__NR_mmap2)
 
@@ -176,7 +176,7 @@ static __always_inline void * _dl_mmap(void * addr, unsigned long size, int prot
 	return __syscall_mmap2(addr, size, prot, flags,
 	                       fd, (off_t) (offset >> MMAP2_PAGE_SHIFT));
 }
-
+#endif
 /* finally, fall back to mmap(), syscall1() style */
 #elif defined(__NR_mmap)
 

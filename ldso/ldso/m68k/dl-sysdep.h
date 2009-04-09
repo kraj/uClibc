@@ -42,19 +42,29 @@ extern unsigned long _dl_linux_resolver (struct elf_resolve *, int);
 static __always_inline Elf32_Addr
 elf_machine_dynamic (void)
 {
-	register Elf32_Addr *got __asm__ ("%a5");
-	return *got;
+	Elf32_Addr got;
+
+	__asm__ ("move.l _DYNAMIC@GOT.w(%%a5), %0"
+			: "=a" (got));
+	return got;
 }
 
+#ifdef __mcoldfire__
+#define PCREL_OP(OP, SRC, DST, TMP, PC) \
+  "move.l #" SRC " - ., " TMP "\n\t" OP " (-8, " PC ", " TMP "), " DST
+#else
+#define PCREL_OP(OP, SRC, DST, TMP, PC) \
+  OP " " SRC "(" PC "), " DST
+#endif
 
 /* Return the run-time load address of the shared object.  */
 static __always_inline Elf32_Addr
 elf_machine_load_address (void)
 {
 	Elf32_Addr addr;
-	__asm__ ("lea _dl_start(%%pc), %0\n\t"
-	     "sub.l _dl_start@GOT.w(%%a5), %0"
-	     : "=a" (addr));
+	__asm__ (PCREL_OP ("lea", "_dl_start", "%0", "%0", "%%pc") "\n\t"
+			"sub.l _dl_start@GOT.w(%%a5), %0"
+			: "=a" (addr));
 	return addr;
 }
 

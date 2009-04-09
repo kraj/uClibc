@@ -40,7 +40,7 @@ testandset (int *spinlock)
 #else
          "bset #7,%1; sne %0"
 #endif
-       : "=dm"(ret), "=m"(*spinlock)
+       : "=&dm"(ret), "=m"(*spinlock)
        : "m"(*spinlock)
        : "cc");
 
