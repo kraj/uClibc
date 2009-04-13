@@ -44,6 +44,7 @@
 #include <features.h>
 #include <fcntl.h>
 #include <paths.h>
+#include <signal.h>
 #include <unistd.h>
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
@@ -61,12 +62,23 @@
 /* use clone() to get fork() like behavior here -- we just want to disassociate
  * from the controlling terminal
  */
-static inline pid_t fork_parent(void)
+static inline pid_t _fork_parent(void)
 {
 	register unsigned long ret = INTERNAL_SYSCALL(clone, wtf, 2, CLONE_VM, 0);
 	if (ret != -1 && ret != 0)
 		/* parent needs to die now w/out touching stack */
 		INTERNAL_SYSCALL(exit, wtf, 0);
+	return ret;
+}
+static inline pid_t fork_parent(void)
+{
+	/* Block all signals to keep the parent from using the stack */
+	pid_t ret;
+	sigset_t new_set, old_set;
+	sigfillset(&new_set);
+	sigprocmask(SIG_BLOCK, &new_set, &old_set);
+	ret = _fork_parent();
+	sigprocmask(SIG_SETMASK, &old_set, NULL);
 	return ret;
 }
 #else
