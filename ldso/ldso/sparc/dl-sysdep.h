@@ -29,7 +29,7 @@
 /* Here we define the magic numbers that this dynamic loader should accept
  * Note that SPARCV9 doesn't use EM_SPARCV9 since the userland is still 32-bit.
  */
-#if defined(__sparc_v9__) || defined(__sparc_v8__)
+#if defined(__sparc_v9__)
 #define MAGIC1 EM_SPARC32PLUS
 #else
 #define MAGIC1 EM_SPARC
