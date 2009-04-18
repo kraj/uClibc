@@ -9,7 +9,6 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  */
-
 /*
  * Portions Copyright (c) 1985, 1993
  *    The Regents of the University of California.  All rights reserved.
@@ -38,7 +37,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
 /*
  * Portions Copyright (c) 1993 by Digital Equipment Corporation.
  *
@@ -58,7 +56,6 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
  * SOFTWARE.
  */
-
 /*
  * Portions Copyright (c) 1996-1999 by Internet Software Consortium.
  *
@@ -75,32 +72,25 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
  * SOFTWARE.
  */
-
 /*
- *
  *  5-Oct-2000 W. Greathouse  wgreathouse@smva.com
- *                              Fix memory leak and memory corruption.
- *                              -- Every name resolution resulted in
- *                                 a new parse of resolv.conf and new
- *                                 copy of nameservers allocated by
- *                                 strdup.
- *                              -- Every name resolution resulted in
- *                                 a new read of resolv.conf without
- *                                 resetting index from prior read...
- *                                 resulting in exceeding array bounds.
+ *   Fix memory leak and memory corruption.
+ *   -- Every name resolution resulted in
+ *      a new parse of resolv.conf and new
+ *      copy of nameservers allocated by
+ *      strdup.
+ *   -- Every name resolution resulted in
+ *      a new read of resolv.conf without
+ *      resetting index from prior read...
+ *      resulting in exceeding array bounds.
  *
- *                              Limit nameservers read from resolv.conf
- *
- *                              Add "search" domains from resolv.conf
- *
- *                              Some systems will return a security
- *                              signature along with query answer for
- *                              dynamic DNS entries.
- *                              -- skip/ignore this answer
- *
- *                              Include arpa/nameser.h for defines.
- *
- *                              General cleanup
+ *   Limit nameservers read from resolv.conf.
+ *   Add "search" domains from resolv.conf.
+ *   Some systems will return a security
+ *   signature along with query answer for
+ *   dynamic DNS entries -- skip/ignore this answer.
+ *   Include arpa/nameser.h for defines.
+ *   General cleanup.
  *
  * 20-Jun-2001 Michal Moskal <malekith@pld.org.pl>
  *   partial IPv6 support (i.e. gethostbyname2() and resolve_address2()
@@ -132,15 +122,173 @@
  * 7-Sep-2004 Erik Andersen <andersen@codepoet.org>
  *   Added gethostent_r()
  *
+ * 2008, 2009 Denys Vlasenko <vda.linux@googlemail.com>
+ *   Cleanups, fixes, readability, more cleanups and more fixes.
  */
-
 /* Nota bene:
-   The whole resolver code has several (severe) problems:
-   - it doesn't even build without IPv4, i.e. !UCLIBC_HAS_IPV4 but only IPv6
-   - it is way too big
+ * The whole resolver code has several (severe) problems:
+ * - it doesn't even build without IPv4, i.e. !UCLIBC_HAS_IPV4 but only IPv6
+ * - it is way too big
+ *
+ * Both points above are considered bugs, patches/reimplementations welcome.
+ */
+/* RFC 1035
+...
+Whenever an octet represents a numeric quantity, the left most bit
+in the diagram is the high order or most significant bit.
+That is, the bit labeled 0 is the most significant bit.
+...
 
-   Both points above are considered bugs, patches/reimplementations welcome.
-*/
+4.1.1. Header section format
+      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                      ID                       |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |QR|   OPCODE  |AA|TC|RD|RA| 0  0  0|   RCODE   |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    QDCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    ANCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    NSCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    ARCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ID      16 bit random identifier assigned by querying peer.
+        Used to match query/response.
+QR      message is a query (0), or a response (1).
+OPCODE  0   standard query (QUERY)
+        1   inverse query (IQUERY)
+        2   server status request (STATUS)
+AA      Authoritative Answer - this bit is valid in responses.
+        Responding name server is an authority for the domain name
+        in question section. Answer section may have multiple owner names
+        because of aliases.  The AA bit corresponds to the name which matches
+        the query name, or the first owner name in the answer section.
+TC      TrunCation - this message was truncated.
+RD      Recursion Desired - this bit may be set in a query and
+        is copied into the response.  If RD is set, it directs
+        the name server to pursue the query recursively.
+        Recursive query support is optional.
+RA      Recursion Available - this be is set or cleared in a
+        response, and denotes whether recursive query support is
+        available in the name server.
+RCODE   Response code.
+        0   No error condition
+        1   Format error
+        2   Server failure - server was unable to process the query
+            due to a problem with the name server.
+        3   Name Error - meaningful only for responses from
+            an authoritative name server. The referenced domain name
+            does not exist.
+        4   Not Implemented.
+        5   Refused.
+QDCOUNT number of entries in the question section.
+ANCOUNT number of records in the answer section.
+NSCOUNT number of records in the authority records section.
+ARCOUNT number of records in the additional records section.
+
+4.1.2. Question section format
+
+The section contains QDCOUNT (usually 1) entries, each of this format:
+      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    /                     QNAME                     /
+    /                                               /
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                     QTYPE                     |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                     QCLASS                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+QNAME   a domain name represented as a sequence of labels, where
+        each label consists of a length octet followed by that
+        number of octets. The domain name terminates with the
+        zero length octet for the null label of the root. Note
+        that this field may be an odd number of octets; no
+        padding is used.
+QTYPE   a two octet type of the query.
+          1 a host address [REQ_A const]
+          2 an authoritative name server
+          3 a mail destination (Obsolete - use MX)
+          4 a mail forwarder (Obsolete - use MX)
+          5 the canonical name for an alias
+          6 marks the start of a zone of authority
+          7 a mailbox domain name (EXPERIMENTAL)
+          8 a mail group member (EXPERIMENTAL)
+          9 a mail rename domain name (EXPERIMENTAL)
+         10 a null RR (EXPERIMENTAL)
+         11 a well known service description
+         12 a domain name pointer [REQ_PTR const]
+         13 host information
+         14 mailbox or mail list information
+         15 mail exchange
+         16 text strings
+       0x1c IPv6?
+        252 a request for a transfer of an entire zone
+        253 a request for mailbox-related records (MB, MG or MR)
+        254 a request for mail agent RRs (Obsolete - see MX)
+        255 a request for all records
+QCLASS  a two octet code that specifies the class of the query.
+          1 the Internet
+        (others are historic only)
+        255 any class
+
+4.1.3. Resource record format
+
+The answer, authority, and additional sections all share the same format:
+a variable number of resource records, where the number of records
+is specified in the corresponding count field in the header.
+Each resource record has this format:
+      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    /                                               /
+    /                      NAME                     /
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                      TYPE                     |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                     CLASS                     |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                      TTL                      |
+    |                                               |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                   RDLENGTH                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--|
+    /                     RDATA                     /
+    /                                               /
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+NAME    a domain name to which this resource record pertains.
+TYPE    two octets containing one of the RR type codes.  This
+        field specifies the meaning of the data in the RDATA field.
+CLASS   two octets which specify the class of the data in the RDATA field.
+TTL     a 32 bit unsigned integer that specifies the time interval
+        (in seconds) that the record may be cached.
+RDLENGTH a 16 bit integer, length in octets of the RDATA field.
+RDATA   a variable length string of octets that describes the resource.
+        The format of this information varies according to the TYPE
+        and CLASS of the resource record.
+        If the TYPE is A and the CLASS is IN, it's a 4 octet IP address.
+
+4.1.4. Message compression
+
+In order to reduce the size of messages, domain names can be compressed.
+An entire domain name or a list of labels at the end of a domain name
+is replaced with a pointer to a prior occurance of the same name.
+
+The pointer takes the form of a two octet sequence:
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    | 1  1|                OFFSET                   |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+The first two bits are ones.  This allows a pointer to be distinguished
+from a label, since the label must begin with two zero bits because
+labels are restricted to 63 octets or less.  The OFFSET field specifies
+an offset from the start of the message (i.e., the first octet
+of the ID field in the domain header).
+A zero offset specifies the first byte of the ID field, etc.
+Domain name in a message can be represented as either:
+   - a sequence of labels ending in a zero octet
+   - a pointer
+   - a sequence of labels ending with a pointer
+ */
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -210,7 +358,7 @@
 /* Structs */
 struct resolv_header {
 	int id;
-	int qr,opcode,aa,tc,rd,ra,rcode;
+	int qr, opcode, aa, tc, rd, ra, rcode;
 	int qdcount;
 	int ancount;
 	int nscount;
@@ -218,18 +366,18 @@ struct resolv_header {
 };
 
 struct resolv_question {
-	char * dotted;
+	char *dotted;
 	int qtype;
 	int qclass;
 };
 
 struct resolv_answer {
-	char * dotted;
+	char *dotted;
 	int atype;
 	int aclass;
 	int ttl;
 	int rdlength;
-	const unsigned char * rdata;
+	const unsigned char *rdata;
 	int rdoffset;
 	char* buf;
 	size_t buflen;
@@ -272,42 +420,54 @@ extern const struct sockaddr_in6 __local_nameserver attribute_hidden;
 
 
 /* function prototypes */
-extern int __get_hosts_byname_r(const char * name, int type,
-			struct hostent * result_buf,
-			char * buf, size_t buflen,
-			struct hostent ** result,
-			int * h_errnop) attribute_hidden;
-extern int __get_hosts_byaddr_r(const char * addr, int len, int type,
-			struct hostent * result_buf,
-			char * buf, size_t buflen,
-			struct hostent ** result,
-			int * h_errnop) attribute_hidden;
-extern FILE * __open_etc_hosts(void) attribute_hidden;
-extern int __read_etc_hosts_r(FILE *fp, const char * name, int type,
-			enum etc_hosts_action action,
-			struct hostent * result_buf,
-			char * buf, size_t buflen,
-			struct hostent ** result,
-			int * h_errnop) attribute_hidden;
-extern int __dns_lookup(const char * name, int type,
-			unsigned char ** outpacket,
-			struct resolv_answer * a) attribute_hidden;
-
-extern int __encode_dotted(const char * dotted, unsigned char * dest, int maxlen) attribute_hidden;
-extern int __decode_dotted(const unsigned char * const message, int offset,
-			char * dest, int maxlen) attribute_hidden;
-extern int __length_dotted(const unsigned char * const message, int offset) attribute_hidden;
-extern int __encode_header(struct resolv_header * h, unsigned char * dest, int maxlen) attribute_hidden;
-extern void __decode_header(unsigned char * data, struct resolv_header * h) attribute_hidden;
-extern int __encode_question(const struct resolv_question * const q,
-			unsigned char * dest, int maxlen) attribute_hidden;
-extern int __decode_question(const unsigned char * const message, int offset,
-			struct resolv_question * q) attribute_hidden;
-extern int __encode_answer(struct resolv_answer * a,
-			unsigned char * dest, int maxlen) attribute_hidden;
-extern int __decode_answer(const unsigned char * message, int offset,
-			int len, struct resolv_answer * a) attribute_hidden;
-extern int __length_question(const unsigned char * const message, int offset) attribute_hidden;
+extern int __get_hosts_byname_r(const char *name,
+		int type,
+		struct hostent *result_buf,
+		char *buf,
+		size_t buflen,
+		struct hostent **result,
+		int *h_errnop) attribute_hidden;
+extern int __get_hosts_byaddr_r(const char *addr,
+		int len,
+		int type,
+		struct hostent *result_buf,
+		char *buf,
+		size_t buflen,
+		struct hostent **result,
+		int *h_errnop) attribute_hidden;
+extern FILE *__open_etc_hosts(void) attribute_hidden;
+extern int __read_etc_hosts_r(FILE *fp,
+		const char *name,
+		int type,
+		enum etc_hosts_action action,
+		struct hostent *result_buf,
+		char *buf,
+		size_t buflen,
+		struct hostent **result,
+		int *h_errnop) attribute_hidden;
+extern int __dns_lookup(const char *name,
+		int type,
+		unsigned char **outpacket,
+		struct resolv_answer *a) attribute_hidden;
+extern int __encode_dotted(const char *dotted,
+		unsigned char *dest,
+		int maxlen) attribute_hidden;
+extern int __decode_dotted(const unsigned char *packet,
+		int offset,
+		int packet_len,
+		char *dest,
+		int dest_len) attribute_hidden;
+extern int __encode_header(struct resolv_header *h,
+		unsigned char *dest,
+		int maxlen) attribute_hidden;
+extern void __decode_header(unsigned char *data,
+		struct resolv_header *h) attribute_hidden;
+extern int __encode_question(const struct resolv_question *q,
+		unsigned char *dest,
+		int maxlen) attribute_hidden;
+extern int __encode_answer(struct resolv_answer *a,
+		unsigned char *dest,
+		int maxlen) attribute_hidden;
 extern void __open_nameservers(void) attribute_hidden;
 extern void __close_nameservers(void) attribute_hidden;
 
@@ -427,7 +587,8 @@ int attribute_hidden __encode_header(struct resolv_header *h, unsigned char *des
 
 #ifdef L_decodeh
 
-void attribute_hidden __decode_header(unsigned char *data, struct resolv_header *h)
+void attribute_hidden __decode_header(unsigned char *data,
+		struct resolv_header *h)
 {
 	h->id = (data[0] << 8) | data[1];
 	h->qr = (data[2] & 0x80) ? 1 : 0;
@@ -488,39 +649,53 @@ int attribute_hidden __encode_dotted(const char *dotted, unsigned char *dest, in
 
 /* Decode a dotted string from nameserver transport-level encoding.
    This routine understands compressed data. */
-int attribute_hidden __decode_dotted(const unsigned char * const data, int offset,
-				  char *dest, int maxlen)
+int attribute_hidden __decode_dotted(const unsigned char *packet,
+		int offset,
+		int packet_len,
+		char *dest,
+		int dest_len)
 {
-	int l;
+	unsigned b;
 	bool measure = 1;
 	unsigned total = 0;
 	unsigned used = 0;
 
-	if (!data)
+	if (!packet)
 		return -1;
 
-	while ((l = data[offset++])) {
+	while (1) {
+		if (offset >= packet_len)
+			return -1;
+		b = packet[offset++];
+		if (b == 0)
+			break;
+
 		if (measure)
 			total++;
-		if ((l & 0xc0) == (0xc0)) {
+
+		if ((b & 0xc0) == 0xc0) {
+			if (offset >= packet_len)
+				return -1;
 			if (measure)
 				total++;
 			/* compressed item, redirect */
-			offset = ((l & 0x3f) << 8) | data[offset];
+			offset = ((b & 0x3f) << 8) | packet[offset];
 			measure = 0;
 			continue;
 		}
 
-		if ((used + l + 1) >= maxlen)
+		if (used + b + 1 >= dest_len)
 			return -1;
+		if (offset + b + 1 >= packet_len)
+			return -1;
+		memcpy(dest + used, packet + offset, b);
+		offset += b;
+		used += b;
 
-		memcpy(dest + used, data + offset, l);
-		offset += l;
-		used += l;
 		if (measure)
-			total += l;
+			total += b;
 
-		if (data[offset] != 0)
+		if (packet[offset] != 0)
 			dest[used++] = '.';
 		else
 			dest[used++] = '\0';
@@ -537,35 +712,11 @@ int attribute_hidden __decode_dotted(const unsigned char * const data, int offse
 #endif
 
 
-#ifdef L_lengthd
-
-/* Returns -1 only if data == NULL */
-int attribute_hidden __length_dotted(const unsigned char * const data, int offset)
-{
-	int orig_offset = offset;
-	int l;
-
-	if (!data)
-		return -1;
-
-	while ((l = data[offset++])) {
-		if ((l & 0xc0) == (0xc0)) {
-			offset++;
-			break;
-		}
-
-		offset += l;
-	}
-
-	return offset - orig_offset;
-}
-#endif
-
-
 #ifdef L_encodeq
 
-int attribute_hidden __encode_question(const struct resolv_question * const q,
-					unsigned char *dest, int maxlen)
+int attribute_hidden __encode_question(const struct resolv_question *q,
+		unsigned char *dest,
+		int maxlen)
 {
 	int i;
 
@@ -583,47 +734,6 @@ int attribute_hidden __encode_question(const struct resolv_question * const q,
 	dest[1] = (q->qtype & 0x00ff) >> 0;
 	dest[2] = (q->qclass & 0xff00) >> 8;
 	dest[3] = (q->qclass & 0x00ff) >> 0;
-
-	return i + 4;
-}
-#endif
-
-
-#ifdef L_decodeq
-
-int attribute_hidden __decode_question(const unsigned char * const message, int offset,
-					struct resolv_question *q)
-{
-	char temp[256];
-	int i;
-
-	i = __decode_dotted(message, offset, temp, sizeof(temp));
-	if (i < 0)
-		return i;
-
-	offset += i;
-
-/*TODO: what if strdup fails? */
-	q->dotted = strdup(temp);
-	q->qtype = (message[offset + 0] << 8) | message[offset + 1];
-	q->qclass = (message[offset + 2] << 8) | message[offset + 3];
-
-	return i + 4;
-}
-#endif
-
-
-#ifdef L_lengthq
-
-/* Returns -1 only if message == NULL */
-int attribute_hidden __length_question(const unsigned char * const message, int offset)
-{
-	int i;
-
-	/* returns -1 only if message == NULL */
-	i = __length_dotted(message, offset);
-	if (i < 0)
-		return i;
 
 	return i + 4;
 }
@@ -663,64 +773,21 @@ int attribute_hidden __encode_answer(struct resolv_answer *a, unsigned char *des
 #endif
 
 
-#ifdef L_decodea
-
-int attribute_hidden __decode_answer(const unsigned char *message, int offset,
-				  int len, struct resolv_answer *a)
-{
-	char temp[256];
-	int i;
-
-	DPRINTF("decode_answer(start): off %d, len %d\n", offset, len);
-	i = __decode_dotted(message, offset, temp, sizeof(temp));
-	if (i < 0)
-		return i;
-
-	message += offset + i;
-	len -= i + RRFIXEDSZ + offset;
-	if (len < 0) {
-		DPRINTF("decode_answer: off %d, len %d, i %d\n", offset, len, i);
-		return len;
-	}
-
-/* TODO: what if strdup fails? */
-	a->dotted = strdup(temp);
-	a->atype = (message[0] << 8) | message[1];
-	message += 2;
-	a->aclass = (message[0] << 8) | message[1];
-	message += 2;
-	a->ttl = (message[0] << 24) |
-		(message[1] << 16) | (message[2] << 8) | (message[3] << 0);
-	message += 4;
-	a->rdlength = (message[0] << 8) | message[1];
-	message += 2;
-	a->rdata = message;
-	a->rdoffset = offset + i + RRFIXEDSZ;
-
-	DPRINTF("i=%d,rdlength=%d\n", i, a->rdlength);
-
-	if (len < a->rdlength)
-		return -1;
-	return i + RRFIXEDSZ + a->rdlength;
-}
-#endif
-
-
 #ifdef CURRENTLY_UNUSED
 #ifdef L_encodep
 
 int __encode_packet(struct resolv_header *h,
-	struct resolv_question **q,
-	struct resolv_answer **an,
-	struct resolv_answer **ns,
-	struct resolv_answer **ar,
-	unsigned char *dest, int maxlen) attribute_hidden;
+		struct resolv_question **q,
+		struct resolv_answer **an,
+		struct resolv_answer **ns,
+		struct resolv_answer **ar,
+		unsigned char *dest, int maxlen) attribute_hidden;
 int __encode_packet(struct resolv_header *h,
-	struct resolv_question **q,
-	struct resolv_answer **an,
-	struct resolv_answer **ns,
-	struct resolv_answer **ar,
-	unsigned char *dest, int maxlen)
+		struct resolv_question **q,
+		struct resolv_answer **an,
+		struct resolv_answer **ns,
+		struct resolv_answer **ar,
+		unsigned char *dest, int maxlen)
 {
 	int i, total = 0;
 	unsigned j;
@@ -785,9 +852,16 @@ int __decode_packet(unsigned char *data, struct resolv_header *h)
 
 #ifdef L_formquery
 
-int __form_query(int id, const char *name, int type, unsigned char *packet, int maxlen);
-int __form_query(int id, const char *name, int type, unsigned char *packet,
-				 int maxlen)
+int __form_query(int id,
+		const char *name,
+		int type,
+		unsigned char *packet,
+		int maxlen);
+int __form_query(int id,
+		const char *name,
+		int type,
+		unsigned char *packet,
+		int maxlen)
 {
 	struct resolv_header h;
 	struct resolv_question q;
@@ -1034,12 +1108,87 @@ void attribute_hidden __close_nameservers(void)
 
 #ifdef L_dnslookup
 
+/* Helpers */
+static int __length_question(const unsigned char *data, int maxlen)
+{
+	const unsigned char *start;
+	unsigned b;
+
+	if (!data)
+		return -1;
+
+	start = data;
+	while (1) {
+		if (maxlen <= 0)
+			return -1;
+		b = *data++;
+		if (b == 0)
+			break;
+		if ((b & 0xc0) == 0xc0) {
+			/* It's a "compressed" name. */
+			data++; /* skip lsb of redirected offset */
+			maxlen -= 2;
+			break;
+		}
+		data += b;
+		maxlen -= (b + 1); /* account for data++ above */
+	}
+	/* Up to here we were skipping encoded name */
+
+	/* Account for QTYPE and QCLASS fields */
+	if (maxlen < 4)
+		return -1;
+	return data - start + 2 + 2;
+}
+
+static int __decode_answer(const unsigned char *message, /* packet */
+		int offset,
+		int len, /* total packet len */
+		struct resolv_answer *a)
+{
+	char temp[256];
+	int i;
+
+	DPRINTF("decode_answer(start): off %d, len %d\n", offset, len);
+	i = __decode_dotted(message, offset, len, temp, sizeof(temp));
+	if (i < 0)
+		return i;
+
+	message += offset + i;
+	len -= i + RRFIXEDSZ + offset;
+	if (len < 0) {
+		DPRINTF("decode_answer: off %d, len %d, i %d\n", offset, len, i);
+		return len;
+	}
+
+/* TODO: what if strdup fails? */
+	a->dotted = strdup(temp);
+	a->atype = (message[0] << 8) | message[1];
+	message += 2;
+	a->aclass = (message[0] << 8) | message[1];
+	message += 2;
+	a->ttl = (message[0] << 24) |
+		(message[1] << 16) | (message[2] << 8) | (message[3] << 0);
+	message += 4;
+	a->rdlength = (message[0] << 8) | message[1];
+	message += 2;
+	a->rdata = message;
+	a->rdoffset = offset + i + RRFIXEDSZ;
+
+	DPRINTF("i=%d,rdlength=%d\n", i, a->rdlength);
+
+	if (len < a->rdlength)
+		return -1;
+	return i + RRFIXEDSZ + a->rdlength;
+}
+
 /* On entry:
  *  a.buf(len) = auxiliary buffer for IP addresses after first one
  *  a.add_count = how many additional addresses are there already
  *  outpacket = where to save ptr to raw packet? can be NULL
  * On exit:
  *  ret < 0: error, all other data is not valid
+ *  ret >= 0: length of reply packet
  *  a.add_count & a.buf: updated
  *  a.rdlength: length of addresses (4 bytes for IPv4)
  *  *outpacket: updated (packet is malloced, you need to free it)
@@ -1050,15 +1199,17 @@ void attribute_hidden __close_nameservers(void)
  *      appended. (why the filed is called "dotted" I have no idea)
  *      This is a malloced string. May be NULL because strdup failed.
  */
-int attribute_hidden __dns_lookup(const char *name, int type,
-			unsigned char **outpacket,
-			struct resolv_answer *a)
+int attribute_hidden __dns_lookup(const char *name,
+		int type,
+		unsigned char **outpacket,
+		struct resolv_answer *a)
 {
 	/* Protected by __resolv_lock: */
 	static int last_ns_num = 0;
 	static uint16_t last_id = 1;
 
-	int i, j, len, fd, pos, rc;
+	int i, j, fd, rc;
+	int packet_len;
 	int name_len;
 #ifdef USE_SELECT
 	struct timeval tv;
@@ -1095,6 +1246,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
 	retries_left = 0; /* for compiler */
 	do {
+		int pos;
 		unsigned reply_timeout;
 
 		if (fd != -1) {
@@ -1166,7 +1318,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		j = __encode_question(&q, packet+i, PACKETSZ-i);
 		if (j < 0)
 			goto fail;
-		len = i + j;
+		packet_len = i + j;
 
 		/* send packet */
 		DPRINTF("On try %d, sending query to port %d\n",
@@ -1184,9 +1336,9 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			/* retry */
 			/*continue; */
 		}
-		DPRINTF("Xmit packet len:%d id:%d qr:%d\n", len, h.id, h.qr);
+		DPRINTF("Xmit packet len:%d id:%d qr:%d\n", packet_len, h.id, h.qr);
 		/* no error check - if it fails, we time out on recv */
-		send(fd, packet, len, 0);
+		send(fd, packet, packet_len, 0);
 
 #ifdef USE_SELECT
 /*TODO: use _res.retrans*/
@@ -1217,8 +1369,28 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 /*TODO: better timeout accounting?*/
 		reply_timeout -= 1000;
 #endif
-		len = recv(fd, packet, PACKETSZ, MSG_DONTWAIT);
-		if (len < HFIXEDSZ) {
+
+/* vda: a bogus response seen in real world (caused SEGV in uclibc):
+ * "ping www.google.com" sending AAAA query and getting
+ * response with one answer... with answer part missing!
+ * Fixed by thorough checks for not going past the packet's end.
+ */
+#ifdef DEBUG
+		{
+			static const char test_query[32] = "\0\2\1\0\0\1\0\0\0\0\0\0\3www\6google\3com\0\0\34\0\1";
+			static const char test_respn[32] = "\0\2\201\200\0\1\0\1\0\0\0\0\3www\6google\3com\0\0\34\0\1";
+			pos = memcmp(packet + 2, test_query + 2, 30);
+		packet_len = recv(fd, packet, PACKETSZ, MSG_DONTWAIT);
+			if (pos == 0) {
+				packet_len = 32;
+				memcpy(packet + 2, test_respn + 2, 30);
+			}
+		}
+#else
+		packet_len = recv(fd, packet, PACKETSZ, MSG_DONTWAIT);
+#endif
+
+		if (packet_len < HFIXEDSZ) {
 			/* too short!
 			 * it's just a bogus packet from somewhere */
  bogus_packet:
@@ -1227,7 +1399,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 			goto try_next_server;
 		}
 		__decode_header(packet, &h);
-		DPRINTF("id = %d, qr = %d\n", h.id, h.qr);
+		DPRINTF("len:%d id:%d qr:%d\n", packet_len, h.id, h.qr);
 		if (h.id != local_id || !h.qr) {
 			/* unsolicited */
 			goto bogus_packet;
@@ -1266,22 +1438,26 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 
 		/* Code below won't work correctly with h.ancount == 0, so... */
 		if (h.ancount <= 0) {
-			h_errno = NO_DATA; /* is this correct code? */
+			h_errno = NO_DATA; /* [is this correct code to check for?] */
 			goto fail1;
 		}
 		pos = HFIXEDSZ;
 		for (j = 0; j < h.qdcount; j++) {
 			DPRINTF("Skipping question %d at %d\n", j, pos);
-			/* returns -1 only if packet == NULL (can't happen) */
-			i = __length_question(packet, pos);
-			DPRINTF("Length of question %d is %d\n", j, i);
+			i = __length_question(packet + pos, packet_len - pos);
+			if (i < 0) {
+				DPRINTF("Packet'question section "
+					"is truncated, trying next server\n");
+				goto try_next_server;
+			}
 			pos += i;
+			DPRINTF("Length of question %d is %d\n", j, i);
 		}
 		DPRINTF("Decoding answer at pos %d\n", pos);
 
 		first_answer = 1;
-		for (j = 0; j < h.ancount && pos < len; j++) {
-			i = __decode_answer(packet, pos, len, &ma);
+		for (j = 0; j < h.ancount; j++) {
+			i = __decode_answer(packet, pos, packet_len, &ma);
 			if (i < 0) {
 				DPRINTF("failed decode %d\n", i);
 				/* If the message was truncated but we have
@@ -1333,7 +1509,7 @@ int attribute_hidden __dns_lookup(const char *name, int type,
 		else
 			free(packet);
 		free(lookup);
-		return len;
+		return packet_len;
 
  try_next_server:
 		/* Try next nameserver */
@@ -1366,13 +1542,13 @@ FILE * __open_etc_hosts(void)
 
 int attribute_hidden __read_etc_hosts_r(
 		FILE * fp,
-		const char * name,
+		const char *name,
 		int type,
 		enum etc_hosts_action action,
-		struct hostent * result_buf,
-		char * buf, size_t buflen,
-		struct hostent ** result,
-		int * h_errnop)
+		struct hostent *result_buf,
+		char *buf, size_t buflen,
+		struct hostent **result,
+		int *h_errnop)
 {
 	struct in_addr **addr_list = NULL;
 	struct in_addr *in = NULL;
@@ -1509,11 +1685,13 @@ int attribute_hidden __read_etc_hosts_r(
 
 #ifdef L_get_hosts_byname_r
 
-int attribute_hidden __get_hosts_byname_r(const char * name, int type,
-			    struct hostent * result_buf,
-			    char * buf, size_t buflen,
-			    struct hostent ** result,
-			    int * h_errnop)
+int attribute_hidden __get_hosts_byname_r(const char *name,
+		int type,
+		struct hostent *result_buf,
+		char *buf,
+		size_t buflen,
+		struct hostent **result,
+		int *h_errnop)
 {
 	return __read_etc_hosts_r(NULL, name, type, GET_HOSTS_BYNAME,
 	                          result_buf, buf, buflen, result, h_errnop);
@@ -1523,11 +1701,14 @@ int attribute_hidden __get_hosts_byname_r(const char * name, int type,
 
 #ifdef L_get_hosts_byaddr_r
 
-int attribute_hidden __get_hosts_byaddr_r(const char * addr, int len, int type,
-			    struct hostent * result_buf,
-			    char * buf, size_t buflen,
-			    struct hostent ** result,
-			    int * h_errnop)
+int attribute_hidden __get_hosts_byaddr_r(const char *addr,
+		int len,
+		int type,
+		struct hostent *result_buf,
+		char *buf,
+		size_t buflen,
+		struct hostent **result,
+		int *h_errnop)
 {
 #ifndef __UCLIBC_HAS_IPV6__
 	char	ipaddr[INET_ADDRSTRLEN];
@@ -1562,9 +1743,13 @@ int attribute_hidden __get_hosts_byaddr_r(const char * addr, int len, int type,
 
 #ifdef L_getnameinfo
 
-int getnameinfo(const struct sockaddr *sa, socklen_t addrlen, char *host,
-				 socklen_t hostlen, char *serv, socklen_t servlen,
-				 unsigned int flags)
+int getnameinfo(const struct sockaddr *sa,
+		socklen_t addrlen,
+		char *host,
+		socklen_t hostlen,
+		char *serv,
+		socklen_t servlen,
+		unsigned flags)
 {
 	int serrno = errno;
 	unsigned ok;
@@ -1786,12 +1971,12 @@ libc_hidden_def(getnameinfo)
  *
  * When examples were run, /etc/resolv.conf contained "search com" line.
  */
-int gethostbyname_r(const char * name,
-		struct hostent * result_buf,
-		char * buf,
+int gethostbyname_r(const char *name,
+		struct hostent *result_buf,
+		char *buf,
 		size_t buflen,
-		struct hostent ** result,
-		int * h_errnop)
+		struct hostent **result,
+		int *h_errnop)
 {
 	struct in_addr **addr_list;
 	char **alias;
@@ -1799,6 +1984,7 @@ int gethostbyname_r(const char * name,
 	unsigned char *packet;
 	struct resolv_answer a;
 	int i;
+	int packet_len;
 	int wrong_af = 0;
 
 	*result = NULL;
@@ -1898,8 +2084,8 @@ int gethostbyname_r(const char * name,
 	 * we'll need space of one in_addr + two addr_list[] elems */
 	a.buflen = buflen - ((sizeof(addr_list[0]) * 2 + sizeof(struct in_addr)));
 	a.add_count = 0;
-	i = __dns_lookup(name, T_A, &packet, &a);
-	if (i < 0) {
+	packet_len = __dns_lookup(name, T_A, &packet, &a);
+	if (packet_len < 0) {
 		*h_errnop = HOST_NOT_FOUND;
 		DPRINTF("__dns_lookup returned < 0\n");
 		return TRY_AGAIN;
@@ -1975,11 +2161,11 @@ libc_hidden_def(gethostbyname_r)
 
 int gethostbyname2_r(const char *name,
 		int family,
-		struct hostent * result_buf,
-		char * buf,
+		struct hostent *result_buf,
+		char *buf,
 		size_t buflen,
-		struct hostent ** result,
-		int * h_errnop)
+		struct hostent **result,
+		int *h_errnop)
 {
 #ifndef __UCLIBC_HAS_IPV6__
 	return family == (AF_INET)
@@ -2080,9 +2266,11 @@ int gethostbyname2_r(const char *name,
 /* TODO: why it's so different from gethostbyname_r (IPv4 case)? */
 	memset(&a, '\0', sizeof(a));
 	for (;;) {
+		int packet_len;
+
 /* Hmm why we memset(a) to zeros only once? */
-		i = __dns_lookup(buf, T_AAAA, &packet, &a);
-		if (i < 0) {
+		packet_len = __dns_lookup(buf, T_AAAA, &packet, &a);
+		if (packet_len < 0) {
 			*h_errnop = HOST_NOT_FOUND;
 			return TRY_AGAIN;
 		}
@@ -2097,7 +2285,7 @@ int gethostbyname2_r(const char *name,
 			*h_errnop = NO_RECOVERY;
 			return -1;
 		}
-		i = __decode_dotted(packet, a.rdoffset, buf, buflen);
+		i = __decode_dotted(packet, a.rdoffset, packet_len, buf, buflen);
 		free(packet);
 		if (i < 0) {
 			*h_errnop = NO_RECOVERY;
@@ -2128,11 +2316,12 @@ libc_hidden_def(gethostbyname2_r)
 
 #ifdef L_gethostbyaddr_r
 
-int gethostbyaddr_r(const void *addr, socklen_t addrlen, int type,
-					 struct hostent * result_buf,
-					 char * buf, size_t buflen,
-					 struct hostent ** result,
-					 int * h_errnop)
+int gethostbyaddr_r(const void *addr, socklen_t addrlen,
+		int type,
+		struct hostent *result_buf,
+		char *buf, size_t buflen,
+		struct hostent **result,
+		int *h_errnop)
 
 {
 	struct in_addr *in;
@@ -2141,6 +2330,7 @@ int gethostbyaddr_r(const void *addr, socklen_t addrlen, int type,
 	unsigned char *packet;
 	struct resolv_answer a;
 	int i;
+	int packet_len;
 	int nest = 0;
 
 	*result = NULL;
@@ -2235,8 +2425,8 @@ int gethostbyaddr_r(const void *addr, socklen_t addrlen, int type,
 	memset(&a, '\0', sizeof(a));
 	for (;;) {
 /* Hmm why we memset(a) to zeros only once? */
-		i = __dns_lookup(buf, T_PTR, &packet, &a);
-		if (i < 0) {
+		packet_len = __dns_lookup(buf, T_PTR, &packet, &a);
+		if (packet_len < 0) {
 			*h_errnop = HOST_NOT_FOUND;
 			return TRY_AGAIN;
 		}
@@ -2252,7 +2442,7 @@ int gethostbyaddr_r(const void *addr, socklen_t addrlen, int type,
 			return -1;
 		}
 		/* Decode CNAME into buf, feed it to __dns_lookup() again */
-		i = __decode_dotted(packet, a.rdoffset, buf, buflen);
+		i = __decode_dotted(packet, a.rdoffset, packet_len, buf, buflen);
 		free(packet);
 		if (i < 0) {
 			*h_errnop = NO_RECOVERY;
@@ -2261,7 +2451,7 @@ int gethostbyaddr_r(const void *addr, socklen_t addrlen, int type,
 	}
 
 	if (a.atype == T_PTR) {	/* ADDRESS */
-		i = __decode_dotted(packet, a.rdoffset, buf, buflen);
+		i = __decode_dotted(packet, a.rdoffset, packet_len, buf, buflen);
 		free(packet);
 		result_buf->h_name = buf;
 		result_buf->h_addrtype = type;
@@ -2807,7 +2997,7 @@ int res_query(const char *dname, int class, int type,
               unsigned char *answer, int anslen)
 {
 	int i;
-	unsigned char * packet = NULL;
+	unsigned char *packet = NULL;
 	struct resolv_answer a;
 
 	if (!dname || class != 1 /* CLASS_IN */) {
@@ -2849,7 +3039,8 @@ libc_hidden_def(res_query)
 int res_search(const char *name, int class, int type, u_char *answer,
 		int anslen)
 {
-	const char *cp, * const *domain;
+	const char *cp;
+	char **domain;
 	HEADER *hp = (HEADER *)(void *)answer;
 	unsigned dots;
 	unsigned state;
@@ -2908,9 +3099,7 @@ int res_search(const char *name, int class, int type, u_char *answer,
 	) {
 		bool done = 0;
 
-		for (domain = (const char * const *)_res_dnsrch;
-			*domain && !done;
-			domain++) {
+		for (domain = _res_dnsrch; *domain && !done; domain++) {
 
 			ret = res_querydomain(name, *domain, class, type,
 								  answer, anslen);
@@ -2998,7 +3187,7 @@ int res_search(const char *name, int class, int type, u_char *answer,
  * removing a trailing dot from name if domain is NULL.
  */
 int res_querydomain(const char *name, const char *domain, int class, int type,
-			u_char * answer, int anslen)
+			u_char *answer, int anslen)
 {
 	char nbuf[MAXDNAME];
 	const char *longname = nbuf;
@@ -3019,7 +3208,7 @@ int res_querydomain(const char *name, const char *domain, int class, int type,
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 	if (!(_res_options & RES_INIT)) {
 		res_init(); /* our res_init never fails */
-		goto again:
+		goto again;
 	}
 	if (_res_options & RES_DEBUG)
 		printf(";; res_querydomain(%s, %s, %d, %d)\n",
