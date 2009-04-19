@@ -60,17 +60,17 @@ if test "`(cd "$KERNEL_HEADERS"; env pwd)`" != "`(cd "$2"; env pwd)`"; then
 		die_if_not_dir "$2/asm-generic"
 		cp -RHL "$KERNEL_HEADERS/asm-generic"/* "$2/asm-generic" || exit 1
 	fi
-## vda: looks like I was fooled by two mtd directories existing
-## in include/ and include/linux/. This seems to be not needed.
-##	# For paranoid reasons, we use explicit list of directories
-##	# which may be here. List last updated for linux-2.6.27:
-##	for dir in drm mtd rdma sound video; do
-##		if test -d "$KERNEL_HEADERS/$dir"; then
-##			mkdir -p "$2/$dir" 2>/dev/null
-##			die_if_not_dir "$2/$dir"
-##			cp -RHL "$KERNEL_HEADERS/$dir"/* "$2/$dir" || exit 1
-##		fi
-##	done
+	# For paranoid reasons, we use explicit list of directories
+	# which may be found in kernel's "sanitized headers" directory after
+	# "make defconfig; make headers_install" was run in kernel tree.
+	# List last updated for linux-2.6.27:
+	for dir in drm mtd rdma sound video; do
+		if test -d "$KERNEL_HEADERS/$dir"; then
+			mkdir -p "$2/$dir" 2>/dev/null
+			die_if_not_dir "$2/$dir"
+			cp -RHL "$KERNEL_HEADERS/$dir"/* "$2/$dir" || exit 1
+		fi
+	done
 	if ! test -f "$2/linux/version.h"; then
 		echo "Warning: '$KERNEL_HEADERS/linux/version.h' is not found"
 		echo "in kernel headers directory specified in .config."
