@@ -28,21 +28,68 @@
  * More importantly, these should provide a good example for
  * others to follow when adding arch specific optimizations.
  *  -Erik
+ *
+ * 2009-04: modified by Denys Vlasenko <vda.linux@googlemail.com>
+ * Fill byte-by-byte is a bit too slow. I prefer 46 byte function
+ * which fills x4 faster than 21 bytes one.
  */
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(memset) */
 #undef memset
 void *memset(void *s, int c, size_t count)
 {
-    int d0, d1;
-    __asm__ __volatile__(
-	    "rep\n\t"
-	    "stosb"
-	    : "=&c" (d0), "=&D" (d1)
-	    :"a" (c),"1" (s),"0" (count)
-	    :"memory");
-    return s;
+	int reg, edi;
+	__asm__ __volatile__(
+
+		/* Most of the time, count is divisible by 4 and nonzero */
+		/* It's better to make this case faster */
+	/*	"	jecxz	9f\n" - (optional) count == 0: goto ret */
+		"	mov	%%ecx, %1\n"
+		"	shr	$2, %%ecx\n"
+		"	jz	1f\n" /* zero words: goto fill_bytes */
+		/* extend 8-bit fill to 32 bits */
+		"	movzx	%%al, %%eax\n" /* 3 bytes */
+	/* or:	"	and	$0xff, %%eax\n" - 5 bytes */
+		"	imul	$0x01010101, %%eax\n" /* 6 bytes */
+		/* fill full words */
+		"	rep; stosl\n"
+		/* fill 0-3 bytes */
+		"1:	and	$3, %1\n"
+		"	jz	9f\n" /* (count & 3) == 0: goto end */
+		"2:	stosb\n"
+		"	dec	%1\n"
+		"	jnz	2b\n"
+		/* end */
+		"9:\n"
+
+		: "=&D" (edi), "=&r" (reg)
+		: "0" (s), "a" (c), "c" (count)
+		: "memory"
+	);
+	return s;
 }
 libc_hidden_def(memset)
+
+/*
+gcc 4.3.1
+=========
+57                     push   %edi
+8b 7c 24 08            mov    0x8(%esp),%edi
+8b 4c 24 10            mov    0x10(%esp),%ecx
+8b 44 24 0c            mov    0xc(%esp),%eax
+89 ca                  mov    %ecx,%edx
+c1 e9 02               shr    $0x2,%ecx
+74 0b                  je     1f <__GI_memset+0x1f>
+0f b6 c0               movzbl %al,%eax
+69 c0 01 01 01 01      imul   $0x1010101,%eax,%eax
+f3 ab                  rep stos %eax,%es:(%edi)
+83 e2 03               and    $0x3,%edx
+74 04                  je     28 <__GI_memset+0x28>
+aa                     stos   %al,%es:(%edi)
+4a                     dec    %edx
+75 fc                  jne    24 <__GI_memset+0x24>
+8b 44 24 08            mov    0x8(%esp),%eax
+5f                     pop    %edi
+c3                     ret
+*/
