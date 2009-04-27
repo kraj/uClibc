@@ -452,10 +452,7 @@ getifaddrs (struct ifaddrs **ifap)
 
   /* Allocate memory for all entries we have and initialize next
      pointer.  */
-  ifas = (struct ifaddrs_storage *) calloc (1,
-					    (newlink + newaddr)
-					    * sizeof (struct ifaddrs_storage)
-					    + ifa_data_size);
+  ifas = calloc (1, (newlink + newaddr) * sizeof (ifas[0]) + ifa_data_size);
   if (ifas == NULL)
     {
       result = -1;

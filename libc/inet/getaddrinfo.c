@@ -187,6 +187,8 @@ static unsigned __check_pf(void)
 		}
 
 		for (runp = ifa; runp != NULL; runp = runp->ifa_next) {
+			if (runp->ifa_addr == NULL)
+				continue;
 #if defined __UCLIBC_HAS_IPV4__
 			if (runp->ifa_addr->sa_family == PF_INET)
 				seen |= SEEN_IPV4;
@@ -234,7 +236,7 @@ static int addrconfig(sa_family_t af)
 		ret = 1; /* Assume PF_UNIX. */
 		if (s < 0) {
 			if (errno != EMFILE)
-	        		ret = 0;
+				ret = 0;
 		} else
 			close(s);
 	}
