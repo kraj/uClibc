@@ -26,7 +26,7 @@
 #include <bits/sysnum.h>
 
 
-#ifdef __HAVE_SHARED__ 
+#ifdef __PIC__
 #define PLTJMP(_x)	_x@PLT
 #else
 #define PLTJMP(_x)	_x
@@ -99,7 +99,7 @@ clone:
 
 	/* we are done, passing the return value through r0  */
 	mov.l	.L1, r1
-#ifdef __HAVE_SHARED__ 
+#ifdef __PIC__
 	mov.l	r12, @-r15
 	sts.l	pr, @-r15
 	mov	r0, r4
