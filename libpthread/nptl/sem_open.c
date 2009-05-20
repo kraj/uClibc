@@ -166,8 +166,13 @@ check_add_mapping (const char *name, size_t namelen, int fd, sem_t *existing)
   sem_t *result = SEM_FAILED;
 
   /* Get the information about the file.  */
+#ifdef __UCLIBC_HAS_LFS__
   struct stat64 st;
   if (__fxstat64 (_STAT_VER, fd, &st) == 0)
+#else
+  struct stat st;
+  if (fstat (fd, &st) == 0)
+#endif
     {
       /* Get the lock.  */
       lll_lock (__sem_mappings_lock);

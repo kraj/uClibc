@@ -123,10 +123,18 @@ int daemon( int nochdir, int noclose )
 #else
 	if (!noclose)
 	{
-		struct stat64 st;
+#ifdef __UCLIBC_HAS_LFS__
+        struct stat64 st;
+#else
+        struct stat st;
+#endif
 
 		if ((fd = open_not_cancel(_PATH_DEVNULL, O_RDWR, 0)) != -1
+#ifdef __UCLIBC_HAS_LFS__
 			&& (__builtin_expect (fstat64 (fd, &st), 0) == 0))
+#else
+			&& (__builtin_expect (fstat (fd, &st), 0) == 0))
+#endif
 		{
 			if (__builtin_expect (S_ISCHR (st.st_mode), 1) != 0) {
 #endif
