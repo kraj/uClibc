@@ -1,6 +1,6 @@
-/* Copyright (C) 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Contributed by David S. Miller <davem@davemloft.net>, 2005.
+   Contributed by Jakub Jelinek <jakub@redhat.com>, 2003.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,7 @@
   _JMPBUF_UNWINDS_ADJ (_jmpbuf, (void *) _Unwind_GetCFA (_context), _adj)
 
 #define _JMPBUF_UNWINDS_ADJ(_jmpbuf, _address, _adj) \
-  ((uintptr_t) (_address) - (_adj) < (uintptr_t) (_jmpbuf)[0].uc_mcontext.mc_fp - (_adj))
+  ((uintptr_t) (_address) - (_adj) < (uintptr_t) (_jmpbuf)[JB_SP] - (_adj))
 
 /* We use the normal lobngjmp for unwinding.  */
 #define __libc_unwind_longjmp(buf, val) __libc_longjmp (buf, val)
