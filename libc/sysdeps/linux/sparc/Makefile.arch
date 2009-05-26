@@ -13,6 +13,6 @@ endif
 
 SSRC := \
 	__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
-	syscall.S urem.S udiv.S umul.S sdiv.S rem.S
+	syscall.S urem.S udiv.S umul.S sdiv.S rem.S pipe.S
 
 include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

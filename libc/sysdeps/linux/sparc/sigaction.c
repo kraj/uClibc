@@ -38,7 +38,7 @@ int
 __libc_sigaction (int sig, __const struct sigaction *act, struct sigaction *oact)
 {
     int ret;
-	struct old_kernel_sigaction kact, koact;
+    struct old_kernel_sigaction kact, koact;
     unsigned long stub = 0;
     int saved_errno = errno;
     
@@ -54,7 +54,11 @@ __libc_sigaction (int sig, __const struct sigaction *act, struct sigaction *oact
         kact.sa_restorer = NULL;
     }
     /* XXX The size argument hopefully will have to be changed to the real size of the user-level sigset_t.  */
-    ret = rt_sigaction(sig, act ? &kact : NULL, oact ? &koact : NULL, stub, _NSIG / 8);
+    ret = rt_sigaction(sig, 
+	(int)(act ? &kact : NULL), 
+	(int)(oact ? &koact : NULL), 
+	stub, 
+	_NSIG / 8);
 
     if (ret >= 0 || errno != ENOSYS)
     {
