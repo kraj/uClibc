@@ -124,9 +124,9 @@ int daemon( int nochdir, int noclose )
 	if (!noclose)
 	{
 #ifdef __UCLIBC_HAS_LFS__
-        struct stat64 st;
+		struct stat64 st;
 #else
-        struct stat st;
+		struct stat st;
 #endif
 
 		if ((fd = open_not_cancel(_PATH_DEVNULL, O_RDWR, 0)) != -1
