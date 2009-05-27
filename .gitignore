@@ -1,3 +1,11 @@
+#
+# Never ignore these
+#
+!.gitignore
+
+#
+# Generated files
+#
 *.os
 *.oS
 *.dep
@@ -6,3 +14,12 @@
 *.depend
 lib
 .config*
+.*.dep
+#
+# Backups / patches
+#
+*~
+*.orig
+*.rej
+/*.patch
+/*.diff
