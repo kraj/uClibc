@@ -8,16 +8,27 @@
 #include <features.h>
 
 #if defined __USE_SVID || defined __USE_XOPEN
+# include <string.h>
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <sys/syscall.h>
+
 # ifdef __NR_waitid
-_syscall4(int, waitid, idtype_t, idtype, id_t, id, siginfo_t*, infop, int, options)
-# else
-#  include <string.h>
+/* The waitid() POSIX interface takes 4 arguments, but the kernel function
+ * actually takes 5.  The fifth is a pointer to struct rusage.  Make sure
+ * we pass NULL rather than letting whatever was in the register bleed up.
+ */
+#define __NR_waitid5 __NR_waitid
+static _syscall5(int, waitid5, idtype_t, idtype, id_t, id, siginfo_t*, infop,
+                 int, options, struct rusage*, ru)
+# endif
+
 /* libc_hidden_proto(waitpid) */
 int waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options)
 {
+# ifdef __NR_waitid
+	return waitid5(idtype, id, infop, options, NULL);
+# else
 	switch (idtype) {
 		case P_PID:
 			if (id <= 0)
@@ -46,6 +57,7 @@ int waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options)
 	if (infop->si_pid < 0)
 		return infop->si_pid;
 	return 0;
-}
 # endif
+}
+
 #endif
