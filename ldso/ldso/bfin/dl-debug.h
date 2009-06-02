@@ -31,16 +31,16 @@
 
 static const char *_dl_reltypes_tab[] =
 {
-  [0]	"R_BFIN_unused0",	"R_BFIN_pcrel5m2",
-  [2]	"R_BFIN_unused1",	"R_BFIN_pcrel10",
-  [4]	"R_BFIN_pcrel12_jump",	"R_BFIN_rimm16",
-  [6]	"R_BFIN_luimm16",	"R_BFIN_huimm16",
-  [8]	"R_BFIN_pcrel12_jump_s","R_BFIN_pcrel24_jump_x",
-  [10]	"R_BFIN_pcrel24",	"R_BFIN_unusedb",
-  [12]	"R_BFIN_unusedc",	"R_BFIN_pcrel24_jump_l",
-  [14]	"R_BFIN_pcrel24_call_x","R_BFIN_var_eq_symb",
-  [16]	"R_BFIN_byte_data",	"R_BFIN_byte2_data",	"R_BFIN_byte4_data",
-  [19]	"R_BFIN_pcrel11",
+  [0]	"R_BFIN_UNUSED0",	"R_BFIN_PCREL5M2",
+  [2]	"R_BFIN_UNUSED1",	"R_BFIN_PCREL10",
+  [4]	"R_BFIN_PCREL12_JUMP",	"R_BFIN_RIMM16",
+  [6]	"R_BFIN_LUIMM16",	"R_BFIN_HUIMM16",
+  [8]	"R_BFIN_PCREL12_JUMP_S","R_BFIN_PCREL24_JUMP_X",
+  [10]	"R_BFIN_PCREL24",	"R_BFIN_UNUSEDB",
+  [12]	"R_BFIN_UNUSEDC",	"R_BFIN_PCREL24_JUMP_L",
+  [14]	"R_BFIN_PCREL24_CALL_X","R_BFIN_var_eq_symb",
+  [16]	"R_BFIN_BYTE_DATA",	"R_BFIN_BYTE2_DATA",	"R_BFIN_BYTE4_DATA",
+  [19]	"R_BFIN_PCREL11",
 
   [20]	"R_BFIN_GOT17M4",	"R_BFIN_GOTHI",		"R_BFIN_GOTLO",
   [23]	"R_BFIN_FUNCDESC",

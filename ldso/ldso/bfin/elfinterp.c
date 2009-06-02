@@ -205,9 +205,9 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	  old_val = 0;
 #endif
 	switch (reloc_type) {
-	case R_BFIN_unused0:
+	case R_BFIN_UNUSED0:
 		break;
-	case R_BFIN_byte4_data:
+	case R_BFIN_BYTE4_DATA:
 		if ((long)reloc_addr_packed & 3)
 			reloc_value = reloc_addr_packed->v += symbol_addr;
 		else
@@ -292,7 +292,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt,
 	old_val = (unsigned long)reloc_addr->entry_point;
 #endif
 		switch (reloc_type) {
-			case R_BFIN_unused0:
+			case R_BFIN_UNUSED0:
 				break;
 			case R_BFIN_FUNCDESC_VALUE:
 				funcval = *reloc_addr;
