@@ -10,10 +10,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-#ifndef O_CLOEXEC
 #include <errno.h>
-#endif
 
 #ifndef _PATH_SHM
 #define _PATH_SHM "/dev/shm/"
@@ -87,12 +84,14 @@ int shm_open(const char *name, int oflag, mode_t mode)
 int shm_unlink(const char *name)
 {
 	char *shm_name = get_shm_name(name);
-	int ret;
+	int ret, old_errno;
 
 	/* Stripped multiple '/' from start; may have set errno properly */
 	if (shm_name == NULL)
 		return -1;
 	ret = unlink(shm_name);
+	old_errno = errno;
 	free(shm_name);
+	errno = old_errno;
 	return ret;
 }
