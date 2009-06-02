@@ -1679,7 +1679,7 @@ int main(int argc, char **argv)
 		goto USAGE;
 	}
 	if ((ic = iconv_open(opts[0],opts[1])) == ((iconv_t)(-1))) {
-		error_msg( "unsupported codeset in %s -> %s conversion\n", opts[0], opts[1]);
+		error_msg( "unsupported codeset in %s -> %s conversion\n", opts[1], opts[0]);
 	}
 	if (opts[3]) {				/* -c */
 		((_UC_iconv_t *) ic)->skip_invalid_input = 1;
