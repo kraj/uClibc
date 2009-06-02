@@ -1265,26 +1265,26 @@ typedef struct
 #define R_386_NUM	   38
 
 /* Blackfin specific definitions.  */
-#define R_BFIN_unused0			0x00
-#define R_BFIN_pcrel5m2			0x01
-#define R_BFIN_unused1			0x02
-#define R_BFIN_pcrel10			0x03
-#define R_BFIN_pcrel12_jump		0x04
-#define R_BFIN_rimm16			0x05
-#define R_BFIN_luimm16			0x06
-#define R_BFIN_huimm16			0x07
-#define R_BFIN_pcrel12_jump_s		0x08
-#define R_BFIN_pcrel24_jump_x		0x09
-#define R_BFIN_pcrel24			0x0a
-#define R_BFIN_unusedb			0x0b
-#define R_BFIN_unusedc			0x0c
-#define R_BFIN_pcrel24_jump_l		0x0d
-#define R_BFIN_pcrel24_call_x		0x0e
+#define R_BFIN_UNUSED0			0x00
+#define R_BFIN_PCREL5M2			0x01
+#define R_BFIN_UNUSED1			0x02
+#define R_BFIN_PCREL10			0x03
+#define R_BFIN_PCREL12_JUMP		0x04
+#define R_BFIN_RIMM16			0x05
+#define R_BFIN_LUIMM16			0x06
+#define R_BFIN_HUIMM16			0x07
+#define R_BFIN_PCREL12_JUMP_S		0x08
+#define R_BFIN_PCREL24_JUMP_X		0x09
+#define R_BFIN_PCREL24			0x0a
+#define R_BFIN_UNUSEDB			0x0b
+#define R_BFIN_UNUSEDC			0x0c
+#define R_BFIN_PCREL24_JUMP_L		0x0d
+#define R_BFIN_PCREL24_CALL_X		0x0e
 #define R_BFIN_var_eq_symb		0x0f
-#define R_BFIN_byte_data		0x10
-#define R_BFIN_byte2_data		0x11
-#define R_BFIN_byte4_data		0x12
-#define R_BFIN_pcrel11			0x13
+#define R_BFIN_BYTE_DATA		0x10
+#define R_BFIN_BYTE2_DATA		0x11
+#define R_BFIN_BYTE4_DATA		0x12
+#define R_BFIN_PCREL11			0x13
 
 #define R_BFIN_GOT17M4			0x14
 #define R_BFIN_GOTHI			0x15

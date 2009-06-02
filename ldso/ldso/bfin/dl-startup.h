@@ -114,7 +114,7 @@ struct elf32_fdpic_loadmap;
  */
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB) \
 	switch(ELF32_R_TYPE((RELP)->r_info)){				\
-	case R_BFIN_byte4_data:							\
+	case R_BFIN_BYTE4_DATA:							\
 	  *(REL) += (SYMBOL);						\
 	  break;							\
 	case R_BFIN_FUNCDESC_VALUE:					\
