@@ -28,9 +28,8 @@
 int __syscall_error(void) attribute_hidden;
 int __syscall_error(void)
 {
-	register int edx __asm__ ("%edx");
-	__asm__ ("mov %eax, %edx\n\t"
-		 "negl %edx");
-	__set_errno (edx);
+	register int eax __asm__ ("%eax");
+	int _errno = -eax;
+	__set_errno (_errno);
 	return -1;
 }
