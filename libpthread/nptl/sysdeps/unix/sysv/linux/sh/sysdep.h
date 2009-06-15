@@ -99,7 +99,7 @@
 
 #include <libc/sysdeps/linux/sh/syscall_error.S>
 #else
-# if RTLD_PRIVATE_ERRNO
+# ifdef RTLD_PRIVATE_ERRNO
 
 #  define SYSCALL_ERROR_HANDLER	\
 	neg r0,r1; \
