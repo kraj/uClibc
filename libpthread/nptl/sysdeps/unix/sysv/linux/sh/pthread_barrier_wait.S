@@ -135,7 +135,7 @@ pthread_barrier_wait:
 	mov	#-1, r0		/* == PTHREAD_BARRIER_SERIAL_THREAD */
 	lds.l	@r15+, pr
 	mov.l	@r15+, r8
-	ret
+	rts
 	 mov.l	@r15+, r9
 
 1:

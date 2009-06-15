@@ -53,8 +53,8 @@ __lll_mutex_lock_wait:
 	tst	r2, r2
 	bf	1b
 
-	ret
-	nop
+	rts
+	 nop
 	.size	__lll_mutex_lock_wait,.-__lll_mutex_lock_wait
 
 
