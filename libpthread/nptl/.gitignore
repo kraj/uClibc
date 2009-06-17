@@ -1,6 +1,19 @@
+#
+# Never ignore these
+#
+!.gitignore
+
+#
+# Generated files
+#
 pthread-errnos.[hcs]
 tcb-offsets.[hcs]
 lowlevelbarrier.[hcs]
 lowlevelcond.[hcs]
 lowlevelrwlock.[hcs]
 unwindbuf.[hcs]
+banner.h
+sysdeps/pthread/pt-sigaction.c
+sysdeps/pthread/pt-sigfillset.c
+sysdeps/pthread/pt-sigprocmask.c
+version.h

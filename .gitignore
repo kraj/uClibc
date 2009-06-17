@@ -12,7 +12,8 @@
 *.a
 *.o
 *.depend
-lib
+lib/
+install_dir/
 .config*
 .*.dep
 #
