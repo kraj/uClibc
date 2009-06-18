@@ -3732,11 +3732,10 @@ int res_query(const char *dname, int class, int type,
 
 	free(a.dotted);
 
-	if (a.atype == type) { /* CNAME */
-		if (i > anslen)
-			i = anslen;
-		memcpy(answer, packet, i);
-	}
+	if (i > anslen)
+		i = anslen;
+	memcpy(answer, packet, i);
+
 	free(packet);
 	return i;
 }
