@@ -31,7 +31,7 @@ td_thr_tls_get_addr (const td_thrhandle_t *th __attribute__ ((unused)),
 		     size_t offset __attribute__ ((unused)),
 		     void **address __attribute__ ((unused)))
 {
-#if USE_TLS
+#ifdef USE_TLS
   size_t modid;
   union dtv pdtv, *dtvp;
 
