@@ -12,6 +12,8 @@
 
 #if defined __NR_arm_fadvise64_64
 
+#define HIGH_BITS(x) (sizeof(x) > 4 ? (x) >> 32 : 0)
+
 /* Was named __libc_posix_fadvise for some inexplicable reason.
 ** google says only uclibc has *__libc*_posix_fadviseXXX,
 ** so it cannot be compat with anything.
@@ -27,8 +29,8 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advise)
 {
   INTERNAL_SYSCALL_DECL (err);
   int ret = INTERNAL_SYSCALL (arm_fadvise64_64, err, 6, fd, advise,
-                              __LONG_LONG_PAIR ((long)(offset >> 32), (long)offset),
-                              __LONG_LONG_PAIR ((long)(len >> 32), (long)len));
+                              __LONG_LONG_PAIR (HIGH_BITS(offset), (long)offset),
+                              __LONG_LONG_PAIR (HIGH_BITS(len), (long)len));
 
     if (INTERNAL_SYSCALL_ERROR_P (ret, err))
       return INTERNAL_SYSCALL_ERRNO (ret, err);
