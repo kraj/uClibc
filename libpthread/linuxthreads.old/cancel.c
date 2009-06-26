@@ -31,7 +31,7 @@ extern void __rpc_thread_destroy(void);
 
 #ifdef _STACK_GROWS_DOWN
 # define FRAME_LEFT(frame, other) ((char *) frame >= (char *) other)
-#elif _STACK_GROWS_UP
+#elif defined _STACK_GROWS_UP
 # define FRAME_LEFT(frame, other) ((char *) frame <= (char *) other)
 #else
 # error "Define either _STACK_GROWS_DOWN or _STACK_GROWS_UP"
@@ -193,10 +193,10 @@ void __pthread_perform_cleanup(char *currentframe)
 
   for (c = THREAD_GETMEM(self, p_cleanup); c != NULL; c = c->__prev)
     {
-#if _STACK_GROWS_DOWN
+#ifdef _STACK_GROWS_DOWN
       if ((char *) c <= currentframe)
 	break;
-#elif _STACK_GROWS_UP
+#elif defined _STACK_GROWS_UP
       if ((char *) c >= currentframe)
 	break;
 #else
