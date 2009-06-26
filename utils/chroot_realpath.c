@@ -24,10 +24,10 @@
 
 #define MAX_READLINKS 32
 
-char *chroot_realpath(const char *chroot, const char *path,
+char *chroot_realpath(const char *root, const char *path,
 		      char resolved_path[]);
 
-char *chroot_realpath(const char *chroot, const char *path,
+char *chroot_realpath(const char *root, const char *path,
 		      char resolved_path[])
 {
 	char copy_path[PATH_MAX];
@@ -41,13 +41,13 @@ char *chroot_realpath(const char *chroot, const char *path,
 	int chroot_len;
 
 	/* Trivial case. */
-	if (chroot == NULL || *chroot == '\0' ||
-	    (*chroot == '/' && chroot[1] == '\0')) {
+	if (root == NULL || *root == '\0' ||
+	    (*root == '/' && root[1] == '\0')) {
 		strcpy(resolved_path, path);
 		return resolved_path;
 	}
 
-	chroot_len = strlen(chroot);
+	chroot_len = strlen(root);
 
 	if (chroot_len + strlen(path) >= PATH_MAX - 3) {
 		errno = ENAMETOOLONG;
@@ -60,7 +60,7 @@ char *chroot_realpath(const char *chroot, const char *path,
 	max_path = copy_path + PATH_MAX - chroot_len - 3;
 
 	/* Start with the chroot path. */
-	strcpy(new_path, chroot);
+	strcpy(new_path, root);
 	new_path += chroot_len;
 	while (*new_path == '/' && new_path > got_path)
 		new_path--;
