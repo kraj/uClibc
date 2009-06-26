@@ -127,14 +127,14 @@ static void attribute_noreturn err(int errnum, const char *s, ...)
 
 static void vperror_msg(const char *s, va_list p)
 {
-	int err = errno;
+	int e = errno;
 
 	if (s == 0)
 		s = "";
 	verror_msg(s, p);
 	if (*s)
 		s = ": ";
-	fprintf(stderr, "%s%s\n", s, strerror(err));
+	fprintf(stderr, "%s%s\n", s, strerror(e));
 }
 
 static void warn(const char *s, ...)
