@@ -1,4 +1,4 @@
-char *readsonameXX(char *name, FILE *infile, int expected_type, int *type)
+static char *readsonameXX(char *name, FILE *infile, int expected_type, int *type)
 {
 	ElfW(Ehdr) *epnt;
 	ElfW(Phdr) *ppnt;
