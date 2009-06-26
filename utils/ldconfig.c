@@ -558,18 +558,18 @@ static char *get_extpath(void)
 {
 	char *res = NULL, *cp;
 	FILE *file;
-	struct stat stat;
+	struct stat st;
 	char realconffile[BUFFER_SIZE];
 
 	if (!chroot_realpath(chroot_dir, conffile, realconffile))
 		return NULL;
 
 	if ((file = fopen(realconffile, "r")) != NULL) {
-		fstat(fileno(file), &stat);
-		res = xmalloc(stat.st_size + 1);
-		fread(res, 1, stat.st_size, file);
+		fstat(fileno(file), &st);
+		res = xmalloc(st.st_size + 1);
+		fread(res, 1, st.st_size, file);
 		fclose(file);
-		res[stat.st_size] = '\0';
+		res[st.st_size] = '\0';
 
 		/* convert comments fo spaces */
 		for (cp = res; *cp; /*nada */ ) {

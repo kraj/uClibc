@@ -683,8 +683,8 @@ foo:
 	    && ehdr->e_ident[EI_VERSION] == EV_CURRENT
 	    && MATCH_MACHINE(ehdr->e_machine))
 	{
-		struct stat statbuf;
-		if (stat(interp->path, &statbuf) == 0 && S_ISREG(statbuf.st_mode)) {
+		struct stat st;
+		if (stat(interp->path, &st) == 0 && S_ISREG(st.st_mode)) {
 			pid_t pid;
 			int status;
 			static const char *const environment[] = {
