@@ -27,6 +27,7 @@ __BEGIN_DECLS
 /* Standard ELF types.  */
 
 #include <stdint.h>
+#include <endian.h>
 
 /* Type for a 16-bit quantity.  */
 typedef uint16_t Elf32_Half;
