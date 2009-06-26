@@ -578,9 +578,9 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
       /* See whether the TD_CREATE event bit is set in any of the
          masks.  */
       int idx = __td_eventword (TD_CREATE);
-      uint32_t mask = __td_eventmask (TD_CREATE);
+      uint32_t m = __td_eventmask (TD_CREATE);
 
-      if ((mask & (__pthread_threads_events.event_bits[idx]
+      if ((m & (__pthread_threads_events.event_bits[idx]
 		   | event_maskp->event_bits[idx])) != 0)
 	{
 	  /* Lock the mutex the child will use now so that it will stop.  */
