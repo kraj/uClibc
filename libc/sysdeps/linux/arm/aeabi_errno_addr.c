@@ -18,8 +18,8 @@
 
 #include <errno.h>
 
-volatile int *
-__aeabi_errno_addr (void)
+volatile int * __aeabi_errno_addr (void);
+volatile int * __aeabi_errno_addr (void)
 {
   return &errno;
 }

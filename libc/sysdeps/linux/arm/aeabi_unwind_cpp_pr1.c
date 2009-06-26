@@ -24,20 +24,17 @@
 
 #include <stdlib.h>
 
-attribute_hidden
-void
-__aeabi_unwind_cpp_pr0 (void)
+attribute_hidden void __aeabi_unwind_cpp_pr0 (void);
+attribute_hidden void __aeabi_unwind_cpp_pr0 (void)
 {
 }
 
-attribute_hidden
-void
-__aeabi_unwind_cpp_pr1 (void)
+attribute_hidden void __aeabi_unwind_cpp_pr1 (void);
+attribute_hidden void __aeabi_unwind_cpp_pr1 (void)
 {
 }
 
-attribute_hidden
-void
-__aeabi_unwind_cpp_pr2 (void)
+attribute_hidden void __aeabi_unwind_cpp_pr2 (void);
+attribute_hidden void __aeabi_unwind_cpp_pr2 (void)
 {
 }
