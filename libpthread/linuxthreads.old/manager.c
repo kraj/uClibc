@@ -248,7 +248,7 @@ int attribute_noreturn __pthread_manager(void *arg)
   }
 }
 
-int __pthread_manager_event(void *arg)
+int attribute_noreturn __pthread_manager_event(void *arg)
 {
   /* If we have special thread_self processing, initialize it.  */
 #ifdef INIT_THREAD_SELF
@@ -260,7 +260,7 @@ int __pthread_manager_event(void *arg)
   /* Free it immediately.  */
   __pthread_unlock (THREAD_GETMEM((&__pthread_manager_thread), p_lock));
 
-  return __pthread_manager(arg);
+  __pthread_manager(arg);
 }
 
 /* Process creation */
