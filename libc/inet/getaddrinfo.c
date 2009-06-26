@@ -544,7 +544,8 @@ gaih_inet(const char *name, const struct gaih_service *service,
 
 				if (scope_delim != NULL) {
 					int try_numericscope = 0;
-					if (IN6_IS_ADDR_LINKLOCAL(at->addr) || IN6_IS_ADDR_MC_LINKLOCAL(at->addr)) {
+					uint32_t *a32 = (uint32_t*)at->addr;
+					if (IN6_IS_ADDR_LINKLOCAL(a32) || IN6_IS_ADDR_MC_LINKLOCAL(at->addr)) {
 						at->scopeid = if_nametoindex(scope_delim + 1);
 						if (at->scopeid == 0)
 							try_numericscope = 1;
@@ -622,8 +623,10 @@ gaih_inet(const char *name, const struct gaih_service *service,
 #endif
 		if (req->ai_family == 0 || req->ai_family == AF_INET) {
 			atr->family = AF_INET;
-			if ((req->ai_flags & AI_PASSIVE) == 0)
-				*(uint32_t*)atr->addr = htonl(INADDR_LOOPBACK);
+			if ((req->ai_flags & AI_PASSIVE) == 0) {
+				uint32_t *a = (uint32_t*)atr->addr;
+				*a = htonl(INADDR_LOOPBACK);
+			}
 		}
 	}
 

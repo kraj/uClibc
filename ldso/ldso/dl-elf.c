@@ -338,6 +338,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
 	struct stat st;
+	uint32_t *p32;
 	DL_LOADADDR_TYPE lib_loadaddr;
 	DL_INIT_LOADADDR_EXTRA_DECLS
 
@@ -382,7 +383,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	_dl_read(infile, header, _dl_pagesize);
 	epnt = (ElfW(Ehdr) *) (intptr_t) header;
-	if (*((uint32_t*) &epnt->e_ident) != ELFMAG_U32) {
+	p32 = (uint32_t*)&epnt->e_ident;
+	if (*p32 != ELFMAG_U32) {
 		_dl_dprintf(2, "%s: '%s' is not an ELF file\n", _dl_progname,
 				libname);
 		_dl_internal_error_number = LD_ERROR_NOTELF;
