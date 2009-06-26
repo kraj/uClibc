@@ -121,6 +121,7 @@ DL_START(unsigned long args)
 	struct elf_resolve *tpnt = &tpnt_tmp;
 	ElfW(auxv_t) auxvt[AT_EGID + 1];
 	ElfW(Dyn) *dpnt;
+	uint32_t  *p32;
 
 	/* WARNING! -- we cannot make _any_ function calls until we have
 	 * taken care of fixing up our own relocations.  Making static
@@ -176,7 +177,7 @@ DL_START(unsigned long args)
 			/* Do not use an inline _dl_strncmp here or some arches
 			* will blow chunks, i.e. those that need to relocate all
 			* string constants... */
-			|| *((uint32_t*) &header->e_ident) != ELFMAG_U32
+			|| *(p32 = (uint32_t*)&header->e_ident) != ELFMAG_U32
 	) {
 		SEND_EARLY_STDERR("Invalid ELF header\n");
 		_dl_exit(0);
