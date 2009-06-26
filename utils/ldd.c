@@ -214,7 +214,7 @@ static char *elf_find_rpath(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic)
 	return NULL;
 }
 
-int check_elf_header(ElfW(Ehdr) *const ehdr)
+static int check_elf_header(ElfW(Ehdr) *const ehdr)
 {
 	if (!ehdr || *(uint32_t*)ehdr != ELFMAG_U32
 	 || ehdr->e_ident[EI_CLASS] != ELFCLASSM
@@ -249,7 +249,7 @@ int check_elf_header(ElfW(Ehdr) *const ehdr)
 static caddr_t cache_addr = NULL;
 static size_t cache_size = 0;
 
-int map_cache(void)
+static int map_cache(void)
 {
 	int fd;
 	struct stat st;
@@ -306,7 +306,7 @@ fail:
 	return -1;
 }
 
-int unmap_cache(void)
+static int unmap_cache(void)
 {
 	if (cache_addr == NULL || cache_addr == (caddr_t) - 1)
 		return -1;
@@ -372,8 +372,8 @@ static void search_for_named_library(char *name, char *result,
 	*result = '\0';
 }
 
-void locate_library_file(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic, int is_suid,
-			 struct library *lib)
+static void locate_library_file(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic,
+                                int is_suid, struct library *lib)
 {
 	char *buf;
 	char *path;
@@ -608,7 +608,7 @@ static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 /*
 #warning "There may be two warnings here about vfork() clobbering, ignore them"
 */
-int find_dependancies(char *filename)
+static int find_dependancies(char *filename)
 {
 	int is_suid = 0;
 	FILE *thefile;

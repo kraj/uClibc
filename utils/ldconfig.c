@@ -173,8 +173,8 @@ static char *xstrdup(const char *str)
 #define readsonameXX readsoname64
 #define __ELF_NATIVE_CLASS 64
 #include "readsoname2.c"
-char *readsoname(char *name, FILE *infile, int expected_type,
-		 int *type, int elfclass)
+static char *readsoname(char *name, FILE *infile, int expected_type,
+			int *type, int elfclass)
 {
 	char *res;
 
@@ -206,8 +206,8 @@ char *readsoname(char *name, FILE *infile, int expected_type,
  * If the expected, actual/deduced types missmatch we display a warning
  * and use the actual/deduced type.
  */
-char *is_shlib(const char *dir, const char *name, int *type,
-	       int *islink, int expected_type)
+static char *is_shlib(const char *dir, const char *name, int *type,
+		      int *islink, int expected_type)
 {
 	char *good = NULL;
 	char *cp, *cp2;
@@ -323,7 +323,7 @@ char *is_shlib(const char *dir, const char *name, int *type,
 }
 
 /* update the symlink to new library */
-void link_shlib(const char *dir, const char *file, const char *so)
+static void link_shlib(const char *dir, const char *file, const char *so)
 {
 	int change = 1;
 	char libname[BUFFER_SIZE];
@@ -380,7 +380,7 @@ void link_shlib(const char *dir, const char *file, const char *so)
 }
 
 /* figure out which library is greater */
-int libcmp(char *p1, char *p2)
+static int libcmp(char *p1, char *p2)
 {
 	while (*p1) {
 		if (isdigit(*p1) && isdigit(*p2)) {
@@ -412,7 +412,7 @@ struct lib {
 };
 
 /* update all shared library links in a directory */
-void scan_dir(const char *rawname)
+static void scan_dir(const char *rawname)
 {
 	DIR *dir;
 	const char *name;
@@ -554,7 +554,7 @@ void cache_write(void)
 }
 #else
 /* return the list of system-specific directories */
-char *get_extpath(void)
+static char *get_extpath(void)
 {
 	char *res = NULL, *cp;
 	FILE *file;
