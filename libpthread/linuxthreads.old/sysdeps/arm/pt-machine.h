@@ -33,8 +33,8 @@
    time; let's hope nobody tries to use one.  */
 
 /* Spinlock implementation; required.  */
-PT_EI long int
-testandset (int *spinlock)
+PT_EI long int testandset (int *spinlock);
+PT_EI long int testandset (int *spinlock)
 {
   register unsigned int ret;
 

@@ -20,8 +20,8 @@
 
 /* libc_hidden_proto(localeconv) */
 
-struct lconv *
-__aeabi_localeconv (void)
+struct lconv * __aeabi_localeconv (void);
+struct lconv * __aeabi_localeconv (void)
 {
   return localeconv ();
 }

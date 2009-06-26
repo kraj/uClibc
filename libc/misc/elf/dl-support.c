@@ -17,9 +17,8 @@
 ElfW(Phdr) *_dl_phdr;
 size_t _dl_phnum;
 
-void
-internal_function
-_dl_aux_init (ElfW(auxv_t) *av)
+void internal_function _dl_aux_init (ElfW(auxv_t) *av);
+void internal_function _dl_aux_init (ElfW(auxv_t) *av)
 {
    /* Get the program headers base address from the aux vect */
    _dl_phdr = (ElfW(Phdr) *) av[AT_PHDR].a_un.a_val;

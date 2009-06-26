@@ -25,6 +25,9 @@
 #define MAX_READLINKS 32
 
 char *chroot_realpath(const char *chroot, const char *path,
+		      char resolved_path[]);
+
+char *chroot_realpath(const char *chroot, const char *path,
 		      char resolved_path[])
 {
 	char copy_path[PATH_MAX];

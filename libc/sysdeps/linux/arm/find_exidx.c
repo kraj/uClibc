@@ -65,8 +65,8 @@ find_exidx_callback (struct dl_phdr_info * info, size_t size, void * ptr)
 
 /* Find the exception index table containing PC.  */
 
-_Unwind_Ptr
-__gnu_Unwind_Find_exidx (_Unwind_Ptr pc, int * pcount)
+_Unwind_Ptr __gnu_Unwind_Find_exidx (_Unwind_Ptr pc, int * pcount);
+_Unwind_Ptr __gnu_Unwind_Find_exidx (_Unwind_Ptr pc, int * pcount)
 {
   struct unw_eh_callback_data data;
 
