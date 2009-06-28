@@ -1,0 +1,4 @@
+ldconfig
+ldconfig.host
+ldd
+ldd.host
