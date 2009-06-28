@@ -36,8 +36,6 @@ CFLAGS-ldd := \
     -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
     $(CFLAGS-utils-shared)
 
-CFLAGS-readelf := $(CFLAGS-utils-shared)
-
 # Need CFLAGS-utils explicitly, because the source file is not located in utils
 CFLAGS-iconv := $(CFLAGS-utils) \
     $(CFLAGS-utils-shared) \
@@ -66,8 +64,6 @@ BUILD_CFLAGS-ldd.host := -Wl,-s \
     -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
     $(LDSO_CACHE_SUPPORT) \
 
-BUILD_CFLAGS-readelf.host := -Wl,-s \
-    -include $(top_srcdir)include/elf.h \
 
 
 # Rules
@@ -78,7 +74,6 @@ utils_OUT := $(top_builddir)utils
 DEPS-ldconfig := $(utils_DIR)/chroot_realpath.c
 DEPS-ldconfig.host := $(DEPS-ldconfig)
 
-utils_OBJ := readelf
 ifeq ($(HAVE_SHARED),y)
 utils_OBJ += ldconfig ldd
 endif
@@ -118,7 +113,6 @@ install-y += utils_install
 # This installs both utils and hostutils, so doesn't depend on either.
 
 utils_install: $(addsuffix $(DOTHOST), $(utils_OBJ) $(utils_ICONV_OBJ) $(utils_LOCALE_OBJ))
-	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/readelf$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/readelf
 ifeq ($(HAVE_SHARED),y)
 	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/ldd$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/ldd
 	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/ldconfig$(DOTHOST) $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig
@@ -132,6 +126,6 @@ endif
 objclean-y += utils_clean
 
 utils_clean:
-	$(do_rm) $(addprefix $(utils_OUT)/, ldconfig ldd readelf iconv locale *.host)
+	$(do_rm) $(addprefix $(utils_OUT)/, ldconfig ldd iconv locale *.host)
 	# This is a hack..
 	$(Q)$(RM) $(utils_OUT)/.*.dep
