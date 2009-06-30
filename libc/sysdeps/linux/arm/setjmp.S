@@ -47,7 +47,7 @@ __sigsetjmp:
 	mov	ip, r0
 #if defined(__thumb2__)
 	stmia	ip!, {v1-v6, sl, fp}
-	movs	r2, sp
+	mov	r2, sp
 	stmia	ip!, {r2, lr}
 #else
 	/* Save registers */
