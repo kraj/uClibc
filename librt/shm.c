@@ -45,6 +45,10 @@ static char* get_shm_name(const char*name)
 	if (i < 0) {
 		free(path);
 		return NULL;
+	} else if (i >= NAME_MAX) {
+		free(path);
+		__set_errno(ENAMETOOLONG);
+		return NULL;
 	}
 #endif
 	return path;

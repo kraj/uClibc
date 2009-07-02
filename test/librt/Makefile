@@ -1,0 +1,6 @@
+# uClibc shm tests
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+
+include ../Test.mak
+
+LDFLAGS_shmtest := -lrt
