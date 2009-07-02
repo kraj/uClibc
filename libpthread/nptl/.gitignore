@@ -1,0 +1,6 @@
+pthread-errnos.[hcs]
+tcb-offsets.[hcs]
+lowlevelbarrier.[hcs]
+lowlevelcond.[hcs]
+lowlevelrwlock.[hcs]
+unwindbuf.[hcs]
