@@ -45,4 +45,7 @@
 /* define if target supports IEEE signed zero floats */
 #define __UCLIBC_HAVE_SIGNED_ZERO__
 
+/* only weird assemblers generally need this */
+#undef __UCLIBC_ASM_LINE_SEP__
+
 #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */
