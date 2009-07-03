@@ -13,59 +13,6 @@
 
 #include <errno.h>
 
-#define SYS_ify(syscall_name)  (__NR_##syscall_name)
-
-#undef _syscall0
-#define _syscall0(type,name) \
-type name(void) \
-{ \
-return (type) (INLINE_SYSCALL(name, 0)); \
-}
-
-#undef _syscall1
-#define _syscall1(type,name,type1,arg1) \
-type name(type1 arg1) \
-{ \
-return (type) (INLINE_SYSCALL(name, 1, arg1)); \
-}
-
-#undef _syscall2
-#define _syscall2(type,name,type1,arg1,type2,arg2) \
-type name(type1 arg1,type2 arg2) \
-{ \
-return (type) (INLINE_SYSCALL(name, 2, arg1, arg2)); \
-}
-
-#undef _syscall3
-#define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
-type name(type1 arg1,type2 arg2,type3 arg3) \
-{ \
-return (type) (INLINE_SYSCALL(name, 3, arg1, arg2, arg3)); \
-}
-
-#undef _syscall4
-#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
-type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
-{ \
-return (type) (INLINE_SYSCALL(name, 4, arg1, arg2, arg3, arg4)); \
-}
-
-#undef _syscall5
-#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
-	  type5,arg5) \
-type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5) \
-{ \
-return (type) (INLINE_SYSCALL(name, 5, arg1, arg2, arg3, arg4, arg5)); \
-}
-
-#undef _syscall6
-#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
-	  type5,arg5,type6,arg6) \
-type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5,type6 arg6) \
-{ \
-return (type) (INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6)); \
-}
-
 /* The Linux/x86-64 kernel expects the system call parameters in
    registers according to the following table:
 
@@ -103,9 +50,6 @@ return (type) (INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6)); \
 
     Syscalls of more than 6 arguments are not supported.  */
 
-#undef SYS_ify
-#define SYS_ify(syscall_name)	__NR_##syscall_name
-
 #undef	DO_CALL
 #define DO_CALL(syscall_name, args)		\
     DOARGS_##args				\
@@ -122,20 +66,6 @@ return (type) (INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6)); \
 
 /* Define a macro which expands inline into the wrapper code for a system
    call.  */
-#undef INLINE_SYSCALL
-#define INLINE_SYSCALL(name, nr, args...) \
-  ({									      \
-    unsigned long _resultvar = INTERNAL_SYSCALL (name, , nr, args);	      \
-    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_resultvar, ), 0))	      \
-      {									      \
-	__set_errno (INTERNAL_SYSCALL_ERRNO (_resultvar, ));		      \
-	_resultvar = (unsigned long) -1;					      \
-      }									      \
-    (long) _resultvar; })
-
-#undef INTERNAL_SYSCALL_DECL
-#define INTERNAL_SYSCALL_DECL(err) do { } while (0)
-
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...) \
   ({									      \
     unsigned long resultvar;						      \
@@ -146,16 +76,8 @@ return (type) (INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6)); \
     : "=a" (resultvar)							      \
     : "0" (name) ASM_ARGS_##nr : "memory", "cc", "r11", "cx");		      \
     (long) resultvar; })
-#undef INTERNAL_SYSCALL
 #define INTERNAL_SYSCALL(name, err, nr, args...) \
   INTERNAL_SYSCALL_NCS (__NR_##name, err, nr, ##args)
-
-#undef INTERNAL_SYSCALL_ERROR_P
-#define INTERNAL_SYSCALL_ERROR_P(val, err) \
-  ((unsigned long) (val) >= -4095L)
-
-#undef INTERNAL_SYSCALL_ERRNO
-#define INTERNAL_SYSCALL_ERRNO(val, err)	(-(val))
 
 #define LOAD_ARGS_0()
 #define LOAD_REGS_0

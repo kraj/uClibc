@@ -32,6 +32,7 @@
 #include <bits/sysnum.h>
 #if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 # include <bits/syscalls.h>
+# include <bits/syscalls-common.h>
 #endif
 
 #endif
