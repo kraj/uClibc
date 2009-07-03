@@ -98,8 +98,31 @@ int main(int argc, char **argv)
 	int total_size = 0;
 
 	if (!setlocale(LC_CTYPE, "en_US.UTF-8")) {
-		printf("setlocale(LC_CTYPE,\"en_US.UTF-8\") failed!\n");
+		/* Silly foreigners disabling en_US locales */
+		FILE *fp = popen("locale -a", "r");
+		if (!fp)
+			goto locale_failure;
+
+		while (!feof(fp)) {
+			char buf[256];
+			size_t len;
+
+			if (fgets(buf, sizeof(buf) - 10, fp) == NULL)
+				goto locale_failure;
+
+			len = strlen(buf);
+			if (buf[len - 1] == '\n')
+				buf[--len] = '\0';
+			strcat(buf, ".UTF8");
+			if (setlocale(LC_CTYPE, buf))
+				goto locale_success;
+		}
+
+ locale_failure:
+		printf("could not find a UTF8 locale ... please enable en_US.UTF-8\n");
 		return EXIT_FAILURE;
+ locale_success:
+		pclose(fp);
 	}
 
 	if (!(out = fopen("c8tables.h","w"))) {

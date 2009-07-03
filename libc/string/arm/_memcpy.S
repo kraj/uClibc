@@ -67,8 +67,9 @@
  * a time where possible.
  *
  * Note: r12 (aka ip) can be trashed during the function along with
- * r0-r3 although r0-r2 have defined uses i.e. src, dest, len through out.
+ * r0-r3 although r0-r2 have defined uses i.e. dest, src, len throughout.
  * Additional registers are preserved prior to use i.e. r4, r5 & lr
+ * The return value in r0 must be the destination address.
  *
  * Apologies for the state of the comments ;-)
  */
@@ -108,7 +109,7 @@ _memcpy:
 	cmp	r1, r0
 	bcc	.Lmemcpy_backwards
 
-	IT(tt, eq)			/* Quick abort for src=dst */
+	IT(t, eq)			/* Quick abort for src=dst */
 #if defined(__USE_BX__)
         bxeq    lr
 #else
