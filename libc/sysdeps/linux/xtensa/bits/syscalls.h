@@ -9,8 +9,6 @@
    glibc .../sysdeps/unix/sysv/linux/xtensa/sysdep.h
 */
 
-#define SYS_ify(syscall_name)	__NR_##syscall_name
-
 #ifdef __ASSEMBLER__
 
 /* The register layout upon entering the function is:
@@ -74,19 +72,6 @@
 /* Define a macro which expands into the inline wrapper code for a system
    call.  */
 
-#undef INLINE_SYSCALL
-#define INLINE_SYSCALL(name, nr, args...)				      \
-  ({ unsigned long resultvar = INTERNAL_SYSCALL (name, , nr, args);	      \
-     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (resultvar, ), 0))	      \
-       {								      \
-         __set_errno (INTERNAL_SYSCALL_ERRNO (resultvar, ));		      \
-        resultvar = (unsigned long) -1;					      \
-       }								      \
-   (long) resultvar; })
-
-#undef INTERNAL_SYSCALL_DECL
-#define INTERNAL_SYSCALL_DECL(err) do { } while (0)
-
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			      \
   ({ LD_ARG(2, name);							      \
      LD_ARGS_##nr(args);						      \
@@ -96,45 +81,8 @@
 	 	   : "memory");						      \
      (long) _a2; })
 
-#undef INTERNAL_SYSCALL
 #define INTERNAL_SYSCALL(name, err, nr, args...)			      \
   INTERNAL_SYSCALL_NCS (__NR_##name, err, nr, ##args)
-
-#undef INTERNAL_SYSCALL_ERROR_P
-#define INTERNAL_SYSCALL_ERROR_P(val, err)				      \
-  ((unsigned long) (val) >= -4095L)
-
-#undef INTERNAL_SYSCALL_ERRNO
-#define INTERNAL_SYSCALL_ERRNO(val, err)	(-(val))
-
-#define _syscall0(args...)		SYSCALL_FUNC (0, args)
-#define _syscall1(args...)		SYSCALL_FUNC (1, args)
-#define _syscall2(args...)		SYSCALL_FUNC (2, args)
-#define _syscall3(args...)		SYSCALL_FUNC (3, args)
-#define _syscall4(args...)		SYSCALL_FUNC (4, args)
-#define _syscall5(args...)		SYSCALL_FUNC (5, args)
-#define _syscall6(args...)		SYSCALL_FUNC (6, args)
-
-#define C_DECL_ARGS_0()			void
-#define C_DECL_ARGS_1(t, v)		t v
-#define C_DECL_ARGS_2(t, v, args...)	t v, C_DECL_ARGS_1(args)
-#define C_DECL_ARGS_3(t, v, args...)	t v, C_DECL_ARGS_2(args)
-#define C_DECL_ARGS_4(t, v, args...)	t v, C_DECL_ARGS_3(args)
-#define C_DECL_ARGS_5(t, v, args...)	t v, C_DECL_ARGS_4(args)
-#define C_DECL_ARGS_6(t, v, args...)	t v, C_DECL_ARGS_5(args)
-
-#define C_ARGS_0()
-#define C_ARGS_1(t, v)			v
-#define C_ARGS_2(t, v, args...)		v, C_ARGS_1 (args)
-#define C_ARGS_3(t, v, args...)		v, C_ARGS_2 (args)
-#define C_ARGS_4(t, v, args...)		v, C_ARGS_3 (args)
-#define C_ARGS_5(t, v, args...)		v, C_ARGS_4 (args)
-#define C_ARGS_6(t, v, args...)		v, C_ARGS_5 (args)
-
-#define SYSCALL_FUNC(nargs, type, name, args...)			      \
-type name (C_DECL_ARGS_##nargs (args)) {				      \
-	return (type) INLINE_SYSCALL (name, nargs, C_ARGS_##nargs (args));    \
-}
 
 #endif /* not __ASSEMBLER__ */
 #endif /* _BITS_SYSCALLS_H */

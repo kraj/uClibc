@@ -22,12 +22,6 @@
 #ifndef _SYSCALL_H
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
-/* For Linux we can use the system call table in the header file
-	/usr/include/asm/unistd.h
-   of the kernel.  But these symbols do not follow the SYS_* syntax
-   so we have to redefine the `SYS_ify' macro here.  */
-#undef SYS_ify
-#define SYS_ify(syscall_name)	__NR_##syscall_name
 
 #ifndef __ASSEMBLER__
 
@@ -136,7 +130,6 @@
     (int) r3;								      \
   })
 
-# undef INLINE_SYSCALL
 # define INLINE_SYSCALL(name, nr, args...)				\
   ({									\
     INTERNAL_SYSCALL_DECL (sc_err);					\
@@ -157,10 +150,8 @@
    "sc; bnslr+" sequence) and CR (where only CR0.SO is clobbered to signal
    an error return status).  */
 
-# undef INTERNAL_SYSCALL_DECL
 # define INTERNAL_SYSCALL_DECL(err) long int err
 
-# undef INTERNAL_SYSCALL
 # define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
   ({									\
     register long int r0  __asm__ ("r0");				\
@@ -189,11 +180,9 @@
 # define INTERNAL_SYSCALL(name, err, nr, args...) \
   INTERNAL_SYSCALL_NCS (__NR_##name, err, nr, ##args)
 
-# undef INTERNAL_SYSCALL_ERROR_P
 # define INTERNAL_SYSCALL_ERROR_P(val, err) \
   ((void) (val), __builtin_expect ((err) & (1 << 28), 0))
 
-# undef INTERNAL_SYSCALL_ERRNO
 # define INTERNAL_SYSCALL_ERRNO(val, err)     (val)
 
 extern void __illegally_sized_syscall_arg1(void);
@@ -249,49 +238,6 @@ extern void __illegally_sized_syscall_arg6(void);
 # define ASM_INPUT_4 ASM_INPUT_3, "4" (r6)
 # define ASM_INPUT_5 ASM_INPUT_4, "5" (r7)
 # define ASM_INPUT_6 ASM_INPUT_5, "6" (r8)
-
-
-#undef _syscall0
-#define _syscall0(type,name) \
-type name(void) { \
-  return (type) INLINE_SYSCALL(name, 0); \
-}
-
-#undef _syscall1
-#define _syscall1(type,name,type1,arg1) \
-type name(type1 arg1) { \
-  return (type) INLINE_SYSCALL(name, 1, arg1); \
-}
-
-#undef _syscall2
-#define _syscall2(type,name,type1,arg1,type2,arg2) \
-type name(type1 arg1, type2 arg2) { \
-  return (type) INLINE_SYSCALL(name, 2, arg1, arg2); \
-}
-
-#undef _syscall3
-#define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
-type name(type1 arg1, type2 arg2, type3 arg3) { \
-  return (type) INLINE_SYSCALL(name, 3, arg1, arg2, arg3); \
-}
-
-#undef _syscall4
-#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
-type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4) { \
-  return (type) INLINE_SYSCALL(name, 4, arg1, arg2, arg3, arg4); \
-}
-
-#undef _syscall5
-#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5) \
-type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5) { \
-  return (type) INLINE_SYSCALL(name, 5, arg1, arg2, arg3, arg4, arg5); \
-}
-
-#undef _syscall6
-#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6) \
-type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6) { \
-  return (type) INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6); \
-}
 
 #endif /* __ASSEMBLER__ */
 
