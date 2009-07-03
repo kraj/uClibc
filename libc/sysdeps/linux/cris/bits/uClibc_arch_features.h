@@ -18,6 +18,9 @@
 /* does your target have a broken create_module() ? */
 #define __UCLIBC_BROKEN_CREATE_MODULE__
 
+/* does your target have to worry about older [gs]etrlimit() ? */
+#undef __UCLIBC_HANDLE_OLDER_RLIMIT__
+
 /* does your target have an asm .set ? */
 #define __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
 
@@ -33,10 +36,13 @@
 /* needed probably only for ppc64 */
 #undef __UCLIBC_HAVE_ASM_GLOBAL_DOT_NAME__
 
+/* define if target supports CFI pseudo ops */
+#undef __UCLIBC_HAVE_ASM_CFI_DIRECTIVES__
+
 /* define if target supports IEEE signed zero floats */
 #define __UCLIBC_HAVE_SIGNED_ZERO__
 
-/* lovely */
+/* only weird assemblers generally need this */
 #define __UCLIBC_ASM_LINE_SEP__ @
 
 #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */
