@@ -663,7 +663,7 @@ CFLAGS += -I$(KERNEL_HEADERS)
 
 #CFLAGS += -iwithprefix include-fixed -iwithprefix include
 CC_IPREFIX := $(shell $(CC) --print-file-name=include)
-CC_INC := -I$(dir $(CC_IPREFIX))include-fixed -I$(CC_IPREFIX)
+CC_INC := -isystem $(dir $(CC_IPREFIX))include-fixed -isystem $(CC_IPREFIX)
 CFLAGS += $(CC_INC)
 
 ifneq ($(DOASSERTS),y)
