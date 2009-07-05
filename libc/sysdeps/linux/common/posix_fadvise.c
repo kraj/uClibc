@@ -13,10 +13,6 @@
 
 #ifdef __NR_fadvise64
 #define __NR_posix_fadvise __NR_fadvise64
-/* get rid of following conditional when
-   all supported arches are having INTERNAL_SYSCALL defined
-*/
-#ifdef INTERNAL_SYSCALL
 int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 {
 	INTERNAL_SYSCALL_DECL(err);
@@ -26,21 +22,6 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
       return INTERNAL_SYSCALL_ERRNO (ret, err);
     return 0;
 }
-#else
-static __inline__ int syscall_posix_fadvise(int fd, off_t offset1, off_t offset2, off_t len, int advice);
-#define __NR_syscall_posix_fadvise __NR_fadvise64
-_syscall5(int, syscall_posix_fadvise, int, fd, off_t, offset1,
-          off_t, offset2, off_t, len, int, advice)
-
-int posix_fadvise(int fd, off_t offset, off_t len, int advice)
-{
-	int ret = syscall_posix_fadvise(fd, __LONG_LONG_PAIR (offset >> 31, offset), len, advice);
-	if (ret == -1)
-		return errno;
-	return ret;
-}
-
-#endif
 
 #if defined __UCLIBC_HAS_LFS__ && (!defined __NR_fadvise64_64 || !defined _syscall6)
 strong_alias(posix_fadvise,posix_fadvise64)

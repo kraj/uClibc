@@ -32,18 +32,6 @@ _syscall2(int, ftruncate64, int, fd, __off64_t, length)
 
 #  elif __WORDSIZE == 32
 
-#   ifndef INLINE_SYSCALL
-#    define INLINE_SYSCALL(name, nr, args...) __syscall_ftruncate64 (args)
-#    define __NR___syscall_ftruncate64 __NR_ftruncate64
-#    if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
-static __inline__ _syscall4(int, __syscall_ftruncate64, int, fd, uint32_t, pad,
-	unsigned long, high_length, unsigned long, low_length)
-#    else
-static __inline__ _syscall3(int, __syscall_ftruncate64, int, fd,
-	unsigned long, high_length, unsigned long, low_length)
-#    endif
-#   endif
-
 /* The exported ftruncate64 function.  */
 int ftruncate64 (int fd, __off64_t length)
 {

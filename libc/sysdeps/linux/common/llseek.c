@@ -13,13 +13,6 @@
 
 #if defined __NR__llseek && defined __UCLIBC_HAS_LFS__
 
-# ifndef INLINE_SYSCALL
-#  define INLINE_SYSCALL(name, nr, args...) __syscall_llseek (args)
-#  define __NR___syscall_llseek __NR__llseek
-static __inline__ _syscall5(int, __syscall_llseek, int, fd, off_t, offset_hi,
-		off_t, offset_lo, loff_t *, result, int, whence)
-# endif
-
 loff_t lseek64(int fd, loff_t offset, int whence)
 {
 	loff_t result;

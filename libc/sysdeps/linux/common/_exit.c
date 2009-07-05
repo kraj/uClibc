@@ -15,12 +15,6 @@
 
 /* libc_hidden_proto(_exit) */
 
-#ifndef INLINE_SYSCALL
-#define INLINE_SYSCALL(name, nr, args...) __syscall_exit (args)
-#define __NR___syscall_exit __NR_exit
-static __inline__ _syscall1(void, __syscall_exit, int, status)
-#endif
-
 void attribute_noreturn _exit(int status)
 {
 	/* The loop is added only to keep gcc happy. */
