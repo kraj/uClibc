@@ -12,12 +12,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifndef INLINE_SYSCALL
-#define INLINE_SYSCALL(name, nr, args...) __syscall_sync (args)
-#define __NR___syscall_sync __NR_sync
-static __inline__ _syscall0(void, __syscall_sync)
-#endif
-
 void sync(void)
 {
 	INLINE_SYSCALL(sync, 0);

@@ -22,9 +22,6 @@
 #include <sched.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
-
-#ifdef INTERNAL_SYSCALL /* remove this when all archs has this #defined */
-
 #include <string.h>
 #include <unistd.h>
 #include <sys/param.h>
@@ -74,9 +71,6 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *cpuset)
 
 	return INLINE_SYSCALL (sched_setaffinity, 3, pid, cpusetsize, cpuset);
 }
-#else
-#define ___HAVE_NO_sched_setaffinity
-#endif
 #else
 #define ___HAVE_NO_sched_setaffinity
 #endif
