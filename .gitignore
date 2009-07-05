@@ -16,6 +16,8 @@ lib/
 install_dir/
 .config*
 .*.dep
+/*.log
+
 #
 # Backups / patches
 #

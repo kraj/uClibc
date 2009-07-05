@@ -1,0 +1,123 @@
+#!/bin/sh
+#
+# helper script to quick build testing with cross-compilers
+#
+
+: ${MAKE:=make}
+
+: ${BUILD_NCPUS:=$(getconf _NPROCESSORS_ONLN)}
+if [ "$BUILD_NCPUS" -gt 1 ] ; then
+	JOBS=-j$((BUILD_NCPUS + 1))
+else
+	JOBS=""
+fi
+MAKE="${MAKE} ${JOBS}"
+
+: ${CROSS_COMPILE:=${CROSS_COMPILER_PREFIX}}
+
+setconfig()
+{
+	local opt=$1
+	shift
+	case $1 in
+		[yn])   ;;
+		[0-9]*) ;;
+		*)      set -- '"'$*'"'
+	esac
+	sed -i \
+		-e "/${opt}=/s:=.*:=$*:" \
+		.config
+	echo "  ## setconfig ${opt} $*"
+}
+
+find_compiler()
+{
+	local t a v o l
+	a=$1
+	for v in unknown pc gentoo "" ; do
+		for o in linux uclinux "" ; do
+			for l in uclibc "" ; do
+				t="${a}${v:+-${v}}${o:+-${o}}${l:+-${l}}"
+				if ${t}-gcc --help > /dev/null 2>&1 ; then
+					echo ${t}-
+					return 0
+				fi
+			done
+		done
+	done
+}
+
+do_make()
+{
+	echo "  ## ${MAKE} -s $*"
+	${MAKE} -s "$@"
+}
+
+mark_arch()
+{
+	local r=$1 a=$2
+	eval $r=\"\$$r $a\"
+}
+
+if [ -z "$*" ] ; then
+	set -- $(awk \
+		'$0 ~ /^config TARGET_/ { sub("TARGET_",""); print $NF }' \
+		extra/Configs/Config.in | grep -v SUBARCH)
+fi
+pass=""
+fail=""
+skip=""
+for a in "$@" ; do
+	if [ -n "${CROSS_COMPILE}" ] ; then
+		CROSS=${CROSS_COMPILE}
+	else
+		CROSS=$(find_compiler ${a})
+	fi
+
+	if [ -z "${CROSS}" ] ; then
+		mark_arch skip $a
+		echo " ### SKIP: ${a}: could not find compiler"
+		continue
+	fi
+
+	rm -f ${a}.log ${a}.fail
+	(
+	set -e
+
+	echo " ### Building target ${a} (${CROSS})"
+
+	do_make distclean
+	do_make ARCH=$a defconfig
+	do_make oldconfig
+
+	setconfig CROSS_COMPILER_PREFIX ${CROSS}
+
+	header_path=$(echo '#include <linux/version.h>' | ${CROSS}cpp 2>&1 | grep -o '[^"]*linux/version.h')
+	setconfig KERNEL_HEADERS ${header_path%/linux/version.h}
+
+	if do_make ; then
+		echo "  ## PASS"
+	else
+		echo "  ## FAIL"
+		touch ${a}.fail
+	fi
+	) 2>&1 | tee ${a}.log
+
+	if [ -e ${a}.fail ] ; then
+		rm -f ${a}.fail
+		mark_arch fail $a
+	else
+		mark_arch pass $a
+	fi
+done
+
+if [ -n "${skip}" ] ; then
+	printf '\nSKIPPED: %s\n' "${skip}"
+fi
+if [ -n "${fail}" ] ; then
+	printf '\nPASSED: %s\nFAILED: %s\n\n' "${pass}" "${fail}"
+	exit 1
+else
+	printf '\nAll arches passed!\n\n'
+	exit 0
+fi
