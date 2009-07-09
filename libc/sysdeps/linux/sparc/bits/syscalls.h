@@ -35,11 +35,6 @@
 #define DEBUG_SYSCALL(name) do{} while(0)
 #endif
 
-
-#define INTERNAL_SYSCALL( name, err, nr, args...) \
-    INTERNAL_SYSCALL_NCS( __NR_##name, err, nr, args )
-
-
 #define INTERNAL_SYSCALL_NCS(sys_num, err, nr, args...) \
     ({                                                      \
         unsigned int __res;                                 \

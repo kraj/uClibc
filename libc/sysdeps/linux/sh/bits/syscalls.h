@@ -112,29 +112,6 @@
 	register long int r1 __asm__ ("%r1") = (long int) (_arg6);		      \
 	register long int r2 __asm__ ("%r2") = (long int) (_arg7)
 
-#define INLINE_SYSCALL(name, nr, args...) \
-  ({                                                                          \
-    unsigned int __resultvar = INTERNAL_SYSCALL (name, , nr, args);             \
-    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (__resultvar, ), 0))         \
-      {                                                                       \
-        __set_errno (INTERNAL_SYSCALL_ERRNO (__resultvar, ));                   \
-        __resultvar = 0xffffffff;                                               \
-      }                                                                       \
-    (int) __resultvar; })
-
-#define INTERNAL_SYSCALL(name, err, nr, args...) \
-  ({									      \
-    unsigned long int resultvar;					      \
-    register long int r3 __asm__ ("%r3") = SYS_ify (name);			      \
-    SUBSTITUTE_ARGS_##nr(args);						      \
-									      \
-    __asm__ volatile (SYSCALL_INST_STR##nr SYSCALL_INST_PAD			      \
-		  : "=z" (resultvar)					      \
-		  : "r" (r3) ASMFMT_##nr				      \
-		  : "memory");						      \
-									      \
-    (int) resultvar; })
-
 /* The _NCS variant allows non-constant syscall numbers.  */
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...) \
   ({									      \

@@ -8,10 +8,10 @@
 
 #include <errno.h>
 
-#define INTERNAL_SYSCALL(name, err, nr, args...)			\
+#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
 	({								\
 		register int _a1 __asm__("r12");			\
-		register int _scno __asm__("r8") = SYS_ify(name);	\
+		register int _scno __asm__("r8") = name;		\
 		LOAD_ARGS_##nr (args);					\
 		__asm__ __volatile__("scall	/* syscall " #name " */" \
 			      : "=r" (_a1)				\

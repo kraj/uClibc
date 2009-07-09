@@ -6,4 +6,4 @@
  */
 
 #error You have not provided architecture specific bits/syscalls.h
-#error You should need to define only INTERNAL_SYSCALL
+#error You should need to define only INTERNAL_SYSCALL_NCS

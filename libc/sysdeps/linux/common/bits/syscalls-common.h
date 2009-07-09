@@ -31,16 +31,30 @@
 
 /* Define a macro which expands into the inline wrapper code for a system call */
 #ifndef INLINE_SYSCALL
-# define INLINE_SYSCALL(name, nr, args...)				\
+# define INLINE_SYSCALL(name, nr, args...) INLINE_SYSCALL_NCS(__NR_##name, nr, args)
+#endif
+
+/* Just like INLINE_SYSCALL(), but take a non-constant syscall (NCS) argument */
+#ifndef INLINE_SYSCALL_NCS
+# define INLINE_SYSCALL_NCS(name, nr, args...)				\
 ({									\
 	INTERNAL_SYSCALL_DECL(err);					\
-	long res = INTERNAL_SYSCALL(name, err, nr, args);		\
+	long res = INTERNAL_SYSCALL_NCS(name, err, nr, args);		\
 	if (unlikely(INTERNAL_SYSCALL_ERROR_P(res, err))) {		\
 		__set_errno(INTERNAL_SYSCALL_ERRNO(res, err));		\
 		res = -1L;						\
 	}								\
 	res;								\
 })
+#endif
+
+/* No point in forcing people to implement both when they only need one */
+#ifndef INTERNAL_SYSCALL
+# define INTERNAL_SYSCALL(name, err, nr, args...) INTERNAL_SYSCALL_NCS(__NR_##name, err, nr, args)
+#endif
+
+#ifndef INTERNAL_SYSCALL_NCS
+# error your port needs to define INTERNAL_SYSCALL_NCS in bits/syscalls.h
 #endif
 
 #ifndef _syscall0

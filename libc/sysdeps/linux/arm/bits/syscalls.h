@@ -30,8 +30,8 @@
 
 #include <errno.h>
 
-#define INLINE_SYSCALL(name, nr, args...)				\
-  ({ unsigned int _inline_sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
+#define INLINE_SYSCALL_NCS(name, nr, args...)				\
+  ({ unsigned int _inline_sys_result = INTERNAL_SYSCALL_NCS (name, , nr, args);	\
      if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_inline_sys_result, ), 0))	\
        {								\
 	 __set_errno (INTERNAL_SYSCALL_ERRNO (_inline_sys_result, ));		\
@@ -41,12 +41,12 @@
 
 #if !defined(__thumb__)
 #if defined(__ARM_EABI__)
-#define INTERNAL_SYSCALL(name, err, nr, args...)			\
+#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
   ({unsigned int __sys_result;						\
      {									\
        register int _a1 __asm__ ("r0"), _nr __asm__ ("r7");		\
        LOAD_ARGS_##nr (args)						\
-       _nr = SYS_ify(name);						\
+       _nr = (name);							\
        __asm__ __volatile__ ("swi	0x0	@ syscall " #name	\
 			     : "=r" (_a1)				\
 			     : "r" (_nr) ASM_ARGS_##nr			\
@@ -56,14 +56,14 @@
      (int) __sys_result; })
 #else /* defined(__ARM_EABI__) */
 
-#define INTERNAL_SYSCALL(name, err, nr, args...)			\
+#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
   ({ unsigned int __sys_result;						\
      {									\
        register int _a1 __asm__ ("a1");					\
        LOAD_ARGS_##nr (args)						\
        __asm__ __volatile__ ("swi	%1	@ syscall " #name	\
 		     : "=r" (_a1)					\
-		     : "i" (SYS_ify(name)) ASM_ARGS_##nr		\
+		     : "i" (name) ASM_ARGS_##nr				\
 		     : "memory");					\
        __sys_result = _a1;						\
      }									\
@@ -73,13 +73,13 @@
 /* We can't use push/pop inside the asm because that breaks
    unwinding (ie. thread cancellation).
  */
-#define INTERNAL_SYSCALL(name, err, nr, args...)			\
+#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
   ({ unsigned int __sys_result;						\
     {									\
       int _sys_buf[2];							\
       register int _a1 __asm__ ("a1");					\
       register int *_v3 __asm__ ("v3") = _sys_buf;			\
-      *_v3 = (int) (SYS_ify(name));					\
+      *_v3 = (int) (name);						\
       LOAD_ARGS_##nr (args)						\
       __asm__ __volatile__ ("str	r7, [v3, #4]\n"			\
 		    "\tldr	r7, [v3]\n"				\

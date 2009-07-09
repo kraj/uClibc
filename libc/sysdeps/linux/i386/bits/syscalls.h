@@ -96,16 +96,16 @@ __asm__ (".L__X'%ebx = 1\n\t"
      ".endm\n\t");
 #endif
 
-#define INTERNAL_SYSCALL(name, err, nr, args...) \
+#define INTERNAL_SYSCALL_NCS(name, err, nr, args...) \
   ({                                                                          \
     register unsigned int resultvar;                                          \
-    __asm__ __volatile__ (                                                            \
+    __asm__ __volatile__ (                                                    \
     LOADARGS_##nr                                                             \
     "movl %1, %%eax\n\t"                                                      \
     "int $0x80\n\t"                                                           \
     RESTOREARGS_##nr                                                          \
     : "=a" (resultvar)                                                        \
-    : "i" (__NR_##name) ASMFMT_##nr(args) : "memory", "cc");                  \
+    : "i" (name) ASMFMT_##nr(args) : "memory", "cc");                         \
      (int) resultvar; })
 
 #define LOADARGS_0
