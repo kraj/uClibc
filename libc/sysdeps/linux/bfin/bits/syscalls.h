@@ -6,13 +6,13 @@
 
 #ifndef __ASSEMBLER__
 
-#define INTERNAL_SYSCALL(name, err, nr, args...)	\
+#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)	\
 ({							\
 	long __res;					\
 	__asm__ __volatile__ (				\
 		"excpt 0;\n\t"				\
 		: "=q0" (__res)				\
-		: "qA"  (__NR_##name) ASMFMT_##nr(args)	\
+		: "qA"  (name) ASMFMT_##nr(args)	\
 		: "memory","CC");			\
 	__res;						\
 })

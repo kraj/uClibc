@@ -130,18 +130,6 @@
     (int) r3;								      \
   })
 
-# define INLINE_SYSCALL(name, nr, args...)				\
-  ({									\
-    INTERNAL_SYSCALL_DECL (sc_err);					\
-    long int sc_ret = INTERNAL_SYSCALL (name, sc_err, nr, args);	\
-    if (INTERNAL_SYSCALL_ERROR_P (sc_ret, sc_err))			\
-      {									\
-	__set_errno (INTERNAL_SYSCALL_ERRNO (sc_ret, sc_err));		\
-	sc_ret = -1L;							\
-      }									\
-    sc_ret;								\
-  })
-
 /* Define a macro which expands inline into the wrapper code for a system
    call. This use is for internal calls that do not need to handle errors
    normally. It will never touch errno.
@@ -177,8 +165,6 @@
     err = r0;								\
     (int) r3;								\
   })
-# define INTERNAL_SYSCALL(name, err, nr, args...) \
-  INTERNAL_SYSCALL_NCS (__NR_##name, err, nr, ##args)
 
 # define INTERNAL_SYSCALL_ERROR_P(val, err) \
   ((void) (val), __builtin_expect ((err) & (1 << 28), 0))

@@ -61,12 +61,9 @@
 		      : "memory" ASM_CLOBBERS_##nr);		\
     _retval = _r8;
 
-#define DO_INLINE_SYSCALL(name, nr, args...)	\
-  DO_INLINE_SYSCALL_NCS (__NR_##name, nr, ##args)
-
-#define INLINE_SYSCALL(name, nr, args...)		\
+#define INLINE_SYSCALL_NCS(name, nr, args...)		\
   ({							\
-    DO_INLINE_SYSCALL_NCS (__NR_##name, nr, args)	\
+    DO_INLINE_SYSCALL_NCS (name, nr, args)	\
     if (_r10 == -1)					\
       {							\
 	__set_errno (_retval);				\
@@ -81,8 +78,6 @@
     DO_INLINE_SYSCALL_NCS (name, nr, args)		\
     err = _r10;						\
     _retval; })
-#define INTERNAL_SYSCALL(name, err, nr, args...)	\
-  INTERNAL_SYSCALL_NCS (__NR_##name, err, nr, ##args)
 
 #define INTERNAL_SYSCALL_ERROR_P(val, err)	(err == -1)
 

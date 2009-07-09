@@ -81,8 +81,5 @@
 	 	   : "memory");						      \
      (long) _a2; })
 
-#define INTERNAL_SYSCALL(name, err, nr, args...)			      \
-  INTERNAL_SYSCALL_NCS (__NR_##name, err, nr, ##args)
-
 #endif /* not __ASSEMBLER__ */
 #endif /* _BITS_SYSCALLS_H */
