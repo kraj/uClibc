@@ -13,25 +13,7 @@
  * Licensed under GPLv2 or later
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-
-#include "bswap.h"
-#include "link.h"
-#include "dl-defs.h"
-/* makefile will include elf.h for us */
-
-#ifdef DMALLOC
-#include <dmalloc.h>
-#endif
+#include "porting.h"
 
 #if defined(__alpha__)
 #define MATCH_MACHINE(x) (x == EM_ALPHA)
@@ -134,14 +116,10 @@
 # warning "You really should add a MATCH_MACHINE() macro for your architecture"
 #endif
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#if UCLIBC_ENDIAN_HOST == UCLIBC_ENDIAN_LITTLE
 #define ELFDATAM	ELFDATA2LSB
-#elif __BYTE_ORDER == __BIG_ENDIAN
+#elif UCLIBC_ENDIAN_HOST == UCLIBC_ENDIAN_BIG
 #define ELFDATAM	ELFDATA2MSB
-#endif
-
-#ifndef UCLIBC_RUNTIME_PREFIX
-# define UCLIBC_RUNTIME_PREFIX "/"
 #endif
 
 struct library {
@@ -247,15 +225,13 @@ static int check_elf_header(ElfW(Ehdr) *const ehdr)
 
 	/* Check if the target endianness matches the host's endianness */
 	byteswap = 0;
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-	if (ehdr->e_ident[5] == ELFDATA2MSB)
-		byteswap = 1;
-#elif __BYTE_ORDER == __BIG_ENDIAN
-	if (ehdr->e_ident[5] == ELFDATA2LSB)
-		byteswap = 1;
-#else
-#error Unknown host byte order!
-#endif
+	if (UCLIBC_ENDIAN_HOST == UCLIBC_ENDIAN_LITTLE) {
+		if (ehdr->e_ident[5] == ELFDATA2MSB)
+			byteswap = 1;
+	} else if (UCLIBC_ENDIAN_HOST == UCLIBC_ENDIAN_BIG) {
+		if (ehdr->e_ident[5] == ELFDATA2LSB)
+			byteswap = 1;
+	}
 
 	/* Be very lazy, and only byteswap the stuff we use */
 	if (byteswap) {
@@ -363,7 +339,7 @@ static void search_for_named_library(char *name, char *result,
 	/* We need a writable copy of this string */
 	path = strdup(path_list);
 	if (!path) {
-		fprintf(stderr, "Out of memory!\n");
+		fprintf(stderr, "%s: Out of memory!\n", __func__);
 		exit(EXIT_FAILURE);
 	}
 	/* Eliminate all double //s */
@@ -412,7 +388,7 @@ static void locate_library_file(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic,
 	/* We need some elbow room here.  Make some room... */
 	buf = malloc(1024);
 	if (!buf) {
-		fprintf(stderr, "Out of memory!\n");
+		fprintf(stderr, "%s: Out of memory!\n", __func__);
 		exit(EXIT_FAILURE);
 	}
 
@@ -669,7 +645,7 @@ static int find_dependancies(char *filename)
 	ehdr = mmap(0, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
 	if (ehdr == MAP_FAILED) {
 		fclose(thefile);
-		fprintf(stderr, "Out of memory!\n");
+		fprintf(stderr, "mmap(%s) failed: %s\n", filename, strerror(errno));
 		return -1;
 	}
 
