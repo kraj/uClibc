@@ -30,18 +30,27 @@ setconfig()
 	echo "  ## setconfig ${opt} $*"
 }
 
+get_arches()
+{
+	case $1 in
+		sh) echo sh4 sh2 sh3 sh1 sh;;
+		*)  echo $1;;
+	esac
+}
+
 find_compiler()
 {
 	local t a v o l
-	a=$1
-	for v in unknown pc gentoo "" ; do
-		for o in linux uclinux "" ; do
-			for l in uclibc "" ; do
-				t="${a}${v:+-${v}}${o:+-${o}}${l:+-${l}}"
-				if ${t}-gcc --help > /dev/null 2>&1 ; then
-					echo ${t}-
-					return 0
-				fi
+	for a in $(get_arches $1) ; do
+		for v in unknown pc gentoo "" ; do
+			for o in linux uclinux "" ; do
+				for l in uclibc "" ; do
+					t="${a}${v:+-${v}}${o:+-${o}}${l:+-${l}}"
+					if ${t}-gcc --help > /dev/null 2>&1 ; then
+						echo ${t}-
+						return 0
+					fi
+				done
 			done
 		done
 	done
