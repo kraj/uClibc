@@ -279,10 +279,14 @@ struct res_sym {
 /*			0x00008000	*/
 
 /* Things involving an internal (static) resolver context. */
+#if 0
 __BEGIN_DECLS
 extern struct __res_state *__res_state(void) __attribute__ ((__const__));
 __END_DECLS
 #define _res (*__res_state())
+#else
+extern struct __res_state _res;
+#endif
 
 #define fp_nquery		__fp_nquery
 #define fp_query		__fp_query
@@ -421,6 +425,11 @@ int		res_nsend (res_state, const u_char *, int, u_char *, int)
      __THROW;
 void		res_nclose (res_state) __THROW;
 __END_DECLS
+
+/*
+ * Current resolv.c is not TLS aware so disable this for now
+ */
+#if 0
 # if _LIBC
 #  ifdef __UCLIBC_HAS_THREADS__
 #   if defined __UCLIBC_HAS_TLS__ \
@@ -438,4 +447,6 @@ extern __thread struct __res_state *__resp attribute_tls_model_ie;
 #   endif /* __UCLIBC_HAS_TLS__ */
 #  endif /* __UCLIBC_HAS_THREADS__ */
 # endif /* _LIBC */
+#endif
+
 #endif /* !_RESOLV_H_ */

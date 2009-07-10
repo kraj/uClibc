@@ -34,8 +34,8 @@ endif
 
 # multi source resolv.c
 resolv_CSRC += \
-	encodeh.c decodeh.c encoded.c decoded.c lengthd.c \
-	encodeq.c decodeq.c encodea.c decodea.c lengthq.c \
+	encodeh.c decodeh.c encoded.c decoded.c \
+	encodeq.c encodea.c \
 	dnslookup.c opennameservers.c closenameservers.c \
 	read_etc_hosts_r.c get_hosts_byaddr_r.c get_hosts_byname_r.c \
 	getnameinfo.c \

@@ -20,4 +20,3 @@ locale/locales.txt
 locale/lt_defines.h
 locale/uClibc_locale_data.h
 locale/wctables.h
-scripts/unifdef

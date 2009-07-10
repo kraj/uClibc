@@ -61,6 +61,12 @@ include/bits/uClibc_config.h: extra/config/conf .config $(top_srcdir)extra/scrip
 	$(Q)$(top_srcdir)extra/scripts/conf-header.sh .config > $@
 	$(Q)$(MAKE) headers-y
 
+# The above doesn't work for threads, though. Just using check-symlinks for now.
+# XXX: FIXME: this is ugly
+MAKEFLAGS += -L
+include/config/linuxthreads/old.h include/config/linuxthreads/new.h:
+	@true
+
 # For the moment, we have to keep re-running this target
 # because the fix includes scripts rely on pre-processers
 # in order to generate the headers correctly :(.  That
@@ -137,7 +143,7 @@ endif
 $(target-headers-sysdep): | include/bits
 
 sysdep_common_headers-clean:
-	$(Q)$(RM) $(ALL_HEADERS_COMMON)
+	$(RM) $(ALL_HEADERS_COMMON)
 headers_clean-y += sysdep_common_headers-clean
 
 # The headers. Arch specific headers are specified via ARCH_HEADERS in
@@ -145,7 +151,6 @@ headers_clean-y += sysdep_common_headers-clean
 # libc/sysdeps/linux/Makefile.commonarch to headers-y
 headers-y += $(target-headers-sysdep)
 
-# Make bootstrap only header files: not requiring any cross-compilation
 headers: include/bits/uClibc_config.h
 
 pregen: include/bits/sysnum.h headers
@@ -182,8 +187,8 @@ include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 	fi
 
 $(LOCAL_INSTALL_PATH):
-	$(Q)$(MAKE) PREFIX=$(shell pwd)/ RUNTIME_PREFIX=./ \
-	DEVEL_PREFIX=$(LOCAL_INSTALL_PATH)/usr/ \
+	$(Q)$(MAKE) PREFIX=$(shell pwd)/$(LOCAL_INSTALL_PATH) RUNTIME_PREFIX=/ \
+	DEVEL_PREFIX=/usr/ \
 	HOSTCC="$(HOSTCC)" \
 	install
 
@@ -201,7 +206,7 @@ install_headers: headers $(top_builddir)extra/scripts/unifdef
 	top_builddir=$(top_builddir) \
 	$(top_srcdir)extra/scripts/install_headers.sh include $(PREFIX)$(DEVEL_PREFIX)include
 	# Disabled. If libc-internal.h is needed, document here why!
-	printf '#ifndef _LIBC_INTERNAL_H\n#define _LIBC_INTERNAL_H 1\n#endif\n' >$(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
+	#printf '#ifndef _LIBC_INTERNAL_H\n#define _LIBC_INTERNAL_H 1\n#endif\n' >$(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
 	echo '/* Dont use _syscall#() macros; use the syscall() function */' > \
 		$(PREFIX)$(DEVEL_PREFIX)include/bits/syscalls.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dl-osinfo.h
@@ -397,6 +402,7 @@ ifeq ($(HAVE_SHARED),y)
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
 	done
+ifeq ($(HARDWIRED_ABSPATH),y)
 	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		$(SED) -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
@@ -404,14 +410,21 @@ ifeq ($(HAVE_SHARED),y)
 		    -e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO):' \
 		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
+else
+	-$(INSTALL) -m 644 lib/libc.so $(PREFIX)$(DEVEL_PREFIX)lib/
+endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifneq ($(LINUXTHREADS_OLD),y)
+ifeq ($(HARDWIRED_ABSPATH),y)
 	if [ -f $(top_builddir)lib/libpthread.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/libpthread.so.$(MAJOR_VERSION) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
 		cp $(top_srcdir)extra/scripts/format.lds $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
 		echo "GROUP ( $(RUNTIME_PREFIX)lib/libpthread.so.$(MAJOR_VERSION) $(DEVEL_PREFIX)lib/libpthread_nonshared.a )" \
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
 	fi
+else
+	-$(INSTALL) -m 644 lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)lib/
+endif
 endif
 endif
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
@@ -454,9 +467,6 @@ ifeq ($(HAVE_SHARED),y)
 	fi
 endif
 
-hostutils:
-	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" -C utils hostutils
-
 # Installs only library tests 
 install_test:
 	mkdir -p  $(PREFIX)
@@ -478,10 +488,13 @@ utils:
 install_utils: utils
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install
 
+endif # ifeq ($(HAVE_DOT_CONFIG),y)
+
+hostutils:
+	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" -C utils hostutils
+
 install_hostutils: hostutils
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install DOTHOST=.host
-
-endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 include/bits include/config:
 	@$(disp_mkdir)
