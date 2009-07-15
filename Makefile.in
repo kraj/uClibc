@@ -192,6 +192,88 @@ $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
 	$(hcompile.u)
 
 # Installs header files.
+# a "y" here means the feature is enabled and so we should *not* rm it.
+# if the option expands to nothing though, we can punt the headers.
+HEADERS_RM- := \
+	dl-osinfo.h \
+	_lfs_64.h \
+	bits/kernel_sigaction.h \
+	bits/kernel_stat.h \
+	bits/kernel_types.h \
+	bits/utmpx.h \
+	bits/uClibc_errno.h \
+	bits/uClibc_uintmaxtostr.h \
+	atomic.h \
+	bits/atomic.h \
+	bits/sigcontextinfo.h \
+	bits/stackinfo.h \
+	tls.h
+	# gcc 4.3.1 needs it, dont rm:
+	#bits/uClibc_arch_features.h
+HEADERS_RM-$(UCLIBC_HAS_FLOATS) += \
+	complex.h \
+	fpu_control.h \
+	ieee754.h \
+	math.h \
+	tgmath.h \
+	bits/uClibc_fpmax.h \
+	bits/math*.h
+HEADERS_RM-$(UCLIBC_HAS_GNU_GETOPT)$(UCLIBC_HAS_GETOPT_LONG) += getopt.h
+HEADERS_RM-$(UCLIBC_HAS_REALTIME) += \
+	mqueue.h \
+	bits/mqueue.h \
+	sched.h \
+	bits/sched.h \
+	semaphore.h
+HEADERS_RM-$(UCLIBC_HAS_THREADS) += \
+	*thread*.h \
+	semaphore.h \
+	bits/*thread*.h \
+	bits/initspin.h
+HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC) += \
+	sys/fsuid.h \
+	sys/inotify.h \
+	sys/perm.h \
+	sys/personality.h \
+	sys/prctl.h \
+	sys/reboot.h \
+	sys/sendfile.h \
+	sys/signalfd.h \
+	bits/statfs.h \
+	sys/statfs.h \
+	sys/swap.h \
+	sys/sysctl.h \
+	sys/sysinfo.h \
+	sys/vfs.h
+HEADERS_RM-$(HAVE_SHARED)                    += dlfcn.h bits/dlfcn.h
+HEADERS_RM-$(PTHREADS_DEBUG_SUPPORT)         += thread_db.h
+HEADERS_RM-$(UCLIBC_HAS_BSD_ERR)             += err.h
+HEADERS_RM-$(UCLIBC_HAS_CRYPT)               += crypt.h
+HEADERS_RM-$(UCLIBC_HAS_EPOLL)               += sys/epoll.h
+HEADERS_RM-$(UCLIBC_HAS_FENV)                += fenv.h bits/fenv.h bits/fenvinline.h
+HEADERS_RM-$(UCLIBC_HAS_FTW)                 += ftw.h
+HEADERS_RM-$(UCLIBC_HAS_GETTEXT_AWARENESS)   += libintl.h
+HEADERS_RM-$(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF) += printf.h
+HEADERS_RM-$(UCLIBC_HAS_GLOB)                += glob.h
+HEADERS_RM-$(UCLIBC_HAS_GNU_ERROR)           += error.h
+HEADERS_RM-$(UCLIBC_HAS_IPV6)                += netinet/ip6.h netinet/icmp6.h
+HEADERS_RM-$(UCLIBC_HAS_LOCALE)              += iconv.h
+HEADERS_RM-$(UCLIBC_HAS_PTY)                 += pty.h
+HEADERS_RM-$(UCLIBC_HAS_REGEX)               += regex.h regexp.h
+HEADERS_RM-$(UCLIBC_HAS_RPC)                 += rpc
+HEADERS_RM-$(UCLIBC_HAS_SHADOW)              += shadow.h
+HEADERS_RM-$(UCLIBC_HAS_SOCKET)              += sys/socket.h bits/socket.h sys/socketvar.h
+HEADERS_RM-$(UCLIBC_HAS_SYSLOG)              += syslog.h sys/syslog.h bits/syslog*.h
+HEADERS_RM-$(UCLIBC_HAS_WCHAR)               += wchar.h wctype.h
+HEADERS_RM-$(UCLIBC_HAS_WORDEXP)             += wordexp.h
+HEADERS_RM-$(UCLIBC_HAS_XATTR)               += sys/xattr.h
+HEADERS_RM-$(UCLIBC_HAS_XLOCALE)             += xlocale.h
+HEADERS_RM-$(UCLIBC_SUPPORT_AI_ADDRCONFIG)   += ifaddrs.h
+HEADERS_RM-$(UCLIBC_SV4_DEPRECATED)          += ustat.h sys/ustat.h bits/ustat.h
+HEADERS_RM-$(UCLIBC_SUSV3_LEGACY)            += sys/timeb.h regexp.h
+	# BREAKAGE: include/signal.h uses it, this rm broke bbox compile:
+	### ucontext.h
+
 install_headers: headers $(top_builddir)extra/scripts/unifdef
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	top_builddir=$(top_builddir) \
@@ -200,188 +282,7 @@ install_headers: headers $(top_builddir)extra/scripts/unifdef
 	#printf '#ifndef _LIBC_INTERNAL_H\n#define _LIBC_INTERNAL_H 1\n#endif\n' >$(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
 	echo '/* Dont use _syscall#() macros; use the syscall() function */' > \
 		$(PREFIX)$(DEVEL_PREFIX)include/bits/syscalls.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dl-osinfo.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/_lfs_64.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_uintmaxtostr.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/kernel_sigaction.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/kernel_stat.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/kernel_types.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/utmpx.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/atomic.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/atomic.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/sigcontextinfo.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/stackinfo.h
-	# gcc 4.3.1 needs it, dont rm:
-	#$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_arch_features.h
-ifneq ($(UCLIBC_HAS_FLOATS),y)
-	# Remove floating point related headers since float support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/fpu_control.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ieee754.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/math.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tgmath.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_fpmax.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/math*.h
-endif
-ifneq ($(UCLIBC_HAS_FENV),y)
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/fenv.h \
-		$(PREFIX)$(DEVEL_PREFIX)include/bits/fenv.h \
-		$(PREFIX)$(DEVEL_PREFIX)include/bits/fenvinline.h
-endif
-ifneq ($(UCLIBC_HAS_WCHAR),y)
-	# Remove wide char headers since wide char support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/wctype.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/wchar.h
-endif
-ifneq ($(UCLIBC_HAS_LOCALE),y)
-	# Remove iconv header since locale support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/iconv.h
-endif
-ifneq ($(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF),y)
-	# Remove printf header since custom print specifier support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/printf.h
-endif
-ifneq ($(UCLIBC_HAS_XLOCALE),y)
-	# Remove xlocale header since extended locale support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/xlocale.h
-endif
-ifneq ($(UCLIBC_HAS_GETTEXT_AWARENESS),y)
-	# Remove libintl header since gettext support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/libintl.h
-endif
-ifneq ($(UCLIBC_HAS_REGEX),y)
-	# Remove regex headers since regex support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/regex.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/regexp.h
-endif
-ifneq ($(UCLIBC_HAS_WORDEXP),y)
-	# Remove wordexp header since wordexp support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/wordexp.h
-endif
-ifneq ($(UCLIBC_HAS_FTW),y)
-	# Remove ftw header since ftw support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ftw.h
-endif
-ifneq ($(UCLIBC_HAS_GLOB),y)
-	# Remove glob header since glob support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/glob.h
-endif
-ifneq ($(UCLIBC_HAS_GNU_GETOPT),y)
-ifneq ($(UCLIBC_HAS_GETOPT_LONG),y)
-	# Remove getopt header since gnu getopt support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/getopt.h
-endif
-endif
-ifneq ($(UCLIBC_HAS_SHADOW),y)
-	# Remove shadow header since shadow password support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/shadow.h
-endif
-ifneq ($(PTHREADS_DEBUG_SUPPORT),y)
-	# Remove thread_db header since thread debug support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/thread_db.h
-endif
-ifneq ($(UCLIBC_HAS_THREADS),y)
-	# Remove pthread headers since thread support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/*thread*.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/semaphore.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/*thread*.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/initspin.h
-endif
-ifneq ($(HAVE_SHARED),y)
-	# Remove dlfcn header if we don't have shared libraries.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dlfcn.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/dlfcn.h
-endif
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-	# Remove this as it is only used internally.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tls.h
-endif
-ifneq ($(UCLIBC_HAS_GNU_ERROR),y)
-	# Remove error.h upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/error.h
-endif
-ifneq ($(UCLIBC_HAS_BSD_ERR),y)
-	# Remove err.h upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/err.h
-endif
-ifneq ($(UCLIBC_SUSV3_LEGACY),y)
-	# Remove timeb.h since the LEGACY ftime() was disabled upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/timeb.h
-	# BREAKAGE: include/signal.h uses it, this rm broke bbox compile:
-	### $(RM) $(PREFIX)$(DEVEL_PREFIX)include/ucontext.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/regexp.h
-endif
-ifneq ($(UCLIBC_HAS_EPOLL),y)
-	# Remove epoll.h since epoll_*() were disabled upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/epoll.h
-endif
-ifneq ($(UCLIBC_HAS_XATTR),y)
-	# Remove xattr.h since extended attributes were disabled upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/xattr.h
-endif
-ifneq ($(UCLIBC_HAS_PTY),y)
-	# Remove pty.h since PTY support was disabled upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/pty.h
-endif
-ifneq ($(UCLIBC_LINUX_SPECIFIC),y)
-	# Remove linux-specific headers as requested
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/inotify.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/perm.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/personality.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/prctl.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/reboot.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/sendfile.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/fsuid.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/signalfd.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/statfs.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/statfs.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/swap.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/sysctl.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/vfs.h
-	$(RM) ${PREFIX}$(DEVEL_PREFIX)include/sys/sysinfo.h
-endif
-ifneq ($(UCLIBC_SV4_DEPRECATED),y)
-	# Remove ustat.h since deprecated SV4 support was disabled upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ustat.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/ustat.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/ustat.h
-endif
-ifneq ($(UCLIBC_HAS_REALTIME),y)
-	# Remove SUSv-realtime related headers upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/mqueue.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/mqueue.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sched.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/sched.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/semaphore.h
-endif
-ifneq ($(UCLIBC_HAS_SOCKET),y)
-	# Remove socket related headers upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/socket.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/socket.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/socketvar.h
-endif
-ifneq ($(UCLIBC_HAS_CRYPT),y)
-	# Remove crypt.h since libcrypt was disabled upon request
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/crypt.h
-endif
-ifneq ($(UCLIBC_SUPPORT_AI_ADDRCONFIG),y)
-	# Remove ifaddrs.h since the corresponding functionality is disabled
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ifaddrs.h
-endif
-ifneq ($(UCLIBC_HAS_SYSLOG),y)
-	# Remove syslog.h since the corresponding functionality is disabled
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/syslog.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/sys/syslog.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/syslog*.h
-endif
-ifneq ($(UCLIBC_HAS_RPC),y)
-	$(RM) -r $(PREFIX)$(DEVEL_PREFIX)include/rpc
-endif
-ifneq ($(UCLIBC_HAS_IPV6),y)
-	# Remove IPv6 headers since the corresponding functionality is disabled
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/netinet/ip6.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/netinet/icmp6.h
-endif
+	cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -r $(HEADERS_RM-)
 
 # Installs development library links.
 install_dev: install_headers all
