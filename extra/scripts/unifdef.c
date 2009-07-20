@@ -63,14 +63,20 @@ __FBSDID("$FreeBSD: /repoman/r/ncvs/src/usr.bin/unifdef/unifdef.c,v 1.20 2005/05
  *     also make it possible to handle all "dodgy" directives correctly.
  */
 
+#include <errno.h>
 #include <ctype.h>
-#include <err.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+/* Avoid err.h since uClibc can disable these things */
+#define vwarnx(fmt, args)   ({ fprintf(stderr, "unifdef: "); vfprintf(stderr, fmt, args); fprintf(stderr, "\n"); })
+#define warnx(fmt, args...) fprintf(stderr, "unifdef: " fmt "\n", ## args)
+#define errx(exit_code, fmt, args...) ({ warnx(fmt, ## args); exit(exit_code); })
+#define err(exit_code, fmt, args...)  errx(exit_code, fmt ": %s", ## args, strerror(errno))
 
 size_t strlcpy(char *dst, const char *src, size_t siz);
 
