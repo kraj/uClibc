@@ -474,6 +474,7 @@ libc_hidden_proto(re_compile_fastmap)
 extern int re_search (struct re_pattern_buffer *__buffer, const char *__string,
 		      int __length, int __start, int __range,
 		      struct re_registers *__regs);
+libc_hidden_proto(re_search);
 
 
 /* Like `re_search', but search in the concatenation of STRING1 and
@@ -482,6 +483,7 @@ extern int re_search_2 (struct re_pattern_buffer *__buffer,
 			const char *__string1, int __length1,
 			const char *__string2, int __length2, int __start,
 			int __range, struct re_registers *__regs, int __stop);
+libc_hidden_proto(re_search_2);
 
 
 /* Like `re_search', but return how many characters in STRING the regexp
