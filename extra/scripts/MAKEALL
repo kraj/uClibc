@@ -101,7 +101,18 @@ for a in "$@" ; do
 
 	setconfig CROSS_COMPILER_PREFIX ${CROSS}
 
-	header_path=$(echo '#include <linux/version.h>' | ${CROSS}cpp 2>&1 | grep -o '[^"]*linux/version.h')
+	header_path=${KERNEL_HEADERS:-$(echo '#include <linux/version.h>' | ${CROSS}cpp 2>/dev/null | grep -o '[^"]*linux/version.h')} || :
+	if [ -z "${header_path}" ] ; then
+		for p in /usr/${CROSS%-}/usr/include ; do
+			if [ -e ${p}/linux/version.h ] ; then
+				header_path=${p}
+				break
+			fi
+		done
+		if [ -z "${header_path}" ] ; then
+			echo "  ## unable to locate KERNEL_HEADERS"
+		fi
+	fi
 	setconfig KERNEL_HEADERS ${header_path%/linux/version.h}
 
 	if do_make ; then
