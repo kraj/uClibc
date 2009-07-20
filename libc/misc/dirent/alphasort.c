@@ -8,11 +8,8 @@
 #include <string.h>
 #include "dirstream.h"
 
-/* Experimentally off - libc_hidden_proto(strcmp) */
-
-int alphasort(const void * a, const void * b)
+int alphasort(const struct dirent **a, const struct dirent **b)
 {
-    return strcmp ((*(const struct dirent **) a)->d_name,
-	    (*(const struct dirent **) b)->d_name);
+	return strcmp((*a)->d_name, (*b)->d_name);
 }
 

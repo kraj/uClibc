@@ -8,8 +8,7 @@
 #include <string.h>
 #include "dirstream.h"
 
-int versionsort(const void *a, const void *b)
+int versionsort(const struct dirent **a, const struct dirent **b)
 {
-	return strverscmp((*(const struct dirent **) a)->d_name,
-			(*(const struct dirent **) b)->d_name);
+	return strverscmp((*a)->d_name, (*b)->d_name);
 }

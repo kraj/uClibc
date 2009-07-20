@@ -10,10 +10,7 @@
 #include <string.h>
 #include "dirstream.h"
 
-/* Experimentally off - libc_hidden_proto(strcmp) */
-
-int alphasort64(const void * a, const void * b)
+int alphasort64(const struct dirent64 **a, const struct dirent64 **b)
 {
-    return strcmp ((*(const struct dirent64 **) a)->d_name,
-	    (*(const struct dirent64 **) b)->d_name);
+	return strcmp((*a)->d_name, (*b)->d_name);
 }
