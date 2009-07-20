@@ -485,7 +485,7 @@ __END_DECLS
 
 #ifdef UCLIBC_INTERNAL
 # if defined __i386__
-#  include <libc-string_i386.h>
+#  include <../libc/string/i386/string.h>
 # endif
 #endif
 
