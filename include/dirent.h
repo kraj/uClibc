@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2000, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2000, 2003-2005, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -226,15 +226,17 @@ libc_hidden_proto(dirfd)
 #  define dirfd(dirp)	_DIR_dirfd (dirp)
 # endif
 
-# ifndef MAXNAMLEN
+# if defined __USE_BSD || defined __USE_MISC
+#  ifndef MAXNAMLEN
 /* Get the definitions of the POSIX.1 limits.  */
 #  include <bits/posix1_lim.h>
 
 /* `MAXNAMLEN' is the BSD name for what POSIX calls `NAME_MAX'.  */
-#  ifdef NAME_MAX
-#   define MAXNAMLEN	NAME_MAX
-#  else
-#   define MAXNAMLEN	255
+#   ifdef NAME_MAX
+#    define MAXNAMLEN	NAME_MAX
+#   else
+#    define MAXNAMLEN	255
+#   endif
 #  endif
 # endif
 
