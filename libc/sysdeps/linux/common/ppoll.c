@@ -25,18 +25,9 @@
 
 /* libc_hidden_proto(ppoll) */
 
-# define __NR___libc_ppoll __NR_ppoll
-static __always_inline
-_syscall5(int, __libc_ppoll,
-	struct pollfd *, fds,
-	nfds_t, nfds,
-	const struct timespec *, timeout,
-	const __sigset_t *, sigmask,
-	size_t, sigsetsize)
-
 int
 ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
-       const __sigset_t *sigmask)
+       const sigset_t *sigmask)
 {
 	/* The Linux kernel can in some situations update the timeout value.
 	   We do not want that so use a local variable.  */
@@ -46,7 +37,7 @@ ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
 		timeout = &tval;
 	}
 
-	return __libc_ppoll(fds, nfds, timeout, sigmask, _NSIG / 8);
+	return INLINE_SYSCALL(ppoll, 5, fds, nfds, timeout, sigmask, _NSIG / 8);
 }
 libc_hidden_def(ppoll)
 
