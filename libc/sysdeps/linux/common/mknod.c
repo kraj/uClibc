@@ -9,20 +9,14 @@
 
 #include <sys/syscall.h>
 #include <sys/stat.h>
-#include <sys/sysmacros.h>
-
-#define __NR___syscall_mknod __NR_mknod
-/* kernel's fs/namei.c defines this:
- * long sys_mknod(const char __user *filename, int mode, unsigned dev),
- * so, no __kernel_mode_t and no __kernel_dev_t, please.
- */
-static __inline__ _syscall3(int, __syscall_mknod,
-		const char *, path,
-		int /* __kernel_mode_t */, mode,
-		unsigned /* __kernel_dev_t */, dev)
 
 int mknod(const char *path, mode_t mode, dev_t dev)
 {
-	return __syscall_mknod(path, mode, dev);
+	unsigned long long int k_dev;
+
+	/* We must convert the value to dev_t type used by the kernel.  */
+	k_dev = (dev) & ((1ULL << 32) - 1);
+
+	return INLINE_SYSCALL(mknod, 3, path, mode, (unsigned int)k_dev);
 }
 libc_hidden_def(mknod)
