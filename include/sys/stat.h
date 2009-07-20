@@ -1,4 +1,5 @@
-/* Copyright (C) 1991,1992,1995-2004,2005,2006 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 1992, 1995-2004, 2005, 2006, 2007, 2009
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,11 +28,12 @@
 
 #include <bits/types.h>		/* For __mode_t and __dev_t.  */
 
-#if defined __USE_XOPEN || defined __USE_MISC
+#if defined __USE_XOPEN || defined __USE_XOPEN2K || defined __USE_MISC \
+         || defined __USE_ATFILE
 # if defined __USE_XOPEN || defined __USE_XOPEN2K
 #  define __need_time_t
 # endif
-# ifdef __USE_MISC
+# if defined __USE_MISC || defined __USE_ATFILE
 #  define __need_timespec
 # endif
 # include <time.h>		/* For time_t resp. timespec.  */
@@ -251,12 +253,14 @@ extern int __REDIRECT_NTH (fstatat, (int __fd, __const char *__restrict __file,
 #  endif
 # endif
 
+# ifdef __USE_LARGEFILE64
 extern int fstatat64 (int __fd, __const char *__restrict __file,
 		      struct stat64 *__restrict __buf, int __flag)
      __THROW __nonnull ((2, 3));
+# endif
 #endif
 
-#if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+#if defined __USE_BSD || defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K
 # ifndef __USE_FILE_OFFSET64
 /* Get file attributes about FILE and put them in BUF.
    If FILE is a symbolic link, do not follow it.  */
@@ -303,7 +307,8 @@ extern int fchmod (int __fd, __mode_t __mode) __THROW;
 #ifdef __USE_ATFILE
 /* Set file access permissions of FILE relative to
    the directory FD is open on.  */
-extern int fchmodat (int __fd, __const char *__file, __mode_t mode, int __flag)
+extern int fchmodat (int __fd, __const char *__file, __mode_t __mode,
+		     int __flag)
      __THROW __nonnull ((2)) __wur;
 #endif /* Use ATFILE.  */
 
@@ -339,14 +344,15 @@ extern int mkdirat (int __fd, __const char *__path, __mode_t __mode)
 extern int mknod (__const char *__path, __mode_t __mode, __dev_t __dev)
      __THROW __nonnull ((1));
 libc_hidden_proto(mknod)
-#endif
 
-#ifdef __USE_ATFILE
+# ifdef __USE_ATFILE
 /* Like mknod, create a new device file with permission bits MODE and
    device number DEV.  But interpret relative PATH names relative to
    the directory associated with FD.  */
 extern int mknodat (int __fd, __const char *__path, __mode_t __mode,
 		    __dev_t __dev) __THROW __nonnull ((2));
+libc_hidden_proto(mknodat)
+# endif
 #endif
 
 
@@ -361,7 +367,21 @@ extern int mkfifo (__const char *__path, __mode_t __mode)
 extern int mkfifoat (int __fd, __const char *__path, __mode_t __mode)
      __THROW __nonnull ((2));
 #endif
+
+#ifdef __USE_ATFILE
+/* Set file access and modification times relative to directory file
+   descriptor.  */
+extern int utimensat (int __fd, __const char *__path,
+		      __const struct timespec __times[2],
+		      int __flags)
+     __THROW __nonnull ((2));
+#endif
 
+#ifdef __USE_XOPEN2K8
+/* Set file access and modification times of the file associated with FD.  */
+extern int futimens (int __fd, __const struct timespec __times[2]) __THROW;
+#endif
+
 /* on uClibc we have unversioned struct stat and mknod.
  * bits/stat.h is filled with wrong info, so we undo it here.  */
 #undef _STAT_VER

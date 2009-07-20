@@ -12,14 +12,55 @@
 #include <unistd.h>
 #include <sys/dir.h>
 #include <sys/stat.h>
+#include <dirent.h>
 #include "dirstream.h"
 
-/* libc_hidden_proto(opendir) */
-/* libc_hidden_proto(open) */
-/* libc_hidden_proto(fcntl) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(stat) */
-/* libc_hidden_proto(fstat) */
+static DIR *fd_to_DIR(int fd, __blksize_t size)
+{
+	DIR *ptr;
+
+	ptr = malloc(sizeof(*ptr));
+	if (!ptr)
+		return NULL;
+
+	ptr->dd_fd = fd;
+	ptr->dd_nextloc = ptr->dd_size = ptr->dd_nextoff = 0;
+	ptr->dd_max = size;
+	if (ptr->dd_max < 512)
+		ptr->dd_max = 512;
+
+	ptr->dd_buf = calloc(1, ptr->dd_max);
+	if (!ptr->dd_buf) {
+		free(ptr);
+		return NULL;
+	}
+	__pthread_mutex_init(&ptr->dd_lock, NULL);
+
+	return ptr;
+}
+
+DIR *fdopendir(int fd)
+{
+	int flags;
+	struct stat st;
+
+	if (fstat(fd, &st))
+		return NULL;
+	if (!S_ISDIR(st.st_mode)) {
+		__set_errno(ENOTDIR);
+		return NULL;
+	}
+
+	flags = fcntl(fd, F_GETFL);
+	if (flags == -1)
+		return NULL;
+	if ((flags & O_ACCMODE) == O_WRONLY) {
+		__set_errno(EINVAL);
+		return NULL;
+	}
+
+	return fd_to_DIR(fd, st.st_blksize);
+}
 
 /* opendir just makes an open() call - it return NULL if it fails
  * (open sets errno), otherwise it returns a DIR * pointer.
@@ -61,23 +102,12 @@ close_and_ret:
 		__set_errno(saved_errno);
 		return NULL;
 	}
-	if (!(ptr = malloc(sizeof(*ptr))))
-		goto nomem_close_and_ret;
 
-	ptr->dd_fd = fd;
-	ptr->dd_nextloc = ptr->dd_size = ptr->dd_nextoff = 0;
-	ptr->dd_max = statbuf.st_blksize;
-	if (ptr->dd_max < 512)
-		ptr->dd_max = 512;
-
-	if (!(ptr->dd_buf = calloc(1, ptr->dd_max))) {
-		free(ptr);
-nomem_close_and_ret:
+	ptr = fd_to_DIR(fd, statbuf.st_blksize);
+	if (!ptr) {
 		close(fd);
 		__set_errno(ENOMEM);
-		return NULL;
 	}
-	__pthread_mutex_init(&(ptr->dd_lock), NULL);
 	return ptr;
 }
 libc_hidden_def(opendir)

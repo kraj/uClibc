@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-1993,1995-2003,2004,2005 Free Software Foundation, Inc.
+/* Copyright (C) 1991-1993,1995-2006,2007,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -58,9 +58,10 @@
 			if >=199309L, add IEEE Std 1003.1b-1993;
 			if >=199506L, add IEEE Std 1003.1c-1995;
 			if >=200112L, all of IEEE 1003.1-2004
+			if >=200809L, all of IEEE 1003.1-2008
    _XOPEN_SOURCE	Includes POSIX and XPG things.  Set to 500 if
 			Single Unix conformance is wanted, to 600 for the
-			upcoming sixth revision.
+			sixth revision, to 700 for the seventh revision.
    _XOPEN_SOURCE_EXTENDED XPG things and X/Open Unix extensions.
    _LARGEFILE_SOURCE	Some more functions for correct standard I/O.
    _LARGEFILE64_SOURCE	Additional functionality from LFS for large files.
@@ -77,7 +78,7 @@
    The `-ansi' switch to the GNU C compiler defines __STRICT_ANSI__.
    If none of these are defined, the default is to have _SVID_SOURCE,
    _BSD_SOURCE, and _POSIX_SOURCE set to one and _POSIX_C_SOURCE set to
-   199506L.  If more than one of these are defined, they accumulate.
+   200112L.  If more than one of these are defined, they accumulate.
    For example __STRICT_ANSI__, _POSIX_SOURCE and _POSIX_C_SOURCE
    together give you ISO C, 1003.1, and 1003.2, but nothing else.
 
@@ -85,6 +86,7 @@
    header files to decide what to declare or define:
 
    __USE_ISOC99		Define ISO C99 things.
+   __USE_ISOC95		Define ISO C90 AMD1 (C95) things.
    __USE_POSIX		Define IEEE Std 1003.1 things.
    __USE_POSIX2		Define IEEE Std 1003.2 things.
    __USE_POSIX199309	Define IEEE Std 1003.1, and .1b things.
@@ -93,6 +95,7 @@
    __USE_XOPEN_EXTENDED	Define X/Open Unix things.
    __USE_UNIX98		Define Single Unix V2 things.
    __USE_XOPEN2K        Define XPG6 things.
+   __USE_XOPEN2K8       Define XPG7 things.
    __USE_LARGEFILE	Define correct standard I/O things.
    __USE_LARGEFILE64	Define LFS things with separate names.
    __USE_FILE_OFFSET64	Define 64bit interface as default.
@@ -119,6 +122,7 @@
 
 /* Undefine everything, so we get a clean slate.  */
 #undef	__USE_ISOC99
+#undef	__USE_ISOC95
 #undef	__USE_POSIX
 #undef	__USE_POSIX2
 #undef	__USE_POSIX199309
@@ -127,6 +131,7 @@
 #undef	__USE_XOPEN_EXTENDED
 #undef	__USE_UNIX98
 #undef	__USE_XOPEN2K
+#undef	__USE_XOPEN2K8
 #undef	__USE_LARGEFILE
 #undef	__USE_LARGEFILE64
 #undef	__USE_FILE_OFFSET64
@@ -179,9 +184,9 @@
 # undef  _POSIX_SOURCE
 # define _POSIX_SOURCE	1
 # undef  _POSIX_C_SOURCE
-# define _POSIX_C_SOURCE	199506L
+# define _POSIX_C_SOURCE	200809L
 # undef  _XOPEN_SOURCE
-# define _XOPEN_SOURCE	600
+# define _XOPEN_SOURCE	700
 # undef  _XOPEN_SOURCE_EXTENDED
 # define _XOPEN_SOURCE_EXTENDED	1
 # ifdef __UCLIBC_HAS_LFS__
@@ -215,6 +220,12 @@
 # define __USE_ISOC99	1
 #endif
 
+/* This is to enable the ISO C90 Amendment 1:1995 extension.  */
+#if (defined _ISOC99_SOURCE || defined _ISOC9X_SOURCE \
+     || (defined __STDC_VERSION__ && __STDC_VERSION__ >= 199409L))
+# define __USE_ISOC95	1
+#endif
+
 /* If none of the ANSI/POSIX macros are defined, use POSIX.1 and POSIX.2
    (and IEEE Std 1003.1b-1993 unless _XOPEN_SOURCE is defined).  */
 #if ((!defined __STRICT_ANSI__ || (_XOPEN_SOURCE - 0) >= 500) && \
@@ -222,9 +233,14 @@
 # define _POSIX_SOURCE	1
 # if defined _XOPEN_SOURCE && (_XOPEN_SOURCE - 0) < 500
 #  define _POSIX_C_SOURCE	2
-# else
+# elif defined _XOPEN_SOURCE && (_XOPEN_SOURCE - 0) < 600
 #  define _POSIX_C_SOURCE	199506L
+# elif defined _XOPEN_SOURCE && (_XOPEN_SOURCE - 0) < 700
+#  define _POSIX_C_SOURCE	200112L
+# else
+#  define _POSIX_C_SOURCE	200809L
 # endif
+# define __USE_POSIX_IMPLICITLY	1
 #endif
 
 #if defined _POSIX_SOURCE || _POSIX_C_SOURCE >= 1 || defined _XOPEN_SOURCE
@@ -245,6 +261,14 @@
 
 #if (_POSIX_C_SOURCE - 0) >= 200112L
 # define __USE_XOPEN2K		1
+# undef __USE_ISOC99
+# define __USE_ISOC99		1
+#endif
+
+#if (_POSIX_C_SOURCE - 0) >= 200809L
+# define __USE_XOPEN2K8		1
+# undef  _ATFILE_SOURCE
+# define _ATFILE_SOURCE	1
 #endif
 
 #ifdef	_XOPEN_SOURCE
@@ -255,6 +279,9 @@
 #  undef _LARGEFILE_SOURCE
 #  define _LARGEFILE_SOURCE	1
 #  if (_XOPEN_SOURCE - 0) >= 600
+#   if (_XOPEN_SOURCE - 0) >= 700
+#    define __USE_XOPEN2K8	1
+#   endif
 #   define __USE_XOPEN2K	1
 #   undef __USE_ISOC99
 #   define __USE_ISOC99		1
@@ -321,7 +348,7 @@
 
 #ifdef __UCLIBC_HAS_WCHAR__
 /* wchar_t uses ISO 10646-1 (2nd ed., published 2000-09-15) / Unicode 3.1.  */
-# define __STDC_ISO_10646__		200009L
+#define __STDC_ISO_10646__		200009L
 #endif
 
 /*  There is an unwholesomely huge amount of code out there that depends on the
@@ -380,10 +407,8 @@
  * uclibc itself is usually built without __USE_EXTERN_INLINES,
  * remove "&& !defined __OPTIMIZE_SIZE__" part to do otherwise.
  */
-#if __GNUC_PREREQ (2, 7) \
-    && defined __OPTIMIZE__ \
-    && !defined __OPTIMIZE_SIZE__ \
-    && !defined __NO_INLINE__ \
+#if __GNUC_PREREQ (2, 7) && defined __OPTIMIZE__ \
+    && !defined __OPTIMIZE_SIZE__ && !defined __NO_INLINE__ \
     && (defined __extern_inline || defined __GNUC_GNU_INLINE__)
 # define __USE_EXTERN_INLINES	1
 #endif
@@ -421,10 +446,6 @@ uClibc was built without large file support enabled.
 # define __USE_LARGEFILE         1
 # define __USE_LARGEFILE64       1
 #endif
-
-/* uClibc does not support *at interfaces. */
-#undef _ATFILE_SOURCE
-#undef __USE_ATFILE
 
 #ifdef _LIBC
 # include <libc-internal.h>
