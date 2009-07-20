@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2003, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2007, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -58,7 +58,7 @@ __BEGIN_DECLS
 #  endif
 
 /* This is the type of the argument to `wait'.  The funky union
-   causes redeclarations with ether `int *' or `union wait *' to be
+   causes redeclarations with either `int *' or `union wait *' to be
    allowed without complaint.  __WAIT_STATUS_DEFN is the type used in
    the actual function definitions.  */
 
@@ -84,14 +84,14 @@ typedef union
 # endif /* Use BSD.  */
 
 /* Define the macros <sys/wait.h> also would define this way.  */
-# define WEXITSTATUS(status)	__WEXITSTATUS(__WAIT_INT(status))
-# define WTERMSIG(status)	__WTERMSIG(__WAIT_INT(status))
-# define WSTOPSIG(status)	__WSTOPSIG(__WAIT_INT(status))
-# define WIFEXITED(status)	__WIFEXITED(__WAIT_INT(status))
-# define WIFSIGNALED(status)	__WIFSIGNALED(__WAIT_INT(status))
-# define WIFSTOPPED(status)	__WIFSTOPPED(__WAIT_INT(status))
+# define WEXITSTATUS(status)	__WEXITSTATUS (__WAIT_INT (status))
+# define WTERMSIG(status)	__WTERMSIG (__WAIT_INT (status))
+# define WSTOPSIG(status)	__WSTOPSIG (__WAIT_INT (status))
+# define WIFEXITED(status)	__WIFEXITED (__WAIT_INT (status))
+# define WIFSIGNALED(status)	__WIFSIGNALED (__WAIT_INT (status))
+# define WIFSTOPPED(status)	__WIFSTOPPED (__WAIT_INT (status))
 # if 0 /* def __WIFCONTINUED */
-#  define WIFCONTINUED(status)	__WIFCONTINUED(__WAIT_INT(status))
+#  define WIFCONTINUED(status)	__WIFCONTINUED (__WAIT_INT (status))
 # endif
 #endif	/* X/Open and <sys/wait.h> not included.  */
 
@@ -654,19 +654,17 @@ __END_NAMESPACE_STD
 
 #if 0 /* def	__USE_GNU */
 /* Return a malloc'd string containing the canonical absolute name of the
-   named file.  The last file name component need not exist, and may be a
-   symlink to a nonexistent file.  */
+   existing named file.  */
 extern char *canonicalize_file_name (__const char *__name)
      __THROW __nonnull ((1)) __wur;
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
-/* Return the canonical absolute name of file NAME.  The last file name
-   component need not exist, and may be a symlink to a nonexistent file.
-   If RESOLVED is null, the result is malloc'd; otherwise, if the canonical
-   name is PATH_MAX chars or more, returns null with `errno' set to
-   ENAMETOOLONG; if the name fits in fewer than PATH_MAX chars, returns the
-   name in RESOLVED.  */
+/* Return the canonical absolute name of file NAME.  If RESOLVED is
+   null, the result is malloc'd; otherwise, if the canonical name is
+   PATH_MAX chars or more, returns null with `errno' set to
+   ENAMETOOLONG; if the name fits in fewer than PATH_MAX chars,
+   returns the name in RESOLVED.  */
 /* we choose to handle __resolved==NULL as crash :) */
 extern char *realpath (__const char *__restrict __name,
 		       char *__restrict __resolved) __THROW __wur __nonnull((2));
