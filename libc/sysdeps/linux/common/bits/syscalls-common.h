@@ -38,13 +38,13 @@
 #ifndef INLINE_SYSCALL_NCS
 # define INLINE_SYSCALL_NCS(name, nr, args...)				\
 ({									\
-	INTERNAL_SYSCALL_DECL(err);					\
-	long res = INTERNAL_SYSCALL_NCS(name, err, nr, args);		\
-	if (unlikely(INTERNAL_SYSCALL_ERROR_P(res, err))) {		\
-		__set_errno(INTERNAL_SYSCALL_ERRNO(res, err));		\
-		res = -1L;						\
+	INTERNAL_SYSCALL_DECL(__err);					\
+	long __res = INTERNAL_SYSCALL_NCS(name, __err, nr, args);	\
+	if (unlikely(INTERNAL_SYSCALL_ERROR_P(__res, __err))) {		\
+		__set_errno(INTERNAL_SYSCALL_ERRNO(__res, __err));	\
+		__res = -1L;						\
 	}								\
-	res;								\
+	__res;								\
 })
 #endif
 
