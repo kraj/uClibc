@@ -55,8 +55,8 @@ clone:
 
 	/* Sanity check arguments.  */
 	li		v0,EINVAL
-	beqz		a0,error	/* No NULL function pointers.  */
-	beqz		a1,error	/* No NULL stack pointers.  */
+	beqz		a0,L(error)	/* No NULL function pointers.  */
+	beqz		a1,L(error)	/* No NULL stack pointers.  */
 
 #if _MIPS_SIM != _MIPS_SIM_ABI32
 	and		a1,~(16-1)	/* force alignment */
@@ -71,8 +71,8 @@ clone:
 	li		v0,__NR_clone
 	syscall
 
-	bnez		a3,error
-	beqz		v0,__thread_start
+	bnez		a3,L(error)
+	beqz		v0,L(__thread_start)
 
 	/* Successful return from the parent */
 #if _MIPS_SIM != _MIPS_SIM_ABI32
@@ -82,7 +82,7 @@ clone:
 	j $31  ; nop
 
 	/* Something bad happened -- no child created */
-error:
+L(error):
 #if _MIPS_SIM != _MIPS_SIM_ABI32
 	.cpreturn
 #endif
@@ -104,12 +104,14 @@ error:
    its own function so that we can terminate the stack trace with our
    debug info.  */
 
-.globl  __thread_start;
+	.globl  __thread_start;
 	.align 2;
 	.ent  __thread_start, 0;
 
 __thread_start:
+L(__thread_start):
 #if _MIPS_SIM == _MIPS_SIM_ABI32
+	.frame	sp, 24, sp
 	/* cp is already loaded.  */
 	.cprestore	16
 #endif
@@ -123,5 +125,10 @@ __thread_start:
 
 	/* Call _exit rather than doing it inline for breakpoint purposes.  */
 	move		a0,v0
-	jal		HIDDEN_JUMPTARGET(_exit)
+#ifdef __PIC__
+        PTR_LA          t9,_exit
+        jalr            t9
+#else
+        jal             _exit
+#endif
 	.end  __thread_start

@@ -81,10 +81,12 @@
 #endif
 	.type	    main,@function
 	.type	    __uClibc_main,@function
+	.ent	__start
 
 __start:
 #ifdef __PIC__
 #if _MIPS_SIM == _MIPS_SIM_ABI32
+	.frame	sp, 24, sp
         .set noreorder
 	move $0, $31		/* Save old ra.  */
 	bal 10f			/* Find addr of cpload.  */
@@ -93,6 +95,7 @@ __start:
 	.cpload $31
 	move $31, $0
 	.set reorder
+	.cprestore 16
 #else
 	move $0, $31; /* Save old ra.  */
 	.set noreorder
@@ -107,7 +110,6 @@ __start:
 	la $28, _gp             /* Setup GP correctly if we're non-PIC.  */
 	move $31, $0
 #endif
-
 
 	PTR_LA $4, main		/* main */
 	PTR_L $5, 0($29)		/* argc */
@@ -136,6 +138,7 @@ hlt:
 	/* Crash if somehow `__uClibc_main' returns anyway.  */
 	b   hlt
 .size __start,.-__start
+.end __start
 
 /* Define a symbol for the first piece of initialized data.  */
 	.data
