@@ -97,6 +97,7 @@ l:							\
 # define SETUP_GPX64_L(cp_reg, ra_save, l)
 # define RESTORE_GP64
 # define USE_ALT_CP(a)
+# define L(label) $L ## label
 #else /* (_MIPS_SIM == _MIPS_SIM_ABI64) || (_MIPS_SIM == _MIPS_SIM_NABI32) */
 /*
  * For callee-saved gp calling convention:
@@ -131,6 +132,7 @@ l:							\
 /* Use alternate register for context pointer.  */
 # define USE_ALT_CP(reg)	\
 		.cplocal reg
+# define L(label) .L ## label
 #endif /* _MIPS_SIM != _MIPS_SIM_ABI32 */
 
 /*
