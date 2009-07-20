@@ -361,7 +361,7 @@ static unsigned int re_string_context_at (const re_string_t *input, int idx,
 #include <alloca.h>
 
 #if 1
-# if HAVE_ALLOCA
+# ifdef HAVE_ALLOCA
 /* The OS usually guarantees only one guard page at the bottom of the stack,
    and a page size can be as small as 4096 bytes.  So we cannot safely
    allocate anything larger than 4096 bytes.  Also care for the possibility
