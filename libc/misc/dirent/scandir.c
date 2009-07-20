@@ -12,15 +12,9 @@
 #include <sys/types.h>
 #include "dirstream.h"
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* libc_hidden_proto(opendir) */
-/* libc_hidden_proto(closedir) */
-/* libc_hidden_proto(qsort) */
-/* libc_hidden_proto(readdir) */
-
 int scandir(const char *dir, struct dirent ***namelist,
 	int (*selector) (const struct dirent *),
-	int (*compar) (const void *, const void *))
+	int (*compar) (const struct dirent **, const struct dirent **))
 {
     DIR *dp = opendir (dir);
     struct dirent *current;
@@ -94,7 +88,7 @@ int scandir(const char *dir, struct dirent ***namelist,
 
     /* Sort the list if we have a comparison function to sort with.  */
     if (compar != NULL)
-	qsort (names, pos, sizeof (struct dirent *), compar);
+	qsort (names, pos, sizeof (struct dirent *), (comparison_fn_t) compar);
     *namelist = names;
     return pos;
 }

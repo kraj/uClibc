@@ -10,8 +10,7 @@
 #include <string.h>
 #include "dirstream.h"
 
-int versionsort64(const void *a, const void *b)
+int versionsort64(const struct dirent64 **a, const struct dirent64 **b)
 {
-	return strverscmp((*(const struct dirent64 **) a)->d_name,
-			(*(const struct dirent64 **) b)->d_name);
+	return strverscmp((*a)->d_name, (*b)->d_name);
 }
