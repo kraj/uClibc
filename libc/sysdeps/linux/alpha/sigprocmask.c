@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <sys/syscall.h>
 #include <signal.h>
+#include <string.h>
 
 /* When there is kernel support for more than 64 signals, we'll have to
    switch to a new system call convention here.  */
