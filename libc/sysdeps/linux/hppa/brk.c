@@ -30,7 +30,7 @@ brk (void *addr)
 {
   void *newbrk;
 
-  __curbrk = newbrk = (void *) K_INLINE_SYSCALL (brk, 1, addr);
+  __curbrk = newbrk = (void *) INLINE_SYSCALL (brk, 1, addr);
 
   if (newbrk < addr)
     {
