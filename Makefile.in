@@ -283,6 +283,11 @@ install_headers: headers $(top_builddir)extra/scripts/unifdef
 	echo '/* Dont use _syscall#() macros; use the syscall() function */' > \
 		$(PREFIX)$(DEVEL_PREFIX)include/bits/syscalls.h
 	cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -r $(HEADERS_RM-)
+ifeq ($(UCLIBC_HAS_WCHAR),)
+	cd $(PREFIX)$(DEVEL_PREFIX)include && mv -f wchar-stub.h wchar.h
+else
+	cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -f wchar-stub.h
+endif
 
 # Installs development library links.
 install_dev: install_headers all
