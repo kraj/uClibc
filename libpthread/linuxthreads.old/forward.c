@@ -46,6 +46,7 @@ For now, just include all headers before internals.h
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 
 #include "internals.h"
 
