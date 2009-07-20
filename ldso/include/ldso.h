@@ -33,6 +33,7 @@
 /* Pull in the arch specific page size */
 #include <bits/uClibc_page.h>
 /* Pull in the ldso syscalls and string functions */
+#ifndef __ARCH_HAS_NO_SHARED__
 #include <dl-syscall.h>
 #include <dl-string.h>
 /* Now the ldso specific headers */
@@ -131,6 +132,10 @@ extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load
 
 #ifdef HAVE_DL_INLINES_H
 #include <dl-inlines.h>
+#endif
+
+#else /* __ARCH_HAS_NO_SHARED__ */
+#include <dl-defs.h>
 #endif
 
 #endif /* _LDSO_H_ */
