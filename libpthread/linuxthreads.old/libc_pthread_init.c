@@ -21,6 +21,17 @@
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* see comment in forward.c */
+#define GCC_RENAME_BUG 1
+#ifdef GCC_RENAME_BUG
+# include <ctype.h>
+# include <signal.h>
+# include <unistd.h>
+# include <sys/time.h>
+# include <sys/wait.h>
+#endif
+
 #include "internals.h"
 #include "sysdeps/pthread/pthread-functions.h"
 
