@@ -58,7 +58,7 @@ AWK        = awk
 STRIP_FLAGS ?= -x -R .note -R .comment
 
 ## unused? if yes, remove after 0.9.31
-## UNIFDEF := $(top_builddir)extra/scripts/unifdef -UUCLIBC_INTERNAL
+## UNIFDEF := $(top_builddir)extra/scripts/unifdef
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
@@ -535,10 +535,6 @@ CFLAGS := -include $(top_builddir)include/libc-symbols.h \
 ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
 CFLAGS += $(subst ",, $(UCLIBC_EXTRA_CFLAGS))
 endif
-
-# Please let us see private headers' parts
-# Deprecated: _LIBC serves the same purpose
-CFLAGS += -DUCLIBC_INTERNAL
 
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)

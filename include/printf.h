@@ -41,7 +41,7 @@ __BEGIN_DECLS
  * need to support bitfields since that's what glibc made visible to users.
  * So, we take
  * advantage of how gcc lays out bitfields to create an appropriate
- * mapping.  Inside uclibc (UCLIBC_INTERNAL is defined) we access the
+ * mapping.  Inside uclibc (i.e. if _LIBC is defined) we access the
  * bitfields using bitmasks in a single flag variable.
  *
  * WARNING -- This may very well fail if built with -fpack-struct!!!
@@ -61,7 +61,7 @@ struct printf_info {
   int spec;
 #endif
 
-#ifndef UCLIBC_INTERNAL
+#ifndef _LIBC
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
   unsigned int space:1;         /* Space flag.  */
@@ -95,7 +95,7 @@ struct printf_info {
 #error unsupported byte order!
 #endif
 
-#else  /* UCLIBC_INTERNAL */
+#else  /* _LIBC */
 
   uint32_t _flags;	/* non-gnu */
 #define __PRINT_INFO_FLAG_space                 (1<<0)
@@ -121,7 +121,7 @@ struct printf_info {
 #define PRINT_INFO_SET_extra(INFO_PTR,VAL) \
 	((INFO_PTR)->_flags |= (((INFO_PTR)->_flags & ~1) | ((VAL) & 1)))
 
-#endif /* UCLIBC_INTERNAL */
+#endif /* _LIBC */
 
 #ifdef __UCLIBC_HAS_WCHAR__
   wchar_t pad;                  /* Padding character.  */

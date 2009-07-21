@@ -133,7 +133,7 @@ typedef struct CLIENT CLIENT;
 struct CLIENT {
   AUTH	*cl_auth;		 /* authenticator */
   /* not sure whether non-const-ness is a part of the spec... if it is,
-   * enclose "const" in #ifdef UCLIBC_INTERNAL / #endif
+   * enclose "const" in #ifdef _LIBC / #endif
    * to make it effective only for libc compile */
   const
   struct clnt_ops {
