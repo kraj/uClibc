@@ -1,5 +1,5 @@
 Feeble attempt to document the horde of #defines we deal with.
-Editors, plese make your descriptions short but informative.
+Editors, please make your descriptions short but informative.
 
 
 
