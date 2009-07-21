@@ -29,7 +29,7 @@
 
 #define __need_size_t
 #include <stddef.h>
-#ifdef UCLIBC_INTERNAL
+#ifdef _LIBC
 #include <bits/kernel_types.h>
 #endif
 
@@ -200,7 +200,7 @@ __STD_TYPE __U32_TYPE __socklen_t;
 
 #undef __STD_TYPE
 
-#ifdef UCLIBC_INTERNAL
+#ifdef _LIBC
 /* Used in `struct shmid_ds'.  */
 typedef __kernel_ipc_pid_t __ipc_pid_t;
 #endif

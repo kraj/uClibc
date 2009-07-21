@@ -56,11 +56,8 @@ internal_function
 	int internal_function func(params) { body }
 
 _LIBC
-UCLIBC_INTERNAL
-    Defined only at libc build time. _LIBC is probably from glibc,
-and UCLIBC_INTERNAL is added by vda (he didn't know about _LIBC).
-Both defines are physically deleted from headers (using unifdef tool)
-in installed headers ("make install").
+    Defined only at libc build time. It is physically deleted
+from the headers (using unifdef tool) in installed headers ("make install").
 
 __UCLIBC_XXX
     uclibc-internal and uclibc-specific defines. In particular:

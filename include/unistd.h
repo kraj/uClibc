@@ -908,7 +908,7 @@ extern int sethostname (__const char *__name, size_t __len)
    This call is restricted to the super-user.  */
 extern int sethostid (long int __id) __THROW __wur;
 
-#if defined __UCLIBC_BSD_SPECIFIC__ || defined UCLIBC_INTERNAL
+#if defined __UCLIBC_BSD_SPECIFIC__ || defined _LIBC
 /* Get and set the NIS (aka YP) domain name, if any.
    Called just like `gethostname' and `sethostname'.
    The NIS domain name is usually the empty string when not using NIS.  */
@@ -1174,7 +1174,7 @@ extern char *ctermid (char *__s) __THROW;
 __END_DECLS
 
 
-#ifdef UCLIBC_INTERNAL
+#ifdef _LIBC
 #ifndef smallint_type /* if arch didn't override it in bits/wordsize.h */
 #define smallint_type int
 #endif

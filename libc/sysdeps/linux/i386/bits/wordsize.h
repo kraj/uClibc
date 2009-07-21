@@ -18,7 +18,7 @@
 
 #define __WORDSIZE	32
 
-#ifdef UCLIBC_INTERNAL
+#ifdef _LIBC
 #ifndef smallint_type
 #define smallint_type char
 #endif

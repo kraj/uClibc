@@ -52,7 +52,6 @@ while read -r filename; do
 	# Do not abort the script if unifdef "fails"!
 	# NB2: careful with sed command arguments, they contain tab character
 	"$top_builddir/extra/scripts/unifdef" \
-		-UUCLIBC_INTERNAL \
 		-U_LIBC \
 		-U__UCLIBC_GEN_LOCALE \
 		-U__NO_CTYPE \

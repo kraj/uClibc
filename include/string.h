@@ -483,7 +483,7 @@ libc_hidden_proto(strlcpy)
 __END_DECLS
 
 
-#if defined(UCLIBC_INTERNAL) && defined(__UCLIBC_HAS_STRING_ARCH_OPT__)
+#if defined(_LIBC) && defined(__UCLIBC_HAS_STRING_ARCH_OPT__)
 # if defined __i386__
 #  include <../libc/string/i386/string.h>
 # endif
