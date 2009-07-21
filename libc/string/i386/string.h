@@ -288,6 +288,7 @@ void *inlined_memchr(const void *s, int c, size_t count)
 static __always_inline
 void *inlined_memchr_const_c(const void *s, int c, size_t count)
 {
+#if defined __OPTIMIZE__
 	void *edi;
 	int ecx, eax;
 	__asm__ __volatile__(
@@ -304,6 +305,27 @@ void *inlined_memchr_const_c(const void *s, int c, size_t count)
 		/* : no clobbers */
 	);
 	return edi;
+#else
+	/* With -O0, gcc can't figure out how to encode CONST c
+	 * as an immediate operand. Generating slightly bigger code
+	 * (usually "movl CONST,%eax", 3 bytes bigger than needed):
+	 */
+	void *edi;
+	int ecx, eax;
+	__asm__ __volatile__(
+		"	jecxz	1f\n"
+		"	repne; scasb\n"
+		"	leal	-1(%%edi), %%edi\n"
+		"	je	2f\n"
+		"1:\n"
+		"	xorl	%%edi, %%edi\n"
+		"2:\n"
+		: "=&D" (edi), "=&c" (ecx), "=&a" (eax)
+		: "0" (s), "2" (c), "1" (count)
+		/* : no clobbers */
+	);
+	return edi;
+#endif
 }
 #if 1 /* +2 bytes on shared i386 build with gcc 4.3.0 */
 #define memchr(s, c, count) ( \
