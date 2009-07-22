@@ -13,47 +13,33 @@
 int
 clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg, ...)
 {
-	register long rval = -1;
+	long rval = -1;
 
 	if (fn && child_stack) {
 
-#ifdef __BFIN_FDPIC__
-	__asm__ __volatile__ (
-			"excpt 0;"	 /*Call sys_clone*/
+		__asm__ __volatile__ (
+			"excpt 0;"	/* Call sys_clone */
 			"cc = r0 == 0;"
-			"if !cc jump .Lxxx;"	/* if (rval != 0) skip to parent */
+			"if !cc jump 1f;"	/* if (rval != 0) skip to parent */
 			"r0 = %4;"
 			"p0 = %5;"
 			"fp = 0;"
+#ifdef __BFIN_FDPIC__
 			"p1 = [p0];"
 			"p3 = [p0 + 4];"
 			"call (p1);"	/* Call cloned function */
-			"p0 = %6;"
-			"excpt 0;"	/* Call sys_exit */
-			".Lxxx: nop;"
-			: "=q0" (rval)
-			: "qA" (__NR_clone), "q1" (child_stack), "q0" (flags), "a" (arg), "a" (fn), "i" (__NR_exit)
-			: "CC");
 #else
-	__asm__ __volatile__ (
-			"excpt 0;"	 /*Call sys_clone*/
-			"cc = r0 == 0;"
-			"if !cc jump .Lxxx;"	/* if (rval != 0) skip to parent */
-			"r0 = %4;"
-			"p0 = %5;"
-			"fp = 0;"
 			"call (p0);"	/* Call cloned function */
+#endif
 			"p0 = %6;"
 			"excpt 0;"	/* Call sys_exit */
-			".Lxxx: nop;"
+			"1: nop;"
 			: "=q0" (rval)
 			: "qA" (__NR_clone), "q1" (child_stack), "q0" (flags), "a" (arg), "a" (fn), "i" (__NR_exit)
 			: "CC");
-#endif
 
-	} else {
+	} else
 		__set_errno(EINVAL);
-	}
 
 	return rval;
 }
