@@ -20,6 +20,13 @@ install_dir/
 /*.log
 
 #
+# Debugging files
+#
+.gdb_history
+.gdbinit
+core
+
+#
 # Backups / patches
 #
 *~
