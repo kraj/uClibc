@@ -356,12 +356,16 @@ struct group_filter
    may have different representations but the values are always the same.  */
 
 extern uint32_t ntohl (uint32_t __netlong) __THROW __attribute__ ((__const__));
+libc_hidden_proto(ntohl)
 extern uint16_t ntohs (uint16_t __netshort)
      __THROW __attribute__ ((__const__));
+libc_hidden_proto(ntohs)
 extern uint32_t htonl (uint32_t __hostlong)
      __THROW __attribute__ ((__const__));
+libc_hidden_proto(htonl)
 extern uint16_t htons (uint16_t __hostshort)
      __THROW __attribute__ ((__const__));
+libc_hidden_proto(htons)
 
 #include <endian.h>
 
