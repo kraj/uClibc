@@ -77,7 +77,7 @@ void __pthread_do_exit(void *retval, char *currentframe)
   THREAD_SETMEM(self, p_terminated, 1);
   /* See if someone is joining on us */
   joining = THREAD_GETMEM(self, p_joining);
-  PDEBUG("joining = %p, pid=%d\n", joining, joining->p_pid);
+  PDEBUG("joining = %p, pid=%d\n", joining, joining ? joining->p_pid : 0);
   __pthread_unlock(THREAD_GETMEM(self, p_lock));
   /* Restart joining thread if any */
   if (joining != NULL) restart(joining);
