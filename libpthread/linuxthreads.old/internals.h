@@ -451,7 +451,8 @@ void __pthread_do_exit (void *retval, char *currentframe)
 void __pthread_destroy_specifics(void);
 void __pthread_perform_cleanup(char *currentframe);
 int __pthread_initialize_manager(void);
-void __pthread_message(char * fmt, ...);
+void __pthread_message(char * fmt, ...)
+     __attribute__ ((__format__ (printf, 1, 2)));
 int __pthread_manager(void *reqfd);
 int __pthread_manager_event(void *reqfd);
 void __pthread_manager_sighandler(int sig);
