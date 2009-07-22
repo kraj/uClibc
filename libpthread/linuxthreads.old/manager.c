@@ -198,7 +198,7 @@ int attribute_noreturn __pthread_manager(void *arg)
                                 request.req_thread->p_pid,
                                 request.req_thread->p_report_events,
                                 &request.req_thread->p_eventbuf.eventmask);
-        PDEBUG("restarting %d\n", request.req_thread);
+        PDEBUG("restarting %p\n", request.req_thread);
         restart(request.req_thread);
         break;
       case REQ_FREE:
@@ -206,7 +206,7 @@ int attribute_noreturn __pthread_manager(void *arg)
         pthread_handle_free(request.req_args.free.thread_id);
         break;
       case REQ_PROCESS_EXIT:
-        PDEBUG("got REQ_PROCESS_EXIT from %d, exit code = %d\n",
+        PDEBUG("got REQ_PROCESS_EXIT from %p, exit code = %d\n",
         request.req_thread, request.req_args.exit.code);
         pthread_handle_exit(request.req_thread,
                             request.req_args.exit.code);
