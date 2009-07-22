@@ -123,6 +123,7 @@ libc_hidden_proto(open64)
 # ifndef __USE_FILE_OFFSET64
 extern int openat (int __fd, __const char *__file, int __oflag, ...)
      __nonnull ((2));
+libc_hidden_proto(openat)
 # else
 #  ifdef __REDIRECT
 extern int __REDIRECT (openat, (int __fd, __const char *__file, int __oflag,
@@ -134,6 +135,7 @@ extern int __REDIRECT (openat, (int __fd, __const char *__file, int __oflag,
 
 extern int openat64 (int __fd, __const char *__file, int __oflag, ...)
      __nonnull ((2));
+libc_hidden_proto(openat64)
 #endif
 
 /* Create and open FILE, with mode MODE.  This takes an `int' MODE
