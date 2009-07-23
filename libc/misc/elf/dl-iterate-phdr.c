@@ -62,7 +62,12 @@ dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,
       /* This entry describes this statically-linked program itself.  */
       struct dl_phdr_info info;
       int ret;
+#ifdef __FDPIC__
+      info.dlpi_addr.map = NULL;
+      info.dlpi_addr.got_value = NULL;
+#else
       info.dlpi_addr = 0;
+#endif
       info.dlpi_name = "";
       info.dlpi_phdr = _dl_phdr;
       info.dlpi_phnum = _dl_phnum;
