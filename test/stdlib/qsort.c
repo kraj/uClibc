@@ -34,7 +34,15 @@ int main(void)
 		printf("[%d] %s\n", i, dirbuf->d_name);
 	}
 	printf("\nCalling qsort()\n");
-	qsort(array, numdir, sizeof(struct dirent *), alphasort);
+	/* Even though some manpages say that alphasort should be
+	 * int alphasort(const void *a, const void *b),
+	 * in reality glibc and uclibc have const struct dirent**
+	 * instead of const void*.
+	 * Therefore we get a warning here unless we use a cast,
+	 * which makes people think that alphasort prototype
+	 * needs to be fixed in uclibc headers.
+	 */
+	qsort(array, numdir, sizeof(struct dirent *), (void*) alphasort);
 	for (i = 0; i < numdir; ++i) {
 		dirbuf = array[i];
 		printf("[%d] %s\n", i, dirbuf->d_name);
