@@ -137,10 +137,10 @@ struct funcdesc_ht;
 
 /*
  * Compute the GOT address.  On several platforms, we use assembly
- * here.  on FR-V FDPIC, there's no way to compute the GOT address,
+ * here.  on FDPIC, there's no way to compute the GOT address,
  * since the offset between text and data is not fixed, so we arrange
- * for the assembly _dl_boot to pass this value as an argument to
- * _dl_boot.  */
+ * for the ldso assembly entry point to pass this value as an argument
+ * to _dl_start.  */
 #define DL_BOOT_COMPUTE_GOT(got) ((got) = dl_boot_got_pointer)
 
 #define DL_BOOT_COMPUTE_DYN(dpnt, got, load_addr) \
