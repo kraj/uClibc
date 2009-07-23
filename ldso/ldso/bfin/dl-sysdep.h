@@ -210,6 +210,14 @@ while (0)
 #endif
 
 #include <elf.h>
+
+static __always_inline Elf32_Addr
+elf_machine_load_address (void)
+{
+	/* this is never an issue on Blackfin systems, so screw it */
+	return 0;
+}
+
 static __always_inline void
 elf_machine_relative (DL_LOADADDR_TYPE load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
