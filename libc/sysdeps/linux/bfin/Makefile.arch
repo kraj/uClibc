@@ -8,7 +8,7 @@
 CSRC := bsdsetjmp.c clone.c \
 	sram-alloc.c sram-free.c dma-memcpy.c
 
-SSRC := __longjmp.S setjmp.S bsd-_setjmp.S vfork.S
+SSRC := __longjmp.S setjmp.S bsd-_setjmp.S
 
 ARCH_HEADERS := bfin_fixed_code.h bfin_l1layout.h bfin_sram.h
 
