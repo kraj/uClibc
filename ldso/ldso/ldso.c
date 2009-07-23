@@ -406,7 +406,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 				for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 					if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
 						_dl_mprotect((void *) (DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr) & PAGE_ALIGN),
-							     ((ppnt->p_vaddr + app_tpnt->loadaddr) & ADDR_ALIGN) +
+							     (DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr) & ADDR_ALIGN) +
 							     (unsigned long) ppnt->p_filesz,
 							     PROT_READ | PROT_WRITE | PROT_EXEC);
 				}
