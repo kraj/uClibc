@@ -40,11 +40,4 @@ int fdatasync(int fd)
 # endif
 }
 
-#elif defined __UCLIBC_HAS_STUBS__
-/* no syscall available, so provide a stub */
-int fdatasync(int fd)
-{
-	__set_errno(ENOSYS);
-	return -1;
-}
 #endif

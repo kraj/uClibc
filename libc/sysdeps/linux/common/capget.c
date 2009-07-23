@@ -11,10 +11,4 @@
 int capget(void *header, void *data);
 #ifdef __NR_capget
 _syscall2(int, capget, void *, header, void *, data)
-#else
-int capget(void *header, void *data)
-{
-	__set_errno(ENOSYS);
-	return -1;
-}
 #endif

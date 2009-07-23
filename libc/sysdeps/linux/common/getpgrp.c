@@ -19,10 +19,4 @@ pid_t getpgrp(void)
 {
 	return getpgid(getpid());
 }
-#elif defined __UCLIBC_HAS_STUBS__
-pid_t getpgrp(void)
-{
-	__set_errno(ENOSYS);
-	return -1;
-}
 #endif

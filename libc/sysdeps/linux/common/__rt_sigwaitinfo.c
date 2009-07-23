@@ -83,16 +83,7 @@ int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
 	return __rt_sigwaitinfo(set, info, NULL, _NSIG / 8);
 }
 # endif
-#else
-int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
-{
-	if (set == NULL)
-		__set_errno(EINVAL);
-	else
-		__set_errno(ENOSYS);
-	return -1;
-}
-#endif
 libc_hidden_proto(sigwaitinfo)
 weak_alias (__sigwaitinfo, sigwaitinfo)
 libc_hidden_weak(sigwaitinfo)
+#endif

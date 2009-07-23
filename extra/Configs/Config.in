@@ -665,15 +665,6 @@ config UCLIBC_HAS_STUBS
 	  functions which are impossible to implement on the target
 	  architecture. Otherwise, such functions are simply omitted.
 
-	  As of 2008-07, this option makes uClibc provide fork() stub
-	  on NOMMU targets. It always sets errno to ENOSYS and returns -1.
-
-	  This may be useful if you port a lot of software and cannot
-	  audit all of it and replace or disable fork() usage.
-	  With this option, a program which uses fork() will build
-	  successfully. Of course, it may be useless if fork()
-	  is essential for its operation.
-
 config UCLIBC_HAS_SHADOW
 	bool "Shadow Password Support"
 	default y

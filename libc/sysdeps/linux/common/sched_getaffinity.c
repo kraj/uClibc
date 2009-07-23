@@ -44,11 +44,5 @@ int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)
 	}
 	return res;
 }
-#elif defined __UCLIBC_HAS_STUBS__
-int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)
-{
-    __set_errno(ENOSYS);
-    return -1;
-}
 #endif
 #endif

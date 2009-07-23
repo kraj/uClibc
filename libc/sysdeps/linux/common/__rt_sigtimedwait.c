@@ -86,16 +86,6 @@ int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
 	return __rt_sigtimedwait(set, info, timeout, _NSIG / 8);
 }
 # endif /* !__UCLIBC_HAS_THREADS_NATIVE__ */
-#else
-int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
-									const struct timespec *timeout)
-{
-	if (set == NULL)
-		__set_errno(EINVAL);
-	else
-		__set_errno(ENOSYS);
-	return -1;
-}
-#endif
 weak_alias(__sigtimedwait,sigtimedwait)
 libc_hidden_weak(sigtimedwait)
+#endif

@@ -13,11 +13,4 @@
 #ifdef __NR_splice
 _syscall6(ssize_t, splice, int, __fdin, __off64_t *, __offin, int, __fdout,
 	__off64_t *, __offout, size_t, __len, unsigned int, __flags)
-#else
-ssize_t splice(int __fdin, __off64_t *__offin, int __fdout,
-	__off64_t *__offout, size_t __len, unsigned int __flags)
-{
-	__set_errno(ENOSYS);
-	return -1;
-}
 #endif

@@ -47,7 +47,7 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advise)
 
 /* weak_alias(__libc_posix_fadvise64, posix_fadvise64); */
 
-#else
+#elif defined __UCLIBC_HAS_STUBS__
 
 int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advise)
 {

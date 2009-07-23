@@ -39,7 +39,7 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advise)
 
 /* weak_alias(__libc_posix_fadvise, posix_fadvise); */
 
-#else
+#elif defined __UCLIBC_HAS_STUBS__
 
 int posix_fadvise(int fd attribute_unused, off_t offset attribute_unused, off_t len attribute_unused, int advice attribute_unused)
 {

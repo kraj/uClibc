@@ -70,16 +70,5 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *cpuset)
 
 	return INLINE_SYSCALL (sched_setaffinity, 3, pid, cpusetsize, cpuset);
 }
-#else
-#define ___HAVE_NO_sched_setaffinity
 #endif
-
-#if defined ___HAVE_NO_sched_setaffinity && defined __UCLIBC_HAS_STUBS__
-int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *cpuset)
-{
-    __set_errno(ENOSYS);
-    return -1;
-}
-#endif
-
 #endif /* __USE_GNU */
