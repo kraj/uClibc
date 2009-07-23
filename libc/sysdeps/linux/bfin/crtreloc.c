@@ -85,7 +85,7 @@ reloc_range_indirect (void ***p, void ***e,
 /* Call __reloc_range_indirect for the given range except for the last
    entry, whose contents are only relocated.  It's expected to hold
    the GOT value.  */
-void* attribute_hidden
+attribute_hidden void*
 __self_reloc (const struct elf32_fdpic_loadmap *map,
 	      void ***p, void ***e)
 {
