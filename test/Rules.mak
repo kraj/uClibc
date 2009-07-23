@@ -86,6 +86,16 @@ CC_IPREFIX := $(shell $(CC) --print-file-name=include)
 CC_INC := -I$(dir $(CC_IPREFIX))include-fixed -I$(CC_IPREFIX)
 CFLAGS += $(CC_INC)
 
+ifneq ($(KERNEL_HEADERS),)
+ifeq ($(patsubst /%,/,$(KERNEL_HEADERS)),/)
+# Absolute path in KERNEL_HEADERS
+CFLAGS += -I$(KERNEL_HEADERS)
+else
+# Relative path in KERNEL_HEADERS
+CFLAGS += -I$(top_builddir)$(KERNEL_HEADERS)
+endif
+endif
+
 # Can't add $(OPTIMIZATION) here, it may be target-specific.
 # Just adding -Os for now.
 HOST_CFLAGS    += $(XWARNINGS) -Os $(XCOMMON_CFLAGS)
