@@ -21,10 +21,7 @@ USA.  */
 /* Any assembly language/system dependent hacks needed to setup
  * boot1.c so it will work as expected and cope with whatever platform
  * specific wierdness is needed for this architecture.
-
- * We override the default _dl_boot function, and replace it with a
- * bit of asm.  Then call the real _dl_boot function, which is now
- * named _dl_boot2.  */
+ */
 
 /* At program start-up, p0 contains a pointer to a
    elf32_fdpic_loadmap that describes how the executable was loaded
@@ -41,9 +38,9 @@ USA.  */
 
 __asm__(
     "	.text\n"			\
-    "	.global	__dl_boot\n"		\
-    "	.type	__dl_boot,@function\n"	\
-    "__dl_boot:\n"			\
+    "	.global	__start\n"		\
+    "	.type	__start,@function\n"	\
+    "__start:\n"			\
     "	call	.Lcall\n"		\
     ".Lcall:\n"				\
     "	R4 = RETS;\n"			\
@@ -83,7 +80,7 @@ __asm__(
     "	P0 = R5;\n"			\
     "   SP += 32;\n"			\
     "   JUMP (P4);\n"			\
-    "	.size	__dl_boot,.-__dl_boot\n"
+    "	.size	__start,.-__start\n"
 );
 
 #undef DL_START
