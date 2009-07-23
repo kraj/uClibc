@@ -37,7 +37,8 @@ USA.  */
    a more than adequate job of explaining everything required to get this
    working. */
 
-struct funcdesc_value volatile *__attribute__((__visibility__("hidden")))
+__attribute__((__visibility__("hidden")))
+struct funcdesc_value volatile *
 _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 {
 	ELF_RELOC *this_reloc;
