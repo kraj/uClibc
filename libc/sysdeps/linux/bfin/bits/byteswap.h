@@ -10,7 +10,7 @@
 #ifndef _ASM_BITS_BYTESWAP_H
 #define _ASM_BITS_BYTESWAP_H 1
 
-#define __bswap_non_constant_16(x)
+#define __bswap_non_constant_16(x) \
      (__extension__							      \
       ({ register unsigned short int __v;				      \
 	 __asm__ ("%0 = PACK (%1.L, %1.L);"				      \
