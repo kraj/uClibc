@@ -531,7 +531,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 */
 	debug_addr->r_map = (struct link_map *) _dl_loaded_modules;
 	debug_addr->r_version = 1;
-	debug_addr->r_ldbase = DL_LOADADDR_BASE(load_addr);
+	debug_addr->r_ldbase = (ElfW(Addr)) DL_LOADADDR_BASE(load_addr);
 	debug_addr->r_brk = (unsigned long) &_dl_debug_state;
 	_dl_debug_addr = debug_addr;
 
