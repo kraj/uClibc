@@ -200,6 +200,7 @@ HEADERS_RM- := \
 	bits/kernel_sigaction.h \
 	bits/kernel_stat.h \
 	bits/kernel_types.h \
+	bits/syscalls-common.h \
 	bits/utmpx.h \
 	bits/uClibc_errno.h \
 	bits/uClibc_uintmaxtostr.h \
