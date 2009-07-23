@@ -40,7 +40,7 @@ __dl_init_loadaddr_map (struct elf32_fdpic_loadaddr *loadaddr, Elf32_Addr dl_boo
       SEND_EARLY_STDERR ("Invalid segment count in loadmap\n");
       _dl_exit(-1);
     }
-  loadaddr->got_value = dl_boot_got_pointer;
+  loadaddr->got_value = (void *)dl_boot_got_pointer;
   loadaddr->map = map;
 }
 

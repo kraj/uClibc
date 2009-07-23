@@ -296,7 +296,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt,
 				break;
 			case R_BFIN_FUNCDESC_VALUE:
 				funcval = *reloc_addr;
-				funcval.entry_point = DL_RELOC_ADDR(tpnt->loadaddr, funcval.entry_point);
+				funcval.entry_point = (void *) DL_RELOC_ADDR(tpnt->loadaddr, funcval.entry_point);
 				funcval.got_value = tpnt->loadaddr.got_value;
 				*reloc_addr = funcval;
 				break;
