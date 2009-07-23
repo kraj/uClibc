@@ -53,7 +53,7 @@ static int xgetgroups(gid_t gid, int *n_groups, gid_t ** groups)
 	if (ng < 0) {
 		warn("cannot get supplemental group list");
 		++fail;
-		free(groups);
+		free(g);
 	}
 	if (!fail) {
 		*n_groups = ng;
