@@ -1,4 +1,4 @@
-/* Copyright (C) 1992,95,96,97,98,99,2000,2001,2002
+/* Copyright (C) 1992,95,96,97,98,99,2000,2001,2002,2008,2009
      Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -162,3 +162,8 @@ struct stat64
 #define	__S_IREAD	0400	/* Read by owner.  */
 #define	__S_IWRITE	0200	/* Write by owner.  */
 #define	__S_IEXEC	0100	/* Execute by owner.  */
+
+#ifdef __USE_ATFILE
+# define UTIME_NOW	((1l << 30) - 1l)
+# define UTIME_OMIT	((1l << 30) - 2l)
+#endif
