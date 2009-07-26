@@ -323,6 +323,11 @@ extern int pthread_getconcurrency (void) __THROW;
 extern int pthread_setconcurrency (int __level) __THROW;
 #endif
 
+#ifdef __USE_GNU
+/* Same thing, different name */
+#define pthread_yield() sched_yield()
+#endif
+
 /* Functions for mutex handling.  */
 
 /* Initialize MUTEX using attributes in *MUTEX_ATTR, or use the
