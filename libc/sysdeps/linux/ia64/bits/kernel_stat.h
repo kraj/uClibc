@@ -23,36 +23,12 @@ struct kernel_stat {
 	unsigned int	__pad0;
 	unsigned long	st_rdev;
 	unsigned long	st_size;
-	unsigned long	st_atime;
-	unsigned long	st_atime_nsec;
-	unsigned long	st_mtime;
-	unsigned long	st_mtime_nsec;
-	unsigned long	st_ctime;
-	unsigned long	st_ctime_nsec;
+	struct timespec	st_atim;
+	struct timespec	st_mtim;
+	struct timespec	st_ctim;
 	unsigned long	st_blksize;
 	long		st_blocks;
 	unsigned long	__unused[3];
-};
-
-#define STAT_HAVE_NSEC 1
-
-struct __old_kernel_stat {
-	unsigned int	st_dev;
-	unsigned int	st_ino;
-	unsigned int	st_mode;
-	unsigned int	st_nlink;
-	unsigned int	st_uid;
-	unsigned int	st_gid;
-	unsigned int	st_rdev;
-	unsigned int	__pad1;
-	unsigned long	st_size;
-	unsigned long	st_atime;
-	unsigned long	st_mtime;
-	unsigned long	st_ctime;
-	unsigned int	st_blksize;
-	int		st_blocks;
-	unsigned int	__unused1;
-	unsigned int	__unused2;
 };
 
 /* ia64 stat64 is same as stat */

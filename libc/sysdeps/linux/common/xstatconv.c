@@ -41,14 +41,9 @@ void attribute_hidden __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 	buf->st_size = kbuf->st_size;
 	buf->st_blksize = kbuf->st_blksize;
 	buf->st_blocks = kbuf->st_blocks;
-	buf->st_atime = kbuf->st_atime;
-	buf->st_mtime = kbuf->st_mtime;
-	buf->st_ctime = kbuf->st_ctime;
-#ifdef STAT_HAVE_NSEC
-	buf->st_atimensec = kbuf->st_atime_nsec;
-	buf->st_mtimensec = kbuf->st_mtime_nsec;
-	buf->st_ctimensec = kbuf->st_ctime_nsec;
-#endif
+	buf->st_atim = kbuf->st_atim;
+	buf->st_mtim = kbuf->st_mtim;
+	buf->st_ctim = kbuf->st_ctim;
 }
 
 #ifdef __UCLIBC_HAS_LFS__
@@ -70,14 +65,9 @@ void attribute_hidden __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *
 	buf->st_size = kbuf->st_size;
 	buf->st_blksize = kbuf->st_blksize;
 	buf->st_blocks = kbuf->st_blocks;
-	buf->st_atime = kbuf->st_atime;
-	buf->st_mtime = kbuf->st_mtime;
-	buf->st_ctime = kbuf->st_ctime;
-# ifdef STAT_HAVE_NSEC
-	buf->st_atimensec = kbuf->st_atime_nsec;
-	buf->st_mtimensec = kbuf->st_mtime_nsec;
-	buf->st_ctimensec = kbuf->st_ctime_nsec;
-# endif
+	buf->st_atim = kbuf->st_atim;
+	buf->st_mtim = kbuf->st_mtim;
+	buf->st_ctim = kbuf->st_ctim;
 }
 
 #endif /* __UCLIBC_HAS_LFS__ */

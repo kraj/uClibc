@@ -40,12 +40,9 @@ struct kernel_stat64 {
 	unsigned int	st_nlink;
 	unsigned int	__pad0;
 
-	unsigned long	st_atime;
-	unsigned long	st_atimensec;
-	unsigned long	st_mtime;
-	unsigned long	st_mtimensec;
-	unsigned long	st_ctime;
-	unsigned long	st_ctimensec;
+	struct timespec	st_atim;
+	struct timespec	st_mtim;
+	struct timespec	st_ctim;
 	long		__unused[3];
 };
 

@@ -9,8 +9,6 @@
  * struct kernel_stat should look like...  It turns out each arch has a
  * different opinion on the subject... */
 
-#define STAT_HAVE_NSEC 1
-
 struct kernel_stat {
 #if defined(__ARMEB__)
 	unsigned short st_dev;
@@ -32,12 +30,9 @@ struct kernel_stat {
 	unsigned long  st_size;
 	unsigned long  st_blksize;
 	unsigned long  st_blocks;
-	unsigned long  st_atime;
-	unsigned long  st_atime_nsec;
-	unsigned long  st_mtime;
-	unsigned long  st_mtime_nsec;
-	unsigned long  st_ctime;
-	unsigned long  st_ctime_nsec;
+	struct timespec st_atim;
+	struct timespec st_mtim;
+	struct timespec st_ctim;
 	unsigned long  __unused4;
 	unsigned long  __unused5;
 };
@@ -60,12 +55,9 @@ struct kernel_stat64 {
 	unsigned long      st_blksize;
 	unsigned long long st_blocks;  /* Number 512-byte blocks allocated. */
 
-	unsigned long      st_atime;
-	unsigned long      st_atime_nsec;
-	unsigned long      st_mtime;
-	unsigned long      st_mtime_nsec;
-	unsigned long      st_ctime;
-	unsigned long      st_ctime_nsec;
+	struct timespec    st_atim;
+	struct timespec    st_mtim;
+	struct timespec    st_ctim;
 	unsigned long long st_ino;
 #ifndef __ARM_EABI__
 } __attribute__((packed));
