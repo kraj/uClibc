@@ -17,12 +17,9 @@ struct kernel_stat {
 	unsigned short	st_reserved2;	/* old st_gid */
 	unsigned int	st_rdev;
 	off_t		st_size;
-	time_t		st_atime;
-	unsigned int	st_atime_nsec;
-	time_t		st_mtime;
-	unsigned int	st_mtime_nsec;
-	time_t		st_ctime;
-	unsigned int	st_ctime_nsec;
+	struct timespec	st_atim;
+	struct timespec	st_mtim;
+	struct timespec	st_ctim;
 	int		st_blksize;
 	int		st_blocks;
 	unsigned int	__unused1;	/* ACL stuff */
@@ -38,8 +35,6 @@ struct kernel_stat {
 	gid_t		st_gid;
 	unsigned int	st_spare4[3];
 };
-
-#define STAT_HAVE_NSEC 1
 
 /* This is the struct that 32-bit userspace applications are expecting.
  * How 64-bit apps are going to be compiled, I have no idea.  But at least
@@ -60,12 +55,9 @@ struct kernel_stat64 {
 	signed int		st_blksize;
 
 	signed long long	st_blocks;
-	signed int		st_atime;
-	unsigned int		st_atime_nsec;
-	signed int		st_mtime;
-	unsigned int		st_mtime_nsec;
-	signed int		st_ctime;
-	unsigned int		st_ctime_nsec;
+	struct timespec		st_atim;
+	struct timespec		st_mtim;
+	struct timespec		st_ctim;
 	unsigned long long	st_ino;
 };
 

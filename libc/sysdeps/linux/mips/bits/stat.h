@@ -61,16 +61,27 @@ struct stat
     long int st_pad2[2];
     __off64_t st_size;		/* Size of file, in bytes.  */
 #endif
-    /*
-     * Actually this should be timestruc_t st_atime, st_mtime and
-     * st_ctime but we don't have it under Linux.
-     */
+#ifdef __USE_MISC
+    /* Nanosecond resolution timestamps are stored in a format
+       equivalent to 'struct timespec'.  This is the type used
+       whenever possible but the Unix namespace rules do not allow the
+       identifier 'timespec' to appear in the <sys/stat.h> header.
+       Therefore we have to handle the use of this header in strictly
+       standard-compliant sources special.  */
+    struct timespec st_atim;            /* Time of last access.  */
+    struct timespec st_mtim;            /* Time of last modification.  */
+    struct timespec st_ctim;            /* Time of last status change.  */
+# define st_atime st_atim.tv_sec        /* Backward compatibility.  */
+# define st_mtime st_mtim.tv_sec
+# define st_ctime st_ctim.tv_sec
+#else
     __time_t st_atime;		/* Time of last access.  */
     unsigned long int st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;		/* Time of last modification.  */
     unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;		/* Time of last status change.  */
     unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
+#endif
     __blksize_t st_blksize;	/* Optimal block size for I/O.  */
 #ifndef __USE_FILE_OFFSET64
     __blkcnt_t st_blocks;	/* Number of 512-byte blocks allocated.  */
@@ -93,16 +104,27 @@ struct stat {
     unsigned int st_rdev;	/* Device number, if device.  */
     int st_pad2[3];
     __off_t st_size;		/* Size of file, in bytes.  */
-    /*
-     * Actually this should be timestruc_t st_atime, st_mtime and
-     * st_ctime but we don't have it under Linux.
-     */
+#ifdef __USE_MISC
+    /* Nanosecond resolution timestamps are stored in a format
+       equivalent to 'struct timespec'.  This is the type used
+       whenever possible but the Unix namespace rules do not allow the
+       identifier 'timespec' to appear in the <sys/stat.h> header.
+       Therefore we have to handle the use of this header in strictly
+       standard-compliant sources special.  */
+    struct timespec st_atim;            /* Time of last access.  */
+    struct timespec st_mtim;            /* Time of last modification.  */
+    struct timespec st_ctim;            /* Time of last status change.  */
+# define st_atime st_atim.tv_sec        /* Backward compatibility.  */
+# define st_mtime st_mtim.tv_sec
+# define st_ctime st_ctim.tv_sec
+#else
     int st_atime;
     int st_atimensec;
     int st_mtime;
     int st_mtimensec;
     int st_ctime;
     int st_ctimensec;
+#endif
     int st_blksize;	/* Optimal block size for I/O.  */
     int st_pad3;
     __blkcnt_t st_blocks;	/* Number of 512-byte blocks allocated.  */
@@ -124,16 +146,27 @@ struct stat64
     __dev_t st_rdev;	/* Device number, if device.  */
     long int st_pad2[2];
     __off64_t st_size;		/* Size of file, in bytes.  */
-    /*
-     * Actually this should be timestruc_t st_atime, st_mtime and
-     * st_ctime but we don't have it under Linux.
-     */
+#ifdef __USE_MISC
+    /* Nanosecond resolution timestamps are stored in a format
+       equivalent to 'struct timespec'.  This is the type used
+       whenever possible but the Unix namespace rules do not allow the
+       identifier 'timespec' to appear in the <sys/stat.h> header.
+       Therefore we have to handle the use of this header in strictly
+       standard-compliant sources special.  */
+    struct timespec st_atim;            /* Time of last access.  */
+    struct timespec st_mtim;            /* Time of last modification.  */
+    struct timespec st_ctim;            /* Time of last status change.  */
+# define st_atime st_atim.tv_sec        /* Backward compatibility.  */
+# define st_mtime st_mtim.tv_sec
+# define st_ctime st_ctim.tv_sec
+#else
     __time_t st_atime;		/* Time of last access.  */
     unsigned long int st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;		/* Time of last modification.  */
     unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;		/* Time of last status change.  */
     unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
+#endif
     __blksize_t st_blksize;	/* Optimal block size for I/O.  */
     long int st_pad3;
     __blkcnt64_t st_blocks;	/* Number of 512-byte blocks allocated.  */
@@ -152,16 +185,27 @@ struct stat64 {
     unsigned int st_rdev;	/* Device number, if device.  */
     int st_pad2[3];
     __off_t st_size;		/* Size of file, in bytes.  */
-    /*
-     * Actually this should be timestruc_t st_atime, st_mtime and
-     * st_ctime but we don't have it under Linux.
-     */
+#ifdef __USE_MISC
+    /* Nanosecond resolution timestamps are stored in a format
+       equivalent to 'struct timespec'.  This is the type used
+       whenever possible but the Unix namespace rules do not allow the
+       identifier 'timespec' to appear in the <sys/stat.h> header.
+       Therefore we have to handle the use of this header in strictly
+       standard-compliant sources special.  */
+    struct timespec st_atim;            /* Time of last access.  */
+    struct timespec st_mtim;            /* Time of last modification.  */
+    struct timespec st_ctim;            /* Time of last status change.  */
+# define st_atime st_atim.tv_sec        /* Backward compatibility.  */
+# define st_mtime st_mtim.tv_sec
+# define st_ctime st_ctim.tv_sec
+#else
     int st_atime;
     int st_atimensec;
     int st_mtime;
     int st_mtimensec;
     int st_ctime;
     int st_ctimensec;
+#endif
     int st_blksize;	/* Optimal block size for I/O.  */
     int st_pad3;
     __blkcnt_t st_blocks;	/* Number of 512-byte blocks allocated.  */
@@ -173,6 +217,8 @@ struct stat64 {
 /* Tell code we have these members.  */
 #define	_STATBUF_ST_BLKSIZE
 #define	_STATBUF_ST_RDEV
+/* Nanosecond resolution time values are supported.  */
+#define _STATBUF_ST_NSEC
 
 /* Encoding of the file mode.  */
 

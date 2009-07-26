@@ -8,6 +8,7 @@
 /* This file provides whatever this particular arch's kernel thinks
  * struct kernel_stat should look like...  It turns out each arch has a
  * different opinion on the subject... */
+
 #if __WORDSIZE == 64
 #define kernel_stat kernel_stat64
 #else
@@ -22,12 +23,9 @@ struct kernel_stat {
 	__kernel_off_t	st_size;
 	unsigned long  	st_blksize;
 	unsigned long  	st_blocks;
-	unsigned long  	st_atime;
-	unsigned long  	__unused1;
-	unsigned long  	st_mtime;
-	unsigned long  	__unused2;
-	unsigned long  	st_ctime;
-	unsigned long  	__unused3;
+	struct timespec	st_atim;
+	struct timespec	st_mtim;
+	struct timespec	st_ctim;
 	unsigned long  	__unused4;
 	unsigned long  	__unused5;
 };
@@ -45,12 +43,9 @@ struct kernel_stat64 {
 	long long st_size;		/* Size of file, in bytes.  */
 	long st_blksize;		/* Optimal block size for I/O.  */
 	long long st_blocks;		/* Number 512-byte blocks allocated. */
-	long st_atime;			/* Time of last access.  */
-	unsigned long int __unused1;
-	long st_mtime;			/* Time of last modification.  */
-	unsigned long int __unused2;
-	long st_ctime;			/* Time of last status change.  */
-	unsigned long int __unused3;
+	struct timespec st_atim;	/* Time of last access.  */
+	struct timespec st_mtim;	/* Time of last modification.  */
+	struct timespec st_ctim;	/* Time of last status change.  */
 	unsigned long int __unused4;
 	unsigned long int __unused5;
 };
