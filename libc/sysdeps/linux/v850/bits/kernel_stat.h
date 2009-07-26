@@ -19,12 +19,9 @@ struct kernel_stat
   __kernel_off_t	st_size;
   unsigned long		st_blksize;
   unsigned long		st_blocks;
-  unsigned long		st_atime;
-  unsigned long		__unused1;
-  unsigned long		st_mtime;
-  unsigned long		__unused2;
-  unsigned long		st_ctime;
-  unsigned long		__unused3;
+  struct timespec	st_atim;
+  struct timespec	st_mtim;
+  struct timespec	st_ctim;
   unsigned long		__unused4;
   unsigned long		__unused5;
 };
@@ -53,14 +50,9 @@ struct kernel_stat64
   unsigned long		__unused4; /* future possible st_blocks high bits */
   unsigned long		st_blocks; /* Number 512-byte blocks allocated. */
 
-  unsigned long		st_atime;
-  unsigned long		__unused5;
-
-  unsigned long		st_mtime;
-  unsigned long		__unused6;
-
-  unsigned long		st_ctime;
-  unsigned long		__unused7; /* high 32 bits of ctime someday */
+  struct timespec	st_atim;
+  struct timespec	st_mtim;
+  struct timespec	st_ctim;
 };
 
 #endif	/*  _BITS_STAT_STRUCT_H */

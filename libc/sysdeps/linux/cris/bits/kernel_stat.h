@@ -7,20 +7,6 @@
 #error bits/kernel_stat.h is for internal uClibc use only!
 #endif
 
-struct __old_kernel_stat {
-	unsigned short st_dev;
-	unsigned short st_ino;
-	unsigned short st_mode;
-	unsigned short st_nlink;
-	unsigned short st_uid;
-	unsigned short st_gid;
-	unsigned short st_rdev;
-	unsigned long  st_size;
-	unsigned long  st_atime;
-	unsigned long  st_mtime;
-	unsigned long  st_ctime;
-};
-
 struct kernel_stat {
 	unsigned short st_dev;
 	unsigned short __pad1;
@@ -34,12 +20,9 @@ struct kernel_stat {
 	unsigned long  st_size;
 	unsigned long  st_blksize;
 	unsigned long  st_blocks;
-	unsigned long  st_atime;
-	unsigned long  __unused1;
-	unsigned long  st_mtime;
-	unsigned long  __unused2;
-	unsigned long  st_ctime;
-	unsigned long  __unused3;
+	struct timespec st_atim;
+	struct timespec st_mtim;
+	struct timespec st_ctim;
 	unsigned long  __unused4;
 	unsigned long  __unused5;
 };
@@ -69,14 +52,9 @@ struct kernel_stat64 {
 	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
 	unsigned long	__pad4;		/* future possible st_blocks high bits */
 
-	unsigned long	st_atime;
-	unsigned long	__pad5;
-
-	unsigned long	st_mtime;
-	unsigned long	__pad6;
-
-	unsigned long	st_ctime;
-	unsigned long	__pad7;		/* will be high 32 bits of ctime someday */
+	struct timespec	st_atim;
+	struct timespec	st_mtim;
+	struct timespec	st_ctim;
 
 	unsigned long long	st_ino;
 };

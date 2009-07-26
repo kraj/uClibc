@@ -8,6 +8,7 @@
 /* This file provides whatever this particular arch's kernel thinks
  * struct kernel_stat should look like...  It turns out each arch has a
  * different opinion on the subject... */
+
 #if __WORDSIZE == 64
 #define kernel_stat kernel_stat64
 #else
@@ -20,12 +21,9 @@ struct kernel_stat {
     unsigned short	st_gid;
     unsigned short	st_rdev;
     long		st_size;
-    long		st_atime;
-    unsigned long	__unused1;
-    long		st_mtime;
-    unsigned long	__unused2;
-    long		st_ctime;
-    unsigned long	__unused3;
+    struct timespec	st_atim;
+    struct timespec	st_mtim;
+    struct timespec	st_ctim;
     long		st_blksize;
     long		st_blocks;
     unsigned long	__unused4[2];
@@ -46,12 +44,9 @@ struct kernel_stat64 {
 	unsigned int	st_blksize;
 	unsigned char	__pad4[8];
 	unsigned int	st_blocks;
-	unsigned int	st_atime;
-	unsigned int	st_atime_nsec;
-	unsigned int	st_mtime;
-	unsigned int	st_mtime_nsec;
-	unsigned int	st_ctime;
-	unsigned int	st_ctime_nsec;
+	struct timespec	st_atim;
+	struct timespec	st_mtim;
+	struct timespec	st_ctim;
 	unsigned int	__unused4;
 	unsigned int	__unused5;
 };

@@ -21,17 +21,12 @@ struct kernel_stat {
         unsigned long		st_size;
         unsigned long		st_blksize;
         unsigned long		st_blocks;
-        unsigned long		st_atime;
-        unsigned long		st_atime_nsec;
-        unsigned long		st_mtime;
-        unsigned long		st_mtime_nsec;
-        unsigned long		st_ctime;
-        unsigned long		st_ctime_nsec;
+        struct timespec		st_atim;
+        struct timespec		st_mtim;
+        struct timespec		st_ctim;
         unsigned long		__unused4;
         unsigned long		__unused5;
 };
-
-#define STAT_HAVE_NSEC 1
 
 struct kernel_stat64 {
 	unsigned long long	st_dev;
@@ -51,14 +46,9 @@ struct kernel_stat64 {
 
 	unsigned long long	st_blocks;
 
-	unsigned long		st_atime;
-	unsigned long		st_atime_nsec;
-
-	unsigned long		st_mtime;
-	unsigned long		st_mtime_nsec;
-
-	unsigned long		st_ctime;
-	unsigned long		st_ctime_nsec;
+	struct timespec		st_atim;
+	struct timespec		st_mtim;
+	struct timespec		st_ctim;
 
 	unsigned long		__unused1;
 	unsigned long		__unused2;

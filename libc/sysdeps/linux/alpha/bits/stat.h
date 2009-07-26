@@ -41,7 +41,7 @@
 
    Use neat tidy anonymous unions and structures when possible.  */
 
-#if 0 /*def __USE_MISC*/
+#ifdef __USE_MISC
 # if __GNUC_PREREQ(3,3)
 #  define __ST_TIME(X)				\
 	__extension__ union {			\

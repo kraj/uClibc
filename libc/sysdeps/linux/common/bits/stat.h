@@ -62,7 +62,7 @@ struct stat
 #else
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
 #endif
-#if 0 /*def __USE_MISC*/
+#ifdef __USE_MISC
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -108,7 +108,7 @@ struct stat64
     __blksize_t st_blksize;		/* Optimal block size for I/O.  */
 
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
-#if 0 /*def __USE_MISC*/
+#ifdef __USE_MISC
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the

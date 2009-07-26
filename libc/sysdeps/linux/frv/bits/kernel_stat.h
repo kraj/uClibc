@@ -38,14 +38,9 @@ struct kernel_stat {
 	unsigned long __pad10;	/* future possible st_blocks high bits */
 	unsigned long st_blocks;	/* Number 512-byte blocks allocated. */
 
-	unsigned long __unused1;
-	unsigned long st_atime;
-
-	unsigned long __unused2;
-	unsigned long st_mtime;
-
-	unsigned long __unused3;
-	unsigned long st_ctime;
+	struct timespec st_atim;
+	struct timespec st_mtim;
+	struct timespec st_ctim;
 
 	unsigned long long __unused4;
 };
@@ -73,14 +68,9 @@ struct kernel_stat64 {
 	unsigned long __pad4;		/* future possible st_blocks high bits */
 	unsigned long st_blocks;	/* Number 512-byte blocks allocated. */
 
-	unsigned long __unused1;
-	unsigned long st_atime;
-
-	unsigned long __unused2;
-	unsigned long st_mtime;
-
-	unsigned long __unused3;	/* will be high 32 bits of ctime someday */
-	unsigned long st_ctime;
+	struct timespec st_atim;
+	struct timespec st_mtim;
+	struct timespec st_ctim;
 
 	unsigned long long __unused4;
 };
