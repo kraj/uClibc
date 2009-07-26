@@ -151,4 +151,9 @@ struct stat64
 #define	__S_IWRITE	0200	/* Write by owner.  */
 #define	__S_IEXEC	0100	/* Execute by owner.  */
 
+#ifdef __USE_ATFILE
+# define UTIME_NOW	((1l << 30) - 1l)
+# define UTIME_OMIT	((1l << 30) - 2l)
+#endif
+
 #endif	/* _BITS_STAT_H */

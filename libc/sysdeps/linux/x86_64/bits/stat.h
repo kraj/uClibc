@@ -1,4 +1,4 @@
-/* Copyright (C) 1999,2000,2001,2002,2003 Free Software Foundation, Inc.
+/* Copyright (C) 1999,2000,2001,2002,2003,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -61,7 +61,7 @@ struct stat
     __uid_t st_uid;		/* User ID of the file's owner.	*/
     __gid_t st_gid;		/* Group ID of the file's group.*/
 #if __WORDSIZE == 64
-    int pad0;
+    int __pad0;
 #endif
     __dev_t st_rdev;		/* Device number, if device.  */
 #if __WORDSIZE == 32
@@ -129,7 +129,7 @@ struct stat64
     __uid_t st_uid;		/* User ID of the file's owner.	*/
     __gid_t st_gid;		/* Group ID of the file's group.*/
 #if __WORDSIZE == 64
-    int pad0;
+    int __pad0;
     __dev_t st_rdev;		/* Device number, if device.  */
     __off_t st_size;		/* Size of file, in bytes.  */
 #else
@@ -201,3 +201,8 @@ struct stat64
 #define	__S_IREAD	0400	/* Read by owner.  */
 #define	__S_IWRITE	0200	/* Write by owner.  */
 #define	__S_IEXEC	0100	/* Execute by owner.  */
+
+#ifdef __USE_ATFILE
+# define UTIME_NOW	((1l << 30) - 1l)
+# define UTIME_OMIT	((1l << 30) - 2l)
+#endif
