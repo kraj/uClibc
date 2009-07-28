@@ -4964,7 +4964,7 @@ re_search (
   return re_search_2 (bufp, NULL, 0, string, size, startpos, range,
 		      regs, size);
 }
-libc_hidden_def(re_search);
+libc_hidden_def(re_search)
 
 
 /* Using the compiled pattern in BUFP->buffer, first tries to match the
@@ -5006,7 +5006,7 @@ re_search_2 (
   return byte_re_search_2 (bufp, string1, size1, string2, size2, startpos,
 			   range, regs, stop);
 }
-libc_hidden_def(re_search_2);
+libc_hidden_def(re_search_2)
 
 #endif /* not INSIDE_RECURSION */
 
