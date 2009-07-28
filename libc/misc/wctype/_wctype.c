@@ -159,7 +159,7 @@ enum {
 #ifdef __UCLIBC_DO_XLOCALE
 
 #define ISW_FUNC_BODY(NAME) \
-libc_hidden_proto(__PASTE3(isw,NAME,_l)); \
+libc_hidden_proto(__PASTE3(isw,NAME,_l)) \
 int __PASTE3(isw,NAME,_l) (wint_t wc, __locale_t l) \
 { \
 	return iswctype_l(wc, __PASTE2(_CTYPE_is,NAME), l); \
@@ -169,7 +169,7 @@ libc_hidden_def(__PASTE3(isw,NAME,_l))
 #else  /* __UCLIBC_DO_XLOCALE */
 
 #define ISW_FUNC_BODY(NAME) \
-libc_hidden_proto(__PASTE2(isw,NAME)); \
+libc_hidden_proto(__PASTE2(isw,NAME)) \
 int __PASTE2(isw,NAME) (wint_t wc) \
 { \
 	return iswctype(wc, __PASTE2(_CTYPE_is,NAME)); \
