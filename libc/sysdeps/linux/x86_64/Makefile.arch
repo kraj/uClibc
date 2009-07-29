@@ -9,5 +9,3 @@ CSRC := brk.c sigaction.c __syscall_error.c mmap.c
 
 SSRC := \
 	__longjmp.S vfork.S setjmp.S syscall.S bsd-setjmp.S bsd-_setjmp.S clone.S
-
-include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch
