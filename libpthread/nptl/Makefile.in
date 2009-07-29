@@ -293,7 +293,7 @@ $(PTHREAD_OUT)/pthread-errnos.s: $(PTHREAD_OUT)/pthread-errnos.c
 	$(compile.c)
 
 $(PTHREAD_OUT)/pthread-errnos.h: $(PTHREAD_OUT)/pthread-errnos.s
-	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
 
 headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(nptl_headers_bootstrap)
@@ -311,7 +311,7 @@ include/bits/libc-lock.h: | include/bits
 include/bits/stdio-lock.h: | include/bits
 	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
 $(PTDIR)/banner.h:
-	@sed 's/\(.*\)/"\1\\n"/' $(PTDIR)/Banner > $(PTDIR)/banner.h
+	$(do_sed) 's/\(.*\)/"\1\\n"/' $(PTDIR)/Banner > $(PTDIR)/banner.h
 $(PTDIR)/version.h:
 	@echo "#define VERSION \""$(VERSION)"\"" > $(PTDIR)/version.h
 

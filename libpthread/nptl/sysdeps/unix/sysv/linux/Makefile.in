@@ -164,16 +164,16 @@ $(PTHREAD_LINUX_OUT)/unwindbuf.s: $(PTHREAD_LINUX_OUT)/unwindbuf.c
 	$(compile.c)
 
 $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.s
-	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
 $(PTHREAD_LINUX_OUT)/lowlevelcond.h: $(PTHREAD_LINUX_OUT)/lowlevelcond.s
-	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
 $(PTHREAD_LINUX_OUT)/lowlevelrwlock.h: $(PTHREAD_LINUX_OUT)/lowlevelrwlock.s
-	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
 $(PTHREAD_LINUX_OUT)/unwindbuf.h: $(PTHREAD_LINUX_OUT)/unwindbuf.s
-	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
 nptl_linux_headers: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h \
 					$(PTHREAD_LINUX_OUT)/lowlevelcond.h \
