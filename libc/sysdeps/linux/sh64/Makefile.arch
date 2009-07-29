@@ -8,5 +8,3 @@
 CSRC := __init_brk.c brk.c sbrk.c syscall.c
 
 SSRC := setjmp.S __longjmp.S
-
-include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

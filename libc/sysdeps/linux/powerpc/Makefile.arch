@@ -14,5 +14,3 @@ SSRC := \
 ifeq ($(CONFIG_E500),y)
 ARCH_HEADERS := fenv.h
 endif
-
-include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch
