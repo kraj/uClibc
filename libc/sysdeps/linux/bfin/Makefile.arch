@@ -11,5 +11,3 @@ CSRC := bsdsetjmp.c clone.c \
 SSRC := __longjmp.S setjmp.S bsd-_setjmp.S
 
 ARCH_HEADERS := bfin_fixed_code.h bfin_l1layout.h bfin_sram.h
-
-include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

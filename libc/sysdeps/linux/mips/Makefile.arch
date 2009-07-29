@@ -14,5 +14,3 @@ SSRC := bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S syscall.S pipe.S
 
 ARCH_HEADERS := sgidefs.h
 # regdef.h
-
-include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

@@ -24,8 +24,6 @@ else
 CSRC += syscall.c
 endif
 
-include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch
-
 ifeq ($(CONFIG_ARM_EABI),y)
 libc-static-y += $(ARCH_OUT)/aeabi_lcsts.o $(ARCH_OUT)/aeabi_math.o \
 	$(ARCH_OUT)/aeabi_sighandlers.o
