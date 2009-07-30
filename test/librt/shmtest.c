@@ -14,6 +14,8 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
 char shared_name[] = "/sharetest";
 int test_data[11] = {0,1,2,3,4,5,6,7,8,9,10};
 
@@ -47,9 +49,9 @@ int main(void) {
 		} else {
 			ptest_data = mmap(0, sizeof(test_data), PROT_READ + PROT_WRITE, MAP_SHARED, fd, 0);
 			if (ptest_data != MAP_FAILED) {
-				for (i=0; i < sizeof(test_data); i++) {
+				for (i=0; i < ARRAY_SIZE(test_data); i++) {
 					if (ptest_data[i] != test_data[i]) {
-						printf("%-40s: Offset %d, local %d, shm %d", "Compare memory error", i, test_data[i], ptest_data[i]);
+						printf("%-40s: Offset %d, local %d, shm %d\n", "Compare memory error", i, test_data[i], ptest_data[i]);
 						test_data_fails++;
 					}
 				}
@@ -83,7 +85,7 @@ int main(void) {
 				}
 				return 0;
 			}
-			for (i=0; i <sizeof(test_data); i++)
+			for (i=0; i < ARRAY_SIZE(test_data); i++)
 				ptest_data[i] = test_data[i];
 
 			/* signal child */
