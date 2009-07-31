@@ -321,12 +321,12 @@ DL_START(unsigned long args)
 
 	__rtld_stack_end = (void *)(argv - 1);
 
-	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp, argv
-			     DL_GET_READY_TO_RUN_EXTRA_ARGS);
+	_dl_elf_main = (int (*)(int, char **, char **))
+			_dl_get_ready_to_run(tpnt, (DL_LOADADDR_TYPE) header, auxvt, envp, argv
+					     DL_GET_READY_TO_RUN_EXTRA_ARGS);
 
 	/* Transfer control to the application.  */
 	SEND_STDERR_DEBUG("transfering control to application @ ");
-	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_val;
 	SEND_ADDRESS_STDERR_DEBUG(_dl_elf_main, 1);
 
 #if !defined(START)

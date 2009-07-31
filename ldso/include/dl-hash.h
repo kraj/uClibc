@@ -60,6 +60,10 @@ struct elf_resolve {
 #endif
 
   ElfW(Addr) mapaddr;
+#ifdef __LDSO_STANDALONE_SUPPORT__
+  /* Store the entry point from the ELF header (e_entry) */
+  ElfW(Addr) l_entry;
+#endif
   enum {elf_lib, elf_executable,program_interpreter, loaded_file} libtype;
   struct dyn_elf * symbol_scope;
   unsigned short usage_count;

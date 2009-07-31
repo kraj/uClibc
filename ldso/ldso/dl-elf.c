@@ -322,7 +322,7 @@ goof:
  */
 
 struct elf_resolve *_dl_load_elf_shared_library(int secure,
-	struct dyn_elf **rpnt, char *libname)
+	struct dyn_elf **rpnt, const char *libname)
 {
 	ElfW(Ehdr) *epnt;
 	unsigned long dynamic_addr = 0;
@@ -397,11 +397,15 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		return NULL;
 	}
 
-	if ((epnt->e_type != ET_DYN) || (epnt->e_machine != MAGIC1
+	if ((epnt->e_type != ET_DYN
+#ifdef __LDSO_STANDALONE_SUPPORT__
+		&& epnt->e_type != ET_EXEC
+#endif
+		) || (epnt->e_machine != MAGIC1
 #ifdef MAGIC2
 				&& epnt->e_machine != MAGIC2
 #endif
-				))
+			))
 	{
 		_dl_internal_error_number =
 			(epnt->e_type != ET_DYN ? LD_ERROR_NOTDYN : LD_ERROR_NOTMAGIC);
@@ -461,6 +465,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		}
 		ppnt++;
 	}
+
+#ifdef __LDSO_STANDALONE_SUPPORT__
+	if (epnt->e_type == ET_EXEC)
+		piclib = 0;
+#endif
 
 	DL_CHECK_LIB_TYPE (epnt, piclib, _dl_progname, libname);
 
@@ -701,7 +710,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	dpnt = (ElfW(Dyn) *) dynamic_addr;
 	_dl_memset(dynamic_info, 0, sizeof(dynamic_info));
+#ifdef __LDSO_STANDALONE_SUPPORT__
+	rtld_flags = _dl_parse_dynamic_info(dpnt, dynamic_info, NULL, piclib ? lib_loadaddr : 0);
+#else
 	rtld_flags = _dl_parse_dynamic_info(dpnt, dynamic_info, NULL, lib_loadaddr);
+#endif
 	/* If the TEXTREL is set, this means that we need to make the pages
 	   writable before we perform relocations.  Do this now. They get set
 	   back again later. */
@@ -734,6 +747,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	tpnt->ppnt = (ElfW(Phdr) *) DL_RELOC_ADDR(tpnt->loadaddr, epnt->e_phoff);
 	tpnt->n_phent = epnt->e_phnum;
 	tpnt->rtld_flags |= rtld_flags;
+#ifdef __LDSO_STANDALONE_SUPPORT__
+	tpnt->l_entry = epnt->e_entry;
+#endif
 
 #if defined(USE_TLS) && USE_TLS
 	if (tlsppnt) {
@@ -755,7 +771,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		tpnt->l_tls_modid = _dl_next_tls_modid ();
 
 		/* We know the load address, so add it to the offset. */
+#ifdef __LDSO_STANDALONE_SUPPORT__
+		if ((tpnt->l_tls_initimage != NULL) && piclib)
+#else
 		if (tpnt->l_tls_initimage != NULL)
+#endif
 		{
 # ifdef __SUPPORT_LD_DEBUG_EARLY__
 			unsigned int tmp = (unsigned int) tpnt->l_tls_initimage;
@@ -772,7 +792,12 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	/*
 	 * Add this object into the symbol chain
 	 */
-	if (*rpnt) {
+	if (*rpnt
+#ifdef __LDSO_STANDALONE_SUPPORT__
+		/* Do not create a new chain entry for the main executable */
+		&& (*rpnt)->dyn
+#endif
+		) {
 		(*rpnt)->next = _dl_malloc(sizeof(struct dyn_elf));
 		_dl_memset((*rpnt)->next, 0, sizeof(struct dyn_elf));
 		(*rpnt)->next->prev = (*rpnt);
@@ -791,7 +816,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	(*rpnt)->dyn = tpnt;
 	tpnt->symbol_scope = _dl_symbol_tables;
 	tpnt->usage_count++;
+#ifdef __LDSO_STANDALONE_SUPPORT__
+	tpnt->libtype = (epnt->e_type == ET_DYN) ? elf_lib : elf_executable;
+#else
 	tpnt->libtype = elf_lib;
+#endif
 
 	/*
 	 * OK, the next thing we need to do is to insert the dynamic linker into

@@ -70,8 +70,18 @@ char *_dl_debug_bindings  = NULL;
 int   _dl_debug_file      = 2;
 #endif
 
-/* Needed for standalone execution. */
+#if defined (__LDSO_STANDALONE_SUPPORT__) && defined (__sh__)
+/* Not hidden, needed for standalone execution. */
+/*
+ * FIXME: align dl_start for SH to other archs so that we can keep this symbol
+ *        hidden and we don't need to handle in __uClibc_main
+ */
+
+unsigned long _dl_skip_args = 0;
+#else
 unsigned long attribute_hidden _dl_skip_args = 0;
+#endif
+
 const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being run */
 #include "dl-startup.c"
 #include "dl-symbols.c"
@@ -274,9 +284,8 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 	}
 }
 
-void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
-			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp,
-			  char **argv
+void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
+			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
 			  DL_GET_READY_TO_RUN_EXTRA_PARMS)
 {
 	ElfW(Addr) app_mapaddr = 0;
@@ -327,10 +336,12 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		_dl_progname = argv[0];
 	}
 
+#ifndef __LDSO_STANDALONE_SUPPORT__
 	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val) {
-		_dl_dprintf(_dl_debug_file, "Standalone execution is not supported yet\n");
+		_dl_dprintf(_dl_debug_file, "Standalone execution is not enabled\n");
 		_dl_exit(1);
 	}
+#endif
 
 	/* Start to build the tables of the modules that are required for
 	 * this beast to run.  We start with the basic executable, and then
@@ -380,6 +391,102 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 #if defined(USE_TLS) && USE_TLS
 	_dl_error_catch_tsd = &_dl_initial_error_catch_tsd;
 	_dl_init_static_tls = &_dl_nothread_init_static_tls;
+#endif
+
+#ifdef __LDSO_STANDALONE_SUPPORT__
+	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val) {
+		char *ptmp;
+		unsigned int *aux_dat = (unsigned int *) argv;
+		int argc = aux_dat[-1];
+
+		tpnt->libname = argv[0];
+		while (argc > 1)
+			if (! _dl_strcmp (argv[1], "--library-path") && argc > 2) {
+				_dl_library_path = argv[2];
+				_dl_skip_args += 2;
+				argc -= 2;
+				argv += 2;
+			} else
+				break;
+
+	/*
+	 * If we have no further argument the program was called incorrectly.
+	 * Grant the user some education.
+	 */
+
+		if (argc < 2) {
+			_dl_dprintf(1, "\
+Usage: ld.so [OPTION]... EXECUTABLE-FILE [ARGS-FOR-PROGRAM...]\n\
+You have invoked `ld.so', the helper program for shared library executables.\n\
+This program usually lives in the file `/lib/ld.so', and special directives\n\
+in executable files using ELF shared libraries tell the system's program\n\
+loader to load the helper program from this file.  This helper program loads\n\
+the shared libraries needed by the program executable, prepares the program\n\
+to run, and runs it.  You may invoke this helper program directly from the\n\
+command line to load and run an ELF executable file; this is like executing\n\
+that file itself, but always uses this helper program from the file you\n\
+specified, instead of the helper program file specified in the executable\n\
+file you run.  This is mostly of use for maintainers to test new versions\n\
+of this helper program; chances are you did not intend to run this program.\n\
+\n\
+  --library-path PATH   use given PATH instead of content of the environment\n\
+                        variable LD_LIBRARY_PATH\n");
+			_dl_exit(1);
+		}
+
+		++_dl_skip_args;
+		++argv;
+		_dl_progname = argv[0];
+
+		_dl_symbol_tables = rpnt = _dl_zalloc(sizeof(struct dyn_elf));
+		/*
+		 * It needs to load the _dl_progname and to map it
+		 * Usually it is the main application launched by means of the ld.so
+		 * but it could be also a shared object (when ld.so used for tracing)
+		 * We keep the misleading app_tpnt name to avoid variable pollution
+		 */
+		app_tpnt = _dl_load_elf_shared_library(_dl_secure, &rpnt, _dl_progname);
+		if (!app_tpnt) {
+			_dl_dprintf(_dl_debug_file, "can't load '%s'\n", _dl_progname);
+			_dl_exit(16);
+		}
+		/*
+		 * FIXME: it needs to properly handle a PIE executable
+		 * Usually for a main application, loadaddr is computed as difference
+		 * between auxvt entry points and phdr, so if it is not 0, that it is a
+		 * PIE executable. In this case instead we need to set the loadaddr to 0
+		 * because we are actually mapping the ELF for the main application by
+		 * ourselves. So the PIE case must be checked.
+		 */
+
+		app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
+
+		if (app_tpnt->libtype == elf_executable)
+			app_tpnt->loadaddr = 0;
+
+		/*
+		 * This is used by gdb to locate the chain of shared libraries that are
+		 * currently loaded.
+		 */
+		debug_addr = _dl_zalloc(sizeof(struct r_debug));
+		ppnt = (ElfW(Phdr) *)app_tpnt->ppnt;
+		for (i = 0; i < app_tpnt->n_phent; i++, ppnt++) {
+			if (ppnt->p_type == PT_DYNAMIC) {
+				dpnt = (ElfW(Dyn) *) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr);
+				_dl_parse_dynamic_info(dpnt, app_tpnt->dynamic_info, debug_addr, app_tpnt->loadaddr);
+			}
+		}
+
+		/* Store the path where the shared lib loader was found
+		 * for later use
+		 */
+		_dl_ldsopath = _dl_strdup(tpnt->libname);
+		ptmp = _dl_strrchr(_dl_ldsopath, '/');
+		if (ptmp != _dl_ldsopath)
+			*ptmp = '\0';
+
+		_dl_debug_early("Lib Loader: (%x) %s\n", (unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
+	} else {
 #endif
 
 	/* At this point we are now free to examine the user application,
@@ -536,6 +643,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			(unsigned int)app_tpnt->l_tls_initimage,
 			app_tpnt->l_tls_initimage, app_tpnt->l_tls_initimage_size);
 	}
+#endif
+
+#ifdef __LDSO_STANDALONE_SUPPORT__
+	} /* ! ldso standalone mode */
 #endif
 
 #ifdef __SUPPORT_LD_DEBUG__
@@ -1084,6 +1195,13 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	/* Notify the debugger that all objects are now mapped in.  */
 	_dl_debug_addr->r_state = RT_CONSISTENT;
 	_dl_debug_state();
+
+#ifdef __LDSO_STANDALONE_SUPPORT__
+	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val)
+		return (void *) app_tpnt->l_entry;
+	else
+#endif
+		return (void *) auxvt[AT_ENTRY].a_un.a_val;
 }
 
 #include "dl-hash.c"

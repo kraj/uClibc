@@ -342,6 +342,23 @@ config LDSO_BASE_FILENAME
 	  WARNING: Changing the default prefix could cause problems with
 	           binutils' ld !
 
+config LDSO_STANDALONE_SUPPORT
+	bool "Dynamic linker stand-alone mode support"
+	depends on HAVE_SHARED
+	default n
+	help
+	  The dynamic linker can be run either indirectly through running some
+	  dynamically linked program or library (in which case no command line
+	  options to the dynamic linker can be passed and, in the ELF case, the
+	  dynamic linker which is stored in the .interp section of the program
+	  is executed) or directly by running:
+
+	  /lib/ld-uClibc.so.*  [OPTIONS] [PROGRAM [ARGUMENTS]]
+
+	  Stand-alone execution is a prerequisite for adding prelink
+	  capabilities to uClibc dynamic linker, as well useful for testing an
+	  updated version of the dynamic linker without breaking the system.
+
 config UCLIBC_STATIC_LDCONFIG
 	bool "Link ldconfig statically"
 	depends on HAVE_SHARED

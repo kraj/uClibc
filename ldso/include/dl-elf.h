@@ -35,7 +35,7 @@ extern struct elf_resolve * _dl_load_shared_library(int secure,
 	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname,
 	int trace_loaded_objects);
 extern struct elf_resolve * _dl_load_elf_shared_library(int secure,
-	struct dyn_elf **rpnt, char *libname);
+	struct dyn_elf **rpnt, const char *libname);
 extern struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libname,
 	int trace_loaded_objects);
 extern int _dl_linux_resolve(void);

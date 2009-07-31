@@ -144,7 +144,7 @@ extern void _dl_dprintf(int, const char *, ...);
 # define DL_GET_READY_TO_RUN_EXTRA_ARGS
 #endif
 
-extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
+extern void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
 		DL_GET_READY_TO_RUN_EXTRA_PARMS);
 
