@@ -537,7 +537,7 @@ config COMPAT_ATEXIT
 	bool "Old (visible) atexit Support"
 	default n
 	help
-	  Enable this option if you want to update from 0.9.28 to svn/0.9.29,
+	  Enable this option if you want to update from 0.9.28 to git/0.9.29,
 	  else you will be missing atexit() until you rebuild all apps.
 
 config UCLIBC_SUSV3_LEGACY
