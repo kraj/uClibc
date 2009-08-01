@@ -21,6 +21,14 @@
 # include <config.h>
 #endif
 
+/* include unistd.h before we undefine _LIBC
+ * because smallint is defined in unistd.h based
+ * on _LIBC. For architectures that dont define
+ * smallint of there own and rely upon the definition
+ * from unistd.h will not build this file otherwise
+ */
+
+#include <unistd.h>
 #include <features.h>
 #ifdef __UCLIBC__
 # undef _LIBC
@@ -41,7 +49,6 @@
 #include <errno.h>
 #include <fnmatch.h>
 #include <ctype.h>
-#include <unistd.h>
 
 #if HAVE_STRING_H || defined _LIBC
 # include <string.h>
@@ -212,7 +219,7 @@ extern int errno;
 # endif
 
 /* Global variable.  */
-smallint posixly_correct;
+static smallint posixly_correct;
 
 /* This function doesn't exist on most systems.  */
 
