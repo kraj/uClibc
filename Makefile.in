@@ -448,7 +448,8 @@ distclean: clean
 
 dist release:
 	$(RM) -r ../uClibc-$(VERSION) ../uClibc-$(VERSION).tar.bz2
-	svn -q export . ../uClibc-$(VERSION)
+	mkdir -p ../uClibc-$(VERSION)
+	git archive HEAD |(cd  ../uClibc-$(VERSION) && $(TAR) xf -)
 	$(TAR) cjf ../uClibc-$(VERSION).tar.bz2 -C .. uClibc-$(VERSION)
 	du -b ../uClibc-$(VERSION).tar.bz2
 
