@@ -204,7 +204,7 @@ libpthread-misc-routines = pthread_rwlock_rdlock pthread_rwlock_timedrdlock \
 			   unwind-forcedunwind
 
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -z defs
+LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
 else
 LDFLAGS-libpthread.so := $(LDFLAGS)
 endif

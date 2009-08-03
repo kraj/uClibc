@@ -305,11 +305,13 @@ __local_syscall_error:						\
 #define ASM_ARGS_7	ASM_ARGS_6, "r" (_v3)
 
 #if defined(__ARM_EABI__)
+#undef INTERNAL_SYSCALL_NCS
 #define INTERNAL_SYSCALL_NCS(number, err, nr, args...)		\
 	INTERNAL_SYSCALL_RAW(number, err, nr, args)
 #else
 /* We can't implement non-constant syscalls directly since the syscall
    number is normally encoded in the instruction.  So use SYS_syscall.  */
+#undef INTERNAL_SYSCALL_NCS
 #define INTERNAL_SYSCALL_NCS(number, err, nr, args...)		\
 	INTERNAL_SYSCALL_NCS_##nr (number, err, args)
 
