@@ -59,6 +59,7 @@
 
 #ifndef __ARCH_USE_MMU__
 #include <sys/syscall.h>
+#include <sched.h>
 /* use clone() to get fork() like behavior here -- we just want to disassociate
  * from the controlling terminal
  */
