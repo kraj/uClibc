@@ -13,8 +13,6 @@
 
 #ifndef __ASSEMBLER__
 
-#include <errno.h>
-
 /* Linux takes system call arguments in registers:
 
 	syscall number	%d0	     call-clobbered
@@ -23,9 +21,11 @@
 	arg 3		%d3	     call-saved
 	arg 4		%d4	     call-saved
 	arg 5		%d5	     call-saved
+	arg 6		%a0	     call-clobbered
 
    The stack layout upon entering the function is:
 
+	24(%sp)		Arg# 6
 	20(%sp)		Arg# 5
 	16(%sp)		Arg# 4
 	12(%sp)		Arg# 3
@@ -40,160 +40,72 @@
    speed is more important, we don't use movem.  Since %a0 and %a1 are
    scratch registers, we can use them for saving as well.  */
 
-#define __syscall_return(type, res) \
-do { \
-	if ((unsigned long)(res) >= (unsigned long)(-125)) { \
-		/* avoid using res which is declared to be in register d0; \
-		   errno might expand to a function call and clobber it.  */ \
-		int __err = -(res); \
-		__set_errno(__err); \
-		res = -1; \
-	} \
-	return (type) (res); \
-} while (0)
+/* Define a macro which expands inline into the wrapper code for a system
+   call.  This use is for internal calls that do not need to handle errors
+   normally.  It will never touch errno.  This returns just what the kernel
+   gave back.  */
+#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)	\
+  ({ unsigned int _sys_result;				\
+     {							\
+       /* Load argument values in temporary variables
+	  to perform side effects like function calls
+	  before the call used registers are set.  */	\
+       LOAD_ARGS_##nr (args)				\
+       LOAD_REGS_##nr					\
+       register int _d0 __asm__ ("%d0") = name;		\
+       __asm__ __volatile__ ("trap #0"			\
+		     : "=d" (_d0)			\
+		     : "0" (_d0) ASM_ARGS_##nr		\
+		     : "memory");			\
+       _sys_result = _d0;				\
+     }							\
+     (int) _sys_result; })
 
-#define _syscall0(type, name) \
-type name(void) \
-{ \
-	long __res; \
-	__asm__ __volatile__ ( \
-		"movel	%1, %%d0\n\t" \
-		"trap	#0\n\t" \
-		"movel	%%d0, %0" \
-		: "=g" (__res) \
-		: "i" (__NR_##name) \
-		: "memory", "cc", "%d0"); \
-	__syscall_return(type, __res); \
-}
-
-#define _syscall1(type, name, atype, a) \
-type name(atype a) \
-{ \
-	long __res; \
-	__asm__ __volatile__ ( \
-		"movel	%2, %%d1\n\t" \
-		"movel	%1, %%d0\n\t" \
-		"trap	#0\n\t" \
-		"movel	%%d0, %0" \
-		: "=g" (__res) \
-		: "i" (__NR_##name), \
-		  "g" ((long)a) \
-		: "memory", "cc", "%d0", "%d1"); \
-	__syscall_return(type, __res); \
-}
-
-#define _syscall2(type, name, atype, a, btype, b) \
-type name(atype a, btype b) \
-{ \
-	long __res; \
-	__asm__ __volatile__ ( \
-		"movel	%3, %%d2\n\t" \
-		"movel	%2, %%d1\n\t" \
-		"movel	%1, %%d0\n\t" \
-		"trap	#0\n\t" \
-		"movel	%%d0, %0" \
-		: "=g" (__res) \
-		: "i" (__NR_##name), \
-		  "a" ((long)a), \
-		  "g" ((long)b) \
-		: "memory", "cc", "%d0", "%d1", "%d2"); \
-	__syscall_return(type, __res); \
-}
-
-#define _syscall3(type, name, atype, a, btype, b, ctype, c) \
-type name(atype a, btype b, ctype c) \
-{ \
-	long __res; \
-	__asm__ __volatile__ ( \
-		"movel	%4, %%d3\n\t" \
-		"movel	%3, %%d2\n\t" \
-		"movel	%2, %%d1\n\t" \
-		"movel	%1, %%d0\n\t" \
-		"trap	#0\n\t" \
-		"movel	%%d0, %0" \
-		: "=g" (__res) \
-		: "i" (__NR_##name), \
-		  "a" ((long)a), \
-		  "a" ((long)b), \
-		  "g" ((long)c) \
-		: "memory", "cc", "%d0", "%d1", "%d2", "%d3"); \
-	__syscall_return(type, __res); \
-}
-
-#define _syscall4(type, name, atype, a, btype, b, ctype, c, dtype, d) \
-type name(atype a, btype b, ctype c, dtype d) \
-{ \
-	long __res; \
-	__asm__ __volatile__ ( \
-		"movel	%5, %%d4\n\t" \
-		"movel	%4, %%d3\n\t" \
-		"movel	%3, %%d2\n\t" \
-		"movel	%2, %%d1\n\t" \
-		"movel	%1, %%d0\n\t" \
-		"trap	#0\n\t" \
-		"movel	%%d0, %0" \
-		: "=g" (__res) \
-		: "i" (__NR_##name), \
-		  "a" ((long)a), \
-		  "a" ((long)b), \
-		  "a" ((long)c), \
-		  "g" ((long)d) \
-		: "memory", "cc", "%d0", "%d1", "%d2", "%d3", \
-		  "%d4"); \
-	__syscall_return(type, __res); \
-}
-
-#define _syscall5(type, name, atype, a, btype, b, ctype, c, dtype, d, etype, e) \
-type name(atype a, btype b, ctype c, dtype d, etype e) \
-{ \
-	long __res; \
-	__asm__ __volatile__ ( \
-		"movel	%6, %%d5\n\t" \
-		"movel	%5, %%d4\n\t" \
-		"movel	%4, %%d3\n\t" \
-		"movel	%3, %%d2\n\t" \
-		"movel	%2, %%d1\n\t" \
-		"movel	%1, %%d0\n\t" \
-		"trap	#0\n\t" \
-		"movel	%%d0, %0" \
-		: "=g" (__res) \
-		: "i" (__NR_##name), \
-		  "a" ((long)a), \
-		  "a" ((long)b), \
-		  "a" ((long)c), \
-		  "a" ((long)d), \
-		  "g" ((long)e) \
-		: "memory", "cc", "%d0", "%d1", "%d2", "%d3", \
-		  "%d4", "%d5"); \
-	__syscall_return(type, __res); \
-}
-
-#define _syscall6(type, name, atype, a, btype, b, ctype, c, dtype, d, etype, e, ftype, f) \
-type name(atype a, btype b, ctype c, dtype d, etype e, ftype f) \
-{ \
-	long __res; \
-	__asm__ __volatile__ ( \
-		"movel	%7, %%a0\n\t" \
-		"movel	%6, %%d5\n\t" \
-		"movel	%5, %%d4\n\t" \
-		"movel	%4, %%d3\n\t" \
-		"movel	%3, %%d2\n\t" \
-		"movel	%2, %%d1\n\t" \
-		"movel	%1, %%d0\n\t" \
-		"trap	#0\n\t" \
-		"movel	%%d0, %0" \
-		: "=g" (__res) \
-		: "i" (__NR_##name), \
-		  "a" ((long)a), \
-		  "a" ((long)b), \
-		  "a" ((long)c), \
-		  "a" ((long)d), \
-		  "g" ((long)e), \
-		  "g" ((long)f) \
-		: "memory", "cc", "%d0", "%d1", "%d2", "%d3", \
-		  "%d4", "%d5", "%a0"); \
-	__syscall_return(type, __res); \
-}
+#define LOAD_ARGS_0()
+#define LOAD_REGS_0
+#define ASM_ARGS_0
+#define LOAD_ARGS_1(a1)				\
+  LOAD_ARGS_0 ()				\
+  int __arg1 = (int) (a1);
+#define LOAD_REGS_1				\
+  register int _d1 __asm__ ("d1") = __arg1;	\
+  LOAD_REGS_0
+#define ASM_ARGS_1	ASM_ARGS_0, "d" (_d1)
+#define LOAD_ARGS_2(a1, a2)			\
+  LOAD_ARGS_1 (a1)				\
+  int __arg2 = (int) (a2);
+#define LOAD_REGS_2				\
+  register int _d2 __asm__ ("d2") = __arg2;	\
+  LOAD_REGS_1
+#define ASM_ARGS_2	ASM_ARGS_1, "d" (_d2)
+#define LOAD_ARGS_3(a1, a2, a3)			\
+  LOAD_ARGS_2 (a1, a2)				\
+  int __arg3 = (int) (a3);
+#define LOAD_REGS_3				\
+  register int _d3 __asm__ ("d3") = __arg3;	\
+  LOAD_REGS_2
+#define ASM_ARGS_3	ASM_ARGS_2, "d" (_d3)
+#define LOAD_ARGS_4(a1, a2, a3, a4)		\
+  LOAD_ARGS_3 (a1, a2, a3)			\
+  int __arg4 = (int) (a4);
+#define LOAD_REGS_4				\
+  register int _d4 __asm__ ("d4") = __arg4;	\
+  LOAD_REGS_3
+#define ASM_ARGS_4	ASM_ARGS_3, "d" (_d4)
+#define LOAD_ARGS_5(a1, a2, a3, a4, a5)		\
+  LOAD_ARGS_4 (a1, a2, a3, a4)			\
+  int __arg5 = (int) (a5);
+#define LOAD_REGS_5				\
+  register int _d5 __asm__ ("d5") = __arg5;	\
+  LOAD_REGS_4
+#define ASM_ARGS_5	ASM_ARGS_4, "d" (_d5)
+#define LOAD_ARGS_6(a1, a2, a3, a4, a5, a6)	\
+  LOAD_ARGS_5 (a1, a2, a3, a4, a5)		\
+  int __arg6 = (int) (a6);
+#define LOAD_REGS_6				\
+  register int _a0 __asm__ ("a0") = __arg6;	\
+  LOAD_REGS_5
+#define ASM_ARGS_6	ASM_ARGS_5, "a" (_a0)
 
 #endif /* __ASSEMBLER__ */
 #endif /* _BITS_SYSCALLS_H */
