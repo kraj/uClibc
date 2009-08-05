@@ -78,3 +78,8 @@
 # define __ASSUME_FCNTL64		1
 # define __ASSUME_VFORK_SYSCALL		1
 #endif
+
+/* This header was added somewhere around 2.6.13  */
+#if __LINUX_KERNEL_VERSION >= 132621
+# define HAVE_LINUX_CPUMASK_H	1
+#endif
