@@ -114,7 +114,8 @@ static void warnx(const char *s, ...)
 	fprintf(stderr, "\n");
 }
 
-static attribute_noreturn void err(int errnum, const char *s, ...)
+static void err(int errnum, const char *s, ...) attribute_noreturn;
+static void err(int errnum, const char *s, ...)
 {
 	va_list p;
 
@@ -783,7 +784,8 @@ void cache_print(void)
 }
 #endif
 
-static attribute_noreturn void usage(void)
+static void usage(void) attribute_noreturn;
+static void usage(void)
 {
 	fprintf(stderr,
 #ifdef __LDSO_CACHE_SUPPORT__

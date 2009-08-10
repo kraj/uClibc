@@ -72,4 +72,10 @@
 # error "Unknown host byte order!"
 #endif
 
+#if defined __GNUC__ || defined __ICC
+# define attribute_noreturn __attribute__ ((__noreturn__))
+#else
+# define attribute_noreturn
+#endif
+
 #endif
