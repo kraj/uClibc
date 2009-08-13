@@ -55,12 +55,14 @@
 /* use clone() to get fork() like behavior here -- we just want to disassociate
  * from the controlling terminal
  */
-static inline pid_t _fork_parent(void)
+static inline attribute_optimize("O3")
+pid_t _fork_parent(void)
 {
-	register unsigned long ret = INTERNAL_SYSCALL(clone, wtf, 2, CLONE_VM, 0);
-	if (ret != -1 && ret != 0)
+	INTERNAL_SYSCALL_DECL(err);
+	register long ret = INTERNAL_SYSCALL(clone, err, 2, CLONE_VM, 0);
+	if (ret > 0)
 		/* parent needs to die now w/out touching stack */
-		INTERNAL_SYSCALL(exit, wtf, 0);
+		INTERNAL_SYSCALL(exit, err, 1, 0);
 	return ret;
 }
 static inline pid_t fork_parent(void)
