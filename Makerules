@@ -6,10 +6,10 @@
 
 PHONY := FORCE
 
-.PHONY: dummy $(PHONY) \
+.PHONY: dummy $(PHONY) subdirs \
 	all check test $(clean_targets) \
 	config dist menuconfig oldconfig release \
-	subdirs utils help
+	utils help
 
 # order is important, the stripping uses STRIP_FLAGS for lib-so, but not for lib-a
 ifeq ($(HAVE_SHARED),y)
@@ -54,6 +54,9 @@ headers-y: $(headers-y)
 
 MAKEFLAGS += --no-print-directory
 SHELL_SET_X := set +x
+define rel_srcdir
+	$(shell $(CONFIG_SHELL) $(top_srcdir)/extra/scripts/relative_path.sh $(@D) .)
+endef
 ifneq ($(findstring s,$(MAKEFLAGS)),)
 export MAKE_IS_SILENT := y
 SECHO := -@false
@@ -72,7 +75,7 @@ Q := @
 endif
 endif
 
-show_objs = $(subst ../,,$@)
+show_objs = $(subst $(top_builddir),,$(subst ../,,$@))
 
 pur_disp_compile.c = echo "  "CC $(show_objs)
 pur_disp_compile.i = echo "  "CPP $(show_objs)
@@ -88,10 +91,10 @@ pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_t_strip   = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
 pur_disp_ld        = echo "  "LD $(1)
-pur_disp_ln        = echo "  "LN $@
-pur_disp_mkdir     = echo "  "MKDIR $@
-pur_disp_gen       = echo "  "GEN $@
-pur_disp_unifdef   = echo "  "UNIFDEF $@
+pur_disp_ln        = echo "  "LN $(show_objs)
+pur_disp_mkdir     = echo "  "MKDIR $(show_objs)
+pur_disp_gen       = echo "  "GEN $(show_objs)
+pur_disp_unifdef   = echo "  "UNIFDEF $(show_objs)
 pur_disp_rm        = echo "  "CLEAN $(@:_clean=)
 
 sil_disp_compile.c = true
@@ -205,6 +208,10 @@ define do_ln
 	$(Q)$(LN) -fs
 endef
 
+define do_mkdir
+	@$(disp_mkdir)
+	$(Q)$(INSTALL) -d $@
+endef
 
 define do_rm
 	@$(disp_rm)
@@ -237,8 +244,8 @@ define compile.u
 	@$(disp_compile.u) ; $(cmd_compile.u)
 	@$(disp_t_strip)
 endef
-cmd_hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
-cmd_hcompile.o = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
+cmd_hcompile.u = $(HOSTCC) $(filter-out $(PHONY),$^) $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
+cmd_hcompile.o = $(HOSTCC) $(filter-out $(PHONY),$<) $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
 
 define link.so
 	$(Q)$(INSTALL) -d $(dir $@)
@@ -294,20 +301,20 @@ endef
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
 
-%.o:  %.c FORCE ; $(compile.c)
-%.os: %.c FORCE ; $(compile.c)
-%.oS: %.c FORCE ; $(compile.c)
-%.o:  %.S FORCE ; $(compile.S)
-%.os: %.S FORCE ; $(compile.S)
-%.oS: %.S FORCE ; $(compile.S)
-%.o:  %.s FORCE ; $(compile.S)
-%.os: %.s FORCE ; $(compile.S)
-%.oS: %.s FORCE ; $(compile.S)
-%.i:  %.c FORCE ; $(compile.i)
-%.i:  %.S FORCE ; $(compile.i)
-%.s:  %.c FORCE ; $(compile.s)
-%.s:  %.S FORCE ; $(compile.s)
-%.dep:
+$(top_builddir)%.o:  $(top_srcdir)%.c FORCE ; $(compile.c)
+$(top_builddir)%.os: $(top_srcdir)%.c FORCE ; $(compile.c)
+$(top_builddir)%.oS: $(top_srcdir)%.c FORCE ; $(compile.c)
+$(top_builddir)%.o:  $(top_srcdir)%.S FORCE ; $(compile.S)
+$(top_builddir)%.os: $(top_srcdir)%.S FORCE ; $(compile.S)
+$(top_builddir)%.oS: $(top_srcdir)%.S FORCE ; $(compile.S)
+$(top_builddir)%.o:  $(top_srcdir)%.s FORCE ; $(compile.S)
+$(top_builddir)%.os: $(top_srcdir)%.s FORCE ; $(compile.S)
+$(top_builddir)%.oS: $(top_srcdir)%.s FORCE ; $(compile.S)
+$(top_builddir)%.i:  $(top_srcdir)%.c FORCE ; $(compile.i)
+$(top_builddir)%.i:  $(top_srcdir)%.S FORCE ; $(compile.i)
+$(top_builddir)%.s:  $(top_srcdir)%.c FORCE ; $(compile.s)
+$(top_builddir)%.s:  $(top_srcdir)%.S FORCE ; $(compile.s)
+$(top_builddir)%.dep:
 
 $(top_builddir)lib/interp.c: | $(sub_headers)
 	$(Q)$(INSTALL) -d $(dir $@)

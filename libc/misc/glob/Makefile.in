@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/glob
+
 ifeq ($(UCLIBC_HAS_GNU_GLOB),y)
 CSRC := glob.c
 ifeq ($(UCLIBC_HAS_LFS),y)

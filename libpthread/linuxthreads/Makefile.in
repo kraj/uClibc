@@ -6,6 +6,10 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libpthread/linuxthreads/sysdeps/$(TARGET_ARCH)
+subdirs += libpthread/linuxthreads/sysdeps/unix/sysv/linux
+subdirs += libpthread/linuxthreads/sysdeps/pthread
+
 CFLAGS-dir_linuxthreads := -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-linuxthreads := $(CFLAGS-dir_linuxthreads) $(SSP_ALL_CFLAGS)
 
@@ -115,22 +119,23 @@ $(top_builddir)lib/libpthread.a: $(libpthread-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-include/pthread.h:
-	$(do_ln) ../$(PTDIR)/sysdeps/pthread/$(@F) $(top_builddir)$@
-include/semaphore.h:
-	$(do_ln) ../$(PTDIR)/$(@F) $(top_builddir)$@
-include/bits/pthreadtypes.h: | include/bits
-	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
+$(top_builddir)include/pthread.h:
+	$(do_ln) $(call rel_srcdir)$(PTDIR)/sysdeps/pthread/$(@F) $@
+$(top_builddir)include/semaphore.h:
+	$(do_ln) $(call rel_srcdir)$(PTDIR)/$(@F) $@
+$(top_builddir)include/bits/pthreadtypes.h: | $(top_builddir)include/bits
+	$(do_ln) $(call rel_srcdir)$(PTDIR)/sysdeps/pthread/bits/$(@F) $@
 
-linuxthreads_headers := include/pthread.h include/semaphore.h \
-			include/bits/pthreadtypes.h
-$(linuxthreads_headers): $(wildcard $(addprefix include/config/linuxthreads/,old.h new.h))
+linuxthreads_headers := $(top_builddir)include/pthread.h \
+			$(top_builddir)include/semaphore.h \
+			$(top_builddir)include/bits/pthreadtypes.h
+$(linuxthreads_headers): $(wildcard $(addprefix $(top_builddir)include/config/linuxthreads/,old.h new.h))
 headers-$(UCLIBC_HAS_THREADS) += $(linuxthreads_headers)
 
 objclean-y += libpthread_clean
 headers_clean-y += linuxthreads_headers_clean
 linuxthreads_headers_clean:
-	$(do_rm) $(addprefix $(top_builddir),$(linuxthreads_headers))
+	$(do_rm) $(linuxthreads_headers)
 
 libpthread_clean:
 	$(do_rm) $(addprefix $(libpthread_OUT)/,$(foreach e, o os oS a,$(foreach d, *. */*. */*/*. */*/*/*.,$(d)$(e))))

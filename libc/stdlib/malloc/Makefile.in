@@ -7,6 +7,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/stdlib/malloc
+
 CSRC :=	malloc.c calloc.c free.c realloc.c memalign.c \
 	heap_alloc.c heap_alloc_at.c heap_free.c
 

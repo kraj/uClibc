@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/stdlib
+
 include $(top_srcdir)libc/stdlib/malloc/Makefile.in
 include $(top_srcdir)libc/stdlib/malloc-simple/Makefile.in
 include $(top_srcdir)libc/stdlib/malloc-standard/Makefile.in

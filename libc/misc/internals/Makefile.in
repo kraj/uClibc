@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/internals
+
 CFLAGS-__uClibc_main.c := $(SSP_DISABLE_FLAGS)
 
 CSRC := tempname.c errno.c __errno_location.c __h_errno_location.c

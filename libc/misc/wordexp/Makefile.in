@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/wordexp
+
 CSRC := wordexp.c
 
 MISC_WORDEXP_DIR := $(top_srcdir)libc/misc/wordexp

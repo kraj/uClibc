@@ -14,8 +14,13 @@ noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
 	defconfig allyesconfig allnoconfig \
 	release dist tags help
 
-include $(top_builddir)Rules.mak
+include $(top_srcdir)Rules.mak
 sub_headers := headers
+
+ifndef KCONFIG_CONFIG
+KCONFIG_CONFIG := $(top_builddir).config
+endif
+export KCONFIG_CONFIG
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 
@@ -23,7 +28,7 @@ all: pregen libs
 libs: pregen
 
 # In this section, we need .config
--include .config.cmd
+-include $(top_builddir).config.cmd
 
 else # ifeq ($(HAVE_DOT_CONFIG),y)
 
@@ -55,16 +60,17 @@ ifeq ($(HAVE_DOT_CONFIG),y)
 # have uClibc_config.h as prerequisite but since we _symlink_ the headers
 # and do not (?) want to rely on 'make -L' we better update them right here,
 # on spot to save us from alot of hazzle.
-include/bits/uClibc_config.h: extra/config/conf .config $(top_srcdir)extra/scripts/conf-header.sh | include/bits
+$(top_builddir)include/bits/uClibc_config.h: $(top_builddir)extra/config/conf $(KCONFIG_CONFIG) $(top_srcdir)extra/scripts/conf-header.sh | $(top_builddir)include/bits $(top_builddir)include/config
 	@$(disp_gen)
 	$(Q)@$< -s $(top_srcdir)extra/Configs/Config.in
-	$(Q)$(top_srcdir)extra/scripts/conf-header.sh .config > $@
+	$(Q)$(top_srcdir)extra/scripts/conf-header.sh $(KCONFIG_CONFIG) > $@
 	$(Q)$(MAKE) headers-y
 
 # The above doesn't work for threads, though. Just using check-symlinks for now.
 # XXX: FIXME: this is ugly
 MAKEFLAGS += -L
-include/config/linuxthreads/old.h include/config/linuxthreads/new.h:
+
+$(top_builddir)include/config/linuxthreads/old.h $(top_builddir)include/config/linuxthreads/new.h:
 	@true
 
 # For the moment, we have to keep re-running this target
@@ -89,17 +95,18 @@ HEADERS_SYS_COMMON := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/common
 HEADERS_SYS_ARCH := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/sys/*.h))
 HEADERS_SYS_COMMON := $(filter-out $(HEADERS_SYS_ARCH),$(HEADERS_SYS_COMMON))
 
-ALL_HEADERS_COMMON       := include/fpu_control.h include/dl-osinfo.h \
-				include/hp-timing.h
-ALL_HEADERS_BITS_COMMON  := $(addprefix include/bits/,$(HEADERS_BITS_COMMON))
-ALL_HEADERS_BITS_ARCH    := $(addprefix include/bits/,$(HEADERS_BITS_ARCH))
+ALL_HEADERS_COMMON       := $(top_builddir)include/fpu_control.h \
+				$(top_builddir)include/dl-osinfo.h \
+				$(top_builddir)include/hp-timing.h
+ALL_HEADERS_BITS_COMMON  := $(addprefix $(top_builddir)include/bits/,$(HEADERS_BITS_COMMON))
+ALL_HEADERS_BITS_ARCH    := $(addprefix $(top_builddir)include/bits/,$(HEADERS_BITS_ARCH))
 ifneq ($(TARGET_SUBARCH),)
-ALL_HEADERS_BITS_SUBARCH := $(addprefix include/bits/,$(HEADERS_BITS_SUBARCH))
+ALL_HEADERS_BITS_SUBARCH := $(addprefix $(top_builddir)include/bits/,$(HEADERS_BITS_SUBARCH))
 else
 ALL_HEADERS_BITS_SUBARCH :=
 endif
-ALL_HEADERS_SYS_COMMON   := $(addprefix include/sys/,$(HEADERS_SYS_COMMON))
-ALL_HEADERS_SYS_ARCH     := $(addprefix include/sys/,$(HEADERS_SYS_ARCH))
+ALL_HEADERS_SYS_COMMON   := $(addprefix $(top_builddir)include/sys/,$(HEADERS_SYS_COMMON))
+ALL_HEADERS_SYS_ARCH     := $(addprefix $(top_builddir)include/sys/,$(HEADERS_SYS_ARCH))
 
 target-headers-sysdep := \
 	$(ALL_HEADERS_COMMON) \
@@ -109,37 +116,37 @@ target-headers-sysdep := \
 	$(ALL_HEADERS_SYS_COMMON) \
 	$(ALL_HEADERS_SYS_ARCH)
 
-include/fpu_control.h:
+$(top_builddir)include/fpu_control.h:
 	@$(disp_ln)
-	$(Q)[ -r libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) ] && \
-		$(LN) -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) $@ || \
-		$(LN) -fs ../libc/sysdeps/linux/common/$(@F) $@
+	$(Q)[ -r $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) ] && \
+		$(LN) -fs $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) $@ || \
+		$(LN) -fs $(call rel_srcdir)libc/sysdeps/linux/common/$(@F) $@
 
-include/dl-osinfo.h include/hp-timing.h:
-	$(do_ln) ../libc/sysdeps/linux/common/$(@F) $@
+$(top_builddir)include/dl-osinfo.h $(top_builddir)include/hp-timing.h:
+	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/common/$(@F) $@
 
 $(ALL_HEADERS_BITS_COMMON):
-	$(do_ln) ../../libc/sysdeps/linux/common/bits/$(@F) $@
+	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/common/bits/$(@F) $@
 
 $(ALL_HEADERS_BITS_ARCH):
-	$(do_ln) ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(@F) $@
+	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(@F) $@
 
 ifneq ($(TARGET_SUBARCH),)
 $(ALL_HEADERS_BITS_SUBARCH):
-	$(do_ln) ../../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/$(@F) $@
+	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/$(@F) $@
 endif
 
 ifneq ($(strip $(ALL_HEADERS_SYS_COMMON)),)
 $(ALL_HEADERS_SYS_COMMON):
-	$(do_ln) ../../libc/sysdeps/linux/common/sys/$(@F) $@
+	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/common/sys/$(@F) $@
 endif
 
 ifneq ($(strip $(ALL_HEADERS_SYS_ARCH)),)
 $(ALL_HEADERS_SYS_ARCH):
-	$(do_ln) ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys/$(@F) $@
+	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/sys/$(@F) $@
 endif
 
-$(target-headers-sysdep): | include/bits
+$(target-headers-sysdep): | $(top_builddir)include/bits $(top_builddir)include/sys
 
 sysdep_common_headers-clean:
 	$(RM) $(ALL_HEADERS_COMMON)
@@ -150,22 +157,21 @@ headers_clean-y += sysdep_common_headers-clean
 # libc/sysdeps/linux/Makefile.commonarch to headers-y
 headers-y += $(target-headers-sysdep)
 
-headers: include/bits/uClibc_config.h
+headers: $(top_builddir)include/bits/uClibc_config.h
+subdirs: $(addprefix $(top_builddir),$(subdirs))
+pregen: $(top_builddir)include/bits/sysnum.h headers subdirs
 
-pregen: include/bits/sysnum.h headers
-
-include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
+$(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 	$(Q)$(INSTALL) -d $(@D)
 	@$(disp_gen)
 	$(Q)set -e; \
-	cd $(top_builddir); \
-	tmp=`mktemp include/bits/sysnum.h.XXXXXX 2>/dev/null || true`; \
-	[ -z "$$tmp" ] && tmp='include/bits/sysnum.h.new'; \
-	KERNEL_HEADERS="${KERNEL_HEADERS}" top_builddir=. CC="$(CC) $(CPU_CFLAGS)" $(SHELL) extra/scripts/gen_bits_syscall_h.sh > $$tmp; \
-	if cmp include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
+	tmp=`mktemp $(top_builddir)include/bits/sysnum.h.XXXXXX 2>/dev/null || true`; \
+	[ -z "$$tmp" ] && tmp='$(top_builddir)include/bits/sysnum.h.new'; \
+	KERNEL_HEADERS="${KERNEL_HEADERS}" top_builddir="$(top_builddir)" CC="$(CC) $(CPU_CFLAGS)" $(SHELL) $< > $$tmp; \
+	if cmp $(top_builddir)include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
 		$(RM) $$tmp; \
 	else \
-		mv -f $$tmp include/bits/sysnum.h; \
+		mv -f $$tmp $(top_builddir)include/bits/sysnum.h; \
 	fi
 	@# Ugly linux specific hack..
 	$(Q)if grep -q __NR_ $@; then true; else \
@@ -380,70 +386,70 @@ hostutils:
 install_hostutils: hostutils
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install DOTHOST=.host
 
-include/bits include/config:
-	@$(disp_mkdir)
-	$(Q)$(INSTALL) -d $@
+$(addprefix $(top_builddir),include/bits include/sys include/config extra/config/lxdialog extra/locale $(subdirs)):
+	$(do_mkdir)
 
 # configuration
 # ---------------------------------------------------------------------------
-extra/config/conf extra/config/mconf: | include/config
-	$(Q)$(MAKE) -C extra/config $(notdir $@)
+$(top_builddir)extra/config/conf $(top_builddir)extra/config/mconf: | $(top_builddir)include/config $(top_builddir)extra/config/lxdialog
+	$(Q)$(MAKE) -C extra/config $(@F)
 
-menuconfig: extra/config/mconf
-	$(Q)./extra/config/mconf extra/Configs/Config.in
+menuconfig: $(top_builddir)extra/config/mconf
+	$(Q)$(top_builddir)extra/config/mconf extra/Configs/Config.in
 
-config: extra/config/conf
-	$(Q)./extra/config/conf extra/Configs/Config.in
+config: $(top_builddir)extra/config/conf
+	$(Q)$(top_builddir)extra/config/conf extra/Configs/Config.in
 
-oldconfig: extra/config/conf
-	$(Q)./extra/config/conf -o extra/Configs/Config.in
+oldconfig: $(top_builddir)extra/config/conf
+	$(Q)$(top_builddir)extra/config/conf -o extra/Configs/Config.in
 
-silentoldconfig: extra/config/conf
-	$(Q)./extra/config/conf -s extra/Configs/Config.in
+silentoldconfig: $(top_builddir)extra/config/conf
+	$(Q)$(top_builddir)extra/config/conf -s extra/Configs/Config.in
 
-randconfig: extra/config/conf
-	$(Q)./extra/config/conf -r extra/Configs/Config.in
+randconfig: $(top_builddir)extra/config/conf
+	$(Q)$(top_builddir)extra/config/conf -r extra/Configs/Config.in
 
-allyesconfig: extra/config/conf
-	$(Q)./extra/config/conf -y extra/Configs/Config.in
-	$(SED) -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" .config
-	$(SED) -i -e "s/^DOASSERTS=.*/# DOASSERTS is not set/" .config
-	$(SED) -i -e "s/^SUPPORT_LD_DEBUG_EARLY=.*/# SUPPORT_LD_DEBUG_EARLY is not set/" .config
-	$(SED) -i -e "s/^SUPPORT_LD_DEBUG=.*/# SUPPORT_LD_DEBUG is not set/" .config
-	$(SED) -i -e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" .config
-	$(Q)./extra/config/conf -o extra/Configs/Config.in
+allyesconfig: $(top_builddir)extra/config/conf
+	$(Q)$(top_builddir)extra/config/conf -y extra/Configs/Config.in
+	$(SED) -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" \
+		-e "s/^DOASSERTS=.*/# DOASSERTS is not set/" \
+		-e "s/^SUPPORT_LD_DEBUG_EARLY=.*/# SUPPORT_LD_DEBUG_EARLY is not set/" \
+		-e "s/^SUPPORT_LD_DEBUG=.*/# SUPPORT_LD_DEBUG is not set/" \
+		-e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" \
+		$(KCONFIG_CONFIG)
+	$(Q)$(top_builddir)extra/config/conf -o extra/Configs/Config.in
 
-allnoconfig: extra/config/conf
-	$(Q)./extra/config/conf -n extra/Configs/Config.in
+allnoconfig: $(top_builddir)extra/config/conf
+	$(Q)$(top_builddir)extra/config/conf -n extra/Configs/Config.in
 
-defconfig: extra/config/conf
-	$(Q)./extra/config/conf -d extra/Configs/Config.in \
+defconfig: $(top_builddir)extra/config/conf
+	$(Q)$(top_builddir)extra/config/conf -d extra/Configs/Config.in \
 		-D extra/Configs/defconfigs/$(ARCH)
 
 include_clean:
-	$(Q)$(RM) include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
+	$(Q)$(RM) $(top_builddir)include/fpu_control.h $(top_builddir)include/dl-osinfo.h $(top_builddir)include/hp-timing.h
 	@set -e; \
 	for i in `(cd libc/sysdeps/linux/common/sys; ls *.h)` ; do \
-		$(RM) include/sys/$$i; \
+		$(RM) $(top_builddir)include/sys/$$i; \
 	done; \
 	if [ -d libc/sysdeps/linux/$(TARGET_ARCH)/sys ] ; then \
 		for i in `(cd libc/sysdeps/linux/$(TARGET_ARCH)/sys; ls *.h)` ; do \
-			$(RM) include/sys/$$i; \
+			$(RM) $(top_builddir)include/sys/$$i; \
 		done; \
 	fi
 
 clean: include_clean
-	$(Q)$(RM) -r lib include/bits
+	$(Q)$(RM) -r $(top_builddir)lib $(top_builddir)include/bits
 	@$(MAKE) -C utils utils_clean
 	+$(MAKE) -s -C test clean
-	@$(RM) include/linux include/asm*
+	@$(RM) $(top_builddir)include/linux $(top_builddir)include/asm*
 	$(Q)$(RM) $(top_builddir)extra/scripts/unifdef
 	$(Q)$(RM) -r $(LOCAL_INSTALL_PATH)
 
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ -o -name .\*.dep \) -exec $(RM) {} \;
-	$(RM) .config .config.old .config.cmd
-	$(RM) extra/locale/*.tgz
+	$(RM) $(top_builddir).config $(top_builddir).config.old $(top_builddir).config.cmd
+	$(RM) $(top_builddir)extra/locale/*.tgz
 	$(MAKE) -C extra/config distclean
 
 dist release:

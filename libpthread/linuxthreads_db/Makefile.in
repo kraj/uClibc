@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libpthread/linuxthreads_db
+
 # Get the thread include dependencies and shared object name
 CFLAGS-linuxthreads_db := -DNOT_IN_libc -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
@@ -59,18 +61,18 @@ $(top_builddir)lib/libthread_db.a: $(libthread_db-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-include/thread_db.h:
-	$(do_ln) ../$(PTDIR)_db/$(@F) $(top_builddir)$@
+$(top_builddir)include/thread_db.h:
+	$(do_ln) $(call rel_srcdir)$(PTDIR)_db/$(@F) $@
 
-linuxthreads_db_headers := include/thread_db.h
-$(linuxthreads_db_headers): $(wildcard $(addprefix include/config/linuxthreads/,old.h new.h))
+linuxthreads_db_headers := $(top_builddir)include/thread_db.h
+$(linuxthreads_db_headers): $(wildcard $(addprefix $(top_builddir)include/config/linuxthreads/,old.h new.h))
 headers-$(PTHREADS_DEBUG_SUPPORT) += $(linuxthreads_db_headers)
 
 objclean-y += libthread_db_clean
 headers_clean-y += linuxthreads_db_headers_clean
 
 linuxthreads_db_headers_clean:
-	$(do_rm) $(top_builddir)include/thread_db.h
+	$(do_rm) $(linuxthreads_db_headers)
 
 libthread_db_clean:
 	$(do_rm) $(addprefix $(libthread_db_OUT)/*., o os oS a)

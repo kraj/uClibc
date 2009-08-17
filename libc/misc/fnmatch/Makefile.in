@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/fnmatch
+
 ifeq ($(UCLIBC_HAS_FNMATCH_OLD),y)
 CSRC := fnmatch_old.c
 else

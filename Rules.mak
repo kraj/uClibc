@@ -528,9 +528,9 @@ endif
 NOSTDLIB_CFLAGS:=$(call check_gcc,-nostdlib,)
 
 # Collect all CFLAGS components
-CFLAGS := -include $(top_builddir)include/libc-symbols.h \
+CFLAGS := -include $(top_srcdir)include/libc-symbols.h \
 	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-nostdinc -I$(top_builddir)include -I. \
+	-nostdinc -I$(top_builddir)include -I$(top_srcdir)include -I. \
 	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
 ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
 CFLAGS += $(subst ",, $(UCLIBC_EXTRA_CFLAGS))
@@ -607,16 +607,16 @@ else
 	PTNAME := linuxthreads
 endif
 endif
-PTDIR := $(top_builddir)libpthread/$(PTNAME)
+PTDIR := libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-PTINC:=	-I$(PTDIR)						\
-	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
-	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
-	-I$(PTDIR)/sysdeps/unix/sysv/linux			\
-	-I$(PTDIR)/sysdeps/pthread				\
-	-I$(PTDIR)/sysdeps/pthread/bits				\
-	-I$(PTDIR)/sysdeps/generic				\
+PTINC:=	-I$(top_srcdir)$(PTDIR)						\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux			\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread				\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread/bits				\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/generic				\
 	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH)			\
 	-I$(top_srcdir)ldso/include
 #
@@ -638,12 +638,12 @@ gcc_tls_test_fail:
 endif
 else
 PTINC := \
-	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH) \
-	-I$(PTDIR)/sysdeps/$(TARGET_ARCH) \
-	-I$(PTDIR)/sysdeps/unix/sysv/linux \
-	-I$(PTDIR)/sysdeps/pthread \
-	-I$(PTDIR) \
-	-I$(top_builddir)libpthread
+	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH) \
+	-I$(top_srcdir)$(PTDIR)/sysdeps/$(TARGET_ARCH) \
+	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux \
+	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread \
+	-I$(top_srcdir)$(PTDIR) \
+	-I$(top_srcdir)libpthread
 endif
 CFLAGS+=$(PTINC)
 else

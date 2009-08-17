@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/sysdeps/linux/$(TARGET_ARCH) libc/sysdeps/linux/common
+
 # order is relevant
 -include $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/Makefile.arch
 include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

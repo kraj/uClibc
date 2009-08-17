@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/statfs
+
 CSRC := statvfs.c fstatvfs.c
 ifeq ($(UCLIBC_HAS_LFS),y)
 ifeq ($(UCLIBC_LINUX_SPECIFIC),y)

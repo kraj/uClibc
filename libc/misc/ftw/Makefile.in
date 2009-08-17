@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/ftw
+
 CSRC := ftw.c
 ifeq ($(UCLIBC_HAS_LFS),y)
 CSRC += ftw64.c

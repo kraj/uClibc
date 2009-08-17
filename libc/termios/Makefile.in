@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/termios
+
 TERMIOS_DIR := $(top_srcdir)libc/termios
 TERMIOS_OUT := $(top_builddir)libc/termios
 

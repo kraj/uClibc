@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/dirent
+
 CSRC :=	alphasort.c closedir.c dirfd.c opendir.c readdir.c rewinddir.c \
 	scandir.c seekdir.c telldir.c readdir_r.c versionsort.c
 

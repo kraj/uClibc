@@ -8,6 +8,8 @@
 # Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
 #
 
+subdirs += libc/stdio
+
 # SUSv3 functions
 CSRC := \
 	fclose.c fcloseall.c fdopen.c fgetpos.c fopen.c freopen.c \

@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/stdlib/malloc-simple
+
 STDLIB_MALLOC_SIMPLE_DIR := $(top_srcdir)libc/stdlib/malloc-simple
 STDLIB_MALLOC_SIMPLE_OUT := $(top_builddir)libc/stdlib/malloc-simple
 

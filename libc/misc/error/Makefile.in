@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/error
+
 CSRC :=
 ifeq ($(UCLIBC_HAS_BSD_ERR),y)
 CSRC += err.c
