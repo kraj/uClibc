@@ -300,6 +300,7 @@ re_search (bufp, string, length, start, range, regs)
 {
   return re_search_stub (bufp, string, length, start, range, length, regs, 0);
 }
+libc_hidden_def(re_search)
 
 int
 re_match_2 (bufp, string1, length1, string2, length2, start, regs, stop)
@@ -322,6 +323,7 @@ re_search_2 (bufp, string1, length1, string2, length2, start, range, regs, stop)
   return re_search_2_stub (bufp, string1, length1, string2, length2,
 			   start, range, regs, stop, 0);
 }
+libc_hidden_def(re_search_2)
 
 static int
 re_search_2_stub (bufp, string1, length1, string2, length2, start, range, regs,
