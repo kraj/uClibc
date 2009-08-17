@@ -11,6 +11,8 @@ export top_builddir
 
 # We do not need built-in implicit rules
 MAKEFLAGS += -r
+CONFIG_SHELL ?= /bin/sh
+export CONFIG_SHELL
 
 include $(top_srcdir)Makefile.in
 include $(top_srcdir)Makerules
