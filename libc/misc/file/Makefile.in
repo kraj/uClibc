@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/file
+
 MISC_FILE_DIR := $(top_srcdir)libc/misc/file
 MISC_FILE_OUT := $(top_builddir)libc/misc/file
 

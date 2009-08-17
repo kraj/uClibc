@@ -20,6 +20,8 @@
 #endif
 #include "include/bits/uClibc_ctype.h"
 
+/* TODO: maybe support -v like gen_wctype.c */
+#define verbose_msg(msg...) if (verbose) fprintf(stderr, msg)
 
 /*  #define CTYPE_PACKED */
 #define UPLOW_IDX_SHIFT		3
@@ -80,7 +82,6 @@ typedef struct {
 int main(int argc, char **argv)
 {
 	FILE *fp;
-	FILE *out;
 	charset_data csd[30];
 	unsigned long max_wchar;
 	unsigned char *p;
@@ -125,81 +126,75 @@ int main(int argc, char **argv)
 		pclose(fp);
 	}
 
-	if (!(out = fopen("c8tables.h","w"))) {
-		printf("cannot open output file 'c8tables.h'!\n");
-		return EXIT_FAILURE;
-	}
-
 #if 0
 	if (argc == 1) {
 		/* User requested 8-bit codesets, but didn't list any... */
 		/* Allow to build, just so this feature can be left on in config. */
-		fprintf(out, "#ifdef __CTYPE_HAS_8_BIT_LOCALES\n");
-		fprintf(out, "#warning ignoring 8 bit codesets request"
+		printf("#ifdef __CTYPE_HAS_8_BIT_LOCALES\n");
+		printf("#warning ignoring 8 bit codesets request"
 				" as no codesets specified.\n");
-		fprintf(out, "#endif\n");
-		fprintf(out, "#undef __CTYPE_HAS_8_BIT_LOCALES\n\n");
+		printf("#endif\n");
+		printf("#undef __CTYPE_HAS_8_BIT_LOCALES\n\n");
 
-		fprintf(out, "#define __LOCALE_DATA_NUM_CODESETS\t\t0\n");
-		fprintf(out, "#define __LOCALE_DATA_CODESET_LIST\t\t\"\"\n");
-		fclose(out);
+		printf("#define __LOCALE_DATA_NUM_CODESETS\t\t0\n");
+		printf("#define __LOCALE_DATA_CODESET_LIST\t\t\"\"\n");
 		return EXIT_SUCCESS;
 	}
 
-/*  	fprintf(out, "#define __CTYPE_HAS_8_BIT_LOCALES\t1\n\n"); */
-	fprintf(out, "#ifdef __CTYPE_HAS_8_BIT_LOCALES\n\n");
+/*  	printf("#define __CTYPE_HAS_8_BIT_LOCALES\t1\n\n"); */
+	printf("#ifdef __CTYPE_HAS_8_BIT_LOCALES\n\n");
 #endif
 
 	if (argc == 1) {
-		fprintf(out, "#undef __CTYPE_HAS_8_BIT_LOCALES\n\n");
+		printf("#undef __CTYPE_HAS_8_BIT_LOCALES\n\n");
 
-		fprintf(out, "#define __LOCALE_DATA_NUM_CODESETS\t\t0\n");
-		fprintf(out, "#define __LOCALE_DATA_CODESET_LIST\t\t\"\"\n");
+		printf("#define __LOCALE_DATA_NUM_CODESETS\t\t0\n");
+		printf("#define __LOCALE_DATA_CODESET_LIST\t\t\"\"\n");
 	} else {
-		fprintf(out, "#define __CTYPE_HAS_8_BIT_LOCALES\t\t1\n\n");
+		printf("#define __CTYPE_HAS_8_BIT_LOCALES\t\t1\n\n");
 	}
 
-	fprintf(out, "#define __LOCALE_DATA_Cctype_IDX_SHIFT\t%d\n", CTYPE_IDX_SHIFT);
-	fprintf(out, "#define __LOCALE_DATA_Cctype_IDX_LEN\t\t%d\n", CTYPE_IDX_LEN);
+	printf("#define __LOCALE_DATA_Cctype_IDX_SHIFT\t%d\n", CTYPE_IDX_SHIFT);
+	printf("#define __LOCALE_DATA_Cctype_IDX_LEN\t\t%d\n", CTYPE_IDX_LEN);
 #ifdef CTYPE_PACKED
-	fprintf(out, "#define __LOCALE_DATA_Cctype_ROW_LEN\t\t%d\n", CTYPE_ROW_LEN >> 1);
-	fprintf(out, "#define __LOCALE_DATA_Cctype_PACKED\t\t1\n");
+	printf("#define __LOCALE_DATA_Cctype_ROW_LEN\t\t%d\n", CTYPE_ROW_LEN >> 1);
+	printf("#define __LOCALE_DATA_Cctype_PACKED\t\t1\n");
 #else
-	fprintf(out, "#define __LOCALE_DATA_Cctype_ROW_LEN\t\t%d\n", CTYPE_ROW_LEN);
-	fprintf(out, "#undef __LOCALE_DATA_Cctype_PACKED\n");
+	printf("#define __LOCALE_DATA_Cctype_ROW_LEN\t\t%d\n", CTYPE_ROW_LEN);
+	printf("#undef __LOCALE_DATA_Cctype_PACKED\n");
 #endif
 
-	fprintf(out, "\n#define __LOCALE_DATA_Cuplow_IDX_SHIFT\t%d\n", UPLOW_IDX_SHIFT);
-	fprintf(out, "#define __LOCALE_DATA_Cuplow_IDX_LEN\t\t%d\n", UPLOW_IDX_LEN);
-	fprintf(out, "#define __LOCALE_DATA_Cuplow_ROW_LEN\t\t%d\n", UPLOW_ROW_LEN);
+	printf("\n#define __LOCALE_DATA_Cuplow_IDX_SHIFT\t%d\n", UPLOW_IDX_SHIFT);
+	printf("#define __LOCALE_DATA_Cuplow_IDX_LEN\t\t%d\n", UPLOW_IDX_LEN);
+	printf("#define __LOCALE_DATA_Cuplow_ROW_LEN\t\t%d\n", UPLOW_ROW_LEN);
 
 #ifdef DO_WIDE_CHAR
-	fprintf(out, "\n#define __LOCALE_DATA_Cc2wc_IDX_LEN\t\t%d\n", C2WC_IDX_LEN);
-	fprintf(out, "#define __LOCALE_DATA_Cc2wc_IDX_SHIFT\t\t%d\n", C2WC_IDX_SHIFT);
-	fprintf(out, "#define __LOCALE_DATA_Cc2wc_ROW_LEN\t\t%d\n", C2WC_ROW_LEN);
+	printf("\n#define __LOCALE_DATA_Cc2wc_IDX_LEN\t\t%d\n", C2WC_IDX_LEN);
+	printf("#define __LOCALE_DATA_Cc2wc_IDX_SHIFT\t\t%d\n", C2WC_IDX_SHIFT);
+	printf("#define __LOCALE_DATA_Cc2wc_ROW_LEN\t\t%d\n", C2WC_ROW_LEN);
 #endif
 
-	fprintf(out, "\ntypedef struct {\n");
-	fprintf(out, "\tunsigned char idx8ctype[%d];\n", CTYPE_IDX_LEN);
-	fprintf(out, "\tunsigned char idx8uplow[%d];\n", UPLOW_IDX_LEN);
+	printf("\ntypedef struct {\n");
+	printf("\tunsigned char idx8ctype[%d];\n", CTYPE_IDX_LEN);
+	printf("\tunsigned char idx8uplow[%d];\n", UPLOW_IDX_LEN);
 #ifdef DO_WIDE_CHAR
-	fprintf(out, "\tunsigned char idx8c2wc[%d];\n", C2WC_IDX_LEN);
-	fprintf(out, "\tunsigned char idx8wc2c[%d];\n", II_LEN);
+	printf("\tunsigned char idx8c2wc[%d];\n", C2WC_IDX_LEN);
+	printf("\tunsigned char idx8wc2c[%d];\n", II_LEN);
 #endif
-	fprintf(out, "} __codeset_8_bit_t;\n\n");
+	printf("} __codeset_8_bit_t;\n\n");
 
-	fprintf(out, "#ifdef WANT_DATA\n\n");
-	fprintf(out, "static const __codeset_8_bit_t codeset_8_bit[%d] = {\n", argc-1);
+	printf("#ifdef WANT_DATA\n\n");
+	printf("static const __codeset_8_bit_t codeset_8_bit[%d] = {\n", argc-1);
 
 	max_wchar = 0x7f;
 	numsets = 0;
 	codeset_index[0] = 0;
 	while (--argc) {
 		if (!(fp = fopen(*++argv,"r"))) {
-			printf("cannot open file \"%s\"\n", *argv);
+			fprintf(stderr, "cannot open file \"%s\"\n", *argv);
 			return EXIT_FAILURE;
 		}
-		printf("processing %s... ", *argv);
+		fprintf(stderr, "processing %s... ", *argv);
 
 		{
 			char *s0;
@@ -225,12 +220,12 @@ int main(int argc, char **argv)
 /*  			} */
 
 			if (numsets >= sizeof(codeset_index)) {
-				printf("error - too many codesets!\n");
+				fprintf(stderr, "error - too many codesets!\n");
 				return EXIT_FAILURE;
 			}
 
 			if (codeset_list_end + n + 1 + numsets + 1 + 1 >= 256) {
-				printf("error - codeset list to big!\n");
+				fprintf(stderr, "error - codeset list to big!\n");
 				return EXIT_FAILURE;
 			}
 
@@ -239,7 +234,7 @@ int main(int argc, char **argv)
 			codeset_list_end += (n+1);
 			codeset_list[codeset_list_end - 1] = 0;
 
-			fprintf(out, "\t{ /* %.*s */", n, s0);
+			printf("\t{ /* %.*s */", n, s0);
 		}
 
 		memset(&csd[numsets], 0, sizeof(charset_data));
@@ -251,7 +246,7 @@ int main(int argc, char **argv)
 			while (fgets(buf,sizeof(buf),fp)) {
 				if ((2 != sscanf(buf, "{ %lx , %lx", &c, &wc))
 					|| (c >= 256) || (wc > MAX_WCHAR)) {
-					printf("error: scanf failure! \"%s\"\n", buf);
+					fprintf(stderr, "error: scanf failure! \"%s\"\n", buf);
 					return EXIT_FAILURE;
 				}
 
@@ -259,7 +254,7 @@ int main(int argc, char **argv)
 
 				if (c <= 0x7f) { /* check the 7bit entries but don't store */
 					if (c != wc) {
-						printf("error: c != wc in %s\n", buf);
+						fprintf(stderr, "error: c != wc in %s\n", buf);
 						return EXIT_FAILURE;
 					}
 					csd[numsets].c2w[c] = wc;
@@ -276,7 +271,7 @@ int main(int argc, char **argv)
 				}
 				++lines;
 			}
-			printf("%d lines  ", lines);
+			fprintf(stderr, "%d lines  ", lines);
 
 			for (i = 0 ; i <= MAX_WCHAR ; i += (1 << TT_SHIFT)) {
 				p = &csd[numsets].w2c[i];
@@ -304,17 +299,17 @@ int main(int argc, char **argv)
 					++ti_num;
 				}
 				csd[numsets].ii[i >> TI_SHIFT] = j;
-/*  				printf("%d ", i >> TI_SHIFT); */
+/*  				fprintf(stderr, "%d ", i >> TI_SHIFT); */
 			}
 
 #if 1
-			fprintf(out, "\n\t\t/* idx8ctype data */\n\t\t{");
+			printf("\n\t\t/* idx8ctype data */\n\t\t{");
 			for (i = 128 ; i < 256 ; i++) {
 				wchar_t c;
 				unsigned int d;
 
 /*  				if (!(i & 0x7)) { */
-/*  					fprintf(out, "\n"); */
+/*  					printf("\n"); */
 /*  				} */
 
 				c = csd[numsets].c2w[i];
@@ -371,7 +366,7 @@ int main(int argc, char **argv)
 					}
 					if (j == n_ctype_rows) { /* new entry */
 						if (++n_ctype_rows > 256) {
-							printf("error -- to many ctype rows!\n");
+							fprintf(stderr, "error -- to many ctype rows!\n");
 							return EXIT_FAILURE;
 						}
 						memcpy(p, row, CTYPE_ROW_LEN);
@@ -380,23 +375,23 @@ int main(int argc, char **argv)
 					if (!((i >> CTYPE_IDX_SHIFT) & 0x7)
 						&& (i != (127 + CTYPE_ROW_LEN))
 						) {
-						fprintf(out, "\n\t\t ");
+						printf("\n\t\t ");
 					}
-					fprintf(out, " %#4x,", j);
+					printf(" %#4x,", j);
 				}
 #else
-				fprintf(out, " %#4x,", d);
+				printf(" %#4x,", d);
 #endif
 			}
 #endif
-			fprintf(out, " }");
+			printf(" }");
 
 #if 1
-			fprintf(out, ",\n\t\t/* idx8uplow data */\n\t\t{");
+			printf(",\n\t\t/* idx8uplow data */\n\t\t{");
 			for (i = 128 ; i < 256 ; i++) {
 				wchar_t c, u, l;
 /*  				if (!(i & 0x7)) { */
-/*  					fprintf(out, "\n"); */
+/*  					printf("\n"); */
 /*  				} */
 				c = csd[numsets].c2w[i];
 				if ((c != 0) || 1) {
@@ -414,7 +409,7 @@ int main(int argc, char **argv)
 /*  					if ((((u-i) < CHAR_MIN) || ((u-i) > CHAR_MAX)) */
 /*  						|| (((i-l) < CHAR_MIN) || ((i-l) > CHAR_MAX)) */
 /*  						) { */
-/*  						printf("error - uplow diff out of range! %d %ld %ld\n", */
+/*  						fprintf(stderr, "error - uplow diff out of range! %d %ld %ld\n", */
 /*  							   i, u, l); */
 /*  						return EXIT_FAILURE; */
 /*  					} */
@@ -430,7 +425,7 @@ int main(int argc, char **argv)
 						}
 						if (j == n_uplow_rows) { /* new entry */
 							if (++n_uplow_rows > 256) {
-								printf("error -- to many uplow rows!\n");
+								fprintf(stderr, "error -- to many uplow rows!\n");
 								return EXIT_FAILURE;
 							}
 							memcpy(p, row, UPLOW_ROW_LEN);
@@ -439,21 +434,21 @@ int main(int argc, char **argv)
 						if (!((i >> UPLOW_IDX_SHIFT) & 0x7)
 							&& (i != (127 + UPLOW_ROW_LEN))
 							) {
-							fprintf(out, "\n\t\t ");
+							printf("\n\t\t ");
 						}
-						fprintf(out, " %#4x,", j);
+						printf(" %#4x,", j);
 					}
 
 #elif 0
 					if (!(i & 0x7) && i) {
-						fprintf(out, "\n");
+						printf("\n");
 					}
-					fprintf(out, " %4ld,", (l==i) ? (u-i) : (i-l));
-/*  					fprintf(out, " %4ld,", (l==i) ? u : l); */
+					printf(" %4ld,", (l==i) ? (u-i) : (i-l));
+/*  					printf(" %4ld,", (l==i) ? u : l); */
 #else
 					if ((u != i) || (l != i)) {
 #if 0
-						fprintf(out, " %#08lx, %#08lx, %#08lx, %#08lx, %#08lx, %#08lx, \n",
+						printf(" %#08lx, %#08lx, %#08lx, %#08lx, %#08lx, %#08lx, \n",
 								(unsigned long) i,
 								(unsigned long) c,
 								(unsigned long) l,
@@ -462,7 +457,7 @@ int main(int argc, char **argv)
 								(unsigned long) towupper(c));
 
 #else
-						fprintf(out, " %#08lx, %8ld, %d, %8ld, %d, %#08lx\n",
+						printf(" %#08lx, %8ld, %d, %8ld, %d, %#08lx\n",
 								(unsigned long) i,
 								(long) (l - i),
 								iswupper(c),
@@ -474,15 +469,15 @@ int main(int argc, char **argv)
 #endif
 				}
 			}
-			fprintf(out, " }");
+			printf(" }");
 #endif
 
 #ifndef DO_WIDE_CHAR
-			fprintf(out,"\n");
+			printf("\n");
 #else  /* DO_WIDE_CHAR */
 
 #if 1
-			fprintf(out, ",\n\t\t/* idx8c2wc data */\n\t\t{");
+			printf(",\n\t\t/* idx8c2wc data */\n\t\t{");
 			for (i = 128 ; i < 256 ; i++) {
 #if 1
 				wrow[i & (C2WC_ROW_LEN-1)] = csd[numsets].c2w[i];
@@ -496,7 +491,7 @@ int main(int argc, char **argv)
 					}
 					if (j == n_c2wc_rows) { /* new entry */
 						if (++n_c2wc_rows > 256) {
-							printf("error -- to many c2wc rows!\n");
+							fprintf(stderr, "error -- to many c2wc rows!\n");
 							return EXIT_FAILURE;
 						}
 						memcpy(p, (char *) wrow, 2*C2WC_ROW_LEN);
@@ -505,107 +500,107 @@ int main(int argc, char **argv)
 					if (!((i >> C2WC_IDX_SHIFT) & 0x7)
 						&& (i != (127 + C2WC_ROW_LEN))
 						) {
-						fprintf(out, "\n\t\t ");
+						printf("\n\t\t ");
 					}
-					fprintf(out, " %#4x,", j);
+					printf(" %#4x,", j);
 				}
 #else
 				if (!(i & 0x7) && i) {
-					fprintf(out, "\n");
+					printf("\n");
 				}
-				fprintf(out, " %#6lx,", csd[numsets].c2w[i]);
+				printf(" %#6lx,", csd[numsets].c2w[i]);
 #endif
 			}
-			fprintf(out, " },\n");
+			printf(" },\n");
 #endif
 
 #if 1
-/*  			fprintf(out, "\nII_LEN = %d\n", II_LEN); */
-			fprintf(out, "\t\t/* idx8wc2c data */\n\t\t{");
+/*  			fprintf(stderr, "\nII_LEN = %d\n", II_LEN); */
+			printf("\t\t/* idx8wc2c data */\n\t\t{");
 			for (i = 0 ; i < II_LEN ; i++) {
 				if (!(i & 0x7) && i) {
-					fprintf(out, "\n\t\t ");
+					printf("\n\t\t ");
 				}
-				fprintf(out, " %#4x,", csd[numsets].ii[i]);
+				printf(" %#4x,", csd[numsets].ii[i]);
 			}
-			fprintf(out, " }\n");
+			printf(" }\n");
 #endif
 
 #endif /* DO_WIDE_CHAR */
-			fprintf(out, "\t},\n");
+			printf("\t},\n");
 
 		}
 		++numsets;
-		printf("done\n");
+		fprintf(stderr, "done\n");
 	}
-	fprintf(out, "};\n");
-	fprintf(out, "\n#endif /* WANT_DATA */\n");
+	printf("};\n");
+	printf("\n#endif /* WANT_DATA */\n");
 
 #ifdef DO_WIDE_CHAR
-	fprintf(out, "\n");
-	fprintf(out, "#define __LOCALE_DATA_Cwc2c_DOMAIN_MAX\t%#x\n", RANGE);
-	fprintf(out, "#define __LOCALE_DATA_Cwc2c_TI_SHIFT\t\t%d\n", TI_SHIFT);
-	fprintf(out, "#define __LOCALE_DATA_Cwc2c_TT_SHIFT\t\t%d\n", TT_SHIFT);
-	fprintf(out, "#define __LOCALE_DATA_Cwc2c_II_LEN\t\t%d\n", II_LEN);
-	fprintf(out, "#define __LOCALE_DATA_Cwc2c_TI_LEN\t\t%d\n", ti_num << TI_SHIFT);
-	fprintf(out, "#define __LOCALE_DATA_Cwc2c_TT_LEN\t\t%d\n", tt_num << TT_SHIFT);
-	fprintf(out, "\n");
+	printf("\n");
+	printf("#define __LOCALE_DATA_Cwc2c_DOMAIN_MAX\t%#x\n", RANGE);
+	printf("#define __LOCALE_DATA_Cwc2c_TI_SHIFT\t\t%d\n", TI_SHIFT);
+	printf("#define __LOCALE_DATA_Cwc2c_TT_SHIFT\t\t%d\n", TT_SHIFT);
+	printf("#define __LOCALE_DATA_Cwc2c_II_LEN\t\t%d\n", II_LEN);
+	printf("#define __LOCALE_DATA_Cwc2c_TI_LEN\t\t%d\n", ti_num << TI_SHIFT);
+	printf("#define __LOCALE_DATA_Cwc2c_TT_LEN\t\t%d\n", tt_num << TT_SHIFT);
+	printf("\n");
 
-	fprintf(out, "\n#define __LOCALE_DATA_Cwc2c_TBL_LEN\t\t%d\n",
+	printf("\n#define __LOCALE_DATA_Cwc2c_TBL_LEN\t\t%d\n",
 			(ti_num << TI_SHIFT) + (tt_num << TT_SHIFT));
 
-	fprintf(out, "#ifdef WANT_DATA\n\n");
-	fprintf(out, "static const unsigned char __LOCALE_DATA_Cwc2c_data[%d] = {\n",
+	printf("#ifdef WANT_DATA\n\n");
+	printf("static const unsigned char __LOCALE_DATA_Cwc2c_data[%d] = {\n",
 			(ti_num << TI_SHIFT) + (tt_num << TT_SHIFT));
-	fprintf(out, "\t/* ti_table */\n\t");
+	printf("\t/* ti_table */\n\t");
 	for (i=0 ; i < ti_num << TI_SHIFT ; i++) {
 		if (!(i & 7) && i) {
-			fprintf(out, "\n\t");
+			printf("\n\t");
 		}
-		fprintf(out, " %#4x,", ti[i]);
+		printf(" %#4x,", ti[i]);
 	}
-	fprintf(out, "\n");
-	fprintf(out, "\t/* tt_table */\n\t");
+	printf("\n");
+	printf("\t/* tt_table */\n\t");
 	for (i=0 ; i < tt_num << TT_SHIFT ; i++) {
 		if (!(i & 7) && i) {
-			fprintf(out, "\n\t");
+			printf("\n\t");
 		}
-		fprintf(out, " %#4x,", tt[i]);
+		printf(" %#4x,", tt[i]);
 	}
-	fprintf(out, "\n};\n");
+	printf("\n};\n");
 
-	fprintf(out, "\n#endif /* WANT_DATA */\n");
+	printf("\n#endif /* WANT_DATA */\n");
 #endif /* DO_WIDE_CHAR */
 
-	fprintf(out, "\n#define __LOCALE_DATA_Cuplow_TBL_LEN\t\t%d\n",
+	printf("\n#define __LOCALE_DATA_Cuplow_TBL_LEN\t\t%d\n",
 			n_uplow_rows * UPLOW_ROW_LEN);
-	fprintf(out, "\n#ifdef WANT_DATA\n\n");
+	printf("\n#ifdef WANT_DATA\n\n");
 
-	fprintf(out, "\nstatic const unsigned char __LOCALE_DATA_Cuplow_data[%d] = {\n",
+	printf("\nstatic const unsigned char __LOCALE_DATA_Cuplow_data[%d] = {\n",
 			n_uplow_rows * UPLOW_ROW_LEN);
 	p = uplow_tbl;
 	for (j=0 ; j < n_uplow_rows ; j++) {
-		fprintf(out, "\t");
+		printf("\t");
 		for (i=0 ; i < UPLOW_ROW_LEN ; i++) {
-			fprintf(out, " %#4x,", (unsigned int)((unsigned char) p[i]));
+			printf(" %#4x,", (unsigned int)((unsigned char) p[i]));
 		}
-		fprintf(out, "\n");
+		printf("\n");
 		p += UPLOW_ROW_LEN;
 	}
-	fprintf(out, "};\n");
+	printf("};\n");
 
-	fprintf(out, "\n#endif /* WANT_DATA */\n");
-	fprintf(out, "\n#define __LOCALE_DATA_Cctype_TBL_LEN\t\t%d\n",
+	printf("\n#endif /* WANT_DATA */\n");
+	printf("\n#define __LOCALE_DATA_Cctype_TBL_LEN\t\t%d\n",
 #ifdef CTYPE_PACKED
 			n_ctype_rows * CTYPE_ROW_LEN / 2
 #else
 			n_ctype_rows * CTYPE_ROW_LEN
 #endif
 			);
-	fprintf(out, "\n#ifdef WANT_DATA\n\n");
+	printf("\n#ifdef WANT_DATA\n\n");
 
 
-	fprintf(out, "\nstatic const unsigned char __LOCALE_DATA_Cctype_data[%d] = {\n",
+	printf("\nstatic const unsigned char __LOCALE_DATA_Cctype_data[%d] = {\n",
 #ifdef CTYPE_PACKED
 			n_ctype_rows * CTYPE_ROW_LEN / 2
 #else
@@ -614,59 +609,59 @@ int main(int argc, char **argv)
 			);
 	p = ctype_tbl;
 	for (j=0 ; j < n_ctype_rows ; j++) {
-		fprintf(out, "\t");
+		printf("\t");
 		for (i=0 ; i < CTYPE_ROW_LEN ; i++) {
 #ifdef CTYPE_PACKED
-			fprintf(out, " %#4x,", (unsigned int)(p[i] + (p[i+1] << 4)));
+			printf(" %#4x,", (unsigned int)(p[i] + (p[i+1] << 4)));
 			++i;
 #else
-			fprintf(out, " %#4x,", (unsigned int)p[i]);
+			printf(" %#4x,", (unsigned int)p[i]);
 #endif
 		}
-		fprintf(out, "\n");
+		printf("\n");
 		p += CTYPE_ROW_LEN;
 	}
-	fprintf(out, "};\n");
+	printf("};\n");
 
-	fprintf(out, "\n#endif /* WANT_DATA */\n");
+	printf("\n#endif /* WANT_DATA */\n");
 
 #ifdef DO_WIDE_CHAR
 
-	fprintf(out, "\n#define __LOCALE_DATA_Cc2wc_TBL_LEN\t\t%d\n",
+	printf("\n#define __LOCALE_DATA_Cc2wc_TBL_LEN\t\t%d\n",
 			n_c2wc_rows * C2WC_ROW_LEN);
-	fprintf(out, "\n#ifdef WANT_DATA\n\n");
+	printf("\n#ifdef WANT_DATA\n\n");
 
-	fprintf(out, "\nstatic const unsigned short __LOCALE_DATA_Cc2wc_data[%d] = {\n",
+	printf("\nstatic const unsigned short __LOCALE_DATA_Cc2wc_data[%d] = {\n",
 			n_c2wc_rows * C2WC_ROW_LEN);
 	p = (unsigned char *) c2wc_tbl;
 	for (j=0 ; j < n_c2wc_rows ; j++) {
-		fprintf(out, "\t");
+		printf("\t");
 		for (i=0 ; i < C2WC_ROW_LEN ; i++) {
-			fprintf(out, " %#6x,", (unsigned int)(((unsigned short *)p)[i]));
+			printf(" %#6x,", (unsigned int)(((unsigned short *)p)[i]));
 		}
-		fprintf(out, "\n");
+		printf("\n");
 		p += 2*C2WC_ROW_LEN;
 	}
-	fprintf(out, "};\n");
-	fprintf(out, "\n#endif /* WANT_DATA */\n");
+	printf("};\n");
+	printf("\n#endif /* WANT_DATA */\n");
 #endif /* DO_WIDE_CHAR */
-	fprintf(out, "\n\n");
+	printf("\n\n");
 
-	fprintf(out, "#define __LOCALE_DATA_NUM_CODESETS\t\t%d\n", numsets);
-	fprintf(out, "#define __LOCALE_DATA_CODESET_LIST \\\n\t\"");
+	printf("#define __LOCALE_DATA_NUM_CODESETS\t\t%d\n", numsets);
+	printf("#define __LOCALE_DATA_CODESET_LIST \\\n\t\"");
 	for (i=0 ; i < numsets ; i++) {
-		fprintf(out, "\\x%02x", numsets + 1 + (unsigned char) codeset_index[i]);
+		printf("\\x%02x", numsets + 1 + (unsigned char) codeset_index[i]);
 		if (((i & 7) == 7) && (i + 1 < numsets)) {
-			fprintf(out, "\" \\\n\t\"");
+			printf("\" \\\n\t\"");
 		}
 	}
-	fprintf(out, "\" \\\n\t\"\\0\"");
+	printf("\" \\\n\t\"\\0\"");
 	for (i=0 ; i < numsets ; i++) {
-		fprintf(out, " \\\n\t\"%s\\0\"",
+		printf(" \\\n\t\"%s\\0\"",
 				codeset_list + ((unsigned char)codeset_index[i]));
 	}
 
-	fprintf(out, "\n\n");
+	printf("\n\n");
 	for (i=0 ; i < numsets ; i++) {
 		char buf[30];
 		char *z;
@@ -676,24 +671,22 @@ int main(int argc, char **argv)
 				*z = '_';
 			}
 		}
-		fprintf(out, "#define __CTYPE_HAS_CODESET_%s\n", buf);
+		printf("#define __CTYPE_HAS_CODESET_%s\n", buf);
 	}
 #ifdef DO_WIDE_CHAR
-	fprintf(out, "#define __CTYPE_HAS_CODESET_UTF_8\n");
+	printf("#define __CTYPE_HAS_CODESET_UTF_8\n");
 #endif /* DO_WIDE_CHAR */
 
 #if 0
-	fprintf(out, "\n#endif /* __CTYPE_HAS_8_BIT_LOCALES */\n\n");
+	printf("\n#endif /* __CTYPE_HAS_8_BIT_LOCALES */\n\n");
 #endif
-
-	fclose(out);
 
 	total_size = 0;
 #ifdef DO_WIDE_CHAR
-	printf("tt_num = %d   ti_num = %d\n", tt_num, ti_num);
-	printf("max_wchar = %#lx\n", max_wchar);
+	fprintf(stderr, "tt_num = %d   ti_num = %d\n", tt_num, ti_num);
+	fprintf(stderr, "max_wchar = %#lx\n", max_wchar);
 
-	printf("size is %d * %d  +  %d * %d  + %d * %d  =  %d\n",
+	fprintf(stderr, "size is %d * %d  +  %d * %d  + %d * %d  =  %d\n",
 		   tt_num, 1 << TT_SHIFT, ti_num, 1 << TI_SHIFT,
 		   ((MAX_WCHAR >> (TT_SHIFT + TI_SHIFT)) + 1), numsets,
  		   j = tt_num * (1 << TT_SHIFT) + ti_num * (1 << TI_SHIFT)
@@ -707,26 +700,26 @@ int main(int argc, char **argv)
 	i = 1;
 #endif
 
-	printf("ctype - CTYPE_IDX_SHIFT = %d -- %d * %d + %d * %d = %d\n",
+	fprintf(stderr, "ctype - CTYPE_IDX_SHIFT = %d -- %d * %d + %d * %d = %d\n",
 		   CTYPE_IDX_SHIFT, numsets, CTYPE_IDX_LEN, n_ctype_rows, CTYPE_ROW_LEN / i,
 		   j = numsets * CTYPE_IDX_LEN +  n_ctype_rows * CTYPE_ROW_LEN / i);
 	total_size += j;
 
-	printf("uplow - UPLOW_IDX_SHIFT = %d -- %d * %d + %d * %d = %d\n",
+	fprintf(stderr, "uplow - UPLOW_IDX_SHIFT = %d -- %d * %d + %d * %d = %d\n",
 		   UPLOW_IDX_SHIFT, numsets, UPLOW_IDX_LEN, n_uplow_rows, UPLOW_ROW_LEN,
 		   j = numsets * UPLOW_IDX_LEN +  n_uplow_rows * UPLOW_ROW_LEN);
 	total_size += j;
 
 #ifdef DO_WIDE_CHAR
 
-	printf("c2wc - C2WC_IDX_SHIFT = %d -- %d * %d + 2 * %d * %d = %d\n",
+	fprintf(stderr, "c2wc - C2WC_IDX_SHIFT = %d -- %d * %d + 2 * %d * %d = %d\n",
 		   C2WC_IDX_SHIFT, numsets, C2WC_IDX_LEN, n_c2wc_rows, C2WC_ROW_LEN,
 		   j = numsets * C2WC_IDX_LEN +  2 * n_c2wc_rows * C2WC_ROW_LEN);
 	total_size += j;
 
 #endif /* DO_WIDE_CHAR */
 
-	printf("total size = %d\n", total_size);
+	fprintf(stderr, "total size = %d\n", total_size);
 
 /*  	for (i=0 ; i < numsets ; i++) { */
 /*  		printf("codeset_index[i] = %d  codeset_list[ci[i]] = \"%s\"\n", */

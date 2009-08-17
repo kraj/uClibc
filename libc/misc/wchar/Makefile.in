@@ -16,6 +16,8 @@
 # wcsftime
 #
 
+subdirs += libc/misc/wchar
+
 # multi source wchar.c
 CSRC :=	btowc.c wctob.c mbsinit.c mbrlen.c mbrtowc.c wcrtomb.c mbsrtowcs.c \
 	wcsrtombs.c _wchar_utf8sntowcs.c _wchar_wcsntoutf8s.c \

@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/inet
+
 include $(top_srcdir)libc/inet/rpc/Makefile.in
 
 INET_DIR := $(top_srcdir)libc/inet

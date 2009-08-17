@@ -28,11 +28,10 @@ arch_clean:
 
 ifneq ($(ARCH_HEADERS),)
 
-ARCH_HEADERS_IN  := $(patsubst %,../libc/sysdeps/linux/$(TARGET_ARCH)/%,$(ARCH_HEADERS))
 ARCH_HEADERS_OUT := $(patsubst %,$(top_builddir)include/%,$(ARCH_HEADERS))
 
 $(ARCH_HEADERS_OUT):
-	$(do_ln) -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) $@
+	$(do_ln) -fs $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) $@
 
 headers-y += $(ARCH_HEADERS_OUT)
 headers_clean-y += arch_headers_clean

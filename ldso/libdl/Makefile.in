@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += ldso/libdl
+
 CFLAGS-libdl := -DNOT_IN_libc -DIS_IN_libdl $(SSP_ALL_CFLAGS)
 
 CFLAGS-libdl += -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include -I$(top_srcdir)ldso/ldso

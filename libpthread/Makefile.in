@@ -6,6 +6,6 @@
 #
 
 ifneq ($(PTNAME),)
-include $(PTDIR)/Makefile.in
-include $(PTDIR)_db/Makefile.in
+include $(top_srcdir)$(PTDIR)/Makefile.in
+include $(top_srcdir)$(PTDIR)_db/Makefile.in
 endif

@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/wctype
+
 # multi source _wctype.c
 COM_SRC := \
 	iswalnum.c iswalpha.c iswcntrl.c iswdigit.c iswgraph.c \

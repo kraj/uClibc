@@ -103,42 +103,42 @@ typedef struct {
 static unsigned verbose;
 #define verbose_msg(msg...) if (verbose) fprintf(stderr, msg)
 
-void output_table(FILE *fp, const char *name, table_data *tbl)
+void output_table(const char *name, table_data *tbl)
 {
 	size_t i;
 
-	fprintf(fp, "#define __LOCALE_DATA_WC%s_II_LEN    %7u\n", name, tbl->ii_len);
-	fprintf(fp, "#define __LOCALE_DATA_WC%s_TI_LEN    %7u\n", name, tbl->ti_len);
-	fprintf(fp, "#define __LOCALE_DATA_WC%s_UT_LEN    %7u\n", name, tbl->ut_len);
+	printf("#define __LOCALE_DATA_WC%s_II_LEN    %7u\n", name, tbl->ii_len);
+	printf("#define __LOCALE_DATA_WC%s_TI_LEN    %7u\n", name, tbl->ti_len);
+	printf("#define __LOCALE_DATA_WC%s_UT_LEN    %7u\n", name, tbl->ut_len);
 
-	fprintf(fp, "#define __LOCALE_DATA_WC%s_II_SHIFT  %7u\n", name, tbl->ii_shift);
-	fprintf(fp, "#define __LOCALE_DATA_WC%s_TI_SHIFT  %7u\n", name, tbl->ti_shift);
+	printf("#define __LOCALE_DATA_WC%s_II_SHIFT  %7u\n", name, tbl->ii_shift);
+	printf("#define __LOCALE_DATA_WC%s_TI_SHIFT  %7u\n", name, tbl->ti_shift);
 
-	fprintf(fp, "\n#ifdef WANT_WC%s_data\n", name);
+	printf("\n#ifdef WANT_WC%s_data\n", name);
 
 	i = tbl->ii_len + tbl->ti_len + tbl->ut_len;
-	fprintf(fp, "\nstatic const unsigned char __LOCALE_DATA_WC%s_data[%zu] = {", name, i);
+	printf("\nstatic const unsigned char __LOCALE_DATA_WC%s_data[%zu] = {", name, i);
 	for (i = 0; i < tbl->ii_len; i++) {
 		if (i % 12 == 0) {
-			fprintf(fp, "\n");
+			printf("\n");
 		}
-		fprintf(fp, " %#04x,", tbl->ii[i]);
+		printf(" %#04x,", tbl->ii[i]);
 	}
 	for (i = 0; i < tbl->ti_len; i++) {
 		if (i % 12 == 0) {
-			fprintf(fp, "\n");
+			printf("\n");
 		}
-		fprintf(fp, " %#04x,", tbl->ti[i]);
+		printf(" %#04x,", tbl->ti[i]);
 	}
 	for (i = 0; i < tbl->ut_len; i++) {
 		if (i % 12 == 0) {
-			fprintf(fp, "\n");
+			printf("\n");
 		}
-		fprintf(fp, " %#04x,", tbl->ut[i]);
+		printf(" %#04x,", tbl->ut[i]);
 	}
-	fprintf(fp, "\n};\n\n");
+	printf("\n};\n\n");
 
-	fprintf(fp, "#endif /* WANT_WC%s_data */\n\n", name);
+	printf("#endif /* WANT_WC%s_data */\n\n", name);
 }
 
 static void dump_table_data(table_data *tbl)
@@ -676,36 +676,27 @@ int main(int argc, char **argv)
 	}
 
 	if (built) {
-		FILE *fp;
-
-		if (!(fp = fopen("wctables.h", "w"))) {
-			verbose_msg("cannot open output file 'wctables.h'!\n");
-			return EXIT_FAILURE;
-		}
-
-		fprintf(fp, "#define __LOCALE_DATA_WC_TABLE_DOMAIN_MAX  %#8lx\n\n",
+		printf("#define __LOCALE_DATA_WC_TABLE_DOMAIN_MAX  %#8lx\n\n",
 				(unsigned long) RANGE);
-		output_table(fp, "ctype", &cttable);
-		output_table(fp, "uplow", &ultable);
+		output_table("ctype", &cttable);
+		output_table("uplow", &ultable);
 
 #warning fix the upper bound on the upper/lower tables... save 200 bytes or so
-		fprintf(fp, "#define __LOCALE_DATA_WCuplow_diffs  %7u\n", ul_count);
-		fprintf(fp, "\n#ifdef WANT_WCuplow_diff_data\n\n");
-		fprintf(fp, "\nstatic const short __LOCALE_DATA_WCuplow_diff_data[%zu] = {",
+		printf("#define __LOCALE_DATA_WCuplow_diffs  %7u\n", ul_count);
+		printf("\n#ifdef WANT_WCuplow_diff_data\n\n");
+		printf("\nstatic const short __LOCALE_DATA_WCuplow_diff_data[%zu] = {",
 			   2 * (size_t) ul_count);
 		for (i = 0; i < ul_count; i++) {
 			if (i % 4 == 0) {
-				fprintf(fp, "\n");
+				printf("\n");
 			}
-			fprintf(fp, " %6d, %6d,", uldiff[i].u, uldiff[i].l);
+			printf(" %6d, %6d,", uldiff[i].u, uldiff[i].l);
 		}
-		fprintf(fp, "\n};\n\n");
-		fprintf(fp, "#endif /* WANT_WCuplow_diff_data */\n\n");
+		printf("\n};\n\n");
+		printf("#endif /* WANT_WCuplow_diff_data */\n\n");
 
-/*		output_table(fp, "comb", &combtable); */
-/*		output_table(fp, "width", &widthtable); */
-
-		fclose(fp);
+/*		output_table("comb", &combtable); */
+/*		output_table("width", &widthtable); */
 	}
 
 	return !built;

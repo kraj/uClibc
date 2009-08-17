@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/gnu
+
 CSRC := obstack.c
 
 MISC_GNU_DIR := $(top_srcdir)libc/misc/gnu

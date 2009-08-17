@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/regex
+
 ifeq ($(UCLIBC_HAS_REGEX_OLD),y)
 CSRC := regex_old.c
 else

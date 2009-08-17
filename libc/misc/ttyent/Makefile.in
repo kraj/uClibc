@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/misc/ttyent
+
 CSRC := getttyent.c
 
 MISC_TTYENT_DIR := $(top_srcdir)libc/misc/ttyent

@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libc/signal
+
 CSRC :=	allocrtsig.c killpg.c raise.c sigaction.c sigaddset.c sigandset.c \
 	sigblock.c sigdelset.c sigempty.c sigfillset.c siggetmask.c \
 	sigisempty.c sigismem.c sigjmp.c signal.c \
