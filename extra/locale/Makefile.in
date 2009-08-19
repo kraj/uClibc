@@ -80,7 +80,7 @@ $(locale_OUT)/codesets.txt:
 	    echo " "; \
 	    echo "You do not have a codesets.txt file.  Please create this "; \
 	    echo "file in the $(locale_OUT) directory by running something like: "; \
-	    echo "  find $(PWD)/$(locale_DIR)/charmaps -name \"*.pairs\" > \\"; \
+	    echo "  find $(shell pwd)/$(locale_DIR)/charmaps -name \"*.pairs\" > \\"; \
 	    echo "        $@"; \
 	    echo "and then edit that file to disable/enable the codesets you wish to support. "; \
 	    echo " "; \
@@ -107,14 +107,15 @@ else
 $(locale_OUT)/codesets.txt:
 	@$(disp_gen)
 ifeq ($(UCLIBC_BUILD_MINIMAL_LOCALE),y)
-	$(Q)echo "$(PWD)/$(locale_DIR)/charmaps/ASCII.pairs" > $@ ; \
-	$(Q)echo "$(PWD)/$(locale_DIR)/charmaps/ISO-8859-1.pairs" >> $@
+	$(Q)echo "$(shell pwd)/$(locale_DIR)/charmaps/ASCII.pairs" > $@ ; \
+	$(Q)echo "$(shell pwd)/$(locale_DIR)/charmaps/ISO-8859-1.pairs" >> $@
 else
 	$(Q)set -e; \
 		tmp=`mktemp $@.XXXXXX 2>/dev/null || true`; \
 		[ -z "$$tmp" ] && tmp='$@.new'; \
-		find $(PWD)/$(locale_DIR)/charmaps/ -name '*.pairs' | \
+		find $(shell pwd)/$(locale_DIR)/charmaps/ -name '*.pairs' | \
 			sort > $$tmp; \
+		[ -s $$tmp ]; \
 		if cmp $@ $$tmp >/dev/null 2>&1; then \
 			$(RM) $$tmp; \
 		else \
