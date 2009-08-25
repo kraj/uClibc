@@ -7,6 +7,10 @@ config TARGET_ARCH
 	string
 	default "sparc"
 
+source "extra/Configs/Config.in.arches"
+menu "Target Architecture Features and Options"
+source "extra/Configs/Config.in.arch"
+
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
@@ -39,3 +43,6 @@ config CONFIG_SPARC_V9B
 	bool "SPARC v9b"
 
 endchoice
+
+endmenu
+source "extra/Configs/Config.in.common"
