@@ -7,6 +7,10 @@ config TARGET_ARCH
 	string
 	default "cris"
 
+source "extra/Configs/Config.in.arches"
+menu "Target Architecture Features and Options"
+source "extra/Configs/Config.in.arch"
+
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
@@ -35,3 +39,6 @@ config CONFIG_CRISV32
 	bool "CRISv32"
 
 endchoice
+
+endmenu
+source "extra/Configs/Config.in.common"

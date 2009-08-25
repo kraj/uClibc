@@ -7,6 +7,10 @@ config TARGET_ARCH
 	string
 	default "mips"
 
+source "extra/Configs/Config.in.arches"
+menu "Target Architecture Features and Options"
+source "extra/Configs/Config.in.arch"
+
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
@@ -75,3 +79,6 @@ config CONFIG_MIPS_ISA_MIPS64
 	bool "MIPS64"
 
 endchoice
+
+endmenu
+source "extra/Configs/Config.in.common"

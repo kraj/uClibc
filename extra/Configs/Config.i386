@@ -3,9 +3,15 @@
 # see extra/config/Kconfig-language.txt
 #
 
+
+
 config TARGET_ARCH
 	string
 	default "i386"
+
+source "extra/Configs/Config.in.arches"
+menu "Target Architecture Features and Options"
+source "extra/Configs/Config.in.arch"
 
 config FORCE_OPTIONS_FOR_ARCH
 	bool
@@ -100,3 +106,6 @@ config CONFIG_NEHEMIAH
 	bool "VIA C3-2 (Nehemiah)"
 
 endchoice
+
+endmenu
+source "extra/Configs/Config.in.common"
