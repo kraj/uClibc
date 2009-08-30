@@ -30,9 +30,8 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advise)
   if (len != (off_t) len)
     return EOVERFLOW;
   INTERNAL_SYSCALL_DECL (err);
-    int ret = INTERNAL_SYSCALL (posix_fadvise64, err, 6, fd, 0,
-                               __LONG_LONG_PAIR ((long) (offset >> 32),
-                                                 (long) offset),
+  int ret = INTERNAL_SYSCALL (posix_fadvise64, err, 6, fd, 0,
+                               __LONG_LONG_PAIR ((long) (offset >> 32), (long) offset),
                                (off_t) len, advise);
   if (!INTERNAL_SYSCALL_ERROR_P (ret, err))
     return 0;
