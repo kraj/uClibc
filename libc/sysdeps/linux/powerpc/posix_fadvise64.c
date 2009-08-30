@@ -25,7 +25,7 @@
 
 #define __NR_posix_fadvise64 __NR_fadvise64_64
 
-int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
+int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advise)
 {
   if (len != (off_t) len)
     return EOVERFLOW;
@@ -33,7 +33,7 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
     int ret = INTERNAL_SYSCALL (posix_fadvise64, err, 6, fd, 0,
                                __LONG_LONG_PAIR ((long) (offset >> 32),
                                                  (long) offset),
-                               (off_t) len, advice);
+                               (off_t) len, advise);
   if (!INTERNAL_SYSCALL_ERROR_P (ret, err))
     return 0;
   return INTERNAL_SYSCALL_ERRNO (ret, err);
@@ -42,12 +42,12 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 /* 32 bit implementation is kind of a pita */
 #elif __WORDSIZE == 32
 
-int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
+int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advise)
 {
 	INTERNAL_SYSCALL_DECL (err);
 	int ret = INTERNAL_SYSCALL (fadvise64_64, err, 6, fd, advise,
-								__LONG_LONG_PAIR(offset >> 32, offset &  0xffffffff),
-								__LONG_LONG_PAIR(len >> 32, len & 0xffffffff));
+								__LONG_LONG_PAIR((long) (offset >> 32), (long) offset ),
+								__LONG_LONG_PAIR((long) (len >> 32), (long) len));
 	if (!INTERNAL_SYSCALL_ERROR_P (ret, err))
 		return 0;
 	return INTERNAL_SYSCALL_ERRNO (ret, err);
@@ -61,7 +61,7 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 /* This is declared as a strong alias in posix_fadvise.c if __NR_fadvise64
  * is defined.
  */
-int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
+int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advise)
 {
 #warning This is not correct as far as SUSv3 is concerned.
 	return ENOSYS;
