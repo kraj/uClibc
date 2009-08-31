@@ -23,7 +23,7 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
     return 0;
 }
 
-#if defined __UCLIBC_HAS_LFS__ && (!defined __NR_fadvise64_64 || !defined _syscall6)
+#if defined __UCLIBC_HAS_LFS__ && !defined __NR_fadvise64_64
 strong_alias(posix_fadvise,posix_fadvise64)
 #endif
 

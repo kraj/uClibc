@@ -17,7 +17,7 @@
 
 /* libc_hidden_proto(mmap) */
 
-# if !defined __NR_mmap2 || !defined _syscall6
+# if !defined __NR_mmap2
 
 /*
  * This version is a stub that just chops off everything at the mmap 32 bit
