@@ -163,8 +163,7 @@ init_mq_netlink (void)
 	return;
 
       /* Make sure the descriptor is closed on exec.  */
-      if (fcntl (netlink_socket, F_SETFD, FD_CLOEXEC) != 0)
-	goto errout;
+      fcntl (netlink_socket, F_SETFD, FD_CLOEXEC);
     }
 
   int err = 1;
@@ -213,7 +212,6 @@ init_mq_netlink (void)
 
   if (err != 0)
     {
-    errout:
       close_not_cancel_no_status (netlink_socket);
       netlink_socket = -1;
     }

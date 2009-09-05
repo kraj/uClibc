@@ -81,27 +81,30 @@ DIR *opendir(const char *name)
 	}
 # define O_DIRECTORY 0
 #endif
-	if ((fd = open(name, O_RDONLY|O_NDELAY|O_DIRECTORY)) < 0)
+#ifndef O_CLOEXEC
+# define O_CLOEXEC 0
+#endif
+	fd = open(name, O_RDONLY|O_NDELAY|O_DIRECTORY|O_CLOEXEC);
+	if (fd < 0)
 		return NULL;
 
 	/* Note: we should check to make sure that between the stat() and open()
 	 * call, 'name' didnt change on us, but that's only if O_DIRECTORY isnt
 	 * defined and since Linux has supported it for like ever, i'm not going
 	 * to worry about it right now (if ever). */
-	if (fstat(fd, &statbuf) < 0)
-		goto close_and_ret;
-
-	/* According to POSIX, directory streams should be closed when
-	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
-	 */
-	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
+	if (fstat(fd, &statbuf) < 0) {
 		int saved_errno;
-close_and_ret:
 		saved_errno = errno;
 		close(fd);
 		__set_errno(saved_errno);
 		return NULL;
 	}
+
+	/* According to POSIX, directory streams should be closed when
+	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
+	 */
+	if (O_CLOEXEC == 0)
+		fcntl(fd, F_SETFD, FD_CLOEXEC);
 
 	ptr = fd_to_DIR(fd, statbuf.st_blksize);
 	if (!ptr) {
