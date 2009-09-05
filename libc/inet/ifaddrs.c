@@ -81,7 +81,6 @@ void
 __netlink_free_handle (struct netlink_handle *h)
 {
   struct netlink_res *ptr;
-  int saved_errno = errno;
 
   ptr = h->nlm_list;
   while (ptr != NULL)
@@ -89,11 +88,9 @@ __netlink_free_handle (struct netlink_handle *h)
       struct netlink_res *tmpptr;
 
       tmpptr = ptr->next;
-      free (ptr);
+      free (ptr); /* doesn't affect errno */
       ptr = tmpptr;
     }
-
-  __set_errno (saved_errno);
 }
 
 

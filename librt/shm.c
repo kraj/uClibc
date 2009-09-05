@@ -25,8 +25,8 @@
  * Returns a malloc'ed buffer containing the OS specific path
  * to the shm filename or NULL upon failure.
  */
-static __attribute_noinline__ char* get_shm_name(const char*name) __nonnull((1));
-static char* get_shm_name(const char*name)
+static __attribute_noinline__ char* get_shm_name(const char *name) __nonnull((1));
+static char* get_shm_name(const char *name)
 {
 	char *path;
 	int i;
@@ -57,7 +57,7 @@ static char* get_shm_name(const char*name)
 
 int shm_open(const char *name, int oflag, mode_t mode)
 {
-	int fd, old_errno;
+	int fd;
 	char *shm_name = get_shm_name(name);
 
 	/* Stripped multiple '/' from start; may have set errno properly */
@@ -83,23 +83,19 @@ int shm_open(const char *name, int oflag, mode_t mode)
 		//}
 	}
 #endif
-	old_errno = errno;
-	free(shm_name);
-	errno = old_errno;
+	free(shm_name); /* doesn't affect errno */
 	return fd;
 }
 
 int shm_unlink(const char *name)
 {
 	char *shm_name = get_shm_name(name);
-	int ret, old_errno;
+	int ret;
 
 	/* Stripped multiple '/' from start; may have set errno properly */
 	if (shm_name == NULL)
 		return -1;
 	ret = unlink(shm_name);
-	old_errno = errno;
-	free(shm_name);
-	errno = old_errno;
+	free(shm_name); /* doesn't affect errno */
 	return ret;
 }
