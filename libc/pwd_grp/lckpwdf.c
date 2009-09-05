@@ -28,17 +28,6 @@
 #include <paths.h>
 #include <shadow.h>
 
-/* Experimentally off - libc_hidden_proto(memset) */
-/* libc_hidden_proto(open) */
-/* libc_hidden_proto(fcntl) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(sigfillset) */
-/* libc_hidden_proto(sigaction) */
-/* libc_hidden_proto(sigprocmask) */
-/* libc_hidden_proto(sigaddset) */
-/* libc_hidden_proto(sigemptyset) */
-/* libc_hidden_proto(alarm) */
-
 /* How long to wait for getting the lock before returning with an error.  */
 #define TIMEOUT 15 /* sec */
 
@@ -56,7 +45,6 @@ static void noop_handler (int __sig);
 int
 lckpwdf (void)
 {
-  int flags;
   sigset_t saved_set;			/* Saved set of caught signals.  */
   struct sigaction saved_act;		/* Saved signal action.  */
   sigset_t new_set;			/* New set of caught signals.  */
@@ -72,16 +60,18 @@ lckpwdf (void)
   /* Prevent problems caused by multiple threads.  */
   __UCLIBC_MUTEX_LOCK(mylock);
 
-  lock_fd = open (_PATH_PASSWD, O_WRONLY);
+#ifndef O_CLOEXEC
+# define O_CLOEXEC 0
+#endif
+  lock_fd = open (_PATH_PASSWD, O_WRONLY | O_CLOEXEC);
   if (lock_fd == -1) {
     /* Cannot create lock file.  */
-	goto DONE;
+    goto DONE;
   }
-
   /* Make sure file gets correctly closed when process finished.  */
-  flags = fcntl (lock_fd, F_GETFD);
-  flags |= FD_CLOEXEC;
-  fcntl (lock_fd, F_SETFD, flags);
+  if (O_CLOEXEC == 0)
+    fcntl (lock_fd, F_SETFD, FD_CLOEXEC);
+
   /* Now we have to get exclusive write access.  Since multiple
      process could try this we won't stop when it first fails.
      Instead we set a timeout for the system call.  Once the timer
@@ -91,7 +81,7 @@ lckpwdf (void)
 
      It is important that we don't change the signal state.  We must
      restore the old signal behaviour.  */
-  memset (&new_act, '\0', sizeof (struct sigaction));
+  memset (&new_act, '\0', sizeof (new_act));
   new_act.sa_handler = noop_handler;
   __sigfillset (&new_act.sa_mask);
 
@@ -125,7 +115,7 @@ lckpwdf (void)
   if (result < 0) {
     close(lock_fd);
     lock_fd = -1;
-	goto DONE;
+    goto DONE;
   }
   rv = 0;
 
@@ -146,7 +136,7 @@ ulckpwdf (void)
   else
     {
       /* Prevent problems caused by multiple threads.  */
-	  __UCLIBC_MUTEX_LOCK(mylock);
+      __UCLIBC_MUTEX_LOCK(mylock);
 
       result = close (lock_fd);
 
@@ -154,7 +144,7 @@ ulckpwdf (void)
       lock_fd = -1;
 
       /* Clear mutex.  */
-	  __UCLIBC_MUTEX_UNLOCK(mylock);
+      __UCLIBC_MUTEX_UNLOCK(mylock);
     }
 
   return result;

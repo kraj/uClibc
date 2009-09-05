@@ -38,36 +38,43 @@ static const char *static_ut_name = default_file_name;
 static void __setutent(void)
 {
     if (static_fd < 0) {
+#ifndef O_CLOEXEC
+# define O_CLOEXEC 0
+#endif
+
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	static_fd = open(static_ut_name, O_RDWR);
+	static_fd = open_not_cancel_2(static_ut_name, O_RDWR | O_CLOEXEC);
 #else
-	static_fd = open_not_cancel_2(static_ut_name, O_RDWR);
+	static_fd = open(static_ut_name, O_RDWR | O_CLOEXEC);
 #endif
 	if (static_fd < 0) {
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	    static_fd = open(static_ut_name, O_RDONLY);
+	    static_fd = open_not_cancel_2(static_ut_name, O_RDONLY | O_CLOEXEC);
 #else
-	    static_fd = open(static_ut_name, O_RDONLY);
+	    static_fd = open(static_ut_name, O_RDONLY | O_CLOEXEC);
 #endif
 	    if (static_fd < 0) {
 		return; /* static_fd remains < 0 */
 	    }
 	}
-	/* Make sure the file will be closed on exec()  */
+
+	if (O_CLOEXEC == 0) {
+	    /* Make sure the file will be closed on exec()  */
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	fcntl_not_cancel(static_fd, F_SETFD, FD_CLOEXEC);
+	    fcntl_not_cancel(static_fd, F_SETFD, FD_CLOEXEC);
 #else
-	fcntl(static_fd, F_SETFD, FD_CLOEXEC);
+	    fcntl(static_fd, F_SETFD, FD_CLOEXEC);
 #endif
-	// thus far, {G,S}ETFD only has this single flag,
-	// and setting it never fails.
-	//int ret = fcntl(static_fd, F_GETFD, 0);
-	//if (ret >= 0) {
-	//    ret = fcntl(static_fd, F_SETFD, ret | FD_CLOEXEC);
-	//}
-	//if (ret < 0) {
-	//    static_fd = -1;
-	//}
+	    // thus far, {G,S}ETFD only has this single flag,
+	    // and setting it never fails.
+	    //int ret = fcntl(static_fd, F_GETFD, 0);
+	    //if (ret >= 0) {
+	    //    ret = fcntl(static_fd, F_SETFD, ret | FD_CLOEXEC);
+	    //}
+	    //if (ret < 0) {
+	    //    static_fd = -1;
+	    //}
+	}
 	return;
     }
     lseek(static_fd, 0, SEEK_SET);
