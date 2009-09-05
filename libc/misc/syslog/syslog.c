@@ -164,7 +164,7 @@ retry:
 			if ((LogFile = socket(AF_UNIX, logType, 0)) == -1) {
 				goto DONE;
 			}
-			fcntl(LogFile, F_SETFD, 1); /* 1 == FD_CLOEXEC */
+			fcntl(LogFile, F_SETFD, FD_CLOEXEC);
 			/* We don't want to block if e.g. syslogd is SIGSTOPed */
 			fcntl(LogFile, F_SETFL, O_NONBLOCK | fcntl(LogFile, F_GETFL));
 		}

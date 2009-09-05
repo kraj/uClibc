@@ -135,7 +135,7 @@ __BEGIN_DECLS
 
 
 # if (defined __STDC__ || defined __GNUC__) \
-     && (defined __NO_LONG_DOUBLE_MATH || defined __LDBL_COMPAT)
+     && (!defined __NO_LONG_DOUBLE_MATH || defined __LDBL_COMPAT)
 #  ifdef __LDBL_COMPAT
 
 #   ifdef __USE_ISOC99
