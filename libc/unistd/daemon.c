@@ -49,14 +49,6 @@
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
 
-/* libc_hidden_proto(open) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(_exit) */
-/* libc_hidden_proto(dup2) */
-/* libc_hidden_proto(setsid) */
-/* libc_hidden_proto(chdir) */
-/* libc_hidden_proto(fork) */
-
 #ifndef __ARCH_USE_MMU__
 #include <sys/syscall.h>
 #include <sched.h>
@@ -93,7 +85,7 @@ static inline pid_t fork_parent(void)
 }
 #endif
 
-int daemon( int nochdir, int noclose )
+int daemon(int nochdir, int noclose)
 {
 	int fd;
 
@@ -101,18 +93,18 @@ int daemon( int nochdir, int noclose )
 		return -1;
 
 	if (setsid() == -1)
-		return(-1);
+		return -1;
 
 	if (!nochdir)
 		chdir("/");
 
-	if (!noclose && (fd = open(_PATH_DEVNULL, O_RDWR, 0)) != -1) {
+	if (!noclose && (fd = open(_PATH_DEVNULL, O_RDWR)) != -1) {
 		dup2(fd, STDIN_FILENO);
 		dup2(fd, STDOUT_FILENO);
 		dup2(fd, STDERR_FILENO);
 		if (fd > 2)
 			close(fd);
 	}
-	return(0);
+	return 0;
 }
 #endif

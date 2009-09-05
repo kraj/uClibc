@@ -262,7 +262,7 @@ static int map_cache(void)
 	else if (cache_addr != NULL)
 		return 0;
 
-	if (stat(LDSO_CACHE, &st) || (fd = open(LDSO_CACHE, O_RDONLY, 0)) < 0) {
+	if (stat(LDSO_CACHE, &st) || (fd = open(LDSO_CACHE, O_RDONLY)) < 0) {
 		fprintf(stderr, "ldd: can't open cache '%s'\n", LDSO_CACHE);
 		cache_addr = (caddr_t) - 1;	/* so we won't try again */
 		return -1;
