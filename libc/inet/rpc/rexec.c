@@ -83,8 +83,12 @@ rexec_af(char **ahost, int rport, const char *name, const char *pass, const char
 	int gai;
 	char servbuff[NI_MAXSERV];
 
-	snprintf(servbuff, sizeof(servbuff), "%d", ntohs(rport));
-	servbuff[sizeof(servbuff) - 1] = '\0';
+	if (sizeof(servbuff) < sizeof(int)*3 + 2) {
+		snprintf(servbuff, sizeof(servbuff), "%d", ntohs(rport));
+		servbuff[sizeof(servbuff) - 1] = '\0';
+	} else {
+		sprintf(servbuff, "%d", ntohs(rport));
+	}
 
 	memset(&hints, '\0', sizeof(hints));
 	hints.ai_family = af;
