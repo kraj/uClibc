@@ -96,20 +96,21 @@ DIR *opendir(const char *name)
 #endif
 	if (fd < 0)
 		return NULL;
-
 	/* Note: we should check to make sure that between the stat() and open()
 	 * call, 'name' didnt change on us, but that's only if O_DIRECTORY isnt
 	 * defined and since Linux has supported it for like ever, i'm not going
 	 * to worry about it right now (if ever). */
+
 	if (fstat(fd, &statbuf) < 0) {
-		int saved_errno;
-		saved_errno = errno;
+		// this close() never fails
+		//int saved_errno;
+		//saved_errno = errno;
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 		close_not_cancel_no_status(fd);
 #else
 		close(fd);
 #endif
-		__set_errno(saved_errno);
+		//__set_errno(saved_errno);
 		return NULL;
 	}
 
