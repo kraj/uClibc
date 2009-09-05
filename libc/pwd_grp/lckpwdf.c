@@ -51,7 +51,6 @@ lckpwdf (void)
   struct sigaction new_act;		/* New signal action.  */
   struct flock fl;			/* Information struct for locking.  */
   int result;
-  int rv = -1;
 
   if (lock_fd != -1)
     /* Still locked by own process.  */
@@ -65,7 +64,6 @@ lckpwdf (void)
 #endif
   lock_fd = open (_PATH_PASSWD, O_WRONLY | O_CLOEXEC);
   if (lock_fd == -1) {
-    /* Cannot create lock file.  */
     goto DONE;
   }
   /* Make sure file gets correctly closed when process finished.  */
@@ -115,13 +113,11 @@ lckpwdf (void)
   if (result < 0) {
     close(lock_fd);
     lock_fd = -1;
-    goto DONE;
   }
-  rv = 0;
 
 DONE:
   __UCLIBC_MUTEX_UNLOCK(mylock);
-  return 0;
+  return 0; /* TODO: return result? */
 }
 
 
