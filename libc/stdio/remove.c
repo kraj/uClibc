@@ -10,22 +10,19 @@
 #include <unistd.h>
 #include <errno.h>
 
-/* libc_hidden_proto(rmdir) */
-/* libc_hidden_proto(unlink) */
-
 /* SUSv3 states:
  *   If path does not name a directory, remove(path) shall be equivalent
  *   to unlink(path).  If path names a directory, remove(path) shall be
  *   equivalent to rmdir(path).
  */
 
-/* libc_hidden_proto(remove) */
 int remove(register const char *filename)
 {
 	int saved_errno = errno;
 	int rv;
 
-	if (((rv = rmdir(filename)) < 0) && (errno == ENOTDIR)) {
+	rv = rmdir(filename);
+	if ((rv < 0) && (errno == ENOTDIR)) {
 		__set_errno(saved_errno); /* Need to restore errno. */
 		rv = unlink(filename);
 	}
