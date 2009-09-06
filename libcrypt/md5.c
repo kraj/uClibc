@@ -531,7 +531,8 @@ static void __md5_to64( char *s, unsigned long v, int n)
 char *__md5_crypt(const unsigned char *pw, const unsigned char *salt)
 {
 	/* Static stuff */
-	static char passwd[120];
+	/* "$1$" + salt_up_to_8_chars + "$" + 22_bytes_of_hash + NUL */
+	static char passwd[3 + 8 + 1 + 22 + 1];
 
 	const unsigned char *sp, *ep;
 	char *p;
@@ -584,9 +585,9 @@ char *__md5_crypt(const unsigned char *pw, const unsigned char *salt)
 	}
 
 	/* Now make the output string */
-	strcpy(passwd,__md5__magic);
-	strncat(passwd,sp,sl);
-	strcat(passwd,"$");
+	strcpy(passwd,__md5__magic); /* 3 bytes */
+	strncpy(passwd+MD5_MAGIC_LEN,(char*)sp,sl); /* 8 or less */
+	passwd[MD5_MAGIC_LEN+sl] = '$';
 
 	__md5_Final(final,&ctx);
 
@@ -615,15 +616,17 @@ char *__md5_crypt(const unsigned char *pw, const unsigned char *salt)
 		__md5_Final(final,&ctx1);
 	}
 
-	p = passwd + strlen(passwd);
-
+	/* Add 5*4+2 = 22 bytes of hash, + NUL byte. */
+	p = passwd + MD5_MAGIC_LEN + sl + 1;
 	final[16] = final[5];
 	for ( i=0 ; i < 5 ; i++ ) {
 		l = (final[i]<<16) | (final[i+6]<<8) | final[i+12];
-		__md5_to64(p,l,4); p += 4;
+		__md5_to64(p,l,4);
+		p += 4;
 	}
 	l = final[11];
-	__md5_to64(p,l,2); p += 2;
+	__md5_to64(p,l,2);
+	p += 2;
 	*p = '\0';
 
 	/* Don't leave anything around in vm they could use. */
