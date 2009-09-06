@@ -35,45 +35,6 @@
 #include <glob.h>
 #include <wordexp.h>
 
-/* Experimentally off - libc_hidden_proto(mempcpy) */
-/* Experimentally off - libc_hidden_proto(stpcpy) */
-/* Experimentally off - libc_hidden_proto(strchr) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* Experimentally off - libc_hidden_proto(strdup) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* Experimentally off - libc_hidden_proto(strndup) */
-/* Experimentally off - libc_hidden_proto(strspn) */
-/* Experimentally off - libc_hidden_proto(strcspn) */
-/* libc_hidden_proto(setenv) */
-/* libc_hidden_proto(unsetenv) */
-/* libc_hidden_proto(waitpid) */
-/* libc_hidden_proto(kill) */
-/* libc_hidden_proto(getuid) */
-/* libc_hidden_proto(getpwnam_r) */
-/* libc_hidden_proto(getpwuid_r) */
-/* libc_hidden_proto(execve) */
-/* libc_hidden_proto(dup2) */
-/* libc_hidden_proto(atoi) */
-/* libc_hidden_proto(fnmatch) */
-/* libc_hidden_proto(pipe) */
-/* libc_hidden_proto(fork) */
-/* libc_hidden_proto(open) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(read) */
-/* libc_hidden_proto(getenv) */
-/* libc_hidden_proto(getpid) */
-/* libc_hidden_proto(sprintf) */
-/* libc_hidden_proto(fprintf) */
-/* libc_hidden_proto(abort) */
-/* libc_hidden_proto(glob) */
-/* libc_hidden_proto(globfree) */
-/* libc_hidden_proto(wordfree) */
-#ifdef __UCLIBC_HAS_XLOCALE__
-/* libc_hidden_proto(__ctype_b_loc) */
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-/* libc_hidden_proto(__ctype_b) */
-#endif
-
 #define __WORDEXP_FULL
 //#undef __WORDEXP_FULL
 
@@ -373,8 +334,8 @@ parse_tilde(char **word, size_t * word_length, size_t * max_length,
 
 static int
 do_parse_glob(const char *glob_word, char **word, size_t * word_length,
-			  size_t * max_length, wordexp_t * pwordexp, const char *ifs,
-			  const char *ifs_white)
+			  size_t * max_length, wordexp_t * pwordexp, const char *ifs
+			  /*, const char *ifs_white*/)
 {
 	int error;
 	int match;
@@ -497,7 +458,7 @@ parse_glob(char **word, size_t * word_length, size_t * max_length,
 	*word = w_newword(word_length, max_length);
 	for (i = 0; error == 0 && i < glob_list.we_wordc; i++)
 		error = do_parse_glob(glob_list.we_wordv[i], word, word_length,
-							  max_length, pwordexp, ifs, ifs_white);
+				max_length, pwordexp, ifs /*, ifs_white*/);
 
 	/* Now tidy up */
   tidy_up:
