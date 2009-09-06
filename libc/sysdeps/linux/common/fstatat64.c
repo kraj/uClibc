@@ -12,6 +12,11 @@
 
 #ifdef __UCLIBC_HAS_LFS__
 
+/* 64bit ports tend to favor newfstatat() */
+#ifdef __NR_newfstatat
+# define __NR_fstatat64 __NR_newfstatat
+#endif
+
 #ifdef __NR_fstatat64
 int fstatat64(int fd, const char *file, struct stat64 *buf, int flag)
 {

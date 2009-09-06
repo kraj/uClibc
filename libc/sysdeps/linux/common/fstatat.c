@@ -10,15 +10,20 @@
 #include <sys/stat.h>
 #include "xstatconv.h"
 
+/* 64bit ports tend to favor newfstatat() */
+#ifdef __NR_newfstatat
+# define __NR_fstatat64 __NR_newfstatat
+#endif
+
 #ifdef __NR_fstatat64
 int fstatat(int fd, const char *file, struct stat *buf, int flag)
 {
 	int ret;
-	struct kernel_stat kbuf;
+	struct kernel_stat64 kbuf;
 
 	ret = INLINE_SYSCALL(fstatat64, 4, fd, file, &kbuf, flag);
 	if (ret == 0)
-		__xstat_conv(&kbuf, buf);
+		__xstat32_conv(&kbuf, buf);
 
 	return ret;
 }
