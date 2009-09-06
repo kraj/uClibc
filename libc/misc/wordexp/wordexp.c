@@ -787,6 +787,7 @@ parse_arith(char **word, size_t * word_length, size_t * max_length,
 static void attribute_noreturn
 exec_comm_child(char *comm, int *fildes, int showerr, int noexec)
 {
+	int fd;
 	const char *args[4] = { _PATH_BSHELL, "-c", comm, NULL };
 
 	/* Execute the command, or just check syntax? */
@@ -794,13 +795,14 @@ exec_comm_child(char *comm, int *fildes, int showerr, int noexec)
 		args[1] = "-nc";
 
 	/* Redirect output.  */
-	dup2(fildes[1], 1);
-	close(fildes[1]);
+	fd = fildes[1];
+	if (fd != 1) {
+		dup2(fd, 1);
+		close(fd);
+	}
 
 	/* Redirect stderr to /dev/null if we have to.  */
 	if (showerr == 0) {
-		int fd;
-
 		close(2);
 		fd = open(_PATH_DEVNULL, O_WRONLY);
 		if (fd >= 0 && fd != 2) {
@@ -812,7 +814,8 @@ exec_comm_child(char *comm, int *fildes, int showerr, int noexec)
 	/* Make sure the subshell doesn't field-split on our behalf. */
 	unsetenv("IFS");
 
-	close(fildes[0]);
+	if (fildes[0] != 1)
+		close(fildes[0]);
 	execve(_PATH_BSHELL, (char *const *) args, __environ);
 
 	/* Bad.  What now?  */
