@@ -44,6 +44,25 @@ void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 	buf->st_ctim = kbuf->st_ctim;
 }
 
+void __xstat32_conv(struct kernel_stat64 *kbuf, struct stat *buf)
+{
+	/* Convert to current kernel version of `struct stat64'. */
+	memset(buf, 0x00, sizeof(*buf));
+	buf->st_dev = kbuf->st_dev;
+	buf->st_ino = kbuf->st_ino;
+	buf->st_mode = kbuf->st_mode;
+	buf->st_nlink = kbuf->st_nlink;
+	buf->st_uid = kbuf->st_uid;
+	buf->st_gid = kbuf->st_gid;
+	buf->st_rdev = kbuf->st_rdev;
+	buf->st_size = kbuf->st_size;
+	buf->st_blksize = kbuf->st_blksize;
+	buf->st_blocks = kbuf->st_blocks;
+	buf->st_atim = kbuf->st_atim;
+	buf->st_mtim = kbuf->st_mtim;
+	buf->st_ctim = kbuf->st_ctim;
+}
+
 #ifdef __UCLIBC_HAS_LFS__
 
 void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
