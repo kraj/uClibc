@@ -25,9 +25,7 @@
 #include <string.h>
 #include "xstatconv.h"
 
-/* Experimentally off - libc_hidden_proto(memset) */
-
-void attribute_hidden __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
+void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 {
 	/* Convert to current kernel version of `struct stat'. */
 	memset(buf, 0x00, sizeof(*buf));
@@ -48,7 +46,7 @@ void attribute_hidden __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 
 #ifdef __UCLIBC_HAS_LFS__
 
-void attribute_hidden __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
+void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 {
 	/* Convert to current kernel version of `struct stat64'. */
 	memset(buf, 0x00, sizeof(*buf));
