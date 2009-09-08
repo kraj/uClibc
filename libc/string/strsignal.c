@@ -18,16 +18,13 @@
 #include <bits/uClibc_uintmaxtostr.h>
 #include <signal.h>
 
-/* Experimentally off - libc_hidden_proto(strsignal) */
-/* Experimentally off - libc_hidden_proto(memcpy) */
-
 #define _SYS_NSIG			32
 
 #ifdef __UCLIBC_HAS_SIGNUM_MESSAGES__
 # define _SYS_SIGMSG_MAXLEN	25
-#else  /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
+#else
 # define _SYS_SIGMSG_MAXLEN	0
-#endif /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
+#endif
 
 #if _SYS_SIGMSG_MAXLEN < __UIM_BUFLEN_INT + 15
 # define _STRSIGNAL_BUFSIZE (__UIM_BUFLEN_INT + 15)
@@ -85,16 +82,16 @@ static const unsigned char sstridx[] = {
 
 char *strsignal(int signum)
 {
-    register char *s;
-    int i;
-    static char buf[_STRSIGNAL_BUFSIZE];
-    static const char unknown[] = {
+	register char *s;
+	int i;
+	static char buf[_STRSIGNAL_BUFSIZE];
+	static const char unknown[] = {
 		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 's', 'i', 'g', 'n', 'a', 'l', ' '
-    };
+	};
 
 #if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
 	/* Need to translate signum to string index. */
-	for (i = 0 ; i < sizeof(sstridx)/sizeof(sstridx[0]) ; i++) {
+	for (i = 0; i < sizeof(sstridx)/sizeof(sstridx[0]); i++) {
 		if (sstridx[i] == signum) {
 			goto GOT_SSTRIDX;
 		}
@@ -106,12 +103,12 @@ char *strsignal(int signum)
 	i = signum;
 #endif
 
-    if (((unsigned int) signum) < _SYS_NSIG) {
+	if (((unsigned int) signum) < _SYS_NSIG) {
 		/* Trade time for space.  This function should rarely be called
 		 * so rather than keeping an array of pointers for the different
 		 * messages, just run through the buffer until we find the
 		 * correct string. */
-		for (s = (char *) _string_syssigmsgs ; i ; ++s) {
+		for (s = (char *) _string_syssigmsgs; i; ++s) {
 			if (!*s) {
 				--i;
 			}
@@ -119,10 +116,10 @@ char *strsignal(int signum)
 		if (*s) {		/* Make sure we have an actual message. */
 			goto DONE;
 		}
-    }
+	}
 
-    s = _int10tostr(buf+sizeof(buf)-1, signum) - sizeof(unknown);
-    memcpy(s, unknown, sizeof(unknown));
+	s = _int10tostr(buf + sizeof(buf)-1, signum) - sizeof(unknown);
+	memcpy(s, unknown, sizeof(unknown));
 
  DONE:
 	return s;
@@ -132,13 +129,12 @@ char *strsignal(int signum)
 
 char *strsignal(int signum)
 {
-    static char buf[_STRSIGNAL_BUFSIZE];
-    static const char unknown[] = {
+	static char buf[_STRSIGNAL_BUFSIZE];
+	static const char unknown[] = {
 		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 's', 'i', 'g', 'n', 'a', 'l', ' '
-    };
+	};
 
-    return (char *) memcpy(_int10tostr(buf+sizeof(buf)-1, signum)
-						   - sizeof(unknown),
+	return memcpy(_int10tostr(buf + sizeof(buf)-1, signum) - sizeof(unknown),
 						   unknown, sizeof(unknown));
 }
 
