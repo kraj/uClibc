@@ -1835,30 +1835,43 @@ static smallint TZ_file_read;		/* Let BSS initialization set this to 0. */
 static char *read_TZ_file(char *buf)
 {
 	int fd;
-	ssize_t r;
-	size_t todo;
 	char *p = NULL;
 
-	if ((fd = open(__UCLIBC_TZ_FILE_PATH__, O_RDONLY)) >= 0) {
-		todo = TZ_BUFLEN;
+	fd = open(__UCLIBC_TZ_FILE_PATH__, O_RDONLY);
+	if (fd >= 0) {
+		ssize_t r;
+#if 0
+		/* TZ are small *files*. On files, short reads
+		 * only occur on EOF (unlike, say, pipes).
+		 * The code below is pedanticallly more correct,
+		 * but this way we always read at least twice:
+		 * 1st read is short, 2nd one is zero bytes.
+		 */
+		size_t todo = TZ_BUFLEN;
 		p = buf;
 		do {
-			if ((r = read(fd, p, todo)) < 0) {
+			r = read(fd, p, todo);
+			if (r < 0)
 				goto ERROR;
-			}
-			if (r == 0) {
+			if (r == 0)
 				break;
-			}
 			p += r;
 			todo -= r;
 		} while (todo);
+#else
+		/* Shorter, and does one less read syscall */
+		r = read(fd, buf, TZ_BUFLEN);
+		if (r < 0)
+			goto ERROR;
+		p = buf + r;
+#endif
 
-		if ((p > buf) && (p[-1] == '\n')) {	/* Must end with newline. */
+		if ((p > buf) && (p[-1] == '\n')) { /* Must end with newline */
 			p[-1] = 0;
 			p = buf;
 #ifndef __UCLIBC_HAS_TZ_FILE_READ_MANY__
 			TZ_file_read = 1;
-#endif /* __UCLIBC_HAS_TZ_FILE_READ_MANY__ */
+#endif
 		} else {
 ERROR:
 			p = NULL;
