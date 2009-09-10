@@ -1,4 +1,4 @@
-/* Copyright (C) 1999, 2000, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 1999, 2000, 2003, 2004, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -34,13 +34,12 @@
 ENTRY(__clone)
 	/* sanity check arguments.  */
 	tst	r4, r4
-	bt	0f
-	tst	r5, r5
-	bf/s	1f
-	mov	#+SYS_ify(clone), r3
-0:	
+	bt/s	0f
+	 tst	r5, r5
+	bf	1f
+0:
 	bra	.Lsyscall_error
-	mov	#-EINVAL,r0
+	 mov	#-EINVAL,r0
 1:
 	/* insert the args onto the new stack */
 	mov.l	r7, @-r5
@@ -52,6 +51,7 @@ ENTRY(__clone)
 	mov.l	@r15, r6
 	mov.l	@(8,r15), r7
 	mov.l	@(4,r15), r0
+	mov	#+SYS_ify(clone), r3
 	trapa	#0x15
 	mov     r0, r1
 	mov	#-12, r2
@@ -129,7 +129,6 @@ ENTRY(__clone)
 .Ltidoff:
 	.word	TID - TLS_PRE_TCB_SIZE
 #endif
-
 PSEUDO_END (__clone)
 
 weak_alias (__clone, clone)
