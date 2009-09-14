@@ -7,10 +7,6 @@ config TARGET_ARCH
 	string
 	default "microblaze"
 
-source "extra/Configs/Config.in.arches"
-menu "Target Architecture Features and Options"
-source "extra/Configs/Config.in.arch"
-
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
@@ -23,6 +19,3 @@ config ARCH_CFLAGS
 config CROSS
 	string
 	default "mb-"
-
-endmenu
-source "extra/Configs/Config.in.common"

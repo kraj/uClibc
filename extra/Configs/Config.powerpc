@@ -7,10 +7,6 @@ config TARGET_ARCH
 	string
 	default "powerpc"
 
-source "extra/Configs/Config.in.arches"
-menu "Target Architecture Features and Options"
-source "extra/Configs/Config.in.arch"
-
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
@@ -40,6 +36,3 @@ config CONFIG_E500
 	  e500 v1 and v2 core.
 
 endchoice
-
-endmenu
-source "extra/Configs/Config.in.common"

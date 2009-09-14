@@ -71,7 +71,7 @@ mark_arch()
 if [ -z "$*" ] ; then
 	set -- $(awk \
 		'$0 ~ /^config TARGET_/ { sub("TARGET_",""); print $NF }' \
-		extra/Configs/Config.in.arches | grep -v SUBARCH)
+		extra/Configs/Config.in | grep -v SUBARCH)
 fi
 pass=""
 fail=""
