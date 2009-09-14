@@ -7,10 +7,6 @@ config TARGET_ARCH
 	string
 	default "sh"
 
-source "extra/Configs/Config.in.arches"
-menu "Target Architecture Features and Options"
-source "extra/Configs/Config.in.arch"
-
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
@@ -54,9 +50,6 @@ config CONFIG_SH4
 endchoice
 
 config ARCH_HAS_BWD_MEMCPY
-	bool
-	default y
-	depends on CONFIG_SH4
-
-endmenu
-source "extra/Configs/Config.in.common"
+       bool
+       default y
+       depends on CONFIG_SH4

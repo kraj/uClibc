@@ -7,10 +7,6 @@ config TARGET_ARCH
 	string
 	default "sh64"
 
-source "extra/Configs/Config.in.arches"
-menu "Target Architecture Features and Options"
-source "extra/Configs/Config.in.arch"
-
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
@@ -37,6 +33,3 @@ config CONFIG_SH5
 	bool "SH5"
 
 endchoice
-
-endmenu
-source "extra/Configs/Config.in.common"

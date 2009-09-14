@@ -7,10 +7,6 @@ config TARGET_ARCH
 	string
 	default "h8300"
 
-source "extra/Configs/Config.in.arches"
-menu "Target Architecture Features and Options"
-source "extra/Configs/Config.in.arch"
-
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
@@ -33,6 +29,3 @@ endchoice
 
 config ARCH_CFLAGS
 	string
-
-endmenu
-source "extra/Configs/Config.in.common"

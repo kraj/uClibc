@@ -7,10 +7,6 @@ config TARGET_ARCH
 	string
 	default "vax"
 
-source "extra/Configs/Config.in.arches"
-menu "Target Architecture Features and Options"
-source "extra/Configs/Config.in.arch"
-
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
@@ -26,6 +22,3 @@ config ARCH_LDFLAGS
 config CROSS
 	string
 	default "vax-linux-uclibc-"
-
-endmenu
-source "extra/Configs/Config.in.common"

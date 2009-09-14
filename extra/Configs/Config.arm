@@ -7,10 +7,6 @@ config TARGET_ARCH
 	string
 	default "arm"
 
-source "extra/Configs/Config.in.arches"
-menu "Target Architecture Features and Options"
-source "extra/Configs/Config.in.arch"
-
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
@@ -138,6 +134,3 @@ config CONFIG_ARM_IWMMXT
 	select ARCH_HAS_MMU
 
 endchoice
-
-endmenu
-source "extra/Configs/Config.in.common"
