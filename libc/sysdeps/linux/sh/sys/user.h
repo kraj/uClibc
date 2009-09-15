@@ -22,6 +22,17 @@
 #include <unistd.h>
 #include <asm/ptrace.h>
 
+/* asm/ptrace.h polutes the namespace.  */
+#undef PTRACE_GETREGS
+#undef PTRACE_SETREGS
+#undef PTRACE_GETFPREGS
+#undef PTRACE_SETFPREGS
+#undef PTRACE_GETFDPIC
+#undef PTRACE_GETFDPIC_EXEC
+#undef PTRACE_GETFDPIC_INTERP
+#undef PTRACE_GETDSPREGS
+#undef PTRACE_SETDSPREGS
+
 /*
  * Core file format: The core file is written in such a way that gdb
  * can understand it and provide useful information to the user (under
