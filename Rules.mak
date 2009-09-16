@@ -63,14 +63,6 @@ STRIP_FLAGS ?= -x -R .note -R .comment
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
 BUILD_CFLAGS = -Os -Wall
-export ARCH := $(shell uname -m | $(SED) -e s/i.86/i386/ \
-				  -e s/sun.*/sparc/ -e s/sparc.*/sparc/ \
-				  -e s/arm.*/arm/ -e s/sa110/arm/ \
-				  -e s/sh.*/sh/ \
-				  -e s/s390x/s390/ -e s/parisc.*/hppa/ \
-				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
-				  -e s/xtensa.*/xtensa/ )
-
 
 #---------------------------------------------------------
 # Nothing beyond this point should ever be touched by mere
@@ -82,10 +74,21 @@ export ARCH := $(shell uname -m | $(SED) -e s/i.86/i386/ \
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 -include $(top_builddir).config
 endif
+TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
+ifeq ($(TARGET_ARCH),)
+ARCH ?= $(shell uname -m | $(SED) -e s/i.86/i386/ \
+				  -e s/sun.*/sparc/ -e s/sparc.*/sparc/ \
+				  -e s/arm.*/arm/ -e s/sa110/arm/ \
+				  -e s/sh.*/sh/ \
+				  -e s/s390x/s390/ -e s/parisc.*/hppa/ \
+				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
+				  -e s/xtensa.*/xtensa/ )
+else
+ARCH = $(TARGET_ARCH)
+endif
+export ARCH
 
 # Make certain these contain a final "/", but no "//"s.
-TARGET_ARCH:=$(shell grep -s '^TARGET_ARCH' $(top_builddir)/.config | $(SED) -e 's/^TARGET_ARCH=//' -e 's/"//g')
-TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
 TARGET_SUBARCH:=$(shell grep -s '^TARGET_SUBARCH' $(top_builddir)/.config | $(SED) -e 's/^TARGET_SUBARCH=//' -e 's/"//g')
 TARGET_SUBARCH:=$(strip $(subst ",, $(strip $(TARGET_SUBARCH))))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
