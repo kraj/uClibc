@@ -5,8 +5,37 @@
 
 mainmenu "uClibc C Library Configuration"
 
+config DESIRED_TARGET_ARCH
+	string
+	option env="ARCH"
+
 choice
 	prompt "Target Architecture"
+	default TARGET_alpha if DESIRED_TARGET_ARCH = "alpha"
+	default TARGET_arm if DESIRED_TARGET_ARCH = "arm"
+	default TARGET_avr32 if DESIRED_TARGET_ARCH = "avr32"
+	default TARGET_bfin if DESIRED_TARGET_ARCH = "bfin"
+	default TARGET_cris if DESIRED_TARGET_ARCH = "cris"
+	default TARGET_e1 if DESIRED_TARGET_ARCH = "e1"
+	default TARGET_frv if DESIRED_TARGET_ARCH = "frv"
+	default TARGET_h8300 if DESIRED_TARGET_ARCH = "h8300"
+	default TARGET_hppa if DESIRED_TARGET_ARCH = "hppa"
+	default TARGET_i386 if DESIRED_TARGET_ARCH = "i386"
+	default TARGET_i960 if DESIRED_TARGET_ARCH = "i960"
+	default TARGET_ia64 if DESIRED_TARGET_ARCH = "ia64"
+	default TARGET_m68k if DESIRED_TARGET_ARCH = "m68k"
+	default TARGET_microblaze if DESIRED_TARGET_ARCH = "microblaze"
+	default TARGET_mips if DESIRED_TARGET_ARCH = "mips"
+	default TARGET_nios if DESIRED_TARGET_ARCH = "nios"
+	default TARGET_nios2 if DESIRED_TARGET_ARCH = "nios2"
+	default TARGET_powerpc if DESIRED_TARGET_ARCH = "powerpc"
+	default TARGET_sh if DESIRED_TARGET_ARCH = "sh"
+	default TARGET_sh64 if DESIRED_TARGET_ARCH = "sh64"
+	default TARGET_sparc if DESIRED_TARGET_ARCH = "sparc"
+	default TARGET_v850 if DESIRED_TARGET_ARCH = "v850"
+	default TARGET_vax if DESIRED_TARGET_ARCH = "vax"
+	default TARGET_x86_64 if DESIRED_TARGET_ARCH = "x86_64"
+	default TARGET_xtensa if DESIRED_TARGET_ARCH = "xtensa"
 	help
 	  The architecture of your target.
 
