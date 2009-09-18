@@ -119,8 +119,8 @@ void
 _dl_protect_relro (struct elf_resolve *l)
 {
 	ElfW(Addr) base = (ElfW(Addr)) DL_RELOC_ADDR(l->loadaddr, l->relro_addr);
-	ElfW(Addr) start = (base & ~(_dl_pagesize - 1));
-	ElfW(Addr) end = ((base + l->relro_size) & ~(_dl_pagesize - 1));
+	ElfW(Addr) start = (base & PAGE_ALIGN);
+	ElfW(Addr) end = ((base + l->relro_size) & PAGE_ALIGN);
 	_dl_if_debug_dprint("RELRO protecting %s:  start:%x, end:%x\n", l->libname, start, end);
 	if (start != end &&
 	    _dl_mprotect ((void *) start, end - start, PROT_READ) < 0) {
@@ -464,7 +464,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	DL_CHECK_LIB_TYPE (epnt, piclib, _dl_progname, libname);
 
-	maxvma = (maxvma + ADDR_ALIGN) & ~ADDR_ALIGN;
+	maxvma = (maxvma + ADDR_ALIGN) & PAGE_ALIGN;
 	minvma = minvma & ~0xffffU;
 
 	flags = MAP_PRIVATE /*| MAP_DENYWRITE */ ;
