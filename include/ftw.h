@@ -129,27 +129,29 @@ typedef int (*__nftw64_func_t) (__const char *__filename,
 # endif
 #endif
 
+#if __UCLIBC_HAS_FTW__
 /* Call a function on every element in a directory tree.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-#ifndef __USE_FILE_OFFSET64
+# ifndef __USE_FILE_OFFSET64
 extern int ftw (__const char *__dir, __ftw_func_t __func, int __descriptors)
      __nonnull ((1, 2));
-#else
-# ifdef __REDIRECT
+# else
+#  ifdef __REDIRECT
 extern int __REDIRECT (ftw, (__const char *__dir, __ftw_func_t __func,
 			     int __descriptors), ftw64) __nonnull ((1, 2));
-# else
-#  define ftw ftw64
+#  else
+#   define ftw ftw64
+#  endif
 # endif
-#endif
-#ifdef __USE_LARGEFILE64
+# ifdef __USE_LARGEFILE64
 extern int ftw64 (__const char *__dir, __ftw64_func_t __func,
 		  int __descriptors) __nonnull ((1, 2));
+# endif
 #endif
 
-#ifdef __USE_XOPEN_EXTENDED
+#if __UCLIBC_HAS_NFTW__ && defined __USE_XOPEN_EXTENDED
 /* Call a function on every element in a directory tree.  FLAG allows
    to specify the behaviour more detailed.
 

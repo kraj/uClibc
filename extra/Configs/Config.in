@@ -1754,15 +1754,27 @@ config UCLIBC_HAS_WORDEXP
 	  This interface is rarely used, and very large.  Unless you have a
 	  pressing need for wordexp(), you should probably answer N.
 
-config UCLIBC_HAS_FTW
-	bool "Support the ftw() and nftw() interfaces"
+config UCLIBC_HAS_NFTW
+	bool "Support the nftw() interface"
 	default n
 	help
-	  The SuSv3 ftw() and nftw() interfaces are used to recursively descend
+	  The SuSv3 nftw() interface is used to recursively descend
 	  directory paths while repeatedly calling a function.
 
 	  This interface is rarely used, and adds around 4.5k.  Unless you have
-	  a pressing need for ftw() or nftw(), you should probably answer N.
+	  a pressing need for nftw(), you should probably answer N.
+
+config UCLIBC_HAS_FTW
+	bool "Support the ftw() interface"
+	default n
+	depends on UCLIBC_SUSV4_LEGACY
+	help
+	  The SuSv3 ftw() interface is used to recursively descend
+	  directory paths while repeatedly calling a function.
+
+	  This interface is rarely used, and adds around 4.5k.  Unless you have
+	  a pressing need for ftw(), you should probably answer N.
+
 
 config UCLIBC_HAS_GLOB
 	bool "Support the glob() interface"
