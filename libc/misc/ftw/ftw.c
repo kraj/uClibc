@@ -752,13 +752,15 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors,
 
 
 /* Entry points.  */
-
+#if __UCLIBC_HAS_FTW__
 int
 FTW_NAME (const char *path, FTW_FUNC_T func, int descriptors)
 {
   return ftw_startup (path, 0, func, descriptors, 0);
 }
+#endif
 
+#if __UCLIBC_HAS_NFTW__
 #ifndef _LIBC
 int
 NFTW_NAME (const char *path, NFTW_FUNC_T func, int descriptors, int flags)
@@ -800,5 +802,6 @@ NFTW_OLD_NAME (const char *path, NFTW_FUNC_T func, int descriptors, int flags)
 }
 
 compat_symbol (libc, NFTW_OLD_NAME, NFTW_NAME, GLIBC_2_1);
+#endif
 #endif
 #endif
