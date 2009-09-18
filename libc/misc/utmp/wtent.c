@@ -41,7 +41,7 @@ void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
     int fd;
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
-    fd = open_not_cancel(wtmp_file, O_APPEND | O_WRONLY);
+    fd = open_not_cancel(wtmp_file, O_APPEND | O_WRONLY, 0);
     if (fd >= 0) {
 	if (lockf(fd, F_LOCK, 0) == 0) {
 	    write_not_cancel(fd, lutmp, sizeof(struct utmp));
