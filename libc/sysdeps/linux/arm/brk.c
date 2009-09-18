@@ -21,7 +21,6 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-/* libc_hidden_proto(brk) */
 
 /* This must be initialized data because commons can't have aliases.  */
 void *__curbrk attribute_hidden = 0;

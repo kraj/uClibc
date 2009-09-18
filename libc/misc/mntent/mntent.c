@@ -12,19 +12,7 @@
 
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
-/* libc_hidden_proto(getmntent_r) */
-/* libc_hidden_proto(setmntent) */
-/* libc_hidden_proto(endmntent) */
 
-/* Experimentally off - libc_hidden_proto(strstr) */
-/* Experimentally off - libc_hidden_proto(strtok_r) */
-/* libc_hidden_proto(atoi) */
-/* libc_hidden_proto(fopen) */
-/* libc_hidden_proto(fclose) */
-/* libc_hidden_proto(fseek) */
-/* libc_hidden_proto(fgets) */
-/* libc_hidden_proto(abort) */
-/* libc_hidden_proto(fprintf) */
 
 /* Reentrant version of getmntent.  */
 struct mntent *getmntent_r (FILE *filep,

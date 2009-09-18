@@ -9,8 +9,6 @@
 #include <string.h>
 #include "_syserrmsg.h"
 
-/* Experimentally off - libc_hidden_proto(strerror) */
-/* libc_hidden_proto(__xpg_strerror_r) */
 
 char *strerror(int errnum)
 {

@@ -22,7 +22,6 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 
-/* libc_hidden_proto(ioctl) */
 
 /* Unlock the slave pseudo terminal associated with the master pseudo
    terminal specified by FD.  */

@@ -21,8 +21,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-/* libc_hidden_proto(tcgetpgrp) */
-/* libc_hidden_proto(ioctl) */
 
 /* Return the foreground process group ID of FD.  */
 pid_t tcgetpgrp (int fd)

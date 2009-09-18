@@ -44,11 +44,8 @@
  * all else    -> decimal
  */
 #ifdef __UCLIBC_HAS_XLOCALE__
-/* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-/* libc_hidden_proto(__ctype_b) */
 #endif
-/* libc_hidden_proto(inet_aton) */
 int inet_aton(const char *cp, struct in_addr *addrptr)
 {
 	in_addr_t addr;
@@ -103,9 +100,7 @@ libc_hidden_def(inet_aton)
 #endif
 
 #ifdef L_inet_addr
-/* libc_hidden_proto(inet_aton) */
 
-/* libc_hidden_proto(inet_addr) */
 in_addr_t inet_addr(const char *cp)
 {
 	struct in_addr a;
@@ -122,7 +117,6 @@ libc_hidden_def(inet_addr)
 
 #define INET_NTOA_MAX_LEN	16	/* max 12 digits + 3 '.'s + 1 nul */
 
-/* libc_hidden_proto(inet_ntoa_r) */
 char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 {
 	in_addr_t addr = ntohl(in.s_addr);
@@ -144,7 +138,6 @@ char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 }
 libc_hidden_def(inet_ntoa_r)
 
-/* libc_hidden_proto(inet_ntoa) */
 char *inet_ntoa(struct in_addr in)
 {
 	static char buf[INET_NTOA_MAX_LEN];
@@ -156,13 +149,11 @@ libc_hidden_def(inet_ntoa)
 #ifdef L_inet_makeaddr
 
 /* for some reason it does not remove the jump relocation */
-/* Experimentally off - libc_hidden_proto(memmove) */
 
 /*
  * Formulate an Internet address from network + host.  Used in
  * building addresses stored in the ifnet structure.
  */
-/* libc_hidden_proto(inet_makeaddr) */
 struct in_addr inet_makeaddr(in_addr_t net, in_addr_t host)
 {
 	in_addr_t addr;
@@ -206,7 +197,6 @@ in_addr_t inet_lnaof(struct in_addr in)
  * Return the network number from an internet
  * address; handles class a/b/c network #'s.
  */
-/* libc_hidden_proto(inet_netof) */
 in_addr_t
 inet_netof(struct in_addr in)
 {

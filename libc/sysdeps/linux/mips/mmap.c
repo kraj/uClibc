@@ -10,7 +10,6 @@
 #include <sys/mman.h>
 #include <sys/syscall.h>
 
-/* libc_hidden_proto(mmap) */
 
 #if 0
 /* For now, leave mmap using mmap1 since mmap2 seems

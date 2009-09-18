@@ -8,9 +8,7 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-/* libc_hidden_proto(vfprintf) */
 
-/* libc_hidden_proto(printf) */
 int printf(const char * __restrict format, ...)
 {
 	va_list arg;

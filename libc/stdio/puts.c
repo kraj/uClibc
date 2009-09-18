@@ -7,8 +7,6 @@
 
 #include "_stdio.h"
 
-/* libc_hidden_proto(__fputc_unlocked) */
-/* libc_hidden_proto(fputs_unlocked) */
 
 int puts(register const char * __restrict s)
 {

@@ -9,7 +9,6 @@
 
 #ifdef __DO_UNLOCKED
 
-/* libc_hidden_proto(fgetwc_unlocked) */
 
 wint_t getwchar_unlocked(void)
 {
@@ -22,7 +21,6 @@ strong_alias(getwchar_unlocked,getwchar)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-/* libc_hidden_proto(fgetwc) */
 
 wint_t getwchar(void)
 {

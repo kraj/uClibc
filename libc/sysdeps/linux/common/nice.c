@@ -12,7 +12,6 @@
 #include <unistd.h>
 #include <sys/resource.h>
 
-/* libc_hidden_proto(getpriority) */
 
 #ifdef __NR_nice
 
@@ -23,7 +22,6 @@ static __inline__ _syscall1(int, __syscall_nice, int, incr)
 
 # include <limits.h>
 
-/* libc_hidden_proto(setpriority) */
 
 static __inline__ int int_add_no_wrap(int a, int b)
 {

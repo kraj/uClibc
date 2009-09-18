@@ -27,8 +27,6 @@
 #include <limits.h>
 
 #ifdef __USE_GNU
-/* Experimentally off - libc_hidden_proto(memrchr) */
-/* libc_hidden_proto(abort) */
 
 #include "memcopy.h"
 

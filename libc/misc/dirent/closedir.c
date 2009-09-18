@@ -13,8 +13,6 @@
 #include <not-cancel.h>
 #endif
 
-/* libc_hidden_proto(closedir) */
-/* libc_hidden_proto(close) */
 
 int closedir(DIR * dir)
 {

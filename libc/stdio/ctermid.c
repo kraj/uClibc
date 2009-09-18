@@ -7,7 +7,6 @@
 
 #include "_stdio.h"
 
-/* Experimentally off - libc_hidden_proto(strcpy) */
 
 char *ctermid(register char *s)
 {

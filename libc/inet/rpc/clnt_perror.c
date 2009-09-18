@@ -51,13 +51,7 @@ static char sccsid[] = "@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
 # define fputs(s, f) _IO_fputs (s, f)
 #endif
 
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* libc_hidden_proto(sprintf) */
-/* libc_hidden_proto(__glibc_strerror_r) */
-/* libc_hidden_proto(fputs) */
 #ifdef USE_IN_LIBIO
-/* libc_hidden_proto(fwprintf) */
 #endif
 
 static char *auth_errmsg (enum auth_stat stat) internal_function;
@@ -186,7 +180,6 @@ static const struct rpc_errtab rpc_errlist[] =
 /*
  * This interface for use by clntrpc
  */
-/* libc_hidden_proto(clnt_sperrno) */
 char *
 clnt_sperrno (enum clnt_stat stat)
 {
@@ -217,7 +210,6 @@ clnt_perrno (enum clnt_stat num)
 /*
  * Print reply error info
  */
-/* libc_hidden_proto(clnt_sperror) */
 char *
 clnt_sperror (CLIENT * rpch, const char *msg)
 {
@@ -303,7 +295,6 @@ clnt_sperror (CLIENT * rpch, const char *msg)
 }
 libc_hidden_def(clnt_sperror)
 
-/* libc_hidden_proto(clnt_perror) */
 void
 clnt_perror (CLIENT * rpch, const char *msg)
 {
@@ -316,7 +307,6 @@ clnt_perror (CLIENT * rpch, const char *msg)
 }
 libc_hidden_def(clnt_perror)
 
-/* libc_hidden_proto(clnt_spcreateerror) */
 char *
 clnt_spcreateerror (const char *msg)
 {

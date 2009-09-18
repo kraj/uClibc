@@ -46,7 +46,6 @@
 /* No name ambiguities in this file.  */
 __asm__ (".syntax no_register_prefix");
 
-/* Experimentally off - libc_hidden_proto(memset) */
 void *memset(void *pdst, int c, unsigned int plen)
 {
   /* Now we want the parameters in special registers.  Make sure the

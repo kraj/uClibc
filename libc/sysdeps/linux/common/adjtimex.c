@@ -10,7 +10,6 @@
 #include <sys/syscall.h>
 #include <sys/timex.h>
 
-/* libc_hidden_proto(adjtimex) */
 
 _syscall1(int, adjtimex, struct timex *, buf)
 libc_hidden_def(adjtimex)

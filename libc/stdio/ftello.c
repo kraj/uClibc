@@ -8,9 +8,7 @@
 #include "_stdio.h"
 
 #ifdef __UCLIBC_HAS_LFS__
-/* libc_hidden_proto(ftello64) */
 #endif
-/* libc_hidden_proto(ftell) */
 
 #ifndef __DO_LARGEFILE
 # define FTELL         ftell

@@ -16,10 +16,8 @@
 
 #include "malloc.h"
 
-/* libc_hidden_proto(fprintf) */
 
 /* ------------------------------ mallinfo ------------------------------ */
-/* libc_hidden_proto(mallinfo) */
 struct mallinfo mallinfo(void)
 {
     mstate av;

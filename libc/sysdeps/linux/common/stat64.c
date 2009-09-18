@@ -11,7 +11,6 @@
 #include <sys/stat.h>
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_stat64
-/* libc_hidden_proto(stat64) */
 
 # define __NR___syscall_stat64 __NR_stat64
 # include <unistd.h>

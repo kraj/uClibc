@@ -8,7 +8,6 @@
 #include <getopt.h>
 #include <stdio.h>
 
-/* libc_hidden_proto(getopt) */
 
 static int __getopt_long(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx, int longonly)
 {

@@ -19,9 +19,7 @@
 
 #include <stdlib.h>
 
-/* libc_hidden_proto(nrand48_r) */
 
-/* libc_hidden_proto(lrand48_r) */
 int lrand48_r (struct drand48_data *buffer, long int *result)
 {
     /* Be generous for the arguments, detect some errors.  */

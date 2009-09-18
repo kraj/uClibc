@@ -14,7 +14,6 @@
 # undef fopen64
 #endif
 
-/* libc_hidden_proto(fopen) */
 FILE *fopen(const char * __restrict filename, const char * __restrict mode)
 {
 	return _stdio_fopen(((intptr_t) filename), mode, NULL, FILEDES_ARG);

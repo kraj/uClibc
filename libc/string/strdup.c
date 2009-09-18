@@ -9,16 +9,12 @@
 #include <stdlib.h>
 
 #ifdef WANT_WIDE
-/* libc_hidden_proto(wcslen) */
 # define Wstrdup wcsdup
 # define Wstrlen wcslen
 #else
-/* Experimentally off - libc_hidden_proto(strdup) */
-/* Experimentally off - libc_hidden_proto(strlen) */
 # define Wstrdup strdup
 # define Wstrlen strlen
 #endif
-/* Experimentally off - libc_hidden_proto(memcpy) */
 
 Wchar *Wstrdup(register const Wchar *s1)
 {

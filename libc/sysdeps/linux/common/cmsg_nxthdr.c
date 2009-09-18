@@ -23,7 +23,6 @@
 #undef __USE_EXTERN_INLINES
 #include <sys/socket.h>
 
-/* libc_hidden_proto(__cmsg_nxthdr) */
 
 struct cmsghdr *
 __cmsg_nxthdr (struct msghdr *mhdr, struct cmsghdr *cmsg)

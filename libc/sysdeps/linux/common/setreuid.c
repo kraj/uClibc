@@ -11,7 +11,6 @@
 #include <unistd.h>
 #include <bits/wordsize.h>
 
-/* libc_hidden_proto(setreuid) */
 
 #if (__WORDSIZE == 32 && defined(__NR_setreuid32)) || __WORDSIZE == 64
 # ifdef __NR_setreuid32

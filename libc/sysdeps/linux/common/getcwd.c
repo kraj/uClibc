@@ -15,17 +15,7 @@
 #include <sys/param.h>
 #include <sys/syscall.h>
 
-/* libc_hidden_proto(getcwd) */
-/* libc_hidden_proto(getpagesize) */
 
-/* Experimentally off - libc_hidden_proto(strcat) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* Experimentally off - libc_hidden_proto(strncpy) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* libc_hidden_proto(opendir) */
-/* libc_hidden_proto(readdir) */
-/* libc_hidden_proto(closedir) */
-/* libc_hidden_proto(stat) */
 
 #ifdef __NR_getcwd
 

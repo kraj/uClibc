@@ -56,21 +56,7 @@
 # include <wchar.h>
 #endif
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* libc_hidden_proto(sysconf) */
-/* libc_hidden_proto(getegid) */
-/* libc_hidden_proto(geteuid) */
-/* libc_hidden_proto(getgroups) */
-/* libc_hidden_proto(gethostname) */
-/* libc_hidden_proto(xdrmem_create) */
-/* libc_hidden_proto(xdr_authunix_parms) */
-/* libc_hidden_proto(xdr_opaque_auth) */
-/* libc_hidden_proto(gettimeofday) */
-/* libc_hidden_proto(fputs) */
-/* libc_hidden_proto(perror) */
-/* libc_hidden_proto(abort) */
 #ifdef USE_IN_LIBIO
-/* libc_hidden_proto(fwprintf) */
 #endif
 
 /*
@@ -109,7 +95,6 @@ static bool_t marshal_new_auth (AUTH *) internal_function;
  * Create a unix style authenticator.
  * Returns an auth handle with the given stuff in it.
  */
-/* libc_hidden_proto(authunix_create) */
 AUTH *
 authunix_create (char *machname, uid_t uid, gid_t gid, int len,
 		 gid_t *aup_gids)
@@ -182,7 +167,6 @@ libc_hidden_def(authunix_create)
  * Returns an auth handle with parameters determined by doing lots of
  * syscalls.
  */
-/* libc_hidden_proto(authunix_create_default) */
 AUTH *
 authunix_create_default (void)
 {

@@ -23,14 +23,9 @@
 #else
 
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-/* libc_hidden_proto(open_memstream) */
-/* libc_hidden_proto(fclose) */
-/* libc_hidden_proto(vfprintf) */
 #else
-/* libc_hidden_proto(vsnprintf) */
 #endif
 
-/* libc_hidden_proto(vasprintf) */
 int vasprintf(char **__restrict buf, const char * __restrict format,
 			 va_list arg)
 {

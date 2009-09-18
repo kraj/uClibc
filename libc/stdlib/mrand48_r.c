@@ -19,7 +19,6 @@
 
 #include <stdlib.h>
 
-/* libc_hidden_proto(jrand48_r) */
 
 int mrand48_r (struct drand48_data *buffer, long int *result)
 {

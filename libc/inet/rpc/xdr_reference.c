@@ -52,12 +52,8 @@ static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
 # include <wchar.h>
 # include <libio/iolibio.h>
 # define fputs(s, f) _IO_fputs (s, f)
-/* libc_hidden_proto(fwprintf) */
 #endif
 
-/* Experimentally off - libc_hidden_proto(memset) */
-/* libc_hidden_proto(xdr_bool) */
-/* libc_hidden_proto(fputs) */
 
 #define LASTUNSIGNED	((u_int)0-1)
 
@@ -70,7 +66,6 @@ static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
  * size is the size of the referneced structure.
  * proc is the routine to handle the referenced structure.
  */
-/* libc_hidden_proto(xdr_reference) */
 bool_t
 xdr_reference (XDR *xdrs, caddr_t *pp, u_int size, xdrproc_t proc)
 {

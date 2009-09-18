@@ -32,17 +32,12 @@
 #define F_GETLK F_GETLK64
 #undef F_SETLK
 #define F_SETLK F_SETLK64
-/* libc_hidden_proto(fcntl64) */
 #else
-/* libc_hidden_proto(fcntl) */
 #endif
 
-/* Experimentally off - libc_hidden_proto(memset) */
-/* libc_hidden_proto(getpid) */
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */
 
-/* libc_hidden_proto(lockf64) */
 int lockf64 (int fd, int cmd, off64_t len64)
 {
     struct flock fl;

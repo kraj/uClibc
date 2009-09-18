@@ -16,7 +16,6 @@
 #include <sysdep.h>
 #endif
 
-/* libc_hidden_proto(_exit) */
 
 void attribute_noreturn _exit(int status)
 {

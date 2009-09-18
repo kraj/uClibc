@@ -9,7 +9,6 @@
 
 #ifdef __USE_GNU
 
-/* Experimentally off - libc_hidden_proto(memrchr) */
 
 void *memrchr(const void *s, int c, size_t n)
 {

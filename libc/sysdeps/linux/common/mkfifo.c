@@ -21,7 +21,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-/* libc_hidden_proto(mknod) */
 
 /* Create a named pipe (FIFO) named PATH with protections MODE.  */
 int

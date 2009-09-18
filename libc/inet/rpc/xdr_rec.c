@@ -57,12 +57,8 @@
 # include <wchar.h>
 # include <libio/iolibio.h>
 # define fputs(s, f) _IO_fputs (s, f)
-/* libc_hidden_proto(fwprintf) */
 #endif
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* libc_hidden_proto(fputs) */
-/* libc_hidden_proto(lseek) */
 
 static bool_t xdrrec_getbytes (XDR *, caddr_t, u_int);
 static bool_t xdrrec_putbytes (XDR *, const char *, u_int);
@@ -153,7 +149,6 @@ static bool_t get_input_bytes (RECSTREAM *, caddr_t, int) internal_function;
  * write respectively.   They are like the system
  * calls expect that they take an opaque handle rather than an fd.
  */
-/* libc_hidden_proto(xdrrec_create) */
 void
 xdrrec_create (XDR *xdrs, u_int sendsize,
 	       u_int recvsize, caddr_t tcp_handle,
@@ -460,7 +455,6 @@ xdrrec_destroy (XDR *xdrs)
  * Before reading (deserializing from the stream, one should always call
  * this procedure to guarantee proper record alignment.
  */
-/* libc_hidden_proto(xdrrec_skiprecord) */
 bool_t
 xdrrec_skiprecord (XDR *xdrs)
 {
@@ -484,7 +478,6 @@ libc_hidden_def(xdrrec_skiprecord)
  * Returns TRUE iff there is no more input in the buffer
  * after consuming the rest of the current record.
  */
-/* libc_hidden_proto(xdrrec_eof) */
 bool_t
 xdrrec_eof (XDR *xdrs)
 {
@@ -510,7 +503,6 @@ libc_hidden_def(xdrrec_eof)
  * (output) tcp stream.  (This lets the package support batched or
  * pipelined procedure calls.)  TRUE => immediate flush to tcp connection.
  */
-/* libc_hidden_proto(xdrrec_endofrecord) */
 bool_t
 xdrrec_endofrecord (XDR *xdrs, bool_t sendnow)
 {

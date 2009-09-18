@@ -29,13 +29,6 @@
 #include <unistd.h>
 #include <bits/uClibc_uintmaxtostr.h>
 
-/* Experimentally off - libc_hidden_proto(strcat) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* libc_hidden_proto(isatty) */
-/* libc_hidden_proto(ioctl) */
-/* libc_hidden_proto(fstat) */
-/* libc_hidden_proto(stat) */
 
 #if !defined __UNIX98PTY_ONLY__
 
@@ -68,7 +61,6 @@ extern const char __libc_ptyname2[] attribute_hidden;
 /* Store at most BUFLEN characters of the pathname of the slave pseudo
    terminal associated with the master FD is open on in BUF.
    Return 0 on success, otherwise an error number.  */
-/* libc_hidden_proto(ptsname_r) */
 int ptsname_r (int fd, char *buf, size_t buflen)
 {
   int save_errno = errno;

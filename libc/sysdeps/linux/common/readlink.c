@@ -10,6 +10,5 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-/* libc_hidden_proto(readlink) */
 _syscall3(ssize_t, readlink, const char *, path, char *, buf, size_t, bufsiz)
 libc_hidden_def(readlink)

@@ -38,7 +38,6 @@ _syscall3(void *, shmat, int, shmid, const void *,shmaddr, int, shmflg)
 #else
 /* psm: don't remove this, else mips will fail */
 #include <unistd.h>
-/* libc_hidden_proto(getpagesize) */
 
 void * shmat (int shmid, const void *shmaddr, int shmflg)
 {

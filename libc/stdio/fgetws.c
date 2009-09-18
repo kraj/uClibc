@@ -7,9 +7,7 @@
 
 #include "_stdio.h"
 
-/* libc_hidden_proto(fgetws_unlocked) */
 
-/* libc_hidden_proto(fgetwc_unlocked) */
 
 #ifdef __DO_UNLOCKED
 

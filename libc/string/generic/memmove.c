@@ -29,8 +29,6 @@
 #include "_memcpy_fwd.c"
 #endif
 
-/* Experimentally off - libc_hidden_proto(memmove) */
-/* Experimentally off - libc_hidden_proto(memcpy) */
 
 static void _wordcopy_bwd_aligned (long int dstp, long int srcp, size_t len)
 {

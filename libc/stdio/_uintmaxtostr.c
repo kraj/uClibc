@@ -11,7 +11,6 @@
 #include <locale.h>
 #include <bits/uClibc_uintmaxtostr.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
 
 /* Avoid using long long / and % operations to cut down dependencies on
  * libgcc.a.  Definitely helps on i386 at least. */

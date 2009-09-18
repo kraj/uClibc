@@ -7,10 +7,7 @@
 
 #include "_stdio.h"
 
-/* libc_hidden_proto(fputs_unlocked) */
 
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* libc_hidden_proto(fwrite_unlocked) */
 
 /* Note: The standard says fputs returns a nonnegative number on
  * success.  In this implementation, we return the length of the
@@ -29,14 +26,12 @@ int fputs_unlocked(register const char * __restrict s,
 libc_hidden_def(fputs_unlocked)
 
 #ifndef __UCLIBC_HAS_THREADS__
-/* libc_hidden_proto(fputs) */
 strong_alias(fputs_unlocked,fputs)
 libc_hidden_def(fputs)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-/* libc_hidden_proto(fputs) */
 int fputs(const char * __restrict s, register FILE * __restrict stream)
 {
 	int retval;

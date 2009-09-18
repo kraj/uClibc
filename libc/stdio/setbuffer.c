@@ -9,7 +9,6 @@
 
 #ifdef __USE_BSD
 
-/* libc_hidden_proto(setvbuf) */
 
 /* A BSD function.  The implementation matches the linux man page,
  * except that we do not bother calling setvbuf if not configured

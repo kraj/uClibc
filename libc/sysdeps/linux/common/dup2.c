@@ -10,7 +10,6 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-/* libc_hidden_proto(dup2) */
 
 _syscall2(int, dup2, int, oldfd, int, newfd)
 libc_hidden_def(dup2)

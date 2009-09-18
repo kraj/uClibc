@@ -23,12 +23,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-/* libc_hidden_proto(fopen) */
-/* libc_hidden_proto(fclose) */
-/* libc_hidden_proto(inet_network) */
-/* libc_hidden_proto(rewind) */
-/* libc_hidden_proto(fgets) */
-/* libc_hidden_proto(abort) */
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
@@ -44,7 +38,6 @@ static char *net_aliases[MAXALIASES];
 
 smallint _net_stayopen attribute_hidden;
 
-/* libc_hidden_proto(setnetent) */
 void setnetent(int f)
 {
     __UCLIBC_MUTEX_LOCK(mylock);
@@ -58,7 +51,6 @@ void setnetent(int f)
 }
 libc_hidden_def(setnetent)
 
-/* libc_hidden_proto(endnetent) */
 void endnetent(void)
 {
     __UCLIBC_MUTEX_LOCK(mylock);
@@ -84,7 +76,6 @@ static char * any(register char *cp, char *match)
     return ((char *)0);
 }
 
-/* libc_hidden_proto(getnetent) */
 struct netent *getnetent(void)
 {
     char *p;

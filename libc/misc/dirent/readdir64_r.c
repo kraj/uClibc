@@ -13,9 +13,7 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
 
-/* libc_hidden_proto(readdir64_r) */
 int readdir64_r(DIR *dir, struct dirent64 *entry, struct dirent64 **result)
 {
 	int ret;

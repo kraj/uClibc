@@ -22,7 +22,6 @@
 #include <unistd.h>
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
 
 #define CS_PATH "/bin:/usr/bin"
 

@@ -20,8 +20,6 @@
 #include <stddef.h>
 
 #ifdef __USE_GNU
-/* Experimentally off - libc_hidden_proto(memmem) */
-/* Experimentally off - libc_hidden_proto(memcmp) */
 
 /* Return the first occurrence of NEEDLE in HAYSTACK.  */
 void *memmem (const void *haystack, size_t haystack_len,

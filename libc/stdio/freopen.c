@@ -7,7 +7,6 @@
 
 #include "_stdio.h"
 
-/* libc_hidden_proto(fclose) */
 
 #ifndef __DO_LARGEFILE
 # define FILEDES_ARG    (-1)

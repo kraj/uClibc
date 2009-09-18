@@ -10,14 +10,12 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-/* libc_hidden_proto(alarm) */
 
 #ifdef __NR_alarm
 _syscall1(unsigned int, alarm, unsigned int, seconds)
 #else
 #include <sys/time.h>
 
-/* libc_hidden_proto(setitimer) */
 
 unsigned int alarm(unsigned int seconds)
 {

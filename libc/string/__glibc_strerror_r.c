@@ -8,8 +8,6 @@
 #include <features.h>
 #include <string.h>
 
-/* libc_hidden_proto(__glibc_strerror_r) */
-/* libc_hidden_proto(__xpg_strerror_r) */
 
 char *__glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {

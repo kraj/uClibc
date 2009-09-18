@@ -10,7 +10,6 @@
 #include <sys/syscall.h>
 #include <sys/time.h>
 
-/* libc_hidden_proto(setitimer) */
 
 _syscall3(int, setitimer, __itimer_which_t, which,
 		  const struct itimerval *, new, struct itimerval *, old)

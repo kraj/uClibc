@@ -16,7 +16,6 @@
 
 #include "malloc.h"
 
-/* libc_hidden_proto(munmap) */
 
 /* ------------------------- __malloc_trim -------------------------
    __malloc_trim is an inverse of sorts to __malloc_alloc.  It gives memory

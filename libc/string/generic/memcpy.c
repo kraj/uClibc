@@ -24,7 +24,6 @@
 #include "pagecopy.h"
 #include "_memcpy_fwd.c"
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
 
 void *memcpy (void *dstpp, const void *srcpp, size_t len)
 {

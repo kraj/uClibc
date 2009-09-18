@@ -26,13 +26,7 @@ Cambridge, MA 02139, USA.  */
 #include <signal.h>
 #include <errno.h>
 
-/* libc_hidden_proto(abort) */
 
-/* Experimentally off - libc_hidden_proto(memset) */
-/* libc_hidden_proto(sigaction) */
-/* libc_hidden_proto(sigprocmask) */
-/* libc_hidden_proto(raise) */
-/* libc_hidden_proto(_exit) */
 
 /* Our last ditch effort to commit suicide */
 #ifdef __UCLIBC_ABORT_INSTRUCTION__

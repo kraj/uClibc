@@ -22,7 +22,6 @@
 #include <string.h>
 #include <errno.h>
 
-/* Experimentally off - libc_hidden_proto(memset) */
 
 void * calloc(size_t nmemb, size_t lsize)
 {

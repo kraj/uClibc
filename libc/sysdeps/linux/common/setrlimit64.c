@@ -26,7 +26,6 @@
 
 #if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 32
 
-/* libc_hidden_proto(setrlimit) */
 
 /* Set the soft and hard limits for RESOURCE to *RLIMITS.
    Only the super-user can increase hard limits.

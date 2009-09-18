@@ -23,19 +23,6 @@
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* libc_hidden_proto(tcsetattr) */
-/* libc_hidden_proto(tcgetattr) */
-/* libc_hidden_proto(setvbuf) */
-/* libc_hidden_proto(fopen) */
-/* libc_hidden_proto(fclose) */
-/* libc_hidden_proto(fileno) */
-/* libc_hidden_proto(fflush) */
-/* libc_hidden_proto(fgets) */
-/* libc_hidden_proto(fputs) */
-/* libc_hidden_proto(fputc) */
-/* libc_hidden_proto(putc) */
-/* libc_hidden_proto(__fputc_unlocked) */
 
 /* It is desirable to use this bit on systems that have it.
    The only bit of terminal state we want to twiddle is echoing, which is

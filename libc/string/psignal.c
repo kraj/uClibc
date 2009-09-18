@@ -10,8 +10,6 @@
 #include <string.h>
 #include <signal.h>
 
-/* libc_hidden_proto(fprintf) */
-/* Experimentally off - libc_hidden_proto(strsignal) */
 
 /* TODO: make this threadsafe with a reentrant version of strsignal? */
 

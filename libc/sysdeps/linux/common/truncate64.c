@@ -49,7 +49,6 @@ int truncate64(const char * path, __off64_t length)
 
 #else  /* __NR_truncate64 */
 
-/* libc_hidden_proto(truncate) */
 
 int truncate64(const char * path, __off64_t length)
 {

@@ -11,9 +11,7 @@
 
 /* XXX: _BSD || _XOPEN_SOURCE >= 500 */
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
-/* libc_hidden_proto(getdtablesize) */
 
-/* libc_hidden_proto(getrlimit) */
 
 #define __LOCAL_OPEN_MAX	    256
 

@@ -50,11 +50,6 @@ static char sccsid[] = "@(#)get_myaddress.c 1.4 87/08/11 Copyr 1984 Sun Micro";
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-/* libc_hidden_proto(ioctl) */
-/* libc_hidden_proto(socket) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(perror) */
-/* libc_hidden_proto(exit) */
 
 /*
  * don't use gethostbyname, which would invoke yellow pages

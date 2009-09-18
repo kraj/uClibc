@@ -8,7 +8,6 @@
 #include "_string.h"
 
 #ifdef __USE_GNU
-/* Experimentally off - libc_hidden_proto(basename) */
 
 char *basename(const char *path)
 {

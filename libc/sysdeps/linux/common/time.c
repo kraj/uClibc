@@ -11,12 +11,10 @@
 #include <time.h>
 #include <sys/time.h>
 
-/* Experimentally off - libc_hidden_proto(time) */
 
 #ifdef __NR_time
 _syscall1(time_t, time, time_t *, t)
 #else
-/* libc_hidden_proto(gettimeofday) */
 
 time_t time(time_t * t)
 {

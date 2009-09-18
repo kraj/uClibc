@@ -20,10 +20,8 @@
 #include <signal.h>
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(memset) */
 
 /* Clear all signals from SET.  */
-/* libc_hidden_proto(sigemptyset) */
 int sigemptyset (sigset_t *set)
 {
 #if 0 /* is it really required by standards?! */

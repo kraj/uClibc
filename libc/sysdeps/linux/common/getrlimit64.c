@@ -26,7 +26,6 @@
 
 #if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 32
 
-/* libc_hidden_proto(getrlimit) */
 
 /* Put the soft and hard limits for RESOURCE in *RLIMITS.
    Returns 0 if successful, -1 if not (and sets errno).  */

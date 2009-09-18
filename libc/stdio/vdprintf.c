@@ -12,11 +12,8 @@
 #include <stdarg.h>
 
 #ifdef __USE_OLD_VFPRINTF__
-/* libc_hidden_proto(vfprintf) */
 #endif
-/* libc_hidden_proto(fflush_unlocked) */
 
-/* libc_hidden_proto(vdprintf) */
 int vdprintf(int filedes, const char * __restrict format, va_list arg)
 {
 	FILE f;

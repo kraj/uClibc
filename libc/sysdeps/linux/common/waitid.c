@@ -23,7 +23,6 @@ static _syscall5(int, waitid5, idtype_t, idtype, id_t, id, siginfo_t*, infop,
                  int, options, struct rusage*, ru)
 # endif
 
-/* libc_hidden_proto(waitpid) */
 int waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options)
 {
 # ifdef __NR_waitid

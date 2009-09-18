@@ -23,16 +23,6 @@
 #include <unistd.h>
 #include <stdio.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(strcat) */
-/* Experimentally off - libc_hidden_proto(strchr) */
-/* Experimentally off - libc_hidden_proto(strcmp) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* libc_hidden_proto(opendir) */
-/* libc_hidden_proto(closedir) */
-/* libc_hidden_proto(qsort) */
-/* libc_hidden_proto(fnmatch) */
 
 struct match
 {
@@ -53,12 +43,8 @@ extern int __glob_match_in_dir(const char *d, const char *p, int flags, int (*er
 # define stat stat64
 # define readdir_r readdir64_r
 # define dirent dirent64
-/* libc_hidden_proto(readdir64_r) */
-/* libc_hidden_proto(stat64) */
 # define struct_stat struct stat64
 #else
-/* libc_hidden_proto(readdir_r) */
-/* libc_hidden_proto(stat) */
 # define struct_stat struct stat
 #endif
 
@@ -224,9 +210,7 @@ int __glob_sort(const void *a, const void *b)
 #endif /* !__GLOB64 */
 
 #ifdef __GLOB64
-/* libc_hidden_proto(glob64) */
 #else
-/* libc_hidden_proto(glob) */
 #endif
 int glob(const char *pat, int flags, int (*errfunc)(const char *path, int err), glob_t *g)
 {
@@ -302,9 +286,7 @@ libc_hidden_def(glob)
 #endif
 
 #ifdef __GLOB64
-/* libc_hidden_proto(globfree64) */
 #else
-/* libc_hidden_proto(globfree) */
 #endif
 void globfree(glob_t *g)
 {

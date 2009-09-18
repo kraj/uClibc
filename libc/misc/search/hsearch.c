@@ -19,9 +19,6 @@
 
 #include <search.h>
 
-/* libc_hidden_proto(hdestroy_r) */
-/* libc_hidden_proto(hsearch_r) */
-/* libc_hidden_proto(hcreate_r) */
 
 /* The non-reentrant version use a global space for storing the table.  */
 static struct hsearch_data htab;

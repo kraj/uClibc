@@ -101,7 +101,6 @@ svcauthsw[] =
  * There is an assumption that any flavour less than AUTH_NULL is
  * invalid.
  */
-/* libc_hidden_proto(_authenticate) */
 enum auth_stat
 _authenticate (register struct svc_req *rqst, struct rpc_msg *msg)
 {

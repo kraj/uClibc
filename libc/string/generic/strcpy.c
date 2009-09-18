@@ -21,7 +21,6 @@
 
 #include "memcopy.h"
 
-/* Experimentally off - libc_hidden_proto(strcpy) */
 /* Copy SRC to DEST.  */
 char *strcpy(char *dest, const char *src)
 {

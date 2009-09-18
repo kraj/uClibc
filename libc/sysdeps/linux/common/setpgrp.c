@@ -7,7 +7,6 @@
 #include <syscall.h>
 #include <unistd.h>
 
-/* libc_hidden_proto(setpgid) */
 
 int setpgrp(void)
 {

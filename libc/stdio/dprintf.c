@@ -11,7 +11,6 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-/* libc_hidden_proto(vdprintf) */
 
 int dprintf(int filedes, const char * __restrict format, ...)
 {

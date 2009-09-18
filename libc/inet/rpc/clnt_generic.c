@@ -40,16 +40,6 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(memset) */
-/* Experimentally off - libc_hidden_proto(strcmp) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* libc_hidden_proto(clnttcp_create) */
-/* libc_hidden_proto(clntudp_create) */
-/* libc_hidden_proto(clntunix_create) */
-/* libc_hidden_proto(getprotobyname_r) */
-/* libc_hidden_proto(gethostbyname_r) */
-/* libc_hidden_proto(__rpc_thread_createerr) */
 
 /*
  * Generic client creation: takes (hostname, program-number, protocol) and

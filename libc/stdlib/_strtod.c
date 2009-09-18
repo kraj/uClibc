@@ -110,12 +110,10 @@
 # include <wchar.h>
 # include <wctype.h>
 # include <bits/uClibc_uwchar.h>
-/* libc_hidden_proto(iswspace) */
 #endif
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 # include <xlocale.h>
-/* libc_hidden_proto(iswspace_l) */
 #endif
 
 /* Handle _STRTOD_HEXADECIMAL_FLOATS via uClibc config now. */
@@ -175,10 +173,7 @@ extern void __fp_range_check(__fpmax_t y, __fpmax_t x) attribute_hidden;
 #if defined(L___strtofpmax) || defined(L___strtofpmax_l) || defined(L___wcstofpmax) || defined(L___wcstofpmax_l)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-/* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-/* libc_hidden_proto(__ctype_b) */
-/* libc_hidden_proto(__ctype_tolower) */
 #endif
 
 #if defined(L___wcstofpmax) || defined(L___wcstofpmax_l)
@@ -214,7 +209,6 @@ __fpmax_t attribute_hidden __strtofpmax(const Wchar *str, Wchar **endptr, int ex
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-/* Experimentally off - libc_hidden_proto(memcmp) */
 
 __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_power
 								 __LOCALE_PARAM )

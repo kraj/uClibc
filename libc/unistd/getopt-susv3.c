@@ -23,8 +23,6 @@
 #include <stdio.h>
 #include <getopt.h>
 
-/* libc_hidden_proto(fprintf) */
-/* Experimentally off - libc_hidden_proto(strchr) */
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Enable gettext awareness.
@@ -46,7 +44,6 @@ int optind = 1;
 int optopt = 0;
 char *optarg = NULL;
 
-/* libc_hidden_proto(getopt) */
 int getopt(int argc, char * const argv[], const char *optstring)
 {
 	static const char *o;		/* multi opt position */

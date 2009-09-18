@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <signal.h>
 
-/* libc_hidden_proto(sigprocmask) */
 
 int setjmp( jmp_buf state)
 {

@@ -792,7 +792,6 @@ re_compile_internal (regex_t *preg, const char * pattern, size_t length,
    as the initial length of some arrays.  */
 
 #ifdef __UCLIBC_HAS_WCHAR__
-/* libc_hidden_proto(_stdlib_mb_cur_max) */
 #endif
 
 static reg_errcode_t

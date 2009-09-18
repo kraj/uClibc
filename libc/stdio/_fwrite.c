@@ -7,9 +7,6 @@
 
 #include "_stdio.h"
 
-/* Experimentally off - libc_hidden_proto(memchr) */
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(memrchr) */
 
 #ifdef __STDIO_BUFFERS
 

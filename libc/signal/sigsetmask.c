@@ -21,12 +21,10 @@
 #include <signal.h>
 #include <string.h>
 
-/* libc_hidden_proto(sigprocmask) */
 
 #include "sigset-cvt-mask.h"
 
 /* Set the mask of blocked signals to MASK, returning the old mask.  */
-/* libc_hidden_proto(sigsetmask) */
 int
 sigsetmask (int mask)
 {

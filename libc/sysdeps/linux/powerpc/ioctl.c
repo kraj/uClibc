@@ -22,10 +22,7 @@
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
 
-/* libc_hidden_proto(ioctl) */
 
-/* libc_hidden_proto(tcsetattr) */
-/* libc_hidden_proto(tcgetattr) */
 
 /* The user-visible size of struct termios has changed.  Catch ioctl calls
    using the new-style struct termios, and translate them to old-style.  */

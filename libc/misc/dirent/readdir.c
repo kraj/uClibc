@@ -13,7 +13,6 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-/* libc_hidden_proto(readdir) */
 
 struct dirent *readdir(DIR * dir)
 {

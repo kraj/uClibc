@@ -56,8 +56,6 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 #include <sys/param.h>
 #include <unistd.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(memset) */
 libc_hidden_proto(getdtablesize)
 libc_hidden_proto(select)
 

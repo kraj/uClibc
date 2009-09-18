@@ -48,14 +48,6 @@ static char sccsid[] = "@(#)clnt_raw.c 1.22 87/08/11 Copyr 1984 Sun Micro";
 #include <rpc/svc.h>
 #include <rpc/xdr.h>
 
-/* libc_hidden_proto(perror) */
-/* libc_hidden_proto(authnone_create) */
-/* libc_hidden_proto(xdrmem_create) */
-/* libc_hidden_proto(xdr_callhdr) */
-/* libc_hidden_proto(xdr_replymsg) */
-/* libc_hidden_proto(xdr_opaque_auth) */
-/* libc_hidden_proto(svc_getreq) */
-/* libc_hidden_proto(_seterr_reply) */
 
 #define MCALL_MSG_SIZE 24
 

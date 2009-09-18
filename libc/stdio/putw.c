@@ -7,7 +7,6 @@
 
 #include "_stdio.h"
 
-/* libc_hidden_proto(fwrite_unlocked) */
 
 /* SUSv2 Legacy function -- need not be reentrant. */
 

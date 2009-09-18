@@ -20,7 +20,6 @@
 #define __UCLIBC_HIDE_DEPRECATED__
 #include <signal.h>
 
-/* libc_hidden_proto(sigblock) */
 
 int
 siggetmask (void)
