@@ -33,11 +33,13 @@
 # include <sys/mman.h>
 #endif
 
+#ifdef BUILDING_LINKAGE
 #include <link.h>
 /* makefile will include elf.h for us */
 
 #include "bswap.h"
 #include "dl-defs.h"
+#endif
 
 #ifdef DMALLOC
 #include <dmalloc.h>

@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2009 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
@@ -24,18 +24,19 @@ else
 CFLAGS-utils-shared :=
 endif
 
-CFLAGS-ldconfig :=
+CFLAGS-ldconfig := -DBUILDING_LINKAGE
 ifeq ($(UCLIBC_STATIC_LDCONFIG),y)
 CFLAGS-ldconfig += -static
 else
 CFLAGS-ldconfig += $(CFLAGS-utils-shared)
 endif
 
-CFLAGS-ldd := $(CFLAGS-utils-shared)
+CFLAGS-ldd := $(CFLAGS-utils-shared) -DBUILDING_LINKAGE
 
 # Need CFLAGS-utils explicitly, because the source file is not located in utils
 CFLAGS-iconv := $(CFLAGS-utils) \
     $(CFLAGS-utils-shared) \
+    -I$(top_srcdir)libc/misc/wchar \
     -DL_iconv_main \
 
 CFLAGS-locale := $(CFLAGS-utils)
@@ -48,13 +49,23 @@ LDSO_CACHE_SUPPORT := -D__LDSO_CACHE_SUPPORT__=1
 endif
 
 BUILD_CFLAGS-utils := \
-    -include $(top_srcdir)include/elf.h \
-    -I$(top_srcdir)ldso/include \
     -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
     -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
     $(LDSO_CACHE_SUPPORT)
-BUILD_CFLAGS-ldconfig.host := $(BUILD_CFLAGS-utils)
-BUILD_CFLAGS-ldd.host      := $(BUILD_CFLAGS-utils)
+BUILD_CFLAGS-ldconfig.host := $(BUILD_CFLAGS-utils) \
+				-DBUILDING_LINKAGE \
+				-I$(top_srcdir)ldso/include
+BUILD_CFLAGS-ldd.host      := $(BUILD_CFLAGS-utils) \
+				-DBUILDING_LINKAGE \
+				-I$(top_srcdir)ldso/include \
+				-include $(top_srcdir)include/elf.h
+BUILD_CFLAGS-locale.host   := $(BUILD_CFLAGS-utils) \
+				-DNOT_IN_libc \
+				-I$(top_srcdir)utils/ \
+				-I.
+BUILD_CFLAGS-iconv.host    := $(BUILD_CFLAGS-utils) \
+			-include $(top_builddir)extra/locale/c8tables.h \
+			-I$(top_srcdir)libc/misc/wchar -DL_iconv_main
 
 
 # Rules
@@ -69,31 +80,31 @@ ifeq ($(HAVE_SHARED),y)
 utils_OBJ += ldconfig ldd
 endif
 
-utils_ICONV_OBJ :=
 utils_LOCALE_OBJ :=
 ifeq ($(UCLIBC_HAS_LOCALE),y)
-utils_ICONV_OBJ := $(utils_OUT)/iconv
-utils_LOCALE_OBJ := $(utils_OUT)/locale
+utils_OBJ += iconv
+#utils_LOCALE_OBJ += $(utils_OUT)/locale
 endif
 
 utils_OBJ := $(patsubst %,$(utils_OUT)/%,$(utils_OBJ))
 
 hostutils_OBJ := $(patsubst %,%.host,$(utils_OBJ))
+hostutils_LOCALE_OBJ := $(patsubst %,%.host,$(utils_LOCALE_OBJ))
 
-utils: $(utils_OBJ) $(utils_ICONV_OBJ) $(utils_LOCALE_OBJ)
+utils: $(utils_OBJ) $(utils_LOCALE_OBJ)
 
 # NOTE: We build the utils AFTER we have a uClibc-targeted toolchain.
 
 $(utils_OBJ): $(utils_OUT)/% : $(utils_DIR)/%.c | $(libc)
 	$(compile.u)
 
-$(utils_OUT)/iconv: $(top_srcdir)libc/misc/wchar/wchar.c | $(libc)
-	$(compile.u)
-
 $(utils_OUT)/locale: $(top_srcdir)extra/locale/programs/locale.c | $(libc)
 	$(compile.u)
 
-hostutils: $(hostutils_OBJ)
+$(utils_OUT)/locale.host: $(top_srcdir)extra/locale/programs/locale.c | $(libc)
+	$(hcompile.u)
+
+hostutils: $(hostutils_OBJ) $(hostutils_LOCALE_OBJ)
 
 $(hostutils_OBJ): $(utils_OUT)/%.host : $(utils_DIR)/%.c
 	$(hcompile.u)
@@ -103,14 +114,14 @@ install-y += utils_install
 
 # This installs both utils and hostutils, so doesn't depend on either.
 
-utils_install: $(addsuffix $(DOTHOST), $(utils_OBJ) $(utils_ICONV_OBJ) $(utils_LOCALE_OBJ))
+utils_install: $(addsuffix $(DOTHOST), $(utils_OBJ) $(utils_LOCALE_OBJ))
 ifeq ($(HAVE_SHARED),y)
 	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/ldd$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/ldd
 	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/ldconfig$(DOTHOST) $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig
 endif
 ifeq ($(UCLIBC_HAS_LOCALE),y)
 	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/iconv$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/iconv
-	$(Q)$(INSTALL) -m 755 $(utils_OUT)/locale$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/locale
+	#$(Q)$(INSTALL) -m 755 $(utils_OUT)/locale$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/locale
 endif
 
 

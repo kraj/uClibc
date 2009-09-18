@@ -372,19 +372,19 @@ ifeq ($(HAVE_SHARED),y)
 endif
 
 utils:
-	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils
+	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils $@
 
 # Installs helper applications, such as 'ldd' and 'ldconfig'
 install_utils: utils
-	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install
+	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install
 
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 hostutils:
-	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" -C utils hostutils
+	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils $@
 
 install_hostutils: hostutils
-	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install DOTHOST=.host
+	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils utils_install
 
 $(addprefix $(top_builddir),include/bits include/sys include/config extra/config/lxdialog extra/locale $(subdirs)):
 	$(do_mkdir)

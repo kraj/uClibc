@@ -97,7 +97,7 @@
  *
  * Manuel
  */
-
+#ifdef _LIBC
 #include <errno.h>
 #include <stddef.h>
 #include <limits.h>
@@ -170,7 +170,7 @@ extern size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 
 extern size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 					const wchar_t **__restrict src, size_t wn) attribute_hidden;
-
+#endif
 /**********************************************************************/
 #ifdef L_btowc
 
@@ -1199,6 +1199,56 @@ typedef struct {
 	int skip_invalid_input;		/* To support iconv -c option. */
 } _UC_iconv_t;
 
+/* For the multibyte
+ * bit 0 means swap endian
+ * bit 1 means 2 byte
+ * bit 2 means 4 byte
+ *
+ */
+
+#if defined L_iconv && defined _LIBC
+/* Used externally only by iconv utility */
+extern const unsigned char __iconv_codesets[];
+libc_hidden_proto(__iconv_codesets)
+#endif
+
+#if defined L_iconv || defined L_iconv_main
+const unsigned char __iconv_codesets[] =
+	"\x0a\xe0""WCHAR_T\x00"		/* superset of UCS-4 but platform-endian */
+#if __BYTE_ORDER == __BIG_ENDIAN
+	"\x08\xec""UCS-4\x00"		/* always BE */
+	"\x0a\xec""UCS-4BE\x00"
+	"\x0a\xed""UCS-4LE\x00"
+	"\x09\xe4""UTF-32\x00"		/* platform endian with BOM */
+	"\x0b\xe4""UTF-32BE\x00"
+	"\x0b\xe5""UTF-32LE\x00"
+	"\x08\xe2""UCS-2\x00"		/* always BE */
+	"\x0a\xe2""UCS-2BE\x00"
+	"\x0a\xe3""UCS-2LE\x00"
+	"\x09\xea""UTF-16\x00"		/* platform endian with BOM */
+	"\x0b\xea""UTF-16BE\x00"
+	"\x0b\xeb""UTF-16LE\x00"
+#elif __BYTE_ORDER == __LITTLE_ENDIAN
+	"\x08\xed""UCS-4\x00"		/* always BE */
+	"\x0a\xed""UCS-4BE\x00"
+	"\x0a\xec""UCS-4LE\x00"
+	"\x09\xf4""UTF-32\x00"		/* platform endian with BOM */
+	"\x0b\xe5""UTF-32BE\x00"
+	"\x0b\xe4""UTF-32LE\x00"
+	"\x08\xe3""UCS-2\x00"		/* always BE */
+	"\x0a\xe3""UCS-2BE\x00"
+	"\x0a\xe2""UCS-2LE\x00"
+	"\x09\xfa""UTF-16\x00"		/* platform endian with BOM */
+	"\x0b\xeb""UTF-16BE\x00"
+	"\x0b\xea""UTF-16LE\x00"
+#endif
+	"\x08\x02""UTF-8\x00"
+	"\x0b\x01""US-ASCII\x00"
+	"\x07\x01""ASCII";			/* Must be last! (special case to save a nul) */
+#endif
+#if defined L_iconv && defined _LIBC
+libc_hidden_data_def(__iconv_codesets)
+#endif
 
 
 #ifdef L_iconv
@@ -1237,51 +1287,6 @@ enum {
 	IC_UTF_8 = 2,
 	IC_ASCII = 1
 };
-
-/* For the multibyte
- * bit 0 means swap endian
- * bit 1 means 2 byte
- * bit 2 means 4 byte
- *
- */
-
-/* Used externally only by iconv utility */
-extern const unsigned char __iconv_codesets[];
-libc_hidden_proto(__iconv_codesets)
-
-const unsigned char __iconv_codesets[] =
-	"\x0a\xe0""WCHAR_T\x00"		/* superset of UCS-4 but platform-endian */
-#if __BYTE_ORDER == __BIG_ENDIAN
-	"\x08\xec""UCS-4\x00"		/* always BE */
-	"\x0a\xec""UCS-4BE\x00"
-	"\x0a\xed""UCS-4LE\x00"
-	"\x09\xe4""UTF-32\x00"		/* platform endian with BOM */
-	"\x0b\xe4""UTF-32BE\x00"
-	"\x0b\xe5""UTF-32LE\x00"
-	"\x08\xe2""UCS-2\x00"		/* always BE */
-	"\x0a\xe2""UCS-2BE\x00"
-	"\x0a\xe3""UCS-2LE\x00"
-	"\x09\xea""UTF-16\x00"		/* platform endian with BOM */
-	"\x0b\xea""UTF-16BE\x00"
-	"\x0b\xeb""UTF-16LE\x00"
-#elif __BYTE_ORDER == __LITTLE_ENDIAN
-	"\x08\xed""UCS-4\x00"		/* always BE */
-	"\x0a\xed""UCS-4BE\x00"
-	"\x0a\xec""UCS-4LE\x00"
-	"\x09\xf4""UTF-32\x00"		/* platform endian with BOM */
-	"\x0b\xe5""UTF-32BE\x00"
-	"\x0b\xe4""UTF-32LE\x00"
-	"\x08\xe3""UCS-2\x00"		/* always BE */
-	"\x0a\xe3""UCS-2BE\x00"
-	"\x0a\xe2""UCS-2LE\x00"
-	"\x09\xfa""UTF-16\x00"		/* platform endian with BOM */
-	"\x0b\xeb""UTF-16BE\x00"
-	"\x0b\xea""UTF-16LE\x00"
-#endif
-	"\x08\x02""UTF-8\x00"
-	"\x0b\x01""US-ASCII\x00"
-	"\x07\x01""ASCII";			/* Must be last! (special case to save a nul) */
-libc_hidden_data_def(__iconv_codesets)
 
 /* Experimentally off - libc_hidden_proto(strcasecmp) */
 
@@ -1575,172 +1580,4 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 	}
 	return nrcount;
 }
-
 #endif
-/**********************************************************************/
-#ifdef L_iconv_main
-
-#include <string.h>
-#include <iconv.h>
-#include <stdarg.h>
-#include <libgen.h>
-
-extern const unsigned char __iconv_codesets[];
-
-#define IBUF BUFSIZ
-#define OBUF BUFSIZ
-
-static char *progname;
-static int hide_errors;
-
-static void error_msg(const char *fmt, ...)
-	 __attribute__ ((noreturn, format (printf, 1, 2)));
-
-static void error_msg(const char *fmt, ...)
-{
-	va_list arg;
-
-	if (!hide_errors) {
-		fprintf(stderr, "%s: ", progname);
-		va_start(arg, fmt);
-		vfprintf(stderr, fmt, arg);
-		va_end(arg);
-	}
-
-	exit(EXIT_FAILURE);
-}
-
-int main(int argc, char **argv)
-{
-	FILE *ifile;
-	FILE *ofile = stdout;
-	const char *p;
-	const char *s;
-	static const char opt_chars[] = "tfocsl";
-	                              /* 012345 */
-	const char *opts[sizeof(opt_chars)]; /* last is infile name */
-	iconv_t ic;
-	char ibuf[IBUF];
-	char obuf[OBUF];
-	char *pi;
-	char *po;
-	size_t ni, no, r, pos;
-
-	hide_errors = 0;
-
-	for (s = opt_chars ; *s ; s++) {
-		opts[ s - opt_chars ] = NULL;
-	}
-
-	progname = *argv;
-	while (--argc) {
-		p = *++argv;
-		if ((*p != '-') || (*++p == 0)) {
-			break;
-		}
-		do {
-			if ((s = strchr(opt_chars,*p)) == NULL) {
-			USAGE:
-				s = basename(progname);
-				fprintf(stderr,
-						"%s [-cs] -f fromcode -t tocode [-o outputfile] [inputfile ...]\n"
-						"  or\n%s -l\n", s, s);
-				return EXIT_FAILURE;
-			}
-			if ((s - opt_chars) < 3) {
-				if ((--argc == 0) || opts[s - opt_chars]) {
-					goto USAGE;
-				}
-				opts[s - opt_chars] = *++argv;
-			} else {
-				opts[s - opt_chars] = p;
-			}
-		} while (*++p);
-	}
-
-	if (opts[5]) {				/* -l */
-		fprintf(stderr, "Recognized codesets:\n");
-		for (s = (char *)__iconv_codesets ; *s ; s += *s) {
-			fprintf(stderr,"  %s\n", s+2);
-		}
-		s = __LOCALE_DATA_CODESET_LIST;
-		do {
-			fprintf(stderr,"  %s\n", __LOCALE_DATA_CODESET_LIST+ (unsigned char)(*s));
-		} while (*++s);
-
-		return EXIT_SUCCESS;
-	}
-
-	if (opts[4]) {
-		hide_errors = 1;
-	}
-
-	if (!opts[0] || !opts[1]) {
-		goto USAGE;
-	}
-	if ((ic = iconv_open(opts[0],opts[1])) == ((iconv_t)(-1))) {
-		error_msg( "unsupported codeset in %s -> %s conversion\n", opts[1], opts[0]);
-	}
-	if (opts[3]) {				/* -c */
-		((_UC_iconv_t *) ic)->skip_invalid_input = 1;
-	}
-
-	if ((s = opts[2]) != NULL) {
-		if (!(ofile = fopen(s, "w"))) {
-			error_msg( "couldn't open %s for writing\n", s);
-		}
-	}
-
-	pos = ni = 0;
-	do {
-		if (!argc || ((**argv == '-') && !((*argv)[1]))) {
-			ifile = stdin;		/* we don't check for duplicates */
-		} else if (!(ifile = fopen(*argv, "r"))) {
-			error_msg( "couldn't open %s for reading\n", *argv);
-		}
-
-		while ((r = fread(ibuf + ni, 1, IBUF - ni, ifile)) > 0) {
-			pos += r;
-			ni += r;
-			no = OBUF;
-			pi = ibuf;
-			po = obuf;
-			if ((r = iconv(ic, &pi, &ni, &po, &no)) == ((size_t)(-1))) {
-				if ((errno != EINVAL) && (errno != E2BIG)) {
-					error_msg( "iconv failed at pos %lu : %m\n", (unsigned long) (pos - ni));
-				}
-			}
-			if ((r = OBUF - no) > 0) {
-				if (fwrite(obuf, 1, OBUF - no, ofile) < r) {
-					error_msg( "write error\n");
-				}
-			}
-			if (ni) {			/* still bytes in buffer! */
-				memmove(ibuf, pi, ni);
-			}
-		}
-
-		if (ferror(ifile)) {
-			error_msg( "read error\n");
-		}
-
-		++argv;
-
-		if (ifile != stdin) {
-			fclose(ifile);
-		}
-
-	} while (--argc > 0);
-
-	iconv_close(ic);
-
-	if (ni) {
-		error_msg( "incomplete sequence\n");
-	}
-
-	return (((_UC_iconv_t *) ic)->skip_invalid_input < 2)
-		? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-#endif
-/**********************************************************************/

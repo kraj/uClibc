@@ -10,10 +10,9 @@
  *
  */
 
-
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <langinfo.h>
 #include <unistd.h>
 #ifdef __UCLIBC_HAS_GETOPT_LONG__
