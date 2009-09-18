@@ -33,7 +33,7 @@
 #include <string.h>
 
 #undef strncat
-//#define strncat TESTING
+/*#define strncat TESTING*/
 char *strncat(char * dest, const char * src, size_t count)
 {
 	int esi, edi, eax, ecx, edx;

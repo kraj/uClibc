@@ -72,15 +72,16 @@ int shm_open(const char *name, int oflag, mode_t mode)
 	fd = open(shm_name, oflag, mode);
 	if (fd >= 0) {
 		fcntl(fd, F_SETFD, FD_CLOEXEC);
-		// thus far, {G,S}ETFD only has this single flag,
-		// and setting it never fails.
-		//int fdflags = fcntl(fd, F_GETFD);
-		//if (fdflags >= 0)
-		//	fdflags = fcntl(fd, F_SETFD, fdflags | FD_CLOEXEC);
-		//if (fdflags < 0) {
-		//	close(fd);
-		//	fd = -1;
-		//}
+		/* thus far, {G,S}ETFD only has this single flag,
+		 * and setting it never fails.
+		 *int fdflags = fcntl(fd, F_GETFD);
+		 *if (fdflags >= 0)
+		 *	fdflags = fcntl(fd, F_SETFD, fdflags | FD_CLOEXEC);
+		 *if (fdflags < 0) {
+		 *	close(fd);
+		 *	fd = -1;
+		 *}
+		 */
 	}
 #endif
 	free(shm_name); /* doesn't affect errno */

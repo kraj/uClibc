@@ -33,7 +33,7 @@
 #include <string.h>
 
 #undef strncpy
-//#define strncpy TESTING
+/*#define strncpy TESTING*/
 char *strncpy(char * dest, const char * src, size_t count)
 {
 	int esi, edi, ecx, eax;

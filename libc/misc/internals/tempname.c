@@ -45,9 +45,6 @@
 #include <sys/time.h>
 #include "tempname.h"
 
-#ifdef __UCLIBC_HAS_LFS__
-#endif
-
 /* Return nonzero if DIR is an existent directory.  */
 static int direxists (const char *dir)
 {

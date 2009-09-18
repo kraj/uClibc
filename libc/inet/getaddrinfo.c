@@ -70,9 +70,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <net/if.h>
 #include <ifaddrs.h>
 
-#ifdef __UCLIBC_HAS_IPV6__
-#endif
-
 #define GAIH_OKIFUNSPEC 0x0100
 #define GAIH_EAI        ~(GAIH_OKIFUNSPEC)
 
@@ -638,8 +635,6 @@ gaih_inet(const char *name, const struct gaih_service *service,
 				do {
 					tmpbuflen *= 2;
 					tmpbuf = alloca(tmpbuflen);
-					//if (tmpbuf == NULL)
-					//	return -EAI_MEMORY;
 					rc = gethostbyaddr_r(at2->addr,
 						((at2->family == AF_INET6)
 						 ? sizeof(struct in6_addr)

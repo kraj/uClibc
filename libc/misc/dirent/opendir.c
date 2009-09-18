@@ -93,11 +93,11 @@ DIR *opendir(const char *name)
 	 * to worry about it right now (if ever). */
 
 	if (fstat(fd, &statbuf) < 0) {
-		// this close() never fails
-		//int saved_errno;
-		//saved_errno = errno;
+		/* this close() never fails
+		 *int saved_errno;
+		 *saved_errno = errno; */
 		close(fd);
-		//__set_errno(saved_errno);
+		/*__set_errno(saved_errno);*/
 		return NULL;
 	}
 

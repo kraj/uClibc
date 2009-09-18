@@ -32,13 +32,9 @@
 #include <grp.h>
 #include <paths.h>
 #ifdef __UCLIBC_HAS_SHADOW__
-#include <shadow.h>
+# include <shadow.h>
 #endif
 #include <bits/uClibc_mutex.h>
-
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
 
 /**********************************************************************/
 /* Prototypes for internal functions. */

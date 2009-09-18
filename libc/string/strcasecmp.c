@@ -12,8 +12,6 @@
 #ifdef WANT_WIDE
 # define strcasecmp wcscasecmp
 # define strcasecmp_l wcscasecmp_l
-# if defined(__USE_GNU) && defined(__UCLIBC_HAS_XLOCALE__)
-# endif
 # ifdef __UCLIBC_DO_XLOCALE
 #  define TOLOWER(C) towlower_l((C), locale_arg)
 # else
@@ -23,8 +21,6 @@
 # ifdef __UCLIBC_DO_XLOCALE
 #  define TOLOWER(C) tolower_l((C), locale_arg)
 # else
-#if !defined __UCLIBC_HAS_XLOCALE__ && defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
 #  define TOLOWER(C) tolower((C))
 # endif
 #endif

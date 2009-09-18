@@ -29,12 +29,8 @@
 #include <sys/statvfs.h>
 
 
-
 #undef stat
 #define stat stat64
-#if !defined __UCLIBC_LINUX_SPECIFIC__
-#else
-#endif
 
 int fstatvfs64 (int fd, struct statvfs64 *buf)
 {

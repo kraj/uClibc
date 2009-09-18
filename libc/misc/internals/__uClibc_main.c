@@ -28,12 +28,6 @@
 #include <sys/sysmacros.h>
 
 
-#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-#endif
-#ifndef __ARCH_HAS_NO_LDSO__
-
-#endif
-
 #ifndef SHARED
 void *__libc_stack_end = NULL;
 

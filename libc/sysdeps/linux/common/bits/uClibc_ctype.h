@@ -143,10 +143,11 @@ __END_DECLS
 # define __ispunct(c)   __body(ispunct,c)
 # define __isgraph(c)   __body(isgraph,c)
 
-//locale-aware ctype.h has no __tolower, why stub locale
-//tries to have it? remove after 0.9.31
-//# define __tolower(c) __body(tolower,c)
-//# define __toupper(c) __body(toupper,c)
+/*locale-aware ctype.h has no __tolower, why stub locale
+ *tries to have it? remove after 0.9.31
+ *# define __tolower(c) __body(tolower,c)
+ *# define __toupper(c) __body(toupper,c)
+ */
 
 /* Do not combine in one #if - unifdef tool is not that clever */
 # ifndef __NO_CTYPE

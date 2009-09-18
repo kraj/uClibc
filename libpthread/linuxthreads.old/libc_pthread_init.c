@@ -36,9 +36,6 @@
 #include "sysdeps/pthread/pthread-functions.h"
 
 
-#if ! defined USE___THREAD && defined __UCLIBC_HAS_XLOCALE__
-#endif
-
 int __libc_multiple_threads attribute_hidden __attribute__((nocommon));
 
 int * __libc_pthread_init (const struct pthread_functions *functions)

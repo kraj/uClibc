@@ -20,9 +20,6 @@
 #include <locale.h>
 #include <stdlib.h>
 
-#ifdef __UCLIBC_HAS_WCHAR__
-#endif
-
 int
 __aeabi_MB_CUR_MAX (void)
 {

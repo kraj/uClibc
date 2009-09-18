@@ -44,10 +44,6 @@
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif /* __UCLIBC_HAS_XLOCALE__ */
-
-#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 #endif
 
 /* We know wide char support is enabled.  We wouldn't be here otherwise. */
@@ -682,11 +678,12 @@ wint_t towctrans(wint_t wc, wctrans_t desc)
 {
 	if ((unsigned int)(desc - _CTYPE_tolower) <= (_CTYPE_toupper - _CTYPE_tolower)) {
 		/* Transliteration is either tolower or toupper. */
-// I think it's wrong: _toupper(c) assumes that c is a *lowercase* *letter* -
-// it is defined as ((c) ^ 0x20)!
-//		if ((__uwchar_t) wc <= 0x7f) {
-//			return (desc == _CTYPE_tolower) ? _tolower(wc) : _toupper(wc);
-//		}
+/* I think it's wrong: _toupper(c) assumes that c is a *lowercase* *letter* -
+ * it is defined as ((c) ^ 0x20)!
+ *		if ((__uwchar_t) wc <= 0x7f) {
+ *			return (desc == _CTYPE_tolower) ? _tolower(wc) : _toupper(wc);
+ *		}
+ */
 		__uwchar_t c = wc | 0x20; /* lowercase if it's a letter */
 		if (c >= 'a' && c <= 'z') {
 			if (desc == _CTYPE_toupper)

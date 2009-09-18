@@ -9,7 +9,7 @@
 #include <string.h>
 
 #undef strchrnul
-//#define strchrnul TESTING
+/*#define strchrnul TESTING*/
 char *strchrnul(const char *s, int c)
 {
 	int esi;

@@ -42,10 +42,6 @@
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
-
 /*
  * Local shells should NOT be added here.  They should be added in
  * /etc/shells.

@@ -1,7 +1,5 @@
 #include "internal_errno.h"
 
-#ifdef __UCLIBC_HAS_THREADS__
-#endif
 int errno = 0;
 int h_errno = 0;
 

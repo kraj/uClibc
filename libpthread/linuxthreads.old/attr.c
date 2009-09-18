@@ -42,7 +42,7 @@ libpthread_hidden_proto(pthread_attr_setscope)
  * Therefore, define the function pthread_attr_init() here using
  * a strong symbol. */
 
-//int __pthread_attr_init_2_1(pthread_attr_t *attr)
+/*int __pthread_attr_init_2_1(pthread_attr_t *attr)*/
 int pthread_attr_init(pthread_attr_t *attr)
 {
   size_t ps = getpagesize ();

@@ -35,13 +35,10 @@
 #include <stdint.h>
 #include <assert.h>
 #include <locale.h>
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-#include <xlocale.h>
-#endif /* __UCLIBC_HAS_XLOCALE__ */
+# include <xlocale.h>
+#endif
 
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
@@ -276,9 +273,6 @@ IS_FUNC_BODY(xdigit);
 #ifdef L_tolower
 
 #undef tolower
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 int tolower(int c)
@@ -312,17 +306,14 @@ int tolower_l(int c, __locale_t l)
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_tolower[c] : c;
 }
 libc_hidden_def(tolower_l)
-//remove after 0.9.31. See ctype.h for why.
-//weak_alias (tolower_l, __tolower_l)
+/*remove after 0.9.31. See ctype.h for why.
+ *weak_alias (tolower_l, __tolower_l) */
 
 #endif
 /**********************************************************************/
 #ifdef L_toupper
 
 #undef toupper
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 int toupper(int c)
@@ -356,8 +347,8 @@ int toupper_l(int c, __locale_t l)
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_toupper[c] : c;
 }
 libc_hidden_def(toupper_l)
-//remove after 0.9.31. See ctype.h for why.
-//weak_alias (toupper_l, __toupper_l)
+/*remove after 0.9.31. See ctype.h for why.
+ *weak_alias (toupper_l, __toupper_l) */
 
 #endif
 /**********************************************************************/

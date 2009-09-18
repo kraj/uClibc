@@ -115,9 +115,6 @@
 #include <bits/uClibc_uintmaxtostr.h>
 #include <bits/uClibc_va_copy.h>
 
-#ifdef __UCLIBC_HAS_WCHAR__
-#endif
-
 /* Some older or broken gcc toolchains define LONG_LONG_MAX but not
  * LLONG_MAX.  Since LLONG_MAX is part of the standard, that's what
  * we use.  So complain if we do not have it but should.
@@ -713,10 +710,6 @@ void attribute_hidden _ppfs_setargs(register ppfs_t *ppfs)
 #endif
 /**********************************************************************/
 #ifdef L__ppfs_parsespec
-
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
 
 /* Notes: argtype differs from glibc for the following:
  *         mine              glibc

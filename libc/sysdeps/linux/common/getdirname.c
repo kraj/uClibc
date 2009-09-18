@@ -25,10 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __UCLIBC_HAS_LFS__
-#else
-#endif
-
 /* Return a malloc'd string containing the current directory name.
    If the environment variable `PWD' is set, and its value is correct,
    that value is used.  */

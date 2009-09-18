@@ -791,9 +791,6 @@ re_compile_internal (regex_t *preg, const char * pattern, size_t length,
 /* Initialize DFA.  We use the length of the regular expression PAT_LEN
    as the initial length of some arrays.  */
 
-#ifdef __UCLIBC_HAS_WCHAR__
-#endif
-
 static reg_errcode_t
 init_dfa (re_dfa_t *dfa, size_t pat_len)
 {

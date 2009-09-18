@@ -7,9 +7,6 @@
 
 #include "_stdio.h"
 
-#ifdef __UCLIBC_HAS_LFS__
-#endif
-
 #ifndef __DO_LARGEFILE
 # define FTELL         ftell
 # define OFFSET_TYPE   long int

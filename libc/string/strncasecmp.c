@@ -12,8 +12,6 @@
 #ifdef WANT_WIDE
 # define strncasecmp wcsncasecmp
 # define strncasecmp_l wcsncasecmp_l
-# if defined(__USE_GNU) && defined(__UCLIBC_HAS_XLOCALE__)
-# endif
 # ifdef __UCLIBC_DO_XLOCALE
 #  define TOLOWER(C) towlower_l((C), locale_arg)
 # else

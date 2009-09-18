@@ -47,15 +47,16 @@ static void __setutent(void)
 	if (O_CLOEXEC == 0) {
 	    /* Make sure the file will be closed on exec()  */
 	    fcntl(static_fd, F_SETFD, FD_CLOEXEC);
-	    // thus far, {G,S}ETFD only has this single flag,
-	    // and setting it never fails.
-	    //int ret = fcntl(static_fd, F_GETFD, 0);
-	    //if (ret >= 0) {
-	    //    ret = fcntl(static_fd, F_SETFD, ret | FD_CLOEXEC);
-	    //}
-	    //if (ret < 0) {
-	    //    static_fd = -1;
-	    //}
+	    /* thus far, {G,S}ETFD only has this single flag,
+	     * and setting it never fails.
+	     *int ret = fcntl(static_fd, F_GETFD, 0);
+	     *if (ret >= 0) {
+	     *    ret = fcntl(static_fd, F_SETFD, ret | FD_CLOEXEC);
+	     *}
+	     *if (ret < 0) {
+	     *    static_fd = -1;
+	     *}
+             */
 	}
 	return;
     }

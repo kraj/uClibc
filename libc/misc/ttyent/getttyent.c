@@ -35,11 +35,7 @@
 #include <string.h>
 #include <stdlib.h>
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-#endif
-
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
+# include <pthread.h>
 #endif
 
 static char zapchar;
