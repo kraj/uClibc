@@ -171,7 +171,6 @@ extern size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 
 extern size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 					const wchar_t **__restrict src, size_t wn) attribute_hidden;
-
 #endif /* _LIBC */
 /**********************************************************************/
 #ifdef L_btowc
@@ -1201,6 +1200,56 @@ typedef struct {
 	int skip_invalid_input;		/* To support iconv -c option. */
 } _UC_iconv_t;
 
+/* For the multibyte
+ * bit 0 means swap endian
+ * bit 1 means 2 byte
+ * bit 2 means 4 byte
+ *
+ */
+
+#if defined L_iconv && defined _LIBC
+/* Used externally only by iconv utility */
+extern const unsigned char __iconv_codesets[];
+libc_hidden_proto(__iconv_codesets)
+#endif
+
+#if defined L_iconv || defined L_iconv_main
+const unsigned char __iconv_codesets[] =
+	"\x0a\xe0""WCHAR_T\x00"		/* superset of UCS-4 but platform-endian */
+#if __BYTE_ORDER == __BIG_ENDIAN
+	"\x08\xec""UCS-4\x00"		/* always BE */
+	"\x0a\xec""UCS-4BE\x00"
+	"\x0a\xed""UCS-4LE\x00"
+	"\x09\xe4""UTF-32\x00"		/* platform endian with BOM */
+	"\x0b\xe4""UTF-32BE\x00"
+	"\x0b\xe5""UTF-32LE\x00"
+	"\x08\xe2""UCS-2\x00"		/* always BE */
+	"\x0a\xe2""UCS-2BE\x00"
+	"\x0a\xe3""UCS-2LE\x00"
+	"\x09\xea""UTF-16\x00"		/* platform endian with BOM */
+	"\x0b\xea""UTF-16BE\x00"
+	"\x0b\xeb""UTF-16LE\x00"
+#elif __BYTE_ORDER == __LITTLE_ENDIAN
+	"\x08\xed""UCS-4\x00"		/* always BE */
+	"\x0a\xed""UCS-4BE\x00"
+	"\x0a\xec""UCS-4LE\x00"
+	"\x09\xf4""UTF-32\x00"		/* platform endian with BOM */
+	"\x0b\xe5""UTF-32BE\x00"
+	"\x0b\xe4""UTF-32LE\x00"
+	"\x08\xe3""UCS-2\x00"		/* always BE */
+	"\x0a\xe3""UCS-2BE\x00"
+	"\x0a\xe2""UCS-2LE\x00"
+	"\x09\xfa""UTF-16\x00"		/* platform endian with BOM */
+	"\x0b\xeb""UTF-16BE\x00"
+	"\x0b\xea""UTF-16LE\x00"
+#endif
+	"\x08\x02""UTF-8\x00"
+	"\x0b\x01""US-ASCII\x00"
+	"\x07\x01""ASCII";			/* Must be last! (special case to save a nul) */
+#endif
+#if defined L_iconv && defined _LIBC
+libc_hidden_data_def(__iconv_codesets)
+#endif
 
 
 #ifdef L_iconv
@@ -1239,49 +1288,6 @@ enum {
 	IC_UTF_8 = 2,
 	IC_ASCII = 1
 };
-
-/* For the multibyte
- * bit 0 means swap endian
- * bit 1 means 2 byte
- * bit 2 means 4 byte
- *
- */
-
-extern const unsigned char __iconv_codesets[];
-libc_hidden_proto(__iconv_codesets)
-const unsigned char __iconv_codesets[] =
-	"\x0a\xe0""WCHAR_T\x00"		/* superset of UCS-4 but platform-endian */
-#if __BYTE_ORDER == __BIG_ENDIAN
-	"\x08\xec""UCS-4\x00"		/* always BE */
-	"\x0a\xec""UCS-4BE\x00"
-	"\x0a\xed""UCS-4LE\x00"
-	"\x09\xe4""UTF-32\x00"		/* platform endian with BOM */
-	"\x0b\xe4""UTF-32BE\x00"
-	"\x0b\xe5""UTF-32LE\x00"
-	"\x08\xe2""UCS-2\x00"		/* always BE */
-	"\x0a\xe2""UCS-2BE\x00"
-	"\x0a\xe3""UCS-2LE\x00"
-	"\x09\xea""UTF-16\x00"		/* platform endian with BOM */
-	"\x0b\xea""UTF-16BE\x00"
-	"\x0b\xeb""UTF-16LE\x00"
-#elif __BYTE_ORDER == __LITTLE_ENDIAN
-	"\x08\xed""UCS-4\x00"		/* always BE */
-	"\x0a\xed""UCS-4BE\x00"
-	"\x0a\xec""UCS-4LE\x00"
-	"\x09\xf4""UTF-32\x00"		/* platform endian with BOM */
-	"\x0b\xe5""UTF-32BE\x00"
-	"\x0b\xe4""UTF-32LE\x00"
-	"\x08\xe3""UCS-2\x00"		/* always BE */
-	"\x0a\xe3""UCS-2BE\x00"
-	"\x0a\xe2""UCS-2LE\x00"
-	"\x09\xfa""UTF-16\x00"		/* platform endian with BOM */
-	"\x0b\xeb""UTF-16BE\x00"
-	"\x0b\xea""UTF-16LE\x00"
-#endif
-	"\x08\x02""UTF-8\x00"
-	"\x0b\x01""US-ASCII\x00"
-	"\x07\x01""ASCII";			/* Must be last! (special case to save a nul) */
-libc_hidden_data_def(__iconv_codesets)
 
 /* Experimentally off - libc_hidden_proto(strcasecmp) */
 
@@ -1575,6 +1581,4 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 	}
 	return nrcount;
 }
-
 #endif
-
