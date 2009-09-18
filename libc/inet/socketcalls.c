@@ -57,7 +57,6 @@ strong_alias(accept,__libc_accept)
 #endif
 
 #ifdef L_bind
-/* libc_hidden_proto(bind) */
 #ifdef __NR_bind
 _syscall3(int, bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen)
 #elif defined(__NR_socketcall)
@@ -113,7 +112,6 @@ int getpeername(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 #endif
 
 #ifdef L_getsockname
-/* libc_hidden_proto(getsockname) */
 #ifdef __NR_getsockname
 _syscall3(int, getsockname, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen)
 #elif defined(__NR_socketcall)
@@ -150,7 +148,6 @@ int getsockopt(int fd, int level, int optname, __ptr_t optval,
 #endif
 
 #ifdef L_listen
-/* libc_hidden_proto(listen) */
 #ifdef __NR_listen
 _syscall2(int, listen, int, sockfd, int, backlog)
 #elif defined(__NR_socketcall)
@@ -326,7 +323,6 @@ strong_alias(sendto,__libc_sendto)
 #endif
 
 #ifdef L_setsockopt
-/* libc_hidden_proto(setsockopt) */
 #ifdef __NR_setsockopt
 _syscall5(int, setsockopt, int, fd, int, level, int, optname, const void *, optval, socklen_t, optlen)
 #elif defined(__NR_socketcall)
@@ -364,7 +360,6 @@ int shutdown(int sockfd, int how)
 #endif
 
 #ifdef L_socket
-/* libc_hidden_proto(socket) */
 #ifdef __NR_socket
 _syscall3(int, socket, int, family, int, type, int, protocol)
 #elif defined(__NR_socketcall)

@@ -24,7 +24,6 @@
 #ifdef __UCLIBC_HAS_IPV6__
 const struct in6_addr in6addr_any =
 { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } };
-/* libc_hidden_proto(in6addr_loopback) */
 const struct in6_addr in6addr_loopback =
 { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } };
 libc_hidden_data_def(in6addr_loopback)

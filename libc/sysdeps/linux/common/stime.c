@@ -15,7 +15,6 @@
 #ifdef __NR_stime
 _syscall1(int, stime, const time_t *, t)
 #else
-/* libc_hidden_proto(settimeofday) */
 
 int stime(const time_t * when)
 {

@@ -51,11 +51,6 @@ static char sccsid[] = "@(#)rpc_prot.c 1.36 87/08/11 Copyr 1984 Sun Micro";
 
 #include <rpc/rpc.h>
 
-/* libc_hidden_proto(xdr_bytes) */
-/* libc_hidden_proto(xdr_union) */
-/* libc_hidden_proto(xdr_enum) */
-/* libc_hidden_proto(xdr_opaque) */
-/* libc_hidden_proto(xdr_u_long) */
 
 /* * * * * * * * * * * * * * XDR Authentication * * * * * * * * * * * */
 
@@ -63,7 +58,6 @@ static char sccsid[] = "@(#)rpc_prot.c 1.36 87/08/11 Copyr 1984 Sun Micro";
  * XDR an opaque authentication struct
  * (see auth.h)
  */
-/* libc_hidden_proto(xdr_opaque_auth) */
 bool_t
 xdr_opaque_auth (XDR *xdrs, struct opaque_auth *ap)
 {
@@ -89,7 +83,6 @@ xdr_des_block (XDR *xdrs, des_block *blkp)
 /*
  * XDR the MSG_ACCEPTED part of a reply message union
  */
-/* libc_hidden_proto(xdr_accepted_reply) */
 bool_t
 xdr_accepted_reply (XDR *xdrs, struct accepted_reply *ar)
 {
@@ -116,7 +109,6 @@ libc_hidden_def(xdr_accepted_reply)
 /*
  * XDR the MSG_DENIED part of a reply message union
  */
-/* libc_hidden_proto(xdr_rejected_reply) */
 bool_t
 xdr_rejected_reply (XDR *xdrs, struct rejected_reply *rr)
 {
@@ -146,7 +138,6 @@ static const struct xdr_discrim reply_dscrm[3] =
 /*
  * XDR a reply message
  */
-/* libc_hidden_proto(xdr_replymsg) */
 bool_t
 xdr_replymsg (XDR *xdrs, struct rpc_msg *rmsg)
 {
@@ -166,7 +157,6 @@ libc_hidden_def(xdr_replymsg)
  * The fields include: rm_xid, rm_direction, rpcvers, prog, and vers.
  * The rm_xid is not really static, but the user can easily munge on the fly.
  */
-/* libc_hidden_proto(xdr_callhdr) */
 bool_t
 xdr_callhdr (XDR *xdrs, struct rpc_msg *cmsg)
 {
@@ -247,7 +237,6 @@ rejected (enum reject_stat rjct_stat,
 /*
  * given a reply message, fills in the error
  */
-/* libc_hidden_proto(_seterr_reply) */
 void
 _seterr_reply (struct rpc_msg *msg,
 	       struct rpc_err *error)

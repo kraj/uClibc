@@ -7,9 +7,7 @@
 
 #include "_stdio.h"
 
-/* libc_hidden_proto(fseek) */
 
-/* libc_hidden_proto(rewind) */
 void rewind(register FILE *stream)
 {
 	__STDIO_AUTO_THREADLOCK_VAR;

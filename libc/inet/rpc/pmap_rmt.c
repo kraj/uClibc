@@ -59,28 +59,6 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 #include <arpa/inet.h>
 #define MAX_BROADCAST_SIZE 1400
 
-/* Experimentally off - libc_hidden_proto(memset) */
-/* libc_hidden_proto(ioctl) */
-/* libc_hidden_proto(perror) */
-/* libc_hidden_proto(socket) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(authunix_create_default) */
-/* libc_hidden_proto(xdrmem_create) */
-/* libc_hidden_proto(xdr_callmsg) */
-/* libc_hidden_proto(xdr_replymsg) */
-/* libc_hidden_proto(xdr_reference) */
-/* libc_hidden_proto(xdr_u_long) */
-/* libc_hidden_proto(xdr_void) */
-/* libc_hidden_proto(xdr_rmtcallres) */
-/* libc_hidden_proto(xdr_rmtcall_args) */
-/* libc_hidden_proto(inet_makeaddr) */
-/* libc_hidden_proto(inet_netof) */
-/* libc_hidden_proto(clntudp_create) */
-/* libc_hidden_proto(setsockopt) */
-/* libc_hidden_proto(recvfrom) */
-/* libc_hidden_proto(sendto) */
-/* libc_hidden_proto(poll) */
-/* libc_hidden_proto(fprintf) */
 
 
 extern u_long _create_xid (void) attribute_hidden;

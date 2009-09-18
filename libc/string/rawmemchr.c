@@ -8,7 +8,6 @@
 #include "_string.h"
 
 #ifdef __USE_GNU
-/* Experimentally off - libc_hidden_proto(rawmemchr) */
 void *rawmemchr(const void *s, int c)
 {
 	register const unsigned char *r = s;

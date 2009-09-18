@@ -1,8 +1,6 @@
 #include "internal_errno.h"
 
 #ifdef __UCLIBC_HAS_THREADS__
-/* libc_hidden_proto(errno) */
-/* libc_hidden_proto(h_errno) */
 #endif
 int errno = 0;
 int h_errno = 0;

@@ -32,7 +32,6 @@ int __libc_sigsuspend(const sigset_t * set)
 	return __syscall_sigsuspend(0, 0, set->__val[0]);
 }
 #endif
-/* libc_hidden_proto(sigsuspend) */
 weak_alias(__libc_sigsuspend,sigsuspend)
 libc_hidden_weak(sigsuspend)
 #endif

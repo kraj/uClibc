@@ -21,9 +21,6 @@
 #include <unistd.h>
 #include "../misc/internals/tempname.h"
 
-/* libc_hidden_proto(fdopen) */
-/* libc_hidden_proto(remove) */
-/* libc_hidden_proto(close) */
 
 /* This returns a new stream opened on a temporary file (generated
    by tmpnam).  The file is opened with mode "w+b" (binary read/write).

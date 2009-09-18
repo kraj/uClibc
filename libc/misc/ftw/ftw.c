@@ -83,27 +83,8 @@ char *alloca ();
 # include <sys/stat.h>
 #endif
 
-/* Experimentally off - libc_hidden_proto(memset) */
-/* Experimentally off - libc_hidden_proto(strchr) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* libc_hidden_proto(dirfd) */
-/* libc_hidden_proto(tsearch) */
-/* libc_hidden_proto(tfind) */
-/* libc_hidden_proto(tdestroy) */
-/* libc_hidden_proto(getcwd) */
-/* libc_hidden_proto(chdir) */
-/* libc_hidden_proto(fchdir) */
-/* Experimentally off - libc_hidden_proto(mempcpy) */
-/* libc_hidden_proto(opendir) */
 #ifdef __UCLIBC_HAS_LFS__
-/* libc_hidden_proto(readdir64) */
-/* libc_hidden_proto(lstat64) */
-/* libc_hidden_proto(stat64) */
 #endif
-/* libc_hidden_proto(closedir) */
-/* Experimentally off - libc_hidden_proto(stpcpy) */
-/* libc_hidden_proto(lstat) */
-/* libc_hidden_proto(stat) */
 
 #if !defined _LIBC && !HAVE_DECL_STPCPY && !defined stpcpy
 char *stpcpy ();

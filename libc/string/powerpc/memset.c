@@ -21,7 +21,6 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(memset) */
 
 static __inline__ int expand_byte_word(int c){
 	/* this does:

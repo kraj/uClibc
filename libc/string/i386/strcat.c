@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(strcat) */
 char *strcat(char * dest, const char * src)
 {
     int d0, d1, d2, d3;

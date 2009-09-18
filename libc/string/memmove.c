@@ -10,7 +10,6 @@
 #ifdef WANT_WIDE
 # define Wmemmove wmemmove
 #else
-/* Experimentally off - libc_hidden_proto(memmove) */
 # define Wmemmove memmove
 #endif
 

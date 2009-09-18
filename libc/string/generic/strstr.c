@@ -28,7 +28,6 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(strstr) */
 
 typedef unsigned chartype;
 

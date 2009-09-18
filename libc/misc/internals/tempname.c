@@ -45,19 +45,8 @@
 #include <sys/time.h>
 #include "tempname.h"
 
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* Experimentally off - libc_hidden_proto(strcmp) */
-/* libc_hidden_proto(sprintf) */
-/* libc_hidden_proto(mkdir) */
-/* libc_hidden_proto(open) */
 #ifdef __UCLIBC_HAS_LFS__
-/* libc_hidden_proto(open64) */
 #endif
-/* libc_hidden_proto(read) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(getpid) */
-/* libc_hidden_proto(stat) */
-/* libc_hidden_proto(gettimeofday) */
 
 /* Return nonzero if DIR is an existent directory.  */
 static int direxists (const char *dir)

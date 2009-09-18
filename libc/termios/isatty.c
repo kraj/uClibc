@@ -19,8 +19,6 @@
 #include <unistd.h>
 #include <termios.h>
 
-/* libc_hidden_proto(isatty) */
-/* libc_hidden_proto(tcgetattr) */
 
 /* Return 1 if FD is a terminal, 0 if not.  */
 int isatty (int fd)

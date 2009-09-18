@@ -7,9 +7,7 @@
 
 #include "_stdio.h"
 
-/* libc_hidden_proto(fgetwc_unlocked) */
 
-/* libc_hidden_proto(mbrtowc) */
 
 #ifdef __DO_UNLOCKED
 
@@ -113,7 +111,6 @@ libc_hidden_def(fgetwc_unlocked)
 
 strong_alias(fgetwc_unlocked,getwc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-/* libc_hidden_proto(fgetwc) */
 strong_alias(fgetwc_unlocked,fgetwc)
 libc_hidden_def(fgetwc)
 
@@ -122,7 +119,6 @@ strong_alias(fgetwc_unlocked,getwc)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-/* libc_hidden_proto(fgetwc) */
 wint_t fgetwc(register FILE *stream)
 {
 	wint_t retval;

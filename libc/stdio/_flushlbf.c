@@ -8,7 +8,6 @@
 #include "_stdio.h"
 #include <stdio_ext.h>
 
-/* libc_hidden_proto(fflush_unlocked) */
 
 /* Solaris function --
  * Flush all line buffered (writing) streams.

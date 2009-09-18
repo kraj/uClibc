@@ -32,15 +32,12 @@
 #include <unistd.h>
 #include <bits/uClibc_uintmaxtostr.h>
 
-/* libc_hidden_proto(fprintf) */
-/* libc_hidden_proto(abort) */
 
 /* Get the prototype from assert.h as a double-check. */
 #undef NDEBUG
 #include <assert.h>
 #undef assert
 
-/* libc_hidden_proto(__assert) */
 
 #define ASSERT_SHOW_PROGNAME 1
 

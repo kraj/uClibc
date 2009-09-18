@@ -30,13 +30,6 @@
 #include <string.h>
 #include <ctype.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(memset) */
-/* Experimentally off - libc_hidden_proto(strchr) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* libc_hidden_proto(sprintf) */
-/* libc_hidden_proto(tolower) */
 
 /*
  * WARNING: Don't even consider trying to compile this on a system where
@@ -352,7 +345,6 @@ inet_pton6(const char *src, u_char *dst)
  * author:
  *	Paul Vixie, 1996.
  */
-/* libc_hidden_proto(inet_ntop) */
 const char *
 inet_ntop(int af, const void *src, char *dst, socklen_t size)
 {
@@ -383,7 +375,6 @@ libc_hidden_def(inet_ntop)
  * author:
  *	Paul Vixie, 1996.
  */
-/* libc_hidden_proto(inet_pton) */
 int
 inet_pton(int af, const char *src, void *dst)
 {

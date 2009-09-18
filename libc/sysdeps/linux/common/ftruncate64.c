@@ -21,7 +21,6 @@
 # include <sys/types.h>
 # include <sys/syscall.h>
 
-/* libc_hidden_proto(ftruncate64) */
 
 # ifdef __NR_ftruncate64
 
@@ -52,7 +51,6 @@ int ftruncate64 (int fd, __off64_t length)
 
 # else  /* __NR_ftruncate64 */
 
-/* libc_hidden_proto(ftruncate) */
 
 int ftruncate64 (int fd, __off64_t length)
 {

@@ -10,8 +10,6 @@
 #include <unistd.h>
 #include "dirstream.h"
 
-/* libc_hidden_proto(closedir) */
-/* libc_hidden_proto(close) */
 
 int closedir(DIR * dir)
 {

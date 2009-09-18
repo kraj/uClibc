@@ -29,7 +29,6 @@
 #include <sys/syscall.h>
 #include <sys/mman.h>
 
-/* libc_hidden_proto(mmap) */
 
 #define __NR___syscall_mmap2	    __NR_mmap2
 static __inline__ _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,

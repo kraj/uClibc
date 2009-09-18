@@ -87,59 +87,10 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #endif
 #include <sys/uio.h>
 
-/* Experimentally off - libc_hidden_proto(memcmp) */
-/* Experimentally off - libc_hidden_proto(strcat) */
-/* Experimentally off - libc_hidden_proto(strchr) */
-/* Experimentally off - libc_hidden_proto(strcmp) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* Experimentally off - libc_hidden_proto(strncmp) */
-/* Experimentally off - libc_hidden_proto(memmove) */
-/* libc_hidden_proto(getpid) */
-/* libc_hidden_proto(socket) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(fcntl) */
-/* libc_hidden_proto(read) */
-/* libc_hidden_proto(write) */
-/* libc_hidden_proto(perror) */
-/* libc_hidden_proto(lstat) */
-/* libc_hidden_proto(fstat) */
-/* libc_hidden_proto(tolower) */
-/* libc_hidden_proto(sysconf) */
-/* libc_hidden_proto(getline) */
-/* libc_hidden_proto(geteuid) */
-/* libc_hidden_proto(seteuid) */
-/* libc_hidden_proto(getpwnam_r) */
-/* libc_hidden_proto(gethostbyname) */
-/* libc_hidden_proto(gethostbyname_r) */
-/* libc_hidden_proto(fileno) */
-/* libc_hidden_proto(sleep) */
-/* libc_hidden_proto(inet_addr) */
-/* libc_hidden_proto(inet_ntoa) */
-/* libc_hidden_proto(herror) */
-/* libc_hidden_proto(bind) */
-/* libc_hidden_proto(connect) */
-/* libc_hidden_proto(sigblock) */
-/* libc_hidden_proto(snprintf) */
-/* libc_hidden_proto(poll) */
-/* libc_hidden_proto(accept) */
-/* libc_hidden_proto(listen) */
-/* libc_hidden_proto(sigsetmask) */
-/* libc_hidden_proto(getc_unlocked) */
-/* libc_hidden_proto(__fgetc_unlocked) */
-/* libc_hidden_proto(fopen) */
-/* libc_hidden_proto(fclose) */
-/* libc_hidden_proto(fprintf) */
-/* libc_hidden_proto(__h_errno_location) */
 #ifdef __UCLIBC_HAS_XLOCALE__
-/* libc_hidden_proto(__ctype_b_loc) */
-/* libc_hidden_proto(__ctype_tolower_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-/* libc_hidden_proto(__ctype_b) */
-/* libc_hidden_proto(__ctype_tolower) */
 #endif
 
-/* libc_hidden_proto(rresvport) */
 
 /* some forward declarations */
 static int __ivaliduser2(FILE *hostf, u_int32_t raddr,

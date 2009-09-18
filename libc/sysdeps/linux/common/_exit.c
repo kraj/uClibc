@@ -13,7 +13,6 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-/* libc_hidden_proto(_exit) */
 
 void attribute_noreturn _exit(int status)
 {

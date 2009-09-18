@@ -22,8 +22,6 @@
 #include <errno.h>
 #include <termios.h>
 
-/* libc_hidden_proto(cfsetispeed) */
-/* libc_hidden_proto(cfsetospeed) */
 
 /* This is a gross hack around a kernel bug.  If the cfsetispeed functions
    is called with the SPEED argument set to zero this means use the same

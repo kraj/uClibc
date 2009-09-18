@@ -18,8 +18,6 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(strrchr) */
-/* Experimentally off - libc_hidden_proto(strchr) */
 
 /* Find the last occurrence of C in S.  */
 char *strrchr (const char *s, int c)

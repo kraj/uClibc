@@ -7,7 +7,6 @@
 
 #include "_stdio.h"
 
-/* libc_hidden_proto(fputwc_unlocked) */
 
 #ifdef __DO_UNLOCKED
 

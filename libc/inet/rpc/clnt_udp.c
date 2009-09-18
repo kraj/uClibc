@@ -54,7 +54,6 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #include <net/if.h>
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
-/* libc_hidden_proto(fwprintf) */
 #endif
 
 #ifdef IP_RECVERR
@@ -62,28 +61,8 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #include <sys/uio.h>
 #endif
 
-/* Experimentally off - libc_hidden_proto(memcmp) */
-/* libc_hidden_proto(ioctl) */
-/* libc_hidden_proto(socket) */
-/* libc_hidden_proto(close) */
 /* CMSG_NXTHDR is using it */
-/* libc_hidden_proto(__cmsg_nxthdr) */
 
-/* libc_hidden_proto(authnone_create) */
-/* libc_hidden_proto(xdrmem_create) */
-/* libc_hidden_proto(xdr_callhdr) */
-/* libc_hidden_proto(xdr_replymsg) */
-/* libc_hidden_proto(xdr_opaque_auth) */
-/* libc_hidden_proto(pmap_getport) */
-/* libc_hidden_proto(_seterr_reply) */
-/* libc_hidden_proto(setsockopt) */
-/* libc_hidden_proto(bindresvport) */
-/* libc_hidden_proto(recvfrom) */
-/* libc_hidden_proto(sendto) */
-/* libc_hidden_proto(recvmsg) */
-/* libc_hidden_proto(poll) */
-/* libc_hidden_proto(fputs) */
-/* libc_hidden_proto(__rpc_thread_createerr) */
 
 extern u_long _create_xid (void) attribute_hidden;
 
@@ -144,7 +123,6 @@ struct cu_data
  * sendsz and recvsz are the maximum allowable packet sizes that can be
  * sent and received.
  */
-/* libc_hidden_proto(clntudp_bufcreate) */
 CLIENT *
 clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
 		   struct timeval wait, int *sockp, u_int sendsz,
@@ -245,7 +223,6 @@ fooy:
 }
 libc_hidden_def(clntudp_bufcreate)
 
-/* libc_hidden_proto(clntudp_create) */
 CLIENT *
 clntudp_create (struct sockaddr_in *raddr, u_long program, u_long version, struct timeval wait, int *sockp)
 {

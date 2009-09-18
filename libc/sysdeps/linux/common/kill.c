@@ -10,7 +10,6 @@
 #include <sys/syscall.h>
 #include <signal.h>
 
-/* libc_hidden_proto(kill) */
 
 #define __NR___syscall_kill __NR_kill
 static __inline__ _syscall2(int, __syscall_kill, __kernel_pid_t, pid, int, sig)

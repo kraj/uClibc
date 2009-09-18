@@ -15,7 +15,6 @@
 #include <sys/syscall.h>
 #include <bits/uClibc_page.h>
 
-/* libc_hidden_proto(mmap) */
 
 # if !defined __NR_mmap2
 

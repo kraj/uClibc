@@ -43,7 +43,6 @@
 #include <limits.h>
 #include <rpc/rpc.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
 
 static bool_t xdrmem_getlong (XDR *, long *);
 static bool_t xdrmem_putlong (XDR *, const long *);
@@ -74,7 +73,6 @@ static const struct xdr_ops xdrmem_ops =
  * The procedure xdrmem_create initializes a stream descriptor for a
  * memory buffer.
  */
-/* libc_hidden_proto(xdrmem_create) */
 void
 xdrmem_create (XDR *xdrs, const caddr_t addr, u_int size, enum xdr_op op)
 {

@@ -25,12 +25,6 @@
 #include <string.h>
 #include <unistd.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(strchr) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* Experimentally off - libc_hidden_proto(strncmp) */
-/* Experimentally off - libc_hidden_proto(strndup) */
-/* libc_hidden_proto(unsetenv) */
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
@@ -121,7 +115,6 @@ static int __add_to_environ(const char *name, const char *value,
 	return rv;
 }
 
-/* libc_hidden_proto(setenv) */
 int setenv(const char *name, const char *value, int replace)
 {
 	/* NB: setenv("VAR", NULL, 1) inserts "VAR=" string */
@@ -129,7 +122,6 @@ int setenv(const char *name, const char *value, int replace)
 }
 libc_hidden_def(setenv)
 
-/* libc_hidden_proto(unsetenv) */
 int unsetenv(const char *name)
 {
 	const char *eq;

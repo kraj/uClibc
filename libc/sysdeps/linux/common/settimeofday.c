@@ -12,7 +12,6 @@
 
 #ifdef __USE_BSD
 
-/* libc_hidden_proto(settimeofday) */
 
 _syscall2(int, settimeofday, const struct timeval *, tv,
 		  const struct timezone *, tz)

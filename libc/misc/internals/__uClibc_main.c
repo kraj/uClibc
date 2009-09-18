@@ -27,19 +27,10 @@
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 
-/* libc_hidden_proto(exit) */
 
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-/* Experimentally off - libc_hidden_proto(strrchr) */
 #endif
 #ifndef __ARCH_HAS_NO_LDSO__
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* libc_hidden_proto(getgid) */
-/* libc_hidden_proto(getuid) */
-/* libc_hidden_proto(getegid) */
-/* libc_hidden_proto(geteuid) */
-/* libc_hidden_proto(fstat) */
-/* libc_hidden_proto(abort) */
 
 #endif
 

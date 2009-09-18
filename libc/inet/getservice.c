@@ -64,14 +64,6 @@
 #include <errno.h>
 #include <unistd.h>
 
-/* Experimentally off - libc_hidden_proto(strcmp) */
-/* Experimentally off - libc_hidden_proto(strpbrk) */
-/* libc_hidden_proto(fopen) */
-/* libc_hidden_proto(fclose) */
-/* libc_hidden_proto(atoi) */
-/* libc_hidden_proto(rewind) */
-/* libc_hidden_proto(fgets) */
-/* libc_hidden_proto(abort) */
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
@@ -96,7 +88,6 @@ static void __initbuf(void)
     }
 }
 
-/* libc_hidden_proto(setservent) */
 void setservent(int f)
 {
     __UCLIBC_MUTEX_LOCK(mylock);
@@ -109,7 +100,6 @@ void setservent(int f)
 }
 libc_hidden_def(setservent)
 
-/* libc_hidden_proto(endservent) */
 void endservent(void)
 {
     __UCLIBC_MUTEX_LOCK(mylock);
@@ -122,7 +112,6 @@ void endservent(void)
 }
 libc_hidden_def(endservent)
 
-/* libc_hidden_proto(getservent_r) */
 int getservent_r(struct servent * result_buf,
 		 char * buf, size_t buflen,
 		 struct servent ** result)
@@ -213,7 +202,6 @@ struct servent * getservent(void)
     return result;
 }
 
-/* libc_hidden_proto(getservbyname_r) */
 int getservbyname_r(const char *name, const char *proto,
 	struct servent * result_buf, char * buf, size_t buflen,
 	struct servent ** result)
@@ -251,7 +239,6 @@ struct servent *getservbyname(const char *name, const char *proto)
 }
 
 
-/* libc_hidden_proto(getservbyport_r) */
 int getservbyport_r(int port, const char *proto,
 	struct servent * result_buf, char * buf,
 	size_t buflen, struct servent ** result)
@@ -273,7 +260,6 @@ int getservbyport_r(int port, const char *proto,
 }
 libc_hidden_def(getservbyport_r)
 
-/* libc_hidden_proto(getservbyport) */
 struct servent * getservbyport(int port, const char *proto)
 {
     struct servent *result;

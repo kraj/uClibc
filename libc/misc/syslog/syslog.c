@@ -79,30 +79,7 @@
 #include <ctype.h>
 #include <signal.h>
 
-/* libc_hidden_proto(openlog) */
-/* libc_hidden_proto(syslog) */
-/* libc_hidden_proto(vsyslog) */
-/* libc_hidden_proto(closelog) */
 
-/* Experimentally off - libc_hidden_proto(memset) */
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(memmove) */
-/* Experimentally off - libc_hidden_proto(strchr) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* Experimentally off - libc_hidden_proto(strncpy) */
-/* libc_hidden_proto(open) */
-/* libc_hidden_proto(fcntl) */
-/* libc_hidden_proto(socket) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(write) */
-/* libc_hidden_proto(getpid) */
-/* libc_hidden_proto(ctime) */
-/* libc_hidden_proto(sigaction) */
-/* libc_hidden_proto(sigemptyset) */
-/* libc_hidden_proto(connect) */
-/* libc_hidden_proto(sprintf) */
-/* libc_hidden_proto(vsnprintf) */
-/* Experimentally off - libc_hidden_proto(time) */
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);

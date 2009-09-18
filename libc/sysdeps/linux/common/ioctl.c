@@ -11,7 +11,6 @@
 #include <stdarg.h>
 #include <sys/ioctl.h>
 
-/* libc_hidden_proto(ioctl) */
 
 #define __NR___syscall_ioctl __NR_ioctl
 static __always_inline

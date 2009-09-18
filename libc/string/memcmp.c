@@ -10,7 +10,6 @@
 #ifdef WANT_WIDE
 # define Wmemcmp wmemcmp
 #else
-/* Experimentally off - libc_hidden_proto(memcmp) */
 # define Wmemcmp memcmp
 #endif
 

@@ -21,7 +21,6 @@
 #include <errno.h>
 #include <unistd.h>
 
-/* libc_hidden_proto(ioctl) */
 
 /* Set the foreground process group ID of FD set PGRP_ID.  */
 int tcsetpgrp (int fd, pid_t pgrp_id)

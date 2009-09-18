@@ -9,11 +9,8 @@
 #include <ctype.h>
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-/* libc_hidden_proto(__ctype_tolower_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-/* libc_hidden_proto(__ctype_tolower) */
 #endif
-/* libc_hidden_proto(tolower) */
 
 char *strcasestr(const char *s1, const char *s2)
 {

@@ -44,7 +44,6 @@
 /* No name ambiguities in this file.  */
 __asm__ (".syntax no_register_prefix");
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
 void *
 memcpy(void *pdst, const void *psrc, size_t pn)
 {

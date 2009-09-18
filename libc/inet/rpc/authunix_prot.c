@@ -39,17 +39,11 @@
 #include <rpc/auth.h>
 #include <rpc/auth_unix.h>
 
-/* libc_hidden_proto(xdr_string) */
-/* libc_hidden_proto(xdr_u_int) */
-/* libc_hidden_proto(xdr_array) */
-/* libc_hidden_proto(xdr_u_long) */
-/* libc_hidden_proto(xdr_u_short) */
 
 /*
  * XDR for unix authentication parameters.
  * Unfortunately, none of these can be declared const.
  */
-/* libc_hidden_proto(xdr_authunix_parms) */
 bool_t
 xdr_authunix_parms (XDR * xdrs, struct authunix_parms *p)
 {

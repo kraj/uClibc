@@ -23,7 +23,6 @@
 
 #if defined __NR_ppoll && defined __UCLIBC_LINUX_SPECIFIC__
 
-/* libc_hidden_proto(ppoll) */
 
 int
 ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,

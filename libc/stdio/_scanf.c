@@ -77,31 +77,10 @@
 #include <bits/uClibc_fpmax.h>
 #endif /* __UCLIBC_HAS_FLOATS__ */
 
-/* Experimentally off - libc_hidden_proto(memcmp) */
-/* Experimentally off - libc_hidden_proto(memset) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* libc_hidden_proto(ungetc) */
-/* libc_hidden_proto(vfscanf) */
-/* libc_hidden_proto(vsscanf) */
-/* libc_hidden_proto(fclose) */
-/* libc_hidden_proto(getc_unlocked) */
-/* libc_hidden_proto(__fgetc_unlocked) */
 #ifdef __UCLIBC_HAS_WCHAR__
-/* libc_hidden_proto(wcslen) */
-/* libc_hidden_proto(vfwscanf) */
-/* libc_hidden_proto(vswscanf) */
-/* libc_hidden_proto(mbsrtowcs) */
-/* libc_hidden_proto(mbrtowc) */
-/* libc_hidden_proto(wcrtomb) */
-/* libc_hidden_proto(ungetwc) */
-/* libc_hidden_proto(iswspace) */
-/* libc_hidden_proto(fgetwc_unlocked) */
 #endif
 #ifdef __UCLIBC_HAS_XLOCALE__
-/* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-/* libc_hidden_proto(__ctype_b) */
 #endif
 
 #ifdef __UCLIBC_HAS_SCANF_GLIBC_A_FLAG__
@@ -165,7 +144,6 @@ _stdlib_strto_l(register const char * __restrict str,
 /**********************************************************************/
 #ifdef L_fscanf
 
-/* libc_hidden_proto(fscanf) */
 int fscanf(FILE * __restrict stream, const char * __restrict format, ...)
 {
 	va_list arg;
@@ -201,7 +179,6 @@ int scanf(const char * __restrict format, ...)
 
 #ifdef __STDIO_HAS_VSSCANF
 
-/* libc_hidden_proto(sscanf) */
 int sscanf(const char * __restrict str, const char * __restrict format, ...)
 {
 	va_list arg;
@@ -223,7 +200,6 @@ libc_hidden_def(sscanf)
 /**********************************************************************/
 #ifdef L_vscanf
 
-/* libc_hidden_proto(vscanf) */
 int vscanf(const char * __restrict format, va_list arg)
 {
 	return vfscanf(stdin, format, arg);

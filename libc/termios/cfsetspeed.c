@@ -22,8 +22,6 @@
 
 #ifdef __USE_BSD
 
-/* libc_hidden_proto(cfsetispeed) */
-/* libc_hidden_proto(cfsetospeed) */
 
 struct speed_struct
 {

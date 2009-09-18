@@ -16,8 +16,6 @@
 
 #include "malloc.h"
 
-/* libc_hidden_proto(mremap) */
-/* Experimentally off - libc_hidden_proto(memcpy) */
 
 /* ------------------------------ realloc ------------------------------ */
 void* realloc(void* oldmem, size_t bytes)

@@ -14,7 +14,6 @@
 #error Assumption violated for buffering mode flags
 #endif
 
-/* libc_hidden_proto(setvbuf) */
 int setvbuf(register FILE * __restrict stream, register char * __restrict buf,
 			int mode, size_t size)
 {

@@ -14,7 +14,6 @@
 
 #ifdef __NR_mmap
 
-/* libc_hidden_proto(mmap) */
 
 #ifdef __UCLIBC_MMAP_HAS_6_ARGS__
 
@@ -45,7 +44,6 @@ libc_hidden_def(mmap)
 
 #elif defined(__NR_mmap2)
 
-/* libc_hidden_proto(mmap) */
 
 #define __NR___syscall_mmap2 __NR_mmap2
 static __inline__ _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,

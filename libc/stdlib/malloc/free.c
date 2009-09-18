@@ -15,8 +15,6 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-/* libc_hidden_proto(munmap) */
-/* libc_hidden_proto(sbrk) */
 
 #include "malloc.h"
 #include "heap.h"

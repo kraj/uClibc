@@ -21,10 +21,6 @@
 
 #  ifdef IS_IN_libc
 #include <fcntl.h>
-/* libc_hidden_proto(open) */
-/* libc_hidden_proto(read) */
-/* libc_hidden_proto(close) */
-/* libc_hidden_proto(gettimeofday) */
 #   define OPEN open
 #   define READ read
 #   define CLOSE close

@@ -14,7 +14,6 @@
 
 #ifdef __USE_BSD
 
-/* libc_hidden_proto(setgroups) */
 
 #if defined(__NR_setgroups32)
 # undef __NR_setgroups
@@ -26,7 +25,6 @@ _syscall2(int, setgroups, size_t, size, const gid_t *, list)
 
 #else
 
-/* libc_hidden_proto(sysconf) */
 
 #define __NR___syscall_setgroups __NR_setgroups
 static __inline__ _syscall2(int, __syscall_setgroups,

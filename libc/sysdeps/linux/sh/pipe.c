@@ -12,7 +12,6 @@
 #include <unistd.h>
 #include <syscall.h>
 
-/* libc_hidden_proto(pipe) */
 
 int pipe(int *fd)
 {

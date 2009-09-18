@@ -11,14 +11,12 @@
 #include <utime.h>
 #include <sys/time.h>
 
-/* libc_hidden_proto(utimes) */
 
 #ifdef __NR_utimes
 _syscall2(int, utimes, const char *, file, const struct timeval *, tvp)
 #else
 #include <stdlib.h>
 
-/* libc_hidden_proto(utime) */
 
 int utimes(const char *file, const struct timeval tvp[2])
 {

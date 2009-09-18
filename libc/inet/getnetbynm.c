@@ -21,10 +21,6 @@
 #include <string.h>
 #include <unistd.h>
 
-/* Experimentally off - libc_hidden_proto(strcmp) */
-/* libc_hidden_proto(setnetent) */
-/* libc_hidden_proto(getnetent) */
-/* libc_hidden_proto(endnetent) */
 
 extern smallint _net_stayopen attribute_hidden;
 

@@ -12,9 +12,6 @@
 #include <sys/utsname.h>
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* libc_hidden_proto(uname) */
 
 int
 #ifndef __UCLIBC_BSD_SPECIFIC__

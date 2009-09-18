@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(strrchr) */
 char *strrchr(const char *s, int c)
 {
 	char *eax;

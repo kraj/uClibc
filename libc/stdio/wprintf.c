@@ -9,7 +9,6 @@
 #include <stdarg.h>
 #include <wchar.h>
 
-/* libc_hidden_proto(vfwprintf) */
 
 int wprintf(const wchar_t * __restrict format, ...)
 {

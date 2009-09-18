@@ -12,8 +12,6 @@
 #define __need_NULL
 #include <stddef.h>
 
-/* libc_hidden_proto(sigwaitinfo) */
-/* libc_hidden_proto(sigtimedwait) */
 
 #ifdef __NR_rt_sigtimedwait
 #define __NR___rt_sigtimedwait __NR_rt_sigtimedwait

@@ -24,7 +24,6 @@
 /* This must be initialized data because commons can't have aliases.  */
 void *__curbrk attribute_hidden = 0;
 
-/* libc_hidden_proto(brk) */
 int
 brk (void *addr)
 {

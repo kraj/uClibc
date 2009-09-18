@@ -23,17 +23,13 @@
 #include <signal.h>
 #include <unistd.h>
 
-/* libc_hidden_proto(sleep) */
 
-/* libc_hidden_proto(sigaction) */
-/* libc_hidden_proto(sigprocmask) */
 
 /* version perusing nanosleep */
 #if defined __UCLIBC_HAS_REALTIME__
 //libc_hidden_proto(__sigaddset)
 //libc_hidden_proto(__sigemptyset)
 //libc_hidden_proto(__sigismember)
-/*libc_hidden_proto(nanosleep) need the reloc for cancellation*/
 
 #if 0
 /* This is a quick and dirty, but not 100% compliant with
@@ -109,7 +105,6 @@ unsigned int sleep (unsigned int seconds)
 }
 #endif
 #else /* __UCLIBC_HAS_REALTIME__ */
-/* libc_hidden_proto(sigaction) */
 /* no nanosleep, use signals and alarm() */
 static void sleep_alarm_handler(int attribute_unused sig)
 {

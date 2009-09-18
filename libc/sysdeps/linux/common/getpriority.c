@@ -10,7 +10,6 @@
 #include <sys/syscall.h>
 #include <sys/resource.h>
 
-/* libc_hidden_proto(getpriority) */
 
 #define __NR___syscall_getpriority __NR_getpriority
 static __inline__ _syscall2(int, __syscall_getpriority,

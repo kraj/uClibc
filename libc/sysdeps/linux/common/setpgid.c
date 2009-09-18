@@ -12,7 +12,6 @@
 #if defined __USE_UNIX98 || defined __USE_SVID
 #include <unistd.h>
 
-/* libc_hidden_proto(setpgid) */
 
 #define __NR___syscall_setpgid __NR_setpgid
 static __inline__ _syscall2(int, __syscall_setpgid,

@@ -6,7 +6,6 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(strcpy) */
 char *strcpy(char *dest, const char *src)
 {
   char *ret = dest;

@@ -23,7 +23,6 @@
 
 void *__curbrk attribute_hidden = 0;
 
-/* libc_hidden_proto(brk) */
 int brk (void *addr)
 {
   void *newbrk;

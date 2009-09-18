@@ -9,7 +9,6 @@
 
 #include "_string.h"
 
-/* Experimentally off - libc_hidden_proto(ffs) */
 
 int ffs(int i)
 {

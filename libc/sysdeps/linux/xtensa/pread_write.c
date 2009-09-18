@@ -77,9 +77,6 @@ weak_alias(__libc_pwrite64,pwrite64)
 #endif /* __NR_pwrite */
 
 #if ! defined __NR_pread || ! defined __NR_pwrite
-/* libc_hidden_proto(read) */
-/* libc_hidden_proto(write) */
-/* libc_hidden_proto(lseek) */
 
 static ssize_t __fake_pread_write(int fd, void *buf,
 		size_t count, off_t offset, int do_pwrite)
@@ -119,7 +116,6 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 }
 
 # ifdef __UCLIBC_HAS_LFS__
-/* libc_hidden_proto(lseek64) */
 
 static ssize_t __fake_pread_write64(int fd, void *buf,
 		size_t count, off64_t offset, int do_pwrite)

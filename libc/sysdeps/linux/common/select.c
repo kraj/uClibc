@@ -61,6 +61,5 @@ _syscall5(int, __libc_select, int, n, fd_set *, readfds, fd_set *, writefds,
 
 #endif
 
-/* libc_hidden_proto(select) */
 weak_alias(__libc_select,select)
 libc_hidden_weak(select)

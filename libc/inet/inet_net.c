@@ -39,9 +39,7 @@
 #include <arpa/inet.h>
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-/* libc_hidden_proto(__ctype_b_loc) */
 #elif defined __UCLIBC_HAS_CTYPE_TABLES__
-/* libc_hidden_proto(__ctype_b) */
 #endif
 
 /*
@@ -49,7 +47,6 @@
  * The library routines call this routine to interpret
  * network numbers.
  */
-/* libc_hidden_proto(inet_network) */
 in_addr_t
 inet_network(const char *cp)
 {

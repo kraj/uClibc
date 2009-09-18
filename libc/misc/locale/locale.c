@@ -58,19 +58,8 @@
 #include <ctype.h>
 #include <stdio.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
-/* Experimentally off - libc_hidden_proto(memset) */
-/* Experimentally off - libc_hidden_proto(strtok_r) */
-/* Experimentally off - libc_hidden_proto(strlen) */
-/* Experimentally off - libc_hidden_proto(strcmp) */
-/* Experimentally off - libc_hidden_proto(strcpy) */
-/* Experimentally off - libc_hidden_proto(strncmp) */
-/* Experimentally off - libc_hidden_proto(strchr) */
-/* libc_hidden_proto(getenv) */
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
-/* libc_hidden_proto(__C_ctype_toupper) */
 #endif
-/*libc_hidden_proto(fflush)*/
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #ifdef L_setlocale
@@ -193,8 +182,6 @@ static const char utf8[] = "UTF-8";
  */
 static char hr_locale[(MAX_LOCALE_CATEGORY_STR * LC_ALL) + MAX_LOCALE_STR];
 
-/* Experimentally off - libc_hidden_proto(stpcpy) */
-/* libc_hidden_proto(newlocale) */
 
 static void update_hr_locale(const unsigned char *spec)
 {
@@ -304,7 +291,6 @@ char *setlocale(int category, const char *locale)
  * placement of the fields in the struct.  If necessary, we could ensure
  * this usings an array of offsets but at some size cost. */
 
-/* libc_hidden_proto(localeconv) */
 
 #ifdef __LOCALE_C_ONLY
 
@@ -365,12 +351,7 @@ libc_hidden_def(localeconv)
 /**********************************************************************/
 #if defined(L__locale_init) && !defined(__LOCALE_C_ONLY)
 
-/* libc_hidden_proto(__C_ctype_b) */
-/* libc_hidden_proto(__C_ctype_tolower) */
 #ifndef __UCLIBC_HAS_XLOCALE__
-/* libc_hidden_proto(__ctype_b) */
-/* libc_hidden_proto(__ctype_tolower) */
-/* libc_hidden_proto(__ctype_toupper) */
 #endif
 
 struct __uclibc_locale_struct __global_locale_data;
@@ -1027,7 +1008,6 @@ static const unsigned char nl_data[C_LC_ALL + 1 + 90 + 320] = {
 	   ']', '\x00',    '^',    '[',    'n',    'N',    ']', '\x00',
 };
 
-/* libc_hidden_proto(nl_langinfo) */
 char *nl_langinfo(nl_item item)
 {
 	unsigned int c;
@@ -1047,9 +1027,7 @@ libc_hidden_def(nl_langinfo)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-/* libc_hidden_proto(nl_langinfo) */
 
-/* libc_hidden_proto(nl_langinfo_l) */
 
 char *nl_langinfo(nl_item item)
 {
@@ -1085,8 +1063,6 @@ libc_hidden_def(__XL_NPP(nl_langinfo))
 /**********************************************************************/
 #ifdef L_newlocale
 
-/* Experimentally off - libc_hidden_proto(stpcpy) */
-/* libc_hidden_proto(newlocale) */
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Move posix and utf8 strings.
@@ -1338,7 +1314,6 @@ libc_hidden_def(newlocale)
 /**********************************************************************/
 #ifdef L_duplocale
 
-/* libc_hidden_proto(duplocale) */
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning REMINDER: When we allocate ctype tables, remember to dup them.
@@ -1390,7 +1365,6 @@ void freelocale(__locale_t dataset)
 /**********************************************************************/
 #ifdef L_uselocale
 
-/* libc_hidden_proto(uselocale) */
 __locale_t uselocale(__locale_t dataset)
 {
 	__locale_t old;

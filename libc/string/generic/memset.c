@@ -19,7 +19,6 @@
 #include <string.h>
 #include "memcopy.h"
 
-/* Experimentally off - libc_hidden_proto(memset) */
 void *memset (void *dstpp, int c, size_t len)
 {
   long int dstp = (long int) dstpp;

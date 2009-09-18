@@ -21,9 +21,7 @@
 
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(memcpy) */
 
-/* Experimentally off - libc_hidden_proto(memmove) */
 void *memmove(void *to, const void *from, size_t n)
 {
 	unsigned long rem, chunks, tmp1, tmp2;

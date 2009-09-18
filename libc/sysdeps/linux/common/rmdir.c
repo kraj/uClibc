@@ -10,7 +10,6 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-/* libc_hidden_proto(rmdir) */
 
 _syscall1(int, rmdir, const char *, pathname)
 libc_hidden_def(rmdir)

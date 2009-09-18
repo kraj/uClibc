@@ -4,7 +4,6 @@
 /* Now define the internal interfaces.  */
 extern u_long _create_xid (void) attribute_hidden;
 
-/* libc_hidden_proto(__rpc_thread_createerr) */
 
 /*
  * Multi-threaded support

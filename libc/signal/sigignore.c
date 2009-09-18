@@ -24,7 +24,6 @@
 #include <signal.h>
 #include <string.h>	/* For the real memset prototype.  */
 
-/* libc_hidden_proto(sigaction) */
 
 int sigignore (int sig)
 {

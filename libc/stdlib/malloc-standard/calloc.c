@@ -16,7 +16,6 @@
 
 #include "malloc.h"
 
-/* Experimentally off - libc_hidden_proto(memset) */
 
 /* ------------------------------ calloc ------------------------------ */
 void* calloc(size_t n_elements, size_t elem_size)

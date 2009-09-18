@@ -25,13 +25,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Experimentally off - libc_hidden_proto(strdup) */
-/* libc_hidden_proto(getcwd) */
-/* libc_hidden_proto(getenv) */
 #ifdef __UCLIBC_HAS_LFS__
-/* libc_hidden_proto(stat64) */
 #else
-/* libc_hidden_proto(stat) */
 #endif
 
 /* Return a malloc'd string containing the current directory name.

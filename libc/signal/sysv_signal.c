@@ -20,7 +20,6 @@
 #include <signal.h>
 #include <string.h>	/* For the real memset prototype.  */
 
-/* libc_hidden_proto(sigaction) */
 
 /* Tolerate non-threads versions of Posix */
 #ifndef SA_ONESHOT

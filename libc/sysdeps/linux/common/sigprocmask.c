@@ -14,7 +14,6 @@
 
 #undef sigprocmask
 
-/* libc_hidden_proto(sigprocmask) */
 
 #ifdef __NR_rt_sigprocmask
 

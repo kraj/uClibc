@@ -20,7 +20,6 @@
 #include <setjmp.h>
 #include <signal.h>
 
-/* libc_hidden_proto(sigprocmask) */
 
 extern void __longjmp (__jmp_buf __env, int __val) attribute_noreturn;
 libc_hidden_proto(__longjmp)
