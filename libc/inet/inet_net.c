@@ -38,10 +38,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
-
 /*
  * Internet network address interpretation routine.
  * The library routines call this routine to interpret

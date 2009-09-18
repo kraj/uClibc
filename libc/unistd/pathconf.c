@@ -29,7 +29,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
-//#include <sys/statvfs.h>
 
 extern __typeof(statfs) __libc_statfs;
 

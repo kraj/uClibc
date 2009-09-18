@@ -43,10 +43,10 @@ int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oac
 
 	if (act) {
 		kact.k_sa_handler = act->sa_handler;
-		// BUG?! kact.sa_mask is a long, but sigset_t is a vector
-		// of longs and it may be bigger (in glibc, it _is_ bigger).
-		// Should we do this instead?
-		// kact.sa_mask = act->sa_mask.__val[0];
+		/* BUG?! kact.sa_mask is a long, but sigset_t is a vector
+		/* of longs and it may be bigger (in glibc, it _is_ bigger).
+		/* Should we do this instead?
+		/* kact.sa_mask = act->sa_mask.__val[0]; */
 		memcpy(&kact.sa_mask, &act->sa_mask, sizeof(sigset_t));
 		kact.sa_flags = act->sa_flags;
 		if (kact.sa_flags & SA_SIGINFO)
@@ -64,11 +64,11 @@ int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oac
 		stub,
 		_NSIG / 8);
 
-	// BUG?! if ret == -1, we return -1 but do not set errno?!
+	/* BUG?! if ret == -1, we return -1 but do not set errno?! */
 	if (ret >= 0 || errno != ENOSYS) {
 		if (oact && ret >= 0) {
 			oact->sa_handler = koact.k_sa_handler;
-			// maybe oact->sa_mask.__val[0] = koact.sa_mask; ?
+			/* maybe oact->sa_mask.__val[0] = koact.sa_mask;? */
 			memcpy(&oact->sa_mask, &koact.sa_mask, sizeof(sigset_t));
 			oact->sa_flags = koact.sa_flags;
 			oact->sa_restorer = koact.sa_restorer;

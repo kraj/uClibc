@@ -33,7 +33,7 @@
 #include <string.h>
 
 #undef memchr
-//#define memchr TESTING
+/*#define memchr TESTING*/
 void *memchr(const void *s, int c, size_t count)
 {
 	void *edi;

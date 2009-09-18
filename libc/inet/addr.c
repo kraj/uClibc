@@ -43,9 +43,6 @@
  * leading 0   -> octal
  * all else    -> decimal
  */
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
 int inet_aton(const char *cp, struct in_addr *addrptr)
 {
 	in_addr_t addr;

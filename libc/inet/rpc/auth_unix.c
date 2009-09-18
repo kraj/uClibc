@@ -56,9 +56,6 @@
 # include <wchar.h>
 #endif
 
-#ifdef USE_IN_LIBIO
-#endif
-
 /*
  * Unix authenticator operations vector
  */

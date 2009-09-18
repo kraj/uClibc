@@ -209,9 +209,6 @@ int __glob_sort(const void *a, const void *b)
 }
 #endif /* !__GLOB64 */
 
-#ifdef __GLOB64
-#else
-#endif
 int glob(const char *pat, int flags, int (*errfunc)(const char *path, int err), glob_t *g)
 {
 	const char *p=pat, *d;
@@ -285,9 +282,6 @@ libc_hidden_def(glob64)
 libc_hidden_def(glob)
 #endif
 
-#ifdef __GLOB64
-#else
-#endif
 void globfree(glob_t *g)
 {
 	size_t i;

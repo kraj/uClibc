@@ -38,17 +38,6 @@
 #endif
 
 
-#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-#endif
-#ifndef __ARCH_HAS_NO_LDSO__
-libc_hidden_proto(getgid)
-libc_hidden_proto(getuid)
-libc_hidden_proto(getegid)
-libc_hidden_proto(geteuid)
-libc_hidden_proto(fstat)
-
-#endif
-
 #ifndef SHARED
 void *__libc_stack_end=NULL;
 

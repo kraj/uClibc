@@ -27,9 +27,6 @@
 
 /* version perusing nanosleep */
 #if defined __UCLIBC_HAS_REALTIME__
-//libc_hidden_proto(__sigaddset)
-//libc_hidden_proto(__sigemptyset)
-//libc_hidden_proto(__sigismember)
 
 #if 0
 /* This is a quick and dirty, but not 100% compliant with

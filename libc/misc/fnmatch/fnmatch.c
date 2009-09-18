@@ -61,10 +61,7 @@
 #endif
 
 #ifdef __UCLIBC__
-#define __memset memset
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
+# define __memset memset
 #endif
 
 /* For platform which support the ISO C amendement 1 functionality we
@@ -73,10 +70,6 @@
 /* Solaris 2.5 has a bug: <wchar.h> must be included before <wctype.h>.  */
 # include <wchar.h>
 # include <wctype.h>
-# ifdef __UCLIBC__
-#  ifdef __UCLIBC_HAS_LOCALE__
-#  endif
-# endif
 #endif
 
 /* We need some of the locale data (the collation sequence information)

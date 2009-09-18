@@ -58,9 +58,6 @@
 #include <ctype.h>
 #include <stdio.h>
 
-#ifdef __UCLIBC_HAS_CTYPE_TABLES__
-#endif
-
 #ifdef __UCLIBC_MJN3_ONLY__
 #ifdef L_setlocale
 #warning TODO: Make the link_warning()s a config option?
@@ -350,9 +347,6 @@ libc_hidden_def(localeconv)
 #endif
 /**********************************************************************/
 #if defined(L__locale_init) && !defined(__LOCALE_C_ONLY)
-
-#ifndef __UCLIBC_HAS_XLOCALE__
-#endif
 
 struct __uclibc_locale_struct __global_locale_data;
 

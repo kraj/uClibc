@@ -65,9 +65,6 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
 # include <wchar.h>
 #endif
 
-#ifdef USE_IN_LIBIO
-#endif
-
 extern u_long _create_xid (void) attribute_hidden;
 
 #define MCALL_MSG_SIZE 24

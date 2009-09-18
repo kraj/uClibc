@@ -77,12 +77,6 @@
 #include <bits/uClibc_fpmax.h>
 #endif /* __UCLIBC_HAS_FLOATS__ */
 
-#ifdef __UCLIBC_HAS_WCHAR__
-#endif
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
-
 #ifdef __UCLIBC_HAS_SCANF_GLIBC_A_FLAG__
 #ifdef L_vfscanf
 /* only emit this once */

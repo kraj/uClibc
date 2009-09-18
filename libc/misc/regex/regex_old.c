@@ -6035,17 +6035,18 @@ byte_re_match_2_internal (
                 { /* No.  So allocate them with malloc.  We need one
                      extra element beyond `num_regs' for the `-1' marker
                      GNU code uses.  */
-// regex specs say:
-//  "If REGS_UNALLOCATED, allocate space in the regs structure
-//   for max(RE_NREGS, re_nsub + 1) groups"
-// but real-world testsuites fail with contrived examples
-// with lots of groups.
-// I don't see why we can't just allocate exact needed number.
-// Incidentally, it makes RE_NREGS unused.
-//
-// regs->num_regs = MAX (RE_NREGS, num_regs + 1); - VERY WRONG
-// regs->num_regs = MIN (RE_NREGS, num_regs + 1); - slightly less wrong
-// good one which passes uclibc test/regex/tst-regex2.c:
+/* regex specs say:
+ *  "If REGS_UNALLOCATED, allocate space in the regs structure
+ *   for max(RE_NREGS, re_nsub + 1) groups"
+ * but real-world testsuites fail with contrived examples
+ * with lots of groups.
+ * I don't see why we can't just allocate exact needed number.
+ * Incidentally, it makes RE_NREGS unused.
+ *
+ * regs->num_regs = MAX (RE_NREGS, num_regs + 1); - VERY WRONG
+ * regs->num_regs = MIN (RE_NREGS, num_regs + 1); - slightly less wrong
+ * good one which passes uclibc test/regex/tst-regex2.c:
+ */
                   regs->num_regs = num_regs + 1;
                   regs->start = TALLOC (regs->num_regs, regoff_t);
                   regs->end = TALLOC (regs->num_regs, regoff_t);

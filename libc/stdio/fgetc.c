@@ -76,10 +76,6 @@ libc_hidden_def(__fgetc_unlocked)
 strong_alias(__fgetc_unlocked,fgetc_unlocked)
 libc_hidden_def(fgetc_unlocked)
 
-///* libc_hidden_proto(__getc_unlocked) */
-//strong_alias(__fgetc_unlocked,__getc_unlocked)
-//libc_hidden_def(__getc_unlocked)
-
 strong_alias(__fgetc_unlocked,getc_unlocked)
 libc_hidden_def(getc_unlocked)
 

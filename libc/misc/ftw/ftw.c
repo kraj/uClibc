@@ -83,9 +83,6 @@ char *alloca ();
 # include <sys/stat.h>
 #endif
 
-#ifdef __UCLIBC_HAS_LFS__
-#endif
-
 #if !defined _LIBC && !HAVE_DECL_STPCPY && !defined stpcpy
 char *stpcpy ();
 #endif

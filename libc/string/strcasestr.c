@@ -8,10 +8,6 @@
 #include "_string.h"
 #include <ctype.h>
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-#elif defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
-
 char *strcasestr(const char *s1, const char *s2)
 {
 	register const char *s = s1;

@@ -356,9 +356,10 @@ strong_alias(__ieee754_lgamma, gamma)
 #endif
 
 
-// FIXME! Looks like someone just used __ieee754_gamma_r,
-// believing it's a "true" gamma function, but it was not!
-// Our tgamma is WRONG.
+/* FIXME! Looks like someone just used __ieee754_gamma_r,
+ * believing it's a "true" gamma function, but it was not!
+ * Our tgamma is WRONG.
+ */
 
 /* double tgamma(double x)
  * Return the Gamma function of x.

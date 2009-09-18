@@ -33,7 +33,7 @@
 #include <string.h>
 
 #undef memmove
-//#define memmove TESTING
+/*#define memmove TESTING*/
 void *memmove(void *dest, const void *src, size_t n)
 {
 	int eax, ecx, esi, edi;

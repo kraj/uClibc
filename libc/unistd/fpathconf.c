@@ -24,9 +24,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
-//#include <sys/statvfs.h>
-
-//#include "linux_fsinfo.h"
 
 
 #ifndef __USE_FILE_OFFSET64

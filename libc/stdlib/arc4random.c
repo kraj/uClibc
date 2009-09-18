@@ -35,7 +35,6 @@
 #include <sys/time.h>
 #ifdef __ARC4RANDOM_USE_ERANDOM__
 #include <sys/sysctl.h>
-//libc_hidden_proto(sysctl)
 #endif
 
 

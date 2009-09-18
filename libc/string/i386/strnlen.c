@@ -35,7 +35,7 @@
 #ifdef __USE_GNU
 
 #undef strnlen
-//#define strnlen TESTING
+/*#define strnlen TESTING*/
 size_t strnlen(const char *s, size_t count)
 {
 	int edx;

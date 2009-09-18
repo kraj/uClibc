@@ -469,9 +469,6 @@ static int glob_in_dir (const char *pattern, const char *directory, int flags,
   return GLOB_NOSPACE;
 }
 
-#ifdef COMPILE_GLOB64
-#else
-#endif
 /* Do glob searching for PATTERN, placing results in PGLOB.
    The bits defined above may be set in FLAGS.
    If a directory cannot be opened or read and ERRFUNC is not nil,

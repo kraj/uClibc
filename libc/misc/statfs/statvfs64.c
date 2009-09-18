@@ -31,9 +31,6 @@
 
 #undef stat
 #define stat stat64
-#if defined __UCLIBC_LINUX_SPECIFIC__
-#else
-#endif
 
 int statvfs64 (const char *file, struct statvfs64 *buf)
 {

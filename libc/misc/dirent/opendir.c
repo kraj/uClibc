@@ -102,15 +102,15 @@ DIR *opendir(const char *name)
 	 * to worry about it right now (if ever). */
 
 	if (fstat(fd, &statbuf) < 0) {
-		// this close() never fails
-		//int saved_errno;
-		//saved_errno = errno;
+		/* this close() never fails
+		 *int saved_errno;
+		 *saved_errno = errno; */
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 		close_not_cancel_no_status(fd);
 #else
 		close(fd);
 #endif
-		//__set_errno(saved_errno);
+		/*__set_errno(saved_errno);*/
 		return NULL;
 	}
 

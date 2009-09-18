@@ -25,11 +25,6 @@
 #endif
 #include "internals.h"
 
-#ifdef SHARED
-#endif
-
-#if !(USE_TLS && HAVE___THREAD) && defined __UCLIBC_HAS_XLOCALE__
-#endif
 
 int __libc_multiple_threads attribute_hidden __attribute__((nocommon));
 strong_alias (__libc_multiple_threads, __librt_multiple_threads)
