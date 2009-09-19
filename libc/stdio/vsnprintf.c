@@ -9,9 +9,6 @@
 #include <stdarg.h>
 
 
-#ifdef __USE_OLD_VFPRINTF__
-#endif
-
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning WISHLIST: Implement vsnprintf for non-buffered and no custom stream case.
 #endif /* __UCLIBC_MJN3_ONLY__ */

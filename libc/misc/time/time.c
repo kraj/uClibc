@@ -1172,8 +1172,7 @@ LOOP:
 
 					i = 16 + 6;	/* 0-fill, width = 4 */
 				}
-#ifdef __UCLIBC_HAS_TM_EXTENSIONS__
-#else
+#ifndef __UCLIBC_HAS_TM_EXTENSIONS__
 				__UCLIBC_MUTEX_UNLOCK(_time_tzlock);
 				if (*p == 'Z') {
 					goto OUTPUT;

@@ -340,10 +340,9 @@ is_char_class (const wchar_t *wcs)
 #  include "fnmatch_loop.c"
 # endif
 
-#ifdef __UCLIBC_HAS_WCHAR__
-#else
-#undef MB_CUR_MAX
-#define MB_CUR_MAX 1
+#ifndef __UCLIBC_HAS_WCHAR__
+# undef MB_CUR_MAX
+# define MB_CUR_MAX 1
 #endif
 
 int

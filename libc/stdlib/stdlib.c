@@ -635,8 +635,6 @@ unsigned long long attribute_hidden _stdlib_strto_ll(register const Wchar * __re
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-#if !defined __UCLIBC_HAS_XLOCALE__ && defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
 /* This is the main work fuction which handles both strtoll (sflag = 1) and
  * strtoull (sflag = 0). */
 

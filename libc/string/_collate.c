@@ -19,9 +19,6 @@
 #include <errno.h>
 #include <assert.h>
 
-#ifdef WANT_WIDE
-#endif
-
 #ifdef __UCLIBC_HAS_LOCALE__
 #if defined(L_strxfrm) || defined(L_strxfrm_l) || defined(L_wcsxfrm) || defined(L_wcsxfrm_l)
 
@@ -512,9 +509,9 @@ int __XL_NPP(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 	if (!CUR_COLLATE->num_weights) { /* C locale */
 #ifdef WANT_WIDE
 		return wcscmp(s0, s1);
-#else  /* WANT_WIDE */
+#else
 		return strcmp(s0, s1);
-#endif /* WANT_WIDE */
+#endif
 	}
 
 	pass = 0;

@@ -22,10 +22,6 @@
 #warning Skipping vasprintf since no vsnprintf!
 #else
 
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-#else
-#endif
-
 int vasprintf(char **__restrict buf, const char * __restrict format,
 			 va_list arg)
 {
