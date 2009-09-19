@@ -72,7 +72,7 @@ else
 	return ret;
 }
 
-int sigwait(const sigset_t *set, int *sig)
+int sigwait (const sigset_t *set, int *sig)
 {
 	if(SINGLE_THREAD_P)
 		return do_sigwait(set, sig);
@@ -90,10 +90,9 @@ int sigwait(const sigset_t *set, int *sig)
 # endif
 #else /* __UCLIBC_HAS_THREADS_NATIVE__ */
 
-# if define __UCLIBC_HAS_REALTIME__
+# if defined __UCLIBC_HAS_REALTIME__
 
-int __sigwait (const sigset_t *set, int *sig) attribute_hidden;
-int __sigwait (const sigset_t *set, int *sig)
+int sigwait (const sigset_t *set, int *sig)
 {
 	int ret = 1;
 	if ((ret = sigwaitinfo(set, NULL)) != -1) {
