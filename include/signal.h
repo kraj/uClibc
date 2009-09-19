@@ -303,7 +303,6 @@ extern int sigpending (sigset_t *__set) __THROW __nonnull ((1));
    __THROW.  */
 extern int sigwait (__const sigset_t *__restrict __set, int *__restrict __sig)
      __nonnull ((1, 2));
-libc_hidden_proto(sigwait)
 
 # if defined __USE_POSIX199309 && defined __UCLIBC_HAS_REALTIME__
 /* Select any of pending signals from SET and place information in INFO.

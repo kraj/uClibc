@@ -24,8 +24,7 @@
 
 #if defined __UCLIBC_HAS_REALTIME__
 
-int __sigwait (const sigset_t *set, int *sig) attribute_hidden;
-int __sigwait (const sigset_t *set, int *sig)
+int sigwait(const sigset_t *set, int *sig)
 {
 	int ret = sigwaitinfo(set, NULL);
 	if (ret != -1) {
@@ -34,16 +33,18 @@ int __sigwait (const sigset_t *set, int *sig)
 	}
 	return 1;
 }
+
 #else /* __UCLIBC_HAS_REALTIME__ */
 /* variant without REALTIME extensions */
 
 static smallint was_sig; /* obviously not thread-safe */
+
 static void ignore_signal(int sig)
 {
 	was_sig = sig;
 }
-int __sigwait (const sigset_t *set, int *sig) attribute_hidden;
-int __sigwait (const sigset_t *set, int *sig)
+
+int sigwait (const sigset_t *set, int *sig)
 {
   sigset_t tmp_mask;
   struct sigaction saved[NSIG];
@@ -94,5 +95,3 @@ int __sigwait (const sigset_t *set, int *sig)
   return was_sig == -1 ? -1 : 0;
 }
 #endif /* __UCLIBC_HAS_REALTIME__ */
-weak_alias(__sigwait,sigwait)
-libc_hidden_def(sigwait)
