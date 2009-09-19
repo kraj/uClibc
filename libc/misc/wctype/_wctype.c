@@ -37,13 +37,12 @@
 #include <stdint.h>
 #include <bits/uClibc_uwchar.h>
 
-
 #if defined(__LOCALE_C_ONLY) && defined(__UCLIBC_DO_XLOCALE)
-#error xlocale functionality is not supported in stub locale mode.
+# error xlocale functionality is not supported in stub locale mode.
 #endif
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-#include <xlocale.h>
+# include <xlocale.h>
 #endif
 
 /* We know wide char support is enabled.  We wouldn't be here otherwise. */
@@ -99,18 +98,18 @@ enum {
 /*--------------------------------------------------------------------*/
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_iswspace
+# ifdef L_iswspace
 /* generates one warning */
-#warning TODO: Fix WC* defines!
+#  warning TODO: Fix WC* defines!
+# endif
 #endif
-#endif /* __UCLIBC_MJN3_ONLY__ */
 
 #define ENCODING		(__UCLIBC_CURLOCALE->encoding)
 
 #define WCctype			(__UCLIBC_CURLOCALE->tblwctype)
 #define WCuplow			(__UCLIBC_CURLOCALE->tblwuplow)
 #define WCcmob			(__UCLIBC_CURLOCALE->tblwcomb)
-#define WCuplow_diff	(__UCLIBC_CURLOCALE->tblwuplow_diff)
+#define WCuplow_diff		(__UCLIBC_CURLOCALE->tblwuplow_diff)
 
 
 #define WC_TABLE_DOMAIN_MAX   __LOCALE_DATA_WC_TABLE_DOMAIN_MAX
@@ -234,70 +233,66 @@ ISW_FUNC_BODY(xdigit);
 /**********************************************************************/
 #if defined(L_towlower) || defined(L_towlower_l)
 
-#ifdef L_towlower
-#define TOWLOWER(w) towlower(w)
-#else  /* L_towlower */
-#define TOWLOWER(w) towlower_l(w, __locale_t locale)
-#undef __UCLIBC_CURLOCALE
-#define __UCLIBC_CURLOCALE (locale)
-#endif /* L_towlower */
+# ifdef L_towlower
+#  define TOWLOWER(w) towlower(w)
+# else
+#  define TOWLOWER(w) towlower_l(w, __locale_t locale)
+#  undef __UCLIBC_CURLOCALE
+#  define __UCLIBC_CURLOCALE (locale)
+# endif
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-#define TOWCTRANS(w,d) towctrans_l(w,d, __UCLIBC_CURLOCALE)
-#else  /* __UCLIBC_HAS_XLOCALE__ */
-#define TOWCTRANS(w,d) towctrans(w,d)
-#endif /* __UCLIBC_HAS_XLOCALE__ */
+# ifdef __UCLIBC_HAS_XLOCALE__
+#  define TOWCTRANS(w,d) towctrans_l(w,d, __UCLIBC_CURLOCALE)
+# else
+#  define TOWCTRANS(w,d) towctrans(w,d)
+# endif
 
-#define __C_towlower(wc) \
-	((((__uwchar_t)(wc)) <= 0x7f) ? (__C_ctype_tolower)[(wc)] : (wc))
+# define __C_towlower(wc) \
+	(((__uwchar_t)(wc) <= 0x7f) ? (__C_ctype_tolower)[(wc)] : (wc))
 
-#ifdef __LOCALE_C_ONLY
+# ifdef __LOCALE_C_ONLY
 
 wint_t towlower(wint_t wc)
 {
-#ifdef __UCLIBC_HAS_CTYPE_TABLES__
+#  ifdef __UCLIBC_HAS_CTYPE_TABLES__
 	return __C_towlower(wc);
-#else
-	return (wc == ((unsigned int)(wc)))
-		? __C_tolower(((unsigned int)(wc)))
+#  else
+	return (wc == (unsigned)wc)
+		? __C_tolower((unsigned)wc)
 		: 0;
-#endif
+#  endif
 }
 
-#else  /* __LOCALE_C_ONLY */
+# else  /* __LOCALE_C_ONLY */
 
-#ifdef SMALL_UPLOW
+#  ifdef SMALL_UPLOW
 
-#if defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__)
-
+#   if defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__)
 wint_t towlower(wint_t wc)
 {
 	return towctrans_l(wc, _CTYPE_tolower, __UCLIBC_CURLOCALE);
 }
-
-#else  /* defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__) */
-
+#   else  /* defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__) */
 wint_t TOWLOWER(wint_t wc)
 {
 	return TOWCTRANS(wc, _CTYPE_tolower);
 }
+#   endif /* defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__) */
 
-#endif /* defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__) */
+#  else  /* SMALL_UPLOW */
 
-#else  /* SMALL_UPLOW */
-
-#if defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__)
+#   if defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__)
 
 wint_t towlower(wint_t wc)
 {
 	return towlower_l(wc, __UCLIBC_CURLOCALE);
 }
 
-#else  /* defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__) */
+#   else  /* defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__) */
 
 wint_t TOWLOWER(wint_t wc)
 {
-	unsigned int sc, n, i;
+	unsigned sc, n, i;
 	__uwchar_t u = wc;
 
 	if (ENCODING == __ctype_encoding_7_bit) {
@@ -311,99 +306,89 @@ wint_t TOWLOWER(wint_t wc)
 		n = u & ((1 << WCuplow_II_SHIFT) - 1);
 		u >>= WCuplow_II_SHIFT;
 
-		i = ((unsigned int) WCuplow[u]) << WCuplow_II_SHIFT;
-		i = ((unsigned int) WCuplow[WCuplow_II_LEN + i + n])
-			<< WCuplow_TI_SHIFT;
-		i = ((unsigned int) WCuplow[WCuplow_II_LEN + WCuplow_TI_LEN
-										+ i + sc]) << 1;
+		i = ((unsigned) WCuplow[u]) << WCuplow_II_SHIFT;
+		i = ((unsigned) WCuplow[WCuplow_II_LEN + i + n]) << WCuplow_TI_SHIFT;
+		i = ((unsigned) WCuplow[WCuplow_II_LEN + WCuplow_TI_LEN	+ i + sc]) << 1;
 		wc += WCuplow_diff[i + 1];
 	}
 	return wc;
 }
 
-#endif /* defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__) */
+#   endif /* defined(L_towlower) && defined(__UCLIBC_HAS_XLOCALE__) */
 
-#endif /* SMALL_UPLOW */
+#  endif /* SMALL_UPLOW */
 
-#ifdef L_towlower_l
+#  ifdef L_towlower_l
 libc_hidden_def(towlower_l)
-#endif /* L_towlower_l */
+#  endif
 
-#endif /* __LOCALE_C_ONLY */
+# endif /* __LOCALE_C_ONLY */
 
-#ifndef L_towlower_l
+# ifndef L_towlower_l
 libc_hidden_def(towlower)
-#endif
+# endif
 
 #endif
 /**********************************************************************/
 #if defined(L_towupper) || defined(L_towupper_l)
 
-#ifdef L_towupper
-#define TOWUPPER(w) towupper(w)
-#else  /* L_towupper */
-#define TOWUPPER(w) towupper_l(w, __locale_t locale)
-#undef __UCLIBC_CURLOCALE
-#define __UCLIBC_CURLOCALE (locale)
-#endif /* L_towupper */
+# ifdef L_towupper
+#  define TOWUPPER(w) towupper(w)
+# else
+#  define TOWUPPER(w) towupper_l(w, __locale_t locale)
+#  undef __UCLIBC_CURLOCALE
+#  define __UCLIBC_CURLOCALE (locale)
+# endif
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-#define TOWCTRANS(w,d) towctrans_l(w,d, __UCLIBC_CURLOCALE)
-#else  /* __UCLIBC_HAS_XLOCALE__ */
-#define TOWCTRANS(w,d) towctrans(w,d)
-#endif /* __UCLIBC_HAS_XLOCALE__ */
+# ifdef __UCLIBC_HAS_XLOCALE__
+#  define TOWCTRANS(w,d) towctrans_l(w,d, __UCLIBC_CURLOCALE)
+# else
+#  define TOWCTRANS(w,d) towctrans(w,d)
+# endif
 
-#define __C_towupper(wc) \
-	((((__uwchar_t)(wc)) <= 0x7f) ? (__C_ctype_toupper)[(wc)] : (wc))
+# define __C_towupper(wc) \
+	(((__uwchar_t)(wc) <= 0x7f) ? (__C_ctype_toupper)[(wc)] : (wc))
 
-#ifdef __LOCALE_C_ONLY
+# ifdef __LOCALE_C_ONLY
 
 wint_t towupper(wint_t wc)
 {
-#ifdef __UCLIBC_HAS_CTYPE_TABLES__
+#  ifdef __UCLIBC_HAS_CTYPE_TABLES__
 	return __C_towupper(wc);
-#else
-	return (wc == ((unsigned int)(wc)))
-		? __C_toupper(((unsigned int)(wc)))
+#  else
+	return (wc == (unsigned)wc)
+		? __C_toupper((unsigned)wc)
 		: 0;
-#endif
-
+#  endif
 }
 
-#else  /* __LOCALE_C_ONLY */
+# else  /* __LOCALE_C_ONLY */
 
-#ifdef SMALL_UPLOW
+#  ifdef SMALL_UPLOW
 
-#if defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__)
-
+#   if defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__)
 wint_t towupper(wint_t wc)
 {
 	return towctrans_l(wc, _CTYPE_toupper, __UCLIBC_CURLOCALE);
 }
-
-#else  /* defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__) */
-
+#   else
 wint_t TOWUPPER(wint_t wc)
 {
 	return TOWCTRANS(wc, _CTYPE_toupper);
 }
+#   endif
 
-#endif /* defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__) */
+#  else  /* SMALL_UPLOW */
 
-#else  /* SMALL_UPLOW */
-
-#if defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__)
-
+#   if defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__)
 wint_t towupper(wint_t wc)
 {
 	return towupper_l(wc, __UCLIBC_CURLOCALE);
 }
-
-#else  /* defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__) */
-
+#   else  /* defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__) */
 wint_t TOWUPPER(wint_t wc)
 {
-	unsigned int sc, n, i;
+	unsigned sc, n, i;
 	__uwchar_t u = wc;
 
 	if (ENCODING == __ctype_encoding_7_bit) {
@@ -417,29 +402,26 @@ wint_t TOWUPPER(wint_t wc)
 		n = u & ((1 << WCuplow_II_SHIFT) - 1);
 		u >>= WCuplow_II_SHIFT;
 
-		i = ((unsigned int) WCuplow[u]) << WCuplow_II_SHIFT;
-		i = ((unsigned int) WCuplow[WCuplow_II_LEN + i + n])
-			<< WCuplow_TI_SHIFT;
-		i = ((unsigned int) WCuplow[WCuplow_II_LEN + WCuplow_TI_LEN
-										+ i + sc]) << 1;
+		i = ((unsigned) WCuplow[u]) << WCuplow_II_SHIFT;
+		i = ((unsigned) WCuplow[WCuplow_II_LEN + i + n]) << WCuplow_TI_SHIFT;
+		i = ((unsigned) WCuplow[WCuplow_II_LEN + WCuplow_TI_LEN + i + sc]) << 1;
 		wc += WCuplow_diff[i];
 	}
 	return wc;
 }
+#   endif /* defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__) */
 
-#endif /* defined(L_towupper) && defined(__UCLIBC_HAS_XLOCALE__) */
+#  endif /* SMALL_UPLOW */
 
-#endif /* SMALL_UPLOW */
-
-#ifdef L_towupper_l
+#  ifdef L_towupper_l
 libc_hidden_def(towupper_l)
-#endif /* L_towupper_l */
+#  endif
 
-#endif /* __LOCALE_C_ONLY */
+# endif /* __LOCALE_C_ONLY */
 
-#ifndef L_towupper_l
+# ifndef L_towupper_l
 libc_hidden_def(towupper)
-#endif
+# endif
 
 #endif
 /**********************************************************************/
@@ -472,9 +454,8 @@ libc_hidden_def(wctype)
 #ifdef L_wctype_l
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: Currently wctype_l simply calls wctype.
-#endif /* __UCLIBC_MJN3_ONLY__ */
-
+# warning REMINDER: Currently wctype_l simply calls wctype.
+#endif
 
 wctype_t wctype_l (const char *property, __locale_t locale)
 {
@@ -488,24 +469,25 @@ libc_hidden_def(wctype_l)
 
 #define __C_iswdigit(c) \
 	((sizeof(c) == sizeof(char)) \
-	 ? (((unsigned char)((c) - '0')) < 10) \
-	 : (((__uwchar_t)((c) - '0')) < 10))
+	 ? ((unsigned char)((c) - '0') < 10) \
+	 : ((__uwchar_t)((c) - '0') < 10) \
+	)
 #define __C_iswxdigit(c) \
 	(__C_iswdigit(c) \
 	 || ((sizeof(c) == sizeof(char)) \
-		 ? (((unsigned char)((((c)) | 0x20) - 'a')) < 6) \
-		 : (((__uwchar_t)((((c)) | 0x20) - 'a')) < 6)))
+		 ? ((unsigned char)(((c) | 0x20) - 'a') < 6) \
+		 : ((__uwchar_t)(((c) | 0x20) - 'a') < 6) \
+	    ) \
+	)
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_iswctype
-#warning CONSIDER: Change to bit shift?  would need to sync with wctype.h
+# ifdef L_iswctype
+#  warning CONSIDER: Change to bit shift?  would need to sync with wctype.h
+# endif
 #endif
-#endif /* __UCLIBC_MJN3_ONLY__ */
-
 
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
-#if !defined(__UCLIBC_HAS_XLOCALE__) || defined(L_iswctype_l)
-
+# if !defined(__UCLIBC_HAS_XLOCALE__) || defined(L_iswctype_l)
 static const unsigned short int desc2flag[] = {
 	[_CTYPE_unclassified] = 0,
 	[_CTYPE_isalnum] = (unsigned short int) _ISwalnum,
@@ -521,9 +503,8 @@ static const unsigned short int desc2flag[] = {
 	[_CTYPE_isupper] = (unsigned short int) _ISwupper,
 	[_CTYPE_isxdigit] = (unsigned short int) _ISwxdigit,
 };
-
-#endif /* defined(L_iswctype_L) || defined(__LOCALE_C_ONLY) */
-#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
+# endif
+#endif
 
 #ifdef __LOCALE_C_ONLY
 
@@ -533,9 +514,9 @@ int iswctype(wint_t wc, wctype_t desc)
 {
 	/* Note... wctype_t is unsigned. */
 
-	if ((((__uwchar_t) wc) <= 0x7f)
-		&& (desc < (sizeof(desc2flag)/sizeof(desc2flag[0])))
-		) {
+	if ((__uwchar_t) wc <= 0x7f
+	 && desc < (sizeof(desc2flag) / sizeof(desc2flag[0]))
+	) {
 		return __isctype(wc, desc2flag[desc]);
 	}
 	return 0;
@@ -547,32 +528,32 @@ int iswctype(wint_t wc, wctype_t desc)
 {
 	/* This is lame, but it is here just to get it working for now. */
 
-	if (wc == ((unsigned int)(wc))) {
-		switch(desc) {
+	if (wc == (unsigned)wc) {
+		switch (desc) {
 			case _CTYPE_isupper:
-				return __C_isupper((unsigned int)(wc));
+				return __C_isupper((unsigned)wc);
 			case _CTYPE_islower:
-				return __C_islower((unsigned int)(wc));
+				return __C_islower((unsigned)wc);
 			case _CTYPE_isalpha:
-				return __C_isalpha((unsigned int)(wc));
+				return __C_isalpha((unsigned)wc);
 			case _CTYPE_isdigit:
-				return __C_isdigit((unsigned int)(wc));
+				return __C_isdigit((unsigned)wc);
 			case _CTYPE_isxdigit:
-				return __C_isxdigit((unsigned int)(wc));
+				return __C_isxdigit((unsigned)wc);
 			case _CTYPE_isspace:
-				return __C_isspace((unsigned int)(wc));
+				return __C_isspace((unsigned)wc);
 			case _CTYPE_isprint:
-				return __C_isprint((unsigned int)(wc));
+				return __C_isprint((unsigned)wc);
 			case _CTYPE_isgraph:
-				return __C_isgraph((unsigned int)(wc));
+				return __C_isgraph((unsigned)wc);
 			case _CTYPE_isblank:
-				return __C_isblank((unsigned int)(wc));
+				return __C_isblank((unsigned)wc);
 			case _CTYPE_iscntrl:
-				return __C_iscntrl((unsigned int)(wc));
+				return __C_iscntrl((unsigned)wc);
 			case _CTYPE_ispunct:
-				return __C_ispunct((unsigned int)(wc));
+				return __C_ispunct((unsigned)wc);
 			case _CTYPE_isalnum:
-				return __C_isalnum((unsigned int)(wc));
+				return __C_isalnum((unsigned)wc);
 			default:
 				break;
 		}
@@ -585,18 +566,18 @@ int iswctype(wint_t wc, wctype_t desc)
 #else  /* __LOCALE_C_ONLY */
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_iswctype
-#warning CONSIDER: Handle combining class?
+# ifdef L_iswctype
+#  warning CONSIDER: Handle combining class?
+# endif
 #endif
-#endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef L_iswctype
-#define ISWCTYPE(w,d) iswctype(w,d)
-#else  /* L_iswctype */
-#define ISWCTYPE(w,d) iswctype_l(w,d, __locale_t locale)
-#undef __UCLIBC_CURLOCALE
-#define __UCLIBC_CURLOCALE (locale)
-#endif /* L_iswctype */
+# define ISWCTYPE(w,d) iswctype(w,d)
+#else
+# define ISWCTYPE(w,d) iswctype_l(w,d, __locale_t locale)
+# undef __UCLIBC_CURLOCALE
+# define __UCLIBC_CURLOCALE (locale)
+#endif
 
 #if defined(L_iswctype) && defined(__UCLIBC_HAS_XLOCALE__)
 
@@ -609,12 +590,12 @@ int iswctype(wint_t wc, wctype_t desc)
 
 int ISWCTYPE(wint_t wc, wctype_t desc)
 {
-	unsigned int sc, n, i0, i1;
+	unsigned sc, n, i0, i1;
 	unsigned char d = __CTYPE_unclassified;
 
-	if ((ENCODING != __ctype_encoding_7_bit) || (((__uwchar_t) wc) <= 0x7f)){
+	if ((ENCODING != __ctype_encoding_7_bit) || ((__uwchar_t)wc <= 0x7f)) {
 		if (desc < _CTYPE_iswxdigit) {
-			if (((__uwchar_t) wc) <= WC_TABLE_DOMAIN_MAX) {
+			if ((__uwchar_t)wc <= WC_TABLE_DOMAIN_MAX) {
 				/* From here on, we know wc > 0. */
 				sc = wc & WCctype_TI_MASK;
 				wc >>= WCctype_TI_SHIFT;
@@ -628,17 +609,15 @@ int ISWCTYPE(wint_t wc, wctype_t desc)
 				d = WCctype[WCctype_II_LEN + WCctype_TI_LEN + i1 + (sc >> 1)];
 
 				d = (sc & 1) ? (d >> 4) : (d & 0xf);
-			} else if ( ((((__uwchar_t)(wc - 0xe0020UL)) <= 0x5f)
-						 || (wc == 0xe0001UL))
-						|| ( (((__uwchar_t)(wc - 0xf0000UL)) < 0x20000UL)
-							 && ((wc & 0xffffU) <= 0xfffdU))
-						) {
+			} else if ((__uwchar_t)(wc - 0xe0020UL) <= 0x5f
+				|| wc == 0xe0001UL
+				|| (((__uwchar_t)(wc - 0xf0000UL) < 0x20000UL) && ((wc & 0xffffU) <= 0xfffdU))
+			) {
 				d = __CTYPE_punct;
 			}
 
 #if 0
-			return ( ((unsigned char)(d - ctype_range[2*desc]))
-					 <= ctype_range[2*desc + 1] )
+			return ((unsigned char)(d - ctype_range[2*desc]) <= ctype_range[2*desc + 1])
 				&& ((desc != _CTYPE_iswblank) || (d & 1));
 #else
 			return __UCLIBC_CURLOCALE->code2flag[d] & desc2flag[desc];
@@ -646,8 +625,8 @@ int ISWCTYPE(wint_t wc, wctype_t desc)
 		}
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: xdigit really needs to be handled better.  Remember only for ascii!
-#endif /* __UCLIBC_MJN3_ONLY__ */
+# warning TODO: xdigit really needs to be handled better.  Remember only for ascii!
+#endif
 		/* TODO - Add locale-specific classifications. */
 		return (desc == _CTYPE_iswxdigit) ? __C_iswxdigit(wc) : 0;
 	}
@@ -658,13 +637,13 @@ int ISWCTYPE(wint_t wc, wctype_t desc)
 
 #ifdef L_iswctype_l
 libc_hidden_def(iswctype_l)
-#endif /* L_iswctype_l */
+#endif
 
 #endif /* __LOCALE_C_ONLY */
 
 #ifdef L_iswctype
 libc_hidden_def(iswctype)
-#endif /* L_iswctype */
+#endif
 
 #endif
 /**********************************************************************/
@@ -676,14 +655,15 @@ libc_hidden_def(iswctype)
 
 wint_t towctrans(wint_t wc, wctrans_t desc)
 {
-	if ((unsigned int)(desc - _CTYPE_tolower) <= (_CTYPE_toupper - _CTYPE_tolower)) {
+	if ((unsigned)(desc - _CTYPE_tolower) <= (_CTYPE_toupper - _CTYPE_tolower)) {
 		/* Transliteration is either tolower or toupper. */
+#if 0
 /* I think it's wrong: _toupper(c) assumes that c is a *lowercase* *letter* -
- * it is defined as ((c) ^ 0x20)!
- *		if ((__uwchar_t) wc <= 0x7f) {
- *			return (desc == _CTYPE_tolower) ? _tolower(wc) : _toupper(wc);
- *		}
- */
+ * it is defined as ((c) ^ 0x20)! */
+		if ((__uwchar_t) wc <= 0x7f) {
+			return (desc == _CTYPE_tolower) ? _tolower(wc) : _toupper(wc);
+		}
+#endif
 		__uwchar_t c = wc | 0x20; /* lowercase if it's a letter */
 		if (c >= 'a' && c <= 'z') {
 			if (desc == _CTYPE_toupper)
@@ -699,20 +679,20 @@ wint_t towctrans(wint_t wc, wctrans_t desc)
 #else  /* __LOCALE_C_ONLY */
 
 #ifdef L_towctrans
-#define TOWCTRANS(w,d) towctrans(w,d)
-#else  /* L_towctrans */
-#define TOWCTRANS(w,d) towctrans_l(w,d, __locale_t locale)
-#undef __UCLIBC_CURLOCALE
-#define __UCLIBC_CURLOCALE (locale)
-#endif /* L_towctrans */
+# define TOWCTRANS(w,d) towctrans(w,d)
+#else
+# define TOWCTRANS(w,d) towctrans_l(w,d, __locale_t locale)
+# undef __UCLIBC_CURLOCALE
+# define __UCLIBC_CURLOCALE (locale)
+#endif
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-#define TOWLOWER(w,l) towlower_l(w,l)
-#define TOWUPPER(w,l) towupper_l(w,l)
-#else  /* __UCLIBC_HAS_XLOCALE__ */
-#define TOWLOWER(w,l) towlower(w)
-#define TOWUPPER(w,l) towupper(w)
-#endif /* __UCLIBC_HAS_XLOCALE__ */
+# define TOWLOWER(w,l) towlower_l(w,l)
+# define TOWUPPER(w,l) towupper_l(w,l)
+#else
+# define TOWLOWER(w,l) towlower(w)
+# define TOWUPPER(w,l) towupper(w)
+#endif
 
 #if defined(L_towctrans) && defined(__UCLIBC_HAS_XLOCALE__)
 
@@ -727,48 +707,43 @@ wint_t towctrans(wint_t wc, wctrans_t desc)
 
 wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
 {
-	unsigned int sc, n, i;
+	unsigned sc, n, i;
 	__uwchar_t u = wc;
 
 	/* TODO - clean up */
 	if (ENCODING == __ctype_encoding_7_bit) {
-		if ((((__uwchar_t) wc) > 0x7f)
-			|| (((unsigned int)(desc - _CTYPE_tolower))
-				> (_CTYPE_toupper - _CTYPE_tolower))
-			){
+		if ((__uwchar_t)wc > 0x7f
+		 || (unsigned)(desc - _CTYPE_tolower) > (_CTYPE_toupper - _CTYPE_tolower)
+		) {
 			/* We're in the C/POSIX locale, so ignore non-ASCII values
 			 * as well an any mappings other than toupper or tolower. */
 			return wc;
 		}
 	}
 
-	if (((unsigned int)(desc - _CTYPE_tolower))
-		<= (_CTYPE_totitle - _CTYPE_tolower)
-		) {
+	if ((unsigned)(desc - _CTYPE_tolower) <= (_CTYPE_totitle - _CTYPE_tolower)) {
 		if (u <= WC_TABLE_DOMAIN_MAX) {
 			sc = u & ((1 << WCuplow_TI_SHIFT) - 1);
 			u >>= WCuplow_TI_SHIFT;
 			n = u & ((1 << WCuplow_II_SHIFT) - 1);
 			u >>= WCuplow_II_SHIFT;
 
-			i = ((unsigned int) WCuplow[u]) << WCuplow_II_SHIFT;
-			i = ((unsigned int) WCuplow[WCuplow_II_LEN + i + n])
-				<< WCuplow_TI_SHIFT;
-			i = ((unsigned int) WCuplow[WCuplow_II_LEN + WCuplow_TI_LEN
-											+ i + sc]) << 1;
+			i = ((unsigned) WCuplow[u]) << WCuplow_II_SHIFT;
+			i = ((unsigned) WCuplow[WCuplow_II_LEN + i + n]) << WCuplow_TI_SHIFT;
+			i = ((unsigned) WCuplow[WCuplow_II_LEN + WCuplow_TI_LEN + i + sc]) << 1;
 			if (desc == _CTYPE_tolower) {
 				++i;
 			}
 			wc += WCuplow_diff[i];
 			if (desc == _CTYPE_totitle) {
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Verify totitle special cases!
-#endif /* __UCLIBC_MJN3_ONLY__ */
+# warning TODO: Verify totitle special cases!
+#endif
 				/* WARNING! These special cases work for glibc 2.2.4.  Changes
 				 * may be needed if the glibc locale tables are updated. */
-				if ( (((__uwchar_t)(wc - 0x1c4)) <= (0x1cc - 0x1c4))
-					 || (wc == 0x1f1)
-					 ) {
+				if ((__uwchar_t)(wc - 0x1c4) <= (0x1cc - 0x1c4)
+				 || wc == 0x1f1
+				) {
 					++wc;
 				}
 			}
@@ -786,10 +761,9 @@ wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
 wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
 {
 	if (ENCODING == __ctype_encoding_7_bit) {
-		if ((((__uwchar_t) wc) > 0x7f)
-			|| (((unsigned int)(desc - _CTYPE_tolower))
-				> (_CTYPE_toupper - _CTYPE_tolower))
-			){
+		if ((__uwchar_t)wc > 0x7f
+		 || (unsigned)(desc - _CTYPE_tolower) > (_CTYPE_toupper - _CTYPE_tolower)
+		) {
 			/* We're in the C/POSIX locale, so ignore non-ASCII values
 			 * as well an any mappings other than toupper or tolower. */
 			return wc;
@@ -798,19 +772,18 @@ wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
 
 	if (desc == _CTYPE_tolower) {
 		return TOWLOWER(wc, __UCLIBC_CURLOCALE);
-	} else if (((unsigned int)(desc - _CTYPE_toupper))
-		<= (_CTYPE_totitle - _CTYPE_toupper)
-		) {
+	}
+	if ((unsigned)(desc - _CTYPE_toupper) <= (_CTYPE_totitle - _CTYPE_toupper)) {
 		wc = TOWUPPER(wc, __UCLIBC_CURLOCALE);
 		if (desc == _CTYPE_totitle) {
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Verify totitle special cases!
-#endif /* __UCLIBC_MJN3_ONLY__ */
+# warning TODO: Verify totitle special cases!
+#endif
 			/* WARNING! These special cases work for glibc 2.2.4.  Changes
 			 * may be needed if the glibc locale tables are updated. */
-			if ( (((__uwchar_t)(wc - 0x1c4)) <= (0x1cc - 0x1c4))
-				 || (wc == 0x1f1)
-				 ) {
+			if ((__uwchar_t)(wc - 0x1c4) <= (0x1cc - 0x1c4)
+			 || wc == 0x1f1
+			) {
 				++wc;
 			}
 		}
@@ -827,7 +800,7 @@ wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
 
 #ifdef L_towctrans_l
 libc_hidden_def(towctrans_l)
-#endif /* L_towctrans_l */
+#endif
 
 #endif /* __LOCALE_C_ONLY */
 
@@ -865,10 +838,9 @@ libc_hidden_def(wctrans)
 /**********************************************************************/
 #ifdef L_wctrans_l
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: Currently wctrans_l simply calls wctrans.
-#endif /* __UCLIBC_MJN3_ONLY__ */
-
+# ifdef __UCLIBC_MJN3_ONLY__
+#  warning REMINDER: Currently wctrans_l simply calls wctrans.
+# endif
 
 wctrans_t wctrans_l(const char *property, __locale_t locale)
 {
