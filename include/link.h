@@ -27,7 +27,7 @@
 #include <dlfcn.h>
 #endif
 #include <sys/types.h>
-#if defined _LIBC && defined __UCLIBC_HAS_THREADS_NATIVE__
+#if defined _LIBC && defined __UCLIBC_HAS_TLS__
 #include <tls.h>
 #endif
 

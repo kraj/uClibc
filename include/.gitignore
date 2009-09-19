@@ -1,3 +1,11 @@
+#
+# Never ignore these
+#
+!.gitignore
+
+#
+# Generated files
+#
 /bits/
 /config/
 
@@ -9,6 +17,7 @@
 /hp-timing.h
 /pthread.h
 /semaphore.h
+/thread_db.h
 /sgidefs.h
 
 /sys/acct.h

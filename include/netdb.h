@@ -54,21 +54,38 @@
 __BEGIN_DECLS
 
 /* Error status for non-reentrant lookup functions.
-   We use a macro to access always the thread-specific `h_errno' variable.
-   We always need the extern int here in case internal libc code undefines
-   the macro because it needs access to the underlying storage. */
-extern int h_errno;
-#ifdef __UCLIBC_HAS_THREADS__
-# define h_errno (*__h_errno_location ())
-#endif
+   We use a macro to access always the thread-specific `h_errno' variable.  */
+#define h_errno (*__h_errno_location ())
 
 /* Function to get address of global `h_errno' variable.  */
 extern int *__h_errno_location (void) __THROW __attribute__ ((__const__));
 libc_hidden_proto(__h_errno_location)
 
+/* Macros for accessing h_errno from inside libc.  */
 #ifdef _LIBC
-# define __set_h_errno(x) (h_errno = (x))
-#endif
+# ifdef __UCLIBC_HAS_THREADS__
+#  if defined __UCLIBC_HAS_TLS__ \
+             && (!defined NOT_IN_libc || defined IS_IN_libpthread)
+#   undef h_errno
+#   ifndef NOT_IN_libc
+#    define h_errno __libc_h_errno
+#   else
+#    define h_errno h_errno     /* For #ifndef h_errno tests.  */
+#   endif
+extern __thread int h_errno attribute_tls_model_ie;
+#   define __set_h_errno(x) (h_errno = (x))
+#  else
+static inline int __set_h_errno (int __err)
+{
+       return *__h_errno_location () = __err;
+}
+#  endif /* __UCLIBC_HAS_TLS__ */
+# else
+#  undef h_errno
+#  define __set_h_errno(x) (h_errno = (x))
+extern int h_errno;
+# endif /* __UCLIBC_HAS_THREADS__ */
+#endif /* _LIBC */
 
 /* Possible values left in `h_errno'.  */
 #define	NETDB_INTERNAL	-1	/* See errno.  */
@@ -99,7 +116,6 @@ libc_hidden_proto(herror)
 
 /* Return string associated with error ERR_NUM.  */
 extern __const char *hstrerror (int __err_num) __THROW;
-
 
 
 /* Description of data base entry for a single host.  */
