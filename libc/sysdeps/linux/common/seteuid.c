@@ -16,10 +16,6 @@
 #undef __NR_setresuid32
 #endif
 
-
-#if (defined __NR_setresuid || defined __NR_setresuid32) && defined __USE_GNU
-#endif
-
 int seteuid(uid_t uid)
 {
     int result;

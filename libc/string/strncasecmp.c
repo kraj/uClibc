@@ -21,8 +21,6 @@
 # ifdef __UCLIBC_DO_XLOCALE
 #  define TOLOWER(C) tolower_l((C), locale_arg)
 # else
-#if !defined __UCLIBC_HAS_XLOCALE__ && defined __UCLIBC_HAS_CTYPE_TABLES__
-#endif
 #  define TOLOWER(C) tolower((C))
 # endif
 #endif
