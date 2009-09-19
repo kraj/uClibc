@@ -97,7 +97,9 @@ sparc_mod(unsigned long m, unsigned long p)
    ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
    of the main executable's symbols, as for a COPY reloc.  */
 #define elf_machine_type_class(type) \
-  ((((type) == R_SPARC_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)			      \
+  ((((type) == R_SPARC_JMP_SLOT || (type) == R_SPARC_TLS_DTPMOD32 \
+     || (type) == R_SPARC_TLS_DTPOFF32 || (type) == R_SPARC_TLS_TPOFF32) \
+    * ELF_RTYPE_CLASS_PLT)			      \
    | (((type) == R_SPARC_COPY) * ELF_RTYPE_CLASS_COPY))
 
 /* The SPARC overlaps DT_RELA and DT_PLTREL.  */

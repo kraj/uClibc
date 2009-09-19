@@ -329,6 +329,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	ElfW(Dyn) *dpnt;
 	struct elf_resolve *tpnt;
 	ElfW(Phdr) *ppnt;
+#if USE_TLS
+	ElfW(Phdr) *tlsppnt = NULL;
+#endif
 	char *status, *header;
 	unsigned long dynamic_info[DYNAMIC_SIZE];
 	unsigned long *lpnt;
@@ -432,6 +435,29 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			if (((unsigned long) ppnt->p_vaddr + ppnt->p_memsz) > maxvma) {
 				maxvma = ppnt->p_vaddr + ppnt->p_memsz;
 			}
+		}
+		if (ppnt->p_type == PT_TLS)
+		{
+#if USE_TLS
+			if (ppnt->p_memsz == 0)
+				/* Nothing to do for an empty segment.  */
+				continue;
+			else
+				/* Save for after 'tpnt' is actually allocated. */
+				tlsppnt = ppnt;
+#else
+			/*
+			 * Yup, the user was an idiot and tried to sneak in a library with
+			 * TLS in it and we don't support it. Let's fall on our own sword
+			 * and scream at the luser while we die.
+			 */
+			_dl_dprintf(2, "%s: '%s' library contains unsupported TLS\n",
+				_dl_progname, libname);
+			_dl_internal_error_number = LD_ERROR_TLS_FAILED;
+			_dl_close(infile);
+			_dl_munmap(header, _dl_pagesize);
+			return NULL;
+#endif
 		}
 		ppnt++;
 	}
@@ -708,6 +734,37 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	tpnt->ppnt = (ElfW(Phdr) *) DL_RELOC_ADDR(tpnt->loadaddr, epnt->e_phoff);
 	tpnt->n_phent = epnt->e_phnum;
 
+#if USE_TLS
+	if (tlsppnt)
+	{
+		_dl_debug_early("Found TLS header for %s\n", libname);
+#if NO_TLS_OFFSET != 0
+		tpnt->l_tls_offset = NO_TLS_OFFSET;
+#endif
+		tpnt->l_tls_blocksize = tlsppnt->p_memsz;
+		tpnt->l_tls_align = tlsppnt->p_align;
+		if (tlsppnt->p_align == 0)
+			tpnt->l_tls_firstbyte_offset = 0;
+		else
+			tpnt->l_tls_firstbyte_offset = tlsppnt->p_vaddr &
+				(tlsppnt->p_align - 1);
+		tpnt->l_tls_initimage_size = tlsppnt->p_filesz;
+		tpnt->l_tls_initimage = (void *) tlsppnt->p_vaddr;
+
+		/* Assign the next available module ID.  */
+		tpnt->l_tls_modid = _dl_next_tls_modid ();
+
+		/* We know the load address, so add it to the offset. */
+		if (tpnt->l_tls_initimage != NULL)
+		{
+			unsigned int tmp = (unsigned int) tpnt->l_tls_initimage;
+			tpnt->l_tls_initimage = (char *) tlsppnt->p_vaddr + tpnt->loadaddr;
+			_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n", tmp, tpnt->l_tls_initimage, tpnt->l_tls_initimage_size);
+			tmp = 0;
+		}
+	}
+#endif
+
 	/*
 	 * Add this object into the symbol chain
 	 */
@@ -816,6 +873,16 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		}
 		tpnt->init_flag |= JMP_RELOCS_DONE;
 	}
+
+#if 0
+/* _dl_add_to_slotinfo is called by init_tls() for initial DSO 
+   or by dlopen() for dynamically loaded DSO. */
+#if USE_TLS
+	/* Add object to slot information data if necessasy. */
+	if (tpnt->l_tls_blocksize != 0 && tls_init_tp_called)
+		_dl_add_to_slotinfo ((struct link_map *) tpnt);
+#endif
+#endif
 	return goof;
 }
 

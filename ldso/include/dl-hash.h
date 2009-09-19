@@ -34,7 +34,32 @@ struct elf_resolve {
   struct elf_resolve * next;
   struct elf_resolve * prev;
   /* Nothing after this address is used by gdb. */
-  ElfW(Addr) mapaddr;    /* Address at which ELF segments (either main app and DSO) are mapped into */
+
+#if USE_TLS
+  /* Thread-local storage related info.  */
+
+  /* Start of the initialization image.  */
+  void *l_tls_initimage;
+  /* Size of the initialization image.  */
+  size_t l_tls_initimage_size;
+  /* Size of the TLS block.  */
+  size_t l_tls_blocksize;
+  /* Alignment requirement of the TLS block.  */
+  size_t l_tls_align;
+  /* Offset of first byte module alignment.  */
+  size_t l_tls_firstbyte_offset;
+# ifndef NO_TLS_OFFSET
+#  define NO_TLS_OFFSET	0
+# endif
+  /* For objects present at startup time: offset in the static TLS block.  */
+  ptrdiff_t l_tls_offset;
+  /* Index of the module in the dtv array.  */
+  size_t l_tls_modid;
+  /* Nonzero if _dl_init_static_tls should be called for this module */
+  unsigned int l_need_tls_init:1;
+#endif
+
+  ElfW(Addr) mapaddr;
   enum {elf_lib, elf_executable,program_interpreter, loaded_file} libtype;
   struct dyn_elf * symbol_scope;
   unsigned short usage_count;
@@ -106,26 +131,31 @@ struct elf_resolve {
 
 extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;
-extern struct dyn_elf     * _dl_handles;
+extern struct dyn_elf 	  * _dl_handles;
 
 extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 	DL_LOADADDR_TYPE loadaddr, unsigned long * dynamic_info,
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
-extern char * _dl_lookup_hash(const char * name, struct dyn_elf * rpnt,
-			      struct elf_resolve *mytpnt, int type_class
-#ifdef __FDPIC__
-			      , struct elf_resolve **tpntp
-#endif
-			      );
-
-static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
-					   struct elf_resolve *mytpnt, int type_class)
-{
-#ifdef __FDPIC__
-	return _dl_lookup_hash(name, rpnt, mytpnt, type_class, NULL);
+#if USE_TLS || defined __FDPIC__
+#define _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
+#define _DL_LOOKUP_HASH_EXTRA_TPNT 	,struct elf_resolve **tpntp
 #else
-	return _dl_lookup_hash(name, rpnt, mytpnt, type_class);
+#undef _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
+#define _DL_LOOKUP_HASH_EXTRA_TPNT
+#endif
+
+extern char * _dl_lookup_hash(const char * name, struct dyn_elf * rpnt, 
+			    struct elf_resolve *mytpnt, int type_class _DL_LOOKUP_HASH_EXTRA_TPNT);
+				
+static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
+					struct elf_resolve *mytpnt, int type_class,
+					struct elf_resolve **tpntp)
+{
+#ifdef _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
+        return _dl_lookup_hash(name, rpnt, mytpnt, type_class, tpntp);
+#else
+        return _dl_lookup_hash(name, rpnt, mytpnt, type_class);
 #endif
 }
 
@@ -148,8 +178,11 @@ static __inline__ int _dl_symbol(char * name)
 #define LD_ERROR_NOTDYN 5
 #define LD_ERROR_MMAP_FAILED 6
 #define LD_ERROR_NODYNAMIC 7
-#define LD_WRONG_RELOCS 8
-#define LD_BAD_HANDLE 9
-#define LD_NO_SYMBOL 10
+#define LD_ERROR_TLS_FAILED 8
+#define LD_WRONG_RELOCS 9
+#define LD_BAD_HANDLE 10
+#define LD_NO_SYMBOL 11
+
+
 
 #endif /* _LD_HASH_H_ */

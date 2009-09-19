@@ -38,6 +38,10 @@
 
 #define ALLOW_ZERO_PLTGOT
 
+#if USE_TLS
+#include "dl-tls.c"
+#endif
+
 /* Pull in the value of _dl_progname */
 #include LDSO_ELFINTERP
 
@@ -96,13 +100,15 @@ extern void _start(void);
 
 #ifdef __UCLIBC_HAS_SSP__
 # include <dl-osinfo.h>
-static uintptr_t stack_chk_guard;
+uintptr_t stack_chk_guard;
 # ifndef THREAD_SET_STACK_GUARD
 /* Only exported for architectures that don't store the stack guard canary
  * in local thread area.  */
 uintptr_t __stack_chk_guard attribute_relro;
-# endif
-# ifdef __UCLIBC_HAS_SSP_COMPAT__
+#  ifdef __UCLIBC_HAS_SSP_COMPAT__
+strong_alias(__stack_chk_guard,__guard)
+#  endif
+# elif __UCLIBC_HAS_SSP_COMPAT__
 uintptr_t __guard attribute_relro;
 # endif
 #endif
@@ -213,11 +219,31 @@ static void *_dl_zalloc(size_t size)
 	return p;
 }
 
-void _dl_free (void *p)
+#if USE_TLS
+void * _dl_memalign (size_t __boundary, size_t __size)
 {
-	if (_dl_free_function)
-		(*_dl_free_function) (p);
+	void *result;
+	int i = 0;
+	size_t delta;
+	size_t rounded = 0;
+
+	if (_dl_memalign_function)
+		return (*_dl_memalign_function) (__boundary, __size);
+
+	while (rounded < __boundary) {
+		rounded = (1 << i++);
+	}
+
+	delta = (((size_t) _dl_malloc_addr + __size) & (rounded - 1));
+
+	if ((result = _dl_malloc(rounded - delta)) == NULL)
+		return result;
+
+	result = _dl_malloc(__size);
+
+	return result;
 }
+#endif
 
 static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 {
@@ -262,6 +288,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
 	struct stat st;
+#if USE_TLS
+	void *tcbp = NULL;
+#endif
+	
 
 	/* Wahoo!!! We managed to make a function call!  Get malloc
 	 * setup so we can use _dl_dprintf() to print debug noise
@@ -336,17 +366,21 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		unlazy = RTLD_NOW;
 	}
 
-	/* sjhill: your TLS init should go before this */
+#if USE_TLS
+	_dl_error_catch_tsd = &_dl_initial_error_catch_tsd;
+	_dl_init_static_tls = &_dl_nothread_init_static_tls;
+#endif
+
 #ifdef __UCLIBC_HAS_SSP__
 	/* Set up the stack checker's canary.  */
 	stack_chk_guard = _dl_setup_stack_chk_guard ();
 # ifdef THREAD_SET_STACK_GUARD
 	THREAD_SET_STACK_GUARD (stack_chk_guard);
+#  ifdef __UCLIBC_HAS_SSP_COMPAT__
+	__guard = stack_chk_guard;
+#  endif
 # else
 	__stack_chk_guard = stack_chk_guard;
-# endif
-# ifdef __UCLIBC_HAS_SSP_COMPAT__
-	__guard = stack_chk_guard;
 # endif
 #endif
 
@@ -461,9 +495,52 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 			_dl_debug_early("Lib Loader: (%x) %s\n", (unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
 		}
+
+		/* Discover any TLS sections if the target supports them. */
+		if (ppnt->p_type == PT_TLS) {
+#if USE_TLS
+			if (ppnt->p_memsz > 0) {
+				app_tpnt->l_tls_blocksize = ppnt->p_memsz;
+				app_tpnt->l_tls_align = ppnt->p_align;
+				if (ppnt->p_align == 0)
+					app_tpnt->l_tls_firstbyte_offset = 0;
+				else
+					app_tpnt->l_tls_firstbyte_offset =
+						(ppnt->p_vaddr & (ppnt->p_align - 1));
+				app_tpnt->l_tls_initimage_size = ppnt->p_filesz;
+				app_tpnt->l_tls_initimage = (void *) ppnt->p_vaddr;
+
+				/* This image gets the ID one.  */
+				_dl_tls_max_dtv_idx = app_tpnt->l_tls_modid = 1;
+
+			}
+			_dl_debug_early("Found TLS header for appplication program\n");
+			break;
+#else
+			_dl_dprintf(_dl_debug_file, "Program uses unsupported TLS data!\n");
+			_dl_exit(1);
+#endif
+		}
 	}
 	app_tpnt->relro_addr = relro_addr;
 	app_tpnt->relro_size = relro_size;
+
+#if USE_TLS
+	/*
+	 * Adjust the address of the TLS initialization image in
+	 * case the executable is actually an ET_DYN object.
+	 */
+	if (app_tpnt->l_tls_initimage != NULL)
+	{
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+		unsigned int tmp = (unsigned int) app_tpnt->l_tls_initimage;
+#endif
+		app_tpnt->l_tls_initimage =
+			(char *) app_tpnt->l_tls_initimage + app_tpnt->loadaddr;
+		_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n", tmp, app_tpnt->l_tls_initimage, app_tpnt->l_tls_initimage_size);
+
+	}
+#endif
 
 #ifdef __SUPPORT_LD_DEBUG__
 	_dl_debug = _dl_getenv("LD_DEBUG", envp);
@@ -603,6 +680,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 #ifdef __LDSO_PRELOAD_FILE_SUPPORT__
 	do {
+		struct stat st;
 		char *preload;
 		int fd;
 		char c, *cp, *cp2;
@@ -850,6 +928,22 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	}
 #endif
 
+#if USE_TLS
+	/* We do not initialize any of the TLS functionality unless any of the
+	 * initial modules uses TLS.  This makes dynamic loading of modules with
+	 * TLS impossible, but to support it requires either eagerly doing setup
+	 * now or lazily doing it later.  Doing it now makes us incompatible with
+	 * an old kernel that can't perform TLS_INIT_TP, even if no TLS is ever
+	 * used.  Trying to do it lazily is too hairy to try when there could be
+	 * multiple threads (from a non-TLS-using libpthread).  */
+	bool was_tls_init_tp_called = tls_init_tp_called;
+	if (tcbp == NULL)
+	{
+		_dl_debug_early("Calling init_tls()!\n");
+		tcbp = init_tls ();
+	}
+#endif
+
 	_dl_debug_early("Beginning relocation fixups\n");
 
 #ifdef __mips__
@@ -875,6 +969,30 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_protect_relro (tpnt);
 	}
 
+#if USE_TLS
+	if (!was_tls_init_tp_called && _dl_tls_max_dtv_idx > 0)
+		++_dl_tls_generation;
+
+	_dl_debug_early("Calling _dl_allocate_tls_init()!\n");
+
+	/* Now that we have completed relocation, the initializer data
+	   for the TLS blocks has its final values and we can copy them
+	   into the main thread's TLS area, which we allocated above.  */
+	_dl_allocate_tls_init (tcbp);
+
+	/* And finally install it for the main thread.  If ld.so itself uses
+	   TLS we know the thread pointer was initialized earlier.  */
+	if (! tls_init_tp_called)
+	{
+		const char *lossage = (char *) TLS_INIT_TP (tcbp, USE___THREAD);
+		if (__builtin_expect (lossage != NULL, 0))
+		{
+			_dl_debug_early("cannot set up thread-local storage: %s\n", lossage);
+			_dl_exit(30);
+		}
+	}
+#endif /* USE_TLS */
+
 	/* OK, at this point things are pretty much ready to run.  Now we need
 	 * to touch up a few items that are required, and then we can let the
 	 * user application have at it.  Note that the dynamic linker itself
@@ -882,7 +1000,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 * ld.so.1, so we have to look up each symbol individually.
 	 */
 
-	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "__environ", _dl_symbol_tables, NULL, 0);
+	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "__environ", _dl_symbol_tables, NULL, 0, NULL);
 	if (_dl_envp)
 		*_dl_envp = (unsigned long) envp;
 
@@ -938,7 +1056,23 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 	/* Find the real malloc function and make ldso functions use that from now on */
 	_dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "malloc",
-			_dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+			_dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+
+#if USE_TLS
+	/* Find the real functions and make ldso functions use them from now on */
+	_dl_calloc_function = (void* (*)(size_t, size_t)) (intptr_t)
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+					
+	_dl_realloc_function = (void* (*)(void *, size_t)) (intptr_t)
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+										
+	_dl_free_function = (void (*)(void *)) (intptr_t)
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+					
+	_dl_memalign_function = (void* (*)(size_t, size_t)) (intptr_t)
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+			
+#endif
 
 	/* Notify the debugger that all objects are now mapped in.  */
 	_dl_debug_addr->r_state = RT_CONSISTENT;

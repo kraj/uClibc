@@ -38,6 +38,10 @@
 #include <dl-string.h>
 /* Now the ldso specific headers */
 #include <dl-elf.h>
+#ifdef __UCLIBC_HAS_TLS__
+/* Defines USE_TLS */
+#include <tls.h>
+#endif
 #include <dl-hash.h>
 
 /* common align masks, if not specified by sysdep headers */
@@ -113,6 +117,8 @@ extern int   _dl_debug_file;
 #endif
 
 extern void *_dl_malloc(size_t size);
+extern void * _dl_calloc(size_t __nmemb, size_t __size);
+extern void * _dl_realloc(void * __ptr, size_t __size);
 extern void _dl_free(void *);
 extern char *_dl_getenv(const char *symbol, char **envp);
 extern void _dl_unsetenv(const char *symbol, char **envp);

@@ -35,13 +35,25 @@
 #include <string.h> /* Needed for 'strstr' prototype' */
 #include <stdbool.h>
 
+#ifdef __UCLIBC_HAS_TLS__
+#include <tls.h>
+#endif
+
+#if USE_TLS
+#include <ldsodefs.h>
+extern void (*_dl_init_static_tls) (struct link_map *);
+extern void _dl_add_to_slotinfo(struct link_map  *l);
+#endif
 
 #ifdef SHARED
+# if USE_TLS
+# include <dl-tls.h>
+extern struct link_map *_dl_update_slotinfo(unsigned long int req_modid);
+# endif
 
 /* When libdl is loaded as a shared library, we need to load in
  * and use a pile of symbols from ldso... */
 
-extern char *_dl_find_hash(const char *, struct dyn_elf *, struct elf_resolve *, int);
 extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **,
 	struct elf_resolve *, char *, int);
 extern int _dl_fixup(struct dyn_elf *rpnt, int lazy);
@@ -50,6 +62,7 @@ extern int _dl_errno;
 extern struct dyn_elf *_dl_symbol_tables;
 extern struct dyn_elf *_dl_handles;
 extern struct elf_resolve *_dl_loaded_modules;
+extern void _dl_free (void *__ptr);
 extern struct r_debug *_dl_debug_addr;
 extern unsigned long _dl_error_number;
 extern void *(*_dl_malloc_function)(size_t);
@@ -83,7 +96,7 @@ char *_dl_debug_reloc     = NULL;
 char *_dl_debug_detail    = NULL;
 char *_dl_debug_nofixups  = NULL;
 char *_dl_debug_bindings  = NULL;
-int   _dl_debug_file      = NULL;
+int   _dl_debug_file      = 2;
 #endif
 const char *_dl_progname       = "";        /* Program name */
 void *(*_dl_malloc_function)(size_t);
@@ -97,6 +110,15 @@ struct r_debug *_dl_debug_addr = NULL;
 
 #include "../ldso/dl-array.c"
 #include "../ldso/dl-debug.c"
+
+
+# if USE_TLS
+/*
+ * Giving this initialized value preallocates some surplus bytes in the
+ * static TLS area, see __libc_setup_tls (libc-tls.c).
+ */
+size_t _dl_tls_static_size = 2048;
+# endif
 #include LDSO_ELFINTERP
 #include "../ldso/dl-hash.c"
 #define _dl_trace_loaded_objects    0
@@ -133,6 +155,7 @@ static const char *const dl_error_names[] = {
 	"Not an ELF shared library",
 	"Unable to mmap file",
 	"No dynamic section",
+	"Library contains unsupported TLS",
 #ifdef ELF_USES_RELOCA
 	"Unable to process REL relocs",
 #else
@@ -141,6 +164,111 @@ static const char *const dl_error_names[] = {
 	"Bad handle",
 	"Unable to resolve symbol"
 };
+
+
+#if USE_TLS
+#ifdef SHARED
+/*
+ * Systems which do not have tls_index also probably have to define
+ * DONT_USE_TLS_INDEX.
+ */
+
+# ifndef __TLS_GET_ADDR
+#  define __TLS_GET_ADDR __tls_get_addr
+# endif
+
+/*
+ * Return the symbol address given the map of the module it is in and
+ *  the symbol record.  This is used in dl-sym.c.
+ */
+static void *
+internal_function
+_dl_tls_symaddr(struct link_map *map, const Elf32_Addr st_value)
+{
+# ifndef DONT_USE_TLS_INDEX
+	tls_index tmp =
+	{
+		.ti_module = map->l_tls_modid,
+		.ti_offset = st_value
+	};
+
+	return __TLS_GET_ADDR (&tmp);
+# else
+	return __TLS_GET_ADDR (map->l_tls_modid, st_value);
+# endif
+}
+#endif
+
+/* Returns true we an non-empty was found.  */
+static bool
+remove_slotinfo(size_t idx, struct dtv_slotinfo_list *listp, size_t disp,
+	 bool should_be_there)
+{
+	if(idx - disp >= listp->len)
+	{
+		if(listp->next == NULL)
+		{
+			/*
+			 * The index is not actually valid in the slotinfo list,
+			 * because this object was closed before it was fully set
+			 * up due to some error.
+			 */
+			_dl_assert(!should_be_there);
+		}
+		else
+		{
+			if(remove_slotinfo(idx, listp->next, disp + listp->len,
+					should_be_there))
+				return true;
+
+			/*
+			 * No non-empty entry. Search from the end of this element's
+			 * slotinfo array.
+			 */
+			idx = disp + listp->len;
+		}
+	}
+	else
+	{
+		struct link_map *old_map = listp->slotinfo[idx - disp].map;
+
+		/*
+		 * The entry might still be in its unused state if we are
+		 * closing an object that wasn't fully set up.
+		 */
+		if(__builtin_expect(old_map != NULL, 1))
+		{
+			_dl_assert(old_map->l_tls_modid == idx);
+
+			/* Mark the entry as unused. */
+			listp->slotinfo[idx - disp].gen = _dl_tls_generation + 1;
+			listp->slotinfo[idx - disp].map = NULL;
+		}
+
+		/*
+		 * If this is not the last currently used entry no need to
+		 * look further.
+		 */
+		if (idx != _dl_tls_max_dtv_idx)
+			return true;
+	}
+
+	while(idx - disp > (disp == 0 ? 1 + _dl_tls_static_nelem : 0))
+	{
+		--idx;
+
+		if(listp->slotinfo[idx - disp].map != NULL)
+		{
+			/* Found a new last used index.  */
+			_dl_tls_max_dtv_idx = idx;
+			return true;
+		}
+	}
+
+	/* No non-entry in this list element.  */
+	return false;
+}
+#endif
 
 void dl_cleanup(void) __attribute__ ((destructor));
 void dl_cleanup(void)
@@ -165,6 +293,9 @@ void *dlopen(const char *libname, int flag)
 	unsigned int nlist, i;
 	struct elf_resolve **init_fini_list;
 	static bool _dl_init;
+#if USE_TLS
+	bool any_tls = false;
+#endif
 
 	/* A bit of sanity checking... */
 	if (!(flag & (RTLD_LAZY|RTLD_NOW))) {
@@ -396,6 +527,52 @@ void *dlopen(const char *libname, int flag)
 	}
 	/* TODO:  Should we set the protections of all pages back to R/O now ? */
 
+
+#if USE_TLS
+
+	for (i=0; i < nlist; i++) {
+		struct elf_resolve *tmp_tpnt = init_fini_list[i];
+		/* Only add TLS memory if this object is loaded now and
+		   therefore is not yet initialized.  */
+
+		if (!(tmp_tpnt->init_flag & INIT_FUNCS_CALLED)
+		/* Only if the module defines thread local data. */
+			&& __builtin_expect (tmp_tpnt->l_tls_blocksize > 0, 0)) {
+			
+			/* Now that we know the object is loaded successfully add
+			modules containing TLS data to the slot info table.  We
+			might have to increase its size.  */
+			_dl_add_to_slotinfo ((struct link_map*)tmp_tpnt);
+			
+			/* It is the case in which we couldn't perform TLS static 
+			   initialization at relocation time, and we delayed it until
+			   the relocation has been completed. */
+
+			if (tmp_tpnt->l_need_tls_init) {
+				tmp_tpnt->l_need_tls_init = 0;
+# ifdef SHARED
+				/* Update the slot information data for at least the
+				generation of the DSO we are allocating data for.  */
+				_dl_update_slotinfo (tmp_tpnt->l_tls_modid);
+# endif
+
+				_dl_init_static_tls((struct link_map*)tmp_tpnt);
+				_dl_assert (tmp_tpnt->l_need_tls_init == 0);
+		}
+
+		/* We have to bump the generation counter. */
+		any_tls = true;
+		}
+	}
+
+	/* Bump the generation number if necessary.  */
+	if (any_tls && __builtin_expect (++_dl_tls_generation == 0, 0)) {
+		_dl_debug_early("TLS generation counter wrapped! Please report this.");
+		_dl_exit(30);
+	}
+
+#endif
+
 	/* Notify the debugger we have added some objects. */
 	if (_dl_debug_addr) {
 		dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
@@ -445,6 +622,7 @@ void *dlsym(void *vhandle, const char *name)
 	ElfW(Addr) from;
 	struct dyn_elf *rpnt;
 	void *ret;
+	struct elf_resolve *tls_tpnt = NULL;
 	/* Nastiness to support underscore prefixes.  */
 #ifdef __UCLIBC_UNDERSCORES__
 	char tmp_buf[80];
@@ -499,7 +677,15 @@ void *dlsym(void *vhandle, const char *name)
 	tpnt = NULL;
 	if (handle == _dl_symbol_tables)
 		tpnt = handle->dyn; /* Only search RTLD_GLOBAL objs if global object */
-	ret = _dl_find_hash(name2, handle, tpnt, ELF_RTYPE_CLASS_DLSYM);
+	ret = _dl_find_hash(name2, handle, NULL, 0, &tls_tpnt);
+
+#if defined USE_TLS && defined SHARED
+	if(tls_tpnt) {
+		/* The found symbol is a thread-local storage variable.
+		Return the address for to the current thread.  */
+		ret = _dl_tls_symaddr ((struct link_map *)tls_tpnt, (Elf32_Addr)ret);
+	}
+#endif
 
 	/*
 	 * Nothing found.
@@ -532,6 +718,12 @@ static int do_dlclose(void *vhandle, int need_fini)
 	struct dyn_elf *handle;
 	unsigned int end;
 	unsigned int i, j;
+#if USE_TLS
+	bool any_tls = false;
+	size_t tls_free_start = NO_TLS_OFFSET;
+	size_t tls_free_end = NO_TLS_OFFSET; 
+	struct link_map *tls_lmap;
+#endif
 
 	handle = (struct dyn_elf *) vhandle;
 	if (handle == _dl_symbol_tables)
@@ -587,6 +779,118 @@ static int do_dlclose(void *vhandle, int need_fini)
 				if (end < ppnt->p_vaddr + ppnt->p_memsz)
 					end = ppnt->p_vaddr + ppnt->p_memsz;
 			}
+
+#if USE_TLS
+			/* Do the cast to make things easy. */
+			tls_lmap = (struct link_map *) tpnt;
+
+			/* Remove the object from the dtv slotinfo array if it uses TLS. */
+			if (__builtin_expect (tls_lmap->l_tls_blocksize > 0, 0))
+			{
+				any_tls = true;
+
+				if (_dl_tls_dtv_slotinfo_list != NULL
+						&& ! remove_slotinfo (tls_lmap->l_tls_modid,
+						_dl_tls_dtv_slotinfo_list, 0,
+						(tpnt->init_flag & INIT_FUNCS_CALLED)))
+					/* All dynamically loaded modules with TLS are unloaded. */
+					_dl_tls_max_dtv_idx = _dl_tls_static_nelem;
+
+				if (tls_lmap->l_tls_offset != NO_TLS_OFFSET)
+				{
+					/*
+					 * Collect a contiguous chunk built from the objects in
+					 * this search list, going in either direction.  When the
+					 * whole chunk is at the end of the used area then we can
+					 * reclaim it.
+					 */
+# if defined(TLS_TCB_AT_TP)
+					if (tls_free_start == NO_TLS_OFFSET
+						|| (size_t) tls_lmap->l_tls_offset == tls_free_start)
+					{
+						/* Extend the contiguous chunk being reclaimed. */
+						tls_free_start
+							= tls_lmap->l_tls_offset -
+							  tls_lmap->l_tls_blocksize;
+
+						if (tls_free_end == NO_TLS_OFFSET)
+							tls_free_end = tls_lmap->l_tls_offset;
+					}
+					else if (tls_lmap->l_tls_offset - tls_lmap->l_tls_blocksize
+							== tls_free_end)
+						/* Extend the chunk backwards.  */
+						tls_free_end = tls_lmap->l_tls_offset;
+					else
+					{
+						/*
+						 * This isn't contiguous with the last chunk freed.
+						 * One of them will be leaked unless we can free
+						 * one block right away.
+						 */
+						if (tls_free_end == _dl_tls_static_used)
+						{
+							_dl_tls_static_used = tls_free_start;
+							tls_free_end = tls_lmap->l_tls_offset;
+							tls_free_start
+								= tls_free_end - tls_lmap->l_tls_blocksize;
+						}
+						else if ((size_t) tls_lmap->l_tls_offset
+								== _dl_tls_static_used)
+							_dl_tls_static_used = tls_lmap->l_tls_offset -
+								tls_lmap->l_tls_blocksize;
+						else if (tls_free_end < (size_t) tls_lmap->l_tls_offset)
+						{
+							/*
+							 * We pick the later block. It has a chance
+							 * to be freed.
+							 */
+							tls_free_end = tls_lmap->l_tls_offset;
+							tls_free_start = tls_free_end -
+								tls_lmap->l_tls_blocksize;
+						}
+					}
+# elif defined(TLS_DTV_AT_TP)
+					if ((size_t) tls_lmap->l_tls_offset == tls_free_end)
+						/* Extend the contiguous chunk being reclaimed. */
+						tls_free_end -= tls_lmap->l_tls_blocksize;
+					else if (tls_lmap->l_tls_offset + tls_lmap->l_tls_blocksize
+							== tls_free_start)
+						/* Extend the chunk backwards. */
+						tls_free_start = tls_lmap->l_tls_offset;
+					else
+					{
+						/*
+						 * This isn't contiguous with the last chunk
+						 * freed. One of them will be leaked.
+						 */
+						if (tls_free_end == _dl_tls_static_used)
+							_dl_tls_static_used = tls_free_start;
+						tls_free_start = tls_lmap->l_tls_offset;
+						tls_free_end = tls_free_start +
+							tls_lmap->l_tls_blocksize;
+					}
+# else
+#  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
+# endif
+				} else {
+
+#define TLS_DTV_UNALLOCATED	((void *) -1l)
+
+					dtv_t *dtv = THREAD_DTV ();
+
+					_dl_assert(!(dtv[tls_lmap->l_tls_modid].pointer.is_static));
+					if(dtv[tls_lmap->l_tls_modid].pointer.val != TLS_DTV_UNALLOCATED) {
+						/* Note that free is called for NULL is well.  We
+						deallocate even if it is this dtv entry we are
+						supposed to load.  The reason is that we call
+						memalign and not malloc.  */		   
+						_dl_free (dtv[tls_lmap->l_tls_modid].pointer.val);
+						dtv[tls_lmap->l_tls_modid].pointer.val = TLS_DTV_UNALLOCATED;
+					}
+				}			
+			}
+#endif
+
 			DL_LIB_UNMAP (tpnt, end);
 			/* Free elements in RTLD_LOCAL scope list */
 			for (runp = tpnt->rtld_local; runp; runp = tmp) {
@@ -637,6 +941,21 @@ static int do_dlclose(void *vhandle, int need_fini)
 	}
 	free(handle->init_fini.init_fini);
 	free(handle);
+
+#if USE_TLS
+	/* If we removed any object which uses TLS bump the generation counter.  */
+	if (any_tls)
+	{
+		if (__builtin_expect (++_dl_tls_generation == 0, 0))
+		{
+			_dl_debug_early ("TLS generation counter wrapped!  Please report to the uClibc mailing list.\n");
+			_dl_exit(30);
+		}
+
+		if (tls_free_end == _dl_tls_static_used)
+			_dl_tls_static_used = tls_free_start;
+	}
+#endif
 
 	if (_dl_debug_addr) {
 		dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;

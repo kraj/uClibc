@@ -209,6 +209,20 @@ DL_START(unsigned long args)
 	_dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
 #endif
 
+	/*
+	 * BIG ASSUMPTION: We assume that the dynamic loader does not
+	 *                 have any TLS data itself. If this ever occurs
+	 *                 more work than what is done below for the
+	 *                 loader will have to happen.
+	 */
+#if USE_TLS
+	/* This was done by _dl_memset above. */
+	/* tpnt->l_tls_modid = 0; */
+# if NO_TLS_OFFSET != 0
+	tpnt->l_tls_offset = NO_TLS_OFFSET;
+# endif 
+#endif 
+
 	SEND_EARLY_STDERR_DEBUG("Done scanning DYNAMIC section\n");
 
 #if defined(PERFORM_BOOTSTRAP_GOT)

@@ -80,7 +80,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	got_addr = (char **)instr_addr;
 
 	/* Get the address of the GOT entry */
-	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
+	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: Can't resolve symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
@@ -99,8 +99,8 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	if (!_dl_debug_nofixups)
 #endif
 	{
-		got_addr[1] = (char *) (0x03000000 | (((unsigned int) new_addr >> 10) & 0x3fffff));
-		got_addr[2] = (char *) (0x81c06000 | ((unsigned int) new_addr & 0x3ff));
+		got_addr[1] = (char *) (OPCODE_SETHI_G1 | (((unsigned int) new_addr >> 10) & 0x3fffff));
+		got_addr[2] = (char *) (OPCODE_JMP_G1 | ((unsigned int) new_addr & 0x3ff));
 	}
 
 	return (unsigned long)new_addr;
@@ -170,6 +170,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	int reloc_type;
 	int symtab_index;
 	char *symname;
+    struct elf_resolve *tls_tpnt = 0;
 	ElfW(Sym) *sym;
 	ElfW(Addr) *reloc_addr;
 	ElfW(Addr) symbol_addr;
@@ -186,17 +187,25 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	if (symtab_index) {
 		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, tpnt,
-							    elf_machine_type_class(reloc_type));
+							    elf_machine_type_class(reloc_type), &tls_tpnt);
 		/*
 		 * We want to allow undefined references to weak symbols - this
 		 * might have been intentional.  We should not be linking local
 		 * symbols here, so all bases should be covered.
 		 */
-		if (unlikely(!symbol_addr && ELF_ST_BIND(sym->st_info) != STB_WEAK)) {
-			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
-			_dl_exit(1);
+		if (unlikely(!symbol_addr && (ELF_ST_TYPE(sym->st_info) != STT_TLS)
+            && (ELF_ST_BIND(sym->st_info) != STB_WEAK))) {
+            /* This may be non-fatal if called from dlopen. */
+            return 1;
+
 		}
-	}
+	} else {
+        /* Relocs agfainst STN_UNDEF are usually treated as using a
+         * symbol value of zero, and using the module containing the
+         * reloc itself. */
+        symbol_addr = sym->st_value;
+        tls_tpnt = tpnt;
+    }
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	old_val = *reloc_addr;
@@ -208,21 +217,6 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		case R_SPARC_NONE:
 			break;
 
-#if 0 /* these dont really seem to be useful */
-		case R_SPARC_8:
-			*(char *) reloc_addr = symbol_addr;
-			break;
-		case R_SPARC_16:
-			*(short *) reloc_addr = symbol_addr;
-			break;
-		case R_SPARC_DISP8:
-			*(char *) reloc_addr = (symbol_addr) - (Elf32_Addr) reloc_addr;
-			break;
-		case R_SPARC_DISP16:
-			*(short *) reloc_addr = (symbol_addr) - (Elf32_Addr) reloc_addr;
-			break;
-#endif
-
 		case R_SPARC_DISP32:
 			*reloc_addr = symbol_addr - (unsigned int) reloc_addr;
 			break;
@@ -232,7 +226,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 				symbol_addr = tpnt->loadaddr + rpnt->r_addend;
 			else
 				symbol_addr += rpnt->r_addend;
-			*reloc_addr = (*reloc_addr & ~0x3ff)|(symbol_addr & 0x3ff);
+			*reloc_addr = (*reloc_addr & ~0x3ff) | (symbol_addr & 0x3ff);
 			break;
 
 		case R_SPARC_GLOB_DAT:
@@ -241,17 +235,8 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			break;
 
 		case R_SPARC_JMP_SLOT:
-/*
-value = symbol_addr;
-value += reloc->r_addend;
-disp = value - reloc_addr;
-reloc_addr[1] = OPCODE_JMP_G1 | (value & 0x3ff);
-reloc_addr[0] = OPCODE_SETHI_G1 | (value >> 10);
-			reloc_addr[1] = OPCODE_JMP_G1 | ((symbol_addr-(Elf32_Addr)reloc_addr) & 0x3ff);
-			reloc_addr[0] = OPCODE_SETHI_G1 | ((symbol_addr-(Elf32_Addr)reloc_addr) >> 10);
-*/
-			reloc_addr[1] = 0x03000000 | ((symbol_addr >> 10) & 0x3fffff);
-			reloc_addr[2] = 0x81c06000 | (symbol_addr & 0x3ff);
+            reloc_addr[1] = OPCODE_SETHI_G1 | (( symbol_addr >> 10 ) & 0x3fffff);
+            reloc_addr[2] = OPCODE_JMP_G1 | ( symbol_addr & 0x3ff );
 			break;
 
 		case R_SPARC_RELATIVE:
@@ -287,6 +272,26 @@ reloc_addr[0] = OPCODE_SETHI_G1 | (value >> 10);
 			} else
 				_dl_dprintf(_dl_debug_file, "no symbol_addr to copy !?\n");
 			break;
+#if USE_TLS
+        case R_SPARC_TLS_DTPMOD32:
+            *reloc_addr = tls_tpnt->l_tls_modid;
+            break;
+
+        case R_SPARC_TLS_DTPOFF32:
+            /* During relocation all TLS symbols are defined and used.
+             * Therefore the offset is already correct.  */
+            *reloc_addr = sym->st_value + rpnt->r_addend;
+            break;
+
+        case R_SPARC_TLS_TPOFF32:
+            /* The offset is negative, forward from the thread pointer.
+             * We know the offset of object the symbol is contained in.
+             * It is a negative value which will be added to the
+             * thread pointer.  */
+            CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
+            *reloc_addr = sym->st_value - tls_tpnt->l_tls_offset + rpnt->r_addend;
+            break;
+#endif
 		default:
 			return -1;	/* Calls _dl_exit(1). */
 	}

@@ -157,18 +157,29 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 static __attribute_noinline__ const ElfW(Sym) *
 check_match (const ElfW(Sym) *sym, char *strtab, const char* undef_name, int type_class)
 {
-	if (type_class & (sym->st_shndx == SHN_UNDEF))
-		/* undefined symbol itself */
-		return NULL;
 
-#ifdef __mips__
-    if (sym->st_shndx == SHN_UNDEF && !(sym->st_other & STO_MIPS_PLT))
-        return NULL;
-#endif
+#if USE_TLS
+		if((sym->st_value == 0 && (ELF_ST_TYPE(sym->st_info) != STT_TLS))
+			      || (type_class & (sym->st_shndx == SHN_UNDEF)))
+			/* No value or undefined symbol itself */				  
+			return NULL;
+			
+		if(ELF_ST_TYPE(sym->st_info) > STT_FUNC 
+			&& ELF_ST_TYPE(sym->st_info) != STT_COMMON
+			&& ELF_ST_TYPE(sym->st_info) != STT_TLS)
+			/* Ignore all but STT_NOTYPE, STT_OBJECT, STT_FUNC and STT_COMMON
+			 * entries (and STT_TLS if TLS is supported) since these
+			 * are no code/data definitions.
+			 */
+			return NULL;
+#else			  
+		if (type_class & (sym->st_shndx == SHN_UNDEF))
+			/* undefined symbol itself */
+			return NULL;
 
-	if (sym->st_value == 0)
-		/* No value */
-		return NULL;
+		if (sym->st_value == 0)
+			/* No value */
+			return NULL;
 
 	if (ELF_ST_TYPE(sym->st_info) > STT_FUNC
 		&& ELF_ST_TYPE(sym->st_info) != STT_COMMON)
@@ -177,7 +188,7 @@ check_match (const ElfW(Sym) *sym, char *strtab, const char* undef_name, int typ
 		 * code/data definitions
 		 */
 		return NULL;
-
+#endif
 	if (_dl_strcmp(strtab + sym->st_name, undef_name) != 0)
 		return NULL;
 
@@ -257,12 +268,11 @@ _dl_lookup_sysv_hash(struct elf_resolve *tpnt, ElfW(Sym) *symtab, unsigned long 
  * This function resolves externals, and this is either called when we process
  * relocations or when we call an entry in the PLT table for the first time.
  */
-char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt,
-		      struct elf_resolve *mytpnt, int type_class
-#ifdef __FDPIC__
-		      , struct elf_resolve **tpntp
-#endif
-		      )
+char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt, int type_class
+#if USE_TLS
+,struct elf_resolve **tls_tpnt
+#endif			    
+)
 {
 	struct elf_resolve *tpnt = NULL;
 	ElfW(Sym) *symtab;
@@ -270,8 +280,7 @@ char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt,
 	unsigned long elf_hash_number = 0xffffffff;
 	const ElfW(Sym) *sym = NULL;
 
-	const ElfW(Sym) *weak_sym = 0;
-	struct elf_resolve *weak_tpnt = 0;
+	char *weak_result = NULL;
 
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 	unsigned long gnu_hash_number = _dl_gnu_hash((const unsigned char *)name);
@@ -329,37 +338,29 @@ char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt,
 
 	if (sym) {
 		/* At this point we have found the requested symbol, do binding */
+#if USE_TLS	
+		if(ELF_ST_TYPE(sym->st_info) == STT_TLS) {
+			_dl_assert((tls_tpnt != NULL));
+			*tls_tpnt = tpnt;
+
+			return (char*)sym->st_value;
+		}
+#endif
+
 		switch (ELF_ST_BIND(sym->st_info)) {
 			case STB_WEAK:
 #if 0
-/* Perhaps we should support old style weak symbol handling
- * per what glibc does when you export LD_DYNAMIC_WEAK */
-				if (!weak_sym) {
-					weak_tpnt = tpnt;
-					weak_sym = sym;
-				}
+	/* Perhaps we should support old style weak symbol handling
+	* per what glibc does when you export LD_DYNAMIC_WEAK */
+				if (!weak_result)
+					weak_result = (char *)tpnt->loadaddr + sym->st_value;
 				break;
 #endif
 			case STB_GLOBAL:
-#ifdef __FDPIC__
-				if (tpntp)
-					*tpntp = tpnt;
-#endif
-				return (char *) DL_FIND_HASH_VALUE (tpnt, type_class, sym);
+				return (char*)tpnt->loadaddr + sym->st_value;
 			default:	/* Local symbols not handled here */
 				break;
 		}
 	}
-	if (weak_sym) {
-#ifdef __FDPIC__
-		if (tpntp)
-			*tpntp = weak_tpnt;
-#endif
-		return (char *) DL_FIND_HASH_VALUE (weak_tpnt, type_class, weak_sym);
-	}
-#ifdef __FDPIC__
-	if (tpntp)
-		*tpntp = NULL;
-#endif
-	return NULL;
+	return weak_result;
 }
