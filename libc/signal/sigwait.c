@@ -72,8 +72,7 @@ else
 	return ret;
 }
 
-int __sigwait (const sigset_t *set, int *sig) attribute_hidden;
-int __sigwait (const sigset_t *set, int *sig)
+int sigwait(const sigset_t *set, int *sig)
 {
 	if(SINGLE_THREAD_P)
 		return do_sigwait(set, sig);
@@ -166,5 +165,3 @@ int sigwait (const sigset_t *set, int *sig)
 }
 # endif /* __UCLIBC_HAS_REALTIME__ */
 #endif /* __UCLIBC_HAS_THREADS_NATIVE__ */
-weak_alias(__sigwait,sigwait)
-libc_hidden_def(sigwait)

@@ -68,9 +68,7 @@ weak_extern (__pthread_sigwait)
 #endif
 
 int
-__sigwait (set, sig)
-     const sigset_t *set;
-     int *sig;
+sigwait (const sigset_t *set, int *sig)
 {
 #ifndef NOT_IN_libc
   return __libc_maybe_call2 (pthread_sigwait, (set, sig),
@@ -79,9 +77,7 @@ __sigwait (set, sig)
   return do_sigwait (set, sig);
 #endif
 }
-libc_hidden_def (__sigwait)
-weak_alias (__sigwait, sigwait)
-strong_alias (__sigwait, __libc_sigwait)
+strong_alias(sigwait, __libc_sigwait)
 
 /* Cancellation is handled in __pthread_sigwait.  */
 LIBC_CANCEL_HANDLED ();
