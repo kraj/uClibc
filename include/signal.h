@@ -184,7 +184,6 @@ libc_hidden_proto(__sigpause)
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
 extern int sigpause (int __mask) __THROW __attribute_deprecated__;
-libc_hidden_proto(sigpause)
 # define sigpause(mask) __sigpause ((mask), 0)
 #else
 # ifdef __USE_XOPEN

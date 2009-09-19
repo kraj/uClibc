@@ -14,7 +14,7 @@
 
 #ifdef __LINUXTHREADS_OLD__
 extern __typeof(pause) weak_function pause;
-strong_alias(pause,__libc_pause)
+strong_alias(pause, __libc_pause)
 #endif
 
 #ifdef __NR_pause
@@ -22,6 +22,6 @@ _syscall0(int, pause)
 #else
 int pause(void)
 {
-	return (__sigpause(sigblock(0), 0));
+	return __sigpause(sigblock(0), 0);
 }
 #endif

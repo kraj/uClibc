@@ -58,4 +58,3 @@ int sigpause (int mask)
 {
   return __sigpause (mask, 0);
 }
-libc_hidden_def(sigpause)
