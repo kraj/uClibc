@@ -43,8 +43,8 @@ resolv_CSRC += \
 	getnameinfo.c \
 	gethostbyaddr_r.c gethostbyname_r.c gethostbyname2_r.c gethostent_r.c \
 	gethostbyaddr.c gethostbyname.c gethostbyname2.c gethostent.c \
-	res_init.c res_query.c res_comp.c ns_name.c
-
+	res_init.c res_query.c res_comp.c ns_name.c \
+	_res_state.c
 ifneq ($(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6),)
 CSRC += $(resolv_CSRC)
 ## # unused ATM

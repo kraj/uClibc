@@ -2843,9 +2843,6 @@ libc_hidden_def(ns_name_unpack)
 
 #ifdef L_res_init
 
-/* Protected by __resolv_lock */
-struct __res_state _res;
-
 /* Will be called under __resolv_lock. */
 static void res_sync_func(void)
 {
@@ -2988,7 +2985,59 @@ void res_close(void)
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 }
 #endif
+
+/* This needs to be after the use of _res in res_init, above.  */
+#undef _res
+
+#ifndef __UCLIBC_HAS_THREADS__
+/* The resolver state for use by single-threaded programs.
+   This differs from plain `struct __res_state _res;' in that it doesn't
+   create a common definition, but a plain symbol that resides in .bss,
+   which can have an alias.  */
+struct __res_state _res __attribute__((section (".bss")));
+struct __res_state *__resp = &_res;
+#else //__UCLIBC_HAS_THREADS__
+struct __res_state _res __attribute__((section (".bss"))) attribute_hidden;
+
+# if defined __UCLIBC_HAS_TLS__
+#  undef __resp
+__thread struct __res_state *__resp = &_res;
+/*
+ * FIXME: Add usage of hidden attribute for this when used in the shared
+ *        library. It currently crashes the linker when doing section
+ *        relocations.
+ */
+extern __thread struct __res_state *__libc_resp
+       __attribute__ ((alias ("__resp")));
+# else
+#  undef __resp
+struct __res_state *__resp = &_res;
+# endif
+#endif
+
 #endif /* L_res_init */
+
+#ifdef L_res_state
+# if defined __UCLIBC_HAS_TLS__
+struct __res_state *
+__res_state (void)
+{
+       return __resp;
+}
+# else
+#  undef _res
+extern struct __res_state _res;
+
+/* When threaded, _res may be a per-thread variable.  */
+struct __res_state *
+weak_const_function
+__res_state (void)
+{
+       return &_res;
+}
+# endif
+
+#endif
 
 
 #ifdef L_res_query
