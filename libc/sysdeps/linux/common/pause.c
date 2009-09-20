@@ -10,7 +10,11 @@
 #define __UCLIBC_HIDE_DEPRECATED__
 #include <sys/syscall.h>
 #include <unistd.h>
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sysdep-cancel.h>
+#endif
+
 #include <signal.h>
 
 /* Suspend the process until a signal arrives.
@@ -30,4 +34,6 @@ __libc_pause (void)
 }
 weak_alias (__libc_pause, pause)
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 LIBC_CANCEL_HANDLED ();		/* sigsuspend handles our cancellation.  */
+#endif
