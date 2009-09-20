@@ -2995,6 +2995,7 @@ void res_close(void)
    create a common definition, but a plain symbol that resides in .bss,
    which can have an alias.  */
 struct __res_state _res __attribute__((section (".bss")));
+struct __res_state *__resp = &_res;
 #else //__UCLIBC_HAS_THREADS__
 struct __res_state _res __attribute__((section (".bss"))) attribute_hidden;
 
