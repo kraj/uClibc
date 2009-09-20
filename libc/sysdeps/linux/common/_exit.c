@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
-#ifdef __UCLIBC_HAS_THREADS__
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sysdep.h>
 #endif
 
