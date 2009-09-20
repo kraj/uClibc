@@ -35,7 +35,10 @@
 #include <string.h> /* Needed for 'strstr' prototype' */
 #include <stdbool.h>
 
+#ifdef __UCLIBC_HAS_TLS__
 #include <tls.h>
+#endif
+
 #if USE_TLS
 #include <ldsodefs.h>
 extern void (*_dl_init_static_tls) (struct link_map *);
