@@ -28,9 +28,6 @@
 #include <bits/pthreadtypes.h>
 #include <bits/setjmp.h>
 #include <bits/wordsize.h>
-#if defined _LIBC && ( defined IS_IN_libc || defined NOT_IN_libc )
-#include <bits/uClibc_pthread.h>
-#endif
 
 
 /* Detach state.  */

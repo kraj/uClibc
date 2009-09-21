@@ -34,7 +34,7 @@
 #ifndef NEED_SEPARATE_REGISTER_STACK
 
 /* Most architectures have exactly one stack pointer.  Some have more.  */
-# define STACK_VARIABLES void *stackaddr
+# define STACK_VARIABLES void *stackaddr = 0
 
 /* How to pass the values to the 'create_thread' function.  */
 # define STACK_VARIABLES_ARGS stackaddr
@@ -53,7 +53,7 @@
 
 /* We need two stacks.  The kernel will place them but we have to tell
    the kernel about the size of the reserved address space.  */
-# define STACK_VARIABLES void *stackaddr; size_t stacksize
+# define STACK_VARIABLES void *stackaddr = 0; size_t stacksize
 
 /* How to pass the values to the 'create_thread' function.  */
 # define STACK_VARIABLES_ARGS stackaddr, stacksize
@@ -388,7 +388,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
       /* Allocate some anonymous memory.  If possible use the cache.  */
       size_t guardsize;
       size_t reqsize;
-      void *mem;
+      void *mem = 0;
       const int prot = (PROT_READ | PROT_WRITE);
 
 #if COLORING_INCREMENT != 0

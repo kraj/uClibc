@@ -349,7 +349,7 @@ __pthread_create_2_1 (newthread, attr, start_routine, arg)
        accessing far-away memory.  */
     iattr = &default_attr;
 
-  struct pthread *pd;
+  struct pthread *pd = 0;
   int err = ALLOCATE_STACK (iattr, &pd);
   if (__builtin_expect (err != 0, 0))
     /* Something went wrong.  Maybe a parameter of the attributes is
