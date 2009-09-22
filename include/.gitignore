@@ -28,6 +28,7 @@
 /sys/regdef.h
 /sys/sysmips.h
 /sys/tas.h
+/sys/timerfd.h
 /sys/ucontext.h
 /sys/user.h
 /sys/vm86.h
