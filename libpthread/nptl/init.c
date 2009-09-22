@@ -29,7 +29,6 @@
 #include <ldsodefs.h>
 #include <tls.h>
 #include <fork.h>
-#include <version.h>
 #include <smp.h>
 #include <lowlevellock.h>
 
@@ -58,6 +57,8 @@
 /* Size and alignment of static TLS block.  */
 size_t __static_tls_size;
 size_t __static_tls_align_m1;
+
+#define VERSION __stringify(__UCLIBC_MAJOR__) "." __stringify(__UCLIBC_MINOR__) "." __stringify(__UCLIBC_SUBLEVEL__)
 
 /* Version of the library, used in libthread_db to detect mismatches.  */
 static const char nptl_version[] __attribute_used__ = VERSION;
