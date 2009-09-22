@@ -13,10 +13,7 @@
 #include <utmp.h>
 #include <fcntl.h>
 #include <sys/file.h>
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <errno.h>
 #include <not-cancel.h>
-#endif
 
 #if 0
 /* This is enabled in uClibc/libutil/logwtmp.c */
@@ -40,7 +37,6 @@ void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 {
     int fd;
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
     fd = open_not_cancel(wtmp_file, O_APPEND | O_WRONLY, 0);
     if (fd >= 0) {
 	if (lockf(fd, F_LOCK, 0) == 0) {
@@ -49,14 +45,4 @@ void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 	    close_not_cancel_no_status(fd);
 	}
     }
-#else
-    fd = open(wtmp_file, O_APPEND | O_WRONLY);
-    if (fd >= 0) {
-	if (lockf(fd, F_LOCK, 0) == 0) {
-	    write(fd, lutmp, sizeof(*lutmp));
-	    lockf(fd, F_ULOCK, 0);
-	    close(fd);
-	}
-    }
-#endif
 }

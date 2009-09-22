@@ -19,10 +19,7 @@
 #include <errno.h>
 #include <string.h>
 #include <utmp.h>
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <not-cancel.h>
-#endif
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(utmplock, PTHREAD_MUTEX_INITIALIZER);
@@ -42,17 +39,9 @@ static void __setutent(void)
 # define O_CLOEXEC 0
 #endif
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	static_fd = open_not_cancel_2(static_ut_name, O_RDWR | O_CLOEXEC);
-#else
-	static_fd = open(static_ut_name, O_RDWR | O_CLOEXEC);
-#endif
 	if (static_fd < 0) {
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	    static_fd = open_not_cancel_2(static_ut_name, O_RDONLY | O_CLOEXEC);
-#else
-	    static_fd = open(static_ut_name, O_RDONLY | O_CLOEXEC);
-#endif
 	    if (static_fd < 0) {
 		return; /* static_fd remains < 0 */
 	    }
@@ -60,11 +49,7 @@ static void __setutent(void)
 
 	if (O_CLOEXEC == 0) {
 	    /* Make sure the file will be closed on exec()  */
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	    fcntl_not_cancel(static_fd, F_SETFD, FD_CLOEXEC);
-#else
-	    fcntl(static_fd, F_SETFD, FD_CLOEXEC);
-#endif
 	    /* thus far, {G,S}ETFD only has this single flag,
 	     * and setting it never fails.
 	     *int ret = fcntl(static_fd, F_GETFD, 0);
@@ -101,11 +86,7 @@ static struct utmp *__getutent(void)
 	}
     }
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
     if (read_not_cancel(static_fd, &static_utmp, sizeof(static_utmp)) == sizeof(static_utmp)) {
-#else
-    if (read(static_fd, &static_utmp, sizeof(static_utmp)) == sizeof(static_utmp)) {
-#endif
 	ret = &static_utmp;
     }
 
@@ -116,11 +97,7 @@ void endutent(void)
 {
     __UCLIBC_MUTEX_LOCK(utmplock);
     if (static_fd >= 0)
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	close_not_cancel_no_status(static_fd);
-#else
-	close(static_fd);
-#endif
     static_fd = -1;
     __UCLIBC_MUTEX_UNLOCK(utmplock);
 }
@@ -221,11 +198,7 @@ int utmpname(const char *new_ut_name)
     }
 
     if (static_fd >= 0) {
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	close_not_cancel_no_status(static_fd);
-#else
-	close(static_fd);
-#endif
 	static_fd = -1;
     }
     __UCLIBC_MUTEX_UNLOCK(utmplock);

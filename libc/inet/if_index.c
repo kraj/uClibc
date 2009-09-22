@@ -32,9 +32,7 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <libc-internal.h>
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <not-cancel.h>
-#endif
 
 #include "netlinkaccess.h"
 
@@ -58,21 +56,13 @@ if_nametoindex(const char* ifname)
     {
       /* close never fails here, fd is just a unconnected socket
        *int saved_errno = errno; */
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
       close_not_cancel_no_status(fd);
-#else
-      close(fd);
-#endif
       /*if (saved_errno == EINVAL)
        *  __set_errno(ENOSYS); */
       return 0;
     }
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
   close_not_cancel_no_status(fd);
-#else
-  close(fd);
-#endif
   return ifr.ifr_ifindex;
 #endif
 }
@@ -123,11 +113,7 @@ if_nameindex (void)
 
       if (ioctl (fd, SIOCGIFCONF, &ifc) < 0)
 	{
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	  close_not_cancel_no_status (fd);
-#else
-	  close (fd);
-#endif
 	  return NULL;
 	}
     }
@@ -138,11 +124,7 @@ if_nameindex (void)
   idx = malloc ((nifs + 1) * sizeof (struct if_nameindex));
   if (idx == NULL)
     {
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
       close_not_cancel_no_status (fd);
-#else
-      close(fd);
-#endif
       __set_errno(ENOBUFS);
       return NULL;
     }
@@ -160,11 +142,7 @@ if_nameindex (void)
 	  for (j =  0; j < i; ++j)
 	    free (idx[j].if_name);
 	  free(idx);
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	  close_not_cancel_no_status (fd);
-#else
-	  close(fd);
-#endif
 	  if (saved_errno == EINVAL)
 	    saved_errno = ENOSYS;
 	  else if (saved_errno == ENOMEM)
@@ -178,11 +156,7 @@ if_nameindex (void)
   idx[i].if_index = 0;
   idx[i].if_name = NULL;
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
   close_not_cancel_no_status (fd);
-#else
-  close(fd);
-#endif
   return idx;
 #endif
 }
@@ -325,22 +299,14 @@ if_indextoname (unsigned int ifindex, char *ifname)
   if (ioctl (fd, SIOCGIFNAME, &ifr) < 0)
     {
       int serrno = errno;
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
       close_not_cancel_no_status (fd);
-#else
-      close (fd);
-#endif
       if (serrno == ENODEV)
 	/* POSIX requires ENXIO.  */
 	serrno = ENXIO;
       __set_errno (serrno);
       return NULL;
   }
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
   close_not_cancel_no_status (fd);
-#else
-  close (fd);
-#endif
 
   return strncpy (ifname, ifr.ifr_name, IFNAMSIZ);
 # else

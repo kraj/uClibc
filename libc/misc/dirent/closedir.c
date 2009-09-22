@@ -9,9 +9,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "dirstream.h"
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <not-cancel.h>
-#endif
 
 
 int closedir(DIR * dir)
@@ -34,10 +32,6 @@ int closedir(DIR * dir)
 	__UCLIBC_MUTEX_UNLOCK(dir->dd_lock);
 	free(dir->dd_buf);
 	free(dir);
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	return close_not_cancel(fd);
-#else
-	return close(fd);
-#endif
 }
 libc_hidden_def(closedir)

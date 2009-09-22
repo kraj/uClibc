@@ -46,10 +46,19 @@
 #include <paths.h>
 #include <signal.h>
 #include <unistd.h>
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <errno.h>
-#include <sys/stat.h>
 #include <not-cancel.h>
+#include <errno.h>
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sys/stat.h>
+#endif
+
+#ifdef __UCLIBC_HAS_LFS__
+#define STAT stat64
+#define FSTAT fstat64
+#else
+#define STAT stat
+#define FSTAT fstat
 #endif
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
@@ -112,35 +121,20 @@ int daemon(int nochdir, int noclose)
 	if (!nochdir)
 		chdir("/");
 
-#ifndef __UCLIBC_HAS_THREADS_NATIVE__
-	if (!noclose && (fd = open(_PATH_DEVNULL, O_RDWR)) != -1)
-	{
-#else
 	if (!noclose)
 	{
-#ifdef __UCLIBC_HAS_LFS__
-		struct stat64 st;
-#else
-		struct stat st;
-#endif
+		struct STAT st;
 
 		if ((fd = open_not_cancel(_PATH_DEVNULL, O_RDWR, 0)) != -1
-#ifdef __UCLIBC_HAS_LFS__
-			&& (__builtin_expect (fstat64 (fd, &st), 0) == 0))
-#else
-			&& (__builtin_expect (fstat (fd, &st), 0) == 0))
-#endif
+			&& (__builtin_expect (FSTAT (fd, &st), 0) == 0))
 		{
 			if (__builtin_expect (S_ISCHR (st.st_mode), 1) != 0) {
-#endif
 				dup2(fd, STDIN_FILENO);
 				dup2(fd, STDOUT_FILENO);
 				dup2(fd, STDERR_FILENO);
 				if (fd > 2)
 					close(fd);
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-			}
-			else {
+			} else {
 				/* We must set an errno value since no
 				   function call actually failed.  */
 				close_not_cancel_no_status (fd);
@@ -148,10 +142,9 @@ int daemon(int nochdir, int noclose)
 				return -1;
 			}
 		} else {
-				close_not_cancel_no_status (fd);
-				return -1;
+			close_not_cancel_no_status (fd);
+			return -1;
 		}
-#endif
 	}
 	return 0;
 }

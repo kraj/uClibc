@@ -12,9 +12,7 @@
 #include <unistd.h>
 #include <sys/dir.h>
 #include <sys/stat.h>
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <not-cancel.h>
-#endif
 #include <dirent.h>
 #include "dirstream.h"
 
@@ -89,11 +87,7 @@ DIR *opendir(const char *name)
 # define O_CLOEXEC 0
 #endif
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	fd = open_not_cancel_2(name, O_RDONLY|O_NDELAY|O_DIRECTORY|O_CLOEXEC);
-#else
-	fd = open(name, O_RDONLY|O_NDELAY|O_DIRECTORY|O_CLOEXEC);
-#endif
 	if (fd < 0)
 		return NULL;
 	/* Note: we should check to make sure that between the stat() and open()
@@ -105,11 +99,7 @@ DIR *opendir(const char *name)
 		/* this close() never fails
 		 *int saved_errno;
 		 *saved_errno = errno; */
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 		close_not_cancel_no_status(fd);
-#else
-		close(fd);
-#endif
 		/*__set_errno(saved_errno);*/
 		return NULL;
 	}
@@ -123,11 +113,7 @@ DIR *opendir(const char *name)
 	ptr = fd_to_DIR(fd, statbuf.st_blksize);
 
 	if (!ptr) {
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 		close_not_cancel_no_status(fd);
-#else
-		close(fd);
-#endif
 		__set_errno(ENOMEM);
 	}
 	return ptr;

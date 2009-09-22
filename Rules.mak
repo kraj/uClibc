@@ -654,6 +654,7 @@ else
 	PTNAME :=
 	PTINC  :=
 endif
+CFLAGS += -I$(top_srcdir)libc/sysdeps/linux/common
 CFLAGS += -I$(KERNEL_HEADERS)
 
 #CFLAGS += -iwithprefix include-fixed -iwithprefix include

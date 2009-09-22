@@ -14,9 +14,7 @@
 #include <netdb.h>
 #include <fcntl.h>
 #include <unistd.h>
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <not-cancel.h>
-#endif
 
 
 #define HOSTID "/etc/hostid"
@@ -28,17 +26,10 @@ int sethostid(long int new_id)
 	int ret;
 
 	if (geteuid() || getuid()) return __set_errno(EPERM);
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	if ((fd=open_not_cancel(HOSTID,O_CREAT|O_WRONLY,0644))<0) return -1;
 	ret = write_not_cancel(fd,(void *)&new_id,sizeof(new_id)) ==
 		sizeof(new_id) ? 0 : -1;
 	close_not_cancel_no_status (fd);
-#else
-	if ((fd=open(HOSTID,O_CREAT|O_WRONLY,0644))<0) return -1;
-	ret = write(fd,(void *)&new_id,sizeof(new_id)) == sizeof(new_id)
-		? 0 : -1;
-	close (fd);
-#endif
 	return ret;
 }
 #endif
@@ -52,7 +43,6 @@ long int gethostid(void)
 	 * It is not an error if we cannot read this file. It is not even an
 	 * error if we cannot read all the bytes, we just carry on trying...
 	 */
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	if ((fd =open_not_cancel_2 (HOSTID, O_RDONLY)) >= 0 &&
 	     read_not_cancel (fd, (void *) &id, sizeof (id)))
 	{
@@ -60,14 +50,6 @@ long int gethostid(void)
 		return id;
 	}
 	if (fd >= 0) close_not_cancel_no_status (fd);
-#else
-	if ((fd=open(HOSTID,O_RDONLY))>=0 && read(fd,(void *)&id,sizeof(id)))
-	{
-		close (fd);
-		return id;
-	}
-	if (fd >= 0) close (fd);
-#endif
 
 	/* Try some methods of returning a unique 32 bit id. Clearly IP
 	 * numbers, if on the internet, will have a unique address. If they
