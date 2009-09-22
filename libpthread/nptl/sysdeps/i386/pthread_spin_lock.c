@@ -32,7 +32,7 @@ int
 pthread_spin_lock (lock)
      pthread_spinlock_t *lock;
 {
-  asm ("\n"
+  __asm__ ("\n"
        "1:\t" LOCK_PREFIX "decl %0\n\t"
        "jne 2f\n\t"
        ".subsection 1\n\t"

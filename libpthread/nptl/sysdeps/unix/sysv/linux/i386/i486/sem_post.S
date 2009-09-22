@@ -18,7 +18,6 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
-#include <shlib-compat.h>
 #include <pthread-errnos.h>
 
 #ifndef UP
@@ -27,7 +26,6 @@
 # define
 #endif
 
-#define SYS_futex		240
 #define FUTEX_WAKE		1
 
 

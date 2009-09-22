@@ -965,7 +965,10 @@ _dl_initial_error_catch_tsd (void)
 }
 
 #ifdef SHARED
-void *init_tls (void);
+void*
+internal_function
+init_tls (void);
+
 rtld_hidden_proto(init_tls)
 void *
 internal_function

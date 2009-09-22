@@ -23,16 +23,25 @@
 #include <time.h>
 #include <sys/param.h>
 #include <bits/pthreadtypes.h>
+#include <atomic.h>
+#include <sysdep.h>
+
+/* We have a separate internal lock implementation which is not tied
+   to binary compatibility.  */
+
+/* Type for lock object.  */
+typedef int lll_lock_t;
+
+/* Initializers for lock.  */
+#define LLL_LOCK_INITIALIZER		(0)
+#define LLL_LOCK_INITIALIZER_LOCKED	(1)
+
+#include <tls.h>
 
 #ifndef LOCK_INSTR
-# ifdef UP
-#  define LOCK_INSTR	/* nothing */
-# else
-#  define LOCK_INSTR "lock;"
-# endif
+# define LOCK_INSTR "lock;"
 #endif
 
-#define SYS_futex		240
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 
@@ -51,47 +60,39 @@
 # define LLL_EBX_REG	"b"
 #endif
 
-#ifdef I386_USE_SYSENTER
-# ifdef SHARED
-#  define LLL_ENTER_KERNEL	"call *%%gs:%P6\n\t"
-# else
-#  define LLL_ENTER_KERNEL	"call *_dl_sysinfo\n\t"
-# endif
-#else
-# define LLL_ENTER_KERNEL	"int $0x80\n\t"
-#endif
+#define LLL_ENTER_KERNEL	"int $0x80\n\t"
 
 /* Delay in spinlock loop.  */
-#define BUSY_WAIT_NOP          asm ("rep; nop")
+#define BUSY_WAIT_NOP          __asm__ ("rep; nop")
 
 
 #define lll_futex_wait(futex, val) \
-  do {									      \
-    int __ignore;							      \
-    register __typeof (val) _val asm ("edx") = (val);			      \
-    __asm __volatile (LLL_EBX_LOAD					      \
+  ({									      \
+    int __ret;							      \
+    register __typeof (val) _val __asm__ ("edx") = (val);		      \
+    __asm__ __volatile (LLL_EBX_LOAD					      \
 		      LLL_ENTER_KERNEL					      \
 		      LLL_EBX_LOAD					      \
-		      : "=a" (__ignore)					      \
+		      : "=a" (__ret)					      \
 		      : "0" (SYS_futex), LLL_EBX_REG (futex), "S" (0),	      \
 			"c" (FUTEX_WAIT), "d" (_val),			      \
 			"i" (offsetof (tcbhead_t, sysinfo)));		      \
-  } while (0)
+   __ret; })
 
 
 #define lll_futex_wake(futex, nr) \
-  do {									      \
-    int __ignore;							      \
-    register __typeof (nr) _nr asm ("edx") = (nr);			      \
-    __asm __volatile (LLL_EBX_LOAD					      \
+  ({									      \
+    int __ret;							      \
+    register __typeof (nr) _nr __asm__ ("edx") = (nr);			      \
+    __asm__ __volatile (LLL_EBX_LOAD					      \
 		      LLL_ENTER_KERNEL					      \
 		      LLL_EBX_LOAD					      \
-		      : "=a" (__ignore)					      \
+		      : "=a" (__ret)					      \
 		      : "0" (SYS_futex), LLL_EBX_REG (futex),		      \
 			"c" (FUTEX_WAKE), "d" (_nr),			      \
 			"i" (0) /* phony, to align next arg's number */,      \
 			"i" (offsetof (tcbhead_t, sysinfo)));		      \
-  } while (0)
+   __ret; })
 
 
 /* Does not preserve %eax and %ecx.  */
@@ -113,7 +114,7 @@ extern int __lll_mutex_unlock_wake (int *__futex)
    to be nonzero.  */
 #define lll_mutex_trylock(futex) \
   ({ int ret;								      \
-     __asm __volatile (LOCK_INSTR "cmpxchgl %2, %1"			      \
+     __asm__ __volatile (LOCK_INSTR "cmpxchgl %2, %1"			      \
 		       : "=a" (ret), "=m" (futex)			      \
 		       : "r" (LLL_MUTEX_LOCK_INITIALIZER_LOCKED), "m" (futex),\
 			 "0" (LLL_MUTEX_LOCK_INITIALIZER)		      \
@@ -123,7 +124,7 @@ extern int __lll_mutex_unlock_wake (int *__futex)
 
 #define lll_mutex_cond_trylock(futex) \
   ({ int ret;								      \
-     __asm __volatile (LOCK_INSTR "cmpxchgl %2, %1"			      \
+     __asm__ __volatile (LOCK_INSTR "cmpxchgl %2, %1"			      \
 		       : "=a" (ret), "=m" (futex)			      \
 		       : "r" (LLL_MUTEX_LOCK_INITIALIZER_WAITERS),	      \
 			  "m" (futex), "0" (LLL_MUTEX_LOCK_INITIALIZER)	      \
@@ -133,7 +134,7 @@ extern int __lll_mutex_unlock_wake (int *__futex)
 
 #define lll_mutex_lock(futex) \
   (void) ({ int ignore1, ignore2;					      \
-	    __asm __volatile (LOCK_INSTR "cmpxchgl %1, %2\n\t"		      \
+	    __asm__ __volatile (LOCK_INSTR "cmpxchgl %1, %2\n\t"	      \
 			      "jnz _L_mutex_lock_%=\n\t"		      \
 			      ".subsection 1\n\t"			      \
 			      ".type _L_mutex_lock_%=,@function\n"	      \
@@ -153,7 +154,7 @@ extern int __lll_mutex_unlock_wake (int *__futex)
    always wakeup waiters.  */
 #define lll_mutex_cond_lock(futex) \
   (void) ({ int ignore1, ignore2;					      \
-	    __asm __volatile (LOCK_INSTR "cmpxchgl %1, %2\n\t"		      \
+	    __asm__ __volatile (LOCK_INSTR "cmpxchgl %1, %2\n\t"	      \
 			      "jnz _L_mutex_cond_lock_%=\n\t"		      \
 			      ".subsection 1\n\t"			      \
 			      ".type _L_mutex_cond_lock_%=,@function\n"	      \
@@ -171,7 +172,7 @@ extern int __lll_mutex_unlock_wake (int *__futex)
 
 #define lll_mutex_timedlock(futex, timeout) \
   ({ int result, ignore1, ignore2;					      \
-     __asm __volatile (LOCK_INSTR "cmpxchgl %1, %3\n\t"			      \
+     __asm__ __volatile (LOCK_INSTR "cmpxchgl %1, %3\n\t"		      \
 		       "jnz _L_mutex_timedlock_%=\n\t"			      \
 		       ".subsection 1\n\t"				      \
 		       ".type _L_mutex_timedlock_%=,@function\n"	      \
@@ -192,7 +193,7 @@ extern int __lll_mutex_unlock_wake (int *__futex)
 
 #define lll_mutex_unlock(futex) \
   (void) ({ int ignore;							      \
-            __asm __volatile (LOCK_INSTR "subl $1,%0\n\t"		      \
+            __asm__ __volatile (LOCK_INSTR "subl $1,%0\n\t"		      \
 			      "jne _L_mutex_unlock_%=\n\t"		      \
 			      ".subsection 1\n\t"			      \
 			      ".type _L_mutex_unlock_%=,@function\n"	      \
@@ -212,17 +213,6 @@ extern int __lll_mutex_unlock_wake (int *__futex)
   (futex != 0)
 
 
-/* We have a separate internal lock implementation which is not tied
-   to binary compatibility.  */
-
-/* Type for lock object.  */
-typedef int lll_lock_t;
-
-/* Initializers for lock.  */
-#define LLL_LOCK_INITIALIZER		(0)
-#define LLL_LOCK_INITIALIZER_LOCKED	(1)
-
-
 extern int __lll_lock_wait (int val, int *__futex)
      __attribute ((regparm (2))) attribute_hidden;
 extern int __lll_unlock_wake (int *__futex)
@@ -236,20 +226,19 @@ extern int lll_unlock_wake_cb (int *__futex) attribute_hidden;
     2  -  taken by more users */
 
 
-#if defined NOT_IN_libc || defined UP
+#if defined NOT_IN_libc
 # define lll_trylock(futex) lll_mutex_trylock (futex)
 # define lll_lock(futex) lll_mutex_lock (futex)
 # define lll_unlock(futex) lll_mutex_unlock (futex)
 #else
 /* Special versions of the macros for use in libc itself.  They avoid
-   the lock prefix when the thread library is not used.
+   the lock prefix when the thread library is not used. */
 
-   XXX In future we might even want to avoid it on UP machines.  */
-# include <tls.h>
+
 
 # define lll_trylock(futex) \
   ({ unsigned char ret;							      \
-     __asm __volatile ("cmpl $0, %%gs:%P5\n\t"				      \
+     __asm__ __volatile ("cmpl $0, %%gs:%P5\n\t"			      \
 		       "je,pt 0f\n\t"					      \
 		       "lock\n"						      \
 		       "0:\tcmpxchgl %2, %1; setne %0"			      \
@@ -263,7 +252,7 @@ extern int lll_unlock_wake_cb (int *__futex) attribute_hidden;
 
 # define lll_lock(futex) \
   (void) ({ int ignore1, ignore2;					      \
-	    __asm __volatile ("cmpl $0, %%gs:%P6\n\t"			      \
+	    __asm__ __volatile ("cmpl $0, %%gs:%P6\n\t"			      \
 			      "je,pt 0f\n\t"				      \
 			      "lock\n"					      \
 			      "0:\tcmpxchgl %1, %2\n\t"			      \
@@ -285,7 +274,7 @@ extern int lll_unlock_wake_cb (int *__futex) attribute_hidden;
 
 # define lll_unlock(futex) \
   (void) ({ int ignore;							      \
-            __asm __volatile ("cmpl $0, %%gs:%P3\n\t"			      \
+            __asm__ __volatile ("cmpl $0, %%gs:%P3\n\t"			      \
 			      "je,pt 0f\n\t"				      \
 			      "lock\n"					      \
 			      "0:\tsubl $1,%0\n\t"		      \
@@ -317,21 +306,21 @@ extern int lll_unlock_wake_cb (int *__futex) attribute_hidden;
 
    The macro parameter must not have any side effect.  */
 #define lll_wait_tid(tid) \
-  do {									      \
-    int __ignore;							      \
-    register __typeof (tid) _tid asm ("edx") = (tid);			      \
+  ({									      \
+    int __ret;								      \
+    register __typeof (tid) _tid __asm__ ("edx") = (tid);		      \
     if (_tid != 0)							      \
-      __asm __volatile (LLL_EBX_LOAD					      \
+      __asm__ __volatile (LLL_EBX_LOAD					      \
 			"1:\tmovl %1, %%eax\n\t"			      \
 			LLL_ENTER_KERNEL				      \
 			"cmpl $0, (%%ebx)\n\t"				      \
 			"jne,pn 1b\n\t"					      \
 			LLL_EBX_LOAD					      \
-			: "=&a" (__ignore)				      \
+			: "=&a" (__ret)				              \
 			: "i" (SYS_futex), LLL_EBX_REG (&tid), "S" (0),	      \
 			  "c" (FUTEX_WAIT), "d" (_tid),			      \
 			  "i" (offsetof (tcbhead_t, sysinfo)));		      \
-  } while (0)
+   __ret; })
 
 extern int __lll_timedwait_tid (int *tid, const struct timespec *abstime)
      __attribute__ ((regparm (2))) attribute_hidden;

@@ -88,6 +88,10 @@ ifeq ($(TARGET_ARCH),sparc)
 CSRC := $(filter-out vfork.c,$(CSRC))
 endif
 
+ifeq ($(TARGET_ARCH),i386)
+CSRC := $(filter-out vfork.c,$(CSRC))
+endif
+
 # fails for some reason
 ifneq ($(strip $(ARCH_OBJS)),)
 CSRC := $(filter-out $(notdir $(ARCH_OBJS:.o=.c)),$(CSRC))

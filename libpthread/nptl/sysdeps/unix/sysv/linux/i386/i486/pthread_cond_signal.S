@@ -18,7 +18,6 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
-#include <shlib-compat.h>
 #include <lowlevelcond.h>
 #include <bits/kernel-features.h>
 
@@ -28,7 +27,6 @@
 # define LOCK lock
 #endif
 
-#define SYS_futex		240
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 #define FUTEX_REQUEUE		3
@@ -110,5 +108,3 @@ __pthread_cond_signal:
 	call	__lll_mutex_unlock_wake
 	jmp	6b
 	.size	__pthread_cond_signal, .-__pthread_cond_signal
-versioned_symbol (libpthread, __pthread_cond_signal, pthread_cond_signal,
-		  GLIBC_2_3_2)

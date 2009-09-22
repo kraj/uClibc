@@ -35,4 +35,4 @@
 1:
 
 
-#include <sysdeps/unix/sysv/linux/i386/vfork.S>
+#include <libc/sysdeps/linux/i386/vfork.S>

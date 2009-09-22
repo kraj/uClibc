@@ -20,9 +20,9 @@
 #include <sysdep.h>
 #include <lowlevelrwlock.h>
 #include <pthread-errnos.h>
+#include <tcb-offsets.h>
 
 
-#define SYS_futex		240
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 

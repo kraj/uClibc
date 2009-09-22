@@ -26,13 +26,20 @@ extern int __close_nocancel (int) attribute_hidden;
 extern int __read_nocancel (int, void *, size_t) attribute_hidden;
 extern int __write_nocancel (int, const void *, size_t) attribute_hidden;
 extern pid_t __waitpid_nocancel (pid_t, int *, int) attribute_hidden;
+
+libc_hidden_proto(__open_nocancel)
+libc_hidden_proto(__close_nocancel)
+libc_hidden_proto(__read_nocancel)
+libc_hidden_proto(__write_nocancel)
+libc_hidden_proto(__waitpid_nocancel)
+
 #else
-#define __open_nocancel(name, ...) __open (name, __VA_ARGS__)
-#define __close_nocancel(fd) __close (fd)
-#define __read_nocancel(fd, buf, len) __read (fd, buf, len)
-#define __write_nocancel(fd, buf, len) __write (fd, buf, len)
+#define __open_nocancel(name, ...) open (name, __VA_ARGS__)
+#define __close_nocancel(fd) close (fd)
+#define __read_nocancel(fd, buf, len) read (fd, buf, len)
+#define __write_nocancel(fd, buf, len) write (fd, buf, len)
 #define __waitpid_nocancel(pid, stat_loc, options) \
-  __waitpid (pid, stat_loc, options)
+  waitpid (pid, stat_loc, options)
 #endif
 
 /* Uncancelable open.  */
