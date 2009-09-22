@@ -31,6 +31,7 @@ ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 #Needed to use the correct SYSCALL_ERROR_HANDLER
 ASFLAGS-clone.S += -DUSE___THREAD
 ASFLAGS-vfork.S += -DUSE___THREAD
+ASFLAGS-pt-vfork.S += -DUSE___THREAD
 endif
 
 CFLAGS += $(SSP_ALL_CFLAGS)
@@ -39,7 +40,7 @@ CFLAGS += $(SSP_ALL_CFLAGS)
 LINUX_ARCH_DIR:=$(top_srcdir)libpthread/nptl/sysdeps/unix/sysv/linux/sparc
 LINUX_ARCH_OUT:=$(top_builddir)libpthread/nptl/sysdeps/unix/sysv/linux/sparc
 
-LINUX_ARCH_OBJ:=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libpthread_CSRC))
+LINUX_ARCH_OBJ:=$(patsubst %.S,$(LINUX_ARCH_OUT)/%.o,$(libpthread_SSRC))
 LINUX_ARCH_OBJ+=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libpthread_CSRC))
 
 ifeq ($(DOPIC),y)

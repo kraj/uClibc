@@ -73,7 +73,7 @@ ENTRY (__clone)
 .Leinval:
 	mov	EINVAL, %o0
 .Lerror:
-	call	HIDDEN_JUMPTARGET(__errno_location)
+	call	__errno_location
 	 mov	%o0, %i0
 	st	%i0,[%o0]
 	jmpl	%i7 + 8, %g0
@@ -99,7 +99,7 @@ __thread_start:
 	mov	%g0, %fp	/* terminate backtrace */
 	call	%g2
 	 mov	%g3,%o0
-	call	HIDDEN_JUMPTARGET(_exit),0
+	call	exit,0
 	 nop
 
 	.size	__thread_start, .-__thread_start
