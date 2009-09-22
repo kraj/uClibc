@@ -7,10 +7,13 @@
 
 CSRC := brk.c __syscall_error.c qp_ops.c
 
-ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC += sigaction.c
-endif
-
 SSRC := \
 	__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
 	syscall.S urem.S udiv.S umul.S sdiv.S rem.S pipe.S
+
+ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CSRC += sigaction.c
+SSRC += fork.S vfork.S
+endif
+
+
