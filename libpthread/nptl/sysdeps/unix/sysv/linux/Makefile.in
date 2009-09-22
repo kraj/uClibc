@@ -105,7 +105,11 @@ PTHREAD_LINUX_OUT := $(top_builddir)libpthread/nptl/sysdeps/unix/sysv/linux
 PTHREAD_LINUX_OBJ := $(patsubst %.c,$(PTHREAD_LINUX_OUT)/%.o,$(libpthread_CSRC))
 PTHREAD_LINUX_OBJ += $(patsubst %.S,$(PTHREAD_LINUX_OUT)/%.o,$(libpthread_SSRC))
 
+ifeq ($(DOPIC),y)
+libpthread-a-y += $(PTHREAD_LINUX_OBJ:.o=.os)
+else
 libpthread-a-y += $(PTHREAD_LINUX_OBJ)
+endif
 libpthread-so-y += $(PTHREAD_LINUX_OBJ:.o=.oS)
 libpthread-so-y += $(PTHREAD_LINUX_OUT)/pt-raise.oS
 libpthread-nomulti-y += $(PTHREAD_LINUX_OBJ)

@@ -42,7 +42,11 @@ LINUX_ARCH_OUT:=$(top_builddir)libpthread/nptl/sysdeps/unix/sysv/linux/sparc
 LINUX_ARCH_OBJ:=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libpthread_CSRC))
 LINUX_ARCH_OBJ+=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libpthread_CSRC))
 
+ifeq ($(DOPIC),y)
+libpthread-a-y += $(LINUX_ARCH_OBJ:.o=.os)
+else
 libpthread-a-y += $(LINUX_ARCH_OBJ)
+endif
 libpthread-so-y += $(LINUX_ARCH_OBJ:.o=.oS)
 
 libpthread-nomulti-y+=$(LINUX_ARCH_OBJS)

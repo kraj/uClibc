@@ -83,7 +83,11 @@ pthread_OUT := $(top_builddir)libpthread/nptl/sysdeps/pthread
 pthread_SRC = $(patsubst %.c, $(pthread_DIR)/%.c, $(libpthread_CSRC))
 pthread_OBJ = $(patsubst %.c, $(pthread_OUT)/%.o, $(libpthread_CSRC))
 
+ifeq ($(DOPIC),y)
+libpthread-a-y += $(pthread_OBJ:.o=.os)
+else
 libpthread-a-y += $(pthread_OBJ)
+endif
 libpthread-so-y += $(pthread_OBJ:.o=.oS)
 libpthread-so-y += $(pthread_OUT)/pt-sigaction.oS $(pthread_OUT)/pt-sigprocmask.oS \
 					$(pthread_OUT)/unwind-forcedunwind.oS

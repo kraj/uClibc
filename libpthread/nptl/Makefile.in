@@ -240,7 +240,12 @@ libc-shared-y += $(patsubst %.c, $(PTHREAD_OUT)/%.oS, forward.c		\
 	    libc-cancellation.c)
 libpthread-nonshared-y += $(patsubst %,$(PTHREAD_OUT)/%.oS,$(libpthread_static_SRC))
 
+ifeq ($(DOPIC),y)
+libpthread-a-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.os,$(libpthread_a_SRC))
+else
 libpthread-a-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.o,$(libpthread_a_SRC))
+endif
+
 libpthread-so-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.oS,$(libpthread_so_SRC))
 libpthread-static-y += $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.o,$(libpthread_a_SRC) $(libpthread_static_SRC))
 
@@ -271,11 +276,7 @@ else
 endif
 	$(do_ar)
 
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/libpthread.a: $(libpthread-a-y:.o=.os)
-else
 $(top_builddir)lib/libpthread.a: $(libpthread-a-y)
-endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
 	$(do_strip)

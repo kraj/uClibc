@@ -31,7 +31,11 @@ LIBRT_ARCH_OBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(librt_SSRC))
 LIBRT_ARCH_OBJ += $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(librt_CSRC))
 
 
+ifeq ($(DOPIC),y)
+libpthread-a-y += $(PTHREAD_ARCH_OBJ:.o=.os)
+else
 libpthread-a-y += $(PTHREAD_ARCH_OBJ)
+endif
 libpthread-so-y += $(PTHREAD_ARCH_OBJ:.o=.oS)
 
 librt-a-y += $(LIBRT_ARCH_OBJ)

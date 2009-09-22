@@ -21,7 +21,11 @@ PTHREAD_ARCH_OUT := $(top_builddir)libpthread/nptl/sysdeps/sh
 PTHREAD_ARCH_OBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_SSRC))
 PTHREAD_ARCH_OBJ += $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_CSRC))
 
+ifeq ($(DOPIC),y)
+libpthread-a-y += $(PTHREAD_ARCH_OBJ:.o=.os)
+else
 libpthread-a-y += $(PTHREAD_ARCH_OBJ)
+endif
 libpthread-so-y += $(PTHREAD_ARCH_OBJ:.o=.oS)
 
 libpthread-nomulti-y += $(PTHREAD_ARCH_OBJ)
