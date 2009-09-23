@@ -47,9 +47,9 @@ void
 internal_function
 _dl_nothread_init_static_tls (struct link_map *map)
 {
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
   void *dest = (char *) THREAD_SELF - map->l_tls_offset;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
   void *dest = (char *) THREAD_SELF + map->l_tls_offset + TLS_PRE_TCB_SIZE;
 # else
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"

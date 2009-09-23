@@ -51,9 +51,9 @@ typedef struct link_map link_map;
 		  8 * sizeof (obj)[0], sizeof (obj) / sizeof (obj)[0], \
 		  offset);
 
-#if TLS_TCB_AT_TP
+#if defined(TLS_TCB_AT_TP)
 # define dtvp header.dtv
-#elif TLS_DTV_AT_TP
+#elif defined(TLS_DTV_AT_TP)
 /* Special case hack.  If TLS_TCB_SIZE == 0 (on PowerPC), there is no TCB
    containing the DTV at the TP, but actually the TCB lies behind the TP,
    i.e. at the very end of the area covered by TLS_PRE_TCB_SIZE.  */

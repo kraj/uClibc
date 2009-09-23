@@ -146,10 +146,10 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
      The initialized value of _dl_tls_static_size is provided by dl-open.c
      to request some surplus that permits dynamic loading of modules with
      IE-model TLS.  */
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
   tcb_offset = roundup (memsz + GL(dl_tls_static_size), tcbalign);
   tlsblock = sbrk (tcb_offset + tcbsize + max_align);
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
   tcb_offset = roundup (tcbsize, align ?: 1);
   tlsblock = sbrk (tcb_offset + memsz + max_align
 		     + TLS_PRE_TCB_SIZE + GL(dl_tls_static_size));
@@ -169,11 +169,11 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
   // static_dtv[1].counter = 0;		would be needed if not already done
 
   /* Initialize the TLS block.  */
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
   static_dtv[2].pointer.val = ((char *) tlsblock + tcb_offset
 			       - roundup (memsz, align ?: 1));
   static_map.l_tls_offset = roundup (memsz, align ?: 1);
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
   static_dtv[2].pointer.val = (char *) tlsblock + tcb_offset;
   static_map.l_tls_offset = tcb_offset;
 # else
@@ -186,11 +186,11 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
   /* Install the pointer to the dtv.  */
 
   /* Initialize the thread pointer.  */
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
   INSTALL_DTV ((char *) tlsblock + tcb_offset, static_dtv);
 
   const char *lossage = TLS_INIT_TP ((char *) tlsblock + tcb_offset, 0);
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
   INSTALL_DTV (tlsblock, static_dtv);
   const char *lossage = (char *)TLS_INIT_TP (tlsblock, 0);
 # else
@@ -214,9 +214,9 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
 
   memsz = roundup (memsz, align ?: 1);
 
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
   memsz += tcbsize;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
   memsz += tcb_offset;
 # endif
 
@@ -232,7 +232,7 @@ _dl_tls_setup (void)
 {
   init_slotinfo ();
   init_static_tls (
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
 		   TLS_TCB_SIZE,
 # else
 		   0,

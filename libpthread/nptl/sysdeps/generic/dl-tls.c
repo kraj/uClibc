@@ -93,7 +93,7 @@ fail:
 		_dl_exit(30);
 	}
 
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
 	size_t freebytes;
 	size_t n;
 	size_t blsize;
@@ -110,7 +110,7 @@ fail:
 		- map->l_tls_firstbyte_offset);
 
 	map->l_tls_offset = _dl_tls_static_used = offset;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
 	size_t used;
 	size_t check;
 
@@ -254,7 +254,7 @@ _dl_determine_tlsoffset (void)
      memory requirement for the next TLS block is smaller than the
      gap.  */
 
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
   /* We simply start with zero.  */
   size_t offset = 0;
 
@@ -301,7 +301,7 @@ _dl_determine_tlsoffset (void)
   GL(dl_tls_static_used) = offset;
   GL(dl_tls_static_size) = (roundup (offset + TLS_STATIC_SURPLUS, max_align)
 			    + TLS_TCB_SIZE);
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
   /* The TLS blocks start right after the TCB.  */
   size_t offset = TLS_TCB_SIZE;
   size_t cnt;
@@ -433,7 +433,7 @@ _dl_allocate_tls_storage (void)
   void *result;
   size_t size = GL(dl_tls_static_size);
 
-# if TLS_DTV_AT_TP
+# if defined(TLS_DTV_AT_TP)
   /* Memory layout is:
      [ TLS_PRE_TCB_SIZE ] [ TLS_TCB_SIZE ] [ TLS blocks ]
 			  ^ This should be returned.  */
@@ -448,14 +448,14 @@ _dl_allocate_tls_storage (void)
       /* Allocate the DTV.  */
       void *allocated = result;
 
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
       /* The TCB follows the TLS blocks.  */
       result = (char *) result + size - TLS_TCB_SIZE;
 
       /* Clear the TCB data structure.  We can't ask the caller (i.e.
 	 libpthread) to do it, because we will initialize the DTV et al.  */
       _dl_memset (result, '\0', TLS_TCB_SIZE);
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
       result = (char *) result + size - GL(dl_tls_static_size);
 
       /* Clear the TCB data structure and TLS_PRE_TCB_SIZE bytes before it.
@@ -524,10 +524,10 @@ _dl_allocate_tls_init (void *result)
 
 	  assert (map->l_tls_modid == cnt);
 	  assert (map->l_tls_blocksize >= map->l_tls_initimage_size);
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
 	  assert ((size_t) map->l_tls_offset >= map->l_tls_blocksize);
 	  dest = (char *) result - map->l_tls_offset;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
 	  dest = (char *) result + map->l_tls_offset;
 # else
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
@@ -586,10 +586,10 @@ _dl_deallocate_tls (void *tcb, bool dealloc_tcb)
 
   if (dealloc_tcb)
     {
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
       /* The TCB follows the TLS blocks.  Back up to free the whole block.  */
       tcb -= GL(dl_tls_static_size) - TLS_TCB_SIZE;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
       /* Back up the TLS_PRE_TCB_SIZE bytes.  */
       tcb -= (TLS_PRE_TCB_SIZE + GL(dl_tls_static_align) - 1)
 	     & ~(GL(dl_tls_static_align) - 1);

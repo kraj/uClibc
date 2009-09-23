@@ -91,9 +91,9 @@
 #endif
 
 /* This yields the pointer that TLS support code calls the thread pointer.  */
-#if TLS_TCB_AT_TP
+#if defined(TLS_TCB_AT_TP)
 # define TLS_TPADJ(pd) (pd)
-#elif TLS_DTV_AT_TP
+#elif defined(TLS_DTV_AT_TP)
 # define TLS_TPADJ(pd) ((struct pthread *)((char *) (pd) + TLS_PRE_TCB_SIZE))
 #endif
 
@@ -315,11 +315,11 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	return EINVAL;
 
       /* Adjust stack size for alignment of the TLS block.  */
-#if TLS_TCB_AT_TP
+#if defined(TLS_TCB_AT_TP)
       adj = ((uintptr_t) attr->stackaddr - TLS_TCB_SIZE)
 	    & __static_tls_align_m1;
       assert (size > adj + TLS_TCB_SIZE);
-#elif TLS_DTV_AT_TP
+#elif defined(TLS_DTV_AT_TP)
       adj = ((uintptr_t) attr->stackaddr - __static_tls_size)
 	    & __static_tls_align_m1;
       assert (size > adj);
@@ -329,10 +329,10 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	 size...  We do not allocate guard pages if the user provided
 	 the stack.  It is the user's responsibility to do this if it
 	 is wanted.  */
-#if TLS_TCB_AT_TP
+#if defined(TLS_TCB_AT_TP)
       pd = (struct pthread *) ((uintptr_t) attr->stackaddr
 			       - TLS_TCB_SIZE - adj);
-#elif TLS_DTV_AT_TP
+#elif defined(TLS_DTV_AT_TP)
       pd = (struct pthread *) (((uintptr_t) attr->stackaddr
 			        - __static_tls_size - adj)
 			       - TLS_PRE_TCB_SIZE);
@@ -466,9 +466,9 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 #endif
 
 	  /* Place the thread descriptor at the end of the stack.  */
-#if TLS_TCB_AT_TP
+#if defined(TLS_TCB_AT_TP)
 	  pd = (struct pthread *) ((char *) mem + size - coloring) - 1;
-#elif TLS_DTV_AT_TP
+#elif defined(TLS_DTV_AT_TP)
 	  pd = (struct pthread *) ((((uintptr_t) mem + size - coloring
 				    - __static_tls_size)
 				    & ~__static_tls_align_m1)
@@ -602,10 +602,10 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
   /* We place the thread descriptor at the end of the stack.  */
   *pdp = pd;
 
-#if TLS_TCB_AT_TP
+#if defined(TLS_TCB_AT_TP)
   /* The stack begins before the TCB and the static TLS block.  */
   stacktop = ((char *) (pd + 1) - __static_tls_size);
-#elif TLS_DTV_AT_TP
+#elif defined(TLS_DTV_AT_TP)
   stacktop = (char *) (pd - 1);
 #endif
 
@@ -889,9 +889,9 @@ static inline void __attribute__((always_inline))
 init_one_static_tls (struct pthread *curp, struct link_map *map)
 {
   dtv_t *dtv = GET_DTV (TLS_TPADJ (curp));
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
   void *dest = (char *) curp - map->l_tls_offset;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
   void *dest = (char *) curp + map->l_tls_offset + TLS_PRE_TCB_SIZE;
 # else
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"

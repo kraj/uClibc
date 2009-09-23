@@ -804,7 +804,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 					 * whole chunk is at the end of the used area then we can
 					 * reclaim it.
 					 */
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
 					if (tls_free_start == NO_TLS_OFFSET
 						|| (size_t) tls_lmap->l_tls_offset == tls_free_start)
 					{
@@ -849,7 +849,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 								tls_lmap->l_tls_blocksize;
 						}
 					}
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
 					if ((size_t) tls_lmap->l_tls_offset == tls_free_end)
 						/* Extend the contiguous chunk being reclaimed. */
 						tls_free_end -= tls_lmap->l_tls_blocksize;

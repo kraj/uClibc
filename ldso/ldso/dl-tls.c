@@ -145,7 +145,7 @@ fail:
 		- map->l_tls_firstbyte_offset);
 
 	map->l_tls_offset = _dl_tls_static_used = offset;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
 	size_t used;
 	size_t check;
 
@@ -193,7 +193,7 @@ _dl_nothread_init_static_tls (struct link_map *map)
 {
 # ifdef TLS_TCB_AT_TP
 	void *dest = (char *) THREAD_SELF - map->l_tls_offset;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
 	void *dest = (char *) THREAD_SELF + map->l_tls_offset + TLS_PRE_TCB_SIZE;
 # else
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
@@ -375,7 +375,7 @@ _dl_determine_tlsoffset (void)
   _dl_tls_static_used = offset;
   _dl_tls_static_size = (roundup_pow2 (offset + TLS_STATIC_SURPLUS, max_align)
 			    + TLS_TCB_SIZE);
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
   /* The TLS blocks start right after the TCB.  */
   size_t offset = TLS_TCB_SIZE;
   size_t cnt;
@@ -505,7 +505,7 @@ _dl_allocate_tls_storage (void)
   void *result;
   size_t size = _dl_tls_static_size;
 
-# if TLS_DTV_AT_TP
+# if defined(TLS_DTV_AT_TP)
   /* Memory layout is:
      [ TLS_PRE_TCB_SIZE ] [ TLS_TCB_SIZE ] [ TLS blocks ]
 			  ^ This should be returned.  */
@@ -527,7 +527,7 @@ _dl_allocate_tls_storage (void)
       /* Clear the TCB data structure.  We can't ask the caller (i.e.
 	 libpthread) to do it, because we will initialize the DTV et al.  */
       _dl_memset (result, '\0', TLS_TCB_SIZE);
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
       result = (char *) result + size - _dl_tls_static_size;
 
       /* Clear the TCB data structure and TLS_PRE_TCB_SIZE bytes before it.
@@ -598,7 +598,7 @@ _dl_allocate_tls_init (void *result)
 # ifdef TLS_TCB_AT_TP
 	  _dl_assert ((size_t) map->l_tls_offset >= map->l_tls_blocksize);
 	  dest = (char *) result - map->l_tls_offset;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
 	  dest = (char *) result + map->l_tls_offset;
 # else
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
@@ -658,7 +658,7 @@ _dl_deallocate_tls (void *tcb, bool dealloc_tcb)
 # ifdef TLS_TCB_AT_TP
       /* The TCB follows the TLS blocks.  Back up to free the whole block.  */
       tcb -= _dl_tls_static_size - TLS_TCB_SIZE;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
       /* Back up the TLS_PRE_TCB_SIZE bytes.  */
       tcb -= (TLS_PRE_TCB_SIZE + _dl_tls_static_align - 1)
 	     & ~(_dl_tls_static_align - 1);

@@ -106,7 +106,7 @@ struct pthread
 {
   union
   {
-#if !TLS_DTV_AT_TP
+#if !defined(TLS_DTV_AT_TP)
     /* This overlaps the TCB as used for TLS without threads (see tls.h).  */
     tcbhead_t header;
 #else

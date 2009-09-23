@@ -85,7 +85,7 @@ do_test (void)
 
   if (cnt > 1)
     {
-#if TLS_TCB_AT_TP
+#if defined(TLS_TCB_AT_TP)
       if (tls_registry[cnt - 1].name)
 	{
 	  puts ("pthread_self () not larger than all TLS addresses");
@@ -93,7 +93,7 @@ do_test (void)
 	}
       else
 	max_addr = MAX (tls_registry[cnt - 1].addr, max_addr);
-#elif TLS_DTV_AT_TP
+#elif defined(TLS_DTV_AT_TP)
       if (tls_registry[0].name)
 	{
 	  puts ("pthread_self () not smaller than all TLS addresses");
