@@ -66,7 +66,7 @@ encrypt_r, since these are not required by SuSv3.
 
 12) uClibc directly uses kernel types to define most opaque data types.
 
-13) uClibc directly uses the linux kernel's arch specific 'stuct stat'.
+13) uClibc directly uses the linux kernel's arch specific 'struct stat'.
 
 14) uClibc's librt library currently lacks all aio routines, all clock
     routines, and all shm routines (only the timer routines and the mq
