@@ -19,6 +19,7 @@
 
 #include <sysdep.h>
 #include <pthread-errnos.h>
+#include <tls.h>
 
 #ifndef UP
 # define LOCK lock
@@ -80,7 +81,7 @@ __new_sem_post:
 	popl	%ebx
 	ret
 	.size	__new_sem_post,.-__new_sem_post
-	versioned_symbol(libpthread, __new_sem_post, sem_post, GLIBC_2_1)
+weak_alias(__new_sem_post, sem_post)
 
 
 #ifdef PIC

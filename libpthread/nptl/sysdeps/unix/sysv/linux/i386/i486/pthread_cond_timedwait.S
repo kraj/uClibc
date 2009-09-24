@@ -368,8 +368,7 @@ __pthread_cond_timedwait:
 	jmp	21b
 #endif
 	.size	__pthread_cond_timedwait, .-__pthread_cond_timedwait
-versioned_symbol (libpthread, __pthread_cond_timedwait, pthread_cond_timedwait,
-		  GLIBC_2_3_2)
+weak_alias(__pthread_cond_timedwait, pthread_cond_timedwait)
 
 
 	.type	__condvar_tw_cleanup2, @function

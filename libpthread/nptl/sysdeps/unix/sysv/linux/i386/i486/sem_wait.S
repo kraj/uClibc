@@ -20,6 +20,7 @@
 #include <sysdep.h>
 #include <pthread-errnos.h>
 #include <tcb-offsets.h>
+#include <tls.h>
 
 #ifndef UP
 # define LOCK lock
@@ -130,4 +131,4 @@ __new_sem_wait:
 	jmp	HIDDEN_JUMPTARGET (__pthread_unwind)
 	cfi_endproc
 	.size	__new_sem_wait,.-__new_sem_wait
-	versioned_symbol(libpthread, __new_sem_wait, sem_wait, GLIBC_2_1)
+weak_alias(__new_sem_wait, sem_wait)

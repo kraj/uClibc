@@ -19,6 +19,7 @@
 
 #include <sysdep.h>
 #include <pthread-errnos.h>
+#include <tls.h>
 
 #ifndef UP
 # define LOCK lock
@@ -69,7 +70,7 @@ __new_sem_trywait:
 	orl	$-1, %eax
 	ret
 	.size	__new_sem_trywait,.-__new_sem_trywait
-	versioned_symbol(libpthread, __new_sem_trywait, sem_trywait, GLIBC_2_1)
+weak_alias(__new_sem_trywait, sem_trywait)
 
 
 #ifdef PIC

@@ -260,8 +260,7 @@ __pthread_cond_wait:
 	movl	%esi, %eax
 	jmp	14b
 	.size	__pthread_cond_wait, .-__pthread_cond_wait
-versioned_symbol (libpthread, __pthread_cond_wait, pthread_cond_wait,
-		  GLIBC_2_3_2)
+weak_alias(__pthread_cond_wait, pthread_cond_wait)
 
 
 	.type	__condvar_w_cleanup2, @function

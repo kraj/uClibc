@@ -158,5 +158,4 @@ __pthread_cond_broadcast:
 	ENTER_KERNEL
 	jmp	10b
 	.size	__pthread_cond_broadcast, .-__pthread_cond_broadcast
-versioned_symbol (libpthread, __pthread_cond_broadcast, pthread_cond_broadcast,
-		  GLIBC_2_3_2)
+weak_alias(__pthread_cond_broadcast, pthread_cond_broadcast)

@@ -107,7 +107,7 @@
 # define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
 #else
 
-# if RTLD_PRIVATE_ERRNO
+# ifdef RTLD_PRIVATE_ERRNO
 #  define SYSCALL_ERROR_HANDLER						      \
 0:SETUP_PIC_REG(cx);							      \
   addl $_GLOBAL_OFFSET_TABLE_, %ecx;					      \
