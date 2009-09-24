@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <netdb.h>
 
-#ifndef __UCLIBC_HAS_THREADS_NATIVE__
+#ifndef __UCLIBC_HAS_TLS__
 
 #undef errno
 #undef h_errno
