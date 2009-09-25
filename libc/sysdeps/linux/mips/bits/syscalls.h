@@ -328,7 +328,7 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 })
 
 #define __SYSCALL_CLOBBERS "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13", \
-	"$14", "$15", "$24", "$25", "memory"
+	"$14", "$15", "$24", "$25", "hi", "lo", "memory"
 
 #else /* N32 || N64 */
 
@@ -385,7 +385,7 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 })
 
 #define __SYSCALL_CLOBBERS "$1", "$3", "$10", "$11", "$12", "$13", \
-	"$14", "$15", "$24", "$25", "memory"
+	"$14", "$15", "$24", "$25", "hi", "lo", "memory"
 
 #endif
 
