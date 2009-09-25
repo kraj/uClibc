@@ -5,6 +5,10 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libpthread/nptl/sysdeps/$(TARGET_ARCH)
+subdirs += libpthread/nptl/sysdeps/unix/sysv/linux
+subdirs += libpthread/nptl/sysdeps/pthread
+
 libpthread-routines = init vars events version \
 		      pthread_create pthread_exit pthread_detach \
 		      pthread_join pthread_tryjoin pthread_timedjoin \
@@ -299,26 +303,30 @@ $(PTHREAD_OUT)/pthread-errnos.h: $(PTHREAD_OUT)/pthread-errnos.s
 
 headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(nptl_headers_bootstrap)
 
-include/pthread.h:
+$(top_builddir)include/pthread.h:
 	$(do_ln) ../$(PTDIR)/sysdeps/pthread/$(@F) $(top_builddir)$@
-include/semaphore.h:
+$(top_builddir)include/semaphore.h:
 	$(do_ln) ../$(PTDIR)/$(@F) $(top_builddir)$@
-include/bits/semaphore.h: | include/bits
+$(top_builddir)include/bits/semaphore.h: | include/bits
 	$(do_ln) ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/$(@F) $(top_builddir)$@
-include/bits/pthreadtypes.h: | include/bits
+$(top_builddir)include/bits/pthreadtypes.h: | include/bits
 	$(do_ln) ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/$(@F) $(top_builddir)$@
-include/bits/libc-lock.h: | include/bits
+$(top_builddir)include/bits/libc-lock.h: | include/bits
 	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
-include/bits/stdio-lock.h: | include/bits
+$(top_builddir)include/bits/stdio-lock.h: | include/bits
 	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
 
-nptl_headers_bootstrap:= include/pthread.h include/semaphore.h include/bits/semaphore.h include/bits/pthreadtypes.h \
-						include/bits/libc-lock.h include/bits/stdio-lock.h
+nptl_headers_bootstrap:= $(top_builddir)include/pthread.h \
+					     $(top_builddir)include/semaphore.h \
+						 $(top_builddir)include/bits/semaphore.h \
+						 $(top_builddir)include/bits/pthreadtypes.h \
+						 $(top_builddir)include/bits/libc-lock.h \
+						 $(top_builddir)include/bits/stdio-lock.h
 
 nptl_headers: $(PTHREAD_OUT)/pthread-errnos.h
 
 nptl_headers_clean:
-	$(do_rm) $(addprefix $(top_builddir),$(nptl_headers_bootstrap)) \
+	$(do_rm) $(nptl_headers_bootstrap) \
 	      $(addprefix $(PTHREAD_OUT)/pthread-errnos., c h s)
 
 libpthread_clean:

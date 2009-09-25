@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libpthread/nptl/nptl_db
+
 # Get the thread include dependencies and shared object name
 CFLAGS-nptl_db := -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 CFLAGS-nptl_db += -I$(top_srcdir)libpthread/nptl -D_GNU_SOURCE
@@ -57,13 +59,13 @@ $(top_builddir)lib/libthread_db.a: $(libthread_db-a-y)
 	$(do_strip)
 	$(do_ar)
 
-include/thread_db.h:
-	$(do_ln) ../$(PTDIR)_db/$(@F) $(top_builddir)$@
+$(top_builddir)include/thread_db.h:
+	$(do_ln) $(call rel_srcdir)$(PTDIR)_db/$(@F) $@
 
-nptl_db_headers:= include/thread_db.h
+nptl_db_headers:= $(top_builddir)include/thread_db.h
 
 nptl_db_headers_clean:
-	$(do_rm) $(addprefix $(top_builddir),$(nptl_db_headers))
+	$(do_rm) $(nptl_db_headers)
 
 libthread_db_clean:
 	$(do_rm) $(addprefix $(libthread_db_OUT)/*., o oS a)
