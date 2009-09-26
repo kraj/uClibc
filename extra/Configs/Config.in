@@ -403,7 +403,7 @@ config UCLIBC_HAS_THREADS
 
 config UCLIBC_HAS_TLS
 	bool "Thread-Local Storage"
-	depends on UCLIBC_HAS_THREADS && !LINUXTHREADS_OLD
+	depends on UCLIBC_HAS_THREADS_NATIVE
 	default n
 	help
 	  If you want to enable TLS support then answer Y.
