@@ -247,7 +247,7 @@ _dl_dprintf(2, "TLS_TPREL  : %s, %x, %x\n", (strtab + symtab[symtab_index].st_na
 				break;
 			}
 #endif /* USE_TLS */
-#if _MIPS_SIM == _MIS_SIM_ABI64
+#if _MIPS_SIM == _MIPS_SIM_ABI64
 		case (R_MIPS_64 << 8) | R_MIPS_REL32:
 #else	/* O32 || N32 */
 		case R_MIPS_REL32:

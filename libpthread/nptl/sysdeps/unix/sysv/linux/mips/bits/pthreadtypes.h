@@ -20,6 +20,8 @@
 #ifndef _BITS_PTHREADTYPES_H
 #define _BITS_PTHREADTYPES_H	1
 
+#include <sgidefs.h>
+
 #if _MIPS_SIM == _ABI64
 # define __SIZEOF_PTHREAD_ATTR_T 56
 # define __SIZEOF_PTHREAD_MUTEX_T 40
