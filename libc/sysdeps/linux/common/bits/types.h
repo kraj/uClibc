@@ -130,7 +130,7 @@ typedef struct
 /* No need to mark the typedef with __extension__.   */
 # define __STD_TYPE		typedef
 #else
-# error
+# error your machine is neither 32 bit or 64 bit ... it must be magical
 #endif
 #include <bits/typesizes.h>	/* Defines __*_T_TYPE macros.  */
 
