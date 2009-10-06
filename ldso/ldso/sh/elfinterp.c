@@ -70,7 +70,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	/* Get the address of the GOT entry */
 	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
-	
+
 	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
@@ -178,11 +178,13 @@ struct elf_resolve *tls_tpnt = NULL;
 		 * here, so all bases should be covered.
 		 */
 
-		if (!symbol_addr && (ELF_ST_TYPE(symtab[symtab_index].st_info) != STT_TLS) &&(ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
+		if (!symbol_addr
+			&& (ELF_ST_TYPE(symtab[symtab_index].st_info) != STT_TLS)
+			&& (ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 			            _dl_progname, strtab + symtab[symtab_index].st_name);
 
-			/* Let the caller to handle the error: it may be non fatal if called from dlopen */				
+			/* Let the caller to handle the error: it may be non fatal if called from dlopen */
 			return 1;
 		}
 	}
@@ -192,9 +194,9 @@ struct elf_resolve *tls_tpnt = NULL;
 #endif
 
 #if USE_TLS
-	/* In case of a TLS reloc, tls_tpnt NULL means we have an 'anonymous' symbol.
-	   This is the casa of a static tls variable, so the lookup module is just
-	   that one is referencing the tls variable. */	   
+	/* In case of a TLS reloc, tls_tpnt NULL means we have an 'anonymous'
+	   symbol.  This is the case for a static tls variable, so the lookup
+	   module is just that one is referencing the tls variable. */
 	if(!tls_tpnt)
 		tls_tpnt = tpnt;
 #endif
@@ -228,16 +230,14 @@ struct elf_resolve *tls_tpnt = NULL;
 		case R_SH_TLS_DTPMOD32:
 			*reloc_addr = tls_tpnt->l_tls_modid;
 			break;
-
 		case R_SH_TLS_DTPOFF32:
 			*reloc_addr = symbol_addr;
 			break;
-			
 		case R_SH_TLS_TPOFF32:
 			CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
-			*reloc_addr = tls_tpnt->l_tls_offset + symbol_addr + rpnt->r_addend;			
+			*reloc_addr = tls_tpnt->l_tls_offset + symbol_addr + rpnt->r_addend;
 			break;
-#endif									
+#endif
 		default:
 
 			return -1;
