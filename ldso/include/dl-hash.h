@@ -131,7 +131,7 @@ struct elf_resolve {
 
 extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;
-extern struct dyn_elf 	  * _dl_handles;
+extern struct dyn_elf	  * _dl_handles;
 
 extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 	DL_LOADADDR_TYPE loadaddr, unsigned long * dynamic_info,
@@ -139,15 +139,15 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 
 #if USE_TLS || defined __FDPIC__
 #define _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
-#define _DL_LOOKUP_HASH_EXTRA_TPNT 	,struct elf_resolve **tpntp
+#define _DL_LOOKUP_HASH_EXTRA_TPNT	,struct elf_resolve **tpntp
 #else
 #undef _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
 #define _DL_LOOKUP_HASH_EXTRA_TPNT
 #endif
 
-extern char * _dl_lookup_hash(const char * name, struct dyn_elf * rpnt, 
+extern char * _dl_lookup_hash(const char * name, struct dyn_elf * rpnt,
 			    struct elf_resolve *mytpnt, int type_class _DL_LOOKUP_HASH_EXTRA_TPNT);
-				
+
 static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
 					struct elf_resolve *mytpnt, int type_class,
 					struct elf_resolve **tpntp)
