@@ -200,7 +200,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 		}
 	} else {
-        /* Relocs agfainst STN_UNDEF are usually treated as using a
+        /* Relocs against STN_UNDEF are usually treated as using a
          * symbol value of zero, and using the module containing the
          * reloc itself. */
         symbol_addr = sym->st_value;
@@ -285,7 +285,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
         case R_SPARC_TLS_TPOFF32:
             /* The offset is negative, forward from the thread pointer.
-             * We know the offset of object the symbol is contained in.
+             * We know the offset of the object the symbol is contained in.
              * It is a negative value which will be added to the
              * thread pointer.  */
             CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
