@@ -199,25 +199,21 @@ _dl_tls_symaddr(struct link_map *map, const Elf32_Addr st_value)
 }
 #endif
 
-/* Returns true we an non-empty was found.  */
+/* Returns true when a non-empty entry was found.  */
 static bool
 remove_slotinfo(size_t idx, struct dtv_slotinfo_list *listp, size_t disp,
 	 bool should_be_there)
 {
-	if(idx - disp >= listp->len)
-	{
-		if(listp->next == NULL)
-		{
+	if (idx - disp >= listp->len) {
+		if (listp->next == NULL) {
 			/*
 			 * The index is not actually valid in the slotinfo list,
 			 * because this object was closed before it was fully set
 			 * up due to some error.
 			 */
 			_dl_assert(!should_be_there);
-		}
-		else
-		{
-			if(remove_slotinfo(idx, listp->next, disp + listp->len,
+		} else {
+			if (remove_slotinfo(idx, listp->next, disp + listp->len,
 					should_be_there))
 				return true;
 
@@ -227,17 +223,14 @@ remove_slotinfo(size_t idx, struct dtv_slotinfo_list *listp, size_t disp,
 			 */
 			idx = disp + listp->len;
 		}
-	}
-	else
-	{
+	} else {
 		struct link_map *old_map = listp->slotinfo[idx - disp].map;
 
 		/*
 		 * The entry might still be in its unused state if we are
 		 * closing an object that wasn't fully set up.
 		 */
-		if(__builtin_expect(old_map != NULL, 1))
-		{
+		if (__builtin_expect(old_map != NULL, 1)) {
 			_dl_assert(old_map->l_tls_modid == idx);
 
 			/* Mark the entry as unused. */
@@ -253,12 +246,10 @@ remove_slotinfo(size_t idx, struct dtv_slotinfo_list *listp, size_t disp,
 			return true;
 	}
 
-	while(idx - disp > (disp == 0 ? 1 + _dl_tls_static_nelem : 0))
-	{
+	while (idx - disp > (disp == 0 ? 1 + _dl_tls_static_nelem : 0)) {
 		--idx;
 
-		if(listp->slotinfo[idx - disp].map != NULL)
-		{
+		if (listp->slotinfo[idx - disp].map != NULL) {
 			/* Found a new last used index.  */
 			_dl_tls_max_dtv_idx = idx;
 			return true;
@@ -538,13 +529,13 @@ void *dlopen(const char *libname, int flag)
 		if (!(tmp_tpnt->init_flag & INIT_FUNCS_CALLED)
 		/* Only if the module defines thread local data. */
 			&& __builtin_expect (tmp_tpnt->l_tls_blocksize > 0, 0)) {
-			
+
 			/* Now that we know the object is loaded successfully add
 			modules containing TLS data to the slot info table.  We
 			might have to increase its size.  */
 			_dl_add_to_slotinfo ((struct link_map*)tmp_tpnt);
-			
-			/* It is the case in which we couldn't perform TLS static 
+
+			/* It is the case in which we couldn't perform TLS static
 			   initialization at relocation time, and we delayed it until
 			   the relocation has been completed. */
 
@@ -721,7 +712,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 #if USE_TLS
 	bool any_tls = false;
 	size_t tls_free_start = NO_TLS_OFFSET;
-	size_t tls_free_end = NO_TLS_OFFSET; 
+	size_t tls_free_end = NO_TLS_OFFSET;
 	struct link_map *tls_lmap;
 #endif
 
@@ -870,7 +861,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 							tls_lmap->l_tls_blocksize;
 					}
 # else
-#  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
+#  error Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined
 # endif
 				} else {
 
@@ -883,11 +874,11 @@ static int do_dlclose(void *vhandle, int need_fini)
 						/* Note that free is called for NULL is well.  We
 						deallocate even if it is this dtv entry we are
 						supposed to load.  The reason is that we call
-						memalign and not malloc.  */		   
+						memalign and not malloc.  */
 						_dl_free (dtv[tls_lmap->l_tls_modid].pointer.val);
 						dtv[tls_lmap->l_tls_modid].pointer.val = TLS_DTV_UNALLOCATED;
 					}
-				}			
+				}
 			}
 #endif
 
