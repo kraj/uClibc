@@ -31,4 +31,5 @@ int utime(const char *file, const struct utimbuf *times)
 	return utimes(file, times ? timevals : NULL);
 }
 #endif
+link_warning(utime, "the use of OBSOLESCENT `utime' is discouraged, use `utimes'")
 libc_hidden_def(utime)

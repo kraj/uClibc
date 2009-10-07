@@ -55,6 +55,10 @@ ifneq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
 CSRC := $(filter-out posix_fadvise64.c posix_fadvise.c,$(CSRC))
 endif
 
+ifneq ($(UCLIBC_SUSV4_LEGACY),y)
+CSRC := $(filter-out utime.c,$(CSRC))
+endif
+
 ifneq ($(UCLIBC_HAS_EPOLL),y)
 CSRC := $(filter-out epoll.c,$(CSRC))
 endif
