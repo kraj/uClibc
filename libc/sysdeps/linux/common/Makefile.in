@@ -73,7 +73,7 @@ endif
 
 # fails for some reason
 ifneq ($(strip $(ARCH_OBJS)),)
-CSRC := $(filter-out $(notdir $(ARCH_OBJS:.o=.c)),$(CSRC))
+CSRC := $(filter-out $(notdir $(ARCH_OBJS:.o=.c)) $(ARCH_OBJ_FILTEROUT),$(CSRC))
 endif
 
 CFLAGS-ssp.c := $(SSP_DISABLE_FLAGS)
