@@ -81,9 +81,6 @@ DIR *opendir(const char *name)
 	}
 # define O_DIRECTORY 0
 #endif
-#ifndef O_CLOEXEC
-# define O_CLOEXEC 0
-#endif
 	fd = open(name, O_RDONLY|O_NDELAY|O_DIRECTORY|O_CLOEXEC);
 	if (fd < 0)
 		return NULL;
@@ -104,8 +101,9 @@ DIR *opendir(const char *name)
 	/* According to POSIX, directory streams should be closed when
 	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
 	 */
-	if (O_CLOEXEC == 0)
-		fcntl(fd, F_SETFD, FD_CLOEXEC);
+#ifndef __ASSUME_O_CLOEXEC
+	fcntl(fd, F_SETFD, FD_CLOEXEC);
+#endif
 
 	ptr = fd_to_DIR(fd, statbuf.st_blksize);
 	if (!ptr) {

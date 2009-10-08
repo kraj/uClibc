@@ -34,9 +34,6 @@ static const char *static_ut_name = default_file_name;
 static void __setutent(void)
 {
     if (static_fd < 0) {
-#ifndef O_CLOEXEC
-# define O_CLOEXEC 0
-#endif
 	static_fd = open(static_ut_name, O_RDWR | O_CLOEXEC);
 	if (static_fd < 0) {
 	    static_fd = open(static_ut_name, O_RDONLY | O_CLOEXEC);
@@ -44,20 +41,10 @@ static void __setutent(void)
 		return; /* static_fd remains < 0 */
 	    }
 	}
-	if (O_CLOEXEC == 0) {
-	    /* Make sure the file will be closed on exec()  */
-	    fcntl(static_fd, F_SETFD, FD_CLOEXEC);
-	    /* thus far, {G,S}ETFD only has this single flag,
-	     * and setting it never fails.
-	     *int ret = fcntl(static_fd, F_GETFD, 0);
-	     *if (ret >= 0) {
-	     *    ret = fcntl(static_fd, F_SETFD, ret | FD_CLOEXEC);
-	     *}
-	     *if (ret < 0) {
-	     *    static_fd = -1;
-	     *}
-             */
-	}
+#ifndef __ASSUME_O_CLOEXEC
+	/* Make sure the file will be closed on exec()  */
+	fcntl(static_fd, F_SETFD, FD_CLOEXEC);
+#endif
 	return;
     }
     lseek(static_fd, 0, SEEK_SET);
