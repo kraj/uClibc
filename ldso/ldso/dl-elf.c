@@ -45,14 +45,14 @@ int _dl_map_cache(void)
 	libentry_t *libent;
 	int i, strtabsize;
 
-	if (_dl_cache_addr == (caddr_t) - 1)
+	if (_dl_cache_addr == MAP_FAILED)
 		return -1;
 	else if (_dl_cache_addr != NULL)
 		return 0;
 
 	if (_dl_stat(LDSO_CACHE, &st)
 	    || (fd = _dl_open(LDSO_CACHE, O_RDONLY, 0)) < 0) {
-		_dl_cache_addr = (caddr_t) - 1;	/* so we won't try again */
+		_dl_cache_addr = MAP_FAILED;	/* so we won't try again */
 		return -1;
 	}
 
@@ -96,13 +96,13 @@ int _dl_map_cache(void)
 
 fail:
 	_dl_munmap(_dl_cache_addr, _dl_cache_size);
-	_dl_cache_addr = (caddr_t) - 1;
+	_dl_cache_addr = MAP_FAILED;
 	return -1;
 }
 
 int _dl_unmap_cache(void)
 {
-	if (_dl_cache_addr == NULL || _dl_cache_addr == (caddr_t) - 1)
+	if (_dl_cache_addr == NULL || _dl_cache_addr == MAP_FAILED)
 		return -1;
 
 #if 1
@@ -264,7 +264,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	 * the hard coded paths that follow (i.e before /lib and /usr/lib).
 	 */
 #ifdef __LDSO_CACHE_SUPPORT__
-	if (_dl_cache_addr != NULL && _dl_cache_addr != (caddr_t) - 1) {
+	if (_dl_cache_addr != NULL && _dl_cache_addr != MAP_FAILED) {
 		int i;
 		header_t *header = (header_t *) _dl_cache_addr;
 		libentry_t *libent = (libentry_t *) & header[1];
