@@ -27,6 +27,8 @@
 /* Pull in compiler and arch stuff */
 #include <stdlib.h>
 #include <stdarg.h>
+#define _FCNTL_H
+#include <bits/fcntl.h>
 #include <bits/wordsize.h>
 /* Pull in the arch specific type information */
 #include <sys/types.h>
