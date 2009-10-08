@@ -50,9 +50,7 @@
 # define O_DIRECTORY	 040000	/* Must be a directory.	 */
 # define O_NOFOLLOW	0100000	/* Do not follow links.	 */
 # define O_NOATIME	01000000 /* Do not set atime.  */
-# if 0
 # define O_CLOEXEC	02000000 /* Set close_on_exec.  */
-# endif
 #endif
 
 #ifdef __USE_LARGEFILE64

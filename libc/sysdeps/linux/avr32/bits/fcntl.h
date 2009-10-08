@@ -30,6 +30,7 @@
 # define O_DIRECTORY	00200000	/* direct disk access */
 # define O_NOFOLLOW	00400000	/* don't follow links */
 # define O_NOATIME	01000000	/* don't set atime */
+# define O_CLOEXEC	02000000	/* set close_on_exec */
 #endif
 
 #ifdef __USE_LARGEFILE64

@@ -45,6 +45,8 @@
 # define O_DIRECT	 040000	/* Direct disk access.  */
 # define O_DIRECTORY	0200000	/* Must be a directory.  */
 # define O_NOFOLLOW	0400000	/* Do not follow links.  */
+# define O_NOATIME	01000000 /* Do not set atime.  */
+# define O_CLOEXEC	02000000 /* set close_on_exec */
 #endif
 
 /* For now Linux has synchronisity options for data and read operations.

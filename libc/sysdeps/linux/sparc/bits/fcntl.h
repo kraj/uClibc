@@ -49,9 +49,7 @@
 # define O_NOFOLLOW	0x20000 /* don't follow links */
 # define O_DIRECT	0x100000 /* direct disk access hint */
 # define O_NOATIME	0x200000 /* Do not set atime.  */
-# if 0
 # define O_CLOEXEC	0x400000 /* Set close_on_exit.  */
-# endif
 #endif
 
 #ifdef __USE_LARGEFILE64

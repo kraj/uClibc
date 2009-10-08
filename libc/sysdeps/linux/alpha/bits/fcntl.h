@@ -50,9 +50,7 @@
 # define O_NOFOLLOW	0200000	/* Do not follow links.  */
 # define O_DIRECT	02000000 /* Direct disk access.  */
 # define O_NOATIME	04000000 /* Do not set atime.  */
-# if 0
 # define O_CLOEXEC      010000000 /* Set close_on_exec.  */
-# endif
 #endif
 
 #ifdef __USE_LARGEFILE64
