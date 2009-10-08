@@ -75,7 +75,7 @@ lckpwdf (void)
   /* Prevent problems caused by multiple threads.  */
   __UCLIBC_MUTEX_LOCK(mylock);
 
-  lock_fd = open (_PATH_PASSWD, O_WRONLY);
+  lock_fd = open (_PATH_PASSWD, O_WRONLY | O_CLOEXEC);
   if (lock_fd == -1) {
     /* Cannot create lock file.  */
 	goto DONE;
@@ -96,6 +96,12 @@ lckpwdf (void)
     lock_fd = -1;
 	goto DONE;
   }
+
+#ifndef __ASSUME_O_CLOEXEC
+    /* Make sure file gets correctly closed when process finished.  */
+   fcntl (lock_fd, F_SETFD, FD_CLOEXEC);
+#endif
+
 
   /* Now we have to get exclusive write access.  Since multiple
      process could try this we won't stop when it first fails.
