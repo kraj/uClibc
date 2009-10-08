@@ -69,12 +69,15 @@ BUILD_CFLAGS = -Os -Wall
 # mortals.  Unless you hang out with the gods, you should
 # probably leave all this stuff alone.
 
+# strip quotes
+qstrip = $(strip $(subst ",,$(1)))
+#"))
 
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 -include $(top_builddir).config
 endif
-TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
+TARGET_ARCH:=$(call qstrip,$(TARGET_ARCH))
 ifeq ($(TARGET_ARCH),)
 ARCH ?= $(shell uname -m | $(SED) -e s/i.86/i386/ \
 				  -e s/sun.*/sparc/ -e s/sparc.*/sparc/ \
@@ -89,11 +92,11 @@ endif
 export ARCH
 
 # Make certain these contain a final "/", but no "//"s.
-TARGET_SUBARCH:=$(shell grep -s '^TARGET_SUBARCH' $(top_builddir)/.config | $(SED) -e 's/^TARGET_SUBARCH=//' -e 's/"//g')
-TARGET_SUBARCH:=$(strip $(subst ",, $(strip $(TARGET_SUBARCH))))
-RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
-DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
-KERNEL_HEADERS:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_HEADERS))))))
+TARGET_SUBARCH:=$(call qstrip,$(shell grep -s '^TARGET_SUBARCH' $(top_builddir)/.config | $(SED) -e 's/^TARGET_SUBARCH=//'))
+TARGET_SUBARCH:=$(call qstrip,$(TARGET_SUBARCH))
+RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(call qstrup,$(RUNTIME_PREFIX)))))
+DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(DEVEL_PREFIX)))))
+KERNEL_HEADERS:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(KERNEL_HEADERS)))))
 export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS
 
 
@@ -147,7 +150,7 @@ comma:=,
 space:= #
 
 ifndef CROSS
-CROSS=$(strip $(subst ",, $(CROSS_COMPILER_PREFIX)))
+CROSS=$(call qstrip,$(CROSS_COMPILER_PREFIX))
 endif
 
 # A nifty macro to make testing gcc features easier
@@ -506,7 +509,7 @@ export ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && ec
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
-XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -fno-strict-aliasing
+XWARNINGS=$(call qstrip,$(WARNINGS)) -Wstrict-prototypes -fno-strict-aliasing
 ifeq ($(EXTRA_WARNINGS),y)
 XWARNINGS+=-Wnested-externs -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wformat=2
 XWARNINGS+=-Wmissing-prototypes -Wmissing-declarations
@@ -516,8 +519,8 @@ XWARNINGS+=-Wnonnull -Wundef
 endif
 # Seems to be unused (no ARCH_CFLAGS anywhere), delete?
 # if yes, remove after 0.9.31
-XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
-CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
+XARCH_CFLAGS=$(call qstrip,$(ARCH_CFLAGS))
+CPU_CFLAGS=$(call qstrip,$(CPU_CFLAGS-y))
 
 SSP_DISABLE_FLAGS ?= $(call check_gcc,-fno-stack-protector,)
 ifeq ($(UCLIBC_BUILD_SSP),y)
@@ -536,7 +539,7 @@ CFLAGS := -include $(top_srcdir)include/libc-symbols.h \
 	-nostdinc -I$(top_builddir)include -I$(top_srcdir)include -I. \
 	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
 ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
-CFLAGS += $(subst ",, $(UCLIBC_EXTRA_CFLAGS))
+CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
 endif
 
 # We need this to be checked within libc-symbols.h
@@ -562,7 +565,7 @@ ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
 LDFLAGS_GNUHASH:=$(call check_ld,--hash-style=gnu)
 ifeq ($(LDFLAGS_GNUHASH),)
 ifneq ($(filter-out install_headers headers-y,$(MAKECMDGOALS)),)
-$(error Your binutils don't support --hash-style option, while you want to use it)
+$(error Your binutils do not support --hash-style option, while you want to use it)
 endif
 else
 LDFLAGS_NOSTRIP += -Wl,$(LDFLAGS_GNUHASH)
@@ -597,7 +600,7 @@ DOMULTI:=n
 endif
 
 ifneq ($(strip $(UCLIBC_EXTRA_LDFLAGS)),"")
-LDFLAGS += $(subst ",, $(UCLIBC_EXTRA_LDFLAGS))
+LDFLAGS += $(call qstrip,$(UCLIBC_EXTRA_LDFLAGS))
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS),y)
