@@ -18,14 +18,11 @@ libcrypt_FULL_NAME := libcrypt-$(VERSION).so
 libcrypt_DIR := $(top_srcdir)libcrypt
 libcrypt_OUT := $(top_builddir)libcrypt
 
-ifeq ($(UCLIBC_HAS_CRYPT_IMPL),y)
-CSRC := crypt.c des.c md5.c
-endif
-ifeq ($(UCLIBC_HAS_CRYPT_STUB),y)
-CSRC := crypt_stub.c
-endif
+libcrypt_SRC-y :=
+libcrypt_SRC-$(UCLIBC_HAS_CRYPT_IMPL) += crypt.c des.c md5.c
+libcrypt_SRC-$(UCLIBC_HAS_CRYPT_STUB) += crypt_stub.c
 
-libcrypt_SRC := $(addprefix $(libcrypt_DIR)/,$(CSRC))
+libcrypt_SRC := $(addprefix $(libcrypt_DIR)/,$(libcrypt_SRC-y))
 libcrypt_OBJ := $(patsubst $(libcrypt_DIR)/%.c,$(libcrypt_OUT)/%.o,$(libcrypt_SRC))
 
 ifeq ($(DOPIC),y)
@@ -35,10 +32,8 @@ libcrypt-a-y := $(libcrypt_OBJ)
 endif
 libcrypt-so-y := $(libcrypt_OBJ:.o=.os)
 
-ifeq ($(UCLIBC_HAS_CRYPT),y)
-lib-a-y += $(top_builddir)lib/libcrypt.a
-lib-so-y += $(top_builddir)lib/libcrypt.so
-endif
+lib-a-$(UCLIBC_HAS_CRYPT)  += $(top_builddir)lib/libcrypt.a
+lib-so-$(UCLIBC_HAS_CRYPT) += $(top_builddir)lib/libcrypt.so
 objclean-y += libcrypt_clean
 
 ifeq ($(DOMULTI),n)

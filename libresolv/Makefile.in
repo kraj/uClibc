@@ -28,10 +28,8 @@ libresolv-a-y := $(libresolv_OBJ)
 endif
 libresolv-so-y := $(libresolv_OBJ:.o=.os)
 
-ifeq ($(UCLIBC_HAS_RESOLV_STUB),y)
-lib-a-y += $(top_builddir)lib/libresolv.a
-lib-so-y += $(top_builddir)lib/libresolv.so
-endif
+lib-a-$(UCLIBC_HAS_RESOLV_STUB)  += $(top_builddir)lib/libresolv.a
+lib-so-$(UCLIBC_HAS_RESOLV_STUB) += $(top_builddir)lib/libresolv.so
 objclean-y += libresolv_clean
 
 ifeq ($(DOPIC),y)
