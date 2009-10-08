@@ -51,7 +51,7 @@ int _dl_map_cache(void)
 		return 0;
 
 	if (_dl_stat(LDSO_CACHE, &st)
-	    || (fd = _dl_open(LDSO_CACHE, O_RDONLY, 0)) < 0) {
+	    || (fd = _dl_open(LDSO_CACHE, O_RDONLY|O_CLOEXEC, 0)) < 0) {
 		_dl_cache_addr = MAP_FAILED;	/* so we won't try again */
 		return -1;
 	}
