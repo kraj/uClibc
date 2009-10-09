@@ -282,7 +282,7 @@ endif
 	# Idx Name          Size      VMA       LMA       File off  Algn
 	#   0 .text         xxxxxxxx  00000000  00000000  xxxxxxxx  2**2 <===!
 	CPU_CFLAGS-y  += $(call check_gcc,-ffunction-sections -fdata-sections,)
-ifneq ($(call check_ld,--sort-common,),)
+ifneq ($(call check_ld,--sort-common),)
 	CPU_LDFLAGS-y += -Wl,--sort-common
 endif
 ifneq ($(call check_ld,--sort-section alignment),)
@@ -547,8 +547,11 @@ ifneq ($(HAVE_SHARED),y)
 CFLAGS += -DSTATIC
 endif
 
+LDFLAG_WARN_ONCE:=$(if $(call check_ld,--warn-once),-Wl$(comma)--warn-once)
+LDFLAG_SORT_COMMON:=$(if $(call check_ld,--sort-common),-Wl$(comma)--sort-common)
+LDFLAG_DISCARD_ALL:=$(if $(call check_ld,--discard-all),-Wl$(comma)--discard-all)
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared \
-	-Wl,--warn-common -Wl,--warn-once -Wl,-z,combreloc
+	-Wl,--warn-common $(LDFLAG_WARN_ONCE) -Wl,-z,combreloc
 # binutils-2.16.1 warns about ignored sections, 2.16.91.0.3 and newer are ok
 #LDFLAGS_NOSTRIP+=$(call check_ld,--gc-sections)
 

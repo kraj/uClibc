@@ -35,7 +35,7 @@ LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS)
 else
 LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
 endif
-LDFLAGS-$(UCLIBC_LDSO_NAME).so += -Wl,-e,_start -Wl,-z,now -Wl,-Bsymbolic -Wl,--export-dynamic -Wl,--sort-common -Wl,--discard-locals -Wl,--discard-all -Wl,--no-undefined
+LDFLAGS-$(UCLIBC_LDSO_NAME).so += -Wl,-e,_start -Wl,-z,now -Wl,-Bsymbolic -Wl,--export-dynamic $(LDFLAG_SORT_COMMON) -Wl,--discard-locals $(LDFLAG_DISCARD_ALL) -Wl,--no-undefined
 
 ldso_FULL_NAME := $(UCLIBC_LDSO_NAME)-$(VERSION).so
 
