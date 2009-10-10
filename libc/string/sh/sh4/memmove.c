@@ -9,37 +9,6 @@
 
 #include <string.h>
 
-static void fpu_optimised_copy_fwd(void *dest, const void *src, size_t len);
-
-void *memmove(void *dest, const void *src, size_t len)
-{
-	unsigned long int d = (long int)dest;
-	unsigned long int s = (long int)src;
-	unsigned long int res;
-
-	if (d >= s)
-		res = d - s;
-	else
-		res = s - d;
-	/*
-	 * 1) dest and src are not overlap  ==> memcpy (BWD/FDW)
-	 * 2) dest and src are 100% overlap ==> memcpy (BWD/FDW)
-	 * 3) left-to-right overlap ==>  Copy from the beginning to the end
-	 * 4) right-to-left overlap ==>  Copy from the end to the beginning
-	 */
-
-	if (res == 0)		/* 100% overlap */
-		memcpy(dest, src, len);	/* No overlap */
-	else if (res >= len)
-		memcpy(dest, src, len);
-	else {
-		if (d > s)	/* right-to-left overlap */
-			memcpy(dest, src, len);	/* memcpy is BWD */
-		else		/* cannot use SH4 memcpy for this case */
-			fpu_optimised_copy_fwd(dest, src, len);
-	}
-	return (dest);
-}
 
 #define FPSCR_SR	(1 << 20)
 #define STORE_FPSCR(x)	__asm__ volatile("sts fpscr, %0" : "=r"(x))
@@ -101,7 +70,6 @@ static void fpu_optimised_copy_fwd(void *dest, const void *src, size_t len)
 				d1 += 2;
 				len -= 32;
 			}
-
 			LOAD_FPSCR(fpscr);
 		}
 		s = (char *)s1;
@@ -114,6 +82,36 @@ static void fpu_optimised_copy_fwd(void *dest, const void *src, size_t len)
 		len--;
 	}
 	return;
+}
+
+void *memmove(void *dest, const void *src, size_t len)
+{
+	unsigned long int d = (long int)dest;
+	unsigned long int s = (long int)src;
+	unsigned long int res;
+
+	if (d >= s)
+		res = d - s;
+	else
+		res = s - d;
+	/*
+	 * 1) dest and src are not overlap  ==> memcpy (BWD/FDW)
+	 * 2) dest and src are 100% overlap ==> memcpy (BWD/FDW)
+	 * 3) left-to-right overlap ==>  Copy from the beginning to the end
+	 * 4) right-to-left overlap ==>  Copy from the end to the beginning
+	 */
+
+	if (res == 0)		/* 100% overlap */
+		memcpy(dest, src, len);	/* No overlap */
+	else if (res >= len)
+		memcpy(dest, src, len);
+	else {
+		if (d > s)	/* right-to-left overlap */
+			memcpy(dest, src, len);	/* memcpy is BWD */
+		else		/* cannot use SH4 memcpy for this case */
+			fpu_optimised_copy_fwd(dest, src, len);
+	}
+	return (dest);
 }
 
 libc_hidden_def(memmove)
