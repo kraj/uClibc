@@ -20,20 +20,12 @@ Wchar *Wstpncpy(register Wchar * __restrict s1,
 	Wchar *s = s1;
 	const Wchar *p = s2;
 
-#ifdef __BCC__
-	while (n--) {
-		if ((*s = *s2) != 0) s2++; /* Need to fill tail with 0s. */
-		++s;
-	}
-	return s1 + (s2 - p);
-#else
 	while (n) {
 		if ((*s = *s2) != 0) s2++; /* Need to fill tail with 0s. */
 		++s;
 		--n;
 	}
 	return s1 + (s2 - p);
-#endif
 }
 
 #ifndef WANT_WIDE

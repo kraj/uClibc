@@ -17,23 +17,16 @@
 Wvoid *Wmemchr(const Wvoid *s, Wint c, size_t n)
 {
 	register const Wuchar *r = (const Wuchar *) s;
-#ifdef __BCC__
-	/* bcc can optimize the counter if it thinks it is a pointer... */
-	register const char *np = (const char *) n;
-#else
-# define np n
-#endif
 
-	while (np) {
+	while (n) {
 		if (*r == ((Wuchar)c)) {
 			return (Wvoid *) r;	/* silence the warning */
 		}
 		++r;
-		--np;
+		--n;
 	}
 
 	return NULL;
 }
-#undef np
 
 libc_hidden_def(Wmemchr)

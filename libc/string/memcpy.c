@@ -19,16 +19,10 @@ Wvoid *Wmemcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
 	register Wchar *r1 = s1;
 	register const Wchar *r2 = s2;
 
-#ifdef __BCC__
-	while (n--) {
-		*r1++ = *r2++;
-	}
-#else
 	while (n) {
 		*r1++ = *r2++;
 		--n;
 	}
-#endif
 
 	return s1;
 }

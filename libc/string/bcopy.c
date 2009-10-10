@@ -15,24 +15,6 @@ void bcopy(const void *s2, void *s1, size_t n)
 #if 1
 	memmove(s1, s2, n);
 #else
-#ifdef __BCC__
-	register char *s;
-	register const char *p;
-
-	s = s1;
-	p = s2;
-	if (p >= s) {
-		while (n--) {
-			*s++ = *p++;
-		}
-	} else {
-		s += n;
-		p += n;
-		while (n--) {
-			*--s = *--p;
-		}
-	}
-#else
 	register char *s;
 	register const char *p;
 
@@ -49,7 +31,6 @@ void bcopy(const void *s2, void *s1, size_t n)
 			s[n] = p[n];
 		}
 	}
-#endif
 #endif
 }
 #endif
