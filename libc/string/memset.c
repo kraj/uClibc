@@ -17,21 +17,14 @@
 Wvoid *Wmemset(Wvoid *s, Wint c, size_t n)
 {
 	register Wuchar *p = (Wuchar *) s;
-#ifdef __BCC__
-	/* bcc can optimize the counter if it thinks it is a pointer... */
-	register const char *np = (const char *) n;
-#else
-# define np n
-#endif
 
-	while (np) {
+	while (n) {
 		*p++ = (Wuchar) c;
-		--np;
+		--n;
 	}
 
 	return s;
 }
-#undef np
 
 #ifndef WANT_WIDE
 libc_hidden_def(memset)

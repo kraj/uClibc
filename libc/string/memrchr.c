@@ -8,30 +8,21 @@
 #include "_string.h"
 
 #ifdef __USE_GNU
-
-
 void *memrchr(const void *s, int c, size_t n)
 {
 	register const unsigned char *r;
-#ifdef __BCC__
-	/* bcc can optimize the counter if it thinks it is a pointer... */
-	register const char *np = (const char *) n;
-#else
-#define np n
-#endif
 
-	r = ((unsigned char *)s) + ((size_t) np);
+	r = ((unsigned char *)s) + ((size_t) n);
 
-	while (np) {
+	while (n) {
 		if (*--r == ((unsigned char)c)) {
 			return (void *) r;	/* silence the warning */
 		}
-		--np;
+		--n;
 	}
 
 	return NULL;
 }
-#undef np
 
 libc_hidden_def(memrchr)
 #endif

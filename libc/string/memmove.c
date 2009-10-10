@@ -15,24 +15,6 @@
 
 Wvoid *Wmemmove(Wvoid *s1, const Wvoid *s2, size_t n)
 {
-#ifdef __BCC__
-	register Wchar *s = (Wchar *) s1;
-	register const Wchar *p = (const Wchar *) s2;
-
-	if (p >= s) {
-		while (n--) {
-			*s++ = *p++;
-		}
-	} else {
-		s += n;
-		p += n;
-		while (n--) {
-			*--s = *--p;
-		}
-	}
-
-	return s1;
-#else
 	register Wchar *s = (Wchar *) s1;
 	register const Wchar *p = (const Wchar *) s2;
 
@@ -49,7 +31,6 @@ Wvoid *Wmemmove(Wvoid *s1, const Wvoid *s2, size_t n)
 	}
 
 	return s1;
-#endif
 }
 
 #ifndef WANT_WIDE
