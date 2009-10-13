@@ -312,6 +312,7 @@ Domain name in a message can be represented as either:
 #include <arpa/nameser.h>
 #include <sys/utsname.h>
 #include <sys/un.h>
+#include <sys/stat.h>
 #include <bits/uClibc_mutex.h>
 
 /* poll() is not supported in kernel <= 2.0, therefore if __NR_poll is
@@ -948,7 +949,7 @@ static char *skip_and_NUL_space(char *p)
 /* Must be called under __resolv_lock. */
 void attribute_hidden __open_nameservers(void)
 {
-	static uint8_t last_time;
+	static uint32_t resolv_conf_mtime;
 
 	char szBuffer[MAXLEN_searchdomain];
 	FILE *fp;
@@ -956,11 +957,11 @@ void attribute_hidden __open_nameservers(void)
 	sockaddr46_t sa;
 
 	if (!__res_sync) {
-		/* Provide for periodic reread of /etc/resolv.conf */
-		/* cur_time "ticks" every 256 seconds */
-		uint8_t cur_time = ((unsigned)time(NULL)) >> 8;
-		if (last_time != cur_time) {
-			last_time = cur_time;
+		/* Reread /etc/resolv.conf if it was modified.  */
+		struct stat sb;
+		stat("/etc/resolv.conf", &sb);
+		if (resolv_conf_mtime != (uint32_t)sb.st_mtime) {
+			resolv_conf_mtime = sb.st_mtime;
 			__close_nameservers(); /* force config reread */
 		}
 	}
@@ -969,6 +970,7 @@ void attribute_hidden __open_nameservers(void)
 		goto sync;
 
 	fp = fopen("/etc/resolv.conf", "r");
+#ifdef FALLBACK_TO_CONFIG_RESOLVCONF
 	if (!fp) {
 		/* If we do not have a pre-populated /etc/resolv.conf then
 		   try to use the one from /etc/config which exists on numerous
@@ -976,6 +978,7 @@ void attribute_hidden __open_nameservers(void)
 		   may be the only /etc dir that was mounted rw.  */
 		fp = fopen("/etc/config/resolv.conf", "r");
 	}
+#endif
 
 	if (fp) {
 		while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
