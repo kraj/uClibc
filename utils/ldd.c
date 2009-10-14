@@ -608,7 +608,7 @@ static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 /*
 #warning "There may be two warnings here about vfork() clobbering, ignore them"
 */
-static int find_dependancies(char *filename)
+static int find_dependencies(char *filename)
 {
 	int is_suid = 0;
 	FILE *thefile;
@@ -764,7 +764,7 @@ int main(int argc, char **argv)
 
 		map_cache();
 
-		if (find_dependancies(filename) != 0)
+		if (find_dependencies(filename) != 0)
 			continue;
 
 		while (got_em_all) {
@@ -774,7 +774,7 @@ int main(int argc, char **argv)
 				if (cur->resolved == 0 && cur->path) {
 					got_em_all = 1;
 					printf("checking sub-depends for '%s'\n", cur->path);
-					find_dependancies(cur->path);
+					find_dependencies(cur->path);
 					cur->resolved = 1;
 				}
 			}
