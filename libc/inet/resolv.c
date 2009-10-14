@@ -959,7 +959,8 @@ void attribute_hidden __open_nameservers(void)
 	if (!__res_sync) {
 		/* Reread /etc/resolv.conf if it was modified.  */
 		struct stat sb;
-		stat("/etc/resolv.conf", &sb);
+		if (stat("/etc/resolv.conf", &sb) != 0)
+			sb.st_mtime = 0;
 		if (resolv_conf_mtime != (uint32_t)sb.st_mtime) {
 			resolv_conf_mtime = sb.st_mtime;
 			__close_nameservers(); /* force config reread */
