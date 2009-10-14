@@ -28,6 +28,7 @@ extern "C" {
 /* Standard ELF types.  */
 
 #include <stdint.h>
+#include <endian.h>
 
 /* Type for a 16-bit quantity.  */
 typedef uint16_t Elf32_Half;
@@ -121,6 +122,11 @@ typedef struct
 /* Conglomeration of the identification bytes, for easy testing as a word.  */
 #define	ELFMAG		"\177ELF"
 #define	SELFMAG		4
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+# define ELFMAG_U32 ((uint32_t)(ELFMAG0 + 0x100 * (ELFMAG1 + (0x100 * (ELFMAG2 + 0x100 * ELFMAG3)))))
+#elif __BYTE_ORDER == __BIG_ENDIAN
+# define ELFMAG_U32 ((uint32_t)((((ELFMAG0 * 0x100) + ELFMAG1) * 0x100 + ELFMAG2) * 0x100 + ELFMAG3))
+#endif
 
 #define EI_CLASS	4		/* File class byte index */
 #define ELFCLASSNONE	0		/* Invalid class */
@@ -2368,6 +2374,9 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_ARM_THM_SWI8		14
 #define R_ARM_XPC25		15
 #define R_ARM_THM_XPC22		16
+#define R_ARM_TLS_DTPMOD32	17
+#define R_ARM_TLS_DTPOFF32	18
+#define R_ARM_TLS_TPOFF32	19
 #define R_ARM_COPY		20	/* Copy symbol at runtime */
 #define R_ARM_GLOB_DAT		21	/* Create GOT entry */
 #define R_ARM_JUMP_SLOT		22	/* Create PLT entry */
@@ -2386,6 +2395,14 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_ARM_GNU_VTINHERIT	101
 #define R_ARM_THM_PC11		102	/* thumb unconditional branch */
 #define R_ARM_THM_PC9		103	/* thumb conditional branch */
+#define R_ARM_TLS_GD32		104
+#define R_ARM_TLS_LDM32		105
+#define R_ARM_TLS_LDO32		106
+#define R_ARM_TLS_IE32		107
+#define R_ARM_TLS_LE32		108
+#define R_ARM_TLS_LDO12		109
+#define R_ARM_TLS_LE12		110
+#define R_ARM_TLS_IE12GP	111
 #define R_ARM_RXPC25		249
 #define R_ARM_RSBREL32		250
 #define R_ARM_THM_RPC22		251
@@ -2969,18 +2986,18 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_NIOS2_PCREL16			3
 #define R_NIOS2_CALL26			4
 #define R_NIOS2_IMM5			5
-#define R_NIOS2_CACHE_OPX 		6
+#define R_NIOS2_CACHE_OPX		6
 #define R_NIOS2_IMM6			7
 #define R_NIOS2_IMM8			8
 #define R_NIOS2_HI16			9
 #define R_NIOS2_LO16			10
-#define R_NIOS2_HIADJ16 		11
+#define R_NIOS2_HIADJ16		11
 #define R_NIOS2_BFD_RELOC_32	12
 #define R_NIOS2_BFD_RELOC_16	13
-#define R_NIOS2_BFD_RELOC_8 	14
+#define R_NIOS2_BFD_RELOC_8	14
 #define R_NIOS2_GPREL			15
-#define R_NIOS2_GNU_VTINHERIT 	16
-#define R_NIOS2_GNU_VTENTRY  	17
+#define R_NIOS2_GNU_VTINHERIT	16
+#define R_NIOS2_GNU_VTENTRY	17
 #define R_NIOS2_UJMP			18
 #define R_NIOS2_CJMP			19
 #define R_NIOS2_CALLR			20
