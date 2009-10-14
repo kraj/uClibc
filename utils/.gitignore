@@ -1,0 +1,8 @@
+ldconfig
+ldconfig.host
+ldd
+ldd.host
+iconv
+iconv.host
+locale
+locale.host
