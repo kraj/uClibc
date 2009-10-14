@@ -1,4 +1,4 @@
-char *readsonameXX(char *name, FILE *infile, int expected_type, int *type)
+static char *readsonameXX(char *name, FILE *infile, int expected_type, int *type)
 {
 	ElfW(Ehdr) *epnt;
 	ElfW(Phdr) *ppnt;
@@ -35,13 +35,11 @@ char *readsonameXX(char *name, FILE *infile, int expected_type, int *type)
 	if ((char *)(epnt + 1) > (char *)(header + st.st_size))
 		goto skip;
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-	byteswap = (epnt->e_ident[5] == ELFDATA2MSB) ? 1 : 0;
-#elif __BYTE_ORDER == __BIG_ENDIAN
-	byteswap = (epnt->e_ident[5] == ELFDATA2LSB) ? 1 : 0;
-#else
-#error Unknown host byte order!
-#endif
+	if (UCLIBC_ENDIAN_HOST == UCLIBC_ENDIAN_LITTLE)
+		byteswap = (epnt->e_ident[5] == ELFDATA2MSB) ? 1 : 0;
+	else if (UCLIBC_ENDIAN_HOST == UCLIBC_ENDIAN_BIG)
+		byteswap = (epnt->e_ident[5] == ELFDATA2LSB) ? 1 : 0;
+
 	/* Be very lazy, and only byteswap the stuff we use */
 	if (byteswap == 1) {
 		epnt->e_phoff = bswap_32(epnt->e_phoff);

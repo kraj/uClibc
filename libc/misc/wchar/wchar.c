@@ -98,6 +98,7 @@
  * Manuel
  */
 
+#ifdef _LIBC
 #include <errno.h>
 #include <stddef.h>
 #include <limits.h>
@@ -171,6 +172,7 @@ extern size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 extern size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 					const wchar_t **__restrict src, size_t wn) attribute_hidden;
 
+#endif /* _LIBC */
 /**********************************************************************/
 #ifdef L_btowc
 
@@ -1575,170 +1577,4 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 }
 
 #endif
-/**********************************************************************/
-#ifdef L_iconv_main
 
-#include <string.h>
-#include <iconv.h>
-#include <stdarg.h>
-#include <libgen.h>
-
-extern const unsigned char __iconv_codesets[];
-
-#define IBUF BUFSIZ
-#define OBUF BUFSIZ
-
-char *progname;
-int hide_errors;
-
-static void error_msg(const char *fmt, ...)
-	 __attribute__ ((noreturn, format (printf, 1, 2)));
-
-static void error_msg(const char *fmt, ...)
-{
-	va_list arg;
-
-	if (!hide_errors) {
-		fprintf(stderr, "%s: ", progname);
-		va_start(arg, fmt);
-		vfprintf(stderr, fmt, arg);
-		va_end(arg);
-	}
-
-	exit(EXIT_FAILURE);
-}
-
-int main(int argc, char **argv)
-{
-	FILE *ifile;
-	FILE *ofile = stdout;
-	const char *p;
-	const char *s;
-	static const char opt_chars[] = "tfocsl";
-	                              /* 012345 */
-	const char *opts[sizeof(opt_chars)]; /* last is infile name */
-	iconv_t ic;
-	char ibuf[IBUF];
-	char obuf[OBUF];
-	char *pi;
-	char *po;
-	size_t ni, no, r, pos;
-
-	hide_errors = 0;
-
-	for (s = opt_chars ; *s ; s++) {
-		opts[ s - opt_chars ] = NULL;
-	}
-
-	progname = *argv;
-	while (--argc) {
-		p = *++argv;
-		if ((*p != '-') || (*++p == 0)) {
-			break;
-		}
-		do {
-			if ((s = strchr(opt_chars,*p)) == NULL) {
-			USAGE:
-				s = basename(progname);
-				fprintf(stderr,
-						"%s [-cs] -f fromcode -t tocode [-o outputfile] [inputfile ...]\n"
-						"  or\n%s -l\n", s, s);
-				return EXIT_FAILURE;
-			}
-			if ((s - opt_chars) < 3) {
-				if ((--argc == 0) || opts[s - opt_chars]) {
-					goto USAGE;
-				}
-				opts[s - opt_chars] = *++argv;
-			} else {
-				opts[s - opt_chars] = p;
-			}
-		} while (*++p);
-	}
-
-	if (opts[5]) {				/* -l */
-		fprintf(stderr, "Recognized codesets:\n");
-		for (s = __iconv_codesets ; *s ; s += *s) {
-			fprintf(stderr,"  %s\n", s+2);
-		}
-		s = __LOCALE_DATA_CODESET_LIST;
-		do {
-			fprintf(stderr,"  %s\n", __LOCALE_DATA_CODESET_LIST+ (unsigned char)(*s));
-		} while (*++s);
-
-		return EXIT_SUCCESS;
-	}
-
-	if (opts[4]) {
-		hide_errors = 1;
-	}
-
-	if (!opts[0] || !opts[1]) {
-		goto USAGE;
-	}
-	if ((ic = iconv_open(opts[0],opts[1])) == ((iconv_t)(-1))) {
-		error_msg( "unsupported codeset in %s -> %s conversion\n", opts[1], opts[0]);
-	}
-	if (opts[3]) {				/* -c */
-		((_UC_iconv_t *) ic)->skip_invalid_input = 1;
-	}
-
-	if ((s = opts[2]) != NULL) {
-		if (!(ofile = fopen(s, "w"))) {
-			error_msg( "couldn't open %s for writing\n", s);
-		}
-	}
-
-	pos = ni = 0;
-	do {
-		if (!argc || ((**argv == '-') && !((*argv)[1]))) {
-			ifile = stdin;		/* we don't check for duplicates */
-		} else if (!(ifile = fopen(*argv, "r"))) {
-			error_msg( "couldn't open %s for reading\n", *argv);
-		}
-
-		while ((r = fread(ibuf + ni, 1, IBUF - ni, ifile)) > 0) {
-			pos += r;
-			ni += r;
-			no = OBUF;
-			pi = ibuf;
-			po = obuf;
-			if ((r = iconv(ic, &pi, &ni, &po, &no)) == ((size_t)(-1))) {
-				if ((errno != EINVAL) && (errno != E2BIG)) {
-					error_msg( "iconv failed at pos %lu : %m\n", (unsigned long) (pos - ni));
-				}
-			}
-			if ((r = OBUF - no) > 0) {
-				if (fwrite(obuf, 1, OBUF - no, ofile) < r) {
-					error_msg( "write error\n");
-				}
-			}
-			if (ni) {			/* still bytes in buffer! */
-				memmove(ibuf, pi, ni);
-			}
-		}
-
-		if (ferror(ifile)) {
-			error_msg( "read error\n");
-		}
-
-		++argv;
-
-		if (ifile != stdin) {
-			fclose(ifile);
-		}
-
-	} while (--argc > 0);
-
-	iconv_close(ic);
-
-	if (ni) {
-		error_msg( "incomplete sequence\n");
-	}
-
-	return (((_UC_iconv_t *) ic)->skip_invalid_input < 2)
-		? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-#endif
-/**********************************************************************/

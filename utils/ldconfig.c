@@ -26,20 +26,7 @@
  * 2005/09/16: Dan Howell (modified for cross-development)
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <ctype.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <link.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include "bswap.h"
-#include "dl-defs.h"
+#include "porting.h"
 
 #define BUFFER_SIZE 4096
 
@@ -71,20 +58,6 @@ struct exec {
 #define CMAGIC 0421
 
 char *___strtok = NULL;
-
-/* For SunOS */
-#ifndef PATH_MAX
-#include <limits.h>
-#define PATH_MAX _POSIX_PATH_MAX
-#endif
-
-/* For SunOS */
-#ifndef N_MAGIC
-#define N_MAGIC(exec) ((exec).a_magic & 0xffff)
-#endif
-
-#define EXIT_OK    0
-#define EXIT_FATAL 128
 
 char *prog = NULL;
 int debug = 0;			/* debug mode */
@@ -141,6 +114,7 @@ static void warnx(const char *s, ...)
 	fprintf(stderr, "\n");
 }
 
+static void err(int errnum, const char *s, ...) attribute_noreturn;
 static void err(int errnum, const char *s, ...)
 {
 	va_list p;
@@ -154,14 +128,14 @@ static void err(int errnum, const char *s, ...)
 
 static void vperror_msg(const char *s, va_list p)
 {
-	int err = errno;
+	int e = errno;
 
 	if (s == 0)
 		s = "";
 	verror_msg(s, p);
 	if (*s)
 		s = ": ";
-	fprintf(stderr, "%s%s\n", s, strerror(err));
+	fprintf(stderr, "%s%s\n", s, strerror(e));
 }
 
 static void warn(const char *s, ...)
@@ -177,7 +151,7 @@ static void *xmalloc(size_t size)
 {
 	void *ptr;
 	if ((ptr = malloc(size)) == NULL)
-		err(EXIT_FATAL, "out of memory");
+		err(EXIT_FAILURE, "out of memory");
 	return ptr;
 }
 
@@ -185,7 +159,7 @@ static char *xstrdup(const char *str)
 {
 	char *ptr;
 	if ((ptr = strdup(str)) == NULL)
-		err(EXIT_FATAL, "out of memory");
+		err(EXIT_FAILURE, "out of memory");
 	return ptr;
 }
 
@@ -200,8 +174,8 @@ static char *xstrdup(const char *str)
 #define readsonameXX readsoname64
 #define __ELF_NATIVE_CLASS 64
 #include "readsoname2.c"
-char *readsoname(char *name, FILE *infile, int expected_type,
-		 int *type, int elfclass)
+static char *readsoname(char *name, FILE *infile, int expected_type,
+			int *type, int elfclass)
 {
 	char *res;
 
@@ -233,8 +207,8 @@ char *readsoname(char *name, FILE *infile, int expected_type,
  * If the expected, actual/deduced types missmatch we display a warning
  * and use the actual/deduced type.
  */
-char *is_shlib(const char *dir, const char *name, int *type,
-	       int *islink, int expected_type)
+static char *is_shlib(const char *dir, const char *name, int *type,
+		      int *islink, int expected_type)
 {
 	char *good = NULL;
 	char *cp, *cp2;
@@ -278,12 +252,12 @@ char *is_shlib(const char *dir, const char *name, int *type,
 				if (fread(&exec, sizeof exec, 1, file) < 1)
 					warnx("can't read header from %s, skipping", buff);
 				else if (N_MAGIC(exec) != ZMAGIC
-					 && N_MAGIC(exec) != QMAGIC
-					 && N_MAGIC_SWAP(exec) != ZMAGIC
-					 && N_MAGIC_SWAP(exec) != QMAGIC) {
+				 && N_MAGIC(exec) != QMAGIC
+				 && N_MAGIC_SWAP(exec) != ZMAGIC
+				 && N_MAGIC_SWAP(exec) != QMAGIC) {
 					elf_hdr = (ElfW(Ehdr) *) & exec;
 					if (elf_hdr->e_ident[0] != 0x7f ||
-					    strncmp(elf_hdr->e_ident+1, "ELF", 3) != 0)
+					    strncmp((char *)elf_hdr->e_ident + 1, "ELF", 3) != 0)
 					{
 						/* silently ignore linker scripts */
 						if (strncmp((char *)&exec, "/* GNU ld", 9) != 0)
@@ -350,7 +324,7 @@ char *is_shlib(const char *dir, const char *name, int *type,
 }
 
 /* update the symlink to new library */
-void link_shlib(const char *dir, const char *file, const char *so)
+static void link_shlib(const char *dir, const char *file, const char *so)
 {
 	int change = 1;
 	char libname[BUFFER_SIZE];
@@ -407,7 +381,7 @@ void link_shlib(const char *dir, const char *file, const char *so)
 }
 
 /* figure out which library is greater */
-int libcmp(char *p1, char *p2)
+static int libcmp(char *p1, char *p2)
 {
 	while (*p1) {
 		if (isdigit(*p1) && isdigit(*p2)) {
@@ -439,7 +413,7 @@ struct lib {
 };
 
 /* update all shared library links in a directory */
-void scan_dir(const char *rawname)
+static void scan_dir(const char *rawname)
 {
 	DIR *dir;
 	const char *name;
@@ -452,7 +426,7 @@ void scan_dir(const char *rawname)
 	/* We need a writable copy of this string */
 	path = strdup(rawname);
 	if (!path) {
-		err(EXIT_FATAL, "Out of memory!\n");
+		err(EXIT_FAILURE, "Out of memory!\n");
 	}
 	/* Eliminate all double //s */
 	path_n = path;
@@ -581,22 +555,22 @@ void cache_write(void)
 }
 #else
 /* return the list of system-specific directories */
-char *get_extpath(void)
+static char *get_extpath(void)
 {
 	char *res = NULL, *cp;
 	FILE *file;
-	struct stat stat;
+	struct stat st;
 	char realconffile[BUFFER_SIZE];
 
 	if (!chroot_realpath(chroot_dir, conffile, realconffile))
 		return NULL;
 
 	if ((file = fopen(realconffile, "r")) != NULL) {
-		fstat(fileno(file), &stat);
-		res = xmalloc(stat.st_size + 1);
-		fread(res, 1, stat.st_size, file);
+		fstat(fileno(file), &st);
+		res = xmalloc(st.st_size + 1);
+		fread(res, 1, st.st_size, file);
 		fclose(file);
-		res[stat.st_size] = '\0';
+		res[st.st_size] = '\0';
 
 		/* convert comments fo spaces */
 		for (cp = res; *cp; /*nada */ ) {
@@ -678,17 +652,17 @@ void cache_write(void)
 		return;
 
 	if (!chroot_realpath(chroot_dir, cachefile, realcachefile))
-		err(EXIT_FATAL, "can't resolve %s in chroot %s (%s)",
+		err(EXIT_FAILURE, "can't resolve %s in chroot %s (%s)",
 		    cachefile, chroot_dir, strerror(errno));
 
 	sprintf(tempfile, "%s~", realcachefile);
 
 	if (unlink(tempfile) && errno != ENOENT)
-		err(EXIT_FATAL, "can't unlink %s~ (%s)", cachefile,
+		err(EXIT_FAILURE, "can't unlink %s~ (%s)", cachefile,
 		    strerror(errno));
 
 	if ((cachefd = creat(tempfile, 0644)) < 0)
-		err(EXIT_FATAL, "can't create %s~ (%s)", cachefile,
+		err(EXIT_FAILURE, "can't create %s~ (%s)", cachefile,
 		    strerror(errno));
 
 	if (byteswap) {
@@ -699,7 +673,7 @@ void cache_write(void)
 		magic_ptr = &magic;
 	}
 	if (write(cachefd, magic_ptr, sizeof(header_t)) != sizeof(header_t))
-		err(EXIT_FATAL, "can't write %s~ (%s)", cachefile,
+		err(EXIT_FAILURE, "can't write %s~ (%s)", cachefile,
 		    strerror(errno));
 
 	for (cur_lib = lib_head; cur_lib != NULL; cur_lib = cur_lib->next) {
@@ -717,31 +691,31 @@ void cache_write(void)
 		}
 		if (write(cachefd, lib_ptr, sizeof(libentry_t)) !=
 		    sizeof(libentry_t))
-			err(EXIT_FATAL, "can't write %s~ (%s)", cachefile,
+			err(EXIT_FAILURE, "can't write %s~ (%s)", cachefile,
 			    strerror(errno));
 	}
 
 	for (cur_lib = lib_head; cur_lib != NULL; cur_lib = cur_lib->next) {
 		if ((size_t)write(cachefd, cur_lib->soname, strlen(cur_lib->soname) + 1)
 		    != strlen(cur_lib->soname) + 1)
-			err(EXIT_FATAL, "can't write %s~ (%s)", cachefile,
+			err(EXIT_FAILURE, "can't write %s~ (%s)", cachefile,
 			    strerror(errno));
 		if ((size_t)write(cachefd, cur_lib->libname, strlen(cur_lib->libname) + 1)
 		    != strlen(cur_lib->libname) + 1)
-			err(EXIT_FATAL, "can't write %s~ (%s)", cachefile,
+			err(EXIT_FAILURE, "can't write %s~ (%s)", cachefile,
 			    strerror(errno));
 	}
 
 	if (close(cachefd))
-		err(EXIT_FATAL, "can't close %s~ (%s)", cachefile,
+		err(EXIT_FAILURE, "can't close %s~ (%s)", cachefile,
 		    strerror(errno));
 
 	if (chmod(tempfile, 0644))
-		err(EXIT_FATAL, "can't chmod %s~ (%s)", cachefile,
+		err(EXIT_FAILURE, "can't chmod %s~ (%s)", cachefile,
 		    strerror(errno));
 
 	if (rename(tempfile, realcachefile))
-		err(EXIT_FATAL, "can't rename %s~ (%s)", cachefile,
+		err(EXIT_FAILURE, "can't rename %s~ (%s)", cachefile,
 		    strerror(errno));
 }
 
@@ -756,22 +730,22 @@ void cache_print(void)
 	char realcachefile[BUFFER_SIZE];
 
 	if (!chroot_realpath(chroot_dir, cachefile, realcachefile))
-		err(EXIT_FATAL, "can't resolve %s in chroot %s (%s)",
+		err(EXIT_FAILURE, "can't resolve %s in chroot %s (%s)",
 		    cachefile, chroot_dir, strerror(errno));
 
 	if (stat(realcachefile, &st) || (fd = open(realcachefile, O_RDONLY)) < 0)
-		err(EXIT_FATAL, "can't read %s (%s)", cachefile, strerror(errno));
+		err(EXIT_FAILURE, "can't read %s (%s)", cachefile, strerror(errno));
 
 	c = mmap(0, st.st_size, PROT_READ, LDSO_CACHE_MMAP_FLAGS, fd, 0);
 	if (c == MAP_FAILED)
-		err(EXIT_FATAL, "can't map %s (%s)", cachefile, strerror(errno));
+		err(EXIT_FAILURE, "can't map %s (%s)", cachefile, strerror(errno));
 	close(fd);
 
 	if (memcmp(((header_t *) c)->magic, LDSO_CACHE_MAGIC, LDSO_CACHE_MAGIC_LEN))
-		err(EXIT_FATAL, "%s cache corrupt", cachefile);
+		err(EXIT_FAILURE, "%s cache corrupt", cachefile);
 
 	if (memcmp(((header_t *) c)->version, LDSO_CACHE_VER, LDSO_CACHE_VER_LEN))
-		err(EXIT_FATAL, "wrong cache version - expected %s",
+		err(EXIT_FAILURE, "wrong cache version - expected %s",
 		    LDSO_CACHE_VER);
 
 	header = (header_t *) c;
@@ -810,7 +784,8 @@ void cache_print(void)
 }
 #endif
 
-void usage(void)
+static void usage(void) attribute_noreturn;
+static void usage(void)
 {
 	fprintf(stderr,
 #ifdef __LDSO_CACHE_SUPPORT__
@@ -843,7 +818,7 @@ void usage(void)
 		"\tlib ... :\tlibraries to link\n\n"
 #endif
 	    );
-	exit(EXIT_FATAL);
+	exit(EXIT_FAILURE);
 }
 
 #define DIR_SEP      ":, \t\n"
@@ -916,11 +891,11 @@ int main(int argc, char **argv)
 	if (chroot_dir && *chroot_dir) {
 		if (chroot(chroot_dir) < 0) {
 			if (chdir(chroot_dir) < 0)
-				err(EXIT_FATAL, "couldn't chroot to %s (%s)", chroot_dir, strerror(errno));
+				err(EXIT_FAILURE, "couldn't chroot to %s (%s)", chroot_dir, strerror(errno));
 			chroot_dir = ".";
 		} else {
 			if (chdir("/") < 0)
-				err(EXIT_FATAL, "couldn't chdir to / (%s)", strerror(errno));
+				err(EXIT_FAILURE, "couldn't chdir to / (%s)", strerror(errno));
 			chroot_dir = NULL;
 		}
 	}
@@ -932,7 +907,7 @@ int main(int argc, char **argv)
 	if (printcache) {
 		/* print the cache -- don't you trust me? */
 		cache_print();
-		exit(EXIT_OK);
+		exit(EXIT_SUCCESS);
 	} else if (libmode) {
 		/* so you want to do things manually, eh? */
 
@@ -952,7 +927,7 @@ int main(int argc, char **argv)
 
 			/* we'd better do a little bit of checking */
 			if ((so = is_shlib(dir, cp, &libtype, &islink, LIB_ANY)) == NULL)
-				err(EXIT_FATAL, "%s%s%s is not a shared library",
+				err(EXIT_FAILURE, "%s%s%s is not a shared library",
 				    dir, (*dir && strcmp(dir, "/")) ? "/" : "", cp);
 
 			/* so far, so good, maybe he knows what he's doing */
@@ -1005,5 +980,5 @@ int main(int argc, char **argv)
 			cache_write();
 	}
 
-	exit(EXIT_OK);
+	exit(EXIT_SUCCESS);
 }

@@ -20,27 +20,14 @@
  * 2005/09/12: Dan Howell (modified from realpath.c to emulate chroot)
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
-#include <limits.h>		/* for PATH_MAX */
-#include <sys/param.h>		/* for MAXPATHLEN */
-#include <errno.h>
-#include <sys/stat.h>		/* for S_IFLNK */
-
-#ifndef PATH_MAX
-#define PATH_MAX _POSIX_PATH_MAX
-#endif
+#include "porting.h"
 
 #define MAX_READLINKS 32
 
-char *chroot_realpath(const char *chroot, const char *path,
+char *chroot_realpath(const char *root, const char *path,
+		      char resolved_path[]);
+
+char *chroot_realpath(const char *root, const char *path,
 		      char resolved_path[])
 {
 	char copy_path[PATH_MAX];
@@ -54,13 +41,13 @@ char *chroot_realpath(const char *chroot, const char *path,
 	int chroot_len;
 
 	/* Trivial case. */
-	if (chroot == NULL || *chroot == '\0' ||
-	    (*chroot == '/' && chroot[1] == '\0')) {
+	if (root == NULL || *root == '\0' ||
+	    (*root == '/' && root[1] == '\0')) {
 		strcpy(resolved_path, path);
 		return resolved_path;
 	}
 
-	chroot_len = strlen(chroot);
+	chroot_len = strlen(root);
 
 	if (chroot_len + strlen(path) >= PATH_MAX - 3) {
 		errno = ENAMETOOLONG;
@@ -73,7 +60,7 @@ char *chroot_realpath(const char *chroot, const char *path,
 	max_path = copy_path + PATH_MAX - chroot_len - 3;
 
 	/* Start with the chroot path. */
-	strcpy(new_path, chroot);
+	strcpy(new_path, root);
 	new_path += chroot_len;
 	while (*new_path == '/' && new_path > got_path)
 		new_path--;
