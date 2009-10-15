@@ -269,7 +269,7 @@ _dl_lookup_sysv_hash(struct elf_resolve *tpnt, ElfW(Sym) *symtab, unsigned long 
  * relocations or when we call an entry in the PLT table for the first time.
  */
 char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt,
-	int type_class _DL_LOOKUP_HASH_EXTRA_TPNT)
+	int type_class, struct elf_resolve **tpntp)
 {
 	struct elf_resolve *tpnt = NULL;
 	ElfW(Sym) *symtab;
