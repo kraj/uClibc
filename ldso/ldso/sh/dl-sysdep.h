@@ -99,7 +99,7 @@ _dl_urem(unsigned int n, unsigned int base)
 #define elf_machine_type_class(type) \
   ((((type) == R_SH_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)	\
    | (((type) == R_SH_COPY) * ELF_RTYPE_CLASS_COPY))
-#endif   
+#endif
 
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
    first element of the GOT.  This must be inlined in a function which

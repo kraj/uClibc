@@ -160,8 +160,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	unsigned long old_val;
 #endif
 
-struct elf_resolve *tls_tpnt = NULL;
-
+	struct elf_resolve *tls_tpnt = NULL;
 
 	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
@@ -197,7 +196,7 @@ struct elf_resolve *tls_tpnt = NULL;
 	/* In case of a TLS reloc, tls_tpnt NULL means we have an 'anonymous'
 	   symbol.  This is the case for a static tls variable, so the lookup
 	   module is just that one is referencing the tls variable. */
-	if(!tls_tpnt)
+	if (!tls_tpnt)
 		tls_tpnt = tpnt;
 #endif
 	switch (reloc_type) {

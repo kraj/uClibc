@@ -53,7 +53,7 @@
 #ifndef NOT_IN_libc
 	.global __aeabi_read_tp
 #else
-        .hidden __aeabi_read_tp
+	.hidden __aeabi_read_tp
 #endif
 ENTRY (__aeabi_read_tp)
 	mov	r0, #0xffff0fff

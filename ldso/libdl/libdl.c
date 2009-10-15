@@ -671,7 +671,7 @@ void *dlsym(void *vhandle, const char *name)
 	ret = _dl_find_hash(name2, handle, NULL, 0, &tls_tpnt);
 
 #if defined USE_TLS && defined SHARED
-	if(tls_tpnt) {
+	if (tls_tpnt) {
 		/* The found symbol is a thread-local storage variable.
 		Return the address for to the current thread.  */
 		ret = _dl_tls_symaddr ((struct link_map *)tls_tpnt, (Elf32_Addr)ret);
@@ -776,8 +776,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 			tls_lmap = (struct link_map *) tpnt;
 
 			/* Remove the object from the dtv slotinfo array if it uses TLS. */
-			if (__builtin_expect (tls_lmap->l_tls_blocksize > 0, 0))
-			{
+			if (__builtin_expect (tls_lmap->l_tls_blocksize > 0, 0)) {
 				any_tls = true;
 
 				if (_dl_tls_dtv_slotinfo_list != NULL
@@ -787,8 +786,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 					/* All dynamically loaded modules with TLS are unloaded. */
 					_dl_tls_max_dtv_idx = _dl_tls_static_nelem;
 
-				if (tls_lmap->l_tls_offset != NO_TLS_OFFSET)
-				{
+				if (tls_lmap->l_tls_offset != NO_TLS_OFFSET) {
 					/*
 					 * Collect a contiguous chunk built from the objects in
 					 * this search list, going in either direction.  When the
@@ -797,8 +795,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 					 */
 # if defined(TLS_TCB_AT_TP)
 					if (tls_free_start == NO_TLS_OFFSET
-						|| (size_t) tls_lmap->l_tls_offset == tls_free_start)
-					{
+						|| (size_t) tls_lmap->l_tls_offset == tls_free_start) {
 						/* Extend the contiguous chunk being reclaimed. */
 						tls_free_start
 							= tls_lmap->l_tls_offset -
@@ -806,31 +803,26 @@ static int do_dlclose(void *vhandle, int need_fini)
 
 						if (tls_free_end == NO_TLS_OFFSET)
 							tls_free_end = tls_lmap->l_tls_offset;
-					}
-					else if (tls_lmap->l_tls_offset - tls_lmap->l_tls_blocksize
+					} else if (tls_lmap->l_tls_offset - tls_lmap->l_tls_blocksize
 							== tls_free_end)
 						/* Extend the chunk backwards.  */
 						tls_free_end = tls_lmap->l_tls_offset;
-					else
-					{
+					else {
 						/*
 						 * This isn't contiguous with the last chunk freed.
 						 * One of them will be leaked unless we can free
 						 * one block right away.
 						 */
-						if (tls_free_end == _dl_tls_static_used)
-						{
+						if (tls_free_end == _dl_tls_static_used) {
 							_dl_tls_static_used = tls_free_start;
 							tls_free_end = tls_lmap->l_tls_offset;
 							tls_free_start
 								= tls_free_end - tls_lmap->l_tls_blocksize;
-						}
-						else if ((size_t) tls_lmap->l_tls_offset
+						} else if ((size_t) tls_lmap->l_tls_offset
 								== _dl_tls_static_used)
 							_dl_tls_static_used = tls_lmap->l_tls_offset -
 								tls_lmap->l_tls_blocksize;
-						else if (tls_free_end < (size_t) tls_lmap->l_tls_offset)
-						{
+						else if (tls_free_end < (size_t) tls_lmap->l_tls_offset) {
 							/*
 							 * We pick the later block. It has a chance
 							 * to be freed.
@@ -848,8 +840,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 							== tls_free_start)
 						/* Extend the chunk backwards. */
 						tls_free_start = tls_lmap->l_tls_offset;
-					else
-					{
+					else {
 						/*
 						 * This isn't contiguous with the last chunk
 						 * freed. One of them will be leaked.
@@ -870,7 +861,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 					dtv_t *dtv = THREAD_DTV ();
 
 					_dl_assert(!(dtv[tls_lmap->l_tls_modid].pointer.is_static));
-					if(dtv[tls_lmap->l_tls_modid].pointer.val != TLS_DTV_UNALLOCATED) {
+					if (dtv[tls_lmap->l_tls_modid].pointer.val != TLS_DTV_UNALLOCATED) {
 						/* Note that free is called for NULL is well.  We
 						deallocate even if it is this dtv entry we are
 						supposed to load.  The reason is that we call
@@ -935,11 +926,9 @@ static int do_dlclose(void *vhandle, int need_fini)
 
 #if USE_TLS
 	/* If we removed any object which uses TLS bump the generation counter.  */
-	if (any_tls)
-	{
-		if (__builtin_expect (++_dl_tls_generation == 0, 0))
-		{
-			_dl_debug_early ("TLS generation counter wrapped!  Please report to the uClibc mailing list.\n");
+	if (any_tls) {
+		if (__builtin_expect(++_dl_tls_generation == 0, 0)) {
+			_dl_debug_early("TLS generation counter wrapped!  Please report to the uClibc mailing list.\n");
 			_dl_exit(30);
 		}
 

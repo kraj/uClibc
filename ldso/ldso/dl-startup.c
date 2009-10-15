@@ -220,8 +220,8 @@ DL_START(unsigned long args)
 	/* tpnt->l_tls_modid = 0; */
 # if NO_TLS_OFFSET != 0
 	tpnt->l_tls_offset = NO_TLS_OFFSET;
-# endif 
-#endif 
+# endif
+#endif
 
 	SEND_EARLY_STDERR_DEBUG("Done scanning DYNAMIC section\n");
 

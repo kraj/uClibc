@@ -436,8 +436,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				maxvma = ppnt->p_vaddr + ppnt->p_memsz;
 			}
 		}
-		if (ppnt->p_type == PT_TLS)
-		{
+		if (ppnt->p_type == PT_TLS) {
 #if USE_TLS
 			if (ppnt->p_memsz == 0)
 				/* Nothing to do for an empty segment.  */
@@ -735,8 +734,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	tpnt->n_phent = epnt->e_phnum;
 
 #if USE_TLS
-	if (tlsppnt)
-	{
+	if (tlsppnt) {
 		_dl_debug_early("Found TLS header for %s\n", libname);
 #if NO_TLS_OFFSET != 0
 		tpnt->l_tls_offset = NO_TLS_OFFSET;
@@ -875,7 +873,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	}
 
 #if 0
-/* _dl_add_to_slotinfo is called by init_tls() for initial DSO 
+/* _dl_add_to_slotinfo is called by init_tls() for initial DSO
    or by dlopen() for dynamically loaded DSO. */
 #if USE_TLS
 	/* Add object to slot information data if necessasy. */
