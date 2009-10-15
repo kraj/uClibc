@@ -137,27 +137,19 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 	DL_LOADADDR_TYPE loadaddr, unsigned long * dynamic_info,
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
-#if USE_TLS || defined __FDPIC__
-#define _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
-#define _DL_LOOKUP_HASH_EXTRA_TPNT	, struct elf_resolve **tpntp
-#else
-#undef _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
-#define _DL_LOOKUP_HASH_EXTRA_TPNT
+/* Only need extra arg with some configurations */
+#if !(USE_TLS || defined __FDPIC__)
+# define _dl_lookup_hash(n, r, m, c, t) _dl_lookup_hash(n, r, m, c)
 #endif
-
-extern char * _dl_lookup_hash(const char * name, struct dyn_elf * rpnt,
-			    struct elf_resolve *mytpnt, int type_class
-			    _DL_LOOKUP_HASH_EXTRA_TPNT);
+extern char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt,
+	struct elf_resolve *mytpnt, int type_class,
+	struct elf_resolve **tpntp);
 
 static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
 					struct elf_resolve *mytpnt, int type_class,
 					struct elf_resolve **tpntp)
 {
-#ifdef _DL_LOOKUP_HASH_NEEDS_EXTRA_TPNT
 	return _dl_lookup_hash(name, rpnt, mytpnt, type_class, tpntp);
-#else
-	return _dl_lookup_hash(name, rpnt, mytpnt, type_class);
-#endif
 }
 
 extern int _dl_linux_dynamic_link(void);
