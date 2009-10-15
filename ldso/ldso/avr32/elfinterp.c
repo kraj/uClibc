@@ -138,7 +138,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		symbol_addr = (unsigned long)
 			_dl_find_hash(strtab + symtab[symtab_index].st_name,
 				      tpnt->symbol_scope, tpnt,
-				      elf_machine_type_class(reloc_type));
+				      elf_machine_type_class(reloc_type), NULL);
 
 		/* Allow undefined references to weak symbols */
 		if (!symbol_addr &&

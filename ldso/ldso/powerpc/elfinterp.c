@@ -137,7 +137,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	/* Get the address of the GOT entry */
 	finaladdr = (Elf32_Addr) _dl_find_hash(symname,
-			tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
+			tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!finaladdr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'.\n", _dl_progname, symname, tpnt->libname);
 		_dl_exit(1);
@@ -200,7 +200,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	symname      = strtab + symtab[symtab_index].st_name;
 	if (symtab_index) {
 		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, tpnt,
-							    elf_machine_type_class(reloc_type));
+							    elf_machine_type_class(reloc_type), NULL);
 		/* We want to allow undefined references to weak symbols - this might
 		 * have been intentional.  We should not be linking local symbols
 		 * here, so all bases should be covered.
