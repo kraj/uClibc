@@ -219,8 +219,14 @@ static void *_dl_zalloc(size_t size)
 	return p;
 }
 
+void _dl_free(void *p)
+{
+	if (_dl_free_function)
+		(*_dl_free_function) (p);
+}
+
 #if USE_TLS
-void * _dl_memalign (size_t __boundary, size_t __size)
+void *_dl_memalign(size_t __boundary, size_t __size)
 {
 	void *result;
 	int i = 0;
@@ -291,7 +297,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 #if USE_TLS
 	void *tcbp = NULL;
 #endif
-	
 
 	/* Wahoo!!! We managed to make a function call!  Get malloc
 	 * setup so we can use _dl_dprintf() to print debug noise
@@ -530,15 +535,12 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 * Adjust the address of the TLS initialization image in
 	 * case the executable is actually an ET_DYN object.
 	 */
-	if (app_tpnt->l_tls_initimage != NULL)
-	{
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-		unsigned int tmp = (unsigned int) app_tpnt->l_tls_initimage;
-#endif
+	if (app_tpnt->l_tls_initimage != NULL) {
 		app_tpnt->l_tls_initimage =
 			(char *) app_tpnt->l_tls_initimage + app_tpnt->loadaddr;
-		_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n", tmp, app_tpnt->l_tls_initimage, app_tpnt->l_tls_initimage_size);
-
+		_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n",
+			(unsigned int)app_tpnt->l_tls_initimage,
+			app_tpnt->l_tls_initimage, app_tpnt->l_tls_initimage_size);
 	}
 #endif
 
@@ -937,8 +939,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 * used.  Trying to do it lazily is too hairy to try when there could be
 	 * multiple threads (from a non-TLS-using libpthread).  */
 	bool was_tls_init_tp_called = tls_init_tp_called;
-	if (tcbp == NULL)
-	{
+	if (tcbp == NULL) {
 		_dl_debug_early("Calling init_tls()!\n");
 		tcbp = init_tls ();
 	}
@@ -982,11 +983,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 	/* And finally install it for the main thread.  If ld.so itself uses
 	   TLS we know the thread pointer was initialized earlier.  */
-	if (! tls_init_tp_called)
-	{
+	if (! tls_init_tp_called) {
 		const char *lossage = (char *) TLS_INIT_TP (tcbp, USE___THREAD);
-		if (__builtin_expect (lossage != NULL, 0))
-		{
+		if (__builtin_expect (lossage != NULL, 0)) {
 			_dl_debug_early("cannot set up thread-local storage: %s\n", lossage);
 			_dl_exit(30);
 		}
@@ -1062,16 +1061,16 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	/* Find the real functions and make ldso functions use them from now on */
 	_dl_calloc_function = (void* (*)(size_t, size_t)) (intptr_t)
 		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
-					
+
 	_dl_realloc_function = (void* (*)(void *, size_t)) (intptr_t)
 		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
-										
+
 	_dl_free_function = (void (*)(void *)) (intptr_t)
 		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
-					
+
 	_dl_memalign_function = (void* (*)(size_t, size_t)) (intptr_t)
 		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
-			
+
 #endif
 
 	/* Notify the debugger that all objects are now mapped in.  */

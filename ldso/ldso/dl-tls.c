@@ -46,7 +46,7 @@ void *
 _dl_calloc (size_t __nmemb, size_t __size)
 {
 	void *result;
-	size_t size = (__size * __nmemb); 
+	size_t size = (__size * __nmemb);
 
 	if (_dl_calloc_function)
 		return (*_dl_calloc_function) (__nmemb, __size);
@@ -67,18 +67,6 @@ _dl_realloc (void * __ptr, size_t __size)
 	_dl_debug_early("NOT IMPLEMENTED PROPERLY!!!\n");
 	return NULL;
 }
-
-void
-_dl_free (void *__ptr)
-{
-	if (_dl_free_function)
-		(*_dl_free_function) (__ptr);
-
-#if 0
-	_dl_debug_early("NOT IMPLEMENTED PROPERLY!!!\n");
-#endif
-}
-
 
 /* The __tls_get_addr function has two basic forms which differ in the
    arguments.  The IA-64 form takes two parameters, the module ID and
@@ -1009,7 +997,7 @@ init_tls (void)
 			/* This is a module with TLS data.  Store the map reference.
 			   The generation counter is zero.  */
 
-			/* Skeep slot[0]: it will be never used */			
+			/* Skeep slot[0]: it will be never used */
 			slotinfo[++i].map = l;
 		}
 	_dl_assert (i == _dl_tls_max_dtv_idx);

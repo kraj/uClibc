@@ -89,10 +89,10 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		}
 	}
 	if (!_dl_debug_nofixups) {
-		*got_addr = (char*)new_addr;
+		*got_addr = (char *)new_addr;
 	}
 #else
-	*got_addr = (char*)new_addr;
+	*got_addr = (char *)new_addr;
 #endif
 
 	return new_addr;
@@ -192,8 +192,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	struct elf_resolve *def_mod = 0;
 	int goof = 0;
 
-	reloc_addr = (unsigned long *) (tpnt->loadaddr
-                                    + (unsigned long) rpnt->r_offset);
+	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
@@ -201,9 +200,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 	if (symtab_index) {
 		symbol_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name,
-                                scope, tpnt,
-                                elf_machine_type_class(reloc_type),
-                                &def_mod);
+			scope, tpnt, elf_machine_type_class(reloc_type), &def_mod);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -217,9 +214,11 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 		}
 	} else {
-        /* Relocs against STN_UNDEF are usually treated as using a
-           symbol value of zero, and using the module containing the
-           reloc itself.  */
+		/*
+		 * Relocs against STN_UNDEF are usually treated as using a
+		 * symbol value of zero, and using the module containing the
+		 * reloc itself.
+		 */
 		symbol_addr = symtab[symtab_index].st_value;
 		def_mod = tpnt;
 	}

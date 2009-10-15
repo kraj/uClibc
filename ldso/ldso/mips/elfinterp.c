@@ -213,14 +213,14 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 							_dl_symbol_tables, tpnt_tls, 1, &sym_tls);
 				}
 
-				switch (reloc_type)
-	  			{
+				switch (reloc_type) {
 					case R_MIPS_TLS_DTPMOD64:
 					case R_MIPS_TLS_DTPMOD32:
 						if (tpnt_tls)
 							*(ElfW(Word) *)reloc_addr = tpnt_tls->l_tls_modid;
-#if defined (__SUPPORT_LD_DEBUG__)
-_dl_dprintf(2, "TLS_DTPMOD : %s, %d, %d\n", (strtab + symtab[symtab_index].st_name), old_val, *((unsigned int *)reloc_addr));
+#ifdef __SUPPORT_LD_DEBUG__
+						_dl_dprintf(2, "TLS_DTPMOD : %s, %d, %d\n",
+							(strtab + symtab[symtab_index].st_name), old_val, *((unsigned int *)reloc_addr));
 #endif
 						break;
 
@@ -228,8 +228,9 @@ _dl_dprintf(2, "TLS_DTPMOD : %s, %d, %d\n", (strtab + symtab[symtab_index].st_na
 					case R_MIPS_TLS_DTPREL32:
 						*(ElfW(Word) *)reloc_addr +=
 							TLS_DTPREL_VALUE (sym_tls);
-#if defined (__SUPPORT_LD_DEBUG__)
-_dl_dprintf(2, "TLS_DTPREL : %s, %x, %x\n", (strtab + symtab[symtab_index].st_name), old_val, *((unsigned int *)reloc_addr));
+#ifdef __SUPPORT_LD_DEBUG__
+						_dl_dprintf(2, "TLS_DTPREL : %s, %x, %x\n",
+							(strtab + symtab[symtab_index].st_name), old_val, *((unsigned int *)reloc_addr));
 #endif
 						break;
 
@@ -238,8 +239,9 @@ _dl_dprintf(2, "TLS_DTPREL : %s, %x, %x\n", (strtab + symtab[symtab_index].st_na
 						CHECK_STATIC_TLS((struct link_map *)tpnt_tls);
 						*(ElfW(Word) *)reloc_addr +=
 							TLS_TPREL_VALUE (tpnt_tls, sym_tls);
-#if defined (__SUPPORT_LD_DEBUG__)
-_dl_dprintf(2, "TLS_TPREL  : %s, %x, %x\n", (strtab + symtab[symtab_index].st_name), old_val, *((unsigned int *)reloc_addr));
+#ifdef __SUPPORT_LD_DEBUG__
+						_dl_dprintf(2, "TLS_TPREL  : %s, %x, %x\n",
+							(strtab + symtab[symtab_index].st_name), old_val, *((unsigned int *)reloc_addr));
 #endif
 						break;
 				}
