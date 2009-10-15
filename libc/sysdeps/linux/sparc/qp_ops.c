@@ -1,58 +1,47 @@
 /* XXX add ops from glibc sysdeps/sparc/sparc64/soft-fp */
 
-#define fakedef(name)                                                   \
-    void name(void)                                                     \
-    {                                                                   \
-        printf("Unimplemented %s called, exiting\n", #name);            \
-        exit(-1);                                                       \
-    }
+#include <stdio.h>
+#include <stdlib.h>
+
+static void fakedef(void)
+{
+	puts("Unimplemented _Q* func called, exiting\n");
+	exit(-1);
+}
 
 #ifdef __sparc_v9__
-fakedef(_Qp_fne)
-fakedef(_Qp_feq)
-fakedef(_Qp_div)
-fakedef(_Qp_flt)
-fakedef(_Qp_fgt)
-fakedef(_Qp_mul)
-fakedef(_Qp_fge)
-fakedef(_Qp_qtoux)
-fakedef(_Qp_uxtoq)
-fakedef(_Qp_sub)
-fakedef(_Qp_dtoq)
-fakedef(_Qp_qtod)
-fakedef(_Qp_qtos)
-fakedef(_Qp_stoq)
-fakedef(_Qp_itoq)
-fakedef(_Qp_add)
+# define fakedef(sym) strong_alias(fakedef, _Qp_##sym)
 #else
-fakedef(_Q_fne)
-fakedef(_Q_feq)
-fakedef(_Q_div)
-fakedef(_Q_flt)
-fakedef(_Q_fgt)
-fakedef(_Q_mul)
-fakedef(_Q_fge)
-fakedef(_Q_qtoux)
-fakedef(_Q_uxtoq)
-fakedef(_Q_qtou)
-fakedef(_Q_utoq)
-fakedef(_Q_sub)
-fakedef(_Q_dtoq)
-fakedef(_Q_qtod)
-fakedef(_Q_qtos)
-fakedef(_Q_stoq)
-fakedef(_Q_itoq)
-fakedef(_Q_add)
-fakedef(_Q_cmp)
-fakedef(_Q_cmpe)
-fakedef(_Q_fle)
-fakedef(_Q_lltoq)
-fakedef(_Q_neg)
-fakedef(_Q_qtoi)
-fakedef(_Q_qtoll)
-fakedef(_Q_qtoull)
-fakedef(_Q_sqrt)
-fakedef(_Q_ulltoq)
+# define fakedef(sym) strong_alias(fakedef, _Q_##sym)
 #endif
 
-#undef fakedef
+fakedef(fne)
+fakedef(feq)
+fakedef(div)
+fakedef(flt)
+fakedef(fgt)
+fakedef(mul)
+fakedef(fge)
+fakedef(qtoux)
+fakedef(uxtoq)
+fakedef(sub)
+fakedef(dtoq)
+fakedef(qtod)
+fakedef(qtos)
+fakedef(stoq)
+fakedef(itoq)
+fakedef(add)
+#ifndef __sparc_v9__
+fakedef(qtou)
+fakedef(utoq)
+fakedef(cmp)
+fakedef(cmpe)
+fakedef(fle)
+fakedef(lltoq)
+fakedef(neg)
+fakedef(qtoi)
+fakedef(qtoll)
+fakedef(qtoull)
+fakedef(sqrt)
+fakedef(ulltoq)
+#endif
