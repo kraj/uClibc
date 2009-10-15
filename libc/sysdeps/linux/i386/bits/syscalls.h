@@ -13,9 +13,6 @@
 
 #include <errno.h>
 
-#define INTERNAL_SYSCALL_ERROR_P(val, err) \
-  ((unsigned int) (val) >= 0xfffff001u)
-
 /* We need some help from the assembler to generate optimal code.  We
    define some macros here which later will be used.  */
 
