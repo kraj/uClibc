@@ -137,12 +137,12 @@ static __always_inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv,
 
 
 /* handle all the fun mmap intricacies */
+#define MAP_FAILED ((void *) -1)
 #if (defined(__UCLIBC_MMAP_HAS_6_ARGS__) && defined(__NR_mmap)) || !defined(__NR_mmap2)
 # define _dl_MAX_ERRNO 4096
 # define _dl_mmap_check_error(__res) \
 	(((long)__res) < 0 && ((long)__res) >= -_dl_MAX_ERRNO)
 #else
-# define MAP_FAILED ((void *) -1)
 # define _dl_mmap_check_error(X) (((void *)X) == MAP_FAILED)
 #endif
 
