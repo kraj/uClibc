@@ -14,6 +14,3 @@ config FORCE_OPTIONS_FOR_ARCH
 	select ARCH_HAS_MMU
 	select ARCH_HAS_NO_LDSO
 	select UCLIBC_HAS_LFS
-
-config ARCH_CFLAGS
-	string

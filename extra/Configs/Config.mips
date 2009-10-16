@@ -12,10 +12,6 @@ config FORCE_OPTIONS_FOR_ARCH
 	default y
 	select ARCH_ANY_ENDIAN
 
-config ARCH_CFLAGS
-	string
-	default "-mno-split-addresses"
-
 choice
 	prompt "Target ABI"
 	default CONFIG_MIPS_O32_ABI
