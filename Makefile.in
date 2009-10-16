@@ -216,7 +216,11 @@ HEADERS_RM- := \
 	bits/atomic.h \
 	bits/sigcontextinfo.h \
 	bits/stackinfo.h \
-	tls.h
+	tls.h \
+	rpc/des_crypt.h \
+	rpc/key_prot.h \
+	rpc/rpc_des.h \
+	sgtty.h
 HEADERS_RM-$(UCLIBC_HAS_FLOATS) += \
 	complex.h \
 	fpu_control.h \
