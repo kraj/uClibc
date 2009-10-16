@@ -265,6 +265,7 @@ config HAVE_SHARED
 config FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "Only load shared libraries which can share their text segment"
 	depends on HAVE_SHARED
+	select DOPIC
 	default n
 	help
 	  If you answer Y here, the uClibc native shared library loader will
