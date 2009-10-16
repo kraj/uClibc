@@ -15,7 +15,7 @@ help:
 	@echo '  all			- libraries and generated headers'
 	@echo '  pregen		- generate headers'
 	@echo '  utils			- build target utilities'
-	@echo '			  (readelf, ldd, ldconfig, locale, iconv)'
+	@echo '			  (ldd, ldconfig, locale, iconv)'
 	@echo '  hostutils		- build host utilities (see utils)'
 	@echo
 	@echo 'Configuration:'
