@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1999, 2000, 2001 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1999, 2000, 2001, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -57,9 +57,11 @@ libc_hidden_proto(inet_network)
    is a pointer to an internal array containing the string.  */
 extern char *inet_ntoa (struct in_addr __in) __THROW;
 libc_hidden_proto(inet_ntoa)
+#ifdef __UCLIBC__
 /* Recursion-safe flavor */
 extern char *inet_ntoa_r (struct in_addr __in, char *__buf) __THROW;
 libc_hidden_proto(inet_ntoa_r)
+#endif
 
 /* Convert from presentation format of an Internet number in buffer
    starting at CP to the binary network format and store result for
@@ -84,6 +86,7 @@ libc_hidden_proto(inet_ntop)
 extern int inet_aton (__const char *__cp, struct in_addr *__inp) __THROW;
 libc_hidden_proto(inet_aton)
 
+#if 0
 /* Format a network number NET into presentation format and place result
    in buffer starting at BUF with length of LEN bytes.  */
 extern char *inet_neta (in_addr_t __net, char *__buf, size_t __len) __THROW;
@@ -110,6 +113,7 @@ extern unsigned int inet_nsap_addr (__const char *__cp,
    a presentation form and place result in BUF.  */
 extern char *inet_nsap_ntoa (int __len, __const unsigned char *__cp,
 			     char *__buf) __THROW;
+#endif
 #endif
 
 __END_DECLS
