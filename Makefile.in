@@ -207,6 +207,7 @@ HEADERS_RM- := \
 	bits/kernel_sigaction.h \
 	bits/kernel_stat.h \
 	bits/kernel_types.h \
+	bits/syscalls.h \
 	bits/syscalls-common.h \
 	bits/utmpx.h \
 	bits/uClibc_errno.h \
@@ -285,10 +286,6 @@ install_headers: headers $(top_builddir)extra/scripts/unifdef
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	top_builddir=$(top_builddir) \
 	$(top_srcdir)extra/scripts/install_headers.sh include $(PREFIX)$(DEVEL_PREFIX)include
-	# Disabled. If libc-internal.h is needed, document here why!
-	#printf '#ifndef _LIBC_INTERNAL_H\n#define _LIBC_INTERNAL_H 1\n#endif\n' >$(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
-	echo '/* Dont use _syscall#() macros; use the syscall() function */' > \
-		$(PREFIX)$(DEVEL_PREFIX)include/bits/syscalls.h
 	cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -r $(HEADERS_RM-)
 ifeq ($(UCLIBC_HAS_WCHAR),)
 	cd $(PREFIX)$(DEVEL_PREFIX)include && mv -f wchar-stub.h wchar.h
