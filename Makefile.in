@@ -203,6 +203,7 @@ $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
 HEADERS_RM- := \
 	dl-osinfo.h \
 	_lfs_64.h \
+	bits/uClibc_arch_features.h \
 	bits/kernel_sigaction.h \
 	bits/kernel_stat.h \
 	bits/kernel_types.h \
@@ -215,8 +216,6 @@ HEADERS_RM- := \
 	bits/sigcontextinfo.h \
 	bits/stackinfo.h \
 	tls.h
-	# gcc 4.3.1 needs it, dont rm:
-	#bits/uClibc_arch_features.h
 HEADERS_RM-$(UCLIBC_HAS_FLOATS) += \
 	complex.h \
 	fpu_control.h \
