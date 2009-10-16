@@ -337,8 +337,8 @@ char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve
 		/* At this point we have found the requested symbol, do binding */
 #if USE_TLS
 		if (ELF_ST_TYPE(sym->st_info) == STT_TLS) {
-			_dl_assert(tls_tpnt != NULL);
-			*tls_tpnt = tpnt;
+			_dl_assert(tpntp != NULL);
+			*tpntp = tpnt;
 
 			return (char *)sym->st_value;
 		}
