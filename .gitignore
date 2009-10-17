@@ -13,7 +13,8 @@
 *.i
 *.o
 *.depend
-lib
+lib/
+install_dir/
 .config*
 .*.dep
 /*.log
