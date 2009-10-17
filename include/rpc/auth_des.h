@@ -24,6 +24,7 @@
 
 __BEGIN_DECLS
 
+#if 0
 /* There are two kinds of "names": fullnames and nicknames */
 enum authdes_namekind
   {
@@ -47,6 +48,7 @@ struct authdes_cred
     struct authdes_fullname adc_fullname;
     uint32_t adc_nickname;
   };
+#endif
 
 /* A timeval replacement for !32bit platforms */
 struct rpc_timeval
@@ -55,6 +57,7 @@ struct rpc_timeval
     uint32_t tv_usec;           /* Microseconds.  */
   };
 
+#if 0
 /* A des authentication verifier */
 struct authdes_verf
   {
@@ -102,6 +105,7 @@ extern int getpublickey (__const char *__name, char *__key) __THROW;
    the key.  */
 extern int getsecretkey (__const char *__name, char *__key,
 			 __const char *__passwd) __THROW;
+#endif
 
 extern int rtime (struct sockaddr_in *__addrp, struct rpc_timeval *__timep,
 		  struct rpc_timeval *__timeout) __THROW;

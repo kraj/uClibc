@@ -85,7 +85,7 @@ typedef union
 # define WIFEXITED(status)	__WIFEXITED(__WAIT_INT(status))
 # define WIFSIGNALED(status)	__WIFSIGNALED(__WAIT_INT(status))
 # define WIFSTOPPED(status)	__WIFSTOPPED(__WAIT_INT(status))
-# if 0 /*def __WIFCONTINUED*/
+# ifdef __WIFCONTINUED
 #  define WIFCONTINUED(status)	__WIFCONTINUED(__WAIT_INT(status))
 # endif
 #endif	/* <stdlib.h> not included.  */

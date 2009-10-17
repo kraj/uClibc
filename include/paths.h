@@ -64,7 +64,6 @@
 #define	_PATH_VI	"/usr/bin/vi"
 #define _PATH_WTMP	"/var/log/wtmp"
 
-/* uClibc */
 #ifdef _LIBC
 #define _PATH_PASSWD	"/etc/passwd"
 #define _PATH_GROUP	"/etc/group"

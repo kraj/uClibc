@@ -25,7 +25,9 @@
 /* Get definition of `struct ether_addr'.  */
 #include <netinet/if_ether.h>
 
+#ifdef _LIBC
 #define ETHER_FILE_NAME "/etc/ethers"
+#endif
 
 __BEGIN_DECLS
 
@@ -41,6 +43,7 @@ extern struct ether_addr *ether_aton_r (__const char *__asc,
 					struct ether_addr *__addr) __THROW;
 libc_hidden_proto(ether_aton_r)
 
+#if 0
 /* Map 48 bit Ethernet number ADDR to HOSTNAME.  */
 extern int ether_ntohost (char *__hostname, __const struct ether_addr *__addr)
      __THROW;
@@ -52,6 +55,7 @@ extern int ether_hostton (__const char *__hostname, struct ether_addr *__addr)
 /* Scan LINE and set ADDR and HOSTNAME.  */
 extern int ether_line (__const char *__line, struct ether_addr *__addr,
 		       char *__hostname) __THROW;
+#endif
 
 __END_DECLS
 
