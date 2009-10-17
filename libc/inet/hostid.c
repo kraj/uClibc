@@ -25,10 +25,12 @@ int sethostid(long int new_id)
 	int fd;
 	int ret;
 
-	if (geteuid() || getuid()) return __set_errno(EPERM);
-	if ((fd=open_not_cancel(HOSTID,O_CREAT|O_WRONLY,0644))<0) return -1;
-	ret = write_not_cancel(fd,(void *)&new_id,sizeof(new_id)) ==
-		sizeof(new_id) ? 0 : -1;
+	if (geteuid() || getuid())
+		return __set_errno(EPERM);
+	fd = open_not_cancel(HOSTID, O_CREAT|O_WRONLY, 0644);
+	if (fd < 0)
+		return fd;
+	ret = write_not_cancel(fd, &new_id, sizeof(new_id)) == sizeof(new_id) ? 0 : -1;
 	close_not_cancel_no_status (fd);
 	return ret;
 }
@@ -43,8 +45,8 @@ long int gethostid(void)
 	 * It is not an error if we cannot read this file. It is not even an
 	 * error if we cannot read all the bytes, we just carry on trying...
 	 */
-	if ((fd =open_not_cancel_2 (HOSTID, O_RDONLY)) >= 0 &&
-	     read_not_cancel (fd, (void *) &id, sizeof (id)))
+	fd = open_not_cancel_2(HOSTID, O_RDONLY);
+	if (fd >= 0 && read_not_cancel(fd, &id, sizeof(id)))
 	{
 		close_not_cancel_no_status (fd);
 		return id;
