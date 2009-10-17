@@ -90,7 +90,7 @@ typedef union
 # define WIFEXITED(status)	__WIFEXITED (__WAIT_INT (status))
 # define WIFSIGNALED(status)	__WIFSIGNALED (__WAIT_INT (status))
 # define WIFSTOPPED(status)	__WIFSTOPPED (__WAIT_INT (status))
-# if 0 /* def __WIFCONTINUED */
+# ifdef __WIFCONTINUED
 #  define WIFCONTINUED(status)	__WIFCONTINUED (__WAIT_INT (status))
 # endif
 #endif	/* X/Open and <sys/wait.h> not included.  */
@@ -141,11 +141,12 @@ __END_NAMESPACE_C99
 #if 0
 #define	MB_CUR_MAX	(__ctype_get_mb_cur_max ())
 extern size_t __ctype_get_mb_cur_max (void) __THROW __wur;
-#endif
+#else
 #ifdef __UCLIBC_HAS_WCHAR__
 #define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
 extern size_t _stdlib_mb_cur_max (void) __THROW __wur;
 libc_hidden_proto(_stdlib_mb_cur_max)
+#endif
 #endif
 
 
@@ -240,8 +241,7 @@ __END_NAMESPACE_C99
 #endif /* ISO C99 or GCC and use MISC.  */
 
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-#ifdef __USE_GNU
+#if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
 /* The concept of one static locale per category is not very well
    thought out.  Many applications will need to process its data using
    information from several different locales.  Another application is
@@ -296,9 +296,7 @@ extern long double strtold_l (__const char *__restrict __nptr,
 			      __locale_t __loc)
      __THROW __nonnull ((1, 3)) __wur;
 #endif /* __UCLIBC_HAS_FLOATS__ */
-
 #endif /* GNU */
-#endif /* __UCLIBC_HAS_XLOCALE__ */
 
 
 #if defined __USE_SVID || defined __USE_XOPEN_EXTENDED
@@ -494,13 +492,16 @@ __END_NAMESPACE_STD
 __BEGIN_NAMESPACE_STD
 /* Re-allocate the previously allocated block
    in PTR, making the new block SIZE bytes long.  */
+/* __attribute_malloc__ is not used, because if realloc returns
+   the same pointer that was passed to it, aliasing needs to be allowed
+   between objects pointed by the old and new pointers.  */
 extern void *realloc (void *__ptr, size_t __size)
-     __THROW __attribute_malloc__ __attribute_warn_unused_result__;
+     __THROW __attribute_warn_unused_result__;
 /* Free a block allocated by `malloc', `realloc' or `calloc'.  */
 extern void free (void *__ptr) __THROW;
 __END_NAMESPACE_STD
 
-#ifdef	__USE_MISC
+#if 0 /*def	__USE_MISC*/
 /* Free a block.  An alias for `free'.	(Sun Unices).  */
 extern void cfree (void *__ptr) __THROW;
 #endif /* Use misc.  */
@@ -560,10 +561,12 @@ extern char *getenv (__const char *__name) __THROW __nonnull ((1)) __wur;
 libc_hidden_proto(getenv)
 __END_NAMESPACE_STD
 
+#if 0
 /* This function is similar to the above but returns NULL if the
    programs is running with SUID or SGID enabled.  */
 extern char *__secure_getenv (__const char *__name)
      __THROW __nonnull ((1)) __wur;
+#endif
 
 #if defined __USE_SVID || defined __USE_XOPEN
 /* The SVID says this is in <stdio.h>, but this seems a better place.	*/
@@ -723,12 +726,11 @@ __END_NAMESPACE_C99
 #endif
 
 
-#if defined __USE_SVID || defined __USE_XOPEN_EXTENDED || defined __USE_BSD
+#if ( defined __USE_SVID || defined __USE_XOPEN_EXTENDED ) && defined __UCLIBC_HAS_FLOATS__
 /* Convert floating point numbers to strings.  The returned values are
    valid only until another call to the same function.  */
 
 # ifdef __UCLIBC_SUSV3_LEGACY__
-
 #if 0
 /* Convert VALUE to a string with NDIGIT digits and return a pointer to
    this.  Set *DECPT with the position of the decimal character and *SIGN
@@ -749,6 +751,7 @@ extern char *fcvt (double __value, int __ndigit, int *__restrict __decpt,
 extern char *gcvt (double __value, int __ndigit, char *__buf)
      __THROW __nonnull ((3)) __wur;
 # endif /* __UCLIBC_SUSV3_LEGACY__ */
+
 
 # if 0 /*def __USE_MISC*/
 /* Long double versions of above functions.  */
@@ -782,6 +785,7 @@ extern int qfcvt_r (long double __value, int __ndigit,
 # endif	/* misc */
 #endif	/* use MISC || use X/Open Unix */
 
+
 #ifdef __UCLIBC_HAS_WCHAR__
 __BEGIN_NAMESPACE_STD
 /* Return the length of the multibyte character
@@ -807,7 +811,7 @@ __END_NAMESPACE_STD
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
 
-#ifdef __USE_SVID
+#if 0 /*def __USE_SVID*/
 /* Determine whether the string value of RESPONSE matches the affirmation
    or negative response expression as specified by the LC_MESSAGES category
    in the program's current locale.  Returns 1 if affirmative, 0 if

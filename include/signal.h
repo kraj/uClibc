@@ -376,10 +376,12 @@ extern int sigreturn (struct sigcontext *__scp) __THROW;
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 
+# ifdef __UCLIBC_SUSV4_LEGACY__
 /* If INTERRUPT is nonzero, make signal SIG interrupt system calls
    (causing them to fail with EINTR); if INTERRUPT is zero, make system
    calls be restarted after signal SIG.  */
 extern int siginterrupt (int __sig, int __interrupt) __THROW;
+# endif
 
 # include <bits/sigstack.h>
 # ifdef __USE_XOPEN

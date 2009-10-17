@@ -1,5 +1,6 @@
 /* Declarations of socket constants, types, and functions.
-   Copyright (C) 1991,92,1994-2001,2003 Free Software Foundation, Inc.
+   Copyright (C) 1991,92,1994-2001,2003,2005,2007,2008
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,6 +28,10 @@ __BEGIN_DECLS
 #include <sys/uio.h>
 #define	__need_size_t
 #include <stddef.h>
+#ifdef __USE_GNU
+/* Get the __sigset_t definition.  */
+# include <bits/sigset.h>
+#endif
 
 
 /* This operating system-specific header file defines the SOCK_*, PF_*,
@@ -231,7 +236,7 @@ libc_hidden_proto(accept)
 extern int shutdown (int __fd, int __how) __THROW;
 
 
-#ifdef __USE_XOPEN2K
+#if 0 /*def __USE_XOPEN2K*/
 /* Determine wheter socket is at a out-of-band mark.  */
 extern int sockatmark (int __fd) __THROW;
 #endif
