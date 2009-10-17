@@ -1,0 +1,207 @@
+# Makefile for uClibc NPTL
+#
+# Copyright (C) 2006 Steven J. Hill <sjhill@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+libpthread_CSRC = pthread_attr_getaffinity.c			\
+		  pthread_attr_setaffinity.c pthread_getaffinity.c	\
+		  pthread_getcpuclockid.c pthread_kill.c		\
+		  pthread_mutex_cond_lock.c pthread_setaffinity.c	\
+		  pthread_yield.c sem_post.c sem_timedwait.c		\
+		  sem_trywait.c sem_wait.c pt-fork.c			\
+		  sigtimedwait.c sigwaitinfo.c sigwait.c pt-sleep.c
+
+libpthread_SSRC = #ptw-close.S ptw-open.S ptw-waitid.S ptw-waidpid.S ptw-write.S
+
+libc_CSRC = libc_pthread_init.c libc_multiple_threads.c			\
+	    register-atfork.c unregister-atfork.c getpid.c		\
+	    raise.c sleep.c jmp-unwind.c
+
+# These provide both a cancellable and a not cancellable implementation 
+libc_SSRC = close.S open.S write.S read.S
+
+ifneq ($(TARGET_ARCH),arm)
+libc_SSRC += waitpid.S
+endif
+
+librt_CSRC := mq_notify.c timer_create.c timer_delete.c			 \
+	      timer_getoverr.c timer_gettime.c timer_routines.c		 \
+	      timer_settime.c
+
+
+ifeq ($(TARGET_ARCH),alpha)
+libpthread_CSRC += lowlevellock.c
+libc_CSRC += libc-lowlevellock.c
+librt_CSRC := mq_notify.c
+endif
+
+ifeq ($(TARGET_ARCH),mips)
+libpthread_CSRC += lowlevellock.c
+libc_CSRC += libc-lowlevellock.c
+endif
+
+ifeq ($(TARGET_ARCH),powerpc)
+libpthread_CSRC += lowlevellock.c
+libc_CSRC += libc-lowlevellock.c
+librt_CSRC := mq_notify.c 
+endif
+
+ifeq ($(TARGET_ARCH),sparc)
+libpthread_CSRC += __syscall_error.c
+librt_CSRC := mq_notify.c __syscall_error.c
+endif
+
+ifeq ($(TARGET_ARCH),sh)
+SH_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c
+libpthread_CSRC := $(filter-out $(SH_PTHREAD_SPECIFIC),$(libpthread_CSRC))
+endif
+
+ifeq ($(TARGET_ARCH),i386)
+X86_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c
+libpthread_CSRC := $(filter-out $(X86_PTHREAD_SPECIFIC),$(libpthread_CSRC))
+endif
+
+
+ifeq ($(TARGET_ARCH),x86_64)
+librt_CSRC := mq_notify.c 
+endif
+
+CFLAGS-pthread_getcpuclockid.c = -I$(top_srcdir)librt
+CFLAGS-pt-pread_pwrite.c = -I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH) \
+			    -I$(top_srcdir)libc/sysdeps/linux/common
+CFLAGS-mq_notify.c = -I$(top_srcdir)librt -DIS_IN_librt=1
+CFLAGS-timer_create.c = -I$(top_srcdir)librt -DIS_IN_librt=1
+CFLAGS-timer_delete.c = -I$(top_srcdir)librt -DIS_IN_librt=1
+CFLAGS-timer_getoverr.c = -I$(top_srcdir)librt -DIS_IN_librt=1
+CFLAGS-timer_gettime.c = -I$(top_srcdir)librt -DIS_IN_librt=1
+CFLAGS-timer_routines.c = -I$(top_srcdir)librt -DIS_IN_librt=1
+CFLAGS-timer_settime.c = -I$(top_srcdir)librt -DIS_IN_librt=1
+
+CFLAGS-linux = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 $(SSP_ALL_CFLAGS)
+#CFLAGS:=$(CFLAGS:-O1=-O2)
+
+CFLAGS-OMIT-libc_pthread_init.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-libc_multiple_threads.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-register-atfork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-unregister-atfork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-getpid.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-raise.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-sleep.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-libc-lowlevellock.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+
+CFLAGS-OMIT-close.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-open.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-read.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-write.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-waitpid.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+
+CFLAGS-OMIT-mq_notify.c = -DIS_IN_libpthread=1
+CFLAGS-OMIT-timer_create.c = -DIS_IN_libpthread=1
+CFLAGS-OMIT-timer_delete.c = -DIS_IN_libpthread=1
+CFLAGS-OMIT-timer_getoverr.c = -DIS_IN_libpthread=1
+CFLAGS-OMIT-timer_gettime.c = -DIS_IN_libpthread=1
+CFLAGS-OMIT-timer_routines.c = -DIS_IN_libpthread=1
+CFLAGS-OMIT-timer_settime.c = -DIS_IN_libpthread=1
+
+PTHREAD_LINUX_DIR := $(top_srcdir)libpthread/nptl/sysdeps/unix/sysv/linux
+PTHREAD_LINUX_OUT := $(top_builddir)libpthread/nptl/sysdeps/unix/sysv/linux
+
+PTHREAD_LINUX_OBJ := $(patsubst %.c,$(PTHREAD_LINUX_OUT)/%.o,$(libpthread_CSRC))
+PTHREAD_LINUX_OBJ += $(patsubst %.S,$(PTHREAD_LINUX_OUT)/%.o,$(libpthread_SSRC))
+
+ifeq ($(DOPIC),y)
+libpthread-a-y += $(PTHREAD_LINUX_OBJ:.o=.os)
+else
+libpthread-a-y += $(PTHREAD_LINUX_OBJ)
+endif
+libpthread-so-y += $(PTHREAD_LINUX_OBJ:.o=.oS)
+libpthread-so-y += $(PTHREAD_LINUX_OUT)/pt-raise.oS
+libpthread-nomulti-y += $(PTHREAD_LINUX_OBJ)
+
+ASFLAGS-open.S = -D_LIBC_REENTRANT
+ASFLAGS-close.S = -D_LIBC_REENTRANT
+ASFLAGS-read.S = -D_LIBC_REENTRANT
+ASFLAGS-write.S = -D_LIBC_REENTRANT
+ASFLAGS-waitpid.S = -D_LIBC_REENTRANT
+
+LIBC_LINUX_OBJ := $(patsubst %.c,$(PTHREAD_LINUX_OUT)/%.o,$(libc_CSRC))
+LIBC_LINUX_OBJ += $(patsubst %.S,$(PTHREAD_LINUX_OUT)/%.o,$(libc_SSRC))
+
+libc-static-y += $(LIBC_LINUX_OBJ)
+libc-shared-y += $(LIBC_LINUX_OBJ:.o=.oS)
+libc-nomulti-y += $(LIBC_LINUX_OBJ)
+
+LIBRT_LINUX_OBJ := $(patsubst %.c,$(PTHREAD_LINUX_OUT)/%.o,$(librt_CSRC))
+
+librt-a-y += $(LIBRT_LINUX_OBJ)
+librt-so-y += $(LIBRT_LINUX_OBJ:.o=.oS)
+
+objclean-y += nptl_linux_clean
+headers_clean-y += nptl_linux_headers_clean
+
+#
+# Create header files.
+#
+CFLAGS-lowlevelbarrier.c = -S
+CFLAGS-lowlevelcond.c = -S
+CFLAGS-lowlevelrwlock.c = -S
+CFLAGS-unwindbuf.c = -S
+
+$(PTHREAD_LINUX_OUT)/lowlevelbarrier.c: $(PTHREAD_LINUX_DIR)/lowlevelbarrier.sym
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(PTHREAD_LINUX_OUT)/lowlevelcond.c: $(PTHREAD_LINUX_DIR)/lowlevelcond.sym
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(PTHREAD_LINUX_OUT)/lowlevelrwlock.c: $(PTHREAD_LINUX_DIR)/lowlevelrwlock.sym
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(PTHREAD_LINUX_OUT)/unwindbuf.c: $(PTHREAD_LINUX_DIR)/unwindbuf.sym
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(PTHREAD_LINUX_OUT)/lowlevelbarrier.s: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.c
+	$(compile.c)
+
+$(PTHREAD_LINUX_OUT)/lowlevelcond.s: $(PTHREAD_LINUX_OUT)/lowlevelcond.c
+	$(compile.c)
+
+$(PTHREAD_LINUX_OUT)/lowlevelrwlock.s: $(PTHREAD_LINUX_OUT)/lowlevelrwlock.c
+	$(compile.c)
+
+$(PTHREAD_LINUX_OUT)/unwindbuf.s: $(PTHREAD_LINUX_OUT)/unwindbuf.c
+	$(compile.c)
+
+$(PTHREAD_LINUX_OUT)/lowlevelbarrier.h: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.s
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+
+$(PTHREAD_LINUX_OUT)/lowlevelcond.h: $(PTHREAD_LINUX_OUT)/lowlevelcond.s
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+
+$(PTHREAD_LINUX_OUT)/lowlevelrwlock.h: $(PTHREAD_LINUX_OUT)/lowlevelrwlock.s
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+
+$(PTHREAD_LINUX_OUT)/unwindbuf.h: $(PTHREAD_LINUX_OUT)/unwindbuf.s
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+
+nptl_linux_headers: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h \
+					$(PTHREAD_LINUX_OUT)/lowlevelcond.h \
+					$(PTHREAD_LINUX_OUT)/lowlevelrwlock.h \
+					$(PTHREAD_LINUX_OUT)/unwindbuf.h
+
+HEADERS_BITS_PTHREAD     := $(notdir $(wildcard $(PTHREAD_LINUX_DIR)/bits/*.h))
+ALL_HEADERS_BITS_PTHREAD := $(addprefix include/bits/,$(HEADERS_BITS_PTHREAD))
+
+$(ALL_HEADERS_BITS_PTHREAD):
+	$(do_ln) ../../$(PTHREAD_LINUX_DIR)/bits/$(@F) $(top_builddir)$@
+	
+nptl_linux_headers_clean:
+	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/lowlevelbarrier., c h s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelcond., c h s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelrwlock., c h s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/unwindbuf., c h s)
+
+
+nptl_linux_clean:
+	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/*., o os oS)

@@ -1,0 +1,69 @@
+# Makefile for uClibc NPTL
+#
+# Copyright (C) 2005 Steven J. Hill <sjhill@uclibc.org>
+# Portions Copyright (C) 2006 CodeSourcery
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+libpthread_SSRC = pthread_spin_lock.S pthread_spin_trylock.S aeabi_read_tp.S \
+	thumb_atomics.S
+libpthread_CSRC = aeabi_unwind_cpp_pr1.c
+
+librt_SSRC = aeabi_read_tp.S thumb_atomics.S
+librt_CSRC = aeabi_unwind_cpp_pr1.c
+
+libc_a_CSRC =
+
+CFLAGS-pt-raise.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+
+ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+ASFLAGS-aeabi_read_tp.S = -DNOT_IN_libc=1
+
+CFLAGS-arm = $(SSP_ALL_CFLAGS)
+
+PTHREAD_ARCH_DIR := $(top_srcdir)libpthread/nptl/sysdeps/arm
+PTHREAD_ARCH_OUT := $(top_builddir)libpthread/nptl/sysdeps/arm
+PTHREAD_ARCH_OBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_SSRC))
+PTHREAD_ARCH_OBJ += $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_CSRC))
+LIBRT_ARCH_OBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(librt_SSRC))
+LIBRT_ARCH_OBJ += $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(librt_CSRC))
+
+
+ifeq ($(DOPIC),y)
+libpthread-a-y += $(PTHREAD_ARCH_OBJ:.o=.os)
+else
+libpthread-a-y += $(PTHREAD_ARCH_OBJ)
+endif
+libpthread-so-y += $(PTHREAD_ARCH_OBJ:.o=.oS)
+
+librt-a-y += $(LIBRT_ARCH_OBJ)
+librt-so-y += $(LIBRT_ARCH_OBJ:.o=.oS)
+
+libpthread-nomulti-y += $(PTHREAD_ARCH_OBJ)
+
+objclean-y += nptl_arch_objclean
+headers_clean-y += nptl_arch_headers_clean
+
+#
+# Create 'tcb-offsets.h' header file.
+#
+CFLAGS-tcb-offsets.c = -S
+
+$(PTHREAD_ARCH_OUT)/tcb-offsets.c: $(PTHREAD_ARCH_DIR)/tcb-offsets.sym
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(PTHREAD_ARCH_OUT)/tcb-offsets.s: $(PTHREAD_ARCH_OUT)/tcb-offsets.c
+	$(compile.c)
+
+nptl_arch_headers: $(PTHREAD_ARCH_OUT)/tcb-offsets.s
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $(PTHREAD_ARCH_OUT)/tcb-offsets.h
+
+nptl_arch_headers_clean:
+	$(RM) $(PTHREAD_ARCH_OUT)/tcb-offsets.c		\
+	      $(PTHREAD_ARCH_OUT)/tcb-offsets.s		\
+	      $(PTHREAD_ARCH_OUT)/tcb-offsets.h
+
+nptl_arch_objclean:
+	$(RM) $(PTHREAD_ARCH_OUT)/*.{o,os,oS}

@@ -1,0 +1,49 @@
+# Makefile for uClibc NPTL
+#
+# Copyright (C) 2006 Steven J. Hill <sjhill@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+libpthread_SSRC = pt-vfork.S
+libpthread_CSRC = pthread_once.c pt-__syscall_rt_sigaction.c
+
+libc_a_CSRC = fork.c
+
+CFLAGS-OMIT-fork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
+CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
+endif
+CFLAGS-pthread_once.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+
+ASFLAGS-pt-vfork.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+
+CFLAGS += $(SSP_ALL_CFLAGS)
+#CFLAGS:=$(CFLAGS:-O1=-O2)
+
+LINUX_ARCH_DIR:=$(top_srcdir)libpthread/nptl/sysdeps/unix/sysv/linux/mips
+LINUX_ARCH_OUT:=$(top_builddir)libpthread/nptl/sysdeps/unix/sysv/linux/mips
+
+LINUX_ARCH_OBJ:=$(patsubst %.S,$(LINUX_ARCH_OUT)/%.o,$(libpthread_SSRC))
+LINUX_ARCH_OBJ+=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libpthread_CSRC))
+
+ifeq ($(DOPIC),y)
+libpthread-a-y += $(LINUX_ARCH_OBJ:.o=.os)
+else
+libpthread-a-y += $(LINUX_ARCH_OBJ)
+endif
+libpthread-so-y += $(LINUX_ARCH_OBJ:.o=.oS)
+
+libpthread-nomulti-y+=$(LINUX_ARCH_OBJS)
+
+LIBC_LINUX_ARCH_OBJ:=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libc_a_CSRC))
+
+libc-static-y+=$(LIBC_LINUX_ARCH_OBJ)
+libc-shared-y+=$(LIBC_LINUX_ARCH_OBJ:.o=.oS)
+
+libc-nomulti-y+=$(LIBC_LINUX_ARCH_OBJ)
+
+objclean-y+=pthread_linux_arch_objclean
+
+pthread_linux_arch_objclean:
+	$(RM) $(LINUX_ARCH_OUT)/*.{o,os,oS}

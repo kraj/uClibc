@@ -1,0 +1,30 @@
+# Makefile for uClibc NPTL
+#
+# Copyright (C) 2006 Steven J. Hill <sjhill@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+#
+# NOTE: Alpha and MIPS have their own versions of 'libc-tls.c' in
+#       their architecture specific directory which will override
+#       the one here.
+#
+libc_a_CSRC = dl-tls.c libc-tls.c
+
+
+CFLAGS-generic = $(SSP_ALL_CFLAGS)
+#CFLAGS:=$(CFLAGS:-O1=-O2)
+
+PTHREAD_GENERIC_OUT:=$(top_builddir)libpthread/nptl/sysdeps/generic
+
+LIBC_GENERIC_OBJ:=$(patsubst %.c,$(PTHREAD_GENERIC_OUT)/%.o,$(libc_a_CSRC))
+
+libc-static-y+=$(LIBC_GENERIC_OBJ)
+
+libc-nomulti-y+=$(LIBC_GENERIC_OBJ)
+
+objclean-y+=nptl_pthread_generic_clean
+
+nptl_pthread_generic_clean:
+	$(do_rm) $(addprefix $(PTHREAD_GENERIC_OUT)/*., o os oS)

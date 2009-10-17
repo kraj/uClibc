@@ -1,0 +1,146 @@
+# Makefile for uClibc NPTL
+#
+# Copyright (C) 2005-2006 Steven J. Hill <sjhill@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+#
+# NOTE: glibc puts flockfile.c, ftrylockfile.c, funlockfile.c, and
+#       pt-longjmp.c in libc and libpthread. For uClibc, they are
+#       in libc only.
+#
+libpthread_CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c	\
+		  pthread_cond_signal.c pthread_cond_timedwait.c	\
+		  pthread_cond_wait.c pthread_rwlock_rdlock.c		\
+		  pthread_rwlock_timedrdlock.c				\
+		  pthread_rwlock_timedwrlock.c pthread_rwlock_unlock.c	\
+		  pthread_rwlock_wrlock.c pthread_sigmask.c		\
+		  pthread_spin_destroy.c pthread_spin_init.c		\
+		  pthread_spin_unlock.c pt-sigfillset.c	\
+		  pt-longjmp.c
+
+
+ifeq ($(TARGET_ARCH),i386)
+X86_PTHREAD_EXCLUDE_LIST = pthread_spin_unlock.c pthread_spin_init.c \
+		pthread_cond_wait.c pthread_barrier_wait.c pthread_cond_broadcast.c	\
+		pthread_cond_signal.c pthread_cond_timedwait.c pthread_rwlock_timedrdlock.c	\
+		pthread_rwlock_timedwrlock.c pthread_rwlock_unlock.c pthread_rwlock_wrlock.c \
+		pthread_rwlock_rdlock.c
+
+libpthread_CSRC := $(filter-out $(X86_PTHREAD_EXCLUDE_LIST),$(libpthread_CSRC))
+endif
+
+ifeq ($(TARGET_ARCH),sh)
+SH_PTHREAD_EXCLUDE_LIST = pthread_spin_unlock.c pthread_spin_init.c \
+		pthread_rwlock_wrlock.c pthread_rwlock_rdlock.c \
+		pthread_rwlock_unlock.c pt-longjmp.c \
+		pthread_barrier_wait.c pthread_cond_broadcast.c	\
+		pthread_cond_signal.c \
+		pthread_rwlock_timedrdlock.c \
+		pthread_rwlock_timedwrlock.c
+
+libpthread_CSRC := $(filter-out $(SH_PTHREAD_EXCLUDE_LIST),$(libpthread_CSRC))
+endif
+
+ifeq ($(TARGET_ARCH),x86_64)
+libpthread_CSRC += pthread_once.c
+endif
+
+
+CFLAGS-pt-common = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS)
+
+CFLAGS-pthread_barrier_wait.c = -D_GNU_SOURCE $(CFLAGS-pt-common)	\
+				-DIS_IN_libpthread=1
+CFLAGS-pthread_cond_broadcast.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_cond_signal.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_cond_timedwait.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_cond_wait.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_rwlock_rdlock.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_rwlock_timedrdlock.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_rwlock_timedwrlock.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_rwlock_unlock.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_rwlock_wrlock.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_sigmask.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
+CFLAGS-pthread_spin_destroy.c = -D_GNU_SOURCE $(CFLAGS-pt-common)	\
+				-DIS_IN_libpthread=1
+CFLAGS-pthread_spin_init.c = -D_GNU_SOURCE $(CFLAGS-pt-common)		\
+			     -DIS_IN_libpthread=1
+CFLAGS-pthread_spin_unlock.c = -D_GNU_SOURCE $(CFLAGS-pt-common)	\
+			       -DIS_IN_libpthread=1
+CFLAGS-pt-sigaction.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1	\
+		     -I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)	\
+		     -I$(top_srcdir)libc/signal
+CFLAGS-pt-sigfillset.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1	\
+		      -I$(top_srcdir)libc/signal
+CFLAGS-pt-sigprocmask.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1	\
+		       -I$(top_srcdir)libc/sysdeps/linux/common
+CFLAGS-unwind-forcedunwind.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1 -fexceptions -fasynchronous-unwind-tables
+CFLAGS-librt-cancellation.c = -DIS_IN_librt=1 $(CFLAGS-pt-common)	\
+			      -fexceptions -fasynchronous-unwind-tables
+CFLAGS-rt-unwind-resume.c = -DIS_IN_librt=1 $(CFLAGS-pt-common)		\
+			    -fexceptions -fasynchronous-unwind-tables
+
+#CFLAGS:=$(CFLAGS:-O1=-O2)
+
+pthread_DIR := $(top_srcdir)libpthread/nptl/sysdeps/pthread
+pthread_OUT := $(top_builddir)libpthread/nptl/sysdeps/pthread
+
+pthread_SRC = $(patsubst %.c, $(pthread_DIR)/%.c, $(libpthread_CSRC))
+pthread_OBJ = $(patsubst %.c, $(pthread_OUT)/%.o, $(libpthread_CSRC))
+
+ifeq ($(DOPIC),y)
+libpthread-a-y += $(pthread_OBJ:.o=.os)
+else
+libpthread-a-y += $(pthread_OBJ)
+endif
+libpthread-so-y += $(pthread_OBJ:.o=.oS)
+libpthread-so-y += $(pthread_OUT)/pt-sigaction.oS $(pthread_OUT)/pt-sigprocmask.oS \
+					$(pthread_OUT)/unwind-forcedunwind.oS
+
+CFLAGS-sigaction.c = -I$(top_srcdir)libc/signal
+libc-y += $(pthread_OUT)/sigaction.o
+
+librt-a-y += $(pthread_OUT)/librt-cancellation.o
+librt-so-y += $(pthread_OUT)/librt-cancellation.oS		\
+	      $(pthread_OUT)/rt-unwind-resume.oS
+
+ifeq ($(UCLIBC_CTOR_DTOR),y)
+CFLAGS-pt-initfini.c = -S -g0 -fPIC -fno-inline-functions	\
+		       $(call check_gcc,-fno-unit-at-a-time,)	\
+		       -finhibit-size-directive			\
+		       $(patsubst -f%,-fno-%,$(call check_gcc,-fexceptions,))
+ASFLAGS-crti.S = -g0
+ASFLAGS-crtn.S = -g0
+
+$(pthread_OUT)/pt-initfini.s: $(pthread_DIR)/pt-initfini.c
+	$(compile.c)
+	sed -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
+		awk -f $(pthread_DIR)/defs.awk > $(pthread_OUT)/defs.h
+
+$(pthread_OUT)/crti.S: $(pthread_OUT)/pt-initfini.s
+	sed -n -e '1,/@HEADER_ENDS/p' \
+	       -e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
+	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
+
+$(pthread_OUT)/crtn.S: $(pthread_OUT)/pt-initfini.s
+	sed -n -e '1,/@HEADER_ENDS/p' \
+	       -e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
+	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
+endif
+
+$(pthread_DIR)/pt-sigaction.c:
+	$(LN) -s sigaction.c $@
+
+$(pthread_DIR)/pt-sigfillset.c:
+	$(LN) -s sigfillset.c $@
+
+$(pthread_DIR)/pt-sigprocmask.c:
+	$(LN) -s sigprocmask.c $@
+
+objclean-y += nptl_pthread_clean
+
+nptl_pthread_clean:
+	$(do_rm) $(addprefix $(pthread_OUT)/*., o os oS s S) $(pthread_OUT)/defs.h \
+	      $(pthread_DIR)/pt-sigaction.c $(pthread_DIR)/pt-sigfillset.c \
+	      $(pthread_DIR)/pt-sigprocmask.c

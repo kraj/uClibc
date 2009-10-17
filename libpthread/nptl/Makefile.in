@@ -1,0 +1,333 @@
+# Makefile for uClibc NPTL
+#
+# Copyright (C) 2005-2006 Steven J. Hill <sjhill@realitydiluted.com>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+subdirs += libpthread/nptl/sysdeps/$(TARGET_ARCH)
+subdirs += libpthread/nptl/sysdeps/unix/sysv/linux
+subdirs += libpthread/nptl/sysdeps/pthread
+
+libpthread-routines = init vars events version \
+		      pthread_create pthread_exit pthread_detach \
+		      pthread_join pthread_tryjoin pthread_timedjoin \
+		      pthread_self pthread_equal pthread_yield \
+		      pthread_getconcurrency pthread_setconcurrency \
+		      pthread_getschedparam pthread_setschedparam \
+		      pthread_setschedprio \
+		      pthread_attr_init pthread_attr_destroy \
+		      pthread_attr_getdetachstate pthread_attr_setdetachstate \
+		      pthread_attr_getguardsize pthread_attr_setguardsize \
+		      pthread_attr_getschedparam pthread_attr_setschedparam \
+		      pthread_attr_getschedpolicy pthread_attr_setschedpolicy \
+		      pthread_attr_getinheritsched \
+		      pthread_attr_setinheritsched \
+		      pthread_attr_getscope pthread_attr_setscope \
+		      pthread_attr_getstackaddr pthread_attr_setstackaddr \
+		      pthread_attr_getstacksize pthread_attr_setstacksize \
+		      pthread_attr_getstack pthread_attr_setstack \
+		      pthread_getattr_np \
+		      pthread_mutex_init pthread_mutex_destroy \
+		      pthread_mutex_lock pthread_mutex_trylock \
+		      pthread_mutex_timedlock pthread_mutex_unlock \
+		      pthread_mutexattr_init pthread_mutexattr_destroy \
+		      pthread_mutexattr_getpshared \
+		      pthread_mutexattr_setpshared \
+		      pthread_mutexattr_gettype pthread_mutexattr_settype \
+		      pthread_rwlock_init pthread_rwlock_destroy \
+		      pthread_rwlock_rdlock pthread_rwlock_timedrdlock \
+		      pthread_rwlock_wrlock pthread_rwlock_timedwrlock \
+		      pthread_rwlock_tryrdlock pthread_rwlock_trywrlock \
+		      pthread_rwlock_unlock \
+		      pthread_rwlockattr_init pthread_rwlockattr_destroy \
+		      pthread_rwlockattr_getpshared \
+		      pthread_rwlockattr_setpshared \
+		      pthread_rwlockattr_getkind_np \
+		      pthread_rwlockattr_setkind_np \
+		      pthread_cond_init pthread_cond_destroy \
+		      pthread_cond_wait pthread_cond_timedwait \
+		      pthread_cond_signal pthread_cond_broadcast \
+		      pthread_condattr_init pthread_condattr_destroy \
+		      pthread_condattr_getpshared pthread_condattr_setpshared \
+		      pthread_condattr_getclock pthread_condattr_setclock \
+		      pthread_spin_init pthread_spin_destroy \
+		      pthread_spin_lock pthread_spin_trylock \
+		      pthread_spin_unlock \
+		      pthread_barrier_init pthread_barrier_destroy \
+		      pthread_barrier_wait \
+		      pthread_barrierattr_init pthread_barrierattr_destroy \
+		      pthread_barrierattr_getpshared \
+		      pthread_barrierattr_setpshared \
+		      pthread_key_create pthread_key_delete \
+		      pthread_getspecific pthread_setspecific \
+		      pthread_sigmask pthread_kill \
+		      pthread_cancel pthread_testcancel \
+		      pthread_setcancelstate pthread_setcanceltype \
+		      pthread_once \
+		      pthread_atfork \
+		      pthread_getcpuclockid \
+		      pthread_clock_gettime pthread_clock_settime \
+		      sem_init sem_destroy \
+		      sem_open sem_close sem_unlink \
+		      sem_getvalue \
+		      sem_wait sem_trywait sem_timedwait sem_post \
+		      cleanup cleanup_defer cleanup_compat \
+		      cleanup_defer_compat unwind \
+		      pt-longjmp pt-cleanup\
+		      cancellation \
+		      lowlevellock \
+		      pt-vfork \
+		      ptw-write ptw-read ptw-close ptw-fcntl ptw-accept \
+		      ptw-connect ptw-recv ptw-recvfrom ptw-recvmsg ptw-send \
+		      ptw-sendmsg ptw-sendto ptw-fsync ptw-lseek ptw-llseek \
+		      ptw-msync ptw-nanosleep ptw-open ptw-open64 ptw-pause \
+		      ptw-pread ptw-pread64 ptw-pwrite ptw-pwrite64 \
+		      ptw-tcdrain ptw-wait ptw-waitpid ptw-msgrcv ptw-msgsnd \
+		      ptw-sigwait \
+		      pt-raise pt-system \
+		      flockfile ftrylockfile funlockfile \
+		      sigaction \
+		      herrno res \
+		      pthread_kill_other_threads \
+		      pthread_getaffinity pthread_setaffinity \
+		      pthread_attr_getaffinity pthread_attr_setaffinity \
+		      cleanup_routine unwind-forcedunwind
+
+libpthread-shared-only-routines = version pt-allocrtsig unwind-forcedunwind
+
+CFLAGS-pthread_atfork.c = -DNOT_IN_libc
+
+# Since cancellation handling is in large parts handled using exceptions
+# we have to compile some files with exception handling enabled, some
+# even with asynchronous unwind tables.
+
+# init.c contains sigcancel_handler().
+CFLAGS-init.c = -fexceptions -fasynchronous-unwind-tables
+# The unwind code itself,
+CFLAGS-unwind.c = -fexceptions
+CFLAGS-unwind-forcedunwind.c = -fexceptions -fasynchronous-unwind-tables
+
+# The following three functions must be async-cancel safe.
+CFLAGS-pthread_cancel.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pthread_setcancelstate.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pthread_setcanceltype.c = -fexceptions -fasynchronous-unwind-tables
+
+# These are internal functions which similar functionality as setcancelstate
+# and setcanceltype.
+CFLAGS-cancellation.c = -fasynchronous-unwind-tables
+CFLAGS-libc-cancellation.c = -fasynchronous-unwind-tables
+
+# Calling pthread_exit() must cause the registered cancel handlers to
+# be executed.  Therefore exceptions have to be thrown through this
+# function.
+CFLAGS-pthread_exit.c = -fexceptions
+
+# Among others, __pthread_unwind is forwarded.  This function must handle
+# exceptions.
+CFLAGS-forward.c = -fexceptions
+
+# The following are cancellation points.  Some of the functions can
+# block and therefore temporarily enable asynchronous cancellation.
+# Those must be compiled asynchronous unwind tables.
+CFLAGS-pthread_testcancel.c = -fexceptions
+CFLAGS-pthread_join.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pthread_timedjoin.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pthread_once.c = $(uses-callbacks) -fexceptions \
+			-fasynchronous-unwind-tables
+CFLAGS-pthread_cond_wait.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pthread_cond_timedwait.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-sem_wait.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-sem_timedwait.c = -fexceptions -fasynchronous-unwind-tables
+
+# These are the function wrappers we have to duplicate here.
+CFLAGS-fcntl.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-lockf.c = -fexceptions
+CFLAGS-pread.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pread64.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pwrite.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pwrite64.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-wait.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-waitpid.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-sigwait.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-msgrcv.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-msgsnd.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-tcdrain.c = -fexceptions -fasynchronous-unwind-tables
+
+CFLAGS-pt-system.c = -fexceptions -I./libc/stdlib
+
+#
+# The rest of this file is uClibc specific.
+#
+CFLAGS-pthread_barrier_init.c = -D_GNU_SOURCE
+CFLAGS-pthread_barrier_destroy.c = -D_GNU_SOURCE
+CFLAGS-pthread_barrierattr_init.c = -D_GNU_SOURCE
+CFLAGS-pthread_barrierattr_destroy.c = -D_GNU_SOURCE
+CFLAGS-pthread_barrierattr_getpshared.c = -D_GNU_SOURCE
+CFLAGS-pthread_barrierattr_setpshared.c = -D_GNU_SOURCE
+CFLAGS-sem_open.c = -D_GNU_SOURCE
+
+CFLAGS-nptl = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS) -DIS_IN_libpthread=1
+#CFLAGS:=$(CFLAGS:-O1=-O2)
+
+CFLAGS-OMIT-alloca_cutoff.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-forward.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-libc-lowlevelock.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-libc-cancellation.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+
+libpthread-os-routines = pthread_yield
+libpthread-misc-routines = pthread_rwlock_rdlock pthread_rwlock_timedrdlock \
+			   pthread_rwlock_wrlock pthread_rwlock_timedwrlock \
+			   pthread_rwlock_unlock pthread_cond_wait \
+			   pthread_cond_timedwait pthread_cond_signal \
+			   pthread_cond_broadcast pthread_spin_init \
+			   pthread_spin_destroy pthread_spin_lock \
+			   pthread_spin_trylock pthread_spin_unlock \
+			   pthread_barrier_wait pthread_sigmask \
+			   pthread_kill pthread_once \
+			   pthread_getcpuclockid sem_wait \
+			   sem_trywait sem_timedwait \
+			   sem_post pt-longjmp \
+			   lowlevellock pt-vfork \
+			   ptw-close ptw-read ptw-write \
+			   ptw-fcntl ptw-accept ptw-connect \
+			   ptw-recv ptw-recvfrom ptw-recvmsg \
+			   ptw-send ptw-sendmsg ptw-sendto \
+			   ptw-fsync ptw-lseek ptw-llseek \
+			   ptw-msync ptw-nanosleep ptw-open \
+			   ptw-open64 ptw-pause ptw-pread \
+			   ptw-pread64 ptw-pwrite ptw-pwrite64 \
+			   ptw-tcdrain ptw-wait ptw-waitpid \
+			   ptw-msgrcv ptw-msgsnd ptw-sigwait \
+			   pt-raise flockfile ftrylockfile \
+			   funlockfile sigaction \
+			   pthread_getaffinity \
+			   pthread_setaffinity \
+			   pthread_attr_getaffinity \
+			   pthread_attr_setaffinity \
+			   unwind-forcedunwind
+
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
+else
+LDFLAGS-libpthread.so := $(LDFLAGS)
+endif
+
+LDFLAGS-libpthread.so += $(top_builddir)lib/ld-uClibc-$(VERSION).so $(top_builddir)lib/libdl-$(VERSION).so
+
+LIBS-libpthread.so := $(LIBS)
+
+ifneq ($(UCLIBC_CTOR_DTOR),y)
+START_FILE-libpthread.so := $(top_builddir)/libpthread/nptl/sysdeps/pthread/crti.o $(SHARED_START_FILES)
+END_FILE-libpthread.so := $(SHARED_END_FILES) $(top_builddir)/libpthread/nptl/sysdeps/pthread/crtn.o
+endif
+
+libpthread_FULL_NAME := libpthread-$(VERSION).so
+
+PTHREAD_DIR := $(top_srcdir)libpthread/nptl
+PTHREAD_OUT := $(top_builddir)libpthread/nptl
+
+libpthread_static_SRC := pthread_atfork
+
+libpthread_a_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,			\
+		$(filter-out $(libpthread-os-routines) \
+	       $(libpthread-misc-routines)				 \
+	       $(libpthread-shared-only-routines),			 \
+	       $(libpthread-routines)))
+libpthread_so_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,		\
+		$(filter-out $(libpthread-os-routines) \
+	       $(libpthread-misc-routines), $(libpthread-routines)))
+
+libc-static-y += $(patsubst %.c, $(PTHREAD_OUT)/%.o, alloca_cutoff.c	\
+	    libc-cancellation.c)
+libc-shared-y += $(patsubst %.c, $(PTHREAD_OUT)/%.oS, forward.c		\
+	    libc-cancellation.c)
+libpthread-nonshared-y += $(patsubst %,$(PTHREAD_OUT)/%.oS,$(libpthread_static_SRC))
+
+ifeq ($(DOPIC),y)
+libpthread-a-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.os,$(libpthread_a_SRC))
+else
+libpthread-a-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.o,$(libpthread_a_SRC))
+endif
+
+libpthread-so-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.oS,$(libpthread_so_SRC))
+libpthread-static-y += $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.o,$(libpthread_a_SRC) $(libpthread_static_SRC))
+
+objclean-y += libpthread_clean
+headers_clean-y += nptl_headers_clean
+
+-include $(PTHREAD_DIR)/sysdeps/generic/Makefile.in
+-include $(PTHREAD_DIR)/sysdeps/pthread/Makefile.in
+-include $(PTHREAD_DIR)/sysdeps/$(TARGET_ARCH)/Makefile.arch
+-include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/Makefile.in
+-include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/Makefile.arch
+
+lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
+lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
+
+$(top_builddir)lib/libpthread.so: $(PTHREAD_OUT)/libpthread_so.a $(libc) $(top_builddir)lib/libpthread_nonshared.a
+	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
+	$(Q)$(RM) $@
+	$(Q)cp $(top_srcdir)extra/scripts/format.lds $@
+	$(Q)echo "GROUP ( $(notdir $@).$(MAJOR_VERSION) libpthread_nonshared.a )" >> $@
+
+$(PTHREAD_OUT)/libpthread_so.a: $(libpthread-so-y)
+	$(Q)$(RM) $@
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+	$(do_strip:-x=-X --strip-debug)
+else
+	$(do_strip)
+endif
+	$(do_ar)
+
+$(top_builddir)lib/libpthread.a: $(libpthread-a-y)
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+#
+# Create 'pthread-errnos.h' header file.
+#
+CFLAGS-pthread-errnos.c = -S
+
+$(PTHREAD_OUT)/pthread-errnos.c: $(PTHREAD_DIR)/pthread-errnos.sym
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(PTHREAD_OUT)/pthread-errnos.s: $(PTHREAD_OUT)/pthread-errnos.c
+	$(compile.c)
+
+$(PTHREAD_OUT)/pthread-errnos.h: $(PTHREAD_OUT)/pthread-errnos.s
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+
+
+headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(nptl_headers_bootstrap)
+
+$(top_builddir)include/pthread.h:
+	$(do_ln) ../$(PTDIR)/sysdeps/pthread/$(@F) $(top_builddir)$@
+$(top_builddir)include/semaphore.h:
+	$(do_ln) ../$(PTDIR)/$(@F) $(top_builddir)$@
+$(top_builddir)include/bits/semaphore.h: | include/bits
+	$(do_ln) ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/$(@F) $(top_builddir)$@
+$(top_builddir)include/bits/pthreadtypes.h: | include/bits
+	$(do_ln) ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/$(@F) $(top_builddir)$@
+$(top_builddir)include/bits/libc-lock.h: | include/bits
+	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
+$(top_builddir)include/bits/stdio-lock.h: | include/bits
+	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
+
+nptl_headers_bootstrap:= $(top_builddir)include/pthread.h \
+					     $(top_builddir)include/semaphore.h \
+						 $(top_builddir)include/bits/semaphore.h \
+						 $(top_builddir)include/bits/pthreadtypes.h \
+						 $(top_builddir)include/bits/libc-lock.h \
+						 $(top_builddir)include/bits/stdio-lock.h
+
+nptl_headers: $(PTHREAD_OUT)/pthread-errnos.h
+
+nptl_headers_clean:
+	$(do_rm) $(nptl_headers_bootstrap) \
+	      $(addprefix $(PTHREAD_OUT)/pthread-errnos., c h s)
+
+libpthread_clean:
+	$(do_rm) $(addprefix $(PTHREAD_OUT)/*., o os oS a)
