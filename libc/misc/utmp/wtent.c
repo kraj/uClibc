@@ -13,6 +13,7 @@
 #include <utmp.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include <not-cancel.h>
 
 #if 0
 /* This is enabled in uClibc/libutil/logwtmp.c */
@@ -36,12 +37,12 @@ void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 {
     int fd;
 
-    fd = open(wtmp_file, O_APPEND | O_WRONLY);
+    fd = open_not_cancel(wtmp_file, O_APPEND | O_WRONLY, 0);
     if (fd >= 0) {
 	if (lockf(fd, F_LOCK, 0) == 0) {
-	    write(fd, lutmp, sizeof(*lutmp));
+	    write_not_cancel(fd, lutmp, sizeof(struct utmp));
 	    lockf(fd, F_ULOCK, 0);
-	    close(fd);
+	    close_not_cancel_no_status(fd);
 	}
     }
 }

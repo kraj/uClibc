@@ -32,6 +32,7 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <libc-internal.h>
+#include <not-cancel.h>
 
 #include "netlinkaccess.h"
 
@@ -55,13 +56,13 @@ if_nametoindex(const char* ifname)
     {
       /* close never fails here, fd is just a unconnected socket.
        *int saved_errno = errno; */
-      close(fd);
+      close_not_cancel_no_status(fd);
       /*if (saved_errno == EINVAL)
        *  __set_errno(ENOSYS); */
       return 0;
     }
 
-  close(fd);
+  close_not_cancel_no_status(fd);
   return ifr.ifr_ifindex;
 #endif
 }
@@ -112,7 +113,7 @@ if_nameindex (void)
 
       if (ioctl (fd, SIOCGIFCONF, &ifc) < 0)
 	{
-	  close (fd);
+	  close_not_cancel_no_status (fd);
 	  return NULL;
 	}
     }
@@ -123,7 +124,7 @@ if_nameindex (void)
   idx = malloc ((nifs + 1) * sizeof (struct if_nameindex));
   if (idx == NULL)
     {
-      close(fd);
+      close_not_cancel_no_status (fd);
       __set_errno(ENOBUFS);
       return NULL;
     }
@@ -141,7 +142,7 @@ if_nameindex (void)
 	  for (j =  0; j < i; ++j)
 	    free (idx[j].if_name);
 	  free(idx);
-	  close(fd);
+	  close_not_cancel_no_status (fd);
 	  if (saved_errno == EINVAL)
 	    saved_errno = ENOSYS;
 	  else if (saved_errno == ENOMEM)
@@ -155,7 +156,7 @@ if_nameindex (void)
   idx[i].if_index = 0;
   idx[i].if_name = NULL;
 
-  close(fd);
+  close_not_cancel_no_status (fd);
   return idx;
 #endif
 }
@@ -298,14 +299,14 @@ if_indextoname (unsigned int ifindex, char *ifname)
   if (ioctl (fd, SIOCGIFNAME, &ifr) < 0)
     {
       int serrno = errno;
-      close (fd);
+      close_not_cancel_no_status (fd);
       if (serrno == ENODEV)
 	/* POSIX requires ENXIO.  */
 	serrno = ENXIO;
       __set_errno (serrno);
       return NULL;
   }
-  close (fd);
+  close_not_cancel_no_status (fd);
 
   return strncpy (ifname, ifr.ifr_name, IFNAMSIZ);
 # else

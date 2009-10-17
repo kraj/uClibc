@@ -14,6 +14,7 @@
 #include <netdb.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <not-cancel.h>
 
 
 #define HOSTID "/etc/hostid"
@@ -26,11 +27,11 @@ int sethostid(long int new_id)
 
 	if (geteuid() || getuid())
 		return __set_errno(EPERM);
-	fd = open(HOSTID, O_CREAT|O_WRONLY, 0644);
+	fd = open_not_cancel(HOSTID, O_CREAT|O_WRONLY, 0644);
 	if (fd < 0)
 		return fd;
-	ret = write(fd, &new_id, sizeof(new_id)) == sizeof(new_id) ? 0 : -1;
-	close(fd);
+	ret = write_not_cancel(fd, &new_id, sizeof(new_id)) == sizeof(new_id) ? 0 : -1;
+	close_not_cancel_no_status (fd);
 	return ret;
 }
 #endif
@@ -44,13 +45,13 @@ long int gethostid(void)
 	 * It is not an error if we cannot read this file. It is not even an
 	 * error if we cannot read all the bytes, we just carry on trying...
 	 */
-	fd = open(HOSTID, O_RDONLY);
-	if (fd >= 0 && read(fd, &id, sizeof(id)))
+	fd = open_not_cancel_2(HOSTID, O_RDONLY);
+	if (fd >= 0 && read_not_cancel(fd, &id, sizeof(id)))
 	{
-		close (fd);
+		close_not_cancel_no_status (fd);
 		return id;
 	}
-	if (fd >= 0) close (fd);
+	if (fd >= 0) close_not_cancel_no_status (fd);
 
 	/* Try some methods of returning a unique 32 bit id. Clearly IP
 	 * numbers, if on the internet, will have a unique address. If they

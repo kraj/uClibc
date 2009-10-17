@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "dirstream.h"
+#include <not-cancel.h>
 
 
 int closedir(DIR * dir)
@@ -31,6 +32,6 @@ int closedir(DIR * dir)
 	__UCLIBC_MUTEX_UNLOCK(dir->dd_lock);
 	free(dir->dd_buf);
 	free(dir);
-	return close(fd);
+	return close_not_cancel(fd);
 }
 libc_hidden_def(closedir)

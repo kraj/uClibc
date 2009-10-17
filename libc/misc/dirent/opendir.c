@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <sys/dir.h>
 #include <sys/stat.h>
+#include <not-cancel.h>
 #include <dirent.h>
 #include "dirstream.h"
 
@@ -81,7 +82,7 @@ DIR *opendir(const char *name)
 	}
 # define O_DIRECTORY 0
 #endif
-	fd = open(name, O_RDONLY|O_NDELAY|O_DIRECTORY|O_CLOEXEC);
+	fd = open_not_cancel_2(name, O_RDONLY|O_NDELAY|O_DIRECTORY|O_CLOEXEC);
 	if (fd < 0)
 		return NULL;
 	/* Note: we should check to make sure that between the stat() and open()
@@ -93,7 +94,7 @@ DIR *opendir(const char *name)
 		/* this close() never fails
 		 *int saved_errno;
 		 *saved_errno = errno; */
-		close(fd);
+		close_not_cancel_no_status(fd);
 		/*__set_errno(saved_errno);*/
 		return NULL;
 	}
@@ -102,12 +103,13 @@ DIR *opendir(const char *name)
 	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
 	 */
 #ifndef __ASSUME_O_CLOEXEC
-	fcntl(fd, F_SETFD, FD_CLOEXEC);
+	fcntl_not_cancel(fd, F_SETFD, FD_CLOEXEC);
 #endif
 
 	ptr = fd_to_DIR(fd, statbuf.st_blksize);
+
 	if (!ptr) {
-		close(fd);
+		close_not_cancel_no_status(fd);
 		__set_errno(ENOMEM);
 	}
 	return ptr;

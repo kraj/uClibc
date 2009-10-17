@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "../misc/internals/tempname.h"
+#include <not-cancel.h>
 
 
 /* This returns a new stream opened on a temporary file (generated
@@ -43,7 +44,7 @@ FILE * tmpfile (void)
     (void) remove (buf);
 
     if ((f = fdopen (fd, "w+b")) == NULL)
-	close (fd);
+	close_not_cancel (fd);
 
     return f;
 }
