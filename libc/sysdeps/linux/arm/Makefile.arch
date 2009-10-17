@@ -5,14 +5,24 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := brk.c ioperm.c iopl.c mmap.c sigaction.c __syscall_error.c
+CSRC := brk.c ioperm.c iopl.c mmap.c __syscall_error.c
+
+ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CSRC += sigaction.c
+endif
 
 SSRC := \
-	__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
+	__longjmp.S setjmp.S bsd-setjmp.S \
 	bsd-_setjmp.S sigrestorer.S mmap64.S
 
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+SSRC += libc-aeabi_read_tp.S libc-thumb_atomics.S
+else
+SSRC += vfork.S clone.S
+endif
+
 ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
-        CSRC += posix_fadvise.c posix_fadvise64.c
+CSRC += posix_fadvise.c posix_fadvise64.c
 endif
 
 ifeq ($(CONFIG_ARM_EABI),y)

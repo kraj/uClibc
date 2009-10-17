@@ -30,12 +30,12 @@
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
 .text
-.global clone
-.type clone,%function
+.global __clone
+.type __clone,%function
 .align 2
 #if defined(THUMB1_ONLY)
 .thumb_func
-clone:
+__clone:
 	@ sanity check args
 	cmp	r0, #0
 	beq	__einval
@@ -52,9 +52,15 @@ clone:
 	@ get flags
 	mov	r0, r2
 	@ new sp is already in r1
+	@ load remaining arguments off the stack
+	stmfd	sp!, {r4}
+	ldr	r2, [sp, #4]
+	ldr	r3, [sp, #8]
+	ldr	r4, [sp, #12]
 	DO_CALL (clone)
 	movs	a1, a1
 	blt	__error
+	ldmnefd sp!, {r4}
 	beq	1f
 	bx	lr
 1:
@@ -80,7 +86,7 @@ __error:
 	POP_RET
 .pool
 #else
-clone:
+__clone:
 	@ sanity check args
 	cmp	r0, #0
 	IT(te, ne)
@@ -98,9 +104,15 @@ clone:
 	@ get flags
 	mov	r0, r2
 	@ new sp is already in r1
+	@ load remaining arguments off the stack
+	stmfd	sp!, {r4}
+	ldr	r2, [sp, #4]
+	ldr	r3, [sp, #8]
+	ldr	r4, [sp, #12]
 	DO_CALL (clone)
 	movs	a1, a1
 	blt	__error
+	ldmnefd	sp!, {r4}
 	IT(t, ne)
 #if defined(__USE_BX__)
 	bxne	lr
@@ -120,6 +132,7 @@ __error:
 	b	__syscall_error
 #endif
 
-.size clone,.-clone
+.size __clone,.-__clone
+weak_alias(__clone, clone)
 
 #endif
