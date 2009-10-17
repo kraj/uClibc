@@ -40,6 +40,7 @@ typedef void *nl_catd;
 /* Type used by `nl_langinfo'.  */
 typedef int nl_item;
 
+#if 0
 /* Open message catalog for later use, returning descriptor.
 
    This function is a possible cancellation point and therefore not
@@ -53,6 +54,7 @@ extern char *catgets (nl_catd __catalog, int __set, int __number,
 
 /* Close message CATALOG.  */
 extern int catclose (nl_catd __catalog) __THROW __nonnull ((1));
+#endif
 
 __END_DECLS
 
