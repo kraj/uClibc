@@ -43,7 +43,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 
 #if (defined(__STDIO_BUFFERS) || defined(__USE_OLD_VFPRINTF__)) && defined(__UCLIBC_HAS_THREADS__)
 	f.__user_locking = 1;		/* Set user locking. */
-	__stdio_init_mutex(&f.__lock);
+	STDIO_INIT_MUTEX(f.__lock);
 #endif
 	f.__nextopen = NULL;
 
@@ -117,7 +117,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 
 #ifdef __UCLIBC_HAS_THREADS__
 	f.f.__user_locking = 1;		/* Set user locking. */
-	__stdio_init_mutex(&f.f.__lock);
+	STDIO_INIT_MUTEX(f.f.__lock);
 #endif
 	f.f.__nextopen = NULL;
 

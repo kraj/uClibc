@@ -18,11 +18,11 @@
  * when all (lbf) writing streams are flushed. */
 
 #define __MY_STDIO_THREADLOCK(__stream)					\
-        __UCLIBC_MUTEX_CONDITIONAL_LOCK((__stream)->__lock,		\
+        __UCLIBC_IO_MUTEX_CONDITIONAL_LOCK((__stream)->__lock,		\
 	(_stdio_user_locking != 2))
 
 #define __MY_STDIO_THREADUNLOCK(__stream)				\
-        __UCLIBC_MUTEX_CONDITIONAL_UNLOCK((__stream)->__lock,		\
+        __UCLIBC_IO_MUTEX_CONDITIONAL_UNLOCK((__stream)->__lock,		\
 	(_stdio_user_locking != 2))
 
 #if defined(__UCLIBC_HAS_THREADS__) && defined(__STDIO_BUFFERS)

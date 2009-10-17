@@ -235,7 +235,7 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 
 #ifdef __UCLIBC_HAS_THREADS__
 	f.__user_locking = 1;		/* Set user locking. */
-	__stdio_init_mutex(&f.__lock);
+	STDIO_INIT_MUTEX(f.__lock);
 #endif
 	f.__nextopen = NULL;
 
@@ -283,7 +283,7 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 
 #ifdef __UCLIBC_HAS_THREADS__
 	f.f.__user_locking = 1;		/* Set user locking. */
-	__stdio_init_mutex(&f.f.__lock);
+	STDIO_INIT_MUTEX(f.f.__lock);
 #endif
 	f.f.__nextopen = NULL;
 
@@ -388,8 +388,10 @@ int vswscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 {
 	FILE f;
 
-	f.__bufstart = f.__bufpos = (unsigned char *) str;
-	f.__bufread = f.__bufend = (unsigned char *) (str + wcslen(str));
+	f.__bufstart =
+	f.__bufpos = (char *) str;
+	f.__bufread =
+	f.__bufend = (char *)(str + wcslen(str));
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
 
@@ -414,7 +416,7 @@ int vswscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 
 #ifdef __UCLIBC_HAS_THREADS__
 	f.__user_locking = 1;		/* Set user locking. */
-	__stdio_init_mutex(&f.__lock);
+	STDIO_INIT_MUTEX(f.__lock);
 #endif
 	f.__nextopen = NULL;
 

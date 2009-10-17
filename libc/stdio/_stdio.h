@@ -24,18 +24,18 @@
 #include <bits/uClibc_mutex.h>
 
 #define __STDIO_THREADLOCK_OPENLIST_ADD			\
-        __UCLIBC_MUTEX_LOCK(_stdio_openlist_add_lock)
+        __UCLIBC_IO_MUTEX_LOCK(_stdio_openlist_add_lock)
 
 #define __STDIO_THREADUNLOCK_OPENLIST_ADD		\
-        __UCLIBC_MUTEX_UNLOCK(_stdio_openlist_add_lock)
+        __UCLIBC_IO_MUTEX_UNLOCK(_stdio_openlist_add_lock)
 
 #ifdef __STDIO_BUFFERS
 
 #define __STDIO_THREADLOCK_OPENLIST_DEL			\
-        __UCLIBC_MUTEX_LOCK(_stdio_openlist_del_lock)
+        __UCLIBC_IO_MUTEX_LOCK(_stdio_openlist_del_lock)
 
 #define __STDIO_THREADUNLOCK_OPENLIST_DEL		\
-        __UCLIBC_MUTEX_UNLOCK(_stdio_openlist_del_lock)
+        __UCLIBC_IO_MUTEX_UNLOCK(_stdio_openlist_del_lock)
 
 
 #ifdef __UCLIBC_HAS_THREADS__
