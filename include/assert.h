@@ -51,15 +51,15 @@
 __BEGIN_DECLS
 
 /* This prints an "Assertion failed" message and aborts.  */
-extern void __assert __P((const char *, const char *, int, const char *));
+extern void __assert(const char *, const char *, unsigned int, const char *)
+	__THROW __attribute__ ((__noreturn__));
 libc_hidden_proto(__assert)
 
 __END_DECLS
 
 # define assert(expr) \
-  (__ASSERT_VOID_CAST ((expr) ? 0 :					      \
-		       (__assert (__STRING(expr), __FILE__, __LINE__,    \
-				       __ASSERT_FUNCTION), 0)))
+  (__ASSERT_VOID_CAST ((expr) ? 0 :								\
+		       (__assert (__STRING(expr), __FILE__, __LINE__, __ASSERT_FUNCTION), 0)))
 
 /* Version 2.4 and later of GCC define a magical variable `__PRETTY_FUNCTION__'
    which contains the name of the function currently being defined.
