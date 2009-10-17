@@ -223,6 +223,11 @@ define do_awk
 	$(Q)$(AWK) -f
 endef
 
+define do_sed
+	@$(disp_gen)
+	$(Q)$(SED)
+endef
+
 compile.c = @$(call maybe_exec,compile.c)
 compile.i =  $(call maybe_exec,compile.i)
 compile.s =  $(call maybe_exec,compile.s)
