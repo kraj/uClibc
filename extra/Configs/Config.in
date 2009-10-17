@@ -431,7 +431,7 @@ config PTHREADS_DEBUG_SUPPORT
 config LINUXTHREADS_OLD
 	bool "Use the older (stable) version of linuxthreads"
 	default y
-	depends on UCLIBC_HAS_THREADS && !UCLIBC_HAS_THREADS_NATIVE
+	depends on UCLIBC_HAS_THREADS
 	help
 	  There are two versions of linuxthreads.  The older (stable) version
 	  has been in uClibc for quite a long time but hasn't seen too many
