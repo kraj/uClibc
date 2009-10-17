@@ -102,7 +102,7 @@ __asm__ (".L__X'%ebx = 1\n\t"
     "int $0x80\n\t"                                                           \
     RESTOREARGS_##nr                                                          \
     : "=a" (resultvar)                                                        \
-    : "i" (name) ASMFMT_##nr(args) : "memory", "cc");                         \
+    : "g" (name) ASMFMT_##nr(args) : "memory", "cc");                         \
      (int) resultvar; })
 
 #define LOADARGS_0

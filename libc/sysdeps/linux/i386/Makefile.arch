@@ -5,8 +5,17 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := brk.c sigaction.c __syscall_error.c
+CSRC := brk.c __syscall_error.c
+
+ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CSRC += sigaction.c
+endif
 
 SSRC := \
-	__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
+	__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
 	sync_file_range.S syscall.S mmap.S mmap64.S posix_fadvise64.S
+
+
+ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+SSRC += vfork.S clone.S
+endif

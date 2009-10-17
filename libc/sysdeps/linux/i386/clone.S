@@ -79,7 +79,10 @@ clone:
 	movl	%eax,8(%ecx)
 	/* Don't leak any information.  */
 	movl	$0,4(%ecx)
+#ifndef RESET_PID
 	movl	$0,(%ecx)
+#endif
+
 
 	/* Do the system call */
 	pushl	%ebx
@@ -90,6 +93,10 @@ clone:
 	movl	FLAGS+12(%esp),%ebx
 	movl	CTID+12(%esp),%edi
 	movl	$__NR_clone,%eax
+#ifdef RESET_PID
+	/* Remember the flag value.  */
+	movl	%ebx, (%ecx)
+#endif
 	int	$0x80
 	popl	%edi
 	popl	%esi
@@ -121,3 +128,4 @@ __error:
 	jmp __syscall_error
 
 .size clone,.-clone
+weak_alias(clone, __clone)
