@@ -54,7 +54,7 @@ if_nametoindex(const char* ifname)
   strncpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
   if (ioctl (fd, SIOCGIFINDEX, &ifr) < 0)
     {
-      /* close never fails here, fd is just a unconnected socket
+      /* close never fails here, fd is just a unconnected socket.
        *int saved_errno = errno; */
       close_not_cancel_no_status(fd);
       /*if (saved_errno == EINVAL)

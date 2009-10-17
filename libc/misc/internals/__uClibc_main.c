@@ -39,7 +39,7 @@
 
 
 #ifndef SHARED
-void *__libc_stack_end=NULL;
+void *__libc_stack_end = NULL;
 
 # ifdef __UCLIBC_HAS_SSP__
 #  include <dl-osinfo.h>
@@ -64,7 +64,7 @@ uintptr_t __guard attribute_relro;
 # endif
 
 /*
- * Needed to initialize _dl_phdr when statically linked;
+ * Needed to initialize _dl_phdr when statically linked
  */
  
 void internal_function _dl_aux_init (ElfW(auxv_t) *av);
@@ -73,9 +73,9 @@ void internal_function _dl_aux_init (ElfW(auxv_t) *av);
 /*
  * Prototypes.
  */
-extern void weak_function _stdio_init(void) attribute_hidden;
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
+extern void weak_function _stdio_init(void) attribute_hidden;
 #ifdef __UCLIBC_HAS_LOCALE__
 extern void weak_function _locale_init(void) attribute_hidden;
 #endif
@@ -137,7 +137,7 @@ static void __check_one_fd(int fd, int mode)
 	int nullfd = open(_PATH_DEVNULL, mode);
 	/* /dev/null is major=1 minor=3.  Make absolutely certain
 	 * that is in fact the device that we have opened and not
-	 * some other wierd file... */
+	 * some other wierd file... [removed in uclibc] */
 	if (nullfd!=fd)
 	{
 		abort();
