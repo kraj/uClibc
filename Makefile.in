@@ -381,20 +381,6 @@ ifeq ($(HAVE_SHARED),y)
 	fi
 endif
 
-# Installs only library tests 
-install_test:
-	mkdir -p  $(PREFIX)
-	$(INSTALL) -m 644  .config Rules.mak $(PREFIX)
-	for i in `find test -type d | grep -v .svn` ; do $(INSTALL) -d $(PREFIX)/$$i ; done
-	for j in `find test -name '*.c' -o -name '*.in' -o -name '*.dat' -o -name '*.input'` ; \
-		do $(INSTALL) -m 644 $$j $(PREFIX)/$$j; done
-	for j in `find test -name '*.mak' -o -name 'Make*'| grep -v .svn`; \
-		do $(INSTALL) -m 644 $$j $(PREFIX)/$$j; done
-	for j in `find test -name '*.so'` ; \
-		do $(INSTALL) -m 755 $$j $(PREFIX)/$$j; done
-	for j in `find test -perm 755 ! -name 'gen-libm-test.pl' ! -type d ! -name '*.so' | grep -v .svn`; \
-		do $(INSTALL) -m 755 $$j $(PREFIX)/$$j; done
-
 utils:
 	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils $@
 
