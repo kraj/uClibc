@@ -29,4 +29,3 @@
 		  NULL, NULL, NULL, &THREAD_SELF->tid)
 
 #include "../fork.c"
-

@@ -463,4 +463,3 @@ __condvar_tw_cleanup:
 	hlt
 .LENDCODE:
 	.size	__condvar_tw_cleanup, .-__condvar_tw_cleanup
-

@@ -48,7 +48,7 @@ do_test (void)
 		  modid);
 	  result = 1;
 	}
-#else 
+#else
       if (modid == -1)
 	modid = ((struct link_map *) h)->l_tls_modid;
       else if (((struct link_map *) h)->l_tls_modid != modid)

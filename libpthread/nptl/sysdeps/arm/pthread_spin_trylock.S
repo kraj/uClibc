@@ -32,4 +32,3 @@ ENTRY (pthread_spin_trylock)
 	movne	r0, #EBUSY
 	PSEUDO_RET_NOERRNO
 END (pthread_spin_trylock)
-

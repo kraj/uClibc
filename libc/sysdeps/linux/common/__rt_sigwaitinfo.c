@@ -100,4 +100,3 @@ int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
 libc_hidden_proto(sigwaitinfo)
 weak_alias (__sigwaitinfo, sigwaitinfo)
 libc_hidden_weak(sigwaitinfo)
-

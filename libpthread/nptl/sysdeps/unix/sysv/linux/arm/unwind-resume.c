@@ -93,4 +93,3 @@ __gcc_personality_v0 (_Unwind_State state,
     init ();
   return libgcc_s_personality (state, ue_header, context);
 }
-

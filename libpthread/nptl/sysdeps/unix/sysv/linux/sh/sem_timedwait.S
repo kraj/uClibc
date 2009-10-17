@@ -136,7 +136,7 @@ sem_timedwait:
 	mov	r10, r4
 	bsrf	r1
 	 mov	r0, r10
-.Ldisable0b:	
+.Ldisable0b:
 	mov	r10, r0
 
 	tst	r0, r0

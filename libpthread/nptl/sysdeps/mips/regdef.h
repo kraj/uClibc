@@ -24,4 +24,3 @@
 #include <sys/fpregdef.h>
 
 #endif /* _REGDEF_H */
-

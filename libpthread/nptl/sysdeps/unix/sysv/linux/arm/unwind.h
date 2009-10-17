@@ -272,4 +272,3 @@ extern "C" {
 #endif
 
 #endif /* defined UNWIND_ARM_H */
-

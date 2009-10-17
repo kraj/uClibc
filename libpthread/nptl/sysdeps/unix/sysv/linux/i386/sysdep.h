@@ -1,5 +1,5 @@
 /* Copyright (C) 1992,1993,1995-2000,2002-2006,2007
-   	Free Software Foundation, Inc.
+	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper, <drepper@gnu.org>, August 1995.
 

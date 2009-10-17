@@ -151,4 +151,3 @@ extern int __local_multiple_threads attribute_hidden;
 # define NO_CANCELLATION 1
 
 #endif
-

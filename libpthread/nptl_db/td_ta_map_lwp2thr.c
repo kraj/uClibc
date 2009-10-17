@@ -49,7 +49,7 @@ td_ta_map_lwp2thr (const td_thragent_t *ta_arg,
 	{
 	  err = ps_pdread (ta->ph, howto,
 			   &ta->ta_howto_data.const_thread_area,
- 			   sizeof ta->ta_howto_data.const_thread_area);
+			   sizeof ta->ta_howto_data.const_thread_area);
 	  if (err != PS_OK)
 	    return TD_ERR;
 	  ta->ta_howto = ta_howto_const_thread_area;

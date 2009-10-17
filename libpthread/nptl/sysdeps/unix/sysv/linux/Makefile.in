@@ -19,7 +19,7 @@ libc_CSRC = libc_pthread_init.c libc_multiple_threads.c			\
 	    register-atfork.c unregister-atfork.c getpid.c		\
 	    raise.c sleep.c jmp-unwind.c
 
-# These provide both a cancellable and a not cancellable implementation 
+# These provide both a cancellable and a not cancellable implementation
 libc_SSRC = close.S open.S write.S read.S
 
 ifneq ($(TARGET_ARCH),arm)
@@ -45,7 +45,7 @@ endif
 ifeq ($(TARGET_ARCH),powerpc)
 libpthread_CSRC += lowlevellock.c
 libc_CSRC += libc-lowlevellock.c
-librt_CSRC := mq_notify.c 
+librt_CSRC := mq_notify.c
 endif
 
 ifeq ($(TARGET_ARCH),sparc)
@@ -65,7 +65,7 @@ endif
 
 
 ifeq ($(TARGET_ARCH),x86_64)
-librt_CSRC := mq_notify.c 
+librt_CSRC := mq_notify.c
 endif
 
 CFLAGS-pthread_getcpuclockid.c = -I$(top_srcdir)librt
@@ -195,7 +195,7 @@ ALL_HEADERS_BITS_PTHREAD := $(addprefix include/bits/,$(HEADERS_BITS_PTHREAD))
 
 $(ALL_HEADERS_BITS_PTHREAD):
 	$(do_ln) ../../$(PTHREAD_LINUX_DIR)/bits/$(@F) $(top_builddir)$@
-	
+
 nptl_linux_headers_clean:
 	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/lowlevelbarrier., c h s) \
 	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelcond., c h s) \

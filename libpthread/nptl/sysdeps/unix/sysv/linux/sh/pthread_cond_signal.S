@@ -133,4 +133,3 @@ __pthread_cond_signal:
 	.long	__lll_mutex_unlock_wake-.Lmwake4b
 	.size	__pthread_cond_signal, .-__pthread_cond_signal
 weak_alias (__pthread_cond_signal, pthread_cond_signal)
-

@@ -154,7 +154,7 @@ __pthread_rwlock_unlock:
 	 mov.l	@r15+, r4
 
 	.align	2
-.Lwait8:	
+.Lwait8:
 	.long	__lll_mutex_lock_wait-.Lwait8b
 .Lwake8:
 	.long	__lll_mutex_unlock_wake-.Lwake8b

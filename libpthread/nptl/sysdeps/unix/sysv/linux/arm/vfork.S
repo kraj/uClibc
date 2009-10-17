@@ -37,4 +37,3 @@
 	strne	r3, [r2, #PID_OFFSET]	/* ... restore the saved PID.  */
 
 #include "../../../../../../../libc/sysdeps/linux/arm/vfork.S"
-

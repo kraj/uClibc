@@ -80,7 +80,7 @@ void *_dl_memalign(size_t alignment, size_t bytes)
  * not be inlined as much as possible.
  */
 
- 
+
 void
 internal_function __attribute_noinline__
 _dl_allocate_static_tls (struct link_map *map)

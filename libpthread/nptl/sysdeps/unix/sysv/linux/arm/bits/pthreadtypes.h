@@ -165,4 +165,3 @@ typedef union
 
 
 #endif	/* bits/pthreadtypes.h */
-

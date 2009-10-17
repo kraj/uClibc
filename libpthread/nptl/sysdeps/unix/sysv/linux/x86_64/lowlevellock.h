@@ -237,7 +237,7 @@ extern int lll_unlock_wake_cb (int *__futex) attribute_hidden;
 			      "je 0f\n\t"				      \
 			      "lock; cmpxchgl %0, %2\n\t"		      \
 			      "jnz 1f\n\t"				      \
-		  	      "jmp 2f\n"				      \
+			      "jmp 2f\n"				      \
 			      "0:\tcmpxchgl %0, %2\n\t"			      \
 			      "jnz 1f\n\t"				      \
 			      ".subsection 1\n"				      \
@@ -260,7 +260,7 @@ extern int lll_unlock_wake_cb (int *__futex) attribute_hidden;
 			      "je 0f\n\t"				      \
 			      "lock; decl %0\n\t"			      \
 			      "jne 1f\n\t"				      \
-		  	      "jmp 2f\n"				      \
+			      "jmp 2f\n"				      \
 			      "0:\tdecl %0\n\t"				      \
 			      "jne 1f\n\t"				      \
 			      ".subsection 1\n"				      \

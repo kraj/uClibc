@@ -133,4 +133,3 @@ L(__thread_start):
 #endif
 	.end  __thread_start
 weak_alias(clone, __clone)
-

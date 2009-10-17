@@ -134,4 +134,3 @@ unsigned int __thumb_cmpxchg (unsigned int oldval, unsigned int newval, void *me
   ({ __arm_link_error (); oldval; })
 
 #endif /* __thumb__ */
-
