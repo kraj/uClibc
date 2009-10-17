@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2001, 2003, 2004, 2006, 2007
+/* Copyright (C) 1991-2001, 2003, 2004, 2006, 2007, 2008
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -53,6 +53,8 @@ enum
 #define IPPROTO_IDP		IPPROTO_IDP
     IPPROTO_TP = 29,	   /* SO Transport Protocol Class 4.  */
 #define IPPROTO_TP		IPPROTO_TP
+    IPPROTO_DCCP = 33,	   /* Datagram Congestion Control Protocol.  */
+#define IPPROTO_DCCP		IPPROTO_DCCP
     IPPROTO_IPV6 = 41,     /* IPv6 header.  */
 #define IPPROTO_IPV6		IPPROTO_IPV6
     IPPROTO_ROUTING = 43,  /* IPv6 routing header.  */
@@ -83,6 +85,8 @@ enum
 #define IPPROTO_COMP		IPPROTO_COMP
     IPPROTO_SCTP = 132,	   /* Stream Control Transmission Protocol.  */
 #define IPPROTO_SCTP		IPPROTO_SCTP
+    IPPROTO_UDPLITE = 136, /* UDP-Lite protocol.  */
+#define IPPROTO_UDPLITE		IPPROTO_UDPLITE
     IPPROTO_RAW = 255,	   /* Raw IP packets.  */
 #define IPPROTO_RAW		IPPROTO_RAW
     IPPROTO_MAX
@@ -195,13 +199,17 @@ struct in6_addr
   {
     union
       {
-	uint8_t	u6_addr8[16];
-	uint16_t u6_addr16[8];
-	uint32_t u6_addr32[4];
-      } in6_u;
-#define s6_addr			in6_u.u6_addr8
-#define s6_addr16		in6_u.u6_addr16
-#define s6_addr32		in6_u.u6_addr32
+	uint8_t	__u6_addr8[16];
+#if defined __USE_MISC || defined __USE_GNU
+	uint16_t __u6_addr16[8];
+	uint32_t __u6_addr32[4];
+#endif
+      } __in6_u;
+#define s6_addr			__in6_u.__u6_addr8
+#if defined __USE_MISC || defined __USE_GNU
+# define s6_addr16		__in6_u.__u6_addr16
+# define s6_addr32		__in6_u.__u6_addr32
+#endif
   };
 
 extern const struct in6_addr in6addr_any;        /* :: */
@@ -213,11 +221,8 @@ libc_hidden_proto(in6addr_loopback)
 #define INET_ADDRSTRLEN 16
 #define INET6_ADDRSTRLEN 46
 
-/* Get the definition of the macro to define the common sockaddr members.  */
-#include <bits/socket.h>
 
-
-#if 1 /* defined __UCLIBC_HAS_IPV4__ */
+#if 1 /*def __UCLIBC_HAS_IPV4__*/
 /* Structure describing an Internet socket address.  */
 struct sockaddr_in
   {
@@ -244,6 +249,7 @@ struct sockaddr_in6
   };
 
 
+#if defined __USE_MISC || defined __USE_GNU
 /* IPv4 multicast request.  */
 struct ip_mreq
   {
@@ -265,6 +271,8 @@ struct ip_mreq_source
     /* IP address of interface.  */
     struct in_addr imr_sourceaddr;
   };
+#endif
+
 
 /* Likewise, for IPv6.  */
 struct ipv6_mreq
@@ -277,6 +285,7 @@ struct ipv6_mreq
   };
 
 
+#if defined __USE_MISC || defined __USE_GNU
 /* Multicast group request.  */
 struct group_req
   {
@@ -343,6 +352,7 @@ struct group_filter
 				   - sizeof (struct sockaddr_storage)	      \
 				   + ((numsrc)				      \
 				      * sizeof (struct sockaddr_storage)))
+#endif
 
 
 /* Get system-specific definitions.  */
@@ -432,13 +442,17 @@ libc_hidden_proto(htons)
 	 && (((__const uint32_t *) (a))[2] == ((__const uint32_t *) (b))[2])  \
 	 && (((__const uint32_t *) (a))[3] == ((__const uint32_t *) (b))[3]))
 
+#if defined __USE_MISC || defined __USE_GNU
 /* Bind socket to a privileged IP port.  */
 extern int bindresvport (int __sockfd, struct sockaddr_in *__sock_in) __THROW;
 libc_hidden_proto(bindresvport)
 
+# if 0 /*def __UCLIBC_HAS_IPV6__*/
 /* The IPv6 version of this function.  */
 extern int bindresvport6 (int __sockfd, struct sockaddr_in6 *__sock_in)
      __THROW;
+# endif
+#endif
 
 
 #define IN6_IS_ADDR_MC_NODELOCAL(a) \
@@ -461,6 +475,8 @@ extern int bindresvport6 (int __sockfd, struct sockaddr_in6 *__sock_in)
 	(IN6_IS_ADDR_MULTICAST(a)					      \
 	 && ((((__const uint8_t *) (a))[1] & 0xf) == 0xe))
 
+
+#if 0 /*def __USE_GNU*/
 /* IPv6 packet information.  */
 struct in6_pktinfo
   {
@@ -476,7 +492,6 @@ struct ip6_mtuinfo
   };
 
 
-#if 0 /*def __USE_GNU*/
 /* Obsolete hop-by-hop and Destination Options Processing (RFC 2292).  */
 extern int inet6_option_space (int __nbytes)
      __THROW __attribute_deprecated__;
