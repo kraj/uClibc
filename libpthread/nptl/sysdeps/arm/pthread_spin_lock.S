@@ -29,4 +29,3 @@ ENTRY (pthread_spin_lock)
 	mov	r0, #0
 	PSEUDO_RET_NOERRNO
 END (pthread_spin_lock)
-

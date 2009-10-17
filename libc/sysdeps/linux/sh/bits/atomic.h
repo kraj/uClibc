@@ -260,7 +260,7 @@ typedef uintmax_t uatomic_max_t;
 
 #define __arch_bit_set_32_int(mem, value)		\
   __arch_operate_new_n(mem, 1<<(value), l, or)
-  
+
 #define __arch_bit_set_64_int(mem, value)		\
   (abort (), 0)
 

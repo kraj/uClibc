@@ -93,7 +93,7 @@ __pthread_cond_timedwait:
 	bt	17f
 	mov.l	r9, @(dep_mutex,r8)
 
-17:	
+17:
 	/* Unlock the mutex.  */
 	mov.l	.Lmunlock1, r1
 	mov	#0, r5
@@ -123,14 +123,14 @@ __pthread_cond_timedwait:
 	mov.l	@(cond_nwaiters,r8), r0
 	add	r2, r0
 	mov.l	r0, @(cond_nwaiters,r8)
-	
+
 	/* Get and store current wakeup_seq value.  */
 	mov.l	@(wakeup_seq,r8), r10
 	mov.l	@(wakeup_seq+4,r8), r11
 	mov.l	@(broadcast_seq,r8), r0
 	mov.l	r0, @(4,r15)
 
-8:	
+8:
 	/* Get current time.  */
 #ifdef __NR_clock_gettime
 	/* Get the clock number.	 */
@@ -159,7 +159,7 @@ __pthread_cond_timedwait:
 	.word	__NR_clock_gettime
 
 # ifndef __ASSUME_POSIX_TIMERS
-19:	
+19:
 	mov	r15, r4
 	add	#16, r4
 	mov	#0, r5
@@ -176,7 +176,7 @@ __pthread_cond_timedwait:
 	mov.l	@(16,r15), r0
 	sts	macl, r1
 #endif
-0:	
+0:
 #else
 	mov	r15, r4
 	add	#16, r4
@@ -349,8 +349,8 @@ __pthread_cond_timedwait:
 	extu.b	r3, r3
 	trapa	#0x14
 	SYSCALL_INST_PAD
-	
-25:	
+
+25:
 #if cond_lock != 0
 	DEC (@(cond_lock,r8), r2)
 #else
@@ -371,7 +371,7 @@ __pthread_cond_timedwait:
 	bf	18f
 	mov.l	@(24,r15), r0
 
-18:	
+18:
 	add	#64, r15
 	lds.l	@r15+, pr
 	mov.l	@r15+, r13

@@ -24,7 +24,7 @@
 #include <sysdep-cancel.h>
 #else
 #define SINGLE_THREAD_P 1
-#endif 
+#endif
 
 libc_hidden_proto(poll)
 

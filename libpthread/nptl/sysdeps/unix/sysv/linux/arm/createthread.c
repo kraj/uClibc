@@ -21,4 +21,3 @@
 
 /* Get the real implementation.	 */
 #include <sysdeps/pthread/createthread.c>
-

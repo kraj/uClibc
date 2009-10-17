@@ -116,4 +116,3 @@ __lll_timedwait_tid (int *tidp, const struct timespec *abstime)
 }
 
 #endif
-

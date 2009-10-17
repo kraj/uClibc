@@ -167,7 +167,7 @@ pthread_barrier_wait:
 	bra	7b
 	 mov	r9, r6
 
-9:	
+9:
 	mov	r6, r9
 	mov	r8, r4
 	mov.l	.Lwake2, r1

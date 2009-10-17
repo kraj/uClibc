@@ -80,7 +80,7 @@ int __libc_system(const char *command)
 
 libc_hidden_proto(sigaction)
 libc_hidden_proto(waitpid)
-      
+
 #if defined __ia64__
 # define FORK() \
   INLINE_SYSCALL (clone2, 6, CLONE_PARENT_SETTID | SIGCHLD, NULL, 0, \

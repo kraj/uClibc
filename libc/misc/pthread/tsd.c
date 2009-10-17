@@ -8,4 +8,3 @@ __libc_dl_error_tsd (void)
   static __thread void *data __attribute__ ((tls_model ("initial-exec")));
   return &data;
 }
-

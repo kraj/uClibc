@@ -185,7 +185,7 @@ lll_unlock_wake_cb:
 	trapa	#0x14
 	SYSCALL_INST_PAD
 
-1:	
+1:
 	rts
 	nop
 	.size	lll_unlock_wake_cb,.-lll_unlock_wake_cb

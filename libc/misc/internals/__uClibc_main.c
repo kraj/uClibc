@@ -66,7 +66,7 @@ uintptr_t __guard attribute_relro;
 /*
  * Needed to initialize _dl_phdr when statically linked
  */
- 
+
 void internal_function _dl_aux_init (ElfW(auxv_t) *av);
 #endif /* !SHARED */
 

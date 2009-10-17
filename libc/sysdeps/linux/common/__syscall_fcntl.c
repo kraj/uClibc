@@ -17,11 +17,11 @@
 #include <bits/wordsize.h>
 
 extern __typeof(fcntl) __libc_fcntl;
-libc_hidden_proto(__libc_fcntl) 
+libc_hidden_proto(__libc_fcntl)
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 int __fcntl_nocancel (int fd, int cmd, ...)
-{   
+{
 	va_list ap;
 	void *arg;
 

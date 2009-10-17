@@ -27,4 +27,3 @@ typedef struct
 
 
 extern void *__tls_get_addr (tls_index *ti);
-

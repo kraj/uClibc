@@ -138,4 +138,3 @@ typedef struct
 #endif /* __ASSEMBLER__ */
 
 #endif	/* tls.h */
-

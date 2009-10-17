@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 #include <time.h>
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__ 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sysdep-cancel.h>
 #include <pthreadP.h>
 #else

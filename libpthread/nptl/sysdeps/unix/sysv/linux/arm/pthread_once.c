@@ -97,4 +97,3 @@ const void *include_pthread_getspecific attribute_hidden = pthread_getspecific;
 const void *include_pthread_setspecific attribute_hidden = pthread_setspecific;
 const void *include_pthread_key_create attribute_hidden = pthread_key_create;
 #endif
-

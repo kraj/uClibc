@@ -1,4 +1,4 @@
-/* Copyright (C) 1992, 1993, 1994, 1997, 1998, 1999, 2000, 2002, 2003 
+/* Copyright (C) 1992, 1993, 1994, 1997, 1998, 1999, 2000, 2002, 2003
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Brendan Kehoe (brendan@zen.org).
@@ -29,7 +29,7 @@ FRAMESZ= (((NARGSAVE+LOCALSZ)*SZREG)+ALSZ)&ALMASK
 RAOFF= FRAMESZ-(1*SZREG)
 GPOFF= FRAMESZ-(2*SZREG)
 V0OFF= FRAMESZ-(3*SZREG)
-	
+
 ENTRY(__syscall_error)
 #ifdef __PIC__
 	.set noat
@@ -69,7 +69,7 @@ ENTRY(__syscall_error)
 	SETUP_GPX (AT)
 #endif
 	SETUP_GPX64 (t9, AT)
-	
+
 	/* Store it in errno... */
 	sw v0, errno
 

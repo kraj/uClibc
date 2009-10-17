@@ -37,4 +37,3 @@
 /* XXX Until we have a better place keep the definitions here.  */
 #define __exit_thread_inline(val) \
   INLINE_SYSCALL (exit, 1, (val))
-

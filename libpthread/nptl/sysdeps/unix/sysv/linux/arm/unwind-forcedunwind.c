@@ -127,4 +127,3 @@ _Unwind_GetCFA (struct _Unwind_Context *context)
     pthread_cancel_init ();
   return libgcc_s_getcfa (context);
 }
-

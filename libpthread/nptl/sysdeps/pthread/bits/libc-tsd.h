@@ -24,12 +24,12 @@
    set of thread-specific `void *' data used only internally by libc.
 
    __libc_tsd_define(CLASS, KEY)	-- Define or declare a `void *' datum
-   					   for KEY.  CLASS can be `static' for
+                       for KEY.  CLASS can be `static' for
 					   keys used in only one source file,
 					   empty for global definitions, or
 					   `extern' for global declarations.
    __libc_tsd_address(KEY)		-- Return the `void **' pointing to
-   					   the current thread's datum for KEY.
+                       the current thread's datum for KEY.
    __libc_tsd_get(KEY)			-- Return the `void *' datum for KEY.
    __libc_tsd_set(KEY, VALUE)		-- Set the datum for KEY to VALUE.
 

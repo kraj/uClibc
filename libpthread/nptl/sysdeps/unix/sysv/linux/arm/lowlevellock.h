@@ -337,4 +337,3 @@ extern void __lll_cond_broadcast (pthread_cond_t *cond)
   __lll_cond_broadcast (cond)
 
 #endif	/* lowlevellock.h */
-

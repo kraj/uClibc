@@ -3,7 +3,7 @@ __syscall_error:
 	/* Call errno_location, store '-r4' in errno and return -1 */
 	mov.l	r12, @-r15
 	sts.l	pr, @-r15
-#ifdef SHARED 
+#ifdef SHARED
 	mova	.LG, r0
 	mov.l	.LG, r12
 	add	r0, r12

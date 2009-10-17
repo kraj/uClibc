@@ -36,4 +36,3 @@
 	strne	r3, [r2, #PID_OFFSET]	/* ... restore the saved PID.  */
 
 #INCLUDE <../../../../../../../LIBC/SYSDEPS/LINUX/ARM/VFORK.S>
-

@@ -80,4 +80,3 @@ libc_hidden_proto(__waitpid_nocancel)
 # define waitpid_not_cancel(pid, stat_loc, options) \
   INLINE_SYSCALL (wait4, 4, pid, stat_loc, options, NULL)
 #endif
-

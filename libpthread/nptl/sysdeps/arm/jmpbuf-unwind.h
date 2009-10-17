@@ -34,4 +34,3 @@
 
 /* We use the normal longjmp for unwinding.  */
 #define __libc_unwind_longjmp(buf, val) longjmp (buf, val)
-

@@ -71,7 +71,7 @@ __pthread_cond_wait:
 	.long	_GLOBAL_OFFSET_TABLE_
 #endif
 
-2:	
+2:
 	/* Store the reference to the mutex.  If there is already a
 	   different value in there this is a bad user bug.  */
 	mov.l	@(dep_mutex,r8),r0
@@ -79,7 +79,7 @@ __pthread_cond_wait:
 	bt	15f
 	mov.l	r9, @(dep_mutex,r8)
 
-15:	
+15:
 	/* Unlock the mutex.  */
 	mov.l	.Lmunlock0, r1
 	mov	#0, r5
@@ -149,7 +149,7 @@ __pthread_cond_wait:
 	mov.l	.Ldisable0, r1
 	bsrf	r1
 	 mov.l	@r15, r4
-.Ldisable0b:	
+.Ldisable0b:
 .LcleanupEND:
 
 	/* Lock.  */
