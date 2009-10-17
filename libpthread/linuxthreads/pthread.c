@@ -474,10 +474,10 @@ __libc_dl_error_tsd (void)
 static __inline__ void __attribute__((always_inline))
 init_one_static_tls (pthread_descr descr, struct link_map *map)
 {
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
   dtv_t *dtv = GET_DTV (descr);
   void *dest = (char *) descr - map->l_tls_offset;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
   dtv_t *dtv = GET_DTV ((pthread_descr) ((char *) descr + TLS_PRE_TCB_SIZE));
   void *dest = (char *) descr + map->l_tls_offset + TLS_PRE_TCB_SIZE;
 # else
@@ -669,9 +669,9 @@ int __pthread_initialize_manager(void)
     return -1;
   }
 
-# if TLS_TCB_AT_TP
+# if defined(TLS_TCB_AT_TP)
   mgr = (pthread_descr) tcbp;
-# elif TLS_DTV_AT_TP
+# elif defined(TLS_DTV_AT_TP)
   /* pthread_descr is located right below tcbhead_t which _dl_allocate_tls
      returns.  */
   mgr = (pthread_descr) ((char *) tcbp - TLS_PRE_TCB_SIZE);
@@ -996,7 +996,7 @@ static void pthread_onexit_process(int retcode, void *arg)
            For mtrace, we'd like to print something though.  */
 	/* #ifdef USE_TLS
 	   tcbhead_t *tcbp = (tcbhead_t *) manager_thread;
-	   # if TLS_DTV_AT_TP
+	   # if defined(TLS_DTV_AT_TP)
 	   tcbp = (tcbhead_t) ((char *) tcbp + TLS_PRE_TCB_SIZE);
 	   # endif
 	   _dl_deallocate_tls (tcbp, true);

@@ -36,9 +36,9 @@ td_thr_tlsbase (const td_thrhandle_t *th,
   LOG ("td_thr_tlsbase");
 
   psaddr_t dtvpp = th->th_unique;
-#if TLS_TCB_AT_TP
+#if defined(TLS_TCB_AT_TP)
   dtvpp += offsetof (struct _pthread_descr_struct, p_header.data.dtvp);
-#elif TLS_DTV_AT_TP
+#elif defined(TLS_DTV_AT_TP)
 /* Special case hack.  If TLS_TCB_SIZE == 0 (on PowerPC), there is no TCB
    containing the DTV at the TP, but actually the TCB lies behind the TP,
    i.e. at the very end of the area covered by TLS_PRE_TCB_SIZE.  */
