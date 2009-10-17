@@ -47,7 +47,7 @@
 
 typedef struct {
 	unsigned	id :16;		/* query identification number */
-#if BYTE_ORDER == BIG_ENDIAN
+#if __BYTE_ORDER == __BIG_ENDIAN
 			/* fields in third byte */
 	unsigned	qr: 1;		/* response flag */
 	unsigned	opcode: 4;	/* purpose of message */
@@ -61,7 +61,7 @@ typedef struct {
 	unsigned	cd: 1;		/* checking disabled by resolver */
 	unsigned	rcode :4;	/* response code */
 #endif
-#if BYTE_ORDER == LITTLE_ENDIAN || BYTE_ORDER == PDP_ENDIAN
+#if __BYTE_ORDER == __LITTLE_ENDIAN || __BYTE_ORDER == __PDP_ENDIAN
 			/* fields in third byte */
 	unsigned	rd :1;		/* recursion desired */
 	unsigned	tc :1;		/* truncated message */
