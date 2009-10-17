@@ -225,7 +225,7 @@ CPU_CFLAGS-$(UCLIBC_FORMAT_FLAT_SEP_DATA) += -msep-data
 CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN) += -Wl,-EL
 CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)    += -Wl,-EB
 
-PICFLAG-y := -fPIC
+PICFLAG-y := -fPIC -DPIC
 PICFLAG-$(UCLIBC_FORMAT_FDPIC_ELF) := -mfdpic
 PICFLAG := $(PICFLAG-y)
 PIEFLAG_NAME:=-fPIE
@@ -577,9 +577,9 @@ endif
 
 LDFLAGS:=$(LDFLAGS_NOSTRIP) -Wl,-z,defs
 ifeq ($(DODEBUG),y)
-CFLAGS += -O0 -g3
+CFLAGS += -O0 -g3 -DDEBUG
 else
-CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
+CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS) -DNDEBUG
 endif
 ifeq ($(DOSTRIP),y)
 LDFLAGS += -Wl,-s
@@ -620,6 +620,7 @@ PTDIR := libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 PTINC:=	-I$(top_srcdir)$(PTDIR)						\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/$(TARGET_SUBARCH)	\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux			\
@@ -659,6 +660,7 @@ else
 	PTNAME :=
 	PTINC  :=
 endif
+CFLAGS += -I$(top_srcdir)libc/sysdeps/linux/common
 CFLAGS += -I$(KERNEL_HEADERS)
 
 #CFLAGS += -iwithprefix include-fixed -iwithprefix include

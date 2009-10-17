@@ -114,7 +114,8 @@ target-headers-sysdep := \
 	$(ALL_HEADERS_BITS_ARCH) \
 	$(ALL_HEADERS_BITS_SUBARCH) \
 	$(ALL_HEADERS_SYS_COMMON) \
-	$(ALL_HEADERS_SYS_ARCH)
+	$(ALL_HEADERS_SYS_ARCH) \
+	$(ALL_HEADERS_BITS_PTHREAD)
 
 $(top_builddir)include/fpu_control.h:
 	@$(disp_ln)
@@ -160,6 +161,14 @@ headers-y += $(target-headers-sysdep)
 headers: $(top_builddir)include/bits/uClibc_config.h
 subdirs: $(addprefix $(top_builddir),$(subdirs))
 pregen: $(top_builddir)include/bits/sysnum.h headers subdirs
+	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+		$(Q)$(MAKE) nptl_headers
+ifeq ($(shell $(CC) --help 2>&1 > /dev/null && echo yes),yes)
+		$(Q)$(MAKE) nptl_arch_headers
+		$(Q)$(MAKE) nptl_linux_headers
+endif
+endif
 
 $(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
 	$(Q)$(INSTALL) -d $(@D)

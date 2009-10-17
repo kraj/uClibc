@@ -4,4 +4,9 @@
 top_builddir=../../
 include ../Rules.mak
 -include Makefile.in
+ifeq ($(UCLIBC_STATIC),y)
+TESTS_DISABLED := test3
+LDFLAGS_libtest.so := -lpthread
+endif
+
 include ../Test.mak

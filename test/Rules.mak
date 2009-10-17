@@ -111,9 +111,9 @@ else
 	HOST_LDFLAGS  += -s
 endif
 
-ifneq ($(strip $(HAVE_SHARED)),y)
-	LDFLAGS       += -static
-	HOST_LDFLAGS  += -static
+ifeq ($(strip $(UCLIBC_STATIC)),y)
+	STATIC_LDFLAGS	:= -static
+	HOST_LDFLAGS  	+= -static
 endif
 
 LDFLAGS += -B$(top_builddir)lib -Wl,-rpath,$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib

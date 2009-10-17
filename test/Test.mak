@@ -68,9 +68,8 @@ define exec_test
 endef
 
 test check all: run
-run: $(RUN_TARGETS) compile
-
-$(RUN_TARGETS): $(TARGETS)
+run: $(RUN_TARGETS)
+$(RUN_TARGETS):
 	$(exec_test)
 	$(diff_test)
 ifeq ($(UCLIBC_ONLY),)
