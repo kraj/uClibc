@@ -361,14 +361,16 @@
 /* This macro indicates that the installed library is the GNU C Library.
    For historic reasons the value now is 6 and this will stay from now
    on.  The use of this variable is deprecated.  */
-# undef  __GNU_LIBRARY__
-# define __GNU_LIBRARY__ 6
+/* uClibc WARNING: leave these aligned to the left, don't put a space after '#', else
+ * broken apps could fail the check. */
+#undef  __GNU_LIBRARY__
+#define __GNU_LIBRARY__ 6
 
 /* Major and minor version number of the GNU C library package.  Use
    these macros to test for features in specific releases.  */
 /* Don't do it, if you want to keep uClibc happy.  */
-# define	__GLIBC__	2
-# define	__GLIBC_MINOR__	2
+#define	__GLIBC__	2
+#define	__GLIBC_MINOR__	2
 #endif
 
 #define __GLIBC_PREREQ(maj, min) \
