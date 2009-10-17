@@ -9,7 +9,12 @@ subdirs += librt
 
 CFLAGS-librt := -DNOT_IN_libc -DIS_IN_librt $(SSP_ALL_CFLAGS)
 
-LDFLAGS-librt.so := $(LDFLAGS) $(call link.asneeded,-lc)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+LDFLAGS-librt.so := $(LDFLAGS) $(top_builddir)lib/libdl.so	\
+		    $(top_builddir)lib/libpthread.so
+else
+LDFLAGS-librt.so := $(LDFLAGS)
+endif
 
 LIBS-librt.so := $(LIBS)
 
@@ -19,22 +24,36 @@ librt_DIR := $(top_srcdir)librt
 librt_OUT := $(top_builddir)librt
 
 ifeq ($(UCLIBC_HAS_REALTIME),y)
-librt_SRC := $(wildcard $(librt_DIR)/*.c)
-librt_OBJ := $(patsubst $(librt_DIR)/%.c,$(librt_OUT)/%.o,$(librt_SRC))
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+librt_CSRC := $(filter-out mq_notify.c timer_create.c timer_delete.c	\
+	      timer_getoverr.c timer_gettime.c timer_settime.c,	\
+	      $(notdir $(wildcard $(librt_DIR)/*.c)))
+librt_SSRC := $(wildcard $(librt_DIR)/*.S)
+librt_OBJ := $(patsubst %.c,$(librt_OUT)/%.o,$(librt_CSRC))
+librt_OBJ += $(patsubst $(librt_DIR)/%.S,$(librt_OUT)/%.o,$(librt_SSRC))
+else
+librt_SRC := $(filter-out clock_nanosleep.c clock_getcpuclockid.c clock_gettime.c,	\
+	     $(notdir $(wildcard $(librt_DIR)/*.c)))
+librt_OBJ := $(patsubst %.c,$(librt_OUT)/%.o,$(librt_SRC))
+endif
+
+ASFLAGS-mq_timedreceive.S = -D_LIBC_REENTRANT
+ASFLAGS-mq_timedsend.S = -D_LIBC_REENTRANT
 
 ifeq ($(DOPIC),y)
 librt-a-y += $(librt_OBJ:.o=.os)
 else
 librt-a-y += $(librt_OBJ)
 endif
-librt-so-y += $(librt_OBJ:.o=.os)
+librt-so-y += $(librt_OBJ:.o=.oS)
 
 lib-a-y += $(top_builddir)lib/librt.a
 lib-so-y += $(top_builddir)lib/librt.so
 endif
 
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(libc.depend)
+
+ifeq ($(DOPIC)$(UCLIBC_HAS_THREADS_NATIVE),yn)
+$(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(libc.dpend)
 else
 $(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(libc.depend)
 endif

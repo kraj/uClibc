@@ -33,6 +33,9 @@
 #ifdef __UCLIBC_HAS_REGEX__
 #include <regex.h>
 #endif
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep.h>
+#endif
 
 #ifdef HAVE_LINUX_CPUMASK_H
 # include <linux/cpumask.h>
@@ -881,13 +884,32 @@ long int sysconf(int name)
 #endif
 
     case _SC_MONOTONIC_CLOCK:
-#if defined __UCLIBC_HAS_REALTIME__ && defined __NR_clock_getres
-      /* Check using the clock_getres system call.  */
+#ifdef __NR_clock_getres
+    /* Check using the clock_getres system call.  */
+# ifdef __UCLIBC_HAS_THREADS_NATIVE__
+    {
+      struct timespec ts;
+      INTERNAL_SYSCALL_DECL (err);
+      int r;
+      r = INTERNAL_SYSCALL (clock_getres, err, 2, CLOCK_MONOTONIC, &ts);
+      return INTERNAL_SYSCALL_ERROR_P (r, err) ? -1 : _POSIX_VERSION;
+    }
+# else
       if (clock_getres(CLOCK_MONOTONIC, NULL) >= 0)
         return _POSIX_VERSION;
-#endif
 
       RETURN_NEG_1;
+# endif
+#endif
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+    case _SC_THREAD_CPUTIME:
+# if _POSIX_THREAD_CPUTIME > 0
+      return _POSIX_THREAD_CPUTIME;
+# else
+      RETURN_NEG_1;
+# endif
+#endif
     }
 }
 libc_hidden_def(sysconf)
