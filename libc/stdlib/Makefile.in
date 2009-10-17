@@ -13,7 +13,7 @@ include $(top_srcdir)libc/stdlib/malloc-standard/Makefile.in
 
 CSRC := \
 	abort.c getenv.c mkdtemp.c realpath.c mkstemp.c \
-	rand.c random.c random_r.c setenv.c system.c div.c ldiv.c lldiv.c \
+	rand.c random.c random_r.c setenv.c div.c ldiv.c lldiv.c \
 	getpt.c drand48-iter.c jrand48.c \
 	jrand48_r.c lrand48.c lrand48_r.c mrand48.c mrand48_r.c nrand48.c \
 	nrand48_r.c rand_r.c srand48.c srand48_r.c seed48.c seed48_r.c \
@@ -39,7 +39,6 @@ endif
 ifeq ($(UCLIBC_SUSV3_LEGACY),y)
 CSRC += mktemp.c
 endif
-
 
 # multi source stdlib.c
 CSRC +=	abs.c labs.c atoi.c atol.c strtol.c strtoul.c _stdlib_strto_l.c \
@@ -92,7 +91,9 @@ STDLIB_SRC := $(patsubst %.c,$(STDLIB_DIR)/%.c,$(CSRC))
 STDLIB_OBJ := $(patsubst %.c,$(STDLIB_OUT)/%.o,$(CSRC))
 
 libc-y += $(STDLIB_OBJ)
-libc-static-y += $(STDLIB_OUT)/atexit.o
+libc-static-y += $(STDLIB_OUT)/atexit.o $(STDLIB_OUT)/system.o
+libc-shared-y += $(STDLIB_OUT)/system.oS
+
 # this should always be the PIC version, because it could be used in shared libs
 libc-nonshared-y += $(STDLIB_OUT)/atexit.os
 

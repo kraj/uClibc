@@ -10,6 +10,7 @@ subdirs += libc/misc/pthread
 MISC_PTHREAD_DIR := $(top_srcdir)libc/misc/pthread
 MISC_PTHREAD_OUT := $(top_builddir)libc/misc/pthread
 
+libc-shared-$(UCLIBC_HAS_THREADS) += $(MISC_PTHREAD_OUT)/tsd.os
 libc-$(UCLIBC_HAS_THREADS) += $(MISC_PTHREAD_OUT)/unlock.o
 libc-$(UCLIBC_HAS_THREADS) += $(MISC_PTHREAD_OUT)/weaks.o
 

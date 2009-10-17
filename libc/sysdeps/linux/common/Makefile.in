@@ -33,6 +33,15 @@ CSRC := $(filter-out capget.c capset.c inotify.c ioperm.c iopl.c madvise.c \
 	splice.c vmsplice.c tee.c signalfd.c swapoff.c swapon.c \
 	sync_file_range.c sysctl.c sysinfo.c timerfd.c uselib.c vhangup.c,$(CSRC))
 endif
+	
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CSRC := $(filter-out fork.c getpid.c raise.c open.c close.c read.c write.c, $(CSRC))
+ifneq ($(TARGET_ARCH),arm)
+CSRC := $(filter-out waitpid.c, $(CSRC))
+else
+CSRC := $(filter-out vfork.c, $(CSRC))
+endif
+endif
 
 ifneq ($(UCLIBC_BSD_SPECIFIC),y)
 # we need these internally: getdomainname.c
@@ -73,6 +82,18 @@ endif
 
 ifneq ($(UCLIBC_SV4_DEPRECATED),y)
 CSRC := $(filter-out ustat.c,$(CSRC))
+endif
+
+ifeq ($(TARGET_ARCH),sh)
+CSRC := $(filter-out longjmp.c vfork.c,$(CSRC))
+endif
+
+ifeq ($(TARGET_ARCH),sparc)
+CSRC := $(filter-out vfork.c,$(CSRC))
+endif
+
+ifeq ($(TARGET_ARCH),i386)
+CSRC := $(filter-out vfork.c,$(CSRC))
 endif
 
 # fails for some reason
