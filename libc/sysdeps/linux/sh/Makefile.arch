@@ -7,6 +7,6 @@
 #
 
 CSRC := \
-	mmap.c pipe.c __init_brk.c brk.c sbrk.c pread_write.c cacheflush.c
+	mmap.c pipe.c __init_brk.c brk.c sbrk.c pread_write.c longjmp.c cacheflush.c
 
-SSRC := setjmp.S __longjmp.S vfork.S clone.S ___fpscr_values.S
+SSRC := setjmp.S __longjmp.S ___fpscr_values.S

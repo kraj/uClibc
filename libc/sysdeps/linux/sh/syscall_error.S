@@ -3,7 +3,7 @@ __syscall_error:
 	/* Call errno_location, store '-r4' in errno and return -1 */
 	mov.l	r12, @-r15
 	sts.l	pr, @-r15
-#ifdef __PIC__
+#ifdef SHARED 
 	mova	.LG, r0
 	mov.l	.LG, r12
 	add	r0, r12
@@ -27,7 +27,7 @@ __syscall_error:
 
 	.align	4
 
-#ifdef __PIC__
+#ifdef SHARED
 1:	.long   __errno_location@GOT
 .LG:	.long	_GLOBAL_OFFSET_TABLE_
 #else
