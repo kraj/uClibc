@@ -33,9 +33,13 @@ endif
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 CSRC += drand48.c drand48_r.c erand48.c erand48_r.c
 ifeq ($(UCLIBC_SUSV3_LEGACY),y)
-CSRC += gcvt.c mktemp.c
+CSRC += gcvt.c
 endif
 endif
+ifeq ($(UCLIBC_SUSV3_LEGACY),y)
+CSRC += mktemp.c
+endif
+
 
 # multi source stdlib.c
 CSRC +=	abs.c labs.c atoi.c atol.c strtol.c strtoul.c _stdlib_strto_l.c \
