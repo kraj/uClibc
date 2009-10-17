@@ -21,6 +21,10 @@ ifeq ($(UCLIBC_SUSV4_LEGACY),y)
 CSRC += sigintr.c
 endif
 
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CSRC:=$(filter-out raise.c sigaction.c,$(CSRC))
+endif
+
 ifneq ($(strip $(ARCH_OBJS)),)
 CSRC := $(filter-out $(notdir $(ARCH_OBJS:.o=.c)),$(CSRC))
 endif
