@@ -132,3 +132,5 @@ L(__thread_start):
         jal             _exit
 #endif
 	.end  __thread_start
+weak_alias(clone, __clone)
+

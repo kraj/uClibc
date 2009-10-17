@@ -20,6 +20,8 @@
 #ifndef _SYS_REGDEF_H
 #define _SYS_REGDEF_H
 
+#include <sgidefs.h>
+
 /*
  * Symbolic register names for 32 bit ABI
  */
