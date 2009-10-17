@@ -448,12 +448,4 @@ uClibc was built without large file support enabled.
 # include <libc-internal.h>
 #endif
 
-/* Some people like to build up uClibc with *-elf toolchains, so
- * a little grease here until we drop '#ifdef __linux__' checks
- * from our source code.
- */
-#ifndef __linux__
-# define __linux__ 1
-#endif
-
 #endif	/* features.h  */
