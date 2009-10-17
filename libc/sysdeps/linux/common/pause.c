@@ -10,18 +10,30 @@
 #define __UCLIBC_HIDE_DEPRECATED__
 #include <sys/syscall.h>
 #include <unistd.h>
-#include <signal.h>
 
-#ifdef __LINUXTHREADS_OLD__
-extern __typeof(pause) weak_function pause;
-strong_alias(pause, __libc_pause)
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep-cancel.h>
 #endif
 
-#ifdef __NR_pause
-_syscall0(int, pause)
-#else
-int pause(void)
+#include <signal.h>
+
+/* Suspend the process until a signal arrives.
+   This always returns -1 and sets errno to EINTR.  */
+int
+__libc_pause (void)
 {
-	return __sigpause(sigblock(0), 0);
+  sigset_t set;
+
+  __sigemptyset (&set);
+  sigprocmask (SIG_BLOCK, NULL, &set);
+
+  /* pause is a cancellation point, but so is sigsuspend.
+     So no need for anything special here.  */
+
+  return sigsuspend (&set);
 }
+weak_alias (__libc_pause, pause)
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+LIBC_CANCEL_HANDLED ();		/* sigsuspend handles our cancellation.  */
 #endif

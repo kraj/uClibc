@@ -19,14 +19,31 @@
 #include <errno.h>
 #include <termios.h>
 #include <sys/ioctl.h>
-
-#ifdef __LINUXTHREADS_OLD__
-extern __typeof(tcdrain) weak_function tcdrain;
-strong_alias(tcdrain,__libc_tcdrain)
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep-cancel.h>
 #endif
 
+libc_hidden_proto(ioctl)
+
+extern __typeof(tcdrain) __libc_tcdrain;
 /* Wait for pending output to be written on FD.  */
-int tcdrain(int fd)
+int __libc_tcdrain (int fd)
 {
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	if (SINGLE_THREAD_P)
+		/* With an argument of 1, TCSBRK for output to be drain.  */
+		return INLINE_SYSCALL (ioctl, 3, fd, TCSBRK, 1);
+
+	int oldtype = LIBC_CANCEL_ASYNC ();
+
+	/* With an argument of 1, TCSBRK for output to be drain.  */
+	int result = INLINE_SYSCALL (ioctl, 3, fd, TCSBRK, 1);
+
+	LIBC_CANCEL_RESET (oldtype);
+
+	return result;
+#else
 	return ioctl(fd, TCSBRK, 1);
+#endif
 }
+weak_alias(__libc_tcdrain,tcdrain)

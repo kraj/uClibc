@@ -20,30 +20,33 @@
 #include <sys/syscall.h>
 #include <sys/poll.h>
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <sysdep-cancel.h>
+#else
+#define SINGLE_THREAD_P 1
+#endif 
+
+libc_hidden_proto(poll)
+
 #ifdef __NR_poll
 
-_syscall3(int, poll, struct pollfd *, fds,
-	unsigned long int, nfds, int, timeout)
-
-#elif defined(__NR_ppoll) && defined __UCLIBC_LINUX_SPECIFIC__
+#define __NR___syscall_poll __NR_poll
+static inline _syscall3(int, __syscall_poll, struct pollfd *, fds,
+			unsigned long int, nfds, int, timeout);
 
 int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
-	struct timespec *ts = NULL, tval;
-	if (timeout > 0) {
-		tval.tv_sec = timeout / 1000;
-		tval.tv_nsec = (timeout % 1000) * 1000000;
-		ts = &tval;
-	} else if (timeout == 0) {
-		tval.tv_sec = 0;
-		tval.tv_nsec = 0;
-		ts = &tval;
-	}
-	return ppoll(fds, nfds, ts, NULL);
-}
+    if (SINGLE_THREAD_P)
+	return __syscall_poll(fds, nfds, timeout);
 
-#else
-/* ugh, this arch lacks poll, so we need to emulate this crap ... */
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+    int oldtype = LIBC_CANCEL_ASYNC ();
+    int result = __syscall_poll(fds, nfds, timeout);
+    LIBC_CANCEL_RESET (oldtype);
+    return result;
+#endif
+}
+#else /* !__NR_poll */
 
 #include <alloca.h>
 #include <sys/types.h>
@@ -52,6 +55,9 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 #include <sys/time.h>
 #include <sys/param.h>
 #include <unistd.h>
+
+libc_hidden_proto(getdtablesize)
+libc_hidden_proto(select)
 
 /* uClinux 2.0 doesn't have poll, emulate it using select */
 
@@ -220,10 +226,4 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 }
 
 #endif
-
-#ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(poll)
-#else
-libc_hidden_weak(poll)
-strong_alias(poll,__libc_poll)
-#endif

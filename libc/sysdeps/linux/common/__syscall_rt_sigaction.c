@@ -12,7 +12,9 @@
 #ifdef __NR_rt_sigaction
 #include <signal.h>
 
-int __syscall_rt_sigaction (int __signum, const struct sigaction *__act, struct sigaction *__oldact, size_t __size) attribute_hidden;
+int __syscall_rt_sigaction (int __signum, const struct sigaction *__act,
+							struct sigaction *__oldact, size_t __size);
+
 #define __NR___syscall_rt_sigaction __NR_rt_sigaction
 _syscall4(int, __syscall_rt_sigaction, int, signum,
 		  const struct sigaction *, act, struct sigaction *, oldact,

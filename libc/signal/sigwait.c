@@ -1,7 +1,8 @@
 /* vi: set sw=4 ts=4: */
 /* sigwait
  *
- * Copyright (C) 2003 by Erik Andersen <andersen@uclibc.org>
+ * Copyright (C) 2006 by Steven J. Hill <sjhill@realitydiluted.com>
+ * Copyright (C) 2003-2005 by Erik Andersen <andersen@uclibc.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,19 +23,86 @@
 #include <signal.h>
 #include <string.h>
 
-#if defined __UCLIBC_HAS_REALTIME__
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+# include <sysdep-cancel.h>
 
-int sigwait(const sigset_t *set, int *sig)
+# ifdef __NR_rt_sigtimedwait
+
+/* Return any pending signal or wait for one for the given time.  */
+static int do_sigwait(const sigset_t *set, int *sig)
 {
-	int ret = sigwaitinfo(set, NULL);
-	if (ret != -1) {
+	int ret;
+
+#  ifdef SIGCANCEL
+	sigset_t tmpset;
+	if (set != NULL
+		&& (__builtin_expect (__sigismember (set, SIGCANCEL), 0)
+#   ifdef SIGSETXID
+		|| __builtin_expect (__sigismember (set, SIGSETXID), 0)
+#   endif
+		))
+	{
+		/* Create a temporary mask without the bit for SIGCANCEL set.  */
+		// We are not copying more than we have to.
+		memcpy(&tmpset, set, _NSIG / 8);
+		__sigdelset(&tmpset, SIGCANCEL);
+#   ifdef SIGSETXID
+		__sigdelset(&tmpset, SIGSETXID);
+#   endif
+		set = &tmpset;
+	}
+#  endif
+
+	/* XXX The size argument hopefully will have to be changed to the
+	   real size of the user-level sigset_t.  */
+	INTERNAL_SYSCALL_DECL(err);
+	do
+		ret = INTERNAL_SYSCALL (rt_sigtimedwait, err, 4, set, NULL,
+			NULL, _NSIG / 8);
+	while (INTERNAL_SYSCALL_ERROR_P (ret, err)
+		&& INTERNAL_SYSCALL_ERRNO (ret, err) == EINTR);
+	if (! INTERNAL_SYSCALL_ERROR_P (ret, err))
+	{
+		*sig = ret;
+		ret = 0;
+	}
+else
+	ret = INTERNAL_SYSCALL_ERRNO (ret, err);
+
+	return ret;
+}
+
+int sigwait (const sigset_t *set, int *sig)
+{
+	if(SINGLE_THREAD_P)
+		return do_sigwait(set, sig);
+
+	int oldtype = LIBC_CANCEL_ASYNC();
+
+	int result = do_sigwait(set, sig);
+
+	LIBC_CANCEL_RESET(oldtype);
+
+	return result;
+}
+# else /* __NR_rt_sigtimedwait */
+#  error We must have rt_sigtimedwait defined!!!
+# endif
+#else /* __UCLIBC_HAS_THREADS_NATIVE__ */
+
+# if defined __UCLIBC_HAS_REALTIME__
+
+int sigwait (const sigset_t *set, int *sig)
+{
+	int ret = 1;
+	if ((ret = sigwaitinfo(set, NULL)) != -1) {
 		*sig = ret;
 		return 0;
 	}
 	return 1;
 }
 
-#else /* __UCLIBC_HAS_REALTIME__ */
+# else /* __UCLIBC_HAS_REALTIME__ */
 /* variant without REALTIME extensions */
 
 static smallint was_sig; /* obviously not thread-safe */
@@ -94,4 +162,5 @@ int sigwait (const sigset_t *set, int *sig)
   *sig = was_sig;
   return was_sig == -1 ? -1 : 0;
 }
-#endif /* __UCLIBC_HAS_REALTIME__ */
+# endif /* __UCLIBC_HAS_REALTIME__ */
+#endif /* __UCLIBC_HAS_THREADS_NATIVE__ */

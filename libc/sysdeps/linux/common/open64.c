@@ -7,6 +7,10 @@
 #include <features.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <errno.h>
+#include <sysdep-cancel.h>
+#endif
 
 #ifdef __UCLIBC_HAS_LFS__
 
@@ -28,7 +32,20 @@ int open64 (const char *file, int oflag, ...)
 	va_end (arg);
     }
 
-    return open(file, oflag | O_LARGEFILE, mode);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+  if (SINGLE_THREAD_P)
+    return INLINE_SYSCALL (open, 3, file, oflag | O_LARGEFILE, mode);
+
+  int oldtype = LIBC_CANCEL_ASYNC ();
+
+  int result = INLINE_SYSCALL (open, 3, file, oflag | O_LARGEFILE, mode);
+
+  LIBC_CANCEL_RESET (oldtype);
+
+  return result;
+#else
+  return open(file, oflag | O_LARGEFILE, mode);
+#endif
 }
 #ifndef __LINUXTHREADS_OLD__
 libc_hidden_def(open64)

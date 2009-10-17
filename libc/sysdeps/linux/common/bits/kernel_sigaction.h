@@ -25,12 +25,12 @@ struct old_kernel_sigaction {
  */
 
 extern int __syscall_sigaction(int, const struct old_kernel_sigaction *,
-	struct old_kernel_sigaction *) attribute_hidden;
+	struct old_kernel_sigaction *);
 
 #endif
 
 
 extern int __syscall_rt_sigaction(int, const struct sigaction *,
-	struct sigaction *, size_t) attribute_hidden;
+	struct sigaction *, size_t);
 
 #endif /* _BITS_SIGACTION_STRUCT_H */
