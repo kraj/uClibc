@@ -43,9 +43,9 @@ struct new_msg_buf{
 
 #ifdef L_msgrcv
 #ifdef __NR_msgrcv
-_syscall5(int, msgrcv, int, msqid, void *, msgp, size_t, msgsz, long int, msgtyp, int, msgflg)
+_syscall5(ssize_t, msgrcv, int, msqid, void *, msgp, size_t, msgsz, long int, msgtyp, int, msgflg)
 #else
-int msgrcv (int msqid, void *msgp, size_t msgsz,
+ssize_t msgrcv (int msqid, void *msgp, size_t msgsz,
 	long int msgtyp, int msgflg)
 {
     struct new_msg_buf temp;
