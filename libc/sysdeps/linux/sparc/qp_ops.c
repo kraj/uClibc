@@ -5,7 +5,7 @@
 
 static void fakedef(void)
 {
-	puts("Unimplemented _Q* func called, exiting\n");
+	fputs("Unimplemented _Q* func called, exiting\n", stderr);
 	exit(-1);
 }
 
