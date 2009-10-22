@@ -46,6 +46,7 @@ CC         = $(CROSS)gcc
 AR         = $(CROSS)ar
 LD         = $(CROSS)ld
 NM         = $(CROSS)nm
+OBJDUMP    = $(CROSS)objdump
 STRIPTOOL  = $(CROSS)strip
 
 INSTALL    = install
