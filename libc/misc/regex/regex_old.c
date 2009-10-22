@@ -8085,7 +8085,8 @@ regexec (
   int len = strlen (string);
   boolean want_reg_info = !preg->no_sub && nmatch > 0;
 
-  private_preg = *preg;
+  /* use hidden memcpy() ourselves rather than gcc calling public memcpy() */
+  memcpy(&private_preg, preg, sizeof(*preg));
 
   private_preg.not_bol = !!(eflags & REG_NOTBOL);
   private_preg.not_eol = !!(eflags & REG_NOTEOL);
