@@ -51,9 +51,11 @@
 static const char *
 inet_ntop4(const u_char *src, char *dst, size_t size)
 {
-	char tmp[sizeof ("255.255.255.255") + 1] = "\0";
+	char tmp[sizeof ("255.255.255.255") + 1];
 	int octet;
 	int i;
+
+	tmp[0] = '\0';
 
 	i = 0;
 	for (octet = 0; octet <= 3; octet++) {
