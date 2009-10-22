@@ -175,6 +175,8 @@ OPTIMIZATION:=
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 # Use the gcc 3.4 -funit-at-a-time optimization when available
 OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
+# shrinks code by about 0.1%
+OPTIMIZATION+=$(call check_gcc,-fmerge-all-constants)
 
 GCC_MAJOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1)
 #GCC_MINOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 2)
