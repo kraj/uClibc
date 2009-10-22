@@ -642,6 +642,7 @@ extern void _pthread_cleanup_pop (struct _pthread_cleanup_buffer *__buffer,
 extern void _pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *__buffer,
 					 void (*__routine) (void *),
 					 void *__arg) __THROW;
+libc_hidden_proto(_pthread_cleanup_push_defer)
 extern void __pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *__buffer,
 					  void (*__routine) (void *),
 					  void *__arg) __THROW;
@@ -655,6 +656,7 @@ extern void __pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *__buff
 
 extern void _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *__buffer,
 					  int __execute) __THROW;
+libc_hidden_proto(_pthread_cleanup_pop_restore)
 extern void __pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *__buffer,
 					   int __execute) __THROW;
 #endif
