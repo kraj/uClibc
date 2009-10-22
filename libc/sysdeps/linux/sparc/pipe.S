@@ -52,7 +52,7 @@ pipe:
 	 restore %o0,%g0,%o0
 
 .Lerror:
-	call	__errno_location
+	call	HIDDEN_JUMPTARGET(__errno_location)
 	 or	%g0,EINVAL,%i0
 	st	%i0,[%o0]
 	ret
