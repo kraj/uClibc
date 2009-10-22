@@ -128,7 +128,9 @@
 #define _POSIX_SPIN_LOCKS	200112L
 
 /* The `spawn' function family is supported.  */
+#if 0 /* no support in uClibc (yet) */
 #define _POSIX_SPAWN	200112L
+#endif
 
 /* We have POSIX timers.  */
 #define _POSIX_TIMERS	200112L
