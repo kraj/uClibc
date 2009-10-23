@@ -9,14 +9,23 @@ TODO list for every uClibc release:
 	them in the include files as well by checking for the proper
 	define from include/bits/uClibc_config.h (pulled in from features.h)
 
-
-
-General release feature sets:
+TODO list for the uClibc 0.9.31 release:
 -------------------------------------------------
-.29 will be mostly as-is
-.30 will be the NPTL merge
-.31 for the no-kernel-headers fix, etc, etc.
-
+    *) merge NPTL
+       Settle cancellation
+       support arches: (- todo; + done)
+       + arm
+       + sh
+       - i386
+       - x86_64
+       - mips
+       - ...
+    *) Go through SUSv4
+       TOC: http://www.opengroup.org/onlinepubs/9699919799/xrat/contents.html
+       shell (busybox): http://www.opengroup.org/onlinepubs/9699919799/xrat/V4_xcu_chap01.html#tag_22_01_01
+       interface:
+         http://www.opengroup.org/onlinepubs/9699919799/xrat/V4_xbd_chap13.html#tag_21_13_02
+         http://www.opengroup.org/onlinepubs/9699919799/xrat/V4_xsh_chap01.html#tag_23_01_01
 
 
 TODO list for the uClibc 0.9.29 release:
