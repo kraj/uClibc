@@ -383,23 +383,63 @@ config LDSO_GNU_HASH_SUPPORT
 
 	  If you want to use this new feature, answer Y
 
-config HAS_NO_THREADS
-	bool
-	default n
-
-config UCLIBC_HAS_THREADS
-	bool "POSIX Threading support"
-	depends on !HAS_NO_THREADS
-	default y
-	# linuxthreads and linuxthreads.old need nanosleep()
-	select UCLIBC_HAS_REALTIME
+choice
+	prompt "Thread support"
+	#default UCLIBC_HAS_THREADS_NATIVE if (TARGET_alpha || TARGET_arm || TARGET_i386 || TARGET_mips || TARGET_powerpc || TARGET_sh || TARGET_sh64)
+	default HAS_NO_THREADS
 	help
 	  If you want to compile uClibc with pthread support, then answer Y.
 	  This will increase the size of uClibc by adding a bunch of locking
 	  to critical data structures, and adding extra code to ensure that
 	  functions are properly reentrant.
 
-	  If your applications require pthreads, answer Y.
+config HAS_NO_THREADS
+	bool "none"
+	help
+	  Disable thread support.
+
+config LINUXTHREADS_OLD
+	bool "older (stable) version of linuxthreads"
+	# linuxthreads and linuxthreads.old need nanosleep()
+	select UCLIBC_HAS_REALTIME
+	help
+	  There are two versions of linuxthreads.  The older (stable) version
+	  has been in uClibc for quite a long time but hasn't seen too many
+	  updates other than bugfixes.
+
+
+config LINUXTHREADS_NEW
+	bool "slightly newer version of linuxthreads"
+	help
+	  The new version has not been tested much, and lacks ports for arches
+	  which glibc does not support (like bfin/frv/etc...), but is based on
+	  the latest code from glibc, so it may be the only choice for the
+	  newer ports (like alpha/amd64/64bit arches and hppa).
+
+config UCLIBC_HAS_THREADS_NATIVE
+	bool "Native POSIX Threading (NPTL)"
+	select UCLIBC_HAS_TLS
+	help
+	  If you want to compile uClibc with NPTL support, then answer Y.
+
+	  IMPORTANT NOTE!  NPTL requires a Linux 2.6 kernel, binutils
+	  at least version 2.16 and GCC with at least version 4.1.0. NPTL
+	  will not work with older versions of any above sources. If you
+	  ignore any of these guidelines, you do so at your own risk. Do
+	  not ask for help on any of the development mailing lists.
+
+	  !!!! WARNING !!!! BIG FAT WARNING !!!! REALLY BIG FAT WARNING !!!!
+
+	  This is experimental code and at times it may not even build and
+	  even if it does it might decide to do random damage. This code is
+	  potentially hazardous to your health and sanity. It will remain
+	  that way until further notice at which point this notice will
+	  disappear. Thank you for your support and for not smoking.
+
+endchoice
+
+config UCLIBC_HAS_THREADS
+	def_bool y if !HAS_NO_THREADS
 
 config UCLIBC_HAS_TLS
 	bool "Thread-Local Storage"
@@ -428,45 +468,6 @@ config PTHREADS_DEBUG_SUPPORT
 	  If you are doing development and want to debug applications using
 	  uClibc's pthread library, answer Y.  Otherwise, answer N.
 
-config LINUXTHREADS_OLD
-	bool "Use the older (stable) version of linuxthreads"
-	default y
-	depends on UCLIBC_HAS_THREADS && !UCLIBC_HAS_THREADS_NATIVE
-	help
-	  There are two versions of linuxthreads.  The older (stable) version
-	  has been in uClibc for quite a long time but hasn't seen too many
-	  updates other than bugfixes.
-
-	  The new version has not been tested much, and lacks ports for arches
-	  which glibc does not support (like bfin/frv/etc...), but is based on
-	  the latest code from glibc, so it may be the only choice for the
-	  newer ports (like alpha/amd64/64bit arches and hppa).
-
-config UCLIBC_HAS_THREADS_NATIVE
-	bool "Native POSIX Threading (NPTL) Support"
-	depends on UCLIBC_HAS_THREADS
-	default n
-	select UCLIBC_HAS_TLS
-	help
-	  If you want to compile uClibc with NPTL support, then answer Y.
-
-	  IMPORTANT NOTE!  NPTL requires a Linux 2.6 kernel, binutils
-	  at least version 2.16 and GCC with at least version 4.1.0. NPTL
-	  will not work with older versions of any above sources. If you
-	  ignore any of these guidelines, you do so at your own risk. Do
-	  not ask for help on any of the development mailing lists.
-
-	  !!!! WARNING !!!! BIG FAT WARNING !!!! REALLY BIG FAT WARNING !!!!
-
-	  This is experimental code and at times it may not even build and
-	  even if it does it might decide to do random damage. This code is
-	  potentially hazardous to your health and sanity. It will remain
-	  that way until further notice at which point this notice will
-	  disappear. Thank you for your support and for not smoking.
-
-config LINUXTHREADS_NEW
-	def_bool y
-	depends on UCLIBC_HAS_THREADS && !LINUXTHREADS_OLD && !UCLIBC_HAS_THREADS_NATIVE
 
 config UCLIBC_HAS_SYSLOG
 	bool "Syslog support"
