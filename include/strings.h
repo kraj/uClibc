@@ -91,7 +91,7 @@ extern int strncasecmp (__const char *__s1, __const char *__s2, size_t __n)
 __END_DECLS
 
 
-#ifdef UCLIBC_INTERNAL
+#ifdef _LIBC
 #error "<strings.h> should not be included from libc."
 #endif
 

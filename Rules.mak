@@ -46,7 +46,7 @@ AWK        = awk
 
 STRIP_FLAGS ?= -x -R .note -R .comment
 
-UNIFDEF := $(top_builddir)extra/scripts/unifdef -UUCLIBC_INTERNAL
+UNIFDEF := $(top_builddir)extra/scripts/unifdef
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
@@ -504,9 +504,6 @@ ifeq ($(TARGET_ARCH),arm)
 #    LDADD_LIBFLOAT=-lfloat
 endif
 endif
-
-# Please let us see private headers' parts
-CFLAGS += -DUCLIBC_INTERNAL
 
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
