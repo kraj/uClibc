@@ -1299,6 +1299,28 @@ config UCLIBC_HAS_LOCALE
 
 	  Answer Y to enable locale support.  Most people will answer N.
 
+choice
+
+prompt "Locale data"
+	depends on UCLIBC_HAS_LOCALE
+	default UCLIBC_BUILD_ALL_LOCALE
+
+config UCLIBC_BUILD_ALL_LOCALE
+	bool "All locales"
+	depends on UCLIBC_HAS_LOCALE
+	default y
+	help
+	  This builds all the locales that are available on your
+	  host-box.
+
+config UCLIBC_BUILD_MINIMAL_LOCALE
+	bool "Only selected locales"
+	depends on UCLIBC_HAS_LOCALE
+	default n
+	help
+	  If you do not need all locales that are available on your
+	  host-box, then set this to 'Y'.
+
 config UCLIBC_PREGENERATED_LOCALE_DATA
 	bool "Use Pre-generated Locale Data"
 	depends on UCLIBC_HAS_LOCALE
@@ -1310,6 +1332,20 @@ config UCLIBC_PREGENERATED_LOCALE_DATA
 	  target architecture (endianess, bitcount).
 
 	  Saying N here is highly recommended.
+
+endchoice
+
+config UCLIBC_BUILD_MINIMAL_LOCALES
+	string "locales to use"
+	depends on UCLIBC_BUILD_MINIMAL_LOCALE
+	default "en_US"
+	help
+	  Space separated list of locales to use.
+
+	  E.g.:
+	      en_US en_GB de_AT
+	  default:
+	      en_US
 
 config UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA
 	bool "Automagically Download the Pre-generated Locale Data (if necessary)"
@@ -1323,7 +1359,7 @@ config UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA
 	  and place the uClibc-locale-*.tgz tarball in the extra/locale/
 	  directory.
 
-	  Go ahead and make life easy for yourself... Answer Y.
+	  Note that the use of pregenerated locale data is discouraged.
 
 config UCLIBC_HAS_XLOCALE
 	bool "Extended Locale Support (experimental/incomplete)"

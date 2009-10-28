@@ -85,7 +85,7 @@ $(locale_OUT)/codesets.txt:
 	    echo "and then edit that file to disable/enable the codesets you wish to support. "; \
 	    echo " "; \
 	    false; \
-	fi;
+	fi
 
 $(locale_OUT)/locales.txt:
 	@if [ ! -f $@ ] ; then \
@@ -100,14 +100,14 @@ $(locale_OUT)/locales.txt:
 	    echo "to support. "; \
 	    echo " "; \
 	    false; \
-	fi;
+	fi
 
 else
 
 $(locale_OUT)/codesets.txt:
 	@$(disp_gen)
 ifeq ($(UCLIBC_BUILD_MINIMAL_LOCALE),y)
-	$(Q)echo "$(CURDIR)/$(locale_DIR)/charmaps/ASCII.pairs" > $@ ; \
+	$(Q)echo "$(CURDIR)/$(locale_DIR)/charmaps/ASCII.pairs" > $@
 	$(Q)echo "$(CURDIR)/$(locale_DIR)/charmaps/ISO-8859-1.pairs" >> $@
 else
 	$(Q)set -e; \
@@ -128,13 +128,15 @@ endif
 $(locale_OUT)/locales.txt: $(locale_DIR)/LOCALES
 	@$(disp_gen)
 ifeq ($(UCLIBC_BUILD_MINIMAL_LOCALE),y)
-	$(Q)echo "@euro e" > $@ ; \
-	$(Q)echo "#-" >> $@ ; \
-	$(Q)echo "UTF-8 yes" >> $@ ; \
-	$(Q)echo "8-BIT yes" >> $@ ; \
-	$(Q)echo "#-" >> $@ ; \
-	$(Q)echo "en_US.UTF-8 UTF-8" >> $@ ; \
-	$(Q)echo "en_US ISO-8859-1" >> $@
+	$(Q)echo "@euro e" > $@
+	$(Q)echo "#-" >> $@
+	$(Q)echo "UTF-8 yes" >> $@
+	$(Q)echo "8-BIT yes" >> $@
+	$(Q)echo "#-" >> $@
+	$(Q)for locale in $(call qstrip,$(UCLIBC_BUILD_MINIMAL_LOCALES)); do \
+		echo "$$locale.UTF-8 UTF-8"; \
+		echo "$$locale ISO-8859-1"; \
+	done >> $@
 else
 	$(Q)cat $< > $@
 endif
@@ -175,11 +177,11 @@ $(locale_OUT)/c8tables.h: $(locale_OUT)/gen_wc8bit $(locale_OUT)/codesets.txt
 # Warning! Beware tr_TR toupper/tolower exceptions!
 $(locale_OUT)/wctables.h: $(locale_OUT)/gen_wctype
 	@$(disp_gen)
-	$(Q)$< $(FLAG-locale-verbose) en_US > $@ || \
-		$< $(FLAG-locale-verbose) en_US.UTF-8 > $@ || \
-		$< $(FLAG-locale-verbose) en_US.iso8859-1 > $@ || \
-		$< $(FLAG-locale-verbose) en_GB > $@ || \
-		$< $(FLAG-locale-verbose) en_GB.UTF-8 > $@
+	$(Q)for locale in $(call qstrip,$(UCLIBC_BUILD_MINIMAL_LOCALES)) en_US en_GB; do \
+		$< $(FLAG-locale-verbose) $$locale > $@ || \
+		$< $(FLAG-locale-verbose) $$locale.UTF-8 > $@ || \
+		$< $(FLAG-locale-verbose) $$locale.iso8859-1 > $@ && break; \
+	done
 
 $(locale_OUT)/locale_tables.h: $(locale_OUT)/gen_locale $(locale_OUT)/locales.txt
 	@$(disp_gen)
