@@ -43,15 +43,11 @@ while read -r filename; do
 		mkdir -p "$2/$filename" 2>/dev/null
 		continue
 	fi
-	if test x"${filename##libc-*.h}" = x""; then
-		# Do not install libc-XXXX.h files
-		continue
-	fi
 	# NB: unifdef exits with 1 if output is not
 	# exactly the same as input. That's ok.
 	# Do not abort the script if unifdef "fails"!
 	# NB2: careful with sed command arguments, they contain tab character
-	"$top_builddir/extra/scripts/unifdef" -UUCLIBC_INTERNAL -U_LIBC "$1/$filename" \
+	"$top_builddir/extra/scripts/unifdef" -U_LIBC "$1/$filename" \
 	| sed -e '/^rtld_hidden_proto[ 	]*([a-zA-Z0-9_]*)$/d' \
 	| sed -e '/^lib\(c\|m\|resolv\|dl\|intl\|rt\|nsl\|util\|crypt\|pthread\)_hidden_proto[ 	]*([a-zA-Z0-9_]*)$/d' \
 	>"$2/$filename"
