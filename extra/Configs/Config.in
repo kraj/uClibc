@@ -1308,7 +1308,6 @@ prompt "Locale data"
 config UCLIBC_BUILD_ALL_LOCALE
 	bool "All locales"
 	depends on UCLIBC_HAS_LOCALE
-	default y
 	help
 	  This builds all the locales that are available on your
 	  host-box.
@@ -1316,7 +1315,6 @@ config UCLIBC_BUILD_ALL_LOCALE
 config UCLIBC_BUILD_MINIMAL_LOCALE
 	bool "Only selected locales"
 	depends on UCLIBC_HAS_LOCALE
-	default n
 	help
 	  If you do not need all locales that are available on your
 	  host-box, then set this to 'Y'.
@@ -1324,7 +1322,6 @@ config UCLIBC_BUILD_MINIMAL_LOCALE
 config UCLIBC_PREGENERATED_LOCALE_DATA
 	bool "Use Pre-generated Locale Data"
 	depends on UCLIBC_HAS_LOCALE
-	default n
 	help
 	  Use pre-built locale data.
 
