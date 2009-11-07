@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include "../misc/internals/tempname.h"
 
 /* Generate a unique temporary file name from TEMPLATE.
@@ -26,5 +27,5 @@
    Then open the file and return a fd. */
 int mkstemp (char *template)
 {
-    return __gen_tempname (template, __GT_FILE);
+    return __gen_tempname (template, __GT_FILE, S_IRUSR | S_IWUSR);
 }
