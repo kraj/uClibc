@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include "../misc/internals/tempname.h"
 
 #ifdef __USE_BSD
@@ -29,7 +30,7 @@
    (This function comes from OpenBSD.) */
 char * mkdtemp (char *template)
 {
-  if (__gen_tempname (template, __GT_DIR))
+  if (__gen_tempname (template, __GT_DIR, S_IRUSR | S_IWUSR | S_IXUSR))
     return NULL;
   else
     return template;
