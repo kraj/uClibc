@@ -34,6 +34,7 @@
 #include <sys/statfs.h>
 #include <linux_fsinfo.h>
 #include "semaphoreP.h"
+#include "../../misc/internals/tempname.h"
 
 
 /* Compatibility defines. */
@@ -327,39 +328,11 @@ sem_open (const char *name, int oflag, ...)
 
       tmpfname = (char *) alloca (mountpoint.dirlen + 6 + 1);
       char *xxxxxx = mempcpy (tmpfname, mountpoint.dir, mountpoint.dirlen);
+      strcpy (xxxxxx, "XXXXXX");
 
-      int retries = 0;
-#define NRETRIES 50
-      while (1)
-	{
-	  /* Add the suffix for mktemp.  */
-	  strcpy (xxxxxx, "XXXXXX");
-
-	  /* We really want to use mktemp here.  We cannot use mkstemp
-	     since the file must be opened with a specific mode.  The
-	     mode cannot later be set since then we cannot apply the
-	     file create mask.  */
-	  if (mktemp (tmpfname) == NULL)
-	    return SEM_FAILED;
-
-	  /* Open the file.  Make sure we do not overwrite anything.  */
-	  fd = __libc_open (tmpfname, O_RDWR | O_CREAT | O_EXCL, mode);
-	  if (fd == -1)
-	    {
-	      if (errno == EEXIST)
-		{
-		  if (++retries < NRETRIES)
-		    continue;
-
-		  __set_errno (EAGAIN);
-		}
-
-	      return SEM_FAILED;
-	    }
-
-	  /* We got a file.  */
-	  break;
-	}
+      fd = __gen_tempname (tmpfname, __GT_FILE, mode);
+      if (fd == -1)
+          return SEM_FAILED;
 
       if (TEMP_FAILURE_RETRY (__libc_write (fd, &initsem, sizeof (sem_t)))
 	  == sizeof (sem_t)
