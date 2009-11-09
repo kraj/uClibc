@@ -34,7 +34,7 @@
 #include <sys/statfs.h>
 #include <linux_fsinfo.h>
 #include "semaphoreP.h"
-#include "../../misc/internals/tempname.h"
+#include "../../libc/misc/internals/tempname.h"
 
 
 /* Compatibility defines. */
