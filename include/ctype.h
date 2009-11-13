@@ -281,7 +281,7 @@ __NTH (toupper (int __c))
 # if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
 #  define isascii(c)	__isascii (c)
 #  define toascii(c)	__toascii (c)
-#  if __UCLIBC_SUSV4_LEGACY__
+#  if defined __UCLIBC_SUSV4_LEGACY__
 #    define _tolower(c)	((int) (__UCLIBC_CTYPE_TOLOWER)[(int) (c)])
 #    define _toupper(c)	((int) (__UCLIBC_CTYPE_TOUPPER)[(int) (c)])
 #   endif
