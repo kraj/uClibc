@@ -39,10 +39,6 @@ __pthread_setschedparam (threadid, policy, param)
 
   int result = 0;
 
-  /* We have to handle cancellation in the following code since we are
-     locking another threads desriptor.  */
-  pthread_cleanup_push ((void (*) (void *)) lll_unlock_wake_cb, &pd->lock);
-
   lll_lock (pd->lock);
 
   /* Try to set the scheduler information.  */
@@ -59,8 +55,6 @@ __pthread_setschedparam (threadid, policy, param)
     }
 
   lll_unlock (pd->lock);
-
-  pthread_cleanup_pop (0);
 
   return result;
 }

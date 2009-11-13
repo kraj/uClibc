@@ -41,10 +41,6 @@ pthread_setschedprio (threadid, prio)
   struct sched_param param;
   param.sched_priority = prio;
 
-  /* We have to handle cancellation in the following code since we are
-     locking another threads desriptor.  */
-  pthread_cleanup_push ((void (*) (void *)) lll_unlock_wake_cb, &pd->lock);
-
   lll_lock (pd->lock);
 
   /* Try to set the scheduler information.  */
@@ -59,8 +55,6 @@ pthread_setschedprio (threadid, prio)
     }
 
   lll_unlock (pd->lock);
-
-  pthread_cleanup_pop (0);
 
   return result;
 }

@@ -38,10 +38,6 @@ __pthread_getschedparam (threadid, policy, param)
 
   int result = 0;
 
-  /* We have to handle cancellation in the following code since we are
-     locking another threads descriptor.  */
-  pthread_cleanup_push ((void (*) (void *)) lll_unlock_wake_cb, &pd->lock);
-
   lll_lock (pd->lock);
 
   /* The library is responsible for maintaining the values at all
@@ -73,8 +69,6 @@ __pthread_getschedparam (threadid, policy, param)
     }
 
   lll_unlock (pd->lock);
-
-  pthread_cleanup_pop (0);
 
   return result;
 }
