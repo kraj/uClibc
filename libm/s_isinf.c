@@ -21,3 +21,6 @@ int __isinf(double x)
 	return ~(lx >> 31) & (hx >> 30);
 }
 libm_hidden_def(__isinf)
+#if defined __DO_C99_MATH__
+int_WRAPPER_C99(__isinf)
+#endif

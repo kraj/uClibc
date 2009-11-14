@@ -33,3 +33,6 @@ __signbit (double x)
   return hx & 0x80000000;
 }
 libm_hidden_def(__signbit)
+#if defined __DO_C99_MATH__
+int_WRAPPER_C99(__signbit)
+#endif
