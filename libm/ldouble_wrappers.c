@@ -116,6 +116,16 @@ long long func##l(long double x) \
 }
 #endif /* __i386__ && __OPTIMIZE__ */
 
+#if defined __NO_LONG_DOUBLE_MATH
+# define int_WRAPPER_C99(func) /* not needed */
+# else
+# define int_WRAPPER_C99(func) \
+int func##l(long double x) \
+{ \
+    return func((double) x); \
+} \
+libm_hidden_def(func##l)
+#endif
 
 /* Implement the following, as defined by SuSv3 */
 #if 0
@@ -490,4 +500,33 @@ long double significandl(long double x)
 {
 	return (long double) significand((double) x);
 }
+#endif
+
+#ifdef __DO_C99_MATH__
+
+#ifdef L___fpclassifyl
+int_WRAPPER1(__fpclassify)
+libm_hidden_def(__fpclassifyl)
+#endif
+
+#ifdef L___finitel
+int_WRAPPER1(__finite)
+libm_hidden_def(__finitel)
+#endif
+
+#ifdef L___signbitl
+int_WRAPPER1(__signbit)
+libm_hidden_def(__signbitl)
+#endif
+
+#ifdef L___isnanl
+int_WRAPPER1(__isnan)
+libm_hidden_def(__isnanl)
+#endif
+
+#ifdef L___isinfl
+int_WRAPPER1(__isinf)
+libm_hidden_def(__isinfl)
+#endif
+
 #endif

@@ -27,6 +27,3 @@ int __isnan(double x)
 	return (int)(((u_int32_t)hx)>>31);
 }
 libm_hidden_def(__isnan)
-#if defined __DO_C99_MATH__
-int_WRAPPER_C99(__isnan)
-#endif

@@ -30,6 +30,3 @@ int __finite(double x)
 	return (hx | 0x800fffff) != 0xffffffff;
 }
 libm_hidden_def(__finite)
-#if defined __DO_C99_MATH__
-int_WRAPPER_C99(__finite)
-#endif

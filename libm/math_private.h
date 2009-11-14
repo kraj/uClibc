@@ -255,18 +255,5 @@ extern int    __kernel_rem_pio2 (double*,double*,int,int,int,const int*) attribu
 #define math_force_eval(x)  do { __typeof(x) __x = (x); __asm __volatile ("" : : "m" (__x)); } while (0)
 #endif
 
-/* If we do not have long double support, then alias to the double variant.  */
-#if defined __NO_LONG_DOUBLE_MATH
-# define int_WRAPPER_C99(func) \
-weak_alias(func,func##l)
-# else
-# define int_WRAPPER_C99(func) \
-int func##l(long double x) \
-{ \
-    return func((double) x); \
-} \
-libm_hidden_def(func##l)
-#endif
-
 
 #endif /* _MATH_PRIVATE_H_ */

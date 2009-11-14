@@ -129,6 +129,11 @@ FL_MOBJ := \
 
 # Not implemented [yet?]: nexttowardl.o
 LD_MOBJ := \
+	__finitel.o \
+	__fpclassifyl.o \
+	__isinfl.o \
+	__isnanl.o \
+	__signbitl.o \
 	acoshl.o \
 	acosl.o \
 	asinhl.o \

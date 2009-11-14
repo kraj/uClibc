@@ -40,6 +40,3 @@ int __fpclassify(double x)
   return retval;
 }
 libm_hidden_def(__fpclassify)
-#if defined __DO_C99_MATH__
-int_WRAPPER_C99(__fpclassify)
-#endif
