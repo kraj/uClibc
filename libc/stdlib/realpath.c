@@ -36,19 +36,10 @@
 
 #define MAX_READLINKS 32
 
-#ifdef __STDC__
 char *realpath(const char *path, char got_path[])
-#else
-char *realpath(path, got_path)
-const char *path;
-char got_path[];
-#endif
 {
 	char copy_path[PATH_MAX];
-	/* use user supplied buffer directly - reduces stack usage */
-	/* char got_path[PATH_MAX]; */
-	char *max_path;
-	char *new_path;
+	char *max_path, *new_path, *allocated_path;
 	size_t path_len;
 	int readlinks = 0;
 #ifdef S_IFLNK
@@ -72,12 +63,13 @@ char got_path[];
 	/* Copy so that path is at the end of copy_path[] */
 	strcpy(copy_path + (PATH_MAX-1) - path_len, path);
 	path = copy_path + (PATH_MAX-1) - path_len;
+	allocated_path = got_path ? NULL : (got_path = malloc(PATH_MAX));
 	max_path = got_path + PATH_MAX - 2; /* points to last non-NUL char */
 	new_path = got_path;
 	if (*path != '/') {
 		/* If it's a relative pathname use getcwd for starters. */
 		if (!getcwd(new_path, PATH_MAX - 1))
-			return NULL;
+			goto err;
 		new_path += strlen(new_path);
 		if (new_path[-1] != '/')
 			*new_path++ = '/';
@@ -114,6 +106,8 @@ char got_path[];
 		while (*path != '\0' && *path != '/') {
 			if (new_path > max_path) {
 				__set_errno(ENAMETOOLONG);
+ err:
+				free(allocated_path);
 				return NULL;
 			}
 			*new_path++ = *path++;
@@ -122,7 +116,7 @@ char got_path[];
 		/* Protect against infinite loops. */
 		if (readlinks++ > MAX_READLINKS) {
 			__set_errno(ELOOP);
-			return NULL;
+			goto err;
 		}
 		path_len = strlen(path);
 		/* See if last (so far) pathname component is a symlink. */
@@ -133,13 +127,13 @@ char got_path[];
 			if (link_len < 0) {
 				/* EINVAL means the file exists but isn't a symlink. */
 				if (errno != EINVAL) {
-					return NULL;
+					goto err;
 				}
 			} else {
 				/* Safe sex check. */
 				if (path_len + link_len >= PATH_MAX - 2) {
 					__set_errno(ENAMETOOLONG);
-					return NULL;
+					goto err;
 				}
 				/* Note: readlink doesn't add the null byte. */
 				/* copy_path[link_len] = '\0'; - we don't need it too */
