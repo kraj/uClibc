@@ -5,9 +5,9 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-subdirs += libpthread/nptl/sysdeps/$(TARGET_ARCH)
-subdirs += libpthread/nptl/sysdeps/unix/sysv/linux
-subdirs += libpthread/nptl/sysdeps/pthread
+subdirs += libpthread/nptl/sysdeps/$(TARGET_ARCH) \
+	libpthread/nptl/sysdeps/unix/sysv/linux \
+	libpthread/nptl/sysdeps/pthread
 
 libpthread-routines = init vars events version \
 		      pthread_create pthread_exit pthread_detach \
@@ -167,8 +167,7 @@ CFLAGS-pthread_barrierattr_getpshared.c = -D_GNU_SOURCE
 CFLAGS-pthread_barrierattr_setpshared.c = -D_GNU_SOURCE
 CFLAGS-sem_open.c = -D_GNU_SOURCE
 
-CFLAGS-nptl = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS) -DIS_IN_libpthread=1
-#CFLAGS:=$(CFLAGS:-O1=-O2)
+CFLAGS-nptl = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 $(SSP_ALL_CFLAGS)
 
 CFLAGS-OMIT-alloca_cutoff.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-OMIT-forward.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
@@ -230,18 +229,18 @@ PTHREAD_OUT := $(top_builddir)libpthread/nptl
 libpthread_static_SRC := pthread_atfork
 
 libpthread_a_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,			\
-		$(filter-out $(libpthread-os-routines) \
-	       $(libpthread-misc-routines)				 \
-	       $(libpthread-shared-only-routines),			 \
-	       $(libpthread-routines)))
-libpthread_so_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,		\
-		$(filter-out $(libpthread-os-routines) \
-	       $(libpthread-misc-routines), $(libpthread-routines)))
+		$(filter-out $(libpthread-os-routines)			\
+			$(libpthread-misc-routines)			\
+			$(libpthread-shared-only-routines),		\
+		$(libpthread-routines)))
+libpthread_so_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,			\
+		$(filter-out $(libpthread-os-routines)			\
+			$(libpthread-misc-routines), $(libpthread-routines)))
 
 libc-static-y += $(patsubst %.c, $(PTHREAD_OUT)/%.o, alloca_cutoff.c	\
-	    libc-cancellation.c)
+	libc-cancellation.c)
 libc-shared-y += $(patsubst %.c, $(PTHREAD_OUT)/%.oS, forward.c		\
-	    libc-cancellation.c)
+	libc-cancellation.c)
 libpthread-nonshared-y += $(patsubst %,$(PTHREAD_OUT)/%.oS,$(libpthread_static_SRC))
 
 ifeq ($(DOPIC),y)
@@ -317,11 +316,11 @@ $(top_builddir)include/bits/stdio-lock.h: | include/bits
 	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
 
 nptl_headers_bootstrap:= $(top_builddir)include/pthread.h \
-					     $(top_builddir)include/semaphore.h \
-						 $(top_builddir)include/bits/semaphore.h \
-						 $(top_builddir)include/bits/pthreadtypes.h \
-						 $(top_builddir)include/bits/libc-lock.h \
-						 $(top_builddir)include/bits/stdio-lock.h
+		$(top_builddir)include/semaphore.h \
+		$(top_builddir)include/bits/semaphore.h \
+		$(top_builddir)include/bits/pthreadtypes.h \
+		$(top_builddir)include/bits/libc-lock.h \
+		$(top_builddir)include/bits/stdio-lock.h
 
 nptl_headers: $(PTHREAD_OUT)/pthread-errnos.h
 
