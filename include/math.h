@@ -377,8 +377,10 @@ extern int matherr (struct exception *__exc);
 #else	/* !SVID */
 
 # ifdef __USE_XOPEN
+#  ifdef __UCLIBC_SUSV4_LEGACY__
 /* X/Open wants another strange constant.  */
 #  define MAXFLOAT	3.40282347e+38F
+#  endif
 # endif
 
 #endif	/* SVID */
