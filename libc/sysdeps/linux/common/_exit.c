@@ -21,3 +21,4 @@ void attribute_noreturn _exit(int status)
 		INLINE_SYSCALL(exit, 1, status);
 }
 libc_hidden_def(_exit)
+weak_alias(_exit,_Exit)
