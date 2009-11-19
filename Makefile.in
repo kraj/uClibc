@@ -194,7 +194,7 @@ install: install_runtime install_dev
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
 
-$(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
+$(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c|$(@D)
 	$(hcompile.u)
 
 # Installs header files.
@@ -386,7 +386,7 @@ hostutils:
 install_hostutils: hostutils
 	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils utils_install
 
-$(addprefix $(top_builddir),include/bits include/sys include/config extra/config/lxdialog extra/locale $(subdirs)):
+$(addprefix $(top_builddir),include/bits include/sys include/config extra/config/lxdialog extra/locale extra/scripts $(subdirs)):
 	$(do_mkdir)
 
 # configuration
