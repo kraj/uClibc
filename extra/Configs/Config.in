@@ -282,7 +282,7 @@ config LDSO_LDD_SUPPORT
 	depends on HAVE_SHARED
 	default y
 	help
-	  Enable this to enable all the code needed to support traditional ldd,
+	  Enable all the code needed to support traditional ldd,
 	  which executes the shared library loader to resolve all dependencies
 	  and then provide a list of shared libraries that are required for an
 	  application to function.  Disabling this option will makes uClibc's
@@ -333,14 +333,15 @@ config UCLIBC_STATIC_LDCONFIG
 	  Enable this option to statically link the ldconfig binary.
 
 	  Making ldconfig static can be beneficial if you have a library
-	  problem and need to use ldconfig to recover.  Sometimes, it is
+	  problem and need to use ldconfig to recover.  Sometimes it is
 	  preferable to instead keep the size of the system down, in which
 	  case you should disable this option.
 
 config LDSO_RUNPATH
 	bool "Enable ELF RUNPATH tag support"
 	depends on HAVE_SHARED
-	default y
+	default y if LDSO_CACHE_SUPPORT
+	default n if !LDSO_CACHE_SUPPORT
 	help
 	  ELF's may have dynamic RPATH/RUNPATH tags.  These tags list paths
 	  which extend the library search paths.  They are really only useful
