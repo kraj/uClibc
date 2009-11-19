@@ -35,8 +35,8 @@ libutil-a-y := $(libutil_OBJ)
 endif
 libutil-so-y := $(libutil_OBJ:.o=.os)
 
-lib-a-y += $(top_builddir)lib/libutil.a
-lib-so-y += $(top_builddir)lib/libutil.so
+lib-a-$(UCLIBC_HAS_LIBUTIL) += $(top_builddir)lib/libutil.a
+lib-so-$(UCLIBC_HAS_LIBUTIL) += $(top_builddir)lib/libutil.so
 objclean-y += libutil_clean
 
 ifeq ($(DOMULTI),n)
