@@ -103,12 +103,14 @@ __BEGIN_DECLS
 
 /* Now some non-ansi/iso c99 macros. */
 
+#ifndef __UCLIBC_SUSV4_LEGACY__
 #define __isascii(c) (((c) & ~0x7f) == 0)
 #define __toascii(c) ((c) & 0x7f)
 /* Works correctly *only* on lowercase letters! */
 #define _toupper(c) ((c) ^ 0x20)
 /* Works correctly *only* on letters (of any case) and numbers */
 #define _tolower(c) ((c) | 0x20)
+#endif
 
 __END_DECLS
 
