@@ -1185,7 +1185,7 @@ config UCLIBC_HAS_EXTRA_COMPAT_RES_STATE
 	  Answer Y if selecting UCLIBC_HAS_COMPAT_RES_STATE is not enough.
 	  As far as I can say, this should never be needed.
 
-config UCLIBC_HAS_RESOLV_STUB
+config UCLIBC_HAS_LIBRESOLV_STUB
 	bool "Provide libresolv stub"
 	default n
 	help
