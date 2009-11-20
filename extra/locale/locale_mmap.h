@@ -50,24 +50,24 @@ typedef struct {
 	/* width?? */
 #endif
 
-	__LOCALE_DATA_COMMON_MMAP(ctype);
-	__LOCALE_DATA_COMMON_MMAP(numeric);
-	__LOCALE_DATA_COMMON_MMAP(monetary);
-	__LOCALE_DATA_COMMON_MMAP(time);
+	__LOCALE_DATA_COMMON_MMAP(ctype)
+	__LOCALE_DATA_COMMON_MMAP(numeric)
+	__LOCALE_DATA_COMMON_MMAP(monetary)
+	__LOCALE_DATA_COMMON_MMAP(time)
 	/* collate is different */
-	__LOCALE_DATA_COMMON_MMAP(messages);
+	__LOCALE_DATA_COMMON_MMAP(messages)
 
 
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 	const __codeset_8_bit_t codeset_8_bit[__LOCALE_DATA_NUM_CODESETS];
 #endif
 
-	__LOCALE_DATA_COMMON_MMIDX(ctype);
-	__LOCALE_DATA_COMMON_MMIDX(numeric);
-	__LOCALE_DATA_COMMON_MMIDX(monetary);
-	__LOCALE_DATA_COMMON_MMIDX(time);
+	__LOCALE_DATA_COMMON_MMIDX(ctype)
+	__LOCALE_DATA_COMMON_MMIDX(numeric)
+	__LOCALE_DATA_COMMON_MMIDX(monetary)
+	__LOCALE_DATA_COMMON_MMIDX(time)
 	/* collate is different */
-	__LOCALE_DATA_COMMON_MMIDX(messages);
+	__LOCALE_DATA_COMMON_MMIDX(messages)
 
 	const uint16_t collate_data[__lc_collate_data_LEN];
 
