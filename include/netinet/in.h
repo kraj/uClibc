@@ -476,7 +476,7 @@ extern int bindresvport6 (int __sockfd, struct sockaddr_in6 *__sock_in)
 	 && ((((__const uint8_t *) (a))[1] & 0xf) == 0xe))
 
 
-#if 0 /*def __USE_GNU*/
+#if defined __USE_GNU && defined __UCLIBC_HAS_IPV6__
 /* IPv6 packet information.  */
 struct in6_pktinfo
   {
@@ -490,7 +490,8 @@ struct ip6_mtuinfo
     struct sockaddr_in6 ip6m_addr; /* dst address including zone ID */
     uint32_t ip6m_mtu;		   /* path MTU in host byte order */
   };
-
+#endif
+#if 0 /*def __USE_GNU*/
 
 /* Obsolete hop-by-hop and Destination Options Processing (RFC 2292).  */
 extern int inet6_option_space (int __nbytes)
