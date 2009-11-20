@@ -29,7 +29,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <unistd.h>
 
 /* Get the prototype from assert.h as a double-check. */
 #undef NDEBUG
@@ -63,5 +63,4 @@ void __assert(const char *assertion, const char * filename,
 	/* shouldn't we? fflush(stderr); */
 	abort();
 }
-
 libc_hidden_def(__assert)
