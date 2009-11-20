@@ -427,6 +427,9 @@ defconfig: $(top_builddir)extra/config/conf
 	$(Q)$(top_builddir)extra/config/conf -d extra/Configs/Config.in \
 		-D extra/Configs/defconfigs/$(ARCH)
 
+menuconfig-clean-y:
+	$(Q)$(MAKE) -C extra/config menuconfig_clean
+
 include_clean:
 	$(Q)$(RM) $(top_builddir)include/fpu_control.h $(top_builddir)include/dl-osinfo.h $(top_builddir)include/hp-timing.h
 	@set -e; \

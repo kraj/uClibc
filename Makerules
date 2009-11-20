@@ -435,7 +435,7 @@ files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) \
 FORCE:
 
 clean: objclean-y headers_clean-y
-realclean: clean
+realclean: clean menuconfig-clean-y
 	$(Q)$(RM) $(.depends.dep)
 
 objclean-y: $(objclean-y)
