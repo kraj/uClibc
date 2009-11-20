@@ -237,6 +237,8 @@ string/tst-strxfrm
 termios/termios
 time/clocktest
 time/test_time
+time/tst-ftime_l
+time/tst-futimens1
 time/tst-mktime
 time/tst-mktime3
 time/tst-strptime2
