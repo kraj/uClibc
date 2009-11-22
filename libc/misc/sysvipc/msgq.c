@@ -49,10 +49,10 @@ struct new_msg_buf{
 #ifdef L_msgrcv
 #ifdef __NR_msgrcv
 #define __NR___syscall_msgrcv __NR_msgrcv
-static inline _syscall5(int, __syscall_msgrcv, int, msqid, void *, msgp,
+static inline _syscall5(ssize_t, __syscall_msgrcv, int, msqid, void *, msgp,
 			size_t, msgsz, long int, msgtyp, int, msgflg)
 #endif
-static inline int do_msgrcv (int msqid, void *msgp, size_t msgsz,
+static inline ssize_t do_msgrcv (int msqid, void *msgp, size_t msgsz,
 			    long int msgtyp, int msgflg)
 {
 #ifdef __NR_msgrcv

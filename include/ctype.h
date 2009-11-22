@@ -66,7 +66,8 @@ libc_hidden_proto(tolower)
 extern int toupper(int __c) __THROW;
 libc_hidden_proto(toupper)
 
-#if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
+#if (defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN) && \
+	defined __UCLIBC_SUSV4_LEGACY__
 /* Return nonzero iff C is in the ASCII set
    (i.e., is no more than 7 bits wide).  */
 extern int isascii(int __c) __THROW;
@@ -203,11 +204,12 @@ libc_hidden_proto(__ctype_tolower)
 
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
-
+#ifdef __UCLIBC_SUSV4_LEGACY__
 #define	__isascii(c)	(((c) & ~0x7f) == 0)	/* If C is a 7 bit value.  */
 #define	__toascii(c)	((c) & 0x7f)		/* Mask off high bits.  */
+#endif
 
-#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
+#ifdef _LIBC
 /* These are uClibc-specific. */
 #define __isdigit_char(C)    (((unsigned char)((C) - '0')) <= 9)
 #define __isdigit_int(C)     (((unsigned int)((C) - '0')) <= 9)
@@ -278,13 +280,12 @@ __NTH (toupper (int __c))
 #  define toupper(c)	__tobody(c, toupper, __UCLIBC_CTYPE_TOUPPER, (c))
 # endif /* Optimizing gcc */
 
-# if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
+# if (defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN) \
+	&& defined __UCLIBC_SUSV4_LEGACY__
 #  define isascii(c)	__isascii (c)
 #  define toascii(c)	__toascii (c)
-#  if __UCLIBC_SUSV4_LEGACY__
-#    define _tolower(c)	((int) (__UCLIBC_CTYPE_TOLOWER)[(int) (c)])
-#    define _toupper(c)	((int) (__UCLIBC_CTYPE_TOUPPER)[(int) (c)])
-#   endif
+#  define _tolower(c)	((int) (__UCLIBC_CTYPE_TOLOWER)[(int) (c)])
+#  define _toupper(c)	((int) (__UCLIBC_CTYPE_TOUPPER)[(int) (c)])
 # endif
 
 #endif /* not __cplusplus */
@@ -334,8 +335,8 @@ libc_hidden_proto(isxdigit_l)
 extern int isblank_l(int, __locale_t) __THROW;
 libc_hidden_proto(isblank_l)
 
-# if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
-
+# if (defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN) \
+	&& defined __UCLIBC_SUSV4_LEGACY__
 /* Return nonzero iff C is in the ASCII set
    (i.e., is no more than 7 bits wide).  */
 extern int isascii_l (int __c) __THROW;
@@ -378,7 +379,8 @@ libc_hidden_proto(toupper_l)
 #  define __isxdigit_l(c,l)	__isctype_l((c), _ISxdigit, (l))
 #  define __isblank_l(c,l)	__isctype_l((c), _ISblank, (l))
 
-#  if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
+#  if (defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN) \
+	&& defined __UCLIBC_SUSV4_LEGACY__
 #   define __isascii_l(c,l)	((l), __isascii (c))
 #   define __toascii_l(c,l)	((l), __toascii (c))
 #  endif
@@ -396,7 +398,8 @@ libc_hidden_proto(toupper_l)
 #  define isxdigit_l(c,l)	__isxdigit_l ((c), (l))
 #  define isblank_l(c,l)	__isblank_l ((c), (l))
 
-#  if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
+#  if (defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN) \
+	&& defined __UCLIBC_SUSV4_LEGACY__
 #   define isascii_l(c,l)	__isascii_l ((c), (l))
 #   define toascii_l(c,l)	__toascii_l ((c), (l))
 #  endif
@@ -408,5 +411,11 @@ libc_hidden_proto(toupper_l)
 __END_DECLS
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+/* We define {__,}isascii for internal use only */
+#if defined _LIBC && !defined __UCLIBC_SUSV4_LEGACY__
+# define __isascii(c) (((c) & ~0x7f) == 0)
+# define isascii(c) __isascii (c)
+#endif
 
 #endif /* ctype.h  */

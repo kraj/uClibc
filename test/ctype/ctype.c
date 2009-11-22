@@ -56,6 +56,7 @@ int main( int argc, char **argv)
 
 
 
+#ifdef __UCLIBC_SUSV4_LEGACY__
 	/* isascii() */
 	{
 		int buffer[]={ 'a', 'z', 'A', 'Z', '\n', -1};
@@ -71,6 +72,7 @@ int main( int argc, char **argv)
 			TEST( isascii(c)==0);
 		}
 	}
+#endif
 
 
 	/* iscntrl() */

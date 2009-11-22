@@ -19,18 +19,18 @@
 #ifndef _SYSCALL_H
 #define _SYSCALL_H	1
 
+/* User application code should use syscall(). */
+
+#include <features.h>
+#include <bits/sysnum.h>
+#ifdef _LIBC
 /* The _syscall#() macros are for uClibc internal use only.
- * User application code should use syscall() instead.
  *
  * The kernel provided _syscall[0-6] macros from asm/unistd.h are not suitable
  * for use in uClibc as they lack PIC support etc, so for uClibc we use our own
  * local _syscall# macros to be certain all such variations are handled
  * properly.
  */
-
-#include <features.h>
-#include <bits/sysnum.h>
-#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
 # include <bits/syscalls.h>
 # include <bits/syscalls-common.h>
 #endif

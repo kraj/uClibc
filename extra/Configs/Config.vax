@@ -12,13 +12,3 @@ config FORCE_OPTIONS_FOR_ARCH
 	default y
 	select ARCH_LITTLE_ENDIAN
 	select ARCH_HAS_NO_LDSO
-
-config ARCH_CFLAGS
-	string
-
-config ARCH_LDFLAGS
-	string
-
-config CROSS
-	string
-	default "vax-linux-uclibc-"

@@ -39,6 +39,7 @@ __BEGIN_DECLS
 #define LC_COLLATE        __LC_COLLATE
 #define LC_MONETARY       __LC_MONETARY
 #define LC_MESSAGES       __LC_MESSAGES
+#define	LC_ALL		  __LC_ALL
 #if 0
 #define LC_PAPER	  __LC_PAPER
 #define LC_NAME		  __LC_NAME
@@ -47,8 +48,9 @@ __BEGIN_DECLS
 #define LC_MEASUREMENT	  __LC_MEASUREMENT
 #define LC_IDENTIFICATION __LC_IDENTIFICATION
 #endif
-#define	LC_ALL		  __LC_ALL
 
+
+__BEGIN_NAMESPACE_STD
 
 /* Structure giving information about numeric and monetary notation.  */
 struct lconv
@@ -121,8 +123,6 @@ struct lconv
 };
 
 
-__BEGIN_NAMESPACE_STD
-
 /* Set and/or return the current locale.  */
 extern char *setlocale (int __category, __const char *__locale) __THROW;
 
@@ -133,7 +133,7 @@ libc_hidden_proto(localeconv)
 __END_NAMESPACE_STD
 
 
-#if defined(__USE_GNU) && defined(__UCLIBC_HAS_LOCALE__)
+#if defined __USE_GNU && defined __UCLIBC_HAS_LOCALE__
 /* The concept of one static locale per category is not very well
    thought out.  Many applications will need to process its data using
    information from several different locales.  Another application is
@@ -145,7 +145,7 @@ __END_NAMESPACE_STD
    Attention: all these functions are *not* standardized in any form.
    This is a proof-of-concept implementation.  */
 
-#if defined(__UCLIBC_HAS_XLOCALE__)
+#ifdef __UCLIBC_HAS_XLOCALE__
 /* Get locale datatype definition.  */
 # include <xlocale.h>
 #endif

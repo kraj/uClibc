@@ -3,8 +3,13 @@
 #
 !.gitignore
 #
+# Generated files
+#
+*.out
+#
 # Executable test
 #
+*_glibc
 argp/argp-ex[1-4]
 argp/argp-test
 argp/bug-argp1
@@ -35,6 +40,7 @@ inet/tst-ethers
 inet/tst-ethers-line
 inet/tst-network
 inet/tst-ntoa
+librt/shmtest
 locale/bug-iconv-trans
 locale/collate-test
 locale/dump-ctype
@@ -108,7 +114,10 @@ malloc/tst-[cmv]alloc
 malloc/tst-mallocfork
 malloc/tst-mcheck
 malloc/tst-obstack
-math/gen-libm-test.pl
+math/libm-test-ulps.h
+math/libm-test.c
+math/test-fpucw
+math/tst-definitions
 misc/bug-glob2
 misc/bug-readdir1
 misc/dirent
@@ -228,6 +237,8 @@ string/tst-strxfrm
 termios/termios
 time/clocktest
 time/test_time
+time/tst-ftime_l
+time/tst-futimens1
 time/tst-mktime
 time/tst-mktime3
 time/tst-strptime2

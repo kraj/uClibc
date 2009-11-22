@@ -26,6 +26,3 @@ config CONFIG_H8S
 	bool "H8S (edosk2674)"
 
 endchoice
-
-config ARCH_CFLAGS
-	string

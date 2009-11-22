@@ -13,10 +13,3 @@ config FORCE_OPTIONS_FOR_ARCH
 	select ARCH_LITTLE_ENDIAN
 	select ARCH_HAS_NO_MMU
 	select HAVE_NO_PIC
-
-config ARCH_CFLAGS
-	string
-
-config CROSS
-	string
-	default "v850e-elf-"

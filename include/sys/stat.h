@@ -375,6 +375,7 @@ extern int utimensat (int __fd, __const char *__path,
 		      __const struct timespec __times[2],
 		      int __flags)
      __THROW __nonnull ((2));
+libc_hidden_proto(utimensat)
 #endif
 
 #ifdef __USE_XOPEN2K8

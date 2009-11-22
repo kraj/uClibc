@@ -176,11 +176,13 @@ extern AUTH *authunix_create_default (void);
 libc_hidden_proto(authunix_create_default)
 extern AUTH *authnone_create (void) __THROW;
 libc_hidden_proto(authnone_create)
+#if 0
 extern AUTH *authdes_create (const char *__servername, u_int __window,
 			     struct sockaddr *__syncaddr, des_block *__ckey)
      __THROW;
 extern AUTH *authdes_pk_create (const char *, netobj *, u_int,
 				struct sockaddr *, des_block *) __THROW;
+#endif
 
 
 #define AUTH_NONE	0		/* no authentication */
@@ -192,6 +194,7 @@ extern AUTH *authdes_pk_create (const char *, netobj *, u_int,
 #define AUTH_DH		AUTH_DES	/* Diffie-Hellman (this is DES) */
 #define AUTH_KERB       4               /* kerberos style */
 
+#if 0
 /*
  *  Netname manipulating functions
  *
@@ -216,6 +219,7 @@ extern int key_gendes (des_block *);
 extern int key_setsecret (char *);
 extern int key_secretkey_is_set (void);
 extern int key_get_conv (char *, des_block *);
+#endif
 
 /*
  * XDR an opaque authentication struct.

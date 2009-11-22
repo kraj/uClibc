@@ -37,6 +37,7 @@ __BEGIN_DECLS
 
 
 
+#ifdef __UCLIBC_HAS_LIBUTIL__
 /* Make FD be the controlling terminal, stdin, stdout, and stderr;
    then close FD.  Returns 0 on success, nonzero on error.  */
 extern int login_tty (int __fd) __THROW;
@@ -51,6 +52,7 @@ extern int logout (__const char *__ut_line) __THROW;
 /* Append to wtmp an entry for the current time and the given info.  */
 extern void logwtmp (__const char *__ut_line, __const char *__ut_name,
 		     __const char *__ut_host) __THROW;
+#endif
 
 /* Append entry UTMP to the wtmp-like file WTMP_FILE.  */
 extern void updwtmp (__const char *__wtmp_file, __const struct utmp *__utmp)

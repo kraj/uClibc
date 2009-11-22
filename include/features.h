@@ -19,35 +19,6 @@
 #ifndef	_FEATURES_H
 #define	_FEATURES_H	1
 
-/* This macro indicates that the installed library is uClibc.  Use
- * __UCLIBC_MAJOR__ and __UCLIBC_MINOR__ to test for the features in
- * specific releases.  */
-#define	__UCLIBC__		1
-
-/* Load up the current set of uClibc supported features along
- * with the current uClibc major and minor version numbers.
- * For uClibc release 0.9.26, these numbers would be:
- *	#define	__UCLIBC_MAJOR__	0
- *	#define	__UCLIBC_MINOR__	9
- *	#define	__UCLIBC_SUBLEVEL__	26
- */
-#define __need_uClibc_config_h
-#include <bits/uClibc_config.h>
-#undef __need_uClibc_config_h
-#ifdef _LIBC
-#include <bits/uClibc_arch_features.h>
-#endif
-
-/* For uClibc, always optimize for size -- this should disable
- * a lot of expensive inlining...
- * TODO: this is wrong! __OPTIMIZE_SIZE__ is an indicator of
- * gcc -Os compile. We should not mess with compiler inlines.
- * We should instead disable __USE_EXTERN_INLINES unconditionally,
- * or maybe actually audit and test uclibc to work correctly
- * with __USE_EXTERN_INLINES on.
- */
-#define __OPTIMIZE_SIZE__   1
-
 /* These are defined by the user (or the compiler)
    to specify the desired environment:
 
@@ -189,10 +160,8 @@
 # define _XOPEN_SOURCE	700
 # undef  _XOPEN_SOURCE_EXTENDED
 # define _XOPEN_SOURCE_EXTENDED	1
-# ifdef __UCLIBC_HAS_LFS__
-#  undef	 _LARGEFILE64_SOURCE
-#  define _LARGEFILE64_SOURCE	1
-# endif /* __UCLIBC_HAS_LFS__ */
+# undef	 _LARGEFILE64_SOURCE
+# define _LARGEFILE64_SOURCE	1
 # undef  _BSD_SOURCE
 # define _BSD_SOURCE	1
 # undef  _SVID_SOURCE
@@ -200,6 +169,57 @@
 # undef  _ATFILE_SOURCE
 # define _ATFILE_SOURCE	1
 #endif
+
+/* This macro indicates that the installed library is uClibc.  Use
+ * __UCLIBC_MAJOR__ and __UCLIBC_MINOR__ to test for the features in
+ * specific releases.  */
+#define	__UCLIBC__		1
+
+#ifdef __UCLIBC__
+/* Load up the current set of uClibc supported features along
+ * with the current uClibc major and minor version numbers.
+ * For uClibc release 0.9.26, these numbers would be:
+ *	#define	__UCLIBC_MAJOR__	0
+ *	#define	__UCLIBC_MINOR__	9
+ *	#define	__UCLIBC_SUBLEVEL__	26
+ */
+# define __need_uClibc_config_h
+# include <bits/uClibc_config.h>
+# undef __need_uClibc_config_h
+
+/* For uClibc, always optimize for size -- this should disable
+ * a lot of expensive inlining...
+ * TODO: this is wrong! __OPTIMIZE_SIZE__ is an indicator of
+ * gcc -Os compile. We should not mess with compiler inlines.
+ * We should instead disable __USE_EXTERN_INLINES unconditionally,
+ * or maybe actually audit and test uclibc to work correctly
+ * with __USE_EXTERN_INLINES on.
+ */
+# define __OPTIMIZE_SIZE__   1
+
+/* disable unsupported features */
+# undef _FORTIFY_SOURCE
+# undef __LDBL_COMPAT
+
+# ifndef __UCLIBC_HAS_THREADS__
+#  if defined _REENTRANT || defined _THREAD_SAFE
+#   warning requested reentrant code, but thread support was disabled
+#   undef _REENTRANT
+#   undef _THREAD_SAFE
+#  endif
+# endif
+
+# ifndef __UCLIBC_HAS_LFS__
+#  undef _LARGEFILE64_SOURCE
+/* NOTE: This is probably incorrect on a 64-bit arch... */
+#  if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS == 64
+#   error It appears you have defined _FILE_OFFSET_BITS=64.  Unfortunately, \
+uClibc was built without large file support enabled.
+#  endif
+# elif defined __BCC__
+#  error BCC does not support LFS, please disable it
+# endif
+#endif /* __UCLIBC__ */
 
 /* If nothing (other than _GNU_SOURCE) is defined,
    define _BSD_SOURCE and _SVID_SOURCE.  */
@@ -329,8 +349,6 @@
 # define __USE_REENTRANT	1
 #endif
 
-/* uClibc does not support _FORTIFY_SOURCE */
-#undef _FORTIFY_SOURCE
 #if defined _FORTIFY_SOURCE && _FORTIFY_SOURCE > 0 \
     && __GNUC_PREREQ (4, 1) && defined __OPTIMIZE__ && __OPTIMIZE__ > 0
 # if _FORTIFY_SOURCE > 1
@@ -343,8 +361,10 @@
 #endif
 
 /* We do support the IEC 559 math functionality, real and complex.  */
+#ifdef __UCLIBC_HAS_FLOATS__
 #define __STDC_IEC_559__		1
 #define __STDC_IEC_559_COMPLEX__	1
+#endif
 
 #ifdef __UCLIBC_HAS_WCHAR__
 /* wchar_t uses ISO 10646-1 (2nd ed., published 2000-09-15) / Unicode 3.1.  */
@@ -362,14 +382,16 @@
 /* This macro indicates that the installed library is the GNU C Library.
    For historic reasons the value now is 6 and this will stay from now
    on.  The use of this variable is deprecated.  */
-# undef  __GNU_LIBRARY__
-# define __GNU_LIBRARY__ 6
+/* uClibc WARNING: leave these aligned to the left, don't put a space after '#', else
+ * broken apps could fail the check. */
+#undef  __GNU_LIBRARY__
+#define __GNU_LIBRARY__ 6
 
 /* Major and minor version number of the GNU C library package.  Use
    these macros to test for features in specific releases.  */
 /* Don't do it, if you want to keep uClibc happy.  */
-# define	__GLIBC__	2
-# define	__GLIBC_MINOR__	2
+#define	__GLIBC__	2
+#define	__GLIBC_MINOR__	2
 #endif
 
 #define __GLIBC_PREREQ(maj, min) \
@@ -395,7 +417,9 @@
    __USE_FILE_OFFSET64 but not __USE_LARGEFILE[64]. */
 # if defined __USE_FILE_OFFSET64 && !defined __REDIRECT
 #  define __USE_LARGEFILE	1
+#  ifdef __UCLIBC_HAS_LFS__
 #  define __USE_LARGEFILE64	1
+#  endif
 # endif
 
 #endif	/* !ASSEMBLER */
@@ -413,50 +437,12 @@
 # define __USE_EXTERN_INLINES	1
 #endif
 
-
-/* Make sure users large file options agree with uClibc's configuration. */
-#ifndef __UCLIBC_HAS_LFS__
-
-/* If uClibc was built without large file support, output an error if
- * 64-bit file offsets were requested.
- * NOTE: This is probably incorrect on a 64-bit arch... */
-# ifdef __USE_FILE_OFFSET64
-#  error It appears you have defined _FILE_OFFSET_BITS=64.  Unfortunately, \
-uClibc was built without large file support enabled.
-# endif
-
-/* If uClibc was built without large file support and _LARGEFILE64_SOURCE
- * is defined, undefine it. */
-# ifdef _LARGEFILE64_SOURCE
-#  undef _LARGEFILE64_SOURCE
-#  undef __USE_LARGEFILE64
-# endif
-
-/* If we're actually building uClibc with large file support,
- * define __USE_LARGEFILE64 and __USE_LARGEFILE. */
-#elif defined _LIBC
-# undef _LARGEFILE_SOURCE
-# undef _LARGEFILE64_SOURCE
-# undef _FILE_OFFSET_BITS
-# undef __USE_LARGEFILE
-# undef __USE_LARGEFILE64
-# undef __USE_FILE_OFFSET64
-# define _LARGEFILE_SOURCE       1
-# define _LARGEFILE64_SOURCE     1
-# define __USE_LARGEFILE         1
-# define __USE_LARGEFILE64       1
-#endif
-
 #ifdef _LIBC
+# ifdef __UCLIBC_HAS_LFS__
+#  undef _FILE_OFFSET_BITS
+#  undef __USE_FILE_OFFSET64
+# endif
 # include <libc-internal.h>
-#endif
-
-/* Some people like to build up uClibc with *-elf toolchains, so
- * a little grease here until we drop '#ifdef __linux__' checks
- * from our source code.
- */
-#ifndef __linux__
-# define __linux__ 1
 #endif
 
 #endif	/* features.h  */

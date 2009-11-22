@@ -244,6 +244,7 @@ __END_NAMESPACE_C99
 /* Return nonzero if VALUE is not a number.  */
 __MATHDECL_PRIV (int,isnan,, (_Mdouble_ __value), (__const__))
 
+# ifdef __DO_XSI_MATH__
 /* Bessel functions.  */
 __MATHCALL (j0,, (_Mdouble_))
 __MATHCALL (j1,, (_Mdouble_))
@@ -251,6 +252,7 @@ __MATHCALL (jn,, (int, _Mdouble_))
 __MATHCALL (y0,, (_Mdouble_))
 __MATHCALL (y1,, (_Mdouble_))
 __MATHCALL (yn,, (int, _Mdouble_))
+# endif
 #endif
 
 

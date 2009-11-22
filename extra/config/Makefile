@@ -73,8 +73,8 @@ $(obj)/%:: $(top_srcdir)$(src)/%_shipped
 	@$(disp_gen)
 	$(Q)cat $< > $@
 endif
-clean:
-	$(do_rm) $(clean-files) conf
+menuconfig_clean:
+	$(do_rm) $(clean-files) conf $(wildcard *.o)
 distclean: clean
 	$(do_rm) $(lxdialog) $(conf-objs) $(mconf-objs) \
 		$(kxgettext-objs) \

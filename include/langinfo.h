@@ -1,5 +1,5 @@
 /* Access to locale-dependent parameters.
-   Copyright (C) 1995-1999, 2000, 2001 Free Software Foundation, Inc.
+   Copyright (C) 1995-2002,2003,2004,2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -32,13 +32,20 @@ __BEGIN_DECLS
    (LC_*) and an item index within the category.  Some code may depend on
    the item values within a category increasing monotonically with the
    indices.  */
+#if 0
+#define _NL_ITEM(category, index)	(((category) << 16) | (index))
+
+/* Extract the category and item index from a constructed `nl_item' value.  */
+#define _NL_ITEM_CATEGORY(item)		((int) (item) >> 16)
+#define _NL_ITEM_INDEX(item)		((int) (item) & 0xffff)
+#else
 #define _NL_ITEM(category, index) \
 	(((category) << __NL_ITEM_CATEGORY_SHIFT) | (index))
 
 /* Extract the category and item index from a constructed `nl_item' value.  */
 #define _NL_ITEM_CATEGORY(item)		((int) (item) >> __NL_ITEM_CATEGORY_SHIFT)
 #define _NL_ITEM_INDEX(item)		((int) (item) & __NL_ITEM_INDEX_MASK)
-
+#endif
 
 /* Enumeration of locale items that can be queried with `nl_langinfo'.  */
 enum
@@ -312,6 +319,9 @@ enum
   _NL_CTYPE_INDIGITS8_WC,
   _NL_CTYPE_INDIGITS9_WC,
   _NL_CTYPE_OUTDIGIT0_MB,
+#else
+  _NL_CTYPE_OUTDIGIT0_MB = _NL_ITEM (__LC_CTYPE, 0),
+#endif
   _NL_CTYPE_OUTDIGIT1_MB,
   _NL_CTYPE_OUTDIGIT2_MB,
   _NL_CTYPE_OUTDIGIT3_MB,
@@ -321,6 +331,7 @@ enum
   _NL_CTYPE_OUTDIGIT7_MB,
   _NL_CTYPE_OUTDIGIT8_MB,
   _NL_CTYPE_OUTDIGIT9_MB,
+#if 0
   _NL_CTYPE_OUTDIGIT0_WC,
   _NL_CTYPE_OUTDIGIT1_WC,
   _NL_CTYPE_OUTDIGIT2_WC,
@@ -340,6 +351,7 @@ enum
   _NL_CTYPE_TRANSLIT_DEFAULT_MISSING,
   _NL_CTYPE_TRANSLIT_IGNORE_LEN,
   _NL_CTYPE_TRANSLIT_IGNORE,
+  _NL_CTYPE_MAP_TO_NONASCII,
   _NL_CTYPE_EXTRA_MAP_1,
   _NL_CTYPE_EXTRA_MAP_2,
   _NL_CTYPE_EXTRA_MAP_3,
@@ -354,17 +366,7 @@ enum
   _NL_CTYPE_EXTRA_MAP_12,
   _NL_CTYPE_EXTRA_MAP_13,
   _NL_CTYPE_EXTRA_MAP_14,
-#else  /* 0 */
-  _NL_CTYPE_OUTDIGIT0_MB = _NL_ITEM (__LC_CTYPE, 0),
-  _NL_CTYPE_OUTDIGIT1_MB,
-  _NL_CTYPE_OUTDIGIT2_MB,
-  _NL_CTYPE_OUTDIGIT3_MB,
-  _NL_CTYPE_OUTDIGIT4_MB,
-  _NL_CTYPE_OUTDIGIT5_MB,
-  _NL_CTYPE_OUTDIGIT6_MB,
-  _NL_CTYPE_OUTDIGIT7_MB,
-  _NL_CTYPE_OUTDIGIT8_MB,
-  _NL_CTYPE_OUTDIGIT9_MB,
+#else /* 0 */
   _NL_CTYPE_CODESET_NAME,	/* uClibc note: MUST BE LAST ENTRY!!! */
   CODESET = _NL_CTYPE_CODESET_NAME,
 #define CODESET			CODESET
@@ -434,6 +436,10 @@ enum
 #ifdef __USE_GNU
 # define N_SIGN_POSN		__N_SIGN_POSN
 #endif
+#if 0 /* moved below for some reason on uClibc */
+  _NL_MONETARY_CRNCYSTR,
+#define CRNCYSTR		_NL_MONETARY_CRNCYSTR
+#endif
   __INT_P_CS_PRECEDES,
 #ifdef __USE_GNU
 # define INT_P_CS_PRECEDES	__INT_P_CS_PRECEDES
@@ -458,10 +464,10 @@ enum
 #ifdef __USE_GNU
 # define INT_N_SIGN_POSN	__INT_N_SIGN_POSN
 #endif
-
+#if 1 /* moved here from above */
   _NL_MONETARY_CRNCYSTR,
 #define CRNCYSTR		_NL_MONETARY_CRNCYSTR
-
+#endif
 #if 0
   _NL_MONETARY_DUO_INT_CURR_SYMBOL,
   _NL_MONETARY_DUO_CURRENCY_SYMBOL,
@@ -591,9 +597,17 @@ enum
   _NL_IDENTIFICATION_CODESET,
   _NL_NUM_LC_IDENTIFICATION,
 #endif
+
   /* This marks the highest value used.  */
   _NL_NUM
 };
+
+/* This macro produces an item you can pass to `nl_langinfo' or
+   `nl_langinfo_l' to get the name of the locale in use for CATEGORY.  */
+#define _NL_LOCALE_NAME(category)	_NL_ITEM ((category), -1)
+#ifdef __USE_GNU
+# define NL_LOCALE_NAME(category)	_NL_LOCALE_NAME (category)
+#endif
 
 
 /* Return the current locale's value for ITEM.
@@ -606,8 +620,7 @@ extern char *nl_langinfo (nl_item __item) __THROW;
 libc_hidden_proto(nl_langinfo)
 
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-#ifdef	__USE_GNU
+#if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
 /* This interface is for the extended locale model.  See <locale.h> for
    more information.  */
 
@@ -617,7 +630,6 @@ libc_hidden_proto(nl_langinfo)
 /* Just like nl_langinfo but get the information from the locale object L.  */
 extern char *nl_langinfo_l (nl_item __item, __locale_t l);
 libc_hidden_proto(nl_langinfo_l)
-#endif
 #endif
 
 __END_DECLS

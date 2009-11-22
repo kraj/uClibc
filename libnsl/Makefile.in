@@ -28,8 +28,8 @@ libnsl-a-y := $(libnsl_OBJ)
 endif
 libnsl-so-y := $(libnsl_OBJ:.o=.os)
 
-lib-a-y += $(top_builddir)lib/libnsl.a
-lib-so-y += $(top_builddir)lib/libnsl.so
+lib-a-$(UCLIBC_HAS_LIBNSL_STUB) += $(top_builddir)lib/libnsl.a
+lib-so-$(UCLIBC_HAS_LIBNSL_STUB) += $(top_builddir)lib/libnsl.so
 objclean-y += libnsl_clean
 
 ifeq ($(DOPIC),y)

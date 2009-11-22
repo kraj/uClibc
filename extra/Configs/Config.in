@@ -265,6 +265,7 @@ config HAVE_SHARED
 config FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "Only load shared libraries which can share their text segment"
 	depends on HAVE_SHARED
+	select DOPIC
 	default n
 	help
 	  If you answer Y here, the uClibc native shared library loader will
@@ -282,7 +283,7 @@ config LDSO_LDD_SUPPORT
 	depends on HAVE_SHARED
 	default y
 	help
-	  Enable this to enable all the code needed to support traditional ldd,
+	  Enable all the code needed to support traditional ldd,
 	  which executes the shared library loader to resolve all dependencies
 	  and then provide a list of shared libraries that are required for an
 	  application to function.  Disabling this option will makes uClibc's
@@ -333,14 +334,15 @@ config UCLIBC_STATIC_LDCONFIG
 	  Enable this option to statically link the ldconfig binary.
 
 	  Making ldconfig static can be beneficial if you have a library
-	  problem and need to use ldconfig to recover.  Sometimes, it is
+	  problem and need to use ldconfig to recover.  Sometimes it is
 	  preferable to instead keep the size of the system down, in which
 	  case you should disable this option.
 
 config LDSO_RUNPATH
 	bool "Enable ELF RUNPATH tag support"
 	depends on HAVE_SHARED
-	default y
+	default y if LDSO_CACHE_SUPPORT
+	default n if !LDSO_CACHE_SUPPORT
 	help
 	  ELF's may have dynamic RPATH/RUNPATH tags.  These tags list paths
 	  which extend the library search paths.  They are really only useful
@@ -723,6 +725,31 @@ if !UNIX98PTY_ONLY
 config UCLIBC_HAS_GETPT
 	def_bool y
 endif
+
+config UCLIBC_HAS_LIBUTIL
+	bool "Provide libutil library and functions"
+	depends on UCLIBC_HAS_PTY
+	default n
+	help
+	  Provide a libutil library.
+	  This non-standard conforming library provides the following
+	  utility functions:
+
+	  forkpty(): combines openpty(), fork(2), and login_tty() to
+	               create a new process operating in a pseudo-terminal.
+	  login(): write utmp and wtmp entries
+	  login_tty(): prepares for a login on the tty fd by creating a
+	               new session, making fd the controlling terminal for
+	               the calling process, setting fd to be the standard
+	               input, output, and error streams of the current
+	               process, and closing fd.
+	  logout(): write utmp and wtmp entries
+	  logwtmp(): constructs a utmp structure and calls updwtmp() to
+	               append the structure to the utmp file.
+	  openpty(): finds an available pseudo-terminal and returns
+	               file descriptors for the master and slave
+
+	  This library adds about 3k-4k to your system.
 
 config UCLIBC_HAS_TM_EXTENSIONS
 	bool "Support 'struct tm' timezone extension fields"
@@ -1184,11 +1211,17 @@ config UCLIBC_HAS_EXTRA_COMPAT_RES_STATE
 	  Answer Y if selecting UCLIBC_HAS_COMPAT_RES_STATE is not enough.
 	  As far as I can say, this should never be needed.
 
-config UCLIBC_HAS_RESOLV_STUB
+config UCLIBC_HAS_LIBRESOLV_STUB
 	bool "Provide libresolv stub"
 	default n
 	help
 	  Provide a dummy resolv library.
+
+config UCLIBC_HAS_LIBNSL_STUB
+	bool "Provide libnsl stub"
+	default n
+	help
+	  Provide a dummy nsl library.
 
 endif
 
@@ -1904,10 +1937,9 @@ config HARDWIRED_ABSPATH
 	  This is a build time optimization.  It has no impact on dynamic
 	  linking at runtime, which doesn't use linker scripts.
 
-	  You must disable this to use uClibc with a relocatable toolchain,
-	  such as the prebuilt binary cross compilers at
-	  http://uclibc.org/downloads/binaries which may be installed at an
-	  arbitrary location (such as in a user's home directory).
+	  You must disable this to use uClibc with old non-sysroot toolchains,
+	  such as the prebuilt binary cross compilers at:
+	     http://uclibc.org/downloads/binaries
 
 	  The amount of time saved by this optimization is actually too small to
 	  measure. The linker just had to search the library path to find the

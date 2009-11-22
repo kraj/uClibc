@@ -203,7 +203,7 @@ install: install_runtime install_dev
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
 
-$(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
+$(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c|$(@D)
 	$(hcompile.u)
 
 # Installs header files.
@@ -212,9 +212,11 @@ $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
 HEADERS_RM- := \
 	dl-osinfo.h \
 	_lfs_64.h \
+	bits/uClibc_arch_features.h \
 	bits/kernel_sigaction.h \
 	bits/kernel_stat.h \
 	bits/kernel_types.h \
+	bits/syscalls.h \
 	bits/syscalls-common.h \
 	bits/utmpx.h \
 	bits/uClibc_errno.h \
@@ -223,9 +225,11 @@ HEADERS_RM- := \
 	bits/atomic.h \
 	bits/sigcontextinfo.h \
 	bits/stackinfo.h \
-	tls.h
-	# gcc 4.3.1 needs it, dont rm:
-	#bits/uClibc_arch_features.h
+	tls.h \
+	rpc/des_crypt.h \
+	rpc/key_prot.h \
+	rpc/rpc_des.h \
+	sgtty.h
 HEADERS_RM-$(UCLIBC_HAS_FLOATS) += \
 	complex.h \
 	fpu_control.h \
@@ -295,10 +299,6 @@ install_headers: headers $(top_builddir)extra/scripts/unifdef
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	top_builddir=$(top_builddir) \
 	$(top_srcdir)extra/scripts/install_headers.sh include $(PREFIX)$(DEVEL_PREFIX)include
-	# Disabled. If libc-internal.h is needed, document here why!
-	#printf '#ifndef _LIBC_INTERNAL_H\n#define _LIBC_INTERNAL_H 1\n#endif\n' >$(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
-	echo '/* Dont use _syscall#() macros; use the syscall() function */' > \
-		$(PREFIX)$(DEVEL_PREFIX)include/bits/syscalls.h
 	cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -r $(HEADERS_RM-)
 ifeq ($(UCLIBC_HAS_WCHAR),)
 	cd $(PREFIX)$(DEVEL_PREFIX)include && mv -f wchar-stub.h wchar.h
@@ -325,7 +325,7 @@ ifeq ($(HARDWIRED_ABSPATH),y)
 		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
 else
-	-$(INSTALL) -m 644 lib/libc.so $(PREFIX)$(DEVEL_PREFIX)lib/
+	-$(INSTALL) -m 755 lib/libc.so $(PREFIX)$(DEVEL_PREFIX)lib/
 endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifneq ($(LINUXTHREADS_OLD),y)
@@ -337,7 +337,7 @@ ifeq ($(HARDWIRED_ABSPATH),y)
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
 	fi
 else
-	-$(INSTALL) -m 644 lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)lib/
+	-$(INSTALL) -m 755 lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)lib/
 endif
 endif
 endif
@@ -370,7 +370,7 @@ endif
 install_runtime: all
 ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
-	$(INSTALL) -m 644 lib/lib*-$(VERSION).so \
+	$(INSTALL) -m 755 lib/lib*-$(VERSION).so \
 		$(PREFIX)$(RUNTIME_PREFIX)lib
 	(cd lib && $(TAR) -cf - *.so.*) | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
 	@if [ -x lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so ] ; then \
@@ -396,7 +396,7 @@ hostutils:
 install_hostutils: hostutils
 	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils utils_install
 
-$(addprefix $(top_builddir),include/bits include/sys include/config extra/config/lxdialog extra/locale $(subdirs)):
+$(addprefix $(top_builddir),include/bits include/sys include/config extra/config/lxdialog extra/locale extra/scripts $(subdirs)):
 	$(do_mkdir)
 
 # configuration
@@ -435,6 +435,9 @@ allnoconfig: $(top_builddir)extra/config/conf
 defconfig: $(top_builddir)extra/config/conf
 	$(Q)$(top_builddir)extra/config/conf -d extra/Configs/Config.in \
 		-D extra/Configs/defconfigs/$(ARCH)
+
+menuconfig-clean-y:
+	$(Q)$(MAKE) -C extra/config menuconfig_clean
 
 include_clean:
 	$(Q)$(RM) $(top_builddir)include/fpu_control.h $(top_builddir)include/dl-osinfo.h $(top_builddir)include/hp-timing.h

@@ -13,6 +13,3 @@ config FORCE_OPTIONS_FOR_ARCH
 	select ARCH_LITTLE_ENDIAN
 	select ARCH_HAS_MMU
 	select ARCH_HAS_NO_LDSO
-
-config ARCH_CFLAGS
-	string

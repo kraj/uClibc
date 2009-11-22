@@ -20,10 +20,10 @@
 #include <signal.h>
 #include <sys/syscall.h>
 #include <sys/poll.h>
+#define __need_NULL
+#include <stddef.h>
 
 #if defined __NR_ppoll && defined __UCLIBC_LINUX_SPECIFIC__
-
-
 int
 ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
        const sigset_t *sigmask)
@@ -39,5 +39,4 @@ ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
 	return INLINE_SYSCALL(ppoll, 5, fds, nfds, timeout, sigmask, _NSIG / 8);
 }
 libc_hidden_def(ppoll)
-
 #endif

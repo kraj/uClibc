@@ -505,28 +505,23 @@ long double significandl(long double x)
 #ifdef __DO_C99_MATH__
 
 #ifdef L___fpclassifyl
-int_WRAPPER1(__fpclassify)
-libm_hidden_def(__fpclassifyl)
+int_WRAPPER_C99(__fpclassify)
 #endif
 
 #ifdef L___finitel
-int_WRAPPER1(__finite)
-libm_hidden_def(__finitel)
+int_WRAPPER_C99(__finite)
 #endif
 
 #ifdef L___signbitl
-int_WRAPPER1(__signbit)
-libm_hidden_def(__signbitl)
+int_WRAPPER_C99(__signbit)
 #endif
 
 #ifdef L___isnanl
-int_WRAPPER1(__isnan)
-libm_hidden_def(__isnanl)
+int_WRAPPER_C99(__isnan)
 #endif
 
 #ifdef L___isinfl
-int_WRAPPER1(__isinf)
-libm_hidden_def(__isinfl)
+int_WRAPPER_C99(__isinf)
 #endif
 
 #endif

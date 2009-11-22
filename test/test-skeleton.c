@@ -137,14 +137,15 @@ timeout_handler (int sig __attribute__ ((unused)))
 {
   int killed = 0;
   int status;
+  int i;
 
   /* Send signal.  */
   kill (pid, SIGKILL);
 
   /* Wait for it to terminate.  */
-  int i;
   for (i = 0; i < 5; ++i)
     {
+      struct timespec ts;
       killed = waitpid (pid, &status, WNOHANG|WUNTRACED);
       if (killed != 0)
 	break;
@@ -153,7 +154,6 @@ timeout_handler (int sig __attribute__ ((unused)))
 	 nanosleep() call return prematurely, all the better.  We
 	 won't restart it since this probably means the child process
 	 finally died.  */
-      struct timespec ts;
       ts.tv_sec = 0;
       ts.tv_nsec = 100000000;
       nanosleep (&ts, NULL);
@@ -213,6 +213,7 @@ main (int argc, char *argv[])
   int opt;
   unsigned int timeoutfactor = 1;
   pid_t termpid;
+  char *envstr_timeoutfactor;
 
   /* Make uses of freed and uninitialized memory known.  */
 #ifdef __MALLOC_STANDARD__
@@ -244,7 +245,7 @@ main (int argc, char *argv[])
 
   /* If set, read the test TIMEOUTFACTOR value from the environment.
      This value is used to scale the default test timeout values. */
-  char *envstr_timeoutfactor = getenv ("TIMEOUTFACTOR");
+  envstr_timeoutfactor = getenv ("TIMEOUTFACTOR");
   if (envstr_timeoutfactor != NULL)
     {
       char *envstr_conv = envstr_timeoutfactor;
@@ -303,6 +304,9 @@ main (int argc, char *argv[])
   if (pid == 0)
     {
       /* This is the child.  */
+#ifdef RLIMIT_DATA
+      struct rlimit data_limit;
+#endif
 #ifdef RLIMIT_CORE
       /* Try to avoid dumping core.  */
       struct rlimit core_limit;
@@ -313,7 +317,6 @@ main (int argc, char *argv[])
 
 #ifdef RLIMIT_DATA
       /* Try to avoid eating all memory if a test leaks.  */
-      struct rlimit data_limit;
       if (getrlimit (RLIMIT_DATA, &data_limit) == 0)
 	{
 	  if (TEST_DATA_LIMIT == RLIM_INFINITY)
