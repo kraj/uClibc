@@ -316,7 +316,7 @@ ifeq ($(HARDWIRED_ABSPATH),y)
 		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
 else
-	-$(INSTALL) -m 644 lib/libc.so $(PREFIX)$(DEVEL_PREFIX)lib/
+	-$(INSTALL) -m 755 lib/libc.so $(PREFIX)$(DEVEL_PREFIX)lib/
 endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifneq ($(LINUXTHREADS_OLD),y)
@@ -328,7 +328,7 @@ ifeq ($(HARDWIRED_ABSPATH),y)
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
 	fi
 else
-	-$(INSTALL) -m 644 lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)lib/
+	-$(INSTALL) -m 755 lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)lib/
 endif
 endif
 endif
@@ -361,7 +361,7 @@ endif
 install_runtime: all
 ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
-	$(INSTALL) -m 644 lib/lib*-$(VERSION).so \
+	$(INSTALL) -m 755 lib/lib*-$(VERSION).so \
 		$(PREFIX)$(RUNTIME_PREFIX)lib
 	(cd lib && $(TAR) -cf - *.so.*) | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
 	@if [ -x lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so ] ; then \
