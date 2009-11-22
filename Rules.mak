@@ -345,6 +345,7 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 
 ifeq ($(TARGET_ARCH),mips)
+	OPTIMIZATIONS+=-mno-split-addresses
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_1)+=-mips1
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_2)+=-mips2 -mtune=mips2
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_3)+=-mips3 -mtune=mips3
@@ -366,6 +367,7 @@ ifeq ($(TARGET_ARCH),mips)
 endif
 
 ifeq ($(TARGET_ARCH),nios)
+	OPTIMIZATIONS+=-funaligned-struct-hack
 	CPU_LDFLAGS-y+=-Wl,-m32
 	CPU_CFLAGS-y+=-Wl,-m32
 endif
@@ -399,6 +401,14 @@ ifeq ($(TARGET_ARCH),h8300)
 	CPU_LDFLAGS-$(CONFIG_H8S)   += -Wl,-ms8300s
 	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32
 	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32
+endif
+
+ifeq ($(TARGET_ARCH),i960)
+	OPTIMIZATIONS+=-mh -mint32 #-fsigned-char
+endif
+
+ifeq ($(TARGET_ARCH),e1)
+	OPTIMIZATIONS+=-mgnu-param
 endif
 
 ifeq ($(TARGET_ARCH),cris)
@@ -520,9 +530,6 @@ XWARNINGS+=-Wnonnull -Wundef
 # Works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
 #XWARNINGS+=-Wdeclaration-after-statement
 endif
-# Seems to be unused (no ARCH_CFLAGS anywhere), delete?
-# if yes, remove after 0.9.31
-XARCH_CFLAGS=$(call qstrip,$(ARCH_CFLAGS))
 CPU_CFLAGS=$(call qstrip,$(CPU_CFLAGS-y))
 
 SSP_DISABLE_FLAGS ?= $(call check_gcc,-fno-stack-protector,)
@@ -582,7 +589,7 @@ LDFLAGS:=$(LDFLAGS_NOSTRIP) -Wl,-z,defs
 ifeq ($(DODEBUG),y)
 CFLAGS += -O0 -g3 -DDEBUG
 else
-CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS) -DNDEBUG
+CFLAGS += $(OPTIMIZATION)
 endif
 ifeq ($(DOSTRIP),y)
 LDFLAGS += -Wl,-s

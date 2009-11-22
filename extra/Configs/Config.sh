@@ -12,9 +12,6 @@ config FORCE_OPTIONS_FOR_ARCH
 	default y
 	select ARCH_ANY_ENDIAN
 
-config ARCH_CFLAGS
-	string
-
 choice
 	prompt "Target Processor Type"
 	default CONFIG_SH4

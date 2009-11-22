@@ -15,6 +15,3 @@ config FORCE_OPTIONS_FOR_ARCH
 	select HAS_NO_THREADS
 	select ARCH_HAS_NO_LDSO
 	select HAVE_NO_SSP
-
-config ARCH_CFLAGS
-	string
