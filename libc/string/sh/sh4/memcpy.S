@@ -6,6 +6,9 @@
  *   Modified from memcpy.S and micro-optimised for SH4
  *   Stuart Menefy (stuart.menefy@st.com)
  *
+ * Copyright (c) 2009  STMicroelectronics Ltd
+ *   Optimised using prefetching and 64bit data transfer via FPU
+ *   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
  */
 
 /*
@@ -15,7 +18,24 @@
  * If there is an overlap, then the results are undefined.
  */
 
+#include <sysdep.h>
 #include <endian.h>
+
+#ifdef __LITTLE_ENDIAN__
+#define	MEMCPY_USES_FPU
+/* Use paired single precision load or store mode for 64-bit tranfering.
+ * FPSCR.SZ=1,FPSCR.SZ=0 is well defined on both SH4-200 and SH4-300.
+ * Currenlty it has been only implemented and tested for little endian mode. */
+.macro FPU_SET_PAIRED_PREC
+	sts	fpscr, r7
+	mov	#0x10, r6	! PR=0 SZ=1
+	shll16	r6
+	lds	r6, fpscr
+.endm
+.macro RESTORE_FPSCR
+	lds	r7, fpscr
+.endm
+#endif
 
 	!
 	!	GHIJ KLMN OPQR -->  ...G HIJK LMNO PQR.
@@ -157,12 +177,7 @@
 9:	rts
 	 nop
 
-/* void * memcpy(void *dst, const void *src, size_t len) */
-.text
-.align 4
-.type  memcpy,@function
-.globl memcpy;
-memcpy:
+ENTRY(memcpy)
 
 	! Calculate the invariants which will be used in the remainder
 	! of the code:
@@ -189,9 +204,7 @@ memcpy:
 	mov	r4, r0		!   5 MT (0 cycle latency)
 	add	r6, r0		!  49 EX
 
-	mov	#16, r1		!   6 EX
 	bt/s	.Lcase00	! 111 BR		(aligned)
-
 	 sub	r4, r5		!  75 EX
 
 	! Arguments are not nicely long word aligned or zero len.
@@ -207,6 +220,7 @@ memcpy:
 	! However the penalty for getting it 'wrong' is much higher for long word
 	! aligned data (and this is more common), so use a value of 16.
 
+	mov	#16, r1		!   6 EX
 	cmp/gt	r6,r1		!  56 MT
 
 	add	#-1,r5		!  50 EX
@@ -447,6 +461,92 @@ memcpy:
 
 	 mov.l	r7, @-r0	!  30 LS
 
+#ifdef MEMCPY_USES_FPU
+	! Copy the cache line aligned blocks by using the FPU registers.
+	! If src and dst are well aligned adopt 64-bit data transfer.
+	! We also need r0 as a temporary (for movca), so 'undo' the invariant:
+	!   r5:	 src (was r0+r5)
+	!   r1:	 dest (was r0)
+1:
+	add	r0, r5
+	mov	r0, r1
+
+	add	#-0x1c, r5
+	mov	r5, r0
+
+	tst	#7, r0		! src is 8byte aligned
+	mov	r5, r3
+
+	add	#-64, r3	! To pefetch head
+	bt/s	3f
+
+	 pref	@r3
+
+2:	fmov.s	@r5+, fr0
+	mov	r1, r6
+	fmov.s	@r5+, fr1
+	add	#-32, r6
+	fmov.s	@r5+, fr2
+	fmov.s	@r5+, fr3
+	fmov.s	@r5+, fr4
+	fmov.s	@r5+, fr5
+	fmov.s	@r5+, fr6
+	fmov.s	@r5+, fr7
+	add	#-0x40, r5
+
+	movca.l	r0, @r6		! Cache allocate + store on dst-32.
+
+	fmov.s	fr7, @-r1
+	fmov.s	fr6, @-r1
+	fmov.s	fr5, @-r1
+	fmov.s	fr4, @-r1
+	fmov.s	fr3, @-r1
+	fmov.s	fr2, @-r1
+	fmov.s	fr1, @-r1
+	fmov.s	fr0, @-r1
+
+	add	#-32, r3
+	cmp/eq	r2,r1
+
+	bf/s	2b
+	 pref	@r3		! Prefetch the next cache line.
+
+	bra	5f
+
+3:	FPU_SET_PAIRED_PREC
+
+4:	fmov	@r5+, dr0
+	mov	r1, r6
+	fmov	@r5+, dr2
+	add	#-32, r6
+	fmov	@r5+, dr4
+	fmov	@r5+, dr6
+	add	#-0x40, r5
+
+	movca.l	r0, @r6
+
+	fmov	dr6, @-r1
+	fmov	dr4, @-r1
+	fmov	dr2, @-r1
+	fmov	dr0, @-r1
+	add	#-32, r3
+	cmp/eq	r2,r1
+
+	bf/s	4b
+	 pref	@r3
+
+	RESTORE_FPSCR
+
+5:	mov	r1, r0
+
+	cmp/eq	r4, r0		!  54 MT
+	bf/s	1f		! 109 BR
+	 sub	r1, r5		!  75 EX
+
+	rts
+	 nop
+1:
+#else
 	! Copy the cache line aligned blocks
 	!
 	! In use: r0, r2, r4, r5
@@ -512,6 +612,7 @@ memcpy:
 
 	rts
 1:	 mov.l	@r15+, r8	!  15 LS
+#endif
 	sub	r4, r1		!  75 EX		(len remaining)
 
 	! number of trailing bytes is non-zero
@@ -803,6 +904,5 @@ memcpy:
 	rts
 	 mov.b	r1,@-r0
 
-.size memcpy,.-memcpy;
-
+END(memcpy)
 libc_hidden_def (memcpy)
