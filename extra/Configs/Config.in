@@ -1937,10 +1937,9 @@ config HARDWIRED_ABSPATH
 	  This is a build time optimization.  It has no impact on dynamic
 	  linking at runtime, which doesn't use linker scripts.
 
-	  You must disable this to use uClibc with a relocatable toolchain,
-	  such as the prebuilt binary cross compilers at
-	  http://uclibc.org/downloads/binaries which may be installed at an
-	  arbitrary location (such as in a user's home directory).
+	  You must disable this to use uClibc with old non-sysroot toolchains,
+	  such as the prebuilt binary cross compilers at:
+	     http://uclibc.org/downloads/binaries
 
 	  The amount of time saved by this optimization is actually too small to
 	  measure. The linker just had to search the library path to find the
