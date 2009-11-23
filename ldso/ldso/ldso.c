@@ -490,6 +490,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 			tpnt->libname = (char *) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr);
 
+#ifdef __LDSO_SEARCH_INTERP_PATH__
 			/* Store the path where the shared lib loader was found
 			 * for later use
 			 */
@@ -499,6 +500,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 				*ptmp = '\0';
 
 			_dl_debug_early("Lib Loader: (%x) %s\n", (unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
+#endif
 		}
 
 		/* Discover any TLS sections if the target supports them. */
