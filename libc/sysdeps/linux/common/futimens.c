@@ -8,9 +8,14 @@
  */
 
 #include <sys/syscall.h>
-#define __need_timespec
 #include <time.h>
 #ifdef __NR_utimensat
+/* To avoid superfluous warnings about passing NULL to the non-null annotated
+ * 2nd param "__path" below, we bypass inclusion of sys/stat.h and use
+ * a non annotated, local decl.
+ * Note that due to not including the header, we have to alias the call
+ * manually.
+ */
 extern int utimensat (int __fd, __const char *__path,
 	__const struct timespec __times[2],
 	int __flags) __THROW;
