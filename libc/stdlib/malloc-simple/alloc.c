@@ -36,7 +36,7 @@ void *malloc(size_t size)
 #ifdef __ARCH_USE_MMU__
 # define MMAP_FLAGS MAP_PRIVATE | MAP_ANONYMOUS
 #else
-# define MMAP_FLAGS MAP_SHARED | MAP_ANONYMOUS
+# define MMAP_FLAGS MAP_SHARED | MAP_ANONYMOUS | MAP_UNINITIALIZE
 #endif
 
 	result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE,

@@ -356,7 +356,7 @@ __UCLIBC_MUTEX_EXTERN(__malloc_lock);
 #else
 
 #define MMAP(addr, size, prot) \
- (mmap((addr), (size), (prot), MAP_SHARED|MAP_ANONYMOUS, 0, 0))
+ (mmap((addr), (size), (prot), MAP_SHARED|MAP_ANONYMOUS|MAP_UNINITIALIZE, 0, 0))
 
 #endif
 

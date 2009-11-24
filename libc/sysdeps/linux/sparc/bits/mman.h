@@ -65,6 +65,8 @@
 # define _MAP_NEW	0x80000000	/* Binary compatibility with SunOS.  */
 # define MAP_POPULATE	0x8000		/* Populate (prefault) pagetables.  */
 # define MAP_NONBLOCK	0x10000		/* Do not block on IO.  */
+# define MAP_UNINITIALIZE 0x4000000     /* For anonymous mmap, memory could
+					   be uninitialized. */
 #endif
 
 /* Flags to `msync'.  */

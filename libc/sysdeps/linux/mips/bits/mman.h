@@ -66,6 +66,8 @@
 # define MAP_LOCKED	0x8000		/* pages are locked */
 # define MAP_POPULATE   0x10000         /* populate (prefault) pagetables */
 # define MAP_NONBLOCK   0x20000         /* do not block on IO */
+# define MAP_UNINITIALIZE 0x4000000     /* For anonymous mmap, memory could
+					   be uninitialized. */
 #endif
 
 /* Flags to `msync'.  */
