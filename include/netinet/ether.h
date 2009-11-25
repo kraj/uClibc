@@ -29,6 +29,7 @@
 
 __BEGIN_DECLS
 
+#if defined __UCLIBC_HAS_IPV4__ || defined __UCLIBC_HAS_IPV6__
 /* Convert 48 bit Ethernet ADDRess to ASCII.  */
 extern char *ether_ntoa (__const struct ether_addr *__addr) __THROW;
 extern char *ether_ntoa_r (__const struct ether_addr *__addr, char *__buf)
@@ -39,7 +40,10 @@ extern struct ether_addr *ether_aton (__const char *__asc) __THROW;
 extern struct ether_addr *ether_aton_r (__const char *__asc,
 					struct ether_addr *__addr) __THROW;
 libc_hidden_proto(ether_aton_r)
+#endif
 
+#if defined __UCLIBC_HAS_SOCKET__ || defined __UCLIBC_HAS_IPV4__ || \
+	defined __UCLIBC_HAS_IPV6__
 /* Map 48 bit Ethernet number ADDR to HOSTNAME.  */
 extern int ether_ntohost (char *__hostname, __const struct ether_addr *__addr)
      __THROW;
@@ -51,6 +55,7 @@ extern int ether_hostton (__const char *__hostname, struct ether_addr *__addr)
 /* Scan LINE and set ADDR and HOSTNAME.  */
 extern int ether_line (__const char *__line, struct ether_addr *__addr,
 		       char *__hostname) __THROW;
+#endif
 
 __END_DECLS
 
