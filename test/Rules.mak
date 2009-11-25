@@ -67,7 +67,7 @@ CFLAGS         += $(OPTIMIZATION) $(CPU_CFLAGS) $(XWARNINGS)
 # Just adding -Os for now.
 HOST_CFLAGS    += $(XCOMMON_CFLAGS) -Os $(XWARNINGS)
 
-LDFLAGS        := $(CPU_LDFLAGS-y)
+LDFLAGS        := $(CPU_LDFLAGS-y) -Wl,-z,defs -Wl,-z,now
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
 	HOST_CFLAGS   += -g
