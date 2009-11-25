@@ -8,7 +8,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <sys/time.h>
-#include <unistd.h>
+#include <time.h>
 
 /* Our event variable using a condition variable contruct. */
 typedef struct {
@@ -63,6 +63,9 @@ int
 main (void)
 {
   unsigned long count;
+  struct timespec ts;
+  ts.tv_sec = 0;
+  ts.tv_nsec = 10 * 1000;
 
   setvbuf (stdout, NULL, _IONBF, 0);
 
@@ -96,7 +99,7 @@ main (void)
 	  printf ("count = %lu\n", count);
       }
 
-      usleep (10);
+      nanosleep (&ts, NULL);
   }
 
   return 0;
