@@ -263,6 +263,7 @@ unistd/clone
 unistd/errno
 unistd/exec-null
 unistd/fork
+unistd/getconf
 unistd/getcwd
 unistd/getopt
 unistd/getopt_long
