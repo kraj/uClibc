@@ -8,3 +8,4 @@
 #include <sys/syscall.h>
 
 _syscall2(int,metag_setglobalbit,char *,addr,int,mask)
+_syscall1(void,metag_set_fpu_flags,unsigned int,flags)
