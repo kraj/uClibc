@@ -9,3 +9,4 @@ TESTS_DISABLED += tst-ftime_l
 endif
 
 CFLAGS_tst-strptime2 := -std=c99
+DODIFF_futimens1 := 1
