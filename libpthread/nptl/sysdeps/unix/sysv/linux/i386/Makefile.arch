@@ -15,9 +15,10 @@ libc_a_CSRC = fork.c
 libc_a_SSRC = clone.S vfork.S
 
 libpthread_SSRC += i486/lowlevellock.S i486/pthread_barrier_wait.S i486/pthread_cond_signal.S i486/pthread_cond_broadcast.S \
-				   i486/pthread_cond_timedwait.S i486/pthread_cond_wait.S i486/sem_post.S i486/sem_timedwait.S \
-				   i486/sem_trywait.S i486/sem_wait.S i486/pthread_rwlock_rdlock.S i486/pthread_rwlock_wrlock.S \
-				   i486/pthread_rwlock_timedrdlock.S i486/pthread_rwlock_timedwrlock.S i486/pthread_rwlock_unlock.S
+		   i486/sem_post.S i486/sem_timedwait.S \
+		   i486/sem_trywait.S i486/sem_wait.S i486/pthread_rwlock_rdlock.S i486/pthread_rwlock_wrlock.S \
+		   i486/pthread_rwlock_timedrdlock.S i486/pthread_rwlock_timedwrlock.S i486/pthread_rwlock_unlock.S
+#i486/pthread_cond_timedwait.S i486/pthread_cond_wait.S
 
 libc_a_SSRC += i486/libc-lowlevellock.S
 

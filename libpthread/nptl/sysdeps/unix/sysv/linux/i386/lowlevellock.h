@@ -65,8 +65,10 @@ typedef int lll_lock_t;
 /* Delay in spinlock loop.  */
 #define BUSY_WAIT_NOP          __asm__ ("rep; nop")
 
-
 #define lll_futex_wait(futex, val) \
+  lll_futex_timed_wait (futex, val, NULL)
+
+#define lll_futex_timed_wait(futex, val, timeout) \
   ({									      \
     int __ret;							      \
     register __typeof (val) _val __asm__ ("edx") = (val);		      \
@@ -74,7 +76,7 @@ typedef int lll_lock_t;
 		      LLL_ENTER_KERNEL					      \
 		      LLL_EBX_LOAD					      \
 		      : "=a" (__ret)					      \
-		      : "0" (SYS_futex), LLL_EBX_REG (futex), "S" (0),	      \
+		      : "0" (SYS_futex), LLL_EBX_REG (futex), "S" (timeout),  \
 			"c" (FUTEX_WAIT), "d" (_val),			      \
 			"i" (offsetof (tcbhead_t, sysinfo)));		      \
    __ret; })

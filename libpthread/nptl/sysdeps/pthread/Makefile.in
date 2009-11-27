@@ -23,8 +23,8 @@ libpthread_CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c	\
 
 ifeq ($(TARGET_ARCH),i386)
 X86_PTHREAD_EXCLUDE_LIST = pthread_spin_unlock.c pthread_spin_init.c \
-		pthread_cond_wait.c pthread_barrier_wait.c pthread_cond_broadcast.c	\
-		pthread_cond_signal.c pthread_cond_timedwait.c pthread_rwlock_timedrdlock.c	\
+		pthread_barrier_wait.c pthread_cond_broadcast.c	\
+		pthread_cond_signal.c pthread_rwlock_timedrdlock.c	\
 		pthread_rwlock_timedwrlock.c pthread_rwlock_unlock.c pthread_rwlock_wrlock.c \
 		pthread_rwlock_rdlock.c
 
