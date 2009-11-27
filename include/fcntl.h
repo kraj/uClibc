@@ -56,13 +56,16 @@ __BEGIN_DECLS
 # define SEEK_END	2	/* Seek from end of file.  */
 #endif	/* XPG */
 
-#if 0 /*def __USE_GNU*/
+#ifdef __USE_ATFILE
 # define AT_FDCWD		-100	/* Special value used to indicate
-					   openat should use the current
-					   working directory. */
+					   the *at functions should use the
+					   current working directory. */
 # define AT_SYMLINK_NOFOLLOW	0x100	/* Do not follow symbolic links.  */
 # define AT_REMOVEDIR		0x200	/* Remove directory instead of
 					   unlinking file.  */
+# define AT_SYMLINK_FOLLOW	0x400	/* Follow symbolic links.  */
+# define AT_EACCESS		0x200	/* Test access permitted for
+					   effective IDs, not real IDs.  */
 #endif
 
 /* Do the file control operation described by CMD on FD.
@@ -103,11 +106,11 @@ extern int __REDIRECT (open, (__const char *__file, int __oflag, ...), open64)
 extern int open64 (__const char *__file, int __oflag, ...) __nonnull ((1));
 #endif
 
-#if 0 /*def __USE_GNU*/
-/* Similar to OPEN but a relative path name is interpreted relative to
+#ifdef __USE_ATFILE
+/* Similar to `open' but a relative path name is interpreted relative to
    the directory for which FD is a descriptor.
 
-   NOTE: some other OPENAT implementation support additional functionality
+   NOTE: some other `openat' implementation support additional functionality
    through this interface, especially using the O_XATTR flag.  This is not
    yet supported here.
 

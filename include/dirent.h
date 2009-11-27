@@ -134,6 +134,14 @@ typedef struct __dirstream DIR;
    marked with __THROW.  */
 extern DIR *opendir (__const char *__name) __nonnull ((1));
 
+#ifdef __USE_XOPEN2K8
+/* Same as opendir, but open the stream on the file descriptor FD.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+extern DIR *fdopendir (int __fd);
+#endif
+
 /* Close the directory stream DIRP.
    Return 0 if successful, -1 if not.
 
@@ -210,7 +218,7 @@ extern void seekdir (DIR *__dirp, long int __pos) __THROW __nonnull ((1));
 extern long int telldir (DIR *__dirp) __THROW __nonnull ((1));
 #endif
 
-#if defined __USE_BSD || defined __USE_MISC
+#if defined __USE_BSD || defined __USE_MISC || defined __XOPEN_2K8
 
 /* Return the file descriptor used by DIRP.  */
 extern int dirfd (DIR *__dirp) __THROW __nonnull ((1));
