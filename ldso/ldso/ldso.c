@@ -376,19 +376,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	_dl_init_static_tls = &_dl_nothread_init_static_tls;
 #endif
 
-#ifdef __UCLIBC_HAS_SSP__
-	/* Set up the stack checker's canary.  */
-	stack_chk_guard = _dl_setup_stack_chk_guard ();
-# ifdef THREAD_SET_STACK_GUARD
-	THREAD_SET_STACK_GUARD (stack_chk_guard);
-#  ifdef __UCLIBC_HAS_SSP_COMPAT__
-	__guard = stack_chk_guard;
-#  endif
-# else
-	__stack_chk_guard = stack_chk_guard;
-# endif
-#endif
-
 	/* At this point we are now free to examine the user application,
 	 * and figure out which libraries are supposed to be called.  Until
 	 * we have this list, we will not be completely ready for dynamic
@@ -944,6 +931,19 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		tcbp = init_tls ();
 	}
 #endif
+#ifdef __UCLIBC_HAS_SSP__
+	/* Set up the stack checker's canary.  */
+	stack_chk_guard = _dl_setup_stack_chk_guard ();
+# ifdef THREAD_SET_STACK_GUARD
+	THREAD_SET_STACK_GUARD (stack_chk_guard);
+#  ifdef __UCLIBC_HAS_SSP_COMPAT__
+	__guard = stack_chk_guard;
+#  endif
+# else
+	__stack_chk_guard = stack_chk_guard;
+# endif
+#endif
+
 
 	_dl_debug_early("Beginning relocation fixups\n");
 
