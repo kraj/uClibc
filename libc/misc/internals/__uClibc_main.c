@@ -203,10 +203,11 @@ void __uClibc_init(void)
 #ifndef SHARED
 # ifdef __UCLIBC_HAS_SSP__
     /* Set up the stack checker's canary.  */
-    stack_chk_guard = _dl_setup_stack_chk_guard();
 #  ifdef THREAD_SET_STACK_GUARD
+    uintptr_t stack_chk_guard = _dl_setup_stack_chk_guard();
     THREAD_SET_STACK_GUARD (stack_chk_guard);
 #   ifdef __UCLIBC_HAS_SSP_COMPAT__
+    stack_chk_guard = _dl_setup_stack_chk_guard();
     __guard = stack_chk_guard;
 #   endif
 #  else
