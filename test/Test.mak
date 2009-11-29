@@ -29,10 +29,14 @@ TARGETS   += $(G_TARGETS)
 endif
 
 CLEAN_TARGETS := $(U_TARGETS) $(G_TARGETS)
+CLEAN_TARGETS += $(TESTS_DISABLED) $(addsuffix _glibc,$(TESTS_DISABLED))
 COMPILE_TARGETS :=  $(TARGETS)
 RUN_TARGETS := $(addsuffix .exe,$(TARGETS))
+# provide build rules even for disabled tests:
+U_TARGETS += $(TESTS_DISABLED)
+G_TARGETS += $(addsuffix _glibc,$(TESTS_DISABLED))
 TARGETS += $(SHELL_TESTS)
-CFLAGS+=$(CFLAGS_$(notdir $(CURDIR)))
+CFLAGS += $(CFLAGS_$(notdir $(CURDIR)))
 
 define binary_name
 $(patsubst %.exe,%,$@)
@@ -100,7 +104,9 @@ $(G_TARGETS): $(U_TARGET_SRCS) $(MAKE_SRCS)
 
 shell_%:
 	$(showtest)
+	$(Q)$(if $(PRE_RUN_$(@)),$(PRE_RUN_$(@)))
 	$(Q)$(SHELL) $(patsubst shell_%,%.sh,$(binary_name))
+	$(Q)$(if $(POST_RUN_$(@)),$(POST_RUN_$(@)))
 
 %.so: %.c
 	$(showlink)

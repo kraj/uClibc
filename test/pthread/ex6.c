@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
-#include <unistd.h>
+#include <time.h>
 
 static void *
 test_thread (void *v_param)
@@ -14,6 +14,9 @@ int
 main (void)
 {
   unsigned long count;
+  struct timespec ts;
+  ts.tv_sec = 0;
+  ts.tv_nsec = 10 * 1000;
 
   setvbuf (stdout, NULL, _IONBF, 0);
 
@@ -35,7 +38,7 @@ main (void)
 	}
       /* pthread_detach (thread); */
       pthread_join (thread, NULL);
-      usleep (10);
+      nanosleep (&ts, NULL);
     }
   return 0;
 }

@@ -114,9 +114,15 @@ malloc/tst-[cmv]alloc
 malloc/tst-mallocfork
 malloc/tst-mcheck
 malloc/tst-obstack
+math/basic-test
 math/libm-test-ulps.h
 math/libm-test.c
+math/rint
+math/test-double
+math/test-float
 math/test-fpucw
+math/test-idouble
+math/test-ifloat
 math/tst-definitions
 misc/bug-glob2
 misc/bug-readdir1
@@ -184,6 +190,7 @@ nptl/tst-tls[35]mod.so
 nptl/tst-tls6.sh
 nptl/tst-tsd[1-5]
 nptl/tst-umask1
+pthread/cancellation-points
 pthread/ex[1-7]
 pthread/tst-too-many-cleanups
 pwd_grp/getgroups
@@ -256,6 +263,7 @@ unistd/clone
 unistd/errno
 unistd/exec-null
 unistd/fork
+unistd/getconf
 unistd/getcwd
 unistd/getopt
 unistd/getopt_long

@@ -352,6 +352,20 @@ config LDSO_RUNPATH
 	  Usage of RUNPATH tags is not too common, so disabling this feature
 	  should be safe for most people.
 
+config LDSO_SEARCH_INTERP_PATH
+	bool "Add ldso path to lib search path"
+	depends on HAVE_SHARED
+	default y
+	help
+	  The ldso is told where it is being executed from and can use that
+	  path to find related core libraries.  This is useful by default,
+	  but can be annoying in a mixed development environment.
+
+	  i.e. if the ldso is run from /foo/boo/ldso.so, it will start its
+	  library search with /foo/boo/
+
+	  If unsure, simply say Y here.
+
 config UCLIBC_CTOR_DTOR
 	bool "Support global constructors and destructors"
 	default y

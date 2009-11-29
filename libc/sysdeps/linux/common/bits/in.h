@@ -101,6 +101,7 @@ struct in_pktinfo
     struct in_addr ipi_addr;		/* Header destination address  */
   };
 
+#ifdef __UCLIBC_HAS_IPV6__
 /* Options for use with `getsockopt' and `setsockopt' at the IPv6 level.
    The first word in the comment at the right is the data type used;
    "bool" means a boolean value stored in an `int'.  */
@@ -168,3 +169,4 @@ struct in_pktinfo
 #define IPV6_RTHDR_STRICT	1	/* Hop must be a neighbour.  */
 
 #define IPV6_RTHDR_TYPE_0	0	/* IPv6 Routing header type 0.  */
+#endif /* __UCLIBC_HAS_IPV6__ */

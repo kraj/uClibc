@@ -1,4 +1,5 @@
-/* Copyright (C) 1991, 93, 95, 96, 97, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1991,1993,1995-1997,2000
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -863,6 +864,30 @@ long int sysconf(int name)
     case _SC_XBS5_LPBIG_OFFBIG:
 #ifdef _XBS5_LPBIG_OFFBIG
       return _XBS5_LPBIG_OFFBIG;
+#else
+      RETURN_NEG_1;
+#endif
+    case _SC_V7_ILP32_OFF32:
+#ifdef _POSIX_V7_ILP32_OFF32
+      return _POSIX_V7_ILP32_OFF32;
+#else
+      RETURN_NEG_1;
+#endif
+    case _SC_V7_ILP32_OFFBIG:
+#ifdef _POSIX_V7_ILP32_OFFBIG
+      return _POSIX_V7_ILP32_OFFBIG;
+#else
+      RETURN_NEG_1;
+#endif
+    case _SC_V7_LP64_OFF64:
+#ifdef _POSIX_V7_LP64_OFF64
+      return _POSIX_V7_LP64_OFF64;
+#else
+      RETURN_NEG_1;
+#endif
+    case _SC_V7_LPBIG_OFFBIG:
+#ifdef _POSIX_V7_LPBIG_OFFBIG
+      return _POSIX_V7_LPBIG_OFFBIG;
 #else
       RETURN_NEG_1;
 #endif

@@ -1,3 +1,15 @@
+0.9.31  not yet released
+
+    Upgrade notices from previous versions.
+    o On x86_64 the format of /var/run/utmp changed compared to previous
+      versions. To retain compatibility with glibc we now define
+      __WORDSIZE_COMPAT32. If you are certain that you will never use
+      glibc nor run in i386 mode on your x86_64 installation, you can
+      remove this definition from wordsize.h.
+      Otherwise you have to delete /var/run/utmp on x86_64 hosts when
+      upgrading to 0.9.31
+
+
 0.9.27	12 January 2005
 
     This has been a long time in the making...  Release highlights:

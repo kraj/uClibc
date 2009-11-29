@@ -193,7 +193,7 @@ void *_dl_malloc(size_t size)
 
 		_dl_debug_early("mmapping more memory\n");
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, rounded_size,
-				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_UNINITIALIZE, -1, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
 			_dl_dprintf(_dl_debug_file, "%s: mmap of a spare page failed!\n", _dl_progname);
 			_dl_exit(20);
@@ -473,19 +473,20 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 		/* OK, fill this in - we did not have this before */
 		if (ppnt->p_type == PT_INTERP) {
-			char *ptmp;
-
 			tpnt->libname = (char *) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr);
-
-			/* Store the path where the shared lib loader was found
-			 * for later use
-			 */
-			_dl_ldsopath = _dl_strdup(tpnt->libname);
-			ptmp = _dl_strrchr(_dl_ldsopath, '/');
-			if (ptmp != _dl_ldsopath)
-				*ptmp = '\0';
-
+#ifdef __LDSO_SEARCH_INTERP_PATH__
+			{
+				char *ptmp;
+				/* Store the path where the shared lib loader was found
+				 * for later use
+				 */
+				_dl_ldsopath = _dl_strdup(tpnt->libname);
+				ptmp = _dl_strrchr(_dl_ldsopath, '/');
+				if (ptmp != _dl_ldsopath)
+					*ptmp = '\0';
+			}
 			_dl_debug_early("Lib Loader: (%x) %s\n", (unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
+#endif
 		}
 
 		/* Discover any TLS sections if the target supports them. */

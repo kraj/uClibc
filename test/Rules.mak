@@ -5,9 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-#
-# Note: This does not read the top level Rules.mak file
-#
+.SUFFIXES:
 
 top_builddir ?= ../
 
@@ -67,7 +65,7 @@ CFLAGS         += $(OPTIMIZATION) $(CPU_CFLAGS) $(XWARNINGS)
 # Just adding -Os for now.
 HOST_CFLAGS    += $(XCOMMON_CFLAGS) -Os $(XWARNINGS)
 
-LDFLAGS        := $(CPU_LDFLAGS-y)
+LDFLAGS        := $(CPU_LDFLAGS-y) -Wl,-z,defs -Wl,-z,now
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
 	HOST_CFLAGS   += -g
