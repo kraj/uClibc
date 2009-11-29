@@ -48,8 +48,8 @@ __new_sem_trywait:
 
 1:
 #ifdef PIC
-	call	__i686.get_pc_thunk.cx
-#else
+	call	__x86.get_pc_thunk.cx
+#elsen
 	movl	$3f, %ecx
 3:
 #endif
@@ -74,12 +74,12 @@ weak_alias(__new_sem_trywait, sem_trywait)
 
 
 #ifdef PIC
-	.section .gnu.linkonce.t.__i686.get_pc_thunk.cx,"ax",@progbits
-	.globl	__i686.get_pc_thunk.cx
-	.hidden	__i686.get_pc_thunk.cx
-	.type	__i686.get_pc_thunk.cx,@function
-__i686.get_pc_thunk.cx:
+	.section .gnu.linkonce.t.__x86.get_pc_thunk.cx,"ax",@progbits
+	.globl	__x86.get_pc_thunk.cx
+	.hidden	__x86.get_pc_thunk.cx
+	.type	__x86.get_pc_thunk.cx,@function
+__x86.get_pc_thunk.cx:
 	movl (%esp), %ecx;
 	ret
-	.size	__i686.get_pc_thunk.cx,.-__i686.get_pc_thunk.cx
+	.size	__x86.get_pc_thunk.cx,.-__x86.get_pc_thunk.cx
 #endif

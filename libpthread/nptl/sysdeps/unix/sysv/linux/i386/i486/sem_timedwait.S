@@ -149,7 +149,7 @@ sem_timedwait:
 3:	negl	%esi
 6:
 #ifdef PIC
-	call	__i686.get_pc_thunk.bx
+	call	__x86.get_pc_thunk.bx
 #else
 	movl	$4f, %ebx
 4:

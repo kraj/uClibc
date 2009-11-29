@@ -57,7 +57,7 @@ __pthread_once:
 	   Get the fork generation counter now.  */
 6:	movl	(%ebx), %eax
 #ifdef PIC
-	call	__i686.get_pc_thunk.cx
+	call	__x86.get_pc_thunk.cx
 	addl	$_GLOBAL_OFFSET_TABLE_, %ecx
 #endif
 
@@ -170,12 +170,12 @@ pthread_once = __pthread_once
 
 
 #ifdef PIC
-	.section .gnu.linkonce.t.__i686.get_pc_thunk.cx,"ax",@progbits
-	.globl	__i686.get_pc_thunk.cx
-	.hidden	__i686.get_pc_thunk.cx
-	.type	__i686.get_pc_thunk.cx,@function
-__i686.get_pc_thunk.cx:
+	.section .gnu.linkonce.t.__x86.get_pc_thunk.cx,"ax",@progbits
+	.globl	__x86.get_pc_thunk.cx
+	.hidden	__x86.get_pc_thunk.cx
+	.type	__x86.get_pc_thunk.cx,@function
+__x86.get_pc_thunk.cx:
 	movl (%esp), %ecx;
 	ret
-	.size	__i686.get_pc_thunk.cx,.-__i686.get_pc_thunk.cx
+	.size	__x86.get_pc_thunk.cx,.-__x86.get_pc_thunk.cx
 #endif

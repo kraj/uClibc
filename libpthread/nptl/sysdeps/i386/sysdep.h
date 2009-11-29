@@ -122,19 +122,20 @@ lose: SYSCALL_PIC_SETUP							      \
     cfi_adjust_cfa_offset (-4);						      \
     addl $_GLOBAL_OFFSET_TABLE+[.-0b], %ebx;
 
+
 # define SETUP_PIC_REG(reg) \
-  .ifndef __i686.get_pc_thunk.reg;					      \
-  .section .gnu.linkonce.t.__i686.get_pc_thunk.reg,"ax",@progbits;	      \
-  .globl __i686.get_pc_thunk.reg;					      \
-  .hidden __i686.get_pc_thunk.reg;					      \
-  .type __i686.get_pc_thunk.reg,@function;				      \
-__i686.get_pc_thunk.reg:						      \
+  .ifndef __x86.get_pc_thunk.reg;					      \
+  .section .gnu.linkonce.t.__x86.get_pc_thunk.reg,"ax",@progbits;	      \
+  .globl __x86.get_pc_thunk.reg;					      \
+  .hidden __x86.get_pc_thunk.reg;					      \
+  .type __x86.get_pc_thunk.reg,@function;				      \
+__x86.get_pc_thunk.reg:						      \
   movl (%esp), %e##reg;							      \
   ret;									      \
-  .size __i686.get_pc_thunk.reg, . - __i686.get_pc_thunk.reg;		      \
+  .size __x86.get_pc_thunk.reg, . - __x86.get_pc_thunk.reg;		      \
   .previous;								      \
   .endif;								      \
-  call __i686.get_pc_thunk.reg
+  call __x86.get_pc_thunk.reg
 
 # define LOAD_PIC_REG(reg) \
   SETUP_PIC_REG(reg); addl $_GLOBAL_OFFSET_TABLE_, %e##reg

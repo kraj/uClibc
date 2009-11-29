@@ -57,7 +57,7 @@ __new_sem_post:
 
 1:
 #ifdef PIC
-	call	__i686.get_pc_thunk.bx
+	call	__x86.get_pc_thunk.bx
 #else
 	movl	$4f, %ebx
 4:
@@ -85,12 +85,12 @@ weak_alias(__new_sem_post, sem_post)
 
 
 #ifdef PIC
-	.section .gnu.linkonce.t.__i686.get_pc_thunk.bx,"ax",@progbits
-	.globl	__i686.get_pc_thunk.bx
-	.hidden	__i686.get_pc_thunk.bx
-	.type	__i686.get_pc_thunk.bx,@function
-__i686.get_pc_thunk.bx:
+	.section .gnu.linkonce.t.__x86.get_pc_thunk.bx,"ax",@progbits
+	.globl	__x86.get_pc_thunk.bx
+	.hidden	__x86.get_pc_thunk.bx
+	.type	__x86.get_pc_thunk.bx,@function
+__x86.get_pc_thunk.bx:
 	movl (%esp), %ebx;
 	ret
-	.size	__i686.get_pc_thunk.bx,.-__i686.get_pc_thunk.bx
+	.size	__x86.get_pc_thunk.bx,.-__x86.get_pc_thunk.bx
 #endif

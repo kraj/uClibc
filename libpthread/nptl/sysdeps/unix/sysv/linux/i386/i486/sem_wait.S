@@ -95,7 +95,7 @@ __new_sem_wait:
 	je	3b
 	negl	%esi
 #ifdef PIC
-	call	__i686.get_pc_thunk.bx
+	call	__x86.get_pc_thunk.bx
 #else
 	movl	$4f, %ebx
 4:
