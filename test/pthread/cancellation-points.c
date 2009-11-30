@@ -29,12 +29,12 @@
 
 /* take care of optional things ... */
 #define STUB(func, args) static void func args { sleep(0); }
-#if !defined(__UCLIBC__) || defined(__UCLIBC_AIO__)
+#if defined(__UCLIBC_AIO__)
 # include <aio.h>
 #else
 STUB(aio_suspend, (void *p, int n, const void *p2))
 #endif
-#if !defined(__UCLIBC__) || defined(__UCLIBC_STROPTS__)
+#if defined(__UCLIBC_STROPTS__)
 # include <stropts.h>
 #else
 STUB(getmsg, (int f, void *p, void *p2, void *p3))
