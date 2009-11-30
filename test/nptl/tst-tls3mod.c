@@ -29,13 +29,12 @@
 
 #if HAVE___THREAD
 
-extern pthread_barrier_t b;
+static pthread_barrier_t* b = NULL;
 
 #define TOTAL_SIGS 1000
-extern int nsigs;
+static int* nsigs = NULL;
 
-extern sem_t s;
-
+static sem_t* s = NULL;
 
 static __thread void (*fp) (void);
 
@@ -52,17 +51,30 @@ handler (int sig)
 
   fp ();
 
-  if (sem_post (&s) != 0)
+  if (sem_post (s) != 0)
     {
       write (STDOUT_FILENO, "sem_post failed\n", 16);
       _exit (1);
     }
 }
 
+void
+setup_tf (pthread_barrier_t* t_b, int* t_nsigs, sem_t* t_s)
+{
+  b = t_b;
+  nsigs = t_nsigs;
+  s = t_s;
+}
 
 void *
 tf (void *arg)
 {
+  if (!b || !s || !nsigs)
+    {
+      puts ("need to call setup_tf first");
+      exit (1);
+    }
+
   if ((uintptr_t) pthread_self () & (TCB_ALIGNMENT - 1))
     {
       puts ("thread's struct pthread not aligned enough");
@@ -71,18 +83,18 @@ tf (void *arg)
 
   if (fp != NULL)
     {
-printf("fp=%p\n", (void *)&fp);
+      printf("fp=%p\n", (void *)&fp);
       puts ("fp not initially NULL");
       exit (1);
     }
 
   fp = arg;
 
-  pthread_barrier_wait (&b);
+  pthread_barrier_wait (b);
 
-  pthread_barrier_wait (&b);
+  pthread_barrier_wait (b);
 
-  if (nsigs != TOTAL_SIGS)
+  if (*nsigs != TOTAL_SIGS)
     {
       puts ("barrier_wait prematurely returns");
       exit (1);

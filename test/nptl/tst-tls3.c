@@ -113,6 +113,15 @@ do_test (void)
       exit (1);
     }
 
+  void (*setup_tf) (pthread_barrier_t*, int*, sem_t*) = dlsym(h, "setup_tf");
+  if (setup_tf == NULL)
+    {
+      puts ("dlsym for setup_tf failed");
+      exit(1);
+    }
+
+  setup_tf (&b, &nsigs, &s);
+
   struct sigaction sa;
   sa.sa_handler = dlsym (h, "handler");
   if (sa.sa_handler == NULL)
