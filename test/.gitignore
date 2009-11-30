@@ -115,10 +115,13 @@ malloc/tst-mallocfork
 malloc/tst-mcheck
 malloc/tst-obstack
 math/basic-test
+math/compile_test
 math/libm-test-ulps.h
 math/libm-test.c
 math/rint
 math/test-double
+math/test-ildoubl
+math/test-ldouble
 math/test-float
 math/test-fpucw
 math/test-idouble
