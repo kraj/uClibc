@@ -163,7 +163,7 @@ nptl/tst-detach1
 nptl/tst-eintr[1-5]
 nptl/tst-exec[2-4]
 nptl/tst-exit[1-3]
-nptl/tst-flock1
+nptl/tst-flock[1-2]
 nptl/tst-fork[1-4]
 nptl/tst-initializers1
 nptl/tst-join[1-5]
