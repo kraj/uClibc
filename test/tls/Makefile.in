@@ -7,6 +7,10 @@ TESTS := tst-tls1 tst-tls2 tst-tls3 tst-tls4 tst-tls5 tst-tls6 tst-tls7	\
 	tst-tls9-static
 TESTS_DISABLED := tst-tls1-static tst-tls2-static tst-tls9-static
 
+# All these tests need tls.h, which is not installed with glibc
+GLIBC_TESTS_DISABLED := $(addsuffix _glibc,$(filter-out $(TESTS_DISABLED),$(TESTS)))
+
+
 PTDIR := $(top_builddir)libpthread/nptl
 
 EXTRA_CFLAGS := -DNOT_IN_libc=1 \
@@ -52,7 +56,8 @@ LDFLAGS_tst-tlsmod6.so := -shared -static-libgcc -L$(top_builddir)lib
 LDFLAGS_tst-tlsmod7.so := -shared -static-libgcc -L$(top_builddir)lib
 LDFLAGS_tst-tlsmod8.so := -shared -static-libgcc -L$(top_builddir)lib	\
 	tst-tlsmod7.so
-LDFLAGS_tst-tlsmod9.so := -shared -static-libgcc -L$(top_builddir)lib
+LDFLAGS_tst-tlsmod9.so := -shared -static-libgcc -L$(top_builddir)lib	\
+	tst-tlsmod8.so
 LDFLAGS_tst-tlsmod10.so := -shared -static-libgcc -L$(top_builddir)lib	\
 	tst-tlsmod9.so
 LDFLAGS_tst-tlsmod11.so := -shared -static-libgcc -L$(top_builddir)lib
@@ -67,7 +72,7 @@ LDFLAGS_tst-tlsmod15a.so := -shared -static-libgcc -L$(top_builddir)lib
 LDFLAGS_tst-tlsmod15b.so := -shared -static-libgcc -L$(top_builddir)lib
 LDFLAGS_tst-tlsmod16.so := -shared -static-libgcc -L$(top_builddir)lib
 
-LDFLAGS_tst-tls3 := tst-tlsmod1.so
+LDFLAGS_tst-tls3 := tst-tlsmod1.so tst-tlsmod4.so
 LDFLAGS_tst-tls4 := -ldl
 LDFLAGS_tst-tls5 := -ldl
 LDFLAGS_tst-tls6 := -ldl
@@ -82,7 +87,7 @@ LDFLAGS_tst-tls14 := -ldl -Wl,-rpath-link=. tst-tlsmod14a.so
 LDFLAGS_tst-tls15 := -ldl -Wl,-rpath-link=.
 LDFLAGS_tst-tls16 := tst-tlsmod16.so
 
-tst-tls3: tst-tlsmod1.so
+tst-tls3: tst-tlsmod1.so tst-tlsmod4.so
 tst-tls4: tst-tlsmod2.so
 tst-tls5: tst-tlsmod2.so
 tst-tls6: tst-tlsmod2.so
@@ -94,7 +99,7 @@ tst-tls11: tst-tlsmod9.so tst-tlsmod10.so
 tst-tls12: tst-tlsmod11.so tst-tlsmod12.so
 tst-tls13: tst-tlsmod13.so tst-tlsmod13a.so
 tst-tls14: tst-tlsmod14a.so tst-tlsmod14b.so
-tst-tls15: tst-tlsmod15a.so tst-tlsmod15b.so
+tst-tls15: tst-tlsmod15b.so
 tst-tls16: tst-tlsmod16.so
 
 RET_tst-tls13 := 1

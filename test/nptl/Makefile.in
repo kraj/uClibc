@@ -46,6 +46,12 @@ ifeq ($(UCLIBC_HAS_OBSOLETE_BSD_SIGNAL),)
 TESTS_DISABLED := tst-exec2 tst-exec3 tst-exec4
 endif
 
+GLIBC_TESTS_DISABLED := tst-eintr1_glibc tst-eintr2_glibc \
+	tst-eintr3_glibc tst-eintr4_glibc tst-eintr5_glibc \
+	tst-tls1_glibc tst-tls2_glibc tst-tls3_glibc \
+	tst-tls4_glibc tst-tls5_glibc
+
+
 PTDIR := $(top_builddir)libpthread/nptl
 
 EXTRA_CFLAGS := -DNOT_IN_libc=1 -D_LIBC -D__USE_GNU -std=gnu99 \

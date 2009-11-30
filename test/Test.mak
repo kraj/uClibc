@@ -21,6 +21,10 @@ endif
 U_TARGETS := $(TESTS)
 G_TARGETS := $(addsuffix _glibc,$(U_TARGETS))
 
+ifneq ($(GLIBC_TESTS_DISABLED),)
+G_TARGETS := $(filter-out $(GLIBC_TESTS_DISABLED),$(G_TARGETS))
+endif
+
 ifeq ($(GLIBC_ONLY),)
 TARGETS   += $(U_TARGETS)
 endif
@@ -29,12 +33,12 @@ TARGETS   += $(G_TARGETS)
 endif
 
 CLEAN_TARGETS := $(U_TARGETS) $(G_TARGETS)
-CLEAN_TARGETS += $(TESTS_DISABLED) $(addsuffix _glibc,$(TESTS_DISABLED))
+CLEAN_TARGETS += $(TESTS_DISABLED) $(addsuffix _glibc,$(TESTS_DISABLED)) $(GLIBC_TESTS_DISABLED)
 COMPILE_TARGETS :=  $(TARGETS)
 RUN_TARGETS := $(addsuffix .exe,$(TARGETS))
 # provide build rules even for disabled tests:
 U_TARGETS += $(TESTS_DISABLED)
-G_TARGETS += $(addsuffix _glibc,$(TESTS_DISABLED))
+G_TARGETS += $(addsuffix _glibc,$(TESTS_DISABLED)) $(GLIBC_TESTS_DISABLED)
 TARGETS += $(SHELL_TESTS)
 CFLAGS += $(CFLAGS_$(notdir $(CURDIR)))
 
