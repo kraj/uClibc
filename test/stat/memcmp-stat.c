@@ -48,7 +48,7 @@ static void show_stat(struct stat *st)
 		(long int)st->st_size,
 		(long int)st->st_blksize,
 		(long int)st->st_blocks,
-#ifndef __UCLIBC__
+#if !defined(__UCLIBC__) || defined(__USE_MISC)
 		(long int)st->st_atime,
 		(long int)st->st_atim.tv_nsec,
 		(long int)st->st_mtime,
