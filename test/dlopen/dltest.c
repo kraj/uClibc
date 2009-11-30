@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	}
 
 	mydltest(&value1, &value2);
-	printf("dltest: __pthread_once=%p\n", value1);
+	printf("dltest: pthread_once=%p\n", value1);
 	printf("dltest: pthread_self=%p\n", value2);
 	if (value1 == value2) {
 	    ret = EXIT_FAILURE;
