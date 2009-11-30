@@ -29,6 +29,7 @@ int seen;
 static void *
 tf (void *arg)
 {
+  int i;
   int old;
   int r = pthread_setcancelstate (PTHREAD_CANCEL_DISABLE, &old);
   if (r != 0)
@@ -44,7 +45,7 @@ tf (void *arg)
       exit (1);
     }
 
-  for (int i = 0; i < 10; ++i)
+  for (i = 0; i < 10; ++i)
     {
       struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000000 };
       TEMP_FAILURE_RETRY (nanosleep (&ts, &ts));
