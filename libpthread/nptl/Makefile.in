@@ -261,6 +261,8 @@ headers_clean-y += nptl_headers_clean
 -include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/Makefile.in
 -include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/Makefile.arch
 
+pthread_pregen := nptl_headers nptl_arch_headers nptl_linux_headers
+
 lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
 
