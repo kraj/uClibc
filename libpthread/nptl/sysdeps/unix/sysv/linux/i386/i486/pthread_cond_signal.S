@@ -108,3 +108,4 @@ __pthread_cond_signal:
 	call	__lll_mutex_unlock_wake
 	jmp	6b
 	.size	__pthread_cond_signal, .-__pthread_cond_signal
+weak_alias(__pthread_cond_signal, pthread_cond_signal)
