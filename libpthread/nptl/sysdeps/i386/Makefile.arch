@@ -13,8 +13,8 @@ CFLAGS-pthread_spin_lock.c += -D_GNU_SOURCE
 CFLAGS-i386 = $(SSP_ALL_CFLAGS)
 #CFLAGS:=$(CFLAGS:-O1=-O2)
 
-PTHREAD_ARCH_DIR := $(top_srcdir)libpthread/nptl/sysdeps/i386/
-PTHREAD_ARCH_OUT := $(top_builddir)libpthread/nptl/sysdeps/i386/
+PTHREAD_ARCH_DIR := $(top_srcdir)libpthread/nptl/sysdeps/i386
+PTHREAD_ARCH_OUT := $(top_builddir)libpthread/nptl/sysdeps/i386
 PTHREAD_ARCH_OBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_SSRC))
 PTHREAD_ARCH_OBJ += $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_CSRC))
 
@@ -28,6 +28,7 @@ libpthread-so-y += $(PTHREAD_ARCH_OBJ:.o=.oS)
 libpthread-nomulti-y += $(PTHREAD_ARCH_OBJ)
 
 objclean-y += nptl_arch_clean
+headers-y += $(PTHREAD_ARCH_OUT)/tcb-offsets.h
 headers_clean-y += nptl_arch_headers_clean
 
 #
@@ -43,8 +44,6 @@ $(PTHREAD_ARCH_OUT)/tcb-offsets.s: $(PTHREAD_ARCH_OUT)/tcb-offsets.c
 
 $(PTHREAD_ARCH_OUT)/tcb-offsets.h: $(PTHREAD_ARCH_OUT)/tcb-offsets.s
 	@sed -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
-
-nptl_arch_headers: $(PTHREAD_ARCH_OUT)/tcb-offsets.h
 
 nptl_arch_headers_clean:
 	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/tcb-offsets., c s h)

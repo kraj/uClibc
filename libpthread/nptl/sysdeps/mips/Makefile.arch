@@ -39,7 +39,8 @@ libc-static-y += $(LIBC_ARCH_OBJ)
 
 libc-nomulti-y += $(LIBC_ARCH_OBJ)
 
-objclean-y += nptl_arch_objclean
+objclean-y += nptl_arch_clean
+headers-y += $(PTHREAD_ARCH_OUT)/tcb-offsets.h
 headers_clean-y += nptl_arch_headers_clean
 
 #
@@ -48,18 +49,16 @@ headers_clean-y += nptl_arch_headers_clean
 CFLAGS-tcb-offsets.c = -S
 
 $(PTHREAD_ARCH_OUT)/tcb-offsets.c: $(PTHREAD_ARCH_DIR)/tcb-offsets.sym
-	awk -f $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
 $(PTHREAD_ARCH_OUT)/tcb-offsets.s: $(PTHREAD_ARCH_OUT)/tcb-offsets.c
 	$(compile.c)
 
-nptl_arch_headers: $(PTHREAD_ARCH_OUT)/tcb-offsets.s
-	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $(PTHREAD_ARCH_OUT)/tcb-offsets.h
+$(PTHREAD_ARCH_OUT)/tcb-offsets.h: $(PTHREAD_ARCH_OUT)/tcb-offsets.s
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
 nptl_arch_headers_clean:
-	$(RM) $(PTHREAD_ARCH_OUT)/tcb-offsets.c		\
-	      $(PTHREAD_ARCH_OUT)/tcb-offsets.s		\
-	      $(PTHREAD_ARCH_OUT)/tcb-offsets.h
+	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/tcb-offsets., c s h)
 
-nptl_arch_objclean:
-	$(RM) $(PTHREAD_ARCH_OUT)/*.{o,os,oS}
+nptl_arch_clean:
+	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/*., o os oS)
