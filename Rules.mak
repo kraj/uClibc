@@ -526,6 +526,7 @@ XWARNINGS=$(call qstrip,$(WARNINGS)) -Wstrict-prototypes -fno-strict-aliasing
 ifeq ($(EXTRA_WARNINGS),y)
 XWARNINGS+=-Wnested-externs -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wformat=2
 XWARNINGS+=-Wmissing-prototypes -Wmissing-declarations
+XWARNINGS+=-Wold-style-declaration -Wold-style-definition
 XWARNINGS+=-Wnonnull -Wundef
 # Works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
 #XWARNINGS+=-Wdeclaration-after-statement
