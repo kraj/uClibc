@@ -10,8 +10,8 @@ CFLAGS_dltest    := -DLIBNAME="\"./libtest.so\""
 CFLAGS_dltest2   := -DLIBNAME="\"./libtest3.so\""
 
 LDFLAGS_dlstatic := -ldl
-LDFLAGS_dltest   := -ldl -lpthread
-LDFLAGS_dltest2  := -ldl -lpthread
+LDFLAGS_dltest   := -ldl
+LDFLAGS_dltest2  := -ldl
 LDFLAGS_dlundef  := -ldl
 LDFLAGS_dlafk    := -ldl ./libafk.so -Wl,-rpath,.
 LDFLAGS_test1    := -ldl
