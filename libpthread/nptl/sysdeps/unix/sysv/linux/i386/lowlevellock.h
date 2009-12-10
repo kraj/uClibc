@@ -173,7 +173,7 @@ extern int __lll_mutex_unlock_wake (int *__futex)
 
 
 #define lll_mutex_timedlock(futex, timeout) \
-  ({ int result, ignore1, ignore2;					      \
+  ({ int _result, ignore1, ignore2;					      \
      __asm__ __volatile (LOCK_INSTR "cmpxchgl %1, %3\n\t"		      \
 		       "jnz _L_mutex_timedlock_%=\n\t"			      \
 		       ".subsection 1\n\t"				      \
@@ -186,11 +186,11 @@ extern int __lll_mutex_unlock_wake (int *__futex)
 		       ".size _L_mutex_timedlock_%=,.-_L_mutex_timedlock_%=\n"\
 		       ".previous\n"					      \
 		       "1:"						      \
-		       : "=a" (result), "=c" (ignore1), "=&d" (ignore2),      \
+		       : "=a" (_result), "=c" (ignore1), "=&d" (ignore2),      \
 			 "=m" (futex)					      \
 		       : "0" (0), "1" (1), "m" (futex), "m" (timeout)	      \
 		       : "memory");					      \
-     result; })
+     _result; })
 
 
 #define lll_mutex_unlock(futex) \

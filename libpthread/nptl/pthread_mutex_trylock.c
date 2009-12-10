@@ -23,8 +23,7 @@
 
 
 int
-__pthread_mutex_trylock (mutex)
-     pthread_mutex_t *mutex;
+__pthread_mutex_trylock (pthread_mutex_t *mutex)
 {
   pid_t id;
 

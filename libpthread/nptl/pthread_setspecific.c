@@ -23,9 +23,9 @@
 
 
 int
-__pthread_setspecific (key, value)
-     pthread_key_t key;
-     const void *value;
+__pthread_setspecific (
+     pthread_key_t key,
+     const void *value)
 {
   struct pthread *self;
   unsigned int idx1st;

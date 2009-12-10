@@ -22,9 +22,7 @@
 
 
 int
-pthread_attr_getguardsize (attr, guardsize)
-     const pthread_attr_t *attr;
-     size_t *guardsize;
+pthread_attr_getguardsize (const pthread_attr_t *attr, size_t *guardsize)
 {
   struct pthread_attr *iattr;
 

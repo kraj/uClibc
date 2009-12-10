@@ -22,8 +22,7 @@
 
 
 int
-__pthread_cond_destroy (cond)
-     pthread_cond_t *cond;
+__pthread_cond_destroy (pthread_cond_t *cond)
 {
   /* Make sure we are alone.  */
   lll_mutex_lock (cond->__data.__lock);

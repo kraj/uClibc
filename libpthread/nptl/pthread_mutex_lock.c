@@ -30,8 +30,7 @@
 
 
 int
-__pthread_mutex_lock (mutex)
-     pthread_mutex_t *mutex;
+__pthread_mutex_lock (pthread_mutex_t *mutex)
 {
   assert (sizeof (mutex->__size) >= sizeof (mutex->__data));
 

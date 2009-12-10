@@ -22,8 +22,7 @@
 
 
 int
-__pthread_mutex_destroy (mutex)
-     pthread_mutex_t *mutex;
+__pthread_mutex_destroy (pthread_mutex_t *mutex)
 {
   if (mutex->__data.__nusers != 0)
     return EBUSY;

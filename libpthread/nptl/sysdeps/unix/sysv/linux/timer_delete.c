@@ -39,8 +39,7 @@ static int compat_timer_delete (timer_t timerid);
 
 
 int
-timer_delete (timerid)
-     timer_t timerid;
+timer_delete (timer_t timerid)
 {
 # undef timer_delete
 # ifndef __ASSUME_POSIX_TIMERS

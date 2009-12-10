@@ -21,9 +21,9 @@
 
 
 int
-pthread_mutexattr_getpshared (attr, pshared)
-     const pthread_mutexattr_t *attr;
-     int *pshared;
+pthread_mutexattr_getpshared (
+     const pthread_mutexattr_t *attr,
+     int *pshared)
 {
   const struct pthread_mutexattr *iattr;
 

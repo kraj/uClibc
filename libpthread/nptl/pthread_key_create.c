@@ -25,9 +25,9 @@
 lll_lock_t __pthread_keys_lock = LLL_LOCK_INITIALIZER;
 
 int
-__pthread_key_create (key, destr)
-     pthread_key_t *key;
-     void (*destr) (void *);
+__pthread_key_create (
+     pthread_key_t *key,
+     void (*destr) (void *))
 {
   int result = EAGAIN;
   size_t cnt;

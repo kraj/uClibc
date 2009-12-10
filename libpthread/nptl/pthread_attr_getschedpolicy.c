@@ -22,9 +22,9 @@
 
 
 int
-__pthread_attr_getschedpolicy (attr, policy)
-     const pthread_attr_t *attr;
-     int *policy;
+__pthread_attr_getschedpolicy (
+     const pthread_attr_t *attr,
+     int *policy)
 {
   struct pthread_attr *iattr;
 

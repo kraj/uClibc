@@ -27,9 +27,9 @@
 
 
 int
-pthread_condattr_setclock (attr, clock_id)
-     pthread_condattr_t *attr;
-     clockid_t clock_id;
+pthread_condattr_setclock (
+     pthread_condattr_t *attr,
+     clockid_t clock_id)
 {
   /* Only a few clocks are allowed.  CLOCK_REALTIME is always allowed.
      CLOCK_MONOTONIC only if the kernel has the necessary support.  */

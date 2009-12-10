@@ -143,7 +143,7 @@ extern int __lll_mutex_unlock_wait (int *__futex) attribute_hidden;
 
 
 #define lll_mutex_timedlock(futex, timeout) \
-  ({ int result, ignore1, ignore2, ignore3;				      \
+  ({ int _result, ignore1, ignore2, ignore3;				      \
      __asm __volatile (LOCK_INSTR "cmpxchgl %2, %4\n\t"			      \
 		       "jnz 1f\n\t"					      \
 		       ".subsection 1\n"				      \
@@ -155,11 +155,11 @@ extern int __lll_mutex_unlock_wait (int *__futex) attribute_hidden;
 		       "jmp 2f\n\t"					      \
 		       ".previous\n"					      \
 		       "2:"						      \
-		       : "=a" (result), "=&D" (ignore1), "=S" (ignore2),      \
+		       : "=a" (_result), "=&D" (ignore1), "=S" (ignore2),      \
 			 "=&d" (ignore3), "=m" (futex)			      \
 		       : "0" (0), "2" (1), "m" (futex), "m" (timeout)	      \
 		       : "memory", "cx", "cc", "r10", "r11");		      \
-     result; })
+     _result; })
 
 
 #define lll_mutex_unlock(futex) \

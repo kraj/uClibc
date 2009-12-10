@@ -24,10 +24,10 @@
 
 
 int
-__new_sem_init (sem, pshared, value)
-     sem_t *sem;
-     int pshared;
-     unsigned int value;
+__new_sem_init (
+     sem_t *sem,
+     int pshared,
+     unsigned int value)
 {
   /* Parameter sanity check.  */
   if (__builtin_expect (value > SEM_VALUE_MAX, 0))

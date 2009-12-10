@@ -21,9 +21,9 @@
 #include <pthreadP.h>
 
 int
-pthread_condattr_setpshared (attr, pshared)
-     pthread_condattr_t *attr;
-     int pshared;
+pthread_condattr_setpshared (
+     pthread_condattr_t *attr,
+     int pshared)
 {
   if (pshared != PTHREAD_PROCESS_PRIVATE
       && __builtin_expect (pshared != PTHREAD_PROCESS_SHARED, 0))

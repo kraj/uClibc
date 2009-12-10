@@ -21,9 +21,9 @@
 
 
 int
-pthread_barrierattr_getpshared (attr, pshared)
-     const pthread_barrierattr_t *attr;
-     int *pshared;
+pthread_barrierattr_getpshared (
+     const pthread_barrierattr_t *attr,
+     int *pshared)
 {
   *pshared = ((const struct pthread_barrierattr *) attr)->pshared;
 

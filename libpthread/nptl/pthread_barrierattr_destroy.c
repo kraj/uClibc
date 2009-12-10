@@ -21,8 +21,7 @@
 
 
 int
-pthread_barrierattr_destroy (attr)
-     pthread_barrierattr_t *attr;
+pthread_barrierattr_destroy (pthread_barrierattr_t *attr)
 {
   /* Nothing to do.  */
 

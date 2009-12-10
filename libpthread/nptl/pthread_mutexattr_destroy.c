@@ -21,8 +21,7 @@
 
 
 int
-__pthread_mutexattr_destroy (attr)
-     pthread_mutexattr_t *attr;
+__pthread_mutexattr_destroy (pthread_mutexattr_t *attr)
 {
   return 0;
 }

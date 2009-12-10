@@ -22,9 +22,9 @@
 
 
 int
-__new_sem_getvalue (sem, sval)
-     sem_t *sem;
-     int *sval;
+__new_sem_getvalue (
+     sem_t *sem,
+     int *sval)
 {
   struct sem *isem = (struct sem *) sem;
 

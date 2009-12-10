@@ -21,8 +21,7 @@
 
 
 int
-__pthread_rwlock_destroy (rwlock)
-     pthread_rwlock_t *rwlock;
+__pthread_rwlock_destroy (pthread_rwlock_t *rwlock)
 {
   /* Nothing to be done.  For now.  */
   return 0;

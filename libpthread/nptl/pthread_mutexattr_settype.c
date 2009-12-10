@@ -22,9 +22,9 @@
 
 
 int
-__pthread_mutexattr_settype (attr, kind)
-     pthread_mutexattr_t *attr;
-     int kind;
+__pthread_mutexattr_settype (
+     pthread_mutexattr_t *attr,
+     int kind)
 {
   struct pthread_mutexattr *iattr;
 

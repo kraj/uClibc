@@ -23,8 +23,7 @@
 
 
 int
-pthread_detach (th)
-     pthread_t th;
+pthread_detach (pthread_t th)
 {
   struct pthread *pd = (struct pthread *) th;
 

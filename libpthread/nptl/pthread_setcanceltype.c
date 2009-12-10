@@ -23,9 +23,9 @@
 
 
 int
-__pthread_setcanceltype (type, oldtype)
-     int type;
-     int *oldtype;
+__pthread_setcanceltype (
+     int type,
+     int *oldtype)
 {
   volatile struct pthread *self;
 
