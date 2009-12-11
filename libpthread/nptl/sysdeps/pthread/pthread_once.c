@@ -26,9 +26,9 @@ static lll_lock_t once_lock = LLL_LOCK_INITIALIZER;
 
 
 int
-__pthread_once (once_control, init_routine)
-     pthread_once_t *once_control;
-     void (*init_routine) (void);
+__pthread_once (
+     pthread_once_t *once_control,
+     void (*init_routine) (void))
 {
   /* XXX Depending on whether the LOCK_IN_ONCE_T is defined use a
      global lock variable or one which is part of the pthread_once_t

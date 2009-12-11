@@ -26,8 +26,7 @@
 
 /* Acquire write lock for RWLOCK.  */
 int
-__pthread_rwlock_wrlock (rwlock)
-     pthread_rwlock_t *rwlock;
+__pthread_rwlock_wrlock (pthread_rwlock_t *rwlock)
 {
   int result = 0;
 

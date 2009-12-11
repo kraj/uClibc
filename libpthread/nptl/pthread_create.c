@@ -55,8 +55,7 @@ unsigned int __nptl_nthreads = 1;
 
 struct pthread *
 internal_function
-__find_in_stack_list (pd)
-     struct pthread *pd;
+__find_in_stack_list (struct pthread *pd)
 {
   list_t *entry;
   struct pthread *result = NULL;
@@ -335,11 +334,11 @@ static const struct pthread_attr default_attr =
 
 
 int
-__pthread_create_2_1 (newthread, attr, start_routine, arg)
-     pthread_t *newthread;
-     const pthread_attr_t *attr;
-     void *(*start_routine) (void *);
-     void *arg;
+__pthread_create_2_1 (
+     pthread_t *newthread,
+     const pthread_attr_t *attr,
+     void *(*start_routine) (void *),
+     void *arg)
 {
   STACK_VARIABLES;
 

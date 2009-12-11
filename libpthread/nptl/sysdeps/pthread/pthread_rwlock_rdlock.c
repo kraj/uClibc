@@ -26,8 +26,7 @@
 
 /* Acquire read lock for RWLOCK.  */
 int
-__pthread_rwlock_rdlock (rwlock)
-     pthread_rwlock_t *rwlock;
+__pthread_rwlock_rdlock (pthread_rwlock_t *rwlock)
 {
   int result = 0;
 

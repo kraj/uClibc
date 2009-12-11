@@ -26,9 +26,9 @@
 
 /* Try to acquire read lock for RWLOCK or return after specfied time.  */
 int
-pthread_rwlock_timedrdlock (rwlock, abstime)
-     pthread_rwlock_t *rwlock;
-     const struct timespec *abstime;
+pthread_rwlock_timedrdlock (
+     pthread_rwlock_t *rwlock,
+     const struct timespec *abstime)
 {
   int result = 0;
 

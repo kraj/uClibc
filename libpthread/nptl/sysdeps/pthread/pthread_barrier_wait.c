@@ -25,8 +25,7 @@
 
 /* Wait on barrier.  */
 int
-pthread_barrier_wait (barrier)
-     pthread_barrier_t *barrier;
+pthread_barrier_wait (pthread_barrier_t *barrier)
 {
   struct pthread_barrier *ibarrier = (struct pthread_barrier *) barrier;
   int result = 0;
