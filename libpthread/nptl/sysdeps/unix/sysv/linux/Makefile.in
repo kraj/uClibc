@@ -140,10 +140,6 @@ librt-a-y += $(LIBRT_LINUX_OBJ)
 librt-so-y += $(LIBRT_LINUX_OBJ:.o=.oS)
 
 objclean-y += nptl_linux_clean
-headers-y += $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h \
-                        $(PTHREAD_LINUX_OUT)/lowlevelcond.h \
-                        $(PTHREAD_LINUX_OUT)/lowlevelrwlock.h \
-                        $(PTHREAD_LINUX_OUT)/unwindbuf.h
 headers_clean-y += nptl_linux_headers_clean
 
 #
@@ -189,6 +185,11 @@ $(PTHREAD_LINUX_OUT)/lowlevelrwlock.h: $(PTHREAD_LINUX_OUT)/lowlevelrwlock.s
 
 $(PTHREAD_LINUX_OUT)/unwindbuf.h: $(PTHREAD_LINUX_OUT)/unwindbuf.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+
+nptl_linux_headers: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h \
+					$(PTHREAD_LINUX_OUT)/lowlevelcond.h \
+					$(PTHREAD_LINUX_OUT)/lowlevelrwlock.h \
+					$(PTHREAD_LINUX_OUT)/unwindbuf.h
 
 HEADERS_BITS_PTHREAD     := $(notdir $(wildcard $(PTHREAD_LINUX_DIR)/bits/*.h))
 ALL_HEADERS_BITS_PTHREAD := $(addprefix include/bits/,$(HEADERS_BITS_PTHREAD))

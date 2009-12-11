@@ -31,7 +31,6 @@ libpthread-so-y += $(PTHREAD_ARCH_OBJ:.o=.oS)
 libpthread-nomulti-y += $(PTHREAD_ARCH_OBJ)
 
 objclean-y += nptl_arch_clean
-headers-y += $(PTHREAD_ARCH_OUT)/tcb-offsets.h
 headers_clean-y += nptl_arch_headers_clean
 
 #
@@ -47,6 +46,8 @@ $(PTHREAD_ARCH_OUT)/tcb-offsets.s: $(PTHREAD_ARCH_OUT)/tcb-offsets.c
 
 $(PTHREAD_ARCH_OUT)/tcb-offsets.h: $(PTHREAD_ARCH_OUT)/tcb-offsets.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+
+nptl_arch_headers: $(PTHREAD_ARCH_OUT)/tcb-offsets.h
 
 nptl_arch_headers_clean:
 	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/tcb-offsets., c s h)
