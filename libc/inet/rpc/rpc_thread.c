@@ -14,6 +14,7 @@
 #ifdef __UCLIBC_HAS_THREADS__
 
 #include <bits/libc-tsd.h>
+#include <bits/libc-lock.h>
 
 /* Variable used in non-threaded applications or for the first thread.  */
 static struct rpc_thread_variables __libc_tsd_RPC_VARS_mem;
