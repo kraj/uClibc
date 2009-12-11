@@ -18,7 +18,6 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
-#include <shlib-compat.h>
 #include <lowlevelcond.h>
 #include <bits/kernel-features.h>
 
@@ -28,7 +27,6 @@
 # define LOCK lock
 #endif
 
-#define SYS_futex		202
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 #define FUTEX_REQUEUE		3

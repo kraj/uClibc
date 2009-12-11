@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2002, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2001, 2002, 2004, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@
 .text
 .global __vfork
 .hidden __vfork
-.type	__vfork,%function
+.type   __vfork,%function
 
 __vfork:
 
@@ -39,12 +39,20 @@ __vfork:
 	   is preserved by the syscall and that we're allowed to destroy. */
 	popq	%rdi
 
+#ifdef SAVE_PID
+	SAVE_PID
+#endif
+
 	/* Stuff the syscall number in RAX and enter into the kernel.  */
 	movl	$__NR_vfork, %eax
 	syscall
 
 	/* Push back the return PC.  */
 	pushq	%rdi
+
+#ifdef RESTORE_PID
+	RESTORE_PID
+#endif
 
 	cmpl	$-4095, %eax
 	jae __syscall_error		/* Branch forward if it failed.  */

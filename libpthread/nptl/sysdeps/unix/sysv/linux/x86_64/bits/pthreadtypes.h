@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002,2003,2004,2005,2006,2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -75,7 +75,7 @@ typedef struct __pthread_internal_slist
    type is not exposed on purpose.  */
 typedef union
 {
-  struct
+  struct __pthread_mutex_s
   {
     int __lock;
     unsigned int __count;
@@ -86,10 +86,18 @@ typedef union
     /* KIND must stay at this position in the structure to maintain
        binary compatibility.  */
     int __kind;
-#if __WORDSIZE != 64
-    unsigned int __nusers;
-#endif
+#if __WORDSIZE == 64
     int __spins;
+    __pthread_list_t __list;
+# define __PTHREAD_MUTEX_HAVE_PREV	1
+#else
+    unsigned int __nusers;
+    __extension__ union
+    {
+      int __spins;
+      __pthread_slist_t __list;
+    };
+#endif
   } __data;
   char __size[__SIZEOF_PTHREAD_MUTEX_T];
   long int __align;
@@ -151,9 +159,9 @@ typedef union
     unsigned int __nr_readers_queued;
     unsigned int __nr_writers_queued;
     int __writer;
-    int __pad1;
+    int __shared;
+    unsigned long int __pad1;
     unsigned long int __pad2;
-    unsigned long int __pad3;
     /* FLAGS must stay at this position in the structure to maintain
        binary compatibility.  */
     unsigned int __flags;
@@ -169,7 +177,10 @@ typedef union
     unsigned int __nr_writers_queued;
     /* FLAGS must stay at this position in the structure to maintain
        binary compatibility.  */
-    unsigned int __flags;
+    unsigned char __flags;
+    unsigned char __shared;
+    unsigned char __pad1;
+    unsigned char __pad2;
     int __writer;
   } __data;
 # endif
@@ -205,5 +216,10 @@ typedef union
 } pthread_barrierattr_t;
 #endif
 
+
+#if __WORDSIZE == 32
+/* Extra attributes for the cleanup functions.  */
+# define __cleanup_fct_attribute __attribute__ ((__regparm__ (1)))
+#endif
 
 #endif	/* bits/pthreadtypes.h */

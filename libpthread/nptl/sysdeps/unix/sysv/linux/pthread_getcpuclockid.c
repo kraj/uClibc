@@ -33,9 +33,9 @@ int __libc_missing_posix_timers attribute_hidden;
 #endif
 
 int
-pthread_getcpuclockid (threadid, clockid)
-     pthread_t threadid;
-     clockid_t *clockid;
+pthread_getcpuclockid (
+     pthread_t threadid,
+     clockid_t *clockid)
 {
   struct pthread *pd = (struct pthread *) threadid;
 

@@ -23,6 +23,8 @@
 #include <time.h>
 #include <sys/param.h>
 #include <bits/pthreadtypes.h>
+#include <atomic.h>
+#include <sysdep.h>
 
 #ifndef LOCK_INSTR
 # ifdef UP
@@ -32,7 +34,6 @@
 # endif
 #endif
 
-#define SYS_futex		202
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 
@@ -43,14 +44,14 @@
 #define LLL_MUTEX_LOCK_INITIALIZER_WAITERS	(2)
 
 /* Delay in spinlock loop.  */
-#define BUSY_WAIT_NOP          asm ("rep; nop")
+#define BUSY_WAIT_NOP          __asm__ ("rep; nop")
 
 
 #define lll_futex_wait(futex, val) \
   do {									      \
     int __ignore;							      \
-    register __typeof (val) _val asm ("edx") = (val);			      \
-    __asm __volatile ("xorq %%r10, %%r10\n\t"				      \
+    register __typeof (val) _val __asm__ ("edx") = (val);			      \
+    __asm__ __volatile ("xorq %%r10, %%r10\n\t"				      \
 		      "syscall"						      \
 		      : "=a" (__ignore)					      \
 		      : "0" (SYS_futex), "D" (futex), "S" (FUTEX_WAIT),	      \
@@ -62,8 +63,8 @@
 #define lll_futex_wake(futex, nr) \
   do {									      \
     int __ignore;							      \
-    register __typeof (nr) _nr asm ("edx") = (nr);			      \
-    __asm __volatile ("syscall"						      \
+    register __typeof (nr) _nr __asm__ ("edx") = (nr);			      \
+    __asm__ __volatile ("syscall"						      \
 		      : "=a" (__ignore)					      \
 		      : "0" (SYS_futex), "D" (futex), "S" (FUTEX_WAKE),	      \
 			"d" (_nr)					      \
@@ -88,7 +89,7 @@ extern int __lll_mutex_unlock_wait (int *__futex) attribute_hidden;
    to be nonzero.  */
 #define lll_mutex_trylock(futex) \
   ({ int ret;								      \
-     __asm __volatile (LOCK_INSTR "cmpxchgl %2, %1"			      \
+     __asm__ __volatile (LOCK_INSTR "cmpxchgl %2, %1"			      \
 		       : "=a" (ret), "=m" (futex)			      \
 		       : "r" (LLL_MUTEX_LOCK_INITIALIZER_LOCKED), "m" (futex),\
 			 "0" (LLL_MUTEX_LOCK_INITIALIZER)		      \
@@ -98,7 +99,7 @@ extern int __lll_mutex_unlock_wait (int *__futex) attribute_hidden;
 
 #define lll_mutex_cond_trylock(futex) \
   ({ int ret;								      \
-     __asm __volatile (LOCK_INSTR "cmpxchgl %2, %1"			      \
+     __asm__ __volatile (LOCK_INSTR "cmpxchgl %2, %1"			      \
 		       : "=a" (ret), "=m" (futex)			      \
 		       : "r" (LLL_MUTEX_LOCK_INITIALIZER_WAITERS),	      \
 			 "m" (futex), "0" (LLL_MUTEX_LOCK_INITIALIZER)	      \
@@ -108,7 +109,7 @@ extern int __lll_mutex_unlock_wait (int *__futex) attribute_hidden;
 
 #define lll_mutex_lock(futex) \
   (void) ({ int ignore1, ignore2, ignore3;				      \
-	    __asm __volatile (LOCK_INSTR "cmpxchgl %0, %2\n\t"		      \
+	    __asm__ __volatile (LOCK_INSTR "cmpxchgl %0, %2\n\t"		      \
 			      "jnz 1f\n\t"				      \
 			      ".subsection 1\n"				      \
 			      "1:\tleaq %2, %%rdi\n\t"			      \
@@ -126,7 +127,7 @@ extern int __lll_mutex_unlock_wait (int *__futex) attribute_hidden;
 
 #define lll_mutex_cond_lock(futex) \
   (void) ({ int ignore1, ignore2, ignore3;				      \
-	    __asm __volatile (LOCK_INSTR "cmpxchgl %0, %2\n\t"		      \
+	    __asm__ __volatile (LOCK_INSTR "cmpxchgl %0, %2\n\t"		      \
 			      "jnz 1f\n\t"				      \
 			      ".subsection 1\n"				      \
 			      "1:\tleaq %2, %%rdi\n\t"			      \
@@ -144,7 +145,7 @@ extern int __lll_mutex_unlock_wait (int *__futex) attribute_hidden;
 
 #define lll_mutex_timedlock(futex, timeout) \
   ({ int _result, ignore1, ignore2, ignore3;				      \
-     __asm __volatile (LOCK_INSTR "cmpxchgl %2, %4\n\t"			      \
+     __asm__ __volatile (LOCK_INSTR "cmpxchgl %2, %4\n\t"			      \
 		       "jnz 1f\n\t"					      \
 		       ".subsection 1\n"				      \
 		       "1:\tleaq %4, %%rdi\n\t"				      \
@@ -164,7 +165,7 @@ extern int __lll_mutex_unlock_wait (int *__futex) attribute_hidden;
 
 #define lll_mutex_unlock(futex) \
   (void) ({ int ignore;							      \
-            __asm __volatile (LOCK_INSTR "decl %0\n\t"			      \
+            __asm__ __volatile (LOCK_INSTR "decl %0\n\t"			      \
 			      "jne 1f\n\t"				      \
 			      ".subsection 1\n"				      \
 			      "1:\tleaq %0, %%rdi\n\t"			      \
@@ -218,7 +219,7 @@ extern int lll_unlock_wake_cb (int *__futex) attribute_hidden;
 
 # define lll_trylock(futex) \
   ({ unsigned char ret;							      \
-     __asm __volatile ("cmpl $0, __libc_multiple_threads(%%rip)\n\t"	      \
+     __asm__ __volatile ("cmpl $0, __libc_multiple_threads(%%rip)\n\t"	      \
 		       "je 0f\n\t"					      \
 		       "lock; cmpxchgl %2, %1\n\t"			      \
 		       "jmp 1f\n"					      \
@@ -233,7 +234,7 @@ extern int lll_unlock_wake_cb (int *__futex) attribute_hidden;
 
 # define lll_lock(futex) \
   (void) ({ int ignore1, ignore2, ignore3;				      \
-	    __asm __volatile ("cmpl $0, __libc_multiple_threads(%%rip)\n\t"   \
+	    __asm__ __volatile ("cmpl $0, __libc_multiple_threads(%%rip)\n\t"   \
 			      "je 0f\n\t"				      \
 			      "lock; cmpxchgl %0, %2\n\t"		      \
 			      "jnz 1f\n\t"				      \
@@ -256,7 +257,7 @@ extern int lll_unlock_wake_cb (int *__futex) attribute_hidden;
 
 # define lll_unlock(futex) \
   (void) ({ int ignore;							      \
-            __asm __volatile ("cmpl $0, __libc_multiple_threads(%%rip)\n\t"   \
+            __asm__ __volatile ("cmpl $0, __libc_multiple_threads(%%rip)\n\t"   \
 			      "je 0f\n\t"				      \
 			      "lock; decl %0\n\t"			      \
 			      "jne 1f\n\t"				      \
@@ -290,9 +291,9 @@ extern int lll_unlock_wake_cb (int *__futex) attribute_hidden;
 #define lll_wait_tid(tid) \
   do {									      \
     int __ignore;							      \
-    register __typeof (tid) _tid asm ("edx") = (tid);			      \
+    register __typeof (tid) _tid __asm__ ("edx") = (tid);			      \
     if (_tid != 0)							      \
-      __asm __volatile ("xorq %%r10, %%r10\n\t"				      \
+      __asm__ __volatile ("xorq %%r10, %%r10\n\t"				      \
 			"1:\tmovq %2, %%rax\n\t"			      \
 			"syscall\n\t"					      \
 			"cmpl $0, (%%rdi)\n\t"				      \

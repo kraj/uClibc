@@ -1,5 +1,5 @@
 /* Definition for thread-local data handling.  nptl/x86_64 version.
-   Copyright (C) 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+   Copyright (C) 2002-2007, 2008, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -20,12 +20,15 @@
 #ifndef _TLS_H
 #define _TLS_H	1
 
-#include <asm/prctl.h>	/* For ARCH_SET_FS.  */
 #ifndef __ASSEMBLER__
+# include <asm/prctl.h>	/* For ARCH_SET_FS.  */
 # include <stdbool.h>
 # include <stddef.h>
 # include <stdint.h>
 # include <stdlib.h>
+# include <sysdep.h>
+# include <bits/wordsize.h>
+# include <xmmintrin.h>
 
 
 /* Type for the dtv.  */
@@ -42,13 +45,33 @@ typedef union dtv
 
 typedef struct
 {
-  void *tcb;		/* Pointer to the TCB.  Not necessary the
+  void *tcb;		/* Pointer to the TCB.  Not necessarily the
 			   thread descriptor used by libpthread.  */
   dtv_t *dtv;
   void *self;		/* Pointer to the thread descriptor.  */
   int multiple_threads;
+  int gscope_flag;
   uintptr_t sysinfo;
   uintptr_t stack_guard;
+  uintptr_t pointer_guard;
+  unsigned long int vgetcpu_cache[2];
+# ifndef __ASSUME_PRIVATE_FUTEX
+  int private_futex;
+# else
+  int __unused1;
+# endif
+# if __WORDSIZE == 64
+  int rtld_must_xmm_save;
+# endif
+  /* Reservation of some values for the TM ABI.  */
+  void *__private_tm[5];
+# if __WORDSIZE == 64
+  long int __unused2;
+  /* Have space for the post-AVX register size.  */
+  __m128 rtld_savespace_sse[8][4];
+
+  void *__padding[8];
+# endif
 } tcbhead_t;
 
 #else /* __ASSEMBLER__ */
@@ -57,9 +80,9 @@ typedef struct
 
 
 /* We require TLS support in the tools.  */
-#ifndef HAVE_TLS_SUPPORT
-# error "TLS support is required."
-#endif
+#define HAVE_TLS_SUPPORT                1
+#define HAVE___THREAD 1
+#define HAVE_TLS_MODEL_ATTRIBUTE 1
 
 /* Signal that TLS support is available.  */
 #define USE_TLS	1
@@ -74,7 +97,7 @@ typedef struct
 
 
 /* Get the thread descriptor definition.  */
-# include <nptl/descr.h>
+# include <descr.h>
 
 #ifndef LOCK_PREFIX
 # ifdef UP
@@ -96,7 +119,12 @@ typedef struct
 # define TLS_TCB_SIZE sizeof (struct pthread)
 
 /* Alignment requirements for the TCB.  */
-# define TLS_TCB_ALIGN __alignof__ (struct pthread)
+//# define TLS_TCB_ALIGN __alignof__ (struct pthread)
+// Normally the above would be correct  But we have to store post-AVX
+// vector registers in the TCB and we want the storage to be aligned.
+// unfortunately there isn't yet a type for these values and hence no
+// 32-byte alignment requirement.  Make this explicit, for now.
+# define TLS_TCB_ALIGN 32
 
 /* The TCB can have any size and the memory following the address the
    thread pointer points to is unspecified.  Allocate the TCB there.  */
@@ -120,9 +148,9 @@ typedef struct
 
 /* Macros to load from and store into segment registers.  */
 # define TLS_GET_FS() \
-  ({ int __seg; __asm ("movl %%fs, %0" : "=q" (__seg)); __seg; })
+  ({ int __seg; __asm__ ("movl %%fs, %0" : "=q" (__seg)); __seg; })
 # define TLS_SET_FS(val) \
-  __asm ("movl %0, %%fs" :: "q" (val))
+  __asm__ ("movl %0, %%fs" :: "q" (val))
 
 
 /* Code to initially initialize the thread pointer.  This might need
@@ -141,7 +169,7 @@ typedef struct
      _head->self = _thrdescr;						      \
 									      \
      /* It is a simple syscall to set the %fs value for the thread.  */	      \
-     asm volatile ("syscall"						      \
+     __asm__ volatile ("syscall"						      \
 		   : "=a" (_result)					      \
 		   : "0" ((unsigned long int) __NR_arch_prctl),		      \
 		     "D" ((unsigned long int) ARCH_SET_FS),		      \
@@ -162,11 +190,11 @@ typedef struct
 
    The contained asm must *not* be marked volatile since otherwise
    assignments like
-        pthread_descr self = thread_self();
+	pthread_descr self = thread_self();
    do not get optimized away.  */
 # define THREAD_SELF \
   ({ struct pthread *__self;						      \
-     asm ("movq %%fs:%c1,%q0" : "=r" (__self)				      \
+     __asm__ ("movq %%fs:%c1,%q0" : "=r" (__self)				      \
 	  : "i" (offsetof (struct pthread, header.self)));	 	      \
      __self;})
 
@@ -178,11 +206,11 @@ typedef struct
 # define THREAD_GETMEM(descr, member) \
   ({ __typeof (descr->member) __value;					      \
      if (sizeof (__value) == 1)						      \
-       asm volatile ("movb %%fs:%P2,%b0"				      \
+       __asm__ volatile ("movb %%fs:%P2,%b0"				      \
 		     : "=q" (__value)					      \
 		     : "0" (0), "i" (offsetof (struct pthread, member)));     \
      else if (sizeof (__value) == 4)					      \
-       asm volatile ("movl %%fs:%P1,%0"					      \
+       __asm__ volatile ("movl %%fs:%P1,%0"					      \
 		     : "=r" (__value)					      \
 		     : "i" (offsetof (struct pthread, member)));	      \
      else								      \
@@ -192,7 +220,7 @@ typedef struct
 	      4 or 8.  */						      \
 	   abort ();							      \
 									      \
-	 asm volatile ("movq %%fs:%P1,%q0"				      \
+	 __asm__ volatile ("movq %%fs:%P1,%q0"				      \
 		       : "=r" (__value)					      \
 		       : "i" (offsetof (struct pthread, member)));	      \
        }								      \
@@ -203,12 +231,12 @@ typedef struct
 # define THREAD_GETMEM_NC(descr, member, idx) \
   ({ __typeof (descr->member[0]) __value;				      \
      if (sizeof (__value) == 1)						      \
-       asm volatile ("movb %%fs:%P2(%q3),%b0"				      \
+       __asm__ volatile ("movb %%fs:%P2(%q3),%b0"				      \
 		     : "=q" (__value)					      \
 		     : "0" (0), "i" (offsetof (struct pthread, member[0])),   \
 		       "r" (idx));					      \
      else if (sizeof (__value) == 4)					      \
-       asm volatile ("movl %%fs:%P1(,%q2,4),%0"				      \
+       __asm__ volatile ("movl %%fs:%P1(,%q2,4),%0"				      \
 		     : "=r" (__value)					      \
 		     : "i" (offsetof (struct pthread, member[0])), "r" (idx));\
      else								      \
@@ -218,7 +246,7 @@ typedef struct
 	      4 or 8.  */						      \
 	   abort ();							      \
 									      \
-	 asm volatile ("movq %%fs:%P1(,%q2,8),%q0"			      \
+	 __asm__ volatile ("movq %%fs:%P1(,%q2,8),%q0"			      \
 		       : "=r" (__value)					      \
 		       : "i" (offsetof (struct pthread, member[0])),	      \
 			 "r" (idx));					      \
@@ -238,11 +266,11 @@ typedef struct
 /* Same as THREAD_SETMEM, but the member offset can be non-constant.  */
 # define THREAD_SETMEM(descr, member, value) \
   ({ if (sizeof (descr->member) == 1)					      \
-       asm volatile ("movb %b0,%%fs:%P1" :				      \
+       __asm__ volatile ("movb %b0,%%fs:%P1" :				      \
 		     : "iq" (value),					      \
 		       "i" (offsetof (struct pthread, member)));	      \
      else if (sizeof (descr->member) == 4)				      \
-       asm volatile ("movl %0,%%fs:%P1" :				      \
+       __asm__ volatile ("movl %0,%%fs:%P1" :				      \
 		     : IMM_MODE (value),				      \
 		       "i" (offsetof (struct pthread, member)));	      \
      else								      \
@@ -252,7 +280,7 @@ typedef struct
 	      4 or 8.  */						      \
 	   abort ();							      \
 									      \
-	 asm volatile ("movq %q0,%%fs:%P1" :				      \
+	 __asm__ volatile ("movq %q0,%%fs:%P1" :				      \
 		       : IMM_MODE ((unsigned long int) value),		      \
 			 "i" (offsetof (struct pthread, member)));	      \
        }})
@@ -261,12 +289,12 @@ typedef struct
 /* Set member of the thread descriptor directly.  */
 # define THREAD_SETMEM_NC(descr, member, idx, value) \
   ({ if (sizeof (descr->member[0]) == 1)				      \
-       asm volatile ("movb %b0,%%fs:%P1(%q2)" :				      \
+       __asm__ volatile ("movb %b0,%%fs:%P1(%q2)" :				      \
 		     : "iq" (value),					      \
 		       "i" (offsetof (struct pthread, member[0])),	      \
 		       "r" (idx));					      \
      else if (sizeof (descr->member[0]) == 4)				      \
-       asm volatile ("movl %0,%%fs:%P1(,%q2,4)" :			      \
+       __asm__ volatile ("movl %0,%%fs:%P1(,%q2,4)" :			      \
 		     : IMM_MODE (value),				      \
 		       "i" (offsetof (struct pthread, member[0])),	      \
 		       "r" (idx));					      \
@@ -277,7 +305,7 @@ typedef struct
 	      4 or 8.  */						      \
 	   abort ();							      \
 									      \
-	 asm volatile ("movq %q0,%%fs:%P1(,%q2,8)" :			      \
+	 __asm__ volatile ("movq %q0,%%fs:%P1(,%q2,8)" :			      \
 		       : IMM_MODE ((unsigned long int) value),		      \
 			 "i" (offsetof (struct pthread, member[0])),	      \
 			 "r" (idx));					      \
@@ -285,11 +313,11 @@ typedef struct
 
 
 /* Atomic compare and exchange on TLS, returning old value.  */
-#define THREAD_ATOMIC_CMPXCHG_VAL(descr, member, newval, oldval) \
+# define THREAD_ATOMIC_CMPXCHG_VAL(descr, member, newval, oldval) \
   ({ __typeof (descr->member) __ret;					      \
      __typeof (oldval) __old = (oldval);				      \
      if (sizeof (descr->member) == 4)					      \
-       asm volatile (LOCK_PREFIX "cmpxchgl %2, %%fs:%P3"		      \
+       __asm__ volatile (LOCK_PREFIX "cmpxchgl %2, %%fs:%P3"		      \
 		     : "=a" (__ret)					      \
 		     : "0" (__old), "r" (newval),			      \
 		       "i" (offsetof (struct pthread, member)));	      \
@@ -299,10 +327,21 @@ typedef struct
      __ret; })
 
 
-/* Atomic set bit.  */
-#define THREAD_ATOMIC_BIT_SET(descr, member, bit) \
+/* Atomic logical and.  */
+# define THREAD_ATOMIC_AND(descr, member, val) \
   (void) ({ if (sizeof ((descr)->member) == 4)				      \
-	      asm volatile (LOCK_PREFIX "orl %1, %%fs:%P0"		      \
+	      __asm__ volatile (LOCK_PREFIX "andl %1, %%fs:%P0"		      \
+			    :: "i" (offsetof (struct pthread, member)),	      \
+			       "ir" (val));				      \
+	    else							      \
+	      /* Not necessary for other sizes in the moment.  */	      \
+	      abort (); })
+
+
+/* Atomic set bit.  */
+# define THREAD_ATOMIC_BIT_SET(descr, member, bit) \
+  (void) ({ if (sizeof ((descr)->member) == 4)				      \
+	      __asm__ volatile (LOCK_PREFIX "orl %1, %%fs:%P0"		      \
 			    :: "i" (offsetof (struct pthread, member)),	      \
 			       "ir" (1 << (bit)));			      \
 	    else							      \
@@ -310,9 +349,9 @@ typedef struct
 	      abort (); })
 
 
-#define CALL_THREAD_FCT(descr) \
+# define CALL_THREAD_FCT(descr) \
   ({ void *__res;							      \
-     asm volatile ("movq %%fs:%P2, %%rdi\n\t"				      \
+     __asm__ volatile ("movq %%fs:%P2, %%rdi\n\t"				      \
 		   "callq *%%fs:%P1"					      \
 		   : "=a" (__res)					      \
 		   : "i" (offsetof (struct pthread, start_routine)),	      \
@@ -328,6 +367,70 @@ typedef struct
 # define THREAD_COPY_STACK_GUARD(descr) \
     ((descr)->header.stack_guard					      \
      = THREAD_GETMEM (THREAD_SELF, header.stack_guard))
+
+
+/* Set the pointer guard field in the TCB head.  */
+# define THREAD_SET_POINTER_GUARD(value) \
+  THREAD_SETMEM (THREAD_SELF, header.pointer_guard, value)
+# define THREAD_COPY_POINTER_GUARD(descr) \
+  ((descr)->header.pointer_guard					      \
+   = THREAD_GETMEM (THREAD_SELF, header.pointer_guard))
+
+
+/* Get and set the global scope generation counter in the TCB head.  */
+# define THREAD_GSCOPE_FLAG_UNUSED 0
+# define THREAD_GSCOPE_FLAG_USED   1
+# define THREAD_GSCOPE_FLAG_WAIT   2
+# define THREAD_GSCOPE_RESET_FLAG() \
+  do									      \
+    { int __res;							      \
+      __asm__ volatile ("xchgl %0, %%fs:%P1"				      \
+		    : "=r" (__res)					      \
+		    : "i" (offsetof (struct pthread, header.gscope_flag)),    \
+		      "0" (THREAD_GSCOPE_FLAG_UNUSED));			      \
+      if (__res == THREAD_GSCOPE_FLAG_WAIT)				      \
+	lll_futex_wake (&THREAD_SELF->header.gscope_flag, 1, LLL_PRIVATE);    \
+    }									      \
+  while (0)
+# define THREAD_GSCOPE_SET_FLAG() \
+  THREAD_SETMEM (THREAD_SELF, header.gscope_flag, THREAD_GSCOPE_FLAG_USED)
+# define THREAD_GSCOPE_WAIT() \
+  GL(dl_wait_lookup_done) ()
+
+
+# ifdef SHARED
+/* Defined in dl-trampoline.S.  */
+extern void _dl_x86_64_save_sse (void);
+extern void _dl_x86_64_restore_sse (void);
+
+# define RTLD_CHECK_FOREIGN_CALL \
+  (THREAD_GETMEM (THREAD_SELF, header.rtld_must_xmm_save) != 0)
+
+/* NB: Don't use the xchg operation because that would imply a lock
+   prefix which is expensive and unnecessary.  The cache line is also
+   not contested at all.  */
+#  define RTLD_ENABLE_FOREIGN_CALL \
+  int old_rtld_must_xmm_save = THREAD_GETMEM (THREAD_SELF,		      \
+					      header.rtld_must_xmm_save);     \
+  THREAD_SETMEM (THREAD_SELF, header.rtld_must_xmm_save, 1)
+
+#  define RTLD_PREPARE_FOREIGN_CALL \
+  do if (THREAD_GETMEM (THREAD_SELF, header.rtld_must_xmm_save))	      \
+    {									      \
+      _dl_x86_64_save_sse ();						      \
+      THREAD_SETMEM (THREAD_SELF, header.rtld_must_xmm_save, 0);	      \
+    }									      \
+  while (0)
+
+#  define RTLD_FINALIZE_FOREIGN_CALL \
+  do {									      \
+    if (THREAD_GETMEM (THREAD_SELF, header.rtld_must_xmm_save) == 0)	      \
+      _dl_x86_64_restore_sse ();					      \
+    THREAD_SETMEM (THREAD_SELF, header.rtld_must_xmm_save,		      \
+		   old_rtld_must_xmm_save);				      \
+  } while (0)
+# endif
+
 
 #endif /* __ASSEMBLER__ */
 

@@ -16,8 +16,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <tcb-offsets.h>
-
 #define SAVE_PID \
 	movl	%fs:PID, %esi;						      \
 	movl	%esi, %edx;						      \
@@ -30,4 +28,4 @@
 	movl	%esi, %fs:PID;						      \
 1:
 
-#include <../../../../../../sysdeps/unix/sysv/linux/x86_64/vfork.S>
+#include <../../../../../../../libc/sysdeps/linux/x86_64/vfork.S>

@@ -23,7 +23,7 @@
 # define LOCK
 #endif
 
-#define SYS_futex	202
+#define FUTEX_WAIT  0
 #define FUTEX_WAKE	1
 
 	.comm	__fork_generation, 4, 4

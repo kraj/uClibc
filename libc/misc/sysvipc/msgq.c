@@ -65,7 +65,7 @@ static inline ssize_t do_msgrcv (int msqid, void *msgp, size_t msgsz,
     return __syscall_ipc(IPCOP_msgrcv ,msqid ,msgsz ,msgflg ,&temp, 0);
 #endif
 }
-int msgrcv (int msqid, void *msgp, size_t msgsz,
+ssize_t msgrcv (int msqid, void *msgp, size_t msgsz,
 	    long int msgtyp, int msgflg)
 {
     if (SINGLE_THREAD_P)

@@ -63,8 +63,9 @@ X86_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c
 libpthread_CSRC := $(filter-out $(X86_PTHREAD_SPECIFIC),$(libpthread_CSRC))
 endif
 
-
 ifeq ($(TARGET_ARCH),x86_64)
+X86_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c
+libpthread_CSRC := $(filter-out $(X86_PTHREAD_SPECIFIC),$(libpthread_CSRC))
 librt_CSRC := mq_notify.c
 endif
 

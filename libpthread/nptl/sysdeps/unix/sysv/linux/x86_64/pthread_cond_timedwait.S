@@ -18,7 +18,6 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
-#include <shlib-compat.h>
 #include <lowlevelcond.h>
 #include <pthread-errnos.h>
 
@@ -28,7 +27,6 @@
 # define LOCK lock
 #endif
 
-#define SYS_futex		202
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 
@@ -382,7 +380,7 @@ versioned_symbol (libpthread, __pthread_cond_timedwait, pthread_cond_timedwait,
 
 	.section .eh_frame,"a",@progbits
 .LSTARTFRAME:
-	.long	L(ENDCIE)-L(STARTCIE)		# Length of the CIE.
+	.long	.LENDCIE-.LSTARTCIE		# Length of the CIE.
 .LSTARTCIE:
 	.long	0				# CIE ID.
 	.byte	1				# Version number.

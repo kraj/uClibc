@@ -1,6 +1,6 @@
-/* Copyright (C) 2002, 2003, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
+   Contributed by Ulrich Drepper <drepper@redhat.com>, 2009.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -17,48 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sysdep.h>
-#include <pthread-errnos.h>
-
-#ifndef UP
-# define LOCK lock
-#else
-# define
-#endif
-
-#define FUTEX_WAKE		1
-
-
-	.text
-
-	.globl	sem_post
-	.type	sem_post,@function
-	.align	16
-sem_post:
-	movl	$1, %edx
-	LOCK
-	xaddl	%edx, (%rdi)
-
-	movl	$SYS_futex, %eax
-	movl	$FUTEX_WAKE, %esi
-	incl	%edx
-	syscall
-
-	testq	%rax, %rax
-	js	1f
-
-	xorl	%eax, %eax
-	retq
-
-1:
-#if USE___THREAD
-	movq	errno@gottpoff(%rip), %rdx
-	movl	$EINVAL, %fs:(%rdx)
-#else
-	callq	__errno_location@plt
-	movl	$EINVAL, (%rax)
-#endif
-
-	orl	$-1, %eax
-	retq
-	.size	sem_post,.-sem_post
+#define __pthread_enable_asynccancel __librt_enable_asynccancel
+#define __pthread_disable_asynccancel __librt_disable_asynccancel
+#include "cancellation.S"

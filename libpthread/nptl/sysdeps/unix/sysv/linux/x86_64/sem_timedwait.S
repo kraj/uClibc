@@ -18,7 +18,6 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
-#include <shlib-compat.h>
 #include <pthread-errnos.h>
 
 #ifndef UP
@@ -26,8 +25,6 @@
 #else
 # define
 #endif
-
-#define SYS_futex		202
 
 /* For the calculation see asm/vsyscall.h.  */
 #define VSYSCALL_ADDR_vgettimeofday	0xffffffffff600000
