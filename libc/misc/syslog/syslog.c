@@ -85,6 +85,10 @@
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 
+/* !glibc_compat: glibc uses argv[0] by default
+ * (default: if there was no openlog or if openlog passed NULL),
+ * not string "syslog"
+ */
 static const char *LogTag = "syslog";   /* string to tag the entry with */
 static int       LogFile = -1;          /* fd for log */
 static smalluint connected;             /* have done connect */
@@ -188,15 +192,10 @@ vsyslog(int pri, const char *fmt, va_list ap)
 	int fd, saved_errno;
 	int rc;
 	char tbuf[1024]; /* syslogd is unable to handle longer messages */
-	struct sigaction action;
 
 	/* Just throw out this message if pri has bad bits. */
 	if ((pri & ~(LOG_PRIMASK|LOG_FACMASK)) != 0)
 		return;
-
-	memset(&action, 0, sizeof(action));
-	action.sa_handler = closelog_intern;
-	sigaction(SIGPIPE, &action, &action);
 
 	saved_errno = errno;
 
@@ -268,7 +267,8 @@ vsyslog(int pri, const char *fmt, va_list ap)
 	*last_chr = '\0';
 	if (LogFile >= 0) {
 		do {
-			rc = write(LogFile, p, last_chr + 1 - p);
+			/* can't just use write, it can result in SIGPIPE */
+			rc = send(LogFile, p, last_chr + 1 - p, MSG_NOSIGNAL);
 			if (rc < 0) {
 				/* I don't think looping forever on EAGAIN is a good idea.
 				 * Imagine that syslogd is SIGSTOPed... */
@@ -302,7 +302,6 @@ vsyslog(int pri, const char *fmt, va_list ap)
 
  getout:
 	__UCLIBC_MUTEX_UNLOCK(mylock);
-	sigaction(SIGPIPE, &action, NULL);
 }
 libc_hidden_def(vsyslog)
 
