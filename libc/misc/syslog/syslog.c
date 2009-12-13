@@ -80,22 +80,21 @@
 #include <signal.h>
 
 
-
 #include <bits/uClibc_mutex.h>
-__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
+
+__UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 
 
+static const char *LogTag = "syslog";   /* string to tag the entry with */
 static int       LogFile = -1;          /* fd for log */
 static smalluint connected;             /* have done connect */
-/* all bits in option argument for openlog() fit in 8 bits */
-static smalluint LogStat = 0;           /* status bits, set by openlog() */
-static const char *LogTag = "syslog";   /* string to tag the entry with */
-/* this fits in 8 bits too (LOG_LOCAL7 = 23<<3 = 184),
- * but NB: LOG_FACMASK is bigger (= 0x03f8 = 127<<3) for some strange reason.
- * Oh well. */
-static int       LogFacility = LOG_USER;/* default facility code */
-/* bits mask of priorities (eight prios - 8 bits is enough) */
-static smalluint LogMask = 0xff;        /* mask of priorities to be logged */
+/* all bits in option argument for openlog fit in 8 bits */
+static smalluint LogStat = 0;           /* status bits, set by openlog */
+/* default facility code if openlog is not called */
+/* (this fits in 8 bits even without >> 3 shift, but playing extra safe) */
+static smalluint LogFacility = LOG_USER >> 3;
+/* bits mask of priorities to be logged (eight prios - 8 bits is enough) */
+static smalluint LogMask = 0xff;
 /* AF_UNIX address of local logger (we use struct sockaddr
  * instead of struct sockaddr_un since "/dev/log" is small enough) */
 static const struct sockaddr SyslogAddr = {
@@ -115,8 +114,52 @@ closelog_intern(int sig)
 	if (sig == 0) { /* called from closelog()? - reset to defaults */
 		LogStat = 0;
 		LogTag = "syslog";
-		LogFacility = LOG_USER;
+		LogFacility = LOG_USER >> 3;
 		LogMask = 0xff;
+	}
+}
+
+static void
+openlog_intern(const char *ident, int logstat, int logfac)
+{
+	int fd;
+	int logType = SOCK_DGRAM;
+
+	if (ident != NULL)
+		LogTag = ident;
+	LogStat = logstat;
+	/* (we were checking also for logfac != 0, but it breaks
+	 * openlog(xx, LOG_KERN) since LOG_KERN == 0) */
+	if ((logfac & ~LOG_FACMASK) == 0) /* if we don't have invalid bits */
+		LogFacility = (unsigned)logfac >> 3;
+
+	fd = LogFile;
+	if (fd == -1) {
+ retry:
+		if (logstat & LOG_NDELAY) {
+			LogFile = fd = socket(AF_UNIX, logType, 0);
+			if (fd == -1) {
+				return;
+			}
+			fcntl(fd, F_SETFD, FD_CLOEXEC);
+			/* We don't want to block if e.g. syslogd is SIGSTOPed */
+			fcntl(fd, F_SETFL, O_NONBLOCK | fcntl(fd, F_GETFL));
+		}
+	}
+
+	if (fd != -1 && !connected) {
+		if (connect(fd, &SyslogAddr, sizeof(SyslogAddr)) != -1) {
+			connected = 1;
+		} else {
+			if (fd != -1) {
+				close(fd);
+				LogFile = fd = -1;
+			}
+			if (logType == SOCK_DGRAM) {
+				logType = SOCK_STREAM;
+				goto retry;
+			}
+		}
 	}
 }
 
@@ -126,43 +169,8 @@ closelog_intern(int sig)
 void
 openlog(const char *ident, int logstat, int logfac)
 {
-	int logType = SOCK_DGRAM;
-
 	__UCLIBC_MUTEX_LOCK(mylock);
-
-	if (ident != NULL)
-		LogTag = ident;
-	LogStat = logstat;
-	if (logfac != 0 && (logfac &~ LOG_FACMASK) == 0)
-		LogFacility = logfac;
-	if (LogFile == -1) {
-retry:
-		if (LogStat & LOG_NDELAY) {
-			if ((LogFile = socket(AF_UNIX, logType, 0)) == -1) {
-				goto DONE;
-			}
-			fcntl(LogFile, F_SETFD, FD_CLOEXEC);
-			/* We don't want to block if e.g. syslogd is SIGSTOPed */
-			fcntl(LogFile, F_SETFL, O_NONBLOCK | fcntl(LogFile, F_GETFL));
-		}
-	}
-
-	if (LogFile != -1 && !connected) {
-		if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr)) != -1) {
-			connected = 1;
-		} else {
-			if (LogFile != -1) {
-				close(LogFile);
-				LogFile = -1;
-			}
-			if (logType == SOCK_DGRAM) {
-				logType = SOCK_STREAM;
-				goto retry;
-			}
-		}
-	}
-
-DONE:
+	openlog_intern(ident, logstat, logfac);
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
 libc_hidden_def(openlog)
@@ -180,25 +188,29 @@ vsyslog(int pri, const char *fmt, va_list ap)
 	int fd, saved_errno;
 	int rc;
 	char tbuf[1024]; /* syslogd is unable to handle longer messages */
-	struct sigaction action, oldaction;
+	struct sigaction action;
+
+	/* Just throw out this message if pri has bad bits. */
+	if ((pri & ~(LOG_PRIMASK|LOG_FACMASK)) != 0)
+		return;
 
 	memset(&action, 0, sizeof(action));
 	action.sa_handler = closelog_intern;
-	sigaction(SIGPIPE, &action, &oldaction);
+	sigaction(SIGPIPE, &action, &action);
 
 	saved_errno = errno;
 
 	__UCLIBC_MUTEX_LOCK(mylock);
 
-	/* See if we should just throw out this message. */
-	if (!(LogMask & LOG_MASK(LOG_PRI(pri))) || (pri &~ (LOG_PRIMASK|LOG_FACMASK)))
+	/* See if we should just throw out this message according to LogMask. */
+	if ((LogMask & LOG_MASK(LOG_PRI(pri))) == 0)
 		goto getout;
 	if (LogFile < 0 || !connected)
-		openlog(LogTag, LogStat | LOG_NDELAY, 0);
+		openlog_intern(NULL, LogStat | LOG_NDELAY, LOG_USER);
 
 	/* Set default facility if none specified. */
 	if ((pri & LOG_FACMASK) == 0)
-		pri |= LogFacility;
+		pri |= ((int)LogFacility << 3);
 
 	/* Build the message. We know the starting part of the message can take
 	 * no longer than 64 characters plus length of the LogTag. So it's
@@ -206,7 +218,7 @@ vsyslog(int pri, const char *fmt, va_list ap)
 	 */
 	(void)time(&now);
 	stdp = p = tbuf + sprintf(tbuf, "<%d>%.15s ", pri, ctime(&now) + 4);
-	if (LogTag) {
+	/*if (LogTag) - always true */ {
 		if (strlen(LogTag) < sizeof(tbuf) - 64)
 			p += sprintf(p, "%s", LogTag);
 		else
@@ -214,7 +226,7 @@ vsyslog(int pri, const char *fmt, va_list ap)
 	}
 	if (LogStat & LOG_PID)
 		p += sprintf(p, "[%d]", getpid());
-	if (LogTag) {
+	/*if (LogTag) - always true */ {
 		*p++ = ':';
 		*p++ = ' ';
 	}
@@ -253,7 +265,7 @@ vsyslog(int pri, const char *fmt, va_list ap)
 
 	/* Output the message to the local logger using NUL as a message delimiter. */
 	p = tbuf;
-	*last_chr = 0;
+	*last_chr = '\0';
 	if (LogFile >= 0) {
 		do {
 			rc = write(LogFile, p, last_chr + 1 - p);
@@ -288,9 +300,9 @@ vsyslog(int pri, const char *fmt, va_list ap)
 		(void)close(fd);
 	}
 
-getout:
+ getout:
 	__UCLIBC_MUTEX_UNLOCK(mylock);
-	sigaction(SIGPIPE, &oldaction, NULL);
+	sigaction(SIGPIPE, &action, NULL);
 }
 libc_hidden_def(vsyslog)
 
