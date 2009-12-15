@@ -49,7 +49,7 @@ __new_sem_trywait:
 1:
 #ifdef PIC
 	call	__x86.get_pc_thunk.cx
-#elsen
+#else
 	movl	$3f, %ecx
 3:
 #endif
