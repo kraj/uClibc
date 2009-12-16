@@ -20,11 +20,7 @@ libc_CSRC = libc_pthread_init.c libc_multiple_threads.c			\
 	    raise.c sleep.c jmp-unwind.c
 
 # These provide both a cancellable and a not cancellable implementation
-libc_SSRC = close.S open.S write.S read.S
-
-ifneq ($(TARGET_ARCH),arm)
-libc_SSRC += waitpid.S
-endif
+libc_SSRC = close.S open.S write.S read.S waitpid.S
 
 librt_CSRC := mq_notify.c timer_create.c timer_delete.c			 \
 	      timer_getoverr.c timer_gettime.c timer_routines.c		 \
@@ -35,6 +31,10 @@ ifeq ($(TARGET_ARCH),alpha)
 libpthread_CSRC += lowlevellock.c
 libc_CSRC += libc-lowlevellock.c
 librt_CSRC := mq_notify.c
+endif
+
+ifeq ($(TARGET_ARCH),arm)
+libc_SSRC := $(filter-out waitpid.S,$(libc_SSRC))
 endif
 
 ifeq ($(TARGET_ARCH),mips)
@@ -64,6 +64,7 @@ libpthread_CSRC := $(filter-out $(X86_PTHREAD_SPECIFIC),$(libpthread_CSRC))
 endif
 
 ifeq ($(TARGET_ARCH),x86_64)
+libc_SSRC := $(filter-out waitpid.S,$(libc_SSRC))
 X86_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c
 libpthread_CSRC := $(filter-out $(X86_PTHREAD_SPECIFIC),$(libpthread_CSRC))
 librt_CSRC := mq_notify.c
