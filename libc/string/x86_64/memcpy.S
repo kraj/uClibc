@@ -26,7 +26,7 @@
 #define MEMPCPY_P (defined memcpy)
 
         .text
-#if defined PIC && !defined NOT_IN_libc
+#if defined __PIC__ && !defined NOT_IN_libc
 ENTRY (__memcpy_chk)
 	cmpq	%rdx, %rcx
 	jb	HIDDEN_JUMPTARGET (__chk_fail)

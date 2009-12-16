@@ -95,7 +95,7 @@ lose:									      \
   END (name)
 
 #undef JUMPTARGET
-#ifdef PIC
+#ifdef __PIC__
 #define JUMPTARGET(name)	name##@PLT
 #else
 #define JUMPTARGET(name)	name

@@ -89,7 +89,7 @@
 
 #define ret_ERRVAL ret
 
-#ifndef PIC
+#ifndef __PIC__
 # define SYSCALL_ERROR_HANDLER	\
 	mov.l 0f,r1; \
 	jmp @r1; \
@@ -191,7 +191,7 @@
      0: .long _GLOBAL_OFFSET_TABLE_; \
      1: .long errno@GOT
 # endif	/* _LIBC_REENTRANT */
-#endif	/* PIC */
+#endif	/* __PIC__ */
 
 # ifdef NEED_SYSCALL_INST_PAD
 #  define SYSCALL_INST_PAD \

@@ -179,7 +179,7 @@ __pthread_cond_wait:
 	addl	$(1 << clock_bits), cond_nwaiters(%rdi)
 
 	/* Install cancellation handler.  */
-#ifdef PIC
+#ifdef __PIC__
 	leaq	__condvar_cleanup(%rip), %rsi
 #else
 	leaq	__condvar_cleanup, %rsi

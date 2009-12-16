@@ -94,7 +94,7 @@ __new_sem_wait:
 	cmpl	$-EWOULDBLOCK, %esi
 	je	3b
 	negl	%esi
-#ifdef PIC
+#ifdef __PIC__
 	call	__x86.get_pc_thunk.bx
 #else
 	movl	$4f, %ebx

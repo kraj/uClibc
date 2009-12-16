@@ -77,7 +77,7 @@
 # define UNDOCARGS_5	UNDOCARGS_4; move.l (%sp)+, %d5;
 
 # ifdef IS_IN_libpthread
-#  ifdef PIC
+#  ifdef __PIC__
 #   define CENABLE	jbsr __pthread_enable_asynccancel@PLTPC
 #   define CDISABLE	jbsr __pthread_disable_asynccancel@PLTPC
 #  else
@@ -85,7 +85,7 @@
 #   define CDISABLE	jbsr __pthread_disable_asynccancel
 #  endif
 # elif !defined NOT_IN_libc
-#  ifdef PIC
+#  ifdef __PIC__
 #   define CENABLE	jbsr __libc_enable_asynccancel@PLTPC
 #   define CDISABLE	jbsr __libc_disable_asynccancel@PLTPC
 #  else
@@ -93,7 +93,7 @@
 #   define CDISABLE	jbsr __libc_disable_asynccancel
 #  endif
 # else
-#  ifdef PIC
+#  ifdef __PIC__
 #   define CENABLE	jbsr __librt_enable_asynccancel@PLTPC
 #   define CDISABLE	jbsr __librt_disable_asynccancel@PLTPC
 #  else
@@ -114,7 +114,7 @@
 extern int __local_multiple_threads attribute_hidden;
 #  define SINGLE_THREAD_P __builtin_expect (__local_multiple_threads == 0, 1)
 # else
-#  if !defined PIC
+#  if !defined __PIC__
 #   define SINGLE_THREAD_P tst.l __local_multiple_threads
 #  else
 #   define SINGLE_THREAD_P tst.l (__local_multiple_threads, %pc)

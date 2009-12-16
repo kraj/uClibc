@@ -27,7 +27,7 @@
 
 /* We push lr onto the stack, so we have to use ldmib instead of ldmia
    to find the saved arguments.  */
-# ifdef PIC
+# ifdef __PIC__
 #  undef DOARGS_5
 #  undef DOARGS_6
 #  undef DOARGS_7
@@ -105,7 +105,7 @@
 extern int __local_multiple_threads attribute_hidden;
 #  define SINGLE_THREAD_P __builtin_expect (__local_multiple_threads == 0, 1)
 # else
-#  if !defined PIC
+#  if !defined __PIC__
 #   define SINGLE_THREAD_P						\
   ldr ip, =__local_multiple_threads;					\
   ldr ip, [ip];								\

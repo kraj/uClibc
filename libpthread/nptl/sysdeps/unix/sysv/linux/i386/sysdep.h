@@ -57,7 +57,7 @@
 
 /* We don't want the label for the error handle to be global when we define
    it here.  */
-#ifdef PIC
+#ifdef __PIC__
 # define SYSCALL_ERROR_LABEL 0f
 #else
 # define SYSCALL_ERROR_LABEL syscall_error
@@ -103,7 +103,7 @@
 
 #define ret_ERRVAL ret
 
-#ifndef PIC
+#ifndef __PIC__
 # define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
 #else
 
@@ -177,7 +177,7 @@
   orl $-1, %eax;							      \
   jmp L(pseudo_end);
 # endif	/* _LIBC_REENTRANT */
-#endif	/* PIC */
+#endif	/* __PIC__ */
 
 
 /* The original calling convention for system calls on Linux/i386 is

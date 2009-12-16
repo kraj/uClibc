@@ -118,7 +118,7 @@ __LABEL($syscall_error)						\
 #  define __local_multiple_threads	__libc_multiple_threads
 # endif
 
-# ifdef PIC
+# ifdef __PIC__
 #  define CENABLE	bsr ra, __local_enable_asynccancel !samegp
 #  define CDISABLE	bsr ra, __local_disable_asynccancel !samegp
 # else

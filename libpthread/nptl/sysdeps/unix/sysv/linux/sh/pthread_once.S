@@ -69,7 +69,7 @@ __pthread_once:
 
 	and	#3, r0
 	mov.l	.Lfgen, r2
-#ifdef PIC
+#ifdef __PIC__
 	add	r12, r2
 #endif
 	mov.l	@r2, r3
@@ -107,7 +107,7 @@ __pthread_once:
 	.align	2
 .Lgot:
 	.long	_GLOBAL_OFFSET_TABLE_
-#ifdef PIC
+#ifdef __PIC__
 .Lfgen:
 	.long	__fork_generation@GOTOFF
 #else

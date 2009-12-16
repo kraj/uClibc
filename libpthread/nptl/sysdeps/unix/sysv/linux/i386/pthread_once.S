@@ -56,7 +56,7 @@ __pthread_once:
 	/* Not yet initialized or initialization in progress.
 	   Get the fork generation counter now.  */
 6:	movl	(%ebx), %eax
-#ifdef PIC
+#ifdef __PIC__
 	call	__x86.get_pc_thunk.cx
 	addl	$_GLOBAL_OFFSET_TABLE_, %ecx
 #endif
@@ -67,7 +67,7 @@ __pthread_once:
 	jnz	4f
 
 	andl	$3, %edx
-#ifdef PIC
+#ifdef __PIC__
 	orl	__fork_generation@GOTOFF(%ecx), %edx
 #else
 	orl	__fork_generation, %edx
@@ -169,7 +169,7 @@ __pthread_once_internal = __pthread_once
 pthread_once = __pthread_once
 
 
-#ifdef PIC
+#ifdef __PIC__
 	.section .gnu.linkonce.t.__x86.get_pc_thunk.cx,"ax",@progbits
 	.globl	__x86.get_pc_thunk.cx
 	.hidden	__x86.get_pc_thunk.cx

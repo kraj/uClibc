@@ -37,7 +37,7 @@
 	  : "=r" (__l));						      \
      __l; })
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_IE(x) \
   ({ int *__l;								      \
      __asm__ ("movl %%gs:0,%0\n\t"						      \
@@ -59,7 +59,7 @@
      __l; })
 # endif
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_LD(x) \
   ({ int *__l, __c, __d;						      \
      __asm__ ("leal " #x "@tlsldm(%%ebx),%%eax\n\t"				      \
@@ -83,7 +83,7 @@
      __l; })
 # endif
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_GD(x) \
   ({ int *__l, __c, __d;						      \
      __asm__ ("leal " #x "@tlsgd(%%ebx),%%eax\n\t"				      \
@@ -157,7 +157,7 @@
 	  : "=r" (__l), "=r" (__tp));					      \
      __l; })
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_IE(x) \
   ({ int *__l; void *__tp;						      \
      register void *__gp __asm__("r12");				      \
@@ -191,7 +191,7 @@
      __l; })
 #endif
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_LD(x) \
   ({ int *__l;								      \
      register void *__gp __asm__("r12");				      \
@@ -245,7 +245,7 @@
      __l; })
 #endif
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_GD(x) \
   ({ int *__l;								      \
      register void *__gp __asm__("r12");				      \
@@ -529,7 +529,7 @@ register void *__gp __asm__("$29");
 	  : "=a" (__offset) : : "cc" );					      \
      (int *) (__builtin_thread_pointer() + __offset); })
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_IE(x) \
   ({ unsigned long __offset;						      \
      __asm__ ("bras %0,1f\n"						      \
@@ -549,7 +549,7 @@ register void *__gp __asm__("$29");
      (int *) (__builtin_thread_pointer() + __offset); })
 # endif
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_LD(x) \
   ({ unsigned long __offset, __save12;					      \
      __asm__ ("bras %0,1f\n"						      \
@@ -581,7 +581,7 @@ register void *__gp __asm__("$29");
      (int *) (__builtin_thread_pointer() + __offset); })
 # endif
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_GD(x) \
   ({ unsigned long __offset, __save12;					      \
      __asm__ ("bras %0,1f\n"						      \
@@ -619,7 +619,7 @@ register void *__gp __asm__("$29");
 	  : "=a" (__offset) : : "cc" );					      \
      (int *) (__builtin_thread_pointer() + __offset); })
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_IE(x) \
   ({ unsigned long __offset;						      \
      __asm__ ("bras %0,1f\n"						      \
@@ -639,7 +639,7 @@ register void *__gp __asm__("$29");
      (int *) (__builtin_thread_pointer() + __offset); })
 # endif
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_LD(x) \
   ({ unsigned long __offset, __save12;					      \
      __asm__ ("bras %0,1f\n"						      \
@@ -677,7 +677,7 @@ register void *__gp __asm__("$29");
      (int *) (__builtin_thread_pointer() + __offset); })
 # endif
 
-# ifdef PIC
+# ifdef __PIC__
 #  define TLS_GD(x) \
   ({ unsigned long __offset, __save12;					      \
      __asm__ ("bras %0,1f\n"						      \

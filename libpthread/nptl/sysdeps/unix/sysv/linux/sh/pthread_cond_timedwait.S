@@ -55,7 +55,7 @@ __pthread_cond_timedwait:
 	mov	r4, r8
 	mov	r5, r9
 	mov	r6, r13
-#ifdef PIC
+#ifdef __PIC__
 	mova	.Lgot0, r0
 	mov.l	.Lgot0, r12
 	add	r0, r12
@@ -79,7 +79,7 @@ __pthread_cond_timedwait:
 	bt	2f
 	bra	1f
 	 nop
-#ifdef PIC
+#ifdef __PIC__
 	.align	2
 .Lgot0:
 	.long	_GLOBAL_OFFSET_TABLE_
@@ -610,7 +610,7 @@ __condvar_tw_cleanup:
 
 .LcallUR:
 	mov.l	.Lresume, r1
-#ifdef PIC
+#ifdef __PIC__
 	add	r12, r1
 #endif
 	jsr	@r1
@@ -625,7 +625,7 @@ __condvar_tw_cleanup:
 .Lmlocki5:
 	.long   __pthread_mutex_cond_lock-.Lmlocki5b
 .Lresume:
-#ifdef PIC
+#ifdef __PIC__
 	.long	_Unwind_Resume@GOTOFF
 #else
 	.long	_Unwind_Resume

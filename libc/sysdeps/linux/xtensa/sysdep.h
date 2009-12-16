@@ -45,7 +45,7 @@
 #define LITERAL_POSITION .literal_position
 
 #undef JUMPTARGET
-#ifdef PIC
+#ifdef __PIC__
 /* The "@PLT" suffix is currently a no-op for non-shared linking, but
    it doesn't hurt to use it conditionally for PIC code in case that
    changes someday.  */

@@ -47,7 +47,7 @@ __new_sem_trywait:
 	ret
 
 1:
-#ifdef PIC
+#ifdef __PIC__
 	call	__x86.get_pc_thunk.cx
 #else
 	movl	$3f, %ecx
@@ -73,7 +73,7 @@ __new_sem_trywait:
 weak_alias(__new_sem_trywait, sem_trywait)
 
 
-#ifdef PIC
+#ifdef __PIC__
 	.section .gnu.linkonce.t.__x86.get_pc_thunk.cx,"ax",@progbits
 	.globl	__x86.get_pc_thunk.cx
 	.hidden	__x86.get_pc_thunk.cx

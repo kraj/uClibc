@@ -101,7 +101,7 @@
 #  define CENABLE	call __pthread_enable_asynccancel;
 #  define CDISABLE	call __pthread_disable_asynccancel
 # elif defined IS_IN_librt
-#  ifdef PIC
+#  ifdef __PIC__
 #   define CENABLE	pushl %ebx; \
 			call __i686.get_pc_thunk.bx; \
 			addl     $_GLOBAL_OFFSET_TABLE_, %ebx; \
@@ -139,7 +139,7 @@
 #endif
 
 # ifndef __ASSEMBLER__
-#  if defined FLOATING_STACKS && USE___THREAD && defined PIC
+#  if defined FLOATING_STACKS && USE___THREAD && defined __PIC__
 #   define SINGLE_THREAD_P \
   __builtin_expect (THREAD_GETMEM (THREAD_SELF,				      \
 				   p_header.data.multiple_threads) == 0, 1)
@@ -153,7 +153,7 @@ extern int __local_multiple_threads
 #   define SINGLE_THREAD_P __builtin_expect (__local_multiple_threads == 0, 1)
 #  endif
 # else
-#  if !defined PIC
+#  if !defined __PIC__
 #   define SINGLE_THREAD_P cmpl $0, __local_multiple_threads
 #  elif defined FLOATING_STACKS && USE___THREAD
 #   define SINGLE_THREAD_P cmpl $0, %gs:MULTIPLE_THREADS_OFFSET

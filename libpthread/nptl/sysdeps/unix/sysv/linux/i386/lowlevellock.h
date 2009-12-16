@@ -52,7 +52,7 @@ typedef int lll_lock_t;
 #define LLL_MUTEX_LOCK_INITIALIZER_WAITERS	(2)
 
 
-#ifdef PIC
+#ifdef __PIC__
 # define LLL_EBX_LOAD	"xchgl %2, %%ebx\n"
 # define LLL_EBX_REG	"D"
 #else

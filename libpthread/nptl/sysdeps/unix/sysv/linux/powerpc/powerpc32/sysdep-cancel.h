@@ -98,7 +98,7 @@
 # elif defined IS_IN_librt
 #  define CENABLE	bl JUMPTARGET(__librt_enable_asynccancel)
 #  define CDISABLE	bl JUMPTARGET(__librt_disable_asynccancel)
-#  if defined HAVE_AS_REL16 && defined PIC
+#  if defined HAVE_AS_REL16 && defined __PIC__
 #   undef CGOTSETUP
 #   define CGOTSETUP							\
     bcl 20,31,1f;							\

@@ -66,7 +66,7 @@
 
 /* We don't want the label for the error handle to be global when we define
    it here.  */
-# ifdef PIC
+# ifdef __PIC__
 #  define SYSCALL_ERROR_LABEL 0f
 # else
 #  define SYSCALL_ERROR_LABEL syscall_error
@@ -111,7 +111,7 @@
 
 # define ret_ERRVAL ret
 
-# ifndef PIC
+# ifndef __PIC__
 #  define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
 # elif defined(RTLD_PRIVATE_ERRNO)
 #  define SYSCALL_ERROR_HANDLER			\
@@ -162,7 +162,7 @@
   movl %edx, (%rcx);				\
   orq $-1, %rax;				\
   jmp L(pseudo_end);
-# endif	/* PIC */
+# endif	/* __PIC__ */
 
 /* The Linux/x86-64 kernel expects the system call parameters in
    registers according to the following table:

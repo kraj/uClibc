@@ -56,7 +56,7 @@ __new_sem_post:
 	ret
 
 1:
-#ifdef PIC
+#ifdef __PIC__
 	call	__x86.get_pc_thunk.bx
 #else
 	movl	$4f, %ebx
@@ -84,7 +84,7 @@ __new_sem_post:
 weak_alias(__new_sem_post, sem_post)
 
 
-#ifdef PIC
+#ifdef __PIC__
 	.section .gnu.linkonce.t.__x86.get_pc_thunk.bx,"ax",@progbits
 	.globl	__x86.get_pc_thunk.bx
 	.hidden	__x86.get_pc_thunk.bx
