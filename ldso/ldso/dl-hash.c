@@ -158,7 +158,7 @@ static __attribute_noinline__ const ElfW(Sym) *
 check_match (const ElfW(Sym) *sym, char *strtab, const char* undef_name, int type_class)
 {
 
-#if USE_TLS
+#if defined(USE_TLS) && USE_TLS
 	if ((sym->st_value == 0 && (ELF_ST_TYPE(sym->st_info) != STT_TLS))
 		      || (type_class & (sym->st_shndx == SHN_UNDEF)))
 		/* No value or undefined symbol itself */
@@ -335,7 +335,7 @@ char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve
 
 	if (sym) {
 		/* At this point we have found the requested symbol, do binding */
-#if USE_TLS
+#if defined(USE_TLS) && USE_TLS
 		if (ELF_ST_TYPE(sym->st_info) == STT_TLS) {
 			_dl_assert(tpntp != NULL);
 			*tpntp = tpnt;

@@ -537,7 +537,7 @@ int __pthread_initialize_manager(void)
   }
   /* Start the thread manager */
   pid = 0;
-#ifdef USE_TLS
+#if defined(USE_TLS) && USE_TLS
   if (__linuxthreads_initial_report_events != 0)
     THREAD_SETMEM (((pthread_descr) NULL), p_report_events,
 		   __linuxthreads_initial_report_events);
@@ -710,7 +710,7 @@ static pthread_descr thread_self_stack(void)
     if (sp >= __pthread_manager_thread_bos && sp < __pthread_manager_thread_tos)
 	return manager_thread;
     h = __pthread_handles + 2;
-# ifdef USE_TLS
+# if defined(USE_TLS) && USE_TLS
     while (h->h_descr == NULL
 	    || ! (sp <= (char *) h->h_descr->p_stackaddr && sp >= h->h_bottom))
 	h++;
@@ -845,7 +845,7 @@ static void pthread_handle_sigcancel(int sig)
     /* Main thread should accumulate times for thread manager and its
        children, so that timings for main thread account for all threads. */
     if (self == __pthread_main_thread) {
-#ifdef USE_TLS
+#if defined(USE_TLS) && USE_TLS
       waitpid(__pthread_manager_thread->p_pid, NULL, __WCLONE);
 #else
       waitpid(__pthread_manager_thread.p_pid, NULL, __WCLONE);
