@@ -19,6 +19,8 @@
 
 #include <sysdep.h>
 #include <pthread-errnos.h>
+#include <tcb-offsets.h>
+#include <tls.h>
 
 #ifndef UP
 # define LOCK lock
