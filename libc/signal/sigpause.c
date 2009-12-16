@@ -23,7 +23,6 @@
 #define __FAVOR_BSD
 #include <signal.h>
 #include <stddef.h>		/* For NULL.  */
-#include <string.h>
 
 #include "sigset-cvt-mask.h"
 
