@@ -19,8 +19,6 @@
 #define __UCLIBC_HIDE_DEPRECATED__
 #include <errno.h>
 #include <signal.h>
-#include <string.h>
-
 
 #include "sigset-cvt-mask.h"
 

@@ -25,7 +25,6 @@
 #include <stddef.h>		/* For NULL.  */
 #include <string.h>
 
-
 #include "sigset-cvt-mask.h"
 
 /* Set the mask of blocked signals to MASK,
