@@ -27,7 +27,6 @@
 #include <sysdep-cancel.h>
 #endif
 
-
 #include "sigset-cvt-mask.h"
 
 /* Set the mask of blocked signals to MASK,
