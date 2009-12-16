@@ -20,6 +20,7 @@
 #include <sysdep.h>
 #include <lowlevelcond.h>
 #include <pthread-errnos.h>
+#include <tcb-offsets.h>
 
 #ifdef UP
 # define LOCK
@@ -374,8 +375,7 @@ __pthread_cond_timedwait:
 #endif
 .LENDCODE:
 	.size	__pthread_cond_timedwait, .-__pthread_cond_timedwait
-versioned_symbol (libpthread, __pthread_cond_timedwait, pthread_cond_timedwait,
-		  GLIBC_2_3_2)
+weak_alias(__pthread_cond_timedwait, pthread_cond_timedwait)
 
 
 	.section .eh_frame,"a",@progbits

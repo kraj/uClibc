@@ -98,5 +98,4 @@ __pthread_cond_signal:
 	callq	__lll_mutex_unlock_wake
 	jmp	6b
 	.size	__pthread_cond_signal, .-__pthread_cond_signal
-versioned_symbol (libpthread, __pthread_cond_signal, pthread_cond_signal,
-		  GLIBC_2_3_2)
+weak_alias(__pthread_cond_signal, pthread_cond_signal)

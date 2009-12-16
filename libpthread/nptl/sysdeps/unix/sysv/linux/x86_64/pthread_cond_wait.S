@@ -19,6 +19,7 @@
 
 #include <sysdep.h>
 #include <lowlevelcond.h>
+#include <tcb-offsets.h>
 
 #ifdef UP
 # define LOCK
@@ -348,8 +349,7 @@ __pthread_cond_wait:
 	jmp	14b
 .LENDCODE:
 	.size	__pthread_cond_wait, .-__pthread_cond_wait
-versioned_symbol (libpthread, __pthread_cond_wait, pthread_cond_wait,
-		  GLIBC_2_3_2)
+weak_alias(__pthread_cond_wait, pthread_cond_wait)
 
 
 	.section .eh_frame,"a",@progbits

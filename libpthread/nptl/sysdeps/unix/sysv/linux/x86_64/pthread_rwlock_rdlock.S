@@ -20,6 +20,7 @@
 #include <sysdep.h>
 #include <lowlevelrwlock.h>
 #include <pthread-errnos.h>
+#include <tcb-offsets.h>
 
 
 #define FUTEX_WAIT		0

@@ -18,7 +18,7 @@ libpthread_SSRC += lowlevellock.S pthread_barrier_wait.S pthread_cond_signal.S p
 		   sem_post.S sem_timedwait.S \
 		   sem_trywait.S sem_wait.S pthread_rwlock_rdlock.S pthread_rwlock_wrlock.S \
 		   pthread_rwlock_timedrdlock.S pthread_rwlock_timedwrlock.S pthread_rwlock_unlock.S \
-		   pthread_cond_timedwait.S pthread_cond_wait.S
+		   pthread_cond_timedwait.S pthread_cond_wait.S pthread_spin_unlock.S
 
 libc_a_SSRC += libc-lowlevellock.S
 

@@ -55,4 +55,3 @@ sem_trywait:
 	orl	$-1, %eax
 	retq
 	.size	sem_trywait,.-sem_trywait
-	versioned_symbol(libpthread, __new_sem_trywait, sem_trywait, GLIBC_2_1)
