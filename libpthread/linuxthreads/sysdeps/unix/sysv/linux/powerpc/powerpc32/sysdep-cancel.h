@@ -89,7 +89,7 @@
 # else
 #  define CENABLE	bl JUMPTARGET(__librt_enable_asynccancel)
 #  define CDISABLE	bl JUMPTARGET(__librt_disable_asynccancel)
-#  if defined HAVE_AS_REL16 && defined PIC
+#  if defined HAVE_AS_REL16 && defined __PIC__
 #   undef CGOTSETUP
 #   define CGOTSETUP							\
     bcl 20,31,1f;							\
@@ -122,7 +122,7 @@
 extern int __local_multiple_threads attribute_hidden;
 #   define SINGLE_THREAD_P __builtin_expect (__local_multiple_threads == 0, 1)
 #  else
-#   if !defined PIC
+#   if !defined __PIC__
 #    define SINGLE_THREAD_P						\
   lis 10,__local_multiple_threads@ha;					\
   lwz 10,__local_multiple_threads@l(10);				\

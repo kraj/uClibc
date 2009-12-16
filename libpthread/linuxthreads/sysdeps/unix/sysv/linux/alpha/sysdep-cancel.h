@@ -118,7 +118,7 @@ __LABEL($syscall_error)						\
 #  define __local_multiple_threads	__libc_multiple_threads
 # endif
 
-# ifdef PIC
+# ifdef __PIC__
 #  define CENABLE	bsr ra, __local_enable_asynccancel !samegp
 #  define CDISABLE	bsr ra, __local_disable_asynccancel !samegp
 # else
@@ -130,7 +130,7 @@ __LABEL($syscall_error)						\
 extern int __local_multiple_threads attribute_hidden;
 #   define SINGLE_THREAD_P \
   __builtin_expect (__local_multiple_threads == 0, 1)
-# elif defined(PIC)
+# elif defined(__PIC__)
 #  define SINGLE_THREAD_P(reg)  ldl reg, __local_multiple_threads(gp) !gprel
 # else
 #  define SINGLE_THREAD_P(reg)					\

@@ -56,7 +56,7 @@ ENTRY (__vfork)
 	movel	%a0,%sp@-
 
 # ifdef __ASSUME_VFORK_SYSCALL
-#  ifndef PIC
+#  ifndef __PIC__
 	jbra	SYSCALL_ERROR_LABEL
 #  endif
 # else

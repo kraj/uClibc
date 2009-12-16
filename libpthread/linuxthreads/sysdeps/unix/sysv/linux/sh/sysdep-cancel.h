@@ -102,7 +102,7 @@
 #  define __local_multiple_threads	__librt_multiple_threads
 # endif
 
-# if defined IS_IN_librt && defined PIC
+# if defined IS_IN_librt && defined __PIC__
 #  define CENABLE \
 	mov.l r12,@-r15; \
 	mov.l 1f,r12; \
@@ -155,7 +155,7 @@
 # endif
 
 # ifndef __ASSEMBLER__
-#  if defined FLOATING_STACKS && USE___THREAD && defined PIC
+#  if defined FLOATING_STACKS && USE___THREAD && defined __PIC__
 #   define SINGLE_THREAD_P \
   __builtin_expect (THREAD_GETMEM (THREAD_SELF, p_multiple_threads) == 0, 1)
 #  else
@@ -163,7 +163,7 @@ extern int __local_multiple_threads attribute_hidden;
 #   define SINGLE_THREAD_P __builtin_expect (__local_multiple_threads == 0, 1)
 #  endif
 # else
-#  if !defined PIC
+#  if !defined __PIC__
 #   define SINGLE_THREAD_P \
 	mov.l 1f,r0; \
 	mov.l @r0,r0; \

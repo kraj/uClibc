@@ -104,7 +104,7 @@
 # define POPARGS_6	POPARGS_5 ldw -54(%sr0,%sp), %r21	ASM_LINE_SEP
 
 # ifdef IS_IN_libpthread
-#  ifdef PIC
+#  ifdef __PIC__
 #   define CENABLE .import __pthread_enable_asynccancel,code ASM_LINE_SEP \
 			bl __pthread_enable_asynccancel,%r2 ASM_LINE_SEP
 #   define CDISABLE .import __pthread_disable_asynccancel,code ASM_LINE_SEP \
@@ -116,7 +116,7 @@
 			bl __pthread_disable_asynccancel,%r2 ASM_LINE_SEP
 #  endif
 # elif !defined NOT_IN_libc
-#  ifdef PIC
+#  ifdef __PIC__
 #   define CENABLE .import __libc_enable_asynccancel,code ASM_LINE_SEP \
 			bl __libc_enable_asynccancel,%r2 ASM_LINE_SEP
 #   define CDISABLE	.import __libc_disable_asynccancel,code ASM_LINE_SEP \
@@ -128,7 +128,7 @@
 			bl __libc_disable_asynccancel,%r2 ASM_LINE_SEP
 #  endif
 # else
-#  ifdef PIC
+#  ifdef __PIC__
 #   define CENABLE .import __librt_enable_asynccancel,code ASM_LINE_SEP \
 			bl __librt_enable_asynccancel,%r2 ASM_LINE_SEP
 #   define CDISABLE .import __librt_disable_asynccancel,code ASM_LINE_SEP \
@@ -167,7 +167,7 @@
 	nop							ASM_LINE_SEP	\
 	ldw MULTIPLE_THREADS_OFFSET(%sr0,%ret0),%ret0		ASM_LINE_SEP	\
  Lstp:								ASM_LINE_SEP
-#  ifdef PIC
+#  ifdef __PIC__
 /* Slower version uses GOT to get value of __local_multiple_threads */
 #   define SINGLE_THREAD_P							\
 	addil LT%__local_multiple_threads, %r19			ASM_LINE_SEP	\
