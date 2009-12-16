@@ -215,7 +215,7 @@ DL_START(unsigned long args)
 	 *                 more work than what is done below for the
 	 *                 loader will have to happen.
 	 */
-#if USE_TLS
+#if defined(USE_TLS) && USE_TLS
 	/* This was done by _dl_memset above. */
 	/* tpnt->l_tls_modid = 0; */
 # if NO_TLS_OFFSET != 0

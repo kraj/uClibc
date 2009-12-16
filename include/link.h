@@ -104,7 +104,7 @@ struct link_map
     ElfW(Dyn) *l_ld;		/* Dynamic section of the shared object.  */
     struct link_map *l_next, *l_prev; /* Chain of loaded objects.  */
 
-#ifdef USE_TLS
+#if defined(USE_TLS) && USE_TLS
     /* Thread-local storage related info.  */
 
     /* Start of the initialization image.  */

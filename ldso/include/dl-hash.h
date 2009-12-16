@@ -35,7 +35,7 @@ struct elf_resolve {
   struct elf_resolve * prev;
   /* Nothing after this address is used by gdb. */
 
-#if USE_TLS
+#if defined(USE_TLS) && USE_TLS
   /* Thread-local storage related info.  */
 
   /* Start of the initialization image.  */
@@ -138,7 +138,7 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
 /* Only need extra arg with some configurations */
-#if !(USE_TLS || defined __FDPIC__)
+#if !((defined(USE_TLS) && USE_TLS) || defined __FDPIC__)
 # define _dl_lookup_hash(n, r, m, c, t) _dl_lookup_hash(n, r, m, c)
 #endif
 extern char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt,
