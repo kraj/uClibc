@@ -77,8 +77,7 @@ else
 endif
 
 ifneq ($(HAVE_SHARED),y)
-	LDFLAGS       += -Wl,-static
-	HOST_LDFLAGS  += -Wl,-static
+	LDFLAGS       += -Wl,-static -static-libgcc
 endif
 
 LDFLAGS += -B$(top_builddir)lib -Wl,-rpath,$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib
