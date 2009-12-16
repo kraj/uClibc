@@ -43,10 +43,6 @@ SH_PTHREAD_EXCLUDE_LIST = pthread_spin_unlock.c pthread_spin_init.c \
 libpthread_CSRC := $(filter-out $(SH_PTHREAD_EXCLUDE_LIST),$(libpthread_CSRC))
 endif
 
-ifeq ($(TARGET_ARCH),x86_64)
-libpthread_CSRC += pthread_once.c
-endif
-
 
 CFLAGS-pt-common = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS)
 

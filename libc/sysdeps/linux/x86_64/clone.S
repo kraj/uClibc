@@ -112,3 +112,4 @@ clone:
 	call	HIDDEN_JUMPTARGET(_exit)
 
 .size clone,.-clone
+weak_alias(clone, __clone)
