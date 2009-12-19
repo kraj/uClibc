@@ -29,7 +29,9 @@
 #if defined __PIC__ && !defined NOT_IN_libc
 ENTRY (__memcpy_chk)
 	cmpq	%rdx, %rcx
+#if defined __UCLIBC_HAS_SSP__
 	jb	HIDDEN_JUMPTARGET (__chk_fail)
+#endif
 END (__memcpy_chk)
 #endif
 ENTRY (BP_SYM (memcpy))
