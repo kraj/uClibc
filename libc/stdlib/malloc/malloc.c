@@ -46,7 +46,7 @@ struct malloc_mmb *__malloc_mmapped_blocks = 0;
 HEAP_DECLARE_STATIC_FREE_AREA (initial_mmb_fa, 48); /* enough for 3 mmbs */
 struct heap_free_area *__malloc_mmb_heap = HEAP_INIT_WITH_FA (initial_mmb_fa);
 #ifdef HEAP_USE_LOCKING
-malloc_mutex_t __malloc_mmb_heap_lock = PTHREAD_MUTEX_INITIALIZER;
+malloc_mutex_t __malloc_mmb_heap_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 #endif /* __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
 
@@ -149,11 +149,12 @@ __malloc_from_heap (size_t size, struct heap_free_area **heap
 	  /* Try again to allocate.  */
 	  mem = __heap_alloc (heap, &size);
 
-	  __heap_unlock (heap_lock);
 
 #if !defined(MALLOC_USE_SBRK) && defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
 	  /* Insert a record of BLOCK in sorted order into the
 	     __malloc_mmapped_blocks list.  */
+
+	  new_mmb = malloc_from_heap (sizeof *new_mmb, &__malloc_mmb_heap, &__malloc_mmb_heap_lock);
 
 	  for (prev_mmb = 0, mmb = __malloc_mmapped_blocks;
 	       mmb;
@@ -161,7 +162,6 @@ __malloc_from_heap (size_t size, struct heap_free_area **heap
 	    if (block < mmb->mem)
 	      break;
 
-	  new_mmb = malloc_from_heap (sizeof *new_mmb, &__malloc_mmb_heap, &__malloc_mmb_heap_lock);
 	  new_mmb->next = mmb;
 	  new_mmb->mem = block;
 	  new_mmb->size = block_size;
@@ -175,6 +175,7 @@ __malloc_from_heap (size_t size, struct heap_free_area **heap
 			    (unsigned)new_mmb,
 			    (unsigned)new_mmb->mem, block_size);
 #endif /* !MALLOC_USE_SBRK && __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
+	  __heap_unlock (heap_lock);
 	}
     }
 
