@@ -18,6 +18,12 @@
 #include <bits/kernel_types.h>
 #include <bits/kernel-features.h>
 
+#if !(defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64 && __WORDSIZE == 64)
+/* If the condition above is met, __getdents is defined as an alias
+ * for __getdents64 (see getdents64.c). Otherwise...
+ */
+
+
 /* With newer versions of linux, the getdents syscall returns d_type
  * information after the name field.
  *
@@ -163,5 +169,6 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 
     return ret;
 }
+#endif
 
 #endif
