@@ -192,7 +192,7 @@ install: install_runtime install_dev
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
 
-$(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
+$(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c|$(@D)
 	$(hcompile.u)
 
 # Installs kernel header files (linux/*, asm/*, asm-generic/*).
@@ -451,7 +451,7 @@ hostutils:
 install_hostutils: hostutils
 	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils utils_install
 
-include/bits include/config:
+include/bits include/config $(top_builddir)extra/scripts:
 	@$(disp_mkdir)
 	$(Q)$(INSTALL) -d $@
 
