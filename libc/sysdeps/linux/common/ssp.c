@@ -100,7 +100,6 @@ void __stack_chk_fail(void)
 		terminate();
 }
 
-#if 0
 void __chk_fail(void) attribute_noreturn;
 void __chk_fail(void)
 {
@@ -115,4 +114,4 @@ void __chk_fail(void)
 	while(1)
 		terminate();
 }
-#endif
+

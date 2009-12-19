@@ -130,7 +130,7 @@ __LABEL($syscall_error)						\
 extern int __local_multiple_threads attribute_hidden;
 #   define SINGLE_THREAD_P \
   __builtin_expect (__local_multiple_threads == 0, 1)
-# elif defined(PIC)
+# elif defined(__PIC__)
 #  define SINGLE_THREAD_P(reg)  ldl reg, __local_multiple_threads(gp) !gprel
 # else
 #  define SINGLE_THREAD_P(reg)					\
