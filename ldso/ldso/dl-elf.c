@@ -894,7 +894,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 #endif
 	va_list args;
 	char *start, *ptr, *string;
-	static char *buf;
+	char *buf;
 
 	if (!fmt)
 		return;
