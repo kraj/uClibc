@@ -51,7 +51,9 @@ r += remainderf(float_x, float_x);
 /*r += remquof(float_x, float_x, &int_x); - uclibc does not have it (yet?) */
 r += rintf(float_x);
 r += roundf(float_x);
+#ifdef __UCLIBC_SUSV3_LEGACY__
 r += scalbf(float_x, float_x);
+#endif
 /*r += scalblnf(float_x, long_x); - uclibc does not have it (yet?) */
 r += scalbnf(float_x, int_x);
 r += significandf(float_x);
