@@ -4233,6 +4233,7 @@ scalb_test (void)
 {
   START (scalb);
 #ifndef TEST_LDOUBLE /* uclibc doesn't have scalbl */
+#ifdef __UCLIBC_SUSV3_LEGACY__ /* scalbf is susv3 legacy */
 
   TEST_ff_f (scalb, 2.0, 0.5, nan_value, INVALID_EXCEPTION);
   TEST_ff_f (scalb, 3.0, -2.5, nan_value, INVALID_EXCEPTION);
@@ -4283,7 +4284,8 @@ scalb_test (void)
 
   TEST_ff_f (scalb, 0.8L, 4, 12.8L);
   TEST_ff_f (scalb, -0.854375L, 5, -27.34L);
-#endif
+#endif /* __UCLIBC_SUSV3_LEGACY__ */
+#endif /* TEST_LDOUBLE */
   END (scalb);
 }
 
