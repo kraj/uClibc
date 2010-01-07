@@ -58,8 +58,11 @@ GLIBC_TESTS_DISABLED += tst-tls3_glibc tst-tls4_glibc tst-tls5_glibc
 endif
 
 PTDIR := $(top_builddir)libpthread/nptl
+SYSDEPS_DIR := $(top_srcdir)libc/sysdeps
 
 EXTRA_CFLAGS := -DNOT_IN_libc=1 -D_LIBC -D__USE_GNU -std=gnu99 \
+	-I$(SYSDEPS_DIR)/linux \
+	-I$(SYSDEPS_DIR)/linux/$(TARGET_ARCH) \
 	-I$(PTDIR) -I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)				\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux				\

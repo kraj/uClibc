@@ -18,9 +18,13 @@ GLIBC_TESTS_DISABLED := $(addsuffix _glibc,$(filter-out $(TESTS_DISABLED),$(TEST
 
 
 PTDIR := $(top_builddir)libpthread/nptl
+SYSDEPS_DIR := $(top_srcdir)libc/sysdeps
 
 EXTRA_CFLAGS := -DNOT_IN_libc=1 \
-	-std=gnu99 -I. -I$(PTDIR)				\
+	-std=gnu99 -I. \
+	-I$(SYSDEPS_DIR)/linux \
+	-I$(SYSDEPS_DIR)/linux/$(TARGET_ARCH) \
+	-I$(PTDIR)	\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux			\
