@@ -1,8 +1,6 @@
-/* Copyright (C) 1992,1993,1995,1996,1997,1998,1999,2000,2002,2003,2004
-	Free Software Foundation, Inc.
+/* Assembler macros for SH.
+   Copyright (C) 1999, 2000, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Contributed by Ulrich Drepper, <drepper@gnu.ai.mit.edu>, August 1995.
-   Changed by Kaz Kojima, <kkojima@rr.iij4u.or.jp>.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -19,11 +17,67 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#ifndef _LINUX_SH_SYSDEP_H
-#define _LINUX_SH_SYSDEP_H 1
+#include <common/sysdep.h>
 
-/* There is some commonality.  */
-#include <sysdeps/unix/sh/sysdep.h>
+#include <features.h>
+#include <libc-internal.h>
+
+#ifdef	__ASSEMBLER__
+
+/* Syntactic details of assembler.  */
+
+#define ALIGNARG(log2) log2
+/* For ELF we need the `.type' directive to make shared libs work right.  */
+#define ASM_TYPE_DIRECTIVE(name,typearg) .type name,@##typearg;
+#define ASM_SIZE_DIRECTIVE(name) .size name,.-name
+
+#ifdef SHARED
+#define PLTJMP(_x)	_x##@PLT
+#else
+#define PLTJMP(_x)	_x
+#endif
+
+/* Define an entry point visible from C.  */
+#define	ENTRY(name)							      \
+  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(name);				      \
+  ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),function)			      \
+  .align ALIGNARG(5);							      \
+  C_LABEL(name)								      \
+  cfi_startproc;							      \
+  CALL_MCOUNT
+
+#undef	END
+#define END(name)							      \
+  cfi_endproc;								      \
+  ASM_SIZE_DIRECTIVE(C_SYMBOL_NAME(name))
+
+/* If compiled for profiling, call `mcount' at the start of each function.  */
+#ifdef	PROF
+#define CALL_MCOUNT					\
+	mov.l	1f,r1;					\
+	sts.l	pr,@-r15;				\
+	cfi_adjust_cfa_offset (4);			\
+	cfi_rel_offset (pr, 0);				\
+	mova	2f,r0;					\
+	jmp	@r1;					\
+	 lds	r0,pr;					\
+	.align	2;					\
+1:	.long	mcount;					\
+2:	lds.l	@r15+,pr;				\
+	cfi_adjust_cfa_offset (-4);			\
+	cfi_restore (pr)
+
+#else
+#define CALL_MCOUNT		/* Do nothing.  */
+#endif
+
+#ifdef	__UCLIBC_UNDERSCORES__
+/* Since C identifiers are not normally prefixed with an underscore
+   on this system, the asm identifier `syscall_error' intrudes on the
+   C name space.  Make sure we use an innocuous name.  */
+#define	syscall_error	__syscall_error
+#define mcount		_mcount
+#endif
 
 /* For Linux we can use the system call table in the header file
 	/usr/include/asm/unistd.h
@@ -32,8 +86,9 @@
 #undef SYS_ify
 #define SYS_ify(syscall_name)	(__NR_##syscall_name)
 
-
-#ifdef __ASSEMBLER__
+#define ret	rts ; nop
+/* The sh move insn is s, d.  */
+#define MOVE(x,y)	mov x , y
 
 /* Linux uses a negative return value to indicate syscall errors,
    unlike most Unices, which use the condition codes' carry flag.
@@ -193,7 +248,7 @@
 # endif	/* _LIBC_REENTRANT */
 #endif	/* __PIC__ */
 
-# ifdef NEED_SYSCALL_INST_PAD
+# ifdef __SH4__
 #  define SYSCALL_INST_PAD \
 	or r0,r0; or r0,r0; or r0,r0; or r0,r0; or r0,r0
 # else
@@ -220,5 +275,3 @@
  2:
 
 #endif	/* __ASSEMBLER__ */
-
-#endif /* linux/sh/sysdep.h */

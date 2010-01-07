@@ -17,6 +17,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <sys/syscall.h>
+
 #ifndef C_LABEL
 
 /* Define a macro we can use to construct the asm name for a C symbol.  */
