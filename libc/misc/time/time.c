@@ -274,7 +274,7 @@ libc_hidden_def(asctime)
  * If we take the implicit assumption as given, then the implementation below
  * is still incorrect for tm_year values < -900, as there will be either
  * 0-padding and/or a missing negative sign for the year conversion .  But given
- * the ususal use of asctime(), I think it isn't unreasonable to restrict correct
+ * the usual use of asctime(), I think it isn't unreasonable to restrict correct
  * operation to the domain of years between 1000 and 9999.
  */
 
@@ -465,8 +465,22 @@ clock_t clock(void)
 
 char *ctime(const time_t *t)
 {
-	/* ANSI/ISO/SUSv3 say that ctime is equivalent to the following. */
-	return asctime(localtime(t));
+	/* ANSI/ISO/SUSv3 say that ctime is equivalent to the following:
+	 * return asctime(localtime(t));
+	 * I don't think "equivalent" means "it uses the same internal buffer",
+	 * it means "gives the same resultant string".
+	 *
+	 * I doubt anyone ever uses weird code like:
+	 * struct tm *ptm = localtime(t1); ...; ctime(t2); use(ptm);
+	 * which relies on the assumption that ctime's and localtime's
+	 * internal static struct tm is the same.
+	 *
+	 * Using localtime_r instead of localtime avoids linking in
+	 * localtime's static buffer:
+	 */
+	struct tm xtm;
+
+	return asctime(localtime_r(t, &xtm));
 }
 libc_hidden_def(ctime)
 #endif
