@@ -148,7 +148,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 	unsigned long rel_addr, unsigned long rel_size)
 {
 	ElfW(Sym) *symtab;
-	ElfW(Rel) *rpnt;
+	ELF_RELOC *rpnt;
 	char *strtab;
 	unsigned long i;
 	unsigned long *got;
@@ -162,7 +162,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 
 	/* Now parse the relocation information */
 	rel_size = rel_size / sizeof(ElfW(Rel));
-	rpnt = (ElfW(Rel) *) rel_addr;
+	rpnt = (ELF_RELOC *) rel_addr;
 
 	symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
@@ -172,8 +172,8 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 		char *symname = NULL;
 		reloc_addr = (unsigned long *) (tpnt->loadaddr +
 			(unsigned long) rpnt->r_offset);
-		reloc_type = ELF_R_TYPE(rpnt->r_info);
-		symtab_index = ELF_R_SYM(rpnt->r_info);
+		reloc_type = ELF32_R_TYPE(rpnt->r_info);
+		symtab_index = ELF32_R_SYM(rpnt->r_info);
 		symbol_addr = 0;
 
 		debug_sym(symtab,strtab,symtab_index);
@@ -206,12 +206,20 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 # endif
 			{
 				ElfW(Sym) *sym_tls = &symtab[symtab_index];
-				struct elf_resolve *tpnt_tls = tpnt;
+				struct elf_resolve *tpnt_tls = NULL;
 
 				if (ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_LOCAL) {
 					_dl_find_hash((strtab + symtab[symtab_index].st_name),
-							_dl_symbol_tables, tpnt_tls, 1, &sym_tls);
+							_dl_symbol_tables, tpnt,
+							elf_machine_type_class(reloc_type), &tpnt_tls);
 				}
+#if USE_TLS
+			    /* In case of a TLS reloc, tpnt_tls NULL means we have an 'anonymous'
+			       symbol.  This is the case for a static tls variable, so the lookup
+			       module is just that one is referencing the tls variable. */
+			    if (!tpnt_tls)
+			        tpnt_tls = tpnt;
+#endif
 
 				switch (reloc_type) {
 					case R_MIPS_TLS_DTPMOD64:
