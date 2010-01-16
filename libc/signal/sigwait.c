@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 
 #if defined __UCLIBC_HAS_REALTIME__
 
