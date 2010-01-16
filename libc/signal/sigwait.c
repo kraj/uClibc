@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 # include <sysdep-cancel.h>
