@@ -313,9 +313,9 @@ long double fmodl (long double x, long double y)
 #endif
 
 #ifdef L_frexpl
-long double frexpl (long double x, int *exp)
+long double frexpl (long double x, int *ex)
 {
-	return (long double) frexp( (double)x, exp );
+	return (long double) frexp( (double)x, ex );
 }
 #endif
 
@@ -340,9 +340,9 @@ int_WRAPPER1(ilogb)
 #endif
 
 #ifdef L_ldexpl
-long double ldexpl (long double x, int exp)
+long double ldexpl (long double x, int ex)
 {
-	return (long double) ldexp( (double)x, exp );
+	return (long double) ldexp( (double)x, ex );
 }
 #endif
 
@@ -450,16 +450,16 @@ WRAPPER1(round)
 #endif
 
 #ifdef L_scalblnl
-long double scalblnl (long double x, long exp)
+long double scalblnl (long double x, long ex)
 {
-	return (long double) scalbln( (double)x, exp );
+	return (long double) scalbln( (double)x, ex );
 }
 #endif
 
 #ifdef L_scalbnl
-long double scalbnl (long double x, int exp)
+long double scalbnl (long double x, int ex)
 {
-	return (long double) scalbn( (double)x, exp );
+	return (long double) scalbn( (double)x, ex );
 }
 #endif
 
