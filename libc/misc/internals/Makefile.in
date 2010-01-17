@@ -7,15 +7,17 @@
 
 subdirs += libc/misc/internals
 
-CFLAGS-__uClibc_main.c := $(SSP_DISABLE_FLAGS)
-
-CSRC := tempname.c errno.c __errno_location.c __h_errno_location.c
+CSRC := tempname.c errno.c __errno_location.c __h_errno_location.c \
+	parse_config.c
 
 MISC_INTERNALS_DIR := $(top_srcdir)libc/misc/internals
 MISC_INTERNALS_OUT := $(top_builddir)libc/misc/internals
 
 MISC_INTERNALS_SRC := $(patsubst %.c,$(MISC_INTERNALS_DIR)/%.c,$(CSRC))
 MISC_INTERNALS_OBJ := $(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(CSRC))
+
+CFLAGS-__uClibc_main.c := $(SSP_DISABLE_FLAGS)
+
 
 libc-y += $(MISC_INTERNALS_OBJ)
 ifneq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
