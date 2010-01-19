@@ -27,11 +27,11 @@
  * does not (it does not set ERRNO).
  */
 
-double ldexp(double value, int exp)
+double ldexp(double value, int _exp)
 {
 	if (!isfinite(value) || value == 0.0)
 		return value;
-	value = scalbn(value, exp);
+	value = scalbn(value, _exp);
 	if (!isfinite(value) || value == 0.0)
 		errno = ERANGE;
 	return value;
