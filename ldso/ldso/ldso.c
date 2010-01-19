@@ -683,7 +683,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 #ifdef __LDSO_PRELOAD_FILE_SUPPORT__
 	do {
-		struct stat st;
 		char *preload;
 		int fd;
 		char c, *cp, *cp2;
@@ -735,11 +734,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 			tpnt1 = _dl_load_shared_library(0, &rpnt, NULL, cp2, trace_loaded_objects);
 			if (!tpnt1) {
-#ifdef __LDSO_LDD_SUPPORT__
+# ifdef __LDSO_LDD_SUPPORT__
 				if (trace_loaded_objects)
 					_dl_dprintf(1, "\t%s => not found\n", cp2);
 				else
-#endif
+# endif
 				{
 					_dl_dprintf(_dl_debug_file, "%s: can't load library '%s'\n", _dl_progname, cp2);
 					_dl_exit(15);
@@ -749,14 +748,14 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 				_dl_debug_early("Loading: (%x) %s\n", DL_LOADADDR_BASE(tpnt1->loadaddr), tpnt1->libname);
 
-#ifdef __LDSO_LDD_SUPPORT__
+# ifdef __LDSO_LDD_SUPPORT__
 				if (trace_loaded_objects &&
 				    tpnt1->usage_count == 1) {
 					_dl_dprintf(1, "\t%s => %s (%x)\n",
 						    cp2, tpnt1->libname,
 						    DL_LOADADDR_BASE(tpnt1->loadaddr));
 				}
-#endif
+# endif
 			}
 
 			/* find start of next library */
