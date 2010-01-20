@@ -16,9 +16,9 @@ TODO list for the uClibc 0.9.31 release:
        support arches: (- todo; + done)
        + arm
        + sh
+       + mips
        - i386
        - x86_64
-       - mips
        - ...
     *) Go through SUSv4
        TOC: http://www.opengroup.org/onlinepubs/9699919799/xrat/contents.html
