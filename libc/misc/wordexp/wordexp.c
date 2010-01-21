@@ -1444,28 +1444,28 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 			size_t exp_len;
 			size_t exp_maxl;
 			char *p;
-			int quoted = 0;		/* 1: single quotes; 2: double */
+			int quotes = 0;		/* 1: single quotes; 2: double */
 
 			expanded = w_newword(&exp_len, &exp_maxl);
 			for (p = pattern; p && *p; p++) {
-				size_t offset;
+				size_t _offset;
 
 				switch (*p) {
 				case '"':
-					if (quoted == 2)
-						quoted = 0;
-					else if (quoted == 0)
-						quoted = 2;
+					if (quotes == 2)
+						quotes = 0;
+					else if (quotes == 0)
+						quotes = 2;
 					else
 						break;
 
 					continue;
 
 				case '\'':
-					if (quoted == 1)
-						quoted = 0;
-					else if (quoted == 0)
-						quoted = 1;
+					if (quotes == 1)
+						quotes = 0;
+					else if (quotes == 0)
+						quotes = 1;
 					else
 						break;
 
@@ -1473,7 +1473,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 
 				case '*':
 				case '?':
-					if (quoted) {
+					if (quotes) {
 						/* Convert quoted wildchar to escaped wildchar. */
 						expanded = w_addchar(expanded, &exp_len,
 											 &exp_maxl, '\\');
@@ -1484,9 +1484,9 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 					break;
 
 				case '$':
-					offset = 0;
+					_offset = 0;
 					error = parse_dollars(&expanded, &exp_len, &exp_maxl, p,
-									  &offset, flags, NULL, NULL, NULL, 1);
+									  &_offset, flags, NULL, NULL, NULL, 1);
 					if (error) {
 						if (free_value)
 							free(value);
@@ -1496,16 +1496,16 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 						goto do_error;
 					}
 
-					p += offset;
+					p += _offset;
 					continue;
 
 				case '~':
-					if (quoted || exp_len)
+					if (quotes || exp_len)
 						break;
 
-					offset = 0;
+					_offset = 0;
 					error = parse_tilde(&expanded, &exp_len, &exp_maxl, p,
-										&offset, 0);
+										&_offset, 0);
 					if (error) {
 						if (free_value)
 							free(value);
@@ -1515,7 +1515,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 						goto do_error;
 					}
 
-					p += offset;
+					p += _offset;
 					continue;
 
 				case '\\':
