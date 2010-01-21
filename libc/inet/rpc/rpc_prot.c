@@ -229,7 +229,7 @@ rejected (enum reject_stat rjct_stat,
 {
   switch (rjct_stat)
     {
-    case RPC_VERSMISMATCH:
+    case RPC_MISMATCH:
       error->re_status = RPC_VERSMISMATCH;
       return;
     case AUTH_ERROR:
