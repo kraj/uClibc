@@ -50,7 +50,7 @@ endif
 
 ifeq ($(TARGET_ARCH),sparc)
 libpthread_CSRC += __syscall_error.c
-librt_CSRC := mq_notify.c __syscall_error.c
+librt_CSRC += __syscall_error.c
 endif
 
 ifeq ($(TARGET_ARCH),sh)
@@ -67,7 +67,6 @@ ifeq ($(TARGET_ARCH),x86_64)
 libc_SSRC := $(filter-out waitpid.S,$(libc_SSRC))
 X86_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c
 libpthread_CSRC := $(filter-out $(X86_PTHREAD_SPECIFIC),$(libpthread_CSRC))
-librt_CSRC := mq_notify.c
 endif
 
 CFLAGS-pthread_getcpuclockid.c = -I$(top_srcdir)librt
