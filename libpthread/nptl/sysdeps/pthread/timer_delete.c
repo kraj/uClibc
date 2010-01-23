@@ -27,8 +27,8 @@
 
 /* Delete timer TIMERID.  */
 int
-timer_delete (timerid)
-     timer_t timerid;
+timer_delete (
+     timer_t timerid)
 {
   struct timer_node *timer;
   int retval = -1;
