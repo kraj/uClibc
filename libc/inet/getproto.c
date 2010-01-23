@@ -144,7 +144,7 @@ int getprotoent_r(struct protoent *result_buf,
     }
 again:
     if ((p = fgets(line, BUFSIZ, protof)) == NULL) {
-	rv=TRY_AGAIN;
+	rv=ENOENT;
 	goto DONE;
     }
 
