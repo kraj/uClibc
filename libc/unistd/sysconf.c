@@ -39,14 +39,78 @@
 #include <sys/resource.h>
 
 #endif
+#include <string.h>
+#include <dirent.h>
+#include "internal/parse_config.h"
 
-#ifndef num_present_cpus
-# define num_present_cpus() (1)
-#endif
-#ifndef num_online_cpus
-# define num_online_cpus() (1)
-#endif
+static int nprocessors_onln(void)
+{
+	char **l = NULL;
+	parser_t *p = config_open("/proc/stat");
+	int ret = 0;
 
+	if (p) {
+		while (config_read(p, &l, 2, 1, " ", 0))
+			if (l[0][0] == 'c'
+				&& l[0][1] == 'p'
+				&& l[0][2] == 'u'
+				&& isdigit(l[0][3]))
+				++ret;
+	} else if ((p = config_open("/proc/cpuinfo"))) {
+#if defined __sparc__
+		while (config_read(p, &l, 2, 2, "\0:", PARSE_NORMAL))
+			if (strncmp("ncpus active", l[0], 12) == 0) {
+				ret = atoi(l[1]);
+				break;
+			}
+#else
+		while (config_read(p, &l, 2, 2, "\0:\t", PARSE_NORMAL))
+			if (strcmp("processor", l[0]) == 0)
+				++ret;
+#endif
+	}
+	config_close(p);
+	return ret != 0 ? ret : 1;
+}
+
+#if defined __UCLIBC__ && !defined __UCLIBC_HAS_LFS__
+# define readdir64 readdir
+# define dirent64 dirent
+#endif
+static int nprocessors_conf(void)
+{
+	int ret = 0;
+	DIR *dir = opendir("/sys/devices/system/cpu");
+
+	if (dir) {
+		struct dirent64 *dp;
+
+		while ((dp = readdir64(dir))) {
+			if (dp->d_type == DT_DIR
+				&& dp->d_name[0] == 'c'
+				&& dp->d_name[1] == 'p'
+				&& dp->d_name[2] == 'u'
+				&& isdigit(dp->d_name[3]))
+				++ret;
+		}
+		closedir(dir);
+	} else
+	{
+#if defined __sparc__
+		char **l = NULL;
+		parser_t *p = config_open("/proc/stat");
+		while (config_read(p, &l, 2, 2, "\0:", PARSE_NORMAL))
+			if (strncmp("ncpus probed", l[0], 13) == 0) {
+				ret = atoi(l[1]);
+				break;
+			}
+		config_close(p);
+#else
+		ret = nprocessors_onln();
+#endif
+	}
+	return ret != 0 ? ret : 1;
+}
 
 
 #ifndef __UCLIBC_CLK_TCK_CONST
@@ -679,10 +743,10 @@ long int sysconf(int name)
 #endif
 
     case _SC_NPROCESSORS_CONF:
-      RETURN_FUNCTION(num_present_cpus());
+      RETURN_FUNCTION(nprocessors_conf());
 
     case _SC_NPROCESSORS_ONLN:
-      RETURN_FUNCTION(num_online_cpus());
+      RETURN_FUNCTION(nprocessors_onln());
 
     case _SC_PHYS_PAGES:
 #if 0
