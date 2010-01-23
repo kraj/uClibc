@@ -7,8 +7,14 @@ TESTS := tst-tls1 tst-tls2 tst-tls3 tst-tls4 tst-tls5 tst-tls6 tst-tls7	\
 	tst-tls1-static tst-tls2-static tst-tls9-static
 TESTS_DISABLED := tst-tls1-static tst-tls2-static tst-tls9-static
 
+#all these tests require shared libraries
+ifeq ($(HAVE_SHARED),)
+TESTS_DISABLED := $(TESTS)
+endif
+
 # All these tests need tls.h, which is not installed with glibc
 GLIBC_TESTS_DISABLED := $(addsuffix _glibc,$(filter-out $(TESTS_DISABLED),$(TESTS)))
+
 
 
 PTDIR := $(top_builddir)libpthread/nptl

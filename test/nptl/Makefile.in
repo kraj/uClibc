@@ -43,14 +43,19 @@ TESTS += tst-clock tst-clock_nanosleep tst-cpuclock1 tst-cpuclock2	\
 	tst-timer4 tst-timer5
 
 ifeq ($(UCLIBC_HAS_OBSOLETE_BSD_SIGNAL),)
-TESTS_DISABLED := tst-exec2 tst-exec3 tst-exec4
+TESTS_DISABLED += tst-exec2 tst-exec3 tst-exec4
 endif
 
 GLIBC_TESTS_DISABLED := tst-eintr1_glibc tst-eintr2_glibc \
 	tst-eintr3_glibc tst-eintr4_glibc tst-eintr5_glibc \
-	tst-tls1_glibc tst-tls2_glibc tst-tls3_glibc \
-	tst-tls4_glibc tst-tls5_glibc
+	tst-tls1_glibc tst-tls2_glibc
 
+
+ifeq ($(HAVE_SHARED),)
+TESTS_DISABLED += tst-tls3 tst-tls4 tst-tls5
+else
+GLIBC_TESTS_DISABLED += tst-tls3_glibc tst-tls4_glibc tst-tls5_glibc
+endif
 
 PTDIR := $(top_builddir)libpthread/nptl
 
@@ -101,23 +106,23 @@ LDFLAGS_tst-tls5 :=  tst-tls5mod.so
 LDFLAGS_tst-clock := -lrt
 LDFLAGS_tst-clock_nanosleep := -lrt
 LDFLAGS_tst-cpuclock1 := -lrt
-LDFLAGS_tst-cpuclock2 := -lrt
-LDFLAGS_tst-cputimer1 := -lrt
-LDFLAGS_tst-cputimer2 := -lrt
-LDFLAGS_tst-cputimer3 := -lrt
+LDFLAGS_tst-cpuclock2 := -lrt -lpthread
+LDFLAGS_tst-cputimer1 := -lrt -lpthread
+LDFLAGS_tst-cputimer2 := -lrt -lpthread
+LDFLAGS_tst-cputimer3 := -lrt -lpthread
 LDFLAGS_tst-mqueue1 := -lrt
 LDFLAGS_tst-mqueue2 := -lrt
-LDFLAGS_tst-mqueue3 := -lrt
+LDFLAGS_tst-mqueue3 := -lrt -lpthread
 LDFLAGS_tst-mqueue4 := -lrt
-LDFLAGS_tst-mqueue5 := -lrt
-LDFLAGS_tst-mqueue6 := -lrt
+LDFLAGS_tst-mqueue5 := -lrt -lpthread
+LDFLAGS_tst-mqueue6 := -lrt -lpthread
 LDFLAGS_tst-mqueue7 := -lrt
 LDFLAGS_tst-mqueue8 := -lrt
 LDFLAGS_tst-mqueue9 := -lrt
-LDFLAGS_tst-timer2 := -lrt
-LDFLAGS_tst-timer3 := -lrt
-LDFLAGS_tst-timer4 := -lrt
-LDFLAGS_tst-timer5 := -lrt
+LDFLAGS_tst-timer2 := -lrt -lpthread
+LDFLAGS_tst-timer3 := -lrt -lpthread
+LDFLAGS_tst-timer4 := -lrt -lpthread
+LDFLAGS_tst-timer5 := -lrt -lpthread
 LDFLAGS_tst-tls3mod.so := -shared -static-libgcc -lpthread
 LDFLAGS_tst-tls4moda.so := -shared -static-libgcc
 LDFLAGS_tst-tls4modb.so := -shared -static-libgcc
