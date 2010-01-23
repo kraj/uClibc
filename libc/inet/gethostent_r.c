@@ -5,4 +5,4 @@
  */
 
 #define L_gethostent_r
-#include "resolv.c"
+#include RESOLVER

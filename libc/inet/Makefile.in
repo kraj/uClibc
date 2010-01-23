@@ -12,6 +12,7 @@ include $(top_srcdir)libc/inet/rpc/Makefile.in
 INET_DIR := $(top_srcdir)libc/inet
 INET_OUT := $(top_builddir)libc/inet
 
+CFLAGS-inet := -DRESOLVER="\"resolv.c\""
 CSRC-y :=
 # des uses ntohl
 CSRC-$(findstring y,$(UCLIBC_HAS_CRYPT_IMPL)$(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6)) += ntohl.c

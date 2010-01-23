@@ -5,4 +5,4 @@
  */
 
 #define L_res_state
-#include "resolv.c"
+#include RESOLVER

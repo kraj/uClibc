@@ -5,4 +5,4 @@
  */
 
 #define L_closenameservers
-#include "resolv.c"
+#include RESOLVER

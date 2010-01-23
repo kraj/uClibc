@@ -5,4 +5,4 @@
  */
 
 #define L_lengthq
-#include "resolv.c"
+#include RESOLVER

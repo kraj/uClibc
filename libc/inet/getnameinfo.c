@@ -5,4 +5,4 @@
  */
 
 #define L_getnameinfo
-#include "resolv.c"
+#include RESOLVER

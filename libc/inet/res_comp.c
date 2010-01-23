@@ -5,4 +5,4 @@
  */
 
 #define L_res_comp
-#include "resolv.c"
+#include RESOLVER
