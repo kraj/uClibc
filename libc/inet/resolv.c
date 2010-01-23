@@ -1539,7 +1539,9 @@ FILE * __open_etc_hosts(void)
 {
 	FILE * fp;
 	if ((fp = fopen("/etc/hosts", "r")) == NULL) {
+#ifdef FALLBACK_TO_CONFIG_RESOLVCONF
 		fp = fopen("/etc/config/hosts", "r");
+#endif
 	}
 	return fp;
 }
