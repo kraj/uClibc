@@ -146,7 +146,7 @@ ulckpwdf (void)
 
 
 static void
-noop_handler (int sig attribute_unused)
+noop_handler (int sig attribute_unused) {
 
   /* We simply return which makes the `fcntl' call return with an error.  */
 }
