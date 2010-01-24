@@ -298,7 +298,7 @@ else
 endif
 
 # Installs development library links.
-install_dev: install_headers all
+install_dev: install_headers install_runtime
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 ifeq ($(HAVE_SHARED),y)
