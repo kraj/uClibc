@@ -286,7 +286,7 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 		s = empty_string;
 		n = 1;
 	} else if (*s == '\0') {
-    /* According to the ISO C 89 standard this is the expected behaviour.  */
+	/* According to the ISO C 89 standard this is the expected behaviour.  */
 		return 0;
 	} else if (!n) {
 		/* TODO: change error code? */
@@ -600,7 +600,7 @@ size_t attribute_hidden _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 		if (!s) {
 			n = SIZE_MAX;
 		}
-	    s = buf;
+		s = buf;
 		store = 0;
 	}
 
@@ -1026,9 +1026,9 @@ static const signed char new_wtbl[] = {
 
 int wcswidth(const wchar_t *pwcs, size_t n)
 {
-    int h, l, m, count;
-    wchar_t wc;
-    unsigned char b;
+	int h, l, m, count;
+	wchar_t wc;
+	unsigned char b;
 
 	if (ENCODING == __ctype_encoding_7_bit) {
 		size_t i;
@@ -1064,7 +1064,7 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 	}
 #endif /* __CTYPE_HAS_UTF_8_LOCALES */
 
-    for (count = 0 ; n && (wc = *pwcs++) ; n--) {
+	for (count = 0 ; n && (wc = *pwcs++) ; n--) {
 		if (wc <= 0xff) {
 			/* If we're here, wc != 0. */
 			if ((wc < 32) || ((wc >= 0x7f) && (wc < 0xa0))) {
@@ -1114,9 +1114,9 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 		}
 
 		++count;
-    }
+	}
 
-    return count;
+	return count;
 }
 
 #else  /*  __UCLIBC_HAS_LOCALE__ */
@@ -1133,7 +1133,7 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 		}
 	}
 
-    for (count = 0 ; n && (wc = *pwcs++) ; n--) {
+	for (count = 0 ; n && (wc = *pwcs++) ; n--) {
 		if (wc <= 0xff) {
 			/* If we're here, wc != 0. */
 			if ((wc < 32) || ((wc >= 0x7f) && (wc < 0xa0))) {
@@ -1160,7 +1160,7 @@ libc_hidden_def(wcswidth)
 
 int wcwidth(wchar_t wc)
 {
-    return wcswidth(&wc, 1);
+	return wcswidth(&wc, 1);
 }
 
 #endif
