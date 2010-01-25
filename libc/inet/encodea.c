@@ -5,4 +5,4 @@
  */
 
 #define L_encodea
-#include "resolv.c"
+#include RESOLVER

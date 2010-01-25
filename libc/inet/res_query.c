@@ -5,4 +5,4 @@
  */
 
 #define L_res_query
-#include "resolv.c"
+#include RESOLVER

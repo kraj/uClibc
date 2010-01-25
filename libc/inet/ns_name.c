@@ -5,4 +5,4 @@
  */
 
 #define L_ns_name
-#include "resolv.c"
+#include RESOLVER

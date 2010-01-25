@@ -1,3 +1,4 @@
+/* vi: set sw=4 ts=4: */
 /*
  * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
@@ -6,16 +7,14 @@
 
 #define __FORCE_GLIBC
 #include <features.h>
-#include <stdio.h>
-#include <string.h>
 #include <errno.h>
-#include <sys/param.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <fcntl.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <netdb.h>
 #include <not-cancel.h>
-
 
 #define HOSTID "/etc/hostid"
 
@@ -36,23 +35,23 @@ int sethostid(long int new_id)
 }
 #endif
 
+#define _addr(a) (((struct sockaddr_in*)a->ai_addr)->sin_addr.s_addr)
 long int gethostid(void)
 {
-	char host[MAXHOSTNAMELEN + 1];
-	int fd, id;
+	char host[HOST_NAME_MAX + 1];
+	int fd, id = 0;
 
 	/* If hostid was already set then we can return that value.
 	 * It is not an error if we cannot read this file. It is not even an
 	 * error if we cannot read all the bytes, we just carry on trying...
 	 */
 	fd = open_not_cancel_2(HOSTID, O_RDONLY);
-	if (fd >= 0 && read_not_cancel(fd, &id, sizeof(id)))
-	{
-		close_not_cancel_no_status (fd);
-		return id;
+	if (fd >= 0) {
+		int i = read_not_cancel(fd, &id, sizeof(id));
+		close_not_cancel_no_status(fd);
+		if (i > 0)
+			return id;
 	}
-	if (fd >= 0) close_not_cancel_no_status (fd);
-
 	/* Try some methods of returning a unique 32 bit id. Clearly IP
 	 * numbers, if on the internet, will have a unique address. If they
 	 * are not on the internet then we can return 0 which means they should
@@ -64,32 +63,18 @@ long int gethostid(void)
 	 * setting one anyway.
 	 *						Mitch
 	 */
-	if (gethostname(host, MAXHOSTNAMELEN) >= 0 && *host) {
-		struct hostent *hp;
-		struct in_addr in;
-		struct hostent ghbn_h;
-		char ghbn_buf[sizeof(struct in_addr) +
-			sizeof(struct in_addr *)*2 +
-			sizeof(char *)*((2 + 5/*MAX_ALIASES*/ +
-						1)/*ALIAS_DIM*/) +
-			256/*namebuffer*/ + 32/* margin */];
-		int ghbn_errno;
-
-		/* replace gethostbyname() with gethostbyname_r() - ron@zing.net */
-		/*if ((hp = gethostbyname(host)) == (struct hostent *)NULL)*/
-		gethostbyname_r(host, &ghbn_h, ghbn_buf, sizeof(ghbn_buf), &hp, &ghbn_errno);
-
-		if (hp == NULL) {
-		/* This is not a error if we get here, as all it means is that
-		 * this host is not on a network and/or they have not
-		 * configured their network properly. So we return the unset
-		 * hostid which should be 0, meaning that they should set it !!
-		 */
-			return 0;
+	if (gethostname(host, HOST_NAME_MAX) >= 0 && *host) {
+		struct addrinfo hints, *results, *addr;
+		memset(&hints, 0, sizeof(struct addrinfo));
+		if (!getaddrinfo(host, NULL, &hints, &results)) {
+			for (addr = results; addr; addr = results->ai_next) {
+				/* Just so it doesn't look exactly like the
+				   IP addr */
+				id = _addr(addr) << 16 | _addr(addr) >> 16;
+				break;
+			}
+			freeaddrinfo(results);
 		}
-		memcpy(&in, hp->h_addr, hp->h_length);
-		/* Just so it doesn't look exactly like the IP addr */
-		return (in.s_addr<<16 | in.s_addr>>16);
 	}
-	return 0;
+	return id;
 }

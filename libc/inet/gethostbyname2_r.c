@@ -5,4 +5,4 @@
  */
 
 #define L_gethostbyname2_r
-#include "resolv.c"
+#include RESOLVER

@@ -5,4 +5,4 @@
  */
 
 #define L_decodep
-#include "resolv.c"
+#include RESOLVER

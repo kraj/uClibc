@@ -5,4 +5,4 @@
  */
 
 #define L_gethostbyaddr
-#include "resolv.c"
+#include RESOLVER

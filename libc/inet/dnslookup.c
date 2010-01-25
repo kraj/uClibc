@@ -5,4 +5,4 @@
  */
 
 #define L_dnslookup
-#include "resolv.c"
+#include RESOLVER

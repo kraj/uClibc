@@ -10,6 +10,7 @@
 #include <sys/syscall.h>
 #if defined __NR__sysctl && (defined __USE_GNU || defined __USE_BSD)
 
+/* psm: including sys/sysctl.h would depend on kernel headers */
 struct __sysctl_args {
 	int *name;
 	int nlen;
@@ -19,7 +20,8 @@ struct __sysctl_args {
 	size_t newlen;
 	unsigned long __unused[4];
 };
-
+extern int sysctl (int *__name, int __nlen, void *__oldval,
+				   size_t *__oldlenp, void *__newval, size_t __newlen) __THROW;
 int sysctl(int *name, int nlen, void *oldval, size_t * oldlenp,
 		   void *newval, size_t newlen)
 {

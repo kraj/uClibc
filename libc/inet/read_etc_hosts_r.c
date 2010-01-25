@@ -5,4 +5,4 @@
  */
 
 #define L_read_etc_hosts_r
-#include "resolv.c"
+#include RESOLVER

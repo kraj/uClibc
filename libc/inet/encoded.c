@@ -5,4 +5,4 @@
  */
 
 #define L_encoded
-#include "resolv.c"
+#include RESOLVER

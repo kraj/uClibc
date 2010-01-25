@@ -5,4 +5,4 @@
  */
 
 #define L_encodeq
-#include "resolv.c"
+#include RESOLVER

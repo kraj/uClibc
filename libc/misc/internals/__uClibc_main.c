@@ -271,10 +271,11 @@ libc_hidden_def(__uClibc_fini)
  */
 void __uClibc_main(int (*main)(int, char **, char **), int argc,
 		    char **argv, void (*app_init)(void), void (*app_fini)(void),
-		    void (*rtld_fini)(void), void *stack_end) attribute_noreturn;
+		    void (*rtld_fini)(void),
+		    void *stack_end attribute_unused) attribute_noreturn;
 void __uClibc_main(int (*main)(int, char **, char **), int argc,
 		    char **argv, void (*app_init)(void), void (*app_fini)(void),
-		    void (*rtld_fini)(void), void *stack_end)
+		    void (*rtld_fini)(void), void *stack_end attribute_unused)
 {
 #ifndef __ARCH_HAS_NO_LDSO__
     unsigned long *aux_dat;

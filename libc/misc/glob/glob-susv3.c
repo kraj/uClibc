@@ -183,7 +183,8 @@ int __glob_match_in_dir(const char *d, const char *p, int flags, int (*errfunc)(
 # ifndef BUILD_GLOB64
 static
 # endif
-int __glob_ignore_err(const char *path, int err)
+int __glob_ignore_err(const char * path attribute_unused,
+			int err attribute_unused)
 {
 	return 0;
 }

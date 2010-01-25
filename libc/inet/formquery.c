@@ -5,4 +5,4 @@
  */
 
 #define L_formquery
-#include "resolv.c"
+#include RESOLVER

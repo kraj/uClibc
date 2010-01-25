@@ -8140,7 +8140,7 @@ libc_hidden_def(regexec)
 size_t
 regerror (
     int errcode,
-    const regex_t *preg,
+    const regex_t * preg attribute_unused,
     char *errbuf,
     size_t errbuf_size)
 {

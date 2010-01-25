@@ -264,7 +264,7 @@ HEADERS_RM-$(UCLIBC_HAS_BSD_ERR)             += err.h
 HEADERS_RM-$(UCLIBC_HAS_CRYPT)               += crypt.h
 HEADERS_RM-$(UCLIBC_HAS_EPOLL)               += sys/epoll.h
 HEADERS_RM-$(UCLIBC_HAS_FENV)                += fenv.h bits/fenv.h bits/fenvinline.h
-HEADERS_RM-$(findstring y,$(UCLIBC_HAS_FTW)$(UCLIBC_HAS_NFTW))  += ftw.h
+HEADERS_RM-$(if $(findstring y,$(UCLIBC_HAS_FTW)$(UCLIBC_HAS_NFTW)),,y) += ftw.h
 HEADERS_RM-$(UCLIBC_HAS_GETTEXT_AWARENESS)   += libintl.h
 HEADERS_RM-$(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF) += printf.h
 HEADERS_RM-$(UCLIBC_HAS_GLOB)                += glob.h
@@ -300,7 +300,7 @@ else
 endif
 
 # Installs development library links.
-install_dev: install_headers all
+install_dev: install_headers install_runtime
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 ifeq ($(HAVE_SHARED),y)
