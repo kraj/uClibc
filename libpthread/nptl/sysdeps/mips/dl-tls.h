@@ -33,12 +33,12 @@ typedef struct
 #define TLS_DTV_OFFSET		0x8000
 
 /* Compute the value for a GOTTPREL reloc.  */
-#define TLS_TPREL_VALUE(sym_map, sym) \
-  ((sym_map)->l_tls_offset + (sym)->st_value - TLS_TP_OFFSET)
+#define TLS_TPREL_VALUE(sym_map, sym_val) \
+  ((sym_map)->l_tls_offset + sym_val - TLS_TP_OFFSET)
 
 /* Compute the value for a DTPREL reloc.  */
-#define TLS_DTPREL_VALUE(sym) \
-  ((sym)->st_value - TLS_DTV_OFFSET)
+#define TLS_DTPREL_VALUE(sym_val) \
+  (sym_val - TLS_DTV_OFFSET)
 
 extern void *__tls_get_addr (tls_index *ti);
 
