@@ -3018,7 +3018,7 @@ __thread struct __res_state *__resp = &_res;
  *        relocations.
  */
 extern __thread struct __res_state *__libc_resp
-       __attribute__ ((alias ("__resp")));
+       __attribute__ ((alias ("__resp"))) attribute_hidden;
 # else
 #  undef __resp
 struct __res_state *__resp = &_res;
