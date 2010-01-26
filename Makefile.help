@@ -58,4 +58,5 @@ help:
 	@echo '			  and the include dir (usually "/usr")'
 	@echo '  SHARED_LIB_LOADER_PREFIX=	- Directory where the shared loader resides.'
 	@echo '			  (usually "/lib")'
+	@echo '  UCLIBC_EXTRA_CFLAGS	- extra CFLAGS for compiling uClibc'
 
