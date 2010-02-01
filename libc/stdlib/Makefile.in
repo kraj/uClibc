@@ -18,27 +18,14 @@ CSRC-y := \
 	jrand48_r.c lrand48.c lrand48_r.c mrand48.c mrand48_r.c nrand48.c \
 	nrand48_r.c rand_r.c srand48.c srand48_r.c seed48.c seed48_r.c \
 	valloc.c a64l.c l64a.c __uc_malloc.c
-ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
-CSRC += posix_memalign.c
-endif
-ifeq ($(UCLIBC_HAS_PTY),y)
-CSRC += grantpt.c unlockpt.c ptsname.c
-endif
-ifeq ($(UCLIBC_HAS_ARC4RANDOM),y)
-CSRC += arc4random.c
-endif
-ifeq ($(UCLIBC_HAS_LFS),y)
-CSRC += mkstemp64.c
-endif
-ifeq ($(UCLIBC_HAS_FLOATS),y)
-CSRC += drand48.c drand48_r.c erand48.c erand48_r.c
-ifeq ($(UCLIBC_SUSV3_LEGACY),y)
-CSRC += gcvt.c
-endif
-endif
-ifeq ($(UCLIBC_SUSV3_LEGACY),y)
-CSRC += mktemp.c
-endif
+CSRC-$(UCLIBC_HAS_ADVANCED_REALTIME) += posix_memalign.c
+CSRC-$(UCLIBC_HAS_PTY) += grantpt.c unlockpt.c ptsname.c
+CSRC-$(UCLIBC_HAS_ARC4RANDOM) += arc4random.c
+CSRC-$(UCLIBC_HAS_LFS) += mkstemp64.c
+CSRC-$(UCLIBC_HAS_FLOATS) += drand48.c drand48_r.c erand48.c erand48_r.c
+CSRC-$(if $(findstring yy,$(UCLIBC_HAS_FLOATS)$(UCLIBC_SUSV3_LEGACY)),y) += \
+	gcvt.c
+CSRC-$(UCLIBC_SUSV3_LEGACY) += mktemp.c
 
 # multi source stdlib.c
 CSRC-y += abs.c labs.c atoi.c atol.c strtol.c strtoul.c _stdlib_strto_l.c \
