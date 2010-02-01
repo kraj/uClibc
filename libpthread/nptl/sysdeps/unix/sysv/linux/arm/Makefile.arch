@@ -18,6 +18,7 @@ endif
 CFLAGS-pthread_once.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-pt-__syscall_rt_sigaction.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-lowlevellock.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-pt-__syscall_error.c =  -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 
 ASFLAGS-pt-vfork.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -marm
 # We always compile it in arm mode because of SAVE_PID macro
