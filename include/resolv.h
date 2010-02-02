@@ -114,22 +114,20 @@ typedef res_sendhookact (*res_send_rhook) (const struct sockaddr_in *ns,
  * I guess it's safe to set that to N.
  */
 struct __res_state {
-#ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
-	int	retrans;		/* retransmission time interval */
-	int	retry;			/* number of times to retransmit */
-#endif
+	/*int retrans, retry; - moved, was here */
 	u_int32_t options;		/* (was: ulong) option flags - see below. */
 	struct sockaddr_in nsaddr_list[MAXNS]; /* address of name server */
 #define nsaddr nsaddr_list[0]		/* for backward compatibility */
 	char	*dnsrch[MAXDNSRCH + 1];	/* components of domain to search */
+	/*char defdname[256]; - moved, was here */
+	u_int8_t nscount;		/* (was: int) number of name servers */
+	u_int8_t ndots;			/* (was: unsigned:4) threshold for initial abs. query */
+	u_int8_t retrans;		/* (was: int) retransmission time interval */
+	u_int8_t retry;			/* (was: int) number of times to retransmit */
 #ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
 	/* googling for "_res.defdname" says it's still sometimes used.
 	 * Pity. It's huge, I want to move it to EXTRA_COMPAT... */
 	char	defdname[256];		/* default domain (deprecated) */
-#endif
-	u_int8_t nscount;		/* (was: int) number of name servers */
-	u_int8_t ndots;			/* (was: unsigned:4) threshold for initial abs. query */
-#ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
 	u_int8_t nsort;			/* (was: unsigned:4) number of elements in sort_list[] */
 	u_int16_t pfcode;		/* (was: ulong) RES_PRF_ flags. Used by dig. */
 	unsigned short id;		/* current message id */

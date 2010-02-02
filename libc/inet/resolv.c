@@ -407,6 +407,8 @@ __UCLIBC_MUTEX_EXTERN(__resolv_lock);
 /* Protected by __resolv_lock */
 extern void (*__res_sync)(void) attribute_hidden;
 /*extern uint32_t __resolv_opts attribute_hidden; */
+extern uint8_t __resolv_timeout attribute_hidden;
+extern uint8_t __resolv_attempts attribute_hidden;
 extern unsigned __nameservers attribute_hidden;
 extern unsigned __searchdomains attribute_hidden;
 extern sockaddr46_t *__nameserver attribute_hidden;
@@ -499,7 +501,7 @@ extern void __close_nameservers(void) attribute_hidden;
  *		Allows addresses returned by gethostbyname to be sorted.
  *		Not supported.
  * options option[ option]...
- *		(so far we support none)
+ *		(so far we support timeout:n and attempts:n)
  *		$RES_OPTIONS (space-separated list) is to be added to "options"
  *  debug	sets RES_DEBUG in _res.options
  *  ndots:n	how many dots there should be so that name will be tried
@@ -526,7 +528,7 @@ extern void __close_nameservers(void) attribute_hidden;
  *
  * We will read and analyze /etc/resolv.conf as needed before
  * we do a DNS request. This happens in __dns_lookup.
- * (TODO: also re-parse it after a timeout, to catch updates).
+ * It is reread if its mtime is changed.
  *
  * BSD has res_init routine which is used to initialize resolver state
  * which is held in global structure _res.
@@ -903,6 +905,8 @@ __UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_MUTEX_INITIALIZER);
 /* Protected by __resolv_lock */
 void (*__res_sync)(void);
 /*uint32_t __resolv_opts; */
+uint8_t __resolv_timeout;
+uint8_t __resolv_attempts;
 unsigned __nameservers;
 unsigned __searchdomains;
 sockaddr46_t *__nameserver;
@@ -969,6 +973,9 @@ void attribute_hidden __open_nameservers(void)
 
 	if (__nameservers)
 		goto sync;
+
+	__resolv_timeout = RES_TIMEOUT;
+	__resolv_attempts = RES_DFLRETRY;
 
 	fp = fopen("/etc/resolv.conf", "r");
 #ifdef FALLBACK_TO_CONFIG_RESOLVCONF
@@ -1048,7 +1055,24 @@ void attribute_hidden __open_nameservers(void)
 				continue;
 			}
 			/* if (strcmp(keyword, "sortlist") == 0)... */
-			/* if (strcmp(keyword, "options") == 0)... */
+			if (strcmp(keyword, "options") == 0) {
+				char *p1;
+				uint8_t *what;
+
+				if (p == NULL || (p1 = strchr(p, ':')) == NULL)
+					continue;
+				*p1++ = '\0';
+				if (p1 == NULL)
+					continue;
+				if (strcmp(p, "timeout") == 0)
+					what = &__resolv_timeout;
+				else if (strcmp(p, "attempts") == 0)
+					what = &__resolv_attempts;
+				else
+					continue;
+				*what = atoi(p1);
+				DPRINTF("option %s:%d\n", p, *what);
+			}
 		}
 		fclose(fp);
 	}
@@ -1285,8 +1309,7 @@ int attribute_hidden __dns_lookup(const char *name,
 			local_ns_num = 0;
 			if (_res.options & RES_ROTATE) */
 				local_ns_num = last_ns_num;
-/*TODO: use _res.retry */
-			retries_left = __nameservers * RES_DFLRETRY;
+			retries_left = __nameservers * __resolv_attempts;
 		}
 		retries_left--;
 		if (local_ns_num >= __nameservers)
@@ -1345,8 +1368,7 @@ int attribute_hidden __dns_lookup(const char *name,
 		send(fd, packet, packet_len, 0);
 
 #ifdef USE_SELECT
-/*TODO: use _res.retrans*/
-		reply_timeout = RES_TIMEOUT;
+		reply_timeout = __resolv_timeout;
  wait_again:
 		FD_ZERO(&fds);
 		FD_SET(fd, &fds);
@@ -1360,7 +1382,7 @@ int attribute_hidden __dns_lookup(const char *name,
 		}
 		reply_timeout--;
 #else
-		reply_timeout = RES_TIMEOUT * 1000;
+		reply_timeout = __resolv_timeout * 1000;
  wait_again:
 		fds.fd = fd;
 		fds.events = POLLIN;
@@ -2878,6 +2900,8 @@ static void res_sync_func(void)
 			__nameserver[n].sa4 = rp->nsaddr_list[n]; /* struct copy */
 #endif
 	}
+	__resolv_timeout = rp->retrans;
+	__resolv_attempts = rp->retry;
 	/* Extend and comment what program is known
 	 * to use which _res.XXX member(s).
 
@@ -2904,13 +2928,17 @@ int res_init(void)
 
 	memset(rp, 0, sizeof(*rp));
 	rp->options = RES_INIT;
-#ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
 	rp->retrans = RES_TIMEOUT;
-	rp->retry = 4;
-/*TODO: pulls in largish static buffers... use simpler one? */
-	rp->id = random();
-#endif
+	rp->retry = RES_DFLRETRY;
 	rp->ndots = 1;
+#ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
+	/* Was: "rp->id = random();" but:
+	 * - random() pulls in largish static buffers
+	 * - isn't actually random unless, say, srandom(time(NULL)) was called
+	 * - is not used by uclibc anyway :)
+	 */
+	/* rp->id = 0; - memset did it */
+#endif
 #ifdef __UCLIBC_HAS_EXTRA_COMPAT_RES_STATE__
 	rp->_vcsock = -1;
 #endif
