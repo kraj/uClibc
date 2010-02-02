@@ -63,6 +63,11 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
+#if defined(__metag__)
+#define MATCH_MACHINE(x) (x == EM_METAG)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
 #if defined(__mips__)
 #define MATCH_MACHINE(x) (x == EM_MIPS || x == EM_MIPS_RS3_LE)
 #define ELFCLASSM	ELFCLASS32
