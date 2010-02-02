@@ -25,8 +25,10 @@ int ftime(struct timeb *timebuf)
 	struct timeval tv;
 	struct timezone tz;
 
-	if (gettimeofday (&tv, &tz) < 0)
-		return -1;
+	/* In Linux, gettimeofday fails only on bad parameter.
+	 * We know that here parameters aren't bad.
+	 */
+	gettimeofday (&tv, &tz);
 
 	timebuf->time = tv.tv_sec;
 	timebuf->millitm = (tv.tv_usec + 999) / 1000;
