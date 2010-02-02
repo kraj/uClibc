@@ -33,6 +33,9 @@
 #ifndef INLINE_SYSCALL
 # define INLINE_SYSCALL(name, nr, args...) INLINE_SYSCALL_NCS(__NR_##name, nr, args)
 #endif
+#ifndef INLINE_SYSCALL_NOERR
+# define INLINE_SYSCALL_NOERR(name, nr, args...) INLINE_SYSCALL_NOERR_NCS(__NR_##name, nr, args)
+#endif
 
 /* Just like INLINE_SYSCALL(), but take a non-constant syscall (NCS) argument */
 #ifndef INLINE_SYSCALL_NCS
@@ -44,6 +47,14 @@
 		__set_errno(INTERNAL_SYSCALL_ERRNO(__res, __err));	\
 		__res = -1L;						\
 	}								\
+	__res;								\
+})
+#endif
+#ifndef INLINE_SYSCALL_NOERR_NCS
+# define INLINE_SYSCALL_NOERR_NCS(name, nr, args...)			\
+({									\
+	INTERNAL_SYSCALL_DECL(__err);					\
+	long __res = INTERNAL_SYSCALL_NCS(name, __err, nr, args);	\
 	__res;								\
 })
 #endif
@@ -80,8 +91,14 @@ type name(C_DECL_ARGS_##nargs(args)) {					\
 	return (type)INLINE_SYSCALL(name, nargs, C_ARGS_##nargs(args));	\
 }
 
+#define SYSCALL_NOERR_FUNC(nargs, type, name, args...)			\
+type name(C_DECL_ARGS_##nargs(args)) {					\
+	return (type)INLINE_SYSCALL_NOERR(name, nargs, C_ARGS_##nargs(args));	\
+}
+
 #define _syscall0(args...)		SYSCALL_FUNC(0, args)
 #define _syscall1(args...)		SYSCALL_FUNC(1, args)
+#define _syscall_noerr1(args...)	SYSCALL_NOERR_FUNC(1, args)
 #define _syscall2(args...)		SYSCALL_FUNC(2, args)
 #define _syscall3(args...)		SYSCALL_FUNC(3, args)
 #define _syscall4(args...)		SYSCALL_FUNC(4, args)

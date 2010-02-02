@@ -13,19 +13,18 @@
 
 
 #ifdef __NR_time
-_syscall1(time_t, time, time_t *, t)
+_syscall_noerr1(time_t, time, time_t *, t)
 #else
-
 time_t time(time_t * t)
 {
 	time_t result;
 	struct timeval tv;
 
-	if (gettimeofday(&tv, (struct timezone *) NULL)) {
-		result = (time_t) - 1;
-	} else {
-		result = (time_t) tv.tv_sec;
-	}
+	/* In Linux, gettimeofday fails only on bad parameter.
+	 * We know that here parameter isn't bad.
+	 */
+	gettimeofday(&tv, NULL);
+	result = (time_t) tv.tv_sec;
 	if (t != NULL) {
 		*t = result;
 	}
