@@ -34,7 +34,8 @@ _syscall5(int, rt_sigaction, int, a, int, b, int, c, int, d, int, e);
 static void __rt_sigreturn_stub(void);
 static void __sigreturn_stub(void);
 
-int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
+libc_hidden_proto(sigaction)
+int sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	int ret;
 	struct sigaction kact, koact;
@@ -65,10 +66,8 @@ int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oac
 	return ret;
 }
 
-#ifndef LIBC_SIGACTION
-weak_alias(__libc_sigaction,sigaction)
-libc_hidden_weak(sigaction)
-#endif
+libc_hidden_def(sigaction)
+weak_alias(sigaction,__libc_sigaction)
 
 static void
 __rt_sigreturn_stub(void)
