@@ -52,5 +52,5 @@ char * l64a (long int n)
     }
   *p = '\0';
 
-  return p;
+  return result;
 }
