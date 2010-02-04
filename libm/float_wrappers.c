@@ -40,7 +40,8 @@ long long func##f (float x) \
 
 
 /* For the time being, do _NOT_ implement these functions
- * that are defined by SuSv3 [why?] */
+ * that are defined by SuSv3 [because we don't need them
+ * and nobody asked to include them] */
 #undef L_fdimf         /*float       fdimf(float, float);*/
 #undef L_fmaf          /*float       fmaf(float, float, float);*/
 #undef L_fmaxf         /*float       fmaxf(float, float);*/
