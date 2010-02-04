@@ -15,12 +15,10 @@
 
 /* For the time being, do _NOT_ implement these functions
  * that are defined by SuSv3 */
-#undef L_exp2f         /*float       exp2f(float);*/
 #undef L_fdimf         /*float       fdimf(float, float);*/
 #undef L_fmaf          /*float       fmaf(float, float, float);*/
 #undef L_fmaxf         /*float       fmaxf(float, float);*/
 #undef L_fminf         /*float       fminf(float, float);*/
-#undef L_log2f         /*float       log2f(float);*/
 #undef L_nearbyintf    /*float       nearbyintf(float);*/
 #undef L_nexttowardf   /*float       nexttowardf(float, long double);*/
 #undef L_remquof       /*float       remquof(float, float, int *);*/
@@ -43,6 +41,7 @@ float       cosf(float);
 float       coshf(float);
 float       erfcf(float);
 float       erff(float);
+float       exp2f(float);
 float       expf(float);
 float       expm1f(float);
 float       fabsf(float);
@@ -56,6 +55,7 @@ float       lgammaf(float);
 long long   llroundf(float);
 float       log10f(float);
 float       log1pf(float);
+float       log2f(float);
 float       logbf(float);
 float       logf(float);
 long        lroundf(float);
