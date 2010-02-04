@@ -75,7 +75,7 @@ libm_CSRC := \
 	s_remquo.c w_exp2.c
 
 # Not implemented [yet?], see comment in float_wrappers.c:
-# exp2f.o fdimf.o fmaf.o fmaxf.o fminf.o log2f.o
+# fdimf.o fmaf.o fmaxf.o fminf.o
 # nearbyintf.o remquof.o scalblnf.o tgammaf.o
 FL_MOBJ := \
 	acosf.o \
@@ -93,6 +93,7 @@ FL_MOBJ := \
 	coshf.o \
 	erfcf.o \
 	erff.o \
+	exp2f.o \
 	expf.o \
 	expm1f.o \
 	fabsf.o \
@@ -108,6 +109,7 @@ FL_MOBJ := \
 	llroundf.o \
 	log10f.o \
 	log1pf.o \
+	log2f.o \
 	logbf.o \
 	logf.o \
 	lrintf.o \
