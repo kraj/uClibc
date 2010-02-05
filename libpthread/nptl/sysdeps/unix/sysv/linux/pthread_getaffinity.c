@@ -27,7 +27,7 @@
 
 
 int
-__pthread_getaffinity_new (pthread_t th, size_t cpusetsize, cpu_set_t *cpuset)
+__pthread_getaffinity_np (pthread_t th, size_t cpusetsize, cpu_set_t *cpuset)
 {
   const struct pthread *pd = (const struct pthread *) th;
 
@@ -42,5 +42,4 @@ __pthread_getaffinity_new (pthread_t th, size_t cpusetsize, cpu_set_t *cpuset)
 
   return 0;
 }
-strong_alias(__pthread_getaffinity_new, __pthread_getaffinity_np)
-strong_alias(__pthread_getaffinity_new, pthread_getaffinity_np)
+strong_alias(__pthread_getaffinity_np, pthread_getaffinity_np)

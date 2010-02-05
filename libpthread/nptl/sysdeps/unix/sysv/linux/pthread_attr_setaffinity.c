@@ -28,10 +28,10 @@
 /* Defined in pthread_setaffinity.c.  */
 extern size_t __kernel_cpumask_size;
 extern int __determine_cpumask_size (pid_t tid);
-
+libpthread_hidden_proto(__determine_cpumask_size)
 
 int
-__pthread_attr_setaffinity_new (pthread_attr_t *attr, size_t cpusetsize,
+pthread_attr_setaffinity_np (pthread_attr_t *attr, size_t cpusetsize,
 				const cpu_set_t *cpuset)
 {
   struct pthread_attr *iattr;
@@ -79,4 +79,3 @@ __pthread_attr_setaffinity_new (pthread_attr_t *attr, size_t cpusetsize,
 
   return 0;
 }
-weak_alias(__pthread_attr_setaffinity_new, pthread_attr_setaffinity_np)

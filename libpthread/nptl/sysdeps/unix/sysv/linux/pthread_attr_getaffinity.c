@@ -26,7 +26,7 @@
 
 
 int
-__pthread_attr_getaffinity_new (const pthread_attr_t *attr, size_t cpusetsize,
+__pthread_attr_getaffinity_np(const pthread_attr_t *attr, size_t cpusetsize,
 				cpu_set_t *cpuset)
 {
   const struct pthread_attr *iattr;
@@ -53,4 +53,3 @@ __pthread_attr_getaffinity_new (const pthread_attr_t *attr, size_t cpusetsize,
 
   return 0;
 }
-weak_alias(__pthread_attr_getaffinity_new, pthread_attr_getaffinity_np)
