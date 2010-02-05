@@ -11,5 +11,5 @@
 #include <sys/times.h>
 
 
-_syscall1(clock_t, times, struct tms *, buf)
+_syscall_noerr1(clock_t, times, struct tms *, buf)
 libc_hidden_def(times)

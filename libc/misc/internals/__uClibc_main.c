@@ -179,11 +179,9 @@ extern void __uClibc_init(void);
 libc_hidden_proto(__uClibc_init)
 void __uClibc_init(void)
 {
-    static smallint been_there_done_that;
-
-    if (been_there_done_that)
+    /* Don't recurse */
+    if (__pagesize)
 	return;
-    been_there_done_that++;
 
     /* Setup an initial value.  This may not be perfect, but is
      * better than  malloc using __pagesize=0 for atexit, ctors, etc.  */

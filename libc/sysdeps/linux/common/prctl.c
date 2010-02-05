@@ -13,5 +13,5 @@
 
 #ifdef __NR_prctl
 extern int prctl (int, long, long, long, long);
-_syscall5(int, prctl, int, option, long, arg2, long, arg3, long, arg4, long, arg5)
+_syscall5(int, prctl, int, option, long, _a2, long, _a3, long, _a4, long, _a5)
 #endif

@@ -182,7 +182,6 @@
 # undef INTERNAL_SYSCALL_DECL
 # define INTERNAL_SYSCALL_DECL(err) long int err
 
-# undef INTERNAL_SYSCALL
 # define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
   ({									\
     register long int r0  __asm__ ("r0");				\
@@ -196,7 +195,7 @@
     register long int r10 __asm__ ("r10");				\
     register long int r11 __asm__ ("r11");				\
     register long int r12 __asm__ ("r12");				\
-    LOADARGS_##nr(name, args);					\
+    LOADARGS_##nr(name, args);						\
     __asm__ __volatile__						\
       ("sc   \n\t"							\
        "mfcr %0"							\
@@ -208,6 +207,7 @@
     err = r0;								\
     (int) r3;								\
   })
+# undef INTERNAL_SYSCALL
 # define INTERNAL_SYSCALL(name, err, nr, args...) \
   INTERNAL_SYSCALL_NCS (__NR_##name, err, nr, ##args)
 
@@ -218,11 +218,11 @@
 # undef INTERNAL_SYSCALL_ERRNO
 # define INTERNAL_SYSCALL_ERRNO(val, err)     (val)
 
-# define LOADARGS_0(name, dummy)					      \
+# define LOADARGS_0(name, dummy) \
 	r0 = name
 # define LOADARGS_1(name, __arg1) \
-	long int arg1 = (long int) (__arg1);	\
-  LOADARGS_0(name, 0);					   \
+	long int arg1 = (long int) (__arg1); \
+	LOADARGS_0(name, 0); \
 	extern void __illegally_sized_syscall_arg1 (void); \
 	if (__builtin_classify_type (__arg1) != 5 && sizeof (__arg1) > 4) \
 	  __illegally_sized_syscall_arg1 (); \
