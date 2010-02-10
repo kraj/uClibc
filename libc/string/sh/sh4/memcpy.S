@@ -18,6 +18,7 @@
  * If there is an overlap, then the results are undefined.
  */
 
+#include <sysdep.h>
 #include <endian.h>
 
 #ifdef __LITTLE_ENDIAN__
@@ -176,12 +177,7 @@
 9:	rts
 	 nop
 
-/* void * memcpy(void *dst, const void *src, size_t len) */
-.text
-.align 4
-.type  memcpy,@function
-.globl memcpy;
-memcpy:
+ENTRY(memcpy)
 
 	! Calculate the invariants which will be used in the remainder
 	! of the code:
@@ -908,6 +904,5 @@ memcpy:
 	rts
 	 mov.b	r1,@-r0
 
-.size memcpy,.-memcpy;
-
+END(memcpy)
 libc_hidden_def (memcpy)
