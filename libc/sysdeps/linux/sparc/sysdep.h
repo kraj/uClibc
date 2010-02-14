@@ -1,7 +1,7 @@
 #ifndef _LINUX_SPARC_SYSDEP_H
 #define _LINUX_SPARC_SYSDEP_H 1
 
-#include <sysdeps/unix/sysdep.h>
+#include <common/sysdep.h>
 
 #undef ENTRY
 #undef END
