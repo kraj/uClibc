@@ -40,4 +40,4 @@ int __pthread_multiple_threads attribute_hidden;
 /* Table of the key information.  */
 struct pthread_key_struct __pthread_keys[PTHREAD_KEYS_MAX]
   __attribute__ ((nocommon));
-hidden_def (__pthread_keys)
+hidden_data_def (__pthread_keys)

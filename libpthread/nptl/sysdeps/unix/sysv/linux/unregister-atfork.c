@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -19,12 +19,13 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include "fork.h"
+#include <fork.h>
 #include <atomic.h>
 
 
 void
-__unregister_atfork (void *dso_handle)
+__unregister_atfork (
+     void *dso_handle)
 {
   /* Check whether there is any entry in the list which we have to
      remove.  It is likely that this is not the case so don't bother
@@ -53,7 +54,7 @@ __unregister_atfork (void *dso_handle)
      that there couldn't have been another thread deleting something.
      The __unregister_atfork function is only called from the
      dlclose() code which itself serializes the operations.  */
-  lll_lock (__fork_lock);
+  lll_lock (__fork_lock, LLL_PRIVATE);
 
   /* We have to create a new list with all the entries we don't remove.  */
   struct deleted_handler
@@ -66,10 +67,21 @@ __unregister_atfork (void *dso_handle)
      It's a single linked list so readers are.  */
   do
     {
+    again:
       if (runp->dso_handle == dso_handle)
 	{
 	  if (lastp == NULL)
-	    __fork_handlers = runp->next;
+	    {
+	      /* We have to use an atomic operation here because
+		 __linkin_atfork also uses one.  */
+	      if (catomic_compare_and_exchange_bool_acq (&__fork_handlers,
+							 runp->next, runp)
+		  != 0)
+		{
+		  runp = __fork_handlers;
+		  goto again;
+		}
+	    }
 	  else
 	    lastp->next = runp->next;
 
@@ -88,7 +100,7 @@ __unregister_atfork (void *dso_handle)
   while (runp != NULL);
 
   /* Release the lock.  */
-  lll_unlock (__fork_lock);
+  lll_unlock (__fork_lock, LLL_PRIVATE);
 
   /* Walk the list of all entries which have to be deleted.  */
   while (deleted != NULL)
@@ -103,7 +115,7 @@ __unregister_atfork (void *dso_handle)
       atomic_decrement (&deleted->handler->refcntr);
       unsigned int val;
       while ((val = deleted->handler->refcntr) != 0)
-	lll_futex_wait (&deleted->handler->refcntr, val);
+	lll_futex_wait (&deleted->handler->refcntr, val, LLL_PRIVATE);
 
       deleted = deleted->next;
     }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2005, 2007, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,15 +18,9 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <pthread-errnos.h>
-
-#ifndef UP
-# define LOCK lock
-#else
-# define
-#endif
-
-#define FUTEX_WAKE		1
+#include <structsem.h>
 
 
 	.text
@@ -35,30 +29,61 @@
 	.type	sem_post,@function
 	.align	16
 sem_post:
-	movl	$1, %edx
+#if VALUE == 0
+	movl	(%rdi), %eax
+#else
+	movl	VALUE(%rdi), %eax
+#endif
+0:	cmpl	$SEM_VALUE_MAX, %eax
+	je	3f
+	leal	1(%rax), %esi
 	LOCK
-	xaddl	%edx, (%rdi)
+#if VALUE == 0
+	cmpxchgl %esi, (%rdi)
+#else
+	cmpxchgl %esi, VALUE(%rdi)
+#endif
+	jnz	0b
+
+	cmpq	$0, NWAITERS(%rdi)
+	je	2f
 
 	movl	$SYS_futex, %eax
 	movl	$FUTEX_WAKE, %esi
-	incl	%edx
+	orl	PRIVATE(%rdi), %esi
+	movl	$1, %edx
 	syscall
 
 	testq	%rax, %rax
 	js	1f
 
-	xorl	%eax, %eax
+2:	xorl	%eax, %eax
 	retq
 
 1:
 #if USE___THREAD
-	movq	errno@gottpoff(%rip), %rdx
-	movl	$EINVAL, %fs:(%rdx)
+	movl	$EINVAL, %eax
 #else
 	callq	__errno_location@plt
-	movl	$EINVAL, (%rax)
+	movl	$EINVAL, %edx
+#endif
+	jmp	4f
+
+3:
+#if USE___THREAD
+	movl	$EOVERFLOW, %eax
+#else
+	callq	__errno_location@plt
+	movl	$EOVERFLOW, %edx
 #endif
 
+4:
+#if USE___THREAD
+	movq	errno@gottpoff(%rip), %rdx
+	movl	%eax, %fs:(%rdx)
+#else
+	movl	%edx, (%rax)
+#endif
 	orl	$-1, %eax
 	retq
 	.size	sem_post,.-sem_post

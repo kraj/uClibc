@@ -1,4 +1,4 @@
-/* Copyright (C) 2002 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -22,7 +22,7 @@
 
 
 
-static lll_lock_t once_lock = LLL_LOCK_INITIALIZER;
+static int once_lock = LLL_LOCK_INITIALIZER;
 
 
 int
@@ -35,7 +35,7 @@ __pthread_once (
      object.  */
   if (*once_control == PTHREAD_ONCE_INIT)
     {
-      lll_lock (once_lock);
+      lll_lock (once_lock, LLL_PRIVATE);
 
       /* XXX This implementation is not complete.  It doesn't take
 	 cancelation and fork into account.  */
@@ -46,7 +46,7 @@ __pthread_once (
 	  *once_control = !PTHREAD_ONCE_INIT;
 	}
 
-      lll_unlock (once_lock);
+      lll_unlock (once_lock, LLL_PRIVATE);
     }
 
   return 0;

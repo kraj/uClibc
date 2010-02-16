@@ -27,6 +27,7 @@
 # include <stdint.h>
 # include <stdlib.h>
 # include <sysdep.h>
+# include <bits/kernel-features.h>
 # include <bits/wordsize.h>
 # include <xmmintrin.h>
 
@@ -85,7 +86,7 @@ typedef struct
 #define HAVE_TLS_MODEL_ATTRIBUTE 1
 
 /* Signal that TLS support is available.  */
-#define USE_TLS	1
+#define USE_TLS        1
 
 /* Alignment requirement for the stack.  */
 #define STACK_ALIGN	16

@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2007, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -56,11 +56,11 @@ do_clone (struct pthread *pd, const struct pthread_attr *attr,
   PREPARE_CREATE;
 #endif
 
-  if (stopped)
-    /* We Make sure the thread does not run far by forcing it to get a
+  if (__builtin_expect (stopped != 0, 0))
+    /* We make sure the thread does not run far by forcing it to get a
        lock.  We lock it here too so that the new thread cannot continue
        until we tell it to.  */
-    lll_lock (pd->lock);
+    lll_lock (pd->lock, LLL_PRIVATE);
 
   /* One more thread.  We cannot have the thread do this itself, since it
      might exist but not have been scheduled yet by the time we've returned
@@ -84,7 +84,8 @@ do_clone (struct pthread *pd, const struct pthread_attr *attr,
       if (IS_DETACHED (pd))
 	__deallocate_stack (pd);
 
-      return errno;
+      /* We have to translate error codes.  */
+      return errno == ENOMEM ? EAGAIN : errno;
     }
 
   /* Now we have the possibility to set scheduling parameters etc.  */
@@ -97,7 +98,7 @@ do_clone (struct pthread *pd, const struct pthread_attr *attr,
       if (attr->cpuset != NULL)
 	{
 	  res = INTERNAL_SYSCALL (sched_setaffinity, err, 3, pd->tid,
-				  sizeof (cpu_set_t), attr->cpuset);
+				  attr->cpusetsize, attr->cpuset);
 
 	  if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (res, err), 0))
 	    {
@@ -223,7 +224,7 @@ create_thread (struct pthread *pd, const struct pthread_attr *attr,
 	      __nptl_create_event ();
 
 	      /* And finally restart the new thread.  */
-	      lll_unlock (pd->lock);
+	      lll_unlock (pd->lock, LLL_PRIVATE);
 	    }
 
 	  return res;
@@ -242,6 +243,7 @@ create_thread (struct pthread *pd, const struct pthread_attr *attr,
 		       || (attr->flags & ATTR_FLAG_NOTINHERITSCHED) != 0))
     stopped = true;
   pd->stopped_start = stopped;
+  pd->parent_cancelhandling = THREAD_GETMEM (THREAD_SELF, cancelhandling);
 
   /* Actually create the thread.  */
   int res = do_clone (pd, attr, clone_flags, start_thread,
@@ -249,7 +251,7 @@ create_thread (struct pthread *pd, const struct pthread_attr *attr,
 
   if (res == 0 && stopped)
     /* And finally restart the new thread.  */
-    lll_unlock (pd->lock);
+    lll_unlock (pd->lock, LLL_PRIVATE);
 
   return res;
 }

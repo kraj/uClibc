@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2007, 2008, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,6 +18,7 @@
    02111-1307 USA.  */
 
 #include <assert.h>
+#include <errno.h>
 #include <limits.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -29,49 +30,46 @@
 #include <ldsodefs.h>
 #include <tls.h>
 #include <fork.h>
+#include <version.h>
 #include <smp.h>
 #include <lowlevellock.h>
-#include <version.h>
-
-
-#ifndef __NR_set_tid_address
-/* XXX For the time being...  Once we can rely on the kernel headers
-   having the definition remove these lines.  */
-#if defined __s390__
-# define __NR_set_tid_address	252
-#elif defined __ia64__
-# define __NR_set_tid_address	1233
-#elif defined __i386__
-# define __NR_set_tid_address	258
-#elif defined __x86_64__
-# define __NR_set_tid_address	218
-#elif defined __powerpc__
-# define __NR_set_tid_address	232
-#elif defined __sparc__
-# define __NR_set_tid_address	166
-#else
-# error "define __NR_set_tid_address"
-#endif
-#endif
+#include <bits/kernel-features.h>
 
 
 /* Size and alignment of static TLS block.  */
 size_t __static_tls_size;
 size_t __static_tls_align_m1;
 
+#ifndef __ASSUME_SET_ROBUST_LIST
+/* Negative if we do not have the system call and we can use it.  */
+int __set_robust_list_avail;
+# define set_robust_list_not_avail() \
+  __set_robust_list_avail = -1
+#else
+# define set_robust_list_not_avail() do { } while (0)
+#endif
+
+#ifndef __ASSUME_FUTEX_CLOCK_REALTIME
+/* Nonzero if we do not have FUTEX_CLOCK_REALTIME.  */
+int __have_futex_clock_realtime;
+# define __set_futex_clock_realtime() \
+  __have_futex_clock_realtime = 1
+#else
+#define __set_futex_clock_realtime() do { } while (0)
+#endif
+
 /* Version of the library, used in libthread_db to detect mismatches.  */
 static const char nptl_version[] __attribute_used__ = VERSION;
 
 
-#if defined USE_TLS && !defined SHARED
+#ifndef SHARED
 extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 #endif
 
-int
-__libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact);
-
-
 #ifdef SHARED
+static void nptl_freeres (void);
+
+
 static const struct pthread_functions pthread_functions =
   {
     .ptr_pthread_attr_destroy = __pthread_attr_destroy,
@@ -98,10 +96,10 @@ static const struct pthread_functions pthread_functions =
     .ptr___pthread_exit = __pthread_exit,
     .ptr_pthread_getschedparam = __pthread_getschedparam,
     .ptr_pthread_setschedparam = __pthread_setschedparam,
-    .ptr_pthread_mutex_destroy = __pthread_mutex_destroy,
-    .ptr_pthread_mutex_init = __pthread_mutex_init,
-    .ptr_pthread_mutex_lock = __pthread_mutex_lock,
-    .ptr_pthread_mutex_unlock = __pthread_mutex_unlock,
+    .ptr_pthread_mutex_destroy = INTUSE(__pthread_mutex_destroy),
+    .ptr_pthread_mutex_init = INTUSE(__pthread_mutex_init),
+    .ptr_pthread_mutex_lock = INTUSE(__pthread_mutex_lock),
+    .ptr_pthread_mutex_unlock = INTUSE(__pthread_mutex_unlock),
     .ptr_pthread_self = __pthread_self,
     .ptr_pthread_setcancelstate = __pthread_setcancelstate,
     .ptr_pthread_setcanceltype = __pthread_setcanceltype,
@@ -118,7 +116,9 @@ static const struct pthread_functions pthread_functions =
     .ptr_nthreads = &__nptl_nthreads,
     .ptr___pthread_unwind = &__pthread_unwind,
     .ptr__nptl_deallocate_tsd = __nptl_deallocate_tsd,
-    .ptr__nptl_setxid = __nptl_setxid
+    .ptr__nptl_setxid = __nptl_setxid,
+    /* For now only the stack cache needs to be freed.  */
+    .ptr_freeres = nptl_freeres
   };
 # define ptr_pthread_functions &pthread_functions
 #else
@@ -126,10 +126,30 @@ static const struct pthread_functions pthread_functions =
 #endif
 
 
+#ifdef SHARED
+/* This function is called indirectly from the freeres code in libc.  */
+static void
+__libc_freeres_fn_section
+nptl_freeres (void)
+{
+  __unwind_freeres ();
+  __free_stacks (0);
+}
+#endif
+
+
 /* For asynchronous cancellation we use a signal.  This is the handler.  */
 static void
 sigcancel_handler (int sig, siginfo_t *si, void *ctx)
 {
+#ifdef __ASSUME_CORRECT_SI_PID
+  /* Determine the process ID.  It might be negative if the thread is
+     in the middle of a fork() call.  */
+  pid_t pid = THREAD_GETMEM (THREAD_SELF, pid);
+  if (__builtin_expect (pid < 0, 0))
+    pid = -pid;
+#endif
+
   /* Safety check.  It would be possible to call this function for
      other signals and send a signal from another process.  This is not
      correct and might even be a security problem.  Try to catch as
@@ -138,7 +158,7 @@ sigcancel_handler (int sig, siginfo_t *si, void *ctx)
 #ifdef __ASSUME_CORRECT_SI_PID
       /* Kernels before 2.5.75 stored the thread ID and not the process
 	 ID in si_pid so we skip this test.  */
-      || si->si_pid != THREAD_GETMEM (THREAD_SELF, pid)
+      || si->si_pid != pid
 #endif
       || si->si_code != SI_TKILL)
     return;
@@ -183,6 +203,14 @@ struct xid_command *__xidcmd attribute_hidden;
 static void
 sighandler_setxid (int sig, siginfo_t *si, void *ctx)
 {
+#ifdef __ASSUME_CORRECT_SI_PID
+  /* Determine the process ID.  It might be negative if the thread is
+     in the middle of a fork() call.  */
+  pid_t pid = THREAD_GETMEM (THREAD_SELF, pid);
+  if (__builtin_expect (pid < 0, 0))
+    pid = -pid;
+#endif
+
   /* Safety check.  It would be possible to call this function for
      other signals and send a signal from another process.  This is not
      correct and might even be a security problem.  Try to catch as
@@ -191,7 +219,7 @@ sighandler_setxid (int sig, siginfo_t *si, void *ctx)
 #ifdef __ASSUME_CORRECT_SI_PID
       /* Kernels before 2.5.75 stored the thread ID and not the process
 	 ID in si_pid so we skip this test.  */
-      || si->si_pid != THREAD_GETMEM (THREAD_SELF, pid)
+      || si->si_pid != pid
 #endif
       || si->si_code != SI_TKILL)
     return;
@@ -200,8 +228,23 @@ sighandler_setxid (int sig, siginfo_t *si, void *ctx)
   INTERNAL_SYSCALL_NCS (__xidcmd->syscall_no, err, 3, __xidcmd->id[0],
 			__xidcmd->id[1], __xidcmd->id[2]);
 
+  /* Reset the SETXID flag.  */
+  struct pthread *self = THREAD_SELF;
+  int flags, newval;
+  do
+    {
+      flags = THREAD_GETMEM (self, cancelhandling);
+      newval = THREAD_ATOMIC_CMPXCHG_VAL (self, cancelhandling,
+					  flags & ~SETXID_BITMASK, flags);
+    }
+  while (flags != newval);
+
+  /* And release the futex.  */
+  self->setxid_futex = 1;
+  lll_futex_wake (&self->setxid_futex, 1, LLL_PRIVATE);
+
   if (atomic_decrement_val (&__xidcmd->cntr) == 0)
-    lll_futex_wake (&__xidcmd->cntr, 1);
+    lll_futex_wake (&__xidcmd->cntr, 1, LLL_PRIVATE);
 }
 
 
@@ -209,6 +252,9 @@ sighandler_setxid (int sig, siginfo_t *si, void *ctx)
    to give libpthread its own TLS segment just for this.  */
 extern void **__libc_dl_error_tsd (void) __attribute__ ((const));
 
+
+/* This can be set by the debugger before initialization is complete.  */
+static bool __nptl_initial_report_events __attribute_used__;
 
 void
 __pthread_initialize_minimal_internal (void)
@@ -237,6 +283,55 @@ __pthread_initialize_minimal_internal (void)
   THREAD_SETMEM (pd, cpuclock_offset, GL(dl_cpuclock_offset));
 #endif
 
+  /* Initialize the robust mutex data.  */
+#ifdef __PTHREAD_MUTEX_HAVE_PREV
+  pd->robust_prev = &pd->robust_head;
+#endif
+  pd->robust_head.list = &pd->robust_head;
+#ifdef __NR_set_robust_list
+  pd->robust_head.futex_offset = (offsetof (pthread_mutex_t, __data.__lock)
+				  - offsetof (pthread_mutex_t,
+					      __data.__list.__next));
+  int res = INTERNAL_SYSCALL (set_robust_list, err, 2, &pd->robust_head,
+			      sizeof (struct robust_list_head));
+  if (INTERNAL_SYSCALL_ERROR_P (res, err))
+#endif
+    set_robust_list_not_avail ();
+
+#ifndef __ASSUME_PRIVATE_FUTEX
+  /* Private futexes are always used (at least internally) so that
+     doing the test once this early is beneficial.  */
+  {
+    int word = 0;
+    word = INTERNAL_SYSCALL (futex, err, 3, &word,
+			    FUTEX_WAKE | FUTEX_PRIVATE_FLAG, 1);
+    if (!INTERNAL_SYSCALL_ERROR_P (word, err))
+      THREAD_SETMEM (pd, header.private_futex, FUTEX_PRIVATE_FLAG);
+  }
+
+  /* Private futexes have been introduced earlier than the
+     FUTEX_CLOCK_REALTIME flag.  We don't have to run the test if we
+     know the former are not supported.  This also means we know the
+     kernel will return ENOSYS for unknown operations.  */
+  if (THREAD_GETMEM (pd, header.private_futex) != 0)
+#endif
+#ifndef __ASSUME_FUTEX_CLOCK_REALTIME
+    {
+      int word = 0;
+      /* NB: the syscall actually takes six parameters.  The last is the
+	 bit mask.  But since we will not actually wait at all the value
+	 is irrelevant.  Given that passing six parameters is difficult
+	 on some architectures we just pass whatever random value the
+	 calling convention calls for to the kernel.  It causes no harm.  */
+      word = INTERNAL_SYSCALL (futex, err, 5, &word,
+			       FUTEX_WAIT_BITSET | FUTEX_CLOCK_REALTIME
+			       | FUTEX_PRIVATE_FLAG, 1, NULL, 0);
+      assert (INTERNAL_SYSCALL_ERROR_P (word, err));
+      if (INTERNAL_SYSCALL_ERRNO (word, err) != ENOSYS)
+	__set_futex_clock_realtime ();
+    }
+#endif
+
   /* Set initial thread's stack block from 0 up to __libc_stack_end.
      It will be bigger than it actually is, but for unwind.c/pt-longjmp.c
      purposes this is good enough.  */
@@ -246,6 +341,9 @@ __pthread_initialize_minimal_internal (void)
   INIT_LIST_HEAD (&__stack_user);
   list_add (&pd->list, &__stack_user);
 
+  /* Before initializing __stack_user, the debugger could not find us and
+     had to set __nptl_initial_report_events.  Propagate its setting.  */
+  THREAD_SETMEM (pd, report_events, __nptl_initial_report_events);
 
   /* Install the cancellation signal handler.  If for some reason we
      cannot install the handler we do not abort.  Maybe we should, but
@@ -311,6 +409,15 @@ __pthread_initialize_minimal_internal (void)
   /* Transfer the old value from the dynamic linker's internal location.  */
   *__libc_dl_error_tsd () = *(*GL(dl_error_catch_tsd)) ();
   GL(dl_error_catch_tsd) = &__libc_dl_error_tsd;
+
+  /* Make __rtld_lock_{,un}lock_recursive use pthread_mutex_{,un}lock,
+     keep the lock count from the ld.so implementation.  */
+  GL(dl_rtld_lock_recursive) = (void *) INTUSE (__pthread_mutex_lock);
+  GL(dl_rtld_unlock_recursive) = (void *) INTUSE (__pthread_mutex_unlock);
+  unsigned int rtld_lock_count = GL(dl_load_lock).mutex.__data.__count;
+  GL(dl_load_lock).mutex.__data.__count = 0;
+  while (rtld_lock_count-- > 0)
+    INTUSE (__pthread_mutex_lock) (&GL(dl_load_lock).mutex);
 #endif
 
   GL(dl_init_static_tls) = &__pthread_init_static_tls;

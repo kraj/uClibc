@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2004, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky <schwidefsky@de.ibm.com>, 2003.
 
@@ -33,7 +33,7 @@ pthread_rwlock_timedwrlock (
   int result = 0;
 
   /* Make sure we are along.  */
-  lll_mutex_lock (rwlock->__data.__lock);
+  lll_lock (rwlock->__data.__lock, rwlock->__data.__shared);
 
   while (1)
     {
@@ -100,14 +100,14 @@ pthread_rwlock_timedwrlock (
       int waitval = rwlock->__data.__writer_wakeup;
 
       /* Free the lock.  */
-      lll_mutex_unlock (rwlock->__data.__lock);
+      lll_unlock (rwlock->__data.__lock, rwlock->__data.__shared);
 
       /* Wait for the writer or reader(s) to finish.  */
       err = lll_futex_timed_wait (&rwlock->__data.__writer_wakeup,
-				  waitval, &rt);
+				  waitval, &rt, rwlock->__data.__shared);
 
       /* Get the lock.  */
-      lll_mutex_lock (rwlock->__data.__lock);
+      lll_lock (rwlock->__data.__lock, rwlock->__data.__shared);
 
       /* To start over again, remove the thread from the writer list.  */
       --rwlock->__data.__nr_writers_queued;
@@ -121,7 +121,7 @@ pthread_rwlock_timedwrlock (
     }
 
   /* We are done, free the lock.  */
-  lll_mutex_unlock (rwlock->__data.__lock);
+  lll_unlock (rwlock->__data.__lock, rwlock->__data.__shared);
 
   return result;
 }

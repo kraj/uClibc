@@ -43,3 +43,4 @@ __pthread_getaffinity_np (pthread_t th, size_t cpusetsize, cpu_set_t *cpuset)
   return 0;
 }
 strong_alias(__pthread_getaffinity_np, pthread_getaffinity_np)
+

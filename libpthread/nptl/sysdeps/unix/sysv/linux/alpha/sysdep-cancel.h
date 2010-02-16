@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -55,6 +55,7 @@ __LABEL(name)							\
 	bne	a3, SYSCALL_ERROR_LABEL;			\
 __LABEL($pseudo_ret)						\
 	.subsection 2;						\
+	cfi_startproc;						\
 __LABEL($pseudo_cancel)						\
 	subq	sp, 64, sp;					\
 	cfi_def_cfa_offset(64);					\
@@ -90,12 +91,13 @@ __LABEL($multi_error)						\
 	cfi_def_cfa_offset(0);					\
 __LABEL($syscall_error)						\
 	SYSCALL_ERROR_HANDLER;					\
+	cfi_endproc;						\
 	.previous
 
 # undef PSEUDO_END
 # define PSEUDO_END(sym)					\
-	.subsection 2;						\
 	cfi_endproc;						\
+	.subsection 2;						\
 	.size sym, .-sym
 
 # define SAVE_ARGS_0	/* Nothing.  */
@@ -142,7 +144,7 @@ __LABEL($syscall_error)						\
 extern int __local_multiple_threads attribute_hidden;
 #   define SINGLE_THREAD_P \
 	__builtin_expect (__local_multiple_threads == 0, 1)
-#  elif defined(PIC)
+#  elif defined(__PIC__)
 #   define SINGLE_THREAD_P(reg)  ldl reg, __local_multiple_threads(gp) !gprel
 #  else
 #   define SINGLE_THREAD_P(reg)					\
@@ -166,4 +168,10 @@ extern int __local_multiple_threads attribute_hidden;
 # define SINGLE_THREAD_P (1)
 # define NO_CANCELLATION 1
 
+#endif
+
+#ifndef __ASSEMBLER__
+# define RTLD_SINGLE_THREAD_P \
+  __builtin_expect (THREAD_GETMEM (THREAD_SELF, \
+				   header.multiple_threads) == 0, 1)
 #endif

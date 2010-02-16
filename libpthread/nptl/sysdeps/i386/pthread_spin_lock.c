@@ -29,7 +29,8 @@
 
 
 int
-pthread_spin_lock (pthread_spinlock_t *lock)
+pthread_spin_lock (
+     pthread_spinlock_t *lock)
 {
   __asm__ ("\n"
        "1:\t" LOCK_PREFIX "decl %0\n\t"

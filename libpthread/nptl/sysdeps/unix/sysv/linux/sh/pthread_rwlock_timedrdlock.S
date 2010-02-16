@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2007, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,14 +17,12 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelrwlock.h>
 #include <pthread-errnos.h>
 #include <tcb-offsets.h>
+#include <bits/kernel-features.h>
 #include "lowlevel-atomic.h"
-
-#define SYS_gettimeofday	__NR_gettimeofday
-#define FUTEX_WAIT		0
-#define FUTEX_WAKE		1
 
 
 	.text
@@ -58,7 +56,8 @@ pthread_rwlock_timedrdlock:
 	mov.l	@(WRITERS_QUEUED,r8), r0
 	tst	r0, r0
 	bt	5f
-	mov.l	@(FLAGS,r8), r0
+	mov	#FLAGS, r0
+	mov.b	@(r0,r8), r0
 	tst	r0, r0
 	bt	5f
 3:
@@ -88,7 +87,7 @@ pthread_rwlock_timedrdlock:
 	/* Get current time.  */
 	mov	r15, r4
 	mov	#0, r5
-	mov	#SYS_gettimeofday, r3
+	mov	#__NR_gettimeofday, r3
 	trapa	#0x12
 	SYSCALL_INST_PAD
 
@@ -116,7 +115,26 @@ pthread_rwlock_timedrdlock:
 
 	/* Futex call.  */
 	mov	r15, r7
-	mov	#FUTEX_WAIT, r5
+#ifdef __ASSUME_PRIVATE_FUTEX
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	mov	#(FUTEX_PRIVATE_FLAG|FUTEX_WAIT), r0
+	xor	r0, r5
+	extu.b	r5, r5
+#else
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
+# if FUTEX_WAIT != 0
+	mov	#FUTEX_WAIT, r0
+	or	r0, r5
+# endif
+	stc	gbr, r1
+	mov.w	.Lpfoff, r2
+	add	r2, r1
+	mov.l	@r1, r0
+	xor	r0, r5
+#endif
 	mov	r10, r6
 	mov	r8, r4
 	add	#READERS_WAKEUP, r4
@@ -175,6 +193,10 @@ pthread_rwlock_timedrdlock:
 	rts
 	 mov	r3, r0
 
+#ifndef __ASSUME_PRIVATE_FUTEX
+.Lpfoff:
+	.word	PRIVATE_FUTEX - TLS_PRE_TCB_SIZE
+#endif
 	.align	2
 .L1k0:
 	.long	1000
@@ -186,10 +208,12 @@ pthread_rwlock_timedrdlock:
 #if MUTEX != 0
 	add	#MUTEX, r5
 #endif
-	mov	r2, r4
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r6
+	extu.b	r6, r6
 	mov.l	.Lwait2, r1
 	bsrf	r1
-	 nop
+	 mov	r2, r4
 .Lwait2b:
 	bra	2b
 	 nop
@@ -208,16 +232,20 @@ pthread_rwlock_timedrdlock:
 	.word	TID - TLS_PRE_TCB_SIZE
 
 6:
+	mov	r3, r10
 	mov	r8, r4
 #if MUTEX != 0
 	add	#MUTEX, r4
 #endif
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
 	mov.l	.Lwake2, r1
 	bsrf	r1
 	 nop
 .Lwake2b:
 	bra	7b
-	 mov	#0, r3
+	 mov	r10, r3
 
 8:
 	/* Overflow.  */
@@ -240,6 +268,9 @@ pthread_rwlock_timedrdlock:
 #if MUTEX != 0
 	add	#MUTEX, r4
 #endif
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
 	mov.l	.Lwake3, r1
 	bsrf	r1
 	 nop
@@ -248,17 +279,20 @@ pthread_rwlock_timedrdlock:
 	 nop
 
 12:
+	mov	r3, r10
 	mov	r8, r5
 #if MUTEX != 0
 	add	#MUTEX, r5
 #endif
-	mov	r2, r4
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r6
+	extu.b	r6, r6
 	mov.l	.Lwait3, r1
 	bsrf	r1
-	 nop
+	 mov	r2, r4
 .Lwait3b:
 	bra	13b
-	 nop
+	 mov	r10, r3
 
 16:
 	bra	17b
@@ -270,11 +304,11 @@ pthread_rwlock_timedrdlock:
 
 	.align	2
 .Lwait2:
-	.long	__lll_mutex_lock_wait-.Lwait2b
+	.long	__lll_lock_wait-.Lwait2b
 .Lwake2:
-	.long	__lll_mutex_unlock_wake-.Lwake2b
+	.long	__lll_unlock_wake-.Lwake2b
 .Lwait3:
-	.long	__lll_mutex_lock_wait-.Lwait3b
+	.long	__lll_lock_wait-.Lwait3b
 .Lwake3:
-	.long	__lll_mutex_unlock_wake-.Lwake3b
+	.long	__lll_unlock_wake-.Lwake3b
 	.size	pthread_rwlock_timedrdlock,.-pthread_rwlock_timedrdlock

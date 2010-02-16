@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,16 +18,8 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelbarrier.h>
-
-#define FUTEX_WAIT	0
-#define FUTEX_WAKE	1
-
-#ifndef UP
-# define LOCK lock
-#else
-# define LOCK
-#endif
 
 
 	.text
@@ -64,9 +56,10 @@ pthread_barrier_wait:
 	   if the CURR_EVENT memory has meanwhile been changed.  */
 7:
 #if FUTEX_WAIT == 0
-	xorl	%esi, %esi
+	movl	PRIVATE(%rdi), %esi
 #else
 	movl	$FUTEX_WAIT, %esi
+	orl	PRIVATE(%rdi), %esi
 #endif
 	xorq	%r10, %r10
 8:	movl	$SYS_futex, %eax
@@ -115,6 +108,7 @@ pthread_barrier_wait:
 	   so 0x7fffffff is the highest value.  */
 	movl	$0x7fffffff, %edx
 	movl	$FUTEX_WAKE, %esi
+	orl	PRIVATE(%rdi), %esi
 	movl	$SYS_futex, %eax
 	syscall
 
@@ -139,21 +133,29 @@ pthread_barrier_wait:
 
 	retq
 
-1:	addq	$MUTEX, %rdi
-	callq	__lll_mutex_lock_wait
+1:	movl	PRIVATE(%rdi), %esi
+	addq	$MUTEX, %rdi
+	xorl	$LLL_SHARED, %esi
+	callq	__lll_lock_wait
 	subq	$MUTEX, %rdi
 	jmp	2b
 
-4:	addq	$MUTEX, %rdi
-	callq	__lll_mutex_unlock_wake
+4:	movl	PRIVATE(%rdi), %esi
+	addq	$MUTEX, %rdi
+	xorl	$LLL_SHARED, %esi
+	callq	__lll_unlock_wake
 	jmp	5b
 
-6:	addq	$MUTEX, %rdi
-	callq	__lll_mutex_unlock_wake
+6:	movl	PRIVATE(%rdi), %esi
+	addq	$MUTEX, %rdi
+	xorl	$LLL_SHARED, %esi
+	callq	__lll_unlock_wake
 	subq	$MUTEX, %rdi
 	jmp	7b
 
-9:	addq	$MUTEX, %rdi
-	callq	__lll_mutex_unlock_wake
+9:	movl	PRIVATE(%rdi), %esi
+	addq	$MUTEX, %rdi
+	xorl	$LLL_SHARED, %esi
+	callq	__lll_unlock_wake
 	jmp	10b
 	.size	pthread_barrier_wait,.-pthread_barrier_wait

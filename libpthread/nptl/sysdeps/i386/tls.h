@@ -1,5 +1,5 @@
 /* Definition for thread-local data handling.  nptl/i386 version.
-   Copyright (C) 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+   Copyright (C) 2002-2007, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -26,6 +26,8 @@
 # include <stdint.h>
 # include <stdlib.h>
 # include <list.h>
+# include <sysdep.h>
+# include <bits/kernel-features.h>
 
 
 /* Type for the dtv.  */
@@ -49,6 +51,15 @@ typedef struct
   int multiple_threads;
   uintptr_t sysinfo;
   uintptr_t stack_guard;
+  uintptr_t pointer_guard;
+  int gscope_flag;
+#ifndef __ASSUME_PRIVATE_FUTEX
+  int private_futex;
+#else
+  int __unused1;
+#endif
+  /* Reservation of some values for the TM ABI.  */
+  void *__private_tm[5];
 } tcbhead_t;
 
 # define TLS_MULTIPLE_THREADS_IN_TCB 1
@@ -64,7 +75,8 @@ typedef struct
 #define HAVE_TLS_MODEL_ATTRIBUTE 1
 
 /* Signal that TLS support is available.  */
-#define USE_TLS	1
+#define USE_TLS        1
+
 
 /* Alignment requirement for the stack.  For IA-32 this is governed by
    the SSE memory functions.  */
@@ -99,6 +111,9 @@ union user_desc_init
 };
 
 
+/* Get the thread descriptor definition.  */
+# include <descr.h>
+
 /* This is the size of the initial TCB.  Can't be just sizeof (tcbhead_t),
    because NPTL getpid, __libc_alloca_cutoff etc. need (almost) the whole
    struct pthread even when not linked with -lpthread.  */
@@ -112,9 +127,6 @@ union user_desc_init
 
 /* Alignment requirements for the TCB.  */
 # define TLS_TCB_ALIGN __alignof__ (struct pthread)
-
-/* Get the thread descriptor definition. */
-#include <descr.h>
 
 /* The TCB can have any size and the memory following the address the
    thread pointer points to is unspecified.  Allocate the TCB there.  */
@@ -220,7 +232,7 @@ union user_desc_init
      _segdescr.vals[3] = 0x51;						      \
 									      \
      /* Install the TLS.  */						      \
-     __asm__ volatile (TLS_LOAD_EBX					      \
+     __asm__ volatile (TLS_LOAD_EBX						  \
 		   "int $0x80\n\t"					      \
 		   TLS_LOAD_EBX						      \
 		   : "=a" (_result), "=m" (_segdescr.desc.entry_number)	      \
@@ -256,7 +268,7 @@ union user_desc_init
    do not get optimized away.  */
 # define THREAD_SELF \
   ({ struct pthread *__self;						      \
-     __asm__ ("movl %%gs:%c1,%0" : "=r" (__self)			      \
+     __asm__ ("movl %%gs:%c1,%0" : "=r" (__self)				    \
 	  : "i" (offsetof (struct pthread, header.self)));		      \
      __self;})
 
@@ -270,11 +282,11 @@ union user_desc_init
 # define THREAD_GETMEM(descr, member) \
   ({ __typeof (descr->member) __value;					      \
      if (sizeof (__value) == 1)						      \
-       __asm__ volatile ("movb %%gs:%P2,%b0"				      \
+       __asm__ volatile ("movb %%gs:%P2,%b0"				    \
 		     : "=q" (__value)					      \
 		     : "0" (0), "i" (offsetof (struct pthread, member)));     \
      else if (sizeof (__value) == 4)					      \
-       __asm__ volatile ("movl %%gs:%P1,%0"				      \
+       __asm__ volatile ("movl %%gs:%P1,%0"					    \
 		     : "=r" (__value)					      \
 		     : "i" (offsetof (struct pthread, member)));	      \
      else								      \
@@ -297,12 +309,12 @@ union user_desc_init
 # define THREAD_GETMEM_NC(descr, member, idx) \
   ({ __typeof (descr->member[0]) __value;				      \
      if (sizeof (__value) == 1)						      \
-       __asm__ volatile ("movb %%gs:%P2(%3),%b0"			      \
+       __asm__ volatile ("movb %%gs:%P2(%3),%b0"				      \
 		     : "=q" (__value)					      \
 		     : "0" (0), "i" (offsetof (struct pthread, member[0])),   \
 		     "r" (idx));					      \
      else if (sizeof (__value) == 4)					      \
-       __asm__ volatile ("movl %%gs:%P1(,%2,4),%0"			      \
+       __asm__ volatile ("movl %%gs:%P1(,%2,4),%0"				      \
 		     : "=r" (__value)					      \
 		     : "i" (offsetof (struct pthread, member[0])),	      \
 		       "r" (idx));					      \
@@ -350,7 +362,7 @@ union user_desc_init
 /* Set member of the thread descriptor directly.  */
 # define THREAD_SETMEM_NC(descr, member, idx, value) \
   ({ if (sizeof (descr->member[0]) == 1)				      \
-       __asm__ volatile ("movb %b0,%%gs:%P1(%2)" :			      \
+       __asm__ volatile ("movb %b0,%%gs:%P1(%2)" :				      \
 		     : "iq" (value),					      \
 		       "i" (offsetof (struct pthread, member)),		      \
 		       "r" (idx));					      \
@@ -366,7 +378,7 @@ union user_desc_init
 	      4 or 8.  */						      \
 	   abort ();							      \
 									      \
-	 __asm__ volatile ("movl %%eax,%%gs:%P1(,%2,8)\n\t"		      \
+	 __asm__ volatile ("movl %%eax,%%gs:%P1(,%2,8)\n\t"			      \
 		       "movl %%edx,%%gs:4+%P1(,%2,8)" :			      \
 		       : "A" (value),					      \
 			 "i" (offsetof (struct pthread, member)),	      \
@@ -387,6 +399,17 @@ union user_desc_init
        /* Not necessary for other sizes in the moment.  */		      \
        abort ();							      \
      __ret; })
+
+
+/* Atomic logical and.  */
+#define THREAD_ATOMIC_AND(descr, member, val) \
+  (void) ({ if (sizeof ((descr)->member) == 4)				      \
+	      __asm__ volatile (LOCK_PREFIX "andl %1, %%gs:%P0"		      \
+			    :: "i" (offsetof (struct pthread, member)),	      \
+			       "ir" (val));				      \
+	    else							      \
+	      /* Not necessary for other sizes in the moment.  */	      \
+	      abort (); })
 
 
 /* Atomic set bit.  */
@@ -423,6 +446,34 @@ union user_desc_init
   ((descr)->header.stack_guard						      \
    = THREAD_GETMEM (THREAD_SELF, header.stack_guard))
 
+
+/* Set the pointer guard field in the TCB head.  */
+#define THREAD_SET_POINTER_GUARD(value) \
+  THREAD_SETMEM (THREAD_SELF, header.pointer_guard, value)
+#define THREAD_COPY_POINTER_GUARD(descr) \
+  ((descr)->header.pointer_guard					      \
+   = THREAD_GETMEM (THREAD_SELF, header.pointer_guard))
+
+
+/* Get and set the global scope generation counter in the TCB head.  */
+#define THREAD_GSCOPE_FLAG_UNUSED 0
+#define THREAD_GSCOPE_FLAG_USED   1
+#define THREAD_GSCOPE_FLAG_WAIT   2
+#define THREAD_GSCOPE_RESET_FLAG() \
+  do									      \
+    { int __res;							      \
+      __asm__ volatile ("xchgl %0, %%gs:%P1"				      \
+		    : "=r" (__res)					      \
+		    : "i" (offsetof (struct pthread, header.gscope_flag)),    \
+		      "0" (THREAD_GSCOPE_FLAG_UNUSED));			      \
+      if (__res == THREAD_GSCOPE_FLAG_WAIT)				      \
+	lll_futex_wake (&THREAD_SELF->header.gscope_flag, 1, LLL_PRIVATE);    \
+    }									      \
+  while (0)
+#define THREAD_GSCOPE_SET_FLAG() \
+  THREAD_SETMEM (THREAD_SELF, header.gscope_flag, THREAD_GSCOPE_FLAG_USED)
+#define THREAD_GSCOPE_WAIT() \
+  GL(dl_wait_lookup_done) ()
 
 #endif /* __ASSEMBLER__ */
 

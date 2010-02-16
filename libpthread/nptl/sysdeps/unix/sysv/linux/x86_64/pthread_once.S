@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2005, 2007, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,15 +18,10 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <bits/kernel-features.h>
+#include <tcb-offsets.h>
+#include <lowlevellock.h>
 
-#ifndef UP
-# define LOCK lock
-#else
-# define LOCK
-#endif
-
-#define FUTEX_WAIT  0
-#define FUTEX_WAKE	1
 
 	.comm	__fork_generation, 4, 4
 
@@ -38,6 +33,15 @@
 	.align	16
 __pthread_once:
 .LSTARTCODE:
+	cfi_startproc
+#ifdef SHARED
+	cfi_personality(DW_EH_PE_pcrel | DW_EH_PE_sdata4 | DW_EH_PE_indirect,
+			DW.ref.__gcc_personality_v0)
+	cfi_lsda(DW_EH_PE_pcrel | DW_EH_PE_sdata4, .LexceptSTART)
+#else
+	cfi_personality(DW_EH_PE_udata4, __gcc_personality_v0)
+	cfi_lsda(DW_EH_PE_udata4, .LexceptSTART)
+#endif
 	testl	$2, (%rdi)
 	jz	1f
 	xorl	%eax, %eax
@@ -45,7 +49,7 @@ __pthread_once:
 
 	/* Preserve the function pointer.  */
 1:	pushq	%rsi
-.Lpush_rsi:
+	cfi_adjust_cfa_offset(8)
 	xorq	%r10, %r10
 
 	/* Not yet initialized or initialization in progress.
@@ -76,10 +80,15 @@ __pthread_once:
 	jnz	3f	/* Different for generation -> run initializer.  */
 
 	/* Somebody else got here first.  Wait.  */
-#if FUTEX_WAIT == 0
-	xorl	%esi, %esi
+#ifdef __ASSUME_PRIVATE_FUTEX
+	movl	$FUTEX_WAIT|FUTEX_PRIVATE_FLAG, %esi
 #else
+# if FUTEX_WAIT == 0
+	movl	%fs:PRIVATE_FUTEX, %esi
+# else
 	movl	$FUTEX_WAIT, %esi
+	orl	%fs:PRIVATE_FUTEX, %esi
+# endif
 #endif
 	movl	$SYS_futex, %eax
 	syscall
@@ -87,31 +96,40 @@ __pthread_once:
 
 	/* Preserve the pointer to the control variable.  */
 3:	pushq	%rdi
-.Lpush_rdi:
+	cfi_adjust_cfa_offset(8)
+	pushq	%rdi
+	cfi_adjust_cfa_offset(8)
 
 .LcleanupSTART:
-	callq	*8(%rsp)
+	callq	*16(%rsp)
 .LcleanupEND:
 
 	/* Get the control variable address back.  */
 	popq	%rdi
-.Lpop_rdi:
+	cfi_adjust_cfa_offset(-8)
 
 	/* Sucessful run of the initializer.  Signal that we are done.  */
 	LOCK
 	incl	(%rdi)
 
+	addq	$8, %rsp
+	cfi_adjust_cfa_offset(-8)
+
 	/* Wake up all other threads.  */
 	movl	$0x7fffffff, %edx
+#ifdef __ASSUME_PRIVATE_FUTEX
+	movl	$FUTEX_WAKE|FUTEX_PRIVATE_FLAG, %esi
+#else
 	movl	$FUTEX_WAKE, %esi
+	orl	%fs:PRIVATE_FUTEX, %esi
+#endif
 	movl	$SYS_futex, %eax
 	syscall
 
 4:	addq	$8, %rsp
-.Ladd:
+	cfi_adjust_cfa_offset(-8)
 	xorl	%eax, %eax
 	retq
-
 	.size	__pthread_once,.-__pthread_once
 
 
@@ -125,12 +143,18 @@ pthread_once = __pthread_once
 	.type	clear_once_control,@function
 	.align	16
 clear_once_control:
+	cfi_adjust_cfa_offset(3 * 8)
 	movq	(%rsp), %rdi
 	movq	%rax, %r8
 	movl	$0, (%rdi)
 
 	movl	$0x7fffffff, %edx
+#ifdef __ASSUME_PRIVATE_FUTEX
+	movl	$FUTEX_WAKE|FUTEX_PRIVATE_FLAG, %esi
+#else
 	movl	$FUTEX_WAKE, %esi
+	orl	%fs:PRIVATE_FUTEX, %esi
+#endif
 	movl	$SYS_futex, %eax
 	syscall
 
@@ -139,15 +163,15 @@ clear_once_control:
 	call	_Unwind_Resume@PLT
 	hlt
 .LENDCODE:
+	cfi_endproc
 	.size	clear_once_control,.-clear_once_control
 
 
 	.section .gcc_except_table,"a",@progbits
 .LexceptSTART:
-	.byte	0xff				# @LPStart format (omit)
-	.byte	0xff				# @TType format (omit)
-	.byte	0x01				# call-site format
-						# DW_EH_PE_uleb128
+	.byte	DW_EH_PE_omit			# @LPStart format
+	.byte	DW_EH_PE_omit			# @TType format
+	.byte	DW_EH_PE_uleb128		# call-site format
 	.uleb128 .Lcstend-.Lcstbegin
 .Lcstbegin:
 	.uleb128 .LcleanupSTART-.LSTARTCODE
@@ -159,92 +183,6 @@ clear_once_control:
 	.uleb128 0
 	.uleb128  0
 .Lcstend:
-
-
-	.section .eh_frame,"a",@progbits
-.LSTARTFRAME:
-	.long	.LENDCIE-.LSTARTCIE		# Length of the CIE.
-.LSTARTCIE:
-	.long	0				# CIE ID.
-	.byte	1				# Version number.
-#ifdef SHARED
-	.string	"zPLR"				# NUL-terminated augmentation
-						# string.
-#else
-	.string	"zPL"				# NUL-terminated augmentation
-						# string.
-#endif
-	.uleb128 1				# Code alignment factor.
-	.sleb128 -8				# Data alignment factor.
-	.byte	16				# Return address register
-						# column.
-#ifdef SHARED
-	.uleb128 7				# Augmentation value length.
-	.byte	0x9b				# Personality: DW_EH_PE_pcrel
-						# + DW_EH_PE_sdata4
-						# + DW_EH_PE_indirect
-	.long	DW.ref.__gcc_personality_v0-.
-	.byte	0x1b				# LSDA Encoding: DW_EH_PE_pcrel
-						# + DW_EH_PE_sdata4.
-	.byte	0x1b				# FDE Encoding: DW_EH_PE_pcrel
-						# + DW_EH_PE_sdata4.
-#else
-	.uleb128 10				# Augmentation value length.
-	.byte	0x0				# Personality: absolute
-	.quad	__gcc_personality_v0
-	.byte	0x0				# LSDA Encoding: absolute
-#endif
-	.byte 0x0c				# DW_CFA_def_cfa
-	.uleb128 7
-	.uleb128 8
-	.byte	0x90				# DW_CFA_offset, column 0x10
-	.uleb128 1
-	.align 8
-.LENDCIE:
-
-	.long	.LENDFDE-.LSTARTFDE		# Length of the FDE.
-.LSTARTFDE:
-	.long	.LSTARTFDE-.LSTARTFRAME		# CIE pointer.
-#ifdef SHARED
-	.long	.LSTARTCODE-.			# PC-relative start address
-						# of the code.
-	.long	.LENDCODE-.LSTARTCODE		# Length of the code.
-	.uleb128 4				# Augmentation size
-	.long	.LexceptSTART-.
-#else
-	.quad	.LSTARTCODE			# Start address of the code.
-	.quad	.LENDCODE-.LSTARTCODE		# Length of the code.
-	.uleb128 8				# Augmentation size
-	.quad	.LexceptSTART
-#endif
-	.byte	4				# DW_CFA_advance_loc4
-	.long	.Lpush_rsi-.LSTARTCODE
-	.byte	14				# DW_CFA_def_cfa_offset
-	.uleb128 16
-	.byte	4				# DW_CFA_advance_loc4
-	.long	.Lpush_rdi-.Lpush_rsi
-	.byte	14				# DW_CFA_def_cfa_offset
-	.uleb128 24
-	.byte	4				# DW_CFA_advance_loc4
-	.long	.Lpop_rdi-.Lpush_rdi
-	.byte	14				# DW_CFA_def_cfa_offset
-	.uleb128 16
-	.byte	4				# DW_CFA_advance_loc4
-	.long	.Ladd-.Lpop_rdi
-	.byte	14				# DW_CFA_def_cfa_offset
-	.uleb128 8
-	.byte	4				# DW_CFA_advance_loc4
-	.long	clear_once_control-.Ladd
-	.byte	14				# DW_CFA_def_cfa_offset
-	.uleb128 24
-#if 0
-	.byte	4				# DW_CFA_advance_loc4
-	.long	.Lpop_rdi2-clear_once_control
-	.byte	14				# DW_CFA_def_cfa_offset
-	.uleb128 16
-#endif
-	.align	8
-.LENDFDE:
 
 
 #ifdef SHARED

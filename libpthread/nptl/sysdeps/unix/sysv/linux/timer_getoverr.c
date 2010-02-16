@@ -38,7 +38,8 @@ static int compat_timer_getoverrun (timer_t timerid);
 
 
 int
-timer_getoverrun (timer_t timerid)
+timer_getoverrun (
+     timer_t timerid)
 {
 # undef timer_getoverrun
 # ifndef __ASSUME_POSIX_TIMERS

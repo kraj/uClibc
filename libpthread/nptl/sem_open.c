@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2006, 2007, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -38,14 +38,15 @@
 
 
 /* Compatibility defines. */
-#define __endmntent			endmntent
-#define __fxstat64(vers, fd, buf)	fstat64(fd, buf)
-#define __getmntent_r			getmntent_r
-#define __setmntent			setmntent
-#define __statfs			statfs
-#define __libc_close			close
-#define __libc_open			open
-#define __libc_write			write
+#define __endmntent                    endmntent
+#define __fxstat64(vers, fd, buf)      fstat64(fd, buf)
+#define __getmntent_r                  getmntent_r
+#define __setmntent                    setmntent
+#define __statfs                       statfs
+#define __libc_close                   close
+#define __libc_open                    open
+#define __libc_write                   write
+
 
 /* Information about the mount point.  */
 struct mountpoint_info mountpoint attribute_hidden;
@@ -157,7 +158,7 @@ __sem_search (const void *a, const void *b)
 void *__sem_mappings attribute_hidden;
 
 /* Lock to protect the search tree.  */
-lll_lock_t __sem_mappings_lock = LLL_LOCK_INITIALIZER;
+int __sem_mappings_lock attribute_hidden = LLL_LOCK_INITIALIZER;
 
 
 /* Search for existing mapping and if possible add the one provided.  */
@@ -176,7 +177,7 @@ check_add_mapping (const char *name, size_t namelen, int fd, sem_t *existing)
 #endif
     {
       /* Get the lock.  */
-      lll_lock (__sem_mappings_lock);
+      lll_lock (__sem_mappings_lock, LLL_PRIVATE);
 
       /* Search for an existing mapping given the information we have.  */
       struct inuse_sem *fake;
@@ -225,7 +226,7 @@ check_add_mapping (const char *name, size_t namelen, int fd, sem_t *existing)
 	}
 
       /* Release the lock.  */
-      lll_unlock (__sem_mappings_lock);
+      lll_unlock (__sem_mappings_lock, LLL_PRIVATE);
     }
 
   if (result != existing && existing != SEM_FAILED && existing != MAP_FAILED)
@@ -317,24 +318,28 @@ sem_open (const char *name, int oflag, ...)
 	}
 
       /* Create the initial file content.  */
-      sem_t initsem;
+      union
+      {
+	sem_t initsem;
+	struct new_sem newsem;
+      } sem;
 
-      struct sem *iinitsem = (struct sem *) &initsem;
-      iinitsem->count = value;
+      sem.newsem.value = value;
+      sem.newsem.private = 0;
+      sem.newsem.nwaiters = 0;
 
       /* Initialize the remaining bytes as well.  */
-      memset ((char *) &initsem + sizeof (struct sem), '\0',
-	      sizeof (sem_t) - sizeof (struct sem));
+      memset ((char *) &sem.initsem + sizeof (struct new_sem), '\0',
+	      sizeof (sem_t) - sizeof (struct new_sem));
 
       tmpfname = (char *) alloca (mountpoint.dirlen + 6 + 1);
-      char *xxxxxx = mempcpy (tmpfname, mountpoint.dir, mountpoint.dirlen);
-      strcpy (xxxxxx, "XXXXXX");
+      mempcpy (tmpfname, mountpoint.dir, mountpoint.dirlen);
 
       fd = __gen_tempname (tmpfname, __GT_FILE, mode);
       if (fd == -1)
-          return SEM_FAILED;
+        return SEM_FAILED;
 
-      if (TEMP_FAILURE_RETRY (__libc_write (fd, &initsem, sizeof (sem_t)))
+      if (TEMP_FAILURE_RETRY (__libc_write (fd, &sem.initsem, sizeof (sem_t)))
 	  == sizeof (sem_t)
 	  /* Map the sem_t structure from the file.  */
 	  && (result = (sem_t *) mmap (NULL, sizeof (sem_t),

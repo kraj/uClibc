@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -19,13 +19,7 @@
 
 #include <sysdep.h>
 #include <pthread-errnos.h>
-#include <tls.h>
-
-#ifndef UP
-# define LOCK lock
-#else
-# define
-#endif
+#include <lowlevellock.h>
 
 	.text
 
@@ -42,7 +36,7 @@ __new_sem_trywait:
 	leal	-1(%eax), %edx
 	LOCK
 	cmpxchgl %edx, (%ecx)
-	jne,pn	2b
+	jne	2b
 	xorl	%eax, %eax
 	ret
 

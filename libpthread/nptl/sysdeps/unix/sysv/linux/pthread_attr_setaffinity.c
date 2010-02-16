@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2004, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2003.
 
@@ -26,7 +26,7 @@
 
 
 /* Defined in pthread_setaffinity.c.  */
-extern size_t __kernel_cpumask_size;
+extern size_t __kernel_cpumask_size attribute_hidden;
 extern int __determine_cpumask_size (pid_t tid);
 libpthread_hidden_proto(__determine_cpumask_size)
 
@@ -57,8 +57,7 @@ pthread_attr_setaffinity_np (pthread_attr_t *attr, size_t cpusetsize,
 
       /* Check whether the new bitmask has any bit set beyond the
 	 last one the kernel accepts.  */
-      size_t cnt;
-      for (cnt = __kernel_cpumask_size; cnt < cpusetsize; ++cnt)
+      for (size_t cnt = __kernel_cpumask_size; cnt < cpusetsize; ++cnt)
 	if (((char *) cpuset)[cnt] != '\0')
 	  /* Found a nonzero byte.  This means the user request cannot be
 	     fulfilled.  */

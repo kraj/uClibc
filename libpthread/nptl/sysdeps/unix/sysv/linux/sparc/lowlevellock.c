@@ -24,23 +24,36 @@
 #include <sys/time.h>
 
 
-/* These functions don't get included in libc.so  */
 void
-__lll_lock_wait (int *futex)
+__lll_lock_wait_private (int *futex)
 {
   do
     {
       int oldval = atomic_compare_and_exchange_val_24_acq (futex, 2, 1);
       if (oldval != 0)
-	lll_futex_wait (futex, 2);
+	lll_futex_wait (futex, 2, LLL_PRIVATE);
     }
   while (atomic_compare_and_exchange_val_24_acq (futex, 2, 0) != 0);
 }
 
 
+/* These functions don't get included in libc.so  */
 #ifdef IS_IN_libpthread
+void
+__lll_lock_wait (int *futex, int private)
+{
+  do
+    {
+      int oldval = atomic_compare_and_exchange_val_24_acq (futex, 2, 1);
+      if (oldval != 0)
+	lll_futex_wait (futex, 2, private);
+    }
+  while (atomic_compare_and_exchange_val_24_acq (futex, 2, 0) != 0);
+}
+
+
 int
-__lll_timedlock_wait (int *futex, const struct timespec *abstime)
+__lll_timedlock_wait (int *futex, const struct timespec *abstime, int private)
 {
   /* Reject invalid timeouts.  */
   if (abstime->tv_nsec < 0 || abstime->tv_nsec >= 1000000000)
@@ -70,23 +83,11 @@ __lll_timedlock_wait (int *futex, const struct timespec *abstime)
       /* Wait.  */
       int oldval = atomic_compare_and_exchange_val_24_acq (futex, 2, 1);
       if (oldval != 0)
-	lll_futex_timed_wait (futex, 2, &rt);
+	lll_futex_timed_wait (futex, 2, &rt, private);
     }
   while (atomic_compare_and_exchange_val_24_acq (futex, 2, 0) != 0);
 
   return 0;
-}
-
-int
-lll_unlock_wake_cb(int* futex)
-{
-    int val = atomic_exchange_24_rel(futex, 0);
-
-    if( __builtin_expect( val > 1, 0 ) ) {
-        lll_futex_wake( futex, 1 );
-    }
-
-    return 0;
 }
 
 
@@ -122,7 +123,7 @@ __lll_timedwait_tid (int *tidp, const struct timespec *abstime)
 
       /* Wait until thread terminates.  The kernel so far does not use
 	 the private futex operations for this.  */
-      if (lll_futex_timed_wait (tidp, tid, &rt) == -ETIMEDOUT)
+      if (lll_futex_timed_wait (tidp, tid, &rt, LLL_SHARED) == -ETIMEDOUT)
 	return ETIMEDOUT;
     }
 

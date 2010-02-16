@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2007, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,14 +17,12 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelrwlock.h>
 #include <pthread-errnos.h>
 #include <tcb-offsets.h>
+#include <bits/kernel-features.h>
 #include "lowlevel-atomic.h"
-
-#define SYS_gettimeofday	__NR_gettimeofday
-#define FUTEX_WAIT		0
-#define FUTEX_WAKE		1
 
 
 	.text
@@ -85,7 +83,7 @@ pthread_rwlock_timedwrlock:
 	/* Get current time.  */
 	mov	r15, r4
 	mov	#0, r5
-	mov	#SYS_gettimeofday, r3
+	mov	#__NR_gettimeofday, r3
 	trapa	#0x12
 	SYSCALL_INST_PAD
 
@@ -113,7 +111,26 @@ pthread_rwlock_timedwrlock:
 
 	/* Futex call.  */
 	mov	r15, r7
-	mov	#FUTEX_WAIT, r5
+#ifdef __ASSUME_PRIVATE_FUTEX
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	mov	#(FUTEX_PRIVATE_FLAG|FUTEX_WAIT), r0
+	xor	r0, r5
+	extu.b	r5, r5
+#else
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
+# if FUTEX_WAIT != 0
+	mov	#FUTEX_WAIT, r0
+	or	r0, r5
+# endif
+	stc	gbr, r1
+	mov.w	.Lpfoff, r2
+	add	r2, r1
+	mov.l	@r1, r0
+	xor	r0, r5
+#endif
 	mov	r10, r6
 	mov	r8, r4
 	add	#WRITERS_WAKEUP, r4
@@ -174,6 +191,10 @@ pthread_rwlock_timedwrlock:
 	rts
 	 mov	r3, r0
 
+#ifndef __ASSUME_PRIVATE_FUTEX
+.Lpfoff:
+	.word	PRIVATE_FUTEX - TLS_PRE_TCB_SIZE
+#endif
 .L1k1:
 	.word	1000
 	.align	2
@@ -185,10 +206,12 @@ pthread_rwlock_timedwrlock:
 #if MUTEX != 0
 	add	#MUTEX, r5
 #endif
-	mov	r2, r4
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r6
+	extu.b	r6, r6
 	mov.l	.Lwait6, r1
 	bsrf	r1
-	 nop
+	 mov	r2, r4
 .Lwait6b:
 	bra	2b
 	 nop
@@ -202,16 +225,20 @@ pthread_rwlock_timedwrlock:
 	bra	9b
 	 mov	#EDEADLK, r3
 6:
+	mov	r3, r10
 	mov	r8, r4
 #if MUTEX != 0
 	add	#MUTEX, r4
 #endif
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
 	mov.l	.Lwake6, r1
 	bsrf	r1
 	 nop
 .Lwake6b:
 	bra	7b
-	 mov	#0, r3
+	 mov	r10, r3
 
 .Ltidoff:
 	.word	TID - TLS_PRE_TCB_SIZE
@@ -229,6 +256,9 @@ pthread_rwlock_timedwrlock:
 #if MUTEX != 0
 	add	#MUTEX, r4
 #endif
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
 	mov.l	.Lwake7, r1
 	bsrf	r1
 	 nop
@@ -237,17 +267,20 @@ pthread_rwlock_timedwrlock:
 	 nop
 
 12:
+	mov	r3, r10
 	mov	r8, r5
 #if MUTEX != 0
 	add	#MUTEX, r5
 #endif
-	mov	r2, r4
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r6
+	extu.b	r6, r6
 	mov.l	.Lwait7, r1
 	bsrf	r1
-	 nop
+	 mov	r2, r4
 .Lwait7b:
 	bra	13b
-	 nop
+	 mov	r10, r3
 
 16:
 	bra	17b
@@ -255,11 +288,11 @@ pthread_rwlock_timedwrlock:
 
 	.align	2
 .Lwait6:
-	.long	__lll_mutex_lock_wait-.Lwait6b
+	.long	__lll_lock_wait-.Lwait6b
 .Lwake6:
-	.long	__lll_mutex_unlock_wake-.Lwake6b
+	.long	__lll_unlock_wake-.Lwake6b
 .Lwait7:
-	.long	__lll_mutex_lock_wait-.Lwait7b
+	.long	__lll_lock_wait-.Lwait7b
 .Lwake7:
-	.long	__lll_mutex_unlock_wake-.Lwake7b
+	.long	__lll_unlock_wake-.Lwake7b
 	.size	pthread_rwlock_timedwrlock,.-pthread_rwlock_timedwrlock

@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2004, 2006, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -26,9 +26,9 @@
 
 int
 __pthread_setschedparam (
-        pthread_t threadid,
-        int policy,
-        const struct sched_param *param)
+     pthread_t threadid,
+     int policy,
+     const struct sched_param *param)
 {
   struct pthread *pd = (struct pthread *) threadid;
 
@@ -39,10 +39,23 @@ __pthread_setschedparam (
 
   int result = 0;
 
-  lll_lock (pd->lock);
+  lll_lock (pd->lock, LLL_PRIVATE);
+
+  struct sched_param p;
+  const struct sched_param *orig_param = param;
+
+  /* If the thread should have higher priority because of some
+     PTHREAD_PRIO_PROTECT mutexes it holds, adjust the priority.  */
+  if (__builtin_expect (pd->tpp != NULL, 0)
+      && pd->tpp->priomax > param->sched_priority)
+    {
+      p = *param;
+      p.sched_priority = pd->tpp->priomax;
+      param = &p;
+    }
 
   /* Try to set the scheduler information.  */
-  if (__builtin_expect (sched_setscheduler (pd->tid, policy,
+  if (__builtin_expect (__sched_setscheduler (pd->tid, policy,
 					      param) == -1, 0))
     result = errno;
   else
@@ -50,11 +63,11 @@ __pthread_setschedparam (
       /* We succeeded changing the kernel information.  Reflect this
 	 change in the thread descriptor.  */
       pd->schedpolicy = policy;
-      memcpy (&pd->schedparam, param, sizeof (struct sched_param));
+      memcpy (&pd->schedparam, orig_param, sizeof (struct sched_param));
       pd->flags |= ATTR_FLAG_SCHED_SET | ATTR_FLAG_POLICY_SET;
     }
 
-  lll_unlock (pd->lock);
+  lll_unlock (pd->lock, LLL_PRIVATE);
 
   return result;
 }

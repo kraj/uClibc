@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2004, 2006, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,16 +17,12 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelcond.h>
 #include <bits/kernel-features.h>
+#include <pthread-pi-defines.h>
+#include <pthread-errnos.h>
 #include "lowlevel-atomic.h"
-
-#define FUTEX_WAIT		0
-#define FUTEX_WAKE		1
-#define FUTEX_REQUEUE		3
-#define FUTEX_CMP_REQUEUE	4
-
-#define EINVAL			22
 
 	.text
 
@@ -96,8 +92,24 @@ __pthread_cond_broadcast:
 	bt/s	9f
 	 add	#cond_futex, r4
 
+	/* XXX: The kernel only supports FUTEX_CMP_REQUEUE to the same
+	   type of futex (private resp. shared).  */
+	mov.l	@(MUTEX_KIND,r9), r0
+	tst	#(PI_BIT|PS_BIT), r0
+	bf	9f
+
 	/* Wake up all threads.  */
-	mov	#FUTEX_CMP_REQUEUE, r5
+#ifdef __ASSUME_PRIVATE_FUTEX
+	mov	#(FUTEX_CMP_REQUEUE|FUTEX_PRIVATE_FLAG), r5
+	extu.b	r5, r5
+#else
+	stc	gbr, r1
+	mov.w	.Lpfoff, r2
+	add	r2, r1
+	mov.l	@r1, r5
+	mov	#FUTEX_CMP_REQUEUE, r0
+	or	r0, r5
+#endif
 	mov	#1, r6
 	mov	#-1, r7
 	shlr	r7		/* r7 = 0x7fffffff */
@@ -154,10 +166,17 @@ __pthread_cond_broadcast:
 #if cond_lock != 0
 	add	#cond_lock, r5
 #endif
-	mov.l	.Lmwait5, r1
+	mov.l	@(dep_mutex,r8), r0
+	cmp/eq	#-1, r0
+	bf/s	99f
+	 mov	#LLL_PRIVATE, r6
+	mov	#LLL_SHARED, r6
+99:
+	extu.b	r6, r6
+	mov.l	.Lwait5, r1
 	bsrf	r1
 	 mov	r2, r4
-.Lmwait5b:
+.Lwait5b:
 	bra	2b
 	 nop
 
@@ -167,10 +186,16 @@ __pthread_cond_broadcast:
 #if cond_lock != 0
 	add	#cond_lock, r4
 #endif
-	mov.l	.Lmwake5, r1
+	mov.l	@(dep_mutex,r8), r0
+	cmp/eq	#-1, r0
+	bf/s	99f
+	 mov	#LLL_PRIVATE, r5
+	mov	#LLL_SHARED, r5
+99:
+	mov.l	.Lwake5, r1
 	bsrf	r1
-	 nop
-.Lmwake5b:
+	 extu.b	r5, r5
+.Lwake5b:
 	bra	6b
 	 nop
 
@@ -180,15 +205,36 @@ __pthread_cond_broadcast:
 #if cond_lock != 0
 	add	#cond_lock, r4
 #endif
-	mov.l	.Lmwake6, r1
+	mov	#-1, r0
+	cmp/eq	r0, r9
+	bf/s	99f
+	 mov	#LLL_PRIVATE, r5
+	mov	#LLL_SHARED, r5
+99:
+	mov.l	.Lwake6, r1
 	bsrf	r1
-	 nop
-.Lmwake6b:
+	 extu.b	r5, r5
+.Lwake6b:
 	bra	8b
 	 nop
 
 9:
-	mov	#FUTEX_WAKE, r5
+	mov	#-1, r0
+	cmp/eq	r0, r9
+	bt/s	99f
+	 mov	#FUTEX_WAKE, r5
+#ifdef __ASSUME_PRIVATE_FUTEX
+	mov	#(FUTEX_WAKE|FUTEX_PRIVATE_FLAG), r5
+	extu.b	r5, r5
+#else
+	stc	gbr, r1
+	mov.w	.Lpfoff, r2
+	add	r2, r1
+	mov.l	@r1, r5
+	mov	#FUTEX_WAKE, r0
+	or	r0, r5
+#endif
+99:
 	mov	#-1, r6
 	shlr	r6		/* r6 = 0x7fffffff */
 	mov	#0, r7
@@ -199,12 +245,17 @@ __pthread_cond_broadcast:
 	bra	10b
 	 nop
 
+#ifndef __ASSUME_PRIVATE_FUTEX
+.Lpfoff:
+	.word	PRIVATE_FUTEX - TLS_PRE_TCB_SIZE
+#endif
+
 	.align	2
-.Lmwait5:
-	.long	__lll_mutex_lock_wait-.Lmwait5b
-.Lmwake5:
-	.long	__lll_mutex_unlock_wake-.Lmwake5b
-.Lmwake6:
-	.long	__lll_mutex_unlock_wake-.Lmwake6b
+.Lwait5:
+	.long	__lll_lock_wait-.Lwait5b
+.Lwake5:
+	.long	__lll_unlock_wake-.Lwake5b
+.Lwake6:
+	.long	__lll_unlock_wake-.Lwake6b
 	.size	__pthread_cond_broadcast, .-__pthread_cond_broadcast
 weak_alias (__pthread_cond_broadcast, pthread_cond_broadcast)

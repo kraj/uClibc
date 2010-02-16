@@ -21,7 +21,8 @@
 
 
 int
-pthread_spin_destroy (pthread_spinlock_t *lock)
+pthread_spin_destroy (
+     pthread_spinlock_t *lock)
 {
   /* Nothing to do.  */
   return 0;

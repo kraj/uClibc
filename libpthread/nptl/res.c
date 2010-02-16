@@ -17,7 +17,6 @@
    02111-1307 USA.  */
 
 #include <features.h>
-
 #include <tls.h>
 #include <resolv.h>
 

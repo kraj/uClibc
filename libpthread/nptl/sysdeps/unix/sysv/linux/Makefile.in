@@ -10,6 +10,7 @@ libpthread_CSRC = pthread_attr_getaffinity.c			\
 		  pthread_getcpuclockid.c pthread_kill.c		\
 		  pthread_mutex_cond_lock.c pthread_setaffinity.c	\
 		  pthread_yield.c sem_post.c sem_timedwait.c		\
+		  pthread_sigqueue.c \
 		  sem_trywait.c sem_wait.c pt-fork.c			\
 		  sigtimedwait.c sigwaitinfo.c sigwait.c pt-sleep.c
 
@@ -148,7 +149,10 @@ headers_clean-y += nptl_linux_headers_clean
 CFLAGS-lowlevelbarrier.c = -S
 CFLAGS-lowlevelcond.c = -S
 CFLAGS-lowlevelrwlock.c = -S
+CFLAGS-lowlevelrobustlock.c = -S
 CFLAGS-unwindbuf.c = -S
+CFLAGS-structsem.c = -S
+CFLAGS-pthread-pi-defines.c = -S
 
 $(PTHREAD_LINUX_OUT)/lowlevelbarrier.c: $(PTHREAD_LINUX_DIR)/lowlevelbarrier.sym
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
@@ -159,8 +163,18 @@ $(PTHREAD_LINUX_OUT)/lowlevelcond.c: $(PTHREAD_LINUX_DIR)/lowlevelcond.sym
 $(PTHREAD_LINUX_OUT)/lowlevelrwlock.c: $(PTHREAD_LINUX_DIR)/lowlevelrwlock.sym
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
+$(PTHREAD_LINUX_OUT)/lowlevelrobustlock.c: $(PTHREAD_LINUX_DIR)/lowlevelrobustlock.sym
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
 $(PTHREAD_LINUX_OUT)/unwindbuf.c: $(PTHREAD_LINUX_DIR)/unwindbuf.sym
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(PTHREAD_LINUX_OUT)/structsem.c: $(PTHREAD_LINUX_DIR)/structsem.sym
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(PTHREAD_LINUX_OUT)/pthread-pi-defines.c: $(PTHREAD_LINUX_DIR)/pthread-pi-defines.sym
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
 
 $(PTHREAD_LINUX_OUT)/lowlevelbarrier.s: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.c
 	$(compile.c)
@@ -171,8 +185,18 @@ $(PTHREAD_LINUX_OUT)/lowlevelcond.s: $(PTHREAD_LINUX_OUT)/lowlevelcond.c
 $(PTHREAD_LINUX_OUT)/lowlevelrwlock.s: $(PTHREAD_LINUX_OUT)/lowlevelrwlock.c
 	$(compile.c)
 
+$(PTHREAD_LINUX_OUT)/lowlevelrobustlock.s: $(PTHREAD_LINUX_OUT)/lowlevelrobustlock.c
+	$(compile.c)
+
 $(PTHREAD_LINUX_OUT)/unwindbuf.s: $(PTHREAD_LINUX_OUT)/unwindbuf.c
 	$(compile.c)
+
+$(PTHREAD_LINUX_OUT)/structsem.s: $(PTHREAD_LINUX_OUT)/structsem.c
+	$(compile.c)
+
+$(PTHREAD_LINUX_OUT)/pthread-pi-defines.s: $(PTHREAD_LINUX_OUT)/pthread-pi-defines.c
+	$(compile.c)
+
 
 $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
@@ -183,13 +207,25 @@ $(PTHREAD_LINUX_OUT)/lowlevelcond.h: $(PTHREAD_LINUX_OUT)/lowlevelcond.s
 $(PTHREAD_LINUX_OUT)/lowlevelrwlock.h: $(PTHREAD_LINUX_OUT)/lowlevelrwlock.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
+$(PTHREAD_LINUX_OUT)/lowlevelrobustlock.h: $(PTHREAD_LINUX_OUT)/lowlevelrobustlock.s
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+
 $(PTHREAD_LINUX_OUT)/unwindbuf.h: $(PTHREAD_LINUX_OUT)/unwindbuf.s
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+
+$(PTHREAD_LINUX_OUT)/structsem.h: $(PTHREAD_LINUX_OUT)/structsem.s
+	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
+
+$(PTHREAD_LINUX_OUT)/pthread-pi-defines.h: $(PTHREAD_LINUX_OUT)/pthread-pi-defines.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
 nptl_linux_headers: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h \
 					$(PTHREAD_LINUX_OUT)/lowlevelcond.h \
 					$(PTHREAD_LINUX_OUT)/lowlevelrwlock.h \
-					$(PTHREAD_LINUX_OUT)/unwindbuf.h
+					$(PTHREAD_LINUX_OUT)/lowlevelrobustlock.h \
+					$(PTHREAD_LINUX_OUT)/unwindbuf.h \
+					$(PTHREAD_LINUX_OUT)/structsem.h \
+					$(PTHREAD_LINUX_OUT)/pthread-pi-defines.h
 
 HEADERS_BITS_PTHREAD     := $(notdir $(wildcard $(PTHREAD_LINUX_DIR)/bits/*.h))
 ALL_HEADERS_BITS_PTHREAD := $(addprefix include/bits/,$(HEADERS_BITS_PTHREAD))
@@ -201,7 +237,10 @@ nptl_linux_headers_clean:
 	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/lowlevelbarrier., c h s) \
 	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelcond., c h s) \
 	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelrwlock., c h s) \
-	$(addprefix $(PTHREAD_LINUX_OUT)/unwindbuf., c h s)
+	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelrobustlock., c h s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/unwindbuf., c h s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/structsem., c h s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/pthread-pi-defines., c h s)
 
 
 nptl_linux_clean:

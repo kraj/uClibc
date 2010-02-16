@@ -22,7 +22,9 @@
 
 
 int
-__pthread_attr_getdetachstate (const pthread_attr_t *attr, int *detachstate)
+__pthread_attr_getdetachstate (
+     const pthread_attr_t *attr,
+     int *detachstate)
 {
   struct pthread_attr *iattr;
 

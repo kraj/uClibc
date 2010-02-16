@@ -1,4 +1,4 @@
-/* Copyright (C) 2003,2004 Free Software Foundation, Inc.
+/* Copyright (C) 2003,2004, 2007, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2003.
 
@@ -167,6 +167,7 @@ timer_create (
 	      /* Copy the thread parameters the user provided.  */
 	      newp->sival = evp->sigev_value;
 	      newp->thrfunc = evp->sigev_notify_function;
+	      newp->sigev_notify = SIGEV_THREAD;
 
 	      /* We cannot simply copy the thread attributes since the
 		 implementation might keep internal information for
@@ -193,12 +194,11 @@ timer_create (
 						  PTHREAD_CREATE_DETACHED);
 
 	      /* Create the event structure for the kernel timer.  */
-	      struct sigevent sev;
-	      sev.sigev_value.sival_ptr = newp;
-	      sev.sigev_signo = SIGTIMER;
-	      sev.sigev_notify = SIGEV_SIGNAL | SIGEV_THREAD_ID;
-	      /* This is the thread ID of the helper thread.  */
-	      sev._sigev_un._pad[0] = __helper_tid;
+	      struct sigevent sev =
+		{ .sigev_value.sival_ptr = newp,
+		  .sigev_signo = SIGTIMER,
+		  .sigev_notify = SIGEV_SIGNAL | SIGEV_THREAD_ID,
+		  ._sigev_un = { ._pad = { [0] = __helper_tid } } };
 
 	      /* Create the timer.  */
 	      INTERNAL_SYSCALL_DECL (err);
@@ -207,6 +207,13 @@ timer_create (
 				      syscall_clockid, &sev, &newp->ktimerid);
 	      if (! INTERNAL_SYSCALL_ERROR_P (res, err))
 		{
+		  /* Add to the queue of active timers with thread
+		     delivery.  */
+		  pthread_mutex_lock (&__active_timer_sigev_thread_lock);
+		  newp->next = __active_timer_sigev_thread;
+		  __active_timer_sigev_thread = newp;
+		  pthread_mutex_unlock (&__active_timer_sigev_thread_lock);
+
 		  *timerid = (timer_t) newp;
 		  return 0;
 		}

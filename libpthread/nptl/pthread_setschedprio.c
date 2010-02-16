@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2004, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -26,7 +26,9 @@
 
 
 int
-pthread_setschedprio (pthread_t threadid, int prio)
+pthread_setschedprio (
+     pthread_t threadid,
+     int prio)
 {
   struct pthread *pd = (struct pthread *) threadid;
 
@@ -39,7 +41,12 @@ pthread_setschedprio (pthread_t threadid, int prio)
   struct sched_param param;
   param.sched_priority = prio;
 
-  lll_lock (pd->lock);
+  lll_lock (pd->lock, LLL_PRIVATE);
+
+  /* If the thread should have higher priority because of some
+     PTHREAD_PRIO_PROTECT mutexes it holds, adjust the priority.  */
+  if (__builtin_expect (pd->tpp != NULL, 0) && pd->tpp->priomax > prio)
+    param.sched_priority = pd->tpp->priomax;
 
   /* Try to set the scheduler information.  */
   if (__builtin_expect (sched_setparam (pd->tid, &param) == -1, 0))
@@ -48,11 +55,12 @@ pthread_setschedprio (pthread_t threadid, int prio)
     {
       /* We succeeded changing the kernel information.  Reflect this
 	 change in the thread descriptor.  */
+      param.sched_priority = prio;
       memcpy (&pd->schedparam, &param, sizeof (struct sched_param));
       pd->flags |= ATTR_FLAG_SCHED_SET;
     }
 
-  lll_unlock (pd->lock);
+  lll_unlock (pd->lock, LLL_PRIVATE);
 
   return result;
 }

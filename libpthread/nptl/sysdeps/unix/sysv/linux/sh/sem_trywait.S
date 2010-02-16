@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2004, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,6 +18,7 @@
 
 #include <sysdep.h>
 #include <pthread-errnos.h>
+#include <lowlevellock.h>
 #include "lowlevel-atomic.h"
 
 
@@ -59,9 +60,9 @@ __new_sem_trywait:
 	mov.l	.Lerrno1, r0
 	stc	gbr, r1
 	mov.l	@(r0, r12), r0
-	bra .Lexit
-	add	r1, r0
-	.align 2
+	bra	.Lexit
+	 add	r1, r0
+	.align	2
 .Lerrno1:
 	.long	errno@GOTTPOFF
 .Lexit:

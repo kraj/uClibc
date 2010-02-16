@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -16,15 +16,5 @@
    License along with the GNU C Library; if not, write to the Free
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
-
-/* In libc.so we do not unconditionally use the lock prefix.  Only if
-   the application is using threads.  */
-#ifndef UP
-# define LOCK \
-	cmpl	$0, %gs:MULTIPLE_THREADS_OFFSET; 			      \
-	je,pt	0f;							      \
-	lock;								      \
-0:
-#endif
 
 #include "lowlevellock.S"

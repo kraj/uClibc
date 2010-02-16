@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002,2003,2004,2005,2007,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,20 +18,11 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelcond.h>
 #include <bits/kernel-features.h>
-
-#ifdef UP
-# define LOCK
-#else
-# define LOCK lock
-#endif
-
-#define FUTEX_WAIT		0
-#define FUTEX_WAKE		1
-#define FUTEX_REQUEUE		3
-
-#define EINVAL			22
+#include <pthread-pi-defines.h>
+#include <pthread-errnos.h>
 
 
 	.text
@@ -42,8 +33,14 @@
 	.align	16
 __pthread_cond_signal:
 
+	cfi_startproc
 	pushl	%ebx
+	cfi_adjust_cfa_offset(4)
+	cfi_rel_offset(%ebx, 0)
 	pushl	%edi
+	cfi_adjust_cfa_offset(4)
+	cfi_rel_offset(%edi, 0)
+	cfi_remember_state
 
 	movl	12(%esp), %edi
 
@@ -77,35 +74,141 @@ __pthread_cond_signal:
 	addl	$1, (%ebx)
 
 	/* Wake up one thread.  */
-	movl	$FUTEX_WAKE, %ecx
+	pushl	%esi
+	cfi_adjust_cfa_offset(4)
+	cfi_rel_offset(%esi, 0)
+	pushl	%ebp
+	cfi_adjust_cfa_offset(4)
+	cfi_rel_offset(%ebp, 0)
+
+#if FUTEX_PRIVATE_FLAG > 255
+	xorl	%ecx, %ecx
+#endif
+	cmpl	$-1, dep_mutex-cond_futex(%ebx)
+	sete	%cl
+	je	8f
+
+	movl	dep_mutex-cond_futex(%ebx), %edx
+	/* Requeue to a non-robust PI mutex if the PI bit is set and
+	   the robust bit is not set.  */
+	movl	MUTEX_KIND(%edx), %eax
+	andl	$(ROBUST_BIT|PI_BIT), %eax
+	cmpl	$PI_BIT, %eax
+	je	9f
+
+8:	subl	$1, %ecx
+#ifdef __ASSUME_PRIVATE_FUTEX
+	andl	$FUTEX_PRIVATE_FLAG, %ecx
+#else
+	andl	%gs:PRIVATE_FUTEX, %ecx
+#endif
+	addl	$FUTEX_WAKE_OP, %ecx
 	movl	$SYS_futex, %eax
 	movl	$1, %edx
+	movl	$1, %esi
+	movl	$FUTEX_OP_CLEAR_WAKE_IF_GT_ONE, %ebp
+	/* FIXME: Until Ingo fixes 4G/4G vDSO, 6 arg syscalls are broken for
+	   sysenter.
+	ENTER_KERNEL  */
+	int	$0x80
+	popl	%ebp
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%ebp)
+	popl	%esi
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%esi)
+
+	/* For any kind of error, we try again with WAKE.
+	   The general test also covers running on old kernels.  */
+	cmpl	$-4095, %eax
+	jae	7f
+
+6:	xorl	%eax, %eax
+	popl	%edi
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%edi)
+	popl	%ebx
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%ebx)
+	ret
+
+	cfi_restore_state
+
+9:	movl	$(FUTEX_CMP_REQUEUE_PI|FUTEX_PRIVATE_FLAG), %ecx
+	movl	$SYS_futex, %eax
+	movl	$1, %edx
+	xorl	%esi, %esi
+	movl	dep_mutex-cond_futex(%ebx), %edi
+	movl	(%ebx), %ebp
+	/* FIXME: Until Ingo fixes 4G/4G vDSO, 6 arg syscalls are broken for
+	   sysenter.
+	ENTER_KERNEL  */
+	int	$0x80
+	popl	%ebp
+	popl	%esi
+
+	leal	-cond_futex(%ebx), %edi
+
+	/* For any kind of error, we try again with WAKE.
+	   The general test also covers running on old kernels.  */
+	cmpl	$-4095, %eax
+	jb	4f
+
+7:
+#ifdef __ASSUME_PRIVATE_FUTEX
+	andl	$FUTEX_PRIVATE_FLAG, %ecx
+#else
+	andl	%gs:PRIVATE_FUTEX, %ecx
+#endif
+	orl	$FUTEX_WAKE, %ecx
+
+	xorl	$(FUTEX_WAKE ^ FUTEX_WAKE_OP), %ecx
+	movl	$SYS_futex, %eax
+	/* %edx should be 1 already from $FUTEX_WAKE_OP syscall.
+	movl	$1, %edx  */
 	ENTER_KERNEL
 
 	/* Unlock.  Note that at this point %edi always points to
 	   cond_lock.  */
 4:	LOCK
 	subl	$1, (%edi)
-	jne	5f
+	je	6b
 
-6:	xorl	%eax, %eax
-	popl	%edi
-	popl	%ebx
-	ret
+	/* Unlock in loop requires wakeup.  */
+5:	movl	%edi, %eax
+#if (LLL_SHARED-LLL_PRIVATE) > 255
+	xorl	%ecx, %ecx
+#endif
+	cmpl	$-1, dep_mutex-cond_futex(%ebx)
+	setne	%cl
+	subl	$1, %ecx
+	andl	$(LLL_SHARED-LLL_PRIVATE), %ecx
+#if LLL_PRIVATE != 0
+	addl	$LLL_PRIVATE, %ecx
+#endif
+	call	__lll_unlock_wake
+	jmp	6b
 
 	/* Initial locking failed.  */
 1:
 #if cond_lock == 0
-	movl	%edi, %ecx
+	movl	%edi, %edx
 #else
-	leal	cond_lock(%edi), %ecx
+	leal	cond_lock(%edi), %edx
 #endif
-	call	__lll_mutex_lock_wait
+#if (LLL_SHARED-LLL_PRIVATE) > 255
+	xorl	%ecx, %ecx
+#endif
+	cmpl	$-1, dep_mutex(%edi)
+	setne	%cl
+	subl	$1, %ecx
+	andl	$(LLL_SHARED-LLL_PRIVATE), %ecx
+#if LLL_PRIVATE != 0
+	addl	$LLL_PRIVATE, %ecx
+#endif
+	call	__lll_lock_wait
 	jmp	2b
 
-	/* Unlock in loop requires wakeup.  */
-5:	movl	%edi, %eax
-	call	__lll_mutex_unlock_wake
-	jmp	6b
+	cfi_endproc
 	.size	__pthread_cond_signal, .-__pthread_cond_signal
 weak_alias(__pthread_cond_signal, pthread_cond_signal)

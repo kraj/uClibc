@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -20,11 +20,12 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
-#include "fork.h"
+#include <fork.h>
+#include <atomic.h>
 
 
 /* Lock to protect allocation and deallocation of fork handlers.  */
-lll_lock_t __fork_lock = LLL_LOCK_INITIALIZER;
+int __fork_lock = LLL_LOCK_INITIALIZER;
 
 
 /* Number of pre-allocated handler entries.  */
@@ -85,7 +86,7 @@ __register_atfork (
      void *dso_handle)
 {
   /* Get the lock to not conflict with other allocations.  */
-  lll_lock (__fork_lock);
+  lll_lock (__fork_lock, LLL_PRIVATE);
 
   struct fork_handler *newp = fork_handler_alloc ();
 
@@ -97,12 +98,49 @@ __register_atfork (
       newp->child_handler = child;
       newp->dso_handle = dso_handle;
 
-      newp->next = __fork_handlers;
-      __fork_handlers = newp;
+      __linkin_atfork (newp);
     }
 
   /* Release the lock.  */
-  lll_unlock (__fork_lock);
+  lll_unlock (__fork_lock, LLL_PRIVATE);
 
   return newp == NULL ? ENOMEM : 0;
+}
+libc_hidden_def (__register_atfork)
+
+
+void
+attribute_hidden
+__linkin_atfork (struct fork_handler *newp)
+{
+  do
+    newp->next = __fork_handlers;
+  while (catomic_compare_and_exchange_bool_acq (&__fork_handlers,
+						newp, newp->next) != 0);
+}
+
+
+libc_freeres_fn (free_mem)
+{
+  /* Get the lock to not conflict with running forks.  */
+  lll_lock (__fork_lock, LLL_PRIVATE);
+
+  /* No more fork handlers.  */
+  __fork_handlers = NULL;
+
+  /* Free eventually alloated memory blocks for the object pool.  */
+  struct fork_handler_pool *runp = fork_handler_pool.next;
+
+  memset (&fork_handler_pool, '\0', sizeof (fork_handler_pool));
+
+  /* Release the lock.  */
+  lll_unlock (__fork_lock, LLL_PRIVATE);
+
+  /* We can free the memory after releasing the lock.  */
+  while (runp != NULL)
+    {
+      struct fork_handler_pool *oldp = runp;
+      runp = runp->next;
+      free (oldp);
+    }
 }

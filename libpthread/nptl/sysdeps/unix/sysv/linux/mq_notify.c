@@ -1,4 +1,4 @@
-/* Copyright (C) 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2004, 2005, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contribute by Ulrich Drepper <drepper@redhat.com>, 2004.
 
@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <not-cancel.h>
+#include <bits/kernel-features.h>
 
 
 #ifdef __NR_mq_notify
@@ -157,7 +158,7 @@ init_mq_netlink (void)
   if (netlink_socket == -1)
     {
       /* Just a normal netlink socket, not bound.  */
-      netlink_socket = socket (AF_NETLINK, SOCK_RAW, 0);
+	  netlink_socket = socket (AF_NETLINK, SOCK_RAW, 0);
       /* No need to do more if we have no socket.  */
       if (netlink_socket == -1)
 	return;

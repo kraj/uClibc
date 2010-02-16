@@ -45,5 +45,5 @@ ENTRY(__vfork)
 	 nop
 END(__vfork)
 
-hidden_def (vfork)
+libc_hidden_def (__vfork)
 weak_alias (__vfork, vfork)

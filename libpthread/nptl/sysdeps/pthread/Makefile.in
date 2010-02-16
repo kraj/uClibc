@@ -18,7 +18,7 @@ libpthread_CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c	\
 		  pthread_rwlock_wrlock.c pthread_sigmask.c		\
 		  pthread_spin_destroy.c pthread_spin_init.c		\
 		  pthread_spin_unlock.c pt-sigfillset.c	\
-		  pt-longjmp.c
+		  pt-longjmp.c tpp.c
 
 
 ifeq ($(TARGET_ARCH),i386)
@@ -41,6 +41,13 @@ SH_PTHREAD_EXCLUDE_LIST = pthread_spin_unlock.c pthread_spin_init.c \
 		pthread_rwlock_timedwrlock.c
 
 libpthread_CSRC := $(filter-out $(SH_PTHREAD_EXCLUDE_LIST),$(libpthread_CSRC))
+endif
+
+ifeq ($(TARGET_ARCH),sparc)
+SPARC_PTHREAD_EXCLUDE_LIST = pthread_barrier_init.c pthread_barrier_wait.c \
+		pthread_barrier_destroy.c
+
+libpthread_CSRC := $(filter-out $(SPARC_PTHREAD_EXCLUDE_LIST),$(libpthread_CSRC))
 endif
 
 ifeq ($(TARGET_ARCH),x86_64)

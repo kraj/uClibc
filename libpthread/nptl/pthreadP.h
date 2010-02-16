@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2007, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -31,6 +31,7 @@
 #include <internaltypes.h>
 #include <pthread-functions.h>
 #include <atomic.h>
+#include <bits/kernel-features.h>
 
 
 /* Atomic operations on TLS memory.  */
@@ -49,6 +50,99 @@
 #ifndef MAX_ADAPTIVE_COUNT
 # define MAX_ADAPTIVE_COUNT 100
 #endif
+
+
+/* Magic cookie representing robust mutex with dead owner.  */
+#define PTHREAD_MUTEX_INCONSISTENT	INT_MAX
+/* Magic cookie representing not recoverable robust mutex.  */
+#define PTHREAD_MUTEX_NOTRECOVERABLE	(INT_MAX - 1)
+
+
+/* Internal mutex type value.  */
+enum
+{
+  PTHREAD_MUTEX_KIND_MASK_NP = 3,
+  PTHREAD_MUTEX_ROBUST_NORMAL_NP = 16,
+  PTHREAD_MUTEX_ROBUST_RECURSIVE_NP
+  = PTHREAD_MUTEX_ROBUST_NORMAL_NP | PTHREAD_MUTEX_RECURSIVE_NP,
+  PTHREAD_MUTEX_ROBUST_ERRORCHECK_NP
+  = PTHREAD_MUTEX_ROBUST_NORMAL_NP | PTHREAD_MUTEX_ERRORCHECK_NP,
+  PTHREAD_MUTEX_ROBUST_ADAPTIVE_NP
+  = PTHREAD_MUTEX_ROBUST_NORMAL_NP | PTHREAD_MUTEX_ADAPTIVE_NP,
+  PTHREAD_MUTEX_PRIO_INHERIT_NP = 32,
+  PTHREAD_MUTEX_PI_NORMAL_NP
+  = PTHREAD_MUTEX_PRIO_INHERIT_NP | PTHREAD_MUTEX_NORMAL,
+  PTHREAD_MUTEX_PI_RECURSIVE_NP
+  = PTHREAD_MUTEX_PRIO_INHERIT_NP | PTHREAD_MUTEX_RECURSIVE_NP,
+  PTHREAD_MUTEX_PI_ERRORCHECK_NP
+  = PTHREAD_MUTEX_PRIO_INHERIT_NP | PTHREAD_MUTEX_ERRORCHECK_NP,
+  PTHREAD_MUTEX_PI_ADAPTIVE_NP
+  = PTHREAD_MUTEX_PRIO_INHERIT_NP | PTHREAD_MUTEX_ADAPTIVE_NP,
+  PTHREAD_MUTEX_PI_ROBUST_NORMAL_NP
+  = PTHREAD_MUTEX_PRIO_INHERIT_NP | PTHREAD_MUTEX_ROBUST_NORMAL_NP,
+  PTHREAD_MUTEX_PI_ROBUST_RECURSIVE_NP
+  = PTHREAD_MUTEX_PRIO_INHERIT_NP | PTHREAD_MUTEX_ROBUST_RECURSIVE_NP,
+  PTHREAD_MUTEX_PI_ROBUST_ERRORCHECK_NP
+  = PTHREAD_MUTEX_PRIO_INHERIT_NP | PTHREAD_MUTEX_ROBUST_ERRORCHECK_NP,
+  PTHREAD_MUTEX_PI_ROBUST_ADAPTIVE_NP
+  = PTHREAD_MUTEX_PRIO_INHERIT_NP | PTHREAD_MUTEX_ROBUST_ADAPTIVE_NP,
+  PTHREAD_MUTEX_PRIO_PROTECT_NP = 64,
+  PTHREAD_MUTEX_PP_NORMAL_NP
+  = PTHREAD_MUTEX_PRIO_PROTECT_NP | PTHREAD_MUTEX_NORMAL,
+  PTHREAD_MUTEX_PP_RECURSIVE_NP
+  = PTHREAD_MUTEX_PRIO_PROTECT_NP | PTHREAD_MUTEX_RECURSIVE_NP,
+  PTHREAD_MUTEX_PP_ERRORCHECK_NP
+  = PTHREAD_MUTEX_PRIO_PROTECT_NP | PTHREAD_MUTEX_ERRORCHECK_NP,
+  PTHREAD_MUTEX_PP_ADAPTIVE_NP
+  = PTHREAD_MUTEX_PRIO_PROTECT_NP | PTHREAD_MUTEX_ADAPTIVE_NP
+};
+#define PTHREAD_MUTEX_PSHARED_BIT 128
+
+#define PTHREAD_MUTEX_TYPE(m) \
+  ((m)->__data.__kind & 127)
+
+#if LLL_PRIVATE == 0 && LLL_SHARED == 128
+# define PTHREAD_MUTEX_PSHARED(m) \
+  ((m)->__data.__kind & 128)
+#else
+# define PTHREAD_MUTEX_PSHARED(m) \
+  (((m)->__data.__kind & 128) ? LLL_SHARED : LLL_PRIVATE)
+#endif
+
+/* The kernel when waking robust mutexes on exit never uses
+   FUTEX_PRIVATE_FLAG FUTEX_WAKE.  */
+#define PTHREAD_ROBUST_MUTEX_PSHARED(m) LLL_SHARED
+
+/* Ceiling in __data.__lock.  __data.__lock is signed, so don't
+   use the MSB bit in there, but in the mask also include that bit,
+   so that the compiler can optimize & PTHREAD_MUTEX_PRIO_CEILING_MASK
+   masking if the value is then shifted down by
+   PTHREAD_MUTEX_PRIO_CEILING_SHIFT.  */
+#define PTHREAD_MUTEX_PRIO_CEILING_SHIFT	19
+#define PTHREAD_MUTEX_PRIO_CEILING_MASK		0xfff80000
+
+
+/* Flags in mutex attr.  */
+#define PTHREAD_MUTEXATTR_PROTOCOL_SHIFT	28
+#define PTHREAD_MUTEXATTR_PROTOCOL_MASK		0x30000000
+#define PTHREAD_MUTEXATTR_PRIO_CEILING_SHIFT	12
+#define PTHREAD_MUTEXATTR_PRIO_CEILING_MASK	0x00fff000
+#define PTHREAD_MUTEXATTR_FLAG_ROBUST		0x40000000
+#define PTHREAD_MUTEXATTR_FLAG_PSHARED		0x80000000
+#define PTHREAD_MUTEXATTR_FLAG_BITS \
+  (PTHREAD_MUTEXATTR_FLAG_ROBUST | PTHREAD_MUTEXATTR_FLAG_PSHARED \
+   | PTHREAD_MUTEXATTR_PROTOCOL_MASK | PTHREAD_MUTEXATTR_PRIO_CEILING_MASK)
+
+
+/* Check whether rwlock prefers readers.   */
+#define PTHREAD_RWLOCK_PREFER_READER_P(rwlock) \
+  ((rwlock)->__data.__flags == 0)
+
+
+/* Bits used in robust mutex implementation.  */
+#define FUTEX_WAITERS		0x80000000
+#define FUTEX_OWNER_DIED	0x40000000
+#define FUTEX_TID_MASK		0x3fffffff
 
 
 /* Internal variables.  */
@@ -70,7 +164,7 @@ hidden_proto (__stack_user)
 
 /* Attribute handling.  */
 extern struct pthread_attr *__attr_list attribute_hidden;
-extern lll_lock_t __attr_list_lock attribute_hidden;
+extern int __attr_list_lock attribute_hidden;
 
 /* First available RT signal.  */
 extern int __current_sigrtmin attribute_hidden;
@@ -86,6 +180,19 @@ hidden_proto (__pthread_keys)
 
 /* Number of threads running.  */
 extern unsigned int __nptl_nthreads attribute_hidden;
+
+#ifndef __ASSUME_SET_ROBUST_LIST
+/* Negative if we do not have the system call and we can use it.  */
+extern int __set_robust_list_avail attribute_hidden;
+#endif
+
+/* Thread Priority Protection.  */
+extern int __sched_fifo_min_prio attribute_hidden;
+extern int __sched_fifo_max_prio attribute_hidden;
+extern void __init_sched_fifo_prio (void) attribute_hidden;
+extern int __pthread_tpp_change_priority (int prev_prio, int new_prio)
+     attribute_hidden;
+extern int __pthread_current_priority (void) attribute_hidden;
 
 /* The library can run in debugging mode where it performs a lot more
    tests.  */
@@ -108,8 +215,8 @@ extern int __pthread_debug attribute_hidden;
 /* Cancellation test.  */
 #define CANCELLATION_P(self) \
   do {									      \
-    int _cancelhandling = THREAD_GETMEM (self, cancelhandling);		      \
-    if (CANCEL_ENABLED_AND_CANCELED (_cancelhandling))			      \
+    int cancelhandling = THREAD_GETMEM (self, cancelhandling);		      \
+    if (CANCEL_ENABLED_AND_CANCELED (cancelhandling))			      \
       {									      \
 	THREAD_SETMEM (self, result, PTHREAD_CANCELED);			      \
 	__do_cancel ();							      \
@@ -140,6 +247,7 @@ hidden_proto (__pthread_register_cancel)
 hidden_proto (__pthread_unregister_cancel)
 # ifdef SHARED
 extern void attribute_hidden pthread_cancel_init (void);
+extern void __unwind_freeres (void);
 # endif
 #endif
 
@@ -174,22 +282,22 @@ __do_cancel (void)
 # define LIBC_CANCEL_RESET(oldtype) \
   __libc_disable_asynccancel (oldtype)
 # define LIBC_CANCEL_HANDLED() \
-  __asm (".globl " __USER_LABEL_PREFIX__ "__libc_enable_asynccancel"); \
-  __asm (".globl " __USER_LABEL_PREFIX__ "__libc_disable_asynccancel")
+  __asm__ (".globl " __USER_LABEL_PREFIX__ "__libc_enable_asynccancel"); \
+  __asm__ (".globl " __USER_LABEL_PREFIX__ "__libc_disable_asynccancel")
 #elif defined NOT_IN_libc && defined IS_IN_libpthread
 # define LIBC_CANCEL_ASYNC() CANCEL_ASYNC ()
 # define LIBC_CANCEL_RESET(val) CANCEL_RESET (val)
 # define LIBC_CANCEL_HANDLED() \
-  __asm (".globl " __USER_LABEL_PREFIX__ "__pthread_enable_asynccancel"); \
-  __asm (".globl " __USER_LABEL_PREFIX__ "__pthread_disable_asynccancel")
+  __asm__ (".globl " __USER_LABEL_PREFIX__ "__pthread_enable_asynccancel"); \
+  __asm__ (".globl " __USER_LABEL_PREFIX__ "__pthread_disable_asynccancel")
 #elif defined NOT_IN_libc && defined IS_IN_librt
 # define LIBC_CANCEL_ASYNC() \
   __librt_enable_asynccancel ()
 # define LIBC_CANCEL_RESET(val) \
   __librt_disable_asynccancel (val)
 # define LIBC_CANCEL_HANDLED() \
-  __asm (".globl " __USER_LABEL_PREFIX__ "__librt_enable_asynccancel"); \
-  __asm (".globl " __USER_LABEL_PREFIX__ "__librt_disable_asynccancel")
+  __asm__ (".globl " __USER_LABEL_PREFIX__ "__librt_enable_asynccancel"); \
+  __asm__ (".globl " __USER_LABEL_PREFIX__ "__librt_disable_asynccancel")
 #else
 # define LIBC_CANCEL_ASYNC()	0 /* Just a dummy value.  */
 # define LIBC_CANCEL_RESET(val)	((void)(val)) /* Nothing, but evaluate it.  */
@@ -263,11 +371,13 @@ hidden_proto (__nptl_death_event)
 #ifdef TLS_MULTIPLE_THREADS_IN_TCB
 extern void __libc_pthread_init (unsigned long int *ptr,
 				 void (*reclaim) (void),
-				 const struct pthread_functions *functions);
+				 const struct pthread_functions *functions)
+     internal_function;
 #else
 extern int *__libc_pthread_init (unsigned long int *ptr,
 				 void (*reclaim) (void),
-				 const struct pthread_functions *functions);
+				 const struct pthread_functions *functions)
+     internal_function;
 
 /* Variable set to a nonzero value if more than one thread runs or ran.  */
 extern int __pthread_multiple_threads attribute_hidden;
@@ -307,6 +417,7 @@ extern int __pthread_mutex_lock (pthread_mutex_t *__mutex);
 extern int __pthread_mutex_lock_internal (pthread_mutex_t *__mutex)
      attribute_hidden;
 extern int __pthread_mutex_cond_lock (pthread_mutex_t *__mutex);
+extern void __pthread_mutex_cond_lock_adjust (pthread_mutex_t *__mutex);
 extern int __pthread_mutex_unlock (pthread_mutex_t *__mutex);
 extern int __pthread_mutex_unlock_internal (pthread_mutex_t *__mutex)
      attribute_hidden;
@@ -454,10 +565,25 @@ extern void __nptl_deallocate_tsd (void) attribute_hidden;
 
 extern int __nptl_setxid (struct xid_command *cmdp) attribute_hidden;
 
+extern void __free_stacks (size_t limit) attribute_hidden;
+
+extern void __wait_lookup_done (void) attribute_hidden;
+
 #ifdef SHARED
 # define PTHREAD_STATIC_FN_REQUIRE(name)
 #else
-# define PTHREAD_STATIC_FN_REQUIRE(name) __asm (".globl " #name);
+# define PTHREAD_STATIC_FN_REQUIRE(name) __asm__ (".globl " #name);
+#endif
+
+
+#ifndef __NR_set_robust_list
+/* XXX For the time being...  Once we can rely on the kernel headers
+   having the definition remove these lines.  */
+# if defined __i386__
+#  define __NR_set_robust_list  311
+# elif defined __x86_64__
+#  define __NR_set_robust_list  273
+# endif
 #endif
 
 #endif	/* pthreadP.h */

@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unwind.h>
+#include <libgcc_s.h>
 
 static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
 static _Unwind_Reason_Code (*libgcc_s_personality)
@@ -33,17 +34,16 @@ void abort(void);
 static void
 init (void)
 {
-  void *resume = NULL;
-  void *personality = NULL;
+  void *resume, *personality;
   void *handle;
-  resume = personality = NULL; /* make gcc silent */
-  handle = dlopen ("libgcc_s.so.1", (RTLD_LOCAL | RTLD_LAZY));
+  resume = personality = NULL;
+  handle = dlopen (LIBGCC_S_SO, (RTLD_LOCAL | RTLD_LAZY));
 
   if (handle == NULL
       || (resume = dlsym (handle, "_Unwind_Resume")) == NULL
       || (personality = dlsym (handle, "__gcc_personality_v0")) == NULL)
   {
-    printf("libgcc_s.so.1 must be installed for pthread_cancel to work\n");
+    printf (LIBGCC_S_SO " must be installed for pthread_cancel to work\n");
     abort();
   }
 

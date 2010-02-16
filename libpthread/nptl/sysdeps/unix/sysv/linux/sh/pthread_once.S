@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2004, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,10 +18,10 @@
 
 #include <unwindbuf.h>
 #include <sysdep.h>
+#include <bits/kernel-features.h>
+#include <lowlevellock.h>
 #include "lowlevel-atomic.h"
 
-#define FUTEX_WAIT	0
-#define FUTEX_WAKE	1
 
 	.comm	__fork_generation, 4, 4
 
@@ -94,7 +94,19 @@ __pthread_once:
 	bf	3f	/* Different for generation -> run initializer.  */
 
 	/* Somebody else got here first.  Wait.  */
-	mov	#FUTEX_WAIT, r5
+#ifdef __ASSUME_PRIVATE_FUTEX
+	mov	#(FUTEX_PRIVATE_FLAG|FUTEX_WAIT), r5
+	extu.b	r5, r5
+#else
+	stc	gbr, r1
+	mov.w	.Lpfoff, r2
+	add	r2, r1
+	mov.l	@r1, r5
+# if FUTEX_WAIT != 0
+	mov	#FUTEX_WAIT, r0
+	or	r0, r5
+# endif
+#endif
 	mov	r3, r6
 	mov	#0, r7
 	mov	#SYS_futex, r3
@@ -156,7 +168,17 @@ __pthread_once:
 	INC (@r9, r2)
 	/* Wake up all other threads.  */
 	mov	r9, r4
-	mov	#FUTEX_WAKE, r5
+#ifdef __ASSUME_PRIVATE_FUTEX
+	mov	#(FUTEX_PRIVATE_FLAG|FUTEX_WAKE), r5
+	extu.b	r5, r5
+#else
+	stc	gbr, r1
+	mov.w	.Lpfoff, r2
+	add	r2, r1
+	mov.l	@r1, r5
+	mov	#FUTEX_WAKE, r0
+	or	r0, r5
+#endif
 	mov	#-1, r6
 	shlr	r6		/* r6 = 0x7fffffff */
 	mov	#0, r7
@@ -191,7 +213,17 @@ __pthread_once:
 	mov	#0, r7
 	mov.l	r7, @r9
 	mov	r9, r4
-	mov	#FUTEX_WAKE, r5
+#ifdef __ASSUME_PRIVATE_FUTEX
+	mov	#(FUTEX_PRIVATE_FLAG|FUTEX_WAKE), r5
+#else
+	stc	gbr, r1
+	mov.w	.Lpfoff, r2
+	add	r2, r1
+	mov.l	@r1, r5
+	mov	#FUTEX_WAKE, r0
+	or	r0, r5
+#endif
+	extu.b	r5, r5
 	mov	#-1, r6
 	shlr	r6		/* r6 = 0x7fffffff */
 	mov	#SYS_futex, r3
@@ -207,6 +239,10 @@ __pthread_once:
 	sleep
 	cfi_endproc
 
+#ifndef __ASSUME_PRIVATE_FUTEX
+.Lpfoff:
+	.word	PRIVATE_FUTEX - TLS_PRE_TCB_SIZE
+#endif
 	.align	2
 .Lsigsetjmp:
 	.long	__sigsetjmp@PLT-(.Lsigsetjmp0-.)
@@ -223,23 +259,3 @@ __pthread_once_internal = __pthread_once
 
 	.globl	pthread_once
 pthread_once = __pthread_once
-
-
-	.type	clear_once_control,@function
-	.align	5
-clear_once_control:
-	mov	#0, r0
-	mov.l	r0, @r4
-
-	mov	#FUTEX_WAKE, r5
-	mov	#-1, r6
-	shlr	r6		/* r6 = 0x7fffffff */
-	mov	#0, r7
-	mov	#SYS_futex, r3
-	extu.b	r3, r3
-	trapa	#0x14
-	SYSCALL_INST_PAD
-
-	rts
-	 nop
-	.size	clear_once_control,.-clear_once_control

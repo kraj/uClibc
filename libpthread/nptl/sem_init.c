@@ -1,4 +1,4 @@
-/* Copyright (C) 2002 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -21,6 +21,7 @@
 #include <semaphore.h>
 #include <lowlevellock.h>
 #include "semaphoreP.h"
+#include <bits/kernel-features.h>
 
 
 int
@@ -37,13 +38,18 @@ __new_sem_init (
     }
 
   /* Map to the internal type.  */
-  struct sem *isem = (struct sem *) sem;
+  struct new_sem *isem = (struct new_sem *) sem;
 
-  /* Use the value the user provided.  */
-  isem->count = value;
+  /* Use the values the user provided.  */
+  isem->value = value;
+#ifdef __ASSUME_PRIVATE_FUTEX
+  isem->private = pshared ? 0 : FUTEX_PRIVATE_FLAG;
+#else
+  isem->private = pshared ? 0 : THREAD_GETMEM (THREAD_SELF,
+					       header.private_futex);
+#endif
 
-  /* We can completely ignore the PSHARED parameter since inter-process
-     use needs no special preparation.  */
+  isem->nwaiters = 0;
 
   return 0;
 }

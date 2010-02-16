@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2005, 2007, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,24 +18,14 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelrwlock.h>
 #include <pthread-errnos.h>
-#include <tcb-offsets.h>
+#include <bits/kernel-features.h>
 
-
-#define FUTEX_WAIT		0
-#define FUTEX_WAKE		1
 
 /* For the calculation see asm/vsyscall.h.  */
 #define VSYSCALL_ADDR_vgettimeofday	0xffffffffff600000
-
-
-#ifndef UP
-# define LOCK lock
-#else
-# define LOCK
-#endif
-
 
 	.text
 
@@ -43,10 +33,24 @@
 	.type	pthread_rwlock_timedrdlock,@function
 	.align	16
 pthread_rwlock_timedrdlock:
+	cfi_startproc
 	pushq	%r12
+	cfi_adjust_cfa_offset(8)
+	cfi_rel_offset(%r12, 0)
 	pushq	%r13
+	cfi_adjust_cfa_offset(8)
+	cfi_rel_offset(%r13, 0)
+#ifdef __ASSUME_FUTEX_CLOCK_REALTIME
+# define VALREG	%edx
+#else
 	pushq	%r14
+	cfi_adjust_cfa_offset(8)
+	cfi_rel_offset(%r14, 0)
+
 	subq	$16, %rsp
+	cfi_adjust_cfa_offset(16)
+# define VALREG %r14d
+#endif
 
 	movq	%rdi, %r12
 	movq	%rsi, %r13
@@ -77,7 +81,7 @@ pthread_rwlock_timedrdlock:
 	incl	READERS_QUEUED(%r12)
 	je	4f
 
-	movl	READERS_WAKEUP(%r12), %r14d
+	movl	READERS_WAKEUP(%r12), VALREG
 
 	/* Unlock.  */
 	LOCK
@@ -88,8 +92,33 @@ pthread_rwlock_timedrdlock:
 #endif
 	jne	10f
 
+11:
+#ifndef __ASSUME_FUTEX_CLOCK_REALTIME
+#  ifdef PIC
+	cmpl	$0, __have_futex_clock_realtime(%rip)
+#  else
+	cmpl	$0, __have_futex_clock_realtime
+#  endif
+	je	.Lreltmo
+#endif
+
+	movl	$FUTEX_PRIVATE_FLAG|FUTEX_WAIT_BITSET|FUTEX_CLOCK_REALTIME, %esi
+	xorl	PSHARED(%r12), %esi
+	movq	%r13, %r10
+	movl	$0xffffffff, %r9d
+#ifndef __ASSUME_FUTEX_CLOCK_REALTIME
+	movl	%r14d, %edx
+#endif
+21:	leaq	READERS_WAKEUP(%r12), %rdi
+	movl	$SYS_futex, %eax
+	syscall
+	movq	%rax, %rdx
+
+#ifndef __ASSUME_FUTEX_CLOCK_REALTIME
+	.subsection 2
+.Lreltmo:
 	/* Get current time.  */
-11:	movq	%rsp, %rdi
+	movq	%rsp, %rdi
 	xorl	%esi, %esi
 	movq	$VSYSCALL_ADDR_vgettimeofday, %rax
 	callq	*%rax
@@ -112,20 +141,26 @@ pthread_rwlock_timedrdlock:
 	movq	%rcx, (%rsp)	/* Store relative timeout.  */
 	movq	%rdi, 8(%rsp)
 
-#if FUTEX_WAIT == 0
-	xorl	%esi, %esi
-#else
+# ifdef __ASSUME_PRIVATE_FUTEX
+	movl	$FUTEX_PRIVATE_FLAG|FUTEX_WAIT, %esi
+	xorl	PSHARED(%r12), %esi
+# else
+#  if FUTEX_WAIT == 0
+	movl	PSHARED(%r12), %esi
+#  else
 	movl	$FUTEX_WAIT, %esi
-#endif
+	orl	PSHARED(%r12), %esi
+#  endif
+	xorl	%fs:PRIVATE_FUTEX, %esi
+# endif
 	movq	%rsp, %r10
 	movl	%r14d, %edx
-	leaq	READERS_WAKEUP(%r12), %rdi
-	movl	$SYS_futex, %eax
-	syscall
-	movq	%rax, %rdx
-17:
 
-	/* Reget the lock.  */
+	jmp	21b
+	.previous
+#endif
+
+17:	/* Reget the lock.  */
 	movl	$1, %esi
 	xorl	%eax, %eax
 	LOCK
@@ -157,17 +192,36 @@ pthread_rwlock_timedrdlock:
 
 7:	movq	%rdx, %rax
 
+#ifndef __ASSUME_FUTEX_CLOCK_REALTIME
 	addq	$16, %rsp
+	cfi_adjust_cfa_offset(-16)
 	popq	%r14
+	cfi_adjust_cfa_offset(-8)
+	cfi_restore(%r14)
+#endif
 	popq	%r13
+	cfi_adjust_cfa_offset(-8)
+	cfi_restore(%r13)
 	popq	%r12
+	cfi_adjust_cfa_offset(-8)
+	cfi_restore(%r12)
 	retq
 
-1:
+#ifdef __ASSUME_PRIVATE_FUTEX
+	cfi_adjust_cfa_offset(16)
+	cfi_rel_offset(%r12, 8)
+	cfi_rel_offset(%r13, 0)
+#else
+	cfi_adjust_cfa_offset(40)
+	cfi_offset(%r12, -16)
+	cfi_offset(%r13, -24)
+	cfi_offset(%r14, -32)
+#endif
+1:	movl	PSHARED(%rdi), %esi
 #if MUTEX != 0
 	addq	$MUTEX, %rdi
 #endif
-	callq	__lll_mutex_lock_wait
+	callq	__lll_lock_wait
 	jmp	2b
 
 14:	cmpl	%fs:TID, %eax
@@ -175,13 +229,13 @@ pthread_rwlock_timedrdlock:
 	movl	$EDEADLK, %edx
 	jmp	9b
 
-6:
+6:	movl	PSHARED(%r12), %esi
 #if MUTEX == 0
 	movq	%r12, %rdi
 #else
 	leal	MUTEX(%r12), %rdi
 #endif
-	callq	__lll_mutex_unlock_wake
+	callq	__lll_unlock_wake
 	jmp	7b
 
 	/* Overflow.  */
@@ -194,22 +248,22 @@ pthread_rwlock_timedrdlock:
 	movl	$EAGAIN, %edx
 	jmp	9b
 
-10:
+10:	movl	PSHARED(%r12), %esi
 #if MUTEX == 0
 	movq	%r12, %rdi
 #else
 	leaq	MUTEX(%r12), %rdi
 #endif
-	callq	__lll_mutex_unlock_wake
+	callq	__lll_unlock_wake
 	jmp	11b
 
-12:
+12:	movl	PSHARED(%r12), %esi
 #if MUTEX == 0
 	movq	%r12, %rdi
 #else
 	leaq	MUTEX(%r12), %rdi
 #endif
-	callq	__lll_mutex_lock_wait
+	callq	__lll_lock_wait
 	jmp	13b
 
 16:	movq	$-ETIMEDOUT, %rdx
@@ -217,4 +271,5 @@ pthread_rwlock_timedrdlock:
 
 19:	movl	$EINVAL, %edx
 	jmp	9b
+	cfi_endproc
 	.size	pthread_rwlock_timedrdlock,.-pthread_rwlock_timedrdlock

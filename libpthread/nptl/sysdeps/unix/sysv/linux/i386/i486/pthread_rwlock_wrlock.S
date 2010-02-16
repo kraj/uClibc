@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,18 +18,10 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelrwlock.h>
 #include <pthread-errnos.h>
-#include <tcb-offsets.h>
-
-#define FUTEX_WAIT		0
-#define FUTEX_WAKE		1
-
-#ifndef UP
-# define LOCK lock
-#else
-# define LOCK
-#endif
+#include <bits/kernel-features.h>
 
 
 	.text
@@ -38,8 +30,13 @@
 	.type	__pthread_rwlock_wrlock,@function
 	.align	16
 __pthread_rwlock_wrlock:
+	cfi_startproc
 	pushl	%esi
+	cfi_adjust_cfa_offset(4)
 	pushl	%ebx
+	cfi_adjust_cfa_offset(4)
+	cfi_offset(%esi, -8)
+	cfi_offset(%ebx, -12)
 
 	xorl	%esi, %esi
 	movl	12(%esp), %ebx
@@ -74,8 +71,18 @@ __pthread_rwlock_wrlock:
 #endif
 	jne	10f
 
-11:	addl	$WRITERS_WAKEUP, %ebx
-	movl	%esi, %ecx	/* movl $FUTEX_WAIT, %ecx */
+11:
+#ifdef __ASSUME_PRIVATE_FUTEX
+	movzbl	PSHARED(%ebx), %ecx
+	xorl	$FUTEX_PRIVATE_FLAG|FUTEX_WAIT, %ecx
+#else
+	movzbl	PSHARED(%ebx), %ecx
+# if FUTEX_WAIT != 0
+	orl	$FUTEX_WAIT, %ecx
+# endif
+	xorl	%gs:PRIVATE_FUTEX, %ecx
+#endif
+	addl	$WRITERS_WAKEUP, %ebx
 	movl	$SYS_futex, %eax
 	ENTER_KERNEL
 
@@ -95,7 +102,7 @@ __pthread_rwlock_wrlock:
 13:	subl	$1, WRITERS_QUEUED(%ebx)
 	jmp	2b
 
-5:	xorl	%ecx, %ecx
+5:	xorl	%edx, %edx
 	movl	%gs:TID, %eax
 	movl	%eax, WRITER(%ebx)
 9:	LOCK
@@ -107,23 +114,31 @@ __pthread_rwlock_wrlock:
 	jne	6f
 7:
 
-	movl	%ecx, %eax
+	movl	%edx, %eax
 	popl	%ebx
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%ebx)
 	popl	%esi
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%esi)
 	ret
 
+	cfi_adjust_cfa_offset(8)
+	cfi_offset(%esi, -8)
+	cfi_offset(%ebx, -12)
 1:
 #if MUTEX == 0
-	movl	%ebx, %ecx
+	movl	%ebx, %edx
 #else
-	leal	MUTEX(%ebx), %ecx
+	leal	MUTEX(%ebx), %edx
 #endif
-	call	__lll_mutex_lock_wait
+	movzbl	PSHARED(%ebx), %ecx
+	call	__lll_lock_wait
 	jmp	2b
 
 14:	cmpl	%gs:TID	, %eax
 	jne	3b
-	movl	$EDEADLK, %ecx
+	movl	$EDEADLK, %edx
 	jmp	9b
 
 6:
@@ -132,11 +147,12 @@ __pthread_rwlock_wrlock:
 #else
 	leal	MUTEX(%ebx), %eax
 #endif
-	call	__lll_mutex_unlock_wake
+	movzbl	PSHARED(%ebx), %ecx
+	call	__lll_unlock_wake
 	jmp	7b
 
 4:	subl	$1, WRITERS_QUEUED(%ebx)
-	movl	$EAGAIN, %ecx
+	movl	$EAGAIN, %edx
 	jmp	9b
 
 10:
@@ -145,17 +161,20 @@ __pthread_rwlock_wrlock:
 #else
 	leal	MUTEX(%ebx), %eax
 #endif
-	call	__lll_mutex_unlock_wake
+	movzbl	PSHARED(%ebx), %ecx
+	call	__lll_unlock_wake
 	jmp	11b
 
 12:
 #if MUTEX == 0
-	movl	%ebx, %ecx
+	movl	%ebx, %edx
 #else
-	leal	MUTEX(%ebx), %ecx
+	leal	MUTEX(%ebx), %edx
 #endif
-	call	__lll_mutex_lock_wait
+	movzbl	PSHARED(%ebx), %ecx
+	call	__lll_lock_wait
 	jmp	13b
+	cfi_endproc
 	.size	__pthread_rwlock_wrlock,.-__pthread_rwlock_wrlock
 
 	.globl	pthread_rwlock_wrlock

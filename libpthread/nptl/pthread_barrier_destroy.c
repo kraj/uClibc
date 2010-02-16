@@ -1,4 +1,4 @@
-/* Copyright (C) 2002 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -23,21 +23,22 @@
 
 
 int
-pthread_barrier_destroy (pthread_barrier_t *barrier)
+pthread_barrier_destroy (
+     pthread_barrier_t *barrier)
 {
   struct pthread_barrier *ibarrier;
   int result = EBUSY;
 
   ibarrier = (struct pthread_barrier *) barrier;
 
-  lll_lock (ibarrier->lock);
+  lll_lock (ibarrier->lock, ibarrier->private ^ FUTEX_PRIVATE_FLAG);
 
   if (__builtin_expect (ibarrier->left == ibarrier->init_count, 1))
     /* The barrier is not used anymore.  */
     result = 0;
   else
     /* Still used, return with an error.  */
-    lll_unlock (ibarrier->lock);
+    lll_unlock (ibarrier->lock, ibarrier->private ^ FUTEX_PRIVATE_FLAG);
 
   return result;
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,11 +17,10 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelrwlock.h>
+#include <bits/kernel-features.h>
 #include "lowlevel-atomic.h"
-
-#define FUTEX_WAIT		0
-#define FUTEX_WAKE		1
 
 
 	.text
@@ -86,7 +85,24 @@ __pthread_rwlock_unlock:
 	bf	7f
 
 8:
-	mov	#FUTEX_WAKE, r5
+#ifdef __ASSUME_PRIVATE_FUTEX
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	mov	#(FUTEX_PRIVATE_FLAG|FUTEX_WAKE), r0
+	xor	r0, r5
+	extu.b	r5, r5
+#else
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
+	mov	#FUTEX_WAKE, r0
+	or	r0, r5
+	stc	gbr, r1
+	mov.w	.Lpfoff, r2
+	add	r2, r1
+	mov.l	@r1, r0
+	xor	r0, r5
+#endif
 	mov	#SYS_futex, r3
 	mov	#0, r7
 	extu.b	r3, r3
@@ -118,10 +134,12 @@ __pthread_rwlock_unlock:
 #if MUTEX != 0
 	add	#MUTEX, r5
 #endif
-	mov	r2, r4
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r6
+	extu.b	r6, r6
 	mov.l	.Lwait8, r1
 	bsrf	r1
-	 nop
+	 mov	r2, r4
 .Lwait8b:
 	bra	2b
 	 nop
@@ -130,6 +148,9 @@ __pthread_rwlock_unlock:
 #if MUTEX != 0
 	add	#MUTEX, r4
 #endif
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
 	mov.l	.Lwake8, r1
 	bsrf	r1
 	 nop
@@ -144,6 +165,9 @@ __pthread_rwlock_unlock:
 #if MUTEX != 0
 	add	#MUTEX, r4
 #endif
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
 	mov.l	.Lwake9, r1
 	bsrf	r1
 	 nop
@@ -153,13 +177,17 @@ __pthread_rwlock_unlock:
 	bra	8b
 	 mov.l	@r15+, r4
 
+#ifndef __ASSUME_PRIVATE_FUTEX
+.Lpfoff:
+	.word	PRIVATE_FUTEX - TLS_PRE_TCB_SIZE
+#endif
 	.align	2
 .Lwait8:
-	.long	__lll_mutex_lock_wait-.Lwait8b
+	.long	__lll_lock_wait-.Lwait8b
 .Lwake8:
-	.long	__lll_mutex_unlock_wake-.Lwake8b
+	.long	__lll_unlock_wake-.Lwake8b
 .Lwake9:
-	.long	__lll_mutex_unlock_wake-.Lwake9b
+	.long	__lll_unlock_wake-.Lwake9b
 	.size	__pthread_rwlock_unlock,.-__pthread_rwlock_unlock
 
 	.globl	pthread_rwlock_unlock

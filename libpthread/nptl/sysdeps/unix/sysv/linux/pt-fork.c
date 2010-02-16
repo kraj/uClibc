@@ -19,7 +19,6 @@
 
 #include <unistd.h>
 
-extern int __libc_fork (void);
 
 pid_t
 __fork (void)

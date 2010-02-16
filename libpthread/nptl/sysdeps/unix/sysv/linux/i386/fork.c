@@ -19,9 +19,9 @@
 
 #include <sched.h>
 #include <signal.h>
-#include <stdio.h>
 #include <sysdep.h>
 #include <tls.h>
+
 
 #define ARCH_FORK() \
   INLINE_SYSCALL (clone, 5,						      \

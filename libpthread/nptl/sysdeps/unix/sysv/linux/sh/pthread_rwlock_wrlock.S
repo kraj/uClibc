@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,13 +17,12 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelrwlock.h>
 #include <pthread-errnos.h>
 #include <tcb-offsets.h>
+#include <bits/kernel-features.h>
 #include "lowlevel-atomic.h"
-
-#define FUTEX_WAIT		0
-#define FUTEX_WAKE		1
 
 
 	.text
@@ -73,7 +72,26 @@ __pthread_rwlock_wrlock:
 11:
 	mov	r8, r4
 	add	#WRITERS_WAKEUP, r4
-	mov	#FUTEX_WAIT, r5
+#ifdef __ASSUME_PRIVATE_FUTEX
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	mov	#(FUTEX_PRIVATE_FLAG|FUTEX_WAIT), r0
+	xor	r0, r5
+	extu.b	r5, r5
+#else
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
+# if FUTEX_WAIT != 0
+	mov	#FUTEX_WAIT, r0
+	or	r0, r5
+# endif
+	stc	gbr, r1
+	mov.w	.Lpfoff, r2
+	add	r2, r1
+	mov.l	@r1, r0
+	xor	r0, r5
+#endif
 	mov	r9, r6
 	mov	#0, r7
 	mov	#SYS_futex, r3
@@ -123,10 +141,12 @@ __pthread_rwlock_wrlock:
 #if MUTEX != 0
 	add	#MUTEX, r5
 #endif
-	mov	r2, r4
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r6
+	extu.b	r6, r6
 	mov.l	.Lwait4, r1
 	bsrf	r1
-	 nop
+	 mov	r2, r4
 .Lwait4b:
 	bra	2b
 	 nop
@@ -144,6 +164,9 @@ __pthread_rwlock_wrlock:
 #if MUTEX != 0
 	add	#MUTEX, r4
 #endif
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
 	mov.l	.Lwake4, r1
 	bsrf	r1
 	 nop
@@ -151,6 +174,10 @@ __pthread_rwlock_wrlock:
 	bra	7b
 	 mov	#0, r3
 
+#ifndef __ASSUME_PRIVATE_FUTEX
+.Lpfoff:
+	.word	PRIVATE_FUTEX - TLS_PRE_TCB_SIZE
+#endif
 .Ltidoff:
 	.word	TID - TLS_PRE_TCB_SIZE
 
@@ -166,6 +193,9 @@ __pthread_rwlock_wrlock:
 #if MUTEX != 0
 	add	#MUTEX, r4
 #endif
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r5
+	extu.b	r5, r5
 	mov.l	.Lwake5, r1
 	bsrf	r1
 	 nop
@@ -178,23 +208,25 @@ __pthread_rwlock_wrlock:
 #if MUTEX != 0
 	add	#MUTEX, r5
 #endif
-	mov	r2, r4
+	mov	#PSHARED, r0
+	mov.b	@(r0,r8), r6
+	extu.b	r6, r6
 	mov.l	.Lwait5, r1
 	bsrf	r1
-	 nop
+	 mov	r2, r4
 .Lwait5b:
 	bra	13b
 	 nop
 
 	.align	2
 .Lwait4:
-	.long	__lll_mutex_lock_wait-.Lwait4b
+	.long	__lll_lock_wait-.Lwait4b
 .Lwake4:
-	.long	__lll_mutex_unlock_wake-.Lwake4b
+	.long	__lll_unlock_wake-.Lwake4b
 .Lwait5:
-	.long	__lll_mutex_lock_wait-.Lwait5b
+	.long	__lll_lock_wait-.Lwait5b
 .Lwake5:
-	.long	__lll_mutex_unlock_wake-.Lwake5b
+	.long	__lll_unlock_wake-.Lwake5b
 	.globl	pthread_rwlock_wrlock
 pthread_rwlock_wrlock = __pthread_rwlock_wrlock
 

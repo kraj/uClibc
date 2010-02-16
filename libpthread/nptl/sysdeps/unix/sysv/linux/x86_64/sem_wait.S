@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2005, 2007, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,15 +18,9 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <pthread-errnos.h>
-#include <tcb-offsets.h>
-#include <tls.h>
-
-#ifndef UP
-# define LOCK lock
-#else
-# define
-#endif
+#include <structsem.h>
 
 
 	.text
@@ -34,86 +28,155 @@
 	.globl	sem_wait
 	.type	sem_wait,@function
 	.align	16
-	cfi_startproc
 sem_wait:
-	/* First check for cancellation.  */
-	movl	%fs:CANCELHANDLING, %eax
-	andl	$0xfffffff9, %eax
-	cmpl	$8, %eax
-	je	4f
+.LSTARTCODE:
+	cfi_startproc
+#ifdef SHARED
+	cfi_personality(DW_EH_PE_pcrel | DW_EH_PE_sdata4 | DW_EH_PE_indirect,
+			DW.ref.__gcc_personality_v0)
+	cfi_lsda(DW_EH_PE_pcrel | DW_EH_PE_sdata4, .LexceptSTART)
+#else
+	cfi_personality(DW_EH_PE_udata4, __gcc_personality_v0)
+	cfi_lsda(DW_EH_PE_udata4, .LexceptSTART)
+#endif
 
-	pushq	%r12
-	cfi_adjust_cfa_offset(8)
-	cfi_offset(12, -16)
-	pushq	%r13
-	cfi_adjust_cfa_offset(8)
-	movq	%rdi, %r13
-	cfi_offset(13, -24)
-
-3:	movl	(%r13), %eax
+#if VALUE == 0
+	movl	(%rdi), %eax
+#else
+	movl	VALUE(%rdi), %eax
+#endif
 2:	testl	%eax, %eax
 	je	1f
 
-	leaq	-1(%rax), %rdx
+	leal	-1(%rax), %edx
 	LOCK
-	cmpxchgl %edx, (%r13)
+#if VALUE == 0
+	cmpxchgl %edx, (%rdi)
+#else
+	cmpxchgl %edx, VALUE(%rdi)
+#endif
 	jne	2b
+
 	xorl	%eax, %eax
-
-	popq	%r13
-	cfi_adjust_cfa_offset(-8)
-	cfi_restore(13)
-	popq	%r12
-	cfi_adjust_cfa_offset(-8)
-	cfi_restore(12)
-
 	retq
 
-	cfi_adjust_cfa_offset(16)
-	cfi_offset(12, -16)
-	cfi_offset(13, -24)
-1:	call	__pthread_enable_asynccancel
+	/* This push is only needed to store the sem_t pointer for the
+	   exception handler.  */
+1:	pushq	%rdi
+	cfi_adjust_cfa_offset(8)
+
+	LOCK
+	addq	$1, NWAITERS(%rdi)
+
+.LcleanupSTART:
+6:	call	__pthread_enable_asynccancel
 	movl	%eax, %r8d
 
 	xorq	%r10, %r10
 	movl	$SYS_futex, %eax
-	movq	%r13, %rdi
-	movq	%r10, %rsi
-	movq	%r10, %rdx
-	syscall
-	movq	%rax, %r12
-
-	movl	%r8d, %edi
-	call	__pthread_disable_asynccancel
-
-	testq	%r12, %r12
-	je	3b
-	cmpq	$-EWOULDBLOCK, %r12
-	je	3b
-	negq	%r12
-#if USE___THREAD
-	movq	errno@gottpoff(%rip), %rdx
-	movl	%r12d, %fs:(%rdx)
+#if FUTEX_WAIT == 0
+	movl	PRIVATE(%rdi), %esi
 #else
-	callq	__errno_location@plt
-	movl	%r12d, (%rax)
+	movl	$FUTEX_WAIT, %esi
+	orl	PRIVATE(%rdi), %esi
 #endif
-	orl	$-1, %eax
+	xorl	%edx, %edx
+	syscall
+	movq	%rax, %rcx
 
-	popq	%r13
+	xchgq	%r8, %rdi
+	call	__pthread_disable_asynccancel
+.LcleanupEND:
+	movq	%r8, %rdi
+
+	testq	%rcx, %rcx
+	je	3f
+	cmpq	$-EWOULDBLOCK, %rcx
+	jne	4f
+
+3:
+#if VALUE == 0
+	movl	(%rdi), %eax
+#else
+	movl	VALUE(%rdi), %eax
+#endif
+5:	testl	%eax, %eax
+	je	6b
+
+	leal	-1(%rax), %edx
+	LOCK
+#if VALUE == 0
+	cmpxchgl %edx, (%rdi)
+#else
+	cmpxchgl %edx, VALUE(%rdi)
+#endif
+	jne	5b
+
+	xorl	%eax, %eax
+
+9:	LOCK
+	subq	$1, NWAITERS(%rdi)
+
+	leaq	8(%rsp), %rsp
 	cfi_adjust_cfa_offset(-8)
-	cfi_restore(13)
-	popq	%r12
-	cfi_adjust_cfa_offset(-8)
-	cfi_restore(12)
 
 	retq
 
-4:	/* Canceled.  */
-	movq	$0xffffffffffffffff, %fs:RESULT
-	LOCK
-	orl	$0x10, %fs:CANCELHANDLING
-	movq	%fs:CLEANUP_JMP_BUF, %rdi
-	jmp	HIDDEN_JUMPTARGET (__pthread_unwind)
-	cfi_endproc
+	cfi_adjust_cfa_offset(8)
+4:	negq	%rcx
+#if USE___THREAD
+	movq	errno@gottpoff(%rip), %rdx
+	movl	%ecx, %fs:(%rdx)
+#else
+# error "not supported.  %rcx and %rdi must be preserved"
+	callq	__errno_location@plt
+	movl	%ecx, (%rax)
+#endif
+	orl	$-1, %eax
+
+	jmp 9b
 	.size	sem_wait,.-sem_wait
+
+
+	.type	sem_wait_cleanup,@function
+sem_wait_cleanup:
+	movq	(%rsp), %rdi
+	LOCK
+	subq	$1, NWAITERS(%rdi)
+	movq	%rax, %rdi
+.LcallUR:
+	call	_Unwind_Resume@PLT
+	hlt
+.LENDCODE:
+	cfi_endproc
+	.size	sem_wait_cleanup,.-sem_wait_cleanup
+
+
+	.section .gcc_except_table,"a",@progbits
+.LexceptSTART:
+	.byte	DW_EH_PE_omit			# @LPStart format
+	.byte	DW_EH_PE_omit			# @TType format
+	.byte	DW_EH_PE_uleb128		# call-site format
+	.uleb128 .Lcstend-.Lcstbegin
+.Lcstbegin:
+	.uleb128 .LcleanupSTART-.LSTARTCODE
+	.uleb128 .LcleanupEND-.LcleanupSTART
+	.uleb128 sem_wait_cleanup-.LSTARTCODE
+	.uleb128  0
+	.uleb128 .LcallUR-.LSTARTCODE
+	.uleb128 .LENDCODE-.LcallUR
+	.uleb128 0
+	.uleb128  0
+.Lcstend:
+
+
+#ifdef SHARED
+	.hidden	DW.ref.__gcc_personality_v0
+	.weak	DW.ref.__gcc_personality_v0
+	.section .gnu.linkonce.d.DW.ref.__gcc_personality_v0,"aw",@progbits
+	.align	8
+	.type	DW.ref.__gcc_personality_v0, @object
+	.size	DW.ref.__gcc_personality_v0, 8
+DW.ref.__gcc_personality_v0:
+	.quad	__gcc_personality_v0
+#endif

@@ -21,7 +21,6 @@
 #define _TLS_H	1
 
 #ifndef __ASSEMBLER__
-#include <dl-sysdep.h>
 
 # include <stdbool.h>
 # include <stddef.h>

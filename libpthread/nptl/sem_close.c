@@ -41,12 +41,13 @@ walker (const void *inodep, const VISIT which, const int depth)
 
 
 int
-sem_close (sem_t *sem)
+sem_close (
+     sem_t *sem)
 {
   int result = 0;
 
   /* Get the lock.  */
-  lll_lock (__sem_mappings_lock);
+  lll_lock (__sem_mappings_lock, LLL_PRIVATE);
 
   /* Locate the entry for the mapping the caller provided.  */
   rec = NULL;
@@ -74,7 +75,7 @@ sem_close (sem_t *sem)
     }
 
   /* Release the lock.  */
-  lll_unlock (__sem_mappings_lock);
+  lll_unlock (__sem_mappings_lock, LLL_PRIVATE);
 
   return result;
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2004, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky <schwidefsky@de.ibm.com>, 2003.
 
@@ -23,14 +23,19 @@
 #include <lowlevellock.h>
 #include <pthread.h>
 #include <pthreadP.h>
+
 #include <bits/kernel-features.h>
 
 
 int
-__pthread_cond_signal (pthread_cond_t *cond)
+__pthread_cond_signal (
+     pthread_cond_t *cond)
 {
+  int pshared = (cond->__data.__mutex == (void *) ~0l)
+		? LLL_SHARED : LLL_PRIVATE;
+
   /* Make sure we are alone.  */
-  lll_mutex_lock (cond->__data.__lock);
+  lll_lock (cond->__data.__lock, pshared);
 
   /* Are there any waiters to be woken?  */
   if (cond->__data.__total_seq > cond->__data.__wakeup_seq)
@@ -40,12 +45,18 @@ __pthread_cond_signal (pthread_cond_t *cond)
       ++cond->__data.__futex;
 
       /* Wake one.  */
-      lll_futex_wake (&cond->__data.__futex, 1);
+      if (! __builtin_expect (lll_futex_wake_unlock (&cond->__data.__futex, 1,
+						     1, &cond->__data.__lock,
+						     pshared), 0))
+	return 0;
+
+      lll_futex_wake (&cond->__data.__futex, 1, pshared);
     }
 
   /* We are done.  */
-  lll_mutex_unlock (cond->__data.__lock);
+  lll_unlock (cond->__data.__lock, pshared);
 
   return 0;
 }
+
 weak_alias(__pthread_cond_signal, pthread_cond_signal)

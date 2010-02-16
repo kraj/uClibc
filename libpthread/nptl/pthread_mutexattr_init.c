@@ -22,7 +22,8 @@
 
 
 int
-__pthread_mutexattr_init (pthread_mutexattr_t *attr)
+__pthread_mutexattr_init (
+     pthread_mutexattr_t *attr)
 {
   if (sizeof (struct pthread_mutexattr) != sizeof (pthread_mutexattr_t))
     memset (attr, '\0', sizeof (*attr));

@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2004, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -22,16 +22,20 @@
 
 
 int
-__pthread_cond_destroy (pthread_cond_t *cond)
+__pthread_cond_destroy (
+     pthread_cond_t *cond)
 {
+  int pshared = (cond->__data.__mutex == (void *) ~0l)
+		? LLL_SHARED : LLL_PRIVATE;
+
   /* Make sure we are alone.  */
-  lll_mutex_lock (cond->__data.__lock);
+  lll_lock (cond->__data.__lock, pshared);
 
   if (cond->__data.__total_seq > cond->__data.__wakeup_seq)
     {
       /* If there are still some waiters which have not been
 	 woken up, this is an application bug.  */
-      lll_mutex_unlock (cond->__data.__lock);
+      lll_unlock (cond->__data.__lock, pshared);
       return EBUSY;
     }
 
@@ -42,15 +46,36 @@ __pthread_cond_destroy (pthread_cond_t *cond)
      broadcasted, but still are using the pthread_cond_t structure,
      pthread_cond_destroy needs to wait for them.  */
   unsigned int nwaiters = cond->__data.__nwaiters;
-  while (nwaiters >= (1 << COND_CLOCK_BITS))
+
+  if (nwaiters >= (1 << COND_NWAITERS_SHIFT))
     {
-      lll_mutex_unlock (cond->__data.__lock);
+      /* Wake everybody on the associated mutex in case there are
+         threads that have been requeued to it.
+         Without this, pthread_cond_destroy could block potentially
+         for a long time or forever, as it would depend on other
+         thread's using the mutex.
+         When all threads waiting on the mutex are woken up, pthread_cond_wait
+         only waits for threads to acquire and release the internal
+         condvar lock.  */
+      if (cond->__data.__mutex != NULL
+	  && cond->__data.__mutex != (void *) ~0l)
+	{
+	  pthread_mutex_t *mut = (pthread_mutex_t *) cond->__data.__mutex;
+	  lll_futex_wake (&mut->__data.__lock, INT_MAX,
+			  PTHREAD_MUTEX_PSHARED (mut));
+	}
 
-      lll_futex_wait (&cond->__data.__nwaiters, nwaiters);
+      do
+	{
+	  lll_unlock (cond->__data.__lock, pshared);
 
-      lll_mutex_lock (cond->__data.__lock);
+	  lll_futex_wait (&cond->__data.__nwaiters, nwaiters, pshared);
 
-      nwaiters = cond->__data.__nwaiters;
+	  lll_lock (cond->__data.__lock, pshared);
+
+	  nwaiters = cond->__data.__nwaiters;
+	}
+      while (nwaiters >= (1 << COND_NWAITERS_SHIFT));
     }
 
   return 0;

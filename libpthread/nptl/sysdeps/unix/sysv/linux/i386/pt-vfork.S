@@ -17,6 +17,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <sysdep.h>
+#define _ERRNO_H	1
+#include <bits/errno.h>
+#include <bits/kernel-features.h>
 #include <tcb-offsets.h>
 
 /* Save the PID value.  */
@@ -33,4 +37,32 @@
 	movl	%edx, %gs:PID;						      \
 1:
 
-#include <../../../../../../../libc/sysdeps/linux/i386/vfork.S>
+/* Clone the calling process, but without copying the whole address space.
+   The calling process is suspended until the new process exits or is
+   replaced by a call to `execve'.  Return -1 for errors, 0 to the new process,
+   and the process ID of the new process to the old process.  */
+
+ENTRY (__vfork)
+	/* Pop the return PC value into ECX.  */
+	popl	%ecx
+
+	SAVE_PID
+
+	/* Stuff the syscall number in EAX and enter into the kernel.  */
+	movl	$SYS_ify (vfork), %eax
+	int	$0x80
+
+	RESTORE_PID
+
+	/* Jump to the return PC.  Don't jump directly since this
+	   disturbs the branch target cache.  Instead push the return
+	   address back on the stack.  */
+	pushl	%ecx
+
+	cmpl	$-4095, %eax
+	jae	SYSCALL_ERROR_LABEL	/* Branch forward if it failed.  */
+.Lpseudo_end:
+	ret
+PSEUDO_END (__vfork)
+
+weak_alias (__vfork, vfork)

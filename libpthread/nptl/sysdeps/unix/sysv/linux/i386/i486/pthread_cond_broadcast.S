@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002,2003,2004,2006,2007,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,22 +18,11 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelcond.h>
 #include <bits/kernel-features.h>
-
-#ifdef UP
-# define LOCK
-#else
-# define LOCK lock
-#endif
-
-#define FUTEX_WAIT		0
-#define FUTEX_WAKE		1
-#define FUTEX_REQUEUE		3
-#define FUTEX_CMP_REQUEUE	4
-
-#define EINVAL			22
-
+#include <pthread-pi-defines.h>
+#include <pthread-errnos.h>
 
 	.text
 
@@ -42,11 +31,20 @@
 	.type	__pthread_cond_broadcast, @function
 	.align	16
 __pthread_cond_broadcast:
-
+	cfi_startproc
 	pushl	%ebx
+	cfi_adjust_cfa_offset(4)
+	cfi_rel_offset(%ebx, 0)
 	pushl	%esi
+	cfi_adjust_cfa_offset(4)
+	cfi_rel_offset(%esi, 0)
 	pushl	%edi
+	cfi_adjust_cfa_offset(4)
+	cfi_rel_offset(%edi, 0)
 	pushl	%ebp
+	cfi_adjust_cfa_offset(4)
+	cfi_rel_offset(%ebp, 0)
+	cfi_remember_state
 
 	movl	20(%esp), %ebx
 
@@ -92,8 +90,24 @@ __pthread_cond_broadcast:
 8:	cmpl	$-1, %edi
 	je	9f
 
+	/* Do not use requeue for pshared condvars.  */
+	testl	$PS_BIT, MUTEX_KIND(%edi)
+	jne	9f
+
+	/* Requeue to a non-robust PI mutex if the PI bit is set and
+	   the robust bit is not set.  */
+	movl	MUTEX_KIND(%edi), %eax
+	andl	$(ROBUST_BIT|PI_BIT), %eax
+	cmpl	$PI_BIT, %eax
+	je	81f
+
 	/* Wake up all threads.  */
-	movl	$FUTEX_CMP_REQUEUE, %ecx
+#ifdef __ASSUME_PRIVATE_FUTEX
+	movl	$(FUTEX_CMP_REQUEUE|FUTEX_PRIVATE_FLAG), %ecx
+#else
+	movl	%gs:PRIVATE_FUTEX, %ecx
+	orl	$FUTEX_CMP_REQUEUE, %ecx
+#endif
 	movl	$SYS_futex, %eax
 	movl	$0x7fffffff, %esi
 	movl	$1, %edx
@@ -111,51 +125,113 @@ __pthread_cond_broadcast:
 	cmpl	$0xfffff001, %eax
 	jae	9f
 
-10:	xorl	%eax, %eax
+6:	xorl	%eax, %eax
 	popl	%ebp
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%ebp)
 	popl	%edi
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%edi)
 	popl	%esi
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%esi)
 	popl	%ebx
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%ebx)
 	ret
+
+	cfi_restore_state
+
+81:	movl	$(FUTEX_CMP_REQUEUE_PI|FUTEX_PRIVATE_FLAG), %ecx
+	movl	$SYS_futex, %eax
+	movl	$0x7fffffff, %esi
+	movl	$1, %edx
+	/* Get the address of the futex involved.  */
+# if MUTEX_FUTEX != 0
+	addl	$MUTEX_FUTEX, %edi
+# endif
+	int	$0x80
+
+	/* For any kind of error, which mainly is EAGAIN, we try again
+	with WAKE.  The general test also covers running on old
+	kernels.  */
+	cmpl	$0xfffff001, %eax
+	jb	6b
+	jmp	9f
+
+	/* Initial locking failed.  */
+1:
+#if cond_lock == 0
+	movl	%ebx, %edx
+#else
+	leal	cond_lock(%ebx), %edx
+#endif
+#if (LLL_SHARED-LLL_PRIVATE) > 255
+	xorl	%ecx, %ecx
+#endif
+	cmpl	$-1, dep_mutex(%ebx)
+	setne	%cl
+	subl	$1, %ecx
+	andl	$(LLL_SHARED-LLL_PRIVATE), %ecx
+#if LLL_PRIVATE != 0
+	addl	$LLL_PRIVATE, %ecx
+#endif
+	call	__lll_lock_wait
+	jmp	2b
 
 	.align	16
 	/* Unlock.  */
 4:	LOCK
 	subl	$1, cond_lock-cond_futex(%ebx)
-	jne	5f
+	je	6b
 
-6:	xorl	%eax, %eax
-	popl	%ebp
-	popl	%edi
-	popl	%esi
-	popl	%ebx
-	ret
-
-	/* Initial locking failed.  */
-1:
-#if cond_lock == 0
-	movl	%ebx, %ecx
-#else
-	leal	cond_lock(%ebx), %ecx
-#endif
-	call	__lll_mutex_lock_wait
-	jmp	2b
-
-	/* Unlock in loop requires waekup.  */
+	/* Unlock in loop requires wakeup.  */
 5:	leal	cond_lock-cond_futex(%ebx), %eax
-	call	__lll_mutex_unlock_wake
+#if (LLL_SHARED-LLL_PRIVATE) > 255
+	xorl	%ecx, %ecx
+#endif
+	cmpl	$-1, dep_mutex-cond_futex(%ebx)
+	setne	%cl
+	subl	$1, %ecx
+	andl	$(LLL_SHARED-LLL_PRIVATE), %ecx
+#if LLL_PRIVATE != 0
+	addl	$LLL_PRIVATE, %ecx
+#endif
+	call	__lll_unlock_wake
 	jmp	6b
 
-	/* Unlock in loop requires waekup.  */
+	/* Unlock in loop requires wakeup.  */
 7:	leal	cond_lock-cond_futex(%ebx), %eax
-	call	__lll_mutex_unlock_wake
+#if (LLL_SHARED-LLL_PRIVATE) > 255
+	xorl	%ecx, %ecx
+#endif
+	cmpl	$-1, dep_mutex-cond_futex(%ebx)
+	setne	%cl
+	subl	$1, %ecx
+	andl	$(LLL_SHARED-LLL_PRIVATE), %ecx
+#if LLL_PRIVATE != 0
+	addl	$LLL_PRIVATE, %ecx
+#endif
+	call	__lll_unlock_wake
 	jmp	8b
 
 9:	/* The futex requeue functionality is not available.  */
 	movl	$0x7fffffff, %edx
-	movl	$FUTEX_WAKE, %ecx
+#if FUTEX_PRIVATE_FLAG > 255
+	xorl	%ecx, %ecx
+#endif
+	cmpl	$-1, dep_mutex-cond_futex(%ebx)
+	sete	%cl
+	subl	$1, %ecx
+#ifdef __ASSUME_PRIVATE_FUTEX
+	andl	$FUTEX_PRIVATE_FLAG, %ecx
+#else
+	andl	%gs:PRIVATE_FUTEX, %ecx
+#endif
+	addl	$FUTEX_WAKE, %ecx
 	movl	$SYS_futex, %eax
 	ENTER_KERNEL
-	jmp	10b
+	jmp	6b
+	cfi_endproc
 	.size	__pthread_cond_broadcast, .-__pthread_cond_broadcast
 weak_alias(__pthread_cond_broadcast, pthread_cond_broadcast)

@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2003.
 
@@ -23,6 +23,7 @@
 #include <pthread.h>
 #include <setjmp.h>
 #include <internaltypes.h>
+#include <sysdep.h>
 
 struct xid_command;
 
@@ -72,12 +73,8 @@ struct pthread_functions
   int (*ptr_pthread_mutex_destroy) (pthread_mutex_t *);
   int (*ptr_pthread_mutex_init) (pthread_mutex_t *,
 				 const pthread_mutexattr_t *);
-  int (*ptr_pthread_mutex_trylock) (pthread_mutex_t *);
   int (*ptr_pthread_mutex_lock) (pthread_mutex_t *);
   int (*ptr_pthread_mutex_unlock) (pthread_mutex_t *);
-  int (*ptr_pthread_mutexattr_init) (pthread_mutexattr_t *attr);
-  int (*ptr_pthread_mutexattr_destroy) (pthread_mutexattr_t *attr);
-  int (*ptr_pthread_mutexattr_settype) (pthread_mutexattr_t *attr, int kind);
   pthread_t (*ptr_pthread_self) (void);
   int (*ptr_pthread_setcancelstate) (int, int *);
   int (*ptr_pthread_setcanceltype) (int, int *);
@@ -99,9 +96,22 @@ struct pthread_functions
        __attribute ((noreturn)) __cleanup_fct_attribute;
   void (*ptr__nptl_deallocate_tsd) (void);
   int (*ptr__nptl_setxid) (struct xid_command *);
+  void (*ptr_freeres) (void);
 };
 
 /* Variable in libc.so.  */
 extern struct pthread_functions __libc_pthread_functions attribute_hidden;
+extern int __libc_pthread_functions_init attribute_hidden;
+
+#ifdef PTR_DEMANGLE
+# define PTHFCT_CALL(fct, params) \
+  ({ __typeof (__libc_pthread_functions.fct) __p;			      \
+     __p = __libc_pthread_functions.fct;				      \
+     PTR_DEMANGLE (__p);						      \
+     __p params; })
+#else
+# define PTHFCT_CALL(fct, params) \
+  __libc_pthread_functions.fct params
+#endif
 
 #endif	/* pthread-functions.h */

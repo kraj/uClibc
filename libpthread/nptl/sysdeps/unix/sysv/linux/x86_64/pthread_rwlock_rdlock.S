@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2005, 2007, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,19 +18,10 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelrwlock.h>
 #include <pthread-errnos.h>
-#include <tcb-offsets.h>
-
-
-#define FUTEX_WAIT		0
-#define FUTEX_WAKE		1
-
-#ifndef UP
-# define LOCK lock
-#else
-# define LOCK
-#endif
+#include <bits/kernel-features.h>
 
 
 	.text
@@ -39,6 +30,7 @@
 	.type	__pthread_rwlock_rdlock,@function
 	.align	16
 __pthread_rwlock_rdlock:
+	cfi_startproc
 	xorq	%r10, %r10
 
 	/* Get the lock.  */
@@ -73,12 +65,20 @@ __pthread_rwlock_rdlock:
 #endif
 	jne	10f
 
-11:	addq	$READERS_WAKEUP, %rdi
-#if FUTEX_WAIT == 0
-	xorl	%esi, %esi
+11:
+#ifdef __ASSUME_PRIVATE_FUTEX
+	movl	$FUTEX_PRIVATE_FLAG|FUTEX_WAIT, %esi
+	xorl	PSHARED(%rdi), %esi
 #else
+# if FUTEX_WAIT == 0
+	movl	PSHARED(%rdi), %esi
+# else
 	movl	$FUTEX_WAIT, %esi
+	orl	PSHARED(%rdi), %esi
+# endif
+	xorl	%fs:PRIVATE_FUTEX, %esi
 #endif
+	addq	$READERS_WAKEUP, %rdi
 	movl	$SYS_futex, %eax
 	syscall
 
@@ -113,11 +113,11 @@ __pthread_rwlock_rdlock:
 	movq	%rdx, %rax
 	retq
 
-1:
+1:	movl	PSHARED(%rdi), %esi
 #if MUTEX != 0
 	addq	$MUTEX, %rdi
 #endif
-	callq	__lll_mutex_lock_wait
+	callq	__lll_lock_wait
 #if MUTEX != 0
 	subq	$MUTEX, %rdi
 #endif
@@ -129,11 +129,11 @@ __pthread_rwlock_rdlock:
 	movl	$EDEADLK, %edx
 	jmp	9b
 
-6:
+6:	movl	PSHARED(%rdi), %esi
 #if MUTEX != 0
 	addq	$MUTEX, %rdi
 #endif
-	callq	__lll_mutex_unlock_wake
+	callq	__lll_unlock_wake
 #if MUTEX != 0
 	subq	$MUTEX, %rdi
 #endif
@@ -149,25 +149,26 @@ __pthread_rwlock_rdlock:
 	movl	$EAGAIN, %edx
 	jmp	9b
 
-10:
+10:	movl	PSHARED(%rdi), %esi
 #if MUTEX != 0
 	addq	$MUTEX, %rdi
 #endif
-	callq	__lll_mutex_unlock_wake
+	callq	__lll_unlock_wake
 #if MUTEX != 0
 	subq	$MUTEX, %rdi
 #endif
 	jmp	11b
 
-12:
+12:	movl	PSHARED(%rdi), %esi
 #if MUTEX == 0
 	addq	$MUTEX, %rdi
 #endif
-	callq	__lll_mutex_lock_wait
+	callq	__lll_lock_wait
 #if MUTEX != 0
 	subq	$MUTEX, %rdi
 #endif
 	jmp	13b
+	cfi_endproc
 	.size	__pthread_rwlock_rdlock,.-__pthread_rwlock_rdlock
 
 	.globl	pthread_rwlock_rdlock

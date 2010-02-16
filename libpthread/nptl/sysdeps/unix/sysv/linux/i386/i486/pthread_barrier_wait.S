@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002, 2003, 2004, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -18,17 +18,8 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <lowlevellock.h>
 #include <lowlevelbarrier.h>
-
-#define FUTEX_WAIT	0
-#define FUTEX_WAKE	1
-
-#ifndef UP
-# define LOCK lock
-#else
-# define LOCK
-#endif
-
 
 	.text
 
@@ -36,7 +27,10 @@
 	.type	pthread_barrier_wait,@function
 	.align	16
 pthread_barrier_wait:
+	cfi_startproc
 	pushl	%ebx
+	cfi_adjust_cfa_offset(4)
+	cfi_offset(%ebx, -8)
 
 	movl	8(%esp), %ebx
 
@@ -54,6 +48,8 @@ pthread_barrier_wait:
 
 	/* There are more threads to come.  */
 	pushl	%esi
+	cfi_adjust_cfa_offset(4)
+	cfi_offset(%esi, -12)
 
 #if CURR_EVENT == 0
 	movl	(%ebx), %edx
@@ -68,7 +64,13 @@ pthread_barrier_wait:
 
 	/* Wait for the remaining threads.  The call will return immediately
 	   if the CURR_EVENT memory has meanwhile been changed.  */
-7:	xorl	%ecx, %ecx		/* movl $FUTEX_WAIT, %ecx */
+7:
+#if FUTEX_WAIT == 0
+	movl	PRIVATE(%ebx), %ecx
+#else
+	movl	$FUTEX_WAIT, %ecx
+	orl	PRIVATE(%ebx), %ecx
+#endif
 	xorl	%esi, %esi
 8:	movl	$SYS_futex, %eax
 	ENTER_KERNEL
@@ -81,7 +83,7 @@ pthread_barrier_wait:
 #else
 	cmpl	%edx, CURR_EVENT(%ebx)
 #endif
-	je,pn	8b
+	je	8b
 
 	/* Increment LEFT.  If this brings the count back to the
 	   initial count unlock the object.  */
@@ -91,7 +93,7 @@ pthread_barrier_wait:
 	xaddl	%edx, LEFT(%ebx)
 	subl	$1, %ecx
 	cmpl	%ecx, %edx
-	jne,pt	10f
+	jne	10f
 
 	/* Release the mutex.  We cannot release the lock before
 	   waking the waiting threads since otherwise a new thread might
@@ -104,9 +106,16 @@ pthread_barrier_wait:
 10:	movl	%esi, %eax		/* != PTHREAD_BARRIER_SERIAL_THREAD */
 
 	popl	%esi
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%esi)
 	popl	%ebx
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%ebx)
 	ret
 
+	cfi_adjust_cfa_offset(4)
+	cfi_offset(%ebx, -8)
+	
 	/* The necessary number of threads arrived.  */
 3:
 #if CURR_EVENT == 0
@@ -119,6 +128,7 @@ pthread_barrier_wait:
 	   so 0x7fffffff is the highest value.  */
 	movl	$0x7fffffff, %edx
 	movl	$FUTEX_WAKE, %ecx
+	orl	PRIVATE(%ebx), %ecx
 	movl	$SYS_futex, %eax
 	ENTER_KERNEL
 
@@ -130,7 +140,7 @@ pthread_barrier_wait:
 	xaddl	%edx, LEFT(%ebx)
 	subl	$1, %ecx
 	cmpl	%ecx, %edx
-	jne,pt	5f
+	jne	5f
 
 	/* Release the mutex.  We cannot release the lock before
 	   waking the waiting threads since otherwise a new thread might
@@ -142,21 +152,36 @@ pthread_barrier_wait:
 5:	orl	$-1, %eax		/* == PTHREAD_BARRIER_SERIAL_THREAD */
 
 	popl	%ebx
+	cfi_adjust_cfa_offset(-4)
+	cfi_restore(%ebx)
 	ret
 
-1:	leal	MUTEX(%ebx), %ecx
-	call	__lll_mutex_lock_wait
+	cfi_adjust_cfa_offset(4)
+	cfi_offset(%ebx, -8)
+1:	movl	PRIVATE(%ebx), %ecx
+	leal	MUTEX(%ebx), %edx
+	xorl	$LLL_SHARED, %ecx
+	call	__lll_lock_wait
 	jmp	2b
 
-4:	leal	MUTEX(%ebx), %eax
-	call	__lll_mutex_unlock_wake
+4:	movl	PRIVATE(%ebx), %ecx
+	leal	MUTEX(%ebx), %eax
+	xorl	$LLL_SHARED, %ecx
+	call	__lll_unlock_wake
 	jmp	5b
 
-6:	leal	MUTEX(%ebx), %eax
-	call	__lll_mutex_unlock_wake
+	cfi_adjust_cfa_offset(4)
+	cfi_offset(%esi, -12)
+6:	movl	PRIVATE(%ebx), %ecx
+	leal	MUTEX(%ebx), %eax
+	xorl	$LLL_SHARED, %ecx
+	call	__lll_unlock_wake
 	jmp	7b
 
-9:	leal	MUTEX(%ebx), %eax
-	call	__lll_mutex_unlock_wake
+9:	movl	PRIVATE(%ebx), %ecx
+	leal	MUTEX(%ebx), %eax
+	xorl	$LLL_SHARED, %ecx
+	call	__lll_unlock_wake
 	jmp	10b
+	cfi_endproc
 	.size	pthread_barrier_wait,.-pthread_barrier_wait

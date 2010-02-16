@@ -11,7 +11,10 @@ tcb-offsets.[hcs]
 lowlevelbarrier.[hcs]
 lowlevelcond.[hcs]
 lowlevelrwlock.[hcs]
+lowlevelrobustlock.[hcs]
 unwindbuf.[hcs]
+structsem.[hcs]
+pthread-pi-defines.[hcs]
 sysdeps/pthread/pt-sigaction.c
 sysdeps/pthread/pt-sigfillset.c
 sysdeps/pthread/pt-sigprocmask.c
