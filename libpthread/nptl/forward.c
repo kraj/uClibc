@@ -144,8 +144,7 @@ FORWARD (pthread_setcanceltype, (int type, int *oldtype), (type, oldtype), 0)
 
 #define return /* value is void */
 FORWARD2(__pthread_unwind,
-	 void attribute_hidden __attribute ((noreturn)) __cleanup_fct_attribute
-	 attribute_compat_text_section,
+	 void attribute_hidden __attribute ((noreturn)) __cleanup_fct_attribute,
 	 (__pthread_unwind_buf_t *buf), (buf), {
 		       /* We cannot call abort() here.  */
 		       INTERNAL_SYSCALL_DECL (err);

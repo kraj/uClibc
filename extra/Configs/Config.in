@@ -435,6 +435,7 @@ config LINUXTHREADS_NEW
 config UCLIBC_HAS_THREADS_NATIVE
 	bool "Native POSIX Threading (NPTL)"
 	select UCLIBC_HAS_TLS
+	select UCLIBC_HAS_STDIO_FUTEXES
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.
 
@@ -1748,8 +1749,8 @@ config UCLIBC_HAS_GNU_GETOPT
 
 config UCLIBC_HAS_STDIO_FUTEXES
 	bool "Use futexes for multithreaded I/O locking"
-	default n
 	depends on UCLIBC_HAS_THREADS_NATIVE
+	default n
 	help
 	  If you want to compile uClibc to use futexes for low-level
 	  I/O locking, answer Y.  Otherwise, answer N.

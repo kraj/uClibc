@@ -22,6 +22,7 @@
 #include <string.h>
 #include <fork.h>
 #include <atomic.h>
+#include <tls.h>
 
 
 /* Lock to protect allocation and deallocation of fork handlers.  */
@@ -119,7 +120,7 @@ __linkin_atfork (struct fork_handler *newp)
 						newp, newp->next) != 0);
 }
 
-
+#if 0
 libc_freeres_fn (free_mem)
 {
   /* Get the lock to not conflict with running forks.  */
@@ -144,3 +145,5 @@ libc_freeres_fn (free_mem)
       free (oldp);
     }
 }
+#endif
+

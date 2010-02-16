@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <fork.h>
 #include <atomic.h>
+#include <tls.h>
 
 
 void

@@ -48,28 +48,12 @@ __libc_pthread_init (
   __register_atfork (NULL, NULL, reclaim, NULL);
 
 #ifdef SHARED
-  /* Copy the function pointers into an array in libc.  This enables
-     access with just one memory reference but moreso, it prevents
-     hijacking the function pointers with just one pointer change.  We
-     "encrypt" the function pointers since we cannot write-protect the
-     array easily enough.  */
-  union ptrhack
-  {
-    struct pthread_functions pf;
-# define NPTRS (sizeof (struct pthread_functions) / sizeof (void *))
-    void *parr[NPTRS];
-  } __attribute__ ((may_alias)) const *src;
-  union ptrhack *dest;
-
-  src = (const void *) functions;
-  dest = (void *) &__libc_pthread_functions;
-
-  for (size_t cnt = 0; cnt < NPTRS; ++cnt)
-    {
-      void *p = src->parr[cnt];
-      PTR_MANGLE (p);
-      dest->parr[cnt] = p;
-    }
+  /* We copy the content of the variable pointed to by the FUNCTIONS
+     parameter to one in libc.so since this means access to the array
+     can be done with one memory access instead of two.
+   */
+   memcpy (&__libc_pthread_functions, functions,
+           sizeof (__libc_pthread_functions));
   __libc_pthread_functions_init = 1;
 #endif
 
@@ -79,9 +63,12 @@ __libc_pthread_init (
 }
 
 #ifdef SHARED
+#if 0
+void
 libc_freeres_fn (freeres_libptread)
 {
   if (__libc_pthread_functions_init)
     PTHFCT_CALL (ptr_freeres, ());
 }
+#endif
 #endif
