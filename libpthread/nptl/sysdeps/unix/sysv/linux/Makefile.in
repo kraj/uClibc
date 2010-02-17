@@ -147,7 +147,7 @@ headers_clean-y += nptl_linux_headers_clean
 #
 # Create header files.
 #
-CFLAGS-gen_lowlevelbarrier.c = -S
+CFLAGS-gen_llowlevelbarrier.c = -S
 CFLAGS-gen_llowlevelcond.c = -S
 CFLAGS-gen_llowlevelrwlock.c = -S
 CFLAGS-gen_llowlevelrobustlock.c = -S
