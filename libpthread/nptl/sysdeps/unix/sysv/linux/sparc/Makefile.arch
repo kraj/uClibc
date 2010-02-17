@@ -7,7 +7,7 @@
 
 libpthread_SSRC = pt-vfork.S clone.S
 libpthread_CSRC = pthread_once.c lowlevellock.c \
-				  pthred_barrier_init.c pthread_barrier_wait.c pthread_barrier_destroy.c
+				  pthread_barrier_init.c pthread_barrier_wait.c pthread_barrier_destroy.c
 
 libc_a_CSRC = fork.c libc-lowlevellock.c
 libc_a_SSRC = clone.S vfork.S
