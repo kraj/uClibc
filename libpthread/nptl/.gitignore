@@ -6,15 +6,16 @@
 #
 # Generated files
 #
+gen_l*
 pthread-errnos.[hcs]
 tcb-offsets.[hcs]
-lowlevelbarrier.[hcs]
-lowlevelcond.[hcs]
-lowlevelrwlock.[hcs]
-lowlevelrobustlock.[hcs]
-unwindbuf.[hcs]
-structsem.[hcs]
-pthread-pi-defines.[hcs]
+lowlevelbarrier.h
+lowlevelcond.h
+lowlevelrwlock.h
+lowlevelrobustlock.h
+unwindbuf.h
+structsem.h
+pthread-pi-defines.h
 sysdeps/pthread/pt-sigaction.c
 sysdeps/pthread/pt-sigfillset.c
 sysdeps/pthread/pt-sigprocmask.c
