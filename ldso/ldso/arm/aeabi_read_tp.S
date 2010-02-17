@@ -38,7 +38,6 @@
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 
 #include <sysdep.h>
-#include <tls.h>
 
 /* GCC will emit calls to this routine under -mtp=soft.  Linux has an
    equivalent helper function (which clobbers fewer registers than
