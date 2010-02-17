@@ -37,6 +37,7 @@
 #define __need_res_state
 #include <resolv.h>
 #include <bits/kernel-features.h>
+#include "uClibc-glue.h"
 
 #ifndef TCB_ALIGNMENT
 # define TCB_ALIGNMENT	sizeof (double)

@@ -23,6 +23,7 @@
 #include <lowlevellock.h>
 #include <internaltypes.h>
 #include <semaphore.h>
+#include <tls.h>
 
 int
 __new_sem_post (sem_t *sem)

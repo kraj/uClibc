@@ -63,7 +63,6 @@ endif
 
 
 CFLAGS-pt-common = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS)
-
 CFLAGS-pthread_barrier_wait.c = -D_GNU_SOURCE $(CFLAGS-pt-common)	\
 				-DIS_IN_libpthread=1
 CFLAGS-pthread_cond_broadcast.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
@@ -94,6 +93,7 @@ CFLAGS-librt-cancellation.c = -DIS_IN_librt=1 $(CFLAGS-pt-common)	\
 			      -fexceptions -fasynchronous-unwind-tables
 CFLAGS-rt-unwind-resume.c = -DIS_IN_librt=1 $(CFLAGS-pt-common)		\
 			    -fexceptions -fasynchronous-unwind-tables
+CFLAGS-tpp.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1
 
 #CFLAGS:=$(CFLAGS:-O1=-O2)
 

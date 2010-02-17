@@ -21,6 +21,9 @@
 #include <stdio.h>
 #include <unwind.h>
 #include <pthreadP.h>
+#define __libc_dlopen(x)        dlopen(x, (RTLD_LOCAL | RTLD_LAZY))
+#define __libc_dlsym            dlsym
+#define __libc_dlclose          dlclose
 
 static void *libgcc_s_handle;
 static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
@@ -59,7 +62,7 @@ pthread_cancel_init (void)
 	 == NULL
       || (getcfa = __libc_dlsym (handle, "_Unwind_GetCFA")) == NULL
       )
-    __libc_fatal ("libgcc_s.so.1 must be installed for pthread_cancel to work\n");
+      fprintf(stderr, "libgcc_s.so.1 must be installed for pthread_cancel to work\n");
 
   libgcc_s_resume = resume;
   libgcc_s_personality = personality;

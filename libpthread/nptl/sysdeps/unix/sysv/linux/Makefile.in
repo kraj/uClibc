@@ -5,14 +5,15 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-libpthread_CSRC = pthread_attr_getaffinity.c			\
+libpthread_CSRC = pthread_attr_getaffinity.c				\
 		  pthread_attr_setaffinity.c pthread_getaffinity.c	\
 		  pthread_getcpuclockid.c pthread_kill.c		\
 		  pthread_mutex_cond_lock.c pthread_setaffinity.c	\
 		  pthread_yield.c sem_post.c sem_timedwait.c		\
-		  pthread_sigqueue.c \
+		  pthread_sigqueue.c 					\
 		  sem_trywait.c sem_wait.c pt-fork.c			\
-		  sigtimedwait.c sigwaitinfo.c sigwait.c pt-sleep.c
+		  sigtimedwait.c sigwaitinfo.c sigwait.c pt-sleep.c	\
+		  lowlevelrobustlock.c
 
 libpthread_SSRC = #ptw-close.S ptw-open.S ptw-waitid.S ptw-waidpid.S ptw-write.S
 
@@ -146,77 +147,77 @@ headers_clean-y += nptl_linux_headers_clean
 #
 # Create header files.
 #
-CFLAGS-lowlevelbarrier.c = -S
-CFLAGS-lowlevelcond.c = -S
-CFLAGS-lowlevelrwlock.c = -S
-CFLAGS-lowlevelrobustlock.c = -S
-CFLAGS-unwindbuf.c = -S
-CFLAGS-structsem.c = -S
-CFLAGS-pthread-pi-defines.c = -S
+CFLAGS-gen_lowlevelbarrier.c = -S
+CFLAGS-gen_llowlevelcond.c = -S
+CFLAGS-gen_llowlevelrwlock.c = -S
+CFLAGS-gen_llowlevelrobustlock.c = -S
+CFLAGS-gen_lunwindbuf.c = -S
+CFLAGS-gen_lstructsem.c = -S
+CFLAGS-gen_lpthread-pi-defines.c = -S
 
-$(PTHREAD_LINUX_OUT)/lowlevelbarrier.c: $(PTHREAD_LINUX_DIR)/lowlevelbarrier.sym
+$(PTHREAD_LINUX_OUT)/gen_llowlevelbarrier.c: $(PTHREAD_LINUX_DIR)/lowlevelbarrier.sym
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
-$(PTHREAD_LINUX_OUT)/lowlevelcond.c: $(PTHREAD_LINUX_DIR)/lowlevelcond.sym
+$(PTHREAD_LINUX_OUT)/gen_llowlevelcond.c: $(PTHREAD_LINUX_DIR)/lowlevelcond.sym
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
-$(PTHREAD_LINUX_OUT)/lowlevelrwlock.c: $(PTHREAD_LINUX_DIR)/lowlevelrwlock.sym
+$(PTHREAD_LINUX_OUT)/gen_llowlevelrwlock.c: $(PTHREAD_LINUX_DIR)/lowlevelrwlock.sym
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
-$(PTHREAD_LINUX_OUT)/lowlevelrobustlock.c: $(PTHREAD_LINUX_DIR)/lowlevelrobustlock.sym
+$(PTHREAD_LINUX_OUT)/gen_llowlevelrobustlock.c: $(PTHREAD_LINUX_DIR)/lowlevelrobustlock.sym
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
-$(PTHREAD_LINUX_OUT)/unwindbuf.c: $(PTHREAD_LINUX_DIR)/unwindbuf.sym
+$(PTHREAD_LINUX_OUT)/gen_lunwindbuf.c: $(PTHREAD_LINUX_DIR)/unwindbuf.sym
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
-$(PTHREAD_LINUX_OUT)/structsem.c: $(PTHREAD_LINUX_DIR)/structsem.sym
+$(PTHREAD_LINUX_OUT)/gen_lstructsem.c: $(PTHREAD_LINUX_DIR)/structsem.sym
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
-$(PTHREAD_LINUX_OUT)/pthread-pi-defines.c: $(PTHREAD_LINUX_DIR)/pthread-pi-defines.sym
+$(PTHREAD_LINUX_OUT)/gen_lpthread-pi-defines.c: $(PTHREAD_LINUX_DIR)/pthread-pi-defines.sym
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
 
-$(PTHREAD_LINUX_OUT)/lowlevelbarrier.s: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.c
+$(PTHREAD_LINUX_OUT)/gen_llowlevelbarrier.s: $(PTHREAD_LINUX_OUT)/gen_llowlevelbarrier.c
 	$(compile.c)
 
-$(PTHREAD_LINUX_OUT)/lowlevelcond.s: $(PTHREAD_LINUX_OUT)/lowlevelcond.c
+$(PTHREAD_LINUX_OUT)/gen_llowlevelcond.s: $(PTHREAD_LINUX_OUT)/gen_llowlevelcond.c
 	$(compile.c)
 
-$(PTHREAD_LINUX_OUT)/lowlevelrwlock.s: $(PTHREAD_LINUX_OUT)/lowlevelrwlock.c
+$(PTHREAD_LINUX_OUT)/gen_llowlevelrwlock.s: $(PTHREAD_LINUX_OUT)/gen_llowlevelrwlock.c
 	$(compile.c)
 
-$(PTHREAD_LINUX_OUT)/lowlevelrobustlock.s: $(PTHREAD_LINUX_OUT)/lowlevelrobustlock.c
+$(PTHREAD_LINUX_OUT)/gen_llowlevelrobustlock.s: $(PTHREAD_LINUX_OUT)/gen_llowlevelrobustlock.c
 	$(compile.c)
 
-$(PTHREAD_LINUX_OUT)/unwindbuf.s: $(PTHREAD_LINUX_OUT)/unwindbuf.c
+$(PTHREAD_LINUX_OUT)/gen_lunwindbuf.s: $(PTHREAD_LINUX_OUT)/gen_lunwindbuf.c
 	$(compile.c)
 
-$(PTHREAD_LINUX_OUT)/structsem.s: $(PTHREAD_LINUX_OUT)/structsem.c
+$(PTHREAD_LINUX_OUT)/gen_lstructsem.s: $(PTHREAD_LINUX_OUT)/gen_lstructsem.c
 	$(compile.c)
 
-$(PTHREAD_LINUX_OUT)/pthread-pi-defines.s: $(PTHREAD_LINUX_OUT)/pthread-pi-defines.c
+$(PTHREAD_LINUX_OUT)/gen_lpthread-pi-defines.s: $(PTHREAD_LINUX_OUT)/gen_lpthread-pi-defines.c
 	$(compile.c)
 
 
-$(PTHREAD_LINUX_OUT)/lowlevelbarrier.h: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.s
+$(PTHREAD_LINUX_OUT)/lowlevelbarrier.h: $(PTHREAD_LINUX_OUT)/gen_llowlevelbarrier.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
-$(PTHREAD_LINUX_OUT)/lowlevelcond.h: $(PTHREAD_LINUX_OUT)/lowlevelcond.s
+$(PTHREAD_LINUX_OUT)/lowlevelcond.h: $(PTHREAD_LINUX_OUT)/gen_llowlevelcond.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
-$(PTHREAD_LINUX_OUT)/lowlevelrwlock.h: $(PTHREAD_LINUX_OUT)/lowlevelrwlock.s
+$(PTHREAD_LINUX_OUT)/lowlevelrwlock.h: $(PTHREAD_LINUX_OUT)/gen_llowlevelrwlock.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
-$(PTHREAD_LINUX_OUT)/lowlevelrobustlock.h: $(PTHREAD_LINUX_OUT)/lowlevelrobustlock.s
+$(PTHREAD_LINUX_OUT)/lowlevelrobustlock.h: $(PTHREAD_LINUX_OUT)/gen_llowlevelrobustlock.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
-$(PTHREAD_LINUX_OUT)/unwindbuf.h: $(PTHREAD_LINUX_OUT)/unwindbuf.s
+$(PTHREAD_LINUX_OUT)/unwindbuf.h: $(PTHREAD_LINUX_OUT)/gen_lunwindbuf.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
-$(PTHREAD_LINUX_OUT)/structsem.h: $(PTHREAD_LINUX_OUT)/structsem.s
+$(PTHREAD_LINUX_OUT)/structsem.h: $(PTHREAD_LINUX_OUT)/gen_lstructsem.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
-$(PTHREAD_LINUX_OUT)/pthread-pi-defines.h: $(PTHREAD_LINUX_OUT)/pthread-pi-defines.s
+$(PTHREAD_LINUX_OUT)/pthread-pi-defines.h: $(PTHREAD_LINUX_OUT)/gen_lpthread-pi-defines.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
 nptl_linux_headers: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h \
@@ -234,13 +235,20 @@ $(ALL_HEADERS_BITS_PTHREAD):
 	$(do_ln) ../../$(PTHREAD_LINUX_DIR)/bits/$(@F) $(top_builddir)$@
 
 nptl_linux_headers_clean:
-	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/lowlevelbarrier., c h s) \
-	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelcond., c h s) \
-	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelrwlock., c h s) \
-	$(addprefix $(PTHREAD_LINUX_OUT)/lowlevelrobustlock., c h s) \
-	$(addprefix $(PTHREAD_LINUX_OUT)/unwindbuf., c h s) \
-	$(addprefix $(PTHREAD_LINUX_OUT)/structsem., c h s) \
-	$(addprefix $(PTHREAD_LINUX_OUT)/pthread-pi-defines., c h s)
+	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/gen_llowlevelbarrier., c s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/gen_lowlevelcond., c s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/gen_llowlevelrwlock., c s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/gen_llowlevelrobustlock., c s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/gen_lunwindbuf., c s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/gen_lstructsem., c s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/gen_lpthread-pi-defines., c s) \
+	$(PTHREAD_LINUX_OUT)/lowlevelbarrier.h \
+	$(PTHREAD_LINUX_OUT)/lowlevelcond.h \
+	$(PTHREAD_LINUX_OUT)/lowlevelrwlock.h \
+	$(PTHREAD_LINUX_OUT)/lowlevelrobustlock.h \
+	$(PTHREAD_LINUX_OUT)/unwindbuf.h \
+	$(PTHREAD_LINUX_OUT)/structsem.h \
+	$(PTHREAD_LINUX_OUT)/pthread-pi-defines.h
 
 
 nptl_linux_clean:

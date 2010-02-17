@@ -21,7 +21,7 @@
 #define _INTERNALTYPES_H	1
 
 #include <stdint.h>
-
+#include <sched.h>
 
 struct pthread_attr
 {

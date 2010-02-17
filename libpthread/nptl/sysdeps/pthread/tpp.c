@@ -24,7 +24,7 @@
 #include <pthreadP.h>
 #include <sched.h>
 #include <stdlib.h>
-
+#include "uClibc-glue.h"
 
 int __sched_fifo_min_prio = -1;
 int __sched_fifo_max_prio = -1;

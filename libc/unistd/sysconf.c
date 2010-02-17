@@ -38,9 +38,6 @@
 #include <sysdep.h>
 #endif
 
-#ifdef HAVE_LINUX_CPUMASK_H
-# include <linux/cpumask.h>
-#endif
 #ifndef num_present_cpus
 # define num_present_cpus() (1)
 #endif

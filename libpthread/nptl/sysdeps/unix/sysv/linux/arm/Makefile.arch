@@ -9,7 +9,7 @@ libpthread_SSRC = pt-vfork.S
 libpthread_CSRC = pthread_once.c lowlevellock.c \
                   pt-__syscall_rt_sigaction.c pt-__syscall_error.c
 
-libc_a_CSRC = fork.c
+libc_a_CSRC = fork.c lowlevellock.c
 libc_a_SSRC = clone.S vfork.S
 
 ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)

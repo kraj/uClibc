@@ -99,6 +99,12 @@
 # define attribute_noreturn
 #endif
 
+#define libc_freeres_ptr(decl) \
+      __make_section_unallocated ("__libc_freeres_ptrs, \"aw\", %nobits") \
+  decl __attribute__ ((section ("__libc_freeres_ptrs" __sec_comment)))
+#define __libc_freeres_fn_section \
+      __attribute__ ((section ("__libc_freeres_fn")))
+
 #ifndef NOT_IN_libc
 # define IS_IN_libc 1
 #endif

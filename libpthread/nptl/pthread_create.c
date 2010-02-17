@@ -302,8 +302,9 @@ start_thread (void *arg)
   __nptl_deallocate_tsd ();
 
   /* Clean up any state libc stored in thread-local variables.  */
+  /* disable for now
   __libc_thread_freeres ();
-
+  */
   /* If this is the last thread we terminate the process now.  We
      do not notify the debugger, it might just irritate it if there
      is no thread left.  */

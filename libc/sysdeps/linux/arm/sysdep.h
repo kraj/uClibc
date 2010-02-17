@@ -359,4 +359,9 @@ __local_syscall_error:						\
 #endif
 
 #endif	/* __ASSEMBLER__ */
+
+/* Pointer mangling is not yet supported for ARM.  */
+#define PTR_MANGLE(var) (void) (var)
+#define PTR_DEMANGLE(var) (void) (var)
+
 #endif /* linux/arm/sysdep.h */

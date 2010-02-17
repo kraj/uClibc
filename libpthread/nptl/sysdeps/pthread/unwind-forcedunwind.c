@@ -24,6 +24,10 @@
 #include <sysdep.h>
 #include <libgcc_s.h>
 
+#define __libc_dlopen(x)        dlopen(x, (RTLD_LOCAL | RTLD_LAZY))
+#define __libc_dlsym            dlsym
+#define __libc_dlclose		dlclose
+
 static void *libgcc_s_handle;
 static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
 static _Unwind_Reason_Code (*libgcc_s_personality)

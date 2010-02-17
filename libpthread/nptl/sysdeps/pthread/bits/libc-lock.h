@@ -61,6 +61,10 @@ typedef struct __libc_rwlock_opaque__ __libc_rwlock_t;
 /* Type for key to thread-specific data.  */
 typedef pthread_key_t __libc_key_t;
 
+# define __libc_freeres_fn_section \
+      __attribute__ ((section ("__libc_freeres_fn")))
+
+
 /* Define a lock variable NAME with storage class CLASS.  The lock must be
    initialized with __libc_lock_init before it can be used (or define it
    with __libc_lock_define_initialized, below).  Use `extern' for CLASS to
@@ -545,7 +549,7 @@ weak_extern (__pthread_key_create)
 weak_extern (__pthread_setspecific)
 weak_extern (__pthread_getspecific)
 weak_extern (__pthread_once)
-weak_extern (__pthread_initialize)
+//weak_extern (__pthread_initialize)
 weak_extern (__pthread_atfork)
 #ifdef SHARED
 weak_extern (_pthread_cleanup_push_defer)
@@ -571,7 +575,7 @@ weak_extern (pthread_setcancelstate)
 #  pragma weak __pthread_setspecific
 #  pragma weak __pthread_getspecific
 #  pragma weak __pthread_once
-#  pragma weak __pthread_initialize
+//#  pragma weak __pthread_initialize
 #  pragma weak __pthread_atfork
 #  pragma weak _pthread_cleanup_push_defer
 #  pragma weak _pthread_cleanup_pop_restore
