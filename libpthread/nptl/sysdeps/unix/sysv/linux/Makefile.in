@@ -61,7 +61,8 @@ libpthread_CSRC := $(filter-out $(SH_PTHREAD_SPECIFIC),$(libpthread_CSRC))
 endif
 
 ifeq ($(TARGET_ARCH),i386)
-X86_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c
+X86_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c \
+	lowlevelrobustlock.c
 libpthread_CSRC := $(filter-out $(X86_PTHREAD_SPECIFIC),$(libpthread_CSRC))
 endif
 

@@ -23,6 +23,7 @@
 #include <bits/kernel-features.h>
 #include <pthread-pi-defines.h>
 #include <pthread-errnos.h>
+#include <tls.h>
 
 	.text
 

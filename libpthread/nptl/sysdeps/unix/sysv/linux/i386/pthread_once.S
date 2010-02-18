@@ -21,6 +21,7 @@
 #include <sysdep.h>
 #include <bits/kernel-features.h>
 #include <lowlevellock.h>
+#include <tls.h>
 
 
 	.comm	__fork_generation, 4, 4

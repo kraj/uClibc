@@ -22,6 +22,7 @@
 #include <lowlevelrwlock.h>
 #include <pthread-errnos.h>
 #include <bits/kernel-features.h>
+#include <tls.h>
 
 
 	.text

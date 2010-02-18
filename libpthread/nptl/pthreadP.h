@@ -371,13 +371,11 @@ hidden_proto (__nptl_death_event)
 #ifdef TLS_MULTIPLE_THREADS_IN_TCB
 extern void __libc_pthread_init (unsigned long int *ptr,
 				 void (*reclaim) (void),
-				 const struct pthread_functions *functions)
-     internal_function;
+				 const struct pthread_functions *functions);
 #else
 extern int *__libc_pthread_init (unsigned long int *ptr,
 				 void (*reclaim) (void),
-				 const struct pthread_functions *functions)
-     internal_function;
+				 const struct pthread_functions *functions);
 
 /* Variable set to a nonzero value if more than one thread runs or ran.  */
 extern int __pthread_multiple_threads attribute_hidden;

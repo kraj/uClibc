@@ -22,6 +22,7 @@
 #include <lowlevellock.h>
 #include <lowlevelrobustlock.h>
 #include <bits/kernel-features.h>
+#include <tls.h>
 
 	.text
 
