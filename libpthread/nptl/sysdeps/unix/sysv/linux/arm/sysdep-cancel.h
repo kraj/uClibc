@@ -17,6 +17,7 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
+#include <tcb-offsets.h>
 #ifndef __ASSEMBLER__
 # include <pthreadP.h>
 #endif
