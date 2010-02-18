@@ -22,6 +22,7 @@
 #include <sysdep.h>
 #include <lowlevellock.h>
 #include <sys/time.h>
+#include <tls.h>
 
 
 void

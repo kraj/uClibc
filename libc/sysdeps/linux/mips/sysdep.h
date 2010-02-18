@@ -383,6 +383,9 @@ L(syse1):
 #define __SYSCALL_CLOBBERS "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13", \
 	"$14", "$15", "$24", "$25", "memory"
 
+/* Pointer mangling is not yet supported for MIPS.  */
+#define PTR_MANGLE(var) (void) (var)
+#define PTR_DEMANGLE(var) (void) (var)
 
 #endif  /* __ASSEMBLER__ */
 #endif /* _LINUX_MIPS_SYSDEP_H */
