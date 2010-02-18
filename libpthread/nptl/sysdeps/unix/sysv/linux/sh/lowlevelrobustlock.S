@@ -22,6 +22,7 @@
 #include <lowlevellock.h>
 #include <lowlevelrobustlock.h>
 #include <bits/kernel-features.h>
+#include <tcb-offsets.h>
 #include "lowlevel-atomic.h"
 
 	.text

@@ -20,6 +20,7 @@
 #include <lowlevellock.h>
 #include <lowlevelrwlock.h>
 #include <bits/kernel-features.h>
+#include <tcb-offsets.h>
 #include "lowlevel-atomic.h"
 
 

@@ -22,6 +22,7 @@
 #include <bits/kernel-features.h>
 #include <pthread-pi-defines.h>
 #include <pthread-errnos.h>
+#include <tcb-offsets.h>
 #include "lowlevel-atomic.h"
 
 	.text

@@ -12,8 +12,7 @@ libpthread_CSRC = pthread_attr_getaffinity.c				\
 		  pthread_yield.c sem_post.c sem_timedwait.c		\
 		  pthread_sigqueue.c 					\
 		  sem_trywait.c sem_wait.c pt-fork.c			\
-		  sigtimedwait.c sigwaitinfo.c sigwait.c pt-sleep.c	\
-		  lowlevelrobustlock.c
+		  sigtimedwait.c sigwaitinfo.c sigwait.c pt-sleep.c
 
 libpthread_SSRC = #ptw-close.S ptw-open.S ptw-waitid.S ptw-waidpid.S ptw-write.S
 
@@ -37,10 +36,11 @@ endif
 
 ifeq ($(TARGET_ARCH),arm)
 libc_SSRC := $(filter-out waitpid.S,$(libc_SSRC))
+libpthread_CSRC += lowlevelrobustlock.c
 endif
 
 ifeq ($(TARGET_ARCH),mips)
-libpthread_CSRC += lowlevellock.c
+libpthread_CSRC += lowlevellock.c lowlevelrobustlock.c
 libc_CSRC += libc-lowlevellock.c
 endif
 

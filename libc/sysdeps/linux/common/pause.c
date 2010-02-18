@@ -37,3 +37,4 @@ weak_alias (__libc_pause, pause)
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 LIBC_CANCEL_HANDLED ();		/* sigsuspend handles our cancellation.  */
 #endif
+

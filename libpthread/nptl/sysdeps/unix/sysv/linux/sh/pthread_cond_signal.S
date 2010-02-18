@@ -21,6 +21,7 @@
 #include <lowlevelcond.h>
 #include <bits/kernel-features.h>
 #include <pthread-errnos.h>
+#include <tcb-offsets.h>
 #include "lowlevel-atomic.h"
 
 	.text

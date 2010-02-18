@@ -27,7 +27,6 @@
 #include <bits/kernel-features.h>
 #endif
 
-#define SYS_futex		240
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 #define FUTEX_CMP_REQUEUE	4
