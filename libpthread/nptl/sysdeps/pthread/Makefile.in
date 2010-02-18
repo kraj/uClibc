@@ -10,7 +10,8 @@
 #       pt-longjmp.c in libc and libpthread. For uClibc, they are
 #       in libc only.
 #
-libpthread_CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c	\
+libpthread_CSRC = pthread_barrier_init.c pthread_barrier_destroy.c    \
+		  pthread_barrier_wait.c pthread_cond_broadcast.c	\
 		  pthread_cond_signal.c pthread_cond_timedwait.c	\
 		  pthread_cond_wait.c pthread_rwlock_rdlock.c		\
 		  pthread_rwlock_timedrdlock.c				\
@@ -63,6 +64,8 @@ endif
 
 
 CFLAGS-pt-common = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS)
+CFLAGS-pthread_barrier_init.c = $(CFLAGS-pt-common)	-DIS_IN_libpthread=1
+CFLAGS-pthread_barrier_destroy.c = $(CFLAGS-pt-common)	-DIS_IN_libpthread=1
 CFLAGS-pthread_barrier_wait.c = -D_GNU_SOURCE $(CFLAGS-pt-common)	\
 				-DIS_IN_libpthread=1
 CFLAGS-pthread_cond_broadcast.c = $(CFLAGS-pt-common) -DIS_IN_libpthread=1

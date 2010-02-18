@@ -189,6 +189,7 @@ libpthread-misc-routines = pthread_rwlock_rdlock pthread_rwlock_timedrdlock \
 			   pthread_cond_broadcast pthread_spin_init \
 			   pthread_spin_destroy pthread_spin_lock \
 			   pthread_spin_trylock pthread_spin_unlock \
+			   pthread_barrier_init pthread_barrier_destroy \
 			   pthread_barrier_wait pthread_sigmask \
 			   pthread_kill pthread_once \
 			   pthread_getcpuclockid sem_wait \
@@ -249,6 +250,7 @@ libc-static-y += $(patsubst %.c, $(PTHREAD_OUT)/%.o, alloca_cutoff.c	\
 libc-shared-y += $(patsubst %.c, $(PTHREAD_OUT)/%.oS, forward.c		\
 	libc-cancellation.c)
 libpthread-nonshared-y += $(patsubst %,$(PTHREAD_OUT)/%.oS,$(libpthread_static_SRC))
+
 
 ifeq ($(DOPIC),y)
 libpthread-a-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.os,$(libpthread_a_SRC))
