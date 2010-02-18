@@ -237,7 +237,7 @@ $(ALL_HEADERS_BITS_PTHREAD):
 
 nptl_linux_headers_clean:
 	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/gen_llowlevelbarrier., c s) \
-	$(addprefix $(PTHREAD_LINUX_OUT)/gen_lowlevelcond., c s) \
+	$(addprefix $(PTHREAD_LINUX_OUT)/gen_llowlevelcond., c s) \
 	$(addprefix $(PTHREAD_LINUX_OUT)/gen_llowlevelrwlock., c s) \
 	$(addprefix $(PTHREAD_LINUX_OUT)/gen_llowlevelrobustlock., c s) \
 	$(addprefix $(PTHREAD_LINUX_OUT)/gen_lunwindbuf., c s) \
