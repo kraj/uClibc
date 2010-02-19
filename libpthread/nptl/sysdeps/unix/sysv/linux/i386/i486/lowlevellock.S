@@ -180,7 +180,7 @@ __lll_timedlock_wait:
 	cfi_rel_offset(%ebx, 0)
 
 # ifndef __ASSUME_FUTEX_CLOCK_REALTIME
-#  ifdef PIC
+#  ifdef __PIC__
 	LOAD_PIC_REG (bx)
 	cmpl	$0, __have_futex_clock_realtime@GOTOFF(%ebx)
 #  else

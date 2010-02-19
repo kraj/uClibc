@@ -22,6 +22,7 @@
 #include <lowlevelrwlock.h>
 #include <pthread-errnos.h>
 #include <bits/kernel-features.h>
+#include <tcb-offsets.h>
 
 
 /* For the calculation see asm/vsyscall.h.  */
@@ -91,7 +92,7 @@ pthread_rwlock_timedwrlock:
 
 11:
 #ifndef __ASSUME_FUTEX_CLOCK_REALTIME
-#  ifdef PIC
+#  ifdef __PIC__
 	cmpl	$0, __have_futex_clock_realtime(%rip)
 #  else
 	cmpl	$0, __have_futex_clock_realtime

@@ -22,8 +22,8 @@
 #include <lowlevelcond.h>
 #include <pthread-pi-defines.h>
 #include <pthread-errnos.h>
-
 #include <bits/kernel-features.h>
+#include <tcb-offsets.h>
 
 /* For the calculation see asm/vsyscall.h.  */
 #define VSYSCALL_ADDR_vgettimeofday	0xffffffffff600000
@@ -96,7 +96,7 @@ __pthread_cond_timedwait:
 
 22:
 #ifndef __ASSUME_FUTEX_CLOCK_REALTIME
-#  ifdef PIC
+#  ifdef __PIC__
 	cmpl	$0, __have_futex_clock_realtime(%rip)
 #  else
 	cmpl	$0, __have_futex_clock_realtime

@@ -567,7 +567,7 @@ __condvar_w_cleanup:
 	.uleb128  0
 .Lcstend:
 
-#ifdef PIC
+#ifdef __PIC__
 	.section .gnu.linkonce.t.__i686.get_pc_thunk.cx,"ax",@progbits
 	.globl	__i686.get_pc_thunk.cx
 	.hidden	__i686.get_pc_thunk.cx

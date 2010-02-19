@@ -146,7 +146,7 @@ sem_timedwait:
 .Lafter_ret:
 3:	negl	%esi
 6:
-#ifdef PIC
+#ifdef __PIC__
 	call	__x86.get_pc_thunk.bx
 #else
 	movl	$4f, %ebx

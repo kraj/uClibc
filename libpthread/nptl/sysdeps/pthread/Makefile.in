@@ -56,7 +56,7 @@ X64_PTHREAD_EXCLUDE_LIST = pthread_spin_unlock.c pthread_spin_init.c \
 		pthread_barrier_wait.c pthread_cond_broadcast.c	\
 		pthread_cond_signal.c pthread_rwlock_timedrdlock.c	\
 		pthread_rwlock_timedwrlock.c pthread_rwlock_unlock.c pthread_rwlock_wrlock.c \
-		pthread_rwlock_rdlock.c pthread_cond_timedwait.c
+		pthread_rwlock_rdlock.c pthread_cond_timedwait.c pthread_cond_wait.c
 
 libpthread_CSRC := $(filter-out $(X64_PTHREAD_EXCLUDE_LIST),$(libpthread_CSRC))
 endif

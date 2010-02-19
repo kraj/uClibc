@@ -22,7 +22,7 @@
 #include <pthread-errnos.h>
 #include <lowlevellock.h>
 #include <lowlevelrobustlock.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
 
 	.text
 

@@ -61,15 +61,14 @@ libpthread_CSRC := $(filter-out $(SH_PTHREAD_SPECIFIC),$(libpthread_CSRC))
 endif
 
 ifeq ($(TARGET_ARCH),i386)
-X86_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c \
-	lowlevelrobustlock.c
+X86_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c
 libpthread_CSRC := $(filter-out $(X86_PTHREAD_SPECIFIC),$(libpthread_CSRC))
 endif
 
 ifeq ($(TARGET_ARCH),x86_64)
 libc_SSRC := $(filter-out waitpid.S,$(libc_SSRC))
-X86_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c
-libpthread_CSRC := $(filter-out $(X86_PTHREAD_SPECIFIC),$(libpthread_CSRC))
+X64_PTHREAD_SPECIFIC := sem_post.c sem_wait.c sem_timedwait.c sem_trywait.c
+libpthread_CSRC := $(filter-out $(X64_PTHREAD_SPECIFIC),$(libpthread_CSRC))
 endif
 
 CFLAGS-pthread_getcpuclockid.c = -I$(top_srcdir)librt

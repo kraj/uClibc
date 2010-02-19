@@ -215,7 +215,7 @@ sem_wait_cleanup:
  	DEC (@(NWAITERS,r8), r2)
 .LcallUR:
 	mov.l	.Lresume, r1
-#ifdef PIC
+#ifdef __PIC__
 	add	r12, r1
 #endif
 	jsr	@r1
@@ -224,7 +224,7 @@ sem_wait_cleanup:
 
 	.align	2
 .Lresume:
-#ifdef PIC
+#ifdef __PIC__
 	.long	_Unwind_Resume@GOTOFF
 #else
 	.long	_Unwind_Resume

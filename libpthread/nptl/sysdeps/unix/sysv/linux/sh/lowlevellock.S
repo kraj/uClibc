@@ -234,7 +234,7 @@ __lll_timedlock_wait:
 
 # ifndef __ASSUME_FUTEX_CLOCK_REALTIME
 	mov.l	.Lhave, r1
-#  ifdef PIC
+#  ifdef __PIC__
 	mova	.Lgot, r0
 	mov.l	.Lgot, r12
 	add	r0, r12
@@ -284,7 +284,7 @@ __lll_timedlock_wait:
 	 mov.l	@r15+, r12
 
 	.align	2
-# ifdef PIC
+# ifdef __PIC__
 .Lgot:
 	.long	_GLOBAL_OFFSET_TABLE_
 .Lhave:

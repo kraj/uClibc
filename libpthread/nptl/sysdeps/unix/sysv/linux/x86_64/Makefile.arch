@@ -15,7 +15,7 @@ libc_a_CSRC = fork.c
 libc_a_SSRC = clone.S vfork.S
 
 libpthread_SSRC += lowlevellock.S pthread_barrier_wait.S pthread_cond_signal.S pthread_cond_broadcast.S \
-		   sem_post.S sem_timedwait.S \
+		   sem_post.S sem_timedwait.S lowlevelrobustlock.S \
 		   sem_trywait.S sem_wait.S pthread_rwlock_rdlock.S pthread_rwlock_wrlock.S \
 		   pthread_rwlock_timedrdlock.S pthread_rwlock_timedwrlock.S pthread_rwlock_unlock.S \
 		   pthread_cond_timedwait.S pthread_cond_wait.S pthread_spin_unlock.S
