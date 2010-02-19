@@ -284,6 +284,7 @@ __lll_timedlock_wait:
 	 mov.l	@r15+, r12
 
 	.align	2
+# ifndef __ASSUME_FUTEX_CLOCK_REALTIME
 # ifdef __PIC__
 .Lgot:
 	.long	_GLOBAL_OFFSET_TABLE_
@@ -294,7 +295,6 @@ __lll_timedlock_wait:
 	.long	__have_futex_clock_realtime
 # endif
 
-# ifndef __ASSUME_FUTEX_CLOCK_REALTIME
 .Lreltmo:
 	/* Check for a valid timeout value.  */
 	mov.l	@(4,r6), r1
