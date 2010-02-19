@@ -448,3 +448,20 @@
 #if __LINUX_KERNEL_VERSION >= 0x020609 && defined __alpha__
 #define __ASSUME_IEEE_RAISE_EXCEPTION	1
 #endif
+
+/* Support for the FUTEX_CLOCK_REALTIME flag was added in 2.6.29.  */
+#if __LINUX_KERNEL_VERSION >= 0x02061d
+# define __ASSUME_FUTEX_CLOCK_REALTIME	1
+#endif
+
+/* Support for PI futexes was added in 2.6.18.  */
+#if __LINUX_KERNEL_VERSION >= 0x020612
+# define __ASSUME_FUTEX_LOCK_PI	1
+#endif
+
+/* Support for private futexes was added in 2.6.22.  */
+#if __LINUX_KERNEL_VERSION >= 0x020616
+# define __ASSUME_PRIVATE_FUTEX	1
+#endif
+
+
