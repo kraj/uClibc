@@ -51,7 +51,7 @@ librt_CSRC := mq_notify.c
 endif
 
 ifeq ($(TARGET_ARCH),sparc)
-libpthread_CSRC += __syscall_error.c
+libpthread_CSRC += __syscall_error.c lowlevelrobustlock.c
 librt_CSRC += __syscall_error.c
 endif
 
