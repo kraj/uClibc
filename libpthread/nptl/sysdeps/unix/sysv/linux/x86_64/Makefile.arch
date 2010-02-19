@@ -42,6 +42,10 @@ ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 #Needed to use the correct SYSCALL_ERROR_HANDLER
 ASFLAGS-clone.S += -DUSE___THREAD
 ASFLAGS-vfork.S += -DUSE___THREAD
+ASFLAGS-sem_wait.S += -DUSE___THREAD
+ASFLAGS-sem_trywait.S += -DUSE___THREAD
+ASFLAGS-sem_timedwait.S += -DUSE___THREAD
+ASFLAGS-sem_post.S += -DUSE___THREAD
 endif
 
 CFLAGS += $(SSP_ALL_CFLAGS)

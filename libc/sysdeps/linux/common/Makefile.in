@@ -39,7 +39,7 @@ CSRC := $(filter-out fork.c getpid.c raise.c open.c close.c read.c write.c, $(CS
 ifeq ($(TARGET_ARCH),arm)
 CSRC := $(filter-out vfork.c, $(CSRC))
 else ifeq ($(TARGET_ARCH),x86_64)
-#do nothing
+CSRC := $(filter-out vfork.c, $(CSRC))
 else
 CSRC := $(filter-out waitpid.c, $(CSRC))
 endif

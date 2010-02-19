@@ -40,14 +40,6 @@
 __pthread_cond_timedwait:
 .LSTARTCODE:
 	cfi_startproc
-#ifdef SHARED
-	cfi_personality(DW_EH_PE_pcrel | DW_EH_PE_sdata4 | DW_EH_PE_indirect,
-			DW.ref.__gcc_personality_v0)
-	cfi_lsda(DW_EH_PE_pcrel | DW_EH_PE_sdata4, .LexceptSTART)
-#else
-	cfi_personality(DW_EH_PE_udata4, __gcc_personality_v0)
-	cfi_lsda(DW_EH_PE_udata4, .LexceptSTART)
-#endif
 
 	pushq	%r12
 	cfi_adjust_cfa_offset(8)

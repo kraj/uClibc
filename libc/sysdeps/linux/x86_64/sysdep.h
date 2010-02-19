@@ -116,9 +116,6 @@ lose:									      \
 #endif
 
 #endif	/* __ASSEMBLER__ */
-#ifdef IS_IN_rtld
-# include <dl-sysdep.h>		/* Defines RTLD_PRIVATE_ERRNO.  */
-#endif
 
 /* For Linux we can use the system call table in the header file
 	/usr/include/asm/unistd.h
@@ -320,10 +317,10 @@ lose:									      \
 #  define PTR_DEMANGLE(reg)	rorq $17, reg;				      \
 				xorq __pointer_chk_guard_local(%rip), reg
 # else
-#  define PTR_MANGLE(reg)	asm ("xorq __pointer_chk_guard_local(%%rip), %0\n" \
+#  define PTR_MANGLE(reg)	__asm__ ("xorq __pointer_chk_guard_local(%%rip), %0\n" \
 				     "rolq $17, %0"			      \
 				     : "=r" (reg) : "0" (reg))
-#  define PTR_DEMANGLE(reg)	asm ("rorq $17, %0\n"			      \
+#  define PTR_DEMANGLE(reg)	__asm__ ("rorq $17, %0\n"			      \
 				     "xorq __pointer_chk_guard_local(%%rip), %0" \
 				     : "=r" (reg) : "0" (reg))
 # endif
@@ -334,13 +331,13 @@ lose:									      \
 #  define PTR_DEMANGLE(reg)	rorq $17, reg;				      \
 				xorq %fs:POINTER_GUARD, reg
 # else
-#  define PTR_MANGLE(var)	asm ("xorq %%fs:%c2, %0\n"		      \
+#  define PTR_MANGLE(var)	__asm__ ("xorq %%fs:%c2, %0\n"		      \
 				     "rolq $17, %0"			      \
 				     : "=r" (var)			      \
 				     : "0" (var),			      \
 				       "i" (offsetof (tcbhead_t,	      \
 						      pointer_guard)))
-#  define PTR_DEMANGLE(var)	asm ("rorq $17, %0\n"			      \
+#  define PTR_DEMANGLE(var)	__asm__ ("rorq $17, %0\n"			      \
 				     "xorq %%fs:%c2, %0"		      \
 				     : "=r" (var)			      \
 				     : "0" (var),			      \
