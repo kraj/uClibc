@@ -38,8 +38,8 @@
 #include <fork.h>
 
 /* This is defined by newer gcc version unique for each module.  */
-extern void *__dso_handle __attribute__ ((__weak__,
-					  __visibility__ ("hidden")));
+extern void *__dso_handle __attribute__ ((__weak__));
+					  //,__visibility__ ("hidden")));
 
 
 /* Hide the symbol so that no definition but the one locally in the

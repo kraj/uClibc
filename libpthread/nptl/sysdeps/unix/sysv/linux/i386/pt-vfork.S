@@ -61,7 +61,7 @@ ENTRY (__vfork)
 
 	cmpl	$-4095, %eax
 	jae	SYSCALL_ERROR_LABEL	/* Branch forward if it failed.  */
-.Lpseudo_end:
+L(pseudo_end):
 	ret
 PSEUDO_END (__vfork)
 
