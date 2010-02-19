@@ -157,6 +157,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	int reloc_type;
 	int symtab_index;
 	char *symname;
+	struct elf_resolve *tls_tpnt = 0;
 	ElfW(Sym) *sym;
 	ElfW(Addr) *reloc_addr;
 	ElfW(Addr) symbol_addr;
@@ -173,17 +174,25 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	if (symtab_index) {
 		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, tpnt,
-							    elf_machine_type_class(reloc_type), NULL);
+				elf_machine_type_class(reloc_type), &tls_tpnt);
 		/*
 		 * We want to allow undefined references to weak symbols - this
 		 * might have been intentional.  We should not be linking local
 		 * symbols here, so all bases should be covered.
 		 */
-		if (unlikely(!symbol_addr && ELF_ST_BIND(sym->st_info) != STB_WEAK)) {
-			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
-			_dl_exit(1);
+		if (unlikely(!symbol_addr && (ELF_ST_TYPE(sym->st_info) != STT_TLS)
+					&& (ELF_ST_BIND(sym->st_info) != STB_WEAK))) {
+			/* This may be non-fatal if called from dlopen. */
+			return 1;
 		}
+	} else {
+		/* Relocs against STN_UNDEF are usually treated as using a
+		 * symbol value of zero, and using the module containing the
+		 * reloc itself. */
+		symbol_addr = sym->st_value;
+		tls_tpnt = tpnt;
 	}
+
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	old_val = *reloc_addr;
@@ -212,13 +221,20 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			break;
 		*/
 		case R_X86_64_DTPMOD64:
-			*reloc_addr = 1;
+			*reloc_addr = tls_tpnt->l_tls_modid;
 			break;
 		case R_X86_64_DTPOFF64:
+			/* During relocation all TLS symbols are defined and used.
+			 * Therefore the offset is already correct.  */
 			*reloc_addr = sym->st_value + rpnt->r_addend;
 			break;
 		case R_X86_64_TPOFF64:
-			*reloc_addr = sym->st_value + rpnt->r_addend - symbol_addr;
+			/* The offset is negative, forward from the thread pointer.
+			 * We know the offset of the object the symbol is contained in.
+			 * It is a negative value which will be added to the
+			 * thread pointer.  */
+			CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
+			*reloc_addr = sym->st_value - tls_tpnt->l_tls_offset + rpnt->r_addend;
 			break;
 		case R_X86_64_32:
 			*(unsigned int *) reloc_addr = symbol_addr + rpnt->r_addend;

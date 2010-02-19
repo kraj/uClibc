@@ -46,8 +46,12 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
    define the value.
    ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
    of the main executable's symbols, as for a COPY reloc.  */
-#define elf_machine_type_class(type) \
-  ((((type) == R_X86_64_JUMP_SLOT) * ELF_RTYPE_CLASS_PLT) \
+#define elf_machine_type_class(type)					      \
+  ((((type) == R_X86_64_JUMP_SLOT					      \
+     || (type) == R_X86_64_DTPMOD64					      \
+     || (type) == R_X86_64_DTPOFF64					      \
+     || (type) == R_X86_64_TPOFF64)					      \
+    * ELF_RTYPE_CLASS_PLT)						      \
    | (((type) == R_X86_64_COPY) * ELF_RTYPE_CLASS_COPY))
 
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
