@@ -9,7 +9,7 @@ LINUX_ARCH_OUT:=$(top_builddir)libpthread/nptl/sysdeps/unix/sysv/linux/x86_64
 
 
 libpthread_SSRC = pt-vfork.S clone.S pthread_once.S
-libpthread_CSRC = pthread_spin_init.c
+libpthread_CSRC = pthread_spin_init.c pt-__syscall_error.c
 
 libc_a_CSRC = fork.c
 libc_a_SSRC = clone.S vfork.S
@@ -24,6 +24,7 @@ libc_a_SSRC += libc-lowlevellock.S
 
 
 CFLAGS-OMIT-fork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-pt-__syscall_error.c =  -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 
 ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
 CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
