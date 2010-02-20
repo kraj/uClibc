@@ -109,7 +109,8 @@ clone:
 	call	*%rax
 	/* Call exit with return value from function call. */
 	movq	%rax, %rdi
-	call	HIDDEN_JUMPTARGET(_exit)
+	movl	$__NR_exit, %eax
+	syscall
 
 .size clone,.-clone
 weak_alias(clone, __clone)
