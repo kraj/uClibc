@@ -43,12 +43,8 @@ extern void *__dso_handle __attribute__ ((__weak__));
 
 /* Hide the symbol so that no definition but the one locally in the
    executable or DSO is used.  */
-int
-#ifndef __pthread_atfork
-/* Don't mark the compatibility function as hidden.  */
-attribute_hidden
-#endif
-__pthread_atfork (prepare, parent, child)
+
+int attribute_hidden __pthread_atfork (prepare, parent, child)
      void (*prepare) (void);
      void (*parent) (void);
      void (*child) (void);
@@ -56,8 +52,5 @@ __pthread_atfork (prepare, parent, child)
   return __register_atfork (prepare, parent, child,
 			    &__dso_handle == NULL ? NULL : __dso_handle);
 }
-#ifndef __pthread_atfork
-extern int pthread_atfork (void (*prepare) (void), void (*parent) (void),
-			   void (*child) (void)) attribute_hidden;
+
 strong_alias (__pthread_atfork, pthread_atfork)
-#endif

@@ -45,7 +45,7 @@ pthread_sysdep_SRC := $(patsubst %,$(libpthread_DIR)/sysdeps/pthread/%.c,$(pthre
 pthread_SRC := \
 	attr barrier cancel condvar errno events join pthread \
 	lockfile manager mutex pt-machine ptcleanup \
-	ptclock_gettime ptclock_settime ptfork pthandles \
+	ptclock_gettime ptclock_settime ptfork pthandles pthread_atfork \
 	pthread_setegid pthread_seteuid pthread_setgid pthread_setregid \
 	pthread_setresgid pthread_setresuid pthread_setreuid pthread_setuid \
 	rwlock semaphore sighandler signals specific spinlock
