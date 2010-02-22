@@ -17,6 +17,8 @@ noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
 include $(top_srcdir)Rules.mak
 sub_headers := headers
 
+pregen-headers-y := $(top_builddir)include/bits/sysnum.h
+
 ifndef KCONFIG_CONFIG
 KCONFIG_CONFIG := $(top_builddir).config
 endif
@@ -160,7 +162,6 @@ headers-y += $(target-headers-sysdep)
 
 headers: $(top_builddir)include/bits/uClibc_config.h
 subdirs: $(addprefix $(top_builddir),$(subdirs))
-pregen-headers-y := $(top_builddir)include/bits/sysnum.h
 pregen: $(pregen-headers-y) headers subdirs
 	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
 
