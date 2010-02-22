@@ -220,7 +220,7 @@ $(PTHREAD_LINUX_OUT)/structsem.h: $(PTHREAD_LINUX_OUT)/gen_lstructsem.s
 $(PTHREAD_LINUX_OUT)/pthread-pi-defines.h: $(PTHREAD_LINUX_OUT)/gen_lpthread-pi-defines.s
 	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
 
-nptl_linux_headers: $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h \
+nptl_linux_headers := $(PTHREAD_LINUX_OUT)/lowlevelbarrier.h \
 					$(PTHREAD_LINUX_OUT)/lowlevelcond.h \
 					$(PTHREAD_LINUX_OUT)/lowlevelrwlock.h \
 					$(PTHREAD_LINUX_OUT)/lowlevelrobustlock.h \

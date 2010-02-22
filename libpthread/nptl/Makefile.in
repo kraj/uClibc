@@ -270,7 +270,7 @@ headers_clean-y += nptl_headers_clean
 -include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/Makefile.in
 -include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/Makefile.arch
 
-pthread_pregen := nptl_headers nptl_arch_headers nptl_linux_headers
+pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(nptl_headers) $(nptl_arch_headers) $(nptl_linux_headers)
 
 lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
@@ -326,14 +326,14 @@ $(top_builddir)include/bits/libc-lock.h: | include/bits
 $(top_builddir)include/bits/stdio-lock.h: | include/bits
 	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
 
-nptl_headers_bootstrap:= $(top_builddir)include/pthread.h \
+nptl_headers_bootstrap := $(top_builddir)include/pthread.h \
 		$(top_builddir)include/semaphore.h \
 		$(top_builddir)include/bits/semaphore.h \
 		$(top_builddir)include/bits/pthreadtypes.h \
 		$(top_builddir)include/bits/libc-lock.h \
 		$(top_builddir)include/bits/stdio-lock.h
 
-nptl_headers: $(PTHREAD_OUT)/pthread-errnos.h
+nptl_headers := $(PTHREAD_OUT)/pthread-errnos.h
 
 nptl_headers_clean:
 	$(do_rm) $(nptl_headers_bootstrap) \
