@@ -275,7 +275,7 @@ pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(nptl_headers) $(nptl_arch_heade
 lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
 
-$(top_builddir)lib/libpthread.so: $(PTHREAD_OUT)/libpthread_so.a $(libc) $(top_builddir)lib/libpthread_nonshared.a
+$(top_builddir)lib/libpthread.so: $(PTHREAD_OUT)/libpthread_so.a $(libc.depend) $(libdl.depend) $(top_builddir)lib/libpthread_nonshared.a
 	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 	$(Q)$(RM) $@
 	$(Q)cp $(top_srcdir)extra/scripts/format.lds $@

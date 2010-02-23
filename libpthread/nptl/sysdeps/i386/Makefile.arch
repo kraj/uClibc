@@ -13,8 +13,8 @@ CFLAGS-pthread_spin_lock.c += -D_GNU_SOURCE
 CFLAGS-i386 = $(SSP_ALL_CFLAGS)
 #CFLAGS:=$(CFLAGS:-O1=-O2)
 
-PTHREAD_ARCH_DIR := $(top_srcdir)libpthread/nptl/sysdeps/i386/
-PTHREAD_ARCH_OUT := $(top_builddir)libpthread/nptl/sysdeps/i386/
+PTHREAD_ARCH_DIR := $(top_srcdir)libpthread/nptl/sysdeps/i386
+PTHREAD_ARCH_OUT := $(top_builddir)libpthread/nptl/sysdeps/i386
 PTHREAD_ARCH_OBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_SSRC))
 PTHREAD_ARCH_OBJ += $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_CSRC))
 
