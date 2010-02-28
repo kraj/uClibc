@@ -238,7 +238,6 @@ libc_hidden_proto(endnetent)
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern struct netent *getnetent (void);
-libc_hidden_proto(getnetent)
 
 /* Return entry from network data base which address match NET and
    type TYPE.
@@ -253,8 +252,6 @@ extern struct netent *getnetbyaddr (uint32_t __net, int __type);
    marked with __THROW.  */
 extern struct netent *getnetbyname (__const char *__name);
 
-#if 0
-/* FIXME */
 #ifdef	__USE_MISC
 /* Reentrant versions of the functions above.  The additional
    arguments specify a buffer of BUFLEN starting at BUF.  The last
@@ -270,20 +267,20 @@ extern int getnetent_r (struct netent *__restrict __result_buf,
 			char *__restrict __buf, size_t __buflen,
 			struct netent **__restrict __result,
 			int *__restrict __h_errnop);
-
+libc_hidden_proto(getnetent_r)
 extern int getnetbyaddr_r (uint32_t __net, int __type,
 			   struct netent *__restrict __result_buf,
 			   char *__restrict __buf, size_t __buflen,
 			   struct netent **__restrict __result,
 			   int *__restrict __h_errnop);
-
+libc_hidden_proto(getnetbyaddr_r)
 extern int getnetbyname_r (__const char *__restrict __name,
 			   struct netent *__restrict __result_buf,
 			   char *__restrict __buf, size_t __buflen,
 			   struct netent **__restrict __result,
 			   int *__restrict __h_errnop);
-#endif	/* misc */
-#endif
+libc_hidden_proto(getnetbyname_r)
+#endif	/* __USE_MISC */
 
 
 /* Description of data base entry for a single service.  */
