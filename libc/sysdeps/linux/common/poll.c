@@ -19,8 +19,9 @@
 
 #include <sys/syscall.h>
 #include <sys/poll.h>
+#include <bits/kernel-features.h>
 
-#ifdef __NR_poll
+#if defined __ASSUME_POLL_SYSCALL && defined __NR_poll
 
 _syscall3(int, poll, struct pollfd *, fds,
 	unsigned long int, nfds, int, timeout)

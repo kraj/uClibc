@@ -28,6 +28,11 @@
 #include <linux/version.h>
 #define __LINUX_KERNEL_VERSION	LINUX_VERSION_CODE
 
+/* When was `poll' introduced?  */
+#if __LINUX_KERNEL_VERSION >= 131584
+# define __ASSUME_POLL_SYSCALL          1
+#endif
+
 /* Real-time signal became usable in 2.1.70.  */
 #if __LINUX_KERNEL_VERSION >= 131398
 # define __ASSUME_REALTIME_SIGNALS	1
