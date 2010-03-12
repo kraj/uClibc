@@ -97,8 +97,9 @@ TARGET_SUBARCH:=$(call qstrip,$(shell grep -s '^TARGET_SUBARCH' $(top_builddir)/
 TARGET_SUBARCH:=$(call qstrip,$(TARGET_SUBARCH))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(RUNTIME_PREFIX)))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(DEVEL_PREFIX)))))
+MULTILIB_DIR:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(MULTILIB_DIR)))))
 KERNEL_HEADERS:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(KERNEL_HEADERS)))))
-export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS
+export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS MULTILIB_DIR
 
 
 # Now config hard core
