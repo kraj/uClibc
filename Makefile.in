@@ -302,9 +302,9 @@ endif
 
 # Installs development library links.
 install_dev: install_headers install_runtime | $(PREFIX)$(DEVEL_PREFIX)lib
-	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
+	-$(INSTALL) -m 644 $(top_builddir)lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 ifeq ($(HAVE_SHARED),y)
-	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
+	for i in `find $(top_builddir)lib/ -type l -name 'lib[a-zA-Z]*.so' | \
 	$(SED) -e 's/lib\///'` ; do \
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
@@ -318,7 +318,7 @@ ifeq ($(HARDWIRED_ABSPATH),y)
 		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
 else
-	-$(INSTALL) -m 755 lib/libc.so $(PREFIX)$(DEVEL_PREFIX)lib/
+	-$(INSTALL) -m 755 $(top_builddir)lib/libc.so $(PREFIX)$(DEVEL_PREFIX)lib/
 endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifneq ($(LINUXTHREADS_OLD),y)
@@ -330,7 +330,7 @@ ifeq ($(HARDWIRED_ABSPATH),y)
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
 	fi
 else
-	-$(INSTALL) -m 755 lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)lib/
+	-$(INSTALL) -m 755 $(top_builddir)lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)lib/
 endif
 endif
 endif
@@ -341,8 +341,8 @@ endif
 ifeq ($(DOPIC),y)
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
-	if [ -d lib ] ; then \
-		for i in `find lib/ -type f -name 'lib*.a' | $(SED) -e 's/lib\///'` ; do \
+	if [ -d $(top_builddir)lib ] ; then \
+		for i in `find $(top_builddir)lib/ -type f -name 'lib*.a' | $(SED) -e 's/lib\///'` ; do \
 			$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
 				| $(SED) -e 's/\.a$$/_pic.a/'`; \
 		done ; \
@@ -350,7 +350,7 @@ ifeq ($(DOPIC),y)
 endif
 endif
 ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
-	for file in lib/lib*.gdb; do \
+	for file in $(top_builddir)lib/lib*.gdb; do \
 		if test -f $$file; then \
 			$(INSTALL) -m 755 $$file $(PREFIX)$(DEVEL_PREFIX)lib; \
 			$(INSTALL) -m 755 `echo $$file | $(SED) 's/\.gdb$$//'` \
@@ -362,13 +362,13 @@ endif
 # Installs run-time libraries
 install_runtime: all | $(PREFIX)$(RUNTIME_PREFIX)lib
 ifeq ($(HAVE_SHARED),y)
-	$(INSTALL) -m 755 lib/lib*-$(VERSION).so \
+	$(INSTALL) -m 755 $(top_builddir)lib/lib*-$(VERSION).so \
 		$(PREFIX)$(RUNTIME_PREFIX)lib
-	(cd lib && $(TAR) -cf - *.so.*) | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
-	@if [ -x lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so ] ; then \
+	(cd $(top_builddir)lib && $(TAR) -cf - *.so.*) | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
+	@if [ -x $(top_builddir)lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so ] ; then \
 		set -e; \
 		$(SHELL_SET_X); \
-		$(INSTALL) -m 755 lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so \
+		$(INSTALL) -m 755 $(top_builddir)lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so \
 			$(PREFIX)$(RUNTIME_PREFIX)lib; \
 	fi
 endif
