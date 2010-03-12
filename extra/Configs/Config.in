@@ -254,7 +254,7 @@ config ARCH_HAS_NO_LDSO
 	default n
 
 config HAVE_SHARED
-	bool "Enable support for shared libraries"
+	bool "Enable shared libraries"
 	depends on !ARCH_HAS_NO_SHARED
 	default y
 	help
@@ -286,7 +286,7 @@ config LDSO_LDD_SUPPORT
 	  Enable all the code needed to support traditional ldd,
 	  which executes the shared library loader to resolve all dependencies
 	  and then provide a list of shared libraries that are required for an
-	  application to function.  Disabling this option will makes uClibc's
+	  application to function.  Disabling this option will make uClibc's
 	  shared library loader a little bit smaller.
 	  Most people will answer Y.
 
