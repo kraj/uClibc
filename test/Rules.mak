@@ -85,7 +85,7 @@ LDFLAGS += -B$(top_builddir)lib -Wl,-rpath,$(top_builddir)lib -Wl,-rpath-link,$(
 UCLIBC_LDSO_ABSPATH=$(shell pwd)
 ifdef TEST_INSTALLED_UCLIBC
 LDFLAGS += -Wl,-rpath,./
-UCLIBC_LDSO_ABSPATH=$(SHARED_LIB_LOADER_PREFIX)
+UCLIBC_LDSO_ABSPATH=$(RUNTIME_PREFIX)$(MULTILIB_DIR)
 endif
 
 ifeq ($(findstring -static,$(LDFLAGS)),)

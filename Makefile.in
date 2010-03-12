@@ -191,7 +191,7 @@ $(LOCAL_INSTALL_PATH):
 install: install_runtime install_dev
 
 
-RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
+RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)$(MULTILIB_DIR) $(RUNTIME_PREFIX)$(MULTILIB_DIR))
 
 $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c|$(@D)
 	$(hcompile.u)
@@ -286,7 +286,7 @@ HEADERS_RM-$(UCLIBC_SUSV4_LEGACY)            += utime.h
 	### ucontext.h
 
 ifneq ($(findstring install,$(MAKECMDGOALS)),)
-$(PREFIX)$(RUNTIME_PREFIX)lib $(addprefix $(PREFIX)$(DEVEL_PREFIX),include lib):
+$(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR) $(addprefix $(PREFIX)$(DEVEL_PREFIX),include lib):
 	$(do_mkdir)
 endif
 
@@ -301,49 +301,49 @@ else
 endif
 
 # Installs development library links.
-install_dev: install_headers install_runtime | $(PREFIX)$(DEVEL_PREFIX)lib
-	-$(INSTALL) -m 644 $(top_builddir)lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
+install_dev: install_headers install_runtime | $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)
+	-$(INSTALL) -m 644 $(top_builddir)lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
 ifeq ($(HAVE_SHARED),y)
 	for i in `find $(top_builddir)lib/ -type l -name 'lib[a-zA-Z]*.so' | \
 	$(SED) -e 's/lib\///'` ; do \
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
-		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
+		$(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/$$i; \
 	done
 ifeq ($(HARDWIRED_ABSPATH),y)
-	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
-		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
-		$(SED) -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
-		    -e 's:$(SHARED_MAJORNAME):$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME):' \
-		    -e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO):' \
-		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(SHARED_MAJORNAME) ] ; then \
+		$(RM) $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so; \
+		$(SED) -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)$(MULTILIB_DIR)/$(NONSHARED_LIBNAME):' \
+		    -e 's:$(SHARED_MAJORNAME):$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(SHARED_MAJORNAME):' \
+		    -e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UCLIBC_LDSO):' \
+		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so; \
 	fi
 else
-	-$(INSTALL) -m 755 $(top_builddir)lib/libc.so $(PREFIX)$(DEVEL_PREFIX)lib/
+	-$(INSTALL) -m 755 $(top_builddir)lib/libc.so $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
 endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifneq ($(LINUXTHREADS_OLD),y)
 ifeq ($(HARDWIRED_ABSPATH),y)
-	if [ -f $(top_builddir)lib/libpthread.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/libpthread.so.$(MAJOR_VERSION) ] ; then \
-		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
-		cp $(top_srcdir)extra/scripts/format.lds $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
-		echo "GROUP ( $(RUNTIME_PREFIX)lib/libpthread.so.$(MAJOR_VERSION) $(DEVEL_PREFIX)lib/libpthread_nonshared.a )" \
-			>> $(PREFIX)$(DEVEL_PREFIX)lib/libpthread.so; \
+	if [ -f $(top_builddir)lib/libpthread.so -a -f $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)/libpthread.so.$(MAJOR_VERSION) ] ; then \
+		$(RM) $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
+		cp $(top_srcdir)extra/scripts/format.lds $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
+		echo "GROUP ( $(RUNTIME_PREFIX)$(MULTILIB_DIR)/libpthread.so.$(MAJOR_VERSION) $(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread_nonshared.a )" \
+			>> $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
 	fi
 else
-	-$(INSTALL) -m 755 $(top_builddir)lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)lib/
+	-$(INSTALL) -m 755 $(top_builddir)lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
 endif
 endif
 endif
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
-		$(PREFIX)$(DEVEL_PREFIX)lib/libthread_db.so
+		$(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libthread_db.so
 endif
 ifeq ($(DOPIC),y)
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	if [ -d $(top_builddir)lib ] ; then \
 		for i in `find $(top_builddir)lib/ -type f -name 'lib*.a' | $(SED) -e 's/lib\///'` ; do \
-			$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
+			$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/`echo $$i \
 				| $(SED) -e 's/\.a$$/_pic.a/'`; \
 		done ; \
 	fi
@@ -352,24 +352,24 @@ endif
 ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
 	for file in $(top_builddir)lib/lib*.gdb; do \
 		if test -f $$file; then \
-			$(INSTALL) -m 755 $$file $(PREFIX)$(DEVEL_PREFIX)lib; \
+			$(INSTALL) -m 755 $$file $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR); \
 			$(INSTALL) -m 755 `echo $$file | $(SED) 's/\.gdb$$//'` \
-			  $(PREFIX)$(DEVEL_PREFIX)lib; \
+			  $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR); \
 		fi; \
 	done
 endif
 
 # Installs run-time libraries
-install_runtime: all | $(PREFIX)$(RUNTIME_PREFIX)lib
+install_runtime: all | $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)
 ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -m 755 $(top_builddir)lib/lib*-$(VERSION).so \
-		$(PREFIX)$(RUNTIME_PREFIX)lib
-	(cd $(top_builddir)lib && $(TAR) -cf - *.so.*) | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
+		$(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)
+	(cd $(top_builddir)lib && $(TAR) -cf - *.so.*) | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)
 	@if [ -x $(top_builddir)lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so ] ; then \
 		set -e; \
 		$(SHELL_SET_X); \
 		$(INSTALL) -m 755 $(top_builddir)lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so \
-			$(PREFIX)$(RUNTIME_PREFIX)lib; \
+			$(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR); \
 	fi
 endif
 

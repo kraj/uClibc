@@ -1851,23 +1851,6 @@ endmenu
 
 menu "Library Installation Options"
 
-config SHARED_LIB_LOADER_PREFIX
-	string "Shared library loader path"
-	depends on HAVE_SHARED
-	default "$(RUNTIME_PREFIX)lib"
-	help
-	  When using shared libraries, this path is the location where the
-	  shared library will be invoked.  This value will be compiled into
-	  every binary compiled with uClibc.
-
-	  For a typical target system this should be set to "/lib", such that
-	  'make install' will install /lib/ld-uClibc.so.0.
-
-	  BIG FAT WARNING:
-	  If you do not have a shared library loader with the correct name
-	  sitting in the directory this points to, your binaries will not
-	  run.
-
 config RUNTIME_PREFIX
 	string "uClibc runtime library directory"
 	default "/usr/$(TARGET_ARCH)-linux-uclibc/"
@@ -1901,6 +1884,20 @@ config DEVEL_PREFIX
 
 	  For a typical target system this should be set to "/usr", such that
 	  'make install' will install /usr/include/<header files>.
+
+config MULTILIB_DIR
+	string "library path component"
+	default "lib"
+	help
+	  Path component where libraries reside.
+
+	  For a typical target system this should be set to "lib", such that
+	  'make install' will install libraries to "/lib" and "/usr/lib"
+	  respectively
+	    DEVEL_PREFIX/MULTILIB_DIR
+	    RUNTIME_PREFIX/MULTILIB_DIR
+
+	  Other settings may include "lib32" or "lib64".
 
 config HARDWIRED_ABSPATH
 	bool "Hardwire absolute paths into linker scripts"

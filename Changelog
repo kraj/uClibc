@@ -8,7 +8,8 @@
       remove this definition from wordsize.h.
       Otherwise you have to delete /var/run/utmp on x86_64 hosts when
       upgrading to 0.9.31
-
+    o The SHARED_LIB_LOADER_PREFIX was renamed to a single path
+      component called MULTILIB_DIR and defaults to 'lib'.
 
 0.9.27	12 January 2005
 
