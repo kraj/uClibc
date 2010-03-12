@@ -161,8 +161,7 @@ headers: $(top_builddir)include/bits/uClibc_config.h
 subdirs: $(addprefix $(top_builddir),$(subdirs))
 pregen: $(top_builddir)include/bits/sysnum.h headers subdirs
 
-$(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
-	$(Q)$(INSTALL) -d $(@D)
+$(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh | $(top_builddir)include/bits
 	@$(disp_gen)
 	$(Q)set -e; \
 	tmp=`mktemp $(top_builddir)include/bits/sysnum.h.XXXXXX 2>/dev/null || true`; \
@@ -286,8 +285,12 @@ HEADERS_RM-$(UCLIBC_SUSV4_LEGACY)            += utime.h
 	# BREAKAGE: include/signal.h uses it, this rm broke bbox compile:
 	### ucontext.h
 
-install_headers: headers $(top_builddir)extra/scripts/unifdef
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
+ifneq ($(findstring install,$(MAKECMDGOALS)),)
+$(PREFIX)$(RUNTIME_PREFIX)lib $(addprefix $(PREFIX)$(DEVEL_PREFIX),include lib):
+	$(do_mkdir)
+endif
+
+install_headers: headers $(top_builddir)extra/scripts/unifdef | $(PREFIX)$(DEVEL_PREFIX)include
 	top_builddir=$(top_builddir) \
 	$(top_srcdir)extra/scripts/install_headers.sh include $(PREFIX)$(DEVEL_PREFIX)include
 	cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -r $(HEADERS_RM-)
@@ -298,8 +301,7 @@ else
 endif
 
 # Installs development library links.
-install_dev: install_headers install_runtime
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
+install_dev: install_headers install_runtime | $(PREFIX)$(DEVEL_PREFIX)lib
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 ifeq ($(HAVE_SHARED),y)
 	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
@@ -358,9 +360,8 @@ ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
 endif
 
 # Installs run-time libraries
-install_runtime: all
+install_runtime: all | $(PREFIX)$(RUNTIME_PREFIX)lib
 ifeq ($(HAVE_SHARED),y)
-	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
 	$(INSTALL) -m 755 lib/lib*-$(VERSION).so \
 		$(PREFIX)$(RUNTIME_PREFIX)lib
 	(cd lib && $(TAR) -cf - *.so.*) | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)lib
