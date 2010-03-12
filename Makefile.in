@@ -193,7 +193,8 @@ install: install_runtime install_dev
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)$(MULTILIB_DIR) $(RUNTIME_PREFIX)$(MULTILIB_DIR))
 
-$(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c|$(@D)
+$(top_builddir)extra/scripts/unifdef: |$(top_builddir)extra/scripts
+$(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
 	$(hcompile.u)
 
 # Installs header files.
