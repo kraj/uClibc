@@ -401,7 +401,6 @@ config LDSO_GNU_HASH_SUPPORT
 
 choice
 	prompt "Thread support"
-	#default UCLIBC_HAS_THREADS_NATIVE if (TARGET_alpha || TARGET_arm || TARGET_i386 || TARGET_mips || TARGET_powerpc || TARGET_sh || TARGET_sh64)
 	default HAS_NO_THREADS
 	help
 	  If you want to compile uClibc with pthread support, then answer Y.
@@ -432,40 +431,10 @@ config LINUXTHREADS_NEW
 	  the latest code from glibc, so it may be the only choice for the
 	  newer ports (like alpha/amd64/64bit arches and hppa).
 
-config UCLIBC_HAS_THREADS_NATIVE
-	bool "Native POSIX Threading (NPTL)"
-	select UCLIBC_HAS_TLS
-	help
-	  If you want to compile uClibc with NPTL support, then answer Y.
-
-	  IMPORTANT NOTE!  NPTL requires a Linux 2.6 kernel, binutils
-	  at least version 2.16 and GCC with at least version 4.1.0. NPTL
-	  will not work with older versions of any above sources. If you
-	  ignore any of these guidelines, you do so at your own risk. Do
-	  not ask for help on any of the development mailing lists.
-
-	  !!!! WARNING !!!! BIG FAT WARNING !!!! REALLY BIG FAT WARNING !!!!
-
-	  This is experimental code and at times it may not even build and
-	  even if it does it might decide to do random damage. This code is
-	  potentially hazardous to your health and sanity. It will remain
-	  that way until further notice at which point this notice will
-	  disappear. Thank you for your support and for not smoking.
-
 endchoice
 
 config UCLIBC_HAS_THREADS
 	def_bool y if !HAS_NO_THREADS
-
-config UCLIBC_HAS_TLS
-	bool "Thread-Local Storage"
-	depends on UCLIBC_HAS_THREADS_NATIVE
-	default n
-	help
-	  If you want to enable TLS support then answer Y.
-	  This is fast an efficient way to store per-thread local data
-	  which is not on stack. It needs __thread support enabled in
-	  gcc.
 
 config PTHREADS_DEBUG_SUPPORT
 	bool "Build pthreads debugging support"
@@ -1745,14 +1714,6 @@ config UCLIBC_HAS_GNU_GETOPT
 	  (much smaller) SUSv3 compatible getopt().
 
 	  Most people will answer Y.
-
-config UCLIBC_HAS_STDIO_FUTEXES
-	bool "Use futexes for multithreaded I/O locking"
-	default n
-	depends on UCLIBC_HAS_THREADS_NATIVE
-	help
-	  If you want to compile uClibc to use futexes for low-level
-	  I/O locking, answer Y.  Otherwise, answer N.
 
 config UCLIBC_HAS_GETOPT_LONG
 	bool "Support getopt_long/getopt_long_only"
