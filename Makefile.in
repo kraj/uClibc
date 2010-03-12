@@ -459,11 +459,12 @@ distclean: clean
 	$(MAKE) -C extra/config distclean
 
 dist release:
-	$(RM) -r ../uClibc-$(VERSION) ../uClibc-$(VERSION).tar.bz2
-	mkdir -p ../uClibc-$(VERSION)
-	git archive HEAD |(cd  ../uClibc-$(VERSION) && $(TAR) xf -)
-	$(TAR) cjf ../uClibc-$(VERSION).tar.bz2 -C .. uClibc-$(VERSION)
-	du -b ../uClibc-$(VERSION).tar.bz2
+	$(RM) ../uClibc-$(VERSION).tar
+	git archive HEAD --format=tar --prefix=uClibc-$(VERSION)/ \
+		> ../uClibc-$(VERSION).tar
+	cat ../uClibc-$(VERSION).tar | bzip2 -c9 > ../uClibc-$(VERSION).tar.bz2
+	cat ../uClibc-$(VERSION).tar | xz -e -c8 > ../uClibc-$(VERSION).tar.xz
+	du -b ../uClibc-$(VERSION).tar.{bz2,xz}
 
 test check: test_compile
 	$(Q)$(MAKE) -C test
