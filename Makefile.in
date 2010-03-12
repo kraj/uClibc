@@ -518,10 +518,9 @@ distclean: clean
 	$(MAKE) -C extra/config distclean
 
 dist release:
-	$(RM) -r ../uClibc-$(VERSION) ../uClibc-$(VERSION).tar.bz2
-	svn -q export . ../uClibc-$(VERSION)
-	$(TAR) cjf ../uClibc-$(VERSION).tar.bz2 -C .. uClibc-$(VERSION)
-	du -b ../uClibc-$(VERSION).tar.bz2
+	$(RM) ../uClibc-$(VERSION).tar
+	git archive HEAD --format=tar --prefix=uClibc-$(VERSION)/ \
+		> ../uClibc-$(VERSION).tar
 
 test check: test_compile
 	$(Q)$(MAKE) -C test
