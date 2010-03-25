@@ -27,7 +27,7 @@ PWDGRP_OBJ := $(patsubst %.c,$(PWDGRP_OUT)/%.o,$(CSRC))
 
 libc-y += $(PWDGRP_OBJ)
 
-objclean-y += pwdgrp_clean
+objclean-y += CLEAN_libc/pwd_grp
 
-pwdgrp_clean:
+CLEAN_libc/pwd_grp:
 	$(do_rm) $(addprefix $(PWDGRP_OUT)/*., o os)

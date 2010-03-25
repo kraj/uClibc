@@ -23,7 +23,7 @@ MISC_ERROR_OBJ := $(patsubst %.c,$(MISC_ERROR_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_ERROR_OBJ)
 
-objclean-y += misc_error_clean
+objclean-y += CLEAN_libc/misc/error
 
-misc_error_clean:
+CLEAN_libc/misc/error:
 	$(do_rm) $(addprefix $(MISC_ERROR_OUT)/*., o os)

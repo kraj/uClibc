@@ -29,7 +29,7 @@ MISC_SEARCH_OBJ := $(patsubst %.c,$(MISC_SEARCH_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_SEARCH_OBJ)
 
-objclean-y += misc_search_clean
+objclean-y += CLEAN_libc/misc/search
 
-misc_search_clean:
+CLEAN_libc/misc/search:
 	$(do_rm) $(addprefix $(MISC_SEARCH_OUT)/*., o os)

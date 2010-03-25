@@ -26,7 +26,7 @@ MISC_SYSVIPC_OBJ := $(patsubst %.c,$(MISC_SYSVIPC_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_SYSVIPC_OBJ)
 
-objclean-y += misc_sysvipc_clean
+objclean-y += CLEAN_libc/misc/sysvipc
 
-misc_sysvipc_clean:
+CLEAN_libc/misc/sysvipc:
 	$(do_rm) $(addprefix $(MISC_SYSVIPC_OUT)/*., o os)

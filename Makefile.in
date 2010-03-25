@@ -9,7 +9,7 @@
 # You shouldn't need to mess with anything beyond this point...
 #--------------------------------------------------------------
 clean_targets := clean realclean distclean \
-	objclean-y headers_clean-y utils_clean
+	objclean-y headers_clean-y CLEAN_utils
 noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
 	defconfig allyesconfig allnoconfig \
 	release dist tags help
@@ -148,9 +148,9 @@ endif
 
 $(target-headers-sysdep): | $(top_builddir)include/bits $(top_builddir)include/sys
 
-sysdep_common_headers-clean:
-	$(RM) $(ALL_HEADERS_COMMON)
-headers_clean-y += sysdep_common_headers-clean
+HEADERCLEAN_common:
+	$(do_rm) $(ALL_HEADERS_COMMON)
+headers_clean-y += HEADERCLEAN_common
 
 # The headers. Arch specific headers are specified via ARCH_HEADERS in
 # libc/sysdeps/linux/$(TARGET_ARCH)/Makefile.arch which appends those via
@@ -446,7 +446,7 @@ include_clean:
 
 clean: include_clean
 	$(Q)$(RM) -r $(top_builddir)lib $(top_builddir)include/bits
-	@$(MAKE) -C utils utils_clean
+	@$(MAKE) -C utils CLEAN_utils
 	+$(MAKE) -s -C test clean
 	@$(RM) $(top_builddir)include/linux $(top_builddir)include/asm*
 	$(Q)$(RM) $(top_builddir)extra/scripts/unifdef

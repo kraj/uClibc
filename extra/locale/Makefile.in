@@ -234,9 +234,9 @@ $(top_builddir)include/bits/uClibc_locale_data.h: $(locale_OUT)/uClibc_locale_da
 	$(Q)$(AWK) 'BEGIN{i=1}{if (/WANT_/) i=/endif/;else if (i) print $0}' \
 		$< > $@
 
-objclean-y += locale_clean
+objclean-y += CLEAN_extra/locale
 
 # lmmtolso.c/gen_mmap.c/tst-*.c not used
-locale_clean:
+CLEAN_extra/locale:
 	$(do_rm) $(locale_HOBJ) $(locale_SRC) $(addprefix $(locale_OUT)/*., o os txt) \
 		$(addprefix $(locale_OUT)/,$(addsuffix .h,uClibc_locale_data lt_defines c8tables wctables locale_tables locale_collate) lmmtolso gen_mmap locale.mmap)

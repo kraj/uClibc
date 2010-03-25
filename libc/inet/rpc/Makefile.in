@@ -41,7 +41,7 @@ libc-nomulti-$(UCLIBC_HAS_RPC) += $(INET_RPC_OUT)/rpc_thread.o
 
 libc-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OBJ)
 
-objclean-y+=inet_rpc_clean
+objclean-y+=CLEAN_libc/inet/rpc
 
-inet_rpc_clean:
+CLEAN_libc/inet/rpc:
 	$(do_rm) $(addprefix $(INET_RPC_OUT)/*., o os oS)

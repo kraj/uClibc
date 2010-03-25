@@ -132,10 +132,10 @@ linuxthreads_headers := $(top_builddir)include/pthread.h \
 $(linuxthreads_headers): $(wildcard $(addprefix $(top_builddir)include/config/linuxthreads/,old.h new.h))
 headers-$(UCLIBC_HAS_THREADS) += $(linuxthreads_headers)
 
-objclean-y += libpthread_clean
-headers_clean-y += linuxthreads_headers_clean
-linuxthreads_headers_clean:
+objclean-y += CLEAN_libpthread/linuxthreads
+headers_clean-y += HEADERCLEAN_libpthread/linuxthreads
+HEADERCLEAN_libpthread/linuxthreads:
 	$(do_rm) $(linuxthreads_headers)
 
-libpthread_clean:
+CLEAN_libpthread/linuxthreads:
 	$(do_rm) $(addprefix $(libpthread_OUT)/,$(foreach e, o os oS a,$(foreach d, *. */*. */*/*. */*/*/*.,$(d)$(e))))

@@ -46,7 +46,7 @@ UNISTD_OBJ := $(patsubst %.c,$(UNISTD_OUT)/%.o,$(CSRC))
 
 libc-y += $(UNISTD_OBJ)
 
-objclean-y += unistd_clean
+objclean-y += CLEAN_libc/unistd
 
-unistd_clean:
+CLEAN_libc/unistd:
 	$(do_rm) $(addprefix $(UNISTD_OUT)/*., o os)

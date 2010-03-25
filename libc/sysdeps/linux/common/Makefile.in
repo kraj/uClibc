@@ -96,7 +96,7 @@ libc-nomulti-y += $(COMMON_OUT)/__syscall_rt_sigaction.o \
 	$(COMMON_OUT)/stat.o
 libc-nomulti-$(UCLIBC_HAS_SSP) += $(COMMON_OUT)/ssp.o
 
-objclean-y += common_clean
+objclean-y += CLEAN_libc/sysdeps/linux/common
 
-common_clean:
+CLEAN_libc/sysdeps/linux/common:
 	$(do_rm) $(addprefix $(COMMON_OUT)/*., o os oS)

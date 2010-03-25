@@ -17,7 +17,7 @@ MISC_UTMP_OBJ := $(patsubst %.c,$(MISC_UTMP_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_UTMP_OBJ)
 
-objclean-y += misc_utmp_clean
+objclean-y += CLEAN_libc/misc/utmp
 
-misc_utmp_clean:
+CLEAN_libc/misc/utmp:
 	$(do_rm) $(addprefix $(MISC_UTMP_OUT)/*., o os)

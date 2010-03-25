@@ -19,7 +19,7 @@ STDLIB_MALLOC_STANDARD_OBJ := $(patsubst %.c,$(STDLIB_MALLOC_STANDARD_OUT)/%.o,$
 
 libc-$(MALLOC_STANDARD) += $(STDLIB_MALLOC_STANDARD_OBJ)
 
-objclean-y += stdlib_malloc_standard_clean
+objclean-y += CLEAN_libc/stdlib/malloc-standard
 
-stdlib_malloc_standard_clean:
+CLEAN_libc/stdlib/malloc-standard:
 	$(do_rm) $(addprefix $(STDLIB_MALLOC_STANDARD_OUT)/*., o os)

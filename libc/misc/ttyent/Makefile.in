@@ -17,7 +17,7 @@ MISC_TTYENT_OBJ := $(patsubst %.c,$(MISC_TTYENT_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_TTYENT_OBJ)
 
-objclean-y += misc_ttyent_clean
+objclean-y += CLEAN_libc/misc/ttyent
 
-misc_ttyent_clean:
+CLEAN_libc/misc/ttyent:
 	$(do_rm) $(addprefix $(MISC_TTYENT_OUT)/*., o os)

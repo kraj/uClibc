@@ -60,7 +60,7 @@ $(UCLIBC_LDSO_NAME)_OBJS := $($(UCLIBC_LDSO_NAME)_COBJ) $($(UCLIBC_LDSO_NAME)_SO
 ldso-y := $($(UCLIBC_LDSO_NAME)_OBJS:.o=.oS)
 
 lib-so-y += $(ldso)
-objclean-y += $(UCLIBC_LDSO_NAME)_clean
+objclean-y += CLEAN_ldso/ldso
 
 $(ldso): $(ldso:.$(MAJOR_VERSION)=)
 $(ldso:.$(MAJOR_VERSION)=): $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a
@@ -70,5 +70,5 @@ $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a: $(ldso-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-$(UCLIBC_LDSO_NAME)_clean:
+CLEAN_ldso/ldso:
 	$(do_rm) $(addprefix $($(UCLIBC_LDSO_NAME)_OUT)/,$(foreach e, o os oS a,$(foreach d, *. */*.,$(d)$(e))))

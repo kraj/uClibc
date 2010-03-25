@@ -52,7 +52,7 @@ endif
 lib-a-y += $(top_builddir)lib/libc.a
 lib-gdb-y += $(top_builddir)lib/libc.gdb
 lib-so-y += $(libc.depend)
-objclean-y += libc_clean
+objclean-y += CLEAN_libc
 
 OUTPUT_FORMAT = $(CC) $(CFLAGS) -Wl,--verbose 2>&1 | $(SED) -n '/OUTPUT_FORMAT/,/)/p'
 
@@ -96,5 +96,5 @@ $(top_builddir)lib/libc.a: $(libc-a-y) | $(crt-y)
 $(top_builddir)lib/libc.gdb: $(libc_OUT)/libc_so.a $(LINK_FLAT_CRTS)
 	$(call link-flat.so,$(@:.gdb=),$(UCLIBC_SHARED_FLAT_ID))
 
-libc_clean:
+CLEAN_libc:
 	$(do_rm) $(addprefix $(libc_OUT)/*., o os oS a)

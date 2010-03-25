@@ -21,7 +21,7 @@ MISC_FNMATCH_OBJ := $(patsubst %.c,$(MISC_FNMATCH_OUT)/%.o,$(CSRC))
 
 libc-$(UCLIBC_HAS_FNMATCH) += $(MISC_FNMATCH_OBJ)
 
-objclean-y += misc_fnmatch_clean
+objclean-y += CLEAN_libc/misc/fnmatch
 
-misc_fnmatch_clean:
+CLEAN_libc/misc/fnmatch:
 	$(do_rm) $(addprefix $(MISC_FNMATCH_OUT)/*., o os)

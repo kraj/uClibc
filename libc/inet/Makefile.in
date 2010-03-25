@@ -57,7 +57,7 @@ INET_OBJ := $(patsubst %.c,$(INET_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(INET_OBJ)
 
-objclean-y += inet_clean
+objclean-y += CLEAN_libc/inet
 
-inet_clean:
+CLEAN_libc/inet:
 	$(do_rm) $(addprefix $(INET_OUT)/*., o os)

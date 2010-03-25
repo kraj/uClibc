@@ -30,7 +30,7 @@ libnsl-so-y := $(libnsl_OBJ:.o=.os)
 
 lib-a-$(UCLIBC_HAS_LIBNSL_STUB) += $(top_builddir)lib/libnsl.a
 lib-so-$(UCLIBC_HAS_LIBNSL_STUB) += $(top_builddir)lib/libnsl.so
-objclean-y += libnsl_clean
+objclean-y += CLEAN_libnsl
 
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libnsl.so: $(top_builddir)lib/libnsl.a $(libc.depend)
@@ -48,5 +48,5 @@ $(top_builddir)lib/libnsl.a: $(libnsl-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-libnsl_clean:
+CLEAN_libnsl:
 	$(do_rm) $(addprefix $(libnsl_OUT)/*., o os a)

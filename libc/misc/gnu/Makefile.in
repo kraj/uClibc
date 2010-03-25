@@ -17,7 +17,7 @@ MISC_GNU_OBJ := $(MISC_GNU_OUT)/obstack.o
 
 libc-y += $(MISC_GNU_OBJ)
 
-objclean-y += misc_gnu_clean
+objclean-y += CLEAN_libc/misc/gnu
 
-misc_gnu_clean:
+CLEAN_libc/misc/gnu:
 	$(do_rm) $(addprefix $(MISC_GNU_OUT)/*., o os)

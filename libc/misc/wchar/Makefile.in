@@ -35,7 +35,7 @@ MISC_WCHAR_OBJ := $(patsubst %.c,$(MISC_WCHAR_OUT)/%.o,$(CSRC))
 
 libc-$(UCLIBC_HAS_WCHAR) += $(MISC_WCHAR_OBJ)
 
-objclean-y += misc_wchar_clean
+objclean-y += CLEAN_libc/misc/wchar
 
-misc_wchar_clean:
+CLEAN_libc/misc/wchar:
 	$(do_rm) $(addprefix $(MISC_WCHAR_OUT)/*., o os)

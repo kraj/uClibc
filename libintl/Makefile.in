@@ -39,7 +39,7 @@ libintl-so-y := $(libintl_MOBJ:.o=.os)
 
 lib-a-$(UCLIBC_HAS_GETTEXT_AWARENESS) += $(top_builddir)lib/libintl.a
 lib-so-$(UCLIBC_HAS_GETTEXT_AWARENESS) += $(top_builddir)lib/libintl.so
-objclean-y += libintl_clean
+objclean-y += CLEAN_libintl
 
 ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
@@ -72,5 +72,5 @@ $(libintl_MOBJ): $(libintl_MSRC)
 $(libintl_MOBJ:.o=.os): $(libintl_MSRC)
 	$(compile.m)
 
-libintl_clean:
+CLEAN_libintl:
 	$(do_rm) $(addprefix $(libintl_OUT)/*., o os oS a)

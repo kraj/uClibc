@@ -95,7 +95,7 @@ pur_disp_ln        = echo "  "LN $(show_objs)
 pur_disp_mkdir     = echo "  "MKDIR $(show_objs)
 pur_disp_gen       = echo "  "GEN $(show_objs)
 pur_disp_unifdef   = echo "  "UNIFDEF $(show_objs)
-pur_disp_rm        = echo "  "CLEAN $(@:_clean=)
+pur_disp_rm        = echo "  "CLEAN $(subst CLEAN_,,$(patsubst HEADERCLEAN_%,include \(%\),$@))
 
 sil_disp_compile.c = true
 sil_disp_compile.i = true

@@ -20,7 +20,7 @@ MISC_FTW_OBJ := $(patsubst %.c,$(MISC_FTW_OUT)/%.o,$(CSRC))
 
 libc-$(findstring y,$(UCLIBC_HAS_FTW)$(UCLIBC_HAS_NFTW)) += $(MISC_FTW_OBJ)
 
-objclean-y += misc_ftw_clean
+objclean-y += CLEAN_libc/misc/ftw
 
-misc_ftw_clean:
+CLEAN_libc/misc/ftw:
 	$(do_rm) $(addprefix $(MISC_FTW_OUT)/*., o os)

@@ -37,7 +37,7 @@ MISC_TIME_OBJ := $(patsubst %.c,$(MISC_TIME_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_TIME_OBJ)
 
-objclean-y += misc_time_clean
+objclean-y += CLEAN_libc/misc/time
 
-misc_time_clean:
+CLEAN_libc/misc/time:
 	$(do_rm) $(addprefix $(MISC_TIME_OUT)/*., o os)
