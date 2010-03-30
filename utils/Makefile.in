@@ -129,5 +129,5 @@ objclean-y += CLEAN_utils
 
 CLEAN_utils:
 	$(do_rm) $(addprefix $(utils_OUT)/, ldconfig ldd iconv locale *.host)
-	# This is a hack..
+	$(Q)# This is a hack..
 	$(Q)$(RM) $(utils_OUT)/.*.dep
