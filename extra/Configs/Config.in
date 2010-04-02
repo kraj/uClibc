@@ -435,6 +435,7 @@ config LINUXTHREADS_NEW
 config UCLIBC_HAS_THREADS_NATIVE
 	bool "Native POSIX Threading (NPTL)"
 	select UCLIBC_HAS_TLS
+	select UCLIBC_HAS_STDIO_FUTEXES
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.
 
