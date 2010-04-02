@@ -402,6 +402,8 @@ int conf_write(const char *name)
 	char *env;
 
 	dirname[0] = 0;
+	if (name == NULL)
+		name = conf_get_configname();
 	if (name && name[0]) {
 		struct stat st;
 		char *slash;

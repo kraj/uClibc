@@ -30,7 +30,7 @@ libresolv-so-y := $(libresolv_OBJ:.o=.os)
 
 lib-a-$(UCLIBC_HAS_LIBRESOLV_STUB)  += $(top_builddir)lib/libresolv.a
 lib-so-$(UCLIBC_HAS_LIBRESOLV_STUB) += $(top_builddir)lib/libresolv.so
-objclean-y += libresolv_clean
+objclean-y += CLEAN_libresolv
 
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libresolv.so: $(top_builddir)lib/libresolv.a $(libc.depend)
@@ -48,5 +48,5 @@ $(top_builddir)lib/libresolv.a: $(libresolv-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-libresolv_clean:
+CLEAN_libresolv:
 	$(do_rm) $(addprefix $(libresolv_OUT)/*., o os a)

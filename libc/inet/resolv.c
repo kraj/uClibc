@@ -1348,8 +1348,24 @@ int attribute_hidden __dns_lookup(const char *name,
 		packet_len = i + j;
 
 		/* send packet */
-		DPRINTF("On try %d, sending query to port %d\n",
-				retries_left, NAMESERVER_PORT);
+#ifdef DEBUG
+		{
+			const socklen_t plen = sa.sa.sa_family == AF_INET ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN;
+			char *pbuf = malloc(plen);
+			if (pbuf == NULL) ;/* nothing */
+#ifdef __UCLIBC_HAS_IPV6__
+			else if (sa.sa.sa_family == AF_INET6)
+				pbuf = (char*)inet_ntop(AF_INET6, &sa.sa6.sin6_addr, pbuf, plen);
+#endif
+#ifdef __UCLIBC_HAS_IPV4__
+			else if (sa.sa.sa_family == AF_INET)
+				pbuf = (char*)inet_ntop(AF_INET, &sa.sa4.sin_addr, pbuf, plen);
+#endif
+			DPRINTF("On try %d, sending query to %s, port %d\n",
+				retries_left, pbuf, NAMESERVER_PORT);
+			free(pbuf);
+		}
+#endif
 		fd = socket(sa.sa.sa_family, SOCK_DGRAM, IPPROTO_UDP);
 		if (fd < 0) /* paranoia */
 			goto try_next_server;

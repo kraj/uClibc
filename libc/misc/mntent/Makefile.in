@@ -17,7 +17,7 @@ MISC_MNTENT_OBJ := $(MISC_MNTENT_OUT)/mntent.o
 
 libc-y += $(MISC_MNTENT_OBJ)
 
-objclean-y += misc_mntent_clean
+objclean-y += CLEAN_libc/misc/mntent
 
-misc_mntent_clean:
+CLEAN_libc/misc/mntent:
 	$(do_rm) $(addprefix $(MISC_MNTENT_OUT)/*., o os)

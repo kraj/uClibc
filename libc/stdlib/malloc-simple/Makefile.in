@@ -18,7 +18,7 @@ STDLIB_MALLOC_SIMPLE_OBJ := $(patsubst %.c,$(STDLIB_MALLOC_SIMPLE_OUT)/%.o,$(CSR
 
 libc-$(MALLOC_SIMPLE) += $(STDLIB_MALLOC_SIMPLE_OBJ)
 
-objclean-y += stdlib_malloc_simple_clean
+objclean-y += CLEAN_libc/stdlib/malloc-simple
 
-stdlib_malloc_simple_clean:
+CLEAN_libc/stdlib/malloc-simple:
 	$(do_rm) $(addprefix $(STDLIB_MALLOC_SIMPLE_OUT)/*., o os)

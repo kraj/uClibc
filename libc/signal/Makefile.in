@@ -32,7 +32,7 @@ SIGNAL_OBJ := $(patsubst %.c,$(SIGNAL_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(SIGNAL_OBJ)
 
-objclean-y += signal_clean
+objclean-y += CLEAN_libc/signal
 
-signal_clean:
+CLEAN_libc/signal:
 	$(do_rm) $(addprefix $(SIGNAL_OUT)/*., o os)

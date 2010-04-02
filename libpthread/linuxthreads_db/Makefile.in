@@ -68,11 +68,11 @@ linuxthreads_db_headers := $(top_builddir)include/thread_db.h
 $(linuxthreads_db_headers): $(wildcard $(addprefix $(top_builddir)include/config/linuxthreads/,old.h new.h))
 headers-$(PTHREADS_DEBUG_SUPPORT) += $(linuxthreads_db_headers)
 
-objclean-y += libthread_db_clean
-headers_clean-y += linuxthreads_db_headers_clean
+objclean-y += CLEAN_libpthread/linuxthreads_db
+headers_clean-y += HEADERCLEAN_libpthread/linuxthreads_db
 
-linuxthreads_db_headers_clean:
+HEADERCLEAN_libpthread/linuxthreads_db:
 	$(do_rm) $(linuxthreads_db_headers)
 
-libthread_db_clean:
+CLEAN_libpthread/linuxthreads_db:
 	$(do_rm) $(addprefix $(libthread_db_OUT)/*., o os oS a)

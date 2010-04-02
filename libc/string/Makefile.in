@@ -138,7 +138,7 @@ libc-y += $(STRING_COBJ)
 libc-nomulti-$(UCLIBC_HAS_XLOCALE) += $(STRING_OUT)/wcsxfrm_l.o
 libc-nomulti-y += $(STRING_OUT)/__xpg_strerror_r.o
 
-objclean-y += string_clean
+objclean-y += CLEAN_libc/string
 
-string_clean:
+CLEAN_libc/string:
 	$(do_rm) $(addprefix $(STRING_OUT)/,$(addprefix *., o os oS) $(addprefix */*., o os oS) $(addprefix */*/*., o os oS))

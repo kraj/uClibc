@@ -34,7 +34,7 @@ libcrypt-so-y := $(libcrypt_OBJ:.o=.os)
 
 lib-a-$(UCLIBC_HAS_CRYPT)  += $(top_builddir)lib/libcrypt.a
 lib-so-$(UCLIBC_HAS_CRYPT) += $(top_builddir)lib/libcrypt.so
-objclean-y += libcrypt_clean
+objclean-y += CLEAN_libcrypt
 
 ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
@@ -61,5 +61,5 @@ $(top_builddir)lib/libcrypt.a: $(libcrypt-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-libcrypt_clean:
+CLEAN_libcrypt:
 	$(do_rm) $(addprefix $(libcrypt_OUT)/*., o os oS a)

@@ -22,7 +22,7 @@ MISC_DIRENT_OBJ := $(patsubst %.c,$(MISC_DIRENT_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_DIRENT_OBJ)
 
-objclean-y += misc_dirent_clean
+objclean-y += CLEAN_libc/misc/dirent
 
-misc_dirent_clean:
+CLEAN_libc/misc/dirent:
 	$(do_rm) $(addprefix $(MISC_DIRENT_OUT)/*., o os)

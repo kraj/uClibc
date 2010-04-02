@@ -29,9 +29,9 @@ STDLIB_MALLOC_OBJ := $(patsubst %.c,$(STDLIB_MALLOC_OUT)/%.o,$(CSRC))
 
 libc-$(MALLOC) += $(STDLIB_MALLOC_OBJ)
 
-objclean-y += stdlib_malloc_clean
+objclean-y += CLEAN_libc/stdlib/malloc
 
-stdlib_malloc_clean:
+CLEAN_libc/stdlib/malloc:
 	$(do_rm) $(addprefix $(STDLIB_MALLOC_OUT)/*., o os)
 
 malloc.o free.o realloc.o memalign.o: malloc.h

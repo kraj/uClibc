@@ -19,12 +19,15 @@
 
 #include <sys/syscall.h>
 #include <sys/poll.h>
+#include <bits/kernel-features.h>
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sysdep-cancel.h>
 #else
 #define SINGLE_THREAD_P 1
 #endif
+
+#if defined __ASSUME_POLL_SYSCALL && defined __NR_poll
 
 libc_hidden_proto(poll)
 

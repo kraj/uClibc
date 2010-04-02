@@ -15,7 +15,7 @@ TERMIOS_OBJ := $(patsubst $(TERMIOS_DIR)/%.c,$(TERMIOS_OUT)/%.o,$(TERMIOS_SRC))
 
 libc-y += $(TERMIOS_OBJ)
 
-objclean-y += termios_clean
+objclean-y += CLEAN_libc/termios
 
-termios_clean:
+CLEAN_libc/termios:
 	$(do_rm) $(addprefix $(TERMIOS_OUT)/*., o os)

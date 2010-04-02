@@ -56,7 +56,6 @@ help:
 	@echo '			  (usually "/")'
 	@echo '  DEVEL_PREFIX=		- Prefix for the libdir containing static objects'
 	@echo '			  and the include dir (usually "/usr")'
-	@echo '  SHARED_LIB_LOADER_PREFIX=	- Directory where the shared loader resides.'
-	@echo '			  (usually "/lib")'
+	@echo '  MULTILIB_DIR=		- Directory component for libraries (default "lib").'
 	@echo '  UCLIBC_EXTRA_CFLAGS	- extra CFLAGS for compiling uClibc'
 

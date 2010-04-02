@@ -17,7 +17,7 @@ libpthread-so-y+=$(libpthread_ARCH_OBJ:.o=.os)
 
 libpthread-multi-y+=$(libpthread_ARCH_SRC)
 
-objclean-y+=libpthread_arch_clean
+objclean-y += CLEAN_$($(top_builddir),,$(libpthread_ARCH_OUT))
 
 # We need to build as SHcompact for tas..
 $(libpthread_ARCH_OBJ): %.o : %.c
@@ -26,5 +26,5 @@ $(libpthread_ARCH_OBJ): %.o : %.c
 $(libpthread_ARCH_OBJ:.o=.os): %.os : %.c
 	$(compile.c:32media=compact)
 
-libpthread_arch_clean:
+CLEAN_$($(top_builddir),,$(libpthread_ARCH_OUT)):
 	$(do_rm) $(addprefix $(libpthread_ARCH_OUT)/*., o os)

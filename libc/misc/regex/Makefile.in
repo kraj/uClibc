@@ -21,7 +21,7 @@ MISC_REGEX_OBJ := $(patsubst %.c,$(MISC_REGEX_OUT)/%.o,$(CSRC))
 
 libc-$(UCLIBC_HAS_REGEX) += $(MISC_REGEX_OBJ)
 
-objclean-y += misc_regex_clean
+objclean-y += CLEAN_libc/misc/regex
 
-misc_regex_clean:
+CLEAN_libc/misc/regex:
 	$(do_rm) $(addprefix $(MISC_REGEX_OUT)/*., o os)

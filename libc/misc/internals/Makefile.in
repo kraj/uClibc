@@ -35,7 +35,7 @@ libc-shared-$(UCLIBC_FORMAT_SHARED_FLAT) += \
   $(MISC_INTERNALS_OUT)/shared_flat_add_library.os
 libc-nomulti-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o
 
-objclean-y += misc_internals_clean
+objclean-y += CLEAN_libc/misc/internals
 
-misc_internals_clean:
+CLEAN_libc/misc/internals:
 	$(do_rm) $(addprefix $(MISC_INTERNALS_OUT)/*., o os oS)

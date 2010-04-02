@@ -9,287 +9,98 @@
 #include <errno.h>
 #include <asm/traps.h>
 
-#define __syscall_return(type, res) \
-do { \
-	if ((unsigned long)(res) >= (unsigned long)(-125)) { \
-                                                                        \
-                /* avoid using res which is declared to be in           \
-                    register r2; errno might expand to a function       \
-                    call and clobber it.                          */    \
-                                                                        \
-		int __err = -(res); \
-		errno = __err; \
-		res = -1; \
-	} \
-	return (type) (res); \
-} while (0)
+#define __syscall_return(type, res)					\
+	do {								\
+		if (unlikely(INTERNAL_SYSCALL_ERROR_P(res, ))) {	\
+			__set_errno(INTERNAL_SYSCALL_ERRNO(res, ));	\
+			res = (unsigned long) -1;			\
+		}							\
+		return (type) (res);					\
+	} while (0)
 
-#define _syscall0(type,name) \
-type name(void) \
-{ \
-    long __res;                                             \
-                                                            \
-    __asm__ __volatile__ (                                  \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        "    movi    r2,    %2\n\t"   /* TRAP_ID_SYSCALL */ \
-        "    movi    r3,    %1\n\t"   /* __NR_##name     */ \
-                                                            \
-        "    trap\n\t"                                      \
-        "    mov     %0,    r2\n\t"   /* syscall rtn     */ \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        :   "=r" (__res)              /* %0              */ \
-                                                            \
-        :   "i" (__NR_##name)         /* %1              */ \
-          , "i" (TRAP_ID_SYSCALL)     /* %2              */ \
-                                                            \
-        :   "r2"                      /* Clobbered       */ \
-          , "r3"                      /* Clobbered       */ \
-        );                                                  \
-                                                            \
-__syscall_return(type,__res); \
-}
+#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
+	({								\
+		long __res;						\
+		__asm__ __volatile__ (					\
+			"movi    r2,    %2\n\t"   /* TRAP_ID_SYSCALL */ \
+			"movi    r3,    %1\n\t"   /* __NR_##name     */	\
+			ASM_ARGS_##nr					\
+			"trap\n\t"					\
+			"mov     %0,    r2\n\t"   /* syscall return  */	\
+			:   "=r" (__res)          /* %0              */	\
+			:   "i" (name)            /* %1              */	\
+			  , "i" (TRAP_ID_SYSCALL) /* %2              */	\
+			  MAP_ARGS_##nr (args)    /* %3-%8           */	\
+			:   "r2"					\
+			  , "r3"					\
+			  CLOB_ARGS_##nr          /* Clobbered       */ \
+		);							\
+		__res;							\
+	})
 
-#define _syscall1(type,name,atype,a) \
-type name(atype a) \
-{ \
-    long __res;                                             \
-                                                            \
-    __asm__ __volatile__ (                                  \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        "    movi    r2,    %2\n\t"   /* TRAP_ID_SYSCALL */ \
-        "    movi    r3,    %1\n\t"   /* __NR_##name     */ \
-        "    mov     r4,    %3\n\t"   /* (long) a        */ \
-                                                            \
-        "    trap\n\t"                                      \
-        "    mov     %0,    r2\n\t"   /* syscall rtn     */ \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        :   "=r" (__res)              /* %0              */ \
-                                                            \
-        :   "i" (__NR_##name)         /* %1              */ \
-          , "i" (TRAP_ID_SYSCALL)     /* %2              */ \
-          , "r" ((long) a)            /* %3              */ \
-                                                            \
-        :   "r2"                      /* Clobbered       */ \
-          , "r3"                      /* Clobbered       */ \
-          , "r4"                      /* Clobbered       */ \
-        );                                                  \
-                                                            \
-__syscall_return(type,__res); \
-}
+#define INTERNAL_SYSCALL_ERROR_P(val, err)	\
+	((unsigned long)(val) >= (unsigned long)(-125))
 
-#define _syscall2(type,name,atype,a,btype,b) \
-type name(atype a,btype b) \
-{ \
-    long __res;                                             \
-                                                            \
-    __asm__ __volatile__ (                                  \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        "    movi    r2,    %2\n\t"   /* TRAP_ID_SYSCALL */ \
-        "    movi    r3,    %1\n\t"   /* __NR_##name     */ \
-        "    mov     r4,    %3\n\t"   /* (long) a        */ \
-        "    mov     r5,    %4\n\t"   /* (long) b        */ \
-                                                            \
-        "    trap\n\t"                                      \
-        "    mov     %0,    r2\n\t"   /* syscall rtn     */ \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        :   "=r" (__res)              /* %0              */ \
-                                                            \
-        :   "i" (__NR_##name)         /* %1              */ \
-          , "i" (TRAP_ID_SYSCALL)     /* %2              */ \
-          , "r" ((long) a)            /* %3              */ \
-          , "r" ((long) b)            /* %4              */ \
-                                                            \
-        :   "r2"                      /* Clobbered       */ \
-          , "r3"                      /* Clobbered       */ \
-          , "r4"                      /* Clobbered       */ \
-          , "r5"                      /* Clobbered       */ \
-        );                                                  \
-                                                            \
-__syscall_return(type,__res); \
-}
+#define ASM_ARGS_0
+#define MAP_ARGS_0()
+#define CLOB_ARGS_0
 
-#define _syscall3(type,name,atype,a,btype,b,ctype,c) \
-type name(atype a,btype b,ctype c) \
-{ \
-    long __res;                                             \
-                                                            \
-    __asm__ __volatile__ (                                  \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        "    movi    r2,    %2\n\t"   /* TRAP_ID_SYSCALL */ \
-        "    movi    r3,    %1\n\t"   /* __NR_##name     */ \
-        "    mov     r4,    %3\n\t"   /* (long) a        */ \
-        "    mov     r5,    %4\n\t"   /* (long) b        */ \
-        "    mov     r6,    %5\n\t"   /* (long) c        */ \
-                                                            \
-        "    trap\n\t"                                      \
-        "    mov     %0,    r2\n\t"   /* syscall rtn     */ \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        :   "=r" (__res)              /* %0              */ \
-                                                            \
-        :   "i" (__NR_##name)         /* %1              */ \
-          , "i" (TRAP_ID_SYSCALL)     /* %2              */ \
-          , "r" ((long) a)            /* %3              */ \
-          , "r" ((long) b)            /* %4              */ \
-          , "r" ((long) c)            /* %5              */ \
-                                                            \
-        :   "r2"                      /* Clobbered       */ \
-          , "r3"                      /* Clobbered       */ \
-          , "r4"                      /* Clobbered       */ \
-          , "r5"                      /* Clobbered       */ \
-          , "r6"                      /* Clobbered       */ \
-        );                                                  \
-                                                            \
-__syscall_return(type,__res); \
-}
+#define ASM_ARGS_1		\
+	"mov     r4,    %3\n\t"
+#define MAP_ARGS_1(a)		\
+	, "r" ((long) a)
+#define CLOB_ARGS_1		\
+	, "r4"
 
-#define _syscall4(type,name,atype,a,btype,b,ctype,c,dtype,d) \
-type name (atype a, btype b, ctype c, dtype d) \
-{ \
-    long __res;                                             \
-                                                            \
-    __asm__ __volatile__ (                                  \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        "    movi    r2,    %2\n\t"   /* TRAP_ID_SYSCALL */ \
-        "    movi    r3,    %1\n\t"   /* __NR_##name     */ \
-        "    mov     r4,    %3\n\t"   /* (long) a        */ \
-        "    mov     r5,    %4\n\t"   /* (long) b        */ \
-        "    mov     r6,    %5\n\t"   /* (long) c        */ \
-        "    mov     r7,    %6\n\t"   /* (long) d        */ \
-                                                            \
-        "    trap\n\t"                                      \
-        "    mov     %0,    r2\n\t"   /* syscall rtn     */ \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        :   "=r" (__res)              /* %0              */ \
-                                                            \
-        :   "i" (__NR_##name)         /* %1              */ \
-          , "i" (TRAP_ID_SYSCALL)     /* %2              */ \
-          , "r" ((long) a)            /* %3              */ \
-          , "r" ((long) b)            /* %4              */ \
-          , "r" ((long) c)            /* %5              */ \
-          , "r" ((long) d)            /* %6              */ \
-                                                            \
-        :   "r2"                      /* Clobbered       */ \
-          , "r3"                      /* Clobbered       */ \
-          , "r4"                      /* Clobbered       */ \
-          , "r5"                      /* Clobbered       */ \
-          , "r6"                      /* Clobbered       */ \
-          , "r7"                      /* Clobbered       */ \
-        );                                                  \
-                                                            \
-__syscall_return(type,__res); \
-}
+#define ASM_ARGS_2		\
+	ASM_ARGS_1		\
+	"mov     r5,    %4\n\t"
+#define MAP_ARGS_2(a, b)	\
+	MAP_ARGS_1(a)		\
+	, "r" ((long) b)
+#define CLOB_ARGS_2		\
+	CLOB_ARGS_1		\
+	, "r5"
 
-#define _syscall5(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e) \
-type name (atype a,btype b,ctype c,dtype d,etype e) \
-{ \
-    long __res;                                             \
-                                                            \
-    __asm__ __volatile__ (                                  \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        "    movi    r2,    %2\n\t"   /* TRAP_ID_SYSCALL */ \
-        "    movi    r3,    %1\n\t"   /* __NR_##name     */ \
-        "    mov     r4,    %3\n\t"   /* (long) a        */ \
-        "    mov     r5,    %4\n\t"   /* (long) b        */ \
-        "    mov     r6,    %5\n\t"   /* (long) c        */ \
-        "    mov     r7,    %6\n\t"   /* (long) c        */ \
-        "    mov     r8,    %7\n\t"   /* (long) e        */ \
-                                                            \
-        "    trap\n\t"                                      \
-        "    mov     %0,    r2\n\t"   /* syscall rtn     */ \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        :   "=r" (__res)              /* %0              */ \
-                                                            \
-        :   "i" (__NR_##name)         /* %1              */ \
-          , "i" (TRAP_ID_SYSCALL)     /* %2              */ \
-          , "r" ((long) a)            /* %3              */ \
-          , "r" ((long) b)            /* %4              */ \
-          , "r" ((long) c)            /* %5              */ \
-          , "r" ((long) d)            /* %6              */ \
-          , "r" ((long) e)            /* %7              */ \
-                                                            \
-        :   "r2"                      /* Clobbered       */ \
-          , "r3"                      /* Clobbered       */ \
-          , "r4"                      /* Clobbered       */ \
-          , "r5"                      /* Clobbered       */ \
-          , "r6"                      /* Clobbered       */ \
-          , "r7"                      /* Clobbered       */ \
-          , "r8"                      /* Clobbered       */ \
-        );                                                  \
-                                                            \
-__syscall_return(type,__res); \
-}
+#define ASM_ARGS_3		\
+	ASM_ARGS_2		\
+	"mov     r6,    %5\n\t"
+#define MAP_ARGS_3(a, b, c)	\
+	MAP_ARGS_2(a, b)	\
+	, "r" ((long) c)
+#define CLOB_ARGS_3		\
+	CLOB_ARGS_2		\
+	, "r6"
 
-#define _syscall6(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e,ftype,f) \
-type name (atype a,btype b,ctype c,dtype d,etype e,ftype f) \
-{ \
-    long __res;                                             \
-                                                            \
-    __asm__ __volatile__ (                                  \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        "    movi    r2,    %2\n\t"   /* TRAP_ID_SYSCALL */ \
-        "    movi    r3,    %1\n\t"   /* __NR_##name     */ \
-        "    mov     r4,    %3\n\t"   /* (long) a        */ \
-        "    mov     r5,    %4\n\t"   /* (long) b        */ \
-        "    mov     r6,    %5\n\t"   /* (long) c        */ \
-        "    mov     r7,    %6\n\t"   /* (long) c        */ \
-        "    mov     r8,    %7\n\t"   /* (long) e        */ \
-        "    mov     r9,    %8\n\t"   /* (long) f        */ \
-                                                            \
-        "    trap\n\t"                                      \
-        "    mov     %0,    r2\n\t"   /* syscall rtn     */ \
-                                                            \
-        "    \n\t"                                          \
-                                                            \
-        :   "=r" (__res)              /* %0              */ \
-                                                            \
-        :   "i" (__NR_##name)         /* %1              */ \
-          , "i" (TRAP_ID_SYSCALL)     /* %2              */ \
-          , "r" ((long) a)            /* %3              */ \
-          , "r" ((long) b)            /* %4              */ \
-          , "r" ((long) c)            /* %5              */ \
-          , "r" ((long) d)            /* %6              */ \
-          , "r" ((long) e)            /* %7              */ \
-          , "r" ((long) f)            /* %8              */ \
-                                                            \
-        :   "r2"                      /* Clobbered       */ \
-          , "r3"                      /* Clobbered       */ \
-          , "r4"                      /* Clobbered       */ \
-          , "r5"                      /* Clobbered       */ \
-          , "r6"                      /* Clobbered       */ \
-          , "r7"                      /* Clobbered       */ \
-          , "r8"                      /* Clobbered       */ \
-          , "r9"                      /* Clobbered       */ \
-        );                                                  \
-                                                            \
-__syscall_return(type,__res); \
-}
+#define ASM_ARGS_4		\
+	ASM_ARGS_3		\
+	"mov     r7,    %6\n\t"
+#define MAP_ARGS_4(a, b, c, d)	\
+	MAP_ARGS_3(a, b, c)	\
+	, "r" ((long) d)
+#define CLOB_ARGS_4		\
+	CLOB_ARGS_3		\
+	, "r7"
+
+#define ASM_ARGS_5		\
+	ASM_ARGS_4		\
+	"mov     r8,    %7\n\t"
+#define MAP_ARGS_5(a, b, c, d, e)	\
+	MAP_ARGS_4(a, b, c, d)		\
+	, "r" ((long) e)
+#define CLOB_ARGS_5		\
+	CLOB_ARGS_4		\
+	, "r8"
+
+#define ASM_ARGS_6		\
+	ASM_ARGS_5		\
+	"mov     r9,    %8\n\t"
+#define MAP_ARGS_6(a, b, c, d, e, f)	\
+	MAP_ARGS_5(a, b, c, d, e)	\
+	, "r" ((long) f)
+#define CLOB_ARGS_6		\
+	CLOB_ARGS_5		\
+	, "r9"
 
 #endif /* __ASSEMBLER__ */
 #endif /* _BITS_SYSCALLS_H */
-

@@ -14,7 +14,7 @@ libc-shared-$(UCLIBC_HAS_TLS) += $(MISC_PTHREAD_OUT)/tsd.os
 libc-$(UCLIBC_HAS_THREADS) += $(MISC_PTHREAD_OUT)/unlock.o
 libc-$(UCLIBC_HAS_THREADS) += $(MISC_PTHREAD_OUT)/weaks.o
 
-objclean-y += misc_pthread_clean
+objclean-y += CLEAN_libc/misc/pthread
 
-misc_pthread_clean:
+CLEAN_libc/misc/pthread:
 	$(do_rm) $(addprefix $(MISC_PTHREAD_OUT)/*., o os oS)

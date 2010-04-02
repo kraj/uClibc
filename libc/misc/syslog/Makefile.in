@@ -19,7 +19,7 @@ ifeq ($(UCLIBC_HAS_SYSLOG),y)
 libc-y += $(MISC_SYSLOG_OBJ)
 endif
 
-objclean-y += misc_syslog_clean
+objclean-y += CLEAN_libc/misc/syslog
 
-misc_syslog_clean:
+CLEAN_libc/misc/syslog:
 	$(do_rm) $(addprefix $(MISC_SYSLOG_OUT)/*., o os)

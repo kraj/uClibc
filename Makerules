@@ -95,7 +95,7 @@ pur_disp_ln        = echo "  "LN $(show_objs)
 pur_disp_mkdir     = echo "  "MKDIR $(show_objs)
 pur_disp_gen       = echo "  "GEN $(show_objs)
 pur_disp_unifdef   = echo "  "UNIFDEF $(show_objs)
-pur_disp_rm        = echo "  "CLEAN $(@:_clean=)
+pur_disp_rm        = echo "  "CLEAN $(subst CLEAN_,,$(patsubst HEADERCLEAN_%,include \(%\),$@))
 
 sil_disp_compile.c = true
 sil_disp_compile.i = true
@@ -181,6 +181,9 @@ maybe_exec = \
 		$(cmd_$(1)); \
 		echo 'cmd_$(call variablify,$@) := $(call dirify,$(cmd_$(call variablify,$1)))' >> $(dir $@).$(notdir $@).dep)
 
+# collect flags of domulti prereqs
+#collect_multi_flags = $(CFLAGS-$(notdir $(d))) $(CFLAGS-$(notdir $(patsubst %/,%,$(dir $(d)))))
+collect_multi_flags = $(CFLAGS-$(notdir $(patsubst %/,%,$(dir $(d)))))
 
 CFLAGS_gen.dep = -MT $@ -MD -MP -MF $(dir $@).$(notdir $@).dep
 
@@ -198,7 +201,7 @@ cmd_compile.S = $(filter-out -std=gnu99, $(cmd_compile.c)) -D__ASSEMBLER__ $(ASF
 cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
 cmd_compile.mi= $(cmd_compile.m:-c=-E -dD $(EXTRA_CPPFLAGS))
 
-cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@))
+cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@)) $(sort $(foreach d,$(^:$(top_srcdir)=),$(collect_multi_flags)))
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_t_strip   = $(STRIPTOOL) $(STRIP_FLAGS) $@
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
@@ -326,7 +329,7 @@ $(top_builddir)lib/interp.c: | $(sub_headers)
 	$(Q)echo "/* Force shared libraries to know about the correct library loader */" > $@
 	$(Q)echo "#include <features.h>" >> $@
 	$(Q)echo "const char __dl_ldso__[] attribute_hidden __attribute__ ((weak)) __attribute__ ((section " \
-		"(\".interp\"))) =\""$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)"\";" >> $@
+		"(\".interp\"))) =\""$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UCLIBC_LDSO)"\";" >> $@
 
 $(interp): $(top_builddir)lib/interp.c
 	$(compile.c)

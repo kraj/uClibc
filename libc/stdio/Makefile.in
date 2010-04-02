@@ -103,7 +103,7 @@ ifeq ($(UCLIBC_HAS_WCHAR),y)
 libc-nomulti-y += $(STDIO_OUT)/vfwprintf.o $(STDIO_OUT)/vfwscanf.o
 endif
 
-objclean-y += stdio_clean
+objclean-y += CLEAN_libc/stdio
 
-stdio_clean:
+CLEAN_libc/stdio:
 	$(do_rm) $(addprefix $(STDIO_OUT)/*., o os oS)

@@ -68,7 +68,7 @@ $(top_builddir)lib/librt.a: $(librt-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-objclean-y += librt_clean
+objclean-y += CLEAN_librt
 
-librt_clean:
+CLEAN_librt:
 	$(do_rm) $(addprefix $(librt_OUT)/*., o os oS a)

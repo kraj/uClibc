@@ -161,9 +161,6 @@
 /* Now controlled by uClibc_stdio.h. */
 /* #define __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__ */
 
-/* TODO -- move these to a configuration section? */
-#define MAX_FIELD_WIDTH		4095
-
 #ifdef __UCLIBC_MJN3_ONLY__
 #ifdef L_register_printf_function
 /* emit only once */
@@ -893,8 +890,11 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 	}
 	i = 0;
 	while (isdigit(*fmt)) {
-		if (i < MAX_FIELD_WIDTH) { /* Avoid overflow. */
+		if (i < INT_MAX / 10
+		    || (i == INT_MAX / 10 && (*fmt - '0') <= INT_MAX % 10)) {
 			i = (i * 10) + (*fmt - '0');
+		} else {
+			i = INT_MAX; /* best we can do... */
 		}
 		++fmt;
 	}

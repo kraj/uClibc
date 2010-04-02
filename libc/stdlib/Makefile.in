@@ -74,7 +74,7 @@ libc-nonshared-y += $(STDLIB_OUT)/atexit.os
 libc-nomulti-y += $(STDLIB_OUT)/labs.o $(STDLIB_OUT)/atol.o $(STDLIB_OUT)/_stdlib_strto_l.o $(STDLIB_OUT)/_stdlib_strto_ll.o
 libc-nomulti-$(UCLIBC_HAS_XLOCALE) += $(STDLIB_OUT)/_stdlib_strto_l_l.o $(STDLIB_OUT)/_stdlib_strto_ll_l.o
 
-objclean-y += stdlib_clean
+objclean-y += CLEAN_libc/stdlib
 
-stdlib_clean:
+CLEAN_libc/stdlib:
 	$(do_rm) $(addprefix $(STDLIB_OUT)/*., o os oS)

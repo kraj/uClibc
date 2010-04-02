@@ -41,7 +41,7 @@ libdl-so-y := $(libdl_OUT)/libdl.oS
 
 lib-a-$(HAVE_SHARED) += $(top_builddir)lib/libdl.a
 lib-so-y += $(top_builddir)lib/libdl.so
-objclean-y += libdl_clean
+objclean-y += CLEAN_ldso/libdl
 
 $(top_builddir)lib/libdl.so: $(libdl_OUT)/libdl_so.a $(libc.depend)
 	$(call link.so,$(libdl_FULL_NAME),$(MAJOR_VERSION))
@@ -55,5 +55,5 @@ $(top_builddir)lib/libdl.a: $(libdl-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-libdl_clean:
+CLEAN_ldso/libdl:
 	$(do_rm) $(addprefix $(libdl_OUT)/*., o os oS a)

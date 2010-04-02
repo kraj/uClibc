@@ -36,7 +36,7 @@ MISC_CTYPE_OBJ := $(patsubst %.c,$(MISC_CTYPE_OUT)/%.o,$(CSRC))
 
 libc-y += $(MISC_CTYPE_OBJ)
 
-objclean-y += misc_ctype_clean
+objclean-y += CLEAN_libc/misc/ctype
 
-misc_ctype_clean:
+CLEAN_libc/misc/ctype:
 	$(do_rm) $(addprefix $(MISC_CTYPE_OUT)/*., o os)

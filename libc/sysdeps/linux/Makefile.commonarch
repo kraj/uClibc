@@ -18,12 +18,12 @@ ARCH_OBJS := $(ARCH_COBJ) $(ARCH_SOBJ)
 crt-y          := FORCE
 libc-y         += $(ARCH_OBJS)
 libc-nomulti-y += $(ARCH_SOBJ)
-objclean-y     += arch_clean
+objclean-y     += CLEAN_$(subst $(top_builddir),,$(ARCH_OUT))
 
 CFLAGS-crti.S+=$(PICFLAG)
 CFLAGS-crtn.S+=$(PICFLAG)
 
-arch_clean:
+CLEAN_$(subst $(top_builddir),,$(ARCH_OUT)):
 	$(do_rm) $(addprefix $(ARCH_OUT)/*., o os oS) $(CTOR_TARGETS) $(CRTS)
 
 ifneq ($(ARCH_HEADERS),)
@@ -34,8 +34,8 @@ $(ARCH_HEADERS_OUT):
 	$(do_ln) -fs $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) $@
 
 headers-y += $(ARCH_HEADERS_OUT)
-headers_clean-y += arch_headers_clean
-arch_headers_clean:
+headers_clean-y += HEADERCLEAN_$(subst $(top_builddir),,$(ARCH_OUT))
+HEADERCLEAN_$(subst $(top_builddir),,$(ARCH_OUT)):
 	$(RM) $(ARCH_HEADERS_OUT)
 
 endif

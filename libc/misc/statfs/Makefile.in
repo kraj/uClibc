@@ -25,7 +25,7 @@ libc-y += $(MISC_STATFS_OBJ)
 
 libc-nomulti-$(UCLIBC_HAS_LFS) += $(MISC_STATFS_OUT)/statvfs64.o $(MISC_STATFS_OUT)/fstatvfs64.o
 
-objclean-y += misc_statfs_clean
+objclean-y += CLEAN_libc/misc/statfs
 
-misc_statfs_clean:
+CLEAN_libc/misc/statfs:
 	$(do_rm) $(addprefix $(MISC_STATFS_OUT)/*., o os oS)

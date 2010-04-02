@@ -17,7 +17,7 @@ MISC_WORDEXP_OBJ := $(patsubst %.c,$(MISC_WORDEXP_OUT)/%.o,$(CSRC))
 
 libc-$(UCLIBC_HAS_WORDEXP) += $(MISC_WORDEXP_OBJ)
 
-objclean-y += misc_wordexp_clean
+objclean-y += CLEAN_libc/misc/wordexp
 
-misc_wordexp_clean:
+CLEAN_libc/misc/wordexp:
 	$(do_rm) $(addprefix $(MISC_WORDEXP_OUT)/*., o os)

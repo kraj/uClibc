@@ -20,7 +20,7 @@ libc-y += $(MISC_FILE_OBJ)
 
 libc-nomulti-$(UCLIBC_HAS_LFS) += $(MISC_FILE_OUT)/lockf64.o
 
-objclean-y += misc_file_clean
+objclean-y += CLEAN_libc/misc/file
 
-misc_file_clean:
+CLEAN_libc/misc/file:
 	$(do_rm) $(addprefix $(MISC_FILE_OUT)/*., o os oS)
