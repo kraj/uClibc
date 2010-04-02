@@ -27,11 +27,9 @@
 #define SINGLE_THREAD_P 1
 #endif
 
-#if defined __ASSUME_POLL_SYSCALL && defined __NR_poll
-
 libc_hidden_proto(poll)
 
-#ifdef __NR_poll
+#if defined __ASSUME_POLL_SYSCALL && defined __NR_poll
 
 #define __NR___syscall_poll __NR_poll
 static inline _syscall3(int, __syscall_poll, struct pollfd *, fds,
