@@ -74,7 +74,6 @@ extern void endutent (void) __THROW;
 /* Search forward from the current point in the utmp file until the
    next entry with a ut_type matching ID->ut_type.  */
 extern struct utmp *getutid (__const struct utmp *__id) __THROW;
-libc_hidden_proto(getutid)
 
 /* Search forward from the current point in the utmp file until the
    next entry with a ut_line matching LINE->ut_line.  */

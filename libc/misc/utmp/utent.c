@@ -88,7 +88,7 @@ void endutent(void)
 
 struct utmp *getutent(void)
 {
-    struct utmp *ret = NULL;
+    struct utmp *ret;
 
     __UCLIBC_MUTEX_LOCK(utmplock);
     ret = __getutent();
@@ -125,18 +125,17 @@ static struct utmp *__getutid(const struct utmp *utmp_entry)
 
 struct utmp *getutid(const struct utmp *utmp_entry)
 {
-    struct utmp *ret = NULL;
+    struct utmp *ret;
 
     __UCLIBC_MUTEX_LOCK(utmplock);
     ret = __getutid(utmp_entry);
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return ret;
 }
-libc_hidden_def(getutid)
 
 struct utmp *getutline(const struct utmp *utmp_entry)
 {
-    struct utmp *lutmp = NULL;
+    struct utmp *lutmp;
 
     __UCLIBC_MUTEX_LOCK(utmplock);
     while ((lutmp = __getutent()) != NULL) {
