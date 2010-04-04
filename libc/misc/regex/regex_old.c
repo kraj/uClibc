@@ -23,7 +23,8 @@
 /* To exclude some unwanted junk.... */
 #undef emacs
 #include <features.h>
-
+/* unistd.h must be included with _LIBC defined: we need smallint */
+#include <unistd.h>
 #ifdef __UCLIBC__
 # undef _LIBC
 # define _REGEX_RE_COMP
@@ -33,7 +34,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdio.h>
 
 /* AIX requires this to be the first thing in the file. */
@@ -263,7 +263,7 @@ static void
 init_syntax_once (void)
 {
    register int c;
-   static int done = 0;
+   static smallint done = 0;
 
    if (done)
      return;
