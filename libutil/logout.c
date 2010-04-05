@@ -29,9 +29,9 @@ logout (const char *line)
   struct utmp *ut;
   int result = 0;
 
-  /* Tell that we want to use the UTMP file.  */
-  if (utmpname (_PATH_UTMP) == -1)
-    return 0;
+  /* if (utmpname (_PATH_UTMP) == -1) return 0; - why?
+   * this makes it impossible for caller to use other file!
+   * Does any standard or historical precedent says this must be done? */
 
   /* Open UTMP file.  */
   setutent ();
@@ -43,7 +43,7 @@ logout (const char *line)
   strncpy (tmp.ut_line, line, sizeof tmp.ut_line);
 
   /* Read the record.  */
-  if( (ut =  getutline(&tmp)) )
+  if ((ut = getutline(&tmp)) != NULL)
     {
       /* Clear information about who & from where.  */
       memset (ut->ut_name, 0, sizeof ut->ut_name);
@@ -54,12 +54,12 @@ logout (const char *line)
 # if !defined __WORDSIZE_COMPAT32 || __WORDSIZE_COMPAT32 == 0
       gettimeofday (&ut->ut_tv, NULL);
 # else
-    {
-      struct timeval tv;
-      gettimeofday (&tv, NULL);
-      ut->ut_tv.tv_sec = tv.tv_sec;
-      ut->ut_tv.tv_usec = tv.tv_usec;
-    }
+      {
+	struct timeval tv;
+	gettimeofday (&tv, NULL);
+	ut->ut_tv.tv_sec = tv.tv_sec;
+	ut->ut_tv.tv_usec = tv.tv_usec;
+      }
 # endif
 #else
       time (&ut->ut_time);
