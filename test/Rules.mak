@@ -44,6 +44,7 @@ endif
 export TARGET_ARCH
 
 RM_R = $(Q)$(RM) -r
+LN_S = $(Q)$(LN) -fs
 
 ifneq ($(KERNEL_HEADERS),)
 ifeq ($(patsubst /%,/,$(KERNEL_HEADERS)),/)

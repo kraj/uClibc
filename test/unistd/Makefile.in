@@ -10,6 +10,11 @@ else
 OPTS_tstgetopt   := -a -b -cfoobar --required foobar --optional=bazbug --none --colou --color --colour random
 endif
 
-TESTS_DISABLED+=getconf
+# getconf.c lives in utils/
+# Testsuite cannot currently be built with O= anyway, so hardcode path here
+getconf.c:
+	$(LN_S) ../../utils/$(@F) .
+EXTRA_CLEAN    += getconf.c
+TESTS_DISABLED += getconf
 CFLAGS_getconf = -DGETCONF_DIR='"$(CURDIR)"'
 shell_tst-getconf: getconf getconf_glibc
