@@ -6,3 +6,5 @@ iconv
 iconv.host
 locale
 locale.host
+getconf
+getconf.host
