@@ -19,9 +19,9 @@
 
 /* Define a macro which expands into the inline wrapper code for a system
    call.  */
-#define INLINE_SYSCALL_NCS(name, nr, args...)                               \
+#define INLINE_SYSCALL(name, nr, args...)                               \
   ({ INTERNAL_SYSCALL_DECL(err);					\
-     long result_var = INTERNAL_SYSCALL_NCS (name, err, nr, args);		\
+     long result_var = INTERNAL_SYSCALL(name, err, nr, args);		\
      if ( INTERNAL_SYSCALL_ERROR_P (result_var, err) )			\
        {								\
 	 __set_errno (INTERNAL_SYSCALL_ERRNO (result_var, err));	\
