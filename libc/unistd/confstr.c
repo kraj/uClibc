@@ -42,6 +42,24 @@ size_t confstr (int name, char *buf, size_t len)
 	string_len = sizeof (cs_path);
       }
       break;
+#ifdef __UCLIBC_HAS_THREADS__
+    case _CS_GNU_LIBPTHREAD_VERSION:
+# if defined __LINUXTHREADS_OLD__
+      string = "linuxthreads-0.01";
+      string_len = sizeof("linuxthreads-x.xx");
+# elif defined __LINUXTHREADS_NEW__
+      string = "linuxthreads-0.10";
+      string_len = sizeof("linuxthreads-x.xx");
+# elif defined __UCLIBC_HAS_THREADS_NATIVE__
+#  define __NPTL_VERSION ("NPTL " \
+		#__UCLIBC_MAJOR__ "." \
+		#__UCLIBC_MINOR__ "." \
+		#__UCLIBC_SUBLEVEL__)
+      string = __NPTL_VERSION;
+      string_len = sizeof(__NPTL_VERSION);
+# endif
+      break;
+#endif
     default:
       __set_errno (EINVAL);
       return 0;

@@ -40,7 +40,8 @@ CFLAGS-iconv := $(CFLAGS-utils) \
     -DL_iconv_main \
 
 CFLAGS-locale := $(CFLAGS-utils)
-
+CFLAGS-getconf :=$(CFLAGS-utils) \
+	-DGETCONF_DIR='"$(CURDIR)"'
 
 # "make hostutils" flags
 
@@ -76,6 +77,7 @@ utils_OUT := $(top_builddir)utils
 DEPS-ldconfig := $(utils_DIR)/chroot_realpath.c
 DEPS-ldconfig.host := $(DEPS-ldconfig)
 
+utils_OBJ := getconf
 ifeq ($(HAVE_SHARED),y)
 utils_OBJ += ldconfig ldd
 endif
@@ -115,6 +117,7 @@ install-y += utils_install
 # This installs both utils and hostutils, so doesn't depend on either.
 
 utils_install: $(addsuffix $(DOTHOST), $(utils_OBJ) $(utils_LOCALE_OBJ))
+	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/getconf$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)usr/bin/getconf
 ifeq ($(HAVE_SHARED),y)
 	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/ldd$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/ldd
 	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/ldconfig$(DOTHOST) $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig
@@ -128,6 +131,6 @@ endif
 objclean-y += CLEAN_utils
 
 CLEAN_utils:
-	$(do_rm) $(addprefix $(utils_OUT)/, ldconfig ldd iconv locale *.host)
+	$(do_rm) $(addprefix $(utils_OUT)/, getconf iconv ldconfig ldd locale *.host)
 	$(Q)# This is a hack..
 	$(Q)$(RM) $(utils_OUT)/.*.dep

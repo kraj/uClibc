@@ -25,14 +25,26 @@
 __UCLIBC_MUTEX_STATIC(utmplock, PTHREAD_MUTEX_INITIALIZER);
 
 
+/* Do not create extra unlocked functions if no locking is needed */
+#if defined __UCLIBC_HAS_THREADS__
+# define static_if_threaded static
+#else
+# define static_if_threaded /* nothing */
+# define __setutent setutent
+# define __getutent getutent
+# define __getutid getutid
+#endif
+
+
 /* Some global crap */
 static int static_fd = -1;
 static struct utmp static_utmp;
 static const char default_file_name[] = _PATH_UTMP;
 static const char *static_ut_name = default_file_name;
 
+
 /* This function must be called with the LOCK held */
-static void __setutent(void)
+static_if_threaded void __setutent(void)
 {
     if (static_fd < 0) {
 	static_fd = open_not_cancel_2(static_ut_name, O_RDWR | O_CLOEXEC);
@@ -50,20 +62,19 @@ static void __setutent(void)
     }
     lseek(static_fd, 0, SEEK_SET);
 }
-
+#if defined __UCLIBC_HAS_THREADS__
 void setutent(void)
 {
     __UCLIBC_MUTEX_LOCK(utmplock);
     __setutent();
     __UCLIBC_MUTEX_UNLOCK(utmplock);
 }
+#endif
 libc_hidden_def(setutent)
 
 /* This function must be called with the LOCK held */
-static struct utmp *__getutent(void)
+static_if_threaded struct utmp *__getutent(void)
 {
-    struct utmp *ret = NULL;
-
     if (static_fd < 0) {
 	__setutent();
 	if (static_fd < 0) {
@@ -72,11 +83,22 @@ static struct utmp *__getutent(void)
     }
 
     if (read_not_cancel(static_fd, &static_utmp, sizeof(static_utmp)) == sizeof(static_utmp)) {
-	ret = &static_utmp;
+	return &static_utmp;
     }
 
+    return NULL;
+}
+#if defined __UCLIBC_HAS_THREADS__
+struct utmp *getutent(void)
+{
+    struct utmp *ret;
+
+    __UCLIBC_MUTEX_LOCK(utmplock);
+    ret = __getutent();
+    __UCLIBC_MUTEX_UNLOCK(utmplock);
     return ret;
 }
+#endif
 
 void endutent(void)
 {
@@ -87,63 +109,52 @@ void endutent(void)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
 }
 
-struct utmp *getutent(void)
-{
-    struct utmp *ret = NULL;
-
-    __UCLIBC_MUTEX_LOCK(utmplock);
-    ret = __getutent();
-    __UCLIBC_MUTEX_UNLOCK(utmplock);
-    return ret;
-}
-
 /* This function must be called with the LOCK held */
-static struct utmp *__getutid(const struct utmp *utmp_entry)
+static_if_threaded struct utmp *__getutid(const struct utmp *utmp_entry)
 {
     struct utmp *lutmp;
+    unsigned type;
+
+    /* We use the fact that constants we are interested in are: */
+    /* RUN_LVL=1, ... OLD_TIME=4; INIT_PROCESS=5, ... USER_PROCESS=8 */
+    type = utmp_entry->ut_type - 1;
+    type /= 4;
 
     while ((lutmp = __getutent()) != NULL) {
-		if (	(utmp_entry->ut_type == RUN_LVL ||
-				 utmp_entry->ut_type == BOOT_TIME ||
-				 utmp_entry->ut_type == NEW_TIME ||
-				 utmp_entry->ut_type == OLD_TIME) &&
-				lutmp->ut_type == utmp_entry->ut_type)
-			{
-				return lutmp;
-			}
-		if (	(utmp_entry->ut_type == INIT_PROCESS ||
-				 utmp_entry->ut_type == DEAD_PROCESS ||
-				 utmp_entry->ut_type == LOGIN_PROCESS ||
-				 utmp_entry->ut_type == USER_PROCESS) &&
-				!strncmp(lutmp->ut_id, utmp_entry->ut_id, sizeof(lutmp->ut_id)))
-			{
-				return lutmp;
-			}
+	if (type == 0 && lutmp->ut_type == utmp_entry->ut_type)	{
+	    /* one of RUN_LVL, BOOT_TIME, NEW_TIME, OLD_TIME */
+	    return lutmp;
+	}
+	if (type == 1 && strncmp(lutmp->ut_id, utmp_entry->ut_id, sizeof(lutmp->ut_id)) == 0) {
+	    /* INIT_PROCESS, LOGIN_PROCESS, USER_PROCESS, DEAD_PROCESS */
+	    return lutmp;
+	}
     }
 
     return NULL;
 }
-
+#if defined __UCLIBC_HAS_THREADS__
 struct utmp *getutid(const struct utmp *utmp_entry)
 {
-    struct utmp *ret = NULL;
+    struct utmp *ret;
 
     __UCLIBC_MUTEX_LOCK(utmplock);
     ret = __getutid(utmp_entry);
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return ret;
 }
-libc_hidden_def(getutid)
+#endif
 
 struct utmp *getutline(const struct utmp *utmp_entry)
 {
-    struct utmp *lutmp = NULL;
+    struct utmp *lutmp;
 
     __UCLIBC_MUTEX_LOCK(utmplock);
     while ((lutmp = __getutent()) != NULL) {
-	if ((lutmp->ut_type == USER_PROCESS || lutmp->ut_type == LOGIN_PROCESS) &&
-		!strcmp(lutmp->ut_line, utmp_entry->ut_line)) {
-	    break;
+	if (lutmp->ut_type == USER_PROCESS || lutmp->ut_type == LOGIN_PROCESS) {
+	    if (strncmp(lutmp->ut_line, utmp_entry->ut_line, sizeof(lutmp->ut_line)) == 0) {
+		break;
+	    }
 	}
     }
     __UCLIBC_MUTEX_UNLOCK(utmplock);

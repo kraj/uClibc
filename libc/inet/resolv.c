@@ -1517,10 +1517,8 @@ int attribute_hidden __dns_lookup(const char *name,
 				memcpy(a, &ma, sizeof(ma));
 				if (a->atype != T_SIG && (NULL == a->buf || (type != T_A && type != T_AAAA)))
 					break;
-				if (a->atype != type) {
-					free(a->dotted);
+				if (a->atype != type)
 					continue;
-				}
 				a->add_count = h.ancount - j - 1;
 				if ((a->rdlength + sizeof(struct in_addr*)) * a->add_count > a->buflen)
 					break;

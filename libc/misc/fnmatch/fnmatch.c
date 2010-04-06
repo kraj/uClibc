@@ -21,13 +21,7 @@
 # include <config.h>
 #endif
 
-/* include unistd.h before we undefine _LIBC
- * because smallint is defined in unistd.h based
- * on _LIBC. For architectures that dont define
- * smallint of there own and rely upon the definition
- * from unistd.h will not build this file otherwise
- */
-
+/* unistd.h must be included with _LIBC defined: we need smallint */
 #include <unistd.h>
 #include <features.h>
 #ifdef __UCLIBC__
