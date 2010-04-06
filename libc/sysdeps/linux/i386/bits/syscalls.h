@@ -141,14 +141,21 @@ __asm__ (
 #define RESTOREARGS_6  "pop %%ebp\n\t" RESTOREARGS_1
 
 #define ASMFMT_0()
+/* "acdSD" constraint would work too, but "SD" would use esi/edi and cause
+ * them to be pushed/popped by compiler, "a" would use eax and cause ebx
+ * to be saved/restored on stack, not in register. Narrowing choice down
+ * to "ecx or edx" results in smaller and faster code: */
 #define ASMFMT_1(arg1) \
-	, "acdSD" (arg1)
+	, "cd" (arg1)
+/* Can use "adSD" constraint here: */
 #define ASMFMT_2(arg1, arg2) \
-	, "adSD" (arg1), "c" (arg2)
+	, "d" (arg1), "c" (arg2)
+/* Can use "aSD" constraint here: */
 #define ASMFMT_3(arg1, arg2, arg3) \
-	, "aSD" (arg1), "c" (arg2), "d" (arg3)
+	, "a" (arg1), "c" (arg2), "d" (arg3)
+/* Can use "aD" constraint here: */
 #define ASMFMT_4(arg1, arg2, arg3, arg4) \
-	, "aD" (arg1), "c" (arg2), "d" (arg3), "S" (arg4)
+	, "a" (arg1), "c" (arg2), "d" (arg3), "S" (arg4)
 #define ASMFMT_5(arg1, arg2, arg3, arg4, arg5) \
 	, "a" (arg1), "c" (arg2), "d" (arg3), "S" (arg4), "D" (arg5)
 #define ASMFMT_6(arg1, arg2, arg3, arg4, arg5, arg6) \
