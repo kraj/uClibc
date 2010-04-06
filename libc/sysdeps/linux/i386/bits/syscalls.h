@@ -21,8 +21,13 @@
 #error LD debugging and DOMULTI are incompatible
 #endif
 
-#ifdef __DOMULTI__
 __asm__ (
+#ifdef __DOMULTI__
+	/* Protect against asm macro redefinition (happens in __DOMULTI__ mode).
+	 * Unfortunately, it ends up visible in .o files. */
+	".ifndef _BITS_SYSCALLS_ASM\n\t"
+	".set _BITS_SYSCALLS_ASM,1\n\t"
+#endif
 	".L__X'%ebx = 1\n\t"
 	".L__X'%ecx = 2\n\t"
 	".L__X'%edx = 2\n\t"
@@ -31,9 +36,6 @@ __asm__ (
 	".L__X'%edi = 3\n\t"
 	".L__X'%ebp = 3\n\t"
 	".L__X'%esp = 3\n\t"
-
-	".ifndef _BITS_SYSCALLS_ASM\n\t"
-	".set _BITS_SYSCALLS_ASM,1\n\t"
 
 	/* Loading param #1 (ebx) is done by loading it into
 	 * another register, and then performing bpushl+bmovl,
@@ -57,8 +59,6 @@ __asm__ (
 	".endif\n\t"
 	".endm\n\t"
 
-	".endif\n\t" /* _BITS_SYSCALLS_ASM */
-
 	".macro bpopl name reg\n\t"
 	".if 1 - \\name\n\t"
 	".if 2 - \\name\n\t"    /* if reg can't be clobbered... */
@@ -68,47 +68,11 @@ __asm__ (
 	".endif\n\t"
 	".endif\n\t"
 	".endm\n\t"
-);
-#else
-__asm__ (
-	".L__X'%ebx = 1\n\t"
-	".L__X'%ecx = 2\n\t"
-	".L__X'%edx = 2\n\t"
-	".L__X'%eax = 3\n\t"
-	".L__X'%esi = 3\n\t"
-	".L__X'%edi = 3\n\t"
-	".L__X'%ebp = 3\n\t"
-	".L__X'%esp = 3\n\t"
 
-	".macro bpushl name reg\n\t"
-	".if 1 - \\name\n\t"
-	".if 2 - \\name\n\t"
-	"pushl %ebx\n\t"
-	".else\n\t"
-	"xchgl \\reg, %ebx\n\t"
-	".endif\n\t"
-	".endif\n\t"
-	".endm\n\t"
-
-	".macro bmovl name reg\n\t"
-	".if 1 - \\name\n\t"
-	".if 2 - \\name\n\t"
-	"movl \\reg, %ebx\n\t"
-	".endif\n\t"
-	".endif\n\t"
-	".endm\n\t"
-
-	".macro bpopl name reg\n\t"
-	".if 1 - \\name\n\t"
-	".if 2 - \\name\n\t"
-	"popl %ebx\n\t"
-	".else\n\t"
-	"xchgl \\reg, %ebx\n\t"
-	".endif\n\t"
-	".endif\n\t"
-	".endm\n\t"
-);
+#ifdef __DOMULTI__
+	".endif\n\t" /* _BITS_SYSCALLS_ASM */
 #endif
+);
 
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...) \
 ({ \
