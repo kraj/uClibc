@@ -26,7 +26,7 @@
 
 
 int
-__pthread_attr_getaffinity_np(const pthread_attr_t *attr, size_t cpusetsize,
+pthread_attr_getaffinity_np(const pthread_attr_t *attr, size_t cpusetsize,
 				cpu_set_t *cpuset)
 {
   const struct pthread_attr *iattr;
