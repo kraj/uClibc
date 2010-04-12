@@ -736,9 +736,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 #if defined(USE_TLS) && USE_TLS
 	if (tlsppnt) {
 		_dl_debug_early("Found TLS header for %s\n", libname);
-#if NO_TLS_OFFSET != 0
+# if NO_TLS_OFFSET != 0
 		tpnt->l_tls_offset = NO_TLS_OFFSET;
-#endif
+# endif
 		tpnt->l_tls_blocksize = tlsppnt->p_memsz;
 		tpnt->l_tls_align = tlsppnt->p_align;
 		if (tlsppnt->p_align == 0)
@@ -755,10 +755,14 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		/* We know the load address, so add it to the offset. */
 		if (tpnt->l_tls_initimage != NULL)
 		{
+# ifdef __SUPPORT_LD_DEBUG_EARLY__
 			unsigned int tmp = (unsigned int) tpnt->l_tls_initimage;
 			tpnt->l_tls_initimage = (char *) tlsppnt->p_vaddr + tpnt->loadaddr;
 			_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n", tmp, tpnt->l_tls_initimage, tpnt->l_tls_initimage_size);
 			tmp = 0;
+# else
+			tpnt->l_tls_initimage = (char *) tlsppnt->p_vaddr + tpnt->loadaddr;
+# endif
 		}
 	}
 #endif
