@@ -116,12 +116,12 @@ EXTERN void **(*_dl_error_catch_tsd) (void) __attribute__ ((const));
 /* Number of additional slots in the dtv allocated.  */
 # define DTV_SURPLUS	(14)
 
-  /* Initial dtv of the main thread, not allocated with normal malloc.  */
-  EXTERN void *_dl_initial_dtv;
-  /* Generation counter for the dtv.  */
-  EXTERN size_t _dl_tls_generation;
+/* Initial dtv of the main thread, not allocated with normal malloc.  */
+EXTERN void *_dl_initial_dtv;
+/* Generation counter for the dtv.  */
+EXTERN size_t _dl_tls_generation;
 
-  EXTERN void (*_dl_init_static_tls) (struct link_map *);
+EXTERN void (*_dl_init_static_tls) (struct link_map *);
 
 /* We have the auxiliary vector.  */
 #define HAVE_AUX_VECTOR
