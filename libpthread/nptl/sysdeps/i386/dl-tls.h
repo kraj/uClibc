@@ -26,6 +26,8 @@ typedef struct
 } tls_index;
 
 
+extern void *__tls_get_addr (tls_index *ti);
+
 #ifdef SHARED
 /* This is the prototype for the GNU version.  */
 extern void *___tls_get_addr (tls_index *ti)
