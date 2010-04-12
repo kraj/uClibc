@@ -31,22 +31,16 @@ ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
 CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
 endif
 
-ASFLAGS-pt-vfork.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT -DUSE___THREAD
-ASFLAGS-lowlevellock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT -DUSE___THREAD
-ASFLAGS-lowlevelrobustlock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT -DUSE___THREAD
-ASFLAGS-pthread_once.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT -DUSE___THREAD
-ASFLAGS-pthread_spin_unlock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT -DUSE___THREAD
+ASFLAGS-pt-vfork.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
+ASFLAGS-lowlevellock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
+ASFLAGS-lowlevelrobustlock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
+ASFLAGS-pthread_once.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
+ASFLAGS-pthread_spin_unlock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
 
 
 ASFLAGS-clone.S = -D_LIBC_REENTRANT
 ASFLAGS-vfork.S = -D_LIBC_REENTRANT
 ASFLAGS-libc-lowlevellock.S = -D_LIBC_REENTRANT
-
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-#Needed to use the correct SYSCALL_ERROR_HANDLER
-ASFLAGS-clone.S += -DUSE___THREAD
-ASFLAGS-vfork.S += -DUSE___THREAD
-endif
 
 CFLAGS += $(SSP_ALL_CFLAGS)
 #CFLAGS:=$(CFLAGS:-O1=-O2)
