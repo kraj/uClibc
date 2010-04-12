@@ -7,6 +7,7 @@
 LINUX_ARCH_DIR:=$(top_srcdir)libpthread/nptl/sysdeps/unix/sysv/linux/i386
 LINUX_ARCH_OUT:=$(top_builddir)libpthread/nptl/sysdeps/unix/sysv/linux/i386
 
+ASFLAGS += -DUSE___THREAD
 
 libpthread_SSRC = pt-vfork.S clone.S pthread_spin_unlock.S pthread_once.S
 libpthread_CSRC = pthread_spin_init.c pt-__syscall_error.c
