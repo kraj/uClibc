@@ -86,9 +86,9 @@
 #endif
 
 #if defined __GNUC__ && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4))
-# define attribute_optimize(lvl) __attribute__ ((optimize(x)))
+# define attribute_optimize(x) __attribute__ ((optimize(x)))
 #else
-# define attribute_optimize(lvl)
+# define attribute_optimize(x)
 #endif
 
 #define attribute_unused __attribute__ ((unused))
