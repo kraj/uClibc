@@ -276,7 +276,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				_dl_memcpy((void *) reloc_addr,
 					   (void *) symbol_addr, symtab[symtab_index].st_size);
 				break;
-#if USE_TLS
+#if defined USE_TLS && USE_TLS
 			case R_ARM_TLS_DTPMOD32:
 				*reloc_addr = def_mod->l_tls_modid;
 				break;

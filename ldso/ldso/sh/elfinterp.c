@@ -192,7 +192,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	old_val = *reloc_addr;
 #endif
 
-#if USE_TLS
+#if defined USE_TLS && USE_TLS
 	/* In case of a TLS reloc, tls_tpnt NULL means we have an 'anonymous'
 	   symbol.  This is the case for a static tls variable, so the lookup
 	   module is just that one is referencing the tls variable. */
@@ -225,7 +225,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		case R_SH_RELATIVE:
 			*reloc_addr = (unsigned long) tpnt->loadaddr + rpnt->r_addend;
 			break;
-#if USE_TLS
+#if defined USE_TLS && USE_TLS
 		case R_SH_TLS_DTPMOD32:
 			*reloc_addr = tls_tpnt->l_tls_modid;
 			break;

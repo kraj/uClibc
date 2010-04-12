@@ -272,7 +272,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			} else
 				_dl_dprintf(_dl_debug_file, "no symbol_addr to copy !?\n");
 			break;
-#if USE_TLS
+#if defined USE_TLS && USE_TLS
 		case R_SPARC_TLS_DTPMOD32:
 			*reloc_addr = tls_tpnt->l_tls_modid;
 			break;
