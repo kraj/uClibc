@@ -309,6 +309,7 @@ endef
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
 
+$(top_srcdir)%.i: | pregen
 $(top_builddir)%.o:  $(top_srcdir)%.c FORCE ; $(compile.c)
 $(top_builddir)%.os: $(top_srcdir)%.c FORCE ; $(compile.c)
 $(top_builddir)%.oS: $(top_srcdir)%.c FORCE ; $(compile.c)
