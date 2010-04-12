@@ -73,7 +73,7 @@ $(obj)/%:: $(top_srcdir)$(src)/%_shipped
 	@$(disp_gen)
 	$(Q)cat $< > $@
 endif
-menuconfig_clean:
+CLEAN_extra/config menuconfig_clean:
 	$(do_rm) $(clean-files) $(lxdialog) conf $(wildcard *.o)
 distclean: clean
 	$(do_rm) $(lxdialog) $(conf-objs) $(mconf-objs) \

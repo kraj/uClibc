@@ -228,7 +228,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 					   symtab[symtab_index].st_size);
 			}
 			break;
-#if USE_TLS
+#if defined USE_TLS && USE_TLS
 		case R_386_TLS_DTPMOD32:
 			*reloc_addr = tls_tpnt->l_tls_modid;
 			break;

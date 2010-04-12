@@ -905,8 +905,8 @@ __UCLIBC_MUTEX_INIT(__resolv_lock, PTHREAD_MUTEX_INITIALIZER);
 /* Protected by __resolv_lock */
 void (*__res_sync)(void);
 /*uint32_t __resolv_opts; */
-uint8_t __resolv_timeout;
-uint8_t __resolv_attempts;
+uint8_t __resolv_timeout = RES_TIMEOUT;
+uint8_t __resolv_attempts = RES_DFLRETRY;
 unsigned __nameservers;
 unsigned __searchdomains;
 sockaddr46_t *__nameserver;
@@ -1062,8 +1062,6 @@ void attribute_hidden __open_nameservers(void)
 				if (p == NULL || (p1 = strchr(p, ':')) == NULL)
 					continue;
 				*p1++ = '\0';
-				if (p1 == NULL)
-					continue;
 				if (strcmp(p, "timeout") == 0)
 					what = &__resolv_timeout;
 				else if (strcmp(p, "attempts") == 0)

@@ -433,7 +433,7 @@ defconfig: $(top_builddir)extra/config/conf
 		-D extra/Configs/defconfigs/$(ARCH)
 
 menuconfig-clean-y:
-	$(Q)$(MAKE) -C extra/config menuconfig_clean
+	$(Q)$(MAKE) -C extra/config CLEAN_extra/config
 
 include_clean:
 	$(Q)$(RM) $(top_builddir)include/fpu_control.h $(top_builddir)include/dl-osinfo.h $(top_builddir)include/hp-timing.h

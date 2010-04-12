@@ -24,7 +24,6 @@
 
 
 #define CS_PATH "/bin:/usr/bin"
-#define QUOTEME(x) #x
 
 /* If BUF is not NULL and LEN > 0, fill in at most LEN - 1 bytes
    of BUF with the value corresponding to NAME and zero-terminate BUF.
@@ -53,11 +52,13 @@ size_t confstr (int name, char *buf, size_t len)
       string_len = sizeof("linuxthreads-x.xx");
 # elif defined __UCLIBC_HAS_THREADS_NATIVE__
 #  define __NPTL_VERSION ("NPTL " \
-		QUOTEME(__UCLIBC_MAJOR__) "." \
-		QUOTEME(__UCLIBC_MINOR__) "." \
-		QUOTEME(__UCLIBC_SUBLEVEL__) )
+		__stringify(__UCLIBC_MAJOR__) "." \
+		__stringify(__UCLIBC_MINOR__) "." \
+		__stringify(__UCLIBC_SUBLEVEL__))
       string = __NPTL_VERSION;
       string_len = sizeof(__NPTL_VERSION);
+# else
+#  error unable to determine thread impl
 # endif
       break;
 #endif

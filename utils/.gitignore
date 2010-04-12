@@ -1,9 +1,11 @@
+getconf
+getconf.host
+iconv
+iconv.host
 ldconfig
 ldconfig.host
 ldd
 ldd.host
-iconv
-iconv.host
 locale
 locale.host
 getconf
