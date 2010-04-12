@@ -24,8 +24,12 @@
 #include <lowlevellock.h>
 #include <not-cancel.h>
 
-
+/* We need to build this function with optimization to avoid
+ * lll_timedlock erroring out with
+ * error: can't find a register in class ‘GENERAL_REGS’ while reloading ‘asm’
+ */
 int
+attribute_optimize("Os")
 pthread_mutex_timedlock (
      pthread_mutex_t *mutex,
      const struct timespec *abstime)
