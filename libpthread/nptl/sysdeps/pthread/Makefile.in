@@ -132,16 +132,16 @@ ASFLAGS-crtn.S = -g0
 
 $(pthread_OUT)/pt-initfini.s: $(pthread_DIR)/pt-initfini.c
 	$(compile.c)
-	sed -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
-		awk -f $(pthread_DIR)/defs.awk > $(pthread_OUT)/defs.h
+	$(do_sed) '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
+		$(AWK) -f $(pthread_DIR)/defs.awk > $(pthread_OUT)/defs.h
 
 $(pthread_OUT)/crti.S: $(pthread_OUT)/pt-initfini.s
-	sed -n -e '1,/@HEADER_ENDS/p' \
+	$(do_sed) -e '1,/@HEADER_ENDS/p' \
 	       -e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
 	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
 
 $(pthread_OUT)/crtn.S: $(pthread_OUT)/pt-initfini.s
-	sed -n -e '1,/@HEADER_ENDS/p' \
+	$(do_sed) -e '1,/@HEADER_ENDS/p' \
 	       -e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
 	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
 endif
