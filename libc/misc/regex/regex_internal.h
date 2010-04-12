@@ -46,10 +46,14 @@
 # include <stdint.h>
 #endif
 
+#ifdef __UCLIBC_HAS_THREADS__
+#include <bits/libc-lock.h>
+#else
 #define __libc_lock_define(CLASS, NAME)
 #define __libc_lock_init(NAME)   do { } while (0)
 #define __libc_lock_lock(NAME)   do { } while (0)
 #define __libc_lock_unlock(NAME) do { } while (0)
+#endif
 
 #undef gettext
 #undef gettext_noop

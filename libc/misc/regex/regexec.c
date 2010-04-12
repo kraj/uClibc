@@ -222,7 +222,7 @@ regexec (preg, string, nmatch, pmatch, eflags)
 {
   reg_errcode_t err;
   int start, length;
-#ifndef __UCLIBC__ /* libc_lock_lock does not exist */
+#ifdef __UCLIBC_HAS_THREADS__
   re_dfa_t *dfa = (re_dfa_t *) preg->buffer;
 #endif
 
@@ -382,10 +382,9 @@ re_search_stub (bufp, string, length, start, range, stop, regs, ret_len)
   regmatch_t *pmatch;
   int nregs, rval;
   int eflags = 0;
-#ifndef __UCLIBC__ /* libc_lock_lock does not exist */
+#ifdef __UCLIBC_HAS_THREADS__
   re_dfa_t *dfa = (re_dfa_t *) bufp->buffer;
 #endif
-
   /* Check for out-of-range.  */
   if (BE (start < 0 || start > length, 0))
     return -1;
