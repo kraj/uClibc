@@ -35,6 +35,7 @@
 #include <lowlevellock.h>
 #include <bits/kernel-features.h>
 
+#include <stdio.h>
 
 /* Size and alignment of static TLS block.  */
 size_t __static_tls_size;
@@ -423,6 +424,17 @@ __pthread_initialize_minimal_internal (void)
 
   /* Determine whether the machine is SMP or not.  */
   __is_smp = is_smp_system ();
+
+  /* uClibc-specific stdio initialization for threads. */
+  {
+    FILE *fp;
+    _stdio_user_locking = 0;       /* 2 if threading not initialized */
+    for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen) {
+      if (fp->__user_locking != 1) {
+        fp->__user_locking = 0;
+      }
+    }
+  }
 }
 strong_alias (__pthread_initialize_minimal_internal,
 	      __pthread_initialize_minimal)
