@@ -613,6 +613,17 @@ static void pthread_initialize(void)
 #ifdef USE_TLS
   GL(dl_init_static_tls) = &__pthread_init_static_tls;
 #endif
+
+  /* uClibc-specific stdio initialization for threads. */
+  {
+    FILE *fp;
+    _stdio_user_locking = 0;       /* 2 if threading not initialized */
+    for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen) {
+      if (fp->__user_locking != 1) {
+        fp->__user_locking = 0;
+      }
+    }
+  }
 }
 
 void __pthread_initialize(void)
