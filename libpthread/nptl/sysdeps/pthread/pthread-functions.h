@@ -103,7 +103,7 @@ struct pthread_functions
 extern struct pthread_functions __libc_pthread_functions attribute_hidden;
 extern int __libc_pthread_functions_init attribute_hidden;
 
-#ifdef PTR_DEMANGLE
+#if 0
 # define PTHFCT_CALL(fct, params) \
   ({ __typeof (__libc_pthread_functions.fct) __p;			      \
      __p = __libc_pthread_functions.fct;				      \
