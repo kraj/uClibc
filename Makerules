@@ -309,20 +309,19 @@ endef
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
 
-$(top_srcdir)%.i: | pregen
 $(top_builddir)%.o:  $(top_srcdir)%.c FORCE ; $(compile.c)
-$(top_builddir)%.os: $(top_srcdir)%.c FORCE ; $(compile.c)
-$(top_builddir)%.oS: $(top_srcdir)%.c FORCE ; $(compile.c)
+$(top_builddir)%.os: $(top_srcdir)%.c FORCE | pregen; $(compile.c)
+$(top_builddir)%.oS: $(top_srcdir)%.c FORCE | pregen; $(compile.c)
 $(top_builddir)%.o:  $(top_srcdir)%.S FORCE ; $(compile.S)
-$(top_builddir)%.os: $(top_srcdir)%.S FORCE ; $(compile.S)
-$(top_builddir)%.oS: $(top_srcdir)%.S FORCE ; $(compile.S)
+$(top_builddir)%.os: $(top_srcdir)%.S FORCE | pregen; $(compile.S)
+$(top_builddir)%.oS: $(top_srcdir)%.S FORCE | pregen; $(compile.S)
 $(top_builddir)%.o:  $(top_srcdir)%.s FORCE ; $(compile.S)
 $(top_builddir)%.os: $(top_srcdir)%.s FORCE ; $(compile.S)
-$(top_builddir)%.oS: $(top_srcdir)%.s FORCE ; $(compile.S)
-$(top_builddir)%.i:  $(top_srcdir)%.c FORCE ; $(compile.i)
-$(top_builddir)%.i:  $(top_srcdir)%.S FORCE ; $(compile.i)
-$(top_builddir)%.s:  $(top_srcdir)%.c FORCE ; $(compile.s)
-$(top_builddir)%.s:  $(top_srcdir)%.S FORCE ; $(compile.s)
+$(top_builddir)%.oS: $(top_srcdir)%.s FORCE | pregen; $(compile.S)
+$(top_builddir)%.i:  $(top_srcdir)%.c FORCE | pregen; $(compile.i)
+$(top_builddir)%.i:  $(top_srcdir)%.S FORCE | pregen; $(compile.i)
+$(top_builddir)%.s:  $(top_srcdir)%.c FORCE | pregen; $(compile.s)
+$(top_builddir)%.s:  $(top_srcdir)%.S FORCE | pregen; $(compile.s)
 $(top_builddir)%.dep:
 
 $(top_builddir)lib/interp.c: | $(sub_headers)

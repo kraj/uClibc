@@ -47,7 +47,9 @@
 
 /* Global variables used within the shared library loader */
 char *_dl_library_path         = NULL;	/* Where we look for libraries */
+#ifdef __LDSO_PRELOAD_ENV_SUPPORT__
 char *_dl_preload              = NULL;	/* Things to be loaded before the libs */
+#endif
 char *_dl_ldsopath             = NULL;	/* Location of the shared lib loader */
 int _dl_errno                  = 0;	/* We can't use the real errno in ldso */
 size_t _dl_pagesize            = 0;	/* Store the page size for use later */
@@ -348,7 +350,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	     auxvt[AT_UID].a_un.a_val == auxvt[AT_EUID].a_un.a_val &&
 	     auxvt[AT_GID].a_un.a_val == auxvt[AT_EGID].a_un.a_val)) {
 		_dl_secure = 0;
+#ifdef __LDSO_PRELOAD_ENV_SUPPORT__
 		_dl_preload = _dl_getenv("LD_PRELOAD", envp);
+#endif
 		_dl_library_path = _dl_getenv("LD_LIBRARY_PATH", envp);
 	} else {
 		static const char unsecure_envvars[] =
@@ -365,7 +369,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			/* We could use rawmemchr but this need not be fast.  */
 			nextp = _dl_strchr(nextp, '\0') + 1;
 		} while (*nextp != '\0');
+#ifdef __LDSO_PRELOAD_ENV_SUPPORT__
 		_dl_preload = NULL;
+#endif
 		_dl_library_path = NULL;
 		/* SUID binaries can be exploited if they do LAZY relocation. */
 		unlazy = RTLD_NOW;
@@ -612,6 +618,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 	_dl_map_cache();
 
+#ifdef __LDSO_PRELOAD_ENV_SUPPORT__
 	if (_dl_preload) {
 		char c, *str, *str2;
 
@@ -667,6 +674,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 				str++;
 		}
 	}
+#endif /* __LDSO_PRELOAD_ENV_SUPPORT__ */
 
 #ifdef __LDSO_PRELOAD_FILE_SUPPORT__
 	do {
