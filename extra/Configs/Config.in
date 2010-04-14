@@ -300,6 +300,18 @@ config LDSO_CACHE_SUPPORT
 	  After updating this file, it is necessary to run 'ldconfig' to update
 	  the /etc/ld.so.cache shared library loader cache file.
 
+config LDSO_PRELOAD_ENV_SUPPORT
+	bool "Enable library loader LD_PRELOAD environment"
+	depends on HAVE_SHARED
+	default y
+	help
+	  Enable this to make use of LD_PRELOAD environment variable.
+	  A whitespace-separated list of additional, user-specified, ELF shared
+	  libraries to be loaded before all others. This can be used to
+	  selectively override functions in other shared libraries. For
+	  set-user-ID/set-group-ID ELF binaries, only libraries in the standard
+	  search directories that are also set-user-ID will be loaded.
+
 config LDSO_PRELOAD_FILE_SUPPORT
 	bool "Enable library loader preload file (ld.so.preload)"
 	depends on HAVE_SHARED
