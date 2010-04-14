@@ -30,6 +30,7 @@
 
 	.globl	__pthread_once
 	.type	__pthread_once,@function
+	.hidden	__pthread_once
 	.align	16
 __pthread_once:
 .LSTARTCODE:

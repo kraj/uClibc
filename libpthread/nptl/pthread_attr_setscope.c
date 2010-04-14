@@ -23,6 +23,7 @@
 
 
 int
+attribute_hidden
 __pthread_attr_setscope (
      pthread_attr_t *attr,
      int scope)

@@ -23,6 +23,7 @@
 #include <jmpbuf-unwind.h>
 
 void
+attribute_hidden
 __pthread_cleanup_upto (__jmp_buf target, char *targetframe)
 {
   struct pthread *self = THREAD_SELF;

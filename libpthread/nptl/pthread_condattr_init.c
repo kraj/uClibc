@@ -22,6 +22,7 @@
 
 
 int
+attribute_hidden
 __pthread_condattr_init (pthread_condattr_t *attr)
 {
   memset (attr, '\0', sizeof (*attr));

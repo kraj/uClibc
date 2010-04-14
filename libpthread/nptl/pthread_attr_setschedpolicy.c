@@ -23,6 +23,7 @@
 
 
 int
+attribute_hidden
 __pthread_attr_setschedpolicy (
      pthread_attr_t *attr,
      int policy)

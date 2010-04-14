@@ -23,6 +23,7 @@
 
 
 int
+attribute_hidden
 __pthread_setcancelstate (
      int state,
      int *oldstate)

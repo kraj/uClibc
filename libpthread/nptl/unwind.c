@@ -115,6 +115,7 @@ unwind_cleanup (_Unwind_Reason_Code reason, struct _Unwind_Exception *exc)
 
 
 void
+attribute_hidden
 __cleanup_fct_attribute __attribute ((noreturn))
 __pthread_unwind (__pthread_unwind_buf_t *buf)
 {

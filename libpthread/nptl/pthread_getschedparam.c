@@ -24,6 +24,7 @@
 
 
 int
+attribute_hidden
 __pthread_getschedparam (
      pthread_t threadid,
      int *policy,

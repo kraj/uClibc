@@ -29,6 +29,7 @@ int __attr_list_lock = LLL_LOCK_INITIALIZER;
 
 
 int
+attribute_hidden
 __pthread_attr_init_2_1 (
      pthread_attr_t *attr)
 {

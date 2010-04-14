@@ -35,6 +35,7 @@ clear_once_control (void *arg)
 
 
 int
+attribute_hidden
 __pthread_once (once_control, init_routine)
      pthread_once_t *once_control;
      void (*init_routine) (void);
