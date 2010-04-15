@@ -41,12 +41,6 @@ int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oac
 {
 	struct sigaction kact;
 
-#ifdef SIGCANCEL
-	if (sig == SIGCANCEL) {
-		__set_errno(EINVAL);
-		return -1;
-	}
-#endif
 	if (act) {
 		memcpy(&kact, act, sizeof(kact));
 		kact.sa_flags |= SA_RESTORER;
@@ -69,12 +63,6 @@ int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oac
 	int result;
 	struct old_kernel_sigaction kact, koact;
 
-#ifdef SIGCANCEL
-	if (sig == SIGCANCEL) {
-		__set_errno(EINVAL);
-		return -1;
-	}
-#endif
 	if (act) {
 		kact.k_sa_handler = act->sa_handler;
 		kact.sa_mask = act->sa_mask.__val[0];
