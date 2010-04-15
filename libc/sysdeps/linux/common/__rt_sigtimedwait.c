@@ -60,8 +60,8 @@ static int do_sigtimedwait(const sigset_t *set, siginfo_t *info,
 }
 
 /* Return any pending signal or wait for one for the given time.  */
-int __sigtimedwait(const sigset_t *set, siginfo_t *info,
-				   const struct timespec *timeout)
+int attribute_hidden __sigtimedwait(const sigset_t *set, siginfo_t *info,
+				    const struct timespec *timeout)
 {
 	if(SINGLE_THREAD_P)
 		return do_sigtimedwait(set, info, timeout);
@@ -102,3 +102,4 @@ int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
 }
 #endif
 weak_alias(__sigtimedwait,sigtimedwait)
+libc_hidden_weak(sigtimedwait)
