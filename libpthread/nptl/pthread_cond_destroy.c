@@ -22,7 +22,6 @@
 
 
 int
-attribute_hidden
 __pthread_cond_destroy (
      pthread_cond_t *cond)
 {

@@ -30,7 +30,6 @@
 	/* int pthread_cond_signal (pthread_cond_t *cond) */
 	.globl	__pthread_cond_signal
 	.type	__pthread_cond_signal, @function
-	.hidden	__pthread_cond_signal
 	.align	16
 __pthread_cond_signal:
 

@@ -44,7 +44,7 @@ static td_thr_events_t __nptl_threads_events __attribute_used__;
 static struct pthread *__nptl_last_event __attribute_used__;
 
 /* Number of threads running.  */
-unsigned int attribute_hidden __nptl_nthreads = 1;
+unsigned int __nptl_nthreads = 1;
 
 
 /* Code to allocate and deallocate a stack.  */

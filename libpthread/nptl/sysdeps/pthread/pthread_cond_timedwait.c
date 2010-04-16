@@ -39,7 +39,6 @@ struct _condvar_cleanup_buffer
 };
 
 int
-attribute_hidden
 __pthread_cond_timedwait (
      pthread_cond_t *cond,
      pthread_mutex_t *mutex,

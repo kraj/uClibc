@@ -28,7 +28,6 @@
 
 
 int
-attribute_hidden
 __pthread_cond_signal (
      pthread_cond_t *cond)
 {

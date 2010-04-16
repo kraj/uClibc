@@ -22,7 +22,6 @@
 
 
 void
-attribute_hidden
 __pthread_exit (void* value)
 {
   THREAD_SETMEM (THREAD_SELF, result, value);

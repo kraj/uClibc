@@ -23,7 +23,6 @@
 
 
 int
-attribute_hidden
 __pthread_setspecific (
      pthread_key_t key,
      const void *value)

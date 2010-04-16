@@ -284,7 +284,6 @@ __pthread_mutex_unlock_full (pthread_mutex_t *mutex, int decr)
 
 
 int
-attribute_hidden
 __pthread_mutex_unlock (
      pthread_mutex_t *mutex)
 {

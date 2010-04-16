@@ -29,7 +29,6 @@
 	.text
 	.globl	__pthread_once
 	.type	__pthread_once,@function
-	.hidden	__pthread_once
 	.align	5
 	cfi_startproc
 __pthread_once:

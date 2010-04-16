@@ -22,7 +22,6 @@
 
 
 pthread_t
-attribute_hidden
 __pthread_self (void)
 {
   return (pthread_t) THREAD_SELF;

@@ -23,7 +23,6 @@
 
 
 int
-attribute_hidden
 __pthread_attr_setinheritsched (
      pthread_attr_t *attr,
      int inherit)

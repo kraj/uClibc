@@ -42,7 +42,6 @@ static int __pthread_mutex_lock_full (pthread_mutex_t *mutex)
 
 
 int
-attribute_hidden
 __pthread_mutex_lock (
      pthread_mutex_t *mutex)
 {

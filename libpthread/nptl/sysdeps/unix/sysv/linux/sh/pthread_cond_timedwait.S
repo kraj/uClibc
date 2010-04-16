@@ -30,7 +30,6 @@
 			       const struct timespec *abstime)  */
 	.globl	__pthread_cond_timedwait
 	.type	__pthread_cond_timedwait, @function
-	.hidden	__pthread_cond_timedwait
 	.align	5
 __pthread_cond_timedwait:
 .LSTARTCODE:

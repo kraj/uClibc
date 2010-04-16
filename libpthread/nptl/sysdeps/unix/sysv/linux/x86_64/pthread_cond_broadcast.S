@@ -31,7 +31,6 @@
 	/* int pthread_cond_broadcast (pthread_cond_t *cond) */
 	.globl	__pthread_cond_broadcast
 	.type	__pthread_cond_broadcast, @function
-	.hidden	__pthread_cond_broadcast
 	.align	16
 __pthread_cond_broadcast:
 

@@ -24,7 +24,6 @@
 #include "pthreadP.h"
 
 int
-attribute_hidden
 __pthread_attr_destroy (
      pthread_attr_t *attr)
 {

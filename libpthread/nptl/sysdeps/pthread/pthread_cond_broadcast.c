@@ -28,7 +28,6 @@
 
 
 int
-attribute_hidden
 __pthread_cond_broadcast (
      pthread_cond_t *cond)
 {

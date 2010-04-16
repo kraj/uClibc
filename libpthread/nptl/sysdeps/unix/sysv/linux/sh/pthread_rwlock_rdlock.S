@@ -29,7 +29,6 @@
 
 	.globl	__pthread_rwlock_rdlock
 	.type	__pthread_rwlock_rdlock,@function
-	.hidden	__pthread_rwlock_rdlock
 	.align	5
 __pthread_rwlock_rdlock:
 	mov.l	r12, @-r15

@@ -22,7 +22,6 @@
 
 
 int
-attribute_hidden
 __pthread_attr_getschedpolicy (
      const pthread_attr_t *attr,
      int *policy)
