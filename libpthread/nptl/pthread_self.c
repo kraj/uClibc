@@ -22,6 +22,7 @@
 
 
 pthread_t
+attribute_protected
 __pthread_self (void)
 {
   return (pthread_t) THREAD_SELF;

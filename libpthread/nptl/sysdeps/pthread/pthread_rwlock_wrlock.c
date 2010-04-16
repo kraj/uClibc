@@ -26,6 +26,7 @@
 
 /* Acquire write lock for RWLOCK.  */
 int
+attribute_protected
 __pthread_rwlock_wrlock (
      pthread_rwlock_t *rwlock)
 {

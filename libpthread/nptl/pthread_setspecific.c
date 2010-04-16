@@ -23,6 +23,7 @@
 
 
 int
+attribute_protected
 __pthread_setspecific (
      pthread_key_t key,
      const void *value)

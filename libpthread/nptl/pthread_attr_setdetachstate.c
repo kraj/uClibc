@@ -23,6 +23,7 @@
 
 
 int
+attribute_protected
 __pthread_attr_setdetachstate (pthread_attr_t *attr, int detachstate)
 {
   struct pthread_attr *iattr;

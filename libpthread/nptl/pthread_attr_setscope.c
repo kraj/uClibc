@@ -23,6 +23,7 @@
 
 
 int
+attribute_protected
 __pthread_attr_setscope (
      pthread_attr_t *attr,
      int scope)

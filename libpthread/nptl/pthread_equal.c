@@ -21,6 +21,7 @@
 
 
 int
+attribute_protected
 __pthread_equal (pthread_t thread1, pthread_t thread2)
 {
   return thread1 == thread2;

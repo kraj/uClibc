@@ -22,6 +22,7 @@
 
 
 void *
+attribute_protected
 __pthread_getspecific (pthread_key_t key)
 {
   struct pthread_key_data *data;

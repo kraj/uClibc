@@ -25,6 +25,7 @@
 
 /* Unlock RWLOCK.  */
 int
+attribute_protected
 __pthread_rwlock_unlock (pthread_rwlock_t *rwlock)
 {
   lll_lock (rwlock->__data.__lock, rwlock->__data.__shared);

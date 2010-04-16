@@ -31,6 +31,7 @@
 /* int pthread_cond_wait (pthread_cond_t *cond, pthread_mutex_t *mutex)  */
 	.globl	__pthread_cond_wait
 	.type	__pthread_cond_wait, @function
+	.protected	__pthread_cond_wait
 	.align	16
 __pthread_cond_wait:
 .LSTARTCODE:

@@ -28,6 +28,7 @@
 
 
 int
+attribute_protected
 __pthread_cond_signal (
      pthread_cond_t *cond)
 {

@@ -23,6 +23,7 @@
 
 
 int
+attribute_protected
 __pthread_key_create (
      pthread_key_t *key,
      void (*destr) (void *))

@@ -24,6 +24,7 @@
 
 
 int
+attribute_protected
 __pthread_attr_setschedparam (
      pthread_attr_t *attr,
      const struct sched_param *param)

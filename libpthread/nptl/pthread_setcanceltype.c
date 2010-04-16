@@ -23,6 +23,7 @@
 
 
 int
+attribute_protected
 __pthread_setcanceltype (
      int type,
      int *oldtype)

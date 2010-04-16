@@ -29,6 +29,7 @@
 
 	.globl	__pthread_rwlock_wrlock
 	.type	__pthread_rwlock_wrlock,@function
+	.protected	__pthread_rwlock_wrlock
 	.align	16
 __pthread_rwlock_wrlock:
 	cfi_startproc

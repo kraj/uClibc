@@ -28,6 +28,7 @@
 
 
 int
+attribute_protected
 __pthread_cond_broadcast (
      pthread_cond_t *cond)
 {
