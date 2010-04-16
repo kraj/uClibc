@@ -469,9 +469,11 @@ FIXME! - ?
 	&& (( __GNUC__ >= 3 && __GNUC_MINOR__ >= 3) || __GNUC__ >= 4) \
     ) || defined __ICC
 # define attribute_hidden __attribute__ ((visibility ("hidden")))
+# define attribute_protected __attribute__ ((visibility ("protected")))
 # define __hidden_proto_hiddenattr(attrs...) __attribute__ ((visibility ("hidden"), ##attrs))
 #else
 # define attribute_hidden
+# define attribute_protected
 # define __hidden_proto_hiddenattr(attrs...)
 #endif
 
