@@ -35,7 +35,7 @@ static DIR *fd_to_DIR(int fd, __blksize_t size)
 		free(ptr);
 		return NULL;
 	}
-	__pthread_mutex_init(&ptr->dd_lock, NULL);
+	__UCLIBC_MUTEX_INIT_VAR(ptr->dd_lock);
 
 	return ptr;
 }

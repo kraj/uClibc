@@ -13,7 +13,15 @@
 #ifdef __UCLIBC_HAS_THREADS__
 
 #include <pthread.h>
+#include <bits/libc-lock.h>
 #include <bits/uClibc_pthread.h>
+
+#define __uclibc_maybe_call(FUNC, ARGS) \
+	(__extension__ ({					\
+		__typeof (FUNC) *_fn = (FUNC);			\
+		if (_fn != NULL) { (*_fn) ARGS; }		\
+	}))
+
 
 #define __UCLIBC_MUTEX_TYPE				pthread_mutex_t
 
@@ -22,19 +30,23 @@
 #define __UCLIBC_MUTEX_STATIC(M,I)			static pthread_mutex_t M = I
 #define __UCLIBC_MUTEX_EXTERN(M)			extern pthread_mutex_t M
 
+#define __UCLIBC_MUTEX_INIT_VAR(M)								\
+		__uclibc_maybe_call(__pthread_mutex_init,(&(M),NULL))
+
 #define __UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE(M)								\
-		__pthread_mutex_lock(&(M))
+		__uclibc_maybe_call(__pthread_mutex_lock,(&(M)))
 
 #define __UCLIBC_MUTEX_UNLOCK_CANCEL_UNSAFE(M)								\
-		__pthread_mutex_unlock(&(M))
+		__uclibc_maybe_call(__pthread_mutex_unlock,(&(M)))
 
 #define __UCLIBC_MUTEX_TRYLOCK_CANCEL_UNSAFE(M)								\
-		__pthread_mutex_trylock(&(M))
+		__uclibc_maybe_call(__pthread_mutex_trylock,(&(M)))
 
 #define __UCLIBC_MUTEX_CONDITIONAL_LOCK(M,C)								\
 	do {												\
 		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;				\
-		if (C) {										\
+		int __infunc_need_locking = ((C) && (__pthread_mutex_lock != NULL));			\
+		if (__infunc_need_locking) {								\
 			_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,			\
 					   (void (*) (void *))__pthread_mutex_unlock,			\
 										&(M));			\
@@ -43,7 +55,7 @@
 		((void)0)
 
 #define __UCLIBC_MUTEX_CONDITIONAL_UNLOCK(M,C)								\
-		if (C) {										\
+		if (__infunc_need_locking) {								\
 			_pthread_cleanup_pop_restore(&__infunc_pthread_cleanup_buffer,1);		\
 		}											\
 	} while (0)

@@ -20,6 +20,7 @@
 #ifndef _BITS_LIBC_LOCK_H
 #define _BITS_LIBC_LOCK_H 1
 
+#include <bits/initspin.h>
 #include <pthread.h>
 #define __need_NULL
 #include <stddef.h>
@@ -429,7 +430,7 @@ extern void _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *buffer
 
 
 /* Normal cleanup handling, based on C cleanup attribute.  */
-__extern_inline void
+static inline void
 __libc_cleanup_routine (struct __pthread_cleanup_frame *f)
 {
   if (f->__do_it)
@@ -459,7 +460,6 @@ __libc_cleanup_routine (struct __pthread_cleanup_frame *f)
 /* Set thread-specific data.  */
 #define __libc_setspecific(KEY, VALUE) \
   __libc_ptf_call (__pthread_setspecific, (KEY, VALUE), 0)
-
 
 /* Register handlers to execute before and after `fork'.  Note that the
    last parameter is NULL.  The handlers registered by the libc are
@@ -551,10 +551,8 @@ weak_extern (__pthread_getspecific)
 weak_extern (__pthread_once)
 //weak_extern (__pthread_initialize)
 weak_extern (__pthread_atfork)
-#ifdef SHARED
 weak_extern (_pthread_cleanup_push_defer)
 weak_extern (_pthread_cleanup_pop_restore)
-#endif
 weak_extern (pthread_setcancelstate)
 # else
 #  pragma weak __pthread_mutex_init
