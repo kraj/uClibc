@@ -57,7 +57,7 @@ $(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(libc.depend)
 else
 $(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(libc.depend) $(libpthread.depend) $(libdl.depend)
 endif
-	$(call link.so,$(librt_FULL_NAME),$(MAJOR_VERSION))
+	$(call link.so,$(librt_FULL_NAME),$(ABI_VERSION))
 
 $(librt_OUT)/librt_so.a: $(librt-so-y)
 	$(Q)$(RM) $@

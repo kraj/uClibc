@@ -336,10 +336,10 @@ $(interp): $(top_builddir)lib/interp.c
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 $(ldso):
-	@cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(MAJOR_VERSION),%,$(notdir $@))
+	@cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(ABI_VERSION),%,$(notdir $@))
 
 $(libc):
-	@cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(MAJOR_VERSION),%,$(notdir $@))
+	@cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(ABI_VERSION),%,$(notdir $@))
 
 CRT := crt1
 

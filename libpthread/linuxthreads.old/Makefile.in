@@ -76,10 +76,10 @@ lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
 
 #ifeq ($(DOMULTI),n)
 $(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend)
-	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
+	$(call link.so,$(libpthread_FULL_NAME),$(ABI_VERSION))
 #else
 #$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS | $(libc.depend)
-#	$(call linkm.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
+#	$(call linkm.so,$(libpthread_FULL_NAME),$(ABI_VERSION))
 #endif
 
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)

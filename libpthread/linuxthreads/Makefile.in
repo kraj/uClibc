@@ -88,14 +88,14 @@ lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
 
 #ifeq ($(DOMULTI),n)
 $(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
-	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
+	$(call link.so,$(libpthread_FULL_NAME),$(ABI_VERSION))
 #else
 #$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS | $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
-#	$(call linkm.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
+#	$(call linkm.so,$(libpthread_FULL_NAME),$(ABI_VERSION))
 #endif
 	$(Q)$(RM) $@
 	$(Q)cp $(top_srcdir)extra/scripts/format.lds $@
-	$(Q)echo "GROUP ( $(notdir $@).$(MAJOR_VERSION) libpthread_nonshared.a )" >> $@
+	$(Q)echo "GROUP ( $(notdir $@).$(ABI_VERSION) libpthread_nonshared.a )" >> $@
 
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 $(libpthread_OUT)/libpthread_so.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)

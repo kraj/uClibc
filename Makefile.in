@@ -310,14 +310,14 @@ install_dev: install_headers install_runtime | $(PREFIX)$(DEVEL_PREFIX)$(MULTILI
 ifeq ($(HAVE_SHARED),y)
 	for i in `cd $(top_builddir) && find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
 	$(SED) -e 's/lib\///'` ; do \
-		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
+		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(ABI_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/$$i; \
 	done
 ifeq ($(HARDWIRED_ABSPATH),y)
-	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(SHARED_MAJORNAME) ] ; then \
+	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(SHARED_LIBNAME) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so; \
 		$(SED) -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)$(MULTILIB_DIR)/$(NONSHARED_LIBNAME):' \
-		    -e 's:$(SHARED_MAJORNAME):$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(SHARED_MAJORNAME):' \
+		    -e 's:$(SHARED_LIBNAME):$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(SHARED_LIBNAME):' \
 		    -e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UCLIBC_LDSO):' \
 		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so; \
 	fi
@@ -327,10 +327,10 @@ endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifneq ($(LINUXTHREADS_OLD),y)
 ifeq ($(HARDWIRED_ABSPATH),y)
-	if [ -f $(top_builddir)lib/libpthread.so -a -f $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)/libpthread.so.$(MAJOR_VERSION) ] ; then \
+	if [ -f $(top_builddir)lib/libpthread.so -a -f $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)/libpthread.so.$(ABI_VERSION) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
 		cp $(top_srcdir)extra/scripts/format.lds $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
-		echo "GROUP ( $(RUNTIME_PREFIX)$(MULTILIB_DIR)/libpthread.so.$(MAJOR_VERSION) $(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread_nonshared.a )" \
+		echo "GROUP ( $(RUNTIME_PREFIX)$(MULTILIB_DIR)/libpthread.so.$(ABI_VERSION) $(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread_nonshared.a )" \
 			>> $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
 	fi
 else

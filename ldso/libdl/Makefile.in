@@ -44,7 +44,7 @@ lib-so-y += $(top_builddir)lib/libdl.so
 objclean-y += CLEAN_ldso/libdl
 
 $(top_builddir)lib/libdl.so: $(libdl_OUT)/libdl_so.a $(libc.depend)
-	$(call link.so,$(libdl_FULL_NAME),$(MAJOR_VERSION))
+	$(call link.so,$(libdl_FULL_NAME),$(ABI_VERSION))
 
 $(libdl_OUT)/libdl_so.a: $(libdl-so-y)
 	$(Q)$(RM) $@

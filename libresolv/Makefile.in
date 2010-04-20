@@ -37,7 +37,7 @@ $(top_builddir)lib/libresolv.so: $(top_builddir)lib/libresolv.a $(libc.depend)
 else
 $(top_builddir)lib/libresolv.so: $(libresolv_OUT)/libresolv_so.a $(libc.depend)
 endif
-	$(call link.so,$(libresolv_FULL_NAME),$(MAJOR_VERSION))
+	$(call link.so,$(libresolv_FULL_NAME),$(ABI_VERSION))
 
 $(libresolv_OUT)/libresolv_so.a: $(libresolv-so-y)
 	$(Q)$(RM) $@

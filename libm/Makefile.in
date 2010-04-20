@@ -278,10 +278,10 @@ $(top_builddir)lib/libm.so: $(top_builddir)lib/libm.a $(libc.depend)
 else
 $(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a $(libc.depend)
 endif
-	$(call link.so,$(libm_FULL_NAME),$(MAJOR_VERSION))
+	$(call link.so,$(libm_FULL_NAME),$(ABI_VERSION))
 else
 $(top_builddir)lib/libm.so: $(libm_OUT)/libm.oS | $(libc.depend)
-	$(call linkm.so,$(libm_FULL_NAME),$(MAJOR_VERSION))
+	$(call linkm.so,$(libm_FULL_NAME),$(ABI_VERSION))
 endif
 
 $(libm_OUT)/libm_so.a: $(libm-so-y)

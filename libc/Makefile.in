@@ -21,7 +21,7 @@ CFLAGS += -D__USE_STDIO_FUTEXES__
 endif
 LIBS-libc.so := $(interp) $(ldso) $(top_builddir)lib/$(NONSHARED_LIBNAME)
 
-# we have SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION) defined in Rules.mak
+# we have SHARED_LIBNAME=libc.so.$(ABI_VERSION) defined in Rules.mak
 libc_FULL_NAME := libuClibc-$(VERSION).so
 
 # this comes first, so duplicate removal works correctly
@@ -60,18 +60,18 @@ OUTPUT_FORMAT = $(CC) $(CFLAGS) -Wl,--verbose 2>&1 | $(SED) -n '/OUTPUT_FORMAT/,
 
 ifeq ($(DOMULTI),n)
 $(libc.depend): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
-	$(call link.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
+	$(call link.so,$(libc_FULL_NAME),$(ABI_VERSION))
 else
 $(libc.depend): $(libc_OUT)/libc.oS $(libc-nomulti-y:.o=.oS) | $(LIBS-libc.so)
-	$(call linkm.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
+	$(call linkm.so,$(libc_FULL_NAME),$(ABI_VERSION))
 endif
 	$(Q)$(RM) $@
 	$(Q)cp $(top_srcdir)extra/scripts/format.lds $@
 	$(Q)$(OUTPUT_FORMAT) >> $@
 ifeq ($(COMPAT_ATEXIT),y)
-	$(Q)echo "GROUP ( $(NONSHARED_LIBNAME) $(SHARED_MAJORNAME) $(ASNEEDED) )" >> $@
+	$(Q)echo "GROUP ( $(NONSHARED_LIBNAME) $(SHARED_LIBNAME) $(ASNEEDED) )" >> $@
 else
-	$(Q)echo "GROUP ( $(SHARED_MAJORNAME) $(NONSHARED_LIBNAME) $(ASNEEDED) )" >> $@
+	$(Q)echo "GROUP ( $(SHARED_LIBNAME) $(NONSHARED_LIBNAME) $(ASNEEDED) )" >> $@
 endif
 
 $(libc_OUT)/libc_so.a: $(libc-so-y) | $(top_builddir)lib/libc.a $(top_builddir)lib/$(NONSHARED_LIBNAME)

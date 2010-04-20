@@ -42,10 +42,10 @@ $(top_builddir)lib/libcrypt.so: $(top_builddir)lib/libcrypt.a $(libc.depend)
 else
 $(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc.depend)
 endif
-	$(call link.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
+	$(call link.so,$(libcrypt_FULL_NAME),$(ABI_VERSION))
 else
 $(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt.oS | $(libc.depend)
-	$(call linkm.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
+	$(call linkm.so,$(libcrypt_FULL_NAME),$(ABI_VERSION))
 endif
 
 $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)

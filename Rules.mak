@@ -108,15 +108,19 @@ MINOR_VERSION := 9
 SUBLEVEL      := 32
 EXTRAVERSION  :=-git
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
+# no abi compat between sublevel releases yet, so we use full version
+# for soname
+ABI_VERSION   := $(VERSION)
 ifneq ($(EXTRAVERSION),)
 VERSION       := $(VERSION)$(EXTRAVERSION)
 endif
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
 LC_ALL := C
-export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
+export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION ABI_VERSION LC_ALL
 
 LIBC := libc
-SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
+SHARED_LIBNAME := $(LIBC).so.$(ABI_VERSION)
+
 ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 mips64 powerpc64 s390x sparc64 x86_64 ),)
 UCLIBC_LDSO_NAME := ld64-uClibc
 ARCH_NATIVE_BIT := 64
@@ -124,10 +128,10 @@ else
 UCLIBC_LDSO_NAME := ld-uClibc
 ARCH_NATIVE_BIT := 32
 endif
-UCLIBC_LDSO := $(UCLIBC_LDSO_NAME).so.$(MAJOR_VERSION)
+UCLIBC_LDSO := $(UCLIBC_LDSO_NAME).so.$(ABI_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
-libc := $(top_builddir)lib/$(SHARED_MAJORNAME)
-libc.depend := $(top_builddir)lib/$(SHARED_MAJORNAME:.$(MAJOR_VERSION)=)
+libc := $(top_builddir)lib/$(SHARED_LIBNAME)
+libc.depend := $(top_builddir)lib/$(SHARED_LIBNAME:.$(ABI_VERSION)=)
 libdl.depend := $(top_builddir)lib/libdl.so
 libpthread.depend := $(top_builddir)lib/libpthread.so
 interp := $(top_builddir)lib/interp.os
@@ -136,7 +140,7 @@ headers_dep := $(top_builddir)include/bits/sysnum.h
 sub_headers := $(headers_dep)
 
 #LIBS :=$(interp) -L$(top_builddir)lib -lc
-LIBS := $(interp) -L$(top_builddir)lib $(libc:.$(MAJOR_VERSION)=)
+LIBS := $(interp) -L$(top_builddir)lib $(libc:.$(ABI_VERSION)=)
 
 # Make sure DESTDIR and PREFIX can be used to install
 # PREFIX is a uClibcism while DESTDIR is a common GNUism
