@@ -13,7 +13,6 @@
 #ifdef __UCLIBC_HAS_THREADS__
 
 #include <pthread.h>
-#include <bits/libc-lock.h>
 #include <bits/uClibc_pthread.h>
 
 #define __uclibc_maybe_call(FUNC, ARGS) \
