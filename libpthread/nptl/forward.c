@@ -35,10 +35,11 @@ int __libc_pthread_functions_init attribute_hidden;
 rettype									      \
 name decl								      \
 {									      \
-  if (!__libc_pthread_functions_init)					      \
+  if (!__libc_pthread_functions_init) {					      \
     defaction;								      \
-									      \
-  return PTHFCT_CALL (ptr_##name, params);				      \
+  } else {								      \
+    return PTHFCT_CALL (ptr_##name, params);				      \
+  }									      \
 }
 
 #define FORWARD(name, decl, params, defretval) \
@@ -130,9 +131,10 @@ FORWARD (pthread_mutex_init,
 	 (mutex, mutexattr), 0)
 
 FORWARD (pthread_mutex_lock, (pthread_mutex_t *mutex), (mutex), 0)
+weak_alias (pthread_mutex_lock, __pthread_mutex_lock)
 
 FORWARD (pthread_mutex_unlock, (pthread_mutex_t *mutex), (mutex), 0)
-
+weak_alias (pthread_mutex_unlock, __pthread_mutex_unlock)
 
 FORWARD2 (pthread_self, pthread_t, (void), (), return 0)
 
@@ -143,6 +145,16 @@ FORWARD (pthread_setcancelstate, (int state, int *oldstate), (state, oldstate),
 FORWARD (pthread_setcanceltype, (int type, int *oldtype), (type, oldtype), 0)
 
 #define return /* value is void */
+FORWARD2(_pthread_cleanup_push_defer,
+	 void, (struct _pthread_cleanup_buffer *buffer, void (*routine)(void *), void *arg),
+	 (buffer, routine, arg),
+	 { buffer->__routine = routine; buffer->__arg = arg; });
+
+FORWARD2(_pthread_cleanup_pop_restore,
+	 void, (struct _pthread_cleanup_buffer *buffer, int execute),
+	 (buffer, execute),
+	 if (execute) { buffer->__routine(buffer->__arg); });
+
 FORWARD2(__pthread_unwind,
 	 void attribute_hidden __attribute ((noreturn)) __cleanup_fct_attribute,
 	 (__pthread_unwind_buf_t *buf), (buf), {

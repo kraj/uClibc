@@ -15,13 +15,6 @@
 #include <pthread.h>
 #include <bits/uClibc_pthread.h>
 
-#define __uclibc_maybe_call(FUNC, ARGS) \
-	(__extension__ ({					\
-		__typeof (FUNC) *_fn = (FUNC);			\
-		if (_fn != NULL) { (*_fn) ARGS; }		\
-	}))
-
-
 #define __UCLIBC_MUTEX_TYPE				pthread_mutex_t
 
 #define __UCLIBC_MUTEX(M)				pthread_mutex_t M
@@ -30,21 +23,21 @@
 #define __UCLIBC_MUTEX_EXTERN(M)			extern pthread_mutex_t M
 
 #define __UCLIBC_MUTEX_INIT_VAR(M)								\
-		__uclibc_maybe_call(__pthread_mutex_init,(&(M),NULL))
+		((M) = (pthread_mutex_t) PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
 
 #define __UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE(M)								\
-		__uclibc_maybe_call(__pthread_mutex_lock,(&(M)))
+		__pthread_mutex_lock(&(M))
 
 #define __UCLIBC_MUTEX_UNLOCK_CANCEL_UNSAFE(M)								\
-		__uclibc_maybe_call(__pthread_mutex_unlock,(&(M)))
+		__pthread_mutex_unlock(&(M))
 
 #define __UCLIBC_MUTEX_TRYLOCK_CANCEL_UNSAFE(M)								\
-		__uclibc_maybe_call(__pthread_mutex_trylock,(&(M)))
+		__pthread_mutex_trylock,(&(M))
 
 #define __UCLIBC_MUTEX_CONDITIONAL_LOCK(M,C)								\
 	do {												\
 		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;				\
-		int __infunc_need_locking = ((C) && (__pthread_mutex_lock != NULL));			\
+		int __infunc_need_locking = (C);							\
 		if (__infunc_need_locking) {								\
 			_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,			\
 					   (void (*) (void *))__pthread_mutex_unlock,			\
