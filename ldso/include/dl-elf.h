@@ -104,13 +104,15 @@ extern void _dl_protect_relro (struct elf_resolve *l);
 # define DT_GNU_HASH_IDX (DT_RELCONT_IDX + 1)
 #endif
 
-extern void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
-                                   void *debug_addr, DL_LOADADDR_TYPE load_off);
+extern unsigned int _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
+                                           void *debug_addr, DL_LOADADDR_TYPE load_off);
 
 static __always_inline
-void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
-                             void *debug_addr, DL_LOADADDR_TYPE load_off)
+unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
+                                     void *debug_addr, DL_LOADADDR_TYPE load_off)
 {
+	unsigned int rtld_flags = 0;
+
 	for (; dpnt->d_tag; dpnt++) {
 		if (dpnt->d_tag < DT_NUM) {
 			dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
@@ -138,9 +140,12 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
 		} else if (dpnt->d_tag < DT_LOPROC) {
 			if (dpnt->d_tag == DT_RELOCCOUNT)
 				dynamic_info[DT_RELCONT_IDX] = dpnt->d_un.d_val;
-			if (dpnt->d_tag == DT_FLAGS_1 &&
-			    (dpnt->d_un.d_val & DF_1_NOW))
-				dynamic_info[DT_BIND_NOW] = 1;
+			if (dpnt->d_tag == DT_FLAGS_1) {
+				if (dpnt->d_un.d_val & DF_1_NOW)
+					dynamic_info[DT_BIND_NOW] = 1;
+				if (dpnt->d_un.d_val & DF_1_NODELETE)
+					rtld_flags |= RTLD_NODELETE;
+			}
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 			if (dpnt->d_tag == DT_GNU_HASH)
 				dynamic_info[DT_GNU_HASH_IDX] = dpnt->d_un.d_ptr;
@@ -167,6 +172,7 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
 	ADJUST_DYN_INFO(DT_GNU_HASH_IDX, load_off);
 #endif
 #undef ADJUST_DYN_INFO
+	return rtld_flags;
 }
 
 /* Reloc type classes as returned by elf_machine_type_class().

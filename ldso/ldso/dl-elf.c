@@ -337,6 +337,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	unsigned long *lpnt;
 	unsigned long libaddr;
 	unsigned long minvma = 0xffffffff, maxvma = 0;
+	unsigned int rtld_flags;
 	int i, flags, piclib, infile;
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
@@ -700,7 +701,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	dpnt = (ElfW(Dyn) *) dynamic_addr;
 	_dl_memset(dynamic_info, 0, sizeof(dynamic_info));
-	_dl_parse_dynamic_info(dpnt, dynamic_info, NULL, lib_loadaddr);
+	rtld_flags = _dl_parse_dynamic_info(dpnt, dynamic_info, NULL, lib_loadaddr);
 	/* If the TEXTREL is set, this means that we need to make the pages
 	   writable before we perform relocations.  Do this now. They get set
 	   back again later. */
@@ -732,6 +733,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	tpnt->st_ino = st.st_ino;
 	tpnt->ppnt = (ElfW(Phdr) *) DL_RELOC_ADDR(tpnt->loadaddr, epnt->e_phoff);
 	tpnt->n_phent = epnt->e_phnum;
+	tpnt->rtld_flags |= rtld_flags;
 
 #if defined(USE_TLS) && USE_TLS
 	if (tlsppnt) {
@@ -991,8 +993,8 @@ char *_dl_strdup(const char *string)
 	return retval;
 }
 
-void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
-                            void *debug_addr, DL_LOADADDR_TYPE load_off)
+unsigned int _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
+                                    void *debug_addr, DL_LOADADDR_TYPE load_off)
 {
-	__dl_parse_dynamic_info(dpnt, dynamic_info, debug_addr, load_off);
+	return __dl_parse_dynamic_info(dpnt, dynamic_info, debug_addr, load_off);
 }

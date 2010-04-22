@@ -736,7 +736,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 		_dl_handles = rpnt->next_handle;
 	_dl_if_debug_print("%s: usage count: %d\n",
 			handle->dyn->libname, handle->dyn->usage_count);
-	if (handle->dyn->usage_count != 1) {
+	if (handle->dyn->usage_count != 1 || (handle->dyn->rtld_flags & RTLD_NODELETE)) {
 		handle->dyn->usage_count--;
 		free(handle);
 		return 0;
@@ -744,7 +744,8 @@ static int do_dlclose(void *vhandle, int need_fini)
 	/* OK, this is a valid handle - now close out the file */
 	for (j = 0; j < handle->init_fini.nlist; ++j) {
 		tpnt = handle->init_fini.init_fini[j];
-		if (--tpnt->usage_count == 0) {
+		tpnt->usage_count--;
+		if (tpnt->usage_count == 0 && !(tpnt->rtld_flags & RTLD_NODELETE)) {
 			if ((tpnt->dynamic_info[DT_FINI]
 			     || tpnt->dynamic_info[DT_FINI_ARRAY])
 			 && need_fini
