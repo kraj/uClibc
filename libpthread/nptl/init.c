@@ -260,6 +260,12 @@ static bool __nptl_initial_report_events __attribute_used__;
 void
 __pthread_initialize_minimal_internal (void)
 {
+  static int initialized = 0;
+
+  if (initialized)
+    return;
+  initialized = 1;
+
 #ifndef SHARED
   /* Unlike in the dynamically linked case the dynamic linker has not
      taken care of initializing the TLS data structures.  */
