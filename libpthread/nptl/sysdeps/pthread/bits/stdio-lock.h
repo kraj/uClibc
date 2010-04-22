@@ -39,11 +39,11 @@ typedef struct { int lock; int cnt; void *owner; } _IO_lock_t;
 
 #define _IO_lock_lock(_name) \
   do {									      \
-    void *__self = THREAD_SELF;						      \
-    if ((_name).owner != __self)					      \
+    void *__meself = THREAD_SELF;						      \
+    if ((_name).owner != __meself)					      \
       {									      \
 	lll_lock ((_name).lock, LLL_PRIVATE);				      \
-        (_name).owner = __self;						      \
+        (_name).owner = __meself;						      \
       }									      \
     ++(_name).cnt;							      \
   } while (0)
@@ -51,12 +51,12 @@ typedef struct { int lock; int cnt; void *owner; } _IO_lock_t;
 #define _IO_lock_trylock(_name) \
   ({									      \
     int __result = 0;							      \
-    void *__self = THREAD_SELF;						      \
-    if ((_name).owner != __self)					      \
+    void *__meself = THREAD_SELF;						      \
+    if ((_name).owner != __meself)					      \
       {									      \
         if (lll_trylock ((_name).lock) == 0)				      \
           {								      \
-            (_name).owner = __self;					      \
+            (_name).owner = __meself;					      \
             (_name).cnt = 1;						      \
           }								      \
         else								      \
