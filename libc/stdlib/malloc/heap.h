@@ -16,11 +16,10 @@
 
 /* On multi-threaded systems, the heap includes a lock.  */
 #ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
-# include <bits/uClibc_pthread.h>
+# include <bits/uClibc_mutex.h>
 # define HEAP_USE_LOCKING
-# define __heap_lock(heap_lock) __pthread_mutex_lock (heap_lock)
-# define __heap_unlock(heap_lock) __pthread_mutex_unlock (heap_lock)
+# define __heap_lock(heap_lock) __UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE(*(heap_lock))
+# define __heap_unlock(heap_lock) __UCLIBC_MUTEX_UNLOCK_CANCEL_UNSAFE(*(heap_lock))
 #else
 # define __heap_lock(heap_lock)
 # define __heap_unlock(heap_lock)
