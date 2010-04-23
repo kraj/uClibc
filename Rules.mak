@@ -108,9 +108,7 @@ MINOR_VERSION := 9
 SUBLEVEL      := 32
 EXTRAVERSION  :=-git
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
-# no abi compat between sublevel releases yet, so we use full version
-# for soname
-ABI_VERSION   := $(VERSION)
+ABI_VERSION   := $(MAJOR_VERSION)
 ifneq ($(EXTRAVERSION),)
 VERSION       := $(VERSION)$(EXTRAVERSION)
 endif
