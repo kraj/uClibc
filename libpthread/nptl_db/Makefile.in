@@ -10,7 +10,7 @@ subdirs += libpthread/nptl/nptl_db
 # Get the thread include dependencies and shared object name
 CFLAGS-nptl_db := -DLIBPTHREAD_SO="\"libpthread.so.$(ABI_VERSION)\""
 CFLAGS-nptl_db += -I$(top_srcdir)libpthread/nptl -D_GNU_SOURCE
-CFLAGS-nptl_db += -DIS_IN_libthread_db=1 -std=gnu99 -I$(top_srcdir)ldso/include
+CFLAGS-nptl_db += -DIS_IN_libthread_db=1 -DNOT_IN_libc -std=gnu99 -I$(top_srcdir)ldso/include
 
 LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) -s --warn-unresolved-symbols
 
