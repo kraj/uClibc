@@ -37,9 +37,9 @@ libthread_db-multi-y := $(libthread_db_SRC)
 
 lib-a-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.a
 lib-so-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.so
-objclean-y += libthread_db_clean
+objclean-y += CLEAN_libpthread/nptl_db
 headers-$(PTHREADS_DEBUG_SUPPORT) += $(nptl_db_headers)
-headers_clean-y += nptl_db_headers_clean
+headers_clean-y += HEADERCLEAN_libpthread/nptl_db
 
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libthread_db.so: $(top_builddir)lib/libthread_db.a $(libc)
@@ -64,8 +64,8 @@ $(top_builddir)include/thread_db.h:
 
 nptl_db_headers:= $(top_builddir)include/thread_db.h
 
-nptl_db_headers_clean:
+HEADERCLEAN_libpthread/nptl_db:
 	$(do_rm) $(nptl_db_headers)
 
-libthread_db_clean:
+CLEAN_libpthread/nptl_db:
 	$(do_rm) $(addprefix $(libthread_db_OUT)/*., o oS a)

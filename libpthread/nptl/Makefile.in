@@ -261,8 +261,8 @@ endif
 libpthread-so-y := $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.oS,$(libpthread_so_SRC))
 libpthread-static-y += $(patsubst $(PTHREAD_DIR)/%.c,$(PTHREAD_OUT)/%.o,$(libpthread_a_SRC) $(libpthread_static_SRC))
 
-objclean-y += libpthread_clean
-headers_clean-y += nptl_headers_clean
+objclean-y += CLEAN_libpthread/nptl
+headers_clean-y += HEADERCLEAN_libpthread/nptl
 
 -include $(PTHREAD_DIR)/sysdeps/generic/Makefile.in
 -include $(PTHREAD_DIR)/sysdeps/pthread/Makefile.in
@@ -333,9 +333,9 @@ nptl_headers_bootstrap := $(top_builddir)include/pthread.h \
 		$(top_builddir)include/bits/stdio-lock.h
 
 
-nptl_headers_clean:
+CLEAN_libpthread/nptl:
 	$(do_rm) $(nptl_headers_bootstrap) \
 	      $(addprefix $(PTHREAD_OUT)/pthread-errnos., c h s)
 
-libpthread_clean:
+HEADERCLEAN_libpthread/nptl:
 	$(do_rm) $(addprefix $(PTHREAD_OUT)/*., o os oS a)

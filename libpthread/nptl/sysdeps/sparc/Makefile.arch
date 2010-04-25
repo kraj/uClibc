@@ -27,8 +27,8 @@ libpthread-so-y += $(PTHREAD_ARCH_OBJ:.o=.oS)
 
 libpthread-nomulti-y += $(PTHREAD_ARCH_OBJ)
 
-objclean-y += nptl_arch_clean
-headers_clean-y += nptl_arch_headers_clean
+objclean-y += CLEAN_libpthread/nptl/sysdeps/sparc
+headers_clean-y += HEADERCLEAN_libpthread/nptl/sysdeps/sparc
 
 #
 # Create 'tcb-offsets.h' header file.

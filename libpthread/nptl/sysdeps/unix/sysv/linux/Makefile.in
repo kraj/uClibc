@@ -141,8 +141,8 @@ LIBRT_LINUX_OBJ := $(patsubst %.c,$(PTHREAD_LINUX_OUT)/%.o,$(librt_CSRC))
 librt-a-y += $(LIBRT_LINUX_OBJ)
 librt-so-y += $(LIBRT_LINUX_OBJ:.o=.oS)
 
-objclean-y += nptl_linux_clean
-headers_clean-y += nptl_linux_headers_clean
+objclean-y += CLEAN_libpthread/nptl/sysdeps/unix/sysv/linux
+headers_clean-y += HEADERCLEAN_libpthread/nptl/sysdeps/unix/sysv/linux
 
 #
 # Create header files.
@@ -235,7 +235,7 @@ ALL_HEADERS_BITS_PTHREAD := $(addprefix include/bits/,$(HEADERS_BITS_PTHREAD))
 $(ALL_HEADERS_BITS_PTHREAD):
 	$(do_ln) ../../$(PTHREAD_LINUX_DIR)/bits/$(@F) $(top_builddir)$@
 
-nptl_linux_headers_clean:
+HEADERCLEAN_libpthread/nptl/sysdeps/unix/sysv/linux:
 	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/gen_lowlevelbarrier., c s) \
 	$(addprefix $(PTHREAD_LINUX_OUT)/gen_lowlevelcond., c s) \
 	$(addprefix $(PTHREAD_LINUX_OUT)/gen_lowlevelrwlock., c s) \
@@ -252,5 +252,5 @@ nptl_linux_headers_clean:
 	$(PTHREAD_LINUX_OUT)/pthread-pi-defines.h
 
 
-nptl_linux_clean:
+CLEAN_libpthread/nptl/sysdeps/unix/sysv/linux:
 	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/*., o os oS)

@@ -30,8 +30,8 @@ libpthread-so-y += $(PTHREAD_ARCH_OBJ:.o=.oS)
 
 libpthread-nomulti-y += $(PTHREAD_ARCH_OBJ)
 
-objclean-y += nptl_arch_clean
-headers_clean-y += nptl_arch_headers_clean
+objclean-y += CLEAN_libpthread/nptl/sysdeps/sh
+headers_clean-y += HEADERCLEAN_libpthread/nptl/sysdeps/sh
 
 #
 # Create 'tcb-offsets.h' header file.
@@ -49,8 +49,8 @@ $(PTHREAD_ARCH_OUT)/tcb-offsets.h: $(PTHREAD_ARCH_OUT)/tcb-offsets.s
 
 pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(PTHREAD_ARCH_OUT)/tcb-offsets.h
 
-nptl_arch_headers_clean:
+HEADERCLEAN_libpthread/nptl/sysdeps/sh:
 	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/tcb-offsets., c s h)
 
-nptl_arch_clean:
+CLEAN_libpthread/nptl/sysdeps/sh:
 	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/*., o os oS)

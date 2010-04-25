@@ -65,7 +65,7 @@ libc-shared-y+=$(LIBC_LINUX_ARCH_OBJ:.o=.oS)
 
 libc-nomulti-y+=$(LIBC_LINUX_ARCH_OBJ)
 
-objclean-y+=nptl_linux_arch_clean
+objclean-y+=CLEAN_libpthread/nptl/sysdeps/unix/sysv/linux/i386
 
-nptl_linux_arch_clean:
+CLEAN_libpthread/nptl/sysdeps/unix/sysv/linux/i386:
 	$(do_rm) $(addprefix $(LINUX_ARCH_OUT)/*., o os oS)

@@ -24,7 +24,7 @@ libc-static-y+=$(LIBC_GENERIC_OBJ)
 
 libc-nomulti-y+=$(LIBC_GENERIC_OBJ)
 
-objclean-y+=nptl_pthread_generic_clean
+objclean-y += CLEAN_libpthread/nptl/sysdeps/generic
 
-nptl_pthread_generic_clean:
+CLEAN_libpthread/nptl/sysdeps/generic:
 	$(do_rm) $(addprefix $(PTHREAD_GENERIC_OUT)/*., o os oS)
