@@ -159,8 +159,7 @@ headers-y += $(target-headers-sysdep)
 
 headers: $(top_builddir)include/bits/uClibc_config.h $(top_builddir)include/bits/sysnum.h
 subdirs: $(addprefix $(top_builddir),$(subdirs))
-pregen-headers: headers
-	$(Q)$(MAKE) $(pregen-headers-y)
+pregen-headers: headers $(pregen-headers-y)
 pregen: pregen-headers subdirs
 	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
 $(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
