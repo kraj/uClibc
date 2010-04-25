@@ -286,7 +286,7 @@ bad:
 libc_hidden_def(ruserpass)
 
 static int
-token()
+token(void)
 {
 	char *cp;
 	int c;

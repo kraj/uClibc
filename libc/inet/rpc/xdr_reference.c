@@ -128,11 +128,7 @@ libc_hidden_def(xdr_reference)
  *
  */
 bool_t
-xdr_pointer (xdrs, objpp, obj_size, xdr_obj)
-     XDR *xdrs;
-     char **objpp;
-     u_int obj_size;
-     xdrproc_t xdr_obj;
+xdr_pointer (XDR *xdrs, char **objpp, u_int obj_size, xdrproc_t xdr_obj)
 {
 
   bool_t more_data;

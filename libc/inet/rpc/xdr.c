@@ -593,9 +593,7 @@ libc_hidden_def(xdr_bytes)
  * Implemented here due to commonality of the object.
  */
 bool_t
-xdr_netobj (xdrs, np)
-     XDR *xdrs;
-     struct netobj *np;
+xdr_netobj (XDR *xdrs, struct netobj *np)
 {
 
   return xdr_bytes (xdrs, &np->n_bytes, &np->n_len, MAX_NETOBJ_SZ);
@@ -737,9 +735,7 @@ libc_hidden_def(xdr_string)
  * routines like clnt_call
  */
 bool_t
-xdr_wrapstring (xdrs, cpp)
-     XDR *xdrs;
-     char **cpp;
+xdr_wrapstring (XDR *xdrs, char **cpp)
 {
   if (xdr_string (xdrs, cpp, LASTUNSIGNED))
     {

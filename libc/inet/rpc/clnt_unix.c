@@ -216,14 +216,9 @@ fooy:
 libc_hidden_def(clntunix_create)
 
 static enum clnt_stat
-clntunix_call (h, proc, xdr_args, args_ptr, xdr_results, results_ptr, timeout)
-     CLIENT *h;
-     u_long proc;
-     xdrproc_t xdr_args;
-     caddr_t args_ptr;
-     xdrproc_t xdr_results;
-     caddr_t results_ptr;
-     struct timeval timeout;
+clntunix_call (CLIENT *h, u_long proc, xdrproc_t xdr_args, caddr_t args_ptr,
+			   xdrproc_t xdr_results, caddr_t results_ptr,
+			   struct timeval timeout)
 {
   struct ct_data *ct = (struct ct_data *) h->cl_private;
   XDR *xdrs = &(ct->ct_xdrs);
@@ -330,10 +325,7 @@ clntunix_geterr (CLIENT *h, struct rpc_err *errp)
 }
 
 static bool_t
-clntunix_freeres (cl, xdr_res, res_ptr)
-     CLIENT *cl;
-     xdrproc_t xdr_res;
-     caddr_t res_ptr;
+clntunix_freeres (CLIENT *cl, xdrproc_t xdr_res, caddr_t res_ptr)
 {
   struct ct_data *ct = (struct ct_data *) cl->cl_private;
   XDR *xdrs = &(ct->ct_xdrs);
@@ -343,7 +335,7 @@ clntunix_freeres (cl, xdr_res, res_ptr)
 }
 
 static void
-clntunix_abort ()
+clntunix_abort (void)
 {
 }
 

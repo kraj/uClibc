@@ -212,17 +212,14 @@ svcudp_create (int sock)
 libc_hidden_def(svcudp_create)
 
 static enum xprt_stat
-svcudp_stat (xprt)
-     SVCXPRT *xprt attribute_unused;
+svcudp_stat (SVCXPRT *xprt attribute_unused)
 {
 
   return XPRT_IDLE;
 }
 
 static bool_t
-svcudp_recv (xprt, msg)
-     SVCXPRT *xprt;
-     struct rpc_msg *msg;
+svcudp_recv (SVCXPRT *xprt, struct rpc_msg *msg)
 {
   struct svcudp_data *su = su_data (xprt);
   XDR *xdrs = &(su->su_xdrs);
@@ -298,9 +295,7 @@ again:
 }
 
 static bool_t
-svcudp_reply (xprt, msg)
-     SVCXPRT *xprt;
-     struct rpc_msg *msg;
+svcudp_reply (SVCXPRT *xprt, struct rpc_msg *msg)
 {
   struct svcudp_data *su = su_data (xprt);
   XDR *xdrs = &(su->su_xdrs);
@@ -344,20 +339,14 @@ svcudp_reply (xprt, msg)
 }
 
 static bool_t
-svcudp_getargs (xprt, xdr_args, args_ptr)
-     SVCXPRT *xprt;
-     xdrproc_t xdr_args;
-     caddr_t args_ptr;
+svcudp_getargs (SVCXPRT *xprt, xdrproc_t xdr_args, caddr_t args_ptr)
 {
 
   return (*xdr_args) (&(su_data (xprt)->su_xdrs), args_ptr);
 }
 
 static bool_t
-svcudp_freeargs (xprt, xdr_args, args_ptr)
-     SVCXPRT *xprt;
-     xdrproc_t xdr_args;
-     caddr_t args_ptr;
+svcudp_freeargs (SVCXPRT *xprt, xdrproc_t xdr_args, caddr_t args_ptr)
 {
   XDR *xdrs = &(su_data (xprt)->su_xdrs);
 
@@ -366,8 +355,7 @@ svcudp_freeargs (xprt, xdr_args, args_ptr)
 }
 
 static void
-svcudp_destroy (xprt)
-     SVCXPRT *xprt;
+svcudp_destroy (SVCXPRT *xprt)
 {
   struct svcudp_data *su = su_data (xprt);
 
@@ -573,11 +561,7 @@ cache_set (SVCXPRT *xprt, u_long replylen)
  * return 1 if found, 0 if not found
  */
 static int
-cache_get (xprt, msg, replyp, replylenp)
-     SVCXPRT *xprt;
-     struct rpc_msg *msg;
-     char **replyp;
-     u_long *replylenp;
+cache_get (SVCXPRT *xprt, struct rpc_msg *msg, char **replyp, u_long *replylenp)
 {
   u_int loc;
   cache_ptr ent;

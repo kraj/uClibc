@@ -185,11 +185,8 @@ bad:
 libc_hidden_def(rexec_af)
 
 int
-rexec(ahost, rport, name, pass, cmd, fd2p)
-	char **ahost;
-	int rport;
-	const char *name, *pass, *cmd;
-	int *fd2p;
+rexec(char **ahost, int rport, const char *name, const char *pass,
+	  const char *cmd, int *fd2p)
 {
 	return rexec_af(ahost, rport, name, pass, cmd, fd2p, AF_INET);
 }

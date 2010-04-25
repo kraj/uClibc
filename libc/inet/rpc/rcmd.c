@@ -95,11 +95,8 @@ static int iruserok2 (u_int32_t raddr, int superuser, const char *ruser,
 		      const char *luser, const char *rhost);
 
 
-int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
-     char **ahost;
-     u_short rport;
-     const char *locuser, *remuser, *cmd;
-     int *fd2p;
+int rcmd(char **ahost, u_short rport, const char *locuser, const char *remuser,
+		 const char *cmd, int *fd2p)
 {
 #ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	int herr;
@@ -319,9 +316,8 @@ libc_hidden_def(rresvport)
  */
 int  __check_rhosts_file = 1;
 
-int ruserok(rhost, superuser, ruser, luser)
-	const char *rhost, *ruser, *luser;
-	int superuser;
+int ruserok(const char *rhost, int superuser, const char *ruser,
+			const char *luser)
 {
         struct hostent *hp;
 	u_int32_t addr;
@@ -430,10 +426,8 @@ iruserfopen (const char *file, uid_t okuser)
  * Returns 0 if ok, -1 if not ok.
  */
 static int
-iruserok2 (raddr, superuser, ruser, luser, rhost)
-     u_int32_t raddr;
-     int superuser;
-     const char *ruser, *luser, *rhost;
+iruserok2 (u_int32_t raddr, int superuser, const char *ruser, const char *luser,
+		   const char *rhost)
 {
 	FILE *hostf = NULL;
 	int isbad = -1;
@@ -647,10 +641,8 @@ __isempty(char *p)
  * Returns 0 if positive match, -1 if _not_ ok.
  */
 static int
-__ivaliduser2(hostf, raddr, luser, ruser, rhost)
-	FILE *hostf;
-	u_int32_t raddr;
-	const char *luser, *ruser, *rhost;
+__ivaliduser2(FILE *hostf, u_int32_t raddr,	const char *luser,
+			  const char *ruser, const char *rhost)
 {
     register const char *user;
     register char *p;

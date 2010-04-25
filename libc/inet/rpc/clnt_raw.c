@@ -133,14 +133,9 @@ clntraw_create (u_long prog, u_long vers)
 }
 
 static enum clnt_stat
-clntraw_call (h, proc, xargs, argsp, xresults, resultsp, timeout)
-     CLIENT *h;
-     u_long proc;
-     xdrproc_t xargs;
-     caddr_t argsp;
-     xdrproc_t xresults;
-     caddr_t resultsp;
-     struct timeval timeout attribute_unused;
+clntraw_call (CLIENT *h, u_long proc, xdrproc_t xargs, caddr_t argsp,
+			  xdrproc_t xresults, caddr_t resultsp,
+			  struct timeval timeout attribute_unused)
 {
   struct clntraw_private_s *clp = clntraw_private;
   XDR *xdrs = &clp->xdr_stream;

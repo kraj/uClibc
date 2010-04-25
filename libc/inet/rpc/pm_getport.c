@@ -56,11 +56,8 @@ static const struct timeval tottimeout =
  * Returns 0 if no map exists.
  */
 u_short
-pmap_getport (address, program, version, protocol)
-     struct sockaddr_in *address;
-     u_long program;
-     u_long version;
-     u_int protocol;
+pmap_getport (struct sockaddr_in *address, u_long program, u_long version,
+			  u_int protocol)
 {
   u_short port = 0;
   int _socket = -1;
