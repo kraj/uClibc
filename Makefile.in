@@ -221,8 +221,7 @@ HEADERS_RM- := \
 	tls.h \
 	rpc/des_crypt.h \
 	rpc/key_prot.h \
-	rpc/rpc_des.h \
-	sgtty.h
+	rpc/rpc_des.h
 HEADERS_RM-$(UCLIBC_HAS_FLOATS) += \
 	complex.h \
 	fpu_control.h \
