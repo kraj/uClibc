@@ -19,7 +19,6 @@
 extern __typeof(fcntl) __libc_fcntl;
 libc_hidden_proto(__libc_fcntl)
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 int __fcntl_nocancel (int fd, int cmd, ...)
 {
 	va_list ap;
@@ -41,7 +40,6 @@ int __fcntl_nocancel (int fd, int cmd, ...)
 # endif
 	return INLINE_SYSCALL (fcntl, 3, fd, cmd, arg);
 }
-#endif
 
 int __libc_fcntl (int fd, int cmd, ...)
 {
