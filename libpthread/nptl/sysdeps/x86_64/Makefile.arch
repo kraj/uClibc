@@ -49,5 +49,5 @@ pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(PTHREAD_ARCH_OUT)/tcb-offsets.h
 HEADERCLEAN_libpthread/nptl/sysdeps/x86_64:
 	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/tcb-offsets., c s h)
 
-CLEAN_libpthread/nptl/sysdeps/x86_84:
+CLEAN_libpthread/nptl/sysdeps/x86_64:
 	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/*., o os oS)
