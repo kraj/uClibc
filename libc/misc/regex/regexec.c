@@ -311,7 +311,7 @@ re_search_2 (struct re_pattern_buffer *bufp, const char *string1, int lenght1,
 }
 libc_hidden_def(re_search_2)
 
-static int
+static int internal_function
 re_search_2_stub (struct re_pattern_buffer *bufp, const char *string1,
 				  int length1, const char *string2, int length2, int start,
 				  int range, struct re_registers *regs, int stop, int ret_len)
@@ -354,7 +354,7 @@ re_search_2_stub (struct re_pattern_buffer *bufp, const char *string1,
    If RET_LEN is nonzero the length of the match is returned (re_match style);
    otherwise the position of the match is returned.  */
 
-static int
+static int internal_function
 re_search_stub (struct re_pattern_buffer *bufp, const char *string, int length,
 				int start, int range, int stop, struct re_registers *regs,
 				int ret_len)
@@ -442,7 +442,7 @@ re_search_stub (struct re_pattern_buffer *bufp, const char *string, int length,
   return rval;
 }
 
-static unsigned
+static unsigned internal_function
 re_copy_regs (struct re_registers *regs, regmatch_t *pmatch, int nregs,
 			  int regs_allocated)
 {
@@ -550,7 +550,7 @@ re_exec (const char *s)
    otherwise return the error code.
    Note: We assume front end functions already check ranges.
    (START + RANGE >= 0 && START + RANGE <= LENGTH)  */
-static reg_errcode_t
+static reg_errcode_t internal_function
 re_search_internal (const regex_t *preg, const char *string, int length,
 					int start, int range, int stop, size_t nmatch,
 					regmatch_t pmatch[], int eflags)
@@ -859,7 +859,7 @@ re_search_internal (const regex_t *preg, const char *string, int length,
   return err;
 }
 
-static reg_errcode_t
+static reg_errcode_t internal_function
 prune_impossible_nodes (re_match_context_t *mctx)
 {
   const re_dfa_t *const dfa = mctx->dfa;
