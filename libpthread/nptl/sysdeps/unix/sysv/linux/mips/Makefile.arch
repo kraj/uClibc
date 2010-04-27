@@ -5,10 +5,11 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-libpthread_SSRC = pt-vfork.S
+libpthread_SSRC = pt-vfork.S clone.S
 libpthread_CSRC = pthread_once.c pt-__syscall_rt_sigaction.c
 
 libc_a_CSRC = fork.c
+libc_a_SSRC = clone.S vfork.S
 
 CFLAGS-OMIT-fork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
@@ -18,6 +19,9 @@ CFLAGS-pthread_once.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-pt-__syscall_rt_sigaction.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 
 ASFLAGS-pt-vfork.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+
+ASFLAGS-clone.S = -D_LIBC_REENTRANT
+ASFLAGS-vfork.S = -D_LIBC_REENTRANT
 
 CFLAGS += $(SSP_ALL_CFLAGS)
 #CFLAGS:=$(CFLAGS:-O1=-O2)
