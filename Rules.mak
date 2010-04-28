@@ -350,7 +350,7 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 
 ifeq ($(TARGET_ARCH),mips)
-	OPTIMIZATIONS+=-mno-split-addresses
+	OPTIMIZATION+=-mno-split-addresses
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_1)+=-mips1
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_2)+=-mips2 -mtune=mips2
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_3)+=-mips3 -mtune=mips3
@@ -372,7 +372,7 @@ ifeq ($(TARGET_ARCH),mips)
 endif
 
 ifeq ($(TARGET_ARCH),nios)
-	OPTIMIZATIONS+=-funaligned-struct-hack
+	OPTIMIZATION+=-funaligned-struct-hack
 	CPU_LDFLAGS-y+=-Wl,-m32
 	CPU_CFLAGS-y+=-Wl,-m32
 endif
@@ -409,11 +409,11 @@ ifeq ($(TARGET_ARCH),h8300)
 endif
 
 ifeq ($(TARGET_ARCH),i960)
-	OPTIMIZATIONS+=-mh -mint32 #-fsigned-char
+	OPTIMIZATION+=-mh -mint32 #-fsigned-char
 endif
 
 ifeq ($(TARGET_ARCH),e1)
-	OPTIMIZATIONS+=-mgnu-param
+	OPTIMIZATION+=-mgnu-param
 endif
 
 ifeq ($(TARGET_ARCH),cris)
