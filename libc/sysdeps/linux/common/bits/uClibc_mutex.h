@@ -121,6 +121,7 @@
 #define __UCLIBC_MUTEX_STATIC(M,I)			extern void *__UCLIBC_MUTEX_DUMMY_ ## M
 #define __UCLIBC_MUTEX_EXTERN(M)			extern void *__UCLIBC_MUTEX_DUMMY_ ## M
 
+#define __UCLIBC_MUTEX_INIT_VAR(M)					((void)0)
 #define __UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE(M)		((void)0)
 #define __UCLIBC_MUTEX_UNLOCK_CANCEL_UNSAFE(M)		((void)0)
 #define __UCLIBC_MUTEX_TRYLOCK_CANCEL_UNSAFE(M)		(0)	/* Always succeed? */
