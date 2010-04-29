@@ -1912,38 +1912,36 @@ void _time_tzset(int use_old_rules)
 	static char oldval[TZ_BUFLEN]; /* BSS-zero'd. */
 #endif
 
+	/* Put this inside the lock to prevent the possibility of two different
+	 * timezones being used in a threaded app. */
 	__UCLIBC_MUTEX_LOCK(_time_tzlock);
 
 	e = getenv(TZ);				/* TZ env var always takes precedence. */
 
 #if defined(__UCLIBC_HAS_TZ_FILE__) && !defined(__UCLIBC_HAS_TZ_FILE_READ_MANY__)
-	/* Put this inside the lock to prevent the possiblity of two different
-	 * timezones being used in a threaded app. */
-
-	if (e != NULL) {
-		TZ_file_read = 0;		/* Reset if the TZ env var is set. */
-	} else if (TZ_file_read) {
+	if (e) {
+		/* Never use TZfile if TZ env var is set. */
+		TZ_file_read = 0;
+	}
+	if (TZ_file_read) {
+		/* We already parsed TZfile before, skip everything. */
 		goto FAST_DONE;
 	}
-#endif /* defined(__UCLIBC_HAS_TZ_FILE__) && !defined(__UCLIBC_HAS_TZ_FILE_READ_MANY__) */
+#endif
 
 	/* Warning!!!  Since uClibc doesn't do lib locking, the following is
 	 * potentially unsafe in a multi-threaded program since it is remotely
 	 * possible that another thread could call setenv() for TZ and overwrite
 	 * the string being parsed.  So, don't do that... */
 
-	if ((!e						/* TZ env var not set... */
 #ifdef __UCLIBC_HAS_TZ_FILE__
-		 && !(e = read_TZ_file(buf)) /* and no file or invalid file */
+	if (!e)
+		e = read_TZ_file(buf);
 #endif
-		 ) || !*e) {			/* or set to empty string. */
-ILLEGAL:					/* TODO: Clean up the following... */
-#ifdef __UCLIBC_HAS_TZ_CACHING__
-		*oldval = 0;			/* Set oldval to an empty string. */
-#endif
-		memset(_time_tzinfo, 0, 2*sizeof(rule_struct));
-		strcpy(_time_tzinfo[0].tzname, UTC);
-		goto DONE;
+	if (!e		/* TZ env var not set and no TZfile (or bad TZfile) */
+	 || !*e		/* or set to empty string. */
+	) {
+		goto ILLEGAL;
 	}
 
 	if (*e == ':') {			/* Ignore leading ':'. */
@@ -1951,8 +1949,9 @@ ILLEGAL:					/* TODO: Clean up the following... */
 	}
 
 #ifdef __UCLIBC_HAS_TZ_CACHING__
-	if (strcmp(e, oldval) == 0) { /* Same string as last time... */
-		goto FAST_DONE;			/* So nothing to do. */
+	if (strcmp(e, oldval) == 0) {
+		/* Same string as last time... nothing to do. */
+		goto FAST_DONE;
 	}
 	/* Make a copy of the TZ env string.  It won't be nul-terminated if
 	 * it is too long, but it that case it will be illegal and will be reset
@@ -1973,10 +1972,11 @@ LOOP:
 	s = new_rules[count].tzname;
 	n = 0;
 	while (*e
-		   && isascii(*e)		/* SUSv3 requires char in portable char set. */
-		   && (isalpha(*e)
-			   || (c && (isalnum(*e) || (*e == '+') || (*e == '-'))))
-		   ) {
+	    && isascii(*e)		/* SUSv3 requires char in portable char set. */
+	    && (isalpha(*e)
+		|| (c && (isalnum(*e) || (*e == '+') || (*e == '-')))
+	       )
+	) {
 		*s++ = *e++;
 		if (++n > TZNAME_MAX) {
 			goto ILLEGAL;
@@ -1985,8 +1985,8 @@ LOOP:
 	*s = 0;
 
 	if ((n < 3)					/* Check for minimum length. */
-		|| (c && (*e++ != c))	/* Match any quoting '<'. */
-		) {
+	 || (c && (*e++ != c))	/* Match any quoting '<'. */
+	) {
 		goto ILLEGAL;
 	}
 
@@ -2001,7 +2001,8 @@ LOOP:
 	}
 
 	++e;
-	if (!(e = getoffset(e, &off))) {
+	e = getoffset(e, &off);
+	if (!e) {
 		goto ILLEGAL;
 	}
 
@@ -2038,7 +2039,8 @@ SKIP_OFFSET:
 
 			n = 365;
 			s = (char *) RULE;
-			if ((c = *e++) == 'M') {
+			c = *e++;
+			if (c == 'M') {
 				n = 12;
 			} else if (c == 'J') {
 				s += 8;
@@ -2048,26 +2050,31 @@ SKIP_OFFSET:
 				s += 6;
 			}
 
-			*(p = &new_rules[count].rule_type) = c;
+			p = &new_rules[count].rule_type;
+			*p = c;
 			if (c != 'M') {
 				p -= 2;
 			}
 
 			do {
 				++s;
-				if (!(e = getnumber(e, &f))
-					|| (((unsigned int)(f - s[1])) > n)
-					|| (*s && (*e++ != *s))
-					) {
+				e = getnumber(e, &f);
+				if (!e
+				 || ((unsigned int)(f - s[1]) > n)
+				 || (*s && (*e++ != *s))
+				) {
 					goto ILLEGAL;
 				}
 				*--p = f;
-			} while ((n = *(s += 2)) > 0);
+				s += 2;
+				n = *s;
+			} while (n > 0);
 
 			off = 2 * 60 * 60;	/* Default to 2:00:00 */
 			if (*e == '/') {
 				++e;
-				if (!(e = getoffset(e, &off))) {
+				e = getoffset(e, &off);
+				if (!e) {
 					goto ILLEGAL;
 				}
 			}
@@ -2075,7 +2082,13 @@ SKIP_OFFSET:
 		} while (++count < 2);
 
 		if (*e) {
-			goto ILLEGAL;
+ILLEGAL:
+#ifdef __UCLIBC_HAS_TZ_CACHING__
+			oldval[0] = 0; /* oldval = "" */
+#endif
+			memset(_time_tzinfo, 0, sizeof(_time_tzinfo));
+			strcpy(_time_tzinfo[0].tzname, UTC);
+			goto DONE;
 		}
 	}
 
