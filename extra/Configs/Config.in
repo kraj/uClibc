@@ -848,6 +848,17 @@ config UCLIBC_TZ_FILE_PATH
 
 	  Most people will use the default of '/etc/TZ'.
 
+config UCLIBC_FALLBACK_TO_ETC_LOCALTIME
+	bool "Use /etc/localtime as a fallback"
+	depends on UCLIBC_HAS_TZ_FILE
+	default y
+	help
+	  Answer Y to try to use /etc/localtime file.
+	  On glibc systems this file (if it is in TZif2 format)
+	  contains timezone string at the end.
+
+	  Most people will answer Y.
+
 endmenu
 
 menu "Advanced Library Settings"

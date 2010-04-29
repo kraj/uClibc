@@ -1804,12 +1804,12 @@ static smallint TZ_file_read;		/* Let BSS initialization set this to 0. */
 
 static char *read_TZ_file(char *buf)
 {
+	int r;
 	int fd;
 	char *p = NULL;
 
 	fd = open(__UCLIBC_TZ_FILE_PATH__, O_RDONLY);
 	if (fd >= 0) {
-		ssize_t r;
 #if 0
 		/* TZ are small *files*. On files, short reads
 		 * only occur on EOF (unlike, say, pipes).
@@ -1829,13 +1829,12 @@ static char *read_TZ_file(char *buf)
 			todo -= r;
 		} while (todo);
 #else
-		/* Shorter, and does one less read syscall */
+		/* Shorter, and does one fewer read syscall */
 		r = read(fd, buf, TZ_BUFLEN);
 		if (r < 0)
 			goto ERROR;
 		p = buf + r;
 #endif
-
 		if ((p > buf) && (p[-1] == '\n')) { /* Must end with newline */
 			p[-1] = 0;
 			p = buf;
@@ -1848,6 +1847,45 @@ ERROR:
 		}
 		close(fd);
 	}
+#ifdef __UCLIBC_FALLBACK_TO_ETC_LOCALTIME__
+	else {
+		fd = open("/etc/localtime", O_RDONLY);
+		if (fd >= 0) {
+			r = read(fd, buf, TZ_BUFLEN);
+			if (r != TZ_BUFLEN
+			 || strncmp(buf, "TZif", 4) != 0
+			 || (unsigned char)buf[4] < 2
+			 || lseek(fd, -TZ_BUFLEN, SEEK_END) < 0
+			) {
+				goto ERROR;
+			}
+			/* tzfile.h from tzcode database says about TZif2+ files:
+			**
+			** If tzh_version is '2' or greater, the above is followed by a second instance
+			** of tzhead and a second instance of the data in which each coded transition
+			** time uses 8 rather than 4 chars,
+			** then a POSIX-TZ-environment-variable-style string for use in handling
+			** instants after the last transition time stored in the file
+			** (with nothing between the newlines if there is no POSIX representation for
+			** such instants).
+			*/
+			r = read(fd, buf, TZ_BUFLEN);
+			if (r <= 0 || buf[--r] != '\n')
+				goto ERROR;
+			buf[r] = 0;
+			while (r != 0) {
+				if (buf[--r] == '\n') {
+					p = buf + r + 1;
+#ifndef __UCLIBC_HAS_TZ_FILE_READ_MANY__
+					TZ_file_read = 1;
+#endif
+					break;
+				}
+			} /* else ('\n' not found): p remains NULL */
+			close(fd);
+		}
+	}
+#endif /* __UCLIBC_FALLBACK_TO_ETC_LOCALTIME__ */
 	return p;
 }
 
