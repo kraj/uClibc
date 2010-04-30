@@ -477,7 +477,7 @@ strong_alias (__pthread_mutex_lock, __pthread_mutex_lock_internal)
 
 
 #ifdef NO_INCR
-void
+void attribute_protected
 __pthread_mutex_cond_lock_adjust (
      pthread_mutex_t *mutex)
 {

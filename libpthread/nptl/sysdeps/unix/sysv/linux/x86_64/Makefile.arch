@@ -18,8 +18,7 @@ libpthread_SSRC += lowlevellock.S pthread_barrier_wait.S pthread_cond_signal.S p
 		   sem_post.S sem_timedwait.S lowlevelrobustlock.S \
 		   sem_trywait.S sem_wait.S pthread_rwlock_rdlock.S pthread_rwlock_wrlock.S \
 		   pthread_rwlock_timedrdlock.S pthread_rwlock_timedwrlock.S pthread_rwlock_unlock.S \
-		   pthread_spin_unlock.S cancellation.S
-# pthread_cond_timedwait.S pthread_cond_wait.S
+		   pthread_spin_unlock.S cancellation.S pthread_cond_timedwait.S pthread_cond_wait.S
 libc_a_SSRC += libc-lowlevellock.S
 librt_a_SSRC += librt-lowlevellock.S
 
@@ -39,6 +38,8 @@ ASFLAGS-cancellation.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
 
 ASFLAGS-clone.S = -D_LIBC_REENTRANT
 ASFLAGS-vfork.S = -D_LIBC_REENTRANT
+ASFLAGS-pthread_cond_timedwait.S = -D_LIBC_REENTRANT
+ASFLAGS-pthread_cond_wait.S = -D_LIBC_REENTRANT
 ASFLAGS-libc-lowlevellock.S = -D_LIBC_REENTRANT
 ASFLAGS-libc-cancellation.S = -D_LIBC_REENTRANT
 
