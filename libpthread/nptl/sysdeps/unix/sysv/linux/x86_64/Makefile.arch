@@ -12,16 +12,16 @@ libpthread_SSRC = pt-vfork.S clone.S pthread_once.S
 libpthread_CSRC = pthread_spin_init.c pt-__syscall_error.c
 
 libc_a_CSRC = fork.c
-libc_a_SSRC = clone.S vfork.S
+libc_a_SSRC = clone.S vfork.S libc-cancellation.S
 
 libpthread_SSRC += lowlevellock.S pthread_barrier_wait.S pthread_cond_signal.S pthread_cond_broadcast.S \
 		   sem_post.S sem_timedwait.S lowlevelrobustlock.S \
 		   sem_trywait.S sem_wait.S pthread_rwlock_rdlock.S pthread_rwlock_wrlock.S \
 		   pthread_rwlock_timedrdlock.S pthread_rwlock_timedwrlock.S pthread_rwlock_unlock.S \
-		   pthread_spin_unlock.S
+		   pthread_spin_unlock.S cancellation.S
 # pthread_cond_timedwait.S pthread_cond_wait.S
 libc_a_SSRC += libc-lowlevellock.S
-
+librt_a_SSRC += librt-lowlevellock.S
 
 CFLAGS-OMIT-fork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-pt-__syscall_error.c =  -DNOT_IN_libc=1 -DIS_IN_libpthread=1
@@ -30,24 +30,17 @@ ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
 CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
 endif
 
-ASFLAGS-pt-vfork.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT -DUSE___THREAD
-ASFLAGS-lowlevellock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT -DUSE___THREAD
-ASFLAGS-pthread_once.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT -DUSE___THREAD
+ASFLAGS += -DUSE___THREAD
+ASFLAGS-pt-vfork.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
+ASFLAGS-lowlevellock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
+ASFLAGS-pthread_once.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
+ASFLAGS-cancellation.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
 
 
 ASFLAGS-clone.S = -D_LIBC_REENTRANT
 ASFLAGS-vfork.S = -D_LIBC_REENTRANT
 ASFLAGS-libc-lowlevellock.S = -D_LIBC_REENTRANT
-
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-#Needed to use the correct SYSCALL_ERROR_HANDLER
-ASFLAGS-clone.S += -DUSE___THREAD
-ASFLAGS-vfork.S += -DUSE___THREAD
-ASFLAGS-sem_wait.S += -DUSE___THREAD
-ASFLAGS-sem_trywait.S += -DUSE___THREAD
-ASFLAGS-sem_timedwait.S += -DUSE___THREAD
-ASFLAGS-sem_post.S += -DUSE___THREAD
-endif
+ASFLAGS-libc-cancellation.S = -D_LIBC_REENTRANT
 
 CFLAGS += $(SSP_ALL_CFLAGS)
 #CFLAGS:=$(CFLAGS:-O1=-O2)
@@ -66,9 +59,12 @@ libpthread-nomulti-y+=$(LINUX_ARCH_OBJS)
 
 LIBC_LINUX_ARCH_OBJ:=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libc_a_CSRC))
 LIBC_LINUX_ARCH_OBJ+=$(patsubst %.S,$(LINUX_ARCH_OUT)/%.o,$(libc_a_SSRC))
+LIBRT_LINUX_ARCH_OBJ+=$(patsubst %.S,$(LINUX_ARCH_OUT)/%.o,$(librt_a_SSRC))
 
 libc-static-y+=$(LIBC_LINUX_ARCH_OBJ)
 libc-shared-y+=$(LIBC_LINUX_ARCH_OBJ:.o=.oS)
+librt-static-y+=$(LIBRT_LINUX_ARCH_OBJ)
+librt-shared-y+=$(LIBRT_LINUX_ARCH_OBJ:.o=.oS)
 
 libc-nomulti-y+=$(LIBC_LINUX_ARCH_OBJ)
 

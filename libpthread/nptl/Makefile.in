@@ -103,6 +103,10 @@ libpthread-routines = init vars events version \
 
 libpthread-shared-only-routines = version pt-allocrtsig unwind-forcedunwind
 
+ifeq ($(TARGET_ARCH),x86_64)
+libpthread-routines := $(filter-out cancellation,$(libpthread-routines))
+endif
+
 CFLAGS-pthread_atfork.c = -DNOT_IN_libc
 
 # Since cancellation handling is in large parts handled using exceptions
@@ -245,10 +249,16 @@ libpthread_so_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,			\
 		$(filter-out $(libpthread-os-routines)			\
 			$(libpthread-misc-routines), $(libpthread-routines)))
 
+ifeq ($(TARGET_ARCH),x86_64)
+libc-static-y += $(patsubst %.c, $(PTHREAD_OUT)/%.o, alloca_cutoff.c)
+libc-shared-y += $(patsubst %.c, $(PTHREAD_OUT)/%.oS, forward.c)
+else
 libc-static-y += $(patsubst %.c, $(PTHREAD_OUT)/%.o, alloca_cutoff.c	\
 	libc-cancellation.c)
 libc-shared-y += $(patsubst %.c, $(PTHREAD_OUT)/%.oS, forward.c		\
 	libc-cancellation.c)
+endif
+
 libpthread-nonshared-y += $(patsubst %,$(PTHREAD_OUT)/%.oS,$(libpthread_static_SRC))
 
 
