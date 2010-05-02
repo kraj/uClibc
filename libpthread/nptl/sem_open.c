@@ -333,7 +333,8 @@ sem_open (const char *name, int oflag, ...)
 	      sizeof (sem_t) - sizeof (struct new_sem));
 
       tmpfname = (char *) alloca (mountpoint.dirlen + 6 + 1);
-      mempcpy (tmpfname, mountpoint.dir, mountpoint.dirlen);
+      mempcpy (mempcpy (tmpfname, mountpoint.dir, mountpoint.dirlen),
+	"XXXXXX", 7);
 
       fd = __gen_tempname (tmpfname, __GT_FILE, mode);
       if (fd == -1)
