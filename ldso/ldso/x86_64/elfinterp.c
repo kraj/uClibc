@@ -226,7 +226,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		case R_X86_64_DTPOFF64:
 			/* During relocation all TLS symbols are defined and used.
 			 * Therefore the offset is already correct.  */
-			*reloc_addr = sym->st_value + rpnt->r_addend;
+			*reloc_addr = symbol_addr + rpnt->r_addend;
 			break;
 		case R_X86_64_TPOFF64:
 			/* The offset is negative, forward from the thread pointer.
@@ -234,7 +234,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			 * It is a negative value which will be added to the
 			 * thread pointer.  */
 			CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
-			*reloc_addr = sym->st_value - tls_tpnt->l_tls_offset + rpnt->r_addend;
+			*reloc_addr = symbol_addr - tls_tpnt->l_tls_offset + rpnt->r_addend;
 			break;
 		case R_X86_64_32:
 			*(unsigned int *) reloc_addr = symbol_addr + rpnt->r_addend;
