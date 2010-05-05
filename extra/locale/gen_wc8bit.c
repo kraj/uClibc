@@ -112,9 +112,10 @@ int main(int argc, char **argv)
 				goto locale_failure;
 
 			len = strlen(buf);
-			if (buf[len - 1] == '\n')
+			if (len > 0 && buf[len - 1] == '\n')
 				buf[--len] = '\0';
-			strcat(buf, ".UTF8");
+			if (len < 5 || strcasecmp(&buf[len-5], ".UTF8") != 0)
+				strcat(buf, ".UTF8");
 			if (setlocale(LC_CTYPE, buf))
 				goto locale_success;
 		}
