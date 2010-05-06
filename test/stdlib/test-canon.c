@@ -31,7 +31,7 @@
 
 /* Prototype for our test function.  */
 extern int do_test (int argc, char *argv[]);
-#include <test-skeleton.c>
+#include "../test-skeleton.c"
 
 #ifndef PATH_MAX
 # define PATH_MAX 4096

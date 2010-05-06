@@ -77,6 +77,8 @@ void _dl_init_got(unsigned long *lpnt,struct elf_resolve *tpnt);
 #define elf_machine_type_class(type) \
   ((((type) == R_PPC_JMP_SLOT				\
     || (type) == R_PPC_REL24				\
+    || ((type) >= R_PPC_DTPMOD32 /* contiguous TLS */	\
+	&& (type) <= R_PPC_DTPREL32)			\
     || (type) == R_PPC_ADDR24) * ELF_RTYPE_CLASS_PLT)	\
    | (((type) == R_PPC_COPY) * ELF_RTYPE_CLASS_COPY))
 

@@ -44,7 +44,7 @@ extern int do_test (int argc, char *argv[]);
 #define TIMEOUT 20 /* sec */
 
 /* This defines the `main' function and some more.  */
-#include <test-skeleton.c>
+#include "../test-skeleton.c"
 
 /* These are for the temporary file we generate.  */
 char *name;

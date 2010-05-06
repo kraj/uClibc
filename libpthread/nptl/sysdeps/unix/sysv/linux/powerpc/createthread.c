@@ -22,4 +22,4 @@
 		   + TLS_TCB_OFFSET + TLS_PRE_TCB_SIZE)
 
 /* Get the real implementation.	 */
-#include <nptl/sysdeps/pthread/createthread.c>
+#include <sysdeps/pthread/createthread.c>

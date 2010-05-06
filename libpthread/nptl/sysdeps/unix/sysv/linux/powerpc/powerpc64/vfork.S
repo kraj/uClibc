@@ -53,3 +53,5 @@ ENTRY (__vfork)
 PSEUDO_END (__vfork)
 libc_hidden_def (__vfork)
 weak_alias (__vfork, vfork)
+libc_hidden_weak(vfork)
+

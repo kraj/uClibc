@@ -713,7 +713,7 @@ register void *__gp __asm__("$29");
 
 #elif defined __powerpc__ && !defined __powerpc64__
 
-#include "config.h"
+/*#include "config.h"*/
 
 # define __TLS_CALL_CLOBBERS						\
 	"0", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",	\

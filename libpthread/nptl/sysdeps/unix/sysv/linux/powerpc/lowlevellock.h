@@ -24,7 +24,8 @@
 #include <sys/param.h>
 #include <bits/pthreadtypes.h>
 #include <atomic.h>
-#include <kernel-features.h>
+#include <bits/kernel-features.h>
+#include <sysdep.h>
 
 #ifndef __NR_futex
 # define __NR_futex		221

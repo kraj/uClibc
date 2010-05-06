@@ -214,8 +214,6 @@ HEADERS_RM- := \
 	bits/utmpx.h \
 	bits/uClibc_errno.h \
 	bits/uClibc_uintmaxtostr.h \
-	atomic.h \
-	bits/atomic.h \
 	bits/sigcontextinfo.h \
 	bits/stackinfo.h \
 	tls.h \
@@ -257,6 +255,9 @@ HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC) += \
 	sys/sysctl.h \
 	sys/sysinfo.h \
 	sys/vfs.h
+HEADERS_RM-$(UCLIBC_HAS_THREADS_NATIVE) += \
+	atomic.h \
+	bits/atomic.h
 HEADERS_RM-$(HAVE_SHARED)                    += dlfcn.h bits/dlfcn.h
 HEADERS_RM-$(PTHREADS_DEBUG_SUPPORT)         += thread_db.h
 HEADERS_RM-$(UCLIBC_HAS_BSD_ERR)             += err.h

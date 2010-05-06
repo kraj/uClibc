@@ -50,7 +50,7 @@ static void do_prepare (int argc, char *argv[]);
 #define PREPARE do_prepare
 
 /* This defines the `main' function and some more.  */
-#include <test-skeleton.c>
+#include "../test-skeleton.c"
 
 
 /* These are for the temporary file we generate.  */

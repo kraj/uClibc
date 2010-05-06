@@ -13,7 +13,10 @@ endif
 
 SSRC := \
 	__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S brk.S \
-	clone.S __uClibc_syscall.S syscall.S vfork.S
+	__uClibc_syscall.S syscall.S
+ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+SSRC += clone.S vfork.S
+endif
 
 ifeq ($(CONFIG_E500),y)
 ARCH_HEADERS := fenv.h

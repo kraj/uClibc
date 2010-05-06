@@ -92,4 +92,4 @@ do_cleanup (void)
 
 
 /* Include the test skeleton.  */
-#include <test-skeleton.c>
+#include "../test-skeleton.c"

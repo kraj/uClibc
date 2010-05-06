@@ -20,12 +20,11 @@
 #include "pthreadP.h"
 
 int
-pthread_spin_lock (lock)
-     pthread_spinlock_t *lock;
+pthread_spin_lock (pthread_spinlock_t *lock)
 {
   unsigned int __tmp;
 
-  asm volatile (
+  __asm__ __volatile__ (
        "1:	lwarx	%0,0,%1\n"
        "	cmpwi	0,%0,0\n"
        "	bne-	2f\n"

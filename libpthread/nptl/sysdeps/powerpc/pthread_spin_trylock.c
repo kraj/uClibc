@@ -21,13 +21,12 @@
 #include "pthreadP.h"
 
 int
-pthread_spin_trylock (lock)
-     pthread_spinlock_t *lock;
+pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   unsigned int old;
   int err = EBUSY;
 
-  asm ("1:	lwarx	%0,0,%2\n"
+  __asm__ ("1:	lwarx	%0,0,%2\n"
        "	cmpwi	0,%0,0\n"
        "	bne	2f\n"
        "	stwcx.	%3,0,%2\n"

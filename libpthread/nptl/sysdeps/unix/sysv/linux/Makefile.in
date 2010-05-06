@@ -45,9 +45,9 @@ libc_CSRC += libc-lowlevellock.c
 endif
 
 ifeq ($(TARGET_ARCH),powerpc)
-libpthread_CSRC += lowlevellock.c
+libpthread_CSRC += lowlevellock.c lowlevelrobustlock.c
 libc_CSRC += libc-lowlevellock.c
-librt_CSRC := mq_notify.c
+librt_CSRC += __syscall_error.c
 endif
 
 ifeq ($(TARGET_ARCH),sparc)

@@ -40,6 +40,13 @@ typedef union dtv
 # include <tcb-offsets.h>
 #endif /* __ASSEMBLER__ */
 
+/* We require TLS support in the tools.  */
+#define HAVE_TLS_SUPPORT                1
+#define HAVE_TLS_MODEL_ATTRIBUTE        1
+#define HAVE___THREAD                   1
+
+/* Signal that TLS support is available.  */
+#define USE_TLS	1
 
 /* We require TLS support in the tools.  */
 #ifndef HAVE_TLS_SUPPORT
@@ -61,7 +68,7 @@ typedef union dtv
 #define TLS_MULTIPLE_THREADS_IN_TCB	1
 
 /* Get the thread descriptor definition.  */
-# include <nptl/descr.h>
+# include <../../descr.h>
 
 /* The stack_guard is accessed directly by GCC -fstack-protector code,
    so it is a part of public ABI.  The dtv and pointer_guard fields

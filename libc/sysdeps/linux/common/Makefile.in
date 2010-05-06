@@ -98,6 +98,9 @@ ifeq ($(TARGET_ARCH),i386)
 CSRC := $(filter-out vfork.c,$(CSRC))
 endif
 
+# provided via pthreads builddir
+CSRC := $(filter-out $(libc_a_CSRC) $(libc_a_SSRC:.S=.c),$(CSRC))
+
 # fails for some reason
 ifneq ($(strip $(ARCH_OBJS)),)
 CSRC := $(filter-out $(notdir $(ARCH_OBJS:.o=.c)) $(ARCH_OBJ_FILTEROUT),$(CSRC))
