@@ -48,7 +48,7 @@ headers_clean-y += nptl_arch_headers_clean
 CFLAGS-tcb-offsets.c = -S
 
 $(PTHREAD_ARCH_OUT)/tcb-offsets.c: $(PTHREAD_ARCH_DIR)/tcb-offsets.sym
-	$(do_awk) -f $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
 
 $(PTHREAD_ARCH_OUT)/tcb-offsets.s: $(PTHREAD_ARCH_OUT)/tcb-offsets.c
 	$(compile.c)
