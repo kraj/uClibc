@@ -68,6 +68,8 @@ BUILD_CFLAGS-iconv.host    := $(BUILD_CFLAGS-utils) \
 			-include $(top_builddir)extra/locale/c8tables.h \
 			-I$(top_srcdir)libc/misc/wchar -DL_iconv_main
 
+BUILD_CFLAGS-getconf.host  := $(BUILD_CFLAGS-utils) \
+				-DGETCONF_DIR='"$(CURDIR)"'
 
 # Rules
 
