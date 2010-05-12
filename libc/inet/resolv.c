@@ -2892,8 +2892,8 @@ static void res_sync_func(void)
 			__nameserver[n].sa4 = rp->nsaddr_list[n]; /* struct copy */
 #endif
 	}
-	__resolv_timeout = rp->retrans;
-	__resolv_attempts = rp->retry;
+	__resolv_timeout = rp->retrans ? : RES_TIMEOUT;
+	__resolv_attempts = rp->retry ? : RES_DFLRETRY;
 	/* Extend and comment what program is known
 	 * to use which _res.XXX member(s).
 
