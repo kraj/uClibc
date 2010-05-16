@@ -430,13 +430,14 @@ __END_DECLS
 #    endif
 #    define _res (*__resp)
 extern __thread struct __res_state *__resp attribute_tls_model_ie;
-#    endif
-#   else
-#    undef _res
-#    define _res (*__resp)
+#   endif
+#  else
+#   undef _res
+#   define _res (*__resp)
 extern struct __res_state *__resp;
-#   endif /* __UCLIBC_HAS_TLS__ */
 #  endif /* __UCLIBC_HAS_THREADS__ */
 # endif /* _LIBC */
+
+#endif /* _RESOLV_H_ */
 
 #endif /* !_RESOLV_H_ */
