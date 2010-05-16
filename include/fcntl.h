@@ -73,7 +73,7 @@ __BEGIN_DECLS
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-#ifndef __USE_FILE_OFFSET64
+#if !defined(__USE_FILE_OFFSET64) || defined(__LP64__)
 extern int fcntl (int __fd, int __cmd, ...);
 libc_hidden_proto(fcntl)
 #else
@@ -83,7 +83,7 @@ extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...), fcntl64);
 #  define fcntl fcntl64
 # endif
 #endif
-#ifdef __USE_LARGEFILE64
+#if defined(__USE_LARGEFILE64) && !defined(__LP64__)
 extern int fcntl64 (int __fd, int __cmd, ...);
 libc_hidden_proto(fcntl64)
 #endif
