@@ -109,7 +109,7 @@ _pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer *__buffer,
 static __always_inline int not_null_ptr(const void *p)
 {
 	const void *q;
-	asm (""
+	__asm__ (""
 		: "=r" (q) /* output */
 		: "0" (p) /* input */
 	);
