@@ -105,6 +105,17 @@ _pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer *__buffer,
 
 #endif /* !SHARED */
 
+/* Defeat compiler optimization which assumes function addresses are never NULL */
+static __always_inline int not_null_ptr(const void *p)
+{
+	const void *q;
+	asm (""
+		: "=r" (q) /* output */
+		: "0" (p) /* input */
+	);
+	return q != 0;
+}
+
 /*
  * Prototypes.
  */
@@ -254,7 +265,7 @@ void __uClibc_init(void)
 
 #ifdef __UCLIBC_HAS_LOCALE__
     /* Initialize the global locale structure. */
-    if (likely(_locale_init!=NULL))
+    if (likely(not_null_ptr(_locale_init)))
 	_locale_init();
 #endif
 
@@ -264,7 +275,7 @@ void __uClibc_init(void)
      * Thus we get a nice size savings because the stdio functions
      * won't be pulled into the final static binary unless used.
      */
-    if (likely(_stdio_init != NULL))
+    if (likely(not_null_ptr(_stdio_init)))
 	_stdio_init();
 
 }
