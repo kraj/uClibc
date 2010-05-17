@@ -69,6 +69,7 @@ uintptr_t __guard attribute_relro;
 
 void internal_function _dl_aux_init (ElfW(auxv_t) *av);
 
+#ifdef __UCLIBC_HAS_THREADS__
 /*
  * uClibc internal locking requires that we have weak aliases
  * for dummy functions in case libpthread.a is not linked in.
@@ -102,6 +103,7 @@ _pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer *__buffer,
         if (__execute)
                 __buffer->__routine(__buffer->__arg);
 }
+#endif /* __UCLIBC_HAS_THREADS__ */
 
 #endif /* !SHARED */
 
