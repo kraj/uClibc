@@ -21,6 +21,7 @@
 #define _BITS_PTHREADTYPES_H	1
 
 #include <endian.h>
+#include <sgidefs.h>
 
 #if _MIPS_SIM == _ABI64
 # define __SIZEOF_PTHREAD_ATTR_T 56
