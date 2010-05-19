@@ -29,6 +29,7 @@
 #define RESTORE_PID
 #endif
 
+#ifdef __NR_fork
 
 /* int vfork() */
 
@@ -93,5 +94,7 @@ L(error):
 #endif
 	END(__vfork)
 
-.weak vfork;
-	vfork = __vfork
+weak_alias(__vfork,vfork)
+libc_hidden_weak(vfork)
+
+#endif

@@ -22,6 +22,12 @@ ASFLAGS-pt-vfork.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 
 ASFLAGS-clone.S = -D_LIBC_REENTRANT
 ASFLAGS-vfork.S = -D_LIBC_REENTRANT
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+    #Needed to use the correct SYSCALL_ERROR_HANDLER
+    ASFLAGS-clone.S += -DUSE___THREAD
+    ASFLAGS-vfork.S += -DUSE___THREAD
+    ASFLAGS-pt-vfork.S += -DUSE___THREAD
+endif
 
 CFLAGS += $(SSP_ALL_CFLAGS)
 #CFLAGS:=$(CFLAGS:-O1=-O2)
@@ -42,13 +48,14 @@ libpthread-so-y += $(LINUX_ARCH_OBJ:.o=.oS)
 libpthread-nomulti-y+=$(LINUX_ARCH_OBJS)
 
 LIBC_LINUX_ARCH_OBJ:=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libc_a_CSRC))
+LIBC_LINUX_ARCH_OBJ+=$(patsubst %.S,$(LINUX_ARCH_OUT)/%.o,$(libc_a_SSRC))
 
 libc-static-y+=$(LIBC_LINUX_ARCH_OBJ)
 libc-shared-y+=$(LIBC_LINUX_ARCH_OBJ:.o=.oS)
 
 libc-nomulti-y+=$(LIBC_LINUX_ARCH_OBJ)
 
-objclean-y+=pthread_linux_arch_objclean
+objclean-y+=CLEAN_libpthread/nptl/sysdeps/unix/sysv/linux/mips
 
-pthread_linux_arch_objclean:
-	$(RM) $(LINUX_ARCH_OUT)/*.{o,os,oS}
+CLEAN_libpthread/nptl/sysdeps/unix/sysv/linux/mips:
+	$(do_rm) $(addprefix $(LINUX_ARCH_OUT)/*., o os oS)
