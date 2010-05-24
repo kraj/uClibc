@@ -576,7 +576,7 @@ static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 				}
 				newlib->name = NULL;
 				newlib->path = NULL;
-				return NULL;
+				break;
 			}
 		}
 		if (newlib == NULL)
