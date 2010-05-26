@@ -71,7 +71,7 @@ __typeof(scalbn) scalbn __attribute__((alias("scalbln")));
 #else
 double scalbn(double x, int n)
 {
-	return scalbn(x, n);
+	return scalbln(x, n);
 }
 #endif
 libm_hidden_def(scalbn)
