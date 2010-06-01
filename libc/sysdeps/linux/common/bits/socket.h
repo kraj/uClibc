@@ -53,10 +53,20 @@ enum __socket_type
   SOCK_SEQPACKET = 5,		/* Sequenced, reliable, connection-based,
 				   datagrams of fixed maximum length.  */
 #define SOCK_SEQPACKET SOCK_SEQPACKET
-  SOCK_PACKET = 10		/* Linux specific way of getting packets
+  SOCK_PACKET = 10,		/* Linux specific way of getting packets
 				   at the dev level.  For writing rarp and
 				   other similar things on the user level. */
 #define SOCK_PACKET SOCK_PACKET
+
+  /* Flags to be ORed into the type parameter of socket and socketpair and
+     used for the flags parameter of paccept.  */
+
+  SOCK_CLOEXEC = 02000000,	/* Atomically set close-on-exec flag for the
+				   new descriptor(s).  */
+#define SOCK_CLOEXEC SOCK_CLOEXEC
+  SOCK_NONBLOCK = 04000		/* Atomically mark descriptor(s) as
+				   non-blocking.  */
+#define SOCK_NONBLOCK SOCK_NONBLOCK
 };
 
 /* Protocol families.  */
