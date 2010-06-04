@@ -115,3 +115,4 @@ int strverscmp (const char *s1, const char *s2)
       return state;
   }
 }
+libc_hidden_def(strverscmp)
