@@ -54,10 +54,21 @@ enum __socket_type
   SOCK_SEQPACKET = 5,		/* Sequenced, reliable, connection-based,
 				   datagrams of fixed maximum length.  */
 #define SOCK_SEQPACKET SOCK_SEQPACKET
-  SOCK_PACKET = 10		/* Linux specific way of getting packets
+  SOCK_DCCP = 6,
+#define SOCK_DCCP SOCK_DCCP	/* Datagram Congestion Control Protocol.  */
+  SOCK_PACKET = 10,		/* Linux specific way of getting packets
 				   at the dev level.  For writing rarp and
 				   other similar things on the user level. */
 #define SOCK_PACKET SOCK_PACKET
+  /* Flags to be ORed into the type parameter of socket and socketpair and
+     used for the flags parameter of paccept.  */
+
+  SOCK_CLOEXEC = 02000000,	/* Atomically set close-on-exec flag for the
+                                   new descriptor(s).  */
+#define SOCK_CLOEXEC SOCK_CLOEXEC
+  SOCK_NONBLOCK = 0200		/* Atomically mark descriptor(s) as
+				   non-blocking.  */
+#define SOCK_NONBLOCK SOCK_NONBLOCK
 };
 
 /* Protocol families.  */
@@ -152,11 +163,7 @@ struct sockaddr
 
 /* Structure large enough to hold any socket address (with the historical
    exception of AF_UNIX).  We reserve 128 bytes.  */
-#if ULONG_MAX > 0xffffffff
-# define __ss_aligntype	__uint64_t
-#else
-# define __ss_aligntype	__uint32_t
-#endif
+#define __ss_aligntype	unsigned long int
 #define _SS_SIZE	128
 #define _SS_PADSIZE	(_SS_SIZE - (2 * sizeof (__ss_aligntype)))
 
@@ -206,8 +213,15 @@ enum
 #define	MSG_ERRQUEUE	MSG_ERRQUEUE
     MSG_NOSIGNAL	= 0x4000, /* Do not generate SIGPIPE.  */
 #define	MSG_NOSIGNAL	MSG_NOSIGNAL
-    MSG_MORE		= 0x8000  /* Sender will send more.  */
+    MSG_MORE		= 0x8000, /* Sender will send more.  */
 #define	MSG_MORE	MSG_MORE
+    MSG_WAITFORONE      = 0x10000, /* Wait for at least one packet to return.*/
+#define MSG_WAITFORONE  MSG_WAITFORONE
+
+    MSG_CMSG_CLOEXEC    = 0x40000000    /* Set close_on_exit for file
+					   descriptor received through
+					   SCM_RIGHTS.  */
+#define MSG_CMSG_CLOEXEC MSG_CMSG_CLOEXEC
   };
 
 
