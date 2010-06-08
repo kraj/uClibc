@@ -233,10 +233,10 @@ start_thread (void *arg)
   HP_TIMING_NOW (now);
   THREAD_SETMEM (pd, cpuclock_offset, now);
 #endif
-
+#if defined __UCLIBC_HAS_IPV4__ || defined __UCLIBC_HAS_IPV6__
   /* Initialize resolver state pointer.  */
   __resp = &pd->res;
-
+#endif
 #ifdef __NR_set_robust_list
 # ifndef __ASSUME_SET_ROBUST_LIST
   if (__set_robust_list_avail >= 0)

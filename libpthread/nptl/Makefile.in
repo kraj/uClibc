@@ -9,7 +9,7 @@ subdirs += libpthread/nptl/sysdeps/$(TARGET_ARCH) \
 	libpthread/nptl/sysdeps/unix/sysv/linux \
 	libpthread/nptl/sysdeps/pthread
 
-libpthread-routines = init vars events version \
+libpthread-routines-y = init vars events version \
 		      pthread_create pthread_exit pthread_detach \
 		      pthread_join pthread_tryjoin pthread_timedjoin \
 		      pthread_self pthread_equal pthread_yield \
@@ -95,16 +95,17 @@ libpthread-routines = init vars events version \
 		      pt-raise pt-system \
 		      flockfile ftrylockfile funlockfile \
 		      sigaction \
-		      herrno res \
+		      herrno \
 		      pthread_kill_other_threads \
 		      pthread_getaffinity pthread_setaffinity \
 		      pthread_attr_getaffinity pthread_attr_setaffinity \
 		      cleanup_routine unwind-forcedunwind
+libpthread-routines-$(findstring y,$(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6)) += res
 
 libpthread-shared-only-routines = version pt-allocrtsig unwind-forcedunwind
 
 ifeq ($(TARGET_ARCH),x86_64)
-libpthread-routines := $(filter-out cancellation,$(libpthread-routines))
+libpthread-routines-y := $(filter-out cancellation,$(libpthread-routines-y))
 endif
 
 CFLAGS-pthread_atfork.c = -DNOT_IN_libc
@@ -244,10 +245,10 @@ libpthread_a_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,			\
 		$(filter-out $(libpthread-os-routines)			\
 			$(libpthread-misc-routines)			\
 			$(libpthread-shared-only-routines),		\
-		$(libpthread-routines)))
+		$(libpthread-routines-y)))
 libpthread_so_SRC = $(patsubst %, $(PTHREAD_DIR)/%.c,			\
 		$(filter-out $(libpthread-os-routines)			\
-			$(libpthread-misc-routines), $(libpthread-routines)))
+			$(libpthread-misc-routines), $(libpthread-routines-y)))
 
 ifeq ($(TARGET_ARCH),x86_64)
 libc-static-y += $(patsubst %.c, $(PTHREAD_OUT)/%.o, alloca_cutoff.c)
