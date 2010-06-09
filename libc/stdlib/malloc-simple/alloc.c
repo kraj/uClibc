@@ -60,11 +60,10 @@ void * calloc(size_t nmemb, size_t lsize)
 		__set_errno(ENOMEM);
 		return NULL;
 	}
-	result=malloc(size);
-#if 0
-	/* Standard unix mmap using /dev/zero clears memory so calloc
-	 * doesn't need to actually zero anything....
-	 */
+	result = malloc(size);
+
+#ifndef __ARCH_USE_MMU__
+	/* mmap'd with MAP_UNINITIALIZE, we have to blank memory ourselves */
 	if (result != NULL) {
 		memset(result, 0, size);
 	}
