@@ -193,7 +193,6 @@ extern long double __REDIRECT_NTH (nexttowardl,
 #if defined __USE_MISC || defined __USE_XOPEN
 /* This variable is used by `gamma' and `lgamma'.  */
 extern int signgam;
-libm_hidden_proto(signgam)
 #endif
 
 
