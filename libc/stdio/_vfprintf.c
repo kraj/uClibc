@@ -1670,6 +1670,9 @@ static int _do_one_spec(FILE * __restrict stream,
 #endif
 					s = "(null)";
 					slen = 6;
+					/* Use an empty string rather than truncation if precision is too small. */
+					if (ppfs->info.prec >= 0 && ppfs->info.prec < slen)
+						slen = 0;
 				}
 			} else {			/* char */
 				s = buf;
@@ -1726,6 +1729,9 @@ static int _do_one_spec(FILE * __restrict stream,
 				NULL_STRING:
 					s = "(null)";
 					SLEN = slen = 6;
+					/* Use an empty string rather than truncation if precision is too small. */
+					if (ppfs->info.prec >= 0 && ppfs->info.prec < slen)
+						SLEN = slen = 0;
 				}
 			} else {			/* char */
 				*wbuf = btowc( (unsigned char)(*((const int *) *argptr)) );
