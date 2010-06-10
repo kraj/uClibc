@@ -119,6 +119,7 @@ math/compile_test
 math/libm-test-ulps.h
 math/libm-test.c
 math/rint
+math/signgam
 math/test-double
 math/test-ildoubl
 math/test-ldouble
