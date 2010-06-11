@@ -20,7 +20,7 @@ generated := $(addprefix $(obj)/,$(generated:.c=.o))
 include $(top_srcdir)extra/config/Makefile.kconfig
 PHONY += $(always)
 chk-lxdialog := $(top_srcdir)$(src)/lxdialog/check-lxdialog.sh
-check-lxdialog := cd $(obj) && $(chk-lxdialog)
+check-lxdialog := cd $(obj) && $(CONFIG_SHELL) $(chk-lxdialog)
 HOST_EXTRACFLAGS = $(shell $(CONFIG_SHELL) -c '$(check-lxdialog) -ccflags')
 HOST_LOADLIBES   = $(shell $(CONFIG_SHELL) -c '$(check-lxdialog) -ldflags $(HOSTCC)')
 HOST_EXTRACFLAGS += -DLOCALE
