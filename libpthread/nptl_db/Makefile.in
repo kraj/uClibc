@@ -5,7 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-subdirs += libpthread/nptl/nptl_db
+subdirs += libpthread/nptl_db
 
 # Get the thread include dependencies and shared object name
 CFLAGS-nptl_db := -DLIBPTHREAD_SO="\"libpthread.so.$(ABI_VERSION)\""
