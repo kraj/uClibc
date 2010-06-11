@@ -344,9 +344,9 @@ nptl_headers_bootstrap := $(top_builddir)include/pthread.h \
 		$(top_builddir)include/bits/stdio-lock.h
 
 
-CLEAN_libpthread/nptl:
+HEADERCLEAN_libpthread/nptl:
 	$(do_rm) $(nptl_headers_bootstrap) \
 	      $(addprefix $(PTHREAD_OUT)/pthread-errnos., c h s)
 
-HEADERCLEAN_libpthread/nptl:
+CLEAN_libpthread/nptl:
 	$(do_rm) $(addprefix $(PTHREAD_OUT)/*., o os oS a)
