@@ -19,7 +19,7 @@
 
 #include "pthreadP.h"
 #include <bits/kernel-features.h>
-
+#include <string.h>
 
 static const struct pthread_rwlockattr default_attr =
   {
