@@ -1,6 +1,9 @@
 # uClibc unistd tests
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
+ifeq ($(UCLIBC_HAS_LFS),)
+TESTS_DISABLED := tst-preadwrite64
+endif
 OPTS_getopt      := -abcXXX -9
 OPTS_getopt_long := --add XXX --delete YYY --verbose
 ifeq ($(UCLIBC_HAS_GNU_GETOPT),y)
