@@ -162,8 +162,7 @@ subdirs: $(addprefix $(top_builddir),$(subdirs))
 pregen-headers: headers $(pregen-headers-y)
 pregen: pregen-headers subdirs
 	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
-$(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh
-	$(Q)$(INSTALL) -d $(@D)
+$(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh | $(top_builddir)include/bits
 	@$(disp_gen)
 	$(Q)set -e; \
 	tmp=`mktemp $(top_builddir)include/bits/sysnum.h.XXXXXX 2>/dev/null || true`; \
@@ -391,7 +390,7 @@ hostutils:
 install_hostutils: hostutils
 	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils utils_install
 
-$(addprefix $(top_builddir),include/bits include/sys include/config extra/config/lxdialog extra/locale extra/scripts $(subdirs)):
+$(addprefix $(top_builddir),include/bits include/sys include/config lib extra/config/lxdialog extra/locale extra/scripts $(subdirs)):
 	$(do_mkdir)
 
 # configuration

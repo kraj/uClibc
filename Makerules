@@ -22,6 +22,7 @@ ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
 libs: $(lib-gdb-y)
 endif
 libs: $(lib-a-y)
+$(lib-a-y): | $(top_builddir)lib
 endif
 objs: all_objs
 
@@ -256,7 +257,6 @@ cmd_hcompile.u = $(HOSTCC) $(filter-out $(PHONY),$^) $(DEPS-$(notdir $@)) -o $@ 
 cmd_hcompile.o = $(HOSTCC) $(filter-out $(PHONY),$<) $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
 
 define link.so
-	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
 	@$(disp_ld)
 	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) -Wl,-soname=$(notdir $@).$(2) \
@@ -283,7 +283,6 @@ LINK_FLAT_CRTS := $(top_builddir)lib/Scrt1.o $(top_builddir)lib/crti.o \
 # This is so far only used for libc, for which we want to link the entire
 # libgcc into the shared object.
 define link-flat.so
-	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $(1) $@
 	@$(disp_ld)
 	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) $(NOSTDLIB_CFLAGS) -o $(1) \
@@ -294,7 +293,6 @@ define link-flat.so
 endef
 
 define linkm.so
-	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
 	$(do_strip)
 	@$(disp_ld)
@@ -324,8 +322,7 @@ $(top_builddir)%.s:  $(top_srcdir)%.c FORCE | pregen; $(compile.s)
 $(top_builddir)%.s:  $(top_srcdir)%.S FORCE | pregen; $(compile.s)
 $(top_builddir)%.dep:
 
-$(top_builddir)lib/interp.c: | $(sub_headers)
-	$(Q)$(INSTALL) -d $(dir $@)
+$(top_builddir)lib/interp.c: | $(sub_headers) $(top_builddir)lib
 	$(Q)echo "/* Force shared libraries to know about the correct library loader */" > $@.tmp
 	$(Q)echo "#include <features.h>" >> $@.tmp
 	$(Q)echo "const char __dl_ldso__[] attribute_hidden __attribute__ ((weak)) __attribute__ ((section " \
@@ -353,7 +350,6 @@ endif
 ASFLAGS-$(CRT).o := -DL_$(CRT)
 ASFLAGS-S$(CRT).o := $(PIEFLAG) -DL_S$(CRT)
 $(CRTS): $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
-	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
@@ -366,16 +362,15 @@ endif
 ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
 CRTRELOC=$(top_builddir)lib/crtreloc.o
 $(CRTRELOC): $(top_builddir)lib/%.o : $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/%.c
-	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.c)
 endif
 
 ifneq ($(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/initfini.c),)
 CFLAGS-initfini.s := -S -g0 $(PICFLAG) -fno-inline-functions -finhibit-size-directive
-$(top_builddir)lib/initfini.s: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/initfini.c
+$(top_builddir)lib/initfini.s: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/initfini.c | $(top_builddir)lib
 	$(compile.c)
 
-$(top_builddir)lib/defs.h: $(top_builddir)lib/initfini.s
+$(top_builddir)lib/defs.h: $(top_builddir)lib/initfini.s | $(top_builddir)lib
 	$(Q)sed -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
 		gawk -f $(top_srcdir)extra/scripts/defs.awk > $@.tmp
 	$(Q)mv $@.tmp $@
@@ -391,11 +386,9 @@ $(top_builddir)lib/crtn.S: $(top_builddir)lib/initfini.s
 		-e '/@TRAILER_BEGINS/,$$p' $< > $@
 
 $(CTOR_TARGETS): $(top_builddir)lib/%.o : $(top_builddir)lib/%.S
-	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
 else
 $(CTOR_TARGETS): $(top_builddir)lib/%.o : $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/%.S
-	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
 endif
 
@@ -409,14 +402,13 @@ CRTS_COMPAT :=
 
 $(crt-y): $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC)
 $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | headers
+$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC) $(LINK_FLAT_CRTS) $(SHARED_START_FILES) $(SHARED_END_FILES) : | $(top_builddir)lib
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
-	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
 	$(do_ar)
 
 $(top_builddir)lib/libpthread_nonshared.a: $(libpthread-nonshared-y)
-	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
 	$(do_ar)
 
