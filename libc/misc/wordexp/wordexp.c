@@ -98,8 +98,9 @@ static __inline__ char *w_addchar(char *buffer, size_t * actlen,
 
 	return buffer;
 }
-
+#ifndef MAX
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#endif
 static char *w_addmem(char *buffer, size_t * actlen, size_t * maxlen,
 					  const char *str, size_t len)
 {
