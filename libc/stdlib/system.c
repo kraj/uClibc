@@ -17,6 +17,7 @@
 #include <sysdep-cancel.h>
 #endif
 
+extern __typeof(system) __libc_system;
 
 /* TODO: the cancellable version breaks on sparc currently,
  * need to figure out why still
@@ -28,7 +29,6 @@
 # define vfork fork
 #endif
 
-extern __typeof(system) __libc_system;
 int __libc_system(const char *command)
 {
 	int wait_val, pid;

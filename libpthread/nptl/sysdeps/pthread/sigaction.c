@@ -26,9 +26,7 @@
 #define LIBC_SIGACTION	1
 #include <sigaction.c>
 
-int
-sigaction (int sig, const struct sigaction *act, struct sigaction *oact);
- 
+extern __typeof(sigaction) __sigaction;
 int
 __sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {

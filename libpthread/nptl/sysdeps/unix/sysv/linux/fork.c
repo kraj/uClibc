@@ -58,7 +58,7 @@ fresetlockfiles (void)
 #endif
 }
 
-
+extern __typeof(fork) __libc_fork;
 pid_t
 __libc_fork (void)
 {

@@ -10,10 +10,10 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+extern __typeof(fork) __libc_fork;
 #ifdef __ARCH_USE_MMU__
 
 #ifdef __NR_fork
-extern __typeof(fork) __libc_fork;
 #define __NR___libc_fork __NR_fork
 _syscall0(pid_t, __libc_fork)
 weak_alias(__libc_fork,fork)

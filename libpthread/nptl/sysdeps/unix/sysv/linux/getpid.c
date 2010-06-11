@@ -46,6 +46,7 @@ really_getpid (pid_t oldval)
 }
 #endif
 
+extern __typeof(getpid) __getpid;
 pid_t
 __getpid (void)
 {

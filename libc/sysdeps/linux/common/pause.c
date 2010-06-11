@@ -19,6 +19,7 @@
 
 /* Suspend the process until a signal arrives.
    This always returns -1 and sets errno to EINTR.  */
+extern __typeof(pause) __libc_pause;
 int
 __libc_pause (void)
 {

@@ -23,7 +23,7 @@ extern __typeof(select) __libc_select;
 
 #if !defined(__NR__newselect) && !defined(__NR_select) && defined __USE_XOPEN2K
 # define __NR___libc_pselect6 __NR_pselect6
-_syscall6(int, __libc_pselect6, int, n, fd_set *, readfds, fd_set *, writefds,
+static _syscall6(int, __libc_pselect6, int, n, fd_set *, readfds, fd_set *, writefds,
         fd_set *, exceptfds, const struct timespec *, timeout,
         const sigset_t *, sigmask)
 
@@ -71,7 +71,7 @@ int __libc_select(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 # define __NR___syscall_select __NR_select
 #endif
 
-_syscall5(int, __syscall_select, int, n, fd_set *, readfds,
+static _syscall5(int, __syscall_select, int, n, fd_set *, readfds,
 		fd_set *, writefds, fd_set *, exceptfds, struct timeval *, timeout);
 
 int __libc_select(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
