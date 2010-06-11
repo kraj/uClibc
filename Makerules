@@ -95,6 +95,7 @@ pur_disp_ld        = echo "  "LD $(1)
 pur_disp_ln        = echo "  "LN $(show_objs)
 pur_disp_mkdir     = echo "  "MKDIR $(show_objs)
 pur_disp_gen       = echo "  "GEN $(show_objs)
+pur_disp_install   = echo "  "INSTALL $(1)
 pur_disp_unifdef   = echo "  "UNIFDEF $(show_objs)
 pur_disp_rm        = echo "  "CLEAN $(subst CLEAN_,,$(patsubst HEADERCLEAN_%,include \(%\),$@))
 
@@ -115,6 +116,7 @@ sil_disp_ld        = true
 sil_disp_ln        = true
 sil_disp_mkdir     = true
 sil_disp_gen       = true
+sil_disp_install   = true
 sil_disp_unifdef   = true
 sil_disp_rm        = true
 
@@ -135,6 +137,7 @@ ver_disp_ld        =
 ver_disp_ln        =
 ver_disp_mkdir     =
 ver_disp_gen       =
+ver_disp_install   =
 ver_disp_unifdef   = echo $(cmd_unifdef)
 ver_disp_rm        =
 
@@ -155,6 +158,7 @@ disp_ld        = $($(DISP)_disp_ld)
 disp_ln        = $($(DISP)_disp_ln)
 disp_mkdir     = $($(DISP)_disp_mkdir)
 disp_gen       = $($(DISP)_disp_gen)
+disp_install   = $($(DISP)_disp_install)
 disp_unifdef   = $($(DISP)_disp_unifdef)
 disp_rm        = $($(DISP)_disp_rm)
 

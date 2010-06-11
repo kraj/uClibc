@@ -288,18 +288,23 @@ HEADERS_RM-$(UCLIBC_SUSV4_LEGACY)            += utime.h
 	### ucontext.h
 
 ifneq ($(findstring install,$(MAKECMDGOALS)),)
-$(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR) $(addprefix $(PREFIX)$(DEVEL_PREFIX),include lib):
+$(addprefix $(PREFIX)$(DEVEL_PREFIX),include lib):
+	$(do_mkdir)
+# avoid warning about duplicate targets in rule or overrides
+ifneq ($(abspath $(RUNTIME_PREFIX)$(MULTILIB_DIR)),$(abspath $(DEVEL_PREFIX)lib))
+$(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR):
 	$(do_mkdir)
 endif
-
+endif
 install_headers: headers $(top_builddir)extra/scripts/unifdef | $(PREFIX)$(DEVEL_PREFIX)include
-	top_builddir=$(top_builddir) \
+	@$(call disp_install,"include -> $(PREFIX)$(DEVEL_PREFIX)include")
+	$(Q)top_builddir=$(top_builddir) \
 	$(top_srcdir)extra/scripts/install_headers.sh include $(PREFIX)$(DEVEL_PREFIX)include
-	cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -r $(HEADERS_RM-)
+	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -r $(HEADERS_RM-)
 ifeq ($(UCLIBC_HAS_WCHAR),)
-	cd $(PREFIX)$(DEVEL_PREFIX)include && mv -f wchar-stub.h wchar.h
+	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && mv -f wchar-stub.h wchar.h
 else
-	cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -f wchar-stub.h
+	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -f wchar-stub.h
 endif
 
 # Installs development library links.
