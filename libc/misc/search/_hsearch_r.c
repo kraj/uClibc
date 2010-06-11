@@ -49,12 +49,12 @@ _ENTRY;
 static int isprime (unsigned int number)
 {
   /* no even number will be passed */
-  unsigned int div = 3;
+  unsigned int divisor = 3;
 
-  while (div * div < number && number % div != 0)
-    div += 2;
+  while (divisor * divisor < number && number % divisor != 0)
+    divisor += 2;
 
-  return number % div != 0;
+  return number % divisor != 0;
 }
 
 
