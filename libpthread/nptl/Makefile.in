@@ -286,9 +286,9 @@ lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
 
 $(top_builddir)lib/libpthread.so: $(PTHREAD_OUT)/libpthread_so.a $(libc.depend) $(libdl.depend) $(top_builddir)lib/libpthread_nonshared.a
 	$(call link.so,$(libpthread_FULL_NAME),$(ABI_VERSION))
-	$(Q)$(RM) $@
-	$(Q)cp $(top_srcdir)extra/scripts/format.lds $@
-	$(Q)echo "GROUP ( $(notdir $@).$(ABI_VERSION) libpthread_nonshared.a )" >> $@
+	$(Q)cat $(top_srcdir)extra/scripts/format.lds > $@.tmp
+	$(Q)echo "GROUP ( $(notdir $@).$(ABI_VERSION) libpthread_nonshared.a )" >> $@.tmp
+	$(Q)mv $@.tmp $@
 
 $(PTHREAD_OUT)/libpthread_so.a: $(libpthread-so-y)
 	$(Q)$(RM) $@
