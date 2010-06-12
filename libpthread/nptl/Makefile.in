@@ -290,13 +290,12 @@ $(top_builddir)lib/libpthread.so: $(PTHREAD_OUT)/libpthread_so.a $(libc.depend) 
 	$(Q)echo "GROUP ( $(notdir $@).$(ABI_VERSION) libpthread_nonshared.a )" >> $@.tmp
 	$(Q)mv $@.tmp $@
 
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+$(PTHREAD_OUT)/libpthread_so.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
+endif
 $(PTHREAD_OUT)/libpthread_so.a: $(libpthread-so-y)
 	$(Q)$(RM) $@
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-	$(do_strip:-x=-X --strip-debug)
-else
 	$(do_strip)
-endif
 	$(do_ar)
 
 $(top_builddir)lib/libpthread.a: $(libpthread-a-y)
