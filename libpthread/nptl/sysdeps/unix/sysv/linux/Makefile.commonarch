@@ -251,6 +251,5 @@ HEADERCLEAN_libpthread/nptl/sysdeps/unix/sysv/linux:
 	$(PTHREAD_LINUX_OUT)/structsem.h \
 	$(PTHREAD_LINUX_OUT)/pthread-pi-defines.h
 
-
 CLEAN_libpthread/nptl/sysdeps/unix/sysv/linux:
 	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/*., o os oS)

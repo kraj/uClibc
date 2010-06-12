@@ -53,8 +53,7 @@ $(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
 	$(do_strip)
 	$(do_ar)
 
-$(top_builddir)lib/libthread_db.a: $(libthread_db-a-y)
-	$(Q)$(INSTALL) -d $(dir $@)
+$(top_builddir)lib/libthread_db.a: $(libthread_db-a-y) | $(top_builddir)lib
 	$(Q)$(RM) $@
 	$(do_strip)
 	$(do_ar)

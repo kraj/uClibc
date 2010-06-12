@@ -1,0 +1,57 @@
+# Makefile template to be included by libpthread/nptl/sysdeps/<ARCH>/Makefile.arch
+#
+# Copyright (C) 2010 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+PTHREAD_ARCH_DIR  := $(top_srcdir)libpthread/nptl/sysdeps/$(TARGET_ARCH)
+PTHREAD_ARCH_OUT  := $(top_builddir)libpthread/nptl/sysdeps/$(TARGET_ARCH)
+
+PTHREAD_ARCH_CSRC := $(patsubst %.c,$(PTHREAD_ARCH_DIR)/%.c,$(libpthread_CSRC))
+PTHREAD_ARCH_COBJ := $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_CSRC))
+PTHREAD_ARCH_SSRC := $(patsubst %.s,$(PTHREAD_ARCH_DIR)/%.s,$(patsubst %.S,$(PTHREAD_ARCH_DIR)/%.S,$(libpthread_SSRC)))
+PTHREAD_ARCH_SOBJ := $(patsubst %.s,$(PTHREAD_ARCH_OUT)/%.o,$(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_SSRC)))
+PTHREAD_ARCH_OBJS := $(PTHREAD_ARCH_COBJ) $(PTHREAD_ARCH_SOBJ)
+
+LIBRT_ARCH_COBJ := $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(librt_CSRC))
+LIBRT_ARCH_SOBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(librt_SSRC))
+LIBRT_ARCH_OBJS := $(LIBRT_ARCH_COBJ) $(LIBRT_ARCH_SOBJ)
+
+LIBC_ARCH_COBJ := $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libc_a_CSRC))
+LIBC_ARCH_SOBJ := $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libc_a_SSRC))
+LIBC_ARCH_OBJS := $(LIBC_ARCH_COBJ) $(LIBC_ARCH_SOBJ)
+
+PTHREAD_LIBC_TLS_CSRC := $(filter-out $(notdir $(PTHREAD_ARCH_OBJS:.o=.c)),$(notdir $(PTHREAD_LIBC_TLS_CSRC)))
+PTHREAD_OBJS := $(PTHREAD_ARCH_OBJS)
+
+libpthread-a-y += $(if $(DOPIC),$(PTHREAD_OBJS:.o=.os),$(PTHREAD_OBJS))
+libpthread-so-y += $(PTHREAD_OBJS:.o=.oS)
+
+librt-a-y += $(LIBRT_ARCH_OBJS)
+librt-so-y += $(LIBRT_ARCH_OBJS:.o=.oS)
+
+libc-static-y += $(LIBC_ARCH_OBJS) $(PTHREAD_LIBC_TLS_OBJS)
+
+CFLAGS-tcb-offsets.c = -S
+$(PTHREAD_ARCH_OUT)/tcb-offsets.c: $(PTHREAD_ARCH_DIR)/tcb-offsets.sym | $(PTHREAD_ARCH_OUT)
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(PTHREAD_ARCH_OUT)/tcb-offsets.s: $(PTHREAD_ARCH_OUT)/tcb-offsets.c
+	$(compile.c)
+
+PTHREAD_TCB_OFFSET_MANGLE ?= -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*\$$/\#define \1 \2/p"
+$(PTHREAD_ARCH_OUT)/tcb-offsets.h: $(PTHREAD_ARCH_OUT)/tcb-offsets.s
+	$(do_sed) $(PTHREAD_TCB_OFFSET_MANGLE) $< > $@
+	@if test ! -s $@ ; then rm -f $@ ; false ; fi
+
+pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(PTHREAD_ARCH_OUT)/tcb-offsets.h
+
+objclean-y     +=       CLEAN_$(subst $(top_builddir),,$(PTHREAD_ARCH_OUT))
+headers_clean-y+= HEADERCLEAN_$(subst $(top_builddir),,$(PTHREAD_ARCH_OUT))
+
+CLEAN_$(subst $(top_builddir),,$(PTHREAD_ARCH_OUT)):
+	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/*., o os oS)
+HEADERCLEAN_$(subst $(top_builddir),,$(PTHREAD_ARCH_OUT)):
+	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/tcb-offsets., c h s)
+

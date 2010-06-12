@@ -279,8 +279,9 @@ headers_clean-y += HEADERCLEAN_libpthread/nptl
 -include $(PTHREAD_DIR)/sysdeps/generic/Makefile.in
 -include $(PTHREAD_DIR)/sysdeps/pthread/Makefile.in
 -include $(PTHREAD_DIR)/sysdeps/$(TARGET_ARCH)/Makefile.arch
--include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/Makefile.in
+-include $(PTHREAD_DIR)/sysdeps/Makefile.commonarch
 -include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/Makefile.arch
+-include $(PTHREAD_DIR)/sysdeps/unix/sysv/linux/Makefile.commonarch
 
 lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so

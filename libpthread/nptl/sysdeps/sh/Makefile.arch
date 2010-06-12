@@ -14,43 +14,4 @@ ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-pthread_spin_lock.c += -D_GNU_SOURCE
 
 CFLAGS-sh = $(SSP_ALL_CFLAGS)
-#CFLAGS:=$(CFLAGS:-O1=-O2)
 
-PTHREAD_ARCH_DIR := $(top_srcdir)libpthread/nptl/sysdeps/sh
-PTHREAD_ARCH_OUT := $(top_builddir)libpthread/nptl/sysdeps/sh
-PTHREAD_ARCH_OBJ := $(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_SSRC))
-PTHREAD_ARCH_OBJ += $(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_CSRC))
-
-ifeq ($(DOPIC),y)
-libpthread-a-y += $(PTHREAD_ARCH_OBJ:.o=.os)
-else
-libpthread-a-y += $(PTHREAD_ARCH_OBJ)
-endif
-libpthread-so-y += $(PTHREAD_ARCH_OBJ:.o=.oS)
-
-libpthread-nomulti-y += $(PTHREAD_ARCH_OBJ)
-
-objclean-y += CLEAN_libpthread/nptl/sysdeps/sh
-headers_clean-y += HEADERCLEAN_libpthread/nptl/sysdeps/sh
-
-#
-# Create 'tcb-offsets.h' header file.
-#
-CFLAGS-tcb-offsets.c = -S
-
-$(PTHREAD_ARCH_OUT)/tcb-offsets.c: $(PTHREAD_ARCH_DIR)/tcb-offsets.sym
-	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
-
-$(PTHREAD_ARCH_OUT)/tcb-offsets.s: $(PTHREAD_ARCH_OUT)/tcb-offsets.c
-	$(compile.c)
-
-$(PTHREAD_ARCH_OUT)/tcb-offsets.h: $(PTHREAD_ARCH_OUT)/tcb-offsets.s
-	$(do_sed) -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*$\/#define \1 \2/p" $< > $@
-
-pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(PTHREAD_ARCH_OUT)/tcb-offsets.h
-
-HEADERCLEAN_libpthread/nptl/sysdeps/sh:
-	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/tcb-offsets., c s h)
-
-CLEAN_libpthread/nptl/sysdeps/sh:
-	$(do_rm) $(addprefix $(PTHREAD_ARCH_OUT)/*., o os oS)

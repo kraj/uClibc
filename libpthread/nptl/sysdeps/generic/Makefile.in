@@ -10,22 +10,16 @@
 #       their architecture specific directory which will override
 #       the one here.
 #
-ifneq ($(TARGET_ARCH),mips)
-	libc_a_CSRC = libc-tls.c
-endif
+
+PTHREAD_LIBC_TLS_DIR := $(top_srcdir)libpthread/nptl/sysdeps/generic
+PTHREAD_LIBC_TLS_OUT := $(top_builddir)libpthread/nptl/sysdeps/generic
+
+PTHREAD_LIBC_TLS_CSRC = dl-tls.c libc-tls.c
+PTHREAD_LIBC_TLS_OBJS = $(patsubst %.c,$(PTHREAD_LIBC_TLS_OUT)/%.o,$(PTHREAD_LIBC_TLS_CSRC))
 
 CFLAGS-generic = $(SSP_ALL_CFLAGS)
-#CFLAGS:=$(CFLAGS:-O1=-O2)
-
-PTHREAD_GENERIC_OUT:=$(top_builddir)libpthread/nptl/sysdeps/generic
-
-LIBC_GENERIC_OBJ:=$(patsubst %.c,$(PTHREAD_GENERIC_OUT)/%.o,$(libc_a_CSRC))
-
-libc-static-y+=$(LIBC_GENERIC_OBJ)
-
-libc-nomulti-y+=$(LIBC_GENERIC_OBJ)
 
 objclean-y += CLEAN_libpthread/nptl/sysdeps/generic
 
 CLEAN_libpthread/nptl/sysdeps/generic:
-	$(do_rm) $(addprefix $(PTHREAD_GENERIC_OUT)/*., o os oS)
+	$(do_rm) $(addprefix $(PTHREAD_LIBC_TLS_OUT)/*., o os oS)
