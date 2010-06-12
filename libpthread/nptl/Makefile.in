@@ -295,13 +295,11 @@ $(PTHREAD_OUT)/libpthread_so.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
 endif
 $(PTHREAD_OUT)/libpthread_so.a: $(libpthread-so-y)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
 
 $(top_builddir)lib/libpthread.a: $(libpthread-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-	$(do_strip)
 	$(do_ar)
 
 #
