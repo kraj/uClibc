@@ -232,8 +232,8 @@ pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += \
 HEADERS_BITS_PTHREAD     := $(notdir $(wildcard $(PTHREAD_LINUX_DIR)/bits/*.h))
 ALL_HEADERS_BITS_PTHREAD := $(addprefix include/bits/,$(HEADERS_BITS_PTHREAD))
 
-$(ALL_HEADERS_BITS_PTHREAD):
-	$(do_ln) ../../$(PTHREAD_LINUX_DIR)/bits/$(@F) $(top_builddir)$@
+$(ALL_HEADERS_BITS_PTHREAD): $(top_builddir)include/bits/%: | $(top_builddir)include/bits
+	$(do_ln) $(call rel_srcdir)$(PTHREAD_LINUX_DIR)/bits/$(@F) $@
 
 HEADERCLEAN_libpthread/nptl/sysdeps/unix/sysv/linux:
 	$(do_rm) $(addprefix $(PTHREAD_LINUX_OUT)/gen_lowlevelbarrier., c s) \

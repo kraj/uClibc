@@ -320,26 +320,21 @@ pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(PTHREAD_OUT)/pthread-errnos.h
 
 headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(nptl_headers_bootstrap)
 
-$(top_builddir)include/pthread.h:
-	$(do_ln) ../$(PTDIR)/sysdeps/pthread/$(@F) $(top_builddir)$@
-$(top_builddir)include/semaphore.h:
-	$(do_ln) ../$(PTDIR)/$(@F) $(top_builddir)$@
-$(top_builddir)include/bits/semaphore.h: | include/bits
-	$(do_ln) ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/$(@F) $(top_builddir)$@
-$(top_builddir)include/bits/pthreadtypes.h: | include/bits
-	$(do_ln) ../../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/$(@F) $(top_builddir)$@
-$(top_builddir)include/bits/libc-lock.h: | include/bits
-	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
-$(top_builddir)include/bits/stdio-lock.h: | include/bits
-	$(do_ln) ../../$(PTDIR)/sysdeps/pthread/bits/$(@F) $(top_builddir)$@
+LIBPTHREAD_H := $(addprefix $(top_builddir)include/,semaphore.h)
+LIBPTHREAD_INCLUDE_H := $(addprefix $(top_builddir)include/,pthread.h)
+LIBPTHREAD_INCLUDE_BITS_H := $(addprefix $(top_builddir)include/bits/,libc-lock.h stdio-lock.h)
+LIBPTHREAD_INCLUDE_STD_IMPL_OS_ARCH_BITS_H := $(addprefix $(top_builddir)include/bits/,pthreadtypes.h semaphore.h)
 
-nptl_headers_bootstrap := $(top_builddir)include/pthread.h \
-		$(top_builddir)include/semaphore.h \
-		$(top_builddir)include/bits/semaphore.h \
-		$(top_builddir)include/bits/pthreadtypes.h \
-		$(top_builddir)include/bits/libc-lock.h \
-		$(top_builddir)include/bits/stdio-lock.h
+$(LIBPTHREAD_INCLUDE_STD_IMPL_OS_ARCH_BITS_H): $(top_builddir)include/bits/%: | $(top_builddir)include/bits
+	$(do_ln) $(call rel_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/$(@F) $@
+$(LIBPTHREAD_INCLUDE_BITS_H): $(top_builddir)include/bits/%: | $(top_builddir)include/bits
+	$(do_ln) $(call rel_srcdir)$(PTDIR)/sysdeps/pthread/bits/$(@F) $@
+$(LIBPTHREAD_INCLUDE_H): $(top_builddir)include/%: | $(top_builddir)include
+	$(do_ln) $(call rel_srcdir)$(PTDIR)/sysdeps/pthread/$(@F) $@
+$(LIBPTHREAD_H): $(top_builddir)include/%: | $(top_builddir)include
+	$(do_ln) $(call rel_srcdir)$(PTDIR)/$(@F) $@
 
+nptl_headers_bootstrap = $(LIBPTHREAD_H) $(LIBPTHREAD_INCLUDE_H) $(LIBPTHREAD_INCLUDE_BITS_H) $(LIBPTHREAD_INCLUDE_STD_IMPL_OS_ARCH_BITS_H)
 
 HEADERCLEAN_libpthread/nptl:
 	$(do_rm) $(nptl_headers_bootstrap) \

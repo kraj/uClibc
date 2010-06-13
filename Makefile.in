@@ -395,7 +395,7 @@ hostutils:
 install_hostutils: hostutils
 	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils utils_install
 
-$(addprefix $(top_builddir),include/bits include/sys include/config lib extra/config/lxdialog extra/locale extra/scripts $(subdirs)):
+$(addprefix $(top_builddir),include include/bits include/sys include/config lib extra/config/lxdialog extra/locale extra/scripts $(subdirs)):
 	$(do_mkdir)
 
 # configuration
