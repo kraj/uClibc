@@ -5,9 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-subdirs += libpthread/nptl/sysdeps/$(TARGET_ARCH) \
-	libpthread/nptl/sysdeps/unix/sysv/linux \
-	libpthread/nptl/sysdeps/pthread
+subdirs += libpthread/nptl
 
 libpthread-routines-y = init vars events version \
 		      pthread_create pthread_exit pthread_detach \

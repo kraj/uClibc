@@ -5,6 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libpthread/nptl/sysdeps/pthread
 #
 # NOTE: glibc puts flockfile.c, ftrylockfile.c, funlockfile.c, and
 #       pt-longjmp.c in libc and libpthread. For uClibc, they are

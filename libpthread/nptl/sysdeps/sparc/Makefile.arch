@@ -4,7 +4,7 @@
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
-
+subdirs += libpthread/nptl/sysdeps/$(TARGET_ARCH)/$(TARGET_SUBARCH)/sparv9
 libpthread_CSRC = sparc32/pthread_spin_lock.c \
 				  sparc32/pthread_spin_trylock.c
 

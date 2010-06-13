@@ -5,6 +5,12 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+subdirs += libpthread/nptl/sysdeps/unix/sysv/linux \
+	   libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)
+ifneq ($(abspath libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)),$(abspath libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/$(TARGET_SUBARCH)))
+subdirs += libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/$(TARGET_SUBARCH)
+endif
+
 libpthread_CSRC = pthread_attr_getaffinity.c				\
 		  pthread_attr_setaffinity.c pthread_getaffinity.c	\
 		  pthread_getcpuclockid.c pthread_kill.c		\

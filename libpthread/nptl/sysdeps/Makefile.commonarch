@@ -4,6 +4,11 @@
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
+subdirs += libpthread/nptl/sysdeps \
+	   libpthread/nptl/sysdeps/$(TARGET_ARCH)
+ifneq ($(abspath libpthread/nptl/sysdeps/$(TARGET_ARCH)),$(abspath libpthread/nptl/sysdeps/$(TARGET_ARCH)/$(TARGET_SUBARCH)))
+subdirs += libpthread/nptl/sysdeps/$(TARGET_ARCH)/$(TARGET_SUBARCH)
+endif
 
 PTHREAD_ARCH_DIR  := $(top_srcdir)libpthread/nptl/sysdeps/$(TARGET_ARCH)
 PTHREAD_ARCH_OUT  := $(top_builddir)libpthread/nptl/sysdeps/$(TARGET_ARCH)

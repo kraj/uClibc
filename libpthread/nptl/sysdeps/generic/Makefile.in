@@ -4,7 +4,7 @@
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
-
+subdirs += libpthread/nptl/sysdeps/generic
 #
 # NOTE: Alpha and MIPS have their own versions of 'libc-tls.c' in
 #       their architecture specific directory which will override
