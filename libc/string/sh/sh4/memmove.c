@@ -7,8 +7,11 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <string.h>
+#ifndef __SH_FPU_ANY__
+#include "../../generic/memmove.c"
+#else
 
+#include <string.h>
 
 #define FPSCR_SR	(1 << 20)
 #define STORE_FPSCR(x)	__asm__ volatile("sts fpscr, %0" : "=r"(x))
@@ -115,3 +118,4 @@ void *memmove(void *dest, const void *src, size_t len)
 }
 
 libc_hidden_def(memmove)
+#endif /*__SH_FPU_ANY__ */
