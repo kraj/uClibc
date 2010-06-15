@@ -209,7 +209,7 @@ double attribute_hidden __ieee754_lgamma_r(double x, int *signgamp)
 	ix = hx&0x7fffffff;
 	if(ix>=0x7ff00000) return x*x;
 	if((ix|lx)==0) {
-	    if (__signbitl(x))
+	    if (signbit(x))
 	        *signgamp = -1;
 	    return one/zero;
 	}
