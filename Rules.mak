@@ -636,14 +636,17 @@ endif
 PTDIR := libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-PTINC:=	-I$(top_srcdir)$(PTDIR)						\
-	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/$(TARGET_SUBARCH)	\
+PTINC:= -I$(top_builddir)$(PTDIR)					\
+	-I$(top_srcdir)$(PTDIR)						\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/$(TARGET_SUBARCH) \
 	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
+	-I$(top_builddir)$(PTDIR)/sysdeps/$(TARGET_ARCH)		\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
+	-I$(top_builddir)$(PTDIR)/sysdeps/unix/sysv/linux		\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux			\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread				\
-	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread/bits				\
-	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH)			\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread/bits			\
+	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH)				\
 	-I$(top_srcdir)ldso/include
 #
 # Test for TLS if NPTL support was selected.
