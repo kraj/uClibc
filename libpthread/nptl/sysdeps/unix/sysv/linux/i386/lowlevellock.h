@@ -26,6 +26,7 @@
 # include <bits/pthreadtypes.h>
 # include <bits/kernel-features.h>
 # include <tcb-offsets.h>
+# include <atomic.h>
 
 # ifndef LOCK_INSTR
 #  ifdef UP
