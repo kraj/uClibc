@@ -10,11 +10,10 @@ subdirs += librt
 CFLAGS-librt := -DNOT_IN_libc -DIS_IN_librt $(SSP_ALL_CFLAGS)
 
 LDFLAGS-librt.so := $(LDFLAGS)
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-LDFLAGS-librt.so += $(top_builddir)lib/libdl.so $(top_builddir)lib/libpthread.so
-endif
-
 LIBS-librt.so := $(LIBS)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+LIBS-librt.so += $(top_builddir)lib/libdl.so $(top_builddir)lib/libpthread.so
+endif
 
 librt_FULL_NAME := librt-$(VERSION).so
 
