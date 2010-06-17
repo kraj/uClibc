@@ -67,6 +67,9 @@
 #  define cfi_remember_state		.cfi_remember_state
 #  define cfi_restore_state		.cfi_restore_state
 #  define cfi_window_save		.cfi_window_save
+#  define cfi_personality(enc, exp)	.cfi_personality enc, exp
+#  define cfi_lsda(enc, exp)		.cfi_lsda enc, exp
+
 # else
 #  define cfi_startproc
 #  define cfi_endproc
@@ -84,6 +87,8 @@
 #  define cfi_remember_state
 #  define cfi_restore_state
 #  define cfi_window_save
+#  define cfi_personality(enc, exp)
+#  define cfi_lsda(enc, exp)
 # endif
 
 #else /* ! ASSEMBLER */
@@ -118,6 +123,10 @@
    ".cfi_restore_state"
 #  define CFI_WINDOW_SAVE \
    ".cfi_window_save"
+#  define CFI_PERSONALITY(enc, exp) \
+   ".cfi_personality " CFI_STRINGIFY(enc) "," CFI_STRINGIFY(exp)
+#  define CFI_LSDA(enc, exp) \
+   ".cfi_lsda " CFI_STRINGIFY(enc) "," CFI_STRINGIFY(exp)
 # else
 #  define CFI_STARTPROC
 #  define CFI_ENDPROC
@@ -134,6 +143,8 @@
 #  define CFI_REMEMBER_STATE
 #  define CFI_RESTORE_STATE
 #  define CFI_WINDOW_SAVE
+#  define CFI_PERSONALITY(enc, exp)
+#  define CFI_LSDA(enc, exp)
 # endif
 
 #endif /* __ASSEMBLER__ */
