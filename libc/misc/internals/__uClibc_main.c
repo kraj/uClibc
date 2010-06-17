@@ -36,7 +36,9 @@
 #include <not-cancel.h>
 #include <atomic.h>
 #endif
-
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+#endif 
 
 #ifndef SHARED
 void *__libc_stack_end = NULL;
