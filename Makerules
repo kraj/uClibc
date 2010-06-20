@@ -67,9 +67,14 @@ else
 export MAKE_IS_SILENT := n
 SECHO := @echo
 ifneq ($(V)$(VERBOSE),)
+ifeq ($(V),1)
+DISP := bri# brief, like pur but with defines
+Q := @
+else
 SHELL_SET_X := set -x
 DISP := ver
 Q :=
+endif
 else
 DISP := pur
 Q := @
@@ -77,6 +82,12 @@ endif
 endif
 
 show_objs = $(subst $(top_builddir),,$(subst ../,,$@))
+define show_defs
+	$(filter -D%,$(1))
+endef
+define show_ldflags
+	$(subst $(comma), ,$(subst -Wl$(comma),,$(filter -Wl%,$(1))))
+endef
 
 pur_disp_compile.c = echo "  "CC $(show_objs)
 pur_disp_compile.i = echo "  "CPP $(show_objs)
@@ -119,6 +130,27 @@ sil_disp_gen       = true
 sil_disp_install   = true
 sil_disp_unifdef   = true
 sil_disp_rm        = true
+
+bri_disp_compile.c = $(pur_disp_compile.c) $(call show_defs,$(cmd_compile.c))
+bri_disp_compile.i = $(pur_disp_compile.i) $(call show_defs,$(cmd_compile.i))
+bri_disp_compile.s = $(pur_disp_compile.s) $(call show_defs,$(cmd_compile.s))
+bri_disp_compile.u = $(pur_disp_compile.u) $(call show_defs,$(cmd_compile.u))
+bri_disp_compile.S = $(pur_disp_compile.S) $(call show_defs,$(cmd_compile.S))
+bri_disp_compile.m = $(pur_disp_compile.m) $(call show_defs,$(cmd_compile.m))
+bri_disp_compile.mi = $(pur_disp_compile.mi) $(call show_defs,$(cmd_compile.mi))
+bri_disp_compile-m = $(pur_disp_compile-m) $(call show_defs,$(cmd_compile-m))
+bri_disp_hcompile.u = $(pur_disp_hcompile.u) $(call show_defs,$(cmd_hcompile.u))
+bri_disp_hcompile.o = $(pur_disp_hcompile.o) $(call show_defs,$(cmd_hcompile.o))
+bri_disp_strip = $(pur_disp_strip)
+bri_disp_t_strip = $(pur_disp_t_strip)
+bri_disp_ar = $(pur_disp_ar)
+bri_disp_ld = $(pur_disp_ld) $(call show_ldflags,$(cmd_ld))
+bri_disp_ln = $(pur_disp_ln)
+bri_disp_mkdir = $(pur_disp_mkdir)
+bri_disp_gen = $(pur_disp_gen)
+bri_disp_install = $(pur_disp_install)
+bri_disp_unifdef = $(pur_disp_unifdef)
+bri_disp_rm = $(pur_disp_rm)
 
 ver_disp_compile.c = echo $(cmd_compile.c)
 ver_disp_compile.i = echo $(cmd_compile.i)
