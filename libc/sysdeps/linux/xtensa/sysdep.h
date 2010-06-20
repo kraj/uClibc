@@ -114,7 +114,7 @@
 
 #define ret_ERRVAL retw
 
-#if RTLD_PRIVATE_ERRNO
+#if defined RTLD_PRIVATE_ERRNO
 # define SYSCALL_ERROR_HANDLER						      \
 0:	movi	a4, rtld_errno;						      \
 	neg	a2, a2;							      \
@@ -124,7 +124,7 @@
 
 #elif defined _LIBC_REENTRANT
 
-# if USE___THREAD
+# if defined USE___THREAD
 #  ifndef NOT_IN_libc
 #   define SYSCALL_ERROR_ERRNO __libc_errno
 #  else

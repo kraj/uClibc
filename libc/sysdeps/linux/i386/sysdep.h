@@ -243,7 +243,7 @@ __x86.get_pc_thunk.reg:						      \
 
 # elif defined _LIBC_REENTRANT
 
-#  if USE___THREAD
+#  if defined USE___THREAD
 #   ifndef NOT_IN_libc
 #    define SYSCALL_ERROR_ERRNO __libc_errno
 #   else

@@ -158,7 +158,7 @@
 
 #define ret_ERRVAL PSEUDO_RET_NOERRNO
 
-#if NOT_IN_libc
+#if defined NOT_IN_libc
 # define SYSCALL_ERROR __local_syscall_error
 # ifdef RTLD_PRIVATE_ERRNO
 #  define SYSCALL_ERROR_HANDLER					\
