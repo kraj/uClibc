@@ -258,7 +258,8 @@ _dl_determine_tlsoffset (void)
   /* We simply start with zero.  */
   size_t offset = 0;
 
-  for (size_t cnt = 0; slotinfo[cnt].map != NULL; ++cnt)
+  size_t cnt;
+  for (cnt = 0; slotinfo[cnt].map != NULL; ++cnt)
     {
       assert (cnt < GL(dl_tls_dtv_slotinfo_list)->len);
 

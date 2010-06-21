@@ -71,7 +71,8 @@ pthread_setaffinity_np (pthread_t th, size_t cpusetsize,
 
   /* We now know the size of the kernel cpumask_t.  Make sure the user
      does not request to set a bit beyond that.  */
-  for (size_t cnt = __kernel_cpumask_size; cnt < cpusetsize; ++cnt)
+  size_t cnt;
+  for (cnt = __kernel_cpumask_size; cnt < cpusetsize; ++cnt)
     if (((char *) cpuset)[cnt] != '\0')
       /* Found a nonzero byte.  This means the user request cannot be
 	 fulfilled.  */

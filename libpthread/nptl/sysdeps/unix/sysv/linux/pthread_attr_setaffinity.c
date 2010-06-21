@@ -57,7 +57,8 @@ pthread_attr_setaffinity_np (pthread_attr_t *attr, size_t cpusetsize,
 
       /* Check whether the new bitmask has any bit set beyond the
 	 last one the kernel accepts.  */
-      for (size_t cnt = __kernel_cpumask_size; cnt < cpusetsize; ++cnt)
+      size_t cnt;
+      for (cnt = __kernel_cpumask_size; cnt < cpusetsize; ++cnt)
 	if (((char *) cpuset)[cnt] != '\0')
 	  /* Found a nonzero byte.  This means the user request cannot be
 	     fulfilled.  */

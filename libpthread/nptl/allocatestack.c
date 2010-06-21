@@ -844,7 +844,8 @@ __reclaim_stacks (void)
 
 	      curp->specific_used = false;
 
-	      for (size_t cnt = 1; cnt < PTHREAD_KEY_1STLEVEL_SIZE; ++cnt)
+	      size_t cnt;
+	      for (cnt = 1; cnt < PTHREAD_KEY_1STLEVEL_SIZE; ++cnt)
 		if (curp->specific[cnt] != NULL)
 		  {
 		    memset (curp->specific[cnt], '\0',
