@@ -317,9 +317,9 @@ _dl_determine_tlsoffset (void)
 
 # ifdef TLS_TCB_AT_TP
   /* We simply start with zero.  */
-  size_t offset = 0;
+  size_t cnt, offset = 0;
 
-  for (size_t cnt = 1; slotinfo[cnt].map != NULL; ++cnt)
+  for (cnt = 1; slotinfo[cnt].map != NULL; ++cnt)
     {
       _dl_assert (cnt < _dl_tls_dtv_slotinfo_list->len);
 
