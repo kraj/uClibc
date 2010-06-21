@@ -42,9 +42,9 @@ headers-$(PTHREADS_DEBUG_SUPPORT) += $(nptl_db_headers)
 headers_clean-y += HEADERCLEAN_libpthread/nptl_db
 
 ifeq ($(DOPIC),y)
-$(top_builddir)lib/libthread_db.so: $(top_builddir)lib/libthread_db.a $(libc)
+$(top_builddir)lib/libthread_db.so: $(top_builddir)lib/libthread_db.a $(libc.depend)
 else
-$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a $(libc)
+$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a $(libc.depend)
 endif
 	$(call link.so,$(libthread_db_FULL_NAME),1)
 
