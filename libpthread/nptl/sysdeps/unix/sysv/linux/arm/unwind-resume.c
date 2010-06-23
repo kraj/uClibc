@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2005, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>.
 
@@ -20,71 +20,83 @@
 #include <dlfcn.h>
 #include <stdio.h>
 #include <unwind.h>
-#define __libc_dlopen(x)        dlopen(x, (RTLD_LOCAL | RTLD_LAZY))
-#define __libc_dlsym            dlsym
-#define __libc_dlclose		dlclose
 
 static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
 static _Unwind_Reason_Code (*libgcc_s_personality)
-  (int, _Unwind_Action, _Unwind_Exception_Class, struct _Unwind_Exception *,
-   struct _Unwind_Context *);
-static void (*libgcc_s_sjlj_register) (struct SjLj_Function_Context *);
-static void (*libgcc_s_sjlj_unregister) (struct SjLj_Function_Context *);
+  (_Unwind_State, struct _Unwind_Exception *, struct _Unwind_Context *);
+
+static void init (void) __attribute_used__;
 
 static void
 init (void)
 {
   void *resume, *personality;
   void *handle;
-  void *sjlj_register, *sjlj_unregister;
 
   handle = __libc_dlopen ("libgcc_s.so.1");
 
   if (handle == NULL
-      || (sjlj_register = __libc_dlsym (handle, "_Unwind_SjLj_Register")) == NULL
-      || (sjlj_unregister = __libc_dlsym (handle, "_Unwind_SjLj_Unregister")) == NULL
-      || (resume = __libc_dlsym (handle, "_Unwind_SjLj_Resume")) == NULL
-      || (personality = __libc_dlsym (handle, "__gcc_personality_sj0")) == NULL)
-      fprintf(stderr, "libgcc_s.so.1 must be installed for pthread_cancel to work\n");
+      || (resume = __libc_dlsym (handle, "_Unwind_Resume")) == NULL
+      || (personality = __libc_dlsym (handle, "__gcc_personality_v0")) == NULL)
+    __libc_fatal ("libgcc_s.so.1 must be installed for pthread_cancel to work\n");
 
   libgcc_s_resume = resume;
   libgcc_s_personality = personality;
-  libgcc_s_sjlj_register = sjlj_register;
-  libgcc_s_sjlj_unregister = sjlj_unregister;
 }
 
-void
-_Unwind_Resume (struct _Unwind_Exception *exc)
-{
-  if (__builtin_expect (libgcc_s_resume == NULL, 0))
-    init ();
-  libgcc_s_resume (exc);
-}
+/* It's vitally important that _Unwind_Resume not have a stack frame; the
+   ARM unwinder relies on register state at entrance.  So we write this in
+   assembly.  */
+
+asm (
+"	.globl	_Unwind_Resume\n"
+"	.type	_Unwind_Resume, %function\n"
+"_Unwind_Resume:\n"
+"	.cfi_sections .debug_frame\n"
+"	" CFI_STARTPROC "\n"
+"	stmfd	sp!, {r4, r5, r6, lr}\n"
+"	" CFI_ADJUST_CFA_OFFSET (16)" \n"
+"	" CFI_REL_OFFSET (r4, 0) "\n"
+"	" CFI_REL_OFFSET (r5, 4) "\n"
+"	" CFI_REL_OFFSET (r6, 8) "\n"
+"	" CFI_REL_OFFSET (lr, 12) "\n"
+"	" CFI_REMEMBER_STATE "\n"
+"	ldr	r4, 1f\n"
+"	ldr	r5, 2f\n"
+"3:	add	r4, pc, r4\n"
+"	ldr	r3, [r4, r5]\n"
+"	mov	r6, r0\n"
+"	cmp	r3, #0\n"
+"	beq	4f\n"
+"5:	mov	r0, r6\n"
+"	ldmfd	sp!, {r4, r5, r6, lr}\n"
+"	" CFI_ADJUST_CFA_OFFSET (-16) "\n"
+"	" CFI_RESTORE (r4) "\n"
+"	" CFI_RESTORE (r5) "\n"
+"	" CFI_RESTORE (r6) "\n"
+"	" CFI_RESTORE (lr) "\n"
+"	bx	r3\n"
+"	" CFI_RESTORE_STATE "\n"
+"4:	bl	init\n"
+"	ldr	r3, [r4, r5]\n"
+"	b	5b\n"
+"	" CFI_ENDPROC "\n"
+"	.align 2\n"
+#ifdef __thumb2__
+"1:	.word	_GLOBAL_OFFSET_TABLE_ - 3b - 4\n"
+#else
+"1:	.word	_GLOBAL_OFFSET_TABLE_ - 3b - 8\n"
+#endif
+"2:	.word	libgcc_s_resume(GOTOFF)\n"
+"	.size	_Unwind_Resume, .-_Unwind_Resume\n"
+);
 
 _Unwind_Reason_Code
-__gcc_personality_v0 (int version, _Unwind_Action actions,
-		      _Unwind_Exception_Class exception_class,
-                      struct _Unwind_Exception *ue_header,
-                      struct _Unwind_Context *context)
+__gcc_personality_v0 (_Unwind_State state,
+		      struct _Unwind_Exception *ue_header,
+		      struct _Unwind_Context *context)
 {
   if (__builtin_expect (libgcc_s_personality == NULL, 0))
     init ();
-  return libgcc_s_personality (version, actions, exception_class,
-			       ue_header, context);
-}
-
-void
-_Unwind_SjLj_Register (struct SjLj_Function_Context *fc)
-{
-  if (__builtin_expect (libgcc_s_sjlj_register == NULL, 0))
-    init ();
-  libgcc_s_sjlj_register (fc);
-}
-
-void
-_Unwind_SjLj_Unregister (struct SjLj_Function_Context *fc)
-{
-  if (__builtin_expect (libgcc_s_sjlj_unregister == NULL, 0))
-    init ();
-  libgcc_s_sjlj_unregister (fc);
+  return libgcc_s_personality (state, ue_header, context);
 }
