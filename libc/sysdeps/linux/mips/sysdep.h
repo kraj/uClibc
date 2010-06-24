@@ -169,7 +169,7 @@ L(syse1):
 	{								\
 	register long __v0 __asm__("$2") ncs_init;			\
 	register long __a3 __asm__("$7");				\
-	__asm__ volatile (						\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
@@ -192,7 +192,7 @@ L(syse1):
 	register long __v0 __asm__("$2") ncs_init;			\
 	register long __a0 __asm__("$4") = (long) arg1;			\
 	register long __a3 __asm__("$7");				\
-	__asm__ volatile (						\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
@@ -216,7 +216,7 @@ L(syse1):
 	register long __a0 __asm__("$4") = (long) arg1;			\
 	register long __a1 __asm__("$5") = (long) arg2;			\
 	register long __a3 __asm__("$7");				\
-	__asm__ volatile (						\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
@@ -241,7 +241,7 @@ L(syse1):
 	register long __a1 __asm__("$5") = (long) arg2;			\
 	register long __a2 __asm__("$6") = (long) arg3;			\
 	register long __a3 __asm__("$7");				\
-	__asm__ volatile (						\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
@@ -266,7 +266,7 @@ L(syse1):
 	register long __a1 __asm__("$5") = (long) arg2;			\
 	register long __a2 __asm__("$6") = (long) arg3;			\
 	register long __a3 __asm__("$7") = (long) arg4;			\
-	__asm__ volatile (						\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
@@ -298,7 +298,7 @@ L(syse1):
 	register long __a1 __asm__("$5") = (long) arg2;			\
 	register long __a2 __asm__("$6") = (long) arg3;			\
 	register long __a3 __asm__("$7") = (long) arg4;			\
-	__asm__ volatile (						\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	"subu\t$29, 32\n\t"						\
 	"sw\t%6, 16($29)\n\t"						\
@@ -328,7 +328,7 @@ L(syse1):
 	register long __a1 __asm__("$5") = (long) arg2;			\
 	register long __a2 __asm__("$6") = (long) arg3;			\
 	register long __a3 __asm__("$7") = (long) arg4;			\
-	__asm__ volatile (						\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	"subu\t$29, 32\n\t"						\
 	"sw\t%6, 16($29)\n\t"						\
@@ -359,7 +359,7 @@ L(syse1):
 	register long __a1 __asm__("$5") = (long) arg2;			\
 	register long __a2 __asm__("$6") = (long) arg3;			\
 	register long __a3 __asm__("$7") = (long) arg4;			\
-	__asm__ volatile (						\
+	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
 	"subu\t$29, 32\n\t"						\
 	"sw\t%6, 16($29)\n\t"						\

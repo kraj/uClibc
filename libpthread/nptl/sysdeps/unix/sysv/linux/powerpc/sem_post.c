@@ -29,9 +29,9 @@ __new_sem_post (sem_t *sem)
 {
   struct new_sem *isem = (struct new_sem *) sem;
 
-  __asm __volatile (__lll_rel_instr ::: "memory");
+  __asm__ __volatile__ (__lll_rel_instr ::: "memory");
   atomic_increment (&isem->value);
-  __asm __volatile (__lll_acq_instr ::: "memory");
+  __asm__ __volatile__ (__lll_acq_instr ::: "memory");
   if (isem->nwaiters > 0)
     {
       int err = lll_futex_wake (&isem->value, 1,

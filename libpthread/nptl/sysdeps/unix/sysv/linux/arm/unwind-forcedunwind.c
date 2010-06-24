@@ -40,7 +40,7 @@ pthread_cancel_init (void)
   if (__builtin_expect (libgcc_s_handle != NULL, 1))
     {
       /* Force gcc to reload all values.  */
-      asm volatile ("" ::: "memory");
+      __asm__ __volatile__ ("" ::: "memory");
       return;
     }
 
@@ -85,7 +85,7 @@ __unwind_freeres (void)
    ARM unwinder relies on register state at entrance.  So we write this in
    assembly.  */
 
-asm (
+__asm__ (
 "	.globl	_Unwind_Resume\n"
 "	.type	_Unwind_Resume, %function\n"
 "_Unwind_Resume:\n"

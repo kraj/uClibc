@@ -43,12 +43,12 @@ handler (int sig)
 static void __attribute__ ((noinline))
 clobber_lots_of_regs (void)
 {
-#define X1(n) long r##n = 10##n; __asm __volatile ("" : "+r" (r##n));
+#define X1(n) long r##n = 10##n; __asm__ __volatile__ ("" : "+r" (r##n));
 #define X2(n) X1(n##0) X1(n##1) X1(n##2) X1(n##3) X1(n##4)
 #define X3(n) X2(n##0) X2(n##1) X2(n##2) X2(n##3) X2(n##4)
   X3(0) X3(1) X3(2) X3(3) X3(4)
 #undef X1
-#define X1(n) __asm __volatile ("" : : "r" (r##n));
+#define X1(n) __asm__ __volatile__ ("" : : "r" (r##n));
   X3(0) X3(1) X3(2) X3(3) X3(4)
 #undef X1
 #undef X2

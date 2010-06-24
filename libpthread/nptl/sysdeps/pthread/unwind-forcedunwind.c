@@ -50,7 +50,7 @@ pthread_cancel_init (void)
   if (__builtin_expect (libgcc_s_handle != NULL, 1))
     {
       /* Force gcc to reload all values.  */
-      __asm__ volatile ("" ::: "memory");
+      __asm__ __volatile__ ("" ::: "memory");
       return;
     }
 

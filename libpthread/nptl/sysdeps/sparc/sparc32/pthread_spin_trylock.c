@@ -24,6 +24,6 @@ int
 pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   int res;
-  __asm __volatile ("ldstub [%1], %0" : "=r" (res) : "r" (lock) : "memory");
+  __asm__ __volatile__ ("ldstub [%1], %0" : "=r" (res) : "r" (lock) : "memory");
   return res == 0 ? 0 : EBUSY;
 }

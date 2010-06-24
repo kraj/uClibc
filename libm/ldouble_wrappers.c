@@ -66,7 +66,7 @@ long long func##l(long double x) \
 long double func##l(long double x) \
 { \
 	long double st_top; \
-	__asm ( \
+	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
 	"	jmp	" __stringify(__GI_##func) "\n" \
@@ -79,7 +79,7 @@ long double func##l(long double x) \
 int func##l(long double x) \
 { \
 	int ret; \
-	__asm ( \
+	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
 	"	jmp	" __stringify(__GI_##func) "\n" \
@@ -92,7 +92,7 @@ int func##l(long double x) \
 long func##l(long double x) \
 { \
 	long ret; \
-	__asm ( \
+	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
 	"	jmp	" __stringify(__GI_##func) "\n" \
@@ -105,7 +105,7 @@ long func##l(long double x) \
 long long func##l(long double x) \
 { \
 	long long ret; \
-	__asm ( \
+	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
 	"	jmp	" __stringify(__GI_##func) "\n" \

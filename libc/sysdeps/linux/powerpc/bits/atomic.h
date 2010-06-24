@@ -341,7 +341,7 @@
  * So if the build is using -mcpu=[power4,power5,power5+,970] we can
  * safely use lwsync.
  */
-# define atomic_read_barrier()	__asm ("lwsync" ::: "memory")
+# define atomic_read_barrier()	__asm__ ("lwsync" ::: "memory")
 /*
  * "light weight" sync can also be used for the release barrier.
  */

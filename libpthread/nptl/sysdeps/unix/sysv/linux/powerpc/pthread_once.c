@@ -52,7 +52,7 @@ __pthread_once (pthread_once_t *once_control, void (*init_routine) (void))
 	 Do this atomically.
       */
       newval = __fork_generation | 1;
-      __asm __volatile ("1:	lwarx	%0,0,%3\n"
+      __asm__ __volatile__ ("1:	lwarx	%0,0,%3\n"
 			"	andi.	%1,%0,2\n"
 			"	bne	2f\n"
 			"	stwcx.	%4,0,%3\n"

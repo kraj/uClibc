@@ -24,7 +24,7 @@
 int
 pthread_spin_unlock (pthread_spinlock_t *lock)
 {
-  __asm __volatile ("membar #StoreStore | #LoadStore");
+  __asm__ __volatile__ ("membar #StoreStore | #LoadStore");
   *lock = 0;
   return 0;
 }

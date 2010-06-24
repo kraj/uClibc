@@ -49,7 +49,7 @@ __pthread_once (pthread_once_t *once_control, void (*init_routine) (void))
 	 Do this atomically.
       */
       newval = __fork_generation | 1;
-      __asm __volatile (
+      __asm__ __volatile__ (
 		"1:	ldl_l	%0, %2\n"
 		"	and	%0, 2, %1\n"
 		"	bne	%1, 2f\n"

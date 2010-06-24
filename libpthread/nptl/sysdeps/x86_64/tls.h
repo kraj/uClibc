@@ -170,7 +170,7 @@ typedef struct
      _head->self = _thrdescr;						      \
 									      \
      /* It is a simple syscall to set the %fs value for the thread.  */	      \
-     __asm__ volatile ("syscall"						      \
+     __asm__ __volatile__ ("syscall"						      \
 		   : "=a" (_result)					      \
 		   : "0" ((unsigned long int) __NR_arch_prctl),		      \
 		     "D" ((unsigned long int) ARCH_SET_FS),		      \
@@ -189,7 +189,7 @@ typedef struct
 
 /* Return the thread descriptor for the current thread.
 
-   The contained asm must *not* be marked volatile since otherwise
+   The contained asm must *not* be marked __volatile__ since otherwise
    assignments like
 	pthread_descr self = thread_self();
    do not get optimized away.  */
@@ -207,11 +207,11 @@ typedef struct
 # define THREAD_GETMEM(descr, member) \
   ({ __typeof (descr->member) __value;					      \
      if (sizeof (__value) == 1)						      \
-       __asm__ volatile ("movb %%fs:%P2,%b0"				      \
+       __asm__ __volatile__ ("movb %%fs:%P2,%b0"				      \
 		     : "=q" (__value)					      \
 		     : "0" (0), "i" (offsetof (struct pthread, member)));     \
      else if (sizeof (__value) == 4)					      \
-       __asm__ volatile ("movl %%fs:%P1,%0"					      \
+       __asm__ __volatile__ ("movl %%fs:%P1,%0"					      \
 		     : "=r" (__value)					      \
 		     : "i" (offsetof (struct pthread, member)));	      \
      else								      \
@@ -221,7 +221,7 @@ typedef struct
 	      4 or 8.  */						      \
 	   abort ();							      \
 									      \
-	 __asm__ volatile ("movq %%fs:%P1,%q0"				      \
+	 __asm__ __volatile__ ("movq %%fs:%P1,%q0"				      \
 		       : "=r" (__value)					      \
 		       : "i" (offsetof (struct pthread, member)));	      \
        }								      \
@@ -232,12 +232,12 @@ typedef struct
 # define THREAD_GETMEM_NC(descr, member, idx) \
   ({ __typeof (descr->member[0]) __value;				      \
      if (sizeof (__value) == 1)						      \
-       __asm__ volatile ("movb %%fs:%P2(%q3),%b0"				      \
+       __asm__ __volatile__ ("movb %%fs:%P2(%q3),%b0"				      \
 		     : "=q" (__value)					      \
 		     : "0" (0), "i" (offsetof (struct pthread, member[0])),   \
 		       "r" (idx));					      \
      else if (sizeof (__value) == 4)					      \
-       __asm__ volatile ("movl %%fs:%P1(,%q2,4),%0"				      \
+       __asm__ __volatile__ ("movl %%fs:%P1(,%q2,4),%0"				      \
 		     : "=r" (__value)					      \
 		     : "i" (offsetof (struct pthread, member[0])), "r" (idx));\
      else								      \
@@ -247,7 +247,7 @@ typedef struct
 	      4 or 8.  */						      \
 	   abort ();							      \
 									      \
-	 __asm__ volatile ("movq %%fs:%P1(,%q2,8),%q0"			      \
+	 __asm__ __volatile__ ("movq %%fs:%P1(,%q2,8),%q0"			      \
 		       : "=r" (__value)					      \
 		       : "i" (offsetof (struct pthread, member[0])),	      \
 			 "r" (idx));					      \
@@ -267,11 +267,11 @@ typedef struct
 /* Same as THREAD_SETMEM, but the member offset can be non-constant.  */
 # define THREAD_SETMEM(descr, member, value) \
   ({ if (sizeof (descr->member) == 1)					      \
-       __asm__ volatile ("movb %b0,%%fs:%P1" :				      \
+       __asm__ __volatile__ ("movb %b0,%%fs:%P1" :				      \
 		     : "iq" (value),					      \
 		       "i" (offsetof (struct pthread, member)));	      \
      else if (sizeof (descr->member) == 4)				      \
-       __asm__ volatile ("movl %0,%%fs:%P1" :				      \
+       __asm__ __volatile__ ("movl %0,%%fs:%P1" :				      \
 		     : IMM_MODE (value),				      \
 		       "i" (offsetof (struct pthread, member)));	      \
      else								      \
@@ -281,7 +281,7 @@ typedef struct
 	      4 or 8.  */						      \
 	   abort ();							      \
 									      \
-	 __asm__ volatile ("movq %q0,%%fs:%P1" :				      \
+	 __asm__ __volatile__ ("movq %q0,%%fs:%P1" :				      \
 		       : IMM_MODE ((unsigned long int) value),		      \
 			 "i" (offsetof (struct pthread, member)));	      \
        }})
@@ -290,12 +290,12 @@ typedef struct
 /* Set member of the thread descriptor directly.  */
 # define THREAD_SETMEM_NC(descr, member, idx, value) \
   ({ if (sizeof (descr->member[0]) == 1)				      \
-       __asm__ volatile ("movb %b0,%%fs:%P1(%q2)" :				      \
+       __asm__ __volatile__ ("movb %b0,%%fs:%P1(%q2)" :				      \
 		     : "iq" (value),					      \
 		       "i" (offsetof (struct pthread, member[0])),	      \
 		       "r" (idx));					      \
      else if (sizeof (descr->member[0]) == 4)				      \
-       __asm__ volatile ("movl %0,%%fs:%P1(,%q2,4)" :			      \
+       __asm__ __volatile__ ("movl %0,%%fs:%P1(,%q2,4)" :			      \
 		     : IMM_MODE (value),				      \
 		       "i" (offsetof (struct pthread, member[0])),	      \
 		       "r" (idx));					      \
@@ -306,7 +306,7 @@ typedef struct
 	      4 or 8.  */						      \
 	   abort ();							      \
 									      \
-	 __asm__ volatile ("movq %q0,%%fs:%P1(,%q2,8)" :			      \
+	 __asm__ __volatile__ ("movq %q0,%%fs:%P1(,%q2,8)" :			      \
 		       : IMM_MODE ((unsigned long int) value),		      \
 			 "i" (offsetof (struct pthread, member[0])),	      \
 			 "r" (idx));					      \
@@ -318,7 +318,7 @@ typedef struct
   ({ __typeof (descr->member) __ret;					      \
      __typeof (oldval) __old = (oldval);				      \
      if (sizeof (descr->member) == 4)					      \
-       __asm__ volatile (LOCK_PREFIX "cmpxchgl %2, %%fs:%P3"		      \
+       __asm__ __volatile__ (LOCK_PREFIX "cmpxchgl %2, %%fs:%P3"		      \
 		     : "=a" (__ret)					      \
 		     : "0" (__old), "r" (newval),			      \
 		       "i" (offsetof (struct pthread, member)));	      \
@@ -331,7 +331,7 @@ typedef struct
 /* Atomic logical and.  */
 # define THREAD_ATOMIC_AND(descr, member, val) \
   (void) ({ if (sizeof ((descr)->member) == 4)				      \
-	      __asm__ volatile (LOCK_PREFIX "andl %1, %%fs:%P0"		      \
+	      __asm__ __volatile__ (LOCK_PREFIX "andl %1, %%fs:%P0"		      \
 			    :: "i" (offsetof (struct pthread, member)),	      \
 			       "ir" (val));				      \
 	    else							      \
@@ -342,7 +342,7 @@ typedef struct
 /* Atomic set bit.  */
 # define THREAD_ATOMIC_BIT_SET(descr, member, bit) \
   (void) ({ if (sizeof ((descr)->member) == 4)				      \
-	      __asm__ volatile (LOCK_PREFIX "orl %1, %%fs:%P0"		      \
+	      __asm__ __volatile__ (LOCK_PREFIX "orl %1, %%fs:%P0"		      \
 			    :: "i" (offsetof (struct pthread, member)),	      \
 			       "ir" (1 << (bit)));			      \
 	    else							      \
@@ -352,7 +352,7 @@ typedef struct
 
 # define CALL_THREAD_FCT(descr) \
   ({ void *__res;							      \
-     __asm__ volatile ("movq %%fs:%P2, %%rdi\n\t"				      \
+     __asm__ __volatile__ ("movq %%fs:%P2, %%rdi\n\t"				      \
 		   "callq *%%fs:%P1"					      \
 		   : "=a" (__res)					      \
 		   : "i" (offsetof (struct pthread, start_routine)),	      \
@@ -385,7 +385,7 @@ typedef struct
 # define THREAD_GSCOPE_RESET_FLAG() \
   do									      \
     { int __res;							      \
-      __asm__ volatile ("xchgl %0, %%fs:%P1"				      \
+      __asm__ __volatile__ ("xchgl %0, %%fs:%P1"				      \
 		    : "=r" (__res)					      \
 		    : "i" (offsetof (struct pthread, header.gscope_flag)),    \
 		      "0" (THREAD_GSCOPE_FLAG_UNUSED));			      \

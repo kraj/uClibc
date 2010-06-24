@@ -94,7 +94,7 @@ typedef struct
 /* Install new dtv for current thread.  */
 # define INSTALL_NEW_DTV(dtv) \
   ({ tcbhead_t *__tcbp;							      \
-     __asm __volatile ("stc gbr,%0" : "=r" (__tcbp));			      \
+     __asm__ __volatile__ ("stc gbr,%0" : "=r" (__tcbp));			      \
      __tcbp->dtv = (dtv);})
 
 /* Return dtv of given thread descriptor.  */
@@ -105,12 +105,12 @@ typedef struct
    special attention since 'errno' is not yet available and if the
    operation can cause a failure 'errno' must not be touched.  */
 # define TLS_INIT_TP(tcbp, secondcall) \
-  ({ __asm __volatile ("ldc %0,gbr" : : "r" (tcbp)); 0; })
+  ({ __asm__ __volatile__ ("ldc %0,gbr" : : "r" (tcbp)); 0; })
 
 /* Return the address of the dtv for the current thread.  */
 # define THREAD_DTV() \
   ({ tcbhead_t *__tcbp;							      \
-     __asm __volatile ("stc gbr,%0" : "=r" (__tcbp));			      \
+     __asm__ __volatile__ ("stc gbr,%0" : "=r" (__tcbp));			      \
      __tcbp->dtv;})
 
 /* Return the thread descriptor for the current thread.
@@ -120,7 +120,7 @@ typedef struct
    do not get optimized away.  */
 # define THREAD_SELF \
   ({ struct pthread *__self;						      \
-     __asm ("stc gbr,%0" : "=r" (__self));				      \
+     __asm__ ("stc gbr,%0" : "=r" (__self));				      \
      __self - 1;})
 
 /* Magic for libthread_db to know how to do THREAD_SELF.  */
@@ -143,15 +143,15 @@ typedef struct
 
 #define THREAD_GET_POINTER_GUARD() \
   ({ tcbhead_t *__tcbp;							      \
-     __asm __volatile ("stc gbr,%0" : "=r" (__tcbp));			      \
+     __asm__ __volatile__ ("stc gbr,%0" : "=r" (__tcbp));			      \
      __tcbp->pointer_guard;})
  #define THREAD_SET_POINTER_GUARD(value) \
   ({ tcbhead_t *__tcbp;							      \
-     __asm __volatile ("stc gbr,%0" : "=r" (__tcbp));			      \
+     __asm__ __volatile__ ("stc gbr,%0" : "=r" (__tcbp));			      \
      __tcbp->pointer_guard = (value);})
 #define THREAD_COPY_POINTER_GUARD(descr) \
   ({ tcbhead_t *__tcbp;							      \
-     __asm __volatile ("stc gbr,%0" : "=r" (__tcbp));			      \
+     __asm__ __volatile__ ("stc gbr,%0" : "=r" (__tcbp));			      \
      ((tcbhead_t *) (descr + 1))->pointer_guard	= __tcbp->pointer_guard;})
 
 /* Get and set the global scope generation counter in struct pthread.  */

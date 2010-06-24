@@ -72,11 +72,11 @@ void __arm_link_error (void);
 /* Thumb-2 has ldrex/strex.  However it does not have barrier instructions,
    so we still need to use the kernel helper.  */
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval) \
-  ({ register __typeof (oldval) a_oldval asm ("r0");			      \
-     register __typeof (oldval) a_newval asm ("r1") = (newval);		      \
-     register __typeof (mem) a_ptr asm ("r2") = (mem);			      \
-     register __typeof (oldval) a_tmp asm ("r3");			      \
-     register __typeof (oldval) a_oldval2 asm ("r4") = (oldval);	      \
+  ({ register __typeof (oldval) a_oldval __asm__ ("r0");			      \
+     register __typeof (oldval) a_newval __asm__ ("r1") = (newval);		      \
+     register __typeof (mem) a_ptr __asm__ ("r2") = (mem);			      \
+     register __typeof (oldval) a_tmp __asm__ ("r3");			      \
+     register __typeof (oldval) a_oldval2 __asm__ ("r4") = (oldval);	      \
      __asm__ __volatile__						      \
 	     ("0:\tldr\t%[tmp],[%[ptr]]\n\t"				      \
 	      "cmp\t%[tmp], %[old2]\n\t"				      \
@@ -95,11 +95,11 @@ void __arm_link_error (void);
      a_tmp; })
 #else
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval) \
-  ({ register __typeof (oldval) a_oldval asm ("r0");			      \
-     register __typeof (oldval) a_newval asm ("r1") = (newval);		      \
-     register __typeof (mem) a_ptr asm ("r2") = (mem);			      \
-     register __typeof (oldval) a_tmp asm ("r3");			      \
-     register __typeof (oldval) a_oldval2 asm ("r4") = (oldval);	      \
+  ({ register __typeof (oldval) a_oldval __asm__ ("r0");			      \
+     register __typeof (oldval) a_newval __asm__ ("r1") = (newval);		      \
+     register __typeof (mem) a_ptr __asm__ ("r2") = (mem);			      \
+     register __typeof (oldval) a_tmp __asm__ ("r3");			      \
+     register __typeof (oldval) a_oldval2 __asm__ ("r4") = (oldval);	      \
      __asm__ __volatile__						      \
 	     ("0:\tldr\t%[tmp],[%[ptr]]\n\t"				      \
 	      "cmp\t%[tmp], %[old2]\n\t"				      \

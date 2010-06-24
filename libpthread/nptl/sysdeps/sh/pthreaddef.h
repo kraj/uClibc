@@ -41,9 +41,9 @@
 #define __exit_thread_inline(val) \
   while (1) {								      \
     if (__builtin_constant_p (val) && (val) == 0)			      \
-      __asm__ volatile ("mov #0,r4; mov %0,r3; trapa #0x11\n\t" SYSCALL_INST_PAD  \
+      __asm__ __volatile__ ("mov #0,r4; mov %0,r3; trapa #0x11\n\t" SYSCALL_INST_PAD  \
 		   :: "i" (__NR_exit));  \
     else								      \
-      __asm__ volatile ("mov %1,r4; mov %0,r3; trapa #0x11\n\t" SYSCALL_INST_PAD  \
+      __asm__ __volatile__ ("mov %1,r4; mov %0,r3; trapa #0x11\n\t" SYSCALL_INST_PAD  \
 		    :: "i" (__NR_exit), "r" (val));			      \
   }

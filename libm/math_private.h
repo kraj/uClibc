@@ -211,17 +211,17 @@ extern int    __kernel_rem_pio2 (double*,double*,int,int,int,const int*) attribu
 #define math_opt_barrier(x) ({ \
 	__typeof(x) __x = (x); \
 	/* "t": load x into top-of-stack fpreg */ \
-	__asm ("" : "=t" (__x) : "0" (__x)); \
+	__asm__ ("" : "=t" (__x) : "0" (__x)); \
 	__x; \
 })
 #define math_force_eval(x) do {	\
 	__typeof(x) __x = (x); \
 	if (sizeof(__x) <= sizeof(double)) \
 		/* "m": store x into a memory location */ \
-		__asm __volatile ("" : : "m" (__x)); \
+		__asm__ __volatile__ ("" : : "m" (__x)); \
 	else /* long double */ \
 		/* "f": load x into (any) fpreg */ \
-		__asm __volatile ("" : : "f" (__x)); \
+		__asm__ __volatile__ ("" : : "f" (__x)); \
 } while (0)
 #endif
 
@@ -230,29 +230,29 @@ extern int    __kernel_rem_pio2 (double*,double*,int,int,int,const int*) attribu
 	__typeof(x) __x = (x); \
 	if (sizeof(__x) <= sizeof(double)) \
 		/* "x": load into XMM SSE register */ \
-		__asm ("" : "=x" (__x) : "0" (__x)); \
+		__asm__ ("" : "=x" (__x) : "0" (__x)); \
 	else /* long double */ \
 		/* "t": load x into top-of-stack fpreg */ \
-		__asm ("" : "=t" (__x) : "0" (__x)); \
+		__asm__ ("" : "=t" (__x) : "0" (__x)); \
 	__x; \
 })
 #define math_force_eval(x) do { \
 	__typeof(x) __x = (x); \
 	if (sizeof(__x) <= sizeof(double)) \
 		/* "x": load into XMM SSE register */ \
-		__asm __volatile ("" : : "x" (__x)); \
+		__asm__ __volatile__ ("" : : "x" (__x)); \
 	else /* long double */ \
 		/* "f": load x into (any) fpreg */ \
-		__asm __volatile ("" : : "f" (__x)); \
+		__asm__ __volatile__ ("" : : "f" (__x)); \
 } while (0)
 #endif
 
 /* Default implementations force store to a memory location */
 #ifndef math_opt_barrier
-#define math_opt_barrier(x) ({ __typeof(x) __x = (x); __asm ("" : "+m" (__x)); __x; })
+#define math_opt_barrier(x) ({ __typeof(x) __x = (x); __asm__ ("" : "+m" (__x)); __x; })
 #endif
 #ifndef math_force_eval
-#define math_force_eval(x)  do { __typeof(x) __x = (x); __asm __volatile ("" : : "m" (__x)); } while (0)
+#define math_force_eval(x)  do { __typeof(x) __x = (x); __asm__ __volatile__ ("" : : "m" (__x)); } while (0)
 #endif
 
 

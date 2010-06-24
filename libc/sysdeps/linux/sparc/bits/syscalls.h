@@ -78,7 +78,7 @@
 	register long __o3 __asm__ ("o3") = (long)(arg4);		\
 	register long __o4 __asm__ ("o4") = (long)(arg5);		\
 	register long __g1 __asm__ ("g1") = __NR_clone;			\
-	__asm __volatile (__CLONE_SYSCALL_STRING :			\
+	__asm__ __volatile__ (__CLONE_SYSCALL_STRING :			\
 			  "=r" (__g1), "=r" (__o0), "=r" (__o1)	:	\
 			  "0" (__g1), "1" (__o0), "2" (__o1),		\
 			  "r" (__o2), "r" (__o3), "r" (__o4) :		\

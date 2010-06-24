@@ -23,7 +23,7 @@
 int
 pthread_spin_unlock (pthread_spinlock_t *lock)
 {
-  __asm __volatile (__lll_rel_instr ::: "memory");
+  __asm__ __volatile__ (__lll_rel_instr ::: "memory");
   *lock = 0;
   return 0;
 }

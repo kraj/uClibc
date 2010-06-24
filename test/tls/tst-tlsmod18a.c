@@ -11,7 +11,7 @@ test (void)
 {
   int *p = &var;
   /* GCC assumes &var is never NULL, add optimization barrier.  */
-  __asm __volatile ("" : "+r" (p));
+  __asm__ __volatile__ ("" : "+r" (p));
   if (p == NULL || *p != 4)
     {
       printf ("fail %d %p\n", N, p);

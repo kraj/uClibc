@@ -529,8 +529,8 @@ __inline_mathcodeNP (tanh, __x, \
 
 __inline_mathcodeNP (floor, __x, \
   register long double __value;						      \
-  __volatile unsigned short int __cw;					      \
-  __volatile unsigned short int __cwtmp;				      \
+  __volatile__ unsigned short int __cw;					      \
+  __volatile__ unsigned short int __cwtmp;				      \
   __asm__ __volatile__ ("fnstcw %0" : "=m" (__cw));				      \
   __cwtmp = (__cw & 0xf3ff) | 0x0400; /* rounding down */		      \
   __asm__ __volatile__ ("fldcw %0" : : "m" (__cwtmp));			      \
@@ -540,8 +540,8 @@ __inline_mathcodeNP (floor, __x, \
 
 __inline_mathcodeNP (ceil, __x, \
   register long double __value;						      \
-  __volatile unsigned short int __cw;					      \
-  __volatile unsigned short int __cwtmp;				      \
+  __volatile__ unsigned short int __cw;					      \
+  __volatile__ unsigned short int __cwtmp;				      \
   __asm__ __volatile__ ("fnstcw %0" : "=m" (__cw));				      \
   __cwtmp = (__cw & 0xf3ff) | 0x0800; /* rounding up */			      \
   __asm__ __volatile__ ("fldcw %0" : : "m" (__cwtmp));			      \

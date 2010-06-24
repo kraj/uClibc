@@ -164,7 +164,7 @@
 /* Set *futex to ID if it is 0, atomically.  Returns the old value */
 #define __lll_robust_trylock(futex, id) \
   ({ int __val;								      \
-     __asm __volatile ("1:	lwarx	%0,0,%2" MUTEX_HINT_ACQ "\n"	      \
+     __asm__ __volatile__ ("1:	lwarx	%0,0,%2" MUTEX_HINT_ACQ "\n"	      \
 		       "	cmpwi	0,%0,0\n"			      \
 		       "	bne	2f\n"				      \
 		       "	stwcx.	%3,0,%2\n"			      \

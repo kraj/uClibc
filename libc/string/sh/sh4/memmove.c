@@ -14,8 +14,8 @@
 #include <string.h>
 
 #define FPSCR_SR	(1 << 20)
-#define STORE_FPSCR(x)	__asm__ volatile("sts fpscr, %0" : "=r"(x))
-#define LOAD_FPSCR(x)	__asm__ volatile("lds %0, fpscr" : : "r"(x))
+#define STORE_FPSCR(x)	__asm__ __volatile__("sts fpscr, %0" : "=r"(x))
+#define LOAD_FPSCR(x)	__asm__ __volatile__("lds %0, fpscr" : : "r"(x))
 
 static void fpu_optimised_copy_fwd(void *dest, const void *src, size_t len)
 {
@@ -51,24 +51,24 @@ static void fpu_optimised_copy_fwd(void *dest, const void *src, size_t len)
 			LOAD_FPSCR(FPSCR_SR);
 
 			while (len >= 32) {
-				__asm__ volatile ("fmov @%0+,dr0":"+r" (s1));
-				__asm__ volatile ("fmov @%0+,dr2":"+r" (s1));
-				__asm__ volatile ("fmov @%0+,dr4":"+r" (s1));
-				__asm__ volatile ("fmov @%0+,dr6":"+r" (s1));
+				__asm__ __volatile__ ("fmov @%0+,dr0":"+r" (s1));
+				__asm__ __volatile__ ("fmov @%0+,dr2":"+r" (s1));
+				__asm__ __volatile__ ("fmov @%0+,dr4":"+r" (s1));
+				__asm__ __volatile__ ("fmov @%0+,dr6":"+r" (s1));
 				__asm__
-				    volatile ("fmov dr0,@%0"::"r"
+				    __volatile__ ("fmov dr0,@%0"::"r"
 					      (d1):"memory");
 				d1 += 2;
 				__asm__
-				    volatile ("fmov dr2,@%0"::"r"
+				    __volatile__ ("fmov dr2,@%0"::"r"
 					      (d1):"memory");
 				d1 += 2;
 				__asm__
-				    volatile ("fmov dr4,@%0"::"r"
+				    __volatile__ ("fmov dr4,@%0"::"r"
 					      (d1):"memory");
 				d1 += 2;
 				__asm__
-				    volatile ("fmov dr6,@%0"::"r"
+				    __volatile__ ("fmov dr6,@%0"::"r"
 					      (d1):"memory");
 				d1 += 2;
 				len -= 32;

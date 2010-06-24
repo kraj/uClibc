@@ -99,7 +99,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_trylock(futex) \
   ({ unsigned char __result; \
-     __asm __volatile ("\
+     __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
 	nop\n\
@@ -121,7 +121,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_robust_trylock(futex, id)	\
   ({ unsigned char __result; \
-     __asm __volatile ("\
+     __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
 	nop\n\
@@ -143,7 +143,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_cond_trylock(futex) \
   ({ unsigned char __result; \
-     __asm __volatile ("\
+     __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
 	nop\n\
@@ -165,7 +165,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_lock(futex, private) \
   (void) ({ int __result, *__futex = &(futex); \
-	    __asm __volatile ("\
+	    __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		nop\n\
@@ -190,7 +190,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_robust_lock(futex, id, private) \
   ({ int __result, *__futex = &(futex); \
-     __asm __volatile ("\
+     __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
 	nop\n\
@@ -211,7 +211,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
    always wakeup waiters.  */
 #define lll_cond_lock(futex, private) \
   (void) ({ int __result, *__futex = &(futex); \
-	    __asm __volatile ("\
+	    __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		nop\n\
@@ -229,7 +229,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_robust_cond_lock(futex, id, private) \
   ({ int __result, *__futex = &(futex); \
-     __asm __volatile ("\
+     __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
 	nop\n\
@@ -248,7 +248,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_timedlock(futex, timeout, private) \
   ({ int __result, *__futex = &(futex); \
-     __asm __volatile ("\
+     __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
 	nop\n\
@@ -267,7 +267,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_robust_timedlock(futex, timeout, id, private) \
   ({ int __result, *__futex = &(futex); \
-     __asm __volatile ("\
+     __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
 	nop\n\
@@ -287,7 +287,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_unlock(futex, private) \
   (void) ({ int __result, *__futex = &(futex); \
-	    __asm __volatile ("\
+	    __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
@@ -310,7 +310,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_robust_unlock(futex, private) \
   (void) ({ int __result, *__futex = &(futex); \
-	    __asm __volatile ("\
+	    __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
@@ -326,7 +326,7 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_robust_dead(futex, private)		       \
   (void) ({ int __ignore, *__futex = &(futex); \
-	    __asm __volatile ("\
+	    __asm__ __volatile__ ("\
 		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
@@ -354,13 +354,13 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 #define lll_futex_timed_wait(futex, val, timeout, private) \
   ({									      \
     int __status;							      \
-    register unsigned long __r3 __asm ("r3") = SYS_futex;			      \
-    register unsigned long __r4 __asm ("r4") = (unsigned long) (futex);	      \
-    register unsigned long __r5 __asm ("r5")				      \
+    register unsigned long __r3 __asm__ ("r3") = SYS_futex;			      \
+    register unsigned long __r4 __asm__ ("r4") = (unsigned long) (futex);	      \
+    register unsigned long __r5 __asm__ ("r5")				      \
       = __lll_private_flag (FUTEX_WAIT, private);			      \
-    register unsigned long __r6 __asm ("r6") = (unsigned long) (val);	      \
-    register unsigned long __r7 __asm ("r7") = (timeout);			      \
-    __asm __volatile (SYSCALL_WITH_INST_PAD				      \
+    register unsigned long __r6 __asm__ ("r6") = (unsigned long) (val);	      \
+    register unsigned long __r7 __asm__ ("r7") = (timeout);			      \
+    __asm__ __volatile__ (SYSCALL_WITH_INST_PAD				      \
 		      : "=z" (__status)					      \
 		      : "r" (__r3), "r" (__r4), "r" (__r5),		      \
 			"r" (__r6), "r" (__r7)				      \
@@ -372,13 +372,13 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 #define lll_futex_wake(futex, nr, private) \
   do {									      \
     int __ignore;							      \
-    register unsigned long __r3 __asm ("r3") = SYS_futex;			      \
-    register unsigned long __r4 __asm ("r4") = (unsigned long) (futex);	      \
-    register unsigned long __r5 __asm ("r5")				      \
+    register unsigned long __r3 __asm__ ("r3") = SYS_futex;			      \
+    register unsigned long __r4 __asm__ ("r4") = (unsigned long) (futex);	      \
+    register unsigned long __r5 __asm__ ("r5")				      \
       = __lll_private_flag (FUTEX_WAKE, private);			      \
-    register unsigned long __r6 __asm ("r6") = (unsigned long) (nr);	      \
-    register unsigned long __r7 __asm ("r7") = 0;				      \
-    __asm __volatile (SYSCALL_WITH_INST_PAD				      \
+    register unsigned long __r6 __asm__ ("r6") = (unsigned long) (nr);	      \
+    register unsigned long __r7 __asm__ ("r7") = 0;				      \
+    __asm__ __volatile__ (SYSCALL_WITH_INST_PAD				      \
 		      : "=z" (__ignore)					      \
 		      : "r" (__r3), "r" (__r4), "r" (__r5),		      \
 			"r" (__r6), "r" (__r7)				      \

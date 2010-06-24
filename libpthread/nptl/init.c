@@ -275,7 +275,7 @@ __pthread_initialize_minimal_internal (void)
      following code ahead of the __libc_setup_tls call.  This function
      will initialize the thread register which is subsequently
      used.  */
-  __asm __volatile ("");
+  __asm__ __volatile__ ("");
 #endif
 
   /* Minimal initialization of the thread descriptor.  */

@@ -210,7 +210,7 @@ LLL_STUB_UNWIND_INFO_END
   ({									      \
     int __status;							      \
     register __typeof (val) _val __asm__ ("edx") = (val);			      \
-    __asm__ __volatile (LLL_EBX_LOAD					      \
+    __asm__ __volatile__ (LLL_EBX_LOAD					      \
 		      LLL_ENTER_KERNEL					      \
 		      LLL_EBX_LOAD					      \
 		      : "=a" (__status)					      \
@@ -226,7 +226,7 @@ LLL_STUB_UNWIND_INFO_END
   do {									      \
     int __ignore;							      \
     register __typeof (nr) _nr __asm__ ("edx") = (nr);			      \
-    __asm__ __volatile (LLL_EBX_LOAD					      \
+    __asm__ __volatile__ (LLL_EBX_LOAD					      \
 		      LLL_ENTER_KERNEL					      \
 		      LLL_EBX_LOAD					      \
 		      : "=a" (__ignore)					      \
@@ -254,7 +254,7 @@ LLL_STUB_UNWIND_INFO_END
 
 #define lll_trylock(futex) \
   ({ int ret;								      \
-     __asm__ __volatile (__lll_trylock_asm				      \
+     __asm__ __volatile__ (__lll_trylock_asm				      \
 		       : "=a" (ret), "=m" (futex)			      \
 		       : "r" (LLL_LOCK_INITIALIZER_LOCKED), "m" (futex),      \
 			 "0" (LLL_LOCK_INITIALIZER),			      \
@@ -264,7 +264,7 @@ LLL_STUB_UNWIND_INFO_END
 
 #define lll_robust_trylock(futex, id) \
   ({ int ret;								      \
-     __asm__ __volatile (LOCK_INSTR "cmpxchgl %2, %1"			      \
+     __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %2, %1"			      \
 		       : "=a" (ret), "=m" (futex)			      \
 		       : "r" (id), "m" (futex),				      \
 			 "0" (LLL_LOCK_INITIALIZER)			      \
@@ -274,7 +274,7 @@ LLL_STUB_UNWIND_INFO_END
 
 #define lll_cond_trylock(futex) \
   ({ int ret;								      \
-     __asm__ __volatile (LOCK_INSTR "cmpxchgl %2, %1"			      \
+     __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %2, %1"			      \
 		       : "=a" (ret), "=m" (futex)			      \
 		       : "r" (LLL_LOCK_INITIALIZER_WAITERS),		      \
 			 "m" (futex), "0" (LLL_LOCK_INITIALIZER)	      \
@@ -294,7 +294,7 @@ LLL_STUB_UNWIND_INFO_END
   (void)								      \
     ({ int ignore1, ignore2;						      \
        if (__builtin_constant_p (private) && (private) == LLL_PRIVATE)	      \
-	 __asm__ __volatile (__lll_lock_asm_start				      \
+	 __asm__ __volatile__ (__lll_lock_asm_start				      \
 			   "jnz _L_lock_%=\n\t"				      \
 			   ".subsection 1\n\t"				      \
 			   ".type _L_lock_%=,@function\n"		      \
@@ -313,7 +313,7 @@ LLL_STUB_UNWIND_INFO_END
        else								      \
 	 {								      \
 	   int ignore3;							      \
-	   __asm__ __volatile (__lll_lock_asm_start			      \
+	   __asm__ __volatile__ (__lll_lock_asm_start			      \
 			     "jnz _L_lock_%=\n\t"			      \
 			     ".subsection 1\n\t"			      \
 			     ".type _L_lock_%=,@function\n"		      \
@@ -337,7 +337,7 @@ LLL_STUB_UNWIND_INFO_END
 
 #define lll_robust_lock(futex, id, private) \
   ({ int __result, ignore1, ignore2;					      \
-     __asm__ __volatile (LOCK_INSTR "cmpxchgl %1, %2\n\t"			      \
+     __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %2\n\t"			      \
 		       "jnz _L_robust_lock_%=\n\t"			      \
 		       ".subsection 1\n\t"				      \
 		       ".type _L_robust_lock_%=,@function\n"		      \
@@ -362,7 +362,7 @@ LLL_STUB_UNWIND_INFO_END
 #define lll_cond_lock(futex, private) \
   (void)								      \
     ({ int ignore1, ignore2, ignore3;					      \
-       __asm__ __volatile (LOCK_INSTR "cmpxchgl %1, %2\n\t"		      \
+       __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %2\n\t"		      \
 			 "jnz _L_cond_lock_%=\n\t"			      \
 			 ".subsection 1\n\t"				      \
 			 ".type _L_cond_lock_%=,@function\n"		      \
@@ -384,7 +384,7 @@ LLL_STUB_UNWIND_INFO_END
 
 #define lll_robust_cond_lock(futex, id, private) \
   ({ int __result, ignore1, ignore2;					      \
-     __asm__ __volatile (LOCK_INSTR "cmpxchgl %1, %2\n\t"			      \
+     __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %2\n\t"			      \
 		       "jnz _L_robust_cond_lock_%=\n\t"			      \
 		       ".subsection 1\n\t"				      \
 		       ".type _L_robust_cond_lock_%=,@function\n"	      \
@@ -407,7 +407,7 @@ LLL_STUB_UNWIND_INFO_END
 
 #define lll_timedlock(futex, timeout, private) \
   ({ int __result, ignore1, ignore2, ignore3;				      \
-     __asm__ __volatile (LOCK_INSTR "cmpxchgl %1, %3\n\t"			      \
+     __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %3\n\t"			      \
 		       "jnz _L_timedlock_%=\n\t"			      \
 		       ".subsection 1\n\t"				      \
 		       ".type _L_timedlock_%=,@function\n"		      \
@@ -430,7 +430,7 @@ LLL_STUB_UNWIND_INFO_END
 
 #define lll_robust_timedlock(futex, timeout, id, private) \
   ({ int __result, ignore1, ignore2, ignore3;				      \
-     __asm__ __volatile (LOCK_INSTR "cmpxchgl %1, %3\n\t"			      \
+     __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %3\n\t"			      \
 		       "jnz _L_robust_timedlock_%=\n\t"			      \
 		       ".subsection 1\n\t"				      \
 		       ".type _L_robust_timedlock_%=,@function\n"	      \
@@ -463,7 +463,7 @@ LLL_STUB_UNWIND_INFO_END
   (void)								      \
     ({ int ignore;							      \
        if (__builtin_constant_p (private) && (private) == LLL_PRIVATE)	      \
-	 __asm__ __volatile (__lll_unlock_asm				      \
+	 __asm__ __volatile__ (__lll_unlock_asm				      \
 			   "jne _L_unlock_%=\n\t"			      \
 			   ".subsection 1\n\t"				      \
 			   ".type _L_unlock_%=,@function\n"		      \
@@ -481,7 +481,7 @@ LLL_STUB_UNWIND_INFO_END
        else								      \
 	 {								      \
 	   int ignore2;							      \
-	   __asm__ __volatile (__lll_unlock_asm				      \
+	   __asm__ __volatile__ (__lll_unlock_asm				      \
 			     "jne _L_unlock_%=\n\t"			      \
 			     ".subsection 1\n\t"			      \
 			     ".type _L_unlock_%=,@function\n"		      \
@@ -504,7 +504,7 @@ LLL_STUB_UNWIND_INFO_END
 #define lll_robust_unlock(futex, private) \
   (void)								      \
     ({ int ignore, ignore2;						      \
-       __asm__ __volatile (LOCK_INSTR "andl %3, %0\n\t"			      \
+       __asm__ __volatile__ (LOCK_INSTR "andl %3, %0\n\t"			      \
 			 "jne _L_robust_unlock_%=\n\t"			      \
 			 ".subsection 1\n\t"				      \
 			 ".type _L_robust_unlock_%=,@function\n"	      \
@@ -528,7 +528,7 @@ LLL_STUB_UNWIND_INFO_END
   (void)								      \
     ({ int __ignore;							      \
        register int _nr __asm__ ("edx") = 1;				      \
-       __asm__ __volatile (LOCK_INSTR "orl %5, (%2)\n\t"			      \
+       __asm__ __volatile__ (LOCK_INSTR "orl %5, (%2)\n\t"			      \
 			 LLL_EBX_LOAD					      \
 			 LLL_ENTER_KERNEL				      \
 			 LLL_EBX_LOAD					      \
@@ -553,7 +553,7 @@ LLL_STUB_UNWIND_INFO_END
     int __ignore;							      \
     register __typeof (tid) _tid __asm__ ("edx") = (tid);			      \
     if (_tid != 0)							      \
-      __asm__ __volatile (LLL_EBX_LOAD					      \
+      __asm__ __volatile__ (LLL_EBX_LOAD					      \
 			"1:\tmovl %1, %%eax\n\t"			      \
 			LLL_ENTER_KERNEL				      \
 			"cmpl $0, (%%ebx)\n\t"				      \

@@ -41,8 +41,8 @@
 #define __exit_thread_inline(val) \
   while (1) {								      \
     if (__builtin_constant_p (val) && (val) == 0)			      \
-      __asm__ volatile ("xorl %%ebx, %%ebx; int $0x80" :: "a" (__NR_exit));	      \
+      __asm__ __volatile__ ("xorl %%ebx, %%ebx; int $0x80" :: "a" (__NR_exit));	      \
     else								      \
-      __asm__ volatile ("movl %1, %%ebx; int $0x80"				      \
+      __asm__ __volatile__ ("movl %1, %%ebx; int $0x80"				      \
 		    :: "a" (__NR_exit), "r" (val));			      \
   }

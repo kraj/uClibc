@@ -25,9 +25,9 @@
 /* Macros to load from and store into segment registers.  We can use
    the 32-bit instructions.  */
 #define TLS_GET_GS() \
-  ({ int __seg; __asm ("movl %%gs, %0" : "=q" (__seg)); __seg; })
+  ({ int __seg; __asm__ ("movl %%gs, %0" : "=q" (__seg)); __seg; })
 #define TLS_SET_GS(val) \
-  __asm ("movl %0, %%gs" :: "q" (val))
+  __asm__ ("movl %0, %%gs" :: "q" (val))
 
 
 /* Get the full set of definitions.  */

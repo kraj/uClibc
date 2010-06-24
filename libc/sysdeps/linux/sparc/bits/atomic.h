@@ -69,7 +69,7 @@ volatile unsigned char __sparc32_atomic_locks[64]
       unsigned int __idx = (((long) addr >> 2) ^ ((long) addr >> 12)) \
 			   & 63;				      \
       do							      \
-	__asm __volatile ("ldstub %1, %0"			      \
+	__asm__ __volatile__ ("ldstub %1, %0"			      \
 			  : "=r" (__old_lock),			      \
 			    "=m" (__sparc32_atomic_locks[__idx])      \
 			  : "m" (__sparc32_atomic_locks[__idx])	      \
@@ -83,7 +83,7 @@ volatile unsigned char __sparc32_atomic_locks[64]
     {								      \
       __sparc32_atomic_locks[(((long) addr >> 2)		      \
 			      ^ ((long) addr >> 12)) & 63] = 0;	      \
-      __asm __volatile ("" ::: "memory");			      \
+      __asm__ __volatile__ ("" ::: "memory");			      \
     }								      \
   while (0)
 
@@ -92,7 +92,7 @@ volatile unsigned char __sparc32_atomic_locks[64]
     {								      \
       unsigned int __old_lock;					      \
       do							      \
-	__asm __volatile ("ldstub %1, %0"			      \
+	__asm__ __volatile__ ("ldstub %1, %0"			      \
 			  : "=r" (__old_lock), "=m" (*(addr))	      \
 			  : "m" (*(addr))			      \
 			  : "memory");				      \
@@ -104,7 +104,7 @@ volatile unsigned char __sparc32_atomic_locks[64]
   do								      \
     {								      \
       *(char *) (addr) = 0;					      \
-      __asm __volatile ("" ::: "memory");			      \
+      __asm__ __volatile__ ("" ::: "memory");			      \
     }								      \
   while (0)
 
@@ -112,14 +112,14 @@ volatile unsigned char __sparc32_atomic_locks[64]
 #ifndef SHARED
 # define __v9_compare_and_exchange_val_32_acq(mem, newval, oldval) \
 ({									      \
-  register __typeof (*(mem)) __acev_tmp __asm ("%g6");			      \
-  register __typeof (mem) __acev_mem __asm ("%g1") = (mem);		      \
-  register __typeof (*(mem)) __acev_oldval __asm ("%g5");		      \
+  register __typeof (*(mem)) __acev_tmp __asm__ ("%g6");			      \
+  register __typeof (mem) __acev_mem __asm__ ("%g1") = (mem);		      \
+  register __typeof (*(mem)) __acev_oldval __asm__ ("%g5");		      \
   __acev_tmp = (newval);						      \
   __acev_oldval = (oldval);						      \
   /* .word 0xcde05005 is cas [%g1], %g5, %g6.  Can't use cas here though,     \
      because as will then mark the object file as V8+ arch.  */		      \
-  __asm __volatile (".word 0xcde05005"					      \
+  __asm__ __volatile__ (".word 0xcde05005"					      \
 		    : "+r" (__acev_tmp), "=m" (*__acev_mem)		      \
 		    : "r" (__acev_oldval), "m" (*__acev_mem),		      \
 		      "r" (__acev_mem) : "memory");			      \
@@ -187,7 +187,7 @@ volatile unsigned char __sparc32_atomic_locks[64]
        *__acev_memp = __acev_newval;				      \
      else							      \
        __sparc32_atomic_do_unlock24 (__acev_memp);		      \
-     __asm __volatile ("" ::: "memory");			      \
+     __asm__ __volatile__ ("" ::: "memory");			      \
      __acev_ret; })
 
 #define __v7_exchange_24_rel(mem, newval) \
@@ -198,7 +198,7 @@ volatile unsigned char __sparc32_atomic_locks[64]
      __sparc32_atomic_do_lock24 (__acev_memp);			      \
      __acev_ret = *__acev_memp & 0xffffff;			      \
      *__acev_memp = __acev_newval;				      \
-     __asm __volatile ("" ::: "memory");			      \
+     __asm__ __volatile__ ("" ::: "memory");			      \
      __acev_ret; })
 
 #ifdef SHARED

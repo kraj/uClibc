@@ -119,7 +119,7 @@
     register long int r3 __asm__ ("%r3") = (name);			 	      \
     SUBSTITUTE_ARGS_##nr(args);						      \
 									      \
-    __asm__ volatile (SYSCALL_INST_STR##nr SYSCALL_INST_PAD			      \
+    __asm__ __volatile__ (SYSCALL_INST_STR##nr SYSCALL_INST_PAD			      \
 		  : "=z" (resultvar)					      \
 		  : "r" (r3) ASMFMT_##nr				      \
 		  : "memory");						      \
