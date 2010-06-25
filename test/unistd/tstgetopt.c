@@ -21,7 +21,7 @@ main (int argc, char **argv)
   char *cvalue = NULL;
   int Cflag = 0;
   int nflag = 0;
-  int index;
+  int idx;
   int c;
   int result = 0;
 
@@ -67,8 +67,8 @@ main (int argc, char **argv)
   result |= (aflag != 1 || bflag != 1 || cvalue == NULL
 	     || strcmp (cvalue, "foobar") != 0 || Cflag != 3 || nflag != 1);
 
-  for (index = optind; index < argc; index++)
-    printf ("Non-option argument %s\n", argv[index]);
+  for (idx = optind; idx < argc; idx++)
+    printf ("Non-option argument %s\n", argv[idx]);
 
   result |= optind + 1 != argc || strcmp (argv[optind], "random") != 0;
 
