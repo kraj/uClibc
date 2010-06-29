@@ -86,6 +86,17 @@ __unwind_freeres (void)
     }
 }
 
+#ifdef __thumb__
+void
+_Unwind_Resume (struct _Unwind_Exception *exc)
+{
+  if (__builtin_expect (libgcc_s_resume == NULL, 0))
+    pthread_cancel_init ();
+
+  libgcc_s_resume (exc);
+}
+
+#else
 /* It's vitally important that _Unwind_Resume not have a stack frame; the
    ARM unwinder relies on register state at entrance.  So we write this in
    assembly.  */
@@ -132,6 +143,8 @@ __asm__ (
 "2:	.word	libgcc_s_resume(GOTOFF)\n"
 "	.size	_Unwind_Resume, .-_Unwind_Resume\n"
 );
+
+#endif
 
 _Unwind_Reason_Code
 __gcc_personality_v0 (_Unwind_State state,
