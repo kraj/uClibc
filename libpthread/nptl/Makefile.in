@@ -95,6 +95,7 @@ libpthread-routines-y = init vars events version \
 		      pt-raise pt-system \
 		      flockfile ftrylockfile funlockfile \
 		      sigaction \
+		      errno_location \
 		      herrno \
 		      pthread_kill_other_threads \
 		      pthread_getaffinity pthread_setaffinity \

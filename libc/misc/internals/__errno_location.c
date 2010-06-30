@@ -7,7 +7,11 @@
 #include "internal_errno.h"
 
 /* psm: moved to bits/errno.h: */
-int * weak_const_function __errno_location (void)
+int *
+#ifndef __UCLIBC_HAS_THREADS__
+weak_const_function
+#endif
+__errno_location (void)
 {
     return &errno;
 }
