@@ -22,7 +22,7 @@
 #include <sysdep.h>
 #include <bits/errno.h>
 
-#ifdef __UCLIBC_HAS_THREADS__
+#ifdef _LIBC_REENTRANT
 
 LOCALSZ= 3
 FRAMESZ= (((NARGSAVE+LOCALSZ)*SZREG)+ALSZ)&ALMASK
@@ -61,12 +61,14 @@ ENTRY(__syscall_error)
 	j	ra
 	END(__syscall_error)
 
-#else /* __UCLIBC_HAS_THREADS__ */
+#else /* __LIBC_REENTRANT */
 
 
 ENTRY(__syscall_error)
 #ifdef __PIC__
+	.set noat
 	SETUP_GPX (AT)
+	.set at
 #endif
 	SETUP_GPX64 (t9, AT)
 
@@ -79,4 +81,4 @@ ENTRY(__syscall_error)
 	RESTORE_GP64
 	j ra
 	END(__syscall_error)
-#endif  /* __UCLIBC_HAS_THREADS__ */
+#endif  /* _LIBC_REENTRANT*/

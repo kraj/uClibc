@@ -15,6 +15,7 @@ CFLAGS-pt-raise.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 ASFLAGS-nptl-sysdep.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1	\
+			-D_LIBC_REENTRANT \
 		        -I$(top_srcdir)libc/sysdeps/linux/mips
 
 CFLAGS-mips = $(SSP_ALL_CFLAGS)

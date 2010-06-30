@@ -6,11 +6,11 @@
 #
 
 CSRC := \
-	__longjmp.c  brk.c setjmp_aux.c mmap.c __syscall_error.c \
+	__longjmp.c  brk.c setjmp_aux.c mmap.c \
 	cacheflush.c pread_write.c sysmips.c _test_and_set.c \
 	readahead.c
 
-SSRC := bsd-_setjmp.S bsd-setjmp.S setjmp.S syscall.S pipe.S
+SSRC := bsd-_setjmp.S bsd-setjmp.S setjmp.S syscall.S pipe.S syscall_error.S
 
 ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
 CSRC += posix_fadvise.c posix_fadvise64.c
@@ -21,6 +21,7 @@ CSRC += sigaction.c
 SSRC += vfork.S clone.S
 endif
 
+ASFLAGS-syscall_error.S += -D_LIBC_REENTRANT
 
 ARCH_HEADERS := sgidefs.h
 # regdef.h
