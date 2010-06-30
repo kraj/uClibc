@@ -447,11 +447,11 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
      * have resulted in errno being set nonzero, so set it to 0 before
      * we call main.
      */
-    if (likely(__errno_location!=NULL))
+    if (likely(not_null_ptr(__errno_location)))
 	*(__errno_location()) = 0;
 
     /* Set h_errno to 0 as well */
-    if (likely(__h_errno_location!=NULL))
+    if (likely(not_null_ptr(__h_errno_location)))
 	*(__h_errno_location()) = 0;
 
 #if defined HAVE_CLEANUP_JMP_BUF && defined __UCLIBC_HAS_THREADS_NATIVE__
