@@ -6,14 +6,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-libpthread_SSRC = pthread_spin_lock.S pthread_spin_trylock.S aeabi_read_tp.S \
-	thumb_atomics.S
-libpthread_CSRC = aeabi_unwind_cpp_pr1.c
-
-librt_SSRC = aeabi_read_tp.S thumb_atomics.S
-librt_CSRC = aeabi_unwind_cpp_pr1.c
-
-libc_a_CSRC =
+librt_arch_SSRC = aeabi_read_tp.S thumb_atomics.S
+librt_arch_CSRC = aeabi_unwind_cpp_pr1.c
 
 CFLAGS-pt-raise.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 

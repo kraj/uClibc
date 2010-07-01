@@ -358,22 +358,21 @@ $(top_builddir)%.s:  $(top_srcdir)%.c FORCE | pregen; $(compile.s)
 $(top_builddir)%.s:  $(top_srcdir)%.S FORCE | pregen; $(compile.s)
 $(top_builddir)%.dep:
 
-$(top_builddir)lib/interp.c: | $(sub_headers) $(top_builddir)lib
+$(top_builddir)lib/interp.c: | $(top_builddir)lib
 	$(Q)echo "/* Force shared libraries to know about the correct library loader */" > $@.tmp
 	$(Q)echo "#include <features.h>" >> $@.tmp
 	$(Q)echo "const char __dl_ldso__[] attribute_hidden __attribute__ ((weak)) __attribute__ ((section " \
 		"(\".interp\"))) =\""$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UCLIBC_LDSO)"\";" >> $@.tmp
 	$(Q)mv $@.tmp $@
 
-$(interp): $(top_builddir)lib/interp.c
+$(interp): $(top_builddir)lib/interp.c | $(sub_headers)
 	$(compile.c)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 $(ldso):
-	@cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(ABI_VERSION),%,$(notdir $@))
-
+	$(Q)cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(ABI_VERSION),%,$(notdir $@))
 $(libc):
-	@cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(ABI_VERSION),%,$(notdir $@))
+	$(Q)cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(ABI_VERSION),%,$(notdir $@))
 
 CRT := crt1
 
@@ -451,11 +450,12 @@ $(top_builddir)lib/libpthread_nonshared.a: $(libpthread-nonshared-y)
 files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) \
 	$(libm-a-y) $(libm-so-y) \
 	$(libpthread-a-y) $(libpthread-so-y) $(libpthread-nonshared-y) \
-	$(libthread_db-a-y) $(libthread_db-so-y) \
+	$(libthread_db-a-y) $(libthread_db-so-y) $(libpthread-generated-y) \
 	$(librt-a-y) $(librt-so-y)  $(libresolv-a-y) $(libresolv-so-y) \
 	$(libcrypt-a-y) $(libcrypt-so-y) $(libutil-a-y) $(libutil-so-y) \
 	$(libnsl-a-y) $(libnsl-so-y) $(ldso-y) $(libdl-a-y) $(libdl-so-y)
 .depends.dep := \
+	$(patsubst %.s,%.s.dep,$(filter %.s,$(files.dep))) \
 	$(patsubst %.o,%.o.dep,$(filter %.o,$(files.dep))) \
 	$(patsubst %.os,%.os.dep,$(filter %.os,$(files.dep))) \
 	$(patsubst %.oS,%.oS.dep,$(filter %.oS,$(files.dep)))

@@ -99,7 +99,8 @@ CSRC := $(filter-out vfork.c,$(CSRC))
 endif
 
 # provided via pthreads builddir
-CSRC := $(filter-out $(libc_a_CSRC) $(libc_a_SSRC:.S=.c),$(CSRC))
+CSRC := $(filter-out $(libc_a_CSRC) $(notdir $(libpthread_libc_OBJS:.o=.c)),$(CSRC))
+SSRC := $(filter-out $(libc_a_SSRC) $(notdir $(libpthread_libc_OBJS:.o=.S)),$(SSRC))
 
 # fails for some reason
 ifneq ($(strip $(ARCH_OBJS)),)

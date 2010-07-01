@@ -127,7 +127,7 @@ do {										\
 	GOT_BASE[0] = (unsigned long) _dl_runtime_resolve;			\
 	GOT_BASE[1] = (unsigned long) MODULE;					\
 										\
-	pltgot = MODULE->dynamic_info[DT_MIPS_PLTGOT_IDX];			\
+	pltgot = &MODULE->dynamic_info[DT_MIPS_PLTGOT_IDX];			\
 	if (pltgot) {								\
 		pltgot[0] = (unsigned long) _dl_runtime_pltresolve;		\
 		pltgot[1] = (unsigned long) MODULE;				\

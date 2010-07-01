@@ -5,9 +5,6 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-libpthread_CSRC = pthread_spin_lock.c
-libpthread_SSRC = pthread_spin_trylock.S
-
 CFLAGS-pthread_spin_lock.c += -D_GNU_SOURCE
 
 CFLAGS-x86_64 = $(SSP_ALL_CFLAGS)

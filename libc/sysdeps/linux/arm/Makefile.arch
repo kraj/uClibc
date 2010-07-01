@@ -13,12 +13,11 @@ endif
 
 SSRC := \
 	__longjmp.S setjmp.S bsd-setjmp.S \
-	bsd-_setjmp.S sigrestorer.S mmap64.S
+	bsd-_setjmp.S sigrestorer.S mmap64.S \
+	vfork.S clone.S
 
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 SSRC += libc-aeabi_read_tp.S libc-thumb_atomics.S
-else
-SSRC += vfork.S clone.S
 endif
 
 ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)

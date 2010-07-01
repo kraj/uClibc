@@ -2,20 +2,25 @@
 # Never ignore these
 #
 !.gitignore
-
 #
 # Generated files
 #
-gen_l*
-pthread-errnos.[hcs]
-tcb-offsets.[hcs]
-lowlevelbarrier.h
-lowlevelcond.h
-lowlevelrwlock.h
-lowlevelrobustlock.h
-unwindbuf.h
-structsem.h
-pthread-pi-defines.h
+/pthread-errnos.h
+/gen_pthread-errnos.[cs]
+!sysdeps/pthread/tcb-offsets.h
+sysdeps/*/tcb-offsets.h
+sysdeps/*/gen_tcb-offsets.[cs]
+sysdeps/unix/sysv/linux/gen_*.[cs]
+sysdeps/unix/sysv/linux/lowlevelbarrier.h
+sysdeps/unix/sysv/linux/lowlevelcond.h
+sysdeps/unix/sysv/linux/lowlevelrwlock.h
+sysdeps/unix/sysv/linux/lowlevelrobustlock.h
+sysdeps/unix/sysv/linux/structsem.h
+sysdeps/unix/sysv/linux/unwindbuf.h
+sysdeps/unix/sysv/linux/pthread-pi-defines.h
+#
+# symlinks
+#
 sysdeps/pthread/pt-sigaction.c
 sysdeps/pthread/pt-sigfillset.c
 sysdeps/pthread/pt-sigprocmask.c

@@ -146,7 +146,7 @@ $(ALL_HEADERS_SYS_ARCH):
 	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/sys/$(@F) $@
 endif
 
-$(target-headers-sysdep): | $(top_builddir)include/bits $(top_builddir)include/sys
+$(target-headers-sysdep) $(pregen-headers-y): | $(top_builddir)include/bits $(top_builddir)include/sys
 
 HEADERCLEAN_common:
 	$(do_rm) $(ALL_HEADERS_COMMON)
@@ -157,10 +157,10 @@ headers_clean-y += HEADERCLEAN_common
 # libc/sysdeps/linux/Makefile.commonarch to headers-y
 headers-y += $(target-headers-sysdep)
 
-headers: $(top_builddir)include/bits/uClibc_config.h $(top_builddir)include/bits/sysnum.h
+headers: $(top_builddir)include/bits/uClibc_config.h $(top_builddir)include/bits/sysnum.h | subdirs
 subdirs: $(addprefix $(top_builddir),$(subdirs))
-pregen-headers: headers $(pregen-headers-y)
-pregen: pregen-headers subdirs
+pregen-headers: $(pregen-headers-y)
+pregen: pregen-headers
 	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
 $(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh | $(top_builddir)include/bits
 	@$(disp_gen)

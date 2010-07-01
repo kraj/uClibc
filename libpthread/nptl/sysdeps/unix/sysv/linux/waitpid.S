@@ -1,5 +1,9 @@
 #include <sysdep-cancel.h>
 
+#ifndef __NR_waitpid
+#error Makefile error: No NR_waitpid on this arch
+#endif
+
 /*
 extern pid_t __waitpid_nocancel (pid_t, int *, int) attribute_hidden;
 */

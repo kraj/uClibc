@@ -5,54 +5,29 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-libpthread_SSRC = pt-vfork.S
-libpthread_CSRC = pthread_once.c lowlevellock.c \
-                  pt-__syscall_rt_sigaction.c pt-__syscall_error.c
+libpthread_linux_arch_SSRC = pt-vfork.S
+libpthread_linux_arch_CSRC = pthread_once.c \
+	pt-__syscall_rt_sigaction.c pt-__syscall_error.c \
+	lowlevellock.c
 
-libc_a_CSRC = fork.c lowlevellock.c
-libc_a_SSRC = clone.S vfork.S
+libc_linux_arch_CSRC = fork.c libc-lowlevellock.c
+libc_linux_arch_SSRC = clone.S vfork.S
+libc_linux_arch_SSRC-OMIT = waitpid.S
 
-ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
-CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
-endif
+CFLAGS += $(SSP_ALL_CFLAGS)
+
 CFLAGS-pthread_once.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-pt-__syscall_rt_sigaction.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-lowlevellock.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-pt-__syscall_error.c =  -DNOT_IN_libc=1 -DIS_IN_libpthread=1
-
 ASFLAGS-pt-vfork.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -marm
+
+ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
+CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
+endif
+CFLAGS-OMIT-fork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-libc-lowlevellock.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 # We always compile it in arm mode because of SAVE_PID macro
 # This macro should be alternatively implemented in THUMB
 # assembly.
 ASFLAGS-vfork.S = -marm
-
-CFLAGS += $(SSP_ALL_CFLAGS)
-#CFLAGS:=$(CFLAGS:-O1=-O2)
-
-LINUX_ARCH_DIR:=$(top_srcdir)libpthread/nptl/sysdeps/unix/sysv/linux/arm
-LINUX_ARCH_OUT:=$(top_builddir)libpthread/nptl/sysdeps/unix/sysv/linux/arm
-
-LINUX_ARCH_OBJ:=$(patsubst %.S,$(LINUX_ARCH_OUT)/%.o,$(libpthread_SSRC))
-LINUX_ARCH_OBJ+=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libpthread_CSRC))
-
-ifeq ($(DOPIC),y)
-libpthread-a-y += $(LINUX_ARCH_OBJ:.o=.os)
-else
-libpthread-a-y += $(LINUX_ARCH_OBJ)
-endif
-libpthread-so-y += $(LINUX_ARCH_OBJ:.o=.oS)
-
-libpthread-nomulti-y+=$(LINUX_ARCH_OBJ)
-
-LIBC_LINUX_ARCH_OBJ:=$(patsubst %.c,$(LINUX_ARCH_OUT)/%.o,$(libc_a_CSRC))
-LIBC_LINUX_ARCH_OBJ+=$(patsubst %.S,$(LINUX_ARCH_OUT)/%.o,$(libc_a_SSRC))
-
-libc-static-y+=$(LIBC_LINUX_ARCH_OBJ)
-libc-shared-y+=$(LIBC_LINUX_ARCH_OBJ:.o=.oS)
-
-libc-nomulti-y+=$(LIBC_LINUX_ARCH_OBJ)
-
-objclean-y+=pthread_linux_arch_objclean
-
-pthread_linux_arch_objclean:
-	$(RM) $(LINUX_ARCH_OUT)/*.{o,os,oS}
