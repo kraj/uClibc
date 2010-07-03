@@ -32,7 +32,7 @@
 		__pthread_mutex_unlock(&(M))
 
 #define __UCLIBC_MUTEX_TRYLOCK_CANCEL_UNSAFE(M)								\
-		__pthread_mutex_trylock,(&(M))
+		__pthread_mutex_trylock(&(M))
 
 #define __UCLIBC_MUTEX_CONDITIONAL_LOCK(M,C)								\
 	do {												\
