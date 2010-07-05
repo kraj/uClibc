@@ -33,9 +33,6 @@ extern int *__errno_location (void) __THROW __attribute__ ((__const__))
 ;
 # if defined __UCLIBC_HAS_THREADS__
 #  include <tls.h>
-#  if defined USE___THREAD && USE___THREAD
-libc_hidden_proto(__errno_location)
-#  endif
 # endif
 
 #endif /* !__ASSEMBLER__ */
