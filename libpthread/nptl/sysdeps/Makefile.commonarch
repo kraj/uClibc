@@ -17,6 +17,8 @@ endif
 -include $(libpthread_arch_DIR)/Makefile.arch
 libpthread_arch_SSRC := $(filter-out librt-%,$(filter-out libc-%,$(notdir $(wildcard $(libpthread_arch_DIR)/*.S))))
 libpthread_arch_CSRC := $(filter-out librt-%,$(filter-out libc-%,$(notdir $(wildcard $(libpthread_arch_DIR)/*.c))))
+libpthread_arch_CSRC := $(filter-out gen_tcb-offsets.c, $(libpthread_arch_CSRC))
+
 ifneq ($(TARGET_SUBARCH),)
 libpthread_subarch_SSRC := $(notdir $(wildcard $(libpthread_subarch_DIR)/*.S))
 libpthread_arch_SSRC := $(filter-out $(libpthread_subarch_SSRC),$(libpthread_arch_SSRC))
