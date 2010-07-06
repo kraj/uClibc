@@ -59,6 +59,7 @@ __BEGIN_DECLS
 
 /* Function to get address of global `h_errno' variable.  */
 extern int *__h_errno_location (void) __THROW __attribute__ ((__const__));
+libc_hidden_proto(__h_errno_location)
 
 /* Macros for accessing h_errno from inside libc.  */
 #ifdef _LIBC
