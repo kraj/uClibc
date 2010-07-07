@@ -251,14 +251,14 @@ __local_syscall_error:						\
 /* Define a macro which expands into the inline wrapper code for a system
    call.  */
 #undef INLINE_SYSCALL
-#define INLINE_SYSCALL(name, nr, args...)				\
-  ({ unsigned int _sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
-     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_sys_result, ), 0))	\
-       {								\
-	 __set_errno (INTERNAL_SYSCALL_ERRNO (_sys_result, ));		\
-	 _sys_result = (unsigned int) -1;				\
-       }								\
-     (int) _sys_result; })
+#define INLINE_SYSCALL(name, nr, args...)					\
+  ({ unsigned int _inline_sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
+     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_inline_sys_result, ), 0))	\
+       {									\
+	 __set_errno (INTERNAL_SYSCALL_ERRNO (_inline_sys_result, ));		\
+	 _inline_sys_result = (unsigned int) -1;				\
+       }									\
+     (int) _inline_sys_result; })
 
 #undef INTERNAL_SYSCALL_DECL
 #define INTERNAL_SYSCALL_DECL(err) do { } while (0)
@@ -272,7 +272,7 @@ __local_syscall_error:						\
  * unwinding (ie. thread cancellation).
  */
 #define INTERNAL_SYSCALL_RAW(name, err, nr, args...)		\
-  ({ unsigned int _sys_result;					\
+  ({ unsigned int _internal_sys_result;				\
     {								\
       int _sys_buf[2];						\
       register int _a1 __asm__ ("a1");				\
@@ -286,12 +286,12 @@ __local_syscall_error:						\
                    : "=r" (_a1)					\
                     : "r" (_v3) ASM_ARGS_##nr			\
                     : "memory");				\
-      _sys_result = _a1;					\
+      _internal_sys_result = _a1;				\
     }								\
-    (int) _sys_result; })
+    (int) _internal_sys_result; })
 #elif defined(__ARM_EABI__)
 #define INTERNAL_SYSCALL_RAW(name, err, nr, args...)		\
-  ({unsigned int _sys_result;					\
+  ({unsigned int _internal_sys_result;				\
      {								\
        register int _a1 __asm__ ("r0"), _nr __asm__ ("r7");	\
        LOAD_ARGS_##nr (args)					\
@@ -300,12 +300,12 @@ __local_syscall_error:						\
 		     : "=r" (_a1)				\
 		     : "r" (_nr) ASM_ARGS_##nr			\
 		     : "memory");				\
-       _sys_result = _a1;					\
+       _internal_sys_result = _a1;				\
      }								\
-     (int) _sys_result; })
+     (int) _internal_sys_result; })
 #else /* !defined(__ARM_EABI__) */
 #define INTERNAL_SYSCALL_RAW(name, err, nr, args...)		\
-  ({ unsigned int _sys_result;					\
+  ({ unsigned int _internal_sys_result;				\
      {								\
        register int _a1 __asm__ ("a1");				\
        LOAD_ARGS_##nr (args)					\
@@ -313,9 +313,9 @@ __local_syscall_error:						\
 		     : "=r" (_a1)				\
 		     : "i" (name) ASM_ARGS_##nr			\
 		     : "memory");				\
-       _sys_result = _a1;					\
+       _internal_sys_result = _a1;				\
      }								\
-     (int) _sys_result; })
+     (int) _internal_sys_result; })
 #endif
 
 #undef INTERNAL_SYSCALL

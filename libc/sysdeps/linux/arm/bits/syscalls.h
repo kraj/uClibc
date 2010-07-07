@@ -42,7 +42,7 @@
 #if !defined(__thumb__)
 #if defined(__ARM_EABI__)
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
-  ({unsigned int __sys_result;						\
+  ({unsigned int __internal_sys_result;					\
      {									\
        register int _a1 __asm__ ("r0"), _nr __asm__ ("r7");		\
        LOAD_ARGS_##nr (args)						\
@@ -51,13 +51,13 @@
 			     : "=r" (_a1)				\
 			     : "r" (_nr) ASM_ARGS_##nr			\
 			     : "memory");				\
-	       __sys_result = _a1;					\
+	       __internal_sys_result = _a1;				\
      }									\
-     (int) __sys_result; })
+     (int) __internal_sys_result; })
 #else /* defined(__ARM_EABI__) */
 
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
-  ({ unsigned int __sys_result;						\
+  ({ unsigned int __internal_sys_result;				\
      {									\
        register int _a1 __asm__ ("a1");					\
        LOAD_ARGS_##nr (args)						\
@@ -65,16 +65,16 @@
 		     : "=r" (_a1)					\
 		     : "i" (name) ASM_ARGS_##nr				\
 		     : "memory");					\
-       __sys_result = _a1;						\
+       __internal_sys_result = _a1;					\
      }									\
-     (int) __sys_result; })
+     (int) __internal_sys_result; })
 #endif
 #else /* !defined(__thumb__) */
 /* We can't use push/pop inside the asm because that breaks
    unwinding (ie. thread cancellation).
  */
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
-  ({ unsigned int __sys_result;						\
+  ({ unsigned int __internal_sys_result;				\
     {									\
       int _sys_buf[2];							\
       register int _a1 __asm__ ("a1");					\
@@ -88,9 +88,9 @@
 		    : "=r" (_a1)					\
 		    : "r" (_v3) ASM_ARGS_##nr				\
                     : "memory");					\
-	__sys_result = _a1;						\
+	__internal_sys_result = _a1;					\
     }									\
-    (int) __sys_result; })
+    (int) __internal_sys_result; })
 #endif /*!defined(__thumb__)*/
 
 #define INTERNAL_SYSCALL_ERROR_P(val, err) \
