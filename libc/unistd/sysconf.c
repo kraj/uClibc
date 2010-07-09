@@ -36,6 +36,8 @@
 #endif
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sysdep.h>
+#include <sys/resource.h>
+
 #endif
 
 #ifndef num_present_cpus
@@ -81,9 +83,16 @@
 #define RETURN_FUNCTION(f) return f;
 #endif /* _UCLIBC_GENERATE_SYSCONF_ARCH */
 
+/* Legacy value of ARG_MAX.  The macro is now not defined since the
+   actual value varies based on the stack size.  */
+#define legacy_ARG_MAX 131072
+
 /* Get the value of the system variable NAME.  */
 long int sysconf(int name)
 {
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+      struct rlimit rlimit;
+#endif
   switch (name)
     {
     default:
@@ -91,7 +100,11 @@ long int sysconf(int name)
       return -1;
 
     case _SC_ARG_MAX:
-#ifdef	ARG_MAX
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+      /* Use getrlimit to get the stack limit.  */
+      if (getrlimit (RLIMIT_STACK, &rlimit) == 0)
+          return MAX (legacy_ARG_MAX, rlimit.rlim_cur / 4);
+#elif defined ARG_MAX
       return ARG_MAX;
 #else
       RETURN_NEG_1;
