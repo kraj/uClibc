@@ -14,11 +14,11 @@ libc_linux_arch_SSRC = clone.S vfork.S
 ASFLAGS += -DUSE___THREAD
 CFLAGS += $(SSP_ALL_CFLAGS)
 
-CFLAGS-pthread_once.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
-CFLAGS-lowlevellock.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
-CFLAGS-pt-__syscall_error.c =  -DNOT_IN_libc=1 -DIS_IN_libpthread=1
-ASFLAGS-pt-vfork.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
-#ASFLAGS-lowlevellock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -D_LIBC_REENTRANT
+CFLAGS-pthread_once.c = -DNOT_IN_libc -DIS_IN_libpthread
+CFLAGS-lowlevellock.c = -DNOT_IN_libc -DIS_IN_libpthread
+CFLAGS-pt-__syscall_error.c =  -DNOT_IN_libc -DIS_IN_libpthread
+ASFLAGS-pt-vfork.S = -DNOT_IN_libc -DIS_IN_libpthread -D_LIBC_REENTRANT
+#ASFLAGS-lowlevellock.S = -DNOT_IN_libc -DIS_IN_libpthread -D_LIBC_REENTRANT
 
 #ASFLAGS-libc-lowlevellock.S = -D_LIBC_REENTRANT
 ASFLAGS-clone.S = -D_LIBC_REENTRANT

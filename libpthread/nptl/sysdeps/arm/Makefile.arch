@@ -9,10 +9,10 @@
 librt_arch_SSRC = aeabi_read_tp.S thumb_atomics.S
 librt_arch_CSRC = aeabi_unwind_cpp_pr1.c
 
-CFLAGS-pt-raise.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-pt-raise.c = -DNOT_IN_libc -DIS_IN_libpthread
 
-ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
-ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc -DIS_IN_libpthread
+ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc -DIS_IN_libpthread
 ASFLAGS-aeabi_read_tp.S = -DNOT_IN_libc=1
 
 CFLAGS-arm = $(SSP_ALL_CFLAGS)
