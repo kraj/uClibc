@@ -630,6 +630,7 @@ endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	PTNAME := nptl
+	CFLAGS += -DHAVE_FORCED_UNWIND
 else
 ifeq ($(LINUXTHREADS_OLD),y)
 	PTNAME := linuxthreads.old
@@ -648,6 +649,7 @@ PTINC:= -I$(top_builddir)$(PTDIR)					\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
 	-I$(top_builddir)$(PTDIR)/sysdeps/unix/sysv/linux		\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux			\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/generic				\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread				\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread/bits			\
 	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH)				\
