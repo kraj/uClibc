@@ -44,14 +44,14 @@
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
   ({unsigned int __internal_sys_result;					\
      {									\
-       register int _a1 __asm__ ("r0"), _nr __asm__ ("r7");		\
+       register int __a1 __asm__ ("r0"), _nr __asm__ ("r7");		\
        LOAD_ARGS_##nr (args)						\
        _nr = (name);							\
        __asm__ __volatile__ ("swi	0x0	@ syscall " #name	\
-			     : "=r" (_a1)				\
+			     : "=r" (__a1)				\
 			     : "r" (_nr) ASM_ARGS_##nr			\
 			     : "memory");				\
-	       __internal_sys_result = _a1;				\
+	       __internal_sys_result = __a1;				\
      }									\
      (int) __internal_sys_result; })
 #else /* defined(__ARM_EABI__) */
@@ -59,13 +59,13 @@
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
   ({ unsigned int __internal_sys_result;				\
      {									\
-       register int _a1 __asm__ ("a1");					\
+       register int __a1 __asm__ ("a1");					\
        LOAD_ARGS_##nr (args)						\
        __asm__ __volatile__ ("swi	%1	@ syscall " #name	\
-		     : "=r" (_a1)					\
+		     : "=r" (__a1)					\
 		     : "i" (name) ASM_ARGS_##nr				\
 		     : "memory");					\
-       __internal_sys_result = _a1;					\
+       __internal_sys_result = __a1;					\
      }									\
      (int) __internal_sys_result; })
 #endif
@@ -77,7 +77,7 @@
   ({ unsigned int __internal_sys_result;				\
     {									\
       int _sys_buf[2];							\
-      register int _a1 __asm__ ("a1");					\
+      register int __a1 __asm__ ("a1");					\
       register int *_v3 __asm__ ("v3") = _sys_buf;			\
       *_v3 = (int) (name);						\
       LOAD_ARGS_##nr (args)						\
@@ -85,10 +85,10 @@
 		    "\tldr	r7, [v3]\n"				\
 		    "\tswi	0	@ syscall " #name "\n"		\
 		    "\tldr	r7, [v3, #4]"				\
-		    : "=r" (_a1)					\
+		    : "=r" (__a1)					\
 		    : "r" (_v3) ASM_ARGS_##nr				\
                     : "memory");					\
-	__internal_sys_result = _a1;					\
+	__internal_sys_result = __a1;					\
     }									\
     (int) __internal_sys_result; })
 #endif /*!defined(__thumb__)*/
@@ -99,25 +99,25 @@
 #define LOAD_ARGS_0()
 #define ASM_ARGS_0
 #define LOAD_ARGS_1(a1)				\
-  int _a1tmp = (int) (a1);			\
+  int __a1tmp = (int) (a1);			\
   LOAD_ARGS_0 ()				\
-  _a1 = _a1tmp;
-#define ASM_ARGS_1	ASM_ARGS_0, "r" (_a1)
+  __a1 = __a1tmp;
+#define ASM_ARGS_1	ASM_ARGS_0, "r" (__a1)
 #define LOAD_ARGS_2(a1, a2)			\
-  int _a2tmp = (int) (a2);			\
+  int __a2tmp = (int) (a2);			\
   LOAD_ARGS_1 (a1)				\
-  register int _a2 __asm__ ("a2") = _a2tmp;
-#define ASM_ARGS_2	ASM_ARGS_1, "r" (_a2)
+  register int __a2 __asm__ ("a2") = __a2tmp;
+#define ASM_ARGS_2	ASM_ARGS_1, "r" (__a2)
 #define LOAD_ARGS_3(a1, a2, a3)			\
-  int _a3tmp = (int) (a3);			\
+  int __a3tmp = (int) (a3);			\
   LOAD_ARGS_2 (a1, a2)				\
-  register int _a3 __asm__ ("a3") = _a3tmp;
-#define ASM_ARGS_3	ASM_ARGS_2, "r" (_a3)
+  register int __a3 __asm__ ("a3") = __a3tmp;
+#define ASM_ARGS_3	ASM_ARGS_2, "r" (__a3)
 #define LOAD_ARGS_4(a1, a2, a3, a4)		\
-  int _a4tmp = (int) (a4);			\
+  int __a4tmp = (int) (a4);			\
   LOAD_ARGS_3 (a1, a2, a3)			\
-  register int _a4 __asm__ ("a4") = _a4tmp;
-#define ASM_ARGS_4	ASM_ARGS_3, "r" (_a4)
+  register int __a4 __asm__ ("a4") = __a4tmp;
+#define ASM_ARGS_4	ASM_ARGS_3, "r" (__a4)
 #define LOAD_ARGS_5(a1, a2, a3, a4, a5)		\
   int _v1tmp = (int) (a5);			\
   LOAD_ARGS_4 (a1, a2, a3, a4)			\
