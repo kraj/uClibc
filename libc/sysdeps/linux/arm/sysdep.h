@@ -275,7 +275,7 @@ __local_syscall_error:						\
   ({ unsigned int _internal_sys_result;				\
     {								\
       int _sys_buf[2];						\
-      register int _a1 __asm__ ("a1");				\
+      register int __a1 __asm__ ("a1");				\
       register int *_v3 __asm__ ("v3") = _sys_buf;		\
       LOAD_ARGS_##nr (args)					\
       *_v3 = (int) (name);					\
@@ -283,37 +283,37 @@ __local_syscall_error:						\
                     "\tldr      r7, [v3]\n"			\
                     "\tswi      0       @ syscall " #name "\n"	\
                     "\tldr      r7, [v3, #4]"			\
-                   : "=r" (_a1)					\
+                   : "=r" (__a1)				\
                     : "r" (_v3) ASM_ARGS_##nr			\
                     : "memory");				\
-      _internal_sys_result = _a1;				\
+      _internal_sys_result = __a1;				\
     }								\
     (int) _internal_sys_result; })
 #elif defined(__ARM_EABI__)
 #define INTERNAL_SYSCALL_RAW(name, err, nr, args...)		\
   ({unsigned int _internal_sys_result;				\
      {								\
-       register int _a1 __asm__ ("r0"), _nr __asm__ ("r7");	\
+       register int __a1 __asm__ ("r0"), _nr __asm__ ("r7");	\
        LOAD_ARGS_##nr (args)					\
        _nr = name;						\
        __asm__ __volatile__ ("swi	0x0 @ syscall " #name	\
-		     : "=r" (_a1)				\
+		     : "=r" (__a1)				\
 		     : "r" (_nr) ASM_ARGS_##nr			\
 		     : "memory");				\
-       _internal_sys_result = _a1;				\
+       _internal_sys_result = __a1;				\
      }								\
      (int) _internal_sys_result; })
 #else /* !defined(__ARM_EABI__) */
 #define INTERNAL_SYSCALL_RAW(name, err, nr, args...)		\
   ({ unsigned int _internal_sys_result;				\
      {								\
-       register int _a1 __asm__ ("a1");				\
+       register int __a1 __asm__ ("a1");			\
        LOAD_ARGS_##nr (args)					\
        __asm__ __volatile__ ("swi	%1 @ syscall " #name	\
-		     : "=r" (_a1)				\
+		     : "=r" (__a1)				\
 		     : "i" (name) ASM_ARGS_##nr			\
 		     : "memory");				\
-       _internal_sys_result = _a1;				\
+       _internal_sys_result = __a1;				\
      }								\
      (int) _internal_sys_result; })
 #endif
