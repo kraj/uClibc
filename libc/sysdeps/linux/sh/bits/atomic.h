@@ -79,7 +79,7 @@ typedef uintmax_t uatomic_max_t;
 */
 
 #define __arch_compare_and_exchange_n(mem, newval, oldval, bwl, version) \
-  ({ signed long __result; \
+  ({ signed long __arch_result; \
      __asm__ __volatile__ ("\
 	.align 2\n\
 	mova 1f,r0\n\
@@ -94,10 +94,10 @@ typedef uintmax_t uatomic_max_t;
      .ifeqs \"bool\",\"" #version "\"\n\
         movt %0\n\
      .endif\n"					\
-	: "=&r" (__result)			\
+	: "=&r" (__arch_result)			\
 	: "r" (mem), "r" (newval), "r" (oldval)	\
 	: "r0", "r1", "t", "memory");		\
-     __result; })
+     __arch_result; })
 
 #define __arch_compare_and_exchange_val_8_acq(mem, newval, oldval) \
   __arch_compare_and_exchange_n(mem, newval, (int8_t)(oldval), b, val)
