@@ -133,7 +133,6 @@ _start:
 
 #ifdef __PIC__
 	ldr r4, .L_GOT
-.L_GOT_OFF:
 	adr r5, .L_GOT
 	add r4, r5, r4
 
@@ -201,8 +200,8 @@ _start:
 
 #ifdef __PIC__
 	ldr sl, .L_GOT
-.L_GOT_OFF:
-	add sl, pc, sl
+	adr a4, .L_GOT
+	add sl, sl, a4
 
 	ldr ip, .L_GOT+4	/* _fini */
 	ldr a1, [sl, ip]
@@ -238,11 +237,7 @@ _start:
 
 #ifdef __PIC__
 .L_GOT:
-#ifdef __thumb__
-	.word	_GLOBAL_OFFSET_TABLE_-(.L_GOT_OFF+4)
-#else /* __thumb2__ */
-	.word	_GLOBAL_OFFSET_TABLE_-(.L_GOT_OFF+8)
-#endif
+	.word _GLOBAL_OFFSET_TABLE_ - .L_GOT
 	.word _fini(GOT)
 	.word _init(GOT)
 	.word main(GOT)
