@@ -99,7 +99,7 @@ typedef struct {
  * from DL_START, so additional arguments passed to it may be referenced.  */
 #ifndef DL_BOOT_COMPUTE_DYN
 #define DL_BOOT_COMPUTE_DYN(DPNT, GOT, LOAD_ADDR) \
-    ((DPNT) = ((ElfW(Dyn) *) DL_RELOC_ADDR(load_addr, got)))
+    ((DPNT) = ((ElfW(Dyn) *) DL_RELOC_ADDR(LOAD_ADDR, GOT)))
 #endif
 
 /* Initialize the location of the global offset table.  This is only called
