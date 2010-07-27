@@ -234,9 +234,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 # endif
 #endif
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 extern int __fcntl_nocancel (int fd, int cmd, ...);
-#endif
 
 __END_DECLS
 
