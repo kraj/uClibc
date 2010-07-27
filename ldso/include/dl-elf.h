@@ -162,15 +162,18 @@ unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info
 		if (dynamic_info[tag]) \
 			dynamic_info[tag] = (unsigned long) DL_RELOC_ADDR(load_off, dynamic_info[tag]); \
 	} while (0)
-	ADJUST_DYN_INFO(DT_HASH, load_off);
-	ADJUST_DYN_INFO(DT_PLTGOT, load_off);
-	ADJUST_DYN_INFO(DT_STRTAB, load_off);
-	ADJUST_DYN_INFO(DT_SYMTAB, load_off);
-	ADJUST_DYN_INFO(DT_RELOC_TABLE_ADDR, load_off);
-	ADJUST_DYN_INFO(DT_JMPREL, load_off);
+	/* Don't adjust .dynamic unnecessarily.  */
+	if (load_off != 0) {
+		ADJUST_DYN_INFO(DT_HASH, load_off);
+		ADJUST_DYN_INFO(DT_PLTGOT, load_off);
+		ADJUST_DYN_INFO(DT_STRTAB, load_off);
+		ADJUST_DYN_INFO(DT_SYMTAB, load_off);
+		ADJUST_DYN_INFO(DT_RELOC_TABLE_ADDR, load_off);
+		ADJUST_DYN_INFO(DT_JMPREL, load_off);
 #ifdef __LDSO_GNU_HASH_SUPPORT__
-	ADJUST_DYN_INFO(DT_GNU_HASH_IDX, load_off);
+		ADJUST_DYN_INFO(DT_GNU_HASH_IDX, load_off);
 #endif
+	}
 #undef ADJUST_DYN_INFO
 	return rtld_flags;
 }
