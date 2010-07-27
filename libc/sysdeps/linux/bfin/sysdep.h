@@ -9,7 +9,7 @@
 #ifndef __BFIN_SYSDEP_H__
 #define __BFIN_SYSDEP_H__
 
-#include <features.h>
+#include <common/sysdep.h>
 
 #ifdef __ASSEMBLER__
 
