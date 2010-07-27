@@ -10,11 +10,11 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-extern __typeof(fork) __libc_fork;
 #ifdef __ARCH_USE_MMU__
 
 #ifdef __NR_fork
 #define __NR___libc_fork __NR_fork
+extern __typeof(fork) __libc_fork;
 _syscall0(pid_t, __libc_fork)
 weak_alias(__libc_fork,fork)
 libc_hidden_weak(fork)
@@ -22,6 +22,7 @@ libc_hidden_weak(fork)
 
 #elif defined __UCLIBC_HAS_STUBS__
 
+extern __typeof(fork) __libc_fork;
 pid_t __libc_fork(void)
 {
 	__set_errno(ENOSYS);
