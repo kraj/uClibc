@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
+#ifdef __NR_msync
+
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sysdep-cancel.h>
 #else
@@ -39,3 +41,5 @@ int __libc_msync(void * addr, size_t length, int flags)
 #endif
 }
 weak_alias(__libc_msync,msync)
+
+#endif
