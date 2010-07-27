@@ -479,6 +479,7 @@ char *ctime(const time_t *t)
 	 * localtime's static buffer:
 	 */
 	struct tm xtm;
+	memset(&xtm, 0, sizeof(xtm));
 
 	return asctime(localtime_r(t, &xtm));
 }
