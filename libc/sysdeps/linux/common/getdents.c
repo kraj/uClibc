@@ -4,7 +4,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <alloca.h>
 #include <assert.h>
 #include <errno.h>
 #include <dirent.h>
@@ -17,6 +16,7 @@
 #include <sys/syscall.h>
 #include <bits/kernel_types.h>
 #include <bits/kernel-features.h>
+#include <bits/uClibc_alloc.h>
 
 #if !(defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64 && __WORDSIZE == 64)
 /* If the condition above is met, __getdents is defined as an alias
@@ -93,11 +93,13 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 	    nbytes - size_diff);
 
     dp = (struct dirent *) buf;
-    skdp = kdp = alloca (red_nbytes);
+    skdp = kdp = stack_heap_alloc(red_nbytes);
 
     retval = __syscall_getdents(fd, (unsigned char *)kdp, red_nbytes);
-    if (retval == -1)
+    if (retval == -1) {
+	stack_heap_free(skdp);
 	return -1;
+    }
 
     while ((char *) kdp < (char *) skdp + retval) {
 	const size_t alignment = __alignof__ (struct dirent);
@@ -114,6 +116,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 	    if ((char *) dp == buf) {
 		/* The buffer the user passed in is too small to hold even
 		   one entry.  */
+		stack_heap_free(skdp);
 		__set_errno (EINVAL);
 		return -1;
 	    }
@@ -130,6 +133,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 	dp = (struct dirent *) ((char *) dp + new_reclen);
 	kdp = (struct kernel_dirent *) (((char *) kdp) + kdp->d_reclen);
     }
+    stack_heap_free(skdp);
     return (char *) dp - buf;
 }
 

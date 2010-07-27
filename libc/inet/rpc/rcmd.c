@@ -69,7 +69,6 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include <alloca.h>
 #include <signal.h>
 #include <fcntl.h>
 #include <netdb.h>
@@ -86,6 +85,7 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #include <wchar.h>
 #endif
 #include <sys/uio.h>
+#include <bits/uClibc_alloc.h>
 
 
 /* some forward declarations */
@@ -116,11 +116,7 @@ int rcmd(char **ahost, u_short rport, const char *locuser, const char *remuser,
 
 #ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	hstbuflen = 1024;
-#ifdef __ARCH_USE_MMU__
-	tmphstbuf = alloca (hstbuflen);
-#else
-	tmphstbuf = malloc (hstbuflen);
-#endif
+	tmphstbuf = stack_heap_alloc(hstbuflen);
 
 	while (gethostbyname_r (*ahost, &hostbuf, tmphstbuf,
 		    hstbuflen, &hp, &herr) != 0 || hp == NULL)
@@ -128,9 +124,7 @@ int rcmd(char **ahost, u_short rport, const char *locuser, const char *remuser,
 	    if (herr != NETDB_INTERNAL || errno != ERANGE)
 	    {
 		__set_h_errno (herr);
-#ifndef __ARCH_USE_MMU__
-		free(tmphstbuf);
-#endif
+		stack_heap_free(tmphstbuf);
 		herror(*ahost);
 		return -1;
 	    }
@@ -138,17 +132,11 @@ int rcmd(char **ahost, u_short rport, const char *locuser, const char *remuser,
 	    {
 		/* Enlarge the buffer.  */
 		hstbuflen *= 2;
-#ifdef __ARCH_USE_MMU__
-		tmphstbuf = alloca (hstbuflen);
-#else
-		free(tmphstbuf);
-		tmphstbuf = malloc (hstbuflen);
-#endif
+		stack_heap_free(tmphstbuf);
+		tmphstbuf = stack_heap_alloc(hstbuflen);
 	    }
 	}
-#ifndef __ARCH_USE_MMU__
-	free(tmphstbuf);
-#endif
+	stack_heap_free(tmphstbuf);
 #else /* call the non-reentrant version */
 	if ((hp = gethostbyname(*ahost)) == NULL) {
 	    return -1;
@@ -331,35 +319,23 @@ int ruserok(const char *rhost, int superuser, const char *ruser,
 
 #ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	buflen = 1024;
-#ifdef __ARCH_USE_MMU__
-	buffer = alloca (buflen);
-#else
-	buffer = malloc (buflen);
-#endif
+	buffer = stack_heap_alloc(buflen);
 
 	while (gethostbyname_r (rhost, &hostbuf, buffer,
 		    buflen, &hp, &herr) != 0 || hp == NULL)
 	{
 	    if (herr != NETDB_INTERNAL || errno != ERANGE) {
-#ifndef __ARCH_USE_MMU__
-		free(buffer);
-#endif
+		stack_heap_free(buffer);
 		return -1;
 	    } else
 	    {
 		/* Enlarge the buffer.  */
 		buflen *= 2;
-#ifdef __ARCH_USE_MMU__
-		buffer = alloca (buflen);
-#else
-		free(buffer);
-		buffer = malloc (buflen);
-#endif
+		stack_heap_free(buffer);
+		buffer = stack_heap_alloc(buflen);
 	    }
 	}
-#ifndef __ARCH_USE_MMU__
-	free(buffer);
-#endif
+	stack_heap_free(buffer);
 #else
 	if ((hp = gethostbyname(rhost)) == NULL) {
 		return -1;
@@ -452,23 +428,15 @@ iruserok2 (u_int32_t raddr, int superuser, const char *ruser, const char *luser,
 #ifdef __UCLIBC_HAS_REENTRANT_RPC__
 		size_t buflen = sysconf (_SC_GETPW_R_SIZE_MAX);
 		struct passwd pwdbuf;
-#ifdef __ARCH_USE_MMU__
-		char *buffer = alloca (buflen);
-#else
-		char *buffer = malloc (buflen);
-#endif
+		char *buffer = stack_heap_alloc(buflen);
 
 		if (getpwnam_r (luser, &pwdbuf, buffer,
 			    buflen, &pwd) != 0 || pwd == NULL)
 		{
-#ifndef __ARCH_USE_MMU__
-			free(buffer);
-#endif
+			stack_heap_free(buffer);
 			return -1;
 		}
-#ifndef __ARCH_USE_MMU__
-		free(buffer);
-#endif
+		stack_heap_free(buffer);
 #else
 		if ((pwd = getpwnam(luser)) == NULL)
 			return -1;
