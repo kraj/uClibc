@@ -111,13 +111,6 @@ int daemon(int nochdir, int noclose)
 	if (setsid() == -1)
 		return -1;
 
-#ifndef __UCLIBC_HAS_THREADS_NATIVE__
-	/* Make certain we are not a session leader, or else we
-	 * might reacquire a controlling terminal */
-	if (fork())
-		_exit(0);
-#endif
-
 	if (!nochdir)
 		chdir("/");
 
