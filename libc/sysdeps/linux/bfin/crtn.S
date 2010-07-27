@@ -51,3 +51,5 @@ Boston, MA 02111-1307, USA.  */
 	P3 = [SP++];
 #endif
 	rts;
+
+.section .note.GNU-stack,"",%progbits

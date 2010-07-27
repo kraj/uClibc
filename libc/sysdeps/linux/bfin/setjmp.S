@@ -94,3 +94,5 @@ ___sigsetjmp:
 	R0 = [P0 + 0x20];
 	JUMP.L ___sigjmp_save; 
 .size ___sigsetjmp, .-___sigsetjmp
+
+.section .note.GNU-stack,"",%progbits

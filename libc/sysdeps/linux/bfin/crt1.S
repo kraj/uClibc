@@ -164,3 +164,5 @@ lib_main:
 
 	.hidden _current_shared_library_p5_offset_
 #endif
+
+.section .note.GNU-stack,"",%progbits

@@ -95,3 +95,5 @@ __setjmp:
 	JUMP.L ___sigjmp_save;
 
 .size __setjmp,.-__setjmp
+
+.section .note.GNU-stack,"",%progbits
