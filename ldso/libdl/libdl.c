@@ -41,7 +41,6 @@
 
 #if defined(USE_TLS) && USE_TLS
 #include <ldsodefs.h>
-extern void (*_dl_init_static_tls) (struct link_map *);
 extern void _dl_add_to_slotinfo(struct link_map  *l);
 #endif
 

@@ -44,7 +44,7 @@ void internal_function _dl_aux_init (ElfW(auxv_t) *av)
    libpthread implementations should provide their own hook
    to handle all threads.  */
 void
-internal_function
+attribute_hidden
 _dl_nothread_init_static_tls (struct link_map *map)
 {
 # if defined(TLS_TCB_AT_TP)

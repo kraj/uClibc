@@ -79,7 +79,7 @@ extern void *_dl_allocate_tls_init (void *) internal_function;
 /* Deallocate memory allocated with _dl_allocate_tls.  */
 extern void _dl_deallocate_tls (void *tcb, bool dealloc_tcb) internal_function;
 
-extern void _dl_nothread_init_static_tls (struct link_map *) internal_function attribute_hidden;
+extern void _dl_nothread_init_static_tls (struct link_map *) attribute_hidden;
 
 /* Highest dtv index currently needed.  */
 EXTERN size_t _dl_tls_max_dtv_idx;

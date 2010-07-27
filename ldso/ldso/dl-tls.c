@@ -176,7 +176,7 @@ fail:
    libpthread implementations should provide their own hook
    to handle all threads.  */
 void
-internal_function __attribute_noinline__
+attribute_hidden __attribute_noinline__
 _dl_nothread_init_static_tls (struct link_map *map)
 {
 # ifdef TLS_TCB_AT_TP
