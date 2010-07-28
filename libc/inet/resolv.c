@@ -1432,9 +1432,11 @@ int attribute_hidden __dns_lookup(const char *name,
 
 		if (packet_len < HFIXEDSZ) {
 			/* too short!
+			 * If the peer did shutdown then retry later,
+			 * try next peer on error.
 			 * it's just a bogus packet from somewhere */
  bogus_packet:
-			if (reply_timeout)
+			if (packet_len >= 0 && reply_timeout)
 				goto wait_again;
 			goto try_next_server;
 		}
