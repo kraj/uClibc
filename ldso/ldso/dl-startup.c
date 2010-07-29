@@ -192,7 +192,7 @@ DL_START(unsigned long args)
 	DL_BOOT_COMPUTE_GOT(got);
 
 	/* Now, finally, fix up the location of the dynamic stuff */
-	DL_BOOT_COMPUTE_DYN(dpnt, got, load_addr);
+	DL_BOOT_COMPUTE_DYN(dpnt, got, (DL_LOADADDR_TYPE)header);
 
 	SEND_EARLY_STDERR_DEBUG("First Dynamic section entry=");
 	SEND_ADDRESS_STDERR_DEBUG(dpnt, 1);

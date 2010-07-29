@@ -27,6 +27,7 @@
 /* Pull in compiler and arch stuff */
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stddef.h> /* for ptrdiff_t */
 #define _FCNTL_H
 #include <bits/fcntl.h>
 #include <bits/wordsize.h>

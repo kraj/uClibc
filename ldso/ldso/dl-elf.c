@@ -814,7 +814,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 #endif
 	(*rpnt)->dyn = tpnt;
-	tpnt->symbol_scope = _dl_symbol_tables;
 	tpnt->usage_count++;
 #ifdef __LDSO_STANDALONE_SUPPORT__
 	tpnt->libtype = (epnt->e_type == ET_DYN) ? elf_lib : elf_executable;
@@ -846,7 +845,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 }
 
 /* now_flag must be RTLD_NOW or zero */
-int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
+int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int now_flag)
 {
 	int goof = 0;
 	struct elf_resolve *tpnt;
@@ -854,7 +853,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	ElfW(Addr) reloc_addr;
 
 	if (rpnt->next)
-		goof = _dl_fixup(rpnt->next, now_flag);
+		goof = _dl_fixup(rpnt->next, scope, now_flag);
 	if (goof)
 		return goof;
 	tpnt = rpnt->dyn;
@@ -884,7 +883,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 			elf_machine_relative(tpnt->loadaddr, reloc_addr, relative_count);
 			reloc_addr += relative_count * sizeof(ELF_RELOC);
 		}
-		goof += _dl_parse_relocation_information(rpnt,
+		goof += _dl_parse_relocation_information(rpnt, scope,
 				reloc_addr,
 				reloc_size);
 		tpnt->init_flag |= RELOCS_DONE;
@@ -900,7 +899,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 					tpnt->dynamic_info[DT_JMPREL],
 					tpnt->dynamic_info [DT_PLTRELSZ]);
 		} else {
-			goof += _dl_parse_relocation_information(rpnt,
+			goof += _dl_parse_relocation_information(rpnt, scope,
 					tpnt->dynamic_info[DT_JMPREL],
 					tpnt->dynamic_info[DT_PLTRELSZ]);
 		}

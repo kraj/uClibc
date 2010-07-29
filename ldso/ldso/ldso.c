@@ -107,6 +107,7 @@ static unsigned char *_dl_malloc_addr = NULL;	/* Lets _dl_malloc use the already
 static unsigned char *_dl_mmap_zero   = NULL;	/* Also used by _dl_malloc */
 
 static struct elf_resolve **init_fini_list;
+static struct elf_resolve **scope_elem_list;
 static unsigned int nlist; /* # items in init_fini_list */
 extern void _start(void);
 
@@ -284,6 +285,21 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 	}
 }
 
+static ptrdiff_t _dl_build_local_scope (struct elf_resolve **list,
+										struct elf_resolve *map)
+{
+	struct elf_resolve **p = list;
+	struct init_fini_list *q;
+
+	*p++ = map;
+	map->init_flag |= DL_RESERVED;
+	if (map->init_fini)
+		for (q = map->init_fini; q; q = q->next)
+			if (! (q->tpnt->init_flag & DL_RESERVED))
+				p += _dl_build_local_scope (p, q->tpnt);
+	return p - list;
+}
+
 void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
 			  DL_GET_READY_TO_RUN_EXTRA_PARMS)
@@ -292,7 +308,7 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
 	char *lpntstr;
-	unsigned int i;
+	unsigned int i, cnt, k, nscope_elem;
 	int unlazy = 0, trace_loaded_objects = 0;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
@@ -304,6 +320,9 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	unsigned long *_dl_envp;		/* The environment address */
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
+	struct r_scope_elem *global_scope;
+	struct elf_resolve **local_scope;
+
 	struct stat st;
 #if defined(USE_TLS) && USE_TLS
 	void *tcbp = NULL;
@@ -576,7 +595,6 @@ of this helper program; chances are you did not intend to run this program.\n\
 			app_tpnt->mapaddr = app_mapaddr;
 			app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
 			app_tpnt->usage_count++;
-			app_tpnt->symbol_scope = _dl_symbol_tables;
 			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
 #ifdef ALLOW_ZERO_PLTGOT
 			if (lpnt)
@@ -637,11 +655,11 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 * case the executable is actually an ET_DYN object.
 	 */
 	if (app_tpnt->l_tls_initimage != NULL) {
+		unsigned int tmp = (unsigned int) app_tpnt->l_tls_initimage;
 		app_tpnt->l_tls_initimage =
 			(char *) app_tpnt->l_tls_initimage + app_tpnt->loadaddr;
 		_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n",
-			(unsigned int)app_tpnt->l_tls_initimage,
-			app_tpnt->l_tls_initimage, app_tpnt->l_tls_initimage_size);
+			tmp, app_tpnt->l_tls_initimage, app_tpnt->l_tls_initimage_size);
 	}
 #endif
 
@@ -926,6 +944,9 @@ of this helper program; chances are you did not intend to run this program.\n\
 	}
 	_dl_unmap_cache();
 
+	/* Keep track of the number of elements in the global scope */
+	nscope_elem = nlist;
+
 	--nlist; /* Exclude the application. */
 	init_fini_list = _dl_malloc(nlist * sizeof(struct elf_resolve *));
 	i = 0;
@@ -1002,7 +1023,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 		}
 		tpnt->libtype = program_interpreter;
 		tpnt->usage_count++;
-		tpnt->symbol_scope = _dl_symbol_tables;
+		nscope_elem++;
 		if (rpnt) {
 			rpnt->next = _dl_zalloc(sizeof(struct dyn_elf));
 			rpnt->next->prev = rpnt;
@@ -1012,6 +1033,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 		}
 		rpnt->dyn = tpnt;
 		tpnt->rtld_flags = RTLD_NOW | RTLD_GLOBAL; /* Must not be LAZY */
+
 #ifdef RERELOCATE_LDSO
 		/* Only rerelocate functions for now. */
 		tpnt->init_flag = RELOCS_DONE;
@@ -1025,6 +1047,38 @@ of this helper program; chances are you did not intend to run this program.\n\
 #endif
 		tpnt = NULL;
 	}
+
+	/*
+	 * Allocate the global scope array.
+	 */
+	scope_elem_list = (struct elf_resolve **) _dl_malloc(nscope_elem * sizeof(struct elf_resolve *));
+
+	for (i = 0, tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next)
+		scope_elem_list[i++] = tcurr;
+
+	_dl_loaded_modules->symbol_scope.r_list = scope_elem_list;
+	_dl_loaded_modules->symbol_scope.r_nlist = nscope_elem;
+	/*
+	 * The symbol scope of the application, that is the first entry of the
+	 * _dl_loaded_modules list, is just the global scope to be used for the
+	 * symbol lookup.
+	 */
+	global_scope = &_dl_loaded_modules->symbol_scope;
+
+	/* Build the local scope for the each loaded modules. */
+	local_scope = _dl_malloc(nscope_elem * sizeof(struct elf_resolve *));
+	i = 1;
+	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
+		cnt = _dl_build_local_scope(local_scope, scope_elem_list[i++]);
+		tcurr->symbol_scope.r_list = _dl_malloc(cnt * sizeof(struct elf_resolve *));
+		tcurr->symbol_scope.r_nlist = cnt;
+		_dl_memcpy (tcurr->symbol_scope.r_list, local_scope, cnt * sizeof (struct elf_resolve *));
+		/* Restoring the init_flag.*/
+		for (k = 1; k < nscope_elem; k++)
+			scope_elem_list[k]->init_flag &= ~DL_RESERVED;
+	}
+
+	_dl_free(local_scope);
 
 #ifdef __LDSO_LDD_SUPPORT__
 	/* End of the line for ldd.... */
@@ -1081,7 +1135,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 * order so that COPY directives work correctly.
 	 */
 	if (_dl_symbol_tables)
-		if (_dl_fixup(_dl_symbol_tables, unlazy))
+		if (_dl_fixup(_dl_symbol_tables, global_scope, unlazy))
 			_dl_exit(-1);
 
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
@@ -1118,7 +1172,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 * ld.so.1, so we have to look up each symbol individually.
 	 */
 
-	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "__environ", _dl_symbol_tables, NULL, 0, NULL);
+	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "__environ", global_scope, NULL, 0, NULL);
 	if (_dl_envp)
 		*_dl_envp = (unsigned long) envp;
 
@@ -1174,21 +1228,21 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 	/* Find the real malloc function and make ldso functions use that from now on */
 	_dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "malloc",
-			_dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+			global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 #if defined(USE_TLS) && USE_TLS
 	/* Find the real functions and make ldso functions use them from now on */
 	_dl_calloc_function = (void* (*)(size_t, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_realloc_function = (void* (*)(void *, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_free_function = (void (*)(void *)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_memalign_function = (void* (*)(size_t, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 #endif
 

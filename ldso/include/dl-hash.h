@@ -25,6 +25,15 @@ struct dyn_elf {
   struct dyn_elf * prev;
 };
 
+
+/* Structure to describe a single list of scope elements.  The lookup
+   functions get passed an array of pointers to such structures.  */
+struct r_scope_elem {
+  struct elf_resolve **r_list; /* Array of maps for the scope.  */
+  unsigned int r_nlist;        /* Number of entries in the scope.  */
+  struct r_scope_elem *next;
+};
+
 struct elf_resolve {
   /* These entries must be in this order to be compatible with the interface used
      by gdb to obtain the list of symbols. */
@@ -65,7 +74,8 @@ struct elf_resolve {
   ElfW(Addr) l_entry;
 #endif
   enum {elf_lib, elf_executable,program_interpreter, loaded_file} libtype;
-  struct dyn_elf * symbol_scope;
+  /* This is the local scope of the shared object */
+  struct r_scope_elem symbol_scope;
   unsigned short usage_count;
   unsigned short int init_flag;
   unsigned long rtld_flags; /* RTLD_GLOBAL, RTLD_NOW etc. */
@@ -132,6 +142,7 @@ struct elf_resolve {
 #define INIT_FUNCS_CALLED   0x000004
 #define FINI_FUNCS_CALLED   0x000008
 #define DL_OPENED	    0x000010
+#define DL_RESERVED	    0x000020
 
 extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;
@@ -145,15 +156,15 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 #if !((defined(USE_TLS) && USE_TLS) || defined __FDPIC__)
 # define _dl_lookup_hash(n, r, m, c, t) _dl_lookup_hash(n, r, m, c)
 #endif
-extern char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt,
+extern char *_dl_lookup_hash(const char *name, struct r_scope_elem *scope,
 	struct elf_resolve *mytpnt, int type_class,
 	struct elf_resolve **tpntp);
 
-static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
+static __always_inline char *_dl_find_hash(const char *name, struct r_scope_elem *scope,
 					struct elf_resolve *mytpnt, int type_class,
 					struct elf_resolve **tpntp)
 {
-	return _dl_lookup_hash(name, rpnt, mytpnt, type_class, tpntp);
+	return _dl_lookup_hash(name, scope, mytpnt, type_class, tpntp);
 }
 
 extern int _dl_linux_dynamic_link(void);

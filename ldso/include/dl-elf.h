@@ -15,6 +15,7 @@
 /* Forward declarations for stuff defined in ld_hash.h */
 struct dyn_elf;
 struct elf_resolve;
+struct r_scope_elem;
 
 #include <dl-defs.h>
 #ifdef __LDSO_CACHE_SUPPORT__
@@ -30,7 +31,7 @@ static __inline__ void _dl_unmap_cache(void) { }
 extern void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size);
 extern int _dl_parse_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size);
+	struct r_scope_elem *scope, unsigned long rel_addr, unsigned long rel_size);
 extern struct elf_resolve * _dl_load_shared_library(int secure,
 	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname,
 	int trace_loaded_objects);
@@ -39,7 +40,7 @@ extern struct elf_resolve * _dl_load_elf_shared_library(int secure,
 extern struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libname,
 	int trace_loaded_objects);
 extern int _dl_linux_resolve(void);
-extern int _dl_fixup(struct dyn_elf *rpnt, int flag);
+extern int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int flag);
 extern void _dl_protect_relro (struct elf_resolve *l);
 
 /*

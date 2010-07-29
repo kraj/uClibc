@@ -225,7 +225,7 @@ typedef struct {
 /* Similar to DL_LOADADDR_UNMAP, but used for libraries that have been
    dlopen()ed successfully, when they're dlclose()d.  */
 #ifndef DL_LIB_UNMAP
-# define DL_LIB_UNMAP(LIB, LEN) (DL_LOADADDR_UNMAP ((LIB)->loadaddr, (LEN)))
+# define DL_LIB_UNMAP(LIB, LEN) (DL_LOADADDR_UNMAP ((LIB)->mapaddr, (LEN)))
 #endif
 
 /* Define this to verify that a library named LIBNAME, whose ELF
