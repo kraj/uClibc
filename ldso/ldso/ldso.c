@@ -291,7 +291,6 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 }
 
 #ifdef __LDSO_PRELINK_SUPPORT__
-
 static void trace_objects(struct elf_resolve *tpnt, char *str_name)
 {
 	if (_dl_strcmp(_dl_trace_prelink, tpnt->libname) == 0)
@@ -312,8 +311,49 @@ static void trace_objects(struct elf_resolve *tpnt, char *str_name)
 	else
 		_dl_dprintf (1, "\n");
 }
-
 #endif
+
+static struct elf_resolve * add_ldso(struct elf_resolve *tpnt,
+									 DL_LOADADDR_TYPE load_addr,
+									 ElfW(auxv_t) auxvt[AT_EGID + 1],
+									 struct dyn_elf *rpnt)
+{
+		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
+		ElfW(Phdr) *myppnt = (ElfW(Phdr) *)
+								DL_RELOC_ADDR(load_addr, epnt->e_phoff);
+		int j;
+		struct stat st;
+
+		tpnt = _dl_add_elf_hash_table(tpnt->libname, tpnt->loadaddr,
+					      tpnt->dynamic_info, (unsigned long)tpnt->dynamic_addr,
+					      0);
+
+		if (_dl_stat(tpnt->libname, &st) >= 0) {
+			tpnt->st_dev = st.st_dev;
+			tpnt->st_ino = st.st_ino;
+		}
+		tpnt->n_phent = epnt->e_phnum;
+		tpnt->ppnt = myppnt;
+		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
+			if (myppnt->p_type ==  PT_GNU_RELRO) {
+				tpnt->relro_addr = myppnt->p_vaddr;
+				tpnt->relro_size = myppnt->p_memsz;
+				break;
+			}
+		}
+		tpnt->libtype = program_interpreter;
+		if (rpnt) {
+			rpnt->next = _dl_zalloc(sizeof(struct dyn_elf));
+			rpnt->next->prev = rpnt;
+			rpnt = rpnt->next;
+		} else {
+			rpnt = _dl_zalloc(sizeof(struct dyn_elf));
+		}
+		rpnt->dyn = tpnt;
+		tpnt->rtld_flags = RTLD_NOW | RTLD_GLOBAL; /* Must not be LAZY */
+
+	return tpnt;
+}
 
 static ptrdiff_t _dl_build_local_scope (struct elf_resolve **list,
 										struct elf_resolve *map)
@@ -343,6 +383,7 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
 	struct elf_resolve *tpnt1;
+	struct elf_resolve *ldso_tpnt = NULL;
 	struct elf_resolve app_tpnt_tmp;
 	struct elf_resolve *app_tpnt = &app_tpnt_tmp;
 	struct r_debug *debug_addr;
@@ -353,7 +394,6 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	struct r_scope_elem *global_scope;
 	struct elf_resolve **local_scope;
 
-	struct stat st;
 #if defined(USE_TLS) && USE_TLS
 	void *tcbp = NULL;
 #endif
@@ -944,12 +984,19 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 				lpntstr = (char*) (tcurr->dynamic_info[DT_STRTAB] + this_dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
-				if (_dl_strcmp(name, UCLIBC_LDSO) == 0)
-					continue;
-
 				_dl_if_debug_dprint("\tfile='%s';  needed by '%s'\n", lpntstr, _dl_progname);
 
-				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, trace_loaded_objects)))	{
+				if (_dl_strcmp(name, UCLIBC_LDSO) == 0) {
+						if (!ldso_tpnt) {
+							/* Insert the ld.so only once */
+							ldso_tpnt = add_ldso(tpnt, load_addr, auxvt, rpnt);
+						}
+						ldso_tpnt->usage_count++;
+						tpnt1 = ldso_tpnt;
+				} else
+					tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, trace_loaded_objects);
+
+				if (!tpnt1) {
 #ifdef __LDSO_LDD_SUPPORT__
 					if (trace_loaded_objects || _dl_trace_prelink) {
 						_dl_dprintf(1, "\t%s => not found\n", lpntstr);
@@ -1041,41 +1088,12 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 * functions in the dynamic linker and to relocate the interpreter
 	 * again once all libs are loaded.
 	 */
-	if (tpnt) {
-		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
-		ElfW(Phdr) *myppnt = (ElfW(Phdr) *) DL_RELOC_ADDR(load_addr, epnt->e_phoff);
-		int j;
-
-		tpnt = _dl_add_elf_hash_table(tpnt->libname, load_addr,
-					      tpnt->dynamic_info,
-					      (unsigned long)tpnt->dynamic_addr,
-					      0);
-
-		if (_dl_stat(tpnt->libname, &st) >= 0) {
-			tpnt->st_dev = st.st_dev;
-			tpnt->st_ino = st.st_ino;
-		}
-		tpnt->n_phent = epnt->e_phnum;
-		tpnt->ppnt = myppnt;
-		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
-			if (myppnt->p_type ==  PT_GNU_RELRO) {
-				tpnt->relro_addr = myppnt->p_vaddr;
-				tpnt->relro_size = myppnt->p_memsz;
-				break;
-			}
-		}
-		tpnt->libtype = program_interpreter;
+	if (!ldso_tpnt) {
+		tpnt = add_ldso(tpnt, load_addr, auxvt, rpnt);
 		tpnt->usage_count++;
 		nscope_elem++;
-		if (rpnt) {
-			rpnt->next = _dl_zalloc(sizeof(struct dyn_elf));
-			rpnt->next->prev = rpnt;
-			rpnt = rpnt->next;
-		} else {
-			rpnt = _dl_zalloc(sizeof(struct dyn_elf));
-		}
-		rpnt->dyn = tpnt;
-		tpnt->rtld_flags = RTLD_NOW | RTLD_GLOBAL; /* Must not be LAZY */
+	} else
+		tpnt = ldso_tpnt;
 
 #ifdef RERELOCATE_LDSO
 		/* Only rerelocate functions for now. */
@@ -1089,7 +1107,6 @@ of this helper program; chances are you did not intend to run this program.\n\
 		tpnt->init_flag = RELOCS_DONE | JMP_RELOCS_DONE;
 #endif
 		tpnt = NULL;
-	}
 
 	/*
 	 * Allocate the global scope array.
@@ -1124,13 +1141,9 @@ of this helper program; chances are you did not intend to run this program.\n\
 	_dl_free(local_scope);
 
 #ifdef __LDSO_LDD_SUPPORT__
-	/* End of the line for ldd.... */
-	if (trace_loaded_objects && !_dl_trace_prelink) {
-		_dl_dprintf(1, "\t%s => %s (%x)\n",
-			    rpnt->dyn->libname + _dl_strlen(_dl_ldsopath) + 1,
-			    rpnt->dyn->libname, DL_LOADADDR_BASE(rpnt->dyn->loadaddr));
+	/* Exit if LD_TRACE_LOADED_OBJECTS is on. */
+	if (trace_loaded_objects && !_dl_trace_prelink)
 		_dl_exit(0);
-	}
 #endif
 
 #if defined(USE_TLS) && USE_TLS
@@ -1160,16 +1173,12 @@ of this helper program; chances are you did not intend to run this program.\n\
 # endif
 #endif
 
-
-	/* FIXME: The glibc code doesn't trace the ldso when LD_TRACE_OBJECT is set,
-	 *        here has been trace to mantain the original one.
-	 *        Another difference Vs Glibc is the check to verify if an object is
-	 *        "statically linked" (only if LD_TRACE_OBJECT is on).
-	 */
-
 #ifdef __LDSO_PRELINK_SUPPORT__
 	if (_dl_trace_prelink) {
-		for (i = 0; i < nscope_elem; i++)
+
+		unsigned int nscope_trace = ldso_tpnt ? nscope_elem : (nscope_elem - 1);
+
+		for (i = 0; i < nscope_trace; i++)
 			trace_objects(scope_elem_list[i],
 				_dl_get_last_path_component(scope_elem_list[i]->libname));
 
