@@ -57,6 +57,11 @@ struct r_debug *_dl_debug_addr = NULL;	/* Used to communicate with the gdb debug
 void *(*_dl_malloc_function) (size_t size) = NULL;
 void (*_dl_free_function) (void *p) = NULL;
 
+#ifdef __LDSO_PRELINK_SUPPORT__
+char *_dl_trace_prelink                      = NULL;	/* Library for prelinking trace */
+struct elf_resolve *_dl_trace_prelink_map    = NULL;	/* Library module for prelinking trace */
+bool _dl_verbose				= true;					/* On by default */
+#endif
 static int _dl_secure = 1; /* Are we dealing with setuid stuff? */
 
 #ifdef __SUPPORT_LD_DEBUG__
@@ -284,6 +289,31 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 		}
 	}
 }
+
+#ifdef __LDSO_PRELINK_SUPPORT__
+
+static void trace_objects(struct elf_resolve *tpnt, char *str_name)
+{
+	if (_dl_strcmp(_dl_trace_prelink, tpnt->libname) == 0)
+		_dl_trace_prelink_map = tpnt;
+	if (tpnt->libtype == elf_executable) {
+/* Main executeble */
+		_dl_dprintf(1, "\t%s => %s (%x, %x)", tpnt->libname, tpnt->libname,
+					tpnt->mapaddr, DL_LOADADDR_BASE(tpnt->loadaddr));
+	} else {
+/* Preloaded, Needed or interpreter */
+		_dl_dprintf(1, "\t%s => %s (%x, %x)", str_name, tpnt->libname,
+					tpnt->mapaddr, DL_LOADADDR_BASE(tpnt->loadaddr));
+	}
+
+	if ((tpnt->libtype != program_interpreter) && (tpnt->l_tls_modid))
+		_dl_dprintf (1, " TLS(%x, %x)\n", tpnt->l_tls_modid,
+					(size_t) tpnt->l_tls_offset);
+	else
+		_dl_dprintf (1, "\n");
+}
+
+#endif
 
 static ptrdiff_t _dl_build_local_scope (struct elf_resolve **list,
 										struct elf_resolve *map)
@@ -715,6 +745,16 @@ of this helper program; chances are you did not intend to run this program.\n\
 	}
 #endif
 
+#ifdef __LDSO_PRELINK_SUPPORT__
+{
+	char *ld_warn = _dl_getenv ("LD_WARN", envp);
+
+	if (ld_warn && *ld_warn == '\0')
+		_dl_verbose = false;
+}
+	_dl_trace_prelink = _dl_getenv("LD_TRACE_PRELINKING", envp);
+#endif
+
 	if (_dl_getenv("LD_TRACE_LOADED_OBJECTS", envp) != NULL) {
 		trace_loaded_objects++;
 	}
@@ -768,7 +808,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 				tpnt1 = _dl_load_shared_library(_dl_secure, &rpnt, NULL, str, trace_loaded_objects);
 				if (!tpnt1) {
 #ifdef __LDSO_LDD_SUPPORT__
-					if (trace_loaded_objects)
+					if (trace_loaded_objects || _dl_trace_prelink)
 						_dl_dprintf(1, "\t%s => not found\n", str);
 					else
 #endif
@@ -782,7 +822,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 					_dl_debug_early("Loading: (%x) %s\n", DL_LOADADDR_BASE(tpnt1->loadaddr), tpnt1->libname);
 
 #ifdef __LDSO_LDD_SUPPORT__
-					if (trace_loaded_objects &&
+					if (trace_loaded_objects && !_dl_trace_prelink &&
 					    tpnt1->usage_count == 1) {
 						/* This is a real hack to make
 						 * ldd not print the library
@@ -859,7 +899,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 			tpnt1 = _dl_load_shared_library(0, &rpnt, NULL, cp2, trace_loaded_objects);
 			if (!tpnt1) {
 # ifdef __LDSO_LDD_SUPPORT__
-				if (trace_loaded_objects)
+				if (trace_loaded_objects || _dl_trace_prelink)
 					_dl_dprintf(1, "\t%s => not found\n", cp2);
 				else
 # endif
@@ -873,7 +913,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 				_dl_debug_early("Loading: (%x) %s\n", DL_LOADADDR_BASE(tpnt1->loadaddr), tpnt1->libname);
 
 # ifdef __LDSO_LDD_SUPPORT__
-				if (trace_loaded_objects &&
+				if (trace_loaded_objects && !_dl_trace_prelink &&
 				    tpnt1->usage_count == 1) {
 					_dl_dprintf(1, "\t%s => %s (%x)\n",
 						    cp2, tpnt1->libname,
@@ -911,7 +951,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, trace_loaded_objects)))	{
 #ifdef __LDSO_LDD_SUPPORT__
-					if (trace_loaded_objects) {
+					if (trace_loaded_objects || _dl_trace_prelink) {
 						_dl_dprintf(1, "\t%s => not found\n", lpntstr);
 						continue;
 					} else
@@ -932,7 +972,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 				_dl_debug_early("Loading: (%x) %s\n", DL_LOADADDR_BASE(tpnt1->loadaddr), tpnt1->libname);
 
 #ifdef __LDSO_LDD_SUPPORT__
-				if (trace_loaded_objects &&
+				if (trace_loaded_objects && !_dl_trace_prelink &&
 				    tpnt1->usage_count == 1) {
 					_dl_dprintf(1, "\t%s => %s (%x)\n",
 						    lpntstr, tpnt1->libname,
@@ -947,12 +987,15 @@ of this helper program; chances are you did not intend to run this program.\n\
 	/* Keep track of the number of elements in the global scope */
 	nscope_elem = nlist;
 
-	--nlist; /* Exclude the application. */
+	if (_dl_loaded_modules->libtype == elf_executable) {
+		--nlist; /* Exclude the application. */
+		tcurr = _dl_loaded_modules->next;
+	} else
+		tcurr = _dl_loaded_modules;
 	init_fini_list = _dl_malloc(nlist * sizeof(struct elf_resolve *));
 	i = 0;
-	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
+	for (; tcurr; tcurr = tcurr->next)
 		init_fini_list[i++] = tcurr;
-	}
 
 	/* Sort the INIT/FINI list in dependency order. */
 	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
@@ -1065,7 +1108,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 */
 	global_scope = &_dl_loaded_modules->symbol_scope;
 
-	/* Build the local scope for the each loaded modules. */
+	/* Build the local scope for each loaded modules. */
 	local_scope = _dl_malloc(nscope_elem * sizeof(struct elf_resolve *));
 	i = 1;
 	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
@@ -1082,7 +1125,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 #ifdef __LDSO_LDD_SUPPORT__
 	/* End of the line for ldd.... */
-	if (trace_loaded_objects) {
+	if (trace_loaded_objects && !_dl_trace_prelink) {
 		_dl_dprintf(1, "\t%s => %s (%x)\n",
 			    rpnt->dyn->libname + _dl_strlen(_dl_ldsopath) + 1,
 			    rpnt->dyn->libname, DL_LOADADDR_BASE(rpnt->dyn->loadaddr));
@@ -1117,6 +1160,27 @@ of this helper program; chances are you did not intend to run this program.\n\
 # endif
 #endif
 
+
+	/* FIXME: The glibc code doesn't trace the ldso when LD_TRACE_OBJECT is set,
+	 *        here has been trace to mantain the original one.
+	 *        Another difference Vs Glibc is the check to verify if an object is
+	 *        "statically linked" (only if LD_TRACE_OBJECT is on).
+	 */
+
+#ifdef __LDSO_PRELINK_SUPPORT__
+	if (_dl_trace_prelink) {
+		for (i = 0; i < nscope_elem; i++)
+			trace_objects(scope_elem_list[i],
+				_dl_get_last_path_component(scope_elem_list[i]->libname));
+
+		if (_dl_verbose)
+			/* Warn about undefined symbols. */
+			if (_dl_symbol_tables)
+				if (_dl_fixup(_dl_symbol_tables, global_scope, unlazy))
+					_dl_exit(-1);
+		_dl_exit(0);
+	}
+#endif
 
 	_dl_debug_early("Beginning relocation fixups\n");
 
@@ -1172,7 +1236,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 * ld.so.1, so we have to look up each symbol individually.
 	 */
 
-	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "__environ", global_scope, NULL, 0, NULL);
+	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "__environ", global_scope, NULL, NULL, 0, NULL);
 	if (_dl_envp)
 		*_dl_envp = (unsigned long) envp;
 
@@ -1228,21 +1292,21 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 	/* Find the real malloc function and make ldso functions use that from now on */
 	_dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "malloc",
-			global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+			global_scope, NULL, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 #if defined(USE_TLS) && USE_TLS
 	/* Find the real functions and make ldso functions use them from now on */
 	_dl_calloc_function = (void* (*)(size_t, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", global_scope, NULL, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_realloc_function = (void* (*)(void *, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", global_scope, NULL, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_free_function = (void (*)(void *)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", global_scope, NULL, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_memalign_function = (void* (*)(size_t, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", global_scope, NULL, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 #endif
 

@@ -269,7 +269,7 @@ _dl_lookup_sysv_hash(struct elf_resolve *tpnt, ElfW(Sym) *symtab, unsigned long 
  * relocations or when we call an entry in the PLT table for the first time.
  */
 char *_dl_lookup_hash(const char *name, struct r_scope_elem *scope, struct elf_resolve *mytpnt,
-	int type_class, struct elf_resolve **tpntp)
+	struct sym_val *symbol, int type_class, struct elf_resolve **tpntp)
 {
 	struct elf_resolve *tpnt = NULL;
 	ElfW(Sym) *symtab;
@@ -339,6 +339,10 @@ char *_dl_lookup_hash(const char *name, struct r_scope_elem *scope, struct elf_r
 	}
 
 	if (sym) {
+		if (symbol) {
+			symbol->s = sym;
+			symbol->m = tpnt;
+		}
 		/* At this point we have found the requested symbol, do binding */
 #if defined(USE_TLS) && USE_TLS
 		if (ELF_ST_TYPE(sym->st_info) == STT_TLS) {

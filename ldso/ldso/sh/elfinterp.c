@@ -69,7 +69,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	got_addr = (char **) instr_addr;
 
 	/* Get the address of the GOT entry */
-	new_addr = _dl_find_hash(symname, &_dl_loaded_modules->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
+	new_addr = _dl_find_hash(symname, &_dl_loaded_modules->symbol_scope, tpnt, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
@@ -161,6 +161,7 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 #endif
 
 	struct elf_resolve *tls_tpnt = NULL;
+	struct sym_val current_value = { NULL, NULL };
 
 	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
@@ -169,7 +170,7 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	symname = strtab + symtab[symtab_index].st_name;
 
 	if (symtab_index) {
-		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, tpnt,
+		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, tpnt, &current_value,
 							    elf_machine_type_class(reloc_type), &tls_tpnt);
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -186,6 +187,9 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 			/* Let the caller to handle the error: it may be non fatal if called from dlopen */
 			return 1;
 		}
+		if (_dl_trace_prelink)
+			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
+							&current_value, elf_machine_type_class(reloc_type));
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)

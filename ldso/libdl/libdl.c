@@ -706,7 +706,7 @@ void *dlsym(void *vhandle, const char *name)
 	tpnt = NULL;
 	if (handle == _dl_symbol_tables)
 		tpnt = handle->dyn; /* Only search RTLD_GLOBAL objs if global object */
-	ret = _dl_find_hash(name2, &handle->dyn->symbol_scope, NULL, 0, &tls_tpnt);
+	ret = _dl_find_hash(name2, &handle->dyn->symbol_scope, NULL, NULL, 0, &tls_tpnt);
 
 #if defined(USE_TLS) && USE_TLS && defined SHARED
 	if (tls_tpnt) {
