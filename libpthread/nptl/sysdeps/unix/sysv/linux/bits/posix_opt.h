@@ -143,8 +143,10 @@
 /* We support spinlocks.  */
 #define _POSIX_SPIN_LOCKS	200809L
 
+#if 0
 /* The `spawn' function family is supported.  */
 #define _POSIX_SPAWN	200809L
+#endif
 
 /* We have POSIX timers.  */
 #define _POSIX_TIMERS	200809L
