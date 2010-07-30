@@ -114,10 +114,12 @@
 /* The LFS support in asynchronous I/O is also available.  */
 #define _LFS64_ASYNCHRONOUS_IO	1
 
+#ifdef __UCLIBC_HAS_LFS__
 /* The rest of the LFS is also available.  */
 #define _LFS_LARGEFILE		1
 #define _LFS64_LARGEFILE	1
 #define _LFS64_STDIO		1
+#endif
 
 /* POSIX shared memory objects are implemented.  */
 #define _POSIX_SHARED_MEMORY_OBJECTS	200809L
@@ -143,7 +145,7 @@
 /* We support spinlocks.  */
 #define _POSIX_SPIN_LOCKS	200809L
 
-#if 0
+#if 0 /* no support in uClibc (yet) */
 /* The `spawn' function family is supported.  */
 #define _POSIX_SPAWN	200809L
 #endif
