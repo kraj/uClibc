@@ -94,6 +94,11 @@
 /* Pull in all the arch specific stuff */
 #include "dl-startup.h"
 
+#ifdef __LDSO_PRELINK_SUPPORT__
+/* These defined magically in the linker script.  */
+extern char _begin[] attribute_hidden;
+#endif
+
 /* Static declarations */
 static int (*_dl_elf_main) (int, char **, char **);
 
@@ -164,11 +169,26 @@ DL_START(unsigned long args)
 		aux_dat += 2;
 	}
 
-	/* locate the ELF header.   We need this done as soon as possible
-	 * (esp since SEND_STDERR() needs this on some platforms... */
+	/*
+	 * Locate the dynamic linker ELF header. We need this done as soon as
+	 * possible (esp since SEND_STDERR() needs this on some platforms...
+	 */
+
+#ifdef __LDSO_PRELINK_SUPPORT__
+	/*
+	 * The `_begin' symbol created by the linker script points to ld.so ELF
+	 * We use it if the kernel is not passing a valid address through the auxvt.
+	 */
+
+	if (!auxvt[AT_BASE].a_un.a_val)
+		auxvt[AT_BASE].a_un.a_val =  (Elf32_Addr) &_begin;
+	/* Note: if the dynamic linker itself is prelinked, the load_addr is 0 */
+	DL_INIT_LOADADDR_BOOT(load_addr, elf_machine_load_address());
+#else
 	if (!auxvt[AT_BASE].a_un.a_val)
 		auxvt[AT_BASE].a_un.a_val = elf_machine_load_address();
 	DL_INIT_LOADADDR_BOOT(load_addr, auxvt[AT_BASE].a_un.a_val);
+#endif
 	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
 
 	/* Check the ELF header to make sure everything looks ok.  */
@@ -183,7 +203,7 @@ DL_START(unsigned long args)
 		_dl_exit(0);
 	}
 	SEND_EARLY_STDERR_DEBUG("ELF header=");
-	SEND_ADDRESS_STDERR_DEBUG(DL_LOADADDR_BASE(load_addr), 1);
+	SEND_ADDRESS_STDERR_DEBUG(DL_LOADADDR_BASE(header), 1);
 
 	/* Locate the global offset table.  Since this code must be PIC
 	 * we can take advantage of the magic offset register, if we
@@ -258,7 +278,12 @@ DL_START(unsigned long args)
 
 			if (!indx && relative_count) {
 				rel_size -= relative_count * sizeof(ELF_RELOC);
-				elf_machine_relative(load_addr, rel_addr, relative_count);
+				if (load_addr
+#ifdef __LDSO_PRELINK_SUPPORT__
+					|| !tpnt->dynamic_info[DT_GNU_PRELINKED_IDX]
+#endif
+					)
+					elf_machine_relative(load_addr, rel_addr, relative_count);
 				rel_addr += relative_count * sizeof(ELF_RELOC);
 			}
 

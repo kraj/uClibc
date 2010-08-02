@@ -359,6 +359,17 @@ config LDSO_STANDALONE_SUPPORT
 	  capabilities to uClibc dynamic linker, as well useful for testing an
 	  updated version of the dynamic linker without breaking the system.
 
+config LDSO_PRELINK_SUPPORT
+	bool "Dynamic linker prelink support"
+	depends on HAVE_SHARED
+	default n
+	select LDSO_STANDALONE_SUPPORT
+	help
+	  The dynamic linker can be used in stand-alone mode by the prelink tool
+	  for prelinking ELF shared libraries and binaries to speed up startup
+	  time. It also is able to load and handle prelinked libraries and
+	  binaries at runtime.
+
 config UCLIBC_STATIC_LDCONFIG
 	bool "Link ldconfig statically"
 	depends on HAVE_SHARED

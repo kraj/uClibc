@@ -145,7 +145,11 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 		hash_addr += tpnt->nbucket;
 		tpnt->chains = hash_addr;
 	}
+#ifdef __LDSO_PRELINK_SUPPORT__
+	tpnt->loadaddr = dynamic_info[DT_GNU_PRELINKED_IDX] ? 0 : loadaddr;
+#else
 	tpnt->loadaddr = loadaddr;
+#endif
 	tpnt->mapaddr = DL_RELOC_ADDR(loadaddr, 0);
 	for (i = 0; i < DYNAMIC_SIZE; i++)
 		tpnt->dynamic_info[i] = dynamic_info[i];

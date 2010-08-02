@@ -85,24 +85,47 @@ extern void _dl_protect_relro (struct elf_resolve *l);
 #endif
 
 /* OS and/or GNU dynamic extensions */
+
+#define OS_NUM_BASE 1			/* for DT_RELOCCOUNT */
+
 #ifdef __LDSO_GNU_HASH_SUPPORT__
-# define OS_NUM 2 /* for DT_RELOCCOUNT and DT_GNU_HASH entries */
+# define OS_NUM_GNU_HASH	1   /* for DT_GNU_HASH entry */
 #else
-# define OS_NUM 1 /* for DT_RELOCCOUNT entry */
+# define OS_NUM_GNU_HASH	0
 #endif
+
+#ifdef __LDSO_PRELINK_SUPPORT__
+# define OS_NUM_PRELINK		6   /* for DT_GNU_PRELINKED entry */
+#else
+# define OS_NUM_PRELINK	0
+#endif
+
+#define OS_NUM	  (OS_NUM_BASE + OS_NUM_GNU_HASH + OS_NUM_PRELINK)
 
 #ifndef ARCH_DYNAMIC_INFO
   /* define in arch specific code, if needed */
 # define ARCH_NUM 0
 #endif
 
-#define DYNAMIC_SIZE (DT_NUM+OS_NUM+ARCH_NUM)
+#define DYNAMIC_SIZE (DT_NUM + OS_NUM + ARCH_NUM)
 /* Keep ARCH specific entries into dynamic section at the end of the array */
 #define DT_RELCONT_IDX (DYNAMIC_SIZE - OS_NUM - ARCH_NUM)
 
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 /* GNU hash comes just after the relocation count */
 # define DT_GNU_HASH_IDX (DT_RELCONT_IDX + 1)
+#else
+# define DT_GNU_HASH_IDX DT_RELCONT_IDX
+#endif
+
+#ifdef __LDSO_PRELINK_SUPPORT__
+/* GNU prelink comes just after the GNU hash if present */
+#define DT_GNU_PRELINKED_IDX  (DT_GNU_HASH_IDX + 1)
+#define DT_GNU_CONFLICT_IDX   (DT_GNU_HASH_IDX + 2)
+#define DT_GNU_CONFLICTSZ_IDX (DT_GNU_HASH_IDX + 3)
+#define DT_GNU_LIBLIST_IDX    (DT_GNU_HASH_IDX + 4)
+#define DT_GNU_LIBLISTSZ_IDX  (DT_GNU_HASH_IDX + 5)
+#define DT_CHECKSUM_IDX       (DT_GNU_HASH_IDX + 6)
 #endif
 
 extern unsigned int _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
@@ -150,6 +173,20 @@ unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 			if (dpnt->d_tag == DT_GNU_HASH)
 				dynamic_info[DT_GNU_HASH_IDX] = dpnt->d_un.d_ptr;
+#endif
+#ifdef __LDSO_PRELINK_SUPPORT__
+			if (dpnt->d_tag == DT_GNU_PRELINKED)
+				dynamic_info[DT_GNU_PRELINKED_IDX] = dpnt->d_un.d_val;
+			if (dpnt->d_tag == DT_GNU_CONFLICT)
+				dynamic_info[DT_GNU_CONFLICT_IDX] = dpnt->d_un.d_ptr;
+			if (dpnt->d_tag == DT_GNU_CONFLICTSZ)
+				dynamic_info[DT_GNU_CONFLICTSZ_IDX] = dpnt->d_un.d_val;
+			if (dpnt->d_tag == DT_GNU_LIBLIST)
+				dynamic_info[DT_GNU_LIBLIST_IDX] = dpnt->d_un.d_ptr;
+			if (dpnt->d_tag == DT_GNU_LIBLISTSZ)
+				dynamic_info[DT_GNU_LIBLISTSZ_IDX] = dpnt->d_un.d_val;
+			if (dpnt->d_tag == DT_CHECKSUM)
+				dynamic_info[DT_CHECKSUM_IDX] = dpnt->d_un.d_val;
 #endif
 		}
 #ifdef ARCH_DYNAMIC_INFO

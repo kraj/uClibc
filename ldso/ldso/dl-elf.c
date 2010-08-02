@@ -343,7 +343,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	size_t relro_size = 0;
 	struct stat st;
 	uint32_t *p32;
-	DL_LOADADDR_TYPE lib_loadaddr;
+	DL_LOADADDR_TYPE lib_loadaddr = 0;
 	DL_INIT_LOADADDR_EXTRA_DECLS
 
 	libaddr = 0;
@@ -880,7 +880,12 @@ int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int now_flag)
 		relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
 		if (relative_count) { /* Optimize the XX_RELATIVE relocations if possible */
 			reloc_size -= relative_count * sizeof(ELF_RELOC);
-			elf_machine_relative(tpnt->loadaddr, reloc_addr, relative_count);
+			if (tpnt->loadaddr
+#ifdef __LDSO_PRELINK_SUPPORT__
+				|| (!tpnt->dynamic_info[DT_GNU_PRELINKED_IDX])
+#endif
+				)
+				elf_machine_relative(tpnt->loadaddr, reloc_addr, relative_count);
 			reloc_addr += relative_count * sizeof(ELF_RELOC);
 		}
 		goof += _dl_parse_relocation_information(rpnt, scope,

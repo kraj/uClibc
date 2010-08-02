@@ -62,8 +62,16 @@ ldso-y := $($(UCLIBC_LDSO_NAME)_OBJS:.o=.oS)
 lib-so-y += $(ldso)
 objclean-y += CLEAN_ldso/ldso
 
+ifeq ($(LDSO_PRELINK_SUPPORT),y)
+# Use a specific linker script for ld.so
+LDFLAGS-$(UCLIBC_LDSO_NAME).so += -T $(ldso:.$(ABI_VERSION)=).lds
+endif
+
 $(ldso): $(ldso:.$(ABI_VERSION)=)
 $(ldso:.$(ABI_VERSION)=): $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a
+ifeq ($(LDSO_PRELINK_SUPPORT),y)
+	$(call create-lds)
+endif
 	$(call link.so,$(ldso_FULL_NAME),$(ABI_VERSION))
 
 $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a: $(ldso-y)

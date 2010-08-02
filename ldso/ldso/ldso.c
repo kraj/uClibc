@@ -61,6 +61,7 @@ void (*_dl_free_function) (void *p) = NULL;
 char *_dl_trace_prelink                      = NULL;	/* Library for prelinking trace */
 struct elf_resolve *_dl_trace_prelink_map    = NULL;	/* Library module for prelinking trace */
 bool _dl_verbose				= true;					/* On by default */
+bool prelinked					= false;
 #endif
 static int _dl_secure = 1; /* Are we dealing with setuid stuff? */
 
@@ -1189,7 +1190,74 @@ of this helper program; chances are you did not intend to run this program.\n\
 					_dl_exit(-1);
 		_dl_exit(0);
 	}
+
+	if (_dl_loaded_modules->dynamic_info[DT_GNU_LIBLIST_IDX]) {
+		ElfW(Lib) *liblist, *liblistend;
+		struct elf_resolve **r_list, **r_listend, *l;
+		const char *strtab = (const char *)_dl_loaded_modules->dynamic_info[DT_STRTAB];
+
+		_dl_assert (_dl_loaded_modules->dynamic_info[DT_GNU_LIBLISTSZ_IDX] != 0);
+		liblist = (ElfW(Lib) *) _dl_loaded_modules->dynamic_info[DT_GNU_LIBLIST_IDX];
+		liblistend = (ElfW(Lib) *)
+		((char *) liblist + _dl_loaded_modules->dynamic_info[DT_GNU_LIBLISTSZ_IDX]);
+		r_list = _dl_loaded_modules->symbol_scope.r_list;
+		r_listend = r_list + nscope_elem;
+
+		for (; r_list < r_listend && liblist < liblistend; r_list++) {
+			l = *r_list;
+
+			if (l == _dl_loaded_modules)
+				continue;
+
+			/* If the library is not mapped where it should, fail.  */
+			if (l->loadaddr)
+				break;
+
+			/* Next, check if checksum matches.  */
+			if (l->dynamic_info[DT_CHECKSUM_IDX] == 0 ||
+				l->dynamic_info[DT_CHECKSUM_IDX] != liblist->l_checksum)
+				break;
+
+			if (l->dynamic_info[DT_GNU_PRELINKED_IDX] == 0 ||
+				(l->dynamic_info[DT_GNU_PRELINKED_IDX] != liblist->l_time_stamp))
+				break;
+
+			if (_dl_strcmp(strtab + liblist->l_name, _dl_get_last_path_component(l->libname)) != 0)
+				break;
+
+			++liblist;
+		}
+
+
+		if (r_list == r_listend && liblist == liblistend)
+			prelinked = true;
+
+	}
+
+	_dl_debug_early ("\nprelink checking: %s\n", prelinked ? "ok" : "failed");
+
+	if (prelinked) {
+		if (_dl_loaded_modules->dynamic_info[DT_GNU_CONFLICT_IDX]) {
+			ELF_RELOC *conflict;
+			unsigned long conflict_size;
+
+			_dl_assert (_dl_loaded_modules->dynamic_info[DT_GNU_CONFLICTSZ_IDX] != 0);
+			conflict = (ELF_RELOC *) _dl_loaded_modules->dynamic_info[DT_GNU_CONFLICT_IDX];
+			conflict_size = _dl_loaded_modules->dynamic_info[DT_GNU_CONFLICTSZ_IDX];
+			_dl_parse_relocation_information(_dl_symbol_tables, global_scope,
+				(unsigned long) conflict, conflict_size);
+		}
+
+		/* Mark all the objects so we know they have been already relocated.  */
+		for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+			tpnt->init_flag |= RELOCS_DONE;
+			if (tpnt->relro_size)
+				_dl_protect_relro (tpnt);
+		}
+	} else
 #endif
+
+	{
 
 	_dl_debug_early("Beginning relocation fixups\n");
 
@@ -1215,6 +1283,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 		if (tpnt->relro_size)
 			_dl_protect_relro (tpnt);
 	}
+	} /* not prelinked */
 
 #if defined(USE_TLS) && USE_TLS
 	if (!was_tls_init_tp_called && _dl_tls_max_dtv_idx > 0)

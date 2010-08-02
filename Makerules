@@ -294,6 +294,15 @@ endef
 cmd_hcompile.u = $(HOSTCC) $(filter-out $(PHONY),$^) $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
 cmd_hcompile.o = $(HOSTCC) $(filter-out $(PHONY),$<) $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
 
+define create-lds
+	$(Q)$(RM) $@.lds
+	$(Q)$(CC) -nostdlib -nostartfiles -shared -Wl,-z,combreloc \
+	-Wl,-z,relro -Wl,--hash-style=gnu -Wl,-z,defs \
+	-Wl,--verbose 2>&1 | LC_ALL=C \
+	sed -e '/^=========/,/^=========/!d;/^=========/d' \
+	-e 's/\. = .* + SIZEOF_HEADERS;/& _begin = . - SIZEOF_HEADERS;/' > $@.lds
+endef
+
 define link.so
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
 	@$(disp_ld)
