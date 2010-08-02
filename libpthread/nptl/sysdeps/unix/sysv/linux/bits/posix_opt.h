@@ -97,8 +97,10 @@
 # define _POSIX_THREAD_ROBUST_PRIO_PROTECT	-1
 #endif
 
+#ifdef __UCLIBC_HAS_REALTIME__
 /* We support POSIX.1b semaphores.  */
 #define _POSIX_SEMAPHORES	200809L
+#endif
 
 /* Real-time signals are supported.  */
 #define _POSIX_REALTIME_SIGNALS	200809L
@@ -130,8 +132,10 @@
 /* Clock support in threads must be also checked at runtime.  */
 #define _POSIX_THREAD_CPUTIME	0
 
+#ifdef __UCLIBC_HAS_REGEX__
 /* GNU libc provides regular expression handling.  */
 #define _POSIX_REGEXP	1
+#endif
 
 /* Reader/Writer locks are available.  */
 #define _POSIX_READER_WRITER_LOCKS	200809L
@@ -171,11 +175,15 @@
 /* Advisory information interfaces are available.  */
 #define _POSIX_ADVISORY_INFO	200809L
 
+#ifdef __UCLIBC_HAS_IPV6__
 /* IPv6 support is available.  */
 #define _POSIX_IPV6	200809L
+#endif
 
+#ifdef __UCLIBC_HAS_SOCKET__
 /* Raw socket support is available.  */
 #define _POSIX_RAW_SOCKETS	200809L
+#endif
 
 /* We have at least one terminal.  */
 #define _POSIX2_CHAR_TERM	200809L
