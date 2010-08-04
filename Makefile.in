@@ -380,7 +380,7 @@ ifeq ($(HAVE_SHARED),y)
 	fi
 endif
 
-utils:
+utils: | pregen
 	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils $@
 
 # Installs helper applications, such as 'ldd' and 'ldconfig'
@@ -389,7 +389,7 @@ install_utils: utils
 
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
-hostutils:
+hostutils: | pregen
 	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils $@
 
 install_hostutils: hostutils
