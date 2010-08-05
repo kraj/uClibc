@@ -235,15 +235,14 @@ __MATHCALLX (nan,, (__const char *__tagb), (__const__))
 __END_NAMESPACE_C99
 #endif
 
-
+#if defined __USE_MISC || defined __USE_XOPEN || defined __USE_ISOC99
 /* Return nonzero if VALUE is not a number.  */
-/* DELETE? __MATHDECL_PRIV adds another "__": so this is "____isnan"???! */
-/*__MATHDECL_PRIV (int,__isnan,, (_Mdouble_ __value), (__const__))*/
+__BEGIN_NAMESPACE_C99
+__MATHDECL_PRIV (int,isnan,, (_Mdouble_ __value), (__const__))
+__END_NAMESPACE_C99
+#endif
 
 #if defined __USE_MISC || defined __USE_XOPEN
-/* Return nonzero if VALUE is not a number.  */
-__MATHDECL_PRIV (int,isnan,, (_Mdouble_ __value), (__const__))
-
 # ifdef __DO_XSI_MATH__
 /* Bessel functions.  */
 __MATHCALL (j0,, (_Mdouble_))
