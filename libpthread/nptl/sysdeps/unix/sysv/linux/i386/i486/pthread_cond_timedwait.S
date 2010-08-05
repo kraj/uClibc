@@ -648,7 +648,7 @@ __condvar_tw_cleanup:
 
 	movl	%esi, (%esp)
 .LcallUR:
-	call	_Unwind_Resume
+	call	_Unwind_Resume@PLT
 	hlt
 .LENDCODE:
 	cfi_endproc
