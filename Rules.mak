@@ -531,12 +531,25 @@ export ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && ec
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
-XWARNINGS=$(call qstrip,$(WARNINGS)) -Wstrict-prototypes -fno-strict-aliasing
+XWARNINGS=$(call qstrip,$(WARNINGS)) 
+XWARNINGS+=$(foreach w,\
+	-Wstrict-prototypes \
+	-fno-strict-aliasing \
+	, $(call check_gcc,$(w),))
 ifeq ($(EXTRA_WARNINGS),y)
-XWARNINGS+=-Wnested-externs -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wformat=2
-XWARNINGS+=-Wmissing-prototypes -Wmissing-declarations
-XWARNINGS+=-Wold-style-declaration -Wold-style-definition
-XWARNINGS+=-Wnonnull -Wundef
+XWARNINGS+=$(foreach w,\
+	-Wformat=2 \
+	-Wmissing-noreturn \
+	-Wmissing-format-attribute \
+	-Wmissing-prototypes \
+	-Wmissing-declarations \
+	-Wnested-externs \
+	-Wnonnull \
+	-Wold-style-declaration \
+	-Wold-style-definition \
+	-Wshadow \
+	-Wundef \
+	, $(call check_gcc,$(w),))
 # Works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
 #XWARNINGS+=-Wdeclaration-after-statement
 endif
