@@ -146,6 +146,8 @@ __x86.get_pc_thunk.reg:						      \
 #endif
 #endif
 
+/* Avoid conflics with thunk section */
+#undef __i686
 #endif	/* __ASSEMBLER__ */
 
 #ifndef offsetof
