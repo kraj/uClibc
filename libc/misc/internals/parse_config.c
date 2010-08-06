@@ -60,7 +60,7 @@ static off_t bb_get_chunk_with_continuation(parser_t* parsr)
 	char *chp;
 
 	while (1) {
-		if (fgets(parsr->line + pos, parsr->line_len, parsr->fp) == NULL) {
+		if (fgets(parsr->line + pos, parsr->line_len - pos, parsr->fp) == NULL) {
 			memset(parsr->line, 0, parsr->line_len);
 			pos = -1;
 			break;
@@ -179,7 +179,7 @@ int attribute_hidden FAST_FUNC config_read(parser_t *parser, char ***tokens,
 again:
 	if (parser->data == NULL) {
 		if (parser->line_len == 0)
-			parser->line_len = 81;
+			parser->line_len = PAGE_SIZE;
 		if (parser->data_len == 0)
 			parser->data_len += 1 + ntokens * sizeof(char *);
 		parser->data = realloc(parser->data,
