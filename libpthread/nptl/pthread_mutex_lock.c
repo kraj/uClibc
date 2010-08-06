@@ -42,7 +42,11 @@ static int __pthread_mutex_lock_full (pthread_mutex_t *mutex)
 
 
 int
+#ifdef NO_INCR
+attribute_hidden internal_function
+#else
 attribute_protected
+#endif
 __pthread_mutex_lock (
      pthread_mutex_t *mutex)
 {
@@ -477,7 +481,8 @@ strong_alias (__pthread_mutex_lock, __pthread_mutex_lock_internal)
 
 
 #ifdef NO_INCR
-void attribute_protected
+void
+attribute_hidden internal_function
 __pthread_mutex_cond_lock_adjust (
      pthread_mutex_t *mutex)
 {
