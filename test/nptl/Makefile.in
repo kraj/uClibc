@@ -46,6 +46,10 @@ ifeq ($(UCLIBC_HAS_OBSOLETE_BSD_SIGNAL),)
 TESTS_DISABLED += tst-exec2 tst-exec3 tst-exec4
 endif
 
+ifeq ($(UCLIBC_SUSV4_LEGACY),)
+TESTS_DISABLED += tst-basic5
+endif
+
 GLIBC_TESTS_DISABLED := tst-eintr1_glibc tst-eintr2_glibc \
 	tst-eintr3_glibc tst-eintr4_glibc tst-eintr5_glibc \
 	tst-tls1_glibc tst-tls2_glibc
