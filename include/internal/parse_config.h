@@ -7,6 +7,8 @@
  * Licensed under GPLv2 or later, see file LICENSE in this tarball for details.
  * Also for use in uClibc (http://uclibc.org/) licensed under LGPLv2.1 or later.
  */
+#ifndef __INTERNAL_PARSE_CONFIG_H
+#define __INTERNAL_PARSE_CONFIG_H
 
 #include <stdio.h>
 #ifndef FAST_FUNC
@@ -48,3 +50,4 @@ int config_read(parser_t *parser, char ***tokens, unsigned flags, const char *de
 	config_read(parser, tokens, ((flags) | (((min) & 0xFF) << 8) | ((max) & 0xFF)), str)
 void config_close(parser_t *parser) FAST_FUNC attribute_hidden;
 
+#endif /* __INTERNAL_PARSE_CONFIG_H */
