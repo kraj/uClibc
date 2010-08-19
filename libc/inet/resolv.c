@@ -1597,7 +1597,7 @@ int attribute_hidden __read_etc_hosts_r(
 		struct hostent **result,
 		int *h_errnop)
 {
-	char **alias, *cp = NULL;
+	char **alias;
 	char **host_aliases;
 	char **tok = NULL;
 	struct in_addr *h_addr0 = NULL;
@@ -1632,33 +1632,24 @@ int attribute_hidden __read_etc_hosts_r(
 	parser->line_len = buflen - aliaslen;
 	*h_errnop = HOST_NOT_FOUND;
 	/* <ip>[[:space:]][<aliases>] */
-	while (config_read(parser, &tok, 2, 2, "# \t", PARSE_NORMAL)) {
+	while (config_read(parser, &tok, MAXALIASES, 2, "# \t", PARSE_NORMAL)) {
 		result_buf->h_aliases = alias = host_aliases = tok+1;
-		cp = *alias;
-		while (cp && *cp) {
-			if (alias < &host_aliases[MAXALIASES - 1])
-				*alias++ = cp;
-			cp = strpbrk(cp, " \t");
-			if (cp != NULL)
-				*cp++ = '\0';
-		}
-		*alias = NULL;
 		if (action == GETHOSTENT) {
 			/* Return whatever the next entry happens to be. */
 			break;
 		}
-		result_buf->h_name = *(result_buf->h_aliases++);
 		if (action == GET_HOSTS_BYADDR) {
-			if (strcmp(name, result_buf->h_name) != 0)
+			if (strcmp(name, *tok) != 0)
 				continue;
 		} else { /* GET_HOSTS_BYNAME */
-			alias = result_buf->h_aliases;
-			while ((cp = *(alias++)))
-				if (strcasecmp(name, cp) == 0)
+			while (*alias) {
+				if (strcasecmp(name, *(alias++)) == 0)
 					goto found;
+			}
 			continue;
 		}
 found:
+		result_buf->h_name = *(result_buf->h_aliases++);
 		result_buf->h_addr_list = (char**)(buf + ALIASOFF);
 		*(result_buf->h_addr_list + 1) = '\0';
 		h_addr0 = (struct in_addr*)(buf + ALIASOFF + 2 * sizeof (char*));
