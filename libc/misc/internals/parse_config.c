@@ -73,6 +73,10 @@ static off_t bb_get_chunk_with_continuation(parser_t* parsr)
 				--pos;
 			else
 				break;
+		} else if (parsr->allocated) {
+			 parsr->line_len += PAGE_SIZE;
+			 parsr->data = realloc(parsr->data,
+								   parsr->data_len + parsr->line_len);
 		}
 	}
 	return pos;
@@ -109,9 +113,8 @@ static __always_inline parser_t * FAST_FUNC config_open2(const char *filename,
 	fp = fopen_func(filename, "r");
 	if (!fp)
 		return NULL;
-	parser = malloc(sizeof(*parser));
+	parser = calloc(1, sizeof(*parser));
 	if (parser) {
-		memset(parser, 0, sizeof(*parser));
 		parser->fp = fp;
 	}
 	return parser;
@@ -179,7 +182,7 @@ int attribute_hidden FAST_FUNC config_read(parser_t *parser, char ***tokens,
 again:
 	if (parser->data == NULL) {
 		if (parser->line_len == 0)
-			parser->line_len = PAGE_SIZE;
+			parser->line_len = 81;
 		if (parser->data_len == 0)
 			parser->data_len += 1 + ntokens * sizeof(char *);
 		parser->data = realloc(parser->data,
@@ -201,7 +204,7 @@ again:
 		return 0;
 	line = parser->line;
 
-	/* Skip token in the start of line? */
+	/* Skip multiple token-delimiters in the start of line? */
 	if (flags & PARSE_TRIM)
 		line += strspn(line, delims + 1);
 
