@@ -15,8 +15,11 @@
 #define __NR___syscall_getpgid __NR_getpgid
 static __inline__ _syscall1(__kernel_pid_t, __syscall_getpgid, __kernel_pid_t, pid)
 
-pid_t getpgid(pid_t pid)
+pid_t __getpgid(pid_t pid)
 {
 	return (__syscall_getpgid(pid));
 }
+#ifdef __USE_XOPEN_EXTENDED
+weak_alias(__getpgid,getpgid)
+#endif
 #endif
