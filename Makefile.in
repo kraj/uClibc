@@ -280,10 +280,10 @@ HEADERS_RM-$(UCLIBC_SUSV4_LEGACY)            += utime.h
 	### ucontext.h
 
 ifneq ($(findstring install,$(MAKECMDGOALS)),)
-$(addprefix $(PREFIX)$(DEVEL_PREFIX),include lib):
+$(addprefix $(PREFIX)$(DEVEL_PREFIX),include $(MULTILIB_DIR)):
 	$(do_mkdir)
 # avoid warning about duplicate targets in rule or overrides
-ifneq ($(abspath $(RUNTIME_PREFIX)$(MULTILIB_DIR)),$(abspath $(DEVEL_PREFIX)lib))
+ifneq ($(abspath $(RUNTIME_PREFIX)$(MULTILIB_DIR)),$(abspath $(DEVEL_PREFIX)$(MULTILIB_DIR)))
 $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR):
 	$(do_mkdir)
 endif
