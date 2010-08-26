@@ -329,6 +329,7 @@ static struct elf_resolve * add_ldso(struct elf_resolve *tpnt,
 					      tpnt->dynamic_info, (unsigned long)tpnt->dynamic_addr,
 					      0);
 
+		tpnt->mapaddr = load_addr;
 		if (_dl_stat(tpnt->libname, &st) >= 0) {
 			tpnt->st_dev = st.st_dev;
 			tpnt->st_ino = st.st_ino;
@@ -550,9 +551,6 @@ of this helper program; chances are you did not intend to run this program.\n\
 		 */
 
 		app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
-
-		if (app_tpnt->libtype == elf_executable)
-			app_tpnt->loadaddr = 0;
 
 		/*
 		 * This is used by gdb to locate the chain of shared libraries that are

@@ -430,7 +430,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 		if (ppnt->p_type == PT_LOAD) {
 			/* See if this is a PIC library. */
-			if (i == 0 && ppnt->p_vaddr > 0x1000000) {
+			if (minvma == 0xffffffff && ppnt->p_vaddr > 0x1000000) {
 				piclib = 0;
 				minvma = ppnt->p_vaddr;
 			}
@@ -477,8 +477,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	minvma = minvma & ~0xffffU;
 
 	flags = MAP_PRIVATE /*| MAP_DENYWRITE */ ;
-	if (!piclib)
-		flags |= MAP_FIXED;
 
 	if (piclib == 0 || piclib == 1) {
 		status = (char *) _dl_mmap((char *) (piclib ? 0 : minvma),
@@ -497,7 +495,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	/* Get the memory to store the library */
 	ppnt = (ElfW(Phdr) *)(intptr_t) & header[epnt->e_phoff];
 
-	DL_INIT_LOADADDR(lib_loadaddr, libaddr, ppnt, epnt->e_phnum);
+	DL_INIT_LOADADDR(lib_loadaddr, libaddr - minvma, ppnt, epnt->e_phnum);
 
 	for (i = 0; i < epnt->e_phnum; i++) {
 		if (DL_IS_SPECIAL_SEGMENT (epnt, ppnt)) {
@@ -518,12 +516,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		if (ppnt->p_type == PT_LOAD) {
 			char *tryaddr;
 			ssize_t size;
-
-			/* See if this is a PIC library. */
-			if (i == 0 && ppnt->p_vaddr > 0x1000000) {
-				piclib = 0;
-				/* flags |= MAP_FIXED; */
-			}
 
 			if (ppnt->p_flags & PF_W) {
 				unsigned long map_size;
@@ -568,7 +560,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				  }
 
 				tryaddr = piclib == 2 ? piclib2map
-				  : ((char*) (piclib ? libaddr : 0) +
+				  : ((char*) (piclib ? libaddr : lib_loadaddr) +
 				     (ppnt->p_vaddr & PAGE_ALIGN));
 
 				size = (ppnt->p_vaddr & ADDR_ALIGN)
@@ -653,7 +645,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 				if (map_size < ppnt->p_vaddr + ppnt->p_memsz
 				    && !piclib2map) {
-					tryaddr = map_size + (char*)(piclib ? libaddr : 0);
+					tryaddr = map_size + (char*)(piclib ? libaddr : lib_loadaddr);
 					status = (char *) _dl_mmap(tryaddr,
 						ppnt->p_vaddr + ppnt->p_memsz - map_size,
 						LXFLAGS(ppnt->p_flags), flags | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
@@ -664,7 +656,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			} else {
 				tryaddr = (piclib == 2 ? 0
 					   : (char *) (ppnt->p_vaddr & PAGE_ALIGN)
-					   + (piclib ? libaddr : 0));
+					   + (piclib ? libaddr : lib_loadaddr));
 				size = (ppnt->p_vaddr & ADDR_ALIGN) + ppnt->p_filesz;
 				status = (char *) _dl_mmap
 					   (tryaddr, size, LXFLAGS(ppnt->p_flags),
@@ -688,8 +680,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 	_dl_close(infile);
 
-	/* For a non-PIC library, the addresses are all absolute */
-	if (piclib) {
+	/*
+	 * The dynamic_addr must be take into acount lib_loadaddr value, to note
+	 * it is zero when the SO has been mapped to the elf's physical addr
+	 */
+	if (lib_loadaddr) {
 		dynamic_addr = (unsigned long) DL_RELOC_ADDR(lib_loadaddr, dynamic_addr);
 	}
 
@@ -710,11 +705,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	dpnt = (ElfW(Dyn) *) dynamic_addr;
 	_dl_memset(dynamic_info, 0, sizeof(dynamic_info));
-#ifdef __LDSO_STANDALONE_SUPPORT__
-	rtld_flags = _dl_parse_dynamic_info(dpnt, dynamic_info, NULL, piclib ? lib_loadaddr : 0);
-#else
 	rtld_flags = _dl_parse_dynamic_info(dpnt, dynamic_info, NULL, lib_loadaddr);
-#endif
 	/* If the TEXTREL is set, this means that we need to make the pages
 	   writable before we perform relocations.  Do this now. They get set
 	   back again later. */
@@ -724,7 +715,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		ppnt = (ElfW(Phdr) *)(intptr_t) & header[epnt->e_phoff];
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
 			if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W)) {
-				_dl_mprotect((void *) ((piclib ? libaddr : 0) +
+				_dl_mprotect((void *) ((piclib ? libaddr : lib_loadaddr) +
 							(ppnt->p_vaddr & PAGE_ALIGN)),
 						(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz,
 						PROT_READ | PROT_WRITE | PROT_EXEC);
@@ -740,11 +731,12 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	tpnt = _dl_add_elf_hash_table(libname, lib_loadaddr, dynamic_info,
 			dynamic_addr, 0);
+	tpnt->mapaddr = libaddr;
 	tpnt->relro_addr = relro_addr;
 	tpnt->relro_size = relro_size;
 	tpnt->st_dev = st.st_dev;
 	tpnt->st_ino = st.st_ino;
-	tpnt->ppnt = (ElfW(Phdr) *) DL_RELOC_ADDR(tpnt->loadaddr, epnt->e_phoff);
+	tpnt->ppnt = (ElfW(Phdr) *) DL_RELOC_ADDR(tpnt->mapaddr, epnt->e_phoff);
 	tpnt->n_phent = epnt->e_phnum;
 	tpnt->rtld_flags |= rtld_flags;
 #ifdef __LDSO_STANDALONE_SUPPORT__
