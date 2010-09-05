@@ -44,6 +44,7 @@ int parse_main(int argc UNUSED_PARAM, char **argv)
 # include <unistd.h>
 # include <string.h>
 # include <malloc.h>
+# include <bits/uClibc_page.h>
 # include "internal/parse_config.h"
 # ifndef FAST_FUNC
 #  define FAST_FUNC
