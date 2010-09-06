@@ -220,6 +220,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			*reloc_addr = map->l_addr + rpnt->r_addend;
 			break;
 		*/
+#if defined USE_TLS && USE_TLS
 		case R_X86_64_DTPMOD64:
 			*reloc_addr = tls_tpnt->l_tls_modid;
 			break;
@@ -236,6 +237,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
 			*reloc_addr = symbol_addr - tls_tpnt->l_tls_offset + rpnt->r_addend;
 			break;
+#endif
 		case R_X86_64_32:
 			*(unsigned int *) reloc_addr = symbol_addr + rpnt->r_addend;
 			/* XXX: should check for overflow eh ? */
