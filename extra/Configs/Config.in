@@ -2308,6 +2308,25 @@ config UCLIBC_MALLOC_DEBUGGING
 	  Because this increases the size of malloc appreciably (due to strings
 	  etc), you should say N unless you need to debug a malloc problem.
 
+config UCLIBC_HAS_BACKTRACE
+	bool "Add support for application self-debugging"
+	depends on HAVE_SHARED && TARGET_sh
+	default n
+	help
+	  Answer Y here to compile support for application self-debugging, by adding
+	  a new shared object "libubacktrace.so" that provides the following new
+	  functions:
+	  backtrace, backtrace_symbols, backtrace_symbols_fd
+
+	  The backtrace functionality is currently supported on SH platform, and it
+	  based on dwarf2 informations to properly work, so any application that
+	  want to use backtrace needs to be built with -fexceptions flag.
+
+	  The symbol names may be unavailable without the use of special linker
+	  options. For systems using the GNU linker, it is necessary to use the
+	  -rdynamic linker option too. Note that names of "static" functions are not
+	  exposed, and won't be available in the backtrace.
+
 config WARNINGS
 	string "Compiler Warnings"
 	default "-Wall"

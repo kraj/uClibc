@@ -48,6 +48,7 @@ include $(top_srcdir)libresolv/Makefile.in
 include $(top_srcdir)libutil/Makefile.in
 include $(top_srcdir)libpthread/Makefile.in
 include $(top_srcdir)librt/Makefile.in
+include $(top_srcdir)libubacktrace/Makefile.in
 include $(top_srcdir)extra/locale/Makefile.in
 
 # last included to catch all the objects added by others (locales/threads)
@@ -272,6 +273,7 @@ HEADERS_RM-$(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF) += printf.h
 HEADERS_RM-$(UCLIBC_HAS_GLOB)                += glob.h
 HEADERS_RM-$(UCLIBC_HAS_GNU_ERROR)           += error.h
 HEADERS_RM-$(UCLIBC_HAS_IPV6)                += netinet/ip6.h netinet/icmp6.h
+HEADERS_RM-$(UCLIBC_HAS_BACKTRACE)           += execinfo.h
 HEADERS_RM-$(UCLIBC_HAS_LOCALE)              += iconv.h
 HEADERS_RM-$(UCLIBC_HAS_PTY)                 += pty.h
 HEADERS_RM-$(UCLIBC_HAS_REGEX)               += regex.h regexp.h
@@ -329,6 +331,12 @@ ifeq ($(HARDWIRED_ABSPATH),y)
 	fi
 else
 	-$(INSTALL) -m 755 $(top_builddir)lib/libc.so $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
+endif
+ifeq ($(UCLIBC_HAS_BACKTRACE),y)
+# Add the AS_NEEDED entry for libubacktrace.so
+	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
+		echo "GROUP ( $(UBACKTRACE_ASNEEDED) )" >> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+	fi
 endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifneq ($(LINUXTHREADS_OLD),y)
