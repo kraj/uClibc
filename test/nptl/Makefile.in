@@ -79,16 +79,13 @@ EXTRA_CFLAGS := -DNOT_IN_libc=1 -D_LIBC -D__USE_GNU -std=gnu99 \
 	-include $(top_builddir)include/libc-symbols.h
 
 ifeq ($(TARGET_ARCH),i386)
-CFLAGS_tst-align.o := -malign-double -mpreferred-stack-boundary=4
+CFLAGS_tst-align := -malign-double -mpreferred-stack-boundary=4
 endif
 ifeq ($(TARGET_ARCH),i686)
-CFLAGS_tst-align.o := -malign-double -mpreferred-stack-boundary=4 -msse
+CFLAGS_tst-align := -malign-double -mpreferred-stack-boundary=4 -msse
 endif
-CFLAGS_tst-cleanup4aux.o := -W -Wall -sjh
-CFLAGS_tst-initializers1.o := -W -Wall -Werror
-CFLAGS_tst-tls3.o := tst-tls3mod.so
-CFLAGS_tst-tls4.o := tst-tls4moda.so tst-tls4modb.so
-CFLAGS_tst-tls5.o := tst-tls5mod.so
+CFLAGS_tst-cleanup4aux.o := -W
+CFLAGS_tst-initializers1 := -W -Werror
 CFLAGS_tst-tls3mod.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 CFLAGS_tst-tls4moda.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 CFLAGS_tst-tls4modb.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
@@ -100,14 +97,14 @@ CFLAGS_tst-tls5modd.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 CFLAGS_tst-tls5mode.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 CFLAGS_tst-tls5modf.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 
-EXTRA_LDFLAGS := -lpthread
+EXTRA_LDFLAGS = $(if $(findstring -lpthread,$(LDFLAGS_$@)),,-lpthread)
 
 LDFLAGS_tst-cleanup4 := tst-cleanup4aux.o
 LDFLAGS_tst-clock2 := -lrt
 LDFLAGS_tst-cond11 := -lrt
 LDFLAGS_tst-cond19 := -lrt
 LDFLAGS_tst-rwlock14 := -lrt
-LDFLAGS_tst-tls3 := -ldl -rdynamic tst-tls3mod.so
+LDFLAGS_tst-tls3 := -ldl -rdynamic
 LDFLAGS_tst-tls4 := -ldl
 LDFLAGS_tst-tls5 :=  tst-tls5mod.so
 LDFLAGS_tst-clock := -lrt
@@ -145,13 +142,12 @@ LDFLAGS_tst-tls5modf.so := -shared -static-libgcc
 # Special case
 #
 tst-cleanup4aux.o:
-	$(Q)$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c tst-cleanup4aux.c -o $@
+	$(Q)$(CC) $(CFLAGS) $(CFLAGS_$@) $(EXTRA_CFLAGS) -c tst-cleanup4aux.c -o $@
 
 tst-cleanup4: tst-cleanup4aux.o
 tst-tls3: tst-tls3mod.so
 tst-tls4: tst-tls4moda.so tst-tls4modb.so
-tst-tls5: tst-tls5mod.so tst-tls5moda.so tst-tls5modb.so	\
-	  tst-tls5modc.so tst-tls5modd.so tst-tls5mode.so tst-tls5modf.so
+tst-tls5: tst-tls5mod.so
 
 OPTS_tst-cancel7 = --command ./tst-cancel7
 OPTS_tst-mqueue7 = -- ./tst-mqueue7
