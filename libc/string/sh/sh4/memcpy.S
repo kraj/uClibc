@@ -28,13 +28,20 @@
  * Currenlty it has been only implemented and tested for little endian mode. */
 .macro FPU_SET_PAIRED_PREC
 	sts	fpscr, r7
-	mov	#0x10, r6	! PR=0 SZ=1
-	shll16	r6
-	lds	r6, fpscr
+	mov	#0x10, r0	! PR=0 SZ=1
+	shll16	r0
+	lds	r0, fpscr
 .endm
 .macro RESTORE_FPSCR
 	lds	r7, fpscr
 .endm
+.macro DALLOC
+	! Cache allocate + store on dst-32.
+	add	#-32, r1
+	movca.l	r0, @r1
+	add	#32, r1
+.endm
+
 #endif
 
 	!
@@ -471,30 +478,111 @@ ENTRY(memcpy)
 	add	r0, r5
 	mov	r0, r1
 
+	mov	r1, r3		! MT
+	sub	r2, r3		! EX (r3 - r2 -> r3)
+	mov	#-5, r0
+	shld	r0, r3		! number of the cache lines
+
+	mov	#8, r0
+	cmp/ge	r0, r3		! Check if there are many cache lines to copy.
+	bf	45f		! Copy cache line aligned blocks without pref.
+	mov	r5, r0
+	add	#-0x7c, r0
+	tst	#7, r0		! src is 8byte aligned
+	bf	45f
+
+	! Many cache lines have to be copied and the buffers are well aligned.
+	! Aggressive prefetching and FPU in single paired precision.
+	mov	r0, r5
+	mov	r5, r6
+	add	#-0x80, r6	! prefetch head
+
+	FPU_SET_PAIRED_PREC
+
+	mov	#4, r0
+67:
+	add	#-0x20, r6
+	pref	@r6
+	add	#-0x20, r6
+	pref	@r6
+
+	fmov	@r5+, dr0
+	fmov	@r5+, dr2
+	fmov	@r5+, dr4
+	fmov	@r5+, dr6
+	fmov	@r5+, dr8
+	fmov	@r5+, dr10
+	fmov	@r5+, dr12
+	fmov	@r5+, dr14
+	fmov	@r5+, xd0
+	fmov	@r5+, xd2
+	fmov	@r5+, xd4
+	fmov	@r5+, xd6
+	fmov	@r5+, xd8
+	fmov	@r5+, xd10
+	fmov	@r5+, xd12
+	fmov	@r5+, xd14
+
+	DALLOC
+	fmov	xd14, @-r1
+	fmov	xd12, @-r1
+	fmov	xd10, @-r1
+	fmov	xd8, @-r1
+	DALLOC
+	fmov	xd6, @-r1
+	fmov	xd4, @-r1
+	fmov	xd2, @-r1
+	fmov	xd0, @-r1
+	DALLOC
+	fmov	dr14, @-r1
+	fmov	dr12, @-r1
+	fmov	dr10, @-r1
+	fmov	dr8, @-r1
+	DALLOC
+	fmov	dr6, @-r1
+	add	#-0x80, r5
+	fmov	dr4, @-r1
+	add	#-0x80, r5
+	fmov	dr2, @-r1
+	add	#-0x20, r6
+	fmov	dr0, @-r1
+	add	#-4, r3
+	pref	@r6
+	add	#-0x20, r6
+	cmp/ge	r0, r3
+	bt/s	67b
+	 pref	@r6
+
+	! Other cache lines could be copied: so use the FPU in single paired
+	! precision without prefetching. No check for alignment is necessary.
+
+	mov	#1, r0
+	cmp/ge	r0, r3
+	bt/s	4f
+	 add	#0x60, r5
+
+	RESTORE_FPSCR
+
+	bra	5f
+	 nop
+
+	! No prefetch and FPU in single precision.
+45:
 	add	#-0x1c, r5
 	mov	r5, r0
-
-	tst	#7, r0		! src is 8byte aligned
-	mov	r5, r3
-
-	add	#-64, r3	! To pefetch head
-	bt/s	3f
-
-	 pref	@r3
+	tst	#7, r0
+	bt	3f
 
 2:	fmov.s	@r5+, fr0
-	mov	r1, r6
 	fmov.s	@r5+, fr1
-	add	#-32, r6
 	fmov.s	@r5+, fr2
 	fmov.s	@r5+, fr3
 	fmov.s	@r5+, fr4
 	fmov.s	@r5+, fr5
 	fmov.s	@r5+, fr6
 	fmov.s	@r5+, fr7
-	add	#-0x40, r5
 
-	movca.l	r0, @r6		! Cache allocate + store on dst-32.
+	DALLOC
 
 	fmov.s	fr7, @-r1
 	fmov.s	fr6, @-r1
@@ -505,35 +593,33 @@ ENTRY(memcpy)
 	fmov.s	fr1, @-r1
 	fmov.s	fr0, @-r1
 
-	add	#-32, r3
 	cmp/eq	r2,r1
 
 	bf/s	2b
-	 pref	@r3		! Prefetch the next cache line.
+	 add	#-0x40, r5
 
 	bra	5f
+	 nop
+
+	! No prefetch and FPU in single paired precision.
 
 3:	FPU_SET_PAIRED_PREC
 
 4:	fmov	@r5+, dr0
-	mov	r1, r6
 	fmov	@r5+, dr2
-	add	#-32, r6
 	fmov	@r5+, dr4
 	fmov	@r5+, dr6
-	add	#-0x40, r5
 
-	movca.l	r0, @r6
+	DALLOC
 
 	fmov	dr6, @-r1
 	fmov	dr4, @-r1
 	fmov	dr2, @-r1
 	fmov	dr0, @-r1
-	add	#-32, r3
 	cmp/eq	r2,r1
 
 	bf/s	4b
-	 pref	@r3
+	 add	#-0x40, r5
 
 	RESTORE_FPSCR
 
