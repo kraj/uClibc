@@ -211,7 +211,6 @@ HEADERS_RM- := \
 	bits/kernel_types.h \
 	bits/syscalls.h \
 	bits/syscalls-common.h \
-	bits/utmpx.h \
 	bits/uClibc_errno.h \
 	bits/uClibc_uintmaxtostr.h \
 	bits/sigcontextinfo.h \
@@ -220,6 +219,9 @@ HEADERS_RM- := \
 	rpc/des_crypt.h \
 	rpc/key_prot.h \
 	rpc/rpc_des.h
+HEADERS_RM-$(UCLIBC_HAS_UTMPX) += \
+	bits/utmpx.h \
+	utmpx.h
 HEADERS_RM-$(UCLIBC_HAS_FLOATS) += \
 	complex.h \
 	fpu_control.h \

@@ -9,6 +9,10 @@ subdirs += libc/misc/utmp
 
 CSRC := utent.c wtent.c
 
+ifeq ($(UCLIBC_HAS_UTMPX),y)
+CSRC += utxent.c
+endif
+
 MISC_UTMP_DIR := $(top_srcdir)libc/misc/utmp
 MISC_UTMP_OUT := $(top_builddir)libc/misc/utmp
 

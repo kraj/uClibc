@@ -46,3 +46,4 @@ void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 	}
     }
 }
+libc_hidden_def(updwtmp)

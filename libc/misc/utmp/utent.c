@@ -98,6 +98,7 @@ struct utmp *getutent(void)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return ret;
 }
+libc_hidden_def(getutent)
 #endif
 
 void endutent(void)
@@ -108,6 +109,7 @@ void endutent(void)
     static_fd = -1;
     __UCLIBC_MUTEX_UNLOCK(utmplock);
 }
+libc_hidden_def(endutent)
 
 /* This function must be called with the LOCK held */
 static_if_threaded struct utmp *__getutid(const struct utmp *utmp_entry)
@@ -160,6 +162,7 @@ struct utmp *getutline(const struct utmp *utmp_entry)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return lutmp;
 }
+libc_hidden_def(getutline)
 
 struct utmp *pututline(const struct utmp *utmp_entry)
 {
@@ -178,6 +181,7 @@ struct utmp *pututline(const struct utmp *utmp_entry)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return (struct utmp *)utmp_entry;
 }
+libc_hidden_def(pututline)
 
 int utmpname(const char *new_ut_name)
 {
@@ -200,3 +204,4 @@ int utmpname(const char *new_ut_name)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return 0; /* or maybe return -(static_ut_name != new_ut_name)? */
 }
+libc_hidden_def(utmpname)
