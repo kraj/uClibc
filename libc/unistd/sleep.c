@@ -54,7 +54,12 @@ unsigned int sleep (unsigned int seconds)
 
     /* This is not necessary but some buggy programs depend on this.  */
     if (seconds == 0)
-	return 0;
+	{
+# ifdef CANCELLATION_P
+		CANCELLATION_P (THREAD_SELF);
+# endif
+		return 0;
+	}
 
     /* Linux will wake up the system call, nanosleep, when SIGCHLD
        arrives even if SIGCHLD is ignored.  We have to deal with it

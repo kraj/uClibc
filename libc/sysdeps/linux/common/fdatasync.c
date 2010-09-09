@@ -14,4 +14,37 @@
 # define __NR_fdatasync __NR_osf_fdatasync
 #endif
 
-_syscall1(int, fdatasync, int, fd)
+#ifdef __NR_fdatasync
+
+# ifdef __UCLIBC_HAS_THREADS_NATIVE__
+# include <sysdep-cancel.h>
+# else
+# define SINGLE_THREAD_P 1
+# endif
+
+#define __NR___syscall_fdatasync __NR_fdatasync
+
+static __always_inline
+_syscall1(int, __syscall_fdatasync, int, fd)
+
+int fdatasync(int fd)
+{
+	if (SINGLE_THREAD_P)
+		return __syscall_fdatasync(fd);
+
+# ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __syscall_fdatasync(fd);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+# endif
+}
+
+#elif defined __UCLIBC_HAS_STUBS__
+/* no syscall available, so provide a stub */
+int fdatasync(int fd)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
+#endif

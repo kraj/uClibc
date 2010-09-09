@@ -24,6 +24,12 @@
 #include <stddef.h>
 
 #if defined __NR_ppoll && defined __UCLIBC_LINUX_SPECIFIC__
+# ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#  include <sysdep-cancel.h>
+# else
+#  define SINGLE_THREAD_P 1
+# endif
+
 int
 ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
        const sigset_t *sigmask)
@@ -35,8 +41,15 @@ ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
 		tval = *timeout;
 		timeout = &tval;
 	}
+  if (SINGLE_THREAD_P)
+		return INLINE_SYSCALL(ppoll, 5, fds, nfds, timeout, sigmask, _NSIG / 8);
 
-	return INLINE_SYSCALL(ppoll, 5, fds, nfds, timeout, sigmask, _NSIG / 8);
+# ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = INLINE_SYSCALL(ppoll, 5, fds, nfds, timeout, sigmask, _NSIG / 8);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+# endif
 }
 libc_hidden_def(ppoll)
 #endif
