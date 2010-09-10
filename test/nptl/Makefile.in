@@ -31,7 +31,19 @@ TESTS := tst-align tst-align2 tst-atfork1 tst-attr1 tst-attr2 tst-attr3	\
 	tst-signal5 tst-signal6 tst-spin1 tst-spin2 tst-spin3		\
 	tst-stack1 tst-stack2 tst-stdio1 tst-stdio2 tst-sysconf		\
 	tst-tls1 tst-tls2 tst-tls3 tst-tls4 tst-tls5 tst-tsd1 tst-tsd2	\
-	tst-tsd3 tst-tsd4 tst-tsd5 tst-umask1
+	tst-tsd3 tst-tsd4 tst-tsd5 tst-umask1 \
+	tst-align3 tst-cancel4 tst-cancel5 tst-cancel18 tst-cancel23 \
+	tst-cancel25 tst-cancelx2 tst-cancelx3 tst-cancelx4 tst-cancelx6 \
+	tst-cancelx7 tst-cancelx8 tst-cancelx9 tst-cancelx10 tst-cancelx11 \
+	tst-cancelx12 tst-cancelx13 tst-cancelx14 tst-cancelx15 tst-cancelx16 \
+	tst-cancelx18 tst-cancelx20 tst-cancelx21 tst-cleanupx0 tst-cleanupx1 \
+	tst-cleanupx2 tst-cleanupx3 tst-cleanupx4 tst-cond22 tst-cond23 \
+	tst-dlsym1 tst-getpid1 tst-getpid2 tst-getpid3 tst-join6 tst-tsd6 \
+	tst-oddstacklimit tst-oncex3 tst-oncex4 tst-rwlock2a  \
+	tst-basic7 tst-fini1 tst-signal7 \
+	tst-unload tst-vfork1x tst-vfork2x tst-sem10 tst-sem11 tst-sem12 \
+	tst-typesizes tst-initializers1-c89 tst-initializers1-c99 \
+	tst-initializers1-gnu89 tst-initializers1-gnu99
 
 #
 # These are for the RT library and POSIX timers.
@@ -97,9 +109,60 @@ CFLAGS_tst-tls5modd.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 CFLAGS_tst-tls5mode.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 CFLAGS_tst-tls5modf.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
 
+CFLAGS_tst-fini1mod.so := -fPIC -DPIC -DSHARED -shared -DNOT_IN_libc
+LDFLAGS_tst-cond11 = -lrt
+LDFLAGS_tst-cond19 = -lrt
+LDFLAGS_tst-cancel18 = -lrt
+LDFLAGS_tst-cancelx18 = -lrt
+LDFLAGS_tst-clock2 = -lrt
+LDFLAGS_tst-rwlock14 = -lrt
+LDFLAGS_tst-fini1 = -Wl,-rpath=./ tst-fini1mod.so
+LDFLAGS_tst-fini1mod.so = -Wl,-soname=tst-fini1mod.so
+LDFLAGS_tst-unload = -ldl
+LDFLAGS_tst-cancel5 := -lpthread -lpthread_nonshared
+LDFLAGS_tst-cancel23 := -lc -lpthread
+LDFLAGS_tst-vfork1x := -lc -lpthread
+LDFLAGS_tst-vfork2x := -lc -lpthread
+
+CFLAGS_tst-cancelx2 += -fexceptions
+CFLAGS_tst-cancelx3 += -fexceptions
+CFLAGS_tst-cancelx4 += -fexceptions
+CFLAGS_tst-cancelx6 += -fexceptions
+CFLAGS_tst-cancelx7 += -fexceptions
+CFLAGS_tst-cancelx8 += -fexceptions
+CFLAGS_tst-cancelx9 += -fexceptions
+CFLAGS_tst-cancelx10 += -fexceptions
+CFLAGS_tst-cancelx11 += -fexceptions
+CFLAGS_tst-cancelx12 += -fexceptions
+CFLAGS_tst-cancelx13 += -fexceptions
+CFLAGS_tst-cancelx14 += -fexceptions
+CFLAGS_tst-cancelx15 += -fexceptions
+CFLAGS_tst-cancelx16 += -fexceptions
+CFLAGS_tst-cancelx18 += -fexceptions
+CFLAGS_tst-cancelx20 += -fexceptions -fasynchronous-unwind-tables
+CFLAGS_tst-cancelx21 += -fexceptions -fasynchronous-unwind-tables
+CFLAGS_tst-cleanupx0 += -fexceptions -fasynchronous-unwind-tables
+CFLAGS_tst-cleanupx1 += -fexceptions -fasynchronous-unwind-tables
+CFLAGS_tst-cleanupx2 += -fexceptions
+CFLAGS_tst-cleanupx3 += -fexceptions
+
+CFLAGS_tst-oncex3 += -fexceptions
+CFLAGS_tst-oncex4 += -fexceptions
+CFLAGS_tst-align += $(stack-align-test-flags)
+CFLAGS_tst-align3 += $(stack-align-test-flags)
+CFLAGS_tst-initializers1 = -W -Wall -Werror
+CFLAGS_tst-sem11 += -fexceptions -fasynchronous-unwind-tables
+CFLAGS_tst-sem12 += -fexceptions -fasynchronous-unwind-tables
+CFLAGS_tst-initializers1 = -W -Wall -Werror
+CFLAGS_tst-initializers1-c89 = $(CFLAGS-tst-initializers1) -std=c89
+CFLAGS_tst-initializers1-c99 = $(CFLAGS-tst-initializers1) -std=c99
+CFLAGS_tst-initializers1-gnu89 = $(CFLAGS-tst-initializers1) -std=gnu89
+CFLAGS_tst-initializers1-gnu99 = $(CFLAGS-tst-initializers1) -std=gnu99
+
 EXTRA_LDFLAGS = $(if $(findstring -lpthread,$(LDFLAGS_$@)),,-lpthread)
 
 LDFLAGS_tst-cleanup4 := tst-cleanup4aux.o
+LDFLAGS_tst-cleanupx4 := tst-cleanup4aux.o
 LDFLAGS_tst-clock2 := -lrt
 LDFLAGS_tst-cond11 := -lrt
 LDFLAGS_tst-cond19 := -lrt
@@ -127,6 +190,7 @@ LDFLAGS_tst-timer2 := -lrt -lpthread
 LDFLAGS_tst-timer3 := -lrt -lpthread
 LDFLAGS_tst-timer4 := -lrt -lpthread
 LDFLAGS_tst-timer5 := -lrt -lpthread
+LDFLAGS_tst-dlsym1 := -ldl -rdynamic
 LDFLAGS_tst-tls3mod.so := -shared -static-libgcc -lpthread
 LDFLAGS_tst-tls4moda.so := -shared -static-libgcc
 LDFLAGS_tst-tls4modb.so := -shared -static-libgcc
@@ -137,6 +201,7 @@ LDFLAGS_tst-tls5modc.so := -shared -static-libgcc
 LDFLAGS_tst-tls5modd.so := -shared -static-libgcc
 LDFLAGS_tst-tls5mode.so := -shared -static-libgcc
 LDFLAGS_tst-tls5modf.so := -shared -static-libgcc
+LDFLAGS_tst-cleanupx4 := tst-cleanup4aux.o
 
 #
 # Special case
@@ -148,6 +213,9 @@ tst-cleanup4: tst-cleanup4aux.o
 tst-tls3: tst-tls3mod.so
 tst-tls4: tst-tls4moda.so tst-tls4modb.so
 tst-tls5: tst-tls5mod.so
+
+tst-cleanupx4 : tst-cleanup4aux.o
+tst-fini1: tst-fini1mod.so
 
 OPTS_tst-cancel7 = --command ./tst-cancel7
 OPTS_tst-mqueue7 = -- ./tst-mqueue7
