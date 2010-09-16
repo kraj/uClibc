@@ -159,3 +159,4 @@ char *realpath(const char *path, char got_path[])
 	*new_path = '\0';
 	return got_path;
 }
+libc_hidden_def(realpath)

@@ -655,22 +655,21 @@ extern int system (__const char *__command) __wur;
 __END_NAMESPACE_STD
 
 
-#if 0 /* def	__USE_GNU */
+#ifdef	__USE_GNU
 /* Return a malloc'd string containing the canonical absolute name of the
    existing named file.  */
 extern char *canonicalize_file_name (__const char *__name)
      __THROW __nonnull ((1)) __wur;
 #endif
 
-/* Return the canonical absolute name of file NAME.  If RESOLVED is
-   null, the result is malloc'd; otherwise, if the canonical name is
-   PATH_MAX chars or more, returns null with `errno' set to
-   ENAMETOOLONG; if the name fits in fewer than PATH_MAX chars,
-   returns the name in RESOLVED.  */
+/* Return the canonical absolute name of file NAME. If the
+   canonical name is PATH_MAX chars or more, returns null
+   with `errno' set to ENAMETOOLONG; if the name fits in
+	 fewer than PATH_MAX chars, returns the name in RESOLVED. */
 /* we choose to handle __resolved==NULL as crash :) */
 extern char *realpath (__const char *__restrict __name,
 		       char *__restrict __resolved) __THROW __wur;
-
+libc_hidden_proto(realpath)
 
 /* Shorthand for type of comparison functions.  */
 #ifndef __COMPAR_FN_T
