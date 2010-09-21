@@ -96,3 +96,28 @@ elf_machine_relative(Elf32_Addr load_off, const Elf32_Addr rel_addr,
 }
 
 #define DL_MALLOC_ALIGN 8
+
+#define HAVE_DL_INLINES_H
+
+#define DL_IS_SPECIAL_SEGMENT(EPNT, PPNT) \
+  __dl_is_special_segment(EPNT, PPNT)
+#define DL_MAP_SEGMENT(EPNT, PPNT, INFILE, FLAGS) \
+  __dl_map_segment (EPNT, PPNT, INFILE, FLAGS)
+
+#define DL_CHECK_LIB_TYPE(epnt, piclib, _dl_progname, libname) \
+do \
+{ \
+  ElfW(Phdr) *ppnt_; \
+  char *header_ = (char *)epnt;				   \
+  ppnt_ = (ElfW(Phdr) *)(intptr_t) & header_[epnt->e_phoff]; \
+  if (ppnt_->p_vaddr >= 0x80000000 && \
+      ppnt_->p_vaddr < 0x82060000) \
+    (piclib) = 2; \
+  if (ppnt_->p_vaddr >= 0xe0200000 && \
+      ppnt_->p_vaddr < 0xe0260000) \
+    (piclib) = 2; \
+} \
+while (0)
+
+#define _DL_PREAD(FD, BUF, SIZE, OFFSET) \
+  (_dl_pread((FD), (BUF), (SIZE), (OFFSET)))
