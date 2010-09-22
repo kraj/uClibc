@@ -220,33 +220,45 @@ HEADERS_RM- := \
 	rpc/des_crypt.h \
 	rpc/key_prot.h \
 	rpc/rpc_des.h
-HEADERS_RM-$(UCLIBC_HAS_UTMPX) += \
-	bits/utmpx.h \
-	utmpx.h
-HEADERS_RM-$(UCLIBC_HAS_FLOATS) += \
-	complex.h \
-	fpu_control.h \
-	ieee754.h \
+HEADERS_RM-$(HAVE_SHARED)                    += dlfcn.h bits/dlfcn.h
+HEADERS_RM-$(PTHREADS_DEBUG_SUPPORT)         += thread_db.h
+HEADERS_RM-$(UCLIBC_HAS_BSD_ERR)             += err.h
+HEADERS_RM-$(UCLIBC_HAS_CRYPT)               += crypt.h
+HEADERS_RM-$(UCLIBC_HAS_EPOLL)               += sys/epoll.h
+HEADERS_RM-$(UCLIBC_HAS_FENV)                += fenv.h bits/fenv.h bits/fenvinline.h
+HEADERS_RM-$(UCLIBC_HAS_FLOATS)              += complex.h fpu_control.h ieee754.h \
 	math.h \
 	tgmath.h \
 	bits/uClibc_fpmax.h \
 	bits/math*.h
+HEADERS_RM-$(findstring y,$(UCLIBC_HAS_FTW)$(UCLIBC_HAS_NFTW))  += ftw.h
+HEADERS_RM-$(UCLIBC_HAS_GETTEXT_AWARENESS)   += libintl.h
+HEADERS_RM-$(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF) += printf.h
+HEADERS_RM-$(UCLIBC_HAS_GLOB)                += glob.h
+HEADERS_RM-$(UCLIBC_HAS_GNU_ERROR)           += error.h
 HEADERS_RM-$(UCLIBC_HAS_GNU_GETOPT)$(UCLIBC_HAS_GETOPT_LONG) += getopt.h
-HEADERS_RM-$(UCLIBC_HAS_REALTIME) += \
-	mqueue.h \
-	bits/mqueue.h \
-	sched.h \
+HEADERS_RM-$(UCLIBC_HAS_IPV6)                += netinet/ip6.h netinet/icmp6.h
+HEADERS_RM-$(UCLIBC_HAS_BACKTRACE)           += execinfo.h
+HEADERS_RM-$(UCLIBC_HAS_LOCALE)              += iconv.h
+HEADERS_RM-$(UCLIBC_HAS_PTY)                 += pty.h
+HEADERS_RM-$(UCLIBC_HAS_REALTIME)            += mqueue.h bits/mqueue.h sched.h \
 	bits/sched.h \
 	semaphore.h
-HEADERS_RM-$(UCLIBC_HAS_THREADS) += \
-	*thread*.h \
-	semaphore.h \
+HEADERS_RM-$(UCLIBC_HAS_REGEX)               += regex.h regexp.h
+HEADERS_RM-$(UCLIBC_HAS_RPC)                 += rpc
+HEADERS_RM-$(UCLIBC_HAS_SHADOW)              += shadow.h
+HEADERS_RM-$(UCLIBC_HAS_SOCKET)              += sys/socket.h bits/socket.h sys/socketvar.h
+HEADERS_RM-$(UCLIBC_HAS_SYSLOG)              += syslog.h sys/syslog.h bits/syslog*.h
+HEADERS_RM-$(UCLIBC_HAS_THREADS)             += *thread*.h semaphore.h \
 	bits/*thread*.h \
 	bits/initspin.h
-HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC) += \
-	sys/fsuid.h \
-	sys/inotify.h \
-	sys/perm.h \
+HEADERS_RM-$(UCLIBC_HAS_THREADS_NATIVE)      += atomic.h bits/atomic.h
+HEADERS_RM-$(UCLIBC_HAS_UTMPX)               += bits/utmpx.h utmpx.h
+HEADERS_RM-$(UCLIBC_HAS_WCHAR)               += wchar.h wctype.h
+HEADERS_RM-$(UCLIBC_HAS_WORDEXP)             += wordexp.h
+HEADERS_RM-$(UCLIBC_HAS_XATTR)               += sys/xattr.h
+HEADERS_RM-$(UCLIBC_HAS_XLOCALE)             += xlocale.h
+HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += sys/fsuid.h sys/inotify.h sys/perm.h \
 	sys/personality.h \
 	sys/prctl.h \
 	sys/reboot.h \
@@ -258,33 +270,6 @@ HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC) += \
 	sys/sysctl.h \
 	sys/sysinfo.h \
 	sys/vfs.h
-HEADERS_RM-$(UCLIBC_HAS_THREADS_NATIVE) += \
-	atomic.h \
-	bits/atomic.h
-HEADERS_RM-$(HAVE_SHARED)                    += dlfcn.h bits/dlfcn.h
-HEADERS_RM-$(PTHREADS_DEBUG_SUPPORT)         += thread_db.h
-HEADERS_RM-$(UCLIBC_HAS_BSD_ERR)             += err.h
-HEADERS_RM-$(UCLIBC_HAS_CRYPT)               += crypt.h
-HEADERS_RM-$(UCLIBC_HAS_EPOLL)               += sys/epoll.h
-HEADERS_RM-$(UCLIBC_HAS_FENV)                += fenv.h bits/fenv.h bits/fenvinline.h
-HEADERS_RM-$(findstring y,$(UCLIBC_HAS_FTW)$(UCLIBC_HAS_NFTW))  += ftw.h
-HEADERS_RM-$(UCLIBC_HAS_GETTEXT_AWARENESS)   += libintl.h
-HEADERS_RM-$(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF) += printf.h
-HEADERS_RM-$(UCLIBC_HAS_GLOB)                += glob.h
-HEADERS_RM-$(UCLIBC_HAS_GNU_ERROR)           += error.h
-HEADERS_RM-$(UCLIBC_HAS_IPV6)                += netinet/ip6.h netinet/icmp6.h
-HEADERS_RM-$(UCLIBC_HAS_BACKTRACE)           += execinfo.h
-HEADERS_RM-$(UCLIBC_HAS_LOCALE)              += iconv.h
-HEADERS_RM-$(UCLIBC_HAS_PTY)                 += pty.h
-HEADERS_RM-$(UCLIBC_HAS_REGEX)               += regex.h regexp.h
-HEADERS_RM-$(UCLIBC_HAS_RPC)                 += rpc
-HEADERS_RM-$(UCLIBC_HAS_SHADOW)              += shadow.h
-HEADERS_RM-$(UCLIBC_HAS_SOCKET)              += sys/socket.h bits/socket.h sys/socketvar.h
-HEADERS_RM-$(UCLIBC_HAS_SYSLOG)              += syslog.h sys/syslog.h bits/syslog*.h
-HEADERS_RM-$(UCLIBC_HAS_WCHAR)               += wchar.h wctype.h
-HEADERS_RM-$(UCLIBC_HAS_WORDEXP)             += wordexp.h
-HEADERS_RM-$(UCLIBC_HAS_XATTR)               += sys/xattr.h
-HEADERS_RM-$(UCLIBC_HAS_XLOCALE)             += xlocale.h
 HEADERS_RM-$(UCLIBC_SUPPORT_AI_ADDRCONFIG)   += ifaddrs.h
 HEADERS_RM-$(UCLIBC_SV4_DEPRECATED)          += ustat.h sys/ustat.h bits/ustat.h
 HEADERS_RM-$(UCLIBC_SUSV3_LEGACY)            += sys/timeb.h regexp.h
