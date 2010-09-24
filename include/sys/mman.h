@@ -100,7 +100,7 @@ static __inline__ int msync (void *__addr, size_t __len, int __flags) { return 0
 
 #endif
 
-#if defined __USE_BSD && defined __UCLIBC_LINUX_SPECIFIC__
+#if defined __USE_BSD && (defined __UCLIBC_LINUX_SPECIFIC__ || defined __UCLIBC_HAS_THREADS_NATIVE__)
 /* Advise the system about particular usage patterns the program follows
    for the region starting at ADDR and extending LEN bytes.  */
 extern int madvise (void *__addr, size_t __len, int __advice) __THROW;
