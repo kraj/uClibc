@@ -49,7 +49,7 @@ pipe:
     st %o0,[%i0]
     st %o1,[%i0+4]
 	ret
-	 restore %o0,%g0,%o0
+	 restore %g0,%g0,%o0
 
 .Lerror:
 	call	HIDDEN_JUMPTARGET(__errno_location)
