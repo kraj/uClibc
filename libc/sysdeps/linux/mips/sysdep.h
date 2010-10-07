@@ -98,7 +98,8 @@
 #ifdef __PIC__
 #define PSEUDO(name, syscall_name, args) 		\
   .align 2;						\
-  99: la t9,__syscall_error;				\
+  99: move a0, v0;					\
+  la t9,__syscall_error;				\
   jr t9;						\
   ENTRY(name)						\
   .set noreorder;					\
@@ -112,7 +113,8 @@ L(syse1):
 #define PSEUDO(name, syscall_name, args) 		\
   .set noreorder;					\
   .align 2;						\
-  99: j __syscall_error;				\
+  99: move a0, v0;					\
+  j __syscall_error;					\
   nop;							\
   ENTRY(name)						\
   .set noreorder;					\

@@ -26,12 +26,12 @@
 
 # ifdef __PIC__
 #  define PSEUDO_CPLOAD .cpload t9;
-#  define PSEUDO_ERRJMP la t9, __syscall_error; jr t9;
+#  define PSEUDO_ERRJMP move a0, v0; la t9, __syscall_error; jr t9;
 #  define PSEUDO_SAVEGP sw gp, 32(sp); cfi_rel_offset (gp, 32);
 #  define PSEUDO_LOADGP lw gp, 32(sp);
 # else
 #  define PSEUDO_CPLOAD
-#  define PSEUDO_ERRJMP j __syscall_error;
+#  define PSEUDO_ERRJMP move a0, v0; j __syscall_error;
 #  define PSEUDO_SAVEGP
 #  define PSEUDO_LOADGP
 # endif
