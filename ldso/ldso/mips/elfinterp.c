@@ -56,7 +56,7 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	symname = strtab + sym->st_name;
 
 	new_addr = (unsigned long) _dl_find_hash(symname,
-			tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
+			&_dl_loaded_modules->symbol_scope, tpnt, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!new_addr)) {
 		_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
 				_dl_progname, symname);
@@ -111,7 +111,7 @@ __dl_runtime_pltresolve(struct elf_resolve *tpnt, int reloc_entry)
 	got_addr = (char **)instr_addr;
 
 	/* Get the address of the GOT entry. */
-	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
+	new_addr = _dl_find_hash(symname, &_dl_loaded_modules->symbol_scope, tpnt, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'.\n", _dl_progname, symname, tpnt->libname);
 		_dl_exit(1);
@@ -145,7 +145,7 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 }
 
 int _dl_parse_relocation_information(struct dyn_elf *xpnt,
-	unsigned long rel_addr, unsigned long rel_size)
+	struct r_scope_elem *scope, unsigned long rel_addr, unsigned long rel_size)
 {
 	ElfW(Sym) *symtab;
 	ELF_RELOC *rpnt;
@@ -160,6 +160,8 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #if defined (__SUPPORT_LD_DEBUG__)
 	unsigned long old_val=0;
 #endif
+
+	struct sym_val current_value = { NULL, NULL };
 
 	/* Now parse the relocation information */
 	rel_size = rel_size / sizeof(ElfW(Rel));
@@ -186,11 +188,14 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 
 		if (reloc_type == R_MIPS_JUMP_SLOT || reloc_type == R_MIPS_COPY) {
 			symbol_addr = (unsigned long)_dl_find_hash(symname,
-								   tpnt->symbol_scope,
-								   tpnt,
+								   scope,
+								   tpnt, &current_value,
 								   elf_machine_type_class(reloc_type), NULL);
 			if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
 				return 1;
+			if (_dl_trace_prelink)
+				_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
+							&current_value, elf_machine_type_class(reloc_type));
 		}
 		if (!symtab_index) {
 			/* Relocs against STN_UNDEF are usually treated as using a
@@ -215,8 +220,8 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 				struct elf_resolve *tpnt_tls = NULL;
 
 				if (ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_LOCAL) {
-					symbol_addr = (unsigned long) _dl_find_hash(symname, tpnt->symbol_scope,
-						tpnt, elf_machine_type_class(reloc_type), &tpnt_tls);
+					symbol_addr = (unsigned long) _dl_find_hash(symname, scope,
+						tpnt, &current_value, elf_machine_type_class(reloc_type), &tpnt_tls);
 				}
 			    /* In case of a TLS reloc, tpnt_tls NULL means we have an 'anonymous'
 			       symbol.  This is the case for a static tls variable, so the lookup
@@ -314,7 +319,6 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 				_dl_exit(1);
 			}
 		}
-
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_reloc && _dl_debug_detail && reloc_addr)
@@ -358,12 +362,12 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 				}
 				else {
 					*got_entry = (unsigned long) _dl_find_hash(strtab +
-						sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
+						sym->st_name, &_dl_loaded_modules->symbol_scope, tpnt, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 				}
 			}
 			else if (sym->st_shndx == SHN_COMMON) {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
+					sym->st_name, &_dl_loaded_modules->symbol_scope, tpnt, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 			}
 			else if (ELF_ST_TYPE(sym->st_info) == STT_FUNC &&
 				*got_entry != sym->st_value && tmp_lazy) {
@@ -375,7 +379,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 			}
 			else {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
+					sym->st_name, &_dl_loaded_modules->symbol_scope, tpnt, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 			}
 
 			got_entry++;

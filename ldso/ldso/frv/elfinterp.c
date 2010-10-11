@@ -54,7 +54,7 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	  DL_RELOC_ADDR (this_reloc->r_offset, tpnt->loadaddr);
 
 	/* Get the address to be used to fill in the GOT entry.  */
-	new_addr = _dl_find_hash_mod(symname, tpnt->symbol_scope, NULL, 0,
+	new_addr = _dl_find_hash_mod(symname, &_dl_loaded_modules->symbol_scope, NULL, 0,
 				     &new_tpnt);
 	if (!new_addr) {
 		new_addr = _dl_find_hash_mod(symname, NULL, NULL, 0,
@@ -91,9 +91,9 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 }
 
 static int
-_dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
+_dl_parse(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	  unsigned long rel_addr, unsigned long rel_size,
-	  int (*reloc_fnc) (struct elf_resolve *tpnt, struct dyn_elf *scope,
+	  int (*reloc_fnc) (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 			    ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab))
 {
 	unsigned int i;
@@ -146,7 +146,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 }
 
 static int
-_dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
+_dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 	      ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
 {
 	int reloc_type;
@@ -276,7 +276,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 static int
 _dl_do_lazy_reloc (struct elf_resolve *tpnt,
-		   struct dyn_elf *scope __attribute_used__,
+		   struct r_scope_elem *scope __attribute_used__,
 		   ELF_RELOC *rpnt, Elf32_Sym *symtab __attribute_used__,
 		   char *strtab __attribute_used__)
 {
@@ -325,9 +325,9 @@ _dl_parse_lazy_relocation_information
 
 int
 _dl_parse_relocation_information
-(struct dyn_elf *rpnt, unsigned long rel_addr, unsigned long rel_size)
+(struct dyn_elf *rpnt, struct r_scope_elem *scope, unsigned long rel_addr, unsigned long rel_size)
 {
-  return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
+  return _dl_parse(rpnt->dyn, scope, rel_addr, rel_size, _dl_do_reloc);
 }
 
 /* We don't have copy relocs.  */
