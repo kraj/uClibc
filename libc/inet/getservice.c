@@ -69,7 +69,7 @@ int getservent_r(struct servent *result_buf,
 	char **serv_aliases;
 	char **tok = NULL;
 	const size_t aliaslen = sizeof(*serv_aliases) * MAXALIASES;
-	int ret = ENOENT;
+	int ret = ERANGE;
 
 	*result = NULL;
 	if (buflen < aliaslen
@@ -77,7 +77,7 @@ int getservent_r(struct servent *result_buf,
 		goto DONE_NOUNLOCK;
 
 	__UCLIBC_MUTEX_LOCK(mylock);
-
+	ret = ENOENT;
 	if (servp == NULL)
 		setservent(serv_stayopen);
 	if (servp == NULL)
@@ -88,7 +88,6 @@ int getservent_r(struct servent *result_buf,
 	servp->line_len = buflen - aliaslen;
 	/* <name>[[:space:]]<port>/<proto>[[:space:]][<aliases>] */
 	if (!config_read(servp, &tok, MAXALIASES, 3, "# \t/", PARSE_NORMAL)) {
-		ret = ERANGE;
 		goto DONE;
 	}
 	result_buf->s_name = *(tok++);
