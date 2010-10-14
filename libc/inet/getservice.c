@@ -28,9 +28,11 @@ aliases: case sensitive optional space or tab separated list of other names
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
-#define	MAXALIASES	35
-#define BUFSZ		(80) /* one line */
-#define SBUFSIZE	(BUFSZ + 1 + (sizeof(char *) * MAXALIASES))
+#define MINTOKENS	3
+#define	MAXALIASES	8	/* we seldomly need more than 1 alias */
+#define MAXTOKENS	(MINTOKENS + MAXALIASES + 1)
+#define BUFSZ		(255)	/* one line */
+#define SBUFSIZE	(BUFSZ + 1 + (sizeof(char *) * MAXTOKENS))
 
 static parser_t *servp = NULL;
 static struct servent serve;
@@ -65,10 +67,8 @@ libc_hidden_def(endservent)
 int getservent_r(struct servent *result_buf,
 				 char *buf, size_t buflen, struct servent **result)
 {
-	char **alias;
-	char **serv_aliases;
 	char **tok = NULL;
-	const size_t aliaslen = sizeof(*serv_aliases) * MAXALIASES;
+	const size_t aliaslen = sizeof(char *) * MAXTOKENS;
 	int ret = ERANGE;
 
 	*result = NULL;
@@ -87,13 +87,13 @@ int getservent_r(struct servent *result_buf,
 	servp->data_len = aliaslen;
 	servp->line_len = buflen - aliaslen;
 	/* <name>[[:space:]]<port>/<proto>[[:space:]][<aliases>] */
-	if (!config_read(servp, &tok, MAXALIASES, 3, "# \t/", PARSE_NORMAL)) {
+	if (!config_read(servp, &tok, MAXTOKENS - 1, MINTOKENS, "# \t/", PARSE_NORMAL)) {
 		goto DONE;
 	}
 	result_buf->s_name = *(tok++);
 	result_buf->s_port = htons((u_short) atoi(*(tok++)));
 	result_buf->s_proto = *(tok++);
-	result_buf->s_aliases = alias = serv_aliases = tok;
+	result_buf->s_aliases = tok;
 	*result = result_buf;
 	ret = 0;
  DONE:
@@ -106,9 +106,8 @@ libc_hidden_def(getservent_r)
 
 static void __initbuf(void)
 {
-	if (servbuf)
-		servbuf_sz += BUFSZ;
-	servbuf = realloc(servbuf, servbuf_sz);
+	if (!servbuf)
+		servbuf = malloc(SBUFSIZE);
 	if (!servbuf)
 		abort();
 }
@@ -117,9 +116,8 @@ struct servent *getservent(void)
 {
 	struct servent *result;
 
-	do {
-		__initbuf();
-	} while (getservent_r(&serve, servbuf, servbuf_sz, &result) == ERANGE);
+	__initbuf();
+	getservent_r(&serve, servbuf, servbuf_sz, &result);
 	return result;
 }
 
@@ -154,10 +152,8 @@ struct servent *getservbyname(const char *name, const char *proto)
 {
 	struct servent *result;
 
-	do {
-		__initbuf();
-	} while (getservbyname_r(name, proto, &serve, servbuf, servbuf_sz, &result)
-			 == ERANGE);
+	__initbuf();
+	getservbyname_r(name, proto, &serve, servbuf, servbuf_sz, &result);
 	return result;
 }
 
@@ -187,10 +183,8 @@ struct servent *getservbyport(int port, const char *proto)
 {
 	struct servent *result;
 
-	do {
-		__initbuf();
-	} while (getservbyport_r(port, proto, &serve, servbuf, servbuf_sz, &result)
-			 == ERANGE);
+	__initbuf();
+	getservbyport_r(port, proto, &serve, servbuf, servbuf_sz, &result);
 	return result;
 }
 libc_hidden_def(getservbyport)
