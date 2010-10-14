@@ -79,6 +79,13 @@ static off_t bb_get_chunk_with_continuation(parser_t* parsr)
 			 parsr->data = realloc(parsr->data,
 								   parsr->data_len + parsr->line_len);
 			parsr->line = parsr->data + parsr->data_len;
+		} else {
+			/* discard rest of line if not enough space in buffer */
+			int c;
+			do {
+				c = fgetc(parsr->fp);
+			} while (c != EOF && c != '\n');
+			break;
 		}
 	}
 	return pos;
