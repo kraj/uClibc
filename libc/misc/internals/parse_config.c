@@ -78,6 +78,7 @@ static off_t bb_get_chunk_with_continuation(parser_t* parsr)
 			 parsr->line_len += PAGE_SIZE;
 			 parsr->data = realloc(parsr->data,
 								   parsr->data_len + parsr->line_len);
+			parsr->line = parsr->data + parsr->data_len;
 		}
 	}
 	return pos;
@@ -186,23 +187,21 @@ again:
 			parser->line_len = 81;
 		if (parser->data_len == 0)
 			parser->data_len += 1 + ntokens * sizeof(char *);
-		parser->data = realloc(parser->data,
-								parser->data_len + parser->line_len);
+		parser->data = malloc(parser->data_len + parser->line_len);
 		if (parser->data == NULL)
 			return 0;
 		parser->allocated |= 1;
 	} /* else { assert(parser->data_len > 0); } */
 	if (parser->line == NULL)
 		parser->line = parser->data + parser->data_len;
-	if (*tokens == NULL)
-		*tokens = (char **) parser->data;
-	memset(*tokens, 0, sizeof(*tokens[0]) * ntokens);
 	/*config_free_data(parser);*/
 
 	/* Read one line (handling continuations with backslash) */
 	len = bb_get_chunk_with_continuation(parser);
 	if (len == -1)
 		return 0;
+	*tokens = (char **) parser->data;
+	memset(*tokens, 0, sizeof(*tokens[0]) * ntokens);
 	line = parser->line;
 
 	/* Skip multiple token-delimiters in the start of line? */
