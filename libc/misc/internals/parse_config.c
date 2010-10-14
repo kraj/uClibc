@@ -192,8 +192,7 @@ again:
 			return 0;
 		parser->allocated |= 1;
 	} /* else { assert(parser->data_len > 0); } */
-	if (parser->line == NULL)
-		parser->line = parser->data + parser->data_len;
+	parser->line = parser->data + parser->data_len;
 	/*config_free_data(parser);*/
 
 	/* Read one line (handling continuations with backslash) */
