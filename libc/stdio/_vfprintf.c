@@ -1059,16 +1059,14 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 		}
 #endif
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__
-
 		/* Handle custom arg -- WARNING -- overwrites p!!! */
 		ppfs->conv_num = CONV_custom0;
 		p = _custom_printf_spec;
 		do {
 			if (*p == *fmt) {
-				if ((ppfs->num_data_args
-					 = ((*_custom_printf_arginfo[(int)(p-_custom_printf_spec)])
-						(&(ppfs->info), MAX_ARGS_PER_SPEC, argtype+2)))
-					> MAX_ARGS_PER_SPEC) {
+				printf_arginfo_function *fp = _custom_printf_arginfo[(int)(p - _custom_printf_spec)];
+				ppfs->num_data_args = fp(&(ppfs->info), MAX_ARGS_PER_SPEC, argtype + 2);
+				if (ppfs->num_data_args > MAX_ARGS_PER_SPEC) {
 					break;		/* Error -- too many args! */
 				}
 				goto DONE;
