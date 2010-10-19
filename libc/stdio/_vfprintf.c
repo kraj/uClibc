@@ -328,7 +328,7 @@ enum {
 	/* q:long_long  Z:(s)size_t */ \
 	'h',   'l',  'L',  'j',  'z',  't',  'q', 'Z',  0, \
 	 2,     4,    8,  IMS,   SS,  PDS,    8,  SS,   0, /* TODO -- fix!!! */\
-     1,     8 \
+	 1,     8 \
 }
 
 /**********************************************************************/
@@ -550,7 +550,8 @@ int attribute_hidden _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 		while (*fmt) {
 			if ((*fmt == '%') && (*++fmt != '%')) {
 				ppfs->fmtpos = fmt; /* back up to the '%' */
-				if ((r = _ppfs_parsespec(ppfs)) < 0) {
+				r = _ppfs_parsespec(ppfs);
+				if (r < 0) {
 					return -1;
 				}
 				fmt = ppfs->fmtpos;	/* update to one past end of spec */
@@ -587,7 +588,8 @@ void attribute_hidden _ppfs_prepargs(register ppfs_t *ppfs, va_list arg)
 	va_copy(ppfs->arg, arg);
 
 #ifdef NL_ARGMAX
-	if ((i = ppfs->maxposarg) > 0)  { /* init for positional args */
+	i = ppfs->maxposarg; /* init for positional args */
+	if (i > 0) {
 		ppfs->num_data_args = i;
 		ppfs->info.width = ppfs->info.prec = ppfs->maxposarg = 0;
 		_ppfs_setargs(ppfs);
@@ -859,15 +861,15 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 	 * While there a legal specifiers that won't, the all involve duplicate
 	 * flags or outrageous field widths/precisions. */
 	width = dpoint = 0;
-	if ((flags = ppfs->info._flags & FLAG_WIDESTREAM) == 0) {
+	flags = ppfs->info._flags & FLAG_WIDESTREAM;
+	if (flags == 0) {
 		fmt = ppfs->fmtpos;
 	} else {
 		fmt = buf + 1;
 		i = 0;
 		do {
-			if ((buf[i] = (char) (((wchar_t *) ppfs->fmtpos)[i-1]))
-				!= (((wchar_t *) ppfs->fmtpos)[i-1])
-				) {
+			buf[i] = (char) (((wchar_t *) ppfs->fmtpos)[i-1]);
+			if (buf[i] != (((wchar_t *) ppfs->fmtpos)[i-1])) {
 				return -1;
 			}
 		} while (buf[i++] && (i < sizeof(buf)));
@@ -908,7 +910,8 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 			if (maxposarg == 0) {
 				return -1;
 			}
-			if ((argnumber[2] = i) > maxposarg) {
+			argnumber[2] = i;
+			if (argnumber[2] > maxposarg) {
 				maxposarg = i;
 			}
 			/* Now fall through to check flags. */
@@ -1091,7 +1094,8 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 				 ? (ppfs->argnumber[i] = argnumber[i])
 				 : argnumber[2] + (i-2));
 			if (n > maxposarg) {
-				if ((maxposarg = n) > NL_ARGMAX) {
+				maxposarg = n;
+				if (maxposarg > NL_ARGMAX) {
 					return -1;
 				}
 			}
@@ -1112,7 +1116,8 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 #endif /* NL_ARGMAX */
 
 #ifdef __UCLIBC_HAS_WCHAR__
-	if ((flags = ppfs->info._flags & FLAG_WIDESTREAM) == 0) {
+	flags = ppfs->info._flags & FLAG_WIDESTREAM;
+	if (flags == 0) {
 		ppfs->fmtpos = ++fmt;
 	} else {
 		ppfs->fmtpos = (const char *) (((const wchar_t *)(ppfs->fmtpos))
@@ -1202,8 +1207,10 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 
 	if (type & 0x80) {			/* Some type of padding needed. */
 		int buflen = strlen((const char *) buf);
-		if ((len -= buflen) > 0) {
-			if ((r = _charpad(fp, (type & 0x7f), len)) != len) {
+		len -= buflen;
+		if (len > 0) {
+			r = _charpad(fp, (type & 0x7f), len);
+			if (r != len) {
 				return r;
 			}
 		}
@@ -1274,8 +1281,10 @@ static size_t _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 
 	if (type & 0x80) {			/* Some type of padding needed */
 		int buflen = strlen(s);
-		if ((len -= buflen) > 0) {
-			if ((r = _charpad(fp, (type & 0x7f), len)) != len) {
+		len -= buflen;
+		if (len > 0) {
+			r = _charpad(fp, (type & 0x7f), len);
+			if (r != len) {
 				return r;
 			}
 		}
@@ -1366,7 +1375,8 @@ static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 		while (*fmt) {
 			if ((*fmt == '%') && (*++fmt != '%')) {
 				ppfs->fmtpos = (const char *) fmt; /* back up to the '%' */
-				if ((r = _ppfs_parsespec(ppfs)) < 0) {
+				r = _ppfs_parsespec(ppfs);
+				if (r < 0) {
 					return -1;
 				}
 				fmt = (const wchar_t *) ppfs->fmtpos; /* update to one past end of spec */
@@ -1419,7 +1429,7 @@ static int _do_one_spec(FILE * __restrict stream,
 	static const char spec_base[] = SPEC_BASE;
 #ifdef L__vfprintf_internal
 	static const char prefix[] = "+\0-\0 \0000x\0000X";
-	/*                            0  2  4  6   9 11*/
+	/*                            0  2  4    6     9 11*/
 #else  /* L__vfprintf_internal */
 	static const wchar_t prefix[] = L"+\0-\0 \0000x\0000X";
 #endif /* L__vfprintf_internal */
@@ -1514,7 +1524,8 @@ static int _do_one_spec(FILE * __restrict stream,
 #warning CONSIDER: Should we ignore these flags if stub locale?  What about custom specs?
 #endif
 #endif /* __UCLIBC_MJN3_ONLY__ */
-			if ((base = spec_base[(int)(ppfs->conv_num - CONV_p)]) == 10) {
+			base = spec_base[(int)(ppfs->conv_num - CONV_p)];
+			if (base == 10) {
 				if (PRINT_INFO_FLAG_VAL(&(ppfs->info),group)) {
 					alphacase = __UIM_GROUP;
 				}
@@ -1620,7 +1631,8 @@ static int _do_one_spec(FILE * __restrict stream,
 #ifdef __UCLIBC_HAS_WCHAR__
 			mbstate.__mask = 0;	/* Initialize the mbstate. */
 			if (ppfs->conv_num == CONV_S) { /* wide string */
-				if (!(ws = *((const wchar_t **) *argptr))) {
+				ws = *((const wchar_t **) *argptr);
+				if (!ws) {
 					goto NULL_STRING;
 				}
 				/* We use an awful uClibc-specific hack here, passing
@@ -1628,12 +1640,12 @@ static int _do_one_spec(FILE * __restrict stream,
 				 * uClibc's wcsrtombs that we want a "restricted" length
 				 * such that the mbs fits in a buffer of the specified
 				 * size with no partial conversions. */
-				if ((slen = wcsrtombs((char *) &ws, &ws, /* Use awful hack! */
-									  ((ppfs->info.prec >= 0)
-									   ? ppfs->info.prec
-									   : SIZE_MAX), &mbstate))
-					== ((size_t)-1)
-					) {
+				slen = wcsrtombs((char *) &ws, &ws, /* Use awful hack! */
+							((ppfs->info.prec >= 0)
+							 ? ppfs->info.prec
+							 : SIZE_MAX),
+							&mbstate);
+				if (slen == ((size_t)-1)) {
 					return -1;	/* EILSEQ */
 				}
 			} else {			/* wide char */
@@ -1881,7 +1893,8 @@ int VFPRINTF_internal (FILE * __restrict stream,
 				/* TODO: _do_one_spec needs to know what the output funcs are!!! */
 				ppfs.fmtpos = (const char *)(++format);
 				/* TODO: check -- should only fail on stream error */
-				if ( (r = _do_one_spec(stream, &ppfs, &count)) < 0) {
+				r = _do_one_spec(stream, &ppfs, &count);
+				if (r < 0) {
 					count = -1;
 					break;
 				}
