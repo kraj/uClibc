@@ -1055,31 +1055,30 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 		if (*fmt == 'm') {
 			ppfs->conv_num = CONV_m;
 			ppfs->num_data_args = 0;
-			goto DONE;
-		}
+		} else
 #endif
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__
-		/* Handle custom arg -- WARNING -- overwrites p!!! */
-		ppfs->conv_num = CONV_custom0;
-		p = _custom_printf_spec;
-		do {
-			if (*p == *fmt) {
-				printf_arginfo_function *fp = _custom_printf_arginfo[(int)(p - _custom_printf_spec)];
-				ppfs->num_data_args = fp(&(ppfs->info), MAX_ARGS_PER_SPEC, argtype + 2);
-				if (ppfs->num_data_args > MAX_ARGS_PER_SPEC) {
-					break;		/* Error -- too many args! */
+		{
+#ifndef __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__
+			return -1;  /* Error */
+#else
+			/* Handle custom arg -- WARNING -- overwrites p!!! */
+			ppfs->conv_num = CONV_custom0;
+			p = _custom_printf_spec;
+			while (1) {
+				if (*p == *fmt) {
+					printf_arginfo_function *fp = _custom_printf_arginfo[(int)(p - _custom_printf_spec)];
+					ppfs->num_data_args = fp(&(ppfs->info), MAX_ARGS_PER_SPEC, argtype + 2);
+					if (ppfs->num_data_args > MAX_ARGS_PER_SPEC) {
+						return -1;  /* Error -- too many args! */
+					}
+					break;
 				}
-				goto DONE;
+				if (++p >= (_custom_printf_spec + MAX_USER_SPEC))
+					return -1;  /* Error */
 			}
-		} while (++p < (_custom_printf_spec + MAX_USER_SPEC));
-#endif /* __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__ */
-		/* Otherwise error. */
-		return -1;
-	}
-
-#if defined(__UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__) || defined(__UCLIBC_HAS_PRINTF_M_SPEC__)
- DONE:
 #endif
+		}
+	}
 
 #ifdef NL_ARGMAX
 	if (maxposarg > 0) {
