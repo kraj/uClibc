@@ -49,50 +49,45 @@ unsigned int sleep (unsigned int sec)
 unsigned int sleep (unsigned int seconds)
 {
     struct timespec ts = { .tv_sec = (long int) seconds, .tv_nsec = 0 };
-    sigset_t set, oset;
+    sigset_t set;
     unsigned int result;
 
     /* This is not necessary but some buggy programs depend on this.  */
-    if (seconds == 0)
-	{
+    if (seconds == 0) {
 # ifdef CANCELLATION_P
-		CANCELLATION_P (THREAD_SELF);
+	CANCELLATION_P (THREAD_SELF);
 # endif
-		return 0;
-	}
+	return 0;
+    }
 
     /* Linux will wake up the system call, nanosleep, when SIGCHLD
        arrives even if SIGCHLD is ignored.  We have to deal with it
        in libc.  We block SIGCHLD first.  */
     __sigemptyset (&set);
     __sigaddset (&set, SIGCHLD);
-    sigprocmask (SIG_BLOCK, &set, &oset); /* can't fail */
+    sigprocmask (SIG_BLOCK, &set, &set); /* never fails */
 
-    /* If SIGCHLD is already blocked, we don't have to do anything.  */
-    if (!__sigismember (&oset, SIGCHLD))
-    {
-	int saved_errno;
+    /* If SIGCHLD was already blocked, no need to check SIG_IGN. Else...  */
+    if (!__sigismember (&set, SIGCHLD)) {
 	struct sigaction oact;
 
-	__sigemptyset (&set);
-	__sigaddset (&set, SIGCHLD);
-
+	/* Is SIGCHLD set to SIG_IGN? */
 	sigaction (SIGCHLD, NULL, &oact); /* never fails */
+	if (oact.sa_handler == SIG_IGN) {
+	    //int saved_errno;
 
-	if (oact.sa_handler == SIG_IGN)
-	{
-	    /* We should leave SIGCHLD blocked.  */
+	    /* Yes, run nanosleep with SIGCHLD blocked.  */
 	    result = nanosleep (&ts, &ts);
 
-	    saved_errno = errno;
-	    /* Restore the original signal mask.  */
-	    sigprocmask (SIG_SETMASK, &oset, NULL);
-	    __set_errno (saved_errno);
-	}
-	else
-	{
-	    /* We should unblock SIGCHLD.  Restore the original signal mask.  */
-	    sigprocmask (SIG_SETMASK, &oset, NULL);
+	    /* Unblock SIGCHLD by restoring signal mask.  */
+	    /* this sigprocmask call never fails, thus never updates errno,
+	       and therefore we don't need to save/restore it.  */
+	    //saved_errno = errno;
+	    sigprocmask (SIG_SETMASK, &set, NULL);
+	    //__set_errno (saved_errno);
+	} else {
+	    /* No workaround needed, unblock SIGCHLD by restoring signal mask.  */
+	    sigprocmask (SIG_SETMASK, &set, NULL);
 	    result = nanosleep (&ts, &ts);
 	}
     }
