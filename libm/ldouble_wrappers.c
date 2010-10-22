@@ -61,6 +61,10 @@ long long func##l(long double x) \
  * a long double or returning a double). So we can simply jump to func.
  * Using __GI_func in jump to make optimized intra-library jump.
  * gcc will still generate a useless "ret" after asm. Oh well...
+ *
+ * Update: we do need to use call (instead of tail jump) as gcc can create
+ * stack frame, and push/modify/pop ebx during PIC build.
+ * TODO: add conditionals to use tail jump if possible?
  */
 # define WRAPPER1(func) \
 long double func##l(long double x) \
@@ -69,7 +73,7 @@ long double func##l(long double x) \
 	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
+	"	call	" __stringify(__GI_##func) "\n" \
 	: "=t" (st_top) \
 	: "m" (x) \
 	); \
@@ -82,7 +86,7 @@ int func##l(long double x) \
 	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
+	"	call	" __stringify(__GI_##func) "\n" \
 	: "=a" (ret) \
 	: "m" (x) \
 	); \
@@ -95,7 +99,7 @@ long func##l(long double x) \
 	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
+	"	call	" __stringify(__GI_##func) "\n" \
 	: "=a" (ret) \
 	: "m" (x) \
 	); \
@@ -108,7 +112,7 @@ long long func##l(long double x) \
 	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
+	"	call	" __stringify(__GI_##func) "\n" \
 	: "=A" (ret) \
 	: "m" (x) \
 	); \
