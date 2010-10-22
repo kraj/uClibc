@@ -74,17 +74,13 @@ unsigned int sleep (unsigned int seconds)
 	/* Is SIGCHLD set to SIG_IGN? */
 	sigaction (SIGCHLD, NULL, &oact); /* never fails */
 	if (oact.sa_handler == SIG_IGN) {
-	    //int saved_errno;
-
 	    /* Yes, run nanosleep with SIGCHLD blocked.  */
 	    result = nanosleep (&ts, &ts);
 
 	    /* Unblock SIGCHLD by restoring signal mask.  */
 	    /* this sigprocmask call never fails, thus never updates errno,
 	       and therefore we don't need to save/restore it.  */
-	    //saved_errno = errno;
 	    sigprocmask (SIG_SETMASK, &set, NULL);
-	    //__set_errno (saved_errno);
 	} else {
 	    /* No workaround needed, unblock SIGCHLD by restoring signal mask.  */
 	    sigprocmask (SIG_SETMASK, &set, NULL);
