@@ -53,10 +53,6 @@ typedef struct {
 #if !defined _SIGSET_H_fns && defined _SIGNAL_H
 # define _SIGSET_H_fns 1
 
-# ifndef _EXTERN_INLINE
-#  define _EXTERN_INLINE extern __inline
-# endif
-
 /* Return a mask that includes the bit for SIG only.  */
 /* Unsigned cast ensures shift/mask insns are used.  */
 # define __sigmask(sig) \
@@ -156,14 +152,24 @@ typedef struct {
 /* These functions needn't check for a bogus signal number -- error
    checking is done in the non __ versions.  */
 
+# if !defined __USE_EXTERN_INLINES || defined __PROVIDE_OUT_OF_LINE_SIGSETFN
 extern int __sigismember (__const __sigset_t *, int);
 libc_hidden_proto(__sigismember)
 extern int __sigaddset (__sigset_t *, int);
 libc_hidden_proto(__sigaddset)
 extern int __sigdelset (__sigset_t *, int);
 libc_hidden_proto(__sigdelset)
+# endif
 
 # ifdef __USE_EXTERN_INLINES
+#  undef _EXTERN_INLINE
+#  ifdef __PROVIDE_OUT_OF_LINE_SIGSETFN
+#   define _EXTERN_INLINE
+#  else /* normal case */
+    /* dropped extern below: otherwise every module with __USE_EXTERN_INLINES
+     * will have its own copy of out-of line function emitted. */
+#   define _EXTERN_INLINE /*extern*/ __always_inline
+#  endif
 #  define __SIGSETFN(NAME, BODY, CONST)					\
 _EXTERN_INLINE int							\
 NAME (CONST __sigset_t *__set, int __sig)				\
