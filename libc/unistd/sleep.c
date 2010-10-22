@@ -82,6 +82,10 @@ unsigned int sleep (unsigned int seconds)
 
     /* Run nanosleep, with SIGCHLD blocked if SIGCHLD is SIG_IGNed.  */
     result = nanosleep (&ts, &ts);
+    if (result != 0) {
+	/* Got EINTR. Return remaining time.  */
+	result = (unsigned int) ts.tv_sec + (ts.tv_nsec >= 500000000L);
+    }
 
     if (!__sigismember (&set, SIGCHLD)) {
 	/* We did block SIGCHLD, and old mask had no SIGCHLD bit.
@@ -90,10 +94,6 @@ unsigned int sleep (unsigned int seconds)
 	   and therefore we don't need to save/restore it.  */
 	sigprocmask (SIG_SETMASK, &set, NULL); /* never fails */
     }
-
-    if (result != 0)
-	/* Round remaining time.  */
-	result = (unsigned int) ts.tv_sec + (ts.tv_nsec >= 500000000L);
 
     return result;
 }
