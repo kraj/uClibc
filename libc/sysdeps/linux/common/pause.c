@@ -25,7 +25,7 @@ __libc_pause (void)
 {
   sigset_t set;
 
-  __sigemptyset (&set);
+  /*__sigemptyset (&set); - why? */
   sigprocmask (SIG_BLOCK, NULL, &set);
 
   /* pause is a cancellation point, but so is sigsuspend.

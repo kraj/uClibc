@@ -12,6 +12,9 @@
 
 /* Since we massaged signal.h into emitting non-inline function
  * definitions, we need to finish PLT avoidance trick: */
+#undef __sigismember
+#undef __sigaddset
+#undef __sigdelset
 libc_hidden_def(__sigismember)
 libc_hidden_def(__sigaddset)
 libc_hidden_def(__sigdelset)

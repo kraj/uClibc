@@ -126,9 +126,10 @@ do_system (const char *line)
   struct sigaction sa;
   sigset_t omask;
 
+  memset(&sa, 0, sizeof(sa));
   sa.sa_handler = SIG_IGN;
-  sa.sa_flags = 0;
-  __sigemptyset (&sa.sa_mask);
+  /*sa.sa_flags = 0; - done by memset */
+  /*__sigemptyset (&sa.sa_mask); - done by memset */
 
   DO_LOCK ();
   if (ADD_REF () == 0)

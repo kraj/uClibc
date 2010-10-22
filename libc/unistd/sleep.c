@@ -20,14 +20,8 @@
 
 #include <errno.h>
 #include <time.h>
-#include <unistd.h>
-/* Want fast and small __sigemptyset/__sigaddset/__sigismember: */
-/* TODO: make them available (to everybody) without this hack */
-#ifndef __USE_EXTERN_INLINES
-# define __USE_EXTERN_INLINES 1
-#endif
 #include <signal.h>
-
+#include <unistd.h>
 
 
 /* version perusing nanosleep */
