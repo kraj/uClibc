@@ -50,6 +50,7 @@ unsigned int sleep (unsigned int seconds)
 {
     struct timespec ts = { .tv_sec = (long int) seconds, .tv_nsec = 0 };
     sigset_t set;
+    struct sigaction oact;
     unsigned int result;
 
     /* This is not necessary but some buggy programs depend on this.  */
@@ -62,33 +63,28 @@ unsigned int sleep (unsigned int seconds)
 
     /* Linux will wake up the system call, nanosleep, when SIGCHLD
        arrives even if SIGCHLD is ignored.  We have to deal with it
-       in libc.  We block SIGCHLD first.  */
+       in libc.  */
+
     __sigemptyset (&set);
     __sigaddset (&set, SIGCHLD);
-    sigprocmask (SIG_BLOCK, &set, &set); /* never fails */
 
-    /* If SIGCHLD was already blocked, no need to check SIG_IGN. Else...  */
-    if (!__sigismember (&set, SIGCHLD)) {
-	struct sigaction oact;
-
-	/* Is SIGCHLD set to SIG_IGN? */
-	sigaction (SIGCHLD, NULL, &oact); /* never fails */
-	if (oact.sa_handler == SIG_IGN) {
-	    /* Yes, run nanosleep with SIGCHLD blocked.  */
-	    result = nanosleep (&ts, &ts);
-
-	    /* Unblock SIGCHLD by restoring signal mask.  */
-	    /* this sigprocmask call never fails, thus never updates errno,
-	       and therefore we don't need to save/restore it.  */
-	    sigprocmask (SIG_SETMASK, &set, NULL);
-	} else {
-	    /* No workaround needed, unblock SIGCHLD by restoring signal mask.  */
-	    sigprocmask (SIG_SETMASK, &set, NULL);
-	    result = nanosleep (&ts, &ts);
-	}
+    /* Is SIGCHLD set to SIG_IGN? */
+    sigaction (SIGCHLD, NULL, &oact); /* never fails */
+    if (oact.sa_handler == SIG_IGN) {
+	/* Yes.  Block SIGCHLD, save old mask.  */
+	sigprocmask (SIG_BLOCK, &set, &set); /* never fails */
     }
-    else
-	result = nanosleep (&ts, &ts);
+
+    /* Run nanosleep, with SIGCHLD blocked if SIGCHLD is SIG_IGNed.  */
+    result = nanosleep (&ts, &ts);
+
+    if (!__sigismember (&set, SIGCHLD)) {
+	/* We did block SIGCHLD, and old mask had no SIGCHLD bit.
+	   IOW: we need to unblock SIGCHLD now. Do it.  */
+	/* this sigprocmask call never fails, thus never updates errno,
+	   and therefore we don't need to save/restore it.  */
+	sigprocmask (SIG_SETMASK, &set, NULL); /* never fails */
+    }
 
     if (result != 0)
 	/* Round remaining time.  */
