@@ -49,6 +49,11 @@ CSRC := $(filter-out waitpid.c, $(CSRC))
 endif
 endif
 
+ifneq ($(ARCH_USE_MMU),y)
+# stubbed out in mman.h
+CSRC := $(filter-out msync.c, $(CSRC))
+endif
+
 ifneq ($(UCLIBC_BSD_SPECIFIC),y)
 # we need these internally: getdomainname.c
 CSRC := $(filter-out mincore.c setdomainname.c,$(CSRC))
