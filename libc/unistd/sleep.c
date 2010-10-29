@@ -27,7 +27,35 @@
 /* version perusing nanosleep */
 #if defined __UCLIBC_HAS_REALTIME__
 
-#if 0
+/* I am unable to reproduce alleged "Linux quirk".
+ * I used the following test program:
+#include <unistd.h>
+#include <time.h>
+#include <signal.h>
+static void dummy(int sig) {}
+int main() {
+    struct timespec t = { 2, 0 };
+    if (fork() == 0) {
+	sleep(1);
+	return 0;
+    }
+    signal(SIGCHLD, SIG_DFL); //
+    signal(SIGCHLD, dummy);   // Pick one
+    signal(SIGCHLD, SIG_IGN); //
+    nanosleep(&t, &t);
+    return 0;
+}
+ * On 2.6.35-rc4:
+ * With SIG_DFL, nanosleep() is not interrupted by SIGCHLD. Ok.
+ * With dummy handler, nanosleep() is interrupted by SIGCHLD. Ok.
+ * With SIG_IGN, nanosleep() is NOT interrupted by SIGCHLD.
+ * It looks like sleep's workaround for SIG_IGN is no longer needed?
+ * The only emails I can find are from 1998 -
+ * google for "sleep ignore sigchld".
+ */
+
+# if 0
+
 /* This is a quick and dirty, but not 100% compliant with
  * the stupid SysV SIGCHLD vs. SIG_IGN behaviour.  It is
  * fine unless you are messing with SIGCHLD...  */
@@ -40,7 +68,7 @@ unsigned int sleep (unsigned int sec)
 	return res;
 }
 
-#else
+# else
 
 /* We are going to use the `nanosleep' syscall of the kernel.  But the
    kernel does not implement the sstupid SysV SIGCHLD vs. SIG_IGN
@@ -54,9 +82,9 @@ unsigned int sleep (unsigned int seconds)
 
     /* This is not necessary but some buggy programs depend on this.  */
     if (seconds == 0) {
-# ifdef CANCELLATION_P
+#  ifdef CANCELLATION_P
 	CANCELLATION_P (THREAD_SELF);
-# endif
+#  endif
 	return 0;
     }
 
@@ -91,8 +119,11 @@ unsigned int sleep (unsigned int seconds)
 
     return result;
 }
-#endif
+
+# endif
+
 #else /* __UCLIBC_HAS_REALTIME__ */
+
 /* no nanosleep, use signals and alarm() */
 static void sleep_alarm_handler(int attribute_unused sig)
 {
@@ -140,5 +171,7 @@ unsigned int sleep (unsigned int seconds)
 
     return result > seconds ? 0 : seconds - result;
 }
+
 #endif /* __UCLIBC_HAS_REALTIME__ */
+
 libc_hidden_def(sleep)
