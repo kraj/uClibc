@@ -45,7 +45,7 @@ int main() {
     nanosleep(&t, &t);
     return 0;
 }
- * On 2.6.35-rc4:
+ * Testing on 2.4.20 and on 2.6.35-rc4:
  * With SIG_DFL, nanosleep() is not interrupted by SIGCHLD. Ok.
  * With dummy handler, nanosleep() is interrupted by SIGCHLD. Ok.
  * With SIG_IGN, nanosleep() is NOT interrupted by SIGCHLD.
