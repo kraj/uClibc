@@ -37,7 +37,7 @@ long long func##l(long double x) \
 	return func((double) x); \
 }
 
-#if defined __i386__ && defined __OPTIMIZE__
+#if defined __i386__ && defined __OPTIMIZE__ && !defined __UCLIBC_HAS_SSP__
 # undef WRAPPER1
 # undef int_WRAPPER1
 # undef long_WRAPPER1
@@ -62,9 +62,11 @@ long long func##l(long double x) \
  * Using __GI_func in jump to make optimized intra-library jump.
  * gcc will still generate a useless "ret" after asm. Oh well...
  *
- * Update: we do need to use call (instead of tail jump) as gcc can create
- * stack frame, and push/modify/pop ebx during PIC build.
- * TODO: add conditionals to use tail jump if possible?
+ * If you discover a build mode in which gcc creates a stack frame
+ * incompatible with this hack, do not "fix" by replacing jmp with call
+ * in the wrappers. This will make functions use wrong offset
+ * for accessing on-stack parameter.
+ * Instead, add more conditions to guarding #if above.
  */
 # define WRAPPER1(func) \
 long double func##l(long double x) \
@@ -73,7 +75,7 @@ long double func##l(long double x) \
 	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	call	" __stringify(__GI_##func) "\n" \
+	"	jmp	" __stringify(__GI_##func) "\n" \
 	: "=t" (st_top) \
 	: "m" (x) \
 	); \
@@ -86,7 +88,7 @@ int func##l(long double x) \
 	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	call	" __stringify(__GI_##func) "\n" \
+	"	jmp	" __stringify(__GI_##func) "\n" \
 	: "=a" (ret) \
 	: "m" (x) \
 	); \
@@ -99,7 +101,7 @@ long func##l(long double x) \
 	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	call	" __stringify(__GI_##func) "\n" \
+	"	jmp	" __stringify(__GI_##func) "\n" \
 	: "=a" (ret) \
 	: "m" (x) \
 	); \
@@ -112,7 +114,7 @@ long long func##l(long double x) \
 	__asm__ ( \
 	"	fldt	%1\n" \
 	"	fstpl	%1\n" \
-	"	call	" __stringify(__GI_##func) "\n" \
+	"	jmp	" __stringify(__GI_##func) "\n" \
 	: "=A" (ret) \
 	: "m" (x) \
 	); \
