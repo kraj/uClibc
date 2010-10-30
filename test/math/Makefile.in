@@ -24,7 +24,7 @@ PERL := /usr/bin/perl
 
 $(TESTS): libm-test.c
 
-libm-test.c: libm-test.inc gen-libm-test.pl
+libm-test.c: libm-test-ulps-$(TARGET_ARCH) libm-test.inc gen-libm-test.pl
 	$(Q)$(PERL) ./gen-libm-test.pl -u libm-test-ulps-$(TARGET_ARCH) ./libm-test.inc -o "." 2>&1 > /dev/null
 
 EXTRA_CLEAN := libm-test.c libm-test-ulps.h

@@ -467,20 +467,28 @@ ldouble: 1
 # hypot
 Test "hypot (-0.7, -12.4) == 12.419742348374220601176836866763271":
 float: 1
+ifloat: 1
 Test "hypot (-0.7, 12.4) == 12.419742348374220601176836866763271":
 float: 1
+ifloat: 1
 Test "hypot (-12.4, -0.7) == 12.419742348374220601176836866763271":
 float: 1
+ifloat: 1
 Test "hypot (-12.4, 0.7) == 12.419742348374220601176836866763271":
 float: 1
+ifloat: 1
 Test "hypot (0.7, -12.4) == 12.419742348374220601176836866763271":
 float: 1
+ifloat: 1
 Test "hypot (0.7, 12.4) == 12.419742348374220601176836866763271":
 float: 1
+ifloat: 1
 Test "hypot (12.4, -0.7) == 12.419742348374220601176836866763271":
 float: 1
+ifloat: 1
 Test "hypot (12.4, 0.7) == 12.419742348374220601176836866763271":
 float: 1
+ifloat: 1
 
 # j0
 Test "j0 (-4.0) == -3.9714980986384737228659076845169804197562E-1":
@@ -695,6 +703,11 @@ idouble: 1
 ifloat: 1
 ildouble: 1
 ldouble: 1
+
+# sin
+Test "sin (0.80190127184058835) == 0.71867942238767868":
+double: 1
+idouble: 1
 
 # sinh
 Test "sinh (0.75) == 0.822316731935829980703661634446913849":
@@ -1149,6 +1162,7 @@ ldouble: 1
 
 Function: "hypot":
 float: 1
+ifloat: 1
 
 Function: "j0":
 double: 3
@@ -1199,6 +1213,10 @@ idouble: 1
 ifloat: 1
 ildouble: 1
 ldouble: 1
+
+Function: "sin":
+double: 1
+idouble: 1
 
 Function: "sinh":
 double: 1
