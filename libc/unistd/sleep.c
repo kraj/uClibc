@@ -46,12 +46,28 @@ int main() {
     return 0;
 }
  * Testing on 2.4.20 and on 2.6.35-rc4:
- * With SIG_DFL, nanosleep() is not interrupted by SIGCHLD. Ok.
- * With dummy handler, nanosleep() is interrupted by SIGCHLD. Ok.
- * With SIG_IGN, nanosleep() is NOT interrupted by SIGCHLD.
+ * With SIG_DFL, nanosleep is not interrupted by SIGCHLD. Ok.
+ * With dummy handler, nanosleep is interrupted by SIGCHLD. Ok.
+ * With SIG_IGN, nanosleep is NOT interrupted by SIGCHLD.
  * It looks like sleep's workaround for SIG_IGN is no longer needed?
- * The only emails I can find are from 1998 -
- * google for "sleep ignore sigchld".
+ * The only emails I can find are from 1998 (!):
+ * ----------
+ *  Subject: Re: sleep ignore sigchld
+ *  From: Linus Torvalds <torvalds@transmeta.com>
+ *  Date: Mon, 16 Nov 1998 11:02:15 -0800 (PST)
+ *
+ *  On Mon, 16 Nov 1998, H. J. Lu wrote:
+ *  > That is a kernel bug. SIGCHLD is a special one. Usually it cannot
+ *  > be ignored. [snip...]
+ *
+ *  No can do.
+ *
+ *  "nanosleep()" is implemented in a bad way that makes it impossible to
+ *  restart it cleanly. It was done that way because glibc wanted it that way,
+ *  not because it's a good idea. [snip...]
+ * ----------
+ * I assume that in the passed twelve+ years, nanosleep got fixed,
+ * but the hack in sleep to work around broken nanosleep was never removed.
  */
 
 # if 0
