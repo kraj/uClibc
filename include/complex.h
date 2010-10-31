@@ -54,13 +54,13 @@ __BEGIN_DECLS
    so we can easily declare each function as both `name' and `__name',
    and can declare the float versions `namef' and `__namef'.  */
 
-#define __MATHCALL(function, args)	\
-  __MATHDECL (_Mdouble_complex_,function, args)
+#define __MATHCALL(function, args) \
+	__MATHDECL(_Mdouble_complex_,function, args)
 #define __MATHDECL(type, function, args) \
-  __MATHDECL_1(type, function, args); \
-  __MATHDECL_1(type, __CONCAT(__,function), args)
+	__MATHDECL_1(type, function, args); \
+	__MATHDECL_1(type, __CONCAT(__,function), args)
 #define __MATHDECL_1(type, function, args) \
-  extern type __MATH_PRECNAME(function) args __THROW
+	extern type __MATH_PRECNAME(function) args __THROW
 
 #define _Mdouble_		double
 #define __MATH_PRECNAME(name)	name

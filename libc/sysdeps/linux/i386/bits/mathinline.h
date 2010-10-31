@@ -206,7 +206,7 @@ __NTH (__signbitl (long double __x))
   __MATH_INLINE float_type __NTH (func (float_type __x))		      \
   {									      \
     register float_type __result;					      \
-    __asm__ __volatile__ (op : "=t" (__result) : params);			      \
+    __asm__ __volatile__ (op : "=t" (__result) : params);		      \
     return __result;							      \
   }
 

@@ -48,11 +48,16 @@
 #endif
 
 
-/* __MATHCALLX and __MATHCALLI include libm_hidden_def
+/* __MATHCALLX(type,function,[suffix],args,attrib) and
+ * __MATHCALLI(type,function,[suffix],args) include libm_hidden_def
  * (for "double" versions only, xxxf and xxxl do not get this treatment).
- * __MATHCALL does not.
- * __MATHDECL_PRIV includes libm_hidden_def (always)
- * and declares __foo, not foo.
+ *
+ * __MATHDECL(type,function,[suffix],args) does not.
+ * __MATHCALL(function,[suffix],args) also does not
+ * (it is just a shortcut to __MATHDECL(_Mdouble_,function,[suffix],args)).
+ *
+ * __MATHDECL_PRIV(type,function,[suffix],args,attrib)
+ * includes libm_hidden_def (always) and declares __foo, not foo.
  */
 
 
