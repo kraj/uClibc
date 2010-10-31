@@ -1,5 +1,6 @@
 #define _XOPEN_SOURCE 600
 #include <math.h>
+#include <float.h>
 #include <stdio.h>
 
 double zero = 0.0;

@@ -1,4 +1,5 @@
 #include <math.h>
+#include <float.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -6,12 +7,12 @@
 #define check_d1(func, param, expected) \
 do { \
 	int err; hex_union ur; hex_union up; \
-	up.f = param; ur.f = result = func(param); \
-	errors += (err = (result != expected)); \
+	double result = func(param); up.f = param; ur.f = result; \
+	errors += (err = (result != (expected))); \
 	err \
 	? printf("FAIL: %s(%g/"HEXFMT")=%g/"HEXFMT" (expected %g)\n", \
-		#func, (param), (long long)up.hex, result, (long long)ur.hex, expected) \
-	: printf("PASS: %s(%g)=%g\n", #func, (param), result); \
+		#func, (double)(param), (long long)up.hex, result, (long long)ur.hex, (double)(expected)) \
+	: printf("PASS: %s(%g)=%g\n", #func, (double)(param), result); \
 } while (0)
 
 #define HEXFMT "%08llx"
@@ -27,6 +28,6 @@ int main(void)
 {
 	check_d1(rint, 0.6, 1.0);
 
-        printf("Errors: %d\n", errors);
-        return errors;
+	printf("Errors: %d\n", errors);
+	return errors;
 }

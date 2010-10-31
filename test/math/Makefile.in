@@ -3,6 +3,7 @@
 
 TESTS := basic-test tst-definitions test-fpucw test-float test-ifloat test-double test-idouble \
     rint signgam ilogb
+# gamma (removed from TESTS, need to add "small errors are ok" machinery there)
 ifeq ($(UCLIBC_HAS_LONG_DOUBLE_MATH),y)
 TESTS += test-ldouble test-ildoubl compile_test c99_test
 else
