@@ -4,7 +4,7 @@
 TESTS := basic-test tst-definitions test-fpucw test-float test-ifloat test-double test-idouble \
     rint signgam ilogb
 ifeq ($(UCLIBC_HAS_LONG_DOUBLE_MATH),y)
-TESTS += test-ldouble test-ildoubl compile_test
+TESTS += test-ldouble test-ildoubl compile_test c99_test
 else
 CFLAGS_basic-test := -DNO_LONG_DOUBLE
 endif
