@@ -79,3 +79,7 @@ _IEEE_LIBM
     Always defined at libm build time
 __LDBL_COMPAT
     Never defined, TODO: remove?
+
+__SSP_ALL__
+    All functions, even small ones, have stack smashing protection
+    prologue enabled.

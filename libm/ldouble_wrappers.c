@@ -37,7 +37,7 @@ long long func##l(long double x) \
 	return func((double) x); \
 }
 
-#if defined __i386__ && defined __OPTIMIZE__ && !defined __UCLIBC_HAS_SSP__
+#if defined __i386__ && defined __OPTIMIZE__ && !defined __SSP_ALL__
 # undef WRAPPER1
 # undef int_WRAPPER1
 # undef long_WRAPPER1
