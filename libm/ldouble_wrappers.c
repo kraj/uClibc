@@ -21,6 +21,11 @@ long double func##l(long double x) \
 { \
 	return (long double) func((double) x); \
 }
+#define WRAPPER2(func) \
+long double func##l(long double x, long double y) \
+{ \
+	return (long double) func((double) x, (double) y); \
+}
 #define int_WRAPPER1(func) \
 int func##l(long double x) \
 { \
@@ -115,10 +120,7 @@ WRAPPER1(asin)
 #endif
 
 #ifdef L_atan2l
-long double atan2l (long double x, long double y)
-{
-	return (long double) atan2( (double)x, (double)y );
-}
+WRAPPER2(atan2)
 #endif
 
 #ifdef L_atanhl
@@ -145,10 +147,7 @@ WRAPPER1(ceil)
 #endif
 
 #ifdef L_copysignl
-long double copysignl (long double x, long double y)
-{
-	return (long double) copysign( (double)x, (double)y );
-}
+WRAPPER2(copysign)
 #endif
 
 #ifdef L_coshl
@@ -184,10 +183,7 @@ WRAPPER1(fabs)
 #endif
 
 #ifdef L_fdiml
-long double fdiml (long double x, long double y)
-{
-	return (long double) fdim( (double)x, (double)y );
-}
+WRAPPER2(fdim)
 #endif
 
 #ifdef L_floorl
@@ -202,24 +198,15 @@ long double fmal (long double x, long double y, long double z)
 #endif
 
 #ifdef L_fmaxl
-long double fmaxl (long double x, long double y)
-{
-	return (long double) fmax( (double)x, (double)y );
-}
+WRAPPER2(fmax)
 #endif
 
 #ifdef L_fminl
-long double fminl (long double x, long double y)
-{
-	return (long double) fmin( (double)x, (double)y );
-}
+WRAPPER2(fmin)
 #endif
 
 #ifdef L_fmodl
-long double fmodl (long double x, long double y)
-{
-	return (long double) fmod( (double)x, (double)y );
-}
+WRAPPER2(fmod)
 #endif
 
 #ifdef L_frexpl
@@ -234,10 +221,7 @@ WRAPPER1(gamma)
 #endif
 
 #ifdef L_hypotl
-long double hypotl (long double x, long double y)
-{
-	return (long double) hypot( (double)x, (double)y );
-}
+WRAPPER2(hypot)
 #endif
 
 #ifdef L_ilogbl
@@ -306,33 +290,21 @@ WRAPPER1(nearbyint)
 #endif
 
 #ifdef L_nextafterl
-long double nextafterl (long double x, long double y)
-{
-	return (long double) nextafter( (double)x, (double)y );
-}
+WRAPPER2(nextafter)
 #endif
 
 /* Disabled in Makefile.in */
 #if 0 /* def L_nexttowardl */
-long double nexttowardl (long double x, long double y)
-{
-	return (long double) nexttoward( (double)x, (double)y );
-}
+WRAPPER2(nexttoward)
 libm_hidden_def(nexttowardl)
 #endif
 
 #ifdef L_powl
-long double powl (long double x, long double y)
-{
-	return (long double) pow( (double)x, (double)y );
-}
+WRAPPER2(pow)
 #endif
 
 #ifdef L_remainderl
-long double remainderl (long double x, long double y)
-{
-	return (long double) remainder( (double)x, (double)y );
-}
+WRAPPER2(remainder)
 #endif
 
 #ifdef L_remquol
