@@ -37,91 +37,6 @@ long long func##l(long double x) \
 	return func((double) x); \
 }
 
-#if defined __i386__ && defined __OPTIMIZE__ && !defined __SSP_ALL__
-# undef WRAPPER1
-# undef int_WRAPPER1
-# undef long_WRAPPER1
-# undef long_long_WRAPPER1
-/* gcc 4.3.1 generates really ugly code with redundant pair of store/load:
- *	sub	$0x10,%esp
- *	fldt	0x14(%esp)
- *	fstpl	0x8(%esp)
- *	fldl	0x8(%esp) <-- ??
- *	fstpl	(%esp)    <-- ??
- *	call	function
- *	add	$0x10,%esp
- *	ret
- * I can hope newer gcc will eliminate that. However, I don't think
- * it will be smart enough to reuse argument stack space and use
- * jump instead of call. Let's do it by hand.
- * The asm below loads long double x into st(0), then stores it back
- * to the same location, but as a double. At this point, stack looks
- * exactly as "double func(double)" expects it to be.
- * The return value is returned in st(0) per ABI in both cases (returning
- * a long double or returning a double). So we can simply jump to func.
- * Using __GI_func in jump to make optimized intra-library jump.
- * gcc will still generate a useless "ret" after asm. Oh well...
- *
- * If you discover a build mode in which gcc creates a stack frame
- * incompatible with this hack, do not "fix" by replacing jmp with call
- * in the wrappers. This will make functions use wrong offset
- * for accessing on-stack parameter.
- * Instead, add more conditions to guarding #if above.
- */
-# define WRAPPER1(func) \
-long double func##l(long double x) \
-{ \
-	long double st_top; \
-	__asm__ ( \
-	"	fldt	%1\n" \
-	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
-	: "=t" (st_top) \
-	: "m" (x) \
-	); \
-	return st_top; \
-}
-# define int_WRAPPER1(func) \
-int func##l(long double x) \
-{ \
-	int ret; \
-	__asm__ ( \
-	"	fldt	%1\n" \
-	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
-	: "=a" (ret) \
-	: "m" (x) \
-	); \
-	return ret; \
-}
-# define long_WRAPPER1(func) \
-long func##l(long double x) \
-{ \
-	long ret; \
-	__asm__ ( \
-	"	fldt	%1\n" \
-	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
-	: "=a" (ret) \
-	: "m" (x) \
-	); \
-	return ret; \
-}
-# define long_long_WRAPPER1(func) \
-long long func##l(long double x) \
-{ \
-	long long ret; \
-	__asm__ ( \
-	"	fldt	%1\n" \
-	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
-	: "=A" (ret) \
-	: "m" (x) \
-	); \
-	return ret; \
-}
-#endif /* __i386__ && __OPTIMIZE__ */
-
 /* Implement the following, as defined by SuSv3 */
 #if 0
 long double acoshl(long double);
@@ -315,12 +230,7 @@ long double frexpl (long double x, int *ex)
 #endif
 
 #ifdef L_gammal
-/* WRAPPER1(gamma) won't work, tries to call __GI_xxx,
- * and gamma() hasn't got one. */
-long double gammal(long double x)
-{
-	return (long double) gamma((double) x);
-}
+WRAPPER1(gamma)
 #endif
 
 #ifdef L_hypotl
@@ -362,11 +272,7 @@ WRAPPER1(log1p)
 #endif
 
 #ifdef L_log2l
-/* WRAPPER1(log2) won't work */
-long double log2l(long double x)
-{
-	return (long double) log2((double)x);
-}
+WRAPPER1(log2)
 #endif
 
 #ifdef L_logbl
@@ -489,12 +395,7 @@ WRAPPER1(trunc)
 #endif
 
 #ifdef L_significandl
-/* WRAPPER1(significand) won't work, tries to call __GI_xxx,
- * and significand() hasn't got one. */
-long double significandl(long double x)
-{
-	return (long double) significand((double) x);
-}
+WRAPPER1(significand)
 #endif
 
 #if defined __DO_C99_MATH__ && !defined __NO_LONG_DOUBLE_MATH
