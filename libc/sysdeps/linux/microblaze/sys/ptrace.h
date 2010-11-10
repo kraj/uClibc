@@ -65,12 +65,16 @@ enum __ptrace_request
   PTRACE_KILL = 8,
 #define PT_KILL PTRACE_KILL
 
+  /* Single step the process.  */
+  PTRACE_SINGLESTEP = 9,
+#define PT_STEP PTRACE_SINGLESTEP
+
   /* Attach to a process that is already running. */
-  PTRACE_ATTACH = 0x10,
+  PTRACE_ATTACH = 16,
 #define PT_ATTACH PTRACE_ATTACH
 
   /* Detach from a process attached to with PTRACE_ATTACH.  */
-  PTRACE_DETACH = 0x11,
+  PTRACE_DETACH = 17,
 #define PT_DETACH PTRACE_DETACH
 
   /* Continue and stop at the next (return from) syscall.  */

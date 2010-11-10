@@ -29,10 +29,10 @@
 
 #ifdef __USE_XOPEN
 /* These values are defined in XPG4.2.  */
-# define POLLRDNORM	0x040		/* Normal data may be read.  */
-# define POLLRDBAND	0x080		/* Priority data may be read.  */
-# define POLLWRNORM	POLLOUT		/* Writing now will not block.  */
-# define POLLWRBAND	0x100		/* Priority data may be written.  */
+# define POLLRDNORM	0x0040		/* Normal data may be read.  */
+# define POLLRDBAND	0x0080		/* Priority data may be read.  */
+# define POLLWRNORM	0x0100		/* Writing now will not block.  */
+# define POLLWRBAND	0x0200		/* Priority data may be written.  */
 #endif
 
 /* Event types always implicitly polled for.  These bits need not be set in
