@@ -79,7 +79,7 @@ config TARGET_m68k
 	bool "m68k"
 
 config TARGET_microblaze
-	bool "microblaze (BROKEN)"
+	bool "microblaze"
 
 config TARGET_mips
 	bool "mips"
