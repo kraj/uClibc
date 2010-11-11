@@ -15,7 +15,6 @@ libc_linux_arch_SSRC = clone.S vfork.S
 librt_linux_arch_CSRC = pt-__syscall_error.c
 
 ASFLAGS += -DUSE___THREAD
-CFLAGS += $(SSP_ALL_CFLAGS)
 
 CFLAGS-pthread_once.c = -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-lowlevellock.c = -DNOT_IN_libc -DIS_IN_libpthread

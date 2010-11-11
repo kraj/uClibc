@@ -8,5 +8,4 @@ subdirs += libpthread/nptl/sysdeps/$(TARGET_ARCH)/$(TARGET_SUBARCH)/sparv9
 
 CFLAGS-pthread_spin_lock.c += -D_GNU_SOURCE
 
-CFLAGS-sparc = $(SSP_ALL_CFLAGS)
 

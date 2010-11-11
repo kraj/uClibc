@@ -8,4 +8,3 @@
 CFLAGS-pthread_spin_lock.c += -D_GNU_SOURCE
 CFLAGS-pthread_create.c += -mpreferred-stack-boundary=4
 
-CFLAGS-i386 = $(SSP_ALL_CFLAGS)

@@ -5,4 +5,3 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-powerpc = $(SSP_ALL_CFLAGS)
