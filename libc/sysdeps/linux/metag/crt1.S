@@ -29,6 +29,7 @@ __start:
 
 	MOV	D1Ar3,D0Ar2			! argv
 	MOV	D0Ar2,D1Ar1			! argc
+	MOV	D0Ar6,D0Ar4			! rtld_fini
 
 #ifdef __PIC__
 	ADDT	A1LbP,CPC1,#HI(__GLOBAL_OFFSET_TABLE__)
@@ -53,8 +54,6 @@ __start:
 	MOVT	D1Ar5,#HI(__fini)
 	ADD	D1Ar5,D1Ar5,#LO(__fini)
 #endif
-
-	MOV	D0Ar6,#0			! rtld_fini
 
 	MOVT	D1Re0,#0x80
 

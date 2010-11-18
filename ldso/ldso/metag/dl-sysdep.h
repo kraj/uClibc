@@ -36,14 +36,17 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entr
 #define PAGE_ALIGN (~ADDR_ALIGN)
 #define OFFS_ALIGN (PAGE_ALIGN & ~(1ul << (sizeof(_dl_pagesize) * 8 - 1)))
 
-/* The union of reloc-type-classes where the reloc TYPE is a member.
+/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
+   TLS variable, so undefined references should not be allowed to
+   define the value.
 
-   TYPE is in the class ELF_RTYPE_CLASS_NOCOPY if it should not be allowed
-   to resolve to one of the main executable's symbols, as for a COPY
-   reloc.  */
-#define elf_machine_type_class(type)				\
-  (((((type) == R_METAG_JMP_SLOT)) * ELF_RTYPE_CLASS_PLT)	\
-   | (((type) == R_METAG_COPY) * ELF_RTYPE_CLASS_COPY))
+   ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
+   of the main executable's symbols, as for a COPY reloc.  */
+#define elf_machine_type_class(type)                                 \
+  ((((type) == R_METAG_JMP_SLOT || (type) == R_METAG_TLS_DTPMOD      \
+     || (type) == R_METAG_TLS_DTPOFF || (type) == R_METAG_TLS_TPOFF) \
+     * ELF_RTYPE_CLASS_PLT)                                          \
+     | (((type) == R_METAG_COPY) * ELF_RTYPE_CLASS_COPY))
 
 static inline Elf32_Addr
 elf_machine_dynamic(Elf32_Ehdr *header)

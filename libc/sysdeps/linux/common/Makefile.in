@@ -69,6 +69,7 @@ CSRC- += fork.c getpid.c raise.c #open.c close.c read.c write.c
 CSRC- += $(if $(findstring =arm=,=$(TARGET_ARCH)=),vfork.c)
 CSRC- += $(if $(findstring =x86_64=,=$(TARGET_ARCH)=),vfork.c)
 #CSRC- += $(if $(findstring =mips=y=,=$(TARGET_ARCH)=$(CONFIG_MIPS_O32_ABI)=),waitpid.c)
+CSRC- += $(if $(findstring =metag=,=$(TARGET_ARCH)=),vfork.c)
 endif
 ifneq ($(ARCH_HAS_DEPRECATED_SYSCALLS),y)
 # No conversion is needed for new architectures

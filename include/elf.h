@@ -3184,6 +3184,11 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_METAG_RELATIVE                45
 #define R_METAG_GLOB_DAT                46
 
+/* TLS relocations */
+#define R_METAG_TLS_TPOFF               56
+#define R_METAG_TLS_DTPMOD              57
+#define R_METAG_TLS_DTPOFF              58
+
 #ifdef	__cplusplus
 }
 #endif
