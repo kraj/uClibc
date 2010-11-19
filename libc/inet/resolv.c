@@ -335,7 +335,7 @@ Domain name in a message can be represented as either:
 
 
 #define MAX_RECURSE    5
-#define MAXALIASES  (6)
+#define MAXALIASES  (4)
 #define BUFSZ       (80) /* one line */
 #define SBUFSIZE    (BUFSZ + 1 + (sizeof(char *) * MAXALIASES))
 
@@ -1587,6 +1587,11 @@ parser_t * __open_etc_hosts(void)
 	return parser;
 }
 
+#define MINTOKENS 2 //dotted ip address + canonical name
+#define MAXTOKENS (MINTOKENS + MAXALIASES)
+#define HALISTOFF (sizeof(char*) * MAXTOKENS)
+#define INADDROFF (HALISTOFF + 2 * sizeof(char*))
+
 int attribute_hidden __read_etc_hosts_r(
 		parser_t * parser,
 		const char *name,
@@ -1601,8 +1606,7 @@ int attribute_hidden __read_etc_hosts_r(
 	char **host_aliases;
 	char **tok = NULL;
 	struct in_addr *h_addr0 = NULL;
-#define ALIASOFF (sizeof(*host_aliases) * MAXALIASES + 2 * sizeof(char*))
-	const size_t aliaslen = ALIASOFF +
+	const size_t aliaslen = INADDROFF +
 #ifdef __UCLIBC_HAS_IPV6__
 							sizeof(struct in6_addr)
 #else
@@ -1622,8 +1626,8 @@ int attribute_hidden __read_etc_hosts_r(
 		return errno;
 	}
 	/* Layout in buf:
-	 * char **alias for MAXALIAS aliases
-	 * char **h_addr_list[1] = {*in[6]_addr, NULL}
+	 * char *alias[MAXTOKENS]  = {address, name, aliases...}
+	 * char **h_addr_list[1]   = {*in[6]_addr, NULL}
 	 * struct in[6]_addr
 	 * char line_buffer[BUFSZ+];
 	 */
@@ -1632,7 +1636,7 @@ int attribute_hidden __read_etc_hosts_r(
 	parser->line_len = buflen - aliaslen;
 	*h_errnop = HOST_NOT_FOUND;
 	/* <ip>[[:space:]][<aliases>] */
-	while (config_read(parser, &tok, MAXALIASES, 2, "# \t", PARSE_NORMAL)) {
+	while (config_read(parser, &tok, MAXTOKENS, MINTOKENS, "# \t", PARSE_NORMAL)) {
 		result_buf->h_aliases = alias = host_aliases = tok+1;
 		if (action == GETHOSTENT) {
 			/* Return whatever the next entry happens to be. */
@@ -1650,9 +1654,9 @@ int attribute_hidden __read_etc_hosts_r(
 		}
 found:
 		result_buf->h_name = *(result_buf->h_aliases++);
-		result_buf->h_addr_list = (char**)(buf + ALIASOFF);
+		result_buf->h_addr_list = (char**)(buf + HALISTOFF);
 		*(result_buf->h_addr_list + 1) = '\0';
-		h_addr0 = (struct in_addr*)(buf + ALIASOFF + 2 * sizeof (char*));
+		h_addr0 = (struct in_addr*)(buf + INADDROFF);
 		result_buf->h_addr = (char*)h_addr0;
 		if (0) /* nothing */;
 #ifdef __UCLIBC_HAS_IPV4__
