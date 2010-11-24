@@ -437,7 +437,8 @@ endif
 CRTS_COMPAT :=
 #endif
 
-$(crt-y): $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC)
+startfiles = $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC)
+$(crt-y): $(startfiles)
 $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | headers
 $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC) $(LINK_FLAT_CRTS) $(SHARED_START_FILES) $(SHARED_END_FILES) : | $(top_builddir)lib
 
