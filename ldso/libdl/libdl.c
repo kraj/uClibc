@@ -612,7 +612,9 @@ void *dlsym(void *vhandle, const char *name)
 	ElfW(Addr) from;
 	struct dyn_elf *rpnt;
 	void *ret;
+#if defined(USE_TLS) && USE_TLS && defined SHARED
 	struct elf_resolve *tls_tpnt = NULL;
+#endif
 	/* Nastiness to support underscore prefixes.  */
 #ifdef __UCLIBC_UNDERSCORES__
 	char tmp_buf[80];
