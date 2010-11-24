@@ -3003,6 +3003,7 @@ isnormal_test (void)
   END (isnormal);
 }
 
+#if defined __DO_XSI_MATH__
 static void
 j0_test (void)
 {
@@ -3149,6 +3150,7 @@ jn_test (void)
 
   END (jn);
 }
+#endif /* __DO_XSI_MATH__ */
 
 
 static void
@@ -4650,6 +4652,7 @@ trunc_test (void)
 }
 #endif
 
+#if defined __DO_XSI_MATH__
 static void
 y0_test (void)
 {
@@ -4792,6 +4795,7 @@ yn_test (void)
   END (yn);
 
 }
+#endif /* __DO_XSI_MATH__ */
 
 
 static void
@@ -5069,14 +5073,14 @@ main (int argc, char **argv)
 #endif
 
   /* Bessel functions:  */
-#if 0
+#if defined __DO_XSI_MATH__
   j0_test ();
   j1_test ();
   jn_test ();
   y0_test ();
   y1_test ();
   yn_test ();
-#endif
+#endif /* __DO_XSI_MATH__ */
 
   if (output_ulps)
     fclose (ulps_file);
