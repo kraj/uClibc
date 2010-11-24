@@ -15,7 +15,7 @@ config FORCE_OPTIONS_FOR_ARCH
 
 choice
 	prompt "Target x86 Processor Family"
-	default CONFIG_GENERIC_386
+	default CONFIG_486
 	help
 	  This is the processor type of your CPU. This information is used for
 	  optimizing purposes.  To build a library that will run on all x86 CPU

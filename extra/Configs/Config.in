@@ -454,6 +454,8 @@ config UCLIBC_HAS_THREADS_NATIVE
 	select UCLIBC_HAS_STDIO_FUTEXES
 	# NPTL local:
 	select EXTRA_WARNINGS
+	# i386 has no lowlevellock support (yet) as opposed to i486 onward
+	depends on !CONFIG_386
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.
 
