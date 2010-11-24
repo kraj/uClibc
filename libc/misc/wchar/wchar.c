@@ -286,6 +286,8 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 		s = empty_string;
 		n = 1;
 	} else if (*s == '\0') {
+		if (pwc)
+			*pwc = '\0';
 	/* According to the ISO C 89 standard this is the expected behaviour.  */
 		return 0;
 	} else if (!n) {

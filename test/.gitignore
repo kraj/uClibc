@@ -96,6 +96,7 @@ locale-mbwc/tst_wctomb
 locale-mbwc/tst_wctrans
 locale-mbwc/tst_wctype
 locale-mbwc/tst_wcwidth
+locale-mbwc/tst2_mbrtowc
 locale/show-ucs-data
 locale/tst-digits
 locale/tst-langinfo
