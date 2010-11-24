@@ -44,10 +44,14 @@ typedef struct parser_t {
 	size_t line_len; /* length of line */
 	smalluint allocated;
 } parser_t;
+
 parser_t* config_open(const char *filename) FAST_FUNC attribute_hidden;
+libc_hidden_proto(config_open)
 int config_read(parser_t *parser, char ***tokens, unsigned flags, const char *delims) FAST_FUNC attribute_hidden;
+libc_hidden_proto(config_read)
 #define config_read(parser, tokens, max, min, str, flags) \
 	config_read(parser, tokens, ((flags) | (((min) & 0xFF) << 8) | ((max) & 0xFF)), str)
 void config_close(parser_t *parser) FAST_FUNC attribute_hidden;
+libc_hidden_proto(config_close)
 
 #endif /* __INTERNAL_PARSE_CONFIG_H */
