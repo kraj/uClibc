@@ -342,6 +342,9 @@ extern __typeof(__XL_NPP(strtol)) __XL_NPP(strtoll);
 libc_hidden_proto(__XL_NPP(strtoll))
 strong_alias(__XL_NPP(strtol),__XL_NPP(strtoll))
 libc_hidden_def(__XL_NPP(strtoll))
+#if !defined(L_strtol_l)
+strong_alias(strtol,strtoq)
+#endif
 #endif
 
 #endif
