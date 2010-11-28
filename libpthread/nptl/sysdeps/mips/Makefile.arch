@@ -15,4 +15,3 @@ ASFLAGS-nptl-sysdep.S = -DNOT_IN_libc -DIS_IN_libpthread	\
 
 libc_arch_a_CSRC = libc-tls.c
 
-CFLAGS-mips = $(SSP_ALL_CFLAGS)

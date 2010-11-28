@@ -12,11 +12,7 @@
 #include <signal.h>
 #include <string.h>
 
-libc_hidden_proto(memcpy)
-
 #ifdef __NR_rt_sigtimedwait
-
-#include <string.h>
 
 # ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #  include <sysdep-cancel.h>

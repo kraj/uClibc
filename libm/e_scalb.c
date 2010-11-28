@@ -10,9 +10,9 @@
  */
 
 /*
- * __ieee754_scalb(x, fn) is provide for
- * passing various standard test suite. One
- * should use scalbn() instead.
+ * __ieee754_scalb(x, fn) is provided for
+ * passing various standard test suites.
+ * One should use scalbn() instead.
  */
 
 #include "math.h"
@@ -21,7 +21,6 @@
 
 double attribute_hidden __ieee754_scalb(double x, double fn)
 {
-	return scalbn(x,fn);
 	if (isnan(x)||isnan(fn)) return x*fn;
 	if (!isfinite(fn)) {
 	    if(fn>0.0) return x*fn;
@@ -35,9 +34,9 @@ double attribute_hidden __ieee754_scalb(double x, double fn)
 
 #if defined __UCLIBC_SUSV3_LEGACY__
 /*
- * wrapper scalb(double x, double fn) is provide for
- * passing various standard test suite. One
- * should use scalbn() instead.
+ * wrapper scalb(double x, double fn) is provided for
+ * passing various standard test suites.
+ * One should use scalbn() instead.
  */
 #ifndef _IEEE_LIBM
 double scalb(double x, double fn)

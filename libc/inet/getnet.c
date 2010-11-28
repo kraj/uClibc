@@ -27,9 +27,11 @@ aliases: case sensitive optional space or tab separated list of other names
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
-#define	MAXALIASES	35
-#define BUFSZ		(80) /* one line */
-#define SBUFSIZE	(BUFSZ + 1 + (sizeof(char *) * MAXALIASES))
+#define MINTOKENS	2
+#define	MAXALIASES	8
+#define MAXTOKENS	(MINTOKENS + MAXALIASES + 1)
+#define BUFSZ		(255) /* one line */
+#define SBUFSIZE	(BUFSZ + 1 + (sizeof(char *) * MAXTOKENS))
 
 static parser_t *netp = NULL;
 static struct netent nete;
@@ -65,10 +67,8 @@ int getnetent_r(struct netent *result_buf,
 				int *h_errnop
 				 )
 {
-	char **alias, *cp = NULL;
-	char **net_aliases;
 	char **tok = NULL;
-	const size_t aliaslen = sizeof(*net_aliases) * MAXALIASES;
+	const size_t aliaslen = sizeof(char *) * MAXTOKENS;
 	int ret = ERANGE;
 
 	*result = NULL;
@@ -86,7 +86,7 @@ int getnetent_r(struct netent *result_buf,
 	netp->data_len = aliaslen;
 	netp->line_len = buflen - aliaslen;
 	/* <name>[[:space:]]<netnumber>[[:space:]][<aliases>] */
-	if (!config_read(netp, &tok, 3, 2, "# \t/", PARSE_NORMAL)) {
+	if (!config_read(netp, &tok, MAXTOKENS-1, MINTOKENS, "# \t/", PARSE_NORMAL)) {
 		goto DONE;
 	}
 	result_buf->n_name = *(tok++);
@@ -110,16 +110,7 @@ int getnetent_r(struct netent *result_buf,
 			sa4_to_uint32(addri->ai_addr);
 		freeaddrinfo(addri);
 	}
-	result_buf->n_aliases = alias = net_aliases = tok;
-	cp = *alias;
-	while (cp && *cp) {
-		if (alias < &net_aliases[MAXALIASES - 1])
-			*alias++ = cp;
-		cp = strpbrk(cp, " \t");
-		if (cp != NULL)
-			*cp++ = '\0';
-	}
-	*alias = NULL;
+	result_buf->n_aliases = tok;
 	*result = result_buf;
 	ret = 0;
  DONE:

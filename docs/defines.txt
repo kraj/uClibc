@@ -16,11 +16,18 @@ _LARGEFILE[64]_SOURCE
 _FILE_OFFSET_BITS
     ???
 
-__NTH(fct)
 __THROW
-__REDIRECT(name, proto, alias)
-__REDIRECT_NTH(name, proto, alias)
-    ???
+    Function annotation "I do not throw anything".
+__NTH(func(params))
+    Function annotation "I do not throw anything".
+    Needed for situatuons when it's unclear on what side of "func(params)"
+    the "throw()" or "attribute((nothrow))" should eventually appear.
+    Messy, eh?
+
+return_type __REDIRECT(name, (params), alias)
+    declare alias to "name(params)"
+return_type __REDIRECT_NTH(name, (params), alias)
+    declare alias to "name(params) __THROW"
 
 __BIG_ENDIAN    4321
 __LITTLE_ENDIAN 1234
@@ -49,6 +56,7 @@ _EXTERN_INLINE
 __extern_inline
     Defined to "extern inline", modulo gcc/C standard deviations.
     Can't be used by user to play tricks as with _EXTERN_INLINE.
+
 internal_function
     Used to modify function's calling convention, if "standard" one
     is suboptimal. Examples:
@@ -71,3 +79,7 @@ _IEEE_LIBM
     Always defined at libm build time
 __LDBL_COMPAT
     Never defined, TODO: remove?
+
+__SSP_ALL__
+    All functions, even small ones, have stack smashing protection
+    prologue enabled.

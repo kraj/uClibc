@@ -195,6 +195,8 @@ install: install_runtime install_dev
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)$(MULTILIB_DIR) $(RUNTIME_PREFIX)$(MULTILIB_DIR))
 
+startfiles: $(crt-y)
+
 $(top_builddir)extra/scripts/unifdef: |$(top_builddir)extra/scripts
 $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
 	$(hcompile.u)
@@ -297,9 +299,13 @@ else
 	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -f wchar-stub.h
 endif
 
+# Installs startfiles
+install_startfiles: startfiles | $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)
+	-$(INSTALL) -m 644 $(startfiles) $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
+
 # Installs development library links.
-install_dev: install_headers install_runtime | $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)
-	-$(INSTALL) -m 644 $(top_builddir)lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
+install_dev: install_headers install_runtime install_startfiles | $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)
+	-$(INSTALL) -m 644 $(top_builddir)lib/*.a $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
 ifeq ($(HAVE_SHARED),y)
 	for i in `cd $(top_builddir) && find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
 	$(SED) -e 's/lib\///'` ; do \

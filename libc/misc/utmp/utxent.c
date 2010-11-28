@@ -71,7 +71,8 @@ void getutmp (const struct utmpx *utmpx, struct utmp *utmp)
 	memcpy (utmp->ut_host, utmpx->ut_host, sizeof (utmp->ut_host));
 #endif
 #if _HAVE_UT_TV - 0
-	utmp->ut_tv = utmpx->ut_tv;
+	utmp->ut_tv.tv_sec = utmpx->ut_tv.tv_sec;
+	utmp->ut_tv.tv_usec = utmpx->ut_tv.tv_usec;
 #else
 	utmp->ut_time = utmpx->ut_time;
 #endif
@@ -97,7 +98,8 @@ void getutmpx (const struct utmp *utmp, struct utmpx *utmpx)
 	memcpy (utmpx->ut_host, utmp->ut_host, sizeof (utmp->ut_host));
 #endif
 #if _HAVE_UT_TV - 0
-	utmpx->ut_tv = utmp->ut_tv;
+	utmpx->ut_tv.tv_sec = utmp->ut_tv.tv_sec;
+	utmpx->ut_tv.tv_usec = utmp->ut_tv.tv_usec;
 #else
 	utmpx->ut_time = utmp->ut_time;
 #endif

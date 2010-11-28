@@ -10,7 +10,7 @@
 #undef __UCLIBC_ABORT_INSTRUCTION__
 
 /* can your target use syscall6() for mmap ? */
-#undef __UCLIBC_MMAP_HAS_6_ARGS__
+#define __UCLIBC_MMAP_HAS_6_ARGS__
 
 /* does your target use syscall4() for truncate64 ? (32bit arches only) */
 #undef __UCLIBC_TRUNCATE64_HAS_4_ARGS__
@@ -22,7 +22,7 @@
 #undef __UCLIBC_HANDLE_OLDER_RLIMIT__
 
 /* does your target have an asm .set ? */
-#define __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
+#undef __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
 
 /* define if target doesn't like .global */
 #undef __UCLIBC_ASM_GLOBAL_DIRECTIVE__

@@ -481,10 +481,6 @@ ifeq ($(TARGET_ARCH),i960)
       SYMBOL_PREFIX=_
 endif
 
-ifeq ($(TARGET_ARCH),microblaze)
-      SYMBOL_PREFIX=_
-endif
-
 ifeq ($(TARGET_ARCH),v850)
       SYMBOL_PREFIX=_
 endif
@@ -671,6 +667,7 @@ PTINC:= -I$(top_builddir)$(PTDIR)					\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux			\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread				\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread/bits			\
+	-I$(top_srcdir)$(PTDIR)/sysdeps/generic				\
 	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH)				\
 	-I$(top_srcdir)ldso/include
 #

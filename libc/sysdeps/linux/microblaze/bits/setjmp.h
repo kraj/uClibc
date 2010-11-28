@@ -28,12 +28,16 @@ typedef struct
     /* Link pointer.  */
     void *__lp;
 
-    /* Callee-saved registers r18-r30.  */
-    int __regs[13];
+    /* SDA pointers */
+    void *__SDA;
+    void *__SDA2;
+
+    /* Callee-saved registers r18-r31.  */
+    int __regs[14];
   } __jmp_buf[1];
 #endif
 
-#define JB_SIZE		(4 * 15)
+#define JB_SIZE		(4 * 18)
 
 /* Test if longjmp to JMPBUF would unwind the frame
    containing a local variable at ADDRESS.  */

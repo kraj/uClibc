@@ -19,7 +19,6 @@ libc_linux_arch_SSRC-OMIT = waitpid.S
 librt_linux_arch_SSRC = librt-cancellation.S
 
 ASFLAGS += -DUSE___THREAD
-CFLAGS += $(SSP_ALL_CFLAGS)
 
 CFLAGS-pt-__syscall_error.c =  -DNOT_IN_libc -DIS_IN_libpthread
 ASFLAGS-pt-vfork.S = -DNOT_IN_libc -DIS_IN_libpthread -D_LIBC_REENTRANT

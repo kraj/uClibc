@@ -158,15 +158,15 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 
 /* Only need extra arg with some configurations */
 #if !((defined(USE_TLS) && USE_TLS) || defined __FDPIC__)
-# define _dl_lookup_hash(n, r, m, s, c, t) _dl_lookup_hash(n, r, m, s, c)
+# define _dl_lookup_hash(n, r, m, s, c, tpnt) _dl_lookup_hash(n, r, m, s, c)
+# define _dl_find_hash(n, r, m, s, t, tpntp) _dl_find_hash(n, r, m, s, t)
 #endif
 extern char *_dl_lookup_hash(const char *name, struct r_scope_elem *scope,
-	struct elf_resolve *mytpnt, struct sym_val *symbol, int type_class,
-	struct elf_resolve **tpntp);
-
+		struct elf_resolve *mytpnt, struct sym_val *symbol, int type_class,
+		struct elf_resolve **tpntp);
 static __always_inline char *_dl_find_hash(const char *name, struct r_scope_elem *scope,
-					struct elf_resolve *mytpnt, struct sym_val *symbol, int type_class,
-					struct elf_resolve **tpntp)
+		struct elf_resolve *mytpnt, struct sym_val *symbol, int type_class,
+		struct elf_resolve **tpntp)
 {
 	return _dl_lookup_hash(name, scope, mytpnt, symbol, type_class, tpntp);
 }

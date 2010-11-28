@@ -21,6 +21,11 @@ long double func##l(long double x) \
 { \
 	return (long double) func((double) x); \
 }
+#define WRAPPER2(func) \
+long double func##l(long double x, long double y) \
+{ \
+	return (long double) func((double) x, (double) y); \
+}
 #define int_WRAPPER1(func) \
 int func##l(long double x) \
 { \
@@ -36,96 +41,6 @@ long long func##l(long double x) \
 { \
 	return func((double) x); \
 }
-
-#if defined __i386__ && defined __OPTIMIZE__
-# undef WRAPPER1
-# undef int_WRAPPER1
-# undef long_WRAPPER1
-# undef long_long_WRAPPER1
-/* gcc 4.3.1 generates really ugly code with redundant pair of store/load:
- *	sub	$0x10,%esp
- *	fldt	0x14(%esp)
- *	fstpl	0x8(%esp)
- *	fldl	0x8(%esp) <-- ??
- *	fstpl	(%esp)    <-- ??
- *	call	function
- *	add	$0x10,%esp
- *	ret
- * I can hope newer gcc will eliminate that. However, I don't think
- * it will be smart enough to reuse argument stack space and use
- * jump instead of call. Let's do it by hand.
- * The asm below loads long double x into st(0), then stores it back
- * to the same location, but as a double. At this point, stack looks
- * exactly as "double func(double)" expects it to be.
- * The return value is returned in st(0) per ABI in both cases (returning
- * a long double or returning a double). So we can simply jump to func.
- * Using __GI_func in jump to make optimized intra-library jump.
- * gcc will still generate a useless "ret" after asm. Oh well...
- */
-# define WRAPPER1(func) \
-long double func##l(long double x) \
-{ \
-	long double st_top; \
-	__asm__ ( \
-	"	fldt	%1\n" \
-	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
-	: "=t" (st_top) \
-	: "m" (x) \
-	); \
-	return st_top; \
-}
-# define int_WRAPPER1(func) \
-int func##l(long double x) \
-{ \
-	int ret; \
-	__asm__ ( \
-	"	fldt	%1\n" \
-	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
-	: "=a" (ret) \
-	: "m" (x) \
-	); \
-	return ret; \
-}
-# define long_WRAPPER1(func) \
-long func##l(long double x) \
-{ \
-	long ret; \
-	__asm__ ( \
-	"	fldt	%1\n" \
-	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
-	: "=a" (ret) \
-	: "m" (x) \
-	); \
-	return ret; \
-}
-# define long_long_WRAPPER1(func) \
-long long func##l(long double x) \
-{ \
-	long long ret; \
-	__asm__ ( \
-	"	fldt	%1\n" \
-	"	fstpl	%1\n" \
-	"	jmp	" __stringify(__GI_##func) "\n" \
-	: "=A" (ret) \
-	: "m" (x) \
-	); \
-	return ret; \
-}
-#endif /* __i386__ && __OPTIMIZE__ */
-
-#if defined __NO_LONG_DOUBLE_MATH
-# define int_WRAPPER_C99(func) /* not needed */
-# else
-# define int_WRAPPER_C99(func) \
-int func##l(long double x) \
-{ \
-    return func((double) x); \
-} \
-libm_hidden_def(func##l)
-#endif
 
 /* Implement the following, as defined by SuSv3 */
 #if 0
@@ -205,10 +120,7 @@ WRAPPER1(asin)
 #endif
 
 #ifdef L_atan2l
-long double atan2l (long double x, long double y)
-{
-	return (long double) atan2( (double)x, (double)y );
-}
+WRAPPER2(atan2)
 #endif
 
 #ifdef L_atanhl
@@ -235,10 +147,7 @@ WRAPPER1(ceil)
 #endif
 
 #ifdef L_copysignl
-long double copysignl (long double x, long double y)
-{
-	return (long double) copysign( (double)x, (double)y );
-}
+WRAPPER2(copysign)
 #endif
 
 #ifdef L_coshl
@@ -274,10 +183,7 @@ WRAPPER1(fabs)
 #endif
 
 #ifdef L_fdiml
-long double fdiml (long double x, long double y)
-{
-	return (long double) fdim( (double)x, (double)y );
-}
+WRAPPER2(fdim)
 #endif
 
 #ifdef L_floorl
@@ -292,24 +198,15 @@ long double fmal (long double x, long double y, long double z)
 #endif
 
 #ifdef L_fmaxl
-long double fmaxl (long double x, long double y)
-{
-	return (long double) fmax( (double)x, (double)y );
-}
+WRAPPER2(fmax)
 #endif
 
 #ifdef L_fminl
-long double fminl (long double x, long double y)
-{
-	return (long double) fmin( (double)x, (double)y );
-}
+WRAPPER2(fmin)
 #endif
 
 #ifdef L_fmodl
-long double fmodl (long double x, long double y)
-{
-	return (long double) fmod( (double)x, (double)y );
-}
+WRAPPER2(fmod)
 #endif
 
 #ifdef L_frexpl
@@ -320,19 +217,11 @@ long double frexpl (long double x, int *ex)
 #endif
 
 #ifdef L_gammal
-/* WRAPPER1(gamma) won't work, tries to call __GI_xxx,
- * and gamma() hasn't got one. */
-long double gammal(long double x)
-{
-	return (long double) gamma((double) x);
-}
+WRAPPER1(gamma)
 #endif
 
 #ifdef L_hypotl
-long double hypotl (long double x, long double y)
-{
-	return (long double) hypot( (double)x, (double)y );
-}
+WRAPPER2(hypot)
 #endif
 
 #ifdef L_ilogbl
@@ -367,11 +256,7 @@ WRAPPER1(log1p)
 #endif
 
 #ifdef L_log2l
-/* WRAPPER1(log2) won't work */
-long double log2l(long double x)
-{
-	return (long double) log2((double)x);
-}
+WRAPPER1(log2)
 #endif
 
 #ifdef L_logbl
@@ -405,33 +290,21 @@ WRAPPER1(nearbyint)
 #endif
 
 #ifdef L_nextafterl
-long double nextafterl (long double x, long double y)
-{
-	return (long double) nextafter( (double)x, (double)y );
-}
+WRAPPER2(nextafter)
 #endif
 
 /* Disabled in Makefile.in */
 #if 0 /* def L_nexttowardl */
-long double nexttowardl (long double x, long double y)
-{
-	return (long double) nexttoward( (double)x, (double)y );
-}
+WRAPPER2(nexttoward)
 libm_hidden_def(nexttowardl)
 #endif
 
 #ifdef L_powl
-long double powl (long double x, long double y)
-{
-	return (long double) pow( (double)x, (double)y );
-}
+WRAPPER2(pow)
 #endif
 
 #ifdef L_remainderl
-long double remainderl (long double x, long double y)
-{
-	return (long double) remainder( (double)x, (double)y );
-}
+WRAPPER2(remainder)
 #endif
 
 #ifdef L_remquol
@@ -494,34 +367,34 @@ WRAPPER1(trunc)
 #endif
 
 #ifdef L_significandl
-/* WRAPPER1(significand) won't work, tries to call __GI_xxx,
- * and significand() hasn't got one. */
-long double significandl(long double x)
-{
-	return (long double) significand((double) x);
-}
+WRAPPER1(significand)
 #endif
 
-#ifdef __DO_C99_MATH__
+#if defined __DO_C99_MATH__ && !defined __NO_LONG_DOUBLE_MATH
 
-#ifdef L___fpclassifyl
-int_WRAPPER_C99(__fpclassify)
-#endif
+# ifdef L___fpclassifyl
+int_WRAPPER1(__fpclassify)
+libm_hidden_def(__fpclassifyl)
+# endif
 
-#ifdef L___finitel
-int_WRAPPER_C99(__finite)
-#endif
+# ifdef L___finitel
+int_WRAPPER1(__finite)
+libm_hidden_def(__finitel)
+# endif
 
-#ifdef L___signbitl
-int_WRAPPER_C99(__signbit)
-#endif
+# ifdef L___signbitl
+int_WRAPPER1(__signbit)
+libm_hidden_def(__signbitl)
+# endif
 
-#ifdef L___isnanl
-int_WRAPPER_C99(__isnan)
-#endif
+# ifdef L___isnanl
+int_WRAPPER1(__isnan)
+libm_hidden_def(__isnanl)
+# endif
 
-#ifdef L___isinfl
-int_WRAPPER_C99(__isinf)
-#endif
+# ifdef L___isinfl
+int_WRAPPER1(__isinf)
+libm_hidden_def(__isinfl)
+# endif
 
 #endif

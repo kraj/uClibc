@@ -53,10 +53,6 @@ typedef struct {
 #if !defined _SIGSET_H_fns && defined _SIGNAL_H
 # define _SIGSET_H_fns 1
 
-# ifndef _EXTERN_INLINE
-#  define _EXTERN_INLINE extern __inline
-# endif
-
 /* Return a mask that includes the bit for SIG only.  */
 /* Unsigned cast ensures shift/mask insns are used.  */
 # define __sigmask(sig) \
@@ -156,20 +152,30 @@ typedef struct {
 /* These functions needn't check for a bogus signal number -- error
    checking is done in the non __ versions.  */
 
+# if !defined __USE_EXTERN_INLINES || defined __PROVIDE_OUT_OF_LINE_SIGSETFN
 extern int __sigismember (__const __sigset_t *, int);
 libc_hidden_proto(__sigismember)
 extern int __sigaddset (__sigset_t *, int);
 libc_hidden_proto(__sigaddset)
 extern int __sigdelset (__sigset_t *, int);
 libc_hidden_proto(__sigdelset)
+# endif
 
 # ifdef __USE_EXTERN_INLINES
+#  undef _EXTERN_INLINE
+#  ifdef __PROVIDE_OUT_OF_LINE_SIGSETFN
+#   define _EXTERN_INLINE
+#  else /* normal case */
+    /* dropped extern below: otherwise every module with __USE_EXTERN_INLINES
+     * will have its own copy of out-of line function emitted. */
+#   define _EXTERN_INLINE /*extern*/ __always_inline
+#  endif
 #  define __SIGSETFN(NAME, BODY, CONST)					\
 _EXTERN_INLINE int							\
 NAME (CONST __sigset_t *__set, int __sig)				\
 {									\
 	unsigned long __mask = __sigmask (__sig);			\
-	unsigned long __word = __sigword (__sig);			\
+	unsigned __word = __sigword (__sig);				\
 	return BODY;							\
 }
 
@@ -180,5 +186,38 @@ __SIGSETFN (__sigdelset, ((__set->__val[__word] &= ~__mask), 0), )
 #  undef __SIGSETFN
 # endif
 
+# ifdef _LIBC
+/* It's far too much PITA to __USE_EXTERN_INLINES from within libc.
+ * Especially since we want to inline only calls with const sig,
+ * but __USE_EXTERN_INLINES will inline all calls!
+ */
+static __always_inline unsigned long
+const_sigismember(const __sigset_t *set, int sig)
+{
+	unsigned long mask = __sigmask(sig);
+	unsigned word = __sigword(sig);
+	return (set->__val[word] & mask);
+}
+#  define __sigismember(set, sig) \
+	(__builtin_constant_p(sig) ? (const_sigismember(set, sig) != 0) : __sigismember(set, sig))
+static __always_inline void
+const_sigaddset(__sigset_t *set, int sig)
+{
+	unsigned long mask = __sigmask(sig);
+	unsigned word = __sigword(sig);
+	set->__val[word] |= mask;
+}
+#  define __sigaddset(set, sig) \
+	(__builtin_constant_p(sig) ? (const_sigaddset(set, sig), 0)  : __sigaddset(set, sig))
+static __always_inline void
+const_sigdelset(__sigset_t *set, int sig)
+{
+	unsigned long mask = __sigmask(sig);
+	unsigned word = __sigword(sig);
+	set->__val[word] &= ~mask;
+}
+#  define __sigdelset(set, sig) \
+	(__builtin_constant_p(sig) ? (const_sigdelset(set, sig), 0) : __sigdelset(set, sig))
+# endif
 
 #endif /* ! _SIGSET_H_fns.  */

@@ -26,17 +26,17 @@
    FUNC(function): converts general function name (like cos) to
    name with correct suffix (e.g. cosl or cosf)
    MATHCONST(x):   like FUNC but for constants (e.g convert 0.0 to 0.0L)
-   FLOAT:	   floating point type to test
-   - TEST_MSG:	   informal message to be displayed
+   FLOAT:          floating point type to test
+   - TEST_MSG:     informal message to be displayed
    CHOOSE(Clongdouble,Cdouble,Cfloat,Cinlinelongdouble,Cinlinedouble,Cinlinefloat):
    chooses one of the parameters as delta for testing
    equality
-   PRINTF_EXPR	   Floating point conversion specification to print a variable
+   PRINTF_EXPR     Floating point conversion specification to print a variable
    of type FLOAT with printf.  PRINTF_EXPR just contains
    the specifier, not the percent and width arguments,
    e.g. "f".
    PRINTF_XEXPR	   Like PRINTF_EXPR, but print in hexadecimal format.
-   PRINTF_NEXPR Like PRINTF_EXPR, but print nice.  */
+   PRINTF_NEXPR    Like PRINTF_EXPR, but print nice.  */
 
 /* This testsuite has currently tests for:
    acos, acosh, asin, asinh, atan, atan2, atanh,
@@ -3003,6 +3003,7 @@ isnormal_test (void)
   END (isnormal);
 }
 
+#if defined __DO_XSI_MATH__
 static void
 j0_test (void)
 {
@@ -3149,6 +3150,7 @@ jn_test (void)
 
   END (jn);
 }
+#endif /* __DO_XSI_MATH__ */
 
 
 static void
@@ -4517,7 +4519,8 @@ tanh_test (void)
   START (tanh);
 
   TEST_f_f (tanh, 0, 0);
-  TEST_f_f (tanh, minus_zero, minus_zero);
+  /* vda: uclibc: added IGNORE_ZERO_INF_SIGN to treat -0 as ok */
+  TEST_f_f (tanh, minus_zero, minus_zero, IGNORE_ZERO_INF_SIGN);
 
 #ifndef TEST_INLINE
   TEST_f_f (tanh, plus_infty, 1);
@@ -4649,6 +4652,7 @@ trunc_test (void)
 }
 #endif
 
+#if defined __DO_XSI_MATH__
 static void
 y0_test (void)
 {
@@ -4791,6 +4795,7 @@ yn_test (void)
   END (yn);
 
 }
+#endif /* __DO_XSI_MATH__ */
 
 
 static void
@@ -5068,14 +5073,14 @@ main (int argc, char **argv)
 #endif
 
   /* Bessel functions:  */
-#if 0
+#if defined __DO_XSI_MATH__
   j0_test ();
   j1_test ();
   jn_test ();
   y0_test ();
   y1_test ();
   yn_test ();
-#endif
+#endif /* __DO_XSI_MATH__ */
 
   if (output_ulps)
     fclose (ulps_file);

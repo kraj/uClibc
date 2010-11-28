@@ -1,9 +1,11 @@
 # uClibc math tests
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
-TESTS := basic-test rint signgam tst-definitions test-fpucw test-float test-ifloat test-double test-idouble
+TESTS := basic-test tst-definitions test-fpucw test-float test-ifloat test-double test-idouble \
+    rint signgam ilogb
+# gamma (removed from TESTS, need to add "small errors are ok" machinery there)
 ifeq ($(UCLIBC_HAS_LONG_DOUBLE_MATH),y)
-TESTS += test-ldouble test-ildoubl compile_test
+TESTS += test-ldouble test-ildoubl compile_test c99_test
 else
 CFLAGS_basic-test := -DNO_LONG_DOUBLE
 endif
@@ -20,9 +22,10 @@ EXTRA_CFLAGS    := -fno-builtin
 EXTRA_LDFLAGS   := -lm
 
 PERL := /usr/bin/perl
-ulps-file := $(firstword $(wildcard $(config-sysdirs:%=$(..)%/libm-test-ulps)))
-libm-test.c: $(ulps-file) libm-test.inc gen-libm-test.pl
-	$(Q)$(PERL) ./gen-libm-test.pl -u $< ./libm-test.inc -o "." 2>&1 > /dev/null
-EXTRA_CLEAN := libm-test.c libm-test-ulps.h
-TARGETS=libm-test.c
 
+$(TESTS): libm-test.c
+
+libm-test.c: libm-test-ulps-$(TARGET_ARCH) libm-test.inc gen-libm-test.pl
+	$(Q)$(PERL) ./gen-libm-test.pl -u libm-test-ulps-$(TARGET_ARCH) ./libm-test.inc -o "." 2>&1 > /dev/null
+
+EXTRA_CLEAN := libm-test.c libm-test-ulps.h

@@ -27,9 +27,11 @@ aliases: case sensitive optional space or tab separated list of other names
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
-#define	MAXALIASES	35
-#define BUFSZ		(80) /* one line */
-#define SBUFSIZE	(BUFSZ + 1 + (sizeof(char *) * MAXALIASES))
+#define MINTOKENS	2
+#define	MAXALIASES	8 /* will probably never be more than one */
+#define MAXTOKENS	(MINTOKENS + MAXALIASES + 1)
+#define BUFSZ		(255) /* one line */
+#define SBUFSIZE	(BUFSZ + 1 + (sizeof(char *) * MAXTOKENS))
 
 static parser_t *protop = NULL;
 static struct protoent protoe;
@@ -63,10 +65,8 @@ libc_hidden_def(endprotoent)
 int getprotoent_r(struct protoent *result_buf,
 				 char *buf, size_t buflen, struct protoent **result)
 {
-	char **alias, *cp = NULL;
-	char **proto_aliases;
 	char **tok = NULL;
-	const size_t aliaslen = sizeof(*proto_aliases) * MAXALIASES;
+	const size_t aliaslen = sizeof(char *) * MAXTOKENS;
 	int ret = ERANGE;
 
 	*result = NULL;
@@ -85,21 +85,12 @@ int getprotoent_r(struct protoent *result_buf,
 	protop->data_len = aliaslen;
 	protop->line_len = buflen - aliaslen;
 	/* <name>[[:space:]]<protonumber>[[:space:]][<aliases>] */
-	if (!config_read(protop, &tok, 3, 2, "# \t/", PARSE_NORMAL)) {
+	if (!config_read(protop, &tok, MAXTOKENS - 1, MINTOKENS, "# \t/", PARSE_NORMAL)) {
 		goto DONE;
 	}
 	result_buf->p_name = *(tok++);
 	result_buf->p_proto = atoi(*(tok++));
-	result_buf->p_aliases = alias = proto_aliases = tok;
-	cp = *alias;
-	while (cp && *cp) {
-		if (alias < &proto_aliases[MAXALIASES - 1])
-			*alias++ = cp;
-		cp = strpbrk(cp, " \t");
-		if (cp != NULL)
-			*cp++ = '\0';
-	}
-	*alias = NULL;
+	result_buf->p_aliases = tok;
 	*result = result_buf;
 	ret = 0;
  DONE:

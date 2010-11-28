@@ -13,7 +13,6 @@ libc_linux_arch_CSRC = fork.c libc-lowlevellock.c
 libc_linux_arch_SSRC = clone.S vfork.S
 
 ASFLAGS += -DUSE___THREAD
-CFLAGS += $(SSP_ALL_CFLAGS)
 
 ASFLAGS-pt-vfork.S = -DNOT_IN_libc -DIS_IN_libpthread -D_LIBC_REENTRANT
 CFLAGS-pthread_once.c = -DNOT_IN_libc -DIS_IN_libpthread

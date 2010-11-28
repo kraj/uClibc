@@ -15,8 +15,8 @@ TESTS := tst_iswalnum tst_iswalpha tst_iswcntrl          \
 	 tst_wcspbrk tst_wcsrtombs tst_wcsspn tst_wcsstr \
 	 tst_wcstod tst_wcstok tst_wcstombs tst_wcswidth \
 	 tst_wcsxfrm tst_wctob tst_wctomb tst_wctrans    \
-	 tst_wctype tst_wcwidth tst_strfmon
-
+	 tst_wctype tst_wcwidth tst_strfmon \
+	 tst2_mbrtowc
 
 # NOTE: For now disabled tst_strfmon to avoid build failure.
 TESTS_DISABLED := tst_strfmon

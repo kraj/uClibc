@@ -74,6 +74,8 @@ define exec_test
 		test -z "$$expected_ret" && export expected_ret=0 ; \
 	if ! test $$ret -eq $$expected_ret ; then \
 		echo "ret == $$ret ; expected_ret == $$expected_ret" ; \
+		echo "The output of failed test is:"; \
+		cat "$(binary_name).out"; \
 		exit 1 ; \
 	fi
 	$(SCAT) "$(binary_name).out"

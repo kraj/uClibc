@@ -360,31 +360,35 @@ strong_alias(__ieee754_lgamma, gamma)
 #endif
 
 
-/* FIXME! Looks like someone just used __ieee754_gamma_r,
- * believing it's a "true" gamma function, but it was not!
- * Our tgamma is WRONG.
- */
-
 /* double tgamma(double x)
  * Return the Gamma function of x.
  */
 double tgamma(double x)
 {
-	double y;
-	int local_signgam;
+	int sign_of_gamma;
+	int32_t hx;
+	u_int32_t lx;
 
-	y = __ieee754_lgamma_r(x, &local_signgam); // was __ieee754_gamma_r
-	if (local_signgam < 0)
-		y = -y;
-#ifndef _IEEE_LIBM
-	if (_LIB_VERSION == _IEEE_)
-		return y;
-	if (!isfinite(y) && isfinite(x)) {
-		if (floor(x) == x && x <= 0.0)
-			return __kernel_standard(x, x, 41); /* tgamma pole */
-		return __kernel_standard(x, x, 40); /* tgamma overflow */
+	/* We don't have a real gamma implementation now.  We'll use lgamma
+	   and the exp function.  But due to the required boundary
+	   conditions we must check some values separately.  */
+
+	EXTRACT_WORDS(hx, lx, x);
+
+	if (((hx & 0x7fffffff) | lx) == 0) {
+		/* Return value for x == 0 is Inf with divide by zero exception.  */
+		return 1.0 / x;
 	}
-#endif
-	return y;
+	if (hx < 0 && (u_int32_t)hx < 0xfff00000 && rint(x) == x) {
+		/* Return value for integer x < 0 is NaN with invalid exception.  */
+		return (x - x) / (x - x);
+	}
+	if ((u_int32_t)hx == 0xfff00000 && lx == 0) {
+		/* x == -Inf.  According to ISO this is NaN.  */
+		return x - x;
+	}
+
+	x = exp(lgamma_r(x, &sign_of_gamma));
+	return sign_of_gamma >= 0 ? x : -x;
 }
 libm_hidden_def(tgamma)

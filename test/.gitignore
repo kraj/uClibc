@@ -96,6 +96,7 @@ locale-mbwc/tst_wctomb
 locale-mbwc/tst_wctrans
 locale-mbwc/tst_wctype
 locale-mbwc/tst_wcwidth
+locale-mbwc/tst2_mbrtowc
 locale/show-ucs-data
 locale/tst-digits
 locale/tst-langinfo
@@ -118,6 +119,8 @@ malloc/tst-mcheck
 malloc/tst-obstack
 math/basic-test
 math/compile_test
+math/c99_test
+math/ilogb
 math/libm-test-ulps.h
 math/libm-test.c
 math/rint

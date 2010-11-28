@@ -23,6 +23,9 @@
 
 
 #include <sys/types.h>
+#ifdef __USE_GNU
+# include <bits/uio.h>
+#endif
 
 /* open/fcntl - O_SYNC is only implemented on blocks devices and on files
    located on an ext2 file system */
@@ -42,11 +45,11 @@
 #define O_ASYNC		 020000
 
 #ifdef __USE_GNU
-# define O_DIRECTORY	 040000	/* Must be a directory.	 */
-# define O_NOFOLLOW	0100000	/* Do not follow links.	 */
-# define O_DIRECT	0200000	/* Direct disk access.	*/
-# define O_NOATIME	01000000 /* Do not set atime.  */
-# define O_CLOEXEC	02000000 /* set close_on_exec */
+# define O_DIRECTORY	 0200000	/* Must be a directory.	 */
+# define O_NOFOLLOW	0400000	/* Do not follow links.	 */
+# define O_DIRECT	040000	/* Direct disk access.	*/
+# define O_NOATIME     01000000 /* Do not set atime.  */
+# define O_CLOEXEC     02000000 /* set close_on_exec */
 #endif
 
 /* For now Linux has synchronisity options for data and read operations.
@@ -58,7 +61,7 @@
 #endif
 
 #ifdef __USE_LARGEFILE64
-# define O_LARGEFILE	0400000
+# define O_LARGEFILE	0100000
 #endif
 
 /* Values for the second argument to `fcntl'.  */
@@ -96,6 +99,8 @@
 # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
 # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
 				   close-on-exit set on new fd.  */
+# define F_SETPIPE_SZ	1031	/* Set of pipe page size array */
+# define F_GETPIPE_SZ	1032	/* Get of pipe page size array */
 #endif
 
 /* For F_[GET|SET]FL.  */

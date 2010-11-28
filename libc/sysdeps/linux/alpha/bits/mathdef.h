@@ -44,12 +44,12 @@ typedef double double_t;
 /* Due to an ABI change, we need to remap the complex float symbols.  */
 #  define _Mdouble_		float
 #  define __MATHCALL(function, args) \
-    __MATHDECL (_Complex float, function, args)
+	__MATHDECL(_Complex float, function, args)
 #  define __MATHDECL(type, function, args) \
-    __MATHDECL_1(type, function##f, args, __c1_##function##f); \
-    __MATHDECL_1(type, __##function##f, args, __c1_##function##f)
+	__MATHDECL_1(type, function##f, args, __c1_##function##f); \
+	__MATHDECL_1(type, __##function##f, args, __c1_##function##f)
 #  define __MATHDECL_1(type, function, args, alias) \
-    extern type function args __asm__(#alias) __THROW
+	extern type function args __asm__(#alias) __THROW
 
 #  include <bits/cmathcalls.h>
 

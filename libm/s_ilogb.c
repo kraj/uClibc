@@ -10,9 +10,10 @@
  */
 
 /* ilogb(double x)
- * return the binary exponent of non-zero x
- * ilogb(0) = 0x80000001
- * ilogb(inf/NaN) = 0x7fffffff (no signal is raised)
+ * return the binary exponent of x
+ * ilogb(+-0) = FP_ILOGB0
+ * ilogb(+-inf) = INT_MAX
+ * ilogb(NaN) = FP_ILOGBNAN (no signal is raised)
  */
 
 #include "math.h"
@@ -22,21 +23,35 @@ int ilogb(double x)
 {
 	int32_t hx,lx,ix;
 
-	GET_HIGH_WORD(hx,x);
+	GET_HIGH_WORD(hx, x);
 	hx &= 0x7fffffff;
-	if(hx<0x00100000) {
-	    GET_LOW_WORD(lx,x);
-	    if((hx|lx)==0)
-		return 0x80000001;	/* ilogb(0) = 0x80000001 */
-	    else			/* subnormal x */
-		if(hx==0) {
-		    for (ix = -1043; lx>0; lx<<=1) ix -=1;
-		} else {
-		    for (ix = -1022,hx<<=11; hx>0; hx<<=1) ix -=1;
+
+	if (hx < 0x00100000) {
+		GET_LOW_WORD(lx, x);
+		if ((hx|lx)==0)  /* +-0, ilogb(0) = FP_ILOGB0 */
+			return FP_ILOGB0;
+		/* subnormal x */
+		ix = -1043;
+		if (hx != 0) {
+			ix = -1022;
+			lx = (hx << 11);
 		}
-	    return ix;
+		/* each leading zero mantissa bit makes exponent smaller */
+		for (; lx > 0; lx <<= 1)
+			ix--;
+		return ix;
 	}
-	else if (hx<0x7ff00000) return (hx>>20)-1023;
-	else return 0x7fffffff;
+
+	if (hx < 0x7ff00000) /* normal x */
+		return (hx>>20) - 1023;
+
+	if (FP_ILOGBNAN != (~0U >> 1)) {
+		GET_LOW_WORD(lx, x);
+		if (hx == 0x7ff00000 && lx == 0)  /* +-inf */
+			return ~0U >> 1; /* = INT_MAX */
+	}
+
+	/* NAN. ilogb(NAN) = FP_ILOGBNAN */
+	return FP_ILOGBNAN;
 }
 libm_hidden_def(ilogb)

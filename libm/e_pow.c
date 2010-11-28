@@ -21,25 +21,26 @@
  *	3. Return x**y = 2**n*exp(y'*log2)
  *
  * Special cases:
- *	1.  (anything) ** 0  is 1
- *	2.  (anything) ** 1  is itself
- *	3.  (anything) ** NAN is NAN
- *	4.  NAN ** (anything except 0) is NAN
- *	5.  +-(|x| > 1) **  +INF is +INF
- *	6.  +-(|x| > 1) **  -INF is +0
- *	7.  +-(|x| < 1) **  +INF is +0
- *	8.  +-(|x| < 1) **  -INF is +INF
- *	9.  +-1         ** +-INF is NAN
- *	10. +0 ** (+anything except 0, NAN)               is +0
- *	11. -0 ** (+anything except 0, NAN, odd integer)  is +0
- *	12. +0 ** (-anything except 0, NAN)               is +INF
- *	13. -0 ** (-anything except 0, NAN, odd integer)  is +INF
- *	14. -0 ** (odd integer) = -( +0 ** (odd integer) )
- *	15. +INF ** (+anything except 0,NAN) is +INF
- *	16. +INF ** (-anything except 0,NAN) is +0
- *	17. -INF ** (anything)  = -0 ** (-anything)
- *	18. (-anything) ** (integer) is (-1)**(integer)*(+anything**integer)
- *	19. (-anything except 0 and inf) ** (non-integer) is NAN
+ *	1.  +-1 ** anything  is 1.0
+ *	2.  +-1 ** +-INF     is 1.0
+ *	3.  (anything) ** 0  is 1
+ *	4.  (anything) ** 1  is itself
+ *	5.  (anything) ** NAN is NAN
+ *	6.  NAN ** (anything except 0) is NAN
+ *	7.  +-(|x| > 1) **  +INF is +INF
+ *	8.  +-(|x| > 1) **  -INF is +0
+ *	9.  +-(|x| < 1) **  +INF is +0
+ *	10  +-(|x| < 1) **  -INF is +INF
+ *	11. +0 ** (+anything except 0, NAN)               is +0
+ *	12. -0 ** (+anything except 0, NAN, odd integer)  is +0
+ *	13. +0 ** (-anything except 0, NAN)               is +INF
+ *	14. -0 ** (-anything except 0, NAN, odd integer)  is +INF
+ *	15. -0 ** (odd integer) = -( +0 ** (odd integer) )
+ *	16. +INF ** (+anything except 0,NAN) is +INF
+ *	17. +INF ** (-anything except 0,NAN) is +0
+ *	18. -INF ** (anything)  = -0 ** (-anything)
+ *	19. (-anything) ** (integer) is (-1)**(integer)*(+anything**integer)
+ *	20. (-anything except 0 and inf) ** (non-integer) is NAN
  *
  * Accuracy:
  *	pow(x,y) returns x**y nearly rounded. In particular
@@ -99,8 +100,14 @@ double attribute_hidden __ieee754_pow(double x, double y)
 	u_int32_t lx,ly;
 
 	EXTRACT_WORDS(hx,lx,x);
+    /* x==1: 1**y = 1 (even if y is NaN) */
+	if (hx==0x3ff00000 && lx==0) {
+		return x;
+	}
+	ix = hx&0x7fffffff;
+
 	EXTRACT_WORDS(hy,ly,y);
-	ix = hx&0x7fffffff;  iy = hy&0x7fffffff;
+	iy = hy&0x7fffffff;
 
     /* y==zero: x**0 = 1 */
 	if((iy|ly)==0) return one;
@@ -132,13 +139,13 @@ double attribute_hidden __ieee754_pow(double x, double y)
 
     /* special value of y */
 	if(ly==0) {
-	    if (iy==0x7ff00000) {	/* y is +-inf */
-	        if(((ix-0x3ff00000)|lx)==0)
-		    return  y - y;	/* inf**+-1 is NaN */
-	        else if (ix >= 0x3ff00000)/* (|x|>1)**+-inf = inf,0 */
-		    return (hy>=0)? y: zero;
-	        else			/* (|x|<1)**-,+inf = inf,0 */
-		    return (hy<0)?-y: zero;
+	    if (iy==0x7ff00000) {       /* y is +-inf */
+	        if (((ix-0x3ff00000)|lx)==0)
+		    return one;	        /* +-1**+-inf is 1 (yes, weird rule) */
+	        if (ix >= 0x3ff00000)   /* (|x|>1)**+-inf = inf,0 */
+		    return (hy>=0) ? y : zero;
+	        /* (|x|<1)**-,+inf = inf,0 */
+		return (hy<0) ? -y : zero;
 	    }
 	    if(iy==0x3ff00000) {	/* y is  +-1 */
 		if(hy<0) return one/x; else return x;
@@ -146,7 +153,7 @@ double attribute_hidden __ieee754_pow(double x, double y)
 	    if(hy==0x40000000) return x*x; /* y is  2 */
 	    if(hy==0x3fe00000) {	/* y is  0.5 */
 		if(hx>=0)	/* x >= +0 */
-		return __ieee754_sqrt(x);
+		    return __ieee754_sqrt(x);
 	    }
 	}
 

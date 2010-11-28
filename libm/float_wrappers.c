@@ -293,10 +293,9 @@ long_WRAPPER1(lround)
 float modff (float x, float *iptr)
 {
 	double y, result;
-	result = modf ( x, &y );
+	result = modf( x, &y );
 	*iptr = (float)y;
 	return (float) result;
-
 }
 #endif
 

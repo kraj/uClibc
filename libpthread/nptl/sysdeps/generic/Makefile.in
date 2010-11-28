@@ -19,8 +19,6 @@ libpthread_generic_libc_a_OBJS = $(libpthread_generic_libc_a_COBJ)
 libpthread_ld_tls_CSRC = dl-tls.c
 libpthread_ld_tls_COBJ = $(patsubst %.c,$(libpthread_generic_OUT)/%.o,$(libpthread_ld_tls_CSRC))
 
-CFLAGS-generic = $(SSP_ALL_CFLAGS)
-
 objclean-y += CLEAN_libpthread/nptl/sysdeps/generic
 
 CLEAN_libpthread/nptl/sysdeps/generic:
