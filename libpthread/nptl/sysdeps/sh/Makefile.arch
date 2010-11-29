@@ -10,4 +10,4 @@ ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc -DIS_IN_libpthread
 
 CFLAGS-pthread_spin_lock.c += -D_GNU_SOURCE
 
-
+libc_arch_a_CSRC := libc-tls.c
