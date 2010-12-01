@@ -19,9 +19,6 @@ choice
 	  This is the processor type of your CPU. This information is used for
 	  optimizing purposes.  Building for a v8 SPARC is pretty safe nowadays.
 
-	  Warning: shared library support requires v8 or better, so building for 
-	  SPARC v7 will give you only static support.
-
 config CONFIG_SPARC_V7
 	bool "SPARC v7"
 
