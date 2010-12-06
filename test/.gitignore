@@ -256,6 +256,7 @@ stdlib/test-canon
 stdlib/test-canon2
 stdlib/teston_exit
 stdlib/teststrtol
+stdlib/teststrtoq
 string/bug-strcoll1
 string/bug-strncat1
 string/bug-strpbrk1
