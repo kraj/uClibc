@@ -535,6 +535,10 @@ __condvar_w_cleanup:
 
 	movl	%esi, (%esp)
 .LcallUR:
+#ifdef __PIC__
+	call	__i686.get_pc_thunk.bx
+	addl	$_GLOBAL_OFFSET_TABLE_, %ebx
+#endif
 	call	_Unwind_Resume@PLT
 	hlt
 .LENDCODE:
@@ -569,14 +573,14 @@ __condvar_w_cleanup:
 .Lcstend:
 
 #ifdef __PIC__
-	.section .gnu.linkonce.t.__i686.get_pc_thunk.cx,"ax",@progbits
-	.globl	__i686.get_pc_thunk.cx
-	.hidden	__i686.get_pc_thunk.cx
-	.type	__i686.get_pc_thunk.cx,@function
-__i686.get_pc_thunk.cx:
-	movl (%esp), %ecx;
+	.section .gnu.linkonce.t.__i686.get_pc_thunk.bx,"ax",@progbits
+	.globl	__i686.get_pc_thunk.bx
+	.hidden	__i686.get_pc_thunk.bx
+	.type	__i686.get_pc_thunk.bx,@function
+__i686.get_pc_thunk.bx:
+	movl (%esp), %ebx;
 	ret
-	.size	__i686.get_pc_thunk.cx,.-__i686.get_pc_thunk.cx
+	.size	__i686.get_pc_thunk.bx,.-__i686.get_pc_thunk.bx
 #endif
 
 #ifdef SHARED

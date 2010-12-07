@@ -648,6 +648,10 @@ __condvar_tw_cleanup:
 
 	movl	%esi, (%esp)
 .LcallUR:
+#ifdef __PIC__
+	call	__i686.get_pc_thunk.bx
+	addl	$_GLOBAL_OFFSET_TABLE_, %ebx
+#endif
 	call	_Unwind_Resume@PLT
 	hlt
 .LENDCODE:
