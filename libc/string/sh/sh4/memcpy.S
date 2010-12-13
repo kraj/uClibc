@@ -497,6 +497,12 @@ ENTRY(memcpy)
 	mov	r5, r6
 	add	#-0x80, r6	! prefetch head
 
+	! store FPU (in single precision mode, do not check R15 align).
+	fmov	fr12, @-r15
+	fmov	fr13, @-r15
+	fmov	fr14, @-r15
+	fmov	fr15, @-r15
+
 	FPU_SET_PAIRED_PREC
 
 	mov	#4, r0
@@ -553,15 +559,21 @@ ENTRY(memcpy)
 	bt/s	67b
 	 pref	@r6
 
+	RESTORE_FPSCR
+
+	! Restore FPU callee save registers
+	fmov	@r15+, fr15
+	fmov	@r15+, fr14
+	fmov	@r15+, fr13
+	fmov	@r15+, fr12
+
 	! Other cache lines could be copied: so use the FPU in single paired
 	! precision without prefetching. No check for alignment is necessary.
 
 	mov	#1, r0
 	cmp/ge	r0, r3
-	bt/s	4f
+	bt/s	3f
 	 add	#0x60, r5
-
-	RESTORE_FPSCR
 
 	bra	5f
 	 nop
