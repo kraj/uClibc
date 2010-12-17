@@ -291,7 +291,14 @@ endif
 install_headers: headers $(top_builddir)extra/scripts/unifdef | $(PREFIX)$(DEVEL_PREFIX)include
 	@$(call disp_install,"include -> $(PREFIX)$(DEVEL_PREFIX)include")
 	$(Q)top_builddir=$(top_builddir) \
-	$(top_srcdir)extra/scripts/install_headers.sh include $(PREFIX)$(DEVEL_PREFIX)include
+	$(top_srcdir)extra/scripts/install_headers.sh \
+	include $(PREFIX)$(DEVEL_PREFIX)include
+ifneq ($(O),) # only run this step in O is set i.e. make O=/my/builddir/ ..
+	@$(call disp_install,"$(top_builddir)/include -> $(PREFIX)$(DEVEL_PREFIX)include")
+	$(Q)top_builddir=$(top_builddir) \
+	$(top_srcdir)extra/scripts/install_headers.sh \
+	$(top_builddir)/include $(PREFIX)$(DEVEL_PREFIX)include
+endif
 	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -r $(HEADERS_RM-)
 ifeq ($(UCLIBC_HAS_WCHAR),)
 	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && mv -f wchar-stub.h wchar.h
