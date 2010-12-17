@@ -44,9 +44,15 @@ libm_ARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)
 libm_ARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)
 endif
 
+ifneq ($(TARGET_SUBARCH),)
+libm_SUBARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)/$(TARGET_SUBARCH)
+libm_SUBARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)/$(TARGET_SUBARCH)
+endif
+
 ifeq ($(UCLIBC_HAS_FPU),y)
 ifeq ($(DO_C99_MATH),y)
 -include $(libm_ARCH_DIR)/Makefile.arch
+-include $(libm_SUBARCH_DIR)/Makefile.arch
 endif
 endif
 
@@ -223,6 +229,7 @@ ifeq ($(TARGET_ARCH)-$(CONFIG_E500),powerpc-y)
 CFLAGS-libm/$(TARGET_ARCH)/e500/ := $(CFLAGS-libm)
 else
 CFLAGS-libm/$(TARGET_ARCH)/ := $(CFLAGS-libm)
+CFLAGS-libm/$(TARGET_ARCH)/$(TARGET_SUBARCH)/ := $(CFLAGS-libm)
 endif
 
 # remove generic sources, if arch specific version is present

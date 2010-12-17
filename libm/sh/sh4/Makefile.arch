@@ -1,13 +1,14 @@
 # Makefile for uClibc
 #
-# Copyright (c) 2007  STMicroelectronics Ltd
+# Copyright (c) 2007, 2010  STMicroelectronics Ltd
 #
+# Author(s): Carmelo Amoroso <carmelo.amoroso@st.com>
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
 ifeq ($(UCLIBC_HAS_FENV),y)
-libm_ARCH_SRC:=$(wildcard $(libm_ARCH_DIR)/*.c)
-libm_ARCH_OBJ:=$(patsubst $(libm_ARCH_DIR)/%.c,$(libm_ARCH_OUT)/%.o,$(libm_ARCH_SRC))
+libm_ARCH_SRC:=$(wildcard $(libm_SUBARCH_DIR)/*.c)
+libm_ARCH_OBJ:=$(patsubst $(libm_SUBARCH_DIR)/%.c,$(libm_SUBARCH_OUT)/%.o,$(libm_ARCH_SRC))
 endif
 
 libm_ARCH_OBJS:=$(libm_ARCH_OBJ)
