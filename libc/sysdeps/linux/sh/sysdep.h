@@ -26,6 +26,7 @@
 
 /* Syntactic details of assembler.  */
 
+#define LOCAL(X)	.L_##X
 #define ALIGNARG(log2) log2
 /* For ELF we need the `.type' directive to make shared libs work right.  */
 #define ASM_TYPE_DIRECTIVE(name,typearg) .type name,@##typearg;
