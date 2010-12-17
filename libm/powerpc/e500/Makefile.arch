@@ -5,5 +5,6 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+libm_ARCH_fpu_DIR := $(libm_SUBARCH_DIR)/fpu
 -include $(libm_ARCH_fpu_DIR)/Makefile.arch
 
