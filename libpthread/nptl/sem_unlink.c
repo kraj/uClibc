@@ -33,7 +33,7 @@ sem_unlink (
   size_t namelen;
 
   /* Determine where the shmfs is mounted.  */
-  __pthread_once (&__namedsem_once, __where_is_shmfs);
+  INTUSE(__pthread_once) (&__namedsem_once, __where_is_shmfs);
 
   /* If we don't know the mount points there is nothing we can do.  Ever.  */
   if (mountpoint.dir == NULL)
