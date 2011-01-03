@@ -95,6 +95,10 @@ $(patsubst %,$(libpthread_pthread_OUT)/pt-%.oS,$(pthread-lc-fwd)): $(libpthread_
 	$(compile.c)
 $(patsubst %,$(libpthread_pthread_OUT)/pt-%.o,$(pthread-lc-fwd)): $(libpthread_pthread_OUT)/pt-%.o: $(libpthread_pthread_OUT)/pt-%.c
 	$(compile.c)
+ifeq ($(DOPIC),y)
+$(patsubst %,$(libpthread_pthread_OUT)/pt-%.os,$(pthread-lc-fwd)): $(libpthread_pthread_OUT)/pt-%.os: $(libpthread_pthread_OUT)/pt-%.c
+	$(compile.c)
+endif
 
 objclean-y += CLEAN_libpthread/nptl/sysdeps/pthread
 

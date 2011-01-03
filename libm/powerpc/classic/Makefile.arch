@@ -5,8 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-libm_ARCH_SRC:=$(wildcard $(libm_ARCH_DIR)/*.c)
-libm_ARCH_OBJ:=$(patsubst $(libm_ARCH_DIR)/%.c,$(libm_ARCH_OUT)/%.o,$(libm_ARCH_SRC))
+libm_ARCH_SRC:=$(wildcard $(libm_SUBARCH_DIR)/*.c)
+libm_ARCH_OBJ:=$(patsubst $(libm_SUBARCH_DIR)/%.c,$(libm_SUBARCH_OUT)/%.o,$(libm_ARCH_SRC))
 
 libm_ARCH_OBJS:=$(libm_ARCH_OBJ)
 

@@ -34,19 +34,18 @@ libm_FULL_NAME := libm-$(VERSION).so
 libm_DIR:=$(top_srcdir)libm
 libm_OUT:=$(top_builddir)libm
 
-# Fix builds for powerpc as there are different cores in this 
-# section now.`
-ifeq ($(TARGET_ARCH)-$(CONFIG_E500),powerpc-y)
-libm_ARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)/e500
-libm_ARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)/e500
-else
 libm_ARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)
 libm_ARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)
+
+ifneq ($(TARGET_SUBARCH),)
+libm_SUBARCH_DIR:=$(libm_DIR)/$(TARGET_ARCH)/$(TARGET_SUBARCH)
+libm_SUBARCH_OUT:=$(libm_OUT)/$(TARGET_ARCH)/$(TARGET_SUBARCH)
 endif
 
 ifeq ($(UCLIBC_HAS_FPU),y)
 ifeq ($(DO_C99_MATH),y)
 -include $(libm_ARCH_DIR)/Makefile.arch
+-include $(libm_SUBARCH_DIR)/Makefile.arch
 endif
 endif
 
@@ -219,11 +218,8 @@ endif
 ifeq ($(UCLIBC_HAS_FPU),y)
 ifeq ($(DO_C99_MATH),y)
 ifneq ($(strip $(libm_ARCH_OBJS)),)
-ifeq ($(TARGET_ARCH)-$(CONFIG_E500),powerpc-y)
-CFLAGS-libm/$(TARGET_ARCH)/e500/ := $(CFLAGS-libm)
-else
 CFLAGS-libm/$(TARGET_ARCH)/ := $(CFLAGS-libm)
-endif
+CFLAGS-libm/$(TARGET_ARCH)/$(TARGET_SUBARCH)/ := $(CFLAGS-libm)
 
 # remove generic sources, if arch specific version is present
 ifneq ($(strip $(libm_ARCH_SRC)),)

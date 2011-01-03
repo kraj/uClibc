@@ -20,7 +20,9 @@
 #ifndef _FPU_CONTROL_H
 #define _FPU_CONTROL_H
 
-#warning This file is only correct for sh4
+#ifndef __SH4__
+#error This file is only correct for sh4
+#endif
 
 /* masking of interrupts */
 #define _FPU_MASK_VM	0x0800	/* Invalid operation */

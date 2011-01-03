@@ -23,7 +23,7 @@ export KCONFIG_CONFIG
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 
-all: pregen libs
+all: headers pregen libs
 libs: pregen
 
 # In this section, we need .config
@@ -260,6 +260,7 @@ HEADERS_RM-$(UCLIBC_HAS_WCHAR)               += wchar.h wctype.h
 HEADERS_RM-$(UCLIBC_HAS_WORDEXP)             += wordexp.h
 HEADERS_RM-$(UCLIBC_HAS_XATTR)               += sys/xattr.h
 HEADERS_RM-$(UCLIBC_HAS_XLOCALE)             += xlocale.h
+HEADERS_RM-$(UCLIBC_HAS_LOCALE)              += bits/uClibc_ctype.h
 HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += sys/fsuid.h sys/inotify.h sys/perm.h \
 	sys/personality.h \
 	sys/prctl.h \
@@ -291,7 +292,14 @@ endif
 install_headers: headers $(top_builddir)extra/scripts/unifdef | $(PREFIX)$(DEVEL_PREFIX)include
 	@$(call disp_install,"include -> $(PREFIX)$(DEVEL_PREFIX)include")
 	$(Q)top_builddir=$(top_builddir) \
-	$(top_srcdir)extra/scripts/install_headers.sh include $(PREFIX)$(DEVEL_PREFIX)include
+	$(top_srcdir)extra/scripts/install_headers.sh \
+	include $(PREFIX)$(DEVEL_PREFIX)include
+ifneq ($(O),) # only run this step in O is set i.e. make O=/my/builddir/ ..
+	@$(call disp_install,"$(top_builddir)/include -> $(PREFIX)$(DEVEL_PREFIX)include")
+	$(Q)top_builddir=$(top_builddir) \
+	$(top_srcdir)extra/scripts/install_headers.sh \
+	$(top_builddir)/include $(PREFIX)$(DEVEL_PREFIX)include
+endif
 	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -r $(HEADERS_RM-)
 ifeq ($(UCLIBC_HAS_WCHAR),)
 	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && mv -f wchar-stub.h wchar.h
