@@ -30,13 +30,6 @@ config CONFIG_ARM_EABI
 
 endchoice
 
-config USE_BX
-	bool "Use BX in function return"
-	default y
-	depends on !CONFIG_GENERIC_ARM && !CONFIG_ARM610 && !CONFIG_ARM710
-	help
-	  Use BX instruction for THUMB aware architectures.
-
 choice
 	prompt "Target Processor Type"
 	default CONFIG_GENERIC_ARM
@@ -131,3 +124,10 @@ config CONFIG_ARM_IWMMXT
 	select ARCH_HAS_MMU
 
 endchoice
+
+config USE_BX
+	bool "Use BX in function return"
+	default y
+	depends on !CONFIG_GENERIC_ARM && !CONFIG_ARM610 && !CONFIG_ARM710
+	help
+	  Use BX instruction for THUMB aware architectures.
