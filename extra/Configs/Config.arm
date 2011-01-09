@@ -64,70 +64,95 @@ config CONFIG_ARM710
 config CONFIG_ARM7TDMI
 	bool "Arm 7TDMI"
 	select ARCH_HAS_NO_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM720T
 	bool "Arm 720T"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM920T
 	bool "Arm 920T"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM922T
 	bool "Arm 922T"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM926T
 	bool "Arm 926T"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM10T
 	bool "Arm 10T"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM1136JF_S
 	bool "Arm 1136JF-S"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM1176JZ_S
 	bool "Arm 1176JZ-S"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM1176JZF_S
 	bool "Arm 1176JZF-S"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM_CORTEX_M3
 	bool "Arm Cortex-M3"
 	select ARCH_HAS_NO_MMU
-	select USE_BX
+	select FORCE_THUMB
 
 config CONFIG_ARM_CORTEX_M1
 	bool "Arm Cortex-M1"
 	select ARCH_HAS_NO_MMU
-	select USE_BX
+	select FORCE_THUMB
 
 config CONFIG_ARM_SA110
 	bool "Intel StrongArm SA-110"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM_SA1100
 	bool "Intel StrongArm SA-1100"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM_XSCALE
 	bool "Intel Xscale"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 config CONFIG_ARM_IWMMXT
 	bool "Intel Xscale With WMMX PXA27x"
 	select ARCH_HAS_MMU
+	select HAS_THUMB
 
 endchoice
+
+config HAS_THUMB
+	bool
+
+config FORCE_THUMB
+	bool
+	select HAS_THUMB
+	select COMPILE_IN_THUMB_MODE
+	select USE_BX
+
+config COMPILE_IN_THUMB_MODE
+	bool
 
 config USE_BX
 	bool "Use BX in function return"
 	default y
-	depends on !CONFIG_GENERIC_ARM && !CONFIG_ARM610 && !CONFIG_ARM710
+	depends on HAS_THUMB
 	help
 	  Use BX instruction for THUMB aware architectures.
