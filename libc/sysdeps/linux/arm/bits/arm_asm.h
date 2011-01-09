@@ -24,5 +24,12 @@
 #define THUMB1_ONLY 1
 #endif
 
-#endif /* _ARM_ASM_H */
+#if defined(__USE_BX__)
+# if (   defined (__ARM_ARCH_2__)  || defined (__ARM_ARCH_3__) \
+      || defined (__ARM_ARCH_3M__) || defined (__ARM_ARCH_4__) \
+     )
+#  error Use of BX was requested, but is not available on the target processor.
+# endif /* ARCH level */
+#endif /* __USE_BX__ */
 
+#endif /* _ARM_ASM_H */

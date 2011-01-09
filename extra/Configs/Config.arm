@@ -33,4 +33,6 @@ config COMPILE_IN_THUMB_MODE
 config USE_BX
 	bool "Use BX in function return"
 	help
-	  Use BX instruction for THUMB aware architectures.
+	  Say 'y' to use BX to return from functions on your thumb-aware
+	  processor. Say 'y' if you need to use interworking. Say 'n' if not.
+	  It is safe to say 'y' even if you're not doing interworking.
