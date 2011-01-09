@@ -24,7 +24,12 @@ ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
 CSRC += posix_fadvise.c posix_fadvise64.c
 endif
 
-ifeq ($(CONFIG_ARM_EABI),y)
+# Is our compiler set up for EABI ?
+IS_EABI:=$(shell $(CC) $(CFLAGS) -x c - -E -dM </dev/null 2>/dev/null \
+                 |sed -r -e '/^\#[[:space:]]*define[[:space:]]+__ARM_EABI__([[:space:]]+1)?$$/!d; s/.+/y/;' \
+          )
+
+ifeq ($(IS_EABI),y)
 CSRC += aeabi_assert.c aeabi_atexit.c aeabi_errno_addr.c \
 	aeabi_localeconv.c aeabi_memclr.c aeabi_memcpy.c \
 	aeabi_memmove.c aeabi_memset.c find_exidx.c
@@ -37,7 +42,7 @@ else
 CSRC += syscall.c
 endif
 
-ifeq ($(CONFIG_ARM_EABI),y)
+ifeq ($(IS_EABI),y)
 libc-static-y += $(ARCH_OUT)/aeabi_lcsts.o $(ARCH_OUT)/aeabi_math.o \
 	$(ARCH_OUT)/aeabi_sighandlers.o
 libc-nonshared-y += $(ARCH_OUT)/aeabi_lcsts.os $(ARCH_OUT)/aeabi_math.os \
