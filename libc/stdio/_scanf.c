@@ -924,7 +924,10 @@ int attribute_hidden __psfs_parse_spec(register psfs_t *psfs)
 				goto ERROR_EINVAL;
 			}
 
-			if ((p_m_spec_chars >= CONV_c)
+			if (p_m_spec_chars == CONV_p) {
+				/* a pointer has the same size as 'long int'  */
+				psfs->dataargtype = PA_FLAG_LONG;
+			} else if ((p_m_spec_chars >= CONV_c)
 				&& (psfs->dataargtype & PA_FLAG_LONG)) {
 				p_m_spec_chars -= 3; /* lc -> C, ls -> S, l[ -> ?? */
 			}
