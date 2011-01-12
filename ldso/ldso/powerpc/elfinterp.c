@@ -187,7 +187,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 {
 	int reloc_type;
 	int symtab_index;
-	ElfW(Sym) *sym;
+	struct symbol_ref sym_ref;
 	Elf32_Addr *reloc_addr;
 	Elf32_Addr finaladdr;
 	struct elf_resolve *tls_tpnt = NULL;
@@ -201,21 +201,23 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	reloc_addr   = (Elf32_Addr *)(intptr_t) (symbol_addr + (unsigned long) rpnt->r_offset);
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
-	sym          = &symtab[symtab_index];
-	symname      = strtab + sym->st_name;
+	sym_ref.sym  = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
+	symname      = strtab + sym_ref.sym->st_name;
 	if (symtab_index) {
 		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, tpnt,
-							    elf_machine_type_class(reloc_type), &tls_tpnt);
+							    elf_machine_type_class(reloc_type),  &sym_ref);
 		/* We want to allow undefined references to weak symbols - this might
 		 * have been intentional.  We should not be linking local symbols
 		 * here, so all bases should be covered.
 		 */
 		if (unlikely(!symbol_addr
-			&& (ELF32_ST_TYPE(sym->st_info) != STT_TLS
-				&& ELF32_ST_BIND(sym->st_info) != STB_WEAK)))
+			&& (ELF32_ST_TYPE(sym_ref.sym->st_info) != STT_TLS
+				&& ELF32_ST_BIND(sym_ref.sym->st_info) != STB_WEAK)))
 			return 1;
+		tls_tpnt = sym_ref.tpnt;
 	} else {
-		symbol_addr = sym->st_value;
+		symbol_addr = sym_ref.sym->st_value;
 		tls_tpnt = tpnt;
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -265,10 +267,10 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 #if defined (__SUPPORT_LD_DEBUG__)
 		if (_dl_debug_move)
 			_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
-				    symname, sym->st_size,
+				    symname, sym_ref.sym->st_size,
 				    symbol_addr, reloc_addr);
 #endif
-		_dl_memcpy((char *) reloc_addr, (char *) finaladdr, sym->st_size);
+		_dl_memcpy((char *) reloc_addr, (char *) finaladdr, sym_ref.sym->st_size);
 		goto out_nocode; /* No code code modified */
 	case R_PPC_ADDR16_HA:
 		finaladdr += 0x8000; /* fall through. */

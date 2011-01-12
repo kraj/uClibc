@@ -146,7 +146,7 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	int reloc_type;
 	int symtab_index;
 	char *symname;
-	Elf32_Sym *sym;
+	struct symbol_ref sym_ref;
 	Elf32_Addr *reloc_addr;
 	Elf32_Addr symbol_addr;
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -156,14 +156,15 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	reloc_addr = (Elf32_Addr *) (tpnt->loadaddr + rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE (rpnt->r_info);
 	symtab_index = ELF32_R_SYM (rpnt->r_info);
-	sym = &symtab[symtab_index];
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
 	symbol_addr = 0;
-	symname = strtab + sym->st_name;
+	symname = strtab + sym_ref.sym->st_name;
 
 	if (symtab_index) {
 		symbol_addr = (Elf32_Addr)
 			_dl_find_hash (symname, scope, tpnt,
-						   elf_machine_type_class (reloc_type), NULL);
+						   elf_machine_type_class (reloc_type), &sym_ref);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -171,7 +172,7 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 		 * here, so all bases should be covered.
 		 */
 		if (unlikely (!symbol_addr &&
-					  ELF32_ST_BIND (sym->st_info) != STB_WEAK)) {
+					  ELF32_ST_BIND (sym_ref.sym->st_info) != STB_WEAK)) {
 			_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
 						 _dl_progname, symname);
 			_dl_exit (1);

@@ -189,6 +189,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	unsigned long *reloc_addr;
 	unsigned long symbol_addr;
 	const Elf32_Sym *def = 0;
+	struct symbol_ref sym_ref;
 	struct elf_resolve *def_mod = 0;
 	int goof = 0;
 
@@ -197,10 +198,12 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
 
 	if (symtab_index) {
 		symbol_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name,
-			scope, tpnt, elf_machine_type_class(reloc_type), &def_mod);
+			scope, tpnt, elf_machine_type_class(reloc_type), &sym_ref);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -213,6 +216,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			return 1;
 
 		}
+		def_mod = sym_ref.tpnt;
 	} else {
 		/*
 		 * Relocs against STN_UNDEF are usually treated as using a

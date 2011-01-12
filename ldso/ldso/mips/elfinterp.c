@@ -212,23 +212,27 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 		case R_MIPS_TLS_TPREL32:
 # endif
 			{
-				struct elf_resolve *tpnt_tls = NULL;
+				struct elf_resolve *tls_tpnt = NULL;
+				struct symbol_ref sym_ref;
+				sym_ref.sym =  &symtab[symtab_index];
+				sym_ref.tpnt =  NULL;
 
 				if (ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_LOCAL) {
 					symbol_addr = (unsigned long) _dl_find_hash(symname, tpnt->symbol_scope,
-						tpnt, elf_machine_type_class(reloc_type), &tpnt_tls);
+						tpnt, elf_machine_type_class(reloc_type), &sym_ref);
+					tls_tpnt = sym_ref.tpnt;
 				}
-			    /* In case of a TLS reloc, tpnt_tls NULL means we have an 'anonymous'
+			    /* In case of a TLS reloc, tls_tpnt NULL means we have an 'anonymous'
 			       symbol.  This is the case for a static tls variable, so the lookup
 			       module is just that one is referencing the tls variable. */
-			    if (!tpnt_tls)
-			        tpnt_tls = tpnt;
+			    if (!tls_tpnt)
+			        tls_tpnt = tpnt;
 
 				switch (reloc_type) {
 					case R_MIPS_TLS_DTPMOD64:
 					case R_MIPS_TLS_DTPMOD32:
-						if (tpnt_tls)
-							*(ElfW(Word) *)reloc_addr = tpnt_tls->l_tls_modid;
+						if (tls_tpnt)
+							*(ElfW(Word) *)reloc_addr = tls_tpnt->l_tls_modid;
 #ifdef __SUPPORT_LD_DEBUG__
 						_dl_dprintf(2, "TLS_DTPMOD : %s, %d, %d\n",
 							symname, old_val, *((unsigned int *)reloc_addr));
@@ -247,9 +251,9 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 
 					case R_MIPS_TLS_TPREL32:
 					case R_MIPS_TLS_TPREL64:
-						CHECK_STATIC_TLS((struct link_map *)tpnt_tls);
+						CHECK_STATIC_TLS((struct link_map *)tls_tpnt);
 						*(ElfW(Word) *)reloc_addr +=
-							TLS_TPREL_VALUE (tpnt_tls, symbol_addr);
+							TLS_TPREL_VALUE (tls_tpnt, symbol_addr);
 #ifdef __SUPPORT_LD_DEBUG__
 						_dl_dprintf(2, "TLS_TPREL  : %s, %x, %x\n",
 							symname, old_val, *((unsigned int *)reloc_addr));

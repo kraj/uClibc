@@ -269,7 +269,7 @@ _dl_lookup_sysv_hash(struct elf_resolve *tpnt, ElfW(Sym) *symtab, unsigned long 
  * relocations or when we call an entry in the PLT table for the first time.
  */
 char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt,
-	int type_class, struct elf_resolve **tpntp)
+	int type_class, struct symbol_ref *sym_ref)
 {
 	struct elf_resolve *tpnt = NULL;
 	ElfW(Sym) *symtab;
@@ -283,6 +283,11 @@ char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve
 	unsigned long gnu_hash_number = _dl_gnu_hash((const unsigned char *)name);
 #endif
 
+	if ((sym_ref) && (sym_ref->sym) && (ELF32_ST_VISIBILITY(sym_ref->sym->st_other) == STV_PROTECTED)) {
+			sym = sym_ref->sym;
+		if (mytpnt)
+			tpnt = mytpnt;
+	} else
 	for (; rpnt; rpnt = rpnt->next) {
 		tpnt = rpnt->dyn;
 
@@ -337,9 +342,8 @@ char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve
 		/* At this point we have found the requested symbol, do binding */
 #if defined(USE_TLS) && USE_TLS
 		if (ELF_ST_TYPE(sym->st_info) == STT_TLS) {
-			_dl_assert(tpntp != NULL);
-			*tpntp = tpnt;
-
+			_dl_assert(sym_ref != NULL);
+			sym_ref->tpnt = tpnt;
 			return (char *)sym->st_value;
 		}
 #endif
@@ -355,8 +359,8 @@ char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve
 #endif
 			case STB_GLOBAL:
 #ifdef __FDPIC__
-				if (tpntp)
-					*tpntp = tpnt;
+			if (sym_ref)
+				sym_ref->tpnt = tpnt;
 #endif
 				return (char *)DL_FIND_HASH_VALUE(tpnt, type_class, sym);
 			default:	/* Local symbols not handled here */
@@ -364,8 +368,8 @@ char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve
 		}
 	}
 #ifdef __FDPIC__
-	if (tpntp)
-		*tpntp = tpnt;
+	if (sym_ref)
+		sym_ref->tpnt = tpnt;
 #endif
 	return weak_result;
 }

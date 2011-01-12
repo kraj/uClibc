@@ -161,16 +161,19 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 #endif
 
 	struct elf_resolve *tls_tpnt = NULL;
+	struct symbol_ref sym_ref;
 
 	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
-	symname = strtab + symtab[symtab_index].st_name;
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
 
 	if (symtab_index) {
+		symname = strtab + symtab[symtab_index].st_name;
 		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, tpnt,
-							    elf_machine_type_class(reloc_type), &tls_tpnt);
+						elf_machine_type_class(reloc_type), &sym_ref);
 		/*
 		 * We want to allow undefined references to weak symbols - this might
 		 * have been intentional.  We should not be linking local symbols
@@ -181,11 +184,12 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			&& (ELF_ST_TYPE(symtab[symtab_index].st_info) != STT_TLS)
 			&& (ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
-			            _dl_progname, strtab + symtab[symtab_index].st_name);
+			            _dl_progname, symname);
 
 			/* Let the caller to handle the error: it may be non fatal if called from dlopen */
 			return 1;
 		}
+		tls_tpnt = sym_ref.tpnt;
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)

@@ -157,7 +157,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	int reloc_type;
 	int symtab_index;
 	char *symname;
-	ElfW(Sym) *sym;
+	struct symbol_ref sym_ref;
 	ElfW(Addr) *reloc_addr;
 	ElfW(Addr) symbol_addr;
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -167,19 +167,20 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	reloc_addr = (ElfW(Addr)*)(tpnt->loadaddr + (unsigned long)rpnt->r_offset);
 	reloc_type = ELF_R_TYPE(rpnt->r_info);
 	symtab_index = ELF_R_SYM(rpnt->r_info);
-	sym = &symtab[symtab_index];
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
 	symbol_addr = 0;
-	symname = strtab + sym->st_name;
+	symname = strtab + sym_ref.sym->st_name;
 
 	if (symtab_index) {
 		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, tpnt,
-							    elf_machine_type_class(reloc_type), NULL);
+							    elf_machine_type_class(reloc_type), &sym_ref);
 		/*
 		 * We want to allow undefined references to weak symbols - this
 		 * might have been intentional.  We should not be linking local
 		 * symbols here, so all bases should be covered.
 		 */
-		if (unlikely(!symbol_addr && ELF_ST_BIND(sym->st_info) != STB_WEAK)) {
+		if (unlikely(!symbol_addr && ELF_ST_BIND(sym_ref.sym->st_info) != STB_WEAK)) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
 			_dl_exit(1);
 		}
@@ -230,12 +231,12 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 				if (_dl_debug_move)
 					_dl_dprintf(_dl_debug_file,
 						    "\t%s move %d bytes from %x to %x\n",
-						    symname, sym->st_size,
+						    symname, sym_ref.sym->st_size,
 						    symbol_addr, reloc_addr);
 #endif
 				_dl_memcpy ((void *) reloc_addr,
 				            (void *) symbol_addr,
-				            sym->st_size);
+				            sym_ref.sym->st_size);
 			} else
 				_dl_dprintf(_dl_debug_file, "no symbol_addr to copy !?\n");
 			break;

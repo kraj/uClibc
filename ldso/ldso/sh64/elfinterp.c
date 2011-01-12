@@ -173,11 +173,14 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 #ifdef __SUPPORT_LD_DEBUG__
 	unsigned long old_val;
 #endif
+	struct symbol_ref sym_ref;
 
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr  = 0;
 	lsb          = !!(symtab[symtab_index].st_other & STO_SH5_ISA32);
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
 	symname      = strtab + symtab[symtab_index].st_name;
 	reloc_addr   = (unsigned long *)(intptr_t)
 		(tpnt->loadaddr + (unsigned long)rpnt->r_offset);
@@ -186,7 +189,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 		int stb;
 
 		symbol_addr = (unsigned long)_dl_find_hash(symname, scope, tpnt,
-							   elf_machine_type_class(reloc_type), NULL);
+							   elf_machine_type_class(reloc_type), &sym_ref);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this
@@ -197,7 +200,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 		if (stb != STB_WEAK && !symbol_addr) {
 			_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
-				     _dl_progname, strtab + symtab[symtab_index].st_name);
+				     _dl_progname, symname);
 			_dl_exit (1);
 		}
 	}

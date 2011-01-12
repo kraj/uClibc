@@ -161,11 +161,14 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 #if defined (__SUPPORT_LD_DEBUG__)
 	unsigned long old_val;
 #endif
+	struct symbol_ref sym_ref;
 
 	reloc_addr = (unsigned long *)(intptr_t)(tpnt->loadaddr + (unsigned long)rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
 	symname = strtab + symtab[symtab_index].st_name;
 
 	if (symtab_index) {
@@ -174,7 +177,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			symbol_addr = (unsigned long)tpnt->loadaddr;
 		} else {
 		  symbol_addr = (unsigned long)_dl_find_hash(symname, scope, tpnt,
-								   elf_machine_type_class(reloc_type), NULL);
+								   elf_machine_type_class(reloc_type), &sym_ref);
 		}
 
 		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {

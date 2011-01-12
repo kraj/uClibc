@@ -25,6 +25,11 @@ struct dyn_elf {
   struct dyn_elf * prev;
 };
 
+struct symbol_ref {
+  const ElfW(Sym) *sym;
+  struct elf_resolve *tpnt;
+};
+
 struct elf_resolve {
   /* These entries must be in this order to be compatible with the interface used
      by gdb to obtain the list of symbols. */
@@ -137,19 +142,14 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 	DL_LOADADDR_TYPE loadaddr, unsigned long * dynamic_info,
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
-/* Only need extra arg with some configurations */
-#if !((defined(USE_TLS) && USE_TLS) || defined __FDPIC__)
-# define _dl_lookup_hash(n, r, m, c, tpntp) _dl_lookup_hash(n, r, m, c)
-# define _dl_find_hash(n, r, m, t, tpntp) _dl_find_hash(n, r, m, t)
-#endif
 extern char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt,
 		struct elf_resolve *mytpnt, int type_class,
-		struct elf_resolve **tpntp);
+		struct symbol_ref *symbol);
 static __always_inline char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
 		struct elf_resolve *mytpnt, int type_class,
-		struct elf_resolve **tpntp)
+		struct symbol_ref *symbol)
 {
-	return _dl_lookup_hash(name, rpnt, mytpnt, type_class, tpntp);
+	return _dl_lookup_hash(name, rpnt, mytpnt, type_class, symbol);
 }
 
 extern int _dl_linux_dynamic_link(void);
