@@ -268,7 +268,7 @@ _dl_lookup_sysv_hash(struct elf_resolve *tpnt, ElfW(Sym) *symtab, unsigned long 
  * This function resolves externals, and this is either called when we process
  * relocations or when we call an entry in the PLT table for the first time.
  */
-char *_dl_lookup_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt,
+char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt,
 	int type_class, struct symbol_ref *sym_ref)
 {
 	struct elf_resolve *tpnt = NULL;
