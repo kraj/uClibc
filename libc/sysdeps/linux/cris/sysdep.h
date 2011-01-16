@@ -20,6 +20,8 @@
 #ifndef _SYSDEP_H_
 #define _SYSDEP_H_
 
+#include <sys/syscall.h>
+
 #ifndef C_LABEL
 
 /* Define a macro we can use to construct the asm name for a C symbol.  */
