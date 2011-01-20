@@ -175,9 +175,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	symbol_addr = 0;
 	symname = strtab + symtab[symtab_index].st_name;
 
-	if (symtab_index &&
-	    (ELF32_ST_VISIBILITY(symtab[symtab_index].st_other)
-	     != STV_PROTECTED)) {
+	if (symtab_index) {
 		symbol_addr = (unsigned long)_dl_find_hash(symname, scope, tpnt,
 							   elf_machine_type_class(reloc_type), &tls_tpnt);
 
@@ -190,11 +188,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 					&& ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
 			return 1;
 	} else {
-		if (symtab_index)
-			symbol_addr = DL_FIND_HASH_VALUE(tpnt, elf_machine_type_class(reloc_type),
-							 &symtab[symtab_index]);
-		else
-			symbol_addr = symtab[symtab_index].st_value;
+		symbol_addr = symtab[symtab_index].st_value;
 		tls_tpnt = tpnt;
 	}
 	
