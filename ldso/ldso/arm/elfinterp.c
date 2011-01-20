@@ -198,9 +198,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
 
-	if (symtab_index &&
-			(ELF32_ST_VISIBILITY(symtab[symtab_index].st_other)
-			 != STV_PROTECTED)) {
+	if (symtab_index) {
 		symbol_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name,
 			scope, tpnt, elf_machine_type_class(reloc_type), &def_mod);
 
@@ -221,12 +219,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		 * symbol value of zero, and using the module containing the
 		 * reloc itself.
 		 */
-		if (symtab_index)
-			symbol_addr = DL_FIND_HASH_VALUE(tpnt, elf_machine_type_class(reloc_type),
-											&symtab[symtab_index]);
-		else
-			symbol_addr = symtab[symtab_index].st_value;
-
+		symbol_addr = symtab[symtab_index].st_value;
 		def_mod = tpnt;
 	}
 
