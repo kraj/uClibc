@@ -550,7 +550,7 @@ enum {
 #elif defined(LLONG_MAX) && (INTMAX_MAX == LLONG_MAX)
 #define IMS		8
 #else
-#error fix QUAL_CHARS ptrdiff_t entry 't'!
+#error fix QUAL_CHARS intmax_t entry 'j'!
 #endif
 
 #define QUAL_CHARS		{ \
