@@ -205,7 +205,7 @@ vsyslog(int pri, const char *fmt, va_list ap)
 	if ((LogMask & LOG_MASK(LOG_PRI(pri))) == 0)
 		goto getout;
 	if (LogFile < 0 || !connected)
-		openlog_intern(NULL, LogStat | LOG_NDELAY, LOG_USER);
+		openlog_intern(NULL, LogStat | LOG_NDELAY, (int)LogFacility << 3);
 
 	/* Set default facility if none specified. */
 	if ((pri & LOG_FACMASK) == 0)

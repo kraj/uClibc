@@ -380,7 +380,7 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
 	char *lpntstr;
-	unsigned int i, cnt, k, nscope_elem;
+	unsigned int i, cnt, nscope_elem;
 	int unlazy = 0, trace_loaded_objects = 0;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
@@ -1128,6 +1128,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	local_scope = _dl_malloc(nscope_elem * sizeof(struct elf_resolve *));
 	i = 1;
 	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
+		unsigned int k;
 		cnt = _dl_build_local_scope(local_scope, scope_elem_list[i++]);
 		tcurr->symbol_scope.r_list = _dl_malloc(cnt * sizeof(struct elf_resolve *));
 		tcurr->symbol_scope.r_nlist = cnt;
@@ -1312,7 +1313,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 * ld.so.1, so we have to look up each symbol individually.
 	 */
 
-	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "__environ", global_scope, NULL, NULL, 0, NULL);
+	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "__environ", global_scope, NULL, 0, NULL);
 	if (_dl_envp)
 		*_dl_envp = (unsigned long) envp;
 
@@ -1368,21 +1369,21 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 	/* Find the real malloc function and make ldso functions use that from now on */
 	_dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "malloc",
-			global_scope, NULL, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+			global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 #if defined(USE_TLS) && USE_TLS
 	/* Find the real functions and make ldso functions use them from now on */
 	_dl_calloc_function = (void* (*)(size_t, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", global_scope, NULL, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_realloc_function = (void* (*)(void *, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", global_scope, NULL, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_free_function = (void (*)(void *)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", global_scope, NULL, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_memalign_function = (void* (*)(size_t, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", global_scope, NULL, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", global_scope, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 #endif
 

@@ -23,7 +23,7 @@ export KCONFIG_CONFIG
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 
-all: headers pregen libs
+all: pregen libs
 libs: pregen
 
 # In this section, we need .config
@@ -158,11 +158,12 @@ headers_clean-y += HEADERCLEAN_common
 # libc/sysdeps/linux/Makefile.commonarch to headers-y
 headers-y += $(target-headers-sysdep)
 
-headers: $(top_builddir)include/bits/uClibc_config.h $(top_builddir)include/bits/sysnum.h | subdirs
+headers: $(top_builddir)include/bits/uClibc_config.h | subdirs
 subdirs: $(addprefix $(top_builddir),$(subdirs))
-pregen-headers: $(pregen-headers-y)
+pregen-headers: $(top_builddir)include/bits/sysnum.h $(pregen-headers-y)
 pregen: pregen-headers
 	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
+
 $(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh | $(top_builddir)include/bits
 	@$(disp_gen)
 	$(Q)set -e; \
@@ -241,7 +242,7 @@ HEADERS_RM-$(UCLIBC_HAS_GNU_ERROR)           += error.h
 HEADERS_RM-$(UCLIBC_HAS_GNU_GETOPT)$(UCLIBC_HAS_GETOPT_LONG) += getopt.h
 HEADERS_RM-$(UCLIBC_HAS_IPV6)                += netinet/ip6.h netinet/icmp6.h
 HEADERS_RM-$(UCLIBC_HAS_BACKTRACE)           += execinfo.h
-HEADERS_RM-$(UCLIBC_HAS_LOCALE)              += iconv.h
+HEADERS_RM-$(UCLIBC_HAS_LOCALE)              += iconv.h bits/uClibc_ctype.h
 HEADERS_RM-$(UCLIBC_HAS_PTY)                 += pty.h
 HEADERS_RM-$(UCLIBC_HAS_REALTIME)            += mqueue.h bits/mqueue.h sched.h \
 	bits/sched.h \
@@ -260,7 +261,6 @@ HEADERS_RM-$(UCLIBC_HAS_WCHAR)               += wchar.h wctype.h
 HEADERS_RM-$(UCLIBC_HAS_WORDEXP)             += wordexp.h
 HEADERS_RM-$(UCLIBC_HAS_XATTR)               += sys/xattr.h
 HEADERS_RM-$(UCLIBC_HAS_XLOCALE)             += xlocale.h
-HEADERS_RM-$(UCLIBC_HAS_LOCALE)              += bits/uClibc_ctype.h
 HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += sys/fsuid.h sys/inotify.h sys/perm.h \
 	sys/personality.h \
 	sys/prctl.h \
@@ -476,7 +476,7 @@ distclean: clean
 
 dist release:
 	$(RM) ../uClibc-$(VERSION).tar
-	git archive HEAD --format=tar --prefix=uClibc-$(VERSION)/ \
+	git archive --format=tar --prefix=uClibc-$(VERSION)/ HEAD \
 		> ../uClibc-$(VERSION).tar
 	cat ../uClibc-$(VERSION).tar | bzip2 -c9 > ../uClibc-$(VERSION).tar.bz2
 	cat ../uClibc-$(VERSION).tar | xz -e -c8 > ../uClibc-$(VERSION).tar.xz

@@ -109,7 +109,7 @@ static void debug_reloc(ElfW(Sym) *symtab, char *strtab, ELF_RELOC *rpnt)
 static void
 internal_function
 _dl_debug_lookup (const char *undef_name, struct elf_resolve *undef_map,
-					const ElfW(Sym) *ref, struct sym_val *value, int type_class)
+					const ElfW(Sym) *ref, struct symbol_ref *value, int type_class)
 {
 #ifdef SHARED
   unsigned long symbol_addr;
@@ -117,8 +117,7 @@ _dl_debug_lookup (const char *undef_name, struct elf_resolve *undef_map,
   if (_dl_trace_prelink)
     {
       int conflict = 0;
-	  struct elf_resolve *tls_tpnt = NULL;
-      struct sym_val val = { NULL, NULL };
+      struct symbol_ref val = { NULL, NULL };
 
       if ((_dl_trace_prelink_map == NULL
 	   || _dl_trace_prelink_map == _dl_loaded_modules)
@@ -126,14 +125,14 @@ _dl_debug_lookup (const char *undef_name, struct elf_resolve *undef_map,
 	{
 		symbol_addr = (unsigned long)
 					  _dl_find_hash(undef_name, &undef_map->symbol_scope,
-									undef_map, &val, type_class, &tls_tpnt);
+									undef_map, type_class, &val);
 
-	  if (val.s != value->s || val.m != value->m)
+	  if (val.sym != value->sym || val.tpnt != value->tpnt)
 	    conflict = 1;
 	}
 
-      if (value->s
-	  && (__builtin_expect (ELF_ST_TYPE(value->s->st_info)
+      if (value->sym
+	  && (__builtin_expect (ELF_ST_TYPE(value->sym->st_info)
 				== STT_TLS, 0)))
 	type_class = 4;
 
@@ -146,12 +145,12 @@ _dl_debug_lookup (const char *undef_name, struct elf_resolve *undef_map,
 		      conflict ? "conflict" : "lookup",
 		      (size_t) undef_map->mapaddr,
 		      (size_t) (((ElfW(Addr)) ref) - undef_map->mapaddr),
-		      (size_t) (value->m ? value->m->mapaddr : 0),
-		      (size_t) (value->s ? value->s->st_value : 0));
+		      (size_t) (value->tpnt ? value->tpnt->mapaddr : 0),
+		      (size_t) (value->sym ? value->sym->st_value : 0));
 	  if (conflict)
 	    _dl_dprintf (1, "x %x %x ",
-			(size_t) (val.m ? val.m->mapaddr : 0),
-			(size_t) (val.s ? val.s->st_value : 0));
+			(size_t) (val.tpnt ? val.tpnt->mapaddr : 0),
+			(size_t) (val.sym ? val.sym->st_value : 0));
 	  _dl_dprintf (1, "/%x %s\n", type_class, undef_name);
 	}
 }

@@ -76,7 +76,7 @@ pthread_cancel (
 	     a signal handler.  But this is no allowed, pthread_cancel
 	     is not guaranteed to be async-safe.  */
 	  int val;
-#if __ASSUME_TGKILL
+#if defined(__ASSUME_TGKILL) && __ASSUME_TGKILL
 	  val = INTERNAL_SYSCALL (tgkill, err, 3,
 				  THREAD_GETMEM (THREAD_SELF, pid), pd->tid,
 				  SIGCANCEL);

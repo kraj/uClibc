@@ -274,6 +274,8 @@ __do_cancel (void)
 #define CANCEL_RESET(oldtype) \
   __pthread_disable_asynccancel (oldtype)
 
+#define __LABEL_PREFIX__ __stringify(__USER_LABEL_PREFIX__)
+
 #if !defined NOT_IN_libc
 /* Same as CANCEL_ASYNC, but for use in libc.so.  */
 # define LIBC_CANCEL_ASYNC() \
@@ -282,22 +284,22 @@ __do_cancel (void)
 # define LIBC_CANCEL_RESET(oldtype) \
   __libc_disable_asynccancel (oldtype)
 # define LIBC_CANCEL_HANDLED() \
-  __asm__ (".globl " __USER_LABEL_PREFIX__ "__libc_enable_asynccancel"); \
-  __asm__ (".globl " __USER_LABEL_PREFIX__ "__libc_disable_asynccancel")
+  __asm__ (".globl " __LABEL_PREFIX__ "__libc_enable_asynccancel"); \
+  __asm__ (".globl " __LABEL_PREFIX__ "__libc_disable_asynccancel")
 #elif defined NOT_IN_libc && defined IS_IN_libpthread
 # define LIBC_CANCEL_ASYNC() CANCEL_ASYNC ()
 # define LIBC_CANCEL_RESET(val) CANCEL_RESET (val)
 # define LIBC_CANCEL_HANDLED() \
-  __asm__ (".globl " __USER_LABEL_PREFIX__ "__pthread_enable_asynccancel"); \
-  __asm__ (".globl " __USER_LABEL_PREFIX__ "__pthread_disable_asynccancel")
+  __asm__ (".globl " __LABEL_PREFIX__ "__pthread_enable_asynccancel"); \
+  __asm__ (".globl " __LABEL_PREFIX__ "__pthread_disable_asynccancel")
 #elif defined NOT_IN_libc && defined IS_IN_librt
 # define LIBC_CANCEL_ASYNC() \
   __librt_enable_asynccancel ()
 # define LIBC_CANCEL_RESET(val) \
   __librt_disable_asynccancel (val)
 # define LIBC_CANCEL_HANDLED() \
-  __asm__ (".globl " __USER_LABEL_PREFIX__ "__librt_enable_asynccancel"); \
-  __asm__ (".globl " __USER_LABEL_PREFIX__ "__librt_disable_asynccancel")
+  __asm__ (".globl " __LABEL_PREFIX__ "__librt_enable_asynccancel"); \
+  __asm__ (".globl " __LABEL_PREFIX__ "__librt_disable_asynccancel")
 #else
 # define LIBC_CANCEL_ASYNC()	0 /* Just a dummy value.  */
 # define LIBC_CANCEL_RESET(val)	((void)(val)) /* Nothing, but evaluate it.  */

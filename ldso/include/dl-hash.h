@@ -25,9 +25,9 @@ struct dyn_elf {
   struct dyn_elf * prev;
 };
 
-struct sym_val {
-  const ElfW(Sym) *s;
-  struct elf_resolve *m;
+struct symbol_ref {
+  const ElfW(Sym) *sym;
+  struct elf_resolve *tpnt;
 };
 
 /* Structure to describe a single list of scope elements.  The lookup
@@ -156,20 +156,9 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 	DL_LOADADDR_TYPE loadaddr, unsigned long * dynamic_info,
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
-/* Only need extra arg with some configurations */
-#if !((defined(USE_TLS) && USE_TLS) || defined __FDPIC__)
-# define _dl_lookup_hash(n, r, m, s, c, tpnt) _dl_lookup_hash(n, r, m, s, c)
-# define _dl_find_hash(n, r, m, s, t, tpntp) _dl_find_hash(n, r, m, s, t)
-#endif
-extern char *_dl_lookup_hash(const char *name, struct r_scope_elem *scope,
-		struct elf_resolve *mytpnt, struct sym_val *symbol, int type_class,
-		struct elf_resolve **tpntp);
-static __always_inline char *_dl_find_hash(const char *name, struct r_scope_elem *scope,
-		struct elf_resolve *mytpnt, struct sym_val *symbol, int type_class,
-		struct elf_resolve **tpntp)
-{
-	return _dl_lookup_hash(name, scope, mytpnt, symbol, type_class, tpntp);
-}
+extern char *_dl_find_hash(const char *name, struct r_scope_elem *scope,
+		struct elf_resolve *mytpnt, int type_class,
+		struct symbol_ref *symbol);
 
 extern int _dl_linux_dynamic_link(void);
 

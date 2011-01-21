@@ -28,7 +28,7 @@ int
 raise (
      int sig)
 {
-#if __ASSUME_TGKILL || defined __NR_tgkill
+#if (defined(__ASSUME_TGKILL) && __ASSUME_TGKILL) || defined __NR_tgkill
   /* raise is an async-safe function.  It could be called while the
      fork function temporarily invalidated the PID field.  Adjust for
      that.  */
@@ -37,7 +37,7 @@ raise (
     pid = -pid;
 #endif
 
-#if __ASSUME_TGKILL
+#if defined(__ASSUME_TGKILL) && __ASSUME_TGKILL
   return INLINE_SYSCALL (tgkill, 3, pid, THREAD_GETMEM (THREAD_SELF, tid),
 			 sig);
 #else

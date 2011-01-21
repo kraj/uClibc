@@ -50,9 +50,9 @@ unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got)
 	strtab = (char *)(tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 	symname = strtab + sym->st_name;
 
-	new_addr = (unsigned long) _dl_find_hash(strtab + sym->st_name,
+	new_addr = (unsigned long) _dl_find_hash(symname,
 						 &_dl_loaded_modules->symbol_scope, tpnt,
-						 NULL, 0, resolver);
+						 ELF_RTYPE_CLASS_PLT, NULL);
 
 	entry = (unsigned long *)(got + local_gotno + sym_index - gotsym);
 	*entry = new_addr;
@@ -127,20 +127,20 @@ static int _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 #if defined(__SUPPORT_LD_DEBUG__)
 	unsigned long old_val;
 #endif
-
-	struct sym_val current_value = { NULL, NULL };
+	struct symbol_ref sym_ref;
 
 	reloc_addr = (unsigned long *)(tpnt->loadaddr + rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
 	symname = strtab + symtab[symtab_index].st_name;
 
 	if (symtab_index) {
 		symbol_addr = (unsigned long)
-			_dl_find_hash(strtab + symtab[symtab_index].st_name,
-				      scope, tpnt, &current_value,
-				      elf_machine_type_class(reloc_type), NULL);
+			_dl_find_hash(symname, scope, tpnt,
+				      elf_machine_type_class(reloc_type), &sym_ref);
 
 		/* Allow undefined references to weak symbols */
 		if (!symbol_addr &&
@@ -151,7 +151,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		}
 		if (_dl_trace_prelink)
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
-				&current_value, elf_machine_type_class(reloc_type));
+				&sym_ref, elf_machine_type_class(reloc_type));
 	}
 
 #if defined(__SUPPORT_LD_DEBUG__)

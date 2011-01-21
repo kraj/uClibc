@@ -139,7 +139,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	/* Get the address of the GOT entry */
 	finaladdr = (Elf32_Addr) _dl_find_hash(symname,
-			&_dl_loaded_modules->symbol_scope, tpnt, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+			&_dl_loaded_modules->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!finaladdr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'.\n", _dl_progname, symname, tpnt->libname);
 		_dl_exit(1);
@@ -187,7 +187,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 {
 	int reloc_type;
 	int symtab_index;
-	ElfW(Sym) *sym;
+	struct symbol_ref sym_ref;
 	Elf32_Addr *reloc_addr;
 	Elf32_Addr finaladdr;
 	struct elf_resolve *tls_tpnt = NULL;
@@ -197,33 +197,32 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 	unsigned long old_val;
 #endif
 
-	struct sym_val current_value = { NULL, NULL };
-
 	symbol_addr  = tpnt->loadaddr; /* For R_PPC_RELATIVE */
 	reloc_addr   = (Elf32_Addr *)(intptr_t) (symbol_addr + (unsigned long) rpnt->r_offset);
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
-	sym          = &symtab[symtab_index];
-	symname      = strtab + sym->st_name;
+	sym_ref.sym  = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
+	symname      = strtab + sym_ref.sym->st_name;
 	if (symtab_index) {
 		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, tpnt,
-						&current_value, elf_machine_type_class(reloc_type), &tls_tpnt);
+							    elf_machine_type_class(reloc_type),  &sym_ref);
 		/* We want to allow undefined references to weak symbols - this might
 		 * have been intentional.  We should not be linking local symbols
 		 * here, so all bases should be covered.
 		 */
 		if (unlikely(!symbol_addr
-			&& (ELF32_ST_TYPE(sym->st_info) != STT_TLS
-				&& ELF32_ST_BIND(sym->st_info) != STB_WEAK)))
+			&& (ELF32_ST_TYPE(sym_ref.sym->st_info) != STT_TLS
+				&& ELF32_ST_BIND(sym_ref.sym->st_info) != STB_WEAK)))
 			return 1;
 		if (_dl_trace_prelink)
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
-						&current_value, elf_machine_type_class(reloc_type));
+						&sym_ref, elf_machine_type_class(reloc_type));
+		tls_tpnt = sym_ref.tpnt;
 	} else {
-		symbol_addr = sym->st_value;
+		symbol_addr = sym_ref.sym->st_value;
 		tls_tpnt = tpnt;
 	}
-
 #if defined (__SUPPORT_LD_DEBUG__)
 	old_val = *reloc_addr;
 #endif
@@ -271,10 +270,10 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 #if defined (__SUPPORT_LD_DEBUG__)
 		if (_dl_debug_move)
 			_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
-				    symname, sym->st_size,
+				    symname, sym_ref.sym->st_size,
 				    symbol_addr, reloc_addr);
 #endif
-		_dl_memcpy((char *) reloc_addr, (char *) finaladdr, sym->st_size);
+		_dl_memcpy((char *) reloc_addr, (char *) finaladdr, sym_ref.sym->st_size);
 		goto out_nocode; /* No code code modified */
 	case R_PPC_ADDR16_HA:
 		finaladdr += 0x8000; /* fall through. */

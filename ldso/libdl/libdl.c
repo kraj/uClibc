@@ -652,6 +652,7 @@ void *dlsym(void *vhandle, const char *name)
 	struct dyn_elf *rpnt;
 	void *ret;
 	struct elf_resolve *tls_tpnt = NULL;
+	struct symbol_ref sym_ref = { NULL, NULL };
 	/* Nastiness to support underscore prefixes.  */
 #ifdef __UCLIBC_UNDERSCORES__
 	char tmp_buf[80];
@@ -706,13 +707,13 @@ void *dlsym(void *vhandle, const char *name)
 	tpnt = NULL;
 	if (handle == _dl_symbol_tables)
 		tpnt = handle->dyn; /* Only search RTLD_GLOBAL objs if global object */
-	ret = _dl_find_hash(name2, &handle->dyn->symbol_scope, NULL, NULL, 0, &tls_tpnt);
+	ret = _dl_find_hash(name2, &handle->dyn->symbol_scope, tpnt, 0, &sym_ref);
 
 #if defined(USE_TLS) && USE_TLS && defined SHARED
-	if (tls_tpnt) {
+	if (sym_ref.tpnt) {
 		/* The found symbol is a thread-local storage variable.
 		Return the address for to the current thread.  */
-		ret = _dl_tls_symaddr ((struct link_map *)tls_tpnt, (Elf32_Addr)ret);
+		ret = _dl_tls_symaddr ((struct link_map *)sym_ref.tpnt, (Elf32_Addr)ret);
 	}
 #endif
 

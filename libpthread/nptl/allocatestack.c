@@ -993,7 +993,7 @@ setxid_signal_thread (struct xid_command *cmdp, struct pthread *t)
 
   int val;
   INTERNAL_SYSCALL_DECL (err);
-#if __ASSUME_TGKILL
+#if defined (__ASSUME_TGKILL) && __ASSUME_TGKILL
   val = INTERNAL_SYSCALL (tgkill, err, 3, THREAD_GETMEM (THREAD_SELF, pid),
 			  t->tid, SIGSETXID);
 #else

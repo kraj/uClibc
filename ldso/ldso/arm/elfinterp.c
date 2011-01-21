@@ -70,7 +70,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	/* Get the address of the GOT entry */
 	new_addr = _dl_find_hash(symname, &_dl_loaded_modules->symbol_scope,
-				 tpnt, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+				 tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 			_dl_progname, symname);
@@ -189,22 +189,21 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 	unsigned long *reloc_addr;
 	unsigned long symbol_addr;
 	const Elf32_Sym *def = 0;
+	struct symbol_ref sym_ref;
 	struct elf_resolve *def_mod = 0;
 	int goof = 0;
-
-	struct sym_val current_value = { NULL, NULL };
 
 	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
 
-	if (symtab_index &&
-			(ELF32_ST_VISIBILITY(symtab[symtab_index].st_other)
-			 != STV_PROTECTED)) {
+	if (symtab_index) {
 		symbol_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name,
-			scope, tpnt, &current_value, elf_machine_type_class(reloc_type), &def_mod);
+			scope, tpnt, elf_machine_type_class(reloc_type), &sym_ref);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -219,19 +218,15 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 		}
 		if (_dl_trace_prelink)
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
-					&current_value, elf_machine_type_class(reloc_type));
+					&sym_ref, elf_machine_type_class(reloc_type));
+		def_mod = sym_ref.tpnt;
 	} else {
 		/*
 		 * Relocs against STN_UNDEF are usually treated as using a
 		 * symbol value of zero, and using the module containing the
 		 * reloc itself.
 		 */
-		if (symtab_index)
-			symbol_addr = DL_FIND_HASH_VALUE(tpnt, elf_machine_type_class(reloc_type),
-											&symtab[symtab_index]);
-		else
-			symbol_addr = symtab[symtab_index].st_value;
-
+		symbol_addr = symtab[symtab_index].st_value;
 		def_mod = tpnt;
 	}
 

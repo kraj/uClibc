@@ -267,8 +267,8 @@ _dl_lookup_sysv_hash(struct elf_resolve *tpnt, ElfW(Sym) *symtab, unsigned long 
  * This function resolves externals, and this is either called when we process
  * relocations or when we call an entry in the PLT table for the first time.
  */
-char *_dl_lookup_hash(const char *name, struct r_scope_elem *scope, struct elf_resolve *mytpnt,
-	struct sym_val *symbol, int type_class, struct elf_resolve **tpntp)
+char *_dl_find_hash(const char *name, struct r_scope_elem *scope, struct elf_resolve *mytpnt,
+	int type_class, struct symbol_ref *sym_ref)
 {
 	struct elf_resolve *tpnt = NULL;
 	ElfW(Sym) *symtab;
@@ -284,6 +284,11 @@ char *_dl_lookup_hash(const char *name, struct r_scope_elem *scope, struct elf_r
 	unsigned long gnu_hash_number = _dl_gnu_hash((const unsigned char *)name);
 #endif
 
+	if ((sym_ref) && (sym_ref->sym) && (ELF32_ST_VISIBILITY(sym_ref->sym->st_other) == STV_PROTECTED)) {
+			sym = sym_ref->sym;
+		if (mytpnt)
+			tpnt = mytpnt;
+	} else
 	for (loop_scope = scope; loop_scope && !sym; loop_scope = loop_scope->next) {
 		for (i = 0; i < loop_scope->r_nlist; i++) {
 			tpnt = loop_scope->r_list[i];
@@ -338,16 +343,15 @@ char *_dl_lookup_hash(const char *name, struct r_scope_elem *scope, struct elf_r
 	}
 
 	if (sym) {
-		if (symbol) {
-			symbol->s = sym;
-			symbol->m = tpnt;
+		if (sym_ref) {
+			sym_ref->sym = sym;
+			sym_ref->tpnt = tpnt;
 		}
 		/* At this point we have found the requested symbol, do binding */
 #if defined(USE_TLS) && USE_TLS
 		if (ELF_ST_TYPE(sym->st_info) == STT_TLS) {
-			_dl_assert(tpntp != NULL);
-			*tpntp = tpnt;
-
+			_dl_assert(sym_ref != NULL);
+			sym_ref->tpnt = tpnt;
 			return (char *)sym->st_value;
 		}
 #endif
@@ -363,8 +367,8 @@ char *_dl_lookup_hash(const char *name, struct r_scope_elem *scope, struct elf_r
 #endif
 			case STB_GLOBAL:
 #ifdef __FDPIC__
-				if (tpntp)
-					*tpntp = tpnt;
+			if (sym_ref)
+				sym_ref->tpnt = tpnt;
 #endif
 				return (char *)DL_FIND_HASH_VALUE(tpnt, type_class, sym);
 			default:	/* Local symbols not handled here */
@@ -372,8 +376,8 @@ char *_dl_lookup_hash(const char *name, struct r_scope_elem *scope, struct elf_r
 		}
 	}
 #ifdef __FDPIC__
-	if (tpntp)
-		*tpntp = tpnt;
+	if (sym_ref)
+		sym_ref->tpnt = tpnt;
 #endif
 	return weak_result;
 }

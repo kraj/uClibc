@@ -73,7 +73,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 
 	/* Get the address of the GOT entry */
-	new_addr = _dl_find_hash(symname, &_dl_loaded_modules->symbol_scope, tpnt, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+	new_addr = _dl_find_hash(symname, &_dl_loaded_modules->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 			    _dl_progname, symname);
@@ -173,13 +173,14 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct r_scope_elem *scope,
 #ifdef __SUPPORT_LD_DEBUG__
 	unsigned long old_val;
 #endif
-
-	struct sym_val current_value = { NULL, NULL };
+	struct symbol_ref sym_ref;
 
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr  = 0;
 	lsb          = !!(symtab[symtab_index].st_other & STO_SH5_ISA32);
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
 	symname      = strtab + symtab[symtab_index].st_name;
 	reloc_addr   = (unsigned long *)(intptr_t)
 		(tpnt->loadaddr + (unsigned long)rpnt->r_offset);
@@ -188,7 +189,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct r_scope_elem *scope,
 		int stb;
 
 		symbol_addr = (unsigned long)_dl_find_hash(symname, scope, tpnt,
-			&current_value,	elf_machine_type_class(reloc_type), NULL);
+							   elf_machine_type_class(reloc_type), &sym_ref);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this
@@ -199,12 +200,12 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct r_scope_elem *scope,
 
 		if (stb != STB_WEAK && !symbol_addr) {
 			_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
-				     _dl_progname, strtab + symtab[symtab_index].st_name);
+				     _dl_progname, symname);
 			_dl_exit (1);
 		}
 		if (_dl_trace_prelink)
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
-				&current_value, elf_machine_type_class(reloc_type));
+				&sym_ref, elf_machine_type_class(reloc_type));
 	}
 
 #ifdef __SUPPORT_LD_DEBUG__
