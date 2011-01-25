@@ -710,7 +710,7 @@ void *dlsym(void *vhandle, const char *name)
 	ret = _dl_find_hash(name2, &handle->dyn->symbol_scope, tpnt, 0, &sym_ref);
 
 #if defined(USE_TLS) && USE_TLS && defined SHARED
-	if (sym_ref.tpnt) {
+	if (sym_ref.sym && (ELF_ST_TYPE(sym_ref.sym->st_info) == STT_TLS) && (sym_ref.tpnt)) {
 		/* The found symbol is a thread-local storage variable.
 		Return the address for to the current thread.  */
 		ret = _dl_tls_symaddr ((struct link_map *)sym_ref.tpnt, (Elf32_Addr)ret);
