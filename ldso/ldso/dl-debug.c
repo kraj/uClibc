@@ -117,7 +117,7 @@ _dl_debug_lookup (const char *undef_name, struct elf_resolve *undef_map,
   if (_dl_trace_prelink)
     {
       int conflict = 0;
-      struct symbol_ref val = { NULL, NULL };
+      struct symbol_ref val = { ref, NULL };
 
       if ((_dl_trace_prelink_map == NULL
 	   || _dl_trace_prelink_map == _dl_loaded_modules)
