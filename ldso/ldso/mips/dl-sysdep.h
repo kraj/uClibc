@@ -109,7 +109,7 @@ else if (dpnt->d_tag == DT_MIPS_SYMTABNO) \
      dynamic[DT_MIPS_SYMTABNO_IDX] = dpnt->d_un.d_val; \
 else if (dpnt->d_tag == DT_MIPS_PLTGOT) \
      dynamic[DT_MIPS_PLTGOT_IDX] = dpnt->d_un.d_val; \
-else if (dpnt->d_tag == DT_MIPS_RLD_MAP) \
+else if ((dpnt->d_tag == DT_MIPS_RLD_MAP) && (dpnt->d_un.d_ptr)) \
      *(ElfW(Addr) *)(dpnt->d_un.d_ptr) =  (ElfW(Addr)) debug_addr; \
 } while (0)
 
