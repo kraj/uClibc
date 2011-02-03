@@ -1,4 +1,4 @@
-/* i386 is little-endian.  */
+/* Nios II is little-endian.  */
 
 #ifndef _ENDIAN_H
 # error "Never use <bits/endian.h> directly; include <endian.h> instead."
