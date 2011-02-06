@@ -98,8 +98,8 @@ struct utmp *getutent(void)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return ret;
 }
-libc_hidden_def(getutent)
 #endif
+libc_hidden_def(getutent)
 
 void endutent(void)
 {
