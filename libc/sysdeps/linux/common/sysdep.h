@@ -51,6 +51,7 @@
 
 /* Macros to generate eh_frame unwind information.  */
 # ifdef HAVE_ASM_CFI_DIRECTIVES
+#  define cfi_sections(sect...) 	.cfi_sections sect
 #  define cfi_startproc			.cfi_startproc
 #  define cfi_endproc			.cfi_endproc
 #  define cfi_def_cfa(reg, off)		.cfi_def_cfa reg, off
@@ -71,6 +72,7 @@
 #  define cfi_lsda(enc, exp)		.cfi_lsda enc, exp
 
 # else
+#  define cfi_sections(sect...)
 #  define cfi_startproc
 #  define cfi_endproc
 #  define cfi_def_cfa(reg, off)
@@ -95,6 +97,8 @@
 # ifdef HAVE_ASM_CFI_DIRECTIVES
 #  define CFI_STRINGIFY(Name) CFI_STRINGIFY2 (Name)
 #  define CFI_STRINGIFY2(Name) #Name
+#  define CFI_SECTIONS(sect...) \
+   ".cfi_sections " CFI_STRINGIFY(sect)
 #  define CFI_STARTPROC	".cfi_startproc"
 #  define CFI_ENDPROC	".cfi_endproc"
 #  define CFI_DEF_CFA(reg, off)	\
@@ -128,6 +132,7 @@
 #  define CFI_LSDA(enc, exp) \
    ".cfi_lsda " CFI_STRINGIFY(enc) "," CFI_STRINGIFY(exp)
 # else
+#  define CFI_SECTIONS(sect...)
 #  define CFI_STARTPROC
 #  define CFI_ENDPROC
 #  define CFI_DEF_CFA(reg, off)
