@@ -42,14 +42,18 @@ ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 CSRC := $(filter-out fork.c getpid.c raise.c open.c close.c read.c write.c, $(CSRC))
 ifeq ($(TARGET_ARCH),arm)
 CSRC := $(filter-out vfork.c, $(CSRC))
-else ifeq ($(TARGET_ARCH),x86_64)
+else
+ifeq ($(TARGET_ARCH),x86_64)
 CSRC := $(filter-out vfork.c, $(CSRC))
-else ifeq ($(TARGET_ARCH),mips)
+else
+ifeq ($(TARGET_ARCH),mips)
 ifeq ($(CONFIG_MIPS_O32_ABI),y)
 CSRC := $(filter-out waitpid.c, $(CSRC))
 endif
 else
 CSRC := $(filter-out waitpid.c, $(CSRC))
+endif
+endif
 endif
 endif
 
