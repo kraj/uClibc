@@ -37,7 +37,12 @@ typedef uintmax_t uatomic_max_t;
 
 void __arm_link_error (void);
 
-#ifdef __thumb2__
+/* Use the atomic builtins provided by GCC in case the backend provides
+   a pattern to do this efficiently.  */
+
+#ifdef __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+#define atomic_full_barrier() __sync_synchronize ()
+#elif defined __thumb2__
 #define atomic_full_barrier() \
      __asm__ __volatile__						      \
 	     ("movw\tip, #0x0fa0\n\t"					      \
@@ -64,17 +69,21 @@ void __arm_link_error (void);
 #define __arch_compare_and_exchange_val_16_acq(mem, newval, oldval) \
   ({ __arm_link_error (); oldval; })
 
+#ifdef __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+#define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval) \
+  __sync_val_compare_and_swap ((mem), (oldval), (newval))
+
 /* It doesn't matter what register is used for a_oldval2, but we must
    specify one to work around GCC PR rtl-optimization/21223.  Otherwise
    it may cause a_oldval or a_tmp to be moved to a different register.  */
 
-#ifdef __thumb2__
+#elif defined __thumb2__
 /* Thumb-2 has ldrex/strex.  However it does not have barrier instructions,
    so we still need to use the kernel helper.  */
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval) \
-  ({ register __typeof (oldval) a_oldval __asm__ ("r0");			      \
-     register __typeof (oldval) a_newval __asm__ ("r1") = (newval);		      \
-     register __typeof (mem) a_ptr __asm__ ("r2") = (mem);			      \
+  ({ register __typeof (oldval) a_oldval __asm__ ("r0");		      \
+     register __typeof (oldval) a_newval __asm__ ("r1") = (newval);	      \
+     register __typeof (mem) a_ptr __asm__ ("r2") = (mem);		      \
      register __typeof (oldval) a_tmp __asm__ ("r3");			      \
      register __typeof (oldval) a_oldval2 __asm__ ("r4") = (oldval);	      \
      __asm__ __volatile__						      \
@@ -95,9 +104,9 @@ void __arm_link_error (void);
      a_tmp; })
 #else
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval) \
-  ({ register __typeof (oldval) a_oldval __asm__ ("r0");			      \
-     register __typeof (oldval) a_newval __asm__ ("r1") = (newval);		      \
-     register __typeof (mem) a_ptr __asm__ ("r2") = (mem);			      \
+  ({ register __typeof (oldval) a_oldval __asm__ ("r0");		      \
+     register __typeof (oldval) a_newval __asm__ ("r1") = (newval);	      \
+     register __typeof (mem) a_ptr __asm__ ("r2") = (mem);		      \
      register __typeof (oldval) a_tmp __asm__ ("r3");			      \
      register __typeof (oldval) a_oldval2 __asm__ ("r4") = (oldval);	      \
      __asm__ __volatile__						      \
