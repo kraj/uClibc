@@ -34,7 +34,7 @@ CSRC := $(filter-out capget.c capset.c inotify.c ioperm.c iopl.c \
 	sync_file_range.c sysctl.c sysinfo.c timerfd.c uselib.c vhangup.c,$(CSRC))
 ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 # we need madvise.c in NPTL
-CSRC := $(filter-pout madvise.c,$(CSRC))
+CSRC := $(filter-out madvise.c,$(CSRC))
 endif
 endif
 
