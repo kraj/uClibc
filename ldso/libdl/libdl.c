@@ -612,7 +612,6 @@ void *dlsym(void *vhandle, const char *name)
 	ElfW(Addr) from;
 	struct dyn_elf *rpnt;
 	void *ret;
-	struct elf_resolve *tls_tpnt = NULL;
 	struct symbol_ref sym_ref = { NULL, NULL };
 	/* Nastiness to support underscore prefixes.  */
 #ifdef __UCLIBC_UNDERSCORES__
