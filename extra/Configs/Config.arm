@@ -14,7 +14,7 @@ config FORCE_OPTIONS_FOR_ARCH
 
 choice
 	prompt "Target ABI"
-	default CONFIG_ARM_OABI
+	default CONFIG_ARM_EABI
 	help
 	  If you choose "EABI" here, functions and constants required by the
 	  ARM EABI will be built into the library.  You should choose "EABI"
