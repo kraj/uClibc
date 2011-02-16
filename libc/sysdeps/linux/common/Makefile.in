@@ -26,13 +26,12 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += capget.c capset.c inotify.c ioperm.c iopl.c \
 	splice.c vmsplice.c tee.c signalfd.c swapoff.c swapon.c \
 	sync_file_range.c sysctl.c sysinfo.c timerfd.c uselib.c vhangup.c
 CSRC-$(if $(and $(UCLIBC_LINUX_SPECIFIC),$(UCLIBC_HAS_THREADS_NATIVE)),y) += madvise.c
-CSRC-$(UCLIBC_HAS_THREADS_NATIVE) += fork.c getpid.c raise.c open.c close.c \
-	read.c write.c
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CSRC- += fork.c getpid.c raise.c open.c close.c read.c write.c
 CSRC- += waitpid.c
 CSRC- += $(if $(findstring =arm=,=$(TARGET_ARCH)=),vfork.c)
 CSRC- += $(if $(findstring =x86_64=,=$(TARGET_ARCH)=),vfork.c)
-CSRC- += $(if $(findstring =mips=y=,=$(TARGET_ARCH)=$(CONFIG_MIPS_O32_ABI)),waitpid.c)
+CSRC- += $(if $(findstring =mips=y=,=$(TARGET_ARCH)=$(CONFIG_MIPS_O32_ABI)=),waitpid.c)
 endif
 # stubbed out in mman.h
 CSRC-$(ARCH_USE_MMU) += msync.c
