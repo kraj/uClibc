@@ -168,12 +168,10 @@ pthread_descr __pthread_main_thread = &__pthread_initial_thread;
 
 char *__pthread_initial_thread_bos = NULL;
 
-/* For non-MMU systems also remember to stack top of the initial thread.
- * This is adapted when other stacks are malloc'ed since we don't know
- * the bounds a-priori. -StS */
-
 #ifndef __ARCH_USE_MMU__
+/* See nommu notes in internals.h and pthread_initialize() below. */
 char *__pthread_initial_thread_tos = NULL;
+char *__pthread_initial_thread_mid = NULL;
 #endif /* __ARCH_USE_MMU__ */
 
 /* File descriptor for sending requests to the thread manager. */
@@ -457,12 +455,19 @@ static void pthread_initialize(void)
     setrlimit(RLIMIT_STACK, &limit);
   }
 #else
-  /* For non-MMU assume __pthread_initial_thread_tos at upper page boundary, and
-   * __pthread_initial_thread_bos at address 0. These bounds are refined as we
-   * malloc other stack frames such that they don't overlap. -StS
+  /* For non-MMU, the initial thread stack can reside anywhere in memory.
+   * We don't have a way of knowing where the kernel started things -- top
+   * or bottom (well, that isn't exactly true, but the solution is fairly
+   * complex and error prone).  All we can determine here is an address
+   * that lies within that stack.  Save that address as a reference so that
+   * as other thread stacks are created, we can adjust the estimated bounds
+   * of the initial thread's stack appropriately.
+   *
+   * This checking is handled in NOMMU_INITIAL_THREAD_BOUNDS(), so see that
+   * for a few more details.
    */
-  __pthread_initial_thread_tos =
-    (char *)(((long)CURRENT_STACK_FRAME + getpagesize()) & ~(getpagesize() - 1));
+  __pthread_initial_thread_mid = CURRENT_STACK_FRAME;
+  __pthread_initial_thread_tos = (char *) -1;
   __pthread_initial_thread_bos = (char *) 1; /* set it non-zero so we know we have been here */
   PDEBUG("initial thread stack bounds: bos=%p, tos=%p\n",
 	 __pthread_initial_thread_bos, __pthread_initial_thread_tos);
