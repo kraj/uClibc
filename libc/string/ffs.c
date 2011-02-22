@@ -5,12 +5,12 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-/* ffsl,ffsll */
-
+#include <limits.h>
+#define ffsl __something_else
 #include "_string.h"
-
-
-int ffs(int i)
+#undef ffsl
+  
+int __libc_ffs(int i)
 {
 #if 1
 	/* inlined binary search method */
@@ -51,4 +51,8 @@ int ffs(int i)
 	return n;
 #endif
 }
-libc_hidden_def(ffs)
+libc_hidden_def(__libc_ffs)
+weak_alias(__libc_ffs,ffs)
+#if ULONG_MAX == UINT_MAX
+weak_alias (__libc_ffs, ffsl)
+#endif

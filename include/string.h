@@ -374,17 +374,23 @@ extern char *rindex (__const char *__s, int __c)
 /* Return the position of the first bit set in I, or 0 if none are set.
    The least-significant bit is position 1, the most-significant 32.  */
 extern int ffs (int __i) __THROW __attribute__ ((__const__));
-libc_hidden_proto(ffs)
 
 /* The following two functions are non-standard but necessary for non-32 bit
    platforms.  */
-# if 0 /*#ifdef __USE_GNU*/
+#ifdef __USE_GNU
 extern int ffsl (long int __l) __THROW __attribute__ ((__const__));
 #  ifdef __GNUC__
 __extension__ extern int ffsll (long long int __ll)
      __THROW __attribute__ ((__const__));
 #  endif
 # endif
+
+#ifdef _LIBC
+extern __typeof(ffs) __libc_ffs;
+libc_hidden_proto(__libc_ffs);
+extern __typeof(ffsll) __libc_ffsll;
+libc_hidden_proto(__libc_ffsll)
+#endif
 
 /* Compare S1 and S2, ignoring case.  */
 extern int strcasecmp (__const char *__s1, __const char *__s2)
