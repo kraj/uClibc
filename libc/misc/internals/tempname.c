@@ -62,7 +62,10 @@ int attribute_hidden ___path_search (char *tmpl, size_t tmpl_len, const char *di
 	const char *pfx /*, int try_tmpdir*/)
 {
     /*const char *d; */
-    size_t dlen, plen;
+    /* dir and pfx lengths should always fit into an int,
+       so don't bother using size_t here.  Especially since
+       the printf func requires an int for precision (%*s).  */
+    int dlen, plen;
 
     if (!pfx || !pfx[0])
     {
