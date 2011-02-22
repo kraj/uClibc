@@ -28,7 +28,6 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += capget.c capset.c inotify.c ioperm.c iopl.c \
 CSRC-$(if $(and $(UCLIBC_LINUX_SPECIFIC),$(UCLIBC_HAS_THREADS_NATIVE)),y) += madvise.c
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 CSRC- += fork.c getpid.c raise.c open.c close.c read.c write.c
-CSRC- += waitpid.c
 CSRC- += $(if $(findstring =arm=,=$(TARGET_ARCH)=),vfork.c)
 CSRC- += $(if $(findstring =x86_64=,=$(TARGET_ARCH)=),vfork.c)
 CSRC- += $(if $(findstring =mips=y=,=$(TARGET_ARCH)=$(CONFIG_MIPS_O32_ABI)=),waitpid.c)
