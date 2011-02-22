@@ -105,3 +105,5 @@ ___longjmp:
 .size ___longjmp,.-___longjmp
 
 libc_hidden_def(__longjmp)
+
+.section .note.GNU-stack,"",%progbits
