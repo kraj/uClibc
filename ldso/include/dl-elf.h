@@ -162,8 +162,13 @@ unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info
 		if (dynamic_info[tag]) \
 			dynamic_info[tag] = (unsigned long) DL_RELOC_ADDR(load_off, dynamic_info[tag]); \
 	} while (0)
-	/* Don't adjust .dynamic unnecessarily.  */
-	if (load_off != 0) {
+	/* Don't adjust .dynamic unnecessarily.  For FDPIC targets,
+	   we'd have to walk all the loadsegs to find out if it was
+	   actually unnecessary, so skip this optimization.  */
+#ifndef __FDPIC__
+	if (load_off != 0)
+#endif
+	{
 		ADJUST_DYN_INFO(DT_HASH, load_off);
 		ADJUST_DYN_INFO(DT_PLTGOT, load_off);
 		ADJUST_DYN_INFO(DT_STRTAB, load_off);
