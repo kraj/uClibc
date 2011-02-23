@@ -218,7 +218,9 @@ ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 ifneq ($(TARGET_ARCH),nios)
 ifneq ($(TARGET_ARCH),nios2)
 ifneq ($(TARGET_ARCH),sh)
+ifneq ($(TARGET_ARCH),c6x)
 CPU_CFLAGS-y += -msoft-float
+endif
 endif
 endif
 endif
@@ -239,6 +241,7 @@ CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)    += -Wl,-EB
 
 PICFLAG-y := -fPIC
 PICFLAG-$(UCLIBC_FORMAT_FDPIC_ELF) := -mfdpic
+PICFLAG-$(UCLIBC_FORMAT_DSBT_ELF)  := -mdsbt -fpic
 PICFLAG := $(PICFLAG-y)
 PIEFLAG_NAME:=-fPIE
 
@@ -483,6 +486,15 @@ endif
 
 ifeq ($(TARGET_ARCH),v850)
       SYMBOL_PREFIX=_
+endif
+
+ifeq ($(TARGET_ARCH),c6x)
+	PIEFLAG:=
+	CPU_CFLAGS-$(CONFIG_TMS320C64X) += -march=c64x
+	CPU_CFLAGS-$(CONFIG_TMS320C64XPLUS) += -march=c64x+
+	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-mlittle-endian
+	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mbig-endian
+	CPU_LDFLAGS-y += $(CPU_CFLAGS)
 endif
 
 # Keep the check_gcc from being needlessly executed

@@ -268,6 +268,7 @@ typedef struct
 #define EM_ALTERA_NIOS2	113	/* Altera Nios II soft-core processor */
 #define EM_CRX		114		/* National Semiconductor CRX */
 #define EM_NUM		95
+#define EM_TI_C6000	140
 
 /* If it is necessary to assign new unofficial EM_* values, please pick large
    random numbers (0x8523, 0xa7f2, etc.) to minimize the chances of collision
@@ -3062,6 +3063,50 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_XTENSA_SLOT14_ALT	49
 /* Keep this the last entry.  */
 #define R_XTENSA_NUM		50
+
+/* C6X specific relocs */
+#define R_C6000_NONE		0
+#define R_C6000_ABS32		1
+#define R_C6000_ABS16		2
+#define R_C6000_ABS8		3
+#define R_C6000_PCR_S21		4
+#define R_C6000_PCR_S12		5
+#define R_C6000_PCR_S10		6
+#define R_C6000_PCR_S7		7
+#define R_C6000_ABS_S16		8
+#define R_C6000_ABS_L16		9
+#define R_C6000_ABS_H16		10
+#define R_C6000_SBR_U15_B	11
+#define R_C6000_SBR_U15_H	12
+#define R_C6000_SBR_U15_W	13
+#define R_C6000_SBR_S16		14
+#define R_C6000_SBR_L16_B	15
+#define R_C6000_SBR_L16_H	16
+#define R_C6000_SBR_L16_W	17
+#define R_C6000_SBR_H16_B	18
+#define R_C6000_SBR_H16_H	19
+#define R_C6000_SBR_H16_W	20
+#define R_C6000_SBR_GOT_U15_W	21
+#define R_C6000_SBR_GOT_L16_W	22
+#define R_C6000_SBR_GOT_H16_W	23
+#define R_C6000_DSBT_INDEX	24
+#define R_C6000_PREL31		25
+#define R_C6000_COPY		26
+#define R_C6000_JUMP_SLOT	27
+#define R_C6000_SBR_GOT32	28
+#define R_C6000_PCR_H16		29
+#define R_C6000_PCR_L16		30
+#define R_C6000_ALIGN		253
+#define R_C6000_FPHEAD		254
+#define R_C6000_NOCMP		255
+
+/* C6x specific values for the Dyn d_tag field.  */
+#define DT_C6000_DSBT_BASE	(DT_LOPROC + 0)
+#define DT_C6000_DSBT_SIZE	(DT_LOPROC + 1)
+#define DT_C6000_PREEMPTMAP	(DT_LOPROC + 2)
+#define DT_C6000_DSBT_INDEX	(DT_LOPROC + 3)
+
+#define DT_C6000_NUM    4
 
 #ifdef	__cplusplus
 }

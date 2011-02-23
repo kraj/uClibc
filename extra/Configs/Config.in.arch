@@ -17,6 +17,10 @@ config UCLIBC_FORMAT_FDPIC_ELF
 	bool "FDPIC ELF"
 	depends on !ARCH_USE_MMU && (TARGET_bfin || TARGET_frv)
 	select DOPIC
+config UCLIBC_FORMAT_DSBT_ELF
+	bool "DBST ELF"
+	depends on !ARCH_USE_MMU && TARGET_c6x
+	select DOPIC
 config UCLIBC_FORMAT_FLAT
 	bool "STATIC FLAT"
 	depends on !ARCH_USE_MMU
