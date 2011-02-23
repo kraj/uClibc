@@ -868,7 +868,16 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
 		ElfW(Phdr) *myppnt = (ElfW(Phdr) *) DL_RELOC_ADDR(load_addr, epnt->e_phoff);
 		int j;
+#ifdef __DSBT__
+		struct elf_resolve *ref = _dl_loaded_modules;
+		_dl_if_debug_dprint("ref is %x, dsbt %x, ref-dsbt %x size %x\n",
+				    ref, tpnt->loadaddr.map->dsbt_table,
+				    ref->loadaddr.map->dsbt_table,
+				    tpnt->loadaddr.map->dsbt_size);
 
+		_dl_memcpy(tpnt->loadaddr.map->dsbt_table, ref->loadaddr.map->dsbt_table,
+			   tpnt->loadaddr.map->dsbt_size * sizeof(unsigned *));
+#endif
 		tpnt = _dl_add_elf_hash_table(tpnt->libname, load_addr,
 					      tpnt->dynamic_info,
 					      (unsigned long)tpnt->dynamic_addr,

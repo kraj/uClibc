@@ -212,7 +212,7 @@ typedef struct {
    _dl_find_hash for this reloc TYPE.  TPNT is the module in which the
    matching SYM was found.  */
 #ifndef DL_FIND_HASH_VALUE
-# define DL_FIND_HASH_VALUE(TPNT, TYPE, SYM) (DL_RELOC_ADDR ((SYM)->st_value, (TPNT)->loadaddr))
+# define DL_FIND_HASH_VALUE(TPNT, TYPE, SYM) (DL_RELOC_ADDR ((TPNT)->loadaddr, (SYM)->st_value))
 #endif
 
 /* Unmap all previously-mapped segments accumulated in LOADADDR.

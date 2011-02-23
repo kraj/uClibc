@@ -188,7 +188,7 @@ unsigned long _dl_error_number;
 unsigned long _dl_internal_error_number;
 
 struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
-	struct elf_resolve *tpnt, char *full_libname, int __attribute__((unused)) trace_loaded_objects)
+	struct elf_resolve *tpnt, char *full_libname, int attribute_unused trace_loaded_objects)
 {
 	char *pnt;
 	struct elf_resolve *tpnt1;
@@ -806,6 +806,27 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		INIT_GOT(lpnt, tpnt);
 	}
 
+#ifdef __DSBT__
+	/* Handle DSBT initialization */
+	{
+		struct elf_resolve *t, *ref = NULL;
+		int idx = tpnt->loadaddr.map->dsbt_index;
+		unsigned *dsbt = tpnt->loadaddr.map->dsbt_table;
+
+		/*
+		 * Setup dsbt slot for this module in dsbt of all modules.
+		 */
+		for (t = _dl_loaded_modules; t; t = t->next) {
+			/* find a dsbt table from another module */
+			if (ref == NULL && t != tpnt)
+				ref = t;
+			t->loadaddr.map->dsbt_table[idx] = (unsigned)dsbt;
+		}
+		if (ref)
+			_dl_memcpy(dsbt, ref->loadaddr.map->dsbt_table,
+				   tpnt->loadaddr.map->dsbt_size * sizeof(unsigned *));
+	}
+#endif
 	_dl_if_debug_dprint("\n\tfile='%s';  generating link map\n", libname);
 	_dl_if_debug_dprint("\t\tdynamic: %x  base: %x\n", dynamic_addr, DL_LOADADDR_BASE(lib_loadaddr));
 	_dl_if_debug_dprint("\t\t  entry: %x  phdr: %x  phnum: %x\n\n",

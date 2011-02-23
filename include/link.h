@@ -1,6 +1,6 @@
 /* Data structure for communication from the run-time dynamic linker for
    loaded ELF shared objects.
-   Copyright (C) 1995-2001, 2004, 2005, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1995-2001, 2004, 2005, 2006, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -83,6 +83,9 @@ extern ElfW(Dyn) _DYNAMIC[];
 #ifdef __FDPIC__
 # include <bits/elf-fdpic.h>
 #endif
+#ifdef __DSBT__
+# include <bits/elf-dsbt.h>
+#endif
 
 /* Structure describing a loaded shared object.  The `l_next' and `l_prev'
    members form a chain of all the shared objects loaded at startup.
@@ -98,7 +101,11 @@ struct link_map
 #ifdef __FDPIC__
     struct elf32_fdpic_loadaddr l_addr;
 #else
+#ifdef __DSBT__
+    struct elf32_dsbt_loadaddr l_addr;
+#else
     ElfW(Addr) l_addr;		/* Base address shared object is loaded at.  */
+#endif
 #endif
     char *l_name;		/* Absolute file name object was found in.  */
     ElfW(Dyn) *l_ld;		/* Dynamic section of the shared object.  */
@@ -178,7 +185,11 @@ struct dl_phdr_info
 #ifdef __FDPIC__
     struct elf32_fdpic_loadaddr dlpi_addr;
 #else
+#ifdef __DSBT__
+    struct elf32_dsbt_loadaddr dlpi_addr;
+#else
     ElfW(Addr) dlpi_addr;
+#endif
 #endif
     const char *dlpi_name;
     const ElfW(Phdr) *dlpi_phdr;
