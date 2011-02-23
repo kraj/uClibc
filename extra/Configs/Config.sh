@@ -32,7 +32,6 @@ choice
 
 config CONFIG_SH2A
 	select ARCH_HAS_NO_MMU
-	select HAVE_NO_PIC
 	bool "SH2A"
 
 config CONFIG_SH2

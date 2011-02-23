@@ -27,7 +27,10 @@
    and the process ID of the new process to the old process.  */
 
 ENTRY (__vfork)
-#ifdef SHARED
+#ifdef __SH_FDPIC__
+	mov.l	.Lpthread_func, r0
+	mov.l	@(r12, r0), r0
+#elif defined SHARED
 	mov.l	.Lgot, r1
 	mova	.Lgot, r0
 	add	r0, r1
@@ -53,7 +56,10 @@ ENTRY (__vfork)
 	 nop
 .L1:	.word	__NR_vfork
 	.align	2
-#ifdef SHARED
+#ifdef __SH_FDPIC__
+.Lthread_func:
+	.long	__libc_pthread_functions@GOTOFFFUNCDESC
+#elif defined SHARED
 .Lgot:
 	.long	_GLOBAL_OFFSET_TABLE_
 .Lpthread_func:

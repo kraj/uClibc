@@ -6,8 +6,13 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
+FDPIC_CSRC=crtreloc.c
+endif
+
 CSRC := \
-	mmap.c pipe.c __init_brk.c brk.c sbrk.c syscall.c pread_write.c
+	mmap.c pipe.c __init_brk.c brk.c sbrk.c syscall.c pread_write.c \
+	$(FDPIC_CSRC)
 
 SSRC := setjmp.S __longjmp.S vfork.S clone.S ___fpscr_values.S
 

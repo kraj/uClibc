@@ -30,6 +30,7 @@
  */
 
 
+#include <sys/mman.h>
 #include <ldso.h>
 #include <stdio.h>
 #include <string.h> /* Needed for 'strstr' prototype' */

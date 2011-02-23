@@ -54,26 +54,35 @@ __asm__ ("\n\
 _init:\n\
 	mov.l	r12,@-r15\n\
 	mov.l	r14,@-r15\n\
-	sts.l	pr,@-r15\n\
-	mova	.L22,r0\n\
+	sts.l	pr,@-r15\n"
+#ifndef __SH_FDPIC__
+"	mova	.L22,r0\n\
 	mov.l	.L22,r12\n\
-	add	r0,r12\n\
-	mova	.L24,r0\n\
+	add	r0,r12\n"
+#endif
+"	mova	.L24,r0\n\
 	mov.l	.L24,r1\n\
 	add	r0,r1\n\
 	jsr	@r1\n\
-	 nop\n\
-	mova	.L23,r0\n\
+	 nop\n"
+#ifdef __SH_FDPIC__
+	/* r12 is caller save in FDPIC, so it must be reloaded
+	   if the next PLT call is to work.  */
+"	mov.l	@(8,r15), r12\n"
+#endif
+"	mova	.L23,r0\n\
 	mov.l	.L23,r1\n\
 	add	r0,r1\n\
 	jsr	@r1\n\
 	 mov	r15,r14\n\
 	bra	1f\n\
 	 nop\n\
-	.align 2\n\
-.L22:\n\
-	.long	_GLOBAL_OFFSET_TABLE_\n\
-.L23:\n\
+	.align 2\n"
+#ifndef __SH_FDPIC__
+".L22:\n\
+	.long	_GLOBAL_OFFSET_TABLE_\n"
+#endif
+".L23:\n\
 	.long	__gmon_start__@PLT\n\
 .L24:\n\
 	.long	__pthread_initialize_minimal@PLT\n\
@@ -112,19 +121,23 @@ __gmon_start__:\n\
 _fini:\n\
 	mov.l	r12,@-r15\n\
 	mov.l	r14,@-r15\n\
-	sts.l	pr,@-r15\n\
-	mova	.L27,r0\n\
+	sts.l	pr,@-r15\n"
+#ifndef __SH_FDPIC__
+"	mova	.L27,r0\n\
 	mov.l	.L27,r12\n\
-	add	r0,r12\n\
-	mov	r15,r14\n\
+	add	r0,r12\n"
+#endif
+"	mov	r15,r14\n\
 	ALIGN\n\
 	END_FINI\n\
 	bra	1f\n\
 	 nop\n\
-	.align	2\n\
-.L27:\n\
-	.long	_GLOBAL_OFFSET_TABLE_\n\
-1:\n\
+	.align	2\n"
+#ifndef __SH_FDPIC__
+".L27:\n\
+	.long	_GLOBAL_OFFSET_TABLE_\n"
+#endif
+"1:\n\
 /*@_fini_PROLOG_ENDS*/\n\
 \n\
 /*@_fini_EPILOG_BEGINS*/\n\

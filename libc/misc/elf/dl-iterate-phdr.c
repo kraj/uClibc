@@ -29,7 +29,11 @@ __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void
 	int ret = 0;
 
 	for (l = _dl_loaded_modules; l != NULL; l = l->next) {
+#ifdef __FDPIC__
+		info.dlpi_addr = (struct elf32_fdpic_loadaddr) {0, 0};
+#else
 		info.dlpi_addr = l->loadaddr;
+#endif
 		info.dlpi_name = l->libname;
 		info.dlpi_phdr = l->ppnt;
 		info.dlpi_phnum = l->n_phent;
@@ -60,7 +64,11 @@ dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,
       /* This entry describes this statically-linked program itself.  */
       struct dl_phdr_info info;
       int ret;
+#ifdef __FDPIC__
+      info.dlpi_addr = (struct elf32_fdpic_loadaddr) { 0, 0 };
+#else
       info.dlpi_addr = 0;
+#endif
       info.dlpi_name = "";
       info.dlpi_phdr = _dl_phdr;
       info.dlpi_phnum = _dl_phnum;

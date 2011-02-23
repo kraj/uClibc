@@ -26,7 +26,9 @@
 #include <bits/sysnum.h>
 
 
-#ifdef __HAVE_SHARED__ 
+#ifdef __SH_FDPIC__
+#define PLTJMP(_x)	_x@PLT-.
+#elif defined __HAVE_SHARED__
 #define PLTJMP(_x)	_x@PLT
 #else
 #define PLTJMP(_x)	_x
@@ -94,12 +96,23 @@ clone:
 3:
 	/* thread starts */
 	mov.l	@r15, r1
+#ifdef __SH_FDPIC__
+	/* r1 contains a function descriptor.  */
+	mov.l	@(4,r1), r12
+	mov.l	@r1, r1
+#endif
 	jsr	@r1
 	 mov.l	@(4,r15), r4
 
 	/* we are done, passing the return value through r0  */
 	mov.l	.L1, r1
-#ifdef __HAVE_SHARED__ 
+#ifdef __SH_FDPIC__
+	mov	r0, r4
+	mov.l	.L1, r0
+	add	r0, r1
+	jmp	@r1
+	  nop
+#elif defined __HAVE_SHARED__
 	mov.l	r12, @-r15
 	sts.l	pr, @-r15
 	mov	r0, r4
