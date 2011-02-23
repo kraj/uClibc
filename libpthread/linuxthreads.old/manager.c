@@ -35,6 +35,9 @@
 #include "semaphore.h"
 #include "debug.h" /* PDEBUG, added by StS */
 
+#ifndef THREAD_STACK_OFFSET
+#define THREAD_STACK_OFFSET 0
+#endif
 
 /* poll() is not supported in kernel <= 2.0, therefore is __NR_poll is
  * not available, we assume an old Linux kernel is in use and we will
@@ -476,6 +479,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   int pid;
   pthread_descr new_thread;
   char * new_thread_bottom;
+  char * new_thread_top;
   pthread_t new_thread_id;
   char *guardaddr = NULL;
   size_t guardsize = 0;
@@ -561,7 +565,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   /* Do the cloning.  We have to use two different functions depending
      on whether we are debugging or not.  */
   pid = 0;     /* Note that the thread never can have PID zero.  */
-
+  new_thread_top = ((char *)new_thread - THREAD_STACK_OFFSET);
 
   /* ******************************************************** */
   /*  This code was moved from below to cope with running threads
@@ -588,12 +592,12 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 
 	  /* We have to report this event.  */
 #ifdef __ia64__
-	  pid = __clone2(pthread_start_thread_event, (void **) new_thread,
-			(char *)new_thread - new_thread_bottom,
+	  pid = __clone2(pthread_start_thread_event, new_thread_top,
+			new_thread_top - new_thread_bottom,
 			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 			__pthread_sig_cancel, new_thread);
 #else
-	  pid = clone(pthread_start_thread_event, (void **) new_thread,
+	  pid = clone(pthread_start_thread_event, new_thread_top,
 			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 			__pthread_sig_cancel, new_thread);
 #endif
@@ -626,12 +630,12 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
     {
       PDEBUG("cloning new_thread = %p\n", new_thread);
 #ifdef __ia64__
-      pid = __clone2(pthread_start_thread, (void **) new_thread,
-			(char *)new_thread - new_thread_bottom,
+      pid = __clone2(pthread_start_thread, new_thread_top,
+		    new_thread_top - new_thread_bottom,
 		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 		    __pthread_sig_cancel, new_thread);
 #else
-      pid = clone(pthread_start_thread, (void **) new_thread,
+      pid = clone(pthread_start_thread, new_thread_top,
 		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 		    __pthread_sig_cancel, new_thread);
 #endif
