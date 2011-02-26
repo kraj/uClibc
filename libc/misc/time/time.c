@@ -1013,7 +1013,7 @@ size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 	const char *stack[MAX_PUSH];
 	size_t count;
 	size_t o_count;
-	int field_val, i, j, lvl;
+	int field_val = 0, i = 0, j, lvl;
 	int x[3];			/* wday, yday, year */
 	int isofm, days;
 	char buf[__UIM_BUFLEN_LONG];
