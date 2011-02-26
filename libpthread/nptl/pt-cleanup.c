@@ -39,13 +39,13 @@ __pthread_cleanup_upto (__jmp_buf target, char *targetframe)
        cbuf != NULL && _JMPBUF_UNWINDS_ADJ (target, cbuf, adj);
        cbuf = cbuf->__prev)
     {
-#if _STACK_GROWS_DOWN
+#ifdef _STACK_GROWS_DOWN
       if ((uintptr_t) cbuf - adj <= targetframe_adj)
         {
           cbuf = NULL;
           break;
         }
-#elif _STACK_GROWS_UP
+#elif defined _STACK_GROWS_UP
       if ((uintptr_t) cbuf - adj >= targetframe_adj)
         {
           cbuf = NULL;

@@ -49,13 +49,13 @@ void __pthread_cleanup_upto (__jmp_buf target, char *targetframe)
        c != NULL && __JMPBUF_UNWINDS(target, c, demangle_ptr);
        c = c->__prev)
     {
-#if _STACK_GROWS_DOWN
+#ifdef _STACK_GROWS_DOWN
       if ((char *) c <= targetframe)
 	{
 	  c = NULL;
 	  break;
 	}
-#elif _STACK_GROWS_UP
+#elif defined _STACK_GROWS_UP
       if ((char *) c >= targetframe)
 	{
 	  c = NULL;
