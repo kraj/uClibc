@@ -59,7 +59,9 @@ struct ifaddrs_storage
     struct sockaddr sa;
     struct sockaddr_ll sl;
     struct sockaddr_in s4;
+#ifdef __UCLIBC_HAS_IPV6__
     struct sockaddr_in6 s6;
+#endif
   } addr, netmask, broadaddr;
   char name[IF_NAMESIZE + 1];
 };
@@ -621,6 +623,7 @@ getifaddrs (struct ifaddrs **ifap)
 				      rta_data, rta_payload);
 			    break;
 
+#ifdef __UCLIBC_HAS_IPV6__
 			  case AF_INET6:
 			    /* Size must match that of an address for IPv6.  */
 			    if (rta_payload == 16)
@@ -633,6 +636,7 @@ getifaddrs (struct ifaddrs **ifap)
 				    = ifam->ifa_index;
 			      }
 			    break;
+#endif
 
 			  default:
 			    if (rta_payload <= sizeof (ifas[ifa_index].addr))
@@ -668,6 +672,7 @@ getifaddrs (struct ifaddrs **ifap)
 				  rta_data, rta_payload);
 			  break;
 
+#ifdef __UCLIBC_HAS_IPV6__
 			case AF_INET6:
 			  /* Size must match that of an address for IPv6.  */
 			  if (rta_payload == 16)
@@ -680,6 +685,7 @@ getifaddrs (struct ifaddrs **ifap)
 				  ifam->ifa_index;
 			    }
 			  break;
+#endif
 
 			default:
 			  if (rta_payload <= sizeof (ifas[ifa_index].addr))
@@ -709,6 +715,7 @@ getifaddrs (struct ifaddrs **ifap)
 				    rta_data, rta_payload);
 			  break;
 
+#ifdef __UCLIBC_HAS_IPV6__
 			case AF_INET6:
 			  /* Size must match that of an address for IPv6.  */
 			  if (rta_payload == 16)
@@ -721,6 +728,7 @@ getifaddrs (struct ifaddrs **ifap)
 				  = ifam->ifa_index;
 			    }
 			  break;
+#endif
 
 			default:
 			  if (rta_payload <= sizeof (ifas[ifa_index].addr))
@@ -777,10 +785,12 @@ getifaddrs (struct ifaddrs **ifap)
 		      max_prefixlen = 32;
 		      break;
 
+#ifdef __UCLIBC_HAS_IPV6__
 		    case AF_INET6:
 		      cp = (char *) &ifas[ifa_index].netmask.s6.sin6_addr;
 		      max_prefixlen = 128;
 		      break;
+#endif
 		    }
 
 		  ifas[ifa_index].ifa.ifa_netmask->sa_family

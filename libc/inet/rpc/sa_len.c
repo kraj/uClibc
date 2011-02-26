@@ -52,10 +52,14 @@ int __libc_sa_len (sa_family_t af)
 #endif
     case AF_INET:
       return sizeof (struct sockaddr_in);
+#ifdef __UCLIBC_HAS_IPV6__
     case AF_INET6:
       return sizeof (struct sockaddr_in6);
+#endif
+#if 0
     case AF_IPX:
       return sizeof (struct sockaddr_ipx);
+#endif
     case AF_LOCAL:
       return sizeof (struct sockaddr_un);
     }
