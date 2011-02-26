@@ -242,6 +242,7 @@ _dl_tls_setup (void)
   return 0;
 }
 
+extern void __pthread_initialize_minimal(void) __attribute__((weak));
 
 /* This is the minimal initialization function used when libpthread is
    not used.  */

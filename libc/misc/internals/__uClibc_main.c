@@ -313,6 +313,11 @@ void __uClibc_fini(void)
 }
 libc_hidden_def(__uClibc_fini)
 
+#ifndef SHARED
+extern void __nptl_deallocate_tsd (void) __attribute ((weak));
+extern unsigned int __nptl_nthreads __attribute ((weak));
+#endif
+
 /* __uClibc_main is the new main stub for uClibc. This function is
  * called from crt1 (version 0.9.28 or newer), after ALL shared libraries
  * are initialized, just before we call the application's main function.
@@ -481,7 +486,6 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 # ifdef SHARED
 		__libc_pthread_functions.ptr__nptl_deallocate_tsd ();
 # else
-		extern void __nptl_deallocate_tsd (void) __attribute ((weak));
 		__nptl_deallocate_tsd ();
 # endif
 
@@ -491,7 +495,6 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 # ifdef SHARED
 		unsigned int *const ptr = __libc_pthread_functions.ptr_nthreads;
 # else
-		extern unsigned int __nptl_nthreads __attribute ((weak));
 		unsigned int *const ptr = &__nptl_nthreads;
 # endif
 

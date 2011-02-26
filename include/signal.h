@@ -310,6 +310,9 @@ extern int sigwait (__const sigset_t *__restrict __set, int *__restrict __sig)
    __THROW.  */
 extern int sigwaitinfo (__const sigset_t *__restrict __set,
 			siginfo_t *__restrict __info) __nonnull ((1));
+#ifdef _LIBC
+extern __typeof(sigwaitinfo) __sigwaitinfo attribute_hidden;
+#endif
 libc_hidden_proto(sigwaitinfo)
 
 /* Select any of pending signals from SET and place information in INFO.
@@ -321,6 +324,9 @@ extern int sigtimedwait (__const sigset_t *__restrict __set,
 			 siginfo_t *__restrict __info,
 			 __const struct timespec *__restrict __timeout)
      __nonnull ((1));
+#ifdef _LIBC
+extern __typeof(sigtimedwait) __sigtimedwait attribute_hidden;
+#endif
 libc_hidden_proto(sigtimedwait)
 
 /* Send signal SIG to the process PID.  Associate data in VAL with the
