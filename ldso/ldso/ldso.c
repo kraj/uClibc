@@ -110,7 +110,7 @@ uintptr_t __stack_chk_guard attribute_relro;
 #  ifdef __UCLIBC_HAS_SSP_COMPAT__
 strong_alias(__stack_chk_guard,__guard)
 #  endif
-# elif __UCLIBC_HAS_SSP_COMPAT__
+# elif defined __UCLIBC_HAS_SSP_COMPAT__
 uintptr_t __guard attribute_relro;
 # endif
 #endif
