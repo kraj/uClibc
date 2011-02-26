@@ -11,15 +11,11 @@
 
 #ifdef __UCLIBC_HAS_STUBS__
 
-attribute_hidden int enosys_stub(void);
-libc_hidden_proto(enosys_stub)
-
-attribute_hidden int enosys_stub(void)
+static int enosys_stub(void)
 {
 	__set_errno(ENOSYS);
 	return -1;
 }
-libc_hidden_def(enosys_stub)
 
 #define make_stub(stub) \
 	link_warning(stub, #stub ": this function is not implemented") \
