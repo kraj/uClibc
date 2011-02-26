@@ -122,7 +122,7 @@ static uintptr_t in_flight_stack;
 list_t __stack_user __attribute__ ((nocommon));
 hidden_data_def (__stack_user)
 
-#if COLORING_INCREMENT != 0
+#if defined COLORING_INCREMENT && COLORING_INCREMENT != 0
 /* Number of threads created.  */
 static unsigned int nptl_ncreated;
 #endif
@@ -443,7 +443,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
       void *mem = 0;
       const int prot = (PROT_READ | PROT_WRITE);
 
-#if COLORING_INCREMENT != 0
+#if defined COLORING_INCREMENT && COLORING_INCREMENT != 0
       /* Add one more page for stack coloring.  Don't do it for stacks
 	 with 16 times pagesize or larger.  This might just cause
 	 unnecessary misalignment.  */
@@ -474,7 +474,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	     adjust the allocated stack size if necessary.  This way
 	     allocations directly following each other will not have
 	     aliasing problems.  */
-#if MULTI_PAGE_ALIASING != 0
+#if defined MULTI_PAGE_ALIASING && MULTI_PAGE_ALIASING != 0
 	  if ((size % MULTI_PAGE_ALIASING) == 0)
 	    size += pagesize_m1 + 1;
 #endif
@@ -494,7 +494,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	     So we can never get a null pointer back from mmap.  */
 	  assert (mem != NULL);
 
-#if COLORING_INCREMENT != 0
+#if defined COLORING_INCREMENT && COLORING_INCREMENT != 0
 	  /* Atomically increment NCREATED.  */
 	  unsigned int ncreated = atomic_increment_val (&nptl_ncreated);
 

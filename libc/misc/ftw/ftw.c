@@ -752,7 +752,7 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors,
 
 
 /* Entry points.  */
-#if __UCLIBC_HAS_FTW__
+#ifdef __UCLIBC_HAS_FTW__
 int
 FTW_NAME (const char *path, FTW_FUNC_T func, int descriptors)
 {
@@ -760,7 +760,7 @@ FTW_NAME (const char *path, FTW_FUNC_T func, int descriptors)
 }
 #endif
 
-#if __UCLIBC_HAS_NFTW__
+#ifdef __UCLIBC_HAS_NFTW__
 #ifndef _LIBC
 int
 NFTW_NAME (const char *path, NFTW_FUNC_T func, int descriptors, int flags)
