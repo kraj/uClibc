@@ -110,6 +110,7 @@ init_static_tls (size_t memsz, size_t align)
   GL(dl_tls_static_nelem) = GL(dl_tls_max_dtv_idx);
 }
 
+void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 void
 __libc_setup_tls (size_t tcbsize, size_t tcbalign)
 {

@@ -25,6 +25,7 @@ extern void __pthread_cleanup_upto (__jmp_buf env, char *targetframe);
 #pragma weak __pthread_cleanup_upto
 
 
+void _longjmp_unwind (jmp_buf env, int val);
 void
 _longjmp_unwind (jmp_buf env, int val)
 {

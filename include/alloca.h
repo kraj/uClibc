@@ -67,6 +67,8 @@ extern void *alloca (size_t __size) __THROW;
 #  define extend_alloca(buf, len, newlen) \
    alloca (((len) = (newlen)))
 # endif
+
+extern int __libc_alloca_cutoff (size_t size);
 #endif
 
 __END_DECLS
