@@ -9,6 +9,7 @@ subdirs += libutil
 
 CFLAGS-libutil := -DNOT_IN_libc -DIS_IN_libutil $(SSP_ALL_CFLAGS)
 
+LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-libutil.so := -Wl,--dsbt-index=8
 LDFLAGS-libutil.so := $(LDFLAGS)
 
 LIBS-libutil.so := $(LIBS)

@@ -18,6 +18,7 @@ LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
 else
 LDFLAGS-libpthread.so := $(LDFLAGS)
 endif
+LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-libpthread.so := -Wl,--dsbt-index=10
 
 LIBS-libpthread.so := $(LIBS) $(ldso)
 
