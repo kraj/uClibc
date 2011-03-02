@@ -813,13 +813,40 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		int idx = tpnt->loadaddr.map->dsbt_index;
 		unsigned *dsbt = tpnt->loadaddr.map->dsbt_table;
 
+		if (idx == 0) {
+			/* This DSO has not been assigned an index */
+			_dl_dprintf(2, "%s: '%s' is missing a dsbt index assignment!\n",
+				    _dl_progname, libname);
+			_dl_exit(1);
+		}
+
 		/*
 		 * Setup dsbt slot for this module in dsbt of all modules.
 		 */
 		for (t = _dl_loaded_modules; t; t = t->next) {
 			/* find a dsbt table from another module */
-			if (ref == NULL && t != tpnt)
+			if (ref == NULL && t != tpnt) {
 				ref = t;
+
+				/* make sure index is not already used */
+				if (t->loadaddr.map->dsbt_table[idx]) {
+					struct elf_resolve *dup;
+					char *dup_name;
+
+					for (dup = _dl_loaded_modules; dup; dup = dup->next)
+						if (dup != tpnt && dup->loadaddr.map->dsbt_index == idx)
+							break;
+					if (dup)
+						dup_name = dup->libname;
+					else if (idx == 1)
+						dup_name = "runtime linker";
+					else
+						dup_name = "unknown library";
+					_dl_dprintf(2, "%s: '%s' dsbt index %d already used by %s!\n",
+						    _dl_progname, libname, idx, dup_name);
+					_dl_exit(1);
+				}
+			}
 			t->loadaddr.map->dsbt_table[idx] = (unsigned)dsbt;
 		}
 		if (ref)
