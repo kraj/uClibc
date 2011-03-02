@@ -484,16 +484,17 @@ extern int bindresvport6 (int __sockfd, struct sockaddr_in6 *__sock_in)
 #define IN6_IS_ADDR_MC_GLOBAL(a) \
 	(IN6_IS_ADDR_MULTICAST(a)					      \
 	 && ((((__const uint8_t *) (a))[1] & 0xf) == 0xe))
+#endif
 
 
 #ifdef __USE_GNU
+# if defined __UCLIBC_HAS_IPV6__ || !defined __UCLIBC_STRICT_HEADERS__
 /* IPv6 packet information.  */
 struct in6_pktinfo
   {
     struct in6_addr ipi6_addr;	/* src/dst IPv6 address */
     unsigned int ipi6_ifindex;	/* send/recv interface index */
   };
-#endif
 
 /* IPv6 MTU information.  */
 struct ip6_mtuinfo
@@ -501,10 +502,9 @@ struct ip6_mtuinfo
     struct sockaddr_in6 ip6m_addr; /* dst address including zone ID */
     uint32_t ip6m_mtu;		   /* path MTU in host byte order */
   };
-#endif
-#if 0 /*def __USE_GNU*/
 
-#ifdef __UCLIBC_HAS_IPV6__
+
+#  if 0
 /* Obsolete hop-by-hop and Destination Options Processing (RFC 2292).  */
 extern int inet6_option_space (int __nbytes)
      __THROW __attribute_deprecated__;
@@ -552,9 +552,11 @@ extern int inet6_rth_reverse (__const void *__in, void *__out) __THROW;
 extern int inet6_rth_segments (__const void *__bp) __THROW;
 extern struct in6_addr *inet6_rth_getaddr (__const void *__bp, int __index)
      __THROW;
-#endif
+#  endif
+# endif
 
 
+# if 0
 /* Multicast source filter support.  */
 
 /* Get IPv4 source filter.  */
@@ -584,6 +586,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 			    socklen_t __grouplen, uint32_t __fmode,
 			    uint32_t __numsrc,
 			    __const struct sockaddr_storage *__slist) __THROW;
+# endif
 #endif	/* use GNU */
 
 __END_DECLS

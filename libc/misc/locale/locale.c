@@ -1057,6 +1057,7 @@ libc_hidden_def(__XL_NPP(nl_langinfo))
 /**********************************************************************/
 #ifdef L_newlocale
 
+#warning mask defines for extra locale categories
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Move posix and utf8 strings.

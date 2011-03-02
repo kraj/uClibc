@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,92,95-99,2000,01,02 Free Software Foundation, Inc.
+/* Copyright (C) 1991,1992,1995-2002,2007,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -133,7 +133,7 @@ libc_hidden_proto(localeconv)
 __END_NAMESPACE_STD
 
 
-#if defined __USE_GNU && defined __UCLIBC_HAS_LOCALE__
+#if defined __USE_XOPEN2K8 && defined __UCLIBC_HAS_LOCALE__
 /* The concept of one static locale per category is not very well
    thought out.  Many applications will need to process its data using
    information from several different locales.  Another application is
@@ -145,12 +145,13 @@ __END_NAMESPACE_STD
    Attention: all these functions are *not* standardized in any form.
    This is a proof-of-concept implementation.  */
 
-#ifdef __UCLIBC_HAS_XLOCALE__
+#if 0
 /* Get locale datatype definition.  */
 # include <xlocale.h>
-#endif
-
+#else
+/* POSIX 2008 makes locale_t official.  */
 typedef __locale_t locale_t;
+#endif
 
 /* Return a reference to a data structure representing a set of locale
    datasets.  Unlike for the CATEGORY parameter for `setlocale' the
@@ -170,9 +171,6 @@ libc_hidden_proto(newlocale)
 # define LC_COLLATE_MASK	(1 << __LC_COLLATE)
 # define LC_MONETARY_MASK	(1 << __LC_MONETARY)
 # define LC_MESSAGES_MASK	(1 << __LC_MESSAGES)
-#ifdef L_newlocale
-#warning mask defines for extra locale categories
-#endif /* L_newlocale - uClibc note */
 #ifdef LC_PAPER
 # define LC_PAPER_MASK		(1 << __LC_PAPER)
 # define LC_NAME_MASK		(1 << __LC_NAME)
