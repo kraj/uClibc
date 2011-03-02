@@ -417,6 +417,8 @@ extern uintmax_t _load_inttype(int desttype, const void *src, int uflag) attribu
 /**********************************************************************/
 #ifdef L_parse_printf_format
 
+#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__
+
 /* NOTE: This function differs from the glibc version in that parsing stops
  * upon encountering an invalid conversion specifier.  Since this is the way
  * my printf functions work, I think it makes sense to do it that way here.
@@ -483,6 +485,8 @@ size_t parse_printf_format(register const char *template,
 
 	return count;
 }
+
+#endif
 
 #endif
 /**********************************************************************/

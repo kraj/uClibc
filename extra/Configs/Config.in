@@ -1499,6 +1499,7 @@ config UCLIBC_HAS_GLIBC_CUSTOM_PRINTF
 	help
 	  Answer Y to support glibc's register_printf_function() to allow an
 	  application to add its own printf conversion specifiers.
+	  parse_printf_format() is also enabled.
 
 	  NOTE: Limits the number or registered specifiers to 10.
 	  NOTE: Requires new conversion specifiers to be ASCII
