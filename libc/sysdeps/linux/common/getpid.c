@@ -10,11 +10,13 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-extern __typeof(getpid) __libc_getpid;
-#if defined __NR_getxpid
+#ifdef __NR_getxpid
+# undef __NR_getpid
 # define __NR_getpid __NR_getxpid
 #endif
-#define __NR___libc_getpid __NR_getpid
-_syscall0(pid_t, __libc_getpid)
-weak_alias(__libc_getpid, getpid)
+
+_syscall_noerr0(pid_t, getpid)
 libc_hidden_weak(getpid)
+#ifndef __NR_getppid
+strong_alias(getpid,getppid)
+#endif

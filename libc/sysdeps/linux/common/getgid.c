@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#if defined __NR_getxgid
+#ifdef __NR_getxgid
 # undef __NR_getgid
 # define __NR_getgid __NR_getxgid
 #endif
@@ -19,5 +19,9 @@
 # define __NR_getgid __NR_getgid32
 #endif
 
-_syscall0(gid_t, getgid)
+_syscall_noerr0(gid_t, getgid)
 libc_hidden_def(getgid)
+#if !defined __NR_getegid32 && !defined __NR_getegid
+strong_alias(getgid,getegid)
+libc_hidden_def(getegid)
+#endif

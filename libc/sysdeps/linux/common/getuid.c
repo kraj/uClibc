@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#if defined __NR_getxuid
+#ifdef __NR_getxuid
 # undef __NR_getuid
 # define __NR_getuid __NR_getxuid
 #endif
@@ -19,5 +19,9 @@
 # define __NR_getuid __NR_getuid32
 #endif
 
-_syscall0(uid_t, getuid)
+_syscall_noerr0(uid_t, getuid)
 libc_hidden_def(getuid)
+#if !defined __NR_geteuid32 && !defined __NR_geteuid
+strong_alias(getuid,geteuid)
+libc_hidden_def(geteuid)
+#endif
