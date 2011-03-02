@@ -392,14 +392,17 @@ extern int siginterrupt (int __sig, int __interrupt) __THROW;
 # include <bits/sigstack.h>
 # ifdef __USE_XOPEN
 /* This will define `ucontext_t' and `mcontext_t'.  */
-#  include <ucontext.h>
+/* SuSv4 obsoleted include/ucontext.h */
+#  include <sys/ucontext.h>
 # endif
 
+# if 0
 /* Run signals handlers on the stack specified by SS (if not NULL).
    If OSS is not NULL, it is filled in with the old signal stack status.
    This interface is obsolete and on many platform not implemented.  */
 extern int sigstack (struct sigstack *__ss, struct sigstack *__oss)
      __THROW __attribute_deprecated__;
+# endif
 
 /* Alternate signal handler stack interface.
    This interface should always be preferred over `sigstack'.  */

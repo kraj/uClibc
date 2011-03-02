@@ -19,7 +19,6 @@
 #include "pthread.h"
 #include "internals.h"
 #include "spinlock.h"
-#include <ucontext.h>
 
 /* mods for uClibc: __libc_sigaction is not in any standard headers */
 extern __typeof(sigaction) __libc_sigaction;

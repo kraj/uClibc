@@ -276,9 +276,7 @@ HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += sys/fsuid.h sys/inotify.h sys/pe
 HEADERS_RM-$(UCLIBC_SUPPORT_AI_ADDRCONFIG)   += ifaddrs.h
 HEADERS_RM-$(UCLIBC_SV4_DEPRECATED)          += ustat.h sys/ustat.h bits/ustat.h
 HEADERS_RM-$(UCLIBC_SUSV3_LEGACY)            += sys/timeb.h regexp.h
-HEADERS_RM-$(UCLIBC_SUSV4_LEGACY)            += utime.h
-	# BREAKAGE: include/signal.h uses it, this rm broke bbox compile:
-	### ucontext.h
+HEADERS_RM-$(UCLIBC_SUSV4_LEGACY)            += utime.h ucontext.h
 
 ifneq ($(findstring install,$(MAKECMDGOALS)),)
 $(addprefix $(PREFIX)$(DEVEL_PREFIX),/include $(MULTILIB_DIR)):
