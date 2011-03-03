@@ -206,8 +206,8 @@ $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
 # a "y" here means the feature is enabled and so we should *not* rm it.
 # if the option expands to nothing though, we can punt the headers.
 HEADERS_RM- := \
-	libc-internal.h \
 	dl-osinfo.h \
+	hp-timing.h \
 	_lfs_64.h \
 	bits/uClibc_arch_features.h \
 	bits/kernel_sigaction.h \
