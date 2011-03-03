@@ -21,11 +21,13 @@
 
 #include <features.h>
 
+#ifndef __UCLIBC_STRICT_HEADERS__
 /* The default message set used by the gencat program.  */
 #define NL_SETD 1
 
 /* Value for FLAG parameter of `catgets' to say we want XPG4 compliance.  */
 #define NL_CAT_LOCALE 1
+#endif
 
 
 __BEGIN_DECLS
@@ -34,8 +36,10 @@ __BEGIN_DECLS
 #warning "mjn3 FIXME: None of these prototypes have implementations."
 #endif
 
+#ifndef __UCLIBC_STRICT_HEADERS__
 /* Message catalog descriptor type.  */
 typedef void *nl_catd;
+#endif
 
 /* Type used by `nl_langinfo'.  */
 typedef int nl_item;
