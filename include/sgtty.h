@@ -19,21 +19,27 @@
 #ifndef	_SGTTY_H
 #define	_SGTTY_H	1
 
+#warning useless header on uClibc
+
 #include <features.h>
 
 #include <sys/ioctl.h>
 
+#ifndef __UCLIBC_STRICT_HEADERS__
 /* On some systems this type is not defined by <bits/ioctl-types.h>;
    in that case, the functions are just stubs that return ENOSYS.  */
 struct sgttyb;
+#endif
 
 __BEGIN_DECLS
 
+#if 0
 /* Fill in *PARAMS with terminal parameters associated with FD.  */
 extern int gtty (int __fd, struct sgttyb *__params) __THROW;
 
 /* Set the terminal parameters associated with FD to *PARAMS.  */
 extern int stty (int __fd, __const struct sgttyb *__params) __THROW;
+#endif
 
 
 __END_DECLS
