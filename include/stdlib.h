@@ -50,9 +50,9 @@ __BEGIN_DECLS
    as well as POSIX.1 use of `int' for the status word.  */
 
 #  if defined __GNUC__ && !defined __cplusplus
-#   define __WAIT_INT(status)						      \
-  (__extension__ ({ union { __typeof(status) __in; int __i; } __u;	      \
-		    __u.__in = (status); __u.__i; }))
+#   define __WAIT_INT(status) \
+  (__extension__ (((union { __typeof(status) __in; int __i; }) \
+		   { .__in = (status) }).__i))
 #  else
 #   define __WAIT_INT(status)	(*(int *) &(status))
 #  endif
@@ -244,14 +244,14 @@ __END_NAMESPACE_C99
 #if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
 /* The concept of one static locale per category is not very well
    thought out.  Many applications will need to process its data using
-   information from several different locales.  Another application is
+   information from several different locales.  Another problem is
    the implementation of the internationalization handling in the
-   upcoming ISO C++ standard library.  To support this another set of
-   the functions using locale data exist which have an additional
+   ISO C++ standard library.  To support this another set of
+   the functions using locale data exist which take an additional
    argument.
 
-   Attention: all these functions are *not* standardized in any form.
-   This is a proof-of-concept implementation.  */
+   Attention: even though several *_l interfaces are part of POSIX:2008,
+   these are not.  */
 
 /* Structure for reentrant locale using functions.  This is an
    (almost) opaque type for the user level programs.  */
@@ -347,10 +347,16 @@ struct random_data
     int32_t *fptr;		/* Front pointer.  */
     int32_t *rptr;		/* Rear pointer.  */
     int32_t *state;		/* Array of state values.  */
+#if 0
+    int rand_type;		/* Type of random number generator.  */
+    int rand_deg;		/* Degree of random number generator.  */
+    int rand_sep;		/* Distance between front and rear.  */
+#else
     /* random_r.c, TYPE_x, DEG_x, SEP_x - small enough for int8_t */
     int8_t rand_type;		/* Type of random number generator.  */
     int8_t rand_deg;		/* Degree of random number generator.  */
     int8_t rand_sep;		/* Distance between front and rear.  */
+#endif
     int32_t *end_ptr;		/* Pointer behind state table.  */
   };
 
@@ -540,7 +546,7 @@ extern int on_exit (void (*__func) (int __status, void *__arg), void *__arg)
 
 __BEGIN_NAMESPACE_STD
 /* Call all functions registered with `atexit' and `on_exit',
-   in the reverse of the order in which they were registered
+   in the reverse of the order in which they were registered,
    perform stdio cleanup, and terminate program execution with STATUS.  */
 extern void exit (int __status) __THROW __attribute__ ((__noreturn__));
 libc_hidden_proto(exit)
@@ -619,7 +625,7 @@ extern char *mktemp (char *__template) __THROW __nonnull ((1)) __wur;
    Returns a file descriptor open on the file for reading and writing,
    or -1 if it cannot create a uniquely-named file.
 
-   This function is a possible cancellation points and therefore not
+   This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 # ifndef __USE_FILE_OFFSET64
 extern int mkstemp (char *__template) __nonnull ((1)) __wur;
@@ -636,7 +642,7 @@ extern int mkstemp64 (char *__template) __nonnull ((1)) __wur;
 # endif
 #endif
 
-#ifdef __USE_BSD
+#if defined __USE_BSD || defined __USE_XOPEN2K8
 /* Create a unique temporary directory from TEMPLATE.
    The last six characters of TEMPLATE must be "XXXXXX";
    they are replaced with a string that makes the directory name unique.
@@ -662,14 +668,17 @@ extern char *canonicalize_file_name (__const char *__name)
      __THROW __nonnull ((1)) __wur;
 #endif
 
-/* Return the canonical absolute name of file NAME. If the
-   canonical name is PATH_MAX chars or more, returns null
-   with `errno' set to ENAMETOOLONG; if the name fits in
-	 fewer than PATH_MAX chars, returns the name in RESOLVED. */
-/* we choose to handle __resolved==NULL as crash :) */
+#if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+/* Return the canonical absolute name of file NAME.  If RESOLVED is
+   null, the result is malloc'd; otherwise, if the canonical name is
+   PATH_MAX chars or more, returns null with `errno' set to
+   ENAMETOOLONG; if the name fits in fewer than PATH_MAX chars,
+   returns the name in RESOLVED.  */
 extern char *realpath (__const char *__restrict __name,
 		       char *__restrict __resolved) __THROW __wur;
 libc_hidden_proto(realpath)
+#endif
+
 
 /* Shorthand for type of comparison functions.  */
 #ifndef __COMPAR_FN_T
@@ -852,6 +861,7 @@ libc_hidden_proto(posix_openpt)
 #ifdef __USE_XOPEN
 /* The next four functions all take a master pseudo-tty fd and
    perform an operation on the associated slave:  */
+
 #ifdef __UCLIBC_HAS_PTY__
 /* Chown the slave to the calling user.  */
 extern int grantpt (int __fd) __THROW;
