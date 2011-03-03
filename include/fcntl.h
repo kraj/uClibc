@@ -234,7 +234,10 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 # endif
 #endif
 
+#ifdef _LIBC
 extern int __fcntl_nocancel (int fd, int cmd, ...);
+libc_hidden_proto(__fcntl_nocancel)
+#endif
 
 __END_DECLS
 
