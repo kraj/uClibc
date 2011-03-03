@@ -41,7 +41,6 @@ config CONFIG_SH3
 	bool "SH3"
 
 config CONFIG_SH4
-	select FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "SH4"
 
 endchoice
