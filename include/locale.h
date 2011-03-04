@@ -145,13 +145,13 @@ __END_NAMESPACE_STD
    Attention: all these functions are *not* standardized in any form.
    This is a proof-of-concept implementation.  */
 
-#if 0
+#ifdef __UCLIBC_HAS_XLOCALE__
 /* Get locale datatype definition.  */
 # include <xlocale.h>
-#else
+#endif
+
 /* POSIX 2008 makes locale_t official.  */
 typedef __locale_t locale_t;
-#endif
 
 /* Return a reference to a data structure representing a set of locale
    datasets.  Unlike for the CATEGORY parameter for `setlocale' the
