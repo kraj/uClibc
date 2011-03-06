@@ -11,12 +11,6 @@ config FORCE_OPTIONS_FOR_ARCH
 	default y
 	select ARCH_ANY_ENDIAN
 
-config ARCH_CFLAGS
-	string
-
-config ARCH_LDFLAGS
-	string
-
 choice
 	prompt "Target Processor Type"
 	default CONFIG_GENERIC_C6X
