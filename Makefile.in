@@ -186,8 +186,8 @@ $(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscal
 	fi
 
 $(LOCAL_INSTALL_PATH):
-	$(Q)$(MAKE) PREFIX=$(shell pwd)/$(LOCAL_INSTALL_PATH) RUNTIME_PREFIX= \
-	DEVEL_PREFIX=/usr \
+	$(Q)$(MAKE) PREFIX=$(shell pwd)/$(LOCAL_INSTALL_PATH) RUNTIME_PREFIX=/ \
+	DEVEL_PREFIX=/usr/ \
 	HOSTCC="$(HOSTCC)" \
 	install
 
@@ -281,7 +281,7 @@ HEADERS_RM-$(UCLIBC_SUSV3_LEGACY)            += sys/timeb.h regexp.h
 HEADERS_RM-$(UCLIBC_SUSV4_LEGACY)            += utime.h ucontext.h
 
 ifneq ($(findstring install,$(MAKECMDGOALS)),)
-$(addprefix $(PREFIX)$(DEVEL_PREFIX),/include $(MULTILIB_DIR)):
+$(addprefix $(PREFIX)$(DEVEL_PREFIX),include $(MULTILIB_DIR)):
 	$(do_mkdir)
 # avoid warning about duplicate targets in rule or overrides
 ifneq ($(abspath $(RUNTIME_PREFIX)$(MULTILIB_DIR)),$(abspath $(DEVEL_PREFIX)$(MULTILIB_DIR)))
@@ -289,22 +289,22 @@ $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR):
 	$(do_mkdir)
 endif
 endif
-install_headers: headers $(top_builddir)extra/scripts/unifdef | $(PREFIX)$(DEVEL_PREFIX)/include
-	@$(call disp_install,"include -> $(PREFIX)$(DEVEL_PREFIX)/include")
+install_headers: headers $(top_builddir)extra/scripts/unifdef | $(PREFIX)$(DEVEL_PREFIX)include
+	@$(call disp_install,"include -> $(PREFIX)$(DEVEL_PREFIX)include")
 	$(Q)top_builddir=$(top_builddir) \
 	$(top_srcdir)extra/scripts/install_headers.sh \
-	include $(PREFIX)$(DEVEL_PREFIX)/include
+	include $(PREFIX)$(DEVEL_PREFIX)include
 ifneq ($(O),) # only run this step in O is set i.e. make O=/my/builddir/ ..
-	@$(call disp_install,"$(top_builddir)/include -> $(PREFIX)$(DEVEL_PREFIX)/include")
+	@$(call disp_install,"$(top_builddir)/include -> $(PREFIX)$(DEVEL_PREFIX)include")
 	$(Q)top_builddir=$(top_builddir) \
 	$(top_srcdir)extra/scripts/install_headers.sh \
-	$(top_builddir)/include $(PREFIX)$(DEVEL_PREFIX)/include
+	$(top_builddir)/include $(PREFIX)$(DEVEL_PREFIX)include
 endif
-	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)/include && $(RM) -r $(HEADERS_RM-)
+	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -r $(HEADERS_RM-)
 ifeq ($(UCLIBC_HAS_WCHAR),)
-	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)/include && mv -f wchar-stub.h wchar.h
+	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && mv -f wchar-stub.h wchar.h
 else
-	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)/include && $(RM) -f wchar-stub.h
+	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -f wchar-stub.h
 endif
 
 # Installs startfiles
