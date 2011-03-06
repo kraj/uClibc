@@ -18,23 +18,19 @@
    02111-1307 USA.  */
 
 #include <limits.h>
-#define ffsl __something_else
-#include "_string.h"
-#undef ffsl
+#include <string.h>
 
 /* Find the first bit set in I.  */
-int __libc_ffsll (long long int i)
+int ffsll (long long int i)
 {
   unsigned long long int x = i & -i;
 
   if (x <= 0xffffffff)
-    return __libc_ffs (i);
+    return ffs (i);
   else
-    return 32 + __libc_ffs (i >> 32);
+    return 32 + ffs (i >> 32);
 }
-libc_hidden_def(__libc_ffsll)
 
-weak_alias (__libc_ffsll, ffsll)
 #if ULONG_MAX != UINT_MAX
-weak_alias (__libc_ffsll, ffsl)
+strong_alias_untyped(ffsll, ffsl)
 #endif

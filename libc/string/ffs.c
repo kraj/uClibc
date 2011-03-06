@@ -6,11 +6,9 @@
  */
 
 #include <limits.h>
-#define ffsl __something_else
-#include "_string.h"
-#undef ffsl
+#include <string.h>
   
-int __libc_ffs(int i)
+int ffs(int i)
 {
 #if 1
 	/* inlined binary search method */
@@ -51,8 +49,7 @@ int __libc_ffs(int i)
 	return n;
 #endif
 }
-libc_hidden_def(__libc_ffs)
-weak_alias(__libc_ffs,ffs)
+libc_hidden_def(ffs)
 #if ULONG_MAX == UINT_MAX
-weak_alias (__libc_ffs, ffsl)
+strong_alias_untyped(ffs, ffsl)
 #endif
