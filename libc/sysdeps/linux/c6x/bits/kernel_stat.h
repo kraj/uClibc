@@ -6,46 +6,43 @@
  * different opinion on the subject... */
 
 struct kernel_stat {
-	unsigned short st_dev;
-	unsigned short __pad1;
-	unsigned long st_ino;
-	unsigned short st_mode;
-	unsigned short st_nlink;
-	unsigned short st_uid;
-	unsigned short st_gid;
-	unsigned short st_rdev;
-	unsigned short __pad2;
-	unsigned long  st_size;
-	unsigned long  st_blksize;
-	unsigned long  st_blocks;
+	unsigned long	st_dev;		/* Device.  */
+	unsigned long	st_ino;		/* File serial number.  */
+	unsigned int	st_mode;	/* File mode.  */
+	unsigned int	st_nlink;	/* Link count.  */
+	unsigned int	st_uid;		/* User ID of the file's owner.  */
+	unsigned int	st_gid;		/* Group ID of the file's group. */
+	unsigned long	st_rdev;	/* Device number, if device.  */
+	unsigned long	__pad1;
+	long		st_size;	/* Size of file, in bytes.  */
+	int		st_blksize;	/* Optimal block size for I/O.  */
+	int		__pad2;
+	long		st_blocks;	/* Number 512-byte blocks allocated. */
 	struct timespec st_atim;
 	struct timespec st_mtim;
 	struct timespec st_ctim;
-	unsigned long  __unused4;
-	unsigned long  __unused5;
+	unsigned int	__unused4;
+	unsigned int	__unused5;
 };
 
 struct kernel_stat64 {
-	unsigned char	__pad0[6];
-	unsigned short	st_dev;
-	unsigned char	__pad1[2];
-#define _HAVE_STAT64___ST_INO
-	unsigned long	__st_ino;
-	unsigned int	st_mode;
-	unsigned int	st_nlink;
-	unsigned long	st_uid;
-	unsigned long	st_gid;
-	unsigned char	__pad2[6];
-	unsigned short	st_rdev;
-	unsigned char	__pad3[2];
-	__off64_t	st_size;
-	unsigned long	st_blksize;
-	unsigned long	__pad4;		/* future possible st_blocks high bits */
-	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
+	unsigned long long st_dev;	/* Device.  */
+	unsigned long long st_ino;	/* File serial number.  */
+	unsigned int	st_mode;	/* File mode.  */
+	unsigned int	st_nlink;	/* Link count.  */
+	unsigned int	st_uid;		/* User ID of the file's owner.  */
+	unsigned int	st_gid;		/* Group ID of the file's group. */
+	unsigned long long st_rdev;	/* Device number, if device.  */
+	unsigned long long __pad1;
+	long long	st_size;	/* Size of file, in bytes.  */
+	int		st_blksize;	/* Optimal block size for I/O.  */
+	int		__pad2;
+	long long	st_blocks;	/* Number 512-byte blocks allocated. */
 	struct timespec st_atim;
 	struct timespec st_mtim;
 	struct timespec st_ctim;
-	__off64_t	st_ino;
+	unsigned int	__unused4;
+	unsigned int	__unused5;
 };
 
 #endif	/*  _BITS_STAT_STRUCT_H */
