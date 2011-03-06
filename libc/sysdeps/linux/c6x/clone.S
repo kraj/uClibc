@@ -17,6 +17,7 @@
  ; along with this program; if not, write to the Free Software Foundation,
  ; Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  ;
+#define __ASSEMBLY__
 
 	; int _clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg);
 
@@ -50,7 +51,7 @@ __clone:
 ||	AND .D2	~7,B4,B4
 
 	; do the system call
-||	MVK .S2	120,B0		; __NR_clone
+||	MVK .S2	__NR_clone,B0
 ||	MV .L2  B5,B6
 0:
 #ifndef	_TMS320C6400_PLUS
