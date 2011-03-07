@@ -1303,7 +1303,9 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 
 	return base;
 }
+#ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_def(newlocale)
+#endif
 
 #endif
 /**********************************************************************/
