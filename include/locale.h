@@ -204,7 +204,6 @@ libc_hidden_proto(newlocale)
 /* Return a duplicate of the set of locale in DATASET.  All usage
    counters are increased if necessary.  */
 extern __locale_t duplocale (__locale_t __dataset) __THROW;
-libc_hidden_proto(duplocale)
 
 /* Free the data associated with a locale dataset previously returned
    by a call to `setlocale_r'.  */

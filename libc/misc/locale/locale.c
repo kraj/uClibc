@@ -1337,7 +1337,6 @@ __locale_t duplocale(__locale_t dataset)
 	}
 	return r;
 }
-libc_hidden_def(duplocale)
 
 #endif
 /**********************************************************************/
