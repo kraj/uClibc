@@ -327,6 +327,7 @@ ifeq ($(HARDWIRED_ABSPATH),y)
 		    -e 's:$(SHARED_LIBNAME):$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(SHARED_LIBNAME):' \
 		    -e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UCLIBC_LDSO):' \
 		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so; \
+		$(SED) -i -e 's://:/:g' $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so; \
 	fi
 else
 	-$(INSTALL) -m 755 $(top_builddir)lib/libc.so $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
@@ -345,6 +346,7 @@ ifeq ($(HARDWIRED_ABSPATH),y)
 		cp $(top_srcdir)extra/scripts/format.lds $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
 		echo "GROUP ( $(RUNTIME_PREFIX)$(MULTILIB_DIR)/libpthread.so.$(ABI_VERSION) $(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread_nonshared.a )" \
 			>> $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
+		$(SED) -i -e 's://:/:g' $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
 	fi
 else
 	-$(INSTALL) -m 755 $(top_builddir)lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
