@@ -215,6 +215,7 @@ HEADERS_RM- := \
 	bits/kernel_types.h \
 	bits/syscalls.h \
 	bits/syscalls-common.h \
+	bits/uClibc_fpmax.h \
 	bits/uClibc_uintmaxtostr.h \
 	bits/uClibc_uwchar.h \
 	bits/uClibc_va_copy.h \
@@ -236,7 +237,6 @@ HEADERS_RM-$(UCLIBC_HAS_FENV)                += fenv.h bits/fenv.h bits/fenvinli
 HEADERS_RM-$(UCLIBC_HAS_FLOATS)              += complex.h fpu_control.h ieee754.h \
 	math.h \
 	tgmath.h \
-	bits/uClibc_fpmax.h \
 	bits/math*.h
 HEADERS_RM-$(findstring y,$(UCLIBC_HAS_FTW)$(UCLIBC_HAS_NFTW))  += ftw.h
 HEADERS_RM-$(UCLIBC_HAS_GETTEXT_AWARENESS)   += libintl.h
