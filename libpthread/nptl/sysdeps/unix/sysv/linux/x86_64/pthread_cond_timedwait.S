@@ -98,7 +98,7 @@ __pthread_cond_timedwait:
 22:
 #ifndef __ASSUME_FUTEX_CLOCK_REALTIME
 #  ifdef __PIC__
-	cmpl	$0, __have_futex_clock_realtime(%rip)
+	cmpl	$0, __have_futex_clock_realtime@GOTOFF(%rip)
 #  else
 	cmpl	$0, __have_futex_clock_realtime
 #  endif
@@ -437,14 +437,6 @@ __pthread_cond_timedwait:
 	/* Only clocks 0 and 1 are allowed so far.  Both are handled in the
 	   kernel.  */
 	leaq	32(%rsp), %rsi
-#  ifdef SHARED
-	movq	__vdso_clock_gettime@GOTPCREL(%rip), %rax
-	movq	(%rax), %rax
-	PTR_DEMANGLE (%rax)
-	jz	26f
-	call	*%rax
-	jmp	27f
-#  endif
 26:	movl	$__NR_clock_gettime, %eax
 	syscall
 27:

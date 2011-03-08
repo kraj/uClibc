@@ -118,7 +118,7 @@ __lll_robust_timedlock_wait:
 	cfi_startproc
 # ifndef __ASSUME_FUTEX_CLOCK_REALTIME
 #  ifdef __PIC__
-	cmpl	$0, __have_futex_clock_realtime(%rip)
+	cmpl	$0, __have_futex_clock_realtime@GOTOFF(%rip)
 #  else
 	cmpl	$0, __have_futex_clock_realtime
 #  endif
