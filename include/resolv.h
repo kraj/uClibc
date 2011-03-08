@@ -282,46 +282,61 @@ extern struct __res_state *__res_state(void) __attribute__ ((__const__));
 __END_DECLS
 #define _res (*__res_state())
 
+#if 0
 #define fp_nquery		__fp_nquery
 #define fp_query		__fp_query
 #define hostalias		__hostalias
 #define p_query			__p_query
+#endif
 #define res_close		__res_close
 #define res_init		__res_init
+#if 0
 #define res_isourserver		__res_isourserver
 #define res_mkquery		__res_mkquery
+#endif
 #define res_query		__res_query
 #define res_querydomain		__res_querydomain
 #define res_search		__res_search
+#if 0
 #define res_send		__res_send
+#endif
 
 __BEGIN_DECLS
+#if 0
 void		fp_nquery (const u_char *, int, FILE *) __THROW;
 void		fp_query (const u_char *, FILE *) __THROW;
 const char *	hostalias (const char *) __THROW;
 void		p_query (const u_char *) __THROW;
+#endif
 #ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
 void		res_close (void) __THROW;
 #endif
 int		res_init (void) __THROW;
 libc_hidden_proto(res_init)
+#if 0
 int		res_isourserver (const struct sockaddr_in *) __THROW;
 int		res_mkquery (int, const char *, int, int, const u_char *,
 			     int, const u_char *, u_char *, int) __THROW;
+#endif
 int		res_query (const char *, int, int, u_char *, int) __THROW;
 libc_hidden_proto(res_query)
 int		res_querydomain (const char *, const char *, int, int,
 				 u_char *, int) __THROW;
 libc_hidden_proto(res_querydomain)
 int		res_search (const char *, int, int, u_char *, int) __THROW;
+#if 0
 int		res_send (const u_char *, int, u_char *, int) __THROW;
+#endif
 __END_DECLS
 
+#if 0
 #define b64_ntop		__b64_ntop
 #define b64_pton		__b64_pton
 #define dn_comp			__dn_comp
 #define dn_count_labels		__dn_count_labels
+#endif
 #define dn_expand		__dn_expand
+#if 0
 #define dn_skipname		__dn_skipname
 #define fp_resstat		__fp_resstat
 #define loc_aton		__loc_aton
@@ -359,7 +374,9 @@ __END_DECLS
 #define sym_ntop		__sym_ntop
 #define sym_ntos		__sym_ntos
 #define sym_ston		__sym_ston
+#endif
 __BEGIN_DECLS
+#if 0
 int		res_hnok (const char *) __THROW;
 int		res_ownok (const char *) __THROW;
 int		res_mailok (const char *) __THROW;
@@ -389,8 +406,10 @@ char *		p_secstodate (u_long) __THROW;
 int		dn_count_labels (const char *) __THROW;
 int		dn_comp (const char *, u_char *, int, u_char **, u_char **)
      __THROW;
+#endif
 int		dn_expand (const u_char *, const u_char *, const u_char *,
 			   char *, int) __THROW;
+#if 0
 u_int		res_randomid (void) __THROW;
 int		res_nameinquery (const char *, int, int,
 				 const u_char *, const u_char *) __THROW;
@@ -418,6 +437,7 @@ int		res_nmkquery (res_state, int, const char *, int, int,
 int		res_nsend (res_state, const u_char *, int, u_char *, int)
      __THROW;
 void		res_nclose (res_state) __THROW;
+#endif
 __END_DECLS
 
 # if _LIBC
