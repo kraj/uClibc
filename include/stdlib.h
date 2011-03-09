@@ -908,6 +908,13 @@ libc_hidden_proto(arc4random_stir)
 extern void arc4random_addrandom(unsigned char *, int);
 #endif
 
+#ifdef _LIBC
+extern int __drand48_iterate (unsigned short int xsubi[3], struct drand48_data *buffer) attribute_hidden;
+
+/* Global state for non-reentrant functions.  */
+extern struct drand48_data __libc_drand48_data attribute_hidden;
+#endif
+
 #endif /* don't just need malloc and calloc */
 #undef __need_malloc_and_calloc
 
