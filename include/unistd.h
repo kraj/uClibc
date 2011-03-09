@@ -51,9 +51,11 @@ __BEGIN_DECLS
    Software Development Utilities Option.  */
 #define	_POSIX2_SW_DEV	200112L
 
+#if 0 /* uClibc does not provide the utility */
 /* If defined, the implementation supports the
    creation of locales with the localedef utility.  */
 #define _POSIX2_LOCALEDEF       200112L
+#endif
 
 /* X/Open version number to which the library conforms.  It is selectable.  */
 #ifdef __USE_UNIX98
