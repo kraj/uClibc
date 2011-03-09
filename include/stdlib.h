@@ -165,7 +165,6 @@ libc_hidden_proto(atoi)
 /* Convert a string to a long integer.  */
 extern long int atol (__const char *__nptr)
      __THROW __attribute_pure__ __nonnull ((1)) __wur;
-libc_hidden_proto(atol)
 __END_NAMESPACE_STD
 
 #if defined __USE_ISOC99 || defined __USE_MISC

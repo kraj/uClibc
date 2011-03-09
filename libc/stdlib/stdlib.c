@@ -286,11 +286,11 @@ long atol(const char *nptr)
 {
 	return strtol(nptr, (char **) NULL, 10);
 }
-libc_hidden_def(atol)
 
 #if UINT_MAX == ULONG_MAX
 #undef atoi
 extern __typeof(atol) atoi;
+/* the one in stdlib.h is not enough due to prototype mismatch */
 libc_hidden_proto(atoi)
 strong_alias(atol,atoi)
 libc_hidden_def(atoi)
@@ -339,10 +339,13 @@ strong_alias(strtol,strtoimax)
 #undef strtoll
 #endif
 extern __typeof(__XL_NPP(strtol)) __XL_NPP(strtoll);
+/* the one in stdlib.h is not enough due to prototype mismatch */
+#ifdef L_strtol
 libc_hidden_proto(__XL_NPP(strtoll))
+#endif
 strong_alias(__XL_NPP(strtol),__XL_NPP(strtoll))
+#ifdef L_strtol
 libc_hidden_def(__XL_NPP(strtoll))
-#if !defined(L_strtol_l)
 strong_alias(strtol,strtoq)
 #endif
 #endif
@@ -353,16 +356,14 @@ strong_alias(strtol,strtoq)
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
-libc_hidden_proto(__XL_NPP(strtoll))
 long long __XL_NPP(strtoll)(const char * __restrict str,
 						char ** __restrict endptr, int base
 						__LOCALE_PARAM)
 {
 	return (long long) __XL_NPP(_stdlib_strto_ll)(str, endptr, base, 1 __LOCALE_ARG);
 }
+#ifdef L_strtoll
 libc_hidden_def(__XL_NPP(strtoll))
-
-#if !defined(L_strtoll_l)
 #if (ULLONG_MAX == UINTMAX_MAX)
 strong_alias(strtoll,strtoimax)
 #endif
@@ -394,9 +395,7 @@ strong_alias(strtoul,strtoumax)
 #undef strtoull
 #endif
 extern __typeof(__XL_NPP(strtoul)) __XL_NPP(strtoull);
-libc_hidden_proto(__XL_NPP(strtoull))
 strong_alias(__XL_NPP(strtoul),__XL_NPP(strtoull))
-libc_hidden_def(__XL_NPP(strtoull))
 #if !defined(L_strtoul_l)
 strong_alias(strtoul,strtouq)
 #endif
@@ -409,14 +408,12 @@ strong_alias(strtoul,strtouq)
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
-libc_hidden_proto(__XL_NPP(strtoull))
 unsigned long long __XL_NPP(strtoull)(const char * __restrict str,
 								  char ** __restrict endptr, int base
 								  __LOCALE_PARAM)
 {
 	return __XL_NPP(_stdlib_strto_ll)(str, endptr, base, 0 __LOCALE_ARG);
 }
-libc_hidden_def(__XL_NPP(strtoull))
 
 #if !defined(L_strtoull_l)
 #if (ULLONG_MAX == UINTMAX_MAX)
@@ -1046,13 +1043,11 @@ size_t wcstombs(char * __restrict s, const wchar_t * __restrict pwcs, size_t n)
 /**********************************************************************/
 #if defined(L_wcstol) || defined(L_wcstol_l)
 
-libc_hidden_proto(__XL_NPP(wcstol))
 long __XL_NPP(wcstol)(const wchar_t * __restrict str,
 				  wchar_t ** __restrict endptr, int base __LOCALE_PARAM)
 {
 	return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 1 __LOCALE_ARG);
 }
-libc_hidden_def(__XL_NPP(wcstol))
 
 #if (ULONG_MAX == UINTMAX_MAX) && !defined(L_wcstol_l)
 strong_alias(wcstol,wcstoimax)
@@ -1065,9 +1060,7 @@ strong_alias(wcstol,wcstoimax)
 #undef wcstoll
 #endif
 extern __typeof(__XL_NPP(wcstol)) __XL_NPP(wcstoll);
-libc_hidden_proto(__XL_NPP(wcstoll))
 strong_alias(__XL_NPP(wcstol),__XL_NPP(wcstoll))
-libc_hidden_def(__XL_NPP(wcstoll))
 #endif
 
 #endif
@@ -1076,14 +1069,12 @@ libc_hidden_def(__XL_NPP(wcstoll))
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
-libc_hidden_proto(__XL_NPP(wcstoll))
 long long __XL_NPP(wcstoll)(const wchar_t * __restrict str,
 						wchar_t ** __restrict endptr, int base
 						__LOCALE_PARAM)
 {
 	return (long long) __XL_NPP(_stdlib_wcsto_ll)(str, endptr, base, 1 __LOCALE_ARG);
 }
-libc_hidden_def(__XL_NPP(wcstoll))
 
 #if !defined(L_wcstoll_l)
 #if (ULLONG_MAX == UINTMAX_MAX)
@@ -1098,14 +1089,12 @@ strong_alias(wcstoll,wcstoq)
 /**********************************************************************/
 #if defined(L_wcstoul) || defined(L_wcstoul_l)
 
-libc_hidden_proto(__XL_NPP(wcstoul))
 unsigned long __XL_NPP(wcstoul)(const wchar_t * __restrict str,
 							wchar_t ** __restrict endptr, int base
 							__LOCALE_PARAM)
 {
 	return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 0 __LOCALE_ARG);
 }
-libc_hidden_def(__XL_NPP(wcstoul))
 
 #if (ULONG_MAX == UINTMAX_MAX) && !defined(L_wcstoul_l)
 strong_alias(wcstoul,wcstoumax)
@@ -1118,9 +1107,7 @@ strong_alias(wcstoul,wcstoumax)
 #undef wcstoull
 #endif
 extern __typeof(__XL_NPP(wcstoul)) __XL_NPP(wcstoull);
-libc_hidden_proto(__XL_NPP(wcstoull))
 strong_alias(__XL_NPP(wcstoul),__XL_NPP(wcstoull))
-libc_hidden_def(__XL_NPP(wcstoull))
 #endif
 
 #endif
@@ -1129,14 +1116,12 @@ libc_hidden_def(__XL_NPP(wcstoull))
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
-libc_hidden_proto(__XL_NPP(wcstoull))
 unsigned long long __XL_NPP(wcstoull)(const wchar_t * __restrict str,
 								  wchar_t ** __restrict endptr, int base
 								  __LOCALE_PARAM)
 {
 	return __XL_NPP(_stdlib_wcsto_ll)(str, endptr, base, 0 __LOCALE_ARG);
 }
-libc_hidden_def(__XL_NPP(wcstoull))
 
 #if !defined(L_wcstoull_l)
 #if (ULLONG_MAX == UINTMAX_MAX)
