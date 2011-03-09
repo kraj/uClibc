@@ -64,7 +64,7 @@ int __XL_NPP(strncasecmp)(register const Wchar *s1, register const Wchar *s2,
 	return r;
 #endif
 }
-#ifndef WANT_WIDE
+#if !defined WANT_WIDE || (defined WANT_WIDE && defined __UCLIBC_DO_XLOCALE)
 libc_hidden_def(__XL_NPP(strncasecmp))
 #endif
 
