@@ -167,6 +167,7 @@ type name(C_DECL_ARGS_##nargs(args)) {					\
 }
 
 #define _syscall0(args...)		SYSCALL_FUNC(0, args)
+#define _syscall_noerr0(args...)	SYSCALL_NOERR_FUNC(0, args)
 #define _syscall1(args...)		SYSCALL_FUNC(1, args)
 #define _syscall_noerr1(args...)	SYSCALL_NOERR_FUNC(1, args)
 #define _syscall2(args...)		SYSCALL_FUNC(2, args)
