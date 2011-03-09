@@ -4,10 +4,6 @@
 #ifndef _BITS_STAT_STRUCT_H
 #define _BITS_STAT_STRUCT_H
 
-#ifndef _LIBC
-#error bits/kernel_stat.h is for internal uClibc use only!
-#endif
-
 /*
  * Modified 1998, 1999
  *	David Mosberger-Tang <davidm@hpl.hp.com>, Hewlett-Packard Co
