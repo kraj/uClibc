@@ -2455,11 +2455,9 @@ size_t wcsftime(wchar_t *__restrict s, size_t maxsize,
 {
 	return wcsftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
 }
-libc_hidden_def(wcsftime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-libc_hidden_proto(__XL_NPP(wcsftime))
 size_t __XL_NPP(wcsftime)(wchar_t *__restrict s, size_t maxsize,
 					  const wchar_t *__restrict format,
 					  const struct tm *__restrict timeptr   __LOCALE_PARAM )
@@ -2467,7 +2465,9 @@ size_t __XL_NPP(wcsftime)(wchar_t *__restrict s, size_t maxsize,
 #warning wcsftime always fails
 	return 0;					/* always fail */
 }
-libc_hidden_def(__XL_NPP(wcsftime))
+#ifdef L_wcsftime_l
+libc_hidden_def(wcsftime_l)
+#endif
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 

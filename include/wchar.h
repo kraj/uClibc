@@ -754,7 +754,6 @@ __BEGIN_NAMESPACE_C99
 extern size_t wcsftime (wchar_t *__restrict __s, size_t __maxsize,
 			__const wchar_t *__restrict __format,
 			__const struct tm *__restrict __tp) __THROW;
-libc_hidden_proto(wcsftime)
 __END_NAMESPACE_C99
 
 # if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
