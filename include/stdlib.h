@@ -906,7 +906,6 @@ extern int getloadavg (double __loadavg[], int __nelem)
 #include <stdint.h>
 extern uint32_t arc4random(void);
 extern void arc4random_stir(void);
-libc_hidden_proto(arc4random_stir)
 extern void arc4random_addrandom(unsigned char *, int);
 #endif
 

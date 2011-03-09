@@ -156,8 +156,8 @@ arc4_getword(struct arc4_stream *as)
 	return val;
 }
 
-void
-arc4random_stir(void)
+static void
+__arc4random_stir(void)
 {
 	if (!rs_initialized) {
 		arc4_init(&rs);
@@ -165,13 +165,13 @@ arc4random_stir(void)
 	}
 	arc4_stir(&rs);
 }
-libc_hidden_def(arc4random_stir)
+strong_alias(__arc4random_stir,arc4random_stir)
 
 void
 arc4random_addrandom(u_char *dat, int datlen)
 {
 	if (!rs_initialized)
-		arc4random_stir();
+		__arc4random_stir();
 	arc4_addrandom(&rs, dat, datlen);
 }
 
@@ -179,7 +179,7 @@ uint32_t
 arc4random(void)
 {
 	if (!rs_initialized)
-		arc4random_stir();
+		__arc4random_stir();
 	return arc4_getword(&rs);
 }
 
