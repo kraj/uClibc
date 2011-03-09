@@ -200,11 +200,6 @@ __STD_TYPE __U32_TYPE __socklen_t;
 
 #undef __STD_TYPE
 
-#ifdef _LIBC
-/* Used in `struct shmid_ds'.  */
-typedef __kernel_ipc_pid_t __ipc_pid_t;
-#endif
-
 /* Now add the thread types.  */
 #if defined __UCLIBC_HAS_THREADS__ && (defined __USE_POSIX199506 || defined __USE_UNIX98)
 # include <bits/pthreadtypes.h>
