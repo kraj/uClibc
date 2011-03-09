@@ -228,7 +228,6 @@ __BEGIN_NAMESPACE_C99
 /* Find the first occurrence of WC in WCS.  */
 extern wchar_t *wcschr (__const wchar_t *__wcs, wchar_t __wc)
      __THROW __attribute_pure__;
-libc_hidden_proto(wcschr)
 /* Find the last occurrence of WC in WCS.  */
 extern wchar_t *wcsrchr (__const wchar_t *__wcs, wchar_t __wc)
      __THROW __attribute_pure__;
@@ -239,7 +238,6 @@ __END_NAMESPACE_C99
    the closing NUL wide character in case C is not found in S.  */
 extern wchar_t *wcschrnul (__const wchar_t *__s, wchar_t __wc)
      __THROW __attribute_pure__;
-libc_hidden_proto(wcschrnul)
 #endif
 
 __BEGIN_NAMESPACE_C99
@@ -544,7 +542,6 @@ extern int fwide (__FILE *__fp, int __mode) __THROW;
 extern int fwprintf (__FILE *__restrict __stream,
 		     __const wchar_t *__restrict __format, ...)
      /* __attribute__ ((__format__ (__wprintf__, 2, 3))) */;
-libc_hidden_proto(fwprintf)
 /* Write formatted output to stdout.
 
    This function is a possible cancellation point and therefore not

@@ -447,7 +447,6 @@ extern char *__stpncpy (char *__restrict __dest,
 extern char *stpncpy (char *__restrict __dest,
 		      __const char *__restrict __src, size_t __n)
      __THROW __nonnull ((1, 2));
-libc_hidden_proto(stpncpy)
 
 # if 0			/* uClibc does not support strfry or memfrob. */
 /* Sautee STRING briskly.  */

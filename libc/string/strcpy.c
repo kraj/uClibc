@@ -22,8 +22,6 @@ Wchar *Wstrcpy(Wchar * __restrict s1, const Wchar * __restrict s2)
 	return s1;
 }
 
-#ifdef WANT_WIDE
-/* wcscpy does not need libc_hidden_def */
-#else
+#ifndef WANT_WIDE
 libc_hidden_def(strcpy)
 #endif
