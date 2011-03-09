@@ -256,7 +256,6 @@ libc_hidden_proto(strcasestr)
 extern void *memmem (__const void *__haystack, size_t __haystacklen,
 		     __const void *__needle, size_t __needlelen)
      __THROW __attribute_pure__ __nonnull ((1, 3));
-libc_hidden_proto(memmem)
 
 /* Copy N bytes of SRC to DEST, return pointer to bytes after the
    last written byte.  */
