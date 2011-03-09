@@ -354,7 +354,6 @@ libc_hidden_proto(tolower_l)
 /* Return the uppercase version of C.  */
 /*extern int __toupper_l (int __c, __locale_t __l) __THROW; */
 extern int toupper_l (int __c, __locale_t __l) __THROW;
-libc_hidden_proto(toupper_l)
 
 # if __GNUC__ >= 2 && defined __OPTIMIZE__ && !defined __cplusplus
 #  define tolower_l(c, locale) __tobody(c, tolower_l, (locale)->__ctype_tolower, (c, locale))

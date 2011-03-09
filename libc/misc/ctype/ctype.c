@@ -346,7 +346,6 @@ int toupper_l(int c, __locale_t l)
 #endif
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_toupper[c] : c;
 }
-libc_hidden_def(toupper_l)
 /*remove after 0.9.31. See ctype.h for why.
  *weak_alias (toupper_l, __toupper_l) */
 

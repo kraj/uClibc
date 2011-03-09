@@ -124,7 +124,6 @@ libc_hidden_proto(strcoll)
 extern size_t strxfrm (char *__restrict __dest,
 		       __const char *__restrict __src, size_t __n)
      __THROW __nonnull ((2));
-libc_hidden_proto(strxfrm)
 __END_NAMESPACE_STD
 
 #if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__

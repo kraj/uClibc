@@ -170,12 +170,10 @@ __END_NAMESPACE_C99
 #ifdef __USE_GNU
 /* Compare S1 and S2, ignoring case.  */
 extern int wcscasecmp (__const wchar_t *__s1, __const wchar_t *__s2) __THROW;
-libc_hidden_proto(wcscasecmp)
 
 /* Compare no more than N chars of S1 and S2, ignoring case.  */
 extern int wcsncasecmp (__const wchar_t *__s1, __const wchar_t *__s2,
 			size_t __n) __THROW;
-libc_hidden_proto(wcsncasecmp)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 /* Similar to the two functions above but take the information from
@@ -184,11 +182,9 @@ libc_hidden_proto(wcsncasecmp)
 
 extern int wcscasecmp_l (__const wchar_t *__s1, __const wchar_t *__s2,
 			 __locale_t __loc) __THROW;
-libc_hidden_proto(wcscasecmp_l)
 
 extern int wcsncasecmp_l (__const wchar_t *__s1, __const wchar_t *__s2,
 			  size_t __n, __locale_t __loc) __THROW;
-libc_hidden_proto(wcsncasecmp_l)
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 #endif
 
@@ -202,7 +198,6 @@ libc_hidden_proto(wcscoll)
    `wcscoll' to the original strings.  */
 extern size_t wcsxfrm (wchar_t *__restrict __s1,
 		       __const wchar_t *__restrict __s2, size_t __n) __THROW;
-libc_hidden_proto(wcsxfrm)
 __END_NAMESPACE_C99
 
 #ifdef __USE_GNU
