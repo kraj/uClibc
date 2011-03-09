@@ -198,8 +198,11 @@
 # define __OPTIMIZE_SIZE__   1
 
 /* disable unsupported features */
-# undef _FORTIFY_SOURCE
 # undef __LDBL_COMPAT
+
+# ifndef __UCLIBC_HAS_FORTIFY__
+#  undef _FORTIFY_SOURCE
+# endif
 
 # ifndef __UCLIBC_HAS_THREADS__
 #  if defined _REENTRANT || defined _THREAD_SAFE

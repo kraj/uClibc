@@ -87,6 +87,7 @@ void __stack_smash_handler(char func[], int damaged)
 }
 #endif
 
+#ifdef __UCLIBC_HAS_SSP__
 void __stack_chk_fail(void) attribute_noreturn __cold;
 void __stack_chk_fail(void)
 {
@@ -101,8 +102,9 @@ void __stack_chk_fail(void)
 	while(1)
 		terminate();
 }
+#endif
 
-void __chk_fail(void) attribute_noreturn;
+#ifdef __UCLIBC_HAS_FORTIFY__
 void __chk_fail(void)
 {
 	static const char msg1[] = "buffer overflow detected: ";
@@ -116,3 +118,5 @@ void __chk_fail(void)
 	while(1)
 		terminate();
 }
+libc_hidden_def(__chk_fail)
+#endif
