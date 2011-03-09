@@ -819,11 +819,7 @@ init_dfa (re_dfa_t *dfa, size_t pat_len)
   dfa->state_table = calloc (sizeof (struct re_state_table_entry), table_size);
   dfa->state_hash_mask = table_size - 1;
 
-#ifdef __UCLIBC_HAS_WCHAR__
   dfa->mb_cur_max = MB_CUR_MAX;
-#else
-  dfa->mb_cur_max = 1;
-#endif
 #if 0
   if (dfa->mb_cur_max == 6
       && strcmp (_NL_CURRENT (LC_CTYPE, _NL_CTYPE_CODESET_NAME), "UTF-8") == 0)

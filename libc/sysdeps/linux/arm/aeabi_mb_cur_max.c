@@ -23,9 +23,5 @@
 int
 __aeabi_MB_CUR_MAX (void)
 {
-#ifdef __UCLIBC_HAS_WCHAR__
   return MB_CUR_MAX;
-#else
-  return 1;
-#endif
 }
