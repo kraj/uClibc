@@ -95,7 +95,7 @@ static __always_inline _syscall0(gid_t, _dl_getegid)
 # define __NR_getpid __NR_getxpid
 #endif
 #define __NR__dl_getpid __NR_getpid
-static __always_inline _syscall0(gid_t, _dl_getpid);
+static __always_inline _syscall0(gid_t, _dl_getpid)
 
 #define __NR__dl_readlink __NR_readlink
 static __always_inline _syscall3(int, _dl_readlink, const char *, path, char *, buf,

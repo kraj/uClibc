@@ -30,7 +30,7 @@
 #include <bits/kernel_sigaction.h>
 
 
-_syscall5(int, rt_sigaction, int, a, int, b, int, c, int, d, int, e);
+_syscall5(int, rt_sigaction, int, a, int, b, int, c, int, d, int, e)
 static void __rt_sigreturn_stub(void);
 static void __sigreturn_stub(void);
 

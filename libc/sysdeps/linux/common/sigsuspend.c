@@ -38,7 +38,7 @@ int sigsuspend (const sigset_t *set)
 	return result;
 }
 # else
-static inline _syscall2(int, __rt_sigsuspend, const sigset_t *, mask, size_t, size);
+static inline _syscall2(int, __rt_sigsuspend, const sigset_t *, mask, size_t, size)
 
 int sigsuspend(const sigset_t * mask)
 {
