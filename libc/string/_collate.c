@@ -499,7 +499,6 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 	} while (1);
 }
 
-libc_hidden_proto(__XL_NPP(wcscoll))
 int __XL_NPP(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 {
 	col_state_t ws[2];
