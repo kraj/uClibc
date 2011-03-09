@@ -537,9 +537,6 @@ libc_hidden_def(__XL_NPP(wcscoll))
 
 #ifdef WANT_WIDE
 
-extern size_t __wcslcpy(wchar_t *__restrict dst,
-		const wchar_t *__restrict src, size_t n);
-
 size_t __XL_NPP(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 					 size_t n   __LOCALE_PARAM )
 {

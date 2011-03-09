@@ -783,6 +783,11 @@ libc_hidden_proto(wcsftime_l)
 # include <wctype.h>
 #endif
 
+#ifdef _LIBC
+extern size_t __wcslcpy(wchar_t *__restrict dst,
+			const wchar_t *__restrict src, size_t n) attribute_hidden;
+#endif
+
 __END_DECLS
 
 #endif	/* _WCHAR_H defined */
