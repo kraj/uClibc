@@ -143,9 +143,11 @@ __END_NAMESPACE_C99
 extern size_t __ctype_get_mb_cur_max (void) __THROW __wur;
 #else
 #ifdef __UCLIBC_HAS_WCHAR__
-#define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
+# define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
 extern size_t _stdlib_mb_cur_max (void) __THROW __wur;
 libc_hidden_proto(_stdlib_mb_cur_max)
+#else
+# define	MB_CUR_MAX	1
 #endif
 #endif
 
