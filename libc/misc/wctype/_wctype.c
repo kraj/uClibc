@@ -140,28 +140,27 @@ enum {
 #ifdef __UCLIBC_DO_XLOCALE
 
 #define ISW_FUNC_BODY(NAME) \
-libc_hidden_proto(__PASTE3(isw,NAME,_l)) \
 int __PASTE3(isw,NAME,_l) (wint_t wc, __locale_t l) \
 { \
 	return iswctype_l(wc, __PASTE2(_CTYPE_is,NAME), l); \
-} \
-libc_hidden_def(__PASTE3(isw,NAME,_l))
+}
 
 #else  /* __UCLIBC_DO_XLOCALE */
 
 #define ISW_FUNC_BODY(NAME) \
-libc_hidden_proto(__PASTE2(isw,NAME)) \
 int __PASTE2(isw,NAME) (wint_t wc) \
 { \
 	return iswctype(wc, __PASTE2(_CTYPE_is,NAME)); \
-} \
-libc_hidden_def(__PASTE2(isw,NAME))
+}
 
 #endif /* __UCLIBC_DO_XLOCALE */
 /**********************************************************************/
 #if defined(L_iswalnum) || defined(L_iswalnum_l)
 
 ISW_FUNC_BODY(alnum);
+# ifdef L_iswalnum
+libc_hidden_def(iswalnum)
+# endif
 
 #endif
 /**********************************************************************/
@@ -198,6 +197,9 @@ ISW_FUNC_BODY(graph);
 #if defined(L_iswlower) || defined(L_iswlower_l)
 
 ISW_FUNC_BODY(lower);
+# ifdef L_iswlower
+libc_hidden_def(iswlower)
+# endif
 
 #endif
 /**********************************************************************/
@@ -216,12 +218,20 @@ ISW_FUNC_BODY(punct);
 #if defined(L_iswspace) || defined(L_iswspace_l)
 
 ISW_FUNC_BODY(space);
+# ifdef L_iswspace
+libc_hidden_def(iswspace)
+# else
+libc_hidden_def(iswspace_l)
+# endif
 
 #endif
 /**********************************************************************/
 #if defined(L_iswupper) || defined(L_iswupper_l)
 
 ISW_FUNC_BODY(upper);
+# ifdef L_iswupper
+libc_hidden_def(iswupper)
+# endif
 
 #endif
 /**********************************************************************/
@@ -461,7 +471,6 @@ wctype_t wctype_l (const char *property, __locale_t locale)
 {
 	return wctype(property);
 }
-libc_hidden_def(wctype_l)
 
 #endif
 /**********************************************************************/

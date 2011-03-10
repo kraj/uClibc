@@ -305,7 +305,6 @@ extern int iswblank_l (wint_t __wc, __locale_t __locale) __THROW;
    by the string argument PROPERTY.  */
 extern wctype_t wctype_l (__const char *__property, __locale_t __locale)
      __THROW;
-libc_hidden_proto(wctype_l)
 
 /* Determine whether the wide-character WC has the property described by
    DESC.  */
