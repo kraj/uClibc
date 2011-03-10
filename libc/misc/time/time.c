@@ -799,7 +799,6 @@ size_t strftime(char *__restrict s, size_t maxsize,
 {
 	return strftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
 }
-libc_hidden_def(strftime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -999,7 +998,6 @@ static int load_field(int k, const struct tm *__restrict timeptr)
 #warning TODO: Check multibyte format string validity.
 #endif
 
-libc_hidden_proto(__XL_NPP(strftime))
 size_t __XL_NPP(strftime)(char *__restrict s, size_t maxsize,
 					  const char *__restrict format,
 					  const struct tm *__restrict timeptr   __LOCALE_PARAM )
@@ -1291,7 +1289,9 @@ OUTPUT:
 	}
 	goto LOOP;
 }
-libc_hidden_def(__XL_NPP(strftime))
+# ifdef L_strftime_l
+libc_hidden_def(strftime_l)
+# endif
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -1314,7 +1314,6 @@ char *strptime(const char *__restrict buf, const char *__restrict format,
 {
 	return strptime_l(buf, format, tm, __UCLIBC_CURLOCALE);
 }
-libc_hidden_def(strptime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -1460,7 +1459,6 @@ static const unsigned char spec[] = {
 
 #define MAX_PUSH 4
 
-libc_hidden_proto(__XL_NPP(strptime))
 char *__XL_NPP(strptime)(const char *__restrict buf, const char *__restrict format,
 					 struct tm *__restrict tm   __LOCALE_PARAM)
 {
@@ -1671,7 +1669,9 @@ LOOP:
 	}
 	return NULL;
 }
-libc_hidden_def(__XL_NPP(strptime))
+# ifdef L_strptime_l
+libc_hidden_def(strptime_l)
+# endif
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
