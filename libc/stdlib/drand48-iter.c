@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <sys/types.h>
 
 #ifdef __UCLIBC_MJN3_ONLY__
