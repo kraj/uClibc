@@ -36,6 +36,5 @@ int __libc_nanosleep(const struct timespec *req, struct timespec *rem)
 #endif
 }
 
-libc_hidden_proto(nanosleep)
 weak_alias(__libc_nanosleep,nanosleep)
 libc_hidden_weak(nanosleep)
