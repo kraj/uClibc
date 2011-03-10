@@ -182,9 +182,11 @@ extern int wcsncasecmp (__const wchar_t *__s1, __const wchar_t *__s2,
 
 extern int wcscasecmp_l (__const wchar_t *__s1, __const wchar_t *__s2,
 			 __locale_t __loc) __THROW;
+libc_hidden_proto(wcscasecmp_l)
 
 extern int wcsncasecmp_l (__const wchar_t *__s1, __const wchar_t *__s2,
 			  size_t __n, __locale_t __loc) __THROW;
+libc_hidden_proto(wcsncasecmp_l)
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 #endif
 
