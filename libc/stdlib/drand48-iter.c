@@ -21,7 +21,11 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <sys/types.h>
+
+/* Global state for non-reentrant functions.  */
+struct drand48_data __libc_drand48_data;
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning turn int __drand48_iterate into void
