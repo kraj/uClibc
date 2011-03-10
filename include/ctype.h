@@ -345,21 +345,15 @@ libc_hidden_proto(isascii_l)
 # endif
 
 /* Return the lowercase version of C in locale L.  */
-/* "ordinary" ctype.h has no __tolower, why we try to have it?
- * remove after 0.9.31
- *extern int __tolower_l (int __c, __locale_t __l) __THROW; */
 extern int tolower_l (int __c, __locale_t __l) __THROW;
 libc_hidden_proto(tolower_l)
 
 /* Return the uppercase version of C.  */
-/*extern int __toupper_l (int __c, __locale_t __l) __THROW; */
 extern int toupper_l (int __c, __locale_t __l) __THROW;
 
 # if __GNUC__ >= 2 && defined __OPTIMIZE__ && !defined __cplusplus
 #  define tolower_l(c, locale) __tobody(c, tolower_l, (locale)->__ctype_tolower, (c, locale))
 #  define toupper_l(c, locale) __tobody(c, toupper_l, (locale)->__ctype_toupper, (c, locale))
-/*#  define __tolower_l(c, locale) tolower_l((c), (locale)) */
-/*#  define __toupper_l(c, locale) toupper_l((c), (locale)) */
 # endif	/* Optimizing gcc */
 
 
