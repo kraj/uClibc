@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1998, 1999, 2000, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -84,7 +84,8 @@ __BEGIN_DECLS
 
 /* And the long double versions.  It is non-critical to define them
    here unconditionally since `long double' is required in ISO C99.  */
-#if __STDC__ - 0 || __GNUC__ - 0 && defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
+#if (__STDC__ - 0 || __GNUC__ - 0) \
+	&& defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
 # ifndef _Mlong_double_
 #  define _Mlong_double_	long double
 # endif
