@@ -20,6 +20,7 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <features.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>

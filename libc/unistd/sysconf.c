@@ -19,6 +19,7 @@
 
 #define _XOPEN_SOURCE  500
 #include <features.h>
+#include <ctype.h>
 #include <errno.h>
 #include <limits.h>
 #include <grp.h>
