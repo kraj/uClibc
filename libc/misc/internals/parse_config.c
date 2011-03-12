@@ -129,7 +129,7 @@ static __always_inline parser_t * FAST_FUNC config_open2(const char *filename,
 	return parser;
 }
 
-parser_t attribute_hidden * FAST_FUNC config_open(const char *filename)
+parser_t * FAST_FUNC config_open(const char *filename)
 {
 	return config_open2(filename, fopen_or_warn_stdin);
 }
@@ -142,7 +142,7 @@ static void config_free_data(parser_t *parser)
 }
 #endif
 
-void attribute_hidden FAST_FUNC config_close(parser_t *parser)
+void FAST_FUNC config_close(parser_t *parser)
 {
 	if (parser) {
 		fclose(parser->fp);
@@ -176,7 +176,7 @@ mintokens > 0 make config_read() print error message if less than mintokens
 (but more than 0) are found. Empty lines are always skipped (not warned about).
 */
 #undef config_read
-int attribute_hidden FAST_FUNC config_read(parser_t *parser, char ***tokens,
+int FAST_FUNC config_read(parser_t *parser, char ***tokens,
 											unsigned flags, const char *delims)
 {
 	char *line;
