@@ -1,4 +1,5 @@
-#ifndef _RPC_RPC_H
+#ifndef _RPC_PRIVATE_H
+#define _RPC_PRIVATE_H
 #include <rpc/rpc.h>
 
 /* Now define the internal interfaces.  */
