@@ -39,11 +39,11 @@ typedef struct __locale_struct
   /* Note: LC_ALL is not a valid index into this array.  */
   const char *__names[13];
 } *__locale_t;
+#else
+# include <bits/uClibc_locale.h>
+#endif
 
 /* POSIX 2008 makes locale_t official.  */
 typedef __locale_t locale_t;
-#else
-# include <locale.h>
-#endif
 
 #endif /* xlocale.h */
