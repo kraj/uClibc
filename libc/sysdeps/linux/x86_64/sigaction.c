@@ -30,9 +30,6 @@
 /* We do not globally define the SA_RESTORER flag so do it here.  */
 #define SA_RESTORER 0x04000000
 
-extern __typeof(sigaction) __libc_sigaction;
-
-
 #ifdef __NR_rt_sigaction
 
 /* Using the hidden attribute here does not change the code but it

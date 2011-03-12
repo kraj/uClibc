@@ -37,9 +37,6 @@
 # error "This must not happen"
 #endif
 
-/* mods for uClibc: __libc_sigaction is not in any standard headers */
-extern __typeof(sigaction) __libc_sigaction;
-
 #if !(USE_TLS && HAVE___THREAD)
 /* These variables are used by the setup code.  */
 extern int _errno;

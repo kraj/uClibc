@@ -290,7 +290,10 @@ libc_hidden_proto(sigsuspend)
 /* Get and/or set the action for signal SIG.  */
 extern int sigaction (int __sig, __const struct sigaction *__restrict __act,
 		      struct sigaction *__restrict __oact) __THROW;
+#ifdef _LIBC
+extern __typeof(sigaction) __libc_sigaction;
 libc_hidden_proto(sigaction)
+#endif
 
 /* Put in SET all signals that are blocked and waiting to be delivered.  */
 extern int sigpending (sigset_t *__set) __THROW __nonnull ((1));

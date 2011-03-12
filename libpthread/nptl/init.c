@@ -35,7 +35,6 @@
 #include <lowlevellock.h>
 #include <bits/kernel-features.h>
 #include <stdio.h>
-extern __typeof(sigaction) __libc_sigaction;
 
 /* Size and alignment of static TLS block.  */
 size_t __static_tls_size;
