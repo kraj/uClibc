@@ -33,7 +33,6 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <libc-internal.h>
 #include <time.h>
 #include <unistd.h>
 

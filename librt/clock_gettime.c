@@ -186,7 +186,6 @@ maybe_syscall_gettime_cputime (clockid_t clock_id, struct timespec *tp)
 #include <stdint.h>
 #include <time.h>
 #include <sys/time.h>
-#include <libc-internal.h>
 #include <ldsodefs.h>
 
 
