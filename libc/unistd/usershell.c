@@ -25,7 +25,7 @@ static const char * const defaultsh[] = { _PATH_BSHELL, _PATH_CSHELL, NULL};
 static char *shellb, **shells;
 static parser_t *shellp;
 
-void endusershell(void)
+static void __endusershell(void)
 {
 	if (shellp) {
 		shells = (char**) shellb;
@@ -40,9 +40,11 @@ void endusershell(void)
 	shellb = NULL;
 	shells = NULL;
 }
-void setusershell(void)
+strong_alias(__endusershell,endusershell)
+
+static void __setusershell(void)
 {
-	endusershell();
+	__endusershell();
 	shellp = config_open(_PATH_SHELLS);
 	if (shellp == NULL)
 		shells = (char **)defaultsh;
@@ -61,11 +63,13 @@ void setusershell(void)
 		shells = (char **)shellb;
 	}
 }
+strong_alias(__setusershell,setusershell)
+
 char *getusershell(void)
 {
 	char *sh;
 	if (shells == NULL)
-		setusershell();
+		__setusershell();
 	sh = *shells;
 	if (sh)
 		shells++;
