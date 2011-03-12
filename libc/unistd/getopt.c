@@ -36,9 +36,6 @@
 # include <config.h>
 #endif
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <stdio.h>
 
 /* Comment out all this code if we are using the GNU C Library, and are not
@@ -62,7 +59,7 @@
 
 /* This needs to come after some library #include
    to get __GNU_LIBRARY__ defined.  */
-#ifdef	__GNU_LIBRARY__
+#if defined __GNU_LIBRARY__ || defined __UCLIBC__
 /* Don't include stdlib.h for non-GNU C libraries because some of them
    contain conflicting prototypes for getopt.  */
 # include <stdlib.h>
@@ -161,7 +158,7 @@ int optopt = '?';
 static struct _getopt_data getopt_data;
 
 
-#ifndef __GNU_LIBRARY__
+#if !defined __GNU_LIBRARY__ && !defined __UCLIBC__
 
 /* Avoid depending on library functions or files
    whose names are inconsistent.  */

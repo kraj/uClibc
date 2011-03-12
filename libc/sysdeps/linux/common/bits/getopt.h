@@ -33,7 +33,7 @@
    not defined, include <ctype.h>, which will pull in <features.h> for us
    if it's from glibc.  (Why ctype.h?  It's guaranteed to exist and it
    doesn't flood the namespace with stuff the way some other headers do.)  */
-#if !defined __GNU_LIBRARY__
+#if !defined __GNU_LIBRARY__ && !defined __UCLIBC__
 # include <ctype.h>
 #endif
 
