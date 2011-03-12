@@ -291,6 +291,24 @@ libc_hidden_proto(sigsuspend)
 extern int sigaction (int __sig, __const struct sigaction *__restrict __act,
 		      struct sigaction *__restrict __oact) __THROW;
 #ifdef _LIBC
+# if 0 /* this is in headers */
+/* In uclibc, userspace struct sigaction is identical to
+ * "new" struct kernel_sigaction (one from the Linux 2.1.68 kernel).
+ * See sigaction.h
+ */
+struct old_kernel_sigaction;
+extern int __syscall_sigaction(int, __const struct old_kernel_sigaction *,
+	struct old_kernel_sigaction *) attribute_hidden;
+# else /* this is how the function is built */
+extern __typeof(sigaction) __syscall_sigaction attribute_hidden;
+# endif
+/* candidate for attribute_hidden, if NPTL would behave */
+extern int __syscall_rt_sigaction(int, __const struct sigaction *,
+	struct sigaction *, size_t)
+# ifndef __UCLIBC_HAS_THREADS_NATIVE__
+		attribute_hidden
+# endif
+	;
 extern __typeof(sigaction) __libc_sigaction;
 libc_hidden_proto(sigaction)
 #endif
