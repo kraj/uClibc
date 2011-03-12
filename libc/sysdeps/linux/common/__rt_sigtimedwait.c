@@ -56,8 +56,8 @@ static int do_sigtimedwait(const sigset_t *set, siginfo_t *info,
 }
 
 /* Return any pending signal or wait for one for the given time.  */
-int attribute_hidden __sigtimedwait(const sigset_t *set, siginfo_t *info,
-				    const struct timespec *timeout)
+int __sigtimedwait(const sigset_t *set, siginfo_t *info,
+		   const struct timespec *timeout)
 {
 	if(SINGLE_THREAD_P)
 		return do_sigtimedwait(set, info, timeout);
@@ -77,15 +77,14 @@ int attribute_hidden __sigtimedwait(const sigset_t *set, siginfo_t *info,
 #  include <stddef.h>
 #  define __NR___rt_sigtimedwait __NR_rt_sigtimedwait
 static _syscall4(int, __rt_sigtimedwait, const sigset_t *, set,
-				 siginfo_t *, info, const struct timespec *, timeout,
-				 size_t, setsize);
+		 siginfo_t *, info, const struct timespec *, timeout,
+		 size_t, setsize);
 
-int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
-									const struct timespec *timeout)
+int __sigtimedwait(const sigset_t * set, siginfo_t * info,
+		   const struct timespec *timeout)
 {
 	return __rt_sigtimedwait(set, info, timeout, _NSIG / 8);
 }
 # endif /* !__UCLIBC_HAS_THREADS_NATIVE__ */
 weak_alias(__sigtimedwait,sigtimedwait)
-libc_hidden_weak(sigtimedwait)
 #endif

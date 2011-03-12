@@ -67,7 +67,7 @@ do_sigtimedwait (const sigset_t *set, siginfo_t *info,
 
 
 /* Return any pending signal or wait for one for the given time.  */
-int attribute_hidden
+int
 __sigtimedwait (const sigset_t *set, siginfo_t *info,
 		const struct timespec *timeout)
 {
