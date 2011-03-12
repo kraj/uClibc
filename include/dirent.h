@@ -311,7 +311,7 @@ extern int alphasort64 (__const struct dirent64 **__e1,
 #endif /* Use BSD or misc or XPG7.  */
 
 
-#if defined __USE_BSD || defined __USE_MISC
+#if 0 /* defined __USE_BSD || defined __USE_MISC */
 /* Read directory entries from FD into BUF, reading at most NBYTES.
    Reading starts at offset *BASEP, and *BASEP is updated with the new
    position after reading.  Returns the number of bytes read; zero when at
