@@ -346,6 +346,7 @@ extern int sigqueue (__pid_t __pid, int __sig, __const union sigval __val)
 extern __const char *__const sys_siglist[_NSIG];
 # endif
 
+#ifndef __UCLIBC_STRICT_HEADERS__
 /* Structure passed to `sigvec'.  */
 struct sigvec
   {
@@ -360,8 +361,10 @@ struct sigvec
 # define SV_ONSTACK	(1 << 0)/* Take the signal on the signal stack.  */
 # define SV_INTERRUPT	(1 << 1)/* Do not restart system calls.  */
 # define SV_RESETHAND	(1 << 2)/* Reset handler to SIG_DFL on receipt.  */
+#endif
 
 
+#if 0
 /* If VEC is non-NULL, set the handler for SIG to the `sv_handler' member
    of VEC.  The signals in `sv_mask' will be blocked while the handler runs.
    If the SV_RESETHAND bit is set in `sv_flags', the handler for SIG will be
@@ -369,6 +372,7 @@ struct sigvec
    it is filled in with the old information for SIG.  */
 extern int sigvec (int __sig, __const struct sigvec *__vec,
 		   struct sigvec *__ovec) __THROW;
+#endif
 
 
 /* Get machine-dependent `struct sigcontext' and signal subcodes.  */
