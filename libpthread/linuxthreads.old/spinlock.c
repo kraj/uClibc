@@ -14,8 +14,6 @@
 
 /* Internal locks */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <errno.h>
 #include <sched.h>
 #include <time.h>

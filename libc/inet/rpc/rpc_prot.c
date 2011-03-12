@@ -44,9 +44,6 @@ static char sccsid[] = "@(#)rpc_prot.c 1.36 87/08/11 Copyr 1984 Sun Micro";
  * routines are also in this program.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <sys/param.h>
 
 #include <rpc/rpc.h>

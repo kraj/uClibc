@@ -40,8 +40,6 @@ static char sccsid[] = "@(#)svc_raw.c 1.15 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include "rpc_private.h"
 #include <rpc/svc.h>
 

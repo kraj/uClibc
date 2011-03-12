@@ -42,14 +42,6 @@
 
 #define _RPC_AUTH_H	1
 #ifdef _LIBC
-/* Some adjustments to make the libc source from glibc
- * compile more easily with uClibc... */
-#ifndef __FORCE_GLIBC
-#define __FORCE_GLIBC
-#endif
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
 #define _(X)	X
 #endif
 #include <features.h>

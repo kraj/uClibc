@@ -30,9 +30,6 @@
  * Copyright (C) 1987, Sun Microsystems, Inc.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <alloca.h>
 #include <errno.h>
 #include <string.h>

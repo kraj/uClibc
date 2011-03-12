@@ -5,7 +5,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define __FORCE_GLIBC
 #include <unistd.h>
 #include <crypt.h>
 #include "libcrypt.h"

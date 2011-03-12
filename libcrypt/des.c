@@ -56,7 +56,6 @@
  *	alignment).
  */
 
-#define __FORCE_GLIBC
 #include <sys/cdefs.h>
 #include <sys/types.h>
 #include <sys/param.h>

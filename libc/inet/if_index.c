@@ -20,8 +20,6 @@
    Reworked Dec 2002 by Erik Andersen <andersen@codepoet.org>
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <string.h>
 #include <alloca.h>
 #include <errno.h>

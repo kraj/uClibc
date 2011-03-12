@@ -41,9 +41,6 @@ static char sccsid[] = "@(#)xdr.c 1.35 87/08/12";
  * xdr.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>

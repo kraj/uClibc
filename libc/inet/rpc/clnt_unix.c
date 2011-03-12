@@ -46,9 +46,6 @@
  * Now go hang yourself.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <netdb.h>
 #include <errno.h>
 #include <stdio.h>

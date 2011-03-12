@@ -41,9 +41,6 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
  * and a record/tcp stream.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>

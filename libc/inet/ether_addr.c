@@ -23,8 +23,6 @@
  * 	- initial uClibc port
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

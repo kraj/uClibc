@@ -2,8 +2,6 @@
 #ifndef _THREAD_DBP_H
 #define _THREAD_DBP_H	1
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <string.h>
 #include <unistd.h>
 #include "proc_service.h"

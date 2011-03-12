@@ -44,10 +44,6 @@
  * The other 31 bits encode the byte length of the fragment.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
-
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>

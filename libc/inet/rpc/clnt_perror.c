@@ -38,9 +38,6 @@ static char sccsid[] = "@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
  *
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <stdio.h>
 #include <string.h>
 #include "rpc_private.h"

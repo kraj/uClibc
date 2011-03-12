@@ -14,8 +14,6 @@
 
 /* Thread creation, initialization, and basic low-level routines */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <errno.h>
 #include <netdb.h>	/* for h_errno */
 #include <stddef.h>

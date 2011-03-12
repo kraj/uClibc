@@ -4,8 +4,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <stdio.h>
 #include <assert.h>
 #include "rpc_private.h"

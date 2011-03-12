@@ -40,9 +40,6 @@ static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
  * "pointers".  See xdr.h for more info on the interface to xdr.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <stdio.h>
 #include <string.h>
 #include <rpc/types.h>

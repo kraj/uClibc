@@ -35,8 +35,6 @@
  * credentials and verifiers to remote systems.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include "rpc_private.h"
 
 
