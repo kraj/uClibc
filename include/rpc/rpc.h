@@ -109,11 +109,6 @@ extern int *__rpc_thread_svc_max_pollfd (void) __attribute__ ((__const__));
 libc_hidden_proto(__rpc_thread_svc_max_pollfd)
 #define svc_max_pollfd (*__rpc_thread_svc_max_pollfd ())
 
-extern bool_t xdr_accepted_reply (XDR *xdrs, struct accepted_reply *ar);
-libc_hidden_proto(xdr_accepted_reply)
-extern bool_t xdr_rejected_reply (XDR *xdrs, struct rejected_reply *rr);
-libc_hidden_proto(xdr_rejected_reply)
-
 __END_DECLS
 
 #endif /* rpc/rpc.h */

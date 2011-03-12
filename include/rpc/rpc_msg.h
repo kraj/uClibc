@@ -201,6 +201,26 @@ extern void	_seterr_reply (struct rpc_msg *__msg, struct rpc_err *__error)
      __THROW;
 libc_hidden_proto(_seterr_reply)
 
+#ifdef __UCLIBC__
+/*
+ * XDR routine to handle an accepted rpc reply.
+ * xdr_accepted_reply(xdrs, rej)
+ * 	XDR *xdrs;
+ * 	struct accepted_reply *rej;
+ */
+extern bool_t	xdr_accepted_reply(XDR *__xdrs, struct accepted_reply *__ar);
+libc_hidden_proto(xdr_accepted_reply)
+
+/*
+ * XDR routine to handle a rejected rpc reply.
+ * xdr_rejected_reply(xdrs, rej)
+ * 	XDR *xdrs;
+ * 	struct rejected_reply *rej;
+ */
+extern bool_t	xdr_rejected_reply(XDR *__xdrs, struct rejected_reply *__rr);
+libc_hidden_proto(xdr_rejected_reply)
+#endif
+
 __END_DECLS
 
 #endif /* rpc/rpc_msg.h */
