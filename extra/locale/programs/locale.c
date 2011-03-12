@@ -31,7 +31,7 @@ typedef struct {
 	unsigned char lc_messages_row;
 } locale_entry;
 
-/* Need to include this before locale.h and xlocale.h! */
+/* Need to include this before locale.h! */
 #include <bits/uClibc_locale.h>
 
 #undef CODESET_LIST

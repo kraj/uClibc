@@ -112,10 +112,6 @@
 # include <bits/uClibc_uwchar.h>
 #endif
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-# include <xlocale.h>
-#endif
-
 /* Handle _STRTOD_HEXADECIMAL_FLOATS via uClibc config now. */
 #undef _STRTOD_HEXADECIMAL_FLOATS
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__

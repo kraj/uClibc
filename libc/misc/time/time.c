@@ -149,10 +149,6 @@
 #ifdef __UCLIBC_HAS_WCHAR__
 #include <wchar.h>
 #endif
-#ifdef __UCLIBC_HAS_XLOCALE__
-#include <xlocale.h>
-#endif
-
 
 #ifndef __isleap
 #define __isleap(y) ( !((y) % 4) && ( ((y) % 100) || !((y) % 400) ) )

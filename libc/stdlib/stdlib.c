@@ -100,10 +100,6 @@
 #include <wctype.h>
 #include <bits/uClibc_uwchar.h>
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-#include <xlocale.h>
-#endif /* __UCLIBC_HAS_XLOCALE__ */
-
 /* TODO: clean up the following... */
 
 #if WCHAR_MAX > 0xffffUL
