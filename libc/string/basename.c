@@ -24,5 +24,4 @@ char *basename(const char *path)
 
 	return (char *) p;
 }
-libc_hidden_def(basename)
 #endif

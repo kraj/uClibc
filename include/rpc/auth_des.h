@@ -109,7 +109,6 @@ extern int getsecretkey (__const char *__name, char *__key,
 
 extern int rtime (struct sockaddr_in *__addrp, struct rpc_timeval *__timep,
 		  struct rpc_timeval *__timeout) __THROW;
-libc_hidden_proto(rtime)
 
 __END_DECLS
 
