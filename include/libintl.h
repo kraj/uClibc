@@ -23,6 +23,8 @@
 
 #include <features.h>
 
+#ifdef __UCLIBC_HAS_GETTEXT_AWARENESS__
+
 /* We define an additional symbol to signal that we use the GNU
    implementation of gettext.  */
 #define __USE_GNU_GETTEXT 1
@@ -124,5 +126,12 @@ extern char *bind_textdomain_codeset (__const char *__domainname,
 #endif	/* Optimizing.  */
 
 __END_DECLS
+
+#endif /* __UCLIBC_HAS_GETTEXT_AWARENESS__ */
+
+#ifdef _LIBC
+# define _(x) x
+# define N_(x) x
+#endif
 
 #endif /* libintl.h */

@@ -19,9 +19,8 @@
 
 #include <stdio.h>
 #include <netdb.h>
+#include <libintl.h>
 
-#define N_(x) x
-#define _(x) x
 static const struct
   {
     int code;

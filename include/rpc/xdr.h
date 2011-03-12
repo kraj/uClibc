@@ -36,9 +36,6 @@
 #ifndef _RPC_XDR_H
 #define _RPC_XDR_H 1
 
-#ifdef _LIBC
-# define _(X)	X
-#endif
 #include <features.h>
 #include <sys/types.h>
 #include <rpc/types.h>

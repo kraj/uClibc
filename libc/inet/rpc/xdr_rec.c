@@ -47,7 +47,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <rpc/rpc.h>
+#include "rpc_private.h"
 
 #ifdef USE_IN_LIBIO
 # include <wchar.h>

@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <rpc/rpc.h>
+#include "rpc_private.h"
 #include <rpc/svc.h>
 #include <sys/socket.h>
 #include <sys/uio.h>

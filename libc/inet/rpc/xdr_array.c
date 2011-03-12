@@ -45,6 +45,7 @@ static char sccsid[] = "@(#)xdr_array.c 1.10 87/08/11 Copyr 1984 Sun Micro";
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 #include <limits.h>
+#include <libintl.h>
 
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
