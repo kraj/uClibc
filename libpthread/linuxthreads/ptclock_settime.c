@@ -18,7 +18,6 @@
 
 #include <errno.h>
 #include <time.h>
-#include <libc-internal.h>
 #include "internals.h"
 #include "spinlock.h"
 

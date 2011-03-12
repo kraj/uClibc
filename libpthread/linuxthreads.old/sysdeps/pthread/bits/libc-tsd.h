@@ -20,8 +20,6 @@
 #ifndef _BITS_LIBC_TSD_H
 #define _BITS_LIBC_TSD_H 1
 
-#include <libc-internal.h>
-
 /* Fast thread-specific data internal to libc.  */
 enum __libc_tsd_key_t { _LIBC_TSD_KEY_MALLOC = 0,
 			_LIBC_TSD_KEY_DL_ERROR,

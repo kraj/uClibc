@@ -20,7 +20,6 @@
 #include <common/sysdep.h>
 
 #include <features.h>
-#include <libc-internal.h>
 
 #ifdef	__ASSEMBLER__
 

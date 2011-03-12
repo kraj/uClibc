@@ -31,7 +31,6 @@
 #include <net/if.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <libc-internal.h>
 #include <not-cancel.h>
 
 #include "netlinkaccess.h"

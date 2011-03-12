@@ -25,7 +25,6 @@
 #include <hp-timing.h>
 #include <ldsodefs.h>
 #include <atomic.h>
-#include <libc-internal.h>
 #include <resolv.h>
 #include <bits/kernel-features.h>
 

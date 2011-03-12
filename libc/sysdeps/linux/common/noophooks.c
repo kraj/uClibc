@@ -18,8 +18,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <libc-internal.h>
-
 void
 __cyg_profile_func_enter (attribute_unused void *this_fn, attribute_unused void *call_site);
 void

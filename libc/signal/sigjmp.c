@@ -19,7 +19,6 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <signal.h>
-#include <libc-internal.h>
 
 
 /* This function is called by the `sigsetjmp' macro
