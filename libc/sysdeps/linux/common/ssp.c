@@ -88,7 +88,6 @@ void __stack_smash_handler(char func[], int damaged)
 #endif
 
 #ifdef __UCLIBC_HAS_SSP__
-void __stack_chk_fail(void) attribute_noreturn __cold;
 void __stack_chk_fail(void)
 {
 	static const char msg1[] = "stack smashing detected: ";
