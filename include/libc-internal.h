@@ -70,6 +70,10 @@ extern void __chk_fail(void) attribute_noreturn;
 libc_hidden_proto(__chk_fail)
 #  endif
 
+#  ifdef __UCLIBC_HAS_SSP__
+extern void __stack_chk_fail(void) attribute_noreturn __cold;
+#  endif
+
 # endif /* IS_IN_libc */
 
 #endif /* __ASSEMBLER__ */
