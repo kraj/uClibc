@@ -39,9 +39,6 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <unistd.h>
 #include <string.h>
 #include <rpc/rpc.h>

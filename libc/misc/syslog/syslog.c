@@ -58,8 +58,6 @@
  *  - Major code cleanup.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/file.h>

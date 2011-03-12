@@ -14,8 +14,6 @@
 
 /* Thread cancellation */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <errno.h>
 #include "pthread.h"
 #include "internals.h"

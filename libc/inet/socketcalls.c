@@ -4,8 +4,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <errno.h>
 #include <syscall.h>
 #include <sys/socket.h>

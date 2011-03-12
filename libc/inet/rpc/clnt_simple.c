@@ -38,9 +38,6 @@ static char sccsid[] = "@(#)clnt_simple.c 1.35 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <alloca.h>
 #include <errno.h>
 #include <stdio.h>

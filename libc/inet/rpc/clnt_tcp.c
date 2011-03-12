@@ -50,9 +50,6 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
  * Now go hang yourself.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <netdb.h>
 #include <errno.h>
 #include <stdio.h>

@@ -14,8 +14,6 @@
 
 /* Define the location of errno for the remainder of the C library */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <errno.h>
 #include <netdb.h>
 #include "pthread.h"

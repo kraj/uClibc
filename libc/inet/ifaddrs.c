@@ -17,8 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <alloca.h>
 #include <assert.h>
 #include <errno.h>

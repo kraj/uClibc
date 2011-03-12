@@ -293,8 +293,6 @@ Domain name in a message can be represented as either:
    - a sequence of labels ending with a pointer
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <string.h>
 #include <stdio.h>
 #include <signal.h>

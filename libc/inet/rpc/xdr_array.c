@@ -40,9 +40,6 @@ static char sccsid[] = "@(#)xdr_array.c 1.10 87/08/11 Copyr 1984 Sun Micro";
  * arrays.  See xdr.h for more info on the interface to xdr.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <stdio.h>
 #include <string.h>
 #include <rpc/types.h>

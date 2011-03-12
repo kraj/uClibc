@@ -38,9 +38,6 @@
  * for the credentials.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>

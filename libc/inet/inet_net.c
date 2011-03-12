@@ -32,8 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <ctype.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

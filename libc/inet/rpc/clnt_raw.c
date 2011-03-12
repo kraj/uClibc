@@ -42,7 +42,6 @@ static char sccsid[] = "@(#)clnt_raw.c 1.22 87/08/11 Copyr 1984 Sun Micro";
  * any interference from the kernel.
  */
 
-#define __FORCE_GLIBC
 #include <features.h>
 #include "rpc_private.h"
 #include <rpc/svc.h>

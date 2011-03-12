@@ -51,8 +51,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   If these license terms cause you a real problem, contact the author.  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <assert.h>
 #include <errno.h>
 #include <netdb.h>

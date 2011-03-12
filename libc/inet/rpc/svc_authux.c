@@ -38,9 +38,6 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <stdio.h>
 #include <string.h>
 #include <rpc/rpc.h>

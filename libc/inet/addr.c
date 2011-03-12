@@ -17,8 +17,6 @@
  * Changed to use _int10tostr.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>

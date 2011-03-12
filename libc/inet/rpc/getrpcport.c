@@ -35,9 +35,6 @@ static  char sccsid[] = "@(#)getrpcport.c 1.3 87/08/11 SMI";
  * Copyright (c) 1985 by Sun Microsystems, Inc.
  */
 
-#define __FORCE_GLIBC
-#include <features.h>
-
 #include <alloca.h>
 #include <errno.h>
 #include <stdio.h>
