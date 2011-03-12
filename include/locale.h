@@ -133,7 +133,7 @@ libc_hidden_proto(localeconv)
 __END_NAMESPACE_STD
 
 
-#if defined __USE_XOPEN2K8 && defined __UCLIBC_HAS_LOCALE__
+#if defined __USE_XOPEN2K8 && defined __UCLIBC_HAS_XLOCALE__
 /* The concept of one static locale per category is not very well
    thought out.  Many applications will need to process its data using
    information from several different locales.  Another application is
@@ -145,13 +145,8 @@ __END_NAMESPACE_STD
    Attention: all these functions are *not* standardized in any form.
    This is a proof-of-concept implementation.  */
 
-#ifdef __UCLIBC_HAS_XLOCALE__
 /* Get locale datatype definition.  */
 # include <xlocale.h>
-#endif
-
-/* POSIX 2008 makes locale_t official.  */
-typedef __locale_t locale_t;
 
 /* Return a reference to a data structure representing a set of locale
    datasets.  Unlike for the CATEGORY parameter for `setlocale' the
