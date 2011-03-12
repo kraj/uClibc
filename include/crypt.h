@@ -27,11 +27,11 @@ __BEGIN_DECLS
 
 /* Encrypt characters from KEY using salt to perturb the encryption method.
  * If salt begins with "$1$", MD5 hashing is used instead of DES. */
-extern char *crypt (const char *__key, const char *__salt)
+extern char *crypt (__const char *__key, __const char *__salt)
      __THROW __nonnull ((1, 2));
 
 /* Setup DES tables according KEY.  */
-extern void setkey (const char *__key) __THROW __nonnull ((1));
+extern void setkey (__const char *__key) __THROW __nonnull ((1));
 
 /* Encrypt data in BLOCK in place if EDFLAG is zero; otherwise decrypt
    block in place.  */
