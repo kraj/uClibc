@@ -4,5 +4,5 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define L_inet_addr
+#define L_inet_makeaddr
 #include "addr.c"
