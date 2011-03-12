@@ -509,7 +509,6 @@ void attribute_hidden __fp_range_check(__fpmax_t y, __fpmax_t x)
 #endif
 
 
-libc_hidden_proto(__XL_NPP(strtof))
 float __XL_NPP(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 1
@@ -526,7 +525,6 @@ float __XL_NPP(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 	return y;
 #endif
 }
-libc_hidden_def(__XL_NPP(strtof))
 
 #endif
 #endif

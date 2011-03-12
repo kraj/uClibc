@@ -462,7 +462,6 @@ extern void *memfrob (void *__s, size_t __n) __THROW __nonnull ((1));
    in <libgen.h>) which makes the XPG version of this function
    available.  */
 extern char *basename (__const char *__filename) __THROW __nonnull ((1));
-libc_hidden_proto(basename)
 # endif
 #endif /* __USE_GNU */
 
