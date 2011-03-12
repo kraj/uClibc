@@ -41,9 +41,6 @@
 #ifndef _RPC_AUTH_H
 
 #define _RPC_AUTH_H	1
-#ifdef _LIBC
-#define _(X)	X
-#endif
 #include <features.h>
 #include <rpc/xdr.h>
 

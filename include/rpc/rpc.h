@@ -38,11 +38,6 @@
 #ifndef _RPC_RPC_H
 #define _RPC_RPC_H 1
 
-#ifdef _LIBC
-#define _(X)	X
-#include <features.h>
-#endif
-
 #include <rpc/types.h>		/* some typedefs */
 #include <netinet/in.h>
 

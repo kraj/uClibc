@@ -33,11 +33,6 @@
 #ifndef _RPC_TYPES_H
 #define _RPC_TYPES_H 1
 
-#ifdef _LIBC
-#define _(X)	X
-#endif
-#include <features.h>
-
 typedef int bool_t;
 typedef int enum_t;
 /* This needs to be changed to uint32_t in the future */
