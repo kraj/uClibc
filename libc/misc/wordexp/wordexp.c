@@ -21,6 +21,7 @@
 
 #include <features.h>
 #include <bits/kernel-features.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
