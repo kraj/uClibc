@@ -250,3 +250,4 @@ restore_and_ret:
     __set_errno (EEXIST);
     return -1;
 }
+libc_hidden_def(__gen_tempname)

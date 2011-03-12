@@ -11,6 +11,7 @@ extern int ___path_search (char *tmpl, size_t tmpl_len, const char *dir,
 #define __path_search(tmpl, tmpl_len, dir, pfx, try_tmpdir) ___path_search(tmpl, tmpl_len, dir, pfx)
 
 extern int __gen_tempname (char *__tmpl, int __kind, mode_t mode);
+libc_hidden_proto(__gen_tempname)
 
 /* The __kind argument to __gen_tempname may be one of: */
 #define __GT_FILE     0       /* create a file */

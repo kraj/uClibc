@@ -845,6 +845,7 @@ getifaddrs (struct ifaddrs **ifap)
 
   return result;
 }
+libc_hidden_def(getifaddrs)
 
 
 void
@@ -852,6 +853,7 @@ freeifaddrs (struct ifaddrs *ifa)
 {
   free (ifa);
 }
+libc_hidden_def(freeifaddrs)
 
 #endif /* __UCLIBC_SUPPORT_AI_ADDRCONFIG__ */
 

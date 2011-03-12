@@ -65,9 +65,11 @@ struct ifaddrs
    The storage returned in *IFAP is allocated dynamically and can
    only be properly freed by passing it to `freeifaddrs'.  */
 extern int getifaddrs (struct ifaddrs **__ifap) __THROW;
+libc_hidden_proto(getifaddrs)
 
 /* Reclaim the storage allocated by a previous `getifaddrs' call.  */
 extern void freeifaddrs (struct ifaddrs *__ifa)  __THROW;
+libc_hidden_proto(freeifaddrs)
 
 __END_DECLS
 
