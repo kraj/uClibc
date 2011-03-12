@@ -39,7 +39,7 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 
 #include <stdio.h>
 #include <unistd.h>
-#include <rpc/rpc.h>
+#include "rpc_private.h"
 #include <rpc/xdr.h>
 #include <rpc/clnt.h>
 #include <sys/poll.h>
@@ -57,11 +57,6 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #include "errqueue.h"
 #include <sys/uio.h>
 #endif
-
-/* CMSG_NXTHDR is using it */
-
-
-extern u_long _create_xid (void) attribute_hidden;
 
 /*
  * UDP bases client side rpc operations

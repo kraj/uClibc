@@ -50,7 +50,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <rpc/rpc.h>
+#include "rpc_private.h"
 #include <sys/uio.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
@@ -58,9 +58,6 @@
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
 #endif
-
-
-extern u_long _create_xid (void) attribute_hidden;
 
 #define MCALL_MSG_SIZE 24
 

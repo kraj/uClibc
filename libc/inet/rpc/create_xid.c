@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include <rpc/rpc.h>
+#include "rpc_private.h"
 
 
 /* The RPC code is not threadsafe, but new code should be threadsafe. */
@@ -31,7 +31,6 @@ __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 static smallint is_initialized;
 static struct drand48_data __rpc_lrand48_data;
 
-u_long _create_xid (void) attribute_hidden;
 u_long _create_xid (void)
 {
   long res;
