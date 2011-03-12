@@ -14,8 +14,6 @@
 #define SA_RESTORER	0x04000000
 extern void __default_rt_sa_restorer(void);
 
-extern __typeof(sigaction) __libc_sigaction;
-
 /*
  * If act is not NULL, change the action for sig to *act.
  * If oact is not NULL, put the old action for sig in *oact.

@@ -24,11 +24,6 @@
 
 #include <bits/kernel_sigaction.h>
 
-#ifndef LIBC_SIGACTION
-extern __typeof(sigaction) __libc_sigaction;
-#endif
-
-
 #if defined __NR_rt_sigaction
 
 /* If ACT is not NULL, change the action for SIG to *ACT.

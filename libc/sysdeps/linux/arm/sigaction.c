@@ -29,8 +29,6 @@
 extern void __default_sa_restorer(void);
 extern void __default_rt_sa_restorer(void);
 
-extern __typeof(sigaction) __libc_sigaction;
-
 /* When RT signals are in use we need to use a different return stub.  */
 #ifdef __NR_rt_sigreturn
 #define choose_restorer(flags)					\
