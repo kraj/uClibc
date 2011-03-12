@@ -60,7 +60,6 @@ libc_hidden_proto(inet_ntoa)
 #ifdef __UCLIBC__
 /* Recursion-safe flavor */
 extern char *inet_ntoa_r (struct in_addr __in, char *__buf) __THROW;
-libc_hidden_proto(inet_ntoa_r)
 #endif
 
 /* Convert from presentation format of an Internet number in buffer
