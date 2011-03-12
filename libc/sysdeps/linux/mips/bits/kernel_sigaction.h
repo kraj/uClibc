@@ -24,12 +24,4 @@ struct old_kernel_sigaction {
 #endif
 };
 
-/* In uclibc, userspace struct sigaction is identical to
- * "new" struct kernel_sigaction (one from the Linux 2.1.68 kernel).
- * See sigaction.h
- */
-
-extern int __syscall_rt_sigaction (int, const struct sigaction *,
-	struct sigaction *, size_t) attribute_hidden;
-
 #endif
