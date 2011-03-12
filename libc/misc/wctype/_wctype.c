@@ -41,10 +41,6 @@
 # error xlocale functionality is not supported in stub locale mode.
 #endif
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-# include <xlocale.h>
-#endif
-
 /* We know wide char support is enabled.  We wouldn't be here otherwise. */
 
 /* Define this if you want to unify the towupper and towlower code in the

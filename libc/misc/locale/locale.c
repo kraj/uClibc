@@ -85,19 +85,17 @@
 #endif
 #endif
 
-/* Need to include this before locale.h and xlocale.h! */
+/* Need to include this before locale.h! */
 #include <bits/uClibc_locale.h>
 
 #undef CODESET_LIST
 #define CODESET_LIST			(__locale_mmap->codeset_list)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
-#include <xlocale.h>
 #include <locale.h>
 #else /* __UCLIBC_HAS_XLOCALE__ */
 /* We need this internally... */
 #define __UCLIBC_HAS_XLOCALE__ 1
-#include <xlocale.h>
 #include <locale.h>
 #undef __UCLIBC_HAS_XLOCALE__
 #endif /* __UCLIBC_HAS_XLOCALE__ */

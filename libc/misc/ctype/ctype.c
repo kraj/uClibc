@@ -36,10 +36,6 @@
 #include <assert.h>
 #include <locale.h>
 
-#ifdef __UCLIBC_HAS_XLOCALE__
-# include <xlocale.h>
-#endif
-
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
