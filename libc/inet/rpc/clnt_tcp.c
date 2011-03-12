@@ -54,15 +54,13 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <rpc/rpc.h>
+#include "rpc_private.h"
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <rpc/pmap_clnt.h>
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
 #endif
-
-extern u_long _create_xid (void) attribute_hidden;
 
 #define MCALL_MSG_SIZE 24
 
