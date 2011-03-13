@@ -16,20 +16,11 @@
    Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
    Boston, MA 02110-1301, USA.  */
 
-/* Define the machine-dependent type `jmp_buf'.  Xtensa version.  */
-#ifndef _BITS_SETJMP_H
-#define _BITS_SETJMP_H	1
+/* Test if longjmp to JMPBUF would unwind the frame containing a local
+   variable at ADDRESS.  */
 
-#if !defined _SETJMP_H && !defined _PTHREAD_H
-# error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
-#endif
+#include <setjmp.h>
+#include <jmpbuf-offsets.h>
 
-/* The jmp_buf structure for Xtensa holds the following (where "proc"
-   is the procedure that calls setjmp): 4-12 registers from the window
-   of proc, the 4 words from the save area at proc's $sp (in case a
-   subsequent alloca in proc moves $sp), and the return address within
-   proc.  Everything else is saved on the stack in the normal save areas.  */
-
-typedef int __jmp_buf[17];
-
-#endif	/* bits/setjmp.h */
+#define _JMPBUF_UNWINDS(jmpbuf, address) \
+  ((void *) (address) < (void *) (jmpbuf)[JB_SP])

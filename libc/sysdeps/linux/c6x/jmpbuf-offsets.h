@@ -1,4 +1,4 @@
-/*
+/* Private macros for accessing __jmp_buf contents.  c6x version.
  * Port of uClibc for TMS320C6000 DSP architecture 
  * Copyright (C) 2004 Texas Instruments Incorporated
  * Author of TMS320C6000 port: Aurelien Jacquiot 
@@ -19,16 +19,5 @@
  *
  */
 
-#ifndef _BITS_SETJMP_H
-#define _BITS_SETJMP_H 1
-
-#if !defined _SETJMP_H && !defined _PTHREAD_H
-# error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
-#endif
-
-typedef struct {
-	unsigned long __regs[12]; /* save A10,B10... A15,B15*/
-	unsigned long __pc;       /* the return address */
-} __jmp_buf[1];
-
-#endif
+/* the stack pointer (B15) */
+#define JP_SP 11 

@@ -18,17 +18,12 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  */
+#include <setjmp.h>
+#include <jmpbuf-offsets.h>
 
-#ifndef _BITS_SETJMP_H
-#define _BITS_SETJMP_H 1
+/* Test if longjmp to JMPBUF would unwind the frame
+   containing a local variable at ADDRESS.  */
+#define _JMPBUF_UNWINDS(jmpbuf, address) \
+  ((void *) (address) < (void *) (jmpbuf)->__regs[JP_SP])
 
-#if !defined _SETJMP_H && !defined _PTHREAD_H
-# error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
-#endif
 
-typedef struct {
-	unsigned long __regs[12]; /* save A10,B10... A15,B15*/
-	unsigned long __pc;       /* the return address */
-} __jmp_buf[1];
-
-#endif
