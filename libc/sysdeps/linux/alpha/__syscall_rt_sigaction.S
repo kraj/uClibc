@@ -31,6 +31,9 @@
 	.text
 
 .globl __syscall_rt_sigaction
+#ifndef __UCLIBC_HAS_THREADS_NATIVE__
+.hidden __syscall_rt_sigaction
+#endif
 .align 4
 .ent __syscall_rt_sigaction, 0
 __syscall_rt_sigaction:
