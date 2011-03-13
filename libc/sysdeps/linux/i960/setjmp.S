@@ -122,3 +122,5 @@ ___longjmp:
 	mov	1, g0		/* return 1 by default */
 0:
 	ret			/* return to caller of __sigsetjmp */
+
+libc_hidden_def(__longjmp)

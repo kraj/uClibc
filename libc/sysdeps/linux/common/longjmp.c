@@ -20,21 +20,12 @@
 #include <setjmp.h>
 #include <signal.h>
 
-
-extern void __longjmp (__jmp_buf __env, int __val) attribute_noreturn;
-libc_hidden_proto(__longjmp)
-
-#if 0
-extern void _longjmp_unwind (jmp_buf env, int val);
-#endif
-
-extern __typeof(longjmp) __libc_longjmp attribute_noreturn;
 /* Set the signal mask to the one specified in ENV, and jump
    to the position specified in ENV, causing the setjmp
    call there to return VAL, or 1 if VAL is 0.  */
 void __libc_longjmp (sigjmp_buf env, int val)
 {
-#if 0
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
   /* Perform any cleanups needed by the frames being unwound.  */
   _longjmp_unwind (env, val);
 #endif
