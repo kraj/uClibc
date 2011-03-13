@@ -20,15 +20,6 @@
 #include <setjmp.h>
 #include <signal.h>
 
-
-extern void __longjmp (__jmp_buf __env, int __val) attribute_noreturn;
-libc_hidden_proto(__longjmp)
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-extern void _longjmp_unwind (jmp_buf env, int val);
-#endif
-
-extern __typeof(longjmp) __libc_longjmp attribute_noreturn;
 /* Set the signal mask to the one specified in ENV, and jump
    to the position specified in ENV, causing the setjmp
    call there to return VAL, or 1 if VAL is 0.  */

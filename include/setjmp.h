@@ -113,4 +113,14 @@ extern void siglongjmp (sigjmp_buf __env, int __val)
 
 __END_DECLS
 
+#ifdef _LIBC
+extern void __longjmp(__jmp_buf __env, int __val) attribute_noreturn;
+libc_hidden_proto(__longjmp)
+extern __typeof(longjmp) __libc_longjmp attribute_noreturn;
+extern __typeof(siglongjmp) __libc_siglongjmp attribute_noreturn;
+extern void _longjmp_unwind(jmp_buf __env, int __val);
+/* We use the normal longjmp for unwinding */
+# define __libc_unwind_longjmp(buf, val) __libc_longjmp(buf, val)
+#endif
+
 #endif /* setjmp.h  */

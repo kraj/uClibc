@@ -20,11 +20,6 @@
 #include "internals.h"
 #include <bits/stackinfo.h>
 
-/* These functions are not declared anywhere since they shouldn't be
-   used at another place but here.  */
-extern __typeof(siglongjmp) __libc_siglongjmp attribute_noreturn;
-extern __typeof(longjmp) __libc_longjmp attribute_noreturn;
-
 static void pthread_cleanup_upto(__jmp_buf target)
 {
   pthread_descr self = thread_self();
@@ -58,13 +53,13 @@ static void pthread_cleanup_upto(__jmp_buf target)
     THREAD_SETMEM(self, p_in_sighandler, NULL);
 }
 
-void attribute_noreturn siglongjmp(sigjmp_buf env, int val)
+void siglongjmp(sigjmp_buf env, int val)
 {
   pthread_cleanup_upto(env->__jmpbuf);
   __libc_siglongjmp(env, val);
 }
 
-void attribute_noreturn longjmp(jmp_buf env, int val)
+void longjmp(jmp_buf env, int val)
 {
   pthread_cleanup_upto(env->__jmpbuf);
   __libc_longjmp(env, val);

@@ -20,3 +20,5 @@ ___longjmp:
 	mov.l	@er0+,er3	; return PC
 	adds	#4,sp		; adjust return stack
 	jmp	@er3
+
+libc_hidden_def(__longjmp)

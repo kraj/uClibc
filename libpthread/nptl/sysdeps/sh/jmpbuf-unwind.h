@@ -26,8 +26,3 @@
 
 #define _JMPBUF_UNWINDS_ADJ(jmpbuf, address, adj) \
   ((uintptr_t) (address) - (adj) < (uintptr_t) (jmpbuf)[0].__regs[7] - (adj))
-
-extern __typeof(longjmp) __libc_longjmp attribute_noreturn;
-
-/* We use the normal lobngjmp for unwinding.  */
-#define __libc_unwind_longjmp(buf, val) __libc_longjmp (buf, val)
