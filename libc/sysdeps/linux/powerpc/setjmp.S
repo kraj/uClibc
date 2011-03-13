@@ -21,9 +21,7 @@
 
 #include <features.h>
 #include "ppc_asm.h"
-#define _ASM
-#define _SETJMP_H
-#include <bits/setjmp.h>
+#include <jmpbuf-offsets.h>
 
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
 #define FP(x...) x

@@ -4,10 +4,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define _SETJMP_H
-#define _ASM
-#include <bits/setjmp.h>
-
 # setjmp/longjmp for Frv.  The jmpbuf looks like this:
 #	
 # Register	jmpbuf offset

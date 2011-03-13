@@ -19,10 +19,6 @@
 
 #include <features.h>
 #include <bits/arm_asm.h>
-#define _SETJMP_H
-#define _ASM
-#include <bits/setjmp.h>
-
 
 .global __longjmp
 .type __longjmp,%function

@@ -16,11 +16,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sys/syscall.h>
+#include <jmpbuf-offsets.h>
 
-#define _ASM 1
-#define _SETJMP_H
-#include <bits/setjmp.h>
 #define ST_FLUSH_WINDOWS 3
 
 .global _setjmp

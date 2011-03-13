@@ -16,11 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-#define _ASM
-#define _SETJMP_H
-#define __ASSEMBLY__
-#include <bits/setjmp.h>
+#include <jmpbuf-offsets.h>
 
 #define a0  $16
 
@@ -30,10 +26,16 @@ __sigsetjmp:
        ldgp    $29, 0($27)
 
 $sigsetjmp_local:
-       subq    $30, 16, $30
-       .frame  $26, 16, $26, 0
-       stq     $26, 0($30)
-       .mask   0x04000000, -16
+#ifndef __PIC__
+# define FRAME 16
+	subq    $30, FRAME, $30
+	.frame  $30, FRAME, $26, 0
+	stq     $26, 0($30)
+	.mask   0x04000000, -FRAME
+#else
+# define FRAME 0
+	.frame	$30, FRAME, $26, 0
+#endif
 	.prologue 1
 
 	stq	$9, JB_S0*8(a0)
@@ -43,9 +45,9 @@ $sigsetjmp_local:
 	stq	$13, JB_S4*8(a0)
 	stq	$14, JB_S5*8(a0)
 	stq	$26, JB_PC*8(a0)
-	addq	$30, 16, $1
-	stq	$15, JB_FP*8(a0)
+	addq	$30, FRAME, $1
 	stq	$1, JB_SP*8(a0)
+	stq	$15, JB_FP*8(a0)
 	stt	$f2, JB_F2*8(a0)
 	stt	$f3, JB_F3*8(a0)
 	stt	$f4, JB_F4*8(a0)
@@ -55,12 +57,16 @@ $sigsetjmp_local:
 	stt	$f8, JB_F8*8(a0)
 	stt	$f9, JB_F9*8(a0)
 
+#ifndef __PIC__
 	/* Call to C to (potentially) save our signal mask.  */
 	jsr	$26, __sigjmp_save
-
 	ldq	$26, 0($30)
 	addq	$30, 16, $30
 	ret
+#else
+	/* Tailcall to save the signal mask.  */
+	br	$31, __sigjmp_save	!samegp
+#endif
 
 .end __sigsetjmp
 
@@ -71,7 +77,6 @@ $sigsetjmp_local:
 .align 3;
 .ent  _setjmp , 0;
 _setjmp:
-	.frame $30 , 0, $26
 	ldgp	$29, 0($27)
 	mov	0, $17
 	br	$sigsetjmp_local
@@ -81,11 +86,7 @@ _setjmp:
 .align 3;
 .ent  setjmp , 0;
 setjmp:
-	.frame $30 , 0, $26
 	ldgp	$29, 0($27)
 	mov	1, $17
 	br	$sigsetjmp_local
 .end setjmp
-
-.weak   _setjmp
-.weak   setjmp

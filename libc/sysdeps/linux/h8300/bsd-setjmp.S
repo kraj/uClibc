@@ -1,8 +1,6 @@
 /* BSD `_setjmp' entry point to `sigsetjmp (..., 1)'.  H8/300 version. */
 
-#define _ASM
-#define _SETJMP_H
-#include <bits/setjmp.h>
+#include <jmpbuf-offsets.h>
 
 #ifdef __H8300S__
 	.h8300s

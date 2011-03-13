@@ -16,10 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-#define _SETJMP_H
-#define __ASSEMBLY__
-#include <bits/setjmp.h>
+#include <setjmp-offsets.h>
 
 #define a0  $16
 
