@@ -19,6 +19,7 @@
 #include "pthread.h"
 #include "internals.h"
 #include <bits/stackinfo.h>
+#include <jmpbuf-unwind.h>
 
 static void pthread_cleanup_upto(__jmp_buf target)
 {

@@ -1,6 +1,4 @@
-#define _ASM
-#define _SETJMP_H
-#include <bits/setjmp.h>
+#include <jmpbuf-offsets.h>
 
 #ifdef __H8300S__
 	.h8300s

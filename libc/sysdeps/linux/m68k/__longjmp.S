@@ -2,10 +2,8 @@
 /* Copyright (C) 2002, David McCullough <davidm@snapgear.com> */
 /* This file is released under the LGPL, any version you like */
 
-#define _ASM
-#define _SETJMP_H
 #include <features.h>
-#include <bits/setjmp.h>
+#include <jmpbuf-offsets.h>
 
 .globl __longjmp
 .type  __longjmp,@function

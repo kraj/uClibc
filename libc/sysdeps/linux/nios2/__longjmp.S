@@ -12,9 +12,7 @@
  */
 
 #include <features.h>
-#define _ASM
-#define _SETJMP_H
-#include <bits/setjmp.h>
+#include <jmpbuf-offsets.h>
 
 .globl __longjmp
 .type  __longjmp,@function

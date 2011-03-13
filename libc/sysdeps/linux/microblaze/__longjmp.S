@@ -12,10 +12,6 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
-#define _SETJMP_H
-#define _ASM
-#include <bits/setjmp.h>
-
 #include <libc-symbols.h>
 
 	.text

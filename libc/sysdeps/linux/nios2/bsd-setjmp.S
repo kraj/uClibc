@@ -12,9 +12,7 @@
  */
 
 
-#define _ASM
-#define _SETJMP_H
-#include <bits/setjmp.h>
+#include <jmpbuf-offsets.h>
 
    .globl setjmp
    .type  setjmp,@function
