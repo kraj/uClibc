@@ -12,19 +12,10 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
-#ifndef _ASM
 /*
  * The jump buffer contains r0-r7, sr, sp and lr. Other registers are
  * not saved.
  */
 typedef int __jmp_buf[11];
-#endif
-
-#define __JMP_BUF_SP	4
-
-/* Test if longjmp to JMPBUF would unwind the frame containing a local
-   variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *)(address) < (void *)(jmpbuf[__JMP_BUF_SP]))
 
 #endif /* _BITS_SETJMP_H */

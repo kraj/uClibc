@@ -5,9 +5,6 @@
  * Public License.  See the file "COPYING.LIB" in the main directory of this
  * archive for more details.
  */
-#define _SETJMP_H
-#define _ASM
-#include <bits/setjmp.h>
 
 	.text
 
