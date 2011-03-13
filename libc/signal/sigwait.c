@@ -96,7 +96,7 @@ int sigwait (const sigset_t *set, int *sig)
 int sigwait (const sigset_t *set, int *sig)
 {
 	int ret = 1;
-	if ((ret = sigwaitinfo(set, NULL)) != -1) {
+	if ((ret = __sigwaitinfo(set, NULL)) != -1) {
 		*sig = ret;
 		return 0;
 	}

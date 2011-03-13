@@ -334,7 +334,6 @@ extern int sigwaitinfo (__const sigset_t *__restrict __set,
 #ifdef _LIBC
 extern __typeof(sigwaitinfo) __sigwaitinfo attribute_hidden;
 #endif
-libc_hidden_proto(sigwaitinfo)
 
 /* Select any of pending signals from SET and place information in INFO.
    Wait the time specified by TIMEOUT if no signal is pending.
