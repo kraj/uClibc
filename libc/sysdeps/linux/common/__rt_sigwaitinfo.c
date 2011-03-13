@@ -75,15 +75,13 @@ int __sigwaitinfo(const sigset_t *set, siginfo_t *info)
 #  include <stddef.h>
 #  define __NR___rt_sigwaitinfo __NR_rt_sigtimedwait
 static _syscall4(int, __rt_sigwaitinfo, const sigset_t *, set,
-				 siginfo_t *, info, const struct timespec *, timeout,
-				 size_t, setsize);
+		 siginfo_t *, info, const struct timespec *, timeout,
+		 size_t, setsize);
 
-int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
+int __sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {
 	return __rt_sigwaitinfo(set, info, NULL, _NSIG / 8);
 }
 # endif
-libc_hidden_proto(sigwaitinfo)
 weak_alias (__sigwaitinfo, sigwaitinfo)
-libc_hidden_weak(sigwaitinfo)
 #endif
