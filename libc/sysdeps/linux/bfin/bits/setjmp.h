@@ -24,7 +24,6 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
-#ifndef _ASM
 /* Jump buffer contains r7-r4, p5-p3, fp, sp and pc.  Other registers are not saved.  */
 typedef struct
 {
@@ -44,14 +43,5 @@ typedef struct
 	unsigned long __bregs[4];
 	unsigned long pc;
 }__jmp_buf[1];
-
-#endif
-
-#define __JMP_BUF_SP	8
-
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) (jmpbuf)->fp)
 
 #endif	/* bits/setjmp.h */

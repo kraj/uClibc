@@ -8,4 +8,4 @@
 /* Test if longjmp to JMPBUF would unwind the frame
    containing a local variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) (jmpbuf)->__pregs[6])
+  ((void *) (address) < (void *) (jmpbuf)->fp)

@@ -103,6 +103,8 @@ HEADERS_SYS_ARCH := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET
 HEADERS_SYS_COMMON := $(filter-out $(HEADERS_SYS_ARCH),$(HEADERS_SYS_COMMON))
 
 ALL_HEADERS_COMMON       := $(top_builddir)include/fpu_control.h \
+				$(top_builddir)include/jmpbuf-offsets.h \
+				$(top_builddir)include/jmpbuf-unwind.h \
 				$(top_builddir)include/dl-osinfo.h \
 				$(top_builddir)include/hp-timing.h
 ALL_HEADERS_BITS_COMMON  := $(addprefix $(top_builddir)include/bits/,$(HEADERS_BITS_COMMON))
@@ -124,7 +126,7 @@ target-headers-sysdep := \
 	$(ALL_HEADERS_SYS_ARCH) \
 	$(ALL_HEADERS_BITS_PTHREAD)
 
-$(top_builddir)include/fpu_control.h:
+$(top_builddir)include/fpu_control.h $(top_builddir)include/jmpbuf-offsets.h $(top_builddir)include/jmpbuf-unwind.h:
 	@$(disp_ln)
 	$(Q)[ -r $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) ] && \
 		$(LN) -fs $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) $@ || \
@@ -216,6 +218,8 @@ $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
 HEADERS_RM- := \
 	internal \
 	dl-osinfo.h \
+	jmpbuf-offsets.h \
+	jmpbuf-unwind.h \
 	hp-timing.h \
 	_lfs_64.h \
 	bits/uClibc_arch_features.h \

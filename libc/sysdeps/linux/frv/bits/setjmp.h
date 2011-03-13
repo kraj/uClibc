@@ -35,7 +35,6 @@
 #define __SETJMP_FP	(__SETJMP_SP+1)
 
 
-#ifndef _ASM
 typedef struct
 /* Demand 64-bit alignment such that we can use std/ldd in
    setjmp/longjmp.  */
@@ -48,11 +47,5 @@ __attribute__((__aligned__(8)))
     unsigned long __sp;				/* stack pointer */
     unsigned long __fp;				/* frame pointer */
   } __jmp_buf[1];
-#endif
-
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) (jmpbuf)->__sp)
 
 #endif	/* bits/setjmp.h */

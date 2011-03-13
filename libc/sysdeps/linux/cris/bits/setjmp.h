@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1998, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-/* Define the machine-dependent type `jmp_buf'.  CRIS version.  */
+/* Define the machine-dependent type `jmp_buf', CRIS version.  */
 #ifndef _BITS_SETJMP_H
 #define _BITS_SETJMP_H	1
 
@@ -24,10 +24,8 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
-/*
-   Note that we save and restore CCR to be able to
-   correctly handle DI/EI.  Note also that the "move x,ccr" does NOT affect
-   the DMA enable bits (E and D).
+/* Note that saving and restoring CCR has no meaning in user mode, so we
+   don't actually do it; the slot is now reserved.
 
    jmp_buf[0] - PC
    jmp_buf[1] - SP (R14)
@@ -46,21 +44,8 @@
    jmp_buf[14] - R1
    jmp_buf[15] - R0
    jmp_buf[16] - SRP
-   jmp_buf[17] - CCR
-   */
+   jmp_buf[17] - CCR  */
 
-#define _JBLEN 18
-#if     defined (__USE_MISC) || defined (_ASM)
-#define JB_SP 1
-#endif
-
-#ifndef	_ASM
-typedef int __jmp_buf[_JBLEN];
-#endif
-
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) (jmpbuf)[JB_SP])
+typedef int __jmp_buf[18];
 
 #endif	/* bits/setjmp.h */
