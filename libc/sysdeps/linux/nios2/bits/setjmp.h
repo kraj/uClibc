@@ -24,7 +24,6 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
-#ifndef	_ASM
 typedef struct
 {
     /* Callee-saved registers r16 through r23.  */
@@ -47,26 +46,5 @@ typedef struct
     unsigned long __fpregs[64];
 #endif
 } __jmp_buf[1];
-
-#endif
-
-#define JB_REGS		0
-#define JB_PC		32
-#define JB_SP		36
-#define JB_FP		40
-#define JB_GP		44
-#define JB_FPREGS 	48
-
-#if defined __HAVE_FPU__
-# define JB_SIZE 304
-#else
-# define JB_SIZE 48
-#endif
-
-
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void*)(jmpbuf)->__sp)
 
 #endif	/* bits/setjmp.h */

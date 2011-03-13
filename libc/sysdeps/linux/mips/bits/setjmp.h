@@ -58,15 +58,4 @@ typedef struct
 #endif /* N32 || O32 */
   } __jmp_buf[1];
 
-#ifdef __USE_MISC
-/* Offset to the program counter in `jmp_buf'.  */
-# define JB_PC	0
-#endif
-
-
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) (jmpbuf)[0].__sp)
-
 #endif	/* bits/setjmp.h */

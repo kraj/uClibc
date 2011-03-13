@@ -33,8 +33,6 @@
 #define	__SETJMP_TRG(x)	(__SETJMP_NUM_INT+__SETJMP_NUM_DBL+(x))
 #define	__SETJMP_LR	(__SETJMP_NUM_INT+__SETJMP_NUM_DBL+__SETJMP_NUM_TRG)
 
-
-#ifndef _ASM
 typedef struct
   {
 	    /* Callee-saved registers.  */
@@ -45,6 +43,5 @@ typedef struct
     unsigned long long __trgs[__SETJMP_NUM_TRG];	/* traget registers */
     unsigned long long __lr;				/* linkage register */
   } __jmp_buf[1];
-#endif
 
 #endif	/* bits/setjmp.h */

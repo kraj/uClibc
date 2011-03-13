@@ -25,8 +25,6 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
-#ifndef _ASM
-
 typedef struct
   {
     /* There are eight 4-byte data registers, but D0 is not saved.  */
@@ -44,25 +42,5 @@ typedef struct
 #endif
 
   } __jmp_buf[1];
-
-#endif
-
-#define JB_REGS   0
-#define JB_DREGS  0
-#define JB_AREGS  24
-#define JB_PC     48
-#define JB_FPREGS 52
-
-#if defined __HAVE_68881__ || defined __HAVE_FPU__
-# define JB_SIZE 76
-#else
-# define JB_SIZE 52
-#endif
-
-
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) (jmpbuf)->__aregs[5])
 
 #endif	/* bits/setjmp.h */

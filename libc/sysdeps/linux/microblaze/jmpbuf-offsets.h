@@ -3,4 +3,4 @@
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-#define JB_SIZE		(4 * 15)
+#define JB_SIZE		(4 * 18)

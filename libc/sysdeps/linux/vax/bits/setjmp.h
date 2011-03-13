@@ -6,14 +6,8 @@
 
 /* we want to save enough that we can use this to fool RET,
  * So we basically save all of the CALLS stack frame. Plus regs. */
-#ifndef	_ASM
 typedef int __jmp_buf[16];
-#endif
 
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) (jmpbuf[4]))
 /*
 	jmp_buf layout. jmp_buf[0]
 	void *__cond;		 The condition handler
@@ -34,4 +28,3 @@ typedef int __jmp_buf[16];
 	void *__rA;		 regs, r0->r11.
 	void *__rB;		 regs, r0->r11.
 */
-

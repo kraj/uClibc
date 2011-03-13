@@ -19,7 +19,6 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
-#ifndef _ASM
 typedef struct
   {
     /* Stack pointer.  */
@@ -36,12 +35,5 @@ typedef struct
     int __regs[14];
   } __jmp_buf[1];
 #endif
-
-#define JB_SIZE		(4 * 18)
-
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) (jmpbuf)[0].__sp)
 
 #endif	/* bits/setjmp.h */

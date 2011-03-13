@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1997,1998,2005,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,14 +17,14 @@
    02111-1307 USA.  */
 
 /* Define the machine-dependent type `jmp_buf'.  ARM version. */
+
 #ifndef _BITS_SETJMP_H
-#define _BITS_SETJMP_H	1
+#define _BITS_SETJMP_H 1
 
 #if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
-#ifndef _ASM
 /* Jump buffer contains v1-v6, sl, fp, sp and pc.  Other registers are not
    saved.  */
 #ifdef __ARM_EABI__
@@ -38,15 +38,10 @@ typedef int __jmp_buf[64] __attribute__((aligned (8)));
 #elif defined __MAVERICK__ || defined __IWMMXT__
 typedef int __jmp_buf[34];
 #else
+# ifdef __UCLIBC_HAS_FPU__
 typedef int __jmp_buf[22];
+# else
+typedef int __jmp_buf[10];
+# endif
 #endif
 #endif
-
-#define __JMP_BUF_SP		8
-
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) (jmpbuf[__JMP_BUF_SP]))
-
-#endif	/* bits/setjmp.h */
