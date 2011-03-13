@@ -21,3 +21,11 @@
   ((int) (address) < (jmpbuf)[JB_SP])
 
 #endif
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#if defined(__arch64__)
+#include "sparc64/jmpbuf-unwind.h"
+#else
+#include "sparc32/jmpbuf-unwind.h"
+#endif
+#endif
