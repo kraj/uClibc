@@ -21,9 +21,8 @@ CSRC += posix_fadvise.c posix_fadvise64.c
 endif
 
 # Is our compiler set up for EABI ?
-IS_EABI:=$(shell $(CC) $(CFLAGS) -x c - -E -dM </dev/null 2>/dev/null \
-                 | grep __ARM_EABI__ 2>&1 >/dev/null && echo 'y' \
-          )
+CC_IS_EABI_CHECK = $(filter-out -include libc-symbols.h,$(CC) $(CFLAGS))
+$(eval $(call cache-output-var,IS_EABI,$(CC_IS_EABI_CHECK) -x c - -E -dM </dev/null 2>/dev/null | grep __ARM_EABI__ 2>&1 >/dev/null && echo 'y'))
 
 ifeq ($(IS_EABI),y)
 CSRC += aeabi_assert.c aeabi_atexit.c aeabi_errno_addr.c \
