@@ -430,7 +430,7 @@ extern unsigned long int wcstoul (__const wchar_t *__restrict __nptr,
      __THROW;
 
 #if defined __USE_ISOC99 || (defined __GNUC__ && defined __USE_GNU)
-/* Convert initial portion of wide string NPTR to `long int'
+/* Convert initial portion of wide string NPTR to `long long int'
    representation.  */
 __extension__
 extern long long int wcstoll (__const wchar_t *__restrict __nptr,
@@ -447,7 +447,7 @@ extern unsigned long long int wcstoull (__const wchar_t *__restrict __nptr,
 __END_NAMESPACE_C99
 
 #if defined __GNUC__ && defined __USE_GNU
-/* Convert initial portion of wide string NPTR to `long int'
+/* Convert initial portion of wide string NPTR to `long long int'
    representation.  */
 __extension__
 extern long long int wcstoq (__const wchar_t *__restrict __nptr,
