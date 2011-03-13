@@ -133,11 +133,11 @@ __BEGIN_NAMESPACE_STD
 /* This incomplete type is defined in <time.h> but needed here because
    of `wcsftime'.  */
 struct tm;
+__END_NAMESPACE_STD
 /* XXX We have to clean this up at some point.  Since tm is in the std
    namespace but wcsftime is in __c99 the type wouldn't be found
    without inserting it in the global namespace.  */
 __USING_NAMESPACE_STD(tm)
-__END_NAMESPACE_STD
 
 
 __BEGIN_NAMESPACE_C99
@@ -257,7 +257,8 @@ extern wchar_t *wcspbrk (__const wchar_t *__wcs, __const wchar_t *__accept)
      __THROW __attribute_pure__;
 libc_hidden_proto(wcspbrk)
 /* Find the first occurrence of NEEDLE in HAYSTACK.  */
-extern wchar_t *wcsstr (__const wchar_t *__haystack, __const wchar_t *__needle)
+/* SuSv uses restrict keyword, glibc does not */
+extern wchar_t *wcsstr (__const wchar_t *__restrict __haystack, __const wchar_t *__restrict __needle)
      __THROW __attribute_pure__;
 
 /* Divide WCS into tokens separated by characters in DELIM.  */
@@ -272,7 +273,9 @@ __END_NAMESPACE_C99
 
 #if defined __USE_XOPEN && defined __UCLIBC_SUSV3_LEGACY__
 /* Another name for `wcsstr' from XPG4.  */
-extern wchar_t *wcswcs (__const wchar_t *__haystack, __const wchar_t *__needle)
+/* SuSv3 did not use restrict keyword, probably because it was marked LEGACY
+   we do to be in sync with wcsstr */
+extern wchar_t *wcswcs (__const wchar_t *__restrict __haystack, __const wchar_t *__restrict __needle)
      __THROW __attribute_pure__;
 #endif
 
@@ -291,8 +294,9 @@ extern wchar_t *wmemchr (__const wchar_t *__s, wchar_t __c, size_t __n)
 libc_hidden_proto(wmemchr)
 
 /* Compare N wide characters of S1 and S2.  */
-extern int wmemcmp (__const wchar_t *__restrict __s1,
-		    __const wchar_t *__restrict __s2, size_t __n)
+/* SuSv4 does not use restrict keyword for S1 and S2, glibc does */
+extern int wmemcmp (__const wchar_t *__s1,
+		    __const wchar_t *__s2, size_t __n)
      __THROW __attribute_pure__;
 
 /* Copy N wide characters of SRC to DEST.  */
