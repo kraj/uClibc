@@ -22,14 +22,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <getopt.h>
-
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Enable gettext awareness.
-#endif /* __UCLIBC_MJN3_ONLY__ */
-
-#undef _
-#define _(X)   X
+#include <libintl.h>
 
 #ifdef __BCC__
 static const char missing[] = "option requires an argument";

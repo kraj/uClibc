@@ -72,21 +72,11 @@
 # include <unixlib.h>
 #endif
 
-#if !defined __UCLIBC__ && !defined __UCLIBC_HAS_GETTEXT_AWARENESS__
 #ifdef _LIBC
 # include <libintl.h>
 #else
 # include "gettext.h"
 # define _(msgid) gettext (msgid)
-#endif
-#else
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Enable gettext awareness.
-#endif /* __UCLIBC_MJN3_ONLY__ */
-
-#undef _
-#define _(X)	X
-
 #endif
 
 /* Treat '-W foo' the same as the long option '--foo',
