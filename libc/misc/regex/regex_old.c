@@ -64,10 +64,9 @@
 #  include <wctype.h>
 # endif
 
-# if defined _LIBC || defined __UCLIBC__
+# ifdef _LIBC
 /* We have to keep the namespace clean.  */
 
-# ifndef __UCLIBC__
 #  define btowc __btowc
 
 /* We are also using some library internals.  */
@@ -75,7 +74,6 @@
 #  include <locale/elem-hash.h>
 #  include <langinfo.h>
 #  include <locale/coll-lookup.h>
-# endif
 # endif
 
 /* This is for other GNU distributions with internationalized messages.  */
