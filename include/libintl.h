@@ -127,10 +127,14 @@ extern char *bind_textdomain_codeset (__const char *__domainname,
 
 __END_DECLS
 
+#else
+
+#define gettext(msgid) ((const char *) (msgid))
+
 #endif /* __UCLIBC_HAS_GETTEXT_AWARENESS__ */
 
 #ifdef _LIBC
-# define _(x) x
+# define _(x) gettext(x)
 # define N_(x) x
 #endif
 
