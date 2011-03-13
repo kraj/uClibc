@@ -4,6 +4,8 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
+#include <features.h>
+
 #define JB_REGS   0
 #define JB_DREGS  0
 #define JB_AREGS  24

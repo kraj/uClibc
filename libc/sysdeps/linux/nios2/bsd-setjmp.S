@@ -12,6 +12,7 @@
  */
 
 
+#include <features.h>
 #include <jmpbuf-offsets.h>
 
    .globl setjmp
@@ -33,7 +34,7 @@ setjmp:
     stw     fp, JB_FP(r4)
     stw     gp, JB_GP(r4)
     
-#if defined(__HAVE_FPU__)
+#ifdef __UCLIBC_HAS_FPU__
     SAVE_FPU r4 JB_FPREGS
 #endif
 

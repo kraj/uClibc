@@ -42,7 +42,7 @@ typedef struct
     unsigned long __gp;
 
 	/* floating point regs, if any */
-#if defined __HAVE_FPU__
+#ifdef __UCLIBC_HAS_FPU__
     unsigned long __fpregs[64];
 #endif
 } __jmp_buf[1];

@@ -37,7 +37,7 @@ __longjmp:
     ldw     gp, JB_GP(r4)
     ldw     sp, JB_SP(r4)
     
-#if defined(__HAVE_FPU__)
+#ifdef __UCLIBC_HAS_FPU__
     RESTORE_FPU r4 JB_FPREGS
 #endif
 
