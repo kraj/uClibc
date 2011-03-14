@@ -26,6 +26,8 @@
 # define _POSIX_THREAD_PRIO_INHERIT	-1
 # undef _POSIX_THREAD_PRIO_PROTECT
 # define _POSIX_THREAD_PRIO_PROTECT	-1
+# undef _POSIX_THREAD_ROBUST_PRIO_INHERIT
+# undef _POSIX_THREAD_ROBUST_PRIO_PROTECT
 #endif
 
 /* this has to be adapted to uClibc, not all are thread related */
@@ -76,6 +78,7 @@
 #undef _POSIX_TRACE_INHERIT
 #undef _POSIX_TRACE_LOG
 #undef _POSIX_TYPED_MEMORY_OBJECTS
+#undef _POSIX_SPAWN
 
 #if 0 /* does uClibc support these? */
 # undef _POSIX_ASYNCHRONOUS_IO
