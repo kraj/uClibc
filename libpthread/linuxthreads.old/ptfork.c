@@ -93,10 +93,7 @@ void __pthread_once_fork_prepare(void);
 void __pthread_once_fork_child(void);
 void __pthread_once_fork_parent(void);
 
-extern __typeof(fork) __libc_fork;
-
-pid_t __fork(void) attribute_hidden;
-pid_t __fork(void)
+static pid_t __fork(void)
 {
   pid_t pid;
   struct handler_list * prepare, * child, * parent;

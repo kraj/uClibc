@@ -58,7 +58,6 @@ fresetlockfiles (void)
 #endif
 }
 
-extern __typeof(fork) __libc_fork;
 pid_t
 __libc_fork (void)
 {
@@ -223,7 +222,5 @@ __libc_fork (void)
 
   return pid;
 }
-weak_alias(__libc_fork,__fork)
-libc_hidden_proto(fork)
 weak_alias(__libc_fork,fork)
 libc_hidden_weak(fork)

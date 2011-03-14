@@ -42,7 +42,7 @@ ENTRY (__vfork)
   ld  10,.LC0@toc(2)
   ld  10,0(10)
   cmpwi  10,0
-  bne-  HIDDEN_JUMPTARGET(__fork)
+  bne-  HIDDEN_JUMPTARGET(fork)
 # else
   .weak  pthread_create
 	lis  10,pthread_create@highest
@@ -80,7 +80,7 @@ ENTRY (__vfork)
 
 # ifndef SHARED
 .Lhidden_fork:
-	b	HIDDEN_JUMPTARGET(__fork)
+	b	HIDDEN_JUMPTARGET(fork)
 .Lsyscall_error:
 	b	JUMPTARGET(__syscall_error)
 # endif

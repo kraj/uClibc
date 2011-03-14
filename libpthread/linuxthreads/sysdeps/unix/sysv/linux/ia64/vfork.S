@@ -38,7 +38,7 @@ ENTRY(__vfork)
 #endif
 	ld8 r14 = [r14];;
 	cmp.ne p6, p7 = 0, r14
-(p6)	br.cond.spnt.few HIDDEN_JUMPTARGET (__fork);;
+(p6)	br.cond.spnt.few HIDDEN_JUMPTARGET (fork);;
 	alloc r2=ar.pfs,0,0,2,0
 	mov out0=CLONE_VM+CLONE_VFORK+SIGCHLD
 	mov out1=0		/* Standard sp value.			*/

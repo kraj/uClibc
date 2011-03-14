@@ -30,7 +30,7 @@ __vfork:
 
 #ifdef SHARED
 	ldq	t0, __libc_pthread_functions(gp) !gprel
-	bne	t0, HIDDEN_JUMPTARGET (__fork) !samegp
+	bne	t0, HIDDEN_JUMPTARGET (fork) !samegp
 #else
 	.weak	pthread_create
 	ldq	t0, pthread_create(gp) !literal
@@ -50,7 +50,7 @@ $do_fork:
 	cfi_adjust_cfa_offset(16)
 	stq	ra, 0(sp)
 	cfi_offset(ra, -16)
-	jsr	ra, HIDDEN_JUMPTARGET (__fork)
+	jsr	ra, HIDDEN_JUMPTARGET (fork)
 	ldgp	gp, 0(ra)
 	ldq	ra, 0(sp)
 	addq	sp, 16, sp

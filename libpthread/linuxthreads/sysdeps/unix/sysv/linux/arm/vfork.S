@@ -40,7 +40,7 @@ ENTRY (__vfork)
 	ldr	r0, 1f
 #endif
 	movs	r0, r0
-	bne	HIDDEN_JUMPTARGET (__fork)
+	bne	HIDDEN_JUMPTARGET (fork)
 
 	DO_CALL (vfork, 0)
 	cmn	a1, #4096

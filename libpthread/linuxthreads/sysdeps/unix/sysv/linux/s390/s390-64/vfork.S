@@ -35,7 +35,7 @@ ENTRY (__vfork)
 	larl	%r1,pthread_create
 #endif
 	ltgr	%r1,%r1
-	jgne	HIDDEN_JUMPTARGET(__fork)
+	jgne	HIDDEN_JUMPTARGET(fork)
 
 	/* Do vfork system call.  */
 	svc	SYS_ify (vfork)

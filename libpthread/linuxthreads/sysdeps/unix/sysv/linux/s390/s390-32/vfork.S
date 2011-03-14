@@ -54,7 +54,7 @@ ENTRY (__vfork)
 	al	%r1,3f-2b(%r1)
 	br	%r1
 3:
-	.long	HIDDEN_JUMPTARGET(__fork)-2b
+	.long	HIDDEN_JUMPTARGET(fork)-2b
 4:
 #ifdef SHARED
 	.long	__libc_pthread_functions-0b

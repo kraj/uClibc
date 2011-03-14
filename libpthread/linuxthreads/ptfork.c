@@ -23,8 +23,6 @@
 #include <bits/libc-lock.h>
 #include "fork.h"
 
-extern int __libc_fork (void);
-
 pid_t __pthread_fork (struct fork_block *b)
 {
   pid_t pid;
