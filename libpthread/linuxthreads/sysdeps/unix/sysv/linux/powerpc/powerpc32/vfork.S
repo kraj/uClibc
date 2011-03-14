@@ -66,7 +66,7 @@ ENTRY (__vfork)
 # endif
 
 .Lhidden_fork:
-	b	HIDDEN_JUMPTARGET(__fork)
+	b	HIDDEN_JUMPTARGET(fork)
 
 #endif
 

@@ -34,7 +34,7 @@ ENTRY (__vfork)
 	movq	$pthread_create, %rax
 	testq	%rax, %rax
 #endif
-	jne	HIDDEN_JUMPTARGET (__fork)
+	jne	HIDDEN_JUMPTARGET (fork)
 
 	/* Pop the return PC value into RDI.  We need a register that
 	   is preserved by the syscall and that we're allowed to destroy. */

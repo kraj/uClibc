@@ -14,9 +14,6 @@
 
 /* Xtensa doesn't provide a 'fork' system call, so we use 'clone'.  */
 
-extern __typeof(fork) __libc_fork;
-
-libc_hidden_proto(fork)
 pid_t __libc_fork(void)
 {
 	return (pid_t) INLINE_SYSCALL(clone, 2, SIGCHLD, 0);

@@ -44,7 +44,7 @@ ENTRY (__vfork)
 	movl	$pthread_create, %eax
 	testl	%eax, %eax
 # endif
-	jne	HIDDEN_JUMPTARGET (__fork)
+	jne	HIDDEN_JUMPTARGET (fork)
 
 	/* Pop the return PC value into ECX.  */
 	popl	%ecx

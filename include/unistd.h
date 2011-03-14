@@ -761,7 +761,10 @@ libc_hidden_proto(setresgid)
    Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
 extern __pid_t fork (void) __THROW;
+# ifdef _LIBC
+extern __typeof(fork) __libc_fork;
 libc_hidden_proto(fork)
+# endif
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED

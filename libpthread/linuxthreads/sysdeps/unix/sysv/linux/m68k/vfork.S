@@ -35,7 +35,7 @@ ENTRY (__vfork)
 	.weak	pthread_create
 	movel	#pthread_create, %d0
 #endif
-	jbne	HIDDEN_JUMPTARGET (__fork)
+	jbne	HIDDEN_JUMPTARGET (fork)
 
 #ifdef __NR_vfork
 

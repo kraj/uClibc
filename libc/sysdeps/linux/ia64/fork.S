@@ -36,7 +36,5 @@ ENTRY(__libc_fork)
 	ret
 PSEUDO_END(__libc_fork)
 
-weak_alias (__libc_fork, __fork)
-libc_hidden_def (__fork)
 weak_alias (__libc_fork, fork)
 libc_hidden_weak (fork)

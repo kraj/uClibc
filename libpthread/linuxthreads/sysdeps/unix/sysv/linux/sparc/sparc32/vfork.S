@@ -43,7 +43,7 @@ ENTRY(__vfork)
 	orcc	%o0, %lo(pthread_create), %o0
 #endif
 #if defined SHARED && !defined BROKEN_SPARC_WDISP22
-	bne	HIDDEN_JUMPTARGET(__fork)
+	bne	HIDDEN_JUMPTARGET(fork)
 #else
 	bne	1f
 #endif
@@ -56,7 +56,7 @@ ENTRY(__vfork)
 	 and	%o0, %o1, %o0
 #if !defined SHARED || defined BROKEN_SPARC_WDISP22
 1:	mov	%o7, %g1
-	call	HIDDEN_JUMPTARGET(__fork)
+	call	HIDDEN_JUMPTARGET(fork)
 	 mov	%g1, %o7
 #endif
 	SYSCALL_ERROR_HANDLER

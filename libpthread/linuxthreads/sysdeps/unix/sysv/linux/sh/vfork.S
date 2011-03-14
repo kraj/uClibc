@@ -70,7 +70,7 @@ ENTRY (__vfork)
 	 nop
 1:
 	.align 2
-.L2:	.long	HIDDEN_JUMPTARGET(__fork)-1b
+.L2:	.long	HIDDEN_JUMPTARGET(fork)-1b
 
 PSEUDO_END (__vfork)
 libc_hidden_def (__vfork)
