@@ -171,6 +171,7 @@ __BEGIN_DECLS
    */
 
 #include <bits/posix_opt.h>
+#include <bits/uClibc_posix_opt.h>
 
 /* Get the environment definitions from Unix98.  */
 #ifdef __USE_UNIX98
