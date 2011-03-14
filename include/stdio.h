@@ -519,7 +519,6 @@ __BEGIN_NAMESPACE_STD
 extern int fputc (int __c, FILE *__stream);
 libc_hidden_proto(fputc)
 extern int putc (int __c, FILE *__stream);
-libc_hidden_proto(putc)
 
 /* Write a character to stdout.
 
@@ -540,7 +539,6 @@ __END_NAMESPACE_STD
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int fputc_unlocked (int __c, FILE *__stream);
-libc_hidden_proto(fputc_unlocked)
 #endif /* Use MISC.  */
 
 #if defined __USE_POSIX || defined __USE_MISC
@@ -549,7 +547,6 @@ libc_hidden_proto(fputc_unlocked)
    These functions are possible cancellation points and therefore not
    marked with __THROW.  */
 extern int putc_unlocked (int __c, FILE *__stream);
-libc_hidden_proto(putc_unlocked)
 extern int putchar_unlocked (int __c);
 
 /* SUSv3 allows putc_unlocked to be a macro */
