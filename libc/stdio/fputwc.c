@@ -19,6 +19,7 @@ libc_hidden_def(fputwc_unlocked)
 strong_alias(fputwc_unlocked,putwc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
 strong_alias(fputwc_unlocked,fputwc)
+libc_hidden_def(fputwc)
 strong_alias(fputwc_unlocked,putwc)
 #endif
 
@@ -37,6 +38,7 @@ wint_t fputwc(wchar_t wc, register FILE *stream)
 
 	return retval;
 }
+libc_hidden_def(fputwc)
 
 strong_alias(fputwc,putwc)
 

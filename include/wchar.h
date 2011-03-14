@@ -656,6 +656,7 @@ extern wint_t getwchar (void);
    These functions are possible cancellation points and therefore not
    marked with __THROW.  */
 extern wint_t fputwc (wchar_t __wc, __FILE *__stream);
+libc_hidden_proto(fputwc)
 extern wint_t putwc (wchar_t __wc, __FILE *__stream);
 
 /* Write a character to stdout.

@@ -9,7 +9,6 @@
 
 #ifdef __DO_UNLOCKED
 
-
 wint_t putwchar_unlocked(wchar_t wc)
 {
 	return fputwc_unlocked(wc, stdout);
@@ -21,11 +20,9 @@ strong_alias(putwchar_unlocked,putwchar)
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-/* psm: should this be fputwc? */
-
 wint_t putwchar(wchar_t wc)
 {
-	return fputc(wc, stdout);
+	return fputwc(wc, stdout);
 }
 
 #endif
