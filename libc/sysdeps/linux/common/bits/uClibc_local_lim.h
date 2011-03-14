@@ -20,7 +20,10 @@
 /* glibc uses 16384 */
 # define PTHREAD_THREADS_MAX	1024
 # define TIMER_MAX		256
-# undef SEM_VALUE_MAX
+# ifdef __LINUXTHREADS_OLD__
+#  undef SEM_VALUE_MAX
+#  define SEM_VALUE_MAX	((int) ((~0u) >> 1))
+# endif
 # undef PTHREAD_STACK_MIN
 /* glibc uses at least 16364 */
 # define PTHREAD_STACK_MIN	1024
