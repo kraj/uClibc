@@ -1,5 +1,5 @@
 /* Define POSIX options for Linux.
-   Copyright (C) 1996-2001, 2002, 2003, 2004 Free Software Foundation, Inc.
+   Copyright (C) 1996-2004, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,8 +17,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#ifndef	_POSIX_OPT_H
-#define	_POSIX_OPT_H	1
+#ifndef	_BITS_POSIX_OPT_H
+#define	_BITS_POSIX_OPT_H	1
 
 /* Job control is supported.  */
 #define	_POSIX_JOB_CONTROL	1
@@ -60,6 +60,9 @@
 /* X/Open realtime support is available.  */
 #define _XOPEN_REALTIME	1
 
+/* X/Open thread realtime support is available.  */
+#define _XOPEN_REALTIME_THREADS	1
+
 /* XPG4.2 shared memory is supported.  */
 #define	_XOPEN_SHM	1
 
@@ -79,10 +82,15 @@
 /* We support user-defined stacks.  */
 #define _POSIX_THREAD_ATTR_STACKADDR	200112L
 
-#ifdef __UCLIBC_HAS_REALTIME__
+/* We support priority inheritence.  */
+#define _POSIX_THREAD_PRIO_INHERIT	200112L
+
+/* We support priority protection, though only for non-robust
+   mutexes.  */
+#define _POSIX_THREAD_PRIO_PROTECT	200112L
+
 /* We support POSIX.1b semaphores.  */
 #define _POSIX_SEMAPHORES	200112L
-#endif
 
 /* Real-time signals are supported.  */
 #define _POSIX_REALTIME_SIGNALS	200112L
@@ -98,12 +106,10 @@
 /* The LFS support in asynchronous I/O is also available.  */
 #define _LFS64_ASYNCHRONOUS_IO	1
 
-#ifdef __UCLIBC_HAS_LFS__
 /* The rest of the LFS is also available.  */
 #define _LFS_LARGEFILE		1
 #define _LFS64_LARGEFILE	1
 #define _LFS64_STDIO		1
-#endif
 
 /* POSIX shared memory objects are implemented.  */
 #define _POSIX_SHARED_MEMORY_OBJECTS	200112L
@@ -114,10 +120,8 @@
 /* Clock support in threads must be also checked at runtime.  */
 #define _POSIX_THREAD_CPUTIME	0
 
-#ifdef __UCLIBC_HAS_REGEX__
 /* GNU libc provides regular expression handling.  */
 #define _POSIX_REGEXP	1
-#endif
 
 /* Reader/Writer locks are available.  */
 #define _POSIX_READER_WRITER_LOCKS	200112L
@@ -157,15 +161,11 @@
 /* Advisory information interfaces are available.  */
 #define _POSIX_ADVISORY_INFO	200112L
 
-#ifdef __UCLIBC_HAS_IPV6__
 /* IPv6 support is available.  */
 #define _POSIX_IPV6	200112L
-#endif
 
-#ifdef __UCLIBC_HAS_SOCKET__
 /* Raw socket support is available.  */
 #define _POSIX_RAW_SOCKETS	200112L
-#endif
 
 /* We have at least one terminal.  */
 #define _POSIX2_CHAR_TERM	200112L
@@ -182,9 +182,5 @@
 
 /* Typed memory objects are not available.  */
 #define _POSIX_TYPED_MEMORY_OBJECTS	-1
-
-/* No support for priority inheritance or protection so far.  */
-#define _POSIX_THREAD_PRIO_INHERIT	-1
-#define _POSIX_THREAD_PRIO_PROTECT	-1
 
 #endif /* posix_opt.h */
