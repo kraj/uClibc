@@ -72,16 +72,13 @@ int __fputc_unlocked(int c, register FILE *stream)
 libc_hidden_def(__fputc_unlocked)
 
 strong_alias(__fputc_unlocked,fputc_unlocked)
-libc_hidden_def(fputc_unlocked)
 
 strong_alias(__fputc_unlocked,putc_unlocked)
-libc_hidden_def(putc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
 strong_alias(__fputc_unlocked,fputc)
 libc_hidden_def(fputc)
 
 strong_alias(__fputc_unlocked,putc)
-libc_hidden_def(putc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
@@ -101,6 +98,5 @@ int fputc(int c, register FILE *stream)
 libc_hidden_def(fputc)
 
 strong_alias(fputc,putc)
-libc_hidden_def(putc)
 
 #endif
