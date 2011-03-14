@@ -17,6 +17,7 @@
 
 #include <features.h>
 #include <sys/types.h>
+#include <limits.h>
 #ifdef __USE_XOPEN2K
 # define __need_timespec
 # include <time.h>
@@ -42,7 +43,9 @@ typedef struct
 #define SEM_FAILED	((sem_t *) 0)
 
 /* Maximum value the semaphore can have.  */
+#ifndef SEM_VALUE_MAX
 #define SEM_VALUE_MAX	((int) ((~0u) >> 1))
+#endif
 
 
 __BEGIN_DECLS
