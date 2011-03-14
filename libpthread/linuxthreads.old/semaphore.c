@@ -15,6 +15,7 @@
 /* Semaphores a la POSIX 1003.1b */
 
 #include <features.h>
+#include <limits.h>
 #include <errno.h>
 #include "pthread.h"
 #include "semaphore.h"
