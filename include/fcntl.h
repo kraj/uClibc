@@ -184,7 +184,6 @@ extern int __REDIRECT (lockf, (int __fd, int __cmd, __off64_t __len), lockf64);
 # endif
 # ifdef __USE_LARGEFILE64
 extern int lockf64 (int __fd, int __cmd, __off64_t __len);
-libc_hidden_proto(lockf64)
 # endif
 #endif
 
