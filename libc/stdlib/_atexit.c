@@ -318,8 +318,7 @@ extern void weak_function _stdio_term(void) attribute_hidden;
 attribute_hidden void (*__exit_cleanup)(int) = 0;
 __UCLIBC_MUTEX_INIT(__atexit_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
-extern void __uClibc_fini(void);
-libc_hidden_proto(__uClibc_fini)
+extern void __uClibc_fini(void) attribute_hidden;
 
 /*
  * Normal program termination

@@ -280,8 +280,7 @@ void attribute_hidden (*__app_fini)(void) = NULL;
 
 void attribute_hidden (*__rtld_fini)(void) = NULL;
 
-extern void __uClibc_fini(void);
-libc_hidden_proto(__uClibc_fini)
+extern void __uClibc_fini(void) attribute_hidden;
 void __uClibc_fini(void)
 {
 #ifdef __UCLIBC_CTOR_DTOR__
@@ -300,7 +299,6 @@ void __uClibc_fini(void)
     if (__rtld_fini != NULL)
 	(__rtld_fini)();
 }
-libc_hidden_def(__uClibc_fini)
 
 #ifndef SHARED
 extern void __nptl_deallocate_tsd (void) __attribute ((weak));
