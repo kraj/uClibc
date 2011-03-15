@@ -24,27 +24,14 @@
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_STATIC(utmplock, PTHREAD_MUTEX_INITIALIZER);
 
-
-/* Do not create extra unlocked functions if no locking is needed */
-#if defined __UCLIBC_HAS_THREADS__
-# define static_if_threaded static
-#else
-# define static_if_threaded /* nothing */
-# define __setutent setutent
-# define __getutent getutent
-# define __getutid getutid
-#endif
-
-
 /* Some global crap */
 static int static_fd = -1;
 static struct utmp static_utmp;
 static const char default_file_name[] = _PATH_UTMP;
 static const char *static_ut_name = default_file_name;
 
-
 /* This function must be called with the LOCK held */
-static_if_threaded void __setutent(void)
+static void __setutent(void)
 {
     if (static_fd < 0) {
 	static_fd = open_not_cancel_2(static_ut_name, O_RDWR | O_CLOEXEC);
@@ -69,11 +56,13 @@ void setutent(void)
     __setutent();
     __UCLIBC_MUTEX_UNLOCK(utmplock);
 }
+#else
+strong_alias(__setutent,setutent)
 #endif
 libc_hidden_def(setutent)
 
 /* This function must be called with the LOCK held */
-static_if_threaded struct utmp *__getutent(void)
+static struct utmp *__getutent(void)
 {
     if (static_fd < 0) {
 	__setutent();
@@ -98,10 +87,12 @@ struct utmp *getutent(void)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return ret;
 }
+#else
+strong_alias(__getutent,getutent)
 #endif
 libc_hidden_def(getutent)
 
-void endutent(void)
+static void __endutent(void)
 {
     __UCLIBC_MUTEX_LOCK(utmplock);
     if (static_fd >= 0)
@@ -109,10 +100,11 @@ void endutent(void)
     static_fd = -1;
     __UCLIBC_MUTEX_UNLOCK(utmplock);
 }
+strong_alias(__endutent,endutent)
 libc_hidden_def(endutent)
 
 /* This function must be called with the LOCK held */
-static_if_threaded struct utmp *__getutid(const struct utmp *utmp_entry)
+static struct utmp *__getutid(const struct utmp *utmp_entry)
 {
     struct utmp *lutmp;
     unsigned type;
@@ -145,10 +137,12 @@ struct utmp *getutid(const struct utmp *utmp_entry)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return ret;
 }
+#else
+strong_alias(__getutid,getutid)
 #endif
 libc_hidden_def(getutid)
 
-struct utmp *getutline(const struct utmp *utmp_entry)
+static struct utmp *__getutline(const struct utmp *utmp_entry)
 {
     struct utmp *lutmp;
 
@@ -163,9 +157,10 @@ struct utmp *getutline(const struct utmp *utmp_entry)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return lutmp;
 }
+strong_alias(__getutline,getutline)
 libc_hidden_def(getutline)
 
-struct utmp *pututline(const struct utmp *utmp_entry)
+static struct utmp *__pututline(const struct utmp *utmp_entry)
 {
     __UCLIBC_MUTEX_LOCK(utmplock);
     /* Ignore the return value.  That way, if they've already positioned
@@ -182,9 +177,10 @@ struct utmp *pututline(const struct utmp *utmp_entry)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return (struct utmp *)utmp_entry;
 }
+strong_alias(__pututline,pututline)
 libc_hidden_def(pututline)
 
-int utmpname(const char *new_ut_name)
+static int __utmpname(const char *new_ut_name)
 {
     __UCLIBC_MUTEX_LOCK(utmplock);
     if (new_ut_name != NULL) {
@@ -205,4 +201,5 @@ int utmpname(const char *new_ut_name)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return 0; /* or maybe return -(static_ut_name != new_ut_name)? */
 }
+strong_alias(__utmpname,utmpname)
 libc_hidden_def(utmpname)
