@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-1993, 1995-2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 1991-1993,1995-2004,2007,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -126,7 +126,7 @@ extern size_t strxfrm (char *__restrict __dest,
      __THROW __nonnull ((2));
 __END_NAMESPACE_STD
 
-#if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
+#if defined __USE_XOPEN2K8 && defined __UCLIBC_HAS_XLOCALE__
 /* The following functions are equivalent to the both above but they
    take the locale they use for the collation as an extra argument.
    This is not standardsized but something like will come.  */
@@ -152,7 +152,7 @@ libc_hidden_proto(strdup)
 /* Return a malloc'd copy of at most N bytes of STRING.  The
    resultant string is terminated even if no null terminator
    appears before STRING[N].  */
-#if defined __USE_GNU
+#if defined __USE_XOPEN2K8
 extern char *strndup (__const char *__string, size_t __n)
      __THROW __attribute_malloc__ __nonnull ((1));
 libc_hidden_proto(strndup)
@@ -278,7 +278,7 @@ extern size_t strlen (__const char *__s)
 libc_hidden_proto(strlen)
 __END_NAMESPACE_STD
 
-#ifdef	__USE_GNU
+#ifdef	__USE_XOPEN2K8
 /* Find the length of STRING, but scan at most MAXLEN characters.
    If no '\0' terminator is found in that many characters, return MAXLEN.  */
 extern size_t strnlen (__const char *__string, size_t __maxlen)
@@ -328,6 +328,12 @@ extern char * __REDIRECT_NTH (strerror_r,
 #  endif
 # endif
 #endif
+
+#if 0 /*defined __USE_XOPEN2K8 && defined __UCLIBC_HAS_XLOCALE__*/
+/* Translate error number to string according to the locale L.  */
+extern char *strerror_l (int __errnum, __locale_t __l) __THROW;
+#endif
+
 
 /* We define this function always since `bzero' is sometimes needed when
    the namespace rules does not allow this.  */
@@ -395,7 +401,7 @@ extern int strncasecmp (__const char *__s1, __const char *__s2, size_t __n)
 libc_hidden_proto(strncasecmp)
 #endif /* Use BSD.  */
 
-#if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
+#if defined __USE_XOPEN2K8 && defined __UCLIBC_HAS_XLOCALE__
 /* Again versions of a few functions which use the given locale instead
    of the global one.  */
 extern int strcasecmp_l (__const char *__s1, __const char *__s2,
@@ -418,12 +424,7 @@ extern char *strsep (char **__restrict __stringp,
 libc_hidden_proto(strsep)
 #endif
 
-#ifdef	__USE_GNU
-/* Compare S1 and S2 as strings holding name & indices/version numbers.  */
-extern int strverscmp (__const char *__s1, __const char *__s2)
-     __THROW __attribute_pure__ __nonnull ((1, 2));
-libc_hidden_proto(strverscmp)
-
+#ifdef	__USE_XOPEN2K8
 /* Return a string describing the meaning of the signal number in SIG.  */
 extern char *strsignal (int __sig) __THROW;
 libc_hidden_proto(strsignal)
@@ -447,6 +448,13 @@ extern char *__stpncpy (char *__restrict __dest,
 extern char *stpncpy (char *__restrict __dest,
 		      __const char *__restrict __src, size_t __n)
      __THROW __nonnull ((1, 2));
+#endif
+
+#ifdef __USE_GNU
+/* Compare S1 and S2 as strings holding name & indices/version numbers.  */
+extern int strverscmp (__const char *__s1, __const char *__s2)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+libc_hidden_proto(strverscmp)
 
 # if 0			/* uClibc does not support strfry or memfrob. */
 /* Sautee STRING briskly.  */
