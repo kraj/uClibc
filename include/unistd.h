@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2002,2003,2004,2005,2006 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2006, 2007, 2008, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -30,35 +30,67 @@ __BEGIN_DECLS
 /* These may be used to determine what facilities are present at compile time.
    Their values can be obtained at run time from `sysconf'.  */
 
+#ifdef __USE_XOPEN2K8
+/* POSIX Standard approved as ISO/IEC 9945-1 as of September 2008.  */
+# define _POSIX_VERSION	200809L
+#elif defined __USE_XOPEN2K
 /* POSIX Standard approved as ISO/IEC 9945-1 as of December 2001.  */
-#define	_POSIX_VERSION	200112L
+# define _POSIX_VERSION	200112L
+#elif defined __USE_POSIX199506
+/* POSIX Standard approved as ISO/IEC 9945-1 as of June 1995.  */
+# define _POSIX_VERSION	199506L
+#elif defined __USE_POSIX199309
+/* POSIX Standard approved as ISO/IEC 9945-1 as of September 1993.  */
+# define _POSIX_VERSION	199309L
+#else
+/* POSIX Standard approved as ISO/IEC 9945-1 as of September 1990.  */
+# define _POSIX_VERSION	199009L
+#endif
 
 /* These are not #ifdef __USE_POSIX2 because they are
    in the theoretically application-owned namespace.  */
 
+#ifdef __USE_XOPEN2K8
+# define __POSIX2_THIS_VERSION	200809L
 /* The utilities on GNU systems also correspond to this version.  */
-#define _POSIX2_VERSION	200112L
+#elif defined __USE_XOPEN2K
+/* The utilities on GNU systems also correspond to this version.  */
+# define __POSIX2_THIS_VERSION	200112L
+#elif defined __USE_POSIX199506
+/* The utilities on GNU systems also correspond to this version.  */
+# define __POSIX2_THIS_VERSION	199506L
+#else
+/* The utilities on GNU systems also correspond to this version.  */
+# define __POSIX2_THIS_VERSION	199209L
+#endif
+
+/* The utilities on GNU systems also correspond to this version.  */
+#define _POSIX2_VERSION	__POSIX2_THIS_VERSION
 
 /* If defined, the implementation supports the
    C Language Bindings Option.  */
-#define	_POSIX2_C_BIND	200112L
+#define	_POSIX2_C_BIND	__POSIX2_THIS_VERSION
 
 /* If defined, the implementation supports the
    C Language Development Utilities Option.  */
-#define	_POSIX2_C_DEV	200112L
+#define	_POSIX2_C_DEV	__POSIX2_THIS_VERSION
 
 /* If defined, the implementation supports the
    Software Development Utilities Option.  */
-#define	_POSIX2_SW_DEV	200112L
+#define	_POSIX2_SW_DEV	__POSIX2_THIS_VERSION
 
 #if 0 /* uClibc does not provide the utility */
 /* If defined, the implementation supports the
    creation of locales with the localedef utility.  */
-#define _POSIX2_LOCALEDEF       200112L
+#define _POSIX2_LOCALEDEF       __POSIX2_THIS_VERSION
 #endif
 
 /* X/Open version number to which the library conforms.  It is selectable.  */
-#ifdef __USE_UNIX98
+#ifdef __USE_XOPEN2K8
+# define _XOPEN_VERSION	700
+#elif defined __USE_XOPEN2K
+# define _XOPEN_VERSION	600
+#elif defined __USE_UNIX98
 # define _XOPEN_VERSION	500
 #else
 # define _XOPEN_VERSION	4
@@ -171,6 +203,7 @@ __BEGIN_DECLS
    */
 
 #include <bits/posix_opt.h>
+/* keep it after posix_opt.h, it overwrites based on uClibc's config options */
 #include <bits/uClibc_posix_opt.h>
 
 /* Get the environment definitions from Unix98.  */
@@ -527,7 +560,7 @@ extern int execve (__const char *__path, char *__const __argv[],
 		   char *__const __envp[]) __THROW __nonnull ((1));
 libc_hidden_proto(execve)
 
-#if 0 /*def __USE_GNU*/
+#if 0 /*def __USE_XOPEN2K8*/
 /* Execute the file FD refers to, overlaying the running program image.
    ARGV and ENVP are passed to the new program, as for `execve'.  */
 extern int fexecve (int __fd, char *__const __argv[], char *__const __envp[])
@@ -783,8 +816,10 @@ extern __pid_t vfork (void) __THROW;
 libc_hidden_proto(vfork)
 #endif /* Use BSD. */
 
+#if 0 /* psm: seems unused , exit-thread.S is not compiled */
 /* Special exit function which only terminates the current thread.  */
 extern void __exit_thread (int val) __attribute__ ((__noreturn__));
+#endif
 
 /* Return the pathname of the terminal FD is open on, or NULL on errors.
    The returned storage is good only until the next call to this function.  */
@@ -800,7 +835,6 @@ libc_hidden_proto(ttyname_r)
    with a terminal, zero if not.  */
 extern int isatty (int __fd) __THROW;
 libc_hidden_proto(isatty)
-
 
 #if 0 /*defined __USE_BSD \
     || (defined __USE_XOPEN_EXTENDED && !defined __USE_UNIX98)*/
@@ -921,6 +955,7 @@ extern int sethostname (__const char *__name, size_t __len)
    This call is restricted to the super-user.  */
 extern int sethostid (long int __id) __THROW __wur;
 
+
 #if defined __UCLIBC_BSD_SPECIFIC__ || defined _LIBC
 /* Get and set the NIS (aka YP) domain name, if any.
    Called just like `gethostname' and `sethostname'.
@@ -933,6 +968,7 @@ libc_hidden_proto(getdomainname)
 extern int setdomainname (__const char *__name, size_t __len)
      __THROW __nonnull ((1)) __wur;
 #endif
+
 
 #if defined __UCLIBC_LINUX_SPECIFIC__
 /* Revoke access permissions to all processes currently communicating
@@ -989,13 +1025,13 @@ extern char *getpass (__const char *__prompt) __nonnull ((1));
 #endif /* Use BSD || X/Open.  */
 
 
-#if defined __USE_BSD || defined __USE_XOPEN
+#if defined __USE_BSD || defined __USE_XOPEN || defined __USE_XOPEN2K
 /* Make all changes done to FD actually appear on disk.
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int fsync (int __fd);
-#endif /* Use BSD || X/Open.  */
+#endif /* Use BSD || X/Open || Unix98.  */
 
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
@@ -1145,7 +1181,7 @@ extern int lockf64 (int __fd, int __cmd, __off64_t __len) __wur;
 	&& defined __UCLIBC_HAS_REALTIME__
 /* Synchronize at least the data part of a file with the underlying
    media.  */
-extern int fdatasync (int __fildes) __THROW;
+extern int fdatasync (int __fildes);
 #endif /* Use POSIX199309 */
 
 
@@ -1181,7 +1217,7 @@ extern char *ctermid (char *__s) __THROW;
 
 
 /* Define some macros helping to catch buffer overflows.  */
-#if __USE_FORTIFY_LEVEL > 0 && !defined __cplusplus
+#if __USE_FORTIFY_LEVEL > 0 && defined __extern_always_inline
 # include <bits/unistd.h>
 #endif
 
