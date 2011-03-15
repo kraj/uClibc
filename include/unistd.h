@@ -1115,7 +1115,6 @@ extern int __REDIRECT (lockf, (int __fd, int __cmd, __off64_t __len),
 # endif
 # ifdef __USE_LARGEFILE64
 extern int lockf64 (int __fd, int __cmd, __off64_t __len) __wur;
-libc_hidden_proto(lockf64)
 # endif
 #endif /* Use misc and F_LOCK not already defined.  */
 

@@ -90,4 +90,3 @@ int lockf64 (int fd, int cmd, off64_t len64)
 
     return fcntl(fd, cmd, &fl);
 }
-libc_hidden_def(lockf64)
