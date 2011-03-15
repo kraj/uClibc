@@ -280,15 +280,17 @@ extern FILE *fdopen (int __fd, __const char *__modes) __THROW __wur;
 libc_hidden_proto(fdopen)
 #endif
 
-#ifdef	__USE_GNU
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
+#ifdef	__USE_GNU
 /* Create a new stream that refers to the given magic cookie,
    and uses the given functions for input and output.  */
 extern FILE *fopencookie (void *__restrict __magic_cookie,
 			  __const char *__restrict __modes,
 			  _IO_cookie_io_functions_t __io_funcs) __THROW __wur;
 libc_hidden_proto(fopencookie)
+#endif
 
+#ifdef __USE_XOPEN2K8
 /* Create a new stream that refers to a memory buffer.  */
 extern FILE *fmemopen (void *__s, size_t __len, __const char *__modes)
   __THROW __wur;
@@ -296,8 +298,7 @@ extern FILE *fmemopen (void *__s, size_t __len, __const char *__modes)
 /* Open a stream that writes into a malloc'd buffer that is expanded as
    necessary.  *BUFLOC and *SIZELOC are updated with the buffer's location
    and the number of characters written on fflush or fclose.  */
-extern FILE *open_memstream (char **__restrict __bufloc,
-			     size_t *__restrict __sizeloc) __THROW __wur;
+extern FILE *open_memstream (char **__bufloc, size_t *__sizeloc) __THROW __wur;
 libc_hidden_proto(open_memstream)
 #endif
 #endif
@@ -395,7 +396,9 @@ extern int asprintf (char **__restrict __ptr,
 		     __const char *__restrict __fmt, ...)
      __THROW __attribute__ ((__format__ (__printf__, 2, 3))) __wur;
 libc_hidden_proto(asprintf)
+#endif
 
+#ifdef __USE_XOPEN2K8
 /* Write formatted output to a file descriptor.
 
    These functions are not part of POSIX and therefore no official
@@ -490,8 +493,10 @@ libc_hidden_proto(getc_unlocked)
 extern int getchar_unlocked (void);
 libc_hidden_proto(getchar_unlocked)
 
+# ifdef __UCLIBC__
 /* SUSv3 allows getc_unlocked to be a macro */
-#define getc_unlocked(_fp) __GETC_UNLOCKED(_fp)
+#  define getc_unlocked(_fp) __GETC_UNLOCKED(_fp)
+# endif
 #endif /* Use POSIX or MISC.  */
 
 #ifdef __USE_MISC
@@ -547,8 +552,10 @@ extern int fputc_unlocked (int __c, FILE *__stream);
 extern int putc_unlocked (int __c, FILE *__stream);
 extern int putchar_unlocked (int __c);
 
+# ifdef __UCLIBC__
 /* SUSv3 allows putc_unlocked to be a macro */
-#define putc_unlocked(_ch, _fp) __PUTC_UNLOCKED(_ch, _fp)
+#  define putc_unlocked(_ch, _fp) __PUTC_UNLOCKED(_ch, _fp)
+# endif
 #endif /* Use POSIX or MISC.  */
 
 
@@ -592,7 +599,7 @@ libc_hidden_proto(fgets_unlocked)
 #endif
 
 
-#ifdef	__USE_GNU
+#ifdef	__USE_XOPEN2K8
 /* Read up to (and including) a DELIMITER from STREAM into *LINEPTR
    (and null-terminate it). *LINEPTR is a pointer returned from malloc (or
    NULL), pointing to *N characters of space.  It is realloc'd as
@@ -888,11 +895,15 @@ extern void funlockfile (FILE *__stream) __THROW;
    declared here which do not belong into this header.  But we have to
    follow.  In GNU mode we don't do this nonsense.  */
 # define __need_getopt
+/* keep this on uClibc in bits/, we need it when GNU_GETOPT is disabled */
 # include <bits/getopt.h>
 #endif	/* X/Open, but not issue 6 and not for GNU.  */
 
 /* If we are compiling with optimizing read this file.  It contains
    several optimizing inline functions and macros.  */
+
+#ifdef __UCLIBC__
+
 #define fgetc(_fp)                   __FGETC(_fp)
 #define fputc(_ch, _fp)              __FPUTC(_ch, _fp)
 
@@ -925,6 +936,8 @@ extern void funlockfile (FILE *__stream) __THROW;
 #define clearerr_unlocked(_fp)       __CLEARERR_UNLOCKED(_fp)
 #define feof_unlocked(_fp)           __FEOF_UNLOCKED(_fp)
 #define ferror_unlocked(_fp)         __FERROR_UNLOCKED(_fp)
+#endif
+
 #endif
 
 __END_DECLS
