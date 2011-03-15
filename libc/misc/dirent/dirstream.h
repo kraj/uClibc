@@ -29,18 +29,6 @@ Cambridge, MA 02139, USA.  */
 
 #include <bits/uClibc_mutex.h>
 
-/* For now, syscall readdir () only supports one entry at a time. It
- * will be changed in the future.
-#define NUMENT		3
-*/
-#ifndef NUMENT
-#define NUMENT		1
-#endif
-
-#define SINGLE_READDIR	11
-#define MULTI_READDIR	12
-#define NEW_READDIR	13
-
 /* Directory stream type.  */
 struct __dirstream {
   /* file descriptor */
@@ -64,7 +52,6 @@ struct __dirstream {
   /* lock */
   __UCLIBC_MUTEX(dd_lock);
 };				/* stream data from opendir() */
-
 
 extern ssize_t __getdents(int fd, char *buf, size_t count) attribute_hidden;
 #ifdef __UCLIBC_HAS_LFS__
