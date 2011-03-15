@@ -26,7 +26,6 @@ __BEGIN_DECLS
 /* Set port input/output permissions.  */
 extern int ioperm (unsigned long int __from, unsigned long int __num,
 		   int __turn_on) __THROW;
-libc_hidden_proto(ioperm)
 
 
 /* Change I/O privilege level.  */

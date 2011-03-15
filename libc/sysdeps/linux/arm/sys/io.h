@@ -23,6 +23,7 @@
 
 __BEGIN_DECLS
 
+#if defined __UCLIBC_LINUX_SPECIFIC__
 /* If TURN_ON is TRUE, request for permission to do direct i/o on the
    port numbers in the range [FROM,FROM+NUM-1].  Otherwise, turn I/O
    permission off for that range.  This call requires root privileges.  */
@@ -34,6 +35,7 @@ libc_hidden_proto(ioperm)
    permission to access any I/O port is granted.  This call requires
    root privileges. */
 extern int iopl (int __level) __THROW;
+#endif /* __UCLIBC_LINUX_SPECIFIC__ */
 
 /* The functions that actually perform reads and writes.  */
 extern unsigned char inb (unsigned long int port) __THROW;

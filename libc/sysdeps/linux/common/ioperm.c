@@ -13,10 +13,6 @@
 
 /* psm: can't #include <sys/io.h>, some archs miss it */
 extern int ioperm(unsigned long __from, unsigned long __num, int __turn_on) __THROW;
-/* Not needed internally;
-libc_hidden_proto(ioperm)
-*/
 _syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on)
-/*libc_hidden_def(ioperm)*/
 
 #endif
