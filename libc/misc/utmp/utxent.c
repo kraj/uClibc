@@ -13,6 +13,7 @@
 #include <utmpx.h>
 #include <utmp.h>
 
+#if 0 /* moved to utent.c */
 void setutxent(void)
 {
 	setutent ();
@@ -48,10 +49,12 @@ int utmpxname (const char *new_ut_name)
 	return utmpname (new_ut_name);
 }
 
+/* moved to wtent.c */
 void updwtmpx (const char *wtmpx_file, const struct utmpx *utmpx)
 {
 	updwtmp (wtmpx_file, (const struct utmp *) utmpx);
 }
+#endif
 
 /* Copy the information in UTMPX to UTMP. */
 void getutmp (const struct utmpx *utmpx, struct utmp *utmp)
@@ -104,4 +107,3 @@ void getutmpx (const struct utmp *utmp, struct utmpx *utmpx)
 	utmpx->ut_time = utmp->ut_time;
 #endif
 }
-
