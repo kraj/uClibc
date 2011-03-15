@@ -19,6 +19,9 @@
 #include <errno.h>
 #include <string.h>
 #include <utmp.h>
+#ifdef __UCLIBC_HAS_UTMPX__
+# include <utmpx.h>
+#endif
 #include <not-cancel.h>
 
 #include <bits/uClibc_mutex.h>
@@ -31,7 +34,7 @@ static const char default_file_name[] = _PATH_UTMP;
 static const char *static_ut_name = default_file_name;
 
 /* This function must be called with the LOCK held */
-static void __setutent(void)
+static void __setutent_nolock(void)
 {
     if (static_fd < 0) {
 	static_fd = open_not_cancel_2(static_ut_name, O_RDWR | O_CLOEXEC);
@@ -50,19 +53,24 @@ static void __setutent(void)
     lseek(static_fd, 0, SEEK_SET);
 }
 #if defined __UCLIBC_HAS_THREADS__
-void setutent(void)
+static void __setutent(void)
 {
     __UCLIBC_MUTEX_LOCK(utmplock);
-    __setutent();
+    __setutent_nolock();
     __UCLIBC_MUTEX_UNLOCK(utmplock);
 }
 #else
-strong_alias(__setutent,setutent)
+static void __setutent(void);
+strong_alias(__setutent_nolock,__setutent)
 #endif
-libc_hidden_def(setutent)
+strong_alias(__setutent,setutent)
+
+#ifdef __UCLIBC_HAS_UTMPX__
+strong_alias(__setutent,setutxent)
+#endif
 
 /* This function must be called with the LOCK held */
-static struct utmp *__getutent(void)
+static struct utmp *__getutent_lock(void)
 {
     if (static_fd < 0) {
 	__setutent();
@@ -78,19 +86,27 @@ static struct utmp *__getutent(void)
     return NULL;
 }
 #if defined __UCLIBC_HAS_THREADS__
-struct utmp *getutent(void)
+static struct utmp *__getutent(void)
 {
     struct utmp *ret;
 
     __UCLIBC_MUTEX_LOCK(utmplock);
-    ret = __getutent();
+    ret = __getutent_lock();
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return ret;
 }
 #else
-strong_alias(__getutent,getutent)
+static struct utmp *__getutent(void);
+strong_alias(__getutent_lock,__getutent)
 #endif
-libc_hidden_def(getutent)
+strong_alias(__getutent,getutent)
+
+#ifdef __UCLIBC_HAS_UTMPX__
+struct utmpx *getutxent(void)
+{
+	return (struct utmpx *) __getutent ();
+}
+#endif
 
 static void __endutent(void)
 {
@@ -101,10 +117,13 @@ static void __endutent(void)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
 }
 strong_alias(__endutent,endutent)
-libc_hidden_def(endutent)
+
+#ifdef __UCLIBC_HAS_UTMPX__
+strong_alias(__endutent,endutxent)
+#endif
 
 /* This function must be called with the LOCK held */
-static struct utmp *__getutid(const struct utmp *utmp_entry)
+static struct utmp *__getutid_lock(const struct utmp *utmp_entry)
 {
     struct utmp *lutmp;
     unsigned type;
@@ -128,19 +147,27 @@ static struct utmp *__getutid(const struct utmp *utmp_entry)
     return NULL;
 }
 #if defined __UCLIBC_HAS_THREADS__
-struct utmp *getutid(const struct utmp *utmp_entry)
+static struct utmp *__getutid(const struct utmp *utmp_entry)
 {
     struct utmp *ret;
 
     __UCLIBC_MUTEX_LOCK(utmplock);
-    ret = __getutid(utmp_entry);
+    ret = __getutid_lock(utmp_entry);
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return ret;
 }
 #else
-strong_alias(__getutid,getutid)
+static struct utmp *__getutid(const struct utmp *utmp_entry);
+strong_alias(__getutid_lock,__getutid)
 #endif
-libc_hidden_def(getutid)
+strong_alias(__getutid,getutid)
+
+#ifdef __UCLIBC_HAS_UTMPX__
+struct utmpx *getutxid(const struct utmpx *utmp_entry)
+{
+	return (struct utmpx *) __getutid ((const struct utmp *) utmp_entry);
+}
+#endif
 
 static struct utmp *__getutline(const struct utmp *utmp_entry)
 {
@@ -158,7 +185,13 @@ static struct utmp *__getutline(const struct utmp *utmp_entry)
     return lutmp;
 }
 strong_alias(__getutline,getutline)
-libc_hidden_def(getutline)
+
+#ifdef __UCLIBC_HAS_UTMPX__
+struct utmpx *getutxline(const struct utmpx *utmp_entry)
+{
+	return (struct utmpx *) __getutline ((const struct utmp *) utmp_entry);
+}
+#endif
 
 static struct utmp *__pututline(const struct utmp *utmp_entry)
 {
@@ -178,7 +211,13 @@ static struct utmp *__pututline(const struct utmp *utmp_entry)
     return (struct utmp *)utmp_entry;
 }
 strong_alias(__pututline,pututline)
-libc_hidden_def(pututline)
+
+#ifdef __UCLIBC_HAS_UTMPX__
+struct utmpx *pututxline (const struct utmpx *utmp_entry)
+{
+	return (struct utmpx *) __pututline ((const struct utmp *) utmp_entry);
+}
+#endif
 
 static int __utmpname(const char *new_ut_name)
 {
@@ -202,4 +241,7 @@ static int __utmpname(const char *new_ut_name)
     return 0; /* or maybe return -(static_ut_name != new_ut_name)? */
 }
 strong_alias(__utmpname,utmpname)
-libc_hidden_def(utmpname)
+
+#ifdef __UCLIBC_HAS_UTMPX__
+strong_alias(__utmpname,utmpxname)
+#endif
