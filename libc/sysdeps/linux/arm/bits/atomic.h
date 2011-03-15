@@ -16,6 +16,9 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#if defined __thumb__ && !defined __thumb2__
+#include_next <common/bits/atomic.h>
+#else
 #include <stdint.h>
 #include <sysdep.h>
 
@@ -129,3 +132,5 @@ void __arm_link_error (void);
 
 #define __arch_compare_and_exchange_val_64_acq(mem, newval, oldval) \
   ({ __arm_link_error (); oldval; })
+
+#endif
