@@ -156,7 +156,7 @@ extern int raise (int __sig) __THROW;
 libc_hidden_proto(raise)
 __END_NAMESPACE_STD
 
-#ifdef __USE_SVID
+#if 0 /*def __USE_SVID*/
 /* SVID names for the same things.  */
 extern __sighandler_t ssignal (int __sig, __sighandler_t __handler)
      __THROW;
