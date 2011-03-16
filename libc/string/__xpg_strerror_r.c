@@ -5,16 +5,10 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-/* Make sure we get proper strerror_r() prototype */
-#define strerror_r _hidestrerror_r
-
 #include <features.h>
 #include <errno.h>
 #include <string.h>
 #include "_syserrmsg.h"
-
-#undef strerror_r
-
 
 #ifdef __UCLIBC_HAS_ERRNO_MESSAGES__
 
@@ -273,4 +267,4 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 
 #endif /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
 libc_hidden_def(__xpg_strerror_r)
-weak_alias(__xpg_strerror_r, strerror_r)
+strong_alias_untyped(__xpg_strerror_r, strerror_r)
