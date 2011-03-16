@@ -62,12 +62,7 @@ double scalbln(double x, long n)
 libm_hidden_def(scalbln)
 
 #if LONG_MAX == INT_MAX
-/* strong_alias(scalbln, scalbn) - "error: conflicting types for 'scalbn'"
- * because it tries to declare "typeof(scalbln) scalbn;"
- * which tries to give "long" parameter to scalbn.
- * Doing it by hand:
- */
-__typeof(scalbn) scalbn __attribute__((alias("scalbln")));
+strong_alias_untyped(scalbln,scalbn)
 #else
 double scalbn(double x, int n)
 {
