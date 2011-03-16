@@ -7,12 +7,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define getrlimit64 __hide_getrlimit64
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/resource.h>
-#undef getrlimit64
-
 
 /* Only wrap getrlimit if the new ugetrlimit is not present and getrlimit sucks */
 
@@ -63,5 +60,5 @@ int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 libc_hidden_def(getrlimit)
 
 #if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
-strong_alias(getrlimit, getrlimit64)
+strong_alias_untyped(getrlimit, getrlimit64)
 #endif

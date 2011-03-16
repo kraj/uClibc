@@ -7,12 +7,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define setrlimit64 __hide_setrlimit64
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/resource.h>
-#undef setrlimit64
-
 
 /* Only wrap setrlimit if the new usetrlimit is not present and setrlimit sucks */
 
@@ -65,5 +62,5 @@ int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 libc_hidden_def(setrlimit)
 
 #if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
-strong_alias(setrlimit, setrlimit64)
+strong_alias_untyped(setrlimit, setrlimit64)
 #endif
