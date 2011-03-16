@@ -10,7 +10,7 @@
 
 int alphasort(const struct dirent **a, const struct dirent **b)
 {
-	return strcmp((*a)->d_name, (*b)->d_name);
+	return strcoll((*a)->d_name, (*b)->d_name);
 }
 #if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
 strong_alias_untyped(alphasort,alphasort64)
