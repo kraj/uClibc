@@ -222,7 +222,7 @@ exchange (char **argv, struct _getopt_data *d)
 	d->__nonoption_flags_len = d->__nonoption_flags_max_len = 0;
       else
 	{
-	  memset (__mempcpy (new_str, __getopt_nonoption_flags,
+	  memset (mempcpy (new_str, __getopt_nonoption_flags,
 			     d->__nonoption_flags_max_len),
 		  '\0', top + 1 - d->__nonoption_flags_max_len);
 	  d->__nonoption_flags_max_len = top + 1;
@@ -328,7 +328,7 @@ _getopt_initialize (attribute_unused int argc, attribute_unused char *const *arg
 	      if (__getopt_nonoption_flags == NULL)
 		d->__nonoption_flags_max_len = -1;
 	      else
-		memset (__mempcpy (__getopt_nonoption_flags, orig_str, len),
+		memset (mempcpy (__getopt_nonoption_flags, orig_str, len),
 			'\0', d->__nonoption_flags_max_len - len);
 	    }
 	}
