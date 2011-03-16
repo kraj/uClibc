@@ -5,12 +5,14 @@
  */
 
 #include <_lfs_64.h>
-
 #include <dirent.h>
-#include <string.h>
-#include "dirstream.h"
+
+#if __WORDSIZE != 64
+# include <string.h>
+# include "dirstream.h"
 
 int versionsort64(const struct dirent64 **a, const struct dirent64 **b)
 {
 	return strverscmp((*a)->d_name, (*b)->d_name);
 }
+#endif
