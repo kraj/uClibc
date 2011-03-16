@@ -25,9 +25,6 @@
 #endif
     .type   main,@function
     .type   __uClibc_main,@function
-    .type   __h_errno_location, @function
-    .type   _stdio_init, @function
-    .type   _stdio_term, @function
     .text
 	.balign 4
 _start:
