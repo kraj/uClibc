@@ -29,9 +29,6 @@ Cambridge, MA 02139, USA.  */
     .weak   _fini
     .type   main,@function
     .type   __uClibc_main,@function
-    .type   __h_errno_location, @function
-    .type   _stdio_init, @function
-    .type   _stdio_term, @function
 
 	.text
 
