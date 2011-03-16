@@ -94,7 +94,7 @@ ivln2_l  =  1.92596299112661746887e-08; /* 0x3E54AE0B, 0xF85DDF44 =1/ln2 tail*/
 double attribute_hidden __ieee754_pow(double x, double y)
 {
 	double z,ax,z_h,z_l,p_h,p_l;
-	double y1,t1,t2,r,s,t,u,v,w;
+	double _y1,t1,t2,r,s,t,u,v,w;
 	int32_t i,j,k,yisint,n;
 	int32_t hx,hy,ix,iy;
 	u_int32_t lx,ly;
@@ -249,10 +249,10 @@ double attribute_hidden __ieee754_pow(double x, double y)
 	    s = -one;/* (-ve)**(odd int) */
 
     /* split up y into y1+y2 and compute (y1+y2)*(t1+t2) */
-	y1  = y;
-	SET_LOW_WORD(y1,0);
-	p_l = (y-y1)*t1+y*t2;
-	p_h = y1*t1;
+	_y1  = y;
+	SET_LOW_WORD(_y1,0);
+	p_l = (y-_y1)*t1+y*t2;
+	p_h = _y1*t1;
 	z = p_l+p_h;
 	EXTRACT_WORDS(j,i,z);
 	if (j>=0x40900000) {				/* z >= 1024 */
