@@ -42,8 +42,6 @@ struct kernel_dirent
 	char d_name[256];
 };
 
-ssize_t __getdents (int fd, char *buf, size_t nbytes) attribute_hidden;
-
 #define __NR___syscall_getdents __NR_getdents
 static __always_inline _syscall3(int, __syscall_getdents, int, fd, unsigned char *, kdirp, size_t, count)
 
@@ -139,7 +137,6 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 
 #elif __WORDSIZE == 32
 
-extern __typeof(__getdents) __getdents64 attribute_hidden;
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {
     struct dirent *dp;
@@ -168,7 +165,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 #endif
 
 #if defined __UCLIBC_HAS_LFS__ && ! defined __NR_getdents64
-attribute_hidden strong_alias(__getdents,__getdents64)
+strong_alias(__getdents,__getdents64)
 #endif
 
 #endif
