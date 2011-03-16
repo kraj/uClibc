@@ -46,7 +46,7 @@
 
 double attribute_hidden __ieee754_hypot(double x, double y)
 {
-	double a=x,b=y,t1,t2,y1,y2,w;
+	double a=x,b=y,t1,t2,_y1,y2,w;
 	int32_t j,k,ha,hb;
 
 	GET_HIGH_WORD(ha,x);
@@ -100,13 +100,13 @@ double attribute_hidden __ieee754_hypot(double x, double y)
 	    w  = __ieee754_sqrt(t1*t1-(b*(-b)-t2*(a+t1)));
 	} else {
 	    a  = a+a;
-	    y1 = 0;
-	    SET_HIGH_WORD(y1,hb);
-	    y2 = b - y1;
+	    _y1 = 0;
+	    SET_HIGH_WORD(_y1,hb);
+	    y2 = b - _y1;
 	    t1 = 0;
 	    SET_HIGH_WORD(t1,ha+0x00100000);
 	    t2 = a - t1;
-	    w  = __ieee754_sqrt(t1*y1-(w*(-w)-(t1*y2+t2*b)));
+	    w  = __ieee754_sqrt(t1*_y1-(w*(-w)-(t1*y2+t2*b)));
 	}
 	if(k!=0) {
 	    u_int32_t high;

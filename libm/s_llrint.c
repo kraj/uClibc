@@ -34,7 +34,7 @@ static const double two52[2] =
 long long int
 llrint (double x)
 {
-  int32_t j0;
+  int32_t _j0;
   u_int32_t i1, i0;
   long long int result;
   volatile double w;
@@ -42,39 +42,39 @@ llrint (double x)
   int sx;
 
   EXTRACT_WORDS (i0, i1, x);
-  j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
+  _j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
   sx = i0 >> 31;
   i0 &= 0xfffff;
   i0 |= 0x100000;
 
-  if (j0 < 20)
+  if (_j0 < 20)
     {
       w = two52[sx] + x;
       t = w - two52[sx];
       EXTRACT_WORDS (i0, i1, t);
-      j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
+      _j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
       i0 &= 0xfffff;
       i0 |= 0x100000;
 
-      result = (j0 < 0 ? 0 : i0 >> (20 - j0));
+      result = (_j0 < 0 ? 0 : i0 >> (20 - _j0));
     }
-  else if (j0 < (int32_t) (8 * sizeof (long long int)) - 1)
+  else if (_j0 < (int32_t) (8 * sizeof (long long int)) - 1)
     {
-      if (j0 >= 52)
-	result = (((long long int) i0 << 32) | i1) << (j0 - 52);
+      if (_j0 >= 52)
+	result = (((long long int) i0 << 32) | i1) << (_j0 - 52);
       else
 	{
 	  w = two52[sx] + x;
 	  t = w - two52[sx];
 	  EXTRACT_WORDS (i0, i1, t);
-	  j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
+	  _j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
 	  i0 &= 0xfffff;
 	  i0 |= 0x100000;
 
-	  if (j0 == 20)
+	  if (_j0 == 20)
 	    result = (long long int) i0;
 	  else
-	    result = ((long long int) i0 << (j0 - 20)) | (i1 >> (52 - j0));
+	    result = ((long long int) i0 << (_j0 - 20)) | (i1 >> (52 - _j0));
 	}
     }
   else

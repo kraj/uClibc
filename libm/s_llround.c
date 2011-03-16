@@ -24,42 +24,42 @@
 long long int
 llround (double x)
 {
-  int32_t j0;
+  int32_t _j0;
   u_int32_t i1, i0;
   long long int result;
   int sign;
 
   EXTRACT_WORDS (i0, i1, x);
-  j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
+  _j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
   sign = (i0 & 0x80000000) != 0 ? -1 : 1;
   i0 &= 0xfffff;
   i0 |= 0x100000;
 
-  if (j0 < 20)
+  if (_j0 < 20)
     {
-      if (j0 < 0)
-	return j0 < -1 ? 0 : sign;
+      if (_j0 < 0)
+	return _j0 < -1 ? 0 : sign;
       else
 	{
-	  i0 += 0x80000 >> j0;
+	  i0 += 0x80000 >> _j0;
 
-	  result = i0 >> (20 - j0);
+	  result = i0 >> (20 - _j0);
 	}
     }
-  else if (j0 < (int32_t) (8 * sizeof (long long int)) - 1)
+  else if (_j0 < (int32_t) (8 * sizeof (long long int)) - 1)
     {
-      if (j0 >= 52)
-	result = (((long long int) i0 << 32) | i1) << (j0 - 52);
+      if (_j0 >= 52)
+	result = (((long long int) i0 << 32) | i1) << (_j0 - 52);
       else
 	{
-	  u_int32_t j = i1 + (0x80000000 >> (j0 - 20));
+	  u_int32_t j = i1 + (0x80000000 >> (_j0 - 20));
 	  if (j < i1)
 	    ++i0;
 
-	  if (j0 == 20)
+	  if (_j0 == 20)
 	    result = (long long int) i0;
 	  else
-	    result = ((long long int) i0 << (j0 - 20)) | (j >> (52 - j0));
+	    result = ((long long int) i0 << (_j0 - 20)) | (j >> (52 - _j0));
 	}
     }
   else
