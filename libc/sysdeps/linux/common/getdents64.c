@@ -36,7 +36,6 @@ struct kernel_dirent64
 # define __NR___syscall_getdents64 __NR_getdents64
 static __inline__ _syscall3(int, __syscall_getdents64, int, fd, unsigned char *, dirp, size_t, count)
 
-ssize_t __getdents64 (int fd, char *buf, size_t nbytes) attribute_hidden;
 ssize_t __getdents64 (int fd, char *buf, size_t nbytes)
 {
     struct dirent64 *dp;
@@ -99,7 +98,7 @@ ssize_t __getdents64 (int fd, char *buf, size_t nbytes)
 #if __WORDSIZE == 64
 /* since getdents doesnt give us d_type but getdents64 does, try and
  * use getdents64 as much as possible */
-attribute_hidden strong_alias(__getdents64,__getdents)
+strong_alias(__getdents64,__getdents)
 #endif
 
 #endif

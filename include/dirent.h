@@ -368,4 +368,11 @@ extern int versionsort64 (__const struct dirent64 **__e1,
 
 __END_DECLS
 
+#ifdef _LIBC
+extern ssize_t __getdents(int fd, char *buf, size_t count) attribute_hidden;
+# ifdef __UCLIBC_HAS_LFS__
+extern ssize_t __getdents64 (int fd, char *buf, size_t count) attribute_hidden;
+# endif
+#endif
+
 #endif /* dirent.h  */
