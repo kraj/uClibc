@@ -13,6 +13,6 @@
 
 int alphasort64(const struct dirent64 **a, const struct dirent64 **b)
 {
-	return strcmp((*a)->d_name, (*b)->d_name);
+	return strcoll((*a)->d_name, (*b)->d_name);
 }
 #endif
