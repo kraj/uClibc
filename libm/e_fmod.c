@@ -20,7 +20,7 @@
 
 static const double one = 1.0, Zero[] = {0.0, -0.0,};
 
-double attribute_hidden __ieee754_fmod(double x, double y)
+double __ieee754_fmod(double x, double y)
 {
 	int32_t n,hx,hy,hz,ix,iy,sx,i;
 	u_int32_t lx,ly,lz;

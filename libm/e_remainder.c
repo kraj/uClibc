@@ -23,7 +23,7 @@
 
 static const double zero = 0.0;
 
-double attribute_hidden __ieee754_remainder(double x, double p)
+double __ieee754_remainder(double x, double p)
 {
 	int32_t hx,hp;
 	u_int32_t sx,lx,lp;

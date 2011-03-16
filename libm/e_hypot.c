@@ -44,7 +44,7 @@
 #include "math.h"
 #include "math_private.h"
 
-double attribute_hidden __ieee754_hypot(double x, double y)
+double __ieee754_hypot(double x, double y)
 {
 	double a=x,b=y,t1,t2,_y1,y2,w;
 	int32_t j,k,ha,hb;

@@ -32,7 +32,7 @@
 
 static const double one = 1.0, shuge = 1.0e307;
 
-double attribute_hidden __ieee754_sinh(double x)
+double __ieee754_sinh(double x)
 {
 	double t,w,h;
 	int32_t ix,jx;

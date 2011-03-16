@@ -34,7 +34,7 @@ static const double one = 1.0, huge = 1e300;
 
 static const double zero = 0.0;
 
-double attribute_hidden __ieee754_atanh(double x)
+double __ieee754_atanh(double x)
 {
 	double t;
 	int32_t hx,ix;
