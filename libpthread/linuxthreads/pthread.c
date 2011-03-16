@@ -483,7 +483,7 @@ init_one_static_tls (pthread_descr descr, struct link_map *map)
   dtv[map->l_tls_modid].pointer.is_static = true;
 
   /* Initialize the memory.  */
-  memset (__mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
+  memset (mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
 	  '\0', map->l_tls_blocksize - map->l_tls_initimage_size);
 }
 
