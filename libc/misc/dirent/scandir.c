@@ -1,24 +1,29 @@
+/* vi: set sw=4 ts=4: */
 /*
- * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ * Copyright (C) 2000-2011 Erik Andersen <andersen@uclibc.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include <dirent.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <sys/types.h>
 #include "dirstream.h"
 
-int scandir(const char *dir, struct dirent ***namelist,
-	int (*selector) (const struct dirent *),
-	int (*compar) (const struct dirent **, const struct dirent **))
+#ifndef __SCANDIR
+# define __SCANDIR scandir
+# define __DIRENT_TYPE struct dirent
+# define __READDIR readdir
+#endif
+
+int __SCANDIR(const char *dir, __DIRENT_TYPE ***namelist,
+	int (*selector) (const __DIRENT_TYPE *),
+	int (*compar) (const __DIRENT_TYPE **, const __DIRENT_TYPE **))
 {
     DIR *dp = opendir (dir);
-    struct dirent *current;
-    struct dirent **names = NULL;
+    __DIRENT_TYPE *current;
+    __DIRENT_TYPE **names = NULL;
     size_t names_size = 0, pos;
     int save;
 
@@ -29,7 +34,7 @@ int scandir(const char *dir, struct dirent ***namelist,
     __set_errno (0);
 
     pos = 0;
-    while ((current = readdir (dp)) != NULL) {
+    while ((current = __READDIR (dp)) != NULL) {
 	int use_it = selector == NULL;
 
 	if (! use_it)
@@ -43,7 +48,7 @@ int scandir(const char *dir, struct dirent ***namelist,
 	}
 	if (use_it)
 	{
-	    struct dirent *vnew;
+	    __DIRENT_TYPE *vnew;
 	    size_t dsize;
 
 	    /* Ignore errors from selector or readdir */
@@ -51,24 +56,24 @@ int scandir(const char *dir, struct dirent ***namelist,
 
 	    if (unlikely(pos == names_size))
 	    {
-		struct dirent **new;
+		__DIRENT_TYPE **new;
 		if (names_size == 0)
 		    names_size = 10;
 		else
 		    names_size *= 2;
-		new = (struct dirent **) realloc (names,
-					names_size * sizeof (struct dirent *));
+		new = (__DIRENT_TYPE **) realloc (names,
+					names_size * sizeof (__DIRENT_TYPE *));
 		if (new == NULL)
 		    break;
 		names = new;
 	    }
 
 	    dsize = &current->d_name[_D_ALLOC_NAMLEN(current)] - (char*)current;
-	    vnew = (struct dirent *) malloc (dsize);
+	    vnew = (__DIRENT_TYPE *) malloc (dsize);
 	    if (vnew == NULL)
 		break;
 
-	    names[pos++] = (struct dirent *) memcpy (vnew, current, dsize);
+	    names[pos++] = (__DIRENT_TYPE *) memcpy (vnew, current, dsize);
 	}
     }
 
@@ -88,7 +93,10 @@ int scandir(const char *dir, struct dirent ***namelist,
 
     /* Sort the list if we have a comparison function to sort with.  */
     if (compar != NULL)
-	qsort (names, pos, sizeof (struct dirent *), (comparison_fn_t) compar);
+	qsort (names, pos, sizeof (__DIRENT_TYPE *), (comparison_fn_t) compar);
     *namelist = names;
     return pos;
 }
+#if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
+strong_alias_untyped(scandir,scandir64)
+#endif
