@@ -19,7 +19,7 @@
 #include "math_private.h"
 #include <errno.h>
 
-double attribute_hidden __ieee754_scalb(double x, double fn)
+double __ieee754_scalb(double x, double fn)
 {
 	if (isnan(x)||isnan(fn)) return x*fn;
 	if (!isfinite(fn)) {

@@ -45,7 +45,7 @@ one   =  1.00000000000000000000e+00; /* 0x3FF00000, 0x00000000 */
 
 static const double zero  =  0.00000000000000000000e+00;
 
-double attribute_hidden __ieee754_jn(int n, double x)
+double __ieee754_jn(int n, double x)
 {
 	int32_t i,hx,ix,lx, sgn;
 	double a, b, temp=0, di;
@@ -217,7 +217,7 @@ double jn(int n, double x)
 strong_alias(__ieee754_jn, jn)
 #endif
 
-double attribute_hidden __ieee754_yn(int n, double x)
+double __ieee754_yn(int n, double x)
 {
 	int32_t i,hx,ix,lx;
 	int32_t sign;
