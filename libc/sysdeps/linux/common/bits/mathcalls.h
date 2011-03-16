@@ -49,7 +49,7 @@
 
 
 /* __MATHCALLX(type,function,[suffix],args,attrib) and
- * __MATHCALLI(type,function,[suffix],args) include libm_hidden_def
+ * __MATHCALLI(type,function,[suffix],args) include libm_hidden_proto
  * (for "double" versions only, xxxf and xxxl do not get this treatment).
  *
  * __MATHDECL(type,function,[suffix],args) does not.
@@ -57,7 +57,7 @@
  * (it is just a shortcut to __MATHDECL(_Mdouble_,function,[suffix],args)).
  *
  * __MATHDECL_PRIV(type,function,[suffix],args,attrib)
- * includes libm_hidden_def (always) and declares __foo, not foo.
+ * includes libm_hidden_proto (always) and declares __foo, not foo.
  */
 
 
