@@ -598,6 +598,7 @@ double __kernel_standard(double x, double y, int type)
                   errno = EDOM;
                 }
                 break;
+# ifdef __UCLIBC_SUSV3_LEGACY__
 	    case 32:
 	    case 132:
 		/* scalb overflow; SVID also returns +-HUGE_VAL */
@@ -622,6 +623,7 @@ double __kernel_standard(double x, double y, int type)
 			errno = ERANGE;
 		}
 		break;
+# endif
 	    case 34:
 	    case 134:
 		/* j0(|x|>X_TLOSS) */
