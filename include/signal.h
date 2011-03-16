@@ -397,8 +397,10 @@ extern int sigvec (int __sig, __const struct sigvec *__vec,
 /* Get machine-dependent `struct sigcontext' and signal subcodes.  */
 # include <bits/sigcontext.h>
 
+#if 0
 /* Restore the state saved in SCP.  */
 extern int sigreturn (struct sigcontext *__scp) __THROW;
+#endif
 
 #endif /*  use BSD.  */
 
