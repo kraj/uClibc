@@ -6,9 +6,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <stdint.h>
-#include <endian.h>
-#include <byteswap.h>
 #include <netinet/in.h>
 
 #undef ntohl
@@ -16,51 +13,30 @@
 #undef htonl
 #undef htons
 
-#if __BYTE_ORDER == __BIG_ENDIAN
-uint32_t ntohl (uint32_t x)
-{
-	return x;
-}
-
-uint16_t ntohs (uint16_t x)
-{
-	return x;
-}
-
-uint32_t htonl (uint32_t x)
-{
-	return x;
-}
-
-uint16_t htons (uint16_t x)
-{
-	return x;
-}
-#elif __BYTE_ORDER == __LITTLE_ENDIAN
-uint32_t ntohl (uint32_t x)
-{
-	return __bswap_32(x);
-}
-
-uint16_t ntohs (uint16_t x)
-{
-	return __bswap_16(x);
-}
-
-uint32_t htonl (uint32_t x)
-{
-	return __bswap_32(x);
-}
-
-uint16_t htons (uint16_t x)
-{
-	return __bswap_16(x);
-}
-#else
-#error "You seem to have an unsupported byteorder"
+#if __BYTE_ORDER != __BIG_ENDIAN && __BYTE_ORDER != __LITTLE_ENDIAN
+# error "You seem to have an unsupported byteorder"
 #endif
 
+uint32_t ntohl (uint32_t x)
+{
+#if __BYTE_ORDER == __BIG_ENDIAN
+	return x;
+#else
+	return __bswap_32(x);
+#endif
+}
 libc_hidden_def(ntohl)
-libc_hidden_def(ntohs)
+strong_alias(ntohl,htonl)
 libc_hidden_def(htonl)
+
+uint16_t ntohs (uint16_t x)
+{
+#if __BYTE_ORDER == __BIG_ENDIAN
+	return x;
+#else
+	return __bswap_16(x);
+#endif
+}
+libc_hidden_def(ntohs)
+strong_alias(ntohs,htons)
 libc_hidden_def(htons)
