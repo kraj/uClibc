@@ -17,10 +17,11 @@
 #  endif
 
 #  include <stdint.h>
-#  include <sys/time.h>
 
 #  ifdef IS_IN_libc
-#include <fcntl.h>
+#   include <fcntl.h>
+#   include <unistd.h>
+#   include <sys/time.h>
 #   define OPEN open
 #   define READ read
 #   define CLOSE close
