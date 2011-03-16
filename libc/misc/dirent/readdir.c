@@ -4,20 +4,22 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <features.h>
-
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <dirent.h>
+#include <errno.h>
+#define __need_NULL
+#include <stddef.h>
 #include "dirstream.h"
 
+#ifndef __READDIR
+# define __READDIR readdir
+# define __DIRENT_TYPE struct dirent
+# define __GETDENTS __getdents
+#endif
 
-struct dirent *readdir(DIR * dir)
+__DIRENT_TYPE *__READDIR(DIR * dir)
 {
 	ssize_t bytes;
-	struct dirent *de;
+	__DIRENT_TYPE *de;
 
 	if (!dir) {
 		__set_errno(EBADF);
@@ -29,7 +31,7 @@ struct dirent *readdir(DIR * dir)
 	do {
 	    if (dir->dd_size <= dir->dd_nextloc) {
 		/* read dir->dd_max bytes of directory entries. */
-		bytes = __getdents(dir->dd_fd, dir->dd_buf, dir->dd_max);
+		bytes = __GETDENTS(dir->dd_fd, dir->dd_buf, dir->dd_max);
 		if (bytes <= 0) {
 		    de = NULL;
 		    goto all_done;
@@ -38,7 +40,7 @@ struct dirent *readdir(DIR * dir)
 		dir->dd_nextloc = 0;
 	    }
 
-	    de = (struct dirent *) (((char *) dir->dd_buf) + dir->dd_nextloc);
+	    de = (__DIRENT_TYPE *) (((char *) dir->dd_buf) + dir->dd_nextloc);
 
 	    /* Am I right? H.J. */
 	    dir->dd_nextloc += de->d_reclen;
@@ -53,4 +55,8 @@ all_done:
 	__UCLIBC_MUTEX_UNLOCK(dir->dd_lock);
 	return de;
 }
-libc_hidden_def(readdir)
+libc_hidden_def(__READDIR)
+#if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
+strong_alias_untyped(readdir,readdir64)
+libc_hidden_def(readdir64)
+#endif
