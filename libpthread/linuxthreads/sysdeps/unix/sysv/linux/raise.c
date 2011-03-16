@@ -40,4 +40,3 @@ raise (sig)
 #endif
 }
 libc_hidden_def (raise)
-weak_alias (raise, gsignal)
