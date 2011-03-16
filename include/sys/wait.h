@@ -158,10 +158,6 @@ extern int waitid (idtype_t __idtype, __id_t __id, siginfo_t *__infop,
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
-/* This being here makes the prototypes valid whether or not
-   we have already included <sys/resource.h> to define `struct rusage'.  */
-struct rusage;
-
 /* Wait for a child to exit.  When one does, put its status in *STAT_LOC and
    return its process ID.  For errors return (pid_t) -1.  If USAGE is not
    nil, store information about the child's resource usage there.  If the
