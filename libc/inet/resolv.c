@@ -564,7 +564,7 @@ extern void __close_nameservers(void) attribute_hidden;
 
 #ifdef L_encodeh
 
-int attribute_hidden __encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
+int __encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
 {
 	if (maxlen < HFIXEDSZ)
 		return -1;
@@ -593,7 +593,7 @@ int attribute_hidden __encode_header(struct resolv_header *h, unsigned char *des
 
 #ifdef L_decodeh
 
-void attribute_hidden __decode_header(unsigned char *data,
+void __decode_header(unsigned char *data,
 		struct resolv_header *h)
 {
 	h->id = (data[0] << 8) | data[1];
@@ -617,7 +617,7 @@ void attribute_hidden __decode_header(unsigned char *data,
 /* Encode a dotted string into nameserver transport-level encoding.
    This routine is fairly dumb, and doesn't attempt to compress
    the data */
-int attribute_hidden __encode_dotted(const char *dotted, unsigned char *dest, int maxlen)
+int __encode_dotted(const char *dotted, unsigned char *dest, int maxlen)
 {
 	unsigned used = 0;
 
@@ -655,7 +655,7 @@ int attribute_hidden __encode_dotted(const char *dotted, unsigned char *dest, in
 
 /* Decode a dotted string from nameserver transport-level encoding.
    This routine understands compressed data. */
-int attribute_hidden __decode_dotted(const unsigned char *packet,
+int __decode_dotted(const unsigned char *packet,
 		int offset,
 		int packet_len,
 		char *dest,
@@ -720,7 +720,7 @@ int attribute_hidden __decode_dotted(const unsigned char *packet,
 
 #ifdef L_encodeq
 
-int attribute_hidden __encode_question(const struct resolv_question *q,
+int __encode_question(const struct resolv_question *q,
 		unsigned char *dest,
 		int maxlen)
 {
@@ -748,7 +748,7 @@ int attribute_hidden __encode_question(const struct resolv_question *q,
 
 #ifdef L_encodea
 
-int attribute_hidden __encode_answer(struct resolv_answer *a, unsigned char *dest, int maxlen)
+int __encode_answer(struct resolv_answer *a, unsigned char *dest, int maxlen)
 {
 	int i;
 
@@ -862,7 +862,7 @@ int __form_query(int id,
 		const char *name,
 		int type,
 		unsigned char *packet,
-		int maxlen);
+		int maxlen) attribute_hidden;
 int __form_query(int id,
 		const char *name,
 		int type,
@@ -954,7 +954,7 @@ static char *skip_and_NUL_space(char *p)
 }
 
 /* Must be called under __resolv_lock. */
-void attribute_hidden __open_nameservers(void)
+void __open_nameservers(void)
 {
 	static uint32_t resolv_conf_mtime;
 
@@ -1120,7 +1120,7 @@ void attribute_hidden __open_nameservers(void)
 #ifdef L_closenameservers
 
 /* Must be called under __resolv_lock. */
-void attribute_hidden __close_nameservers(void)
+void __close_nameservers(void)
 {
 	if (__nameserver != (void*) &__local_nameserver)
 		free(__nameserver);
@@ -1228,7 +1228,7 @@ static int __decode_answer(const unsigned char *message, /* packet */
  *      appended. (why the filed is called "dotted" I have no idea)
  *      This is a malloced string. May be NULL because strdup failed.
  */
-int attribute_hidden __dns_lookup(const char *name,
+int __dns_lookup(const char *name,
 		int type,
 		unsigned char **outpacket,
 		struct resolv_answer *a)
@@ -1590,7 +1590,7 @@ parser_t * __open_etc_hosts(void)
 #define HALISTOFF (sizeof(char*) * MAXTOKENS)
 #define INADDROFF (HALISTOFF + 2 * sizeof(char*))
 
-int attribute_hidden __read_etc_hosts_r(
+int __read_etc_hosts_r(
 		parser_t * parser,
 		const char *name,
 		int type,
@@ -1703,7 +1703,7 @@ found:
 
 #ifdef L_get_hosts_byname_r
 
-int attribute_hidden __get_hosts_byname_r(const char *name,
+int __get_hosts_byname_r(const char *name,
 		int type,
 		struct hostent *result_buf,
 		char *buf,
@@ -1719,7 +1719,7 @@ int attribute_hidden __get_hosts_byname_r(const char *name,
 
 #ifdef L_get_hosts_byaddr_r
 
-int attribute_hidden __get_hosts_byaddr_r(const char *addr,
+int __get_hosts_byaddr_r(const char *addr,
 		int len,
 		int type,
 		struct hostent *result_buf,
