@@ -58,9 +58,9 @@ static char sccsid[] = "@(#)svc_auth.c 1.19 87/08/11 Copyr 1984 Sun Micro";
 
 static enum auth_stat _svcauth_null (struct svc_req *, struct rpc_msg *);
 				/* no authentication */
-extern enum auth_stat _svcauth_unix (struct svc_req *, struct rpc_msg *);
+extern enum auth_stat _svcauth_unix (struct svc_req *, struct rpc_msg *) attribute_hidden;
 				/* unix style (uid, gids) */
-extern enum auth_stat _svcauth_short (struct svc_req *, struct rpc_msg *);
+extern enum auth_stat _svcauth_short (struct svc_req *, struct rpc_msg *) attribute_hidden;
 				/* short hand unix style */
 #ifdef CONFIG_AUTH_DES
 extern enum auth_stat _svcauth_des (struct svc_req *, struct rpc_msg *);
