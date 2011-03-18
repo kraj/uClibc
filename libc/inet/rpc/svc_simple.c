@@ -46,13 +46,6 @@ static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
 #include <sys/socket.h>
 #include <netdb.h>
 
-#ifdef USE_IN_LIBIO
-# include <wchar.h>
-# include <libio/iolibio.h>
-# define fputs(s, f) _IO_fputs (s, f)
-#endif
-
-
 struct proglst_
   {
     char *(*p_progname) (char *);
@@ -124,12 +117,7 @@ registerrpc (u_long prognum, u_long versnum, u_long procnum,
   return 0;
 
  err_out:
-#ifdef USE_IN_LIBIO
-  if (_IO_fwide (stderr, 0) > 0)
-    (void) __fwprintf (stderr, L"%s", buf);
-  else
-#endif
-    (void) fputs (buf, stderr);
+  (void) fputs (buf, stderr);
   free (buf);
   return -1;
 }
@@ -183,12 +171,7 @@ universal (struct svc_req *rqstp, SVCXPRT *transp_l)
 	return;
       }
   (void) asprintf (&buf, _("never registered prog %d\n"), prog);
-#ifdef USE_IN_LIBIO
-  if (_IO_fwide (stderr, 0) > 0)
-    __fwprintf (stderr, L"%s", buf);
-  else
-#endif
-    fputs (buf, stderr);
+  fputs (buf, stderr);
   free (buf);
   exit (1);
 }

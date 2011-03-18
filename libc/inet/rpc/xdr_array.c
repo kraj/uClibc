@@ -47,13 +47,7 @@ static char sccsid[] = "@(#)xdr_array.c 1.10 87/08/11 Copyr 1984 Sun Micro";
 #include <limits.h>
 #include <libintl.h>
 
-#ifdef USE_IN_LIBIO
-# include <wchar.h>
-#endif
-
-
 #define LASTUNSIGNED	((u_int)0-1)
-
 
 /*
  * XDR an array of arbitrary elements
@@ -100,13 +94,7 @@ xdr_array (XDR *xdrs, caddr_t *addrp, u_int *sizep, u_int maxsize, u_int elsize,
 	*addrp = target = mem_alloc (nodesize);
 	if (target == NULL)
 	  {
-#ifdef USE_IN_LIBIO
-	    if (_IO_fwide (stderr, 0) > 0)
-	      (void) fwprintf (stderr, L"%s",
-				 _("xdr_array: out of memory\n"));
-	    else
-#endif
-	      (void) fputs (_("xdr_array: out of memory\n"), stderr);
+	    (void) fputs (_("xdr_array: out of memory\n"), stderr);
 	    return FALSE;
 	  }
 	memset (target, 0, nodesize);

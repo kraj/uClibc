@@ -46,13 +46,6 @@ static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
 #include <rpc/xdr.h>
 #include <libintl.h>
 
-#ifdef USE_IN_LIBIO
-# include <wchar.h>
-# include <libio/iolibio.h>
-# define fputs(s, f) _IO_fputs (s, f)
-#endif
-
-
 #define LASTUNSIGNED	((u_int)0-1)
 
 /*
@@ -80,13 +73,7 @@ xdr_reference (XDR *xdrs, caddr_t *pp, u_int size, xdrproc_t proc)
 	*pp = loc = (caddr_t) mem_alloc (size);
 	if (loc == NULL)
 	  {
-#ifdef USE_IN_LIBIO
-	    if (_IO_fwide (stderr, 0) > 0)
-	      (void) fwprintf (stderr, L"%s",
-				 _("xdr_reference: out of memory\n"));
-	    else
-#endif
-	      (void) fputs (_("xdr_reference: out of memory\n"), stderr);
+	    (void) fputs (_("xdr_reference: out of memory\n"), stderr);
 	    return FALSE;
 	  }
 	memset (loc, 0, (int) size);
