@@ -1394,6 +1394,7 @@ __locale_t weak_const_function __curlocale(void)
 {
 	return __curlocale_var; /* This is overriden by the thread version. */
 }
+libc_hidden_weak(__curlocale)
 
 __locale_t weak_function __curlocale_set(__locale_t newloc)
 {
@@ -1402,6 +1403,7 @@ __locale_t weak_function __curlocale_set(__locale_t newloc)
 	__curlocale_var = newloc;
 	return oldloc;
 }
+libc_hidden_weak(__curlocale_set)
 
 #endif
 
