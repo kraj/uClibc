@@ -11,9 +11,6 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <err.h>
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-#endif
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning REMINDER: Deal with wide oriented stderr case.
@@ -80,7 +77,7 @@ void warnx(const char *format, ...)
 	va_end(args);
 }
 
-static void __verr(int status, const char *format, va_list args)
+static void attribute_noreturn __verr(int status, const char *format, va_list args)
 {
 	__vwarn(format, args);
 	exit(status);
@@ -99,7 +96,7 @@ void err(int status, const char *format, ...)
 		va_end(args);
 }
 
-static void __verrx(int status, const char *format, va_list args)
+static void attribute_noreturn __verrx(int status, const char *format, va_list args)
 {
 	__vwarnx(format, args);
 	exit(status);
