@@ -47,6 +47,7 @@ xdr_int64_t (XDR *xdrs, int64_t *ip)
       return FALSE;
     }
 }
+strong_alias_untyped(xdr_int64_t,xdr_quad_t)
 
 /* XDR 64bit unsigned integers */
 bool_t
@@ -75,6 +76,7 @@ xdr_uint64_t (XDR *xdrs, uint64_t *uip)
       return FALSE;
     }
 }
+strong_alias_untyped(xdr_uint64_t,xdr_u_quad_t)
 
 /* XDR 32bit integers */
 bool_t
