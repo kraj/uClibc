@@ -47,12 +47,6 @@ struct arc4_stream {
 static int    rs_initialized;
 static struct arc4_stream rs;
 
-static __inline__ void arc4_init(struct arc4_stream *);
-static __inline__ void arc4_addrandom(struct arc4_stream *, u_char *, int);
-static void arc4_stir(struct arc4_stream *);
-static __inline__ uint8_t arc4_getbyte(struct arc4_stream *);
-static __inline__ uint32_t arc4_getword(struct arc4_stream *);
-
 static __inline__ void
 arc4_init(struct arc4_stream *as)
 {
@@ -62,6 +56,20 @@ arc4_init(struct arc4_stream *as)
 		as->s[n] = n;
 	as->i = 0;
 	as->j = 0;
+}
+
+static __inline__ uint8_t
+arc4_getbyte(struct arc4_stream *as)
+{
+	uint8_t si, sj;
+
+	as->i = (as->i + 1);
+	si = as->s[as->i];
+	as->j = (as->j + si);
+	sj = as->s[as->j];
+	as->s[as->i] = sj;
+	as->s[as->j] = si;
+	return (as->s[(si + sj) & 0xff]);
 }
 
 static __inline__ void
@@ -129,20 +137,6 @@ arc4_stir(struct arc4_stream *as)
 	 */
 	for (n = 0; n < 256 * 4; n++)
 		arc4_getbyte(as);
-}
-
-static __inline__ uint8_t
-arc4_getbyte(struct arc4_stream *as)
-{
-	uint8_t si, sj;
-
-	as->i = (as->i + 1);
-	si = as->s[as->i];
-	as->j = (as->j + si);
-	sj = as->s[as->j];
-	as->s[as->i] = sj;
-	as->s[as->j] = si;
-	return (as->s[(si + sj) & 0xff]);
 }
 
 static __inline__ uint32_t
