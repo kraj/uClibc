@@ -98,11 +98,13 @@
  * Manuel
  */
 
+/* keep libgen before string.h - and porting.h to use the
+ * XPG version of basename */
+#include <libgen.h>
 #include "porting.h"
 #include <string.h>
 #include <iconv.h>
 #include <stdarg.h>
-#include <libgen.h>
 #include <wchar.h>
 #include "wchar.c" /* for _UC_iconv_t and __iconv_codesets */
 
