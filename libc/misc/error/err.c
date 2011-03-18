@@ -50,68 +50,68 @@ static void vwarn_work(const char *format, va_list args, int showerr)
 	__STDIO_AUTO_THREADUNLOCK(stderr);
 }
 
-void vwarn(const char *format, va_list args)
+static void __vwarn(const char *format, va_list args)
 {
 	vwarn_work(format, args, 1);
 }
-libc_hidden_def(vwarn)
+strong_alias(__vwarn,vwarn)
 
 void warn(const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	vwarn(format, args);
+	__vwarn(format, args);
 	va_end(args);
 }
 
-void vwarnx(const char *format, va_list args)
+static void __vwarnx(const char *format, va_list args)
 {
 	vwarn_work(format, args, 0);
 }
-libc_hidden_def(vwarnx)
+strong_alias(__vwarnx,vwarnx)
 
 void warnx(const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	vwarnx(format, args);
+	__vwarnx(format, args);
 	va_end(args);
 }
 
-void verr(int status, const char *format, va_list args)
+static void __verr(int status, const char *format, va_list args)
 {
-	vwarn(format, args);
+	__vwarn(format, args);
 	exit(status);
 }
-libc_hidden_def(verr)
+strong_alias(__verr,verr)
 
-void attribute_noreturn err(int status, const char *format, ...)
+void err(int status, const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	verr(status, format, args);
+	__verr(status, format, args);
 	/* This should get optimized away.  We'll leave it now for safety. */
 	/* The loop is added only to keep gcc happy. */
 	while(1)
 		va_end(args);
 }
 
-void verrx(int status, const char *format, va_list args)
+static void __verrx(int status, const char *format, va_list args)
 {
-	vwarnx(format, args);
+	__vwarnx(format, args);
 	exit(status);
 }
-libc_hidden_def(verrx)
+strong_alias(__verrx,verrx)
 
-void attribute_noreturn errx(int status, const char *format, ...)
+void errx(int status, const char *format, ...)
 {
 	va_list args;
 
 	va_start(args, format);
-	verrx(status, format, args);
+	__verrx(status, format, args);
 	/* This should get optimized away.  We'll leave it now for safety. */
 	/* The loop is added only to keep gcc happy. */
 	while(1)
