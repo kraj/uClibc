@@ -131,11 +131,11 @@ arc4_stir(struct arc4_stream *as)
 	/*
 	 * Throw away the first N words of output, as suggested in the
 	 * paper "Weaknesses in the Key Scheduling Algorithm of RC4"
-	 * by Fluher, Mantin, and Shamir.
-	 * http://www.wisdom.weizmann.ac.il/~itsik/RC4/Papers/Rc4_ksa.ps
-	 * N = 256 in our case.
+	 * by Fluher, Mantin, and Shamir.  N = 1024 is based on
+	 * suggestions in the paper "(Not So) Random Shuffles of RC4"
+	 * by Ilya Mironov.
 	 */
-	for (n = 0; n < 256 * 4; n++)
+	for (n = 0; n < 1024; n++)
 		arc4_getbyte(as);
 }
 
