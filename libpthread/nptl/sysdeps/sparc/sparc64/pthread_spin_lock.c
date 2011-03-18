@@ -22,7 +22,7 @@
 int
 pthread_spin_lock (pthread_spinlock_t *lock)
 {
-  __asm__ __volatile
+  __asm__ __volatile__
     ("1: ldstub  [%0], %%g5\n"
      "   brnz,pn %%g5, 2f\n"
      "    membar #StoreLoad | #StoreStore\n"
