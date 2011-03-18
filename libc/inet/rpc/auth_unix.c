@@ -50,10 +50,6 @@
 #include <rpc/auth.h>
 #include <rpc/auth_unix.h>
 
-#ifdef USE_IN_LIBIO
-# include <wchar.h>
-#endif
-
 /*
  * Unix authenticator operations vector
  */
@@ -109,13 +105,7 @@ authunix_create (char *machname, uid_t uid, gid_t gid, int len,
   if (auth == NULL || au == NULL)
     {
 no_memory:
-#ifdef USE_IN_LIBIO
-      if (_IO_fwide (stderr, 0) > 0)
-	(void) fwprintf (stderr, L"%s",
-			   _("authunix_create: out of memory\n"));
-      else
-#endif
-	(void) fputs (_("authunix_create: out of memory\n"), stderr);
+      (void) fputs (_("authunix_create: out of memory\n"), stderr);
       mem_free (auth, sizeof (*auth));
       mem_free (au, sizeof (*au));
       return NULL;

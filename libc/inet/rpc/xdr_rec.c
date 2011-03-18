@@ -49,13 +49,6 @@
 #include <unistd.h>
 #include "rpc_private.h"
 
-#ifdef USE_IN_LIBIO
-# include <wchar.h>
-# include <libio/iolibio.h>
-# define fputs(s, f) _IO_fputs (s, f)
-#endif
-
-
 static bool_t xdrrec_getbytes (XDR *, caddr_t, u_int);
 static bool_t xdrrec_putbytes (XDR *, const char *, u_int);
 static bool_t xdrrec_getint32 (XDR *, int32_t *);
@@ -161,12 +154,7 @@ xdrrec_create (XDR *xdrs, u_int sendsize,
 
   if (rstrm == NULL || buf == NULL)
     {
-#ifdef USE_IN_LIBIO
-      if (_IO_fwide (stderr, 0) > 0)
-	(void) fwprintf (stderr, L"%s", _("xdrrec_create: out of memory\n"));
-      else
-#endif
-	(void) fputs (_("xdrrec_create: out of memory\n"), stderr);
+      (void) fputs (_("xdrrec_create: out of memory\n"), stderr);
       mem_free (rstrm, sizeof (RECSTREAM));
       mem_free (buf, sendsize + recvsize + BYTES_PER_XDR_UNIT);
       /*

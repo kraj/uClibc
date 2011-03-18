@@ -49,9 +49,6 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #include <errno.h>
 #include <rpc/pmap_clnt.h>
 #include <net/if.h>
-#ifdef USE_IN_LIBIO
-# include <wchar.h>
-#endif
 
 #ifdef IP_RECVERR
 #include "errqueue.h"
@@ -131,13 +128,7 @@ clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
   if (cl == NULL || cu == NULL)
     {
       struct rpc_createerr *ce = &get_rpc_createerr ();
-#ifdef USE_IN_LIBIO
-      if (_IO_fwide (stderr, 0) > 0)
-	(void) fwprintf (stderr, L"%s",
-			   _("clntudp_create: out of memory\n"));
-      else
-#endif
-	(void) fputs (_("clntudp_create: out of memory\n"), stderr);
+      (void) fputs (_("clntudp_create: out of memory\n"), stderr);
       ce->cf_stat = RPC_SYSTEMERROR;
       ce->cf_error.re_errno = ENOMEM;
       goto fooy;

@@ -42,12 +42,6 @@ static char sccsid[] = "@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
 #include <string.h>
 #include "rpc_private.h"
 
-#ifdef USE_IN_LIBIO
-# include <wchar.h>
-# include <libio/iolibio.h>
-# define fputs(s, f) _IO_fputs (s, f)
-#endif
-
 static char *auth_errmsg (enum auth_stat stat) internal_function;
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -193,12 +187,7 @@ libc_hidden_def(clnt_sperrno)
 void
 clnt_perrno (enum clnt_stat num)
 {
-#ifdef USE_IN_LIBIO
-  if (_IO_fwide (stderr, 0) > 0)
-    (void) fwprintf (stderr, L"%s", clnt_sperrno (num));
-  else
-#endif
-    (void) fputs (clnt_sperrno (num), stderr);
+  (void) fputs (clnt_sperrno (num), stderr);
 }
 
 /*
@@ -292,12 +281,7 @@ libc_hidden_def(clnt_sperror)
 void
 clnt_perror (CLIENT * rpch, const char *msg)
 {
-#ifdef USE_IN_LIBIO
-  if (_IO_fwide (stderr, 0) > 0)
-    (void) fwprintf (stderr, L"%s", clnt_sperror (rpch, msg));
-  else
-#endif
-    (void) fputs (clnt_sperror (rpch, msg), stderr);
+  (void) fputs (clnt_sperror (rpch, msg), stderr);
 }
 libc_hidden_def(clnt_perror)
 
@@ -349,12 +333,7 @@ libc_hidden_def(clnt_spcreateerror)
 void
 clnt_pcreateerror (const char *msg)
 {
-#ifdef USE_IN_LIBIO
-  if (_IO_fwide (stderr, 0) > 0)
-    (void) fwprintf (stderr, L"%s", clnt_spcreateerror (msg));
-  else
-#endif
-    (void) fputs (clnt_spcreateerror (msg), stderr);
+  (void) fputs (clnt_spcreateerror (msg), stderr);
 }
 
 struct auth_errtab
