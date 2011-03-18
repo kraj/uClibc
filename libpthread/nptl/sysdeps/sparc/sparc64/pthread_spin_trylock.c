@@ -24,7 +24,7 @@ int
 pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   int res;
-  __asm__ __volatile
+  __asm__ __volatile__
     ("ldstub [%1], %0\n"
      "membar #StoreLoad | #StoreStore"
      : "=r" (res)
