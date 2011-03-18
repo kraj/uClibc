@@ -70,6 +70,7 @@ __libc_current_sigrtmax (void)
 strong_alias (__libc_current_sigrtmax, __libc_current_sigrtmax_private)
 libc_hidden_def (__libc_current_sigrtmax)
 
+#if 0
 /* Allocate real-time signal with highest/lowest available
    priority.  Please note that we don't use a lock since we assume
    this function to be called at program start.  */
@@ -85,3 +86,4 @@ __libc_allocate_rtsig (int high)
   return high ? current_rtmin++ : current_rtmax--;
 }
 strong_alias (__libc_allocate_rtsig, __libc_allocate_rtsig_private)
+#endif
