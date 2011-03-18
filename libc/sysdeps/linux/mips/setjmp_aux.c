@@ -27,8 +27,6 @@
    pointer.  We do things this way because it's difficult to reliably
    access them in C.  */
 
-extern int __sigjmp_save (sigjmp_buf, int);
-
 int
 #if _MIPS_SIM == _MIPS_SIM_ABI64
 __sigsetjmp_aux (jmp_buf env, int savemask, long sp, long fp)

@@ -119,6 +119,7 @@ libc_hidden_proto(__longjmp)
 extern __typeof(longjmp) __libc_longjmp attribute_noreturn;
 extern __typeof(siglongjmp) __libc_siglongjmp attribute_noreturn;
 extern void _longjmp_unwind(jmp_buf __env, int __val);
+extern int __sigjmp_save(sigjmp_buf __env, int __savemask) attribute_hidden;
 /* We use the normal longjmp for unwinding */
 # define __libc_unwind_longjmp(buf, val) __libc_longjmp(buf, val)
 #endif
