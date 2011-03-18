@@ -281,7 +281,7 @@ gaih_local(const char *name, const struct gaih_service *service,
 	ai->ai_protocol = req->ai_protocol;
 	ai->ai_addrlen = sizeof(struct sockaddr_un);
 	ai->ai_addr = (void *)ai + sizeof(struct addrinfo);
-#if SALEN
+#if 0 /* SALEN */
 	((struct sockaddr_un *)ai->ai_addr)->sun_len = sizeof(struct sockaddr_un);
 #endif /* SALEN */
 
@@ -711,7 +711,7 @@ gaih_inet(const char *name, const struct gaih_service *service,
 				(*pai)->ai_protocol = st2->protocol;
 				(*pai)->ai_addrlen = socklen;
 				(*pai)->ai_addr = (void *) (*pai) + sizeof(struct addrinfo);
-#if defined SALEN
+#if 0 /* SALEN */
 				(*pai)->ai_addr->sa_len = socklen;
 #endif
 				(*pai)->ai_addr->sa_family = family;
