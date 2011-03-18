@@ -34,9 +34,6 @@
 #ifdef __UCLIBC_HAS_SHADOW__
 #include <shadow.h>
 #endif
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-#endif
 
 /**********************************************************************/
 /* Sizes for statically allocated buffers. */
