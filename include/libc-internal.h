@@ -29,6 +29,9 @@
 
 #ifdef __UCLIBC_HAS_TLS__
 # define attribute_tls_model_ie __attribute__ ((tls_model ("initial-exec")))
+#else
+# define attribute_tls_model_ie
+# define __thread
 #endif
 
 /* Pull in things like __attribute_used__ */
