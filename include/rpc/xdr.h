@@ -112,6 +112,10 @@ typedef struct XDR XDR;
 struct XDR
   {
     enum xdr_op x_op;		/* operation; fast additional param */
+    /* not sure whether non-const-ness is a part of the spec... if it is,
+     * enclose "const" in #ifdef _LIBC / #endif
+     * to make it effective only for libc compile */
+    const
     struct xdr_ops
       {
 	bool_t (*x_getlong) (XDR *__xdrs, long *__lp);
