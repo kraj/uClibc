@@ -18,9 +18,9 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netipx/ipx.h>
 #include <sys/un.h>
 #if 0
+#include <netipx/ipx.h>
 #include <netash/ash.h>
 #include <netatalk/at.h>
 #include <netax25/ax25.h>
