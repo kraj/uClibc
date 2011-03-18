@@ -59,7 +59,7 @@ static bool_t authunix_validate (AUTH *, struct opaque_auth *);
 static bool_t authunix_refresh (AUTH *);
 static void authunix_destroy (AUTH *);
 
-static struct auth_ops auth_unix_ops = {
+static const struct auth_ops auth_unix_ops = {
   authunix_nextverf,
   authunix_marshal,
   authunix_validate,
@@ -314,7 +314,7 @@ marshal_new_auth (AUTH *auth)
   xdrmem_create (xdrs, au->au_marshed, MAX_AUTH_BYTES, XDR_ENCODE);
   if ((!xdr_opaque_auth (xdrs, &(auth->ah_cred))) ||
       (!xdr_opaque_auth (xdrs, &(auth->ah_verf))))
-    perror (_("auth_none.c - Fatal marshalling problem"));
+    perror (_("auth_unix.c - Fatal marshalling problem"));
   else
     au->au_mpos = XDR_GETPOS (xdrs);
 

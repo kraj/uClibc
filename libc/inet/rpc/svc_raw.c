@@ -67,7 +67,7 @@ static bool_t svcraw_reply (SVCXPRT *, struct rpc_msg *);
 static bool_t svcraw_freeargs (SVCXPRT *, xdrproc_t, caddr_t);
 static void svcraw_destroy (SVCXPRT *);
 
-static struct xp_ops server_ops =
+static const struct xp_ops server_ops =
 {
   svcraw_recv,
   svcraw_stat,

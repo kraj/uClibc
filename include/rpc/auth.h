@@ -96,6 +96,10 @@ struct AUTH {
   struct opaque_auth ah_cred;
   struct opaque_auth ah_verf;
   union des_block ah_key;
+  /* not sure whether non-const-ness is a part of the spec... if it is,
+   * enclose "const" in #ifdef _LIBC / #endif
+   * to make it effective only for libc compile */
+  const
   struct auth_ops {
     void (*ah_nextverf) (AUTH *);
     int  (*ah_marshal) (AUTH *, XDR *);		/* nextverf & serialize */
