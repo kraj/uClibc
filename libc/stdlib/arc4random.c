@@ -39,9 +39,9 @@
 
 
 struct arc4_stream {
-	uint8_t i;
-	uint8_t j;
-	uint8_t s[256];
+	u_int8_t i;
+	u_int8_t j;
+	u_int8_t s[256];
 };
 
 static smallint rs_initialized;
@@ -58,10 +58,10 @@ arc4_init(struct arc4_stream *as)
 	as->j = 0;
 }
 
-static __inline__ uint8_t
+static __inline__ u_int8_t
 arc4_getbyte(struct arc4_stream *as)
 {
-	uint8_t si, sj;
+	u_int8_t si, sj;
 
 	as->i = (as->i + 1);
 	si = as->s[as->i];
@@ -76,7 +76,7 @@ static __inline__ void
 arc4_addrandom(struct arc4_stream *as, u_char *dat, int datlen)
 {
 	int     n;
-	uint8_t si;
+	u_int8_t si;
 
 	as->i--;
 	for (n = 0; n < 256; n++) {
@@ -139,10 +139,10 @@ arc4_stir(struct arc4_stream *as)
 		arc4_getbyte(as);
 }
 
-static __inline__ uint32_t
+static __inline__ u_int32_t
 arc4_getword(struct arc4_stream *as)
 {
-	uint32_t val;
+	u_int32_t val;
 	val = arc4_getbyte(as) << 24;
 	val |= arc4_getbyte(as) << 16;
 	val |= arc4_getbyte(as) << 8;
@@ -169,7 +169,7 @@ arc4random_addrandom(u_char *dat, int datlen)
 	arc4_addrandom(&rs, dat, datlen);
 }
 
-uint32_t
+u_int32_t
 arc4random(void)
 {
 	if (!rs_initialized)
