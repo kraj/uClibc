@@ -44,7 +44,7 @@ struct arc4_stream {
 	uint8_t s[256];
 };
 
-static int    rs_initialized;
+static smallint rs_initialized;
 static struct arc4_stream rs;
 
 static __inline__ void
