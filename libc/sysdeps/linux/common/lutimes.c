@@ -12,7 +12,7 @@
 
 #ifdef __NR_lutimes
 _syscall2(int, lutimes, const char *, file, const struct timeval *, tvp)
-#else
+#elif defined __NR_utimensat
 #include <sys/time.h>
 #include <fcntl.h>
 

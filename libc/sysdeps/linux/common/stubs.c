@@ -172,6 +172,14 @@ make_stub(umount)
 make_stub(umount2)
 #endif
 
+#ifndef __NR_utimensat
+make_stub(futimens)
+make_stub(utimensat)
+# ifndef __NR_lutimes
+make_stub(lutimes)
+# endif
+#endif
+
 #ifndef __NR_vmsplice
 make_stub(vmsplice)
 #endif
