@@ -36,26 +36,22 @@ extern void warn (__const char *__format, ...)
      __attribute__ ((__format__ (__printf__, 1, 2)));
 extern void vwarn (__const char *__format, __gnuc_va_list)
      __attribute__ ((__format__ (__printf__, 1, 0)));
-libc_hidden_proto(vwarn)
 
 /* Likewise, but without ": " and the standard error string.  */
 extern void warnx (__const char *__format, ...)
      __attribute__ ((__format__ (__printf__, 1, 2)));
 extern void vwarnx (__const char *__format, __gnuc_va_list)
      __attribute__ ((__format__ (__printf__, 1, 0)));
-libc_hidden_proto(vwarnx)
 
 /* Likewise, and then exit with STATUS.  */
 extern void err (int __status, __const char *__format, ...)
      __attribute__ ((__noreturn__, __format__ (__printf__, 2, 3)));
 extern void verr (int __status, __const char *__format, __gnuc_va_list)
      __attribute__ ((__noreturn__, __format__ (__printf__, 2, 0)));
-libc_hidden_proto(verr)
 extern void errx (int __status, __const char *__format, ...)
      __attribute__ ((__noreturn__, __format__ (__printf__, 2, 3)));
 extern void verrx (int __status, __const char *, __gnuc_va_list)
      __attribute__ ((__noreturn__, __format__ (__printf__, 2, 0)));
-libc_hidden_proto(verrx)
 
 __END_DECLS
 
