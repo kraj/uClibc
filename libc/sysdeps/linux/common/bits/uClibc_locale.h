@@ -338,7 +338,9 @@ extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
 extern __locale_t __curlocale_var;
 # ifdef __UCLIBC_HAS_THREADS__
 extern __locale_t __curlocale(void)  __THROW __attribute__ ((__const__));
+libc_hidden_proto(__curlocale)
 extern __locale_t __curlocale_set(__locale_t newloc);
+libc_hidden_proto(__curlocale_set)
 #  define __UCLIBC_CURLOCALE  (__curlocale())
 # else
 #  define __UCLIBC_CURLOCALE  (__curlocale_var)
