@@ -12,10 +12,10 @@
 #include <sys/syscall.h>
 
 
-static _syscall6(__ptr_t, mmap2, __ptr_t, addr, size_t, len, int, prot,
-		 int, flags, int, fd, __off_t, pgoff)
+static __inline__ _syscall6(void *, mmap2, void *, addr, size_t, len, int, prot,
+			    int, flags, int, fd, __off_t, pgoff)
 
-__ptr_t mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
+void *mmap(void *addr, size_t len, int prot, int flags, int fd, __off_t offset)
 {
 	unsigned long page_size = sysconf(_SC_PAGESIZE);
 	unsigned long pgoff;

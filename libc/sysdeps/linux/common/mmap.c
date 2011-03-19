@@ -7,25 +7,57 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <sys/syscall.h>
-#include <unistd.h>
 #include <sys/mman.h>
-#include <bits/uClibc_page.h>
+#include <sys/syscall.h>
 
-#ifdef __NR_mmap
+#if defined __UCLIBC_MMAP_HAS_6_ARGS__ && defined __NR_mmap
 
-
-#ifdef __UCLIBC_MMAP_HAS_6_ARGS__
-
-_syscall6(void *, mmap, void *, start, size_t, length,
-		int, prot, int, flags, int, fd, off_t, offset)
-
-#else
+# ifndef _syscall6
+#  error disable __UCLIBC_MMAP_HAS_6_ARGS__ for this arch
+# endif
 
 # define __NR__mmap __NR_mmap
-static __inline__ _syscall1(__ptr_t, _mmap, unsigned long *, buffer)
-__ptr_t mmap(__ptr_t addr, size_t len, int prot,
-			 int flags, int fd, __off_t offset)
+static _syscall6(void *, _mmap, void *, addr, size_t, len,
+		 int, prot, int, flags, int, fd, __off_t, offset)
+
+#elif defined __NR_mmap2 && defined _syscall6
+
+# include <errno.h>
+# include <bits/uClibc_page.h>
+# ifndef MMAP2_PAGE_SHIFT
+#  define MMAP2_PAGE_SHIFT 12
+# endif
+
+# define __NR___syscall_mmap2 __NR_mmap2
+static __inline__ _syscall6(void *, __syscall_mmap2, void *, addr, size_t, len,
+			    int, prot, int, flags, int, fd, __off_t, offset)
+
+static void *_mmap(void *addr, size_t len, int prot, int flags,
+		   int fd, __off_t offset)
+{
+	const int mmap2_shift = MMAP2_PAGE_SHIFT;
+	const __off_t mmap2_mask = ((__off_t) 1 << MMAP2_PAGE_SHIFT) - 1;
+	/* check if offset is page aligned */
+	if (offset & mmap2_mask) {
+		__set_errno(EINVAL);
+		return MAP_FAILED;
+	}
+# ifdef __USE_FILE_OFFSET64
+	return __syscall_mmap2(addr, len, prot, flags, fd,
+				((__u_quad_t) offset >> mmap2_shift));
+# else
+	return __syscall_mmap2(addr, len, prot, flags, fd,
+				((__u_long) offset >> mmap2_shift));
+# endif
+}
+
+#elif defined __NR_mmap
+
+# define __NR___syscall_mmap __NR_mmap
+static __inline__ _syscall1(void *, __syscall_mmap, unsigned long *, buffer)
+
+static void *_mmap(void *addr, size_t len, int prot, int flags,
+		   int fd, __off_t offset)
 {
 	unsigned long buffer[6];
 
@@ -35,38 +67,14 @@ __ptr_t mmap(__ptr_t addr, size_t len, int prot,
 	buffer[3] = (unsigned long) flags;
 	buffer[4] = (unsigned long) fd;
 	buffer[5] = (unsigned long) offset;
-	return (__ptr_t) _mmap(buffer);
+	return __syscall_mmap(buffer);
 }
+
+#else
+
+# error "Your architecture doesn't seem to provide mmap() !?"
 
 #endif
 
+strong_alias(_mmap,mmap)
 libc_hidden_def(mmap)
-
-#elif defined(__NR_mmap2)
-
-
-#define __NR___syscall_mmap2 __NR_mmap2
-static __inline__ _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
-	size_t, len, int, prot, int, flags, int, fd, off_t, offset)
-
-/* Some architectures always use 12 as page shift for mmap2() eventhough the
- * real PAGE_SHIFT != 12.  Other architectures use the same value as
- * PAGE_SHIFT...
- */
-# ifndef MMAP2_PAGE_SHIFT
-#  define MMAP2_PAGE_SHIFT 12
-# endif
-
-__ptr_t mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
-{
-	if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1)) {
-		__set_errno(EINVAL);
-		return MAP_FAILED;
-	}
-	return __syscall_mmap2(addr, len, prot, flags,
-	                       fd, ((__u_long) offset >> MMAP2_PAGE_SHIFT));
-}
-
-libc_hidden_def(mmap)
-
-#endif
