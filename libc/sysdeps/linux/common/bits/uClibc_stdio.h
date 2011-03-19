@@ -78,6 +78,7 @@
 #define __STDIO_PUTC_MACRO
 #endif
 
+#ifdef _LIBC
 /**********************************************************************/
 #include <bits/uClibc_mutex.h>
 
@@ -131,6 +132,8 @@
 #define STDIO_INIT_MUTEX(M) __stdio_init_mutex(& M)
 #endif
 #endif
+
+#endif /* _LIBC */
 
 /**********************************************************************/
 
@@ -187,7 +190,7 @@ typedef struct {
 	__io_close_fn *close;
 } _IO_cookie_io_functions_t;
 
-#if defined(_LIBC) || defined(_GNU_SOURCE)
+#ifdef __USE_GNU
 
 typedef __io_read_fn cookie_read_function_t;
 typedef __io_write_fn cookie_write_function_t;
@@ -200,6 +203,16 @@ typedef _IO_cookie_io_functions_t cookie_io_functions_t;
 
 #endif
 /**********************************************************************/
+
+#if defined __UCLIBC_HAS_THREADS__ && !defined __UCLIBC_IO_MUTEX
+# ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#  include <bits/stdio-lock.h>
+#  define __UCLIBC_IO_MUTEX(M) _IO_lock_t M
+# else
+#  include <bits/pthreadtypes.h>
+#  define __UCLIBC_IO_MUTEX(M) pthread_mutex_t M
+# endif /* __UCLIBC_HAS_THREADS_NATIVE__ */
+#endif
 
 struct __STDIO_FILE_STRUCT {
 	unsigned short __modeflags;
