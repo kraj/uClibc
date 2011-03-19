@@ -359,14 +359,19 @@ extern void _stdio_term(void) attribute_hidden;
 extern struct __STDIO_FILE_STRUCT *_stdio_openlist;
 
 #ifdef __UCLIBC_HAS_THREADS__
-__UCLIBC_IO_MUTEX_EXTERN(_stdio_openlist_add_lock);
+__UCLIBC_IO_MUTEX_EXTERN(_stdio_openlist_add_lock)
+# ifndef __UCLIBC_HAS_THREADS_NATIVE__
+	attribute_hidden
+# endif
+	;
 #ifdef __STDIO_BUFFERS
-__UCLIBC_IO_MUTEX_EXTERN(_stdio_openlist_del_lock);
-extern volatile int _stdio_openlist_use_count; /* _stdio_openlist_del_lock */
-extern int _stdio_openlist_del_count; /* _stdio_openlist_del_lock */
+__UCLIBC_IO_MUTEX_EXTERN(_stdio_openlist_del_lock)
+# ifndef __UCLIBC_HAS_THREADS_NATIVE__
+	attribute_hidden
+# endif
+	;
 #endif
 extern int _stdio_user_locking;
-extern void __stdio_init_mutex(__UCLIBC_MUTEX_TYPE *m) attribute_hidden;
 #endif
 
 #endif
