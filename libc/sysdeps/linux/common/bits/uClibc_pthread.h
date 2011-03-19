@@ -27,8 +27,6 @@
 # error "Always include <pthread.h> rather than <bits/uClibc_pthread.h>"
 #endif
 
-#if defined _LIBC && (defined IS_IN_libc || defined NOT_IN_libc)
-
 struct _pthread_cleanup_buffer;
 
 /* Threading functions internal to uClibc.  Make these thread functions
@@ -45,7 +43,5 @@ extern void weak_function _pthread_cleanup_push_defer (
 extern void weak_function _pthread_cleanup_pop_restore (
 		struct _pthread_cleanup_buffer *__buffer,
 		int __execute);
-
-#endif
 
 #endif
