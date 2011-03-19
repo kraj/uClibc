@@ -314,6 +314,7 @@ Domain name in a message can be represented as either:
 #include <sys/utsname.h>
 #include <sys/un.h>
 #include <sys/stat.h>
+#include <sys/param.h>
 #include <bits/uClibc_mutex.h>
 #include "internal/parse_config.h"
 
@@ -1821,21 +1822,18 @@ int getnameinfo(const struct sockaddr *sa,
 
 				if (hoste) {
 					char *c;
-#undef min
-#define min(x,y) (((x) > (y)) ? (y) : (x))
 					if ((flags & NI_NOFQDN)
 					 && (getdomainname(domain, sizeof(domain)) == 0)
 					 && (c = strstr(hoste->h_name, domain)) != NULL
 					 && (c != hoste->h_name) && (*(--c) == '.')
 					) {
 						strncpy(host, hoste->h_name,
-							min(hostlen, (size_t) (c - hoste->h_name)));
-						host[min(hostlen - 1, (size_t) (c - hoste->h_name))] = '\0';
+							MIN(hostlen, (size_t) (c - hoste->h_name)));
+						host[MIN(hostlen - 1, (size_t) (c - hoste->h_name))] = '\0';
 					} else {
 						strncpy(host, hoste->h_name, hostlen);
 					}
 					ok = 1;
-#undef min
 				}
 			}
 
