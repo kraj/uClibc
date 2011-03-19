@@ -470,6 +470,8 @@ extern FILE *__stdin;			/* For getchar() macro. */
 
 #else
 
+# define __stdin stdin
+
 #endif /* __STDIO_GETC_MACRO */
 
 
@@ -528,5 +530,9 @@ extern FILE *__stdout;			/* For putchar() macro. */
 
 #  endif
 # endif
+
+#else
+
+# define __stdout stdout
 
 #endif /* __STDIO_PUTC_MACRO */
