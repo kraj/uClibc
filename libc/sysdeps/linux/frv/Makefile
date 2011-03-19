@@ -17,7 +17,7 @@ CTOR_TARGETS := crti.o crtn.o
 SSRC := __longjmp.S setjmp.S clone.S vfork.S
 SOBJ := $(patsubst %.S,%.o, $(SSRC))
 
-CSRC = mmap.c sysdep.c syscall.c brk.c sbrk.c __init_brk.c dl-iterate-phdr.c
+CSRC = sysdep.c syscall.c brk.c sbrk.c __init_brk.c dl-iterate-phdr.c
 CSRC += xstatconv.c stat.c stat64.c fstat.c fstat64.c lstat.c lstat64.c
 COBJ := $(patsubst %.c,%.o, $(CSRC))
 

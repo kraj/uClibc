@@ -6,7 +6,7 @@
 #
 
 CSRC := \
-	__longjmp.c  brk.c setjmp_aux.c mmap.c \
+	__longjmp.c  brk.c setjmp_aux.c \
 	cacheflush.c pread_write.c sysmips.c _test_and_set.c \
 	readahead.c
 

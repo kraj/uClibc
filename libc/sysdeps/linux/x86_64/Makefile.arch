@@ -5,7 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := brk.c __syscall_error.c mmap.c
+CSRC := brk.c __syscall_error.c
 
 ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 CSRC += sigaction.c
