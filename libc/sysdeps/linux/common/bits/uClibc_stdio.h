@@ -78,14 +78,6 @@
 #define __STDIO_PUTC_MACRO
 #endif
 
-
-/* These are consistency checks on the different options */
-
-#ifndef __STDIO_BUFFERS
-#undef __STDIO_GETC_MACRO
-#undef __STDIO_PUTC_MACRO
-#endif
-
 /**********************************************************************/
 #include <bits/uClibc_mutex.h>
 
