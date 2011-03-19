@@ -508,7 +508,7 @@ FCT (const CHAR *pattern, const CHAR *string, const CHAR *string_end,
 				    if (symb_table[2 * elem] == hash
 					&& (c1
 					    == extra[symb_table[2 * elem + 1]])
-					&& __memcmp (str,
+					&& memcmp (str,
 						   &extra[symb_table[2 * elem
 								     + 1]
 							  + 1], c1) == 0)
@@ -729,7 +729,7 @@ FCT (const CHAR *pattern, const CHAR *string, const CHAR *string_end,
 					if (symb_table[2 * elem] == hash
 					    && (c1
 						== extra[symb_table[2 * elem + 1]])
-					    && __memcmp (str,
+					    && memcmp (str,
 						       &extra[symb_table[2 * elem + 1]
 							      + 1], c1) == 0)
 					  {

@@ -54,10 +54,6 @@
 # include <stdlib.h>
 #endif
 
-#ifdef __UCLIBC__
-# define __memset memset
-#endif
-
 /* For platform which support the ISO C amendement 1 functionality we
    support user defined character classes.  */
 #if defined _LIBC || (defined HAVE_WCTYPE_H && defined HAVE_WCHAR_H)
@@ -347,7 +343,7 @@ fnmatch (const char *pattern, const char *string, int flags)
       wchar_t *wstring = NULL;
 
       /* Convert the strings into wide characters.  */
-      __memset (&ps, '\0', sizeof (ps));
+      memset (&ps, '\0', sizeof (ps));
       p = pattern;
 #ifdef _LIBC
       n = strnlen (pattern, 1024);
@@ -364,7 +360,7 @@ fnmatch (const char *pattern, const char *string, int flags)
 	       already done?  */
 	    return -1;
 	  if (p)
-	    __memset (&ps, '\0', sizeof (ps));
+	    memset (&ps, '\0', sizeof (ps));
 	}
       if (__builtin_expect (p != NULL, 0))
 	{
@@ -396,7 +392,7 @@ fnmatch (const char *pattern, const char *string, int flags)
 	       already done?  */
 	    return -1;
 	  if (p)
-	    __memset (&ps, '\0', sizeof (ps));
+	    memset (&ps, '\0', sizeof (ps));
 	}
       if (__builtin_expect (p != NULL, 0))
 	{
