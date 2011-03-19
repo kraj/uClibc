@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2003, 2004, 2007, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -87,15 +87,27 @@ typedef __sigset_t sigset_t;
 typedef __pid_t pid_t;
 #  define __pid_t_defined
 # endif
+#endif
+#ifdef __USE_XOPEN
 # ifndef __uid_t_defined
 typedef __uid_t uid_t;
 #  define __uid_t_defined
 # endif
 #endif	/* Unix98 */
 
+#if defined __USE_POSIX199309 && defined __UCLIBC_HAS_REALTIME__
+/* We need `struct timespec' later on.  */
+# define __need_timespec
+# include <time.h>
+
+/* Get the `siginfo_t' type plus the needed symbols.  */
+# include <bits/siginfo.h>
+#endif
+
 
 /* Type of a signal handler.  */
 typedef void (*__sighandler_t) (int);
+
 #if defined __UCLIBC_HAS_OBSOLETE_SYSV_SIGNAL__
 /* The X/Open definition of `signal' specifies the SVID semantic.  Use
    the additional function `sysv_signal' when X/Open compatibility is
@@ -163,11 +175,16 @@ extern __sighandler_t ssignal (int __sig, __sighandler_t __handler)
 extern int gsignal (int __sig) __THROW;
 #endif /* Use SVID.  */
 
-#ifdef __USE_MISC
+/* glibc guards the next two wrong with __USE_XOPEN2K */
+#if defined __USE_MISC || defined __USE_XOPEN2K8
 /* Print a message describing the meaning of the given signal number.  */
 extern void psignal (int __sig, __const char *__s);
-#endif /* Use misc.  */
+#endif /* Use misc or POSIX 2008.  */
 
+#if 0 /*def __USE_XOPEN2K8*/
+/* Print a message describing the meaning of the given signal information.  */
+extern void psiginfo (__const siginfo_t *__pinfo, __const char *__s);
+#endif /* POSIX 2008.  */
 
 /* The `sigpause' function has two different interfaces.  The original
    BSD definition defines the argument as a mask of the signal, while
@@ -203,14 +220,21 @@ extern int sigpause (int __mask) __THROW __attribute_deprecated__;
 # define sigmask(sig)	__sigmask(sig)
 
 /* Block signals in MASK, returning the old mask.  */
-extern int sigblock (int __mask) __THROW;
+# ifdef _LIBC
 /* collides with libc_hidden_proto: __attribute_deprecated__; */
 libc_hidden_proto(sigblock)
+# else
+extern int sigblock (int __mask) __THROW __attribute_deprecated__;
+# endif
 
 /* Set the mask of blocked signals to MASK, returning the old mask.  */
+# ifdef _LIBC
 extern int sigsetmask (int __mask) __THROW;
 /* collides with libc_hidden_proto: __attribute_deprecated__; */
 libc_hidden_proto(sigsetmask)
+# else
+extern int sigsetmask (int __mask) __THROW __attribute_deprecated__;
+# endif
 
 /* Return currently selected signal mask.  */
 extern int siggetmask (void) __THROW __attribute_deprecated__;
@@ -227,15 +251,6 @@ typedef __sighandler_t sig_t;
 #endif
 
 #ifdef __USE_POSIX
-
-# ifdef __USE_POSIX199309
-/* We need `struct timespec' later on.  */
-#  define __need_timespec
-#  include <time.h>
-
-/* Get the `siginfo_t' type plus the needed symbols.  */
-#  include <bits/siginfo.h>
-# endif
 
 /* Clear all signals from SET.  */
 extern int sigemptyset (sigset_t *__set) __THROW __nonnull ((1));
