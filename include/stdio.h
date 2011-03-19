@@ -494,11 +494,6 @@ extern int getc_unlocked (FILE *__stream);
 libc_hidden_proto(getc_unlocked)
 extern int getchar_unlocked (void);
 libc_hidden_proto(getchar_unlocked)
-
-# ifdef __UCLIBC__
-/* SUSv3 allows getc_unlocked to be a macro */
-#  define getc_unlocked(_fp) __GETC_UNLOCKED(_fp)
-# endif
 #endif /* Use POSIX or MISC.  */
 
 #ifdef __USE_MISC
@@ -553,11 +548,6 @@ extern int fputc_unlocked (int __c, FILE *__stream);
    marked with __THROW.  */
 extern int putc_unlocked (int __c, FILE *__stream);
 extern int putchar_unlocked (int __c);
-
-# ifdef __UCLIBC__
-/* SUSv3 allows putc_unlocked to be a macro */
-#  define putc_unlocked(_ch, _fp) __PUTC_UNLOCKED(_ch, _fp)
-# endif
 #endif /* Use POSIX or MISC.  */
 
 
@@ -908,6 +898,13 @@ extern void funlockfile (FILE *__stream) __THROW;
 
 #define fgetc(_fp)                   __FGETC(_fp)
 #define fputc(_ch, _fp)              __FPUTC(_ch, _fp)
+
+#if defined __USE_POSIX || defined __USE_MISC
+/* SUSv3 allows getc_unlocked to be a macro */
+#define getc_unlocked(_fp) __GETC_UNLOCKED(_fp)
+/* SUSv3 allows putc_unlocked to be a macro */
+#define putc_unlocked(_ch, _fp) __PUTC_UNLOCKED(_ch, _fp)
+#endif
 
 #ifdef __USE_MISC
 #define fgetc_unlocked(_fp)          __FGETC_UNLOCKED(_fp)
