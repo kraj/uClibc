@@ -221,6 +221,7 @@ HEADERS_RM- := \
 	bits/syscalls.h \
 	bits/syscalls-common.h \
 	bits/uClibc_fpmax.h \
+	bits/uClibc_pthread.h \
 	bits/uClibc_uintmaxtostr.h \
 	bits/uClibc_uwchar.h \
 	bits/uClibc_va_copy.h \
