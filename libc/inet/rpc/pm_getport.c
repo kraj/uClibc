@@ -87,7 +87,7 @@ pmap_getport (struct sockaddr_in *address, u_long program, u_long version,
 	}
       CLNT_DESTROY (client);
     }
-  /* (void)__close(_socket); CLNT_DESTROY already closed it */
+  /* (void)close(_socket); CLNT_DESTROY already closed it */
   address->sin_port = 0;
   return port;
 }
