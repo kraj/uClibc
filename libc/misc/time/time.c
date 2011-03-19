@@ -208,7 +208,7 @@ typedef struct {
 	char tzname[TZNAME_MAX+1];
 } rule_struct;
 
-__UCLIBC_MUTEX_EXTERN(_time_tzlock);
+__UCLIBC_MUTEX_EXTERN(_time_tzlock) attribute_hidden;
 
 extern rule_struct _time_tzinfo[2] attribute_hidden;
 

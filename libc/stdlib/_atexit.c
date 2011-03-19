@@ -44,7 +44,7 @@
 #include <atomic.h>
 
 #include <bits/uClibc_mutex.h>
-__UCLIBC_MUTEX_EXTERN(__atexit_lock);
+__UCLIBC_MUTEX_EXTERN(__atexit_lock) attribute_hidden;
 
 
 
