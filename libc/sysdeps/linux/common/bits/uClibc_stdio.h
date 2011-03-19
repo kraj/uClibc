@@ -54,27 +54,6 @@
 #endif
 
 /**********************************************************************/
-/* Make sure defines related to large files are consistent. */
-#ifdef _LIBC
-
-#ifdef __UCLIBC_HAS_LFS__
-#undef __USE_LARGEFILE
-#undef __USE_LARGEFILE64
-#undef __USE_FILE_OFFSET64
-/* If we're actually building uClibc with large file support, only define... */
-#define __USE_LARGEFILE64	1
-#endif /* __UCLIBC_HAS_LFS__ */
-
-#else  /* not _LIBC */
-
-#ifndef __UCLIBC_HAS_LFS__
-#if defined(__LARGEFILE64_SOURCE) || defined(__USE_LARGEFILE64) || defined(__USE_FILE_OFFSET64)
-#error Sorry... uClibc was built without large file support!
-#endif
-#endif /* __UCLIBC_HAS_LFS__ */
-
-#endif /* _LIBC */
-/**********************************************************************/
 #ifdef __UCLIBC_HAS_WCHAR__
 
 #define __need_wchar_t
@@ -105,14 +84,6 @@
 #ifndef __STDIO_BUFFERS
 #undef __STDIO_GETC_MACRO
 #undef __STDIO_PUTC_MACRO
-#endif
-
-#ifdef __BCC__
-#undef __UCLIBC_HAS_LFS__
-#endif
-
-#ifndef __UCLIBC_HAS_LFS__
-#undef __UCLIBC_HAS_FOPEN_LARGEFILE_MODE__
 #endif
 
 /**********************************************************************/
