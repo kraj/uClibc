@@ -911,14 +911,7 @@ extern void funlockfile (FILE *__stream) __THROW;
 #define fputc_unlocked(_ch, _fp)     __FPUTC_UNLOCKED(_ch, _fp)
 #endif
 
-#ifndef __STDIO_GETC_MACRO
-#define __stdin stdin
-#endif
 #define getchar()                    __GETC(__stdin)
-
-#ifndef __STDIO_PUTC_MACRO
-#define __stdout stdout
-#endif
 #define putchar(_ch)                 __PUTC((_ch), __stdout)
 
 #if defined __USE_POSIX || defined __USE_MISC
