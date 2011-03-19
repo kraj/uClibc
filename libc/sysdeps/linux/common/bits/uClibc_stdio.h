@@ -211,6 +211,7 @@ typedef _IO_cookie_io_functions_t cookie_io_functions_t;
 # else
 #  include <bits/pthreadtypes.h>
 #  define __UCLIBC_IO_MUTEX(M) pthread_mutex_t M
+# endif
 #endif
 
 struct __STDIO_FILE_STRUCT {
