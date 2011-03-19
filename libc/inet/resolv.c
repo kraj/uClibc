@@ -405,7 +405,7 @@ typedef union sockaddr46_t {
 } sockaddr46_t;
 
 
-__UCLIBC_MUTEX_EXTERN(__resolv_lock);
+__UCLIBC_MUTEX_EXTERN(__resolv_lock) attribute_hidden;
 
 /* Protected by __resolv_lock */
 extern void (*__res_sync)(void) attribute_hidden;
