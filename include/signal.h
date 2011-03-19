@@ -222,6 +222,7 @@ extern int sigpause (int __mask) __THROW __attribute_deprecated__;
 /* Block signals in MASK, returning the old mask.  */
 # ifdef _LIBC
 /* collides with libc_hidden_proto: __attribute_deprecated__; */
+extern int sigblock (int __mask) __THROW;
 libc_hidden_proto(sigblock)
 # else
 extern int sigblock (int __mask) __THROW __attribute_deprecated__;
