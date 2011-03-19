@@ -39,6 +39,9 @@
 
 
 #ifdef __UCLIBC_HAS_THREADS__
+extern void __stdio_init_mutex(__UCLIBC_MUTEX_TYPE *m) attribute_hidden;
+
+extern volatile int _stdio_openlist_use_count attribute_hidden; /* _stdio_openlist_del_lock */
 #define __STDIO_OPENLIST_INC_USE			\
 do {							\
 	__STDIO_THREADLOCK_OPENLIST_DEL;		\
@@ -51,6 +54,7 @@ extern void _stdio_openlist_dec_use(void) attribute_hidden;
 #define __STDIO_OPENLIST_DEC_USE			\
 	_stdio_openlist_dec_use()
 
+extern int _stdio_openlist_del_count attribute_hidden; /* _stdio_openlist_del_lock */
 #define __STDIO_OPENLIST_INC_DEL_CNT			\
 do {							\
 	__STDIO_THREADLOCK_OPENLIST_DEL;		\
@@ -408,7 +412,7 @@ extern int __stdio_adjust_position(FILE *__restrict stream, __offmax_t *pos) att
 #ifdef NDEBUG
 #define __STDIO_STREAM_VALIDATE(S)		((void)0)
 #else
-extern void _stdio_validate_FILE(const FILE *stream);
+extern void _stdio_validate_FILE(const FILE *stream) attribute_hidden;
 #define __STDIO_STREAM_VALIDATE(S)		_stdio_validate_FILE((S))
 #endif
 
