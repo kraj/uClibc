@@ -628,11 +628,14 @@ endif
 $(eval $(call check-gcc-var,-nostdlib))
 
 # Collect all CFLAGS components
-CFLAGS := -include $(top_srcdir)include/libc-symbols.h \
-	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-nostdinc -I$(top_builddir)include -I$(top_srcdir)include -I. \
-	-I$(top_srcdir)libc/sysdeps/linux \
-	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
+CFLAGS := $(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
+	-nostdinc -I$(top_builddir)include \
+	-I$(top_srcdir)include -include libc-symbols.h \
+	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH) \
+	-I$(top_srcdir)libc/sysdeps/linux -I.
+ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
+CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
+endif
 
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
