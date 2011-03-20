@@ -113,6 +113,11 @@ _Unwind_Reason_Code
 __gcc_personality_v0 (int version, _Unwind_Action actions,
 		      _Unwind_Exception_Class exception_class,
                       struct _Unwind_Exception *ue_header,
+                      struct _Unwind_Context *context);
+_Unwind_Reason_Code
+__gcc_personality_v0 (int version, _Unwind_Action actions,
+		      _Unwind_Exception_Class exception_class,
+                      struct _Unwind_Exception *ue_header,
                       struct _Unwind_Context *context)
 {
   if (__builtin_expect (libgcc_s_handle == NULL, 0))
