@@ -12,10 +12,6 @@
 #ifndef _UCLIBC_FPMAX_H
 #define _UCLIBC_FPMAX_H
 
-#ifndef _ISOC99_SOURCE
-#define _ISOC99_SOURCE 1
-#endif
-
 #include <features.h>
 #include <float.h>
 

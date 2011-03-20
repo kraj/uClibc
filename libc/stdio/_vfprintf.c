@@ -88,7 +88,6 @@
  *   treats this as an error.
  */
 
-#define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #include <features.h>
 #include "_stdio.h"
 #include <stdlib.h>

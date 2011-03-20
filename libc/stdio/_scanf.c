@@ -43,7 +43,6 @@
  * standards and from an official C standard defect report.
  */
 
-#define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
 #include <features.h>
 #include "_stdio.h"
 #include <stdlib.h>
