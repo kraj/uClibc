@@ -185,7 +185,7 @@ void attribute_hidden __stdio_init_mutex(__UCLIBC_MUTEX_TYPE *m)
 /**********************************************************************/
 
 /* We assume here that we are the only remaining thread. */
-void attribute_hidden _stdio_term(void)
+void _stdio_term(void)
 {
 #if defined(__STDIO_BUFFERS) || defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
 	register FILE *ptr;

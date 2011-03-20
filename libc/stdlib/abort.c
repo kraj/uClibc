@@ -47,9 +47,6 @@ static __always_inline int not_null_ptr(const void *p)
 # warning "no abort instruction defined for your arch"
 #endif
 
-#ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__
-extern void weak_function _stdio_term(void) attribute_hidden;
-#endif
 static smallint been_there_done_that = 0;
 
 /* Be prepared in case multiple threads try to abort() */
