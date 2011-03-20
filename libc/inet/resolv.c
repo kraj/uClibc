@@ -2994,7 +2994,7 @@ int res_init(void)
 libc_hidden_def(res_init)
 
 #ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
-void res_close(void)
+void attribute_noreturn res_close(void)
 {
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	__close_nameservers();
@@ -3012,7 +3012,9 @@ void res_close(void)
 	}
 #endif
 	memset(&_res, 0, sizeof(_res));
-	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+	/* the loop is only to make gcc happy */
+	while(1)
+		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 }
 #endif
 

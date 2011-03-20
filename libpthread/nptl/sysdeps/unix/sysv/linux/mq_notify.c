@@ -111,7 +111,7 @@ notification_function (void *arg)
 
 
 /* Helper thread.  */
-static void *
+static attribute_noreturn void *
 helper_thread (void *arg)
 {
   while (1)
