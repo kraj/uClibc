@@ -582,11 +582,11 @@ endif
 NOSTDLIB_CFLAGS:=$(call check_gcc,-nostdlib,)
 
 # Collect all CFLAGS components
-CFLAGS := -include $(top_srcdir)include/libc-symbols.h \
-	$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-nostdinc -I$(top_builddir)include -I$(top_srcdir)include -I. \
-	-I$(top_srcdir)libc/sysdeps/linux \
-	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
+CFLAGS := $(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
+	-nostdinc -I$(top_builddir)include \
+	-I$(top_srcdir)include -include libc-symbols.h \
+	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH) \
+	-I$(top_srcdir)libc/sysdeps/linux -I.
 ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
 CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
 endif
