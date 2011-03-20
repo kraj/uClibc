@@ -714,12 +714,13 @@ else
 	PTINC  :=
 endif
 CFLAGS += -I$(top_srcdir)libc/sysdeps/linux/common
-CFLAGS += -I$(KERNEL_HEADERS)
 
 #CFLAGS += -iwithprefix include-fixed -iwithprefix include
 CC_IPREFIX := $(shell $(CC) --print-file-name=include)
 CC_INC := -isystem $(dir $(CC_IPREFIX))include-fixed -isystem $(CC_IPREFIX)
 CFLAGS += $(CC_INC)
+
+CFLAGS += -I$(KERNEL_HEADERS)
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
