@@ -5,7 +5,6 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #include "_stdio.h"
 #include <limits.h>
 #include <locale.h>

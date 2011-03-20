@@ -32,7 +32,6 @@
  * Add wscto{inttype} functions.
  */
 
-#define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #include <limits.h>
 #include <stdint.h>
 #include <stdint.h>

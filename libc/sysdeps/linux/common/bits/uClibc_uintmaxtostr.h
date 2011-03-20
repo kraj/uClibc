@@ -28,16 +28,6 @@
 #ifndef _UINTMAXTOSTR_H
 #define _UINTMAXTOSTR_H 1
 
-#ifdef _FEATURES_H
-# ifndef __USE_ISOC99
-#  error features was included without defining _ISOC99_SOURCE!
-# endif
-#else
-# ifndef _ISOC99_SOURCE
-#  define _ISOC99_SOURCE
-# endif
-#endif
-
 #include <features.h>
 #include <limits.h>
 #include <stdint.h>

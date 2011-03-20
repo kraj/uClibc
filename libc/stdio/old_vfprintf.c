@@ -127,9 +127,7 @@
 
 /**************************************************************************/
 
-#define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #include "_stdio.h"
-/* #include <stdio.h> */
 #include <stdarg.h>
 #include <limits.h>
 #include <stdint.h>
