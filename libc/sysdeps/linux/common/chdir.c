@@ -8,15 +8,7 @@
  */
 
 #include <sys/syscall.h>
-#include <string.h>
 #include <unistd.h>
-#include <sys/param.h>
 
-
-#define __NR___syscall_chdir __NR_chdir
-static __inline__ _syscall1(int, __syscall_chdir, const char *, path)
-int chdir(const char *path)
-{
-	return __syscall_chdir(path);
-}
+_syscall1(int, chdir, const char *, path)
 libc_hidden_def(chdir)
