@@ -5,7 +5,8 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "_string.h"
+#define __need_NULL
+#include <stddef.h>
 #include <libgen.h>
 
 char *dirname(char *path)
