@@ -9,11 +9,11 @@
 
 #include <sys/syscall.h>
 #include <time.h>
-#include <unistd.h>
 
 #ifdef __NR_clock_getres
 _syscall2(int, clock_getres, clockid_t, clock_id, struct timespec*, res)
 #else
+# include <unistd.h>
 
 int clock_getres(clockid_t clock_id, struct timespec* res)
 {
