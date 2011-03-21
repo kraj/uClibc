@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <sys/param.h> /* MAX */
 
 #include "malloc.h"
 #include "heap.h"
