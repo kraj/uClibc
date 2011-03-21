@@ -15,6 +15,7 @@
 */
 
 #include "malloc.h"
+#include <stdio.h>	/* fprintf */
 
 
 /* ------------------------------ mallinfo ------------------------------ */
