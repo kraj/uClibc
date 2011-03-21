@@ -5,7 +5,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "_string.h"
+#include <string.h>
 
 #ifdef __UCLIBC_SUSV3_LEGACY__
 void bzero(void *s, size_t n)
