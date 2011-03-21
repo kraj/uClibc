@@ -34,5 +34,5 @@ Wvoid *Wmemmove(Wvoid *s1, const Wvoid *s2, size_t n)
 }
 
 #ifndef WANT_WIDE
-libc_hidden_def(Wmemmove)
+libc_hidden_def(memmove)
 #endif
