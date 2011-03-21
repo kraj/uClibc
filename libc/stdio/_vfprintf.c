@@ -125,30 +125,19 @@
 /**********************************************************************/
 /* These provide some control over printf's feature set */
 
-/* This is undefined below depeding on uClibc's configuration. */
-#define __STDIO_PRINTF_FLOAT 1
+/* Now controlled by uClibc_config.h. */
+/* #define __UCLIBC_HAS_FLOATS__ 1 */
 
-/* Now controlled by uClibc_stdio.h. */
+/* Now controlled by uClibc_config.h. */
 /* #define __UCLIBC_HAS_PRINTF_M_SPEC__ */
 
 
 /**********************************************************************/
 
-#if defined(__UCLIBC__) && !defined(__UCLIBC_HAS_FLOATS__)
-# undef __STDIO_PRINTF_FLOAT
-#endif
-
-#ifdef __BCC__
-# undef __STDIO_PRINTF_FLOAT
-#endif
-
-#ifdef __STDIO_PRINTF_FLOAT
+#ifdef __UCLIBC_HAS_FLOATS__
 # include <float.h>
 # include <bits/uClibc_fpmax.h>
-#else
-# undef L__fpmaxtostr
 #endif
-
 
 #undef __STDIO_HAS_VSNPRINTF
 #if defined(__STDIO_BUFFERS) || defined(__USE_OLD_VFPRINTF__) || defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
@@ -360,7 +349,7 @@ typedef union {
 # ifdef ULLONG_MAX
 	unsigned long long ull;
 # endif
-# ifdef __STDIO_PRINTF_FLOAT
+# ifdef __UCLIBC_HAS_FLOATS__
 	double d;
 	long double ld;
 # endif
@@ -397,7 +386,7 @@ typedef struct {
 /* TODO: fix printf to return 0 and set errno if format error.  Standard says
    only returns -1 if sets error indicator for the stream. */
 
-#ifdef __STDIO_PRINTF_FLOAT
+#ifdef __UCLIBC_HAS_FLOATS__
 typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
 								intptr_t buf);
 
@@ -649,7 +638,7 @@ void attribute_hidden _ppfs_setargs(register ppfs_t *ppfs)
 					/* we're assuming wchar_t is at least an int */
 					GET_VA_ARG(p,wc,wchar_t,ppfs->arg);
 					break;
-#ifdef __STDIO_PRINTF_FLOAT
+#ifdef __UCLIBC_HAS_FLOATS__
 					/* PA_FLOAT */
 				case PA_DOUBLE:
 					GET_VA_ARG(p,d,double,ppfs->arg);
@@ -657,12 +646,12 @@ void attribute_hidden _ppfs_setargs(register ppfs_t *ppfs)
 				case (PA_DOUBLE|PA_FLAG_LONG_DOUBLE):
 					GET_VA_ARG(p,ld,long double,ppfs->arg);
 					break;
-#else  /* __STDIO_PRINTF_FLOAT */
+#else  /* __UCLIBC_HAS_FLOATS__ */
 				case PA_DOUBLE:
 				case (PA_DOUBLE|PA_FLAG_LONG_DOUBLE):
 					assert(0);
 					continue;
-#endif /* __STDIO_PRINTF_FLOAT */
+#endif /* __UCLIBC_HAS_FLOATS__ */
 				default:
 					/* TODO -- really need to ensure this can't happen */
 					assert(ppfs->argtype[i-1] & PA_FLAG_PTR);
@@ -739,7 +728,7 @@ static const short int type_codes[] = {
 	PA_INT|PA_FLAG_LONG,
 	PA_INT|PA_FLAG_LONG_LONG,
 	PA_WCHAR,
-#ifdef __STDIO_PRINTF_FLOAT
+#ifdef __UCLIBC_HAS_FLOATS__
 	/* PA_FLOAT, */
 	PA_DOUBLE,
 	PA_DOUBLE|PA_FLAG_LONG_DOUBLE,
@@ -762,7 +751,7 @@ static const unsigned char type_sizes[] = {
 	PROMOTED_SIZE_OF(long),		/* TODO -- is this correct? (above too) */
 #endif
 	PROMOTED_SIZE_OF(wchar_t),
-#ifdef __STDIO_PRINTF_FLOAT
+#ifdef __UCLIBC_HAS_FLOATS__
 	/* PROMOTED_SIZE_OF(float), */
 	PROMOTED_SIZE_OF(double),
 	PROMOTED_SIZE_OF(long double),
@@ -1195,7 +1184,7 @@ static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad);
 #define _outnstr(stream, string, len)	((len > 0) ? __stdio_fwrite((const unsigned char *)(string), len, stream) : 0)
 #define FP_OUT _fp_out_narrow
 
-#ifdef __STDIO_PRINTF_FLOAT
+#ifdef __UCLIBC_HAS_FLOATS__
 
 static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 {
@@ -1215,7 +1204,7 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 	return r + OUTNSTR(fp, (const char *) buf, len);
 }
 
-#endif /* __STDIO_PRINTF_FLOAT */
+#endif /* __UCLIBC_HAS_FLOATS__ */
 
 #else  /* L__vfprintf_internal */
 
@@ -1257,7 +1246,7 @@ static size_t _outnstr(FILE *stream, const char *s, size_t wclen)
 	return wclen - todo;
 }
 
-#ifdef __STDIO_PRINTF_FLOAT
+#ifdef __UCLIBC_HAS_FLOATS__
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Move defines from _fpmaxtostr.  Put them in a common header.
@@ -1314,7 +1303,7 @@ static size_t _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 	return r;
 }
 
-#endif /* __STDIO_PRINTF_FLOAT */
+#endif /* __UCLIBC_HAS_FLOATS__ */
 
 static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 {
@@ -1604,7 +1593,7 @@ static int _do_one_spec(FILE * __restrict stream,
 			}
 			numfill = ((numfill > SLEN) ? numfill - SLEN : 0);
 		} else if (ppfs->conv_num <= CONV_A) {	/* floating point */
-#ifdef __STDIO_PRINTF_FLOAT
+#ifdef __UCLIBC_HAS_FLOATS__
 			ssize_t nf;
 			nf = _fpmaxtostr(stream,
 							 (__fpmax_t)
@@ -1618,7 +1607,7 @@ static int _do_one_spec(FILE * __restrict stream,
 			*count += nf;
 
 			return 0;
-#else  /* __STDIO_PRINTF_FLOAT */
+#else  /* __UCLIBC_HAS_FLOATS__ */
 			return -1;			/* TODO -- try to continue? */
 #endif
 		} else if (ppfs->conv_num <= CONV_S) {	/* wide char or string */
