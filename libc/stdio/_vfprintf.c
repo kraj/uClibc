@@ -560,7 +560,7 @@ int attribute_hidden _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 		ppfs->fmtpos = fmt0;		/* rewind */
 	}
 
-#ifdef NL_MAX_ARG
+#ifdef NL_ARGMAX
 	/* If we have positional args, make sure we know all the types. */
 	{
 		register int *p = ppfs->argtype;
@@ -572,7 +572,7 @@ int attribute_hidden _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 			++p;
 		}
 	}
-#endif /* NL_MAX_ARG */
+#endif /* NL_ARGMAX */
 
 	return 0;
 }
