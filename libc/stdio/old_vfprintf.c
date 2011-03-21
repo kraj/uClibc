@@ -135,14 +135,9 @@
 #include <errno.h>
 #include <ctype.h>
 #include <bits/uClibc_uintmaxtostr.h>
-#include <printf.h>
 
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-#endif /* __UCLIBC_HAS_THREADS__ */
+#include "_fpmaxtostr.h"
 
-
-/*  #undef __UCLIBC_HAS_FLOATS__ */
 /*  #undef WANT_FLOAT_ERROR */
 /*  #define WANT_FLOAT_ERROR      1 */
 
@@ -206,14 +201,6 @@ static void putc_unlocked_sprintf(int c, __FILE_vsnprintf *f)
 #endif /* __STDIO_BUFFERS */
 
 #ifdef __UCLIBC_HAS_FLOATS__
-#include <float.h>
-#include <bits/uClibc_fpmax.h>
-
-typedef void (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
-							  intptr_t buf);
-
-extern size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
-						  __fp_outfunc_t fp_outfunc) attribute_hidden;
 
 static void _charpad(FILE * __restrict stream, int padchar, size_t numpad)
 {
