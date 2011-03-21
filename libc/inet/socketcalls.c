@@ -267,6 +267,11 @@ ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 	return result;
 #endif
 }
+#elif defined(__NR_recvfrom)
+ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
+{
+	return (recvfrom(sockfd, buffer, len, flags, NULL, NULL));
+}
 #elif defined(__NR_socketcall)
 /* recv, recvfrom added by bir7@leland.stanford.edu */
 ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
@@ -287,11 +292,6 @@ ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 	LIBC_CANCEL_RESET (oldtype);
 	return result;
 #endif
-}
-#elif defined(__NR_recvfrom)
-ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
-{
-	return (recvfrom(sockfd, buffer, len, flags, NULL, NULL));
 }
 #endif
 weak_alias(__libc_recv,recv)
@@ -407,6 +407,11 @@ ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 	return result;
 #endif
 }
+#elif defined(__NR_sendto)
+ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
+{
+	return (sendto(sockfd, buffer, len, flags, NULL, 0));
+}
 #elif defined(__NR_socketcall)
 /* send, sendto added by bir7@leland.stanford.edu */
 ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
@@ -429,11 +434,6 @@ ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 #endif
 }
 
-#elif defined(__NR_sendto)
-ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
-{
-	return (sendto(sockfd, buffer, len, flags, NULL, 0));
-}
 #endif
 weak_alias(__libc_send,send)
 libc_hidden_weak(send)
