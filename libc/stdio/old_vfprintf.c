@@ -257,9 +257,6 @@ static const char spec[] = "+-#0 ";
 
 /**********************************************************************/
 
-extern void _store_inttype(void *dest, int desttype, uintmax_t val) attribute_hidden;
-extern uintmax_t _load_inttype(int desttype, const void *src, int uflag) attribute_hidden;
-
 /*
  * In order to ease translation to what arginfo and _print_info._flags expect,
  * we map:  0:int  1:char  2:longlong 4:long  8:short

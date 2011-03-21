@@ -98,8 +98,6 @@ typedef struct {
 
 #endif
 
-extern void _store_inttype(void *dest, int desttype, uintmax_t val);
-
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
 extern unsigned long long

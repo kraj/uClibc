@@ -312,6 +312,9 @@ extern int __stdio_trans2w(FILE *__restrict stream) attribute_hidden;
 extern int __stdio_trans2r_o(FILE *__restrict stream, int oflag) attribute_hidden;
 extern int __stdio_trans2w_o(FILE *__restrict stream, int oflag) attribute_hidden;
 
+extern uintmax_t _load_inttype(int desttype, register const void *src, int uflag) attribute_hidden;
+extern void _store_inttype(void *dest, int desttype, uintmax_t val) attribute_hidden;
+
 /**********************************************************************/
 #ifdef __STDIO_BUFFERS
 

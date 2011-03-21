@@ -410,9 +410,6 @@ extern void _ppfs_prepargs(ppfs_t *ppfs, va_list arg) attribute_hidden; /* sets 
 extern void _ppfs_setargs(ppfs_t *ppfs) attribute_hidden; /* sets argptrs for current spec */
 extern int _ppfs_parsespec(ppfs_t *ppfs) attribute_hidden; /* parses specifier */
 
-extern void _store_inttype(void *dest, int desttype, uintmax_t val) attribute_hidden;
-extern uintmax_t _load_inttype(int desttype, const void *src, int uflag) attribute_hidden;
-
 /**********************************************************************/
 #ifdef L_parse_printf_format
 
