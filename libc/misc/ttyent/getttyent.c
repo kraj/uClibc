@@ -30,12 +30,11 @@
 #include <features.h>
 #include <ttyent.h>
 #include <stdio.h>
-#include <stdio_ext.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #ifdef __UCLIBC_HAS_THREADS__
-# include <pthread.h>
+# include <stdio_ext.h>
 #endif
 
 static char zapchar;
