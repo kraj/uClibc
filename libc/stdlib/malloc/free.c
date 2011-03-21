@@ -28,7 +28,7 @@
 static void
 __free_to_heap (void *mem, struct heap_free_area **heap
 #ifdef HEAP_USE_LOCKING
-		, malloc_mutex_t *heap_lock
+		, __UCLIBC_MUTEX_TYPE *heap_lock
 #endif
 	       )
 {

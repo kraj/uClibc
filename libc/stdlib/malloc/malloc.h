@@ -128,69 +128,46 @@ extern int __malloc_mmb_debug;
 /* Return the size of a malloc allocation, given the user address.  */
 #define MALLOC_SIZE(addr)	(*(size_t *)MALLOC_BASE(addr))
 
+#include <bits/uClibc_mutex.h>
 
-/* Locking for multithreaded apps.  */
 #ifdef __UCLIBC_HAS_THREADS__
-
-# include <bits/uClibc_mutex.h>
-
 # define MALLOC_USE_LOCKING
+#endif
 
-typedef __UCLIBC_MUTEX_TYPE malloc_mutex_t;
-# define MALLOC_MUTEX_INIT	__UCLIBC_MUTEX_INITIALIZER
-
-# ifdef MALLOC_USE_SBRK
+#ifdef MALLOC_USE_SBRK
 /* This lock is used to serialize uses of the `sbrk' function (in both
    malloc and free, sbrk may be used several times in succession, and
    things will break if these multiple calls are interleaved with another
    thread's use of sbrk!).  */
-extern malloc_mutex_t __malloc_sbrk_lock;
+__UCLIBC_MUTEX_EXTERN(__malloc_sbrk_lock) attribute_hidden;
 #  define __malloc_lock_sbrk()	__UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE (__malloc_sbrk_lock)
 #  define __malloc_unlock_sbrk() __UCLIBC_MUTEX_UNLOCK_CANCEL_UNSAFE (__malloc_sbrk_lock)
-# endif /* MALLOC_USE_SBRK */
-
-#else /* !__UCLIBC_HAS_THREADS__ */
-
-/* Without threads, mutex operations are a nop.  */
+#else
 # define __malloc_lock_sbrk()	(void)0
 # define __malloc_unlock_sbrk()	(void)0
-
-#endif /* __UCLIBC_HAS_THREADS__ */
-
-
-/* branch-prediction macros; they may already be defined by libc.  */
-#ifndef likely
-#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)
-#define likely(cond)	__builtin_expect(!!(int)(cond), 1)
-#define unlikely(cond)	__builtin_expect((int)(cond), 0)
-#else
-#define likely(cond)	(cond)
-#define unlikely(cond)	(cond)
-#endif
-#endif /* !likely */
-
+#endif /* MALLOC_USE_SBRK */
 
 /* Define MALLOC_DEBUGGING to cause malloc to emit debugging info to stderr
    when the variable __malloc_debug is set to true. */
 #ifdef MALLOC_DEBUGGING
 
-extern void __malloc_debug_init (void);
+extern void __malloc_debug_init (void) attribute_hidden;
 
 /* The number of spaces in a malloc debug indent level.  */
 #define MALLOC_DEBUG_INDENT_SIZE 3
 
-extern int __malloc_debug, __malloc_check;
+extern int __malloc_debug attribute_hidden, __malloc_check attribute_hidden;
 
 # define MALLOC_DEBUG(indent, fmt, args...)				      \
    (__malloc_debug ? __malloc_debug_printf (indent, fmt , ##args) : 0)
 # define MALLOC_DEBUG_INDENT(indent)					      \
    (__malloc_debug ? __malloc_debug_indent (indent) : 0)
 
-extern int __malloc_debug_cur_indent;
+extern int __malloc_debug_cur_indent attribute_hidden;
 
 /* Print FMT and args indented at the current debug print level, followed
    by a newline, and change the level by INDENT.  */
-extern void __malloc_debug_printf (int indent, const char *fmt, ...);
+extern void __malloc_debug_printf (int indent, const char *fmt, ...) attribute_hidden;
 
 /* Change the current debug print level by INDENT, and return the value.  */
 #define __malloc_debug_indent(indent) (__malloc_debug_cur_indent += indent)
@@ -220,10 +197,18 @@ extern void __malloc_debug_printf (int indent, const char *fmt, ...);
 
 
 /* The malloc heap.  */
-extern struct heap_free_area *__malloc_heap;
+extern struct heap_free_area *__malloc_heap attribute_hidden;
 #ifdef __UCLIBC_HAS_THREADS__
-extern malloc_mutex_t __malloc_heap_lock;
-#ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
-extern malloc_mutex_t __malloc_mmb_heap_lock;
-#endif
+__UCLIBC_MUTEX_EXTERN(__malloc_heap_lock)
+# ifndef __LINUXTHREADS_OLD__
+	attribute_hidden
+# endif
+	;
+# ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
+__UCLIBC_MUTEX_EXTERN(__malloc_mmb_heap_lock)
+#  ifndef __LINUXTHREADS_OLD__
+	attribute_hidden
+#  endif
+	;
+# endif
 #endif

@@ -13,18 +13,13 @@
 
 #include <features.h>
 
-
-/* On multi-threaded systems, the heap includes a lock.  */
+#include <bits/uClibc_mutex.h>
 #ifdef __UCLIBC_HAS_THREADS__
-# include <bits/uClibc_mutex.h>
 # define HEAP_USE_LOCKING
-# define __heap_lock(heap_lock) __UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE(*(heap_lock))
-# define __heap_unlock(heap_lock) __UCLIBC_MUTEX_UNLOCK_CANCEL_UNSAFE(*(heap_lock))
-#else
-# define __heap_lock(heap_lock)
-# define __heap_unlock(heap_lock)
 #endif
 
+#define __heap_lock(heap_lock) __UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE(*(heap_lock))
+#define __heap_unlock(heap_lock) __UCLIBC_MUTEX_UNLOCK_CANCEL_UNSAFE(*(heap_lock))
 
 /* The heap allocates in multiples of, and aligned to, HEAP_GRANULARITY.
    HEAP_GRANULARITY must be a power of 2.  Malloc depends on this being the
@@ -33,11 +28,9 @@
 #define HEAP_GRANULARITY	(__alignof__ (HEAP_GRANULARITY_TYPE))
 
 
-/* The HEAP_INIT macro can be used as a static initializer for a heap
-   variable.  The HEAP_INIT_WITH_FA variant is used to initialize a heap
+/* The HEAP_INIT_WITH_FA variant is used to initialize a heap
    with an initial static free-area; its argument FA should be declared
    using HEAP_DECLARE_STATIC_FREE_AREA.  */
-# define HEAP_INIT 		0
 # define HEAP_INIT_WITH_FA(fa)	&fa._fa
 
 /* A free-list area `header'.  These are actually stored at the _ends_ of
@@ -90,34 +83,21 @@ struct heap_free_area
 #define HEAP_MIN_FREE_AREA_SIZE  \
   HEAP_ADJUST_SIZE (sizeof (struct heap_free_area) + 32)
 
-
-/* branch-prediction macros; they may already be defined by libc.  */
-#ifndef likely
-#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)
-#define likely(cond)	__builtin_expect(!!(int)(cond), 1)
-#define unlikely(cond)	__builtin_expect((int)(cond), 0)
-#else
-#define likely(cond)	(cond)
-#define unlikely(cond)	(cond)
-#endif
-#endif /* !likely */
-
-
 /* Define HEAP_DEBUGGING to cause the heap routines to emit debugging info
    to stderr when the variable __heap_debug is set to true.  */
 #ifdef HEAP_DEBUGGING
-extern int __heap_debug;
+extern int __heap_debug attribute_hidden;
 #define HEAP_DEBUG(heap, str) (__heap_debug ? __heap_dump (heap, str) : 0)
 #else
 #define HEAP_DEBUG(heap, str) (void)0
 #endif
 
 /* Output a text representation of HEAP to stderr, labelling it with STR.  */
-extern void __heap_dump (struct heap_free_area *heap, const char *str);
+extern void __heap_dump (struct heap_free_area *heap, const char *str) attribute_hidden;
 
 /* Do some consistency checks on HEAP.  If they fail, output an error
    message to stderr, and exit.  STR is printed with the failure message.  */
-extern void __heap_check (struct heap_free_area *heap, const char *str);
+extern void __heap_check (struct heap_free_area *heap, const char *str) attribute_hidden;
 
 
 /* Delete the free-area FA from HEAP.  */
@@ -214,16 +194,16 @@ __heap_free_area_alloc (struct heap_free_area **heap,
 /* Allocate and return a block at least *SIZE bytes long from HEAP.
    *SIZE is adjusted to reflect the actual amount allocated (which may be
    greater than requested).  */
-extern void *__heap_alloc (struct heap_free_area **heap, size_t *size);
+extern void *__heap_alloc (struct heap_free_area **heap, size_t *size) attribute_hidden;
 
 /* Allocate SIZE bytes at address MEM in HEAP.  Return the actual size
    allocated, or 0 if we failed.  */
-extern size_t __heap_alloc_at (struct heap_free_area **heap, void *mem, size_t size);
+extern size_t __heap_alloc_at (struct heap_free_area **heap, void *mem, size_t size) attribute_hidden;
 
 /* Return the memory area MEM of size SIZE to HEAP.
    Returns the heap free area into which the memory was placed.  */
 extern struct heap_free_area *__heap_free (struct heap_free_area **heap,
-					   void *mem, size_t size);
+					   void *mem, size_t size) attribute_hidden;
 
 /* Return true if HEAP contains absolutely no memory.  */
 #define __heap_is_empty(heap) (! (heap))
