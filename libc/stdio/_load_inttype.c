@@ -8,7 +8,6 @@
 #include "_stdio.h"
 #include <printf.h>
 
-uintmax_t _load_inttype(int desttype, register const void *src, int uflag) attribute_hidden;
 uintmax_t _load_inttype(int desttype, register const void *src, int uflag)
 {
 	if (uflag >= 0) {			/* unsigned */
