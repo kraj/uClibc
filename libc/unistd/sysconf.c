@@ -982,20 +982,9 @@ long int sysconf(int name)
 #endif
 
     case _SC_MONOTONIC_CLOCK:
-#ifdef __NR_clock_getres
-    /* Check using the clock_getres system call.  */
-# ifdef __UCLIBC_HAS_THREADS_NATIVE__
-    {
-      struct timespec ts;
-      INTERNAL_SYSCALL_DECL (err);
-      int r;
-      r = INTERNAL_SYSCALL (clock_getres, err, 2, CLOCK_MONOTONIC, &ts);
-      return INTERNAL_SYSCALL_ERROR_P (r, err) ? -1 : _POSIX_VERSION;
-    }
-# elif defined __UCLIBC_HAS_REALTIME__
+#if defined __UCLIBC_HAS_REALTIME__ && defined __NR_clock_getres
       if (clock_getres(CLOCK_MONOTONIC, NULL) >= 0)
         return _POSIX_VERSION;
-# endif
 #endif
       RETURN_NEG_1;
 
