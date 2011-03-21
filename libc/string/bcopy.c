@@ -5,11 +5,9 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "_string.h"
+#include <string.h>
 
 #ifdef __UCLIBC_SUSV3_LEGACY__
-
-
 void bcopy(const void *s2, void *s1, size_t n)
 {
 #if 1
