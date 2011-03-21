@@ -501,6 +501,7 @@ config UCLIBC_HAS_THREADS_NATIVE
 	bool "Native POSIX Threading (NPTL)"
 	select UCLIBC_HAS_TLS
 	select UCLIBC_HAS_STDIO_FUTEXES
+	select UCLIBC_HAS_REALTIME
 	# i386 has no lowlevellock support (yet) as opposed to i486 onward
 	depends on !CONFIG_386
 	help
