@@ -32,10 +32,18 @@
 /* extra space for '-', '.', 'e+###', and nul */
 #define BUF_SIZE  ( 3 + NUM_DIGIT_BLOCKS * DIGITS_PER_BLOCK )
 
+/* psm: why do these internals differ? */
+#ifdef __USE_OLD_VFPRINTF__
+typedef void (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len, intptr_t buf);
+
+extern size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+			  __fp_outfunc_t fp_outfunc) attribute_hidden;
+#else
 typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len, intptr_t buf);
 
 extern ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
-					__fp_outfunc_t fp_outfunc) attribute_hidden;
+			   __fp_outfunc_t fp_outfunc) attribute_hidden;
+#endif
 
 #endif /* __UCLIBC_HAS_FLOATS__ */
 #endif /* _FPMAXTOSTR_H */
