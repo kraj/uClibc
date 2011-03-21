@@ -17,6 +17,7 @@
 #include <sys/mman.h>
 #include <malloc.h>
 
+extern int weak_function __libc_free_aligned(void *ptr) attribute_hidden;
 
 #ifdef L_malloc
 void *malloc(size_t size)
@@ -95,7 +96,6 @@ void *realloc(void *ptr, size_t size)
 #endif
 
 #ifdef L_free
-extern int weak_function __libc_free_aligned(void *ptr);
 void free(void *ptr)
 {
 	if (unlikely(ptr == NULL))
@@ -123,7 +123,7 @@ struct alignlist
 	__ptr_t aligned;	/* The address that memaligned returned.  */
 	__ptr_t exact;	/* The address that malloc returned.  */
 };
-struct alignlist *_aligned_blocks;
+static struct alignlist *_aligned_blocks;
 
 /* Return memory to the heap. */
 int __libc_free_aligned(void *ptr)
