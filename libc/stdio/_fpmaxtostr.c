@@ -1,6 +1,7 @@
-/* Copyright (C) 2004       Manuel Novoa III    <mjn3@codepoet.org>
+/*
+ * Copyright (C) 2000,2001,2003,2004	Manuel Novoa III <mjn3@codepoet.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  *
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
@@ -9,15 +10,9 @@
 #include <printf.h>
 #include <float.h>
 #include <locale.h>
-#include <bits/uClibc_fpmax.h>
+#include "_fpmaxtostr.h"
 
-
-typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
-								intptr_t buf);
-
-
-/* Copyright (C) 2000, 2001, 2003      Manuel Novoa III
- *
+/*
  * Function:
  *
  *     ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
@@ -40,7 +35,6 @@ typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
  * It should also be fairly portable, as no assumptions are made about the
  * bit-layout of doubles.  Of course, that does make it less efficient than
  * it could be.
- *
  */
 
 /*****************************************************************************/
@@ -67,9 +61,6 @@ typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
 
 #define NUM_HEX_DIGITS      ((FPMAX_MANT_DIG + 3)/ 4)
 
-/* WARNING: Adjust _fp_out_wide() below if this changes! */
-/* With 32 bit ints, we can get 9 decimal digits per block. */
-#define DIGITS_PER_BLOCK     9
 #define HEX_DIGITS_PER_BLOCK 8
 
 /* Maximum number of subcases to output double is...
@@ -87,14 +78,8 @@ typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
 
 /*****************************************************************************/
 
-#define NUM_DIGIT_BLOCKS   ((DECIMAL_DIG+DIGITS_PER_BLOCK-1)/DIGITS_PER_BLOCK)
 #define NUM_HEX_DIGIT_BLOCKS \
    ((NUM_HEX_DIGITS+HEX_DIGITS_PER_BLOCK-1)/HEX_DIGITS_PER_BLOCK)
-
-/* WARNING: Adjust _fp_out_wide() below if this changes! */
-
-/* extra space for '-', '.', 'e+###', and nul */
-#define BUF_SIZE  ( 3 + NUM_DIGIT_BLOCKS * DIGITS_PER_BLOCK )
 
 /*****************************************************************************/
 
@@ -199,8 +184,6 @@ static const __fpmax_t exp16_table[] = {
 #define FPO_STR_WIDTH   (0x80 | ' ');
 #define FPO_STR_PREC    'p'
 
-ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
-					__fp_outfunc_t fp_outfunc) attribute_hidden;
 ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 					__fp_outfunc_t fp_outfunc)
 {
