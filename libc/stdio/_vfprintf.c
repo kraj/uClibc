@@ -100,7 +100,6 @@
 #include <stdint.h>
 #include <errno.h>
 #include <locale.h>
-#include <printf.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <stdio_ext.h>
@@ -134,10 +133,7 @@
 
 /**********************************************************************/
 
-#ifdef __UCLIBC_HAS_FLOATS__
-# include <float.h>
-# include <bits/uClibc_fpmax.h>
-#endif
+#include "_fpmaxtostr.h"
 
 #undef __STDIO_HAS_VSNPRINTF
 #if defined(__STDIO_BUFFERS) || defined(__USE_OLD_VFPRINTF__) || defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
@@ -146,7 +142,7 @@
 
 /**********************************************************************/
 
-/* Now controlled by uClibc_stdio.h. */
+/* Now controlled by uClibc_config.h. */
 /* #define __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__ */
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -385,14 +381,6 @@ typedef struct {
 
 /* TODO: fix printf to return 0 and set errno if format error.  Standard says
    only returns -1 if sets error indicator for the stream. */
-
-#ifdef __UCLIBC_HAS_FLOATS__
-typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
-								intptr_t buf);
-
-extern ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
-						   __fp_outfunc_t fp_outfunc) attribute_hidden;
-#endif
 
 extern int _ppfs_init(ppfs_t *ppfs, const char *fmt0) attribute_hidden; /* validates */
 extern void _ppfs_prepargs(ppfs_t *ppfs, va_list arg) attribute_hidden; /* sets posargptrs */
@@ -1247,15 +1235,6 @@ static size_t _outnstr(FILE *stream, const char *s, size_t wclen)
 }
 
 #ifdef __UCLIBC_HAS_FLOATS__
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Move defines from _fpmaxtostr.  Put them in a common header.
-#endif
-
-/* The following defines are from _fpmaxtostr.*/
-#define DIGITS_PER_BLOCK     9
-#define NUM_DIGIT_BLOCKS   ((DECIMAL_DIG+DIGITS_PER_BLOCK-1)/DIGITS_PER_BLOCK)
-#define BUF_SIZE  ( 3 + NUM_DIGIT_BLOCKS * DIGITS_PER_BLOCK )
 
 static size_t _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 {
