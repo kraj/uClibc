@@ -45,4 +45,6 @@ extern ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 			   __fp_outfunc_t fp_outfunc) attribute_hidden;
 #endif
 
+#endif /* __UCLIBC_HAS_FLOATS__ */
+
 #endif
