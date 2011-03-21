@@ -5,7 +5,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include "_string.h"
 #include <libgen.h>
 
 char *__xpg_basename(register char *path)
@@ -34,3 +33,7 @@ char *__xpg_basename(register char *path)
 
 	return first;
 }
+#ifndef __USE_GNU
+# undef basename
+weak_alias(__xpg_basename,basename)
+#endif
