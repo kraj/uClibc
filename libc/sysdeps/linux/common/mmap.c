@@ -17,7 +17,7 @@
 # endif
 
 # define __NR__mmap __NR_mmap
-static _syscall6(void *, _mmap, void *, addr, size_t len,
+static _syscall6(void *, _mmap, void *, addr, size_t, len,
 		 int, prot, int, flags, int, fd, __off_t, offset)
 
 #elif defined __NR_mmap2 && defined _syscall6
