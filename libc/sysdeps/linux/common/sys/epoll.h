@@ -36,7 +36,6 @@ typedef __sigset_t sigset_t;
 # define __EPOLL_PACKED
 #endif
 
-
 enum EPOLL_EVENTS
   {
     EPOLLIN = 0x001,
@@ -97,7 +96,7 @@ __BEGIN_DECLS
    returned by epoll_create() should be closed with close().  */
 extern int epoll_create (int __size) __THROW;
 
-/* Same as epoll_create but with an FLAGS parameter.  The unused SIZE
+/* Same as epoll_create but with a FLAGS parameter.  The unused SIZE
    parameter has been dropped.  */
 extern int epoll_create1 (int __flags) __THROW;
 
