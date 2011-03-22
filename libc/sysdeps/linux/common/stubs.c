@@ -63,6 +63,10 @@ make_stub(epoll_ctl)
 make_stub(epoll_wait)
 #endif
 
+#ifndef __NR_epoll_pwait
+make_stub(epoll_pwait)
+#endif
+
 #ifndef __NR_fdatasync
 make_stub(fdatasync)
 #endif

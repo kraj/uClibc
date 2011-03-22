@@ -1,4 +1,4 @@
-/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2006, 2007, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -32,12 +32,12 @@ typedef __sigset_t sigset_t;
 
 
 #if 0
-/* Flags to be passed to epoll_create1.  */
+/* Flags to be passed to epoll_create2.  */
 enum
   {
-    EPOLL_CLOEXEC = 02000000,
+    EPOLL_CLOEXEC = 0x400000,
 #define EPOLL_CLOEXEC EPOLL_CLOEXEC
-    EPOLL_NONBLOCK = 04000
+    EPOLL_NONBLOCK = 0x4000
 #define EPOLL_NONBLOCK EPOLL_NONBLOCK
   };
 #endif
@@ -75,9 +75,9 @@ enum EPOLL_EVENTS
 
 
 /* Valid opcodes ( "op" parameter ) to issue to epoll_ctl().  */
-#define EPOLL_CTL_ADD 1	/* Add a file decriptor to the interface.  */
-#define EPOLL_CTL_DEL 2	/* Remove a file decriptor from the interface.  */
-#define EPOLL_CTL_MOD 3	/* Change file decriptor epoll_event structure.  */
+#define EPOLL_CTL_ADD 1	/* Add a file descriptor to the interface.  */
+#define EPOLL_CTL_DEL 2	/* Remove a file descriptor from the interface.  */
+#define EPOLL_CTL_MOD 3	/* Change file descriptor epoll_event structure.  */
 
 
 typedef union epoll_data
@@ -92,7 +92,7 @@ struct epoll_event
 {
   uint32_t events;	/* Epoll events */
   epoll_data_t data;	/* User data variable */
-} __attribute__ ((__packed__));
+};
 
 
 __BEGIN_DECLS
@@ -104,9 +104,8 @@ __BEGIN_DECLS
 extern int epoll_create (int __size) __THROW;
 
 #if 0
-/* Same as epoll_create but with an FLAGS parameter.  The unused SIZE
-   parameter has been dropped.  */
-extern int epoll_create1 (int __flags) __THROW;
+/* Same as epoll_create but with an additional FLAGS parameter.  */
+extern int epoll_create2 (int __size, int __flags) __THROW;
 #endif
 
 

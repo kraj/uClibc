@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * epoll_create() / epoll_ctl() / epoll_wait() for uClibc
+ * epoll_create() / epoll_ctl() / epoll_wait() / epoll_pwait() for uClibc
  *
  * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
@@ -10,23 +10,19 @@
 #include <sys/syscall.h>
 #include <sys/epoll.h>
 
-/*
- * epoll_create()
- */
 #ifdef __NR_epoll_create
 _syscall1(int, epoll_create, int, size)
 #endif
 
-/*
- * epoll_ctl()
- */
 #ifdef __NR_epoll_ctl
-_syscall4(int,epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event *, event)
+_syscall4(int, epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event *, event)
 #endif
 
-/*
- * epoll_wait()
- */
 #ifdef __NR_epoll_wait
 _syscall4(int, epoll_wait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout)
+#endif
+
+#ifdef __NR_epoll_pwait
+_syscall5(int, epoll_pwait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout,
+	  const sigset_t *, ss)
 #endif
