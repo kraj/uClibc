@@ -218,8 +218,7 @@ static int __check_suid(void)
  * __uClibc_main.
  */
 
-extern void __uClibc_init(void);
-libc_hidden_proto(__uClibc_init)
+extern void __uClibc_init(void) attribute_hidden;
 void __uClibc_init(void)
 {
     /* Don't recurse */
@@ -272,7 +271,6 @@ void __uClibc_init(void)
 	_stdio_init();
 
 }
-libc_hidden_def(__uClibc_init)
 
 #ifdef __UCLIBC_CTOR_DTOR__
 void attribute_hidden (*__app_fini)(void) = NULL;
