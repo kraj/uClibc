@@ -7,10 +7,10 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <errno.h>
-#include <unistd.h>
 #include <features.h>
-#include <sys/types.h>
+#define __need_size_t
+#include <stddef.h>
+#include <errno.h>
 #include <sys/syscall.h>
 
 #ifdef __NR_create_module
@@ -22,7 +22,7 @@ unsigned long create_module(const char *name, size_t size);
 static __inline__ _syscall2(long, __create_module, const char *, name, size_t, size)
 /* By checking the value of errno, we know if we have been fooled
  * by the syscall2 macro making a very high address look like a
- * negative, so we we fix it up here.  */
+ * negative, so we fix it up here.  */
 unsigned long create_module(const char *name, size_t size)
 {
 	long ret = __create_module(name, size);
