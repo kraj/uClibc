@@ -7,7 +7,7 @@
  */
 
 #include <sys/syscall.h>
-int delete_module(const char *name, unsigned int flags);
 #ifdef __NR_delete_module
+int delete_module(const char *name, unsigned int flags);
 _syscall2(int, delete_module, const char *, name, unsigned int, flags)
 #endif

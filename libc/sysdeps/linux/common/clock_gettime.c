@@ -10,11 +10,11 @@
 
 #include <sys/syscall.h>
 #include <time.h>
-#include <sys/time.h>
 
 #ifdef __NR_clock_gettime
 _syscall2(int, clock_gettime, clockid_t, clock_id, struct timespec*, tp)
 #else
+# include <sys/time.h>
 
 int clock_gettime(clockid_t clock_id, struct timespec* tp)
 {
