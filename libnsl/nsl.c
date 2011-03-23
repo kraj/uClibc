@@ -7,8 +7,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <features.h>
-
 void __stub2(void);
 void __stub2(void)
 {
