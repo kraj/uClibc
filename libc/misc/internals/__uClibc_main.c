@@ -15,9 +15,6 @@
  */
 
 #include <features.h>
-#ifndef __UCLIBC_HAS_THREADS_NATIVE__
-#define	_ERRNO_H
-#endif
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,13 +22,13 @@
 #include <link.h>
 #include <bits/uClibc_page.h>
 #include <paths.h>
-#include <unistd.h>
-#include <asm/errno.h>
+#include <errno.h>
+#include <netdb.h>
+#include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <errno.h>
 #include <pthread-functions.h>
 #include <not-cancel.h>
 #include <atomic.h>
@@ -39,6 +36,9 @@
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 #endif 
+#ifdef __UCLIBC_HAS_LOCALE__
+#include <locale.h>
+#endif
 
 #ifndef SHARED
 void *__libc_stack_end = NULL;
@@ -116,12 +116,6 @@ static __always_inline int not_null_ptr(const void *p)
 /*
  * Prototypes.
  */
-extern int *weak_const_function __errno_location(void);
-extern int *weak_const_function __h_errno_location(void);
-extern void weak_function _stdio_init(void) attribute_hidden;
-#ifdef __UCLIBC_HAS_LOCALE__
-extern void weak_function _locale_init(void) attribute_hidden;
-#endif
 #ifdef __UCLIBC_HAS_THREADS__
 #if !defined (__UCLIBC_HAS_THREADS_NATIVE__) || defined (SHARED)
 extern void weak_function __pthread_initialize_minimal(void);
