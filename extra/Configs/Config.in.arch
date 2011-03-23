@@ -10,9 +10,6 @@
 if !ARCH_USE_MMU
 choice
 	prompt "Target File Format"
-config UCLIBC_FORMAT_ELF
-	bool "ELF"
-	depends on ARCH_USE_MMU
 config UCLIBC_FORMAT_FDPIC_ELF
 	bool "FDPIC ELF"
 	depends on !ARCH_USE_MMU && (TARGET_bfin || TARGET_frv)
