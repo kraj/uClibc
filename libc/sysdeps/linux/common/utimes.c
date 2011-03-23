@@ -8,15 +8,14 @@
  */
 
 #include <sys/syscall.h>
-#include <utime.h>
 #include <sys/time.h>
-
 
 #ifdef __NR_utimes
 _syscall2(int, utimes, const char *, file, const struct timeval *, tvp)
 #else
-#include <stdlib.h>
-
+# define __need_NULL
+# include <stddef.h>
+# include <utime.h>
 
 int utimes(const char *file, const struct timeval tvp[2])
 {

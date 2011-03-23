@@ -10,13 +10,12 @@
 #include <sys/syscall.h>
 #include <utime.h>
 
-
 #ifdef __NR_utime
 _syscall2(int, utime, const char *, file, const struct utimbuf *, times)
 #else
-#include <stdlib.h>
-#include <sys/time.h>
-
+# define __need_NULL
+# include <stddef.h>
+# include <sys/time.h>
 
 int utime(const char *file, const struct utimbuf *times)
 {
