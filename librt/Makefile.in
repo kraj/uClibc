@@ -28,6 +28,7 @@ librt_filter_SRC :=
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 librt_filter_SRC += mq_notify.c timer_create.c timer_delete.c \
 	timer_getoverr.c timer_gettime.c timer_settime.c
+# these should really be guarded by ADVANCED_REALTIME, we use them in mq_send.c/mq_receive.c
 librt_SSRC := $(wildcard $(librt_DIR)/*.S)
 else
 librt_filter_SRC += clock_nanosleep.c clock_getcpuclockid.c clock_gettime.c
