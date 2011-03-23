@@ -93,7 +93,7 @@ typedef struct __uclibc_locale_struct *__locale_t;
 #ifdef _LIBC
 
 /* extern void _locale_set(const unsigned char *p); */
-/* extern void _locale_init(void); */
+extern void weak_function _locale_init(void) attribute_hidden;
 
 #include <stddef.h>
 #include <stdint.h>

@@ -252,7 +252,7 @@ void _stdio_term(void)
 }
 
 #if defined __STDIO_BUFFERS || !defined __UCLIBC__
-void attribute_hidden _stdio_init(void)
+void _stdio_init(void)
 {
 #ifdef __STDIO_BUFFERS
 	int old_errno = errno;
