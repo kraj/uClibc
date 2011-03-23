@@ -226,6 +226,8 @@ HEADERS_RM- := \
 	bits/kernel_sigaction.h \
 	bits/kernel_stat.h \
 	bits/kernel_types.h \
+	bits/libc-lock.h \
+	bits/stdio-lock.h \
 	bits/syscalls.h \
 	bits/syscalls-common.h \
 	bits/uClibc_fpmax.h \
