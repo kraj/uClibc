@@ -16,6 +16,7 @@
    Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
 #define _GNU_SOURCE 1
+#include "porting.h"
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
@@ -1060,7 +1061,7 @@ extern const char *__progname;
 #define __progname "foo"
 #endif
 
-static void
+static attribute_noreturn void
 usage (void)
 {
   fprintf (stderr,
@@ -1072,7 +1073,7 @@ usage (void)
 }
 
 
-static void
+static attribute_noreturn void
 print_all (const char *path)
 {
   register const struct conf *c;
