@@ -1230,6 +1230,7 @@ __END_DECLS
 #endif
 typedef signed smallint_type smallint;
 typedef unsigned smallint_type smalluint;
+extern size_t __pagesize attribute_hidden;
 #endif
 
 
