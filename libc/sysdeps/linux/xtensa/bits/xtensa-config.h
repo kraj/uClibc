@@ -44,10 +44,4 @@
 #undef XCHAL_NUM_AREGS
 #define XCHAL_NUM_AREGS			64
 
-/* Set a default page size.  This is currently needed when bootstrapping
-   the runtime linker.  See comments in dl-machine.h where this is used.  */
-
-#undef XCHAL_MMU_MIN_PTE_PAGE_SIZE
-#define XCHAL_MMU_MIN_PTE_PAGE_SIZE	12
-
 #endif /* !XTENSA_CONFIG_H */
