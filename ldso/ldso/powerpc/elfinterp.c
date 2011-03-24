@@ -230,12 +230,12 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	case R_PPC_ADDR32:
 	case R_PPC_GLOB_DAT:
 		*reloc_addr = finaladdr;
-		goto out_nocode; /* No code code modified */
+		goto out_nocode; /* No code modified */
 	case R_PPC_JMP_SLOT:
 	{
 		if (tpnt->dynamic_info[DT_PPC_GOT_IDX] != 0) {
 			*reloc_addr = finaladdr;
-			goto out_nocode; /* No code code modified */
+			goto out_nocode; /* No code modified */
 		} else {
 			Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
 			if (delta<<6>>6 == delta) {
@@ -271,7 +271,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				    symbol_addr, reloc_addr);
 #endif
 		_dl_memcpy((char *) reloc_addr, (char *) finaladdr, sym_ref.sym->st_size);
-		goto out_nocode; /* No code code modified */
+		goto out_nocode; /* No code modified */
 	case R_PPC_ADDR16_HA:
 		finaladdr += 0x8000; /* fall through. */
 	case R_PPC_ADDR16_HI:
@@ -310,7 +310,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		return -1;
 #endif
 	case R_PPC_NONE:
-		goto out_nocode; /* No code code modified */
+		goto out_nocode; /* No code modified */
 	default:
 		_dl_dprintf(2, "%s: can't handle reloc type ", _dl_progname);
 #if defined (__SUPPORT_LD_DEBUG__)
