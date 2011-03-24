@@ -182,7 +182,11 @@ int main(int argc, char **argv)
 	printf("\tunsigned char idx8c2wc[%d];\n", C2WC_IDX_LEN);
 	printf("\tunsigned char idx8wc2c[%d];\n", II_LEN);
 #endif
+#ifndef __metag__
 	printf("} __codeset_8_bit_t;\n\n");
+#else
+	printf("} __attribute__((__packed__)) __codeset_8_bit_t;\n\n");
+#endif /* __metag__ */
 
 	printf("#ifdef WANT_DATA\n\n");
 	printf("static const __codeset_8_bit_t codeset_8_bit[%d] = {\n", argc-1);
