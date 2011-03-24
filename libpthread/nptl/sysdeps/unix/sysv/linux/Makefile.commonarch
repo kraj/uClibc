@@ -141,6 +141,7 @@ CFLAGS-OMIT-unregister-atfork.c = -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-OMIT-getpid.c = -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-OMIT-raise.c = -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-OMIT-sleep.c = -DNOT_IN_libc -DIS_IN_libpthread
+CFLAGS-OMIT-jmp-unwind.c = -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-OMIT-libc-lowlevellock.c = -DNOT_IN_libc -DIS_IN_libpthread
 
 CFLAGS-OMIT-close.S = -DNOT_IN_libc -DIS_IN_libpthread
