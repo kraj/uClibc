@@ -101,6 +101,7 @@ TODO list for AFTER the uClibc 1.0.0 release:
     *) run 'nm -D --size-sort -t d libuClibc-0.9.26.so' and work on the
 	biggest things (i.e. stuff at the end of the list) to make
 	them smaller.
+    *) Fix dlopen/dlsym/dlclose locking to more fine grained or use RCU
     <more wishlist items here>
 
 
