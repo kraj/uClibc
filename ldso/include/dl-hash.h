@@ -166,17 +166,7 @@ extern char *_dl_find_hash(const char *name, struct r_scope_elem *scope,
 		struct elf_resolve *mytpnt, int type_class,
 		struct symbol_ref *symbol);
 
-extern int _dl_linux_dynamic_link(void);
-
 extern char * _dl_library_path;
-extern char * _dl_not_lazy;
-
-static __inline__ int _dl_symbol(char * name)
-{
-  if (name[0] != '_' || name[1] != 'd' || name[2] != 'l' || name[3] != '_')
-    return 0;
-  return 1;
-}
 
 #define LD_ERROR_NOFILE 1
 #define LD_ERROR_NOZERO 2
