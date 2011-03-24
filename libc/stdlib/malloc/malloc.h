@@ -20,8 +20,7 @@
   __alignof__ (double __attribute_aligned__ (sizeof (size_t)))
 
 /* The system pagesize... */
-extern size_t __pagesize;
-#define MALLOC_PAGE_SIZE	__pagesize
+#define MALLOC_PAGE_SIZE	sysconf(_SC_PAGESIZE)
 
 /* The minimum size of block we request from the the system to extend the
    heap for small allocations (we may request a bigger block if necessary to
