@@ -32,3 +32,4 @@ _longjmp_unwind (jmp_buf env, int val)
 		      (env->__jmpbuf, __builtin_frame_address (0)),
 		      (void) 0);
 }
+libc_hidden_def(_longjmp_unwind)
