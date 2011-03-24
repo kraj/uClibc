@@ -44,7 +44,7 @@
 /* Function to get address of global `errno' variable.  */
 extern int *__errno_location (void) __THROW __attribute__ ((__const__));
 #  ifdef _LIBC
-#   ifndef __UCLIBC_HAS_THREADS__
+#   ifndef __UCLIBC_HAS_TLS__
 extern int weak_const_function *__errno_location(void);
 #   endif
 #  endif

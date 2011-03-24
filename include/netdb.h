@@ -60,7 +60,7 @@ __BEGIN_DECLS
 /* Function to get address of global `h_errno' variable.  */
 extern int *__h_errno_location (void) __THROW __attribute__ ((__const__));
 #ifdef _LIBC
-# ifndef __UCLIBC_HAS_THREADS__
+# ifndef __UCLIBC_HAS_TLS__
 extern int weak_const_function *__h_errno_location(void);
 # endif
 #endif

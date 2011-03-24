@@ -7,7 +7,7 @@
 
 subdirs += libc/misc/internals
 
-CSRC := tempname.c errno.c __errno_location.c __h_errno_location.c \
+CSRC := tempname.c errno.c h_errno.c __errno_location.c __h_errno_location.c \
 	parse_config.c
 
 MISC_INTERNALS_DIR := $(top_srcdir)libc/misc/internals
