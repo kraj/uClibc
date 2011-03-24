@@ -39,8 +39,6 @@ extern struct elf_resolve * _dl_load_shared_library(unsigned rflags,
 	int trace_loaded_objects);
 extern struct elf_resolve * _dl_load_elf_shared_library(unsigned rflags,
 	struct dyn_elf **rpnt, const char *libname);
-extern struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libname,
-	int trace_loaded_objects);
 extern int _dl_linux_resolve(void);
 extern int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int flag);
 extern void _dl_protect_relro (struct elf_resolve *l);
