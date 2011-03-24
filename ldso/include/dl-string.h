@@ -19,25 +19,11 @@
 # define do_div_10(result, remain) ((result) /= 10)
 #endif
 
-static size_t _dl_strlen(const char *str);
-static char *_dl_strcat(char *dst, const char *src);
-static char *_dl_strcpy(char *dst, const char *src);
-static int _dl_strcmp(const char *s1, const char *s2);
-static int _dl_strncmp(const char *s1, const char *s2, size_t len);
-static char *_dl_strchr(const char *str, int c);
-static char *_dl_strrchr(const char *str, int c);
-static char *_dl_strstr(const char *s1, const char *s2);
-static void *_dl_memcpy(void *dst, const void *src, size_t len);
-static int _dl_memcmp(const void *s1, const void *s2, size_t len);
-static void *_dl_memset(void *str, int c, size_t len);
-static char *_dl_get_last_path_component(char *path);
-static char *_dl_simple_ltoa(char *local, unsigned long i);
-static char *_dl_simple_ltoahex(char *local, unsigned long i);
-
 #ifndef NULL
 #define NULL ((void *) 0)
 #endif
 
+#ifndef IS_IN_libdl
 static __always_inline size_t _dl_strlen(const char *str)
 {
 	register const char *ptr = (char *) str-1;
@@ -81,22 +67,6 @@ static __always_inline int _dl_strcmp(const char *s1, const char *s2)
 			return c1 - c2;
 	} while (c1 == c2);
 
-	return c1 - c2;
-}
-
-static __always_inline int _dl_strncmp(const char *s1, const char *s2, size_t len)
-{
-	register unsigned char c1 = '\0';
-	register unsigned char c2 = '\0';
-
-	s1--;s2--;
-	while (len > 0) {
-		c1 = (unsigned char) *++s1;
-		c2 = (unsigned char) *++s2;
-		if (c1 == '\0' || c1 != c2)
-			return c1 - c2;
-		len--;
-	}
 	return c1 - c2;
 }
 
@@ -228,6 +198,17 @@ static __always_inline char * _dl_get_last_path_component(char *path)
 		;/* empty */
 	return ptr == path ? ptr : ptr+1;
 }
+#else /* IS_IN_libdl */
+# define _dl_strlen strlen
+# define _dl_strcat strcat
+# define _dl_strcpy strcpy
+# define _dl_strcmp strcmp
+# define _dl_strrchr strrchr
+# define _dl_strstr strstr
+# define _dl_memcpy memcpy
+# define _dl_memcmp memcmp
+# define _dl_memset memset
+#endif /* IS_IN_libdl */
 
 /* Early on, we can't call printf, so use this to print out
  * numbers using the SEND_STDERR() macro.  Avoid using mod

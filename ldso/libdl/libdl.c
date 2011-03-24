@@ -32,7 +32,7 @@
 
 #include <ldso.h>
 #include <stdio.h>
-#include <string.h> /* Needed for 'strstr' prototype' */
+#include <string.h>
 #include <stdbool.h>
 #include <bits/uClibc_mutex.h>
 
@@ -393,7 +393,7 @@ static void *do_dlopen(const char *libname, int flag)
 		return NULL;
 	}
 	dyn_chain = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
-	_dl_memset(dyn_chain, 0, sizeof(struct dyn_elf));
+	memset(dyn_chain, 0, sizeof(struct dyn_elf));
 	dyn_chain->dyn = tpnt;
 	tpnt->rtld_flags |= (flag & RTLD_GLOBAL);
 
@@ -444,7 +444,7 @@ static void *do_dlopen(const char *libname, int flag)
 
 				/* This list is for dlsym() and relocation */
 				dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
-				_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
+				memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
 				dyn_ptr = dyn_ptr->next;
 				dyn_ptr->dyn = tpnt1;
 				/* Used to record RTLD_LOCAL scope */
