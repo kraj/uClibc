@@ -1196,6 +1196,9 @@ libc_hidden_proto(__iconv_codesets)
 #endif
 
 #if defined L_iconv || defined L_iconv_main
+# ifdef L_iconv_main
+static
+# endif
 const unsigned char __iconv_codesets[] =
 	"\x0a\xe0""WCHAR_T\x00"		/* superset of UCS-4 but platform-endian */
 #if __BYTE_ORDER == __BIG_ENDIAN

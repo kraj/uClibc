@@ -108,7 +108,12 @@
 #include <wchar.h>
 #include "wchar.c" /* for _UC_iconv_t and __iconv_codesets */
 
-extern const unsigned char __iconv_codesets[];
+#ifdef L_iconv_main
+static
+#else
+extern
+#endif
+const unsigned char __iconv_codesets[];
 
 #define IBUF BUFSIZ
 #define OBUF BUFSIZ
