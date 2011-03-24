@@ -224,7 +224,7 @@ static int check_elf_header(ElfW(Ehdr) *const ehdr)
 	}
 
 	/* Check if the target endianness matches the host's endianness */
-	byteswap = (ehdr->e_ident[5] == ELFDATAM) ? 0 : 1;
+	byteswap = !(ehdr->e_ident[5] == ELFDATAM);
 
 	/* Be very lazy, and only byteswap the stuff we use */
 	if (byteswap) {
