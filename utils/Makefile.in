@@ -36,8 +36,7 @@ CFLAGS-ldd := $(CFLAGS-utils-shared) -DBUILDING_LINKAGE
 # Need CFLAGS-utils explicitly, because the source file is not located in utils
 CFLAGS-iconv := $(CFLAGS-utils) \
     $(CFLAGS-utils-shared) \
-    -I$(top_srcdir)libc/misc/wchar \
-    -DL_iconv_main \
+    -I$(top_srcdir)libc/misc/wchar
 
 CFLAGS-locale := $(CFLAGS-utils)
 CFLAGS-getconf :=$(CFLAGS-utils) \
