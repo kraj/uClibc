@@ -57,8 +57,6 @@ struct exec {
 /* Code indicating core file.  */
 #define CMAGIC 0421
 
-char *___strtok = NULL;
-
 char *prog = NULL;
 int debug = 0;			/* debug mode */
 int verbose = 0;		/* verbose mode */
@@ -96,6 +94,7 @@ struct needed_tab needed_tab[] = {
 extern char *chroot_realpath(const char *chroot, const char *path,
 			     char resolved_path[]);
 
+#if defined __UCLIBC_STATIC_LDCONFIG__ || !defined __UCLIBC_HAS_BSD_ERR__
 /* These two are used internally -- you shouldn't need to use them */
 static void verror_msg(const char *s, va_list p)
 {
@@ -114,8 +113,7 @@ static void warnx(const char *s, ...)
 	fprintf(stderr, "\n");
 }
 
-static void err(int errnum, const char *s, ...) attribute_noreturn;
-static void err(int errnum, const char *s, ...)
+static attribute_noreturn void err(int errnum, const char *s, ...)
 {
 	va_list p;
 
@@ -146,6 +144,9 @@ static void warn(const char *s, ...)
 	vperror_msg(s, p);
 	va_end(p);
 }
+#else
+# include <err.h>
+#endif
 
 static void *xmalloc(size_t size)
 {
@@ -257,10 +258,10 @@ static char *is_shlib(const char *dir, const char *name, int *type,
 				 && N_MAGIC_SWAP(exec) != QMAGIC) {
 					elf_hdr = (ElfW(Ehdr) *) & exec;
 					if (elf_hdr->e_ident[0] != 0x7f ||
-					    strncmp((char *)elf_hdr->e_ident + 1, "ELF", 3) != 0)
+					    strncmp((const char *)elf_hdr->e_ident + 1, "ELF", 3) != 0)
 					{
 						/* silently ignore linker scripts */
-						if (strncmp((char *)&exec, "/* GNU ld", 9) != 0)
+						if (strncmp((const char *)&exec, "/* GNU ld", 9) != 0)
 							warnx("%s is not a shared library, skipping", buff);
 					} else {
 						/* always call readsoname to update type */
@@ -282,7 +283,7 @@ static char *is_shlib(const char *dir, const char *name, int *type,
 							/* if the soname does not match the filename,
 							   issue a warning, but only in debug mode. */
 							int len = strlen(good);
-							if (debug && (strncmp(good, name, len) != 0
+							if (debug && (strncmp((const char *)good, name, len) != 0
 							    || (name[len] != '\0' && name[len] != '.')))
 								warnx("%s has inconsistent soname (%s)", buff, good);
 						}
@@ -784,8 +785,7 @@ void cache_print(void)
 }
 #endif
 
-static void usage(void) attribute_noreturn;
-static void usage(void)
+static attribute_noreturn void usage(void)
 {
 	fprintf(stderr,
 #ifdef __LDSO_CACHE_SUPPORT__
