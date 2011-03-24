@@ -21,10 +21,8 @@
 #ifndef _UCLIBC_PAGE_H
 #define _UCLIBC_PAGE_H
 
-#include <bits/xtensa-config.h>
-
 /* PAGE_SHIFT determines the page size -- in this case 4096 */
-#define PAGE_SHIFT	XCHAL_MMU_MIN_PTE_PAGE_SIZE
+#define PAGE_SHIFT	12
 #define PAGE_SIZE	(1UL << PAGE_SHIFT)
 #define PAGE_MASK	(~(PAGE_SIZE-1))
 
