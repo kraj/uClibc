@@ -37,3 +37,4 @@ _longjmp_unwind (jmp_buf env, int val)
     __pthread_cleanup_upto (env->__jmpbuf, CURRENT_STACK_FRAME);
 #endif
 }
+libc_hidden_def(_longjmp_unwind)
