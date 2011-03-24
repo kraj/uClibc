@@ -196,12 +196,12 @@
 # define _strong_alias_untyped(name, aliasname) \
   extern __typeof (aliasname) aliasname __attribute__ ((alias (#name)));
 
+# ifdef HAVE_WEAK_SYMBOLS
+
 /* This comes between the return type and function name in
    a function definition to make that definition weak.  */
-# define weak_function __attribute__ ((weak))
-# define weak_const_function __attribute__ ((weak, __const__))
-
-# ifdef HAVE_WEAK_SYMBOLS
+#  define weak_function __attribute__ ((weak))
+#  define weak_const_function __attribute__ ((weak, __const__))
 
 /* Define ALIASNAME as a weak alias for NAME.
    If weak aliases are not available, this defines a strong alias.  */
@@ -214,6 +214,9 @@
 #  define _weak_extern(expr) _Pragma (#expr)
 
 # else
+
+#  define weak_function /* empty */
+#  define weak_const_function __attribute__ ((__const__))
 
 #  define weak_alias(name, aliasname) strong_alias(name, aliasname)
 #  define weak_extern(symbol) /* Nothing. */
