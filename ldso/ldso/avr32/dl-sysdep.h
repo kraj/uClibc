@@ -35,8 +35,6 @@
 			GOT_BASE[_i] += (unsigned long)MODULE->loadaddr;	\
 	} while (0)
 
-#define do_rem(result, n, base)	((result) = (n) % (base))
-
 /* Here we define the magic numbers that this dynamic loader should accept */
 #define MAGIC1 EM_AVR32
 #undef MAGIC2
