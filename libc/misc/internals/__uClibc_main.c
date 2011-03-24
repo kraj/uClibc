@@ -25,9 +25,9 @@
 #include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
+#ifndef __ARCH_HAS_NO_LDSO__
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/sysmacros.h>
+#endif
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <pthread-functions.h>
 #include <not-cancel.h>
@@ -157,7 +157,6 @@ weak_alias (program_invocation_name, __progname_full)
 char **__environ = 0;
 weak_alias(__environ, environ)
 
-/* TODO: don't export __pagesize; we cant now because libpthread uses it */
 size_t __pagesize = 0;
 
 #ifndef O_NOFOLLOW
