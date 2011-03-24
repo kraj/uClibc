@@ -106,7 +106,7 @@
 #include <iconv.h>
 #include <stdarg.h>
 #include <wchar.h>
-#include "wchar.c" /* for _UC_iconv_t and __LOCALE_DATA_CODESET_LIST */
+#include "wchar.c" /* for _UC_iconv_t and __iconv_codesets */
 
 extern const unsigned char __iconv_codesets[];
 
