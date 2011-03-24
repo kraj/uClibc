@@ -269,7 +269,7 @@ remove_slotinfo(size_t idx, struct dtv_slotinfo_list *listp, size_t disp,
 #endif
 
 #ifndef __LDSO_NO_CLEANUP__
-void dl_cleanup(void) __attribute__ ((destructor));
+void dl_cleanup(void) attribute_hidden __attribute__ ((destructor));
 void dl_cleanup(void)
 {
 	struct dyn_elf *h, *n;
