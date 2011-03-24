@@ -335,7 +335,7 @@ static void *do_dlopen(const char *libname, int flag)
 # ifdef __SUPPORT_LD_DEBUG__
 	_dl_debug = getenv("LD_DEBUG");
 	if (_dl_debug) {
-		if (_dl_strstr(_dl_debug, "all")) {
+		if (strstr(_dl_debug, "all")) {
 			_dl_debug_detail = _dl_debug_move = _dl_debug_symbols
 				= _dl_debug_reloc = _dl_debug_bindings = _dl_debug_nofixups = (void*)1;
 		} else {
