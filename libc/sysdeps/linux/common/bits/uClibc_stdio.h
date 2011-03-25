@@ -205,6 +205,7 @@ typedef _IO_cookie_io_functions_t cookie_io_functions_t;
 /**********************************************************************/
 
 #if defined __UCLIBC_HAS_THREADS__ && !defined __UCLIBC_IO_MUTEX
+/* keep this in sync with uClibc_mutex.h */
 # ifdef __USE_STDIO_FUTEXES__
 #  include <bits/stdio-lock.h>
 #  define __UCLIBC_IO_MUTEX(M) _IO_lock_t M
