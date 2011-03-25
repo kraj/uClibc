@@ -1635,7 +1635,7 @@ int __read_etc_hosts_r(
 	parser->line_len = buflen - aliaslen;
 	*h_errnop = HOST_NOT_FOUND;
 	/* <ip>[[:space:]][<aliases>] */
-	while (config_read(parser, &tok, MAXTOKENS, MINTOKENS, "# \t", PARSE_NORMAL)) {
+	while (config_read6(parser, &tok, MAXTOKENS, MINTOKENS, "# \t", PARSE_NORMAL)) {
 		result_buf->h_aliases = alias = host_aliases = tok+1;
 		if (action == GETHOSTENT) {
 			/* Return whatever the next entry happens to be. */

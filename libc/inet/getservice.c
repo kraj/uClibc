@@ -87,7 +87,7 @@ int getservent_r(struct servent *result_buf,
 	servp->data_len = aliaslen;
 	servp->line_len = buflen - aliaslen;
 	/* <name>[[:space:]]<port>/<proto>[[:space:]][<aliases>] */
-	if (!config_read(servp, &tok, MAXTOKENS - 1, MINTOKENS, "# \t/", PARSE_NORMAL)) {
+	if (!config_read6(servp, &tok, MAXTOKENS - 1, MINTOKENS, "# \t/", PARSE_NORMAL)) {
 		goto DONE;
 	}
 	result_buf->s_name = *(tok++);

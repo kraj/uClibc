@@ -85,7 +85,7 @@ int getprotoent_r(struct protoent *result_buf,
 	protop->data_len = aliaslen;
 	protop->line_len = buflen - aliaslen;
 	/* <name>[[:space:]]<protonumber>[[:space:]][<aliases>] */
-	if (!config_read(protop, &tok, MAXTOKENS - 1, MINTOKENS, "# \t/", PARSE_NORMAL)) {
+	if (!config_read6(protop, &tok, MAXTOKENS - 1, MINTOKENS, "# \t/", PARSE_NORMAL)) {
 		goto DONE;
 	}
 	result_buf->p_name = *(tok++);

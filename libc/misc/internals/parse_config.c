@@ -28,7 +28,7 @@ int parse_main(int argc UNUSED_PARAM, char **argv)
 		if (p) {
 			int n;
 			char **t = xmalloc(sizeof(char *) * ntokens);
-			while ((n = config_read(p, t, ntokens, mintokens, delims, flags)) != 0) {
+			while ((n = config_read6(p, t, ntokens, mintokens, delims, flags)) != 0) {
 				for (int i = 0; i < n; ++i)
 					printf("[%s]", t[i]);
 				puts("");
@@ -101,7 +101,7 @@ Typical usage:
 	parser_t *p = config_open(filename);
 	if (p) {
 		// parse line-by-line
-		while (config_read(p, t, 3, 0, delimiters, flags)) { // 1..3 tokens
+		while (config_read6(p, t, 3, 0, delimiters, flags)) { // 1..3 tokens
 			// use tokens
 			bb_error_msg("TOKENS: [%s][%s][%s]", t[0], t[1], t[2]);
 		}
@@ -175,9 +175,8 @@ void FAST_FUNC config_close(parser_t *parser)
 mintokens > 0 make config_read() print error message if less than mintokens
 (but more than 0) are found. Empty lines are always skipped (not warned about).
 */
-#undef config_read
 int FAST_FUNC config_read(parser_t *parser, char ***tokens,
-											unsigned flags, const char *delims)
+			  unsigned flags, const char *delims)
 {
 	char *line;
 	int ntokens, mintokens;

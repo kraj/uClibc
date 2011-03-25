@@ -51,7 +51,7 @@ static int nprocessors_onln(void)
 	int ret = 0;
 
 	if (p) {
-		while (config_read(p, &l, 2, 1, " ", 0))
+		while (config_read6(p, &l, 2, 1, " ", 0))
 			if (l[0][0] == 'c'
 				&& l[0][1] == 'p'
 				&& l[0][2] == 'u'
@@ -59,13 +59,13 @@ static int nprocessors_onln(void)
 				++ret;
 	} else if ((p = config_open("/proc/cpuinfo"))) {
 #if defined __sparc__
-		while (config_read(p, &l, 2, 2, "\0:", PARSE_NORMAL))
+		while (config_read6(p, &l, 2, 2, "\0:", PARSE_NORMAL))
 			if (strncmp("ncpus active", l[0], 12) == 0) {
 				ret = atoi(l[1]);
 				break;
 			}
 #else
-		while (config_read(p, &l, 2, 2, "\0:\t", PARSE_NORMAL))
+		while (config_read6(p, &l, 2, 2, "\0:\t", PARSE_NORMAL))
 			if (strcmp("processor", l[0]) == 0)
 				++ret;
 #endif
@@ -100,7 +100,7 @@ static int nprocessors_conf(void)
 #if defined __sparc__
 		char **l = NULL;
 		parser_t *p = config_open("/proc/stat");
-		while (config_read(p, &l, 2, 2, "\0:", PARSE_NORMAL))
+		while (config_read6(p, &l, 2, 2, "\0:", PARSE_NORMAL))
 			if (strncmp("ncpus probed", l[0], 13) == 0) {
 				ret = atoi(l[1]);
 				break;

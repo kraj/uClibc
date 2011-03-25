@@ -47,7 +47,7 @@ typedef struct parser_t {
 
 parser_t* config_open(const char *filename) FAST_FUNC attribute_hidden;
 int config_read(parser_t *parser, char ***tokens, unsigned flags, const char *delims) FAST_FUNC attribute_hidden;
-#define config_read(parser, tokens, max, min, str, flags) \
+#define config_read6(parser, tokens, max, min, str, flags) \
 	config_read(parser, tokens, ((flags) | (((min) & 0xFF) << 8) | ((max) & 0xFF)), str)
 void config_close(parser_t *parser) FAST_FUNC attribute_hidden;
 

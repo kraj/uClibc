@@ -52,7 +52,7 @@ static void __setusershell(void)
 		char **shell = NULL;
 		int pos = 0;
 
-		while (config_read(shellp, &shell, 1, 1, "# \t", PARSE_NORMAL))
+		while (config_read6(shellp, &shell, 1, 1, "# \t", PARSE_NORMAL))
 		{
 			shellb = realloc(shellb, (pos + 2) * sizeof(char*));
 			shells = (char**) shellb + pos++;

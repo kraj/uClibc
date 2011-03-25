@@ -86,7 +86,7 @@ int getnetent_r(struct netent *result_buf,
 	netp->data_len = aliaslen;
 	netp->line_len = buflen - aliaslen;
 	/* <name>[[:space:]]<netnumber>[[:space:]][<aliases>] */
-	if (!config_read(netp, &tok, MAXTOKENS-1, MINTOKENS, "# \t/", PARSE_NORMAL)) {
+	if (!config_read6(netp, &tok, MAXTOKENS-1, MINTOKENS, "# \t/", PARSE_NORMAL)) {
 		goto DONE;
 	}
 	result_buf->n_name = *(tok++);
