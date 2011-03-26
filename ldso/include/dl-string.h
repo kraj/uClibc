@@ -142,7 +142,7 @@ static __always_inline int _dl_memcmp(const void *s1, const void *s2, size_t len
 	return 0;
 }
 
-#if defined(powerpc)
+#if defined(__powerpc__)
 /* Will generate smaller and faster code due to loop unrolling.*/
 static __always_inline void * _dl_memset(void *to, int c, size_t n)
 {
