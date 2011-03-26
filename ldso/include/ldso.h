@@ -5,8 +5,8 @@
  * GNU Lesser General Public License version 2.1 or later.
  */
 
-#ifndef _LDSO_H_
-#define _LDSO_H_
+#ifndef _LDSO_H
+#define _LDSO_H
 
 #include <features.h>
 
@@ -156,4 +156,4 @@ extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load
 #include <dl-defs.h>
 #endif
 
-#endif /* _LDSO_H_ */
+#endif /* _LDSO_H */
