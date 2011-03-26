@@ -5,8 +5,8 @@
  * GNU Lesser General Public License version 2.1 or later.
  */
 
-#ifndef _LD_DEFS_H
-#define _LD_DEFS_H
+#ifndef _DL_DEFS_H
+#define _DL_DEFS_H
 
 #define FLAG_ANY             -1
 #define FLAG_TYPE_MASK       0x00ff
@@ -71,6 +71,9 @@ typedef struct {
 #endif	/* __LDSO_CACHE_SUPPORT__ */
 
 #endif
+
+/* arch specific defines */
+#include <dl-sysdep.h>
 
 /* Provide a means for a port to pass additional arguments to the _dl_start
    function.  */
@@ -251,4 +254,4 @@ typedef struct {
 # define DL_MAP_SEGMENT(EPNT, PPNT, INFILE, FLAGS) 0
 #endif
 
-#endif	/* _LD_DEFS_H */
+#endif	/* _DL_DEFS_H */
