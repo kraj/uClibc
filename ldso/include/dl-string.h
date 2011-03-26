@@ -23,7 +23,7 @@
 #define NULL ((void *) 0)
 #endif
 
-#ifndef IS_IN_libdl
+#ifdef IS_IN_rtld
 static __always_inline size_t _dl_strlen(const char *str)
 {
 	register const char *ptr = (char *) str-1;
@@ -198,7 +198,8 @@ static __always_inline char * _dl_get_last_path_component(char *path)
 		;/* empty */
 	return ptr == path ? ptr : ptr+1;
 }
-#else /* IS_IN_libdl */
+#else /* IS_IN_rtld */
+# include <string.h>
 # define _dl_strlen strlen
 # define _dl_strcat strcat
 # define _dl_strcpy strcpy
@@ -207,8 +208,9 @@ static __always_inline char * _dl_get_last_path_component(char *path)
 # define _dl_memcpy memcpy
 # define _dl_memcmp memcmp
 # define _dl_memset memset
-#endif /* IS_IN_libdl */
+#endif /* IS_IN_rtld */
 
+#if defined IS_IN_rtld || defined __SUPPORT_LD_DEBUG__
 /* Early on, we can't call printf, so use this to print out
  * numbers using the SEND_STDERR() macro.  Avoid using mod
  * or using long division */
@@ -226,7 +228,9 @@ static __always_inline char * _dl_simple_ltoa(char *local, unsigned long i)
 	} while (i > 0);
 	return p;
 }
+#endif
 
+#ifdef IS_IN_rtld
 static __always_inline char * _dl_simple_ltoahex(char *local, unsigned long i)
 {
 	/* 16 digits plus a leading "0x" plus a null terminator,
@@ -245,9 +249,6 @@ static __always_inline char * _dl_simple_ltoahex(char *local, unsigned long i)
 	*--p = '0';
 	return p;
 }
-
-
-
 
 /* The following macros may be used in dl-startup.c to debug
  * ldso before ldso has fixed itself up to make function calls */
@@ -341,5 +342,7 @@ static __always_inline char * _dl_simple_ltoahex(char *local, unsigned long i)
 # define SEND_NUMBER_STDERR_DEBUG(X, add_a_newline)
 # define SEND_ADDRESS_STDERR_DEBUG(X, add_a_newline)
 #endif
+
+#endif /* IS_IN_rtld */
 
 #endif
