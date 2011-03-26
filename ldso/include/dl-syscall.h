@@ -5,8 +5,8 @@
  * GNU Lesser General Public License version 2.1 or later.
  */
 
-#ifndef _LD_SYSCALL_H_
-#define _LD_SYSCALL_H_
+#ifndef _DL_SYSCALL_H
+#define _DL_SYSCALL_H
 
 /* We can't use the real errno in ldso, since it has not yet
  * been dynamicly linked in yet. */
@@ -187,4 +187,4 @@ void *_dl_mmap(void *addr, unsigned long size, int prot,
 #endif
 }
 
-#endif /* _LD_SYSCALL_H_ */
+#endif /* _DL_SYSCALL_H */

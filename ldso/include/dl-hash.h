@@ -5,8 +5,8 @@
  * GNU Lesser General Public License version 2.1 or later.
  */
 
-#ifndef _LD_HASH_H_
-#define _LD_HASH_H_
+#ifndef _DL_HASH_H
+#define _DL_HASH_H
 
 #ifndef RTLD_NEXT
 #define RTLD_NEXT	((void*)-1)
@@ -180,4 +180,4 @@ extern char * _dl_library_path;
 #define LD_BAD_HANDLE 10
 #define LD_NO_SYMBOL 11
 
-#endif /* _LD_HASH_H_ */
+#endif /* _DL_HASH_H */
