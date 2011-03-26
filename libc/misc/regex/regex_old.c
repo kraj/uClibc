@@ -25,16 +25,17 @@
 #include <features.h>
 /* unistd.h must be included with _LIBC defined: we need smallint */
 #include <unistd.h>
+#include <stdio.h>
 #ifdef __UCLIBC__
 # undef _LIBC
 # define _REGEX_RE_COMP
 # define STDC_HEADERS
-# define RE_TRANSLATE_TYPE char *
+# define __RE_TRANSLATE_TYPE char *
+# define RE_TRANSLATE_TYPE __RE_TRANSLATE_TYPE
 #endif
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <stdio.h>
 
 /* AIX requires this to be the first thing in the file. */
 #if defined _AIX && !defined REGEX_MALLOC
@@ -175,6 +176,7 @@ char *realloc ();
 
 /* Get the interface, including the syntax bits.  */
 # include <regex.h>
+# define translate __REPB_PREFIX(translate)
 
 /* isalpha etc. are used for the character classes.  */
 # include <ctype.h>
@@ -1894,7 +1896,7 @@ static boolean PREFIX(at_endline_loc_p) (const CHAR_T *p,
 static reg_errcode_t wcs_compile_range (CHAR_T range_start,
 						  const CHAR_T **p_ptr,
 						  const CHAR_T *pend,
-						  char *translate,
+						  __RE_TRANSLATE_TYPE translate,
 						  reg_syntax_t syntax,
 						  UCHAR_T *b,
 						  CHAR_T *char_set);
@@ -1903,7 +1905,7 @@ static void insert_space (int num, CHAR_T *loc, CHAR_T *end);
 static reg_errcode_t byte_compile_range (unsigned int range_start,
 						   const char **p_ptr,
 						   const char *pend,
-						   char *translate,
+						   __RE_TRANSLATE_TYPE translate,
 						   reg_syntax_t syntax,
 						   unsigned char *b);
 # endif /* WCHAR */
@@ -2336,7 +2338,7 @@ PREFIX(regex_compile) (
 #endif /* WCHAR */
 
   /* How to translate the characters in the pattern.  */
-  RE_TRANSLATE_TYPE translate = bufp->translate;
+  __RE_TRANSLATE_TYPE translate = bufp->translate;
 
   /* Address of the count-byte of the most recently inserted `exactn'
      command.  This makes it possible to tell if a new exact-match
@@ -4400,7 +4402,7 @@ static reg_errcode_t
 wcs_compile_range (
      CHAR_T range_start_char,
      const CHAR_T **p_ptr, const CHAR_T *pend,
-     RE_TRANSLATE_TYPE translate,
+     __RE_TRANSLATE_TYPE translate,
      reg_syntax_t syntax,
      CHAR_T *b, CHAR_T *char_set)
 {
@@ -4486,7 +4488,7 @@ static reg_errcode_t
 byte_compile_range (
      unsigned int range_start_char,
      const char **p_ptr, const char *pend,
-     RE_TRANSLATE_TYPE translate,
+     __RE_TRANSLATE_TYPE translate,
      reg_syntax_t syntax,
      unsigned char *b)
 {
@@ -5058,7 +5060,7 @@ PREFIX(re_search_2) (
 {
   int val;
   register char *fastmap = bufp->fastmap;
-  register RE_TRANSLATE_TYPE translate = bufp->translate;
+  register __RE_TRANSLATE_TYPE translate = bufp->translate;
   int total_size = size1 + size2;
   int endpos = startpos + range;
 #ifdef WCHAR
@@ -5475,7 +5477,7 @@ static boolean PREFIX(common_op_match_null_string_p) (UCHAR_T **p,
 							UCHAR_T *end,
 					PREFIX(register_info_type) *reg_info);
 static int PREFIX(bcmp_translate) (const CHAR_T *s1, const CHAR_T *s2,
-				     int len, char *translate);
+				     int len, __RE_TRANSLATE_TYPE translate);
 #else /* not INSIDE_RECURSION */
 
 /* re_match_2 matches the compiled pattern in BUFP against the
@@ -5635,7 +5637,7 @@ byte_re_match_2_internal (
   UCHAR_T *just_past_start_mem = 0;
 
   /* We use this to map every character in the string.  */
-  RE_TRANSLATE_TYPE translate = bufp->translate;
+  __RE_TRANSLATE_TYPE translate = bufp->translate;
 
   /* Failure point stack.  Each place that can handle a failure further
      down the line pushes a failure point on this stack.  It consists of
@@ -7800,7 +7802,7 @@ static int
 PREFIX(bcmp_translate) (
      const CHAR_T *s1, const CHAR_T *s2,
      register int len,
-     RE_TRANSLATE_TYPE translate)
+     __RE_TRANSLATE_TYPE translate)
 {
   register const UCHAR_T *p1 = (const UCHAR_T *) s1;
   register const UCHAR_T *p2 = (const UCHAR_T *) s2;
@@ -8000,8 +8002,8 @@ regcomp (
       unsigned i;
 
       preg->translate
-	= (RE_TRANSLATE_TYPE) malloc (CHAR_SET_SIZE
-				      * sizeof (*(RE_TRANSLATE_TYPE)0));
+	= (__RE_TRANSLATE_TYPE) malloc (CHAR_SET_SIZE
+				      * sizeof (*(__RE_TRANSLATE_TYPE)0));
       if (preg->translate == NULL)
         return (int) REG_ESPACE;
 
