@@ -1081,8 +1081,10 @@ char *dlerror(void)
  * Dump information to stderr about the current loaded modules
  */
 #ifdef __USE_GNU
+# if 0
 static const char type[][4] = { "Lib", "Exe", "Int", "Mod" };
 
+/* reimplement this, being a GNU extension it should be the same as on glibc */
 int dlinfo(void)
 {
 	struct elf_resolve *tpnt;
@@ -1109,6 +1111,7 @@ int dlinfo(void)
 	}
 	return 0;
 }
+#endif
 
 static int do_dladdr(const void *__address, Dl_info * __info)
 {
