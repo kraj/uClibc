@@ -5,11 +5,15 @@
  * GNU Lesser General Public License version 2.1 or later.
  */
 
-#ifndef _LINUX_STRING_H_
-#define _LINUX_STRING_H_
+#ifndef _DL_STRING_H
+#define _DL_STRING_H
 
-#include <dl-sysdep.h> /* for do_rem */
 #include <features.h>
+
+#define __need_NULL
+#include <stddef.h>
+
+#include <dl-defs.h> /* for do_rem by dl-sysdep.h */
 
 /* provide some sane defaults */
 #ifndef do_rem
@@ -17,10 +21,6 @@
 #endif
 #ifndef do_div_10
 # define do_div_10(result, remain) ((result) /= 10)
-#endif
-
-#ifndef NULL
-#define NULL ((void *) 0)
 #endif
 
 #ifdef IS_IN_rtld
@@ -345,4 +345,4 @@ static __always_inline char * _dl_simple_ltoahex(char *local, unsigned long i)
 
 #endif /* IS_IN_rtld */
 
-#endif
+#endif /* _DL_STRING_H */
