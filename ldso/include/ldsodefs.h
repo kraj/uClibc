@@ -39,7 +39,7 @@
    might use the variable which results in copy relocations on some
    platforms.  But this does not matter, ld.so can always use the local
    copy.  */
-extern void *__libc_stack_end;
+extern void *__libc_stack_end attribute_relro;
 
 /* Determine next available module ID.  */
 extern size_t _dl_next_tls_modid (void) internal_function attribute_hidden;

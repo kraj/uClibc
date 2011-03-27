@@ -29,7 +29,6 @@
 #define __libc_current_sigrtmin_private __libc_current_sigrtmin
 #define __clone clone
 
-extern void *__libc_stack_end;
 extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 
 #endif /* IS_IN_libpthread */

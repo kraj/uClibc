@@ -39,9 +39,10 @@
 #ifdef __UCLIBC_HAS_LOCALE__
 #include <locale.h>
 #endif
+#include <ldsodefs.h>
 
 #ifndef SHARED
-void *__libc_stack_end = NULL;
+void *__libc_stack_end attribute_relro = NULL;
 
 # ifdef __UCLIBC_HAS_SSP__
 #  include <dl-osinfo.h>

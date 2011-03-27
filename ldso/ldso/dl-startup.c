@@ -93,12 +93,13 @@
 
 /* Pull in all the arch specific stuff */
 #include "dl-startup.h"
+#include <ldsodefs.h>
 
 /* Static declarations */
 static int (*_dl_elf_main) (int, char **, char **);
 
-static void* __rtld_stack_end; /* Points to argc on stack, e.g *((long *)__rtld_stackend) == argc */
-strong_alias(__rtld_stack_end, __libc_stack_end) /* Exported version of __rtld_stack_end */
+static void* __rtld_stack_end attribute_relro; /* Points to argc on stack, e.g *((long *)__rtld_stackend) == argc */
+attribute_relro strong_alias(__rtld_stack_end, __libc_stack_end) /* Exported version of __rtld_stack_end */
 
 /* When we enter this piece of code, the program stack looks like this:
 	argc            argument counter (integer)

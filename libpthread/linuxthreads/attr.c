@@ -25,7 +25,7 @@
 #include <sys/resource.h>
 #include "pthread.h"
 #include "internals.h"
-
+#include <ldsodefs.h>
 
 int __pthread_attr_init(pthread_attr_t *attr)
 {
