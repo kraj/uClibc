@@ -32,7 +32,7 @@ libdl_OUT := $(top_builddir)ldso/libdl
 libdl_SRC := $(libdl_DIR)/libdl.c
 libdl_OBJ := $(patsubst $(libdl_DIR)/%.c,$(libdl_OUT)/%.o,$(libdl_SRC))
 
-resolve := $(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.o
+resolve := $(libdl_OUT)/resolve.o
 
 libdl-a-y := $(libdl_OBJ) $(resolve)
 ifeq ($(DOPIC),y)
@@ -43,6 +43,9 @@ libdl-so-y := $(libdl_OUT)/libdl.oS
 lib-a-$(HAVE_SHARED) += $(top_builddir)lib/libdl.a
 lib-so-y += $(top_builddir)lib/libdl.so
 objclean-y += CLEAN_ldso/libdl
+
+$(resolve) $(resolve:.o=.os): $(top_srcdir)ldso/ldso/$(TARGET_ARCH)/resolve.S
+	$(compile.S)
 
 $(top_builddir)lib/libdl.so: $(libdl_OUT)/libdl_so.a $(libc.depend)
 	$(call link.so,$(libdl_FULL_NAME),$(ABI_VERSION))
