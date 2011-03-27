@@ -467,7 +467,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	maxvma = (maxvma + ADDR_ALIGN) & PAGE_ALIGN;
 	minvma = minvma & ~ADDR_ALIGN;
 
-	flags = MAP_PRIVATE /*| MAP_DENYWRITE */ ;
+	flags = MAP_PRIVATE;
 	if (!piclib)
 		flags |= MAP_FIXED;
 
@@ -659,8 +659,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				size = (ppnt->p_vaddr & ADDR_ALIGN) + ppnt->p_filesz;
 				status = (char *) _dl_mmap
 					   (tryaddr, size, LXFLAGS(ppnt->p_flags),
-					    flags | (piclib == 2 ? MAP_EXECUTABLE
-						     | MAP_DENYWRITE : 0),
+					    flags | (piclib == 2 ? MAP_EXECUTABLE : 0),
 					    infile, ppnt->p_offset & OFFS_ALIGN);
 				if (_dl_mmap_check_error(status)
 				    || (tryaddr && tryaddr != status))

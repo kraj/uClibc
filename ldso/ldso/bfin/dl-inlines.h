@@ -534,7 +534,7 @@ __dl_map_segment (Elf32_Ehdr *epnt,
       (tryaddr = 0,
        size = (ppnt->p_vaddr & ADDR_ALIGN) + ppnt->p_filesz,
        LXFLAGS(ppnt->p_flags),
-       flags | MAP_EXECUTABLE | MAP_DENYWRITE,
+       flags | MAP_EXECUTABLE,
        infile, ppnt->p_offset & OFFS_ALIGN);
     if (_dl_mmap_check_error(status)
 	|| (tryaddr && tryaddr != status))
