@@ -23,7 +23,6 @@
 
 #include <assert.h>
 #include <ctype.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -315,7 +314,7 @@ struct re_string_t
      the beginning of the input string.  */
   unsigned int tip_context;
   /* The translation passed as a part of an argument of re_compile_pattern.  */
-  RE_TRANSLATE_TYPE trans;
+  __RE_TRANSLATE_TYPE trans;
   /* Copy of re_dfa_t's word_char.  */
   re_const_bitset_ptr_t word_char;
   /* 1 if REG_ICASE.  */

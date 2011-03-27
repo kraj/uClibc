@@ -564,7 +564,7 @@ re_search_internal (const regex_t *preg, const char *string, int length,
   re_match_context_t mctx;
   char *fastmap = (preg->fastmap != NULL && preg->fastmap_accurate
 		   && range && !preg->can_be_null) ? preg->fastmap : NULL;
-  RE_TRANSLATE_TYPE t = preg->translate;
+  __RE_TRANSLATE_TYPE t = preg->translate;
 
   memset (&mctx, '\0', sizeof (re_match_context_t));
   mctx.dfa = dfa;

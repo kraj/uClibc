@@ -30,7 +30,12 @@
 # include <stdlib.h>
 # ifdef __UCLIBC_HAS_WCHAR__
 #  define RE_ENABLE_I18N
+#  define HAVE_WCHAR_H 1
+#  define HAVE_WCRTOMB 1
+#  define HAVE_MBRTOWC 1
+#  define HAVE_WCSCOLL 1
 #  include <wchar.h>
+#  define HAVE_WCTYPE_H 1
 #  include <wctype.h>
 #  define __iswctype iswctype
 #  define __wcrtomb wcrtomb
@@ -38,6 +43,9 @@
 #  define __wctype wctype
 # endif
 # include <ctype.h>
+# ifdef __UCLIBC_HAS_LOCALE__
+#  define HAVE_LOCALE_H 1
+# endif
 #endif
 
 /* Make sure noone compiles this code with a C++ compiler.  */
