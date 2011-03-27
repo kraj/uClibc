@@ -23,6 +23,8 @@
 #endif
 
 #include <features.h>
+/* need errno.h before undefining _LIBC */
+#include <errno.h>
 #ifdef __UCLIBC__
 #undef _LIBC
 #define HAVE_DIRENT_H 1
@@ -32,6 +34,7 @@
 #endif
 
 #if __GNUC__
+# undef alloca
 # define alloca __builtin_alloca
 #else
 # if HAVE_ALLOCA_H
@@ -67,7 +70,6 @@ char *alloca ();
 # endif
 #endif
 
-#include <errno.h>
 #include <ftw.h>
 #include <limits.h>
 #include <search.h>
@@ -77,11 +79,7 @@ char *alloca ();
 #if HAVE_SYS_PARAM_H || defined _LIBC
 # include <sys/param.h>
 #endif
-#ifdef _LIBC
-# include <include/sys/stat.h>
-#else
-# include <sys/stat.h>
-#endif
+#include <sys/stat.h>
 
 #if !defined _LIBC && !HAVE_DECL_STPCPY && !defined stpcpy
 char *stpcpy ();
