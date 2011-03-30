@@ -553,7 +553,7 @@ static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 		interp_name = strdup(s);
 		interp_dir = strdup(s);
 		tmp = strrchr(interp_dir, '/');
-		if (*tmp)
+		if (tmp)
 			*tmp = '\0';
 		else {
 			free(interp_dir);
