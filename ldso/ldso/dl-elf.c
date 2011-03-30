@@ -333,7 +333,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	ElfW(Phdr) *tlsppnt = NULL;
 #endif
 	char *status, *header;
-	unsigned long dynamic_info[DYNAMIC_SIZE];
+	ElfW(Word) dynamic_info[DYNAMIC_SIZE];
 	unsigned long *lpnt;
 	unsigned long libaddr;
 	unsigned long minvma = 0xffffffff, maxvma = 0;
@@ -1040,7 +1040,7 @@ char *_dl_strdup(const char *string)
 	return retval;
 }
 
-unsigned int _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
+unsigned int _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, ElfW(Word) dynamic_info[],
                                     void *debug_addr, DL_LOADADDR_TYPE load_off)
 {
 	return __dl_parse_dynamic_info(dpnt, dynamic_info, debug_addr, load_off);

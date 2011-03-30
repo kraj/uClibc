@@ -61,134 +61,87 @@ unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got)
 	return 0;
 }
 
-static int
-_dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
-	  unsigned long rel_addr, unsigned long rel_size,
-	  int (*reloc_func)(struct elf_resolve *tpnt, struct dyn_elf *scope,
-			    Elf32_Rela *rpnt, Elf32_Sym *symtab, char *strtab))
-{
-	Elf32_Sym *symtab;
-	Elf32_Rela *rpnt;
-	char *strtab;
-	int i;
-
-	rpnt = (Elf32_Rela *)rel_addr;
-	rel_size /= sizeof(Elf32_Rela);
-	symtab = (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
-	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
-
-	for (i = 0; i < rel_size; i++, rpnt++) {
-		int symtab_index, res;
-
-		symtab_index = ELF32_R_SYM(rpnt->r_info);
-
-		debug_sym(symtab, strtab, symtab_index);
-		debug_reloc(symtab, strtab, rpnt);
-
-		res = reloc_func(tpnt, scope, rpnt, symtab, strtab);
-
-		if (res == 0)
-			continue;
-
-		_dl_dprintf(2, "\n%s: ", _dl_progname);
-
-		if (symtab_index)
-			_dl_dprintf(2, "symbol '%s': ",
-				    strtab + symtab[symtab_index].st_name);
-
-		if (res < 0) {
-			int reloc_type = ELF32_R_TYPE(rpnt->r_info);
-#if defined(__SUPPORT_LD_DEBUG__)
-			_dl_dprintf(2, "can't handle reloc type %s\n",
-				    _dl_reltypes(reloc_type));
-#else
-			_dl_dprintf(2, "can't handle reloc type %x\n",
-				    reloc_type);
-#endif
-			_dl_exit(-res);
-		} else {
-			_dl_dprintf(2, "can't resolve symbol\n");
-			return res;
-		}
-	}
-
-	return 0;
-}
-
 static int _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
-			Elf32_Rela *rpnt, Elf32_Sym *symtab, char *strtab)
+			ELF_RELOC *rpnt, const ElfW(Sym) *const symtab, const char *strtab)
 {
-	int reloc_type;
-	int symtab_index;
-	char *symname;
-	unsigned long *reloc_addr;
-	unsigned long symbol_addr;
-#if defined(__SUPPORT_LD_DEBUG__)
-	unsigned long old_val;
-#endif
+	ElfW(Addr) *reloc_addr = (ElfW(Addr) *)(tpnt->loadaddr + rpnt->r_offset);
+	const unsigned int reloc_type = ELF_R_TYPE(rpnt->r_info);
+	const int symtab_index = ELF_R_SYM(rpnt->r_info);
+	ElfW(Addr) symbol_addr = 0;
+	/* struct elf_resolve *tls_tpnt = NULL; */
 	struct symbol_ref sym_ref;
-
-	reloc_addr = (unsigned long *)(tpnt->loadaddr + rpnt->r_offset);
-	reloc_type = ELF32_R_TYPE(rpnt->r_info);
-	symtab_index = ELF32_R_SYM(rpnt->r_info);
-	symbol_addr = 0;
 	sym_ref.sym = &symtab[symtab_index];
 	sym_ref.tpnt = NULL;
-	symname = strtab + symtab[symtab_index].st_name;
+	const char *symname = strtab + sym_ref.sym->st_name;
+#if defined(__SUPPORT_LD_DEBUG__)
+	ElfW(Addr) old_val;
+#endif
 
 	if (symtab_index) {
-		symbol_addr = (unsigned long)
-			_dl_find_hash(symname, scope, tpnt,
-				      elf_machine_type_class(reloc_type), &sym_ref);
+		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, tpnt,
+							elf_machine_type_class(reloc_type), &sym_ref);
 
-		/* Allow undefined references to weak symbols */
-		if (!symbol_addr &&
-		    ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK) {
+		/*
+		 * We want to allow undefined references to weak symbols - this
+		 * might have been intentional.  We should not be linking local
+		 * symbols here, so all bases should be covered.
+		 */
+		if (unlikely(!symbol_addr
+#if 0 /*defined (__UCLIBC_HAS_TLS__)*/
+			&& (ELF_ST_TYPE(sym_ref.sym->st_info) != STT_TLS)
+#endif
+			&& (ELF_ST_BIND(sym_ref.sym->st_info) != STB_WEAK))) {
+#if defined (__SUPPORT_LD_DEBUG__)
+			_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'\n",
+				    _dl_progname, symname, tpnt->libname);
+#else
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 				    _dl_progname, symname);
-			return 0;
+#endif
+
+			/* Let the caller handle the error: it may be non fatal if called from dlopen */
+			return 1;
 		}
+		/*tls_tpnt = sym_ref.tpnt;*/
+	} else {
+		/*
+		 * Relocs against STN_UNDEF are usually treated as using a
+		 * symbol value of zero, and using the module containing the
+		 * reloc itself.
+		 */
+		symbol_addr = sym_ref.sym->st_value;
+		/*tls_tpnt = tpnt;*/
 	}
 
 #if defined(__SUPPORT_LD_DEBUG__)
 	old_val = *reloc_addr;
 #endif
+
+	symbol_addr += rpnt_r_addend;
+
 	switch (reloc_type) {
 	case R_AVR32_NONE:
 		break;
 	case R_AVR32_GLOB_DAT:
 	case R_AVR32_JMP_SLOT:
-		*reloc_addr = symbol_addr + rpnt->r_addend;
+		*reloc_addr = symbol_addr;
 		break;
+#if 1 /* handled by elf_machine_relative */
 	case R_AVR32_RELATIVE:
-		*reloc_addr = (unsigned long)tpnt->loadaddr
-			+ rpnt->r_addend;
+		*reloc_addr = tpnt->loadaddr + rpnt->r_addend;
 		break;
+#endif
 	default:
 		return -1;
 	}
 
 #if defined(__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_reloc && _dl_debug_detail)
-		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x\n",
-			    old_val, *reloc_addr);
+		_dl_dprintf(_dl_debug_file, "\n\tpatched: %x ==> %x @ %p\n",
+			    old_val, *reloc_addr, reloc_addr);
 #endif
 
 	return 0;
 }
 
-void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-					   unsigned long rel_addr,
-					   unsigned long rel_size)
-{
-	/* TODO: Might want to support this in order to get faster
-	 * startup times... */
-}
-
-int _dl_parse_relocation_information(struct dyn_elf *rpnt,
-				     unsigned long rel_addr,
-				     unsigned long rel_size)
-{
-	return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size,
-			 _dl_do_reloc);
-}
+#include "elfinterp_common.c"

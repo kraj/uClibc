@@ -37,7 +37,7 @@
  * SUCH DAMAGE.
  */
 
-#include "ldso.h"
+#include <ldso.h>
 
 #if defined (__SUPPORT_LD_DEBUG__)
 
@@ -57,7 +57,7 @@ static const char *_dl_reltypes(int type)
 
 	return str;
 }
-static void debug_sym(ElfW(Sym) *symtab, char *strtab, int symtab_index)
+static void debug_sym(const ElfW(Sym) *const symtab, const char *strtab, const int symtab_index)
 {
 	if (!_dl_debug_symbols || !symtab_index)
 		return;
@@ -72,7 +72,7 @@ static void debug_sym(ElfW(Sym) *symtab, char *strtab, int symtab_index)
 		symtab[symtab_index].st_shndx);
 }
 
-static void debug_reloc(ElfW(Sym) *symtab, char *strtab, ELF_RELOC *rpnt)
+static void debug_reloc(const ElfW(Sym) *const symtab, const char *strtab, const ELF_RELOC *const rpnt)
 {
 	if (!_dl_debug_reloc)
 		return;

@@ -22,8 +22,8 @@ do {														\
 /* Used for error messages */
 #define ELF_TARGET "386"
 
-struct elf_resolve;
-extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
+#define ELF_MACHINE_NONE R_386_NONE
+#define ELF_MACHINE_JMP_SLOT R_386_JMP_SLOT
 
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
    TLS variable, so undefined references should not be allowed to

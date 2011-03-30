@@ -8,6 +8,7 @@
  */
 #define ELF_USES_RELOCA
 #include <elf.h>
+#include <link.h>
 /*
  * Initialization sequence for a GOT.
  */
@@ -63,8 +64,10 @@
 /* Used for error messages */
 #define ELF_TARGET "powerpc"
 
+#define ARCH_HAS_LAZY
 struct elf_resolve;
-extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
+extern ElfW(Addr) _dl_linux_resolver(struct elf_resolve *tpnt, const ElfW(Word) reloc_entry);
+
 void _dl_init_got(unsigned long *lpnt,struct elf_resolve *tpnt);
 
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry, so

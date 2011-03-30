@@ -103,7 +103,7 @@ struct elf_resolve {
 #else
   Elf_Symndx *chains;
 #endif
-  unsigned long dynamic_info[DYNAMIC_SIZE];
+  ElfW(Word) dynamic_info[DYNAMIC_SIZE];
 
   unsigned long n_phent;
   ElfW(Phdr) * ppnt;
@@ -139,8 +139,8 @@ extern struct elf_resolve * _dl_loaded_modules;
 extern struct dyn_elf     * _dl_handles;
 
 extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
-	DL_LOADADDR_TYPE loadaddr, unsigned long * dynamic_info,
-	unsigned long dynamic_addr, unsigned long dynamic_size);
+	DL_LOADADDR_TYPE loadaddr, ElfW(Word) * dynamic_info,
+	ElfW(Addr) dynamic_addr, unsigned long dynamic_size);
 
 extern char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
 		struct elf_resolve *mytpnt, int type_class,

@@ -15,11 +15,11 @@
 #undef MAGIC2
 #define ELF_TARGET "CRIS"
 
+#define ELF_MACHINE_NONE R_CRIS_NONE
+#define ELF_MACHINE_JMP_SLOT R_CRIS_JUMP_SLOT
+
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
-
-struct elf_resolve;
-extern unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry);
 
 /* The union of reloc-type-classes where the reloc TYPE is a member.
 

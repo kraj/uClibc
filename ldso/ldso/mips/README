@@ -3,13 +3,6 @@ from GLIBC. In the descriptions below, all files mentioned are
 with respect to the top level GLIBC source directory accept for
 code taken from the Linux kernel.
 
-boot1_arch.h
-------------
-Contains code to fix up the stack pointer so that the dynamic
-linker can find argc, argv and Auxillary Vector Table (AVT).
-The code is taken from the function 'RTLD_START' in the file
-'sysdeps/mips/dl-machine.h'.
-
 elfinterp.c
 -----------
 Contains the runtime resolver code taken from the function

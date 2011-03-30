@@ -55,8 +55,8 @@ static __always_inline unsigned long arm_modulus(unsigned long m, unsigned long 
 /* Used for error messages */
 #define ELF_TARGET "ARM"
 
-struct elf_resolve;
-unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
+#define ELF_MACHINE_NONE R_ARM_NONE
+#define ELF_MACHINE_JMP_SLOT R_ARM_JUMP_SLOT
 
 /* 4096 bytes alignment */
 #define PAGE_ALIGN 0xfffff000

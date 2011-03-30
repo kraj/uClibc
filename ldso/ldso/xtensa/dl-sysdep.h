@@ -73,11 +73,11 @@ typedef struct xtensa_got_location_struct {
 /* Used for error messages. */
 #define ELF_TARGET "Xtensa"
 
+#define ELF_MACHINE_NONE R_XTENSA_NONE
+#define ELF_MACHINE_JMP_SLOT R_XTENSA_JMP_SLOT
+
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
-
-struct elf_resolve;
-extern unsigned long _dl_linux_resolver (struct elf_resolve *, int);
 
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry, so
    undefined references should not be allowed to define the value.  */

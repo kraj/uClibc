@@ -117,7 +117,7 @@ _dl_runtime_resolve:
 
    Code in each PLT entry puts the caller's return address into t7 ($15),
    the PLT entry index into t8 ($24), the address of _dl_runtime_pltresolve
-   into t9 ($25) and the address of .got.plt into gp ($28).  __dl_runtime_pltresolve
+   into t9 ($25) and the address of .got.plt into gp ($28).  _dl_linux_resolver
    needs a0 ($4) to hold the link map and a1 ($5) to hold the index into
    .rel.plt (== PLT entry index * 4).  */
 
@@ -145,10 +145,10 @@ _dl_runtime_pltresolve:
 	sw	$6, 24($29)
 	sw	$7, 28($29)
 
-	/* Setup functions args and call __dl_runtime_pltresolve.  */
+	/* Setup functions args and call _dl_linux_resolver.  */
 	move	$4, $10
 	sll     $5, $24, 3
-	jal	__dl_runtime_pltresolve
+	jal	_dl_linux_resolver
 
 	/* Restore function arguments from stack to registers */
 	lw	$31, 36($29)

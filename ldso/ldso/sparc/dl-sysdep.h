@@ -40,11 +40,16 @@
 /* Used for error messages */
 #define ELF_TARGET "sparc"
 
+#define ELF_MACHINE_JMP_SLOT R_SPARC_JMP_SLOT
+
+#define DL_GOT_ADDR(GOT_ADDR, NEW_ADDR) \
+	{ \
+	GOT_ADDR[1] = (char *) (OPCODE_SETHI_G1 | (((unsigned int) NEW_ADDR >> 10) & 0x3fffff)); \
+	GOT_ADDR[2] = (char *) (OPCODE_JMP_G1 | ((unsigned int) NEW_ADDR & 0x3ff)); \
+	}
+
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
-
-struct elf_resolve;
-unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
 /*
  * Define this if you want a dynamic loader that works on Solaris.

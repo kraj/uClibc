@@ -205,6 +205,10 @@ typedef struct {
 # define DL_MALLOC_ALIGN (__WORDSIZE / 8)
 #endif
 
+#ifndef DL_RESOLVER_TYPE
+# define DL_RESOLVER_TYPE ElfW(Addr)
+#endif
+
 #ifdef __UCLIBC_UNDERSCORES__
 # define __C_SYMBOL_PREFIX__ "_"
 #else

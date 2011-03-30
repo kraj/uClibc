@@ -4,7 +4,10 @@
 #include <bits/kernel-features.h>
 
 #include <features.h>
+#include <stdbool.h>
+#ifdef __UCLIBC_HAS_TLS__
 #include <tls.h>
+#endif
 
 #ifdef __mips__
 /* The MIPS ABI specifies that the dynamic section has to be read-only.  */

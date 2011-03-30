@@ -22,11 +22,10 @@ do { \
 /* Used for error messages */
 #define ELF_TARGET "m68k"
 
+#define ELF_MACHINE_JMP_SLOT R_68K_JMP_SLOT
+
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
-
-struct elf_resolve;
-extern unsigned long _dl_linux_resolver (struct elf_resolve *, int);
 
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry, so
    PLT entries should not be allowed to define the value.

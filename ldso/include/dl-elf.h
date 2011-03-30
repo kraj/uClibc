@@ -29,9 +29,9 @@ static __inline__ void _dl_unmap_cache(void) { }
 
 /* Function prototypes for non-static stuff in elfinterp.c */
 extern void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size);
+	ElfW(Addr) rel_addr, ElfW(Word) rel_size);
 extern int _dl_parse_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size);
+	ElfW(Addr) rel_addr, ElfW(Word) rel_size);
 extern struct elf_resolve * _dl_load_shared_library(int secure,
 	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname,
 	int trace_loaded_objects);
@@ -103,11 +103,18 @@ extern void _dl_protect_relro (struct elf_resolve *l);
 # define DT_GNU_HASH_IDX (DT_RELCONT_IDX + 1)
 #endif
 
-extern unsigned int _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
+extern int _dl_linux_resolve(void);
+
+/* define all uncommon prototypes in arch specific dl-sysdep.h */
+#ifdef ELF_MACHINE_JMP_SLOT
+extern DL_RESOLVER_TYPE _dl_linux_resolver(struct elf_resolve *tpnt, const ElfW(Word) reloc_entry);
+#endif
+
+extern unsigned int _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, ElfW(Word) dynamic_info[],
                                            void *debug_addr, DL_LOADADDR_TYPE load_off);
 
 static __always_inline
-unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[],
+unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, ElfW(Word) dynamic_info[],
                                      void *debug_addr, DL_LOADADDR_TYPE load_off)
 {
 	unsigned int rtld_flags = 0;

@@ -38,8 +38,8 @@ do {														\
 /* Used for error messages */
 #define ELF_TARGET "x86_64"
 
-struct elf_resolve;
-extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
+#define ELF_MACHINE_NONE R_X86_64_NONE
+#define ELF_MACHINE_JMP_SLOT R_X86_64_JUMP_SLOT
 
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
    TLS variable, so undefined references should not be allowed to

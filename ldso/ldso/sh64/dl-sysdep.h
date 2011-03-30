@@ -23,11 +23,10 @@
 /* Used for error messages */
 #define ELF_TARGET "sh64"
 
+#define ELF_MACHINE_JMP_SLOT R_SH_JMP_SLOT
+
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
-
-struct elf_resolve;
-extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
    TLS variable, so undefined references should not be allowed to

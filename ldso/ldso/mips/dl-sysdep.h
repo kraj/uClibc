@@ -149,6 +149,9 @@ do {										\
 /* Used for error messages */
 #define ELF_TARGET "MIPS"
 
+#define ELF_MACHINE_JMP_SLOT R_MIPS_JUMP_SLOT
+#define ARCH_HAS_LAZY
+
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
 

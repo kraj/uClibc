@@ -22,8 +22,8 @@
 /* Used for error messages */
 #define ELF_TARGET "sh"
 
-struct elf_resolve;
-extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
+#define ELF_MACHINE_NONE R_SH_NONE
+#define ELF_MACHINE_JMP_SLOT R_SH_JMP_SLOT
 
 static __always_inline unsigned int
 _dl_urem(unsigned int n, unsigned int base)
