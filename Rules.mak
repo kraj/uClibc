@@ -586,7 +586,9 @@ CFLAGS := $(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
 	-nostdinc -I$(top_builddir)include \
 	-I$(top_srcdir)include -include libc-symbols.h \
 	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH) \
-	-I$(top_srcdir)libc/sysdeps/linux -I.
+	-I$(top_srcdir)libc/sysdeps/linux \
+	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) \
+	-I$(top_srcdir)ldso/include -I.
 ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
 CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
 endif
@@ -679,9 +681,7 @@ PTINC:= -I$(top_builddir)$(PTDIR)					\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux			\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread				\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/pthread/bits			\
-	-I$(top_srcdir)$(PTDIR)/sysdeps/generic				\
-	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH)				\
-	-I$(top_srcdir)ldso/include
+	-I$(top_srcdir)$(PTDIR)/sysdeps/generic
 #
 # Test for TLS if NPTL support was selected.
 #
