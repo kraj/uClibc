@@ -241,7 +241,7 @@ void *_dl_malloc(size_t size)
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, rounded_size,
 				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_UNINITIALIZE, -1, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
-			_dl_dprintf(_dl_debug_file, "%s: mmap of a spare page failed!\n", _dl_progname);
+			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
 			_dl_exit(20);
 		}
 	}
@@ -465,7 +465,7 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 #ifndef __LDSO_STANDALONE_SUPPORT__
 	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val) {
-		_dl_dprintf(_dl_debug_file, "Standalone execution is not enabled\n");
+		_dl_dprintf(2, "Standalone execution is not enabled\n");
 		_dl_exit(1);
 	}
 #endif
@@ -579,7 +579,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 		 */
 		app_tpnt = _dl_load_elf_shared_library(_dl_secure, &rpnt, _dl_progname);
 		if (!app_tpnt) {
-			_dl_dprintf(_dl_debug_file, "can't load '%s'\n", _dl_progname);
+			_dl_dprintf(2, "can't load '%s'\n", _dl_progname);
 			_dl_exit(16);
 		}
 		/*
@@ -674,7 +674,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 			}
 #else
 			if (app_tpnt->dynamic_info[DT_TEXTREL]) {
-				_dl_dprintf(_dl_debug_file, "Can't modify application's text section; use the GCC option -fPIE for position-independent executables.\n");
+				_dl_dprintf(2, "Can't modify application's text section; use the GCC option -fPIE for position-independent executables.\n");
 				_dl_exit(1);
 			}
 #endif
@@ -737,7 +737,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 			_dl_debug_early("Found TLS header for application program\n");
 			break;
 #else
-			_dl_dprintf(_dl_debug_file, "Program uses unsupported TLS data!\n");
+			_dl_dprintf(2, "Program uses unsupported TLS data!\n");
 			_dl_exit(1);
 #endif
 		}
@@ -827,7 +827,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 #ifndef __LDSO_LDD_SUPPORT__
 	if (trace_loaded_objects) {
-		_dl_dprintf(_dl_debug_file, "Use the ldd provided by uClibc\n");
+		_dl_dprintf(2, "Use the ldd provided by uClibc\n");
 		_dl_exit(1);
 	}
 #endif
@@ -883,7 +883,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 					else
 #endif
 					{
-						_dl_dprintf(_dl_debug_file, "%s: library '%s' "
+						_dl_dprintf(2, "%s: library '%s' "
 							"from LD_PRELOAD can't be preloaded: ignored.\n",
 							_dl_progname, str);
 					}
@@ -928,7 +928,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 		}
 
 		if ((fd = _dl_open(LDSO_PRELOAD, O_RDONLY, 0)) < 0) {
-			_dl_dprintf(_dl_debug_file, "%s: can't open file '%s'\n",
+			_dl_dprintf(2, "%s: can't open file '%s'\n",
 				    _dl_progname, LDSO_PRELOAD);
 			break;
 		}
@@ -937,7 +937,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 					     PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 		_dl_close(fd);
 		if (preload == (caddr_t) -1) {
-			_dl_dprintf(_dl_debug_file, "%s:%i: can't map '%s'\n",
+			_dl_dprintf(2, "%s:%i: can't map '%s'\n",
 				    _dl_progname, __LINE__, LDSO_PRELOAD);
 			break;
 		}
@@ -976,7 +976,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 				else
 # endif
 				{
-					_dl_dprintf(_dl_debug_file, "%s: can't load library '%s'\n", _dl_progname, cp2);
+					_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, cp2);
 					_dl_exit(15);
 				}
 			} else {
@@ -1037,7 +1037,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 					} else
 #endif
 					{
-						_dl_dprintf(_dl_debug_file, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
+						_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
 						_dl_exit(16);
 					}
 				}

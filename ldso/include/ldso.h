@@ -113,7 +113,8 @@ extern int   _dl_debug_file;
 #else
 # define __dl_debug_dprint(fmt, args...) do {} while (0)
 # define _dl_if_debug_dprint(fmt, args...) do {} while (0)
-# define _dl_debug_file 2
+/* disabled on purpose, _dl_debug_file should be guarded by __SUPPORT_LD_DEBUG__
+# define _dl_debug_file 2*/
 #endif /* __SUPPORT_LD_DEBUG__ */
 
 #ifdef IS_IN_rtld
@@ -149,8 +150,19 @@ extern void *_dl_realloc(void *__ptr, size_t __size);
 extern void _dl_free(void *);
 extern char *_dl_getenv(const char *symbol, char **envp);
 extern void _dl_unsetenv(const char *symbol, char **envp);
+#ifdef IS_IN_rtld
 extern char *_dl_strdup(const char *string);
 extern void _dl_dprintf(int, const char *, ...);
+#else
+# include <string.h>
+# define _dl_strdup strdup
+# include <stdio.h>
+# ifdef __USE_GNU
+#  define _dl_dprintf dprintf
+# else
+#  define _dl_dprintf(fd, fmt, args...) fprintf(stderr, fmt, ## args)
+# endif
+#endif
 
 #ifndef DL_GET_READY_TO_RUN_EXTRA_PARMS
 # define DL_GET_READY_TO_RUN_EXTRA_PARMS

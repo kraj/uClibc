@@ -275,8 +275,11 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 				_dl_memcpy((char *)reloc_addr,
 					   (char *)symbol_addr,
 					   sym_ref.sym->st_size);
-			} else
+			}
+#if defined (__SUPPORT_LD_DEBUG__)
+			else
 				_dl_dprintf(_dl_debug_file, "no symbol_addr to copy !?\n");
+#endif
 			break;
 #if defined USE_TLS && USE_TLS
 		case R_SPARC_TLS_DTPMOD32:
