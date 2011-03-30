@@ -855,7 +855,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 #endif
 	_dl_if_debug_dprint("\n\tfile='%s';  generating link map\n", libname);
 	_dl_if_debug_dprint("\t\tdynamic: %x  base: %x\n", dynamic_addr, DL_LOADADDR_BASE(lib_loadaddr));
-	_dl_if_debug_dprint("\t\t  entry: %x  phdr: %x  phnum: %x\n\n",
+	_dl_if_debug_dprint("\t\t  entry: %x  phdr: %p  phnum: %x\n\n",
 			DL_RELOC_ADDR(lib_loadaddr, epnt->e_entry), tpnt->ppnt, tpnt->n_phent);
 
 	_dl_munmap(header, _dl_pagesize);
