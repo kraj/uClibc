@@ -922,8 +922,7 @@ _dl_add_to_slotinfo (struct link_map  *l)
 	     generation.  */
 	  ++_dl_tls_generation;
 
-	  _dl_dprintf (_dl_debug_file,
-			"cannot create TLS data structures: ABORT\n");
+	  _dl_dprintf(2, "cannot create TLS data structures: ABORT\n");
 	  _dl_exit (127);
 	}
 

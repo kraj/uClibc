@@ -717,7 +717,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			}
 		}
 #else
-		_dl_dprintf(_dl_debug_file, "Can't modify %s's text section."
+		_dl_dprintf(2, "Can't modify %s's text section."
 			" Use GCC option -fPIC for shared objects, please.\n",
 			libname);
 		_dl_exit(1);
@@ -937,6 +937,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	return goof;
 }
 
+#ifdef IS_IN_rtld
 /* Minimal printf which handles only %s, %d, and %x */
 void _dl_dprintf(int fd, const char *fmt, ...)
 {
@@ -1002,7 +1003,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 						break;
 					}
 				case 'x':
-				case 'X':
+				case 'p':
 					{
 						char tmp[22];
 #if __WORDSIZE > 32
@@ -1039,6 +1040,7 @@ char *_dl_strdup(const char *string)
 	_dl_strcpy(retval, string);
 	return retval;
 }
+#endif
 
 unsigned int _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, ElfW(Word) dynamic_info[],
                                     void *debug_addr, DL_LOADADDR_TYPE load_off)
