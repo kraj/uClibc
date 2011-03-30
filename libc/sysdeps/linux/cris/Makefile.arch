@@ -7,7 +7,7 @@
 
 CSRC := __init_brk.c brk.c sbrk.c
 
-SSRC := setjmp.S __longjmp.S clone.S sysdep.S syscall.S
+SSRC := setjmp.S __longjmp.S clone.S sysdep.S syscall.S vfork.S
 ifeq ($(UNIFIED_SYSCALL),y)
 SSRC += __uClibc_syscall.S
 endif
