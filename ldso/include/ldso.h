@@ -133,11 +133,9 @@ extern void *_dl_malloc(size_t size);
 extern void *_dl_calloc(size_t __nmemb, size_t __size);
 extern void *_dl_realloc(void *__ptr, size_t __size);
 extern void _dl_free(void *);
-extern char *_dl_getenv(const char *symbol, char **envp);
-extern void _dl_unsetenv(const char *symbol, char **envp);
 #ifdef IS_IN_rtld
-extern char *_dl_strdup(const char *string);
-extern void _dl_dprintf(int, const char *, ...);
+extern char *_dl_strdup(const char *string) attribute_hidden;
+extern void _dl_dprintf(int, const char *, ...) attribute_hidden;
 #else
 # include <string.h>
 # define _dl_strdup strdup

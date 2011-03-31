@@ -113,7 +113,7 @@ uintptr_t __guard attribute_relro;
 # endif
 #endif
 
-char *_dl_getenv(const char *symbol, char **envp)
+static char *_dl_getenv(const char *symbol, char **envp)
 {
 	char *pnt;
 	const char *pnt1;
@@ -129,7 +129,7 @@ char *_dl_getenv(const char *symbol, char **envp)
 	return 0;
 }
 
-void _dl_unsetenv(const char *symbol, char **envp)
+static void _dl_unsetenv(const char *symbol, char **envp)
 {
 	char *pnt;
 	const char *pnt1;
