@@ -169,6 +169,19 @@ lessthan4:
 	} while (--n);
 	return to;
 }
+#elif defined(__i386__)
+/* smaller, copied from an earlier libc/string/i386/memset.c */
+static __always_inline void *_dl_memset(void *s, int c, size_t count)
+{
+	int d0, d1;
+	__asm__ __volatile__(
+		"rep\n\t"
+		"stosb"
+		: "=&c" (d0), "=&D" (d1)
+		:"a" (c),"1" (s),"0" (count)
+		:"memory");
+	return s;
+}
 #else
 static __always_inline void * _dl_memset(void *str, int c, size_t len)
 {
