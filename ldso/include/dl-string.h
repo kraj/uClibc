@@ -278,8 +278,8 @@ static __always_inline char * _dl_simple_ltoahex(char *local, unsigned long i)
 
 /* On some arches constant strings are referenced through the GOT.
  * This requires that load_addr must already be defined... */
-#if defined(mc68000)  || defined(__arm__) || defined(__thumb__) || \
-    defined(__sh__)  || defined(__powerpc__) || \
+#if defined(__mc68000__) || defined(__arm__) || defined(__thumb__) || \
+    defined(__sh__) || defined(__powerpc__) || \
     defined(__avr32__) || defined(__xtensa__) || defined(__sparc__)
 # define CONSTANT_STRING_GOT_FIXUP(X) \
 	if ((X) < (const char *) load_addr) (X) += load_addr
