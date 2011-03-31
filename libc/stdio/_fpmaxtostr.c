@@ -202,8 +202,8 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 #ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
 	int num_groups = 0;
 	int initial_group;	   /* This does not need to be initialized. */
-	int tslen;			   /* This does not need to be initialized. */
-	int nblk2;			   /* This does not need to be initialized. */
+	int tslen;		   /* This does not need to be initialized. */
+	int nblk2;		   /* This does not need to be initialized. */
 	const char *ts;		   /* This does not need to be initialized. */
 #endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
 	int round, o_exp;
