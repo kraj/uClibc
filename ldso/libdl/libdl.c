@@ -100,7 +100,9 @@ int   _dl_debug_file      = 2;
 const char *_dl_progname       = "";        /* Program name */
 void *(*_dl_malloc_function)(size_t);
 void (*_dl_free_function) (void *p);
+#ifndef SHARED
 char *_dl_library_path         = NULL;         /* Where we look for libraries */
+#endif
 char *_dl_ldsopath             = NULL;         /* Location of the shared lib loader */
 int _dl_errno                  = 0;         /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later */

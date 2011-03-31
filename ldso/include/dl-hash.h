@@ -146,8 +146,6 @@ extern char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
 		struct elf_resolve *mytpnt, int type_class,
 		struct symbol_ref *symbol);
 
-extern char * _dl_library_path;
-
 #define LD_ERROR_NOFILE 1
 #define LD_ERROR_NOZERO 2
 #define LD_ERROR_NOTELF 3

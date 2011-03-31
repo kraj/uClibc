@@ -67,11 +67,11 @@ struct init_fini_list {
 };
 
 /* Global variables used within the shared library loader */
-extern char *_dl_library_path;         /* Where we look for libraries */
-extern char *_dl_preload;              /* Things to be loaded before the libs */
-extern char *_dl_ldsopath;             /* Where the shared lib loader was found */
-extern const char *_dl_progname;       /* The name of the executable being run */
-extern size_t _dl_pagesize;            /* Store the page size for use later */
+extern char *_dl_library_path attribute_hidden;	/* Where we look for libraries */
+extern char *_dl_preload;			/* Things to be loaded before the libs */
+extern char *_dl_ldsopath;			/* Where the shared lib loader was found */
+extern const char *_dl_progname;		/* The name of the executable being run */
+extern size_t _dl_pagesize;			/* Store the page size for use later */
 
 #if defined(USE_TLS) && USE_TLS
 extern void _dl_add_to_slotinfo (struct link_map  *l);
