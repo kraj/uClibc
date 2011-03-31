@@ -13,7 +13,7 @@ The code is taken from the function 'RTLD_START' in the file
 elfinterp.c
 -----------
 Contains the runtime resolver code taken from the function
-'__dl_runtime_resolve' in 'sysdeps/mips/dl-machine.h'. Also
+'__dl_runtime_resolve' in 'sysdeps/mips/dl-trampoline.h'. Also
 contains the function to perform relocations for objects
 other than the linker itself. The code was taken from the
 function 'elf_machine_rel' in 'sysdeps/mips/dl-machine.h'.
@@ -47,6 +47,6 @@ resolve.S
 ---------
 Contains the low-level assembly code for the dynamic runtime
 resolver. The code is taken from the assembly code function
-'_dl_runtime_resolve' in the file 'sysdeps/mips/dl-machine.h'.
+'_dl_runtime_resolve' in the file 'sysdeps/mips/dl-trampoline.h'.
 The code looks a bit different since we only need to pass the
 symbol index and the old GP register.
