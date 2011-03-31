@@ -159,7 +159,7 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 #define N (1)
 #else  /* WANT_WIDE */
 	wchar_t WC;
-	size_t n0, nx;
+	size_t n0, nx = 0;
 #define N n0
 
 #endif /* WANT_WIDE */
