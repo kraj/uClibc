@@ -14,8 +14,9 @@
  * jump symbol that got us here really wanted to jump to in the first place.
  */
 
-.globl _dl_linux_resolve
-.type _dl_linux_resolve,@function
+.globl	_dl_linux_resolve
+.hidden _dl_linux_resolve
+.type	_dl_linux_resolve,@function
 
 #ifdef __arch_v32
 

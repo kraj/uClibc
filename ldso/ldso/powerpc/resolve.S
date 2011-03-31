@@ -5,9 +5,8 @@
 .text
 .align 4
 
-.globl _dl_linux_resolver
-
-.globl _dl_linux_resolve
+.globl	_dl_linux_resolve
+.hidden	_dl_linux_resolve
 .type	_dl_linux_resolve,@function
 
 _dl_linux_resolve:
@@ -54,4 +53,3 @@ _dl_linux_resolve:
 
 .LFE2:
 	.size _dl_linux_resolve,.LFE2-_dl_linux_resolve
-

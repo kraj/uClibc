@@ -5,8 +5,9 @@
 .text
 .even
 
-.globl _dl_linux_resolve
-	.type	_dl_linux_resolve,@function
+.globl	_dl_linux_resolve
+.hidden	_dl_linux_resolve
+.type	_dl_linux_resolve,@function
 _dl_linux_resolve:
 	# Save %a0 (struct return address) and %a1.
 	move.l %a0, -(%sp)

@@ -31,8 +31,8 @@
  */
 
  	.section .text..SHmedia32,"ax"
-	.globl	_dl_linux_resolver
 	.globl	_dl_linux_resolve
+	.hidden	_dl_linux_resolve
 	.type	_dl_linux_resolve, @function
 
 	.balign	16
@@ -92,4 +92,3 @@ _dl_linux_resolve:
 	blink	tr0, r63		! jump to function address
 
 	.size	_dl_linux_resolve, . - _dl_linux_resolve
-

@@ -67,9 +67,6 @@ struct funcdesc_value
   void *got_value;
 } __attribute__((__aligned__(8)));
 
-
-extern int _dl_linux_resolve(void) __attribute__((__visibility__("hidden")));
-
 struct funcdesc_ht;
 
 #undef SEND_EARLY_STDERR

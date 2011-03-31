@@ -47,8 +47,6 @@
 
 struct elf_resolve;
 
-extern int _dl_linux_resolve(void) attribute_hidden;
-
 struct funcdesc_ht;
 struct elf32_dsbt_loadaddr;
 

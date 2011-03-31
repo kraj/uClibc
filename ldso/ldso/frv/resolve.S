@@ -22,8 +22,8 @@
 	.text
 	.p2align 4
 
-	.hidden	_dl_linux_resolve
 	.global	_dl_linux_resolve
+	.hidden	_dl_linux_resolve
 	.type	_dl_linux_resolve,@function
 
 _dl_linux_resolve:

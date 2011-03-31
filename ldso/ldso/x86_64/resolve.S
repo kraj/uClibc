@@ -25,6 +25,7 @@
 .text
 
 .global _dl_linux_resolve
+.hidden _dl_linux_resolve
 .type   _dl_linux_resolve,%function
 
 _dl_linux_resolve:

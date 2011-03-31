@@ -29,6 +29,7 @@
 	.text
 	.align	4
 	.global	_dl_linux_resolve
+	.hidden	_dl_linux_resolve
 	.type	_dl_linux_resolve, @function
 _dl_linux_resolve:
 	/* Fix up the high 2 bits of the return address.  */

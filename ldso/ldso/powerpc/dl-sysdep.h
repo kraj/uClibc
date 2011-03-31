@@ -66,7 +66,8 @@
 
 #define ARCH_HAS_LAZY
 struct elf_resolve;
-extern ElfW(Addr) _dl_linux_resolver(struct elf_resolve *tpnt, const ElfW(Word) reloc_entry);
+extern ElfW(Addr) _dl_linux_resolver(struct elf_resolve *tpnt,
+				     const ElfW(Word) reloc_entry) attribute_hidden;
 
 void _dl_init_got(unsigned long *lpnt,struct elf_resolve *tpnt);
 

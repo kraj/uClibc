@@ -13,6 +13,7 @@
 
 	.text
 	.global	_dl_linux_resolve
+	.hidden	_dl_linux_resolve
 	.type	_dl_linux_resolve,@function
 _dl_linux_resolve:
 	/* The PLT code pushed r8 for us. It contains the address of this

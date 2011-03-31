@@ -3,8 +3,8 @@
  */
 
 	.text
-	.globl	_dl_linux_resolver
 	.globl	_dl_linux_resolve
+	.hidden	_dl_linux_resolve
 	.type	_dl_linux_resolve, @function
 	.balign	16
 _dl_linux_resolve:
@@ -95,4 +95,3 @@ _dl_linux_resolve:
 .LG:
 	.long	_GLOBAL_OFFSET_TABLE_
 	.size	_dl_linux_resolve, . - _dl_linux_resolve
-

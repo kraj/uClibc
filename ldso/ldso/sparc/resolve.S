@@ -5,8 +5,9 @@
 .text
 .align 16
 
-.globl _dl_linux_resolve
-.type  _dl_linux_resolve,#function
+.globl	_dl_linux_resolve
+.hidden _dl_linux_resolve
+.type	_dl_linux_resolve,#function
 _dl_linux_resolve:
 	/*
 	 * Call the resolver - pass the address of the PLT so that we can

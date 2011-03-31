@@ -27,6 +27,8 @@
 	.text
 	.align 5
 	.global	_dl_linux_resolve
+	.hidden	_dl_linux_resolve
+
 _dl_linux_resolve:
 	stw .d2t2	B14, *B15--[2]
 	stdw .d2t1	A15:A14, *B15--

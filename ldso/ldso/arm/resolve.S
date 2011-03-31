@@ -104,6 +104,7 @@
  #if !defined(__thumb__) || defined(__thumb2__)
  .arm
  .globl _dl_linux_resolve
+ .hidden _dl_linux_resolve
  .type _dl_linux_resolve,%function
  .align 4;
 
@@ -140,6 +141,7 @@ _dl_linux_resolve:
        @ ldr pc the reasonable fix is to make _dl_linux_resolve thumb too.
  .thumb
  .globl _dl_linux_resolve
+ .hidden _dl_linux_resolve
  .thumb_func
  .type _dl_linux_resolve,%function
  _dl_linux_resolve:
