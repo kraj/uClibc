@@ -590,7 +590,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 #ifndef __LDSO_LDD_SUPPORT__
 	if (trace_loaded_objects) {
-		_dl_dprintf(_dl_debug_file, "Use the ldd provided by uClibc\n");
+		_dl_dprintf(2, "Use the ldd provided by uClibc\n");
 		_dl_exit(1);
 	}
 #endif

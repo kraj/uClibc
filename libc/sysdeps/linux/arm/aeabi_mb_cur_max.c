@@ -20,8 +20,8 @@
 #include <locale.h>
 #include <stdlib.h>
 
-int
-__aeabi_MB_CUR_MAX (void)
+int __aeabi_MB_CUR_MAX (void);
+int __aeabi_MB_CUR_MAX (void)
 {
   return MB_CUR_MAX;
 }
