@@ -12,7 +12,7 @@
 /*
  * Define this if the system uses RELOCA.
  */
-#define ELF_USES_RELOCA 1
+#define ELF_USES_RELOCA
 
 /* JMPREL relocs are inside the DT_RELA table.  */
 /* Actually looks like a linker bug sets DT_JMPREL anyway */
