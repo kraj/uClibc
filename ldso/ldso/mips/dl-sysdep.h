@@ -7,7 +7,9 @@
 
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
+#include <sgidefs.h>
 #include <elf.h>
+#include <link.h>
 
 #ifdef __mips64	/* from glibc sysdeps/mips/elf/ldsodefs.h 1.4 */
 /* The 64-bit MIPS ELF ABI uses an unusual reloc format.  Each
@@ -91,8 +93,6 @@ typedef struct
 #define ELF64_R_INFO(sym, type) ELF64_MIPS_R_INFO ((sym), (type))
 #endif	/* __mips64 */
 
-#include <link.h>
-
 #define ARCH_NUM 4
 #define DT_MIPS_GOTSYM_IDX	(DT_NUM + OS_NUM)
 #define DT_MIPS_LOCAL_GOTNO_IDX	(DT_NUM + OS_NUM +1)
@@ -157,6 +157,9 @@ do {										\
 
 unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	unsigned long old_gpreg);
+
+extern int _dl_runtime_resolve(void);
+extern int _dl_runtime_pltresolve(void);
 
 struct elf_resolve;
 void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy);

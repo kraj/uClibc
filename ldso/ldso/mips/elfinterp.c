@@ -29,8 +29,6 @@
 
 #include <ldso.h>
 
-extern int _dl_runtime_pltresolve(void);
-
 #define OFFSET_GP_GOT 0x7ff0
 
 unsigned long __dl_runtime_resolve(unsigned long sym_index,
@@ -95,9 +93,10 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 				     ElfW(Addr) rel_addr,
 				     ElfW(Word) rel_size)
 {
+	ElfW(Addr) *reloc_addr = NULL;
 	struct elf_resolve *tpnt = xpnt->dyn;
 #if defined (__SUPPORT_LD_DEBUG__)
-	ElfW(Addr) old_val;
+	ElfW(Addr) old_val = 0;
 #endif
 	const ElfW(Sym) *const symtab = (const void *)tpnt->dynamic_info[DT_SYMTAB];
 	const char *strtab = (const void *)tpnt->dynamic_info[DT_STRTAB];
@@ -109,7 +108,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 	const ElfW(Addr) *got = (const ElfW(Addr) *)tpnt->dynamic_info[DT_PLTGOT];
 
 	for (unsigned int i = 0; i < rel_size; i++, rpnt++) {
-		ElfW(Addr) *reloc_addr = (ElfW(Addr) *)(tpnt->loadaddr + rpnt->r_offset);
+		reloc_addr = (ElfW(Addr) *)(tpnt->loadaddr + rpnt->r_offset);
 		const unsigned int reloc_type = ELF_R_TYPE(rpnt->r_info);
 		const int symtab_index = ELF_R_SYM(rpnt->r_info);
 		ElfW(Addr) symbol_addr = 0;
@@ -138,6 +137,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 
 				/* Let the caller handle the error: it may be non fatal if called from dlopen */
 				return 1;
+			}
 		}
 
 		if (!symtab_index) {
@@ -203,10 +203,9 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #endif
 						break;
 				}
-
 				break;
 			}
-#endif /* __UCLIBC_HAS_TLS */
+#endif /* __UCLIBC_HAS_TLS__ */
 #if _MIPS_SIM == _MIPS_SIM_ABI64
 		case (R_MIPS_64 << 8) | R_MIPS_REL32:
 #else	/* O32 || N32 */
@@ -252,8 +251,8 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 				_dl_exit(1);
 			}
 		}
-
 	}
+
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_reloc && _dl_debug_detail && reloc_addr)
 		_dl_dprintf(_dl_debug_file, "\n\tpatched: %x ==> %x @ %p\n",
