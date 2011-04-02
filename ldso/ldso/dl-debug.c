@@ -39,25 +39,35 @@
 
 #include <ldso.h>
 
-#if defined (__SUPPORT_LD_DEBUG__)
+#ifdef __SUPPORT_LD_DEBUG__
 
 /* include the arch-specific _dl_reltypes_tab */
-#include "dl-debug.h"
+#include <dl-debug.h>
+
+#if defined IS_IN_rtld || !defined SHARED
+char *_dl_debug           = NULL;
+char *_dl_debug_symbols   = NULL;
+char *_dl_debug_move      = NULL;
+char *_dl_debug_reloc     = NULL;
+char *_dl_debug_detail    = NULL;
+char *_dl_debug_nofixups  = NULL;
+char *_dl_debug_bindings  = NULL;
+int   _dl_debug_file      = 2;
+#endif
 
 static const char *_dl_reltypes(int type)
 {
 	static char buf[50];
 	const char *str;
-	int tabsize;
 
-	tabsize = (int)(sizeof(_dl_reltypes_tab) / sizeof(_dl_reltypes_tab[0]));
+	const int tabsize = (int)(sizeof(_dl_reltypes_tab) / sizeof(_dl_reltypes_tab[0]));
 
 	if (type >= tabsize || (str = _dl_reltypes_tab[type]) == NULL)
 		str = _dl_simple_ltoa(buf, (unsigned long)type);
 
 	return str;
 }
-static void debug_sym(const ElfW(Sym) *const symtab, const char *strtab, const int symtab_index)
+static void __attribute_used__ debug_sym(const ElfW(Sym) *const symtab, const char *strtab, const int symtab_index)
 {
 	if (!_dl_debug_symbols || !symtab_index)
 		return;
@@ -72,7 +82,7 @@ static void debug_sym(const ElfW(Sym) *const symtab, const char *strtab, const i
 		symtab[symtab_index].st_shndx);
 }
 
-static void debug_reloc(const ElfW(Sym) *const symtab, const char *strtab, const ELF_RELOC *const rpnt)
+static void __attribute_used__ debug_reloc(const ElfW(Sym) *const symtab, const char *strtab, const ELF_RELOC *const rpnt)
 {
 	if (!_dl_debug_reloc)
 		return;
@@ -80,11 +90,8 @@ static void debug_reloc(const ElfW(Sym) *const symtab, const char *strtab, const
 	if (_dl_debug_symbols) {
 		_dl_dprintf(_dl_debug_file, "\n\t");
 	} else {
-		int symtab_index;
-		const char *sym;
-
-		symtab_index = ELF_R_SYM(rpnt->r_info);
-		sym = symtab_index ? strtab + symtab[symtab_index].st_name : "sym=0x0";
+		const int symtab_index = ELF_R_SYM(rpnt->r_info);
+		const char *sym = symtab_index ? strtab + symtab[symtab_index].st_name : "sym=0x0";
 
 		_dl_dprintf(_dl_debug_file, "\n%s\n\t", sym);
 	}
@@ -97,10 +104,5 @@ static void debug_reloc(const ElfW(Sym) *const symtab, const char *strtab, const
 #endif
 	_dl_dprintf(_dl_debug_file, "\n");
 }
-
-#else
-
-#define debug_sym(symtab, strtab, symtab_index)
-#define debug_reloc(symtab, strtab, rpnt)
 
 #endif /* __SUPPORT_LD_DEBUG__ */

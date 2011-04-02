@@ -87,16 +87,6 @@ extern char *_dl_debug;
 /* When libdl is linked as a static library, we need to replace all
  * the symbols that otherwise would have been loaded in from ldso... */
 
-#ifdef __SUPPORT_LD_DEBUG__
-char *_dl_debug  = NULL;
-char *_dl_debug_symbols   = NULL;
-char *_dl_debug_move      = NULL;
-char *_dl_debug_reloc     = NULL;
-char *_dl_debug_detail    = NULL;
-char *_dl_debug_nofixups  = NULL;
-char *_dl_debug_bindings  = NULL;
-int   _dl_debug_file      = 2;
-#endif
 const char *_dl_progname       = "";        /* Program name */
 void *(*_dl_malloc_function)(size_t);
 void (*_dl_free_function) (void *p);

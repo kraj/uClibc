@@ -59,17 +59,6 @@ void (*_dl_free_function) (void *p) = NULL;
 
 static int _dl_secure = 1; /* Are we dealing with setuid stuff? */
 
-#ifdef __SUPPORT_LD_DEBUG__
-char *_dl_debug           = NULL;
-char *_dl_debug_symbols   = NULL;
-char *_dl_debug_move      = NULL;
-char *_dl_debug_reloc     = NULL;
-char *_dl_debug_detail    = NULL;
-char *_dl_debug_nofixups  = NULL;
-char *_dl_debug_bindings  = NULL;
-int   _dl_debug_file      = 2;
-#endif
-
 /* Needed for standalone execution. */
 unsigned long attribute_hidden _dl_skip_args = 0;
 const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being run */
