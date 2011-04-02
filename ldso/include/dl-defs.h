@@ -72,8 +72,10 @@ typedef struct {
 
 #endif
 
+#ifdef _LIBC
 /* arch specific defines */
 #include <dl-sysdep.h>
+#endif
 
 /* Provide a means for a port to pass additional arguments to the _dl_start
    function.  */
