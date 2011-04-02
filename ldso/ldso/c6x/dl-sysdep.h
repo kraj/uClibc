@@ -42,6 +42,11 @@
 /* Used for error messages */
 #define ELF_TARGET "C6000"
 
+#define ELF_MACHINE_JMP_SLOT R_C6000_JUMP_SLOT
+#define ELF_MACHINE_NONE R_C6000_NONE
+#define DL_RESOLVER_TYPE char *
+#define DSBT_FLUSH_RELOCS _dl_c6x_flush_relocs(tpnt->loadaddr.map);
+
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
 

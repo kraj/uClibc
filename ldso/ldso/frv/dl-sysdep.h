@@ -40,10 +40,12 @@
 /* Used for error messages */
 #define ELF_TARGET "FR-V"
 
+#define ELF_MACHINE_NONE R_FRV_NONE
+#define ELF_MACHINE_FUNCDESC R_FRV_FUNCDESC_VALUE
+#define DL_RESOLVER_TYPE struct funcdesc_value *
+
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
-
-struct elf_resolve;
 
 struct funcdesc_value
 {

@@ -45,8 +45,6 @@
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
 
-unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got) attribute_hidden;
-
 #define elf_machine_type_class(type)				\
 	((type == R_AVR32_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)
 

@@ -105,10 +105,8 @@ extern void _dl_protect_relro (struct elf_resolve *l);
 extern int _dl_linux_resolve(void) attribute_hidden;
 
 /* define all uncommon prototypes in arch specific dl-sysdep.h */
-#ifdef ELF_MACHINE_JMP_SLOT
 extern DL_RESOLVER_TYPE _dl_linux_resolver(struct elf_resolve *tpnt,
 					   const ElfW(Word) reloc_entry) attribute_hidden;
-#endif
 
 extern unsigned int _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, ElfW(Word) dynamic_info[],
                                            void *debug_addr, DL_LOADADDR_TYPE load_off) attribute_hidden;

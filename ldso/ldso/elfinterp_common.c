@@ -8,37 +8,68 @@
  * DL_RESOLVER_TYPE is ElfW(Addr) for non FDPIC
  */
 
-#ifdef ELF_MACHINE_JMP_SLOT
+#ifdef __FDPIC__
+#define DL_RESOLVER_PTR DL_RESOLVER_TYPE
+#else
+#define DL_RESOLVER_PTR DL_RESOLVER_TYPE *
+#endif
+
+#if defined ELF_MACHINE_JMP_SLOT || defined ELF_MACHINE_FUNCDESC
 DL_RESOLVER_TYPE _dl_linux_resolver(struct elf_resolve *tpnt, const ElfW(Word) reloc_entry)
 {
 	char *new_addr;
-	char **got_addr;
+# ifdef __FDPIC__
+	struct funcdesc_value funcval;
+	struct funcdesc_value __volatile__ *got;
+# else
+	char **got;
+# endif
 
 	const ElfW(Sym) *const symtab = (const void *)tpnt->dynamic_info[DT_SYMTAB];
 	const char *strtab = (const void *)tpnt->dynamic_info[DT_STRTAB];
 
 	const ELF_RELOC *const this_reloc = (const void *)(tpnt->dynamic_info[DT_JMPREL] + reloc_entry);
 	const int symtab_index = ELF_R_SYM(this_reloc->r_info);
-	const char *symname = strtab + symtab[symtab_index].st_name;
+	struct symbol_ref sym_ref;
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
+	const char *symname = strtab + sym_ref.sym->st_name;
+# ifndef __FDPIC__
 	void *const instr_addr = (void *)DL_RELOC_ADDR(tpnt->loadaddr, this_reloc->r_offset);
+# endif
 
 	debug_sym(symtab, strtab, symtab_index);
 	debug_reloc(symtab, strtab, this_reloc);
 
 	/* Sanity check */
+# ifdef ELF_MACHINE_JMP_SLOT
 	_dl_assert(ELF_R_TYPE(this_reloc->r_info) != ELF_MACHINE_JMP_SLOT);
+# endif
 
-	got_addr = (char **)instr_addr;
+# ifdef __FDPIC__
+	got = (DL_RESOLVER_TYPE)DL_RELOC_ADDR(tpnt->loadaddr, this_reloc->r_offset);
+# else
+	got = (char **)instr_addr;
+# endif
 
 # ifdef __SUPPORT_LD_DEBUG__
 	if (_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "\n\tResolving symbol '%s' %x --> ",
-			    symname, (ElfW(Addr))got_addr);
+			    symname, got);
 # endif
 
 	/* Get the address of the GOT entry */
+# ifdef __FDPIC__
+	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, NULL, 0, &sym_ref);
+# else
 	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
+# endif
 	if (unlikely(!new_addr)) {
+# ifdef __FDPIC__
+	    new_addr = _dl_find_hash(symname, NULL, NULL, 0, &sym_ref);
+	    if (unlikely(!new_addr))
+# endif
+	    {
 # ifdef __SUPPORT_LD_DEBUG__
 		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'\n",
 			    _dl_progname, symname, tpnt->libname);
@@ -47,34 +78,53 @@ DL_RESOLVER_TYPE _dl_linux_resolver(struct elf_resolve *tpnt, const ElfW(Word) r
 			    _dl_progname, symname);
 # endif
 		_dl_exit(1);
+	    }
 	}
+
+# ifdef __FDPIC__
+	funcval.entry_point = new_addr;
+	funcval.got_value = sym_ref.tpnt->loadaddr.got_value;
+# endif
 
 # ifdef __SUPPORT_LD_DEBUG__
 #  ifdef __sh__
 #   define SOME_ADDR 0x20000000
-#  else
+#  elif !defined __DSBT__ && !defined __FDPIC__
 #   define SOME_ADDR 0x40000000
 #  endif
-#  ifndef __SUPPORT_LD_DEBUG_EARLY__
-	if ((ElfW(Addr))got_addr < SOME_ADDR)
+#  if !defined __SUPPORT_LD_DEBUG_EARLY__ && defined SOME_ADDR
+	if ((ElfW(Addr))got < SOME_ADDR)
 #  endif
 	{
 		if (_dl_debug_bindings) {
 			_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
 			if (_dl_debug_detail)
-				_dl_dprintf(_dl_debug_file, "\n\tpatched: %p ==> %p @ %p",
-					    *got_addr, new_addr, got_addr);
+				_dl_dprintf(_dl_debug_file,
+# ifdef __FDPIC__
+					    "\n\tpatched (%p,%p) ==> (%p,%p) @ %p",
+					    got->entry_point, got->got_value,
+					    funcval.entry_point, funcval.got_value,
+# else
+					    "\n\tpatched: %p ==> %p @ %p",
+					    *got, new_addr,
+# endif
+					    got);
 		}
 	}
 	if (!_dl_debug_nofixups)
 # endif
-# ifdef DL_GOT_ADDR
-		DL_GOT_ADDR(got_addr, new_addr)
+# ifdef __FDPIC__
+		*got = funcval;
+	/* psm: this is wrong, it should use probably funcval */
+	return got;
 # else
-		*got_addr = new_addr;
-# endif
-
+#  ifdef DL_GOT_ADDR
+		DL_GOT_ADDR(got, new_addr)
+#  else
+		*got = new_addr;
+#  endif
 	return (DL_RESOLVER_TYPE)new_addr;
+# endif
 }
 #endif
 
@@ -130,6 +180,9 @@ static int _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			return res;
 		}
 	}
+# ifdef DSBT_FLUSH_RELOCS
+	DSBT_FLUSH_RELOCS
+# endif
 	return 0;
 }
 
@@ -141,22 +194,37 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 }
 #endif
 
-#if defined ELF_MACHINE_NONE && defined ELF_MACHINE_JMP_SLOT
+#if defined ELF_MACHINE_NONE && (defined ELF_MACHINE_JMP_SLOT || defined ELF_MACHINE_FUNCDESC)
 static __always_inline int _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope attribute_unused,
 					     ELF_RELOC *rpnt, const ElfW(Sym) *const symtab attribute_unused,
 					     const char *strtab attribute_unused)
 {
 	const unsigned int reloc_type = ELF_R_TYPE(rpnt->r_info);
-	ElfW(Addr) *reloc_addr = (ElfW(Addr) *)DL_RELOC_ADDR(tpnt->loadaddr, rpnt->r_offset);
+	DL_RESOLVER_PTR reloc_addr = (DL_RESOLVER_PTR)DL_RELOC_ADDR(tpnt->loadaddr, rpnt->r_offset);
+# ifdef __FDPIC__
+	struct funcdesc_value funcval;
+# endif
 # ifdef __SUPPORT_LD_DEBUG__
+#  ifdef __FDPIC__
+	ElfW(Addr) old_val = (ElfW(Addr))reloc_addr->entry_point;
+#  else
 	ElfW(Addr) old_val = *reloc_addr;
+#  endif
 # endif
 
 	switch (reloc_type) {
 		case ELF_MACHINE_NONE:
 			break;
+# ifdef __FDPIC__
+		case ELF_MACHINE_FUNCDESC:
+				funcval = *reloc_addr;
+				funcval.entry_point = (void *)DL_RELOC_ADDR(tpnt->loadaddr, funcval.entry_point);
+				funcval.got_value = tpnt->loadaddr.got_value;
+				*reloc_addr = funcval;
+# else
 		case ELF_MACHINE_JMP_SLOT:
-			*reloc_addr += tpnt->loadaddr;
+			*reloc_addr = DL_RELOC_ADDR(tpnt->loadaddr, *reloc_addr);
+# endif
 			break;
 		default:
 			return -1;
@@ -165,7 +233,11 @@ static __always_inline int _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dy
 # ifdef __SUPPORT_LD_DEBUG__
 	if (_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "\n\tpatched: %x ==> %x @ %p",
+#  ifdef __FDPIC__
+			    old_val, reloc_addr->entry_point, reloc_addr);
+#  else
 			    old_val, *reloc_addr, reloc_addr);
+#  endif
 # endif
 
 	return 0;

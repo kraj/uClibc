@@ -27,7 +27,8 @@
  * SUCH DAMAGE.
  */
 
-unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got)
+/*unsigned long _dl_linux_resolver(unsigned long got_offset, unsigned long *got)*/
+DL_RESOLVER_TYPE _dl_linux_resolver(struct elf_resolve *tpnt, const ElfW(Word) reloc_entry)
 {
 	/*
 	 * AVR32 currently does not do lazy relocation.
