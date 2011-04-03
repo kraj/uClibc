@@ -69,7 +69,7 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	{
 		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
 		if (_dl_debug_detail) _dl_dprintf(_dl_debug_file,
-				"\n\tpatched %x ==> %x @ %x\n", *got_addr, new_addr, got_addr);
+				"\n\tpatched %p ==> %x @ %p\n", *got_addr, new_addr, got_addr);
 	}
 	if (!_dl_debug_nofixups) {
 		*got_addr = (char*)new_addr;
