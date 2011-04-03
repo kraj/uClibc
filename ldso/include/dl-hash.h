@@ -8,13 +8,27 @@
 #ifndef _DL_HASH_H
 #define _DL_HASH_H
 
+#include <features.h>
+
+#include <elf.h>
+#include <link.h>
+
+#include <dlfcn.h>
 #ifndef RTLD_NEXT
 #define RTLD_NEXT	((void*)-1)
 #endif
 
+#include <dl-elf.h>	/* DYNAMIC_SIZE */
+
 struct init_fini {
 	struct elf_resolve **init_fini;
 	unsigned long nlist; /* Number of entries in init_fini */
+};
+
+/* For INIT/FINI dependency sorting. */
+struct init_fini_list {
+	struct init_fini_list *next;
+	struct elf_resolve *tpnt;
 };
 
 struct dyn_elf {
@@ -40,7 +54,7 @@ struct elf_resolve {
   struct elf_resolve * prev;
   /* Nothing after this address is used by gdb. */
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
   /* Thread-local storage related info.  */
 
   /* Start of the initialization image.  */

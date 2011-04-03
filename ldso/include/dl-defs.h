@@ -8,6 +8,8 @@
 #ifndef _DL_DEFS_H
 #define _DL_DEFS_H
 
+#include <features.h>
+
 #define FLAG_ANY             -1
 #define FLAG_TYPE_MASK       0x00ff
 #define FLAG_LIBC4           0x0000

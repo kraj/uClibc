@@ -8,11 +8,11 @@
 #ifndef _DL_SYSCALL_H
 #define _DL_SYSCALL_H
 
-/* Pull in the arch specific syscall implementation */
-#include <dl-syscalls.h>
-/*  For MAP_ANONYMOUS -- differs between platforms */
-#define _SYS_MMAN_H 1
-#include <bits/mman.h>
+#include <features.h>
+
+#include <sys/syscall.h>
+#include <sys/mman.h>	/* MAP_ANONYMOUS -- differs between platforms */
+
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
  * struct stat should look like.  It turns out that each arch has a different
  * opinion on the subject, and different kernel revs use different names... */
@@ -24,10 +24,12 @@
 #include <bits/kernel_stat.h>
 #include <bits/kernel_types.h>
 
-/* Protection bits.  */
+/* Protection bits. -- instead of including sys/stat.h */
 #define	S_ISUID		04000	/* Set user ID on execution.  */
 #define	S_ISGID		02000	/* Set group ID on execution.  */
 
+/* Pull in the arch specific syscall implementation */
+#include <dl-syscalls.h>
 
 /* Here are the definitions for some syscalls that are used
    by the dynamic linker.  The idea is that we want to be able

@@ -1,53 +1,43 @@
 /* vi: set sw=4 ts=4: */
 /*
- * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2011 by Erik Andersen <andersen@codepoet.org>
  *
- * GNU Lesser General Public License version 2.1 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #ifndef _LDSO_H
 #define _LDSO_H
 
 #include <features.h>
-
-/* Prepare for the case that `__builtin_expect' is not available.  */
-#if defined __GNUC__ && __GNUC__ == 2 && __GNUC_MINOR__ < 96
-#define __builtin_expect(x, expected_value) (x)
-#endif
-#ifndef likely
-# define likely(x)	__builtin_expect((!!(x)),1)
-#endif
-#ifndef unlikely
-# define unlikely(x)	__builtin_expect((!!(x)),0)
-#endif
-#ifndef __LINUX_COMPILER_H
-#define __LINUX_COMPILER_H
-#endif
-
-/* Pull in compiler and arch stuff */
-#include <stdlib.h>
+#define __need_NULL
+#include <stddef.h>
 #include <stdarg.h>
-#define _FCNTL_H
-#include <bits/fcntl.h>
-#include <bits/wordsize.h>
-/* Pull in the arch specific type information */
+#include <stdlib.h>
 #include <sys/types.h>
+#include <bits/wordsize.h>
+#include <elf.h>
+#include <link.h>
 /* Pull in the arch specific page size */
 #include <bits/uClibc_page.h>
-/* Pull in the ldso syscalls and string functions */
-#ifndef __ARCH_HAS_NO_SHARED__
-#include <dl-syscall.h>
-#include <dl-string.h>
-#include <dlfcn.h>
-/* Now the ldso specific headers */
-#include <dl-elf.h>
-#ifdef __UCLIBC_HAS_TLS__
-/* Defines USE_TLS */
-#include <tls.h>
-#endif
-#include <dl-hash.h>
 
-/* common align masks, if not specified by sysdep headers */
+#include <dl-defs.h>
+
+#ifndef __ARCH_HAS_NO_SHARED__
+#define _FCNTL_H
+#include <bits/fcntl.h>
+#include <dlfcn.h>
+
+#include <dl-string.h>
+#include <dl-elf.h>
+#include <dl-hash.h>
+#include <dl-syscall.h>
+#ifdef __UCLIBC_HAS_TLS__
+# include <tls.h>
+# include <dl-tls.h>
+#endif
+#include <ldsodefs.h>
+
+/* common align masks, if not specified by dl-sysdep.h */
 #ifndef ADDR_ALIGN
 #define ADDR_ALIGN (_dl_pagesize - 1)
 #endif
@@ -60,12 +50,6 @@
 #define OFFS_ALIGN (PAGE_ALIGN & ~(1ul << (sizeof(_dl_pagesize) * 8 - 1)))
 #endif
 
-/* For INIT/FINI dependency sorting. */
-struct init_fini_list {
-	struct init_fini_list *next;
-	struct elf_resolve *tpnt;
-};
-
 /* Global variables used within the shared library loader */
 extern char *_dl_library_path attribute_hidden;	/* Where we look for libraries */
 extern char *_dl_preload;			/* Things to be loaded before the libs */
@@ -73,15 +57,11 @@ extern char *_dl_ldsopath;			/* Where the shared lib loader was found */
 extern const char *_dl_progname;		/* The name of the executable being run */
 extern size_t _dl_pagesize;			/* Store the page size for use later */
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 extern void _dl_add_to_slotinfo (struct link_map  *l);
 extern void ** __attribute__ ((const)) _dl_initial_error_catch_tsd (void);
 #endif
 
-#ifdef USE_TLS
-void _dl_add_to_slotinfo (struct link_map  *l);
-void ** __attribute__ ((const)) _dl_initial_error_catch_tsd (void);
-#endif
 #ifdef __SUPPORT_LD_DEBUG__
 extern char *_dl_debug;
 extern char *_dl_debug_symbols;
@@ -100,6 +80,10 @@ extern int   _dl_debug_file;
 # define _dl_if_debug_dprint(fmt, args...) do {} while (0)
 /* disabled on purpose, _dl_debug_file should be guarded by __SUPPORT_LD_DEBUG__
 # define _dl_debug_file 2*/
+
+# define debug_sym(symtab, strtab, symtab_index)
+# define debug_reloc(symtab, strtab, rpnt)
+
 #endif /* __SUPPORT_LD_DEBUG__ */
 
 #ifdef IS_IN_rtld
@@ -129,14 +113,17 @@ extern int   _dl_debug_file;
 #define NULL ((void *) 0)
 #endif
 
+#ifdef IS_IN_rtld
 extern void *_dl_malloc(size_t size);
 extern void *_dl_calloc(size_t __nmemb, size_t __size);
 extern void *_dl_realloc(void *__ptr, size_t __size);
 extern void _dl_free(void *);
-#ifdef IS_IN_rtld
 extern char *_dl_strdup(const char *string) attribute_hidden;
 extern void _dl_dprintf(int, const char *, ...) attribute_hidden;
 #else
+# include <stdlib.h>
+# define _dl_malloc malloc
+# define _dl_free free
 # include <string.h>
 # define _dl_strdup strdup
 # include <stdio.h>
@@ -162,8 +149,6 @@ extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load
 #include <dl-inlines.h>
 #endif
 
-#else /* __ARCH_HAS_NO_SHARED__ */
-#include <dl-defs.h>
-#endif
+#endif /* __ARCH_HAS_NO_SHARED__ */
 
 #endif /* _LDSO_H */

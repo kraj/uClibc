@@ -10,9 +10,9 @@
 
 #include <features.h>
 #include <bits/wordsize.h>
-#include <dl-string.h> /* before elf.h to get ELF_USES_RELOCA right */
 #include <elf.h>
 #include <link.h>
+
 #include <dl-defs.h>
 
 /* Forward declarations for stuff defined in dl-hash.h */
@@ -215,12 +215,10 @@ unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, ElfW(Word) dynamic_info[],
    itself, e.g., a function descriptor.  */
 #define ELF_RTYPE_CLASS_DLSYM 0x80000000
 
-
 /* Convert between the Linux flags for page protections and the
    ones specified in the ELF standard. */
 #define LXFLAGS(X) ( (((X) & PF_R) ? PROT_READ : 0) | \
 		    (((X) & PF_W) ? PROT_WRITE : 0) | \
 		    (((X) & PF_X) ? PROT_EXEC : 0))
-
 
 #endif /* _DL_ELF_H */
