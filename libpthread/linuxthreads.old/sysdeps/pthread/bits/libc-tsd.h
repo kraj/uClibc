@@ -35,7 +35,7 @@ enum __libc_tsd_key_t { _LIBC_TSD_KEY_MALLOC = 0,
 
 #include <linuxthreads.old/internals.h>
 
-#if defined(USE_TLS) && USE_TLS && HAVE___THREAD
+#ifdef __UCLIBC_HAS_TLS__
 
 /* When __thread works, the generic definition is what we want.  */
 # include <sysdeps/generic/bits/libc-tsd.h>
