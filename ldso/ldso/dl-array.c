@@ -28,8 +28,7 @@
  * SUCH DAMAGE.
  */
 
-
-#include "ldso.h"
+#include <ldso.h>
 
 static void _dl_run_array_forward(unsigned long array, unsigned long size,
                                   DL_LOADADDR_TYPE loadaddr)

@@ -39,13 +39,13 @@
 #include <tls.h>
 #endif
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 #include <ldsodefs.h>
 extern void _dl_add_to_slotinfo(struct link_map  *l);
 #endif
 
 #ifdef SHARED
-# if defined(USE_TLS) && USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
 # include <dl-tls.h>
 extern struct link_map *_dl_update_slotinfo(unsigned long int req_modid);
 # endif
@@ -103,7 +103,7 @@ struct r_debug *_dl_debug_addr = NULL;
 #include "../ldso/dl-debug.c"
 
 
-# if defined(USE_TLS) && USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
 /*
  * Giving this initialized value preallocates some surplus bytes in the
  * static TLS area, see __libc_setup_tls (libc-tls.c).
@@ -157,7 +157,7 @@ static const char *const dl_error_names[] = {
 };
 
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 #ifdef SHARED
 /*
  * Systems which do not have tls_index also probably have to define
@@ -275,7 +275,7 @@ void *dlopen(const char *libname, int flag)
 	unsigned int nlist, i;
 	struct elf_resolve **init_fini_list;
 	static bool _dl_init;
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	bool any_tls = false;
 #endif
 
@@ -510,7 +510,7 @@ void *dlopen(const char *libname, int flag)
 	/* TODO:  Should we set the protections of all pages back to R/O now ? */
 
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 
 	for (i=0; i < nlist; i++) {
 		struct elf_resolve *tmp_tpnt = init_fini_list[i];
@@ -661,7 +661,7 @@ void *dlsym(void *vhandle, const char *name)
 		tpnt = handle->dyn; /* Only search RTLD_GLOBAL objs if global object */
 	ret = _dl_find_hash(name2, handle, tpnt, 0, &sym_ref);
 
-#if defined(USE_TLS) && USE_TLS && defined SHARED
+#if defined __UCLIBC_HAS_TLS__ && defined SHARED
 	if (sym_ref.tpnt) {
 		/* The found symbol is a thread-local storage variable.
 		Return the address for to the current thread.  */
@@ -700,7 +700,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 	struct dyn_elf *handle;
 	unsigned int end;
 	unsigned int i, j;
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	bool any_tls = false;
 	size_t tls_free_start = NO_TLS_OFFSET;
 	size_t tls_free_end = NO_TLS_OFFSET;
@@ -763,7 +763,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 					end = ppnt->p_vaddr + ppnt->p_memsz;
 			}
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 			/* Do the cast to make things easy. */
 			tls_lmap = (struct link_map *) tpnt;
 
@@ -920,7 +920,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 	free(handle->init_fini.init_fini);
 	free(handle);
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	/* If we removed any object which uses TLS bump the generation counter.  */
 	if (any_tls) {
 		if (__builtin_expect(++_dl_tls_generation == 0, 0)) {

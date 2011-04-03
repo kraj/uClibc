@@ -28,7 +28,7 @@
 
 #include <tls.h>
 #include <dl-tls.h>
-#include <ldsodefs.h>
+#include <ldso.h>
 
 void *(*_dl_calloc_function) (size_t __nmemb, size_t __size) = NULL;
 void *(*_dl_realloc_function) (void *__ptr, size_t __size) = NULL;
@@ -1035,4 +1035,3 @@ init_tls (void)
 }
 rtld_hidden_def (init_tls)
 #endif
-

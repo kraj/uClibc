@@ -89,11 +89,10 @@
  * the user's application.
  */
 
-#include "ldso.h"
+#include <ldso.h>
 
 /* Pull in all the arch specific stuff */
-#include "dl-startup.h"
-#include <ldsodefs.h>
+#include <dl-startup.h>
 
 /* Static declarations */
 static int (*_dl_elf_main) (int, char **, char **);
@@ -216,7 +215,7 @@ DL_START(unsigned long args)
 	 *                 more work than what is done below for the
 	 *                 loader will have to happen.
 	 */
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	/* This was done by _dl_memset above. */
 	/* tpnt->l_tls_modid = 0; */
 # if NO_TLS_OFFSET != 0

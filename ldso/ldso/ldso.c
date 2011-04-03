@@ -30,15 +30,16 @@
  * SUCH DAMAGE.
  */
 
-#include "ldso.h"
-#include "unsecvars.h"
+#include <ldso.h>
+
+#include <unsecvars.h>
 
 /* Pull in common debug code */
 #include "dl-debug.c"
 
 #define ALLOW_ZERO_PLTGOT
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 #include "dl-tls.c"
 #endif
 
@@ -214,7 +215,7 @@ void _dl_free(void *p)
 		(*_dl_free_function) (p);
 }
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 void *_dl_memalign(size_t __boundary, size_t __size)
 {
 	void *result;
@@ -283,7 +284,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
 	struct stat st;
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	void *tcbp = NULL;
 #endif
 
@@ -364,7 +365,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		unlazy = RTLD_NOW;
 	}
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	_dl_error_catch_tsd = &_dl_initial_error_catch_tsd;
 	_dl_init_static_tls = &_dl_nothread_init_static_tls;
 #endif
@@ -484,7 +485,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 		/* Discover any TLS sections if the target supports them. */
 		if (ppnt->p_type == PT_TLS) {
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 			if (ppnt->p_memsz > 0) {
 				app_tpnt->l_tls_blocksize = ppnt->p_memsz;
 				app_tpnt->l_tls_align = ppnt->p_align;
@@ -511,7 +512,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	app_tpnt->relro_addr = relro_addr;
 	app_tpnt->relro_size = relro_size;
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	/*
 	 * Adjust the address of the TLS initialization image in
 	 * case the executable is actually an ET_DYN object.
@@ -921,7 +922,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	}
 #endif
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	/* We do not initialize any of the TLS functionality unless any of the
 	 * initial modules uses TLS.  This makes dynamic loading of modules with
 	 * TLS impossible, but to support it requires either eagerly doing setup
@@ -974,7 +975,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_protect_relro (tpnt);
 	}
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	if (!was_tls_init_tp_called && _dl_tls_max_dtv_idx > 0)
 		++_dl_tls_generation;
 
@@ -994,7 +995,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			_dl_exit(30);
 		}
 	}
-#endif /* USE_TLS */
+#endif /* __UCLIBC_HAS_TLS__ */
 
 	/* OK, at this point things are pretty much ready to run.  Now we need
 	 * to touch up a few items that are required, and then we can let the
@@ -1061,7 +1062,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	_dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "malloc",
 			_dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
-#if defined(USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	/* Find the real functions and make ldso functions use them from now on */
 	_dl_calloc_function = (void* (*)(size_t, size_t)) (intptr_t)
 		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);

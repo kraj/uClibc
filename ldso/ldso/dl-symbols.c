@@ -15,6 +15,7 @@
  * in the system with pointers to all of the symbol, string, and hash tables,
  * as well as all of the other good stuff in the binary.
  */
+
 #include <ldso.h>
 
 struct elf_resolve *_dl_loaded_modules = NULL;
