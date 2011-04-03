@@ -54,7 +54,7 @@ DL_RESOLVER_TYPE _dl_linux_resolver(struct elf_resolve *tpnt, const ElfW(Word) r
 
 # ifdef __SUPPORT_LD_DEBUG__
 	if (_dl_debug_reloc && _dl_debug_detail)
-		_dl_dprintf(_dl_debug_file, "\n\tResolving symbol '%s' %x --> ",
+		_dl_dprintf(_dl_debug_file, "\n\tResolving symbol '%s' %p --> ",
 			    symname, got);
 # endif
 
