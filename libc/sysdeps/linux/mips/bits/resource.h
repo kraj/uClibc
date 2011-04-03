@@ -23,6 +23,7 @@
 #endif
 
 #include <bits/types.h>
+#include <sgidefs.h>
 
 /* Transmute defines to enumerations.  The macro re-definitions are
    necessary because some programs want to test for operating system
