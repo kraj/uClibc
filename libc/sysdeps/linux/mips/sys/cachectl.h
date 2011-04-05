@@ -31,7 +31,9 @@ __BEGIN_DECLS
 #ifdef __USE_MISC
 extern int cachectl (void *addr, __const int nbytes, __const int op) __THROW;
 #endif
+#if 0
 extern int __cachectl (void *addr, __const int nbytes, __const int op) __THROW;
+#endif
 #ifdef __USE_MISC
 extern int cacheflush (void *addr, __const int nbytes, __const int op) __THROW;
 #endif
