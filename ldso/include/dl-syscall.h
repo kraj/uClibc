@@ -8,10 +8,15 @@
 #ifndef _DL_SYSCALL_H
 #define _DL_SYSCALL_H
 
+#ifdef IS_IN_rtld
+
 #include <features.h>
 
 #include <sys/syscall.h>
 #include <sys/mman.h>	/* MAP_ANONYMOUS -- differs between platforms */
+
+#define _FCNTL_H
+#include <bits/fcntl.h>
 
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
  * struct stat should look like.  It turns out that each arch has a different
@@ -124,8 +129,6 @@ static __always_inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv,
 #endif
 
 #define MAP_FAILED ((void *) -1)
-#define _dl_mmap_check_error(X) (((void *)X) == MAP_FAILED)
-
 static __always_inline
 void *_dl_mmap(void *addr, unsigned long size, int prot,
                int flags, int fd, unsigned long offset)
@@ -159,5 +162,27 @@ void *_dl_mmap(void *addr, unsigned long size, int prot,
 # error "Your architecture doesn't seem to provide mmap() !?"
 #endif
 }
+
+#else /* IS_IN_rtld */
+
+#include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#define _dl_exit _exit
+#define _dl_close close
+#define _dl_open open
+#define _dl_write write
+#define _dl_read read
+#define _dl_mprotect mprotect
+#define _dl_stat stat
+#define _dl_fstat fstat
+#define _dl_munmap munmap
+#define _dl_mmap mmap
+
+#endif /* IS_IN_rtld */
+
+#define _dl_mmap_check_error(X) (((void *)X) == MAP_FAILED)
 
 #endif /* _DL_SYSCALL_H */

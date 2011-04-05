@@ -23,8 +23,6 @@
 #include <dl-defs.h>
 
 #ifndef __ARCH_HAS_NO_SHARED__
-#define _FCNTL_H
-#include <bits/fcntl.h>
 #include <dlfcn.h>
 
 #include <dl-string.h>
