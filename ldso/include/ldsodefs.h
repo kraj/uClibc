@@ -44,6 +44,7 @@
    copy.  */
 extern void *__libc_stack_end attribute_relro;
 
+#ifdef __UCLIBC_HAS_TLS__
 /* Determine next available module ID.  */
 extern size_t _dl_next_tls_modid (void) internal_function attribute_hidden;
 
@@ -125,6 +126,7 @@ EXTERN void *_dl_initial_dtv;
 EXTERN size_t _dl_tls_generation;
 
 EXTERN void (*_dl_init_static_tls) (struct link_map *);
+#endif
 
 /* We have the auxiliary vector.  */
 #define HAVE_AUX_VECTOR
