@@ -49,7 +49,7 @@
 /* Global variables used within the shared library loader */
 char *_dl_library_path         = NULL;	/* Where we look for libraries */
 #ifdef __LDSO_PRELOAD_ENV_SUPPORT__
-char *_dl_preload              = NULL;	/* Things to be loaded before the libs */
+static char *_dl_preload       = NULL;	/* Things to be loaded before the libs */
 #endif
 char *_dl_ldsopath             = NULL;	/* Location of the shared lib loader */
 int _dl_errno                  = 0;	/* We can't use the real errno in ldso */

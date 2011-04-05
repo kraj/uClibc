@@ -52,8 +52,7 @@
 
 /* Global variables used within the shared library loader */
 extern char *_dl_library_path attribute_hidden;	/* Where we look for libraries */
-extern char *_dl_preload;			/* Things to be loaded before the libs */
-extern char *_dl_ldsopath;			/* Where the shared lib loader was found */
+extern char *_dl_ldsopath attribute_hidden;	/* Where the shared lib loader was found */
 extern const char *_dl_progname;		/* The name of the executable being run */
 extern size_t _dl_pagesize;			/* Store the page size for use later */
 
@@ -119,7 +118,7 @@ extern void *_dl_calloc(size_t __nmemb, size_t __size);
 extern void *_dl_realloc(void *__ptr, size_t __size);
 extern void _dl_free(void *);
 extern char *_dl_strdup(const char *string) attribute_hidden;
-extern void _dl_dprintf(int, const char *, ...) attribute_hidden;
+extern void _dl_dprintf(int, const char *__restrict, ...) attribute_hidden;
 #else
 # include <stdlib.h>
 # define _dl_malloc malloc
