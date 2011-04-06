@@ -8,7 +8,7 @@
 CSRC := brk.c fork.c pread_write.c sigaction.c __syscall_error.c
 
 ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
-    CSRC += posix_fadvise.c posix_fadvise64.c
+    CSRC += posix_fadvise.c
 endif
 
 SSRC := bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S \
