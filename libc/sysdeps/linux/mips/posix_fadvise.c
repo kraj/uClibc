@@ -8,19 +8,16 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <features.h>
-#include <unistd.h>
-#include <errno.h>
-#include <endian.h>
-#include <stdint.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
-#include <fcntl.h>
+
+/* MIPS kernel only has NR_fadvise64 which acts as NR_fadvise64_64 */
+#ifdef __NR_fadvise64
+# include <fcntl.h>
+# include <endian.h>
+# include <bits/wordsize.h>
 
 int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 {
-/* MIPS kernel only has NR_fadvise64 which acts as NR_fadvise64_64 */
-#ifdef __NR_fadvise64
 	INTERNAL_SYSCALL_DECL(err);
 # if _MIPS_SIM == _ABIO32
 	int ret = INTERNAL_SYSCALL(fadvise64, err, 7, fd, 0,
@@ -33,7 +30,9 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 	if (INTERNAL_SYSCALL_ERROR_P (ret, err))
 		return INTERNAL_SYSCALL_ERRNO (ret, err);
 	return 0;
-#else
-	return ENOSYS;
-#endif
 }
+# if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
+strong_alias(posix_fadvise,posix_fadvise64)
+# endif
+
+#endif
