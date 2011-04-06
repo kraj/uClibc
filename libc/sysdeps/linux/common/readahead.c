@@ -17,24 +17,19 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
-#include <bits/wordsize.h>
 
-#ifdef __UCLIBC_HAS_LFS__
+#if defined __NR_readahead && defined __UCLIBC_HAS_LFS__ && defined __USE_GNU
 
-#include <_lfs_64.h>
-
-#ifdef __NR_readahead
+# include <fcntl.h>
+# include <bits/wordsize.h>
 
 # define __NR___readahead __NR_readahead
 
 # if __WORDSIZE == 64
 
 static __inline__ _syscall3(ssize_t, __readahead, int, fd,
-	off_t, offset, size_t, count)
+			    off_t, offset, size_t, count)
 
 ssize_t readahead(int fd, off_t offset, size_t count)
 {
@@ -44,7 +39,7 @@ ssize_t readahead(int fd, off_t offset, size_t count)
 # else
 
 static __inline__ _syscall4(ssize_t, __readahead, int, fd,
-	off_t, high_offset, off_t, low_offset, size_t, count)
+			    off_t, high_offset, off_t, low_offset, size_t, count)
 
 ssize_t readahead(int fd, off64_t offset, size_t count)
 {
@@ -54,5 +49,3 @@ ssize_t readahead(int fd, off64_t offset, size_t count)
 # endif
 
 #endif
-
-#endif /* __UCLIBC_HAS_LFS__ */
