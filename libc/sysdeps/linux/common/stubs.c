@@ -28,7 +28,9 @@ static int enosys_stub(void)
 #ifndef __UCLIBC_HAS_LFS__
 # undef __NR_fadvise64
 # undef __NR_fadvise64_64
+# undef __NR_readahead
 # undef __NR_sync_file_range
+# undef __NR_splice
 #endif
 
 #ifndef __NR_bdflush
@@ -160,12 +162,24 @@ make_stub(sigtimedwait)
 make_stub(sigwaitinfo)
 #endif
 
-#ifndef __NR_splice
-make_stub(splice)
+#ifndef __NR_readahead
+make_stub(readahead)
 #endif
 
 #ifndef __NR_sync_file_range
 make_stub(sync_file_range)
+#endif
+
+#ifndef __NR_splice
+make_stub(splice)
+#endif
+
+#ifndef __NR_vmsplice
+make_stub(vmsplice)
+#endif
+
+#ifndef __NR_tee
+make_stub(tee)
 #endif
 
 #if !defined(__NR_umount) && !defined(__NR_umount2)
@@ -182,10 +196,6 @@ make_stub(utimensat)
 # ifndef __NR_lutimes
 make_stub(lutimes)
 # endif
-#endif
-
-#ifndef __NR_vmsplice
-make_stub(vmsplice)
 #endif
 
 #endif
