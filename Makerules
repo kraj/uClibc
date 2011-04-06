@@ -306,7 +306,8 @@ endef
 define link.so
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
 	@$(disp_ld)
-	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) -Wl,-soname=$(notdir $@).$(2) \
+	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) $(LDFLAGS-y-$(@F)) \
+		-Wl,-soname=$(notdir $@).$(2) \
 		$(NOSTDLIB_CFLAGS) -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
 		-Wl,--whole-archive $(firstword $^) -Wl,--no-whole-archive \
 		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
@@ -372,8 +373,14 @@ $(top_builddir)%.dep:
 $(top_builddir)lib/interp.c: | $(top_builddir)lib
 	$(Q)echo "/* Force shared libraries to know about the correct library loader */" > $@.tmp
 	$(Q)echo "#include <features.h>" >> $@.tmp
+ifeq ($(HARDWIRED_ABSPATH),y)
 	$(Q)echo "const char __dl_ldso__[] attribute_hidden __attribute__ ((weak)) __attribute__ ((section " \
 		"(\".interp\"))) =\""$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UCLIBC_LDSO)"\";" >> $@.tmp
+	$(Q)$(SED) -i -e 's://:/:g' $@.tmp
+else
+	$(Q)echo "const char __dl_ldso__[] attribute_hidden __attribute__ ((weak)) __attribute__ ((section " \
+		"(\".interp\"))) =\""$(UCLIBC_LDSO)"\";" >> $@.tmp
+endif
 	$(Q)mv $@.tmp $@
 
 $(interp): $(top_builddir)lib/interp.c | $(sub_headers)

@@ -29,12 +29,10 @@
 #define LARGE $120000
 
         .text
-#if defined __PIC__ && !defined NOT_IN_libc
+#if defined __PIC__ && !defined NOT_IN_libc && defined __UCLIBC_HAS_FORTIFY__
 ENTRY (__memset_chk)
 	cmpq	%rdx, %rcx
-#if defined __UCLIBC_HAS_SSP__
 	jb	HIDDEN_JUMPTARGET (__chk_fail)
-#endif
 END (__memset_chk)
 #endif
 ENTRY (memset)
@@ -144,6 +142,6 @@ END (memset)
 libc_hidden_def(memset)
 #endif
 
-#if !BZERO_P && defined __PIC__ && !defined NOT_IN_libc
+#if !BZERO_P && defined __PIC__ && !defined NOT_IN_libc && defined __UCLIBC_HAS_FORTIFY__
 strong_alias (__memset_chk, __memset_zero_constant_len_parameter)
 #endif

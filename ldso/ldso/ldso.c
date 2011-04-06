@@ -119,15 +119,13 @@ extern void _start(void);
 
 #ifdef __UCLIBC_HAS_SSP__
 # include <dl-osinfo.h>
-uintptr_t stack_chk_guard;
+static uintptr_t stack_chk_guard;
 # ifndef THREAD_SET_STACK_GUARD
 /* Only exported for architectures that don't store the stack guard canary
  * in local thread area.  */
 uintptr_t __stack_chk_guard attribute_relro;
-#  ifdef __UCLIBC_HAS_SSP_COMPAT__
-strong_alias(__stack_chk_guard,__guard)
-#  endif
-# elif __UCLIBC_HAS_SSP_COMPAT__
+# endif
+# ifdef __UCLIBC_HAS_SSP_COMPAT__
 uintptr_t __guard attribute_relro;
 # endif
 #endif
@@ -1165,11 +1163,11 @@ of this helper program; chances are you did not intend to run this program.\n\
 	stack_chk_guard = _dl_setup_stack_chk_guard ();
 # ifdef THREAD_SET_STACK_GUARD
 	THREAD_SET_STACK_GUARD (stack_chk_guard);
-#  ifdef __UCLIBC_HAS_SSP_COMPAT__
-	__guard = stack_chk_guard;
-#  endif
 # else
 	__stack_chk_guard = stack_chk_guard;
+# endif
+# ifdef __UCLIBC_HAS_SSP_COMPAT__
+	__guard = stack_chk_guard;
 # endif
 #endif
 

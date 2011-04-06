@@ -37,5 +37,4 @@ void *memmem(const void *haystack, size_t haystacklen,
 
 	return NULL;
 }
-libc_hidden_def(memmem)
 #endif

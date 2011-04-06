@@ -25,6 +25,7 @@ subdirs += libm
 CFLAGS-libm := -DNOT_IN_libc -DIS_IN_libm $(SSP_ALL_CFLAGS)
 CFLAGS-libm += -D_IEEE_LIBM
 
+LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-libm.so := -Wl,--dsbt-index=5
 LDFLAGS-libm.so := $(LDFLAGS)
 
 LIBS-libm.so := $(LIBS)

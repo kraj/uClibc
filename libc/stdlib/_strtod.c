@@ -544,7 +544,6 @@ libc_hidden_def(__XL_NPP(strtof))
 #define Wchar char
 #endif
 
-libc_hidden_proto(__XL_NPP(strtod))
 double __XL_NPP(strtod)(const Wchar *__restrict str,
 					Wchar **__restrict endptr   __LOCALE_PARAM )
 {
@@ -562,7 +561,9 @@ double __XL_NPP(strtod)(const Wchar *__restrict str,
 	return y;
 #endif
 }
-libc_hidden_def(__XL_NPP(strtod))
+#ifdef L_strtod
+libc_hidden_def(strtod)
+#endif
 
 #endif
 #endif
@@ -580,7 +581,6 @@ libc_hidden_def(__XL_NPP(strtod))
 #define Wchar char
 #endif
 
-libc_hidden_proto(__XL_NPP(strtold))
 long double __XL_NPP(strtold) (const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 3
@@ -597,7 +597,6 @@ long double __XL_NPP(strtold) (const Wchar *str, Wchar **endptr   __LOCALE_PARAM
 	return y;
 #endif
 }
-libc_hidden_def(__XL_NPP(strtold))
 
 #endif
 #endif

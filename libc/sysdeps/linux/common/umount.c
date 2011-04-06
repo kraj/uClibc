@@ -28,14 +28,5 @@ int umount(const char *special_file)
 	return (__syscall_umount2(special_file, 0));
 }
 
-/* arch doesn't provide any umount syscall !? */
-#else
-
-int umount(const char *special_file)
-{
-	__set_errno(ENOSYS);
-	return -1;
-}
-
 #endif
 #endif

@@ -10,25 +10,12 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-
-#if defined(__NR_geteuid32)
+#ifdef __NR_geteuid32
 # undef __NR_geteuid
 # define __NR_geteuid __NR_geteuid32
-_syscall0(uid_t, geteuid)
-
-#elif defined(__NR_geteuid)
-# define __NR___syscall_geteuid __NR_geteuid
-static __inline__ _syscall0(int, __syscall_geteuid)
-uid_t geteuid(void)
-{
-	return (__syscall_geteuid());
-}
-
-#else
-uid_t geteuid(void)
-{
-	return (getuid());
-}
 #endif
 
+#ifdef __NR_geteuid
+_syscall_noerr0(uid_t, geteuid)
 libc_hidden_def(geteuid)
+#endif

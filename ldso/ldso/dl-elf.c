@@ -188,7 +188,7 @@ unsigned long _dl_error_number;
 unsigned long _dl_internal_error_number;
 
 struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
-	struct elf_resolve *tpnt, char *full_libname, int __attribute__((unused)) trace_loaded_objects)
+	struct elf_resolve *tpnt, char *full_libname, int attribute_unused trace_loaded_objects)
 {
 	char *pnt;
 	struct elf_resolve *tpnt1;
@@ -826,6 +826,54 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		INIT_GOT(lpnt, tpnt);
 	}
 
+#ifdef __DSBT__
+	/* Handle DSBT initialization */
+	{
+		struct elf_resolve *t, *ref = NULL;
+		int idx = tpnt->loadaddr.map->dsbt_index;
+		unsigned *dsbt = tpnt->loadaddr.map->dsbt_table;
+
+		if (idx == 0) {
+			/* This DSO has not been assigned an index */
+			_dl_dprintf(2, "%s: '%s' is missing a dsbt index assignment!\n",
+				    _dl_progname, libname);
+			_dl_exit(1);
+		}
+
+		/*
+		 * Setup dsbt slot for this module in dsbt of all modules.
+		 */
+		for (t = _dl_loaded_modules; t; t = t->next) {
+			/* find a dsbt table from another module */
+			if (ref == NULL && t != tpnt) {
+				ref = t;
+
+				/* make sure index is not already used */
+				if (t->loadaddr.map->dsbt_table[idx]) {
+					struct elf_resolve *dup;
+					char *dup_name;
+
+					for (dup = _dl_loaded_modules; dup; dup = dup->next)
+						if (dup != tpnt && dup->loadaddr.map->dsbt_index == idx)
+							break;
+					if (dup)
+						dup_name = dup->libname;
+					else if (idx == 1)
+						dup_name = "runtime linker";
+					else
+						dup_name = "unknown library";
+					_dl_dprintf(2, "%s: '%s' dsbt index %d already used by %s!\n",
+						    _dl_progname, libname, idx, dup_name);
+					_dl_exit(1);
+				}
+			}
+			t->loadaddr.map->dsbt_table[idx] = (unsigned)dsbt;
+		}
+		if (ref)
+			_dl_memcpy(dsbt, ref->loadaddr.map->dsbt_table,
+				   tpnt->loadaddr.map->dsbt_size * sizeof(unsigned *));
+	}
+#endif
 	_dl_if_debug_dprint("\n\tfile='%s';  generating link map\n", libname);
 	_dl_if_debug_dprint("\t\tdynamic: %x  base: %x\n", dynamic_addr, DL_LOADADDR_BASE(lib_loadaddr));
 	_dl_if_debug_dprint("\t\t  entry: %x  phdr: %x  phnum: %x\n\n",

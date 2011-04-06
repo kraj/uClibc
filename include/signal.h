@@ -310,6 +310,9 @@ extern int sigwait (__const sigset_t *__restrict __set, int *__restrict __sig)
    __THROW.  */
 extern int sigwaitinfo (__const sigset_t *__restrict __set,
 			siginfo_t *__restrict __info) __nonnull ((1));
+#ifdef _LIBC
+extern __typeof(sigwaitinfo) __sigwaitinfo attribute_hidden;
+#endif
 libc_hidden_proto(sigwaitinfo)
 
 /* Select any of pending signals from SET and place information in INFO.
@@ -321,6 +324,9 @@ extern int sigtimedwait (__const sigset_t *__restrict __set,
 			 siginfo_t *__restrict __info,
 			 __const struct timespec *__restrict __timeout)
      __nonnull ((1));
+#ifdef _LIBC
+extern __typeof(sigtimedwait) __sigtimedwait attribute_hidden;
+#endif
 libc_hidden_proto(sigtimedwait)
 
 /* Send signal SIG to the process PID.  Associate data in VAL with the
@@ -386,14 +392,17 @@ extern int siginterrupt (int __sig, int __interrupt) __THROW;
 # include <bits/sigstack.h>
 # ifdef __USE_XOPEN
 /* This will define `ucontext_t' and `mcontext_t'.  */
-#  include <ucontext.h>
+/* SuSv4 obsoleted include/ucontext.h */
+#  include <sys/ucontext.h>
 # endif
 
+# if 0
 /* Run signals handlers on the stack specified by SS (if not NULL).
    If OSS is not NULL, it is filled in with the old signal stack status.
    This interface is obsolete and on many platform not implemented.  */
 extern int sigstack (struct sigstack *__ss, struct sigstack *__oss)
      __THROW __attribute_deprecated__;
+# endif
 
 /* Alternate signal handler stack interface.
    This interface should always be preferred over `sigstack'.  */

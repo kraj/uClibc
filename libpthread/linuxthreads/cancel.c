@@ -23,7 +23,7 @@
 
 #ifdef _STACK_GROWS_DOWN
 # define FRAME_LEFT(frame, other) ((char *) frame >= (char *) other)
-#elif _STACK_GROWS_UP
+#elif defined _STACK_GROWS_UP
 # define FRAME_LEFT(frame, other) ((char *) frame <= (char *) other)
 #else
 # error "Define either _STACK_GROWS_DOWN or _STACK_GROWS_UP"

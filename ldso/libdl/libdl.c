@@ -651,7 +651,6 @@ void *dlsym(void *vhandle, const char *name)
 	ElfW(Addr) from;
 	struct dyn_elf *rpnt;
 	void *ret;
-	struct elf_resolve *tls_tpnt = NULL;
 	struct symbol_ref sym_ref = { NULL, NULL };
 	/* Nastiness to support underscore prefixes.  */
 #ifdef __UCLIBC_UNDERSCORES__
@@ -972,6 +971,10 @@ static int do_dlclose(void *vhandle, int need_fini)
 			free(tpnt->symbol_scope.r_list);
 			free(tpnt);
 		}
+	}
+	for (rpnt1 = handle->next; rpnt1; rpnt1 = rpnt1_tmp) {
+		rpnt1_tmp = rpnt1->next;
+		free(rpnt1);
 	}
 	free(handle->init_fini.init_fini);
 	free(handle);

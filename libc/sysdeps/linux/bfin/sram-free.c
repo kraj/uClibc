@@ -1,6 +1,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/syscall.h>
+#include <bfin_sram.h>
 
-_syscall1 (__ptr_t, sram_free, __ptr_t, addr)
-
+_syscall1 (int, sram_free, const void *, addr)

@@ -198,7 +198,6 @@ int vscanf(const char * __restrict format, va_list arg)
 {
 	return vfscanf(stdin, format, arg);
 }
-libc_hidden_def(vscanf)
 
 #endif
 /**********************************************************************/

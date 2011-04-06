@@ -95,7 +95,7 @@
 /**********************************************************************/
 __BEGIN_DECLS
 
-#if defined _LIBC && (defined NOT_IN_libc || defined IS_IN_libc)
+#ifdef _LIBC
 /* These are uClibc-specific. */
 # define __isdigit_char(c) ((unsigned char)((c) - '0') <= 9)
 # define __isdigit_int(c)  ((unsigned int)((c) - '0') <= 9)

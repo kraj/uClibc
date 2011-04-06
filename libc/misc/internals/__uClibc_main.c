@@ -45,22 +45,15 @@ void *__libc_stack_end = NULL;
 
 # ifdef __UCLIBC_HAS_SSP__
 #  include <dl-osinfo.h>
+static uintptr_t stack_chk_guard;
 #  ifndef THREAD_SET_STACK_GUARD
 /* Only exported for architectures that don't store the stack guard canary
  * in thread local area. */
-#   include <stdint.h>
-uintptr_t stack_chk_guard;
 /* for gcc-4.1 non-TLS */
 uintptr_t __stack_chk_guard attribute_relro;
+#  endif
 /* for gcc-3.x + Etoh ssp */
-#   ifdef __UCLIBC_HAS_SSP_COMPAT__
-#    ifdef __HAVE_SHARED__
-strong_alias(__stack_chk_guard,__guard)
-#    else
-uintptr_t __guard attribute_relro;
-#    endif
-#   endif
-#  elif defined __UCLIBC_HAS_SSP_COMPAT__
+#  ifdef __UCLIBC_HAS_SSP_COMPAT__
 uintptr_t __guard attribute_relro;
 #  endif
 # endif
@@ -255,18 +248,14 @@ void __uClibc_init(void)
 #ifndef SHARED
 # ifdef __UCLIBC_HAS_SSP__
     /* Set up the stack checker's canary.  */
-#  ifdef THREAD_SET_STACK_GUARD
-    uintptr_t stack_chk_guard = _dl_setup_stack_chk_guard();
-    THREAD_SET_STACK_GUARD (stack_chk_guard);
-#   ifdef __UCLIBC_HAS_SSP_COMPAT__
     stack_chk_guard = _dl_setup_stack_chk_guard();
-    __guard = stack_chk_guard;
-#   endif
+#  ifdef THREAD_SET_STACK_GUARD
+    THREAD_SET_STACK_GUARD (stack_chk_guard);
 #  else
     __stack_chk_guard = stack_chk_guard;
-#   if !defined __HAVE_SHARED__ && defined __UCLIBC_HAS_SSP_COMPAT__
-     __guard = stack_chk_guard;
-#   endif
+#  endif
+#  ifdef __UCLIBC_HAS_SSP_COMPAT__
+    __guard = stack_chk_guard;
 #  endif
 # endif
 #endif
@@ -316,6 +305,11 @@ void __uClibc_fini(void)
 	(__rtld_fini)();
 }
 libc_hidden_def(__uClibc_fini)
+
+#ifndef SHARED
+extern void __nptl_deallocate_tsd (void) __attribute ((weak));
+extern unsigned int __nptl_nthreads __attribute ((weak));
+#endif
 
 /* __uClibc_main is the new main stub for uClibc. This function is
  * called from crt1 (version 0.9.28 or newer), after ALL shared libraries
@@ -497,7 +491,6 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 # ifdef SHARED
 		__libc_pthread_functions.ptr__nptl_deallocate_tsd ();
 # else
-		extern void __nptl_deallocate_tsd (void) __attribute ((weak));
 		__nptl_deallocate_tsd ();
 # endif
 
@@ -507,7 +500,6 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 # ifdef SHARED
 		unsigned int *const ptr = __libc_pthread_functions.ptr_nthreads;
 # else
-		extern unsigned int __nptl_nthreads __attribute ((weak));
 		unsigned int *const ptr = &__nptl_nthreads;
 # endif
 

@@ -1,12 +1,8 @@
 /* Ripped from linux/include/asm-ia64/stat.h
  * and renamed 'struct stat' to 'struct kernel_stat' */
 
-#ifndef _ASM_IA64_STAT_H
-#define _ASM_IA64_STAT_H
-
-#ifndef _LIBC
-#error bits/kernel_stat.h is for internal uClibc use only!
-#endif
+#ifndef _BITS_STAT_STRUCT_H
+#define _BITS_STAT_STRUCT_H
 
 /*
  * Modified 1998, 1999
@@ -34,4 +30,4 @@ struct kernel_stat {
 /* ia64 stat64 is same as stat */
 #define kernel_stat64 kernel_stat
 
-#endif /* _ASM_IA64_STAT_H */
+#endif /* _BITS_STAT_STRUCT_H */

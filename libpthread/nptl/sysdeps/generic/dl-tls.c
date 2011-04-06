@@ -66,6 +66,7 @@ oom (void)
 # endif
 
 
+void *_dl_memalign(size_t alignment, size_t bytes);
 void *_dl_memalign(size_t alignment, size_t bytes)
 {
 	return _dl_malloc(bytes);
@@ -836,6 +837,7 @@ __tls_get_addr (GET_ADDR_ARGS)
 
 
 
+void _dl_add_to_slotinfo (struct link_map  *l);
 void
 _dl_add_to_slotinfo (struct link_map  *l)
 {

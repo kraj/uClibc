@@ -1,10 +1,6 @@
 #ifndef _BITS_STAT_STRUCT_H
 #define _BITS_STAT_STRUCT_H
 
-#ifndef _LIBC
-#error bits/kernel_stat.h is for internal uClibc use only!
-#endif
-
 /*
  * This file provides struct stat, taken from kernel 2.6.4. Verified
  * to match kernel 2.6.22.

@@ -114,6 +114,9 @@ config TARGET_x86_64
 config TARGET_xtensa
 	bool "xtensa"
 
+config TARGET_c6x
+	bool "c6x"
+
 endchoice
 
 
@@ -217,6 +220,10 @@ endif
 
 if TARGET_xtensa
 source "extra/Configs/Config.xtensa"
+endif
+
+if TARGET_c6x
+source "extra/Configs/Config.c6x"
 endif
 
 config TARGET_SUBARCH
@@ -685,6 +692,17 @@ config UCLIBC_SUSV4_LEGACY
 
 	  WARNING! ABI incompatibility.
 
+config UCLIBC_STRICT_HEADERS
+	bool "Enable structures and constants for unsupported features"
+	default n
+	help
+	  Enable structures and constants in headers that should not be used,
+	  because the respective feature is disabled.
+
+	  WARNING! enabling this option requires to patch many faulty apps,
+	  since they make (wrongly) use of these structures/constants,
+	  although the feature was disabled.
+
 config UCLIBC_HAS_STUBS
 	bool "Provide stubs for unavailable functionality"
 	default n
@@ -692,15 +710,6 @@ config UCLIBC_HAS_STUBS
 	  With this option uClibc provides non-functional stubs for
 	  functions which are impossible to implement on the target
 	  architecture. Otherwise, such functions are simply omitted.
-
-	  As of 2008-07, this option makes uClibc provide fork() stub
-	  on NOMMU targets. It always sets errno to ENOSYS and returns -1.
-
-	  This may be useful if you port a lot of software and cannot
-	  audit all of it and replace or disable fork() usage.
-	  With this option, a program which uses fork() will build
-	  successfully. Of course, it may be useless if fork()
-	  is essential for its operation.
 
 config UCLIBC_HAS_SHADOW
 	bool "Shadow Password Support"
@@ -1525,6 +1534,7 @@ config UCLIBC_HAS_GLIBC_CUSTOM_PRINTF
 	help
 	  Answer Y to support glibc's register_printf_function() to allow an
 	  application to add its own printf conversion specifiers.
+	  parse_printf_format() is also enabled.
 
 	  NOTE: Limits the number or registered specifiers to 10.
 	  NOTE: Requires new conversion specifiers to be ASCII

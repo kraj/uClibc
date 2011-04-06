@@ -129,7 +129,7 @@ typedef int (*__nftw64_func_t) (__const char *__filename,
 # endif
 #endif
 
-#if __UCLIBC_HAS_FTW__
+#ifdef __UCLIBC_HAS_FTW__
 /* Call a function on every element in a directory tree.
 
    This function is a possible cancellation point and therefore not
@@ -151,7 +151,7 @@ extern int ftw64 (__const char *__dir, __ftw64_func_t __func,
 # endif
 #endif
 
-#if __UCLIBC_HAS_NFTW__ && defined __USE_XOPEN_EXTENDED
+#if defined __UCLIBC_HAS_NFTW__ && defined __USE_XOPEN_EXTENDED
 /* Call a function on every element in a directory tree.  FLAG allows
    to specify the behaviour more detailed.
 

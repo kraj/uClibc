@@ -15,11 +15,5 @@ int init_module(void *first, void *second, void *third, void *fourth, void *fift
  * and let the kernel cope with whatever it gets.  It's good at that. */
 _syscall5(int, init_module, void *, first, void *, second, void *, third,
 		  void *, fourth, void *, fifth)
-#else
-int init_module(void *first, void *second, void *third, void *fourth, void *fifth)
-{
-	__set_errno(ENOSYS);
-	return -1;
-}
 #endif
 

@@ -31,7 +31,9 @@ int strncasecmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 {
 	return strncasecmp_l(s1, s2, n, __UCLIBC_CURLOCALE);
 }
+#ifndef WANT_WIDE
 libc_hidden_def(strncasecmp)
+#endif
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -62,6 +64,8 @@ int __XL_NPP(strncasecmp)(register const Wchar *s1, register const Wchar *s2,
 	return r;
 #endif
 }
+#if !defined WANT_WIDE || (defined WANT_WIDE && defined __UCLIBC_DO_XLOCALE)
 libc_hidden_def(__XL_NPP(strncasecmp))
+#endif
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */

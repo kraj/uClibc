@@ -157,12 +157,13 @@ extern int iswpunct (wint_t __wc) __THROW;
    set of wide characters for which none of `iswalnum', `iswgraph', or
    `iswpunct' is true.  */
 extern int iswspace (wint_t __wc) __THROW;
+libc_hidden_proto(iswspace)
 
 /* Test for any wide character that corresponds to an uppercase letter
    or is one of a locale-specific set of wide character for which none
    of `iswcntrl', `iswdigit', `iswpunct', or `iswspace' is true.  */
 extern int iswupper (wint_t __wc) __THROW;
-libc_hidden_proto(iswspace)
+libc_hidden_proto(iswupper)
 
 /* Test for any wide character that corresponds to a hexadecimal-digit
    character equivalent to that performed be the functions described
@@ -305,7 +306,6 @@ extern int iswblank_l (wint_t __wc, __locale_t __locale) __THROW;
    by the string argument PROPERTY.  */
 extern wctype_t wctype_l (__const char *__property, __locale_t __locale)
      __THROW;
-libc_hidden_proto(wctype_l)
 
 /* Determine whether the wide-character WC has the property described by
    DESC.  */

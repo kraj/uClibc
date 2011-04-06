@@ -43,9 +43,12 @@
 
 /* We need some help from the assembler to generate optimal code.
  * We define some macros here which later will be used.  */
+/* gcc>=4.6 with LTO need the same guards as IMA (a.k.a --combine) did.
+ * See gcc.gnu.org/PR47577  */
+/* FIXME: drop these b* macros! */
 
 __asm__ (
-#ifdef __DOMULTI__
+#if defined __DOMULTI__ || __GNUC_PREREQ (4, 6)
 	/* Protect against asm macro redefinition (happens in __DOMULTI__ mode).
 	 * Unfortunately, it ends up visible in .o files. */
 	".ifndef _BITS_SYSCALLS_ASM\n\t"
@@ -92,7 +95,7 @@ __asm__ (
 	".endif\n\t"
 	".endm\n\t"
 
-#ifdef __DOMULTI__
+#if defined __DOMULTI__ || __GNUC_PREREQ (4, 6)
 	".endif\n\t" /* _BITS_SYSCALLS_ASM */
 #endif
 );

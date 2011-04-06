@@ -1,11 +1,7 @@
 /* Taken from linux/include/asm-cris/stat.h */
 
-#ifndef _CRIS_STAT_H
-#define _CRIS_STAT_H
-
-#ifndef _LIBC
-#error bits/kernel_stat.h is for internal uClibc use only!
-#endif
+#ifndef _BITS_STAT_STRUCT_H
+#define _BITS_STAT_STRUCT_H
 
 struct kernel_stat {
 	unsigned short st_dev;

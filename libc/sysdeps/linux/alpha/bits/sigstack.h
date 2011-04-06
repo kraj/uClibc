@@ -22,12 +22,14 @@
 #endif
 
 
+#if defined __UCLIBC_SUSV4_LEGACY__ || !defined __UCLIBC_STRICT_HEADERS__
 /* Structure describing a signal stack (obsolete).  */
 struct sigstack
   {
     __ptr_t ss_sp;		/* Signal stack pointer.  */
     int ss_onstack;		/* Nonzero if executing on this stack.  */
   };
+#endif
 
 
 /* Possible values for `ss_flags.'.  */

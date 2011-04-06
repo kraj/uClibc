@@ -1057,6 +1057,7 @@ libc_hidden_def(__XL_NPP(nl_langinfo))
 /**********************************************************************/
 #ifdef L_newlocale
 
+#warning mask defines for extra locale categories
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Move posix and utf8 strings.
@@ -1302,7 +1303,9 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 
 	return base;
 }
+#ifdef __UCLIBC_HAS_XLOCALE__
 libc_hidden_def(newlocale)
+#endif
 
 #endif
 /**********************************************************************/
@@ -1336,7 +1339,6 @@ __locale_t duplocale(__locale_t dataset)
 	}
 	return r;
 }
-libc_hidden_def(duplocale)
 
 #endif
 /**********************************************************************/

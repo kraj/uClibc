@@ -21,5 +21,7 @@ Wchar *Wstrchrnul(register const Wchar *s, Wint c)
 	while (*++s && (*s != ((Wchar)c)));
 	return (Wchar *) s;
 }
+# ifndef WANT_WIDE
 libc_hidden_def(Wstrchrnul)
+# endif
 #endif

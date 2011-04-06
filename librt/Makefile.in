@@ -9,6 +9,7 @@ subdirs += librt
 
 CFLAGS-librt := -DNOT_IN_libc -DIS_IN_librt $(SSP_ALL_CFLAGS)
 
+LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-librt.so := -Wl,--dsbt-index=9
 LDFLAGS-librt.so := $(LDFLAGS)
 LIBS-librt.so := $(LIBS)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)

@@ -568,7 +568,7 @@ static char *get_extpath(void)
 	if ((file = fopen(realconffile, "r")) != NULL) {
 		fstat(fileno(file), &st);
 		res = xmalloc(st.st_size + 1);
-		fread(res, 1, st.st_size, file);
+		(void)fread(res, 1, st.st_size, file);
 		fclose(file);
 		res[st.st_size] = '\0';
 

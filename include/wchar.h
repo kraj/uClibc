@@ -170,12 +170,10 @@ __END_NAMESPACE_C99
 #ifdef __USE_GNU
 /* Compare S1 and S2, ignoring case.  */
 extern int wcscasecmp (__const wchar_t *__s1, __const wchar_t *__s2) __THROW;
-libc_hidden_proto(wcscasecmp)
 
 /* Compare no more than N chars of S1 and S2, ignoring case.  */
 extern int wcsncasecmp (__const wchar_t *__s1, __const wchar_t *__s2,
 			size_t __n) __THROW;
-libc_hidden_proto(wcsncasecmp)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 /* Similar to the two functions above but take the information from
@@ -202,7 +200,6 @@ libc_hidden_proto(wcscoll)
    `wcscoll' to the original strings.  */
 extern size_t wcsxfrm (wchar_t *__restrict __s1,
 		       __const wchar_t *__restrict __s2, size_t __n) __THROW;
-libc_hidden_proto(wcsxfrm)
 __END_NAMESPACE_C99
 
 #ifdef __USE_GNU
@@ -233,7 +230,6 @@ __BEGIN_NAMESPACE_C99
 /* Find the first occurrence of WC in WCS.  */
 extern wchar_t *wcschr (__const wchar_t *__wcs, wchar_t __wc)
      __THROW __attribute_pure__;
-libc_hidden_proto(wcschr)
 /* Find the last occurrence of WC in WCS.  */
 extern wchar_t *wcsrchr (__const wchar_t *__wcs, wchar_t __wc)
      __THROW __attribute_pure__;
@@ -244,7 +240,6 @@ __END_NAMESPACE_C99
    the closing NUL wide character in case C is not found in S.  */
 extern wchar_t *wcschrnul (__const wchar_t *__s, wchar_t __wc)
      __THROW __attribute_pure__;
-libc_hidden_proto(wcschrnul)
 #endif
 
 __BEGIN_NAMESPACE_C99
@@ -549,7 +544,6 @@ extern int fwide (__FILE *__fp, int __mode) __THROW;
 extern int fwprintf (__FILE *__restrict __stream,
 		     __const wchar_t *__restrict __format, ...)
      /* __attribute__ ((__format__ (__wprintf__, 2, 3))) */;
-libc_hidden_proto(fwprintf)
 /* Write formatted output to stdout.
 
    This function is a possible cancellation point and therefore not
@@ -762,7 +756,6 @@ __BEGIN_NAMESPACE_C99
 extern size_t wcsftime (wchar_t *__restrict __s, size_t __maxsize,
 			__const wchar_t *__restrict __format,
 			__const struct tm *__restrict __tp) __THROW;
-libc_hidden_proto(wcsftime)
 __END_NAMESPACE_C99
 
 # if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
@@ -786,6 +779,11 @@ libc_hidden_proto(wcsftime_l)
 #if defined __USE_UNIX98 && !defined __USE_GNU
 # define __need_iswxxx
 # include <wctype.h>
+#endif
+
+#ifdef _LIBC
+extern size_t __wcslcpy(wchar_t *__restrict dst,
+			const wchar_t *__restrict src, size_t n) attribute_hidden;
 #endif
 
 __END_DECLS

@@ -157,7 +157,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	int reloc_type;
 	int symtab_index;
 	char *symname;
-	struct elf_resolve *tls_tpnt = 0;
+	struct elf_resolve *tls_tpnt = NULL;
 	struct symbol_ref sym_ref;
 	ElfW(Addr) *reloc_addr;
 	ElfW(Addr) symbol_addr;

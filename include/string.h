@@ -124,7 +124,6 @@ libc_hidden_proto(strcoll)
 extern size_t strxfrm (char *__restrict __dest,
 		       __const char *__restrict __src, size_t __n)
      __THROW __nonnull ((2));
-libc_hidden_proto(strxfrm)
 __END_NAMESPACE_STD
 
 #if defined __USE_GNU && defined __UCLIBC_HAS_XLOCALE__
@@ -257,7 +256,6 @@ libc_hidden_proto(strcasestr)
 extern void *memmem (__const void *__haystack, size_t __haystacklen,
 		     __const void *__needle, size_t __needlelen)
      __THROW __attribute_pure__ __nonnull ((1, 3));
-libc_hidden_proto(memmem)
 
 /* Copy N bytes of SRC to DEST, return pointer to bytes after the
    last written byte.  */
@@ -378,7 +376,7 @@ libc_hidden_proto(ffs)
 
 /* The following two functions are non-standard but necessary for non-32 bit
    platforms.  */
-# if 0 /*#ifdef __USE_GNU*/
+#ifdef __USE_GNU
 extern int ffsl (long int __l) __THROW __attribute__ ((__const__));
 #  ifdef __GNUC__
 __extension__ extern int ffsll (long long int __ll)
@@ -449,7 +447,6 @@ extern char *__stpncpy (char *__restrict __dest,
 extern char *stpncpy (char *__restrict __dest,
 		      __const char *__restrict __src, size_t __n)
      __THROW __nonnull ((1, 2));
-libc_hidden_proto(stpncpy)
 
 # if 0			/* uClibc does not support strfry or memfrob. */
 /* Sautee STRING briskly.  */

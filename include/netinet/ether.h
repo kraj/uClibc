@@ -45,7 +45,6 @@ extern struct ether_addr *ether_aton_r (__const char *__asc,
 					struct ether_addr *__addr) __THROW;
 libc_hidden_proto(ether_aton_r)
 
-
 /* Map 48 bit Ethernet number ADDR to HOSTNAME.  */
 extern int ether_ntohost (char *__hostname, __const struct ether_addr *__addr)
      __THROW;

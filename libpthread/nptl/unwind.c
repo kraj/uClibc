@@ -30,7 +30,7 @@
 #ifdef _STACK_GROWS_DOWN
 # define FRAME_LEFT(frame, other, adj) \
   ((uintptr_t) frame - adj >= (uintptr_t) other - adj)
-#elif _STACK_GROWS_UP
+#elif defined _STACK_GROWS_UP
 # define FRAME_LEFT(frame, other, adj) \
   ((uintptr_t) frame - adj <= (uintptr_t) other - adj)
 #else
@@ -117,6 +117,9 @@ unwind_cleanup (_Unwind_Reason_Code reason, struct _Unwind_Exception *exc)
 void
 attribute_protected
 __cleanup_fct_attribute __attribute ((noreturn))
+#if !defined SHARED && !defined IS_IN_libpthread
+weak_function
+#endif
 __pthread_unwind (__pthread_unwind_buf_t *buf)
 {
   struct pthread_unwind_buf *ibuf = (struct pthread_unwind_buf *) buf;

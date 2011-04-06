@@ -21,15 +21,15 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <sys/types.h>
 
 /* Global state for non-reentrant functions.  */
-struct drand48_data __libc_drand48_data attribute_hidden;
+struct drand48_data __libc_drand48_data;
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning turn int __drand48_iterate into void
 #endif /* __UCLIBC_MJN3_ONLY__ */
-int __drand48_iterate (unsigned short int xsubi[3], struct drand48_data *buffer) attribute_hidden;
 int __drand48_iterate (unsigned short int xsubi[3], struct drand48_data *buffer)
 {
   uint64_t X;

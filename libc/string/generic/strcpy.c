@@ -17,9 +17,6 @@
    02111-1307 USA.  */
 
 #include <string.h>
-#include <stddef.h>
-
-#include "memcopy.h"
 
 /* Copy SRC to DEST.  */
 char *strcpy(char *dest, const char *src)

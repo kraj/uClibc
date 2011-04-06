@@ -9,6 +9,7 @@ subdirs += libnsl
 
 CFLAGS-libnsl := -DNOT_IN_libc -DIS_IN_libnsl $(SSP_ALL_CFLAGS)
 
+LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-libnsl.so := -Wl,--dsbt-index=6
 LDFLAGS-libnsl.so := $(LDFLAGS) $(call link.asneeded,-lc)
 
 LIBS-libnsl.so := $(LIBS)

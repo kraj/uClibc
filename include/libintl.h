@@ -34,11 +34,6 @@
 
 __BEGIN_DECLS
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning "mjn3 FIXME: gettext has a prototype but isn't defined."
-#warning "mjn3 FIXME: __OPTIMIZE__ is never defined."
-#endif
-
 /* Look up MSGID in the current default message catalog for the current
    LC_MESSAGES locale.  If not found, returns MSGID itself (the default
    text).  */

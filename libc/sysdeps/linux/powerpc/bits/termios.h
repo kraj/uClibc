@@ -220,6 +220,7 @@ struct termios {
 #define	TCSADRAIN	1
 #define	TCSAFLUSH	2
 
+#ifndef __UCLIBC_STRICT_HEADERS__
 struct sgttyb {
 	char	sg_ispeed;
 	char	sg_ospeed;
@@ -227,6 +228,7 @@ struct sgttyb {
 	char	sg_kill;
 	short	sg_flags;
 };
+#endif
 
 struct tchars {
 	char	t_intrc;

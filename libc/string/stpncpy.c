@@ -27,7 +27,3 @@ Wchar *Wstpncpy(register Wchar * __restrict s1,
 	}
 	return s1 + (s2 - p);
 }
-
-#ifndef WANT_WIDE
-libc_hidden_def(stpncpy)
-#endif

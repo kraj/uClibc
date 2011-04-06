@@ -40,6 +40,10 @@ __BEGIN_DECLS
 #define SHMLBA		(__getpagesize ())
 extern int __getpagesize (void) __THROW __attribute__ ((__const__));
 
+
+/* Type to count number of attaches.  */
+typedef unsigned short int shmatt_t;
+
 /* Data structure describing a set of semaphores.  */
 struct shmid_ds
   {
@@ -48,9 +52,9 @@ struct shmid_ds
     __time_t shm_atime;			/* time of last shmat() */
     __time_t shm_dtime;			/* time of last shmdt() */
     __time_t shm_ctime;			/* time of last change by shmctl() */
-    __ipc_pid_t shm_cpid;		/* pid of creator */
-    __ipc_pid_t shm_lpid;		/* pid of last shmop */
-    unsigned short int shm_nattch;	/* number of current attaches */
+    __pid_t shm_cpid;			/* pid of creator */
+    __pid_t shm_lpid;			/* pid of last shmop */
+    shmatt_t shm_nattch;		/* number of current attaches */
     unsigned short int __shm_npages;	/* size of segment (pages) */
     unsigned long int *__shm_pages;	/* array of ptrs to frames -> SHMMAX */
     struct vm_area_struct *__attaches;	/* descriptors for attaches */
@@ -86,3 +90,5 @@ struct shm_info
   };
 
 #endif /* __USE_MISC */
+
+__END_DECLS

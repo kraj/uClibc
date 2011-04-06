@@ -8,13 +8,8 @@
  */
 
 #include <sys/syscall.h>
+
 int capset(void *header, const void *data);
 #ifdef __NR_capset
 _syscall2(int, capset, void *, header, const void *, data)
-#elif defined __UCLIBC_HAS_STUBS__
-int capset(void *header, const void *data)
-{
-	__set_errno(ENOSYS);
-	return -1;
-}
 #endif

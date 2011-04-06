@@ -639,9 +639,13 @@ gaih_inet(const char *name, const struct gaih_service *service,
 					tmpbuflen *= 2;
 					tmpbuf = alloca(tmpbuflen);
 					rc = gethostbyaddr_r(at2->addr,
+#ifdef __UCLIBC_HAS_IPV6__
 						((at2->family == AF_INET6)
 						 ? sizeof(struct in6_addr)
 						 : sizeof(struct in_addr)),
+#else
+						sizeof(struct in_addr),
+#endif
 						at2->family,
 						&th, tmpbuf, tmpbuflen,
 						&h, &herrno);

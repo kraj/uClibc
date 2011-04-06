@@ -65,7 +65,7 @@ __asm__ (
 "	.globl	_Unwind_Resume\n"
 "	.type	_Unwind_Resume, %function\n"
 "_Unwind_Resume:\n"
-"	.cfi_sections .debug_frame\n"
+"	" CFI_SECTIONS (.debug_frame) "\n"
 "	" CFI_STARTPROC "\n"
 "	stmfd	sp!, {r4, r5, r6, lr}\n"
 "	" CFI_ADJUST_CFA_OFFSET (16)" \n"

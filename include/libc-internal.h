@@ -65,6 +65,11 @@ libc_hidden_proto(__glibc_strerror_r)
 /* internal access to program name */
 extern const char *__uclibc_progname attribute_hidden;
 
+#  ifdef __UCLIBC_HAS_FORTIFY__
+extern void __chk_fail(void) attribute_noreturn;
+libc_hidden_proto(__chk_fail)
+#  endif
+
 # endif /* IS_IN_libc */
 
 #endif /* __ASSEMBLER__ */

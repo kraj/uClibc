@@ -162,7 +162,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	int reloc_type;
 	int symtab_index;
 	char *symname;
-	struct elf_resolve *tls_tpnt = 0;
+	struct elf_resolve *tls_tpnt = NULL;
 	unsigned long *reloc_addr;
 	unsigned long symbol_addr;
 #if defined (__SUPPORT_LD_DEBUG__)

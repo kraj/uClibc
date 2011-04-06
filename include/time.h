@@ -207,7 +207,6 @@ extern time_t mktime (struct tm *__tp) __THROW;
 extern size_t strftime (char *__restrict __s, size_t __maxsize,
 			__const char *__restrict __format,
 			__const struct tm *__restrict __tp) __THROW;
-libc_hidden_proto(strftime)
 __END_NAMESPACE_STD
 
 # ifdef __USE_XOPEN
@@ -216,7 +215,6 @@ __END_NAMESPACE_STD
 extern char *strptime (__const char *__restrict __s,
 		       __const char *__restrict __fmt, struct tm *__tp)
      __THROW;
-libc_hidden_proto(strptime)
 # endif
 
 #ifdef __UCLIBC_HAS_XLOCALE__

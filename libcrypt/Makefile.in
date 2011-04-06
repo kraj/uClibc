@@ -9,6 +9,7 @@ subdirs += libcrypt
 
 CFLAGS-libcrypt := -DNOT_IN_libc -DIS_IN_libcrypt $(SSP_ALL_CFLAGS)
 
+LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-libcrypt.so := -Wl,--dsbt-index=4
 LDFLAGS-libcrypt.so := $(LDFLAGS)
 
 LIBS-libcrypt.so := $(LIBS)

@@ -15,5 +15,5 @@ static __inline__ _syscall1(__kernel_mode_t, __syscall_umask, __kernel_mode_t, m
 
 mode_t umask(mode_t mode)
 {
-	return (__syscall_umask(mode));
+	return __syscall_umask(mode);
 }

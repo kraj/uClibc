@@ -12,17 +12,11 @@
 
 #ifdef __NR_getpgrp
 /* According to the manpage the POSIX.1 version is favoured */
-_syscall0(pid_t, getpgrp)
+_syscall_noerr0(pid_t, getpgrp)
 #elif defined __NR_getpgid && (defined __NR_getpid || defined __NR_getxpid)
 /* IA64 doesn't have a getpgrp syscall */
 pid_t getpgrp(void)
 {
 	return getpgid(getpid());
-}
-#elif defined __UCLIBC_HAS_STUBS__
-pid_t getpgrp(void)
-{
-	__set_errno(ENOSYS);
-	return -1;
 }
 #endif

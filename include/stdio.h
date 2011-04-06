@@ -450,7 +450,6 @@ libc_hidden_proto(vfscanf)
    marked with __THROW.  */
 extern int vscanf (__const char *__restrict __format, __gnuc_va_list __arg)
      __attribute__ ((__format__ (__scanf__, 1, 0))) __wur;
-libc_hidden_proto(vscanf)
 
 /* Read formatted input from S into argument list ARG.  */
 extern int vsscanf (__const char *__restrict __s,

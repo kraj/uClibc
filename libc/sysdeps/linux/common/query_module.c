@@ -13,11 +13,4 @@ int query_module(const char *name attribute_unused, int which attribute_unused,
 #ifdef __NR_query_module
 _syscall5(int, query_module, const char *, name, int, which,
 		  void *, buf, size_t, bufsize, size_t *, ret)
-#elif defined __UCLIBC_HAS_STUBS__
-int query_module(const char *name attribute_unused, int which attribute_unused,
-				 void *buf attribute_unused, size_t bufsize attribute_unused, size_t * ret attribute_unused)
-{
-	__set_errno(ENOSYS);
-	return -1;
-}
 #endif

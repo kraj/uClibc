@@ -71,6 +71,7 @@ static attribute_noreturn void terminate(void)
 	_exit(127);
 }
 
+#ifdef __UCLIBC_HAS_SSP_COMPAT__
 void __stack_smash_handler(char func[], int damaged __attribute__ ((unused))) attribute_noreturn __cold;
 void __stack_smash_handler(char func[], int damaged)
 {
@@ -84,7 +85,9 @@ void __stack_smash_handler(char func[], int damaged)
 	while(1)
 		terminate();
 }
+#endif
 
+#ifdef __UCLIBC_HAS_SSP__
 void __stack_chk_fail(void) attribute_noreturn __cold;
 void __stack_chk_fail(void)
 {
@@ -99,8 +102,9 @@ void __stack_chk_fail(void)
 	while(1)
 		terminate();
 }
+#endif
 
-void __chk_fail(void) attribute_noreturn;
+#ifdef __UCLIBC_HAS_FORTIFY__
 void __chk_fail(void)
 {
 	static const char msg1[] = "buffer overflow detected: ";
@@ -114,4 +118,5 @@ void __chk_fail(void)
 	while(1)
 		terminate();
 }
-
+libc_hidden_def(__chk_fail)
+#endif

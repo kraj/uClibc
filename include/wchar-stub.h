@@ -7,7 +7,6 @@
 #ifndef _WCHAR_H
 #define _WCHAR_H
 
-#define MB_CUR_MAX 1
 typedef unsigned int wint_t;
 #define WEOF (0xffffffffu)
 

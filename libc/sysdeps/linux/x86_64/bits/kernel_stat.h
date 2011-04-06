@@ -1,12 +1,8 @@
 /* Ripped from linux/include/asm-x86_64/stat.h
  * and renamed 'struct stat' to 'struct kernel_stat' */
 
-#ifndef _ASM_X86_64_STAT_H
-#define _ASM_X86_64_STAT_H
-
-#ifndef _LIBC
-#error bits/kernel_stat.h is for internal uClibc use only!
-#endif
+#ifndef _BITS_STAT_STRUCT_H
+#define _BITS_STAT_STRUCT_H
 
 struct kernel_stat {
 	unsigned long  st_dev;

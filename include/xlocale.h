@@ -1,5 +1,5 @@
 /* Definition of locale datatype.
-   Copyright (C) 1997,2000,02 Free Software Foundation, Inc.
+   Copyright (C) 1997,2000,2002,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -21,15 +21,6 @@
 #ifndef _XLOCALE_H
 #define _XLOCALE_H	1
 
-#include <features.h>
-
-#ifndef __UCLIBC_HAS_XLOCALE__
-#error Attempted to include xlocale.h when uClibc built without extended locale support.
-#endif
-
-#include <bits/uClibc_locale.h>
-/* #include <bits/uClibc_touplow.h> */
-
 #if 0
 /* Structure for reentrant locale using functions.  This is an
    (almost) opaque type for the user level programs.  The file and
@@ -37,26 +28,22 @@
    go away without warning.  */
 typedef struct __locale_struct
 {
-#if 0
   /* Note: LC_ALL is not a valid index into this array.  */
   struct locale_data *__locales[13]; /* 13 = __LC_LAST. */
-#endif
 
   /* To increase the speed of this solution we add some special members.  */
-/*   const unsigned short int *__ctype_b; */
-/*   const int *__ctype_tolower; */
-/*   const int *__ctype_toupper; */
-  const __uint16_t *__ctype_b;
-  const __ctype_touplow_t *__ctype_tolower;
-  const __ctype_touplow_t *__ctype_toupper;
+  const unsigned short int *__ctype_b;
+  const int *__ctype_tolower;
+  const int *__ctype_toupper;
 
-  struct __uclibc_locale_struct *__locale_ptr;
-
-#if 0
   /* Note: LC_ALL is not a valid index into this array.  */
   const char *__names[13];
-#endif
 } *__locale_t;
+
+/* POSIX 2008 makes locale_t official.  */
+typedef __locale_t locale_t;
+#else
+# include <locale.h>
 #endif
 
 #endif /* xlocale.h */

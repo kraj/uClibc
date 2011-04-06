@@ -40,6 +40,7 @@ int __fcntl_nocancel (int fd, int cmd, ...)
 # endif
 	return INLINE_SYSCALL (fcntl, 3, fd, cmd, arg);
 }
+libc_hidden_def(__fcntl_nocancel)
 
 int __libc_fcntl (int fd, int cmd, ...)
 {

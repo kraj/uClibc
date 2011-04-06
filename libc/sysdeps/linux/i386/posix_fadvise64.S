@@ -22,6 +22,8 @@
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
+#if defined __NR_fadvise64_64
+
 /* Was named __libc_posix_fadvise64 for some inexplicable reason.
 ** google says only uclibc has *__libc*_posix_fadviseXXX,
 ** so it cannot be compat with anything.
@@ -33,7 +35,6 @@
 .global posix_fadvise64
 .type   posix_fadvise64,%function
 posix_fadvise64:
-#if defined __NR_fadvise64_64
 	/* Save regs  */
 	pushl	%ebp
 	pushl	%ebx
@@ -91,10 +92,6 @@ overflow:
 	/* Returns 0 on success, else an error code.  */
 	negl	%eax
 
-#elif defined __UCLIBC_HAS_STUBS__
-	movl	$-ENOSYS, %eax
-	jmp __syscall_error
-#endif
 	/* Successful; return the syscall's value.  */
 	ret
 
@@ -106,3 +103,5 @@ overflow:
 ** weak_alias(__libc_posix_fadvise64,posix_fadvise64)
 ** #endif
 */
+
+#endif

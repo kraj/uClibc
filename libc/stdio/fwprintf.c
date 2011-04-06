@@ -21,4 +21,3 @@ int fwprintf(FILE * __restrict stream, const wchar_t * __restrict format, ...)
 
 	return rv;
 }
-libc_hidden_def(fwprintf)
