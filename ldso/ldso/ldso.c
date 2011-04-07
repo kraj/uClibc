@@ -64,6 +64,11 @@ static int _dl_secure = 1; /* Are we dealing with setuid stuff? */
 /* Needed for standalone execution. */
 unsigned long attribute_hidden _dl_skip_args = 0;
 const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being run */
+
+void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
+			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
+			  DL_GET_READY_TO_RUN_EXTRA_PARMS) attribute_hidden;
+
 #include "dl-startup.c"
 #include "dl-symbols.c"
 #include "dl-array.c"
