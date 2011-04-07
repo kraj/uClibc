@@ -4,10 +4,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#ifndef _dl_assert
-# define _dl_assert(expr)
-#endif
-
 /* Initialize a DL_LOADADDR_TYPE given a got pointer and a complete
    load map.  */
 static __always_inline void

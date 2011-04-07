@@ -20,10 +20,6 @@ USA.  */
 
 #include <bfin_sram.h>
 
-#ifndef _dl_assert
-# define _dl_assert(expr)
-#endif
-
 /* Initialize a DL_LOADADDR_TYPE given a got pointer and a complete
    load map.  */
 static __always_inline void
