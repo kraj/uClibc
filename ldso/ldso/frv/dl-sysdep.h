@@ -20,6 +20,8 @@
 
 #define DL_NO_COPY_RELOCS
 
+#define HAVE_DL_INLINES_H
+
 /*
  * Initialization sequence for a GOT.  Copy the resolver function
  * descriptor and the pointer to the elf_resolve/link_map data
