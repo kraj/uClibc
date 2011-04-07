@@ -130,9 +130,6 @@ TODO: nptl / linuxthreads / linuxthreads.old
 ====================
 ===  Misc Cruft  ===
 ====================
-- utils/readelf.c - not really needed generally speaking, but might as well
-  add your arch to the giant EM_* list (describe_elf_hdr)
-
 - MAINTAINERS - presumably you're going to submit this code back to mainline
   and since you're the only one who cares about this arch (right now), you
   should add yourself to the toplevel MAINTAINERS file.  do it.
