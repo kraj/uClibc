@@ -51,8 +51,7 @@
 /* Global variables used within the shared library loader */
 extern char *_dl_library_path attribute_hidden;	/* Where we look for libraries */
 extern char *_dl_ldsopath attribute_hidden;	/* Where the shared lib loader was found */
-extern const char *_dl_progname;		/* The name of the executable being run */
-extern size_t _dl_pagesize;			/* Store the page size for use later */
+extern size_t _dl_pagesize attribute_hidden;	/* Store the page size for later use */
 
 #ifdef __UCLIBC_HAS_TLS__
 extern void _dl_add_to_slotinfo (struct link_map  *l);
@@ -131,6 +130,7 @@ extern void _dl_dprintf(int, const char *__restrict, ...) attribute_hidden;
 # define DL_GET_READY_TO_RUN_EXTRA_ARGS
 #endif
 
+/* include it after _dl_assert is defined */
 #ifdef HAVE_DL_INLINES_H
 #include <dl-inlines.h>
 #endif

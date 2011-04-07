@@ -39,6 +39,7 @@ USA.  */
 __asm__(
     "	.text\n"			\
     "	.global	__start\n"		\
+    "	.hidden	__start\n"		\
     "	.type	__start,@function\n"	\
     "__start:\n"			\
     "	call	.Lcall\n"		\

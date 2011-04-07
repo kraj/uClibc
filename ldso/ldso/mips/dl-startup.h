@@ -10,6 +10,7 @@
 __asm__(""
     "	.text\n"
     "	.globl	_start\n"
+    "	.hidden	_start\n"
     "	.ent	_start\n"
     "	.type	_start,@function\n"
     "_start:\n"

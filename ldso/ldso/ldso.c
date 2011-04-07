@@ -43,6 +43,8 @@
 #include "dl-tls.c"
 #endif
 
+static const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being run */
+
 /* Pull in the value of _dl_progname */
 #include LDSO_ELFINTERP
 #include "elfinterp_common.c"
@@ -54,16 +56,13 @@ static char *_dl_preload       = NULL;	/* Things to be loaded before the libs */
 #endif
 char *_dl_ldsopath             = NULL;	/* Location of the shared lib loader */
 int _dl_errno                  = 0;	/* We can't use the real errno in ldso */
-size_t _dl_pagesize            = 0;	/* Store the page size for use later */
+size_t _dl_pagesize            = 0;	/* Store the page size for later use */
 struct r_debug *_dl_debug_addr = NULL;	/* Used to communicate with the gdb debugger */
 void *(*_dl_malloc_function) (size_t size) = NULL;
 void (*_dl_free_function) (void *p) = NULL;
 
 static int _dl_secure = 1; /* Are we dealing with setuid stuff? */
 
-/* Needed for standalone execution. */
-unsigned long attribute_hidden _dl_skip_args = 0;
-const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being run */
 
 void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
@@ -94,7 +93,7 @@ static unsigned char *_dl_mmap_zero   = NULL;	/* Also used by _dl_malloc */
 
 static struct elf_resolve **init_fini_list;
 static unsigned int nlist; /* # items in init_fini_list */
-extern void _start(void);
+extern void _start(void) attribute_hidden;
 
 #ifdef __UCLIBC_HAS_SSP__
 # include <dl-osinfo.h>

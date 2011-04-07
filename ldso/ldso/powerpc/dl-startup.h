@@ -7,6 +7,7 @@
 __asm__(
     "	.text\n"
     "	.globl	_start\n"
+    "	.hidden	_start\n"
     "	.type	_start,@function\n"
     "_start:\n"
     "	mr	3,1\n" /* Pass SP to _dl_start in r3 */

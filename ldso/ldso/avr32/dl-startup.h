@@ -11,6 +11,7 @@
  * afterwards. */
 __asm__("	.text\n"
 	"	.global	_start\n"
+	"	.hidden	_start\n"
 	"	.type	_start,@function\n"
 	"_start:\n"
 	/* All arguments are on the stack initially */

@@ -39,13 +39,13 @@
 /* When libdl is linked as a static library, we need to replace all
  * the symbols that otherwise would have been loaded in from ldso... */
 
-const char *_dl_progname       = "";        /* Program name */
+static const char *_dl_progname= "";           /* Program name */
 void *(*_dl_malloc_function)(size_t);
 void (*_dl_free_function) (void *p);
 char *_dl_library_path         = NULL;         /* Where we look for libraries */
 char *_dl_ldsopath             = NULL;         /* Location of the shared lib loader */
 int _dl_errno                  = 0;         /* We can't use the real errno in ldso */
-size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later */
+size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for later use */
 /* This global variable is also to communicate with debuggers such as gdb. */
 struct r_debug *_dl_debug_addr = NULL;
 

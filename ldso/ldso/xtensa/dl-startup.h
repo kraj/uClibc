@@ -12,6 +12,7 @@ __asm__ (
     "	.text\n"
     "	.align  4\n"
     "	.global _start\n"
+    "	.hidden	_start\n"
     "	.type   _start, @function\n"
     "_start:\n"
     "	# Compute load offset in a2: the GOT has not yet been relocated\n"

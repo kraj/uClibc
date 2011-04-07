@@ -42,6 +42,7 @@ _dl_start (unsigned placeholder, \
 
 __asm__("	.text\n"
 	".globl _start\n"
+	".hidden _start\n"
 	"_start:\n"
 	"          B .S2		_dl_start\n"
 	"          STW .D2T2		B14, *+B14[1]\n"

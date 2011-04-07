@@ -184,7 +184,7 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 
 /* Used to return error codes back to dlopen et. al.  */
 unsigned long _dl_error_number;
-unsigned long _dl_internal_error_number;
+static unsigned long _dl_internal_error_number;
 
 struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	struct elf_resolve *tpnt, char *full_libname, int attribute_unused trace_loaded_objects)

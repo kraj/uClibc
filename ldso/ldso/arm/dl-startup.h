@@ -12,6 +12,7 @@
 __asm__(
     "	.text\n"
     "	.globl	_start\n"
+    "	.hidden	_start\n"
     "	.type	_start,%function\n"
 	"_start:\n"
 	"	@ at start time, all the args are on the stack\n"
@@ -65,6 +66,7 @@ __asm__(
     "	.text\n"
     "	.arm\n"
     "	.globl	_start\n"
+    "	.hidden	_start\n"
     "	.type	_start,%function\n"
 	"_start:\n"
 	"	@ dumb: can't persuade the linker to make the start address\n"

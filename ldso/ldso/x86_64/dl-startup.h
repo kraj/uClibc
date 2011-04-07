@@ -9,6 +9,7 @@
 __asm__ (
 	"	.text\n"
 	"	.global _start\n"
+	"	.hidden _start\n"
 	"	.type   _start,%function\n"
 	"_start:\n"
 	"	movq %rsp, %rdi\n"

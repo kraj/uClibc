@@ -6,6 +6,7 @@
 __asm__("" \
 "	.section .text..SHmedia32,\"ax\"\n"				\
 "	.globl _start\n"						\
+"	.hidden _start\n"						\
 "	.type _start, @function\n"					\
 "	.align 5\n"							\
 "_start:\n"								\
