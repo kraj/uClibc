@@ -114,7 +114,7 @@ int _dl_unmap_cache(void)
 #endif
 
 
-void
+void internal_function
 _dl_protect_relro (struct elf_resolve *l)
 {
 	ElfW(Addr) base = (ElfW(Addr)) DL_RELOC_ADDR(l->loadaddr, l->relro_addr);
