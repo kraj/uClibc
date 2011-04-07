@@ -12,7 +12,7 @@ CFLAGS-ldso := -DNOT_IN_libc -DIS_IN_rtld $(SSP_DISABLE_FLAGS)
 # This stuff will not work with -fomit-frame-pointer
 CFLAGS-ldso += -fno-omit-frame-pointer
 
-CFLAGS-ldso += -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include -I$(top_srcdir)ldso/ldso
+CFLAGS-ldso += $(CFLAGS-ldso-extra)
 CFLAGS-ldso += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\"
 
 ifeq ($(DODEBUG),y)

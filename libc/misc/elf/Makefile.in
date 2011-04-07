@@ -7,8 +7,8 @@
 subdirs += libc/misc/elf
 
 libc_a_CSRC = dl-support.c dl-core.c dl-iterate-phdr.c
-CFLAGS-dl-iterate-phdr.c=-D_GNU_SOURCE -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include
-CFLAGS-dl-core.c=-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include
+CFLAGS-dl-iterate-phdr.c = -D_GNU_SOURCE $(CFLAGS-ldso-extra)
+CFLAGS-dl-core.c = $(CFLAGS-ldso-extra)
 
 MISC_ELF_OUT:=$(top_builddir)libc/misc/elf
 MISC_ELF_OBJ:=$(patsubst %.c,$(MISC_ELF_OUT)/%.o,$(libc_a_CSRC))
