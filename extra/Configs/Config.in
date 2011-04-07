@@ -2288,7 +2288,7 @@ config SUPPORT_LD_DEBUG
 
 config SUPPORT_LD_DEBUG_EARLY
 	bool "Build the shared library loader with early debugging support"
-	depends on HAVE_SHARED
+	depends on SUPPORT_LD_DEBUG
 	default n
 	help
 	  Answer Y here to if you find the uClibc shared library loader is
