@@ -44,6 +44,16 @@
    copy.  */
 extern void *__libc_stack_end attribute_relro;
 
+#ifdef SHARED
+extern unsigned long _dl_error_number;
+extern struct r_debug *_dl_debug_addr;
+extern void *(*_dl_malloc_function)(size_t);
+extern void (*_dl_free_function) (void *p);
+struct elf_resolve;
+extern void _dl_run_init_array(struct elf_resolve *);
+extern void _dl_run_fini_array(struct elf_resolve *);
+#endif
+
 #ifdef __UCLIBC_HAS_TLS__
 /* Determine next available module ID.  */
 extern size_t _dl_next_tls_modid (void) internal_function attribute_hidden;

@@ -35,50 +35,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#ifdef __UCLIBC_HAS_TLS__
-#include <tls.h>
-#endif
-
-#ifdef __UCLIBC_HAS_TLS__
-#include <ldsodefs.h>
-extern void _dl_add_to_slotinfo(struct link_map  *l);
-#endif
-
-#ifdef SHARED
-# ifdef __UCLIBC_HAS_TLS__
-# include <dl-tls.h>
-extern struct link_map *_dl_update_slotinfo(unsigned long int req_modid);
-# endif
-
-/* When libdl is loaded as a shared library, we need to load in
- * and use a pile of symbols from ldso... */
-
-extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **,
-	struct elf_resolve *, char *, int);
-extern int _dl_fixup(struct dyn_elf *rpnt, int lazy);
-extern int _dl_errno;
-extern struct dyn_elf *_dl_symbol_tables;
-extern struct elf_resolve *_dl_loaded_modules;
-extern void _dl_free (void *__ptr);
-extern struct r_debug *_dl_debug_addr;
-extern unsigned long _dl_error_number;
-extern void *(*_dl_malloc_function)(size_t);
-extern void (*_dl_free_function) (void *p);
-extern void _dl_run_init_array(struct elf_resolve *);
-extern void _dl_run_fini_array(struct elf_resolve *);
-#ifdef __LDSO_CACHE_SUPPORT__
-int _dl_map_cache(void);
-int _dl_unmap_cache(void);
-#endif
-#ifdef __mips__
-extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy);
-#endif
-#ifdef __SUPPORT_LD_DEBUG__
-extern char *_dl_debug;
-#endif
-
-#else /* !SHARED */
-
+#ifndef SHARED
 #define _dl_malloc malloc
 #define _dl_free free
 
@@ -88,9 +45,7 @@ extern char *_dl_debug;
 const char *_dl_progname       = "";        /* Program name */
 void *(*_dl_malloc_function)(size_t);
 void (*_dl_free_function) (void *p);
-#ifndef SHARED
 char *_dl_library_path         = NULL;         /* Where we look for libraries */
-#endif
 char *_dl_ldsopath             = NULL;         /* Location of the shared lib loader */
 int _dl_errno                  = 0;         /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later */

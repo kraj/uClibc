@@ -27,7 +27,7 @@ static __inline__ void _dl_map_cache(void) { }
 static __inline__ void _dl_unmap_cache(void) { }
 #endif
 
-/* Function prototypes for non-static stuff in elfinterp.c */
+/* Function prototypes for non-static stuff in dl-elf.c and elfinterp.c */
 extern void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	ElfW(Addr) rel_addr, ElfW(Word) rel_size);
 extern int _dl_parse_relocation_information(struct dyn_elf *rpnt,
