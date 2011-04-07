@@ -74,7 +74,7 @@ const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being
  * address mapping is changed in some way.
  */
 void _dl_debug_state(void);
-rtld_hidden_proto(_dl_debug_state, noinline);
+rtld_hidden_proto(_dl_debug_state, noinline)
 void _dl_debug_state(void)
 {
 	/* Make sure GCC doesn't recognize this function as pure, to avoid
@@ -82,7 +82,7 @@ void _dl_debug_state(void)
 	 */
 	__asm__("");
 }
-rtld_hidden_def(_dl_debug_state);
+rtld_hidden_weak(_dl_debug_state)
 
 static unsigned char *_dl_malloc_addr = NULL;	/* Lets _dl_malloc use the already allocated memory page */
 static unsigned char *_dl_mmap_zero   = NULL;	/* Also used by _dl_malloc */
