@@ -45,14 +45,14 @@
 #include <dl-debug.h>
 
 #if defined IS_IN_rtld || !defined SHARED
-char *_dl_debug           = NULL;
-char *_dl_debug_symbols   = NULL;
-char *_dl_debug_move      = NULL;
-char *_dl_debug_reloc     = NULL;
-char *_dl_debug_detail    = NULL;
-char *_dl_debug_nofixups  = NULL;
-char *_dl_debug_bindings  = NULL;
-int   _dl_debug_file      = 2;
+char *_dl_debug			= NULL;
+static char *_dl_debug_symbols	= NULL;
+static char *_dl_debug_move	= NULL;
+static char *_dl_debug_reloc	= NULL;
+static char *_dl_debug_detail	= NULL;
+static char *_dl_debug_nofixups	= NULL;
+static char *_dl_debug_bindings	= NULL;
+static int   _dl_debug_file	= 2;
 #endif
 
 static const char *_dl_reltypes(int type)
