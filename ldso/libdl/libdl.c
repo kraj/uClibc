@@ -36,9 +36,6 @@
 #include <stdbool.h>
 
 #ifndef SHARED
-#define _dl_malloc malloc
-#define _dl_free free
-
 /* When libdl is linked as a static library, we need to replace all
  * the symbols that otherwise would have been loaded in from ldso... */
 
