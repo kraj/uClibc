@@ -112,7 +112,6 @@ size_t _dl_tls_static_size = 2048;
 #include LDSO_ELFINTERP
 #include "../ldso/elfinterp_common.c"
 #include "../ldso/dl-hash.c"
-#define _dl_trace_loaded_objects    0
 #include "../ldso/dl-elf.c"
 #endif /* SHARED */
 
