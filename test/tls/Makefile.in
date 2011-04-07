@@ -31,8 +31,8 @@ EXTRA_CFLAGS := -DNOT_IN_libc=1 \
 	-I$(PTDIR)/sysdeps/pthread				\
 	-I$(PTDIR)/sysdeps/pthread/bits				\
 	-I$(PTDIR)/sysdeps/generic				\
-	-I$(top_builddir)ldso/include				\
 	-I$(top_builddir)ldso/ldso/$(TARGET_ARCH)		\
+	-I$(top_builddir)ldso/include				\
 	-I$(top_builddir)include				\
 	-include $(top_builddir)include/libc-symbols.h
 
