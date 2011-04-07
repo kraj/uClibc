@@ -225,5 +225,3 @@ static int _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope att
 
 	return 0;
 }
-
-#include "elfinterp_common.c"

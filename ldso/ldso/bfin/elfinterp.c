@@ -161,8 +161,6 @@ _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 	return 0;
 }
 
-#include "elfinterp_common.c"
-
 #ifdef IS_IN_rtld
 # include "../../libc/sysdeps/linux/bfin/crtreloc.c"
 #endif

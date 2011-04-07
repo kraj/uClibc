@@ -410,5 +410,3 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	PPC_ICBI (plt + rel_offset_words - 1);
 	PPC_ISYNC;
 }
-
-#include "elfinterp_common.c"

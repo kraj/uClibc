@@ -321,5 +321,3 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 		}
 	}
 }
-
-#include "elfinterp_common.c"

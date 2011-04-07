@@ -45,6 +45,7 @@
 
 /* Pull in the value of _dl_progname */
 #include LDSO_ELFINTERP
+#include "elfinterp_common.c"
 
 /* Global variables used within the shared library loader */
 char *_dl_library_path         = NULL;	/* Where we look for libraries */
