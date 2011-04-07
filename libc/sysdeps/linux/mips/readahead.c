@@ -17,25 +17,20 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
 
-#ifdef __UCLIBC_HAS_LFS__
-#include <_lfs_64.h>
-# ifdef __NR_readahead
+#if defined __NR_readahead && defined __UCLIBC_HAS_LFS__ && defined __USE_GNU
+# include <fcntl.h>
+# include <endian.h>
 
 ssize_t readahead(int fd, off64_t offset, size_t count)
 {
-#  if _MIPS_SIM == _ABIO32
+# if _MIPS_SIM == _ABIO32
 	return INLINE_SYSCALL (readahead, 5, fd, 0,
-		__LONG_LONG_PAIR ((off_t) (offset >> 32), (off_t) offset),
-		count);
-#  else /* N32 || N64 */
+			       __LONG_LONG_PAIR ((off_t) (offset >> 32), (off_t) offset),
+			       count);
+# else /* N32 || N64 */
 	return INLINE_SYSCALL (readahead, 3, fd, offset, count);
-#  endif
-}
-
 # endif
+}
 #endif

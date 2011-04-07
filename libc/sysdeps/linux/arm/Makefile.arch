@@ -21,7 +21,7 @@ SSRC += libc-aeabi_read_tp.S libc-thumb_atomics.S
 endif
 
 ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
-CSRC += posix_fadvise.c posix_fadvise64.c
+CSRC += posix_fadvise.c
 endif
 
 ifeq ($(CONFIG_ARM_EABI),y)

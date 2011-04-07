@@ -7,10 +7,6 @@
 
 CSRC := __syscall_error.c pread_write.c ioctl.c
 
-ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
-CSRC += posix_fadvise.c posix_fadvise64.c
-endif
-
 SSRC := \
 	__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S brk.S \
 	__uClibc_syscall.S syscall.S

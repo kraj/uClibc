@@ -17,18 +17,41 @@ static int enosys_stub(void)
 	return -1;
 }
 
+static int ret_enosys_stub(void)
+{
+	return ENOSYS;
+}
+
 #define make_stub(stub) \
 	link_warning(stub, #stub ": this function is not implemented") \
 	strong_alias(enosys_stub, stub)
+
+#define make_ret_stub(stub) \
+	link_warning(stub, #stub ": this function is not implemented") \
+	strong_alias(ret_enosys_stub, stub)
 
 #ifndef __ARCH_USE_MMU__
 # undef __NR_fork
 #endif
 
+#ifdef __arm__
+# define __NR_fadvise64_64 __NR_arm_fadvise64_64
+# define __NR_fadvise64 __NR_arm_fadvise64_64
+#endif
+
+#ifdef __mips__
+# define __NR_fadvise64_64 __NR_fadvise64
+#endif
+
+#ifdef __xtensa__
+# define __NR_fadvise64 __NR_fadvise64_64
+#endif
+
 #ifndef __UCLIBC_HAS_LFS__
-# undef __NR_fadvise64
 # undef __NR_fadvise64_64
+# undef __NR_readahead
 # undef __NR_sync_file_range
+# undef __NR_splice
 #endif
 
 #ifndef __NR_bdflush
@@ -160,12 +183,24 @@ make_stub(sigtimedwait)
 make_stub(sigwaitinfo)
 #endif
 
-#ifndef __NR_splice
-make_stub(splice)
+#ifndef __NR_readahead
+make_stub(readahead)
 #endif
 
 #ifndef __NR_sync_file_range
 make_stub(sync_file_range)
+#endif
+
+#ifndef __NR_splice
+make_stub(splice)
+#endif
+
+#ifndef __NR_vmsplice
+make_stub(vmsplice)
+#endif
+
+#ifndef __NR_tee
+make_stub(tee)
 #endif
 
 #if !defined(__NR_umount) && !defined(__NR_umount2)
@@ -184,8 +219,12 @@ make_stub(lutimes)
 # endif
 #endif
 
-#ifndef __NR_vmsplice
-make_stub(vmsplice)
+#ifndef __NR_fadvise64
+make_ret_stub(posix_fadvise)
+#endif
+
+#ifndef __NR_fadvise64_64
+make_ret_stub(posix_fadvise64)
 #endif
 
 #endif
