@@ -59,7 +59,6 @@ extern int _dl_fixup(struct dyn_elf *rpnt, int lazy);
 extern void _dl_protect_relro(struct elf_resolve * tpnt);
 extern int _dl_errno;
 extern struct dyn_elf *_dl_symbol_tables;
-extern struct dyn_elf *_dl_handles;
 extern struct elf_resolve *_dl_loaded_modules;
 extern void _dl_free (void *__ptr);
 extern struct r_debug *_dl_debug_addr;
@@ -115,6 +114,12 @@ size_t _dl_tls_static_size = 2048;
 #define _dl_trace_loaded_objects    0
 #include "../ldso/dl-elf.c"
 #endif /* SHARED */
+
+/*
+ * This is the list of modules that are loaded via dlopen.  We may need
+ * to search these for RTLD_GLOBAL files.
+ */
+static struct dyn_elf *_dl_handles = NULL;
 
 #ifdef __SUPPORT_LD_DEBUG__
 # define _dl_if_debug_print(fmt, args...) \

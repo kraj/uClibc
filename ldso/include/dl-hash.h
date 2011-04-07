@@ -150,7 +150,6 @@ struct elf_resolve {
 
 extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;
-extern struct dyn_elf     * _dl_handles;
 
 extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 	DL_LOADADDR_TYPE loadaddr, ElfW(Word) * dynamic_info,

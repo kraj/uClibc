@@ -40,12 +40,6 @@
  */
 struct dyn_elf *_dl_symbol_tables = NULL;
 
-/*
- * This is the list of modules that are loaded via dlopen.  We may need
- * to search these for RTLD_GLOBAL files.
- */
-struct dyn_elf *_dl_handles = NULL;
-
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 /* This is the new hash function that is used by the ELF linker to generate the
  * GNU hash table that each executable and library will have if --hash-style=[gnu,both]
