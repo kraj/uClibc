@@ -48,8 +48,16 @@ static __always_inline attribute_noreturn void _dl_exit(int status)
 		INLINE_SYSCALL(exit, 1, status);
 }
 
+#if 0 /* if you ever want to check for return value, you will need this */
 #define __NR__dl_close __NR_close
 static __always_inline _syscall1(int, _dl_close, int, fd)
+#else
+static __always_inline void _dl_close(int fd)
+{
+	INTERNAL_SYSCALL_DECL(err);
+	INTERNAL_SYSCALL(close, err, 1, fd);
+}
+#endif
 
 #define __NR__dl_open __NR_open
 static __always_inline _syscall3(int, _dl_open, const char *, fn, int, flags,
