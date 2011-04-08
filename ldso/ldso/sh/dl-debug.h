@@ -28,6 +28,8 @@
  * SUCH DAMAGE.
  */
 
+#include <features.h>
+
 static const char *_dl_reltypes_tab[] =
 {
   [0]	"R_SH_NONE",	"R_SH_DIR32",	"R_SH_REL32",	"R_SH_DIR8WPN",
@@ -36,8 +38,10 @@ static const char *_dl_reltypes_tab[] =
  [25]	"R_SH_SWITCH16","R_SH_SWITCH32","R_SH_USES",
  [28]	"R_SH_COUNT",	"R_SH_ALIGN",	"R_SH_CODE",	"R_SH_DATA",
  [32]	"R_SH_LABEL",	"R_SH_SWITCH8",	"R_SH_GNU_VTINHERIT","R_SH_GNU_VTENTRY",
+#ifdef __UCLIBC_HAS_TLS__
 [144]	"R_SH_TLS_GD_32","R_SH_TLS_LD_32", "R_SH_TLS_LDO_32", "R_SH_TLS_IE_32", 
 [148]	"R_SH_TLS_LE_32","R_SH_TLS_DTPMOD32", "R_SH_TLS_DTPOFF32", "R_SH_TLS_TPOFF32",
+#endif
 [160]	"R_SH_GOT32",	"R_SH_PLT32",	"R_SH_COPY",	"R_SH_GLOB_DAT",
 [164]	"R_SH_JMP_SLOT","R_SH_RELATIVE","R_SH_GOTOFF",	"R_SH_GOTPC",
 };

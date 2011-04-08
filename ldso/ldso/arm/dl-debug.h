@@ -27,6 +27,8 @@
  * SUCH DAMAGE.
  */
 
+#include <features.h>
+
 static const char *_dl_reltypes_tab[] =
 {
   [0]	"R_ARM_NONE",	    "R_ARM_PC24",	"R_ARM_ABS32",		"R_ARM_REL32",
@@ -39,8 +41,10 @@ static const char *_dl_reltypes_tab[] =
   [32]	"R_ARM_ALU_PCREL_7_0","R_ARM_ALU_PCREL_15_8","R_ARM_ALU_PCREL_23_15","R_ARM_LDR_SBREL_11_0",
   [36]	"R_ARM_ALU_SBREL_19_12","R_ARM_ALU_SBREL_27_20",
   [100]	"R_ARM_GNU_VTENTRY","R_ARM_GNU_VTINHERIT","R_ARM_THM_PC11","R_ARM_THM_PC9",
+#ifdef __UCLIBC_HAS_TLS__
   [104] "R_ARM_TLS_GD32","R_ARM_TLS_LDM32","R_ARM_TLS_LDO32","R_ARM_TLS_IE32",
   [108] "R_ARM_TLS_LE32","R_ARM_TLS_LDO12","R_ARM_TLS_LE12","R_ARM_TLS_IE12GP",
+#endif
   [249] "R_ARM_RXPC25", "R_ARM_RSBREL32", "R_ARM_THM_RPC22", "R_ARM_RREL32",
   [253] "R_ARM_RABS22", "R_ARM_RPC24", "R_ARM_RBASE",
 };
