@@ -69,8 +69,6 @@ __dl_init_loadaddr_hdr (struct elf32_fdpic_loadaddr loadaddr, void *addr,
 
 #if defined (__SUPPORT_LD_DEBUG__)
   {
-    extern char *_dl_debug;
-    extern int _dl_debug_file;
     if (_dl_debug)
       _dl_dprintf(_dl_debug_file, "%i: mapped %x at %x, size %x\n",
 		  loadaddr.map->nsegs-1,
