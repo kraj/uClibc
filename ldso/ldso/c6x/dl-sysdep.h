@@ -22,6 +22,7 @@
 
 #define HAVE_DL_INLINES_H
 
+#define HAVE_DL_SYSCALLS_H
 
 /*
  * Various assembly language/system dependent  hacks that are required

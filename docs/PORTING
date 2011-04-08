@@ -88,11 +88,9 @@ TODO: nptl / linuxthreads / linuxthreads.old
   - define PERFORM_BOOTSTRAP_RELOC() macro which will handle just the relocs
     that the ldso itself will generate
 
-- dl-syscalls.h:
-  if you wrote your bits/syscalls.h file correctly in the libc step above, you
-  can simply copy this file from another arch and be done ... otherwise you
-  will have to define the syscall[0-6] macros again, but this time setting
-  _dl_errno instead of just errno
+- dl-syscalls.h (optional):
+  - define additional syscalls you need for your arch not covered by generic code
+  - if you need this file, define HAVE_DL_SYSCALLS_H in dl-sysdep.h
 
 - dl-sysdep.h:
   misc cruft goes in here ... you want to:

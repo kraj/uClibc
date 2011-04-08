@@ -58,6 +58,8 @@ static __always_inline unsigned long arm_modulus(unsigned long m, unsigned long 
 #define ELF_MACHINE_NONE R_ARM_NONE
 #define ELF_MACHINE_JMP_SLOT R_ARM_JUMP_SLOT
 
+#define HAVE_DL_SYSCALLS_H
+
 /* 4096 bytes alignment */
 #define PAGE_ALIGN 0xfffff000
 #define ADDR_ALIGN 0xfff

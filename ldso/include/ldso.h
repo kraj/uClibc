@@ -11,6 +11,7 @@
 #include <features.h>
 #define __need_NULL
 #include <stddef.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <sys/types.h>

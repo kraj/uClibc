@@ -11,15 +11,6 @@ contains the function to perform relocations for objects
 other than the linker itself. The code was taken from the
 function 'elf_machine_rel' in 'sysdeps/mips/dl-machine.h'.
 
-dl-syscalls.h
--------------
-Used to contain all the macro functions for the system calls
-as well as the list of system calls supported. We now include
-<sys/syscall.h> but with the __set_errno macro defined empty
-so we can use the same file for the linker as well as userspace.
-Original code was taken from the Linux kernel source 2.4.17 and
-can be found in the file 'include/asm-mips/unistd.h'.
-
 dl-sysdep.h
 -----------
 Contains bootstrap code for the dynamic linker, magic numbers

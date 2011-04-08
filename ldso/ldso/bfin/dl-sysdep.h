@@ -36,6 +36,8 @@ USA.  */
 
 #define HAVE_DL_INLINES_H
 
+#define HAVE_DL_SYSCALLS_H
+
 /*
  * Initialization sequence for a GOT.  Copy the resolver function
  * descriptor and the pointer to the elf_resolve/link_map data

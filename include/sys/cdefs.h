@@ -283,7 +283,7 @@
 #endif
 
 /* Forces a function to be always inlined.  */
-#if __GNUC_PREREQ (3,2)
+#if __GNUC_PREREQ (3,2) && !(__GNUC_PREREQ (4,1) && defined __sh__)
 # define __always_inline __inline __attribute__ ((__always_inline__))
 #else
 # define __always_inline __inline

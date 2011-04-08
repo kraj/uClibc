@@ -25,6 +25,8 @@
 
 #define ELF_MACHINE_JMP_SLOT R_SH_JMP_SLOT
 
+#define HAVE_DL_SYSCALLS_H
+
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
 

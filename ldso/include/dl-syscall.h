@@ -34,7 +34,9 @@
 #define	S_ISGID		02000	/* Set group ID on execution.  */
 
 /* Pull in the arch specific syscall implementation */
-#include <dl-syscalls.h>
+#ifdef HAVE_DL_SYSCALLS_H
+# include <dl-syscalls.h>
+#endif
 
 /* Here are the definitions for some syscalls that are used
    by the dynamic linker.  The idea is that we want to be able
