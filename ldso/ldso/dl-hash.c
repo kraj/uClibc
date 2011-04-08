@@ -272,7 +272,9 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 	unsigned long elf_hash_number = 0xffffffff;
 	const ElfW(Sym) *sym = NULL;
 
+#if 0
 	char *weak_result = NULL;
+#endif
 
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 	unsigned long gnu_hash_number = _dl_gnu_hash((const unsigned char *)name);
@@ -366,5 +368,9 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 	if (sym_ref)
 		sym_ref->tpnt = tpnt;
 #endif
+#if 0
 	return weak_result;
+#else
+	return NULL;
+#endif
 }
