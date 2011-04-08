@@ -16,6 +16,11 @@
 #endif
 
 #ifdef __NR_geteuid
+# ifdef IS_IN_rtld
+#  define __NR__dl_geteuid __NR_geteuid
+#  define geteuid _dl_geteuid
+static __always_inline
+# endif
 _syscall_noerr0(uid_t, geteuid)
 libc_hidden_def(geteuid)
 #endif

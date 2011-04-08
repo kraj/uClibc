@@ -15,8 +15,13 @@
 # define __NR_getpid __NR_getxpid
 #endif
 
+#ifdef IS_IN_rtld
+# define __NR__dl_getpid __NR_getpid
+# define getpid _dl_getpid
+static __always_inline
+#endif
 _syscall_noerr0(pid_t, getpid)
 libc_hidden_weak(getpid)
-#ifndef __NR_getppid
+#if !defined __NR_getppid && !defined IS_IN_rtld
 strong_alias(getpid,getppid)
 #endif

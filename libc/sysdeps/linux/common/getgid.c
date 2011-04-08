@@ -19,9 +19,18 @@
 # define __NR_getgid __NR_getgid32
 #endif
 
+#ifdef IS_IN_rtld
+# define __NR__dl_getgid __NR_getgid
+# define getgid _dl_getgid
+static __always_inline
+#endif
 _syscall_noerr0(gid_t, getgid)
 libc_hidden_def(getgid)
 #if !defined __NR_getegid32 && !defined __NR_getegid
+# ifdef IS_IN_rtld
+#  define getegid _dl_getegid
+static __always_inline
+# endif
 strong_alias(getgid,getegid)
 libc_hidden_def(getegid)
 #endif

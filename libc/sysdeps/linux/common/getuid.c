@@ -19,9 +19,18 @@
 # define __NR_getuid __NR_getuid32
 #endif
 
+#ifdef IS_IN_rtld
+# define __NR__dl_getuid __NR_getuid
+# define getuid _dl_getuid
+static __always_inline
+#endif
 _syscall_noerr0(uid_t, getuid)
 libc_hidden_def(getuid)
 #if !defined __NR_geteuid32 && !defined __NR_geteuid
+# ifdef IS_IN_rtld
+#  define geteuid _dl_geteuid
+static __always_inline
+# endif
 strong_alias(getuid,geteuid)
 libc_hidden_def(geteuid)
 #endif

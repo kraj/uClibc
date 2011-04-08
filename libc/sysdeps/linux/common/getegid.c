@@ -16,6 +16,11 @@
 #endif
 
 #ifdef __NR_getegid
+# ifdef IS_IN_rtld
+#  define __NR__dl_getegid __NR_getegid
+#  define getegid _dl_getegid
+static __always_inline
+# endif
 _syscall_noerr0(gid_t, getegid)
 libc_hidden_def(getegid)
 #endif
