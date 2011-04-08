@@ -8,9 +8,7 @@
  */
 
 #include <sys/syscall.h>
-#include <unistd.h>
 #include <sys/mman.h>
-
 
 _syscall2(int, munmap, void *, start, size_t, length)
 libc_hidden_def(munmap)
