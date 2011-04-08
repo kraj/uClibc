@@ -73,7 +73,11 @@ __asm__(
 	"	@ odd, so use an arm function and change to thumb (_dl_start\n"
 	"	@ is thumb)\n"
 	"	adr	r0, __dl_thumb_start+1\n"
+#if defined(__USE_BX__)
 	"	bx	r0\n"
+#else
+	"	mov	pc, r0\n"
+#endif
 	"\n\n"
     "	.thumb\n"
     "	.globl	__dl_thumb_start\n"
