@@ -89,7 +89,9 @@ static __always_inline _syscall2(int, _dl_munmap, void *, start, unsigned long, 
 #include "../../libc/sysdeps/linux/common/geteuid.c"
 #include "../../libc/sysdeps/linux/common/getgid.c"
 #include "../../libc/sysdeps/linux/common/getegid.c"
+#ifdef __SUPPORT_LD_DEBUG__
 #include "../../libc/sysdeps/linux/common/getpid.c"
+#endif
 
 #define __NR__dl_readlink __NR_readlink
 static __always_inline _syscall3(int, _dl_readlink, const char *, path, char *, buf,
