@@ -140,7 +140,6 @@ tst-tlsmod18a%.so: tst-tlsmod18a.c
 	$(LDFLAGS_tst-tlsmod18a.so)
 tst-tls-at-ctor: tst-tlsmod-at-ctor.so
 
-RET_tst-tls13 := 1
 ifeq ($(TARGET_ARCH),mips)
 RET_tst-tls15 := 1
 endif
