@@ -8,6 +8,8 @@
 /* Define this if the system uses RELOCA.  */
 #define ELF_USES_RELOCA
 #include <elf.h>
+#include <link.h>
+
 /* Initialization sequence for a GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE) \
 do { \

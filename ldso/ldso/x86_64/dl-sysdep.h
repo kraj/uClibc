@@ -24,6 +24,7 @@
 #define ELF_USES_RELOCA
 #include <elf.h>
 #include <link.h>
+
 /* Initialization sequence for the GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE)							\
 do {														\

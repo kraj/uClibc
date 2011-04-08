@@ -9,8 +9,8 @@
 
 /* Define this if the system uses RELOCA. */
 #define ELF_USES_RELOCA
-
 #include <elf.h>
+#include <link.h>
 
 #define ARCH_NUM 1
 #define DT_AVR32_GOTSZ_IDX	(DT_NUM + OS_NUM)

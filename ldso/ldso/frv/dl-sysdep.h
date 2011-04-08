@@ -14,6 +14,8 @@
  * Define this if the system uses RELOCA.
  */
 #undef ELF_USES_RELOCA
+#include <elf.h>
+#include <link.h>
 
 /* JMPREL relocs are inside the DT_RELA table.  */
 #define ELF_MACHINE_PLTREL_OVERLAP
@@ -178,14 +180,3 @@ while (0)
   , struct elf32_fdpic_loadmap *dl_boot_progmap
 #define DL_GET_READY_TO_RUN_EXTRA_ARGS \
   , dl_boot_progmap
-
-
-
-
-#ifdef __USE_GNU
-# include <link.h>
-#else
-# define __USE_GNU
-# include <link.h>
-# undef __USE_GNU
-#endif

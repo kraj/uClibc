@@ -7,12 +7,12 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <bits/elf-dsbt.h>
-
 /*
  * Define this if the system uses RELOCA.
  */
 #define ELF_USES_RELOCA
+#include <elf.h>
+#include <link.h>
 
 /* JMPREL relocs are inside the DT_RELA table.  */
 /* Actually looks like a linker bug sets DT_JMPREL anyway */
@@ -166,15 +166,6 @@ while (0)
 
 #define DL_BOOT_COMPUTE_DYN(dpnt, got, load_addr) \
   ((dpnt) = dl_boot_ldso_dyn_pointer)
-
-
-#ifdef __USE_GNU
-# include <link.h>
-#else
-# define __USE_GNU
-# include <link.h>
-# undef __USE_GNU
-#endif
 
 static __always_inline Elf32_Addr
 elf_machine_load_address (void)
