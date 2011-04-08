@@ -50,9 +50,14 @@ extern struct r_debug *_dl_debug_addr;
 extern void *(*_dl_malloc_function)(size_t);
 extern void (*_dl_free_function) (void *p);
 struct elf_resolve;
+# ifdef __UCLIBC_CTOR_DTOR__
+extern void _dl_app_init_array(void);
+extern void _dl_app_fini_array(void);
+# endif
+#endif
+struct elf_resolve;
 extern void _dl_run_init_array(struct elf_resolve *);
 extern void _dl_run_fini_array(struct elf_resolve *);
-#endif
 
 #ifdef __UCLIBC_HAS_TLS__
 /* Determine next available module ID.  */

@@ -128,10 +128,7 @@ extern void __pthread_initialize_minimal(void);
 /* If __UCLIBC_FORMAT_SHARED_FLAT__, all array initialisation and finalisation
  * is handled by the routines passed to __uClibc_main().  */
 #if defined (__UCLIBC_CTOR_DTOR__) && !defined (__UCLIBC_FORMAT_SHARED_FLAT__)
-# ifdef SHARED
-extern void _dl_app_init_array(void);
-extern void _dl_app_fini_array(void);
-# else
+# ifndef SHARED
 /* These magic symbols are provided by the linker.  */
 extern void (*__preinit_array_start []) (void) attribute_hidden;
 extern void (*__preinit_array_end []) (void) attribute_hidden;
