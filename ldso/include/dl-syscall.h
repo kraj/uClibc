@@ -15,8 +15,10 @@
 #include <sys/syscall.h>
 #include <sys/mman.h>	/* MAP_ANONYMOUS -- differs between platforms */
 
-#define _FCNTL_H
-#include <bits/fcntl.h>
+#define stat __hide_stat
+#include <fcntl.h>
+#include <sys/stat.h>
+#undef stat
 
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
  * struct stat should look like.  It turns out that each arch has a different
@@ -28,10 +30,6 @@
 #endif
 #include <bits/kernel_stat.h>
 #include <bits/kernel_types.h>
-
-/* Protection bits. -- instead of including sys/stat.h */
-#define	S_ISUID		04000	/* Set user ID on execution.  */
-#define	S_ISGID		02000	/* Set group ID on execution.  */
 
 /* Pull in the arch specific syscall implementation */
 #ifdef HAVE_DL_SYSCALLS_H
@@ -114,12 +112,7 @@ static __always_inline _syscall3(int, _dl_readlink, const char *, path, char *, 
 # include <sys/time.h>
 # define __NR__dl_gettimeofday __NR_gettimeofday
 static __always_inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv,
-# ifdef __USE_BSD
-                        struct timezone *
-# else
-                        void *
-# endif
-						, tz)
+				 __timezone_ptr_t, tz)
 #endif
 
 /* Some architectures always use 12 as page shift for mmap2() eventhough the
@@ -130,7 +123,6 @@ static __always_inline _syscall2(int, _dl_gettimeofday, struct timeval *, tv,
 # define MMAP2_PAGE_SHIFT 12
 #endif
 
-#define MAP_FAILED ((void *) -1)
 static __always_inline
 void *_dl_mmap(void *addr, unsigned long size, int prot,
                int flags, int fd, unsigned long offset)
