@@ -18,10 +18,7 @@
 /* we want this in libc but nowhere else */
 #ifdef __USE_GNU
 
-extern __typeof(dl_iterate_phdr) __dl_iterate_phdr;
-
-hidden_proto(__dl_iterate_phdr)
-int
+static int
 __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void *data), void *data)
 {
 	int ret = 0;
@@ -41,7 +38,6 @@ __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void
 #endif
 	return ret;
 }
-hidden_def (__dl_iterate_phdr)
 
 # ifdef SHARED
 
