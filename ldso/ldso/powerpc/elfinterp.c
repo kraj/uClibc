@@ -358,9 +358,8 @@ _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 	return 0;
 }
 
-void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-					   ElfW(Addr) rel_addr,
-					   ElfW(Word) rel_size)
+static void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
+	ElfW(Addr) rel_addr, ElfW(Word) rel_size)
 {
 	struct elf_resolve *tpnt = rpnt->dyn;
 	ElfW(Word) *plt, offset, i,  num_plt_entries, rel_offset_words;

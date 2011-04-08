@@ -31,6 +31,9 @@
 
 #include <ldso.h>
 
+static struct elf_resolve * _dl_load_elf_shared_library(int secure,
+	struct dyn_elf **rpnt, char *libname);
+
 #ifdef __LDSO_CACHE_SUPPORT__
 
 static caddr_t _dl_cache_addr = NULL;
@@ -320,7 +323,7 @@ goof:
  * are required.
  */
 
-struct elf_resolve *_dl_load_elf_shared_library(int secure,
+static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	struct dyn_elf **rpnt, char *libname)
 {
 	ElfW(Ehdr) *epnt;

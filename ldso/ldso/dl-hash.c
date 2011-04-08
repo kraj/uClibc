@@ -82,7 +82,7 @@ static __inline__ Elf_Symndx _dl_elf_hash(const unsigned char *name)
  * We add the relevant info to the symbol chain, so that we can resolve all
  * externals properly.
  */
-struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
+static struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	DL_LOADADDR_TYPE loadaddr, ElfW(Word) *dynamic_info, ElfW(Addr) dynamic_addr,
 	attribute_unused unsigned long dynamic_size)
 {

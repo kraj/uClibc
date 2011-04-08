@@ -28,15 +28,9 @@ static __inline__ void _dl_unmap_cache(void) { }
 #endif
 
 /* Function prototypes for non-static stuff in dl-elf.c and elfinterp.c */
-extern void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-	ElfW(Addr) rel_addr, ElfW(Word) rel_size);
-extern int _dl_parse_relocation_information(struct dyn_elf *rpnt,
-	ElfW(Addr) rel_addr, ElfW(Word) rel_size);
 extern struct elf_resolve * _dl_load_shared_library(int secure,
 	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname,
 	int trace_loaded_objects);
-extern struct elf_resolve * _dl_load_elf_shared_library(int secure,
-	struct dyn_elf **rpnt, char *libname) attribute_hidden;
 extern int _dl_fixup(struct dyn_elf *rpnt, int flag);
 extern void _dl_protect_relro (struct elf_resolve *l) internal_function;
 

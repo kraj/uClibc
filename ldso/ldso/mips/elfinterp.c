@@ -81,17 +81,15 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	return new_addr;
 }
 
-void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-					   ElfW(Addr) rel_addr,
-					   ElfW(Word) rel_size)
+static void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
+	ElfW(Addr) rel_addr, ElfW(Word) rel_size)
 {
 	/* Nothing to do */
 	return;
 }
 
-int _dl_parse_relocation_information(struct dyn_elf *xpnt,
-				     ElfW(Addr) rel_addr,
-				     ElfW(Word) rel_size)
+static int _dl_parse_relocation_information(struct dyn_elf *xpnt,
+	ElfW(Addr) rel_addr, ElfW(Word) rel_size)
 {
 	ElfW(Addr) *reloc_addr = NULL;
 	struct elf_resolve *tpnt = xpnt->dyn;

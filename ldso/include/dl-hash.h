@@ -151,10 +151,6 @@ struct elf_resolve {
 extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;
 
-extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
-	DL_LOADADDR_TYPE loadaddr, ElfW(Word) * dynamic_info,
-	ElfW(Addr) dynamic_addr, unsigned long dynamic_size);
-
 extern char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
 		struct elf_resolve *mytpnt, int type_class,
 		struct symbol_ref *symbol);

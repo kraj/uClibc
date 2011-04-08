@@ -64,9 +64,9 @@ void (*_dl_free_function) (void *p) = NULL;
 static int _dl_secure = 1; /* Are we dealing with setuid stuff? */
 
 
-void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
-			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
-			  DL_GET_READY_TO_RUN_EXTRA_PARMS) attribute_hidden;
+static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
+	ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
+	DL_GET_READY_TO_RUN_EXTRA_PARMS);
 
 #include "dl-startup.c"
 #include "dl-symbols.c"
@@ -267,10 +267,13 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 	}
 }
 
-void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
-			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp,
-			  char **argv
-			  DL_GET_READY_TO_RUN_EXTRA_PARMS)
+static struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
+	DL_LOADADDR_TYPE loadaddr, ElfW(Word) * dynamic_info,
+	ElfW(Addr) dynamic_addr, unsigned long dynamic_size);
+
+static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
+	ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp,
+	char **argv DL_GET_READY_TO_RUN_EXTRA_PARMS)
 {
 	ElfW(Addr) app_mapaddr = 0;
 	ElfW(Phdr) *ppnt;

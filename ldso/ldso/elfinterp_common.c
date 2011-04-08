@@ -186,9 +186,8 @@ static int _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	return 0;
 }
 
-int _dl_parse_relocation_information(struct dyn_elf *rpnt,
-				     ElfW(Addr) rel_addr,
-				     ElfW(Word) rel_size)
+static int _dl_parse_relocation_information(struct dyn_elf *rpnt,
+	ElfW(Addr) rel_addr, ElfW(Word) rel_size)
 {
 	return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
 }
@@ -245,9 +244,8 @@ static __always_inline int _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dy
 #endif
 
 #ifndef ARCH_HAS_LAZY
-void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-					   ElfW(Addr) rel_addr,
-					   ElfW(Word) rel_size)
+static void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
+	ElfW(Addr) rel_addr, ElfW(Word) rel_size)
 {
 # if defined ELF_MACHINE_NONE && defined ELF_MACHINE_JMP_SLOT
 	(void)_dl_parse(rpnt->dyn, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
