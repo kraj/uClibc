@@ -89,7 +89,7 @@
  * the user's application.
  */
 
-#include <ldso.h>
+#include <ldsodefs.h>
 
 /* Needed for standalone execution */
 static __attribute_used__ unsigned long _dl_skip_args = 0;

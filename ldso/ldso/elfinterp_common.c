@@ -1,7 +1,7 @@
 /* vi: set sw=4 ts=4: */
 /* Licensed under the LGPL v2.1, see the file LICENSE in this tarball. */
 
-#include <ldso.h>
+#include <ldsodefs.h>
 
 /*
  * dynamic_info is of type ElfW(Word)

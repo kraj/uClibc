@@ -21,18 +21,16 @@
 /* Pull in the arch specific page size */
 #include <bits/uClibc_page.h>
 
-#include <ldsodefs.h>
-
 #ifndef __ARCH_HAS_NO_SHARED__
 #include <dlfcn.h>
 
+#include <ldsodefs.h>
 #include <dl-string.h>
 #include <dl-elf.h>
 #include <dl-hash.h>
 #include <dl-syscall.h>
 #ifdef __UCLIBC_HAS_TLS__
 # include <tls.h>
-# include <dl-tls.h>
 #endif
 
 /* common align masks, if not specified by dl-sysdep.h */
@@ -59,7 +57,6 @@ extern void ** __attribute__ ((const)) _dl_initial_error_catch_tsd (void);
 #endif
 
 #ifdef __SUPPORT_LD_DEBUG__
-extern char *_dl_debug;
 # define __dl_debug_dprint(fmt, args...) \
 	_dl_dprintf(_dl_debug_file, "%s:%i: " fmt, __FUNCTION__, __LINE__, ## args);
 # define _dl_if_debug_dprint(fmt, args...) \
@@ -97,10 +94,6 @@ extern char *_dl_debug;
 #else
 # define _dl_debug_early(fmt, args...) do {} while (0)
 #endif /* __SUPPORT_LD_DEBUG_EARLY__ */
-
-#ifndef NULL
-#define NULL ((void *) 0)
-#endif
 
 #ifdef IS_IN_rtld
 extern void *_dl_malloc(size_t size);

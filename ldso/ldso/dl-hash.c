@@ -30,7 +30,7 @@
  * SUCH DAMAGE.
  */
 
-#include <ldso.h>
+#include <ldsodefs.h>
 
 /* Various symbol table handling functions, including symbol lookup */
 /*

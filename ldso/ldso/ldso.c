@@ -30,6 +30,7 @@
  * SUCH DAMAGE.
  */
 
+#include <ldsodefs.h>
 #include <ldso.h>
 
 #include <unsecvars.h>

@@ -186,6 +186,7 @@ extern void *__libc_stack_end attribute_relro;
 
 #ifdef SHARED
 extern unsigned long _dl_error_number;
+extern char *_dl_debug;
 extern struct r_debug *_dl_debug_addr;
 extern void *(*_dl_malloc_function)(size_t);
 extern void (*_dl_free_function) (void *p);

@@ -30,7 +30,7 @@
  * SUCH DAMAGE.
  */
 
-#include <ldso.h>
+#include <ldsodefs.h>
 
 static int
 _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,

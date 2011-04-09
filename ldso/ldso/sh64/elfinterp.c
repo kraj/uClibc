@@ -41,7 +41,7 @@
    a more than adequate job of explaining everything required to get this
    working. */
 
-#include <ldso.h>
+#include <ldsodefs.h>
 
 static int _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			ELF_RELOC *rpnt, const ElfW(Sym) *const symtab, const char *strtab)

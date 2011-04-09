@@ -37,10 +37,11 @@
  * SUCH DAMAGE.
  */
 
-#include <ldso.h>
+#include <features.h>
 
 #ifdef __SUPPORT_LD_DEBUG__
 
+#include <ldsodefs.h>
 /* include the arch-specific _dl_reltypes_tab */
 #include <dl-debug.h>
 

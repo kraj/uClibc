@@ -29,7 +29,7 @@
  * SUCH DAMAGE.
  */
 
-#include <ldso.h>
+#include <ldsodefs.h>
 
 #define TLS_DTV_OFFSET 0x8000
 #define TLS_TP_OFFSET 0x7000

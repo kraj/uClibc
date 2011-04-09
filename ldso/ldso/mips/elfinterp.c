@@ -27,7 +27,7 @@
  * SUCH DAMAGE.
  */
 
-#include <ldso.h>
+#include <ldsodefs.h>
 
 #define OFFSET_GP_GOT 0x7ff0
 

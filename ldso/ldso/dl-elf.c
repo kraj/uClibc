@@ -29,7 +29,7 @@
  * SUCH DAMAGE.
  */
 
-#include <ldso.h>
+#include <ldsodefs.h>
 
 static struct elf_resolve * _dl_load_elf_shared_library(int secure,
 	struct dyn_elf **rpnt, char *libname);

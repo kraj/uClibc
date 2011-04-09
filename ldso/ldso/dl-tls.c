@@ -28,7 +28,7 @@
 
 #include <tls.h>
 #include <dl-tls.h>
-#include <ldso.h>
+#include <ldsodefs.h>
 
 void *(*_dl_calloc_function) (size_t __nmemb, size_t __size) = NULL;
 void *(*_dl_realloc_function) (void *__ptr, size_t __size) = NULL;

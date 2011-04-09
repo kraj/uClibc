@@ -38,7 +38,7 @@
    a more than adequate job of explaining everything required to get this
    working. */
 
-#include <ldso.h>
+#include <ldsodefs.h>
 
 #if 0
 static unsigned long

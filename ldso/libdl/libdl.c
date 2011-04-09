@@ -29,11 +29,11 @@
  * SUCH DAMAGE.
  */
 
-
-#include <ldso.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ldsodefs.h>
+#include <ldso.h>
 
 #ifndef SHARED
 #include <unistd.h>
