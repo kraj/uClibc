@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include <elf.h>
 #include <link.h>
-#include <bits/kernel-features.h>
 
 #include <dl-defs.h>
 #ifdef __UCLIBC_HAS_TLS__
@@ -148,14 +147,6 @@ struct elf_resolve {
   struct funcdesc_ht *funcdesc_ht;
 #endif
 };
-
-#ifdef __mips__
-/* The MIPS ABI specifies that the dynamic section has to be read-only.  */
-
-#define DL_RO_DYN_SECTION 1
-
-/* TODO: Import in 64-bit relocations from glibc. */
-#endif
 
 #ifndef SHARED
 # define EXTERN extern
@@ -304,27 +295,6 @@ EXTERN void *_dl_initial_dtv;
 EXTERN size_t _dl_tls_generation;
 
 EXTERN void (*_dl_init_static_tls) (struct link_map *);
-#endif
-
-/* We have the auxiliary vector.  */
-#define HAVE_AUX_VECTOR
-
-/* We can assume that the kernel always provides the AT_UID, AT_EUID,
-   AT_GID, and AT_EGID values in the auxiliary vector from 2.4.0 or so on.  */
-#if __ASSUME_AT_XID
-# define HAVE_AUX_XID
-#endif
-
-/* We can assume that the kernel always provides the AT_SECURE value
-   in the auxiliary vector from 2.5.74 or so on.  */
-#if __ASSUME_AT_SECURE
-# define HAVE_AUX_SECURE
-#endif
-
-/* Starting with one of the 2.4.0 pre-releases the Linux kernel passes
-   up the page size information.  */
-#if __ASSUME_AT_PAGESIZE
-# define HAVE_AUX_PAGESIZE
 #endif
 
 #endif
