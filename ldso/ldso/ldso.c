@@ -34,7 +34,108 @@
 
 #include <unsecvars.h>
 
-static void _dl_dprintf(int, const char *__restrict, ...);
+/* Minimal printf which handles only %s, %d, %x and %p */
+static void _dl_dprintf(int fd, const char *__restrict fmt, ...)
+{
+#if __WORDSIZE > 32
+	long int num;
+#else
+	int num;
+#endif
+	va_list args;
+	char *start, *ptr, *string;
+	char *buf;
+
+	if (!fmt)
+		return;
+
+	buf = _dl_mmap((void *) 0, _dl_pagesize, PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (_dl_mmap_check_error(buf)) {
+		_dl_write(fd, "mmap of a spare page failed!\n", 29);
+		_dl_exit(20);
+	}
+
+	start = ptr = buf;
+
+	if (_dl_strlen(fmt) >= (_dl_pagesize - 1)) {
+		_dl_write(fd, "overflow\n", 11);
+		_dl_exit(20);
+	}
+
+	_dl_strcpy(buf, fmt);
+	va_start(args, fmt);
+
+	while (start) {
+		while (*ptr != '%' && *ptr) {
+			ptr++;
+		}
+
+		if (*ptr == '%') {
+			*ptr++ = '\0';
+			_dl_write(fd, start, _dl_strlen(start));
+
+			switch (*ptr++) {
+				case 's':
+					string = va_arg(args, char *);
+
+					if (!string)
+						_dl_write(fd, "(null)", 6);
+					else
+						_dl_write(fd, string, _dl_strlen(string));
+					break;
+
+				case 'i':
+				case 'd':
+					{
+						char tmp[22];
+#if __WORDSIZE > 32
+						num = va_arg(args, long int);
+#else
+						num = va_arg(args, int);
+#endif
+						string = _dl_simple_ltoa(tmp, num);
+						_dl_write(fd, string, _dl_strlen(string));
+						break;
+					}
+				case 'x':
+				case 'p':
+					{
+						char tmp[22];
+#if __WORDSIZE > 32
+						num = va_arg(args, long int);
+#else
+						num = va_arg(args, int);
+#endif
+						string = _dl_simple_ltoahex(tmp, num);
+						_dl_write(fd, string, _dl_strlen(string));
+						break;
+					}
+				default:
+					_dl_write(fd, "(bad format)", 12);
+					break;
+			}
+
+			start = ptr;
+		} else {
+			_dl_write(fd, start, _dl_strlen(start));
+			start = NULL;
+		}
+	}
+	_dl_munmap(buf, _dl_pagesize);
+	return;
+}
+
+static __attribute_noinline__ char *_dl_strdup(const char *string)
+{
+	char *retval;
+	int len;
+
+	len = _dl_strlen(string);
+	retval = _dl_malloc(len + 1);
+	_dl_strcpy(retval, string);
+	return retval;
+}
 
 /* Pull in common debug code */
 #include "dl-debug.c"
@@ -109,8 +210,6 @@ uintptr_t __stack_chk_guard attribute_relro;
 uintptr_t __guard attribute_relro;
 # endif
 #endif
-
-static __attribute_noinline__ char *_dl_strdup(const char *);
 
 static __attribute_noinline__ char *_dl_getenv(const char *symbol, char **envp)
 {
