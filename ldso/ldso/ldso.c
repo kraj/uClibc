@@ -34,6 +34,8 @@
 
 #include <unsecvars.h>
 
+static void _dl_dprintf(int, const char *__restrict, ...);
+
 /* Pull in common debug code */
 #include "dl-debug.c"
 

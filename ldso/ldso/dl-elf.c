@@ -941,7 +941,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 
 #ifdef IS_IN_rtld
 /* Minimal printf which handles only %s, %d, and %x */
-void _dl_dprintf(int fd, const char *__restrict fmt, ...)
+static void _dl_dprintf(int fd, const char *__restrict fmt, ...)
 {
 #if __WORDSIZE > 32
 	long int num;
