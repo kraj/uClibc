@@ -11,12 +11,14 @@
   Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 */
 
-
-#include <link.h>
-#include <ldso.h>
+#include <features.h>
 
 /* we want this in libc but nowhere else */
 #ifdef __USE_GNU
+# define __need_NULL
+# include <stddef.h>
+# include <link.h>
+# include <ldsodefs.h>
 
 static int
 __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void *data), void *data)

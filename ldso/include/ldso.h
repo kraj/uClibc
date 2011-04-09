@@ -21,7 +21,7 @@
 /* Pull in the arch specific page size */
 #include <bits/uClibc_page.h>
 
-#include <dl-defs.h>
+#include <ldsodefs.h>
 
 #ifndef __ARCH_HAS_NO_SHARED__
 #include <dlfcn.h>
@@ -34,7 +34,6 @@
 # include <tls.h>
 # include <dl-tls.h>
 #endif
-#include <ldsodefs.h>
 
 /* common align masks, if not specified by dl-sysdep.h */
 #ifndef ADDR_ALIGN

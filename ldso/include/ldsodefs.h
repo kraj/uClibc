@@ -1,13 +1,153 @@
 #ifndef _LDSODEFS_H
-#define _LDSODEFS_H     1
-
-#include <bits/kernel-features.h>
+#define _LDSODEFS_H
 
 #include <features.h>
 #include <stdbool.h>
+#include <elf.h>
+#include <link.h>
+#include <bits/kernel-features.h>
+
+#include <dl-defs.h>
 #ifdef __UCLIBC_HAS_TLS__
-#include <tls.h>
+# include <tls.h>
 #endif
+
+/* OS and/or GNU dynamic extensions */
+#ifdef __LDSO_GNU_HASH_SUPPORT__
+# define OS_NUM 2 /* for DT_RELOCCOUNT and DT_GNU_HASH entries */
+#else
+# define OS_NUM 1 /* for DT_RELOCCOUNT entry */
+#endif
+
+#ifndef ARCH_DYNAMIC_INFO
+  /* define in arch specific code, if needed */
+# define ARCH_NUM 0
+#endif
+
+#define DYNAMIC_SIZE (DT_NUM+OS_NUM+ARCH_NUM)
+
+struct elf_resolve;
+struct init_fini {
+	struct elf_resolve **init_fini;
+	unsigned long nlist; /* Number of entries in init_fini */
+};
+
+/* For INIT/FINI dependency sorting. */
+struct init_fini_list {
+	struct init_fini_list *next;
+	struct elf_resolve *tpnt;
+};
+
+struct dyn_elf {
+  struct elf_resolve * dyn;
+  struct dyn_elf * next_handle;  /* Used by dlopen et al. */
+  struct init_fini init_fini;
+  struct dyn_elf * next;
+  struct dyn_elf * prev;
+};
+
+struct symbol_ref {
+  const ElfW(Sym) *sym;
+  struct elf_resolve *tpnt;
+};
+
+struct elf_resolve {
+  /* These entries must be in this order to be compatible with the interface used
+     by gdb to obtain the list of symbols. */
+  DL_LOADADDR_TYPE loadaddr;	/* Base address shared object is loaded at.  */
+  char *libname;		/* Absolute file name object was found in.  */
+  ElfW(Dyn) *dynamic_addr;	/* Dynamic section of the shared object.  */
+  struct elf_resolve * next;
+  struct elf_resolve * prev;
+  /* Nothing after this address is used by gdb. */
+
+#ifdef __UCLIBC_HAS_TLS__
+  /* Thread-local storage related info.  */
+
+  /* Start of the initialization image.  */
+  void *l_tls_initimage;
+  /* Size of the initialization image.  */
+  size_t l_tls_initimage_size;
+  /* Size of the TLS block.  */
+  size_t l_tls_blocksize;
+  /* Alignment requirement of the TLS block.  */
+  size_t l_tls_align;
+  /* Offset of first byte module alignment.  */
+  size_t l_tls_firstbyte_offset;
+# ifndef NO_TLS_OFFSET
+#  define NO_TLS_OFFSET	0
+# endif
+  /* For objects present at startup time: offset in the static TLS block.  */
+  ptrdiff_t l_tls_offset;
+  /* Index of the module in the dtv array.  */
+  size_t l_tls_modid;
+  /* Nonzero if _dl_init_static_tls should be called for this module */
+  unsigned int l_need_tls_init:1;
+#endif
+
+  ElfW(Addr) mapaddr;
+  enum {elf_lib, elf_executable,program_interpreter, loaded_file} libtype;
+  struct dyn_elf * symbol_scope;
+  unsigned short usage_count;
+  unsigned short int init_flag;
+  unsigned long rtld_flags; /* RTLD_GLOBAL, RTLD_NOW etc. */
+  Elf_Symndx nbucket;
+
+#ifdef __LDSO_GNU_HASH_SUPPORT__
+  /* Data needed to support GNU hash style */
+  Elf32_Word l_gnu_bitmask_idxbits;
+  Elf32_Word l_gnu_shift;
+  const ElfW(Addr) *l_gnu_bitmask;
+
+  union
+  {
+    const Elf32_Word *l_gnu_chain_zero;
+    const Elf_Symndx *elf_buckets;
+  };
+#else
+  Elf_Symndx *elf_buckets;
+#endif
+
+  struct init_fini_list *init_fini;
+  struct init_fini_list *rtld_local; /* keep tack of RTLD_LOCAL libs in same group */
+  /*
+   * These are only used with ELF style shared libraries
+   */
+  Elf_Symndx nchain;
+
+#ifdef __LDSO_GNU_HASH_SUPPORT__
+  union
+  {
+    const Elf32_Word *l_gnu_buckets;
+    const Elf_Symndx *chains;
+  };
+#else
+  Elf_Symndx *chains;
+#endif
+  ElfW(Word) dynamic_info[DYNAMIC_SIZE];
+
+  unsigned long n_phent;
+  ElfW(Phdr) * ppnt;
+
+  ElfW(Addr) relro_addr;
+  size_t relro_size;
+
+  dev_t st_dev;      /* device */
+  ino_t st_ino;      /* inode */
+
+#ifdef __powerpc__
+  /* this is used to store the address of relocation data words, so
+   * we don't have to calculate it every time, which requires a divide */
+  unsigned long data_words;
+#endif
+
+#ifdef __FDPIC__
+  /* Every loaded module holds a hashtable of function descriptors of
+     functions defined in it, such that it's easy to release the
+     memory when the module is dlclose()d.  */
+  struct funcdesc_ht *funcdesc_ht;
+#endif
+};
 
 #ifdef __mips__
 /* The MIPS ABI specifies that the dynamic section has to be read-only.  */
@@ -58,6 +198,28 @@ extern void _dl_app_fini_array(void);
 struct elf_resolve;
 extern void _dl_run_init_array(struct elf_resolve *);
 extern void _dl_run_fini_array(struct elf_resolve *);
+
+extern struct dyn_elf     * _dl_symbol_tables;
+extern struct elf_resolve * _dl_loaded_modules;
+
+extern char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
+		struct elf_resolve *mytpnt, int type_class,
+		struct symbol_ref *symbol);
+
+#ifdef __LDSO_CACHE_SUPPORT__
+extern int _dl_map_cache(void);
+extern int _dl_unmap_cache(void);
+#else
+static __inline__ void _dl_map_cache(void) { }
+static __inline__ void _dl_unmap_cache(void) { }
+#endif
+
+/* Function prototypes for non-static stuff in dl-elf.c and elfinterp.c */
+extern struct elf_resolve * _dl_load_shared_library(int secure,
+	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname,
+	int trace_loaded_objects);
+extern int _dl_fixup(struct dyn_elf *rpnt, int flag);
+extern void _dl_protect_relro (struct elf_resolve *l) internal_function;
 
 #ifdef __UCLIBC_HAS_TLS__
 /* Determine next available module ID.  */

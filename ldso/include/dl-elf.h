@@ -13,26 +13,7 @@
 #include <elf.h>
 #include <link.h>
 
-#include <dl-defs.h>
-
-/* Forward declarations for stuff defined in dl-hash.h */
-struct dyn_elf;
-struct elf_resolve;
-
-#ifdef __LDSO_CACHE_SUPPORT__
-extern int _dl_map_cache(void);
-extern int _dl_unmap_cache(void);
-#else
-static __inline__ void _dl_map_cache(void) { }
-static __inline__ void _dl_unmap_cache(void) { }
-#endif
-
-/* Function prototypes for non-static stuff in dl-elf.c and elfinterp.c */
-extern struct elf_resolve * _dl_load_shared_library(int secure,
-	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname,
-	int trace_loaded_objects);
-extern int _dl_fixup(struct dyn_elf *rpnt, int flag);
-extern void _dl_protect_relro (struct elf_resolve *l) internal_function;
+#include <ldsodefs.h>
 
 /*
  * Bitsize related settings for things ElfW()
@@ -75,19 +56,6 @@ extern void _dl_protect_relro (struct elf_resolve *l) internal_function;
 # define UNSUPPORTED_RELOC_STR	"RELA"
 #endif
 
-/* OS and/or GNU dynamic extensions */
-#ifdef __LDSO_GNU_HASH_SUPPORT__
-# define OS_NUM 2 /* for DT_RELOCCOUNT and DT_GNU_HASH entries */
-#else
-# define OS_NUM 1 /* for DT_RELOCCOUNT entry */
-#endif
-
-#ifndef ARCH_DYNAMIC_INFO
-  /* define in arch specific code, if needed */
-# define ARCH_NUM 0
-#endif
-
-#define DYNAMIC_SIZE (DT_NUM+OS_NUM+ARCH_NUM)
 /* Keep ARCH specific entries into dynamic section at the end of the array */
 #define DT_RELCONT_IDX (DYNAMIC_SIZE - OS_NUM - ARCH_NUM)
 

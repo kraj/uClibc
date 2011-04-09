@@ -16,7 +16,9 @@
  * as well as all of the other good stuff in the binary.
  */
 
-#include <ldso.h>
+#define __need_NULL
+#include <stddef.h>
+#include <ldsodefs.h>
 
 struct elf_resolve *_dl_loaded_modules = NULL;
 
