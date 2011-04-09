@@ -108,7 +108,6 @@ extern void *_dl_malloc(size_t size);
 extern void *_dl_calloc(size_t __nmemb, size_t __size);
 extern void *_dl_realloc(void *__ptr, size_t __size);
 extern void _dl_free(void *);
-extern char *_dl_strdup(const char *string) attribute_hidden;
 extern void _dl_dprintf(int, const char *__restrict, ...) attribute_hidden;
 #else
 # include <stdlib.h>

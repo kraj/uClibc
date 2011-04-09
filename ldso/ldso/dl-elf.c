@@ -1032,7 +1032,7 @@ void _dl_dprintf(int fd, const char *__restrict fmt, ...)
 	return;
 }
 
-char *_dl_strdup(const char *string)
+static char *_dl_strdup(const char *string)
 {
 	char *retval;
 	int len;

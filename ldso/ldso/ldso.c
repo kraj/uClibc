@@ -108,6 +108,8 @@ uintptr_t __guard attribute_relro;
 # endif
 #endif
 
+static __attribute_noinline__ char *_dl_strdup(const char *);
+
 static char *_dl_getenv(const char *symbol, char **envp)
 {
 	char *pnt;
