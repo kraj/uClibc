@@ -36,6 +36,7 @@
 #include <stdbool.h>
 
 #ifndef SHARED
+#include <unistd.h>
 /* When libdl is linked as a static library, we need to replace all
  * the symbols that otherwise would have been loaded in from ldso... */
 
@@ -273,6 +274,18 @@ void *dlopen(const char *libname, int flag)
 
 	_dl_map_cache();
 
+#ifndef SHARED
+	/* When statically linked, the _dl_library_path is not yet initialized */
+	{
+		static smallint _dl_library_path_set = 0;
+		if (!_dl_library_path_set) {
+			_dl_library_path_set = 1;
+			if (getuid() == geteuid() && getgid() == getegid())
+				_dl_library_path = getenv("LD_LIBRARY_PATH");
+		}
+	}
+#endif
+
 	/*
 	 * Try and locate the module we were called from - we
 	 * need this so that we get the correct RPATH/RUNPATH.  Note that
@@ -297,11 +310,6 @@ void *dlopen(const char *libname, int flag)
 	now_flag = (flag & RTLD_NOW) ? RTLD_NOW : 0;
 	if (getenv("LD_BIND_NOW"))
 		now_flag = RTLD_NOW;
-
-#ifndef SHARED
-	/* When statically linked, the _dl_library_path is not yet initialized */
-	_dl_library_path = getenv("LD_LIBRARY_PATH");
-#endif
 
 	/* Try to load the specified library */
 	_dl_if_debug_print("Trying to dlopen '%s', RTLD_GLOBAL:%d RTLD_NOW:%d\n",
