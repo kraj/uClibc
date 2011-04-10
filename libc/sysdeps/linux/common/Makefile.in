@@ -15,7 +15,9 @@ CSRC_LFS := $(notdir $(wildcard $(COMMON_DIR)/*64.c))
 CSRC-y := $(filter-out llseek.c $(CSRC_LFS),$(CSRC-y))
 CSRC-$(UCLIBC_HAS_LFS) += llseek.c $(CSRC_LFS)
 
-CSRC-$(if $(or $(UCLIBC_HAS_SSP),$(UCLIBC_HAS_FORTIFY)),y) += ssp.c
+ifneq ($(UCLIBC_HAS_SSP)$(UCLIBC_HAS_FORTIFY),)
+CSRC-y += ssp.c
+endif
 CSRC-$(UCLIBC_LINUX_MODULE_24) += create_module.c query_module.c \
 	get_kernel_syms.c
 # we need these internally: fstatfs.c statfs.c
@@ -25,7 +27,9 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += capget.c capset.c inotify.c ioperm.c iopl.c \
 	sendfile64.c sendfile.c setfsgid.c setfsuid.c setresuid.c \
 	splice.c vmsplice.c tee.c signalfd.c swapoff.c swapon.c \
 	sync_file_range.c sysctl.c sysinfo.c timerfd.c uselib.c vhangup.c
-CSRC-$(if $(and $(UCLIBC_LINUX_SPECIFIC),$(UCLIBC_HAS_THREADS_NATIVE)),y) += madvise.c
+ifeq ($(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_THREADS_NATIVE),yy)
+CSRC-y += madvise.c
+endif
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 CSRC- += fork.c getpid.c raise.c open.c close.c read.c write.c
 CSRC- += $(if $(findstring =arm=,=$(TARGET_ARCH)=),vfork.c)
