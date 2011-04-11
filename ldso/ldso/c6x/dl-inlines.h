@@ -74,6 +74,35 @@ __dl_init_loadaddr_hdr (struct elf32_dsbt_loadaddr loadaddr, void *addr,
 #endif
 }
 
+/* Replace an existing entry in the load map.  */
+static __always_inline void
+__dl_update_loadaddr_hdr (struct elf32_dsbt_loadaddr loadaddr, void *addr,
+			Elf32_Phdr *phdr)
+{
+ 	struct elf32_dsbt_loadseg *segdata;
+	void *oldaddr;
+ 	int i;
+
+	for (i = 0; i < loadaddr.map->nsegs; i++)
+		if (loadaddr.map->segs[i].p_vaddr == phdr->p_vaddr
+		    && loadaddr.map->segs[i].p_memsz == phdr->p_memsz)
+			break;
+	if (i == loadaddr.map->nsegs)
+		_dl_exit (-1);
+
+	segdata = loadaddr.map->segs + i;
+	oldaddr = (void *)segdata->addr;
+	_dl_munmap (oldaddr, segdata->p_memsz);
+	segdata->addr = (Elf32_Addr) addr;
+
+#if defined (__SUPPORT_LD_DEBUG__)
+	if (_dl_debug)
+		_dl_dprintf(_dl_debug_file, "%i: changed mapping %x at %x (old %x), size %x\n",
+			    loadaddr.map->nsegs-1,
+			    segdata->p_vaddr, segdata->addr, oldaddr, segdata->p_memsz);
+#endif
+}
+
 static __always_inline void
 __dl_loadaddr_unmap (struct elf32_dsbt_loadaddr loadaddr)
 {

@@ -17,7 +17,7 @@
    alignment can be a significant win on targets like m68k and Coldfire,
    where __alignof__(double) == 2.  */
 #define MALLOC_ALIGNMENT \
-  __alignof__ (double __attribute_aligned__ (sizeof (size_t)))
+  (__alignof__ (double) > sizeof (size_t) ? __alignof__ (double) : sizeof (size_t))
 
 /* The system pagesize... */
 #define MALLOC_PAGE_SIZE	sysconf(_SC_PAGESIZE)
