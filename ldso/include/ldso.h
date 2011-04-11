@@ -95,11 +95,13 @@ extern void **_dl_initial_error_catch_tsd(void) __attribute__((const))
 #endif /* __SUPPORT_LD_DEBUG_EARLY__ */
 
 #ifdef IS_IN_rtld
-extern void *_dl_malloc(size_t size);
-extern void *_dl_calloc(size_t __nmemb, size_t __size);
-extern void *_dl_realloc(void *__ptr, size_t __size);
-extern void *_dl_memalign(size_t __boundary, size_t __size);
-extern void _dl_free(void *);
+extern void *_dl_malloc(size_t size) attribute_hidden;
+extern void _dl_free(void *) attribute_hidden;
+# ifdef __UCLIBC_HAS_TLS__
+extern void *_dl_calloc(size_t __nmemb, size_t __size) attribute_hidden;
+extern void *_dl_realloc(void *__ptr, size_t __size) attribute_hidden;
+extern void *_dl_memalign(size_t __boundary, size_t __size) attribute_hidden;
+# endif
 #else
 # include <stdlib.h>
 # define _dl_malloc malloc

@@ -39,7 +39,14 @@ struct rtld_global _rtld_global =
 {
 	._dl_loaded_modules = NULL,
 	._dl_symbol_tables = NULL,
-	._dl_debug_addr = NULL
+	._dl_debug_addr = NULL,
+	._dl_malloc_function = NULL,
+	._dl_free_function = NULL
+#ifdef __UCLIBC_HAS_TLS__
+,	._dl_calloc_function = NULL,
+	._dl_realloc_function = NULL,
+	._dl_memalign_function = NULL
+#endif
 #ifdef __SUPPORT_LD_DEBUG__
 ,	._dl_debug = NULL
 #endif
@@ -55,10 +62,6 @@ struct rtld_global_ro _rtld_global_ro attribute_relro =
 	._dl_fixup = _dl_fixup,
 	._dl_protect_relro = _dl_protect_relro,
 	._dl_find_hash = _dl_find_hash
-# if 0 /* psm: ask Bernd Schmid */
-,	._dl_malloc_function = _dl_malloc_function,
-	._dl_free_function = _dl_free_function
-# endif
 # ifdef __LDSO_CACHE_SUPPORT__
 ,	._dl_map_cache = _dl_map_cache,
 	._dl_unmap_cache = _dl_unmap_cache
@@ -66,7 +69,7 @@ struct rtld_global_ro _rtld_global_ro attribute_relro =
 # ifdef __mips__
 ,	._dl_perform_mips_global_got_relocations = _dl_perform_mips_global_got_relocations
 # endif
-# ifdef USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
 # if 0
 #  ifdef __i386__
 ,	._tls_get_addr = ___tls_get_addr_internal
@@ -215,9 +218,6 @@ static char *_dl_preload       = NULL;	/* Things to be loaded before the libs */
 char *_dl_ldsopath             = NULL;	/* Location of the shared lib loader */
 int _dl_errno                  = 0;	/* We can't use the real errno in ldso */
 
-void *(*_dl_malloc_function) (size_t size) = NULL;
-void (*_dl_free_function) (void *p) = NULL;
-
 static int _dl_secure = 1; /* Are we dealing with setuid stuff? */
 
 
@@ -321,8 +321,8 @@ void *_dl_malloc(size_t size)
 	_dl_debug_early("request for %d bytes\n", size);
 #endif
 
-	if (_dl_malloc_function)
-		return (*_dl_malloc_function) (size);
+	if (GL(dl_malloc_function))
+		return (*GL(dl_malloc_function)) (size);
 
 	if (_dl_malloc_addr - _dl_mmap_zero + size > GLRO(dl_pagesize)) {
 		size_t rounded_size;
@@ -372,8 +372,8 @@ static void *_dl_zalloc(size_t size)
 
 void _dl_free(void *p)
 {
-	if (_dl_free_function)
-		(*_dl_free_function) (p);
+	if (GL(dl_free_function))
+		(*GL(dl_free_function)) (p);
 }
 
 #ifdef __UCLIBC_HAS_TLS__
@@ -384,8 +384,8 @@ void *_dl_memalign(size_t __boundary, size_t __size)
 	size_t delta;
 	size_t rounded = 0;
 
-	if (_dl_memalign_function)
-		return (*_dl_memalign_function) (__boundary, __size);
+	if (GL(dl_memalign_function))
+		return (*GL(dl_memalign_function)) (__boundary, __size);
 
 	while (rounded < __boundary) {
 		rounded = (1 << i++);
@@ -1223,23 +1223,22 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 	}
 
 	/* Find the real malloc function and make ldso functions use that from now on */
-	_dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "malloc",
+	GL(dl_malloc_function) = (void* (*)(size_t)) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "malloc",
 			GL(dl_symbol_tables), NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
-	_dl_free_function = (void (*)(void *)) (intptr_t)
+	GL(dl_free_function) = (void (*)(void *)) (intptr_t)
 		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", GL(dl_symbol_tables), NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 #ifdef __UCLIBC_HAS_TLS__
 	/* Find the real functions and make ldso functions use them from now on */
-	_dl_calloc_function = (void* (*)(size_t, size_t)) (intptr_t)
+	GL(dl_calloc_function) = (void* (*)(size_t, size_t)) (intptr_t)
 		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", GL(dl_symbol_tables), NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
-	_dl_realloc_function = (void* (*)(void *, size_t)) (intptr_t)
+	GL(dl_realloc_function) = (void* (*)(void *, size_t)) (intptr_t)
 		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", GL(dl_symbol_tables), NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
-	_dl_memalign_function = (void* (*)(size_t, size_t)) (intptr_t)
+	GL(dl_memalign_function) = (void* (*)(size_t, size_t)) (intptr_t)
 		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", GL(dl_symbol_tables), NULL, ELF_RTYPE_CLASS_PLT, NULL);
-
 #endif
 
 	/* Notify the debugger that all objects are now mapped in.  */

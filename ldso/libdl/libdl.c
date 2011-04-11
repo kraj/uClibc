@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <malloc.h>
 #include <ldsodefs.h>
 #include <ldso.h>
 #ifdef __UCLIBC_HAS_TLS__
@@ -46,7 +47,7 @@
 
 static const char *_dl_progname= "";           /* Program name */
 void *(*_dl_malloc_function)(size_t) = NULL;
-void (*_dl_free_function) (void *p);
+void (*_dl_free_function) (void *p) = NULL;
 char *_dl_library_path         = NULL;         /* Where we look for libraries */
 char *_dl_ldsopath             = NULL;         /* Location of the shared lib loader */
 size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for later use */
@@ -252,8 +253,13 @@ void *dlopen(const char *libname, int flag)
 
 	if (!_dl_init) {
 		_dl_init = true;
-		_dl_malloc_function = malloc;
-		_dl_free_function = free;
+		GL(dl_malloc_function) = malloc;
+		GL(dl_free_function) = free;
+#ifdef __UCLIBC_HAS_TLS__
+		GL(dl_calloc_function) = calloc;
+		GL(dl_realloc_function) = realloc;
+		GL(dl_memalign_function) = memalign;
+#endif
 	}
 	/* Cover the trivial case first */
 	if (!libname)

@@ -30,11 +30,11 @@
 #include <dl-tls.h>
 #include <ldsodefs.h>
 
+#ifndef SHARED
 void *(*_dl_calloc_function) (size_t __nmemb, size_t __size) = NULL;
 void *(*_dl_realloc_function) (void *__ptr, size_t __size) = NULL;
 void *(*_dl_memalign_function) (size_t __boundary, size_t __size) = NULL;
-
-void (*_dl_free_function) (void *__ptr);
+#endif
 
 /* Round up N to the nearest multiple of P, where P is a power of 2
    --- without using libgcc division routines.  */
@@ -46,8 +46,8 @@ _dl_calloc (size_t __nmemb, size_t __size)
 	void *result;
 	size_t size = (__size * __nmemb);
 
-	if (_dl_calloc_function)
-		return (*_dl_calloc_function) (__nmemb, __size);
+	if (GL(dl_calloc_function))
+		return (*GL(dl_calloc_function)) (__nmemb, __size);
 
 	if ((result = _dl_malloc(size)) != NULL) {
 		_dl_memset(result, 0, size);
@@ -59,8 +59,8 @@ _dl_calloc (size_t __nmemb, size_t __size)
 void *
 _dl_realloc (void * __ptr, size_t __size)
 {
-	if (_dl_realloc_function)
-		return (*_dl_realloc_function) (__ptr, __size);
+	if (GL(dl_realloc_function))
+		return (*GL(dl_realloc_function)) (__ptr, __size);
 
 	_dl_debug_early("NOT IMPLEMENTED PROPERLY!!!\n");
 	return NULL;
@@ -202,7 +202,7 @@ _dl_nothread_init_static_tls (struct link_map *map)
 #endif
 
 /* Taken from glibc/sysdeps/generic/dl-tls.c */
-static void
+static attribute_noreturn void
 oom (void)
 {
 	_dl_debug_early("cannot allocate thread-local memory: ABORT\n");

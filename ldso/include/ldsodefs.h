@@ -196,6 +196,9 @@ struct rtld_global
 	/* Used to communicate with the gdb debugger */
 	EXTERN struct r_debug *_dl_debug_addr;
 
+	EXTERN void *(*_dl_malloc_function) (size_t);
+	EXTERN void (*_dl_free_function) (void *);
+
 #ifdef __UCLIBC_HAS_THREADS__
 	/* Function pointer for catching TLS errors.  */
 	EXTERN void **(*_dl_error_catch_tsd) (void) __attribute__ ((const));
@@ -238,6 +241,11 @@ struct rtld_global
 	EXTERN size_t _dl_tls_generation;
 
 	EXTERN void (*_dl_init_static_tls) (struct link_map *);
+
+	/* uClibc-specific */
+	EXTERN void *(*_dl_calloc_function) (size_t, size_t);
+	EXTERN void *(*_dl_realloc_function) (void *, size_t);
+	EXTERN void *(*_dl_memalign_function) (size_t, size_t);
 #endif
 
 #ifdef __SUPPORT_LD_DEBUG__
@@ -269,10 +277,6 @@ struct rtld_global_ro
 	int (*_dl_fixup) (struct dyn_elf *, int);
 	void (internal_function *_dl_protect_relro) (struct elf_resolve *);
 	char *(*_dl_find_hash) (const char *, struct dyn_elf *, struct elf_resolve *, int, struct symbol_ref *);
-# if 0 /* psm: ask Bernd Schmid */
-	void *(*_dl_malloc_function) (size_t);
-	void (*_dl_free_function) (void *);
-# endif
 # ifdef __LDSO_CACHE_SUPPORT__
 	int (*_dl_map_cache) (void);
 	int (*_dl_unmap_cache) (void);
@@ -326,9 +330,6 @@ extern char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_re
 /* Protect PT_GNU_RELRO area.  */
 extern void _dl_protect_relro (struct elf_resolve *map)
 	internal_function attribute_shared_hidden;
-
-extern void *(*_dl_malloc_function) (size_t) /*attribute_shared_hidden*/;
-extern void (*_dl_free_function) (void *) /*attribute_shared_hidden*/;
 
 #ifdef __LDSO_CACHE_SUPPORT__
 extern int _dl_map_cache(void) attribute_shared_hidden;
