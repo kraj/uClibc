@@ -184,7 +184,7 @@ unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info
 	ADJUST_DYN_INFO(DT_DSBT_BASE_IDX, load_off);
 
 	/* Initialize loadmap dsbt info.  */
-	load_off.map->dsbt_table = dynamic_info[DT_DSBT_BASE_IDX];
+	load_off.map->dsbt_table = (void *)dynamic_info[DT_DSBT_BASE_IDX];
 	load_off.map->dsbt_size = dynamic_info[DT_DSBT_SIZE_IDX];
 	load_off.map->dsbt_index = dynamic_info[DT_DSBT_INDEX_IDX];
 #endif
