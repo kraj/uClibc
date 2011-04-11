@@ -811,20 +811,44 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 #ifdef __DSBT__
 	/* Handle DSBT initialization */
 	{
-		struct elf_resolve *t, *ref = NULL;
+		struct elf_resolve *t, *ref;
 		int idx = tpnt->loadaddr.map->dsbt_index;
 		unsigned *dsbt = tpnt->loadaddr.map->dsbt_table;
 
 		if (idx == 0) {
-			/* This DSO has not been assigned an index */
-			_dl_dprintf(2, "%s: '%s' is missing a dsbt index assignment!\n",
-				    _dl_progname, libname);
-			_dl_exit(1);
+			if (!dynamic_info[DT_TEXTREL]) {
+				/* This DSO has not been assigned an index. */
+				_dl_dprintf(2, "%s: '%s' is missing a dsbt index assignment!\n",
+					    _dl_progname, libname);
+				_dl_exit(1);
+			}
+			/* Find a dsbt table from another module. */
+			ref = NULL;
+			for (t = _dl_loaded_modules; t; t = t->next) {
+				if (ref == NULL && t != tpnt) {
+					ref = t;
+					break;
+				}
+			}
+			idx = tpnt->loadaddr.map->dsbt_size;
+			while (idx-- > 0)
+				if (!ref || ref->loadaddr.map->dsbt_table[idx] == NULL)
+					break;
+			if (idx <= 0) {
+				_dl_dprintf(2, "%s: '%s' caused DSBT table overflow!\n",
+					    _dl_progname, libname);
+				_dl_exit(1);
+			}
+			_dl_if_debug_dprint("\n\tfile='%s';  assigned index %d\n",
+					    libname, idx);
+			tpnt->loadaddr.map->dsbt_index = idx;
+
 		}
 
 		/*
 		 * Setup dsbt slot for this module in dsbt of all modules.
 		 */
+		ref = NULL;
 		for (t = _dl_loaded_modules; t; t = t->next) {
 			/* find a dsbt table from another module */
 			if (ref == NULL && t != tpnt) {
