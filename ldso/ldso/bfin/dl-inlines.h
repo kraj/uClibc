@@ -83,14 +83,9 @@ __dl_init_loadaddr_hdr (struct elf32_fdpic_loadaddr loadaddr, void *addr,
   segdata->p_vaddr = phdr->p_vaddr;
   segdata->p_memsz = phdr->p_memsz;
 
-#if defined (__SUPPORT_LD_DEBUG__)
-  {
-    if (_dl_debug)
-      _dl_dprintf(_dl_debug_file, "%i: mapped %x at %x, size %x\n",
-		  loadaddr.map->nsegs-1,
-		  segdata->p_vaddr, segdata->addr, segdata->p_memsz);
-  }
-#endif
+  _dl_if_debug_dprint(_dl_debug_file, "%i: mapped %x at %x, size %x\n",
+		      loadaddr.map->nsegs-1,
+		      segdata->p_vaddr, segdata->addr, segdata->p_memsz);
 }
 
 static __always_inline void __dl_loadaddr_unmap
@@ -424,7 +419,7 @@ _dl_lookup_address (void const *address)
 
   fd = (struct funcdesc_value const *)address;
 
-  for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next)
+  for (rpnt = GL(dl_loaded_modules); rpnt; rpnt = rpnt->next)
     {
       if (! rpnt->funcdesc_ht)
 	continue;

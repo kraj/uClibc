@@ -35,6 +35,60 @@
 
 #include <unsecvars.h>
 
+struct rtld_global _rtld_global =
+{
+	._dl_loaded_modules = NULL,
+	._dl_symbol_tables = NULL,
+	._dl_debug_addr = NULL
+#ifdef __SUPPORT_LD_DEBUG__
+,	._dl_debug = NULL
+#endif
+};
+
+struct rtld_global_ro _rtld_global_ro attribute_relro =
+{
+	._dl_pagesize = 0
+#ifdef SHARED
+,	._dl_run_init_array = _dl_run_init_array,
+	._dl_run_fini_array = _dl_run_fini_array,
+	._dl_load_shared_library = _dl_load_shared_library,
+	._dl_fixup = _dl_fixup,
+	._dl_protect_relro = _dl_protect_relro,
+	._dl_find_hash = _dl_find_hash
+# if 0 /* psm: ask Bernd Schmid */
+,	._dl_malloc_function = _dl_malloc_function,
+	._dl_free_function = _dl_free_function
+# endif
+# ifdef __LDSO_CACHE_SUPPORT__
+,	._dl_map_cache = _dl_map_cache,
+	._dl_unmap_cache = _dl_unmap_cache
+# endif
+# ifdef __mips__
+,	._dl_perform_mips_global_got_relocations = _dl_perform_mips_global_got_relocations
+# endif
+# ifdef USE_TLS
+# if 0
+#  ifdef __i386__
+,	._tls_get_addr = ___tls_get_addr_internal
+#  else
+,	._tls_get_addr = __tls_get_addr_internal
+#  endif
+# endif
+,	._dl_add_to_slotinfo = _dl_add_to_slotinfo,
+	._dl_update_slotinfo = _dl_update_slotinfo,
+	._dl_allocate_tls = _dl_allocate_tls,
+	._dl_deallocate_tls = _dl_deallocate_tls
+#  if 0 /*def __USE_GNU*/
+,	._dl_tls_get_addr_soft = _dl_tls_get_addr_soft
+#  endif
+# endif
+#endif
+};
+extern struct rtld_global _rtld_local
+	__attribute__ ((alias ("_rtld_global"), visibility ("hidden")));
+extern struct rtld_global_ro _rtld_local_ro
+	__attribute__ ((alias ("_rtld_global_ro"), visibility ("hidden")));
+
 /* Minimal printf which handles only %s, %d, %x and %p */
 static void _dl_dprintf(int fd, const char *__restrict fmt, ...)
 {
@@ -50,7 +104,7 @@ static void _dl_dprintf(int fd, const char *__restrict fmt, ...)
 	if (!fmt)
 		return;
 
-	buf = _dl_mmap((void *) 0, _dl_pagesize, PROT_READ | PROT_WRITE,
+	buf = _dl_mmap((void *) 0, GLRO(dl_pagesize), PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(buf)) {
 		_dl_write(fd, "mmap of a spare page failed!\n", 29);
@@ -59,7 +113,7 @@ static void _dl_dprintf(int fd, const char *__restrict fmt, ...)
 
 	start = ptr = buf;
 
-	if (_dl_strlen(fmt) >= (_dl_pagesize - 1)) {
+	if (_dl_strlen(fmt) >= (GLRO(dl_pagesize) - 1)) {
 		_dl_write(fd, "overflow\n", 11);
 		_dl_exit(20);
 	}
@@ -123,7 +177,7 @@ static void _dl_dprintf(int fd, const char *__restrict fmt, ...)
 			start = NULL;
 		}
 	}
-	_dl_munmap(buf, _dl_pagesize);
+	_dl_munmap(buf, GLRO(dl_pagesize));
 	return;
 }
 
@@ -160,8 +214,7 @@ static char *_dl_preload       = NULL;	/* Things to be loaded before the libs */
 #endif
 char *_dl_ldsopath             = NULL;	/* Location of the shared lib loader */
 int _dl_errno                  = 0;	/* We can't use the real errno in ldso */
-size_t _dl_pagesize            = 0;	/* Store the page size for later use */
-struct r_debug *_dl_debug_addr = NULL;	/* Used to communicate with the gdb debugger */
+
 void *(*_dl_malloc_function) (size_t size) = NULL;
 void (*_dl_free_function) (void *p) = NULL;
 
@@ -173,7 +226,6 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 	DL_GET_READY_TO_RUN_EXTRA_PARMS);
 
 #include "dl-startup.c"
-#include "dl-symbols.c"
 #include "dl-array.c"
 
 /*
@@ -272,7 +324,7 @@ void *_dl_malloc(size_t size)
 	if (_dl_malloc_function)
 		return (*_dl_malloc_function) (size);
 
-	if (_dl_malloc_addr - _dl_mmap_zero + size > _dl_pagesize) {
+	if (_dl_malloc_addr - _dl_mmap_zero + size > GLRO(dl_pagesize)) {
 		size_t rounded_size;
 
 		/* Since the above assumes we get a full page even if
@@ -285,8 +337,8 @@ void *_dl_malloc(size_t size)
 
 		   The actual page size doesn't really matter; as long
 		   as we're self-consistent here, we're safe.  */
-		if (size < _dl_pagesize)
-			rounded_size = (size + ADDR_ALIGN) & _dl_pagesize;
+		if (size < GLRO(dl_pagesize))
+			rounded_size = (size + ADDR_ALIGN) & GLRO(dl_pagesize);
 		else
 			rounded_size = size;
 
@@ -407,12 +459,12 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 	_dl_memset(app_tpnt, 0, sizeof(*app_tpnt));
 
 	/* Store the page size for later use */
-	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+	GLRO(dl_pagesize) = (auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 	/* Make it so _dl_malloc can use the page of memory we have already
 	 * allocated.  We shouldn't need to grab any more memory.  This must
 	 * be first since things like _dl_dprintf() use _dl_malloc()...
 	 */
-	_dl_malloc_addr = (unsigned char *)_dl_pagesize;
+	_dl_malloc_addr = (unsigned char *)GLRO(dl_pagesize);
 	_dl_mmap_zero = 0;
 
 	/* Wahoo!!! */
@@ -478,8 +530,8 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 	}
 
 #ifdef __UCLIBC_HAS_TLS__
-	_dl_error_catch_tsd = &_dl_initial_error_catch_tsd;
-	_dl_init_static_tls = &_dl_nothread_init_static_tls;
+	GL(dl_error_catch_tsd) = &_dl_initial_error_catch_tsd;
+	GL(dl_init_static_tls) = &_dl_nothread_init_static_tls;
 #endif
 
 	/* At this point we are now free to examine the user application,
@@ -561,20 +613,20 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 					app_tpnt->dynamic_info,
 					(unsigned long) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr),
 					ppnt->p_filesz);
-			_dl_loaded_modules->libtype = elf_executable;
-			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
-			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
-			_dl_symbol_tables = rpnt = _dl_zalloc(sizeof(struct dyn_elf));
-			rpnt->dyn = _dl_loaded_modules;
+			GL(dl_loaded_modules)->libtype = elf_executable;
+			GL(dl_loaded_modules)->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
+			GL(dl_loaded_modules)->n_phent = auxvt[AT_PHNUM].a_un.a_val;
+			GL(dl_symbol_tables) = rpnt = _dl_zalloc(sizeof(struct dyn_elf));
+			rpnt->dyn = GL(dl_loaded_modules);
 			app_tpnt->mapaddr = app_mapaddr;
 			app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
 			app_tpnt->usage_count++;
-			app_tpnt->symbol_scope = _dl_symbol_tables;
+			app_tpnt->symbol_scope = GL(dl_symbol_tables);
 			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
 #ifdef ALLOW_ZERO_PLTGOT
 			if (lpnt)
 #endif
-				INIT_GOT(lpnt, _dl_loaded_modules);
+				INIT_GOT(lpnt, GL(dl_loaded_modules));
 		}
 
 		/* OK, fill this in - we did not have this before */
@@ -610,7 +662,7 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 				app_tpnt->l_tls_initimage = (void *) ppnt->p_vaddr;
 
 				/* This image gets the ID one.  */
-				_dl_tls_max_dtv_idx = app_tpnt->l_tls_modid = 1;
+				GL(dl_tls_max_dtv_idx) = app_tpnt->l_tls_modid = 1;
 
 			}
 			_dl_debug_early("Found TLS header for appplication program\n");
@@ -639,18 +691,18 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 #endif
 
 #ifdef __SUPPORT_LD_DEBUG__
-	_dl_debug = _dl_getenv("LD_DEBUG", envp);
-	if (_dl_debug) {
-		if (_dl_strstr(_dl_debug, "all")) {
+	GL(dl_debug) = _dl_getenv("LD_DEBUG", envp);
+	if (GL(dl_debug)) {
+		if (_dl_strstr(GL(dl_debug), "all")) {
 			_dl_debug_detail = _dl_debug_move = _dl_debug_symbols
 				= _dl_debug_reloc = _dl_debug_bindings = _dl_debug_nofixups = (void*)1;
 		} else {
-			_dl_debug_detail   = _dl_strstr(_dl_debug, "detail");
-			_dl_debug_move     = _dl_strstr(_dl_debug, "move");
-			_dl_debug_symbols  = _dl_strstr(_dl_debug, "sym");
-			_dl_debug_reloc    = _dl_strstr(_dl_debug, "reloc");
-			_dl_debug_nofixups = _dl_strstr(_dl_debug, "nofix");
-			_dl_debug_bindings = _dl_strstr(_dl_debug, "bind");
+			_dl_debug_detail   = _dl_strstr(GL(dl_debug), "detail");
+			_dl_debug_move     = _dl_strstr(GL(dl_debug), "move");
+			_dl_debug_symbols  = _dl_strstr(GL(dl_debug), "sym");
+			_dl_debug_reloc    = _dl_strstr(GL(dl_debug), "reloc");
+			_dl_debug_nofixups = _dl_strstr(GL(dl_debug), "nofix");
+			_dl_debug_bindings = _dl_strstr(GL(dl_debug), "bind");
 		}
 	}
 
@@ -702,11 +754,11 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 	 * to our chain.  Later we may need to fill in more fields, but this
 	 * should be enough for now.
 	 */
-	debug_addr->r_map = (struct link_map *) _dl_loaded_modules;
+	debug_addr->r_map = (struct link_map *) GL(dl_loaded_modules);
 	debug_addr->r_version = 1;
 	debug_addr->r_ldbase = (ElfW(Addr)) DL_LOADADDR_BASE(load_addr);
 	debug_addr->r_brk = (unsigned long) &_dl_debug_state;
-	_dl_debug_addr = debug_addr;
+	GL(dl_debug_addr) = debug_addr;
 
 	/* Do not notify the debugger until the interpreter is in the list */
 
@@ -864,7 +916,7 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 #endif /* __LDSO_PRELOAD_FILE_SUPPORT__ */
 
 	nlist = 0;
-	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next) {
+	for (tcurr = GL(dl_loaded_modules); tcurr; tcurr = tcurr->next) {
 		ElfW(Dyn) *this_dpnt;
 
 		nlist++;
@@ -918,12 +970,12 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 	--nlist; /* Exclude the application. */
 	init_fini_list = _dl_malloc(nlist * sizeof(struct elf_resolve *));
 	i = 0;
-	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
+	for (tcurr = GL(dl_loaded_modules)->next; tcurr; tcurr = tcurr->next) {
 		init_fini_list[i++] = tcurr;
 	}
 
 	/* Sort the INIT/FINI list in dependency order. */
-	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
+	for (tcurr = GL(dl_loaded_modules)->next; tcurr; tcurr = tcurr->next) {
 		unsigned int j, k;
 
 		for (j = 0; init_fini_list[j] != tcurr; ++j)
@@ -945,7 +997,7 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 		}
 	}
 #ifdef __SUPPORT_LD_DEBUG__
-	if (_dl_debug) {
+	if (GL(dl_debug)) {
 		_dl_dprintf(_dl_debug_file, "\nINIT/FINI order and dependencies:\n");
 		for (i = 0; i < nlist; i++) {
 			struct init_fini_list *tmp;
@@ -971,7 +1023,7 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 		ElfW(Phdr) *myppnt = (ElfW(Phdr) *) DL_RELOC_ADDR(load_addr, epnt->e_phoff);
 		int j;
 #ifdef __DSBT__
-		struct elf_resolve *ref = _dl_loaded_modules;
+		struct elf_resolve *ref = GL(dl_loaded_modules);
 		_dl_if_debug_dprint("ref is %x, dsbt %x, ref-dsbt %x size %x\n",
 				    ref, tpnt->loadaddr.map->dsbt_table,
 				    ref->loadaddr.map->dsbt_table,
@@ -1000,7 +1052,7 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 		}
 		tpnt->libtype = program_interpreter;
 		tpnt->usage_count++;
-		tpnt->symbol_scope = _dl_symbol_tables;
+		tpnt->symbol_scope = GL(dl_symbol_tables);
 		if (rpnt) {
 			rpnt->next = _dl_zalloc(sizeof(struct dyn_elf));
 			rpnt->next->prev = rpnt;
@@ -1069,7 +1121,7 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 	 * Relocation of the GOT entries for MIPS have to be done
 	 * after all the libraries have been loaded.
 	 */
-	_dl_perform_mips_global_got_relocations(_dl_loaded_modules, !unlazy);
+	_dl_perform_mips_global_got_relocations(GL(dl_loaded_modules), !unlazy);
 #endif
 
 	/*
@@ -1078,18 +1130,18 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 	 * indicate fixups to the GOT tables.  We need to do this in reverse
 	 * order so that COPY directives work correctly.
 	 */
-	if (_dl_symbol_tables)
-		if (_dl_fixup(_dl_symbol_tables, unlazy))
+	if (GL(dl_symbol_tables))
+		if (_dl_fixup(GL(dl_symbol_tables), unlazy))
 			_dl_exit(-1);
 
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+	for (tpnt = GL(dl_loaded_modules); tpnt; tpnt = tpnt->next) {
 		if (tpnt->relro_size)
-			_dl_protect_relro (tpnt);
+			_dl_protect_relro(tpnt);
 	}
 
 #ifdef __UCLIBC_HAS_TLS__
-	if (!was_tls_init_tp_called && _dl_tls_max_dtv_idx > 0)
-		++_dl_tls_generation;
+	if (!was_tls_init_tp_called && GL(dl_tls_max_dtv_idx) > 0)
+		++GL(dl_tls_generation);
 
 	_dl_debug_early("Calling _dl_allocate_tls_init()!\n");
 
@@ -1116,7 +1168,7 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 	 * ld.so.1, so we have to look up each symbol individually.
 	 */
 
-	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "__environ", _dl_symbol_tables, NULL, 0, NULL);
+	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "__environ", GL(dl_symbol_tables), NULL, 0, NULL);
 	if (_dl_envp)
 		*_dl_envp = (unsigned long) envp;
 
@@ -1128,7 +1180,7 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 		/* We had to set the protections of all pages to R/W for
 		 * dynamic linking.  Set text pages back to R/O.
 		 */
-		for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+		for (tpnt = GL(dl_loaded_modules); tpnt; tpnt = tpnt->next) {
 			for (myppnt = tpnt->ppnt, j = 0; j < tpnt->n_phent; j++, myppnt++) {
 				if (myppnt->p_type == PT_LOAD && !(myppnt->p_flags & PF_W) && tpnt->dynamic_info[DT_TEXTREL]) {
 					_dl_mprotect((void *) (DL_RELOC_ADDR(tpnt->loadaddr, myppnt->p_vaddr) & PAGE_ALIGN),
@@ -1140,13 +1192,13 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 	}
 #endif
 	/* Notify the debugger we have added some objects. */
-	_dl_debug_addr->r_state = RT_ADD;
+	GL(dl_debug_addr)->r_state = RT_ADD;
 	_dl_debug_state();
 
 	/* Run pre-initialization functions for the executable.  */
-	_dl_run_array_forward(_dl_loaded_modules->dynamic_info[DT_PREINIT_ARRAY],
-			      _dl_loaded_modules->dynamic_info[DT_PREINIT_ARRAYSZ],
-			      _dl_loaded_modules->loadaddr);
+	_dl_run_array_forward(GL(dl_loaded_modules)->dynamic_info[DT_PREINIT_ARRAY],
+			      GL(dl_loaded_modules)->dynamic_info[DT_PREINIT_ARRAYSZ],
+			      GL(dl_loaded_modules)->loadaddr);
 
 	/* Run initialization functions for loaded objects.  For the
 	   main executable, they will be run from __uClibc_main.  */
@@ -1172,26 +1224,26 @@ static __always_inline void _dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LO
 
 	/* Find the real malloc function and make ldso functions use that from now on */
 	_dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash(__C_SYMBOL_PREFIX__ "malloc",
-			_dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+			GL(dl_symbol_tables), NULL, ELF_RTYPE_CLASS_PLT, NULL);
+
+	_dl_free_function = (void (*)(void *)) (intptr_t)
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", GL(dl_symbol_tables), NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 #ifdef __UCLIBC_HAS_TLS__
 	/* Find the real functions and make ldso functions use them from now on */
 	_dl_calloc_function = (void* (*)(size_t, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "calloc", GL(dl_symbol_tables), NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_realloc_function = (void* (*)(void *, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
-
-	_dl_free_function = (void (*)(void *)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "free", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "realloc", GL(dl_symbol_tables), NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 	_dl_memalign_function = (void* (*)(size_t, size_t)) (intptr_t)
-		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
+		_dl_find_hash(__C_SYMBOL_PREFIX__ "memalign", GL(dl_symbol_tables), NULL, ELF_RTYPE_CLASS_PLT, NULL);
 
 #endif
 
 	/* Notify the debugger that all objects are now mapped in.  */
-	_dl_debug_addr->r_state = RT_CONSISTENT;
+	GL(dl_debug_addr)->r_state = RT_CONSISTENT;
 	_dl_debug_state();
 }
 

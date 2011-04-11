@@ -58,7 +58,7 @@ _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 	if (ELF_ST_BIND(sym_ref.sym->st_info) == STB_LOCAL) {
 		symbol_addr = (ElfW(Addr))DL_RELOC_ADDR(tpnt->loadaddr, sym_ref.sym->st_value);
 	} else {
-		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, tpnt,
+		symbol_addr = (ElfW(Addr))GLRO_F(dl_find_hash)(symname, scope, tpnt,
 							elf_machine_type_class(reloc_type), NULL);
 
 		/*

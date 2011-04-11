@@ -20,13 +20,11 @@
 #include <unistd.h>
 #include <list.h>
 #include <fork.h>
-#include <dl-sysdep.h>
-#include <tls.h>
 #include <string.h>
+#include <ldsodefs.h>
 #include <pthreadP.h>
 #include <bits/libc-lock.h>
 #include <sysdep.h>
-#include <ldsodefs.h>
 
 
 #ifdef TLS_MULTIPLE_THREADS_IN_TCB

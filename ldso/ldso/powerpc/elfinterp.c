@@ -133,7 +133,7 @@ DL_RESOLVER_TYPE _dl_linux_resolver(struct elf_resolve *tpnt, const ElfW(Word) r
 #endif
 
 	/* Get the address of the GOT entry */
-	finaladdr = (ElfW(Addr))_dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
+	finaladdr = (ElfW(Addr))GLRO_F(dl_find_hash)(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!finaladdr)) {
 #if defined (__SUPPORT_LD_DEBUG__)
 		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'\n",
@@ -201,7 +201,7 @@ _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 #endif
 
 	if (symtab_index) {
-		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, tpnt,
+		symbol_addr = (ElfW(Addr))GLRO_F(dl_find_hash)(symname, scope, tpnt,
 							elf_machine_type_class(reloc_type), &sym_ref);
 		/*
 		 * We want to allow undefined references to weak symbols - this

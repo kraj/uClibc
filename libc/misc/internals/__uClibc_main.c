@@ -277,7 +277,7 @@ void __uClibc_fini(void)
     /* If __UCLIBC_FORMAT_SHARED_FLAT__, all array finalisation is handled
      * by __app_fini.  */
 # ifdef SHARED
-    _dl_app_fini_array();
+    GLRO_F(dl_run_fini_array)(GL(dl_loaded_modules));
 # elif !defined (__UCLIBC_FORMAT_SHARED_FLAT__)
     size_t i = __fini_array_end - __fini_array_start;
     while (i-- > 0)
@@ -414,7 +414,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
     /* If __UCLIBC_FORMAT_SHARED_FLAT__, all array initialisation is handled
      * by __app_init.  */
 # ifdef SHARED
-    _dl_app_init_array();
+    GLRO_F(dl_run_init_array)(GL(dl_loaded_modules));
 # elif !defined (__UCLIBC_FORMAT_SHARED_FLAT__)
     {
 	const size_t size = __init_array_end - __init_array_start;

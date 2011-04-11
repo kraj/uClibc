@@ -123,7 +123,7 @@ struct elf32_fdpic_loadmap;
  * _dl_boot, see boot1_arch.h.
  */
 #define START()	do {							\
-  struct elf_resolve *exec_mod = _dl_loaded_modules;			\
+  struct elf_resolve *exec_mod = GL(dl_loaded_modules);			\
   dl_main_funcdesc->entry_point = _dl_elf_main;				\
   while (exec_mod->libtype != elf_executable)				\
     exec_mod = exec_mod->next;						\

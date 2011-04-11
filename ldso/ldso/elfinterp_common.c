@@ -60,13 +60,13 @@ DL_RESOLVER_TYPE _dl_linux_resolver(struct elf_resolve *tpnt, const ElfW(Word) r
 
 	/* Get the address of the GOT entry */
 # ifdef __FDPIC__
-	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, NULL, 0, &sym_ref);
+	new_addr = GLRO_F(dl_find_hash)(symname, tpnt->symbol_scope, NULL, 0, &sym_ref);
 # else
-	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
+	new_addr = GLRO_F(dl_find_hash)(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 # endif
 	if (unlikely(!new_addr)) {
 # ifdef __FDPIC__
-	    new_addr = _dl_find_hash(symname, NULL, NULL, 0, &sym_ref);
+	    new_addr = GLRO_F(dl_find_hash)(symname, NULL, NULL, 0, &sym_ref);
 	    if (unlikely(!new_addr))
 # endif
 	    {

@@ -38,7 +38,6 @@
  * started.  As we add more via dlopen, they get added into other
  * chains.
  */
-struct dyn_elf *_dl_symbol_tables = NULL;
 
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 /* This is the new hash function that is used by the ELF linker to generate the
@@ -93,10 +92,10 @@ static struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	tpnt = _dl_malloc(sizeof(struct elf_resolve));
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
 
-	if (!_dl_loaded_modules)
-		_dl_loaded_modules = tpnt;
+	if (!GL(dl_loaded_modules))
+		GL(dl_loaded_modules) = tpnt;
 	else {
-		struct elf_resolve *t = _dl_loaded_modules;
+		struct elf_resolve *t = GL(dl_loaded_modules);
 		while (t->next)
 			t = t->next;
 		t->next = tpnt;

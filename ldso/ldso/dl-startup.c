@@ -100,8 +100,10 @@ static __attribute_used__ unsigned long _dl_skip_args = 0;
 /* Static declarations */
 static int (*_dl_elf_main) (int, char **, char **);
 
-static void* __rtld_stack_end attribute_relro; /* Points to argc on stack, e.g *((long *)__rtld_stackend) == argc */
-attribute_relro strong_alias(__rtld_stack_end, __libc_stack_end) /* Exported version of __rtld_stack_end */
+#if 1 /*def __powerpc__*/
+/* see ldsodefs.h why only for ppc */
+void * __libc_stack_end attribute_relro = NULL; /* Points to argc on stack, e.g. *((long *)__libc_stack_end) == argc */
+#endif
 
 /* When we enter this piece of code, the program stack looks like this:
 	argc            argument counter (integer)
@@ -322,7 +324,10 @@ DL_START(unsigned long args)
 	   fixed up by now.  Still no function calls outside of this library,
 	   since the dynamic resolver is not yet ready. */
 
-	__rtld_stack_end = (void *)(argv - 1);
+	GLRO(dl_stack_end) = (void *)(argv - 1);
+#if 1 /*def __powerpc__*/
+	__libc_stack_end = GLRO(dl_stack_end);
+#endif
 
 	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp, argv
 			     DL_GET_READY_TO_RUN_EXTRA_ARGS);

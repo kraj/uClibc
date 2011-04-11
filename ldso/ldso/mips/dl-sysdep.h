@@ -161,9 +161,6 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 extern int _dl_runtime_resolve(void);
 extern int _dl_runtime_pltresolve(void);
 
-struct elf_resolve;
-void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy);
-
 /* 4096 bytes alignment */
 #if _MIPS_SIM == _MIPS_SIM_ABI64
 #define OFFS_ALIGN (0x10000000000UL-0x1000)

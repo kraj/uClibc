@@ -320,7 +320,7 @@ __pthread_initialize_minimal(void)
       __libc_malloc_pthread_startup (true);
 
       if (__builtin_expect (_dl_tls_setup (), 0)
-	  || __builtin_expect ((tcbp = _dl_allocate_tls (NULL)) == NULL, 0))
+	  || __builtin_expect ((tcbp = GLRO_F(dl_allocate_tls) (NULL)) == NULL, 0))
 	{
 	  static const char msg[] = "\
 cannot allocate TLS data structures for initial thread\n";
@@ -666,7 +666,7 @@ int __pthread_initialize_manager(void)
 
 #ifdef USE_TLS
   /* Allocate memory for the thread descriptor and the dtv.  */
-  tcbp = _dl_allocate_tls (NULL);
+  tcbp = GLRO_F(dl_allocate_tls) (NULL);
   if (tcbp == NULL) {
     free(__pthread_manager_thread_bos);
     close_not_cancel(manager_pipe[0]);
@@ -796,7 +796,7 @@ int __pthread_initialize_manager(void)
     }
   if (__builtin_expect (pid, 0) == -1) {
 #ifdef USE_TLS
-    _dl_deallocate_tls (tcbp, true);
+    GLRO_F(dl_deallocate_tls) (tcbp, true);
 #endif
     free(__pthread_manager_thread_bos);
     close_not_cancel(manager_pipe[0]);
@@ -1004,7 +1004,7 @@ static void pthread_onexit_process(int retcode, void *arg)
 	   # if defined(TLS_DTV_AT_TP)
 	   tcbp = (tcbhead_t) ((char *) tcbp + TLS_PRE_TCB_SIZE);
 	   # endif
-	   _dl_deallocate_tls (tcbp, true);
+	   GLRO_F(dl_deallocate_tls) (tcbp, true);
 	   #endif
 	   free (__pthread_manager_thread_bos); */
 	__pthread_manager_thread_bos = __pthread_manager_thread_tos = NULL;

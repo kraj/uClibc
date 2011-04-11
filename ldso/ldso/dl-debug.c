@@ -46,7 +46,9 @@
 #include <dl-debug.h>
 
 #if defined IS_IN_rtld || !defined SHARED
+# ifndef SHARED
 char *_dl_debug			= NULL;
+# endif
 static char *_dl_debug_symbols	= NULL;
 static char *_dl_debug_move	= NULL;
 static char *_dl_debug_reloc	= NULL;

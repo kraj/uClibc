@@ -48,7 +48,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		symbol_addr = (ElfW(Addr))DL_RELOC_ADDR(tpnt->loadaddr, sym_ref.sym->st_value);
 		symbol_tpnt = tpnt;
 	} else {
-		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, NULL, 0, &sym_ref);
+		symbol_addr = (ElfW(Addr))GLRO_F(dl_find_hash)(symname, scope, NULL, 0, &sym_ref);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this

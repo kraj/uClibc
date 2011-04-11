@@ -52,7 +52,7 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + sym->st_name;
 
-	new_addr = (unsigned long) _dl_find_hash(symname,
+	new_addr = (unsigned long) GLRO_F(dl_find_hash)(symname,
 			tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!new_addr)) {
 		_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
@@ -121,7 +121,7 @@ static int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #endif
 
 		if (reloc_type == R_MIPS_JUMP_SLOT || reloc_type == R_MIPS_COPY) {
-			symbol_addr = (ElfW(Addr))_dl_find_hash(symname, tpnt->symbol_scope, tpnt,
+			symbol_addr = (ElfW(Addr))GLRO_F(dl_find_hash)(symname, tpnt->symbol_scope, tpnt,
 								elf_machine_type_class(reloc_type), NULL);
 			if (unlikely(!symbol_addr
 				&& (ELF_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))) {
@@ -164,7 +164,7 @@ static int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 				sym_ref.tpnt =  NULL;
 
 				if (ELF_ST_BIND(sym_ref.sym->st_info) != STB_LOCAL) {
-					symbol_addr = (ElfW(Addr))_dl_find_hash(symname, tpnt->symbol_scope, tpnt,
+					symbol_addr = (ElfW(Addr))GLRO_F(dl_find_hash)(symname, tpnt->symbol_scope, tpnt,
 										elf_machine_type_class(reloc_type), &sym_ref);
 					tls_tpnt = sym_ref.tpnt;
 				}
@@ -293,12 +293,12 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;
 				}
 				else {
-					*got_entry = (unsigned long) _dl_find_hash(strtab +
+					*got_entry = (unsigned long) GLRO_F(dl_find_hash)(strtab +
 						sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 				}
 			}
 			else if (sym->st_shndx == SHN_COMMON) {
-				*got_entry = (unsigned long) _dl_find_hash(strtab +
+				*got_entry = (unsigned long) GLRO_F(dl_find_hash)(strtab +
 					sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 			}
 			else if (ELF_ST_TYPE(sym->st_info) == STT_FUNC &&
@@ -310,7 +310,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 					*got_entry += (unsigned long) tpnt->loadaddr;
 			}
 			else {
-				*got_entry = (unsigned long) _dl_find_hash(strtab +
+				*got_entry = (unsigned long) GLRO_F(dl_find_hash)(strtab +
 					sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 			}
 

@@ -28,7 +28,7 @@ __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void
 	struct elf_resolve *l;
 	struct dl_phdr_info info;
 
-	for (l = _dl_loaded_modules; l != NULL; l = l->next) {
+	for (l = GL(dl_loaded_modules); l != NULL; l = l->next) {
 		info.dlpi_addr = l->loadaddr;
 		info.dlpi_name = l->libname;
 		info.dlpi_phdr = l->ppnt;

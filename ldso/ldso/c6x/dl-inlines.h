@@ -64,14 +64,9 @@ __dl_init_loadaddr_hdr (struct elf32_dsbt_loadaddr loadaddr, void *addr,
 	segdata->p_vaddr = phdr->p_vaddr;
 	segdata->p_memsz = phdr->p_memsz;
 
-#if defined (__SUPPORT_LD_DEBUG__)
-	{
-		if (_dl_debug)
-			_dl_dprintf(_dl_debug_file, "%i: mapped %x at %x, size %x\n",
-				    loadaddr.map->nsegs-1,
-				    segdata->p_vaddr, segdata->addr, segdata->p_memsz);
-	}
-#endif
+	_dl_if_debug_dprint(_dl_debug_file, "%i: mapped %x at %x, size %x\n",
+			    loadaddr.map->nsegs-1,
+			    segdata->p_vaddr, segdata->addr, segdata->p_memsz);
 }
 
 static __always_inline void

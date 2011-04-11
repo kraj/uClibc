@@ -90,7 +90,7 @@ internal_function __attribute_noinline__
 _dl_allocate_static_tls (struct link_map *map)
 {
 	/* If the alignment requirements are too high fail.  */
-	if (map->l_tls_align > _dl_tls_static_align)
+	if (map->l_tls_align > GL(dl_tls_static_align))
 	{
 fail:
 		_dl_dprintf(_dl_debug_file, "cannot allocate memory in static TLS block");
@@ -102,7 +102,7 @@ fail:
 	size_t n;
 	size_t blsize;
 
-	freebytes = _dl_tls_static_size - _dl_tls_static_used - TLS_TCB_SIZE;
+	freebytes = GL(dl_tls_static_size) - GL(dl_tls_static_used) - TLS_TCB_SIZE;
 
 	blsize = map->l_tls_blocksize + map->l_tls_firstbyte_offset;
 	if (freebytes < blsize)
@@ -110,24 +110,24 @@ fail:
 
 	n = (freebytes - blsize) / map->l_tls_align;
 
-	size_t offset = _dl_tls_static_used + (freebytes - n * map->l_tls_align
+	size_t offset = GL(dl_tls_static_used) + (freebytes - n * map->l_tls_align
 		- map->l_tls_firstbyte_offset);
 
-	map->l_tls_offset = _dl_tls_static_used = offset;
+	map->l_tls_offset = GL(dl_tls_static_used) = offset;
 # elif defined(TLS_DTV_AT_TP)
 	size_t used;
 	size_t check;
 
-	size_t offset = roundup (_dl_tls_static_used, map->l_tls_align);
+	size_t offset = roundup (GL(dl_tls_static_used), map->l_tls_align);
 	used = offset + map->l_tls_blocksize;
 	check = used;
 
 	/* dl_tls_static_used includes the TCB at the beginning. */
-	if (check > _dl_tls_static_size)
+	if (check > GL(dl_tls_static_size))
 		goto fail;
 
 	map->l_tls_offset = offset;
-	_dl_tls_static_used = used;
+	GL(dl_tls_static_used) = used;
 # else
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
 # endif
@@ -143,10 +143,10 @@ fail:
 		 * Update the slot information data for at least the generation of
 		 * the DSO we are allocating data for.
 		 */
-		if (__builtin_expect (THREAD_DTV()[0].counter != _dl_tls_generation, 0))
-			(void) _dl_update_slotinfo (map->l_tls_modid);
+		if (__builtin_expect (THREAD_DTV()[0].counter != GL(dl_tls_generation), 0))
+			(void) GLRO_F(dl_update_slotinfo) (map->l_tls_modid);
 #endif
-		_dl_init_static_tls (map);
+		GL(dl_init_static_tls) (map);
 	}
 	else
 		map->l_need_tls_init = 1;
@@ -836,8 +836,6 @@ __tls_get_addr (GET_ADDR_ARGS)
 # endif
 
 
-
-void _dl_add_to_slotinfo (struct link_map  *l);
 void
 _dl_add_to_slotinfo (struct link_map  *l)
 {

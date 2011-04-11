@@ -51,7 +51,7 @@ DL_RESOLVER_TYPE _dl_linux_resolver(struct elf_resolve *tpnt, const ElfW(Word) r
 	strtab = (char *)(tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 	symname = strtab + sym->st_name;
 
-	new_addr = (unsigned long) _dl_find_hash(symname,
+	new_addr = (unsigned long) GLRO_F(dl_find_hash)(symname,
 						 tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 
 	entry = (unsigned long *)(got + local_gotno + sym_index - gotsym);
@@ -79,7 +79,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 #endif
 
 	if (symtab_index) {
-		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, tpnt,
+		symbol_addr = (ElfW(Addr))GLRO_F(dl_find_hash)(symname, scope, tpnt,
 							elf_machine_type_class(reloc_type), &sym_ref);
 
 		/*

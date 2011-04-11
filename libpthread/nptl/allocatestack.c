@@ -271,7 +271,7 @@ __free_stacks (size_t limit)
 	  stack_cache_actsize -= curr->stackblock_size;
 
 	  /* Free the memory associated with the ELF TLS.  */
-	  _dl_deallocate_tls (TLS_TPADJ (curr), false);
+	  GLRO_F(dl_deallocate_tls) (TLS_TPADJ (curr), false);
 
 	  /* Remove this block.  This should never fail.  If it does
 	     something is really wrong.  */
@@ -419,7 +419,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
       pd->pid = THREAD_GETMEM (THREAD_SELF, pid);
 
       /* Allocate the DTV for this thread.  */
-      if (_dl_allocate_tls (TLS_TPADJ (pd)) == NULL)
+      if (GLRO_F(dl_allocate_tls) (TLS_TPADJ (pd)) == NULL)
 	{
 	  /* Something went wrong.  */
 	  assert (errno == ENOMEM);
@@ -557,7 +557,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	  pd->pid = THREAD_GETMEM (THREAD_SELF, pid);
 
 	  /* Allocate the DTV for this thread.  */
-	  if (_dl_allocate_tls (TLS_TPADJ (pd)) == NULL)
+	  if (GLRO_F(dl_allocate_tls) (TLS_TPADJ (pd)) == NULL)
 	    {
 	      /* Something went wrong.  */
 	      assert (errno == ENOMEM);
@@ -610,7 +610,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	      lll_unlock (stack_cache_lock, LLL_PRIVATE);
 
 	      /* Get rid of the TLS block we allocated.  */
-	      _dl_deallocate_tls (TLS_TPADJ (pd), false);
+	      GLRO_F(dl_deallocate_tls) (TLS_TPADJ (pd), false);
 
 	      /* Free the stack memory regardless of whether the size
 		 of the cache is over the limit or not.  If this piece
@@ -717,7 +717,7 @@ __deallocate_stack (struct pthread *pd)
     (void) queue_stack (pd);
   else
     /* Free the memory associated with the ELF TLS.  */
-    _dl_deallocate_tls (TLS_TPADJ (pd), false);
+    GLRO_F(dl_deallocate_tls) (TLS_TPADJ (pd), false);
 
   lll_unlock (stack_cache_lock, LLL_PRIVATE);
 }

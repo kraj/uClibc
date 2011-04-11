@@ -116,7 +116,6 @@ int _dl_unmap_cache(void)
 }
 #endif
 
-
 void internal_function
 _dl_protect_relro (struct elf_resolve *l)
 {
@@ -186,7 +185,6 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 }
 
 /* Used to return error codes back to dlopen et. al.  */
-unsigned long _dl_error_number;
 static unsigned long _dl_internal_error_number;
 
 struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
@@ -309,9 +307,9 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 goof:
 	/* Well, we shot our wad on that one.  All we can do now is punt */
 	if (_dl_internal_error_number)
-		_dl_error_number = _dl_internal_error_number;
+		GL(dl_error_number) = _dl_internal_error_number;
 	else
-		_dl_error_number = LD_ERROR_NOFILE;
+		GL(dl_error_number) = LD_ERROR_NOFILE;
 	_dl_if_debug_dprint("Bummer: could not find '%s'!\n", libname);
 	return NULL;
 }
@@ -370,7 +368,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 
 	/* Check if file is already loaded */
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+	for (tpnt = GL(dl_loaded_modules); tpnt; tpnt = tpnt->next) {
 		if (tpnt->st_dev == st.st_dev && tpnt->st_ino == st.st_ino) {
 			/* Already loaded */
 			tpnt->usage_count++;
@@ -378,7 +376,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			return tpnt;
 		}
 	}
-	header = _dl_mmap((void *) 0, _dl_pagesize, PROT_READ | PROT_WRITE,
+	header = _dl_mmap((void *) 0, GLRO(dl_pagesize), PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS | MAP_UNINITIALIZE, -1, 0);
 	if (_dl_mmap_check_error(header)) {
 		_dl_dprintf(2, "%s:%i: can't map '%s'\n", _dl_progname, __LINE__, libname);
@@ -387,7 +385,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		return NULL;
 	}
 
-	_dl_read(infile, header, _dl_pagesize);
+	_dl_read(infile, header, GLRO(dl_pagesize));
 	epnt = (ElfW(Ehdr) *) (intptr_t) header;
 	p32 = (uint32_t*)&epnt->e_ident;
 	if (*p32 != ELFMAG_U32) {
@@ -395,7 +393,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				libname);
 		_dl_internal_error_number = LD_ERROR_NOTELF;
 		_dl_close(infile);
-		_dl_munmap(header, _dl_pagesize);
+		_dl_munmap(header, GLRO(dl_pagesize));
 		return NULL;
 	}
 
@@ -410,7 +408,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_dprintf(2, "%s: '%s' is not an ELF executable for " ELF_TARGET
 				"\n", _dl_progname, libname);
 		_dl_close(infile);
-		_dl_munmap(header, _dl_pagesize);
+		_dl_munmap(header, GLRO(dl_pagesize));
 		return NULL;
 	}
 
@@ -457,7 +455,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				_dl_progname, libname);
 			_dl_internal_error_number = LD_ERROR_TLS_FAILED;
 			_dl_close(infile);
-			_dl_munmap(header, _dl_pagesize);
+			_dl_munmap(header, GLRO(dl_pagesize));
 			return NULL;
 #endif
 		}
@@ -480,7 +478,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			_dl_dprintf(2, "%s:%i: can't map '%s'\n", _dl_progname, __LINE__, libname);
 			_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 			_dl_close(infile);
-			_dl_munmap(header, _dl_pagesize);
+			_dl_munmap(header, GLRO(dl_pagesize));
 			return NULL;
 		}
 		libaddr = (unsigned long) status;
@@ -597,7 +595,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 					DL_LOADADDR_UNMAP (lib_loadaddr, maxvma - minvma);
 					_dl_close(infile);
-					_dl_munmap(header, _dl_pagesize);
+					_dl_munmap(header, GLRO(dl_pagesize));
 					return NULL;
 				}
 
@@ -696,7 +694,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_internal_error_number = LD_ERROR_NODYNAMIC;
 		_dl_dprintf(2, "%s: '%s' is missing a dynamic section\n",
 				_dl_progname, libname);
-		_dl_munmap(header, _dl_pagesize);
+		_dl_munmap(header, GLRO(dl_pagesize));
 		return NULL;
 	}
 
@@ -785,12 +783,12 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	 * and initialize the _dl_symbol_table.
 	 */
 	else {
-		*rpnt = _dl_symbol_tables = _dl_malloc(sizeof(struct dyn_elf));
+		*rpnt = GL(dl_symbol_tables) = _dl_malloc(sizeof(struct dyn_elf));
 		_dl_memset(*rpnt, 0, sizeof(struct dyn_elf));
 	}
 #endif
 	(*rpnt)->dyn = tpnt;
-	tpnt->symbol_scope = _dl_symbol_tables;
+	tpnt->symbol_scope = GL(dl_symbol_tables);
 	tpnt->usage_count++;
 	tpnt->libtype = elf_lib;
 
@@ -824,7 +822,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		/*
 		 * Setup dsbt slot for this module in dsbt of all modules.
 		 */
-		for (t = _dl_loaded_modules; t; t = t->next) {
+		for (t = GL(dl_loaded_modules); t; t = t->next) {
 			/* find a dsbt table from another module */
 			if (ref == NULL && t != tpnt) {
 				ref = t;
@@ -834,7 +832,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					struct elf_resolve *dup;
 					char *dup_name;
 
-					for (dup = _dl_loaded_modules; dup; dup = dup->next)
+					for (dup = GL(dl_loaded_modules); dup; dup = dup->next)
 						if (dup != tpnt && dup->loadaddr.map->dsbt_index == idx)
 							break;
 					if (dup)
@@ -860,7 +858,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	_dl_if_debug_dprint("\t\t  entry: %x  phdr: %p  phnum: %x\n\n",
 			DL_RELOC_ADDR(lib_loadaddr, epnt->e_entry), tpnt->ppnt, tpnt->n_phent);
 
-	_dl_munmap(header, _dl_pagesize);
+	_dl_munmap(header, GLRO(dl_pagesize));
 
 	return tpnt;
 }

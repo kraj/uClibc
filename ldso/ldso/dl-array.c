@@ -66,15 +66,3 @@ void _dl_run_fini_array(struct elf_resolve *tpnt)
 		}
 	}
 }
-
-#if defined IS_IN_rtld && defined __UCLIBC_CTOR_DTOR__
-void _dl_app_init_array(void)
-{
-	_dl_run_init_array(_dl_loaded_modules);
-}
-
-void _dl_app_fini_array(void)
-{
-	_dl_run_fini_array(_dl_loaded_modules);
-}
-#endif

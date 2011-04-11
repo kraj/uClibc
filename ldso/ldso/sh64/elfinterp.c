@@ -62,7 +62,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	const int lsb = !!(sym_ref.sym->st_other & STO_SH5_ISA32);
 
 	if (symtab_index) {
-		symbol_addr = (ElfW(Addr))_dl_find_hash(symname, scope, tpnt,
+		symbol_addr = (ElfW(Addr))GLRO_F(dl_find_hash)(symname, scope, tpnt,
 							elf_machine_type_class(reloc_type), &sym_ref);
 
 		/*

@@ -150,12 +150,24 @@ struct elf_resolve {
 
 #ifndef SHARED
 # define EXTERN extern
+# define attribute_shared_hidden
+# define GL(name) _##name
+# define GLRO(name) _##name
+# define GLRO_F(name) GLRO(name)
 #else
+# define EXTERN
+# define attribute_shared_hidden attribute_hidden
 # ifdef IS_IN_rtld
-#  define EXTERN
+#  define GL(name) _rtld_local._##name
+#  define GLRO(name) _rtld_local_ro._##name
+#  define GLRO_F(name) _##name
 # else
-#  define EXTERN extern
+#  define GL(name) _rtld_global._##name
+#  define GLRO(name) _rtld_global_ro._##name
+#  define GLRO_F(name) GLRO(name)
 # endif
+struct rtld_global
+{
 #endif
 
 /* Non-shared code has no support for multiple namespaces.  */
@@ -165,53 +177,207 @@ struct elf_resolve {
 # define DL_NNS 1
 #endif
 
-#define GL(x) _##x
-#define GLRO(x) _##x
+	/*
+	 * This is the start of the linked list that describes all of the files present
+	 * in the system with pointers to all of the symbol, string, and hash tables,
+	 * as well as all of the other good stuff in the binary.
+	 */
+	EXTERN struct elf_resolve *_dl_loaded_modules;
+	/*
+	 * This is the list of modules that are loaded when the image is first
+	 * started.  As we add more via dlopen, they get added into other
+	 * chains.
+	 */
+	EXTERN struct dyn_elf *_dl_symbol_tables;
+
+	/* Used to return error codes back to dlopen et. al.  */
+	EXTERN unsigned long _dl_error_number;
+
+	/* Used to communicate with the gdb debugger */
+	EXTERN struct r_debug *_dl_debug_addr;
+
+#ifdef __UCLIBC_HAS_THREADS__
+	/* Function pointer for catching TLS errors.  */
+	EXTERN void **(*_dl_error_catch_tsd) (void) __attribute__ ((const));
+#endif
+
+#ifdef __UCLIBC_HAS_TLS__
+	/* Flag signalling whether there are gaps in the module ID allocation.  */
+	EXTERN bool _dl_tls_dtv_gaps;
+	/* Highest dtv index currently needed.  */
+	EXTERN size_t _dl_tls_max_dtv_idx;
+	/* Information about the dtv slots.  */
+	EXTERN struct dtv_slotinfo_list {
+		size_t len;
+		struct dtv_slotinfo_list *next;
+		struct dtv_slotinfo {
+			size_t gen;
+			struct link_map *map;
+		} slotinfo[0];
+	} *_dl_tls_dtv_slotinfo_list;
+	/* Number of modules in the static TLS block.  */
+	EXTERN size_t _dl_tls_static_nelem;
+	/* Size of the static TLS block.  */
+	EXTERN size_t _dl_tls_static_size;
+	/* Size actually allocated in the static TLS block.  */
+	EXTERN size_t _dl_tls_static_used;
+	/* Alignment requirement of the static TLS block.  */
+	EXTERN size_t _dl_tls_static_align;
+
+/* Number of additional entries in the slotinfo array of each slotinfo
+   list element.  A large number makes it almost certain take we never
+   have to iterate beyond the first element in the slotinfo list.  */
+# define TLS_SLOTINFO_SURPLUS (62)
+
+/* Number of additional slots in the dtv allocated.  */
+# define DTV_SURPLUS	(14)
+
+	/* Initial dtv of the main thread, not allocated with normal malloc.  */
+	EXTERN void *_dl_initial_dtv;
+	/* Generation counter for the dtv.  */
+	EXTERN size_t _dl_tls_generation;
+
+	EXTERN void (*_dl_init_static_tls) (struct link_map *);
+#endif
+
+#ifdef __SUPPORT_LD_DEBUG__
+	EXTERN char *_dl_debug;
+#endif
+#ifdef SHARED
+};
+
+struct rtld_global_ro
+{
+#endif
+#ifdef SHARED
+	/* Store the page size for later use */
+	size_t _dl_pagesize;
+	/* Variable pointing to the end of the stack (or close to it).  This value
+	   must be constant over the runtime of the application.  Some programs
+	   might use the variable which results in copy relocations on some
+	   platforms.  But this does not matter, ld.so can always use the local
+	   copy.  */
+	void *_dl_stack_end;
+	/* We add a function table to _rtld_global_ro which is then used to
+	   call the function instead of going through the PLT.  The result
+	   is that we can avoid exporting the functions and we do not jump
+	   PLT relocations in libc.so.  */
+	void (*_dl_run_init_array) (struct elf_resolve *);
+	void (*_dl_run_fini_array) (struct elf_resolve *);
+	/* same for libdl.so */
+	struct elf_resolve *(*_dl_load_shared_library) (int, struct dyn_elf **, struct elf_resolve *, char *, int);
+	int (*_dl_fixup) (struct dyn_elf *, int);
+	void (internal_function *_dl_protect_relro) (struct elf_resolve *);
+	char *(*_dl_find_hash) (const char *, struct dyn_elf *, struct elf_resolve *, int, struct symbol_ref *);
+# if 0 /* psm: ask Bernd Schmid */
+	void *(*_dl_malloc_function) (size_t);
+	void (*_dl_free_function) (void *);
+# endif
+# ifdef __LDSO_CACHE_SUPPORT__
+	int (*_dl_map_cache) (void);
+	int (*_dl_unmap_cache) (void);
+# endif
+# ifdef __mips__
+	void (*_dl_perform_mips_global_got_relocations) (struct elf_resolve *tpnt, int lazy);
+# endif
+# ifdef __UCLIBC_HAS_TLS__
+	/* for libdl.so */
+# if 0
+#  ifdef __i386__
+	void *(__attribute__ ((__regparm__ (1))) *_tls_get_addr) (tls_index *);
+#  else
+	void *(*_tls_get_addr) (tls_index *);
+#  endif
+# endif
+	void (*_dl_add_to_slotinfo) (struct link_map  *l);
+	struct link_map *(*_dl_update_slotinfo) (unsigned long int req_modid);
+	/* for libpthread.so */
+	/* Allocate memory for static TLS block (unless MEM is nonzero) and dtv.  */
+	void *(internal_function *_dl_allocate_tls) (void *mem);
+	/* Deallocate memory allocated with _dl_allocate_tls.  */
+	void (internal_function *_dl_deallocate_tls) (void *tcb, bool dealloc_tcb);
+#  if 0 /*def __USE_GNU*/
+	void *(internal_function *_dl_tls_get_addr_soft) /*(struct link_map *l)*/ (struct elf_resolve *l);
+#  endif
+# endif
+#endif
+
+#ifdef SHARED
+};
+# ifdef IS_IN_rtld
+extern struct rtld_global _rtld_local attribute_hidden;
+extern struct rtld_global_ro _rtld_local_ro attribute_relro attribute_hidden;
+# else
+extern struct rtld_global _rtld_global;
+/* const is a little cheat */
+extern const struct rtld_global_ro _rtld_global_ro attribute_relro;
+# endif
+#endif
+#undef EXTERN
+
+extern void _dl_run_init_array(struct elf_resolve *) attribute_shared_hidden;
+extern void _dl_run_fini_array(struct elf_resolve *) attribute_shared_hidden;
+extern struct elf_resolve *_dl_load_shared_library(int secure,
+	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname,
+	int trace_loaded_objects) attribute_shared_hidden;
+extern int _dl_fixup(struct dyn_elf *rpnt, int flag) attribute_shared_hidden;
+extern char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt,
+	int type_class, struct symbol_ref *sym_ref) attribute_shared_hidden;
+/* Protect PT_GNU_RELRO area.  */
+extern void _dl_protect_relro (struct elf_resolve *map)
+	internal_function attribute_shared_hidden;
+
+extern void *(*_dl_malloc_function) (size_t) /*attribute_shared_hidden*/;
+extern void (*_dl_free_function) (void *) /*attribute_shared_hidden*/;
+
+#ifdef __LDSO_CACHE_SUPPORT__
+extern int _dl_map_cache(void) attribute_shared_hidden;
+extern int _dl_unmap_cache(void) attribute_shared_hidden;
+#else
+static __inline__ void _dl_map_cache(void) { }
+static __inline__ void _dl_unmap_cache(void) { }
+#endif
+
+#ifdef __mips__
+extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy) attribute_shared_hidden;
+#endif
+
+#ifdef __UCLIBC_HAS_TLS__
+/* even if gcc wants it, it is hidden, it can be accessed through the structure though */
+# if 0 /*ndef __i386__*/
+extern void *__tls_get_addr_internal(tls_index *) attribute_hidden;
+# endif
+/* Add module to slot information data.  */
+extern void _dl_add_to_slotinfo (struct link_map  *l) attribute_shared_hidden;
+
+/* Update slot information data for at least the generation of the
+   module with the given index.  */
+extern struct link_map *_dl_update_slotinfo (unsigned long int req_modid) attribute_shared_hidden;
+
+#if 0 /*def __USE_GNU*/
+/* Look up the module's TLS block as for __tls_get_addr,
+   but never touch anything.  Return null if it's not allocated yet.  */
+extern void *_dl_tls_get_addr_soft /*(struct link_map *l)*/ (struct elf_resolve *l) internal_function attribute_shared_hidden;
+#endif
+
+/* Allocate memory for static TLS block (unless MEM is nonzero) and dtv.  */
+extern void *_dl_allocate_tls (void *mem) internal_function attribute_shared_hidden;
+
+/* Deallocate memory allocated with _dl_allocate_tls.  */
+extern void _dl_deallocate_tls (void *tcb, bool dealloc_tcb) internal_function attribute_shared_hidden;
+#endif
 
 /* Variable pointing to the end of the stack (or close to it).  This value
    must be constant over the runtime of the application.  Some programs
    might use the variable which results in copy relocations on some
    platforms.  But this does not matter, ld.so can always use the local
    copy.  */
+/* gcc uses it in rs6000/linux-unwind.c, could be patched to use
+ * _dl_stack_end from the structure */
+/* gcc's boehm-gc has fallback if not found */
+#if 1 /*!defined SHARED || (defined IS_IN_rtld && defined __powerpc__)*/
 extern void *__libc_stack_end attribute_relro;
-
-#ifdef SHARED
-extern unsigned long _dl_error_number;
-extern char *_dl_debug;
-extern struct r_debug *_dl_debug_addr;
-extern void *(*_dl_malloc_function)(size_t);
-extern void (*_dl_free_function) (void *p);
-struct elf_resolve;
-# ifdef __UCLIBC_CTOR_DTOR__
-extern void _dl_app_init_array(void);
-extern void _dl_app_fini_array(void);
-# endif
 #endif
-struct elf_resolve;
-extern void _dl_run_init_array(struct elf_resolve *);
-extern void _dl_run_fini_array(struct elf_resolve *);
-
-extern struct dyn_elf     * _dl_symbol_tables;
-extern struct elf_resolve * _dl_loaded_modules;
-
-extern char *_dl_find_hash(const char *name, struct dyn_elf *rpnt,
-		struct elf_resolve *mytpnt, int type_class,
-		struct symbol_ref *symbol);
-
-#ifdef __LDSO_CACHE_SUPPORT__
-extern int _dl_map_cache(void);
-extern int _dl_unmap_cache(void);
-#else
-static __inline__ void _dl_map_cache(void) { }
-static __inline__ void _dl_unmap_cache(void) { }
-#endif
-
-/* Function prototypes for non-static stuff in dl-elf.c and elfinterp.c */
-extern struct elf_resolve * _dl_load_shared_library(int secure,
-	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname,
-	int trace_loaded_objects);
-extern int _dl_fixup(struct dyn_elf *rpnt, int flag);
-extern void _dl_protect_relro (struct elf_resolve *l) internal_function;
 
 #ifdef __UCLIBC_HAS_TLS__
 /* Determine next available module ID.  */
@@ -225,9 +391,6 @@ extern void _dl_determine_tlsoffset (void) internal_function attribute_hidden;
    This is called from _dl_map_object_from_fd or by libpthread.  */
 extern int _dl_tls_setup (void) internal_function;
 rtld_hidden_proto (_dl_tls_setup)
-
-/* Allocate memory for static TLS block (unless MEM is nonzero) and dtv.  */
-extern void *_dl_allocate_tls (void *mem) internal_function;
 
 /* Get size and alignment requirements of the static TLS block.  */
 extern void _dl_get_tls_static_info (size_t *sizep, size_t *alignp)
@@ -249,52 +412,7 @@ extern void *_dl_allocate_tls_storage (void)
      internal_function attribute_hidden;
 extern void *_dl_allocate_tls_init (void *) internal_function;
 
-/* Deallocate memory allocated with _dl_allocate_tls.  */
-extern void _dl_deallocate_tls (void *tcb, bool dealloc_tcb) internal_function;
-
 extern void _dl_nothread_init_static_tls (struct link_map *) attribute_hidden;
-
-/* Highest dtv index currently needed.  */
-EXTERN size_t _dl_tls_max_dtv_idx;
-/* Flag signalling whether there are gaps in the module ID allocation.  */
-EXTERN bool _dl_tls_dtv_gaps;
-/* Information about the dtv slots.  */
-EXTERN struct dtv_slotinfo_list
-{
-  size_t len;
-  struct dtv_slotinfo_list *next;
-  struct dtv_slotinfo
-  {
-    size_t gen;
-    bool is_static;
-    struct link_map *map;
-  } slotinfo[0];
-} *_dl_tls_dtv_slotinfo_list;
-/* Number of modules in the static TLS block.  */
-EXTERN size_t _dl_tls_static_nelem;
-/* Size of the static TLS block.  */
-EXTERN size_t _dl_tls_static_size;
-/* Size actually allocated in the static TLS block.  */
-EXTERN size_t _dl_tls_static_used;
-/* Alignment requirement of the static TLS block.  */
-EXTERN size_t _dl_tls_static_align;
-/* Function pointer for catching TLS errors.  */
-EXTERN void **(*_dl_error_catch_tsd) (void) __attribute__ ((const));
-
-/* Number of additional entries in the slotinfo array of each slotinfo
-   list element.  A large number makes it almost certain take we never
-   have to iterate beyond the first element in the slotinfo list.  */
-# define TLS_SLOTINFO_SURPLUS (62)
-
-/* Number of additional slots in the dtv allocated.  */
-# define DTV_SURPLUS	(14)
-
-/* Initial dtv of the main thread, not allocated with normal malloc.  */
-EXTERN void *_dl_initial_dtv;
-/* Generation counter for the dtv.  */
-EXTERN size_t _dl_tls_generation;
-
-EXTERN void (*_dl_init_static_tls) (struct link_map *);
 #endif
 
 #endif
