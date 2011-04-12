@@ -856,7 +856,6 @@ extern void setkey (__const char *__key) __THROW __nonnull ((1));
 #ifdef __USE_XOPEN2K
 /* Return a master pseudo-terminal handle.  */
 extern int posix_openpt (int __oflag) __wur;
-libc_hidden_proto(posix_openpt)
 #endif
 
 #ifdef __USE_XOPEN

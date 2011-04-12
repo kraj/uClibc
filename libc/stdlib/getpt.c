@@ -43,12 +43,12 @@ extern __typeof(statfs) __libc_statfs;
 
 #if !defined __UNIX98PTY_ONLY__ && defined __UCLIBC_HAS_GETPT__
 /* Prototype for function that opens BSD-style master pseudo-terminals.  */
-extern int __bsd_getpt (void) attribute_hidden;
+static __inline__ int __bsd_getpt (void);
 #endif
 
 /* Open a master pseudo terminal and return its file descriptor.  */
-int
-posix_openpt (int flags)
+static int
+__posix_openpt (int flags)
 {
 #define have_no_dev_ptmx (1<<0)
 #define devpts_mounted   (1<<1)
@@ -112,14 +112,14 @@ posix_openpt (int flags)
 #endif
   return -1;
 }
-libc_hidden_def(posix_openpt)
+strong_alias(__posix_openpt,posix_openpt)
 #undef have_no_dev_ptmx
 #undef devpts_mounted
 
 #if defined __USE_GNU && defined __UCLIBC_HAS_GETPT__
 int getpt (void)
 {
-	return posix_openpt(O_RDWR);
+	return __posix_openpt(O_RDWR);
 }
 
 #if !defined __UNIX98PTY_ONLY__ && defined __UCLIBC_HAS_GETPT__
