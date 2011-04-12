@@ -257,15 +257,15 @@ struct rtld_global
 struct rtld_global_ro
 {
 #endif
-#ifdef SHARED
 	/* Store the page size for later use */
-	size_t _dl_pagesize;
+	EXTERN size_t _dl_pagesize;
 	/* Variable pointing to the end of the stack (or close to it).  This value
 	   must be constant over the runtime of the application.  Some programs
 	   might use the variable which results in copy relocations on some
 	   platforms.  But this does not matter, ld.so can always use the local
 	   copy.  */
-	void *_dl_stack_end;
+	EXTERN void *_dl_stack_end;
+#ifdef SHARED
 	/* We add a function table to _rtld_global_ro which is then used to
 	   call the function instead of going through the PLT.  The result
 	   is that we can avoid exporting the functions and we do not jump
@@ -373,10 +373,10 @@ extern void _dl_deallocate_tls (void *tcb, bool dealloc_tcb) internal_function a
    might use the variable which results in copy relocations on some
    platforms.  But this does not matter, ld.so can always use the local
    copy.  */
-/* gcc uses it in rs6000/linux-unwind.c, could be patched to use
- * _dl_stack_end from the structure */
+/* gcc uses it in rs6000/linux-unwind.h, ckecked up to 4.5.2
+ * could be patched to use _dl_stack_end from the structure */
 /* gcc's boehm-gc has fallback if not found */
-#if 1 /*!defined SHARED || (defined IS_IN_rtld && defined __powerpc__)*/
+#if defined IS_IN_rtld && defined __powerpc__
 extern void *__libc_stack_end attribute_relro;
 #endif
 

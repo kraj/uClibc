@@ -42,7 +42,7 @@
 #include <ldsodefs.h>
 
 #ifndef SHARED
-void *__libc_stack_end attribute_relro = NULL;
+void *_dl_stack_end attribute_relro = NULL;
 
 # ifdef __UCLIBC_HAS_SSP__
 #  include <dl-osinfo.h>
@@ -217,9 +217,13 @@ void __uClibc_init(void)
     if (__pagesize)
 	return;
 
+#ifdef SHARED
+    __pagesize = GLRO(dl_pagesize);
+#else
     /* Setup an initial value.  This may not be perfect, but is
      * better than  malloc using __pagesize=0 for atexit, ctors, etc.  */
     __pagesize = PAGE_SIZE;
+#endif
 
 #ifdef __UCLIBC_HAS_THREADS__
     /* Before we start initializing uClibc we have to call
@@ -318,7 +322,10 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 #endif
 
 #ifndef SHARED
-    __libc_stack_end = stack_end;
+    GLRO(dl_stack_end) = stack_end;
+# ifdef __powerpc__
+    __libc_stack_end = GLRO(dl_stack_end);
+# endif
 #endif
 
     __rtld_fini = rtld_fini;
@@ -363,7 +370,10 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 
 #ifndef __ARCH_HAS_NO_LDSO__
     /* Make certain getpagesize() gives the correct answer */
+# ifndef SHARED
+    /* for SHARED this was already set in __uClibc_init() */
     __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+# endif
 
     /* Prevent starting SUID binaries where the stdin. stdout, and
      * stderr file descriptors are not already opened. */

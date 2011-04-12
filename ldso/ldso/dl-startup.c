@@ -100,11 +100,6 @@ static __attribute_used__ unsigned long _dl_skip_args = 0;
 /* Static declarations */
 static int (*_dl_elf_main) (int, char **, char **);
 
-#if 1 /*def __powerpc__*/
-/* see ldsodefs.h why only for ppc */
-void * __libc_stack_end attribute_relro = NULL; /* Points to argc on stack, e.g. *((long *)__libc_stack_end) == argc */
-#endif
-
 /* When we enter this piece of code, the program stack looks like this:
 	argc            argument counter (integer)
 	argv[0]         program name (pointer)
@@ -325,7 +320,8 @@ DL_START(unsigned long args)
 	   since the dynamic resolver is not yet ready. */
 
 	GLRO(dl_stack_end) = (void *)(argv - 1);
-#if 1 /*def __powerpc__*/
+#ifdef __powerpc__
+	/* see ldsodefs.h why only for ppc */
 	__libc_stack_end = GLRO(dl_stack_end);
 #endif
 

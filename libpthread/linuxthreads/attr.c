@@ -435,8 +435,8 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
 	      uintptr_t to;
 	      if (sscanf (line, "%" SCNxPTR "-%" SCNxPTR, &from, &to) != 2)
 		continue;
-	      if (from <= (uintptr_t) __libc_stack_end
-		  && (uintptr_t) __libc_stack_end < to)
+	      if (from <= (uintptr_t) GLRO(dl_stack_end)
+		  && (uintptr_t) GLRO(dl_stack_end) < to)
 		{
 		  /* Found the entry.  Now we have the info we need.  */
 		  attr->__stacksize = rl.rlim_cur;

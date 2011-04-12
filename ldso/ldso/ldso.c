@@ -54,7 +54,8 @@ struct rtld_global _rtld_global =
 
 struct rtld_global_ro _rtld_global_ro attribute_relro =
 {
-	._dl_pagesize = 0
+	._dl_pagesize = 0,
+	._dl_stack_end = NULL
 #ifdef SHARED
 ,	._dl_run_init_array = _dl_run_init_array,
 	._dl_run_fini_array = _dl_run_fini_array,
