@@ -72,6 +72,32 @@ __dl_init_loadaddr_hdr (struct elf32_fdpic_loadaddr loadaddr, void *addr,
 		      segdata->p_vaddr, segdata->addr, segdata->p_memsz);
 }
 
+/* Replace an existing entry in the load map.  */
+static __always_inline void
+__dl_update_loadaddr_hdr (struct elf32_fdpic_loadaddr loadaddr, void *addr,
+			  Elf32_Phdr *phdr)
+{
+  struct elf32_fdpic_loadseg *segdata;
+  void *oldaddr;
+  int i;
+
+  for (i = 0; i < loadaddr.map->nsegs; i++)
+    if (loadaddr.map->segs[i].p_vaddr == phdr->p_vaddr
+	&& loadaddr.map->segs[i].p_memsz == phdr->p_memsz)
+      break;
+  if (i == loadaddr.map->nsegs)
+    _dl_exit (-1);
+
+  segdata = loadaddr.map->segs + i;
+  oldaddr = (void *)segdata->addr;
+  _dl_munmap (oldaddr, segdata->p_memsz);
+  segdata->addr = (Elf32_Addr) addr;
+
+  _dl_if_debug_dprint("%i: changed mapping %x at %x (old %x), size %x\n",
+		      loadaddr.map->nsegs-1,
+		      segdata->p_vaddr, segdata->addr, oldaddr, segdata->p_memsz);
+}
+
 static __always_inline void __dl_loadaddr_unmap
 (struct elf32_fdpic_loadaddr loadaddr, struct funcdesc_ht *funcdesc_ht);
 

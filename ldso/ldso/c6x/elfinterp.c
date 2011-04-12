@@ -90,6 +90,10 @@ _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 		new_val = sym_val;
 		*reloc_addr = sym_val;
 		break;
+	case R_C6000_DSBT_INDEX:
+		new_val = (old_val & ~0x007fff00) | ((tpnt->loadaddr.map->dsbt_index & 0x7fff) << 8);
+		*reloc_addr = new_val;
+		break;
 	case R_C6000_ABS_L16:
 		new_val = (old_val & ~0x007fff80) | ((sym_val & 0xffff) << 7);
 		*reloc_addr = new_val;
@@ -115,7 +119,7 @@ _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 				   (char *)symbol_addr,
 				   sym_ref.sym->st_size);
 		}
-		break;
+		return 0;
 	default:
 		return -1;
 	}
