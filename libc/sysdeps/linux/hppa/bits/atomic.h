@@ -18,6 +18,7 @@
    02111-1307 USA.  */
 
 #include <stdint.h>
+#include <errno.h>
 #include <bits/kernel-features.h>
 
 #define ABORT_INSTRUCTION __asm__(__UCLIBC_ABORT_INSTRUCTION__)
