@@ -659,16 +659,7 @@ unsigned long long attribute_hidden __XL_NPP(_stdlib_strto_ll)(register const Wc
 #endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
 #endif
-/**********************************************************************/
-/* Made _Exit() an alias for _exit(), as per C99. */
-/*  #ifdef L__Exit */
-/*  void _Exit(int status) */
-/*  { */
-/*  	_exit(status); */
-/*  } */
 
-/*  #endif */
-/**********************************************************************/
 #ifdef L_bsearch
 
 void *bsearch(const void *key, const void *base, size_t /* nmemb */ high,

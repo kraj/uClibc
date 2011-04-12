@@ -40,7 +40,7 @@ const char __libc_ptyname1[] attribute_hidden = PTYNAME1;
 const char __libc_ptyname2[] attribute_hidden = PTYNAME2;
 
 /* Open a master pseudo terminal and return its file descriptor.  */
-int
+static __inline__ int
 __getpt (void)
 {
   char buf[sizeof (_PATH_PTY) + 2];
