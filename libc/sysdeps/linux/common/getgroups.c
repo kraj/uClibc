@@ -8,10 +8,7 @@
  */
 
 #include <sys/syscall.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <grp.h>
-
 
 #if defined(__NR_getgroups32)
 # undef __NR_getgroups
@@ -22,12 +19,14 @@ _syscall2(int, getgroups, int, size, gid_t *, list)
 _syscall2(int, getgroups, int, size, gid_t *, list)
 
 #else
+# include <errno.h>
+# include <stdlib.h>
+# include <sys/types.h>
+# include <sys/param.h>
 
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
-#define __NR___syscall_getgroups __NR_getgroups
-static __inline__ _syscall2(int, __syscall_getgroups,
-		int, size, __kernel_gid_t *, list)
+# define __NR___syscall_getgroups __NR_getgroups
+static __always_inline
+_syscall2(int, __syscall_getgroups, int, size, __kernel_gid_t *, list)
 
 int getgroups(int size, gid_t groups[])
 {
@@ -56,5 +55,4 @@ ret_error:
 	}
 }
 #endif
-
 libc_hidden_def(getgroups)
