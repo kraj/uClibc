@@ -58,7 +58,7 @@ static int direxists (const char *dir)
    for use with mk[s]temp.  Will fail (-1) if DIR is non-null and
    doesn't exist, none of the searched dirs exists, or there's not
    enough space in TMPL. */
-int attribute_hidden ___path_search (char *tmpl, size_t tmpl_len, const char *dir,
+int ___path_search (char *tmpl, size_t tmpl_len, const char *dir,
 	const char *pfx /*, int try_tmpdir*/)
 {
     /*const char *d; */
@@ -196,7 +196,7 @@ int __gen_tempname (char *tmpl, int kind, mode_t mode)
     }
 
     for (i = 0; i < TMP_MAX; ++i) {
-	int j;
+	unsigned int j;
 	/* Get some random data.  */
 	if (fillrand(randomness, sizeof(randomness)) != sizeof(randomness)) {
 	    /* if random device nodes failed us, lets use the braindamaged ver */
