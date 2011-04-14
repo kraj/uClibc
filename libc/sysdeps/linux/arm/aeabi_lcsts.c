@@ -85,7 +85,7 @@ FILE *__aeabi_stdin attribute_hidden;
 FILE *__aeabi_stdout attribute_hidden;
 FILE *__aeabi_stderr attribute_hidden;
 
-static void __attribute__ ((used))
+static void __attribute_used__
 setup_aeabi_stdio (void)
 {
   __aeabi_stdin = stdin;
