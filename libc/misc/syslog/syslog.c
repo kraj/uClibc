@@ -181,8 +181,12 @@ libc_hidden_def(openlog)
  * syslog, vsyslog --
  *     print message on log file; output is intended for syslogd(8).
  */
+static
+#ifndef __USE_BSD
+__always_inline
+#endif
 void
-vsyslog(int pri, const char *fmt, va_list ap)
+__vsyslog(int pri, const char *fmt, va_list ap)
 {
 	register char *p;
 	char *last_chr, *head_end, *end, *stdp;
@@ -301,7 +305,9 @@ vsyslog(int pri, const char *fmt, va_list ap)
  getout:
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
-libc_hidden_def(vsyslog)
+#ifdef __USE_BSD
+strong_alias(__vsyslog,vsyslog)
+#endif
 
 void
 syslog(int pri, const char *fmt, ...)
@@ -309,7 +315,7 @@ syslog(int pri, const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsyslog(pri, fmt, ap);
+	__vsyslog(pri, fmt, ap);
 	va_end(ap);
 }
 libc_hidden_def(syslog)
