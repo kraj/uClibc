@@ -94,9 +94,6 @@
 /* Needed for standalone execution */
 static __attribute_used__ unsigned long _dl_skip_args = 0;
 
-/* Pull in all the arch specific stuff */
-#include <dl-startup.h>
-
 /* Static declarations */
 static int (*_dl_elf_main) (int, char **, char **);
 

@@ -76,6 +76,9 @@ typedef struct {
 
 #ifdef _LIBC
 /* arch specific defines */
+#ifdef IS_IN_rtld
+# include <dl-startup.h>
+#endif
 #include <dl-sysdep.h>
 #endif
 

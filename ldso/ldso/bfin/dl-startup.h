@@ -84,7 +84,6 @@ __asm__(
     "	.size	__start,.-__start\n"
 );
 
-#undef DL_START
 #define DL_START(X)   \
 static void  __attribute_used__ \
 _dl_start (Elf32_Addr dl_boot_got_pointer, \

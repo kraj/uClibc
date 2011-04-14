@@ -63,7 +63,6 @@ __asm__("" \
 );
 
 #define _dl_boot _dl_boot2
-#undef DL_START
 #define DL_START(X)   \
 static void  __attribute_used__ \
 _dl_boot (void *dl_boot_got_pointer, \

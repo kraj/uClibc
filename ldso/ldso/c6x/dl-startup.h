@@ -7,7 +7,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#undef DL_START
 #define DL_START(X)   \
 int  \
 _dl_start (unsigned placeholder, \
