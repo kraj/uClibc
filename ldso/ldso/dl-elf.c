@@ -174,8 +174,11 @@ search_for_named_library(const char *name, unsigned rflags, const char *path_lis
 				_dl_strcpy(mylibname, "."); /* Assume current dir if empty path */
 			_dl_strcat(mylibname, "/");
 			_dl_strcat(mylibname, name);
-			if ((tpnt = _dl_load_elf_shared_library(rflags, rpnt, mylibname)) != NULL)
-				return tpnt;
+#ifdef __LDSO_SAFE_RUNPATH__
+			if (*mylibname == '/')
+#endif
+				if ((tpnt = _dl_load_elf_shared_library(rflags, rpnt, mylibname)) != NULL)
+					return tpnt;
 			path_n = path+1;
 		}
 		path++;
