@@ -21,6 +21,10 @@
  * copied stack_chk_fail_local.c from glibc and adapted for uClibc
  */
 
+#if defined __SSP__ || defined __SSP_ALL__
+# error "file must not be compiled with stack protection enabled on it. Use -fno-stack-protector"
+#endif
+
 #include <features.h>
 
 /* On some architectures, this helps needless PIC pointer setup
@@ -29,5 +33,5 @@
 void __stack_chk_fail_local (void) attribute_noreturn attribute_hidden;
 void __stack_chk_fail_local (void)
 {
-  __stack_chk_fail ();
+	__stack_chk_fail ();
 }
