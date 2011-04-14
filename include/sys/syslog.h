@@ -179,14 +179,12 @@ __BEGIN_DECLS
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern void closelog (void);
-libc_hidden_proto(closelog)
 
 /* Open connection to system logger.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern void openlog (__const char *__ident, int __option, int __facility);
-libc_hidden_proto(openlog)
 
 /* Set the log mask level.  */
 extern int setlogmask (int __mask) __THROW;

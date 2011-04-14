@@ -175,7 +175,6 @@ openlog(const char *ident, int logstat, int logfac)
 	openlog_intern(ident, logstat, logfac);
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
-libc_hidden_def(openlog)
 
 /*
  * syslog, vsyslog --
@@ -330,7 +329,6 @@ closelog(void)
 	closelog_intern(0); /* 0: reset LogXXX globals to default */
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
-libc_hidden_def(closelog)
 
 /* setlogmask -- set the log mask level */
 int setlogmask(int pmask)
