@@ -37,6 +37,10 @@
 #include <glob.h>
 #include <wordexp.h>
 
+#ifndef __ARCH_USE_MMU__
+# define fork vfork
+#endif
+
 #define __WORDEXP_FULL
 
 /*
