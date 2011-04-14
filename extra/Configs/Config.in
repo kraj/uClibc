@@ -375,6 +375,13 @@ config LDSO_RUNPATH
 	  Usage of RUNPATH tags is not too common, so disabling this feature
 	  should be safe for most people.
 
+config LDSO_SAFE_RUNPATH
+	bool "Allow only RUNPATH beginning with /"
+	depends on LDSO_RUNPATH
+	default y
+	help
+	  Allow only absolute path in RPATH/RUNPATH.
+
 config LDSO_SEARCH_INTERP_PATH
 	bool "Add ldso path to lib search path"
 	depends on HAVE_SHARED
