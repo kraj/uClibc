@@ -784,7 +784,7 @@ static struct elf_resolve *_dl_load_elf_shared_library(int secure,
 #ifndef SHARED
 	/* When statically linked, the first time we dlopen a DSO
 	 * the *rpnt is NULL, so we need to allocate memory for it,
-	 * and initialize the _dl_symbol_table.
+	 * and initialize the _dl_symbol_tables.
 	 */
 	else {
 		*rpnt = GL(dl_symbol_tables) = _dl_malloc(sizeof(struct dyn_elf));
