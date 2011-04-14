@@ -745,7 +745,6 @@ config UCLIBC_HAS_PROGRAM_INVOCATION_NAME
 config UCLIBC_HAS___PROGNAME
 	bool "Support for __progname"
 	default y
-	depends on UCLIBC_HAS_PROGRAM_INVOCATION_NAME
 	help
 	  Some packages (like openssh) like to peek into internal libc
 	  symbols to make their output a bit more user friendly.

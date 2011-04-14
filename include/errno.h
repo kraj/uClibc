@@ -47,6 +47,9 @@ __BEGIN_DECLS
 extern int errno;
 #endif
 
+#ifdef _LIBC
+extern const char *__progname, *__progname_full;
+#endif
 #if defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
 
 /* The full and simple forms of the name with which the program was
