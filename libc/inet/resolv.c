@@ -3005,7 +3005,7 @@ void attribute_noreturn res_close(void)
 		int m = 0;
 		/* free nsaddrs[m] if they do not point to nsaddr_list[x] */
 		while (m < ARRAY_SIZE(_res._u._ext.nsaddrs)) {
-			char *p2 = (char*)(_res._u._ext.nsaddrs[m]);
+			char *p2 = (char*)(_res._u._ext.nsaddrs[m++]);
 			if (p2 < p1 || (p2 - p1) > sizeof(_res.nsaddr_list))
 				free(p2);
 		}
