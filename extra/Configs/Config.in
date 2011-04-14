@@ -2107,8 +2107,8 @@ config SSP_QUICK_CANARY
 choice
 	prompt "Propolice protection blocking signal"
 	depends on UCLIBC_HAS_SSP
-	default PROPOLICE_BLOCK_ABRT if ! DODEBUG
-	default PROPOLICE_BLOCK_SEGV if DODEBUG
+	depends on DODEBUG
+	default PROPOLICE_BLOCK_SEGV
 	help
 	  "abort" use SIGABRT to block offending programs.
 	  This is the default implementation.
