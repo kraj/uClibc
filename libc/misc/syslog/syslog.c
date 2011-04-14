@@ -339,9 +339,9 @@ int setlogmask(int pmask)
 
 	omask = LogMask;
 	if (pmask != 0) {
-		__UCLIBC_MUTEX_LOCK(mylock);
+/*		__UCLIBC_MUTEX_LOCK(mylock);*/
 		LogMask = pmask;
-		__UCLIBC_MUTEX_UNLOCK(mylock);
+/*		__UCLIBC_MUTEX_UNLOCK(mylock);*/
 	}
 	return omask;
 }
