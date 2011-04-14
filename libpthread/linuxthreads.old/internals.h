@@ -506,7 +506,7 @@ extern __typeof(pthread_mutex_init) __pthread_mutex_init attribute_hidden;
 extern __typeof(pthread_mutex_destroy) __pthread_mutex_destroy attribute_hidden;
 extern __typeof(pthread_mutex_lock) __pthread_mutex_lock attribute_hidden;
 extern __typeof(pthread_mutex_trylock) __pthread_mutex_trylock attribute_hidden;
-extern __typeof(pthread_mutex_unlock) __pthread_mutex_attribute_hidden;
+extern __typeof(pthread_mutex_unlock) __pthread_mutex_unlock attribute_hidden;
 
 /* Prototypes for some of the new semaphore functions.  */
 extern int __new_sem_post (sem_t * sem);
