@@ -8,18 +8,28 @@
 .SUFFIXES:
 
 top_builddir ?= ../
+abs_top_builddir ?= $(shell cd $(top_builddir); pwd)/
 
 TESTDIR=$(top_builddir)test/
 
 include $(top_builddir)/Rules.mak
-ifndef TEST_INSTALLED_UCLIBC
 ifdef UCLIBC_LDSO
 ifeq (,$(findstring /,$(UCLIBC_LDSO)))
-UCLIBC_LDSO := $(top_builddir)lib/$(UCLIBC_LDSO)
+UCLIBC_LDSO := $(UCLIBC_LDSO)
+else
+UCLIBC_LDSO := $(notdir $(UCLIBC_LDSO))
 endif
 else
-UCLIBC_LDSO := $(firstword $(wildcard $(top_builddir)lib/ld*))
+UCLIBC_LDSO := $(notdir $(firstword $(wildcard $(top_builddir)lib/ld*)))
 endif
+ifndef TEST_INSTALLED_UCLIBC
+ifeq ($(LDSO_SAFE_RUNPATH),y)
+UCLIBC_PATH := $(abs_top_builddir)lib
+else
+UCLIBC_PATH := $(top_builddir)lib
+endif
+else
+UCLIBC_PATH := $(RUNTIME_PREFIX)$(MULTILIB_DIR)
 endif
 #--------------------------------------------------------
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
@@ -81,15 +91,14 @@ ifneq ($(HAVE_SHARED),y)
 	LDFLAGS       += -Wl,-static -static-libgcc
 endif
 
-LDFLAGS += -B$(top_builddir)lib -Wl,-rpath,$(top_builddir)lib -Wl,-rpath-link,$(top_builddir)lib
-UCLIBC_LDSO_ABSPATH=$(shell pwd)
-ifdef TEST_INSTALLED_UCLIBC
-LDFLAGS += -Wl,-rpath,./
-UCLIBC_LDSO_ABSPATH=$(RUNTIME_PREFIX)$(MULTILIB_DIR)
+ifndef TEST_INSTALLED_UCLIBC
+LDFLAGS += -B$(UCLIBC_PATH) -Wl,-rpath,$(UCLIBC_PATH):$(shell pwd) -Wl,-rpath-link,$(UCLIBC_PATH):$(shell pwd)
+else
+LDFLAGS += -Wl,-rpath,$(shell pwd)
 endif
 
 ifeq ($(findstring -static,$(LDFLAGS)),)
-LDFLAGS += -Wl,--dynamic-linker,$(UCLIBC_LDSO_ABSPATH)/$(UCLIBC_LDSO)
+LDFLAGS += -Wl,--dynamic-linker,$(UCLIBC_PATH)/$(UCLIBC_LDSO)
 endif
 
 ifeq ($(LDSO_GNU_HASH_SUPPORT),y)

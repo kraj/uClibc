@@ -175,14 +175,17 @@ openlog(const char *ident, int logstat, int logfac)
 	openlog_intern(ident, logstat, logfac);
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
-libc_hidden_def(openlog)
 
 /*
  * syslog, vsyslog --
  *     print message on log file; output is intended for syslogd(8).
  */
+static
+#ifndef __USE_BSD
+__always_inline
+#endif
 void
-vsyslog(int pri, const char *fmt, va_list ap)
+__vsyslog(int pri, const char *fmt, va_list ap)
 {
 	register char *p;
 	char *last_chr, *head_end, *end, *stdp;
@@ -301,7 +304,9 @@ vsyslog(int pri, const char *fmt, va_list ap)
  getout:
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
-libc_hidden_def(vsyslog)
+#ifdef __USE_BSD
+strong_alias(__vsyslog,vsyslog)
+#endif
 
 void
 syslog(int pri, const char *fmt, ...)
@@ -309,7 +314,7 @@ syslog(int pri, const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsyslog(pri, fmt, ap);
+	__vsyslog(pri, fmt, ap);
 	va_end(ap);
 }
 libc_hidden_def(syslog)
@@ -324,7 +329,6 @@ closelog(void)
 	closelog_intern(0); /* 0: reset LogXXX globals to default */
 	__UCLIBC_MUTEX_UNLOCK(mylock);
 }
-libc_hidden_def(closelog)
 
 /* setlogmask -- set the log mask level */
 int setlogmask(int pmask)
@@ -333,9 +337,9 @@ int setlogmask(int pmask)
 
 	omask = LogMask;
 	if (pmask != 0) {
-		__UCLIBC_MUTEX_LOCK(mylock);
+/*		__UCLIBC_MUTEX_LOCK(mylock);*/
 		LogMask = pmask;
-		__UCLIBC_MUTEX_UNLOCK(mylock);
+/*		__UCLIBC_MUTEX_UNLOCK(mylock);*/
 	}
 	return omask;
 }

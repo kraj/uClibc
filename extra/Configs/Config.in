@@ -375,6 +375,13 @@ config LDSO_RUNPATH
 	  Usage of RUNPATH tags is not too common, so disabling this feature
 	  should be safe for most people.
 
+config LDSO_SAFE_RUNPATH
+	bool "Allow only RUNPATH beginning with /"
+	depends on LDSO_RUNPATH
+	default y
+	help
+	  Allow only absolute path in RPATH/RUNPATH.
+
 config LDSO_SEARCH_INTERP_PATH
 	bool "Add ldso path to lib search path"
 	depends on HAVE_SHARED
@@ -708,7 +715,6 @@ config UCLIBC_HAS_PROGRAM_INVOCATION_NAME
 config UCLIBC_HAS___PROGNAME
 	bool "Support for __progname"
 	default y
-	depends on UCLIBC_HAS_PROGRAM_INVOCATION_NAME
 	help
 	  Some packages (like openssh) like to peek into internal libc
 	  symbols to make their output a bit more user friendly.
@@ -2101,8 +2107,8 @@ config SSP_QUICK_CANARY
 choice
 	prompt "Propolice protection blocking signal"
 	depends on UCLIBC_HAS_SSP
-	default PROPOLICE_BLOCK_ABRT if ! DODEBUG
-	default PROPOLICE_BLOCK_SEGV if DODEBUG
+	depends on DODEBUG
+	default PROPOLICE_BLOCK_SEGV
 	help
 	  "abort" use SIGABRT to block offending programs.
 	  This is the default implementation.

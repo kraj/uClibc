@@ -139,14 +139,19 @@ extern void (*__fini_array_end []) (void) attribute_hidden;
 # endif
 #endif
 
-attribute_hidden const char *__uclibc_progname = "";
-#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
-const char *program_invocation_short_name = "";
-const char *program_invocation_name = "";
+const char *__uclibc_progname = "";
+#if !defined __UCLIBC_HAS___PROGNAME__ && defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+# define __progname program_invocation_short_name
+# define __progname_full program_invocation_name
 #endif
-#ifdef __UCLIBC_HAS___PROGNAME__
-weak_alias (program_invocation_short_name, __progname)
-weak_alias (program_invocation_name, __progname_full)
+#if defined __UCLIBC_HAS___PROGNAME__ || (defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__)
+const char *__progname = "";
+/* psm: why have a visible __progname_full? */
+const char *__progname_full = "";
+# if defined __UCLIBC_HAS___PROGNAME__ && defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+weak_alias (__progname, program_invocation_short_name)
+weak_alias (__progname_full, program_invocation_name)
+# endif
 #endif
 
 /*
@@ -389,14 +394,14 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 #endif
 
     __uclibc_progname = *argv;
-#ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
+#if defined __UCLIBC_HAS___PROGNAME__ || (defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__)
     if (*argv != NULL) {
-	program_invocation_name = *argv;
-	program_invocation_short_name = strrchr(*argv, '/');
-	if (program_invocation_short_name != NULL)
-	    ++program_invocation_short_name;
+	__progname_full = *argv;
+	__progname = strrchr(*argv, '/');
+	if (__progname != NULL)
+	    ++__progname;
 	else
-	    program_invocation_short_name = program_invocation_name;
+	    __progname = *argv;
     }
 #endif
 
