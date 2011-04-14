@@ -144,7 +144,7 @@ typedef struct {
 #endif
 
 /* Initialize a LOADADDR representing the program.  It's called from
- * DL_BOOT only.
+ * DL_START only.
  */
 #ifndef DL_INIT_LOADADDR_PROG
 # define DL_INIT_LOADADDR_PROG(LOADADDR, BASEADDR) \
