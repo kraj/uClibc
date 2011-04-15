@@ -219,6 +219,13 @@ make_stub(lutimes)
 # endif
 #endif
 
+#ifndef __NR_openat
+make_stub(openat)
+# ifdef __UCLIBC_HAS_LFS__
+make_stub(openat64)
+# endif
+#endif
+
 #ifndef __NR_fadvise64
 make_ret_stub(posix_fadvise)
 #endif
