@@ -7,7 +7,6 @@
 
 #include "_stdio.h"
 
-
 /* This is pretty much straight from uClibc, but with one important
  * difference.
  *
@@ -275,10 +274,6 @@ void _stdio_init(void)
 
 #if !(__MASK_READING & __FLAG_UNGOT)
 #error Assumption violated about __MASK_READING and __FLAG_UNGOT
-#endif
-
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
 #endif
 
 #ifndef NDEBUG
