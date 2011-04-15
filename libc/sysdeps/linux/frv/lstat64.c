@@ -9,11 +9,9 @@
  * Adapted to FR-V by Alexandre Oliva <aoliva@redhat.com>
  */
 
+#include <_lfs_64.h>
 #include <sys/syscall.h>
-#include <unistd.h>
 #include <sys/stat.h>
 
-#ifdef __UCLIBC_HAS_LFS__
 _syscall2(int, lstat64, const char *, file_name, struct stat64 *, buf)
 libc_hidden_def(lstat64)
-#endif

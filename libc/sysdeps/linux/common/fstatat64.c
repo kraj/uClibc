@@ -6,11 +6,8 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
+#include <_lfs_64.h>
 #include <sys/syscall.h>
-#include <sys/stat.h>
-#include "xstatconv.h"
-
-#ifdef __UCLIBC_HAS_LFS__
 
 /* 64bit ports tend to favor newfstatat() */
 #ifdef __NR_newfstatat
@@ -18,6 +15,8 @@
 #endif
 
 #ifdef __NR_fstatat64
+# include <sys/stat.h>
+# include "xstatconv.h"
 int fstatat64(int fd, const char *file, struct stat64 *buf, int flag)
 {
 	int ret;
@@ -31,6 +30,4 @@ int fstatat64(int fd, const char *file, struct stat64 *buf, int flag)
 }
 #else
 /* should add emulation with fstat64() and /proc/self/fd/ ... */
-#endif
-
 #endif

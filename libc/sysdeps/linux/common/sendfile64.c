@@ -10,15 +10,10 @@
  * just the macro we need to order things, __LONG_LONG_PAIR.
  */
 
-#include <features.h>
-#include <unistd.h>
-#include <errno.h>
-#include <endian.h>
-#include <stdint.h>
-#include <sys/sendfile.h>
+#include <_lfs_64.h>
 #include <sys/syscall.h>
-#include <bits/wordsize.h>
 
-#if defined __UCLIBC_HAS_LFS__ && defined __NR_sendfile64
+#ifdef __NR_sendfile64
+# include <sys/sendfile.h>
 _syscall4(ssize_t,sendfile64, int, out_fd, int, in_fd, __off64_t *, offset, size_t, count)
 #endif

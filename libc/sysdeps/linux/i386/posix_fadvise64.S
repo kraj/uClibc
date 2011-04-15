@@ -17,9 +17,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <_lfs_64.h>
 #include <sys/syscall.h>
 
-#if defined __NR_fadvise64_64 && defined __UCLIBC_HAS_LFS__
+#ifdef __NR_fadvise64_64
 
 .text
 .global posix_fadvise64

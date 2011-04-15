@@ -10,47 +10,42 @@
  * just the macro we need to order things, __LONG_LONG_PAIR.
  */
 
-#include <features.h>
+#include <_lfs_64.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 
-#ifdef __UCLIBC_HAS_LFS__
+#ifdef __NR_ftruncate64
+# include <bits/wordsize.h>
 
-# include <unistd.h>
-# include <errno.h>
-# include <endian.h>
-# include <stdint.h>
-# include <sys/types.h>
-# include <sys/syscall.h>
-
-
-# ifdef __NR_ftruncate64
-
-#  if __WORDSIZE == 64
+# if __WORDSIZE == 64
 
 /* For a 64 bit machine, life is simple... */
 _syscall2(int, ftruncate64, int, fd, __off64_t, length)
 
-#  elif __WORDSIZE == 32
+# elif __WORDSIZE == 32
+#  include <endian.h>
+#  include <stdint.h>
 
 /* The exported ftruncate64 function.  */
 int ftruncate64 (int fd, __off64_t length)
 {
     uint32_t low = length & 0xffffffff;
     uint32_t high = length >> 32;
-#   if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
+#  if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
     return INLINE_SYSCALL(ftruncate64,
 	    4, fd, 0, __LONG_LONG_PAIR (high, low));
-#   else
+#  else
     return INLINE_SYSCALL(ftruncate64, 3, fd,
 	    __LONG_LONG_PAIR (high, low));
-#   endif
+#  endif
 }
 
-#  else /* __WORDSIZE */
-#   error Your machine is not 64 bit or 32 bit, I am dazed and confused.
-#  endif /* __WORDSIZE */
+# else /* __WORDSIZE */
+#  error Your machine is not 64 bit or 32 bit, I am dazed and confused.
+# endif /* __WORDSIZE */
 
-# else  /* __NR_ftruncate64 */
-
+#else  /* __NR_ftruncate64 */
+#  include <errno.h>
 
 int ftruncate64 (int fd, __off64_t length)
 {
@@ -65,7 +60,5 @@ int ftruncate64 (int fd, __off64_t length)
 	return -1;
 }
 
-# endif /* __NR_ftruncate64 */
+#endif /* __NR_ftruncate64 */
 libc_hidden_def(ftruncate64)
-
-#endif /* __UCLIBC_HAS_LFS__ */
