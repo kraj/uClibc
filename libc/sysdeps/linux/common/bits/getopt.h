@@ -26,31 +26,7 @@
 # define _GETOPT_H 1
 #endif
 
-/* If __GNU_LIBRARY__ is not already defined, either we are being used
-   standalone, or this is the first header included in the source file.
-   If we are being used with glibc, we need to include <features.h>, but
-   that does not exist if we are standalone.  So: if __GNU_LIBRARY__ is
-   not defined, include <ctype.h>, which will pull in <features.h> for us
-   if it's from glibc.  (Why ctype.h?  It's guaranteed to exist and it
-   doesn't flood the namespace with stuff the way some other headers do.)  */
-#if !defined __GNU_LIBRARY__ && !defined __UCLIBC__
-# include <ctype.h>
-#endif
-
-#ifndef __THROW
-# ifndef __GNUC_PREREQ
-#  define __GNUC_PREREQ(maj, min) (0)
-# endif
-# if defined __cplusplus && __GNUC_PREREQ (2,8)
-#  define __THROW	throw ()
-# else
-#  define __THROW
-# endif
-#endif
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,
@@ -147,17 +123,9 @@ struct option
    arguments to the option '\0'.  This behavior is specific to the GNU
    `getopt'.  */
 
-#if defined __GNU_LIBRARY__ || defined __UCLIBC__
-/* Many other libraries have conflicting prototypes for getopt, with
-   differences in the consts, in stdlib.h.  To avoid compilation
-   errors, only prototype getopt for the GNU C library.  */
 extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
        __THROW;
 libc_hidden_proto(getopt)
-#else /* not __GNU_LIBRARY__ */
-extern int getopt ();
-libc_hidden_proto(getopt)
-#endif /* __GNU_LIBRARY__ */
 
 #if defined __UCLIBC_HAS_GNU_GETOPT__ || defined __UCLIBC_HAS_GETOPT_LONG__
 #ifndef __need_getopt
@@ -173,9 +141,7 @@ extern int getopt_long_only (int ___argc, char *const *___argv,
 #endif
 #endif
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 /* Make sure we later can get all the definitions and declarations.  */
 #undef __need_getopt
