@@ -8,17 +8,6 @@
  */
 
 #include <sys/syscall.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/param.h>
 #include <stdio.h>
 
-#define __NR___syscall_rename __NR_rename
-static __inline__ _syscall2(int, __syscall_rename, const char *, oldpath,
-		const char *, newpath)
-
-int rename(const char * oldpath, const char * newpath)
-{
-	return __syscall_rename(oldpath, newpath);
-}
-
+_syscall2(int, rename, const char *, oldpath, const char *, newpath)
