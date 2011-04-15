@@ -18,12 +18,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <errno.h>
 #define __need_NULL
 #include <stddef.h>
 #include <signal.h>
-#include <string.h>	/* For the real memset prototype.  */
-
+#include <string.h>
 
 int sigignore (int sig)
 {

@@ -3,9 +3,7 @@
  */
 
 #include <unistd.h>
-#include <string.h>
 #include <signal.h>
-#include <sys/types.h>
 
 int raise(int signo)
 {

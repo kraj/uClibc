@@ -16,7 +16,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include "sigsetops.h"
+#define __need_NULL
+#include <stddef.h>
+#include <signal.h>
+#include <errno.h>
 
 /* Add SIGNO to SET.  */
 int

@@ -22,7 +22,8 @@
 #include <errno.h>
 #define __FAVOR_BSD
 #include <signal.h>
-#include <stddef.h>		/* For NULL.  */
+#define __need_NULL
+#include <stddef.h>
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sysdep-cancel.h>
 #endif

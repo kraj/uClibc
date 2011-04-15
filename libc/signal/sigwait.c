@@ -19,15 +19,15 @@
  * Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA.  */
 
-#include <errno.h>
+#define __need_NULL
+#include <stddef.h>
 #include <signal.h>
-#include <string.h>
-#include <unistd.h>
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 # include <sysdep-cancel.h>
 
 # ifdef __NR_rt_sigtimedwait
+#  include <string.h>
 
 /* Return any pending signal or wait for one for the given time.  */
 static int do_sigwait(const sigset_t *set, int *sig)
@@ -104,6 +104,8 @@ int sigwait (const sigset_t *set, int *sig)
 }
 
 # else /* __UCLIBC_HAS_REALTIME__ */
+# include <errno.h>
+# include <unistd.h>	/* smallint */
 /* variant without REALTIME extensions */
 
 static smallint was_sig; /* obviously not thread-safe */

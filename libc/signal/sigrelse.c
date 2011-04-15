@@ -22,7 +22,6 @@
 #include <stddef.h>
 #include <signal.h>
 
-
 int sigrelse (int sig)
 {
   sigset_t set;

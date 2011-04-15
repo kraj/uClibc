@@ -16,10 +16,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define __need_NULL
 #include <stddef.h>
 #include <setjmp.h>
 #include <signal.h>
-
 
 /* This function is called by the `sigsetjmp' macro
    before doing a `__setjmp' on ENV[0].__jmpbuf.

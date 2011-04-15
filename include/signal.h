@@ -258,7 +258,6 @@ extern int sigemptyset (sigset_t *__set) __THROW __nonnull ((1));
 
 /* Set all signals in SET.  */
 extern int sigfillset (sigset_t *__set) __THROW __nonnull ((1));
-libc_hidden_proto(sigfillset)
 
 /* Add SIGNO to SET.  */
 extern int sigaddset (sigset_t *__set, int __signo) __THROW __nonnull ((1));
@@ -483,6 +482,7 @@ extern int __libc_current_sigrtmin (void) __THROW;
 extern int __libc_current_sigrtmax (void) __THROW;
 
 #ifdef _LIBC
+extern sigset_t _sigintr attribute_hidden;
 /* simplified version without parameter checking */
 # include <string.h>
 # undef __sigemptyset

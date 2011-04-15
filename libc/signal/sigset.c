@@ -20,8 +20,7 @@
 #define __need_NULL
 #include <stddef.h>
 #include <signal.h>
-#include <string.h>	/* For the real memset prototype.  */
-
+#include <string.h>
 
 /* Set the disposition for SIG.  */
 __sighandler_t sigset (int sig, __sighandler_t disp)

@@ -22,7 +22,7 @@
 #include <signal.h>
 #include <string.h>	/* For the real memset prototype.  */
 
-sigset_t _sigintr attribute_hidden;		/* Set by siginterrupt.  */
+sigset_t _sigintr;	/* Set by siginterrupt.  */
 
 /* Set the handler for the signal SIG to HANDLER,
    returning the old handler, or SIG_ERR on error.  */
