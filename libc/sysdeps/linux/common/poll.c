@@ -27,13 +27,11 @@
 #define SINGLE_THREAD_P 1
 #endif
 
-libc_hidden_proto(poll)
-
 #if defined __ASSUME_POLL_SYSCALL && defined __NR_poll
 
 #define __NR___syscall_poll __NR_poll
-static inline _syscall3(int, __syscall_poll, struct pollfd *, fds,
-			unsigned long int, nfds, int, timeout);
+static _syscall3(int, __syscall_poll, struct pollfd *, fds,
+		 unsigned long int, nfds, int, timeout);
 
 int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
@@ -56,9 +54,6 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 #include <sys/time.h>
 #include <sys/param.h>
 #include <unistd.h>
-
-libc_hidden_proto(getdtablesize)
-libc_hidden_proto(select)
 
 /* uClinux 2.0 doesn't have poll, emulate it using select */
 
