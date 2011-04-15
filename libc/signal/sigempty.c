@@ -20,7 +20,6 @@
 #include <signal.h>
 #include <string.h>
 
-
 /* Clear all signals from SET.  */
 int sigemptyset (sigset_t *set)
 {
@@ -36,4 +35,3 @@ int sigemptyset (sigset_t *set)
 
   return 0;
 }
-libc_hidden_def(sigemptyset)
