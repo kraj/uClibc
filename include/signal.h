@@ -256,7 +256,6 @@ typedef __sighandler_t sig_t;
 
 /* Clear all signals from SET.  */
 extern int sigemptyset (sigset_t *__set) __THROW __nonnull ((1));
-libc_hidden_proto(sigemptyset)
 
 /* Set all signals in SET.  */
 extern int sigfillset (sigset_t *__set) __THROW __nonnull ((1));
@@ -484,6 +483,12 @@ extern int __libc_current_sigrtmin (void) __THROW;
 /* Return number of available real-time signal with lowest priority.  */
 extern int __libc_current_sigrtmax (void) __THROW;
 
+#ifdef _LIBC
+/* simplified version without parameter checking */
+# include <string.h>
+# undef __sigemptyset
+# define __sigemptyset(ss) (memset(ss, '\0', sizeof(sigset_t)), 0)
+#endif
 #endif /* signal.h  */
 
 __END_DECLS
