@@ -8,8 +8,9 @@
  */
 
 #include <_lfs_64.h>
-#include <unistd.h>
 #include <sys/syscall.h>
+#include <unistd.h>
+#include <stdint.h>
 
 /* Newer kernel ports have llseek() instead of _llseek() */
 #if !defined __NR__llseek && defined __NR_llseek
@@ -17,16 +18,16 @@
 #endif
 
 #ifdef __NR__llseek
-loff_t lseek64(int fd, loff_t offset, int whence)
+off64_t lseek64(int fd, off64_t offset, int whence)
 {
-	loff_t result;
-	return (loff_t)INLINE_SYSCALL(_llseek, 5, fd, (off_t) (offset >> 32),
+	off64_t result;
+	return (off64_t)INLINE_SYSCALL(_llseek, 5, fd, (off_t) (offset >> 32),
 				(off_t) (offset & 0xffffffff), &result, whence) ?: result;
 }
 #else
-loff_t lseek64(int fd, loff_t offset, int whence)
+off64_t lseek64(int fd, off64_t offset, int whence)
 {
-	return (loff_t)lseek(fd, (off_t) (offset), whence);
+	return (off64_t)lseek(fd, (off_t) (offset), whence);
 }
 #endif
 #ifndef __LINUXTHREADS_OLD__
