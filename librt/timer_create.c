@@ -2,6 +2,7 @@
  * timer_create.c - create a per-process timer.
  */
 
+#include <stddef.h>
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -12,10 +13,6 @@
 #include "kernel-posix-timers.h"
 
 #ifdef __NR_timer_create
-
-#ifndef offsetof
-# define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#endif
 
 #define __NR___syscall_timer_create __NR_timer_create
 static __inline__ _syscall3(int, __syscall_timer_create, clockid_t, clock_id,

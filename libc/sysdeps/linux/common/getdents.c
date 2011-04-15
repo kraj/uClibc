@@ -4,22 +4,17 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <assert.h>
-#include <errno.h>
-#include <dirent.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <sys/param.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
-#include <bits/kernel_types.h>
-#include <bits/kernel-features.h>
-#include <bits/uClibc_alloc.h>
+#include <bits/wordsize.h>
 
 #if !(defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64 && __WORDSIZE == 64)
+
+#include <dirent.h>
+#include <string.h>
+#include <sys/types.h>
+#include <bits/kernel_types.h>
+#include <bits/kernel-features.h>
+
 /* If the condition above is met, __getdents is defined as an alias
  * for __getdents64 (see getdents64.c). Otherwise...
  */
@@ -30,10 +25,6 @@
  * See __ASSUME_GETDENTS32_D_TYPE in glibc's kernel-features.h for specific
  * version / arch details.
  */
-
-#ifndef offsetof
-# define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#endif
 
 struct kernel_dirent
 {
@@ -76,6 +67,13 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 }
 
 #elif ! defined __UCLIBC_HAS_LFS__ || ! defined __NR_getdents64
+
+# include <assert.h>
+# include <stddef.h>
+# include <errno.h>
+# include <unistd.h>
+# include <sys/param.h>
+# include <bits/uClibc_alloc.h>
 
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {
@@ -137,6 +135,8 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 }
 
 #elif __WORDSIZE == 32
+
+# include <stddef.h>
 
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {
