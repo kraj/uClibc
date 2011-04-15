@@ -378,8 +378,11 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 					*got_entry += (unsigned long) tpnt->loadaddr;
 			}
 			else {
+				struct symbol_ref sym_ref;
+				sym_ref.sym = sym;
+				sym_ref.tpnt = NULL;
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
+					sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, &sym_ref);
 			}
 
 			got_entry++;
