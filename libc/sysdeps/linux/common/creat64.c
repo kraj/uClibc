@@ -17,14 +17,10 @@
    02111-1307 USA.  */
 
 #include <_lfs_64.h>
-
-#ifdef __UCLIBC_HAS_LFS__
 #include <fcntl.h>
-#include <sys/types.h>
 
 /* Create FILE with protections MODE.  */
 int creat64(const char *file, mode_t mode)
 {
 	return open64(file, O_WRONLY|O_CREAT|O_TRUNC, mode);
 }
-#endif /* __UCLIBC_HAS_LFS__ */

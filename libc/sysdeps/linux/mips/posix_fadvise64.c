@@ -13,7 +13,7 @@
 #include <bits/wordsize.h>
 
 /* MIPS kernel only has NR_fadvise64 which acts as NR_fadvise64_64 */
-#if defined __NR_fadvise64 && defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 32
+#if defined __NR_fadvise64 && __WORDSIZE == 32
 # include <fcntl.h>
 # include <endian.h>
 

@@ -17,13 +17,12 @@
    02111-1307 USA.  */
 
 
+#include <_lfs_64.h>
 #define _ERRNO_H	1
-#include <features.h>
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
-#if defined __UCLIBC_HAS_LFS__ && defined __NR_mmap2
-
+#ifdef __NR_mmap2
 
 #define LINKAGE     4
 #define PTR_SIZE    4
