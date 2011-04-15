@@ -680,12 +680,12 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 
 			cnt += num_groups * tslen; /* Adjust count now for sep chars. */
 
-/* 			__printf("\n"); */
+/* 			printf("\n"); */
 			do {
 				if (!blk) {		/* Initial group could be 0 digits long! */
 					blk = nblk2;
 				} else if (len >= blk) { /* Enough digits for a group. */
-/* 					__printf("norm:  len=%d blk=%d  \"%.*s\"\n", len, blk, blk, gp); */
+/* 					printf("norm:  len=%d blk=%d  \"%.*s\"\n", len, blk, blk, gp); */
 					if (fp_outfunc(fp, *ppc, blk, (intptr_t) gp) != blk) {
 						return -1;
 					}
@@ -695,9 +695,9 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 					}
 					len -= blk;
 				} else {		/* Transition to 0s. */
-/* 					__printf("trans: len=%d blk=%d  \"%.*s\"\n", len, blk, len, gp); */
+/* 					printf("trans: len=%d blk=%d  \"%.*s\"\n", len, blk, len, gp); */
 					if (len) {
-/* 						__printf("len\n"); */
+/* 						printf("len\n"); */
 						if (fp_outfunc(fp, *ppc, len, (intptr_t) gp) != len) {
 							return -1;
 						}
@@ -705,7 +705,7 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 					}
 
 					if (ppc[3] == FPO_ZERO_PAD) { /* Need to group 0s */
-/* 						__printf("zeropad\n"); */
+/* 						printf("zeropad\n"); */
 						cnt += ppc[1];
 						ppc += 3;
 						gp = (const char *) ppc[2];
@@ -728,7 +728,7 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 				}
 				blk = nblk2;
 
-/* 				__printf("num_groups=%d   blk=%d\n", num_groups, blk); */
+/* 				printf("num_groups=%d   blk=%d\n", num_groups, blk); */
 
 			} while (1);
 		} else

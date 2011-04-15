@@ -61,7 +61,7 @@ int __libc_system(const char *command)
 	signal(SIGINT, SIG_IGN);
 
 #if 0
-	__printf("Waiting for child %d\n", pid);
+	printf("Waiting for child %d\n", pid);
 #endif
 
 	if (wait4(pid, &wait_val, 0, 0) == -1)
