@@ -16,16 +16,16 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <stddef.h>
 #include <signal.h>
-#include <errno.h>
-
 
 /* If INTERRUPT is nonzero, make signal SIG interrupt system calls
    (causing them to fail with EINTR); if INTERRUPT is zero, make system
    calls be restarted after signal SIG.  */
 #ifdef SA_RESTART
-extern sigset_t _sigintr attribute_hidden;	/* Defined in signal.c.  */
+# define __need_NULL
+# include <stddef.h>
+#else
+# include <errno.h>
 #endif
 
 int siginterrupt (int sig, int interrupt)

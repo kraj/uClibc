@@ -20,7 +20,6 @@
 
 #include <features.h>
 #include <signal.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
 
 /* Only enable rt signals when it is supported at compile time */

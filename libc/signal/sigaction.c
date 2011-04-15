@@ -16,13 +16,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-#include <errno.h>
 #include <signal.h>
-#include <string.h>
 #include <sys/syscall.h>
-
-#include <bits/kernel_sigaction.h>
 
 #if defined __NR_rt_sigaction
 
@@ -42,6 +37,9 @@ __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
 }
 
 #else
+# define __need_NULL
+# include <stddef.h>
+# include <bits/kernel_sigaction.h>
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */

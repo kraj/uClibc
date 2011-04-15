@@ -18,8 +18,6 @@
 
 #include <errno.h>
 #include <signal.h>
-#include <string.h>	/* For the real memset prototype.  */
-
 
 /* Tolerate non-threads versions of Posix */
 #ifndef SA_ONESHOT
