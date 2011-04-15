@@ -6,18 +6,12 @@
 /* Massivly hacked up for uClibc by Erik Andersen */
 
 #include <_lfs_64.h>
-
-#ifdef __UCLIBC_HAS_LFS__
-
-#include <errno.h>
 #include <stdint.h>
-#include <unistd.h>
-#include <sys/mman.h>
 #include <sys/syscall.h>
-#include <bits/uClibc_page.h>
+#include <errno.h>
+#include <sys/mman.h>
 
-
-# if !defined __NR_mmap2
+#ifndef __NR_mmap2
 
 /*
  * This version is a stub that just chops off everything at the mmap 32 bit
@@ -27,7 +21,7 @@
  *
  */
 
-__ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t offset)
+void *mmap64(void *addr, size_t len, int prot, int flags, int fd, __off64_t offset)
 {
 	if (offset != (off_t) offset ||
 	    (offset + len) != (off_t) (offset + len)) {
@@ -38,17 +32,18 @@ __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t 
 	return mmap(addr, len, prot, flags, fd, (off_t) offset);
 }
 
-# else
+#else
+# include <bits/uClibc_page.h>
 
-/* Some architectures always use 12 as page shift for mmap2() eventhough the
+/* Some architectures always use 12 as page shift for mmap2() even though the
  * real PAGE_SHIFT != 12.  Other architectures use the same value as
  * PAGE_SHIFT...
  */
-#  ifndef MMAP2_PAGE_SHIFT
-#   define MMAP2_PAGE_SHIFT 12
-#  endif
+# ifndef MMAP2_PAGE_SHIFT
+#  define MMAP2_PAGE_SHIFT 12
+# endif
 
-__ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t offset)
+void *mmap64(void *addr, size_t len, int prot, int flags, int fd, __off64_t offset)
 {
 	/*
 	 * Some arches check the size in INLINE_SYSCALL() and barf if it's
@@ -73,8 +68,7 @@ __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t 
 	 */
 	sysoff = (uint64_t)offset >> MMAP2_PAGE_SHIFT;
 
-	return (__ptr_t) INLINE_SYSCALL(mmap2, 6, addr, len, prot, flags, fd, sysoff);
+	return (void*) INLINE_SYSCALL(mmap2, 6, addr, len, prot, flags, fd, sysoff);
 }
 
-# endif
-#endif /* __UCLIBC_HAS_LFS__ */
+#endif
