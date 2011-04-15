@@ -10,6 +10,5 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-
 _syscall2(int, ftruncate, int, fd, __off_t, length)
 libc_hidden_def(ftruncate)
