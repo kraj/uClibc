@@ -226,6 +226,10 @@ make_stub(openat64)
 # endif
 #endif
 
+#ifndef __NR_renameat
+make_stub(renameat)
+#endif
+
 #ifndef __NR_fadvise64
 make_ret_stub(posix_fadvise)
 #endif
