@@ -196,7 +196,6 @@ extern void psiginfo (__const siginfo_t *__pinfo, __const char *__s);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int __sigpause (int __sig_or_mask, int __is_sig);
-libc_hidden_proto(__sigpause)
 
 #ifdef __FAVOR_BSD
 /* Set the mask of blocked signals to MASK,
