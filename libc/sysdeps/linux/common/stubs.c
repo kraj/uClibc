@@ -230,6 +230,11 @@ make_stub(openat64)
 make_stub(renameat)
 #endif
 
+#if !defined __NR_stime && !defined __NR_settimeofday
+make_stub(stime)
+make_stub(settimeofday)
+#endif
+
 #ifndef __NR_fadvise64
 make_ret_stub(posix_fadvise)
 #endif
