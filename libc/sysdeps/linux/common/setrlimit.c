@@ -8,8 +8,8 @@
  */
 
 #include <sys/syscall.h>
-#include <unistd.h>
 #include <sys/resource.h>
+#include <bits/wordsize.h>
 
 /* Only wrap setrlimit if the new usetrlimit is not present and setrlimit sucks */
 
@@ -22,7 +22,7 @@ _syscall2(int, __syscall_usetrlimit, enum __rlimit_resource, resource,
           const struct rlimit *, rlim)
 int setrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {
-	return (__syscall_usetrlimit(resource, rlimits));
+	return __syscall_usetrlimit(resource, rlimits);
 }
 
 #elif !defined(__UCLIBC_HANDLE_OLDER_RLIMIT__)
@@ -32,6 +32,11 @@ _syscall2(int, setrlimit, __rlimit_resource_t, resource,
 		const struct rlimit *, rlim)
 
 #else
+
+# define __need_NULL
+# include <stddef.h>
+# include <errno.h>
+# include <sys/param.h>
 
 /* we have to handle old style setrlimit() */
 # define __NR___syscall_setrlimit __NR_setrlimit
@@ -49,16 +54,13 @@ int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 
 	/* We might have to correct the limits values.  Since the old values
 	 * were signed the new values might be too large.  */
-# define RMIN(x, y) ((x) < (y) ? (x) : (y))
-	rlimits_small.rlim_cur = RMIN((unsigned long int) rlimits->rlim_cur,
+	rlimits_small.rlim_cur = MIN((unsigned long int) rlimits->rlim_cur,
 								  RLIM_INFINITY >> 1);
-	rlimits_small.rlim_max = RMIN((unsigned long int) rlimits->rlim_max,
+	rlimits_small.rlim_max = MIN((unsigned long int) rlimits->rlim_max,
 								  RLIM_INFINITY >> 1);
-#undef RMIN
-	return (__syscall_setrlimit(resource, &rlimits_small));
+	return __syscall_setrlimit(resource, &rlimits_small);
 }
 #endif
-
 libc_hidden_def(setrlimit)
 
 #if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64

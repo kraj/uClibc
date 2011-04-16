@@ -1771,7 +1771,7 @@ int getnameinfo(const struct sockaddr *sa,
 		unsigned flags)
 {
 	int serrno = errno;
-	unsigned ok;
+	bool ok = 0;
 	struct hostent *hoste = NULL;
 	char domain[256];
 
@@ -1781,16 +1781,15 @@ int getnameinfo(const struct sockaddr *sa,
 	if (sa == NULL || addrlen < sizeof(sa_family_t))
 		return EAI_FAMILY;
 
-	ok = sa->sa_family;
-	if (ok == AF_LOCAL) /* valid */;
+	if (sa->sa_family == AF_LOCAL) /* valid */;
 #ifdef __UCLIBC_HAS_IPV4__
-	else if (ok == AF_INET) {
+	else if (sa->sa_family == AF_INET) {
 		if (addrlen < sizeof(struct sockaddr_in))
 			return EAI_FAMILY;
 	}
 #endif
 #ifdef __UCLIBC_HAS_IPV6__
-	else if (ok == AF_INET6) {
+	else if (sa->sa_family == AF_INET6) {
 		if (addrlen < sizeof(struct sockaddr_in6))
 			return EAI_FAMILY;
 	}
@@ -1798,7 +1797,6 @@ int getnameinfo(const struct sockaddr *sa,
 	else
 		return EAI_FAMILY;
 
-	ok = 0;
 	if (host != NULL && hostlen > 0)
 		switch (sa->sa_family) {
 		case AF_INET:

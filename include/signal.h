@@ -195,7 +195,6 @@ extern void psiginfo (__const siginfo_t *__pinfo, __const char *__s);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int __sigpause (int __sig_or_mask, int __is_sig);
-libc_hidden_proto(__sigpause)
 
 #ifdef __FAVOR_BSD
 /* Set the mask of blocked signals to MASK,
@@ -255,11 +254,9 @@ typedef __sighandler_t sig_t;
 
 /* Clear all signals from SET.  */
 extern int sigemptyset (sigset_t *__set) __THROW __nonnull ((1));
-libc_hidden_proto(sigemptyset)
 
 /* Set all signals in SET.  */
 extern int sigfillset (sigset_t *__set) __THROW __nonnull ((1));
-libc_hidden_proto(sigfillset)
 
 /* Add SIGNO to SET.  */
 extern int sigaddset (sigset_t *__set, int __signo) __THROW __nonnull ((1));
@@ -483,6 +480,13 @@ extern int __libc_current_sigrtmin (void) __THROW;
 /* Return number of available real-time signal with lowest priority.  */
 extern int __libc_current_sigrtmax (void) __THROW;
 
+#ifdef _LIBC
+extern sigset_t _sigintr attribute_hidden;
+/* simplified version without parameter checking */
+# include <string.h>
+# undef __sigemptyset
+# define __sigemptyset(ss) (memset(ss, '\0', sizeof(sigset_t)), 0)
+#endif
 #endif /* signal.h  */
 
 __END_DECLS

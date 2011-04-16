@@ -8,8 +8,8 @@
  */
 
 #include <sys/syscall.h>
-#include <unistd.h>
 #include <sys/resource.h>
+#include <bits/wordsize.h>
 
 /* Only wrap getrlimit if the new ugetrlimit is not present and getrlimit sucks */
 
@@ -22,14 +22,14 @@ _syscall2(int, __syscall_ugetrlimit, enum __rlimit_resource, resource,
           struct rlimit *, rlim)
 int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {
-	return (__syscall_ugetrlimit(resource, rlimits));
+	return __syscall_ugetrlimit(resource, rlimits);
 }
 
 #elif !defined(__UCLIBC_HANDLE_OLDER_RLIMIT__)
 
 /* We don't need to wrap getrlimit() */
 _syscall2(int, getrlimit, __rlimit_resource_t, resource,
-		struct rlimit *, rlim)
+	  struct rlimit *, rlim)
 
 #else
 
@@ -56,7 +56,6 @@ int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 	return result;
 }
 #endif
-
 libc_hidden_def(getrlimit)
 
 #if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64

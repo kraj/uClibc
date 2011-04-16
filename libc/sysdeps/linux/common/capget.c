@@ -8,7 +8,8 @@
  */
 
 #include <sys/syscall.h>
-int capget(void *header, void *data);
+
 #ifdef __NR_capget
+int capget(void *header, void *data);
 _syscall2(int, capget, void *, header, void *, data)
 #endif

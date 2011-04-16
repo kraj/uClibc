@@ -53,5 +53,5 @@ OFFSET_TYPE FTELL(register FILE *stream)
 libc_hidden_def(ftello64)
 #else
 libc_hidden_def(ftell)
-strong_alias(ftell,ftello)
+strong_alias_untyped(ftell,ftello)
 #endif

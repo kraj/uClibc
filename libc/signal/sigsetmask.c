@@ -17,7 +17,6 @@
    02111-1307 USA.  */
 
 #define __UCLIBC_HIDE_DEPRECATED__
-#include <errno.h>
 #include <signal.h>
 
 #include "sigset-cvt-mask.h"

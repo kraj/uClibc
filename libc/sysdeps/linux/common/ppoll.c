@@ -17,13 +17,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <signal.h>
 #include <sys/syscall.h>
-#include <sys/poll.h>
-#define __need_NULL
-#include <stddef.h>
 
-#if defined __NR_ppoll && defined __UCLIBC_LINUX_SPECIFIC__
+#if defined __NR_ppoll && defined __UCLIBC_LINUX_SPECIFIC__ && defined __USE_GNU
+# define __need_NULL
+# include <stddef.h>
+# include <signal.h>
+# include <sys/poll.h>
 # ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #  include <sysdep-cancel.h>
 # else
@@ -51,5 +51,4 @@ ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
 	return result;
 # endif
 }
-libc_hidden_def(ppoll)
 #endif

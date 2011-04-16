@@ -10,46 +10,36 @@
  * just the macro we need to order things, __LONG_LONG_PAIR.
  */
 
-#include <features.h>
-#include <unistd.h>
-#include <errno.h>
-#include <endian.h>
-#include <stdint.h>
-#include <sys/types.h>
+#include <_lfs_64.h>
 #include <sys/syscall.h>
+#include <unistd.h>
 
-#if defined __UCLIBC_HAS_LFS__
+#ifdef __NR_truncate64
+# include <bits/wordsize.h>
 
-#if defined __NR_truncate64
-
-#if __WORDSIZE == 64
-
-/* For a 64 bit machine, life is simple... */
+# if __WORDSIZE == 64
 _syscall2(int, truncate64, const char *, path, __off64_t, length)
-
-#elif __WORDSIZE == 32
-
-/* The exported truncate64 function.  */
+# elif __WORDSIZE == 32
+#  include <endian.h>
+#  include <stdint.h>
 int truncate64(const char * path, __off64_t length)
 {
 	uint32_t low = length & 0xffffffff;
 	uint32_t high = length >> 32;
-#if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
+#  if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
 	return INLINE_SYSCALL(truncate64, 4, path, 0,
 			__LONG_LONG_PAIR(high, low));
-#else
+#  else
 	return INLINE_SYSCALL(truncate64, 3, path,
 			__LONG_LONG_PAIR(high, low));
-#endif
+#  endif
 }
+# else
+#  error Your machine is not 64 bit nor 32 bit, I am dazed and confused.
+# endif
 
-#else /* __WORDSIZE */
-#error Your machine is not 64 bit nor 32 bit, I am dazed and confused.
-#endif /* __WORDSIZE */
-
-#else  /* __NR_truncate64 */
-
-
+#else
+# include <errno.h>
 int truncate64(const char * path, __off64_t length)
 {
 	__off_t x = (__off_t) length;
@@ -62,7 +52,4 @@ int truncate64(const char * path, __off64_t length)
 
 	return -1;
 }
-
-#endif /* __NR_truncate64 */
-
-#endif /* __UCLIBC_HAS_LFS__ */
+#endif

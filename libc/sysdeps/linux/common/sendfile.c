@@ -8,16 +8,13 @@
  */
 
 #include <sys/syscall.h>
-#include <unistd.h>
-#include <sys/sendfile.h>
 
 #ifdef __NR_sendfile
-
+# include <sys/sendfile.h>
+# include <bits/wordsize.h>
 _syscall4(ssize_t, sendfile, int, out_fd, int, in_fd, __off_t *, offset,
-		  size_t, count)
-
-#if ! defined __NR_sendfile64 && defined __UCLIBC_HAS_LFS__
-strong_alias(sendfile,sendfile64)
+	  size_t, count)
+# if defined __UCLIBC_HAS_LFS__ && (!defined __NR_sendfile64 || __WORDSIZE == 64)
+strong_alias_untyped(sendfile,sendfile64)
+# endif
 #endif
-
-#endif /* __NR_sendfile */

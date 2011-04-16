@@ -4,7 +4,11 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <features.h>
+#include <_lfs_64.h>
+#include <sys/syscall.h>
+
+#ifdef __NR_getdents64
+
 #include <assert.h>
 #include <errno.h>
 #include <dirent.h>
@@ -12,18 +16,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include <dirent.h>
 #include <sys/param.h>
-#include <sys/types.h>
-#include <sys/syscall.h>
-#include <bits/kernel_types.h>
+#include <bits/wordsize.h>
 #include <bits/uClibc_alloc.h>
-
-#if defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64
-
-# ifndef offsetof
-#  define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-# endif
 
 struct kernel_dirent64
 {

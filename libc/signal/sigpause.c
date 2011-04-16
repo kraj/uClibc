@@ -22,7 +22,8 @@
 #include <errno.h>
 #define __FAVOR_BSD
 #include <signal.h>
-#include <stddef.h>		/* For NULL.  */
+#define __need_NULL
+#include <stddef.h>
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sysdep-cancel.h>
 #endif
@@ -31,7 +32,7 @@
 
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
-int __sigpause (int sig_or_mask, int is_sig)
+static int __internal_sigpause (int sig_or_mask, int is_sig)
 {
   sigset_t set;
 
@@ -51,7 +52,7 @@ int __sigpause (int sig_or_mask, int is_sig)
      to do anything here.  */
   return sigsuspend (&set);
 }
-libc_hidden_def(__sigpause)
+strong_alias(__internal_sigpause,__sigpause)
 
 #undef sigpause
 
@@ -62,16 +63,16 @@ int sigpause (int mask)
 {
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
   if (SINGLE_THREAD_P)
-    return __sigpause (mask, 0);
+    return __internal_sigpause (mask, 0);
 
   int oldtype = LIBC_CANCEL_ASYNC ();
 
-  int result = __sigpause (mask, 0);
+  int result = __internal_sigpause (mask, 0);
 
   LIBC_CANCEL_RESET (oldtype);
 
   return result;
 #else
-  return __sigpause (mask, 0);
+  return __internal_sigpause (mask, 0);
 #endif
 }

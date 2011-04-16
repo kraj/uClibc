@@ -150,10 +150,6 @@ __x86.get_pc_thunk.reg:						      \
 #undef __i686
 #endif	/* __ASSEMBLER__ */
 
-#ifndef offsetof
-# define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#endif
-
 /* For Linux we can use the system call table in the header file
 	/usr/include/asm/unistd.h
    of the kernel.  But these symbols do not follow the SYS_* syntax
@@ -444,6 +440,7 @@ __x86.get_pc_thunk.reg:						      \
 #  define PTR_DEMANGLE(reg)	rorl $9, reg;				      \
 				xorl %gs:POINTER_GUARD, reg
 # else
+#  include <stddef.h>
 #  define PTR_MANGLE(var)	__asm__ ("xorl %%gs:%c2, %0\n"		      \
 				     "roll $9, %0"			      \
 				     : "=r" (var)			      \

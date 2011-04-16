@@ -135,7 +135,6 @@ extern int __REDIRECT (openat, (int __fd, __const char *__file, int __oflag,
 
 extern int openat64 (int __fd, __const char *__file, int __oflag, ...)
      __nonnull ((2));
-libc_hidden_proto(openat64)
 #endif
 
 /* Create and open FILE, with mode MODE.  This takes an `int' MODE

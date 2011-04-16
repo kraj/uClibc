@@ -4,15 +4,13 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <features.h>
+#include <_lfs_64.h>
 #include <fcntl.h>
 #include <stdarg.h>
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <errno.h>
 #include <sysdep-cancel.h>
 #endif
-
-#ifdef __UCLIBC_HAS_LFS__
 
 #ifndef O_LARGEFILE
 # define O_LARGEFILE	0100000
@@ -53,5 +51,3 @@ libc_hidden_def(open64)
 libc_hidden_weak(open64)
 strong_alias(open64,__libc_open64)
 #endif
-
-#endif /* __UCLIBC_HAS_LFS__ */

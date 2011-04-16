@@ -68,7 +68,6 @@ libc_hidden_proto(poll)
 extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 		  __const struct timespec *__timeout,
 		  __const __sigset_t *__ss);
-libc_hidden_proto(ppoll)
 #endif
 
 __END_DECLS

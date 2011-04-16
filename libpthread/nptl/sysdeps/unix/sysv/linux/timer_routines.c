@@ -49,7 +49,7 @@ timer_sigev_thread (void *arg)
      surprising for user code, although valid.  We unblock all
      signals.  */
   sigset_t ss;
-  sigemptyset (&ss);
+  __sigemptyset (&ss);
   INTERNAL_SYSCALL_DECL (err);
   INTERNAL_SYSCALL (rt_sigprocmask, err, 4, SIG_SETMASK, &ss, NULL, _NSIG / 8);
 
@@ -75,7 +75,7 @@ timer_helper_thread (void *arg)
   /* Wait for the SIGTIMER signal, allowing the setXid signal, and
      none else.  */
   sigset_t ss;
-  sigemptyset (&ss);
+  __sigemptyset (&ss);
   __sigaddset (&ss, SIGTIMER);
 
   /* Endless loop of waiting for signals.  The loop is only ended when

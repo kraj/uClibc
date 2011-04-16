@@ -77,5 +77,5 @@ int FSEEK(register FILE *stream, OFFSET_TYPE offset, int whence)
 libc_hidden_def(fseeko64)
 #else
 libc_hidden_def(fseek)
-strong_alias(fseek,fseeko)
+strong_alias_untyped(fseek,fseeko)
 #endif

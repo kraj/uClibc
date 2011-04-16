@@ -9,7 +9,7 @@
 
 #include <sys/syscall.h>
 
-int capset(void *header, const void *data);
 #ifdef __NR_capset
+int capset(void *header, const void *data);
 _syscall2(int, capset, void *, header, const void *, data)
 #endif

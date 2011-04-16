@@ -16,7 +16,7 @@
 # define __NR_fadvise64_64 __NR_arm_fadvise64_64
 #endif
 
-#if defined __NR_fadvise64_64 && defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 32
+#if defined __NR_fadvise64_64 && __WORDSIZE == 32
 # include <fcntl.h>
 # include <endian.h>
 
