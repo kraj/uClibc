@@ -8,12 +8,9 @@
  */
 
 #include <sys/syscall.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <grp.h>
 
 #ifdef __USE_BSD
-
+#include <grp.h>
 
 #if defined(__NR_setgroups32)
 # undef __NR_setgroups
@@ -24,11 +21,14 @@ _syscall2(int, setgroups, size_t, size, const gid_t *, list)
 _syscall2(int, setgroups, size_t, size, const gid_t *, list)
 
 #else
+# include <errno.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <sys/types.h>
 
-
-#define __NR___syscall_setgroups __NR_setgroups
-static __inline__ _syscall2(int, __syscall_setgroups,
-		size_t, size, const __kernel_gid_t *, list)
+# define __NR___syscall_setgroups __NR_setgroups
+static __always_inline _syscall2(int, __syscall_setgroups,
+				 size_t, size, const __kernel_gid_t *, list)
 
 int setgroups(size_t size, const gid_t *groups)
 {
