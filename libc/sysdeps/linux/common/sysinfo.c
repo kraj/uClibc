@@ -8,5 +8,8 @@
  */
 
 #include <sys/syscall.h>
-#include <sys/sysinfo.h>
+
+#ifdef __NR_sysinfo
+# include <sys/sysinfo.h>
 _syscall1(int, sysinfo, struct sysinfo *, info)
+#endif
