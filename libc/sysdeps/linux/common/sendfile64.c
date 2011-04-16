@@ -12,8 +12,9 @@
 
 #include <_lfs_64.h>
 #include <sys/syscall.h>
+#include <bits/wordsize.h>
 
-#ifdef __NR_sendfile64
+#if defined __NR_sendfile64 && __WORDSIZE != 64
 # include <sys/sendfile.h>
 _syscall4(ssize_t,sendfile64, int, out_fd, int, in_fd, __off64_t *, offset, size_t, count)
 #endif
