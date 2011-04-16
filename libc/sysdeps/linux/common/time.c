@@ -9,12 +9,11 @@
 
 #include <sys/syscall.h>
 #include <time.h>
-#include <sys/time.h>
-
 
 #ifdef __NR_time
 _syscall_noerr1(time_t, time, time_t *, t)
 #else
+# include <sys/time.h>
 time_t time(time_t * t)
 {
 	time_t result;
@@ -25,9 +24,8 @@ time_t time(time_t * t)
 	 */
 	gettimeofday(&tv, NULL);
 	result = (time_t) tv.tv_sec;
-	if (t != NULL) {
+	if (t != NULL)
 		*t = result;
-	}
 	return result;
 }
 #endif
