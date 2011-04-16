@@ -10,10 +10,4 @@
 #include <sys/syscall.h>
 #include <sys/stat.h>
 
-#define __NR___syscall_umask __NR_umask
-static __inline__ _syscall1(__kernel_mode_t, __syscall_umask, __kernel_mode_t, mode)
-
-mode_t umask(mode_t mode)
-{
-	return __syscall_umask(mode);
-}
+_syscall_noerr1(mode_t, umask, mode_t, mode)
