@@ -247,6 +247,10 @@ make_stub(swapon)
 make_stub(symlink)
 #endif
 
+#ifndef __NR_sysinfo
+make_stub(sysinfo)
+#endif
+
 #ifndef __NR_fadvise64
 make_ret_stub(posix_fadvise)
 #endif
