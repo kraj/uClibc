@@ -22,7 +22,7 @@ _syscall1(int, setuid, uid_t, uid)
 #else
 
 # define __NR___syscall_setuid __NR_setuid
-static __inline__ _syscall1(int, __syscall_setuid, __kernel_uid_t, uid)
+static __always_inline _syscall1(int, __syscall_setuid, __kernel_uid_t, uid)
 
 int setuid(uid_t uid)
 {
@@ -30,6 +30,6 @@ int setuid(uid_t uid)
 		__set_errno(EINVAL);
 		return -1;
 	}
-	return (__syscall_setuid(uid));
+	return __syscall_setuid(uid);
 }
 #endif
