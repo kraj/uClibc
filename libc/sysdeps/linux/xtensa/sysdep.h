@@ -38,6 +38,16 @@
   entry sp, FRAMESIZE;							\
   CALL_MCOUNT
 
+#define	HIDDEN_ENTRY(name)						\
+  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(name);				\
+  .hidden C_SYMBOL_NAME(name);						\
+  ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name), @function);			\
+  .align ALIGNARG(2);							\
+  LITERAL_POSITION;							\
+  C_LABEL(name)								\
+  entry sp, FRAMESIZE;							\
+  CALL_MCOUNT
+
 #undef END
 #define END(name) ASM_SIZE_DIRECTIVE(name)
 

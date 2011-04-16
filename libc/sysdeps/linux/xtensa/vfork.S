@@ -49,7 +49,7 @@
 /* pid_t vfork(void);
    Implemented as __clone_syscall(CLONE_VFORK | CLONE_VM | SIGCHLD, 0) */
 
-ENTRY (__vfork)
+HIDDEN_ENTRY (__vfork)
 
 	movi	a6, .Ljumptable
 	extui	a2, a0, 30, 2		/* call-size: call4/8/12 = 1/2/3 */
@@ -165,6 +165,5 @@ ENTRY (__vfork)
 .Lpseudo_end:
 	retw
 
-libc_hidden_def (__vfork)
-
 weak_alias (__vfork, vfork)
+libc_hidden_def(vfork)

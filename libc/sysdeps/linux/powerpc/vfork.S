@@ -27,4 +27,4 @@ __vfork:
 .size __vfork,.-__vfork
 
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)

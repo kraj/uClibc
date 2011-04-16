@@ -4,9 +4,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <features.h>
-
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 
 #ifndef __NR_vfork
 #define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */
@@ -16,7 +14,6 @@
 
 	.text
 	.align 2
-	.globl errno
 	.globl	__vfork
 	.hidden	__vfork
 	.type	__vfork,@function
@@ -42,4 +39,4 @@ fix_errno:
 
 .size __vfork,.-__vfork
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)

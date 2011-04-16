@@ -18,6 +18,7 @@
 
 /* vfork() is just a special case of clone().  */
 
+#include <sys/syscall.h>
 #include <sys/asm.h>
 #include <sysdep.h>
 
@@ -34,6 +35,7 @@
 /* int vfork() */
 
 	.text
+	.hidden __vfork
 LOCALSZ= 1
 FRAMESZ= (((NARGSAVE+LOCALSZ)*SZREG)+ALSZ)&ALMASK
 GPOFF= FRAMESZ-(1*SZREG)
@@ -95,6 +97,6 @@ L(error):
 	END(__vfork)
 
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)
 
 #endif

@@ -16,7 +16,7 @@
  * enclosing function
  */
 
-ENTRY(__vfork)
+HIDDEN_ENTRY(__vfork)
 	movu.w	__NR_vfork,$r9
 	break	13
 	cmps.w	-4096,$r10
@@ -27,4 +27,4 @@ ENTRY(__vfork)
 PSEUDO_END(__vfork)
 
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)

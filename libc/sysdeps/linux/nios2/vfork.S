@@ -10,11 +10,7 @@
  * Written by Wentao Xu <wentao@microtronix.com>
  */
 
-#include <features.h>
-
-#define _ERRNO_H
-#include <bits/errno.h>
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 
 #ifndef __NR_vfork
 #define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */
@@ -53,4 +49,4 @@ fix_errno:
 
 .size __vfork,.-__vfork
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)

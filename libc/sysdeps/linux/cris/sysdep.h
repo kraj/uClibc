@@ -127,6 +127,14 @@
   .align ALIGNARG (2) 					@ \
   C_LABEL(name)
 
+#define HIDDEN_ENTRY(name) \
+  .text							@ \
+  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME (name) 		@ \
+  .hidden C_SYMBOL_NAME (name)				@ \
+  ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME (name), function)	@ \
+  .align ALIGNARG (2) 					@ \
+  C_LABEL(name)
+
 #undef END
 #define END(name) \
   ASM_SIZE_DIRECTIVE (C_SYMBOL_NAME (name))

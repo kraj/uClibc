@@ -11,12 +11,7 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
-#include <features.h>
-#define _ERRNO_H	1
-#include <bits/errno.h>
-#define _SYSCALL_H
-#include <bits/sysnum.h>
-
+#include <sys/syscall.h>
 #include <clinkage.h>
 
 /* Clone the calling process, but without copying the whole address space.
@@ -24,8 +19,7 @@
    replaced by a call to `execve'.  Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
 
-.global C_SYMBOL_NAME(errno)
-
+/* this should be made hidden */
 C_ENTRY (__vfork):
 	addi	SYS_vfork, r0, r12
 	trap	0
@@ -39,4 +33,4 @@ C_ENTRY (__vfork):
 	jmp	[lp]			/* error return */
 C_END(__vfork)
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)

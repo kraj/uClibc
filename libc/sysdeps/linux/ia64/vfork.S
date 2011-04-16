@@ -29,7 +29,7 @@
 /* pid_t vfork(void); */
 /* Implemented as __clone_syscall(CLONE_VFORK | CLONE_VM | SIGCHLD, 0)	*/
 
-ENTRY(__vfork)
+HIDDEN_ENTRY(__vfork)
 	alloc r2=ar.pfs,0,0,2,0
 	mov out0=CLONE_VM+CLONE_VFORK+SIGCHLD
 	mov out1=0		/* Standard sp value.			*/
@@ -41,4 +41,4 @@ ENTRY(__vfork)
 PSEUDO_END(__vfork)
 
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)

@@ -20,11 +20,9 @@
  respective copyright holders.
 */
 
-#include <features.h>
 #include <sys/syscall.h>
 #define _ERRNO_H
 #include <bits/errno.h>
-#include <bits/sysnum.h>
 
 /* Clone the calling process, but without copying the whole address space.
    The calling process is suspended until the new process exits or is
@@ -109,6 +107,6 @@ __vfork:
 
 .size   __vfork, .-__vfork
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)
 
 #include "syscall_error.S"
