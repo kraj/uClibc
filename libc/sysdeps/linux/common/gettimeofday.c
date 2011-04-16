@@ -10,9 +10,5 @@
 #include <sys/syscall.h>
 #include <sys/time.h>
 
-#ifdef __USE_BSD
-_syscall2(int, gettimeofday, struct timeval *, tv, struct timezone *, tz)
-#else
-_syscall2(int, gettimeofday, struct timeval *, tv, void *, tz)
-#endif
+_syscall2(int, gettimeofday, struct timeval *, tv, __timezone_ptr_t, tz)
 libc_hidden_def(gettimeofday)
