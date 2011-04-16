@@ -8,10 +8,8 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-libc_hidden_proto(brk)
-
 #define __NR___syscall_brk __NR_brk
-static inline _syscall1(void *, __syscall_brk, void *, end)
+static __always_inline _syscall1(void *, __syscall_brk, void *, end)
 
 /* This must be initialized data because commons can't have aliases.  */
 void * __curbrk attribute_hidden = 0;
