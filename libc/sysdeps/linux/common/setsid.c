@@ -10,6 +10,5 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-
 _syscall0(pid_t, setsid)
 libc_hidden_def(setsid)
