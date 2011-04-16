@@ -32,8 +32,8 @@
 
 /*
  * The main trick with this program is that initially, we ourselves are not
- * dynamicly linked.  This means that we cannot access any global variables or
- * call any functions.  No globals initially, since the Global Offset Table
+ * dynamically linked.  This means that we cannot access any global variables
+ * or call any functions.  No globals initially, since the Global Offset Table
  * (GOT) is initialized by the linker assuming a virtual address of 0, and no
  * function calls initially since the Procedure Linkage Table (PLT) is not yet
  * initialized.
@@ -55,12 +55,12 @@
  *
  * Fortunately, the linker itself leaves a few clues lying around, and when the
  * kernel starts the image, there are a few further clues.  First of all, there
- * is Auxiliary Vector Table information sitting on which is provided to us by
- * the kernel, and which includes information about the load address that the
- * program interpreter was loaded at, the number of sections, the address the
- * application was loaded at and so forth.  Here this information is stored in
- * the array auxvt.  For details see linux/fs/binfmt_elf.c where it calls
- * NEW_AUX_ENT() a bunch of time....
+ * is Auxiliary Vector Table information sitting on the stack which is provided
+ * to us by the kernel, and which includes information about the address
+ * that the program interpreter was loaded at, the number of sections, the
+ * address the application was loaded at, and so forth.  Here this information
+ * is stored in the array auxvt.  For details see linux/fs/binfmt_elf.c where
+ * it calls NEW_AUX_ENT() a bunch of times....
  *
  * Next, we need to find the GOT.  On most arches there is a register pointing
  * to the GOT, but just in case (and for new ports) I've added some (slow) C
