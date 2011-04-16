@@ -318,6 +318,7 @@ extern long int timezone;
 /* Set the system time to *WHEN.
    This call is restricted to the superuser.  */
 extern int stime (__const time_t *__when) __THROW;
+libc_hidden_proto(stime)
 # endif
 
 

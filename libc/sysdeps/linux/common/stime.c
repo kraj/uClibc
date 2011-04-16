@@ -8,15 +8,17 @@
  */
 
 #include <sys/syscall.h>
-#include <time.h>
-#include <sys/time.h>
 
 #ifdef __USE_SVID
-#ifdef __NR_stime
+# include <time.h>
+# ifdef __NR_stime
 _syscall1(int, stime, const time_t *, t)
-#else
-
-int stime(const time_t * when)
+# elif defined __USE_BSD && defined __NR_settimeofday
+#  define __need_NULL
+#  include <stddef.h>
+#  include <errno.h>
+#  include <sys/time.h>
+int stime(const time_t *when)
 {
 	struct timeval tv;
 
@@ -28,5 +30,8 @@ int stime(const time_t * when)
 	tv.tv_usec = 0;
 	return settimeofday(&tv, (struct timezone *) 0);
 }
-#endif
+# endif
+# if defined __NR_stime || (defined __USE_BSD && defined __NR_settimeofday)
+libc_hidden_def(stime)
+# endif
 #endif
