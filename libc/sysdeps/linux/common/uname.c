@@ -10,6 +10,5 @@
 #include <sys/syscall.h>
 #include <sys/utsname.h>
 
-
 _syscall1(int, uname, struct utsname *, buf)
 libc_hidden_def(uname)
