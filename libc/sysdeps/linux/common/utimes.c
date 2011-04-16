@@ -12,7 +12,7 @@
 
 #ifdef __NR_utimes
 _syscall2(int, utimes, const char *, file, const struct timeval *, tvp)
-#else
+#elif defined __NR_utime
 # define __need_NULL
 # include <stddef.h>
 # include <utime.h>
@@ -31,4 +31,6 @@ int utimes(const char *file, const struct timeval tvp[2])
 	return utime(file, times);
 }
 #endif
+#if defined __NR_utimes || defined __NR_utime
 libc_hidden_def(utimes)
+#endif
