@@ -235,6 +235,18 @@ make_stub(stime)
 make_stub(settimeofday)
 #endif
 
+#ifndef __NR_swapoff
+make_stub(swapoff)
+#endif
+
+#ifndef __NR_swapon
+make_stub(swapon)
+#endif
+
+#ifndef __NR_symlink
+make_stub(symlink)
+#endif
+
 #ifndef __NR_fadvise64
 make_ret_stub(posix_fadvise)
 #endif
