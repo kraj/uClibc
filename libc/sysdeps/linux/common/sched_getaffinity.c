@@ -16,20 +16,16 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-#ifdef __USE_GNU
-
-#include <sched.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
 
-#include <string.h>
-#include <sys/param.h>
-
-#if defined __NR_sched_getaffinity
-#define __NR___syscall_sched_getaffinity __NR_sched_getaffinity
-static __inline__ _syscall3(int, __syscall_sched_getaffinity, __kernel_pid_t, pid,
-			size_t, cpusetsize, cpu_set_t *, cpuset)
+#if defined __NR_sched_getaffinity && defined __USE_GNU
+# include <sched.h>
+# include <string.h>
+# include <sys/types.h>
+# include <sys/param.h>
+# define __NR___syscall_sched_getaffinity __NR_sched_getaffinity
+static __always_inline _syscall3(int, __syscall_sched_getaffinity, __kernel_pid_t, pid,
+				 size_t, cpusetsize, cpu_set_t *, cpuset)
 
 int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)
 {
@@ -44,5 +40,4 @@ int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)
 	}
 	return res;
 }
-#endif
 #endif
