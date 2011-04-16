@@ -17,7 +17,7 @@
 #endif
 
 #define __NR___syscall_fsync __NR_fsync
-static inline _syscall1(int, __syscall_fsync, int, fd)
+static _syscall1(int, __syscall_fsync, int, fd)
 
 extern __typeof(fsync) __libc_fsync;
 

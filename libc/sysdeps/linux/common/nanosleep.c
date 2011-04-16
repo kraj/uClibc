@@ -18,8 +18,8 @@
 #endif
 
 #define __NR___syscall_nanosleep __NR_nanosleep
-static inline _syscall2(int, __syscall_nanosleep, const struct timespec *, req,
-						struct timespec *, rem);
+static _syscall2(int, __syscall_nanosleep, const struct timespec *, req,
+		 struct timespec *, rem);
 
 extern __typeof(nanosleep) __libc_nanosleep;
 
