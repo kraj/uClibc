@@ -10,6 +10,5 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-
 _syscall1(int, unlink, const char *, pathname)
 libc_hidden_def(unlink)
