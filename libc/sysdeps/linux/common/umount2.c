@@ -9,9 +9,8 @@
 
 #include <sys/syscall.h>
 
-#if defined __USE_GNU
-#include <sys/mount.h>
-#ifdef __NR_umount2	/* Old kernels don't have umount2 */
+#if defined __UCLIBC_LINUX_SPECIFIC__ && defined __NR_umount2
+# include <sys/mount.h>
 _syscall2(int, umount2, const char *, special_file, int, flags)
-#endif
+libc_hidden_def(umount2)
 #endif

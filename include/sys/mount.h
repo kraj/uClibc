@@ -115,8 +115,11 @@ extern int mount (__const char *__special_file, __const char *__dir,
 /* Unmount a filesystem.  */
 extern int umount (__const char *__special_file) __THROW;
 
+#ifdef __UCLIBC_LINUX_SPECIFIC__
 /* Unmount a filesystem.  Force unmounting if FLAGS is set to MNT_FORCE.  */
 extern int umount2 (__const char *__special_file, int __flags) __THROW;
+libc_hidden_proto(umount2)
+#endif
 
 __END_DECLS
 
