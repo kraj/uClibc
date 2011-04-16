@@ -8,12 +8,8 @@
  */
 
 #include <sys/syscall.h>
-# if defined __USE_BSD || defined __USE_UNIX98
-#include <sys/types.h>
-#include <unistd.h>
 
-void sync(void)
-{
-	INLINE_SYSCALL(sync, 0);
-}
+#if defined __USE_BSD || defined __USE_UNIX98
+# include <unistd.h>
+_syscall0(void, sync)
 #endif
