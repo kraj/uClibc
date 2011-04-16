@@ -17,7 +17,7 @@ CRT_OBJ := crt0.o
 CTOR_TARGETS := $(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 # why is crt1.c listed in CSRC ?
-CSRC := crt1.c syscalls.c longjmp.c setjmp.c vfork.c
+CSRC := crt1.c syscalls.c longjmp.c setjmp.c
 OBJS := $(patsubst %.c,%.o, $(CSRC))
 
 OBJ_LIST := ../../../obj.sysdeps.$(TARGET_ARCH)

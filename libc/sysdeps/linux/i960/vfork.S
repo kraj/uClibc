@@ -18,6 +18,7 @@
      
         .globl	___vfork
         .hidden	___vfork
+	.type	___vfork,@function
 ___vfork:
         mov         g13, r3
         ldconst     __NR_vfork, g13
@@ -30,4 +31,4 @@ ___vfork:
         ret
 
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)

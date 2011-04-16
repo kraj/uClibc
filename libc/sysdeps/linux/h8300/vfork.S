@@ -1,5 +1,5 @@
 
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 
 #ifndef __NR_vfork
 #define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */
@@ -12,7 +12,6 @@
 #endif
 	.text
 	.align 2
-	.globl	_errno
 	.globl	___vfork
 	.hidden	___vfork
 	.type	___vfork,@function
@@ -38,4 +37,4 @@ fix_errno:
 	jmp	@er1                     /* don't return,  just jmp directly */
 
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)

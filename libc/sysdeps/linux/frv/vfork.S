@@ -17,11 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-
-#include <asm/unistd.h>
-#define _ERRNO_H       1
-#include <bits/errno.h>
+#include <sys/syscall.h>
 
        .text
        .globl	__vfork
@@ -44,4 +40,4 @@ __vfork:
        .size   __vfork,.-__vfork
 
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)

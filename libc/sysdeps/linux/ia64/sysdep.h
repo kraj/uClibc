@@ -49,6 +49,15 @@
 	C_LABEL(name)				\
 	CALL_MCOUNT
 
+#define HIDDEN_ENTRY(name)			\
+	.text;					\
+	.align 32;				\
+	.proc C_SYMBOL_NAME(name);		\
+	.global C_SYMBOL_NAME(name);		\
+	.hidden C_SYMBOL_NAME(name);		\
+	C_LABEL(name)				\
+	CALL_MCOUNT
+
 #define LEAF(name)				\
   .text;					\
   .align 32;					\

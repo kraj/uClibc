@@ -10,9 +10,6 @@
  * Written by Wentao Xu <wentao@microtronix.com>
  */
 
-#include <features.h>
-
-#include <bits/errno.h>
 #include <sys/syscall.h>
 #include "NM_Macros.S"
 
@@ -51,4 +48,4 @@ fix_errno:
 
 .size __vfork,.-__vfork
 weak_alias(__vfork,vfork)
-libc_hidden_weak(vfork)
+libc_hidden_def(vfork)
