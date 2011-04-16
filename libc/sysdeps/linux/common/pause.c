@@ -7,8 +7,8 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define __UCLIBC_HIDE_DEPRECATED__
-#include <sys/syscall.h>
+#define __need_NULL
+#include <stddef.h>
 #include <unistd.h>
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
