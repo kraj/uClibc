@@ -12,7 +12,7 @@
 
 #ifdef __NR_utime
 _syscall2(int, utime, const char *, file, const struct utimbuf *, times)
-#else
+#elif defined __NR_utimes /* alpha || ia64 */
 # define __need_NULL
 # include <stddef.h>
 # include <sys/time.h>
@@ -24,11 +24,13 @@ int utime(const char *file, const struct utimbuf *times)
 	if (times != NULL) {
 		timevals[0].tv_usec = 0L;
 		timevals[1].tv_usec = 0L;
-		timevals[0].tv_sec = (long int) times->actime;
-		timevals[1].tv_sec = (long int) times->modtime;
+		timevals[0].tv_sec = (time_t) times->actime;
+		timevals[1].tv_sec = (time_t) times->modtime;
 	}
 	return utimes(file, times ? timevals : NULL);
 }
 #endif
+#if defined __NR_utime || defined __NR_utimes
 link_warning(utime, "the use of OBSOLESCENT `utime' is discouraged, use `utimes'")
 libc_hidden_def(utime)
+#endif

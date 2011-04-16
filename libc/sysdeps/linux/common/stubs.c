@@ -251,6 +251,11 @@ make_stub(symlink)
 make_stub(sysinfo)
 #endif
 
+#if !defined __NR_utime && !defined __NR_utimes
+/*make_stub(utime) obsoleted */
+make_stub(utimes)
+#endif
+
 #ifndef __NR_fadvise64
 make_ret_stub(posix_fadvise)
 #endif
