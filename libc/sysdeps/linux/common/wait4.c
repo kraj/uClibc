@@ -8,18 +8,16 @@
  */
 
 #include <sys/syscall.h>
-#if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 #include <sys/wait.h>
-#include <sys/resource.h>
 
+# define __NR___syscall_wait4 __NR_wait4
+static __always_inline _syscall4(int, __syscall_wait4, __kernel_pid_t, pid,
+				 int *, status, int, opts, struct rusage *, rusage)
 
-#define __NR___syscall_wait4 __NR_wait4
-static __inline__ _syscall4(int, __syscall_wait4, __kernel_pid_t, pid,
-		int *, status, int, opts, struct rusage *, rusage)
-
-pid_t wait4(pid_t pid, int *status, int opts, struct rusage *rusage)
+pid_t __wait4_nocancel(pid_t pid, int *status, int opts, struct rusage *rusage)
 {
-	return (__syscall_wait4(pid, status, opts, rusage));
+	return __syscall_wait4(pid, status, opts, rusage);
 }
-libc_hidden_def(wait4)
+#ifdef __USE_BSD
+strong_alias(__wait4_nocancel,wait4)
 #endif
