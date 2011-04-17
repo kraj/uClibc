@@ -64,7 +64,7 @@ int __libc_system(const char *command)
 	__printf("Waiting for child %d\n", pid);
 #endif
 
-	if (wait4(pid, &wait_val, 0, 0) == -1)
+	if (__wait4_nocancel(pid, &wait_val, 0, 0) == -1)
 		wait_val = -1;
 
 	signal(SIGQUIT, save_quit);

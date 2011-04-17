@@ -171,8 +171,11 @@ extern __pid_t wait3 (__WAIT_STATUS __stat_loc, int __options,
 /* PID is like waitpid.  Other args are like wait3.  */
 extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 		      struct rusage *__usage) __THROW;
-libc_hidden_proto(wait4)
 #endif /* Use BSD.  */
+
+#ifdef _LIBC
+extern __pid_t __wait4_nocancel(__pid_t, __WAIT_STATUS, int, struct rusage *) attribute_hidden;
+#endif
 
 
 __END_DECLS
