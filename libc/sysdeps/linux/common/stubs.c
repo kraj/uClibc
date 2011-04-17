@@ -90,7 +90,7 @@ make_stub(epoll_wait)
 make_stub(epoll_pwait)
 #endif
 
-#ifndef __NR_fdatasync
+#if !defined __NR_fdatasync && !defined __NR_osf_fdatasync
 make_stub(fdatasync)
 #endif
 
