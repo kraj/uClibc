@@ -148,11 +148,7 @@ static pid_t __fork(void)
   return pid;
 }
 strong_alias(__fork,fork)
-
-pid_t vfork(void)
-{
-  return __fork();
-}
+strong_alias(__fork,vfork)
 
 #else
 
