@@ -8,15 +8,17 @@
  */
 
 #include <sys/syscall.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include <fcntl.h>
-#include <string.h>
-#include <sys/param.h>
+#include <stdarg.h>
+#include <cancel.h>
 
 #define __NR___syscall_open __NR_open
-static __inline__ _syscall3(int, __syscall_open, const char *, file,
-		int, flags, __kernel_mode_t, mode)
+static __always_inline _syscall3(int, __syscall_open, const char *, file,
+				 int, flags, __kernel_mode_t, mode)
+strong_alias_untyped(__syscall_open,__NC(open))
+
+#define __NR___open2_nocancel __NR_open
+_syscall2(int, __NC(open2), const char *, file, int, flags)
 
 int open(const char *file, int oflag, ...)
 {
@@ -29,11 +31,14 @@ int open(const char *file, int oflag, ...)
 		va_end(arg);
 	}
 
-	return __syscall_open(file, oflag, mode);
-}
-#ifndef __LINUXTHREADS_OLD__
-libc_hidden_def(open)
-#else
-libc_hidden_weak(open)
-strong_alias(open,__libc_open)
+	if (SINGLE_THREAD_P)
+		return __NC(open)(file, oflag, mode);
+#ifdef __NEW_THREADS
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = __NC(open)(file, oflag, mode);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
 #endif
+}
+lt_strong_alias(open)
+lt_libc_hidden(open)
