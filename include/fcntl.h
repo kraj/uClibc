@@ -102,7 +102,11 @@ libc_hidden_proto(fcntl64)
    __THROW.  */
 #ifndef __USE_FILE_OFFSET64
 extern int open (__const char *__file, int __oflag, ...) __nonnull ((1));
+# ifdef _LIBC
+extern int __open2_nocancel(const char *, int) __nonnull ((1)) attribute_hidden;
+extern int __open_nocancel(const char *, int, mode_t) __nonnull ((1)) attribute_hidden;
 libc_hidden_proto(open)
+# endif
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (open, (__const char *__file, int __oflag, ...), open64)
