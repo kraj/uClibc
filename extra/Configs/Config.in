@@ -1905,6 +1905,18 @@ config UCLIBC_HAS_FTW
 	  This interface is rarely used, and adds around 4.5k.  Unless you have
 	  a pressing need for ftw(), you should probably answer N.
 
+config UCLIBC_HAS_FTS
+	bool "Support the fts() interface (bsd-compat)"
+	default n
+	help
+	  The fts functions are provided for traversing UNIX file hierarchies.
+
+	  This interface is currently used by the elfutils and adds
+	  around 7.5k.
+	  You should port your application to use the POSIX nftw()
+	  interface.
+
+	  Unless you need to build/use elfutils, you should prolly answer N.
 
 config UCLIBC_HAS_GLOB
 	bool "Support the glob() interface"
