@@ -19,9 +19,11 @@
 
 #include <unistd.h>
 
+#if 0
 static pid_t
 __fork (void)
 {
   return __libc_fork ();
 }
 strong_alias (__fork, fork)
+#endif
