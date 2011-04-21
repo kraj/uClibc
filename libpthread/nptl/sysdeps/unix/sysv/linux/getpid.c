@@ -21,6 +21,10 @@
 #include <tls.h>
 #include <sysdep.h>
 
+#ifdef __NR_getxpid
+# undef __NR_getpid
+# define __NR_getpid __NR_getxpid
+#endif
 
 #ifndef NOT_IN_libc
 static inline __attribute__((always_inline)) pid_t really_getpid (pid_t oldval);
@@ -46,8 +50,7 @@ really_getpid (pid_t oldval)
 }
 #endif
 
-extern __typeof(getpid) __getpid;
-pid_t
+static pid_t
 __getpid (void)
 {
 #ifdef NOT_IN_libc
@@ -60,6 +63,8 @@ __getpid (void)
 #endif
   return result;
 }
-libc_hidden_proto(getpid)
 weak_alias(__getpid, getpid)
 libc_hidden_weak(getpid)
+#if !defined NOT_IN_libc && !defined __NR_getppid
+strong_alias(getpid,getppid)
+#endif
