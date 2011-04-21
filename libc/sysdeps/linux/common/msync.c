@@ -8,38 +8,14 @@
  */
 
 #include <sys/syscall.h>
-#include <unistd.h>
-#include <sys/mman.h>
 
-#ifdef __NR_msync
+#if defined __NR_msync && defined __ARCH_USE_MMU__
+# include <sys/mman.h>
+# include <cancel.h>
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <sysdep-cancel.h>
-#else
-#define SINGLE_THREAD_P 1
-#endif
+# define __NR___msync_nocancel __NR_msync
+static _syscall3(int, __NC(msync), void *, addr, size_t, length, int, flags)
 
-#define __NR___syscall_msync __NR_msync
-static __always_inline _syscall3(int, __syscall_msync, void *, addr, size_t, length,
-						int, flags)
-
-extern __typeof(msync) __libc_msync;
-int __libc_msync(void * addr, size_t length, int flags)
-{
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype, result;
-#endif
-
-	if (SINGLE_THREAD_P)
-		return __syscall_msync(addr, length, flags);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	oldtype = LIBC_CANCEL_ASYNC ();
-	result = __syscall_msync(addr, length, flags);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
-}
-weak_alias(__libc_msync,msync)
-
+CANCELLABLE_SYSCALL(int, msync, (void *addr, size_t length, int flags),
+		    (addr, length, flags))
 #endif
