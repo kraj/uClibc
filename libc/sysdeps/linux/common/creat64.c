@@ -18,9 +18,12 @@
 
 #include <_lfs_64.h>
 #include <fcntl.h>
+#include <cancel.h>
 
 /* Create FILE with protections MODE.  */
 int creat64(const char *file, mode_t mode)
 {
-	return open64(file, O_WRONLY|O_CREAT|O_TRUNC, mode);
+	return open64(file, O_WRONLY | O_CREAT | O_TRUNC, mode);
 }
+/* open handled cancellation, noop on uClibc */
+LIBC_CANCEL_HANDLED();
