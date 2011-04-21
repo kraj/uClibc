@@ -110,7 +110,10 @@ extern int select (int __nfds, fd_set *__restrict __readfds,
 		   fd_set *__restrict __writefds,
 		   fd_set *__restrict __exceptfds,
 		   struct timeval *__restrict __timeout);
+#ifdef _LIBC
+extern __typeof(select) __select_nocancel attribute_hidden;
 libc_hidden_proto(select)
+#endif
 
 #ifdef __USE_XOPEN2K
 /* Same as above only that the TIMEOUT value is given with higher
