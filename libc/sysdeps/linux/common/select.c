@@ -9,27 +9,24 @@
 
 #include <sys/syscall.h>
 #include <sys/select.h>
-#include <stdint.h>
+#include <cancel.h>
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <sysdep-cancel.h>
-#else
-#define SINGLE_THREAD_P 1
+#ifdef __NR__newselect
+# undef __NR_select
+# define __NR_select __NR__newselect
 #endif
 
-#define USEC_PER_SEC 1000000L
+#if !defined __NR_select && defined __NR_pselect6
+# include <stdint.h>
+# define USEC_PER_SEC 1000000L
+#endif
 
-extern __typeof(select) __libc_select;
-
-#if !defined(__NR__newselect) && !defined(__NR_select) && defined __USE_XOPEN2K
-# define __NR___libc_pselect6 __NR_pselect6
-static _syscall6(int, __libc_pselect6, int, n, fd_set *, readfds, fd_set *, writefds,
-        fd_set *, exceptfds, const struct timespec *, timeout,
-        const sigset_t *, sigmask)
-
-int __libc_select(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
-                  struct timeval *timeout)
+int __NC(select)(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+		 struct timeval *timeout)
 {
+#ifdef __NR_select
+	return INLINE_SYSCALL(select, 5, n, readfds, writefds, exceptfds, timeout);
+#elif defined __NR_pselect6
 	struct timespec _ts, *ts = 0;
 	if (timeout) {
 		uint32_t usec;
@@ -51,44 +48,14 @@ int __libc_select(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 
 		ts = &_ts;
 	}
-
-	if (SINGLE_THREAD_P)
-		return __libc_pselect6(n, readfds, writefds, exceptfds, ts, 0);
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __libc_pselect6(n, readfds, writefds, exceptfds, ts, 0);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
-
-}
-
-#else
-
-#ifdef __NR__newselect
-# define __NR___syscall_select __NR__newselect
-#else
-# define __NR___syscall_select __NR_select
-#endif
-
-static _syscall5(int, __syscall_select, int, n, fd_set *, readfds,
-		fd_set *, writefds, fd_set *, exceptfds, struct timeval *, timeout);
-
-int __libc_select(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
-                  struct timeval *timeout)
-{
-	if (SINGLE_THREAD_P)
-		return __syscall_select(n, readfds, writefds, exceptfds, timeout);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __syscall_select(n, readfds, writefds, exceptfds, timeout);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
+	return INLINE_SYSCALL(pselect6, 6, n, readfds, writefds, exceptfds, ts, 0);
 #endif
 }
-
+/* we should guard it, but we need it in other files, so let it fail
+ * if we miss any of the syscalls */
+#if 1 /*defined __NR_select || defined __NR_pselect6*/
+CANCELLABLE_SYSCALL(int, select, (int n, fd_set *readfds, fd_set *writefds,
+				  fd_set *exceptfds, struct timeval *timeout),
+		    (n, readfds, writefds, exceptfds, timeout))
+lt_libc_hidden(select)
 #endif
-
-weak_alias(__libc_select,select)
-libc_hidden_weak(select)
