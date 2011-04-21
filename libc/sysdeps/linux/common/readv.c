@@ -10,41 +10,21 @@
 
 #include <sys/syscall.h>
 #include <sys/uio.h>
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <sysdep-cancel.h>
+#include <cancel.h>
 
 /* We should deal with kernel which have a smaller UIO_FASTIOV as well
    as a very big count.  */
-static ssize_t __readv (int fd, const struct iovec *vector, int count)
+static ssize_t __NC(readv)(int fd, const struct iovec *vector, int count)
 {
-  ssize_t bytes_read;
+	ssize_t bytes_read = INLINE_SYSCALL(readv, 3, fd, vector, count);
 
-  bytes_read = INLINE_SYSCALL (readv, 3, fd, vector, count);
+	if (bytes_read >= 0 || errno != EINVAL || count <= UIO_FASTIOV)
+		return bytes_read;
 
-  if (bytes_read >= 0 || errno != EINVAL || count <= UIO_FASTIOV)
-    return bytes_read;
+	/* glibc tries again, but we do not. */
+	/* return __atomic_readv_replacement (fd, vector, count); */
 
-  /* glibc tries again, but we do not. */
-  //return __atomic_readv_replacement (fd, vector, count);
-
-  return -1;
+	return -1;
 }
-
-ssize_t readv (int fd, const struct iovec *vector, int count)
-{
-  if (SINGLE_THREAD_P)
-    return __readv (fd, vector, count);
-
-  int oldtype = LIBC_CANCEL_ASYNC ();
-
-  int result = __readv (fd, vector, count);
-
-  LIBC_CANCEL_RESET (oldtype);
-
-  return result;
-}
-#else
-_syscall3(ssize_t, readv, int, filedes, const struct iovec *, vector,
-		  int, count)
-#endif
+CANCELLABLE_SYSCALL(ssize_t, readv, (int fd, const struct iovec *vector, int count),
+		    (fd, vector, count))
