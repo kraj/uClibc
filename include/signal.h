@@ -298,7 +298,10 @@ libc_hidden_proto(sigprocmask)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int sigsuspend (__const sigset_t *__set) __nonnull ((1));
+#ifdef _LIBC
+extern __typeof(sigsuspend) __sigsuspend_nocancel attribute_hidden;
 libc_hidden_proto(sigsuspend)
+#endif
 
 /* Get and/or set the action for signal SIG.  */
 extern int sigaction (int __sig, __const struct sigaction *__restrict __act,
@@ -324,6 +327,16 @@ extern int __syscall_rt_sigaction(int, __const struct sigaction *,
 	;
 extern __typeof(sigaction) __libc_sigaction;
 libc_hidden_proto(sigaction)
+
+# ifdef __mips__
+#  define _KERNEL_NSIG_WORDS (_NSIG / _MIPS_SZLONG)
+typedef struct {
+	unsigned long sig[_KERNEL_NSIG_WORDS];
+} kernel_sigset_t;
+#  define __SYSCALL_SIGSET_T_SIZE (sizeof(kernel_sigset_t))
+# else
+#  define __SYSCALL_SIGSET_T_SIZE (_NSIG / 8)
+# endif
 #endif
 
 /* Put in SET all signals that are blocked and waiting to be delivered.  */
