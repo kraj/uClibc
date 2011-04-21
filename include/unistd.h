@@ -333,7 +333,10 @@ extern int faccessat (int __fd, __const char *__file, int __type, int __flag)
    Return the new file position.  */
 #ifndef __USE_FILE_OFFSET64
 extern __off_t lseek (int __fd, __off_t __offset, int __whence) __THROW;
+# ifdef _LIBC
+extern __typeof(lseek) __lseek_nocancel attribute_hidden;
 libc_hidden_proto(lseek)
+# endif
 #else
 # ifdef __REDIRECT_NTH
 extern __off64_t __REDIRECT_NTH (lseek,
@@ -346,7 +349,10 @@ extern __off64_t __REDIRECT_NTH (lseek,
 #ifdef __USE_LARGEFILE64
 extern __off64_t lseek64 (int __fd, __off64_t __offset, int __whence)
      __THROW;
+# ifdef _LIBC
+extern __typeof(lseek64) __lseek64_nocancel attribute_hidden;
 libc_hidden_proto(lseek64)
+# endif
 #endif
 
 /* Close the file descriptor FD.
