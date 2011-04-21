@@ -805,7 +805,9 @@ libc_hidden_proto(setresgid)
    and the process ID of the new process to the old process.  */
 extern __pid_t fork (void) __THROW;
 # ifdef _LIBC
+# ifdef __UCLIBC_HAS_THREADS__
 extern __typeof(fork) __libc_fork;
+# endif
 libc_hidden_proto(fork)
 # endif
 #endif
