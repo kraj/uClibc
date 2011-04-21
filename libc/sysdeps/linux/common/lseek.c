@@ -12,10 +12,10 @@
 #include <cancel.h>
 
 #ifdef __NR_lseek
-static _syscall3(off_t, __NC(lseek), int, fd, off_t, offset, int, whence)
+_syscall3(off_t, __NC(lseek), int, fd, off_t, offset, int, whence)
 #else
 # include <errno.h>
-static off_t __NC(lseek)(int fd, off_t offset attribute_unused, int whence)
+off_t __NC(lseek)(int fd, off_t offset attribute_unused, int whence)
 {
 	if (fd < 0) {
 		__set_errno(EBADF);
@@ -39,6 +39,7 @@ static off_t __NC(lseek)(int fd, off_t offset attribute_unused, int whence)
 CANCELLABLE_SYSCALL(off_t, lseek, (int fd, off_t offset, int whence), (fd, offset, whence))
 lt_libc_hidden(lseek)
 #if defined __UCLIBC_HAS_LFS__ && (__WORDSIZE == 64 || !defined __NR__llseek)
+strong_alias_untyped(__NC(lseek),__NC(lseek64))
 strong_alias_untyped(lseek,lseek64)
 lt_libc_hidden(lseek64)
 #endif

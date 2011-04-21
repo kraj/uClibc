@@ -15,7 +15,7 @@
 # include <unistd.h>
 # include <endian.h>
 # include <cancel.h>
-static off64_t __NC(lseek64)(int fd, off64_t offset, int whence)
+off64_t __NC(lseek64)(int fd, off64_t offset, int whence)
 {
 	off64_t result;
 	/* do we not need to handle the offset with __LONG_LONG_PAIR depending on endianness? */
