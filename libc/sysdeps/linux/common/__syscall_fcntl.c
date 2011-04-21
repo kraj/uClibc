@@ -10,82 +10,47 @@
 
 #include <sys/syscall.h>
 #include <stdarg.h>
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <sysdep-cancel.h>	/* Must come before <fcntl.h>.  */
-#endif
+#include <cancel.h>	/* Must come before <fcntl.h>.  */
 #include <fcntl.h>
 #include <bits/wordsize.h>
 
-extern __typeof(fcntl) __libc_fcntl;
-libc_hidden_proto(__libc_fcntl)
-
-int __fcntl_nocancel (int fd, int cmd, ...)
+int __NC(fcntl)(int fd, int cmd, long arg)
 {
-	va_list ap;
-	void *arg;
-
-	va_start (ap, cmd);
-	arg = va_arg (ap, void *);
-	va_end (ap);
-
-# if __WORDSIZE == 32
+#if __WORDSIZE == 32
 	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) {
-#  if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
-		return INLINE_SYSCALL (fcntl64, 3, fd, cmd, arg);
-#  else
+# if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
+		return __NC(fcntl64)(fd, cmd, arg);
+# else
 		__set_errno(ENOSYS);
 		return -1;
-#  endif
-	}
 # endif
-	return INLINE_SYSCALL (fcntl, 3, fd, cmd, arg);
+	}
+#endif
+	return INLINE_SYSCALL(fcntl, 3, fd, cmd, arg);
 }
-libc_hidden_def(__fcntl_nocancel)
 
-int __libc_fcntl (int fd, int cmd, ...)
+int fcntl(int fd, int cmd, ...)
 {
 	va_list ap;
-	void *arg;
+	long arg;
 
 	va_start (ap, cmd);
-	arg = va_arg (ap, void *);
+	arg = va_arg (ap, long);
 	va_end (ap);
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 	if (SINGLE_THREAD_P || (cmd != F_SETLKW && cmd != F_SETLKW64))
-# if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
-		return INLINE_SYSCALL (fcntl64, 3, fd, cmd, arg);
-# else
-		return INLINE_SYSCALL (fcntl, 3, fd, cmd, arg);
-# endif
-
+		return __NC(fcntl)(fd, cmd, arg);
+#ifdef __NEW_THREADS
 	int oldtype = LIBC_CANCEL_ASYNC ();
-
-# if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
-	int result = INLINE_SYSCALL (fcntl64, 3, fd, cmd, arg);
-# else
-	int result = INLINE_SYSCALL (fcntl, 3, fd, cmd, arg);
-# endif
-
+	int result = __NC(fcntl)(fd, cmd, arg);
 	LIBC_CANCEL_RESET (oldtype);
-
 	return result;
-#else
-# if __WORDSIZE == 32
-	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) {
-#  if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
-		return INLINE_SYSCALL (fcntl64, 3, fd, cmd, arg);
-#  else
-		__set_errno(ENOSYS);
-		return -1;
-#  endif
-	}
-# endif
-	return INLINE_SYSCALL (fcntl, 3, fd, cmd, arg);
 #endif
 }
-libc_hidden_def(__libc_fcntl)
-
-libc_hidden_proto(fcntl)
-weak_alias(__libc_fcntl,fcntl)
-libc_hidden_weak(fcntl)
+lt_strong_alias(fcntl)
+lt_libc_hidden(fcntl)
+#if defined __UCLIBC_HAS_LFS__ && !defined __NR_fcntl64 && __WORDSIZE == 32
+strong_alias_untyped(fcntl,fcntl64)
+lt_strong_alias(fcntl64)
+lt_libc_hidden(fcntl64)
+#endif

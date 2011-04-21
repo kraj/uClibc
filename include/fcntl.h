@@ -75,7 +75,10 @@ __BEGIN_DECLS
    __THROW.  */
 #if !defined(__USE_FILE_OFFSET64) || defined(__LP64__)
 extern int fcntl (int __fd, int __cmd, ...);
+# ifdef _LIBC
+extern int __fcntl_nocancel(int, int, long) attribute_hidden;
 libc_hidden_proto(fcntl)
+# endif
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...), fcntl64);
@@ -85,7 +88,10 @@ extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...), fcntl64);
 #endif
 #if defined(__USE_LARGEFILE64) && !defined(__LP64__)
 extern int fcntl64 (int __fd, int __cmd, ...);
+# ifdef _LIBC
+extern int __fcntl64_nocancel(int, int, long) attribute_hidden;
 libc_hidden_proto(fcntl64)
+# endif
 #endif
 
 /* Open FILE and return a new file descriptor for it, or -1 on error.
@@ -234,11 +240,6 @@ extern int __REDIRECT (posix_fallocate, (int __fd, __off64_t __offset,
 # ifdef __USE_LARGEFILE64
 extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 # endif
-#endif
-
-#ifdef _LIBC
-extern int __fcntl_nocancel (int fd, int cmd, ...);
-libc_hidden_proto(__fcntl_nocancel)
 #endif
 
 __END_DECLS

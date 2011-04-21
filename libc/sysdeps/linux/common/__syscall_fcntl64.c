@@ -9,12 +9,16 @@
 
 #include <_lfs_64.h>
 #include <sys/syscall.h>
+#include <bits/wordsize.h>
 
-#ifdef __NR_fcntl64
+#if defined __NR_fcntl64 && __WORDSIZE == 32
 # include <stdarg.h>
 # include <fcntl.h>
-# define __NR___syscall_fcntl64 __NR_fcntl64
-static __inline__ _syscall3(int, __syscall_fcntl64, int, fd, int, cmd, long, arg)
+# include <cancel.h>
+
+# define __NR___fcntl64_nocancel __NR_fcntl64
+_syscall3(int, __NC(fcntl64), int, fd, int, cmd, long, arg)
+
 int fcntl64(int fd, int cmd, ...)
 {
 	long arg;
@@ -24,7 +28,15 @@ int fcntl64(int fd, int cmd, ...)
 	arg = va_arg(list, long);
 	va_end(list);
 
-	return (__syscall_fcntl64(fd, cmd, arg));
+	if (SINGLE_THREAD_P || (cmd != F_SETLKW64))
+		return __NC(fcntl64)(fd, cmd, arg);
+# ifdef __NEW_THREADS
+	int oldtype = LIBC_CANCEL_ASYNC();
+	int result = __NC(fcntl64)(fd, cmd, arg);
+	LIBC_CANCEL_RESET(oldtype);
+	return result;
+# endif
 }
-libc_hidden_def(fcntl64)
+lt_strong_alias(fcntl64)
+lt_libc_hidden(fcntl64)
 #endif
