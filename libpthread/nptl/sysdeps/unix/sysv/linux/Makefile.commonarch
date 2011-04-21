@@ -62,22 +62,23 @@ libpthread_linux_CSRC += pthread_attr_getaffinity.c pthread_attr_setaffinity.c \
 	pthread_getcpuclockid.c pthread_kill.c			\
 	pthread_mutex_cond_lock.c pthread_yield.c		\
 	sem_post.c sem_timedwait.c sem_trywait.c sem_wait.c	\
-	pt-fork.c pt-sleep.c pthread_sigqueue.c			\
-	sigtimedwait.c sigwaitinfo.c sigwait.c			\
+	pthread_sigqueue.c				\
 	lowlevellock.c lowlevelrobustlock.c
+#	pt-sleep.c pt-fork.c sigtimedwait.c sigwaitinfo.c sigwait.c			\
 
 libpthread_linux_SSRC := #ptw-close.S ptw-open.S ptw-waitid.S ptw-waidpid.S ptw-write.S
 
 libc_linux_CSRC += libc_pthread_init.c libc_multiple_threads.c		\
 	register-atfork.c unregister-atfork.c getpid.c		\
-	raise.c sleep.c jmp-unwind.c libc-lowlevellock.c
+	raise.c jmp-unwind.c libc-lowlevellock.c
+	#sleep.c
 
 librt_linux_CSRC += mq_notify.c timer_create.c timer_delete.c		\
 	timer_getoverr.c timer_gettime.c timer_routines.c		\
 	timer_settime.c
 
 # These provide both a cancellable and a not cancellable implementation
-libc_linux_SSRC = close.S open.S write.S read.S waitpid.S
+libc_linux_SSRC = #close.S open.S write.S read.S waitpid.S
 libc_linux_SSRC := $(filter-out $(libc_linux_arch_SSRC-OMIT),$(libc_linux_SSRC))
 
 libpthread_linux_CSRC := $(filter-out $(notdir $(libpthread_linux_arch_OBJS:.o=.c)),$(libpthread_linux_CSRC))
@@ -140,11 +141,11 @@ CFLAGS-OMIT-sleep.c = -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-OMIT-jmp-unwind.c = -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-OMIT-libc-lowlevellock.c = -DNOT_IN_libc -DIS_IN_libpthread
 
-CFLAGS-OMIT-close.S = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-open.S = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-read.S = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-write.S = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-waitpid.S = -DNOT_IN_libc -DIS_IN_libpthread
+#CFLAGS-OMIT-close.S = -DNOT_IN_libc -DIS_IN_libpthread
+#CFLAGS-OMIT-open.S = -DNOT_IN_libc -DIS_IN_libpthread
+#CFLAGS-OMIT-read.S = -DNOT_IN_libc -DIS_IN_libpthread
+#CFLAGS-OMIT-write.S = -DNOT_IN_libc -DIS_IN_libpthread
+#CFLAGS-OMIT-waitpid.S = -DNOT_IN_libc -DIS_IN_libpthread
 
 CFLAGS-OMIT-mq_notify.c = -DIS_IN_libpthread
 CFLAGS-OMIT-timer_create.c = -DIS_IN_libpthread
@@ -154,11 +155,11 @@ CFLAGS-OMIT-timer_gettime.c = -DIS_IN_libpthread
 CFLAGS-OMIT-timer_routines.c = -DIS_IN_libpthread
 CFLAGS-OMIT-timer_settime.c = -DIS_IN_libpthread
 
-ASFLAGS-open.S = -D_LIBC_REENTRANT
-ASFLAGS-close.S = -D_LIBC_REENTRANT
-ASFLAGS-read.S = -D_LIBC_REENTRANT
-ASFLAGS-write.S = -D_LIBC_REENTRANT
-ASFLAGS-waitpid.S = -D_LIBC_REENTRANT
+#ASFLAGS-open.S = -D_LIBC_REENTRANT
+#ASFLAGS-close.S = -D_LIBC_REENTRANT
+#ASFLAGS-read.S = -D_LIBC_REENTRANT
+#ASFLAGS-write.S = -D_LIBC_REENTRANT
+#ASFLAGS-waitpid.S = -D_LIBC_REENTRANT
 
 #
 # Create header files.

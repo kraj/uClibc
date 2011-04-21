@@ -37,9 +37,9 @@ ifneq ($(UCLIBC_SUSV3_LEGACY),y)
 CSRC := $(filter-out ualarm.c usleep.c,$(CSRC))
 endif
 
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC := $(filter-out sleep.c,$(CSRC))
-endif
+#ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+#CSRC := $(filter-out sleep.c,$(CSRC))
+#endif
 
 UNISTD_SRC := $(patsubst %.c,$(UNISTD_DIR)/%.c,$(CSRC))
 UNISTD_OBJ := $(patsubst %.c,$(UNISTD_OUT)/%.o,$(CSRC))
