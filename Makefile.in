@@ -217,6 +217,7 @@ $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
 # if the option expands to nothing though, we can punt the headers.
 HEADERS_RM- := \
 	internal \
+	cancel.h \
 	dl-osinfo.h \
 	jmpbuf-offsets.h \
 	jmpbuf-unwind.h \
