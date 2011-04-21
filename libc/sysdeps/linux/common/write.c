@@ -9,17 +9,11 @@
 
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <cancel.h>
 
-_syscall3(ssize_t, write, int, fd, const __ptr_t, buf, size_t, count)
-#ifndef __LINUXTHREADS_OLD__
-libc_hidden_def(write)
-#else
-libc_hidden_weak(write)
-strong_alias(write,__libc_write)
-#endif
+#define __NR___write_nocancel __NR_write
+_syscall3(ssize_t, __NC(write), int, fd, const void *, buf, size_t, count)
 
-#if 0
-/* Stupid libgcc.a from gcc 2.95.x uses __write in pure.o
- * which is a blatant GNU libc-ism... */
-strong_alias(write,__write)
-#endif
+CANCELLABLE_SYSCALL(ssize_t, write, (int fd, const void *buf, size_t count),
+		    (fd, buf, count))
+lt_libc_hidden(write)

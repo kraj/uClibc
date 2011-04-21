@@ -354,7 +354,11 @@ libc_hidden_proto(lseek64)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int close (int __fd);
+#ifdef _LIBC
+extern __typeof(close) __close_nocancel attribute_hidden;
+extern void __close_nocancel_no_status(int) attribute_hidden;
 libc_hidden_proto(close)
+#endif
 
 /* Read NBYTES into BUF from FD.  Return the
    number read, -1 for errors or 0 for EOF.
@@ -362,14 +366,20 @@ libc_hidden_proto(close)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t read (int __fd, void *__buf, size_t __nbytes) __wur;
+#ifdef _LIBC
+extern __typeof(read) __read_nocancel attribute_hidden;
 libc_hidden_proto(read)
+#endif
 
 /* Write N bytes of BUF to FD.  Return the number written, or -1.
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t write (int __fd, __const void *__buf, size_t __n) __wur;
+#ifdef _LIBC
+extern __typeof(write) __write_nocancel attribute_hidden;
 libc_hidden_proto(write)
+#endif
 
 #ifdef __USE_UNIX98
 # ifndef __USE_FILE_OFFSET64
