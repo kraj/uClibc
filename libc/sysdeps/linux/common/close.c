@@ -9,12 +9,13 @@
 
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <cancel.h>
 
-_syscall1(int, close, int, fd)
+#define __NR___close_nocancel __NR_close
+_syscall1(int, __NC(close), int, fd)
 
-#ifndef __LINUXTHREADS_OLD__
-libc_hidden_def(close)
-#else
-libc_hidden_weak(close)
-strong_alias(close,__libc_close)
-#endif
+#define __NR___close_nocancel_no_status __NR_close
+_syscall_noerr1(void, __close_nocancel_no_status, int, fd)
+
+CANCELLABLE_SYSCALL(int, close, (int fd), (fd))
+lt_libc_hidden(close)

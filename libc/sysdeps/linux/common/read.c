@@ -9,11 +9,11 @@
 
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <cancel.h>
 
-_syscall3(ssize_t, read, int, fd, __ptr_t, buf, size_t, count)
-#ifndef __LINUXTHREADS_OLD__
-libc_hidden_def(read)
-#else
-libc_hidden_weak(read)
-strong_alias(read,__libc_read)
-#endif
+#define __NR___read_nocancel __NR_read
+_syscall3(ssize_t, __NC(read), int, fd, void *, buf, size_t, count)
+
+CANCELLABLE_SYSCALL(ssize_t, read, (int fd, void *buf, size_t count),
+		    (fd, buf, count))
+lt_libc_hidden(read)
