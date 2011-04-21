@@ -64,17 +64,17 @@ CSRC-$(if $(findstring yy,$(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_LFS)),y) += \
 # NPTL needs these internally: madvise.c
 CSRC-$(findstring y,$(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_THREADS_NATIVE)) += madvise.c
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC- += fork.c getpid.c raise.c open.c close.c read.c write.c
+CSRC- += fork.c getpid.c raise.c #open.c close.c read.c write.c
 CSRC- += $(if $(findstring =arm=,=$(TARGET_ARCH)=),vfork.c)
 CSRC- += $(if $(findstring =x86_64=,=$(TARGET_ARCH)=),vfork.c)
-CSRC- += $(if $(findstring =mips=y=,=$(TARGET_ARCH)=$(CONFIG_MIPS_O32_ABI)=),waitpid.c)
+#CSRC- += $(if $(findstring =mips=y=,=$(TARGET_ARCH)=$(CONFIG_MIPS_O32_ABI)=),waitpid.c)
 endif
 # stubbed out in mman.h
 CSRC-$(ARCH_USE_MMU) += msync.c
 # we need these internally: getdomainname.c
 CSRC-$(UCLIBC_BSD_SPECIFIC) += mincore.c setdomainname.c
 CSRC-$(UCLIBC_NTP_LEGACY) += ntp_gettime.c
-# aio_cancel|aio_error|aio_fsync|aio_read|aio_return|aio_suspend|aio_write|clock_getres|clock_gettime|clock_settime|clock_settime|fdatasync|lio_listio|mlockall|munlockall|mlock|munlock|mq_close|mq_getattr|mq_notify|mq_open|mq_receive|mq_timedreceive|mq_send|mq_timedsend|mq_setattr|mq_unlink|nanosleep|sched_getparam|sched_get_priority_max|sched_get_priority_min|sched_getscheduler|sched_rr_get_interval|sched_setparam|sched_setscheduler|sem_close|sem_destroy|sem_getvalue|sem_init|sem_open|sem_post|sem_trywait|sem_wait|sem_unlink|sem_wait|shm_open|shm_unlink|sigqueue|sigtimedwait|sigwaitinfo|sigwaitinfo|timer_create|timer_delete|timer_getoverrun|timer_gettime|timer_settime
+# aio_cancel|aio_error|aio_fsync|aio_read|aio_return|aio_suspend|aio_write|clock_getres|clock_gettime|clock_settime|clock_settime|fdatasync|lio_listio|mlockall|munlockall|mlock|munlock|mq_close|mq_getattr|mq_notify|mq_open|mq_receive|mq_timedreceive|mq_send|mq_timedsend|mq_setattr|mq_unlink|nanosleep|sched_getparam|sched_get_priority_max|sched_get_priority_min|sched_getscheduler|sched_rr_get_interval|sched_setparam|sched_setscheduler|sem_close|sem_destroy|sem_getvalue|sem_init|sem_open|sem_post|sem_trywait|sem_wait|sem_unlink|sem_wait|shm_open|shm_unlink|sigqueue|sigtimedwait|sigwaitinfo|timer_create|timer_delete|timer_getoverrun|timer_gettime|timer_settime
 CSRC-$(UCLIBC_HAS_REALTIME) += clock_getres.c clock_gettime.c clock_settime.c \
 	fdatasync.c mlockall.c mlock.c munlockall.c munlock.c \
 	nanosleep.c __rt_sigtimedwait.c __rt_sigwaitinfo.c sched_getparam.c \
