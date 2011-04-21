@@ -10,14 +10,7 @@
 #include <sys/syscall.h>
 #include <stdarg.h>
 #include <sys/ioctl.h>
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <sysdep-cancel.h>
-#else
-#define SINGLE_THREAD_P 1
-#endif
-
-libc_hidden_proto(ioctl)
+#include <cancel.h>
 
 #define __NR___syscall_ioctl __NR_ioctl
 static __always_inline
@@ -30,17 +23,16 @@ int ioctl(int fd, unsigned long int request, ...)
 
 	va_start(list, request);
 	arg = va_arg(list, void *);
-
 	va_end(list);
 
 	if (SINGLE_THREAD_P)
 		return __syscall_ioctl(fd, request, arg);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#ifdef __NEW_THREADS
 	int oldtype = LIBC_CANCEL_ASYNC ();
 	int result = __syscall_ioctl(fd, request, arg);
 	LIBC_CANCEL_RESET (oldtype);
 	return result;
 #endif
 }
-libc_hidden_def(ioctl)
+lt_strong_alias(ioctl)
+lt_libc_hidden(ioctl)
