@@ -59,7 +59,7 @@ fresetlockfiles (void)
 }
 
 pid_t
-__libc_fork (void)
+fork (void)
 {
   pid_t pid;
   struct used_handler
@@ -222,5 +222,4 @@ __libc_fork (void)
 
   return pid;
 }
-weak_alias(__libc_fork,fork)
-libc_hidden_weak(fork)
+libc_hidden_def(fork)
