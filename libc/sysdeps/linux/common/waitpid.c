@@ -6,32 +6,16 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <stdlib.h>
-#include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/resource.h>
+#include <cancel.h>
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include "sysdep-cancel.h"
-#else
-#define SINGLE_THREAD_P 1
-#endif
-
-libc_hidden_proto(wait4)
-
-extern __typeof(waitpid) __libc_waitpid;
-__pid_t __libc_waitpid(__pid_t pid, int *wait_stat, int options)
+pid_t __NC(waitpid)(pid_t pid, int *wait_stat, int options)
 {
-	if (SINGLE_THREAD_P)
-		return wait4(pid, wait_stat, options, NULL);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = wait4(pid, wait_stat, options, NULL);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
+#if 1 /* kernel/exit.c says to avoid waitpid syscall */
+	return __wait4_nocancel(pid, wait_stat, options, NULL);
+#else
+	return INLINE_SYSCALL(waitpid, 3, pid, wait_stat, options);
 #endif
 }
-libc_hidden_proto(waitpid)
-weak_alias(__libc_waitpid,waitpid)
-libc_hidden_weak(waitpid)
+CANCELLABLE_SYSCALL(pid_t, waitpid, (pid_t pid, int *wait_stat, int options), (pid, wait_stat, options))
+lt_libc_hidden(waitpid)

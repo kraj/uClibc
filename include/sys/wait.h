@@ -137,7 +137,10 @@ extern __pid_t wait (__WAIT_STATUS __stat_loc);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
+#ifdef _LIBC
+extern __typeof(waitpid) __waitpid_nocancel attribute_hidden;
 libc_hidden_proto(waitpid)
+#endif
 
 #if defined __USE_SVID || defined __USE_XOPEN
 # define __need_siginfo_t
