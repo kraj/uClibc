@@ -20,19 +20,16 @@
 #include <sys/syscall.h>
 
 #if defined __NR_ppoll && defined __UCLIBC_LINUX_SPECIFIC__ && defined __USE_GNU
-# define __need_NULL
-# include <stddef.h>
-# include <signal.h>
-# include <sys/poll.h>
-# ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#  include <sysdep-cancel.h>
-# else
-#  define SINGLE_THREAD_P 1
-# endif
 
-int
-ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
-       const sigset_t *sigmask)
+#define __need_NULL
+#include <stddef.h>
+#include <signal.h>
+#include <sys/poll.h>
+#include <cancel.h>
+
+static int
+__NC(ppoll)(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
+	    const sigset_t *sigmask)
 {
 	/* The Linux kernel can in some situations update the timeout value.
 	   We do not want that so use a local variable.  */
@@ -41,14 +38,11 @@ ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
 		tval = *timeout;
 		timeout = &tval;
 	}
-  if (SINGLE_THREAD_P)
-		return INLINE_SYSCALL(ppoll, 5, fds, nfds, timeout, sigmask, _NSIG / 8);
-
-# ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = INLINE_SYSCALL(ppoll, 5, fds, nfds, timeout, sigmask, _NSIG / 8);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-# endif
+	return INLINE_SYSCALL(ppoll, 5, fds, nfds, timeout, sigmask, __SYSCALL_SIGSET_T_SIZE);
 }
+
+CANCELLABLE_SYSCALL(int, ppoll, (struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
+				 const sigset_t *sigmask),
+		    (fds, nfds, timeout, sigmask))
+
 #endif
