@@ -8,43 +8,19 @@
 #include <features.h>
 
 #if defined __USE_SVID || defined __USE_XOPEN
+
+#include <sys/syscall.h>
+#include <sys/wait.h>
+#include <cancel.h>
+#ifndef __NR_waitid
 # include <string.h>
-# include <sys/types.h>
-# include <sys/wait.h>
-# include <sys/syscall.h>
+#endif
 
-# ifdef __NR_waitid
-
-#  ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#  include <sysdep-cancel.h>
-#  else
-#  define SINGLE_THREAD_P 1
-#  endif
-
-/* The waitid() POSIX interface takes 4 arguments, but the kernel function
- * actually takes 5.  The fifth is a pointer to struct rusage.  Make sure
- * we pass NULL rather than letting whatever was in the register bleed up.
- */
-#define __NR_waitid5 __NR_waitid
-static __always_inline
-_syscall5(int, waitid5, idtype_t, idtype, id_t, id, siginfo_t*, infop,
-                 int, options, struct rusage*, ru)
-# endif
-
-int waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options)
+static int __NC(waitid)(idtype_t idtype, id_t id, siginfo_t *infop, int options)
 {
-# ifdef __NR_waitid
- if (SINGLE_THREAD_P)
-		return waitid5(idtype, id, infop, options, NULL);
-
-#  ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = waitid5(idtype, id, infop, options, NULL);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#  endif
-
-# elif defined __NR_waitpid
+#ifdef __NR_waitid
+	return INLINE_SYSCALL(waitid, 5, idtype, id, infop, options, NULL);
+#else
 	switch (idtype) {
 		case P_PID:
 			if (id <= 0)
@@ -65,17 +41,17 @@ int waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options)
 	}
 
 	memset(infop, 0, sizeof *infop);
-	infop->si_pid = waitpid(id, &infop->si_status, options
-#  ifdef WEXITED
+	infop->si_pid = __NC(waitpid)(id, &infop->si_status, options
+# ifdef WEXITED
 					   &~ WEXITED
-#  endif
+# endif
 					  );
 	if (infop->si_pid < 0)
 		return infop->si_pid;
 	return 0;
-# else
- __set_errno(ENOSYS);
- return -1;
-# endif
+#endif
 }
+CANCELLABLE_SYSCALL(int, waitid, (idtype_t idtype, id_t id, siginfo_t *infop, int options),
+		    (idtype, id, infop, options))
+
 #endif
