@@ -52,5 +52,8 @@ posix_fadvise64:
 
 	/* Returns 0 on success, else an error code.  */
 	negl	%eax
+
+	/* Successful; return the syscall's value.  */
+	ret
 .size posix_fadvise64,.-posix_fadvise64
 #endif
