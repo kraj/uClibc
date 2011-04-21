@@ -23,11 +23,14 @@
 #include <sys/syscall.h>
 
 .text
-.global	__libc_fork
-.type	__libc_fork,%function
+.global	fork
+#ifdef __UCLIBC_HAS_THREADS__
+.weak   fork
+#endif
+.type	fork,%function
 .align 4
 
-__libc_fork:
+fork:
 	mov __NR_fork, %g1
 	ta	0x10
 	bcc,a	9000f
@@ -44,6 +47,8 @@ __libc_fork:
 	retl
 	and	%o0, %o1, %o0
 
-.size __libc_fork,.-__libc_fork
-weak_alias(__libc_fork,fork)
-libc_hidden_weak(fork)
+.size fork,.-fork
+#ifdef __UCLIBC_HAS_THREADS__
+strong_alias(fork,__libc_fork)
+#endif
+libc_hidden_def(fork)

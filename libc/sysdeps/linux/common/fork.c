@@ -8,15 +8,15 @@
  */
 
 #include <sys/syscall.h>
-#include <unistd.h>
 
-#ifdef __ARCH_USE_MMU__
-
-#ifdef __NR_fork
-#define __NR___libc_fork __NR_fork
-_syscall0(pid_t, __libc_fork)
-weak_alias(__libc_fork,fork)
+#if defined __NR_fork && defined __ARCH_USE_MMU__
+# include <unistd.h>
+# include <cancel.h>
+_syscall0(pid_t, fork)
+# ifdef __UCLIBC_HAS_THREADS__
+strong_alias(fork,__libc_fork)
 libc_hidden_weak(fork)
-#endif
-
+# else
+libc_hidden_def(fork)
+# endif
 #endif
