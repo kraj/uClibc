@@ -35,6 +35,7 @@ static _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
 		 size_t, count, off_t, offset_hi, off_t, offset_lo)
 #  define MY_PREAD(fd, buf, count, offset) __syscall_pread(fd, buf, count, OFF_HI_LO(offset))
 #  define MY_PREAD64(fd, buf, count, offset) __syscall_pread(fd, buf, count, OFF64_HI_LO(offset))
+# endif
 #endif
 
 #ifndef MY_PWRITE
@@ -44,6 +45,7 @@ static _syscall5(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
 		 size_t, count, off_t, offset_hi, off_t, offset_lo)
 #  define MY_PWRITE(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, OFF_HI_LO(offset))
 #  define MY_PWRITE64(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, OFF64_HI_LO(offset))
+# endif
 #endif
 
 static ssize_t __NC(pread)(int fd, void *buf, size_t count, off_t offset)
