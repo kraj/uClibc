@@ -187,6 +187,7 @@
 
 #define _FP_DECL_EX	fpu_control_t _fcw
 
+#ifdef __UCLIBC_HAS_FPU__
 #define FP_INIT_ROUNDMODE					\
 do {								\
   _FPU_GETCW(_fcw);						\
@@ -211,3 +212,4 @@ do {								\
   else								\
     ___Q_simulate_exceptions (_fex);			        \
 } while (0)
+#endif
