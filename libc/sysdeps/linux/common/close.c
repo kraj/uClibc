@@ -15,7 +15,7 @@
 _syscall1(int, __NC(close), int, fd)
 
 #define __NR___close_nocancel_no_status __NR_close
-_syscall1_noerr(void, __close_nocancel_no_status, int, fd)
+_syscall_noerr1(void, __close_nocancel_no_status, int, fd)
 
 CANCELLABLE_SYSCALL(int, close, (int fd), (fd))
 lt_libc_hidden(close)
