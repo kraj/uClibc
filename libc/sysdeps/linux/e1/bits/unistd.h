@@ -378,13 +378,6 @@ type name(atype a, btype b, ctype c,dtype d, etype e, ftype f, ...)             
 		return (type)(par1);                    					\
 }
 
-#include <sys/types.h>
-/* Taken from <bits/errno.h> */
-#ifndef _LIBC
-/* We don't support pthreads for the moment*/
-#define __set_errno(val) ((errno) = (val))
-#endif
-
 #if 0
 #define _syscall3(type, name,atype, a , btype, b, ctype, c)  \
 type name(atype a, btype b, ctype c,)                      \
