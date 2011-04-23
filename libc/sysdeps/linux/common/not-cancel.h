@@ -20,6 +20,8 @@
 
 #include <sysdep.h>
 
+#ifdef NOT_IN_libc
+
 /* Uncancelable open.  */
 #define open_not_cancel(name, flags, mode) \
    INLINE_SYSCALL (open, 3, (const char *) (name), (flags), (mode))
@@ -57,4 +59,31 @@
 #else
 # define waitpid_not_cancel(pid, stat_loc, options) \
   INLINE_SYSCALL (wait4, 4, pid, stat_loc, options, NULL)
+#endif
+
+#else
+
+#include <cancel.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#define open_not_cancel(name, flags, mode) \
+	__NC(open)(name, flags, mode)
+#define open_not_cancel_2(name, flags) \
+	__NC(open2)(name, flags)
+
+#define close_not_cancel(fd) \
+	__NC(close)(fd)
+#define close_not_cancel_no_status(fd) \
+	__close_nocancel_no_status(fd)
+
+#define read_not_cancel(fd, buf, n) \
+	__NC(read)(fd, buf, n)
+
+#define write_not_cancel(fd, buf, n) \
+	__NC(write)(fd, buf, n)
+
+#define fcntl_not_cancel(fd, cmd, val) \
+	__NC(fcntl)(fd, cmd, val)
+
 #endif
