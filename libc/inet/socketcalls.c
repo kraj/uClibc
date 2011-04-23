@@ -4,13 +4,11 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <errno.h>
-#include <syscall.h>
+#include <sys/syscall.h>
 #include <sys/socket.h>
+#include <cancel.h>
 
 #ifdef __NR_socketcall
-extern int __socketcall(int call, unsigned long *args) attribute_hidden;
-
 /* Various socketcall numbers */
 #define SYS_SOCKET      1
 #define SYS_BIND        2
@@ -31,154 +29,102 @@ extern int __socketcall(int call, unsigned long *args) attribute_hidden;
 #define SYS_RECVMSG     17
 #endif
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <sysdep-cancel.h>
-#include <pthreadP.h>
-#else
-#define SINGLE_THREAD_P 1
-#endif
-
 #ifdef L_accept
-extern __typeof(accept) __libc_accept;
-#ifdef __NR_accept
-#define __NR___sys_accept  __NR_accept
-static
-_syscall3(int, __sys_accept, int, call, struct sockaddr *, addr, socklen_t *,addrlen)
-int __libc_accept(int s, struct sockaddr *addr, socklen_t * addrlen)
+static int __NC(accept)(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 {
-	if (SINGLE_THREAD_P)
-		return __sys_accept(s, addr, addrlen);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __sys_accept(s, addr, addrlen);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
-}
-#elif defined(__NR_socketcall)
-int __libc_accept(int s, struct sockaddr *addr, socklen_t * addrlen)
-{
+# ifdef __NR_accept
+	return INLINE_SYSCALL(accept, 3, sockfd, addr, addrlen);
+# else
 	unsigned long args[3];
 
-	args[0] = s;
+	args[0] = sockfd;
 	args[1] = (unsigned long) addr;
 	args[2] = (unsigned long) addrlen;
 
-	if (SINGLE_THREAD_P)
-		return __socketcall(SYS_ACCEPT, args);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __socketcall(SYS_ACCEPT, args);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
+	return __socketcall(SYS_ACCEPT, args);
+# endif
 }
-#endif
-weak_alias(__libc_accept,accept)
-libc_hidden_weak(accept)
+CANCELLABLE_SYSCALL(int, accept, (int sockfd, struct sockaddr *addr, socklen_t *addrlen),
+		    (sockfd, addr, addrlen))
+lt_libc_hidden(accept)
 #endif
 
 #ifdef L_bind
-#ifdef __NR_bind
-_syscall3(int, bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen)
-#elif defined(__NR_socketcall)
 int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 {
+# ifdef __NR_bind
+	return INLINE_SYSCALL(bind, 3, sockfd, myaddr, addrlen);
+# else
 	unsigned long args[3];
 
 	args[0] = sockfd;
 	args[1] = (unsigned long) myaddr;
 	args[2] = addrlen;
 	return __socketcall(SYS_BIND, args);
+# endif
 }
-#endif
 libc_hidden_def(bind)
 #endif
 
 #ifdef L_connect
-extern __typeof(connect) __libc_connect;
-#ifdef __NR_connect
-#define __NR___sys_connect __NR_connect
-static
-_syscall3(int, __sys_connect, int, sockfd, const struct sockaddr *, saddr, socklen_t, addrlen)
-int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
+static int __NC(connect)(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 {
-	if (SINGLE_THREAD_P)
-		return __sys_connect(sockfd, saddr, addrlen);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __sys_connect(sockfd, saddr, addrlen);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
-}
-#elif defined(__NR_socketcall)
-int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
-{
+# ifdef __NR_connect
+	return INLINE_SYSCALL(connect, 3, sockfd, saddr, addrlen);
+# else
 	unsigned long args[3];
 
 	args[0] = sockfd;
 	args[1] = (unsigned long) saddr;
 	args[2] = addrlen;
-
-	if (SINGLE_THREAD_P)
-		return __socketcall(SYS_CONNECT, args);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __socketcall(SYS_CONNECT, args);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
+	return __socketcall(SYS_CONNECT, args);
+# endif
 }
-#endif
-weak_alias(__libc_connect,connect)
-libc_hidden_weak(connect)
+CANCELLABLE_SYSCALL(int, connect, (int sockfd, const struct sockaddr *saddr, socklen_t addrlen),
+		    (sockfd, saddr, addrlen))
+lt_libc_hidden(connect)
 #endif
 
 #ifdef L_getpeername
-#ifdef __NR_getpeername
-_syscall3(int, getpeername, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen)
-#elif defined(__NR_socketcall)
-int getpeername(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
+int getpeername(int sockfd, struct sockaddr *addr, socklen_t *paddrlen)
 {
+# ifdef __NR_getpeername
+	return INLINE_SYSCALL(getpeername, 3, sockfd, addr, paddrlen);
+# else
 	unsigned long args[3];
 
 	args[0] = sockfd;
 	args[1] = (unsigned long) addr;
 	args[2] = (unsigned long) paddrlen;
 	return __socketcall(SYS_GETPEERNAME, args);
+# endif
 }
-#endif
 #endif
 
 #ifdef L_getsockname
-#ifdef __NR_getsockname
-_syscall3(int, getsockname, int, sockfd, struct sockaddr *, addr, socklen_t *,paddrlen)
-#elif defined(__NR_socketcall)
 int getsockname(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 {
+# ifdef __NR_getsockname
+	return INLINE_SYSCALL(getsockname, 3, sockfd, addr, paddrlen);
+# else
 	unsigned long args[3];
 
 	args[0] = sockfd;
 	args[1] = (unsigned long) addr;
 	args[2] = (unsigned long) paddrlen;
 	return __socketcall(SYS_GETSOCKNAME, args);
+# endif
 }
-#endif
 libc_hidden_def(getsockname)
 #endif
 
 #ifdef L_getsockopt
-#ifdef __NR_getsockopt
-_syscall5(int, getsockopt, int, fd, int, level, int, optname, __ptr_t, optval, socklen_t *, optlen)
-#elif defined(__NR_socketcall)
-int getsockopt(int fd, int level, int optname, __ptr_t optval,
-		   socklen_t * optlen)
+int getsockopt(int fd, int level, int optname, void *optval,
+	       socklen_t *optlen)
 {
+# ifdef __NR_getsockopt
+	return INLINE_SYSCALL(getsockopt, 5, fd, level, optname, optval, optlen);
+# else
 	unsigned long args[5];
 
 	args[0] = fd;
@@ -187,101 +133,56 @@ int getsockopt(int fd, int level, int optname, __ptr_t optval,
 	args[3] = (unsigned long) optval;
 	args[4] = (unsigned long) optlen;
 	return (__socketcall(SYS_GETSOCKOPT, args));
+# endif
 }
-#endif
 #endif
 
 #ifdef L_listen
-#ifdef __NR_listen
-_syscall2(int, listen, int, sockfd, int, backlog)
-#elif defined(__NR_socketcall)
 int listen(int sockfd, int backlog)
 {
+# ifdef __NR_listen
+	return INLINE_SYSCALL(listen, 2, sockfd, backlog);
+# else
 	unsigned long args[2];
 
 	args[0] = sockfd;
 	args[1] = backlog;
 	return __socketcall(SYS_LISTEN, args);
+# endif
 }
-#endif
 libc_hidden_def(listen)
 #endif
 
 #ifdef L_recv
-extern __typeof(recv) __libc_recv;
-#ifdef __NR_recv
-#define __NR___sys_recv __NR_recv
-static
-_syscall4(ssize_t, __sys_recv, int, sockfd, __ptr_t, buffer, size_t, len,
-	int, flags)
-ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
+static ssize_t __NC(recv)(int sockfd, void *buffer, size_t len, int flags)
 {
-	if (SINGLE_THREAD_P)
-		return __sys_recv(sockfd, buffer, len, flags);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __sys_recv(sockfd, buffer, len, flags);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
-}
-#elif defined(__NR_recvfrom)
-ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
-{
-	return (recvfrom(sockfd, buffer, len, flags, NULL, NULL));
-}
-#elif defined(__NR_socketcall)
-/* recv, recvfrom added by bir7@leland.stanford.edu */
-ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
-{
+# ifdef __NR_recv
+	return (ssize_t)INLINE_SYSCALL(recv, 4, sockfd, buffer, len, flags);
+# elif defined __NR_recvfrom && defined _syscall6
+	return __NC(recvfrom)(sockfd, buffer, len, flags, NULL, NULL);
+# else
 	unsigned long args[4];
 
 	args[0] = sockfd;
 	args[1] = (unsigned long) buffer;
 	args[2] = len;
 	args[3] = flags;
-
-	if (SINGLE_THREAD_P)
-		return (__socketcall(SYS_RECV, args));
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __socketcall(SYS_RECV, args);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
+	return (ssize_t)__socketcall(SYS_RECV, args);
+# endif
 }
-#endif
-weak_alias(__libc_recv,recv)
-libc_hidden_weak(recv)
+CANCELLABLE_SYSCALL(ssize_t, recv, (int sockfd, void *buffer, size_t len, int flags),
+		    (sockfd, buffer, len, flags))
+lt_libc_hidden(recv)
 #endif
 
 #ifdef L_recvfrom
-extern __typeof(recvfrom) __libc_recvfrom;
-#ifdef __NR_recvfrom
-#define __NR___sys_recvfrom __NR_recvfrom
-static
-_syscall6(ssize_t, __sys_recvfrom, int, sockfd, __ptr_t, buffer, size_t, len,
-	int, flags, struct sockaddr *, to, socklen_t *, tolen)
-ssize_t __libc_recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
-		 struct sockaddr *to, socklen_t * tolen)
+ssize_t __NC(recvfrom)(int sockfd, void *buffer, size_t len, int flags,
+		       struct sockaddr *to, socklen_t *tolen)
 {
-	if (SINGLE_THREAD_P)
-		return __sys_recvfrom(sockfd, buffer, len, flags, to, tolen);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __sys_recvfrom(sockfd, buffer, len, flags, to, tolen);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
-}
-#elif defined(__NR_socketcall)
-/* recv, recvfrom added by bir7@leland.stanford.edu */
-ssize_t __libc_recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
-		 struct sockaddr *to, socklen_t * tolen)
-{
+# if defined __NR_recvfrom && defined _syscall6
+	return (ssize_t)INLINE_SYSCALL(recvfrom, 6, sockfd, buffer, len,
+				       flags, to, tolen);
+# else
 	unsigned long args[6];
 
 	args[0] = sockfd;
@@ -290,180 +191,82 @@ ssize_t __libc_recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
 	args[3] = flags;
 	args[4] = (unsigned long) to;
 	args[5] = (unsigned long) tolen;
-
-	if (SINGLE_THREAD_P)
-		return (__socketcall(SYS_RECVFROM, args));
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __socketcall(SYS_RECVFROM, args);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
+	return (ssize_t)__socketcall(SYS_RECVFROM, args);
+# endif
 }
-#endif
-weak_alias(__libc_recvfrom,recvfrom)
-libc_hidden_weak(recvfrom)
+CANCELLABLE_SYSCALL(ssize_t, recvfrom, (int sockfd, void *buffer, size_t len,
+					int flags, struct sockaddr *to, socklen_t *tolen),
+		    (sockfd, buffer, len, flags, to, tolen))
+lt_libc_hidden(recvfrom)
 #endif
 
 #ifdef L_recvmsg
-extern __typeof(recvmsg) __libc_recvmsg;
-#ifdef __NR_recvmsg
-#define __NR___sys_recvmsg __NR_recvmsg
-static
-_syscall3(ssize_t, __sys_recvmsg, int, sockfd, struct msghdr *, msg, int, flags)
-ssize_t __libc_recvmsg(int sockfd, struct msghdr *msg, int flags)
+static ssize_t __NC(recvmsg)(int sockfd, struct msghdr *msg, int flags)
 {
-	if (SINGLE_THREAD_P)
-		return __sys_recvmsg(sockfd, msg, flags);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __sys_recvmsg(sockfd, msg, flags);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
-}
-#elif defined(__NR_socketcall)
-ssize_t __libc_recvmsg(int sockfd, struct msghdr *msg, int flags)
-{
+# ifdef __NR_recvmsg
+	return (ssize_t)INLINE_SYSCALL(recvmsg, 3, sockfd, msg, flags);
+# else
 	unsigned long args[3];
 
 	args[0] = sockfd;
 	args[1] = (unsigned long) msg;
 	args[2] = flags;
-
-	if (SINGLE_THREAD_P)
-		return (__socketcall(SYS_RECVMSG, args));
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __socketcall(SYS_RECVMSG, args);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
+	return (ssize_t)__socketcall(SYS_RECVMSG, args);
+# endif
 }
-#endif
-weak_alias(__libc_recvmsg,recvmsg)
-libc_hidden_weak(recvmsg)
+CANCELLABLE_SYSCALL(ssize_t, recvmsg, (int sockfd, struct msghdr *msg, int flags),
+		    (sockfd, msg, flags))
+lt_libc_hidden(recvmsg)
 #endif
 
 #ifdef L_send
-extern __typeof(send) __libc_send;
-#ifdef __NR_send
-#define __NR___sys_send    __NR_send
-static
-_syscall4(ssize_t, __sys_send, int, sockfd, const void *, buffer, size_t, len, int, flags)
-ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
+static ssize_t __NC(send)(int sockfd, const void *buffer, size_t len, int flags)
 {
-	if (SINGLE_THREAD_P)
-		return __sys_send(sockfd, buffer, len, flags);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __sys_send(sockfd, buffer, len, flags);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
-}
-#elif defined(__NR_sendto)
-ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
-{
-	return (sendto(sockfd, buffer, len, flags, NULL, 0));
-}
-#elif defined(__NR_socketcall)
-/* send, sendto added by bir7@leland.stanford.edu */
-ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
-{
+# ifdef __NR_send
+	return (ssize_t)INLINE_SYSCALL(send, 4, sockfd, buffer, len, flags);
+# elif defined __NR_sendto && defined _syscall6
+	return __NC(sendto)(sockfd, buffer, len, flags, NULL, 0);
+# else
 	unsigned long args[4];
 
 	args[0] = sockfd;
 	args[1] = (unsigned long) buffer;
 	args[2] = len;
 	args[3] = flags;
-
-	if (SINGLE_THREAD_P)
-		return (__socketcall(SYS_SEND, args));
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __socketcall(SYS_SEND, args);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
+	return (ssize_t)__socketcall(SYS_SEND, args);
+# endif
 }
-
-#endif
-weak_alias(__libc_send,send)
-libc_hidden_weak(send)
+CANCELLABLE_SYSCALL(ssize_t, send, (int sockfd, const void *buffer, size_t len, int flags),
+		    (sockfd, buffer, len, flags))
+lt_libc_hidden(send)
 #endif
 
 #ifdef L_sendmsg
-extern __typeof(sendmsg) __libc_sendmsg;
-#ifdef __NR_sendmsg
-#define __NR___sys_sendmsg __NR_sendmsg
-static
-_syscall3(ssize_t, __sys_sendmsg, int, sockfd, const struct msghdr *, msg, int, flags)
-ssize_t __libc_sendmsg(int sockfd, const struct msghdr *msg, int flags)
+static ssize_t __NC(sendmsg)(int sockfd, const struct msghdr *msg, int flags)
 {
-	if (SINGLE_THREAD_P)
-		return __sys_sendmsg(sockfd, msg, flags);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __sys_sendmsg(sockfd, msg, flags);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
-}
-#elif defined(__NR_socketcall)
-ssize_t __libc_sendmsg(int sockfd, const struct msghdr *msg, int flags)
-{
+# ifdef __NR_sendmsg
+	return (ssize_t)INLINE_SYSCALL(sendmsg, 3, sockfd, msg, flags);
+# else
 	unsigned long args[3];
 
 	args[0] = sockfd;
 	args[1] = (unsigned long) msg;
 	args[2] = flags;
-
-	if (SINGLE_THREAD_P)
-		return (__socketcall(SYS_SENDMSG, args));
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __socketcall(SYS_SENDMSG, args);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
+	return (ssize_t)__socketcall(SYS_SENDMSG, args);
+# endif
 }
-#endif
-weak_alias(__libc_sendmsg,sendmsg)
-libc_hidden_weak(sendmsg)
+CANCELLABLE_SYSCALL(ssize_t, sendmsg, (int sockfd, const struct msghdr *msg, int flags),
+		    (sockfd, msg, flags))
+lt_libc_hidden(sendmsg)
 #endif
 
 #ifdef L_sendto
-extern __typeof(sendto) __libc_sendto;
-#ifdef __NR_sendto
-#define __NR___sys_sendto  __NR_sendto
-static
-_syscall6(ssize_t, __sys_sendto, int, sockfd, const void *, buffer,
-	size_t, len, int, flags, const struct sockaddr *, to, socklen_t, tolen)
-ssize_t __libc_sendto(int sockfd, const void *buffer, size_t len, int flags,const struct sockaddr *to, socklen_t tolen)
+ssize_t __NC(sendto)(int sockfd, const void *buffer, size_t len, int flags,
+		     const struct sockaddr *to, socklen_t tolen)
 {
-	if (SINGLE_THREAD_P)
-		return __sys_sendto(sockfd, buffer, len, flags, to, tolen);
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __sys_sendto(sockfd, buffer, len, flags, to, tolen);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
-}
-#elif defined(__NR_socketcall)
-/* send, sendto added by bir7@leland.stanford.edu */
-ssize_t __libc_sendto(int sockfd, const void *buffer, size_t len, int flags,
-	   const struct sockaddr *to, socklen_t tolen)
-{
+# if defined __NR_sendto && defined _syscall6
+	return (ssize_t)INLINE_SYSCALL(sendto, 6, sockfd, buffer, len, flags, to, tolen);
+# else
 	unsigned long args[6];
 
 	args[0] = sockfd;
@@ -472,30 +275,21 @@ ssize_t __libc_sendto(int sockfd, const void *buffer, size_t len, int flags,
 	args[3] = flags;
 	args[4] = (unsigned long) to;
 	args[5] = tolen;
-
-	if (SINGLE_THREAD_P)
-		return (__socketcall(SYS_SENDTO, args));
-
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __socketcall(SYS_SENDTO, args);
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-#endif
+	return (ssize_t)__socketcall(SYS_SENDTO, args);
+# endif
 }
-#endif
-weak_alias(__libc_sendto,sendto)
-libc_hidden_weak(sendto)
+CANCELLABLE_SYSCALL(ssize_t, sendto, (int sockfd, const void *buffer, size_t len,
+				      int flags, const struct sockaddr *to, socklen_t tolen),
+		    (sockfd, buffer, len, flags, to, tolen))
+lt_libc_hidden(sendto)
 #endif
 
 #ifdef L_setsockopt
-#ifdef __NR_setsockopt
-_syscall5(int, setsockopt, int, fd, int, level, int, optname, const void *, optval, socklen_t, optlen)
-#elif defined(__NR_socketcall)
-/* [sg]etsockoptions by bir7@leland.stanford.edu */
-int setsockopt(int fd, int level, int optname, const void *optval,
-		   socklen_t optlen)
+int setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen)
 {
+# ifdef __NR_setsockopt
+	return INLINE_SYSCALL(setsockopt, 5, fd, level, optname, optval, optlen);
+# else
 	unsigned long args[5];
 
 	args[0] = fd;
@@ -503,51 +297,50 @@ int setsockopt(int fd, int level, int optname, const void *optval,
 	args[2] = optname;
 	args[3] = (unsigned long) optval;
 	args[4] = optlen;
-	return (__socketcall(SYS_SETSOCKOPT, args));
+	return __socketcall(SYS_SETSOCKOPT, args);
+# endif
 }
-#endif
 libc_hidden_def(setsockopt)
 #endif
 
 #ifdef L_shutdown
-#ifdef __NR_shutdown
-_syscall2(int, shutdown, int, sockfd, int, how)
-#elif defined(__NR_socketcall)
-/* shutdown by bir7@leland.stanford.edu */
 int shutdown(int sockfd, int how)
 {
+# ifdef __NR_shutdown
+	return INLINE_SYSCALL(shutdown, 2, sockfd, how);
+# else
 	unsigned long args[2];
 
 	args[0] = sockfd;
 	args[1] = how;
-	return (__socketcall(SYS_SHUTDOWN, args));
+	return __socketcall(SYS_SHUTDOWN, args);
+# endif
 }
-#endif
 #endif
 
 #ifdef L_socket
-#ifdef __NR_socket
-_syscall3(int, socket, int, family, int, type, int, protocol)
-#elif defined(__NR_socketcall)
 int socket(int family, int type, int protocol)
 {
+# ifdef __NR_socket
+	return INLINE_SYSCALL(socket, 3, family, type, protocol);
+# else
 	unsigned long args[3];
 
 	args[0] = family;
 	args[1] = type;
 	args[2] = (unsigned long) protocol;
 	return __socketcall(SYS_SOCKET, args);
+# endif
 }
-#endif
 libc_hidden_def(socket)
 #endif
 
 #ifdef L_socketpair
-#ifdef __NR_socketpair
-_syscall4(int, socketpair, int, family, int, type, int, protocol, int *, sockvec)
-#elif defined(__NR_socketcall)
 int socketpair(int family, int type, int protocol, int sockvec[2])
 {
+# ifdef __NR_socketpair
+	return INLINE_SYSCALL(socketpair, 4, family, type, protocol, sockvec);
+# else
 	unsigned long args[4];
 
 	args[0] = family;
@@ -555,6 +348,6 @@ int socketpair(int family, int type, int protocol, int sockvec[2])
 	args[2] = protocol;
 	args[3] = (unsigned long) sockvec;
 	return __socketcall(SYS_SOCKETPAIR, args);
+# endif
 }
-#endif
 #endif
