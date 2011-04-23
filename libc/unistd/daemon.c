@@ -118,7 +118,7 @@ int daemon(int nochdir, int noclose)
 	{
 		struct STAT st;
 
-		if ((fd = open_not_cancel(_PATH_DEVNULL, O_RDWR, 0)) != -1
+		if ((fd = open_not_cancel_2(_PATH_DEVNULL, O_RDWR)) != -1
 			&& (__builtin_expect (FSTAT (fd, &st), 0) == 0))
 		{
 			if (__builtin_expect (S_ISCHR (st.st_mode), 1) != 0) {
