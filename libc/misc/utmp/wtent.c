@@ -40,7 +40,7 @@ static void __updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 {
     int fd;
 
-    fd = open_not_cancel(wtmp_file, O_APPEND | O_WRONLY, 0);
+    fd = open_not_cancel_2(wtmp_file, O_APPEND | O_WRONLY);
     if (fd >= 0) {
 	if (lockf(fd, F_LOCK, 0) == 0) {
 	    write_not_cancel(fd, lutmp, sizeof(struct utmp));
