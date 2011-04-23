@@ -194,17 +194,20 @@ extern void psiginfo (__const siginfo_t *__pinfo, __const char *__s);
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern int __sigpause (int __sig_or_mask, int __is_sig);
+/*extern int __sigpause (int __sig_or_mask, int __is_sig);*/
 
 #ifdef __FAVOR_BSD
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
-extern int sigpause (int __mask) __THROW __attribute_deprecated__;
-# define sigpause(mask) __sigpause ((mask), 0)
+/*extern int sigpause (int __mask) __THROW __attribute_deprecated__;
+# define sigpause(mask) __sigpause ((mask), 0)*/
+/* uClibc note: BSD sigpause is available as __bsd_sigpause.
+ * It is intentionally not prototyped */
 #else
 # ifdef __USE_XOPEN
 /* Remove a signal from the signal mask and suspend the process.  */
-#  define sigpause(sig) __sigpause ((sig), 1)
+extern int sigpause(int __sig);
+/*#  define sigpause(sig) __sigpause ((sig), 1)*/
 # endif
 #endif
 
