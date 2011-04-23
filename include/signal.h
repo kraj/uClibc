@@ -372,7 +372,7 @@ extern int sigtimedwait (__const sigset_t *__restrict __set,
      __nonnull ((1));
 #ifdef _LIBC
 extern __typeof(sigtimedwait) __sigtimedwait_nocancel attribute_hidden;
-libc_hidden_def(sigtimedwait)
+libc_hidden_proto(sigtimedwait)
 #endif
 
 /* Send signal SIG to the process PID.  Associate data in VAL with the
