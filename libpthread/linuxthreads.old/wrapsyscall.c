@@ -80,6 +80,12 @@ CANCELABLE_SYSCALL (int, close, (int fd), (fd))
 CANCELABLE_SYSCALL_VA (int, fcntl, (int fd, int cmd, ...),
 		       (fd, cmd, va_arg (ap, long int)), cmd)
 
+#ifdef __UCLIBC_HAS_LFS__
+/* fcntl64(2).  */
+CANCELABLE_SYSCALL_VA (int, fcntl64, (int fd, int cmd, ...),
+		       (fd, cmd, va_arg (ap, long int)), cmd)
+#endif
+
 
 /* fsync(2).  */
 CANCELABLE_SYSCALL (int, fsync, (int fd), (fd))
