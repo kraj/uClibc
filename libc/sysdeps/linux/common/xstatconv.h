@@ -23,6 +23,7 @@
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
  * struct stat should look like.  It turns out that each arch has a different
  * opinion on the subject, and different kernel revs use different names... */
+#include <features.h>
 #include <bits/kernel_stat.h>
 
 extern void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf) attribute_hidden;
