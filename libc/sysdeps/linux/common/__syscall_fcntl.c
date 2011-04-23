@@ -14,7 +14,7 @@
 #include <fcntl.h>
 #include <bits/wordsize.h>
 
-int __NC(fcntl)(int fd, int cmd, void *arg)
+int __NC(fcntl)(int fd, int cmd, long arg)
 {
 #if __WORDSIZE == 32
 	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) {
@@ -32,10 +32,10 @@ int __NC(fcntl)(int fd, int cmd, void *arg)
 int fcntl(int fd, int cmd, ...)
 {
 	va_list ap;
-	void *arg;
+	long arg;
 
 	va_start (ap, cmd);
-	arg = va_arg (ap, void *);
+	arg = va_arg (ap, long);
 	va_end (ap);
 
 	if (SINGLE_THREAD_P || (cmd != F_SETLKW && cmd != F_SETLKW64))

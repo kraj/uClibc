@@ -17,15 +17,15 @@
 # include <cancel.h>
 
 # define __NR___fcntl64_nocancel __NR_fcntl64
-_syscall3(int, __NC(fcntl64), int, fd, int, cmd, void *, arg)
+_syscall3(int, __NC(fcntl64), int, fd, int, cmd, long, arg)
 
 int fcntl64(int fd, int cmd, ...)
 {
-	void *arg;
+	long arg;
 	va_list list;
 
 	va_start(list, cmd);
-	arg = va_arg(list, void *);
+	arg = va_arg(list, long);
 	va_end(list);
 
 	if (SINGLE_THREAD_P || (cmd != F_SETLKW64))
