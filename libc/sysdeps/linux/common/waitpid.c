@@ -11,7 +11,7 @@
 
 pid_t __NC(waitpid)(pid_t pid, int *wait_stat, int options)
 {
-#if 1 /* kernel says to avoid waitpid syscall */
+#if 1 /* kernel/exit.c says to avoid waitpid syscall */
 	return __wait4_nocancel(pid, wait_stat, options, NULL);
 #else
 	return INLINE_SYSCALL(waitpid, 3, pid, wait_stat, options);
