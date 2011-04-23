@@ -161,7 +161,10 @@ libc_hidden_proto(recv)
 extern ssize_t sendto (int __fd, __const void *__buf, size_t __n,
 		       int __flags, __CONST_SOCKADDR_ARG __addr,
 		       socklen_t __addr_len);
+#ifdef _LIBC
+extern __typeof(sendto) __sendto_nocancel attribute_hidden;
 libc_hidden_proto(sendto)
+#endif
 
 /* Read N bytes into BUF through socket FD.
    If ADDR is not NULL, fill in *ADDR_LEN bytes of it with tha address of
@@ -173,7 +176,10 @@ libc_hidden_proto(sendto)
 extern ssize_t recvfrom (int __fd, void *__restrict __buf, size_t __n,
 			 int __flags, __SOCKADDR_ARG __addr,
 			 socklen_t *__restrict __addr_len);
+#ifdef _LIBC
+extern __typeof(recvfrom) __recvfrom_nocancel attribute_hidden;
 libc_hidden_proto(recvfrom)
+#endif
 
 
 /* Send a message described MESSAGE on socket FD.
@@ -259,5 +265,9 @@ extern int isfdtype (int __fd, int __fdtype) __THROW;
 #endif
 
 __END_DECLS
+
+#ifdef _LIBC
+extern int __socketcall(int, unsigned long *) attribute_hidden;
+#endif
 
 #endif /* sys/socket.h */
