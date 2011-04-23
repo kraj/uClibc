@@ -23,6 +23,7 @@
 
 #include <sys/syscall.h>
 #include <sys/select.h>
+#include <sys/time.h>
 #include <signal.h>
 #include <cancel.h>
 
