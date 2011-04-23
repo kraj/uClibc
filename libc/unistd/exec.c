@@ -68,7 +68,7 @@ extern void *__exec_alloc(size_t size, int func) attribute_hidden;
 
 # ifdef L___exec_alloc
 
-void attribute_hidden *__exec_alloc(size_t size, int func)
+void *__exec_alloc(size_t size, int func)
 {
 	static void *common_cache, *execvp_cache;
 	static size_t common_size, execvp_size;
