@@ -41,7 +41,7 @@ static int __NC(waitid)(idtype_t idtype, id_t id, siginfo_t *infop, int options)
 	}
 
 	memset(infop, 0, sizeof *infop);
-	infop->si_pid = waitpid(id, &infop->si_status, options
+	infop->si_pid = __NC(waitpid)(id, &infop->si_status, options
 # ifdef WEXITED
 					   &~ WEXITED
 # endif
