@@ -12,6 +12,7 @@
 #include <cancel.h>
 
 #ifdef __NR_lseek
+# define __NR___lseek_nocancel __NR_lseek
 _syscall3(off_t, __NC(lseek), int, fd, off_t, offset, int, whence)
 #else
 # include <errno.h>
