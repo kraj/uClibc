@@ -183,6 +183,10 @@ make_stub(sigtimedwait)
 make_stub(sigwaitinfo)
 #endif
 
+#ifndef __NR_rt_sigqueueinfo
+make_stub(sigqueue)
+#endif
+
 #ifndef __NR_readahead
 make_stub(readahead)
 #endif

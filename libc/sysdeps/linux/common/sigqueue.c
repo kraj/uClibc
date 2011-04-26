@@ -16,16 +16,12 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <errno.h>
-#include <signal.h>
-#include <unistd.h>
-#include <string.h>
-
 #include <sys/syscall.h>
-#if defined __USE_POSIX199309
 
-
-#ifdef __NR_rt_sigqueueinfo
+#if defined __NR_rt_sigqueueinfo && defined __USE_POSIX199309
+# include <signal.h>
+# include <unistd.h>
+# include <string.h>
 
 # define __NR___syscall_rt_sigqueueinfo __NR_rt_sigqueueinfo
 static __always_inline _syscall3(int, __syscall_rt_sigqueueinfo, pid_t, pid, int, sig, void*, value)
@@ -33,20 +29,19 @@ static __always_inline _syscall3(int, __syscall_rt_sigqueueinfo, pid_t, pid, int
 /* Return any pending signal or wait for one for the given time.  */
 int sigqueue (pid_t pid, int sig, const union sigval val)
 {
-  siginfo_t info;
+	siginfo_t info;
 
-  /* First, clear the siginfo_t structure, so that we don't pass our
-     stack content to other tasks.  */
-  memset (&info, 0, sizeof (siginfo_t));
-  /* We must pass the information about the data in a siginfo_t value.  */
-  info.si_signo = sig;
-  info.si_code = SI_QUEUE;
-  info.si_pid = getpid ();
-  info.si_uid = getuid ();
-  info.si_value = val;
+	/* First, clear the siginfo_t structure, so that we don't pass our
+	   stack content to other tasks.  */
+	memset(&info, 0, sizeof(info));
+	/* We must pass the information about the data in a siginfo_t value.  */
+	info.si_signo = sig;
+	info.si_code = SI_QUEUE;
+	info.si_pid = getpid ();
+	info.si_uid = getuid ();
+	info.si_value = val;
 
-  return __syscall_rt_sigqueueinfo(pid, sig, &info);
+	return __syscall_rt_sigqueueinfo(pid, sig, &info);
 }
 
-#endif
 #endif
