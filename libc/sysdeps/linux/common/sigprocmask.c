@@ -47,7 +47,7 @@ int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 	}
 #endif
 
-	return __rt_sigprocmask(how, set, oldset, _NSIG / 8);
+	return __rt_sigprocmask(how, set, oldset, __SYSCALL_SIGSET_T_SIZE);
 }
 
 
