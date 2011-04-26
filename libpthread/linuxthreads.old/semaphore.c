@@ -24,8 +24,7 @@
 #include "restart.h"
 #include "queue.h"
 
-int __new_sem_init(sem_t *sem, int pshared, unsigned int value);
-int __new_sem_init(sem_t *sem, int pshared, unsigned int value)
+int sem_init(sem_t *sem, int pshared, unsigned int value)
 {
   if (value > SEM_VALUE_MAX) {
     errno = EINVAL;
@@ -42,7 +41,7 @@ int __new_sem_init(sem_t *sem, int pshared, unsigned int value)
 }
 
 /* Function called by pthread_cancel to remove the thread from
-   waiting inside __new_sem_wait. */
+   waiting inside sem_wait. */
 
 static int new_sem_extricate_func(void *obj, pthread_descr th)
 {
@@ -57,8 +56,7 @@ static int new_sem_extricate_func(void *obj, pthread_descr th)
   return did_remove;
 }
 
-int __new_sem_wait(sem_t * sem);
-int __new_sem_wait(sem_t * sem)
+int sem_wait(sem_t * sem)
 {
   volatile pthread_descr self = thread_self();
   pthread_extricate_if extr;
@@ -120,8 +118,7 @@ int __new_sem_wait(sem_t * sem)
   return 0;
 }
 
-int __new_sem_trywait(sem_t * sem);
-int __new_sem_trywait(sem_t * sem)
+int sem_trywait(sem_t * sem)
 {
   int retval;
 
@@ -137,8 +134,7 @@ int __new_sem_trywait(sem_t * sem)
   return retval;
 }
 
-int __new_sem_post(sem_t * sem);
-int __new_sem_post(sem_t * sem)
+int sem_post(sem_t * sem)
 {
   pthread_descr self = thread_self();
   pthread_descr th;
@@ -179,15 +175,13 @@ int __new_sem_post(sem_t * sem)
   return 0;
 }
 
-int __new_sem_getvalue(sem_t * sem, int * sval);
-int __new_sem_getvalue(sem_t * sem, int * sval)
+int sem_getvalue(sem_t * sem, int * sval)
 {
   *sval = sem->__sem_value;
   return 0;
 }
 
-int __new_sem_destroy(sem_t * sem);
-int __new_sem_destroy(sem_t * sem)
+int sem_destroy(sem_t * sem)
 {
   if (sem->__sem_waiting != NULL) {
     __set_errno (EBUSY);
@@ -303,12 +297,3 @@ int sem_timedwait(sem_t *sem, const struct timespec *abstime)
   /* We got the semaphore */
   return 0;
 }
-
-
-weak_alias (__new_sem_init, sem_init)
-weak_alias (__new_sem_wait, sem_wait)
-weak_alias (__new_sem_trywait, sem_trywait)
-weak_alias (__new_sem_post, sem_post)
-weak_alias (__new_sem_getvalue, sem_getvalue)
-weak_alias (__new_sem_destroy, sem_destroy)
-

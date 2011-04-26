@@ -511,7 +511,7 @@ extern __typeof(pthread_mutex_unlock) __pthread_mutex_unlock attribute_hidden;
 #endif
 
 /* Prototypes for some of the new semaphore functions.  */
-extern int __new_sem_post (sem_t * sem);
+/*extern int __new_sem_post (sem_t * sem);*/
 
 /* TSD.  */
 extern int __pthread_internal_tsd_set (int key, const void * pointer);

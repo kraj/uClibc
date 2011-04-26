@@ -232,7 +232,7 @@ int attribute_noreturn __pthread_manager(void *arg)
         break;
       case REQ_POST:
         PDEBUG("got REQ_POST\n");
-        __new_sem_post(request.req_args.post);
+        sem_post(request.req_args.post);
         break;
       case REQ_DEBUG:
         PDEBUG("got REQ_DEBUG\n");
