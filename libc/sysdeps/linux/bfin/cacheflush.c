@@ -11,5 +11,5 @@
 #ifdef __NR_cacheflush
 # include <sys/cachectl.h>
 
-_syscall3 (int, cacheflush, void *, start, const int, nbytes, const int, flags)
+_syscall3 (int, cacheflush, void *, addr, const int, nbytes, const int, flags)
 #endif
