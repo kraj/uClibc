@@ -6,10 +6,9 @@
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-#include <errno.h>
-#include <unistd.h>
 #include <sys/syscall.h>
 
 #ifdef __NR_cacheflush
-_syscall3(int, cacheflush, char *, addr, int, nbytes, int, op)
+int cacheflush(void *addr, const int nbytes, int op);
+_syscall3(int, cacheflush, void *, addr, const int, nbytes, const int, op)
 #endif

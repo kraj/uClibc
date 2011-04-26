@@ -7,8 +7,11 @@
 
 CSRC := \
 	__longjmp.c  brk.c setjmp_aux.c \
-	cacheflush.c pread_write.c sysmips.c _test_and_set.c \
-	readahead.c
+	pread_write.c _test_and_set.c
+
+ifeq ($(UCLIBC_LINUX_SPECIFIC),y)
+CSRC +=	cacheflush.c readahead.c sysmips.c
+endif
 
 SSRC := bsd-_setjmp.S bsd-setjmp.S setjmp.S syscall.S pipe.S syscall_error.S
 
