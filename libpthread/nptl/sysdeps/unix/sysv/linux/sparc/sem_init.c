@@ -26,7 +26,7 @@
 
 
 int
-__new_sem_init (sem, pshared, value)
+sem_init (sem, pshared, value)
      sem_t *sem;
      int pshared;
      unsigned int value;
@@ -53,5 +53,3 @@ __new_sem_init (sem, pshared, value)
 
   return 0;
 }
-weak_alias(__new_sem_init, sem_init)
-

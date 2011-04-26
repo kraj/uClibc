@@ -23,10 +23,10 @@
 
 	.text
 
-	.globl	__new_sem_trywait
-	.type	__new_sem_trywait,@function
+	.globl	sem_trywait
+	.type	sem_trywait,@function
 	.align	16
-__new_sem_trywait:
+sem_trywait:
 	movl	4(%esp), %ecx
 
 	movl	(%ecx), %eax
@@ -63,9 +63,7 @@ __new_sem_trywait:
 #endif
 	orl	$-1, %eax
 	ret
-	.size	__new_sem_trywait,.-__new_sem_trywait
-weak_alias(__new_sem_trywait, sem_trywait)
-
+	.size	sem_trywait,.-sem_trywait
 
 #ifdef __PIC__
 	.section .gnu.linkonce.t.__x86.get_pc_thunk.cx,"ax",@progbits

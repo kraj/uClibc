@@ -26,7 +26,7 @@
 
 
 int
-__new_sem_trywait (sem_t *sem)
+sem_trywait (sem_t *sem)
 {
   struct sparc_old_sem *isem = (struct sparc_old_sem *) sem;
   int val;
@@ -50,5 +50,3 @@ __new_sem_trywait (sem_t *sem)
   __set_errno (EAGAIN);
   return -1;
 }
-weak_alias(__new_sem_trywait, sem_trywait)
-

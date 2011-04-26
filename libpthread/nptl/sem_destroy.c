@@ -22,7 +22,7 @@
 
 
 int
-__new_sem_destroy (
+sem_destroy (
      sem_t *sem)
 {
   /* XXX Check for valid parameter.  */
@@ -30,4 +30,3 @@ __new_sem_destroy (
   /* Nothing to do.  */
   return 0;
 }
-weak_alias(__new_sem_destroy, sem_destroy)

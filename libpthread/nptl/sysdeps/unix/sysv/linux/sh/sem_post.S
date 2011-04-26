@@ -25,10 +25,10 @@
 
 	.text
 
-	.globl	__new_sem_post
-	.type	__new_sem_post,@function
+	.globl	sem_post
+	.type	sem_post,@function
 	.align	5
-__new_sem_post:
+sem_post:
 	mov.l	@(VALUE,r4), r2
 0:
 	mov.l	.Lmax, r1
@@ -106,5 +106,4 @@ __new_sem_post:
 .Lerrloc3:
 	.long	__errno_location@PLT-(.Lerrloc3b-.)
 #endif
-	.size	__new_sem_post,.-__new_sem_post
-	weak_alias(__new_sem_post, sem_post)
+	.size	sem_post,.-sem_post

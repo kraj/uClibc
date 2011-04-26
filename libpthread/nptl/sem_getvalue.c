@@ -22,7 +22,7 @@
 
 
 int
-__new_sem_getvalue (
+sem_getvalue (
      sem_t *sem,
      int *sval)
 {
@@ -34,4 +34,3 @@ __new_sem_getvalue (
 
   return 0;
 }
-weak_alias(__new_sem_getvalue, sem_getvalue)

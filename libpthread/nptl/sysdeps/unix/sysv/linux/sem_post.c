@@ -26,7 +26,7 @@
 #include <tls.h>
 
 int
-__new_sem_post (sem_t *sem)
+sem_post (sem_t *sem)
 {
   struct new_sem *isem = (struct new_sem *) sem;
 
@@ -55,4 +55,3 @@ __new_sem_post (sem_t *sem)
     }
   return 0;
 }
-weak_alias(__new_sem_post, sem_post)
