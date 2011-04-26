@@ -56,14 +56,3 @@ extern void __where_is_shmfs (void) attribute_hidden;
 
 /* Comparison function for search in tree with existing mappings.  */
 extern int __sem_search (const void *a, const void *b) attribute_hidden;
-
-
-/* Prototypes of functions with multiple interfaces.  */
-extern int __new_sem_init (sem_t *sem, int pshared, unsigned int value);
-extern int __old_sem_init (sem_t *sem, int pshared, unsigned int value);
-extern int __new_sem_destroy (sem_t *sem);
-extern int __new_sem_post (sem_t *sem);
-extern int __new_sem_wait (sem_t *sem);
-extern int __old_sem_wait (sem_t *sem);
-extern int __new_sem_trywait (sem_t *sem);
-extern int __new_sem_getvalue (sem_t *sem, int *sval);

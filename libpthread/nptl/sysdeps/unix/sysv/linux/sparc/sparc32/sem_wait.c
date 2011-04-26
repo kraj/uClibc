@@ -45,7 +45,7 @@ __sem_wait_cleanup (void *arg)
 
 
 int
-__new_sem_wait (sem_t *sem)
+sem_wait (sem_t *sem)
 {
   struct sparc_new_sem *isem = (struct sparc_new_sem *) sem;
   int err;
@@ -123,5 +123,3 @@ __new_sem_wait (sem_t *sem)
 
   return err;
 }
-weak_alias(__new_sem_wait, sem_wait)
-

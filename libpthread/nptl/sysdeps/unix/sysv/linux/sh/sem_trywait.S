@@ -24,10 +24,10 @@
 
 	.text
 
-	.globl	__new_sem_trywait
-	.type	__new_sem_trywait,@function
+	.globl	sem_trywait
+	.type	sem_trywait,@function
 	.align	5
-__new_sem_trywait:
+sem_trywait:
 	mov.l	r12, @-r15
 	mov.l	r8, @-r15
 	sts.l	pr, @-r15
@@ -86,5 +86,4 @@ __new_sem_trywait:
 .Lerrloc1:
 	.long	__errno_location@PLT-(.Lerrloc1b-.)
 #endif
-	.size	__new_sem_trywait,.-__new_sem_trywait
-	weak_alias(__new_sem_trywait, sem_trywait)
+	.size	sem_trywait,.-sem_trywait

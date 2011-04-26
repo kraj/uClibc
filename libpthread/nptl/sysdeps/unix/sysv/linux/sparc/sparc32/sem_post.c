@@ -25,7 +25,7 @@
 #include <semaphore.h>
 
 int
-__new_sem_post (sem_t *sem)
+sem_post (sem_t *sem)
 {
   struct sparc_new_sem *isem = (struct sparc_new_sem *) sem;
   int nr;
@@ -51,5 +51,3 @@ __new_sem_post (sem_t *sem)
     }
   return 0;
 }
-weak_alias(__new_sem_post, sem_post)
-

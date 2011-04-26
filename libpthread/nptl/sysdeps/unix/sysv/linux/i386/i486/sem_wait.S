@@ -29,10 +29,10 @@
 
 	.text
 
-	.globl	__new_sem_wait
-	.type	__new_sem_wait,@function
+	.globl	sem_wait
+	.type	sem_wait,@function
 	.align	16
-__new_sem_wait:
+sem_wait:
 .LSTARTCODE:
 	pushl	%ebx
 .Lpush_ebx:
@@ -129,8 +129,7 @@ __new_sem_wait:
 	orl	$-1, %eax
 
 	jmp	9b
-	.size	__new_sem_wait,.-__new_sem_wait
-weak_alias(__new_sem_wait, sem_wait)
+	.size	sem_wait,.-sem_wait
 
 
 	.type	sem_wait_cleanup,@function

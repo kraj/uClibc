@@ -25,10 +25,10 @@
 
 	.text
 
-	.globl	__new_sem_post
-	.type	__new_sem_post,@function
+	.globl	sem_post
+	.type	sem_post,@function
 	.align	16
-__new_sem_post:
+sem_post:
 	cfi_startproc
 	pushl	%ebx
 	cfi_adjust_cfa_offset(4)
@@ -126,9 +126,7 @@ __new_sem_post:
 	cfi_restore(%ebx)
 	ret
 	cfi_endproc
-	.size	__new_sem_post,.-__new_sem_post
-weak_alias(__new_sem_post, sem_post)
-
+	.size	sem_post,.-sem_post
 
 #ifdef __PIC__
 	.section .gnu.linkonce.t.__x86.get_pc_thunk.bx,"ax",@progbits

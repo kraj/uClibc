@@ -30,10 +30,10 @@
 
 	.text
 
-	.globl	__new_sem_wait
-	.type	__new_sem_wait,@function
+	.globl	sem_wait
+	.type	sem_wait,@function
 	.align	5
-__new_sem_wait:
+sem_wait:
 .LSTARTCODE:
 	mov.l	r8, @-r15
 .Lpush_r8:
@@ -161,8 +161,7 @@ __new_sem_wait:
 	.long	__pthread_enable_asynccancel-.Lenable0b
 .Ldisable0:
 	.long	__pthread_disable_asynccancel-.Ldisable0b
-	.size	__new_sem_wait,.-__new_sem_wait
-	weak_alias(__new_sem_wait, sem_wait)
+	.size	sem_wait,.-sem_wait
 
 
 	.type	sem_wait_cleanup,@function
