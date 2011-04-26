@@ -264,4 +264,8 @@ make_ret_stub(posix_fadvise)
 make_ret_stub(posix_fadvise64)
 #endif
 
+#ifndef __NR_madvise
+make_ret_stub(posix_madvise)
+#endif
+
 #endif
