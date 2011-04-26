@@ -19,7 +19,7 @@ static __inline__ _syscall2(int, __rt_sigpending, sigset_t *, set, size_t, size)
 
 int sigpending(sigset_t * set)
 {
-	return __rt_sigpending(set, _NSIG / 8);
+	return __rt_sigpending(set, __SYSCALL_SIGSET_T_SIZE);
 }
 #else
 _syscall1(int, sigpending, sigset_t *, set)
