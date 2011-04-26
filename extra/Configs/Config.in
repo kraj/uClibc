@@ -2341,7 +2341,7 @@ config UCLIBC_MALLOC_DEBUGGING
 
 config UCLIBC_HAS_BACKTRACE
 	bool "Add support for application self-debugging"
-	depends on HAVE_SHARED && TARGET_sh
+	depends on HAVE_SHARED
 	default n
 	help
 	  Answer Y here to compile support for application self-debugging, by adding
