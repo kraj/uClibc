@@ -10,5 +10,3 @@ CSRC := clone.c fixdfsi.c
 SSRC := setjmp.S __longjmp.S vfork.S
 
 ARCH_HEADERS := floatlib.h
-
-include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch
