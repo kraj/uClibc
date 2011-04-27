@@ -41,7 +41,7 @@
 		struct _pthread_cleanup_buffer __infunc_pthread_cleanup_buffer;				\
 		int __infunc_need_locking = (C);							\
 		if (__infunc_need_locking) {								\
-			_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,			\
+			__pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,			\
 					   (void (*) (void *))__pthread_mutex_unlock,			\
 										&(M));			\
 			__pthread_mutex_lock(&(M));							\
@@ -50,7 +50,7 @@
 
 #define __UCLIBC_MUTEX_CONDITIONAL_UNLOCK(M,C)								\
 		if (__infunc_need_locking) {								\
-			_pthread_cleanup_pop_restore(&__infunc_pthread_cleanup_buffer,1);		\
+			__pthread_cleanup_pop_restore(&__infunc_pthread_cleanup_buffer,1);		\
 		}											\
 	} while (0)
 

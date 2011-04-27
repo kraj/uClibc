@@ -32,15 +32,15 @@ struct _pthread_cleanup_buffer;
 /* Threading functions internal to uClibc.  Make these thread functions
  * weak so that we can elide them from single-threaded processes.  */
 extern int weak_function __pthread_mutex_init (pthread_mutex_t *__mutex,
-		__const pthread_mutexattr_t *__mutex_attr);
-extern int weak_function __pthread_mutex_lock (pthread_mutex_t *__mutex);
-extern int weak_function __pthread_mutex_unlock (pthread_mutex_t *__mutex);
-extern int weak_function __pthread_mutex_trylock (pthread_mutex_t *__mutex);
-extern void weak_function _pthread_cleanup_push_defer (
+		__const pthread_mutexattr_t *__mutex_attr) attribute_shared_hidden;
+extern int weak_function __pthread_mutex_lock (pthread_mutex_t *__mutex) attribute_shared_hidden;
+extern int weak_function __pthread_mutex_unlock (pthread_mutex_t *__mutex) attribute_shared_hidden;
+extern int weak_function __pthread_mutex_trylock (pthread_mutex_t *__mutex) attribute_shared_hidden;
+extern void weak_function __pthread_cleanup_push_defer (
 		struct _pthread_cleanup_buffer *__buffer,
-		void (*__routine) (void *), void *__arg);
-extern void weak_function _pthread_cleanup_pop_restore (
+		void (*__routine) (void *), void *__arg) attribute_shared_hidden;
+extern void weak_function __pthread_cleanup_pop_restore (
 		struct _pthread_cleanup_buffer *__buffer,
-		int __execute);
+		int __execute) attribute_shared_hidden;
 
 #endif

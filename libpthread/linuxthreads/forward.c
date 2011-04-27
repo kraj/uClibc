@@ -17,13 +17,11 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
-#include <stdlib.h>
-#include <dlfcn.h>
-
-/* psm: keep this before internals.h */
-
-#include "internals.h"
+#include <pthread.h>
+#include <stdlib.h>	/* EXIT_SUCCESS */
+#include <linuxthreads/sysdeps/pthread/pthread-functions.h>
+/* for hidden __pthread_mutex_X */
+#include <bits/uClibc_mutex.h>
 
 /* Pointers to the libc functions.  */
 struct pthread_functions __libc_pthread_functions attribute_hidden;
@@ -37,6 +35,16 @@ name decl								      \
     defaction;								      \
 									      \
   return __libc_pthread_functions.ptr_##name params;			      \
+}
+
+# define FORWARD3(name, rettype, decl, params, defaction) \
+rettype									      \
+name decl								      \
+{									      \
+  if (__libc_pthread_functions.ptr_##name == NULL)			      \
+    defaction;								      \
+  while(1)								      \
+    __libc_pthread_functions.ptr_##name params;				      \
 }
 
 # define FORWARD(name, decl, params, defretval) \
@@ -102,8 +110,8 @@ FORWARD (pthread_equal, (pthread_t thread1, pthread_t thread2),
 
 
 /* Use an alias to avoid warning, as pthread_exit is declared noreturn.  */
-FORWARD2 (__pthread_exit, void, (void *retval), (retval), exit (EXIT_SUCCESS))
-strong_alias (__pthread_exit, pthread_exit)
+/* Comment does not apply on uClibc, added FORWARD3 to handle this */
+FORWARD3 (pthread_exit, void, (void *retval), (retval), exit (EXIT_SUCCESS))
 
 
 FORWARD (pthread_getschedparam,
@@ -140,6 +148,8 @@ FORWARD (pthread_setcanceltype, (int type, int *oldtype), (type, oldtype), 0)
 
 FORWARD2 (_pthread_cleanup_push, void, (struct _pthread_cleanup_buffer * buffer, void (*routine)(void *), void * arg), (buffer, routine, arg), return)
 FORWARD2 (_pthread_cleanup_push_defer, void, (struct _pthread_cleanup_buffer * buffer, void (*routine)(void *), void * arg), (buffer, routine, arg), return)
+strong_alias(_pthread_cleanup_push_defer,__pthread_cleanup_push_defer)
 
 FORWARD2 (_pthread_cleanup_pop, void, (struct _pthread_cleanup_buffer * buffer, int execute), (buffer, execute), return)
 FORWARD2 (_pthread_cleanup_pop_restore, void, (struct _pthread_cleanup_buffer * buffer, int execute), (buffer, execute), return)
+strong_alias(_pthread_cleanup_pop_restore,__pthread_cleanup_pop_restore)

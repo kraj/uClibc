@@ -465,11 +465,13 @@ void __fresetlockfiles(void);
 void __pthread_manager_adjust_prio(int thread_prio);
 void __pthread_initialize_minimal (void);
 
+#if 0
 extern void __pthread_exit (void *retval)
 #if defined NOT_IN_libc && defined IS_IN_libpthread
 	attribute_noreturn
 #endif
 	;
+#endif
 
 extern int __pthread_attr_setguardsize __P ((pthread_attr_t *__attr,
 					     size_t __guardsize));

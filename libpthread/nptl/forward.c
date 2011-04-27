@@ -42,6 +42,18 @@ name decl								      \
   }									      \
 }
 
+#define FORWARD3(name, rettype, decl, params, defaction) \
+rettype									      \
+name decl								      \
+{									      \
+  if (!__libc_pthread_functions_init) {					      \
+    defaction;								      \
+  } else {								      \
+    while(1)								      \
+      PTHFCT_CALL (ptr_##name, params);					      \
+  }									      \
+}
+
 #define FORWARD(name, decl, params, defretval) \
   FORWARD2 (name, int, decl, params, return defretval)
 
@@ -112,8 +124,7 @@ FORWARD (pthread_equal, (pthread_t thread1, pthread_t thread2),
 
 
 /* Use an alias to avoid warning, as pthread_exit is declared noreturn.  */
-FORWARD2 (__pthread_exit, void, (void *retval), (retval), exit (EXIT_SUCCESS))
-strong_alias (__pthread_exit, pthread_exit);
+FORWARD3 (pthread_exit, void, (void *retval), (retval), exit (EXIT_SUCCESS))
 
 
 FORWARD (pthread_getschedparam,
@@ -149,11 +160,13 @@ FORWARD2(_pthread_cleanup_push_defer,
 	 void, (struct _pthread_cleanup_buffer *buffer, void (*routine)(void *), void *arg),
 	 (buffer, routine, arg),
 	 { buffer->__routine = routine; buffer->__arg = arg; });
+strong_alias(_pthread_cleanup_push_defer,__pthread_cleanup_push_defer)
 
 FORWARD2(_pthread_cleanup_pop_restore,
 	 void, (struct _pthread_cleanup_buffer *buffer, int execute),
 	 (buffer, execute),
 	 if (execute) { buffer->__routine(buffer->__arg); });
+strong_alias(_pthread_cleanup_pop_restore,__pthread_cleanup_pop_restore)
 
 FORWARD2(__pthread_unwind,
 	 void attribute_hidden __attribute ((noreturn)) __cleanup_fct_attribute,

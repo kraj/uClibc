@@ -84,7 +84,7 @@ __pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr)
 }
 
 void weak_function
-_pthread_cleanup_push_defer(struct _pthread_cleanup_buffer *__buffer,
+__pthread_cleanup_push_defer(struct _pthread_cleanup_buffer *__buffer,
                             void (*__routine) (void *), void *__arg)
 {
         __buffer->__routine = __routine;
@@ -92,7 +92,7 @@ _pthread_cleanup_push_defer(struct _pthread_cleanup_buffer *__buffer,
 }
 
 void weak_function
-_pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer *__buffer,
+__pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer *__buffer,
                              int __execute)
 {
         if (__execute)

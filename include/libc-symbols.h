@@ -480,6 +480,12 @@ FIXME! - ?
 # define __hidden_proto_hiddenattr(attrs...)
 #endif
 
+#ifdef SHARED
+# define attribute_shared_hidden attribute_hidden
+#else
+# define attribute_shared_hidden
+#endif
+
 #if /*!defined STATIC &&*/ !defined __BCC__
 
 # ifndef __ASSEMBLER__

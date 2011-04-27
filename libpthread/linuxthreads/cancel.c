@@ -184,6 +184,7 @@ void _pthread_cleanup_push_defer(struct _pthread_cleanup_buffer * buffer,
   THREAD_SETMEM(self, p_canceltype, PTHREAD_CANCEL_DEFERRED);
   THREAD_SETMEM(self, p_cleanup, buffer);
 }
+strong_alias(_pthread_cleanup_push_defer,__pthread_cleanup_push_defer)
 
 void _pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer * buffer,
 				  int execute)
@@ -197,6 +198,7 @@ void _pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer * buffer,
       THREAD_GETMEM(self, p_canceltype) == PTHREAD_CANCEL_ASYNCHRONOUS)
     __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
 }
+strong_alias(_pthread_cleanup_pop_restore,__pthread_cleanup_pop_restore)
 
 extern void __rpc_thread_destroy(void);
 void __pthread_perform_cleanup(char *currentframe)

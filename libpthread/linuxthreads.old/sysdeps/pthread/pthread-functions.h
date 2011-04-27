@@ -59,7 +59,7 @@ struct pthread_functions
   int (*ptr_pthread_cond_signal) (pthread_cond_t *);
   int (*ptr_pthread_cond_wait) (pthread_cond_t *, pthread_mutex_t *);
   int (*ptr_pthread_equal) (pthread_t, pthread_t);
-  void (*ptr___pthread_exit) (void *);
+  void (*ptr_pthread_exit) (void *);
   int (*ptr_pthread_getschedparam) (pthread_t, int *, struct sched_param *);
   int (*ptr_pthread_setschedparam) (pthread_t, int,
 				    const struct sched_param *);

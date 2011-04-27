@@ -33,14 +33,14 @@ libpthread_OUT := $(top_builddir)libpthread/linuxthreads.old
 -include $(libpthread_DIR)/sysdeps/$(TARGET_ARCH)/Makefile.arch
 
 libpthread_SRC := \
-	attr.c cancel.c condvar.c errno.c events.c join.c lockfile.c manager.c \
+	attr.c condvar.c errno.c events.c join.c lockfile.c manager.c \
 	mutex.c pt-machine.c ptfork.c ptlongjmp.c \
 	rwlock.c semaphore.c signals.c specific.c spinlock.c wrapsyscall.c
 ifeq ($(UCLIBC_HAS_XLOCALE),y)
 libpthread_SRC += locale.c
 endif
 
-libpthread_SPEC_SRC := pthread.c
+libpthread_SPEC_SRC := pthread.c cancel.c
 libpthread_SPEC_SRC := $(patsubst %.c,$(libpthread_DIR)/%.c,$(libpthread_SPEC_SRC))
 
 # remove generic sources, if arch specific version is present
