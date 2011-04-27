@@ -32,8 +32,7 @@
 # include <sys/wait.h>
 #endif
 
-#include "internals.h"
-#include "sysdeps/pthread/pthread-functions.h"
+#include <linuxthreads.old/sysdeps/pthread/pthread-functions.h>
 
 
 int __libc_multiple_threads attribute_hidden __attribute__((nocommon));
@@ -48,7 +47,7 @@ int * __libc_pthread_init (const struct pthread_functions *functions)
 	  sizeof (__libc_pthread_functions));
 #endif
 
-#if ! defined USE___THREAD && defined __UCLIBC_HAS_XLOCALE__
+#if !defined __UCLIBC_HAS_TLS__ && defined __UCLIBC_HAS_XLOCALE__
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */
   uselocale (LC_GLOBAL_LOCALE);

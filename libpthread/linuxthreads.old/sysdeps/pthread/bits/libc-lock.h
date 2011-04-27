@@ -271,6 +271,7 @@ typedef pthread_key_t __libc_key_t;
       _pthread_cleanup_pop_restore (&_buffer, (DOIT));			      \
     }
 
+#if 0
 #define __libc_cleanup_push(fct, arg) \
     { struct _pthread_cleanup_buffer _buffer; 				      \
     __libc_maybe_call (_pthread_cleanup_push, (&_buffer, (fct), (arg)), 0)
@@ -278,6 +279,7 @@ typedef pthread_key_t __libc_key_t;
 #define __libc_cleanup_pop(execute) \
     __libc_maybe_call (_pthread_cleanup_pop, (&_buffer, execute), 0);	      \
     }
+#endif
 
 /* Create thread-specific key.  */
 #define __libc_key_create(KEY, DESTRUCTOR) \
