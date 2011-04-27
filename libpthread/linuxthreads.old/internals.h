@@ -524,6 +524,4 @@ extern void __linuxthreads_reap_event (void);
 
 #include <pthread-functions.h>
 
-extern int * __libc_pthread_init (const struct pthread_functions *functions);
-
 #endif /* internals.h */
