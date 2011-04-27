@@ -38,6 +38,7 @@
 #include <unistd.h>
 
 #ifdef __UCLIBC_HAS_LFS__
+/* this is wrong, either you include this header as first, or not at all */
 # include <_lfs_64.h>
 #else
 # define stat64 stat
