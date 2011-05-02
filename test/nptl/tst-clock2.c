@@ -62,7 +62,7 @@ do_test (void)
   if (sysconf (_SC_THREAD_CPUTIME) < 0)
     {
       puts ("_POSIX_THREAD_CPUTIME option not available");
-      return 1;
+      return 0;
     }
 # endif
 
