@@ -649,7 +649,7 @@ gaih_inet(const char *name, const struct gaih_service *service,
 						at2->family,
 						&th, tmpbuf, tmpbuflen,
 						&h, &herrno);
-				} while (rc == errno && herrno == NETDB_INTERNAL);
+				} while (rc == ERANGE && herrno == NETDB_INTERNAL);
 
 				if (rc != 0 && herrno == NETDB_INTERNAL) {
 					__set_h_errno(herrno);
@@ -855,7 +855,7 @@ getaddrinfo(const char *name, const char *service,
 					last_i = i;
 					if (hints->ai_family == AF_UNSPEC && (i & GAIH_OKIFUNSPEC))
 						continue;
-					if (p)
+					/*if (p) - freeaddrinfo works ok on NULL too */
 						freeaddrinfo(p);
 					return -(i & GAIH_EAI);
 				}
