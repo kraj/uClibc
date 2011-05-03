@@ -30,7 +30,7 @@
 #include <bits/sigcontextinfo.h>
 #include <bits/pthreadtypes.h>
 
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 #include <tls.h>
 #endif
 #include "descr.h"
@@ -506,8 +506,6 @@ extern pid_t __pthread_fork (struct fork_block *b) attribute_hidden;
 # define LIBC_CANCEL_HANDLED()	/* Nothing.  */
 #endif
 
-extern int * __libc_pthread_init (const struct pthread_functions *functions);
-
 #if !defined NOT_IN_libc && !defined FLOATING_STACKS
 # ifdef SHARED
 #  define thread_self() \
@@ -518,7 +516,7 @@ weak_extern (__pthread_thread_self)
 # endif
 #endif
 
-#ifndef USE_TLS
+#ifndef __UCLIBC_HAS_TLS__
 # define __manager_thread (&__pthread_manager_thread)
 #else
 # define __manager_thread __pthread_manager_threadp

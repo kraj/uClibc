@@ -95,4 +95,6 @@ struct pthread_functions
 /* Variable in libc.so.  */
 extern struct pthread_functions __libc_pthread_functions attribute_hidden;
 
+extern int * __libc_pthread_init (const struct pthread_functions *functions);
+
 #endif	/* pthread-functions.h */
