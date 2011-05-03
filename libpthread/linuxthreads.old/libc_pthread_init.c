@@ -17,21 +17,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <features.h>
 #include <locale.h>
-#include <stdlib.h>
 #include <string.h>
-
-/* see comment in forward.c */
-#define GCC_RENAME_BUG 1
-#ifdef GCC_RENAME_BUG
-# include <ctype.h>
-# include <signal.h>
-# include <unistd.h>
-# include <sys/time.h>
-# include <sys/wait.h>
-#endif
-
 #include <linuxthreads.old/sysdeps/pthread/pthread-functions.h>
 
 
