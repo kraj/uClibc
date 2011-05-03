@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <hp-timing.h>
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 #include <tls.h>
 #endif
 #include "uClibc-glue.h"
@@ -112,7 +112,7 @@ union dtv;
 
 struct _pthread_descr_struct
 {
-#if !defined USE_TLS || !TLS_DTV_AT_TP || INCLUDE_TLS_PADDING
+#if !defined __UCLIBC_HAS_TLS__ || !TLS_DTV_AT_TP || INCLUDE_TLS_PADDING
   /* This overlaps tcbhead_t (see tls.h), as used for TLS without threads.  */
   union
   {
@@ -157,7 +157,7 @@ struct _pthread_descr_struct
   char p_sigwaiting;            /* true if a sigwait() is in progress */
   struct pthread_start_args p_start_args; /* arguments for thread creation */
   void ** p_specific[PTHREAD_KEY_1STLEVEL_SIZE]; /* thread-specific data */
-#if !(USE_TLS && HAVE___THREAD)
+#ifndef __UCLIBC_HAS_TLS__
   void * p_libc_specific[_LIBC_TSD_KEY_N]; /* thread-specific data for libc */
   int * p_errnop;               /* pointer to used errno variable */
   int p_errno;                  /* error returned by last system call */
@@ -185,7 +185,7 @@ struct _pthread_descr_struct
 #if HP_TIMING_AVAIL
   hp_timing_t p_cpuclock_offset; /* Initial CPU clock for thread.  */
 #endif
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
   char *p_stackaddr;		/* Stack address.  */
 #endif
   size_t p_alloca_cutoff;	/* Maximum size which should be allocated

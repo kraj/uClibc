@@ -20,7 +20,7 @@
 #include "pthread.h"
 #include "internals.h"
 
-#if !USE_TLS || !HAVE___THREAD
+#ifndef __UCLIBC_HAS_TLS__
 /* The definition in libc is sufficient if we use TLS.  */
 int *
 __errno_location (void)

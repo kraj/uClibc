@@ -58,7 +58,7 @@ testandset (int *spinlock)
 #define CURRENT_STACK_FRAME  stack_pointer
 register char * stack_pointer __asm__ ("15");
 
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 /* Return the thread descriptor for the current thread.  */
 # define THREAD_SELF ((pthread_descr) __builtin_thread_pointer ())
 

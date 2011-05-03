@@ -21,19 +21,19 @@
 #include <linuxthreads/internals.h>
 #include <sysdep-cancel.h>
 
-#if ! USE___THREAD
+#ifndef __UCLIBC_HAS_TLS__
 # undef _res
 extern struct __res_state _res;
 #endif
 
 /* When threaded, _res may be a per-thread variable.  */
 struct __res_state *
-#if ! USE___THREAD
+#ifndef __UCLIBC_HAS_TLS__
 weak_const_function
 #endif
 __res_state (void)
 {
-#if ! USE___THREAD
+#ifndef __UCLIBC_HAS_TLS__
   if (! SINGLE_THREAD_P)
     {
       pthread_descr self = thread_self();

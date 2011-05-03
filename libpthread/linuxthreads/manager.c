@@ -126,7 +126,7 @@ __pthread_manager(void *arg)
 #ifdef INIT_THREAD_SELF
   INIT_THREAD_SELF(self, 1);
 #endif
-#if !(USE_TLS && HAVE___THREAD)
+#ifndef __UCLIBC_HAS_TLS__
   /* Set the error variable.  */
   self->p_errnop = &self->p_errno;
   self->p_h_errnop = &self->p_h_errno;
@@ -289,7 +289,7 @@ pthread_start_thread(void *arg)
       __sched_setscheduler(THREAD_GETMEM(self, p_pid),
                            SCHED_OTHER, &default_params);
     }
-#if !(USE_TLS && HAVE___THREAD)
+#ifndef __UCLIBC_HAS_TLS__
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */
   __uselocale (LC_GLOBAL_LOCALE);
@@ -333,7 +333,7 @@ pthread_start_thread_event(void *arg)
   pthread_start_thread (arg);
 }
 
-#if defined USE_TLS && !FLOATING_STACKS
+#if defined __UCLIBC_HAS_TLS__ && !FLOATING_STACKS
 # error "TLS can only work with floating stacks"
 #endif
 
@@ -351,7 +351,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
   char * guardaddr;
   size_t stacksize, guardsize;
 
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
   /* TLS cannot work with fixed thread descriptor addresses.  */
   assert (default_new_thread == NULL);
 #endif
@@ -360,7 +360,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
     {
 #ifdef _STACK_GROWS_UP
       /* The user provided a stack. */
-# ifdef USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
       /* This value is not needed.  */
       new_thread = (pthread_descr) attr->__stackaddr;
       new_thread_bottom = (char *) new_thread;
@@ -381,7 +381,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 	 addresses, stackaddr would be the lowest address in the stack
 	 segment, so that it is consistently close to the initial sp
 	 value. */
-# ifdef USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
       new_thread = (pthread_descr) attr->__stackaddr;
 # else
       new_thread =
@@ -394,7 +394,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 #ifndef THREAD_SELF
       __pthread_nonstandard_stacks = 1;
 #endif
-#ifndef USE_TLS
+#ifndef __UCLIBC_HAS_TLS__
       /* Clear the thread data structure.  */
       memset (new_thread, '\0', sizeof (*new_thread));
 #endif
@@ -438,7 +438,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 	mprotect (guardaddr, guardsize, PROT_NONE);
 
       new_thread_bottom = (char *) map_addr;
-#  ifdef USE_TLS
+#  ifdef __UCLIBC_HAS_TLS__
       new_thread = ((pthread_descr) (new_thread_bottom + stacksize
 				     + guardsize));
 #  else
@@ -451,7 +451,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 	mprotect (guardaddr, guardsize, PROT_NONE);
 
       new_thread_bottom = (char *) map_addr + guardsize;
-#  ifdef USE_TLS
+#  ifdef __UCLIBC_HAS_TLS__
       new_thread = ((pthread_descr) (new_thread_bottom + stacksize));
 #  else
       new_thread = ((pthread_descr) (new_thread_bottom + stacksize)) - 1;
@@ -462,7 +462,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 	mprotect (guardaddr, guardsize, PROT_NONE);
 
       new_thread = (pthread_descr) map_addr;
-#  ifdef USE_TLS
+#  ifdef __UCLIBC_HAS_TLS__
       new_thread_bottom = (char *) new_thread;
 #  else
       new_thread_bottom = (char *) (new_thread + 1);
@@ -597,7 +597,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   int pagesize = __getpagesize();
   int saved_errno = 0;
 
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
   new_thread = _dl_allocate_tls (NULL);
   if (new_thread == NULL)
     return EAGAIN;
@@ -621,7 +621,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
     {
       if (sseg >= PTHREAD_THREADS_MAX)
 	{
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 # if defined(TLS_DTV_AT_TP)
 	  new_thread = (pthread_descr) ((char *) new_thread + TLS_PRE_TCB_SIZE);
 # endif
@@ -635,7 +635,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 				 pagesize, &stack_addr, &new_thread_bottom,
                                  &guardaddr, &guardsize, &stksize) == 0)
 	{
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 	  new_thread->p_stackaddr = stack_addr;
 #else
 	  new_thread = (pthread_descr) stack_addr;
@@ -657,18 +657,18 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   new_thread_id = sseg + pthread_threads_counter;
   /* Initialize the thread descriptor.  Elements which have to be
      initialized to zero already have this value.  */
-#if !defined USE_TLS || !TLS_DTV_AT_TP
+#if !defined __UCLIBC_HAS_TLS__ || !TLS_DTV_AT_TP
   new_thread->p_header.data.tcb = new_thread;
   new_thread->p_header.data.self = new_thread;
 #endif
-#if TLS_MULTIPLE_THREADS_IN_TCB || !defined USE_TLS || !TLS_DTV_AT_TP
+#if TLS_MULTIPLE_THREADS_IN_TCB || !defined __UCLIBC_HAS_TLS__ || !TLS_DTV_AT_TP
   new_thread->p_multiple_threads = 1;
 #endif
   new_thread->p_tid = new_thread_id;
   new_thread->p_lock = &(__pthread_handles[sseg].h_lock);
   new_thread->p_cancelstate = PTHREAD_CANCEL_ENABLE;
   new_thread->p_canceltype = PTHREAD_CANCEL_DEFERRED;
-#if !(USE_TLS && HAVE___THREAD)
+#ifndef __UCLIBC_HAS_TLS__
   new_thread->p_errnop = &new_thread->p_errno;
   new_thread->p_h_errnop = &new_thread->p_h_errno;
   new_thread->p_resp = &new_thread->p_res;
@@ -807,7 +807,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 	munmap((caddr_t)new_thread_bottom,
 	       2 * stacksize + new_thread->p_guardsize);
 #elif defined _STACK_GROWS_UP
-# ifdef USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
 	size_t stacksize = guardaddr - stack_addr;
 	munmap(stack_addr, stacksize + guardsize);
 # else
@@ -815,7 +815,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 	munmap(new_thread, stacksize + guardsize);
 # endif
 #else
-# ifdef USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
 	size_t stacksize = stack_addr - new_thread_bottom;
 # else
 	size_t stacksize = (char *)(new_thread+1) - new_thread_bottom;
@@ -823,7 +823,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 	munmap(new_thread_bottom - guardsize, guardsize + stacksize);
 #endif
       }
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 # if defined(TLS_DTV_AT_TP)
     new_thread = (pthread_descr) ((char *) new_thread + TLS_PRE_TCB_SIZE);
 # endif
@@ -890,7 +890,7 @@ static void pthread_free(pthread_descr th)
       /* Free the stack and thread descriptor area */
       char *guardaddr = th->p_guardaddr;
 #ifdef _STACK_GROWS_UP
-# ifdef USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
       size_t stacksize = guardaddr - th->p_stackaddr;
       guardaddr = th->p_stackaddr;
 # else
@@ -900,7 +900,7 @@ static void pthread_free(pthread_descr th)
 #else
       /* Guardaddr is always set, even if guardsize is 0.  This allows
 	 us to compute everything else.  */
-# ifdef USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
       size_t stacksize = th->p_stackaddr - guardaddr - guardsize;
 # else
       size_t stacksize = (char *)(th+1) - guardaddr - guardsize;
@@ -916,7 +916,7 @@ static void pthread_free(pthread_descr th)
 
     }
 
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 # if defined(TLS_DTV_AT_TP)
   th = (pthread_descr) ((char *) th + TLS_PRE_TCB_SIZE);
 # endif

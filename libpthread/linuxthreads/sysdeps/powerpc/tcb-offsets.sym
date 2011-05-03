@@ -3,7 +3,7 @@
 
 -- This line separates the #include lines from conditionals.
 
-# ifdef USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
 
 -- Abuse tls.h macros to derive offsets relative to the thread register.
 #  undef __thread_register
