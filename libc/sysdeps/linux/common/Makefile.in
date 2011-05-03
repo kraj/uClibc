@@ -22,7 +22,7 @@ CSRC-$(UCLIBC_LINUX_MODULE_24) += create_module.c query_module.c \
 	get_kernel_syms.c
 # we need these internally: fstatfs.c statfs.c
 CSRC-$(UCLIBC_LINUX_SPECIFIC) += capget.c capset.c inotify.c ioperm.c iopl.c \
-	modify_ldt.c personality.c ppoll.c prctl.c readahead.c reboot.c \
+	madvise.c modify_ldt.c personality.c ppoll.c prctl.c readahead.c reboot.c \
 	remap_file_pages.c sched_getaffinity.c sched_setaffinity.c \
 	sendfile64.c sendfile.c setfsgid.c setfsuid.c setresuid.c \
 	splice.c vmsplice.c tee.c signalfd.c swapoff.c swapon.c \
