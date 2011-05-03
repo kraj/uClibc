@@ -40,7 +40,7 @@ handle_descr (const td_thragent_t *ta, td_thr_iter_f *callback,
 	  memset (&pds, '\0', sizeof (pds));
 
 	  /* Empty thread descriptor the thread library would create.  */
-#if !defined USE_TLS || !TLS_DTV_AT_TP
+#if !defined __UCLIBC_HAS_TLS__ || !TLS_DTV_AT_TP
 	  pds.p_header.data.self = &pds;
 #endif
 	  pds.p_nextlive = pds.p_prevlive = &pds;

@@ -21,9 +21,8 @@
 #define _BITS_LIBC_TSD_H 1
 
 #include <linuxthreads/descr.h>
+#ifdef __UCLIBC_HAS_TLS__
 #include <tls.h>
-
-#if USE_TLS && HAVE___THREAD
 
 /* When __thread works, the generic definition is what we want.  */
 # include <sysdeps/generic/bits/libc-tsd.h>

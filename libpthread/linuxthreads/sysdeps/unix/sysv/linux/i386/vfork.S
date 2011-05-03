@@ -32,7 +32,7 @@ ENTRY (__vfork)
 #ifdef __NR_vfork
 
 # ifdef SHARED
-#  if !defined HAVE_HIDDEN || !USE___THREAD
+#  if !defined HAVE_HIDDEN || !defined __UCLIBC_HAS_TLS__
 	SETUP_PIC_REG (cx)
 #  else
 	call	__i686.get_pc_thunk.cx

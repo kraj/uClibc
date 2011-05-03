@@ -30,7 +30,7 @@ td_thr_tlsbase (const td_thrhandle_t *th,
   if (modid < 1)
     return TD_NOTLS;
 
-#if USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
   union dtv pdtv, *dtvp;
 
   LOG ("td_thr_tlsbase");

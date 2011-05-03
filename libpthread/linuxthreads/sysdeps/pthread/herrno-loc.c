@@ -21,7 +21,7 @@
 #include <linuxthreads/internals.h>
 #include <sysdep-cancel.h>
 
-#if ! USE___THREAD
+#ifndef __UCLIBC_HAS_TLS__
 # undef h_errno
 extern int h_errno;
 #endif
@@ -31,7 +31,7 @@ int *
 weak_const_function
 __h_errno_location (void)
 {
-#if ! USE___THREAD
+#ifndef __UCLIBC_HAS_TLS__
   if (! SINGLE_THREAD_P)
     {
       pthread_descr self = thread_self();

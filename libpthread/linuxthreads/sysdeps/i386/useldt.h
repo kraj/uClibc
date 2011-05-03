@@ -87,7 +87,7 @@ extern int __modify_ldt (int, struct modify_ldt_ldt_s *, size_t);
    because we inherited the value set up in the main thread by TLS setup.
    We need to extract that value and set up the same segment in this
    thread.  */
-#if defined (USE_TLS) && USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 # define DO_SET_THREAD_AREA_REUSE(nr)	1
 #else
 /* Without TLS, we do the initialization of the main thread, where NR == 0.  */

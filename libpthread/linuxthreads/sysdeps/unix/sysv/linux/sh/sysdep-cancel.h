@@ -155,7 +155,7 @@
 # endif
 
 # ifndef __ASSEMBLER__
-#  if defined FLOATING_STACKS && USE___THREAD && defined __PIC__
+#  if defined FLOATING_STACKS && defined __UCLIBC_HAS_TLS__ && defined __PIC__
 #   define SINGLE_THREAD_P \
   __builtin_expect (THREAD_GETMEM (THREAD_SELF, p_multiple_threads) == 0, 1)
 #  else
@@ -172,7 +172,7 @@ extern int __local_multiple_threads attribute_hidden;
 	.align 2; \
      1: .long __local_multiple_threads; \
      2:
-#  elif defined FLOATING_STACKS && USE___THREAD
+#  elif defined FLOATING_STACKS && defined __UCLIBC_HAS_TLS__
 #   define SINGLE_THREAD_P \
 	stc gbr,r0; \
 	mov.w 0f,r1; \

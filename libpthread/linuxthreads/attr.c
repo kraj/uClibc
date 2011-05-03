@@ -361,7 +361,7 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
   attr->__scope = PTHREAD_SCOPE_SYSTEM;
 
 #ifdef _STACK_GROWS_DOWN
-# ifdef USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
   attr->__stacksize = descr->p_stackaddr - (char *)descr->p_guardaddr
 		      - descr->p_guardsize;
 # else
@@ -369,7 +369,7 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
 		      - descr->p_guardsize;
 # endif
 #else
-# ifdef USE_TLS
+# ifdef __UCLIBC_HAS_TLS__
   attr->__stacksize = (char *)descr->p_guardaddr - descr->p_stackaddr;
 # else
   attr->__stacksize = (char *)descr->p_guardaddr - (char *)descr;
@@ -385,7 +385,7 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
      otherwise the range of the stack area cannot be computed.  */
   attr->__stacksize += attr->__guardsize;
 #endif
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
   attr->__stackaddr = descr->p_stackaddr;
 #else
 # ifndef _STACK_GROWS_UP
@@ -395,7 +395,7 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
 # endif
 #endif
 
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
   if (attr->__stackaddr == NULL)
 #else
   if (descr == &__pthread_initial_thread)

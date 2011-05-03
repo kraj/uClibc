@@ -20,7 +20,7 @@
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef USE_TLS
+#ifdef __UCLIBC_HAS_TLS__
 #include <tls.h>
 #endif
 #include "internals.h"
@@ -42,7 +42,7 @@ __libc_pthread_init (functions)
 	  sizeof (__libc_pthread_functions));
 #endif
 
-#if !(USE_TLS && HAVE___THREAD)
+#ifndef __UCLIBC_HAS_TLS__
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */
   __uselocale (LC_GLOBAL_LOCALE);
