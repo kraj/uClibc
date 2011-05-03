@@ -14,10 +14,7 @@ CSRC-  := ssp-local.c
 CSRC_LFS := $(notdir $(wildcard $(COMMON_DIR)/*64.c))
 CSRC-y := $(filter-out llseek.c $(CSRC_LFS),$(CSRC-y))
 CSRC-$(UCLIBC_HAS_LFS) += llseek.c $(CSRC_LFS)
-
-ifneq ($(UCLIBC_HAS_SSP)$(UCLIBC_HAS_FORTIFY),)
-CSRC-y += ssp.c
-endif
+CSRC-$(findstring y,$(UCLIBC_HAS_SSP)$(UCLIBC_HAS_FORTIFY)) += ssp.c
 CSRC-$(UCLIBC_LINUX_MODULE_24) += create_module.c query_module.c \
 	get_kernel_syms.c
 # we need these internally: fstatfs.c statfs.c
