@@ -24,7 +24,7 @@
 #include <bits/uClibc_mutex.h>
 
 /* Pointers to the libc functions.  */
-struct pthread_functions __libc_pthread_functions attribute_hidden;
+struct pthread_functions __libc_pthread_functions;
 
 
 # define FORWARD2(name, rettype, decl, params, defaction) \
