@@ -188,6 +188,7 @@ $(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscal
 		exit 1; \
 	fi
 
+.PHONY: $(LOCAL_INSTALL_PATH)
 $(LOCAL_INSTALL_PATH):
 	$(Q)$(MAKE) PREFIX=$(shell pwd)/$(LOCAL_INSTALL_PATH) RUNTIME_PREFIX=/ \
 	DEVEL_PREFIX=/usr/ \

@@ -3,5 +3,9 @@
 #
 ifeq ($(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6),)
 TESTS_DISABLED := bug-if1 gethost_r-align gethostid if_nameindex tst-aton \
-	tst-network tst-ntoa 
+	tst-network tst-ntoa
+endif
+
+ifeq ($(UCLIBC_HAS_SOCKET)$(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6),)
+TESTS_DISABLED := tst-ether_aton tst-ethers tst-ethers-line
 endif

@@ -987,11 +987,8 @@ long int sysconf(int name)
 #if defined __UCLIBC_HAS_REALTIME__ && defined __NR_clock_getres
       if (clock_getres(CLOCK_MONOTONIC, NULL) >= 0)
         return _POSIX_VERSION;
-
-      RETURN_NEG_1;
-#else
-      RETURN_NEG_1;
 #endif
+      RETURN_NEG_1;
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
     case _SC_THREAD_CPUTIME:

@@ -14,15 +14,12 @@ CSRC-  := ssp-local.c
 CSRC_LFS := $(notdir $(wildcard $(COMMON_DIR)/*64.c))
 CSRC-y := $(filter-out llseek.c $(CSRC_LFS),$(CSRC-y))
 CSRC-$(UCLIBC_HAS_LFS) += llseek.c $(CSRC_LFS)
-
-ifneq ($(UCLIBC_HAS_SSP)$(UCLIBC_HAS_FORTIFY),)
-CSRC-y += ssp.c
-endif
+CSRC-$(findstring y,$(UCLIBC_HAS_SSP)$(UCLIBC_HAS_FORTIFY)) += ssp.c
 CSRC-$(UCLIBC_LINUX_MODULE_24) += create_module.c query_module.c \
 	get_kernel_syms.c
 # we need these internally: fstatfs.c statfs.c
 CSRC-$(UCLIBC_LINUX_SPECIFIC) += capget.c capset.c inotify.c ioperm.c iopl.c \
-	modify_ldt.c personality.c ppoll.c prctl.c readahead.c reboot.c \
+	madvise.c modify_ldt.c personality.c ppoll.c prctl.c readahead.c reboot.c \
 	remap_file_pages.c sched_getaffinity.c sched_setaffinity.c \
 	sendfile64.c sendfile.c setfsgid.c setfsuid.c setresuid.c \
 	splice.c signalfd.c swapoff.c swapon.c sync_file_range.c \
