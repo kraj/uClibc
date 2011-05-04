@@ -6,10 +6,5 @@
 #
 
 CSRC := brk.c pread_write.c syscall.c prctl.c
-#CSRC :=
 
 SSRC := __longjmp.S bsd-_setjmp.S bsd-setjmp.S clone.S setjmp.S _vfork.S
-#SSRC :=
-
-# libc-nonshared-y += $(ARCH_OUT)/_syscall.os
-

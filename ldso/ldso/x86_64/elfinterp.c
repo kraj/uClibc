@@ -157,7 +157,9 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	int reloc_type;
 	int symtab_index;
 	char *symname;
-	struct elf_resolve *tls_tpnt = NULL;
+#if defined USE_TLS && USE_TLS
+	struct elf_resolve *tls_tpnt;
+#endif
 	struct symbol_ref sym_ref;
 	ElfW(Addr) *reloc_addr;
 	ElfW(Addr) symbol_addr;
@@ -189,13 +191,17 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		if (_dl_trace_prelink)
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
 						&sym_ref, elf_machine_type_class(reloc_type));
+#if defined USE_TLS && USE_TLS
 		tls_tpnt = sym_ref.tpnt;
+#endif
 	} else {
 		/* Relocs against STN_UNDEF are usually treated as using a
 		 * symbol value of zero, and using the module containing the
 		 * reloc itself. */
 		symbol_addr = sym_ref.sym->st_value;
+#if defined USE_TLS && USE_TLS
 		tls_tpnt = tpnt;
+#endif
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)

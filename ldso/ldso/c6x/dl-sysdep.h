@@ -104,6 +104,9 @@ struct elf32_dsbt_loadaddr;
   (__dl_init_loadaddr_hdr ((LOADADDR), (ADDR), (PHDR), \
 			   dl_init_loadaddr_load_count))
 
+#define DL_UPDATE_LOADADDR_HDR(LOADADDR, ADDR, PHDR) \
+  (__dl_update_loadaddr_hdr ((LOADADDR), (ADDR), (PHDR)))
+
 #define DL_LOADADDR_UNMAP(LOADADDR, LEN) \
   (__dl_loadaddr_unmap ((LOADADDR)))
 

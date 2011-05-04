@@ -36,6 +36,6 @@ $(ARCH_HEADERS_OUT):
 headers-y += $(ARCH_HEADERS_OUT)
 headers_clean-y += HEADERCLEAN_$(subst $(top_builddir),,$(ARCH_OUT))
 HEADERCLEAN_$(subst $(top_builddir),,$(ARCH_OUT)):
-	$(RM) $(ARCH_HEADERS_OUT)
+	$(do_rm) $(ARCH_HEADERS_OUT)
 
 endif

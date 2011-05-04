@@ -14,18 +14,19 @@ CSRC-  := ssp-local.c
 CSRC_LFS := $(notdir $(wildcard $(COMMON_DIR)/*64.c))
 CSRC-y := $(filter-out llseek.c $(CSRC_LFS),$(CSRC-y))
 CSRC-$(UCLIBC_HAS_LFS) += llseek.c $(CSRC_LFS)
-
-CSRC-$(if $(or $(UCLIBC_HAS_SSP),$(UCLIBC_HAS_FORTIFY)),y) += ssp.c
+CSRC-$(findstring y,$(UCLIBC_HAS_SSP)$(UCLIBC_HAS_FORTIFY)) += ssp.c
 CSRC-$(UCLIBC_LINUX_MODULE_24) += create_module.c query_module.c \
 	get_kernel_syms.c
 # we need these internally: fstatfs.c statfs.c
 CSRC-$(UCLIBC_LINUX_SPECIFIC) += capget.c capset.c inotify.c ioperm.c iopl.c \
-	modify_ldt.c personality.c ppoll.c prctl.c readahead.c reboot.c \
+	madvise.c modify_ldt.c personality.c ppoll.c prctl.c readahead.c reboot.c \
 	remap_file_pages.c sched_getaffinity.c sched_setaffinity.c \
 	sendfile64.c sendfile.c setfsgid.c setfsuid.c setresuid.c \
 	splice.c vmsplice.c tee.c signalfd.c swapoff.c swapon.c \
 	sync_file_range.c sysctl.c sysinfo.c timerfd.c uselib.c vhangup.c
-CSRC-$(if $(and $(UCLIBC_LINUX_SPECIFIC),$(UCLIBC_HAS_THREADS_NATIVE)),y) += madvise.c
+ifeq ($(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_THREADS_NATIVE),yy)
+CSRC-y += madvise.c
+endif
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 CSRC- += fork.c getpid.c raise.c open.c close.c read.c write.c
 CSRC- += $(if $(findstring =arm=,=$(TARGET_ARCH)=),vfork.c)
@@ -40,7 +41,7 @@ CSRC-$(UCLIBC_NTP_LEGACY) += ntp_gettime.c
 # aio_cancel|aio_error|aio_fsync|aio_read|aio_return|aio_suspend|aio_write|clock_getres|clock_gettime|clock_settime|clock_settime|fdatasync|lio_listio|mlockall|munlockall|mlock|munlock|mq_close|mq_getattr|mq_notify|mq_open|mq_receive|mq_timedreceive|mq_send|mq_timedsend|mq_setattr|mq_unlink|nanosleep|sched_getparam|sched_get_priority_max|sched_get_priority_min|sched_getscheduler|sched_rr_get_interval|sched_setparam|sched_setscheduler|sem_close|sem_destroy|sem_getvalue|sem_init|sem_open|sem_post|sem_trywait|sem_wait|sem_unlink|sem_wait|shm_open|shm_unlink|sigqueue|sigtimedwait|sigwaitinfo|sigwaitinfo|timer_create|timer_delete|timer_getoverrun|timer_gettime|timer_settime
 CSRC-$(UCLIBC_HAS_REALTIME) += clock_getres.c clock_gettime.c clock_settime.c \
 	fdatasync.c mlockall.c mlock.c munlockall.c munlock.c \
-	nanosleep.c __rt_sigtimedwait.c sched_getparam.c \
+	nanosleep.c __rt_sigtimedwait.c __rt_sigwaitinfo.c sched_getparam.c \
 	sched_get_priority_max.c sched_get_priority_min.c sched_getscheduler.c \
 	sched_rr_get_interval.c sched_setparam.c sched_setscheduler.c sigqueue.c
 # clock_getcpuclockid|clock_nanosleep|mq_timedreceive|mq_timedsend|posix_fadvise|posix_fallocate|posix_madvise|posix_memalign|posix_mem_offset|posix_spawnattr_destroy|posix_spawnattr_init|posix_spawnattr_getflags|posix_spawnattr_setflags|posix_spawnattr_getpgroup|posix_spawnattr_setpgroup|posix_spawnattr_getschedparam|posix_spawnattr_setschedparam|posix_spawnattr_getschedpolicy|posix_spawnattr_setschedpolicy|posix_spawnattr_getsigdefault|posix_spawnattr_setsigdefault|posix_spawnattr_getsigmask|posix_spawnattr_setsigmask|posix_spawnattr_init|posix_spawnattr_setflags|posix_spawnattr_setpgroup|posix_spawnattr_setschedparam|posix_spawnattr_setschedpolicy|posix_spawnattr_setsigdefault|posix_spawnattr_setsigmask|posix_spawn_file_actions_addclose|posix_spawn_file_actions_addopen|posix_spawn_file_actions_adddup2|posix_spawn_file_actions_addopen|posix_spawn_file_actions_destroy|posix_spawn_file_actions_init|posix_spawn_file_actions_init|posix_spawn|posix_spawnp|posix_spawnp|posix_typed_mem_get_info|pthread_mutex_timedlock|sem_timedwait

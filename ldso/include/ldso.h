@@ -35,6 +35,8 @@
 #include <sys/types.h>
 /* Pull in the arch specific page size */
 #include <bits/uClibc_page.h>
+/* Pull in the MIN macro */
+#include <sys/param.h>
 /* Pull in the ldso syscalls and string functions */
 #ifndef __ARCH_HAS_NO_SHARED__
 #include <dl-syscall.h>

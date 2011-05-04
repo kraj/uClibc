@@ -16,6 +16,7 @@ include $(top_srcdir)libc/misc/elf/Makefile.in
 include $(top_srcdir)libc/misc/file/Makefile.in
 include $(top_srcdir)libc/misc/fnmatch/Makefile.in
 include $(top_srcdir)libc/misc/ftw/Makefile.in
+include $(top_srcdir)libc/misc/fts/Makefile.in
 include $(top_srcdir)libc/misc/glob/Makefile.in
 include $(top_srcdir)libc/misc/gnu/Makefile.in
 include $(top_srcdir)libc/misc/internals/Makefile.in

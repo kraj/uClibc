@@ -38,10 +38,12 @@ struct ether_addr *ether_aton_r(const char *asc, struct ether_addr *addr)
 
 	for (cnt = 0; cnt < 6; ++cnt) {
 		unsigned char number;
-		char ch;
+		char ch = *asc++;
 
+		if (ch < 0x20)
+			return NULL;
 		/* | 0x20 is cheap tolower(), valid for letters/numbers only */
-		ch = (*asc++) | 0x20;
+		ch |= 0x20;
 		if ((ch < '0' || ch > '9') && (ch < 'a' || ch > 'f'))
 			return NULL;
 		number = !(ch > '9') ? (ch - '0') : (ch - 'a' + 10);
