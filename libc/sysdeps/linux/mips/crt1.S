@@ -118,7 +118,6 @@ __start:
 hlt:
 	/* Crash if somehow `__uClibc_main' returns anyway.  */
 	b   hlt
-.size __start,.-__start
 .end __start
 
 /* Define a symbol for the first piece of initialized data.  */

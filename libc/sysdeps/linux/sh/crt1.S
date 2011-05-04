@@ -104,7 +104,6 @@ _start:
 	nop
 #endif
 
-	.size _start,.-_start
 	.align	2
 
 #ifdef __PIC__

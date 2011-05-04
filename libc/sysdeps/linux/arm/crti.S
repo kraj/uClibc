@@ -63,7 +63,6 @@ _fini:
 _call_via_\register:
 	bx	\register
 	nop
-	.size	_call_via_\register, . - _call_via_\register
 .endm
 
 	@ and calls for the 15 general purpose registers (2 bytes each).

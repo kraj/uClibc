@@ -113,7 +113,6 @@ _start:
 
 	/* Crash if somehow `exit' returns anyways.  */
 	jmpl	@(gr0,gr0)
-.size _start,.-_start
 
 /* Define a symbol for the first piece of initialized data.  */
 	.data
