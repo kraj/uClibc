@@ -7,6 +7,7 @@
 	.proc	020
 	ret
 	restore
+	.size	_init, .-_init
 	
 	.section .fini
 	.align 4
@@ -15,3 +16,4 @@
 	.proc	020
 	ret
 	restore
+	.size	_fini, .-_fini

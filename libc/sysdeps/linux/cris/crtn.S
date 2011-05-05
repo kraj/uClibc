@@ -9,6 +9,7 @@
 	move.d	[$sp+],$r1
 	Ret
 	nop
+	.size	_init, .-_init
 
 	.section	.fini
 	.align	1
@@ -19,3 +20,4 @@
 	move.d	[$sp+],$r1
 	Ret
 	nop
+	.size	_fini, .-_fini

@@ -95,6 +95,7 @@ _start:
 	b	__uClibc_main
 #endif
 
+.size _start,.-_start
 
 /* Define a symbol for the first piece of initialized data.  */
 	.data

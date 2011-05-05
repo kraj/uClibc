@@ -14,6 +14,7 @@
 ; #NO_APP
 	mov.l	@er7+,er6
 	rts
+	.size	__init, .-__init
 ; #APP
 
 	.section .fini
@@ -23,6 +24,7 @@
 ; #NO_APP
 	mov.l	@er7+,er6
 	rts
+	.size	__fini, .-__fini
 ; #APP
 
 	.end

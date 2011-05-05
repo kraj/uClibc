@@ -15,6 +15,7 @@
 	.align 2
 .L6:
 .L7:
+	.size	_init, .-_init
 	
 	.section .fini
 	.hidden  _fini
@@ -30,5 +31,6 @@
 	.align 2
 .L11:
 .L12:
+	.size	_fini, .-_fini
 	
 	.ident	"GCC: (GNU) 3.3.2"

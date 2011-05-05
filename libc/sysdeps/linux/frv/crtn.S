@@ -32,6 +32,7 @@ Cambridge, MA 02139, USA.  */
 	ld @(sp,gr0), fp
 	addi sp,#16,sp
 	jmpl @(gr5,gr0)
+	.size	_init, .-_init
 	
 	.section .fini,"x"
 	.globl _fini
@@ -40,3 +41,4 @@ Cambridge, MA 02139, USA.  */
 	ld @(sp,gr0), fp
 	addi sp,#16,sp
 	jmpl @(gr5,gr0)
+	.size	_fini, .-_fini

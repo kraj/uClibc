@@ -14,6 +14,7 @@
 	ptabs	r18, tr0
 	addi.l	r15, 16, r15
 	blink	tr0, r63
+	.size	_init, .-_init
 	
 	.section .fini
 	.hidden  _fini
@@ -27,5 +28,6 @@
 	ptabs	r18, tr0
 	addi.l	r15, 16, r15
 	blink	tr0, r63
+	.size	_fini, .-_fini
 	
 	.ident	"GCC: (GNU) 3.3.2"

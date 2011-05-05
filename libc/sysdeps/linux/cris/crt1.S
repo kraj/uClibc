@@ -9,6 +9,7 @@
 	.global	__data_start
 	.align	2
 	.type	__data_start, @object
+	.size	__data_start, 4
 __data_start:
 	.dword	0
 
@@ -52,3 +53,4 @@ _start:
 	/* Leave control to the libc */
 	jsr	__uClibc_main
 	nop
+	.size	_start, .-_start

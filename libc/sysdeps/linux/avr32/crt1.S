@@ -80,6 +80,7 @@ __main_addr:
 ___uClibc_main_addr:
 	.long	__uClibc_main
 #endif
+	.size	_start, . - _start
 
 	/*
 	 * The LSB says we need this.

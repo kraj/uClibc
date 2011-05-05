@@ -26,6 +26,7 @@
 
 	.end	_init
 $Lfe2:
+	.size	_init,$Lfe2-_init
 
 	.section .fini
 	.align	2
@@ -39,5 +40,6 @@ $Lfe2:
 
 	.end	_fini
 $Lfe3:
+	.size	_fini,$Lfe3-_fini
 
 /*@TRAILER_BEGINS*/
