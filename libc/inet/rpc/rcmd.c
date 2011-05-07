@@ -86,6 +86,11 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #include <sys/uio.h>
 #include <bits/uClibc_alloc.h>
 
+/* sigsetmask and sigblock are not provided anymore, until this file is corrected,
+ * include the sources */
+#include "../../signal/sigblock.c"
+#include "../../signal/sigsetmask.c"
+
 
 /* some forward declarations */
 static int __ivaliduser2(FILE *hostf, u_int32_t raddr,
@@ -145,7 +150,7 @@ int rcmd(char **ahost, u_short rport, const char *locuser, const char *remuser,
 	pfd[1].events = POLLIN;
 
         *ahost = hp->h_name;
-        oldmask = sigblock(sigmask(SIGURG)); /* __sigblock */
+        oldmask = sigblock(__sigmask(SIGURG)); /* sigblock */
 	for (timo = 1, lport = IPPORT_RESERVED - 1;;) {
 		s = rresvport(&lport);
 		if (s < 0) {

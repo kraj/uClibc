@@ -213,7 +213,7 @@ extern int sigpause(int __sig);
 #endif
 #endif /* __UCLIBC_SUSV4_LEGACY__ */
 
-#ifdef __USE_BSD
+#if 0 /*def __USE_BSD*/
 /* None of the following functions should be used anymore.  They are here
    only for compatibility.  A single word (`int') is not guaranteed to be
    enough to hold a complete signal mask and therefore these functions
@@ -223,22 +223,10 @@ extern int sigpause(int __sig);
 # define sigmask(sig)	__sigmask(sig)
 
 /* Block signals in MASK, returning the old mask.  */
-# ifdef _LIBC
-extern int sigblock (int __mask) __THROW;
-/* collides with libc_hidden_proto: __attribute_deprecated__; */
-libc_hidden_proto(sigblock)
-# else
 extern int sigblock (int __mask) __THROW __attribute_deprecated__;
-# endif
 
 /* Set the mask of blocked signals to MASK, returning the old mask.  */
-# ifdef _LIBC
-extern int sigsetmask (int __mask) __THROW;
-/* collides with libc_hidden_proto: __attribute_deprecated__; */
-libc_hidden_proto(sigsetmask)
-# else
 extern int sigsetmask (int __mask) __THROW __attribute_deprecated__;
-# endif
 
 /* Return currently selected signal mask.  */
 extern int siggetmask (void) __THROW __attribute_deprecated__;
