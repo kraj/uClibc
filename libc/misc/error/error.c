@@ -37,8 +37,7 @@ int error_one_per_line;
    function without parameters instead.  */
 void (*error_print_progname) (void) = NULL;
 
-extern __typeof(error) __error attribute_hidden;
-void __error (int status, int errnum, const char *message, ...)
+void error (int status, int errnum, const char *message, ...)
 {
     va_list args;
 
@@ -60,11 +59,9 @@ void __error (int status, int errnum, const char *message, ...)
     if (status)
 	exit (status);
 }
-weak_alias(__error,error)
 
-extern __typeof(error_at_line) __error_at_line attribute_hidden;
-void __error_at_line (int status, int errnum, const char *file_name,
-	       unsigned int line_number, const char *message, ...)
+void error_at_line (int status, int errnum, const char *file_name,
+		    unsigned int line_number, const char *message, ...)
 {
     va_list args;
 
@@ -103,4 +100,3 @@ void __error_at_line (int status, int errnum, const char *file_name,
     if (status)
 	exit (status);
 }
-weak_alias(__error_at_line,error_at_line)
