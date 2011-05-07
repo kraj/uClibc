@@ -230,7 +230,7 @@ extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 
 struct pthread_functions __pthread_functions =
   {
-#ifndef __UCLIBC_HAS_TLS__
+#if !defined __UCLIBC_HAS_TLS__ && defined __UCLIBC_HAS_RPC__
     .ptr_pthread_internal_tsd_set = __pthread_internal_tsd_set,
     .ptr_pthread_internal_tsd_get = __pthread_internal_tsd_get,
     .ptr_pthread_internal_tsd_address = __pthread_internal_tsd_address,
