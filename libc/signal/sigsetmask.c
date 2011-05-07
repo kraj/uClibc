@@ -16,13 +16,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define __UCLIBC_HIDE_DEPRECATED__
+/*#define __UCLIBC_HIDE_DEPRECATED__*/
 #include <signal.h>
 
 #include "sigset-cvt-mask.h"
 
 /* Set the mask of blocked signals to MASK, returning the old mask.  */
-int
+static int
 sigsetmask (int mask)
 {
   sigset_t set, oset;
@@ -31,4 +31,3 @@ sigsetmask (int mask)
   sigprocmask (SIG_SETMASK, &set, &oset); /* can't fail */
   return sigset_get_old_mask (&oset);
 }
-libc_hidden_def(sigsetmask)
