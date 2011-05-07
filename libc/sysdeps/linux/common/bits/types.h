@@ -1,5 +1,5 @@
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
-   Copyright (C) 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+   Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,8 +27,6 @@
 #include <features.h>
 #include <bits/wordsize.h>
 
-#define __need_size_t
-#include <stddef.h>
 #ifdef _LIBC
 #include <bits/kernel_types.h>
 #endif
@@ -199,10 +197,5 @@ __STD_TYPE __U32_TYPE __socklen_t;
 
 
 #undef __STD_TYPE
-
-/* Now add the thread types.  */
-#if defined __UCLIBC_HAS_THREADS__ && (defined __USE_POSIX199506 || defined __USE_UNIX98)
-# include <bits/pthreadtypes.h>
-#endif
 
 #endif /* bits/types.h */
