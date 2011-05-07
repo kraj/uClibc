@@ -438,10 +438,12 @@ extern void __linuxthreads_reap_event (void);
 extern void __pthread_initialize (void);
 
 /* TSD.  */
+#if !defined __UCLIBC_HAS_TLS__ && defined __UCLIBC_HAS_RPC__
 extern int __pthread_internal_tsd_set (int key, const void * pointer);
 extern void * __pthread_internal_tsd_get (int key);
 extern void ** __attribute__ ((__const__))
   __pthread_internal_tsd_address (int key);
+#endif
 
 /* Sighandler wrappers.  */
 extern void __pthread_sighandler(int signo, SIGCONTEXT ctx);

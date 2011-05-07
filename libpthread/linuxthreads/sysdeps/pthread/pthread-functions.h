@@ -72,10 +72,12 @@ struct pthread_functions
   void (*ptr_pthread_cleanup_upto) (__jmp_buf target,
 				    char *targetframe);
   pthread_descr (*ptr_pthread_thread_self) (void);
+#if !defined __UCLIBC_HAS_TLS__ && defined __UCLIBC_HAS_RPC__
   int (*ptr_pthread_internal_tsd_set) (int key, const void *pointer);
   void * (*ptr_pthread_internal_tsd_get) (int key);
   void ** __attribute__ ((__const__))
     (*ptr_pthread_internal_tsd_address) (int key);
+#endif
   int (*ptr_pthread_sigaction) (int sig, const struct sigaction * act,
 				struct sigaction *oact);
   int (*ptr_pthread_sigwait) (const sigset_t *set, int *sig);
