@@ -113,6 +113,14 @@ extern int sched_setaffinity (__pid_t __pid, size_t __cpusetsize,
 /* Get the CPU affinity for a task */
 extern int sched_getaffinity (__pid_t __pid, size_t __cpusetsize,
 			      cpu_set_t *__cpuset) __THROW;
+
+# ifdef _LIBC
+extern int __clone (int (*__fn) (void *__arg), void *__child_stack,
+		    int __flags, void *__arg, ...);
+extern int __clone2 (int (*__fn) (void *__arg), void *__child_stack_base,
+		     size_t __child_stack_size, int __flags, void *__arg, ...);
+# endif
+
 #endif
 
 __END_DECLS
