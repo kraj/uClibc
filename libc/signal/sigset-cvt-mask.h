@@ -19,6 +19,9 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#ifndef _SIGSET_CVT_MASK_H
+#define _SIGSET_CVT_MASK_H
+
 #include <string.h>
 
 static __inline__ void __attribute__ ((unused))
@@ -36,3 +39,5 @@ sigset_get_old_mask (const sigset_t *set)
 {
   return (unsigned int) set->__val[0];
 }
+
+#endif
