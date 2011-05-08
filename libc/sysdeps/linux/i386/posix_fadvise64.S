@@ -26,6 +26,7 @@
 .global posix_fadvise64
 .type   posix_fadvise64,%function
 posix_fadvise64:
+#if defined __NR_fadvise64_64
 	/* Save regs  */
 	pushl	%ebp
 	pushl	%ebx
