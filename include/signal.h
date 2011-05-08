@@ -309,6 +309,8 @@ extern int __syscall_sigaction(int, __const struct old_kernel_sigaction *,
 # else /* this is how the function is built */
 extern __typeof(sigaction) __syscall_sigaction attribute_hidden;
 # endif
+# define __need_size_t
+# include <stddef.h>
 /* candidate for attribute_hidden, if NPTL would behave */
 extern int __syscall_rt_sigaction(int, __const struct sigaction *,
 	struct sigaction *, size_t)
@@ -424,6 +426,8 @@ extern int sigreturn (struct sigcontext *__scp) __THROW;
 
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+# define __need_size_t
+# include <stddef.h>
 
 # ifdef __UCLIBC_SUSV4_LEGACY__
 /* If INTERRUPT is nonzero, make signal SIG interrupt system calls
