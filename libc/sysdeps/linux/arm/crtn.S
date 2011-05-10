@@ -15,7 +15,6 @@
 	.arm
 	ldmdb	fp, {r4, r5, r6, r7, r8, r9, sl, fp, sp, pc}
 #endif
-	.size	_init, .-_init
 	
 	.section .fini
 	.global	_fini
@@ -29,7 +28,6 @@
 	.arm
 	ldmdb	fp, {r4, r5, r6, r7, r8, r9, sl, fp, sp, pc}
 #endif
-	.size	_fini, .-_fini
 	
 	@ In fact this is modified to 3.4.4
 	.ident	"GCC: (GNU) 3.3.2 20031005 (Debian prerelease)"

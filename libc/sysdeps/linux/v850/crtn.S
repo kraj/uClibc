@@ -8,7 +8,6 @@
 	.type	__init, @function
 #NO_APP
 	jr __return_r31
-	.size	__init, .-__init
 #APP
 	
 	.section .fini
@@ -18,7 +17,6 @@
 	.type	__fini, @function
 #NO_APP
 	jr __return_r31
-	.size	__fini, .-__fini
 #APP
 	
 	.ident	"GCC: (GNU) 3.3.2"
