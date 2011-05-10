@@ -672,7 +672,7 @@ void *dlsym(void *vhandle, const char *name)
 #if defined(USE_TLS) && USE_TLS && defined SHARED
 	if (sym_ref.tpnt) {
 		/* The found symbol is a thread-local storage variable.
-		Return the address for to the current thread.  */
+		Return its address for the current thread.  */
 		ret = _dl_tls_symaddr ((struct link_map *)sym_ref.tpnt, (Elf32_Addr)ret);
 	}
 #endif
