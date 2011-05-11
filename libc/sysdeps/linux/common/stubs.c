@@ -31,6 +31,10 @@ static int enosys_stub(void)
 # undef __NR_sync_file_range
 #endif
 
+#ifndef __UCLIBC_LINUX_SPECIFIC__
+# undef __NR_pipe2
+#endif
+
 #ifndef __UCLIBC_HAS_SOCKET__
 # undef __NR_accept
 # undef __NR_accept4
@@ -175,6 +179,10 @@ make_stub(lremovexattr)
 
 #ifndef __NR_lsetxattr
 make_stub(lsetxattr)
+#endif
+
+#ifndef __NR_pipe2
+make_stub(pipe2)
 #endif
 
 #ifndef __NR_pivot_root
