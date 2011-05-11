@@ -312,7 +312,7 @@ __do_cancel (void)
 # define LIBC_CANCEL_HANDLED()	/* Nothing.  */
 #endif
 
-/* The signal used for asynchronous cancelation.  */
+/* The signal used for asynchronous cancellation.  */
 #define SIGCANCEL	__SIGRTMIN
 
 
