@@ -186,6 +186,7 @@ OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
 # shrinks code by about 0.1%
 OPTIMIZATION+=$(call check_gcc,-fmerge-all-constants)
+OPTIMIZATION+=$(call check_gcc,-fstrict-aliasing)
 
 GCC_MAJOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1)
 #GCC_MINOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 2)
@@ -332,7 +333,6 @@ ifeq ($(TARGET_ARCH),sparc)
 endif
 
 ifeq ($(TARGET_ARCH),arm)
-	OPTIMIZATION+=-fstrict-aliasing
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-mlittle-endian
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mbig-endian
 	CPU_CFLAGS-$(CONFIG_GENERIC_ARM)+=
@@ -385,7 +385,6 @@ ifeq ($(TARGET_ARCH),nios)
 endif
 
 ifeq ($(TARGET_ARCH),sh)
-	OPTIMIZATION+=-fstrict-aliasing
 	OPTIMIZATION+= $(call check_gcc,-mprefergot,)
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-ml
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mb
@@ -401,7 +400,6 @@ endif
 endif
 
 ifeq ($(TARGET_ARCH),sh64)
-	OPTIMIZATION+=-fstrict-aliasing
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):=-ml
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):=-mb
 	CPU_CFLAGS-$(CONFIG_SH5)+=-m5-32media
@@ -546,10 +544,10 @@ endif
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
-XWARNINGS=$(call qstrip,$(WARNINGS)) 
+XWARNINGS=$(call qstrip,$(WARNINGS))
 XWARNINGS+=$(foreach w,\
 	-Wstrict-prototypes \
-	-fno-strict-aliasing \
+	-Wstrict-aliasing \
 	, $(call check_gcc,$(w),))
 ifeq ($(EXTRA_WARNINGS),y)
 XWARNINGS+=$(foreach w,\
