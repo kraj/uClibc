@@ -83,6 +83,46 @@ weak_alias(__libc_accept,accept)
 libc_hidden_weak(accept)
 #endif
 
+#ifdef L_accept4
+#ifdef __NR_accept4
+# define __NR___sys_accept4  __NR_accept4
+static _syscall4(int, __sys_accept4, int, fd, struct sockaddr *, addr, socklen_t *, addrlen, int, flags)
+int accept4(int fd, struct sockaddr *addr, socklen_t * addrlen, int flags)
+{
+	if (SINGLE_THREAD_P)
+		return __sys_accept4(fd, addr, addrlen, flags);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	else {
+		int oldtype = LIBC_CANCEL_ASYNC ();
+		int result = __sys_accept4(fd, addr, addrlen, flags);
+		LIBC_CANCEL_RESET (oldtype);
+		return result;
+	}
+#endif
+}
+#elif defined(__NR_socketcall)
+int accept4(int fd, struct sockaddr *addr, socklen_t *addrlen, int flags)
+{
+	unsigned long args[4];
+
+	args[0] = fd;
+	args[1] = (unsigned long) addr;
+	args[2] = (unsigned long) addrlen;
+	args[3] = flags;
+	if (SINGLE_THREAD_P)
+		return __socketcall(SYS_ACCEPT4, args);
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+	else {
+		int oldtype = LIBC_CANCEL_ASYNC ();
+		int result = __socketcall(SYS_ACCEPT4, args);
+		LIBC_CANCEL_RESET (oldtype);
+		return result;
+	}
+#endif
+}
+#endif
+#endif
+
 #ifdef L_bind
 #ifdef __NR_bind
 _syscall3(int, bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen)
@@ -562,19 +602,3 @@ int socketpair(int family, int type, int protocol, int sockvec[2])
 #endif
 #endif
 
-#ifdef L_accept4
-#ifdef __NR_accept4
-_syscall4(int, accept4, int, sockfd, struct sockaddr *, addr, socklen_t *, addrlen, int, flags)
-#elif defined(__NR_socketcall)
-int accept4(int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags)
-{
-	unsigned long args[4];
-
-	args[0] = sockfd;
-	args[1] = (unsigned long) addr;
-	args[2] = (unsigned long) addrlen;
-	args[3] = flags;
-	return __socketcall(SYS_ACCEPT4, args);
-}
-#endif
-#endif

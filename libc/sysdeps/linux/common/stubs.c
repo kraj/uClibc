@@ -31,6 +31,10 @@ static int enosys_stub(void)
 # undef __NR_sync_file_range
 #endif
 
+#ifndef __NR_accept4
+make_stub(accept4)
+#endif
+
 #ifndef __NR_bdflush
 make_stub(bdflush)
 #endif

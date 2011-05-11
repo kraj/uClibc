@@ -4,5 +4,5 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#define L_accept
+#define L_accept4
 #include "socketcalls.c"

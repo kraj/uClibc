@@ -44,11 +44,13 @@ CSRC-$(findstring y,$(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6)) += \
 ## CSRC-y += encodep.c decodep.c formquery.c
 
 # multi source socketcalls.c
-socketcalls_CSRC += \
+socketcalls_CSRC-y += \
 	accept.c bind.c connect.c getpeername.c getsockname.c \
 	getsockopt.c listen.c recv.c recvfrom.c recvmsg.c send.c sendmsg.c \
 	sendto.c setsockopt.c shutdown.c socket.c socketpair.c
-CSRC-$(UCLIBC_HAS_SOCKET) += $(socketcalls_CSRC) opensock.c
+# FIXME: GNU / linux specific
+socketcalls_CSRC-y += accept4.c
+CSRC-$(UCLIBC_HAS_SOCKET) += $(socketcalls_CSRC-y) opensock.c
 
 CSRC-$(findstring y,$(UCLIBC_HAS_SOCKET)$(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6)) += ethers.c ether_addr.c
 
