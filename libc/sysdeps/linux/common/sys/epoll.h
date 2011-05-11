@@ -32,12 +32,30 @@ typedef __sigset_t sigset_t;
 
 
 /* Flags to be passed to epoll_create1.  */
+
 enum
   {
+#if defined __alpha__
+    EPOLL_CLOEXEC = 010000000,
+# define EPOLL_CLOEXEC EPOLL_CLOEXEC
+    EPOLL_NONBLOCK = 04
+# define EPOLL_NONBLOCK EPOLL_NONBLOCK
+#else
+# if defined __sparc__
+    EPOLL_CLOEXEC = 020000000,
+# else
     EPOLL_CLOEXEC = 02000000,
-#define EPOLL_CLOEXEC EPOLL_CLOEXEC
+# endif
+# define EPOLL_CLOEXEC EPOLL_CLOEXEC
+# if defined __mips__
+    EPOLL_NONBLOCK = 0200
+# elif defined __sparc__
+    EPOLL_NONBLOCK = 040000
+# else
     EPOLL_NONBLOCK = 04000
+# endif
 #define EPOLL_NONBLOCK EPOLL_NONBLOCK
+#endif
   };
 
 
@@ -90,7 +108,11 @@ struct epoll_event
 {
   uint32_t events;	/* Epoll events */
   epoll_data_t data;	/* User data variable */
-};
+}
+#if defined __x86_64__
+__attribute__((packed))
+#endif
+;
 
 
 __BEGIN_DECLS
