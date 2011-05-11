@@ -45,7 +45,7 @@ lib-so-$(UCLIBC_HAS_BACKTRACE) += $(top_builddir)lib/libubacktrace.so
 
 objclean-y += CLEAN_libubacktrace
 
-ifeq ($(DOMULTI),)
+ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libubacktrace.so: $(top_builddir)lib/libubacktrace.a $(libdl.depend)
 else
