@@ -336,7 +336,7 @@ LLL_STUB_UNWIND_INFO_END
     })
 
 #define lll_robust_lock(futex, id, private) \
-  ({ int __result, ignore1, ignore2;					      \
+  ({ int __ret, ignore1, ignore2;					      \
      __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %2\n\t"			      \
 		       "jnz _L_robust_lock_%=\n\t"			      \
 		       ".subsection 1\n\t"				      \
@@ -350,11 +350,11 @@ LLL_STUB_UNWIND_INFO_END
 		       ".previous\n"					      \
 		       LLL_STUB_UNWIND_INFO_4				      \
 		       "18:"						      \
-		       : "=a" (__result), "=c" (ignore1), "=m" (futex),	      \
+		       : "=a" (__ret), "=c" (ignore1), "=m" (futex),	      \
 			 "=&d" (ignore2)				      \
 		       : "0" (0), "1" (id), "m" (futex), "g" ((int) (private))\
 		       : "memory");					      \
-     __result; })
+     __ret; })
 
 
 /* Special version of lll_lock which causes the unlock function to
@@ -383,7 +383,7 @@ LLL_STUB_UNWIND_INFO_END
 
 
 #define lll_robust_cond_lock(futex, id, private) \
-  ({ int __result, ignore1, ignore2;					      \
+  ({ int __ret, ignore1, ignore2;					      \
      __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %2\n\t"			      \
 		       "jnz _L_robust_cond_lock_%=\n\t"			      \
 		       ".subsection 1\n\t"				      \
@@ -397,16 +397,16 @@ LLL_STUB_UNWIND_INFO_END
 		       ".previous\n"					      \
 		       LLL_STUB_UNWIND_INFO_4				      \
 		       "18:"						      \
-		       : "=a" (__result), "=c" (ignore1), "=m" (futex),	      \
+		       : "=a" (__ret), "=c" (ignore1), "=m" (futex),	      \
 			 "=&d" (ignore2)				      \
 		       : "0" (0), "1" (id | FUTEX_WAITERS), "m" (futex),      \
 			 "g" ((int) (private))				      \
 		       : "memory");					      \
-     __result; })
+     __ret; })
 
 
 #define lll_timedlock(futex, timeout, private) \
-  ({ int __result, ignore1, ignore2, ignore3;				      \
+  ({ int __ret, ignore1, ignore2, ignore3;				      \
      __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %3\n\t"			      \
 		       "jnz _L_timedlock_%=\n\t"			      \
 		       ".subsection 1\n\t"				      \
@@ -420,16 +420,16 @@ LLL_STUB_UNWIND_INFO_END
 		       ".previous\n"					      \
 		       LLL_STUB_UNWIND_INFO_4				      \
 		       "18:"						      \
-		       : "=a" (__result), "=c" (ignore1), "=&d" (ignore2),      \
+		       : "=a" (__ret), "=c" (ignore1), "=&d" (ignore2),      \
 			 "=m" (futex), "=S" (ignore3)			      \
 		       : "0" (0), "1" (1), "m" (futex), "m" (timeout),	      \
 			 "4" ((int) (private))				      \
 		       : "memory");					      \
-     __result; })
+     __ret; })
 
 
 #define lll_robust_timedlock(futex, timeout, id, private) \
-  ({ int __result, ignore1, ignore2, ignore3;				      \
+  ({ int __ret, ignore1, ignore2, ignore3;				      \
      __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %3\n\t"			      \
 		       "jnz _L_robust_timedlock_%=\n\t"			      \
 		       ".subsection 1\n\t"				      \
@@ -443,12 +443,12 @@ LLL_STUB_UNWIND_INFO_END
 		       ".previous\n"					      \
 		       LLL_STUB_UNWIND_INFO_4				      \
 		       "18:"						      \
-		       : "=a" (__result), "=c" (ignore1), "=&d" (ignore2),      \
+		       : "=a" (__ret), "=c" (ignore1), "=&d" (ignore2),      \
 			 "=m" (futex), "=S" (ignore3)			      \
 		       : "0" (0), "1" (id), "m" (futex), "m" (timeout),	      \
 			 "4" ((int) (private))				      \
 		       : "memory");					      \
-     __result; })
+     __ret; })
 
 #if defined NOT_IN_libc || defined UP
 # define __lll_unlock_asm LOCK_INSTR "subl $1, %0\n\t"
@@ -570,15 +570,15 @@ extern int __lll_timedwait_tid (int *tid, const struct timespec *abstime)
      __attribute__ ((regparm (2))) attribute_hidden;
 #define lll_timedwait_tid(tid, abstime) \
   ({									      \
-    int __result = 0;							      \
+    int __ret = 0;							      \
     if (tid != 0)							      \
       {									      \
 	if (abstime->tv_nsec < 0 || abstime->tv_nsec >= 1000000000)	      \
-	  __result = EINVAL;						      \
+	  __ret = EINVAL;						      \
 	else								      \
-	  __result = __lll_timedwait_tid (&tid, abstime);		      \
+	  __ret = __lll_timedwait_tid (&tid, abstime);		      \
       }									      \
-    __result; })
+    __ret; })
 
 #endif  /* !__ASSEMBLER__ */
 

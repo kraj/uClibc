@@ -332,7 +332,7 @@ LLL_STUB_UNWIND_INFO_END
     })									      \
 
 #define lll_robust_lock(futex, id, private) \
-  ({ int result, ignore1, ignore2;					      \
+  ({ int __ret, ignore1, ignore2;					      \
     __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %4, %2\n\t"			      \
 		      "jnz 1f\n\t"					      \
 		      ".subsection 1\n\t"				      \
@@ -348,10 +348,10 @@ LLL_STUB_UNWIND_INFO_END
 		      LLL_STUB_UNWIND_INFO_5				      \
 		      "24:"						      \
 		      : "=S" (ignore1), "=D" (ignore2), "=m" (futex),	      \
-			"=a" (result)					      \
+			"=a" (__ret)					      \
 		      : "1" (id), "m" (futex), "3" (0), "0" (private)	      \
 		      : "cx", "r11", "cc", "memory");			      \
-    result; })
+    __ret; })
 
 #define lll_cond_lock(futex, private) \
   (void)								      \
@@ -377,7 +377,7 @@ LLL_STUB_UNWIND_INFO_END
     })
 
 #define lll_robust_cond_lock(futex, id, private) \
-  ({ int result, ignore1, ignore2;					      \
+  ({ int __ret, ignore1, ignore2;					      \
     __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %4, %2\n\t"			      \
 		      "jnz 1f\n\t"					      \
 		      ".subsection 1\n\t"				      \
@@ -393,14 +393,14 @@ LLL_STUB_UNWIND_INFO_END
 		      LLL_STUB_UNWIND_INFO_5				      \
 		      "24:"						      \
 		      : "=S" (ignore1), "=D" (ignore2), "=m" (futex),	      \
-			"=a" (result)					      \
+			"=a" (__ret)					      \
 		      : "1" (id | FUTEX_WAITERS), "m" (futex), "3" (0),	      \
 			"0" (private)					      \
 		      : "cx", "r11", "cc", "memory");			      \
-    result; })
+    __ret; })
 
 #define lll_timedlock(futex, timeout, private) \
-  ({ int result, ignore1, ignore2, ignore3;				      \
+  ({ int __ret, ignore1, ignore2, ignore3;				      \
      __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %4\n\t"			      \
 		       "jnz 1f\n\t"					      \
 		       ".subsection 1\n\t"				      \
@@ -416,15 +416,15 @@ LLL_STUB_UNWIND_INFO_END
 		       ".previous\n"					      \
 		       LLL_STUB_UNWIND_INFO_6				      \
 		       "24:"						      \
-		       : "=a" (result), "=D" (ignore1), "=S" (ignore2),	      \
+		       : "=a" (__ret), "=D" (ignore1), "=S" (ignore2),	      \
 			 "=&d" (ignore3), "=m" (futex)			      \
 		       : "0" (0), "1" (1), "m" (futex), "m" (timeout),	      \
 			 "2" (private)					      \
 		       : "memory", "cx", "cc", "r10", "r11");		      \
-     result; })
+     __ret; })
 
 #define lll_robust_timedlock(futex, timeout, id, private) \
-  ({ int result, ignore1, ignore2, ignore3;				      \
+  ({ int __ret, ignore1, ignore2, ignore3;				      \
      __asm__ __volatile__ (LOCK_INSTR "cmpxchgl %1, %4\n\t"			      \
 		       "jnz 1f\n\t"					      \
 		       ".subsection 1\n\t"				      \
@@ -440,12 +440,12 @@ LLL_STUB_UNWIND_INFO_END
 		       ".previous\n"					      \
 		       LLL_STUB_UNWIND_INFO_6				      \
 		       "24:"						      \
-		       : "=a" (result), "=D" (ignore1), "=S" (ignore2),       \
+		       : "=a" (__ret), "=D" (ignore1), "=S" (ignore2),       \
 			 "=&d" (ignore3), "=m" (futex)			      \
 		       : "0" (0), "1" (id), "m" (futex), "m" (timeout),	      \
 			 "2" (private)					      \
 		       : "memory", "cx", "cc", "r10", "r11");		      \
-     result; })
+     __ret; })
 
 #if defined NOT_IN_libc || defined UP
 # define __lll_unlock_asm_start LOCK_INSTR "decl %0\n\t"		      \
@@ -583,15 +583,15 @@ extern int __lll_timedwait_tid (int *tid, const struct timespec *abstime)
      attribute_hidden;
 #define lll_timedwait_tid(tid, abstime) \
   ({									      \
-    int __result = 0;							      \
+    int __ret = 0;							      \
     if (tid != 0)							      \
       {									      \
 	if (abstime->tv_nsec < 0 || abstime->tv_nsec >= 1000000000)	      \
-	  __result = EINVAL;						      \
+	  __ret = EINVAL;						      \
 	else								      \
-	  __result = __lll_timedwait_tid (&tid, abstime);		      \
+	  __ret = __lll_timedwait_tid (&tid, abstime);		      \
       }									      \
-    __result; })
+    __ret; })
 
 #endif  /* !__ASSEMBLER__ */
 
