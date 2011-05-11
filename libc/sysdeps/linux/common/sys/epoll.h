@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2006, 2007, 2008, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -21,6 +21,24 @@
 
 #include <stdint.h>
 #include <sys/types.h>
+
+/* Get __sigset_t.  */
+#include <bits/sigset.h>
+
+#ifndef __sigset_t_defined
+# define __sigset_t_defined
+typedef __sigset_t sigset_t;
+#endif
+
+
+/* Flags to be passed to epoll_create1.  */
+enum
+  {
+    EPOLL_CLOEXEC = 02000000,
+#define EPOLL_CLOEXEC EPOLL_CLOEXEC
+    EPOLL_NONBLOCK = 04000
+#define EPOLL_NONBLOCK EPOLL_NONBLOCK
+  };
 
 
 enum EPOLL_EVENTS
@@ -55,9 +73,9 @@ enum EPOLL_EVENTS
 
 
 /* Valid opcodes ( "op" parameter ) to issue to epoll_ctl().  */
-#define EPOLL_CTL_ADD 1	/* Add a file decriptor to the interface.  */
-#define EPOLL_CTL_DEL 2	/* Remove a file decriptor from the interface.  */
-#define EPOLL_CTL_MOD 3	/* Change file decriptor epoll_event structure.  */
+#define EPOLL_CTL_ADD 1	/* Add a file descriptor to the interface.  */
+#define EPOLL_CTL_DEL 2	/* Remove a file descriptor from the interface.  */
+#define EPOLL_CTL_MOD 3	/* Change file descriptor epoll_event structure.  */
 
 
 typedef union epoll_data
@@ -83,6 +101,10 @@ __BEGIN_DECLS
    returned by epoll_create() should be closed with close().  */
 extern int epoll_create (int __size) __THROW;
 
+/* Same as epoll_create but with a FLAGS parameter.  The unused SIZE
+   parameter has been dropped.  */
+extern int epoll_create1 (int __flags) __THROW;
+
 
 /* Manipulate an epoll instance "epfd". Returns 0 in case of success,
    -1 in case of error ( the "errno" variable will contain the
@@ -106,6 +128,16 @@ extern int epoll_ctl (int __epfd, int __op, int __fd,
    __THROW.  */
 extern int epoll_wait (int __epfd, struct epoll_event *__events,
 		       int __maxevents, int __timeout);
+
+
+/* Same as epoll_wait, but the thread's signal mask is temporarily
+   and atomically replaced with the one provided as parameter.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int epoll_pwait (int __epfd, struct epoll_event *__events,
+			int __maxevents, int __timeout,
+			__const __sigset_t *__ss);
 
 __END_DECLS
 
