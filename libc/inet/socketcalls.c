@@ -31,6 +31,7 @@ extern int __socketcall(int call, unsigned long *args) attribute_hidden;
 #define SYS_GETSOCKOPT  15
 #define SYS_SENDMSG     16
 #define SYS_RECVMSG     17
+#define SYS_ACCEPT4     18
 #endif
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
@@ -557,6 +558,23 @@ int socketpair(int family, int type, int protocol, int sockvec[2])
 	args[2] = protocol;
 	args[3] = (unsigned long) sockvec;
 	return __socketcall(SYS_SOCKETPAIR, args);
+}
+#endif
+#endif
+
+#ifdef L_accept4
+#ifdef __NR_accept4
+_syscall4(int, accept4, int, sockfd, struct sockaddr *, addr, socklen_t *, addrlen, int, flags)
+#elif defined(__NR_socketcall)
+int accept4(int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags)
+{
+	unsigned long args[4];
+
+	args[0] = sockfd;
+	args[1] = (unsigned long) addr;
+	args[2] = (unsigned long) addrlen;
+	args[3] = flags;
+	return __socketcall(SYS_ACCEPT4, args);
 }
 #endif
 #endif

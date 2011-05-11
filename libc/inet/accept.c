@@ -5,4 +5,5 @@
  */
 
 #define L_accept
+#define L_accept4
 #include "socketcalls.c"
