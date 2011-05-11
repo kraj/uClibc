@@ -60,4 +60,5 @@ help:
 	@echo '			  and the include dir (usually "/usr")'
 	@echo '  MULTILIB_DIR=		- Directory component for libraries (default "lib").'
 	@echo '  UCLIBC_EXTRA_CFLAGS	- extra CFLAGS for compiling uClibc'
+	@echo '  UCLIBC_EXTRA_CPPFLAGS	- extra CPPFLAGS for compiling uClibc'
 
