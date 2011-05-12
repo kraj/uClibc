@@ -381,7 +381,7 @@ static __inline__ int invalid_handle(pthread_handle h, pthread_t id)
 
 /* Recover thread descriptor for the current thread */
 
-extern pthread_descr __pthread_find_self (void) __attribute__ ((const));
+extern pthread_descr __pthread_find_self (void) __attribute__ ((const)) attribute_hidden;
 
 static __inline__ pthread_descr thread_self (void) __attribute__ ((const));
 static __inline__ pthread_descr thread_self (void)
@@ -451,18 +451,18 @@ extern int __librt_multiple_threads;
 /* Internal global functions */
 
 void __pthread_do_exit (void *retval, char *currentframe)
-     __attribute__ ((__noreturn__));
-void __pthread_destroy_specifics(void);
-void __pthread_perform_cleanup(char *currentframe);
-int __pthread_initialize_manager(void);
+     __attribute__ ((__noreturn__)) attribute_hidden;
+void __pthread_destroy_specifics(void) attribute_hidden;
+void __pthread_perform_cleanup(char *currentframe) attribute_hidden;
+int __pthread_initialize_manager(void) attribute_hidden;
 void __pthread_message(char * fmt, ...)
-     __attribute__ ((__format__ (printf, 1, 2)));
-int __pthread_manager(void *reqfd);
-int __pthread_manager_event(void *reqfd);
-void __pthread_manager_sighandler(int sig);
-void __pthread_reset_main_thread(void);
-void __fresetlockfiles(void);
-void __pthread_manager_adjust_prio(int thread_prio);
+     __attribute__ ((__format__ (printf, 1, 2))) attribute_hidden;
+int __pthread_manager(void *reqfd) attribute_hidden;
+int __pthread_manager_event(void *reqfd) attribute_hidden;
+void __pthread_manager_sighandler(int sig) attribute_hidden;
+void __pthread_reset_main_thread(void) attribute_hidden;
+void __fresetlockfiles(void) attribute_hidden;
+void __pthread_manager_adjust_prio(int thread_prio) attribute_hidden;
 void __pthread_initialize_minimal (void);
 
 extern void __pthread_exit (void *retval)
@@ -471,36 +471,36 @@ extern void __pthread_exit (void *retval)
 #endif
 	;
 
-extern int __pthread_attr_setguardsize __P ((pthread_attr_t *__attr,
-					     size_t __guardsize));
-extern int __pthread_attr_getguardsize __P ((__const pthread_attr_t *__attr,
-					     size_t *__guardsize));
-extern int __pthread_attr_setstackaddr __P ((pthread_attr_t *__attr,
-					     void *__stackaddr));
-extern int __pthread_attr_getstackaddr __P ((__const pthread_attr_t *__attr,
-					     void **__stackaddr));
-extern int __pthread_attr_setstacksize __P ((pthread_attr_t *__attr,
-					     size_t __stacksize));
-extern int __pthread_attr_getstacksize __P ((__const pthread_attr_t *__attr,
-					     size_t *__stacksize));
-extern int __pthread_getconcurrency __P ((void));
-extern int __pthread_setconcurrency __P ((int __level));
-extern void __pthread_kill_other_threads_np __P ((void));
+extern int __pthread_attr_setguardsize(pthread_attr_t *__attr,
+				       size_t __guardsize) attribute_hidden;
+extern int __pthread_attr_getguardsize(__const pthread_attr_t *__attr,
+				       size_t *__guardsize) attribute_hidden;
+extern int __pthread_attr_setstackaddr(pthread_attr_t *__attr,
+				       void *__stackaddr) attribute_hidden;
+extern int __pthread_attr_getstackaddr(__const pthread_attr_t *__attr,
+				       void **__stackaddr) attribute_hidden;
+extern int __pthread_attr_setstacksize(pthread_attr_t *__attr,
+				       size_t __stacksize) attribute_hidden;
+extern int __pthread_attr_getstacksize(__const pthread_attr_t *__attr,
+				       size_t *__stacksize) attribute_hidden;
+extern int __pthread_getconcurrency(void) attribute_hidden;
+extern int __pthread_setconcurrency(int __level) attribute_hidden;
+extern void __pthread_kill_other_threads_np(void) attribute_hidden;
 
-extern void __pthread_restart_old(pthread_descr th);
-extern void __pthread_suspend_old(pthread_descr self);
-extern int __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime);
+extern void __pthread_restart_old(pthread_descr th) attribute_hidden;
+extern void __pthread_suspend_old(pthread_descr self) attribute_hidden;
+extern int __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime) attribute_hidden;
 
-extern void __pthread_restart_new(pthread_descr th);
-extern void __pthread_suspend_new(pthread_descr self);
-extern int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstime);
+extern void __pthread_restart_new(pthread_descr th) attribute_hidden;
+extern void __pthread_suspend_new(pthread_descr self) attribute_hidden;
+extern int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstime) attribute_hidden;
 
-extern void __pthread_wait_for_restart_signal(pthread_descr self);
+extern void __pthread_wait_for_restart_signal(pthread_descr self) attribute_hidden;
 
 /* Global pointers to old or new suspend functions */
 
-extern void (*__pthread_restart)(pthread_descr);
-extern void (*__pthread_suspend)(pthread_descr);
+extern void (*__pthread_restart)(pthread_descr) attribute_hidden;
+extern void (*__pthread_suspend)(pthread_descr) attribute_hidden;
 
 #if defined NOT_IN_libc && defined IS_IN_libpthread
 extern __typeof(pthread_mutex_init) __pthread_mutex_init attribute_hidden;
@@ -514,15 +514,15 @@ extern __typeof(pthread_mutex_unlock) __pthread_mutex_unlock attribute_hidden;
 /*extern int __new_sem_post (sem_t * sem);*/
 
 /* TSD.  */
-extern int __pthread_internal_tsd_set (int key, const void * pointer);
-extern void * __pthread_internal_tsd_get (int key);
+extern int __pthread_internal_tsd_set (int key, const void * pointer) attribute_shared_hidden;
+extern void * __pthread_internal_tsd_get (int key) attribute_shared_hidden;
 extern void ** __attribute__ ((__const__))
-  __pthread_internal_tsd_address (int key);
+  __pthread_internal_tsd_address (int key) attribute_shared_hidden;
 
 /* The functions called the signal events.  */
-extern void __linuxthreads_create_event (void);
-extern void __linuxthreads_death_event (void);
-extern void __linuxthreads_reap_event (void);
+extern void __linuxthreads_create_event (void) attribute_hidden;
+extern void __linuxthreads_death_event (void) attribute_hidden;
+extern void __linuxthreads_reap_event (void) attribute_hidden;
 
 #include <pthread-functions.h>
 
