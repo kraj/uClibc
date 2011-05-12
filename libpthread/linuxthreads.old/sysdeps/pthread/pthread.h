@@ -394,20 +394,25 @@ extern int pthread_mutexattr_gettype (__const pthread_mutexattr_t *__restrict
 extern int pthread_cond_init (pthread_cond_t *__restrict __cond,
 			      __const pthread_condattr_t *__restrict
 			      __cond_attr) __THROW;
+libpthread_hidden_proto(pthread_cond_init)
 
 /* Destroy condition variable COND.  */
 extern int pthread_cond_destroy (pthread_cond_t *__cond) __THROW;
+libpthread_hidden_proto(pthread_cond_destroy)
 
 /* Wake up one thread waiting for condition variable COND.  */
 extern int pthread_cond_signal (pthread_cond_t *__cond) __THROW;
+libpthread_hidden_proto(pthread_cond_signal)
 
 /* Wake up all threads waiting for condition variables COND.  */
 extern int pthread_cond_broadcast (pthread_cond_t *__cond) __THROW;
+libpthread_hidden_proto(pthread_cond_broadcast)
 
 /* Wait for condition variable COND to be signaled or broadcast.
    MUTEX is assumed to be locked before.  */
 extern int pthread_cond_wait (pthread_cond_t *__restrict __cond,
 			      pthread_mutex_t *__restrict __mutex);
+libpthread_hidden_proto(pthread_cond_wait)
 
 /* Wait for condition variable COND to be signaled or broadcast until
    ABSTIME.  MUTEX is assumed to be locked before.  ABSTIME is an
@@ -417,14 +422,17 @@ extern int pthread_cond_timedwait (pthread_cond_t *__restrict __cond,
 				   pthread_mutex_t *__restrict __mutex,
 				   __const struct timespec *__restrict
 				   __abstime);
+libpthread_hidden_proto(pthread_cond_timedwait)
 
 /* Functions for handling condition variable attributes.  */
 
 /* Initialize condition variable attribute ATTR.  */
 extern int pthread_condattr_init (pthread_condattr_t *__attr) __THROW;
+libpthread_hidden_proto(pthread_condattr_init)
 
 /* Destroy condition variable attribute ATTR.  */
 extern int pthread_condattr_destroy (pthread_condattr_t *__attr) __THROW;
+libpthread_hidden_proto(pthread_condattr_destroy)
 
 /* Get the process-shared flag of the condition variable attribute ATTR.  */
 extern int pthread_condattr_getpshared (__const pthread_condattr_t *
