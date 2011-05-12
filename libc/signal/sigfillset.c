@@ -17,6 +17,9 @@
    02111-1307 USA.  */
 
 #include <signal.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+# include <pthreadP.h>	/* SIGCANCEL */
+#endif
 #if 0
 #define __need_NULL
 #include <stddef.h>
