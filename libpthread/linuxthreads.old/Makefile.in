@@ -34,14 +34,11 @@ libpthread_OUT := $(top_builddir)libpthread/linuxthreads.old
 
 libpthread_SRC := \
 	attr.c cancel.c condvar.c errno.c events.c join.c lockfile.c manager.c \
-	mutex.c pt-machine.c ptfork.c ptlongjmp.c \
+	mutex.c pt-machine.c ptfork.c pthread.c ptlongjmp.c \
 	rwlock.c semaphore.c signals.c specific.c spinlock.c wrapsyscall.c
 ifeq ($(UCLIBC_HAS_XLOCALE),y)
 libpthread_SRC += locale.c
 endif
-
-libpthread_SPEC_SRC := pthread.c
-libpthread_SPEC_SRC := $(patsubst %.c,$(libpthread_DIR)/%.c,$(libpthread_SPEC_SRC))
 
 # remove generic sources, if arch specific version is present
 ifneq ($(strip $(libpthread_ARCH_SRC)),)
@@ -62,15 +59,12 @@ libpthread_libc_OBJ  := $(patsubst %.c, $(libpthread_OUT)/%.o,$(libpthread_libc_
 libc-static-y += $(libpthread_OUT)/libc_pthread_init.o
 libc-shared-y += $(libpthread_libc_OBJ:.o=.oS)
 
-libpthread-static-y += $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpthread_SPEC_SRC))
-libpthread-shared-y += $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.oS,$(libpthread_SPEC_SRC))
-
 ifeq ($(DOPIC),y)
-libpthread-a-y  += $(libpthread_OBJ:.o=.os) $(libpthread-static-y:.o=.os)
+libpthread-a-y  += $(libpthread_OBJ:.o=.os)
 else
-libpthread-a-y  += $(libpthread_OBJ) $(libpthread-static-y)
+libpthread-a-y  += $(libpthread_OBJ)
 endif
-libpthread-so-y += $(libpthread_OBJ:.o=.os) $(libpthread-shared-y)
+libpthread-so-y += $(libpthread_OBJ:.o=.oS)
 
 lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
@@ -93,7 +87,7 @@ $(libpthread_OUT)/libpthread_so.a: $(libpthread-so-y)
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 $(libpthread_OUT)/libpthread.oS: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
 endif
-$(libpthread_OUT)/libpthread.oS: $(libpthread_SRC) $(libpthread_SPEC_SRC)
+$(libpthread_OUT)/libpthread.oS: $(libpthread_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
 
