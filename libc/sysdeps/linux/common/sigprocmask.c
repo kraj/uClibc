@@ -11,6 +11,9 @@
 
 #if defined __USE_POSIX
 #include <signal.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+# include <pthreadP.h>	/* SIGCANCEL */
+#endif
 
 #undef sigprocmask
 

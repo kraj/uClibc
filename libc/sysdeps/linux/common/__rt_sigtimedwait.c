@@ -16,6 +16,7 @@
 
 # ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #  include <sysdep-cancel.h>
+#  include <pthreadP.h>	/* SIGCANCEL */
 
 static int do_sigtimedwait(const sigset_t *set, siginfo_t *info,
 						   const struct timespec *timeout)

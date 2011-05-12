@@ -19,6 +19,9 @@
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+# include <pthreadP.h>	/* SIGCANCEL */
+#endif
 
 
 /* Set all signals in SET.  */
