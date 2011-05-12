@@ -25,16 +25,6 @@
 #include "queue.h"
 #include "restart.h"
 
-libpthread_hidden_proto(pthread_cond_broadcast)
-libpthread_hidden_proto(pthread_cond_destroy)
-libpthread_hidden_proto(pthread_cond_init)
-libpthread_hidden_proto(pthread_cond_signal)
-libpthread_hidden_proto(pthread_cond_wait)
-libpthread_hidden_proto(pthread_cond_timedwait)
-
-libpthread_hidden_proto(pthread_condattr_destroy)
-libpthread_hidden_proto(pthread_condattr_init)
-
 int pthread_cond_init(pthread_cond_t *cond,
                       const pthread_condattr_t *cond_attr attribute_unused)
 {
