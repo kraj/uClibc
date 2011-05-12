@@ -26,3 +26,8 @@ _syscall4(int, epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event *, eve
 _syscall4(int, epoll_wait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout)
 /* TODO: add cancellation for epoll_wait */
 #endif
+
+#ifdef __NR_epoll_pwait
+_syscall5(int, epoll_pwait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout, __const sigset_t *, ss)
+/* TODO: add cancellation for epoll_pwait */
+#endif
