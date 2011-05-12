@@ -283,7 +283,7 @@ extern void __pthread_destroy_specifics (void);
 extern void __pthread_perform_cleanup (char *currentframe);
 extern void __pthread_init_max_stacksize (void);
 extern int __pthread_initialize_manager (void);
-extern void __pthread_message (const char * fmt, ...);
+extern void __pthread_message (const char * fmt, ...) attribute_hidden;
 extern int __pthread_manager (void *reqfd);
 extern int __pthread_manager_event (void *reqfd);
 extern void __pthread_manager_sighandler (int sig);
