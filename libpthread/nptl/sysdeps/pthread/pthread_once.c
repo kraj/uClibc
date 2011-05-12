@@ -38,7 +38,7 @@ __pthread_once (
       lll_lock (once_lock, LLL_PRIVATE);
 
       /* XXX This implementation is not complete.  It doesn't take
-	 cancelation and fork into account.  */
+	 cancellation and fork into account.  */
       if (*once_control == PTHREAD_ONCE_INIT)
 	{
 	  init_routine ();

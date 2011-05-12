@@ -58,6 +58,9 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, ElfW(Addr) *reloc_addr,
 		case R_X86_64_TPOFF64:
 			*reloc_addr = sym->st_value + rpnt->r_addend - symbol_addr;
 			break;
+/*TODO:		case R_X86_64_RELATIVE:
+			*reloc_addr = load_addr + rpnt->r_addend;
+			break; */
 		default:
 			_dl_exit(1);
 	}

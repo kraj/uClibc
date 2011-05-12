@@ -39,6 +39,7 @@ void *__uc_malloc(size_t size)
 			return p;
 		if (!__uc_malloc_failed)
 			_exit(1);
+		free(p);
 		__uc_malloc_failed(size);
 	}
 }

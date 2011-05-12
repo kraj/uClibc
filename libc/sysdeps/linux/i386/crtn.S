@@ -6,7 +6,6 @@
 	popl	%ebx
 	popl	%ebp
 	ret
-.size _init,.-.init
 
 
 
@@ -16,7 +15,6 @@
 	popl	%ebx
 	popl	%ebp
 	ret
-.size _fini,.-.fini
 
 
 

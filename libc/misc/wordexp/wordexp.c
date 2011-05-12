@@ -21,6 +21,7 @@
 
 #include <features.h>
 #include <ctype.h>
+#include <bits/kernel-features.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -762,16 +763,21 @@ exec_comm_child(char *comm, int *fildes, int showerr, int noexec)
 
 	/* Redirect output.  */
 	fd = fildes[1];
-	if (fd != 1) {
-		dup2(fd, 1);
+	if (likely(fd != STDOUT_FILENO)) {
+		dup2(fd, STDOUT_FILENO);
 		close(fd);
 	}
-
+#if defined O_CLOEXEC && defined __UCLIBC_LINUX_SPECIFIC__ && defined __ASSUME_PIPE2
+	else {
+		/* Reset the close-on-exec flag (if necessary).  */
+		fcntl (fd, F_SETFD, 0);
+	}
+#endif
 	/* Redirect stderr to /dev/null if we have to.  */
 	if (showerr == 0) {
-		close(2);
+		close(STDERR_FILENO);
 		fd = open(_PATH_DEVNULL, O_WRONLY);
-		if (fd >= 0 && fd != 2) {
+		if (fd >= 0 && fd != STDERR_FILENO) {
 			dup2(fd, 2);
 			close(fd);
 		}
@@ -807,10 +813,15 @@ exec_comm(char *comm, char **word, size_t * word_length,
 	/* Don't fork() unless necessary */
 	if (!comm || !*comm)
 		return 0;
-
-	if (pipe(fildes))
+#if defined O_CLOEXEC && defined __UCLIBC_LINUX_SPECIFIC__ && defined __ASSUME_PIPE2
+	if (pipe2(fildes, O_CLOEXEC) < 0)
 		/* Bad */
 		return WRDE_NOSPACE;
+#else
+	if (pipe(fildes) < 0)
+		/* Bad */
+		return WRDE_NOSPACE;
+#endif
 
 	if ((pid = fork()) < 0) {
 		/* Bad */

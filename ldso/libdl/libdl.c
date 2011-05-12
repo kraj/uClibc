@@ -672,7 +672,7 @@ void *dlsym(void *vhandle, const char *name)
 #if defined(USE_TLS) && USE_TLS && defined SHARED
 	if (sym_ref.tpnt) {
 		/* The found symbol is a thread-local storage variable.
-		Return the address for to the current thread.  */
+		Return its address for the current thread.  */
 		ret = _dl_tls_symaddr ((struct link_map *)sym_ref.tpnt, (Elf32_Addr)ret);
 	}
 #endif
@@ -1070,7 +1070,11 @@ int dladdr(const void *__address, Dl_info * __info)
 					ElfW(Addr) symbol_addr;
 
 					symbol_addr = (ElfW(Addr)) DL_RELOC_ADDR(pelf->loadaddr, symtab[si].st_value);
-					if (symbol_addr <= (ElfW(Addr))__address && (!sf || sa < symbol_addr)) {
+					if ((symtab[si].st_shndx != SHN_UNDEF
+						 || symtab[si].st_value != 0)
+						&& ELF_ST_TYPE(symtab[si].st_info) != STT_TLS
+						&& DL_ADDR_SYM_MATCH(symbol_addr, &symtab[si], sa,
+											 (ElfW(Addr)) __address)) {
 						sa = symbol_addr;
 						sn = si;
 						sf = 1;
@@ -1086,7 +1090,11 @@ int dladdr(const void *__address, Dl_info * __info)
 				ElfW(Addr) symbol_addr;
 
 				symbol_addr = (ElfW(Addr)) DL_RELOC_ADDR(pelf->loadaddr, symtab[si].st_value);
-				if (symbol_addr <= (ElfW(Addr))__address && (!sf || sa < symbol_addr)) {
+				if ((symtab[si].st_shndx != SHN_UNDEF
+					 || symtab[si].st_value != 0)
+					&& ELF_ST_TYPE(symtab[si].st_info) != STT_TLS
+					&& DL_ADDR_SYM_MATCH(symbol_addr, &symtab[si], sa,
+										 (ElfW(Addr)) __address)) {
 					sa = symbol_addr;
 					sn = si;
 					sf = 1;

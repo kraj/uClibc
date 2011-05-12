@@ -45,7 +45,7 @@ td_ta_delete (td_thragent_t *ta)
 	runp = runp->next;
 
       if (runp->next == NULL)
-	/* It's not a valid decriptor since it is not in the list.  */
+	/* It's not a valid descriptor since it is not in the list.  */
 	return TD_BADTA;
 
       runp->next = runp->next->next;

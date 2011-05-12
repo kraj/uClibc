@@ -309,6 +309,19 @@
 # define __ASSUME_O_CLOEXEC 1
 #endif
 
+/* Support for various CLOEXEC and NONBLOCK flags was added for x86,
+ *    x86-64, PPC, IA-64, and SPARC in 2.6.27.  */
+#if __LINUX_KERNEL_VERSION >= 0x02061b \
+    && (defined __i386__ || defined __x86_64__ || defined __powerpc__ \
+        || defined __ia64__ || defined __sparc__ || defined __s390__)
+/* # define __ASSUME_SOCK_CLOEXEC  1 */
+/* # define __ASSUME_IN_NONBLOCK   1 */
+# define __ASSUME_PIPE2         1
+/* # define __ASSUME_EVENTFD2      1 */
+/* # define __ASSUME_SIGNALFD4     1 */
+#endif
+
+
 /* These features were surely available with 2.4.12.  */
 #if __LINUX_KERNEL_VERSION >= 132108 && defined __mc68000__
 # define __ASSUME_MMAP2_SYSCALL		1
@@ -452,6 +465,18 @@
 /* Starting with version 2.6.9, SSI_IEEE_RAISE_EXCEPTION exists.  */
 #if __LINUX_KERNEL_VERSION >= 0x020609 && defined __alpha__
 #define __ASSUME_IEEE_RAISE_EXCEPTION	1
+#endif
+
+/* Support for the accept4 syscall was added in 2.6.28.  */
+#if __LINUX_KERNEL_VERSION >= 0x02061c \
+    && (defined __i386__ || defined __x86_64__ || defined __powerpc__ \
+        || defined __sparc__ || defined __s390__)
+# define __ASSUME_ACCEPT4       1
+#endif
+
+/* Support for the accept4 syscall for alpha was added after 2.6.33-rc1.  */
+#if __LINUX_KERNEL_VERSION >= 0x020621 && defined __alpha__
+# define __ASSUME_ACCEPT4       1
 #endif
 
 /* Support for the FUTEX_CLOCK_REALTIME flag was added in 2.6.29.  */

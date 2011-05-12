@@ -1,4 +1,4 @@
-/* Wrapper arpund system calls to provide cancelation points.
+/* Wrapper arpund system calls to provide cancellation points.
    Copyright (C) 1996,1997,1998,1999,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
@@ -196,6 +196,13 @@ CANCELABLE_SYSCALL (ssize_t, write, (int fd, const void *buf, size_t n),
 CANCELABLE_SYSCALL (int, accept, (int fd, __SOCKADDR_ARG addr,
 				  socklen_t *addr_len),
 		    (fd, addr, addr_len))
+
+# ifdef __USE_GNU
+/* accept4(2).  */
+CANCELABLE_SYSCALL (int, accept4, (int fd, __SOCKADDR_ARG addr,
+				  socklen_t *addr_len, int flags),
+		    (fd, addr, addr_len, flags))
+# endif
 
 /* connect(2).  */
 CANCELABLE_SYSCALL (int, connect, (int fd, __CONST_SOCKADDR_ARG addr,

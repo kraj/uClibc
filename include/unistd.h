@@ -439,6 +439,13 @@ extern ssize_t pwrite64 (int __fd, __const void *__buf, size_t __n,
 extern int pipe (int __pipedes[2]) __THROW __wur;
 libc_hidden_proto(pipe)
 
+#if defined __UCLIBC_LINUX_SPECIFIC__ && defined __USE_GNU
+/* Same as pipe but apply flags passed in FLAGS to the new file
+   descriptors.  */
+extern int pipe2 (int __pipedes[2], int __flags) __THROW __wur;
+libc_hidden_proto(pipe2)
+#endif
+
 /* Schedule an alarm.  In SECONDS seconds, the process will get a SIGALRM.
    If SECONDS is zero, any currently scheduled alarm will be cancelled.
    The function returns the number of seconds remaining until the last

@@ -7,7 +7,6 @@
 .type    _init, %function
 	addq $8, %rsp
 	ret
-.size _init,.-.init
 
 
 .section .fini
@@ -15,4 +14,3 @@
 .type    _fini, %function
 	addq $8, %rsp
 	ret
-.size _fini, .-.fini

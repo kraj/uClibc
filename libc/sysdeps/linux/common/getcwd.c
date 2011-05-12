@@ -69,7 +69,7 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 	slen++;
 
 	dp = opendir(path_buf);
-	if (dp == 0) {
+	if (!dp) {
 	    goto oops;
 	}
 
@@ -78,6 +78,7 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 		if (slow_search || this_ino == d->d_ino) {
 # endif
 			if (slen + strlen(d->d_name) > path_size) {
+			    closedir(dp);
 			    goto oops;
 			}
 			strcpy(ptr + 1, d->d_name);

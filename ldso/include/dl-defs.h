@@ -184,6 +184,14 @@ typedef struct {
 #define DL_LOOKUP_ADDRESS(ADDRESS) (ADDRESS)
 #endif
 
+/* On some architectures dladdr can't use st_size of all symbols this way.  */
+#define DL_ADDR_SYM_MATCH(SYM_ADDR, SYM, MATCHSYM, ADDR)				\
+  ((ADDR) >= (SYM_ADDR)													\
+   && ((((SYM)->st_shndx == SHN_UNDEF || (SYM)->st_size == 0)			\
+        && (ADDR) == (SYM_ADDR))										\
+       || (ADDR) < (SYM_ADDR) + (SYM)->st_size)							\
+   && (!(MATCHSYM) || MATCHSYM < (SYM_ADDR)))
+
 /* Use this macro to convert a pointer to a function's entry point to
  * a pointer to function.  The pointer is assumed to have already been
  * relocated.  LOADADDR is passed because it may contain additional

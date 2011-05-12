@@ -14,15 +14,15 @@
 _syscall1(int, epoll_create, int, size)
 #endif
 
+#ifdef __NR_epoll_create1
+_syscall1(int, epoll_create1, int, flags)
+#endif
+
 #ifdef __NR_epoll_ctl
 _syscall4(int, epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event *, event)
 #endif
 
 #ifdef __NR_epoll_wait
 _syscall4(int, epoll_wait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout)
-#endif
-
-#ifdef __NR_epoll_pwait
-_syscall5(int, epoll_pwait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout,
-	  const sigset_t *, ss)
+/* TODO: add cancellation for epoll_wait */
 #endif

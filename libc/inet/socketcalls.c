@@ -27,6 +27,7 @@
 #define SYS_GETSOCKOPT  15
 #define SYS_SENDMSG     16
 #define SYS_RECVMSG     17
+#define SYS_ACCEPT4     18
 #endif
 
 #ifdef L_accept
@@ -47,6 +48,26 @@ static int __NC(accept)(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 CANCELLABLE_SYSCALL(int, accept, (int sockfd, struct sockaddr *addr, socklen_t *addrlen),
 		    (sockfd, addr, addrlen))
 lt_libc_hidden(accept)
+#endif
+
+#if defined L_accept4 && defined __USE_GNU
+static int __NC(accept4)(int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags)
+{
+# ifdef __NR_accept4
+	return INLINE_SYSCALL(accept4, 4, sockfd, addr, addrlen, flags);
+# else
+	unsigned long args[4];
+
+	args[0] = sockfd;
+	args[1] = (unsigned long) addr;
+	args[2] = (unsigned long) addrlen;
+	args[3] = flags;
+
+	return __socketcall(SYS_ACCEPT4, args);
+# endif
+}
+CANCELLABLE_SYSCALL(int, accept4, (int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags),
+		    (sockfd, addr, addrlen, flags))
 #endif
 
 #ifdef L_bind
