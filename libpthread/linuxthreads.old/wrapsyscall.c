@@ -227,3 +227,16 @@ CANCELABLE_SYSCALL (ssize_t, sendto, (int fd, const __ptr_t buf, size_t n,
 				      socklen_t addr_len),
 		    (fd, buf, n, flags, addr, addr_len))
 #endif /* __UCLIBC_HAS_SOCKET__ */
+
+#ifdef  __UCLIBC_HAS_EPOLL__
+# ifdef __NR_epoll_wait
+CANCELABLE_SYSCALL (int, epoll_wait, (int epfd, struct epoll_event *events, int maxevents, int timeout),
+		    (epfd, events, maxevents, timeout))
+# endif
+# ifdef __NR_epoll_pwait
+#  include <signal.h>
+CANCELABLE_SYSCALL (int, epoll_pwait, (int epfd, struct epoll_event *events, int maxevents, int timeout,
+				       const sigset_t *set),
+		    (epfd, events, maxevents, timeout, set))
+# endif
+#endif

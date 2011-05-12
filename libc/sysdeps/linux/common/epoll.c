@@ -9,6 +9,7 @@
 
 #include <sys/syscall.h>
 #include <sys/epoll.h>
+#include <cancel.h>
 
 /*
  * epoll_create()
@@ -35,14 +36,30 @@ _syscall4(int,epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event *, even
  * epoll_wait()
  */
 #ifdef __NR_epoll_wait
-_syscall4(int, epoll_wait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout)
-/* TODO: add cancellation for epoll_wait */
+static int __NC(epoll_wait)(int epfd, struct epoll_event *events, int maxevents, int timeout)
+{
+	return INLINE_SYSCALL(epoll_wait, 4, epfd, events, maxevents, timeout);
+}
+CANCELLABLE_SYSCALL(int, epoll_wait, (int epfd, struct epoll_event *events, int maxevents, int timeout),
+		    (epfd, events, maxevents, timeout))
 #endif
 
 /*
  * epoll_pwait()
  */
 #ifdef __NR_epoll_pwait
-_syscall5(int, epoll_pwait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout, __const sigset_t *, ss)
-/* TODO: add cancellation for epoll_pwait */
+# include <signal.h>
+
+# define __NR___syscall_epoll_pwait __NR_epoll_pwait
+static __always_inline _syscall6(int, __syscall_epoll_pwait, int, epfd, struct epoll_event *, events,
+				 int, maxevents, int, timeout, const sigset_t *, sigmask, size_t, sigsetsize)
+
+static int __NC(epoll_pwait)(int epfd, struct epoll_event *events, int maxevents, int timeout,
+			     const sigset_t *set)
+{
+	return __syscall_epoll_pwait(epfd, events, maxevents, timeout, set, __SYSCALL_SIGSET_T_SIZE);
+}
+CANCELLABLE_SYSCALL(int, epoll_pwait, (int epfd, struct epoll_event *events, int maxevents, int timeout,
+				       const sigset_t *set),
+		    (epfd, events, maxevents, timeout, set))
 #endif
