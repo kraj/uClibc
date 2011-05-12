@@ -13,7 +13,10 @@
 #ifdef __NR_rt_sigtimedwait
 # include <signal.h>
 # include <cancel.h>
-# ifdef SIGCANCEL /* defined only in NPTL's pthreadP.h */
+# ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#  include <pthreadP.h>	/* SIGCANCEL */
+# endif
+# ifdef SIGCANCEL
 #  define __need_NULL
 #  include <stddef.h>
 #  include <string.h>

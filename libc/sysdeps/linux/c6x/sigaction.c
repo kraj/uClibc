@@ -28,6 +28,9 @@
 #include <string.h>
 #include <sys/syscall.h>
 #include <bits/kernel_sigaction.h>
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+# include <pthreadP.h>	/* SIGCANCEL */
+#endif
 
 #define SA_RESTORER	0x04000000
 
