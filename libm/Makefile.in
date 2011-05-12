@@ -20,7 +20,7 @@
 # by Erik Andersen <andersen@codepoet.org>
 #
 
-subdirs += libm
+subdirs += libm libm/$(TARGET_ARCH)
 
 CFLAGS-libm := -DNOT_IN_libc -DIS_IN_libm $(SSP_ALL_CFLAGS)
 CFLAGS-libm += -D_IEEE_LIBM
