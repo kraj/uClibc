@@ -57,11 +57,11 @@ static int enosys_stub(void)
 # undef __NR_socketpair
 #endif
 
-#ifndef __NR_accept
+#if !defined __NR_accept && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(accept)
 #endif
 
-#ifndef __NR_accept4
+#if !defined __NR_accept4 && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(accept4)
 #endif
 
@@ -69,7 +69,7 @@ make_stub(accept4)
 make_stub(bdflush)
 #endif
 
-#ifndef __NR_bind
+#if !defined __NR_bind && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(bind)
 #endif
 
@@ -81,7 +81,7 @@ make_stub(capget)
 make_stub(capset)
 #endif
 
-#ifndef __NR_connect
+#if !defined __NR_connect && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(connect)
 #endif
 
@@ -133,7 +133,7 @@ make_stub(fsetxattr)
 make_stub(get_kernel_syms)
 #endif
 
-#ifndef __NR_getpeername
+#if !defined __NR_getpeername && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(getpeername)
 #endif
 
@@ -141,11 +141,11 @@ make_stub(getpeername)
 make_stub(getpgrp)
 #endif
 
-#ifndef __NR_getsockname
+#if !defined __NR_getsockname && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(getsockname)
 #endif
 
-#ifndef __NR_getsockopt
+#if !defined __NR_getsockopt && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(getsockopt)
 #endif
 
@@ -161,7 +161,7 @@ make_stub(init_module)
 make_stub(lgetxattr)
 #endif
 
-#ifndef __NR_listen
+#if !defined __NR_listen && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(listen)
 #endif
 
@@ -193,15 +193,15 @@ make_stub(pivot_root)
 make_stub(query_module)
 #endif
 
-#ifndef __NR_recv
+#if !defined __NR_recv && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(recv)
 #endif
 
-#ifndef __NR_recvfrom
+#if !defined __NR_recvfrom && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(recvfrom)
 #endif
 
-#ifndef __NR_recvmsg
+#if !defined __NR_recvmsg && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(recvmsg)
 #endif
 
@@ -217,19 +217,19 @@ make_stub(sched_getaffinity)
 make_stub(sched_setaffinity)
 #endif
 
-#ifndef __NR_send
+#if !defined __NR_send && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(send)
 #endif
 
-#ifndef __NR_sendmsg
+#if !defined __NR_sendmsg && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(sendmsg)
 #endif
 
-#ifndef __NR_sendto
+#if !defined __NR_sendto && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(sendto)
 #endif
 
-#ifndef __NR_setsockopt
+#if !defined __NR_setsockopt && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(setsockopt)
 #endif
 
@@ -237,7 +237,7 @@ make_stub(setsockopt)
 make_stub(setxattr)
 #endif
 
-#ifndef __NR_shutdown
+#if !defined __NR_shutdown && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(shutdown)
 #endif
 
@@ -245,15 +245,15 @@ make_stub(shutdown)
 make_stub(signalfd)
 #endif
 
-#ifndef __NR_socket
+#if !defined __NR_socket && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(socket)
 #endif
 
-#ifndef __NR_socketcall
+#if !defined __NR_socketcall && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(socketcall)
 #endif
 
-#ifndef __NR_socketpair
+#if !defined __NR_socketpair && !defined __NR_socketcall && !defined __UCLIBC_HAS_SOCKET__
 make_stub(socketpair)
 #endif
 
