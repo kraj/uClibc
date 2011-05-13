@@ -394,25 +394,20 @@ extern int pthread_mutexattr_gettype (__const pthread_mutexattr_t *__restrict
 extern int pthread_cond_init (pthread_cond_t *__restrict __cond,
 			      __const pthread_condattr_t *__restrict
 			      __cond_attr) __THROW;
-libpthread_hidden_proto(pthread_cond_init)
 
 /* Destroy condition variable COND.  */
 extern int pthread_cond_destroy (pthread_cond_t *__cond) __THROW;
-libpthread_hidden_proto(pthread_cond_destroy)
 
 /* Wake up one thread waiting for condition variable COND.  */
 extern int pthread_cond_signal (pthread_cond_t *__cond) __THROW;
-libpthread_hidden_proto(pthread_cond_signal)
 
 /* Wake up all threads waiting for condition variables COND.  */
 extern int pthread_cond_broadcast (pthread_cond_t *__cond) __THROW;
-libpthread_hidden_proto(pthread_cond_broadcast)
 
 /* Wait for condition variable COND to be signaled or broadcast.
    MUTEX is assumed to be locked before.  */
 extern int pthread_cond_wait (pthread_cond_t *__restrict __cond,
 			      pthread_mutex_t *__restrict __mutex);
-libpthread_hidden_proto(pthread_cond_wait)
 
 /* Wait for condition variable COND to be signaled or broadcast until
    ABSTIME.  MUTEX is assumed to be locked before.  ABSTIME is an
@@ -422,17 +417,14 @@ extern int pthread_cond_timedwait (pthread_cond_t *__restrict __cond,
 				   pthread_mutex_t *__restrict __mutex,
 				   __const struct timespec *__restrict
 				   __abstime);
-libpthread_hidden_proto(pthread_cond_timedwait)
 
 /* Functions for handling condition variable attributes.  */
 
 /* Initialize condition variable attribute ATTR.  */
 extern int pthread_condattr_init (pthread_condattr_t *__attr) __THROW;
-libpthread_hidden_proto(pthread_condattr_init)
 
 /* Destroy condition variable attribute ATTR.  */
 extern int pthread_condattr_destroy (pthread_condattr_t *__attr) __THROW;
-libpthread_hidden_proto(pthread_condattr_destroy)
 
 /* Get the process-shared flag of the condition variable attribute ATTR.  */
 extern int pthread_condattr_getpshared (__const pthread_condattr_t *
@@ -605,6 +597,9 @@ extern int pthread_setcancelstate (int __state, int *__oldstate);
 /* Set cancellation state of current thread to TYPE, returning the old
    type in *OLDTYPE if OLDTYPE is not NULL.  */
 extern int pthread_setcanceltype (int __type, int *__oldtype);
+#ifdef _LIBC
+extern __typeof(pthread_setcanceltype) __pthread_setcanceltype attribute_hidden;
+#endif
 
 /* Cancel THREAD immediately or at the next possibility.  */
 extern int pthread_cancel (pthread_t __cancelthread);
@@ -613,6 +608,7 @@ extern int pthread_cancel (pthread_t __cancelthread);
    the thread as per pthread_exit(PTHREAD_CANCELED) if it has been
    cancelled.  */
 extern void pthread_testcancel (void);
+libpthread_hidden_proto(pthread_testcancel)
 
 
 /* Install a cleanup handler: ROUTINE will be called with arguments ARG
@@ -629,6 +625,10 @@ extern void pthread_testcancel (void);
 extern void _pthread_cleanup_push (struct _pthread_cleanup_buffer *__buffer,
 				   void (*__routine) (void *),
 				   void *__arg) __THROW;
+#ifdef _LIBC
+extern __typeof(_pthread_cleanup_push) __pthread_cleanup_push attribute_hidden;
+# define _pthread_cleanup_push __pthread_cleanup_push
+#endif
 
 /* Remove a cleanup handler installed by the matching pthread_cleanup_push.
    If EXECUTE is non-zero, the handler function is called. */
@@ -638,6 +638,10 @@ extern void _pthread_cleanup_push (struct _pthread_cleanup_buffer *__buffer,
 
 extern void _pthread_cleanup_pop (struct _pthread_cleanup_buffer *__buffer,
 				  int __execute) __THROW;
+#ifdef _LIBC
+extern __typeof(_pthread_cleanup_pop) __pthread_cleanup_pop attribute_hidden;
+# define _pthread_cleanup_pop __pthread_cleanup_pop
+#endif
 
 /* Install a cleanup handler as pthread_cleanup_push does, but also
    saves the current cancellation type and set it to deferred cancellation.  */
@@ -650,6 +654,10 @@ extern void _pthread_cleanup_pop (struct _pthread_cleanup_buffer *__buffer,
 extern void _pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *__buffer,
 					 void (*__routine) (void *),
 					 void *__arg) __THROW;
+# ifdef _LIBC
+extern __typeof(_pthread_cleanup_push_defer) __pthread_cleanup_push_defer attribute_hidden;
+#  define _pthread_cleanup_push_defer __pthread_cleanup_push_defer
+# endif
 
 /* Remove a cleanup handler as pthread_cleanup_pop does, but also
    restores the cancellation type that was in effect when the matching
@@ -660,6 +668,10 @@ extern void _pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *__buffe
 
 extern void _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *__buffer,
 					  int __execute) __THROW;
+# ifdef _LIBC
+extern __typeof(_pthread_cleanup_pop_restore) __pthread_cleanup_pop_restore attribute_hidden;
+#  define _pthread_cleanup_pop_restore __pthread_cleanup_pop_restore
+# endif
 #endif
 
 

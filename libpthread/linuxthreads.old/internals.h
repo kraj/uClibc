@@ -465,6 +465,10 @@ void __fresetlockfiles(void) attribute_hidden;
 void __pthread_manager_adjust_prio(int thread_prio) attribute_hidden;
 void __pthread_initialize_minimal (void);
 
+void __pthread_once_fork_prepare(void) attribute_hidden;
+void __pthread_once_fork_parent(void) attribute_hidden;
+void __pthread_once_fork_child(void) attribute_hidden;
+
 #if 0
 extern void __pthread_exit (void *retval)
 #if defined NOT_IN_libc && defined IS_IN_libpthread
@@ -509,15 +513,48 @@ extern __typeof(pthread_mutex_destroy) __pthread_mutex_destroy attribute_hidden;
 extern __typeof(pthread_mutex_lock) __pthread_mutex_lock attribute_hidden;
 extern __typeof(pthread_mutex_trylock) __pthread_mutex_trylock attribute_hidden;
 extern __typeof(pthread_mutex_unlock) __pthread_mutex_unlock attribute_hidden;
+extern __typeof(pthread_once) __pthread_once attribute_hidden;
+
+extern __typeof(pthread_attr_destroy) __pthread_attr_destroy attribute_hidden;
+extern __typeof(pthread_attr_init) __pthread_attr_init attribute_hidden;
+extern __typeof(pthread_attr_getdetachstate) __pthread_attr_getdetachstate attribute_hidden;
+extern __typeof(pthread_attr_setdetachstate) __pthread_attr_setdetachstate attribute_hidden;
+extern __typeof(pthread_attr_getinheritsched) __pthread_attr_getinheritsched attribute_hidden;
+extern __typeof(pthread_attr_setinheritsched) __pthread_attr_setinheritsched attribute_hidden;
+extern __typeof(pthread_attr_getschedparam) __pthread_attr_getschedparam attribute_hidden;
+extern __typeof(pthread_attr_setschedparam) __pthread_attr_setschedparam attribute_hidden;
+extern __typeof(pthread_attr_getschedpolicy) __pthread_attr_getschedpolicy attribute_hidden;
+extern __typeof(pthread_attr_setschedpolicy) __pthread_attr_setschedpolicy attribute_hidden;
+extern __typeof(pthread_attr_getscope) __pthread_attr_getscope attribute_hidden;
+extern __typeof(pthread_attr_setscope) __pthread_attr_setscope attribute_hidden;
+extern __typeof(pthread_condattr_destroy) __pthread_condattr_destroy attribute_hidden;
+extern __typeof(pthread_condattr_init) __pthread_condattr_init attribute_hidden;
+extern __typeof(pthread_cond_broadcast) __pthread_cond_broadcast attribute_hidden;
+extern __typeof(pthread_cond_destroy) __pthread_cond_destroy attribute_hidden;
+extern __typeof(pthread_cond_init) __pthread_cond_init attribute_hidden;
+extern __typeof(pthread_cond_signal) __pthread_cond_signal attribute_hidden;
+extern __typeof(pthread_cond_wait) __pthread_cond_wait attribute_hidden;
+extern __typeof(pthread_cond_timedwait) __pthread_cond_timedwait attribute_hidden;
+extern __typeof(pthread_equal) __pthread_equal attribute_hidden;
+extern __typeof(pthread_exit) __pthread_exit attribute_noreturn attribute_hidden;
+extern __typeof(pthread_getschedparam) __pthread_getschedparam attribute_hidden;
+extern __typeof(pthread_setschedparam) __pthread_setschedparam attribute_hidden;
+extern __typeof(pthread_self) __pthread_self attribute_hidden;
+extern __typeof(pthread_setcancelstate) __pthread_setcancelstate attribute_hidden;
+
+extern __typeof(pthread_mutexattr_init) __pthread_mutexattr_init attribute_hidden;
+extern __typeof(pthread_mutexattr_destroy) __pthread_mutexattr_destroy attribute_hidden;
+extern __typeof(pthread_mutexattr_settype) __pthread_mutexattr_settype attribute_hidden;
+extern __typeof(pthread_mutexattr_gettype) __pthread_mutexattr_gettype attribute_hidden;
 
 /* Prototypes for some of the new semaphore functions.  */
 /*extern int __new_sem_post (sem_t * sem);*/
 
 /* TSD.  */
-extern int __pthread_internal_tsd_set (int key, const void * pointer) attribute_shared_hidden;
-extern void * __pthread_internal_tsd_get (int key) attribute_shared_hidden;
+extern int __pthread_internal_tsd_set (int key, const void * pointer) attribute_hidden;
+extern void * __pthread_internal_tsd_get (int key) attribute_hidden;
 extern void ** __attribute__ ((__const__))
-  __pthread_internal_tsd_address (int key) attribute_shared_hidden;
+  __pthread_internal_tsd_address (int key) attribute_hidden;
 
 /* The functions called the signal events.  */
 extern void __linuxthreads_create_event (void) attribute_hidden;

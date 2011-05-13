@@ -54,7 +54,7 @@ int pthread_sigmask(int how, const sigset_t * newmask, sigset_t * oldmask)
     return 0;
 }
 
-int pthread_kill(pthread_t thread, int signo)
+static int __pthread_kill(pthread_t thread, int signo)
 {
   pthread_handle handle = thread_handle(thread);
   int pid;
@@ -71,6 +71,7 @@ int pthread_kill(pthread_t thread, int signo)
   else
     return 0;
 }
+strong_alias(__pthread_kill,pthread_kill)
 
 /* User-provided signal handlers */
 typedef void (*arch_sighandler_t) __PMT ((int, SIGCONTEXT));
@@ -235,7 +236,7 @@ int sigwait(const sigset_t * set, int * sig)
 libpthread_hidden_proto(raise)
 int raise (int sig)
 {
-  int retcode = pthread_kill(pthread_self(), sig);
+  int retcode = __pthread_kill(__pthread_self(), sig);
   if (retcode == 0)
     return 0;
   else {

@@ -25,12 +25,11 @@
 #include "restart.h"
 #include "debug.h" /* PDEBUG, added by StS */
 
-libpthread_hidden_proto(pthread_exit)
 void pthread_exit(void * retval)
 {
   __pthread_do_exit (retval, CURRENT_STACK_FRAME);
 }
-libpthread_hidden_def (pthread_exit)
+strong_alias(pthread_exit,__pthread_exit)
 
 void __pthread_do_exit(void *retval, char *currentframe)
 {

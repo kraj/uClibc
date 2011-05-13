@@ -93,8 +93,8 @@ static __inline__ int compare_and_swap(long * ptr, long oldval, long newval,
 /* Internal locks */
 
 extern void internal_function __pthread_lock(struct _pthread_fastlock * lock,
-					     pthread_descr self);
-extern int __pthread_unlock(struct _pthread_fastlock *lock);
+					     pthread_descr self) attribute_hidden;
+extern int __pthread_unlock(struct _pthread_fastlock *lock) attribute_hidden;
 
 static __inline__ void __pthread_init_lock(struct _pthread_fastlock * lock)
 {
@@ -126,12 +126,12 @@ static __inline__ int __pthread_trylock (struct _pthread_fastlock * lock)
    over the same lock object! */
 
 extern void __pthread_alt_lock(struct _pthread_fastlock * lock,
-			       pthread_descr self);
+			       pthread_descr self) attribute_hidden;
 
 extern int __pthread_alt_timedlock(struct _pthread_fastlock * lock,
-			       pthread_descr self, const struct timespec *abstime);
+			       pthread_descr self, const struct timespec *abstime) attribute_hidden;
 
-extern void __pthread_alt_unlock(struct _pthread_fastlock *lock);
+extern void __pthread_alt_unlock(struct _pthread_fastlock *lock) attribute_hidden;
 
 static __inline__ void __pthread_alt_init_lock(struct _pthread_fastlock * lock)
 {

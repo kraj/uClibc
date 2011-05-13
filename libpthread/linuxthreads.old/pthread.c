@@ -280,41 +280,6 @@ int __libc_allocate_rtsig (int high)
 
 static void pthread_initialize(void) __attribute__((constructor));
 
-libpthread_hidden_proto(pthread_attr_destroy)
-libpthread_hidden_proto(pthread_attr_init)
-libpthread_hidden_proto(pthread_attr_getdetachstate)
-libpthread_hidden_proto(pthread_attr_setdetachstate)
-libpthread_hidden_proto(pthread_attr_getinheritsched)
-libpthread_hidden_proto(pthread_attr_setinheritsched)
-libpthread_hidden_proto(pthread_attr_setschedparam)
-libpthread_hidden_proto(pthread_attr_getschedparam)
-libpthread_hidden_proto(pthread_attr_getschedpolicy)
-libpthread_hidden_proto(pthread_attr_setschedpolicy)
-libpthread_hidden_proto(pthread_attr_getscope)
-libpthread_hidden_proto(pthread_attr_setscope)
-
-libpthread_hidden_proto(pthread_exit)
-
-libpthread_hidden_proto(pthread_equal)
-libpthread_hidden_proto(pthread_self)
-libpthread_hidden_proto(pthread_getschedparam)
-libpthread_hidden_proto(pthread_setschedparam)
-
-libpthread_hidden_proto(pthread_setcancelstate)
-libpthread_hidden_proto(pthread_setcanceltype)
-libpthread_hidden_proto(_pthread_cleanup_push_defer)
-libpthread_hidden_proto(_pthread_cleanup_pop_restore)
-
-libpthread_hidden_proto(pthread_cond_broadcast)
-libpthread_hidden_proto(pthread_cond_destroy)
-libpthread_hidden_proto(pthread_cond_init)
-libpthread_hidden_proto(pthread_cond_signal)
-libpthread_hidden_proto(pthread_cond_wait)
-libpthread_hidden_proto(pthread_cond_timedwait)
-
-libpthread_hidden_proto(pthread_condattr_destroy)
-libpthread_hidden_proto(pthread_condattr_init)
-
 struct pthread_functions __pthread_functions =
   {
 #if !defined __UCLIBC_HAS_TLS__ && defined __UCLIBC_HAS_RPC__
@@ -325,47 +290,47 @@ struct pthread_functions __pthread_functions =
 /*
     .ptr_pthread_fork = __pthread_fork,
 */
-    .ptr_pthread_attr_destroy = pthread_attr_destroy,
-    .ptr_pthread_attr_init = pthread_attr_init,
-    .ptr_pthread_attr_getdetachstate = pthread_attr_getdetachstate,
-    .ptr_pthread_attr_setdetachstate = pthread_attr_setdetachstate,
-    .ptr_pthread_attr_getinheritsched = pthread_attr_getinheritsched,
-    .ptr_pthread_attr_setinheritsched = pthread_attr_setinheritsched,
-    .ptr_pthread_attr_getschedparam = pthread_attr_getschedparam,
-    .ptr_pthread_attr_setschedparam = pthread_attr_setschedparam,
-    .ptr_pthread_attr_getschedpolicy = pthread_attr_getschedpolicy,
-    .ptr_pthread_attr_setschedpolicy = pthread_attr_setschedpolicy,
-    .ptr_pthread_attr_getscope = pthread_attr_getscope,
-    .ptr_pthread_attr_setscope = pthread_attr_setscope,
-    .ptr_pthread_condattr_destroy = pthread_condattr_destroy,
-    .ptr_pthread_condattr_init = pthread_condattr_init,
-    .ptr_pthread_cond_broadcast = pthread_cond_broadcast,
-    .ptr_pthread_cond_destroy = pthread_cond_destroy,
-    .ptr_pthread_cond_init = pthread_cond_init,
-    .ptr_pthread_cond_signal = pthread_cond_signal,
-    .ptr_pthread_cond_wait = pthread_cond_wait,
-    .ptr_pthread_cond_timedwait = pthread_cond_timedwait,
-    .ptr_pthread_equal = pthread_equal,
-    .ptr_pthread_exit = pthread_exit,
-    .ptr_pthread_getschedparam = pthread_getschedparam,
-    .ptr_pthread_setschedparam = pthread_setschedparam,
+    .ptr_pthread_attr_destroy = __pthread_attr_destroy,
+    .ptr_pthread_attr_init = __pthread_attr_init,
+    .ptr_pthread_attr_getdetachstate = __pthread_attr_getdetachstate,
+    .ptr_pthread_attr_setdetachstate = __pthread_attr_setdetachstate,
+    .ptr_pthread_attr_getinheritsched = __pthread_attr_getinheritsched,
+    .ptr_pthread_attr_setinheritsched = __pthread_attr_setinheritsched,
+    .ptr_pthread_attr_getschedparam = __pthread_attr_getschedparam,
+    .ptr_pthread_attr_setschedparam = __pthread_attr_setschedparam,
+    .ptr_pthread_attr_getschedpolicy = __pthread_attr_getschedpolicy,
+    .ptr_pthread_attr_setschedpolicy = __pthread_attr_setschedpolicy,
+    .ptr_pthread_attr_getscope = __pthread_attr_getscope,
+    .ptr_pthread_attr_setscope = __pthread_attr_setscope,
+    .ptr_pthread_condattr_destroy = __pthread_condattr_destroy,
+    .ptr_pthread_condattr_init = __pthread_condattr_init,
+    .ptr_pthread_cond_broadcast = __pthread_cond_broadcast,
+    .ptr_pthread_cond_destroy = __pthread_cond_destroy,
+    .ptr_pthread_cond_init = __pthread_cond_init,
+    .ptr_pthread_cond_signal = __pthread_cond_signal,
+    .ptr_pthread_cond_wait = __pthread_cond_wait,
+    .ptr_pthread_cond_timedwait = __pthread_cond_timedwait,
+    .ptr_pthread_equal = __pthread_equal,
+    .ptr_pthread_exit = __pthread_exit,
+    .ptr_pthread_getschedparam = __pthread_getschedparam,
+    .ptr_pthread_setschedparam = __pthread_setschedparam,
     .ptr_pthread_mutex_destroy = __pthread_mutex_destroy,
     .ptr_pthread_mutex_init = __pthread_mutex_init,
     .ptr_pthread_mutex_lock = __pthread_mutex_lock,
     .ptr_pthread_mutex_trylock = __pthread_mutex_trylock,
     .ptr_pthread_mutex_unlock = __pthread_mutex_unlock,
-    .ptr_pthread_self = pthread_self,
-    .ptr_pthread_setcancelstate = pthread_setcancelstate,
-    .ptr_pthread_setcanceltype = pthread_setcanceltype,
+    .ptr_pthread_self = __pthread_self,
+    .ptr_pthread_setcancelstate = __pthread_setcancelstate,
+    .ptr_pthread_setcanceltype = __pthread_setcanceltype,
 /*
-    .ptr_pthread_do_exit = pthread_do_exit,
-    .ptr_pthread_thread_self = pthread_thread_self,
-    .ptr_pthread_cleanup_upto = pthread_cleanup_upto,
-    .ptr_pthread_sigaction = pthread_sigaction,
-    .ptr_pthread_sigwait = pthread_sigwait,
-    .ptr_pthread_raise = pthread_raise,
-    .ptr__pthread_cleanup_push = _pthread_cleanup_push,
-    .ptr__pthread_cleanup_pop = _pthread_cleanup_pop,
+    .ptr_pthread_do_exit = __pthread_do_exit,
+    .ptr_pthread_thread_self = __pthread_thread_self,
+    .ptr_pthread_cleanup_upto = __pthread_cleanup_upto,
+    .ptr_pthread_sigaction = __pthread_sigaction,
+    .ptr_pthread_sigwait = __pthread_sigwait,
+    .ptr_pthread_raise = __pthread_raise,
+    .ptr__pthread_cleanup_push = __pthread_cleanup_push,
+    .ptr__pthread_cleanup_pop = __pthread_cleanup_pop,
 */
     .ptr__pthread_cleanup_push_defer = __pthread_cleanup_push_defer,
     .ptr__pthread_cleanup_pop_restore = __pthread_cleanup_pop_restore
@@ -672,13 +637,13 @@ pthread_t pthread_self(void)
   pthread_descr self = thread_self();
   return THREAD_GETMEM(self, p_tid);
 }
-libpthread_hidden_def (pthread_self)
+strong_alias(pthread_self,__pthread_self)
 
 int pthread_equal(pthread_t thread1, pthread_t thread2)
 {
   return thread1 == thread2;
 }
-libpthread_hidden_def (pthread_equal)
+strong_alias(pthread_equal,__pthread_equal)
 
 /* Helper function for thread_self in the case of user-provided stacks */
 
@@ -750,7 +715,7 @@ int pthread_setschedparam(pthread_t thread, int policy,
     __pthread_manager_adjust_prio(th->p_priority);
   return 0;
 }
-libpthread_hidden_def(pthread_setschedparam)
+strong_alias(pthread_setschedparam,__pthread_setschedparam)
 
 int pthread_getschedparam(pthread_t thread, int *policy,
                           struct sched_param *param)
@@ -771,7 +736,7 @@ int pthread_getschedparam(pthread_t thread, int *policy,
   *policy = pol;
   return 0;
 }
-libpthread_hidden_def(pthread_getschedparam)
+strong_alias(pthread_getschedparam,__pthread_getschedparam)
 
 /* Process-wide exit() request */
 

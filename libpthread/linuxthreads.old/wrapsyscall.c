@@ -48,9 +48,9 @@ name param_list									\
 {										\
   res_type result;								\
   int oldtype;									\
-  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype);		\
+  __pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype);		\
   result = __libc_##name params;						\
-  pthread_setcanceltype (oldtype, NULL);					\
+  __pthread_setcanceltype (oldtype, NULL);					\
   return result;								\
 }
 
@@ -63,11 +63,11 @@ name param_list									\
   res_type result;								\
   int oldtype;									\
   va_list ap;									\
-  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype);		\
+  __pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype);		\
   va_start (ap, last_arg);							\
   result = __libc_##name params;						\
   va_end (ap);									\
-  pthread_setcanceltype (oldtype, NULL);					\
+  __pthread_setcanceltype (oldtype, NULL);					\
   return result;								\
 }
 

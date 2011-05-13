@@ -35,9 +35,6 @@ extern void __rpc_thread_destroy(void);
 # error "Define either _STACK_GROWS_DOWN or _STACK_GROWS_UP"
 #endif
 
-libpthread_hidden_proto(pthread_setcancelstate)
-libpthread_hidden_proto(pthread_setcanceltype)
-
 int pthread_setcancelstate(int state, int * oldstate)
 {
   pthread_descr self = thread_self();
@@ -51,7 +48,7 @@ int pthread_setcancelstate(int state, int * oldstate)
     __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   return 0;
 }
-libpthread_hidden_def(pthread_setcancelstate)
+strong_alias(pthread_setcancelstate,__pthread_setcancelstate)
 
 int pthread_setcanceltype(int type, int * oldtype)
 {
@@ -66,7 +63,7 @@ int pthread_setcanceltype(int type, int * oldtype)
     __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   return 0;
 }
-libpthread_hidden_def(pthread_setcanceltype)
+strong_alias(pthread_setcanceltype,__pthread_setcanceltype)
 
 int pthread_cancel(pthread_t thread)
 {
@@ -133,7 +130,9 @@ void pthread_testcancel(void)
       && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE)
     __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
 }
+libpthread_hidden_def(pthread_testcancel)
 
+#undef _pthread_cleanup_push
 void _pthread_cleanup_push(struct _pthread_cleanup_buffer * buffer,
 			   void (*routine)(void *), void * arg)
 {
@@ -145,7 +144,9 @@ void _pthread_cleanup_push(struct _pthread_cleanup_buffer * buffer,
     buffer->__prev = NULL;
   THREAD_SETMEM(self, p_cleanup, buffer);
 }
+strong_alias(_pthread_cleanup_push,__pthread_cleanup_push)
 
+#undef _pthread_cleanup_pop
 void _pthread_cleanup_pop(struct _pthread_cleanup_buffer * buffer,
 			  int execute)
 {
@@ -153,7 +154,9 @@ void _pthread_cleanup_pop(struct _pthread_cleanup_buffer * buffer,
   if (execute) buffer->__routine(buffer->__arg);
   THREAD_SETMEM(self, p_cleanup, buffer->__prev);
 }
+strong_alias(_pthread_cleanup_pop,__pthread_cleanup_pop)
 
+#undef _pthread_cleanup_push_defer
 void _pthread_cleanup_push_defer(struct _pthread_cleanup_buffer * buffer,
 				 void (*routine)(void *), void * arg)
 {
@@ -169,6 +172,7 @@ void _pthread_cleanup_push_defer(struct _pthread_cleanup_buffer * buffer,
 }
 strong_alias(_pthread_cleanup_push_defer,__pthread_cleanup_push_defer)
 
+#undef _pthread_cleanup_pop_restore
 void _pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer * buffer,
 				  int execute)
 {

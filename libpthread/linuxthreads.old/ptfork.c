@@ -89,10 +89,6 @@ static __inline__ void pthread_call_handlers(struct handler_list * list)
   for (/*nothing*/; list != NULL; list = list->next) (list->handler)();
 }
 
-void __pthread_once_fork_prepare(void);
-void __pthread_once_fork_child(void);
-void __pthread_once_fork_parent(void);
-
 static pid_t __fork(void)
 {
   pid_t pid;
