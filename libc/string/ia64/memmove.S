@@ -33,7 +33,7 @@
    sh1 must be computed using an extra instruction: sub sh1 = 64, sh1
    or the UM.be bit should be cleared at the beginning and set at the end.  */
 
-#include "sysdep.h"
+#include <sysdep.h>
 #undef ret
 
 #define OP_T_THRES 	16

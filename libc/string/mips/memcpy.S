@@ -18,9 +18,8 @@
    02111-1307 USA.  */
 
 #include <features.h>
-/*#include <sysdep.h>*/
+#include <sysdep.h>
 #include <endian.h>
-#include "sysdep.h"
 
 /* void *memcpy(void *s1, const void *s2, size_t n);  */
 

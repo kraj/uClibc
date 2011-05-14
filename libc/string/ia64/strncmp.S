@@ -28,7 +28,7 @@
    Unlike memcmp(), this function is optimized for mismatches within the
    first few characters.  */
 
-#include "sysdep.h"
+#include <sysdep.h>
 #undef ret
 
 #define s1		in0

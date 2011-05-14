@@ -1,4 +1,4 @@
-#include "sysdep.h"
+#include <sysdep.h>
 
 #ifdef __UCLIBC_SUSV3_LEGACY__
 

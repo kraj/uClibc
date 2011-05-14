@@ -31,7 +31,7 @@
 	shr.u   tmp = r[0], sh2		// tmp = w1 >> sh2
  */
 
-#include "sysdep.h"
+#include <sysdep.h>
 #undef ret
 
 #define saved_lc	r15

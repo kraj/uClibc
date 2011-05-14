@@ -29,7 +29,7 @@
    In this form, it assumes little endian mode.
  */
 
-#include "sysdep.h"
+#include <sysdep.h>
 #undef ret
 
 #define saved_lc	r15

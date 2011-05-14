@@ -33,7 +33,7 @@
 
    and all the mux1 instructions should be replaced by plain mov's.  */
 
-#include "sysdep.h"
+#include <sysdep.h>
 #undef ret
 
 #define OP_T_THRES	16
