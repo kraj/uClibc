@@ -2065,6 +2065,17 @@ config UCLIBC_HAS_ARC4RANDOM
 
 	  Most people will answer N.
 
+config ARC4RANDOM_USES_NODEV
+	bool "Do not use /dev/urandom with arc4random()"
+	depends on UCLIBC_HAS_ARC4RANDOM
+	default n
+	help
+	  Answer Y to use gettimeofday(2) and getpid(2) exclusively for
+          arc4random(). This is not a bad idea for a diskless system, but
+          it uses a lot of syscalls to stir each array element.
+
+	  Most people will answer N.
+
 config HAVE_NO_SSP
 	bool
 	default n

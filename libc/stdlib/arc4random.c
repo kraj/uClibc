@@ -1,24 +1,29 @@
-/*	$$$: arc4random.c 2005/02/08 robert */
-/*	$NetBSD: arc4random.c,v 1.5.2.1 2004/03/26 22:52:50 jmc Exp $	*/
-/*	$OpenBSD: arc4random.c,v 1.6 2001/06/05 05:05:38 pvalchev Exp $	*/
-
 /*
- * Arc4 random number generator for OpenBSD.
- * Copyright 1996 David Mazieres <dm@lcs.mit.edu>.
+ * Copyright (c) 1996, David Mazieres <dm@uun.org>
  *
- * Modification and redistribution in source and binary forms is
- * permitted provided that due credit is given to the author and the
- * OpenBSD project by leaving this copyright notice intact.
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 /*
+ * Arc4 random number generator for OpenBSD.
+ *
  * This code is derived from section 17.1 of Applied Cryptography,
  * second edition, which describes a stream cipher allegedly
  * compatible with RSA Labs "RC4" cipher (the actual description of
  * which is a trade secret).  The same algorithm is used as a stream
  * cipher called "arcfour" in Tatu Ylonen's ssh package.
  *
- * Here the stream cipher has been modified always to include the time
+ * Here the stream cipher has been modified always to include entropy
  * when initializing the state.  That makes it impossible to
  * regenerate the same random sequence twice, so this can't be used
  * for encryption, but will generate good random numbers.
@@ -26,17 +31,15 @@
  * RC4 is a registered trademark of RSA Laboratories.
  */
 
+/*	$OpenBSD: arc4random.c,v 1.16 2007/02/12 19:58:47 otto Exp $	*/
+
 #include <features.h>
+
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/param.h>
 #include <sys/time.h>
-#ifdef __ARC4RANDOM_USE_ERANDOM__
-#include <sys/sysctl.h>
-#endif
-
 
 struct arc4_stream {
 	u_int8_t i;
@@ -46,6 +49,8 @@ struct arc4_stream {
 
 static smallint rs_initialized;
 static struct arc4_stream rs;
+static pid_t arc4_stir_pid;
+static int arc4_count;
 
 static __inline__ void
 arc4_init(struct arc4_stream *as)
@@ -92,52 +97,83 @@ arc4_addrandom(struct arc4_stream *as, u_char *dat, int datlen)
 static void
 arc4_stir(struct arc4_stream *as)
 {
-	int     fd;
-	struct {
-		struct timeval tv;
-		uint rnd[(128 - sizeof(struct timeval)) / sizeof(uint)];
-	}       rdat;
 	int	n;
+	u_char	rnd[128];
+	struct timeval tv;
 
-	gettimeofday(&rdat.tv, NULL);
+#ifndef __ARC4RANDOM_USES_NODEV__
+	int	fd;
+
 	fd = open("/dev/urandom", O_RDONLY);
 	if (fd != -1) {
-		read(fd, rdat.rnd, sizeof(rdat.rnd));
+		read(fd, rnd, sizeof(rnd));
 		close(fd);
 	}
-#ifdef __ARC4RANDOM_USE_ERANDOM__
-	else {
-		int mib[3];
-		uint i;
-		size_t len;
+	/* Did the pseudo-random device fail? Use gettimeofday(). */
+	else
+#endif
+	if (gettimeofday(&tv, NULL) != (-1)) {
 
-		/* Device could not be opened, we might be chrooted, take
-		 * randomness from sysctl. */
+		/* Initialize the first element so it's hopefully not '0',
+		 * to help out the next loop. Tossing in some prime numbers
+		 * probably can't hurt. */
+		rnd[0] = (tv.tv_sec % 10000) * 3 + tv.tv_usec * 7 + \
+			(getpid() % 1000) * 13;
 
-		mib[0] = CTL_KERN;
-		mib[1] = KERN_RANDOM;
-		mib[2] = RANDOM_ERANDOM;
+		for (n = 1; n < 127 ; n++) {
 
-		for (i = 0; i < sizeof(rdat.rnd) / sizeof(uint); i++) {
-			len = sizeof(uint);
-			if (sysctl(mib, 3, &rdat.rnd[i], &len, NULL, 0) == -1)
-				break;
+		/* Take advantage of the stack space. Only initialize
+		 * elements equal to '0'. This will make the rnd[]
+		 * array much less vulnerable to timing attacks. Here
+		 * we'll stir getpid() into the value of the previous
+		 * element. Approximately 1 in 128 elements will still
+		 * become '0'. */
+
+			if (rnd[n] == 0) {
+				rnd[n] = ((rnd[n - 1] + n) ^ \
+					((getpid() % 1000) * 17));
+			}
 		}
 	}
-#endif
+	else {
+	/* gettimeofday() failed? Do the same thing as above, but only
+	 * with getpid(). */
 
-	arc4_addrandom(as, (void *) &rdat, sizeof(rdat));
+		rnd[0] = (getpid() % 1000) * 19;
+		for (n = 1; n < 127 ; n++) {
+			if (rnd[n] == 0) {
+				rnd[n] = ((rnd[n - 1] + n) ^ \
+					((getpid() % 1000) * 23));
+			}
+		}
+	}
+
+	arc4_stir_pid = getpid();
+	arc4_addrandom(as, rnd, sizeof(rnd));
 
 	/*
-	 * Throw away the first N words of output, as suggested in the
-	 * paper "Weaknesses in the Key Scheduling Algorithm of RC4"
-	 * by Fluher, Mantin, and Shamir.  N = 1024 is based on
-	 * suggestions in the paper "(Not So) Random Shuffles of RC4"
-	 * by Ilya Mironov.
+	 * Discard early keystream, as per recommendations in:
+	 * http://www.wisdom.weizmann.ac.il/~itsik/RC4/Papers/Rc4_ksa.ps
 	 */
-	for (n = 0; n < 1024; n++)
-		arc4_getbyte(as);
+	for (n = 0; n < 256; n++)
+		(void)arc4_getbyte(as);
+	arc4_count = 1600000;
 }
+
+#if 0
+static void __arc4random_stir(void);
+/*
+ * __arc4_getbyte() is a libc private function intended for use
+ * with malloc.
+ */
+u_int8_t
+__arc4_getbyte(void)
+{
+	if (--arc4_count == 0 || !rs_initialized)
+		__arc4random_stir();
+	return arc4_getbyte(&rs);
+}
+#endif
 
 static __inline__ u_int32_t
 arc4_getword(struct arc4_stream *as)
@@ -172,20 +208,8 @@ arc4random_addrandom(u_char *dat, int datlen)
 u_int32_t
 arc4random(void)
 {
-	if (!rs_initialized)
+	arc4_count -= 4;
+	if (arc4_count <= 0 || !rs_initialized || arc4_stir_pid != getpid())
 		__arc4random_stir();
 	return arc4_getword(&rs);
 }
-
-#if 0
-/*-------- Test code --------*/
-#include <stdlib.h>
-#include <stdio.h>
-
-int main(void) {
-    int random_number;
-    random_number = arc4random() % 65536;
-    printf("%d\n", random_number);
-    return 0;
-}
-#endif
