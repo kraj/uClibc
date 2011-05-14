@@ -40,7 +40,7 @@
    All the loops in this function could have had the internal branch removed
    if br.ctop and br.cloop could be predicated :-(.  */
 
-#include "sysdep.h"
+#include <sysdep.h>
 #undef ret
 
 #define saved_pr	r15

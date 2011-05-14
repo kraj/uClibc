@@ -31,7 +31,7 @@
    This implementation assumes that it is safe to do read ahead
    in the src block, without getting beyond its limit.  */
 
-#include "sysdep.h"
+#include <sysdep.h>
 #undef ret
 
 #define OP_T_THRES 	16

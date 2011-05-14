@@ -37,7 +37,7 @@
 
 #define USE_LFETCH
 #define USE_FLP
-#include "sysdep.h"
+#include <sysdep.h>
 #undef ret
 
 #define LFETCH_DIST     500

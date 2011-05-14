@@ -33,7 +33,7 @@
    This implementation assumes little endian mode.  For big endian mode,
    the instruction czx1.r should be replaced by czx1.l.  */
 
-#include "sysdep.h"
+#include <sysdep.h>
 #undef ret
 
 #define saved_lc	r18

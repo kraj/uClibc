@@ -17,7 +17,7 @@
    Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
    Boston, MA 02110-1301, USA.  */
 
-#include "../../sysdeps/linux/xtensa/sysdep.h"
+#include <sysdep.h>
 #include <bits/xtensa-config.h>
 
 	.macro	src_b	r, w0, w1

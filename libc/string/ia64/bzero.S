@@ -32,7 +32,7 @@
    Since a stf.spill f0 can store 16B in one go, we use this instruction
    to get peak speed.  */
 
-#include "sysdep.h"
+#include <sysdep.h>
 
 #ifdef __UCLIBC_SUSV3_LEGACY__
 
