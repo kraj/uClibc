@@ -52,7 +52,7 @@ CSRC-$(UCLIBC_HAS_XATTR) += xattr.c
 CSRC-$(UCLIBC_HAS_PROFILING) += noophooks.c #pcprofile.c
 CSRC-$(UCLIBC_SV4_DEPRECATED) += ustat.c
 CSRC- += $(if $(findstring =c6x=,=$(TARGET_ARCH)=),vfork.c)
-CSRC- += $(if $(findstring =sh=,=$(TARGET_ARCH)=),longjmp.c vfork.c)
+CSRC- += $(if $(findstring =sh=,=$(TARGET_ARCH)=),vfork.c)
 CSRC- += $(if $(findstring =sparc=,=$(TARGET_ARCH)=),vfork.c)
 CSRC- += $(if $(findstring =i386=,=$(TARGET_ARCH)=),vfork.c)
 
