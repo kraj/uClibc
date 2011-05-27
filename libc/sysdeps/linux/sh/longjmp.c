@@ -29,7 +29,9 @@ libc_hidden_proto(sigprocmask)
 extern int __longjmp(char *env, int val);
 libc_hidden_proto(__longjmp)
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 extern void _longjmp_unwind (jmp_buf env, int val);
+#endif
 
 
 /* Set the signal mask to the one specified in ENV, and jump
@@ -39,7 +41,9 @@ void __libc_siglongjmp (sigjmp_buf env, int val)
 {
   /* Perform any cleanups needed by the frames being unwound.  */
 
+#if __UCLIBC_HAS_THREADS_NATIVE__
   _longjmp_unwind (env, val);
+#endif
 
   if (env[0].__mask_was_saved)
     /* Restore the saved signal mask.  */
