@@ -67,22 +67,34 @@ librt-pt-shared-only-routines-y = rt-unwind-resume.c
 
 ifeq ($(UCLIBC_CTOR_DTOR),y)
 CFLAGS-OMIT-pt-initfini.c = $(CFLAGS-pthread)
-CFLAGS-pt-initfini.c = -S -g0 -fPIC -fno-inline-functions	\
+CFLAGS-pt-initfini.c = -S -g0 $(PICFLAG) -fno-inline-functions	\
 			$(call check_gcc,-fno-unit-at-a-time,)	\
+			$(SSP_DISABLE_FLAGS) \
 			-finhibit-size-directive			\
+			-fno-asynchronous-unwind-tables -fno-unwind-tables \
 			$(patsubst -f%,-fno-%,$(call check_gcc,-fexceptions,))
 ASFLAGS-crti.S = -g0
 ASFLAGS-crtn.S = -g0
 
 $(libpthread_pthread_OUT)/pt-initfini.s: $(libpthread_pthread_DIR)/pt-initfini.c
 	$(compile.c)
-	$(do_sed) '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
-		$(do_awk) $(libpthread_pthread_DIR)/defs.awk > $(libpthread_pthread_OUT)/defs.h
+$(libpthread_pthread_OUT)/defs.h: $(libpthread_pthread_DIR)/pt-initfini.c
+	$(do_sed) -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
+		$(AWK) -f $(top_srcdir)extra/scripts/defs.awk > $@.tmp
+	$(Q)mv $@.tmp $@
 
-$(libpthread_pthread_OUT)/crti.S $(libpthread_pthread_OUT)/crtn.S: $(libpthread_pthread_OUT)/pt-initfini.s
-	$(do_sed) -e '1,/@HEADER_ENDS/p' \
+$(libpthread_pthread_OUT)/crti.S: $(libpthread_pthread_OUT)/pt-initfini.s $(libpthread_pthread_OUT)/defs.h
+	$(do_sed) -n -e '/[ 	]*\.file/d' \
+		-e '1,/@HEADER_ENDS/p' \
 		-e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
-		-e '/@TRAILER_BEGINS/,$$p' $< > $@
+		-e '/@TRAILER_BEGINS/,$$p' $< > $@.tmp
+	$(Q)mv $@.tmp $@
+$(libpthread_pthread_OUT)/crtn.S: $(libpthread_pthread_OUT)/pt-initfini.s $(libpthread_pthread_OUT)/defs.h
+	$(do_sed) -n -e '/[ 	]*\.file/d' \
+		-e '1,/@HEADER_ENDS/p' \
+		-e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
+		-e '/@TRAILER_BEGINS/,$$p' $< > $@.tmp
+	$(Q)mv $@.tmp $@
 endif
 # It would have been easier to just add dummy files that include the real
 # impl, but ok.

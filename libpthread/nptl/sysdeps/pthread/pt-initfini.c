@@ -44,6 +44,10 @@
 
 /* Embed an #include to pull in the alignment and .end directives. */
 __asm__ ("\n#include \"defs.h\"");
+__asm__ ("\n#if defined __i686 && defined __ASSEMBLER__");
+__asm__ ("\n#undef __i686");
+__asm__ ("\n#define __i686 __i686");
+__asm__ ("\n#endif");
 
 /* The initial common code ends here. */
 __asm__ ("\n/*@HEADER_ENDS*/");
