@@ -1,6 +1,7 @@
 /* Definitions of constants and data structure for POSIX 1003.1b-1993
    scheduling interface.
-   Copyright (C) 1996-1999,2001-2003,2005,2006 Free Software Foundation, Inc.
+   Copyright (C) 1996-1999,2001-2003,2005,2006,2007,2008
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -58,7 +59,13 @@
 				      force CLONE_PTRACE on this clone.  */
 # define CLONE_CHILD_SETTID 0x01000000 /* Store TID in userlevel buffer in
 					  the child.  */
-# define CLONE_STOPPED	0x02000000 /* Start in stopped state.  */
+# define CLONE_STOPPED 0x02000000 /* Start in stopped state.  */
+# define CLONE_NEWUTS	0x04000000	/* New utsname group.  */
+# define CLONE_NEWIPC	0x08000000	/* New ipcs.  */
+# define CLONE_NEWUSER	0x10000000	/* New user namespace.  */
+# define CLONE_NEWPID	0x20000000	/* New pid namespace.  */
+# define CLONE_NEWNET	0x40000000	/* New network namespace.  */
+# define CLONE_IO	0x80000000	/* Clone I/O context.  */
 #endif
 
 /* The official definition.  */
@@ -74,10 +81,11 @@ __BEGIN_DECLS
 extern int clone (int (*__fn) (void *__arg), void *__child_stack,
 		  int __flags, void *__arg, ...) __THROW;
 
-#if 0
 /* Unshare the specified resources.  */
 extern int unshare (int __flags) __THROW;
-#endif
+
+/* Get index of currently used CPU.  */
+extern int sched_getcpu (void) __THROW;
 #endif
 
 __END_DECLS
@@ -102,7 +110,7 @@ struct __sched_param
 # define __CPU_SETSIZE	1024
 # define __NCPUBITS	(8 * sizeof (__cpu_mask))
 
-/* Type for array elements in 'cpu_set'.  */
+/* Type for array elements in 'cpu_set_t'.  */
 typedef unsigned long int __cpu_mask;
 
 /* Basic access functions.  */
@@ -116,17 +124,77 @@ typedef struct
 } cpu_set_t;
 
 /* Access functions for CPU masks.  */
-# define __CPU_ZERO(cpusetp) \
+# define __CPU_ZERO_S(setsize, cpusetp) \
   do {									      \
-    unsigned int __i;							      \
-    cpu_set_t *__arr = (cpusetp);					      \
-    for (__i = 0; __i < sizeof (cpu_set_t) / sizeof (__cpu_mask); ++__i)      \
-      __arr->__bits[__i] = 0;						      \
+    size_t __i;								      \
+    size_t __imax = (setsize) / sizeof (__cpu_mask);			      \
+    __cpu_mask *__bits = (cpusetp)->__bits;				      \
+    for (__i = 0; __i < __imax; ++__i)					      \
+      __bits[__i] = 0;							      \
   } while (0)
-# define __CPU_SET(cpu, cpusetp) \
-  ((cpusetp)->__bits[__CPUELT (cpu)] |= __CPUMASK (cpu))
-# define __CPU_CLR(cpu, cpusetp) \
-  ((cpusetp)->__bits[__CPUELT (cpu)] &= ~__CPUMASK (cpu))
-# define __CPU_ISSET(cpu, cpusetp) \
-  (((cpusetp)->__bits[__CPUELT (cpu)] & __CPUMASK (cpu)) != 0)
+# define __CPU_SET_S(cpu, setsize, cpusetp) \
+  (__extension__							      \
+   ({ size_t __cpu = (cpu);						      \
+      __cpu < 8 * (setsize)						      \
+      ? (((__cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)]		      \
+	 |= __CPUMASK (__cpu))						      \
+      : 0; }))
+# define __CPU_CLR_S(cpu, setsize, cpusetp) \
+  (__extension__							      \
+   ({ size_t __cpu = (cpu);						      \
+      __cpu < 8 * (setsize)						      \
+      ? (((__cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)]		      \
+	 &= ~__CPUMASK (__cpu))						      \
+      : 0; }))
+# define __CPU_ISSET_S(cpu, setsize, cpusetp) \
+  (__extension__							      \
+   ({ size_t __cpu = (cpu);						      \
+      __cpu < 8 * (setsize)						      \
+      ? ((((__cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)]	      \
+	  & __CPUMASK (__cpu))) != 0					      \
+      : 0; }))
+
+# define __CPU_COUNT_S(setsize, cpusetp) \
+  __sched_cpucount (setsize, cpusetp)
+
+# define __CPU_EQUAL_S(setsize, cpusetp1, cpusetp2) \
+  (__extension__							      \
+   ({ __cpu_mask *__arr1 = (cpusetp1)->__bits;				      \
+      __cpu_mask *__arr2 = (cpusetp2)->__bits;				      \
+      size_t __imax = (setsize) / sizeof (__cpu_mask);			      \
+      size_t __i;							      \
+      for (__i = 0; __i < __imax; ++__i)				      \
+	if (__arr1[__i] != __arr2[__i])					      \
+	  break;							      \
+      __i == __imax; }))
+
+# define __CPU_OP_S(setsize, destset, srcset1, srcset2, op) \
+  (__extension__							      \
+   ({ cpu_set_t *__dest = (destset);					      \
+      __cpu_mask *__arr1 = (srcset1)->__bits;				      \
+      __cpu_mask *__arr2 = (srcset2)->__bits;				      \
+      size_t __imax = (setsize) / sizeof (__cpu_mask);			      \
+      size_t __i;							      \
+      for (__i = 0; __i < __imax; ++__i)				      \
+	((__cpu_mask *) __dest->__bits)[__i] = __arr1[__i] op __arr2[__i];    \
+      __dest; }))
+
+# define __CPU_ALLOC_SIZE(count) \
+  ((((count) + __NCPUBITS - 1) / __NCPUBITS) * sizeof (__cpu_mask))
+# define __CPU_ALLOC(count) __sched_cpualloc (count)
+# define __CPU_FREE(cpuset) __sched_cpufree (cpuset)
+
+__BEGIN_DECLS
+
+extern int __sched_cpucount (size_t __setsize, const cpu_set_t *__setp)
+  __THROW;
+#if 0 /* in uClibc we use macros */
+extern cpu_set_t *__sched_cpualloc (size_t __count) __THROW __wur;
+extern void __sched_cpufree (cpu_set_t *__set) __THROW;
+#else
+# define __sched_cpualloc(cnt) ((cpu_set_t *)malloc(__CPU_ALLOC_SIZE(cnt)))
+# define __sched_cpufree(__set) free(__set)
+#endif
+__END_DECLS
+
 #endif

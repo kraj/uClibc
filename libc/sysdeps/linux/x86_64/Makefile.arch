@@ -17,3 +17,10 @@ SSRC := \
 ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 SSRC += vfork.S clone.S
 endif
+
+ifeq ($(UCLIBC_LINUX_SPECIFIC),y)
+ARCH_OBJ_FILTEROUT = sched_getcpu.c
+ifeq ($(UCLIBC_HAS_TLS),y)
+SSRC += sched_getcpu.S
+endif
+endif

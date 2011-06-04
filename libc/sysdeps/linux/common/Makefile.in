@@ -35,7 +35,9 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	readahead.c \
 	reboot.c \
 	remap_file_pages.c \
+	sched_cpucount.c \
 	sched_getaffinity.c \
+	sched_getcpu.c \
 	sched_setaffinity.c \
 	sendfile.c \
 	setfsgid.c \
@@ -53,6 +55,7 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	timerfd.c \
 	umount2.c \
 	umount.c \
+	unshare.c \
 	uselib.c \
 	vhangup.c \
 	vmsplice.c

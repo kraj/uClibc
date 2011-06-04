@@ -128,6 +128,10 @@ make_stub(fstatfs)
 make_stub(get_kernel_syms)
 #endif
 
+#if !defined __NR_getcpu && defined __UCLIBC_LINUX_SPECIFIC__ && ((defined __x86_64__ && !defined __UCLIBC_HAS_TLS__) || !defined __x86_64__)
+make_stub(sched_getcpu)
+#endif
+
 #if !defined __NR_getpeername && !defined __NR_socketcall && defined __UCLIBC_HAS_SOCKET__
 make_stub(getpeername)
 #endif
@@ -383,6 +387,10 @@ make_stub(umount)
 
 #if !defined __NR_umount2 && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(umount2)
+#endif
+
+#if !defined __NR_unshare && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(unshare)
 #endif
 
 #ifndef __NR_utimensat
