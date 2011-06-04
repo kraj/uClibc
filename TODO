@@ -89,6 +89,10 @@ TODO list for the uClibc 1.0.0 release:
     *) Fix dlopen, for both static and dynamic cases, and make it
 	fully comply with SuSv3
     *) check if sched_getcpu is only pulled in where it should be
+	*) remove HANDLE_OLDER_RLIMIT, NEW_GETRLIMIT (conditionalize on
+	ugetrlimit, it seems, else use the modern variant)
+	*) simplify exec*() in the light of execvpe (perhaps single internal
+	impl); USE_GNU for execvpe (and other GNU extensions, see psm).
 
 
 TODO list for AFTER the uClibc 1.0.0 release:

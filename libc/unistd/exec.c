@@ -32,6 +32,8 @@
 /**********************************************************************/
 #define EXEC_FUNC_COMMON 0
 #define EXEC_FUNC_EXECVP 1
+#define EXEC_FUNC_EXECVPE 2
+
 #if defined(__ARCH_USE_MMU__)
 
 /* We have an MMU, so use alloca() to grab space for buffers and arg lists. */
@@ -58,6 +60,7 @@
  *  execle(a) -> execve(-)
  *  execv(-)  -> execve(-)
  *  execvp(a) -> execve(-)
+ *  execvpe(a) -> execve(-)
  */
 
 # define EXEC_ALLOC_SIZE(VAR)      /* nothing to do */
@@ -219,15 +222,18 @@ libc_hidden_def(execlp)
 
 #endif
 /**********************************************************************/
-#ifdef L_execvp
+#if defined (L_execvp) || defined(L_execvpe)
 
 
 /* Use a default path that matches glibc behavior, since SUSv3 says
  * this is implementation-defined.  The default is current working dir,
  * /bin, and then /usr/bin. */
 static const char default_path[] = ":/bin:/usr/bin";
-
+#if defined (L_execvp)
 int execvp(const char *path, char *const argv[])
+#elif defined (L_execvpe)
+int execvpe(const char *path, char *const argv[], char *const envp[])
+#endif
 {
 	char *buf = NULL;
 	char *p;
@@ -245,7 +251,11 @@ int execvp(const char *path, char *const argv[])
 	}
 
 	if (strchr(path, '/')) {
+#if defined (L_execvp)
 		execve(path, argv, __environ);
+#elif defined (L_execvpe)
+		execve(path, argv, envp);
+#endif
 		if (errno == ENOEXEC) {
 			char **nargv;
 			EXEC_ALLOC_SIZE(size2) /* Do NOT add a semicolon! */
@@ -254,11 +264,19 @@ int execvp(const char *path, char *const argv[])
 			/* Need the dimension - 1.  We omit counting the trailing
 			 * NULL but we actually omit the first entry. */
 			for (n=0 ; argv[n] ; n++) {}
+#if defined (L_execvp)
 			nargv = (char **) EXEC_ALLOC((n+2) * sizeof(char *), size2, EXEC_FUNC_EXECVP);
+#elif defined (L_execvpe)
+			nargv = (char **) EXEC_ALLOC((n+2) * sizeof(char *), size2, EXEC_FUNC_EXECVPE);
+#endif
 			nargv[0] = argv[0];
 			nargv[1] = (char *)path;
 			memcpy(nargv+2, argv+1, n*sizeof(char *));
+#if defined (L_execvp)
 			execve("/bin/sh", nargv, __environ);
+#elif defined (L_execvpe)
+			execve("/bin/sh", nargv, envp);
+#endif
 			EXEC_FREE(nargv, size2);
 		}
 	} else {
@@ -277,8 +295,11 @@ int execvp(const char *path, char *const argv[])
 			return -1;
 		}
 		len = (FILENAME_MAX - 1) - plen;
-
+#if defined (L_execvp)
 		buf = EXEC_ALLOC(FILENAME_MAX, size, EXEC_FUNC_EXECVP);
+#elif defined (L_execvpe)
+		buf = EXEC_ALLOC(FILENAME_MAX, size, EXEC_FUNC_EXECVPE);
+#endif
 		{
 			int seen_small = 0;
 			s0 = buf + len;
@@ -300,8 +321,11 @@ int execvp(const char *path, char *const argv[])
 					s[plen-1] = '/';
 				}
 
+#if defined (L_execvp)
 				execve(s, argv, __environ);
-
+#elif defined (L_execvpe)
+				execve(s, argv, envp);
+#endif
 				seen_small = 1;
 
 				if (errno == ENOEXEC) {
@@ -325,7 +349,11 @@ int execvp(const char *path, char *const argv[])
 
 	return -1;
 }
+#if defined (L_execvp)
 libc_hidden_def(execvp)
-
+#elif defined (L_execvpe)
+libc_hidden_def(execvpe)
 #endif
+
+#endif /* #if defined (L_execvp) || defined(L_execvpe) */
 /**********************************************************************/
