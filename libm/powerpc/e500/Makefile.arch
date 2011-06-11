@@ -6,5 +6,6 @@
 #
 
 libm_ARCH_fpu_DIR := $(libm_SUBARCH_DIR)/fpu
+libm_ARCH_fpu_OUT := $(libm_SUBARCH_OUT)/fpu
 -include $(libm_ARCH_fpu_DIR)/Makefile.arch
 
