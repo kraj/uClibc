@@ -585,9 +585,6 @@ CFLAGS := -include $(top_srcdir)include/libc-symbols.h \
 	-nostdinc -I$(top_builddir)include -I$(top_srcdir)include -I. \
 	-I$(top_srcdir)libc/sysdeps/linux \
 	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
-ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
-CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
-endif
 
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
@@ -632,6 +629,9 @@ ifeq ($(DOSTRIP),y)
 LDFLAGS += -Wl,-s
 else
 STRIPTOOL := true -Stripping_disabled
+endif
+ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
+CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
 endif
 
 ifeq ($(DOMULTI),y)
