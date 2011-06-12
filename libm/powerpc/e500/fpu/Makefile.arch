@@ -6,8 +6,10 @@
 #
 
 
+ifeq ($(UCLIBC_HAS_FENV),y)
 libm_ARCH_SRC:=$(wildcard $(libm_ARCH_fpu_DIR)/*.c)
 libm_ARCH_OBJ:=$(patsubst $(libm_ARCH_fpu_DIR)/%.c,$(libm_ARCH_fpu_OUT)/%.o,$(libm_ARCH_SRC))
+endif
 
 libm_ARCH_OBJS:=$(libm_ARCH_OBJ)
 
