@@ -820,13 +820,6 @@ getaddrinfo(const char *name, const char *service,
 			if (hints->ai_flags & AI_NUMERICSERV)
 				return EAI_NONAME;
 			gaih_service.num = -1;
-		} else {
-			/*
-			 * Can't specify a numerical socket unless a protocol
-			 * family was given.
-			 */
-			if (hints->ai_socktype == 0 && hints->ai_protocol == 0)
-				return EAI_SERVICE;
 		}
 		pservice = &gaih_service;
 	} else
