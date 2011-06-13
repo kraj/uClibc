@@ -10,7 +10,6 @@
 #NO_APP
 	.align	2
 	.globl	_init
-	.ent	_init
 	.type	_init, @function
 #NO_APP
 	lw	$31,28($sp)
@@ -22,14 +21,12 @@
 	.set	macro
 	.set	reorder
 
-	.end	_init
 #APP
 	
 	.section .fini
 #NO_APP
 	.align	2
 	.globl	_fini
-	.ent	_fini
 	.type	_fini, @function
 #NO_APP
 	lw	$31,28($sp)
@@ -41,7 +38,6 @@
 	.set	macro
 	.set	reorder
 
-	.end	_fini
 #APP
 	
 	.ident	"GCC: (GNU) 3.3.2"
@@ -54,10 +50,8 @@
 	
 	.section .init
 #NO_APP
-	.align	2
 	.align	3
 	.globl	_init
-	.ent	_init
 	.type	_init, @function
 #NO_APP
 	ld	$31,8($sp)
@@ -68,16 +62,12 @@
 	addiu	$sp,$sp,16
 	.set	macro
 	.set	reorder
-
-	.end	_init
 #APP
 	
 	.section .fini
 #NO_APP
-	.align	2
 	.align	3
 	.globl	_fini
-	.ent	_fini
 	.type	_fini, @function
 #NO_APP
 	ld	$31,8($sp)
@@ -89,7 +79,6 @@
 	.set	macro
 	.set	reorder
 
-	.end	_fini
 #APP
 	
 	.ident	"GCC: (GNU) 3.4.3"
@@ -105,7 +94,6 @@
 #NO_APP
 	.align	2
 	.globl	_init
-	.ent	_init
 	.type	_init, @function
 #NO_APP
 	ld	$31,24($sp)
@@ -118,14 +106,12 @@
 	.set	macro
 	.set	reorder
 
-	.end	_init
 #APP
 	
 	.section .fini
 #NO_APP
 	.align	2
 	.globl	_fini
-	.ent	_fini
 	.type	_fini, @function
 #NO_APP
 	ld	$31,24($sp)
@@ -138,7 +124,6 @@
 	.set	macro
 	.set	reorder
 
-	.end	_fini
 #APP
 	
 	.ident	"GCC: (GNU) 3.3.2"
