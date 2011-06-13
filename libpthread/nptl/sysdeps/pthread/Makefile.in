@@ -73,23 +73,37 @@ CFLAGS-pt-initfini.c = -S -g0 $(PICFLAG) -fno-inline-functions	\
 			-finhibit-size-directive			\
 			-fno-asynchronous-unwind-tables -fno-unwind-tables \
 			$(patsubst -f%,-fno-%,$(call check_gcc,-fexceptions,))
-ASFLAGS-crti.S = -g0
-ASFLAGS-crtn.S = -g0
 
-$(libpthread_pthread_OUT)/pt-initfini.s: $(libpthread_pthread_DIR)/pt-initfini.c
+#ASFLAGS += $(PICFLAG) -I$(top_srcdir)include -I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
+ifneq ($(wildcard $(libpthread_DIR)/sysdeps/linux/$(TARGET_ARCH)/pt-initfini.c),)
+PTHREAD_INITFINI := $(libpthread_DIR)/sysdeps/linux/$(TARGET_ARCH)/pt-initfini.c
+else
+PTHREAD_INITFINI := $(libpthread_pthread_DIR)/pt-initfini.c
+endif
+
+ASFLAGS-pt-crti.S =  $(PICFLAG)
+ASFLAGS-pt-crtn.S =  $(PICFLAG)
+
+$(libpthread_pthread_OUT)/pt-crti.o: $(libpthread_pthread_OUT)/pt-crti.S
+	$(compile.S)
+
+$(libpthread_pthread_OUT)/pt-crtn.o: $(libpthread_pthread_OUT)/pt-crtn.S
+	$(compile.S)
+
+$(libpthread_pthread_OUT)/pt-initfini.s: $(PTHREAD_INITFINI)
 	$(compile.c)
-$(libpthread_pthread_OUT)/defs.h: $(libpthread_pthread_DIR)/pt-initfini.c
+$(libpthread_pthread_OUT)/defs.h: $(PTHREAD_INITFINI)
 	$(do_sed) -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
 		$(AWK) -f $(top_srcdir)extra/scripts/defs.awk > $@.tmp
 	$(Q)mv $@.tmp $@
 
-$(libpthread_pthread_OUT)/crti.S: $(libpthread_pthread_OUT)/pt-initfini.s $(libpthread_pthread_OUT)/defs.h
+$(libpthread_pthread_OUT)/pt-crti.S: $(libpthread_pthread_OUT)/pt-initfini.s $(libpthread_pthread_OUT)/defs.h
 	$(do_sed) -n -e '/[ 	]*\.file/d' \
 		-e '1,/@HEADER_ENDS/p' \
 		-e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
 		-e '/@TRAILER_BEGINS/,$$p' $< > $@.tmp
 	$(Q)mv $@.tmp $@
-$(libpthread_pthread_OUT)/crtn.S: $(libpthread_pthread_OUT)/pt-initfini.s $(libpthread_pthread_OUT)/defs.h
+$(libpthread_pthread_OUT)/pt-crtn.S: $(libpthread_pthread_OUT)/pt-initfini.s $(libpthread_pthread_OUT)/defs.h
 	$(do_sed) -n -e '/[ 	]*\.file/d' \
 		-e '1,/@HEADER_ENDS/p' \
 		-e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
