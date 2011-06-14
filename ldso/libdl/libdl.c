@@ -667,7 +667,7 @@ void *dlsym(void *vhandle, const char *name)
 	tpnt = NULL;
 	if (handle == _dl_symbol_tables)
 		tpnt = handle->dyn; /* Only search RTLD_GLOBAL objs if global object */
-	ret = _dl_find_hash(name2, handle, tpnt, 0, &sym_ref);
+	ret = _dl_find_hash(name2, handle, tpnt, ELF_RTYPE_CLASS_DLSYM, &sym_ref);
 
 #if defined(USE_TLS) && USE_TLS && defined SHARED
 	if (sym_ref.tpnt) {
