@@ -75,8 +75,8 @@ CFLAGS-pt-initfini.c = -S -g0 $(PICFLAG) -fno-inline-functions	\
 			$(patsubst -f%,-fno-%,$(call check_gcc,-fexceptions,))
 
 #ASFLAGS += $(PICFLAG) -I$(top_srcdir)include -I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
-ifneq ($(wildcard $(libpthread_DIR)/sysdeps/linux/$(TARGET_ARCH)/pt-initfini.c),)
-PTHREAD_INITFINI := $(libpthread_DIR)/sysdeps/linux/$(TARGET_ARCH)/pt-initfini.c
+ifneq ($(wildcard $(libpthread_pthread_DIR)/../unix/sysv/linux/$(TARGET_ARCH)/pt-initfini.c),)
+PTHREAD_INITFINI := $(libpthread_pthread_DIR)/../unix/sysv/linux/$(TARGET_ARCH)/pt-initfini.c
 else
 PTHREAD_INITFINI := $(libpthread_pthread_DIR)/pt-initfini.c
 endif
