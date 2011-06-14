@@ -448,8 +448,8 @@ allnoconfig: $(top_builddir)extra/config/conf
 	$(Q)$(top_builddir)extra/config/conf -n extra/Configs/Config.in
 
 defconfig: $(top_builddir)extra/config/conf
-	$(Q)$(top_builddir)extra/config/conf -d extra/Configs/Config.in \
-		-D extra/Configs/defconfigs/$(ARCH)
+	$(Q)$(top_builddir)extra/config/conf \
+		-D extra/Configs/defconfigs/$(ARCH) extra/Configs/Config.in
 
 menuconfig-clean-y:
 	$(Q)$(MAKE) -C extra/config CLEAN_extra/config
