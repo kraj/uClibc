@@ -1461,7 +1461,7 @@ int attribute_hidden __dns_lookup(const char *name,
 		/* bug 660 says we treat negative response as an error
 		 * and retry, which is, eh, an error. :)
 		 * We were incurring long delays because of this. */
-		if (h.rcode == NXDOMAIN) {
+		if (h.rcode == NXDOMAIN || h.rcode == SERVFAIL) {
 			/* if possible, try next search domain */
 			if (!ends_with_dot) {
 				DPRINTF("variant:%d sdomains:%d\n", variant, sdomains);
