@@ -2964,7 +2964,7 @@ int res_init(void)
 		if (__nameserver[i].sa.sa_family == AF_INET6
 		 && m < ARRAY_SIZE(rp->_u._ext.nsaddrs)
 		) {
-			struct sockaddr_in6 *sa6 = malloc(sizeof(sa6));
+			struct sockaddr_in6 *sa6 = malloc(sizeof(*sa6));
 			if (sa6) {
 				*sa6 = __nameserver[i].sa6; /* struct copy */
 				rp->_u._ext.nsaddrs[m] = sa6;
@@ -2981,7 +2981,7 @@ int res_init(void)
 
 #else /* IPv6 only */
 	while (m < ARRAY_SIZE(rp->_u._ext.nsaddrs) && i < __nameservers) {
-		struct sockaddr_in6 *sa6 = malloc(sizeof(sa6));
+		struct sockaddr_in6 *sa6 = malloc(sizeof(*sa6));
 		if (sa6) {
 			*sa6 = __nameserver[i].sa6; /* struct copy */
 			rp->_u._ext.nsaddrs[m] = sa6;
