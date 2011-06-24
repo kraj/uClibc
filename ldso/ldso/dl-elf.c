@@ -718,6 +718,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				DL_UPDATE_LOADADDR_HDR(lib_loadaddr,
 						       new_addr + (ppnt->p_vaddr & ADDR_ALIGN),
 						       ppnt);
+				/* This has invalidated all pointers into the previously readonly segment.
+				   Update any them to point into the remapped segment.  */
+				_dl_parse_dynamic_info(dpnt, dynamic_info, NULL, lib_loadaddr);
 #endif
 			}
 		}

@@ -105,8 +105,8 @@ export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS MULTILIB_DIR
 # Now config hard core
 MAJOR_VERSION := 0
 MINOR_VERSION := 9
-SUBLEVEL      := 32
-EXTRAVERSION  :=-rc3-git
+SUBLEVEL      := 33
+EXTRAVERSION  :=-git
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 ABI_VERSION   := $(MAJOR_VERSION)
 ifneq ($(EXTRAVERSION),)
@@ -186,6 +186,7 @@ OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
 # shrinks code by about 0.1%
 OPTIMIZATION+=$(call check_gcc,-fmerge-all-constants)
+OPTIMIZATION+=$(call check_gcc,-fstrict-aliasing)
 
 GCC_MAJOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1)
 #GCC_MINOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 2)
@@ -332,28 +333,9 @@ ifeq ($(TARGET_ARCH),sparc)
 endif
 
 ifeq ($(TARGET_ARCH),arm)
-	OPTIMIZATION+=-fstrict-aliasing
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-mlittle-endian
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mbig-endian
-	CPU_CFLAGS-$(CONFIG_GENERIC_ARM)+=
-	CPU_CFLAGS-$(CONFIG_ARM610)+=-mtune=arm610 -march=armv3
-	CPU_CFLAGS-$(CONFIG_ARM710)+=-mtune=arm710 -march=armv3
-	CPU_CFLAGS-$(CONFIG_ARM7TDMI)+=-mtune=arm7tdmi -march=armv4t
-	CPU_CFLAGS-$(CONFIG_ARM720T)+=-mtune=arm7tdmi -march=armv4t
-	CPU_CFLAGS-$(CONFIG_ARM920T)+=-mtune=arm9tdmi -march=armv4t
-	CPU_CFLAGS-$(CONFIG_ARM922T)+=-mtune=arm9tdmi -march=armv4t
-	CPU_CFLAGS-$(CONFIG_ARM926T)+=-mtune=arm9e -march=armv5te
-	CPU_CFLAGS-$(CONFIG_ARM10T)+=-mtune=arm10tdmi -march=armv5t
-	CPU_CFLAGS-$(CONFIG_ARM1136JF_S)+=-mtune=arm1136jf-s -march=armv6
-	CPU_CFLAGS-$(CONFIG_ARM1176JZ_S)+=-mtune=arm1176jz-s -march=armv6
-	CPU_CFLAGS-$(CONFIG_ARM1176JZF_S)+=-mtune=arm1176jzf-s -march=armv6
-	CPU_CFLAGS-$(CONFIG_ARM_SA110)+=-mtune=strongarm110 -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM_SA1100)+=-mtune=strongarm1100 -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=$(call check_gcc,-mtune=xscale,-mtune=strongarm110)
-	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=-march=armv5te -Wa,-mcpu=xscale
- 	CPU_CFLAGS-$(CONFIG_ARM_IWMMXT)+=-march=iwmmxt -Wa,-mcpu=iwmmxt -mabi=iwmmxt
- 	CPU_CFLAGS-$(CONFIG_ARM_CORTEX_M3)+=-mcpu=cortex-m3 -mthumb
- 	CPU_CFLAGS-$(CONFIG_ARM_CORTEX_M1)+=-mcpu=cortex-m1 -mthumb
+	CPU_CFLAGS-$(COMPILE_IN_THUMB_MODE)+=-mthumb
 endif
 
 ifeq ($(TARGET_ARCH),mips)
@@ -385,7 +367,6 @@ ifeq ($(TARGET_ARCH),nios)
 endif
 
 ifeq ($(TARGET_ARCH),sh)
-	OPTIMIZATION+=-fstrict-aliasing
 	OPTIMIZATION+= $(call check_gcc,-mprefergot,)
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-ml
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mb
@@ -401,7 +382,6 @@ endif
 endif
 
 ifeq ($(TARGET_ARCH),sh64)
-	OPTIMIZATION+=-fstrict-aliasing
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):=-ml
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):=-mb
 	CPU_CFLAGS-$(CONFIG_SH5)+=-m5-32media
@@ -546,10 +526,10 @@ endif
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
-XWARNINGS=$(call qstrip,$(WARNINGS)) 
+XWARNINGS=$(call qstrip,$(WARNINGS))
 XWARNINGS+=$(foreach w,\
 	-Wstrict-prototypes \
-	-fno-strict-aliasing \
+	-Wstrict-aliasing \
 	, $(call check_gcc,$(w),))
 ifeq ($(EXTRA_WARNINGS),y)
 XWARNINGS+=$(foreach w,\
@@ -587,9 +567,6 @@ CFLAGS := -include $(top_srcdir)include/libc-symbols.h \
 	-nostdinc -I$(top_builddir)include -I$(top_srcdir)include -I. \
 	-I$(top_srcdir)libc/sysdeps/linux \
 	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
-ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
-CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
-endif
 
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
@@ -634,6 +611,9 @@ ifeq ($(DOSTRIP),y)
 LDFLAGS += -Wl,-s
 else
 STRIPTOOL := true -Stripping_disabled
+endif
+ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
+CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
 endif
 
 ifeq ($(DOMULTI),y)

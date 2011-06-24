@@ -1461,7 +1461,7 @@ int attribute_hidden __dns_lookup(const char *name,
 		/* bug 660 says we treat negative response as an error
 		 * and retry, which is, eh, an error. :)
 		 * We were incurring long delays because of this. */
-		if (h.rcode == NXDOMAIN) {
+		if (h.rcode == NXDOMAIN || h.rcode == SERVFAIL) {
 			/* if possible, try next search domain */
 			if (!ends_with_dot) {
 				DPRINTF("variant:%d sdomains:%d\n", variant, sdomains);
@@ -2964,7 +2964,7 @@ int res_init(void)
 		if (__nameserver[i].sa.sa_family == AF_INET6
 		 && m < ARRAY_SIZE(rp->_u._ext.nsaddrs)
 		) {
-			struct sockaddr_in6 *sa6 = malloc(sizeof(sa6));
+			struct sockaddr_in6 *sa6 = malloc(sizeof(*sa6));
 			if (sa6) {
 				*sa6 = __nameserver[i].sa6; /* struct copy */
 				rp->_u._ext.nsaddrs[m] = sa6;
@@ -2981,7 +2981,7 @@ int res_init(void)
 
 #else /* IPv6 only */
 	while (m < ARRAY_SIZE(rp->_u._ext.nsaddrs) && i < __nameservers) {
-		struct sockaddr_in6 *sa6 = malloc(sizeof(sa6));
+		struct sockaddr_in6 *sa6 = malloc(sizeof(*sa6));
 		if (sa6) {
 			*sa6 = __nameserver[i].sa6; /* struct copy */
 			rp->_u._ext.nsaddrs[m] = sa6;

@@ -63,9 +63,11 @@ librt-a-y += $(librt_OBJS)
 endif
 librt-so-y += $(librt_OBJS:.o=.oS) $(librt-pt-shared-only-routines-y:.o=.oS)
 
-ifneq ($(UCLIBC_CTOR_DTOR),y)
-START_FILE-libpthread.so := $(top_builddir)/libpthread/nptl/sysdeps/pthread/crti.o $(SHARED_START_FILES)
-END_FILE-libpthread.so := $(SHARED_END_FILES) $(top_builddir)/libpthread/nptl/sysdeps/pthread/crtn.o
+ifeq ($(UCLIBC_CTOR_DTOR),y)
+START_FILE-libpthread.so := $(top_builddir)libpthread/nptl/sysdeps/pthread/pt-crti.o
+END_FILE-libpthread.so := $(top_builddir)libpthread/nptl/sysdeps/pthread/pt-crtn.o
+LDFLAGS-libpthread.so += -nostartfiles
+$(top_builddir)lib/libpthread.so: | $(START_FILE-libpthread.so) $(END_FILE-libpthread.so)
 endif
 
 libpthread_FULL_NAME := libpthread-$(VERSION).so
@@ -137,9 +139,9 @@ CLEAN_libpthread/nptl:
 	$(do_rm) $(addprefix $(libpthread_OUT)/*., o os oS a)
 
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
+LDFLAGS-libpthread.so += $(LDFLAGS_NOSTRIP) -Wl,-z,defs
 else
-LDFLAGS-libpthread.so := $(LDFLAGS)
+LDFLAGS-libpthread.so += $(LDFLAGS)
 endif
 
 LDFLAGS-libpthread.so += $(top_builddir)lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so $(top_builddir)lib/libdl-$(VERSION).so \

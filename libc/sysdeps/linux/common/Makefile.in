@@ -19,14 +19,14 @@ CSRC-$(UCLIBC_LINUX_MODULE_24) += create_module.c query_module.c \
 	get_kernel_syms.c
 # we need these internally: fstatfs.c statfs.c
 CSRC-$(UCLIBC_LINUX_SPECIFIC) += capget.c capset.c inotify.c ioperm.c iopl.c \
-	madvise.c modify_ldt.c personality.c ppoll.c prctl.c readahead.c reboot.c \
+	modify_ldt.c pipe2.c personality.c ppoll.c prctl.c \
+	readahead.c reboot.c \
 	remap_file_pages.c sched_getaffinity.c sched_setaffinity.c \
 	sendfile64.c sendfile.c setfsgid.c setfsuid.c setresuid.c \
 	splice.c vmsplice.c tee.c signalfd.c swapoff.c swapon.c \
 	sync_file_range.c sysctl.c sysinfo.c timerfd.c uselib.c vhangup.c
-ifeq ($(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_THREADS_NATIVE),yy)
-CSRC-y += madvise.c
-endif
+# NPTL needs these internally: madvise.c
+CSRC-$(findstring y,$(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_THREADS_NATIVE)) += madvise.c
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 CSRC- += fork.c getpid.c raise.c open.c close.c read.c write.c
 CSRC- += $(if $(findstring =arm=,=$(TARGET_ARCH)=),vfork.c)
@@ -52,7 +52,7 @@ CSRC-$(UCLIBC_HAS_XATTR) += xattr.c
 CSRC-$(UCLIBC_HAS_PROFILING) += noophooks.c #pcprofile.c
 CSRC-$(UCLIBC_SV4_DEPRECATED) += ustat.c
 CSRC- += $(if $(findstring =c6x=,=$(TARGET_ARCH)=),vfork.c)
-CSRC- += $(if $(findstring =sh=,=$(TARGET_ARCH)=),longjmp.c vfork.c)
+CSRC- += $(if $(findstring =sh=,=$(TARGET_ARCH)=),vfork.c)
 CSRC- += $(if $(findstring =sparc=,=$(TARGET_ARCH)=),vfork.c)
 CSRC- += $(if $(findstring =i386=,=$(TARGET_ARCH)=),vfork.c)
 

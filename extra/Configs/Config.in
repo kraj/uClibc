@@ -942,8 +942,10 @@ config UCLIBC_LINUX_SPECIFIC
 	bool "Linux specific functions"
 	default y
 	help
+	  accept4(),
 	  capget(), capset(), fstatfs(), inotify_*(), ioperm(), iopl(),
-	  madvise(), modify_ldt(), personality(), prctl()/arch_prctl(),
+	  madvise(), modify_ldt(), pipe2(), personality(),
+	  prctl()/arch_prctl(),
 	  ppoll(), readahead(), reboot(), remap_file_pages(),
 	  sched_getaffinity(), sched_setaffinity(), sendfile(),
 	  setfsgid(), setfsuid(), setresuid(),

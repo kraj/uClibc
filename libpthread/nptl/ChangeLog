@@ -6717,7 +6717,7 @@
 
 2003-07-15  Ulrich Drepper  <drepper@redhat.com>
 
-	* tst-tcancel-wrappers.sh: lseek and llseek are not cancelation points.
+	* tst-tcancel-wrappers.sh: lseek and llseek are not cancellation points.
 
 2003-07-14  Ulrich Drepper  <drepper@redhat.com>
 
@@ -10308,7 +10308,7 @@
 
 	* sysdeps/unix/sysv/linux/i386/sysdep-cancel.h: Define
 	SINGLE_THREAD_P.  If in libc or libpthread examine multiple_thread
-	member of thread decriptor, otherwise return unconditionally 1.
+	member of thread descriptor, otherwise return unconditionally 1.
 
 2002-12-14  Ulrich Drepper  <drepper@redhat.com>
 
@@ -10990,7 +10990,7 @@
 	the static TLS block.
 	(allocate_stack): Call _dl_allocate_tls_init for user-provided stack.
 
-	* cancellation.c: Renamed from cancelation.c.
+	* cancellation.c: Renamed from cancellation.c.
 	* Makefile: Adjust accordingly.
 	* pthreadP.h (CANCELLATION_P): Renamed from CANCELATION_P.
 	* cleanup_defer.c: Use CANCELLATION_P.

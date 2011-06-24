@@ -1025,7 +1025,7 @@ init_tls (void)
 
 	/* And finally install it for the main thread.  If ld.so itself uses
 	   TLS we know the thread pointer was initialized earlier.  */
-	const char *lossage = TLS_INIT_TP (tcbp, USE___THREAD);
+	const char *lossage = (char *)TLS_INIT_TP (tcbp, USE___THREAD);
 	if(__builtin_expect (lossage != NULL, 0)) {
 		_dl_debug_early("cannot set up thread-local storage: %s\n", lossage);
 		_dl_exit(30);

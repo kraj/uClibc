@@ -9,7 +9,6 @@
 	addi 1,1,32
 	mtlr 0
 	blr
-	.size	_init, .-_init
 	
 	.section .fini
 	.align 2
@@ -20,4 +19,3 @@
 	addi 1,1,32
 	mtlr 0
 	blr
-	.size	_fini, .-_fini
