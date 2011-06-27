@@ -186,9 +186,9 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 {
 	int reloc_type;
 	int symtab_index;
+	char *symname;
 	unsigned long *reloc_addr;
 	unsigned long symbol_addr;
-	const Elf32_Sym *def = 0;
 	struct symbol_ref sym_ref;
 	struct elf_resolve *def_mod = 0;
 	int goof = 0;
@@ -200,10 +200,11 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 	symbol_addr = 0;
 	sym_ref.sym = &symtab[symtab_index];
 	sym_ref.tpnt = NULL;
+	symname = strtab + symtab[symtab_index].st_name;
 
 	if (symtab_index) {
-		symbol_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name,
-			scope, tpnt, elf_machine_type_class(reloc_type), &sym_ref);
+		symbol_addr = _dl_find_hash(symname, scope, tpnt,
+						elf_machine_type_class(reloc_type), &sym_ref);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
