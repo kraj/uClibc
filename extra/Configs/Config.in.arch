@@ -133,7 +133,6 @@ config UCLIBC_HAS_FLOATS
 
 config UCLIBC_HAS_FPU
 	bool "Target CPU has a floating point unit (FPU)"
-	depends on UCLIBC_HAS_FLOATS
 	default y
 	help
 	  If your target CPU does not have a Floating Point Unit (FPU) or a
