@@ -64,6 +64,15 @@ enum
 # define SFD_NONBLOCK SFD_NONBLOCK
   };
 
+#elif defined __mips__
+enum
+  {
+    SFD_CLOEXEC = 02000000,
+# define SFD_CLOEXEC SFD_CLOEXEC
+    SFD_NONBLOCK = 0200
+# define SFD_NONBLOCK SFD_NONBLOCK
+  };
+
 #else
 enum
   {
