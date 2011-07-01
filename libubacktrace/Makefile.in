@@ -71,5 +71,4 @@ $(top_builddir)lib/libubacktrace.a: $(libubacktrace-a-y)
 	$(do_ar)
 
 CLEAN_libubacktrace:
-	$(do_rm) $(addprefix $(libubacktrace_OUT)/*., o os oS a) \
-	 $(addprefix $(libubacktrace_ARCH_OUT)/*., o os oS a)
+	$(do_rm) $(addprefix $(libubacktrace_OUT)/*., o os oS a)
