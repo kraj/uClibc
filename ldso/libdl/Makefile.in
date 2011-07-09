@@ -20,7 +20,11 @@ endif
 CFLAGS-libdl.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
 
 LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-libdl.so := -Wl,--dsbt-index=3
-LDFLAGS-libdl.so := $(LDFLAGS) -Wl,-fini,dl_cleanup
+LDFLAGS-libdl.so := $(LDFLAGS)
+
+ifeq ($(LDSO_NO_CLEANUP),)
+LDFLAGS-libdl.so += -Wl,-fini,dl_cleanup
+endif
 
 LIBS-libdl.so := $(LIBS) $(ldso)
 
