@@ -171,6 +171,7 @@ void _pthread_cleanup_pop(struct _pthread_cleanup_buffer * buffer,
   THREAD_SETMEM(self, p_cleanup, buffer->__prev);
 }
 
+#undef _pthread_cleanup_push_defer
 void _pthread_cleanup_push_defer(struct _pthread_cleanup_buffer * buffer,
 				 void (*routine)(void *), void * arg)
 {
@@ -186,6 +187,7 @@ void _pthread_cleanup_push_defer(struct _pthread_cleanup_buffer * buffer,
 }
 strong_alias(_pthread_cleanup_push_defer,__pthread_cleanup_push_defer)
 
+#undef _pthread_cleanup_pop_restore
 void _pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer * buffer,
 				  int execute)
 {

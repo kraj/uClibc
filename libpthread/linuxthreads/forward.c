@@ -147,9 +147,11 @@ FORWARD (pthread_setcancelstate, (int state, int *oldstate), (state, oldstate),
 FORWARD (pthread_setcanceltype, (int type, int *oldtype), (type, oldtype), 0)
 
 FORWARD2 (_pthread_cleanup_push, void, (struct _pthread_cleanup_buffer * buffer, void (*routine)(void *), void * arg), (buffer, routine, arg), return)
+#undef _pthread_cleanup_push_defer
 FORWARD2 (_pthread_cleanup_push_defer, void, (struct _pthread_cleanup_buffer * buffer, void (*routine)(void *), void * arg), (buffer, routine, arg), return)
 strong_alias(_pthread_cleanup_push_defer,__pthread_cleanup_push_defer)
 
 FORWARD2 (_pthread_cleanup_pop, void, (struct _pthread_cleanup_buffer * buffer, int execute), (buffer, execute), return)
+#undef _pthread_cleanup_pop_restore
 FORWARD2 (_pthread_cleanup_pop_restore, void, (struct _pthread_cleanup_buffer * buffer, int execute), (buffer, execute), return)
 strong_alias(_pthread_cleanup_pop_restore,__pthread_cleanup_pop_restore)

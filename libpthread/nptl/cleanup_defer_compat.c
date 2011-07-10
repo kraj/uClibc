@@ -19,7 +19,7 @@
 
 #include "pthreadP.h"
 
-
+#undef _pthread_cleanup_push_defer
 void
 attribute_protected
 _pthread_cleanup_push_defer (
@@ -60,6 +60,7 @@ _pthread_cleanup_push_defer (
 strong_alias (_pthread_cleanup_push_defer, __pthread_cleanup_push_defer)
 
 
+#undef _pthread_cleanup_pop_restore
 void
 attribute_protected
 _pthread_cleanup_pop_restore (

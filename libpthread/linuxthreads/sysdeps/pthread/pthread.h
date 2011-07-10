@@ -630,6 +630,11 @@ extern void _pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *__buffe
 					 void (*__routine) (void *),
 					 void *__arg) __THROW;
 
+# ifdef _LIBC
+extern __typeof(_pthread_cleanup_push_defer) __pthread_cleanup_push_defer attribute_hidden;
+#  define _pthread_cleanup_push_defer __pthread_cleanup_push_defer
+# endif
+
 /* Remove a cleanup handler as pthread_cleanup_pop does, but also
    restores the cancellation type that was in effect when the matching
    pthread_cleanup_push_defer was called.  */
@@ -639,6 +644,11 @@ extern void _pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *__buffe
 
 extern void _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *__buffer,
 					  int __execute) __THROW;
+
+# ifdef _LIBC
+extern __typeof(_pthread_cleanup_pop_restore) __pthread_cleanup_pop_restore attribute_hidden;
+#  define _pthread_cleanup_pop_restore __pthread_cleanup_pop_restore
+# endif
 #endif
 
 

@@ -156,12 +156,14 @@ FORWARD (pthread_setcancelstate, (int state, int *oldstate), (state, oldstate),
 FORWARD (pthread_setcanceltype, (int type, int *oldtype), (type, oldtype), 0)
 
 #define return /* value is void */
+#undef _pthread_cleanup_push_defer
 FORWARD2(_pthread_cleanup_push_defer,
 	 void, (struct _pthread_cleanup_buffer *buffer, void (*routine)(void *), void *arg),
 	 (buffer, routine, arg),
 	 { buffer->__routine = routine; buffer->__arg = arg; });
 strong_alias(_pthread_cleanup_push_defer,__pthread_cleanup_push_defer)
 
+#undef _pthread_cleanup_pop_restore
 FORWARD2(_pthread_cleanup_pop_restore,
 	 void, (struct _pthread_cleanup_buffer *buffer, int execute),
 	 (buffer, execute),

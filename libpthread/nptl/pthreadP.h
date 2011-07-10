@@ -552,13 +552,12 @@ extern void __pthread_cleanup_pop (struct _pthread_cleanup_buffer *buffer,
 # undef pthread_cleanup_pop
 # define pthread_cleanup_pop(execute) \
     __pthread_cleanup_pop (&_buffer, (execute)); }
+#endif
 
 extern void __pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *buffer,
 					  void (*routine) (void *), void *arg) attribute_hidden;
 extern void __pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *buffer,
 					   int execute) attribute_hidden;
-#endif
-
 /* Old cleanup interfaces, still used in libc.so.  */
 extern void _pthread_cleanup_push (struct _pthread_cleanup_buffer *buffer,
                                    void (*routine) (void *), void *arg);
@@ -568,6 +567,8 @@ extern void _pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *buffer,
                                          void (*routine) (void *), void *arg);
 extern void _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *buffer,
                                           int execute);
+#define _pthread_cleanup_push_defer __pthread_cleanup_push_defer
+#define _pthread_cleanup_pop_restore __pthread_cleanup_pop_restore
 
 extern void __nptl_deallocate_tsd (void)
 #ifdef SHARED
