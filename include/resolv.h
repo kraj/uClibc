@@ -332,9 +332,9 @@ __END_DECLS
 #if 0
 #define b64_ntop		__b64_ntop
 #define b64_pton		__b64_pton
-#define dn_comp			__dn_comp
 #define dn_count_labels		__dn_count_labels
 #endif
+#define dn_comp			__dn_comp
 #define dn_expand		__dn_expand
 #if 0
 #define dn_skipname		__dn_skipname
@@ -404,9 +404,9 @@ const u_char *	p_fqname (const u_char *, const u_char *, FILE *) __THROW;
 const char *	p_option (u_long option) __THROW;
 char *		p_secstodate (u_long) __THROW;
 int		dn_count_labels (const char *) __THROW;
+#endif
 int		dn_comp (const char *, u_char *, int, u_char **, u_char **)
      __THROW;
-#endif
 int		dn_expand (const u_char *, const u_char *, const u_char *,
 			   char *, int) __THROW;
 #if 0

@@ -2659,6 +2659,20 @@ int dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
 		dst[0] = '\0';
 	return n;
 }
+
+/*
+ * Pack domain name 'exp_dn' in presentation form into 'comp_dn'.
+ * Return the size of the compressed name or -1.
+ * 'length' is the size of the array pointed to by 'comp_dn'.
+ */
+int
+dn_comp(const char *src, u_char *dst, int dstsiz,
+		u_char **dnptrs, u_char **lastdnptr)
+{
+	return ns_name_compress(src, dst, (size_t) dstsiz,
+			(const u_char **) dnptrs,
+			(const u_char **) lastdnptr);
+}
 #endif /* L_res_comp */
 
 
@@ -3823,4 +3837,3 @@ void ns_put32(unsigned long src, unsigned char *dst)
 /* Unimplemented: */
 /* res_mkquery */
 /* res_send */
-/* dn_comp */
