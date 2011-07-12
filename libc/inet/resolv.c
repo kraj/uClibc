@@ -590,7 +590,7 @@ int attribute_hidden __encode_header(struct resolv_header *h, unsigned char *des
 
 	return HFIXEDSZ;
 }
-#endif
+#endif /* L_encodeh */
 
 
 #ifdef L_decodeh
@@ -611,7 +611,7 @@ void attribute_hidden __decode_header(unsigned char *data,
 	h->nscount = (data[8] << 8) | data[9];
 	h->arcount = (data[10] << 8) | data[11];
 }
-#endif
+#endif /* L_decodeh */
 
 
 #ifdef L_encoded
@@ -650,7 +650,7 @@ int attribute_hidden __encode_dotted(const char *dotted, unsigned char *dest, in
 
 	return used;
 }
-#endif
+#endif /* L_encoded */
 
 
 #ifdef L_decoded
@@ -717,7 +717,7 @@ int attribute_hidden __decode_dotted(const unsigned char *packet,
 
 	return total;
 }
-#endif
+#endif /* L_decoded */
 
 
 #ifdef L_encodeq
@@ -745,7 +745,7 @@ int attribute_hidden __encode_question(const struct resolv_question *q,
 
 	return i + 4;
 }
-#endif
+#endif /* L_encodeq */
 
 
 #ifdef L_encodea
@@ -778,7 +778,7 @@ int attribute_hidden __encode_answer(struct resolv_answer *a, unsigned char *des
 
 	return i + RRFIXEDSZ + a->rdlength;
 }
-#endif
+#endif /* L_encodea */
 
 
 #ifdef CURRENTLY_UNUSED
@@ -844,7 +844,7 @@ int __encode_packet(struct resolv_header *h,
 
 	return total;
 }
-#endif
+#endif /* L_encodep */
 
 
 #ifdef L_decodep
@@ -855,7 +855,7 @@ int __decode_packet(unsigned char *data, struct resolv_header *h)
 	__decode_header(data, h);
 	return HFIXEDSZ;
 }
-#endif
+#endif /* L_decodep */
 
 
 #ifdef L_formquery
@@ -893,7 +893,7 @@ int __form_query(int id,
 
 	return i + j;
 }
-#endif
+#endif /* L_formquery */
 #endif /* CURRENTLY_UNUSED */
 
 
@@ -1116,7 +1116,7 @@ void attribute_hidden __open_nameservers(void)
 	if (__res_sync)
 		__res_sync();
 }
-#endif
+#endif /* L_opennameservers */
 
 
 #ifdef L_closenameservers
@@ -1134,7 +1134,7 @@ void attribute_hidden __close_nameservers(void)
 	__searchdomain = NULL;
 	/*__searchdomains = 0; - already is */
 }
-#endif
+#endif /* L_closenameservers */
 
 
 #ifdef L_dnslookup
@@ -1400,7 +1400,7 @@ int attribute_hidden __dns_lookup(const char *name,
 			goto try_next_server;
 		}
 		reply_timeout--;
-#else
+#else /* !USE_SELECT */
 		reply_timeout = __resolv_timeout * 1000;
  wait_again:
 		fds.fd = fd;
@@ -1413,7 +1413,7 @@ int attribute_hidden __dns_lookup(const char *name,
 		}
 /*TODO: better timeout accounting?*/
 		reply_timeout -= 1000;
-#endif
+#endif /* USE_SELECT */
 
 /* vda: a bogus response seen in real world (caused SEGV in uclibc):
  * "ping www.google.com" sending AAAA query and getting
@@ -1571,7 +1571,7 @@ int attribute_hidden __dns_lookup(const char *name,
 	free(packet);
 	return -1;
 }
-#endif
+#endif /* L_dnslookup */
 
 
 #ifdef L_read_etc_hosts_r
@@ -1700,7 +1700,7 @@ found:
 	return ret;
 #undef in6
 }
-#endif
+#endif /* L_read_etc_hosts_r */
 
 
 #ifdef L_get_hosts_byname_r
@@ -1716,7 +1716,7 @@ int attribute_hidden __get_hosts_byname_r(const char *name,
 	return __read_etc_hosts_r(NULL, name, type, GET_HOSTS_BYNAME,
 	                          result_buf, buf, buflen, result, h_errnop);
 }
-#endif
+#endif /* L_get_hosts_byname_r */
 
 
 #ifdef L_get_hosts_byaddr_r
@@ -1758,7 +1758,7 @@ int attribute_hidden __get_hosts_byaddr_r(const char *addr,
 	return __read_etc_hosts_r(NULL, ipaddr, type, GET_HOSTS_BYADDR,
 				result_buf, buf, buflen, result, h_errnop);
 }
-#endif
+#endif /* L_get_hosts_byaddr_r */
 
 
 #ifdef L_getnameinfo
@@ -1961,7 +1961,7 @@ DONE:
 	return 0;
 }
 libc_hidden_def(getnameinfo)
-#endif
+#endif /* L_getnameinfo */
 
 
 #ifdef L_gethostbyname_r
@@ -2175,7 +2175,7 @@ int gethostbyname_r(const char *name,
 }
 libc_hidden_def(gethostbyname_r)
 link_warning(gethostbyname_r, "gethostbyname_r is obsolescent, use getnameinfo() instead.");
-#endif
+#endif /* L_gethostbyname_r */
 
 
 #ifdef L_gethostbyname2_r
@@ -2332,7 +2332,7 @@ int gethostbyname2_r(const char *name,
 #endif /* __UCLIBC_HAS_IPV6__ */
 }
 libc_hidden_def(gethostbyname2_r)
-#endif
+#endif /* L_gethostbyname2_r */
 
 
 #ifdef L_gethostbyaddr_r
@@ -2493,7 +2493,7 @@ int gethostbyaddr_r(const void *addr, socklen_t addrlen,
 }
 libc_hidden_def(gethostbyaddr_r)
 link_warning(gethostbyaddr_r, "gethostbyaddr_r is obsolescent, use getaddrinfo() instead.");
-#endif
+#endif /* L_gethostbyaddr_r */
 
 
 #ifdef L_gethostent_r
@@ -2550,7 +2550,7 @@ DONE:
 	return ret;
 }
 libc_hidden_def(gethostent_r)
-#endif
+#endif /* L_gethostent_r */
 
 
 #ifdef L_gethostent
@@ -2570,7 +2570,7 @@ struct hostent *gethostent(void)
 	gethostent_r(&hoste, buf, sizeof(buf), &host, &h_errno);
 	return host;
 }
-#endif
+#endif /* L_gethostent */
 
 
 #ifdef L_gethostbyname2
@@ -2591,7 +2591,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 #endif
 }
 libc_hidden_def(gethostbyname2)
-#endif
+#endif /* L_gethostbyname2 */
 
 
 #ifdef L_gethostbyname
@@ -2613,7 +2613,7 @@ struct hostent *gethostbyname(const char *name)
 }
 libc_hidden_def(gethostbyname)
 link_warning(gethostbyname, "gethostbyname is obsolescent, use getnameinfo() instead.");
-#endif
+#endif /* L_gethostbyname */
 
 
 #ifdef L_gethostbyaddr
@@ -2635,7 +2635,7 @@ struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type)
 }
 libc_hidden_def(gethostbyaddr)
 link_warning(gethostbyaddr, "gethostbyaddr is obsolescent, use getaddrinfo() instead.");
-#endif
+#endif /* L_gethostbyaddr */
 
 
 #ifdef L_res_comp
@@ -3018,7 +3018,7 @@ void res_close(void)
 	memset(&_res, 0, sizeof(_res));
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 }
-#endif
+#endif /* __UCLIBC_HAS_BSD_RES_CLOSE__ */
 
 /* This needs to be after the use of _res in res_init, above.  */
 #undef _res
@@ -3047,7 +3047,7 @@ extern __thread struct __res_state *__libc_resp
 #  undef __resp
 struct __res_state *__resp = &_res;
 # endif
-#endif
+#endif /* !__UCLIBC_HAS_THREADS__ */
 
 #endif /* L_res_init */
 
@@ -3071,7 +3071,7 @@ __res_state (void)
 }
 # endif
 
-#endif
+#endif /* L_res_state */
 
 
 #ifdef L_res_query
@@ -3324,7 +3324,7 @@ int res_querydomain(const char *name, const char *domain, int class, int type,
 	return res_query(longname, class, type, answer, anslen);
 }
 libc_hidden_def(res_querydomain)
-#endif
+#endif /* L_res_query */
 
 /* Unimplemented: */
 /* res_mkquery */
