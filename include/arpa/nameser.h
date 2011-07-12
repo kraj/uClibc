@@ -521,6 +521,7 @@ int		ns_name_ntol (const u_char *, u_char *, size_t) __THROW;
 int		ns_name_ntop (const u_char *, char *, size_t) __THROW;
 libc_hidden_proto(ns_name_ntop)
 int		ns_name_pton (const char *, u_char *, size_t) __THROW;
+libc_hidden_proto(ns_name_pton)
 int		ns_name_unpack (const u_char *, const u_char *,
 				const u_char *, u_char *, size_t) __THROW;
 libc_hidden_proto(ns_name_unpack)
