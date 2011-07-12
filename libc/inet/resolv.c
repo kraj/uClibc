@@ -3348,6 +3348,58 @@ int ns_name_compress(const char *src,
 
 	return ns_name_pack(tmp, dst, dstsiz, dnptrs, lastdnptr);
 }
+
+int ns_name_skip(const unsigned char **ptrptr,
+				 const unsigned char *eom)
+{
+	const unsigned char *cp;
+	u_int n;
+	int l;
+
+	cp = *ptrptr;
+	while (cp < eom && (n = *cp++) != 0) {
+		/* Check for indirection. */
+		switch (n & NS_CMPRSFLGS) {
+		case 0:		 /*%< normal case, n == len */
+			cp += n;
+			continue;
+		case NS_TYPE_ELT: /*%< EDNS0 extended label */
+			if ((l = labellen(cp - 1)) < 0) {
+				errno = EMSGSIZE; /*%< XXX */
+				return -1;
+			}
+			cp += l;
+			continue;
+		case NS_CMPRSFLGS:      /*%< indirection */
+			cp++;
+			break;
+		default:		/*%< illegal type */
+			errno = EMSGSIZE;
+			return -1;
+		}
+
+		break;
+	}
+
+	if (cp > eom) {
+		errno = EMSGSIZE;
+		return -1;
+	}
+
+	*ptrptr = cp;
+
+	return 0;
+}
+
+int dn_skipname(const unsigned char *ptr, const unsigned char *eom)
+{
+	const unsigned char *saveptr = ptr;
+
+	if (ns_name_skip(&ptr, eom) == -1)
+		return -1;
+
+	return ptr - saveptr;
+}
 #endif /* L_ns_name */
 
 

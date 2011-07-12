@@ -336,8 +336,8 @@ __END_DECLS
 #endif
 #define dn_comp			__dn_comp
 #define dn_expand		__dn_expand
-#if 0
 #define dn_skipname		__dn_skipname
+#if 0
 #define fp_resstat		__fp_resstat
 #define loc_aton		__loc_aton
 #define loc_ntoa		__loc_ntoa
@@ -388,7 +388,6 @@ int		b64_ntop (u_char const *, size_t, char *, size_t) __THROW;
 int		b64_pton (char const *, u_char *, size_t) __THROW;
 int		loc_aton (const char *ascii, u_char *binary) __THROW;
 const char *	loc_ntoa (const u_char *binary, char *ascii) __THROW;
-int		dn_skipname (const u_char *, const u_char *) __THROW;
 void		putlong (u_int32_t, u_char *) __THROW;
 void		putshort (u_int16_t, u_char *) __THROW;
 const char *	p_class (int) __THROW;
@@ -405,6 +404,7 @@ const char *	p_option (u_long option) __THROW;
 char *		p_secstodate (u_long) __THROW;
 int		dn_count_labels (const char *) __THROW;
 #endif
+int		dn_skipname (const u_char *, const u_char *) __THROW;
 int		dn_comp (const char *, u_char *, int, u_char **, u_char **)
      __THROW;
 int		dn_expand (const u_char *, const u_char *, const u_char *,
