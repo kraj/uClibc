@@ -887,6 +887,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 		char *preload;
 		int fd;
 		char c, *cp, *cp2;
+		struct stat st;
 
 		if (_dl_stat(LDSO_PRELOAD, &st) || st.st_size == 0) {
 			break;
