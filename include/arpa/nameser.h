@@ -120,13 +120,9 @@ typedef struct __ns_msg {
 
 /* Private data structure - do not use from outside library. */
 struct _ns_flagdata {  int mask, shift;  };
-extern struct _ns_flagdata _ns_flagdata[];
+extern const struct _ns_flagdata _ns_flagdata[];
 
 /* Accessor macros - this is part of the public interface. */
-#define ns_msg_getflag(handle, flag) ( \
-			((handle)._flags & _ns_flagdata[flag].mask) \
-			 >> _ns_flagdata[flag].shift \
-			)
 #define ns_msg_id(handle) ((handle)._id + 0)
 #define ns_msg_base(handle) ((handle)._msg + 0)
 #define ns_msg_end(handle) ((handle)._eom + 0)
@@ -499,6 +495,7 @@ typedef enum __ns_cert_types {
 #define	ns_samename		__ns_samename
 
 __BEGIN_DECLS
+int			ns_msg_getflag (ns_msg, int) __THROW;
 u_int		ns_get16 (const u_char *) __THROW;
 u_long		ns_get32 (const u_char *) __THROW;
 void		ns_put16 (u_int, u_char *) __THROW;
