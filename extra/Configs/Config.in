@@ -1276,6 +1276,16 @@ config UCLIBC_HAS_EXTRA_COMPAT_RES_STATE
 	  Answer Y if selecting UCLIBC_HAS_COMPAT_RES_STATE is not enough.
 	  As far as I can say, this should never be needed.
 
+config UCLIBC_HAS_RESOLVER_SUPPORT
+	bool "DNS resolver functions"
+	select UCLIBC_HAS_COMPAT_RES_STATE
+	help
+	  Provide implementations for DNS resolver functions.
+	  In particular, the following functions will be added to the
+	  library:
+
+	  ns_get16, ns_get32, ns_put16, ns_put32
+
 config UCLIBC_HAS_LIBRESOLV_STUB
 	bool "Provide libresolv stub"
 	help

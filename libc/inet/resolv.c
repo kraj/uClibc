@@ -3326,6 +3326,32 @@ int res_querydomain(const char *name, const char *domain, int class, int type,
 libc_hidden_def(res_querydomain)
 #endif /* L_res_query */
 
+#ifdef L_ns_netint
+unsigned int ns_get16(const unsigned char *src)
+{
+	unsigned int dst;
+	NS_GET16(dst, src);
+	return dst;
+}
+
+unsigned long ns_get32(const unsigned char *src)
+{
+	unsigned long dst;
+	NS_GET32(dst, src);
+	return dst;
+}
+
+void ns_put16(unsigned int src, unsigned char *dst)
+{
+	NS_PUT16(src, dst);
+}
+
+void ns_put32(unsigned long src, unsigned char *dst)
+{
+	NS_PUT32(src, dst);
+}
+#endif /* L_ns_netint */
+
 /* Unimplemented: */
 /* res_mkquery */
 /* res_send */
