@@ -138,7 +138,6 @@ struct __res_state {
 	} sort_list[MAXRESOLVSORT];
 #endif
 
-#ifdef __UCLIBC_HAS_IPV6__
 	/* I assume that the intention is to store all
 	 * DNS servers' addresses here, and duplicate in nsaddr_list[]
 	 * those which have IPv4 address. In the case of IPv4 address
@@ -152,7 +151,9 @@ struct __res_state {
 	 */
 	union {
 		struct {
+#ifdef __UCLIBC_HAS_IPV6__
 			struct sockaddr_in6	*nsaddrs[MAXNS];
+#endif
 			u_int8_t		nscount; /* (was: u_int16_t) */
 #ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
 			/* rather obscure, and differs in BSD and glibc */
@@ -166,7 +167,6 @@ struct __res_state {
 #endif
 		} _ext;
 	} _u;
-#endif
 
 #ifdef __UCLIBC_HAS_EXTRA_COMPAT_RES_STATE__
 	/* Truly obscure stuff.
