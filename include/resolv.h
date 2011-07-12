@@ -337,6 +337,8 @@ __END_DECLS
 #define dn_comp			__dn_comp
 #define dn_expand		__dn_expand
 #define dn_skipname		__dn_skipname
+#define res_ninit		__res_ninit
+#define res_nclose		__res_nclose
 #if 0
 #define fp_resstat		__fp_resstat
 #define loc_aton		__loc_aton
@@ -359,8 +361,6 @@ __END_DECLS
 #define res_hostalias		__res_hostalias
 #define res_mailok		__res_mailok
 #define res_nameinquery		__res_nameinquery
-#define res_nclose		__res_nclose
-#define res_ninit		__res_ninit
 #define res_nmkquery		__res_nmkquery
 #define res_npquery		__res_npquery
 #define res_nquery		__res_nquery
@@ -409,6 +409,8 @@ int		dn_comp (const char *, u_char *, int, u_char **, u_char **)
      __THROW;
 int		dn_expand (const u_char *, const u_char *, const u_char *,
 			   char *, int) __THROW;
+int		res_ninit (res_state) __THROW;
+void		res_nclose (res_state) __THROW;
 #if 0
 u_int		res_randomid (void) __THROW;
 int		res_nameinquery (const char *, int, int,
@@ -417,7 +419,6 @@ int		res_queriesmatch (const u_char *, const u_char *,
 				  const u_char *, const u_char *) __THROW;
 const char *	p_section (int section, int opcode) __THROW;
 /* Things involving a resolver context. */
-int		res_ninit (res_state) __THROW;
 int		res_nisourserver (const res_state,
 				  const struct sockaddr_in *) __THROW;
 void		fp_resstat (const res_state, FILE *) __THROW;
@@ -436,7 +437,6 @@ int		res_nmkquery (res_state, int, const char *, int, int,
 			      int) __THROW;
 int		res_nsend (res_state, const u_char *, int, u_char *, int)
      __THROW;
-void		res_nclose (res_state) __THROW;
 #endif
 __END_DECLS
 

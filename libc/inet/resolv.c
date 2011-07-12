@@ -297,6 +297,7 @@ Domain name in a message can be represented as either:
 #include <features.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdio_ext.h>
 #include <signal.h>
 #include <errno.h>
 #include <sys/poll.h>
@@ -3440,12 +3441,10 @@ static void res_sync_func(void)
 	 */
 }
 
-/* Our res_init never fails (always returns 0) */
-int res_init(void)
+static int
+__res_vinit(res_state rp, int preinit)
 {
-	struct __res_state *rp = &(_res);
-	int i;
-	int n;
+	int i, n, options, retrans, retry, ndots;
 #ifdef __UCLIBC_HAS_IPV6__
 	int m = 0;
 #endif
@@ -3454,13 +3453,27 @@ int res_init(void)
 	__close_nameservers();
 	__open_nameservers();
 
-	__res_sync = res_sync_func;
+	if (preinit) {
+		options = rp->options;
+		retrans = rp->retrans;
+		retry = rp->retry;
+		ndots = rp->ndots;
+	}
 
 	memset(rp, 0, sizeof(*rp));
-	rp->options = RES_INIT;
-	rp->retrans = RES_TIMEOUT;
-	rp->retry = RES_DFLRETRY;
-	rp->ndots = 1;
+
+	if (!preinit) {
+		rp->options = RES_DEFAULT;
+		rp->retrans = RES_TIMEOUT;
+		rp->retry = RES_DFLRETRY;
+		rp->ndots = 1;
+	} else {
+		rp->options = options;
+		rp->retrans = retrans;
+		rp->retry = retry;
+		rp->ndots = ndots;
+	}
+
 #ifdef __UCLIBC_HAS_COMPAT_RES_STATE__
 	/* Was: "rp->id = random();" but:
 	 * - random() pulls in largish static buffers
@@ -3526,13 +3539,14 @@ int res_init(void)
 	rp->_u._ext.nscount = m;
 #endif
 
+	rp->options |= RES_INIT;
+
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 	return 0;
 }
-libc_hidden_def(res_init)
 
-#ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
-void res_close(void)
+static void
+__res_iclose(res_state statp, int free_addr) 
 {
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	__close_nameservers();
@@ -3551,6 +3565,26 @@ void res_close(void)
 #endif
 	memset(&_res, 0, sizeof(_res));
 	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+}
+
+/*
+ * This routine is for closing the socket if a virtual circuit is used and
+ * the program wants to close it.  This provides support for endhostent()
+ * which expects to close the socket.
+ *
+ * This routine is not expected to be user visible.
+ */
+
+void
+res_nclose(res_state statp)
+{
+	__res_iclose(statp, 1);
+}
+
+#ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
+void res_close(void)
+{
+	__res_iclose(&_res, 0);
 }
 #endif /* __UCLIBC_HAS_BSD_RES_CLOSE__ */
 
@@ -3582,6 +3616,87 @@ extern __thread struct __res_state *__libc_resp
 struct __res_state *__resp = &_res;
 # endif
 #endif /* !__UCLIBC_HAS_THREADS__ */
+
+static unsigned int
+res_randomid(void) {
+	return 0xffff & getpid();
+}
+
+/* Our res_init never fails (always returns 0) */
+int
+res_init(void)
+{
+	/*
+	 * These three fields used to be statically initialized.  This made
+	 * it hard to use this code in a shared library.  It is necessary,
+	 * now that we're doing dynamic initialization here, that we preserve
+	 * the old semantics: if an application modifies one of these three
+	 * fields of _res before res_init() is called, res_init() will not
+	 * alter them.  Of course, if an application is setting them to
+	 * _zero_ before calling res_init(), hoping to override what used
+	 * to be the static default, we can't detect it and unexpected results
+	 * will follow.  Zero for any of these fields would make no sense,
+	 * so one can safely assume that the applications were already getting
+	 * unexpected results.
+	 *
+	 * _res.options is tricky since some apps were known to diddle the bits
+	 * before res_init() was first called. We can't replicate that semantic
+	 * with dynamic initialization (they may have turned bits off that are
+	 * set in RES_DEFAULT).  Our solution is to declare such applications
+	 * "broken".  They could fool us by setting RES_INIT but none do (yet).
+	 */
+
+	__UCLIBC_MUTEX_LOCK(__resolv_lock);
+
+	if (!_res.retrans)
+			_res.retrans = RES_TIMEOUT;
+	if (!_res.retry)
+			_res.retry = 4;
+	if (!(_res.options & RES_INIT))
+			_res.options = RES_DEFAULT;
+
+	/*
+	 * This one used to initialize implicitly to zero, so unless the app
+	 * has set it to something in particular, we can randomize it now.
+	 */
+	if (!_res.id)
+			_res.id = res_randomid();
+	__res_sync = res_sync_func;
+
+	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+
+	__res_vinit(&_res, 1);
+
+	return 0;
+}
+libc_hidden_def(res_init)
+
+/*
+ * Set up default settings.  If the configuration file exist, the values
+ * there will have precedence.  Otherwise, the server address is set to
+ * INADDR_ANY and the default domain name comes from the gethostname().
+ *
+ * An interrim version of this code (BIND 4.9, pre-4.4BSD) used 127.0.0.1
+ * rather than INADDR_ANY ("0.0.0.0") as the default name server address
+ * since it was noted that INADDR_ANY actually meant ``the first interface
+ * you "ifconfig"'d at boot time'' and if this was a SLIP or PPP interface,
+ * it had to be "up" in order for you to reach your own name server.  It
+ * was later decided that since the recommended practice is to always
+ * install local static routes through 127.0.0.1 for all your network
+ * interfaces, that we could solve this problem without a code change.
+ *
+ * The configuration file should always be used, since it is the only way
+ * to specify a default domain.  If you are running a server on your local
+ * machine, you should say "nameserver 0.0.0.0" or "nameserver 127.0.0.1"
+ * in the configuration file.
+ *
+ * Return 0 if completes successfully, -1 on error
+ */
+int
+res_ninit(res_state statp)
+{
+	return __res_vinit(statp, 0);
+}
 
 #endif /* L_res_init */
 
