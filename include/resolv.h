@@ -292,8 +292,8 @@ __END_DECLS
 #define res_init		__res_init
 #if 0
 #define res_isourserver		__res_isourserver
-#define res_mkquery		__res_mkquery
 #endif
+#define res_mkquery		__res_mkquery
 #define res_query		__res_query
 #define res_querydomain		__res_querydomain
 #define res_search		__res_search
@@ -315,9 +315,9 @@ int		res_init (void) __THROW;
 libc_hidden_proto(res_init)
 #if 0
 int		res_isourserver (const struct sockaddr_in *) __THROW;
+#endif
 int		res_mkquery (int, const char *, int, int, const u_char *,
 			     int, const u_char *, u_char *, int) __THROW;
-#endif
 int		res_query (const char *, int, int, u_char *, int) __THROW;
 libc_hidden_proto(res_query)
 int		res_querydomain (const char *, const char *, int, int,

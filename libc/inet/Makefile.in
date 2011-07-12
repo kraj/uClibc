@@ -41,7 +41,7 @@ CSRC-$(findstring y,$(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6)) += \
 	res_init.c res_query.c res_comp.c ns_name.c \
 	_res_state.c
 CSRC-$(findstring y,$(UCLIBC_HAS_RESOLVER_SUPPORT)) += \
-	ns_netint.c ns_parse.c
+	ns_netint.c ns_parse.c res_data.c
 ## # unused ATM
 ## CSRC-y += encodep.c decodep.c formquery.c
 

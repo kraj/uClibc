@@ -4081,6 +4081,120 @@ int ns_msg_getflag(ns_msg handle, int flag) {
 }
 #endif /* L_ns_parse */
 
+#ifdef L_res_data
+int res_mkquery(int op, const char *dname, int class, int type,
+				const unsigned char *data, int datalen,
+				const unsigned char *newrr_in,
+				unsigned char *buf, int buflen)
+{
+	HEADER *hp;
+	unsigned char *cp, *ep;
+	unsigned char *dnptrs[20], **dpp, **lastdnptr;
+	uint32_t _res_options;
+	int n;
+
+	if (!buf || buflen < HFIXEDSZ) {
+		h_errno = NETDB_INTERNAL;
+		return -1;
+	}
+
+ again:
+	__UCLIBC_MUTEX_LOCK(__resolv_lock);
+	_res_options = _res.options;
+	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+	if (!(_res_options & RES_INIT)) {
+		res_init(); /* our res_init never fails */
+		goto again;
+	}
+
+#ifdef DEBUG
+	if (_res_options & RES_DEBUG)
+		printf(";; res_mkquery(%d, %s, %s, %d, %d)\n",
+			   name, (op, dname ? dname : "<Nil>"), class, type);
+#endif
+
+	memset(buf, 0, HFIXEDSZ);
+	hp = (HEADER *) buf;
+	hp->id = getpid() & 0xffff;
+	hp->opcode = op;
+	hp->rd = (_res.options & RES_RECURSE) != 0U;
+	hp->rcode = NOERROR;
+
+	cp = buf + HFIXEDSZ;
+	ep = buf + buflen;
+	dpp = dnptrs;
+	*dpp++ = buf;
+	*dpp++ = NULL;
+	lastdnptr = dnptrs + sizeof dnptrs / sizeof dnptrs[0];
+
+	/*
+	 * perform opcode specific processing
+	 */
+	switch (op) {
+	case QUERY:
+	case NS_NOTIFY_OP:
+		if (ep - cp < QFIXEDSZ)
+			return -1;
+
+		if ((n = dn_comp(dname, cp, ep - cp - QFIXEDSZ, dnptrs, lastdnptr)) < 0)
+			return -1;
+
+		cp += n;
+		NS_PUT16(type, cp);
+		NS_PUT16(class, cp);
+		hp->qdcount = htons(1);
+
+		if (op == QUERY || data == NULL)
+			break;
+
+		/*
+		 * Make an additional record for completion domain.
+		 */
+		if ((ep - cp) < RRFIXEDSZ)
+			return -1;
+
+		n = dn_comp((const char *)data, cp, ep - cp - RRFIXEDSZ,
+					 dnptrs, lastdnptr);
+		if (n < 0)
+			return -1;
+
+		cp += n;
+		NS_PUT16(T_NULL, cp);
+		NS_PUT16(class, cp);
+		NS_PUT32(0, cp);
+		NS_PUT16(0, cp);
+		hp->arcount = htons(1);
+
+		break;
+
+	case IQUERY:
+		/*
+		 * Initialize answer section
+		 */
+		if (ep - cp < 1 + RRFIXEDSZ + datalen)
+			return -1;
+
+		*cp++ = '\0';   /*%< no domain name */
+		NS_PUT16(type, cp);
+		NS_PUT16(class, cp);
+		NS_PUT32(0, cp);
+		NS_PUT16(datalen, cp);
+
+		if (datalen) {
+			memcpy(cp, data, (size_t)datalen);
+			cp += datalen;
+		}
+
+		hp->ancount = htons(1);
+		break;
+
+	default:
+		return -1;
+	}
+
+	return cp - buf;
+}
+#endif /* L_res_data */
+
 /* Unimplemented: */
-/* res_mkquery */
 /* res_send */
