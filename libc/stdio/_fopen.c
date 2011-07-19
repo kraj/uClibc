@@ -69,7 +69,8 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 #warning CONSIDER: Implement glibc mmap option for readonly files?
 #warning CONSIDER: Implement a text mode using custom read/write funcs?
 #endif
-#if defined(__UCLIBC_HAS_FOPEN_EXCLUSIVE_MODE__) || defined(__UCLIBC_HAS_FOPEN_LARGEFILE_MODE__)
+#if defined(__UCLIBC_HAS_FOPEN_EXCLUSIVE_MODE__) || defined(__UCLIBC_HAS_FOPEN_LARGEFILE_MODE__) || \
+    defined(__UCLIBC_HAS_FOPEN_CLOSEEXEC_MODE__)
 
 	while (*++mode) {
 # ifdef __UCLIBC_HAS_FOPEN_EXCLUSIVE_MODE__
@@ -81,6 +82,12 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 # ifdef __UCLIBC_HAS_FOPEN_LARGEFILE_MODE__
 		if (*mode == 'F') {		/* Open as large file (uClibc extension). */
 			open_mode |= O_LARGEFILE;
+			continue;
+		}
+# endif
+# ifdef __UCLIBC_HAS_FOPEN_CLOSEEXEC_MODE__
+		if (*mode == 'e') {		/* Close on exec (a glibc extension). */
+			open_mode |= O_CLOEXEC;
 			continue;
 		}
 # endif

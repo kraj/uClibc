@@ -1722,6 +1722,15 @@ config UCLIBC_HAS_FOPEN_EXCLUSIVE_MODE
 
 	  Most people will answer N.
 
+config UCLIBC_HAS_FOPEN_CLOSEEXEC_MODE
+	bool "Support an fopen() 'e' flag for close-on-exec mode (glibc-compat)"
+	help
+	  Answer Y to support a glibc extension to allow passing
+	  additional 'e' flag in the mode string for fopen() to specify that
+	  the file should be open()ed with the O_CLOEXEC flag set.
+
+	  Most people will answer N.
+
 config UCLIBC_HAS_GLIBC_CUSTOM_STREAMS
 	bool "Support fmemopen(), open_memstream(), and fopencookie() (glibc-compat)"
 	help
