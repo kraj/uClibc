@@ -130,7 +130,7 @@ do {										\
 	GOT_BASE[0] = (unsigned long) _dl_runtime_resolve;			\
 	GOT_BASE[1] = (unsigned long) MODULE;					\
 										\
-	pltgot = MODULE->dynamic_info[DT_MIPS_PLTGOT_IDX];			\
+	pltgot = (unsigned long *) MODULE->dynamic_info[DT_MIPS_PLTGOT_IDX];	\
 	if (pltgot) {								\
 		pltgot[0] = (unsigned long) _dl_runtime_pltresolve;		\
 		pltgot[1] = (unsigned long) MODULE;				\
@@ -159,6 +159,9 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	unsigned long old_gpreg);
 
 struct elf_resolve;
+unsigned long __dl_runtime_pltresolve(struct elf_resolve *tpnt,
+	int reloc_entry);
+
 void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy);
 
 /* 4096 bytes alignment */
