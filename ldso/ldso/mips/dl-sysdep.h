@@ -113,6 +113,9 @@ else if ((dpnt->d_tag == DT_MIPS_RLD_MAP) && (dpnt->d_un.d_ptr)) \
      *(ElfW(Addr) *)(dpnt->d_un.d_ptr) =  (ElfW(Addr)) debug_addr; \
 } while (0)
 
+#define ARCH_SKIP_RELOC(type_class, sym) \
+     ((sym)->st_shndx == SHN_UNDEF && !((sym)->st_other & STO_MIPS_PLT))
+
 /* Initialization sequence for the application/library GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE)						\
 do {										\

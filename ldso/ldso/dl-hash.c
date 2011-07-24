@@ -188,6 +188,10 @@ check_match (const ElfW(Sym) *sym, char *strtab, const char* undef_name, int typ
 		 */
 		return NULL;
 #endif
+#ifdef ARCH_SKIP_RELOC
+	if (ARCH_SKIP_RELOC(type_class, sym))
+		return NULL;
+#endif
 	if (_dl_strcmp(strtab + sym->st_name, undef_name) != 0)
 		return NULL;
 
