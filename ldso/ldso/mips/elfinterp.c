@@ -193,9 +193,10 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 								   elf_machine_type_class(reloc_type), &sym_ref);
 			if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
 				return 1;
-			if (_dl_trace_prelink)
+			if (_dl_trace_prelink) {
 				_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
 							&sym_ref, elf_machine_type_class(reloc_type));
+			}
 		}
 		if (!symtab_index) {
 			/* Relocs against STN_UNDEF are usually treated as using a

@@ -149,9 +149,10 @@ static int _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 				    _dl_progname, symname);
 			return 0;
 		}
-		if (_dl_trace_prelink)
+		if (_dl_trace_prelink) {
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
 				&sym_ref, elf_machine_type_class(reloc_type));
+		}
 	}
 
 #if defined(__SUPPORT_LD_DEBUG__)

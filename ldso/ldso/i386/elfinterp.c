@@ -190,9 +190,10 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		if (unlikely(!symbol_addr && (ELF_ST_TYPE(symtab[symtab_index].st_info) != STT_TLS)
 					&& ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
 			return 1;
-		if (_dl_trace_prelink)
+		if (_dl_trace_prelink) {
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
 					&sym_ref, elf_machine_type_class(reloc_type));
+		}
 		tls_tpnt = sym_ref.tpnt;
 	} else {
 		symbol_addr = symtab[symtab_index].st_value;

@@ -200,9 +200,10 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 			return 1;
 
 		}
-		if (_dl_trace_prelink)
+		if (_dl_trace_prelink) {
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
 						&sym_ref, elf_machine_type_class(reloc_type));
+		}
 		tls_tpnt = sym_ref.tpnt;
 	} else {
 		/* Relocs against STN_UNDEF are usually treated as using a
