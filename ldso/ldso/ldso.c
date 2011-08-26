@@ -304,10 +304,12 @@ static void trace_objects(struct elf_resolve *tpnt, char *str_name)
 					tpnt->mapaddr, DL_LOADADDR_BASE(tpnt->loadaddr));
 	}
 
+#if defined USE_TLS && USE_TLS
 	if ((tpnt->libtype != program_interpreter) && (tpnt->l_tls_modid))
 		_dl_dprintf (1, " TLS(%x, %x)\n", tpnt->l_tls_modid,
 					(size_t) tpnt->l_tls_offset);
 	else
+#endif
 		_dl_dprintf (1, "\n");
 }
 #endif
