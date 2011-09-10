@@ -118,10 +118,6 @@ typedef struct __ns_msg {
 	const u_char	*_ptr;
 } ns_msg;
 
-/* Private data structure - do not use from outside library. */
-struct _ns_flagdata {  int mask, shift;  };
-extern const struct _ns_flagdata _ns_flagdata[];
-
 /* Accessor macros - this is part of the public interface. */
 #define ns_msg_id(handle) ((handle)._id + 0)
 #define ns_msg_base(handle) ((handle)._msg + 0)
