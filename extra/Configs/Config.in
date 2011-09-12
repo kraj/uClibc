@@ -2200,7 +2200,7 @@ config CROSS_COMPILER_PREFIX
 	  then enter 'arm-linux-uclibc-' here.
 
 config UCLIBC_EXTRA_CFLAGS
-	string "Enter any extra CFLAGS to use to build uClibc"
+	string "Extra CFLAGS to use to build uClibc"
 	default ""
 	help
 	  Add any additional CFLAGS to be used to build uClibc.
@@ -2334,7 +2334,7 @@ config WARNINGS
 	string "Compiler Warnings"
 	default "-Wall"
 	help
-	  Set this to the set of gcc warnings you wish to see while compiling.
+	  Set this to the set of compiler warnings you wish to see while compiling.
 
 config EXTRA_WARNINGS
 	bool "Enable extra annoying warnings"
