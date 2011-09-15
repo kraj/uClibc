@@ -28,6 +28,17 @@ Cambridge, MA 02139, USA.  */
 
 
 
+/* Defeat compiler optimization which assumes function addresses are never NULL */
+static __always_inline int not_null_ptr(const void *p)
+{
+	const void *q;
+	__asm__ (""
+		: "=r" (q) /* output */
+		: "0" (p) /* input */
+	);
+	return q != 0;
+}
+
 /* Our last ditch effort to commit suicide */
 #ifdef __UCLIBC_ABORT_INSTRUCTION__
 # define ABORT_INSTRUCTION __asm__(__UCLIBC_ABORT_INSTRUCTION__)
@@ -68,7 +79,7 @@ void abort(void)
 			 * this will attempt to commit all buffered writes.  It may also
 			 * unbuffer all writable files, or close them outright.
 			 * Check the stdio routines for details. */
-			if (_stdio_term) {
+			if (not_null_ptr(_stdio_term)) {
 				_stdio_term();
 			}
 #endif

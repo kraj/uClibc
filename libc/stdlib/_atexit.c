@@ -48,9 +48,9 @@ __UCLIBC_MUTEX_EXTERN(__atexit_lock);
 
 
 
-typedef void (*aefuncp) (void);         /* atexit function pointer */
-typedef void (*oefuncp) (int, void *);  /* on_exit function pointer */
-typedef void (*cxaefuncp) (void *);     /* __cxa_atexit function pointer */
+typedef void (*aefuncp)(void);         /* atexit function pointer */
+typedef void (*oefuncp)(int, void *);  /* on_exit function pointer */
+typedef void (*cxaefuncp)(void *);     /* __cxa_atexit function pointer */
 typedef enum {
     ef_free,
     ef_in_use,
@@ -59,7 +59,7 @@ typedef enum {
 } ef_type; /* exit function types */
 
 /* this is in the L_exit object */
-extern void (*__exit_cleanup) (int) attribute_hidden;
+extern void (*__exit_cleanup)(int) attribute_hidden;
 
 /* these are in the L___do_exit object */
 extern int __exit_slots attribute_hidden;
@@ -88,10 +88,10 @@ extern struct exit_function *__exit_function_table attribute_hidden;
 #else
 extern struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT] attribute_hidden;
 #endif
-extern struct exit_function *__new_exitfn (void) attribute_hidden;
+extern struct exit_function *__new_exitfn(void) attribute_hidden;
 
 /* this is in the L___cxa_atexit object */
-extern int __cxa_atexit (cxaefuncp, void *arg, void *dso_handle);
+extern int __cxa_atexit(cxaefuncp, void *arg, void *dso_handle);
 
 
 /* remove old_atexit after 0.9.29 */
@@ -153,7 +153,7 @@ int on_exit(oefuncp func, void *arg)
 
 #ifdef L___cxa_atexit
 libc_hidden_proto(__cxa_atexit)
-int __cxa_atexit (cxaefuncp func, void *arg, void *dso_handle)
+int __cxa_atexit(cxaefuncp func, void *arg, void *dso_handle)
 {
     struct exit_function *efp;
 
@@ -183,8 +183,8 @@ libc_hidden_def(__cxa_atexit)
  *  with the same dso handle.  Otherwise, if D is NULL, call all of the
  *  registered handlers.
  */
-void __cxa_finalize (void *dso_handle);
-void __cxa_finalize (void *dso_handle)
+void __cxa_finalize(void *dso_handle);
+void __cxa_finalize(void *dso_handle)
 {
     struct exit_function *efp;
     int exit_count_snapshot = __exit_count;
@@ -214,7 +214,7 @@ void __cxa_finalize (void *dso_handle)
      */
 #ifdef UNREGISTER_ATFORK
     if (d != NULL) {
-        UNREGISTER_ATFORK (d);
+        UNREGISTER_ATFORK(d);
     }
 #endif
 #endif
@@ -243,7 +243,7 @@ struct exit_function attribute_hidden *__new_exitfn(void)
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
     /* If we are out of function table slots, make some more */
     if (__exit_slots < __exit_count+1) {
-        efp=realloc(__exit_function_table,
+        efp = realloc(__exit_function_table,
                     (__exit_slots+20)*sizeof(struct exit_function));
         if (efp == NULL) {
             __set_errno(ENOMEM);
@@ -279,18 +279,18 @@ void __exit_handler(int status)
 	struct exit_function *efp;
 
 	/* In reverse order */
-	while ( __exit_count ) {
+	while (__exit_count) {
 		efp = &__exit_function_table[--__exit_count];
 		switch (efp->type) {
 		case ef_on_exit:
 			if (efp->funcs.on_exit.func) {
-				(efp->funcs.on_exit.func) (status, efp->funcs.on_exit.arg);
+				(efp->funcs.on_exit.func)(status, efp->funcs.on_exit.arg);
 			}
 			break;
                 case ef_cxa_atexit:
                         if (efp->funcs.cxa_atexit.func) {
                                 /* glibc passes status too, but that's not in the prototype */
-                                (efp->funcs.cxa_atexit.func) (efp->funcs.cxa_atexit.arg);
+                                (efp->funcs.cxa_atexit.func)(efp->funcs.cxa_atexit.arg);
                         }
                         break;
 		}
@@ -303,8 +303,19 @@ void __exit_handler(int status)
 #endif
 
 #ifdef L_exit
+/* Defeat compiler optimization which assumes function addresses are never NULL */
+static __always_inline int not_null_ptr(const void *p)
+{
+	const void *q;
+	__asm__ (""
+		: "=r" (q) /* output */
+		: "0" (p) /* input */
+	);
+	return q != 0;
+}
+
 extern void weak_function _stdio_term(void) attribute_hidden;
-attribute_hidden void (*__exit_cleanup) (int) = 0;
+attribute_hidden void (*__exit_cleanup)(int) = 0;
 __UCLIBC_MUTEX_INIT(__atexit_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 
 extern void __uClibc_fini(void);
@@ -317,19 +328,19 @@ void exit(int rv)
 {
 	/* Perform exit-specific cleanup (atexit and on_exit) */
 	__UCLIBC_MUTEX_LOCK(__atexit_lock);
-	if (__exit_cleanup) {
+	if (not_null_ptr(__exit_cleanup)) {
 		__exit_cleanup(rv);
 	}
 	__UCLIBC_MUTEX_UNLOCK(__atexit_lock);
 
 	__uClibc_fini();
 
-    /* If we are using stdio, try to shut it down.  At the very least,
+	/* If we are using stdio, try to shut it down.  At the very least,
 	 * this will attempt to commit all buffered writes.  It may also
 	 * unbuffer all writable files, or close them outright.
 	 * Check the stdio routines for details. */
-	if (_stdio_term)
-	    _stdio_term();
+	if (not_null_ptr(_stdio_term))
+		_stdio_term();
 
 	_exit(rv);
 }
