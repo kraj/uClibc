@@ -7,7 +7,6 @@
 #
 
 librt_arch_SSRC = aeabi_read_tp.S thumb_atomics.S
-librt_arch_CSRC = aeabi_unwind_cpp_pr1.c
 
 CFLAGS-pt-raise.c = -DNOT_IN_libc -DIS_IN_libpthread
 

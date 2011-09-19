@@ -12,10 +12,6 @@ CFLAGS-libubacktrace := -DNOT_IN_libc -DIS_IN_libubacktrace $(SSP_ALL_CFLAGS)
 
 LDFLAGS-libubacktrace.so := $(LDFLAGS) $(top_builddir)lib/libdl-$(VERSION).so
 
-ifeq ($(UCLIBC_HAS_BACKTRACE)$(CONFIG_ARM_EABI),yy)
-LIBGCC += $(shell $(CC) -print-file-name=libgcc_eh.a)
-endif
-
 LIBS-libubacktrace.so := $(LIBS)
 
 libubacktrace_FULL_NAME := libubacktrace-$(VERSION).so
