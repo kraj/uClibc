@@ -26,7 +26,7 @@
  * SUCH DAMAGE.
  */
 
-static const char *_dl_reltypes_tab[] = {
+static const char * const _dl_reltypes_tab[] = {
     "R_AVR32_NONE",
     "R_AVR32_32", "R_AVR32_16", "R_AVR32_8",
     "R_AVR32_32_PCREL", "R_AVR32_16_PCREL", "R_AVR32_8_PCREL",

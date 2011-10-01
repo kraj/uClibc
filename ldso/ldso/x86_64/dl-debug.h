@@ -29,7 +29,7 @@
  * SUCH DAMAGE.
  */
 
-static const char *_dl_reltypes_tab[] = {
+static const char * const _dl_reltypes_tab[] = {
 	[ 0] "R_X86_64_NONE",     "R_X86_64_64",       "R_X86_64_PC32",     "R_X86_64_GOT32",
 	[ 4] "R_X86_64_PLT32",    "R_X86_64_COPY",     "R_X86_64_GLOB_DAT", "R_X86_64_JUMP_SLOT",
 	[ 8] "R_X86_64_RELATIVE", "R_X86_64_GOTPCREL", "R_X86_64_32",       "R_X86_64_32S",

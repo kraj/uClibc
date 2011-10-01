@@ -29,7 +29,7 @@
  * SUCH DAMAGE.
  */
 
-static const char *_dl_reltypes_tab[] =
+static const char * const _dl_reltypes_tab[] =
 {
   [0]	"R_BFIN_UNUSED0",	"R_BFIN_PCREL5M2",
   [2]	"R_BFIN_UNUSED1",	"R_BFIN_PCREL10",

@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-static const char * _dl_reltypes_tab[] = {
+static const char * const _dl_reltypes_tab[] = {
 	"R_SPARC_NONE", "R_SPARC_8",
 	"R_SPARC_16", "R_SPARC_32", "R_SPARC_DISP8", "R_SPARC_DISP16",
 	"R_SPARC_DISP32", "R_SPARC_WDISP30", "R_SPARC_WDISP22",

@@ -27,7 +27,7 @@
  * SUCH DAMAGE.
  */
 
-static const char *_dl_reltypes_tab[] =
+static const char * const _dl_reltypes_tab[] =
 {
 	[0]		"R_MIPS_NONE",	"R_MIPS_16",	"R_MIPS_32",
 	[3]		"R_MIPS_REL32",	"R_MIPS_26",	"R_MIPS_HI16",

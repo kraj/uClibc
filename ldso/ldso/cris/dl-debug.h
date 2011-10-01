@@ -33,7 +33,7 @@
  * SUCH DAMAGE.
  */
 
-static const char *_dl_reltypes_tab[] = {
+static const char * const _dl_reltypes_tab[] = {
 	[0]  "R_CRIS_NONE", "R_CRIS_8", "R_CRIS_16", "R_CRIS_32",
 	[4]  "R_CRIS_8_PCREL", "R_CRIS_16_PCREL", "R_CRIS_32_PCREL", "R_CRIS_GNU_VTINHERIT",
 	[8]  "R_CRIS_GNU_VTENTRY", "R_CRIS_COPY", "R_CRIS_GLOB_DAT", "R_CRIS_JUMP_SLOT",

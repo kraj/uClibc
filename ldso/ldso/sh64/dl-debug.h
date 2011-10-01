@@ -30,7 +30,7 @@
  * SUCH DAMAGE.
  */
 
-static const char *_dl_reltypes_tab[] = {
+static const char * const _dl_reltypes_tab[] = {
 	/* SHcompact relocs */
 	  [0] =	"R_SH_NONE",		"R_SH_DIR32",
 		"R_SH_REL32",		"R_SH_DIR8WPN",

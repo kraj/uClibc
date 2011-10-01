@@ -29,7 +29,7 @@
  * SUCH DAMAGE.
  */
 
-static const char *_dl_reltypes_tab[] =
+static const char * const _dl_reltypes_tab[] =
 	{ "R_PPC_NONE", "R_PPC_ADDR32", "R_PPC_ADDR24", "R_PPC_ADDR16",
 	"R_PPC_ADDR16_LO", "R_PPC_ADDR16_HI", "R_PPC_ADDR16_HA",
 	"R_PPC_ADDR14", "R_PPC_ADDR14_BRTAKEN", "R_PPC_ADDR14_BRNTAKEN",

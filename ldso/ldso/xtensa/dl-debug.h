@@ -6,7 +6,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-static const char *_dl_reltypes_tab[] =
+static const char * const _dl_reltypes_tab[] =
 {
 	"R_XTENSA_NONE",
 	"R_XTENSA_32",

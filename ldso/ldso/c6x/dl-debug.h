@@ -8,7 +8,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-static const char *_dl_reltypes_tab[] =
+static const char * const _dl_reltypes_tab[] =
 {
   	"R_C6000_NONE",			/* 0 */
 	"R_C6000_ABS32",
