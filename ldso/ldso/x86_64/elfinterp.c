@@ -291,14 +291,12 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		  ELF_RELOC *rpnt, ElfW(Sym) *symtab, char *strtab)
 {
 	int reloc_type;
-	int symtab_index;
 	ElfW(Addr) *reloc_addr;
 #if defined (__SUPPORT_LD_DEBUG__)
 	ElfW(Addr) old_val;
 #endif
 
 	(void)scope;
-	symtab_index = ELF_R_SYM(rpnt->r_info);
 	(void)strtab;
 
 	reloc_addr = (ElfW(Addr)*)(tpnt->loadaddr + rpnt->r_offset);
