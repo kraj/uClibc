@@ -36,6 +36,7 @@ inet/bug-if1
 inet/gethost_r-align
 inet/if_nameindex
 inet/tst-aton
+inet/tst-ether_aton
 inet/tst-ethers
 inet/tst-ethers-line
 inet/tst-network
