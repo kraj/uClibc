@@ -368,6 +368,14 @@ typedef struct
 /* V850 backend magic number.  Written in the absense of an ABI.  */
 #define EM_CYGNUS_V850 0x9080
 
+/* Xilinx Microblaze (unofficial). Note that there is now an official microblaze
+ * magic number, but all the toolchains currently in existence use the old number
+ */
+#define EM_MICROBLAZE_OLD   0xbaab
+
+/* Xilinx Microblaze (official) */
+#define EM_MICROBLAZE   189
+
 /* Legal values for e_version (version).  */
 
 #define EV_NONE		0		/* Invalid ELF version */
@@ -3107,6 +3115,31 @@ typedef Elf32_Addr Elf32_Conflict;
 #define DT_C6000_DSBT_INDEX	(DT_LOPROC + 3)
 
 #define DT_C6000_NUM    4
+
+/* microblaze specific relocs */
+#define R_MICROBLAZE_NONE 0
+#define R_MICROBLAZE_32 1
+#define R_MICROBLAZE_32_PCREL 2
+#define R_MICROBLAZE_64_PCREL 3
+#define R_MICROBLAZE_32_PCREL_LO 4
+#define R_MICROBLAZE_64 5
+#define R_MICROBLAZE_32_LO 6
+#define R_MICROBLAZE_SRO32 7
+#define R_MICROBLAZE_SRW32 8
+#define R_MICROBLAZE_64_NONE 9
+#define R_MICROBLAZE_32_SYM_OP_SYM 10
+#define R_MICROBLAZE_GNU_VTINHERIT 11
+#define R_MICROBLAZE_GNU_VTENTRY 12
+#define R_MICROBLAZE_GOTPC_64 13  /* PC-relative GOT offset */
+#define R_MICROBLAZE_GOT_64 14  /* GOT entry offset */
+#define R_MICROBLAZE_PLT_64 15  /* PLT offset (PC-relative  */
+#define R_MICROBLAZE_REL 16  /* adjust by program base */
+#define R_MICROBLAZE_JUMP_SLOT 17  /* create PLT entry */
+#define R_MICROBLAZE_GLOB_DAT 18  /* create GOT entry */
+#define R_MICROBLAZE_GOTOFF_64 19  /* offset relative to GOT */
+#define R_MICROBLAZE_GOTOFF_32 20  /* offset relative to GOT */
+#define R_MICROBLAZE_COPY 21  /* runtime copy */
+#define R_MICROBLAZE_NUM 22
 
 #ifdef	__cplusplus
 }

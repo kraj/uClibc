@@ -101,6 +101,11 @@
 #define ELFCLASSM	ELFCLASS64
 #endif
 
+#if defined(__microblaze__)
+#define MATCH_MACHINE(x) (x == EM_MICROBLAZE_OLD)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
 #ifndef MATCH_MACHINE
 # ifdef __linux__
 #  include <asm/elf.h>

@@ -36,7 +36,14 @@ __vfork:
 	blti	r4, 1f			/* is r3 < -125? */
 	bri	2f			/* normal return */
 1:	sub 	r3, r3, r0		/* r3 = -r3 */
+#ifdef __PIC__
+	mfs	r3,rpc
+	addik	r3,r3,_GLOBAL_OFFSET_TABLE_+8
+	lwi	r3,r3,C_SYMBOL_NAME(errno)@GOT
+	sw	r3, r0, r3
+#else
 	swi	r3, r0, C_SYMBOL_NAME(errno);
+#endif
 					/* state restore etc */
 2:	rtsd	r15, 8			/* error return */
 	nop

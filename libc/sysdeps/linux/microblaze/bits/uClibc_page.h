@@ -31,7 +31,9 @@
 #elif defined(CONFIG_MICROBLAZE_4K_PAGES)
 #define PAGE_SHIFT		12
 #else
+#if !defined(CONFIG_MMU)
 #warning Missing CONFIG_MICROBLAZE_nnK_PAGES, assuming 4K
+#endif
 #define PAGE_SHIFT		12
 #endif
 
