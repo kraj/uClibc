@@ -24,10 +24,6 @@
 	.align 4
 C_SYMBOL_NAME(_start):
 
-	/* Load SDAs */
-	la	r2, r0, C_SYMBOL_NAME(_SDA2_BASE_) /* in the original source r2 was SDA, and r13 was SDA2, no idea why */
-	la	r13, r0, C_SYMBOL_NAME(_SDA_BASE_)
-
 	/*
 	Preparing arguments for uClibc's startup routine.
 	The routine has 6 arguments, so 5 of them are placed

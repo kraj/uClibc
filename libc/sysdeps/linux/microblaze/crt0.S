@@ -31,10 +31,6 @@ C_ENTRY(_start):
 	add	r3, r3, r3
 	add	r7, r6, r3	/* add to argv to get offset */
 
-	/* Load SDAs */
-	la	r2, r0, C_SYMBOL_NAME(_SDA_BASE_)
-	la	r13, r0, C_SYMBOL_NAME(_SDA2_BASE_)
-
 	/* tail-call uclibc's startup routine */
 	brid	C_SYMBOL_NAME(__uClibc_main)
 	nop
