@@ -17,4 +17,11 @@
 # error "Never use <bits/endian.h> directly; include <endian.h> instead."
 #endif
 
-#define __BYTE_ORDER __BIG_ENDIAN
+/* Note: Toolchain supplies _BIG_ENDIAN or _LITTLE_ENDIAN */
+#if defined(_BIG_ENDIAN)
+# define __BYTE_ORDER __BIG_ENDIAN
+#elif defined(_LITTLE_ENDIAN)
+# define __BYTE_ORDER __LITTLE_ENDIAN
+#else
+# error "Endianness is unknown"
+#endif
