@@ -18,18 +18,6 @@ License along with uClibc; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
 USA.  */
 
-#ifdef __NR_pread
-#define __NR___syscall_pread __NR_pread
-static __always_inline _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
-			size_t, count, off_t, offset_hi, off_t, offset_lo)
-
-static __always_inline ssize_t
-_dl_pread(int fd, void *buf, size_t count, off_t offset)
-{
-  return(__syscall_pread(fd,buf,count,__LONG_LONG_PAIR (offset >> 31, offset)));
-}
-#endif
-
 #ifdef __NR_sram_alloc
 #define __NR__dl_sram_alloc __NR_sram_alloc
 static __always_inline _syscall2(__ptr_t, _dl_sram_alloc,
