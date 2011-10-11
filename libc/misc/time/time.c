@@ -689,7 +689,7 @@ static int tm_isdst(register const struct tm *__restrict ptm,
 					++day;
 				}
 				monlen = 31 + day_cor[r->month -1] - day_cor[r->month];
-				if (isleap && (r->month > 1)) {
+				if (isleap && (r->month == 2)) {
 					++monlen;
 				}
 				/* Wweekday (0 is Sunday) of 1st of the month
