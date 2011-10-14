@@ -1507,6 +1507,7 @@ int attribute_hidden __dns_lookup(const char *name,
 		DPRINTF("Decoding answer at pos %d\n", pos);
 
 		first_answer = 1;
+		a->dotted = NULL;
 		for (j = 0; j < h.ancount; j++) {
 			i = __decode_answer(packet, pos, packet_len, &ma);
 			if (i < 0) {
@@ -1523,6 +1524,7 @@ int attribute_hidden __dns_lookup(const char *name,
 				ma.buf = a->buf;
 				ma.buflen = a->buflen;
 				ma.add_count = a->add_count;
+				free(a->dotted);
 				memcpy(a, &ma, sizeof(ma));
 				if (a->atype != T_SIG && (NULL == a->buf || (type != T_A && type != T_AAAA)))
 					break;
