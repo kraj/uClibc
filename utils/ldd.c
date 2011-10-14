@@ -127,6 +127,9 @@
 #define ELFDATAM	ELFDATA2MSB
 #endif
 
+#define ARRAY_SIZE(v)	(sizeof(v) / sizeof(*v))
+#define TRUSTED_LDSO	UCLIBC_RUNTIME_PREFIX "lib/" UCLIBC_LDSO
+
 struct library {
 	char *name;
 	int resolved;
@@ -698,16 +701,59 @@ foo:
 				"LD_TRACE_LOADED_OBJECTS=1",
 				NULL
 			};
+			char * lib_path = getenv("LD_LIBRARY_PATH");
 
+#ifdef __LDSO_STANDALONE_SUPPORT__
+			/* The 'extended' environment inclusing the LD_LIBRARY_PATH */
+			static char *ext_environment[ARRAY_SIZE(environment) + 1];
+			char **envp = (char **) environment;
+
+			if (lib_path) {
+				/*
+				 * If the LD_LIBRARY_PATH is set, it needs to include it
+				 * into the environment for the new process to be spawned
+				 */
+				char ** eenvp = (char **) ext_environment;
+
+				/* Copy the N-1 environment's entries */
+				while (*envp)
+					*eenvp++=*envp++;
+
+				/* Make room for LD_LIBRARY_PATH */
+				*eenvp = (char *) malloc(sizeof("LD_LIBRARY_PATH=")
+									  + strlen(lib_path));
+				strcpy(*eenvp, "LD_LIBRARY_PATH=");
+				strcat(*eenvp, lib_path);
+				lib_path = *eenvp;
+				/* ext_environment[size] is already NULL */
+
+				/* Use the extended environment */
+				envp = ext_environment;
+			}
+			if ((pid = vfork()) == 0) {
+				/*
+				 * Force to use the standard dynamic linker in stand-alone mode.
+				 * It will fails at runtime if support is not actually available
+				 */
+				execle(TRUSTED_LDSO, TRUSTED_LDSO, filename, NULL, envp);
+				_exit(0xdead);
+			}
+#else
 			if ((pid = vfork()) == 0) {
 				/* Cool, it looks like we should be able to actually
 				 * run this puppy.  Do so now... */
 				execle(filename, filename, NULL, environment);
 				_exit(0xdead);
 			}
-
+#endif
 			/* Wait till it returns */
 			waitpid(pid, &status, 0);
+
+#ifdef __LDSO_STANDALONE_SUPPORT__
+			/* Do not leak */
+			free(lib_path);
+#endif
+
 			if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
 				return 1;
 			}

@@ -12,7 +12,7 @@ CFLAGS-utils := \
     $(SSP_ALL_CFLAGS) \
     -I$(top_srcdir)ldso/include \
     -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-    -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
+    -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" \
     -I$(top_srcdir)/$(KERNEL_HEADERS) \
     -DNOT_IN_libc \
     -B$(top_builddir)lib \
