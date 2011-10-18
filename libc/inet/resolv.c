@@ -4212,8 +4212,8 @@ int res_mkquery(int op, const char *dname, int class, int type,
 
 #ifdef DEBUG
 	if (_res_options & RES_DEBUG)
-		printf(";; res_mkquery(%d, %s, %s, %d, %d)\n",
-			   name, (op, dname ? dname : "<Nil>"), class, type);
+		printf(";; res_mkquery(%d, %s, %d, %d)\n",
+			   op, dname && *dname ? dname : "<null>", class, type);
 #endif
 
 	memset(buf, 0, HFIXEDSZ);
