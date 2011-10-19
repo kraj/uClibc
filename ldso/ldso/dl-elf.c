@@ -283,14 +283,14 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		}
 	}
 #endif
-
+#ifdef SHARED
 	/* Look for libraries wherever the shared library loader
 	 * was installed */
 	_dl_if_debug_dprint("\tsearching ldso dir='%s'\n", _dl_ldsopath);
 	tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath, rpnt);
 	if (tpnt1 != NULL)
 		return tpnt1;
-
+#endif
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/util/ldd.c */
 	_dl_if_debug_dprint("\tsearching full lib path list\n");
