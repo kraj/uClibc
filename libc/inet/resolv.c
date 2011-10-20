@@ -2105,7 +2105,7 @@ int gethostbyname_r(const char *name,
 	/* talk to DNS servers */
 	a.buf = buf;
 	/* take into account that at least one address will be there,
-	 * we'll need space of one in_addr + two addr_list[] elems */
+	 * we'll need space for one in_addr + two addr_list[] elems */
 	a.buflen = buflen - ((sizeof(addr_list[0]) * 2 + sizeof(struct in_addr)));
 	a.add_count = 0;
 	packet_len = __dns_lookup(name, T_A, &packet, &a);
