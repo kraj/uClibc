@@ -2170,6 +2170,7 @@ int gethostbyname_r(const char *name,
 	}
 
 	*h_errnop = HOST_NOT_FOUND;
+	__set_h_errno(HOST_NOT_FOUND);
 	i = TRY_AGAIN;
 
  free_and_ret:
