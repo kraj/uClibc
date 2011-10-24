@@ -24,7 +24,8 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += capget.c capset.c inotify.c ioperm.c iopl.c \
 	remap_file_pages.c sched_getaffinity.c sched_setaffinity.c \
 	sendfile64.c sendfile.c setfsgid.c setfsuid.c setresuid.c \
 	splice.c vmsplice.c tee.c signalfd.c swapoff.c swapon.c \
-	sync_file_range.c sysctl.c sysinfo.c timerfd.c uselib.c vhangup.c
+	sync_file_range.c sysctl.c sysinfo.c eventfd.c timerfd.c uselib.c \
+	vhangup.c
 # NPTL needs these internally: madvise.c
 CSRC-$(findstring y,$(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_THREADS_NATIVE)) += madvise.c
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
