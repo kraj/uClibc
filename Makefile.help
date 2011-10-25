@@ -28,6 +28,12 @@ help:
 	@echo '  oldconfig		- resolve any unresolved symbols in .config'
 	@echo '  silentoldconfig	- resolve any unresolved symbols in .config, silently'
 	@echo '  randconfig		- generate a random .config'
+	@$(if $(arch-defconfigs), \
+		@echo ''; \
+		echo 'Architecture specific configs ($(ARCH))'; \
+		$(foreach c, $(arch-defconfigs), \
+			printf "  %-21s - Build for %s\\n" $(c) $(subst _defconfig,,$(c));) \
+	)
 	@echo
 	@echo 'Installation:'
 	@echo '  install		- install both the runtime and the headers'

@@ -422,6 +422,8 @@ $(addprefix $(top_builddir),include include/bits include/sys include/config lib 
 $(conf) $(mconf): | $(top_builddir)include/config $(top_builddir)extra/config/lxdialog
 	$(Q)$(MAKE) -C extra/config $(@F)
 
+arch-defconfigs := $(notdir $(wildcard $(top_srcdir)extra/Configs/defconfigs/$(ARCH)/*_defconfig))
+
 menuconfig: $(mconf)
 	$(Q)$< extra/Configs/Config.in
 
@@ -451,6 +453,9 @@ allnoconfig: $(conf)
 	$(Q)$< -n extra/Configs/Config.in
 
 defconfig: $(conf)
+	$(Q)$< -D extra/Configs/defconfigs/$(ARCH)/$@ extra/Configs/Config.in
+
+%_defconfig: $(conf)
 	$(Q)$< -D extra/Configs/defconfigs/$(ARCH)/$@ extra/Configs/Config.in
 
 menuconfig-clean-y:
