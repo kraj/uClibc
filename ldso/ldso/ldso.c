@@ -486,7 +486,6 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 #ifdef __LDSO_STANDALONE_SUPPORT__
 	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val) {
-		char *ptmp;
 		unsigned int *aux_dat = (unsigned int *) argv;
 		int argc = aux_dat[-1];
 
@@ -565,15 +564,20 @@ of this helper program; chances are you did not intend to run this program.\n\
 			}
 		}
 
-		/* Store the path where the shared lib loader was found
-		 * for later use
-		 */
-		_dl_ldsopath = _dl_strdup(tpnt->libname);
-		ptmp = _dl_strrchr(_dl_ldsopath, '/');
-		if (ptmp != _dl_ldsopath)
-			*ptmp = '\0';
+#ifdef __LDSO_SEARCH_INTERP_PATH__
+		{
+			char *ptmp;
+			/* Store the path where the shared lib loader was found
+			 * for later use
+			 */
+			_dl_ldsopath = _dl_strdup(tpnt->libname);
+			ptmp = _dl_strrchr(_dl_ldsopath, '/');
+			if (ptmp != _dl_ldsopath)
+				*ptmp = '\0';
 
-		_dl_debug_early("Lib Loader: (%x) %s\n", (unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
+			_dl_debug_early("Lib Loader: (%x) %s\n", (unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
+		}
+#endif
 	} else {
 #endif
 
