@@ -236,6 +236,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	}
 #endif
 
+#ifdef __LDSO_LD_LIBRARY_PATH__
 	/* Check in LD_{ELF_}LIBRARY_PATH, if specified and allowed */
 	if (_dl_library_path) {
 		_dl_if_debug_dprint("\tsearching LD_LIBRARY_PATH='%s'\n", _dl_library_path);
@@ -244,7 +245,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 			return tpnt1;
 		}
 	}
-
+#endif
 	/*
 	 * The ABI specifies that RUNPATH is searched after LD_LIBRARY_PATH.
 	 */

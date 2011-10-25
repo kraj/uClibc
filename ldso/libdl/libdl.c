@@ -100,7 +100,9 @@ int   _dl_debug_file      = 2;
 const char *_dl_progname       = "";        /* Program name */
 void *(*_dl_malloc_function)(size_t);
 void (*_dl_free_function) (void *p);
+#ifdef __LDSO_LD_LIBRARY_PATH__
 char *_dl_library_path         = NULL;         /* Where we look for libraries */
+#endif
 int _dl_errno                  = 0;         /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later */
 /* This global variable is also to communicate with debuggers such as gdb. */
@@ -368,7 +370,7 @@ void *dlopen(const char *libname, int flag)
 	if (getenv("LD_BIND_NOW"))
 		now_flag = RTLD_NOW;
 
-#ifndef SHARED
+#if !defined SHARED && defined __LDSO_LIBRARY_PATH__
 	/* When statically linked, the _dl_library_path is not yet initialized */
 	_dl_library_path = getenv("LD_LIBRARY_PATH");
 #endif

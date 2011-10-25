@@ -409,6 +409,17 @@ config LDSO_SEARCH_INTERP_PATH
 
 	  If unsure, simply say Y here.
 
+config LDSO_LD_LIBRARY_PATH
+	bool "Add LD_LIBRARY_PATH to lib search path"
+	depends on HAVE_SHARED
+	default y
+	help
+	  On hardened system it could be useful to disable the use of
+	  LD_LIBRARY_PATH environment variable (a colon-separated list of
+	  directories in which to search for ELF libraries at execution-time).
+
+	  If unsure, simply say Y here.
+
 config LDSO_NO_CLEANUP
 	bool "Disable automatic unloading of dynamically loaded shared objects"
 	depends on HAVE_SHARED

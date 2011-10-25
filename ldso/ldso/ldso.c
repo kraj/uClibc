@@ -46,7 +46,9 @@
 #include LDSO_ELFINTERP
 
 /* Global variables used within the shared library loader */
+#ifdef __LDSO_LD_LIBRARY_PATH__
 char *_dl_library_path         = NULL;	/* Where we look for libraries */
+#endif
 #ifdef __LDSO_PRELOAD_ENV_SUPPORT__
 char *_dl_preload              = NULL;	/* Things to be loaded before the libs */
 #endif
@@ -457,7 +459,9 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 #ifdef __LDSO_PRELOAD_ENV_SUPPORT__
 		_dl_preload = _dl_getenv("LD_PRELOAD", envp);
 #endif
+#ifdef __LDSO_LD_LIBRARY_PATH__
 		_dl_library_path = _dl_getenv("LD_LIBRARY_PATH", envp);
+#endif
 	} else {
 		static const char unsecure_envvars[] =
 #ifdef EXTRA_UNSECURE_ENVVARS
@@ -476,7 +480,9 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 #ifdef __LDSO_PRELOAD_ENV_SUPPORT__
 		_dl_preload = NULL;
 #endif
+#ifdef __LDSO_LD_LIBRARY_PATH__
 		_dl_library_path = NULL;
+#endif
 		/* SUID binaries can be exploited if they do LAZY relocation. */
 		unlazy = RTLD_NOW;
 	}
@@ -494,7 +500,9 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		tpnt->libname = argv[0];
 		while (argc > 1)
 			if (! _dl_strcmp (argv[1], "--library-path") && argc > 2) {
+#ifdef __LDSO_LD_LIBRARY_PATH__
 				_dl_library_path = argv[2];
+#endif
 				_dl_skip_args += 2;
 				argc -= 2;
 				argv += 2;
