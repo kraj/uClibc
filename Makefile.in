@@ -451,7 +451,7 @@ allnoconfig: $(conf)
 	$(Q)$< -n extra/Configs/Config.in
 
 defconfig: $(conf)
-	$(Q)$< -D extra/Configs/defconfigs/$(ARCH) extra/Configs/Config.in
+	$(Q)$< -D extra/Configs/defconfigs/$(ARCH)/$@ extra/Configs/Config.in
 
 menuconfig-clean-y:
 	$(Q)$(MAKE) -C extra/config CLEAN_extra/config
