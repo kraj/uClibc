@@ -283,7 +283,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		}
 	}
 #endif
-#ifdef SHARED
+#if defined SHARED && defined __LDSO_SEARCH_INTERP_PATH__
 	/* Look for libraries wherever the shared library loader
 	 * was installed */
 	_dl_if_debug_dprint("\tsearching ldso dir='%s'\n", _dl_ldsopath);
