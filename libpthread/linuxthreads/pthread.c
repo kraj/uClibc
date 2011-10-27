@@ -45,7 +45,7 @@ extern __typeof(sigaction) __libc_sigaction;
 extern int _errno;
 extern int _h_errno;
 
-# if defined __UCLIBC_HAS_IPv4__ || defined __UCLIBC_HAS_IPV6__
+# if defined __UCLIBC_HAS_IPV4__ || defined __UCLIBC_HAS_IPV6__
 /* We need the global/static resolver state here.  */
 # include <resolv.h>
 # undef _res
@@ -539,14 +539,14 @@ static void pthread_initialize(void)
 #ifdef USE_TLS
   /* Update the descriptor for the initial thread. */
   THREAD_SETMEM (((pthread_descr) NULL), p_pid, __getpid());
-# if !defined HAVE___THREAD && (defined __UCLIBC_HAS_IPv4__ || defined __UCLIBC_HAS_IPV6__)
+# if !defined HAVE___THREAD && (defined __UCLIBC_HAS_IPV4__ || defined __UCLIBC_HAS_IPV6__)
   /* Likewise for the resolver state _res.  */
   THREAD_SETMEM (((pthread_descr) NULL), p_resp, __resp);
 # endif
 #else
   /* Update the descriptor for the initial thread. */
   __pthread_initial_thread.p_pid = __getpid();
-# if defined __UCLIBC_HAS_IPv4__ || defined __UCLIBC_HAS_IPV6__
+# if defined __UCLIBC_HAS_IPV4__ || defined __UCLIBC_HAS_IPV6__
   /* Likewise for the resolver state _res.  */
   __pthread_initial_thread.p_resp = __resp;
 # endif
@@ -1125,7 +1125,7 @@ void __pthread_reset_main_thread(void)
   /* Now this thread modifies the global variables.  */
   THREAD_SETMEM(self, p_errnop, &_errno);
   THREAD_SETMEM(self, p_h_errnop, &_h_errno);
-# if defined __UCLIBC_HAS_IPv4__ || defined __UCLIBC_HAS_IPV6__
+# if defined __UCLIBC_HAS_IPV4__ || defined __UCLIBC_HAS_IPV6__
   THREAD_SETMEM(self, p_resp, __resp);
 # endif
 #endif
