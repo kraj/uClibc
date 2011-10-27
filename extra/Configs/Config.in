@@ -1291,6 +1291,7 @@ config UCLIBC_HAS_EXTRA_COMPAT_RES_STATE
 config UCLIBC_HAS_RESOLVER_SUPPORT
 	bool "DNS resolver functions"
 	select UCLIBC_HAS_COMPAT_RES_STATE
+	depends on UCLIBC_HAS_IPV4 || UCLIBC_HAS_IPV6
 	help
 	  Provide implementations for DNS resolver functions.
 	  In particular, the following functions will be added to the
