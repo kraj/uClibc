@@ -405,19 +405,19 @@ ifeq ($(HAVE_SHARED),y)
 endif
 
 utils: | pregen
-	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils $@
+	$(Q)$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" CC="$(CC)" -C utils $@
 
 # Installs helper applications, such as 'ldd' and 'ldconfig'
 install_utils: utils
-	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install
+	$(Q)$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" CC="$(CC)" -C utils utils_install
 
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 hostutils: | pregen
-	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils $@
+	$(Q)$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils $@
 
 install_hostutils: hostutils
-	$(Q)$(MAKE) CROSS="$(CROSS)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils utils_install
+	$(Q)$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils utils_install
 
 $(addprefix $(top_builddir),include include/bits include/sys include/config lib extra/config/lxdialog extra/locale extra/scripts $(subdirs)):
 	$(do_mkdir)

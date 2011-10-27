@@ -77,13 +77,11 @@ pass=""
 fail=""
 skip=""
 for a in "$@" ; do
-	if [ -n "${CROSS_COMPILE}" ] ; then
-		CROSS=${CROSS_COMPILE}
-	else
-		CROSS=$(find_compiler ${a})
+	if [ -z "${CROSS_COMPILE}" ] ; then
+		CROSS_COMPILE=$(find_compiler ${a})
 	fi
 
-	if [ -z "${CROSS}" ] ; then
+	if [ -z "${CROSS_COMPILE}" ] ; then
 		mark_arch skip $a
 		echo " ### SKIP: ${a}: could not find compiler"
 		continue
@@ -93,17 +91,17 @@ for a in "$@" ; do
 	(
 	set -e
 
-	echo " ### Building target ${a} (${CROSS})"
+	echo " ### Building target ${a} (${CROSS_COMPILE})"
 
 	do_make distclean
 	do_make ARCH=$a defconfig
 	do_make oldconfig
 
-	setconfig CROSS_COMPILER_PREFIX ${CROSS}
+	setconfig CROSS_COMPILER_PREFIX ${CROSS_COMPILE}
 
-	header_path=${KERNEL_HEADERS:-$(echo '#include <linux/version.h>' | ${CROSS}cpp 2>/dev/null | grep -o '[^"]*linux/version.h')} || :
+	header_path=${KERNEL_HEADERS:-$(echo '#include <linux/version.h>' | ${CROSS_COMPILE}cpp 2>/dev/null | grep -o '[^"]*linux/version.h')} || :
 	if [ -z "${header_path}" ] ; then
-		for p in /usr/${CROSS%-}/usr/include ; do
+		for p in /usr/${CROSS_COMPILE%-}/usr/include ; do
 			if [ -e ${p}/linux/version.h ] ; then
 				header_path=${p}
 				break

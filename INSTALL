@@ -54,7 +54,7 @@ COMPILING uClibc:
     to compile uClibc.  or if you are cross compiling, you would
     instead run something like:
 
-            make CROSS=arm-linux-
+            make CROSS_COMPILE=arm-linux-
 
 
 INSTALLING the uClibc development environment:

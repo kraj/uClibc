@@ -30,24 +30,24 @@ endif
 
 #-----------------------------------------------------------
 # If you are running a cross compiler, you will want to set
-# 'CROSS' to something more interesting ...  Target
+# 'CROSS_COMPILE' to something more interesting ...  Target
 # architecture is determined by asking the CC compiler what
 # arch it compiles things for, so unless your compiler is
 # broken, you should not need to specify TARGET_ARCH.
 #
 # Most people will set this stuff on the command line, i.e.
-#        make CROSS=arm-linux-
+#        make CROSS_COMPILE=arm-linux-
 # will build uClibc for 'arm'.
+# CROSS is still supported for backward compatibily only
 
-ifndef CROSS
-CROSS=
-endif
-CC         = $(CROSS)gcc
-AR         = $(CROSS)ar
-LD         = $(CROSS)ld
-NM         = $(CROSS)nm
-OBJDUMP    = $(CROSS)objdump
-STRIPTOOL  = $(CROSS)strip
+CROSS_COMPILE ?= $(CROSS)
+
+CC         = $(CROSS_COMPILE)gcc
+AR         = $(CROSS_COMPILE)ar
+LD         = $(CROSS_COMPILE)ld
+NM         = $(CROSS_COMPILE)nm
+OBJDUMP    = $(CROSS_COMPILE)objdump
+STRIPTOOL  = $(CROSS_COMPILE)strip
 
 INSTALL    = install
 LN         = ln
@@ -159,8 +159,8 @@ endif
 comma:=,
 space:= #
 
-ifndef CROSS
-CROSS=$(call qstrip,$(CROSS_COMPILER_PREFIX))
+ifndef CROSS_COMPILE
+CROSS_COMPILE=$(call qstrip,$(CROSS_COMPILER_PREFIX))
 endif
 
 # A nifty macro to make testing gcc features easier

@@ -16,9 +16,9 @@ Configuration:
 	Read and edit the Config file, carefully.
 
 	TARGET_ARCH=m68k
-	CROSS = m68k-pic-coff-
-	CC = $(CROSS)gcc
-	STRIPTOOL = $(CROSS)strip
+	CROSS_COMPILE = m68k-pic-coff-
+	CC = $(CROSS_COMPILE)gcc
+	STRIPTOOL = $(CROSS_COMPILE)strip
 	KERNEL_SOURCE=/opt/uClinux/linux
 	HAS_MMU = false
 	HAS_FLOATS = false
