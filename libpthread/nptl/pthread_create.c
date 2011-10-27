@@ -233,7 +233,7 @@ start_thread (void *arg)
   HP_TIMING_NOW (now);
   THREAD_SETMEM (pd, cpuclock_offset, now);
 #endif
-#if defined __UCLIBC_HAS_IPV4__ || defined __UCLIBC_HAS_IPV6__
+#if defined __UCLIBC_HAS_RESOLVER_SUPPORT__
   /* Initialize resolver state pointer.  */
   __resp = &pd->res;
 #endif

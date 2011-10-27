@@ -19,7 +19,7 @@ libpthread-static-only-routines-y = pthread_atfork.c
 libpthread-routines- += $(notdir $(wildcard $(libpthread_DIR)/gen_*.c)) # dummy generated files
 libpthread-routines- += allocatestack.c # dummy included by pthread_create.c
 libpthread-routines- += pthread_mutex_getprioceiling.c pthread_mutex_setprioceiling.c # XXX: delete those or use them!
-libpthread-routines-$(findstring y,$(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6)) += res.c
+libpthread-routines-$(UCLIBC_HAS_RESOLVER_SUPPORT) += res.c
 libpthread-routines-$(UCLIBC_SUSV4_LEGACY) += pthread_getconcurrency.c \
 	pthread_setconcurrency
 libpthread_CSRC = $(filter-out $(libpthread-routines-) \

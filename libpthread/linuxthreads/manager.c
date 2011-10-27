@@ -293,7 +293,7 @@ pthread_start_thread(void *arg)
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */
   __uselocale (LC_GLOBAL_LOCALE);
-#else
+#elif defined __UCLIBC_HAS_RESOLVER_SUPPORT__
   /* Initialize __resp.  */
   __resp = &self->p_res;
 #endif
