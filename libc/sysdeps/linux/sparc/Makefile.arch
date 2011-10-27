@@ -13,7 +13,7 @@ SSRC := \
 
 ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 CSRC += sigaction.c
-SSRC += fork.S vfork.S
+SSRC += fork.S vfork.S clone.S
 endif
 
 # check weather __LONG_DOUBLE_128__ is defined (long double support)
