@@ -32,7 +32,41 @@ static int enosys_stub(void)
 #endif
 
 #ifndef __UCLIBC_LINUX_SPECIFIC__
+# undef __NR_accept4
+# undef __NR_arch_prctl
+# undef __NR_capget
+# undef __NR_capset
+# undef __NR_fstatfs
+# undef __NR_inotify_init
+# undef __NR_inotify_add_watch
+# undef __NR_inotify_rm_watch
+# undef __NR_ioperm
+# undef __NR_iopl
+# undef __NR_madvise
+# undef __NR_modify_ldt
+# undef __NR_personality
 # undef __NR_pipe2
+# undef __NR_ppoll
+# undef __NR_prctl
+# undef __NR_readahead
+# undef __NR_reboot
+# undef __NR_remap_file_pages
+# undef __NR_sched_getaffinity
+# undef __NR_sched_setaffinity
+# undef __NR_sendfile
+# undef __NR_setfsgid
+# undef __NR_setfsuid
+# undef __NR_setresuid
+# undef __NR_signalfd
+# undef __NR_splice
+# undef __NR_swapoff
+# undef __NR_swapon
+# undef __NR_sync_file_range
+# undef __NR_sysctl
+# undef __NR_sysinfo
+# undef __NR_tee
+# undef __NR_vhangup
+# undef __NR_vmsplice
 #endif
 
 #ifndef __UCLIBC_HAS_SOCKET__
