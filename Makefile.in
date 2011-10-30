@@ -270,7 +270,10 @@ HEADERS_RM-$(UCLIBC_HAS_WCHAR)               += wchar.h wctype.h
 HEADERS_RM-$(UCLIBC_HAS_WORDEXP)             += wordexp.h
 HEADERS_RM-$(UCLIBC_HAS_XATTR)               += sys/xattr.h
 HEADERS_RM-$(UCLIBC_HAS_XLOCALE)             += xlocale.h
-HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += sys/fsuid.h sys/inotify.h sys/perm.h \
+HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += sys/fsuid.h \
+	sys/inotify.h \
+	sys/kdaemon.h \
+	sys/perm.h \
 	sys/personality.h \
 	sys/prctl.h \
 	sys/reboot.h \
@@ -281,6 +284,7 @@ HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += sys/fsuid.h sys/inotify.h sys/pe
 	sys/swap.h \
 	sys/sysctl.h \
 	sys/sysinfo.h \
+	sys/timerfd.h \
 	sys/vfs.h
 HEADERS_RM-$(UCLIBC_SUPPORT_AI_ADDRCONFIG)   += ifaddrs.h
 HEADERS_RM-$(UCLIBC_SV4_DEPRECATED)          += ustat.h sys/ustat.h bits/ustat.h

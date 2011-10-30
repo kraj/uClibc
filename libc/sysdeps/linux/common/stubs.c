@@ -7,6 +7,7 @@
  */
 
 #include <errno.h>
+#include <bits/wordsize.h>
 #include <sys/syscall.h>
 
 #ifdef __UCLIBC_HAS_STUBS__
@@ -46,6 +47,7 @@ static int enosys_stub(void)
 # undef __NR_modify_ldt
 # undef __NR_personality
 # undef __NR_pipe2
+# undef __NR_pivot_root
 # undef __NR_ppoll
 # undef __NR_prctl
 # undef __NR_readahead
@@ -99,7 +101,19 @@ make_stub(accept)
 make_stub(accept4)
 #endif
 
-#ifndef __NR_bdflush
+#if !defined __NR_arch_prctl && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(arch_prctl)
+#endif
+
+#if !defined __NR_capget && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(capget)
+#endif
+
+#if !defined __NR_capset && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(capset)
+#endif
+
+#if !defined __NR_bdflush && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(bdflush)
 #endif
 
@@ -163,6 +177,10 @@ make_stub(fremovexattr)
 make_stub(fsetxattr)
 #endif
 
+#if !defined __NR_fstatfs && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(fstatfs)
+#endif
+
 #ifndef __NR_get_kernel_syms
 make_stub(get_kernel_syms)
 #endif
@@ -191,6 +209,30 @@ make_stub(getxattr)
 make_stub(init_module)
 #endif
 
+#if !defined __NR_inotify_init && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(inotify_init)
+#endif
+
+#if !defined __NR_inotify_init1 && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(inotify_init1)
+#endif
+
+#if !defined __NR_inotify_add_watch && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(inotify_add_watch)
+#endif
+
+#if !defined __NR_inotify_rm_watch && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(inotify_rm_watch)
+#endif
+
+#if !defined __NR_ioperm && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(ioperm)
+#endif
+
+#if !defined __NR_iopl && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(iopl)
+#endif
+
 #ifndef __NR_lgetxattr
 make_stub(lgetxattr)
 #endif
@@ -215,19 +257,47 @@ make_stub(lremovexattr)
 make_stub(lsetxattr)
 #endif
 
-#ifndef __NR_pipe2
+#if !defined __NR_madvise && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(madvise)
+#endif
+
+#if !defined __NR_modify_ldt && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(modify_ldt)
+#endif
+
+#if !defined __NR_personality && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(personality)
+#endif
+
+#if !defined __NR_pipe2 && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(pipe2)
 #endif
 
-#ifndef __NR_pivot_root
+#if !defined __NR_pivot_root && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(pivot_root)
+#endif
+
+#if !defined __NR_ppoll && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(ppoll)
+#endif
+
+#if !defined __NR_prctl && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(prctl)
+#endif
+
+#if !defined __NR_readahead && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(readahead)
+#endif
+
+#if !defined __NR_reboot && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(reboot)
 #endif
 
 #ifndef __NR_query_module
 make_stub(query_module)
 #endif
 
-#if !defined __NR_recv && !defined __NR_socketcall && && !defined __NR_recvfrom && defined __UCLIBC_HAS_SOCKET__
+#if !defined __NR_recv && !defined __NR_socketcall && !defined __NR_recvfrom && defined __UCLIBC_HAS_SOCKET__
 make_stub(recv)
 #endif
 
@@ -239,20 +309,32 @@ make_stub(recvfrom)
 make_stub(recvmsg)
 #endif
 
+#if !defined __NR_remap_file_pages && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(remap_file_pages)
+#endif
+
 #ifndef __NR_removexattr
 make_stub(removexattr)
 #endif
 
-#ifndef __NR_sched_getaffinity
+#if !defined __NR_sched_getaffinity && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(sched_getaffinity)
 #endif
 
-#ifndef __NR_sched_setaffinity
+#if !defined __NR_sched_setaffinity && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(sched_setaffinity)
 #endif
 
 #if !defined __NR_send && !defined __NR_socketcall && !defined __NR_sendto && defined __UCLIBC_HAS_SOCKET__
 make_stub(send)
+#endif
+
+#if !defined __NR_sendfile && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(sendfile)
+#endif
+
+#if !defined __NR_sendfile64 && !defined __NR_sendfile && defined __UCLIBC_LINUX_SPECIFIC__ && defined __UCLIBC_HAS_LFS__
+make_stub(sendfile64)
 #endif
 
 #if !defined __NR_sendmsg && !defined __NR_socketcall && defined __UCLIBC_HAS_SOCKET__
@@ -261,6 +343,22 @@ make_stub(sendmsg)
 
 #if !defined __NR_sendto && !defined __NR_socketcall && defined __UCLIBC_HAS_SOCKET__
 make_stub(sendto)
+#endif
+
+#if ((__WORDSIZE == 32 && (!defined __NR_setfsgid32 && !defined __NR_setfsgid)) || (__WORDSIZE == 64 && !defined __NR_setfsgid)) && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(setfsgid)
+#endif
+
+#if ((__WORDSIZE == 32 && (!defined __NR_setfsuid32 && !defined __NR_setfsuid)) || (__WORDSIZE == 64 && !defined __NR_setfsuid)) && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(setfsuid)
+#endif
+
+#if !defined __NR_setresgid32 && !defined __NR_setresgid && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(setresgid)
+#endif
+
+#if !defined __NR_setresuid32 && !defined __NR_setresuid && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(setresuid)
 #endif
 
 #if !defined __NR_setsockopt && !defined __NR_socketcall && defined __UCLIBC_HAS_SOCKET__
@@ -275,7 +373,7 @@ make_stub(setxattr)
 make_stub(shutdown)
 #endif
 
-#if !defined(__NR_signalfd4) && !defined(__NR_signalfd)
+#if !defined __NR_signalfd4 && !defined __NR_signalfd && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(signalfd)
 #endif
 
@@ -296,19 +394,51 @@ make_stub(sigtimedwait)
 make_stub(sigwaitinfo)
 #endif
 
-#ifndef __NR_splice
+#if !defined __NR_splice && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(splice)
 #endif
 
-#ifndef __NR_sync_file_range
+#if !defined __NR_swapoff && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(swapoff)
+#endif
+
+#if !defined __NR_swapon && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(swapon)
+#endif
+
+#if !defined __NR_sync_file_range && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(sync_file_range)
 #endif
 
-#if !defined(__NR_umount) && !defined(__NR_umount2)
+#if !defined __NR__sysctl && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(_sysctl)
+#endif
+
+#if !defined __NR_sysinfo && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(sysinfo)
+#endif
+
+#if !defined __NR_tee && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(tee)
+#endif
+
+#if !defined __NR_timerfd_create && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(timerfd_create)
+#endif
+
+#if !defined __NR_timerfd_settime && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(timerfd_settime)
+#endif
+
+#if !defined __NR_timerfd_gettime && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(timerfd_gettime)
+#endif
+
+#if !defined __NR_umount && !defined __NR_umount2 && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(umount)
 #endif
 
-#ifndef __NR_umount2
+#if !defined __NR_umount2 && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(umount2)
 #endif
 
@@ -318,6 +448,10 @@ make_stub(utimensat)
 # ifndef __NR_lutimes
 make_stub(lutimes)
 # endif
+#endif
+
+#if !defined __NR_vhangup && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(vhangup)
 #endif
 
 #ifndef __NR_vmsplice
