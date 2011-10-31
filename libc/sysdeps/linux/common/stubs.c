@@ -133,11 +133,11 @@ make_stub(capset)
 make_stub(connect)
 #endif
 
-#ifndef __NR_create_module
+#if !defined __NR_create_module && defined __UCLIBC_LINUX_MODULE_24__
 make_stub(create_module)
 #endif
 
-#ifndef __NR_delete_module
+#if !defined __NR_delete_module && defined __UCLIBC_LINUX_MODULE_26__
 make_stub(delete_module)
 #endif
 
@@ -205,7 +205,7 @@ make_stub(getsockopt)
 make_stub(getxattr)
 #endif
 
-#ifndef __NR_init_module
+#if !defined __NR_init_module && defined __UCLIBC_LINUX_MODULE_26__
 make_stub(init_module)
 #endif
 
@@ -293,7 +293,7 @@ make_stub(readahead)
 make_stub(reboot)
 #endif
 
-#ifndef __NR_query_module
+#if !defined __NR_query_module && defined __UCLIBC_LINUX_MODULE_24__
 make_stub(query_module)
 #endif
 
