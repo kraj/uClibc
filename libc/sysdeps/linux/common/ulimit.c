@@ -7,13 +7,6 @@
 
 #include <sys/syscall.h>
 
-#ifdef __NR_ulimit
-
-extern long int ulimit(int cmd, long arg);
-_syscall2(long, ulimit, int, cmd, long, arg)
-
-#else
-
 #include <stdarg.h>
 #include <unistd.h>
 #include <ulimit.h>
@@ -53,4 +46,3 @@ long int ulimit(int cmd, ...)
 	va_end (va);
 	return result;
 }
-#endif
