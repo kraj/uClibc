@@ -73,7 +73,7 @@ libm_CSRC := \
 	s_isnan.c s_isnanf.c s_isinf.c s_isinff.c s_finitef.c \
 	s_fdim.c s_fma.c s_fmax.c s_fmin.c \
 	s_remquo.c w_exp2.c \
-	cexp.c
+	cexp.c sincos.c
 
 # Not implemented [yet?], see comment in float_wrappers.c:
 # fdimf.o fmaf.o fmaxf.o fminf.o

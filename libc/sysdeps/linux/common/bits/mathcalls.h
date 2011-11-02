@@ -90,7 +90,7 @@ __MATHCALLI (sinh,, (_Mdouble_ __x))
 __MATHCALLI (tanh,, (_Mdouble_ __x))
 _Mdouble_END_NAMESPACE
 
-#if 0 /*def __USE_GNU*/
+#if defined __USE_GNU
 /* Cosine and sine of X.  */
 __MATHDECL (void,sincos,,
 	    (_Mdouble_ __x, _Mdouble_ *__sinx, _Mdouble_ *__cosx))
