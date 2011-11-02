@@ -11,6 +11,12 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
+
+#if !defined __UCLIBC_LINUX_SPECIFIC__
+#undef __NR_setresgid
+#undef __NR_setresgid32
+#endif
+
 int setegid(gid_t gid)
 {
     int result;
