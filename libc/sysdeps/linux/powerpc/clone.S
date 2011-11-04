@@ -51,7 +51,7 @@ __clone:
 #ifdef RESET_PID
 	stmw	r28,16(r1)
 #else
-# ifdef __ASSUME_FIXED_CLONE_SYSCALL
+# ifndef __ASSUME_FIXED_CLONE_SYSCALL
 	stmw	r29,16(r1)
 # else
 	stmw	r30,16(r1)
