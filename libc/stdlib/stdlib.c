@@ -784,7 +784,7 @@ void *bsearch(const void *key, const void *base, size_t /* nmemb */ high,
 
 #endif
 /**********************************************************************/
-#ifdef L_qsort
+#ifdef L_qsort_r
 
 /* This code is derived from a public domain shell sort routine by
  * Ray Gardner and found in Bob Stout's snippets collection.  The
@@ -794,10 +794,11 @@ void *bsearch(const void *key, const void *base, size_t /* nmemb */ high,
  * calculation, as well as to reduce the generated code size with
  * bcc and gcc. */
 
-void qsort(void  *base,
+void qsort_r(void  *base,
            size_t nel,
            size_t width,
-           int (*comp)(const void *, const void *))
+           __compar_d_fn_t comp,
+		   void *arg)
 {
 	size_t wgap, i, j, k;
 	char tmp;
@@ -823,7 +824,7 @@ void qsort(void  *base,
 					j -= wgap;
 					a = j + ((char *)base);
 					b = a + wgap;
-					if ((*comp)(a, b) <= 0) {
+					if ((*comp)(a, b, arg) <= 0) {
 						break;
 					}
 					k = width;
@@ -839,7 +840,7 @@ void qsort(void  *base,
 		} while (wgap);
 	}
 }
-libc_hidden_def(qsort)
+libc_hidden_def(qsort_r)
 
 /* ---------- original snippets version below ---------- */
 
@@ -886,6 +887,18 @@ void ssort(void  *base,
 #endif
 
 #endif
+
+#ifdef L_qsort
+void qsort(void  *base,
+           size_t nel,
+           size_t width,
+           __compar_fn_t comp)
+{
+	return qsort_r (base, nel, width, (__compar_d_fn_t) comp, NULL);
+}
+libc_hidden_def(qsort)
+#endif
+
 /**********************************************************************/
 #ifdef L__stdlib_mb_cur_max
 
