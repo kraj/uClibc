@@ -26,16 +26,18 @@ static __inline__ void _dl_map_cache(void) { }
 static __inline__ void _dl_unmap_cache(void) { }
 #endif
 
+#define DL_RESOLVE_SECURE		0x0001
+#define DL_RESOLVE_NOLOAD		0x0002
 
 /* Function prototypes for non-static stuff in readelflib1.c */
 extern void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size);
 extern int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 	struct r_scope_elem *scope, unsigned long rel_addr, unsigned long rel_size);
-extern struct elf_resolve * _dl_load_shared_library(int secure,
+extern struct elf_resolve * _dl_load_shared_library(unsigned rflags,
 	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname,
 	int trace_loaded_objects);
-extern struct elf_resolve * _dl_load_elf_shared_library(int secure,
+extern struct elf_resolve * _dl_load_elf_shared_library(unsigned rflags,
 	struct dyn_elf **rpnt, const char *libname);
 extern struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libname,
 	int trace_loaded_objects);

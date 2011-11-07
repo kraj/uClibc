@@ -858,7 +858,9 @@ of this helper program; chances are you did not intend to run this program.\n\
 			if (!_dl_secure || _dl_strchr(str, '/') == NULL) {
 				_dl_if_debug_dprint("\tfile='%s';  needed by '%s'\n", str, _dl_progname);
 
-				tpnt1 = _dl_load_shared_library(_dl_secure, &rpnt, NULL, str, trace_loaded_objects);
+				tpnt1 = _dl_load_shared_library(
+					_dl_secure ? DL_RESOLVE_SECURE : 0,
+					&rpnt, NULL, str, trace_loaded_objects);
 				if (!tpnt1) {
 #ifdef __LDSO_LDD_SUPPORT__
 					if (trace_loaded_objects || _dl_trace_prelink)

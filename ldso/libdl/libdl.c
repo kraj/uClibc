@@ -52,11 +52,13 @@ extern struct link_map *_dl_update_slotinfo(unsigned long int req_modid);
 
 /* When libdl is loaded as a shared library, we need to load in
  * and use a pile of symbols from ldso... */
-
-extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **,
+#include <dl-elf.h>
+#if 0
+extern struct elf_resolve * _dl_load_shared_library(unsigned, struct dyn_elf **,
 	struct elf_resolve *, char *, int);
 extern int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int lazy);
 extern void _dl_protect_relro(struct elf_resolve * tpnt);
+#endif
 extern int _dl_errno;
 extern struct dyn_elf *_dl_symbol_tables;
 extern struct dyn_elf *_dl_handles;
@@ -308,7 +310,7 @@ void *dlopen(const char *libname, int flag)
 #endif
 
 	/* A bit of sanity checking... */
-	if (!(flag & (RTLD_LAZY|RTLD_NOW))) {
+	if (!(flag & (RTLD_LAZY|RTLD_NOW|RTLD_NOLOAD))) {
 		_dl_error_number = LD_BAD_HANDLE;
 		return NULL;
 	}
@@ -378,8 +380,9 @@ void *dlopen(const char *libname, int flag)
 	/* Try to load the specified library */
 	_dl_if_debug_print("Trying to dlopen '%s', RTLD_GLOBAL:%d RTLD_NOW:%d\n",
 			(char*)libname, (flag & RTLD_GLOBAL ? 1:0), (now_flag & RTLD_NOW ? 1:0));
-	tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
 
+	tpnt = _dl_load_shared_library((flag & RTLD_NOLOAD) ? DL_RESOLVE_NOLOAD : 0,
+					&rpnt, tfrom, (char*)libname, 0);
 	if (tpnt == NULL) {
 		_dl_unmap_cache();
 		return NULL;

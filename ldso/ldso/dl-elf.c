@@ -132,7 +132,7 @@ _dl_protect_relro (struct elf_resolve *l)
 /* This function's behavior must exactly match that
  * in uClibc/ldso/util/ldd.c */
 static struct elf_resolve *
-search_for_named_library(const char *name, int secure, const char *path_list,
+search_for_named_library(const char *name, unsigned rflags, const char *path_list,
 	struct dyn_elf **rpnt)
 {
 	char *path, *path_n, *mylibname;
@@ -174,7 +174,7 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 				_dl_strcpy(mylibname, "."); /* Assume current dir if empty path */
 			_dl_strcat(mylibname, "/");
 			_dl_strcat(mylibname, name);
-			if ((tpnt = _dl_load_elf_shared_library(secure, rpnt, mylibname)) != NULL)
+			if ((tpnt = _dl_load_elf_shared_library(rflags, rpnt, mylibname)) != NULL)
 				return tpnt;
 			path_n = path+1;
 		}
@@ -187,7 +187,7 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 unsigned long _dl_error_number;
 unsigned long _dl_internal_error_number;
 
-struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
+struct elf_resolve *_dl_load_shared_library(unsigned rflags, struct dyn_elf **rpnt,
 	struct elf_resolve *tpnt, char *full_libname, int attribute_unused trace_loaded_objects)
 {
 	char *pnt;
@@ -216,7 +216,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 	if (libname != full_libname) {
 		_dl_if_debug_dprint("\ttrying file='%s'\n", full_libname);
-		tpnt1 = _dl_load_elf_shared_library(secure, rpnt, full_libname);
+		tpnt1 = _dl_load_elf_shared_library(rflags, rpnt, full_libname);
 		if (tpnt1) {
 			return tpnt1;
 		}
@@ -231,7 +231,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	if (pnt) {
 		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
 		_dl_if_debug_dprint("\tsearching RPATH='%s'\n", pnt);
-		if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
+		if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt)) != NULL)
 			return tpnt1;
 	}
 #endif
@@ -240,7 +240,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	/* Check in LD_{ELF_}LIBRARY_PATH, if specified and allowed */
 	if (_dl_library_path) {
 		_dl_if_debug_dprint("\tsearching LD_LIBRARY_PATH='%s'\n", _dl_library_path);
-		if ((tpnt1 = search_for_named_library(libname, secure, _dl_library_path, rpnt)) != NULL)
+		if ((tpnt1 = search_for_named_library(libname, rflags, _dl_library_path, rpnt)) != NULL)
 		{
 			return tpnt1;
 		}
@@ -254,7 +254,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	if (pnt) {
 		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
 		_dl_if_debug_dprint("\tsearching RUNPATH='%s'\n", pnt);
-		if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
+		if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt)) != NULL)
 			return tpnt1;
 	}
 #endif
@@ -277,7 +277,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 			     || libent[i].flags == LIB_ELF_LIBC0
 			     ||	libent[i].flags == LIB_ELF_LIBC5)
 			 && _dl_strcmp(libname, strs + libent[i].sooffset) == 0
-			 && (tpnt1 = _dl_load_elf_shared_library(secure, rpnt, strs + libent[i].liboffset))
+			 && (tpnt1 = _dl_load_elf_shared_library(rflags, rpnt, strs + libent[i].liboffset))
 			) {
 				return tpnt1;
 			}
@@ -288,14 +288,14 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	/* Look for libraries wherever the shared library loader
 	 * was installed */
 	_dl_if_debug_dprint("\tsearching ldso dir='%s'\n", _dl_ldsopath);
-	tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath, rpnt);
+	tpnt1 = search_for_named_library(libname, rflags, _dl_ldsopath, rpnt);
 	if (tpnt1 != NULL)
 		return tpnt1;
 #endif
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/util/ldd.c */
 	_dl_if_debug_dprint("\tsearching full lib path list\n");
-	tpnt1 = search_for_named_library(libname, secure,
+	tpnt1 = search_for_named_library(libname, rflags,
 					UCLIBC_RUNTIME_PREFIX "lib:"
 					UCLIBC_RUNTIME_PREFIX "usr/lib"
 #ifndef __LDSO_CACHE_SUPPORT__
@@ -437,7 +437,7 @@ map_writeable (int infile, ElfW(Phdr) *ppnt, int piclib, int flags,
  * are required.
  */
 
-struct elf_resolve *_dl_load_elf_shared_library(int secure,
+struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 	struct dyn_elf **rpnt, const char *libname)
 {
 	ElfW(Ehdr) *epnt;
@@ -474,9 +474,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_close(infile);
 		return NULL;
 	}
-	/* If we are in secure mode (i.e. a setu/gid binary using LD_PRELOAD),
+	/* If we are in secure mode (i.e. a setuid/gid binary using LD_PRELOAD),
 	   we don't load the library if it isn't setuid. */
-	if (secure) {
+	if (rflags & DL_RESOLVE_SECURE) {
 		if (!(st.st_mode & S_ISUID)) {
 			_dl_close(infile);
 			return NULL;
@@ -491,6 +491,10 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			_dl_close(infile);
 			return tpnt;
 		}
+	}
+	if (rflags & DL_RESOLVE_NOLOAD) {
+		_dl_close(infile);
+		return NULL;
 	}
 	header = _dl_mmap((void *) 0, _dl_pagesize, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS | MAP_UNINITIALIZE, -1, 0);
