@@ -394,7 +394,8 @@ install_runtime: all | $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)
 ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -m 755 $(top_builddir)lib/lib*-$(VERSION).so \
 		$(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)
-	(cd $(top_builddir)lib && $(TAR) -cf - *.so.*) | $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)
+	(cd $(top_builddir)lib && $(TAR) --exclude=$(UCLIBC_LDSO_NAME).so.lds -cf - *.so.*) \
+	| $(TAR) -xf - -C $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)
 	@if [ -x $(top_builddir)lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so ] ; then \
 		set -e; \
 		$(SHELL_SET_X); \
