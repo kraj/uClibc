@@ -283,7 +283,7 @@ void attribute_hidden _stdio_init(void)
 
 #ifndef NDEBUG
 
-void _stdio_validate_FILE(const FILE *stream)
+void attribute_hidden _stdio_validate_FILE(const FILE *stream)
 {
 #ifdef __UCLIBC_HAS_THREADS__
 	assert(((unsigned int)(stream->__user_locking)) <= 2);
