@@ -40,6 +40,8 @@ void endusershell(void)
 	shellb = NULL;
 	shells = NULL;
 }
+libc_hidden_def(endusershell)
+
 void setusershell(void)
 {
 	endusershell();
@@ -61,6 +63,8 @@ void setusershell(void)
 		shells = (char **)shellb;
 	}
 }
+libc_hidden_def(setusershell)
+
 char *getusershell(void)
 {
 	char *sh;

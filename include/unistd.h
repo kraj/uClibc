@@ -962,7 +962,9 @@ extern int acct (__const char *__name) __THROW;
 /* Successive calls return the shells listed in `/etc/shells'.  */
 extern char *getusershell (void) __THROW;
 extern void endusershell (void) __THROW; /* Discard cached info.  */
+libc_hidden_proto(endusershell)
 extern void setusershell (void) __THROW; /* Rewind and re-read the file.  */
+libc_hidden_proto(setusershell)
 
 
 /* Put the program in the background, and dissociate from the controlling
