@@ -110,7 +110,7 @@ int attribute_hidden ___path_search (char *tmpl, size_t tmpl_len, const char *di
 	dlen--;			/* remove trailing slashes */
 
     /* check we have room for "${dir}/${pfx}XXXXXX\0" */
-    if (tmpl_len < dlen + 1 + plen + 6 + 1)
+    if (tmpl_len < (size_t)dlen + 1 + plen + 6 + 1)
     {
 	__set_errno (EINVAL);
 	return -1;
@@ -178,7 +178,7 @@ static void brain_damaged_fillrand(unsigned char *buf, unsigned int len)
    __GT_DIR:            create a directory with given mode.
 
 */
-int __gen_tempname (char *tmpl, int kind, mode_t mode)
+int attribute_hidden __gen_tempname (char *tmpl, int kind, mode_t mode)
 {
     char *XXXXXX;
     unsigned int i;
@@ -196,7 +196,7 @@ int __gen_tempname (char *tmpl, int kind, mode_t mode)
     }
 
     for (i = 0; i < TMP_MAX; ++i) {
-	int j;
+	unsigned char j;
 	/* Get some random data.  */
 	if (fillrand(randomness, sizeof(randomness)) != sizeof(randomness)) {
 	    /* if random device nodes failed us, lets use the braindamaged ver */
