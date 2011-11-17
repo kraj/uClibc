@@ -405,10 +405,13 @@ char *		p_secstodate (u_long) __THROW;
 int		dn_count_labels (const char *) __THROW;
 #endif
 int		dn_skipname (const u_char *, const u_char *) __THROW;
+libc_hidden_proto(dn_skipname)
 int		dn_comp (const char *, u_char *, int, u_char **, u_char **)
      __THROW;
+libc_hidden_proto(dn_comp)
 int		dn_expand (const u_char *, const u_char *, const u_char *,
 			   char *, int) __THROW;
+libc_hidden_proto(dn_expand)
 int		res_ninit (res_state) __THROW;
 void		res_nclose (res_state) __THROW;
 #if 0

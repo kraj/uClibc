@@ -499,6 +499,7 @@ void		ns_put32 (u_long, u_char *) __THROW;
 int		ns_initparse (const u_char *, int, ns_msg *) __THROW;
 int		ns_skiprr (const u_char *, const u_char *, ns_sect, int)
      __THROW;
+libc_hidden_proto(ns_skiprr)
 int		ns_parserr (ns_msg *, ns_sect, int, ns_rr *) __THROW;
 int		ns_sprintrr (const ns_msg *, const ns_rr *,
 			     const char *, const char *, char *, size_t)
@@ -520,12 +521,15 @@ int		ns_name_unpack (const u_char *, const u_char *,
 libc_hidden_proto(ns_name_unpack)
 int		ns_name_pack (const u_char *, u_char *, int,
 			      const u_char **, const u_char **) __THROW;
+libc_hidden_proto(ns_name_pack)
 int		ns_name_uncompress (const u_char *, const u_char *,
 				    const u_char *, char *, size_t) __THROW;
 libc_hidden_proto(ns_name_uncompress)
 int		ns_name_compress (const char *, u_char *, size_t,
 				  const u_char **, const u_char **) __THROW;
+libc_hidden_proto(ns_name_compress)
 int		ns_name_skip (const u_char **, const u_char *) __THROW;
+libc_hidden_proto(ns_name_skip)
 void		ns_name_rollback (const u_char *, const u_char **,
 				  const u_char **) __THROW;
 int		ns_sign (u_char *, int *, int, int, void *,

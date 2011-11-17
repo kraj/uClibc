@@ -2663,6 +2663,7 @@ int dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
 		dst[0] = '\0';
 	return n;
 }
+libc_hidden_def(dn_expand)
 
 /*
  * Pack domain name 'exp_dn' in presentation form into 'comp_dn'.
@@ -2677,6 +2678,7 @@ dn_comp(const char *src, u_char *dst, int dstsiz,
 			(const u_char **) dnptrs,
 			(const u_char **) lastdnptr);
 }
+libc_hidden_def(dn_comp)
 #endif /* L_res_comp */
 
 
@@ -3323,6 +3325,7 @@ cleanup:
 
 	return dstp - dst;
 }
+libc_hidden_def(ns_name_pack)
 
 int ns_name_compress(const char *src,
 					 unsigned char *dst, size_t dstsiz,
@@ -3336,6 +3339,7 @@ int ns_name_compress(const char *src,
 
 	return ns_name_pack(tmp, dst, dstsiz, dnptrs, lastdnptr);
 }
+libc_hidden_def(ns_name_compress)
 
 int ns_name_skip(const unsigned char **ptrptr,
 				 const unsigned char *eom)
@@ -3379,6 +3383,7 @@ int ns_name_skip(const unsigned char **ptrptr,
 
 	return 0;
 }
+libc_hidden_def(ns_name_skip)
 
 int dn_skipname(const unsigned char *ptr, const unsigned char *eom)
 {
@@ -3389,6 +3394,7 @@ int dn_skipname(const unsigned char *ptr, const unsigned char *eom)
 
 	return ptr - saveptr;
 }
+libc_hidden_def(dn_skipname)
 #endif /* L_ns_name */
 
 
@@ -4059,6 +4065,7 @@ int ns_skiprr(const unsigned char *ptr,
 
 	return ptr - optr;
 }
+libc_hidden_def(ns_skiprr)
 
 int
 ns_initparse(const unsigned char *msg, int msglen, ns_msg *handle)
