@@ -118,7 +118,7 @@ export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION ABI_VERSION LC_ALL
 
 LIBC := libc
 SHARED_LIBNAME := $(LIBC).so.$(ABI_VERSION)
-UBACKTRACE_DSO := libubacktrace.so.$(MAJOR_VERSION)
+UBACKTRACE_DSO := libubacktrace.so.$(ABI_VERSION)
 ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 mips64 powerpc64 s390x sparc64 x86_64 ),)
 UCLIBC_LDSO_NAME := ld64-uClibc
 ARCH_NATIVE_BIT := 64
