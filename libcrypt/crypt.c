@@ -12,10 +12,13 @@
 
 char *crypt(const char *key, const char *salt)
 {
+	const unsigned char *ukey = (const unsigned char *)key;
+	const unsigned char *usalt = (const unsigned char *)salt;
+
 	/* First, check if we are supposed to be using the MD5 replacement
 	 * instead of DES...  */
 	if (salt[0]=='$' && salt[1]=='1' && salt[2]=='$')
-		return __md5_crypt((unsigned char*)key, (unsigned char*)salt);
+		return __md5_crypt(ukey, usalt);
 	else
-		return __des_crypt((unsigned char*)key, (unsigned char*)salt);
+		return __des_crypt(ukey, usalt);
 }
