@@ -85,6 +85,7 @@ static __always_inline char *
 __dl_map_segment(Elf32_Ehdr *epnt, Elf32_Phdr *ppnt, int infile, int flags)
 {
 	void *addr;
+	unsigned long sram_flags;
 
 	/* Handle L1 inst mappings */
 	if (((epnt->e_flags & EF_BFIN_CODE_IN_L1) || ppnt->p_vaddr == 0xffa00000) &&
@@ -101,7 +102,8 @@ __dl_map_segment(Elf32_Ehdr *epnt, Elf32_Phdr *ppnt, int infile, int flags)
 		if (addr)
 			_dl_dma_memcpy(addr, status + (ppnt->p_vaddr & ADDR_ALIGN), ppnt->p_filesz);
 		else
-			_dl_dprintf(2, "%s:%i: L1 allocation failed\n", _dl_progname, __LINE__);
+			_dl_dprintf(2, "%s:%s: sram allocation %#x failed\n",
+				_dl_progname, __func__, ppnt->p_vaddr);
 
 		_dl_munmap(status, size);
 		return addr;
@@ -114,28 +116,19 @@ __dl_map_segment(Elf32_Ehdr *epnt, Elf32_Phdr *ppnt, int infile, int flags)
 	     ppnt->p_vaddr == 0xff900000) &&
 	    (ppnt->p_flags & PF_W) && !(ppnt->p_flags & PF_X))
 	{
-		if (ppnt->p_vaddr == 0xff800000)
-			addr = _dl_sram_alloc(ppnt->p_memsz, L1_DATA_A_SRAM);
-		else if (ppnt->p_vaddr == 0xff900000)
-			addr = _dl_sram_alloc(ppnt->p_memsz, L1_DATA_B_SRAM);
-		else
-			addr = _dl_sram_alloc (ppnt->p_memsz, L1_DATA_SRAM);
-
-		if (addr) {
-			if (_DL_PREAD(infile, addr, ppnt->p_filesz, ppnt->p_offset) != ppnt->p_filesz) {
-				_dl_sram_free(addr);
-				return NULL;
-			}
-			if (ppnt->p_filesz < ppnt->p_memsz)
-				_dl_memset(addr + ppnt->p_filesz, 0, ppnt->p_memsz - ppnt->p_filesz);
-		} else
-			_dl_dprintf(2, "%s:%i: L1 allocation failed\n", _dl_progname, __LINE__);
-		return addr;
+		switch (ppnt->p_vaddr) {
+		case 0xff800000: sram_flags = L1_DATA_A_SRAM; break;
+		case 0xff900000: sram_flags = L1_DATA_B_SRAM; break;
+		default:         sram_flags = L1_DATA_SRAM;   break;
+		}
 	}
 
 	/* Handle L2 mappings */
-	if (ppnt->p_vaddr == 0xfeb00000 || ppnt->p_vaddr == 0xfec00000) {
-		addr = _dl_sram_alloc(ppnt->p_memsz, L2_SRAM);
+	if (ppnt->p_vaddr == 0xfeb00000 || ppnt->p_vaddr == 0xfec00000)
+		sram_flags = L2_SRAM;
+
+	if (sram_flags) {
+		addr = _dl_sram_alloc(ppnt->p_memsz, sram_flags);
 		if (addr) {
 			if (_DL_PREAD(infile, addr, ppnt->p_filesz, ppnt->p_offset) != ppnt->p_filesz) {
 				_dl_sram_free(addr);
@@ -144,7 +137,8 @@ __dl_map_segment(Elf32_Ehdr *epnt, Elf32_Phdr *ppnt, int infile, int flags)
 			if (ppnt->p_filesz < ppnt->p_memsz)
 				_dl_memset(addr + ppnt->p_filesz, 0, ppnt->p_memsz - ppnt->p_filesz);
 		} else
-			_dl_dprintf(2, "%s:%i: L2 allocation failed\n", _dl_progname, __LINE__);
+			_dl_dprintf(2, "%s:%s: sram allocation %#x failed\n",
+				_dl_progname, __func__, ppnt->p_vaddr);
 		return addr;
 	}
 
