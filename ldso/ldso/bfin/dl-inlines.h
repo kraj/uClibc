@@ -85,7 +85,7 @@ static __always_inline char *
 __dl_map_segment(Elf32_Ehdr *epnt, Elf32_Phdr *ppnt, int infile, int flags)
 {
 	void *addr;
-	unsigned long sram_flags;
+	unsigned long sram_flags = 0;
 
 	/* Handle L1 inst mappings */
 	if (((epnt->e_flags & EF_BFIN_CODE_IN_L1) || ppnt->p_vaddr == 0xffa00000) &&
