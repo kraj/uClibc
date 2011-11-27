@@ -48,7 +48,7 @@ __asm__(
  * load address.
  */
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB)	\
-	switch(ELF32_R_TYPE((RELP)->r_info)){			\
+	switch(ELF_R_TYPE((RELP)->r_info)){			\
 	case R_SH_REL32:					\
 		*(REL)  = (SYMBOL) + (RELP)->r_addend		\
 			    - (unsigned long)(REL);		\

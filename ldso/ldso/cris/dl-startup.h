@@ -57,7 +57,7 @@ static __always_inline
 void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 	unsigned long symbol_addr, unsigned long load_addr, Elf32_Sym *symtab)
 {
-	switch (ELF32_R_TYPE(rpnt->r_info)) {
+	switch (ELF_R_TYPE(rpnt->r_info)) {
 		case R_CRIS_GLOB_DAT:
 		case R_CRIS_JUMP_SLOT:
 		case R_CRIS_32:

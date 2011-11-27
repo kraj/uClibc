@@ -86,7 +86,7 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 	unsigned long symbol_addr, unsigned long load_addr, attribute_unused Elf32_Sym *symtab)
 {
 
-	switch (ELF32_R_TYPE(rpnt->r_info))
+	switch (ELF_R_TYPE(rpnt->r_info))
 	{
 		case R_MICROBLAZE_REL:
 

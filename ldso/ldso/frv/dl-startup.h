@@ -87,7 +87,7 @@ _dl_boot (void *dl_boot_got_pointer, \
  * load address.
  */
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB) \
-	switch(ELF32_R_TYPE((RELP)->r_info)){				\
+	switch(ELF_R_TYPE((RELP)->r_info)){				\
 	case R_FRV_32:							\
 	  *(REL) += (SYMBOL);						\
 	  break;							\

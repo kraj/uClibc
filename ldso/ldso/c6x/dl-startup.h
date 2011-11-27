@@ -92,7 +92,7 @@ struct elf32_dsbt_loadmap;
  * load address.
  */
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB) \
-	switch(ELF32_R_TYPE((RELP)->r_info)){				\
+	switch(ELF_R_TYPE((RELP)->r_info)){				\
 	case R_C6000_ABS_L16:						\
 	    {								\
 		    unsigned int opcode = *(REL);			\

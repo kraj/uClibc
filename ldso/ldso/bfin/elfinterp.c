@@ -57,7 +57,7 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
 	symtab_index = ELF_R_SYM(this_reloc->r_info);
 
-	symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
+	symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 	sym_ref.sym = &symtab[symtab_index];
 	sym_ref.tpnt = NULL;

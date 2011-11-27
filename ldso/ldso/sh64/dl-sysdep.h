@@ -128,7 +128,7 @@ elf_machine_relative(Elf32_Addr load_off, const Elf32_Addr rel_addr,
 {
 	Elf32_Addr value, word;
 	Elf32_Rela *rpnt = (void *)rel_addr;
-	int reloc_type = ELF32_R_TYPE(rpnt->r_info);
+	int reloc_type = ELF_R_TYPE(rpnt->r_info);
 
 	do {
 		Elf32_Addr *const reloc_addr =

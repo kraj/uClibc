@@ -109,20 +109,20 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 {
 	ELF_RELOC *this_reloc;
 	char *strtab;
-	Elf32_Sym *symtab;
+	ElfW(Sym) *symtab;
 	ELF_RELOC *rel_addr;
 	int symtab_index;
 	char *symname;
-	Elf32_Addr *reloc_addr;
-	Elf32_Addr  finaladdr;
+	ElfW(Addr) *reloc_addr;
+	ElfW(Addr)  finaladdr;
 	Elf32_Sword delta;
 
 	rel_addr = (ELF_RELOC *)tpnt->dynamic_info[DT_JMPREL];
 
 	this_reloc = (void *)rel_addr + reloc_entry;
-	symtab_index = ELF32_R_SYM(this_reloc->r_info);
+	symtab_index = ELF_R_SYM(this_reloc->r_info);
 
-	symtab = (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
+	symtab = (ElfW(Sym) *)tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + symtab[symtab_index].st_name;
 
@@ -130,15 +130,15 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	debug_reloc(symtab,strtab,this_reloc);
 
 	/* Address of dump instruction to fix up */
-	reloc_addr = (Elf32_Addr *) (tpnt->loadaddr + this_reloc->r_offset);
+	reloc_addr = (ElfW(Addr) *) (tpnt->loadaddr + this_reloc->r_offset);
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_reloc && _dl_debug_detail)
-		_dl_dprintf(_dl_debug_file, "\n\tResolving symbol %s %x --> ", symname, (Elf32_Addr)reloc_addr);
+		_dl_dprintf(_dl_debug_file, "\n\tResolving symbol %s %x --> ", symname, (ElfW(Addr))reloc_addr);
 #endif
 
 	/* Get the address of the GOT entry */
-	finaladdr = (Elf32_Addr) _dl_find_hash(symname,
+	finaladdr = (ElfW(Addr)) _dl_find_hash(symname,
 			&_dl_loaded_modules->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT, NULL);
 	if (unlikely(!finaladdr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'.\n", _dl_progname, symname, tpnt->libname);
@@ -183,13 +183,13 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 static __inline__ int
 _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
-	      ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
+	      ELF_RELOC *rpnt, ElfW(Sym) *symtab, char *strtab)
 {
 	int reloc_type;
 	int symtab_index;
 	struct symbol_ref sym_ref;
-	Elf32_Addr *reloc_addr;
-	Elf32_Addr finaladdr;
+	ElfW(Addr) *reloc_addr;
+	ElfW(Addr) finaladdr;
 	struct elf_resolve *tls_tpnt = NULL;
 	unsigned long symbol_addr;
 	char *symname;
@@ -198,9 +198,9 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 #endif
 
 	symbol_addr  = tpnt->loadaddr; /* For R_PPC_RELATIVE */
-	reloc_addr   = (Elf32_Addr *)(intptr_t) (symbol_addr + (unsigned long) rpnt->r_offset);
-	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
-	symtab_index = ELF32_R_SYM(rpnt->r_info);
+	reloc_addr   = (ElfW(Addr) *)(intptr_t) (symbol_addr + (unsigned long) rpnt->r_offset);
+	reloc_type   = ELF_R_TYPE(rpnt->r_info);
+	symtab_index = ELF_R_SYM(rpnt->r_info);
 	sym_ref.sym  = &symtab[symtab_index];
 	sym_ref.tpnt = NULL;
 	symname      = strtab + sym_ref.sym->st_name;
@@ -212,8 +212,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 		 * here, so all bases should be covered.
 		 */
 		if (unlikely(!symbol_addr
-			&& (ELF32_ST_TYPE(sym_ref.sym->st_info) != STT_TLS
-				&& ELF32_ST_BIND(sym_ref.sym->st_info) != STB_WEAK)))
+			&& (ELF_ST_TYPE(sym_ref.sym->st_info) != STT_TLS
+				&& ELF_ST_BIND(sym_ref.sym->st_info) != STB_WEAK)))
 			return 1;
 		if (_dl_trace_prelink) {
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
@@ -227,7 +227,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 #if defined (__SUPPORT_LD_DEBUG__)
 	old_val = *reloc_addr;
 #endif
-	finaladdr = (Elf32_Addr) (symbol_addr + rpnt->r_addend);
+	finaladdr = (ElfW(Addr)) (symbol_addr + rpnt->r_addend);
 
 	switch (reloc_type) {
 	case R_PPC_RELATIVE:
@@ -348,11 +348,11 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	plt = (Elf32_Word *)tpnt->dynamic_info[DT_PLTGOT];
 	if (tpnt->dynamic_info[DT_PPC_GOT_IDX] != 0) {
 		/* Secure PLT */
-		Elf32_Addr *got = (Elf32_Addr *)tpnt->dynamic_info[DT_PPC_GOT_IDX];
+		ElfW(Addr) *got = (ElfW(Addr) *)tpnt->dynamic_info[DT_PPC_GOT_IDX];
 		Elf32_Word dlrr = (Elf32_Word) _dl_linux_resolve;
 
-		got[1] = (Elf32_Addr) dlrr;
-		got[2] = (Elf32_Addr) tpnt;
+		got[1] = (ElfW(Addr)) dlrr;
+		got[2] = (ElfW(Addr)) tpnt;
 
 		/* Relocate everything in .plt by the load address offset.  */
 		while (num_plt_entries-- != 0)
@@ -394,11 +394,11 @@ static __inline__ int
 _dl_parse(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	  unsigned long rel_addr, unsigned long rel_size,
 	  int (*reloc_fnc) (struct elf_resolve *tpnt, struct r_scope_elem *scope,
-			    ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab))
+			    ELF_RELOC *rpnt, ElfW(Sym) *symtab, char *strtab))
 {
 	unsigned int i;
 	char *strtab;
-	Elf32_Sym *symtab;
+	ElfW(Sym) *symtab;
 	ELF_RELOC *rpnt;
 	int symtab_index;
 
@@ -406,13 +406,13 @@ _dl_parse(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	rpnt = (ELF_RELOC *)(intptr_t)rel_addr;
 	rel_size = rel_size / sizeof(ELF_RELOC);
 
-	symtab = (Elf32_Sym *)(intptr_t)tpnt->dynamic_info[DT_SYMTAB];
+	symtab = (ElfW(Sym) *)(intptr_t)tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 
 	  for (i = 0; i < rel_size; i++, rpnt++) {
 	        int res;
 
-		symtab_index = ELF32_R_SYM(rpnt->r_info);
+		symtab_index = ELF_R_SYM(rpnt->r_info);
 
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
@@ -428,7 +428,7 @@ _dl_parse(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 		if (unlikely(res <0))
 		{
-		        int reloc_type = ELF32_R_TYPE(rpnt->r_info);
+		        int reloc_type = ELF_R_TYPE(rpnt->r_info);
 #if defined (__SUPPORT_LD_DEBUG__)
 			_dl_dprintf(2, "can't handle reloc type '%s' in lib '%s'\n", _dl_reltypes(reloc_type), tpnt->libname);
 #else

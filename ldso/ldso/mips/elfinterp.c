@@ -89,7 +89,7 @@ __dl_runtime_pltresolve(struct elf_resolve *tpnt, int reloc_entry)
 {
 	ELF_RELOC *this_reloc;
 	char *strtab;
-	Elf32_Sym *symtab;
+	ElfW(Sym) *symtab;
 	int symtab_index;
 	char *rel_addr;
 	char *new_addr;
@@ -99,9 +99,9 @@ __dl_runtime_pltresolve(struct elf_resolve *tpnt, int reloc_entry)
 
 	rel_addr = (char *)tpnt->dynamic_info[DT_JMPREL];
 	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
-	symtab_index = ELF32_R_SYM(this_reloc->r_info);
+	symtab_index = ELF_R_SYM(this_reloc->r_info);
 
-	symtab = (Elf32_Sym *)(intptr_t)tpnt->dynamic_info[DT_SYMTAB];
+	symtab = (ElfW(Sym) *)(intptr_t)tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + symtab[symtab_index].st_name;
 
@@ -193,7 +193,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 								   scope,
 								   tpnt,
 								   elf_machine_type_class(reloc_type), &sym_ref);
-			if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
+			if (unlikely(!symbol_addr && ELF_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
 				return 1;
 			if (_dl_trace_prelink) {
 				_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
@@ -224,7 +224,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 				sym_ref.sym =  &symtab[symtab_index];
 				sym_ref.tpnt =  NULL;
 
-				if (ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_LOCAL) {
+				if (ELF_ST_BIND(symtab[symtab_index].st_info) != STB_LOCAL) {
 					symbol_addr = (unsigned long) _dl_find_hash(symname, scope,
 						tpnt, elf_machine_type_class(reloc_type), &sym_ref);
 					tls_tpnt = sym_ref.tpnt;
