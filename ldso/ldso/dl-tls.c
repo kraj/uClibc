@@ -663,7 +663,7 @@ allocate_and_init (struct link_map *map)
 	newp = _dl_memalign (map->l_tls_align, map->l_tls_blocksize);
 	if (newp == NULL)
 	{
-		_dl_dprintf(2, "%s:%d: Out of memory!!!\n", __FUNCTION__, __LINE__);
+		_dl_dprintf(2, "%s:%d: Out of memory!!!\n", __func__, __LINE__);
 		_dl_exit(1);
 	}
 

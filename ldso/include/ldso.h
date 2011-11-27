@@ -102,7 +102,7 @@ extern char *_dl_debug_nofixups;
 extern char *_dl_debug_bindings;
 extern int   _dl_debug_file;
 # define __dl_debug_dprint(fmt, args...) \
-	_dl_dprintf(_dl_debug_file, "%s:%i: " fmt, __FUNCTION__, __LINE__, ## args);
+	_dl_dprintf(_dl_debug_file, "%s:%i: " fmt, __func__, __LINE__, ## args);
 # define _dl_if_debug_dprint(fmt, args...) \
 	do { if (_dl_debug) __dl_debug_dprint(fmt, ## args); } while (0)
 #else

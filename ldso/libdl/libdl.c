@@ -131,7 +131,7 @@ size_t _dl_tls_static_size = 2048;
 # define _dl_if_debug_print(fmt, args...) \
 	do { \
 	if (_dl_debug) \
-		fprintf(stderr, "%s():%i: " fmt, __FUNCTION__, __LINE__, ## args); \
+		fprintf(stderr, "%s():%i: " fmt, __func__, __LINE__, ## args); \
 	} while (0)
 #else
 # define _dl_if_debug_print(fmt, args...)
