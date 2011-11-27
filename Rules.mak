@@ -93,7 +93,6 @@ endif
 export ARCH
 
 # Make certain these contain a final "/", but no "//"s.
-TARGET_SUBARCH:=$(call qstrip,$(shell grep -s '^TARGET_SUBARCH' $(top_builddir)/.config | $(SED) -e 's/^TARGET_SUBARCH=//'))
 TARGET_SUBARCH:=$(call qstrip,$(TARGET_SUBARCH))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(RUNTIME_PREFIX)))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(DEVEL_PREFIX)))))
