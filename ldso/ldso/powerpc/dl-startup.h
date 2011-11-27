@@ -73,7 +73,7 @@ __asm__(
  * load address.
  */
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB) \
-	{int type=ELF32_R_TYPE((RELP)->r_info);		\
+	{int type=ELF_R_TYPE((RELP)->r_info);		\
 	 Elf32_Addr finaladdr=(SYMBOL)+(RELP)->r_addend;\
 	if (type==R_PPC_RELATIVE) {			\
 		*REL=(Elf32_Word)(LOAD)+(RELP)->r_addend;\
@@ -84,6 +84,6 @@ __asm__(
 		*REL=OPCODE_B(delta);			\
 		PPC_DCBST(REL); PPC_SYNC; PPC_ICBI(REL);\
 	} else {					\
-		_dl_exit(100+ELF32_R_TYPE((RELP)->r_info));\
+		_dl_exit(100+ELF_R_TYPE((RELP)->r_info));\
 	}						\
 	}

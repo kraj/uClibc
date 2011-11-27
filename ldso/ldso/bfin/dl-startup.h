@@ -108,7 +108,7 @@ _dl_start (Elf32_Addr dl_boot_got_pointer, \
  * load address.
  */
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB) \
-	switch(ELF32_R_TYPE((RELP)->r_info)){				\
+	switch(ELF_R_TYPE((RELP)->r_info)){				\
 	case R_BFIN_BYTE4_DATA:							\
 	  *(REL) += (SYMBOL);						\
 	  break;							\

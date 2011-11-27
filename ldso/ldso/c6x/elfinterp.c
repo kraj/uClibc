@@ -61,7 +61,7 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
 	symtab_index = ELF_R_SYM(this_reloc->r_info);
 
-	symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
+	symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + symtab[symtab_index].st_name;
 
@@ -99,11 +99,11 @@ static int
 _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  unsigned long rel_addr, unsigned long rel_size,
 	  int (*reloc_fnc) (struct elf_resolve *tpnt, struct dyn_elf *scope,
-			    ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab))
+			    ELF_RELOC *rpnt, ElfW(Sym) *symtab, char *strtab))
 {
 	unsigned int i;
 	char *strtab;
-	Elf32_Sym *symtab;
+	ElfW(Sym) *symtab;
 	ELF_RELOC *rpnt;
 	int symtab_index;
 
@@ -111,13 +111,13 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	rpnt = (ELF_RELOC *)rel_addr;
 	rel_size = rel_size / sizeof(ELF_RELOC);
 
-	symtab = (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
+	symtab = (ElfW(Sym) *)tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 	        int res;
 
-		symtab_index = ELF32_R_SYM(rpnt->r_info);
+		symtab_index = ELF_R_SYM(rpnt->r_info);
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
 
@@ -131,7 +131,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			_dl_dprintf(2, "symbol '%s': ", strtab + symtab[symtab_index].st_name);
 
 		if (res <0) {
-		        int reloc_type = ELF32_R_TYPE(rpnt->r_info);
+		        int reloc_type = ELF_R_TYPE(rpnt->r_info);
 #if defined (__SUPPORT_LD_DEBUG__)
 			_dl_dprintf(2, "can't handle reloc type %s\n ", _dl_reltypes(reloc_type));
 #else
@@ -149,7 +149,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 static int
 _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
-	      ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
+	      ELF_RELOC *rpnt, ElfW(Sym) *symtab, char *strtab)
 {
 	int reloc_type;
 	int symtab_index;
@@ -162,13 +162,13 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	reloc_addr = (unsigned long *)(intptr_t)
 		DL_RELOC_ADDR (tpnt->loadaddr, rpnt->r_offset);
 
-	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
+	reloc_type   = ELF_R_TYPE(rpnt->r_info);
 	reloc_addend = rpnt->r_addend;
-	symtab_index = ELF32_R_SYM(rpnt->r_info);
+	symtab_index = ELF_R_SYM(rpnt->r_info);
 	symbol_addr  = 0;
 	symname      = strtab + symtab[symtab_index].st_name;
 
-	if (ELF32_ST_BIND (symtab[symtab_index].st_info) == STB_LOCAL) {
+	if (ELF_ST_BIND (symtab[symtab_index].st_info) == STB_LOCAL) {
 		symbol_addr = (unsigned long)
 			DL_RELOC_ADDR (tpnt->loadaddr, symtab[symtab_index].st_value);
 	} else {
@@ -181,7 +181,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		 * here, so all bases should be covered.
 		 */
 
-		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK) {
+		if (!symbol_addr && ELF_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK) {
 			_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
 				     _dl_progname, strtab + symtab[symtab_index].st_name);
 			_dl_exit (1);
