@@ -173,6 +173,48 @@ check_ld=$(shell \
 	if $(LD) $(1) -o /dev/null -b binary /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; fi)
 
+# Use variable indirection here so that we can have variable
+# names with fun chars in them like equal signs
+define check-tool-var
+_v = $(2)_$(3)
+ifndef $$(_v)
+$$(_v) := $$(call $(1),$(subst %, ,$(3)))
+export $$(_v)
+endif
+endef
+
+# Usage: check-gcc-var,<flag>
+# Check the C compiler to see if it supports <flag>.
+# Export the variable CFLAG_<flag> if it does.
+define check-gcc-var
+$(call check-tool-var,check_gcc,CFLAG,$(1))
+endef
+# Usage: check-as-var,<flag>
+# Check the assembler to see if it supports <flag>.  Export the
+# variable ASFLAG_<flag> if it does (for invoking the assembler),
+# as well CFLAG_-Wa<flag> (for invoking the compiler driver).
+define check-as-var
+$(call check-tool-var,check_as,ASFLAG,$(1))
+export CFLAG_-Wa$(1) = $$(if $$(ASFLAG_$(1)),-Wa$(comma)$$(ASFLAG_$(1)))
+endef
+# Usage: check-ld-var,<flag>
+# Check the linker to see if it supports <flag>.  Export the
+# variable LDFLAG_<flag> if it does (for invoking the linker),
+# as well CFLAG_-Wl<flag> (for invoking the compiler driver).
+define check-ld-var
+$(call check-tool-var,check_ld,LDFLAG,$(1))
+export CFLAG_-Wl$(1) = $$(if $$(LDFLAG_$(1)),-Wl$(comma)$$(LDFLAG_$(1)))
+endef
+# Usage: cache-output-var,<variable>,<shell command>
+# Execute <shell command> and cache the output in <variable>.
+define cache-output-var
+ifndef $(1)
+$(1) := $$(shell $(2))
+export $(1)
+endif
+endef
+
+
 ARFLAGS:=cr
 
 
@@ -180,24 +222,37 @@ ARFLAGS:=cr
 
 OPTIMIZATION:=
 # Use '-Os' optimization if available, else use -O2, allow Config to override
-OPTIMIZATION+=$(call check_gcc,-Os,-O2)
+$(eval $(call check-gcc-var,-Os))
+ifneq ($(CFLAG_-Os),)
+OPTIMIZATION += $(CFLAG_-Os)
+else
+$(eval $(call check-gcc-var,-O2))
+OPTIMIZATION += $(CFLAG_-O2)
+endif
 # Use the gcc 3.4 -funit-at-a-time optimization when available
-OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
+$(eval $(call check-gcc-var,-funit-at-a-time))
+OPTIMIZATION += $(CFLAG_-funit-at-a-time)
 # shrinks code by about 0.1%
-OPTIMIZATION+=$(call check_gcc,-fmerge-all-constants)
-OPTIMIZATION+=$(call check_gcc,-fstrict-aliasing)
+$(eval $(call check-gcc-var,-fmerge-all-constants))
+$(eval $(call check-gcc-var,-fstrict-aliasing))
+OPTIMIZATION += $(CFLAG_-fmerge-all-constants) $(CFLAG_-fstrict-aliasing)
 
-GCC_MAJOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1)
-#GCC_MINOR_VER?=$(shell $(CC) -dumpversion | cut -d . -f 2)
+$(eval $(call cache-output-var,GCC_VER,$(CC) -dumpversion))
+GCC_VER := $(subst ., ,$(GCC_VER))
+GCC_MAJOR_VER ?= $(word 1,$(GCC_VER))
+#GCC_MINOR_VER ?= $(word 2,$(GCC_VER))
 
 ifeq ($(GCC_MAJOR_VER),4)
 # shrinks code, results are from 4.0.2
 # 0.36%
-OPTIMIZATION+=$(call check_gcc,-fno-tree-loop-optimize,)
+$(eval $(call check-gcc-var,-fno-tree-loop-optimize))
+OPTIMIZATION += $(CFLAG_-fno-tree-loop-optimize)
 # 0.34%
-OPTIMIZATION+=$(call check_gcc,-fno-tree-dominator-opts,)
+$(eval $(call check-gcc-var,-fno-tree-dominator-opts))
+OPTIMIZATION += $(CFLAG_-fno-tree-dominator-opts)
 # 0.1%
-OPTIMIZATION+=$(call check_gcc,-fno-strength-reduce,)
+$(eval $(call check-gcc-var,-fno-strength-reduce))
+OPTIMIZATION += $(CFLAG_-fno-strength-reduce)
 endif
 
 
@@ -208,7 +263,8 @@ endif
 # sign extension of 'char' type for 10 hours straight. Not fun.
 CPU_CFLAGS-y := -funsigned-char -fno-builtin
 
-CPU_CFLAGS-y += $(call check_gcc,-fno-asm,)
+$(eval $(call check-gcc-var,-fno-asm))
+CPU_CFLAGS-y += $(CFLAG_-fno-asm)
 
 LDADD_LIBFLOAT=
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
@@ -231,7 +287,8 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 endif
 
-CPU_CFLAGS-y += $(call check_gcc,-std=gnu99,)
+$(eval $(call check-gcc-var,-std=gnu99))
+CPU_CFLAGS-y += $(CFLAG_-std=gnu99)
 
 CPU_CFLAGS-$(UCLIBC_FORMAT_SHARED_FLAT) += -mid-shared-library
 CPU_CFLAGS-$(UCLIBC_FORMAT_FLAT_SEP_DATA) += -msep-data
@@ -247,7 +304,8 @@ PIEFLAG_NAME:=-fPIE
 
 # Some nice CPU specific optimizations
 ifeq ($(TARGET_ARCH),i386)
-	OPTIMIZATION+=$(call check_gcc,-fomit-frame-pointer,)
+$(eval $(call check-gcc-var,-fomit-frame-pointer))
+	OPTIMIZATION += $(CFLAG_-fomit-frame-pointer)
 
 ifeq ($(CONFIG_386)$(CONFIG_486)$(CONFIG_586)$(CONFIG_586MMX),y)
 	# Non-SSE capable processor.
@@ -257,7 +315,8 @@ ifeq ($(CONFIG_386)$(CONFIG_486)$(CONFIG_586)$(CONFIG_586MMX),y)
 	# -m32 is needed if host is 64-bit
 	OPTIMIZATION+=$(call check_gcc,-m32 -mpreferred-stack-boundary=2,)
 else
-	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=4,)
+$(eval $(call check-gcc-var,-mpreferred-stack-boundary=4))
+	OPTIMIZATION += $(CFLAG_-mpreferred-stack-boundary=4)
 endif
 
 	# Choice of alignment (please document why!)
@@ -296,13 +355,10 @@ endif
 	# It specifies 4 byte align for .text even if not told to do so:
 	# Idx Name          Size      VMA       LMA       File off  Algn
 	#   0 .text         xxxxxxxx  00000000  00000000  xxxxxxxx  2**2 <===!
-	CPU_CFLAGS-y  += $(call check_gcc,-ffunction-sections -fdata-sections,)
-ifneq ($(call check_ld,--sort-common),)
-	CPU_LDFLAGS-y += -Wl,--sort-common
-endif
-ifneq ($(call check_ld,--sort-section alignment),)
-	CPU_LDFLAGS-y += -Wl,--sort-section,alignment
-endif
+	CPU_CFLAGS-y  += $(CFLAG_-ffunction-sections) $(CFLAG_-fdata-sections)
+	CPU_LDFLAGS-y += $(CFLAG_-Wl--sort-common)
+$(eval $(call check-ld-var,--sort-section%alignment))
+	CPU_LDFLAGS-y += $(CFLAG_-Wl--sort-section%alignment)
 
 	CPU_LDFLAGS-y+=-m32
 	CPU_CFLAGS-y+=-m32
@@ -366,7 +422,8 @@ ifeq ($(TARGET_ARCH),nios)
 endif
 
 ifeq ($(TARGET_ARCH),sh)
-	OPTIMIZATION+= $(call check_gcc,-mprefergot,)
+$(eval $(call check-gcc-var,-mprefergot))
+	OPTIMIZATION += $(CFLAG_-mprefergot)
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-ml
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mb
 	CPU_CFLAGS-$(CONFIG_SH2)+=-m2
@@ -476,17 +533,16 @@ ifeq ($(TARGET_ARCH),c6x)
 	CPU_LDFLAGS-y += $(CPU_CFLAGS)
 endif
 
-# Keep the check_gcc from being needlessly executed
-ifndef PIEFLAG
-export PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),$(PICFLAG))
+$(eval $(call check-gcc-var,$(PIEFLAG_NAME)))
+PIEFLAG := $(CFLAG_$(PIEFLAG_NAME))
+ifeq ($(PIEFLAG),)
+PIEFLAG := $(PICFLAG)
 endif
 # We need to keep track of both the CC PIE flag (above) as
 # well as the LD PIE flag (below) because we can't rely on
 # gcc passing -pie if we used -fPIE. We need to directly use -pie
 # instead of -Wl,-pie as gcc picks up the wrong startfile/endfile
-ifndef LDPIEFLAG
-export LDPIEFLAG:=$(shell $(LD) --help 2>/dev/null | grep -q -- -pie && echo "-pie")
-endif
+$(eval $(call cache-output-var,LDPIEFLAG,$(LD) --help 2>/dev/null | grep -q -- -pie && echo "-pie"))
 
 # Check for --as-needed support in linker
 ifndef LD_FLAG_ASNEEDED
@@ -525,13 +581,9 @@ endif
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
-XWARNINGS=$(call qstrip,$(WARNINGS))
-XWARNINGS+=$(foreach w,\
-	-Wstrict-prototypes \
-	-Wstrict-aliasing \
-	, $(call check_gcc,$(w),))
+WARNING_FLAGS = -Wstrict-prototypes -Wstrict-aliasing
 ifeq ($(EXTRA_WARNINGS),y)
-XWARNINGS+=$(foreach w,\
+WARNING_FLAGS += \
 	-Wformat=2 \
 	-Wmissing-noreturn \
 	-Wmissing-format-attribute \
@@ -542,23 +594,32 @@ XWARNINGS+=$(foreach w,\
 	-Wold-style-declaration \
 	-Wold-style-definition \
 	-Wshadow \
-	-Wundef \
-	, $(call check_gcc,$(w),))
+	-Wundef
 # Works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
-#XWARNINGS+=-Wdeclaration-after-statement
+WARNING_FLAGS-gcc-4 += -Wdeclaration-after-statement
 endif
+WARNING_FLAGS += $(WARNING_FLAGS-gcc-$(GCC_MAJOR_VER))
+$(foreach w,$(WARNING_FLAGS),$(eval $(call check-gcc-var,$(w))))
+XWARNINGS = $(call qstrip,$(WARNINGS)) $(foreach w,$(WARNING_FLAGS),$(CFLAG_$(w)))
+
 CPU_CFLAGS=$(call qstrip,$(CPU_CFLAGS-y))
 
-SSP_DISABLE_FLAGS ?= $(call check_gcc,-fno-stack-protector,)
+# Save the tested flag in a single variable and force it to be
+# evaluated just once.  Then use that computed value.
+$(eval $(call check-gcc-var,-fno-stack-protector))
+SSP_DISABLE_FLAGS ?= $(CFLAG_-fno-stack-protector)
 ifeq ($(UCLIBC_BUILD_SSP),y)
-SSP_CFLAGS := $(call check_gcc,-fno-stack-protector-all,)
-SSP_CFLAGS += $(call check_gcc,-fstack-protector,)
-SSP_ALL_CFLAGS ?= $(call check_gcc,-fstack-protector-all,)
+$(eval $(call check-gcc-var,-fno-stack-protector-all))
+$(eval $(call check-gcc-var,-fstack-protector))
+$(eval $(call check-gcc-var,-fstack-protector-all))
+SSP_CFLAGS := $(CFLAG_-fno-stack-protector-all)
+SSP_CFLAGS += $(CFLAG_-fstack-protector)
+SSP_ALL_CFLAGS ?= $(CFLAG_-fstack-protector-all)
 else
 SSP_CFLAGS := $(SSP_DISABLE_FLAGS)
 endif
 
-NOSTDLIB_CFLAGS:=$(call check_gcc,-nostdlib,)
+$(eval $(call check-gcc-var,-nostdlib))
 
 # Collect all CFLAGS components
 CFLAGS := -include $(top_srcdir)include/libc-symbols.h \
@@ -572,13 +633,17 @@ ifneq ($(HAVE_SHARED),y)
 CFLAGS += -DSTATIC
 endif
 
-LDFLAG_WARN_ONCE:=$(if $(call check_ld,--warn-once),-Wl$(comma)--warn-once)
-LDFLAG_SORT_COMMON:=$(if $(call check_ld,--sort-common),-Wl$(comma)--sort-common)
-LDFLAG_DISCARD_ALL:=$(if $(call check_ld,--discard-all),-Wl$(comma)--discard-all)
+$(eval $(call check-ld-var,--warn-once))
+$(eval $(call check-ld-var,--sort-common))
+$(eval $(call check-ld-var,--discard-all))
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared \
-	-Wl,--warn-common $(LDFLAG_WARN_ONCE) -Wl,-z,combreloc
+	-Wl,--warn-common $(CFLAG_-Wl--warn-once) -Wl,-z,combreloc
 # binutils-2.16.1 warns about ignored sections, 2.16.91.0.3 and newer are ok
-#LDFLAGS_NOSTRIP+=$(call check_ld,--gc-sections)
+#$(eval $(call check-ld-var,--gc-sections))
+#LDFLAGS_NOSTRIP += $(LDFLAG_--gc-sections)
+
+$(eval $(call check-gcc-var,-fdata-sections))
+$(eval $(call check-gcc-var,-ffunction-sections))
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS_NOSTRIP+=-Wl,-z,relro
@@ -590,13 +655,13 @@ endif
 
 ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
 # Be sure that binutils support it
-LDFLAGS_GNUHASH:=$(call check_ld,--hash-style=gnu)
-ifeq ($(LDFLAGS_GNUHASH),)
+$(eval $(call check-ld-var,--hash-style=gnu))
+ifeq ($(LDFLAG_--hash-style=gnu),)
 ifneq ($(filter-out $(clean_targets) install_headers headers-y,$(MAKECMDGOALS)),)
 $(error Your binutils do not support --hash-style option, while you want to use it)
 endif
 else
-LDFLAGS_NOSTRIP += -Wl,$(LDFLAGS_GNUHASH)
+LDFLAGS_NOSTRIP += $(CFLAG_-Wl--hash-style=gnu)
 endif
 endif
 
@@ -624,7 +689,8 @@ ifeq ($(DOMULTI),y)
 ifeq ($(GCC_MAJOR_VER),3)
 DOMULTI:=n
 else
-CFLAGS+=$(call check_gcc,--combine,)
+$(eval $(call check-gcc-var,--combine))
+CFLAGS += $(CFLAG_--combine)
 endif
 else
 DOMULTI:=n
@@ -696,7 +762,7 @@ CFLAGS += -I$(top_srcdir)libc/sysdeps/linux/common
 CFLAGS += -I$(KERNEL_HEADERS)
 
 #CFLAGS += -iwithprefix include-fixed -iwithprefix include
-CC_IPREFIX := $(shell $(CC) --print-file-name=include)
+$(eval $(call cache-output-var,CC_IPREFIX,$(CC) --print-file-name=include))
 CC_INC := -isystem $(dir $(CC_IPREFIX))include-fixed -isystem $(CC_IPREFIX)
 CFLAGS += $(CC_INC)
 
@@ -709,17 +775,13 @@ CFLAGS+=-D__UCLIBC_UNDERSCORES__
 endif
 
 # Keep the check_as from being needlessly executed
-ifndef ASFLAGS_NOEXEC
 ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
-export ASFLAGS_NOEXEC := $(call check_as,--noexecstack)
-else
-export ASFLAGS_NOEXEC :=
+$(eval $(call check-as-var,--noexecstack))
 endif
-endif
-ASFLAGS = $(ASFLAGS_NOEXEC)
+ASFLAGS = $(ASFLAG_--noexecstack)
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
-LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
+$(eval $(call cache-output-var,LIBGCC,$(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name))
 LIBGCC_DIR:=$(dir $(LIBGCC))
 
 # moved from libpthread/linuxthreads

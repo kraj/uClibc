@@ -57,7 +57,8 @@ endif
 endif
 
 XCOMMON_CFLAGS := -I$(top_builddir)test -D_GNU_SOURCE
-XWARNINGS      += $(call check_gcc,-Wstrict-prototypes,)
+CFLAG_-Wstrict-prototypes ?= $(call check_gcc,-Wstrict-prototypes,)
+XWARNINGS      += $(CFLAG_-Wstrict-prototypes)
 CFLAGS         := -nostdinc -I$(top_builddir)$(LOCAL_INSTALL_PATH)/usr/include
 CFLAGS         += $(XCOMMON_CFLAGS) $(KERNEL_INCLUDES) $(CC_INC)
 CFLAGS         += $(OPTIMIZATION) $(CPU_CFLAGS) $(XWARNINGS)

@@ -308,7 +308,7 @@ define link.so
 	@$(disp_ld)
 	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) $(LDFLAGS-y-$(@F)) \
 		-Wl,-soname=$(notdir $@).$(2) \
-		$(NOSTDLIB_CFLAGS) -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
+		$(CFLAG_-nostdlib) -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
 		-Wl,--whole-archive $(firstword $^) -Wl,--no-whole-archive \
 		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
 	$(Q)$(LN) -sf $(1) $@.$(2)
@@ -333,7 +333,7 @@ LINK_FLAT_CRTS := $(top_builddir)lib/Scrt1.o $(top_builddir)lib/crti.o \
 define link-flat.so
 	$(Q)$(RM) $(1) $@
 	@$(disp_ld)
-	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) $(NOSTDLIB_CFLAGS) -o $(1) \
+	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) $(CFLAG_-nostdlib) -o $(1) \
 		-Wl,-elf2flt -Wl,-shared-lib-id,$(2) $(top_builddir)lib/Scrt1.o \
 		$(top_builddir)/lib/crti.o -Wl,--whole-archive $(firstword $^) \
 		$(LIBGCC) -Wl,--no-whole-archive $(LIBS-$(notdir $@)) $(LIBGCC) \
@@ -345,7 +345,7 @@ define linkm.so
 	$(do_strip)
 	@$(disp_ld)
 	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) -Wl,-soname=$(notdir $@).$(2) \
-		$(NOSTDLIB_CFLAGS) -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
+		$(CFLAG_-nostdlib) -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
 		$^ \
 		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
 	$(Q)$(LN) -sf $(1) $@.$(2)
