@@ -72,25 +72,12 @@ _dl_boot (void *dl_boot_got_pointer, \
 	  struct funcdesc_value *dl_main_funcdesc, \
 	  X)
 
-struct elf32_fdpic_loadmap;
-
 /*
  * Get a pointer to the argv array.  On many platforms this can be just
  * the address of the first argument, on other platforms we need to
  * do something a little more subtle here.
  */
 #define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned long*) ARGS)
-
-/*
- * Compute the GOT address.  On several platforms, we use assembly
- * here.  on FR-V FDPIC, there's no way to compute the GOT address,
- * since the offset between text and data is not fixed, so we arrange
- * for the assembly _dl_boot to pass this value as an argument to
- * _dl_boot.  */
-#define DL_BOOT_COMPUTE_GOT(got) ((got) = dl_boot_got_pointer)
-
-#define DL_BOOT_COMPUTE_DYN(dpnt, got, load_addr) \
-  ((dpnt) = dl_boot_ldso_dyn_pointer)
 
 /*
  * Here is a macro to perform a relocation.  This is only used when

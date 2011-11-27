@@ -20,19 +20,6 @@
 
 #define DL_NO_COPY_RELOCS
 
-/*
- * Initialization sequence for a GOT.  Copy the resolver function
- * descriptor and the pointer to the elf_resolve/link_map data
- * structure.  Initialize the got_value in the module while at that.
- */
-#define INIT_GOT(GOT_BASE,MODULE) \
-{				\
-  (MODULE)->loadaddr.got_value = (GOT_BASE); \
-  GOT_BASE[0] = ((unsigned long *)&_dl_linux_resolve)[0]; \
-  GOT_BASE[1] = ((unsigned long *)&_dl_linux_resolve)[1]; \
-  GOT_BASE[2] = (unsigned long) MODULE; \
-}
-
 /* Here we define the magic numbers that this dynamic loader should accept */
 #define MAGIC1 EM_CYGNUS_FRV
 #undef  MAGIC2
@@ -43,18 +30,7 @@
 /* Need bootstrap relocations */
 #define ARCH_NEEDS_BOOTSTRAP_RELOCS
 
-struct elf_resolve;
-
-struct funcdesc_value
-{
-  void *entry_point;
-  void *got_value;
-} __attribute__((__aligned__(8)));
-
-
 extern int _dl_linux_resolve(void) __attribute__((__visibility__("hidden")));
-
-struct funcdesc_ht;
 
 /* We must force strings used early in the bootstrap into the data
    segment, such that they are referenced with GOTOFF instead of
@@ -64,53 +40,8 @@ struct funcdesc_ht;
 #define SEND_EARLY_STDERR(S) \
   do { static char __s[] = (S); SEND_STDERR (__s); } while (0)
 
-#define DL_LOADADDR_TYPE struct elf32_fdpic_loadaddr
-
 #define DL_RELOC_ADDR(ADDR, LOADADDR) \
   (__reloc_pointer ((void*)(ADDR), (LOADADDR).map))
-
-#define DL_ADDR_TO_FUNC_PTR(ADDR, LOADADDR) \
-  ((void(*)(void)) _dl_funcdesc_for ((void*)(ADDR), (LOADADDR).got_value))
-
-#define _dl_stabilize_funcdesc(val) \
-  ({ __asm__ ("" : "+m" (*(val))); (val); })
-
-#define DL_CALL_FUNC_AT_ADDR(ADDR, LOADADDR, SIGNATURE, ...) \
-  ({ struct funcdesc_value fd = { (void*)(ADDR), (LOADADDR).got_value }; \
-     void (*pf)(void) = (void*) _dl_stabilize_funcdesc (&fd); \
-     (* SIGNATURE pf)(__VA_ARGS__); })
-
-#define DL_INIT_LOADADDR_BOOT(LOADADDR, BASEADDR) \
-  (__dl_init_loadaddr_map (&(LOADADDR), dl_boot_got_pointer, \
-			   dl_boot_ldsomap ?: dl_boot_progmap))
-
-#define DL_INIT_LOADADDR_PROG(LOADADDR, BASEADDR) \
-  (__dl_init_loadaddr_map (&(LOADADDR), 0, dl_boot_progmap))
-
-#define DL_INIT_LOADADDR_EXTRA_DECLS \
-  int dl_init_loadaddr_load_count;
-#define DL_INIT_LOADADDR(LOADADDR, BASEADDR, PHDR, PHDRCNT) \
-  (dl_init_loadaddr_load_count = \
-     __dl_init_loadaddr (&(LOADADDR), (PHDR), (PHDRCNT)))
-#define DL_INIT_LOADADDR_HDR(LOADADDR, ADDR, PHDR) \
-  (__dl_init_loadaddr_hdr ((LOADADDR), (ADDR), (PHDR), \
-			   dl_init_loadaddr_load_count))
-#define DL_UPDATE_LOADADDR_HDR(LOADADDR, ADDR, PHDR) \
-  (__dl_update_loadaddr_hdr ((LOADADDR), (ADDR), (PHDR)))
-#define DL_LOADADDR_UNMAP(LOADADDR, LEN) \
-  (__dl_loadaddr_unmap ((LOADADDR), (NULL)))
-#define DL_LIB_UNMAP(LIB, LEN) \
-  (__dl_loadaddr_unmap ((LIB)->loadaddr, (LIB)->funcdesc_ht))
-#define DL_LOADADDR_BASE(LOADADDR) \
-  ((LOADADDR).got_value)
-
-/* This is called from dladdr(), such that we map a function
-   descriptor's address to the function's entry point before trying to
-   find in which library it's defined.  */
-#define DL_LOOKUP_ADDRESS(ADDRESS) (_dl_lookup_address (ADDRESS))
-
-#define DL_ADDR_IN_LOADADDR(ADDR, TPNT, TFROM) \
-  (! (TFROM) && __dl_addr_in_loadaddr ((void*)(ADDR), (TPNT)->loadaddr))
 
 /* Make sure we only load libraries that use the same number of
    general-purpose and floating-point registers the dynamic loader was
@@ -153,38 +84,4 @@ do \
 } \
 while (0)
 
-/* We want want to apply all relocations in the interpreter during
-   bootstrap.  Because of this, we have to skip the interpreter
-   relocations in _dl_parse_relocation_information(), see
-   elfinterp.c.  */
-#define DL_SKIP_BOOTSTRAP_RELOC(SYMTAB, INDEX, STRTAB) 0
-
-#ifdef __NR_pread
-#define _DL_PREAD(FD, BUF, SIZE, OFFSET) \
-  (_dl_pread((FD), (BUF), (SIZE), (OFFSET)))
-#endif
-
-/* We want to return to dlsym() a function descriptor if the symbol
-   turns out to be a function.  */
-#define DL_FIND_HASH_VALUE(TPNT, TYPE_CLASS, SYM) \
-  (((TYPE_CLASS) & ELF_RTYPE_CLASS_DLSYM) \
-   && ELF32_ST_TYPE((SYM)->st_info) == STT_FUNC \
-   ? _dl_funcdesc_for (DL_RELOC_ADDR ((SYM)->st_value, (TPNT)->loadaddr),    \
- 		       (TPNT)->loadaddr.got_value)			     \
-   : DL_RELOC_ADDR ((SYM)->st_value, (TPNT)->loadaddr))
-
-#define DL_GET_READY_TO_RUN_EXTRA_PARMS \
-  , struct elf32_fdpic_loadmap *dl_boot_progmap
-#define DL_GET_READY_TO_RUN_EXTRA_ARGS \
-  , dl_boot_progmap
-
-
-
-
-#ifdef __USE_GNU
-# include <link.h>
-#else
-# define __USE_GNU
-# include <link.h>
-# undef __USE_GNU
-#endif
+#include "../fdpic/dl-sysdep.h"

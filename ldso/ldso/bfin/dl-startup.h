@@ -93,8 +93,6 @@ _dl_start (Elf32_Addr dl_boot_got_pointer, \
 	   struct funcdesc_value *dl_main_funcdesc, \
 	   X)
 
-struct elf32_fdpic_loadmap;
-
 /*
  * Get a pointer to the argv array.  On many platforms this can be just
  * the address of the first argument, on other platforms we need to
