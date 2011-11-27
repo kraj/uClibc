@@ -74,6 +74,8 @@ libc_hidden_proto(__chk_fail)
 
 #endif /* __ASSEMBLER__ */
 
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
 /* Some people like to build up uClibc with *-elf toolchains, so
  * a little grease here until we drop '#ifdef __linux__' checks
  * from our source code.

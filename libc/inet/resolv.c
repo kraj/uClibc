@@ -352,9 +352,6 @@ Domain name in a message can be represented as either:
 #define DPRINTF(X,args...)
 #endif
 
-#undef ARRAY_SIZE
-#define ARRAY_SIZE(v) (sizeof(v) / sizeof((v)[0]))
-
 /* Make sure the incoming char * buffer is aligned enough to handle our random
  * structures.  This define is the same as we use for malloc alignment (which
  * has same requirements).  The offset is the number of bytes we need to adjust
