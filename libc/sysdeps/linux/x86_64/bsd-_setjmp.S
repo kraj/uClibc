@@ -21,9 +21,11 @@
    We cannot do it in C because it must be a tail-call, so frame-unwinding
    in setjmp doesn't clobber the state restored by longjmp.  */
 
+#include <sysdep.h>
+
 .global _setjmp
 .type   _setjmp,%function
 _setjmp:
 	xorq %rsi, %rsi
-	jmp __sigsetjmp@PLT
+	jmp HIDDEN_JUMPTARGET(__sigsetjmp)
 .size _setjmp,.-_setjmp

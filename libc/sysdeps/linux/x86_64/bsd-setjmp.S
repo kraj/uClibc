@@ -20,10 +20,11 @@
 #define _ASM
 #define _SETJMP_H
 #include <bits/setjmp.h>
+#include <sysdep.h>
 
 .global setjmp
 .type   setjmp,%function
 setjmp:
 	movq $1, %rsi
-	jmp __sigsetjmp@PLT
+	jmp HIDDEN_JUMPTARGET(__sigsetjmp)
 .size setjmp,.-setjmp

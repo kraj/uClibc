@@ -20,6 +20,7 @@
 #define _ASM
 #define _SETJMP_H
 #include <bits/setjmp.h>
+#include <sysdep.h>
 
 .global __sigsetjmp
 .type   __sigsetjmp,%function
@@ -43,3 +44,4 @@ __sigsetjmp:
 	jmp __sigjmp_save
 #endif
 .size __sigsetjmp,.-__sigsetjmp
+libc_hidden_def(__sigsetjmp)
