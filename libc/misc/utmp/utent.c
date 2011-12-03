@@ -146,6 +146,7 @@ struct utmp *getutid(const struct utmp *utmp_entry)
     return ret;
 }
 #endif
+libc_hidden_def(getutid)
 
 struct utmp *getutline(const struct utmp *utmp_entry)
 {
