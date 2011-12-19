@@ -8,17 +8,35 @@
 #define __FORCE_GLIBC
 #include <crypt.h>
 #include <unistd.h>
+#include <string.h>
+#include <errno.h>
 #include "libcrypt.h"
+
+typedef char *(*crypt_impl_f)(const unsigned char *pw, const unsigned char *salt);
+
+static const struct {
+	const char *salt_pfx;
+	const crypt_impl_f crypt_impl;
+} crypt_impl_tab[] = {
+	{ "$1$",        __md5_crypt },
+	{ NULL,         __des_crypt },
+};
 
 char *crypt(const char *key, const char *salt)
 {
 	const unsigned char *ukey = (const unsigned char *)key;
 	const unsigned char *usalt = (const unsigned char *)salt;
+	size_t i;
 
-	/* First, check if we are supposed to be using the MD5 replacement
-	 * instead of DES...  */
-	if (salt[0]=='$' && salt[1]=='1' && salt[2]=='$')
-		return __md5_crypt(ukey, usalt);
-	else
-		return __des_crypt(ukey, usalt);
+	for (i = 0; i < ARRAY_SIZE(crypt_impl_tab); i++) {
+		if (crypt_impl_tab[i].salt_pfx != NULL &&
+		    strncmp(crypt_impl_tab[i].salt_pfx, salt, strlen(crypt_impl_tab[i].salt_pfx)))
+			continue;
+
+		return crypt_impl_tab[i].crypt_impl(ukey, usalt);
+	}
+
+	/* no crypt implementation was found, set errno to ENOSYS and return NULL */
+	__set_errno(ENOSYS);
+	return NULL;
 }
