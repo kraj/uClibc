@@ -19,6 +19,9 @@ static const struct {
 	const crypt_impl_f crypt_impl;
 } crypt_impl_tab[] = {
 	{ "$1$",        __md5_crypt },
+#ifdef __UCLIBC_HAS_SHA512_CRYPT_IMPL__
+	{ "$6$",        __sha512_crypt },
+#endif
 	{ NULL,         __des_crypt },
 };
 

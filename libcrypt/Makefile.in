@@ -21,6 +21,7 @@ libcrypt_OUT := $(top_builddir)libcrypt
 
 libcrypt_SRC-y :=
 libcrypt_SRC-$(UCLIBC_HAS_CRYPT_IMPL) += crypt.c des.c md5.c
+libcrypt_SRC-$(UCLIBC_HAS_SHA512_CRYPT_IMPL) += sha512.c sha512-crypt.c
 libcrypt_SRC-$(UCLIBC_HAS_CRYPT_STUB) += crypt_stub.c
 
 libcrypt_SRC := $(addprefix $(libcrypt_DIR)/,$(libcrypt_SRC-y))
