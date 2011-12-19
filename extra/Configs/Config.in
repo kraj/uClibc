@@ -1174,6 +1174,13 @@ config UCLIBC_HAS_CRYPT_IMPL
 	help
 	  libcrypt contains crypt(), setkey() and encrypt()
 
+config UCLIBC_HAS_SHA256_CRYPT_IMPL
+	bool "libcrypt SHA256 support"
+	depends on UCLIBC_HAS_CRYPT_IMPL
+	help
+	  This adds support for SHA256 password hashing via the crypt() function.
+	  Say N here if you do not need SHA256 crypt support.
+
 config UCLIBC_HAS_SHA512_CRYPT_IMPL
 	bool "libcrypt SHA512 support"
 	depends on UCLIBC_HAS_CRYPT_IMPL

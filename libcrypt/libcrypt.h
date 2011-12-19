@@ -9,9 +9,11 @@
 #define __LIBCRYPT_H__
 
 extern char *__md5_crypt(const unsigned char *pw, const unsigned char *salt) attribute_hidden;
+extern char *__sha256_crypt(const unsigned char *pw, const unsigned char *salt) attribute_hidden;
 extern char *__sha512_crypt(const unsigned char *pw, const unsigned char *salt) attribute_hidden;
 extern char *__des_crypt(const unsigned char *pw, const unsigned char *salt) attribute_hidden;
 
+extern char *__sha256_crypt_r (const char *key, const char *salt, char *buffer, int buflen) attribute_hidden;
 extern char *__sha512_crypt_r (const char *key, const char *salt, char *buffer, int buflen) attribute_hidden;
 
 /* shut up gcc-4.x signed warnings */
