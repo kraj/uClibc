@@ -45,17 +45,22 @@ char * getpass (const char *prompt)
   /* Try to write to and read from the terminal if we can.
      If we can't open the terminal, use stderr and stdin.  */
 
-  in = fopen ("/dev/tty", "r+");
+  out = in = fopen ("/dev/tty", "r+");
   if (in == NULL)
     {
       in = stdin;
       out = stderr;
     }
   else
-    out = in;
+    {
+      /* Disable buffering for read/write FILE to prevent problems with
+       * fseek and buffering for read/write auto-transitioning. */
+      setvbuf(in, NULL, _IONBF, 0);
+    }
 
   /* Turn echoing off if it is on now.  */
 
+  tty_changed = 0;
   if (tcgetattr (fileno (in), &t) == 0)
     {
       /* Save the old one. */
@@ -63,40 +68,27 @@ char * getpass (const char *prompt)
       /* Tricky, tricky. */
       t.c_lflag &= ~(ECHO|ISIG);
       tty_changed = (tcsetattr (fileno (in), TCSAFLUSH|TCSASOFT, &t) == 0);
-      if (in != stdin) {
-	/* Disable buffering for read/write FILE to prevent problems with
-	 * fseek and buffering for read/write auto-transitioning. */
-	setvbuf(in, NULL, _IONBF, 0);
-      }
     }
-  else
-    tty_changed = 0;
 
   /* Write the prompt.  */
   fputs(prompt, out);
   fflush(out);
 
   /* Read the password.  */
-  fgets (buf, PWD_BUFFER_SIZE-1, in);
-  if (buf != NULL)
-    {
-      nread = strlen(buf);
-      if (nread < 0)
-	buf[0] = '\0';
-      else if (buf[nread - 1] == '\n')
-	{
-	  /* Remove the newline.  */
-	  buf[nread - 1] = '\0';
-	  if (tty_changed)
-	    /* Write the newline that was not echoed.  */
-	    putc('\n', out);
-	}
-    }
+  if (!fgets (buf, sizeof(buf)-1, in))
+    buf[0] = '\0';
+  nread = strlen(buf);
+  if (nread > 0 && buf[nread - 1] == '\n')
+      /* Remove the newline.  */
+      buf[nread - 1] = '\0';
 
-  /* Restore the original setting.  */
-  if (tty_changed) {
-    (void) tcsetattr (fileno (in), TCSAFLUSH|TCSASOFT, &s);
-  }
+  if (tty_changed)
+    {
+      /* Write the newline that was not echoed.  */
+      putc('\n', out);
+      /* Restore the original setting.  */
+      (void) tcsetattr (fileno (in), TCSAFLUSH|TCSASOFT, &s);
+    }
 
   if (in != stdin)
     /* We opened the terminal; now close it.  */
