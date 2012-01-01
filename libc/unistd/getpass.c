@@ -75,7 +75,7 @@ char * getpass (const char *prompt)
   fflush(out);
 
   /* Read the password.  */
-  if (!fgets (buf, sizeof(buf)-1, in))
+  if (!fgets (buf, sizeof(buf), in))
     buf[0] = '\0';
   nread = strlen(buf);
   if (nread > 0 && buf[nread - 1] == '\n')
