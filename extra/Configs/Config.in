@@ -2236,7 +2236,7 @@ config UCLIBC_BUILD_NOEXECSTACK
 
 endmenu
 
-menu "uClibc development/debugging options"
+menu "Development/debugging options"
 
 config CROSS_COMPILER_PREFIX
 	string "Cross-compiling toolchain prefix"
@@ -2247,13 +2247,13 @@ config CROSS_COMPILER_PREFIX
 	  then enter 'arm-linux-uclibc-' here.
 
 config UCLIBC_EXTRA_CFLAGS
-	string "Extra CFLAGS to use to build uClibc"
+	string "Extra CFLAGS"
 	default ""
 	help
 	  Add any additional CFLAGS to be used to build uClibc.
 
 config DODEBUG
-	bool "Build uClibc with debugging symbols"
+	bool "Enable debugging symbols"
 	select EXTRA_WARNINGS
 	help
 	  Say Y here if you wish to compile uClibc with debugging symbols.
@@ -2284,7 +2284,7 @@ config DOSTRIP
 	  Most people will answer Y.
 
 config DOASSERTS
-	bool "Build uClibc with run-time assertion testing"
+	bool "Build with run-time assertion testing"
 	help
 	  Say Y here to include runtime assertion tests.
 	  This enables runtime assertion testing in some code, which can
