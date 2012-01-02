@@ -138,11 +138,23 @@ static void _dl_ldsopath_init(struct elf_resolve *tpnt)
 {
 	char *ldsopath, *ptmp;
 
-	/* Store the path where the shared lib loader was found for later use */
+	/*
+	 * Store the path where the shared lib loader was found for later use.
+	 * Note that this logic isn't bullet proof when it comes to relative
+	 * paths: if you use "./lib/ldso.so", and then the app does chdir()
+	 * followed by dlopen(), the old ldso path won't get searched.  But
+	 * that is a fairly pathological use case, so if you don't like that,
+	 * then set a full path to your interp and be done :P.
+	 */
 	ldsopath = _dl_strdup(tpnt->libname);
 	ptmp = _dl_strrchr(ldsopath, '/');
-	if (ptmp != ldsopath)
-		*ptmp = '\0';
+	/*
+	 * If there is no "/", then set the path to "", and the code
+	 * later on will take this to implicitly mean "search $PWD".
+	 */
+	if (!ptmp)
+		ptmp = ldsopath;
+	*ptmp = '\0';
 
 	_dl_ldsopath = ldsopath;
 	_dl_debug_early("Lib Loader: (%x) %s: using path: %s\n",
