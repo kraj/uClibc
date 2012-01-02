@@ -73,7 +73,9 @@ struct init_fini_list {
 /* Global variables used within the shared library loader */
 extern char *_dl_library_path;         /* Where we look for libraries */
 extern char *_dl_preload;              /* Things to be loaded before the libs */
-extern char *_dl_ldsopath;             /* Where the shared lib loader was found */
+#ifdef __LDSO_SEARCH_INTERP_PATH__
+extern const char *_dl_ldsopath;       /* Where the shared lib loader was found */
+#endif
 extern const char *_dl_progname;       /* The name of the executable being run */
 extern size_t _dl_pagesize;            /* Store the page size for use later */
 #ifdef __LDSO_PRELINK_SUPPORT__

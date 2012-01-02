@@ -52,9 +52,6 @@ char *_dl_library_path         = NULL;	/* Where we look for libraries */
 #ifdef __LDSO_PRELOAD_ENV_SUPPORT__
 char *_dl_preload              = NULL;	/* Things to be loaded before the libs */
 #endif
-#ifdef __LDSO_SEARCH_INTERP_PATH__
-char *_dl_ldsopath             = NULL;	/* Location of the shared lib loader */
-#endif
 int _dl_errno                  = 0;	/* We can't use the real errno in ldso */
 size_t _dl_pagesize            = 0;	/* Store the page size for use later */
 struct r_debug *_dl_debug_addr = NULL;	/* Used to communicate with the gdb debugger */
@@ -132,6 +129,28 @@ uintptr_t __stack_chk_guard attribute_relro;
 # ifdef __UCLIBC_HAS_SSP_COMPAT__
 uintptr_t __guard attribute_relro;
 # endif
+#endif
+
+#ifdef __LDSO_SEARCH_INTERP_PATH__
+const char *_dl_ldsopath = NULL;	/* Location of the shared lib loader */
+
+static void _dl_ldsopath_init(struct elf_resolve *tpnt)
+{
+	char *ldsopath, *ptmp;
+
+	/* Store the path where the shared lib loader was found for later use */
+	ldsopath = _dl_strdup(tpnt->libname);
+	ptmp = _dl_strrchr(ldsopath, '/');
+	if (ptmp != ldsopath)
+		*ptmp = '\0';
+
+	_dl_ldsopath = ldsopath;
+	_dl_debug_early("Lib Loader: (%x) %s: using path: %s\n",
+		(unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname,
+		_dl_ldsopath);
+}
+#else
+#define _dl_ldsopath_init(tpnt)
 #endif
 
 char *_dl_getenv(const char *symbol, char **envp)
@@ -574,20 +593,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 			}
 		}
 
-#ifdef __LDSO_SEARCH_INTERP_PATH__
-		{
-			char *ptmp;
-			/* Store the path where the shared lib loader was found
-			 * for later use
-			 */
-			_dl_ldsopath = _dl_strdup(tpnt->libname);
-			ptmp = _dl_strrchr(_dl_ldsopath, '/');
-			if (ptmp != _dl_ldsopath)
-				*ptmp = '\0';
-
-			_dl_debug_early("Lib Loader: (%x) %s\n", (unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
-		}
-#endif
+		_dl_ldsopath_init(tpnt);
 	} else {
 #endif
 
@@ -688,19 +694,8 @@ of this helper program; chances are you did not intend to run this program.\n\
 		/* OK, fill this in - we did not have this before */
 		if (ppnt->p_type == PT_INTERP) {
 			tpnt->libname = (char *) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr);
-#ifdef __LDSO_SEARCH_INTERP_PATH__
-			{
-				char *ptmp;
-				/* Store the path where the shared lib loader was found
-				 * for later use
-				 */
-				_dl_ldsopath = _dl_strdup(tpnt->libname);
-				ptmp = _dl_strrchr(_dl_ldsopath, '/');
-				if (ptmp != _dl_ldsopath)
-					*ptmp = '\0';
-			}
-			_dl_debug_early("Lib Loader: (%x) %s\n", (unsigned) DL_LOADADDR_BASE(tpnt->loadaddr), tpnt->libname);
-#endif
+
+			_dl_ldsopath_init(tpnt);
 		}
 
 		/* Discover any TLS sections if the target supports them. */
