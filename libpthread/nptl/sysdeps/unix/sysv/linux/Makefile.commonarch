@@ -128,6 +128,8 @@ CFLAGS-timer_gettime.c = -I$(top_srcdir)librt -DIS_IN_librt
 CFLAGS-timer_routines.c = -I$(top_srcdir)librt -DIS_IN_librt
 CFLAGS-timer_settime.c = -I$(top_srcdir)librt -DIS_IN_librt
 
+CFLAGS-raise.c = -fasynchronous-unwind-tables
+
 CFLAGS-linux = -DNOT_IN_libc -DIS_IN_libpthread $(SSP_ALL_CFLAGS)
 
 CFLAGS-OMIT-libc_pthread_init.c = -DNOT_IN_libc -DIS_IN_libpthread

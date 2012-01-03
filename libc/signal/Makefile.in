@@ -24,6 +24,8 @@ ifneq ($(strip $(ARCH_OBJS)),)
 CSRC-y := $(filter-out $(notdir $(ARCH_OBJS:.o=.c)),$(CSRC-y))
 endif
 
+CFLAGS-raise.c = -fasynchronous-unwind-tables
+
 SIGNAL_DIR := $(top_srcdir)libc/signal
 SIGNAL_OUT := $(top_builddir)libc/signal
 
