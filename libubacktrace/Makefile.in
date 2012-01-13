@@ -26,8 +26,8 @@ libubacktrace_OUT := $(top_builddir)libubacktrace
 libubacktrace_SRC-y :=
 libubacktrace_SRC-$(UCLIBC_HAS_BACKTRACE) := backtrace.c backtracesyms.c backtracesymsfd.c
 
-# -funwind-tables is required for backtrace to work using dwarf2
-CFLAGS-backtrace.c := -funwind-tables
+# -fasynchronous-unwind-tables is required for backtrace to work using dwarf2
+CFLAGS-backtrace.c := -fasynchronous-unwind-tables
 
 
 libubacktrace_SRCS := $(addprefix $(libubacktrace_DIR)/,$(libubacktrace_SRC-y))

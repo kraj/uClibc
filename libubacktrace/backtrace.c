@@ -2,7 +2,7 @@
  * Perform stack unwinding by using the _Unwind_Backtrace.
  *
  * User application that wants to use backtrace needs to be
- * compiled with -funwind-tables option and -rdynamic to get full
+ * compiled with -fasynchronous-unwind-tables option and -rdynamic to get full
  * symbols printed.
  *
  * Copyright (C) 2009, 2010 STMicroelectronics Ltd.
