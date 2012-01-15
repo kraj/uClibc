@@ -466,23 +466,18 @@ defconfig: $(conf)
 menuconfig-clean-y:
 	$(Q)$(MAKE) -C extra/config CLEAN_extra/config
 
+# The find here should continue to work as long as we are only symlinking
+# headers in to include/.  I don't see this changing to anything else, so
+# it should be fine.
 include_clean:
-	$(Q)$(RM) $(top_builddir)include/fpu_control.h $(top_builddir)include/dl-osinfo.h $(top_builddir)include/hp-timing.h
-	@set -e; \
-	for i in `(cd libc/sysdeps/linux/common/sys; ls *.h)` ; do \
-		$(RM) $(top_builddir)include/sys/$$i; \
-	done; \
-	if [ -d libc/sysdeps/linux/$(TARGET_ARCH)/sys ] ; then \
-		for i in `(cd libc/sysdeps/linux/$(TARGET_ARCH)/sys; ls *.h)` ; do \
-			$(RM) $(top_builddir)include/sys/$$i; \
-		done; \
-	fi
+	$(SECHO) "  CLEAN include"
+	$(Q)$(RM) -r $(top_builddir)include/bits
+	$(Q)find $(top_builddir)include/ -type l -exec rm -f {} +
 
 clean: include_clean
-	$(Q)$(RM) -r $(top_builddir)lib $(top_builddir)include/bits
+	$(Q)$(RM) -r $(top_builddir)lib
 	@$(MAKE) -C utils CLEAN_utils
 	+$(MAKE) -s -C test clean
-	@$(RM) $(top_builddir)include/linux $(top_builddir)include/asm*
 	$(Q)$(RM) $(top_builddir)extra/scripts/unifdef
 	$(Q)$(RM) -r $(LOCAL_INSTALL_PATH)
 
