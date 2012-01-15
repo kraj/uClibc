@@ -176,10 +176,12 @@ check_ld=$(shell \
 # Use variable indirection here so that we can have variable
 # names with fun chars in them like equal signs
 define check-tool-var
+ifeq ($(filter clean CLEAN_%,$(MAKECMDGOALS)),)
 _v = $(2)_$(3)
 ifndef $$(_v)
 $$(_v) := $$(call $(1),$(subst %, ,$(3)))
 export $$(_v)
+endif
 endif
 endef
 
