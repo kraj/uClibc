@@ -27,7 +27,9 @@ CSRC-$(if $(findstring yy,$(UCLIBC_HAS_FLOATS)$(UCLIBC_SUSV3_LEGACY)),y) += \
 	gcvt.c
 CSRC-$(UCLIBC_SUSV3_LEGACY) += mktemp.c
 
+ifneq ($(UCLIBC_HAS_BACKTRACE),)
 CFLAGS-abort.c = -fasynchronous-unwind-tables
+endif
 
 # multi source stdlib.c
 CSRC-y += abs.c labs.c atoi.c atol.c strtol.c strtoul.c _stdlib_strto_l.c \
