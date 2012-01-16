@@ -176,7 +176,7 @@ check_ld=$(shell \
 # Use variable indirection here so that we can have variable
 # names with fun chars in them like equal signs
 define check-tool-var
-ifeq ($(filter clean CLEAN_%,$(MAKECMDGOALS)),)
+ifeq ($(filter $(clean_targets) CLEAN_%,$(MAKECMDGOALS)),)
 _v = $(2)_$(3)
 ifndef $$(_v)
 $$(_v) := $$(call $(1),$(subst %, ,$(3)))
@@ -661,7 +661,7 @@ ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
 # Be sure that binutils support it
 $(eval $(call check-ld-var,--hash-style=gnu))
 ifeq ($(LDFLAG_--hash-style=gnu),)
-ifneq ($(filter-out $(clean_targets) install_headers headers-y,$(MAKECMDGOALS)),)
+ifneq ($(filter-out $(clean_targets) CLEAN_% install_headers headers-y,$(MAKECMDGOALS)),)
 $(error Your binutils do not support --hash-style option, while you want to use it)
 endif
 else
