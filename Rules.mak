@@ -197,7 +197,8 @@ endef
 # as well CFLAG_-Wa<flag> (for invoking the compiler driver).
 define check-as-var
 $(call check-tool-var,check_as,ASFLAG,$(1))
-export CFLAG_-Wa$(1) = $$(if $$(ASFLAG_$(1)),-Wa$(comma)$$(ASFLAG_$(1)))
+_v = CFLAG_-Wa$(1)
+export $(_v) = $$(if $$(ASFLAG_$(1)),-Wa$$(comma)$$(ASFLAG_$(1)))
 endef
 # Usage: check-ld-var,<flag>
 # Check the linker to see if it supports <flag>.  Export the
@@ -205,7 +206,8 @@ endef
 # as well CFLAG_-Wl<flag> (for invoking the compiler driver).
 define check-ld-var
 $(call check-tool-var,check_ld,LDFLAG,$(1))
-export CFLAG_-Wl$(1) = $$(if $$(LDFLAG_$(1)),-Wl$(comma)$$(LDFLAG_$(1)))
+_v = CFLAG_-Wl$(1)
+export $$(_v) = $$(if $$(LDFLAG_$(1)),-Wl$$(comma)$$(LDFLAG_$(1)))
 endef
 # Usage: cache-output-var,<variable>,<shell command>
 # Execute <shell command> and cache the output in <variable>.
