@@ -46,7 +46,7 @@ int do_test(int argc, char **argv) {
 		name = tests[i].name;
 		if (*name != '.')
 			unlink(name);
-		fd = open(name, tests[i].flags);
+		fd = open(name, tests[i].flags, 0660);
 		if (fd < 0)
 			abort();
 		errno = 0;
