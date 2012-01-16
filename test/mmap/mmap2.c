@@ -25,7 +25,12 @@ int main(int argc, char **argv) {
     void* map_base = 0;
     int fd;
     off_t target = 0xfffff000;
-    if((fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1) FATAL;
+    if((fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1) {
+        /* skip test for non-root users */
+        if (errno == EACCES)
+            return 0;
+        FATAL;
+    }
     printf("/dev/mem opened.\n");
     fflush(stdout);
 
