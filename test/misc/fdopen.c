@@ -33,7 +33,7 @@ main (int argc, char *argv[])
   assert (fclose (fp) == 0);
   fp = NULL;
 
-  fd = open (name, O_RDWR|O_CREAT);
+  fd = open (name, O_RDWR|O_CREAT, 0660);
   assert (fd != -1);
   assert (lseek (fd, 5, SEEK_SET) == 5);
 
