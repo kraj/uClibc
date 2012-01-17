@@ -361,8 +361,8 @@ endif
 	#   0 .text         xxxxxxxx  00000000  00000000  xxxxxxxx  2**2 <===!
 	CPU_CFLAGS-y  += $(CFLAG_-ffunction-sections) $(CFLAG_-fdata-sections)
 	CPU_LDFLAGS-y += $(CFLAG_-Wl--sort-common)
-$(eval $(call check-ld-var,--sort-section%alignment))
-	CPU_LDFLAGS-y += $(CFLAG_-Wl--sort-section%alignment)
+$(eval $(call check-ld-var,--sort-section=alignment))
+	CPU_LDFLAGS-y += $(CFLAG_-Wl--sort-section=alignment)
 
 	CPU_LDFLAGS-y+=-m32
 	CPU_CFLAGS-y+=-m32
