@@ -33,32 +33,34 @@ extern __typeof(system) __libc_system;
 int __libc_system(const char *command)
 {
 	int wait_val, pid;
-	__sighandler_t save_quit, save_int, save_chld;
+	struct sigaction sa, save_quit, save_int;
+	sigset_t save_mask;
 
 	if (command == 0)
 		return 1;
 
-	save_quit = signal(SIGQUIT, SIG_IGN);
-	save_int = signal(SIGINT, SIG_IGN);
-	save_chld = signal(SIGCHLD, SIG_DFL);
+	memset(&sa, 0, sizeof(sa));
+	sa.sa_handler = SIG_IGN;
+	/* __sigemptyset(&sa.sa_mask); - done by memset() */
+	/* sa.sa_flags = 0; - done by memset() */
+
+	sigaction(SIGQUIT, &sa, &save_quit);
+	sigaction(SIGINT, &sa, &save_int);
+	__sigaddset(&sa.sa_mask, SIGCHLD);
+	sigprocmask(SIG_BLOCK, &sa.sa_mask, &save_mask);
 
 	if ((pid = vfork()) < 0) {
-		signal(SIGQUIT, save_quit);
-		signal(SIGINT, save_int);
-		signal(SIGCHLD, save_chld);
-		return -1;
+		wait_val = -1;
+		goto out;
 	}
 	if (pid == 0) {
-		signal(SIGQUIT, SIG_DFL);
-		signal(SIGINT, SIG_DFL);
-		signal(SIGCHLD, SIG_DFL);
+		sigaction(SIGQUIT, &save_quit, NULL);
+		sigaction(SIGINT, &save_int, NULL);
+		sigprocmask(SIG_SETMASK, &save_mask, NULL);
 
 		execl("/bin/sh", "sh", "-c", command, (char *) 0);
 		_exit(127);
 	}
-	/* Signals are not absolutly guarenteed with vfork */
-	signal(SIGQUIT, SIG_IGN);
-	signal(SIGINT, SIG_IGN);
 
 #if 0
 	__printf("Waiting for child %d\n", pid);
@@ -67,9 +69,10 @@ int __libc_system(const char *command)
 	if (wait4(pid, &wait_val, 0, 0) == -1)
 		wait_val = -1;
 
-	signal(SIGQUIT, save_quit);
-	signal(SIGINT, save_int);
-	signal(SIGCHLD, save_chld);
+out:
+	sigaction(SIGQUIT, &save_quit, NULL);
+	sigaction(SIGINT, &save_int, NULL);
+	sigprocmask(SIG_SETMASK, &save_mask, NULL);
 	return wait_val;
 }
 #else
