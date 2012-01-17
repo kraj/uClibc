@@ -781,7 +781,9 @@ static int do_dlclose(void *vhandle, int need_fini)
 	struct dyn_elf *handle;
 	unsigned int end = 0, start = 0xffffffff;
 	unsigned int i, j;
-	struct r_scope_elem *ls;
+	struct r_scope_elem *ls, *ls_next = NULL;
+	struct elf_resolve **handle_rlist;
+
 #if defined(USE_TLS) && USE_TLS
 	bool any_tls = false;
 	size_t tls_free_start = NO_TLS_OFFSET;
@@ -814,6 +816,19 @@ static int do_dlclose(void *vhandle, int need_fini)
 		free(handle);
 		return 0;
 	}
+
+	/* Store the handle's local scope array for later removal */
+	handle_rlist = handle->dyn->symbol_scope.r_list;
+
+	/* Store references to the local scope entries for later removal */
+	for (ls = &_dl_loaded_modules->symbol_scope; ls && ls->next; ls = ls->next)
+		if (ls->next->r_list[0] == handle->dyn) {
+			break;
+		}
+	/* ls points to the previous local symbol scope */
+	if(ls && ls->next)
+		ls_next = ls->next->next;
+
 	/* OK, this is a valid handle - now close out the file */
 	for (j = 0; j < handle->init_fini.nlist; ++j) {
 		tpnt = handle->init_fini.init_fini[j];
@@ -975,16 +990,6 @@ static int do_dlclose(void *vhandle, int need_fini)
 				}
 			}
 
-			if (handle->dyn == tpnt) {
-				/* Unlink the local scope from global one */
-				for (ls = &_dl_loaded_modules->symbol_scope; ls; ls = ls->next)
-					if (ls->next->r_list[0] == tpnt) {
-						_dl_if_debug_print("removing symbol_scope: %s\n", tpnt->libname);
-						break;
-					}
-				ls->next = ls->next->next;
-			}
-
 			/* Next, remove tpnt from the global symbol table list */
 			if (_dl_symbol_tables) {
 				if (_dl_symbol_tables->dyn == tpnt) {
@@ -1006,10 +1011,14 @@ static int do_dlclose(void *vhandle, int need_fini)
 				}
 			}
 			free(tpnt->libname);
-			free(tpnt->symbol_scope.r_list);
 			free(tpnt);
 		}
 	}
+	/* Unlink and release the handle's local scope from global one */
+	if(ls)
+		ls->next = ls_next;
+	free(handle_rlist);
+
 	for (rpnt1 = handle->next; rpnt1; rpnt1 = rpnt1_tmp) {
 		rpnt1_tmp = rpnt1->next;
 		free(rpnt1);
