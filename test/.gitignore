@@ -18,6 +18,8 @@ args/arg_test
 assert/assert
 crypt/crypt
 crypt/md5c-test
+crypt/sha256c-test
+crypt/sha512c-test
 ctype/ctype
 dlopen/dladdr
 dlopen/dlafk
