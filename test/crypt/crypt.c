@@ -10,18 +10,10 @@
 #include <stdlib.h>
 #include "crypt.h"
 
-int totfails = 0;
+static int totfails = 0;
 
-#if __STDC__ - 0
-int main (int argc, char *argv[]);
-void get8 (char *cp);
-void put8 (char *cp);
-void good_bye (void) __attribute__ ((noreturn));
-#else
-void get8(), put8();
-#endif
-
-void good_bye ()
+static void good_bye (void) __attribute__ ((noreturn));
+static void good_bye (void)
 {
   if(totfails == 0) {
     printf("Passed DES validation suite\n");
@@ -32,10 +24,33 @@ void good_bye ()
   }
 }
 
-int
-main(argc, argv)
-     int argc;
-     char *argv[];
+static void get8(char *cp)
+{
+	int i,j,t;
+
+	for(i=0;i<8;i++){
+		scanf("%2x",&t);
+		if(feof(stdin))
+		  good_bye();
+		for(j=0; j<8 ; j++) {
+		  *cp++ = (t & (0x01 << (7-j))) != 0;
+		}
+	}
+}
+
+static void put8(char *cp)
+{
+	int i,j,t;
+
+	for(i=0;i<8;i++){
+	  t = 0;
+	  for(j = 0; j<8; j++)
+	    t = (t<<1) | *cp++;
+	  printf("%02x", t);
+	}
+}
+
+int main(void)
 {
 	char key[64],plain[64],cipher[64],answer[64];
 	int i;
@@ -58,9 +73,10 @@ main(argc, argv)
 			cipher[i] = plain[i];
 		encrypt(cipher, 0);
 
-		for(i=0;i<64;i++)
+		for(i=0;i<64;i++) {
 			if(cipher[i] != answer[i])
 				break;
+		}
 		fail = 0;
 		if(i != 64){
 			printf(" Encrypt FAIL");
@@ -83,31 +99,5 @@ main(argc, argv)
 	}
 	good_bye();
 }
-void
-get8(cp)
-char *cp;
-{
-	int i,j,t;
 
-	for(i=0;i<8;i++){
-		scanf("%2x",&t);
-		if(feof(stdin))
-		  good_bye();
-		for(j=0; j<8 ; j++) {
-		  *cp++ = (t & (0x01 << (7-j))) != 0;
-		}
-	}
-}
-void
-put8(cp)
-char *cp;
-{
-	int i,j,t;
 
-	for(i=0;i<8;i++){
-	  t = 0;
-	  for(j = 0; j<8; j++)
-	    t = (t<<1) | *cp++;
-	  printf("%02x", t);
-	}
-}
