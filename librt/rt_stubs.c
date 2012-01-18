@@ -12,6 +12,7 @@
 
 #ifdef __UCLIBC_HAS_STUBS__
 
+static int rt_enosys_stub(void) __attribute_used__;
 static int rt_enosys_stub(void)
 {
 	__set_errno(ENOSYS);
