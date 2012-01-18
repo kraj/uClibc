@@ -109,16 +109,16 @@ libc_hidden_weak(sigaction)
    appropriate GDB maintainer.  */
 
 #define RESTORE(name, syscall) RESTORE2(name, syscall)
-#define RESTORE2(name, syscall) \
+
+#ifdef __NR_rt_sigaction
+/* The return code for realtime-signals.  */
+# define RESTORE2(name, syscall) \
 __asm__	(						\
 	".text\n"					\
 	"__" #name ":\n"				\
 	"	movl	$" #syscall ", %eax\n"		\
 	"	int	$0x80\n"			\
 );
-
-#ifdef __NR_rt_sigaction
-/* The return code for realtime-signals.  */
 RESTORE(restore_rt, __NR_rt_sigreturn)
 #endif
 
@@ -133,6 +133,5 @@ __asm__ (						\
 	"	movl	$" #syscall ", %eax\n"		\
 	"	int	$0x80\n"			\
 );
-
 RESTORE(restore, __NR_sigreturn)
 #endif
