@@ -21,6 +21,8 @@ sysdeps/unix/sysv/linux/pthread-pi-defines.h
 sysdeps/pthread/crt[in].S
 sysdeps/pthread/defs.h
 sysdeps/pthread/pt-initfini.s
+sysdeps/pthread/pt-crti.S
+sysdeps/pthread/pt-crtn.S
 #
 # symlinks
 #
