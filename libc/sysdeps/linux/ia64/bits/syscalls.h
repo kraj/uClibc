@@ -63,8 +63,8 @@
 
 #define INLINE_SYSCALL_NCS(name, nr, args...)		\
   ({							\
-    DO_INLINE_SYSCALL_NCS (name, nr, args)	\
-    if (_r10 == -1)					\
+    DO_INLINE_SYSCALL_NCS (name, nr, args)		\
+    if (unlikely (_r10 == -1))				\
       {							\
 	__set_errno (_retval);				\
 	_retval = -1;					\
