@@ -22,8 +22,8 @@
 */
 
 /* This is for the ARM version of fadvise64_64 which swaps the params
- *  * about to avoid having ABI compat issues
- *   */
+ * about to avoid having ABI compat issues
+ */
 #define __NR___syscall_arm_fadvise64_64 __NR_arm_fadvise64_64
 int posix_fadvise(int fd, off_t offset, off_t len, int advise)
 {
