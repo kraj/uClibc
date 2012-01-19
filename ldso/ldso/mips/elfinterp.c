@@ -161,7 +161,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 	unsigned long old_val=0;
 #endif
 
-	struct symbol_ref sym_ref = { NULL, NULL };
+	struct symbol_ref sym_ref;
 	/* Now parse the relocation information */
 	rel_size = rel_size / sizeof(ElfW(Rel));
 	rpnt = (ELF_RELOC *) rel_addr;
@@ -187,6 +187,8 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #endif
 
 		if (reloc_type == R_MIPS_JUMP_SLOT || reloc_type == R_MIPS_COPY) {
+			sym_ref.tpnt = NULL;
+			sym_ref.sym = &symtab[symtab_index];
 			symbol_addr = (unsigned long)_dl_find_hash(symname,
 								   scope,
 								   tpnt,
