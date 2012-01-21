@@ -543,6 +543,12 @@ static void *do_dlopen(const char *libname, int flag)
 	 * Now we go through and look for REL and RELA records that indicate fixups
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
+
+	/* Get the tail of the list */
+	for (ls = &_dl_loaded_modules->symbol_scope; ls && ls->next; ls = ls->next);
+
+	/* Extend the global scope by adding the local scope of the dlopened DSO. */
+	ls->next = &dyn_chain->dyn->symbol_scope;
 #ifdef __mips__
 	/*
 	 * Relocation of the GOT entries for MIPS have to be done
@@ -550,11 +556,6 @@ static void *do_dlopen(const char *libname, int flag)
 	 */
 	_dl_perform_mips_global_got_relocations(tpnt, !now_flag);
 #endif
-	/* Get the tail of the list */
-	for (ls = &_dl_loaded_modules->symbol_scope; ls && ls->next; ls = ls->next);
-
-	/* Extend the global scope by adding the local scope of the dlopened DSO. */
-	ls->next = &dyn_chain->dyn->symbol_scope;
 
 	if (_dl_fixup(dyn_chain, &_dl_loaded_modules->symbol_scope, now_flag))
 		goto oops;
