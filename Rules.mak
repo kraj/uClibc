@@ -158,7 +158,7 @@ endif
 comma:=,
 space:= #
 
-ifndef CROSS_COMPILE
+ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE=$(call qstrip,$(CROSS_COMPILER_PREFIX))
 endif
 
