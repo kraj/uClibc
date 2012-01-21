@@ -2,19 +2,11 @@
  * Perform stack unwinding by using the _Unwind_Backtrace.
  *
  * User application that wants to use backtrace needs to be
- * compiled with -fasynchronous-unwind-tables option and -rdynamic to get full
- * symbols printed.
+ * compiled with -fasynchronous-unwid-tables option and -rdynamic i
+ * to get full symbols printed.
  *
- * Copyright (C) 2009, 2010 STMicroelectronics Ltd.
- *
- * Author(s): Giuseppe Cavallaro <peppe.cavallaro@st.com>
- * - Initial implementation for glibc
- *
- * Author(s): Carmelo Amoroso <carmelo.amoroso@st.com>
- * - Reworked for uClibc
- *   - use dlsym/dlopen from libdl
- *   - rewrite initialisation to not use libc_once
- *   - make it available in static link too
+ * Author(s): Khem Raj <raj.khem@gmail.com>
+ * - ARM specific implementation of backtrace
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  *
@@ -34,19 +26,36 @@ struct trace_arg
 };
 
 static _Unwind_Reason_Code (*unwind_backtrace) (_Unwind_Trace_Fn, void *);
-static _Unwind_Ptr (*unwind_getip) (struct _Unwind_Context *);
+static _Unwind_VRS_Result (*unwind_vrs_get) (_Unwind_Context *,
+					     _Unwind_VRS_RegClass,
+					     _uw,
+					     _Unwind_VRS_DataRepresentation,
+					     void *);
 
 static void backtrace_init (void)
 {
 	void *handle = dlopen ("libgcc_s.so.1", RTLD_LAZY);
-
 	if (handle == NULL
 		|| ((unwind_backtrace = dlsym (handle, "_Unwind_Backtrace")) == NULL)
-		|| ((unwind_getip = dlsym (handle, "_Unwind_GetIP")) == NULL)) {
+		|| ((unwind_vrs_get = dlsym (handle, "_Unwind_VRS_Get")) == NULL)) {
 		printf("libgcc_s.so.1 must be installed for backtrace to work\n");
 		abort();
 	}
 }
+/* This function is identical to "_Unwind_GetGR", except that it uses
+   "unwind_vrs_get" instead of "_Unwind_VRS_Get".  */
+static inline _Unwind_Word
+unwind_getgr (_Unwind_Context *context, int regno)
+{
+  _uw val;
+  unwind_vrs_get (context, _UVRSC_CORE, regno, _UVRSD_UINT32, &val);
+  return val;
+}
+
+/* This macro is identical to the _Unwind_GetIP macro, except that it
+   uses "unwind_getgr" instead of "_Unwind_GetGR".  */
+#define unwind_getip(context) \
+ (unwind_getgr (context, 15) & ~(_Unwind_Word)1)
 
 static _Unwind_Reason_Code
 backtrace_helper (struct _Unwind_Context *ctx, void *a)
