@@ -8,6 +8,7 @@
 #ifndef __ASSEMBLER__
 
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)	\
+(__extension__ \
   ({						\
      register unsigned long __res __asm__ ("r10");	\
      LOAD_ARGS_c_##nr(args)			\
@@ -20,8 +21,8 @@
 		   : ASM_ARGS_##nr (args)	\
 		   : ASM_CLOBBER_##nr);		\
      __res;					\
-   })
-
+   }) \
+)
 #define LOAD_ARGS_c_0()
 #define LOAD_ARGS_asm_0()
 #define ASM_CLOBBER_0 "memory"

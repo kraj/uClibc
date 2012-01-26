@@ -114,18 +114,19 @@
 
 /* The _NCS variant allows non-constant syscall numbers.  */
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...) \
-  ({									      \
-    unsigned long int resultvar;					      \
-    register long int r3 __asm__ ("%r3") = (name);			 	      \
-    SUBSTITUTE_ARGS_##nr(args);						      \
-									      \
-    __asm__ __volatile__ (SYSCALL_INST_STR##nr SYSCALL_INST_PAD			      \
-		  : "=z" (resultvar)					      \
-		  : "r" (r3) ASMFMT_##nr				      \
-		  : "memory");						      \
-									      \
-    (int) resultvar; })
-
+(__extension__ \
+  ({															\
+    unsigned long int resultvar;								\
+    register long int r3 __asm__ ("%r3") = (name);				\
+    SUBSTITUTE_ARGS_##nr(args);									\
+    __asm__ __volatile__ (SYSCALL_INST_STR##nr SYSCALL_INST_PAD	\
+		  : "=z" (resultvar)									\
+		  : "r" (r3) ASMFMT_##nr								\
+		  : "memory"											\
+    );															\
+    (int) resultvar;											\
+   }) \
+)
 #define INTERNAL_SYSCALL_ERROR_P(val, err) \
   ((unsigned int) (val) >= 0xfffff001u)
 

@@ -141,6 +141,7 @@
 # define INTERNAL_SYSCALL_DECL(err) long int err
 
 # define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
+(__extension__ \
   ({									\
     register long int r0  __asm__ ("r0");				\
     register long int r3  __asm__ ("r3");				\
@@ -164,8 +165,8 @@
        : "cr0", "ctr", "memory");					\
     err = r0;								\
     (int) r3;								\
-  })
-
+  }) \
+)
 # define INTERNAL_SYSCALL_ERROR_P(val, err) \
   ((void) (val), __builtin_expect ((err) & (1 << 28), 0))
 

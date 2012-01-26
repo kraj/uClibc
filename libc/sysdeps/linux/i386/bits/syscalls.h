@@ -15,7 +15,8 @@
 #include <errno.h>
 
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...) \
-({ \
+(__extension__ \
+ ({ \
 	register unsigned int resultvar; \
 	__asm__ __volatile__ ( \
 		LOADARGS_##nr                                   \
@@ -26,8 +27,8 @@
 		: "g" (name) ASMFMT_##nr(args) : "memory", "cc" \
 	); \
 	(int) resultvar; \
-})
-
+  }) \
+)
 
 #if 1 /* defined __PIC__ || defined __pic__ */
 

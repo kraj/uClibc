@@ -19,6 +19,7 @@
 	} while (0)
 
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
+(__extension__ \
 	({								\
 		long __res;						\
 		__asm__ __volatile__ (					\
@@ -36,7 +37,8 @@
 			  CLOB_ARGS_##nr          /* Clobbered       */ \
 		);							\
 		__res;							\
-	})
+	}) \
+)
 
 #define INTERNAL_SYSCALL_ERROR_P(val, err)	\
 	((unsigned long)(val) >= (unsigned long)(-125))

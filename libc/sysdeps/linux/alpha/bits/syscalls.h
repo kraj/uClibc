@@ -27,25 +27,28 @@
 #ifndef __ASSEMBLER__
 
 #define INLINE_SYSCALL_NCS(name, nr, args...)	\
-({						\
+(__extension__					\
+ ({						\
 	long _sc_ret, _sc_err;			\
 	inline_syscall##nr(name, args);		\
-	if (__builtin_expect (_sc_err, 0))	\
+	if (unlikely (_sc_err))			\
 	  {					\
 	    __set_errno (_sc_ret);		\
 	    _sc_ret = -1L;			\
 	  }					\
 	_sc_ret;				\
-})
+  })						\
+)
 
 #define INTERNAL_SYSCALL_NCS(name, err_out, nr, args...) \
-({							\
+(__extension__ \
+ ({							\
 	long _sc_ret, _sc_err;				\
 	inline_syscall##nr(name, args);			\
 	err_out = _sc_err;				\
 	_sc_ret;					\
-})
-
+  }) \
+)
 #define INTERNAL_SYSCALL_DECL(err)		long int err
 #define INTERNAL_SYSCALL_ERROR_P(val, err)	err
 #define INTERNAL_SYSCALL_ERRNO(val, err)	val

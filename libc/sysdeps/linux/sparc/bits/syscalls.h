@@ -36,6 +36,7 @@
 #endif
 
 #define INTERNAL_SYSCALL_NCS(sys_num, err, nr, args...) \
+(__extension__ \
     ({                                                      \
         unsigned int __res;                                 \
         {                                                   \
@@ -48,8 +49,8 @@
                 : __SYSCALL_CLOBBERS );                                   \
         }                                                   \
         (int)__res;                                         \
-     })
-
+     }) \
+)
 #define INTERNAL_SYSCALL_ERROR_P(val, err) \
   ((unsigned int) (val) >= 0xfffff001u)
 

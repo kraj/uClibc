@@ -58,6 +58,7 @@
 
 
 #define INTERNAL_SYSCALL_NCS(sys_num, err, nr, args...) \
+(__extension__ \
     ({                                                      \
 	register long __A4 __asm__("A4");		    \
 	register long __b0 __asm__("B0") = sys_num;	    \
@@ -67,8 +68,8 @@
 			     : "b" (__b0) ASM_ARGS_##nr			\
 			     : __SYSCALL_CLOBBERS );			\
 	(int)__A4;							\
-    })
-
+    }) \
+)
 #undef INTERNAL_SYSCALL_ERROR_P
 #define INTERNAL_SYSCALL_ERROR_P(val, err) \
   ((unsigned int) (val) >= 0xfffff001u)

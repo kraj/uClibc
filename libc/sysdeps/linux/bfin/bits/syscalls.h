@@ -7,7 +7,8 @@
 #ifndef __ASSEMBLER__
 
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)	\
-({							\
+(__extension__ \
+ ({							\
 	long __res;					\
 	__asm__ __volatile__ (				\
 		"excpt 0;\n\t"				\
@@ -15,8 +16,8 @@
 		: "qA"  (name) ASMFMT_##nr(args)	\
 		: "memory","CC");			\
 	__res;						\
-})
-
+  }) \
+)
 #define ASMFMT_0()
 
 #define ASMFMT_1(arg1) \

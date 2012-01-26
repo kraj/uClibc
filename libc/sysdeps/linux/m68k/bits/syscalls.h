@@ -45,6 +45,7 @@
    normally.  It will never touch errno.  This returns just what the kernel
    gave back.  */
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)	\
+(__extension__ \
   ({ unsigned int _sys_result;				\
      {							\
        /* Load argument values in temporary variables
@@ -59,8 +60,9 @@
 		     : "memory");			\
        _sys_result = _d0;				\
      }							\
-     (int) _sys_result; })
-
+     (int) _sys_result;					\
+   }) \
+)
 #define LOAD_ARGS_0()
 #define LOAD_REGS_0
 #define ASM_ARGS_0

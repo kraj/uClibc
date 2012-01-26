@@ -62,6 +62,7 @@
     _retval = _r8;
 
 #define INLINE_SYSCALL_NCS(name, nr, args...)		\
+(__extension__						\
   ({							\
     DO_INLINE_SYSCALL_NCS (name, nr, args)		\
     if (unlikely (_r10 == -1))				\
@@ -69,16 +70,20 @@
 	__set_errno (_retval);				\
 	_retval = -1;					\
       }							\
-    _retval; })
+    _retval;						\
+   })							\
+)
 
 #define INTERNAL_SYSCALL_DECL(err) long int err
 
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)	\
+(__extension__ \
   ({							\
     DO_INLINE_SYSCALL_NCS (name, nr, args)		\
     err = _r10;						\
-    _retval; })
-
+    _retval;						\
+   }) \
+)
 #define INTERNAL_SYSCALL_ERROR_P(val, err)	(err == -1)
 
 #define INTERNAL_SYSCALL_ERRNO(val, err)	(val)

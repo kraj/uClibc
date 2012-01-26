@@ -38,9 +38,11 @@
    across the syscall. */
 
 #define K_CALL_CLOB_REGS "%r1", "%r2", K_USING_GR4 \
-	        	 "%r20", "%r29", "%r31"
+			 "%r20", "%r29", "%r31"
 
-#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)	({	\
+#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)	\
+(__extension__ \
+ ({	\
 	register unsigned long __res __asm__("r28");		\
 	K_LOAD_ARGS_##nr(args)					\
 	/* FIXME: HACK stw/ldw r19 around syscall */		\
@@ -50,12 +52,12 @@
 		"	ldi %1, %%r20\n"			\
 		K_LDW_ASM_PIC					\
 		: "=r" (__res)					\
-		: "i" (name) K_ASM_ARGS_##nr   			\
+		: "i" (name) K_ASM_ARGS_##nr			\
 		: "memory", K_CALL_CLOB_REGS K_CLOB_ARGS_##nr	\
 	);							\
 	__res;							\
-})
-
+  }) \
+)
 #define K_LOAD_ARGS_0()
 #define K_LOAD_ARGS_1(r26)					\
 	register unsigned long __r26 __asm__("r26") = (unsigned long)(r26);   \

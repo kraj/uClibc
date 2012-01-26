@@ -9,6 +9,7 @@
 #include <errno.h>
 
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
+(__extension__ \
 	({								\
 		register int __a1 __asm__("r12");			\
 		register int _scno __asm__("r8") = name;		\
@@ -18,8 +19,8 @@
 			      : "r"(_scno) ASM_ARGS_##nr		\
 			      : "cc", "memory");			\
 		__a1;							\
-	})
-
+	}) \
+)
 #define INTERNAL_SYSCALL_ERROR_P(val, err)		\
 	((unsigned int)(val) >= 0xfffff001U)
 

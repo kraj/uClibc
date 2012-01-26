@@ -31,17 +31,22 @@
 #include <errno.h>
 
 #define INLINE_SYSCALL_NCS(name, nr, args...)				\
-  ({ unsigned int _inline_sys_result = INTERNAL_SYSCALL_NCS (name, , nr, args);	\
-     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_inline_sys_result, ), 0))	\
+(__extension__								\
+  ({									\
+     unsigned int _inline_sys_result = INTERNAL_SYSCALL_NCS (name, , nr, args);\
+     if (unlikely (INTERNAL_SYSCALL_ERROR_P (_inline_sys_result, )))	\
        {								\
-	 __set_errno (INTERNAL_SYSCALL_ERRNO (_inline_sys_result, ));		\
-	 _inline_sys_result = (unsigned int) -1;				\
+	 __set_errno (INTERNAL_SYSCALL_ERRNO (_inline_sys_result, ));	\
+	 _inline_sys_result = (unsigned int) -1;			\
        }								\
-     (int) _inline_sys_result; })
+     (int) _inline_sys_result;						\
+   })									\
+)
 
 #if !defined(__thumb__)
 #if defined(__ARM_EABI__)
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
+(__extension__ \
   ({unsigned int __internal_sys_result;					\
      {									\
        register int __a1 __asm__ ("r0"), _nr __asm__ ("r7");		\
@@ -53,10 +58,12 @@
 			     : "memory");				\
 	       __internal_sys_result = __a1;				\
      }									\
-     (int) __internal_sys_result; })
+     (int) __internal_sys_result; }) \
+)
 #else /* defined(__ARM_EABI__) */
 
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
+(__extension__ \
   ({ unsigned int __internal_sys_result;				\
      {									\
        register int __a1 __asm__ ("a1");					\
@@ -67,13 +74,15 @@
 		     : "memory");					\
        __internal_sys_result = __a1;					\
      }									\
-     (int) __internal_sys_result; })
+     (int) __internal_sys_result; }) \
+)
 #endif
 #else /* !defined(__thumb__) */
 /* We can't use push/pop inside the asm because that breaks
    unwinding (ie. thread cancellation).
  */
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
+(__extension__ \
   ({ unsigned int __internal_sys_result;				\
     {									\
       int _sys_buf[2];							\
@@ -90,7 +99,8 @@
                     : "memory");					\
 	__internal_sys_result = __a1;					\
     }									\
-    (int) __internal_sys_result; })
+    (int) __internal_sys_result; }) \
+)
 #endif /*!defined(__thumb__)*/
 
 #define INTERNAL_SYSCALL_ERROR_P(val, err) \

@@ -67,16 +67,18 @@
 /* Define a macro which expands inline into the wrapper code for a system
    call.  */
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...) \
+(__extension__ \
   ({									      \
     unsigned long resultvar;						      \
     LOAD_ARGS_##nr (args)						      \
     LOAD_REGS_##nr							      \
-    __asm__ __volatile__ (							      \
+    __asm__ __volatile__ (						      \
     "syscall\n\t"							      \
     : "=a" (resultvar)							      \
     : "0" (name) ASM_ARGS_##nr : "memory", "cc", "r11", "cx");		      \
-    (long) resultvar; })
-
+    (long) resultvar;							      \
+   }) \
+)
 #define LOAD_ARGS_0()
 #define LOAD_REGS_0
 #define ASM_ARGS_0

@@ -73,13 +73,15 @@
    call.  */
 
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			      \
+(__extension__ \
   ({ LD_ARG(2, name);							      \
      LD_ARGS_##nr(args);						      \
      __asm__ __volatile__ ("syscall\n" 						      \
 	 	   : "=a" (_a2)						      \
 	 	   : ASM_ARGS_##nr					      \
 	 	   : "memory");						      \
-     (long) _a2; })
-
+     (long) _a2;							      \
+   }) \
+)
 #endif /* not __ASSEMBLER__ */
 #endif /* _BITS_SYSCALLS_H */
