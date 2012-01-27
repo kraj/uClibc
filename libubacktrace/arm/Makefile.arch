@@ -15,7 +15,3 @@ else
 libubacktrace-a-y+=$(libubacktrace_ARCH_OBJS)
 endif
 libubacktrace-so-y+=$(libubacktrace_ARCH_OBJS:.o=.os)
-
-ifeq ($(CONFIG_ARM_EABI),y)
-LIBGCC += $(shell $(CC) -print-file-name=libgcc_eh.a)
-endif
