@@ -728,7 +728,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 				_dl_tls_max_dtv_idx = app_tpnt->l_tls_modid = 1;
 
 			}
-			_dl_debug_early("Found TLS header for appplication program\n");
+			_dl_debug_early("Found TLS header for application program\n");
 			break;
 #else
 			_dl_dprintf(_dl_debug_file, "Program uses unsupported TLS data!\n");
