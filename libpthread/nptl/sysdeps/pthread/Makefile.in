@@ -42,8 +42,6 @@ CFLAGS-pthread_barrier_wait.c = -D_GNU_SOURCE
 CFLAGS-pthread_spin_destroy.c = -D_GNU_SOURCE
 CFLAGS-pthread_spin_init.c = -D_GNU_SOURCE
 CFLAGS-pthread_spin_unlock.c = -D_GNU_SOURCE
-CFLAGS-pt-sigaction.c = -I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH) \
-			-I$(top_srcdir)libc/signal
 CFLAGS-pt-sigfillset.c = -I$(top_srcdir)libc/signal
 CFLAGS-pt-sigprocmask.c = -I$(top_srcdir)libc/sysdeps/linux/common
 CFLAGS-unwind-forcedunwind.c = -fexceptions -fasynchronous-unwind-tables
@@ -57,10 +55,6 @@ CFLAGS-rt-unwind-resume.c = -DIS_IN_librt				\
 
 libpthread-so-y += $(patsubst %,$(libpthread_pthread_OUT)/%.oS, \
 	pt-sigaction pt-sigprocmask unwind-forcedunwind)
-
-CFLAGS-OMIT-sigaction.c = $(CFLAGS-pthread)
-CFLAGS-sigaction.c = -I$(top_srcdir)libc/signal
-libc-y += $(libpthread_pthread_OUT)/sigaction.o
 
 librt-pt-routines-y = librt-cancellation.c
 librt-pt-shared-only-routines-y = rt-unwind-resume.c
@@ -114,7 +108,7 @@ endif
 # impl, but ok.
 # Special rules needed since we do objdir->objdir compilation for these 3.
 # First symlink them, then build them. Rob would freak out on these. Sheesh! ;)
-pthread-lc-fwd = sigaction sigfillset sigprocmask
+pthread-lc-fwd = sigfillset sigprocmask
 $(patsubst %,$(libpthread_pthread_OUT)/pt-%.c,$(pthread-lc-fwd)): | $(libpthread_pthread_OUT)
 	$(do_ln) $(call rel_srcdir)$(patsubst pt-%,$(libpthread_pthread_DIR)/%,$(@F)) $@
 $(patsubst %,$(libpthread_pthread_OUT)/pt-%.oS,$(pthread-lc-fwd)): $(libpthread_pthread_OUT)/pt-%.oS: $(libpthread_pthread_OUT)/pt-%.c
@@ -131,5 +125,5 @@ objclean-y += CLEAN_libpthread/nptl/sysdeps/pthread
 CLEAN_libpthread/nptl/sysdeps/pthread:
 	$(do_rm) $(addprefix $(libpthread_pthread_OUT)/*., o os oS s S) \
 		$(libpthread_pthread_OUT)/defs.h \
-		$(addprefix $(libpthread_pthread_DIR)/,pt-sigaction.c \
+		$(addprefix $(libpthread_pthread_DIR)/, \
 			pt-sigfillset.c pt-sigprocmask.c)

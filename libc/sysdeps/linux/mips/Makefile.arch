@@ -7,7 +7,7 @@
 
 CSRC := \
 	__longjmp.c  brk.c setjmp_aux.c mmap.c \
-	cacheflush.c pread_write.c sysmips.c _test_and_set.c \
+	cacheflush.c pread_write.c sigaction.c sysmips.c _test_and_set.c \
 	readahead.c
 
 SSRC := bsd-_setjmp.S bsd-setjmp.S setjmp.S syscall.S pipe.S syscall_error.S
@@ -17,7 +17,6 @@ CSRC += posix_fadvise.c posix_fadvise64.c
 endif
 
 ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC += sigaction.c
 SSRC += vfork.S clone.S
 endif
 

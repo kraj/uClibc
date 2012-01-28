@@ -17,20 +17,17 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#ifndef LIBC_SIGACTION
-
 #include <pthreadP.h>
+#include <signal.h>
 
 /* We use the libc implementation but we tell it to not allow
    SIGCANCEL or SIGTIMER to be handled.  */
-#define LIBC_SIGACTION	1
-#include <sigaction.c>
 
-extern __typeof(sigaction) __sigaction;
+extern __typeof(sigaction) __libc_sigaction;
 int
 __sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
-  if (__builtin_expect (sig == SIGCANCEL || sig == SIGSETXID, 0))
+  if (unlikely (sig == SIGCANCEL || sig == SIGSETXID))
     {
       __set_errno (EINVAL);
       return -1;
@@ -41,9 +38,3 @@ __sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 libc_hidden_proto(sigaction)
 weak_alias (__sigaction, sigaction)
 libc_hidden_weak(sigaction)
-
-#else
-
-# include_next <sigaction.c>
-
-#endif /* LIBC_SIGACTION */

@@ -17,7 +17,7 @@ CSRC-$(UCLIBC_HAS_OBSOLETE_SYSV_SIGNAL) += sysv_signal.c
 CSRC-$(UCLIBC_SUSV4_LEGACY) += sigintr.c
 
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC-y:=$(filter-out raise.c sigaction.c,$(CSRC-y))
+CSRC-y:=$(filter-out raise.c,$(CSRC-y))
 endif
 
 ifneq ($(strip $(ARCH_OBJS)),)

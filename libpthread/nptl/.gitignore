@@ -26,6 +26,5 @@ sysdeps/pthread/pt-crtn.S
 #
 # symlinks
 #
-sysdeps/pthread/pt-sigaction.c
 sysdeps/pthread/pt-sigfillset.c
 sysdeps/pthread/pt-sigprocmask.c
