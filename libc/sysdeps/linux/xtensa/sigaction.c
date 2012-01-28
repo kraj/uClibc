@@ -34,6 +34,11 @@ int __libc_sigaction(int sig, const struct sigaction *act,
 }
 
 #ifndef LIBC_SIGACTION
-weak_alias(__libc_sigaction, sigaction)
+# ifndef __UCLIBC_HAS_THREADS__
+strong_alias(__libc_sigaction,sigaction)
+libc_hidden_def(sigaction)
+# else
+weak_alias(__libc_sigaction,sigaction)
 libc_hidden_weak(sigaction)
+# endif
 #endif
