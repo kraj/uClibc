@@ -33,3 +33,4 @@ char * tmpnam_r (char *s)
 
     return s;
 }
+link_warning (tmpnam_r, "the use of OBSOLESCENT `tmpnam_r' is discouraged, use `mkstemp'")

@@ -978,6 +978,7 @@ tf_pause (void *arg)
 static void *
 tf_accept (void *arg)
 {
+  int tfd;
   struct sockaddr_un sun;
   /* To test a non-blocking accept call we make the call file by using
      a datagrame socket.  */
@@ -999,12 +1000,13 @@ tf_accept (void *arg)
 	}
 
       strcpy (sun.sun_path, "/tmp/tst-cancel4-socket-1-XXXXXX");
-      if (mktemp (sun.sun_path) == NULL)
+      tfd = mkstemp(sun.sun_path);
+      if (tfd < 0)
 	{
 	  printf ("%s: cannot generate temp file name\n", __FUNCTION__);
 	  exit (1);
 	}
-
+      close(tfd);
       sun.sun_family = AF_UNIX;
     }
   while (bind (tempfd, (struct sockaddr *) &sun,
@@ -1049,6 +1051,7 @@ tf_accept (void *arg)
 static void *
 tf_send (void *arg)
 {
+  int tfd;
   struct sockaddr_un sun;
 
   tempfd = socket (AF_UNIX, SOCK_STREAM, 0);
@@ -1067,12 +1070,13 @@ tf_send (void *arg)
 	}
 
       strcpy (sun.sun_path, "/tmp/tst-cancel4-socket-2-XXXXXX");
-      if (mktemp (sun.sun_path) == NULL)
+      tfd = mkstemp(sun.sun_path);
+      if (tfd < 0)
 	{
 	  printf ("%s: cannot generate temp file name\n", __FUNCTION__);
 	  exit (1);
 	}
-
+      close(tfd);
       sun.sun_family = AF_UNIX;
     }
   while (bind (tempfd, (struct sockaddr *) &sun,
@@ -1131,6 +1135,7 @@ tf_send (void *arg)
 static void *
 tf_recv (void *arg)
 {
+  int tfd;
   struct sockaddr_un sun;
 
   tempfd = socket (AF_UNIX, SOCK_STREAM, 0);
@@ -1149,12 +1154,13 @@ tf_recv (void *arg)
 	}
 
       strcpy (sun.sun_path, "/tmp/tst-cancel4-socket-3-XXXXXX");
-      if (mktemp (sun.sun_path) == NULL)
+      tfd = mkstemp(sun.sun_path);
+      if (tfd < 0)
 	{
 	  printf ("%s: cannot generate temp file name\n", __FUNCTION__);
 	  exit (1);
 	}
-
+      close(tfd);
       sun.sun_family = AF_UNIX;
     }
   while (bind (tempfd, (struct sockaddr *) &sun,
@@ -1212,6 +1218,7 @@ tf_recv (void *arg)
 static void *
 tf_recvfrom (void *arg)
 {
+  int tfd;
   struct sockaddr_un sun;
 
   tempfd = socket (AF_UNIX, SOCK_DGRAM, 0);
@@ -1230,12 +1237,13 @@ tf_recvfrom (void *arg)
 	}
 
       strcpy (sun.sun_path, "/tmp/tst-cancel4-socket-4-XXXXXX");
-      if (mktemp (sun.sun_path) == NULL)
+      tfd = mkstemp(sun.sun_path);
+      if (tfd < 0)
 	{
 	  printf ("%s: cannot generate temp file name\n", __FUNCTION__);
 	  exit (1);
 	}
-
+      close(tfd);
       sun.sun_family = AF_UNIX;
     }
   while (bind (tempfd, (struct sockaddr *) &sun,
@@ -1287,6 +1295,7 @@ tf_recvfrom (void *arg)
 static void *
 tf_recvmsg (void *arg)
 {
+  int tfd;
   struct sockaddr_un sun;
 
   tempfd = socket (AF_UNIX, SOCK_DGRAM, 0);
@@ -1305,12 +1314,13 @@ tf_recvmsg (void *arg)
 	}
 
       strcpy (sun.sun_path, "/tmp/tst-cancel4-socket-5-XXXXXX");
-      if (mktemp (sun.sun_path) == NULL)
+      tfd = mkstemp(sun.sun_path);
+      if (tfd < 0)
 	{
 	  printf ("%s: cannot generate temp file name\n", __FUNCTION__);
 	  exit (1);
 	}
-
+      close(tfd);
       sun.sun_family = AF_UNIX;
     }
   while (bind (tempfd, (struct sockaddr *) &sun,
@@ -1663,6 +1673,7 @@ tf_msync (void *arg)
 static void *
 tf_sendto (void *arg)
 {
+  int tfd;
   if (arg == NULL)
     // XXX If somebody can provide a portable test case in which sendto()
     // blocks we can enable this test to run in both rounds.
@@ -1686,12 +1697,13 @@ tf_sendto (void *arg)
 	}
 
       strcpy (sun.sun_path, "/tmp/tst-cancel4-socket-6-XXXXXX");
-      if (mktemp (sun.sun_path) == NULL)
+      tfd = mkstemp(sun.sun_path);
+      if (tfd < 0)
 	{
 	  printf ("%s: cannot generate temp file name\n", __FUNCTION__);
 	  exit (1);
 	}
-
+      close(tfd);
       sun.sun_family = AF_UNIX;
     }
   while (bind (tempfd, (struct sockaddr *) &sun,
@@ -1739,6 +1751,7 @@ tf_sendto (void *arg)
 static void *
 tf_sendmsg (void *arg)
 {
+  int tfd;
   if (arg == NULL)
     // XXX If somebody can provide a portable test case in which sendmsg()
     // blocks we can enable this test to run in both rounds.
@@ -1762,12 +1775,13 @@ tf_sendmsg (void *arg)
 	}
 
       strcpy (sun.sun_path, "/tmp/tst-cancel4-socket-7-XXXXXX");
-      if (mktemp (sun.sun_path) == NULL)
+      tfd = mkstemp(sun.sun_path);
+      if (tfd < 0)
 	{
 	  printf ("%s: cannot generate temp file name\n", __FUNCTION__);
 	  exit (1);
 	}
-
+      close(tfd);
       sun.sun_family = AF_UNIX;
     }
   while (bind (tempfd, (struct sockaddr *) &sun,
@@ -1859,6 +1873,7 @@ tf_creat (void *arg)
 static void *
 tf_connect (void *arg)
 {
+  int tfd;
   if (arg == NULL)
     // XXX If somebody can provide a portable test case in which connect()
     // blocks we can enable this test to run in both rounds.
@@ -1882,12 +1897,13 @@ tf_connect (void *arg)
 	}
 
       strcpy (sun.sun_path, "/tmp/tst-cancel4-socket-2-XXXXXX");
-      if (mktemp (sun.sun_path) == NULL)
+      tfd = mkstemp(sun.sun_path);
+      if (tfd < 0)
 	{
 	  printf ("%s: cannot generate temp file name\n", __FUNCTION__);
 	  exit (1);
 	}
-
+      close(tfd);
       sun.sun_family = AF_UNIX;
     }
   while (bind (tempfd, (struct sockaddr *) &sun,

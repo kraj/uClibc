@@ -114,7 +114,7 @@ typedef __STDIO_fpos64_t fpos64_t;
 
 
 #if defined __USE_SVID || defined __USE_XOPEN
-/* Default path prefix for `tempnam' and `tmpnam'.  */
+/* Default path prefix for `mkstemp'.  */
 # define P_tmpdir	"/tmp"
 #endif
 
@@ -173,18 +173,20 @@ extern FILE *__REDIRECT (tmpfile, (void), tmpfile64) __wur;
 extern FILE *tmpfile64 (void) __wur;
 #endif
 
+#ifdef __UCLIBC_SUSV4_LEGACY__
 /* Generate a temporary filename.  */
 extern char *tmpnam (char *__s) __THROW __wur;
+#endif
 __END_NAMESPACE_STD
 
-#ifdef __USE_MISC
+#if defined __USE_MISC && defined __UCLIBC_SUSV4_LEGACY__
 /* This is the reentrant variant of `tmpnam'.  The only difference is
    that it does not allow S to be NULL.  */
 extern char *tmpnam_r (char *__s) __THROW __wur;
 #endif
 
 
-#if defined __USE_SVID || defined __USE_XOPEN
+#if (defined __USE_SVID || defined __USE_XOPEN) && defined __UCLIBC_SUSV4_LEGACY__
 /* Generate a unique temporary filename using up to five characters of PFX
    if it is not NULL.  The directory to put this file in is searched for
    as follows: First the environment variable "TMPDIR" is checked.

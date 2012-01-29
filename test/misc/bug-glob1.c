@@ -32,9 +32,7 @@ prepare (int argc, char *argv[])
  again:
   strcpy (stpcpy (fname, argv[1]), ext);
 
-/*
-  fname = mktemp (fname);
-*/
+/* fname = mktemp (fname); */
   close(mkstemp(fname));
   unlink(fname);
 

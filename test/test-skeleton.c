@@ -87,28 +87,6 @@ add_temp_file (const char *name)
     }
 }
 
-#if defined __UCLIBC__ && !defined __UCLIBC_SUSV3_LEGACY__
-/* mktemp() isn't available, so fake it with tempnam().
-   We make a lot of assumptions about the format of the
-   "template" name, but we aren't testing that, so eh.  */
-__attribute__ ((unused))
-static char *mktemp(char *template)
-{
-  char *dir, *pfx, *s;
-
-  dir = strdup (template);
-  pfx = strrchr (dir, '/');
-  *pfx++ = '\0';
-  s = strstr (pfx, "XXXXXX");
-  *s = '\0';
-
-  s = tempnam (dir, pfx);
-  strcpy (template, s);
-  free (s);
-  return template;
-}
-#endif
-
 /* Delete all temporary files.  */
 static void
 delete_temp_files (void)

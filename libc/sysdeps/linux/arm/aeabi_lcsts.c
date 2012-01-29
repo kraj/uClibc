@@ -79,7 +79,9 @@ eabi_constant (BUFSIZ);
 eabi_constant (FOPEN_MAX);
 eabi_constant (TMP_MAX);
 eabi_constant (FILENAME_MAX);
+#ifdef __UCLIBC_SUSV4_LEGACY__
 eabi_constant (L_tmpnam);
+#endif
 
 FILE *__aeabi_stdin attribute_hidden;
 FILE *__aeabi_stdout attribute_hidden;

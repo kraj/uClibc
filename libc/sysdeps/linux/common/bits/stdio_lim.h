@@ -21,7 +21,9 @@
 #endif
 
 #ifdef _STDIO_H
-# define L_tmpnam 20
+# ifdef __UCLIBC_SUSV4_LEGACY__
+#  define L_tmpnam 20
+# endif
 # define TMP_MAX 238328
 # define FILENAME_MAX 4095
 

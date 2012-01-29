@@ -18,10 +18,13 @@ CSRC := \
 	setlinebuf.c setvbuf.c ungetc.c \
 	printf.c vprintf.c vsprintf.c fprintf.c snprintf.c dprintf.c \
 	asprintf.c sprintf.c vasprintf.c vdprintf.c vsnprintf.c \
-	tmpfile.c tmpnam.c tmpnam_r.c popen.c tempnam.c ctermid.c
+	tmpfile.c popen.c ctermid.c
 
 ifeq ($(UCLIBC_HAS_LFS),y)
 CSRC += fgetpos64.c fopen64.c freopen64.c fseeko64.c fsetpos64.c ftello64.c
+endif
+ifeq ($(UCLIBC_SUSV4_LEGACY),y)
+CSRC += tmpnam.c tmpnam_r.c tempnam.c
 endif
 
 # getc -> alias for fgetc

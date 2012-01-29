@@ -40,6 +40,7 @@ void
 do_prepare (int argc, char *argv[])
 {
   size_t test_dir_len;
+  int tfd;
 
   test_dir_len = strlen (test_dir);
 
@@ -48,9 +49,20 @@ do_prepare (int argc, char *argv[])
   mempcpy (mempcpy (name1, test_dir, test_dir_len),
 	   "/canonXXXXXX", sizeof ("/canonXXXXXX"));
   name2 = strdup (name1);
-
-  add_temp_file (mktemp (name1));
-  add_temp_file (mktemp (name2));
+  tfd = mkstemp(name1);
+  if (tfd < 0) {
+	  printf("%s: cannot generate temp file name\n", __FUNCTION__);
+	  exit(1);
+  }
+  close(tfd);
+  add_temp_file (name1);
+  tfd = mkstemp(name2);
+  if (tfd < 0) {
+	  printf("%s: cannot generate temp file name\n", __FUNCTION__);
+	  exit(1);
+  }
+  close(tfd);
+  add_temp_file (name2);
 }
 
 
