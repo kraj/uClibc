@@ -1931,7 +1931,7 @@ config UCLIBC_HAS_NFTW
 	  a pressing need for nftw(), you should probably answer N.
 
 config UCLIBC_HAS_FTW
-	bool "Support the ftw() interface"
+	bool "Support the ftw() interface (SUSv4-obsolete)"
 	depends on UCLIBC_SUSV4_LEGACY
 	help
 	  The SuSv3 ftw() interface is used to recursively descend
