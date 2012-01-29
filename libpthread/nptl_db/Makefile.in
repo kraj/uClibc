@@ -22,6 +22,9 @@ libthread_db_OUT := $(top_builddir)libpthread/nptl_db
 
 libthread_db_SRC := $(wildcard $(libthread_db_DIR)/td_*.c)	\
 		    $(libthread_db_DIR)/fetch-value.c
+ifeq ($(UCLIBC_SUSV4_LEGACY),)
+libthread_db_SRC := $(filter-out td_ta_setconcurrency.c,$(libthread_db_SRC))
+endif
 
 libthread_db_OBJ := $(patsubst $(libthread_db_DIR)/%.c,$(libthread_db_OUT)/%.o,$(libthread_db_SRC))
 

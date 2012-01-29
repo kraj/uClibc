@@ -430,7 +430,7 @@ extern int pthread_setschedprio (pthread_t __target_thread, int __prio)
      __THROW;
 
 
-#ifdef __USE_UNIX98
+#if defined __USE_UNIX98 && defined __UCLIBC_SUSV4_LEGACY__
 /* Determine level of concurrency.  */
 extern int pthread_getconcurrency (void) __THROW;
 

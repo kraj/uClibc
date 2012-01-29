@@ -355,10 +355,10 @@ extern td_err_e td_ta_clear_event (const td_thragent_t *__ta,
 extern td_err_e td_ta_event_getmsg (const td_thragent_t *__ta,
 				    td_event_msg_t *__msg);
 
-
+#ifdef __UCLIBC_SUSV4_LEGACY__
 /* Set suggested concurrency level for process associated with TA.  */
 extern td_err_e td_ta_setconcurrency (const td_thragent_t *__ta, int __level);
-
+#endif
 
 /* Enable collecting statistics for process associated with TA.  */
 extern td_err_e td_ta_enable_stats (const td_thragent_t *__ta, int __enable);
