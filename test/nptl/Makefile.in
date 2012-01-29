@@ -59,7 +59,7 @@ TESTS_DISABLED += tst-exec2 tst-exec3 tst-exec4
 endif
 
 ifeq ($(UCLIBC_SUSV4_LEGACY),)
-TESTS_DISABLED += tst-basic5
+TESTS_DISABLED += tst-basic5 tst-cancel4 tst-cancel5 tst-cancelx4
 endif
 
 GLIBC_TESTS_DISABLED := tst-eintr1_glibc tst-eintr2_glibc \

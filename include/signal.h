@@ -168,7 +168,7 @@ extern int gsignal (int __sig) __THROW;
 extern void psignal (int __sig, __const char *__s);
 #endif /* Use misc.  */
 
-
+#ifdef __UCLIBC_SUSV4_LEGACY__
 /* The `sigpause' function has two different interfaces.  The original
    BSD definition defines the argument as a mask of the signal, while
    the more modern interface in X/Open defines it as the signal
@@ -191,7 +191,7 @@ extern int sigpause (int __mask) __THROW __attribute_deprecated__;
 #  define sigpause(sig) __sigpause ((sig), 1)
 # endif
 #endif
-
+#endif /* __UCLIBC_SUSV4_LEGACY__ */
 
 #ifdef __USE_BSD
 /* None of the following functions should be used anymore.  They are here
