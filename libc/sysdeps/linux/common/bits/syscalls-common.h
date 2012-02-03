@@ -59,8 +59,8 @@
 #ifndef INLINE_SYSCALL_NOERR_NCS
 # define INLINE_SYSCALL_NOERR_NCS(name, nr, args...)			\
 ({									\
-	/*INTERNAL_SYSCALL_DECL(__err);*/					\
-	long __res = INTERNAL_SYSCALL_NCS(name, /*__err*/, nr, args);	\
+	INTERNAL_SYSCALL_DECL(__err);					\
+	long __res = INTERNAL_SYSCALL_NCS(name, __err, nr, args);	\
 	__res;								\
 })
 #endif
