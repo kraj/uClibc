@@ -1011,6 +1011,8 @@ static int do_dlclose(void *vhandle, int need_fini)
 				}
 			}
 			free(tpnt->libname);
+			if (handle->dyn != tpnt)
+				free(tpnt->symbol_scope.r_list);
 			free(tpnt);
 		}
 	}
