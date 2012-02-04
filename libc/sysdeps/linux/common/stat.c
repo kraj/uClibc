@@ -12,20 +12,30 @@
 #include <sys/stat.h>
 #include "xstatconv.h"
 
-#define __NR___syscall_stat __NR_stat
 #undef stat
-static __inline__ _syscall2(int, __syscall_stat,
-		const char *, file_name, struct kernel_stat *, buf)
 
 int stat(const char *file_name, struct stat *buf)
 {
 	int result;
+#ifdef __NR_stat64
+	/* normal stat call has limited values for various stat elements
+	 * e.g. uid device major/minor etc.
+	 * so we use 64 variant if available
+	 * in order to get newer versions of stat elements
+	 */
+	struct kernel_stat64 kbuf;
+	result = INLINE_SYSCALL(stat64, 2, file_name, &kbuf);
+	if (result == 0) {
+		__xstat32_conv(&kbuf, buf);
+	}
+#else
 	struct kernel_stat kbuf;
 
-	result = __syscall_stat(file_name, &kbuf);
+	result = INLINE_SYSCALL(stat, 2, file_name, &kbuf);
 	if (result == 0) {
 		__xstat_conv(&kbuf, buf);
 	}
+#endif
 	return result;
 }
 libc_hidden_def(stat)
