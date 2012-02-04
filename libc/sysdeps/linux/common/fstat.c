@@ -12,18 +12,28 @@
 #include <sys/stat.h>
 #include "xstatconv.h"
 
-#define __NR___syscall_fstat __NR_fstat
-static __inline__ _syscall2(int, __syscall_fstat, int, fd, struct kernel_stat *, buf)
-
 int fstat(int fd, struct stat *buf)
 {
 	int result;
+#ifdef __NR_fstat64
+	/* normal stat call has limited values for various stat elements
+	 * e.g. uid device major/minor etc.
+	 * so we use 64 variant if available
+	 * in order to get newer versions of stat elements
+	 */
+	struct kernel_stat64 kbuf;
+	result = INLINE_SYSCALL(fstat64, 2, fd, &kbuf);
+	if (result == 0) {
+		__xstat32_conv(&kbuf, buf);
+	}
+#else
 	struct kernel_stat kbuf;
 
-	result = __syscall_fstat(fd, &kbuf);
+	result = INLINE_SYSCALL(fstat, 2, fd, &kbuf);
 	if (result == 0) {
 		__xstat_conv(&kbuf, buf);
 	}
+#endif
 	return result;
 }
 libc_hidden_def(fstat)
