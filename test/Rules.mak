@@ -94,7 +94,7 @@ endif
 
 ifeq ($(LDSO_GNU_HASH_SUPPORT),y)
 # Check for binutils support is done on root Rules.mak
-LDFLAGS += -Wl,${LDFLAGS_GNUHASH}
+LDFLAGS += $(CFLAG_-Wl--hash-style=gnu)
 endif
 
 
