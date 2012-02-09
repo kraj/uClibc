@@ -77,9 +77,9 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		_dl_exit(1);
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
-#if !defined __SUPPORT_LD_DEBUG_EARLY__
+# if !defined __SUPPORT_LD_DEBUG_EARLY__
 	if ((unsigned long) got_addr < 0x40000000)
-#endif
+# endif
 	{
 		if (_dl_debug_bindings)
 		{

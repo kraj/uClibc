@@ -237,8 +237,11 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 				_dl_memcpy ((void *) reloc_addr,
 				            (void *) symbol_addr,
 				            sym_ref.sym->st_size);
-			} else
+			}
+#if defined (__SUPPORT_LD_DEBUG__)
+			else
 				_dl_dprintf(_dl_debug_file, "no symbol_addr to copy !?\n");
+#endif
 			break;
 
 		default:
