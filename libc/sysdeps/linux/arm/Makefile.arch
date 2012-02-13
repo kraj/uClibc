@@ -22,7 +22,7 @@ endif
 
 # Is our compiler set up for EABI ?
 IS_EABI:=$(shell $(CC) $(CFLAGS) -x c - -E -dM </dev/null 2>/dev/null \
-                 |sed -r -e '/^\#[[:space:]]*define[[:space:]]+__ARM_EABI__([[:space:]]+1)?$$/!d; s/.+/y/;' \
+                 | grep __ARM_EABI__ 2>&1 >/dev/null && echo 'y' \
           )
 
 ifeq ($(IS_EABI),y)
