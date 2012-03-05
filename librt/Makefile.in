@@ -22,18 +22,21 @@ librt_DIR := $(top_srcdir)librt
 librt_OUT := $(top_builddir)librt
 
 ifeq ($(UCLIBC_HAS_REALTIME),y)
+
+librt_SRC := $(notdir $(wildcard $(librt_DIR)/*.c))
+librt_filter_SRC :=
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-librt_CSRC := $(filter-out mq_notify.c timer_create.c timer_delete.c	\
-		timer_getoverr.c timer_gettime.c timer_settime.c,	\
-		$(notdir $(wildcard $(librt_DIR)/*.c)))
+librt_filter_SRC += mq_notify.c timer_create.c timer_delete.c \
+	timer_getoverr.c timer_gettime.c timer_settime.c
 librt_SSRC := $(wildcard $(librt_DIR)/*.S)
-librt_OBJ := $(patsubst %.c,$(librt_OUT)/%.o,$(librt_CSRC))
-librt_OBJ += $(patsubst $(librt_DIR)/%.S,$(librt_OUT)/%.o,$(librt_SSRC))
 else
-librt_SRC := $(filter-out clock_nanosleep.c clock_getcpuclockid.c clock_gettime.c,	\
-		$(notdir $(wildcard $(librt_DIR)/*.c)))
-librt_OBJ := $(patsubst %.c,$(librt_OUT)/%.o,$(librt_SRC))
+librt_filter_SRC += clock_nanosleep.c clock_getcpuclockid.c clock_gettime.c
+librt_SSRC :=
 endif
+librt_SRC := $(filter-out $(librt_filter_SRC),$(librt_SRC))
+
+librt_OBJ := $(patsubst %.c,$(librt_OUT)/%.o,$(librt_SRC))
+librt_OBJ += $(patsubst $(librt_DIR)/%.S,$(librt_OUT)/%.o,$(librt_SSRC))
 
 ASFLAGS-mq_timedreceive.S = -D_LIBC_REENTRANT
 ASFLAGS-mq_timedsend.S = -D_LIBC_REENTRANT
