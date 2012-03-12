@@ -57,14 +57,30 @@ size_t attribute_hidden __stdio_WRITE(register FILE *stream,
 #endif
 			todo -= rv;
 			buf += rv;
-		} else
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning EINTR?
-#endif
-/* 		if (errno != EINTR) */
-		{
+		} else {
+
 			__STDIO_STREAM_SET_ERROR(stream);
 
+			/* We buffer data on "transient" errors, but discard it
+			 * on "hard" ones. Example of a hard error:
+			 *
+			 * close(fileno(stdout));
+			 * printf("Hi there 1\n"); // EBADF
+			 * dup2(good_fd, fileno(stdout));
+			 * printf("Hi there 2\n"); // buffers new data
+			 *
+			 * This program should not print "Hi there 1" to good_fd.
+			 * The rationale is that the caller of writing operation
+			 * should check for error and act on it.
+			 * If he didn't, then future users of the stream
+			 * have no idea what to do.
+			 * It's least confusing to at least not burden them with
+			 * some hidden buffered crap in the buffer.
+			 */
+			if (errno != EINTR && errno != EAGAIN) {
+				/* do we have other "soft" errors? */
+				break;
+			}
 #ifdef __STDIO_BUFFERS
 			stodo = __STDIO_STREAM_BUFFER_SIZE(stream);
 			if (stodo != 0) {
