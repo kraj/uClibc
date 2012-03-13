@@ -50,6 +50,10 @@ all_objs: $(ar_objs)
 endif
 $(shared_objs) $(ar_objs): | $(sub_headers)
 
+define objects_with_syms
+	$(foreach o,$(2),$(if $(shell $(NM) $(1) $(o) | grep .),$(o)))
+endef
+
 headers-y: $(headers-y)
 	@true
 
@@ -243,7 +247,7 @@ cmd_compile.mi= $(cmd_compile.m:-c=-E -dD) $(UCLIBC_EXTRA_CPPFLAGS)
 cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@)) $(sort $(foreach d,$(^:$(top_srcdir)=),$(collect_multi_flags)))
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_t_strip   = $(STRIPTOOL) $(STRIP_FLAGS) $@
-cmd_ar        = $(AR) $(ARFLAGS) $@ $^
+cmd_ar        = $(AR) $(ARFLAGS) $@ $(call objects_with_syms,,$^)
 
 define do_ln
 	@$(disp_ln)
