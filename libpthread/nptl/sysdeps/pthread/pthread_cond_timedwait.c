@@ -100,8 +100,10 @@ __pthread_cond_timedwait (
       {
 #ifdef __NR_clock_gettime
 	INTERNAL_SYSCALL_DECL (err);
-	int ret;
-	ret = INTERNAL_SYSCALL (clock_gettime, err, 2,
+# ifndef __ASSUME_POSIX_TIMERS
+	int ret =
+# endif
+	INTERNAL_SYSCALL (clock_gettime, err, 2,
 				(cond->__data.__nwaiters
 				 & ((1 << COND_NWAITERS_SHIFT) - 1)),
 				&rt);
