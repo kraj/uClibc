@@ -68,7 +68,9 @@ struct authnone_private_s {
 };
 
 static struct authnone_private_s authnone_private;
+#ifdef __UCLIBC_HAS_THREADS__
 __libc_once_define(static, authnone_private_guard);
+#endif
 
 static void authnone_create_once (void);
 
@@ -95,7 +97,11 @@ authnone_create_once (void)
 AUTH *
 authnone_create (void)
 {
+#ifdef __UCLIBC_HAS_THREADS__
   __libc_once (authnone_private_guard, authnone_create_once);
+#else
+  authnone_create_once();
+#endif
   return &authnone_private.no_client;
 }
 libc_hidden_def(authnone_create)
