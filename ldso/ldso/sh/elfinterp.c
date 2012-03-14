@@ -160,7 +160,9 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	unsigned long old_val;
 #endif
 
+#if defined USE_TLS && USE_TLS
 	struct elf_resolve *tls_tpnt = NULL;
+#endif
 	struct symbol_ref sym_ref;
 
 	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
@@ -193,7 +195,9 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
 							&sym_ref, elf_machine_type_class(reloc_type));
 		}
+#if defined USE_TLS && USE_TLS
 		tls_tpnt = sym_ref.tpnt;
+#endif
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
