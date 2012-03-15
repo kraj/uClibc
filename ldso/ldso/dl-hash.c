@@ -355,7 +355,6 @@ char *_dl_find_hash(const char *name, struct r_scope_elem *scope, struct elf_res
 #if defined(USE_TLS) && USE_TLS
 		if (ELF_ST_TYPE(sym->st_info) == STT_TLS) {
 			_dl_assert(sym_ref != NULL);
-			sym_ref->tpnt = tpnt;
 			return (char *)sym->st_value;
 		}
 #endif
