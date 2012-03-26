@@ -58,13 +58,5 @@ int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
 #error your machine is neither 32 bit or 64 bit ... it must be magical
 #endif
 
-#elif !defined __NR_fadvise64 && defined __UCLIBC_HAS_STUBS__
-/* This is declared as a strong alias in posix_fadvise.c if __NR_fadvise64
- * is defined.
- */
-int posix_fadvise64(int fd, __off64_t offset, __off64_t len, int advice)
-{
-	return ENOSYS;
-}
 #endif /* __NR_fadvise64_64 */
 #endif /* __UCLIBC_HAS_LFS__ */

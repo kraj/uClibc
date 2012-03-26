@@ -27,10 +27,4 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 strong_alias(posix_fadvise,posix_fadvise64)
 #endif
 
-#else
-int posix_fadvise(int fd attribute_unused, off_t offset attribute_unused, off_t len attribute_unused, int advice attribute_unused)
-{
-#warning This is not correct as far as SUSv3 is concerned.
-	return ENOSYS;
-}
 #endif

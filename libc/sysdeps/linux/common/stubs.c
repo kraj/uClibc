@@ -6,31 +6,55 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
+/* Please keep the list sorted alphabetically, in ascending order
+ * of the stub name!  */
+
 #include <errno.h>
 #include <bits/wordsize.h>
 #include <sys/syscall.h>
 
 #ifdef __UCLIBC_HAS_STUBS__
 
-static int enosys_stub(void) __attribute_used__;
-static int enosys_stub(void)
+__attribute_used__ static int enosys_stub(void)
 {
 	__set_errno(ENOSYS);
 	return -1;
+}
+
+__attribute_used__ static int ret_enosys_stub(void)
+{
+	return ENOSYS;
 }
 
 #define make_stub(stub) \
 	link_warning(stub, #stub ": this function is not implemented") \
 	strong_alias(enosys_stub, stub)
 
+#define make_ret_stub(stub) \
+	link_warning(stub, #stub ": this function is not implemented") \
+	strong_alias(ret_enosys_stub, stub)
+
 #ifndef __ARCH_USE_MMU__
 # undef __NR_fork
 #endif
 
+#ifdef __arm__
+# define __NR_fadvise64_64 __NR_arm_fadvise64_64
+# define __NR_fadvise64 __NR_arm_fadvise64_64
+#endif
+
+#ifdef __mips__
+# define __NR_fadvise64_64 __NR_fadvise64
+#endif
+
+#ifdef __xtensa__
+# define __NR_fadvise64 __NR_fadvise64_64
+#endif
+
 #ifndef __UCLIBC_HAS_LFS__
-# undef __NR_fadvise64
-# undef __NR_fadvise64_64
+# undef __NR_readahead
 # undef __NR_sync_file_range
+# undef __NR_splice
 #endif
 
 #if !defined __NR_accept && !defined __NR_socketcall && defined __UCLIBC_HAS_SOCKET__
@@ -45,14 +69,6 @@ make_stub(accept4)
 make_stub(arch_prctl)
 #endif
 
-#if !defined __NR_capget && defined __UCLIBC_LINUX_SPECIFIC__
-make_stub(capget)
-#endif
-
-#if !defined __NR_capset && defined __UCLIBC_LINUX_SPECIFIC__
-make_stub(capset)
-#endif
-
 #if !defined __NR_bdflush && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(bdflush)
 #endif
@@ -61,11 +77,11 @@ make_stub(bdflush)
 make_stub(bind)
 #endif
 
-#ifndef __NR_capget
+#if !defined __NR_capget && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(capget)
 #endif
 
-#ifndef __NR_capset
+#if !defined __NR_capset && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(capset)
 #endif
 
@@ -81,15 +97,19 @@ make_stub(create_module)
 make_stub(delete_module)
 #endif
 
-#ifndef __NR_epoll_create
+#if !defined __NR_epoll_create && defined __UCLIBC_HAS_EPOLL__
 make_stub(epoll_create)
 #endif
 
-#ifndef __NR_epoll_ctl
+#if !defined __NR_epoll_ctl && defined __UCLIBC_HAS_EPOLL__
 make_stub(epoll_ctl)
 #endif
 
-#ifndef __NR_epoll_wait
+#if !defined __NR_epoll_pwait && defined __UCLIBC_HAS_EPOLL__
+make_stub(epoll_pwait)
+#endif
+
+#if !defined __NR_epoll_wait && defined __UCLIBC_HAS_EPOLL__
 make_stub(epoll_wait)
 #endif
 
@@ -97,8 +117,12 @@ make_stub(epoll_wait)
 make_stub(eventfd)
 #endif
 
-#ifndef __NR_fdatasync
+#if !defined __NR_fdatasync && !defined __NR_osf_fdatasync
 make_stub(fdatasync)
+#endif
+
+#ifndef __NR_fgetxattr
+make_stub(fgetxattr)
 #endif
 
 #ifndef __NR_flistxattr
@@ -107,10 +131,6 @@ make_stub(flistxattr)
 
 #ifndef __NR_fork
 make_stub(fork)
-#endif
-
-#ifndef __NR_fgetxattr
-make_stub(fgetxattr)
 #endif
 
 #ifndef __NR_fremovexattr
@@ -127,10 +147,6 @@ make_stub(fstatfs)
 
 #ifndef __NR_get_kernel_syms
 make_stub(get_kernel_syms)
-#endif
-
-#if !defined __NR_getcpu && defined __UCLIBC_LINUX_SPECIFIC__ && ((defined __x86_64__ && !defined __UCLIBC_HAS_TLS__) || !defined __x86_64__)
-make_stub(sched_getcpu)
 #endif
 
 #if !defined __NR_getpeername && !defined __NR_socketcall && defined __UCLIBC_HAS_SOCKET__
@@ -157,16 +173,16 @@ make_stub(getxattr)
 make_stub(init_module)
 #endif
 
+#if !defined __NR_inotify_add_watch && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(inotify_add_watch)
+#endif
+
 #if !defined __NR_inotify_init && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(inotify_init)
 #endif
 
 #if !defined __NR_inotify_init1 && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(inotify_init1)
-#endif
-
-#if !defined __NR_inotify_add_watch && defined __UCLIBC_LINUX_SPECIFIC__
-make_stub(inotify_add_watch)
 #endif
 
 #if !defined __NR_inotify_rm_watch && defined __UCLIBC_LINUX_SPECIFIC__
@@ -213,6 +229,13 @@ make_stub(madvise)
 make_stub(modify_ldt)
 #endif
 
+#ifndef __NR_openat
+make_stub(openat)
+# ifdef __UCLIBC_HAS_LFS__
+make_stub(openat64)
+# endif
+#endif
+
 #if !defined __NR_personality && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(personality)
 #endif
@@ -225,6 +248,18 @@ make_stub(pipe2)
 make_stub(pivot_root)
 #endif
 
+#if !defined __NR_fadvise64 && defined __UCLIBC_HAS_LFS__
+make_ret_stub(posix_fadvise)
+#endif
+
+#if !defined __NR_fadvise64_64 && defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 32
+make_ret_stub(posix_fadvise64)
+#endif
+
+#ifndef __NR_madvise
+make_ret_stub(posix_madvise)
+#endif
+
 #if !defined __NR_ppoll && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(ppoll)
 #endif
@@ -233,16 +268,16 @@ make_stub(ppoll)
 make_stub(prctl)
 #endif
 
+#if !defined __NR_query_module && defined __UCLIBC_LINUX_MODULE_24__
+make_stub(query_module)
+#endif
+
 #if !defined __NR_readahead && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(readahead)
 #endif
 
 #if !defined __NR_reboot && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(reboot)
-#endif
-
-#if !defined __NR_query_module && defined __UCLIBC_LINUX_MODULE_24__
-make_stub(query_module)
 #endif
 
 #if !defined __NR_recv && !defined __NR_socketcall && !defined __NR_recvfrom && defined __UCLIBC_HAS_SOCKET__
@@ -265,8 +300,16 @@ make_stub(remap_file_pages)
 make_stub(removexattr)
 #endif
 
+#ifndef __NR_renameat
+make_stub(renameat)
+#endif
+
 #if !defined __NR_sched_getaffinity && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(sched_getaffinity)
+#endif
+
+#if !defined __NR_getcpu && defined __UCLIBC_LINUX_SPECIFIC__ && ((defined __x86_64__ && !defined __UCLIBC_HAS_TLS__) || !defined __x86_64__)
+make_stub(sched_getcpu)
 #endif
 
 #if !defined __NR_sched_setaffinity && defined __UCLIBC_LINUX_SPECIFIC__
@@ -325,6 +368,15 @@ make_stub(shutdown)
 make_stub(signalfd)
 #endif
 
+#ifndef __NR_rt_sigtimedwait
+make_stub(sigtimedwait)
+make_stub(sigwaitinfo)
+#endif
+
+#ifndef __NR_rt_sigqueueinfo
+make_stub(sigqueue)
+#endif
+
 #if !defined __NR_socket && !defined __NR_socketcall && defined __UCLIBC_HAS_SOCKET__
 make_stub(socket)
 #endif
@@ -337,9 +389,9 @@ make_stub(socketcall)
 make_stub(socketpair)
 #endif
 
-#ifndef __NR_rt_sigtimedwait
-make_stub(sigtimedwait)
-make_stub(sigwaitinfo)
+#if !defined __NR_stime && !defined __NR_settimeofday
+make_stub(stime)
+make_stub(settimeofday)
 #endif
 
 #if !defined __NR_splice && defined __UCLIBC_LINUX_SPECIFIC__
@@ -352,6 +404,10 @@ make_stub(swapoff)
 
 #if !defined __NR_swapon && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(swapon)
+#endif
+
+#ifndef __NR_symlink
+make_stub(symlink)
 #endif
 
 #if !defined __NR_sync_file_range && defined __UCLIBC_LINUX_SPECIFIC__
@@ -382,6 +438,19 @@ make_stub(timerfd_settime)
 make_stub(timerfd_gettime)
 #endif
 
+#ifndef __NR_utimensat
+make_stub(futimens)
+make_stub(utimensat)
+# ifndef __NR_lutimes
+make_stub(lutimes)
+# endif
+#endif
+
+#if !defined __NR_utime && !defined __NR_utimes
+/*make_stub(utime) obsoleted */
+make_stub(utimes)
+#endif
+
 #if !defined __NR_umount && !defined __NR_umount2 && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(umount)
 #endif
@@ -394,19 +463,11 @@ make_stub(umount2)
 make_stub(unshare)
 #endif
 
-#ifndef __NR_utimensat
-make_stub(futimens)
-make_stub(utimensat)
-# ifndef __NR_lutimes
-make_stub(lutimes)
-# endif
-#endif
-
 #if !defined __NR_vhangup && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(vhangup)
 #endif
 
-#ifndef __NR_vmsplice
+#if !defined __NR_vmsplice && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(vmsplice)
 #endif
 

@@ -15,21 +15,17 @@
 #define __NR_posix_fadvise __NR_fadvise64
 int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 {
+	int ret;
 	INTERNAL_SYSCALL_DECL(err);
-	int ret = (int) (INTERNAL_SYSCALL(posix_fadvise, err, 5, fd,
+	ret = (int) (INTERNAL_SYSCALL(posix_fadvise, err, 5, fd,
 	 __LONG_LONG_PAIR (offset >> 31, offset), len, advice));
     if (INTERNAL_SYSCALL_ERROR_P (ret, err))
       return INTERNAL_SYSCALL_ERRNO (ret, err);
     return 0;
 }
 
-#if defined __UCLIBC_HAS_LFS__ && !defined __NR_fadvise64_64
+# if defined __UCLIBC_HAS_LFS__ && !defined __NR_fadvise64_64
 strong_alias(posix_fadvise,posix_fadvise64)
-#endif
+# endif
 
-#elif defined __UCLIBC_HAS_STUBS__
-int posix_fadvise(int fd attribute_unused, off_t offset attribute_unused, off_t len attribute_unused, int advice attribute_unused)
-{
-	return ENOSYS;
-}
 #endif
