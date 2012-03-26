@@ -671,7 +671,7 @@ static int tm_isdst(register const struct tm *__restrict ptm,
 		isleap = __isleap(i);
 		--i;
 		day0 = (1
-				+ i				/* Normal years increment 1 wday. */
+				+ i	/* Normal years increment 1 wday. */
 				+ (i/4)
 				- (i/100)
 				+ (i/400) ) % 7;
@@ -684,20 +684,22 @@ static int tm_isdst(register const struct tm *__restrict ptm,
 				}
 			} else if (r->rule_type == 'M') {
 				/* Find 0-based day number for 1st of the month. */
-				day = 31*r->month - day_cor[r->month -1];
+				day = 31 * r->month - day_cor[r->month - 1];
 				if (isleap && (day >= 59)) {
 					++day;
 				}
-				monlen = 31 + day_cor[r->month -1] - day_cor[r->month];
+				monlen = 31 + day_cor[r->month - 1] - day_cor[r->month];
 				if (isleap && (r->month == 2)) {
 					++monlen;
 				}
-				/* Wweekday (0 is Sunday) of 1st of the month
+				/* Weekday (0 is Sunday) of 1st of the month
 				 * is (day0 + day) % 7. */
-				if ((mday = r->day - ((day0 + day) % 7)) >= 0) {
-					mday -= 7;	/* Back up into prev month since r->week>0. */
+				mday = r->day - ((day0 + day) % 7);
+				if (mday >= 0) {
+					mday -= 7;	/* Back up into prev month since r->week > 0. */
 				}
-				if ((mday += 7 * r->week) >= monlen) {
+				mday += 7 * r->week;
+				if (mday >= monlen) {
 					mday -= 7;
 				}
 				/* So, 0-based day number is... */
