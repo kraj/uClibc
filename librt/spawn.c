@@ -42,8 +42,9 @@ inline static bool execute_file_actions(const posix_spawn_file_actions_t *fa)
 {
 	struct rlimit64 fdlimit;
 	bool have_fdlimit = false;
+	int cnt;
 
-	for (int cnt = 0; cnt < fa->__used; ++cnt) {
+	for (cnt = 0; cnt < fa->__used; ++cnt) {
 		struct __spawn_action *action = &fa->__actions[cnt];
 
 		switch (action->tag) {
@@ -143,11 +144,12 @@ __spawni(pid_t *pid, const char *file,
 		   the sigset_t data type can be very different on different
 		   architectures.  */
 		struct sigaction sa;
+		int sig;
 
 		memset(&sa, 0, sizeof(sa));
 		sa.sa_handler = SIG_DFL;
 
-		for (int sig = 1; sig <= _NSIG; ++sig) {
+		for (sig = 1; sig <= _NSIG; ++sig) {
 			if (sigismember(&attrp->__sd, sig)) {
 				if (sigaction(sig, &sa, NULL) != 0)
 					goto error;
