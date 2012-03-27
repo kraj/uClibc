@@ -12,6 +12,7 @@
 __asm__("	.text\n"
 	"	.global	_start\n"
 	"	.type	_start,@function\n"
+	"	.hidden	_start\n"
 	"_start:\n"
 	/* All arguments are on the stack initially */
 	"	mov	r12, sp\n"

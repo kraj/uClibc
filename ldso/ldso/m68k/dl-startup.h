@@ -19,6 +19,7 @@ __asm__ ("\
 	.text\n\
 	.globl _start\n\
 	.type _start,@function\n\
+	.hidden _start\n\
 _start:\n\
 	move.l %sp, -(%sp)\n\
 	jbsr _dl_start\n\

@@ -8,6 +8,7 @@ __asm__ ("\
 	.text\n\
 	.global _start\n\
 	.type   _start,%function\n\
+	.hidden _start\n\
 	.align 32\n\
 	.register %g2, #scratch\n\
 _start:\n\

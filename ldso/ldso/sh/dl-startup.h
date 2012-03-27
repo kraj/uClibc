@@ -6,6 +6,7 @@ __asm__(
     "	.text\n"
     "	.globl	_start\n"
     "	.type	_start,@function\n"
+    "	.hidden	_start\n"
     "_start:\n"
     "	mov	r15, r4\n"
     "	mov.l   .L_dl_start, r0\n"

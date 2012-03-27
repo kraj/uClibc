@@ -10,6 +10,7 @@ __asm__(""					\
 "	.text\n"			\
 "	.globl _start\n"		\
 "	.type _start,@function\n"	\
+"	.hidden _start\n"		\
 "_start:\n"				\
 "	move.d	$sp,$r10\n"		\
 "	lapc	_dl_start,$r9\n"	\
@@ -28,6 +29,7 @@ __asm__(""					\
 "	.text\n"			\
 "	.globl _start\n"		\
 "	.type _start,@function\n"	\
+"	.hidden _start\n"		\
 "_start:\n"				\
 "	move.d	$sp,$r10\n"		\
 "	move.d	$pc,$r9\n"		\

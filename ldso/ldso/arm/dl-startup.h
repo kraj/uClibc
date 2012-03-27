@@ -14,6 +14,7 @@ __asm__(
     "	.text\n"
     "	.globl	_start\n"
     "	.type	_start,%function\n"
+	"	.hidden	_start\n"
 	"_start:\n"
 	"	@ at start time, all the args are on the stack\n"
 	"	mov	r0, sp\n"

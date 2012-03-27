@@ -7,6 +7,7 @@ __asm__ (
     "	.text\n"
     "	.globl	_start\n"
     "	.type	_start,@function\n"
+    "	.hidden	_start\n"
     "_start:\n"
     "	call _dl_start\n"
     "	# Save the user entry point address in %edi.\n"

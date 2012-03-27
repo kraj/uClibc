@@ -20,6 +20,7 @@ __asm__ ("\
 	.text\n\
 	.globl _start\n\
 	.type _start,@function\n\
+	.hidden _start\n\
 _start:\n\
 	addk  r5,r0,r1\n\
 	addk  r3,r0,r0\n\

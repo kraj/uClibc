@@ -42,8 +42,10 @@ __asm__(
 	"	.type	__start,@function\n"
 	/* Build system expects a "_start" for the entry point;
 	   provide it as it's free to do so with aliases.  */
+	"	.hidden	__start\n"
 	"	.set	_start, __start\n"
 	"	.global	_start\n"
+	"	.hidden	_start\n"
 	"__start:\n"
 	"	call	.Lcall\n"
 	".Lcall:\n"

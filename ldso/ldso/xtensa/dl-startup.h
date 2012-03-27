@@ -13,6 +13,7 @@ __asm__ (
     "	.align  4\n"
     "	.global _start\n"
     "	.type   _start, @function\n"
+    "	.hidden _start\n"
     "_start:\n"
     "	# Compute load offset in a2: the GOT has not yet been relocated\n"
     "	# but the entries for local symbols contain the relative offsets\n"
