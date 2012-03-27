@@ -173,11 +173,11 @@ make_stub(inotify_add_watch)
 make_stub(inotify_rm_watch)
 #endif
 
-#if !defined __NR_ioperm && defined __UCLIBC_LINUX_SPECIFIC__
+#if !defined __NR_ioperm && defined __UCLIBC_LINUX_SPECIFIC__ && !defined __arm__
 make_stub(ioperm)
 #endif
 
-#if !defined __NR_iopl && defined __UCLIBC_LINUX_SPECIFIC__
+#if !defined __NR_iopl && defined __UCLIBC_LINUX_SPECIFIC__ && !defined __arm__
 make_stub(iopl)
 #endif
 
