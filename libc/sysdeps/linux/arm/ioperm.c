@@ -50,8 +50,6 @@
 
 #include <linux/version.h>
 
-#ifdef __NR_ioperm
-
 #define PATH_ARM_SYSTYPE	"/etc/arm_systype"
 #define PATH_CPUINFO		"/proc/cpuinfo"
 
@@ -246,5 +244,3 @@ inl(unsigned long int port)
 {
     return *((__volatile__ unsigned long *)(IO_ADDR (port)));
 }
-
-#endif

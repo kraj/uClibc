@@ -22,8 +22,6 @@
 #include <errno.h>
 
 
-#ifdef __NR_iopl
-
 #define MAX_PORT	0x10000
 
 int iopl(int level)
@@ -36,5 +34,3 @@ int iopl(int level)
 		return ioperm(0, MAX_PORT, 1);
 	return 0;
 }
-
-#endif
