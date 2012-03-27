@@ -41,6 +41,9 @@ __attribute_used__ static int ret_enosys_stub(void)
 #ifdef __arm__
 # define __NR_fadvise64_64 __NR_arm_fadvise64_64
 # define __NR_fadvise64 __NR_arm_fadvise64_64
+/* ARM always provides funcs w/out syscalls; disable the stubs */
+# define __NR_ioperm 0
+# define __NR_iopl 0
 #endif
 
 #ifdef __mips__
