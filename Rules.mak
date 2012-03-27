@@ -198,7 +198,7 @@ endef
 define check-as-var
 $(call check-tool-var,check_as,ASFLAG,$(1))
 _v = CFLAG_-Wa$(1)
-export $(_v) = $$(if $$(ASFLAG_$(1)),-Wa$$(comma)$$(ASFLAG_$(1)))
+export $$(_v) = $$(if $$(ASFLAG_$(1)),-Wa$$(comma)$$(ASFLAG_$(1)))
 endef
 # Usage: check-ld-var,<flag>
 # Check the linker to see if it supports <flag>.  Export the
