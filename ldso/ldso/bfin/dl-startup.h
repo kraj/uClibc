@@ -37,50 +37,50 @@ USA.  */
    use this value to initialize the PIC register.  */
 
 __asm__(
-    "	.text\n"			\
-    "	.global	__start\n"		\
-    "	.type	__start,@function\n"	\
-    "__start:\n"			\
-    "	call	.Lcall\n"		\
-    ".Lcall:\n"				\
-    "	R4 = RETS;\n"			\
-    "	SP += -32;\n"			\
-    "	R5 = P0;\n"			\
-    "	R6 = P1;\n"			\
-    "	R7 = P2;\n"			\
-    "	R0.L = .Lcall;\n"		\
-    "	R0.H = .Lcall;\n"		\
-    "	R1.L = __ROFIXUP_LIST__;\n"	\
-    "	R1.H = __ROFIXUP_LIST__;\n"	\
-    "	R2.L = __ROFIXUP_END__;\n"	\
-    "	R2.H = __ROFIXUP_END__;\n"	\
-    "	R1 = R1 - R0;\n"		\
-    "	R1 = R1 + R4;\n"		\
-    "	R2 = R2 - R0;\n"		\
-    "	R2 = R2 + R4;\n"		\
-    "	R0 = P1;\n"			\
-    "	CC = R0 == 0;\n"		\
-    "	IF CC R0 = P0;\n"		\
-    "	CALL	___self_reloc;\n"	\
-    "	P3 = R0;\n"			\
-    "	P5 = R0;\n"			\
-    "	R1 = R5;\n"			\
-    "	R2 = R6;\n"			\
-    "	[SP + 12] = R7;\n"		\
-    "	P0 = SP;\n"			\
-    "	P0 += 24;\n"			\
-    "	[SP + 16] = P0;\n"		\
-    "	P0 += 8;\n"			\
-    "	[SP + 20] = P0;\n"		\
-    "	CALL	__dl_start;\n"		\
-    "	/* Pass our FINI ptr() to the user in P1 */\n"	\
-    "	R7 = [P5 + __dl_fini@FUNCDESC_GOT17M4];\n" \
-    "	P4 = [SP + 24];\n"		\
-    "	P3 = [SP + 28];\n"		\
-    "	P0 = R5;\n"			\
-    "   SP += 32;\n"			\
-    "   JUMP (P4);\n"			\
-    "	.size	__start,.-__start\n"
+	"	.text\n"
+	"	.global	__start\n"
+	"	.type	__start,@function\n"
+	"__start:\n"
+	"	call	.Lcall\n"
+	".Lcall:\n"
+	"	R4 = RETS;\n"
+	"	SP += -32;\n"
+	"	R5 = P0;\n"
+	"	R6 = P1;\n"
+	"	R7 = P2;\n"
+	"	R0.L = .Lcall;\n"
+	"	R0.H = .Lcall;\n"
+	"	R1.L = __ROFIXUP_LIST__;\n"
+	"	R1.H = __ROFIXUP_LIST__;\n"
+	"	R2.L = __ROFIXUP_END__;\n"
+	"	R2.H = __ROFIXUP_END__;\n"
+	"	R1 = R1 - R0;\n"
+	"	R1 = R1 + R4;\n"
+	"	R2 = R2 - R0;\n"
+	"	R2 = R2 + R4;\n"
+	"	R0 = P1;\n"
+	"	CC = R0 == 0;\n"
+	"	IF CC R0 = P0;\n"
+	"	CALL	___self_reloc;\n"
+	"	P3 = R0;\n"
+	"	P5 = R0;\n"
+	"	R1 = R5;\n"
+	"	R2 = R6;\n"
+	"	[SP + 12] = R7;\n"
+	"	P0 = SP;\n"
+	"	P0 += 24;\n"
+	"	[SP + 16] = P0;\n"
+	"	P0 += 8;\n"
+	"	[SP + 20] = P0;\n"
+	"	CALL	__dl_start;\n"
+	"	/* Pass our FINI ptr() to the user in P1 */\n"
+	"	R7 = [P5 + __dl_fini@FUNCDESC_GOT17M4];\n"
+	"	P4 = [SP + 24];\n"
+	"	P3 = [SP + 28];\n"
+	"	P0 = R5;\n"
+	"	SP += 32;\n"
+	"	JUMP (P4);\n"
+	"	.size	__start,.-__start\n"
 );
 
 #undef DL_START
