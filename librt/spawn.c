@@ -120,8 +120,13 @@ __spawni(pid_t *pid, const char *file,
 	pid_t new_pid;
 	if (is_vfork_safe(flags) && !fa)
 		new_pid = vfork();
-	else
+	else {
+#ifdef __ARCH_USE_MMU__
 		new_pid = fork();
+#else
+		return ENOSYS;
+#endif
+	}
 
 	if (new_pid) {
 		if (new_pid < 0)
