@@ -458,10 +458,7 @@ allyesconfig: $(conf)
 allnoconfig: $(conf)
 	$(Q)$< -n extra/Configs/Config.in
 
-defconfig: $(conf)
-	$(Q)$< -D extra/Configs/defconfigs/$(ARCH)/$@ extra/Configs/Config.in
-
-%_defconfig: $(conf)
+defconfig %_defconfig: $(conf)
 	$(Q)$< -D extra/Configs/defconfigs/$(ARCH)/$@ extra/Configs/Config.in
 
 menuconfig-clean-y:
