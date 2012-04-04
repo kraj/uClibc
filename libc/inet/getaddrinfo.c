@@ -401,7 +401,13 @@ gaih_inet(const char *name, const struct gaih_service *service,
 	int rc;
 	int v4mapped = (req->ai_family == PF_UNSPEC || req->ai_family == PF_INET6)
 			&& (req->ai_flags & AI_V4MAPPED);
-	unsigned seen = __check_pf();
+	unsigned seen = 0;
+	if (req->ai_flags & AI_ADDRCONFIG) {
+		/* "seen" is only used when AI_ADDRCONFIG is specified.
+		   Avoid unnecessary call to __check_pf() otherwise
+		   since it can be costly especially when RSBAC-Net is enabled.  */
+		seen = __check_pf();
+	}
 
 	memset(&nullserv, 0, sizeof(nullserv));
 
