@@ -54,12 +54,6 @@ __attribute_used__ static int ret_enosys_stub(void)
 # define __NR_fadvise64 __NR_fadvise64_64
 #endif
 
-#ifndef __UCLIBC_HAS_LFS__
-# undef __NR_readahead
-# undef __NR_sync_file_range
-# undef __NR_splice
-#endif
-
 #if !defined __NR_accept && !defined __NR_socketcall && defined __UCLIBC_HAS_SOCKET__
 make_stub(accept)
 #endif
