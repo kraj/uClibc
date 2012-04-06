@@ -203,7 +203,8 @@ DL_START(unsigned long args)
 		_dl_exit(0);
 	}
 	SEND_EARLY_STDERR_DEBUG("ELF header=");
-	SEND_ADDRESS_STDERR_DEBUG(DL_LOADADDR_BASE(header), 1);
+	SEND_ADDRESS_STDERR_DEBUG(
+		DL_LOADADDR_BASE(DL_GET_RUN_ADDR(load_addr, header)), 1);
 
 	/* Locate the global offset table.  Since this code must be PIC
 	 * we can take advantage of the magic offset register, if we
@@ -278,11 +279,9 @@ DL_START(unsigned long args)
 
 			if (!indx && relative_count) {
 				rel_size -= relative_count * sizeof(ELF_RELOC);
-				if (load_addr
 #ifdef __LDSO_PRELINK_SUPPORT__
-					|| !tpnt->dynamic_info[DT_GNU_PRELINKED_IDX]
+				if (load_addr || !tpnt->dynamic_info[DT_GNU_PRELINKED_IDX])
 #endif
-					)
 					elf_machine_relative(load_addr, rel_addr, relative_count);
 				rel_addr += relative_count * sizeof(ELF_RELOC);
 			}
@@ -347,7 +346,7 @@ DL_START(unsigned long args)
 	__rtld_stack_end = (void *)(argv - 1);
 
 	_dl_elf_main = (int (*)(int, char **, char **))
-			_dl_get_ready_to_run(tpnt, (DL_LOADADDR_TYPE) header, auxvt, envp, argv
+			_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp, argv
 					     DL_GET_READY_TO_RUN_EXTRA_ARGS);
 
 	/* Transfer control to the application.  */

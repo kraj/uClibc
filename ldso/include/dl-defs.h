@@ -259,4 +259,26 @@ typedef struct {
 # define DL_MAP_SEGMENT(EPNT, PPNT, INFILE, FLAGS) 0
 #endif
 
+/* Define this to declare the library offset. */
+#ifndef DL_DEF_LIB_OFFSET
+# define DL_DEF_LIB_OFFSET static unsigned long _dl_library_offset
+#endif
+
+/* Define this to get the library offset. */
+#ifndef DL_GET_LIB_OFFSET
+# define DL_GET_LIB_OFFSET() _dl_library_offset
+#endif
+
+/* Define this to set the library offset  as difference beetwen the mapped
+   library address and the smallest virtual address of the first PT_LOAD
+   segment. */
+#ifndef DL_SET_LIB_OFFSET
+# define DL_SET_LIB_OFFSET(offset) (_dl_library_offset = (offset))
+#endif
+
+/* Define this to get the real object's runtime address. */
+#ifndef DL_GET_RUN_ADDR
+# define DL_GET_RUN_ADDR(loadaddr, mapaddr) (mapaddr)
+#endif
+
 #endif	/* _LD_DEFS_H */

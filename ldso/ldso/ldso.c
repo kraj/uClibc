@@ -351,12 +351,14 @@ static void trace_objects(struct elf_resolve *tpnt, char *str_name)
 
 static struct elf_resolve * add_ldso(struct elf_resolve *tpnt,
 									 DL_LOADADDR_TYPE load_addr,
+									 ElfW(Addr) ldso_mapaddr,
 									 ElfW(auxv_t) auxvt[AT_EGID + 1],
 									 struct dyn_elf *rpnt)
 {
 		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
 		ElfW(Phdr) *myppnt = (ElfW(Phdr) *)
-								DL_RELOC_ADDR(load_addr, epnt->e_phoff);
+				DL_RELOC_ADDR(DL_GET_RUN_ADDR(load_addr, ldso_mapaddr),
+							  epnt->e_phoff);
 		int j;
 		struct stat st;
 
@@ -364,7 +366,7 @@ static struct elf_resolve * add_ldso(struct elf_resolve *tpnt,
 					      tpnt->dynamic_info, (unsigned long)tpnt->dynamic_addr,
 					      0);
 
-		tpnt->mapaddr = load_addr;
+		tpnt->mapaddr = ldso_mapaddr;
 		if (_dl_stat(tpnt->libname, &st) >= 0) {
 			tpnt->st_dev = st.st_dev;
 			tpnt->st_ino = st.st_ino;
@@ -411,7 +413,7 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
 			  DL_GET_READY_TO_RUN_EXTRA_PARMS)
 {
-	ElfW(Addr) app_mapaddr = 0;
+	ElfW(Addr) app_mapaddr = 0, ldso_mapaddr = 0;
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
 	char *lpntstr;
@@ -826,6 +828,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	}
 #endif
 
+	ldso_mapaddr = (ElfW(Addr)) auxvt[AT_BASE].a_un.a_val;
 	/*
 	 * OK, fix one more thing - set up debug_addr so it will point
 	 * to our chain.  Later we may need to fill in more fields, but this
@@ -833,7 +836,8 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 */
 	debug_addr->r_map = (struct link_map *) _dl_loaded_modules;
 	debug_addr->r_version = 1;
-	debug_addr->r_ldbase = (ElfW(Addr)) DL_LOADADDR_BASE(load_addr);
+	debug_addr->r_ldbase = (ElfW(Addr))
+		DL_LOADADDR_BASE(DL_GET_RUN_ADDR(load_addr, ldso_mapaddr));
 	debug_addr->r_brk = (unsigned long) &_dl_debug_state;
 	_dl_debug_addr = debug_addr;
 
@@ -1012,7 +1016,8 @@ of this helper program; chances are you did not intend to run this program.\n\
 				if (_dl_strcmp(name, UCLIBC_LDSO) == 0) {
 						if (!ldso_tpnt) {
 							/* Insert the ld.so only once */
-							ldso_tpnt = add_ldso(tpnt, load_addr, auxvt, rpnt);
+							ldso_tpnt = add_ldso(tpnt, load_addr,
+												 ldso_mapaddr, auxvt, rpnt);
 						}
 						ldso_tpnt->usage_count++;
 						tpnt1 = ldso_tpnt;
@@ -1112,7 +1117,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 * again once all libs are loaded.
 	 */
 	if (!ldso_tpnt) {
-		tpnt = add_ldso(tpnt, load_addr, auxvt, rpnt);
+		tpnt = add_ldso(tpnt, load_addr, ldso_mapaddr, auxvt, rpnt);
 		tpnt->usage_count++;
 		nscope_elem++;
 	} else
