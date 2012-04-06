@@ -115,6 +115,18 @@ struct funcdesc_ht;
 #define DL_GET_READY_TO_RUN_EXTRA_ARGS \
     , dl_boot_progmap, dl_boot_got_pointer
 
+/* Define this to declare the library offset. */
+#define DL_DEF_LIB_OFFSET
+
+/* Define this to get the library offset. */
+#define DL_GET_LIB_OFFSET() 0
+
+/* Define this to set the library offset. */
+#define DL_SET_LIB_OFFSET(offset)
+
+/* Define this to get the real object's runtime address. */
+#define DL_GET_RUN_ADDR(loadaddr, mapaddr) (loadaddr)
+
 #ifdef __USE_GNU
 # include <link.h>
 #else

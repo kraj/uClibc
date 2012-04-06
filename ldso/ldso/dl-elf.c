@@ -315,6 +315,9 @@ goof:
 	return NULL;
 }
 
+/* Define the _dl_library_offset for the architectures that need it */
+DL_DEF_LIB_OFFSET;
+
 /*
  * Make a writeable mapping of a segment, regardless of whether PF_W is
  * set or not.
@@ -357,7 +360,7 @@ map_writeable (int infile, ElfW(Phdr) *ppnt, int piclib, int flags,
 	}
 
 	tryaddr = piclib == 2 ? piclib2map
-		: ((char*) (piclib ? libaddr : 0) +
+		: ((char *) (piclib ? libaddr : DL_GET_LIB_OFFSET()) +
 		   (ppnt->p_vaddr & PAGE_ALIGN));
 
 	size = (ppnt->p_vaddr & ADDR_ALIGN) + ppnt->p_filesz;
@@ -459,7 +462,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 	size_t relro_size = 0;
 	struct stat st;
 	uint32_t *p32;
-	DL_LOADADDR_TYPE lib_loadaddr = 0;
+	DL_LOADADDR_TYPE lib_loadaddr;
 	DL_INIT_LOADADDR_EXTRA_DECLS
 
 	libaddr = 0;
@@ -617,6 +620,8 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 	ppnt = (ElfW(Phdr) *)(intptr_t) & header[epnt->e_phoff];
 
 	DL_INIT_LOADADDR(lib_loadaddr, libaddr - minvma, ppnt, epnt->e_phnum);
+	/* Set _dl_library_offset to lib_loadaddr or 0. */
+	DL_SET_LIB_OFFSET(lib_loadaddr);
 
 	for (i = 0; i < epnt->e_phnum; i++) {
 		if (DL_IS_SPECIAL_SEGMENT (epnt, ppnt)) {
@@ -648,7 +653,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 			} else {
 				tryaddr = (piclib == 2 ? 0
 					   : (char *) (ppnt->p_vaddr & PAGE_ALIGN)
-					   + (piclib ? libaddr : lib_loadaddr));
+					   + (piclib ? libaddr : DL_GET_LIB_OFFSET()));
 				size = (ppnt->p_vaddr & ADDR_ALIGN) + ppnt->p_filesz;
 				status = (char *) _dl_mmap
 					   (tryaddr, size, LXFLAGS(ppnt->p_flags),
@@ -675,7 +680,11 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 	 * The dynamic_addr must be take into acount lib_loadaddr value, to note
 	 * it is zero when the SO has been mapped to the elf's physical addr
 	 */
-	if (lib_loadaddr) {
+#ifdef __LDSO_PRELINK_SUPPORT__
+	if (DL_GET_LIB_OFFSET()) {
+#else
+	if (piclib) {
+#endif
 		dynamic_addr = (unsigned long) DL_RELOC_ADDR(lib_loadaddr, dynamic_addr);
 	}
 
@@ -708,7 +717,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
 			if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W)) {
 #ifdef __ARCH_USE_MMU__
-				_dl_mprotect((void *) ((piclib ? libaddr : lib_loadaddr) +
+				_dl_mprotect((void *) ((piclib ? libaddr : DL_GET_LIB_OFFSET()) +
 							(ppnt->p_vaddr & PAGE_ALIGN)),
 						(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz,
 						PROT_READ | PROT_WRITE | PROT_EXEC);
@@ -746,7 +755,9 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 	tpnt->relro_size = relro_size;
 	tpnt->st_dev = st.st_dev;
 	tpnt->st_ino = st.st_ino;
-	tpnt->ppnt = (ElfW(Phdr) *) DL_RELOC_ADDR(tpnt->mapaddr, epnt->e_phoff);
+	tpnt->ppnt = (ElfW(Phdr) *)
+		DL_RELOC_ADDR(DL_GET_RUN_ADDR(tpnt->loadaddr, tpnt->mapaddr),
+		epnt->e_phoff);
 	tpnt->n_phent = epnt->e_phnum;
 	tpnt->rtld_flags |= rtld_flags;
 #ifdef __LDSO_STANDALONE_SUPPORT__
@@ -954,11 +965,9 @@ int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int now_flag)
 		relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
 		if (relative_count) { /* Optimize the XX_RELATIVE relocations if possible */
 			reloc_size -= relative_count * sizeof(ELF_RELOC);
-			if (tpnt->loadaddr
 #ifdef __LDSO_PRELINK_SUPPORT__
-				|| (!tpnt->dynamic_info[DT_GNU_PRELINKED_IDX])
+			if (tpnt->loadaddr || (!tpnt->dynamic_info[DT_GNU_PRELINKED_IDX]))
 #endif
-				)
 				elf_machine_relative(tpnt->loadaddr, reloc_addr, relative_count);
 			reloc_addr += relative_count * sizeof(ELF_RELOC);
 		}
