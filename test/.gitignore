@@ -29,11 +29,15 @@ dlopen/dltest2
 dlopen/dlundef
 dlopen/libafk.so
 dlopen/libafk-temp.so
+dlopen/libA.so
+dlopen/libB.so
+dlopen/libC.so
 dlopen/libstatic.so
 dlopen/libtest[123].so
 dlopen/libtest.so
 dlopen/libundef.so
 dlopen/test[1-3]
+dlopen/testscope
 inet/bug-if1
 inet/gethost_r-align
 inet/if_nameindex
@@ -250,6 +254,7 @@ silly/tiny
 stat/memcmp-stat
 stat/stat
 stat/stat64
+stat/stat-loop256
 stdio/64bit
 stdio/fclose-loop
 stdlib/ptytest
