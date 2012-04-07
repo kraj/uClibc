@@ -151,6 +151,7 @@ misc/popen
 misc/seek
 misc/sem
 misc/stdarg
+misc/tst-inotify
 misc/tst-scandir
 misc/tst-seekdir
 misc/tst-utmp
