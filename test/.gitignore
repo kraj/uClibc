@@ -288,6 +288,7 @@ time/tst-futimens1
 time/tst-mktime
 time/tst-mktime3
 time/tst-strptime2
+time/tst-timerfd
 time/tst_wcsftime
 tls/tst-tls[1-9]
 tls/tst-tls1[0-8]
