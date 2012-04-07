@@ -47,6 +47,7 @@ inet/tst-ethers
 inet/tst-ethers-line
 inet/tst-network
 inet/tst-ntoa
+inet/tst-sock-nonblock
 inet/gethostid
 inet/getnetent
 librt/shmtest
