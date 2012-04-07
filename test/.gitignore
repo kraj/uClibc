@@ -247,6 +247,7 @@ signal/sigchld
 signal/signal
 signal/tst-raise
 signal/tst-signal
+signal/tst-signalfd
 signal/tst-sigset
 signal/tst-sigsimple
 silly/hello
