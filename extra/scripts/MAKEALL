@@ -33,7 +33,10 @@ setconfig()
 get_arches()
 {
 	case $1 in
+		hppa) echo hppa hppa2.0 hppa1.1 hppa1.0;;
+		i386) echo i386 i486 i586 i686;;
 		sh) echo sh4 sh2 sh3 sh1 sh;;
+		sparc) echo sparc sparc64;;
 		*)  echo $1;;
 	esac
 }
