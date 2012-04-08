@@ -1,4 +1,4 @@
-/* Copyright (C) 2005, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 2005-2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,24 +12,16 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_SYS_INOTIFY_H
 #define	_SYS_INOTIFY_H	1
 
 #include <stdint.h>
 
-
-/* Flags for the parameter of inotify_init1.  */
-enum
-  {
-    IN_CLOEXEC = 02000000,
-#define IN_CLOEXEC IN_CLOEXEC
-    IN_NONBLOCK = 04000
-#define IN_NONBLOCK IN_NONBLOCK
-  };
+/* Get the platform-dependent flags.  */
+#include <bits/inotify.h>
 
 
 /* Structure describing an inotify event.  */
@@ -72,6 +64,8 @@ struct inotify_event
 #define IN_ONLYDIR	 0x01000000	/* Only watch the path if it is a
 					   directory.  */
 #define IN_DONT_FOLLOW	 0x02000000	/* Do not follow a sym link.  */
+#define IN_EXCL_UNLINK	 0x04000000	/* Exclude events on unlinked
+					   objects.  */
 #define IN_MASK_ADD	 0x20000000	/* Add to the mask of an already
 					   existing watch.  */
 #define IN_ISDIR	 0x40000000	/* Event occurred against dir.  */
