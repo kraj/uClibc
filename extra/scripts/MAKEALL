@@ -127,6 +127,8 @@ for a in "$@" ; do
 	else
 		mark_arch pass $a
 	fi
+
+	unset CROSS_COMPILE
 done
 
 if [ -n "${skip}" ] ; then
