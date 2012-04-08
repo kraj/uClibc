@@ -1,4 +1,4 @@
-/* Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+/* Copyright (C) 2007-2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,17 +12,18 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
-#ifndef _SYS_SIGNALFD_H
-#define _SYS_SIGNALFD_H 1
+#ifndef	_SYS_SIGNALFD_H
+#define	_SYS_SIGNALFD_H	1
 
 #define __need_sigset_t
 #include <signal.h>
 #include <stdint.h>
 
+/* Get the platform-dependent flags.  */
+#include <bits/signalfd.h>
 
 struct signalfd_siginfo
 {
@@ -45,50 +46,12 @@ struct signalfd_siginfo
   uint8_t __pad[48];
 };
 
-/* Flags for signalfd.  */
-#if defined __sparc__ || defined __sparc64__
-enum
-  {
-    SFD_CLOEXEC = 0x400000,
-# define SFD_CLOEXEC SFD_CLOEXEC
-    SFD_NONBLOCK = 0x4000
-# define SFD_NONBLOCK SFD_NONBLOCK
-  };
-
-#elif defined __alpha__
-enum
-  {
-    SFD_CLOEXEC = 010000000,
-# define SFD_CLOEXEC SFD_CLOEXEC
-    SFD_NONBLOCK = 04
-# define SFD_NONBLOCK SFD_NONBLOCK
-  };
-
-#elif defined __mips__
-enum
-  {
-    SFD_CLOEXEC = 02000000,
-# define SFD_CLOEXEC SFD_CLOEXEC
-    SFD_NONBLOCK = 0200
-# define SFD_NONBLOCK SFD_NONBLOCK
-  };
-
-#else
-enum
-  {
-    SFD_CLOEXEC = 02000000,
-# define SFD_CLOEXEC SFD_CLOEXEC
-    SFD_NONBLOCK = 04000
-# define SFD_NONBLOCK SFD_NONBLOCK
-  };
-#endif
-
 __BEGIN_DECLS
 
 /* Request notification for delivery of signals in MASK to be
    performed using descriptor FD.*/
 extern int signalfd (int __fd, const sigset_t *__mask, int __flags)
-  __nonnull ((2)) __THROW;
+  __THROW __nonnull ((2));
 
 __END_DECLS
 

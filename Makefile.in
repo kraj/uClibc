@@ -279,6 +279,7 @@ HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += sys/eventfd.h sys/fsuid.h \
 	sys/prctl.h \
 	sys/reboot.h \
 	sys/sendfile.h \
+	bits/signalfd.h \
 	sys/signalfd.h \
 	bits/statfs.h \
 	sys/statfs.h \
