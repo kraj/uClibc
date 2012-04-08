@@ -7212,6 +7212,10 @@ byte_re_match_2_internal (
             POP_FAILURE_POINT (sdummy, pdummy,
                                dummy_low_reg, dummy_high_reg,
                                reg_dummy, reg_dummy, reg_info_dummy);
+
+            /* Silence 'set but not used' warnings.  */
+            (void) pdummy;
+            (void) sdummy;
           }
 	  /* Note fall through.  */
 
