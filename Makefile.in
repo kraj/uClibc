@@ -285,6 +285,7 @@ HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += sys/eventfd.h sys/fsuid.h \
 	sys/swap.h \
 	sys/sysctl.h \
 	sys/sysinfo.h \
+	bits/timerfd.h \
 	sys/timerfd.h \
 	sys/vfs.h
 HEADERS_RM-$(UCLIBC_SUPPORT_AI_ADDRCONFIG)   += ifaddrs.h
