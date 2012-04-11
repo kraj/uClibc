@@ -10,6 +10,7 @@
 #ifdef __UCLIBC_HAS_LFS__
 
 #include <errno.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/syscall.h>
