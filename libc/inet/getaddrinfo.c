@@ -628,12 +628,19 @@ gaih_inet(const char *name, const struct gaih_service *service,
 		char buffer[sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
 
 		while (at2 != NULL) {
-			if (req->ai_flags & AI_CANONNAME) {
+			c = inet_ntop(at2->family, at2->addr, buffer, sizeof(buffer));
+			if (c) {
+				namelen = strlen(c) + 1;
+			} else if (req->ai_flags & AI_CANONNAME) {
 				struct hostent *h = NULL;
 				int herrno;
 				struct hostent th;
 				size_t tmpbuflen = 512;
 				char *tmpbuf;
+
+				/* Hint says numeric, but address is not */
+				if (req->ai_flags & AI_NUMERICHOST)
+					return -EAI_NONAME;
 
 				do {
 					tmpbuflen *= 2;
@@ -656,9 +663,7 @@ gaih_inet(const char *name, const struct gaih_service *service,
 					return -EAI_SYSTEM;
 				}
 
-				if (h == NULL)
-					c = inet_ntop(at2->family, at2->addr, buffer, sizeof(buffer));
-				else
+				if (h != NULL)
 					c = h->h_name;
 
 				if (c == NULL)
