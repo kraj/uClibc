@@ -51,6 +51,9 @@ config TARGET_avr32
 config TARGET_bfin
 	bool "bfin"
 
+config TARGET_c6x
+	bool "c6x"
+
 config TARGET_cris
 	bool "cris"
 
@@ -113,9 +116,6 @@ config TARGET_x86_64
 
 config TARGET_xtensa
 	bool "xtensa"
-
-config TARGET_c6x
-	bool "c6x"
 
 endchoice
 
