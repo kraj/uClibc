@@ -127,7 +127,6 @@
 #define ELFDATAM	ELFDATA2MSB
 #endif
 
-#define ARRAY_SIZE(v)	(sizeof(v) / sizeof(*v))
 #define TRUSTED_LDSO	UCLIBC_RUNTIME_PREFIX "lib/" UCLIBC_LDSO
 
 struct library {
@@ -701,9 +700,9 @@ foo:
 				"LD_TRACE_LOADED_OBJECTS=1",
 				NULL
 			};
+#ifdef __LDSO_STANDALONE_SUPPORT__
 			char * lib_path = getenv("LD_LIBRARY_PATH");
 
-#ifdef __LDSO_STANDALONE_SUPPORT__
 			/* The 'extended' environment inclusing the LD_LIBRARY_PATH */
 			static char *ext_environment[ARRAY_SIZE(environment) + 1];
 			char **envp = (char **) environment;
