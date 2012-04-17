@@ -2,7 +2,10 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
 ifeq ($(UCLIBC_HAS_LFS),)
-TESTS_DISABLED := tst-preadwrite64
+TESTS_DISABLED := tst-preadwrite64 tst-posix_fallocate64
+endif
+ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),)
+TESTS_DISABLED := tst-posix_fallocate
 endif
 OPTS_getopt      := -abcXXX -9
 OPTS_getopt_long := --add XXX --delete YYY --verbose

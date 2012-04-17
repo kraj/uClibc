@@ -217,9 +217,7 @@ extern int posix_fadvise64 (int __fd, __off64_t __offset, __off64_t __len,
 
 #endif
 
-#if 0 /* && defined __UCLIBC_HAS_ADVANCED_REALTIME__ */
-
-/* FIXME -- uClibc should probably implement these... */
+#if defined __UCLIBC_HAS_ADVANCED_REALTIME__
 
 /* Reserve storage for the data of the file associated with FD.
 
