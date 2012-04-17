@@ -338,7 +338,6 @@ Domain name in a message can be represented as either:
 #define MAX_RECURSE    5
 #define MAXALIASES  (4)
 #define BUFSZ       (80) /* one line */
-#define SBUFSIZE    (BUFSZ + 1 + (sizeof(char *) * MAXALIASES))
 
 #define NS_TYPE_ELT					0x40 /*%< EDNS0 extended label type */
 #define DNS_LABELTYPE_BITSTRING		0x41
@@ -1606,7 +1605,6 @@ int attribute_hidden __read_etc_hosts_r(
 		int *h_errnop)
 {
 	char **alias;
-	char **host_aliases;
 	char **tok = NULL;
 	struct in_addr *h_addr0 = NULL;
 	const size_t aliaslen = INADDROFF +
@@ -1641,7 +1639,7 @@ int attribute_hidden __read_etc_hosts_r(
 	*h_errnop = HOST_NOT_FOUND;
 	/* <ip>[[:space:]][<aliases>] */
 	while (config_read(parser, &tok, MAXTOKENS-1, MINTOKENS, "# \t", PARSE_NORMAL)) {
-		result_buf->h_aliases = alias = host_aliases = tok+1;
+		result_buf->h_aliases = alias = tok+1;
 		if (action == GETHOSTENT) {
 			/* Return whatever the next entry happens to be. */
 			break;
