@@ -1590,7 +1590,7 @@ parser_t * __open_etc_hosts(void)
 }
 
 #define MINTOKENS 2 /* ip address + canonical name */
-#define MAXTOKENS (MINTOKENS + MAXALIASES + 1)
+#define MAXTOKENS (MINTOKENS + MAXALIASES)
 #define HALISTOFF (sizeof(char*) * MAXTOKENS)
 #define INADDROFF (HALISTOFF + 2 * sizeof(char*))
 
@@ -1604,7 +1604,6 @@ int attribute_hidden __read_etc_hosts_r(
 		struct hostent **result,
 		int *h_errnop)
 {
-	char **alias;
 	char **tok = NULL;
 	struct in_addr *h_addr0 = NULL;
 	const size_t aliaslen = INADDROFF +
@@ -1634,12 +1633,11 @@ int attribute_hidden __read_etc_hosts_r(
 	 */
 	parser->data = buf;
 	parser->data_len = aliaslen;
-	memset(buf, '\0', aliaslen); /* make sure alias list is terminated */
 	parser->line_len = buflen - aliaslen;
 	*h_errnop = HOST_NOT_FOUND;
 	/* <ip>[[:space:]][<aliases>] */
-	while (config_read(parser, &tok, MAXTOKENS-1, MINTOKENS, "# \t", PARSE_NORMAL)) {
-		result_buf->h_aliases = alias = tok+1;
+	while (config_read(parser, &tok, MAXTOKENS, MINTOKENS, "# \t", PARSE_NORMAL)) {
+		result_buf->h_aliases = tok+1;
 		if (action == GETHOSTENT) {
 			/* Return whatever the next entry happens to be. */
 			break;
@@ -1648,8 +1646,11 @@ int attribute_hidden __read_etc_hosts_r(
 			if (strcmp(name, *tok) != 0)
 				continue;
 		} else { /* GET_HOSTS_BYNAME */
-			while (*alias) {
-				if (strcasecmp(name, *(alias++)) == 0)
+			int aliases = 0;
+			char **alias = tok + 1;
+			while (aliases < MAXALIASES) {
+				char *tmp = *(alias+aliases++);
+				if (tmp && strcasecmp(name, tmp) == 0)
 					goto found;
 			}
 			continue;
