@@ -1590,8 +1590,8 @@ parser_t * __open_etc_hosts(void)
 	return parser;
 }
 
-#define MINTOKENS 2 //dotted ip address + canonical name
-#define MAXTOKENS (MINTOKENS + MAXALIASES)
+#define MINTOKENS 2 /* ip address + canonical name */
+#define MAXTOKENS (MINTOKENS + MAXALIASES + 1)
 #define HALISTOFF (sizeof(char*) * MAXTOKENS)
 #define INADDROFF (HALISTOFF + 2 * sizeof(char*))
 
@@ -1636,10 +1636,11 @@ int attribute_hidden __read_etc_hosts_r(
 	 */
 	parser->data = buf;
 	parser->data_len = aliaslen;
+	memset(buf, '\0', aliaslen); /* make sure alias list is terminated */
 	parser->line_len = buflen - aliaslen;
 	*h_errnop = HOST_NOT_FOUND;
 	/* <ip>[[:space:]][<aliases>] */
-	while (config_read(parser, &tok, MAXTOKENS, MINTOKENS, "# \t", PARSE_NORMAL)) {
+	while (config_read(parser, &tok, MAXTOKENS-1, MINTOKENS, "# \t", PARSE_NORMAL)) {
 		result_buf->h_aliases = alias = host_aliases = tok+1;
 		if (action == GETHOSTENT) {
 			/* Return whatever the next entry happens to be. */
