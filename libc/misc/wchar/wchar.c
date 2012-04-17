@@ -1308,9 +1308,9 @@ iconv_t weak_function iconv_open(const char *tocode, const char *fromcode)
 		&& ((fromcodeset = find_codeset(fromcode)) != 0)) {
 		if ((px = malloc(sizeof(_UC_iconv_t))) != NULL) {
 			px->tocodeset = tocodeset;
-			px->tobom0 = px->tobom = (tocodeset & 0x10) >> 4;
+			px->tobom0 = px->tobom = (tocodeset >= 0xe0) ? (tocodeset & 0x10) >> 4 : 0;
 			px->fromcodeset0 = px->fromcodeset = fromcodeset;
-			px->frombom0 = px->frombom = (fromcodeset & 0x10) >> 4;
+			px->frombom0 = px->frombom = (fromcodeset >= 0xe0) ? (fromcodeset & 0x10) >> 4 : 0;
 			px->skip_invalid_input = px->tostate.__mask
 				= px->fromstate.__mask = 0;
 			return (iconv_t) px;
