@@ -75,8 +75,8 @@ static off_t bb_get_chunk_with_continuation(parser_t* parsr)
 			else
 				break;
 		} else if (parsr->allocated) {
-			 parsr->line_len += PAGE_SIZE;
-			 parsr->data = realloc(parsr->data,
+			parsr->line_len += PAGE_SIZE;
+			parsr->data = realloc(parsr->data,
 								   parsr->data_len + parsr->line_len);
 			parsr->line = parsr->data + parsr->data_len;
 		} else {
@@ -206,8 +206,6 @@ again:
 	len = bb_get_chunk_with_continuation(parser);
 	if (len == -1)
 		return 0;
-	*tokens = (char **) parser->data;
-	memset(*tokens, 0, sizeof(*tokens[0]) * ntokens);
 	line = parser->line;
 
 	/* Skip multiple token-delimiters in the start of line? */
@@ -216,6 +214,9 @@ again:
 
 	if (line[0] == '\0' || line[0] == delims[0])
 		goto again;
+
+	*tokens = (char **) parser->data;
+	memset(*tokens, 0, sizeof(*tokens[0]) * ntokens);
 
 	/* Tokenize the line */
 	for (t = 0; *line && *line != delims[0] && t < ntokens; t++) {
