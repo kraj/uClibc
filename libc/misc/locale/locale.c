@@ -1292,7 +1292,7 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 	}
 #else
 	if (!base) {
-		base = malloc(sizeof(struct __uclibc_locale_struct));
+		base = calloc(1, sizeof(struct __uclibc_locale_struct));
 		if (base == NULL)
 			return base;
 		_locale_init_l(base);
