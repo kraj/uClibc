@@ -31,14 +31,14 @@
 #include <sys/syscall.h>
 #include <sys/sysinfo.h>
 #include <sys/types.h>
+#include <sys/param.h>
 #ifdef __UCLIBC_HAS_REGEX__
 #include <regex.h>
 #endif
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sysdep.h>
-#include <sys/resource.h>
-
 #endif
+#include <sys/resource.h>
 #include <string.h>
 #include <dirent.h>
 #include "internal/parse_config.h"
@@ -154,9 +154,8 @@ static int nprocessors_conf(void)
 /* Get the value of the system variable NAME.  */
 long int sysconf(int name)
 {
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-      struct rlimit rlimit;
-#endif
+  struct rlimit rlimit;
+
   switch (name)
     {
     default:
@@ -164,14 +163,13 @@ long int sysconf(int name)
       return -1;
 
     case _SC_ARG_MAX:
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
       /* Use getrlimit to get the stack limit.  */
       if (getrlimit (RLIMIT_STACK, &rlimit) == 0)
           return MAX (legacy_ARG_MAX, rlimit.rlim_cur / 4);
-#elif defined ARG_MAX
+#if defined ARG_MAX
       return ARG_MAX;
 #else
-      RETURN_NEG_1;
+      return legacy_ARG_MAX;
 #endif
 
     case _SC_CHILD_MAX:
