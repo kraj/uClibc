@@ -506,11 +506,13 @@ extern void __pthread_wait_for_restart_signal(pthread_descr self);
 extern void (*__pthread_restart)(pthread_descr);
 extern void (*__pthread_suspend)(pthread_descr);
 
+#if defined NOT_IN_libc && defined IS_IN_libpthread
 extern __typeof(pthread_mutex_init) __pthread_mutex_init attribute_hidden;
 extern __typeof(pthread_mutex_destroy) __pthread_mutex_destroy attribute_hidden;
 extern __typeof(pthread_mutex_lock) __pthread_mutex_lock attribute_hidden;
 extern __typeof(pthread_mutex_trylock) __pthread_mutex_trylock attribute_hidden;
 extern __typeof(pthread_mutex_unlock) __pthread_mutex_attribute_hidden;
+#endif
 
 /* Prototypes for some of the new semaphore functions.  */
 extern int __new_sem_post (sem_t * sem);
