@@ -9,11 +9,7 @@
 
 #include <sys/syscall.h>
 #include <sys/epoll.h>
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-# include <sysdep-cancel.h>
-#else
-# define SINGLE_THREAD_P 1
-#endif
+#include <cancel.h>
 
 #ifdef __NR_epoll_create
 _syscall1(int, epoll_create, int, size)
@@ -28,47 +24,27 @@ _syscall4(int, epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event *, eve
 #endif
 
 #ifdef __NR_epoll_wait
-extern __typeof(epoll_wait) __libc_epoll_wait;
-int __libc_epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
+static int __NC(epoll_wait)(int epfd, struct epoll_event *events, int maxevents, int timeout)
 {
-	if (SINGLE_THREAD_P)
-		return INLINE_SYSCALL(epoll_wait, 4, epfd, events, maxevents, timeout);
-# ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	else {
-		int oldtype = LIBC_CANCEL_ASYNC ();
-		int result = INLINE_SYSCALL(epoll_wait, 4, epfd, events, maxevents, timeout);
-		LIBC_CANCEL_RESET (oldtype);
-		return result;
-	}
-# endif
+	return INLINE_SYSCALL(epoll_wait, 4, epfd, events, maxevents, timeout);
 }
-weak_alias(__libc_epoll_wait, epoll_wait)
+CANCELLABLE_SYSCALL(int, epoll_wait, (int epfd, struct epoll_event *events, int maxevents, int timeout),
+		    (epfd, events, maxevents, timeout))
 #endif
 
 #ifdef __NR_epoll_pwait
 # include <signal.h>
 
-extern __typeof(epoll_pwait) __libc_epoll_pwait;
-int __libc_epoll_pwait(int epfd, struct epoll_event *events, int maxevents,
-						int timeout, __const sigset_t *set)
-{
-    int nsig = _NSIG / 8;
-	if (SINGLE_THREAD_P)
-		return INLINE_SYSCALL(epoll_pwait, 6, epfd, events, maxevents, timeout, set, nsig);
-# ifdef __UCLIBC_HAS_THREADS_NATIVE__
-	else {
-		int oldtype = LIBC_CANCEL_ASYNC ();
-		int result = INLINE_SYSCALL(epoll_pwait, 6, epfd, events, maxevents, timeout, set, nsig);
-		LIBC_CANCEL_RESET (oldtype);
-		return result;
-	}
-# endif
-}
-weak_alias(__libc_epoll_pwait, epoll_pwait)
-#endif
+# define __NR___syscall_epoll_pwait __NR_epoll_pwait
+static __always_inline _syscall6(int, __syscall_epoll_pwait, int, epfd, struct epoll_event *, events,
+				 int, maxevents, int, timeout, __const sigset_t *, sigmask, size_t, sigsetsize)
 
-#ifdef __NR_epoll_pwait
-_syscall5(int, epoll_pwait, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout,
-	  __const sigset_t *, ss)
-/* TODO: add cancellation for epoll_pwait */
+static int __NC(epoll_pwait)(int epfd, struct epoll_event *events, int maxevents, int timeout,
+			     __const sigset_t *set)
+{
+	return __syscall_epoll_pwait(epfd, events, maxevents, timeout, set, __SYSCALL_SIGSET_T_SIZE);
+}
+CANCELLABLE_SYSCALL(int, epoll_pwait, (int epfd, struct epoll_event *events, int maxevents, int timeout,
+				       __const sigset_t *set),
+		    (epfd, events, maxevents, timeout, set))
 #endif
