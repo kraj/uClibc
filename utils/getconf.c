@@ -24,11 +24,9 @@
 
 #define PACKAGE "getconf regression test"
 #define VERSION ""
-#ifndef _
-# define _
-#endif
-#define error(status, errnum,...) \
-	{fprintf(stderr, __VA_ARGS__); exit(status);}
+#define _(x) x
+#define error(status, errnum, fmt, ...) \
+	{fprintf(stderr, fmt "\n", ## __VA_ARGS__); exit(status);}
 
 
 struct conf
