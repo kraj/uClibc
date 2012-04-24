@@ -67,7 +67,6 @@ void internal_function __pthread_lock(struct _pthread_fastlock * lock,
 #if defined HAS_COMPARE_AND_SWAP
   long oldstatus, newstatus;
   int successful_seizure, spurious_wakeup_count;
-  int spin_count;
 #endif
 
 #if defined TEST_FOR_COMPARE_AND_SWAP
@@ -87,11 +86,11 @@ void internal_function __pthread_lock(struct _pthread_fastlock * lock,
     return;
 
   spurious_wakeup_count = 0;
-  spin_count = 0;
 
   /* On SMP, try spinning to get the lock. */
 #if 0
   if (__pthread_smp_kernel) {
+    int spin_count;
     int max_count = lock->__spinlock * 2 + 10;
 
     if (max_count > MAX_ADAPTIVE_SPIN_COUNT)
