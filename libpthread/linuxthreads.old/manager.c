@@ -704,12 +704,16 @@ static void pthread_free(pthread_descr th)
 {
   pthread_handle handle;
   pthread_readlock_info *iter, *next;
+#ifndef __ARCH_USE_MMU__
   char *h_bottom_save;
+#endif
 
   /* Make the handle invalid */
   handle =  thread_handle(th->p_tid);
   __pthread_lock(&handle->h_lock, NULL);
+#ifndef __ARCH_USE_MMU__
   h_bottom_save = handle->h_bottom;
+#endif
   handle->h_descr = NULL;
   handle->h_bottom = (char *)(-1L);
   __pthread_unlock(&handle->h_lock);
@@ -737,20 +741,18 @@ static void pthread_free(pthread_descr th)
 
   /* If initial thread, nothing to free */
   if (th == &__pthread_initial_thread) return;
-#ifdef __ARCH_USE_MMU__
   if (!th->p_userstack)
     {
+#ifdef __ARCH_USE_MMU__
       /* Free the stack and thread descriptor area */
       if (th->p_guardsize != 0)
 	munmap(th->p_guardaddr, th->p_guardsize);
       munmap((caddr_t) ((char *)(th+1) - STACK_SIZE), STACK_SIZE);
-    }
 #else
-  /* For non-MMU systems we always malloc the stack, so free it here. -StS */
-  if (!th->p_userstack) {
+      /* For non-MMU systems we always malloc the stack, so free it here. -StS */
       free(h_bottom_save);
-  }
 #endif /* __ARCH_USE_MMU__ */
+    }
 }
 
 /* Handle threads that have exited */
