@@ -666,7 +666,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
     __pthread_handles[sseg].h_descr = NULL;
     __pthread_handles[sseg].h_bottom = NULL;
     __pthread_handles_num--;
-    return errno;
+    return saved_errno;
   }
   PDEBUG("new thread pid = %d\n", pid);
 
