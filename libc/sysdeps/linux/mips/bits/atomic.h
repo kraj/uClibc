@@ -49,6 +49,32 @@ typedef uintmax_t uatomic_max_t;
 # define MIPS_SYNC	sync
 #endif
 
+/* Certain revisions of the R10000 Processor need an LL/SC Workaround
+   enabled.  Revisions before 3.0 misbehave on atomic operations, and
+   Revs 2.6 and lower deadlock after several seconds due to other errata.
+
+   To quote the R10K Errata:
+      Workaround: The basic idea is to inhibit the four instructions
+      from simultaneously becoming active in R10000. Padding all
+      ll/sc sequences with nops or changing the looping branch in the
+      routines to a branch likely (which is always predicted taken
+      by R10000) will work. The nops should go after the loop, and the
+      number of them should be 28. This number could be decremented for
+      each additional instruction in the ll/sc loop such as the lock
+      modifier(s) between the ll and sc, the looping branch and its
+      delay slot. For typical short routines with one ll/sc loop, any
+      instructions after the loop could also count as a decrement. The
+      nop workaround pollutes the cache more but would be a few cycles
+      faster if all the code is in the cache and the looping branch
+      is predicted not taken.  */
+
+
+#ifdef _MIPS_ARCH_R10000
+#define R10K_BEQZ_INSN "beqzl"
+#else
+#define R10K_BEQZ_INSN "beqz"
+#endif
+
 #define MIPS_SYNC_STR_2(X) #X
 #define MIPS_SYNC_STR_1(X) MIPS_SYNC_STR_2(X)
 #define MIPS_SYNC_STR MIPS_SYNC_STR_1(MIPS_SYNC)
@@ -69,16 +95,16 @@ typedef uintmax_t uatomic_max_t;
      MIPS_PUSH_MIPS2							      \
      rel	"\n"							      \
      "1:\t"								      \
-     "ll	%0,%4\n\t"						      \
+     "ll	%0,%5\n\t"						      \
      "move	%1,$0\n\t"						      \
-     "bne	%0,%2,2f\n\t"						      \
-     "move	%1,%3\n\t"						      \
-     "sc	%1,%4\n\t"						      \
-     "beqz	%1,1b\n"						      \
+     "bne	%0,%3,2f\n\t"						      \
+     "move	%1,%4\n\t"						      \
+     "sc	%1,%2\n\t"						      \
+     R10K_BEQZ_INSN"	%1,1b\n"					      \
      acq	"\n\t"							      \
      ".set	pop\n"							      \
      "2:\n\t"								      \
-	      : "=&r" (__prev), "=&r" (__cmp)				      \
+	      : "=&r" (__prev), "=&r" (__cmp), "=m" (*mem)		      \
 	      : "r" (oldval), "r" (newval), "m" (*mem)			      \
 	      : "memory")
 
@@ -93,16 +119,16 @@ typedef uintmax_t uatomic_max_t;
      MIPS_PUSH_MIPS2							      \
      rel	"\n"							      \
      "1:\t"								      \
-     "lld	%0,%4\n\t"						      \
+     "lld	%0,%5\n\t"						      \
      "move	%1,$0\n\t"						      \
-     "bne	%0,%2,2f\n\t"						      \
-     "move	%1,%3\n\t"						      \
-     "scd	%1,%4\n\t"						      \
-     "beqz	%1,1b\n"						      \
+     "bne	%0,%3,2f\n\t"						      \
+     "move	%1,%4\n\t"						      \
+     "scd	%1,%2\n\t"						      \
+     R10K_BEQZ_INSN"	%1,1b\n"					      \
      acq	"\n\t"							      \
      ".set	pop\n"							      \
      "2:\n\t"								      \
-	      : "=&r" (__prev), "=&r" (__cmp)				      \
+	      : "=&r" (__prev), "=&r" (__cmp), "=m" (*mem)		      \
 	      : "r" (oldval), "r" (newval), "m" (*mem)			      \
 	      : "memory")
 #endif
@@ -189,14 +215,14 @@ typedef uintmax_t uatomic_max_t;
      MIPS_PUSH_MIPS2							      \
      rel	"\n"							      \
      "1:\t"								      \
-     "ll	%0,%3\n\t"						      \
-     "move	%1,%2\n\t"						      \
-     "sc	%1,%3\n\t"						      \
-     "beqz	%1,1b\n"						      \
+     "ll	%0,%4\n\t"						      \
+     "move	%1,%3\n\t"						      \
+     "sc	%1,%2\n\t"						      \
+     R10K_BEQZ_INSN"	%1,1b\n"					      \
      acq	"\n\t"							      \
      ".set	pop\n"							      \
      "2:\n\t"								      \
-	      : "=&r" (__prev), "=&r" (__cmp)				      \
+	      : "=&r" (__prev), "=&r" (__cmp), "=m" (*mem)		      \
 	      : "r" (newval), "m" (*mem)				      \
 	      : "memory");						      \
   __prev; })
@@ -213,14 +239,14 @@ typedef uintmax_t uatomic_max_t;
      MIPS_PUSH_MIPS2							      \
      rel	"\n"							      \
      "1:\n"								      \
-     "lld	%0,%3\n\t"						      \
-     "move	%1,%2\n\t"						      \
-     "scd	%1,%3\n\t"						      \
-     "beqz	%1,1b\n"						      \
+     "lld	%0,%4\n\t"						      \
+     "move	%1,%3\n\t"						      \
+     "scd	%1,%2\n\t"						      \
+     R10K_BEQZ_INSN"	%1,1b\n"					      \
      acq	"\n\t"							      \
      ".set	pop\n"							      \
      "2:\n\t"								      \
-	      : "=&r" (__prev), "=&r" (__cmp)				      \
+	      : "=&r" (__prev), "=&r" (__cmp), "=m" (*mem)		      \
 	      : "r" (newval), "m" (*mem)				      \
 	      : "memory");						      \
   __prev; })
@@ -248,14 +274,14 @@ typedef uintmax_t uatomic_max_t;
      MIPS_PUSH_MIPS2							      \
      rel	"\n"							      \
      "1:\t"								      \
-     "ll	%0,%3\n\t"						      \
-     "addu	%1,%0,%2\n\t"						      \
-     "sc	%1,%3\n\t"						      \
-     "beqz	%1,1b\n"						      \
+     "ll	%0,%4\n\t"						      \
+     "addu	%1,%0,%3\n\t"						      \
+     "sc	%1,%2\n\t"						      \
+     R10K_BEQZ_INSN"	%1,1b\n"					      \
      acq	"\n\t"							      \
      ".set	pop\n"							      \
      "2:\n\t"								      \
-	      : "=&r" (__prev), "=&r" (__cmp)				      \
+	      : "=&r" (__prev), "=&r" (__cmp), "=m" (*mem)		      \
 	      : "r" (value), "m" (*mem)					      \
 	      : "memory");						      \
   __prev; })
@@ -272,14 +298,14 @@ typedef uintmax_t uatomic_max_t;
      MIPS_PUSH_MIPS2							      \
      rel	"\n"							      \
      "1:\t"								      \
-     "lld	%0,%3\n\t"						      \
-     "daddu	%1,%0,%2\n\t"						      \
-     "scd	%1,%3\n\t"						      \
-     "beqz	%1,1b\n"						      \
+     "lld	%0,%4\n\t"						      \
+     "daddu	%1,%0,%3\n\t"						      \
+     "scd	%1,%2\n\t"						      \
+     R10K_BEQZ_INSN"	%1,1b\n"					      \
      acq	"\n\t"							      \
      ".set	pop\n"							      \
      "2:\n\t"								      \
-	      : "=&r" (__prev), "=&r" (__cmp)				      \
+	      : "=&r" (__prev), "=&r" (__cmp), "=m" (*mem)		      \
 	      : "r" (value), "m" (*mem)					      \
 	      : "memory");						      \
   __prev; })
