@@ -11,6 +11,11 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
+/* Newer kernel ports have llseek() instead of _llseek() */
+#if !defined __NR__llseek && defined __NR_llseek
+# define __NR__llseek __NR_llseek
+#endif
+
 #if defined __NR__llseek && defined __UCLIBC_HAS_LFS__
 
 loff_t lseek64(int fd, loff_t offset, int whence)
