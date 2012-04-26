@@ -137,7 +137,7 @@ make_stub(sched_getcpu)
 make_stub(getpeername)
 #endif
 
-#if !defined(__NR_getpgrp) && (defined(__NR_getpgid) && (defined(__NR_getpid) || defined(__NR_getxpid)))
+#if !defined __NR_getpgrp && !defined __NR_getpgid
 make_stub(getpgrp)
 #endif
 

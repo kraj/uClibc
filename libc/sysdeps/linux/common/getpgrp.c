@@ -13,10 +13,9 @@
 #ifdef __NR_getpgrp
 /* According to the manpage the POSIX.1 version is favoured */
 _syscall_noerr0(pid_t, getpgrp)
-#elif defined __NR_getpgid && (defined __NR_getpid || defined __NR_getxpid)
-/* IA64 doesn't have a getpgrp syscall */
+#elif defined __NR_getpgid
 pid_t getpgrp(void)
 {
-	return getpgid(getpid());
+	return getpgid(0);
 }
 #endif
