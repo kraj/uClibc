@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_SYS_EPOLL_H
 #define	_SYS_EPOLL_H	1
@@ -30,33 +29,12 @@
 typedef __sigset_t sigset_t;
 #endif
 
+/* Get the platform-dependent flags.  */
+#include <bits/epoll.h>
 
-/* Flags to be passed to epoll_create1.  */
-
-enum
-  {
-#if defined __alpha__
-    EPOLL_CLOEXEC = 010000000,
-# define EPOLL_CLOEXEC EPOLL_CLOEXEC
-    EPOLL_NONBLOCK = 04
-# define EPOLL_NONBLOCK EPOLL_NONBLOCK
-#else
-# if defined __sparc__
-    EPOLL_CLOEXEC = 020000000,
-# else
-    EPOLL_CLOEXEC = 02000000,
-# endif
-# define EPOLL_CLOEXEC EPOLL_CLOEXEC
-# if defined __mips__
-    EPOLL_NONBLOCK = 0200
-# elif defined __sparc__
-    EPOLL_NONBLOCK = 040000
-# else
-    EPOLL_NONBLOCK = 04000
-# endif
-#define EPOLL_NONBLOCK EPOLL_NONBLOCK
+#ifndef __EPOLL_PACKED
+# define __EPOLL_PACKED
 #endif
-  };
 
 
 enum EPOLL_EVENTS
@@ -83,9 +61,9 @@ enum EPOLL_EVENTS
 #define EPOLLHUP EPOLLHUP
     EPOLLRDHUP = 0x2000,
 #define EPOLLRDHUP EPOLLRDHUP
-    EPOLLONESHOT = (1 << 30),
+    EPOLLONESHOT = 1u << 30,
 #define EPOLLONESHOT EPOLLONESHOT
-    EPOLLET = (1 << 31)
+    EPOLLET = 1u << 31
 #define EPOLLET EPOLLET
   };
 
@@ -108,11 +86,7 @@ struct epoll_event
 {
   uint32_t events;	/* Epoll events */
   epoll_data_t data;	/* User data variable */
-}
-#if defined __x86_64__
-__attribute__((packed))
-#endif
-;
+} __EPOLL_PACKED;
 
 
 __BEGIN_DECLS
@@ -123,7 +97,7 @@ __BEGIN_DECLS
    returned by epoll_create() should be closed with close().  */
 extern int epoll_create (int __size) __THROW;
 
-/* Same as epoll_create but with a FLAGS parameter.  The unused SIZE
+/* Same as epoll_create but with an FLAGS parameter.  The unused SIZE
    parameter has been dropped.  */
 extern int epoll_create1 (int __flags) __THROW;
 
@@ -159,7 +133,7 @@ extern int epoll_wait (int __epfd, struct epoll_event *__events,
    __THROW.  */
 extern int epoll_pwait (int __epfd, struct epoll_event *__events,
 			int __maxevents, int __timeout,
-			__const __sigset_t *__ss);
+			const __sigset_t *__ss);
 
 __END_DECLS
 
