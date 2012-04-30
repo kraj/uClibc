@@ -851,7 +851,7 @@ __END_NAMESPACE_STD
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
 
-#if 0 /*def __USE_SVID*/
+#ifdef __USE_SVID
 /* Determine whether the string value of RESPONSE matches the affirmation
    or negative response expression as specified by the LC_MESSAGES category
    in the program's current locale.  Returns 1 if affirmative, 0 if

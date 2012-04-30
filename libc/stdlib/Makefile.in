@@ -33,7 +33,7 @@ endif
 
 # multi source stdlib.c
 CSRC-y += abs.c labs.c atoi.c atol.c strtol.c strtoul.c _stdlib_strto_l.c \
-	qsort.c qsort_r.c bsearch.c \
+	qsort.c qsort_r.c bsearch.c rpmatch.c \
 	llabs.c atoll.c strtoll.c strtoull.c _stdlib_strto_ll.c
 # (aliases) strtoq.o strtouq.o
 CSRC-$(UCLIBC_HAS_FLOATS) += atof.c
