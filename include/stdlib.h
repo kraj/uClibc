@@ -828,12 +828,17 @@ __END_NAMESPACE_STD
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
 
-#if 0 /*def __USE_SVID*/
+#ifdef __USE_SVID
 /* Determine whether the string value of RESPONSE matches the affirmation
    or negative response expression as specified by the LC_MESSAGES category
    in the program's current locale.  Returns 1 if affirmative, 0 if
    negative, and -1 if not matching.  */
-extern int rpmatch (__const char *__response) __THROW __nonnull ((1)) __wur;
+__THROW __nonnull ((1)) __wur
+static inline int rpmatch (__const char *__response)
+{
+	return (__response[0] == 'y' || __response[0] == 'Y') ? 1 :
+		(__response[0] == 'n' || __response[0] == 'N') ? 0 : -1;
+}
 #endif
 
 
