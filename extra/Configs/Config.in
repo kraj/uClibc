@@ -698,9 +698,9 @@ config UCLIBC_SUSV4_LEGACY
 	  WARNING! ABI incompatibility.
 
 config UCLIBC_STRICT_HEADERS
-	bool "Enable structures and constants for unsupported features"
+	bool "Hide structures and constants for unsupported features"
 	help
-	  Enable structures and constants in headers that should not be used,
+	  Hide structures and constants in headers that should not be used,
 	  because the respective feature is disabled.
 
 	  WARNING! enabling this option requires to patch many faulty apps,
