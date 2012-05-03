@@ -833,8 +833,8 @@ __END_NAMESPACE_STD
    or negative response expression as specified by the LC_MESSAGES category
    in the program's current locale.  Returns 1 if affirmative, 0 if
    negative, and -1 if not matching.  */
-__nonnull ((1)) __wur
-static inline int rpmatch (__const char *__response)
+/* __THROW */
+static __inline __nonnull ((1)) __wur int rpmatch (__const char *__response)
 {
 	return (__response[0] == 'y' || __response[0] == 'Y') ? 1 :
 		(__response[0] == 'n' || __response[0] == 'N') ? 0 : -1;
