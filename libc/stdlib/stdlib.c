@@ -318,6 +318,14 @@ long long atoll(const char *nptr)
 
 #endif
 /**********************************************************************/
+#ifdef L_rpmatch
+int rpmatch (__const char *__response)
+{
+	return (__response[0] == 'y' || __response[0] == 'Y') ? 1 :
+		(__response[0] == 'n' || __response[0] == 'N') ? 0 : -1;
+}
+#endif
+/**********************************************************************/
 #if defined(L_strtol) || defined(L_strtol_l)
 
 libc_hidden_proto(__XL_NPP(strtol))
