@@ -24,11 +24,6 @@ extern __typeof(system) __libc_system;
  * need to figure out why still
  */
 #if !defined __UCLIBC_HAS_THREADS_NATIVE__ || defined __sparc__
-/* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
-#include <sys/syscall.h>
-#ifndef __NR_vfork
-# define vfork fork
-#endif
 
 int __libc_system(const char *command)
 {

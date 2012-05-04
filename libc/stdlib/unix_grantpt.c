@@ -31,12 +31,6 @@
 #include "pty-private.h"
 
 
-/* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
-#include <sys/syscall.h>
-#if ! defined __NR_vfork
-#define vfork fork
-#endif
-
 /* Return the result of ptsname_r in the buffer pointed to by PTS,
    which should be of length BUF_LEN.  If it is too long to fit in
    this buffer, a sufficiently long buffer is allocated using malloc,

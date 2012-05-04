@@ -26,15 +26,6 @@
 #warning "hmm... susv3 says Pipe streams are byte-oriented."
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
-
-/* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
-#include <sys/syscall.h>
-#if ! defined __NR_vfork
-# define vfork fork
-# define VFORK_LOCK		((void) 0)
-# define VFORK_UNLOCK		((void) 0)
-#endif
-
 #ifndef VFORK_LOCK
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 # define VFORK_LOCK		__UCLIBC_MUTEX_LOCK(mylock)
