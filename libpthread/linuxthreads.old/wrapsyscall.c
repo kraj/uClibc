@@ -28,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <termios.h>
+#include <sys/epoll.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
