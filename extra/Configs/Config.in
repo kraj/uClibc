@@ -1590,19 +1590,6 @@ config UCLIBC_PRINTF_SCANF_POSITIONAL_ARGS
 
 	  Most people will answer 9.
 
-
-config UCLIBC_HAS_SCANF_GLIBC_A_FLAG
-	bool "Support glibc's 'a' flag for scanf string conversions (not implemented)"
-	help
-	  NOTE!!!  Currently Not Implemented!!! Just A Place Holder!!  NOTE!!!
-	  NOTE!!!  Conflicts with an ANSI/ISO C99 scanf flag!!         NOTE!!!
-
-	  Answer Y to enable support for glibc's 'a' flag for the scanf string
-	  conversions '%s', '%[', '%ls', '%l[', and '%S'.  This is used to
-	  auto-allocate sufficient memory to hold the data retrieved.
-
-	  Most people will answer N.
-
 choice
 	prompt "Stdio buffer size"
 	default UCLIBC_HAS_STDIO_BUFSIZ_4096
