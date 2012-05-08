@@ -57,6 +57,8 @@ help:
 	@echo '  CROSS_COMPILE=		- Override CROSS_COMPILER_PREFIX from .config'
 	@echo '  ARCH= 		- Use given arch for config targets'
 	@echo '  SHELL=		- Shell to use for make'
+	@echo '  BUILD_CFLAGS=		- extra CFLAGS for compiling host binaries'
+	@echo '  BUILD_LFLAGS=		- extra LDFLAGS for linking host binaries'
 	@echo '  CONFIG_SHELL=		- Shell to use for menuconfig'
 	@echo
 	@echo '  PREFIX=		- Prepended prefix'
