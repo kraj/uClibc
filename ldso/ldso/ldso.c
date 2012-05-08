@@ -77,17 +77,7 @@ char *_dl_debug_bindings  = NULL;
 int   _dl_debug_file      = 2;
 #endif
 
-#if defined (__LDSO_STANDALONE_SUPPORT__) && defined (__sh__)
-/* Not hidden, needed for standalone execution. */
-/*
- * FIXME: align dl_start for SH to other archs so that we can keep this symbol
- *        hidden and we don't need to handle in __uClibc_main
- */
-
-unsigned long _dl_skip_args = 0;
-#else
 unsigned long attribute_hidden _dl_skip_args = 0;
-#endif
 
 const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being run */
 #include "dl-startup.c"

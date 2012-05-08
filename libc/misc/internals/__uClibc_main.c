@@ -146,10 +146,6 @@ extern void (*__fini_array_end []) (void) attribute_hidden;
 # endif
 #endif
 
-#if defined (__LDSO_STANDALONE_SUPPORT__) && defined (SHARED) && defined __sh__
-extern unsigned long _dl_skip_args;
-#endif
-
 attribute_hidden const char *__uclibc_progname = "";
 #ifdef __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
 const char *program_invocation_short_name = "";
@@ -338,18 +334,6 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 #endif
 
     __rtld_fini = rtld_fini;
-
-#if defined __LDSO_STANDALONE_SUPPORT__ && defined SHARED && defined __sh__
-	/*
-	 * Skip ld.so and its arguments
-	 * Other archs except for SH do this in _dl_start before passing
-	 * control to the application.
-	 * FIXME: align SH _dl_start to other archs and remove this from here,
-	 *        so that we can keep the visibility hidden.
-	 */
-	argc -= _dl_skip_args;
-	argv += _dl_skip_args;
-#endif
 
     /* The environment begins right after argv.  */
     __environ = &argv[argc + 1];
