@@ -545,6 +545,7 @@ static void find_needed_libraries(ElfW(Ehdr) *ehdr, ElfW(Dyn) *dynamic, int is_s
 	}
 }
 
+#ifdef __LDSO_LDD_SUPPORT__
 static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 {
 	ElfW(Phdr) *phdr;
@@ -610,6 +611,7 @@ static struct library *find_elf_interpreter(ElfW(Ehdr) *ehdr)
 	}
 	return NULL;
 }
+#endif /* __LDSO_LDD_SUPPORT__ */
 
 /* map the .so, and locate interesting pieces */
 /*
@@ -619,11 +621,13 @@ static int find_dependencies(char *filename)
 {
 	int is_suid = 0;
 	FILE *thefile;
-	struct library *interp;
 	struct stat statbuf;
 	ElfW(Ehdr) *ehdr = NULL;
 	ElfW(Shdr) *dynsec = NULL;
 	ElfW(Dyn) *dynamic = NULL;
+#ifdef __LDSO_LDD_SUPPORT__
+	struct library *interp;
+#endif
 
 	if (filename == not_found)
 		return 0;
@@ -680,9 +684,9 @@ foo:
 	}
 
 	interpreter_already_found = 0;
+#ifdef __LDSO_LDD_SUPPORT__
 	interp = find_elf_interpreter(ehdr);
 
-#ifdef __LDSO_LDD_SUPPORT__
 	if (interp
 	    && (ehdr->e_type == ET_EXEC || ehdr->e_type == ET_DYN)
 	    && ehdr->e_ident[EI_CLASS] == ELFCLASSM
