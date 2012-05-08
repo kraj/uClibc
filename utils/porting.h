@@ -45,6 +45,10 @@
 #include <dmalloc.h>
 #endif
 
+#ifndef ARRAY_SIZE
+# define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#endif
+
 /* For SunOS */
 #ifndef PATH_MAX
 #define PATH_MAX _POSIX_PATH_MAX
