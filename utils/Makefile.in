@@ -52,24 +52,24 @@ UTILS_CONFIG_FLAGS-$(LDSO_STANDALONE_SUPPORT) += -D__LDSO_STANDALONE_SUPPORT__
 
 BUILD_CFLAGS-utils := \
     -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-    -DUCLIBC_LDSO=$(UCLIBC_LDSO) \
+    -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" \
     $(UTILS_CONFIG_FLAGS-y)
-BUILD_CFLAGS-ldconfig.host := $(BUILD_CFLAGS-utils) \
+BUILD_CFLAGS-ldconfig.host := \
 				-DBUILDING_LINKAGE \
 				-I$(top_srcdir)ldso/include
-BUILD_CFLAGS-ldd.host      := $(BUILD_CFLAGS-utils) \
+BUILD_CFLAGS-ldd.host      := \
 				-DBUILDING_LINKAGE \
 				-I$(top_srcdir)ldso/include \
 				-include $(top_srcdir)include/elf.h
-BUILD_CFLAGS-locale.host   := $(BUILD_CFLAGS-utils) \
+BUILD_CFLAGS-locale.host   := \
 				-DNOT_IN_libc \
 				-I$(top_srcdir)utils/ \
 				-I.
-BUILD_CFLAGS-iconv.host    := $(BUILD_CFLAGS-utils) \
+BUILD_CFLAGS-iconv.host    := \
 			-include $(top_builddir)extra/locale/c8tables.h \
 			-I$(top_srcdir)libc/misc/wchar -DL_iconv_main
 
-BUILD_CFLAGS-getconf.host  := $(BUILD_CFLAGS-utils) \
+BUILD_CFLAGS-getconf.host  := \
 				-DGETCONF_DIR='"$(CURDIR)"'
 
 # Rules
