@@ -704,7 +704,7 @@ foo:
 				"LD_TRACE_LOADED_OBJECTS=1",
 				NULL
 			};
-#ifdef __LDSO_STANDALONE_SUPPORT__
+# ifdef __LDSO_STANDALONE_SUPPORT__
 			char * lib_path = getenv("LD_LIBRARY_PATH");
 
 			/* The 'extended' environment inclusing the LD_LIBRARY_PATH */
@@ -741,21 +741,21 @@ foo:
 				execle(TRUSTED_LDSO, TRUSTED_LDSO, filename, NULL, envp);
 				_exit(0xdead);
 			}
-#else
+# else
 			if ((pid = vfork()) == 0) {
 				/* Cool, it looks like we should be able to actually
 				 * run this puppy.  Do so now... */
 				execle(filename, filename, NULL, environment);
 				_exit(0xdead);
 			}
-#endif
+# endif
 			/* Wait till it returns */
 			waitpid(pid, &status, 0);
 
-#ifdef __LDSO_STANDALONE_SUPPORT__
+# ifdef __LDSO_STANDALONE_SUPPORT__
 			/* Do not leak */
 			free(lib_path);
-#endif
+# endif
 
 			if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
 				return 1;
