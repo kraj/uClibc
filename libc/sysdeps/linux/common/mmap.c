@@ -63,7 +63,8 @@ __ptr_t mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offs
 		__set_errno(EINVAL);
 		return MAP_FAILED;
 	}
-	return __syscall_mmap2(addr, len, prot, flags, fd, offset >> MMAP2_PAGE_SHIFT);
+	return __syscall_mmap2(addr, len, prot, flags,
+	                       fd, ((__u_long) offset >> MMAP2_PAGE_SHIFT));
 }
 
 libc_hidden_def(mmap)
