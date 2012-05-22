@@ -139,6 +139,12 @@ struct elf_resolve {
      memory when the module is dlclose()d.  */
   struct funcdesc_ht *funcdesc_ht;
 #endif
+#ifdef __DSBT__
+  /* Information for DSBT */
+  void **dsbt_table;
+  unsigned long dsbt_size;
+  unsigned long dsbt_index;
+#endif
 };
 
 #define RELOCS_DONE	    0x000001

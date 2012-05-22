@@ -77,6 +77,10 @@ char *_dl_debug_bindings  = NULL;
 int   _dl_debug_file      = 2;
 #endif
 
+#ifdef __DSBT__
+void **_dl_ldso_dsbt = NULL;
+#endif
+
 unsigned long attribute_hidden _dl_skip_args = 0;
 
 const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being run */
@@ -454,6 +458,11 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		_dl_progname = argv[0];
 	}
 
+#ifdef __DSBT__
+	_dl_ldso_dsbt = (void *)tpnt->dynamic_info[DT_DSBT_BASE_IDX];
+	_dl_ldso_dsbt[tpnt->dynamic_info[DT_DSBT_INDEX_IDX]] = _dl_ldso_dsbt;
+#endif
+
 #ifndef __LDSO_STANDALONE_SUPPORT__
 	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val) {
 		_dl_dprintf(_dl_debug_file, "Standalone execution is not enabled\n");
@@ -688,6 +697,11 @@ of this helper program; chances are you did not intend to run this program.\n\
 			app_tpnt->mapaddr = app_mapaddr;
 			app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
 			app_tpnt->usage_count++;
+#ifdef __DSBT__
+			_dl_ldso_dsbt[0] = app_tpnt->dsbt_table;
+			_dl_memcpy(app_tpnt->dsbt_table, _dl_ldso_dsbt,
+				   app_tpnt->dsbt_size * sizeof(tpnt->dsbt_table[0]));
+#endif
 			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
 #ifdef ALLOW_ZERO_PLTGOT
 			if (lpnt)

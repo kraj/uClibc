@@ -115,6 +115,15 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	tpnt->dynamic_addr = (ElfW(Dyn) *)dynamic_addr;
 	tpnt->libtype = loaded_file;
 
+#ifdef __DSBT__
+	if (dynamic_info[DT_DSBT_BASE_IDX] != 0)
+		tpnt->dsbt_table = (void *)dynamic_info[DT_DSBT_BASE_IDX];
+	if (dynamic_info[DT_DSBT_SIZE_IDX] != 0)
+		tpnt->dsbt_size = dynamic_info[DT_DSBT_SIZE_IDX];
+	if (dynamic_info[DT_DSBT_INDEX_IDX] != 0)
+		tpnt->dsbt_index = dynamic_info[DT_DSBT_INDEX_IDX];
+#endif /* __DSBT__ */
+
 #ifdef __LDSO_GNU_HASH_SUPPORT__
 	if (dynamic_info[DT_GNU_HASH_IDX] != 0) {
 		Elf32_Word *hash32 = (Elf_Symndx*)dynamic_info[DT_GNU_HASH_IDX];

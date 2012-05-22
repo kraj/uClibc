@@ -851,10 +851,15 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 	/* Handle DSBT initialization */
 	{
 		struct elf_resolve *t, *ref;
-		int idx = tpnt->loadaddr.map->dsbt_index;
-		unsigned *dsbt = tpnt->loadaddr.map->dsbt_table;
+		int idx = tpnt->dsbt_index;
+		void **dsbt = tpnt->dsbt_table;
 
-		if (idx == 0) {
+		/*
+		 * It is okay (required actually) to have zero idx for an executable.
+		 * This is the case when running ldso standalone and the program
+		 * is being mapped in via _dl_load_shared_library().
+		 */
+		if (idx == 0 && tpnt->libtype != elf_executable) {
 			if (!dynamic_info[DT_TEXTREL]) {
 				/* This DSO has not been assigned an index. */
 				_dl_dprintf(2, "%s: '%s' is missing a dsbt index assignment!\n",
@@ -869,9 +874,9 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 					break;
 				}
 			}
-			idx = tpnt->loadaddr.map->dsbt_size;
+			idx = tpnt->dsbt_size;
 			while (idx-- > 0)
-				if (!ref || ref->loadaddr.map->dsbt_table[idx] == NULL)
+				if (!ref || ref->dsbt_table[idx] == NULL)
 					break;
 			if (idx <= 0) {
 				_dl_dprintf(2, "%s: '%s' caused DSBT table overflow!\n",
@@ -880,43 +885,36 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 			}
 			_dl_if_debug_dprint("\n\tfile='%s';  assigned index %d\n",
 					    libname, idx);
-			tpnt->loadaddr.map->dsbt_index = idx;
+			tpnt->dsbt_index = idx;
+		}
 
+		/* make sure index is not already used */
+		if (_dl_ldso_dsbt[idx]) {
+			struct elf_resolve *dup;
+			const char *dup_name;
+
+			for (dup = _dl_loaded_modules; dup; dup = dup->next)
+				if (dup != tpnt && dup->dsbt_index == idx)
+					break;
+			if (dup)
+				dup_name = dup->libname;
+			else if (idx == 1)
+				dup_name = "runtime linker";
+			else
+				dup_name = "unknown library";
+			_dl_dprintf(2, "%s: '%s' dsbt index %d already used by %s!\n",
+				    _dl_progname, libname, idx, dup_name);
+			_dl_exit(1);
 		}
 
 		/*
 		 * Setup dsbt slot for this module in dsbt of all modules.
 		 */
-		ref = NULL;
-		for (t = _dl_loaded_modules; t; t = t->next) {
-			/* find a dsbt table from another module */
-			if (ref == NULL && t != tpnt) {
-				ref = t;
-
-				/* make sure index is not already used */
-				if (t->loadaddr.map->dsbt_table[idx]) {
-					struct elf_resolve *dup;
-					char *dup_name;
-
-					for (dup = _dl_loaded_modules; dup; dup = dup->next)
-						if (dup != tpnt && dup->loadaddr.map->dsbt_index == idx)
-							break;
-					if (dup)
-						dup_name = dup->libname;
-					else if (idx == 1)
-						dup_name = "runtime linker";
-					else
-						dup_name = "unknown library";
-					_dl_dprintf(2, "%s: '%s' dsbt index %d already used by %s!\n",
-						    _dl_progname, libname, idx, dup_name);
-					_dl_exit(1);
-				}
-			}
-			t->loadaddr.map->dsbt_table[idx] = (unsigned)dsbt;
-		}
-		if (ref)
-			_dl_memcpy(dsbt, ref->loadaddr.map->dsbt_table,
-				   tpnt->loadaddr.map->dsbt_size * sizeof(unsigned *));
+		for (t = _dl_loaded_modules; t; t = t->next)
+			t->dsbt_table[idx] = dsbt;
+		_dl_ldso_dsbt[idx] = dsbt;
+		_dl_memcpy(dsbt, _dl_ldso_dsbt,
+			   tpnt->dsbt_size * sizeof(tpnt->dsbt_table[0]));
 	}
 #endif
 	_dl_if_debug_dprint("\n\tfile='%s';  generating link map\n", libname);

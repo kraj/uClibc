@@ -84,6 +84,9 @@ extern struct elf_resolve *_dl_trace_prelink_map;	/* Library map for prelinking 
 #else
 #define _dl_trace_prelink		0
 #endif
+#ifdef __DSBT__
+extern void **_dl_ldso_dsbt;
+#endif
 
 #if defined(USE_TLS) && USE_TLS
 extern void _dl_add_to_slotinfo (struct link_map  *l);
