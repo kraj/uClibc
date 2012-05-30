@@ -20,6 +20,13 @@
 # define off64_t off_t
 #endif
 
+#ifdef __NR_pread64             /* Newer kernels renamed but it's the same.  */
+# ifdef __NR_pread
+#  error "__NR_pread and __NR_pread64 both defined???"
+# endif
+# define __NR_pread __NR_pread64
+#endif
+
 #ifdef __NR_pread
 extern __typeof(pread) __libc_pread;
 # define __NR___syscall_pread __NR_pread
@@ -42,6 +49,12 @@ weak_alias(__libc_pread64,pread64)
 # endif /* __UCLIBC_HAS_LFS__  */
 #endif /* __NR_pread */
 
+#ifdef __NR_pwrite64            /* Newer kernels renamed but it's the same.  */
+# ifdef __NR_pwrite
+#  error "__NR_pwrite and __NR_pwrite64 both defined???"
+# endif
+# define __NR_pwrite __NR_pwrite64
+#endif
 
 #ifdef __NR_pwrite
 extern __typeof(pwrite) __libc_pwrite;

@@ -35,6 +35,11 @@ extern __typeof(pread64) __libc_pread64;
 extern __typeof(pwrite64) __libc_pwrite64;
 #endif
 
+#ifdef __NR_pread64             /* Newer kernels renamed but it's the same.  */
+# undef __NR_pread
+# define __NR_pread __NR_pread64
+#endif
+
 #include <bits/kernel_types.h>
 
 # define __NR___syscall_pread __NR_pread64
@@ -64,7 +69,12 @@ ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 weak_alias(__libc_pread64,pread64)
 # endif /* __UCLIBC_HAS_LFS__  */
 
-# define __NR___syscall_pwrite __NR_pwrite64
+#ifdef __NR_pwrite64             /* Newer kernels renamed but it's the same.  */
+# undef __NR_pwrite
+# define __NR_pwrite __NR_pwrite64
+#endif
+
+# define __NR___syscall_pwrite __NR_pwrite
 static __inline__ _syscall5(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
 		size_t, count, off_t, offset_hi, off_t, offset_lo)
 
