@@ -503,15 +503,15 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		const char *nextp;
 		_dl_secure = 1;
 
+#ifdef __LDSO_PRELOAD_ENV_SUPPORT__
+		_dl_preload = _dl_getenv("LD_PRELOAD", envp);
+#endif
 		nextp = unsecure_envvars;
 		do {
 			_dl_unsetenv (nextp, envp);
 			/* We could use rawmemchr but this need not be fast.  */
 			nextp = _dl_strchr(nextp, '\0') + 1;
 		} while (*nextp != '\0');
-#ifdef __LDSO_PRELOAD_ENV_SUPPORT__
-		_dl_preload = NULL;
-#endif
 #ifdef __LDSO_LD_LIBRARY_PATH__
 		_dl_library_path = NULL;
 #endif
@@ -883,8 +883,9 @@ of this helper program; chances are you did not intend to run this program.\n\
 					else
 #endif
 					{
-						_dl_dprintf(_dl_debug_file, "%s: can't load " "library '%s'\n", _dl_progname, str);
-						_dl_exit(15);
+						_dl_dprintf(_dl_debug_file, "%s: library '%s' "
+							"from LD_PRELOAD can't be preloaded: ignored.\n",
+							_dl_progname, str);
 					}
 				} else {
 					tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
