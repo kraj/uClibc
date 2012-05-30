@@ -25,6 +25,11 @@ extern __typeof(pread64) __libc_pread64;
 extern __typeof(pwrite64) __libc_pwrite64;
 #endif
 
+#ifdef __NR_pread64             /* Newer kernels renamed but it's the same.  */
+# undef __NR_pread
+# define __NR_pread __NR_pread64
+#endif
+
 #include <bits/kernel_types.h>
 
 #ifdef __NR_pread
@@ -50,6 +55,11 @@ weak_alias(__libc_pread64,pread64)
 # endif /* __UCLIBC_HAS_LFS__  */
 
 #endif /* __NR_pread */
+
+#ifdef __NR_pwrite64             /* Newer kernels renamed but it's the same.  */
+# undef __NR_pwrite
+# define __NR_pwrite __NR_pwrite64
+#endif
 
 #ifdef __NR_pwrite
 
