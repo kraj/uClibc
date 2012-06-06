@@ -52,13 +52,13 @@ extern int _dl_linux_resolve(void) attribute_hidden;
 struct funcdesc_ht;
 struct elf32_dsbt_loadaddr;
 
-/* We must force strings used early in the bootstrap into the text
-   segment (const data), such that they are referenced relative to
-   the DP register rather than through the GOT which will not have
-   been relocated when these are used. */
+/* Current toolchains access constant strings via unrelocated GOT
+   entries. Fortunately, we have enough in place to just call the
+   relocation function early on. */
 #undef SEND_EARLY_STDERR
 #define SEND_EARLY_STDERR(S) \
-  do { static char __s[] = (S); SEND_STDERR (__s); } while (0)
+  do { char *__p = __reloc_pointer((S), dl_boot_ldsomap?:dl_boot_progmap);\
+	  SEND_STDERR (__p); } while (0)
 
 #define DL_LOADADDR_TYPE struct elf32_dsbt_loadaddr
 
@@ -114,7 +114,7 @@ struct elf32_dsbt_loadaddr;
   (__dl_loadaddr_unmap ((LIB)->loadaddr))
 
 #define DL_LOADADDR_BASE(LOADADDR) \
-  ((LOADADDR).map->dsbt_table)
+  ((LOADADDR).map)
 
 #define DL_ADDR_IN_LOADADDR(ADDR, TPNT, TFROM) \
   (! (TFROM) && __dl_addr_in_loadaddr ((void*)(ADDR), (TPNT)->loadaddr))
@@ -150,18 +150,28 @@ while (0)
 
 
 /*
- * Compute the GOT address.
- * Also setup program and interpreter DSBT table entries.
+ * C6X doesn't really need the GOT here.
+ * The GOT is placed just past the DSBT table, so we could find it by
+ * using the DSBT register + table size found in the dynamic section.
+ *
+ *	do {						  		\
+ *		unsigned long *ldso_dsbt;				\
+ *		ElfW(Dyn) *d = dl_boot_ldso_dyn_pointer;		\
+ *		while (d->d_tag != DT_NULL) {				\
+ *			if (d->d_tag == DT_C6000_DSBT_SIZE)	{	\
+ *				__asm__ (" MV .S2 B14,%0\n"		\
+ *				     : "=b" (ldso_dsbt));		\
+ *				(GOT) = ldso_dsbt + d->d_un.d_val;	\
+ *				break;					\
+ *			}						\
+ *			d++;						\
+ *		}							\
+ *	} while(0)
+ *
+ * Instead, just point it to the DSBT table to avoid unused variable warning.
  */
 #define DL_BOOT_COMPUTE_GOT(GOT) \
-  do {								\
-    unsigned long *ldso_dsbt, *prog_dsbt;			\
-    ldso_dsbt = dl_boot_ldsomap->dsbt_table;			\
-    prog_dsbt = dl_boot_progmap->dsbt_table;			\
-    ldso_dsbt[0] = prog_dsbt[0] = (unsigned long)prog_dsbt;	\
-    ldso_dsbt[1] = prog_dsbt[1] = (unsigned long)ldso_dsbt;	\
-    (GOT) = ldso_dsbt + dl_boot_ldsomap->dsbt_size;		\
-  } while(0)
+	__asm__ (" MV .S2 B14,%0\n" : "=b" (GOT))
 
 #define DL_BOOT_COMPUTE_DYN(dpnt, got, load_addr) \
   ((dpnt) = dl_boot_ldso_dyn_pointer)
@@ -186,12 +196,9 @@ while (0)
 # undef __USE_GNU
 #endif
 
-static __always_inline Elf32_Addr
-elf_machine_load_address (void)
-{
-	/* this is never an issue on DSBT systems */
-	return 0;
-}
+/* we need this for __LDSO_STANDALONE_SUPPORT__ */
+#define elf_machine_load_address() \
+	(dl_boot_ldsomap ?: dl_boot_progmap)->segs[0].addr
 
 static __always_inline void
 elf_machine_relative (DL_LOADADDR_TYPE load_off, const Elf32_Addr rel_addr,
