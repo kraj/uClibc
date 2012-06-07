@@ -74,6 +74,7 @@ ifeq ($(COMPAT_ATEXIT),y)
 else
 	$(Q)echo "GROUP ( $(SHARED_LIBNAME) $(NONSHARED_LIBNAME) $(ASNEEDED) )" >> $@.tmp
 endif
+	$(Q)echo "$(UBACKTRACE_ASNEEDED)" >> $@.tmp
 	$(Q)mv $@.tmp $@
 
 $(libc_OUT)/libc_so.a: $(libc-so-y) | $(top_builddir)lib/libc.a $(top_builddir)lib/$(NONSHARED_LIBNAME)
