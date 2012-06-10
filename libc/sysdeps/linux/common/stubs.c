@@ -93,7 +93,7 @@ make_stub(epoll_ctl)
 make_stub(epoll_wait)
 #endif
 
-#if !defined __NR_eventfd && defined __UCLIBC_LINUX_SPECIFIC__
+#if !defined __NR_eventfd && !defined __NR_eventfd2 && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(eventfd)
 #endif
 
