@@ -58,7 +58,7 @@ help:
 	@echo '  ARCH= 		- Use given arch for config targets'
 	@echo '  SHELL=		- Shell to use for make'
 	@echo '  BUILD_CFLAGS=		- extra CFLAGS for compiling host binaries'
-	@echo '  BUILD_LFLAGS=		- extra LDFLAGS for linking host binaries'
+	@echo '  BUILD_LDFLAGS=		- extra LDFLAGS for linking host binaries'
 	@echo '  CONFIG_SHELL=		- Shell to use for menuconfig'
 	@echo
 	@echo '  PREFIX=		- Prepended prefix'
