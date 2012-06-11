@@ -62,7 +62,7 @@ backtrace_helper (struct _Unwind_Context *ctx, void *a)
 {
 	struct trace_arg *arg = a;
 
-	assert (unwind_getip != NULL);
+	assert (unwind_getip(ctx) != NULL);
 
 	/* We are first called with address in the __backtrace function. Skip it. */
 	if (arg->cnt != -1)
