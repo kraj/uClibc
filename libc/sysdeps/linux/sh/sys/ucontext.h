@@ -32,10 +32,10 @@
 typedef int greg_t;
 
 /* Number of general registers.  */
-#define NFPREG	16
+#define NGREG	16
 
 /* Container for all general registers.  */
-typedef greg_t gregset_t[NFPREG];
+typedef greg_t gregset_t[NGREG];
 
 #ifdef __USE_GNU
 /* Number of each register is the `gregset_t' array.  */
