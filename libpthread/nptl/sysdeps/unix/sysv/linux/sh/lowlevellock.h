@@ -396,9 +396,9 @@ extern int __lll_unlock_wake (int *__futex, int private) attribute_hidden;
 
 #define lll_wait_tid(tid) \
   do {									      \
-    __typeof (tid) *__tid = &(tid);					      \
-    while (*__tid != 0)							      \
-      lll_futex_wait (__tid, *__tid, LLL_SHARED);			      \
+    __typeof (tid) __tid;						      \
+    while ((__tid = (tid)) != 0)						      \
+      lll_futex_wait (&(tid), __tid, LLL_SHARED);			      \
   } while (0)
 
 extern int __lll_timedwait_tid (int *tid, const struct timespec *abstime)
