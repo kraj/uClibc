@@ -92,6 +92,10 @@ HEADERS_BITS_SUBARCH :=
 ifneq ($(TARGET_SUBARCH),)
 HEADERS_BITS_SUBARCH := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(TARGET_SUBARCH)/*.h))
 endif
+ifneq ($(HEADERS_BITS_PTHREAD),)
+HEADERS_BITS_ARCH   := $(filter-out $(HEADERS_BITS_PTHREAD),$(HEADERS_BITS_ARCH))
+HEADERS_BITS_SUBARCH:= $(filter-out $(HEADERS_BITS_PTHREAD),$(HEADERS_BITS_SUBARCH))
+endif
 HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_ARCH) $(HEADERS_BITS_SUBARCH) $(HEADERS_BITS_PTHREAD),$(HEADERS_BITS_COMMON))
 
 HEADERS_SYS_COMMON := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/common/sys/*.h))
