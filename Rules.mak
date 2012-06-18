@@ -117,7 +117,7 @@ export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION ABI_VERSION LC_ALL
 
 LIBC := libc
 SHARED_LIBNAME := $(LIBC).so.$(ABI_VERSION)
-UBACKTRACE_DSO := libubacktrace.a #so.$(ABI_VERSION)
+UBACKTRACE_DSO := libubacktrace.so.$(ABI_VERSION)
 ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 mips64 powerpc64 s390x sparc64 x86_64 ),)
 UCLIBC_LDSO_NAME := ld64-uClibc
 ARCH_NATIVE_BIT := 64
@@ -134,9 +134,6 @@ libdl.depend := $(top_builddir)lib/libdl.so
 endif
 ifneq ($(HAS_NO_THREADS),y)
 libpthread.depend := $(top_builddir)lib/libpthread.so
-endif
-ifeq ($(UCLIBC_HAS_BACKTRACE),y)
-libubacktrace.depend := $(top_builddir)lib/libubacktrace.a
 endif
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
@@ -581,9 +578,14 @@ export ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && ec
 
 # Only used in installed libc.so linker script
 ifeq ($(UCLIBC_HAS_BACKTRACE),y)
+ifeq ($(HARDWIRED_ABSPATH),y)
+UBACKTRACE_FULL_NAME := $(subst //,/,$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UBACKTRACE_DSO))
+else
+UBACKTRACE_FULL_NAME := $(UBACKTRACE_DSO)
+endif
 export UBACKTRACE_ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && \
-	echo "GROUP ( AS_NEEDED ( $(UBACKTRACE_DSO) ) )" || \
-	echo "GROUP ( $(UBACKTRACE_DSO) )")
+	echo "GROUP ( AS_NEEDED ( $(UBACKTRACE_FULL_NAME) ) )" || \
+	echo "GROUP ( $(UBACKTRACE_FULL_NAME) )")
 else
 export UBACKTRACE_ASNEEDED:=""
 endif

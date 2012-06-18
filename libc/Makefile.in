@@ -20,7 +20,7 @@ LDFLAGS-libc.so := $(LDFLAGS) $(VERSION_SCRIPT) -Wl,-init,$(SYMBOL_PREFIX)__uCli
 ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
 CFLAGS += -D__USE_STDIO_FUTEXES__
 endif
-LIBS-libc.so := $(interp) $(ldso) $(top_builddir)lib/$(NONSHARED_LIBNAME) $(libubacktrace.depend)
+LIBS-libc.so := $(interp) $(ldso) $(top_builddir)lib/$(NONSHARED_LIBNAME)
 
 # we have SHARED_LIBNAME=libc.so.$(ABI_VERSION) defined in Rules.mak
 libc_FULL_NAME := libuClibc-$(VERSION).so
@@ -74,7 +74,6 @@ ifeq ($(COMPAT_ATEXIT),y)
 else
 	$(Q)echo "GROUP ( $(SHARED_LIBNAME) $(NONSHARED_LIBNAME) $(ASNEEDED) )" >> $@.tmp
 endif
-	$(Q)echo "$(UBACKTRACE_ASNEEDED)" >> $@.tmp
 	$(Q)mv $@.tmp $@
 
 $(libc_OUT)/libc_so.a: $(libc-so-y) | $(top_builddir)lib/libc.a $(top_builddir)lib/$(NONSHARED_LIBNAME)

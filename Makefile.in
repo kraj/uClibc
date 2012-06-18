@@ -361,13 +361,13 @@ ifeq ($(HARDWIRED_ABSPATH),y)
 		$(SED) -e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)$(MULTILIB_DIR)/$(NONSHARED_LIBNAME):' \
 		    -e 's:$(SHARED_LIBNAME):$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(SHARED_LIBNAME):' \
 		    -e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UCLIBC_LDSO):' \
-		    -e 's:$(UBACKTRACE_DSO):$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UBACKTRACE_DSO):' \
 		    $(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so; \
 		$(SED) -i -e 's://:/:g' $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so; \
 	fi
 else
 	-$(INSTALL) -m 755 $(top_builddir)lib/libc.so $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
 endif
+	echo "$(UBACKTRACE_ASNEEDED)" >> $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifneq ($(LINUXTHREADS_OLD),y)
 ifeq ($(HARDWIRED_ABSPATH),y)
