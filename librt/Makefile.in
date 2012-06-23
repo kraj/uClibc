@@ -15,6 +15,9 @@ LIBS-librt.so := $(LIBS)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 LIBS-librt.so += $(top_builddir)lib/libdl.so $(top_builddir)lib/libpthread.so
 endif
+START_FILE-librt.so := $(SHARED_START_FILES)
+END_FILE-librt.so := $(SHARED_END_FILES)
+
 
 librt_FULL_NAME := librt-$(VERSION).so
 
