@@ -16,6 +16,7 @@ libc-shared-routines-y = forward.c libc-cancellation.c
 libc-static-routines-y = alloca_cutoff.c libc-cancellation.c
 libpthread-shared-only-routines-y = version.c
 libpthread-static-only-routines-y = pthread_atfork.c
+
 libpthread-routines- += $(notdir $(wildcard $(libpthread_DIR)/gen_*.c)) # dummy generated files
 libpthread-routines- += allocatestack.c # dummy included by pthread_create.c
 libpthread-routines- += pthread_mutex_getprioceiling.c pthread_mutex_setprioceiling.c # XXX: delete those or use them!
@@ -201,7 +202,7 @@ CFLAGS-msgsnd.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-tcdrain.c = -fexceptions -fasynchronous-unwind-tables
 
 CFLAGS-pt-system.c = -fexceptions -I$(top_srcdir)libc/stdlib
-
+CFLAGS-pthread_atfork.c = -DNOT_IN_libc
 #
 # The rest of this file is uClibc specific.
 #
