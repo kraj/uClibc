@@ -3591,11 +3591,6 @@ struct __res_state _res __attribute__((section (".bss"))) attribute_hidden;
 # if defined __UCLIBC_HAS_TLS__
 #  undef __resp
 __thread struct __res_state *__resp = &_res;
-/*
- * FIXME: Add usage of hidden attribute for this when used in the shared
- *        library. It currently crashes the linker when doing section
- *        relocations.
- */
 extern __thread struct __res_state *__libc_resp
        __attribute__ ((alias ("__resp"))) attribute_hidden;
 # else
