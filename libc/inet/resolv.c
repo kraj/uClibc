@@ -3592,7 +3592,7 @@ struct __res_state _res __attribute__((section (".bss"))) attribute_hidden;
 #  undef __resp
 __thread struct __res_state *__resp = &_res;
 extern __thread struct __res_state *__libc_resp
-       __attribute__ ((alias ("__resp"))) attribute_hidden;
+       __attribute__ ((alias ("__resp"))) attribute_hidden attribute_tls_model_ie;
 # else
 #  undef __resp
 struct __res_state *__resp = &_res;
