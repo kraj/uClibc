@@ -54,6 +54,12 @@
 #   define CLOCK_PROCESS_CPUTIME_ID	2
 /* Thread-specific CPU-time clock.  */
 #   define CLOCK_THREAD_CPUTIME_ID	3
+/* Monotonic system-wide clock, not adjusted for frequency scaling.  */
+#   define CLOCK_MONOTONIC_RAW		4
+/* Identifier for system-wide realtime clock, updated only on ticks.  */
+#   define CLOCK_REALTIME_COARSE	5
+/* Monotonic system-wide clock, updated only on ticks.  */
+#   define CLOCK_MONOTONIC_COARSE	6
 
 /* Flag to indicate time is absolute.  */
 #   define TIMER_ABSTIME		1
