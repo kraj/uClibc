@@ -136,7 +136,7 @@ __asm__ (
 #define ASMFMT_5(arg1, arg2, arg3, arg4, arg5) \
 	, "a" (arg1), "c" (arg2), "d" (arg3), "S" (arg4), "D" (arg5)
 #define ASMFMT_6(arg1, arg2, arg3, arg4, arg5, arg6) \
-	, "a" (arg1), "c" (arg2), "d" (arg3), "S" (arg4), "D" (arg5), "m" (arg6)
+	, "a" (arg1), "c" (arg2), "d" (arg3), "S" (arg4), "D" (arg5), "g" (arg6)
 
 #else /* !PIC */
 
