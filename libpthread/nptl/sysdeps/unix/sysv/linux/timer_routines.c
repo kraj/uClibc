@@ -175,7 +175,7 @@ __start_helper_thread (void)
   sigset_t ss;
   sigset_t oss;
   sigfillset (&ss);
-  /*__sigaddset (&ss, SIGCANCEL); - already done by sigfillset */
+  __sigaddset (&ss, SIGCANCEL);
   INTERNAL_SYSCALL_DECL (err);
   INTERNAL_SYSCALL (rt_sigprocmask, err, 4, SIG_SETMASK, &ss, &oss, _NSIG / 8);
 
