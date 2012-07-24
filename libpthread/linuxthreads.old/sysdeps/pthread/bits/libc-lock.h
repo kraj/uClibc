@@ -377,7 +377,6 @@ weak_extern (BP_SYM (__pthread_key_create))
 weak_extern (BP_SYM (__pthread_setspecific))
 weak_extern (BP_SYM (__pthread_getspecific))
 weak_extern (BP_SYM (__pthread_once))
-weak_extern (__pthread_initialize)
 weak_extern (__pthread_atfork)
 weak_extern (BP_SYM (_pthread_cleanup_push))
 weak_extern (BP_SYM (_pthread_cleanup_pop))
@@ -402,7 +401,6 @@ weak_extern (BP_SYM (_pthread_cleanup_pop_restore))
 #  pragma weak __pthread_setspecific
 #  pragma weak __pthread_getspecific
 #  pragma weak __pthread_once
-#  pragma weak __pthread_initialize
 #  pragma weak __pthread_atfork
 #  pragma weak _pthread_cleanup_push_defer
 #  pragma weak _pthread_cleanup_pop_restore
