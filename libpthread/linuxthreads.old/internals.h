@@ -514,10 +514,10 @@ extern __typeof(pthread_mutex_unlock) __pthread_mutex_unlock attribute_hidden;
 /*extern int __new_sem_post (sem_t * sem);*/
 
 /* TSD.  */
-extern int __pthread_internal_tsd_set (int key, const void * pointer) attribute_shared_hidden;
-extern void * __pthread_internal_tsd_get (int key) attribute_shared_hidden;
+extern int __pthread_internal_tsd_set (int key, const void * pointer);
+extern void * __pthread_internal_tsd_get (int key);
 extern void ** __attribute__ ((__const__))
-  __pthread_internal_tsd_address (int key) attribute_shared_hidden;
+  __pthread_internal_tsd_address (int key);
 
 /* The functions called the signal events.  */
 extern void __linuxthreads_create_event (void) attribute_hidden;
