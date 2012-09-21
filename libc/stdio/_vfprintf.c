@@ -1202,7 +1202,7 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 #define STRLEN  wcslen
 #define _PPFS_init _ppwfs_init
 /* Pulls in fseek: */
-#define OUTPUT(F,S)			fputws(S,F)
+#define OUTPUT(F,S)			fputws_unlocked(S,F)
 /* TODO: #define OUTPUT(F,S)		_wstdio_fwrite((S),wcslen(S),(F)) */
 #define _outnwcs(stream, wstring, len)	_wstdio_fwrite((const wchar_t *)(wstring), len, stream)
 #define FP_OUT _fp_out_wide
