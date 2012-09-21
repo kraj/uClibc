@@ -35,7 +35,6 @@ typedef struct
     /* Callee-saved registers r18-r31.  */
     int __regs[14];
   } __jmp_buf[1];
-#endif
 
 #define JB_SIZE		(4 * 18)
 
