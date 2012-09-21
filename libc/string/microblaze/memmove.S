@@ -33,6 +33,14 @@
 	.type  memmove, @function
 	.ent	memmove
 
+#ifdef __MICROBLAZEEL__
+	#define BSLLI bsrli
+	#define BSRLI bslli
+#else
+	#define BSLLI bslli
+	#define BSRLI bsrli
+#endif
+
 memmove:
 	cmpu	r4, r5, r6	/* n = s - d */
 	bgei	r4, HIDDEN_JUMPTARGET(memcpy)
@@ -112,150 +120,150 @@ d_block_unaligned:
 	beqi	r9,d_block_u2		/* t1 was 2 => 2 byte offset */
 
 d_block_u3:
-	bsrli	r11, r11, 8	/* h = h >> 8 */
+	BSRLI	r11, r11, 8	/* h = h >> 8 */
 d_bu3_loop:
 	addi	r8, r8, -32	/* as = as - 32 */
 	addi	r5, r5, -32	/* d = d - 32 */
 	lwi	r12, r8, 28	/* v = *(as + 28) */
-	bslli	r9, r12, 24	/* t1 = v << 24 */
+	BSLLI	r9, r12, 24	/* t1 = v << 24 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 28	/* *(d + 28) = t1 */
-	bsrli	r11, r12, 8	/* h = v >> 8 */
+	BSRLI	r11, r12, 8	/* h = v >> 8 */
 	lwi	r12, r8, 24	/* v = *(as + 24) */
-	bslli	r9, r12, 24	/* t1 = v << 24 */
+	BSLLI	r9, r12, 24	/* t1 = v << 24 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 24	/* *(d + 24) = t1 */
-	bsrli	r11, r12, 8	/* h = v >> 8 */
+	BSRLI	r11, r12, 8	/* h = v >> 8 */
 	lwi	r12, r8, 20	/* v = *(as + 20) */
-	bslli	r9, r12, 24	/* t1 = v << 24 */
+	BSLLI	r9, r12, 24	/* t1 = v << 24 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 20	/* *(d + 20) = t1 */
-	bsrli	r11, r12, 8	/* h = v >> 8 */
+	BSRLI	r11, r12, 8	/* h = v >> 8 */
 	lwi	r12, r8, 16	/* v = *(as + 16) */
-	bslli	r9, r12, 24	/* t1 = v << 24 */
+	BSLLI	r9, r12, 24	/* t1 = v << 24 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 16	/* *(d + 16) = t1 */
-	bsrli	r11, r12, 8	/* h = v >> 8 */
+	BSRLI	r11, r12, 8	/* h = v >> 8 */
 	lwi	r12, r8, 12	/* v = *(as + 12) */
-	bslli	r9, r12, 24	/* t1 = v << 24 */
+	BSLLI	r9, r12, 24	/* t1 = v << 24 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 12	/* *(d + 112) = t1 */
-	bsrli	r11, r12, 8	/* h = v >> 8 */
+	BSRLI	r11, r12, 8	/* h = v >> 8 */
 	lwi	r12, r8, 8	/* v = *(as + 8) */
-	bslli	r9, r12, 24	/* t1 = v << 24 */
+	BSLLI	r9, r12, 24	/* t1 = v << 24 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 8	/* *(d + 8) = t1 */
-	bsrli	r11, r12, 8	/* h = v >> 8 */
+	BSRLI	r11, r12, 8	/* h = v >> 8 */
 	lwi	r12, r8, 4	/* v = *(as + 4) */
-	bslli	r9, r12, 24	/* t1 = v << 24 */
+	BSLLI	r9, r12, 24	/* t1 = v << 24 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 4	/* *(d + 4) = t1 */
-	bsrli	r11, r12, 8	/* h = v >> 8 */
+	BSRLI	r11, r12, 8	/* h = v >> 8 */
 	lwi	r12, r8, 0	/* v = *(as + 0) */
-	bslli	r9, r12, 24	/* t1 = v << 24 */
+	BSLLI	r9, r12, 24	/* t1 = v << 24 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 0	/* *(d + 0) = t1 */
 	addi	r4, r4, -32	/* n = n - 32 */
 	bneid	r4, d_bu3_loop	/* while (n) loop */
-	bsrli	r11, r12, 8	/* h = v >> 8 (IN DELAY SLOT) */
+	BSRLI	r11, r12, 8	/* h = v >> 8 (IN DELAY SLOT) */
 	bri	d_block_done
 
 d_block_u1:
-	bsrli	r11, r11, 24	/* h = h >> 24 */
+	BSRLI	r11, r11, 24	/* h = h >> 24 */
 d_bu1_loop:
 	addi	r8, r8, -32	/* as = as - 32 */
 	addi	r5, r5, -32	/* d = d - 32 */
 	lwi	r12, r8, 28	/* v = *(as + 28) */
-	bslli	r9, r12, 8	/* t1 = v << 8 */
+	BSLLI	r9, r12, 8	/* t1 = v << 8 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 28	/* *(d + 28) = t1 */
-	bsrli	r11, r12, 24	/* h = v >> 24 */
+	BSRLI	r11, r12, 24	/* h = v >> 24 */
 	lwi	r12, r8, 24	/* v = *(as + 24) */
-	bslli	r9, r12, 8	/* t1 = v << 8 */
+	BSLLI	r9, r12, 8	/* t1 = v << 8 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 24	/* *(d + 24) = t1 */
-	bsrli	r11, r12, 24	/* h = v >> 24 */
+	BSRLI	r11, r12, 24	/* h = v >> 24 */
 	lwi	r12, r8, 20	/* v = *(as + 20) */
-	bslli	r9, r12, 8	/* t1 = v << 8 */
+	BSLLI	r9, r12, 8	/* t1 = v << 8 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 20	/* *(d + 20) = t1 */
-	bsrli	r11, r12, 24	/* h = v >> 24 */
+	BSRLI	r11, r12, 24	/* h = v >> 24 */
 	lwi	r12, r8, 16	/* v = *(as + 16) */
-	bslli	r9, r12, 8	/* t1 = v << 8 */
+	BSLLI	r9, r12, 8	/* t1 = v << 8 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 16	/* *(d + 16) = t1 */
-	bsrli	r11, r12, 24	/* h = v >> 24 */
+	BSRLI	r11, r12, 24	/* h = v >> 24 */
 	lwi	r12, r8, 12	/* v = *(as + 12) */
-	bslli	r9, r12, 8	/* t1 = v << 8 */
+	BSLLI	r9, r12, 8	/* t1 = v << 8 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 12	/* *(d + 112) = t1 */
-	bsrli	r11, r12, 24	/* h = v >> 24 */
+	BSRLI	r11, r12, 24	/* h = v >> 24 */
 	lwi	r12, r8, 8	/* v = *(as + 8) */
-	bslli	r9, r12, 8	/* t1 = v << 8 */
+	BSLLI	r9, r12, 8	/* t1 = v << 8 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 8	/* *(d + 8) = t1 */
-	bsrli	r11, r12, 24	/* h = v >> 24 */
+	BSRLI	r11, r12, 24	/* h = v >> 24 */
 	lwi	r12, r8, 4	/* v = *(as + 4) */
-	bslli	r9, r12, 8	/* t1 = v << 8 */
+	BSLLI	r9, r12, 8	/* t1 = v << 8 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 4	/* *(d + 4) = t1 */
-	bsrli	r11, r12, 24	/* h = v >> 24 */
+	BSRLI	r11, r12, 24	/* h = v >> 24 */
 	lwi	r12, r8, 0	/* v = *(as + 0) */
-	bslli	r9, r12, 8	/* t1 = v << 8 */
+	BSLLI	r9, r12, 8	/* t1 = v << 8 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 0	/* *(d + 0) = t1 */
 	addi	r4, r4, -32	/* n = n - 32 */
 	bneid	r4, d_bu1_loop	/* while (n) loop */
-	bsrli	r11, r12, 24	/* h = v >> 24 (IN DELAY SLOT) */
+	BSRLI	r11, r12, 24	/* h = v >> 24 (IN DELAY SLOT) */
 	bri	d_block_done
 
 d_block_u2:
-	bsrli	r11, r11, 16	/* h = h >> 16 */
+	BSRLI	r11, r11, 16	/* h = h >> 16 */
 d_bu2_loop:
 	addi	r8, r8, -32	/* as = as - 32 */
 	addi	r5, r5, -32	/* d = d - 32 */
 	lwi	r12, r8, 28	/* v = *(as + 28) */
-	bslli	r9, r12, 16	/* t1 = v << 16 */
+	BSLLI	r9, r12, 16	/* t1 = v << 16 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 28	/* *(d + 28) = t1 */
-	bsrli	r11, r12, 16	/* h = v >> 16 */
+	BSRLI	r11, r12, 16	/* h = v >> 16 */
 	lwi	r12, r8, 24	/* v = *(as + 24) */
-	bslli	r9, r12, 16	/* t1 = v << 16 */
+	BSLLI	r9, r12, 16	/* t1 = v << 16 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 24	/* *(d + 24) = t1 */
-	bsrli	r11, r12, 16	/* h = v >> 16 */
+	BSRLI	r11, r12, 16	/* h = v >> 16 */
 	lwi	r12, r8, 20	/* v = *(as + 20) */
-	bslli	r9, r12, 16	/* t1 = v << 16 */
+	BSLLI	r9, r12, 16	/* t1 = v << 16 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 20	/* *(d + 20) = t1 */
-	bsrli	r11, r12, 16	/* h = v >> 16 */
+	BSRLI	r11, r12, 16	/* h = v >> 16 */
 	lwi	r12, r8, 16	/* v = *(as + 16) */
-	bslli	r9, r12, 16	/* t1 = v << 16 */
+	BSLLI	r9, r12, 16	/* t1 = v << 16 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 16	/* *(d + 16) = t1 */
-	bsrli	r11, r12, 16	/* h = v >> 16 */
+	BSRLI	r11, r12, 16	/* h = v >> 16 */
 	lwi	r12, r8, 12	/* v = *(as + 12) */
-	bslli	r9, r12, 16	/* t1 = v << 16 */
+	BSLLI	r9, r12, 16	/* t1 = v << 16 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 12	/* *(d + 112) = t1 */
-	bsrli	r11, r12, 16	/* h = v >> 16 */
+	BSRLI	r11, r12, 16	/* h = v >> 16 */
 	lwi	r12, r8, 8	/* v = *(as + 8) */
-	bslli	r9, r12, 16	/* t1 = v << 16 */
+	BSLLI	r9, r12, 16	/* t1 = v << 16 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 8	/* *(d + 8) = t1 */
-	bsrli	r11, r12, 16	/* h = v >> 16 */
+	BSRLI	r11, r12, 16	/* h = v >> 16 */
 	lwi	r12, r8, 4	/* v = *(as + 4) */
-	bslli	r9, r12, 16	/* t1 = v << 16 */
+	BSLLI	r9, r12, 16	/* t1 = v << 16 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 4	/* *(d + 4) = t1 */
-	bsrli	r11, r12, 16	/* h = v >> 16 */
+	BSRLI	r11, r12, 16	/* h = v >> 16 */
 	lwi	r12, r8, 0	/* v = *(as + 0) */
-	bslli	r9, r12, 16	/* t1 = v << 16 */
+	BSLLI	r9, r12, 16	/* t1 = v << 16 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	swi	r9, r5, 0	/* *(d + 0) = t1 */
 	addi	r4, r4, -32	/* n = n - 32 */
 	bneid	r4, d_bu2_loop	/* while (n) loop */
-	bsrli	r11, r12, 16	/* h = v >> 16 (IN DELAY SLOT) */
+	BSRLI	r11, r12, 16	/* h = v >> 16 (IN DELAY SLOT) */
 
 d_block_done:
 	addi	r4, r0, 4	/* n = 4 */
@@ -290,41 +298,41 @@ d_word_unaligned:
 	beqi	r9,d_word_u2		/* t1 was 2 => 2 byte offset */
 
 d_word_u3:
-	bsrli	r11, r11, 8	/* h = h >> 8 */
+	BSRLI	r11, r11, 8	/* h = h >> 8 */
 d_wu3_loop:
 	addi	r4, r4,-4	/* n = n - 4 */
 	lw	r12, r8, r4	/* v = *(as + n) */
-	bslli	r9, r12, 24	/* t1 = v << 24 */
+	BSLLI	r9, r12, 24	/* t1 = v << 24 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	sw	r9, r5, r4	/* *(d + n) = t1 */
 	bneid	r4, d_wu3_loop	/* while (n) loop */
-	bsrli	r11, r12, 8	/* h = v >> 8 (IN DELAY SLOT) */
+	BSRLI	r11, r12, 8	/* h = v >> 8 (IN DELAY SLOT) */
 
 	bri	d_word_done
 
 d_word_u1:
-	bsrli	r11, r11, 24	/* h = h >> 24 */
+	BSRLI	r11, r11, 24	/* h = h >> 24 */
 d_wu1_loop:
 	addi	r4, r4,-4	/* n = n - 4 */
 	lw	r12, r8, r4	/* v = *(as + n) */
-	bslli	r9, r12, 8	/* t1 = v << 8 */
+	BSLLI	r9, r12, 8	/* t1 = v << 8 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	sw	r9, r5, r4	/* *(d + n) = t1 */
 	bneid	r4, d_wu1_loop	/* while (n) loop */
-	bsrli	r11, r12, 24	/* h = v >> 24 (IN DELAY SLOT) */
+	BSRLI	r11, r12, 24	/* h = v >> 24 (IN DELAY SLOT) */
 
 	bri	d_word_done
 
 d_word_u2:
-	bsrli	r11, r11, 16	/* h = h >> 16 */
+	BSRLI	r11, r11, 16	/* h = h >> 16 */
 d_wu2_loop:
 	addi	r4, r4,-4	/* n = n - 4 */
 	lw	r12, r8, r4	/* v = *(as + n) */
-	bslli	r9, r12, 16	/* t1 = v << 16 */
+	BSLLI	r9, r12, 16	/* t1 = v << 16 */
 	or	r9, r11, r9	/* t1 = h | t1 */
 	sw	r9, r5, r4	/* *(d + n) = t1 */
 	bneid	r4, d_wu2_loop	/* while (n) loop */
-	bsrli	r11, r12, 16	/* h = v >> 16 (IN DELAY SLOT) */
+	BSRLI	r11, r12, 16	/* h = v >> 16 (IN DELAY SLOT) */
 
 d_word_done:
 
