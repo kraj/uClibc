@@ -28,6 +28,7 @@ typedef uintmax_t uatomic_max_t;
 
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval)	\
 	({								\
+		__uint32_t __result;					\
 		__typeof__(*(mem)) __prev;				\
 		__asm__ __volatile__(					\
 			"/* __arch_compare_and_exchange_val_32_acq */\n" \
