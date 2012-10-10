@@ -11,6 +11,7 @@
 
 #ifdef __NR_readlinkat
 _syscall4(ssize_t, readlinkat, int, fd, const char *, path, char *, buf, size_t, len)
+libc_hidden_def(readlinkat)
 #else
 /* should add emulation with readlink() and /proc/self/fd/ ... */
 #endif

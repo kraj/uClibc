@@ -914,6 +914,7 @@ extern int symlinkat (const char *__from, int __tofd,
 extern ssize_t readlinkat (int __fd, const char *__restrict __path,
 			   char *__restrict __buf, size_t __len)
      __THROW __nonnull ((2, 3)) __wur;
+libc_hidden_proto(readlinkat)
 #endif
 
 /* Remove the link NAME.  */
