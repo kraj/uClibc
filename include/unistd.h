@@ -909,6 +909,7 @@ libc_hidden_proto(readlink)
 /* Like symlink but a relative path in TO is interpreted relative to TOFD.  */
 extern int symlinkat (const char *__from, int __tofd,
 		      const char *__to) __THROW __nonnull ((1, 3)) __wur;
+libc_hidden_proto(symlinkat)
 
 /* Like readlink but a relative PATH is interpreted relative to FD.  */
 extern ssize_t readlinkat (int __fd, const char *__restrict __path,

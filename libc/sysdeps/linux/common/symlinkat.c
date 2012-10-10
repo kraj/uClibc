@@ -11,6 +11,7 @@
 
 #ifdef __NR_symlinkat
 _syscall3(int, symlinkat, const char *, from, int, tofd, const char *, to)
+libc_hidden_def(symlinkat)
 #else
 /* should add emulation with symlink() and /proc/self/fd/ ... */
 #endif

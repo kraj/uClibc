@@ -403,7 +403,7 @@ make_stub(swapoff)
 make_stub(swapon)
 #endif
 
-#ifndef __NR_symlink
+#if !defined __NR_symlink && !defined __NR_symlinkat
 make_stub(symlink)
 #endif
 
