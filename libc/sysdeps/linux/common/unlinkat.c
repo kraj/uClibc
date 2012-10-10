@@ -11,6 +11,7 @@
 
 #ifdef __NR_unlinkat
 _syscall3(int, unlinkat, int, fd, const char *, file, int, flag)
+libc_hidden_def(unlinkat)
 #else
 /* should add emulation with unlink() and /proc/self/fd/ ... */
 #endif
