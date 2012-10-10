@@ -11,6 +11,7 @@
 
 #ifdef __NR_fchownat
 _syscall5(int, fchownat, int, fd, const char *, file, uid_t, owner, gid_t, group, int, flag)
+libc_hidden_def(fchownat)
 #else
 /* should add emulation with fchown() and /proc/self/fd/ ... */
 #endif

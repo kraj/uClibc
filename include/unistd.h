@@ -518,6 +518,7 @@ extern int lchown (const char *__file, __uid_t __owner, __gid_t __group)
 extern int fchownat (int __fd, const char *__file, __uid_t __owner,
 		     __gid_t __group, int __flag)
      __THROW __nonnull ((2)) __wur;
+libc_hidden_proto(fchownat)
 #endif /* Use GNU.  */
 
 /* Change the process's working directory to PATH.  */
