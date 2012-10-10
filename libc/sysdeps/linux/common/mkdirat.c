@@ -11,6 +11,7 @@
 
 #ifdef __NR_mkdirat
 _syscall3(int, mkdirat, int, fd, const char *, path, mode_t, mode)
+libc_hidden_def(mkdirat)
 #else
 /* should add emulation with mkdir() and /proc/self/fd/ ... */
 #endif

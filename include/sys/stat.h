@@ -335,6 +335,7 @@ libc_hidden_proto(mkdir)
    with FD.  */
 extern int mkdirat (int __fd, const char *__path, __mode_t __mode)
      __THROW __nonnull ((2));
+libc_hidden_proto(mkdirat)
 #endif
 
 /* Create a device file named PATH, with permission and special bits MODE
