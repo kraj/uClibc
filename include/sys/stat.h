@@ -309,6 +309,7 @@ extern int fchmod (int __fd, __mode_t __mode) __THROW;
 extern int fchmodat (int __fd, const char *__file, __mode_t __mode,
 		     int __flag)
      __THROW __nonnull ((2)) __wur;
+libc_hidden_proto(fchmodat)
 #endif /* Use ATFILE.  */
 
 
