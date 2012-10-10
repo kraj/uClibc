@@ -9,5 +9,14 @@
 
 #include <sys/syscall.h>
 #include <stdio.h>
+#include <unistd.h>
 
+#if defined __NR_renameat && !defined __NR_rename
+# include <fcntl.h>
+int rename(const char *oldpath, const char *newpath)
+{
+	return renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
+}
+#else
 _syscall2(int, rename, const char *, oldpath, const char *, newpath)
+#endif

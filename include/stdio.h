@@ -151,6 +151,7 @@ __END_NAMESPACE_STD
 /* Rename file OLD relative to OLDFD to NEW relative to NEWFD.  */
 extern int renameat (int __oldfd, const char *__old, int __newfd,
 		     const char *__new) __THROW;
+libc_hidden_proto(renameat)
 #endif
 
 __BEGIN_NAMESPACE_STD
