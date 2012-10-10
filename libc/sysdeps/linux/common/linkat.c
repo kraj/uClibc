@@ -11,6 +11,7 @@
 
 #ifdef __NR_linkat
 _syscall5(int, linkat, int, fromfd, const char *, from, int, tofd, const char *, to, int, flags)
+libc_hidden_def(linkat)
 #else
 /* should add emulation with link() and /proc/self/fd/ ... */
 #endif
