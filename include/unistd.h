@@ -566,6 +566,7 @@ libc_hidden_proto(dup2)
 /* Duplicate FD to FD2, closing FD2 and making it open on the same
    file while setting flags according to FLAGS.  */
 extern int dup3 (int __fd, int __fd2, int __flags) __THROW;
+libc_hidden_proto(dup3)
 #endif
 
 /* NULL-terminated array of "NAME=VALUE" environment variables.  */
