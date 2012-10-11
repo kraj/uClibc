@@ -33,6 +33,7 @@ int fstatat64(int fd, const char *file, struct stat64 *buf, int flag)
 	return INLINE_SYSCALL(fstatat64, 4, fd, file, buf, flag);
 # endif
 }
+libc_hidden_def(fstatat64)
 #else
 /* should add emulation with fstat64() and /proc/self/fd/ ... */
 #endif
