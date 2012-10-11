@@ -44,6 +44,7 @@ extern ssize_t __REDIRECT_NTH (sendfile,
 #ifdef __USE_LARGEFILE64
 extern ssize_t sendfile64 (int __out_fd, int __in_fd, __off64_t *__offset,
 			   size_t __count) __THROW;
+libc_hidden_proto(sendfile64)
 #endif
 
 __END_DECLS

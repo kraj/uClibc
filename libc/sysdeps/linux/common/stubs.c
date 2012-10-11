@@ -320,7 +320,8 @@ make_stub(sched_setaffinity)
 make_stub(send)
 #endif
 
-#if !defined __NR_sendfile && defined __UCLIBC_LINUX_SPECIFIC__
+#if !defined __NR_sendfile && !defined __NR_sendfile64 \
+	&& defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(sendfile)
 #endif
 
