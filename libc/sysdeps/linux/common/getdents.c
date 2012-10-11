@@ -26,6 +26,7 @@
  * version / arch details.
  */
 
+# ifdef __ARCH_HAS_DEPRECATED_SYSCALLS__
 struct kernel_dirent
 {
 	long int d_ino;
@@ -33,11 +34,16 @@ struct kernel_dirent
 	unsigned short int d_reclen;
 	char d_name[256];
 };
+# else
+#  define kernel_dirent dirent
+# endif
 
-#define __NR___syscall_getdents __NR_getdents
+# if defined __NR_getdents
+#  define __NR___syscall_getdents __NR_getdents
 static __always_inline _syscall3(int, __syscall_getdents, int, fd, unsigned char *, kdirp, size_t, count)
+# endif
 
-#if defined __ASSUME_GETDENTS32_D_TYPE
+# if defined __ASSUME_GETDENTS32_D_TYPE && defined __NR_getdents
 
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {
@@ -66,14 +72,14 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 	return retval;
 }
 
-#elif ! defined __UCLIBC_HAS_LFS__ || ! defined __NR_getdents64
+# elif ! defined __UCLIBC_HAS_LFS__ || !defined __NR_getdents64
 
-# include <assert.h>
-# include <stddef.h>
-# include <errno.h>
-# include <unistd.h>
-# include <sys/param.h>
-# include <bits/uClibc_alloc.h>
+#  include <assert.h>
+#  include <stddef.h>
+#  include <errno.h>
+#  include <unistd.h>
+#  include <sys/param.h>
+#  include <bits/uClibc_alloc.h>
 
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {
@@ -85,6 +91,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
     const size_t size_diff = (offsetof (struct dirent, d_name)
 	    - offsetof (struct kernel_dirent, d_name));
 
+#  ifdef __ARCH_HAS_DEPRECATED_SYSCALLS__
     red_nbytes = MIN (nbytes - ((nbytes /
 		    (offsetof (struct dirent, d_name) + 14)) * size_diff),
 	    nbytes - size_diff);
@@ -93,6 +100,21 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
     skdp = kdp = stack_heap_alloc(red_nbytes);
 
     retval = __syscall_getdents(fd, (unsigned char *)kdp, red_nbytes);
+#  else
+
+    dp = (struct dirent *) buf;
+    skdp = kdp = stack_heap_alloc(nbytes);
+
+    retval = INLINE_SYSCALL(getdents64, 3, fd, (unsigned char *)kdp, nbytes);
+    if (retval > 0) {
+	    /* Did we overflow? */
+	    if (kdp->__pad1 || kdp->__pad2) {
+		    __set_errno(EINVAL);
+		    return -1;
+	    }
+    }
+#  endif
+
     if (retval == -1) {
 	stack_heap_free(skdp);
 	return -1;
@@ -134,9 +156,9 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
     return (char *) dp - buf;
 }
 
-#elif __WORDSIZE == 32
+# elif __WORDSIZE == 32 && !defined __NR_getdents64
 
-# include <stddef.h>
+#  include <stddef.h>
 
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {
@@ -163,10 +185,10 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
     return ret;
 }
 
-#endif
+# endif
 
-#if defined __UCLIBC_HAS_LFS__ && ! defined __NR_getdents64
+# if defined __UCLIBC_HAS_LFS__ && ! defined __NR_getdents64
 strong_alias(__getdents,__getdents64)
-#endif
+# endif
 
 #endif
