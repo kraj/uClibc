@@ -10,12 +10,23 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include "xstatconv.h"
+
+#if defined __NR_fstatat64 && !defined __NR_lstat
+# include <fcntl.h>
 
 int lstat(const char *file_name, struct stat *buf)
 {
+	return fstatat(AT_FDCWD, file_name, buf, AT_SYMLINK_NOFOLLOW);
+}
+libc_hidden_def(lstat)
+
+/* For systems which have both, prefer the old one */
+#else
+# include "xstatconv.h"
+int lstat(const char *file_name, struct stat *buf)
+{
 	int result;
-#ifdef __NR_lstat64
+# ifdef __NR_lstat64
 	/* normal stat call has limited values for various stat elements
 	 * e.g. uid device major/minor etc.
 	 * so we use 64 variant if available
@@ -26,19 +37,22 @@ int lstat(const char *file_name, struct stat *buf)
 	if (result == 0) {
 		__xstat32_conv(&kbuf, buf);
 	}
-#else
+# else
 	struct kernel_stat kbuf;
 
 	result = INLINE_SYSCALL(lstat, 2, file_name, &kbuf);
 	if (result == 0) {
 		__xstat_conv(&kbuf, buf);
 	}
-#endif
+# endif /* __NR_lstat64 */
 	return result;
 }
 libc_hidden_def(lstat)
 
-#if ! defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
+# if ! defined __NR_fstatat64 && ! defined __NR_lstat64 \
+	&& defined __UCLIBC_HAS_LFS__
 strong_alias_untyped(lstat,lstat64)
 libc_hidden_def(lstat64)
-#endif
+# endif
+
+#endif /* __NR_fstatat64 */
