@@ -19,6 +19,14 @@ _syscall1(int, epoll_create, int, size)
 _syscall1(int, epoll_create1, int, flags)
 #endif
 
+#if defined __NR_epoll_create1 && !defined __NR_epoll_create
+int epoll_create(int size)
+{
+	return INLINE_SYSCALL(epoll_create1, 1, 0);
+}
+
+#endif
+
 #ifdef __NR_epoll_ctl
 _syscall4(int, epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event *, event)
 #endif

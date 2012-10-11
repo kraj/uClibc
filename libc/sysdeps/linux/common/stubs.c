@@ -94,7 +94,8 @@ make_stub(create_module)
 make_stub(delete_module)
 #endif
 
-#if !defined __NR_epoll_create && defined __UCLIBC_HAS_EPOLL__
+#if !defined __NR_epoll_create && defined __UCLIBC_HAS_EPOLL__ \
+	&& !defined __NR_epoll_create1
 make_stub(epoll_create)
 #endif
 
