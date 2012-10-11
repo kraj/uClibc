@@ -30,6 +30,7 @@ __BEGIN_DECLS
 #ifndef __USE_FILE_OFFSET64
 extern int statfs (const char *__file, struct statfs *__buf)
      __THROW __nonnull ((1, 2));
+libc_hidden_proto(statfs)
 #else
 # ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (statfs,
