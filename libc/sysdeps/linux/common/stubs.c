@@ -140,7 +140,8 @@ make_stub(fremovexattr)
 make_stub(fsetxattr)
 #endif
 
-#if !defined __NR_fstatfs && defined __UCLIBC_LINUX_SPECIFIC__
+#if !defined __NR_fstatfs && !defined __NR_fstatfs64 \
+	&& defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(fstatfs)
 #endif
 

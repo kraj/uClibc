@@ -9,8 +9,9 @@
 
 #include <sys/syscall.h>
 #include <sys/vfs.h>
+#include <string.h>
 
-#ifndef __USE_FILE_OFFSET64
+#ifndef __USE_FILE_OFFSET64__
 extern int fstatfs (int __fildes, struct statfs *__buf)
      __THROW __nonnull ((2));
 #else
@@ -23,8 +24,26 @@ extern int __REDIRECT_NTH (fstatfs, (int __fildes, struct statfs *__buf),
 #endif
 
 extern __typeof(fstatfs) __libc_fstatfs attribute_hidden;
-#define __NR___libc_fstatfs __NR_fstatfs
+#ifdef __NR_fstatfs
+# define __NR___libc_fstatfs __NR_fstatfs
 _syscall2(int, __libc_fstatfs, int, fd, struct statfs *, buf)
+#else
+int __libc_fstatfs (int __fildes, struct statfs *__buf)
+{
+	int err = INLINE_SYSCALL(fstatfs64, 3, __fildes, sizeof(*__buf), __buf);
+
+	if (err == 0) {
+		/* Did we overflow? */
+		if (__buf->__pad1 || __buf->__pad2 || __buf->__pad3 ||
+		    __buf->__pad4 || __buf->__pad5) {
+			__set_errno(EOVERFLOW);
+			return -1;
+		}
+	}
+	return err;
+};
+/* Redefined fstatfs because we need it for backwards compatibility */
+#endif /* __NR_fstatfs */
 
 #if defined __UCLIBC_LINUX_SPECIFIC__
 weak_alias(__libc_fstatfs,fstatfs)
