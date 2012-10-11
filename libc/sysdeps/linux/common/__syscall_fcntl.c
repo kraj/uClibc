@@ -18,15 +18,21 @@ int __NC(fcntl)(int fd, int cmd, long arg)
 {
 #if __WORDSIZE == 32
 	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) {
-# if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
-		return __NC(fcntl64)(fd, cmd, arg);
+# if (defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64) || !defined __NR_fcntl
+		return INLINE_SYSCALL(fcntl64, 3, fd, cmd, arg);
 # else
 		__set_errno(ENOSYS);
 		return -1;
 # endif
 	}
 #endif
+
+#if defined __NR_fcntl
 	return INLINE_SYSCALL(fcntl, 3, fd, cmd, arg);
+#else
+	__set_errno(ENOSYS);
+	return -1;
+#endif
 }
 
 int fcntl(int fd, int cmd, ...)
@@ -39,10 +45,18 @@ int fcntl(int fd, int cmd, ...)
 	va_end (ap);
 
 	if (SINGLE_THREAD_P || (cmd != F_SETLKW && cmd != F_SETLKW64))
+#if defined __NR_fcntl
 		return __NC(fcntl)(fd, cmd, arg);
+#else
+		return INLINE_SYSCALL(fcntl64, 3, fd, cmd, arg);
+#endif
 #ifdef __NEW_THREADS
 	int oldtype = LIBC_CANCEL_ASYNC ();
+#if defined __NR_fcntl
 	int result = __NC(fcntl)(fd, cmd, arg);
+#else
+	int result = INLINE_SYSCALL(fcntl64, 3, fd, cmd, arg);
+#endif
 	LIBC_CANCEL_RESET (oldtype);
 	return result;
 #endif
