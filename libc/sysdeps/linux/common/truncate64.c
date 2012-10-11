@@ -52,4 +52,6 @@ int truncate64(const char * path, __off64_t length)
 
 	return -1;
 }
-#endif
+
+#endif /* __NR_truncate64 */
+libc_hidden_def(truncate64)

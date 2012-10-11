@@ -1110,6 +1110,7 @@ extern int __REDIRECT_NTH (truncate,
 # ifdef __USE_LARGEFILE64
 extern int truncate64 (const char *__file, __off64_t __length)
      __THROW __nonnull ((1)) __wur;
+libc_hidden_proto(truncate64)
 # endif
 
 #endif /* Use BSD || X/Open Unix.  */
