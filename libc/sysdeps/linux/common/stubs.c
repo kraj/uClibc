@@ -176,7 +176,8 @@ make_stub(init_module)
 make_stub(inotify_add_watch)
 #endif
 
-#if !defined __NR_inotify_init && defined __UCLIBC_LINUX_SPECIFIC__
+#if !defined __NR_inotify_init && defined __UCLIBC_LINUX_SPECIFIC__ \
+		&& !defined __NR_inotify_init1
 make_stub(inotify_init)
 #endif
 
