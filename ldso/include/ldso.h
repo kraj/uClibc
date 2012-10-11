@@ -30,6 +30,10 @@
 #include <stddef.h> /* for ptrdiff_t */
 #include <stdbool.h>
 #define _FCNTL_H
+/* We need this if arch has only new syscalls defined */
+#ifndef AT_FDCWD
+#define AT_FDCWD -100
+#endif /* AT_FDCWD */
 #include <bits/fcntl.h>
 #include <bits/wordsize.h>
 /* Pull in the arch specific type information */
