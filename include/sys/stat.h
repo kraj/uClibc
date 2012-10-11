@@ -241,6 +241,7 @@ libc_hidden_proto(fstat64)
 extern int fstatat (int __fd, const char *__restrict __file,
 		    struct stat *__restrict __buf, int __flag)
      __THROW __nonnull ((2, 3));
+libc_hidden_proto(fstatat)
 # else
 #  ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (fstatat, (int __fd, const char *__restrict __file,
