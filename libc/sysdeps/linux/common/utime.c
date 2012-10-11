@@ -10,7 +10,28 @@
 #include <sys/syscall.h>
 #include <utime.h>
 
-#ifdef __NR_utime
+#if defined __NR_utimensat && !defined __NR_utime
+# include <fcntl.h>
+# include <stddef.h>
+
+int utime(const char *file, const struct utimbuf *times)
+{
+	struct timespec tspecs[2], *ts;
+
+	if (times) {
+		ts = tspecs;
+		ts[0].tv_sec = times->actime;
+		ts[0].tv_nsec = 0;
+		ts[1].tv_sec = times->modtime;
+		ts[1].tv_nsec = 0;
+	} else {
+		ts = NULL;
+	}
+
+	return utimensat(AT_FDCWD, file, ts, 0);
+}
+
+#elif defined(__NR_utime)
 _syscall2(int, utime, const char *, file, const struct utimbuf *, times)
 #elif defined __NR_utimes /* alpha || ia64 */
 # define __need_NULL
@@ -30,7 +51,9 @@ int utime(const char *file, const struct utimbuf *times)
 	return utimes(file, times ? timevals : NULL);
 }
 #endif
-#if defined __NR_utime || defined __NR_utimes
+
+#if (defined __NR_utimensat && !defined __NR_utime) || \
+	defined __NR_utime || defined __NR_utimes
 link_warning(utime, "the use of OBSOLESCENT `utime' is discouraged, use `utimes'")
 libc_hidden_def(utime)
 #endif
