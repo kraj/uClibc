@@ -21,8 +21,11 @@ int open64(const char *file, int oflag, ...)
 		mode = va_arg (arg, mode_t);
 		va_end (arg);
 	}
-
+#if defined __NR_openat && !defined __NR_open
+	return openat(AT_FDCWD, file, oflag | O_LARGEFILE, mode);
+#else
 	return open(file, oflag | O_LARGEFILE, mode);
+#endif
 }
 lt_strong_alias(open64)
 lt_libc_hidden(open64)
