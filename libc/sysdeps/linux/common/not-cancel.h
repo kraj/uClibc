@@ -23,10 +23,17 @@
 #ifdef NOT_IN_libc
 
 /* Uncancelable open.  */
+#if defined __NR_openat && !defined __NR_open
+#define open_not_cancel(name, flags, mode) \
+   INLINE_SYSCALL (openat, 4, AT_FDCWD, (const char *) (name), (flags), (mode))
+#define open_not_cancel_2(name, flags) \
+   INLINE_SYSCALL (openat, 3, AT_FDCWD, (const char *) (name), (flags))
+#else
 #define open_not_cancel(name, flags, mode) \
    INLINE_SYSCALL (open, 3, (const char *) (name), (flags), (mode))
 #define open_not_cancel_2(name, flags) \
    INLINE_SYSCALL (open, 2, (const char *) (name), (flags))
+#endif
 
 #if 0
 /* Uncancelable openat.  */
