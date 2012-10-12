@@ -464,6 +464,10 @@ make_stub(umount2)
 make_stub(unshare)
 #endif
 
+#if defined __UCLIBC_SV4_DEPRECATED__ && !defined __NR_ustat
+make_stub(ustat)
+#endif
+
 #if !defined __NR_vhangup && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(vhangup)
 #endif
