@@ -86,7 +86,7 @@ ENTRY (__sigsetjmp)
 	/* Copy 0-8 words from the register overflow area.  */
 	extui	a3, a0, 30, 2
 	blti	a3, 2, .Lendsj
-	l32i	a7, a1, 4
+	l32i	a7, a5, 4
 	slli	a4, a3, 4
 	sub	a5, a7, a4
 	addi	a6, a2, 16
