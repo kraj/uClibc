@@ -106,6 +106,11 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
+#if defined(__xtensa__)
+#define MATCH_MACHINE(x) (x == EM_XTENSA)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
 #ifndef MATCH_MACHINE
 # ifdef __linux__
 #  include <asm/elf.h>
