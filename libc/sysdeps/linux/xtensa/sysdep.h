@@ -17,6 +17,8 @@
    Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
    Boston, MA 02110-1301, USA.  */
 
+#include <sys/syscall.h>
+
 #ifdef __ASSEMBLER__
 
 #define ALIGNARG(log2) 1 << log2
