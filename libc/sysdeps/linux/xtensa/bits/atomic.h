@@ -19,8 +19,37 @@
 #ifndef _BITS_ATOMIC_H
 #define _BITS_ATOMIC_H  1
 
-/* Xtensa has only a 32-bit form of a store-conditional instruction,
-   so just stub out the rest. */
+#include <inttypes.h>
+
+typedef int32_t atomic32_t;
+typedef uint32_t uatomic32_t;
+typedef int_fast32_t atomic_fast32_t;
+typedef uint_fast32_t uatomic_fast32_t;
+
+typedef int64_t atomic64_t;
+typedef uint64_t uatomic64_t;
+typedef int_fast64_t atomic_fast64_t;
+typedef uint_fast64_t uatomic_fast64_t;
+
+typedef intptr_t atomicptr_t;
+typedef uintptr_t uatomicptr_t;
+typedef intmax_t atomic_max_t;
+typedef uintmax_t uatomic_max_t;
+
+
+/* Xtensa has only a 32-bit form of a store-conditional instruction.  */
+
+#define __arch_compare_and_exchange_bool_8_acq(mem, newval, oldval) \
+      (abort (), 0)
+
+#define __arch_compare_and_exchange_bool_16_acq(mem, newval, oldval) \
+      (abort (), 0)
+
+#define __arch_compare_and_exchange_bool_8_rel(mem, newval, oldval) \
+      (abort (), 0)
+
+#define __arch_compare_and_exchange_bool_16_rel(mem, newval, oldval) \
+      (abort (), 0)
 
 /* Atomically store NEWVAL in *MEM if *MEM is equal to OLDVAL.
    Return the old *MEM value.  */
@@ -166,6 +195,39 @@
       abort();                                                       \
     __arch_atomic_decrement_if_positive_32(mem);                     \
   })
+
+
+# define __arch_compare_and_exchange_bool_64_acq(mem, newval, oldval) \
+    (abort (), 0)
+
+# define __arch_compare_and_exchange_val_64_acq(mem, newval, oldval) \
+    (abort (), (__typeof (*mem)) 0)
+
+# define __arch_compare_and_exchange_bool_64_rel(mem, newval, oldval) \
+    (abort (), 0)
+
+# define __arch_compare_and_exchange_val_64_rel(mem, newval, oldval) \
+    (abort (), (__typeof (*mem)) 0)
+
+# define __arch_atomic_exchange_64_acq(mem, value) \
+    ({ abort (); (*mem) = (value); })
+
+# define __arch_atomic_exchange_64_rel(mem, value) \
+    ({ abort (); (*mem) = (value); })
+
+# define __arch_atomic_exchange_and_add_64(mem, value) \
+    ({ abort (); (*mem) = (value); })
+
+# define __arch_atomic_increment_val_64(mem) \
+    ({ abort (); (*mem)++; })
+
+# define __arch_atomic_decrement_val_64(mem) \
+    ({ abort (); (*mem)--; })
+
+# define __arch_atomic_decrement_if_positive_64(mem) \
+    ({ abort (); (*mem)--; })
+
+
 
 #endif /* _BITS_ATOMIC_H */
 
