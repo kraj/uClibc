@@ -3,10 +3,12 @@
 #include <syscall.h>
 #include <bits/wordsize.h>
 
-#if __WORDSIZE == 32 || defined __alpha__ || defined __mips__
-# define __IPC_64	0x100
-#else
-# define __IPC_64	0x0
+#ifndef __IPC_64
+# if __WORDSIZE == 32 || defined __alpha__ || defined __mips__
+#  define __IPC_64	0x100
+# else
+#  define __IPC_64	0x0
+# endif
 #endif
 
 #ifdef __NR_ipc
