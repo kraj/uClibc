@@ -65,11 +65,6 @@ NAME (void)								      \
   check (#FLOAT " !isnan (1)", !(isnan (one_var)));			      \
   check (#FLOAT " !isnan (inf)", !(isnan (Inf_var)));			      \
 									      \
-  check (#FLOAT " inf == inf", Inf_var == Inf_var);			      \
-  check (#FLOAT " -inf == -inf", -Inf_var == -Inf_var);			      \
-  check (#FLOAT " inf != -inf", Inf_var != -Inf_var);			      \
-  check (#FLOAT " NaN != NaN", NaN_var != NaN_var);			      \
-									      \
   /*									      \
      the same tests but this time with NAN from <bits/nan.h>		      \
      NAN is a double const						      \
@@ -78,7 +73,6 @@ NAME (void)								      \
   check (#FLOAT " isnan (-NAN)", isnan (-NAN));				      \
   check (#FLOAT " !isinf (NAN)", !(isinf (NAN)));			      \
   check (#FLOAT " !isinf (-NAN)", !(isinf (-NAN)));			      \
-  check (#FLOAT " NAN != NAN", NAN != NAN);				      \
 									      \
   /*									      \
      And again with the value returned by the `nan' function.		      \
@@ -89,6 +83,48 @@ NAME (void)								      \
   check (#FLOAT " !isinf (-NAN)", !(isinf (-NANFUNC (""))));		      \
   check (#FLOAT " NAN != NAN", NANFUNC ("") != NANFUNC (""));		      \
 									      \
+  /* test if HUGE_VALx is ok */						      \
+  x1 = HUGEVAL;								      \
+  check (#FLOAT " isinf (HUGE_VALx) == +1", isinf (x1) == +1);		      \
+  x1 = - HUGEVAL;							      \
+  check (#FLOAT " isinf (-HUGE_VALx) == -1", isinf (x1) == -1);		      \
+}
+#ifndef DO_C99_MATH
+# undef TEST_FUNC
+# define TEST_FUNC(NAME, FLOAT, NANFUNC, EPSILON, HUGEVAL) \
+static void								      \
+NAME(void)								      \
+{ /* nothing */ }
+#endif
+
+#define TEST_VAL(NAME, FLOAT, NANFUNC, EPSILON, HUGEVAL) \
+static void								      \
+NAME (void)								      \
+{									      \
+  /* Variables are declared volatile to forbid some compiler		      \
+     optimizations.  */							      \
+  volatile FLOAT Inf_var, NaN_var, zero_var, one_var;			      \
+  FLOAT x1, x2;								      \
+									      \
+  zero_var = 0.0;							      \
+  one_var = 1.0;							      \
+  NaN_var = zero_var/zero_var;						      \
+  Inf_var = one_var / zero_var;						      \
+									      \
+  (void) &zero_var;							      \
+  (void) &one_var;							      \
+  (void) &NaN_var;							      \
+  (void) &Inf_var;							      \
+									      \
+									      \
+  check (#FLOAT " inf == inf", Inf_var == Inf_var);			      \
+  check (#FLOAT " -inf == -inf", -Inf_var == -Inf_var);			      \
+  check (#FLOAT " inf != -inf", Inf_var != -Inf_var);			      \
+  check (#FLOAT " NaN != NaN", NaN_var != NaN_var);			      \
+									      \
+  check (#FLOAT " NAN != NAN", NAN != NAN);				      \
+									      \
+									      \
   /* test if EPSILON is ok */						      \
   x1 = 1.0;								      \
   x2 = x1 + EPSILON;							      \
@@ -98,27 +134,28 @@ NAME (void)								      \
   x2 = x1 - EPSILON;							      \
   check (#FLOAT " 1 != 1-EPSILON", x1 != x2);				      \
 									      \
-  /* test if HUGE_VALx is ok */						      \
-  x1 = HUGEVAL;								      \
-  check (#FLOAT " isinf (HUGE_VALx) == +1", isinf (x1) == +1);		      \
-  x1 = - HUGEVAL;							      \
-  check (#FLOAT " isinf (-HUGE_VALx) == -1", isinf (x1) == -1);		      \
 }
 
-TEST_FUNC (float_test, float, nanf, FLT_EPSILON, HUGE_VALF)
-TEST_FUNC (double_test, double, nan, DBL_EPSILON, HUGE_VAL)
+TEST_VAL (float_test_value, float, nanf, FLT_EPSILON, HUGE_VALF)
+TEST_FUNC (float_test_call, float, nanf, FLT_EPSILON, HUGE_VALF)
+TEST_VAL (double_test_value, double, nan, DBL_EPSILON, HUGE_VAL)
+TEST_FUNC (double_test_call, double, nan, DBL_EPSILON, HUGE_VAL)
 #ifndef NO_LONG_DOUBLE
-TEST_FUNC (ldouble_test, long double, nanl, LDBL_EPSILON, HUGE_VALL)
+TEST_VAL (ldouble_test_value, long double, nanl, LDBL_EPSILON, HUGE_VALL)
+TEST_FUNC (ldouble_test_call, long double, nanl, LDBL_EPSILON, HUGE_VALL)
 #endif
 
 int
 main (void)
 {
-  float_test ();
-  double_test ();
+  float_test_value ();
+  float_test_call ();
+  double_test_value ();
+  double_test_call ();
 
 #ifndef NO_LONG_DOUBLE
-  ldouble_test ();
+  ldouble_test_value ();
+  ldouble_test_call ();
 #endif
 
   return errors != 0;
