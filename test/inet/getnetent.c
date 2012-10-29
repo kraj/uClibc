@@ -8,7 +8,7 @@ int main(void)
 		while (net->n_net && !((net->n_net >> 24) & 0xff)) {
 			net->n_net <<= 8;
 		}
-		printf("%lu.%lu.%lu.%lu\n",
+		printf("%u.%u.%u.%u\n",
 			   (net->n_net >> 24) & 0xff, (net->n_net >> 16) & 0xff,
 			   (net->n_net >> 8) & 0xff, net->n_net & 0xff);
 	}
