@@ -35,7 +35,7 @@
 #endif
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-#endif 
+#endif
 #ifdef __UCLIBC_HAS_LOCALE__
 #include <locale.h>
 #endif
