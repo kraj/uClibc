@@ -1054,7 +1054,7 @@ static const struct { const char *name; int num; } specs[] =
 static const int nspecs = sizeof (specs) / sizeof (specs[0]);
 
 #ifndef __UCLIBC_HAS___PROGNAME__
-static const char *__progname = "getconf"
+static const char *__progname = "getconf";
 #endif
 
 static attribute_noreturn void
