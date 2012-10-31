@@ -55,4 +55,15 @@ static int __NC(epoll_pwait)(int epfd, struct epoll_event *events, int maxevents
 CANCELLABLE_SYSCALL(int, epoll_pwait, (int epfd, struct epoll_event *events, int maxevents, int timeout,
 				       const sigset_t *set),
 		    (epfd, events, maxevents, timeout, set))
+/*
+ * If epoll_wait is not defined, then call epoll_pwait instead using NULL
+ * for sigmask argument
+ */
+# ifndef __NR_epoll_wait
+#  include <stddef.h>
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
+{
+	return INLINE_SYSCALL(epoll_pwait, 5, epfd, events, maxevents, timeout, NULL);
+}
+# endif
 #endif

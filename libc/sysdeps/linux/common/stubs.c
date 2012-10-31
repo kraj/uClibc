@@ -107,7 +107,8 @@ make_stub(epoll_ctl)
 make_stub(epoll_pwait)
 #endif
 
-#if !defined __NR_epoll_wait && defined __UCLIBC_HAS_EPOLL__
+#if !defined __NR_epoll_wait && defined __UCLIBC_HAS_EPOLL__ \
+		&& !defined __NR_epoll_pwait
 make_stub(epoll_wait)
 #endif
 
