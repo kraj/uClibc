@@ -23,6 +23,7 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	bdflush.c \
 	capget.c \
 	capset.c \
+	dup3.c \
 	eventfd.c \
 	inotify.c \
 	ioperm.c \
