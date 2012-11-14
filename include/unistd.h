@@ -563,6 +563,12 @@ extern int dup (int __fd) __THROW __wur;
 extern int dup2 (int __fd, int __fd2) __THROW;
 libc_hidden_proto(dup2)
 
+#ifdef __USE_GNU
+/* Duplicate FD to FD2, closing FD2 and making it open on the same
+   file while setting flags according to FLAGS.  */
+extern int dup3 (int __fd, int __fd2, int __flags) __THROW;
+#endif
+
 /* NULL-terminated array of "NAME=VALUE" environment variables.  */
 extern char **__environ;
 #ifdef __USE_GNU
