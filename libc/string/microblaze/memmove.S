@@ -34,11 +34,11 @@
 	.ent	memmove
 
 #ifdef __MICROBLAZEEL__
-	#define BSLLI bsrli
-	#define BSRLI bslli
+#	define BSLLI bsrli
+#	define BSRLI bslli
 #else
-	#define BSLLI bslli
-	#define BSRLI bsrli
+#	define BSLLI bslli
+#	define BSRLI bsrli
 #endif
 
 memmove:
