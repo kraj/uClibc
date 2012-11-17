@@ -10,4 +10,6 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#if defined(__NR_dup3)
 _syscall3(int, dup3, int, oldfd, int, newfd, int, flags)
+#endif
