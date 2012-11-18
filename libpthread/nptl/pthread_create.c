@@ -221,7 +221,7 @@ __free_tcb (struct pthread *pd)
 }
 
 
-static int attribute_noreturn
+static int
 start_thread (void *arg)
 {
   struct pthread *pd = (struct pthread *) arg;
