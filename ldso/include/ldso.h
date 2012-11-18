@@ -42,7 +42,6 @@
 #ifndef __ARCH_HAS_NO_SHARED__
 #include <dl-syscall.h>
 #include <dl-string.h>
-#include <dlfcn.h>
 /* Now the ldso specific headers */
 #include <dl-elf.h>
 #ifdef __UCLIBC_HAS_TLS__

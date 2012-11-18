@@ -14,6 +14,7 @@
 #include <elf.h>
 #include <link.h>
 #include <dl-defs.h>
+#include <dlfcn.h>
 
 /* Forward declarations for stuff defined in dl-hash.h */
 struct dyn_elf;
