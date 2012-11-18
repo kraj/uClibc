@@ -18,6 +18,8 @@ struct elf_resolve;
 struct r_scope_elem;
 
 #include <dl-defs.h>
+#include <dlfcn.h>
+
 #ifdef __LDSO_CACHE_SUPPORT__
 extern int _dl_map_cache(void);
 extern int _dl_unmap_cache(void);
