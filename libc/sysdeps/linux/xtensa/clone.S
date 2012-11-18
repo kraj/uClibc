@@ -11,9 +11,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* clone is even more special than fork as it mucks with stacks
    and invokes a function in the right context after it's all over.  */

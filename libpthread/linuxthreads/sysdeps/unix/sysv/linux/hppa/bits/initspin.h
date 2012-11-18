@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
 /* Initial value of a spinlock.  PA-RISC only implements atomic load
    and clear so this must be non-zero. */
