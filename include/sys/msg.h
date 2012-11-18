@@ -76,7 +76,7 @@ extern ssize_t msgrcv (int __msqid, void *__msgp, size_t __msgsz,
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern int msgsnd (int __msqid, __const void *__msgp, size_t __msgsz,
+extern int msgsnd (int __msqid, const void *__msgp, size_t __msgsz,
 		   int __msgflg);
 
 __END_DECLS

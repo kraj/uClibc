@@ -135,7 +135,7 @@ libc_hidden_def(execl)
 /**********************************************************************/
 #ifdef L_execv
 
-int execv(__const char *path, char *__const argv[])
+int execv(const char *path, char *const argv[])
 {
 	return execve(path, argv, __environ);
 }

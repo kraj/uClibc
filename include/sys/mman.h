@@ -114,10 +114,10 @@ extern int posix_madvise (void *__addr, size_t __len, int __advice) __THROW;
 
 /* Guarantee all whole pages mapped by the range [ADDR,ADDR+LEN) to
    be memory resident.  */
-extern int mlock (__const void *__addr, size_t __len) __THROW;
+extern int mlock (const void *__addr, size_t __len) __THROW;
 
 /* Unlock whole pages previously mapped by the range [ADDR,ADDR+LEN).  */
-extern int munlock (__const void *__addr, size_t __len) __THROW;
+extern int munlock (const void *__addr, size_t __len) __THROW;
 
 /* Cause all currently mapped pages of the process to be memory resident
    until unlocked by a call to the `munlockall', until the process exits,
@@ -132,8 +132,8 @@ extern int munlockall (void) __THROW;
 
 /* On no-mmu systems, memory cannot be swapped out, so
  * these functions will always succeed.  */
-static __inline__ int mlock (__const void *__addr, size_t __len) { return 0; }
-static __inline__ int munlock (__const void *__addr, size_t __len) { return 0; }
+static __inline__ int mlock (const void *__addr, size_t __len) { return 0; }
+static __inline__ int munlock (const void *__addr, size_t __len) { return 0; }
 static __inline__ int mlockall (int __flags) { return 0; }
 static __inline__ int munlockall (void) { return 0; }
 #endif
@@ -169,10 +169,10 @@ extern int remap_file_pages (void *__start, size_t __size, int __prot,
 
 
 /* Open shared memory segment.  */
-extern int shm_open (__const char *__name, int __oflag, mode_t __mode);
+extern int shm_open (const char *__name, int __oflag, mode_t __mode);
 
 /* Remove shared memory segment.  */
-extern int shm_unlink (__const char *__name);
+extern int shm_unlink (const char *__name);
 
 __END_DECLS
 

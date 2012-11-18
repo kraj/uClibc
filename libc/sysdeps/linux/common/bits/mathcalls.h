@@ -235,7 +235,7 @@ __END_NAMESPACE_C99
 #ifdef __USE_ISOC99
 __BEGIN_NAMESPACE_C99
 /* Return representation of NaN for double type.  */
-__MATHCALLX (nan,, (__const char *__tagb), (__const__))
+__MATHCALLX (nan,, (const char *__tagb), (__const__))
 __END_NAMESPACE_C99
 #endif
 

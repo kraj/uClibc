@@ -72,7 +72,7 @@ extern int feraiseexcept (int __excepts) __THROW;
 
 /* Set complete status for exceptions indicated by EXCEPTS according to
    the representation in the object pointed to by FLAGP.  */
-extern int fesetexceptflag (__const fexcept_t *__flagp, int __excepts) __THROW;
+extern int fesetexceptflag (const fexcept_t *__flagp, int __excepts) __THROW;
 
 /* Determine which of subset of the exceptions specified by EXCEPTS are
    currently set.  */
@@ -101,12 +101,12 @@ extern int feholdexcept (fenv_t *__envp) __THROW;
 
 /* Establish the floating-point environment represented by the object
    pointed to by ENVP.  */
-extern int fesetenv (__const fenv_t *__envp) __THROW;
+extern int fesetenv (const fenv_t *__envp) __THROW;
 
 /* Save current exceptions in temporary storage, install environment
    represented by object pointed to by ENVP and raise exceptions
    according to saved exceptions.  */
-extern int feupdateenv (__const fenv_t *__envp) __THROW;
+extern int feupdateenv (const fenv_t *__envp) __THROW;
 
 
 /* Include optimization.  */

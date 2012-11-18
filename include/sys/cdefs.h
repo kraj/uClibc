@@ -62,10 +62,6 @@
 # define __THROW
 # define __NTH(fct)	fct
 
-# define __const	const
-# define __signed	signed
-# define __volatile	volatile
-
 #endif	/* GCC.  */
 
 /* These two macros are not used in glibc anymore.  They are kept here

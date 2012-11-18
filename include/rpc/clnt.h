@@ -281,7 +281,7 @@ struct CLIENT {
  *	u_long prog;
  *	u_long vers;
  */
-extern CLIENT *clntraw_create (__const u_long __prog, __const u_long __vers)
+extern CLIENT *clntraw_create (const u_long __prog, const u_long __vers)
      __THROW;
 
 
@@ -295,8 +295,8 @@ extern CLIENT *clntraw_create (__const u_long __prog, __const u_long __vers)
  *	u_ong vers;	-- version number
  *	char *prot;	-- protocol
  */
-extern CLIENT *clnt_create (__const char *__host, __const u_long __prog,
-			    __const u_long __vers, __const char *__prot)
+extern CLIENT *clnt_create (const char *__host, const u_long __prog,
+			    const u_long __vers, const char *__prot)
      __THROW;
 
 
@@ -365,18 +365,18 @@ extern CLIENT *clntunix_create  (struct sockaddr_un *__raddr, u_long __program,
 libc_hidden_proto(clntunix_create)
 
 
-extern int callrpc (__const char *__host, __const u_long __prognum,
-		    __const u_long __versnum, __const u_long __procnum,
-		    __const xdrproc_t __inproc, __const char *__in,
-		    __const xdrproc_t __outproc, char *__out) __THROW;
+extern int callrpc (const char *__host, const u_long __prognum,
+		    const u_long __versnum, const u_long __procnum,
+		    const xdrproc_t __inproc, const char *__in,
+		    const xdrproc_t __outproc, char *__out) __THROW;
 extern int _rpc_dtablesize (void) __THROW;
 libc_hidden_proto(_rpc_dtablesize)
 
 /*
  * Print why creation failed
  */
-extern void clnt_pcreateerror (__const char *__msg);	/* stderr */
-extern char *clnt_spcreateerror(__const char *__msg) __THROW;	/* string */
+extern void clnt_pcreateerror (const char *__msg);	/* stderr */
+extern char *clnt_spcreateerror(const char *__msg) __THROW;	/* string */
 libc_hidden_proto(clnt_spcreateerror)
 
 /*
@@ -387,10 +387,10 @@ extern void clnt_perrno (enum clnt_stat __num);		/* stderr */
 /*
  * Print an English error message, given the client error code
  */
-extern void clnt_perror (CLIENT *__clnt, __const char *__msg);
+extern void clnt_perror (CLIENT *__clnt, const char *__msg);
 							/* stderr */
 libc_hidden_proto(clnt_perror)
-extern char *clnt_sperror (CLIENT *__clnt, __const char *__msg) __THROW;
+extern char *clnt_sperror (CLIENT *__clnt, const char *__msg) __THROW;
 							/* string */
 libc_hidden_proto(clnt_sperror)
 
@@ -416,7 +416,7 @@ libc_hidden_proto(clnt_sperrno)
 /*
  * get the port number on the host for the rpc program,version and proto
  */
-extern int getrpcport (__const char * __host, u_long __prognum,
+extern int getrpcport (const char * __host, u_long __prognum,
 		       u_long __versnum, u_int proto) __THROW;
 
 /*

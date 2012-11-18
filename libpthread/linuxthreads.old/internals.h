@@ -473,15 +473,15 @@ extern void __pthread_exit (void *retval)
 
 extern int __pthread_attr_setguardsize(pthread_attr_t *__attr,
 				       size_t __guardsize) attribute_hidden;
-extern int __pthread_attr_getguardsize(__const pthread_attr_t *__attr,
+extern int __pthread_attr_getguardsize(const pthread_attr_t *__attr,
 				       size_t *__guardsize) attribute_hidden;
 extern int __pthread_attr_setstackaddr(pthread_attr_t *__attr,
 				       void *__stackaddr) attribute_hidden;
-extern int __pthread_attr_getstackaddr(__const pthread_attr_t *__attr,
+extern int __pthread_attr_getstackaddr(const pthread_attr_t *__attr,
 				       void **__stackaddr) attribute_hidden;
 extern int __pthread_attr_setstacksize(pthread_attr_t *__attr,
 				       size_t __stacksize) attribute_hidden;
-extern int __pthread_attr_getstacksize(__const pthread_attr_t *__attr,
+extern int __pthread_attr_getstacksize(const pthread_attr_t *__attr,
 				       size_t *__stacksize) attribute_hidden;
 extern int __pthread_getconcurrency(void) attribute_hidden;
 extern int __pthread_setconcurrency(int __level) attribute_hidden;

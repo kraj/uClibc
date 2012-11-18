@@ -100,7 +100,7 @@ libc_hidden_proto(fcntl64)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 #ifndef __USE_FILE_OFFSET64
-extern int open (__const char *__file, int __oflag, ...) __nonnull ((1));
+extern int open (const char *__file, int __oflag, ...) __nonnull ((1));
 libc_hidden_proto(open)
 # ifdef _LIBC
 extern int __open2_nocancel(const char *, int) __nonnull ((1)) attribute_hidden;
@@ -108,14 +108,14 @@ extern int __open_nocancel(const char *, int, mode_t) __nonnull ((1)) attribute_
 # endif
 #else
 # ifdef __REDIRECT
-extern int __REDIRECT (open, (__const char *__file, int __oflag, ...), open64)
+extern int __REDIRECT (open, (const char *__file, int __oflag, ...), open64)
      __nonnull ((1));
 # else
 #  define open open64
 # endif
 #endif
 #ifdef __USE_LARGEFILE64
-extern int open64 (__const char *__file, int __oflag, ...) __nonnull ((1));
+extern int open64 (const char *__file, int __oflag, ...) __nonnull ((1));
 libc_hidden_proto(open64)
 #endif
 
@@ -130,19 +130,19 @@ libc_hidden_proto(open64)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 # ifndef __USE_FILE_OFFSET64
-extern int openat (int __fd, __const char *__file, int __oflag, ...)
+extern int openat (int __fd, const char *__file, int __oflag, ...)
      __nonnull ((2));
 libc_hidden_proto(openat)
 # else
 #  ifdef __REDIRECT
-extern int __REDIRECT (openat, (int __fd, __const char *__file, int __oflag,
+extern int __REDIRECT (openat, (int __fd, const char *__file, int __oflag,
 				...), openat64) __nonnull ((2));
 #  else
 #   define openat openat64
 #  endif
 # endif
 
-extern int openat64 (int __fd, __const char *__file, int __oflag, ...)
+extern int openat64 (int __fd, const char *__file, int __oflag, ...)
      __nonnull ((2));
 #endif
 
@@ -152,17 +152,17 @@ extern int openat64 (int __fd, __const char *__file, int __oflag, ...)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 #ifndef __USE_FILE_OFFSET64
-extern int creat (__const char *__file, __mode_t __mode) __nonnull ((1));
+extern int creat (const char *__file, __mode_t __mode) __nonnull ((1));
 #else
 # ifdef __REDIRECT
-extern int __REDIRECT (creat, (__const char *__file, __mode_t __mode),
+extern int __REDIRECT (creat, (const char *__file, __mode_t __mode),
 		       creat64) __nonnull ((1));
 # else
 #  define creat creat64
 # endif
 #endif
 #ifdef __USE_LARGEFILE64
-extern int creat64 (__const char *__file, __mode_t __mode) __nonnull ((1));
+extern int creat64 (const char *__file, __mode_t __mode) __nonnull ((1));
 #endif
 
 #if !defined F_LOCK && (defined __USE_MISC || (defined __USE_XOPEN_EXTENDED \

@@ -45,10 +45,10 @@ __BEGIN_DECLS
 #endif
 
 /* Return the output baud rate stored in *TERMIOS_P.  */
-extern speed_t cfgetospeed (__const struct termios *__termios_p) __THROW;
+extern speed_t cfgetospeed (const struct termios *__termios_p) __THROW;
 
 /* Return the input baud rate stored in *TERMIOS_P.  */
-extern speed_t cfgetispeed (__const struct termios *__termios_p) __THROW;
+extern speed_t cfgetispeed (const struct termios *__termios_p) __THROW;
 
 /* Set the output baud rate stored in *TERMIOS_P to SPEED.  */
 extern int cfsetospeed (struct termios *__termios_p, speed_t __speed) __THROW;
@@ -71,7 +71,7 @@ libc_hidden_proto(tcgetattr)
 /* Set the state of FD to *TERMIOS_P.
    Values for OPTIONAL_ACTIONS (TCSA*) are in <bits/termios.h>.  */
 extern int tcsetattr (int __fd, int __optional_actions,
-		      __const struct termios *__termios_p) __THROW;
+		      const struct termios *__termios_p) __THROW;
 libc_hidden_proto(tcsetattr)
 
 

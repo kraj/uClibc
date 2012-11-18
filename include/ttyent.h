@@ -57,7 +57,7 @@ __BEGIN_DECLS
 
 extern struct ttyent *getttyent (void) __THROW;
 libc_hidden_proto(getttyent)
-extern struct ttyent *getttynam (__const char *__tty) __THROW;
+extern struct ttyent *getttynam (const char *__tty) __THROW;
 extern int setttyent (void) __THROW;
 libc_hidden_proto(setttyent)
 extern int endttyent (void) __THROW;

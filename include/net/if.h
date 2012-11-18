@@ -190,7 +190,7 @@ struct ifconf
 __BEGIN_DECLS
 
 /* Convert an interface name to an index, and vice versa.  */
-extern unsigned int if_nametoindex (__const char *__ifname) __THROW;
+extern unsigned int if_nametoindex (const char *__ifname) __THROW;
 libc_hidden_proto(if_nametoindex)
 extern char *if_indextoname (unsigned int __ifindex, char *__ifname) __THROW;
 

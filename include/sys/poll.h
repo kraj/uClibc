@@ -65,8 +65,8 @@ libc_hidden_proto(poll)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
-		  __const struct timespec *__timeout,
-		  __const __sigset_t *__ss);
+		  const struct timespec *__timeout,
+		  const __sigset_t *__ss);
 #endif
 
 __END_DECLS

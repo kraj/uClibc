@@ -38,7 +38,7 @@ typedef void *iconv_t;
 
    This function is a possible cancellation points and therefore not
    marked with __THROW.  */
-extern iconv_t iconv_open (__const char *__tocode, __const char *__fromcode);
+extern iconv_t iconv_open (const char *__tocode, const char *__fromcode);
 
 /* Convert at most *INBYTESLEFT bytes from *INBUF according to the
    code conversion algorithm specified by CD and place up to

@@ -34,22 +34,22 @@ __BEGIN_DECLS
 
 # ifdef __UCLIBC_SUSV3_LEGACY__
 /* Copy N bytes of SRC to DEST (like memmove, but args reversed).  */
-extern void bcopy (__const void *__src, void *__dest, size_t __n)
+extern void bcopy (const void *__src, void *__dest, size_t __n)
      __THROW __nonnull ((1, 2));
 
 /* Set N bytes of S to 0.  */
 extern void bzero (void *__s, size_t __n) __THROW __nonnull ((1));
 
 /* Compare N bytes of S1 and S2 (same as memcmp).  */
-extern int bcmp (__const void *__s1, __const void *__s2, size_t __n)
+extern int bcmp (const void *__s1, const void *__s2, size_t __n)
      __THROW __attribute_pure__ __nonnull ((1, 2));
 
 /* Find the first occurrence of C in S (same as strchr).  */
-extern char *index (__const char *__s, int __c)
+extern char *index (const char *__s, int __c)
      __THROW __attribute_pure__ __nonnull ((1));
 
 /* Find the last occurrence of C in S (same as strrchr).  */
-extern char *rindex (__const char *__s, int __c)
+extern char *rindex (const char *__s, int __c)
      __THROW __attribute_pure__ __nonnull ((1));
 # else
 #  ifdef __UCLIBC_SUSV3_LEGACY_MACROS__
@@ -81,12 +81,12 @@ __extension__ extern int ffsll (long long int __ll)
 # endif
 
 /* Compare S1 and S2, ignoring case.  */
-extern int strcasecmp (__const char *__s1, __const char *__s2)
+extern int strcasecmp (const char *__s1, const char *__s2)
      __THROW __attribute_pure__ __nonnull ((1, 2));
 libc_hidden_proto(strcasecmp)
 
 /* Compare no more than N chars of S1 and S2, ignoring case.  */
-extern int strncasecmp (__const char *__s1, __const char *__s2, size_t __n)
+extern int strncasecmp (const char *__s1, const char *__s2, size_t __n)
      __THROW __attribute_pure__ __nonnull ((1, 2));
 libc_hidden_proto(strncasecmp)
 
@@ -98,12 +98,12 @@ libc_hidden_proto(strncasecmp)
 
 /* Again versions of a few functions which use the given locale instead
    of the global one.  */
-extern int strcasecmp_l (__const char *__s1, __const char *__s2,
+extern int strcasecmp_l (const char *__s1, const char *__s2,
 			 __locale_t __loc)
      __THROW __attribute_pure__ __nonnull ((1, 2, 3));
 libc_hidden_proto(strcasecmp_l)
 
-extern int strncasecmp_l (__const char *__s1, __const char *__s2,
+extern int strncasecmp_l (const char *__s1, const char *__s2,
 			  size_t __n, __locale_t __loc)
      __THROW __attribute_pure__ __nonnull ((1, 2, 4));
 libc_hidden_proto(strncasecmp_l)

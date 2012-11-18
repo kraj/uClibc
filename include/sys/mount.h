@@ -107,16 +107,16 @@ enum
 __BEGIN_DECLS
 
 /* Mount a filesystem.  */
-extern int mount (__const char *__special_file, __const char *__dir,
-		  __const char *__fstype, unsigned long int __rwflag,
-		  __const void *__data) __THROW;
+extern int mount (const char *__special_file, const char *__dir,
+		  const char *__fstype, unsigned long int __rwflag,
+		  const void *__data) __THROW;
 
 /* Unmount a filesystem.  */
-extern int umount (__const char *__special_file) __THROW;
+extern int umount (const char *__special_file) __THROW;
 
 #ifdef __UCLIBC_LINUX_SPECIFIC__
 /* Unmount a filesystem.  Force unmounting if FLAGS is set to MNT_FORCE.  */
-extern int umount2 (__const char *__special_file, int __flags) __THROW;
+extern int umount2 (const char *__special_file, int __flags) __THROW;
 libc_hidden_proto(umount2)
 #endif
 

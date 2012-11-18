@@ -68,7 +68,7 @@ enum
    old-style declaration, too.  */
 #if defined __cplusplus || !__GNUC_PREREQ (2, 7) || !defined __USE_GNU
 # define __SOCKADDR_ARG		struct sockaddr *__restrict
-# define __CONST_SOCKADDR_ARG	__const struct sockaddr *
+# define __CONST_SOCKADDR_ARG	const struct sockaddr *
 #else
 /* Add more `struct sockaddr_AF' types here as necessary.
    These are all the ones I found on NetBSD and Linux.  */
@@ -91,7 +91,7 @@ enum
 typedef union { __SOCKADDR_ALLTYPES
 	      } __SOCKADDR_ARG __attribute__ ((__transparent_union__));
 # undef __SOCKADDR_ONETYPE
-# define __SOCKADDR_ONETYPE(type) __const struct type *__restrict __##type##__;
+# define __SOCKADDR_ONETYPE(type) const struct type *__restrict __##type##__;
 typedef union { __SOCKADDR_ALLTYPES
 	      } __CONST_SOCKADDR_ARG __attribute__ ((__transparent_union__));
 # undef __SOCKADDR_ONETYPE
@@ -141,7 +141,7 @@ extern int getpeername (int __fd, __SOCKADDR_ARG __addr,
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern ssize_t send (int __fd, __const void *__buf, size_t __n, int __flags);
+extern ssize_t send (int __fd, const void *__buf, size_t __n, int __flags);
 libc_hidden_proto(send)
 
 /* Read N bytes into BUF from socket FD.
@@ -157,7 +157,7 @@ libc_hidden_proto(recv)
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern ssize_t sendto (int __fd, __const void *__buf, size_t __n,
+extern ssize_t sendto (int __fd, const void *__buf, size_t __n,
 		       int __flags, __CONST_SOCKADDR_ARG __addr,
 		       socklen_t __addr_len);
 #ifdef _LIBC
@@ -186,7 +186,7 @@ libc_hidden_proto(recvfrom)
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern ssize_t sendmsg (int __fd, __const struct msghdr *__message,
+extern ssize_t sendmsg (int __fd, const struct msghdr *__message,
 			int __flags);
 libc_hidden_proto(sendmsg)
 
@@ -210,7 +210,7 @@ extern int getsockopt (int __fd, int __level, int __optname,
    to *OPTVAL (which is OPTLEN bytes long).
    Returns 0 on success, -1 for errors.  */
 extern int setsockopt (int __fd, int __level, int __optname,
-		       __const void *__optval, socklen_t __optlen) __THROW;
+		       const void *__optval, socklen_t __optlen) __THROW;
 libc_hidden_proto(setsockopt)
 
 

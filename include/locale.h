@@ -123,7 +123,7 @@ struct lconv
 
 
 /* Set and/or return the current locale.  */
-extern char *setlocale (int __category, __const char *__locale) __THROW;
+extern char *setlocale (int __category, const char *__locale) __THROW;
 
 /* Return the numeric/monetary information for the current locale.  */
 extern struct lconv *localeconv (void) __THROW;
@@ -151,7 +151,7 @@ __END_NAMESPACE_STD
    datasets.  Unlike for the CATEGORY parameter for `setlocale' the
    CATEGORY_MASK parameter here uses a single bit for each category,
    made by OR'ing together LC_*_MASK bits above.  */
-extern __locale_t newlocale (int __category_mask, __const char *__locale,
+extern __locale_t newlocale (int __category_mask, const char *__locale,
 			     __locale_t __base) __THROW;
 libc_hidden_proto(newlocale)
 

@@ -22,14 +22,6 @@
 extern "C" {
 #endif
 
-#ifndef const
-# if (defined __STDC__ && __STDC__) || defined __cplusplus
-#  define __const	const
-# else
-#  define __const
-# endif
-#endif
-
 /* We #undef these before defining them because some losing systems
    (HP-UX A.08.07 for example) define these in <unistd.h>.  */
 #undef	FNM_PATHNAME
@@ -61,7 +53,7 @@ extern "C" {
 
 /* Match NAME against the filename pattern PATTERN,
    returning zero if it matches, FNM_NOMATCH if not.  */
-extern int fnmatch (__const char *__pattern, __const char *__name,
+extern int fnmatch (const char *__pattern, const char *__name,
 		    int __flags);
 libc_hidden_proto(fnmatch)
 

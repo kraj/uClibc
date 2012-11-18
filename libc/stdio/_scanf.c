@@ -198,7 +198,7 @@ int vscanf(const char * __restrict format, va_list arg)
 
 #ifdef __STDIO_BUFFERS
 
-int vsscanf(__const char *sp, __const char *fmt, va_list ap)
+int vsscanf(const char *sp, const char *fmt, va_list ap)
 {
 	FILE f;
 
@@ -242,7 +242,7 @@ libc_hidden_def(vsscanf)
 
 #elif !defined(__UCLIBC_HAS_WCHAR__)
 
-int vsscanf(__const char *sp, __const char *fmt, va_list ap)
+int vsscanf(const char *sp, const char *fmt, va_list ap)
 {
 	__FILE_vsscanf f;
 
@@ -281,7 +281,7 @@ libc_hidden_def(vsscanf)
 
 #elif defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
 
-int vsscanf(__const char *sp, __const char *fmt, va_list ap)
+int vsscanf(const char *sp, const char *fmt, va_list ap)
 {
 	FILE *f;
 	int rv = EOF;

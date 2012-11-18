@@ -154,22 +154,22 @@ libc_hidden_proto(_stdlib_mb_cur_max)
 __BEGIN_NAMESPACE_STD
 #ifdef __UCLIBC_HAS_FLOATS__
 /* Convert a string to a floating-point number.  */
-extern double atof (__const char *__nptr)
+extern double atof (const char *__nptr)
      __THROW __attribute_pure__ __nonnull ((1)) __wur;
 #endif /* __UCLIBC_HAS_FLOATS__ */
 /* Convert a string to an integer.  */
-extern int atoi (__const char *__nptr)
+extern int atoi (const char *__nptr)
      __THROW __attribute_pure__ __nonnull ((1)) __wur;
 libc_hidden_proto(atoi)
 /* Convert a string to a long integer.  */
-extern long int atol (__const char *__nptr)
+extern long int atol (const char *__nptr)
      __THROW __attribute_pure__ __nonnull ((1)) __wur;
 __END_NAMESPACE_STD
 
 #if defined __USE_ISOC99 || defined __USE_MISC
 __BEGIN_NAMESPACE_C99
 /* Convert a string to a long long integer.  */
-__extension__ extern long long int atoll (__const char *__nptr)
+__extension__ extern long long int atoll (const char *__nptr)
      __THROW __attribute_pure__ __nonnull ((1)) __wur;
 __END_NAMESPACE_C99
 #endif
@@ -177,7 +177,7 @@ __END_NAMESPACE_C99
 #ifdef __UCLIBC_HAS_FLOATS__
 __BEGIN_NAMESPACE_STD
 /* Convert a string to a floating-point number.  */
-extern double strtod (__const char *__restrict __nptr,
+extern double strtod (const char *__restrict __nptr,
 		      char **__restrict __endptr)
      __THROW __nonnull ((1)) __wur;
 libc_hidden_proto(strtod)
@@ -186,10 +186,10 @@ __END_NAMESPACE_STD
 #ifdef	__USE_ISOC99
 __BEGIN_NAMESPACE_C99
 /* Likewise for `float' and `long double' sizes of floating-point numbers.  */
-extern float strtof (__const char *__restrict __nptr,
+extern float strtof (const char *__restrict __nptr,
 		     char **__restrict __endptr) __THROW __nonnull ((1)) __wur;
 
-extern long double strtold (__const char *__restrict __nptr,
+extern long double strtold (const char *__restrict __nptr,
 			    char **__restrict __endptr)
      __THROW __nonnull ((1)) __wur;
 __END_NAMESPACE_C99
@@ -198,12 +198,12 @@ __END_NAMESPACE_C99
 
 __BEGIN_NAMESPACE_STD
 /* Convert a string to a long integer.  */
-extern long int strtol (__const char *__restrict __nptr,
+extern long int strtol (const char *__restrict __nptr,
 			char **__restrict __endptr, int __base)
      __THROW __nonnull ((1)) __wur;
 libc_hidden_proto(strtol)
 /* Convert a string to an unsigned long integer.  */
-extern unsigned long int strtoul (__const char *__restrict __nptr,
+extern unsigned long int strtoul (const char *__restrict __nptr,
 				  char **__restrict __endptr, int __base)
      __THROW __nonnull ((1)) __wur;
 libc_hidden_proto(strtoul)
@@ -214,12 +214,12 @@ __END_NAMESPACE_STD
 
 /* Convert a string to a quadword integer.  */
 __extension__
-extern quad_t strtoq (__const char *__restrict __nptr,
+extern quad_t strtoq (const char *__restrict __nptr,
 			     char **__restrict __endptr, int __base)
      __THROW __nonnull ((1)) __wur;
 /* Convert a string to an unsigned quadword integer.  */
 __extension__
-extern u_quad_t strtouq (__const char *__restrict __nptr,
+extern u_quad_t strtouq (const char *__restrict __nptr,
 				       char **__restrict __endptr, int __base)
      __THROW __nonnull ((1)) __wur;
 #endif /* GCC and use BSD.  */
@@ -228,13 +228,13 @@ extern u_quad_t strtouq (__const char *__restrict __nptr,
 __BEGIN_NAMESPACE_C99
 /* Convert a string to a quadword integer.  */
 __extension__
-extern long long int strtoll (__const char *__restrict __nptr,
+extern long long int strtoll (const char *__restrict __nptr,
 			      char **__restrict __endptr, int __base)
      __THROW __nonnull ((1)) __wur;
 libc_hidden_proto(strtoll)
 /* Convert a string to an unsigned quadword integer.  */
 __extension__
-extern unsigned long long int strtoull (__const char *__restrict __nptr,
+extern unsigned long long int strtoull (const char *__restrict __nptr,
 					char **__restrict __endptr, int __base)
      __THROW __nonnull ((1)) __wur;
 __END_NAMESPACE_C99
@@ -259,39 +259,39 @@ __END_NAMESPACE_C99
 
 /* Special versions of the functions above which take the locale to
    use as an additional parameter.  */
-extern long int strtol_l (__const char *__restrict __nptr,
+extern long int strtol_l (const char *__restrict __nptr,
 			  char **__restrict __endptr, int __base,
 			  __locale_t __loc) __THROW __nonnull ((1, 4)) __wur;
 libc_hidden_proto(strtol_l)
 
-extern unsigned long int strtoul_l (__const char *__restrict __nptr,
+extern unsigned long int strtoul_l (const char *__restrict __nptr,
 				    char **__restrict __endptr,
 				    int __base, __locale_t __loc)
      __THROW __nonnull ((1, 4)) __wur;
 libc_hidden_proto(strtoul_l)
 
 __extension__
-extern long long int strtoll_l (__const char *__restrict __nptr,
+extern long long int strtoll_l (const char *__restrict __nptr,
 				char **__restrict __endptr, int __base,
 				__locale_t __loc)
      __THROW __nonnull ((1, 4)) __wur;
 
 __extension__
-extern unsigned long long int strtoull_l (__const char *__restrict __nptr,
+extern unsigned long long int strtoull_l (const char *__restrict __nptr,
 					  char **__restrict __endptr,
 					  int __base, __locale_t __loc)
      __THROW __nonnull ((1, 4)) __wur;
 
 #ifdef __UCLIBC_HAS_FLOATS__
-extern double strtod_l (__const char *__restrict __nptr,
+extern double strtod_l (const char *__restrict __nptr,
 			char **__restrict __endptr, __locale_t __loc)
      __THROW __nonnull ((1, 3)) __wur;
 
-extern float strtof_l (__const char *__restrict __nptr,
+extern float strtof_l (const char *__restrict __nptr,
 		       char **__restrict __endptr, __locale_t __loc)
      __THROW __nonnull ((1, 3)) __wur;
 
-extern long double strtold_l (__const char *__restrict __nptr,
+extern long double strtold_l (const char *__restrict __nptr,
 			      char **__restrict __endptr,
 			      __locale_t __loc)
      __THROW __nonnull ((1, 3)) __wur;
@@ -306,7 +306,7 @@ extern long double strtold_l (__const char *__restrict __nptr,
 extern char *l64a (long int __n) __THROW __wur;
 
 /* Read a number from a string S in base 64 as above.  */
-extern long int a64l (__const char *__s)
+extern long int a64l (const char *__s)
      __THROW __attribute_pure__ __nonnull ((1)) __wur;
 
 #endif	/* Use SVID || extended X/Open.  */
@@ -563,14 +563,14 @@ __END_NAMESPACE_C99
 
 __BEGIN_NAMESPACE_STD
 /* Return the value of envariable NAME, or NULL if it doesn't exist.  */
-extern char *getenv (__const char *__name) __THROW __nonnull ((1)) __wur;
+extern char *getenv (const char *__name) __THROW __nonnull ((1)) __wur;
 libc_hidden_proto(getenv)
 __END_NAMESPACE_STD
 
 #if 0
 /* This function is similar to the above but returns NULL if the
    programs is running with SUID or SGID enabled.  */
-extern char *__secure_getenv (__const char *__name)
+extern char *__secure_getenv (const char *__name)
      __THROW __nonnull ((1)) __wur;
 #endif
 
@@ -584,12 +584,12 @@ extern int putenv (char *__string) __THROW __nonnull ((1));
 #if defined __USE_BSD || defined __USE_XOPEN2K
 /* Set NAME to VALUE in the environment.
    If REPLACE is nonzero, overwrite an existing value.  */
-extern int setenv (__const char *__name, __const char *__value, int __replace)
+extern int setenv (const char *__name, const char *__value, int __replace)
      __THROW __nonnull ((2));
 libc_hidden_proto(setenv)
 
 /* Remove the variable NAME from the environment.  */
-extern int unsetenv (__const char *__name) __THROW;
+extern int unsetenv (const char *__name) __THROW;
 libc_hidden_proto(unsetenv)
 #endif
 
@@ -680,14 +680,14 @@ __BEGIN_NAMESPACE_STD
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern int system (__const char *__command) __wur;
+extern int system (const char *__command) __wur;
 __END_NAMESPACE_STD
 
 
 #ifdef	__USE_GNU
 /* Return a malloc'd string containing the canonical absolute name of the
    existing named file.  */
-extern char *canonicalize_file_name (__const char *__name)
+extern char *canonicalize_file_name (const char *__name)
      __THROW __nonnull ((1)) __wur;
 #endif
 
@@ -697,7 +697,7 @@ extern char *canonicalize_file_name (__const char *__name)
    PATH_MAX chars or more, returns null with `errno' set to
    ENAMETOOLONG; if the name fits in fewer than PATH_MAX chars,
    returns the name in RESOLVED.  */
-extern char *realpath (__const char *__restrict __name,
+extern char *realpath (const char *__restrict __name,
 		       char *__restrict __resolved) __THROW __wur;
 libc_hidden_proto(realpath)
 #endif
@@ -706,20 +706,20 @@ libc_hidden_proto(realpath)
 /* Shorthand for type of comparison functions.  */
 #ifndef __COMPAR_FN_T
 # define __COMPAR_FN_T
-typedef int (*__compar_fn_t) (__const void *, __const void *);
+typedef int (*__compar_fn_t) (const void *, const void *);
 
 # ifdef	__USE_GNU
 typedef __compar_fn_t comparison_fn_t;
 # endif
 #endif
 #ifdef __USE_GNU
-typedef int (*__compar_d_fn_t) (__const void *, __const void *, void *);
+typedef int (*__compar_d_fn_t) (const void *, const void *, void *);
 #endif
 
 __BEGIN_NAMESPACE_STD
 /* Do a binary search for KEY in BASE, which consists of NMEMB elements
    of SIZE bytes each, using COMPAR to perform the comparisons.  */
-extern void *bsearch (__const void *__key, __const void *__base,
+extern void *bsearch (const void *__key, const void *__base,
 		      size_t __nmemb, size_t __size, __compar_fn_t __compar)
      __nonnull ((1, 2, 5)) __wur;
 
@@ -829,11 +829,11 @@ extern int qfcvt_r (long double __value, int __ndigit,
 __BEGIN_NAMESPACE_STD
 /* Return the length of the multibyte character
    in S, which is no longer than N.  */
-extern int mblen (__const char *__s, size_t __n) __THROW __wur;
+extern int mblen (const char *__s, size_t __n) __THROW __wur;
 /* Return the length of the given multibyte character,
    putting its `wchar_t' representation in *PWC.  */
 extern int mbtowc (wchar_t *__restrict __pwc,
-		   __const char *__restrict __s, size_t __n) __THROW __wur;
+		   const char *__restrict __s, size_t __n) __THROW __wur;
 /* Put the multibyte character represented
    by WCHAR in S, returning its length.  */
 extern int wctomb (char *__s, wchar_t __wchar) __THROW __wur;
@@ -841,10 +841,10 @@ extern int wctomb (char *__s, wchar_t __wchar) __THROW __wur;
 
 /* Convert a multibyte string to a wide char string.  */
 extern size_t mbstowcs (wchar_t *__restrict  __pwcs,
-			__const char *__restrict __s, size_t __n) __THROW;
+			const char *__restrict __s, size_t __n) __THROW;
 /* Convert a wide char string to multibyte string.  */
 extern size_t wcstombs (char *__restrict __s,
-			__const wchar_t *__restrict __pwcs, size_t __n)
+			const wchar_t *__restrict __pwcs, size_t __n)
      __THROW;
 __END_NAMESPACE_STD
 #endif /* __UCLIBC_HAS_WCHAR__ */
@@ -855,7 +855,7 @@ __END_NAMESPACE_STD
    or negative response expression as specified by the LC_MESSAGES category
    in the program's current locale.  Returns 1 if affirmative, 0 if
    negative, and -1 if not matching.  */
-extern int rpmatch (__const char *__response) __THROW __nonnull ((1)) __wur;
+extern int rpmatch (const char *__response) __THROW __nonnull ((1)) __wur;
 #endif
 
 
@@ -867,7 +867,7 @@ extern int rpmatch (__const char *__response) __THROW __nonnull ((1)) __wur;
    suboption.  On exit *OPTIONP is set to the beginning of the next
    token or at the terminating NUL character.  */
 extern int getsubopt (char **__restrict __optionp,
-		      char *__const *__restrict __tokens,
+		      char *const *__restrict __tokens,
 		      char **__restrict __valuep)
      __THROW __nonnull ((1, 2, 3)) __wur;
 #endif
@@ -876,7 +876,7 @@ extern int getsubopt (char **__restrict __optionp,
 #ifdef __USE_XOPEN
 # if defined __UCLIBC_HAS_CRYPT__
 /* Setup DES tables according KEY.  */
-extern void setkey (__const char *__key) __THROW __nonnull ((1));
+extern void setkey (const char *__key) __THROW __nonnull ((1));
 # endif /* __UCLIBC_HAS_CRYPT__ */
 #endif
 

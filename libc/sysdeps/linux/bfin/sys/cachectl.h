@@ -18,7 +18,7 @@
 
 __BEGIN_DECLS
 
-extern int cacheflush (void *addr, __const int nbytes, __const int flags);
+extern int cacheflush (void *addr, const int nbytes, const int flags);
 
 __END_DECLS
 

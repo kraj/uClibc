@@ -28,7 +28,7 @@
 /* Modify the signal mask for the calling thread.  The arguments have
    the same meaning as for sigprocmask(2). */
 extern int pthread_sigmask (int __how,
-			    __const __sigset_t *__restrict __newmask,
+			    const __sigset_t *__restrict __newmask,
 			    __sigset_t *__restrict __oldmask)__THROW;
 
 /* Send signal SIGNO to the given thread. */

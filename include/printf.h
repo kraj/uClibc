@@ -142,14 +142,14 @@ struct printf_info {
 
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__
 typedef int (*printf_function) (FILE *__stream,
-			     __const struct printf_info *__info,
-			     __const void *__const *__args);
+			     const struct printf_info *__info,
+			     const void *const *__args);
 
 /* Type of a printf specifier-arginfo function.
    INFO gives information about the format specification.
    N, ARGTYPES, and return value are as for parse_printf_format.  */
 
-typedef int printf_arginfo_function (__const struct printf_info *__info,
+typedef int printf_arginfo_function (const struct printf_info *__info,
 				     size_t __n, int *__argtypes);
 
 
@@ -173,7 +173,7 @@ extern int register_printf_function (int __spec, printf_function __func,
    array it is passed with the types of the arguments it wants, and return
    the number of arguments it wants.  */
 
-extern size_t parse_printf_format (__const char *__restrict __fmt, size_t __n,
+extern size_t parse_printf_format (const char *__restrict __fmt, size_t __n,
 				   int *__restrict __argtypes) __THROW;
 
 
@@ -221,11 +221,11 @@ enum {                          /* C type: */
    the format specifier is a uppercase character powers of 1000 are
    used.  Otherwise powers of 1024.  */
 extern int printf_size (FILE *__restrict __fp,
-			__const struct printf_info *__info,
-			__const void *__const *__restrict __args) __THROW;
+			const struct printf_info *__info,
+			const void *const *__restrict __args) __THROW;
 
 /* This is the appropriate argument information function for `printf_size'.  */
-extern int printf_size_info (__const struct printf_info *__restrict
+extern int printf_size_info (const struct printf_info *__restrict
 			     __info, size_t __n, int *__restrict __argtypes)
      __THROW;
 

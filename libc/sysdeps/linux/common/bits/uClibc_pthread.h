@@ -31,7 +31,7 @@ struct _pthread_cleanup_buffer;
 /* Threading functions internal to uClibc.  Make these thread functions
  * weak so that we can elide them from single-threaded processes.  */
 extern int weak_function __pthread_mutex_init (pthread_mutex_t *__mutex,
-		__const pthread_mutexattr_t *__mutex_attr);
+		const pthread_mutexattr_t *__mutex_attr);
 extern int weak_function __pthread_mutex_lock (pthread_mutex_t *__mutex);
 extern int weak_function __pthread_mutex_unlock (pthread_mutex_t *__mutex);
 extern int weak_function __pthread_mutex_trylock (pthread_mutex_t *__mutex);

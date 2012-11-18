@@ -28,15 +28,15 @@
 __BEGIN_DECLS
 
 #ifdef __USE_MISC
-extern int cachectl (void *addr, __const int nbytes, __const int op) __THROW;
+extern int cachectl (void *addr, const int nbytes, const int op) __THROW;
 #endif
 #if 0
-extern int __cachectl (void *addr, __const int nbytes, __const int op) __THROW;
+extern int __cachectl (void *addr, const int nbytes, const int op) __THROW;
 #endif
 #ifdef __USE_MISC
-extern int cacheflush (void *addr, __const int nbytes, __const int op) __THROW;
+extern int cacheflush (void *addr, const int nbytes, const int op) __THROW;
 #endif
-extern int _flush_cache (char *addr, __const int nbytes, __const int op) __THROW;
+extern int _flush_cache (char *addr, const int nbytes, const int op) __THROW;
 
 __END_DECLS
 

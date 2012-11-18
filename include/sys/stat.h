@@ -205,7 +205,7 @@ __BEGIN_DECLS
 
 #ifndef __USE_FILE_OFFSET64
 /* Get file attributes for FILE and put them in BUF.  */
-extern int stat (__const char *__restrict __file,
+extern int stat (const char *__restrict __file,
 		 struct stat *__restrict __buf) __THROW __nonnull ((1, 2));
 libc_hidden_proto(stat)
 
@@ -215,7 +215,7 @@ extern int fstat (int __fd, struct stat *__buf) __THROW __nonnull ((2));
 libc_hidden_proto(fstat)
 #else
 # ifdef __REDIRECT_NTH
-extern int __REDIRECT_NTH (stat, (__const char *__restrict __file,
+extern int __REDIRECT_NTH (stat, (const char *__restrict __file,
 				  struct stat *__restrict __buf), stat64)
      __nonnull ((1, 2));
 extern int __REDIRECT_NTH (fstat, (int __fd, struct stat *__buf), fstat64)
@@ -226,7 +226,7 @@ extern int __REDIRECT_NTH (fstat, (int __fd, struct stat *__buf), fstat64)
 # endif
 #endif
 #ifdef __USE_LARGEFILE64
-extern int stat64 (__const char *__restrict __file,
+extern int stat64 (const char *__restrict __file,
 		   struct stat64 *__restrict __buf) __THROW __nonnull ((1, 2));
 extern int fstat64 (int __fd, struct stat64 *__buf) __THROW __nonnull ((2));
 libc_hidden_proto(stat64)
@@ -238,12 +238,12 @@ libc_hidden_proto(fstat64)
    Relative path names are interpreted relative to FD unless FD is
    AT_FDCWD.  */
 # ifndef __USE_FILE_OFFSET64
-extern int fstatat (int __fd, __const char *__restrict __file,
+extern int fstatat (int __fd, const char *__restrict __file,
 		    struct stat *__restrict __buf, int __flag)
      __THROW __nonnull ((2, 3));
 # else
 #  ifdef __REDIRECT_NTH
-extern int __REDIRECT_NTH (fstatat, (int __fd, __const char *__restrict __file,
+extern int __REDIRECT_NTH (fstatat, (int __fd, const char *__restrict __file,
 				     struct stat *__restrict __buf,
 				     int __flag),
 			   fstatat64) __nonnull ((2, 3));
@@ -253,7 +253,7 @@ extern int __REDIRECT_NTH (fstatat, (int __fd, __const char *__restrict __file,
 # endif
 
 # ifdef __USE_LARGEFILE64
-extern int fstatat64 (int __fd, __const char *__restrict __file,
+extern int fstatat64 (int __fd, const char *__restrict __file,
 		      struct stat64 *__restrict __buf, int __flag)
      __THROW __nonnull ((2, 3));
 # endif
@@ -263,13 +263,13 @@ extern int fstatat64 (int __fd, __const char *__restrict __file,
 # ifndef __USE_FILE_OFFSET64
 /* Get file attributes about FILE and put them in BUF.
    If FILE is a symbolic link, do not follow it.  */
-extern int lstat (__const char *__restrict __file,
+extern int lstat (const char *__restrict __file,
 		  struct stat *__restrict __buf) __THROW __nonnull ((1, 2));
 libc_hidden_proto(lstat)
 # else
 #  ifdef __REDIRECT_NTH
 extern int __REDIRECT_NTH (lstat,
-			   (__const char *__restrict __file,
+			   (const char *__restrict __file,
 			    struct stat *__restrict __buf), lstat64)
      __nonnull ((1, 2));
 #  else
@@ -277,7 +277,7 @@ extern int __REDIRECT_NTH (lstat,
 #  endif
 # endif
 # ifdef __USE_LARGEFILE64
-extern int lstat64 (__const char *__restrict __file,
+extern int lstat64 (const char *__restrict __file,
 		    struct stat64 *__restrict __buf)
      __THROW __nonnull ((1, 2));
 libc_hidden_proto(lstat64)
@@ -286,7 +286,7 @@ libc_hidden_proto(lstat64)
 
 /* Set file access permissions for FILE to MODE.
    If FILE is a symbolic link, this affects its target instead.  */
-extern int chmod (__const char *__file, __mode_t __mode)
+extern int chmod (const char *__file, __mode_t __mode)
      __THROW __nonnull ((1));
 libc_hidden_proto(chmod)
 
@@ -294,7 +294,7 @@ libc_hidden_proto(chmod)
 /* Set file access permissions for FILE to MODE.
    If FILE is a symbolic link, this affects the link itself
    rather than its target.  */
-extern int lchmod (__const char *__file, __mode_t __mode)
+extern int lchmod (const char *__file, __mode_t __mode)
      __THROW __nonnull ((1));
 #endif
 
@@ -306,7 +306,7 @@ extern int fchmod (int __fd, __mode_t __mode) __THROW;
 #ifdef __USE_ATFILE
 /* Set file access permissions of FILE relative to
    the directory FD is open on.  */
-extern int fchmodat (int __fd, __const char *__file, __mode_t __mode,
+extern int fchmodat (int __fd, const char *__file, __mode_t __mode,
 		     int __flag)
      __THROW __nonnull ((2)) __wur;
 #endif /* Use ATFILE.  */
@@ -324,7 +324,7 @@ extern __mode_t getumask (void) __THROW;
 #endif
 
 /* Create a new directory named PATH, with permission bits MODE.  */
-extern int mkdir (__const char *__path, __mode_t __mode)
+extern int mkdir (const char *__path, __mode_t __mode)
      __THROW __nonnull ((1));
 libc_hidden_proto(mkdir)
 
@@ -332,7 +332,7 @@ libc_hidden_proto(mkdir)
 /* Like mkdir, create a new directory with permission bits MODE.  But
    interpret relative PATH names relative to the directory associated
    with FD.  */
-extern int mkdirat (int __fd, __const char *__path, __mode_t __mode)
+extern int mkdirat (int __fd, const char *__path, __mode_t __mode)
      __THROW __nonnull ((2));
 #endif
 
@@ -340,7 +340,7 @@ extern int mkdirat (int __fd, __const char *__path, __mode_t __mode)
    and device number DEV (which can be constructed from major and minor
    device numbers with the `makedev' macro above).  */
 #if defined __USE_MISC || defined __USE_BSD || defined __USE_XOPEN_EXTENDED
-extern int mknod (__const char *__path, __mode_t __mode, __dev_t __dev)
+extern int mknod (const char *__path, __mode_t __mode, __dev_t __dev)
      __THROW __nonnull ((1));
 libc_hidden_proto(mknod)
 
@@ -348,7 +348,7 @@ libc_hidden_proto(mknod)
 /* Like mknod, create a new device file with permission bits MODE and
    device number DEV.  But interpret relative PATH names relative to
    the directory associated with FD.  */
-extern int mknodat (int __fd, __const char *__path, __mode_t __mode,
+extern int mknodat (int __fd, const char *__path, __mode_t __mode,
 		    __dev_t __dev) __THROW __nonnull ((2));
 libc_hidden_proto(mknodat)
 # endif
@@ -356,22 +356,22 @@ libc_hidden_proto(mknodat)
 
 
 /* Create a new FIFO named PATH, with permission bits MODE.  */
-extern int mkfifo (__const char *__path, __mode_t __mode)
+extern int mkfifo (const char *__path, __mode_t __mode)
      __THROW __nonnull ((1));
 
 #ifdef __USE_ATFILE
 /* Like mkfifo, create a new FIFO with permission bits MODE.  But
    interpret relative PATH names relative to the directory associated
    with FD.  */
-extern int mkfifoat (int __fd, __const char *__path, __mode_t __mode)
+extern int mkfifoat (int __fd, const char *__path, __mode_t __mode)
      __THROW __nonnull ((2));
 #endif
 
 #ifdef __USE_ATFILE
 /* Set file access and modification times relative to directory file
    descriptor.  */
-extern int utimensat (int __fd, __const char *__path,
-		      __const struct timespec __times[2],
+extern int utimensat (int __fd, const char *__path,
+		      const struct timespec __times[2],
 		      int __flags)
      __THROW __nonnull ((2));
 libc_hidden_proto(utimensat)
@@ -379,7 +379,7 @@ libc_hidden_proto(utimensat)
 
 #ifdef __USE_XOPEN2K8
 /* Set file access and modification times of the file associated with FD.  */
-extern int futimens (int __fd, __const struct timespec __times[2]) __THROW;
+extern int futimens (int __fd, const struct timespec __times[2]) __THROW;
 #endif
 
 /* on uClibc we have unversioned struct stat and mknod.

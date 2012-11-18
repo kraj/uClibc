@@ -37,7 +37,7 @@ __BEGIN_DECLS
 extern int gtty (int __fd, struct sgttyb *__params) __THROW;
 
 /* Set the terminal parameters associated with FD to *PARAMS.  */
-extern int stty (int __fd, __const struct sgttyb *__params) __THROW;
+extern int stty (int __fd, const struct sgttyb *__params) __THROW;
 #endif
 
 

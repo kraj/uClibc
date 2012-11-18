@@ -175,7 +175,7 @@ typedef __off_t __offmax_t;		/* TODO -- rename this? */
 
 typedef __ssize_t __io_read_fn(void *__cookie, char *__buf, size_t __bufsize);
 typedef __ssize_t __io_write_fn(void *__cookie,
-					__const char *__buf, size_t __bufsize);
+					const char *__buf, size_t __bufsize);
 /* NOTE: GLIBC difference!!! -- fopencookie seek function
  * For glibc, the type of pos is always (__off64_t *) but in our case
  * it is type (__off_t *) when the lib is built without large file support.

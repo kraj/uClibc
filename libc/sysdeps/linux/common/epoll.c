@@ -37,14 +37,14 @@ CANCELLABLE_SYSCALL(int, epoll_wait, (int epfd, struct epoll_event *events, int 
 
 # define __NR___syscall_epoll_pwait __NR_epoll_pwait
 static __always_inline _syscall6(int, __syscall_epoll_pwait, int, epfd, struct epoll_event *, events,
-				 int, maxevents, int, timeout, __const sigset_t *, sigmask, size_t, sigsetsize)
+				 int, maxevents, int, timeout, const sigset_t *, sigmask, size_t, sigsetsize)
 
 static int __NC(epoll_pwait)(int epfd, struct epoll_event *events, int maxevents, int timeout,
-			     __const sigset_t *set)
+			     const sigset_t *set)
 {
 	return __syscall_epoll_pwait(epfd, events, maxevents, timeout, set, __SYSCALL_SIGSET_T_SIZE);
 }
 CANCELLABLE_SYSCALL(int, epoll_pwait, (int epfd, struct epoll_event *events, int maxevents, int timeout,
-				       __const sigset_t *set),
+				       const sigset_t *set),
 		    (epfd, events, maxevents, timeout, set))
 #endif

@@ -91,7 +91,7 @@ extern struct group *fgetgrent (FILE *__stream);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern int putgrent (__const struct group *__restrict __p,
+extern int putgrent (const struct group *__restrict __p,
 		     FILE *__restrict __f);
 #endif
 
@@ -105,7 +105,7 @@ extern struct group *getgrgid (__gid_t __gid);
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern struct group *getgrnam (__const char *__name);
+extern struct group *getgrnam (const char *__name);
 
 #if defined __USE_POSIX || defined __USE_MISC
 
@@ -148,7 +148,7 @@ libc_hidden_proto(getgrgid_r)
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern int getgrnam_r (__const char *__restrict __name,
+extern int getgrnam_r (const char *__restrict __name,
 		       struct group *__restrict __resultbuf,
 		       char *__restrict __buffer, size_t __buflen,
 		       struct group **__restrict __result);
@@ -186,7 +186,7 @@ libc_hidden_proto(fgetgrent_r)
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern int getgrouplist (__const char *__user, __gid_t __group,
+extern int getgrouplist (const char *__user, __gid_t __group,
 			 __gid_t *__groups, int *__ngroups);
 
 #endif
@@ -194,7 +194,7 @@ extern int getgrouplist (__const char *__user, __gid_t __group,
 #if defined __USE_BSD
 
 /* Set the group set for the current user to GROUPS (N of them).  */
-extern int setgroups (size_t __n, __const __gid_t *__groups) __THROW;
+extern int setgroups (size_t __n, const __gid_t *__groups) __THROW;
 libc_hidden_proto(setgroups)
 
 /* Initialize the group set for the current user
@@ -205,7 +205,7 @@ libc_hidden_proto(setgroups)
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern int initgroups (__const char *__user, __gid_t __group);
+extern int initgroups (const char *__user, __gid_t __group);
 
 #endif /* Use BSD.  */
 

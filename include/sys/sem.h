@@ -60,7 +60,7 @@ extern int semop (int __semid, struct sembuf *__sops, size_t __nsops) __THROW;
 #ifdef __USE_GNU
 /* Operate on semaphore with timeout.  */
 extern int semtimedop (int __semid, struct sembuf *__sops, size_t __nsops,
-		       __const struct timespec *__timeout) __THROW;
+		       const struct timespec *__timeout) __THROW;
 #endif
 
 __END_DECLS

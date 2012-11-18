@@ -39,7 +39,7 @@
 __BEGIN_DECLS
 
 /* Set scheduling parameters for a process.  */
-extern int sched_setparam (__pid_t __pid, __const struct sched_param *__param)
+extern int sched_setparam (__pid_t __pid, const struct sched_param *__param)
      __THROW;
 
 /* Retrieve scheduling parameters for a particular process.  */
@@ -47,7 +47,7 @@ extern int sched_getparam (__pid_t __pid, struct sched_param *__param) __THROW;
 
 /* Set scheduling algorithm and/or parameters for a process.  */
 extern int sched_setscheduler (__pid_t __pid, int __policy,
-			       __const struct sched_param *__param) __THROW;
+			       const struct sched_param *__param) __THROW;
 
 /* Retrieve scheduling algorithm for a particular purpose.  */
 extern int sched_getscheduler (__pid_t __pid) __THROW;
@@ -107,7 +107,7 @@ extern int sched_rr_get_interval (__pid_t __pid, struct timespec *__t) __THROW;
 
 /* Set the CPU affinity for a task */
 extern int sched_setaffinity (__pid_t __pid, size_t __cpusetsize,
-			      __const cpu_set_t *__cpuset) __THROW;
+			      const cpu_set_t *__cpuset) __THROW;
 
 /* Get the CPU affinity for a task */
 extern int sched_getaffinity (__pid_t __pid, size_t __cpusetsize,

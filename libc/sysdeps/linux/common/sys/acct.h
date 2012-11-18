@@ -102,7 +102,7 @@ enum
 
 
 /* Switch process accounting on and off.  */
-extern int acct (__const char *__filename) __THROW;
+extern int acct (const char *__filename) __THROW;
 
 __END_DECLS
 

@@ -71,7 +71,7 @@ __END_DECLS
 #  if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
 #   define __ASSERT_FUNCTION	__func__
 #  else
-#   define __ASSERT_FUNCTION	((__const char *) 0)
+#   define __ASSERT_FUNCTION	((const char *) 0)
 #  endif
 # endif
 

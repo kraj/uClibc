@@ -16,13 +16,13 @@
  * Note that due to not including the header, we have to alias the call
  * manually.
  */
-extern int utimensat (int __fd, __const char *__path,
-	__const struct timespec __times[2],
+extern int utimensat (int __fd, const char *__path,
+	const struct timespec __times[2],
 	int __flags) __THROW;
 libc_hidden_proto(utimensat)
 
-int futimens (int __fd, __const struct timespec __times[2]) __THROW;
-int futimens (int fd, __const struct timespec ts[2])
+int futimens (int __fd, const struct timespec __times[2]) __THROW;
+int futimens (int fd, const struct timespec ts[2])
 {
 	return utimensat(fd, 0, ts, 0);
 }
