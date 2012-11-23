@@ -490,6 +490,7 @@ config HAS_NO_THREADS
 
 config LINUXTHREADS_OLD
 	bool "older (stable) version of linuxthreads"
+	depends on ARCH_HAS_DEPRECATED_SYSCALLS
 	# linuxthreads and linuxthreads.old need nanosleep()
 	select UCLIBC_HAS_REALTIME
 	help
@@ -500,6 +501,7 @@ config LINUXTHREADS_OLD
 
 config LINUXTHREADS_NEW
 	bool "slightly newer version of linuxthreads"
+	depends on ARCH_HAS_DEPRECATED_SYSCALLS
 	help
 	  The new version has not been tested much, and lacks ports for arches
 	  which glibc does not support (like bfin/frv/etc...), but is based on

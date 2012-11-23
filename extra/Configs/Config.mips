@@ -12,6 +12,7 @@ config FORCE_OPTIONS_FOR_ARCH
 	default y
 	select ARCH_ANY_ENDIAN
 	select ARCH_HAS_UCONTEXT
+	select ARCH_HAS_DEPRECATED_SYSCALLS
 
 choice
 	prompt "Target ABI"

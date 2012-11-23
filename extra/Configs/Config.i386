@@ -13,6 +13,7 @@ config FORCE_OPTIONS_FOR_ARCH
 	select ARCH_LITTLE_ENDIAN
 	select ARCH_HAS_MMU
 	select ARCH_HAS_UCONTEXT
+	select ARCH_HAS_DEPRECATED_SYSCALLS
 
 choice
 	prompt "Target x86 Processor Family"
