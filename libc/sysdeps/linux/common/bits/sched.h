@@ -108,6 +108,7 @@ struct __sched_param
 /* Size definition for CPU sets.  */
 # define __CPU_SETSIZE	1024
 # define __NCPUBITS	(8 * sizeof (__cpu_mask))
+# include <stdlib.h>
 
 /* Type for array elements in 'cpu_set_t'.  */
 typedef unsigned long int __cpu_mask;
