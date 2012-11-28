@@ -70,6 +70,10 @@ CSRC- += $(if $(findstring =arm=,=$(TARGET_ARCH)=),vfork.c)
 CSRC- += $(if $(findstring =x86_64=,=$(TARGET_ARCH)=),vfork.c)
 #CSRC- += $(if $(findstring =mips=y=,=$(TARGET_ARCH)=$(CONFIG_MIPS_O32_ABI)=),waitpid.c)
 endif
+ifneq ($(ARCH_HAS_DEPRECATED_SYSCALLS),y)
+# No conversion is needed for new architectures
+CSRC- += xstatconv.c
+endif
 # stubbed out in mman.h
 CSRC-$(ARCH_USE_MMU) += msync.c
 # we need these internally: getdomainname.c

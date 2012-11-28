@@ -83,6 +83,12 @@ else
 export header_extra_args = -n
 endif
 HEADERS_BITS_COMMON := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/common/bits/*.h))
+ifneq ($(ARCH_HAS_DEPRECATED_SYSCALLS),y)
+HEADERS_BITS_COMMON_NO_LEGACY := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/common-generic/bits/*.h))
+HEADERS_BITS_COMMON := $(filter-out $(HEADERS_BITS_COMMON_NO_LEGACY),$(HEADERS_BITS_COMMON))
+ALL_HEADERS_BITS_COMMON_NO_LEGACY := $(addprefix $(top_builddir)include/bits/,$(HEADERS_BITS_COMMON_NO_LEGACY))
+endif
+
 HEADERS_BITS_ARCH   := $(notdir $(wildcard $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/*.h))
 HEADERS_BITS_SUBARCH :=
 ifneq ($(TARGET_SUBARCH),)
@@ -123,6 +129,10 @@ target-headers-sysdep := \
 	$(ALL_HEADERS_SYS_ARCH) \
 	$(ALL_HEADERS_BITS_PTHREAD)
 
+ifneq ($(ARCH_HAS_DEPRECATED_SYSCALLS),y)
+	target-headers-sysdep += $(ALL_HEADERS_BITS_COMMON_NO_LEGACY)
+endif
+
 $(top_builddir)include/fpu_control.h $(top_builddir)include/jmpbuf-offsets.h $(top_builddir)include/jmpbuf-unwind.h:
 	@$(disp_ln)
 	$(Q)[ -r $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) ] && \
@@ -137,6 +147,11 @@ $(ALL_HEADERS_BITS_COMMON):
 
 $(ALL_HEADERS_BITS_ARCH):
 	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(@F) $@
+
+ifneq ($(ARCH_HAS_DEPRECATED_SYSCALLS),y)
+$(ALL_HEADERS_BITS_COMMON_NO_LEGACY):
+	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/common-generic/bits/$(@F) $@
+endif
 
 ifneq ($(TARGET_SUBARCH),)
 $(ALL_HEADERS_BITS_SUBARCH):
