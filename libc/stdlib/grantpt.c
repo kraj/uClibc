@@ -32,25 +32,18 @@
 /* Prototype for function that changes ownership and access permission
    for slave pseudo terminals that do not live on a `devpts'
    filesystem.  */
-int __unix_grantpt (int fd);
+static int __unix_grantpt (int fd);
 
 /* Prototype for private function that gets the name of the slave
    pseudo terminal in a safe way.  */
 static int pts_name (int fd, char **pts, size_t buf_len);
 extern __typeof(statfs) __libc_statfs;
-#endif
 
 /* Change the ownership and access permission of the slave pseudo
    terminal associated with the master pseudo terminal specified
    by FD.  */
-int
-#if !defined __ASSUME_DEVPTS__
-grantpt (int fd)
-#else
-grantpt (attribute_unused int fd)
-#endif
+int grantpt (int fd)
 {
-#if !defined __ASSUME_DEVPTS__
   struct statfs fsbuf;
   char _buf[PATH_MAX];
   char *buf = _buf;
@@ -64,12 +57,19 @@ grantpt (attribute_unused int fd)
   /* If the slave pseudo terminal lives on a `devpts' filesystem, the
      ownership and access permission are already set.  */
   if (fsbuf.f_type != DEVPTS_SUPER_MAGIC && fsbuf.f_type != DEVFS_SUPER_MAGIC)
-  return __unix_grantpt (fd);
-#endif
+    return __unix_grantpt (fd);
+
   return 0;
 }
 
-#if !defined __ASSUME_DEVPTS__
 # define grantpt __unix_grantpt
 # include "unix_grantpt.c"
+
+#else
+
+int grantpt (attribute_unused int fd)
+{
+  return 0;
+}
+
 #endif
