@@ -24,24 +24,52 @@
    then sets things up so that it will return to the right place,
    using a window underflow to automatically restore the registers.
 
-   Note that it would probably be sufficient to only copy the
-   registers from setjmp's caller into jmp_buf.  However, we also copy
-   the save area located at the stack pointer of setjmp's caller.
-   This save area will typically remain intact until the longjmp call.
-   The one exception is when there is an intervening alloca in
-   setjmp's caller.  This is certainly an unusual situation and is
-   likely to cause problems in any case (the storage allocated on the
-   stack cannot be safely accessed following the longjmp).  As bad as
-   it is, on most systems this situation would not necessarily lead to
-   a catastrophic failure.  If we did not preserve the extra save area
-   on Xtensa, however, it would.  When setjmp's caller returns after a
-   longjmp, there will be a window underflow; an invalid return
-   address or stack pointer in the save area will almost certainly
-   lead to a crash.  Keeping a copy of the extra save area in the
-   jmp_buf avoids this with only a small additional cost.  If setjmp
-   and longjmp are ever time-critical, this could be removed.  */
+   Note that we also save the area located just below the stack pointer
+   of the caller. This save area could get overwritten by alloca
+   following the call to setjmp. The alloca moves the stack pointer
+   to allocate memory on the stack. This newly allocated memory
+   includes(!) the original save area (alloca copies the save area
+   before it moves that stack pointer).
+
+
+   previous caller SP     -> |------------------------------| <-----+
+                             | caller-2 registers a0-a3     |       | p
+                             |------------------------------|       | o
+                             | caller registers a4-a8/a12   |       | i
+                             |------------------------------|       | n
+                             | caller local stack           |       | t
+   caller SP              -> |------------------------------| <-+   | s
+                             | caller-1 registers a0-a3     |  -:---+
+   callee (setjmp) SP     -> |==============================|   |
+                             | caller registers a0-a3       | --+
+                             |------------------------------|
+
+   In case of an alloca, registers a0-a3 of the previous caller (caller-1)
+   are copied (*), and the original location get likely overwritten.
+
+   previous caller SP     -> |------------------------------| <-----+
+                             | caller-2 registers a0-a3     |       | p
+                             |------------------------------|       | o
+                             | caller registers a4-a8/a12   |       | i
+                             |------------------------------|       | n
+                             | caller local stack           |       | t
+   caller SP before alloca-> |------------------------------|       | s
+                             | alloca area (overwrites old  |       |
+                             | copy of caller-1 registers)  |       |
+   caller SP after alloca -> |------------------------------| <-+   |
+                             | caller-1 registers a0-a3 (*) |  -:---+
+   callee (setjmp) SP     -> |==============================|   |
+                             | caller registers a0-a3       | --+
+                             |------------------------------|
+
+   So, when longcall returns to the original caller SP, it also needs
+   to restore the save area below the SP.
+
+  */
 
 #include "sysdep.h"
+ 
+/* NOTE: The ENTRY macro must allocate exactly 16 bytes (entry a1, 16) */
 
 /* int setjmp (a2 = jmp_buf env) */
 
@@ -56,8 +84,7 @@ ENTRY (setjmp)
 	j	1f
 END (setjmp)
 
-/* int __sigsetjmp (a2 = jmp_buf env,
-		    a3 = int savemask)  */
+/* int __sigsetjmp (a2 = jmp_buf env, a3 = int savemask)  */
 
 ENTRY (__sigsetjmp)
 1:
@@ -65,61 +92,56 @@ ENTRY (__sigsetjmp)
 	movi	a4, __window_spill
 	callx4	a4
 
-	/* Preserve the second argument (savemask) in a15.  The selection
-	   of a15 is arbitrary, except it's otherwise unused.  There is no
-	   risk of triggering a window overflow since we just returned
-	   from __window_spill().  */
-	mov	a15, a3
+	/* Copy the caller register a0-a3 at (sp - 16) to jmpbuf.  */
+	addi	a7, a1, -16
+	l32i	a4, a7, 0
+	l32i	a5, a7, 4
+	s32i	a4, a2, 0
+	s32i	a5, a2, 4
+	l32i	a4, a7, 8
+	l32i	a5, a7, 12
+	s32i	a4, a2, 8
+	s32i	a5, a2, 12
 
-	/* Copy the register save area at (sp - 16).  */
-	addi	a5, a1, -16
-	l32i	a3, a5, 0
-	l32i	a4, a5, 4
-	s32i	a3, a2, 0
-	s32i	a4, a2, 4
-	l32i	a3, a5, 8
-	l32i	a4, a5, 12
-	s32i	a3, a2, 8
-	s32i	a4, a2, 12
-
-	/* Copy 0-8 words from the register overflow area.  */
-	extui	a3, a0, 30, 2
-	blti	a3, 2, .Lendsj
-	l32i	a7, a5, 4
-	slli	a4, a3, 4
-	sub	a5, a7, a4
-	addi	a6, a2, 16
-	addi	a7, a7, -16		/* a7 = end of register overflow area */
+	/* Copy the caller registers a4-a8/a12 from the overflow area.  */
+	/* Note that entry moved the SP by 16B, so SP of caller-1 is at 4(sp) */
+	extui	a7, a0, 30, 2
+	blti	a7, 2, .Lendsj
+	l32i	a8, a1, 4	/* a8: SP of 'caller-1' */
+	slli	a4, a7, 4
+	sub	a6, a8, a4
+	addi	a5, a2, 16
+	addi	a8, a8, -16	/* a8: end of register overflow area */
 .Lsjloop:
-	l32i	a3, a5, 0
-	l32i	a4, a5, 4
-	s32i	a3, a6, 0
-	s32i	a4, a6, 4
-	l32i	a3, a5, 8
-	l32i	a4, a5, 12
-	s32i	a3, a6, 8
-	s32i	a4, a6, 12
-	addi	a5, a5, 16
+	l32i	a7, a6, 0
+	l32i	a4, a6, 4
+	s32i	a7, a5, 0
+	s32i	a4, a5, 4
+	l32i	a7, a6, 8
+	l32i	a4, a6, 12
+	s32i	a7, a5, 8
+	s32i	a4, a5, 12
+	addi	a5, a6, 16
 	addi	a6, a6, 16
-	blt	a5, a7, .Lsjloop
+	blt	a6, a8, .Lsjloop
 .Lendsj:
 
-	/* Copy the register save area at sp.  */
-	l32i	a3, a1, 0
-	l32i	a4, a1, 4
-	s32i	a3, a2, 48
-	s32i	a4, a2, 52
-	l32i	a3, a1, 8
-	l32i	a4, a1, 12
-	s32i	a3, a2, 56
-	s32i	a4, a2, 60
+	/* Copy previous caller registers (this is assuming 'entry a1,16') */
+	l32i	a4, a1, 0
+	l32i	a5, a1, 4
+	s32i	a4, a2, 48
+	s32i	a5, a2, 52
+	l32i	a4, a1, 8
+	l32i	a5, a1, 12
+	s32i	a4, a2, 56
+	s32i	a5, a2, 60
 
 	/* Save the return address, including the window size bits.  */
 	s32i	a0, a2, 64
 
-	/* a2 still addresses jmp_buf.  a15 contains savemask.  */
+	/* a2 still points to jmp_buf.  a3 contains savemask.  */
 	mov	a6, a2
-	mov	a7, a15
+	mov	a7, a3
 	movi	a3, __sigjmp_save
 	callx4	a3
 	mov	a2, a6
