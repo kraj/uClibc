@@ -111,8 +111,8 @@ __clone:
 	ldr	r4, [sp, #12]
 	DO_CALL (clone)
 	movs	a1, a1
-	blt	__error
 	ldmnefd	sp!, {r4}
+	blt	__error
 	IT(t, ne)
 #if defined(__USE_BX__)
 	bxne	lr
