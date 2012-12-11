@@ -19,12 +19,23 @@
 int fstatat(int fd, const char *file, struct stat *buf, int flag)
 {
 	int ret;
+# ifdef __ARCH_HAS_DEPRECATED_SYSCALLS__
 	struct kernel_stat64 kbuf;
-
 	ret = INLINE_SYSCALL(fstatat64, 4, fd, file, &kbuf, flag);
 	if (ret == 0)
 		__xstat32_conv(&kbuf, buf);
-
+# else
+	ret = INLINE_SYSCALL(fstatat64, 4, fd, file, buf, flag);
+	if (ret == 0) {
+		/* Did we overflow */
+		if (buf->__pad1 || buf->__pad2 || buf->__pad3
+		    || buf->__pad4 || buf->__pad5 || buf->__pad6
+		    || buf->__pad7) {
+			__set_errno(EOVERFLOW);
+			return -1;
+		}
+	}
+# endif /* __ARCH_HAS_DEPRECATED_SYSCALLS__ */
 	return ret;
 }
 #else

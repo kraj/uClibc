@@ -20,6 +20,7 @@
 # include "xstatconv.h"
 int fstatat64(int fd, const char *file, struct stat64 *buf, int flag)
 {
+# ifdef __ARCH_HAS_DEPRECATED_SYSCALLS__
 	int ret;
 	struct kernel_stat64 kbuf;
 
@@ -28,6 +29,9 @@ int fstatat64(int fd, const char *file, struct stat64 *buf, int flag)
 		__xstat64_conv(&kbuf, buf);
 
 	return ret;
+# else
+	return INLINE_SYSCALL(fstatat64, 4, fd, file, buf, flag);
+# endif
 }
 #else
 /* should add emulation with fstat64() and /proc/self/fd/ ... */
