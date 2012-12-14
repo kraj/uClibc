@@ -140,6 +140,11 @@ extern void (*__fini_array_end []) (void) attribute_hidden;
 # endif
 #endif
 
+#ifdef SHARED
+extern int _dl_secure;
+#endif
+extern size_t _dl_pagesize;
+
 const char *__uclibc_progname = "";
 #if !defined __UCLIBC_HAS___PROGNAME__ && defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
 # define __progname program_invocation_short_name
@@ -186,6 +191,7 @@ static void __check_one_fd(int fd, int mode)
     }
 }
 
+#ifndef SHARED
 static int __check_suid(void)
 {
     uid_t uid, euid;
@@ -201,6 +207,7 @@ static int __check_suid(void)
 	return 1;
     return 0; /* we are not suid */
 }
+#endif
 #endif
 
 /* __uClibc_init completely initialize uClibc so it is ready to use.
@@ -313,7 +320,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 		    char **argv, void (*app_init)(void), void (*app_fini)(void),
 		    void (*rtld_fini)(void), void *stack_end attribute_unused)
 {
-#ifndef __ARCH_HAS_NO_LDSO__
+#if !defined __ARCH_HAS_NO_LDSO__ && !defined SHARED
     unsigned long *aux_dat;
     ElfW(auxv_t) auxvt[AT_EGID + 1];
 #endif
@@ -339,7 +346,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 	__environ = &argv[argc];
     }
 
-#ifndef __ARCH_HAS_NO_LDSO__
+#if !defined __ARCH_HAS_NO_LDSO__ && !defined SHARED
     /* Pull stuff from the ELF header when possible */
     memset(auxvt, 0x00, sizeof(auxvt));
     aux_dat = (unsigned long*)__environ;
@@ -354,12 +361,10 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 	}
 	aux_dat += 2;
     }
-#ifndef SHARED
     /* Get the program headers (_dl_phdr) from the aux vector
        It will be used into __libc_setup_tls. */
 
     _dl_aux_init (auxvt);
-#endif
 #endif
 
     /* We need to initialize uClibc.  If we are dynamically linked this
@@ -368,15 +373,20 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
     __uClibc_init();
 
 #ifndef __ARCH_HAS_NO_LDSO__
-    /* Make certain getpagesize() gives the correct answer */
-    __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+    /* Make certain getpagesize() gives the correct answer.
+     * _dl_pagesize is defined into ld.so if SHARED or into libc.a otherwise. */
+    __pagesize = _dl_pagesize;
 
+#ifndef SHARED
     /* Prevent starting SUID binaries where the stdin. stdout, and
      * stderr file descriptors are not already opened. */
     if ((auxvt[AT_UID].a_un.a_val == (size_t)-1 && __check_suid()) ||
 	    (auxvt[AT_UID].a_un.a_val != (size_t)-1 &&
 	    (auxvt[AT_UID].a_un.a_val != auxvt[AT_EUID].a_un.a_val ||
 	     auxvt[AT_GID].a_un.a_val != auxvt[AT_EGID].a_un.a_val)))
+#else
+    if (_dl_secure)
+#endif
     {
 	__check_one_fd (STDIN_FILENO, O_RDONLY | O_NOFOLLOW);
 	__check_one_fd (STDOUT_FILENO, O_RDWR | O_NOFOLLOW);

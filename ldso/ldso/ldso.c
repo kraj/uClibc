@@ -64,7 +64,7 @@ struct elf_resolve *_dl_trace_prelink_map    = NULL;	/* Library module for preli
 bool _dl_verbose				= true;					/* On by default */
 bool prelinked					= false;
 #endif
-static int _dl_secure = 1; /* Are we dealing with setuid stuff? */
+int _dl_secure = 1; /* Are we dealing with setuid stuff? */
 
 #ifdef __SUPPORT_LD_DEBUG__
 char *_dl_debug           = NULL;
