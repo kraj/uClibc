@@ -74,9 +74,16 @@ BUILD_CFLAGS = -Os -Wall
 qstrip = $(strip $(subst ",,$(1)))
 #"))
 
+ifndef KCONFIG_CONFIG
+KCONFIG_CONFIG := $(top_builddir).config
+endif
+export KCONFIG_CONFIG
+
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
--include $(top_builddir).config
+# Prevent make from searching
+__ABS_KCONFIG_CONFIG := $(abspath $(KCONFIG_CONFIG))
+-include $(__ABS_KCONFIG_CONFIG)
 endif
 TARGET_ARCH:=$(call qstrip,$(TARGET_ARCH))
 ifeq ($(TARGET_ARCH),)
