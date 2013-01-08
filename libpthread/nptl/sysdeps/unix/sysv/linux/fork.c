@@ -58,6 +58,10 @@ fresetlockfiles (void)
 }
 
 pid_t
+#if defined __arm__ && defined __thumb__ && __GNUC_PREREQ (4,6) && !__GNUC_PREREQ (4,8)
+/* GCC PR target/53735 */
+attribute_optimize("O2")
+#endif
 fork (void)
 {
   pid_t pid;
