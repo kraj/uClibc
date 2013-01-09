@@ -43,3 +43,8 @@ libc-static-y += $(ARCH_OUT)/aeabi_lcsts.o $(ARCH_OUT)/aeabi_math.o \
 libc-nonshared-y += $(ARCH_OUT)/aeabi_lcsts.os $(ARCH_OUT)/aeabi_math.os \
 	$(ARCH_OUT)/aeabi_sighandlers.os $(ARCH_OUT)/aeabi_unwind_cpp_pr1.o
 endif
+
+ifeq ($(UCLIBC_HAS_CONTEXT_FUNCS),y)
+CSRC += makecontext.c
+SSRC += getcontext.S setcontext.S swapcontext.S
+endif

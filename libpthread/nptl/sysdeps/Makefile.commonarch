@@ -47,9 +47,8 @@ $(libpthread_arch_OUT)/gen_tcb-offsets.c: $(libpthread_arch_DIR)/tcb-offsets.sym
 $(libpthread_arch_OUT)/gen_tcb-offsets.s: $(libpthread_arch_OUT)/gen_tcb-offsets.c | headers
 	$(compile.c)
 libpthread-generated-y += $(libpthread_arch_OUT)/gen_tcb-offsets.s
-PTHREAD_TCB_OFFSET_MANGLE ?= -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*\$$/\#define \1 \2/p"
 $(libpthread_arch_OUT)/tcb-offsets.h: $(libpthread_arch_OUT)/gen_tcb-offsets.s
-	$(do_sed) $(PTHREAD_TCB_OFFSET_MANGLE) $< > $@
+	$(do_sed) $(PTHREAD_GENERATE_MANGLE) $< > $@
 	@if test ! -s $@ ; then rm -f $@ ; false ; fi
 
 pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(libpthread_arch_OUT)/tcb-offsets.h

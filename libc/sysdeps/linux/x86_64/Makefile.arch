@@ -20,3 +20,8 @@ ifeq ($(UCLIBC_HAS_TLS),y)
 SSRC += sched_getcpu.S
 endif
 endif
+
+ifeq ($(UCLIBC_HAS_CONTEXT_FUNCS),y)
+CSRC += makecontext.c
+SSRC += setcontext.S getcontext.S swapcontext.S __start_context.S
+endif

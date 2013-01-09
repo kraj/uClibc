@@ -27,3 +27,7 @@ ASFLAGS-syscall_error.S += -D_LIBC_REENTRANT
 
 ARCH_HEADERS := sgidefs.h
 # regdef.h
+
+ifeq ($(UCLIBC_HAS_CONTEXT_FUNCS),y)
+SSRC += makecontext.S setcontext.S getcontext.S swapcontext.S
+endif

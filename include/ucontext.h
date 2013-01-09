@@ -15,17 +15,43 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+/* The System V ABI user-level context switching support functions
+   are marked obsolescent by SuSv3.  */
+
 #ifndef _UCONTEXT_H
 #define _UCONTEXT_H	1
 
 #include <features.h>
 
+#ifdef __UCLIBC_HAS_CONTEXT_FUNCS__
+
 /* Get machine dependent definition of data structures.  */
 #include <sys/ucontext.h>
 
-/* The System V ABI user-level context switching support functions
- * are marked obsolescent by SuSv3, and are not implemented by
- * uClibc.  This header is therefore empty.  */
+__BEGIN_DECLS
 
+/* Get user context and store it in variable pointed to by UCP.  */
+extern int getcontext (ucontext_t *__ucp) __THROW;
+
+/* Set user context from information of variable pointed to by UCP.  */
+extern int setcontext (const ucontext_t *__ucp) __THROW;
+
+/* Save current context in context variable pointed to by OUCP and set
+   context from variable pointed to by UCP.  */
+extern int swapcontext (ucontext_t *__restrict __oucp,
+			const ucontext_t *__restrict __ucp) __THROW;
+
+/* Manipulate user context UCP to continue with calling functions FUNC
+   and the ARGC-1 parameters following ARGC when the context is used
+   the next time in `setcontext' or `swapcontext'.
+
+   We cannot say anything about the parameters FUNC takes; `void'
+   is as good as any other choice.  */
+extern void makecontext (ucontext_t *__ucp, void (*__func) (void),
+			 int __argc, ...) __THROW;
+
+__END_DECLS
+
+#endif
 
 #endif /* ucontext.h */

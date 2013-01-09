@@ -177,8 +177,6 @@ CFLAGS-gen_pthread-pi-defines.c = -S
 CFLAGS-gen_structsem.c = -S
 CFLAGS-gen_unwindbuf.c = -S
 
-PTHREAD_GENERATE_MANGLE ?= -n "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*\$$/\#define \1 \2/p"
-
 PTHREAD_LINUX_SYM   := $(notdir $(wildcard $(libpthread_linux_DIR)/*.sym))
 PTHREAD_LINUX_SYM_C := $(addprefix $(libpthread_linux_OUT)/gen_,$(PTHREAD_LINUX_SYM:.sym=.c))
 PTHREAD_LINUX_SYM_S := $(PTHREAD_LINUX_SYM_C:.c=.s)

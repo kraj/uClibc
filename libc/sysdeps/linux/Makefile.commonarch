@@ -37,5 +37,23 @@ headers-y += $(ARCH_HEADERS_OUT)
 headers_clean-y += HEADERCLEAN_$(subst $(top_builddir),,$(ARCH_OUT))
 HEADERCLEAN_$(subst $(top_builddir),,$(ARCH_OUT)):
 	$(do_rm) $(ARCH_HEADERS_OUT)
-
 endif
+
+CFLAGS-ucontext_i.c = -S
+
+$(ARCH_OUT)/ucontext_i.c: $(ARCH_DIR)/ucontext_i.sym
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+
+$(ARCH_OUT)/ucontext_i.s: $(ARCH_OUT)/ucontext_i.c
+	$(compile.c)
+
+$(ARCH_OUT)/ucontext_i.h: $(ARCH_OUT)/ucontext_i.s
+	$(do_sed) $(PTHREAD_GENERATE_MANGLE) $< > $@
+
+pregen-headers-$(UCLIBC_HAS_CONTEXT_FUNCS) += $(ARCH_OUT)/ucontext_i.h
+
+headers_clean-$(UCLIBC_HAS_CONTEXT_FUNCS) += \
+	HEADERCLEAN_$(subst $(top_builddir),,$(ARCH_OUT)/ucontext_i)
+
+HEADERCLEAN_$(subst $(top_builddir),,$(ARCH_OUT)/ucontext_i):
+	$(do_rm) $(addprefix $(ARCH_OUT)/ucontext_i., c h s)
