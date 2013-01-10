@@ -433,7 +433,6 @@ config LDSO_LD_LIBRARY_PATH
 config LDSO_NO_CLEANUP
 	bool "Disable automatic unloading of dynamically loaded shared objects"
 	depends on HAVE_SHARED
-	default n
 	help
 	  If you need complete allocation traces when debugging memory leaks
 	  using Valgrind in a process that dynamically loads shared objects,
@@ -2106,7 +2105,6 @@ config UCLIBC_HAS_ARC4RANDOM
 config ARC4RANDOM_USES_NODEV
 	bool "Do not use /dev/urandom with arc4random()"
 	depends on UCLIBC_HAS_ARC4RANDOM
-	default n
 	help
 	  Answer Y to use gettimeofday(2) and getpid(2) exclusively for
           arc4random(). This is not a bad idea for a diskless system, but

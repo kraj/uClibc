@@ -149,7 +149,6 @@ config UCLIBC_HAS_SOFT_FLOAT
 config DO_C99_MATH
 	bool "Enable full C99 math library support"
 	depends on UCLIBC_HAS_FLOATS
-	default n
 	help
 	  If you want the uClibc math library to contain the full set C99
 	  math library features, then answer Y.  If you leave this set to
@@ -163,7 +162,6 @@ config DO_C99_MATH
 config DO_XSI_MATH
 	bool "Enable XSI math extensions to the ISO C standard (bessel)"
 	depends on UCLIBC_HAS_FLOATS
-	default n
 	help
 	  X/Open System Interfaces extensions to ISO C math functions
 	  (differential equation functions):
@@ -174,7 +172,6 @@ config DO_XSI_MATH
 config UCLIBC_HAS_FENV
 	bool "Enable C99 Floating-point environment"
 	depends on UCLIBC_HAS_FLOATS
-	default n
 	help
 	  If you want the uClibc math library to contain the C99 floating
 	  point environment, rounding and exception handling functions then
