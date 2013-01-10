@@ -5,9 +5,9 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := __syscall_error.c sigprocmask.c
+CSRC-y := __syscall_error.c sigprocmask.c
 
-SSRC := \
+SSRC-y := \
 	__longjmp.S brk.S bsd-_setjmp.S bsd-setjmp.S clone.S \
 	divl.S divq.S pipe.S reml.S remq.S __syscall_rt_sigaction.S setjmp.S \
 	syscall.S

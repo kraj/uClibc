@@ -5,23 +5,15 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := brk.c __syscall_error.c sigaction.c
+CSRC-y := brk.c __syscall_error.c sigaction.c
 
-SSRC := \
+SSRC-y := \
 	__longjmp.S setjmp.S syscall.S bsd-setjmp.S bsd-_setjmp.S
 
-ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-SSRC += vfork.S clone.S
-endif
-
+SSRC-$(if $(UCLIBC_HAS_THREADS_NATIVE),,y) += vfork.S clone.S
+ARCH_OBJ_FILTEROUT-$(UCLIBC_LINUX_SPECIFIC) := sched_getcpu.c
 ifeq ($(UCLIBC_LINUX_SPECIFIC),y)
-ARCH_OBJ_FILTEROUT = sched_getcpu.c
-ifeq ($(UCLIBC_HAS_TLS),y)
-SSRC += sched_getcpu.S
+SSRC-$(UCLIBC_HAS_TLS) += sched_getcpu.S
 endif
-endif
-
-ifeq ($(UCLIBC_HAS_CONTEXT_FUNCS),y)
-CSRC += makecontext.c
-SSRC += setcontext.S getcontext.S swapcontext.S __start_context.S
-endif
+CSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += makecontext.c
+SSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += setcontext.S getcontext.S swapcontext.S __start_context.S

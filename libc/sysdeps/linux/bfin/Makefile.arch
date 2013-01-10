@@ -5,13 +5,11 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := bsdsetjmp.c clone.c \
+CSRC-y := bsdsetjmp.c clone.c \
 	sram-alloc.c sram-free.c dma-memcpy.c
 
-ifeq ($(UCLIBC_LINUX_SPECIFIC),y)
-CSRC += cacheflush.c
-endif
+SSRC-y := __longjmp.S setjmp.S bsd-_setjmp.S
 
-SSRC := __longjmp.S setjmp.S bsd-_setjmp.S
+CSRC-$(UCLIBC_LINUX_SPECIFIC) += cacheflush.c
 
 ARCH_HEADERS := bfin_fixed_code.h bfin_l1layout.h bfin_sram.h

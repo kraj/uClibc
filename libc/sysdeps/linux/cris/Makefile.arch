@@ -5,9 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := __init_brk.c brk.c sbrk.c
+CSRC-y := __init_brk.c brk.c sbrk.c
 
-SSRC := setjmp.S __longjmp.S clone.S sysdep.S syscall.S vfork.S
-ifeq ($(UNIFIED_SYSCALL),y)
-SSRC += __uClibc_syscall.S
-endif
+SSRC-y := setjmp.S __longjmp.S clone.S sysdep.S syscall.S vfork.S
+SSRC-$(UNIFIED_SYSCALL) += __uClibc_syscall.S
