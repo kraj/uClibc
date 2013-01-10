@@ -5,7 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC	:= brk.c clone.c mmap.c prctl.c sigaction.c
+CSRC-y	:= brk.c clone.c mmap.c prctl.c sigaction.c
 
-SSRC	:= __longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S	\
+SSRC-y	:= __longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S	\
 		sigrestorer.S syscall.S vfork.S

@@ -88,6 +88,7 @@ TODO list for the uClibc 1.0.0 release:
     *) Cleanup/scrub all the Makefile copyright junk
     *) Fix dlopen, for both static and dynamic cases, and make it
 	fully comply with SuSv3
+    *) check if sched_getcpu is only pulled in where it should be
 
 
 TODO list for AFTER the uClibc 1.0.0 release:

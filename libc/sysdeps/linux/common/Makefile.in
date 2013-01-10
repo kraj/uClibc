@@ -100,8 +100,8 @@ CSRC-y := $(filter-out $(libc_a_CSRC) $(notdir $(libpthread_libc_OBJS:.o=.c)),$(
 SSRC := $(filter-out $(libc_a_SSRC) $(notdir $(libpthread_libc_OBJS:.o=.S)),$(SSRC))
 
 # fails for some reason
-ifneq ($(strip $(ARCH_OBJS)),)
-CSRC-y := $(filter-out $(notdir $(ARCH_OBJS:.o=.c)) $(ARCH_OBJ_FILTEROUT),$(CSRC-y))
+ifneq ($(strip $(ARCH_OBJS-y)),)
+CSRC-y := $(filter-out $(notdir $(ARCH_OBJS-y:.o=.c)) $(ARCH_OBJ_FILTEROUT-y),$(CSRC-y))
 endif
 
 CFLAGS-ssp.c := $(SSP_DISABLE_FLAGS)

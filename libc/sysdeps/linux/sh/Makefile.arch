@@ -6,7 +6,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := \
+CSRC-y := \
 	mmap.c pipe.c __init_brk.c brk.c sbrk.c pread_write.c cacheflush.c
 
-SSRC := setjmp.S __longjmp.S ___fpscr_values.S vfork.S clone.S
+SSRC-y := setjmp.S __longjmp.S ___fpscr_values.S vfork.S clone.S

@@ -5,18 +5,14 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := __syscall_error.c pread_write.c ioctl.c
+CSRC-y := __syscall_error.c pread_write.c ioctl.c
 
-ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
-CSRC += posix_fadvise.c posix_fadvise64.c
-endif
-
-SSRC := \
+SSRC-y := \
 	__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S brk.S \
 	__uClibc_syscall.S syscall.S
-ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-SSRC += clone.S vfork.S
-endif
+
+CSRC-$(UCLIBC_HAS_ADVANCED_REALTIME) += posix_fadvise.c posix_fadvise64.c
+SSRC-$(if $(UCLIBC_HAS_THREADS_NATIVE),,y) += clone.S vfork.S
 
 ifeq ($(CONFIG_E500),y)
 ARCH_HEADERS := fenv.h

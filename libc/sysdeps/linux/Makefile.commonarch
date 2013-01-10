@@ -8,15 +8,15 @@
 ARCH_DIR  := $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
 ARCH_OUT  := $(top_builddir)libc/sysdeps/linux/$(TARGET_ARCH)
 
-ARCH_CSRC := $(addprefix $(ARCH_DIR)/,$(CSRC))
-ARCH_COBJ := $(addprefix $(ARCH_OUT)/,$(CSRC:.c=.o))
-ARCH_SSRC = $(addprefix $(ARCH_DIR)/,$(SSRC))
-ARCH_SOBJ = $(patsubst %.s,%.o,$(patsubst %.S,%.o,$(addprefix $(ARCH_OUT)/,$(SSRC))))
+ARCH_CSRC := $(addprefix $(ARCH_DIR)/,$(CSRC-y))
+ARCH_COBJ := $(addprefix $(ARCH_OUT)/,$(CSRC-y:.c=.o))
+ARCH_SSRC = $(addprefix $(ARCH_DIR)/,$(SSRC-y))
+ARCH_SOBJ = $(patsubst %.s,%.o,$(patsubst %.S,%.o,$(addprefix $(ARCH_OUT)/,$(SSRC-y))))
 
-ARCH_OBJS = $(ARCH_COBJ) $(ARCH_SOBJ)
+ARCH_OBJS-y = $(ARCH_COBJ) $(ARCH_SOBJ)
 
 crt-y          := FORCE
-libc-y         += $(ARCH_OBJS)
+libc-y         += $(ARCH_OBJS-y)
 libc-nomulti-y += $(ARCH_SOBJ)
 objclean-y     += CLEAN_$(subst $(top_builddir),,$(ARCH_OUT))
 

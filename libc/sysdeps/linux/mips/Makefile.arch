@@ -5,20 +5,15 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC := \
+CSRC-y := \
 	__longjmp.c  brk.c setjmp_aux.c mmap.c \
 	cacheflush.c pread_write.c sigaction.c sysmips.c _test_and_set.c \
 	readahead.c
 
-SSRC := bsd-_setjmp.S bsd-setjmp.S setjmp.S syscall.S pipe.S syscall_error.S
+SSRC-y := bsd-_setjmp.S bsd-setjmp.S setjmp.S syscall.S pipe.S syscall_error.S
 
-ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),y)
-CSRC += posix_fadvise.c posix_fadvise64.c
-endif
-
-ifneq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-SSRC += vfork.S clone.S
-endif
+CSRC-$(UCLIBC_HAS_ADVANCED_REALTIME) += posix_fadvise.c posix_fadvise64.c
+SSRC-$(if $(UCLIBC_HAS_THREADS_NATIVE),,y) += vfork.S clone.S
 
 ASFLAGS-syscall_error.S += -D_LIBC_REENTRANT
 
