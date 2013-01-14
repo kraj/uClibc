@@ -13,8 +13,8 @@
 
 #if defined __NR_fcntl64 && __WORDSIZE == 32
 # include <stdarg.h>
-# include <fcntl.h>
 # include <cancel.h>
+# include <fcntl.h>
 
 # define __NR___fcntl64_nocancel __NR_fcntl64
 _syscall3(int, __NC(fcntl64), int, fd, int, cmd, long, arg)

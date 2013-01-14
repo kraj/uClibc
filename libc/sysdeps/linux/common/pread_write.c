@@ -81,6 +81,8 @@ CANCELLABLE_SYSCALL(ssize_t, pwrite64, (int fd, const void *buf, size_t count, o
 #  ifdef __LINUXTHREADS_OLD__
 weak_alias(pread,pread64)
 weak_alias(pwrite,pwrite64)
+lt_strong_alias(pread64)
+lt_strong_alias(pwrite64)
 #  else
 strong_alias_untyped(pread,pread64)
 strong_alias_untyped(pwrite,pwrite64)

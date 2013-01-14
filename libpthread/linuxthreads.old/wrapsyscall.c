@@ -1,4 +1,4 @@
-/* Wrapper arpund system calls to provide cancellation points.
+/* Wrapper around system calls to provide cancellation points.
    Copyright (C) 1996,1997,1998,1999,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
@@ -80,7 +80,7 @@ CANCELABLE_SYSCALL (int, close, (int fd), (fd))
 CANCELABLE_SYSCALL_VA (int, fcntl, (int fd, int cmd, ...),
 		       (fd, cmd, va_arg (ap, long int)), cmd)
 
-#ifdef __UCLIBC_HAS_LFS__
+#if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 32
 /* fcntl64(2).  */
 CANCELABLE_SYSCALL_VA (int, fcntl64, (int fd, int cmd, ...),
 		       (fd, cmd, va_arg (ap, long int)), cmd)

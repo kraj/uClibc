@@ -42,5 +42,6 @@ lt_libc_hidden(lseek)
 #if defined __UCLIBC_HAS_LFS__ && (__WORDSIZE == 64 || (!defined __NR__llseek && !defined __NR_llseek))
 strong_alias_untyped(__NC(lseek),__NC(lseek64))
 strong_alias_untyped(lseek,lseek64)
+lt_strong_alias(lseek64)
 lt_libc_hidden(lseek64)
 #endif
