@@ -20,6 +20,7 @@ static __always_inline _syscall2(int, __syscall_fstat64,
 
 int fstat64(int fd, struct stat64 *buf)
 {
+#ifdef __ARCH_HAS_DEPRECATED_SYSCALLS__
 	int result;
 	struct kernel_stat64 kbuf;
 
@@ -28,6 +29,9 @@ int fstat64(int fd, struct stat64 *buf)
 		__xstat64_conv(&kbuf, buf);
 	}
 	return result;
+#else
+	return __syscall_fstat64(fd, buf);
+#endif
 }
 libc_hidden_def(fstat64)
 #endif

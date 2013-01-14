@@ -12,10 +12,28 @@
 #include <sys/stat.h>
 #include "xstatconv.h"
 
+#if defined __NR_fstat64 && !defined __NR_fstat
+int fstat(int fd, struct stat *buf)
+{
+	int result = INLINE_SYSCALL(fstat64, 2, fd, buf);
+	if (result == 0) {
+		/* Did we overflow? */
+		if (buf->__pad1 || buf->__pad2 || buf->__pad3
+		    || buf->__pad4 || buf->__pad5
+		    || buf->__pad6 || buf->__pad7) {
+			__set_errno(EOVERFLOW);
+			return -1;
+		}
+	}
+	return result;
+}
+libc_hidden_def(fstat)
+
+#elif defined __NR_fstat
 int fstat(int fd, struct stat *buf)
 {
 	int result;
-#ifdef __NR_fstat64
+# ifdef __NR_fstat64
 	/* normal stat call has limited values for various stat elements
 	 * e.g. uid device major/minor etc.
 	 * so we use 64 variant if available
@@ -26,19 +44,21 @@ int fstat(int fd, struct stat *buf)
 	if (result == 0) {
 		__xstat32_conv(&kbuf, buf);
 	}
-#else
+# else
 	struct kernel_stat kbuf;
 
 	result = INLINE_SYSCALL(fstat, 2, fd, &kbuf);
 	if (result == 0) {
 		__xstat_conv(&kbuf, buf);
 	}
-#endif
+# endif
 	return result;
 }
 libc_hidden_def(fstat)
 
-#if ! defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
+# if ! defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
 strong_alias_untyped(fstat,fstat64)
 libc_hidden_def(fstat64)
+# endif
+
 #endif
