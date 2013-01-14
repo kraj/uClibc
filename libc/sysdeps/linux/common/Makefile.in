@@ -97,7 +97,7 @@ CSRC-y := $(filter-out $(CSRC-),$(CSRC-y))
 
 # provided via pthreads builddir
 CSRC-y := $(filter-out $(libc_a_CSRC) $(notdir $(libpthread_libc_OBJS:.o=.c)),$(CSRC-y))
-SSRC := $(filter-out $(libc_a_SSRC) $(notdir $(libpthread_libc_OBJS:.o=.S)),$(SSRC))
+SSRC-y := $(filter-out $(libc_a_SSRC) $(notdir $(libpthread_libc_OBJS:.o=.S)),$(SSRC-y))
 
 # fails for some reason
 ifneq ($(strip $(ARCH_OBJS-y)),)
