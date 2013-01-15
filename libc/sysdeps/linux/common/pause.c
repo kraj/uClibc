@@ -25,7 +25,7 @@ int
 # ifdef __LINUXTHREADS_OLD__
 weak_function
 # endif
-pause(void)
+__NC(pause)(void)
 {
 	sigset_t set;
 
@@ -36,6 +36,6 @@ pause(void)
 	   So no need for anything special here.  */
 	return sigsuspend(&set);
 }
-lt_strong_alias(pause)
+CANCELLABLE_SYSCALL(int, pause, (void), ())
 LIBC_CANCEL_HANDLED ();		/* sigsuspend handles our cancellation.  */
 #endif
