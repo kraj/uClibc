@@ -114,6 +114,7 @@ extern struct passwd *getpwuid (__uid_t __uid);
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern struct passwd *getpwnam (const char *__name);
+libc_hidden_proto(getpwnam)
 
 #if defined __USE_POSIX || defined __USE_MISC
 
