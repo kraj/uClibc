@@ -1342,6 +1342,12 @@ config UCLIBC_HAS_RESOLVER_SUPPORT
 	  In particular, the following functions will be added to the
 	  library:
 
+	  ns_skiprr, ns_initparse, ns_parserr, ns_msg_getflag,
+	  res_mkquery, res_init, res_ninit, res_close, res_nclose
+	  res_query, res_search, res_querydomain,
+	  dn_expand, dn_comp,
+	  ns_name_uncompress, ns_name_ntop, ns_name_pton, ns_name_unpack,
+	  ns_name_pack, ns_name_compress, ns_name_skip, dn_skipname,
 	  ns_get16, ns_get32, ns_put16, ns_put32
 
 config UCLIBC_HAS_LIBRESOLV_STUB
