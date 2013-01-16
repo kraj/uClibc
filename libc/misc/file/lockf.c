@@ -16,14 +16,11 @@
    see <http://www.gnu.org/licenses/>.  */
 
 #include <features.h>
-
 #include <sys/types.h>
-#include <unistd.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
-
-
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */
 
