@@ -159,6 +159,8 @@ misc/stdarg
 misc/tst-inotify
 misc/tst-scandir
 misc/tst-seekdir
+misc/tst-statfs
+misc/tst-statvfs
 misc/tst-utmp
 mmap/mmap
 mmap/mmap2
@@ -267,6 +269,7 @@ stdio/64bit
 stdio/fclose-loop
 stdlib/ptytest
 stdlib/qsort
+stdlib/testarc4random
 stdlib/testatexit
 stdlib/test-canon
 stdlib/test-canon2

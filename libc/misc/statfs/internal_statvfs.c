@@ -18,8 +18,12 @@
 
   /* Now fill in the fields we have information for.  */
   buf->f_bsize = fsbuf.f_bsize;
-  /* Linux does not support f_frsize, so set it to the full block size.  */
+#ifdef _STATFS_F_FRSIZE
+  buf->f_frsize = fsbuf.f_frsize;
+#else
+  /* No support for f_frsize so set it to the full block size.  */
   buf->f_frsize = fsbuf.f_bsize;
+#endif
   buf->f_blocks = fsbuf.f_blocks;
   buf->f_bfree = fsbuf.f_bfree;
   buf->f_bavail = fsbuf.f_bavail;
@@ -38,7 +42,7 @@
   buf->__f_unused = 0;
 #endif
   buf->f_namemax = fsbuf.f_namelen;
-  memset (buf->__f_spare, '\0', 6 * sizeof (int));
+  memset (buf->__f_spare, '\0', sizeof(fsbuf.f_spare));
 
   /* What remains to do is to fill the fields f_favail and f_flag.  */
 
