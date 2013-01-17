@@ -19,6 +19,7 @@
 
 #define __FORCE_GLIBC
 #include <features.h>
+#include <stddef.h>
 /* Prevent math.h from defining a colliding inline */
 #undef __USE_EXTERN_INLINES
 #include <sys/socket.h>
