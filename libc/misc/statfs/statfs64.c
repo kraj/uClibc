@@ -44,6 +44,9 @@ int statfs64 (const char *file, struct statfs64 *buf)
 #ifdef _STATFS_F_FRSIZE
     buf->f_frsize = buf32.f_frsize;
 #endif
+#ifdef _STATFS_F_FLAGS
+    buf->f_flags = buf32.f_flags;
+#endif
     memcpy (buf->f_spare, buf32.f_spare, sizeof (buf32.f_spare));
 
     return 0;
