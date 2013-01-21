@@ -14,6 +14,13 @@
 #ifdef __NR_lseek
 # define __NR___lseek_nocancel __NR_lseek
 _syscall3(off_t, __NC(lseek), int, fd, off_t, offset, int, whence)
+/* Use lseek64 if __NR_lseek is not defined but UCLIBC_HAS_LFS is enabled */
+#elif !defined __NR_lseek && defined __NR_llseek \
+	&& __WORDSIZE == 32 && __UCLIBC_HAS_LFS__
+off_t __NC(lseek)(int fd, off_t offset, int whence)
+{
+	return lseek64(fd, offset, whence);
+}
 #else
 # include <errno.h>
 off_t __NC(lseek)(int fd, off_t offset attribute_unused, int whence)
