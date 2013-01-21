@@ -45,7 +45,7 @@
   buf->__f_unused = 0;
 #endif
   buf->f_namemax = fsbuf.f_namelen;
-  memset (buf->__f_spare, '\0', sizeof(buf.__f_spare));
+  memset (buf->__f_spare, '\0', sizeof(buf->__f_spare));
   /* XXX I have no idea how to compute f_favail.  Any idea???  */
   buf->f_favail = buf->f_ffree;
 
