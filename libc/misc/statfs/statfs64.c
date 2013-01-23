@@ -21,9 +21,11 @@
 #include <string.h>
 #include <stddef.h>
 #include <sys/statfs.h>
+#include <sys/syscall.h>
 
 extern __typeof(statfs) __libc_statfs;
 
+#if defined __NR_statfs
 /* Return information about the filesystem on which FILE resides.  */
 int statfs64 (const char *file, struct statfs64 *buf)
 {
@@ -51,4 +53,11 @@ int statfs64 (const char *file, struct statfs64 *buf)
 
     return 0;
 }
+#else
+int statfs64 (const char *file, struct statfs64 *buf)
+{
+    return INLINE_SYSCALL(statfs64, 3, file, sizeof(*buf), buf);
+}
+#endif
+
 libc_hidden_def(statfs64)
