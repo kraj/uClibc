@@ -50,7 +50,8 @@ EOF
   sed -n -r -e 's/^UCLIBC(__ARM_NR_|__NR_)([A-Za-z0-9_]*) *(.*)/#undef \1\2\
 #define \1\2 \3\
 #define SYS_\2 \1\2/gp' \
-     -e 's/^UNDEFUCLIBC(__ARM_NR_|__NR_)([A-Za-z0-9_]*).*/#undef \1\2/gp'
+     -e 's/^UNDEFUCLIBC(__ARM_NR_|__NR_)([A-Za-z0-9_]*).*/#undef \1\2\
+#undef SYS_\2/gp'
   cat <<-EOF
 
 #endif
