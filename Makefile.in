@@ -175,7 +175,7 @@ $(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscal
 	$(Q)set -e; \
 	tmp=`mktemp $(top_builddir)include/bits/sysnum.h.XXXXXX 2>/dev/null || true`; \
 	[ -z "$$tmp" ] && tmp='$(top_builddir)include/bits/sysnum.h.new'; \
-	KERNEL_HEADERS="${KERNEL_HEADERS}" top_builddir="$(top_builddir)" CC="$(CC) $(CPU_CFLAGS)" $(SHELL) $< > $$tmp; \
+	KERNEL_HEADERS="${KERNEL_HEADERS}" CC="$(CC) $(CPU_CFLAGS)" $(SHELL) $< > $$tmp; \
 	if cmp $(top_builddir)include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
 		$(RM) $$tmp; \
 	else \

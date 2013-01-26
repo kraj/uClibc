@@ -8,10 +8,9 @@
 
 # June 27, 2001         Manuel Novoa III
 #
-# This script expects top_builddir and CC (as used in the Makefiles) to be set
-# in the environment, and outputs the appropriate
-# $top_builddir/include/bits/sysnum.h # corresponding to
-# $top_builddir/include/asm/unistd.h to stdout.
+# This script expects  CC (as used in the Makefiles) to be set
+# in the environment, and outputs the appropriate bits/sysnum.h #
+# corresponding to asm/unistd.h to stdout.
 #
 # Warning!!! This does _no_ error checking!!!
 
