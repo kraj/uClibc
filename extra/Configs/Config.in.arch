@@ -192,7 +192,7 @@ config UCLIBC_HAS_LONG_DOUBLE_MATH
 
 config KERNEL_HEADERS
 	string "Linux kernel header location"
-	default "/usr/include"
+	default ""
 	help
 	  The kernel source you use to compile with should be the same
 	  as the Linux kernel you run your apps on.  uClibc doesn't even
@@ -202,6 +202,8 @@ config KERNEL_HEADERS
 	  Similarly, if you compile uClibc vs Linux 2.4.x kernel headers,
 	  but then run on Linux 2.0.x, lchown will be compiled into uClibc,
 	  but won't work at all.  You have been warned.
+
+	  If you don't set this, we'll assume the toolchain can find them.
 
 config UCLIBC_UCLINUX_BROKEN_MUNMAP
 	bool

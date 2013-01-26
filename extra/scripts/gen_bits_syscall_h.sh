@@ -15,7 +15,12 @@
 #
 # Warning!!! This does _no_ error checking!!!
 
-INCLUDE_OPTS="-nostdinc -I${KERNEL_HEADERS}"
+if [ "${KERNEL_HEADERS:-/}" != "/" ] ; then
+  INCLUDE_OPTS="-nostdinc -I${KERNEL_HEADERS}"
+else
+  # Let the toolchain use its configure paths.
+  INCLUDE_OPTS=
+fi
 
 case $CC in
 *icc*) CC_SYSNUM_ARGS="-dM" ;;
