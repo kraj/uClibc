@@ -100,11 +100,12 @@ endif
 export ARCH
 
 # Make certain these contain a final "/", but no "//"s.
-TARGET_SUBARCH:=$(call qstrip,$(TARGET_SUBARCH))
-RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(RUNTIME_PREFIX)))))
-DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(DEVEL_PREFIX)))))
-MULTILIB_DIR:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(MULTILIB_DIR)))))
-KERNEL_HEADERS:=$(strip $(subst //,/, $(subst ,/, $(call qstrip,$(KERNEL_HEADERS)))))
+scrub_path = $(strip $(subst //,/, $(subst ,/, $(call qstrip,$(1)))))
+TARGET_SUBARCH := $(call qstrip,$(TARGET_SUBARCH))
+RUNTIME_PREFIX := $(call scrub_path,$(RUNTIME_PREFIX))
+DEVEL_PREFIX   := $(call scrub_path,$(DEVEL_PREFIX))
+MULTILIB_DIR   := $(call scrub_path,$(MULTILIB_DIR))
+KERNEL_HEADERS := $(call scrub_path,$(KERNEL_HEADERS))
 export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS MULTILIB_DIR
 
 
