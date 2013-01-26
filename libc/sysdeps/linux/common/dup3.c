@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * dup2() for uClibc
+ * dup3() for uClibc
  *
  * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
  *
