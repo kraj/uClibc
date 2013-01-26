@@ -29,22 +29,30 @@ esac
 ( echo "#include <asm/unistd.h>";
   echo "#include <asm/unistd.h>" |
   $CC -E $CC_SYSNUM_ARGS $INCLUDE_OPTS - |
-  sed -ne 's/^[ ]*#define[ ]*\(__ARM_NR_\|__NR_\)\([A-Za-z0-9_]*\).*/UCLIBC\1\2 \1\2/gp' \
-      -e 's/^[ ]*#undef[ ]*\(__ARM_NR_\|__NR_\)\([A-Za-z0-9_]*\).*/UNDEFUCLIBC\1\2 \1\2/gp' # needed to strip out any kernel-internal defines
+  sed -n -r \
+      -e 's/^[ ]*#define[ ]*(__ARM_NR_|__NR_)([A-Za-z0-9_]*).*/UCLIBC\1\2 \1\2/gp' \
+      -e 's/^[ ]*#undef[ ]*(__ARM_NR_|__NR_)([A-Za-z0-9_]*).*/UNDEFUCLIBC\1\2 \1\2/gp' # needed to strip out any kernel-internal defines
 ) |
 $CC -E $INCLUDE_OPTS - |
-( echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" ;
-  echo ;
-  echo "#ifndef _BITS_SYSNUM_H" ;
-  echo "#define _BITS_SYSNUM_H" ;
-  echo ;
-  echo "#ifndef _SYSCALL_H" ;
-  echo "# error \"Never use <bits/sysnum.h> directly; include <sys/syscall.h> instead.\"" ;
-  echo "#endif" ; echo ;
-  sed -ne 's/^UCLIBC\(__ARM_NR_\|__NR_\)\([A-Za-z0-9_]*\) *\(.*\)/#undef \1\2\
+(
+  cat <<-EOF
+/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */
+/* See $0 for more information. */
+
+#ifndef _BITS_SYSNUM_H
+#define _BITS_SYSNUM_H
+
+#ifndef _SYSCALL_H
+# error "Never use <bits/sysnum.h> directly; include <sys/syscall.h> instead."
+#endif
+
+EOF
+  sed -n -r -e 's/^UCLIBC(__ARM_NR_|__NR_)([A-Za-z0-9_]*) *(.*)/#undef \1\2\
 #define \1\2 \3\
 #define SYS_\2 \1\2/gp' \
-     -e 's/^UNDEFUCLIBC\(__ARM_NR_\|__NR_\)\([A-Za-z0-9_]*\).*/#undef \1\2/gp'
-  echo ;
-  echo "#endif" ;
+     -e 's/^UNDEFUCLIBC(__ARM_NR_|__NR_)([A-Za-z0-9_]*).*/#undef \1\2/gp'
+  cat <<-EOF
+
+#endif
+EOF
 )
