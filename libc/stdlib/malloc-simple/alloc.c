@@ -36,7 +36,7 @@ void *malloc(size_t size)
 #ifdef __ARCH_USE_MMU__
 # define MMAP_FLAGS MAP_PRIVATE | MAP_ANONYMOUS
 #else
-# define MMAP_FLAGS MAP_SHARED | MAP_ANONYMOUS | MAP_UNINITIALIZE
+# define MMAP_FLAGS MAP_SHARED | MAP_ANONYMOUS | MAP_UNINITIALIZED
 #endif
 
 	result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE,
@@ -63,7 +63,7 @@ void * calloc(size_t nmemb, size_t lsize)
 	result = malloc(size);
 
 #ifndef __ARCH_USE_MMU__
-	/* mmap'd with MAP_UNINITIALIZE, we have to blank memory ourselves */
+	/* mmap'd with MAP_UNINITIALIZED, we have to blank memory ourselves */
 	if (result != NULL) {
 		memset(result, 0, size);
 	}
