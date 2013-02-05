@@ -740,7 +740,7 @@ PTDIR := libpthread/$(PTNAME)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 PTINC:= -I$(top_builddir)$(PTDIR)					\
 	-I$(top_srcdir)$(PTDIR)						\
-	$(if $(TARGET_ARCH),-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/$(TARGET_SUBARCH)) \
+	$(if $(TARGET_SUBARCH),-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/$(TARGET_SUBARCH)) \
 	-I$(top_srcdir)$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	-I$(top_builddir)$(PTDIR)/sysdeps/$(TARGET_ARCH)		\
 	-I$(top_srcdir)$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
