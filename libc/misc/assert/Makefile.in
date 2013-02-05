@@ -7,13 +7,13 @@
 
 subdirs += libc/misc/assert
 
-CSRC := __assert.c
+CSRC-y := __assert.c
 
 MISC_ASSERT_DIR := $(top_srcdir)libc/misc/assert
 MISC_ASSERT_OUT := $(top_builddir)libc/misc/assert
 
-MISC_ASSERT_SRC := $(MISC_ASSERT_DIR)/__assert.c
-MISC_ASSERT_OBJ := $(MISC_ASSERT_OUT)/__assert.o
+MISC_ASSERT_SRC := $(patsubst %.c,$(MISC_ASSERT_DIR)/%.c,$(CSRC-y))
+MISC_ASSERT_OBJ := $(patsubst %.c,$(MISC_ASSERT_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(MISC_ASSERT_OBJ)
 

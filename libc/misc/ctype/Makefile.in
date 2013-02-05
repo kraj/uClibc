@@ -8,31 +8,25 @@
 subdirs += libc/misc/ctype
 
 # multi source ctype.c
-COM_SRC := \
+COM_SRC-y := \
 	isalnum.c isalpha.c iscntrl.c isdigit.c \
 	isgraph.c islower.c isprint.c ispunct.c isspace.c \
 	isupper.c isxdigit.c tolower.c toupper.c \
 	isblank.c
-ifeq ($(UCLIBC_SUSV4_LEGACY),y)
-COM_SRC += isascii.c toascii.c
-endif
-CSRC := $(COM_SRC)
+COM_SRC-$(UCLIBC_SUSV4_LEGACY) += isascii.c toascii.c
+CSRC-y := $(COM_SRC-y)
 
-ifeq ($(UCLIBC_HAS_CTYPE_TABLES),y)
-CSRC +=	__C_ctype_b.c __C_ctype_tolower.c __C_ctype_toupper.c \
+CSRC-$(UCLIBC_HAS_CTYPE_TABLES) += \
+	__C_ctype_b.c __C_ctype_tolower.c __C_ctype_toupper.c \
 	__ctype_b_loc.c __ctype_tolower_loc.c __ctype_toupper_loc.c \
 	__ctype_assert.c isctype.c
-endif
-
-ifeq ($(UCLIBC_HAS_XLOCALE),y)
-CSRC += $(patsubst %.c,%_l.c,$(COM_SRC))
-endif
+CSRC-$(UCLIBC_HAS_XLOCALE) += $(patsubst %.c,%_l.c,$(COM_SRC-y))
 
 MISC_CTYPE_DIR := $(top_srcdir)libc/misc/ctype
 MISC_CTYPE_OUT := $(top_builddir)libc/misc/ctype
 
-MISC_CTYPE_SRC := $(patsubst %.c,$(MISC_CTYPE_DIR)/%.c,$(CSRC))
-MISC_CTYPE_OBJ := $(patsubst %.c,$(MISC_CTYPE_OUT)/%.o,$(CSRC))
+MISC_CTYPE_SRC := $(patsubst %.c,$(MISC_CTYPE_DIR)/%.c,$(CSRC-y))
+MISC_CTYPE_OBJ := $(patsubst %.c,$(MISC_CTYPE_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(MISC_CTYPE_OBJ)
 

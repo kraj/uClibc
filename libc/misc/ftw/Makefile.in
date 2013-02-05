@@ -7,16 +7,14 @@
 
 subdirs += libc/misc/ftw
 
-CSRC := ftw.c
-ifeq ($(UCLIBC_HAS_LFS),y)
-CSRC += ftw64.c
-endif
+CSRC-y := ftw.c
+CSRC-$(UCLIBC_HAS_LFS) += ftw64.c
 
 MISC_FTW_DIR := $(top_srcdir)libc/misc/ftw
 MISC_FTW_OUT := $(top_builddir)libc/misc/ftw
 
-MISC_FTW_SRC := $(patsubst %.c,$(MISC_FTW_DIR)/%.c,$(CSRC))
-MISC_FTW_OBJ := $(patsubst %.c,$(MISC_FTW_OUT)/%.o,$(CSRC))
+MISC_FTW_SRC := $(patsubst %.c,$(MISC_FTW_DIR)/%.c,$(CSRC-y))
+MISC_FTW_OBJ := $(patsubst %.c,$(MISC_FTW_OUT)/%.o,$(CSRC-y))
 
 libc-$(findstring y,$(UCLIBC_HAS_FTW)$(UCLIBC_HAS_NFTW)) += $(MISC_FTW_OBJ)
 

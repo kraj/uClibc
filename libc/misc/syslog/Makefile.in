@@ -7,13 +7,13 @@
 
 subdirs += libc/misc/syslog
 
-CSRC := syslog.c
+CSRC-y := syslog.c
 
 MISC_SYSLOG_DIR := $(top_srcdir)libc/misc/syslog
 MISC_SYSLOG_OUT := $(top_builddir)libc/misc/syslog
 
-MISC_SYSLOG_SRC := $(patsubst %.c,$(MISC_SYSLOG_DIR)/%.c,$(CSRC))
-MISC_SYSLOG_OBJ := $(patsubst %.c,$(MISC_SYSLOG_OUT)/%.o,$(CSRC))
+MISC_SYSLOG_SRC := $(patsubst %.c,$(MISC_SYSLOG_DIR)/%.c,$(CSRC-y))
+MISC_SYSLOG_OBJ := $(patsubst %.c,$(MISC_SYSLOG_OUT)/%.o,$(CSRC-y))
 
 ifeq ($(UCLIBC_HAS_SYSLOG),y)
 libc-y += $(MISC_SYSLOG_OBJ)

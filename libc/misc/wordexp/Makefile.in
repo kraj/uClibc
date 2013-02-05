@@ -7,13 +7,13 @@
 
 subdirs += libc/misc/wordexp
 
-CSRC := wordexp.c
+CSRC-y := wordexp.c
 
 MISC_WORDEXP_DIR := $(top_srcdir)libc/misc/wordexp
 MISC_WORDEXP_OUT := $(top_builddir)libc/misc/wordexp
 
-MISC_WORDEXP_SRC := $(patsubst %.c,$(MISC_WORDEXP_DIR)/%.c,$(CSRC))
-MISC_WORDEXP_OBJ := $(patsubst %.c,$(MISC_WORDEXP_OUT)/%.o,$(CSRC))
+MISC_WORDEXP_SRC := $(patsubst %.c,$(MISC_WORDEXP_DIR)/%.c,$(CSRC-y))
+MISC_WORDEXP_OBJ := $(patsubst %.c,$(MISC_WORDEXP_OUT)/%.o,$(CSRC-y))
 
 libc-$(UCLIBC_HAS_WORDEXP) += $(MISC_WORDEXP_OBJ)
 

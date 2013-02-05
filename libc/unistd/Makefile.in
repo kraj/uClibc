@@ -10,39 +10,23 @@ subdirs += libc/unistd
 UNISTD_DIR := $(top_srcdir)libc/unistd
 UNISTD_OUT := $(top_builddir)libc/unistd
 
-CSRC := $(notdir $(wildcard $(UNISTD_DIR)/*.c))
-# multi source
-CSRC := $(filter-out exec.c,$(CSRC))
+CSRC-y := $(notdir $(wildcard $(UNISTD_DIR)/*.c))
+OMIT-y := exec.c # multi source
+OMIT-$(ARCH_USE_MMU) += __exec_alloc.c
+OMIT-$(if $(UCLIBC_SUSV3_LEGACY),,y) += ualarm.c usleep.c
+#OMIT-$(UCLIBC_HAS_THREADS_NATIVE) += sleep.c
 
-ifeq ($(ARCH_USE_MMU),y)
-CSRC := $(filter-out __exec_alloc.c,$(CSRC))
-endif
+# the VARIANT we OMIT
+# GNU_GETOPT comes with getopt_long unconditionally (?), OMIT the other
+VARIANT := $(if $(UCLIBC_HAS_GNU_GETOPT),-susv3)
+GO_LONG := $(if $(UCLIBC_HAS_GNU_GETOPT),getopt_long-simple.c)
+OMIT-$(UCLIBC_HAS_GNU_GETOPT) += getopt$(VARIANT).c $(GO_LONG)
+OMIT-$(UCLIBC_HAS_GNU_GETSUBOPT) += getsubopt$(VARIANT).c
 
-ifeq ($(UCLIBC_HAS_GNU_GETOPT),y)
-CSRC := $(filter-out getopt-susv3.c getopt_long-simple.c,$(CSRC))
-else
-CSRC := $(filter-out getopt.c,$(CSRC))
-ifneq ($(UCLIBC_HAS_GETOPT_LONG),y)
-CSRC := $(filter-out getopt_long-simple.c,$(CSRC))
-endif
-endif
+CSRC-y := $(filter-out $(OMIT-y),$(CSRC-y))
 
-ifeq ($(UCLIBC_HAS_GNU_GETSUBOPT),y)
-CSRC := $(filter-out getsubopt-susv3.c,$(CSRC))
-else
-CSRC := $(filter-out getsubopt.c,$(CSRC))
-endif
-
-ifneq ($(UCLIBC_SUSV3_LEGACY),y)
-CSRC := $(filter-out ualarm.c usleep.c,$(CSRC))
-endif
-
-#ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-#CSRC := $(filter-out sleep.c,$(CSRC))
-#endif
-
-UNISTD_SRC := $(patsubst %.c,$(UNISTD_DIR)/%.c,$(CSRC))
-UNISTD_OBJ := $(patsubst %.c,$(UNISTD_OUT)/%.o,$(CSRC))
+UNISTD_SRC := $(patsubst %.c,$(UNISTD_DIR)/%.c,$(CSRC-y))
+UNISTD_OBJ := $(patsubst %.c,$(UNISTD_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(UNISTD_OBJ)
 

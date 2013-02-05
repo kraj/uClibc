@@ -7,15 +7,13 @@
 
 subdirs += libc/stdlib/malloc-standard
 
-# calloc.c can be found at uClibc/libc/stdlib/calloc.c
-# valloc.c can be found at uClibc/libc/stdlib/valloc.c
-CSRC := malloc.c calloc.c realloc.c free.c memalign.c mallopt.c mallinfo.c
-
 STDLIB_MALLOC_STANDARD_DIR := $(top_srcdir)libc/stdlib/malloc-standard
 STDLIB_MALLOC_STANDARD_OUT := $(top_builddir)libc/stdlib/malloc-standard
 
-STDLIB_MALLOC_STANDARD_SRC := $(patsubst %.c,$(STDLIB_MALLOC_STANDARD_DIR)/%.c,$(CSRC))
-STDLIB_MALLOC_STANDARD_OBJ := $(patsubst %.c,$(STDLIB_MALLOC_STANDARD_OUT)/%.o,$(CSRC))
+CSRC-y := $(notdir $(wildcard $(STDLIB_MALLOC_STANDARD_DIR)/*.c))
+
+STDLIB_MALLOC_STANDARD_SRC := $(patsubst %.c,$(STDLIB_MALLOC_STANDARD_DIR)/%.c,$(CSRC-y))
+STDLIB_MALLOC_STANDARD_OBJ := $(patsubst %.c,$(STDLIB_MALLOC_STANDARD_OUT)/%.o,$(CSRC-y))
 
 libc-$(MALLOC_STANDARD) += $(STDLIB_MALLOC_STANDARD_OBJ)
 

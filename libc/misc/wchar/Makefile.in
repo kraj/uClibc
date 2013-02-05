@@ -19,19 +19,17 @@
 subdirs += libc/misc/wchar
 
 # multi source wchar.c
-CSRC :=	btowc.c wctob.c mbsinit.c mbrlen.c mbrtowc.c wcrtomb.c mbsrtowcs.c \
+CSRC-y :=	btowc.c wctob.c mbsinit.c mbrlen.c mbrtowc.c wcrtomb.c mbsrtowcs.c \
 	wcsrtombs.c _wchar_utf8sntowcs.c _wchar_wcsntoutf8s.c \
 	mbsnrtowcs.c wcsnrtombs.c wcwidth.c wcswidth.c
 
-ifeq ($(UCLIBC_HAS_LOCALE),y)
-CSRC += iconv.c
-endif
+CSRC-$(UCLIBC_HAS_LOCALE) += iconv.c
 
 MISC_WCHAR_DIR := $(top_srcdir)libc/misc/wchar
 MISC_WCHAR_OUT := $(top_builddir)libc/misc/wchar
 
-MISC_WCHAR_SRC := $(patsubst %.c,$(MISC_WCHAR_DIR)/%.c,$(CSRC))
-MISC_WCHAR_OBJ := $(patsubst %.c,$(MISC_WCHAR_OUT)/%.o,$(CSRC))
+MISC_WCHAR_SRC := $(patsubst %.c,$(MISC_WCHAR_DIR)/%.c,$(CSRC-y))
+MISC_WCHAR_OBJ := $(patsubst %.c,$(MISC_WCHAR_OUT)/%.o,$(CSRC-y))
 
 libc-$(UCLIBC_HAS_WCHAR) += $(MISC_WCHAR_OBJ)
 

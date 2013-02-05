@@ -7,25 +7,25 @@
 
 subdirs += libc/misc/search
 
-CSRC := hsearch.c
+CSRC-y := hsearch.c
 
 # multi source _tsearch.c
-CSRC += tsearch.c tfind.c tdelete.c twalk.c tdestroy.c
+CSRC-y += tsearch.c tfind.c tdelete.c twalk.c tdestroy.c
 
 # multi source _lsearch.c
-CSRC += lfind.c lsearch.c
+CSRC-y += lfind.c lsearch.c
 
 # multi source insremque.c
-CSRC += insque.c remque.c
+CSRC-y += insque.c remque.c
 
 # multi source _hsearch_r.c
-CSRC += hcreate_r.c hdestroy_r.c hsearch_r.c
+CSRC-y += hcreate_r.c hdestroy_r.c hsearch_r.c
 
 MISC_SEARCH_DIR := $(top_srcdir)libc/misc/search
 MISC_SEARCH_OUT := $(top_builddir)libc/misc/search
 
-MISC_SEARCH_SRC := $(patsubst %.c,$(MISC_SEARCH_DIR)/%.c,$(CSRC))
-MISC_SEARCH_OBJ := $(patsubst %.c,$(MISC_SEARCH_OUT)/%.o,$(CSRC))
+MISC_SEARCH_SRC := $(patsubst %.c,$(MISC_SEARCH_DIR)/%.c,$(CSRC-y))
+MISC_SEARCH_OBJ := $(patsubst %.c,$(MISC_SEARCH_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(MISC_SEARCH_OBJ)
 

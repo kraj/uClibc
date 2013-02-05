@@ -7,19 +7,16 @@
 
 subdirs += libc/misc/statfs
 
-CSRC := statvfs.c fstatvfs.c
-ifeq ($(UCLIBC_HAS_LFS),y)
-ifeq ($(UCLIBC_LINUX_SPECIFIC),y)
-CSRC += fstatfs64.c statfs64.c
-endif
-CSRC += statvfs64.c fstatvfs64.c
-endif
+CSRC-y := statvfs.c fstatvfs.c
+CSRC-$(UCLIBC_HAS_LFS) += $(patsubst %.c,%64.c,$(CSRC-y))
+CSRC-$(if $(findstring yy,$(UCLIBC_HAS_LFS)$(UCLIBC_LINUX_SPECIFIC)),y) += \
+	fstatfs64.c statfs64.c
 
 MISC_STATFS_DIR := $(top_srcdir)libc/misc/statfs
 MISC_STATFS_OUT := $(top_builddir)libc/misc/statfs
 
-MISC_STATFS_SRC := $(patsubst %.c,$(MISC_STATFS_DIR)/%.c,$(CSRC))
-MISC_STATFS_OBJ := $(patsubst %.c,$(MISC_STATFS_OUT)/%.o,$(CSRC))
+MISC_STATFS_SRC := $(patsubst %.c,$(MISC_STATFS_DIR)/%.c,$(CSRC-y))
+MISC_STATFS_OBJ := $(patsubst %.c,$(MISC_STATFS_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(MISC_STATFS_OBJ)
 

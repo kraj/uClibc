@@ -7,13 +7,14 @@
 
 subdirs += libc/misc/gnu
 
-CSRC := obstack.c
+$(warning XXX: add UCLIBC_HAS_OBSTACK)
+CSRC-y := obstack.c
 
 MISC_GNU_DIR := $(top_srcdir)libc/misc/gnu
 MISC_GNU_OUT := $(top_builddir)libc/misc/gnu
 
-MISC_GNU_SRC := $(MISC_GNU_DIR)/obstack.c
-MISC_GNU_OBJ := $(MISC_GNU_OUT)/obstack.o
+MISC_GNU_SRC := $(patsubst %.c,$(MISC_GNU_DIR)/%.c,$(CSRC-y))
+MISC_GNU_OBJ := $(patsubst %.c,$(MISC_GNU_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(MISC_GNU_OBJ)
 

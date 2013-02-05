@@ -10,20 +10,17 @@ subdirs += libc/pwd_grp
 PWDGRP_DIR := $(top_srcdir)libc/pwd_grp
 PWDGRP_OUT := $(top_builddir)libc/pwd_grp
 
-CSRC := $(notdir $(wildcard $(PWDGRP_DIR)/*.c))
-CSRC := $(filter-out pwd_grp.c pwd_grp_internal.c,$(CSRC))
-
-ifneq ($(UCLIBC_HAS_SHADOW),y)
-SHADOW_CSRC := \
-	fgetspent_r.c fgetspent.c getspent_r.c getspent.c \
+CSRC-y := $(notdir $(wildcard $(PWDGRP_DIR)/*.c))
+CSRC-  := pwd_grp.c pwd_grp_internal.c # multi-source and helper
+CSRC-$(UCLIBC_HAS_SHADOW) += fgetspent_r.c fgetspent.c getspent_r.c getspent.c \
 	getspnam_r.c getspnam.c lckpwdf.c putspent.c \
 	sgetspent_r.c sgetspent.c __parsespent.c
 # getspuid_r.c getspuid.c
-CSRC := $(filter-out $(SHADOW_CSRC),$(CSRC))
-endif
 
-PWDGRP_SRC := $(patsubst %.c,$(PWDGRP_DIR)/%.c,$(CSRC))
-PWDGRP_OBJ := $(patsubst %.c,$(PWDGRP_OUT)/%.o,$(CSRC))
+CSRC-y := $(filter-out $(CSRC-),$(CSRC-y))
+
+PWDGRP_SRC := $(patsubst %.c,$(PWDGRP_DIR)/%.c,$(CSRC-y))
+PWDGRP_OBJ := $(patsubst %.c,$(PWDGRP_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(PWDGRP_OBJ)
 

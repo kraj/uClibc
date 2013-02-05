@@ -10,11 +10,11 @@ subdirs += libc/stdlib/malloc-simple
 STDLIB_MALLOC_SIMPLE_DIR := $(top_srcdir)libc/stdlib/malloc-simple
 STDLIB_MALLOC_SIMPLE_OUT := $(top_builddir)libc/stdlib/malloc-simple
 
-CSRC := $(notdir $(wildcard $(STDLIB_MALLOC_SIMPLE_DIR)/*.c))
-CSRC := $(filter-out alloc.c,$(CSRC))
+CSRC-y := $(notdir $(wildcard $(STDLIB_MALLOC_SIMPLE_DIR)/*.c))
+CSRC-y := $(filter-out alloc.c,$(CSRC-y))
 
-STDLIB_MALLOC_SIMPLE_SRC := $(patsubst %.c,$(STDLIB_MALLOC_SIMPLE_DIR)/%.c,$(CSRC))
-STDLIB_MALLOC_SIMPLE_OBJ := $(patsubst %.c,$(STDLIB_MALLOC_SIMPLE_OUT)/%.o,$(CSRC))
+STDLIB_MALLOC_SIMPLE_SRC := $(patsubst %.c,$(STDLIB_MALLOC_SIMPLE_DIR)/%.c,$(CSRC-y))
+STDLIB_MALLOC_SIMPLE_OBJ := $(patsubst %.c,$(STDLIB_MALLOC_SIMPLE_OUT)/%.o,$(CSRC-y))
 
 libc-$(MALLOC_SIMPLE) += $(STDLIB_MALLOC_SIMPLE_OBJ)
 

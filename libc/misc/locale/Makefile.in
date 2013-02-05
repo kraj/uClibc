@@ -8,19 +8,16 @@
 subdirs += libc/misc/locale
 
 # multi source locale.c
-CSRC := setlocale.c localeconv.c _locale_init.c nl_langinfo.c
-ifeq ($(UCLIBC_HAS_LOCALE),y)
-CSRC += newlocale.c __locale_mbrtowc_l.c
-endif
-ifeq ($(UCLIBC_HAS_XLOCALE),y)
-CSRC += nl_langinfo_l.c duplocale.c freelocale.c uselocale.c __curlocale.c
-endif
+CSRC-y := setlocale.c localeconv.c _locale_init.c nl_langinfo.c
+CSRC-$(UCLIBC_HAS_LOCALE) += newlocale.c __locale_mbrtowc_l.c
+CSRC-$(UCLIBC_HAS_XLOCALE) += nl_langinfo_l.c duplocale.c freelocale.c \
+	uselocale.c __curlocale.c
 
 MISC_LOCALE_DIR := $(top_srcdir)libc/misc/locale
 MISC_LOCALE_OUT := $(top_builddir)libc/misc/locale
 
-MISC_LOCALE_SRC := $(patsubst %.c,$(MISC_LOCALE_DIR)/%.c,$(CSRC))
-MISC_LOCALE_OBJ := $(patsubst %.c,$(MISC_LOCALE_OUT)/%.o,$(CSRC))
+MISC_LOCALE_SRC := $(patsubst %.c,$(MISC_LOCALE_DIR)/%.c,$(CSRC-y))
+MISC_LOCALE_OBJ := $(patsubst %.c,$(MISC_LOCALE_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(MISC_LOCALE_OBJ)
 

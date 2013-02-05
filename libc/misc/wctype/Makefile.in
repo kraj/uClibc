@@ -14,19 +14,15 @@ COM_SRC := \
 	iswxdigit.c iswblank.c wctrans.c towctrans.c \
 	wctype.c iswctype.c towlower.c towupper.c
 
-CSRC :=
-ifeq ($(UCLIBC_HAS_WCHAR),y)
-CSRC += $(COM_SRC)
-endif
-ifeq ($(UCLIBC_HAS_XLOCALE),y)
-CSRC += $(patsubst %.c,%_l.c,$(COM_SRC))
-endif
+CSRC-y :=
+CSRC-$(UCLIBC_HAS_WCHAR) += $(COM_SRC)
+CSRC-$(UCLIBC_HAS_XLOCALE) += $(patsubst %.c,%_l.c,$(COM_SRC))
 
 MISC_WCTYPE_DIR := $(top_srcdir)libc/misc/wctype
 MISC_WCTYPE_OUT := $(top_builddir)libc/misc/wctype
 
-MISC_WCTYPE_SRC := $(patsubst %.c,$(MISC_WCTYPE_DIR)/%.c,$(CSRC))
-MISC_WCTYPE_OBJ := $(patsubst %.c,$(MISC_WCTYPE_OUT)/%.o,$(CSRC))
+MISC_WCTYPE_SRC := $(patsubst %.c,$(MISC_WCTYPE_DIR)/%.c,$(CSRC-y))
+MISC_WCTYPE_OBJ := $(patsubst %.c,$(MISC_WCTYPE_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(MISC_WCTYPE_OBJ)
 

@@ -7,13 +7,13 @@
 
 subdirs += libc/misc/ttyent
 
-CSRC := getttyent.c
+CSRC-y := getttyent.c
 
 MISC_TTYENT_DIR := $(top_srcdir)libc/misc/ttyent
 MISC_TTYENT_OUT := $(top_builddir)libc/misc/ttyent
 
-MISC_TTYENT_SRC := $(patsubst %.c,$(MISC_TTYENT_DIR)/%.c,$(CSRC))
-MISC_TTYENT_OBJ := $(patsubst %.c,$(MISC_TTYENT_OUT)/%.o,$(CSRC))
+MISC_TTYENT_SRC := $(patsubst %.c,$(MISC_TTYENT_DIR)/%.c,$(CSRC-y))
+MISC_TTYENT_OBJ := $(patsubst %.c,$(MISC_TTYENT_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(MISC_TTYENT_OBJ)
 

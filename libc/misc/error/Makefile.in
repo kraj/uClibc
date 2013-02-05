@@ -7,19 +7,15 @@
 
 subdirs += libc/misc/error
 
-CSRC :=
-ifeq ($(UCLIBC_HAS_BSD_ERR),y)
-CSRC += err.c
-endif
-ifeq ($(UCLIBC_HAS_GNU_ERROR),y)
-CSRC += error.c
-endif
+CSRC-y :=
+CSRC-$(UCLIBC_HAS_BSD_ERR) += err.c
+CSRC-$(UCLIBC_HAS_GNU_ERROR) += error.c
 
 MISC_ERROR_DIR := $(top_srcdir)libc/misc/error
 MISC_ERROR_OUT := $(top_builddir)libc/misc/error
 
-MISC_ERROR_SRC := $(patsubst %.c,$(MISC_ERROR_DIR)/%.c,$(CSRC))
-MISC_ERROR_OBJ := $(patsubst %.c,$(MISC_ERROR_OUT)/%.o,$(CSRC))
+MISC_ERROR_SRC := $(patsubst %.c,$(MISC_ERROR_DIR)/%.c,$(CSRC-y))
+MISC_ERROR_OBJ := $(patsubst %.c,$(MISC_ERROR_OUT)/%.o,$(CSRC-y))
 
 libc-y += $(MISC_ERROR_OBJ)
 
