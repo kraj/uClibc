@@ -70,7 +70,7 @@
 # define MAP_NORESERVE	  0x10000	/* Don't check for reservations.  */
 # define MAP_POPULATE	  0x20000	/* Populate (prefault) pagetables.  */
 # define MAP_NONBLOCK	  0x40000	/* Do not block on IO.  */
-# define MAP_UNINITIALIZE 0x4000000     /* For anonymous mmap, memory could
+# define MAP_UNINITIALIZED 0x4000000    /* For anonymous mmap, memory could
 					   be uninitialized. */
 #endif
 
