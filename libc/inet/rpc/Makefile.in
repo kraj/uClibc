@@ -18,14 +18,15 @@ CSRC_NFS = authunix_prot.c auth_none.c auth_unix.c bindresvport.c \
 	rpc_prot.c rpc_thread.c rtime.c ruserpass.c sa_len.c \
 	svc.c svc_auth.c svc_authux.c \
 	xdr.c xdr_array.c xdr_mem.c xdr_rec.c xdr_reference.c
+
+INET_RPC_DIR:=$(top_srcdir)libc/inet/rpc
+INET_RPC_OUT:=$(top_builddir)libc/inet/rpc
+
 CSRC_ALL = $(notdir $(wildcard $(INET_RPC_DIR)/*.c))
 CSRC-y := $(if $(UCLIBC_HAS_FULL_RPC),$(CSRC_ALL),$(CSRC_NFS))
 # rpc_thread.oS is better, because the header adds unneeded references
 # to __pthread_internal_tsd*
 CSRC-y := $(filter-out rpc_thread.c,$(CSRC-y))
-
-INET_RPC_DIR:=$(top_srcdir)libc/inet/rpc
-INET_RPC_OUT:=$(top_builddir)libc/inet/rpc
 
 INET_RPC_SRC:=$(patsubst %.c,$(INET_RPC_DIR)/%.c,$(CSRC-y))
 INET_RPC_OBJ:=$(patsubst %.c,$(INET_RPC_OUT)/%.o,$(CSRC-y))

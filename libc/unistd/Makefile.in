@@ -16,12 +16,10 @@ OMIT-$(ARCH_USE_MMU) += __exec_alloc.c
 OMIT-$(if $(UCLIBC_SUSV3_LEGACY),,y) += ualarm.c usleep.c
 #OMIT-$(UCLIBC_HAS_THREADS_NATIVE) += sleep.c
 
-# the VARIANT we OMIT
-# GNU_GETOPT comes with getopt_long unconditionally (?), OMIT the other
-VARIANT := $(if $(UCLIBC_HAS_GNU_GETOPT),-susv3)
+# XXX: GNU_GETOPT comes with getopt_long unconditionally, which is wrong
 GO_LONG := $(if $(UCLIBC_HAS_GNU_GETOPT),getopt_long-simple.c)
-OMIT-$(UCLIBC_HAS_GNU_GETOPT) += getopt$(VARIANT).c $(GO_LONG)
-OMIT-$(UCLIBC_HAS_GNU_GETSUBOPT) += getsubopt$(VARIANT).c
+OMIT-y += $(if $(UCLIBC_HAS_GNU_GETOPT),getopt-susv3.c $(GO_LONG),getopt.c)
+OMIT-y += $(if $(UCLIBC_HAS_GNU_GETSUBOPT),getsubopt-susv3.c,getsubopt.c)
 
 CSRC-y := $(filter-out $(OMIT-y),$(CSRC-y))
 
