@@ -35,7 +35,8 @@ endif
 CLEAN_TARGETS := $(U_TARGETS) $(G_TARGETS)
 CLEAN_TARGETS += $(TESTS_DISABLED) $(addsuffix _glibc,$(TESTS_DISABLED)) $(GLIBC_TESTS_DISABLED)
 COMPILE_TARGETS :=  $(TARGETS)
-RUN_TARGETS := $(addsuffix .exe,$(TARGETS))
+# We sort the targets so uClibc and host-libc tests are run adjacent
+RUN_TARGETS := $(sort $(addsuffix .exe,$(TARGETS)))
 # provide build rules even for disabled tests:
 U_TARGETS += $(TESTS_DISABLED)
 G_TARGETS += $(addsuffix _glibc,$(TESTS_DISABLED)) $(GLIBC_TESTS_DISABLED)
