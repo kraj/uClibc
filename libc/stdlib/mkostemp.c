@@ -24,9 +24,7 @@
    they are replaced with a string that makes the filename unique.
    Then open the file and return a fd. */
 int
-mkostemp (template, flags)
-     char *template;
-     int flags;
+mkostemp (char *template, int flags)
 {
   return __gen_tempname (template, __GT_FILE, flags);
 }
