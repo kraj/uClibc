@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <syscall.h>
 #include <sys/socket.h>
+#include <stddef.h> /* NULL */
 
 #ifdef __NR_socketcall
 extern int __socketcall(int call, unsigned long *args) attribute_hidden;
