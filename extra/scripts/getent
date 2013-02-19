@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Header: /var/cvs/uClibc/extra/scripts/getent,v 1.2 2005/02/02 14:18:01 solar Exp $
 #
 # Closely (not perfectly) emulate the behavior of glibc's getent utility
 #
@@ -9,7 +8,8 @@
 # case-insensitive matches not supported (ethers; others?)
 # may return false-positives (hosts,protocols,rpc,services,ethers)
 
-export PATH="${PATH}:/bin:/usr/bin"
+[ -z "$PATH" ] && PATH="/bin:/usr/bin" || PATH="${PATH}:/bin:/usr/bin"
+export PATH
 
 file="/etc/$1"
 case $1 in
