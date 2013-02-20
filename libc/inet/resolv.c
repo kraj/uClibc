@@ -3530,7 +3530,7 @@ __res_vinit(res_state rp, int preinit)
 	return 0;
 }
 
-static void attribute_noreturn
+static void
 __res_iclose(void)
 {
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
@@ -3549,9 +3549,7 @@ __res_iclose(void)
 	}
 #endif
 	memset(&_res, 0, sizeof(_res));
-	/* the loop is only to make gcc happy */
-	while(1)
-		__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
+	__UCLIBC_MUTEX_UNLOCK(__resolv_lock);
 }
 
 /*
