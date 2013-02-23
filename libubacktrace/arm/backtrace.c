@@ -12,6 +12,7 @@
  *
  */
 
+#include <libgcc_s.h>
 #include <execinfo.h>
 #include <dlfcn.h>
 #include <stdlib.h>
@@ -34,11 +35,11 @@ static _Unwind_VRS_Result (*unwind_vrs_get) (_Unwind_Context *,
 
 static void backtrace_init (void)
 {
-	void *handle = dlopen ("libgcc_s.so.1", RTLD_LAZY);
+	void *handle = dlopen (LIBGCC_S_SO, RTLD_LAZY);
 	if (handle == NULL
 		|| ((unwind_backtrace = dlsym (handle, "_Unwind_Backtrace")) == NULL)
 		|| ((unwind_vrs_get = dlsym (handle, "_Unwind_VRS_Get")) == NULL)) {
-		printf("libgcc_s.so.1 must be installed for backtrace to work\n");
+		printf(LIBGCC_S_SO " must be installed for backtrace to work\n");
 		abort();
 	}
 }
