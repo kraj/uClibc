@@ -5,7 +5,7 @@ ifeq ($(UCLIBC_HAS_LFS),)
 TESTS_DISABLED := tst-preadwrite64 tst-posix_fallocate64
 endif
 ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),)
-TESTS_DISABLED := tst-posix_fallocate
+TESTS_DISABLED += tst-posix_fallocate
 endif
 OPTS_getopt      := -abcXXX -9
 OPTS_getopt_long := --add XXX --delete YYY --verbose

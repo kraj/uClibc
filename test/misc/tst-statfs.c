@@ -1,5 +1,3 @@
-#define _FILE_OFFSET_BITS 64
-
 #include <sys/vfs.h>
 #include <errno.h>
 #include <stdio.h>
