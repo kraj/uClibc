@@ -27,6 +27,13 @@ endif
 # file named ".config".  Don't mess with this file unless
 # you know what you are doing.
 
+clean_targets := clean realclean distclean \
+	objclean-y headers_clean-y CLEAN_utils
+noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
+	defconfig allyesconfig allnoconfig \
+	xconfig gconfig update-po-config mconf qconf gconf conf \
+	release dist tags help
+
 
 #-----------------------------------------------------------
 # If you are running a cross compiler, you will want to set
@@ -77,14 +84,21 @@ qstrip = $(strip $(subst ",,$(1)))
 ifndef KCONFIG_CONFIG
 KCONFIG_CONFIG := $(top_builddir).config
 endif
-export KCONFIG_CONFIG
 
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 # Prevent make from searching
 __ABS_KCONFIG_CONFIG := $(abspath $(KCONFIG_CONFIG))
 -include $(__ABS_KCONFIG_CONFIG)
+else
+# else we have to tell config where to write .config
+export KCONFIG_CONFIG
 endif
+ifeq ($(HAVE_DOT_CONFIG),y)
+# tell config where our .config lives
+export KCONFIG_CONFIG
+endif
+
 TARGET_ARCH:=$(call qstrip,$(TARGET_ARCH))
 ifeq ($(TARGET_ARCH),)
 ARCH ?= $(shell uname -m | $(SED) -e s/i.86/i386/ \

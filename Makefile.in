@@ -8,12 +8,6 @@
 #--------------------------------------------------------------
 # You shouldn't need to mess with anything beyond this point...
 #--------------------------------------------------------------
-clean_targets := clean realclean distclean \
-	objclean-y headers_clean-y CLEAN_utils
-noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
-	defconfig allyesconfig allnoconfig \
-	release dist tags help
-
 include $(top_srcdir)Rules.mak
 sub_headers := headers
 
@@ -61,7 +55,7 @@ ifeq ($(HAVE_DOT_CONFIG),y)
 # on spot to save us from alot of hazzle.
 $(top_builddir)include/bits/uClibc_config.h: $(conf) $(KCONFIG_CONFIG) $(top_srcdir)extra/scripts/conf-header.sh | $(top_builddir)include/bits $(top_builddir)include/config
 	@$(disp_gen)
-	$(Q)@$< -s $(top_srcdir)extra/Configs/Config.in
+	$(Q)$< -s $(top_srcdir)extra/Configs/Config.in
 	$(Q)$(top_srcdir)extra/scripts/conf-header.sh $(KCONFIG_CONFIG) > $@
 	$(Q)$(MAKE) headers-y
 
@@ -512,8 +506,8 @@ clean: include_clean
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ -o -name .\*.dep \) -exec $(RM) {} \;
 	$(RM) $(top_builddir).config $(top_builddir).config.old $(top_builddir).config.cmd
-	$(RM) $(top_builddir)extra/locale/*.tgz
-	$(MAKE) -C extra/config distclean
+	$(Q)$(RM) $(top_builddir)extra/locale/*.tgz
+	@$(MAKE) -C extra/config distclean
 
 dist release:
 	$(RM) ../uClibc-$(VERSION).tar

@@ -1,15 +1,17 @@
 top_srcdir ?= ../../
 
-include $(top_srcdir)Rules.mak
-include $(top_srcdir)Makerules
-
-# ugh
-top_srcdir:=$(shell cd $(top_srcdir) && pwd)/
 ifdef O
 top_builddir ?= ../../
 else
 top_builddir = ../../
 endif
+
+include $(top_srcdir)Rules.mak
+include $(top_srcdir)Makerules
+
+# ugh
+top_srcdir:=$(shell cd $(top_srcdir) && pwd)/
+
 srctree := $(top_srcdir)
 src := extra/config
 obj := $(top_builddir)$(src)
@@ -75,12 +77,12 @@ $(obj)/%:: $(top_srcdir)$(src)/%_shipped
 endif
 CLEAN_extra/config menuconfig_clean:
 	$(do_rm) $(clean-files) $(lxdialog) conf $(wildcard *.o)
-distclean: clean
-	$(do_rm) $(lxdialog) $(conf-objs) $(mconf-objs) \
+distclean: CLEAN_extra/config
+	$(Q)$(RM) -r $(lxdialog) $(conf-objs) $(mconf-objs) \
 		$(kxgettext-objs) \
 		$(hostprogs-y) $(qconf-cxxobjs) $(qconf-objs) $(gconf-objs) \
-		.depend
-	$(do_rm) -r $(top_builddir)include/config
+		.depend \
+		$(top_builddir)include/config
 
 FORCE:
 .PHONY: FORCE clean distclean $(always)

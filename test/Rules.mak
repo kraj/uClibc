@@ -12,7 +12,13 @@ abs_top_builddir ?= $(shell cd $(top_builddir); pwd)/
 
 TESTDIR=$(top_builddir)test/
 
-include $(top_builddir)/Rules.mak
+include $(top_srcdir)Rules.mak
+ifeq ($(filter $(clean_targets) CLEAN_%,$(MAKECMDGOALS)),)
+ifeq ($(HAVE_DOT_CONFIG),)
+$(error no HAVE_DOT_CONFIG, failed to read .config)
+endif
+endif
+
 ifdef UCLIBC_LDSO
 ifeq (,$(findstring /,$(UCLIBC_LDSO)))
 UCLIBC_LDSO := $(UCLIBC_LDSO)
