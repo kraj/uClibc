@@ -103,7 +103,7 @@ __attribute__ ((unused))
 create_temp_file (const char *base, char **filename)
 {
   char *fname;
-  int fd;
+  int _fd;
 
   fname = (char *) malloc (strlen (test_dir) + 1 + strlen (base)
 			   + sizeof ("XXXXXX"));
@@ -114,8 +114,8 @@ create_temp_file (const char *base, char **filename)
     }
   strcpy (stpcpy (stpcpy (stpcpy (fname, test_dir), "/"), base), "XXXXXX");
 
-  fd = mkstemp (fname);
-  if (fd == -1)
+  _fd = mkstemp (fname);
+  if (_fd == -1)
     {
       printf ("cannot open temporary file '%s': %s\n", fname, strerror(errno));
       free (fname);
@@ -126,7 +126,7 @@ create_temp_file (const char *base, char **filename)
   if (filename != NULL)
     *filename = fname;
 
-  return fd;
+  return _fd;
 }
 
 /* Timeout handler.  We kill the child and exit with an error.  */
