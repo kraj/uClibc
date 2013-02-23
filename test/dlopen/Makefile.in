@@ -7,6 +7,11 @@ export UCLIBC_ONLY := 1
 TESTS := dltest dltest2 dlstatic test1 test2 test3 dlundef dlafk dladdr \
 	testscope
 
+ifneq ($(HAVE_SHARED),y)
+TESTS_DISABLED := test3
+LDFLAGS_libtest.so := -lpthread
+endif
+
 CFLAGS_dltest    := -DLIBNAME="\"./libtest.so\""
 CFLAGS_dltest2   := -DLIBNAME="\"./libtest3.so\""
 
