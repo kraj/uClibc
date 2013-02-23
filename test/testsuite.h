@@ -27,11 +27,12 @@ void error_msg(int result, int line, const char* file, const char* command)
 {
 	failures++;
 
-	printf("\nFAILED TEST %lu: \n\t%s\n", (unsigned long)test_number, command);
+	printf("\nFAILED TEST %lu: \n\t%s\nResult: %d",
+			(unsigned long)test_number, command, result);
 	printf("AT LINE: %d, FILE: %s\n\n", line, file);
 }
 
-void success_msg(int result, const char* command)
+void success_msg(int result __attribute__((unused)), const char* command __attribute__((unused)))
 {
 #if 0
 	printf("passed test: %s == 0\n", command);
