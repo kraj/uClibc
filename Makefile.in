@@ -196,7 +196,8 @@ $(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscal
 
 .PHONY: $(LOCAL_INSTALL_PATH)
 $(LOCAL_INSTALL_PATH):
-	$(Q)$(MAKE) PREFIX=$(shell pwd)/$(LOCAL_INSTALL_PATH) RUNTIME_PREFIX=/ \
+	$(Q)$(MAKE) PREFIX=$(LOCAL_INSTALL_PATH) \
+	RUNTIME_PREFIX=/ \
 	DEVEL_PREFIX=/usr/ \
 	HOSTCC="$(HOSTCC)" \
 	install
@@ -512,7 +513,7 @@ dist release:
 	du -b ../uClibc-$(VERSION).tar.{bz2,xz}
 
 test check: test_compile
-	$(Q)$(MAKE) -C test
+	$(Q)$(MAKE) -C test $(if $(O),top_builddir=$(O)/)
 
 test_compile: $(LOCAL_INSTALL_PATH)
-	$(Q)$(MAKE) -C test compile
+	$(Q)$(MAKE) -C test compile $(if $(O),top_builddir=$(O)/)
