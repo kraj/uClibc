@@ -182,20 +182,14 @@ pregen: headers pregen-headers
 $(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh | $(top_builddir)include/bits
 	@$(disp_gen)
 	$(Q)set -e; \
-	tmp=`mktemp $(top_builddir)include/bits/sysnum.h.XXXXXX 2>/dev/null || true`; \
-	[ -z "$$tmp" ] && tmp='$(top_builddir)include/bits/sysnum.h.new'; \
-	KERNEL_HEADERS="${KERNEL_HEADERS}" CC="$(CC) $(CPU_CFLAGS)" $(SHELL) $< > $$tmp; \
-	if cmp $(top_builddir)include/bits/sysnum.h $$tmp >/dev/null 2>&1; then \
-		$(RM) $$tmp; \
-	else \
-		mv -f $$tmp $(top_builddir)include/bits/sysnum.h; \
-	fi
+	KERNEL_HEADERS="${KERNEL_HEADERS}" CC="$(CC) $(CPU_CFLAGS)" $(SHELL) $< > $@.new; \
+	cmp -s $@ $@.new && $(RM) $@.new || mv -f $@.new $@
 	@# Ugly linux specific hack..
 	$(Q)if grep -q __NR_ $@; then true; else \
 		rm -f $@; \
 		echo "ERROR: Could not generate syscalls."; \
-		echo "Make sure that you have proper kernel headers."; \
-		echo "Your .config in KERNEL_HEADERS=\"\" was set to:"; \
+		echo "Make sure that you have properly installed kernel headers."; \
+		echo "Your .config KERNEL_HEADERS=\"\" was set to:"; \
 		echo "${KERNEL_HEADERS}"; \
 		exit 1; \
 	fi

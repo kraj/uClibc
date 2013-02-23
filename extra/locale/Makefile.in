@@ -111,16 +111,10 @@ ifeq ($(UCLIBC_BUILD_MINIMAL_LOCALE),y)
 	$(Q)echo "$(CURDIR)/$(locale_DIR)/charmaps/ISO-8859-1.pairs" >> $@
 else
 	$(Q)set -e; \
-		tmp=`mktemp $@.XXXXXX 2>/dev/null || true`; \
-		[ -z "$$tmp" ] && tmp='$@.new'; \
 		find $(CURDIR)/$(locale_DIR)/charmaps/ -name '*.pairs' | \
-			sort > $$tmp; \
-		[ -s $$tmp ]; \
-		if cmp $@ $$tmp >/dev/null 2>&1; then \
-			$(RM) $$tmp; \
-		else \
-			mv -f $$tmp $@; \
-		fi
+			sort > $@.new; \
+		[ -s $@.new ]; \
+		cmp -s $@ $@.new && $(RM) $@.new || mv -f $@.new $@
 endif
 
 # the lines beginning w/ '#-' are mandatory
