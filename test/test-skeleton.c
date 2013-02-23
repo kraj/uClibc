@@ -132,7 +132,7 @@ create_temp_file (const char *base, char **filename)
 /* Timeout handler.  We kill the child and exit with an error.  */
 static void
 __attribute__ ((noreturn))
-timeout_handler (int sig __attribute__ ((unused)))
+signal_handler (int sig __attribute__ ((unused)))
 {
   int killed = 0;
   int status;
@@ -167,6 +167,12 @@ timeout_handler (int sig __attribute__ ((unused)))
   CLEANUP_HANDLER;
 #endif
 
+  if (sig == SIGINT)
+    {
+      signal (sig, SIG_DFL);
+      raise (sig);
+    }
+
   /* If we expected this signal: good!  */
 #ifdef EXPECTED_SIGNAL
   if (EXPECTED_SIGNAL == SIGALRM)
@@ -189,6 +195,7 @@ timeout_handler (int sig __attribute__ ((unused)))
   exit (1);
 }
 
+#ifdef __XXX_HANDLE_CTRL_C
 static void
 __attribute__ ((noreturn))
 handler_killpid(int sig)
@@ -198,6 +205,7 @@ handler_killpid(int sig)
 	raise(sig); /* kill ourself */
 	_exit(128 + sig); /* paranoia */
 }
+#endif
 
 /* We provide the entry point here.  */
 int
@@ -344,17 +352,22 @@ main (int argc, char *argv[])
       exit (1);
     }
 
+#ifdef __XXX_HANDLE_CTRL_C
   signal (SIGTERM, handler_killpid);
   signal (SIGINT, handler_killpid);
   signal (SIGQUIT, handler_killpid);
+#endif
 
   /* Set timeout.  */
 #ifndef TIMEOUT
   /* Default timeout is two seconds.  */
 # define TIMEOUT 2
 #endif
-  signal (SIGALRM, timeout_handler);
+  signal (SIGALRM, signal_handler);
   alarm (TIMEOUT * timeoutfactor);
+
+  /* Make sure we clean up if the wrapper gets interrupted.  */
+  signal (SIGINT, signal_handler);
 
   /* Wait for the regular termination.  */
   termpid = TEMP_FAILURE_RETRY (waitpid (pid, &status, 0));
