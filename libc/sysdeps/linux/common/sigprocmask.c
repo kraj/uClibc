@@ -35,9 +35,9 @@ int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 	 * The only thing we have to make sure here is that SIGCANCEL and
 	 * SIGSETXID are not blocked.
 	 */
-	if (set != NULL && (__builtin_expect (__sigismember (set, SIGCANCEL), 0)
+	if (set != NULL && (unlikely (__sigismember (set, SIGCANCEL))
 # ifdef SIGSETXID
-		|| __builtin_expect (__sigismember (set, SIGSETXID), 0)
+		|| unlikely (__sigismember (set, SIGSETXID))
 # endif
 		))
 	{
@@ -70,9 +70,9 @@ int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 	 * The only thing we have to make sure here is that SIGCANCEL and
 	 * SIGSETXID are not blocked.
 	 */
-	if (set != NULL && (__builtin_expect (__sigismember (set, SIGCANCEL), 0)
+	if (set != NULL && (unlikely (__sigismember (set, SIGCANCEL))
 # ifdef SIGSETXID
-		|| __builtin_expect (__sigismember (set, SIGSETXID), 0)
+		|| unlikely (__sigismember (set, SIGSETXID))
 # endif
 		))
 	{

@@ -167,7 +167,7 @@
   }) \
 )
 # define INTERNAL_SYSCALL_ERROR_P(val, err) \
-  ((void) (val), __builtin_expect ((err) & (1 << 28), 0))
+  ((void) (val), unlikely ((err) & (1 << 28)))
 
 # define INTERNAL_SYSCALL_ERRNO(val, err)     (val)
 

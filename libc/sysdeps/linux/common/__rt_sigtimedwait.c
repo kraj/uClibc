@@ -28,9 +28,9 @@ int __NC(sigtimedwait)(const sigset_t *set, siginfo_t *info,
 # ifdef SIGCANCEL
 	sigset_t tmpset;
 
-	if (set != NULL && (__builtin_expect (__sigismember (set, SIGCANCEL), 0)
+	if (set != NULL && (unlikely (__sigismember (set, SIGCANCEL))
 #  ifdef SIGSETXID
-		|| __builtin_expect (__sigismember (set, SIGSETXID), 0)
+		|| unlikely (__sigismember (set, SIGSETXID))
 #  endif
 		))
 	{

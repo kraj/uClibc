@@ -15,8 +15,7 @@
 # define __syscall_return(type, res) \
 do { \
         unsigned long __sr2 = (res);		    			    \
-	if (__builtin_expect ((unsigned long)(__sr2)			    \
-			      >= (unsigned long)(-4095), 0)) {		    \
+	if (unlikely ((unsigned long)(__sr2) >= (unsigned long)(-4095))) {  \
 		extern int __syscall_error (int);			    \
 		return (type) __syscall_error (__sr2);		    	    \
 	}								    \
@@ -26,8 +25,7 @@ do { \
 # define __syscall_return(type, res) \
 do { \
         unsigned long __sr2 = (res);		    			    \
-	if (__builtin_expect ((unsigned long)(__sr2)			    \
-			      >= (unsigned long)(-4095), 0)) {		    \
+	if (unlikely ((unsigned long)(__sr2) >= (unsigned long)(-4095))) {  \
 		__set_errno (-__sr2);				    	    \
 		__sr2 = -1; 						    \
 	}								    \

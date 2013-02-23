@@ -289,11 +289,11 @@ volatile unsigned char __sparc32_atomic_locks[64]
 	 __typeof (*(mem)) __acev_wval = (newval);		      \
 	 do							      \
 	   __acev_wret = *__acev_wmemp;				      \
-	 while (__builtin_expect				      \
+	 while (unlikely					      \
 		  (__v9_compare_and_exchange_val_32_acq (__acev_wmemp,\
 							 __acev_wval, \
 							 __acev_wret) \
-		   != __acev_wret, 0));				      \
+		   != __acev_wret));				      \
        }							      \
      else							      \
        __acev_wret = __v7_exchange_acq (mem, newval);		      \

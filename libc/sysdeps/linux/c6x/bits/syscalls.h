@@ -37,7 +37,7 @@
 #undef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...)				\
   ({ unsigned int _inline_sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
-     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_inline_sys_result, ), 0))	\
+     if (unlikely (INTERNAL_SYSCALL_ERROR_P (_inline_sys_result, )))	\
        {								\
 	 __set_errno (INTERNAL_SYSCALL_ERRNO (_inline_sys_result, ));		\
 	 _inline_sys_result = (unsigned int) -1;				\
