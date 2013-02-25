@@ -145,7 +145,7 @@ LDFLAGS-libpthread.so += $(LDFLAGS)
 endif
 
 LDFLAGS-libpthread.so += $(top_builddir)lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so $(top_builddir)lib/libdl-$(VERSION).so \
-	-Wl,-z,nodelete,-z,initfirst,-init=__pthread_initialize_minimal_internal
+	-Wl,-z,nodelete,-z,initfirst,-init=$(SYMBOL_PREFIX)__pthread_initialize_minimal_internal
 
 LIBS-libpthread.so := $(LIBS)
 

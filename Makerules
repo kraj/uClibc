@@ -304,7 +304,7 @@ define create-lds
 	-Wl,-z,relro -Wl,--hash-style=gnu -Wl,-z,defs \
 	-Wl,--verbose 2>&1 | LC_ALL=C \
 	sed -e '/^=========/,/^=========/!d;/^=========/d' \
-	-e 's/\. = .* + SIZEOF_HEADERS;/& _begin = . - SIZEOF_HEADERS;/' > $@.lds
+	-e 's/\. = .* + SIZEOF_HEADERS;/& $(SYMBOL_PREFIX)_begin = . - SIZEOF_HEADERS;/' > $@.lds
 endef
 
 define link.so
