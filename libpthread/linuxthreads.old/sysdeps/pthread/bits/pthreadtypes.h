@@ -19,6 +19,9 @@
 #ifndef _BITS_PTHREADTYPES_H
 #define _BITS_PTHREADTYPES_H	1
 
+#define __need_size_t
+#include <stddef.h>
+
 #define __need_schedparam
 #include <bits/sched.h>
 
