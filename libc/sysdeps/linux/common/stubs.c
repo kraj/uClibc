@@ -448,9 +448,11 @@ make_stub(lutimes)
 # endif
 #endif
 
+#ifndef __NR_utimensat
 #if !defined __NR_utime && !defined __NR_utimes
 /*make_stub(utime) obsoleted */
 make_stub(utimes)
+#endif
 #endif
 
 #if !defined __NR_umount && !defined __NR_umount2 && defined __UCLIBC_LINUX_SPECIFIC__

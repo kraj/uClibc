@@ -51,6 +51,6 @@ int utimes(const char *file, const struct timeval tvp[2])
 }
 #endif
 
-#if defined __NR_utimes || defined __NR_utime
+#if defined __NR_utimensat || defined __NR_utimes || defined __NR_utime
 libc_hidden_def(utimes)
 #endif
