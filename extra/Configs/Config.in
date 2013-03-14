@@ -490,7 +490,6 @@ config HAS_NO_THREADS
 
 config LINUXTHREADS_OLD
 	bool "older (stable) version of linuxthreads"
-	depends on ARCH_HAS_DEPRECATED_SYSCALLS
 	# linuxthreads and linuxthreads.old need nanosleep()
 	select UCLIBC_HAS_REALTIME
 	help
