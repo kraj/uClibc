@@ -20,10 +20,12 @@ extern int _dl_errno;
 /*  For MAP_ANONYMOUS -- differs between platforms */
 #define _SYS_MMAN_H 1
 #include <bits/mman.h>
+
+#ifdef __ARCH_HAS_DEPRECATED_SYSCALLS__
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
  * struct stat should look like.  It turns out that each arch has a different
  * opinion on the subject, and different kernel revs use different names... */
-#if !defined __NR_stat || (defined(__sparc_v9__) && (__WORDSIZE == 64))
+#if defined(__sparc_v9__) && (__WORDSIZE == 64)
 #define kernel_stat64 stat
 #else
 #define kernel_stat stat
@@ -34,6 +36,13 @@ extern int _dl_errno;
 /* Protection bits.  */
 #define	S_ISUID		04000	/* Set user ID on execution.  */
 #define	S_ISGID		02000	/* Set group ID on execution.  */
+
+#else
+/* 1. common-generic ABI doesn't need kernel_stat translation
+ * 3. S_IS?ID already provided by stat.h
+ */
+#include <sys/stat.h>
+#endif
 
 
 /* Here are the definitions for some syscalls that are used
