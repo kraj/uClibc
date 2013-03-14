@@ -3,7 +3,9 @@
 #include <syscall.h>
 #include <bits/wordsize.h>
 
-#ifndef __IPC_64
+#ifndef __ARCH_HAS_DEPRECATED_SYSCALLS__
+#  define __IPC_64	0x0
+#else
 # if __WORDSIZE == 32 || defined __alpha__ || defined __mips__
 #  define __IPC_64	0x100
 # else
