@@ -13,8 +13,16 @@
  * The stat structure defined in
  * libc/sysdeps/linux/common-generic/bits/stat.h
  * is the same as the kernel one for new architectures
+ *
+ * For the common-generic ABI we really don't need this file at all
+ * However that requires more #ifndef in relevant wrappers,
+ * further uglifying them
  */
+#if defined __UCLIBC_HAS_LFS__
+#define kernel_stat64	stat64
+#else
 #define kernel_stat64	stat
+#endif
 
 #endif	/*  _BITS_STAT_STRUCT_H */
 
