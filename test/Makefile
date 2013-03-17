@@ -63,13 +63,16 @@ subdirs_run: $(patsubst %, _dirrun_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
 $(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(Q)$(MAKE) -C $(patsubst _dir_%, %, $@)
+	$(Q)$(MAKE) -C $(patsubst _dir_%, %, $@) \
+		KCONFIG_CONFIG=$(__ABS_KCONFIG_CONFIG)
 
 $(patsubst %, _dirrun_%, $(DIRS)) : dummy
-	$(Q)$(MAKE) -C $(patsubst _dirrun_%, %, $@) run
+	$(Q)$(MAKE) -C $(patsubst _dirrun_%, %, $@) run \
+		KCONFIG_CONFIG=$(__ABS_KCONFIG_CONFIG)
 
 $(patsubst %, _dircompile_%, $(DIRS)) : dummy
-	$(Q)$(MAKE) -C $(patsubst _dircompile_%, %, $@) compile
+	$(Q)$(MAKE) -C $(patsubst _dircompile_%, %, $@) compile \
+		KCONFIG_CONFIG=$(__ABS_KCONFIG_CONFIG)
 
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(Q)$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean

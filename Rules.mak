@@ -81,14 +81,12 @@ BUILD_CFLAGS = -Os -Wall
 qstrip = $(strip $(subst ",,$(1)))
 #"))
 
-ifndef KCONFIG_CONFIG
-KCONFIG_CONFIG := $(top_builddir).config
-endif
+KCONFIG_CONFIG ?= $(top_builddir).config
 
 # Pull in the user's uClibc configuration
-ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+ifeq ($(filter $(noconfig_targets) $(clean_targets) CLEAN_%,$(MAKECMDGOALS)),)
 # Prevent make from searching
-__ABS_KCONFIG_CONFIG := $(abspath $(KCONFIG_CONFIG))
+__ABS_KCONFIG_CONFIG ?= $(abspath $(KCONFIG_CONFIG))
 -include $(__ABS_KCONFIG_CONFIG)
 else
 # else we have to tell config where to write .config
@@ -828,8 +826,8 @@ $(eval $(call cache-output-var,LIBGCC,$(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-
 $(eval $(call cache-output-var,LIBGCC_EH,$(CC) $(LIBGCC_CFLAGS) -print-file-name=libgcc_eh.a))
 # with -O0 we (e.g. lockf) might end up with references to
 # _Unwind_Resume, so pull in gcc_eh in this case..
-LIBGCC += $(if $(DODEBUG),$(LIBGCC_EH))
 LIBGCC_DIR:=$(dir $(LIBGCC))
+LIBGCC += $(if $(DODEBUG),$(LIBGCC_EH))
 
 # moved from libpthread/linuxthreads
 ifeq ($(UCLIBC_CTOR_DTOR),y)
