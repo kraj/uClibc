@@ -40,6 +40,8 @@ dlopen/test[1-3]
 dlopen/testscope
 inet/bug-if1
 inet/gethost_r-align
+inet/gethostid
+inet/getnetent
 inet/if_nameindex
 inet/tst-aton
 inet/tst-ether_aton
@@ -47,9 +49,8 @@ inet/tst-ethers
 inet/tst-ethers-line
 inet/tst-network
 inet/tst-ntoa
+inet/tst-res
 inet/tst-sock-nonblock
-inet/gethostid
-inet/getnetent
 librt/shmtest
 locale/bug-iconv-trans
 locale/bug-usesetlocale

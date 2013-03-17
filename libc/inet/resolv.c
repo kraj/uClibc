@@ -3536,7 +3536,7 @@ __res_iclose(res_state statp)
 	struct __res_state * rp = statp;
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
 	if (rp == NULL)
-		rp = __resp;
+		rp = __res_state();
 	__close_nameservers();
 	__res_sync = NULL;
 #ifdef __UCLIBC_HAS_IPV6__

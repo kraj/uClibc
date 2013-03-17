@@ -109,7 +109,7 @@ $(G_TARGETS): $(U_TARGET_SRCS) $(MAKE_SRCS)
 	$(Q)$(HOSTCC) $(filter-out $(HOST_CFLAGS-OMIT-$(patsubst %_glibc,%,$@)),$(HOST_CFLAGS)) \
 	$(CFLAGS_$(notdir $(CURDIR))) $(CFLAGS_$(patsubst %_glibc,%,$@)) \
 	-c $(patsubst %_glibc,%,$@).c -o $@.o
-	$(Q)$(HOSTCC) $(HOST_LDFLAGS) $@.o -o $@ $(EXTRA_LDFLAGS) $(LDFLAGS_$(patsubst %_glibc,%,$@))
+	$(Q)$(HOSTCC) $(HOST_LDFLAGS) $@.o -o $@ $(EXTRA_LDFLAGS) $(LDFLAGS_$(patsubst %_glibc,%,$@)) $(LDFLAGS_$@)
 
 
 shell_%:
