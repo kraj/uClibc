@@ -105,7 +105,7 @@ struct cu_data
  * NB: The rpch->cl_auth is initialized to null authentication.
  *     Caller may wish to set this something more useful.
  *
- * wait is the amount of time used between retransmitting a call if
+ * _wait is the amount of time used between retransmitting a call if
  * no response has been heard; retransmission occurs until the actual
  * rpc call times out.
  *
@@ -114,7 +114,7 @@ struct cu_data
  */
 CLIENT *
 clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
-		   struct timeval wait, int *sockp, u_int sendsz,
+		   struct timeval _wait, int *sockp, u_int sendsz,
 		   u_int recvsz)
 {
   CLIENT *cl;
@@ -149,7 +149,7 @@ clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
   cl->cl_private = (caddr_t) cu;
   cu->cu_raddr = *raddr;
   cu->cu_rlen = sizeof (cu->cu_raddr);
-  cu->cu_wait = wait;
+  cu->cu_wait = _wait;
   cu->cu_total.tv_sec = -1;
   cu->cu_total.tv_usec = -1;
   cu->cu_sendsz = sendsz;
@@ -207,10 +207,10 @@ fooy:
 libc_hidden_def(clntudp_bufcreate)
 
 CLIENT *
-clntudp_create (struct sockaddr_in *raddr, u_long program, u_long version, struct timeval wait, int *sockp)
+clntudp_create (struct sockaddr_in *raddr, u_long program, u_long version, struct timeval _wait, int *sockp)
 {
 
-  return clntudp_bufcreate (raddr, program, version, wait, sockp,
+  return clntudp_bufcreate (raddr, program, version, _wait, sockp,
 			    UDPMSGSIZE, UDPMSGSIZE);
 }
 libc_hidden_def(clntudp_create)
