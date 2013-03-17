@@ -33,6 +33,9 @@
 #  define PT_EI __extern_always_inline
 # endif
 
+extern long int testandset (int *);
+extern int __compare_and_swap (long int *, long int, long int);
+
 /* Get some notion of the current stack.  Need not be exactly the top
    of the stack, just something somewhere in the current frame.  */
 # define CURRENT_STACK_FRAME  stack_pointer
