@@ -16,6 +16,10 @@ noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
 
 include $(top_srcdir)Rules.mak
 sub_headers := headers
+ifndef KCONFIG_CONFIG
+KCONFIG_CONFIG := $(top_builddir).config
+endif
+export KCONFIG_CONFIG
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 
