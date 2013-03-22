@@ -296,11 +296,10 @@ static ptrdiff_t _dl_build_local_scope (struct elf_resolve **list,
 	return p - list;
 }
 
-static void *do_dlopen(const char *libname, int flag)
+static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 {
 	struct elf_resolve *tpnt, *tfrom;
 	struct dyn_elf *dyn_chain, *rpnt = NULL, *dyn_ptr, *relro_ptr, *handle;
-	ElfW(Addr) from;
 	struct elf_resolve *tpnt1;
 	void (*dl_brk) (void);
 	int now_flag;
@@ -319,8 +318,6 @@ static void *do_dlopen(const char *libname, int flag)
 		_dl_error_number = LD_BAD_HANDLE;
 		return NULL;
 	}
-
-	from = (ElfW(Addr)) __builtin_return_address(0);
 
 	if (!_dl_init) {
 		_dl_init = true;
@@ -661,7 +658,8 @@ void *dlopen(const char *libname, int flag)
 	void *ret;
 
 	__UCLIBC_MUTEX_CONDITIONAL_LOCK(_dl_mutex, 1);
-	ret = do_dlopen(libname, flag);
+	ret = do_dlopen(libname, flag,
+			(ElfW(Addr)) __builtin_return_address(0));
 	__UCLIBC_MUTEX_CONDITIONAL_UNLOCK(_dl_mutex, 1);
 
 	return ret;
