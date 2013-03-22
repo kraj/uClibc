@@ -429,8 +429,8 @@ libc_hidden_def(vswscanf)
 /*                       npxXoudif eEgG  CS  cs[ */
 /* NOTE: the 'm' flag must come before any convs that support it */
 
-/* NOTE: Ordering is important!  In particular, CONV_LEFTBRACKET
- * must immediately precede CONV_c. */
+/* NOTE: Ordering is important!  The CONV_{C,S,LEFTBRACKET} must map
+   simply to their lowercase equivalents.  */
 
 enum {
 	CONV_n = 0,
@@ -921,7 +921,7 @@ int attribute_hidden __psfs_parse_spec(register psfs_t *psfs)
 				psfs->dataargtype = PA_FLAG_LONG;
 			} else if ((p_m_spec_chars >= CONV_c)
 				&& (psfs->dataargtype & PA_FLAG_LONG)) {
-				p_m_spec_chars -= 3; /* lc -> C, ls -> S, l[ -> ?? */
+				p_m_spec_chars -= CONV_c - CONV_C; /* lc -> C, ls -> S, l[ -> ?? */
 			}
 
 			psfs->conv_num = p_m_spec_chars;
