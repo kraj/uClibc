@@ -59,7 +59,7 @@ struct stat
     unsigned int st_uid;			/* User ID of the file's owner.	*/
     unsigned int st_gid;			/* Group ID of the file's group.*/
     unsigned long __pad3;
-    unsigned long st_rdev			/* Device number, if device.  */
+    unsigned long st_rdev;			/* Device number, if device.  */
     unsigned long long __pad4;
     long __pad5;
     long st_size;				/* Size of file, in bytes. */
