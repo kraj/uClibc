@@ -1352,21 +1352,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 				(psfs.conv_num >= CONV_c)
 #endif /* __UCLIBC_HAS_WCHAR__ */
 			{
-				/* We might have to handle the allocation ourselves */
-				int len;
-				unsigned char **ptr;
-
 				b = (psfs.store ? ((unsigned char *) psfs.cur_ptr) : buf);
-				/* With 'm', we actually got a pointer to a pointer */
-				ptr = (void *)b;
-
-				i = 0;
-				if (psfs.flags & FLAG_MALLOC) {
-					len = 0;
-					b = NULL;
-				} else
-					len = -1;
-
 				fail = 1;
 
 				if (psfs.conv_num == CONV_c) {
@@ -1374,25 +1360,31 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 						sc.width = 1;
 					}
 
-					if (psfs.flags & FLAG_MALLOC)
-						b = malloc(sc.width);
-
 					while (__scan_getc(&sc) >= 0) {
 						zero_conversions = 0;
-						b[i] = sc.cc;
-						i += psfs.store;
+						*b = sc.cc;
+						b += psfs.store;
 					}
 					__scan_ungetc(&sc);
 					if (sc.width > 0) {	/* Failed to read all required. */
 						goto DONE;
 					}
-					if (psfs.flags & FLAG_MALLOC)
-						*ptr = b;
 					psfs.cnt += psfs.store;
 					goto NEXT_FMT;
 				}
 
 				if (psfs.conv_num == CONV_s) {
+					/* We might have to handle the allocation ourselves */
+					int len;
+					/* With 'm', we actually got a pointer to a pointer */
+					unsigned char **ptr = (void *)b;
+
+					i = 0;
+					if (psfs.flags & FLAG_MALLOC) {
+						len = 0;
+						b = NULL;
+					} else
+						len = -1;
 
 					/* Yes, believe it or not, a %s conversion can store nuls. */
 					while ((__scan_getc(&sc) >= 0) && !isspace(sc.cc)) {
@@ -1408,6 +1400,10 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 						fail = 0;
 					}
 
+					if (psfs.flags & FLAG_MALLOC)
+						*ptr = b;
+					/* The code below takes care of terminating NUL */
+					b += i;
 				} else {
 #ifdef __UCLIBC_HAS_WCHAR__
 					assert((psfs.conv_num == CONV_LEFTBRACKET) || \
@@ -1463,14 +1459,8 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 						if (!scanset[sc.cc]) {
 							break;
 						}
-						if (i == len) {
-							/* Pick a size that won't trigger a lot of
-							 * mallocs early on ... */
-							len += 256;
-							b = realloc(b, len + 1);
-						}
-						b[i] = sc.cc;
-						i += psfs.store;
+						*b = sc.cc;
+						b += psfs.store;
 						fail = 0;
 					}
 				}
@@ -1480,9 +1470,6 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 				if (fail) {	/* nothing stored! */
 					goto DONE;
 				}
-				if (psfs.flags & FLAG_MALLOC)
-					*ptr = b;
-				b += i;
 				*b = 0;		/* Nul-terminate string. */
 				psfs.cnt += psfs.store;
 				goto NEXT_FMT;
