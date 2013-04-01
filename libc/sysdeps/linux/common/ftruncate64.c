@@ -36,7 +36,7 @@ int ftruncate64 (int fd, __off64_t length)
 {
     uint32_t low = length & 0xffffffff;
     uint32_t high = length >> 32;
-#   if defined(__UCLIBC_TRUNCATE64_HAS_4_ARGS__)
+#   if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
     return INLINE_SYSCALL(ftruncate64,
 	    4, fd, 0, __LONG_LONG_PAIR (high, low));
 #   else
