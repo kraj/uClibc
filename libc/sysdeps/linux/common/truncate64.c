@@ -7,7 +7,7 @@
  * and on 32 bit machines this sends things into the kernel as
  * two 32-bit arguments (high and low 32 bits of length) that
  * are ordered based on endianess.  It turns out endian.h has
- * just the macro we need to order things, __LONG_LONG_PAIR.
+ * just the macro we need to order things, OFF64_HI_LO.
  */
 
 #include <_lfs_64.h>
@@ -24,14 +24,10 @@ _syscall2(int, truncate64, const char *, path, __off64_t, length)
 #  include <stdint.h>
 int truncate64(const char * path, __off64_t length)
 {
-	uint32_t low = length & 0xffffffff;
-	uint32_t high = length >> 32;
 #  if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
-	return INLINE_SYSCALL(truncate64, 4, path, 0,
-			__LONG_LONG_PAIR(high, low));
+	return INLINE_SYSCALL(truncate64, 4, path, 0, OFF64_HI_LO(length));
 #  else
-	return INLINE_SYSCALL(truncate64, 3, path,
-			__LONG_LONG_PAIR(high, low));
+	return INLINE_SYSCALL(truncate64, 3, path, OFF64_HI_LO(length));
 #  endif
 }
 # else

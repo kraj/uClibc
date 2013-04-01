@@ -25,13 +25,11 @@ int posix_fadvise64(int fd, off64_t offset, off64_t len, int advice)
 	INTERNAL_SYSCALL_DECL (err);
 # if defined __powerpc__ || defined __arm__ || defined __xtensa__
 	int ret = INTERNAL_SYSCALL (fadvise64_64, err, 6, fd, advice,
-				    __LONG_LONG_PAIR((long)(offset >> 32), (long)offset),
-				    __LONG_LONG_PAIR((long)(len >> 32), (long)len));
+			OFF64_HI_LO (offset), OFF64_HI_LO (len));
 # else
 	int ret = INTERNAL_SYSCALL (fadvise64_64, err, 6, fd,
-				    __LONG_LONG_PAIR((long)(offset >> 32), (long)offset),
-				    __LONG_LONG_PAIR((long)(len >> 32), (long)len),
-				    advice);
+			OFF64_HI_LO (offset), OFF64_HI_LO (len),
+			advice);
 # endif
 	if (INTERNAL_SYSCALL_ERROR_P (ret, err))
 		return INTERNAL_SYSCALL_ERRNO (ret, err);

@@ -27,7 +27,7 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 #  else
 	ret = INTERNAL_SYSCALL(fadvise64, err, 5, fd,
 #  endif
-				   __LONG_LONG_PAIR (offset >> 31, offset), len, advice);
+			OFF_HI_LO (offset), len, advice);
 # endif
 	if (INTERNAL_SYSCALL_ERROR_P (ret, err))
 		return INTERNAL_SYSCALL_ERRNO (ret, err);
