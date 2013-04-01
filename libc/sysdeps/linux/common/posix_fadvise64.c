@@ -23,7 +23,8 @@
 int posix_fadvise64(int fd, off64_t offset, off64_t len, int advice)
 {
 	INTERNAL_SYSCALL_DECL (err);
-# if defined __powerpc__ || defined __arm__ || defined __xtensa__
+	/* ARM has always been funky. */
+# if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__) || defined(__arm__)
 	int ret = INTERNAL_SYSCALL (fadvise64_64, err, 6, fd, advice,
 			OFF64_HI_LO (offset), OFF64_HI_LO (len));
 # else

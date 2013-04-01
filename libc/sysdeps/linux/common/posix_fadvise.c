@@ -22,7 +22,7 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 # if __WORDSIZE == 64
 	ret = INTERNAL_SYSCALL(fadvise64, err, 4, fd, offset, len, advice);
 # else
-#  ifdef __powerpc__
+#  if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
 	ret = INTERNAL_SYSCALL(fadvise64, err, 6, fd, /*unused*/0,
 #  else
 	ret = INTERNAL_SYSCALL(fadvise64, err, 5, fd,

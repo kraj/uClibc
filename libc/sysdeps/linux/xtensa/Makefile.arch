@@ -9,5 +9,3 @@ CSRC-y := brk.c fork.c pread_write.c sigaction.c __syscall_error.c
 
 SSRC-y := bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S \
 	sigrestorer.S syscall.S mmap.S windowspill.S __longjmp.S vfork.S
-
-CSRC-$(UCLIBC_HAS_ADVANCED_REALTIME) += posix_fadvise.c

@@ -14,7 +14,6 @@ SSRC-y := \
 
 SSRC-$(UCLIBC_HAS_LFS) += mmap64.S
 SSRC-$(UCLIBC_HAS_THREADS_NATIVE) += libc-aeabi_read_tp.S libc-thumb_atomics.S
-CSRC-$(UCLIBC_HAS_ADVANCED_REALTIME) += posix_fadvise.c
 CSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += makecontext.c
 SSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += getcontext.S setcontext.S swapcontext.S
 
