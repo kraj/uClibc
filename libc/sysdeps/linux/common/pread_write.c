@@ -31,20 +31,34 @@
 #ifndef MY_PREAD
 # ifdef __NR_pread
 #  define __NR___syscall_pread __NR_pread
+#  if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
+static _syscall6(ssize_t, __syscall_pread, int, fd, void *, buf,
+		 size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo)
+#   define MY_PREAD(fd, buf, count, offset) __syscall_pread(fd, buf, count, 0, OFF_HI_LO(offset))
+#   define MY_PREAD64(fd, buf, count, offset) __syscall_pread(fd, buf, count, 0, OFF64_HI_LO(offset))
+#  else
 static _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
 		 size_t, count, off_t, offset_hi, off_t, offset_lo)
-#  define MY_PREAD(fd, buf, count, offset) __syscall_pread(fd, buf, count, OFF_HI_LO(offset))
-#  define MY_PREAD64(fd, buf, count, offset) __syscall_pread(fd, buf, count, OFF64_HI_LO(offset))
+#   define MY_PREAD(fd, buf, count, offset) __syscall_pread(fd, buf, count, OFF_HI_LO(offset))
+#   define MY_PREAD64(fd, buf, count, offset) __syscall_pread(fd, buf, count, OFF64_HI_LO(offset))
+#  endif
 # endif
 #endif
 
 #ifndef MY_PWRITE
 # ifdef __NR_pwrite
 #  define __NR___syscall_pwrite __NR_pwrite
+#  if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
+static _syscall6(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
+		 size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo)
+#   define MY_PWRITE(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, 0, OFF_HI_LO(offset))
+#   define MY_PWRITE64(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, 0, OFF64_HI_LO(offset))
+#  else
 static _syscall5(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
 		 size_t, count, off_t, offset_hi, off_t, offset_lo)
-#  define MY_PWRITE(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, OFF_HI_LO(offset))
-#  define MY_PWRITE64(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, OFF64_HI_LO(offset))
+#   define MY_PWRITE(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, OFF_HI_LO(offset))
+#   define MY_PWRITE64(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, OFF64_HI_LO(offset))
+#  endif
 # endif
 #endif
 
