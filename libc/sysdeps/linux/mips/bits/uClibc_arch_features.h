@@ -12,7 +12,11 @@
 #define __UCLIBC_MMAP_HAS_6_ARGS__
 
 /* does your target align 64bit values in register pairs ? (32bit arches only) */
+#if _MIPS_SIM == _ABIO32
 #define __UCLIBC_SYSCALL_ALIGN_64BIT__
+#else
+#undef __UCLIBC_SYSCALL_ALIGN_64BIT__
+#endif
 
 /* does your target have a broken create_module() ? */
 #undef __UCLIBC_BROKEN_CREATE_MODULE__
