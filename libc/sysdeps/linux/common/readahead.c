@@ -23,26 +23,21 @@
 # include <fcntl.h>
 # include <bits/wordsize.h>
 
-# define __NR___readahead __NR_readahead
-
 # if __WORDSIZE == 64
 
-static __inline__ _syscall3(ssize_t, __readahead, int, fd,
-			    off_t, offset, size_t, count)
-
-ssize_t readahead(int fd, off_t offset, size_t count)
-{
-	return __readahead(fd, offset, count);
-}
+_syscall3(ssize_t, readahead, int, fd, off_t, offset, size_t, count)
 
 # else
 
-static __inline__ _syscall4(ssize_t, __readahead, int, fd,
-			    off_t, high_offset, off_t, low_offset, size_t, count)
-
 ssize_t readahead(int fd, off64_t offset, size_t count)
 {
-	return __readahead(fd, (off_t) (offset >> 32), (off_t) (offset & 0xffffffff), count);
+	return INLINE_SYSCALL(readahead,
+#  if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
+		5, fd, 0,
+#  else
+		4, fd,
+#  endif
+		OFF64_HI_LO(offset), count);
 }
 
 # endif
