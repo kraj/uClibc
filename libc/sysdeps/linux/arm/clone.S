@@ -110,6 +110,7 @@ __clone:
 	ldr	r4, [sp, #12]
 	DO_CALL (clone)
 	movs	a1, a1
+	IT(t, ne)
 	ldmnefd	sp!, {r4}
 	blt	__error
 	IT(t, ne)
