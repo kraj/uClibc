@@ -498,7 +498,7 @@ clean: include_clean
 	$(Q)$(RM) $(top_builddir)extra/scripts/unifdef
 	$(Q)$(RM) -r $(LOCAL_INSTALL_PATH)
 
-distclean: clean
+distclean: realclean
 	-find . \( -name core -o -name \*.orig -o -name \*~ -o -name .\*.dep \) -exec $(RM) {} \;
 	$(RM) $(top_builddir).config $(top_builddir).config.old $(top_builddir).config.cmd
 	$(Q)$(RM) $(top_builddir)extra/locale/*.tgz

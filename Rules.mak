@@ -84,7 +84,7 @@ qstrip = $(strip $(subst ",,$(1)))
 KCONFIG_CONFIG ?= $(top_builddir).config
 
 # Pull in the user's uClibc configuration
-ifeq ($(filter $(noconfig_targets) $(clean_targets) CLEAN_%,$(MAKECMDGOALS)),)
+ifeq ($(filter $(noconfig_targets) clean CLEAN_%,$(MAKECMDGOALS)),)
 # Prevent make from searching
 __ABS_KCONFIG_CONFIG ?= $(abspath $(KCONFIG_CONFIG))
 -include $(__ABS_KCONFIG_CONFIG)
