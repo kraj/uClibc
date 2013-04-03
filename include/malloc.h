@@ -125,8 +125,10 @@ extern void free __MALLOC_P ((__malloc_ptr_t __ptr));
 extern __malloc_ptr_t memalign __MALLOC_P ((size_t __alignment, size_t __size));
 libc_hidden_proto(memalign)
 
+#ifdef __UCLIBC_SUSV2_LEGACY__
 /* Allocate SIZE bytes on a page boundary.  */
 extern __malloc_ptr_t valloc __MALLOC_P ((size_t __size)) __attribute_malloc__;
+#endif
 
 #ifdef __MALLOC_STANDARD__
 
