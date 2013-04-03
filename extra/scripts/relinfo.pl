@@ -1,5 +1,5 @@
 #! /usr/bin/perl
-eval "exec /usr/bin/perl -S $0 $@"
+eval "exec /usr/bin/env perl -w -S $0 $@"
     if 0;
 # Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Red Hat, Inc.
 # Written by Ulrich Drepper <drepper@redhat.com>, 2000.
