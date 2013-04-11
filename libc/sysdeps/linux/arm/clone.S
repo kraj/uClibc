@@ -24,6 +24,7 @@
 #include <bits/errno.h>
 #include <sys/syscall.h>
 #include <bits/arm_asm.h>
+#include <bits/arm_bx.h>
 
 #if defined(__NR_clone)
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */

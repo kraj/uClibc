@@ -20,6 +20,7 @@
 #include <bits/errno.h>
 #include <sys/syscall.h>
 #include <bits/arm_asm.h>
+#include <bits/arm_bx.h>
 
 #ifdef __NR_mmap2
 

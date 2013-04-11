@@ -17,6 +17,7 @@
 
 #include <sys/syscall.h>
 #include <bits/arm_asm.h>
+#include <bits/arm_bx.h>
 
 /* In the EABI syscall interface, we don't need a special syscall to
    implement syscall().  It won't work reliably with 64-bit arguments

@@ -7,6 +7,7 @@
 
 #include <features.h>
 #include <bits/arm_asm.h>
+#include <bits/arm_bx.h>
 
 #define _ERRNO_H
 #include <bits/errno.h>

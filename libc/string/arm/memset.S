@@ -19,6 +19,7 @@
 #include <features.h>
 #include <sys/syscall.h>
 #include <bits/arm_asm.h>
+#include <bits/arm_bx.h>
 
 .text
 .global memset

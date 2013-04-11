@@ -40,6 +40,7 @@
 #include <features.h>
 #include <endian.h>
 #include <bits/arm_asm.h>
+#include <bits/arm_bx.h>
 
 #if !defined(THUMB1_ONLY)
 /*

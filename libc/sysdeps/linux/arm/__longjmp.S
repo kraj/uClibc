@@ -18,6 +18,7 @@
 
 #include <features.h>
 #include <bits/arm_asm.h>
+#include <bits/arm_bx.h>
 
 .global __longjmp
 .type __longjmp,%function

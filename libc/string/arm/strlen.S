@@ -20,6 +20,7 @@
 #include <endian.h>
 #include <sys/syscall.h>
 #include <bits/arm_asm.h>
+#include <bits/arm_bx.h>
 
 /* size_t strlen(const char *S)
  * entry: r0 -> string
