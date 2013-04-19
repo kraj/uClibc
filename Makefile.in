@@ -288,6 +288,7 @@ HEADERS_RM-$(UCLIBC_HAS_XATTR)               += sys/xattr.h
 HEADERS_RM-$(UCLIBC_HAS_XLOCALE)             += xlocale.h
 HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += \
 	sys/cachectl.h \
+	bits/eventfd.h \
 	sys/eventfd.h \
 	sys/fsuid.h \
 	bits/inotify.h \
