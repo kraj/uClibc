@@ -374,7 +374,7 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 	if (getenv("LD_BIND_NOW"))
 		now_flag = RTLD_NOW;
 
-#if !defined SHARED && defined __LDSO_LIBRARY_PATH__
+#if !defined SHARED && defined __LDSO_LD_LIBRARY_PATH__
 	/* When statically linked, the _dl_library_path is not yet initialized */
 	_dl_library_path = getenv("LD_LIBRARY_PATH");
 #endif
@@ -541,11 +541,18 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
 
-	/* Get the tail of the list */
+#ifdef SHARED
+	/*
+	 * Get the tail of the list.
+	 * In the static case doesn't need to extend the global scope, it is
+	 * ready to be used as it is, because _dl_loaded_modules already points
+	 * to the dlopened library.
+	 */
 	for (ls = &_dl_loaded_modules->symbol_scope; ls && ls->next; ls = ls->next);
 
 	/* Extend the global scope by adding the local scope of the dlopened DSO. */
 	ls->next = &dyn_chain->dyn->symbol_scope;
+#endif
 #ifdef __mips__
 	/*
 	 * Relocation of the GOT entries for MIPS have to be done
