@@ -34,6 +34,7 @@ struct trace_arg
   int cnt, size;
 };
 
+#ifdef SHARED
 static _Unwind_Reason_Code (*unwind_backtrace) (_Unwind_Trace_Fn, void *);
 static _Unwind_Ptr (*unwind_getip) (struct _Unwind_Context *);
 
@@ -48,6 +49,10 @@ static void backtrace_init (void)
 		abort();
 	}
 }
+#else
+# define unwind_backtrace _Unwind_Backtrace
+# define unwind_getip _Unwind_GetIP
+#endif
 
 static _Unwind_Reason_Code
 backtrace_helper (struct _Unwind_Context *ctx, void *a)
@@ -72,8 +77,10 @@ int backtrace (void **array, int size)
 {
 	struct trace_arg arg = { .array = array, .size = size, .cnt = -1 };
 
+#ifdef SHARED
 	if (unwind_backtrace == NULL)
 		backtrace_init();
+#endif
 
 	if (size >= 1)
 		unwind_backtrace (backtrace_helper, &arg);

@@ -14,4 +14,4 @@ libubacktrace-a-y+=$(libubacktrace_ARCH_OBJS:.o=.os)
 else
 libubacktrace-a-y+=$(libubacktrace_ARCH_OBJS)
 endif
-libubacktrace-so-y+=$(libubacktrace_ARCH_OBJS:.o=.os)
+libubacktrace-so-y+=$(libubacktrace_ARCH_OBJS:.o=.oS)
