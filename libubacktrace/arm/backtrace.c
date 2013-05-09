@@ -25,6 +25,7 @@ struct trace_arg
   int cnt, size;
 };
 
+#ifdef SHARED
 static _Unwind_Reason_Code (*unwind_backtrace) (_Unwind_Trace_Fn, void *);
 static _Unwind_VRS_Result (*unwind_vrs_get) (_Unwind_Context *,
 					     _Unwind_VRS_RegClass,
@@ -42,6 +43,10 @@ static void backtrace_init (void)
 		abort();
 	}
 }
+#else
+# define unwind_backtrace _Unwind_Backtrace
+# define unwind_vrs_get _Unwind_VRS_Get
+#endif
 /* This function is identical to "_Unwind_GetGR", except that it uses
    "unwind_vrs_get" instead of "_Unwind_VRS_Get".  */
 static inline _Unwind_Word
@@ -80,8 +85,10 @@ int backtrace (void **array, int size)
 {
 	struct trace_arg arg = { .array = array, .size = size, .cnt = -1 };
 
+#ifdef SHARED
 	if (unwind_backtrace == NULL)
 		backtrace_init();
+#endif
 
 	if (size >= 1)
 		unwind_backtrace (backtrace_helper, &arg);
